@@ -5,6 +5,7 @@ import com.github.seratch.scalikesolr.request.query.highlighting.{
     IsPhraseHighlighterEnabled, HighlightingParams}
 import com.github.seratch.scalikesolr.request.query.facet.FacetParams
 import com.github.seratch.scalikesolr.request.query.group.{GroupParams,GroupField,GroupFormat,WithNumberOfGroups}
+import com.github.seratch.scalikesolr.WriterType
 
 import defines.EntityType
 import models.UserProfile
@@ -22,7 +23,7 @@ import solr.facet.QueryFacetClass
  * Build a Solr query. This class uses the (mutable) scalikesolr
  * QueryRequest class.
  */
-class SolrQueryBuilder() extends QueryBuilder {
+case class SolrQueryBuilder(writerType: WriterType, debugQuery: Boolean = false) extends QueryBuilder {
 
   import SolrConstants._
 
@@ -38,12 +39,11 @@ class SolrQueryBuilder() extends QueryBuilder {
 
     // Need to tag and exclude all 'choice' facet classes because we want
     // the counts even if they're excluded...
-    val tags = flist.filter(_.tagExclude).map(_.key)
     request.setFacet(new FacetParams(
       enabled=true,
       params=flist.flatMap {
-        case qf: QueryFacetClass => List(qf.asParams(tags))
-        case ff: FieldFacetClass => List(ff.asParams(tags))
+        case qf: QueryFacetClass => List(qf.asParams)
+        case ff: FieldFacetClass => List(ff.asParams)
         case e => {
           Logger.logger.warn("Unknown facet class type: {}", e)
           Nil
@@ -75,7 +75,7 @@ class SolrQueryBuilder() extends QueryBuilder {
                 // excluded from count-limiting filters
                 // http://wiki.apache.org/solr/SimpleFacetParameters#Multi-Select_Faceting_and_LocalParams
                 val query = "(" + paramVals.map(v => fc.key + ":\"" + v + "\"").mkString(" OR ") + ")"
-                if (fc.tagExclude) List("{!tag=" + fc.key + "}" + query)
+                if (fc.multiSelect) List("{!tag=" + fc.key + "}" + query)
                 else List(query)
               }
             }
@@ -183,6 +183,7 @@ class SolrQueryBuilder() extends QueryBuilder {
       req.setStartRow(StartRow(page2offset(page, limit)))
     }
     req.setMaximumRowsReturned(MaximumRowsReturned(limit))
+    req.setWriterType(writerType)
 
     req
   }
@@ -242,7 +243,7 @@ class SolrQueryBuilder() extends QueryBuilder {
     params.fields.filterNot(_.isEmpty).map { fieldList =>
       req.set("qf", fieldList.mkString(" "))
     } getOrElse {
-      req.set("qf", s"$ITEM_ID^5 $NAME_EXACT^4 $NAME_MATCH^4 $OTHER_NAMES^4 $PARALLEL_NAMES^4 $NAME_SORT^3 $TEXT")
+      req.set("qf", s"$ITEM_ID^2.0 $NAME_EXACT^1.0 $NAME_MATCH^1.0 $OTHER_NAMES^1.0 $PARALLEL_NAMES^1.0 $NAME_SORT^0.3 $TEXT")
     }
 
     // Mmmn, speckcheck
@@ -272,8 +273,9 @@ class SolrQueryBuilder() extends QueryBuilder {
       req.setFilterQuery(FilterQuery(multiple = req.filterQuery.getMultiple ++ Seq(filter)))
     }
 
+
     // Debug query for now
-    req.setIsDebugQueryEnabled(IsDebugQueryEnabled(true))
+    req.setIsDebugQueryEnabled(IsDebugQueryEnabled(debugQuery = debugQuery))
 
     // Setup start and number of objects returned
     val limit = params.limit.getOrElse(DEFAULT_SEARCH_LIMIT)
@@ -286,6 +288,9 @@ class SolrQueryBuilder() extends QueryBuilder {
     // description (for non-multi-description entities this will
     // be the same)
     setGrouping(req)
+
+    // Set JSON writer type!
+    req.setWriterType(writerType)
 
     req
   }

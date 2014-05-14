@@ -4,9 +4,7 @@ import play.api.mvc.{AnyContent, Request}
 import scala.concurrent.{ExecutionContext, Future}
 import play.api.data.Form
 import play.api.data.Forms._
-import scala.Some
 import play.api.Play._
-import scala.Some
 import play.api.libs.ws.WS
 import play.api.Logger
 import java.net.{MalformedURLException, URL}

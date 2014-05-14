@@ -1,4 +1,4 @@
-@(desc: Field)(implicit fieldPrefix: String, userOpt: Option[UserProfile], req: RequestHeader, globalConfig: global.GlobalConfig, lang: Lang)
+@(desc: Field)(implicit fieldPrefix: String, defaults: Option[play.api.Configuration] = None, userOpt: Option[UserProfile], req: RequestHeader, globalConfig: global.GlobalConfig, lang: Lang)
 
 @import models.IsadG._
 @import models.DatePeriodF._
@@ -9,32 +9,35 @@
 
 <div class="description-form" id="@desc("form").id">
     @choiceInput(desc(LANG_CODE), LANG_CODE, views.Helpers.languagePairList, blank = true)
-    @lineInput(desc, REF)
-    @defining(EntityType.DocumentaryUnitDescription.toString) { implicit fieldPrefix =>
-        @lineInput(desc, Entity.IDENTIFIER)
-    }
+    @hiddenInput(desc(Entity.ID))
 
     @descriptionFormSection(IDENTITY_AREA) {
-        @hiddenInput(desc(Entity.ID))
-        @lineInput(desc, TITLE)
+        @defining(desc(IDENTITY_AREA)) { desc =>
 
-        <div class="inline-formset form-group clearfix" data-prefix="@DATES">
-            <!-- Template for adding inline date forms via JS -->
-            <label class="col-sm-3 control-label">
-                @Messages(fieldPrefix + "." + DATES)
-                <a href="#" class="add-inline-element"><i class="glyphicon glyphicon-plus-sign"></i></a>
-            </label>
-            <div class="inline-element-template form-template">
-                @inlineDateSet(desc(DATES + "[IDX]"))
+            @lineInput(desc, TITLE)
+            @inlineNameSet(desc, PARALLEL_FORMS_OF_NAME)
+
+            @lineInput(desc, REF)
+            @lineInput(desc, Entity.IDENTIFIER)
+
+            <div class="inline-formset form-group clearfix" data-prefix="@DATES">
+                <!-- Template for adding inline date forms via JS -->
+                <label class="col-sm-3 control-label">
+                    @Messages(fieldPrefix + "." + DATES)
+                    <a href="#" class="add-inline-element"><i class="glyphicon glyphicon-plus-sign"></i></a>
+                </label>
+                <div class="inline-element-template form-template">
+                    @inlineDateSet(desc(DATES + "[IDX]"))
+                </div>
+                <div class="col-sm-9 inline-element-list">
+                    @helper.repeat(desc(DATES), min = 0) { desc =>
+                        @inlineDateSet(desc)
+                    }
+                </div>
             </div>
-            <div class="col-sm-9 inline-element-list">
-                @helper.repeat(desc(DATES), min = 0) { desc =>
-                    @inlineDateSet(desc)
-                }
-            </div>
-        </div>
-        @enumChoiceInput(desc(LEVEL_OF_DESCRIPTION), LevelOfDescription, LEVEL_OF_DESCRIPTION, blank=true)
-        @textInput(desc, EXTENT_MEDIUM)
+            @enumChoiceInput(desc(LEVEL_OF_DESCRIPTION), LevelOfDescription, LEVEL_OF_DESCRIPTION, blank=true)
+            @textInput(desc, EXTENT_MEDIUM)
+        }
     }
 
     @descriptionFormSection(CONTEXT_AREA) {

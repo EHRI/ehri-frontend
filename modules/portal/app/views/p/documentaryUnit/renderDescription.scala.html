@@ -1,9 +1,10 @@
-@(item: DocumentaryUnit, desc: DocumentaryUnitDescriptionF, links: List[Link], annotations: Seq[Annotation])(implicit fieldPrefix: String, userOpt: Option[UserProfile], req: RequestHeader, globalConfig: global.GlobalConfig, lang: Lang)
+@(item: DocumentaryUnit, desc: DocumentaryUnitDescriptionF, links: List[Link], annotations: Seq[Annotation])(implicit fieldPrefix: String, userOpt: Option[UserProfile], req: RequestHeader, prefs: utils.SessionPrefs, globalConfig: global.GlobalConfig, lang: Lang)
 
 @import defines._
 @import models.IsadG._
 @import p.common.descriptionSection
 @import p.common.textField
+@import p.common.listField
 
 
 @p.common.descriptionOutline(item, desc, annotations) {
@@ -11,8 +12,8 @@
         @* Description *must* have an ID here or something bad has gone wrong! *@
         @desc.id.map { descId =>
             @descriptionSection(IDENTITY_AREA) {
-                @textField(item, descId, desc.`abstract`, ABSTRACT)
-                @textField(item, descId, desc.extentAndMedium, EXTENT_MEDIUM)
+                @textField(item, descId, desc.identity.`abstract`, ABSTRACT)
+                @textField(item, descId, desc.identity.extentAndMedium, EXTENT_MEDIUM)
             }
 
             @descriptionSection(CONTEXT_AREA) {
@@ -43,7 +44,7 @@
             }
             
             @descriptionSection(NOTES_AREA) {
-                @common.listValue(desc.notes, NOTES)
+                @listField(item, descId, desc.notes, NOTES)
             }
             
             @descriptionSection(CONTROL_AREA) {

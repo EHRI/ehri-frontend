@@ -22,10 +22,7 @@ trait Delete[MT] extends Generic[MT] {
   def deletePostAction(id: String)(f: Boolean => Option[UserProfile] => Request[AnyContent] => SimpleResult)(implicit rd: RestReadable[MT]) = {
     withItemPermission.async[MT](id, PermissionType.Delete, contentType) { item => implicit userOpt => implicit request =>
       backend.delete[MT](id, logMsg = getLogMessage).map { ok =>
-        request match {
-          case Accepts.Html() => f(ok)(userOpt)(request)
-          case Accepts.Json() => Ok(Json.toJson(ok))
-        }
+        f(ok)(userOpt)(request)
       }
     }
   }

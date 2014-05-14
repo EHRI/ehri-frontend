@@ -35,9 +35,9 @@ object Accessor {
 }
 
 trait Accessor extends AnyModel {
-  val groups: List[Group]
-  val id: String
-  val isA: EntityType.Value
+  def groups: List[Group]
+  def id: String
+  def isA: EntityType.Value
 
   lazy val allGroups: List[Group] = getGroups(this)
 

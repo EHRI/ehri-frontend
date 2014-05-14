@@ -2,35 +2,40 @@ package controllers.portal
 
 import play.api.libs.concurrent.Execution.Implicits._
 import play.api.mvc._
-import controllers.base.{AuthController, ControllerHelpers}
+import controllers.base.{SessionPreferences, AuthController, ControllerHelpers}
 import models.{AnnotationF, Annotation, UserProfile}
 import views.html.p
-import utils.ContributionVisibility
-import models.forms.AnnotationForm
+import utils.{SessionPrefs, ContributionVisibility}
 import scala.concurrent.Future.{successful => immediate}
 import defines.{ContentTypes, PermissionType}
 import backend.rest.cypher.CypherDAO
-import play.api.libs.json.{Json, JsString}
+import play.api.libs.json.Json
 import eu.ehri.project.definitions.Ontology
 import scala.concurrent.Future
 import play.api.mvc.SimpleResult
 import forms.VisibilityForm
-import scala.collection.Set
+import com.google.common.net.HttpHeaders
 
 /**
  * @author Mike Bryant (http://github.com/mikesname)
  */
 trait PortalAnnotations {
-  self: Controller with ControllerHelpers with AuthController =>
+  self: Controller with ControllerHelpers with AuthController with SessionPreferences[SessionPrefs] =>
 
   private val portalRoutes = controllers.portal.routes.Portal
+
+  def annotation(id: String) = userProfileAction.async { implicit userProfile => implicit request =>
+    backend.get[Annotation](id).map { ann =>
+      Ok(Json.toJson(ann)(Annotation.Converter.clientFormat))
+    }
+  }
 
   // Ajax
   def annotate(id: String, did: String) = withUserAction.async {  implicit user => implicit request =>
     getCanShareWith(user) { users => groups =>
       Ok(
         p.common.createAnnotation(
-          AnnotationForm.form.bindFromRequest,
+          Annotation.form.bindFromRequest,
           ContributionVisibility.form.bindFromRequest,
           VisibilityForm.form.bindFromRequest,
           portalRoutes.annotatePost(id, did),
@@ -42,39 +47,42 @@ trait PortalAnnotations {
 
   // Ajax
   def annotatePost(id: String, did: String) = withUserAction.async { implicit user => implicit request =>
-    AnnotationForm.form.bindFromRequest.fold(
+    Annotation.form.bindFromRequest.fold(
       errorForm => immediate(BadRequest(errorForm.errorsAsJson)),
       ann => {
         val accessors: List[String] = getAccessors(user)
         backend.createAnnotationForDependent(id, did, ann, accessors).map { ann =>
-          Created(p.common.annotationInline(ann, editable = true))
+          Created(p.common.annotationBlock(ann, editable = true))
+            .withHeaders(
+                HttpHeaders.LOCATION -> portalRoutes.annotation(ann.id).url)
         }
       }
     )
   }
 
   // Ajax
-  def editAnnotation(aid: String) = withItemPermission.async[Annotation](aid, PermissionType.Update, ContentTypes.Annotation) {
+  def editAnnotation(aid: String, isField: Boolean) = withItemPermission.async[Annotation](aid, PermissionType.Update, ContentTypes.Annotation) {
       item => implicit userOpt => implicit request =>
     val vis = getContributionVisibility(item, userOpt.get)
     getCanShareWith(userOpt.get) { users => groups =>
-      Ok(p.common.editAnnotation(AnnotationForm.form.fill(item.model),
+      Ok(p.common.editAnnotation(Annotation.form.fill(item.model),
         ContributionVisibility.form.fill(vis),
         VisibilityForm.form.fill(item.accessors.map(_.id)),
-        portalRoutes.editAnnotationPost(aid),
+        portalRoutes.editAnnotationPost(aid, isField),
         users, groups))
     }
   }
 
-  def editAnnotationPost(aid: String) = withItemPermission.async[Annotation](aid, PermissionType.Update, ContentTypes.Annotation) {
+  def editAnnotationPost(aid: String, isField: Boolean) = withItemPermission.async[Annotation](aid, PermissionType.Update, ContentTypes.Annotation) {
       item => implicit userOpt => implicit request =>
     // save an override field, becuase it's not possible to change it.
     val field = item.model.field
-    AnnotationForm.form.bindFromRequest.fold(
+    Annotation.form.bindFromRequest.fold(
       errForm => immediate(BadRequest(errForm.errorsAsJson)),
       edited => {
         backend.update[Annotation,AnnotationF](aid, edited.copy(field = field)).map { done =>
-          Ok(p.common.annotationInline(done, editable = true))
+          if (isField) Ok(p.common.annotationInline(done, editable = true))
+          else Ok(p.common.annotationBlock(done, editable = true))
         }
       }
     )
@@ -105,7 +113,7 @@ trait PortalAnnotations {
   def annotateField(id: String, did: String, field: String) = withUserAction.async { implicit user => implicit request =>
     getCanShareWith(user) { users => groups =>
       Ok(p.common.createAnnotation(
-        AnnotationForm.form.bindFromRequest,
+        Annotation.form.bindFromRequest,
         ContributionVisibility.form.bindFromRequest,
         VisibilityForm.form.bindFromRequest,
         portalRoutes.annotateFieldPost(id, did, field),
@@ -117,7 +125,7 @@ trait PortalAnnotations {
 
   // Ajax
   def annotateFieldPost(id: String, did: String, field: String) = withUserAction.async { implicit user => implicit request =>
-    AnnotationForm.form.bindFromRequest.fold(
+    Annotation.form.bindFromRequest.fold(
       errorForm => immediate(BadRequest(errorForm.errorsAsJson)),
       ann => {
         // Add the field to the model!
@@ -125,6 +133,8 @@ trait PortalAnnotations {
         val accessors: List[String] = getAccessors(user)
         backend.createAnnotationForDependent(id, did, fieldAnn, accessors).map { ann =>
           Created(p.common.annotationInline(ann, editable = true))
+            .withHeaders(
+              HttpHeaders.LOCATION -> portalRoutes.annotation(ann.id).url)
         }
       }
     )
@@ -154,7 +164,7 @@ trait PortalAnnotations {
    */
   private def getContributionVisibility(annotation: Annotation, user: UserProfile): ContributionVisibility.Value = {
     annotation.accessors.map(_.id).sorted match {
-      case user.id :: Nil => ContributionVisibility.Me
+      case id :: Nil if id == user.id => ContributionVisibility.Me
       case g if g.sorted == user.groups.map(_.id).sorted => ContributionVisibility.Groups
       case _ => ContributionVisibility.Custom
     }

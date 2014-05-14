@@ -23,13 +23,18 @@ trait Account {
 	def id: String
   val verified: Boolean
   val staff: Boolean
+  val active: Boolean
   def password: Option[HashedPassword] = None
   def setPassword(hashed: HashedPassword): Account
+  def setVerified(): Account
+  def setActive(active: Boolean): Account
+  def setStaff(staff: Boolean): Account
   def verify(token: String): Account
   def delete(): Boolean
   def createResetToken(uuid: UUID): Unit
   def createValidationToken(uuid: UUID): Unit
   def expireTokens(): Unit
+  def update(): Unit
 }
 
 object Account {
@@ -49,8 +54,10 @@ trait AccountDAO extends Plugin {
       acc <- findByEmail(email)
       hashed <- acc.password if Account.checkPassword(pw, hashed) && acc.verified
   } yield acc
-	def findByProfileId(id: String, verified: Boolean = true): Option[Account]
-  def findByEmail(email: String, verified: Boolean = true): Option[Account]
+  def findVerifiedByProfileId(id: String, verified: Boolean = true): Option[Account]
+	def findByProfileId(id: String): Option[Account]
+  def findVerifiedByEmail(email: String, verified: Boolean = true): Option[Account]
+  def findByEmail(email: String): Option[Account]
   def create(id: String, email: String, verified: Boolean, staff: Boolean): Account
   def createWithPassword(id: String, email: String, verified: Boolean, staff: Boolean, hashed: HashedPassword): Account
   def findByResetToken(token: String, isSignUp: Boolean = false): Option[Account]

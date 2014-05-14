@@ -1,25 +1,16 @@
-@(them: UserProfile, users: utils.AbstractPage[UserProfile], params: utils.PageParams, myFollowing: List[UserProfile])(implicit req: RequestHeader, userOpt: Option[UserProfile], flash: Flash, lang: Lang, globalConfig: global.GlobalConfig)
+@(them: UserProfile, users: utils.AbstractPage[UserProfile], params: utils.PageParams, myFollowing: List[UserProfile])(implicit userOpt: Option[UserProfile], request: RequestHeader, prefs: utils.SessionPrefs, globalConfig: global.GlobalConfig, lang: Lang, flash: Flash)
 
-@p.layout.portalLayout(them.toStringLang) {
+@p.layout.portalLayout(Messages("portal.social.userFollowers", them.toStringLang), "user") {
 
-    @p.layout.infobar {
-        <li><a href="@controllers.portal.routes.Portal.browseUsers">@Messages("portal.social.browseUsers")</a></li>
-        <li><a href="@controllers.portal.routes.Portal.browseUser(them.id)">@them.toStringLang</a></li>
-        <li>@Messages("portal.social.followers")</li>
-    } {
-        <h1>@them.toStringLang</h1>
-    } {
+    @p.social.profileBar(them, Messages("portal.social.userFollowing", them.toStringLang)){
         @for(user <- userOpt if user.id != them.id) {
             @p.common.followingButtons(them, myFollowing.exists(_.id == them.id))
         }
     }
 
-    <div class="row">
-        <div class="col-md-12">
-            <p>
-            <div class="browse-users-followers container">
-                @followerList(them, users, params, myFollowing)
-            </div>
+    @p.layout.mainContent {
+        <div class="browse-users-followers">
+            @followerList(them, users, params, myFollowing)
         </div>
-    </div>
+    }
 }

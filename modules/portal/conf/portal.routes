@@ -1,93 +1,101 @@
 # Routes for portal routes
 
 # Placeholder for / until site is more functional...
-GET         /                                   @controllers.portal.Portal.placeholder
+#GET         /                              @controllers.portal.Portal.placeholder
 
-GET         /dev                                @controllers.portal.Portal.index
+GET         /                               @controllers.portal.Portal.index
 
-GET         /feedback                           @controllers.portal.Portal.feedback
-POST        /feedback                           @controllers.portal.Portal.feedbackPost
+GET         /feedback                       @controllers.portal.Feedback.feedback
+POST        /feedback                       @controllers.portal.Feedback.feedbackPost
+GET        /feedback/list                   @controllers.portal.Feedback.list
 
-GET         /dev/login                          @controllers.portal.Portal.login
-POST        /dev/login                          @controllers.portal.Portal.passwordLoginPost
-POST        /dev/openid                         @controllers.portal.Portal.openIDLoginPost
-GET         /authenticate/openid                @controllers.portal.Portal.openIDCallback
-GET         /authenticate/google                @controllers.portal.Portal.googleLogin
-GET         /authenticate/facebook              @controllers.portal.Portal.facebookLogin
-GET         /authenticate/linkedin              @controllers.portal.Portal.linkedInLogin
-GET         /dev/logout                         @controllers.portal.Portal.logout
+GET         /login                          @controllers.portal.Profile.login
+POST        /login                          @controllers.portal.Profile.passwordLoginPost
+POST        /openid                         @controllers.portal.Profile.openIDLoginPost
+GET         /authenticate/openid            @controllers.portal.Profile.openIDCallback
+GET         /authenticate/google            @controllers.portal.Profile.googleLogin
+GET         /authenticate/facebook          @controllers.portal.Profile.facebookLogin
+GET         /authenticate/linkedin          @controllers.portal.Profile.linkedInLogin
+GET         /logout                         @controllers.portal.Profile.logout
 
-GET         /dev/signup                         @controllers.portal.Portal.signup
-POST        /dev/signup                         @controllers.portal.Portal.signupPost
-GET         /dev/confirmEmail/:token            @controllers.portal.Portal.confirmEmail(token: String)
-GET         /dev/changePassword                 @controllers.portal.Portal.changePassword
-POST        /dev/changePassword                 @controllers.portal.Portal.changePasswordPost
-GET         /dev/forgot                         @controllers.portal.Portal.forgotPassword
-POST        /dev/forgot                         @controllers.portal.Portal.forgotPasswordPost
-GET         /dev/prs                            @controllers.portal.Portal.passwordReminderSent
-GET         /dev/rstp/:token                    @controllers.portal.Portal.resetPassword(token: String)
-POST        /dev/rstp/:token                    @controllers.portal.Portal.resetPasswordPost(token: String)
+GET         /signup                         @controllers.portal.Profile.signup
+POST        /signup                         @controllers.portal.Profile.signupPost
+GET         /confirmEmail/:token            @controllers.portal.Profile.confirmEmail(token: String)
+POST        /changePassword                 @controllers.portal.Profile.changePasswordPost
+GET         /forgot                         @controllers.portal.Profile.forgotPassword
+POST        /forgot                         @controllers.portal.Profile.forgotPasswordPost
+POST        /resendVerification             @controllers.portal.Profile.resendVerificationPost
+GET         /prs                            @controllers.portal.Profile.passwordReminderSent
+GET         /rstp/:token                    @controllers.portal.Profile.resetPassword(token: String)
+POST        /rstp/:token                    @controllers.portal.Profile.resetPasswordPost(token: String)
 
+GET         /prefs                          @controllers.portal.Profile.prefs
+POST        /prefs                          @controllers.portal.Profile.updatePrefs
 
-GET         /dev/search                         @controllers.portal.Portal.search
-GET         /dev/browse/ct                      @controllers.portal.Portal.browseRepositoriesByCountry
-GET         /dev/browse/c                       @controllers.portal.Portal.browseCountries
-GET         /dev/browse/c/:id                   @controllers.portal.Portal.browseCountry(id: String)
-GET         /dev/browse/r/d                     @controllers.portal.Portal.browseDocumentsByRepository
-GET         /dev/browse/r                       @controllers.portal.Portal.browseRepositories
-GET         /dev/browse/r/:id                   @controllers.portal.Portal.browseRepository(id: String)
-GET         /dev/search/r/:id                   @controllers.portal.Portal.searchRepository(id: String)
-GET         /dev/browse/d                       @controllers.portal.Portal.browseDocuments
-GET         /dev/browse/d/:id                   @controllers.portal.Portal.browseDocument(id: String)
-GET         /dev/search/d/:id                   @controllers.portal.Portal.searchDocument(id: String)
-GET         /dev/browse/a                       @controllers.portal.Portal.browseHistoricalAgents
-GET         /dev/browse/a/:id                   @controllers.portal.Portal.browseHistoricalAgent(id: String)
-GET         /dev/browse/s/:id                   @controllers.portal.Portal.browseAuthoritativeSet(id: String)
-GET         /dev/browse/keyword/:id             @controllers.portal.Portal.browseConcept(id: String)
-GET         /dev/browse/keyword                 @controllers.portal.Portal.browseConcepts
-GET         /dev/browse/link/:id                @controllers.portal.Portal.browseLink(id: String)
-GET         /dev/browse/annotation/:id          @controllers.portal.Portal.browseAnnotation(id: String)
-GET         /dev/activity                       @controllers.portal.Portal.personalisedActivity
-GET         /dev/activityMore/:offset           @controllers.portal.Portal.personalisedActivityMore(offset: Int)
-GET         /dev/activity/:id                   @controllers.portal.Portal.itemHistory(id: String)
-GET         /dev/newsFeed                       @controllers.portal.Portal.newsFeed
+GET         /search                         @controllers.portal.Portal.search
+GET         /countries/institutions         @controllers.portal.Portal.browseRepositoriesByCountry
+GET         /countries                      @controllers.portal.Portal.browseCountries
+GET         /countries/:id                  @controllers.portal.Portal.browseCountry(id: String)
+GET         /countries/:id/search           @controllers.portal.Portal.searchCountry(id: String)
+GET         /institutions/items             @controllers.portal.Portal.browseDocumentsByRepository
+GET         /institutions                   @controllers.portal.Portal.browseRepositories
+GET         /institutions/:id               @controllers.portal.Portal.browseRepository(id: String)
+GET         /institutions/:id/search        @controllers.portal.Portal.searchRepository(id: String)
+GET         /units                          @controllers.portal.Portal.browseDocuments
+GET         /units/:id                      @controllers.portal.Portal.browseDocument(id: String)
+GET         /units/:id/search               @controllers.portal.Portal.searchDocument(id: String)
+GET         /authorities                    @controllers.portal.Portal.browseHistoricalAgents
+GET         /authorities/:id                @controllers.portal.Portal.browseHistoricalAgent(id: String)
+GET         /keyword                        @controllers.portal.Portal.browseConcepts
+GET         /keyword/:id                    @controllers.portal.Portal.browseConcept(id: String)
+GET         /links/:id                      @controllers.portal.Portal.browseLink(id: String)
+GET         /annotation/:id                 @controllers.portal.Portal.browseAnnotation(id: String)
+GET         /activity                       @controllers.portal.Portal.personalisedActivity
+GET         /activityMore/:offset           @controllers.portal.Portal.personalisedActivityMore(offset: Int)
+GET         /activity/:id                   @controllers.portal.Portal.itemHistory(id: String)
+GET         /newsFeed                       @controllers.portal.Portal.newsFeed
+GET         /item/:entityType/:id           @controllers.portal.Portal.browseItem(entityType: EntityType.Value, id: String)
 
 # Annotations...
-GET         /dev/annotate/:aid/delete           @controllers.portal.Portal.deleteAnnotation(aid: String)
-POST        /dev/annotate/:aid/delete           @controllers.portal.Portal.deleteAnnotationPost(aid: String)
-GET         /dev/annotate/:aid/edit             @controllers.portal.Portal.editAnnotation(aid: String)
-POST        /dev/annotate/:aid/edit             @controllers.portal.Portal.editAnnotationPost(aid: String)
-POST        /dev/annotate/:aid/visibility       @controllers.portal.Portal.setAnnotationVisibilityPost(aid: String)
-GET         /dev/annotate/:id/:did              @controllers.portal.Portal.annotate(id: String, did: String)
-POST        /dev/annotate/:id/:did              @controllers.portal.Portal.annotatePost(id: String, did: String)
-GET         /dev/annotate/:id/:did/:field       @controllers.portal.Portal.annotateField(id: String, did: String, field: String)
-POST        /dev/annotate/:id/:did/:field       @controllers.portal.Portal.annotateFieldPost(id: String, did: String, field: String)
+GET         /annotation/:id                 @controllers.portal.Portal.annotation(id: String)
+GET         /annotate/:aid/delete           @controllers.portal.Portal.deleteAnnotation(aid: String)
+POST        /annotate/:aid/delete           @controllers.portal.Portal.deleteAnnotationPost(aid: String)
+GET         /annotate/:aid/edit             @controllers.portal.Portal.editAnnotation(aid: String, isField: Boolean ?= true)
+POST        /annotate/:aid/edit             @controllers.portal.Portal.editAnnotationPost(aid: String, isField: Boolean ?= true)
+POST        /annotate/:aid/visibility       @controllers.portal.Portal.setAnnotationVisibilityPost(aid: String)
+GET         /annotate/:id/:did              @controllers.portal.Portal.annotate(id: String, did: String)
+POST        /annotate/:id/:did              @controllers.portal.Portal.annotatePost(id: String, did: String)
+GET         /annotate/:id/:did/:field       @controllers.portal.Portal.annotateField(id: String, did: String, field: String)
+POST        /annotate/:id/:did/:field       @controllers.portal.Portal.annotateFieldPost(id: String, did: String, field: String)
 
 # Social networking stuff...
-GET         /dev/people                         @controllers.portal.Portal.browseUsers
-GET         /dev/people/:userId                 @controllers.portal.Portal.browseUser(userId: String)
-GET         /dev/follow/:userId                 @controllers.portal.Portal.followUser(userId: String)
-POST        /dev/follow/:userId                 @controllers.portal.Portal.followUserPost(userId: String)
-GET         /dev/unfollow/:userId               @controllers.portal.Portal.unfollowUser(userId: String)
-POST        /dev/unfollow/:userId               @controllers.portal.Portal.unfollowUserPost(userId: String)
-GET         /dev/watch/:id                      @controllers.portal.Portal.watchItem(id: String)
-POST        /dev/watch/:id                      @controllers.portal.Portal.watchItemPost(id: String)
-GET         /dev/unwatch/:id                    @controllers.portal.Portal.unwatchItem(id: String)
-POST        /dev/unwatch/:id                    @controllers.portal.Portal.unwatchItemPost(id: String)
-GET         /dev/watching                       @controllers.portal.Portal.watching
-GET         /dev/people/:userId/following       @controllers.portal.Portal.followingForUser(userId: String)
-GET         /dev/people/:userId/followers       @controllers.portal.Portal.followersForUser(userId: String)
+GET         /people                         @controllers.portal.Portal.browseUsers
+GET         /people/:userId                 @controllers.portal.Portal.browseUser(userId: String)
+GET         /follow/:userId                 @controllers.portal.Portal.followUser(userId: String)
+POST        /follow/:userId                 @controllers.portal.Portal.followUserPost(userId: String)
+GET         /unfollow/:userId               @controllers.portal.Portal.unfollowUser(userId: String)
+POST        /unfollow/:userId               @controllers.portal.Portal.unfollowUserPost(userId: String)
+GET         /people/:userId/following       @controllers.portal.Portal.followingForUser(userId: String)
+GET         /people/:userId/followers       @controllers.portal.Portal.followersForUser(userId: String)
+GET         /watch/:id                      @controllers.portal.Portal.watchItem(id: String)
+POST        /watch/:id                      @controllers.portal.Portal.watchItemPost(id: String)
+GET         /unwatch/:id                    @controllers.portal.Portal.unwatchItem(id: String)
+POST        /unwatch/:id                    @controllers.portal.Portal.unwatchItemPost(id: String)
+GET         /watching                       @controllers.portal.Portal.watching
 
-GET         /dev/account                        @controllers.portal.Portal.account
-GET         /dev/profile                        @controllers.portal.Portal.profile
-GET         /dev/profile/edit                   @controllers.portal.Portal.updateProfile
-POST        /dev/profile/edit                   @controllers.portal.Portal.updateProfilePost
-GET         /dev/profile/delete                 @controllers.portal.Portal.deleteProfile
-POST        /dev/profile/delete                 @controllers.portal.Portal.deleteProfilePost
-GET         /dev/filter                         @controllers.portal.Portal.filter
+GET         /account                        @controllers.portal.Profile.account
+GET         /profile                        @controllers.portal.Profile.profile
+GET         /profile/edit                   @controllers.portal.Profile.updateProfile
+POST        /profile/edit                   @controllers.portal.Profile.updateProfilePost
+GET         /profile/delete                 @controllers.portal.Profile.deleteProfile
+POST        /profile/delete                 @controllers.portal.Profile.deleteProfilePost
+GET         /profile/editImage              @controllers.portal.Profile.updateProfileImage
+POST        /profile/editImage              @controllers.portal.Profile.updateProfileImagePost
+
+GET         /filter                         @controllers.portal.Portal.filter
 
 # Various JS data helpers
-GET         /dev/routes                         controllers.portal.PortalData.jsRoutes
+GET         /routes                         controllers.portal.PortalData.jsRoutes
 GET         /globalData                         controllers.portal.PortalData.globalData
 
 GET         /assets/*file                       controllers.portal.Assets.at(path="/public", file)

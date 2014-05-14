@@ -1,0 +1,266 @@
+/*
+.facet-class {
+  border-bottom: 1px solid @pale-gray;
+}
+*/
+h1, h2, h3 {
+  font-family:@font-family-h123;
+}
+//Override of bootstrap defaults :
+blockquote {
+  font-size:@font-size-base;
+  padding:0;
+  border-left:none;
+}
+.link-target-list {
+  .list-unstyled;
+}
+.facet-select-dropdown {
+  max-width: 400px;
+}
+
+img.repository-logo {
+  max-width: 100%;
+  margin-bottom: @large-margin;
+}
+
+.breadcrumb {
+  background-color: inherit;
+  //color: inherit;
+  font-size: inherit;
+  margin-bottom: 0px;
+}
+
+.breadcrumb a {
+  text-decoration: underline;
+  //color: @pale-gray;
+}
+
+img.repository-logo {
+  max-width: 100%;
+  margin-bottom: @large-margin;
+}
+
+.landing-header {
+  color: white;
+  border-bottom: 1px solid @pale-gray;
+  padding: @small-padding;
+  font-family: 'Lato', sans-serif;
+  
+  a {
+    color: white !important;
+  }
+}
+
+/** Heading which divides a set of search results */
+.search-group-heading {
+  margin-bottom: 30px;
+}
+
+.search-hits em, .search-item em {
+  //background-color: @search-hit-highlight;
+  font-weight: bolder;
+}
+
+a.alt {
+  color: @almost-black;
+  font-weight: bolder;
+}
+
+.selected-facet {
+  margin-right: @small-margin;
+  padding: @small-padding;
+}
+
+.sidebar {
+  //padding: @large-padding;
+}
+
+.info-bar {
+  padding: @medium-padding;
+  background-color: @pale-gray;
+}
+
+.main-content {
+  padding-top: @large-padding;
+}
+
+.column-content {
+  padding: @medium-padding;
+}
+
+.tertiary-content {
+  margin-top: @menu-height;
+}
+
+.front-page-panel-content {
+  padding: 10px;
+  font-size: 0.9em;
+  height: 300px;
+  overflow: auto;
+}
+
+// Remove margin on flash alert box
+.flash {
+  margin: 0;
+}
+
+#news-feed {
+}
+
+#news-feed img {
+  display: none;
+}
+
+
+/** Search items */
+.search-item {
+  padding-bottom: 0.5em;
+  border-bottom: 1px dashed @dark-gray;
+  margin-bottom: @search-item-spacing;
+}
+
+.search-item-heading {
+  font-size: 1.0em;
+  font-weight: bolder;
+  margin-bottom: 0.2em;
+  padding-right: @large-padding * 2;
+}
+
+.search-item-body {
+  padding-right: @large-padding * 2;
+}
+
+.search-item-actions {
+  float: right;
+  width: @large-margin;
+
+  .watch-item {
+    text-decoration: none;
+  }
+
+  .watch-item.watch {
+    opacity: 0.3;
+  }
+
+
+}
+
+
+
+
+// Forms
+label.disabled {
+  color: @dark-gray;
+}
+
+.load-in-view {
+  padding-right: 15px;
+}
+
+.load-in-view.loading {
+  //.loader;
+}
+
+.activity-stream-wrapper {
+  margin-bottom: @large-margin;
+}
+
+.activity-stream-event {
+  margin-top: @large-margin;
+  .log-message {
+    font-size: 0.9em;
+  }
+}
+
+#activity-stream {
+  margin-bottom: @large-margin;
+}
+
+.search-result-list {
+  margin-top: @large-margin;
+  padding-right: @medium-padding;
+}
+
+.user-list {
+  padding: 0 @medium-padding 0 @medium-padding;
+}
+
+.user-list-item {
+  position: relative;
+  .gravitar {
+    position: absolute;
+    left: 0px;
+    top: 0px;
+    width: 48px;
+    height: 48px;
+
+    img {
+      border-radius: 5px;
+    }
+  }
+
+  .user-list-info {
+    margin-left: @gravitar-size + @small-margin;
+    a.name {
+      font-size: 1.2em;
+    }
+    height: @gravitar-size + @small-margin;
+  }
+
+  .follow-controls {
+    float: right;
+  }
+
+  margin-bottom: @large-margin;
+  border-bottom: 1px solid @pale-gray;
+}
+
+.header-controls {
+  padding-top: @medium-padding;
+  padding-bottom: @medium-padding;
+}
+
+.follow-controls, .watch-controls {
+  .header-controls;
+  * {
+    text-decoration: none;
+  }
+}
+
+.watch-controls {
+  .watch {
+    opacity: 0.3;
+  }
+}
+
+// Add an outline to tab panes
+.tab-content-panel {
+  border-left: 1px solid @medium-gray;
+  border-right: 1px solid @medium-gray;
+  border-bottom: 1px solid @medium-gray;
+  margin-bottom: @large-margin;
+}
+
+.invisible {
+  visibility: hidden;
+}
+
+
+// Wide buttons with loadable content
+.content-load a.toggle, a.load-in-view {
+  display: block;
+  text-align: center;
+  border: 1px solid @pale-gray;
+  padding: 5px;
+  color: @almost-black;
+  padding-right: 15px;
+  background-color: @pale-gray;
+  margin-bottom: @medium-margin;
+}
+
+.content-load a.toggle:hover, a.load-in-view:hover {
+  text-decoration: none;
+  background-color: darken(@pale-gray, 2);
+}
+

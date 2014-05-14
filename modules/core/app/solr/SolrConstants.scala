@@ -132,4 +132,9 @@ object SolrConstants {
    */
   final val COUNTRY_CODE = "countryCode"
 
+  /**
+   * Active item boolean
+   */
+  final val ACTIVE = "active"
+
 }

@@ -1,7 +1,7 @@
 @(item: Accessible, historyUrl: Call)(implicit request: RequestHeader)
 
 @item.latestEvent.map { ev =>
-    @p.common.footerPanel(Messages("portal.item.history")) {
+    @p.common.footerPanel(Messages("portal.item.history"), "history") {
         <strong title="@common.eventTitle(ev)">@views.Helpers.relativeDate(ev.model.timestamp)</strong>
         <p class="text-muted">
             <em>@ev.toStringLang</em>
@@ -11,5 +11,9 @@
             @Messages("actions.history")
         </a>
         <div class="modal" id="history-modal" tabindex="-1" role="dialog" aria-labelledby="history-modal-label" aria-hidden="true">
-        </div><!-- /.modal -->   }
+            <div class="modal-dialog">  
+                <div class="modal-content"></div>  
+            </div>
+        </div><!-- /.modal -->   
+    }
 }

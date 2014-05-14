@@ -1,8 +1,8 @@
 @(hit: utils.search.SearchHit)(unhighlighted: Html)
 
-@defining(hit.highlight(unhighlighted.body)) { case (text, highlighted) =>
+@defining(hit.highlight(unhighlighted)) { case (html, highlighted) =>
     @if(highlighted) {
-        @Html(text)
+        @html
     } else {
         @unhighlighted
 

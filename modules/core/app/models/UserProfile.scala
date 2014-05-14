@@ -7,10 +7,14 @@ import models.base._
 import base.Persistable
 import defines.EntityType
 import play.api.libs.json._
-import defines.EnumUtils.enumWrites
 import models.json._
 import play.api.i18n.Lang
 import play.api.libs.functional.syntax._
+import play.api.data.Form
+import play.api.data.Forms._
+import utils.forms._
+import play.api.libs.json.JsObject
+import eu.ehri.project.definitions.Ontology
 
 
 object UserProfileF {
@@ -24,9 +28,45 @@ object UserProfileF {
   val ABOUT = "about"
   val LANGUAGES = "languages"
   val IMAGE_URL = "imageUrl"
+  val ACTIVE = "active"
+  val STAFF = "staff"
+
+  import Entity._
+
+  implicit val userProfileWrites: Writes[UserProfileF] = new Writes[UserProfileF] {
+    def writes(d: UserProfileF): JsValue = {
+      Json.obj(
+        ID -> d.id,
+        TYPE -> d.isA,
+        DATA -> Json.obj(
+          IDENTIFIER -> d.identifier,
+          NAME -> d.name,
+          LOCATION -> d.location,
+          ABOUT -> d.about,
+          LANGUAGES -> d.languages,
+          IMAGE_URL -> d.imageUrl,
+          ACTIVE -> d.active
+        )
+      )
+    }
+  }
+
+  implicit val userProfileReads: Reads[UserProfileF] = (
+    (__ \ TYPE).read[EntityType.Value](equalsReads(EntityType.UserProfile)) and
+      (__ \ ID).readNullable[String] and
+      (__ \ DATA \ IDENTIFIER).read[String] and
+      (__ \ DATA \ NAME).read[String] and
+      (__ \ DATA \ LOCATION).readNullable[String] and
+      (__ \ DATA \ ABOUT).readNullable[String] and
+      (__ \ DATA \ LANGUAGES).readNullable[List[String]].map(_.toList.flatten) and
+      (__ \ DATA \ IMAGE_URL).readNullable[String] and
+      (__ \ DATA \ ACTIVE).readNullable[Boolean].map(_.getOrElse(true))
+    )(UserProfileF.apply _)
+
+  implicit val userProfileFormat: Format[UserProfileF] = Format(userProfileReads,userProfileWrites)
 
   implicit object Converter extends RestConvertable[UserProfileF] with ClientConvertable[UserProfileF] {
-    lazy val restFormat = models.json.UserProfileFormat.restFormat
+    lazy val restFormat = userProfileFormat
     lazy val clientFormat = Json.format[UserProfileF]
   }
 }
@@ -39,14 +79,33 @@ case class UserProfileF(
   location: Option[String] = None,
   about: Option[String] = None,
   languages: List[String] = Nil,
-  imageUrl: Option[String] = None
+  imageUrl: Option[String] = None,
+  active: Boolean = true
 ) extends Model with Persistable
 
 
 object UserProfile {
+  import UserProfileF._
+  import Entity._
+  import Ontology._
+
+  private implicit val groupReads = Group.Converter.restReads
+  private implicit val systemEventReads = SystemEvent.Converter.restReads
+
+  implicit val metaReads: Reads[UserProfile] = (
+    __.read[UserProfileF] and
+      (__ \ RELATIONSHIPS \ ACCESSOR_BELONGS_TO_GROUP).lazyReadNullable[List[Group]](
+        Reads.list[Group]).map(_.getOrElse(List.empty[Group])) and
+      (__ \ RELATIONSHIPS \ IS_ACCESSIBLE_TO).lazyReadNullable[List[Accessor]](
+        Reads.list(Accessor.Converter.restReads)).map(_.getOrElse(List.empty[Accessor])) and
+      (__ \ RELATIONSHIPS \ ENTITY_HAS_LIFECYCLE_EVENT).lazyReadNullable[List[SystemEvent]](
+        Reads.list[SystemEvent]).map(_.flatMap(_.headOption)) and
+      (__ \ META).readNullable[JsObject].map(_.getOrElse(JsObject(Seq())))
+    )(UserProfile.quickApply _)
+
   implicit object Converter extends ClientConvertable[UserProfile] with RestReadable[UserProfile] {
 
-    val restReads = models.json.UserProfileFormat.metaReads
+    val restReads = metaReads
     val clientFormat: Format[UserProfile] = (
       __.format[UserProfileF](UserProfileF.Converter.clientFormat) and
       nullableListFormat(__ \ "groups")(Group.Converter.clientFormat) and
@@ -69,6 +128,20 @@ object UserProfile {
      meta: JsObject) = new UserProfile(model, groups, accessors, latestEvent, meta)
 
   def quickUnapply(up: UserProfile) = Some((up.model, up.groups, up.accessors, up.latestEvent, up.meta))
+
+  val form = Form(
+    mapping(
+      ISA -> ignored(EntityType.UserProfile),
+      ID -> optional(nonEmptyText),
+      IDENTIFIER -> nonEmptyText(minLength=3),
+      NAME -> nonEmptyText,
+      LOCATION -> optional(text),
+      ABOUT -> optional(text),
+      LANGUAGES -> list(nonEmptyText),
+      IMAGE_URL -> optional(nonEmptyText.verifying(s => isValidUrl(s))),
+      ACTIVE -> boolean
+    )(UserProfileF.apply)(UserProfileF.unapply)
+  )
 }
 
 

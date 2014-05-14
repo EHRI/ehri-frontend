@@ -1,21 +1,23 @@
 package controllers.archdesc
 
-import forms.VisibilityForm
+import _root_.forms.VisibilityForm
 import controllers.generic._
-import models.{Repository,RepositoryF,DocumentaryUnit,DocumentaryUnitF}
+import models._
 import play.api.i18n.Messages
 import defines.{EntityType,ContentTypes}
 import views.Helpers
-import utils.search.{Resolver, Indexer, Dispatcher, SearchParams, FacetSort}
+import utils.search._
 import com.google.inject._
 import solr.SolrConstants
 import scala.concurrent.Future.{successful => immediate}
 import backend.{ApiUser, Backend}
 import utils.ListParams
 import scala.concurrent.ExecutionContext
+import play.api.Configuration
+import play.api.Play.current
 
 @Singleton
-case class Repositories @Inject()(implicit globalConfig: global.GlobalConfig, searchDispatcher: Dispatcher, searchIndexer: Indexer, searchResolver: Resolver, backend: Backend) extends Read[Repository]
+case class Repositories @Inject()(implicit globalConfig: global.GlobalConfig, searchDispatcher: Dispatcher, searchIndexer: Indexer, searchResolver: Resolver, backend: Backend, userDAO: AccountDAO) extends Read[Repository]
   with Update[RepositoryF, Repository]
   with Delete[Repository]
   with Creator[DocumentaryUnitF,DocumentaryUnit, Repository]
@@ -29,7 +31,7 @@ case class Repositories @Inject()(implicit globalConfig: global.GlobalConfig, se
   // Documentary unit facets
   import solr.facet._
 
-  private val repositoryFacets: FacetBuilder = { implicit lang =>
+  private val repositoryFacets: FacetBuilder = { implicit request =>
     List(
       QueryFacetClass(
         key="childCount",
@@ -40,6 +42,19 @@ case class Repositories @Inject()(implicit globalConfig: global.GlobalConfig, se
           SolrQueryFacet(value = "false", solrValue = "0", name = Some("noChildItems")),
           SolrQueryFacet(value = "true", solrValue = "[1 TO *]", name = Some("hasChildItems"))
         )
+      ),
+      QueryFacetClass(
+        key="charCount",
+        name=Messages("lod"),
+        param="lod",
+        render=s => Messages("lod." + s),
+        facets=List(
+          SolrQueryFacet(value = "low", solrValue = "[0 TO 500]", name = Some("low")),
+          SolrQueryFacet(value = "medium", solrValue = "[501 TO 2000]", name = Some("medium")),
+          SolrQueryFacet(value = "high", solrValue = "[2001 TO *]", name = Some("high"))
+        ),
+        sort = FacetSort.Fixed,
+        display = FacetDisplay.List
       ),
       FieldFacetClass(
         key="countryCode",
@@ -52,7 +67,7 @@ case class Repositories @Inject()(implicit globalConfig: global.GlobalConfig, se
         key="priority",
         name=Messages("priority"),
         param="priority",
-        render=s => s match {
+        render= {
           case s if s == "0" => Messages("priority.zero")
           case s if s == "1" => Messages("priority.one")
           case s if s == "2" => Messages("priority.two")
@@ -71,8 +86,12 @@ case class Repositories @Inject()(implicit globalConfig: global.GlobalConfig, se
   val contentType = ContentTypes.Repository
   val targetContentTypes = Seq(ContentTypes.DocumentaryUnit)
 
-  private val form = models.forms.RepositoryForm.form
-  private val childForm = models.forms.DocumentaryUnitForm.form
+  private val form = models
+    .Repository.form
+
+  val childFormDefaults: Option[Configuration] = current.configuration.getConfig(EntityType.DocumentaryUnit)
+
+  private val childForm = models.DocumentaryUnit.form
 
   private val DEFAULT_SEARCH_PARAMS = SearchParams(entities = List(resource.entityType))
 
@@ -81,7 +100,7 @@ case class Repositories @Inject()(implicit globalConfig: global.GlobalConfig, se
 
   def search = searchAction[Repository](defaultParams = Some(DEFAULT_SEARCH_PARAMS), entityFacets = repositoryFacets) {
       page => params => facets => implicit userOpt => implicit request =>
-    Ok(views.html.repository.search(page, params, facets, repositoryRoutes.search))
+    Ok(views.html.repository.search(page, params, facets, repositoryRoutes.search()))
   }
 
   /**
@@ -118,14 +137,14 @@ case class Repositories @Inject()(implicit globalConfig: global.GlobalConfig, se
     formOrItem match {
       case Left(errorForm) =>
         BadRequest(views.html.repository.edit(item, errorForm, repositoryRoutes.updatePost(id)))
-      case Right(item) => Redirect(repositoryRoutes.get(item.id))
-        .flashing("success" -> Messages("confirmations.itemWasUpdated", item.id))
+      case Right(doc) => Redirect(repositoryRoutes.get(doc.id))
+        .flashing("success" -> Messages("confirmations.itemWasUpdated", doc.id))
     }
   }
 
   def createDoc(id: String) = childCreateAction(id, ContentTypes.DocumentaryUnit) {
       item => users => groups => implicit userOpt => implicit request =>
-    Ok(views.html.documentaryUnit.create(item, childForm,
+    Ok(views.html.documentaryUnit.create(item, childForm, childFormDefaults,
         VisibilityForm.form, users, groups, repositoryRoutes.createDocPost(id)))
   }
 
@@ -134,7 +153,7 @@ case class Repositories @Inject()(implicit globalConfig: global.GlobalConfig, se
     formsOrItem match {
       case Left((errorForm,accForm)) => getUsersAndGroups { users => groups =>
         BadRequest(views.html.documentaryUnit.create(item,
-          errorForm, accForm, users, groups, repositoryRoutes.createDocPost(id)))
+          errorForm, childFormDefaults, accForm, users, groups, repositoryRoutes.createDocPost(id)))
       }
       case Right(citem) => immediate(Redirect(controllers.archdesc.routes.DocumentaryUnits.get(citem.id))
         .flashing("success" -> Messages("confirmations.itemWasCreated", citem.id)))
@@ -173,13 +192,13 @@ case class Repositories @Inject()(implicit globalConfig: global.GlobalConfig, se
   def addItemPermissions(id: String) = addItemPermissionsAction(id) {
       item => users => groups => implicit userOpt => implicit request =>
     Ok(views.html.permissions.permissionItem(item, users, groups,
-        repositoryRoutes.setItemPermissions _))
+        repositoryRoutes.setItemPermissions))
   }
 
   def addScopedPermissions(id: String) = addItemPermissionsAction(id) {
       item => users => groups => implicit userOpt => implicit request =>
     Ok(views.html.permissions.permissionScope(item, users, groups,
-        repositoryRoutes.setScopedPermissions _))
+        repositoryRoutes.setScopedPermissions))
   }
 
   def setItemPermissions(id: String, userType: EntityType.Value, userId: String) = setItemPermissionsAction(id, userType, userId) {

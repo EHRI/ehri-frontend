@@ -1,9 +1,8 @@
 package controllers.authorities
 
 import controllers.generic._
-import forms.VisibilityForm
-import models.{HistoricalAgent,HistoricalAgentF,Isaar}
-import models.forms.LinkForm
+import _root_.forms.VisibilityForm
+import models._
 import play.api.i18n.Messages
 import defines.{EntityType, ContentTypes, PermissionType}
 import utils.search.{Resolver, Dispatcher, SearchParams, FacetSort}
@@ -12,7 +11,7 @@ import solr.SolrConstants
 import backend.Backend
 
 @Singleton
-case class HistoricalAgents @Inject()(implicit globalConfig: global.GlobalConfig, searchDispatcher: Dispatcher, searchResolver: Resolver, backend: Backend) extends CRUD[HistoricalAgentF,HistoricalAgent]
+case class HistoricalAgents @Inject()(implicit globalConfig: global.GlobalConfig, searchDispatcher: Dispatcher, searchResolver: Resolver, backend: Backend, userDAO: AccountDAO) extends CRUD[HistoricalAgentF,HistoricalAgent]
 	with Visibility[HistoricalAgent]
   with ItemPermissions[HistoricalAgent]
   with Linking[HistoricalAgent]
@@ -23,12 +22,12 @@ case class HistoricalAgents @Inject()(implicit globalConfig: global.GlobalConfig
 
   val contentType = ContentTypes.HistoricalAgent
 
-  private val form = models.forms.HistoricalAgentForm.form
+  private val form = models.HistoricalAgent.form
   private val histRoutes = controllers.authorities.routes.HistoricalAgents
 
   // Documentary unit facets
   import solr.facet._
-  private val entityFacets: FacetBuilder = { implicit lang =>
+  private val entityFacets: FacetBuilder = { implicit request =>
     List(
       FieldFacetClass(
         key=models.Isaar.ENTITY_TYPE,
@@ -51,7 +50,7 @@ case class HistoricalAgents @Inject()(implicit globalConfig: global.GlobalConfig
 
   def search = searchAction[HistoricalAgent](defaultParams = Some(DEFAULT_SEARCH_PARAMS), entityFacets = entityFacets) {
       page => params => facets => implicit userOpt => implicit request =>
-    Ok(views.html.historicalAgent.search(page, params, facets, histRoutes.search))
+    Ok(views.html.historicalAgent.search(page, params, facets, histRoutes.search()))
   }
 
   def get(id: String) = getAction(id) {
@@ -77,8 +76,8 @@ case class HistoricalAgents @Inject()(implicit globalConfig: global.GlobalConfig
     formOrItem match {
       case Left(errorForm) =>
         BadRequest(views.html.historicalAgent.edit(item, errorForm, histRoutes.updatePost(id)))
-      case Right(item) => Redirect(histRoutes.get(item.id))
-        .flashing("success" -> Messages("confirmations.itemWasUpdated", item.id))
+      case Right(updated) => Redirect(histRoutes.get(updated.id))
+        .flashing("success" -> Messages("confirmations.itemWasUpdated", updated.id))
     }
   }
 
@@ -114,7 +113,7 @@ case class HistoricalAgents @Inject()(implicit globalConfig: global.GlobalConfig
   def addItemPermissions(id: String) = addItemPermissionsAction(id) {
       item => users => groups => implicit userOpt => implicit request =>
     Ok(views.html.permissions.permissionItem(item, users, groups,
-        histRoutes.setItemPermissions _))
+        histRoutes.setItemPermissions))
   }
 
   def setItemPermissions(id: String, userType: EntityType.Value, userId: String) = setItemPermissionsAction(id, userType, userId) {
@@ -138,13 +137,13 @@ case class HistoricalAgents @Inject()(implicit globalConfig: global.GlobalConfig
       item => page => params => facets => etype => implicit userOpt => implicit request =>
     Ok(views.html.link.linkSourceList(item, page, params, facets, etype,
         histRoutes.linkAnnotateSelect(id, toType),
-        histRoutes.linkAnnotate _))
+        histRoutes.linkAnnotate))
   }
 
   def linkAnnotate(id: String, toType: EntityType.Value, to: String) = linkAction(id, toType, to) {
       target => source => implicit userOpt => implicit request =>
     Ok(views.html.link.link(target, source,
-        LinkForm.form, histRoutes.linkAnnotatePost(id, toType, to)))
+        Link.form, histRoutes.linkAnnotatePost(id, toType, to)))
   }
 
   def linkAnnotatePost(id: String, toType: EntityType.Value, to: String) = linkPostAction(id, toType, to) {

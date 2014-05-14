@@ -4,9 +4,9 @@ implicit userOpt: Option[UserProfile], request: RequestHeader, globalConfig: glo
 @layout.rightSidebar(Messages("actions.deleteItem", item.toStringLang), breadcrumbs = common.breadcrumbs(List(item))) {
 
     <p>@Messages("deleting.deleteConfirmationMessage", item.toStringLang)</p>
-    @helper.form(action = action, 'class -> "form-actions") {
+    @helper.form(action = action, 'class -> "form-horizontal") {
         @formHelpers.csrfToken()
-        @common.submitButtonWithLogMessageInput(Messages("submitButton.deleteItem"), cancel = Some(globalConfig.routeRegistry.urlFor(item)))
+        @formHelpers.submitButtonWithLogMessageInput(Messages("submitButton.deleteItem"), cancel = Some(globalConfig.routeRegistry.urlFor(item)))
     }
 } {
 

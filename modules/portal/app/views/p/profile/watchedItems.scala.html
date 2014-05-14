@@ -1,4 +1,4 @@
-@(watchList: utils.AbstractPage[models.base.AnyModel])(implicit userOpt: Option[UserProfile], req: RequestHeader, globalConfig: global.GlobalConfig, lang: Lang, flash: Flash)
+@(watchList: utils.AbstractPage[models.base.AnyModel])(implicit userOpt: Option[UserProfile], request: RequestHeader, prefs: utils.SessionPrefs, globalConfig: global.GlobalConfig, lang: Lang, flash: Flash) Flash)
 
 @* user should always be defined here *@
 @userOpt.map { user =>
@@ -9,7 +9,7 @@
         } {
         }
 
-        <div class="container main-content">
+        <div class="main-content">
             <div class="row">
                 <div class="col-md-12">
                     @itemWatchList(user, watchList)

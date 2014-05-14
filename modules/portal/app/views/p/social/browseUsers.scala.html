@@ -1,4 +1,4 @@
-@(user: UserProfile, users: utils.search.ItemPage[UserProfile], params: utils.search.SearchParams, following: List[UserProfile])(implicit req: RequestHeader, userOpt: Option[UserProfile], globalConfig: global.GlobalConfig, flash: Flash, lang: Lang)
+@(user: UserProfile, users: utils.search.ItemPage[UserProfile], params: utils.search.SearchParams, following: List[UserProfile])(implicit userOpt: Option[UserProfile], request: RequestHeader, prefs: utils.SessionPrefs, globalConfig: global.GlobalConfig, lang: Lang, flash: Flash)
 
 @import utils.search.SearchParams
 
@@ -9,7 +9,7 @@
     } {
     }
 
-    <div class="container main-content">
+    <div class="main-content">
 
     @if(params.isFiltered || !users.items.isEmpty) {
         @helper.form(action = controllers.portal.routes.Portal.browseUsers, 'role -> "form", 'class -> "form-horizontal") {

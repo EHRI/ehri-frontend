@@ -6,36 +6,48 @@
 
 @implicitField = @{ views.html.helper.FieldConstructor(p.helpers.fieldTemplateEmpty.f) }
 
-<textarea
-        autofocus required minlength="15" maxlength="600"
-        class="col-md-12 autosize"
-        name="@BODY"
+<div class="form-group markdown">
+    <textarea autofocus required class="form-control" name="@BODY"
         placeholder="@Messages("portal.social.annotation.placeholder")">@f(BODY).value</textarea>
 
-<label for="@PARAM">@Messages("portal.contributionVisibility")</label>
-<span id="@PARAM">
-    <input class="visibility" type="radio" id="@(PARAM)_@(Me)" name="@PARAM" value="@Me" @{if(visForm.value == Some(Me)) "checked"}>
-    <label for="@(PARAM)_@(Me)">@Messages("portal.contributionVisibility.me")</label>
-    <input class="visibility" type="radio" id="@(PARAM)_@(Groups)" name="@PARAM" value="@Groups" @{if(visForm.value == Some(Groups)) "checked"}>
-    <label for="@(PARAM)_@(Groups)">@Messages("portal.contributionVisibility.groups")</label>
-    <input class="visibility" type="radio" id="@(PARAM)_@(Custom)" name="@PARAM" value="@Custom" @{if(visForm.value == Some(Custom)) "checked"}>
-    <label for="@(PARAM)_@(Custom)">@Messages("portal.contributionVisibility.custom")</label>
+    <div class="markdown-helper" title="@Messages("mdCheatsheet.title")">@Messages("mdCheatsheet.title")</div>
+    @common.markdownCheatsheet()
+</div>
+<div class="form-group" style="display:none;">
+    <label class="col-sm-5 control-label">@Messages("portal.contributionVisibility")</label>
 
-    <span class="custom-visibility" style="@{if(visForm.value != Some(Custom)) "display:none"}">
-        @defining(views.Helpers.fieldValues(accessorsForm(ACCESSOR_PARAM))) { values =>
-            <select class="select2 custom-accessors" style="width:300px" multiple name="@(ACCESSOR_PARAM)[]">
-                <option></option>
-                <optgroup label="Groups">
-                    @for((id, name) <- groups) {
-                        <option value="@id" @{if(values.contains(id)) "selected"}>@name</option>
-                    }
-                </optgroup>
-                <optgroup label="Users">
-                    @for((id, name) <- users) {
-                        <option value="@id" @{if(values.contains(id)) "selected"}>@name</option>
-                    }
-                </optgroup>
-            </select>
-        }
-    </span>
-</span>
+    <div class="col-sm-7">
+        <div id="@PARAM">
+            <label for="@(PARAM)_@(Me)" class="radio-inline">
+                <input class="visibility" type="radio" id="@(PARAM)_@(Me)" name="@PARAM" value="@Me" @{if(visForm.value == Some(Me)) "checked"}>
+                @Messages("portal.contributionVisibility.me")
+            </label>
+            <label for="@(PARAM)_@(Groups)" class="radio-inline">
+                <input class="visibility" type="radio" id="@(PARAM)_@(Groups)" name="@PARAM" value="@Groups" @{if(visForm.value == Some(Groups)) "checked"}>
+                @Messages("portal.contributionVisibility.groups")
+            </label>
+            <label for="@(PARAM)_@(Custom)" class="radio-inline">
+                <input class="visibility" type="radio" id="@(PARAM)_@(Custom)" name="@PARAM" value="@Custom" @{if(visForm.value == Some(Custom)) "checked"}>
+                @Messages("portal.contributionVisibility.custom")
+            </label>
+
+        </div>
+        <div class="custom-visibility" style="margin-top:5px; @{if(visForm.value != Some(Custom)) "display:none"}">
+            @defining(views.Helpers.fieldValues(accessorsForm(ACCESSOR_PARAM))) { values =>
+                <select class="form-control select2 custom-accessors" multiple name="@(ACCESSOR_PARAM)[]">
+                    <option></option>
+                    <optgroup label="Groups">
+                        @for((id, name) <- groups) {
+                            <option value="@id" @{if(values.contains(id)) "selected"}>@name</option>
+                        }
+                    </optgroup>
+                    <optgroup label="Users">
+                        @for((id, name) <- users) {
+                            <option value="@id" @{if(values.contains(id)) "selected"}>@name</option>
+                        }
+                    </optgroup>
+                </select>
+            }
+        </div>
+    </div>
+</div>

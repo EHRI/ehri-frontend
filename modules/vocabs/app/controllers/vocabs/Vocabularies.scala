@@ -1,8 +1,8 @@
 package controllers.vocabs
 
-import forms.VisibilityForm
+import _root_.forms.VisibilityForm
 import controllers.generic._
-import models.{Vocabulary,Concept,VocabularyF,ConceptF}
+import models._
 import play.api.i18n.Messages
 import defines.{ContentTypes, EntityType}
 import utils.search.{Resolver, Dispatcher, SearchParams}
@@ -10,8 +10,9 @@ import com.google.inject._
 import scala.concurrent.Future.{successful => immediate}
 import backend.Backend
 
+
 @Singleton
-case class Vocabularies @Inject()(implicit globalConfig: global.GlobalConfig, searchDispatcher: Dispatcher, searchResolver: Resolver, backend: Backend) extends CRUD[VocabularyF,Vocabulary]
+case class Vocabularies @Inject()(implicit globalConfig: global.GlobalConfig, searchDispatcher: Dispatcher, searchResolver: Resolver, backend: Backend, userDAO: AccountDAO) extends CRUD[VocabularyF,Vocabulary]
   with Creator[ConceptF, Concept, Vocabulary]
   with Visibility[Vocabulary]
   with ScopePermissions[Vocabulary]
@@ -23,8 +24,8 @@ case class Vocabularies @Inject()(implicit globalConfig: global.GlobalConfig, se
   val contentType = ContentTypes.Vocabulary
   val targetContentTypes = Seq(ContentTypes.Concept)
 
-  val form = models.forms.VocabularyForm.form
-  val childForm = models.forms.ConceptForm.form
+  val form = models.Vocabulary.form
+  val childForm = models.Concept.form
 
   private val vocabRoutes = controllers.vocabs.routes.Vocabularies
 

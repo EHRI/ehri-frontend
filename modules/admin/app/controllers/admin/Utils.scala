@@ -1,7 +1,7 @@
 package controllers.admin
 
 import controllers.base.{AuthController, ControllerHelpers}
-import models.Group
+import models.{AccountDAO, Group}
 import play.api.libs.concurrent.Execution.Implicits._
 
 import com.google.inject._
@@ -14,7 +14,7 @@ import backend.rest.RestDAO
  * Controller for various monitoring functions.
  */
 @Singleton
-case class Utils @Inject()(implicit globalConfig: global.GlobalConfig, backend: Backend)
+case class Utils @Inject()(implicit globalConfig: global.GlobalConfig, backend: Backend, userDAO: AccountDAO)
     extends AuthController with ControllerHelpers with RestDAO {
 
   override val staffOnly = false

@@ -1,13 +1,7 @@
-@(user: UserProfile)(implicit req: RequestHeader, userOpt: Option[UserProfile], globalConfig: global.GlobalConfig, lang: Lang)
+@(user: UserProfile, profilePage: Boolean = false)(implicit userOpt: Option[UserProfile], request: RequestHeader, prefs: utils.SessionPrefs, globalConfig: global.GlobalConfig, lang: Lang, flash: Flash)
 
-<div class="user-profile">
-    <a href="#" class="gravitar">
-        @defining(user.model.imageUrl.getOrElse(controllers.portal.routes.Assets.at("img/default-gravitar.png").url)) { src =>
-            <img height="200" width="200" class="img-responsive img-thumbnail" src="@src" />
-        }
-    </a>
-    <p>
-    <ul class="list-unstyled user-profile-info">
+<div class="user-profile-sidebar">
+    <ul class="user-profile-info">
         @user.model.location.map { loc =>
             <li>
                 <span class="glyphicon glyphicon-map-marker"></span>
@@ -15,14 +9,36 @@
             </li>
         }
         @user.model.about.map { about =>
-            <li>
-                <span class="glyphicon glyphicon-info-sign"></span>
+            <li class="user-profile-description">
                 @about
             </li>
         }
     </ul>
     <hr />
-    <div class="profile-social">
+
+    @defining(request.getQueryString("tab").getOrElse("0")) { activeTab =>
+        <ul class="nav">
+            @userOpt.map { currentUser =>
+                @if(currentUser.id == user.id) {
+                    @if(profilePage == true) {
+                        <li><a href="@controllers.portal.routes.Portal.browseUser(user.id)"><i class="glyphicon glyphicon-list"></i> @Messages("portal.activity")</a></li>
+                        <li class="@(if(activeTab == "0") "active")"><a href="#user-watch-list" data-tabidx="0" data-toggle="tab"><span class="glyphicon glyphicon-star"></span> @Messages("portal.social.watchedItems")</a></li>
+                        <li class="@(if(activeTab == "1") "active")"><a href="#user-annotations" data-tabidx="1" data-toggle="tab"><span class="glyphicon glyphicon-edit"></span> @Messages("portal.social.annotations")</a></li>
+                        <li class="@(if(activeTab == "2") "active")"><a href="#user-links" data-tabidx="2" data-toggle="tab"><span class="glyphicon glyphicon-link"></span> @Messages("portal.social.links")</a></li>
+                    } else {
+                        <li class="active"><a href="@controllers.portal.routes.Portal.browseUser(user.id)"><i class="glyphicon glyphicon-list"></i> @Messages("portal.activity")</a></li>
+                        <li><a href="@controllers.portal.routes.Profile.profile?tab=0"><span class="glyphicon glyphicon-star"></span> @Messages("portal.social.watchedItems")</a></li>
+                        <li><a href="@controllers.portal.routes.Profile.profile?tab=1"><span class="glyphicon glyphicon-edit"></span> @Messages("portal.social.annotations")</a></li>
+                        <li><a href="@controllers.portal.routes.Profile.profile?tab=2"><span class="glyphicon glyphicon-link"></span> @Messages("portal.social.links")</a></li>
+                    }
+                } else {
+                    <li><a href="@controllers.portal.routes.Portal.browseUser(user.id)"><i class="glyphicon glyphicon-list"></i> @Messages("portal.activity")</a></li>
+                }
+            }
+        </ul>
+    }
+    <hr />
+    <div class="user-profile-social">
         <a class="followers" href="@controllers.portal.routes.Portal.followersForUser(user.id)">
             @Messages("portal.social.followers"): <span class="user-follower-count">@user.followerCount</span>
         </a>

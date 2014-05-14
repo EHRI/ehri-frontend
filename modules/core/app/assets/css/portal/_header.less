@@ -1,0 +1,336 @@
+header#header {
+  position: relative;
+  color: white;
+  font-weight: 700;
+
+  .account-admin {
+    font-size: 12px;
+  }
+
+  .right-inner-addon {
+    position: relative;
+
+    input {
+      padding: 1px 25px 1px 3px;
+    }
+
+    .search-icon {
+      position: absolute;
+      right: 0px;
+      padding: 3px 7px;
+      pointer-events: none;
+      color: @almost-black;
+    }
+  }
+  .global-search {
+    background-color:white;
+    input {
+      border: 0px;
+      color: @almost-black;
+    }
+    .search-icon {
+      color: @almost-black;
+    }
+
+    &.inactive {
+      background-color: inherit;
+      .search-icon {
+        color: white;
+      }
+
+      input {
+        color: white;
+        background-color: inherit;
+        cursor: default;
+      }
+    }
+
+  }
+
+  #loader-bar {
+    height: @small-padding;
+    position: relative;
+    background: #FFF;
+
+    span {
+      display: block;
+      height: 100%;
+      background-color: @primary-highlight;
+      position: relative;
+      overflow: hidden;
+    }
+  }
+
+  li {
+    padding: 0px;
+  }
+
+  //padding-top: @medium-padding;
+
+  .nav-primary {
+    background-color: @almost-black;
+    padding: @small-padding;
+    min-height:50px;
+    
+    img[rel="logo"] {
+      height:40px;
+      width:auto;
+    }
+
+
+    & > ul {
+      margin-bottom: 0;
+      padding: 0;
+      li {
+        height:40px;
+        line-height:40px;
+      }
+      li#navbar-logo a {
+        padding:0;
+      }
+    }
+    a {
+      color: #d6d6d6;
+      padding: @medium-padding;
+    }
+
+    a:hover {
+      text-decoration: none;
+      color: #FFF;
+    }
+
+    li.active a {
+      color: #FFF;
+    }
+  }
+
+  .nav-secondary {
+    //padding: @small-padding;
+
+    ul {
+      margin: @medium-margin;
+    }
+
+    li {
+      // This is needed for the pointer trick below...
+      position: relative;
+    }
+
+    // Pinched from Guardian website... thanks folks...
+    // This puts a little triangle pointer below the
+    // active menu item. Depends on parent item having
+    // relative position...
+    li.active:after {
+      content: " ";
+      border-left: 5px solid transparent;
+      border-right: 5px solid transparent;
+      border-bottom: 5px solid;
+      border-bottom-color: white;
+      position: absolute;
+      bottom: -10px;
+      margin-left: -10px;
+      left: 50%;
+    }
+
+    font-size: 0.9em;
+
+    a {
+      font-size: 1.1em;
+      color: #FFF;
+      margin: 0 @small-margin 0 @small-margin;
+    }
+    background-color: @primary-highlight;
+  }
+
+
+
+  .float-nav {
+    position: fixed;
+    top: 0;
+    left: 0;
+    opacity: 0.9;
+    z-index: 1000;
+    box-shadow: 0px 3px 4px rgba(68, 68, 68, 0.51);
+  }
+
+  #navbar-logo {
+    a {
+      //padding: @small-padding;
+      img {
+        height: @menu-height - @medium-padding;
+      }
+    }
+  }
+
+  .user-img-icon {
+    .img-responsive;
+    display: inline;
+  }
+
+  .nav-primary , .nav-secondary {
+    nav {
+      & > ul  {
+        .list-inline;
+        & > li {
+          padding:0 2px;
+        }
+      }
+      &[role="tool"]:after {
+        content: " ";
+        display: table;
+      }
+    }
+    .clearfix();
+  }
+  .nav-primary {
+
+    @media (max-width: @screen-sm-max) {
+      & > nav > ul > li {
+        & > a {
+          padding:10px 2px;
+        }
+      }
+    }
+    & > nav[role="navigation"] {
+        display:inline-block;
+    }
+    & > nav[role="tool"] {
+        display:block;
+        float:right;
+        margin-top:10px;
+        min-height:40px;
+      > ul {
+        text-align:right;
+        display:inline-block;
+        min-height:40px;
+
+      }
+      @media (min-width: @screen-sm-min) {
+        .visible-responsive {
+          display:none;
+        }
+      }
+      @media (max-width: @screen-sm-min) {
+        margin-right:5px;
+        .hidden-responsive {
+          display:none;
+        }
+      }
+
+    }
+  }
+  .nav-secondary {
+    & > nav[role="navigation"] {
+      display:inline-block;
+      li.more {
+        cursor:pointer;
+        display:none;
+      }
+      @media (max-width: @screen-sm-max) {
+        & > ul {
+          margin-bottom:0;
+          &> li.active {
+            &:after {
+              display:none;
+            }
+            &:before {
+              display:inline-block;
+              //margin-right:2px;
+              //content:"~ ";
+            }
+          }
+        }
+      }
+     
+    }
+    & > nav[role="tool"] {
+      display:block;
+      float:right;
+
+      @media (max-width: @screen-sm-max) {
+        display:block;
+        float:none;
+      }
+    }
+    &.float-nav {
+      @media (max-width: @screen-xs-max) {
+        & > nav[role="tool"] {
+          display:none;
+        }
+        & > nav[role="navigation"] {
+          display:block;
+          & > ul {
+            display:block;
+            margin-bottom:5px;
+            .clearfix();
+            & > li {
+              display:none;
+              position:relative;
+              z-index:1001;
+              .transition(all .2s linear);
+              &.active , &.more {
+                display:block;
+              }
+              &.more {
+                text-align:right!important;
+                display:block;
+                float:right;
+                z-index:1002;
+              }
+              &.available {
+                display:block;
+                .transition(all .2s linear);
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+
+  .account-admin, .toolbar {
+    text-align:right;
+    > li {
+      text-align:left;
+    }
+  }
+
+
+
+}
+//Responsive
+@media (max-width: @screen-sm-min) {
+   header#header { 
+    .nav-secondary {
+      & > nav[role="navigation"] > ul  {
+        .list-unstyled!important;
+        & > li {
+          display:block;
+          padding:0;
+        }
+      }
+    }
+  }
+}
+//Color change ~ type of document
+
+body.documentaryUnit header#header .nav-secondary {
+  background-color: @doc-color;
+}
+
+body.country header#header .nav-secondary {
+  background-color: @country-color;
+}
+
+body.repository header#header .nav-secondary {
+  background-color: @repo-color;
+}
+
+body.historicalAgent header#header .nav-secondary {
+  background-color: @agent-color;
+}
+
+body.user header#header .nav-secondary {
+  background-color: @user-color;
+}
+

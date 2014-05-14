@@ -24,7 +24,12 @@ historicalAgent.authoritativeSet=Set
 # Authority set
 #
 authoritativeSet.items=Authority Items
+authoritativeSet.identifier=Identifier
+authoritativeSet.identifier.description=A short, lowercase, 1-word identifier
+authoritativeSet.name=Name
+authoritativeSet.name.description=A title-case display name for this set
 authoritativeSet.description=Description
+authoritativeSet.description.description=A description of this set''s purpose
 
 
 #

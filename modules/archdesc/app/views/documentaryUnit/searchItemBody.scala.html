@@ -23,7 +23,7 @@
         @desc.dates.headOption.map { dp =>
             <li>@dp.years</li>
         }
-        @desc.extentAndMedium.map { s =>
+        @desc.identity.extentAndMedium.map { s =>
             <li>@s</li>
         }
         @item.latestEvent.map { event =>
@@ -32,12 +32,9 @@
             </li>
         }
     </ul>
-    @item.childCount.map { count =>
+    @views.html.common.childCount(item) { count =>
         @if(count > 0) {
-            <div class="child-count">
-                <a href="@controllers.archdesc.routes.DocumentaryUnits.get(item.id)#search-items">
-                    @Messages("documentaryUnit.childCount", count)</a>
-            </div>
+            <a href="@controllers.archdesc.routes.DocumentaryUnits.get(item.id)#search-items">@Messages("documentaryUnit.childCount", count)</a>
         }
     }
 </small>

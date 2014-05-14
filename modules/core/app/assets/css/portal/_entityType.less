@@ -1,0 +1,40 @@
+.make-entity-color(@color, @secondary-color:white) {
+	&.landing-header,
+	&.block-header {
+		background-color: @color;
+		color:@secondary-color;
+		> a,
+		> a:hover,
+		> a:visited {
+			text-decoration:none;
+			color:white!important;
+		}
+	}
+	a:not([class]),
+	a& ,
+	& > a {
+	 	color: @color;
+	}
+	&.type-highlight > a , &.type-highlight {
+	 	color: @color;
+	}
+}
+
+.documentaryUnit {
+	.make-entity-color(@doc-color);
+}
+.repository {
+	.make-entity-color(@repo-color);
+}
+.country {
+	.make-entity-color(@country-color);
+}
+.historicalAgent {
+	.make-entity-color(@agent-color);
+}
+.user , .userProfile {
+	.make-entity-color(@user-color);
+}
+a.text-muted, .text-muted a {
+	.text-muted!important;
+}

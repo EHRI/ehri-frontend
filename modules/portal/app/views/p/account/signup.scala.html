@@ -1,6 +1,4 @@
-@(signupForm: Form[(String,String,String,String)], action: Call, recaptchaKey: String)(implicit request: RequestHeader, globalConfig: global.GlobalConfig, flash: Flash, lang: Lang, token: play.filters.csrf.CSRF.Token)
-
-@implicitField = @{ views.html.helper.FieldConstructor(p.helpers.fieldTemplate.f) }
+@(form: Form[(String,String,String,String)], action: Call, recaptchaKey: String)(implicit request: RequestHeader, globalConfig: global.GlobalConfig, flash: Flash, lang: Lang, token: play.filters.csrf.CSRF.Token)
 
 @validationJs = {
 
@@ -21,26 +19,8 @@
 @p.layout.portalLayoutSimple(Messages("portal.signup"), scripts=validationJs, styles = styles) {
 
     @p.layout.mainContent {
-        @helper.form(action = action, 'class -> "login-form form-horizontal") {
-            @formHelpers.csrfToken()
-
-            @formHelpers.globalErrors(signupForm)
-
-            @helper.inputText(signupForm("name"))
-            @helper.inputText(signupForm("email"))
-            @helper.inputPassword(signupForm("password"))
-            @helper.inputPassword(signupForm("confirm"))
-
-            <div class="controls-row">
-                <div class="controls reset">
-
-                    @common.recaptcha(recaptchaKey)
-                </div>
-            </div>
-
-            <input type="submit" class="btn btn-primary" value="@Messages("submitButton.signup")" />
-
-        }
+        @signupForm(form, action, recaptchaKey)
+        <div class="clearfix"></div>
     }
 }(None, request, globalConfig, flash, lang)
 

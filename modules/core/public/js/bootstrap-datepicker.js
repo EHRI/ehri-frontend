@@ -31,6 +31,8 @@
 	// Picker object
 
 	var Datepicker = function(element, options) {
+
+		//Callback on format
 		var that = this;
 
 		this.element = $(element);
@@ -95,6 +97,10 @@
 		}
 
 		this.minViewMode = options.minViewMode||this.element.data('date-min-view-mode')||0;
+		//Adding a callback method
+		if (typeof options.minViewMode === 'function') {
+			this.minViewMode = options.minViewMode() || 0;
+		}
 		if (typeof this.minViewMode === 'string') {
 			switch (this.minViewMode) {
 				case 'months':
@@ -266,12 +272,13 @@
 					this.isInput && this.element.val() ||
 					this.hasInput && this.element.find('input').val()
 				)
-			)
+			) {
 				this.setValue();
-			this.element.trigger({
-				type: 'hide',
-				date: this.date
-			});
+				this.element.trigger({
+					type: 'hide',
+					date: this.date
+				});
+			}
 		},
 
 		remove: function() {
@@ -988,6 +995,9 @@
 		validParts: /dd?|DD?|mm?|MM?|yy(?:yy)?/g,
 		nonpunctuation: /[^ -\/:-@\[\u3400-\u9fff-`{-~\t\n\r]+/g,
 		parseFormat: function(format){
+			if(typeof format === "function") {
+				format = format();
+			}
 			// IE treats \0 as a string end in inputs (truncating the value),
 			// so it's a bad format delimiter, anyway
 			var separators = format.replace(this.validParts, '\0').split('\0'),

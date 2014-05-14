@@ -32,7 +32,7 @@ import java.util.UUID
 /**
  * Controller for handling user admin actions.
  */
-case class Admin @Inject()(implicit globalConfig: global.GlobalConfig, backend: Backend)
+case class Admin @Inject()(implicit globalConfig: global.GlobalConfig, backend: Backend, userDAO: AccountDAO)
   extends Controller
   with AuthController
   with OpenIDLoginHandler
@@ -46,30 +46,38 @@ case class Admin @Inject()(implicit globalConfig: global.GlobalConfig, backend: 
   // Login functions are unrestricted
   override val staffOnly = false
 
-  lazy val userDAO: AccountDAO = play.api.Play.current.plugin(classOf[AccountDAO]).get
-
   def openIDCallback = openIDCallbackAction.async { formOrAccount => implicit request =>
     implicit val accountOpt: Option[Account] = None
     formOrAccount match {
       case Right(account) => gotoLoginSucceeded(account.id)
-        .map(_.withSession("access_uri" -> globalConfig.routeRegistry.default.url))
       case Left(formError) =>
-        immediate(BadRequest(views.html.openIDLogin(formError,
-          action = routes.Admin.openIDLoginPost)))
+        immediate(BadRequest(views.html.admin.pwLogin(
+          formPw = passwordLoginForm,
+          formOpenId = formError, 
+          actionPw = routes.Admin.loginPost(),
+          actionOpenId = routes.Admin.openIDLoginPost())))
     }
   }
 
   def openIDLogin = optionalUserAction { implicit maybeUser => implicit request =>
     if (maybeUser.isEmpty) {
-      Ok(views.html.openIDLogin(openidForm, action = routes.Admin.openIDLoginPost))
+      Ok(views.html.admin.pwLogin(
+          formPw = passwordLoginForm,
+          formOpenId = openidForm, 
+          actionPw = routes.Admin.loginPost(),
+          actionOpenId = routes.Admin.openIDLoginPost()))
     } else {
       Redirect(defaultLoginUrl)
     }
   }
 
-  def openIDLoginPost = openIDLoginPostAction(routes.Admin.openIDCallback) { formError => implicit request =>
+  def openIDLoginPost = openIDLoginPostAction(routes.Admin.openIDCallback()) { formError => implicit request =>
     implicit val accountOpt: Option[Account] = None
-    BadRequest(views.html.openIDLogin(formError, action = routes.Admin.openIDLoginPost))
+    BadRequest(views.html.admin.pwLogin(
+          formPw = passwordLoginForm,
+          formOpenId = formError, 
+          actionPw = routes.Admin.loginPost(),
+          actionOpenId = routes.Admin.openIDLoginPost()))
   }
 
   /**
@@ -78,7 +86,11 @@ case class Admin @Inject()(implicit globalConfig: global.GlobalConfig, backend: 
    */
   def login = optionalUserAction { implicit maybeUser => implicit request =>
     if (maybeUser.isEmpty) {
-      Ok(views.html.admin.pwLogin(passwordLoginForm, controllers.core.routes.Admin.loginPost))
+      Ok(views.html.admin.pwLogin(
+          formPw = passwordLoginForm, 
+          formOpenId = openidForm, 
+          actionPw = routes.Admin.loginPost(),
+          actionOpenId = routes.Admin.openIDLoginPost()))
     } else {
       Redirect(defaultLoginUrl)
     }
@@ -87,8 +99,14 @@ case class Admin @Inject()(implicit globalConfig: global.GlobalConfig, backend: 
   def loginPost = loginPostAction.async { accountOrErr => implicit request =>
     accountOrErr match {
       case Left(errorForm) =>
-        immediate(BadRequest(views.html.admin.pwLogin(errorForm,
-          controllers.core.routes.Admin.loginPost)))
+        immediate(BadRequest(views.html.admin.pwLogin(
+          formPw = errorForm,
+          formOpenId = openidForm, 
+          actionPw = routes.Admin.loginPost(),
+          actionOpenId = routes.Admin.openIDLoginPost())))
+      case Right(account) if !account.verified =>
+        immediate(Redirect(defaultLoginUrl)
+          .flashing("warning" -> "login.notVerified"))
       case Right(account) =>
         gotoLoginSucceeded(account.id)
     }

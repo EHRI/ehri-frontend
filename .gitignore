@@ -1,3 +1,4 @@
+bin/indexer
 logs
 lib
 project/project
@@ -29,3 +30,4 @@ fonts
 
 conf/securesocial.conf
 conf/parse-keys.conf
+conf/aws.conf

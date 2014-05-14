@@ -1,0 +1,23 @@
+@(form: Form[(String,String,String,String)], action: Call, recaptchaKey: String)(implicit request: RequestHeader, globalConfig: global.GlobalConfig, flash: Flash, lang: Lang, token: play.filters.csrf.CSRF.Token)
+
+@implicitField = @{ views.html.helper.FieldConstructor(p.helpers.fieldTemplateSignUp.f) }
+
+@helper.form(action = action, 'class -> "login-form signup-form", 'role -> "form") {
+    <h1 class="text-center">@Messages("portal.signup")</h1>
+    @formHelpers.csrfToken()
+
+    @formHelpers.globalErrors(form)
+
+    @helper.inputText(form("name"))
+    @helper.inputText(form("email"))
+    @helper.inputPassword(form("password"))
+    @helper.inputPassword(form("confirm"))
+
+    @common.recaptcha(recaptchaKey)
+
+    <div class="form-group field">
+        <div class="input">
+            <button type="submit" class="button post">@Messages("submitButton.signup")</button>
+        </div>
+    </div>
+}

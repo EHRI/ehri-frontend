@@ -11,8 +11,7 @@ import org.joda.time.format.ISODateTimeFormat
 case class FeedbackContext(
   path: String,
   queryString: Map[String,Seq[String]],
-  headers: Map[String,String],
-  dateTime: String
+  headers: Map[String,String]
 )
 
 object FeedbackContext {
@@ -22,8 +21,7 @@ object FeedbackContext {
   def fromRequest(implicit request: RequestHeader): FeedbackContext = FeedbackContext(
     path = request.path,
     queryString = request.queryString,
-    headers = request.headers.toSimpleMap,
-    dateTime = dateTimeFormatter.print(DateTime.now())
+    headers = request.headers.toSimpleMap
   )
 
   implicit val format: Format[FeedbackContext] = Json.format[FeedbackContext]

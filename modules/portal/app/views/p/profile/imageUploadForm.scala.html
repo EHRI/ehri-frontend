@@ -1,0 +1,28 @@
+@(f: Form[String], action: Call)(implicit userOpt: Option[UserProfile], request: RequestHeader, prefs: utils.SessionPrefs, globalConfig: global.GlobalConfig, lang: Lang, flash: Flash, token: play.filters.csrf.CSRF.Token)
+
+@userOpt.map { user =>
+    @helper.form(action = action, 'role -> "form", 'enctype -> "multipart/form-data", 'class -> "form-horizontal") {
+        @formHelpers.csrfToken()
+
+        @formHelpers.globalErrors(f)
+
+        <div class="form-group">
+            <label class="col-md-4 control-label">
+                @defining(user.model.imageUrl.getOrElse(controllers.portal.routes.Assets.at("img/default-gravitar.png").url)) { src =>
+                    <img height="100" width="100" class="img-responsive img-thumbnail" src="@src" />
+                }
+            </label>
+            <div class="col-md-8">
+                <input class="form-control" type="file" name="image" />
+            </div>
+        </div>
+
+        <div class="form-group">
+            <div class="col-sm-offset-4 col-sm-8">
+                <button type="submit" class="button post">
+                    @Messages("portal.profile.updateProfileImage")
+                </button>
+            </div>
+        </div>
+    }
+}

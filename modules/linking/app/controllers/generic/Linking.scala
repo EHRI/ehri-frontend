@@ -6,7 +6,6 @@ import models.base._
 import defines._
 import models._
 import play.api.data.Form
-import models.forms.LinkForm
 import play.api.libs.json.{Writes, JsError, Json}
 import utils.search.{SearchHit, AppliedFacet, SearchParams, ItemPage}
 import play.api.Play.current
@@ -67,11 +66,11 @@ trait Linking[MT <: AnyModel] extends Read[MT] with Search {
   def linkPostAction(id: String, toType: EntityType.Value, to: String)(
       f: Either[(MT, AnyModel,Form[LinkF]),Link] => Option[UserProfile] => Request[AnyContent] => SimpleResult)(implicit rd: RestReadable[MT]) = {
 
-    implicit val linkWrites: Writes[LinkF] = models.json.LinkFormat.linkWrites
+    implicit val linkWrites: Writes[LinkF] = models.LinkF.linkWrites
 
     withItemPermission.async[MT](id, PermissionType.Annotate, contentType) {
         item => implicit userOpt => implicit request =>
-      LinkForm.form.bindFromRequest.fold(
+      Link.form.bindFromRequest.fold(
         errorForm => { // oh dear, we have an error...
           getEntityT[AnyModel](AnyModel.resourceFor(toType), to) { srcitem =>
             f(Left((item,srcitem,errorForm)))(userOpt)(request)
@@ -94,8 +93,7 @@ trait Linking[MT <: AnyModel] extends Read[MT] with Search {
   def linkPostMultiAction(id: String)(
       f: Either[(MT,Form[List[(String,LinkF,Option[String])]]),List[Link]] => Option[UserProfile] => Request[AnyContent] => SimpleResult)(implicit rd: RestReadable[MT]): Action[AnyContent] = {
     withItemPermission.async[MT](id, PermissionType.Update, contentType) { item => implicit userOpt => implicit request =>
-      implicit val linkWrites: Writes[LinkF] = models.json.LinkFormat.linkWrites
-      val multiForm: Form[List[(String,LinkF,Option[String])]] = models.forms.LinkForm.multiForm
+      val multiForm: Form[List[(String,LinkF,Option[String])]] = Link.multiForm
       multiForm.bindFromRequest.fold(
         errorForm => immediate(f(Left((item,errorForm)))(userOpt)(request)),
         links => backend.linkMultiple(id, links).map { outLinks =>
@@ -108,7 +106,6 @@ trait Linking[MT <: AnyModel] extends Read[MT] with Search {
 
   /**
    * Create a link, via Json, for any arbitrary two objects, via an access point.
-   * @return
    */
   def createLink(id: String, apid: String)(implicit rd: RestReadable[MT]) = Action.async(parse.json) { request =>
     request.body.validate[AccessPointLink].fold(
@@ -134,7 +131,6 @@ trait Linking[MT <: AnyModel] extends Read[MT] with Search {
   /**
    * Create a link, via Json, for the object with the given id and a set of
    * other objects.
-   * @return
    */
   def createMultipleLinks(id: String)(implicit rd: RestReadable[MT]) = Action.async(parse.json) { request =>
     request.body.validate[List[AccessPointLink]].fold(
@@ -159,7 +155,6 @@ trait Linking[MT <: AnyModel] extends Read[MT] with Search {
 
   /**
    * Create a link, via Json, for any arbitrary two objects, via an access point.
-   * @return
    */
   def createAccessPoint(id: String, did: String)(implicit rd: RestReadable[MT]) = Action.async(parse.json) { request =>
     request.body.validate[AccessPointF](AccessPointLink.accessPointFormat).fold(
@@ -168,7 +163,7 @@ trait Linking[MT <: AnyModel] extends Read[MT] with Search {
       },
       ap => {
         withItemPermission.async[MT](id, PermissionType.Update, contentType) { item => implicit userOpt => implicit request =>
-          backend.createAccessPoint(id, did, ap).map { case (item, ann) =>
+          backend.createAccessPoint(id, did, ap).map { case (_, ann) =>
             Created(Json.toJson(ann)(AccessPointF.Converter.clientFormat  ))
           }
           // TODO: Fix AuthController so we can use the
@@ -192,9 +187,6 @@ trait Linking[MT <: AnyModel] extends Read[MT] with Search {
 
   /**
    * Get the link, if any, for a document and an access point.
-   * @param id
-   * @param apid
-   * @return
    */
   def getLink(id: String, apid: String) = getLinksAction(id) { linkList => implicit userOpt => implicit request =>
     val linkOpt = linkList.find(link => link.bodies.exists(b => b.id == Some(apid)))

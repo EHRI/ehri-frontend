@@ -6,9 +6,12 @@ case object IsadG {
 
   object LevelOfDescription extends Enumeration {
     type Type = Value
-    val Collection = Value("collection")
     val Fonds = Value("fonds")
     val Subfonds = Value("subfonds")
+    val Collection = Value("collection")
+    val Subcollection = Value("subcollection")
+    val RecordGroup = Value("recordGroup")
+    val SubRecordGroup =Value("subrecordGroup")
     val Series = Value("series")
     val Subseries = Value("subseries")
     val File = Value("file")
@@ -25,6 +28,7 @@ case object IsadG {
 
   /* ISAD(G)-based field set */
   val TITLE = "name"
+  val PARALLEL_FORMS_OF_NAME = "parallelFormsOfName"
   val REF = "ref"
   val DATES = "dates"
   val LEVEL_OF_DESCRIPTION = "levelOfDescription"

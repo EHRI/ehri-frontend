@@ -8,6 +8,7 @@ import play.api.libs.json._
 import play.api.libs.ws.WS.WSRequestHolder
 import backend.{ErrorSet, ApiUser}
 import com.fasterxml.jackson.core.JsonParseException
+import models.{UserProfileF, UserProfile}
 
 
 trait RestDAO {
@@ -50,9 +51,17 @@ trait RestDAO {
   /**
    * Create a web request with correct auth parameters for the REST API.
    */
+  import scala.collection.JavaConversions._
+  private lazy val includeProps
+    = Play.current.configuration.getStringList("ehri.backend.includedProperties").map(_.toList)
+        .getOrElse(List.empty[String])
+
+
   def userCall(url: String, params: Seq[(String,String)] = Seq.empty)(implicit apiUser: ApiUser): WSRequestHolder = {
     Logger.logger.debug("[{} {}] {}", apiUser, this.getClass.getCanonicalName, url)
-    WS.url(url).withHeaders(authHeaders.toSeq: _*).withQueryString(params: _*)
+    WS.url(url).withHeaders(authHeaders.toSeq: _*)
+      .withQueryString(params: _*)
+      .withQueryString(includeProps.map(p => Constants.INCLUDE_PROPERTIES_PARAM -> p).toSeq: _*)
   }
 
   /**

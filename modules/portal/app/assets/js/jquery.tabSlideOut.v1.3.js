@@ -24,8 +24,6 @@
 (function ($) {
   $.fn.tabSlideOut = function (callerSettings) {
 
-    console.log("called!")
-
     var settings = $.extend({
       tabHandle: '.handle',
       speed: 300,

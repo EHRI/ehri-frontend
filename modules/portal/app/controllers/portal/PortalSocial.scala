@@ -2,14 +2,14 @@ package controllers.portal
 
 import play.api.libs.concurrent.Execution.Implicits._
 import play.api.mvc.Controller
-import controllers.base.{AuthController, ControllerHelpers}
+import controllers.base.{SessionPreferences, AuthController, ControllerHelpers}
 import models.UserProfile
 import views.html.p
-import utils.{PageParams, SystemEventParams, ListParams}
+import utils.{SessionPrefs, PageParams, SystemEventParams, ListParams}
 import utils.search.{Resolver, SearchOrder, Dispatcher, SearchParams}
 import defines.{EventType, EntityType}
 import play.api.Play._
-import scala.Some
+import solr.SolrConstants
 
 
 /**
@@ -20,7 +20,7 @@ import scala.Some
  * just lists of IDs.
  */
 trait PortalSocial {
-  self: Controller with ControllerHelpers with AuthController =>
+  self: Controller with ControllerHelpers with AuthController with SessionPreferences[SessionPrefs] =>
 
   val searchDispatcher: Dispatcher
   val searchResolver: Resolver
@@ -61,7 +61,7 @@ trait PortalSocial {
       .copy(eventTypes = activityEventTypes)
       .copy(itemTypes = activityItemTypes)
     backend.listEventsForUser(user.id, listParams, eventFilter).map { events =>
-      Ok(p.common.eventItems(events))
+      Ok(p.social.eventItems(events))
     }
   }
 
@@ -69,6 +69,7 @@ trait PortalSocial {
     // This is a bit gnarly because we want to get a searchable list
     // of users and combine it with a list of existing followers so
     // we can mark who's following and who isn't
+    val filters = Map(SolrConstants.ACTIVE -> true.toString)
     val defaultParams = SearchParams(entities = List(EntityType.UserProfile), excludes = Some(List(user.id)),
           sort = Some(SearchOrder.Name), limit = Some(40))
     val searchParams = SearchParams.form.bindFromRequest.value
@@ -76,7 +77,7 @@ trait PortalSocial {
 
     for {
       followers <- backend.listFollowing(user.id, ListParams())
-      srch <- searchDispatcher.search(searchParams, Nil, Nil)
+      srch <- searchDispatcher.search(searchParams, Nil, Nil, filters)
       users <- searchResolver.resolve[UserProfile](srch.items)
     } yield Ok(p.social.browseUsers(user, srch.copy(items = users), searchParams, followers))
   }
@@ -178,6 +179,13 @@ trait PortalSocial {
       } else {
         Redirect(controllers.portal.routes.Portal.browseUsers())
       }
+    }
+  }
+
+  def watching = withUserAction.async { implicit user => implicit request =>
+    val watchParams = PageParams.fromRequest(request)
+    backend.pageWatching(user.id, watchParams).map { watchList =>
+      Ok(p.profile.watchedItems(watchList))
     }
   }
 

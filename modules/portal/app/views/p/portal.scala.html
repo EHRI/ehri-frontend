@@ -1,16 +1,9 @@
-@(stats: controllers.portal.Stats)(implicit userOpt: Option[UserProfile], req: RequestHeader, globalConfig: global.GlobalConfig, lang: Lang, flash: Flash)
+@(stats: utils.Stats)(implicit userOpt: Option[UserProfile], request: RequestHeader, prefs: utils.SessionPrefs, globalConfig: global.GlobalConfig, lang: Lang, flash: Flash)
 
-@import utils.search.SearchParams
 @import defines.EntityType
 
 @extrastyles = {
 
-<style>
-    .main-content {
-        background-color: #f5f5f5;
-        padding-bottom: 25px;
-    }
-</style>
 }
 
 @extrascripts = {
@@ -29,109 +22,70 @@
 
 @p.layout.portalLayout(Messages("forms.search"), scripts = extrascripts, styles = extrastyles) {
 
-    @views.html.common.flash(flash)
-
-    <div class="info-bar">
-        <div class="container text-center">
-            <h1>@Messages("portal.welcome")</h1>
-        </div>
+    <div class="info-bar text-center">
+        <h1>
+            @Messages("portal.welcome")
+            <sup class="text-muted">Alpha</sup>
+        </h1>
     </div>
 
+    @p.layout.mainContent {
+        @helper.form(action = controllers.portal.routes.Portal.search, 'role -> "form") {
+            @p.common.searchBar()
 
-    @helper.form(action = controllers.portal.routes.Portal.search, 'role -> "form") {
-        <div class="row">
-            <div class="col-md-12">
-                <div class="search-bar">
-                    <div class="col-md-8 col-md-offset-2">
-                        <div class="container">
-                            <div class="form-group form-inline search-box">
-                                <div class="input-group">
-                                    <input type="search"
-                                           placeholder="@Messages("search.queryPlaceholder")" class="form-control" name="@SearchParams.QUERY" value="" autofocus />
-                                    <span class="input-group-btn">
-                                        <button class="btn btn-default">
-                                            <span class="glyphicon glyphicon-search"></span>
-                                            @Messages("forms.search")
-                                        </button>
-                                    </span>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
+            <h3 class="landing-header @EntityType.DocumentaryUnit">
+                <a class="" href="@controllers.portal.routes.Portal.browseDocuments">@Messages("portal.browse.documents")</a>
+            </h3>
+
+            <div class="landing-blurb">
+                @{Html(Messages(
+                "portal.landingBlurb.documents",
+                countLink(controllers.portal.routes.Portal.browseDocuments.url,
+                "portal.landingBlurb.documentLink", stats.documentaryUnitCount).body.trim,
+                countLink(controllers.portal.routes.Portal.browseDocumentsByRepository.url,
+                "portal.landingBlurb.inRepositoryLink", stats.inRepositoryCount).body.trim
+                ))}
             </div>
-        </div>
 
-        <div class="row">
-            <div class="col-md-12">
-                <div class="row tertiary-content">
-                    <div class="col-md-8 col-md-offset-2">
-                        <h3 class="landing-header @EntityType.DocumentaryUnit">
-                            <a class="" href="@controllers.portal.routes.Portal.browseDocuments">@Messages("portal.browse.documents")</a>
-                        </h3>
+            <h3 class="landing-header @EntityType.Repository">
+                <a class="" href="@controllers.portal.routes.Portal.browseRepositories">@Messages("portal.browse.repositories")</a>
+            </h3>
 
-                        <div class="landing-blurb">
-                            @{Html(Messages(
-                            "portal.landingBlurb.documents",
-                            countLink(controllers.portal.routes.Portal.browseDocuments.url,
-                            "portal.landingBlurb.documentLink", stats.documentaryUnitCount).body.trim,
-                            countLink(controllers.portal.routes.Portal.browseDocumentsByRepository.url,
-                            "portal.landingBlurb.inRepositoryLink", stats.inRepositoryCount).body.trim
-                            ))}
-                        </div>
-                    </div>
-                </div>
-
-                <div class="row tertiary-content">
-                    <div class="col-md-8 col-md-offset-2">
-                        <h3 class="landing-header @EntityType.Repository">
-                            <a class="" href="@controllers.portal.routes.Portal.browseRepositories">@Messages("portal.browse.repositories")</a>
-                        </h3>
-
-                        <div class="landing-blurb">
-                            @{Html(Messages(
-                            "portal.landingBlurb.repositories",
-                            countLink(controllers.portal.routes.Portal.browseRepositories.url,
-                            "portal.landingBlurb.repositoryLink", stats.repositoryCount).body.trim,
-                            countLink(controllers.portal.routes.Portal.browseCountries.url, "portal.landingBlurb.inCountryLink",
-                            stats.inCountryCount).body.trim
-                            ))}
-                        </div>
-                    </div>
-                </div>
-
-                <div class="row tertiary-content">
-                    <div class="col-md-8 col-md-offset-2">
-                        <h3 class="landing-header @EntityType.HistoricalAgent">
-                            <a class="" href="@controllers.portal.routes.Portal.browseHistoricalAgents">@Messages("portal.browse.historicalAgents")</a>
-                        </h3>
-
-                        <div class="landing-blurb">
-                            @{Html(Messages(
-                            "portal.landingBlurb.historicalAgents",
-                            countLink(controllers.portal.routes.Portal.browseHistoricalAgents.url,
-                            "portal.landingBlurb.historicalAgentLink", stats.historicalAgentCount).body.trim,
-                            countLink(controllers.portal.routes.Portal.browseHistoricalAgents.url + "?cpf=corporateBody",
-                            "portal.landingBlurb.corporateBodyLink", stats.corpCount).body.trim,
-                            countLink(controllers.portal.routes.Portal.browseHistoricalAgents.url + "?cpf=person",
-                            "portal.landingBlurb.personLink", stats.personCount).body.trim,
-                            countLink(controllers.portal.routes.Portal.browseHistoricalAgents.url + "?cpf=family",
-                            "portal.landingBlurb.familyLink", stats.familyCount).body.trim
-                            ))}
-                        </div>
-                    </div>
-                </div>
-
-                <div class="row tertiary-content">
-                    <div class="col-md-8 col-md-offset-2">
-                        @p.common.panel(Messages("portal.newsFeed")) {
-                        <ul id="news-feed" class="list-unstyled panel-body front-page-panel-content">
-
-                        </ul>
-                        }
-                    </div>
-                </div>
+            <div class="landing-blurb">
+                @{Html(Messages(
+                "portal.landingBlurb.repositories",
+                countLink(controllers.portal.routes.Portal.browseRepositories.url,
+                "portal.landingBlurb.repositoryLink", stats.repositoryCount).body.trim,
+                countLink(controllers.portal.routes.Portal.browseCountries.url, "portal.landingBlurb.inCountryLink",
+                stats.inCountryCount).body.trim
+                ))}
             </div>
-        </div>
+
+            <h3 class="landing-header @EntityType.HistoricalAgent">
+                <a class="" href="@controllers.portal.routes.Portal.browseHistoricalAgents">@Messages("portal.browse.historicalAgents")</a>
+            </h3>
+
+            <div class="landing-blurb">
+                @{Html(Messages(
+                "portal.landingBlurb.historicalAgents",
+                countLink(controllers.portal.routes.Portal.browseHistoricalAgents.url,
+                "portal.landingBlurb.historicalAgentLink", stats.historicalAgentCount).body.trim,
+                countLink(controllers.portal.routes.Portal.browseHistoricalAgents.url + "?cpf=corporateBody",
+                "portal.landingBlurb.corporateBodyLink", stats.corpCount).body.trim,
+                countLink(controllers.portal.routes.Portal.browseHistoricalAgents.url + "?cpf=person",
+                "portal.landingBlurb.personLink", stats.personCount).body.trim,
+                countLink(controllers.portal.routes.Portal.browseHistoricalAgents.url + "?cpf=family",
+                "portal.landingBlurb.familyLink", stats.familyCount).body.trim
+                ))}
+            </div>
+
+            <div class="landing-news">
+                @p.common.panel(Messages("portal.newsFeed")) {
+                <ul id="news-feed" class="list-unstyled panel-body front-page-panel-content">
+
+                </ul>
+                }
+            </div>
+        }
     }
 }

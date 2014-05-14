@@ -1,19 +1,37 @@
-@(f: play.api.data.Form[UserProfileF], action: Call)(
-implicit userOpt: Option[UserProfile], req: RequestHeader, globalConfig: global.GlobalConfig, lang: Lang, flash: Flash, token: play.filters.csrf.CSRF.Token)
+@(profileForm: play.api.data.Form[ProfileData], imageForm: Form[String], pwForm: Form[(String,String,String)])(implicit userOpt: Option[UserProfile], request: RequestHeader, prefs: utils.SessionPrefs, globalConfig: global.GlobalConfig, lang: Lang, flash: Flash, token: play.filters.csrf.CSRF.Token)
 
-@p.layout.portalLayout(Messages("actions.updateUserProfile")) {
+@p.layout.portalLayout(Messages("portal.profile")) {
     @p.layout.infobar {
     } {
         <h1>@Messages("portal.profile")</h1>
     } {
     }
 
-    <div class="container">
+    @p.layout.mainContent {
+        @userOpt.flatMap(_.account).map { account =>
+            @if(!account.verified) {
+                <fieldset>
+                    <legend>@Messages("portal.mail.unverifiedEmailWarning")</legend>
+                    @unverified()
+                </fieldset>
+            }
+        }
+
+        <h3>@Messages("portal.profile.updateProfile")</h3>
+        @editProfileForm(profileForm, controllers.portal.routes.Profile.updateProfilePost)
+
+        <h3>@Messages("portal.profile.updateProfileImage")</h3>
+        @imageUploadForm(imageForm, controllers.portal.routes.Profile.updateProfileImagePost)
+
+        @if(userOpt.flatMap(_.account).flatMap(_.password).isDefined) {
+            <h3>@Messages("portal.profile.changePassword")</h3>
+            @p.account.changePasswordForm(pwForm, controllers.portal.routes.Profile.changePasswordPost)
+        }
+
+        <h3>@Messages("portal.profile.deleteProfile")</h3>
         <p>
-        <div class="row">
-            <div class="col-md-4">
-                @editProfileForm(f, action)
-            </div>
+        <div class="col-sm-offset-4 col-sm-8">
+            <a href="@controllers.portal.routes.Profile.deleteProfile" class="button danger">@Messages("portal.profile.deleteProfileLink")</a>
         </div>
-    </div>
+    }
 }

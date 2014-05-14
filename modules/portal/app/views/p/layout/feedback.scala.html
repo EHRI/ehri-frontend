@@ -1,23 +1,13 @@
-@(form: Form[Feedback], initiallyHidden: Boolean = true)(implicit userOpt: Option[UserProfile], request: RequestHeader, lang: Lang, token: play.filters.csrf.CSRF.Token)
+@(form: Form[Feedback])(implicit userOpt: Option[UserProfile], request: RequestHeader, lang: Lang, token: play.filters.csrf.CSRF.Token)
 
-<!-- tab slideOut -->
-<noscript>
-    <a id="feedback-tab" href="@controllers.portal.routes.Portal.feedback">
-        <img alt="feedback" src="@controllers.portal.routes.Assets.at("img/feedback_tab.png")" />
-    </a>
-</noscript>
-<div style="@{if(initiallyHidden) "display:none"}" class="slide-out-div">
-    <a class="handle" href="@controllers.portal.routes.Portal.feedback">Feedback</a>
+<span class="slide-out-div">
+    <a class="handle" href="@controllers.portal.routes.Feedback.feedback">@Messages("portal.feedback")</a>
     <div id="suggestions">
-        <div id="suggestion-thanks" style="position:absolute;z-index:10;display:none" class="alert alert-success">
-            <h4>Thanks!</h4>
-            Your feedback is greatly appreciated.
+        <div id="suggestion-thanks" class="alert alert-success">
+            <h4>@Messages("portal.feedback.thanks")</h4>
+            @Messages("portal.feedback.thanks.message")
         </div>
 
         @feedbackForm(form)
     </div>
-</div>
-<script src="@controllers.portal.routes.Assets.at("js/jquery.tabSlideOut.v1.3.js")"></script>
-<script>
-    window.TAB_PATH = "@controllers.portal.routes.Assets.at("img/feedback_tab.png")";
-</script>
+</span>

@@ -1,0 +1,14 @@
+@(hasUserContent: Boolean)(implicit userOpt: Option[UserProfile], prefs: utils.SessionPrefs, request: RequestHeader, lang: Lang)
+
+<div class="view-options">
+    <a href="#" class="dropdown-toggle" data-toggle="dropdown">
+        <span class="glyphicon glyphicon-wrench"></span>
+    </a>
+    <ul class="boolean-preferences dropdown-menu pull-right" role="menu">
+        <li>
+            <a href="#" class="toggle-boolean-preference boolean-@prefs.showUserContent" data-preference-name="showUserContent" data-preference-value="@prefs.showUserContent">
+                @Messages("portal.viewOptions.showUserContent")
+            </a>
+        </li>
+    </ul>
+</div>

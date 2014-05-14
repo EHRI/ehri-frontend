@@ -5,39 +5,56 @@
 @*implicitField = @{ views.html.helper.FieldConstructor(common.dateFieldTemplate.f) }*@
 
 
-<div class="inline-element" id="@desc.id">
+<table class="inline-element table-condensed" id="@desc.id">
     @formHelpers.hiddenInput(desc(Entity.ID))
-        <div class="row">
-            <div class="col-xs-3">
-                <select class="form-control" name="@desc("TYPE").name">
-                @DatePeriodType.values.toList.sorted.map { v =>
-                    <option @{if(desc("TYPE").value == v) "selected" else ""} value="@v">@Messages(fieldPrefix + "." + v)</option>
+    <tr>
+        <td>
+            @defining(desc(TYPE).value.toSet) { values =>
+            <select class="form-control" name="@desc(TYPE).name">
+                <option></option>
+                @DatePeriodType.values.toList.sortBy(_.id).map { v =>
+                    <option @if(values.contains(v.toString)){selected} value="@v.toString">@Messages("datePeriod.type." + v)</option>
                 }
-                </select>
-            </div>
-            @List(START_DATE, END_DATE).map { fname =>
-                @defining(desc(fname)) { field =>
-                    <div class="col-xs-4 @{if(field.hasErrors) "has-error"}">
-                        <input class="form-control datepicker"  data-date-format="mm/dd/yyyy" placeholder="yyyy-mm-dd" type="text" name="@field.name" value="@field.value" placeholder="@Messages(fieldPrefix + "." + fname)" id="@field.id" />
+            </select>
+            }
+        </td>
+        <td>
+            @defining(desc(PRECISION).value.toSet) { values =>
+            <select class="form-control precision" name="@desc(PRECISION).name">
+                <option></option>
+                @DatePeriodPrecision.values.toList.sortBy(_.id).map { v =>
+                    <option @if(values.contains(v.toString)){selected} value="@v.toString">@Messages("datePeriod.precision." + v)</option>
+                }
+            </select>
+            }
+        </td>
+        @List(START_DATE, END_DATE).map { fname =>
+            @defining(desc(fname)) { field =>
+                <td class="@{if(field.hasErrors) "has-error"}">
+                    <div class="input-group">
+                        <span class="datepicker-activation input-group-addon" data-target="#@field.id"><span class="glyphicon glyphicon-calendar"></span></span>
+                        <input class="form-control datepicker"  data-date-format="mm-dd-yyyy" placeholder="yyyy-mm-dd" type="text" name="@field.name" value="@field.value" placeholder="@Messages(fieldPrefix + "." + fname)" id="@field.id" />
                     </div>
-                }
+                </td>
             }
-            <div class="col-xs-1 text-right">
-                <a class="remove-inline-element" tabindex="-1" href="#">&times;</a>
-            </div>
-        </div>
-        <div class="row">
-            @List(START_DATE, END_DATE).map { fname =>
-                @defining(desc(fname)) { field =>
-                    <div class="col-xs-3 has-error">
-                        @if(field.hasErrors) {
-                            <small>
-                                <span class="help-block">@field.errors.map(e => Messages(e.message, e.key)).mkString("; ")</span>
-                            </small>
-                        }
-                     </div>
-                }
+        }
+        <td class="text-right">
+            <a class="remove-inline-element" tabindex="-1" href="#">&times;</a>
+        </td>
+    </tr>
+    <tr>
+        <td colspan="2"></td>
+        @List(START_DATE, END_DATE).map { fname =>
+            @defining(desc(fname)) { field =>
+                <td class="has-error">
+                    @if(field.hasErrors) {
+                        <small>
+                            <span class="help-block">@field.errors.map(e => Messages(e.message, e.key)).mkString("; ")</span>
+                        </small>
+                    }
+                 </td>
             }
-        </div>
-</div>
+        }
+    </tr>
+</table>
 

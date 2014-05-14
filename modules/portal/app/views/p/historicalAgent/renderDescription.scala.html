@@ -1,8 +1,9 @@
-@(item: HistoricalAgent, desc: HistoricalAgentDescriptionF, links: List[Link], annotations: Seq[Annotation])(implicit userOpt: Option[UserProfile], req: RequestHeader, globalConfig: global.GlobalConfig, lang: Lang, fieldPrefix: String)
+@(item: HistoricalAgent, desc: HistoricalAgentDescriptionF, links: List[Link], annotations: Seq[Annotation])(implicit userOpt: Option[UserProfile], req: RequestHeader, prefs: utils.SessionPrefs, globalConfig: global.GlobalConfig, lang: Lang, fieldPrefix: String)
 
 @import Isaar._
 @import views.html.p.common.descriptionSection
 @import views.html.p.common.textField
+@import views.html.p.common.listField
 
 @p.common.descriptionOutline(item, desc, annotations) {
     @defining(Annotation.fieldAnnotations(desc.id, annotations)) { implicit fieldAnnotations =>
@@ -26,13 +27,13 @@
                 @textField(item, descId,   desc.control.status, STATUS)
                 @textField(item, descId,   desc.control.levelOfDetail, LEVEL_OF_DETAIL)
                 @textField(item, descId,   desc.control.datesCDR, DATES_CVD)
-                @common.listValue(desc.control.languages, LANGUAGES_USED, transformFunc = {s => views.Helpers.languageCodeToName(s)})
-                @common.listValue(desc.control.scripts, SCRIPTS_USED, transformFunc = {s => views.Helpers.scriptCodeToName(s)})
-                @common.listValue(desc.control.sources, SOURCES)
+                @listField(item, descId,   desc.control.languages, LANGUAGES_USED, transformFunc = {s => views.Helpers.languageCodeToName(s)})
+                @listField(item, descId,   desc.control.scripts, SCRIPTS_USED, transformFunc = {s => views.Helpers.scriptCodeToName(s)})
+                @listField(item, descId,   desc.control.sources, SOURCES)
                 @textField(item, descId,   desc.control.maintenanceNotes, MAINTENANCE_NOTES)
             }        
         }
 
-        @link.relatedLinks(item, desc, links)
+        @p.common.accessPoints(item, desc, links)
     }
 }

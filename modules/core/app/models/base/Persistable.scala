@@ -18,7 +18,7 @@ import backend.ErrorSet
 
 
 object Persistable {
-  def getRelationToAttributeMap[T <:Persistable](p: T): Map[String,String] = {
+  def getRelationToAttributeMap(p: AnyRef): Map[String,String] = {
     (Map[String,String]() /: p.getClass.getDeclaredFields) { (a, f) =>
       f.setAccessible(true)
       // If there's a relationship annotation on the value, 
@@ -32,6 +32,8 @@ object Persistable {
       // sub-items that have the same relation names for different
       // attributes
       f.get(p) match {
+        case i: AttributeSet => aa ++ getRelationToAttributeMap(i)
+        case p: Persistable => aa ++ getRelationToAttributeMap(p)
         case lst: List[_] => (aa /: lst) { (a, item) =>
           item match {
             // TODO: Check for collisions

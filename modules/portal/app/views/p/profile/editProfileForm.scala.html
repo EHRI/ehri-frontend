@@ -1,4 +1,4 @@
-@(f: play.api.data.Form[UserProfileF], action: Call)(
+@(f: Form[ProfileData], action: Call)(
 implicit userOpt: Option[UserProfile], req: RequestHeader, globalConfig: global.GlobalConfig, lang: Lang, flash: Flash, token: play.filters.csrf.CSRF.Token)
 
 @implicitField = @{ views.html.helper.FieldConstructor(p.helpers.fieldTemplateHorizontal.f) }
@@ -6,8 +6,6 @@ implicit userOpt: Option[UserProfile], req: RequestHeader, globalConfig: global.
 
 @helper.form(action = action, 'role -> "form", 'class -> "form-horizontal validate-form", 'id -> "update-profile-form") {
     @formHelpers.csrfToken()
-    @* NB: The value of this hidden input can be changed, but will be ignored on the server *@
-    @formHelpers.hiddenInput(f(Entity.IDENTIFIER))
 
     @defining(FIELD_PREFIX) { implicit fieldPrefix =>
         @formHelpers.lineInput(f(""), NAME)
@@ -16,7 +14,7 @@ implicit userOpt: Option[UserProfile], req: RequestHeader, globalConfig: global.
            <label class="col-sm-4 control-label" for="@LANGUAGES">@Messages(FIELD_PREFIX + "." + LANGUAGES)</label>
             <div class="col-sm-8">
            @defining(views.Helpers.fieldValues(f(LANGUAGES))) { values =>
-                <select class="select2" multiple name="@{f(LANGUAGES).name}[]" id="@f(LANGUAGES).id">
+                <select class="select2 form-control" multiple name="@{f(LANGUAGES).name}[]" id="@f(LANGUAGES).id">
                     @views.Helpers.languagePairList.map { case (oid, oval) =>
                     <option value="@oid" @{if(values.contains(oid)) "selected"}>@oval</option>
                     }
@@ -26,10 +24,11 @@ implicit userOpt: Option[UserProfile], req: RequestHeader, globalConfig: global.
         </div>
         @helper.textarea(f(ABOUT), '_label -> Messages(FIELD_PREFIX + "." + ABOUT), 'class -> "input-lg")
     }
-
-    <button type="submit" id="submit-profile-update" class="btn btn-primary">
-        <span class="glyphicon glyphicon-ok"></span>
-        @Messages("submitButton.updateUserProfile")
-    </button>
-    <a  id="cancel-profile-update" class="btn btn-default" href="@controllers.portal.routes.Portal.profile">@Messages("actions.cancel")</a>
+    <div class="form-group">
+        <div class="col-sm-offset-4 col-sm-8">
+            <button type="submit" class="button post">
+                @Messages("submitButton.updateUserProfile")
+            </button>
+        </div>
+    </div>
 }

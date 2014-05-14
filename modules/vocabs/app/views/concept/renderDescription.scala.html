@@ -1,8 +1,28 @@
 @(item: Concept, desc: ConceptDescriptionF)(implicit prefix: String, userOpt: Option[UserProfile], req: RequestHeader, globalConfig: global.GlobalConfig, lang: Lang)
 
-@import models.ConceptF._
+@import ConceptF._
 
-@desc.name
-@common.propertyList(desc.altLabels.toList.flatten: _*)
-@common.propertyList(desc.scopeNote.toList.flatten: _*)
-@common.propertyList(desc.definition.toList.flatten: _*)
+@listItem(list: Seq[_], label: String) = {
+    <dt>@Messages(prefix + "." + label)</dt>
+    <dd>
+    @if(list.isEmpty) {
+        <i class="text-muted">@Messages("describedEntity.notGiven")</i>
+    } else {
+        <ul>@common.propertyList(list.toList: _*)</ul>
+    }
+    </dd>
+}
+
+<dl class="dl-horizontal">
+    <dt>@Messages(prefix + "." + PREFLABEL)</dt>
+    <dd>
+        @desc.name
+        <i class="text-muted">
+            [@views.Helpers.languageCodeToName(desc.languageCode)]
+        </i>
+    </dd>
+    @listItem(desc.altLabels.toList.flatten, ALTLABEL)
+    @listItem(desc.scopeNote.toList.flatten, SCOPENOTE)
+    @listItem(desc.definition.toList.flatten, DEFINITION)
+</dl>
+

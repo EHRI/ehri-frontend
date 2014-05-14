@@ -1,5 +1,15 @@
 @(item: Country)(implicit req: RequestHeader, lang: Lang)
 
+@views.html.common.childCount(item) { count =>
+    @if(count > 0) {
+        <small>
+            <a href="@controllers.portal.routes.Portal.browseCountry(item.id)#search-items">@Messages("country.childCount", count)</a>
+        </small>
+    }
+}
+
 @item.model.abs.map { abs =>
-    <div class="national-report">@Html(abs)</div>
+    <div class="national-report">
+        @Html(views.Helpers.renderMarkdown(abs))
+    </div>
 }

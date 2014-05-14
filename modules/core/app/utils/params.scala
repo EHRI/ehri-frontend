@@ -104,7 +104,7 @@ object SystemEventParams {
       FROM -> optional(jodaDate(pattern = DATE_PATTERN)),
       TO -> optional(jodaDate(pattern = DATE_PATTERN)),
       SHOW -> optional(models.forms.enum(ShowType))
-    )(SystemEventParams.apply _)(SystemEventParams.unapply _)
+    )(SystemEventParams.apply)(SystemEventParams.unapply)
   )
 
   def fromRequest(request: RequestHeader): SystemEventParams = {

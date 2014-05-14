@@ -1,5 +1,16 @@
 jQuery(function($) {
-  
+  /**
+   * Markdown helper
+   */
+
+   $(".markdown-helper").popover({
+      html: true,
+      placement: "left",
+      content : function () {
+        return $(".markdown-cheatsheet").html();
+      }
+    });
+   
   /**
    * jQuery plugin that makes an element 'stick' to the bottom
    * of the viewport if it is outside. Used for form action
@@ -17,16 +28,17 @@ jQuery(function($) {
         var sticky = top > vpend + innerHeight - height;
 
         if (sticky) {
-          if (!that.isSticky === sticky) {
+          if (!that.isSticky === sticky || ($(window).outerHeight() != that.attr("data-windows"))) {
             that.css({
               position: "fixed",
               left: 0,
               width: $(window).width(),
-              top: $(window).height() - height - 15 // Unfortunate fudge factor!
-            }).addClass("sticky");
+              top: $(window).height() - height// - 15 // Unfortunate fudge factor!
+            }).addClass("sticky").attr("data-windows", $(window).outerHeight());
             that.isSticky = sticky;
           }
-        } else {
+        }
+        else {
           if (!that.isSticky === sticky) {
             that.removeAttr("style")
                 .removeClass("sticky");
@@ -36,6 +48,8 @@ jQuery(function($) {
       }
 
       $(window).scroll(shouldStick);
+      $(window).on('resize', shouldStick);
+
       shouldStick();
     }
   }
@@ -61,19 +75,20 @@ jQuery(function($) {
       });
   });
 
-  // Chosen selects - makes multi-select pretty
-  $(".chzn-select:visible").chosen();
+  // Make multi-selects pretty
+  $("select.select2").select2();
+
 
   // Fade success flash message after 3 seconds
   $(".success-pullup").fadeOut(3000);
 
   // Delete inline date period tables
-  $(".remove-inline-element").live("click", function(event) {
+  $(".remove-inline-element").on("click", function(event) {
     $(this).closest(".inline-element").remove();
     event.preventDefault();
   });
 
-  $(".add-inline-element").live("click", function(event) {
+  $(".add-inline-element").on("click", function(event) {
     var container = $(event.target).closest(".inline-formset");
     var set = container.children(".inline-element-list");
     var prefix = container.data("prefix");
@@ -91,8 +106,8 @@ jQuery(function($) {
     //container.append(elem);
     set.append(elem);
 
-    // Add chosen support to loaded content...
-    elem.find(".chzn-select").chosen();
+    // Add select2 support...
+    elem.find("select.select2").select2();
     event.preventDefault();
   });
 

@@ -1,7 +1,6 @@
 package models
 
 import defines._
-import defines.EnumUtils._
 import models.base._
 
 import models.base.Persistable
@@ -11,6 +10,9 @@ import play.api.libs.functional.syntax._
 import eu.ehri.project.definitions.Ontology
 import backend.rest.Constants
 import java.net.URL
+import play.api.data.Form
+import play.api.data.Forms._
+import play.api.libs.json.JsObject
 
 
 object DocumentaryUnitF {
@@ -36,8 +38,45 @@ object DocumentaryUnitF {
   final val SCOPE = "scope"
   final val COPYRIGHT = "copyright"
 
+  import models.Entity._
+  import eu.ehri.project.definitions.Ontology._
+
+  implicit val documentaryUnitWrites: Writes[DocumentaryUnitF] = new Writes[DocumentaryUnitF] {
+    def writes(d: DocumentaryUnitF): JsValue = {
+      Json.obj(
+        ID -> d.id,
+        TYPE -> d.isA,
+        DATA -> Json.obj(
+          IDENTIFIER -> d.identifier,
+          OTHER_IDENTIFIERS -> d.otherIdentifiers,
+          PUBLICATION_STATUS -> d.publicationStatus,
+          COPYRIGHT -> d.copyrightStatus.orElse(Some(CopyrightStatus.Unknown)),
+          SCOPE -> d.scope
+        ),
+        RELATIONSHIPS -> Json.obj(
+          Ontology.DESCRIPTION_FOR_ENTITY -> Json.toJson(d.descriptions.map(Json.toJson(_)).toSeq)
+        )
+      )
+    }
+  }
+
+  implicit val documentaryUnitReads: Reads[DocumentaryUnitF] = (
+    (__ \ TYPE).read[EntityType.Value](equalsReads(EntityType.DocumentaryUnit)) and
+      (__ \ ID).readNullable[String] and
+      (__ \ DATA \ IDENTIFIER).read[String] and
+      ((__ \ DATA \ OTHER_IDENTIFIERS).readNullable[List[String]] orElse
+        (__ \ DATA \ OTHER_IDENTIFIERS).readNullable[String].map(os => os.map(List(_))) ) and
+      (__ \ DATA \ PUBLICATION_STATUS).readNullable[PublicationStatus.Value] and
+      ((__ \ DATA \ COPYRIGHT).read[Option[CopyrightStatus.Value]] orElse Reads.pure(Some(CopyrightStatus.Unknown))) and
+      (__ \ DATA \ SCOPE).readNullable[Scope.Value] and
+      (__ \ RELATIONSHIPS \ DESCRIPTION_FOR_ENTITY).lazyReadNullable[List[DocumentaryUnitDescriptionF]](
+        Reads.list[DocumentaryUnitDescriptionF]).map(_.getOrElse(List.empty[DocumentaryUnitDescriptionF]))
+    )(DocumentaryUnitF.apply _)
+
+  implicit val documentaryUnitFormat: Format[DocumentaryUnitF] = Format(documentaryUnitReads,documentaryUnitWrites)
+
   implicit object Converter extends RestConvertable[DocumentaryUnitF] with ClientConvertable[DocumentaryUnitF] {
-    val restFormat = models.json.DocumentaryUnitFormat.restFormat
+    val restFormat = documentaryUnitFormat
 
     private implicit val docDescFmt = DocumentaryUnitDescriptionF.Converter.clientFormat
     val clientFormat = Json.format[DocumentaryUnitF]
@@ -87,8 +126,28 @@ case class DocumentaryUnitF(
 }
 
 object DocumentaryUnit {
+  import models.Entity._
+  import models.DocumentaryUnitF._
+  import eu.ehri.project.definitions.Ontology.{OTHER_IDENTIFIERS => _, _}
+
+  implicit val metaReads: Reads[DocumentaryUnit] = (
+    __.read[DocumentaryUnitF](documentaryUnitReads) and
+      // Holder
+      (__ \ RELATIONSHIPS \ DOC_HELD_BY_REPOSITORY).lazyReadNullable[List[Repository]](
+        Reads.list(Repository.Converter.restReads)).map(_.flatMap(_.headOption)) and
+      //
+      (__ \ RELATIONSHIPS \ DOC_IS_CHILD_OF).lazyReadNullable[List[DocumentaryUnit]](
+        Reads.list(metaReads)).map(_.flatMap(_.headOption)) and
+      (__ \ RELATIONSHIPS \ IS_ACCESSIBLE_TO).lazyReadNullable[List[Accessor]](
+        Reads.list(Accessor.Converter.restReads)).map(_.getOrElse(List.empty[Accessor])) and
+      (__ \ RELATIONSHIPS \ ENTITY_HAS_LIFECYCLE_EVENT).lazyReadNullable[List[SystemEvent]](
+        Reads.list(SystemEvent.Converter.restReads)).map(_.flatMap(_.headOption)) and
+      (__ \ META).readNullable[JsObject].map(_.getOrElse(JsObject(Seq())))
+    )(DocumentaryUnit.apply _)
+
+
   implicit object Converter extends RestReadable[DocumentaryUnit] with ClientConvertable[DocumentaryUnit] {
-    implicit val restReads = json.DocumentaryUnitFormat.metaReads
+    implicit val restReads = metaReads
 
     val clientFormat: Format[DocumentaryUnit] = (
       __.format[DocumentaryUnitF](DocumentaryUnitF.Converter.clientFormat) and
@@ -111,9 +170,24 @@ object DocumentaryUnit {
      */
     override def defaultParams = Seq(
       Constants.INCLUDE_PROPERTIES_PARAM -> RepositoryF.URL_PATTERN,
+      Constants.INCLUDE_PROPERTIES_PARAM -> Isdiah.OTHER_FORMS_OF_NAME,
+      Constants.INCLUDE_PROPERTIES_PARAM -> Isdiah.PARALLEL_FORMS_OF_NAME,
       Constants.INCLUDE_PROPERTIES_PARAM -> RepositoryF.LOGO_URL
     )
   }
+
+  val form = Form(
+    mapping(
+      ISA -> ignored(EntityType.DocumentaryUnit),
+      ID -> optional(nonEmptyText),
+      IDENTIFIER -> nonEmptyText,
+      OTHER_IDENTIFIERS -> optional(list(nonEmptyText)),
+      PUBLICATION_STATUS -> optional(models.forms.enum(defines.PublicationStatus)),
+      COPYRIGHT -> optional(models.forms.enum(CopyrightStatus)),
+      SCOPE -> optional(models.forms.enum(Scope)),
+      "descriptions" -> list(DocumentaryUnitDescription.form.mapping)
+    )(DocumentaryUnitF.apply)(DocumentaryUnitF.unapply)
+  )
 }
 
 case class DocumentaryUnit(

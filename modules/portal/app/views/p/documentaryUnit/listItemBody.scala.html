@@ -27,7 +27,7 @@
             @desc.dates.headOption.map { dp =>
             <li>@dp.years</li>
             }
-            @desc.extentAndMedium.map { s =>
+            @desc.identity.extentAndMedium.map { s =>
             <li>@StringUtils.abbreviate(s, 25)</li>
             }
             @item.latestEvent.map { event =>
@@ -38,10 +38,15 @@
             </li>
             }
         </ul>
+        @views.html.common.childCount(item) { count =>
+            @if(count > 0) {
+                <a href="@controllers.portal.routes.Portal.browseDocument(item.id)#search-items">@Messages("documentaryUnit.childCount", count)</a>
+            }
+        }
     </small>
 
     @desc.displayText.map(StringUtils.abbreviate(_, 600)).map { sc =>
-    <p>@sc</p>
+        <p>@Html(views.Helpers.renderMarkdown(sc))</p>
     }
 }.getOrElse {
     <small>@Messages("describedEntity.noDescriptions")</small>

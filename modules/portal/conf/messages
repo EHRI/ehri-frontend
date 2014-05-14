@@ -2,31 +2,53 @@ portal.welcome=Welcome to EHRI
 portal.home=Home
 portal.footerText=This is a development version of the EHRI portal interface.
 
+portal.feedback.list=Submitted Feedback
+
 portal.login=Sign In
 portal.logout=Sign Out
+portal.logoutSucceeded=You have been logged out
 portal.signup=Create an Account
 portal.recoverAccount=If you have lost your login details:
 portal.loginByProvider=If you already have an account on one of these sites you can click the logo to log in to EHRI:
 portal.openId=OpenID
 portal.openIdEnterUrl=Enter your OpenID URL
 portal.loginByPassword=If you''ve previously created an account with EHRI, enter your email and password here:
+portal.signup.needToConfirmEmail=Thanks for signing up! We''ve sent you an email which you can use to confirm \
+  you email address.
 portal.signup.emailConfirmed=Your email is now confirmed and you have been signed in.
 portal.signup.invalidSignupToken=Confirmation URL is invalid or has expired.
 portal.mail.confirmEmailHeading=Please confirm your email address
 portal.mail.confirmEmailMessage=Please confirm your email address by visiting the following address:
 portal.mail.confirmEmailFooter=This link will be valid for 1 week, after which your account will\
   be deactivated.
+portal.mail.unverifiedEmailWarning=Unverified Account
+portal.mail.unverifiedEmailWarningMessage=The email associated with your account has not yet been verified.
+portal.mail.unverifiedEmailResend=To re-send a verification email
+portal.mail.unverifiedEmailResendSubmit=click here
+portal.mail.emailConfirmationResent=We''ve sent you an email which you can use to confirm you email address.
+portal.email.validated=Your account has been validated.
 portal.forgotPasswordLink=Click here to recover your account
 portal.signupLink=Click here to sign up
 
+portal.viewOptions.showUserContent=Show User-Generated Comments and Links
+
 portal.browse=Browse
-portal.search=Search
 portal.showDetails=Show Item Details
 portal.hideDetails=Hide Item Details
 portal.showItems={0,choice,0#{0} Items|1#1 Item|1<{0,number,integer} Items}
 portal.profile=Profile
 portal.profile.updateProfile=Edit Profile
-portal.globalSearch=Search Everything
+portal.profile.updateProfileImage=Set Profile Image
+portal.profile.deleteProfile=Delete Account
+portal.profile.deleteProfileLink=Click here to delete your profile
+portal.warning=Warning
+portal.profile.changePassword=Change Password
+portal.profile.deleteProfileConfirmation=Deleting your account will \
+  will anonymise (but not remove) any publicly-visible annotations and links you may have \
+  contributed to EHRI. To confirm, please type your name as displayed here, in the box below:
+portal.profile.deleteProfileCheck=Type your name as displayed above.
+portal.profile.deleteProfile.badConfirmation=Profile deletion was not confirmed correctly.
+portal.profile.profileDeleted=Your profile has been deleted.
 portal.close=Close
 portal.browse.countries=Country Reports
 portal.browse.repositoriesByCountry=Institutions By Country
@@ -34,6 +56,7 @@ portal.browse.repositories=Archival Institutions
 portal.browse.documents=Archival Descriptions
 portal.browse.historicalAgents=Authorities
 portal.browse.documentsByRepository=Archival Descriptions By Repository
+portal.browse.concepts=Keywords
 portal.landingBlurb.repositories=Browse {0} in {1}.
 portal.landingBlurb.repositoryLink={0} collection holding institutions
 portal.landingBlurb.inCountryLink={0} countries
@@ -45,9 +68,6 @@ portal.landingBlurb.historicalAgentLink={0} authority files
 portal.landingBlurb.corporateBodyLink={0,choice,0#{0} corporate bodies|1#1 corporate body|1<{0,number,integer} corporate bodies}
 portal.landingBlurb.personLink={0} Persons
 portal.landingBlurb.familyLink={0,choice,0#{0} families|1#1 family|1<{0,number,integer} families}
-portal.search.repositories=Search Archival Institutions
-portal.search.documents=Search Archival Descriptions
-portal.search.historicalAgents=Search Authorities
 
 portal.bookmarkedItems=Bookmarked Items
 portal.newsFeed=Latest News
@@ -77,6 +97,11 @@ portal.historicalAgent.entityType.person=Person
 portal.historicalAgent.entityType.family=Family
 portal.historicalAgent.entityType.corporateBody=Corporate Body
 
+portal.facet.lod=Level of Detail
+portal.facet.lod.low=Low
+portal.facet.lod.medium=Medium
+portal.facet.lod.high=High
+portal.facet.placeholder.lod=Select Level of Detail
 portal.facet.location=Location
 portal.facet.placeholder.holder=Filter by Repository
 portal.facet.placeholder.country=Filter Country
@@ -114,22 +139,52 @@ portal.social.followedBy=Followed By
 portal.social.noFollowersYet=No one''s following {0} yet.
 portal.social.noFollowingYet={0} isn''t following anyone yet.
 portal.social.noItemsWatchedYet=You''re not watching any items yet.
+portal.social.userFollowing=Users Following {0}
+portal.social.usersFollowedBy=Users Followed by {0}
 
+portal.social.annotation=Notes
 portal.social.watch=Watch Item
 portal.social.unwatch=Unwatch Item
 portal.social.watchItem=Add item to your watch list
 portal.social.unwatchItem=Remove item from your watch list
-portal.social.watchedItems=Items You''re Watching
-portal.social.annotations=Your Annotations
-portal.social.links=Your Links
-portal.social.noAnnotationsYet=You haven''t made any annotations yet.
+portal.social.watchedItems=Watched Items
+portal.social.watch.tooltip=Click to see updates to this item in your activity list.
+portal.social.unwatch.tooltip=Click to stop getting updates to this item posted in your activity list.
+portal.social.annotations=Notes
+portal.social.links=Links
+portal.social.noAnnotationsYet=You haven''t made any notes yet.
 portal.social.noLinksYet=You haven''t made any links yet.
-portal.social.createAnnotation=comment
+portal.social.createAnnotation=New Note
 portal.social.editAnnotation=Save
-portal.social.createFieldAnnotation=comment
+portal.social.createFieldAnnotation=New Note
 portal.social.createLink=Create Link
 portal.social.annotationCreatedBy=Created by {0} at {1}
-portal.social.showPublicAnnotations={0,choice,1#Show 1 public comment|1<Show {0} public comments}
+portal.social.showPublicAnnotations={0,choice,1#Show 1 public note|1<Show {0} public notes}
+
+portal.social.timeline.eventType.ingest={0} imported {1}
+portal.social.timeline.eventType.creation={0} created {1}
+portal.social.timeline.eventType.annotation={0} annotated {1}
+portal.social.timeline.eventType.modification={0} updated {1}
+portal.social.timeline.eventType.link={0} linked {1}
+portal.social.timeline.eventType.createDependent={0} updated {1}
+portal.social.timeline.eventType.modifyDependent={0} updated {1}
+portal.social.timeline.eventType.deleteDependent={0} updated {1}
+
+
+portal.social.timeline.target.group=a group
+portal.social.timeline.target.userProfile=an user
+portal.social.timeline.target.repository=an archival institution
+portal.social.timeline.target.historicalAgent=an authority
+portal.social.timeline.target.documentaryUnit=an archival description
+portal.social.timeline.target.action=an user event
+portal.social.timeline.target.cvocVocabulary=a vocabulariy
+portal.social.timeline.target.authoritativeSet=an authority sets
+portal.social.timeline.target.cvocConcept=a term
+portal.social.timeline.target.annotation=an annotation
+portal.social.timeline.target.country=a country
+portal.social.timeline.target.link=a link
+portal.social.timeline.target.systemEvent=an history
+
 
 portal.contributionVisibility=Choose who can see this
 portal.contributionVisibility.me=Only Me
@@ -137,3 +192,26 @@ portal.contributionVisibility.groups=My Groups
 portal.contributionVisibility.custom=Custom
 portal.contributionVisibility.allowPublic=Allow Promotion
 portal.social.annotation.placeholder=
+
+# Image upload
+portal.error.imageTooLarge=This image was too large. Please select one smaller than 5 metabytes in size.
+portal.error.badFileType=The uploaded file was not a supported image type.
+portal.error.noFileGiven=No image file was selected.
+
+portal.search=Search
+portal.search.global=Search Everything
+portal.search.repositories=Search Archival Institutions
+portal.search.documents=Search Archival Descriptions
+portal.search.historicalAgents=Search Authorities
+portal.search.helper.example=Phrase
+portal.search.helper.linkTitle=Advanced query tips
+portal.search.helper=There are several ways to be more specific in your search query:
+portal.search.helper.minus=Exclude given word from search, e.g. -Gestapo
+portal.search.helper.plus=Given word has to be in the result, e.g. +Gestapo
+portal.search.helper.quotes=Search an exact match of your query, e.g. "Member lists"
+
+#Feedback module
+portal.feedback=Feedback
+portal.feedback.message=Let us know what you think...
+portal.feedback.thanks=Thanks !
+portal.feedback.thanks.message=Your feedback is greatly appreciated.

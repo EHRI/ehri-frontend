@@ -4,9 +4,10 @@ import models.base._
 import defines.EntityType
 import play.api.libs.json._
 import models.json._
-import play.api.libs.functional.syntax._
 import play.api.i18n.Lang
 import eu.ehri.project.definitions.Ontology
+import play.api.data.Form
+import play.api.data.Forms._
 
 
 object LinkF {
@@ -25,8 +26,37 @@ object LinkF {
     implicit val format = defines.EnumUtils.enumFormat(this)
   }
 
+  import models.Entity._
+  import Ontology._
+  import play.api.libs.functional.syntax._
+
+  implicit val linkWrites: Writes[LinkF] = new Writes[LinkF] {
+    def writes(d: LinkF): JsValue = {
+      Json.obj(
+        ID -> d.id,
+        TYPE -> d.isA,
+        DATA -> Json.obj(
+          LINK_TYPE -> d.linkType,
+          DESCRIPTION -> d.description,
+          IS_PROMOTABLE -> d.isPromotable
+        )
+      )
+    }
+  }
+
+  implicit val linkReads: Reads[LinkF] = (
+    (__ \ TYPE).read[EntityType.Value](equalsReads(EntityType.Link)) and
+      (__ \ ID).readNullable[String] and
+      ((__ \ DATA \ LINK_TYPE).read[LinkType.Value]
+        orElse Reads.pure(LinkType.Associative)) and
+      (__ \ DATA \ DESCRIPTION).readNullable[String] and
+      (__ \ DATA \ IS_PROMOTABLE).readNullable[Boolean].map(_.getOrElse(false))
+    )(LinkF.apply _)
+
+  implicit val linkFormat: Format[LinkF] = Format(linkReads,linkWrites)
+
   implicit object Converter extends RestConvertable[LinkF] with ClientConvertable[LinkF] {
-    lazy val restFormat = models.json.LinkFormat.restFormat
+    lazy val restFormat = linkFormat
     lazy val clientFormat = Json.format[LinkF]
   }
 }
@@ -41,8 +71,34 @@ case class LinkF(
 
 
 object Link {
+  import models.Entity._
+  import Ontology._
+  import play.api.libs.functional.syntax._
+
+  private implicit val anyModelReads = AnyModel.Converter.restReads
+  private implicit val userProfileMetaReads = models.UserProfile.Converter.restReads
+  private implicit val accessPointReads = models.AccessPointF.accessPointReads
+  private implicit val systemEventReads = SystemEvent.Converter.restReads
+
+  implicit val metaReads: Reads[Link] = (
+    __.read[LinkF] and
+      (__ \ RELATIONSHIPS \ LINK_HAS_TARGET).lazyReadNullable[List[AnyModel]](
+        Reads.list[AnyModel]).map(_.getOrElse(List.empty[AnyModel])) and
+      (__ \ RELATIONSHIPS \ LINK_HAS_LINKER).lazyReadNullable[List[UserProfile]](
+        Reads.list[UserProfile]).map(_.flatMap(_.headOption)) and
+      (__ \ RELATIONSHIPS \ LINK_HAS_BODY).lazyReadNullable[List[AccessPointF]](
+        Reads.list[AccessPointF]).map(_.getOrElse(List.empty[AccessPointF])) and
+      (__ \ RELATIONSHIPS \ IS_ACCESSIBLE_TO).lazyReadNullable[List[Accessor]](
+        Reads.list(Accessor.Converter.restReads)).map(_.getOrElse(List.empty[Accessor])) and
+      (__ \ RELATIONSHIPS \ PROMOTED_BY).lazyReadNullable[List[UserProfile]](
+        Reads.list(UserProfile.Converter.restReads)).map(_.getOrElse(List.empty[UserProfile])) and
+      (__ \ RELATIONSHIPS \ ENTITY_HAS_LIFECYCLE_EVENT).lazyReadNullable[List[SystemEvent]](
+        Reads.list[SystemEvent]).map(_.flatMap(_.headOption)) and
+      (__ \ META).readNullable[JsObject].map(_.getOrElse(JsObject(Seq())))
+    )(Link.apply _)
+
   implicit object Converter extends RestReadable[Link] with ClientConvertable[Link] {
-    val restReads = models.json.LinkFormat.metaReads
+    val restReads = metaReads
 
     private implicit val linkFormat = Json.format[LinkF]
     val clientFormat: Format[Link] = (
@@ -60,6 +116,24 @@ object Link {
   implicit object Resource extends RestResource[Link] {
     val entityType = EntityType.Link
   }
+
+  import LinkF._
+
+  val form = Form(mapping(
+    Entity.ISA -> ignored(EntityType.Link),
+    Entity.ID -> optional(nonEmptyText),
+    LINK_TYPE -> models.forms.enum(LinkType),
+    DESCRIPTION -> optional(nonEmptyText), // TODO: Validate this server side
+    Ontology.IS_PROMOTABLE -> default(boolean, false)
+  )(LinkF.apply)(LinkF.unapply))
+
+  val multiForm = Form(    single(
+    "link" -> list(tuple(
+      "id" -> nonEmptyText,
+      "data" -> form.mapping,
+      "accessPoint" -> optional(nonEmptyText)
+    ))
+  ))
 }
 
 case class Link(

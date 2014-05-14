@@ -1,44 +1,126 @@
-
 .form-actions {
-	background-color:@well-bg;
-	border-top: 1px solid @well-border;
-	padding:15px 5px;
+  background-color: @well-bg;
+  border-top: 1px solid @well-border;
+  padding: 15px 5px;
 
-	&.sticky {
-		.container;
-		bottom:0!important;
-	}
+  &.sticky {
+    .container;
+    bottom: 0 !important;
+  }
 }
 
-.button {
+.button, .btn {
+	.btn;
+  color:white;
+  a& {
+    color:white;
+  }
 	&.post {
-  		.button-variant(@btn-post-color; @btn-post-bg; @btn-post-border);
+  		.button-variant(@btn-post-color, @btn-post-bg, @btn-post-border);
 	}
 	&.cancel {
-  		.button-variant(@btn-cancel-color; @btn-cancel-bg; @btn-cancel-border);
+  		.button-variant(@btn-cancel-color, @btn-cancel-bg, @btn-cancel-border);
 	}
 	&.get {
-		.button-variant(@btn-get-color; @btn-get-bg; @btn-get-border);
+		.button-variant(@btn-get-color, @btn-get-bg, @btn-get-border);
 	}
+  &.facebook, &.google, &.linkedin {
+    .btn-block;
+    width:80%;
+    margin:10px auto;
+  }
+  &.facebook {
+    .button-variant(#ffffff, #354E84, #354E84);
+  }
+  &.google {
+    .button-variant(#ffffff, #DD4B39, #DD4B39);
+  }
+  &.linkedin {
+    .button-variant(#ffffff,#0083A8,#0083A8);
+  }
+
+  &.danger {
+    .button-variant(@btn-danger-color, @btn-danger-bg, @btn-danger-border);
+  }
+
+	&.xs {
+		.btn-xs;
+	}
+
+    &.small {
+      .btn-sm;
+    }
+
 }
 
 form[method="GET"], form:not([method="POST"]) {
-	.btn-default, .btn-primary, button[type="submit"], input[type="submit"], .button.submit {
-		.button.get;
-	}
+  .btn-default, .btn-primary, button[type="submit"], input[type="submit"], .button.submit {
+    .button.get
+  ;
+  }
 }
 
 .btn-link, .btn-default, .btn, .btn-primary {
-	.button.get;
-}
-
-form[method="POST"] {
-	.btn-default, .btn-primary, button[type="submit"], input[type="submit"], .button.submit {
-  		.button.post;
-	}
+  .button.get
+;
 }
 
 .remove-inline-element {
-	.btn;
-  	.button-variant(@btn-danger-color; @btn-danger-bg; @btn-danger-border);
+  text-shadow: rgba(215, 0, 0, 1) 0 0 10px;
+}
+.make-btn-group(@btn-color : @btn-primary-color, @btn-bg : @btn-primary-color, @btn-border: @btn-primary-border, @btn-size : 0) {
+
+  position: relative;
+  display: inline-block;
+  vertical-align: middle; // match .btn alignment given font-size hack above
+  > * {
+    .btn();
+    .button-variant(@btn-primary-color; @btn-primary-bg; @btn-primary-border);
+    position: relative;
+    float: left;
+    // Bring the "active" button to the front
+    &:hover,
+    &:focus,
+    &:active,
+    &.active {
+      z-index: 2;
+    }
+    &:focus {
+      outline: none;
+    }
+  }
+  > * + * {
+    margin-left: -1px;
+  }
+
+
+  > *:not(:first-child):not(:last-child) {
+    border-radius: 0;
+  }
+
+  > *:first-child {
+    margin-left: 0;
+    &:not(:last-child) {
+      .border-right-radius(0);
+    }
+  }
+
+  > *:last-child:not(:first-child) {
+    .border-left-radius(0);
+  }
+}
+.make-btn-group(@btn-color : @btn-primary-color, @btn-bg : @btn-primary-color, @btn-border: @btn-primary-border, @btn-size : 0) when (@btn-size = xs) {
+  > * {
+    .btn-xs();
+  }
+}
+.make-btn-group(@btn-color : @btn-primary-color, @btn-bg : @btn-primary-color, @btn-border: @btn-primary-border, @btn-size : 0) when (@btn-size = sm) {
+  > * {
+    .btn-sm();
+  }
+}
+.make-btn-group(@btn-color : @btn-primary-color, @btn-bg : @btn-primary-color, @btn-border: @btn-primary-border, @btn-size : 0) when (@btn-size = lg) {
+  > * {
+    .btn-lg();
+  }
 }

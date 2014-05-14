@@ -8,14 +8,42 @@ import models.json._
 import play.api.i18n.Lang
 import play.api.libs.json._
 import play.api.libs.functional.syntax._
+import play.api.data.Form
+import play.api.data.Forms._
 
 object CountryF {
 
   val REPORT = "report"
   val ABSTRACT = "abstract"
 
+  import Entity._
+
+  implicit val countryWrites: Writes[CountryF] = new Writes[CountryF] {
+    def writes(d: CountryF): JsValue = {
+      Json.obj(
+        ID -> d.id,
+        TYPE -> d.isA,
+        DATA -> Json.obj(
+          IDENTIFIER -> d.identifier,
+          ABSTRACT -> d.abs,
+          REPORT -> d.report
+        )
+      )
+    }
+  }
+
+  lazy implicit val countryReads: Reads[CountryF] = (
+    (__ \ TYPE).read[EntityType.Value](equalsReads(EntityType.Country)) and
+      (__ \ ID).readNullable[String] and
+      (__ \ DATA \ IDENTIFIER).read[String] and
+      (__ \ DATA \ ABSTRACT).readNullable[String] and
+      (__ \ DATA \ REPORT).readNullable[String]
+    )(CountryF.apply _)
+
+  implicit val countryFormat: Format[CountryF] = Format(countryReads,countryWrites)
+
   implicit object Converter extends RestConvertable[CountryF] with ClientConvertable[CountryF] {
-    lazy val restFormat = models.json.CountryFormat.restFormat
+    lazy val restFormat = countryFormat
     lazy val clientFormat = Json.format[CountryF]
   }
 }
@@ -30,8 +58,22 @@ case class CountryF(
 
 
 object Country {
+  import eu.ehri.project.definitions.Ontology._
+  import Entity._
+  import CountryF._
+
+  implicit val metaReads: Reads[Country] = (
+    __.read[CountryF](countryReads) and
+      // Latest event
+      (__ \ RELATIONSHIPS \ IS_ACCESSIBLE_TO).lazyReadNullable[List[Accessor]](
+        Reads.list(Accessor.Converter.restReads)).map(_.getOrElse(List.empty[Accessor])) and
+      (__ \ RELATIONSHIPS \ ENTITY_HAS_LIFECYCLE_EVENT).lazyReadNullable[List[SystemEvent]](
+        Reads.list(SystemEvent.Converter.restReads)).map(_.flatMap(_.headOption)) and
+      (__ \ META).readNullable[JsObject].map(_.getOrElse(JsObject(Seq())))
+  )(Country.apply _)
+
   implicit object Converter extends ClientConvertable[Country] with RestReadable[Country] {
-    val restReads = models.json.CountryFormat.metaReads
+    val restReads = metaReads
 
     val clientFormat: Format[Country] = (
       __.format[CountryF](CountryF.Converter.clientFormat) and
@@ -44,6 +86,16 @@ object Country {
   implicit object Resource extends RestResource[Country] {
     val entityType = EntityType.Country
   }
+
+  val form = Form(
+    mapping(
+      ISA -> ignored(EntityType.Country),
+      ID -> optional(nonEmptyText),
+      IDENTIFIER -> nonEmptyText(minLength=2,maxLength=2), // ISO 2-letter field
+      ABSTRACT -> optional(nonEmptyText),
+      REPORT -> optional(nonEmptyText)
+    )(CountryF.apply)(CountryF.unapply)
+  )
 }
 
 

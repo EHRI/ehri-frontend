@@ -7,7 +7,7 @@ implicit userOpt: Option[UserProfile], req: RequestHeader, globalConfig: global.
         @vocabulary.renderForm(None, f)
         @permissions.renderVisibilityForm(vf, users, groups)
 
-        @common.submitButtonWithLogMessageInput(Messages("submitButton.createVocabulary"))
+        @formHelpers.submitButtonWithLogMessageInput(Messages("submitButton.createVocabulary"))
 	}
 } {
 

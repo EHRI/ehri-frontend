@@ -1,23 +1,24 @@
 package controllers.archdesc
 
-import forms.VisibilityForm
-import models.{DocumentaryUnit,DocumentaryUnitF,DocumentaryUnitDescriptionF,IsadG}
+import _root_.forms.VisibilityForm
+import models._
 import controllers.generic._
-import models.forms.LinkForm
 import play.api.mvc._
 import play.api.i18n.Messages
 import defines.{ContentTypes,EntityType,PermissionType}
 import views.Helpers
-import utils.search.{Resolver, Dispatcher, SearchParams, FacetSort}
+import utils.search._
 import com.google.inject._
 import solr.SolrConstants
 import scala.concurrent.Future.{successful => immediate}
-import scala.Some
 import backend.{ApiUser, Backend}
 import utils.ListParams
+import play.api.Play.current
+import play.api.Configuration
+
 
 @Singleton
-case class DocumentaryUnits @Inject()(implicit globalConfig: global.GlobalConfig, searchDispatcher: Dispatcher, searchResolver: Resolver, backend: Backend) extends Read[DocumentaryUnit]
+case class DocumentaryUnits @Inject()(implicit globalConfig: global.GlobalConfig, searchDispatcher: Dispatcher, searchResolver: Resolver, backend: Backend, userDAO: AccountDAO) extends Read[DocumentaryUnit]
   with Visibility[DocumentaryUnit]
   with Creator[DocumentaryUnitF, DocumentaryUnit, DocumentaryUnit]
   with Update[DocumentaryUnitF, DocumentaryUnit]
@@ -33,7 +34,7 @@ case class DocumentaryUnits @Inject()(implicit globalConfig: global.GlobalConfig
   // Documentary unit facets
   import solr.facet._
 
-  private val entityFacets: FacetBuilder = { implicit lang =>
+  private val entityFacets: FacetBuilder = { implicit request =>
     List(
       QueryFacetClass(
         key="childCount",
@@ -45,17 +46,32 @@ case class DocumentaryUnits @Inject()(implicit globalConfig: global.GlobalConfig
           SolrQueryFacet(value = "true", solrValue = "[1 TO *]", name = Some("hasChildItems"))
         )
       ),
+      QueryFacetClass(
+        key="charCount",
+        name=Messages("lod"),
+        param="lod",
+        render=s => Messages("lod." + s),
+        facets=List(
+          SolrQueryFacet(value = "low", solrValue = "[0 TO 500]", name = Some("low")),
+          SolrQueryFacet(value = "medium", solrValue = "[501 TO 2000]", name = Some("medium")),
+          SolrQueryFacet(value = "high", solrValue = "[2001 TO *]", name = Some("high"))
+        ),
+        sort = FacetSort.Fixed,
+        display = FacetDisplay.List
+      ),
       FieldFacetClass(
         key=IsadG.LANG_CODE,
         name=Messages(IsadG.FIELD_PREFIX + "." + IsadG.LANG_CODE),
         param="lang",
-        render=Helpers.languageCodeToName
+        render=Helpers.languageCodeToName,
+        display = FacetDisplay.Choice
       ),
       FieldFacetClass(
         key="holderName",
         name=Messages("documentaryUnit.heldBy"),
         param="holder",
-        sort = FacetSort.Name
+        sort = FacetSort.Name,
+        display = FacetDisplay.DropDown
       ),
       FieldFacetClass(
         key="copyrightStatus",
@@ -75,12 +91,15 @@ case class DocumentaryUnits @Inject()(implicit globalConfig: global.GlobalConfig
 
   implicit val resource = DocumentaryUnit.Resource
 
+  val formDefaults: Option[Configuration] = current.configuration.getConfig(EntityType.DocumentaryUnit)
+  val descDefaults: Option[Configuration] = formDefaults.flatMap(_.getConfig(IsadG.FIELD_PREFIX))
+
   val contentType = ContentTypes.DocumentaryUnit
   val targetContentTypes = Seq(ContentTypes.DocumentaryUnit)
 
-  val form = models.forms.DocumentaryUnitForm.form
-  val childForm = models.forms.DocumentaryUnitForm.form
-  val descriptionForm = models.forms.IsadGForm.form
+  val form = models.DocumentaryUnit.form
+  val childForm = models.DocumentaryUnit.form
+  val descriptionForm = models.DocumentaryUnitDescription.form
 
   val DEFAULT_SEARCH_PARAMS = SearchParams(entities=List(resource.entityType))
 
@@ -98,7 +117,7 @@ case class DocumentaryUnits @Inject()(implicit globalConfig: global.GlobalConfig
     searchAction[DocumentaryUnit](filters, defaultParams = Some(DEFAULT_SEARCH_PARAMS),
         entityFacets = entityFacets) {
         page => params => facets => implicit userOpt => implicit request =>
-      Ok(views.html.documentaryUnit.search(page, params, facets, docRoutes.search))
+      Ok(views.html.documentaryUnit.search(page, params, facets, docRoutes.search()))
     }.apply(request)
   }
 
@@ -107,7 +126,7 @@ case class DocumentaryUnits @Inject()(implicit globalConfig: global.GlobalConfig
 
     searchAction[DocumentaryUnit](Map("parentId" -> item.id), entityFacets = entityFacets) {
       page => params => facets => implicit userOpt => implicit request =>
-        Ok(views.html.documentaryUnit.search(page, params, facets, docRoutes.search))
+        Ok(views.html.documentaryUnit.search(page, params, facets, docRoutes.search()))
     }.apply(request)
   }
 
@@ -153,7 +172,7 @@ case class DocumentaryUnits @Inject()(implicit globalConfig: global.GlobalConfig
 
   def createDoc(id: String) = childCreateAction(id, contentType) { item => users => groups => implicit userOpt => implicit request =>
     Ok(views.html.documentaryUnit.create(
-      item, childForm, VisibilityForm.form, users, groups,
+      item, childForm, formDefaults, VisibilityForm.form, users, groups,
       docRoutes.createDocPost(id)))
   }
 
@@ -162,26 +181,26 @@ case class DocumentaryUnits @Inject()(implicit globalConfig: global.GlobalConfig
     formsOrItem match {
       case Left((errorForm,accForm)) => getUsersAndGroups { users => groups =>
         BadRequest(views.html.documentaryUnit.create(item,
-          errorForm, accForm, users, groups,
+          errorForm, formDefaults, accForm, users, groups,
           docRoutes.createDocPost(id)))
       }
-      case Right(item) => immediate(Redirect(docRoutes.get(item.id))
-        .flashing("success" -> Messages("confirmations.itemWasCreated", item.id)))
+      case Right(doc) => immediate(Redirect(docRoutes.get(doc.id))
+        .flashing("success" -> Messages("confirmations.itemWasCreated", doc.id)))
     }
   }
 
   def createDescription(id: String) = withItemPermission[DocumentaryUnit](id, PermissionType.Update, contentType) {
       item => implicit userOpt => implicit request =>
     Ok(views.html.documentaryUnit.createDescription(item,
-        descriptionForm, docRoutes.createDescriptionPost(id)))
+        descriptionForm, descDefaults, docRoutes.createDescriptionPost(id)))
   }
 
   def createDescriptionPost(id: String) = createDescriptionPostAction(id, EntityType.DocumentaryUnitDescription, descriptionForm) {
       item => formOrItem => implicit userOpt => implicit request =>
     formOrItem match {
       case Left(errorForm) => {
-        Ok(views.html.documentaryUnit.editDescription(item,
-          errorForm, docRoutes.createDescriptionPost(id)))
+        Ok(views.html.documentaryUnit.createDescription(item,
+          errorForm, descDefaults, docRoutes.createDescriptionPost(id)))
       }
       case Right(updated) => Redirect(docRoutes.get(item.id))
         .flashing("success" -> Messages("confirmations.itemWasCreated", item.id))
@@ -257,13 +276,13 @@ case class DocumentaryUnits @Inject()(implicit globalConfig: global.GlobalConfig
   def addItemPermissions(id: String) = addItemPermissionsAction(id) {
       item => users => groups => implicit userOpt => implicit request =>
     Ok(views.html.permissions.permissionItem(item, users, groups,
-        docRoutes.setItemPermissions _))
+        docRoutes.setItemPermissions))
   }
 
   def addScopedPermissions(id: String) = addItemPermissionsAction(id) {
       item => users => groups => implicit userOpt => implicit request =>
     Ok(views.html.permissions.permissionScope(item, users, groups,
-        docRoutes.setScopedPermissions _))
+        docRoutes.setScopedPermissions))
   }
 
   def setItemPermissions(id: String, userType: EntityType.Value, userId: String) = setItemPermissionsAction(id, userType, userId) {
@@ -299,13 +318,13 @@ case class DocumentaryUnits @Inject()(implicit globalConfig: global.GlobalConfig
     item => page => params => facets => etype => implicit userOpt => implicit request =>
       Ok(views.html.link.linkSourceList(item, page, params, facets, etype,
           docRoutes.linkAnnotateSelect(id, toType),
-          docRoutes.linkAnnotate _))
+          docRoutes.linkAnnotate))
   }
 
   def linkAnnotate(id: String, toType: EntityType.Value, to: String) = linkAction(id, toType, to) {
       target => source => implicit userOpt => implicit request =>
     Ok(views.html.link.link(target, source,
-        LinkForm.form, docRoutes.linkAnnotatePost(id, toType, to)))
+        Link.form, docRoutes.linkAnnotatePost(id, toType, to)))
   }
 
   def linkAnnotatePost(id: String, toType: EntityType.Value, to: String) = linkPostAction(id, toType, to) {
@@ -325,7 +344,7 @@ case class DocumentaryUnits @Inject()(implicit globalConfig: global.GlobalConfig
   def linkMultiAnnotate(id: String) = linkMultiAction(id) {
       target => implicit userOpt => implicit request =>
     Ok(views.html.link.linkMulti(target,
-        LinkForm.multiForm, docRoutes.linkMultiAnnotatePost(id)))
+        Link.multiForm, docRoutes.linkMultiAnnotatePost(id)))
   }
 
   def linkMultiAnnotatePost(id: String) = linkPostMultiAction(id) {

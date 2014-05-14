@@ -7,8 +7,6 @@ import models.base.AnyModel
 import play.api.libs.concurrent.Execution.Implicits._
 import play.api.mvc._
 import views.html.p
-
-import com.google.inject._
 import utils.search._
 import play.api.libs.json.Json
 import play.api.cache.Cached
@@ -16,35 +14,38 @@ import defines.EntityType
 import play.api.libs.ws.WS
 import play.api.templates.Html
 import solr.SolrConstants
-import backend.{FeedbackDAO, Backend}
-import controllers.base.ControllerHelpers
+import backend.Backend
+import controllers.base.{SessionPreferences, ControllerHelpers}
 import jp.t2v.lab.play2.auth.LoginLogout
-import scala.concurrent.Future
-import scala.concurrent.Future.{successful => immediate}
 import play.api.Logger
-import utils.PageParams
+import utils._
 
+import com.google.inject._
+import play.api.mvc.Results._
+import scala.Some
+import scala.Some
+import views.html.errors.pageNotFound
 
 @Singleton
 case class Portal @Inject()(implicit globalConfig: global.GlobalConfig, searchDispatcher: Dispatcher, searchResolver: Resolver, backend: Backend,
-    feedbackDAO: FeedbackDAO)
+    userDAO: AccountDAO)
   extends Controller
   with LoginLogout
   with ControllerHelpers
-  with PortalAuthConfigImpl
-  with PortalLogin
-  with PortalFeedback
   with Search
   with FacetConfig
   with PortalActions
-  with PortalProfile
   with PortalSocial
-  with PortalAnnotations {
+  with PortalAnnotations
+  with SessionPreferences[SessionPrefs] {
+
+  val defaultPreferences = new SessionPrefs
+
+  private val portalRoutes = controllers.portal.routes.Portal
 
   // This is a publically-accessible site, but not just yet.
   override val staffOnly = current.configuration.getBoolean("ehri.portal.secured").getOrElse(true)
-
-  private val portalRoutes = controllers.portal.routes.Portal
+  override val verifiedOnly = current.configuration.getBoolean("ehri.portal.secured").getOrElse(true)
 
   /**
    * Full text search action that returns a complete page of item data.
@@ -77,24 +78,32 @@ case class Portal @Inject()(implicit globalConfig: global.GlobalConfig, searchDi
     ))
   }
 
-  def account = userProfileAction { implicit userOpt => implicit request =>
-    Ok(Json.toJson(userOpt.flatMap(_.account)))
-  }
-
   def index = userProfileAction.async { implicit userOpt => implicit request =>
-    searchAction[Repository](defaultParams = Some(SearchParams(sort = Some(SearchOrder.Country),
+    searchAction[AnyModel](defaultParams = Some(SearchParams(sort = Some(SearchOrder.Country),
       entities = List(EntityType.Repository, EntityType.DocumentaryUnit, EntityType.HistoricalAgent, EntityType.Country))),
-      entityFacets = entityMetrics) {
-      page => params => facets => implicit userOpt => _ =>
+      entityFacets = entityMetrics) { page => params => facets => implicit userOpt => _ =>
         Ok(p.portal(Stats(page.facets)))
     }.apply(request)
+  }
+
+  def browseItem(entityType: EntityType.Value, id: String) = Action { implicit request =>
+    entityType match {
+      case EntityType.DocumentaryUnit => Redirect(portalRoutes.browseDocument(id))
+      case EntityType.Repository => Redirect(portalRoutes.browseRepository(id))
+      case EntityType.HistoricalAgent => Redirect(portalRoutes.browseHistoricalAgent(id))
+      case EntityType.Concept => Redirect(portalRoutes.browseConcept(id))
+      case EntityType.Country => Redirect(portalRoutes.browseCountry(id))
+      case EntityType.Link => Redirect(portalRoutes.browseLink(id))
+      case EntityType.Annotation => Redirect(portalRoutes.browseAnnotation(id))
+      case _ => NotFound(renderError("errors.pageNotFound", pageNotFound()))
+    }
   }
 
   def browseCountries = userBrowseAction.async { implicit userDetails => implicit request =>
     searchAction[Country](defaultParams = Some(SearchParams(entities = List(EntityType.Country))),
       entityFacets = countryFacets) {
         page => params => facets => _ => _ =>
-      Ok(p.country.list(page, params, facets, portalRoutes.browseCountries, userDetails.watchedItems))
+      Ok(p.country.list(page, params, facets, portalRoutes.browseCountries(), userDetails.watchedItems))
     }.apply(request)
   }
 
@@ -102,18 +111,26 @@ case class Portal @Inject()(implicit globalConfig: global.GlobalConfig, searchDi
     searchAction[Repository](defaultParams = Some(SearchParams(sort = Some(SearchOrder.Country), entities = List(EntityType.Repository))),
       entityFacets = repositorySearchFacets) {
       page => params => facets => _ => _ =>
-        Ok(p.repository.listByCountry(page, params, facets, portalRoutes.browseRepositoriesByCountry,
+        Ok(p.repository.listByCountry(page, params, facets, portalRoutes.browseRepositoriesByCountry(),
           userDetails.watchedItems))
     }.apply(request)
   }
 
-  def browseCountry(id: String) = getAction.async[Country](EntityType.Country, id) {
+  def browseCountry(id: String) = getAction[Country](EntityType.Country, id) {
+      item => details => implicit userOpt => implicit request =>
+    if (isAjax) Ok(p.country.itemDetails(item, details.annotations, details.links, details.watched))
+    else Ok(p.country.show(item, details.annotations, details.links, details.watched))
+  }
+
+  def searchCountry(id: String) = getAction.async[Country](EntityType.Country, id) {
       item => details => implicit userOpt => implicit request =>
     searchAction[Repository](Map("countryCode" -> item.id), entityFacets = repositorySearchFacets,
         defaultParams = Some(SearchParams(entities = List(EntityType.Repository)))) {
         page => params => facets => _ => _ =>
-      Ok(p.country.show(item, page, params, facets,
-          portalRoutes.browseCountry(id), details.annotations, details.links, details.watched))
+      if (isAjax) Ok(p.country.childItemSearch(item, page, params, facets,
+          portalRoutes.searchCountry(id), details.watched))
+      else Ok(p.country.search(item, page, params, facets,
+          portalRoutes.searchCountry(id), details.watched))
     }.apply(request)
   }
 
@@ -122,18 +139,15 @@ case class Portal @Inject()(implicit globalConfig: global.GlobalConfig, searchDi
       searchAction[Repository](defaultParams = Some(SearchParams(entities = List(EntityType.Repository))),
         entityFacets = repositorySearchFacets) {
           page => params => facets => implicit userOpt => implicit request =>
-        Ok(p.repository.list(page, params, facets, portalRoutes.browseRepositories))
+        Ok(p.repository.list(page, params, facets, portalRoutes.browseRepositories()))
       }.apply(request)
     }
   }
 
-  def browseRepository(id: String) = getAction.async[Repository](EntityType.Repository, id) {
+  def browseRepository(id: String) = getAction[Repository](EntityType.Repository, id) {
       item => details => implicit userOpt => implicit request =>
-    val filters = (if (request.getQueryString(SearchParams.QUERY).filterNot(_.trim.isEmpty).isEmpty)
-      Map(SolrConstants.TOP_LEVEL -> true) else Map.empty[String,Any]) ++ Map(SolrConstants.HOLDER_ID -> item.id)
-    watchedItems.map { watched =>
-      Ok(p.repository.show(item, details.annotations, details.links, details.watched))
-    }
+    if (isAjax) Ok(p.repository.itemDetails(item, details.annotations, details.links, details.watched))
+    else Ok(p.repository.show(item, details.annotations, details.links, details.watched))
   }
 
   def searchRepository(id: String) = getAction.async[Repository](EntityType.Repository, id) {
@@ -154,7 +168,7 @@ case class Portal @Inject()(implicit globalConfig: global.GlobalConfig, searchDi
   def browseDocuments = userBrowseAction.async { implicit userDetails => implicit request =>
     searchAction[DocumentaryUnit](defaultParams = Some(SearchParams(entities = List(EntityType.DocumentaryUnit))),
       entityFacets = docSearchFacets) { page => params => facets => _ => _ =>
-      Ok(p.documentaryUnit.list(page, params, facets, portalRoutes.browseDocuments,
+      Ok(p.documentaryUnit.list(page, params, facets, portalRoutes.browseDocuments(),
         userDetails.watchedItems))
     }.apply(request)
   }
@@ -163,7 +177,7 @@ case class Portal @Inject()(implicit globalConfig: global.GlobalConfig, searchDi
     searchAction[DocumentaryUnit](defaultParams = Some(SearchParams(sort = Some(SearchOrder.Holder), entities = List(EntityType.DocumentaryUnit))),
       entityFacets = docSearchRepositoryFacets) {
       page => params => facets => _ => _ =>
-        Ok(p.documentaryUnit.listByRepository(page, params, facets, portalRoutes.browseDocumentsByRepository,
+        Ok(p.documentaryUnit.listByRepository(page, params, facets, portalRoutes.browseDocumentsByRepository(),
           userDetails.watchedItems))
     }.apply(request)
   }
@@ -188,25 +202,11 @@ case class Portal @Inject()(implicit globalConfig: global.GlobalConfig, searchDi
     }.apply(request)
   }
 
-
   def browseHistoricalAgents = userBrowseAction.async { implicit userDetails => implicit request =>
     searchAction[HistoricalAgent](defaultParams = Some(SearchParams(entities = List(EntityType.HistoricalAgent))),
       entityFacets = historicalAgentFacets) {
         page => params => facets => _ => _ =>
-      Ok(p.historicalAgent.list(page, params, facets, portalRoutes.browseHistoricalAgents))
-    }.apply(request)
-  }
-
-
-  def browseAuthoritativeSet(id: String) = getAction.async[AuthoritativeSet](EntityType.AuthoritativeSet, id) {
-      item => details => implicit userOpt => implicit request =>
-    val filters = (if (request.getQueryString(SearchParams.QUERY).isEmpty)
-      Map(SolrConstants.TOP_LEVEL -> true) else Map.empty[String,Any]) ++ Map(SolrConstants.HOLDER_ID -> item.id)
-    searchAction[HistoricalAgent](filters,
-        defaultParams = Some(SearchParams(entities = List(EntityType.DocumentaryUnit))),
-        entityFacets = globalSearchFacets) {
-        page => params => facets => _ => _ =>
-      Ok("TODO!")
+      Ok(p.historicalAgent.list(page, params, facets, portalRoutes.browseHistoricalAgents()))
     }.apply(request)
   }
 
@@ -240,7 +240,7 @@ case class Portal @Inject()(implicit globalConfig: global.GlobalConfig, searchDi
     searchAction[Concept](defaultParams = Some(SearchParams(entities = List(EntityType.Concept))),
       entityFacets = conceptFacets) {
         page => params => facets => _ => _ =>
-      Ok(p.concept.list(page, params, facets, portalRoutes.browseConcepts,
+      Ok(p.concept.list(page, params, facets, portalRoutes.browseConcepts(),
         userDetails.watchedItems))
     }.apply(request)
   }
@@ -276,7 +276,7 @@ case class Portal @Inject()(implicit globalConfig: global.GlobalConfig, searchDi
 
   def newsFeed = Cached("pages.newsFeed", 3600) {
     Action.async { request =>
-      WS.url("http://www.ehri-project.eu/rss.xml").get.map { r =>
+      WS.url("http://www.ehri-project.eu/rss.xml").get().map { r =>
         Ok(p.newsFeed(NewsItem.fromRss(r.body)))
       }
     }

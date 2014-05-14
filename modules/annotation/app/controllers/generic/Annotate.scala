@@ -5,7 +5,6 @@ import play.api.libs.concurrent.Execution.Implicits._
 import defines._
 import models._
 import play.api.data.Form
-import models.forms.AnnotationForm
 import play.api.libs.json.{Writes, Format, Json, JsError}
 import models.json.RestReadable
 import scala.concurrent.Future.{successful => immediate}
@@ -28,13 +27,13 @@ trait Annotate[MT] extends Read[MT] {
 
   def annotationAction(id: String)(f: MT => Form[AnnotationF] => Option[UserProfile] => Request[AnyContent] => SimpleResult)(implicit rd: RestReadable[MT]): Action[AnyContent] = {
     withItemPermission[MT](id, PermissionType.Annotate, contentType) { item => implicit userOpt => implicit request =>
-      f(item)(AnnotationForm.form.bindFromRequest)(userOpt)(request)
+      f(item)(Annotation.form.bindFromRequest)(userOpt)(request)
     }
   }
 
   def annotationPostAction(id: String)(f: Either[Form[AnnotationF],Annotation] => Option[UserProfile] => Request[AnyContent] => SimpleResult)(implicit rd: RestReadable[MT]) = {
     withItemPermission.async[MT](id, PermissionType.Annotate, contentType) { item => implicit userOpt => implicit request =>
-      AnnotationForm.form.bindFromRequest.fold(
+      Annotation.form.bindFromRequest.fold(
         errorForm => immediate(f(Left(errorForm))(userOpt)(request)),
         ann => backend.createAnnotation(id, ann).map { ann =>
           f(Right(ann))(userOpt)(request)

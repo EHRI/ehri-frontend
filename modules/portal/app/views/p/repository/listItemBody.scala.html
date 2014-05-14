@@ -17,9 +17,12 @@
     }
     <small>
         @conciseAddress(item, desc, includeCountry = showCountry)
+        @views.html.common.childCount(item) { count =>
+            <a href="@controllers.portal.routes.Portal.browseRepository(item.id)#search-items">@Messages("repository.childCount", count)</a>
+        }
     </small>
     @desc.details.generalContext.map { gc =>
-        <p>@gc</p>
+        <p>@Html(views.Helpers.renderMarkdown(gc))</p>
     }
 }.getOrElse {
     <small>@Messages("describedEntity.noDescriptions")</small>

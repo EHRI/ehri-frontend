@@ -2,7 +2,6 @@ package utils.search
 
 import play.api.libs.json._
 import play.api.libs.json.JsBoolean
-import scala.Some
 import play.api.libs.json.JsNumber
 
 /**
@@ -64,10 +63,12 @@ trait FacetClass[+T <: Facet] {
 
   def pretty[U <: Facet](f: U): String = f.name.map(render).getOrElse(render(f.value))
 
+  def fullKey = key
+
   /**
    * Facets that do not trigger filtering on item counts in the same class.
    */
-  def tagExclude: Boolean = display == FacetDisplay.Choice
+  def multiSelect: Boolean = display == FacetDisplay.Choice || display == FacetDisplay.DropDown
 }
 
 object FacetClass {

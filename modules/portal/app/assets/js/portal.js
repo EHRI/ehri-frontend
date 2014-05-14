@@ -1,24 +1,110 @@
 jQuery(function ($) {
 
+/*
+*   History
+*/
+$(".panel-history").each(function() {
+  //$(this).addClass("inactive");
+  $(this).find(".panel-heading h3").append(
+      $("<span />", {
+        "class" : "expander pull-right glyphicon glyphicon-minus"
+      }).on("click", function(e) {
+          $(this).parents(".panel-history").toggleClass("inactive");
+          $(this).toggleClass("glyphicon-plus").toggleClass("glyphicon-minus");
+      })
+    )
+});
+
+/*
+* Quick search
+*/
+
+
+  var $quicksearch = $("#quicksearch");
+  var $quicksearchBH = new Bloodhound({
+                          datumTokenizer: function (d) {
+                                return Bloodhound.tokenizers.whitespace(d); 
+                          },
+                          queryTokenizer: Bloodhound.tokenizers.whitespace,
+                          remote: {
+                            url : jsRoutes.controllers.core.SearchFilter.filter().url + "?limit=5&st[]=documentaryUnit&st[]=repository&st[]=historicalAgent&st[]=country&q=%QUERY",
+                            filter : function(parsedResponse) {
+                              var result = [];
+                              var alreadyResult = [];
+
+                              for (var i=0; i<parsedResponse.items.length; i++) {
+                                //Need to check if item not already in the db
+                                if($.inArray( parsedResponse.items[i][1] , alreadyResult) === -1) {
+                                  result.push({
+                                    name: parsedResponse.items[i][1],
+                                    value: parsedResponse.items[i][1],
+                                    href : jsRoutes.controllers.portal.Portal.browseItem(parsedResponse.items[i][2], parsedResponse.items[i][0]).url
+                                  });
+                                  alreadyResult.push(parsedResponse.items[i][1]);
+                                }
+                              }
+                              return result;
+                            }
+                          }
+                        });
+  $quicksearchBH.initialize();
+  var $quicksearchTemplate = Handlebars.compile('<a href="{{href}}">{{name}}</a>');
+
+  /**
+   * Initialize typeahead.js
+   */
+  $('#quicksearch').typeahead(
+    null,
+    {
+      name: "quicksearch",
+      source: $quicksearchBH.ttAdapter(),
+      templates: {
+        suggestion : $quicksearchTemplate
+      }
+    }
+  ).keypress(function(e) {
+    if(e.which == 13) {
+        $(this).parents("form").submit();
+    }
+});
+  //Need to reenable enter for getSearch
+
+/*
+  Search helpers
+*/
+$(".page-content").on("click", ".search-helper-toggle", function () {
+  $("#search-helper").toggle();
+});
+
+$(".page-content").on("click", "#search-helper .close", function(e) {
+  e.preventDefault();
+  $("#search-helper").toggle();
+});
+
+/* 
+  Loadings
+*/
+$loader = $( "<div></div>" ).addClass("text-center loader-container").append($("<span></span>").addClass("loader"));
+
   $(".content-load a.toggle").click(function(e){
     e.preventDefault();
-    var $link = $(this)
+    var $link = $(this),
         $text = $(".text", $link),
         $inverse = $link.data("inverse-text");
     var $container = $link.parent(),
         $data = $(".content-load-data", $container);
     if ($container.hasClass("loaded")) {
-      $data.toggle(300)
-      $link.data("inverse-text", $text.text())
-      $text.text($inverse)
+      $data.toggle(300);
+      $link.data("inverse-text", $text.text());
+      $text.text($inverse);
     } else {
       $link.addClass("loading");
       $.get(this.href, function(data) {
-        $data.append(data).show(300)
-        $container.addClass("loaded")
-        $link.removeClass("loading")
-        $link.data("inverse-text", $text.text())
-        $text.text($inverse)
+        $data.append(data).show(300);
+        $container.addClass("loaded");
+        $link.removeClass("loading");
+        $link.data("inverse-text", $text.text());
+        $text.text($inverse);
       }, "html")
     }
   });
@@ -30,6 +116,7 @@ jQuery(function ($) {
         $data = $(".content-load-data", $container);
     $link.addClass("loading");
     $data.load(this.href, function() {
+      $link.removeClass("loading").addClass("loaded");
       $data.find("select").each(function(i) {
         $(this).select2(select2Opts);
         $link.hide();
@@ -38,7 +125,7 @@ jQuery(function ($) {
   });
 
   function checkLoadVisibility() {
-    $(".load-in-view").not(".loading").each(function(i) {
+    $(".load-in-view").not(".loading, .loaded").each(function(i) {
       var $item = $(this);
       if(!$item.hasClass("loading")) {
         if (($(window).scrollTop() + $(window).height()) > $item.offset().top) {
@@ -50,32 +137,55 @@ jQuery(function ($) {
 
   checkLoadVisibility()
   $(window).scroll(function(e) {
-    checkLoadVisibility()
+    checkLoadVisibility();
   });
 
 
   // Make global search box show up when focused...
   // This could be done with plain CSS if we didn't also
   // want to toggle the color of the search icon...
-  $(".global-search input").focusin(function() {
-    $(this).parent().removeClass("inactive");
+  $(".global-search #quicksearch").focusin(function() {
+    $(this).parents(".global-search").removeClass("inactive");
   }).focusout(function() {
-    $(this).parent().addClass("inactive");
+    $(this).parents(".global-search").addClass("inactive");
   });
 
   // Make top menu adhere to top of screen...
   var $pmenu = $(".nav-primary");
   var $smenu = $(".nav-secondary");
-  var menuHeight = $smenu.height();
+  var $marginTrick = $pmenu;
+  var menuHeight = $smenu.outerHeight();
+  var originalmarginTrick = $marginTrick.css("margin-bottom");
   $(window).scroll(function(e) {
+    var menuHeight = $smenu.outerHeight();
+    $("header#header").trigger("expander-remove");
 
-    if ($(window).scrollTop() > ($pmenu.offset().top + $pmenu.height() + menuHeight)) {
+    if ($(window).scrollTop() > ($pmenu.offset().top + $pmenu.outerHeight() + menuHeight)) {
       $smenu.addClass("float-nav").css({
         width: $(window).width()
-      })
+      });
+      $marginTrick.css("margin-bottom", menuHeight);
     } else {
       $smenu.removeClass("float-nav").css("width", $pmenu.outerWidth());
+      $marginTrick.css("margin-bottom", originalmarginTrick);
     }
+  });
+  $(window).resize(function(e) {
+    $("header#header").trigger("expander-remove");
+    if($smenu.hasClass("float-nav")) {
+      $smenu.css({
+        width: $(window).width()
+      });
+    }
+  });
+  $("header#header").on("expander", function() {
+    $("header#header .float-nav .more").parent().children("li").toggleClass("available");
+  });
+  $("header#header").on("expander-remove", function() {
+    $("header#header .float-nav .more").parent().children("li").removeClass("available");
+  });
+  $("header#header").on("click", ".float-nav .more", function() {
+    $("header#header").trigger("expander");
   });
 
   // jQuery history plugin... initialise
@@ -94,6 +204,7 @@ jQuery(function ($) {
     History.replaceState({tabState: t}, t, "?tab=" + t);
   });
 
+
   // Validate any forms with 'validate-form' class...
   $(".validate-form").validate();
   $(document).ajaxComplete(function () {
@@ -102,300 +213,49 @@ jQuery(function ($) {
   });
 
 
-  var select2Opts = {
-    placeholder: "Select an option...",
-    allowClear: true,
-    dropdownAutoWidth: true,
-    dropdownCssClass: "facet-select-dropdown",
-    minimumInputLength: 0
+
+
+/**
+ * Handle cookie pref loading/saving
+ */
+  window.Preferences = {
+    update: function(prefsObj) {
+      var prefs = prefsObj || {};
+      // Fire and forget!
+      jsRoutes.controllers.portal.Profile.updatePrefs().ajax({ data: prefsObj })
+    },
+
+    updateValue: function(key, value) {
+      // fffff...
+      var tmp = {};
+      tmp[key] = value;
+      return this.update(tmp);
+    }
   };
 
-  // Re-check select2s whenever there's an Ajax event that could
-  // load a widget (e.g. the profile form)
-  $(document).ajaxComplete(function () {
-    //$(".select2").select2(select2Opts);
-  });
+/**
+ * Handle updating global preferences when certain
+ * items are clicked.
+ */
 
-  $(".select2").select2(select2Opts).change(function (e) {
-    if ($(e.target).hasClass("autosubmit")) {
-      $(e.target).closest("form").submit();
-    }
+  $(document).on("click", ".toggle-boolean-preference", function(e) {
+    e.preventDefault();
+    var $item = $(this),
+        name = $item.data("preference-name"),
+        value = $item.data("preference-value");
+    $item
+      .addClass("boolean-" + !value).removeClass("boolean-" + value)
+      .data("preference-value", !value);
+    Preferences.updateValue(name, !value);
+    $(window.Preferences).trigger(name, !value);
   });
-
-  $(".facet-toggle").change(function (e) {
-    $(e.target).closest("form").submit();
-  });
-
-});
 
 /**
- * Activity-related functions
+ * Preference events
  */
-jQuery(function ($) {
 
-  // Fetch more activity...
-  $("#activity-stream-fetchmore").click(function (event) {
-    var offset = $(event.target).data("offset");
-    var limit = $(event.target).data("limit")
-    jsRoutes.controllers.portal.Portal.personalisedActivityMore(offset).ajax({
-      success: function (data) {
-        console.log("Data", data);
-        $("#activity-stream").append(data);
-        $(event.target).data("offset", offset + limit);
-      }
-    });
+  $(window.Preferences).bind("showUserContent", function(event, doShow) {
+    $(".user-content").toggle(doShow);
   });
 
-  /**
-   * Handler following/unfollowing users via Ajax.
-   */
-  $(document).on("click", "a.follow, a.unfollow", function (e) {
-    e.preventDefault();
-
-    var followFunc = jsRoutes.controllers.portal.Portal.followUserPost,
-        unfollowFunc = jsRoutes.controllers.portal.Portal.unfollowUserPost,
-        followerListFunc = jsRoutes.controllers.portal.Portal.followersForUser,
-        $elem = $(e.target),
-        id = $elem.data("item"),
-        follow = $elem.hasClass("follow");
-
-    var call, $other;
-    if (follow) {
-      call = followFunc;
-      $other = $elem.parent().find("a.unfollow");
-    } else {
-      call = unfollowFunc;
-      $other = $elem.parent().find("a.follow");
-    }
-
-    call(id).ajax({
-      success: function () {
-        // Swap the buttons and, if necessary, reload
-        // their followers list...
-        $elem.hide();
-        $other.show();
-        $(".browse-users-followers")
-            .load(followerListFunc(id).url);
-
-        // If a follower count is shown, munge it...
-        var fc = $(".user-follower-count");
-        if (fc.size()) {
-          var cnt = parseInt(fc.html(), 10);
-          fc.html(follow ? (cnt + 1) : (cnt - 1));
-        }
-      }
-    });
-  });
-
-  /**
-   * Handle watching/unwatching items using Ajax...
-   */
-  $(document).on("click", "a.watch, a.unwatch", function (e) {
-    e.preventDefault();
-
-    var watchFunc = jsRoutes.controllers.portal.Portal.watchItemPost,
-        unwatchFunc = jsRoutes.controllers.portal.Portal.unwatchItemPost,
-        $elem = $(e.target),
-        id = $elem.data("item"),
-        watch = $elem.hasClass("watch");
-
-    var call, $other;
-    if (watch) {
-      call = watchFunc;
-      $other = $elem.parent().find("a.unwatch");
-    } else {
-      call = unwatchFunc;
-      $other = $elem.parent().find("a.watch");
-    }
-
-    call(id).ajax({
-      success: function () {
-        // Swap the buttons and, if necessary, reload
-        // their followers list...
-        $elem.hide();
-        $other.show();
-
-        // If a watch count is shown, munge it...
-        var fc = $(".item-watch-count");
-        if (fc.size()) {
-          var cnt = parseInt(fc.html(), 10);
-          fc.html(watch ? (cnt + 1) : (cnt - 1));
-        }
-      }
-    });
-  });
-
-});
-
-/**
- * Annotation-related functions
- */
-jQuery(function ($) {
-
-  // Show/hide hidden annotations...
-  $(".show-other-annotations").click(function(event) {
-    event.preventDefault();
-    $(this).find("span")
-        .toggleClass("glyphicon-chevron-up")
-        .toggleClass("glyphicon-chevron-down")
-      .end()
-        .closest(".item-text-field-annotations, .description-annotations")
-        .find(".other").toggle();
-  });
-
-  function insertAnnotationForm($elem, data) {
-    $elem.hide().parent().after(data);
-    $(data).find("select.custom-accessors").select2({
-      placeholder: "Select a set of groups or users",
-      width: "copy"
-    });
-  }
-
-  // Load an annotation form...
-  $(document).on("click", ".annotate-item", function(e) {
-    e.preventDefault();
-    var $elem = $(this),
-        id = $elem.data("item"),
-        did = $elem.data("did");
-    jsRoutes.controllers.portal.Portal.annotate(id, did).ajax({
-      success: function (data) {
-        insertAnnotationForm($elem, data)
-      }
-    });
-  });
-
-  // Fields are very similar but we have to use the field as part
-  // of the form submission url...
-  $(document).on("click", ".annotate-field", function(e) {
-    e.preventDefault();
-    var $elem = $(this),
-        id = $elem.data("item"),
-        did = $elem.data("did"),
-        field = $elem.data("field");
-    jsRoutes.controllers.portal.Portal.annotateField(id, did, field).ajax({
-      success: function (data) {
-        insertAnnotationForm($elem, data)
-      }
-    });
-  });
-
-
-  // POST back an annotation form and then replace it with the returned
-  // data.
-  $(document).on("submit", ".annotate-item-form", function(e) {
-    e.preventDefault();
-    var $form = $(this);
-    var action = $form.attr("action");
-    $.ajax({
-      url: action,
-      data: $form.serialize(),
-      method: "POST",
-      success: function(data) {
-        $form.prev().find(".annotate-field, .annotate-item").show()
-        $form.parents(".annotation-set").find("ul").append(data);
-        $form.remove();
-      }
-    });
-  });
-
-  // Fields are very similar but we have to use the field as part
-  // of the form submission url...
-  $(document).on("click", ".edit-annotation", function(e) {
-    e.preventDefault();
-    var $elem = $(this),
-        id = $elem.data("item");
-    jsRoutes.controllers.portal.Portal.editAnnotation(id).ajax({
-      success: function(data) {
-        //$elem.closest(".annotation").hide().after(data)
-        $(data)
-          .insertAfter($elem.closest(".annotation").hide())
-          .find("select.custom-accessors").select2({
-            placeholder: "Select a set of groups or users",
-            width: "copy"
-          });
-      }
-    });
-  });
-
-  $(document).on("click", ".edit-annotation-form .close", function(e) {
-    e.preventDefault();
-    var $form = $(e.target).parents(".edit-annotation-form");
-    var hasData = $("textarea[name='body']", $form).val().trim() !== "";
-    if (!hasData || confirm("Discard comment?")) {
-      $form.prev(".annotation").show();
-      $form.remove()
-    }
-  });
-
-  $(document).on("click", ".annotate-item-form .close", function(e) {
-    e.preventDefault();
-    var $form = $(e.target).parents(".annotate-item-form");
-    var hasData = $("textarea[name='body']", $form).val().trim() !== "";
-    if (!hasData || confirm("Discard comment?")) {
-      $form.prev().find(".annotate-field, .annotate-item").show();
-      $form.remove()
-    }
-  });
-
-  // POST back an annotation form and then replace it with the returned
-  // data.
-  $(document).on("submit", ".edit-annotation-form", function(e) {
-    e.preventDefault();
-    var $form = $(this);
-    var action = $form.closest("form").attr("action");
-    $.ajax({
-      url: action,
-      data: $form.serialize(),
-      method: "POST",
-      success: function(data) {
-        $form.next(".annotate-field").show()
-        $form.replaceWith(data);
-      }
-    });
-  });
-
-  // Fields are very similar but we have to use the field as part
-  // of the form submission url...
-  $(document).on("click", ".delete-annotation", function(e) {
-    e.preventDefault();
-    var $elem = $(this),
-        id = $elem.data("item");
-    if (confirm("Delete annotation?")) { // FIXME: i18n?
-      var $ann = $elem.closest(".annotation");
-      $ann.hide();
-      jsRoutes.controllers.portal.Portal.deleteAnnotationPost(id).ajax({
-        success: function(data) {
-          $ann.remove();
-        },
-        error: function() {
-          $ann.show();
-        }
-      });
-    }
-  });
-
-  $(document).on("change", "input[type=radio].visibility", function(e) {
-    $(".custom-visibility").toggle(e.target.value === "custom")
-    $(".custom-visibility").find("select.custom-accessors").select2({
-      placeholder: "Select a set of groups or users",
-      width: "copy"
-    });
-  });
-
-  // Set visibility of annotations
-  // POST back an annotation form and then replace it with the returned
-  // data.
-  $(document).on("change", ".edit-annotation-form .visibility, .edit-annotation-form .custom-accessors", function(e) {
-    e.preventDefault();
-    // Toggle the accessors list
-    var $form = $(this).closest("form"),
-      id = $form.prev(".annotation").attr("id"),
-      data = $form.serialize();
-    jsRoutes.controllers.portal.Portal.setAnnotationVisibilityPost(id).ajax({
-      data: data,
-      success: function(data) {
-        console.log("Set visibility to ", data)
-      }
-    });
-  });
 });

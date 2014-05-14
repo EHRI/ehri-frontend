@@ -1,0 +1,23 @@
+@(feedback: Seq[Feedback])(implicit userOpt: Option[UserProfile], prefs: utils.SessionPrefs, request: RequestHeader, lang: Lang, flash: Flash, globalConfig: global.GlobalConfig)
+
+@p.layout.portalLayout(Messages("portal.feedback.list")) {
+    @p.layout.mainContent {
+        <h2>@Messages("portal.feedback.list")</h2>
+        <table class="table-bordered table-hover table-condensed table-striped" width="100%">
+            <tr>
+                <th>User ID</th>
+                <th>Submitted</th>
+                <th>Instance</th>
+                <th>Text</th>
+            </tr>
+            @feedback.map { f =>
+                <tr>
+                    <td>@f.name.getOrElse("anon")</td>
+                    <td>@f.createdAt.map(views.Helpers.relativeDate)</td>
+                    <td>@f.mode.getOrElse("")</td>
+                    <td>@f.text.getOrElse("")</td>
+                </tr>
+            }
+        </table>
+    }
+}

@@ -7,6 +7,20 @@
     }
 } {
     @item.model.primaryDescription(descriptionId).map { desc =>
+        @desc.identity.parallelFormsOfName.map { ofn =>
+            @if(!ofn.isEmpty) {
+                <small>
+                    <strong>
+                        <ul class="list-unstyled inline inline-separator">
+                            @ofn.map { on =>
+                                <li>@on</li>
+                            }
+                        </ul>
+                    </strong>
+                </small>
+            }
+		}
+
         @documentaryUnit.searchItemBody(item, desc)
     }.getOrElse {
         <small>@Messages("describedEntity.noDescriptions")</small>

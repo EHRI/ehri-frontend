@@ -20,10 +20,9 @@ trait PersonaLoginHandler {
 
   self: Controller =>
 
-  val globalConfig: global.GlobalConfig
-  val backend: Backend
-
-  private lazy val userDAO: AccountDAO = play.api.Play.current.plugin(classOf[AccountDAO]).get
+  def globalConfig: global.GlobalConfig
+  def backend: Backend
+  def userDAO: AccountDAO
 
   val PERSONA_URL = "https://verifier.login.persona.org/verify"
   val EHRI_URL = "localhost"; //"http://ehritest.dans.knaw.nl"

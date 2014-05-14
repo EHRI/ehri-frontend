@@ -1,0 +1,38 @@
+@(f: play.api.data.Form[String], action: Call)(
+implicit userOpt: Option[UserProfile], req: RequestHeader, globalConfig: global.GlobalConfig, lang: Lang, flash: Flash, token: play.filters.csrf.CSRF.Token)
+
+@implicitField = @{ views.html.helper.FieldConstructor(p.helpers.fieldTemplateHorizontal.f) }
+
+@userName(name: String) = {
+    <strong>@name</strong>
+}
+
+@userOpt.map { user =>
+    @helper.form(action = action, 'role -> "form", 'class -> "form-horizontal validate-form", 'id -> "update-profile-form") {
+        @formHelpers.csrfToken()
+
+        <div class="alert alert-warning">
+            <strong>@Messages("portal.warning")</strong>
+            @Messages("portal.profile.deleteProfileConfirmation")
+
+            <h3><strong><blockquote>@user.model.name</blockquote></strong></h3>
+        </div>
+
+        <div class="row">
+            <div class="col-md-4 col-md-push-4">
+
+                @formHelpers.globalErrors(f)
+
+                <div class="form-group">
+                    <input type="input" class="form-control" name="confirm" placeholder="@Messages("portal.profile.deleteProfileCheck")" />
+                </div>
+                <div class="form-group">
+                    <button type="submit" class="button danger">
+                        @Messages("portal.profile.deleteProfile")
+                    </button>
+                    <a class="button cancel" href="@controllers.portal.routes.Profile.profile">@Messages("actions.cancel")</a>
+                </div>
+            </div>
+        </div>
+    }
+}

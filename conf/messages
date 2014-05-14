@@ -5,9 +5,6 @@ banner.signout=Sign Out
 
 pages.home=Home
 pages.search=Search
-pages.home.title=Welcome to the EHRI Administration interface
-pages.home.message=This is a development version of the EHRI data management interface.\
-  It's not done yet, but don't let that put you off.
 pages.admin=Admin
 pages.admin.title=EHRI Admin
 pages.admin.message=Administration actions - careful now!
@@ -19,11 +16,34 @@ forms.adminArea=Administration Area
 forms.logMessagePlaceholder=Tell people what you''re doing (optional)...
 forms.search=Search
 
+# Dates
+dates.exact={0,number,#}
+dates.before=Before {0,number,#}
+dates.between=Between {0,number,#} and {1,number,#}
+dates.after=After {0,number,#}
+dates.all=All
+
+datePeriod.type.creation=Creation
+
+datePeriod.precision=Precision
+datePeriod.precision.year=Year
+datePeriod.precision.quarter=Quarter
+datePeriod.precision.month=Month
+datePeriod.precision.week=Week
+datePeriod.precision.day=Day
+
+# Levels of detail...
+lod=Level of Detail
+lod.low=Low
+lod.medium=Medium
+lod.high=High
+
 # Form errors.
 error.globalErrors=There were problems with that form:
 error.date=Date is incorrect or badly formatted
 error.badUrl=URL is incorrect or badly formatted
 error.required=Required
+error.emailExists=Email is either invalid or is already registered
 constraint.required=*
 format.boolean=On/Off
 
@@ -53,6 +73,7 @@ search.batchSize=Batch size for reindexing
 footer.footerText=This is a development version of the EHRI data entry interface.
 
 login.login=Sign In
+login.logout=Sign Out
 login.openid=With OpenID
 login.existingAccount=With an existing account
 login.withPassword=Using a password
@@ -69,6 +90,7 @@ login.existingPassword=Current Password
 login.confirmPassword=Confirm New Password
 login.passwordsDoNotMatch=Password and confirmation do not match!
 login.passwordChanged=Password Changed!
+login.notVerified=Email not verified
 login.expiredOrInvalidResetToken=URL given for password reset was invalid or expired. \
   Note: password reset links can only be used once.
 login.passwordReset=Password Reset
@@ -131,6 +153,8 @@ create.heading=Create New Item
 #
 errors.staffOnly=Restricted
 errors.staffOnlyMessage=This page is currently restricted to EHRI staff only.
+errors.verifiedOnly=Restricted
+errors.verifiedOnlyMessage=This page is currently restricted to verified users only.
 errors.itemNotFound=Item Not Found
 errors.itemNotFoundExplanation=That item couldn''t be found in the database.
 errors.pageNotFound=Page Not Found
@@ -158,6 +182,7 @@ describedEntity.editDescription=Edit Description
 describedEntity.deleteDescription=Delete Description
 describedEntity.noDescriptions=This item has not been provided with a description
 describedEntity.noData=No information given
+describedEntity.notGiven=Not Given
 describedEntity.additionalData=Additional Harvested Data (Click to display)
 describedEntity.additionalData.key=Key
 describedEntity.additionalData.value=Value
@@ -202,8 +227,11 @@ users.search=Search Users
 #
 group.admin=Admin
 group.identifier=Group Identifier
+group.identifier.description=A short, lower-case, 1-word identifier
 group.name=Group Name
+group.name.description=A title-case display for the group
 group.description=Group Description
+group.description.description=A description of this group''s purpose
 group.members=Group Members
 group.membersPageHeader={2,choice,0#No members found|1#One member|1<Group Members {0,number,integer} to {1,number,integer} of {2,number,integer}}
 
@@ -235,6 +263,7 @@ systemEvents.newerEvents=More recent events
 systemEvents.olderEvents=Older events
 systemEvents.et=Event Type
 systemEvents.filter=Filter Events
+systemEvents.user=Users
 
 
 # Actions
@@ -305,6 +334,7 @@ actions.addNewConceptDescription=Add Concept Description
 actions.deleteConceptDescription=Delete Description
 actions.deleteLink=Delete Link
 actions.save=Save
+actions.send=Send
 
 # Submit buttons
 submitButton.signup=Submit
@@ -396,6 +426,7 @@ name=Name
 email=Email
 password=Password
 confirm=Confirm Password
+optional=Optional
 administrationArea=Administration Area
 publicationStatus=Publication Status
 
@@ -424,11 +455,12 @@ accessPoints.newAccessPoint=New Access Point
 accessPoints.browse=Search
 accessPoints.name=Name of link target...
 accessPoints.description=Optional description...
-accessPoints.type.creatorAccess=Creator
+accessPoints.type.creatorAccess=Creator(s)
 accessPoints.type.personAccess=People
 accessPoints.type.familyAccess=Families
 accessPoints.type.corporateBodyAccess=Corporate Bodies
 accessPoints.type.placeAccess=Places
+accessPoints.type.subjectAccess=Subjects
 accessPoints.type.otherAccess=Miscellaneous
 
 
@@ -442,3 +474,30 @@ metrics.holdingRepository=Archival Descriptions - Holding Repository
 metrics.repositoryCountries=Repositories by Country
 metrics.agentTypes=Authority Files by Entity Type
 metrics.restrictedMaterial=Restricted Material
+
+
+#CookieCuttr
+cuttr.message=We use cookies for storing logins and view preferences.
+cuttr.what=What are cookies?
+cuttr.accept=Accept Cookies
+
+#Browser
+browser.header=Did you know that your Internet Browser is out of date?
+browser.p1=Your browser is out of date, and may not be compatible with our website. A list of the most popular web browsers can be found below.
+browser.p2=Just click on the icons to get to the download page
+browser.close=Close this window
+browser.closing=By closing this window you acknowledge that your experience on this website may be degraded
+
+#Markdown Cheatsheet
+mdCheatsheet.title=Formating tips
+mdCheatsheet.asterisks=asterisks
+mdCheatsheet.underscores=underscores
+mdCheatsheet.bold=Bold
+mdCheatsheet.italic=Italic
+mdCheatsheet.ordered=Ordered list
+mdCheatsheet.ordered.item1=First ordered list item
+mdCheatsheet.ordered.item2=Another item
+mdCheatsheet.unordered=Ordered list
+mdCheatsheet.unordered.item1=Item
+mdCheatsheet.unordered.item2=Another item
+mdCheatsheet.more=Source

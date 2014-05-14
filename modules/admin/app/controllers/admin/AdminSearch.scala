@@ -2,7 +2,7 @@ package controllers.admin
 
 import play.api.libs.concurrent.Execution.Implicits._
 import play.api.libs.iteratee.{Concurrent, Enumerator}
-import models.IsadG
+import models.{AccountDAO, IsadG}
 import concurrent.Future
 import play.api.i18n.Messages
 import views.Helpers
@@ -16,15 +16,14 @@ import controllers.generic.{Indexable, Search}
 import backend.Backend
 import scala.util.Failure
 import solr.facet.FieldFacetClass
-import scala.Some
 import scala.util.Success
 
 
 @Singleton
-case class AdminSearch @Inject()(implicit globalConfig: global.GlobalConfig, searchDispatcher: Dispatcher, searchResolver: Resolver, searchIndexer: Indexer, backend: Backend) extends Search {
+case class AdminSearch @Inject()(implicit globalConfig: global.GlobalConfig, searchDispatcher: Dispatcher, searchResolver: Resolver, searchIndexer: Indexer, backend: Backend, userDAO: AccountDAO) extends Search {
 
   // i.e. Everything
-  private val entityFacets: FacetBuilder = { implicit lang =>
+  private val entityFacets: FacetBuilder = { implicit request =>
     List(
       FieldFacetClass(
         key = IsadG.LANG_CODE,

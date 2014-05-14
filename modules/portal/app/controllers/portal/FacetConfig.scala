@@ -1,21 +1,54 @@
 package controllers.portal
 
-import solr.facet.{SolrQueryFacet, QueryFacetClass, FieldFacetClass}
 import models.{Isaar, IsadG}
 import play.api.i18n.Messages
 import views.Helpers
-import utils.search.{Facet, FacetClass, FacetSort, FacetDisplay}
+import utils.search.{FacetSort, FacetDisplay}
 import solr.SolrConstants
-import defines.EntityType
 import controllers.generic.Search
+import play.api.mvc.{RequestHeader, Controller}
+import utils.DateFacetUtils
+import solr.facet.SolrQueryFacet
+import solr.facet.FieldFacetClass
+import solr.facet.QueryFacetClass
+
 
 /**
+ * Facet configuration for various kinds of searches.
+ *
  * @author Mike Bryant (http://github.com/mikesname)
  */
 trait FacetConfig extends Search {
 
+  this: Controller =>
+  
+  /**
+   * Return a date query facet if valid start/end params have been given.
+   */
+  private def dateQuery(implicit request: RequestHeader): Option[QueryFacetClass] = {
+
+    import DateFacetUtils._
+
+    for {
+      dateString <- dateQueryForm.bindFromRequest(request.queryString).value
+      solrQuery = formatAsSolrQuery(dateString)
+    } yield QueryFacetClass(
+      key = "dateRange",
+      name = Messages(IsadG.FIELD_PREFIX + "." + DATE_PARAM),
+      param = DATE_PARAM,
+      sort = FacetSort.Fixed,
+      facets=List(
+        SolrQueryFacet(
+          value = dateString,
+          solrValue = solrQuery,
+          name = formatReadable(dateString)
+        )
+      )
+    )
+  }
+
   // i.e. Everything
-  protected val globalSearchFacets: FacetBuilder = { implicit lang =>
+  protected val globalSearchFacets: FacetBuilder = { implicit request =>
     List(
       FieldFacetClass(
         key = IsadG.LANG_CODE,
@@ -37,7 +70,7 @@ trait FacetConfig extends Search {
 
   // i.e. Metrics to count number and type of repos, docs, authorities
   // for display on the landing page.
-  protected val entityMetrics: FacetBuilder = { implicit lang =>
+  protected val entityMetrics: FacetBuilder = { implicit request =>
     List(
       FieldFacetClass(
         key = SolrConstants.TYPE,
@@ -71,7 +104,8 @@ trait FacetConfig extends Search {
     )
   }
 
-  protected val historicalAgentFacets: FacetBuilder = { implicit lang =>
+  protected val historicalAgentFacets: FacetBuilder = { implicit request =>
+    dateQuery(request).toList ++
     List(
       FieldFacetClass(
         key=Isaar.ENTITY_TYPE,
@@ -83,11 +117,11 @@ trait FacetConfig extends Search {
     )
   }
 
-  protected val countryFacets: FacetBuilder = { implicit lang =>
+  protected val countryFacets: FacetBuilder = { implicit request =>
     List() // TODO?
   }
 
-  protected val repositorySearchFacets: FacetBuilder = { implicit lang =>
+  protected val repositorySearchFacets: FacetBuilder = { implicit request =>
     List(
       QueryFacetClass(
         key="childCount",
@@ -98,6 +132,19 @@ trait FacetConfig extends Search {
           SolrQueryFacet(value = "yes", solrValue = "[1 TO *]", name = Some("yes"))
         ),
         display = FacetDisplay.Boolean
+      ),
+      QueryFacetClass(
+        key="charCount",
+        name=Messages("portal.facet.lod"),
+        param="lod",
+        render=s => Messages("portal.facet.lod." + s),
+        facets=List(
+          SolrQueryFacet(value = "low", solrValue = "[0 TO 500]", name = Some("low")),
+            SolrQueryFacet(value = "medium", solrValue = "[501 TO 2000]", name = Some("medium")),
+            SolrQueryFacet(value = "high", solrValue = "[2001 TO *]", name = Some("high"))
+        ),
+        sort = FacetSort.Fixed,
+        display = FacetDisplay.List
       ),
       FieldFacetClass(
         key="countryCode",
@@ -110,7 +157,8 @@ trait FacetConfig extends Search {
     )
   }
 
-  protected val docSearchFacets: FacetBuilder = { implicit lang =>
+  protected val docSearchFacets: FacetBuilder = { implicit request =>
+    dateQuery(request).toList ++
     List(
       FieldFacetClass(
         key = IsadG.LANG_CODE,
@@ -129,6 +177,19 @@ trait FacetConfig extends Search {
           SolrQueryFacet(value = "true", solrValue = "[1 TO *]", name = Some("hasChildItems"))
         ),
         display = FacetDisplay.Boolean
+      ),
+      QueryFacetClass(
+        key="charCount",
+        name=Messages("portal.facet.lod"),
+        param="lod",
+        render=s => Messages("portal.facet.lod." + s),
+        facets=List(
+          SolrQueryFacet(value = "low", solrValue = "[0 TO 500]", name = Some("low")),
+          SolrQueryFacet(value = "medium", solrValue = "[501 TO 2000]", name = Some("medium")),
+          SolrQueryFacet(value = "high", solrValue = "[2001 TO *]", name = Some("high"))
+        ),
+        sort = FacetSort.Fixed,
+        display = FacetDisplay.List
       ),
       FieldFacetClass(
         key="countryCode",
@@ -149,8 +210,8 @@ trait FacetConfig extends Search {
     )
   }
 
-  protected val docSearchRepositoryFacets: FacetBuilder = { implicit lang =>
-    docSearchFacets(lang) ++ List(
+  protected val docSearchRepositoryFacets: FacetBuilder = { implicit request =>
+    docSearchFacets(request) ++ List(
       FieldFacetClass(
         key="holderName",
         name=Messages("documentaryUnit.heldBy"),
@@ -161,7 +222,7 @@ trait FacetConfig extends Search {
     )
   }
 
-  protected val conceptFacets: FacetBuilder = { implicit lang =>
+  protected val conceptFacets: FacetBuilder = { implicit request =>
     List(
       FieldFacetClass(
         key="holderName",

@@ -57,6 +57,14 @@ country.repositoriesPageHeader={2,choice,0#No repositories found|1#One repositor
 country.search=Search Countries
 country.searchInside=Search Repositories
 country.childCount={0,choice,0#No institutions listed|1#1 institution listed|1<{0,number,integer} institutions listed}
+country.items=Repositories
+country.identifier=Country Code
+country.identifier.description=The ISO-3166-1 2-letter code for this country
+country.abstract=Abstract
+country.abstract.description=An abstract of the report for this country
+country.report=Report
+country.report.description=The report describing this country''s archival situation
+
 
 #
 # Repositories
@@ -100,15 +108,17 @@ For supplied titles, at the higher level, include the name of the creator of the
  appropriate, a phrase reflecting function, activity, subject, location, or theme.\n\n\
 Distinguish between formal and supplied titles according to national or language\
  conventions. (3.1.2)
+isadg.parallelFormsOfName=Parallel Names
+isadg.parallelFormsOfName.description=
 
-isadg.identifier=Reference Code
-isadg.otherIdentifiers=Other Ref. Codes
+isadg.identifier=Description Code
 isadg.identifier.description=To identify uniquely the unit of description and to provide a\
  link to the description that represents it.\n\n\
 A specific local reference code, control number, or other unique identifier within the scope\
   of the holding repository.\n\n\
 NB: Contra ISAD(G) 3.1.1 do not include the country and repository\
   code here.
+isadg.otherIdentifiers=Other Ref. Codes
 
 isadg.dates=Dates
 isadg.dates.description=To identify and record the date(s) of the unit of description.\n\n\
@@ -129,8 +139,11 @@ isadg.levelOfDescription=Level of Description
 isadg.levelOfDescription.description=To identify the level of arrangement of the unit of description. (3.1.4)
 
 isadg.collection=Collection
+isadg.subcollection=Sub Collection
 isadg.fonds=Fonds
 isadg.subfonds=Subfonds
+isadg.recordGroup=Record Group
+isadg.subrecordGroup=Sub Record Group
 isadg.series=Series
 isadg.subseries=Subseries
 isadg.file=File

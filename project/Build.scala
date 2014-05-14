@@ -53,6 +53,10 @@ object ApplicationBuild extends Build {
     "org.mindrot" % "jbcrypt" % "0.3m",
     "org.codehaus.groovy" % "groovy-all" % "2.0.6",
 
+    // S3 Upload plugin
+    "nl.rhinofly" %% "play-s3" % "3.3.3",
+    "net.coobird" % "thumbnailator" % "[0.4, 0.5)",
+
     // Mailer...
     "com.typesafe" %% "play-plugins-mailer" % "2.2.0",
 
@@ -81,6 +85,7 @@ object ApplicationBuild extends Build {
     resolvers += "Local Maven Repository" at "file:///"+Path.userHome.absolutePath+"/.m2/repository",
     resolvers += "Codahale" at "http://repo.codahale.com",
     resolvers += "Typesafe Repository" at "http://repo.typesafe.com/typesafe/releases/",
+    resolvers += "Rhinofly Internal Repository" at "http://maven-repository.rhinofly.net:8081/artifactory/libs-release-local",
 
     // SBT magic: http://stackoverflow.com/a/12772739/285374
     resourceDirectory in Test <<= baseDirectory apply {(baseDir: File) => baseDir / "test/resources"}
@@ -117,12 +122,18 @@ object ApplicationBuild extends Build {
 
   lazy val admin = play.Project(
     appName + "-admin", appVersion, appDependencies, path = file("modules/admin")
-  ).settings(otherSettings:_*).dependsOn(core, archdesc, authorities, vocabs)
-    .aggregate(core, archdesc, authorities, vocabs)
+  ).settings(otherSettings:_*).dependsOn(core, archdesc, authorities, vocabs, portal)
+    .aggregate(core, archdesc, authorities, vocabs, portal)
+
+  lazy val guides = play.Project(
+    appName + "-guides", appVersion, appDependencies, path = file("modules/guides")
+  ).settings(otherSettings:_*).dependsOn(core)
+    .aggregate(core)
 
   lazy val main = play.Project(appName, appVersion, appDependencies ++ testDependencies
-  ).settings(otherSettings:_*).dependsOn(admin, portal)
-    .aggregate(admin, portal)
+  ).settings(otherSettings:_*).dependsOn(admin, portal, guides)
+    .aggregate(admin, portal, guides)
+
 
   override def rootProject = Some(main)
 }

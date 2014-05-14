@@ -3,9 +3,8 @@ package controllers.generic
 import play.api.mvc._
 import play.api.data.Form
 import play.api.libs.concurrent.Execution.Implicits._
-import defines.ContentTypes
+import defines.{ContentTypes, PermissionType}
 import models.base._
-import defines.PermissionType
 import models.UserProfile
 import forms.VisibilityForm
 import models.json.{RestReadable, RestConvertable}

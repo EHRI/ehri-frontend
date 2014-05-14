@@ -14,64 +14,69 @@
 }
 
 @openIdStyles = {
-    <link href="@controllers.core.routes.Assets.at("jquery-openid/openid.css")" rel="stylesheet">
-    <link href="@controllers.core.routes.Assets.at("css/zocial.css")" rel="stylesheet">
 }
 
-@layout.noSidebarSimple(Messages("login.login"), scripts=openIdJquery, styles=openIdStyles) {
+@layout.adminLoginLayout(Messages("login.login"), scripts=openIdJquery, styles=openIdStyles) {
+    
+    <h2>@Messages("login.login")</h2>
+    @common.errorFlash(flash)
+
 
     <h3>@Messages("login.openid")</h3>
-    @helper.form(action = action, 'class -> "openid login-form form-horizontal") {
+    @helper.form(action = action, 'class -> "openid form") {
         @formHelpers.csrfToken()
         <div>
-            <ul class="providers">
-                <li class="openid" title="OpenID">
-                    <img src="@controllers.core.routes.Assets.at("jquery-openid/images/openidW.png")" alt="icon" />
+            <ul class="providers nav nav-tabs nav-justified text-center">
+                <li class="openid active" title="OpenID">
+                    <i class="icon-social openid"></i>
                     <span><strong>http://{your-openid-url}</strong></span>
                 </li>
                 <li class="direct" title="Google">
-                    <img src="@controllers.core.routes.Assets.at("jquery-openid/images/googleW.png")" alt="icon" />
+                    <i class="icon-social google"></i>
                     <span>https://www.google.com/accounts/o8/id</span>
                 </li>
                 <li class="direct" title="Yahoo">
-                    <img src="@controllers.core.routes.Assets.at("jquery-openid/images/yahooW.png")" alt="icon" />
+                    <i class="icon-social yahoo"></i>
                     <span>http://me.yahoo.com/</span>
                 </li>
                 <li class="username" title="AOL screen name">
-                    <img src="@controllers.core.routes.Assets.at("jquery-openid/images/aolW.png")" alt="icon" />
+                    <i class="icon-social aol"></i>
                     <span>http://openid.aol.com/<strong>username</strong></span>
                 </li>
                 <li class="username" title="Flickr user name">
-                    <img src="@controllers.core.routes.Assets.at("jquery-openid/images/flickr.png")" alt="icon" />
+                    <i class="icon-social flickr"></i>
                     <span>http://flickr.com/<strong>username</strong>/</span>
                 </li>
                 <li class="username" title="Wordpress blog name">
-                    <img src="@controllers.core.routes.Assets.at("jquery-openid/images/wordpress.png")" alt="icon" />
+                    <i class="icon-social wordpress"></i>
                     <span>http://<strong>username</strong>.wordpress.com</span>
                 </li>
                 <li class="username" title="Blogger blog name">
-                    <img src="@controllers.core.routes.Assets.at("jquery-openid/images/blogger.png")" alt="icon" />
+                    <i class="icon-social blogger"></i>
                     <span>http://<strong>username</strong>.blogspot.com/</span>
                 </li>
             </ul>
         </div>
+
         <fieldset>
             <label for="openid_username">Enter your <span>Provider user name</span></label>
-            <div>
-                <span></span>
-                    <input type="text" name="openid_username" />
-                <span></span>
-                <input type="submit" value="Login" />
+            <div class="input-group input-group-sm">
+                <span class="input-group-addon"></span>
+                <input type="text" class="form-control" name="openid_username" />
+                <span class="input-group-addon"></span>
             </div>
         </fieldset>
-        <fieldset>
-            <label for="openid_identifier">Enter your <a class="openid_logo" href="http://openid.net">OpenID</a></label>
-        </fieldset>
+
         @formHelpers.globalErrors(form)
-        <div>
-            <input type="text" name="openid_identifier" />
-            <input type="submit" class="zocial openid" value="@Messages("submitButton.loginWithOpenid")" />
-        </div>
+
+        <div class="clearfix"></div>
+        
+        <fieldset class="identifier">
+            <input type="text" class="form-control" name="openid_identifier" placeholder="OpenId Identifier" />
+        </fieldset>
+
+        <input type="submit" class="login-button" value="@Messages("submitButton.loginWithOpenid")" />
+        
     }
 
     @if(!oauthProviders.isEmpty) {
@@ -84,5 +89,5 @@
 
     <hr />
     <p><a href="@controllers.core.routes.Admin.login">@Messages("login.linkToPasswordLogin")</a></p>
-}(None, request, globalConfig, flash, lang)
+}(None, request, globalConfig, lang)
 

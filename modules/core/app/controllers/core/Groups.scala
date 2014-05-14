@@ -3,7 +3,7 @@ package controllers.core
 import play.api.libs.concurrent.Execution.Implicits._
 import controllers.generic._
 import forms.VisibilityForm
-import models.{Group, GroupF}
+import models.{AccountDAO, Group, GroupF}
 import models.base.Accessor
 import play.api.i18n.Messages
 import defines.{EntityType, ContentTypes, PermissionType}
@@ -14,14 +14,14 @@ import backend.Backend
 import backend.rest.RestHelpers
 import models.json.RestResource
 
-case class Groups @Inject()(implicit globalConfig: global.GlobalConfig, searchDispatcher: Dispatcher, searchResolver: Resolver, backend: Backend) extends PermissionHolder[Group]
+case class Groups @Inject()(implicit globalConfig: global.GlobalConfig, searchDispatcher: Dispatcher, searchResolver: Resolver, backend: Backend, userDAO: AccountDAO) extends PermissionHolder[Group]
   with Visibility[Group]
   with CRUD[GroupF, Group] {
 
   val contentType = ContentTypes.Group
   implicit val resource = Group.Resource
 
-  private val form = models.forms.GroupForm.form
+  private val form = models.Group.form
   private val groupRoutes = controllers.core.routes.Groups
 
   def get(id: String) = getWithChildrenAction[Accessor](id) {

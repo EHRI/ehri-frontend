@@ -1,9 +1,9 @@
+
 import models.AccountDAO
-import models.sql.{MockAccount, OAuth2Association, OpenIDAssociation, SqlAccountDAOPlugin}
+import models.sql.{SqlAccount, OAuth2Association, OpenIDAssociation}
 import org.specs2.execute.{Result, AsResult}
 import org.specs2.mutable.Around
 import org.specs2.specification.Scope
-import play.api.db.DB
 import play.api.http.{ContentTypes, HeaderNames}
 import play.api.test.FakeApplication
 import play.api.test.Helpers._
@@ -24,10 +24,10 @@ package object helpers {
   /**
    * Load database fixtures.
    */
-  def loadFixtures(implicit app: play.api.Application) = {
-    val userDAO: SqlAccountDAOPlugin = new SqlAccountDAOPlugin(app)
+  def loadSqlFixtures(implicit app: play.api.Application) = {
+    val userDAO: AccountDAO = SqlAccount
     mocks.users.map { case (profile, account) =>
-      val acc = userDAO.create(account.id, account.email, verified = true, staff = true)
+      val acc = userDAO.create(account.id, account.email, verified = account.verified, staff = account.staff)
       OpenIDAssociation.addAssociation(acc, acc.id + "-openid-test-url")
       OAuth2Association.addAssociation(acc, "1234", "google")
     }
@@ -44,12 +44,12 @@ package object helpers {
    * So here I've basically copy-pasted WithApplication and added
    * extra work before it returns.
    */
-  abstract class WithFixures(val app: FakeApplication = FakeApplication()) extends Around with Scope {
+  abstract class WithSqlFixures(val app: FakeApplication = FakeApplication()) extends Around with Scope {
     implicit def implicitApp = app
     override def around[T: AsResult](t: => T): Result = {
       running(app) {
-        loadFixtures
-        AsResult(t)
+        loadSqlFixtures
+        AsResult.effectively(t)
       }
     }
   }

@@ -7,7 +7,6 @@ import models.{json => _, _}
 class JsonFormatSpec extends PlaySpecification {
 
   "Documentary Unit Format should read and write with no changes" in {
-    import models.json.DocumentaryUnitFormat._
     val validation = Json.parse(json.documentaryUnitTestJson).validate[DocumentaryUnitF]
     // The JSON should parse correctly
     validation.asEither must beRight
@@ -23,7 +22,6 @@ class JsonFormatSpec extends PlaySpecification {
   }
 
   "HistoricalAgent Format should read and write with no changes" in {
-    import models.json.HistoricalAgentFormat._
     val validation = Json.parse(json.actorTestJson).validate[HistoricalAgentF]
     validation.asEither must beRight
     val actor = validation.get
@@ -33,7 +31,6 @@ class JsonFormatSpec extends PlaySpecification {
   }
 
   "Repository Format should read and write with no changes" in {
-    import models.json.RepositoryFormat._
     val validation = Json.parse(json.repoTestJson).validate[RepositoryF]
     validation.asEither must beRight
     val repo = validation.get
@@ -43,7 +40,6 @@ class JsonFormatSpec extends PlaySpecification {
   }
 
   "Concept Format should read and write with no changes" in {
-    import models.json.ConceptFormat._
     val validation = Json.parse(json.conceptTestJson).validate[ConceptF]
     validation.asEither must beRight
     val concept = validation.get
@@ -53,7 +49,6 @@ class JsonFormatSpec extends PlaySpecification {
   }
 
   "Vocabulary Format should read and write with no changes" in {
-    import models.json.VocabularyFormat._
     val validation = Json.parse(json.vocabTestJson).validate[VocabularyF]
     validation.asEither must beRight
     val vocabulary = validation.get
@@ -63,7 +58,6 @@ class JsonFormatSpec extends PlaySpecification {
   }
 
   "UserProfile Format should read and write with no changes" in {
-    import models.json.UserProfileFormat._
     val validation = Json.parse(json.userProfileTestJson).validate[UserProfileF]
     // The JSON should parse correctly
     validation.asEither must beRight
@@ -74,7 +68,6 @@ class JsonFormatSpec extends PlaySpecification {
   }
 
   "Group Format should read and write with no changes" in {
-    import models.json.GroupFormat._
     val validation = Json.parse(json.groupTestJson).validate[GroupF]
     // The JSON should parse correctly
     validation.asEither must beRight
@@ -85,7 +78,6 @@ class JsonFormatSpec extends PlaySpecification {
   }
 
   "Annotation Format should read and write with no changes" in {
-    import models.json.AnnotationFormat._
     val validation = Json.parse(json.annotationTestJson).validate[AnnotationF]
     // The JSON should parse correctly
     validation.asEither must beRight

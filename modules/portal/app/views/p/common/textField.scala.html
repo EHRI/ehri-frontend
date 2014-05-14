@@ -1,43 +1,16 @@
-@(item: AnyModel, nodeId: String, valueOpt: Option[String], key: String)(implicit fieldPrefix: String, userOpt: Option[UserProfile], req: RequestHeader, globalConfig: global.GlobalConfig, lang: Lang, fieldAnnotations: Seq[Annotation])
-
-@isOwnAnnotation(annotation: Annotation) = @{
-    (for {
-        user <- userOpt
-        annotator <- annotation.user
-    } yield annotator.id == user.id).getOrElse(false)
-}
+@(item: AnyModel, nodeId: String, valueOpt: Option[String], key: String)(implicit fieldPrefix: String, userOpt: Option[UserProfile], req: RequestHeader, prefs: utils.SessionPrefs, globalConfig: global.GlobalConfig, lang: Lang, fieldAnnotations: Seq[Annotation])
 
 @defining(fieldAnnotations.filter(_.model.field==Some(key))) { anns =>
 
     @valueOpt.filterNot(_.isEmpty).map { value =>
         <div class="item-text-field" id="@nodeId-@key">
-            <div class="item-text-field-header">
-                <h4>@Messages(fieldPrefix + "." + key)</h4>
-            </div>
+            <h4 class="item-text-field-header">
+                @Messages(fieldPrefix + "." + key)
+            </h4>
             <div class="item-text-field-value">
                 @Html(views.Helpers.renderMarkdown(value))
             </div>
-            <div class="item-text-field-annotations annotation-set clearfix">
-                @p.common.inlineAnnotationList(anns)
-
-                @if(userOpt.isDefined) {
-                    <div class="annotate-item-controls clearfix">
-                        <a title="@Messages("portal.social.createFieldAnnotation")" data-item="@item.id" data-did="@nodeId" data-field="@key" class="annotate-field"
-                           href="@controllers.portal.routes.Portal.annotateField(item.id, nodeId, key)">
-                            <span class="glyphicon glyphicon-comment"></span>
-                        </a>
-                        @defining(anns.count(!_.isOwnedBy(userOpt))) { otherCount =>
-                            @if(otherCount > 0) {
-                            <a title="@Messages("portal.social.showPublicAnnotations", otherCount)" class="show-other-annotations" href="#">
-                                <span class="glyphicon glyphicon-chevron-down"></span>
-                                @otherCount
-                            </a>
-                            }
-                        }
-
-                    </div>
-                }
-            </div>
+            @fieldAnnotationControls(item, nodeId, key, anns)
         </div>
     }
 }

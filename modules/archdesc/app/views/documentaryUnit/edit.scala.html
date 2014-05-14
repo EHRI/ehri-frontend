@@ -8,7 +8,7 @@ implicit userOpt: Option[UserProfile], req: RequestHeader, globalConfig: global.
 	@helper.form(action = action, 'class -> "entity-form form-horizontal") {
         @formHelpers.csrfToken()
 		@documentaryUnit.renderForm(f)
-        @common.submitButtonWithLogMessageInput(Messages("submitButton.updateDocumentaryUnit"), cancel = Some(globalConfig.routeRegistry.urlFor(item)))
+        @formHelpers.submitButtonWithLogMessageInput(Messages("submitButton.updateDocumentaryUnit"), cancel = Some(globalConfig.routeRegistry.urlFor(item)))
 	}
 } {
     @documentaryUnit.formNav()

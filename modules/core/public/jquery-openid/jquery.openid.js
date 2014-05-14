@@ -27,13 +27,13 @@ $.fn.openid = function() {
   };
   var direct = function() {
     var $li = $(this);
-    $li.parent().find('li').removeClass('highlight');
-    $li.addClass('highlight');
+    $li.parent().find('li').removeClass('active');
+    $li.addClass('active');
     $usrfs.fadeOut();
-    $idfs.fadeOut();
+    $idfs.removeClass("openid");
 
     $this.unbind('submit').submit(function() {
-      $id.val($this.find("li.highlight span").text());
+      $id.val($this.find("li.active span").text());
     });
     $this.submit();
     return false;
@@ -41,10 +41,10 @@ $.fn.openid = function() {
 
   var openid = function() {
     var $li = $(this);
-    $li.parent().find('li').removeClass('highlight');
-    $li.addClass('highlight');
+    $li.parent().find('li').removeClass('active');
+    $li.addClass('active');
     $usrfs.hide();
-    $idfs.show();
+    $idfs.addClass("openid");
     $id.focus();
     $this.unbind('submit').submit(submitid);
     return false;
@@ -52,11 +52,11 @@ $.fn.openid = function() {
 
   var username = function() {
     var $li = $(this);
-    $li.parent().find('li').removeClass('highlight');
-    $li.addClass('highlight');
-    $idfs.hide();
+    $li.parent().find('li').removeClass('active');
+    $li.addClass('active');
+    $idfs.removeClass("openid");
     $usrfs.show();
-    $this.find('label[for=openid_username] span').text($li.attr("title"));
+    $this.find('input[name=openid_username]').attr("placeholder", $li.attr("title"));
     $front.text($li.find("span").text().split("username")[0]);
     $end.text("").text($li.find("span").text().split("username")[1]);
     $id.focus();

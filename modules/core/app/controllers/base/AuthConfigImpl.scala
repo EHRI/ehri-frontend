@@ -4,8 +4,6 @@ import jp.t2v.lab.play2.auth._
 import play.api.mvc._
 
 import scala.reflect.classTag
-import play.api.Play.current
-import global.GlobalConfig
 import scala.concurrent.{ExecutionContext,Future}
 import scala.concurrent.Future.{successful => immediate}
 import play.api.Logger
@@ -17,21 +15,23 @@ import play.api.Logger
 
 trait AuthConfigImpl extends AuthConfig with Results {
 
-  val globalConfig: global.GlobalConfig
+  def globalConfig: global.GlobalConfig
+
+  // Specific type of user-finder loaded via a plugin
+  def userDAO: models.AccountDAO
 
   def defaultLoginUrl: Call = globalConfig.routeRegistry.default
   def defaultLogoutUrl: Call = globalConfig.routeRegistry.default
   def defaultAuthFailedUrl: Call = globalConfig.routeRegistry.login
-  
+
+  protected val ACCESS_URI: String = "access_uri"
+
 
   /**
    * Dummy permission (which is not actually used.)
    */
   sealed trait Permission
 
-  // Specific type of user-finder loaded via a plugin
-  def userFinder: models.AccountDAO = current.plugin(classOf[models.AccountDAO]).get
-  
   type Id = String
 
   override lazy val idContainer: IdContainer[Id] = new CookieIdContainer[Id]
@@ -74,16 +74,15 @@ trait AuthConfigImpl extends AuthConfig with Results {
    * A function that returns a `User` object from an `Id`.
    * Describe the procedure according to your application.
    */
-  def resolveUser(id: Id)(implicit context: ExecutionContext): Future[Option[User]] = immediate(userFinder.findByProfileId(id))
+  def resolveUser(id: Id)(implicit context: ExecutionContext): Future[Option[User]] = immediate(userDAO.findByProfileId(id))
 
   /**
    * A redirect target after a successful user login.
    */
   def loginSucceeded(request: RequestHeader)(implicit context: ExecutionContext): Future[SimpleResult] = {
     val uri = request.session.get("access_uri").getOrElse(defaultLoginUrl.url)
-    Logger.logger.debug("Redirecting loggin-in user to: {}", uri)
-    request.session - "access_uri"
-    immediate(Redirect(uri))
+    Logger.logger.debug("Redirecting logged-in user to: {}", uri)
+    immediate(Redirect(uri).withSession(request.session - "access_uri"))
   }
 
   /**
@@ -100,7 +99,7 @@ trait AuthConfigImpl extends AuthConfig with Results {
       Logger.logger.warn("Auth failed for: {}", request.toString())
       immediate(Unauthorized("authentication failed"))
     } else {
-      immediate(Redirect(defaultAuthFailedUrl).withSession("access_uri" -> request.uri))
+      immediate(Redirect(defaultAuthFailedUrl).withSession(ACCESS_URI -> request.uri))
     }
   }
 

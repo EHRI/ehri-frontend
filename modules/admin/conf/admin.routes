@@ -2,9 +2,6 @@
 
 
 GET     /                                   @controllers.admin.Home.index
-GET     /profile                            @controllers.admin.Profile.profile
-GET     /profile/edit                       @controllers.admin.Profile.updateProfile
-POST    /profile/edit                       @controllers.admin.Profile.updateProfilePost
 GET     /overview                           @controllers.admin.Home.overview
 
 # Js Routes

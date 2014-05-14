@@ -4,6 +4,8 @@
 
 @implicitField = @{ views.html.helper.FieldConstructor(formHelpers.fieldTemplate.f) }
 
-@formHelpers.lineInput(f(""), Entity.IDENTIFIER)
-@formHelpers.lineInput(f(""), models.VocabularyF.NAME)
-@formHelpers.textInput(f(""), models.VocabularyF.DESCRIPTION)
+@defining(EntityType.Vocabulary.toString) { implicit fieldPrefix =>
+    @formHelpers.lineInput(f(""), Entity.IDENTIFIER)
+    @formHelpers.lineInput(f(""), models.VocabularyF.NAME)
+    @formHelpers.textInput(f(""), models.VocabularyF.DESCRIPTION)
+}
