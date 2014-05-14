@@ -50,10 +50,6 @@ object ApplicationBuild extends Build {
     "joda-time" % "joda-time" % "2.1",
     "org.mindrot" % "jbcrypt" % "0.3m",
 
-    // S3 Upload plugin
-    "nl.rhinofly" %% "play-s3" % "3.3.3",
-    "net.coobird" % "thumbnailator" % "[0.4, 0.5)",
-
     // Mailer...
     "com.typesafe" %% "play-plugins-mailer" % "2.2.0",
 
@@ -62,6 +58,12 @@ object ApplicationBuild extends Build {
 
     // Time formatting library
     "org.ocpsoft.prettytime" % "prettytime" % "1.0.8.Final"
+  )
+
+  val portalDependencies = Seq(
+    // S3 Upload plugin
+    "nl.rhinofly" %% "play-s3" % "3.3.3",
+    "net.coobird" % "thumbnailator" % "[0.4, 0.5)"
   )
 
   val testDependencies = Seq(
@@ -97,41 +99,41 @@ object ApplicationBuild extends Build {
   ).settings(otherSettings: _*)
 
   lazy val annotation = play.Project(
-    appName + "-annotation", appVersion, appDependencies, path = file("modules/annotation")
+    appName + "-annotation", appVersion, path = file("modules/annotation")
   ).settings(otherSettings: _*).dependsOn(core)
 
   lazy val linking = play.Project(
-    appName + "-linking", appVersion, appDependencies, path = file("modules/linking")
+    appName + "-linking", appVersion, path = file("modules/linking")
   ).settings(otherSettings: _*).dependsOn(core, annotation)
 
   lazy val archdesc = play.Project(
-    appName + "-archdesc", appVersion, appDependencies, path = file("modules/archdesc")
+    appName + "-archdesc", appVersion, path = file("modules/archdesc")
   ).settings(otherSettings: _*).dependsOn(core, annotation, linking)
 
   lazy val authorities = play.Project(
-    appName + "-authorities", appVersion, appDependencies, path = file("modules/authorities")
+    appName + "-authorities", appVersion, path = file("modules/authorities")
   ).settings(otherSettings: _*).dependsOn(core, annotation, linking)
 
   lazy val vocabs = play.Project(
-    appName + "-vocabs", appVersion, appDependencies, path = file("modules/vocabs")
+    appName + "-vocabs", appVersion, path = file("modules/vocabs")
   ).settings(otherSettings: _*).dependsOn(core, annotation, linking)
 
   lazy val portal = play.Project(
-    appName + "-portal", appVersion, appDependencies, path = file("modules/portal"))
+    appName + "-portal", appVersion, portalDependencies, path = file("modules/portal"))
     .settings(otherSettings: _*).dependsOn(core, annotation, linking)
     .aggregate(core, annotation, linking)
 
   lazy val admin = play.Project(
-    appName + "-admin", appVersion, appDependencies, path = file("modules/admin")
+    appName + "-admin", appVersion, path = file("modules/admin")
   ).settings(otherSettings: _*).dependsOn(core, archdesc, authorities, vocabs, portal)
     .aggregate(core, archdesc, authorities, vocabs, portal)
 
   lazy val guides = play.Project(
-    appName + "-guides", appVersion, appDependencies, path = file("modules/guides")
+    appName + "-guides", appVersion, path = file("modules/guides")
   ).settings(otherSettings: _*).dependsOn(archdesc)
     .aggregate(archdesc)
 
-  lazy val main = play.Project(appName, appVersion, appDependencies ++ testDependencies
+  lazy val main = play.Project(appName, appVersion, testDependencies
   ).settings(otherSettings: _*).dependsOn(admin, portal, guides)
     .aggregate(admin, portal, guides)
 
