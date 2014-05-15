@@ -11,8 +11,10 @@ import com.google.inject._
 import utils.search.{Resolver, Dispatcher}
 import scala.concurrent.Future
 import backend.Backend
-import backend.rest.RestHelpers
+import backend.rest.{Constants, RestHelpers}
 import models.json.RestResource
+import play.api.mvc.{Request, AnyContent}
+import play.api.data.{Forms, Form}
 
 case class Groups @Inject()(implicit globalConfig: global.GlobalConfig, searchDispatcher: Dispatcher, searchResolver: Resolver, backend: Backend, userDAO: AccountDAO) extends PermissionHolder[Group]
   with Visibility[Group]
@@ -49,7 +51,17 @@ case class Groups @Inject()(implicit globalConfig: global.GlobalConfig, searchDi
         users, groups, groupRoutes.createPost))
   }
 
-  def createPost = createPostAction.async(form) {
+  /**
+   * Extract a set of group members from the form POST data and
+   * convert it into params for the backend call.
+   */
+  private def memberExtractor: Request[AnyContent] => Map[String,Seq[String]] = { implicit r =>
+    Map(Constants.MEMBER -> Form(Forms.single(
+      Constants.MEMBER -> Forms.seq(Forms.nonEmptyText)
+    )).bindFromRequest().value.getOrElse(Seq.empty))
+  }
+
+  def createPost = createPostAction.async(form, memberExtractor) {
       formsOrItem => implicit userOpt => implicit request =>
     formsOrItem match {
       case Left((errorForm,accForm)) => getUsersAndGroups { users => groups =>

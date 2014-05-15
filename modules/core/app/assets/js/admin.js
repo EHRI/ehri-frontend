@@ -75,6 +75,22 @@ jQuery(function($) {
       });
   });
 
+  /**
+   * Quick and dirty way of Ajax-ing a link which
+   * directs to an empty submit form.
+   */
+  $("a.ajax-action").click(function(e) {
+    var $link = $(this),
+        href = $link.attr("href"),
+        check = $link.attr("title");
+    e.preventDefault();
+    if (confirm(check)) {
+      $.post(href, function(d) {
+        location.reload();
+      })
+    }
+  });
+
   // Make multi-selects pretty
   $("select.select2").select2();
 

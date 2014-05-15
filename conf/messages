@@ -228,19 +228,6 @@ users.groups=Group Membership
 users.search=Search Users
 
 #
-# Groups
-#
-group.admin=Admin
-group.identifier=Group Identifier
-group.identifier.description=A short, lower-case, 1-word identifier
-group.name=Group Name
-group.name.description=A title-case display for the group
-group.description=Group Description
-group.description.description=A description of this group''s purpose
-group.members=Group Members
-group.membersPageHeader={2,choice,0#No members found|1#One member|1<Group Members {0,number,integer} to {1,number,integer} of {2,number,integer}}
-
-#
 # System Events
 #
 systemEvents.itemAtTime=Action at {0}
@@ -369,6 +356,7 @@ deleting.deleteDescriptionConfirmationMessage=Are you sure you want to delete it
 accessor.notInAnyGroups=This user does not belong to any groups.
 accessor.currentGroups=Current Groups
 accessor.removeGroup=Remove
+accessor.removeUserFromGroup=Remove {0} from group {1}?
 accessor.itemCannotBeAddedToAdditionalGroups=This {0} cannot be added to additional groups
 
 permissions.itemPermissionsForItem=Item-level Permissions for {0}
