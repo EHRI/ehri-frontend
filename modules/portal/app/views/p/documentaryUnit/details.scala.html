@@ -1,6 +1,6 @@
 @(item: DocumentaryUnit, desc: DocumentaryUnitDescriptionF)(implicit userOpt: Option[UserProfile], request: RequestHeader, lang: Lang, globalConfig: global.GlobalConfig)
 
-<div class="item-details">
+<div class="item-details panel panel-default">
     <dl>
         <dt>@Messages("portal.documentaryUnit.identifier")</dt>
         <dd>@item.model.identifier</dd>
@@ -34,7 +34,7 @@
                 <dl>
                     <dt>@Messages("portal.documentaryUnit.languageOfMaterials")</dt>
                     <dd>
-                        <ul class="list-inline">
+                        <ul class="list-unstyled list-inline comma-sep">
                             @langs.map { l =>
                                 <li>@views.Helpers.languageCodeToName(l)</li>
                             }
@@ -48,7 +48,7 @@
                 <dl>
                     <dt>@Messages("portal.documentaryUnit.scriptOfMaterials")</dt>
                     <dd>
-                        <ul class="list-unstyled">
+                        <ul class="list-unstyled list-inline comma-sep">
                             @scr.map { s =>
                             <li>@views.Helpers.scriptCodeToName(s)</li>
                             }

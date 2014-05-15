@@ -10,12 +10,6 @@
 
             @logoAndLink(item)
 
-            @p.common.tablePanel(Messages("portal.item.details")) {
-                @item.model.descriptions.map { desc =>
-                    @details(item, desc)
-                }
-            }
-
             @p.common.latestAction(item, controllers.portal.routes.Portal.itemHistory(item.id))
         }
 

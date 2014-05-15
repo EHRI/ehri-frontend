@@ -11,6 +11,20 @@
     @defining(Annotation.fieldAnnotations(desc.id, annotations)) { implicit fieldAnnotations =>
         @* Description *must* have an ID here or something bad has gone wrong! *@
         @desc.id.map { descId =>
+
+            <div class="item-header">
+                <h1>@desc.name</h1>
+                @desc.identity.parallelFormsOfName.filterNot(_.isEmpty).map { pfnames =>
+                    <ul class="list-unstyled comma-sep">
+                        @pfnames.map { pfn =>
+                            <li><h3>@pfn</h3></li>
+                        }
+                    </ul>
+                }
+            </div>
+
+            @details(item, desc)
+
             @descriptionSection(IDENTITY_AREA) {
                 @textField(item, descId, desc.identity.`abstract`, ABSTRACT)
                 @textField(item, descId, desc.identity.extentAndMedium, EXTENT_MEDIUM)
