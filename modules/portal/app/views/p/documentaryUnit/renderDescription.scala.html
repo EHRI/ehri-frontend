@@ -14,13 +14,7 @@
 
             <div class="item-header">
                 <h1>@desc.name</h1>
-                @desc.identity.parallelFormsOfName.filterNot(_.isEmpty).map { pfnames =>
-                    <ul class="list-unstyled comma-sep">
-                        @pfnames.map { pfn =>
-                            <li><h3>@pfn</h3></li>
-                        }
-                    </ul>
-                }
+                @p.common.otherNameList(desc.identity.parallelFormsOfName)
             </div>
 
             @details(item, desc)

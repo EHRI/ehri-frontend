@@ -14,13 +14,13 @@ ul.inline-separator li:last-child:after {
 }
 
 /** Inline lists with a comma separator */
-ul.comma-sep {
+ul.comma-sep, ul.slash-sep {
   display: inline;
   margin: 0;
   padding: 0;
 }
 
-ul.comma-sep li {
+ul.comma-sep li, ul.slash-sep li {
   display: inline;
   list-style: none;
   margin: 0;
@@ -32,6 +32,11 @@ ul.comma-sep li:after {
   color: #aaa;
 }
 
-ul.comma-sep li:last-child:after {
+ul.comma-sep li:last-child:after, ul.slash-sep li:last-child:after {
   content: "";
+}
+
+ul.slash-sep li:after {
+  content: " / ";
+  color: #aaa;
 }
