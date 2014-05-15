@@ -3,7 +3,7 @@ package controllers.core
 import play.api.libs.concurrent.Execution.Implicits._
 import controllers.generic._
 import forms.VisibilityForm
-import models.{AccountDAO, Group, GroupF}
+import models.{UserProfile, AccountDAO, Group, GroupF}
 import models.base.Accessor
 import play.api.i18n.Messages
 import defines.{EntityType, ContentTypes, PermissionType}
@@ -11,8 +11,10 @@ import com.google.inject._
 import utils.search.{Resolver, Dispatcher}
 import scala.concurrent.Future
 import backend.Backend
-import backend.rest.RestHelpers
+import backend.rest.{Constants, RestHelpers}
 import models.json.RestResource
+import play.api.mvc.{Request, AnyContent}
+import play.api.data.{Forms, Form}
 
 case class Groups @Inject()(implicit globalConfig: global.GlobalConfig, searchDispatcher: Dispatcher, searchResolver: Resolver, backend: Backend, userDAO: AccountDAO) extends PermissionHolder[Group]
   with Visibility[Group]
@@ -26,7 +28,11 @@ case class Groups @Inject()(implicit globalConfig: global.GlobalConfig, searchDi
 
   def get(id: String) = getWithChildrenAction[Accessor](id) {
       item => page => params => annotations => links => implicit maybeUser => implicit request =>
-    Ok(views.html.group.show(item, page, params, annotations))
+    val pageWithAccounts = page.copy(items = page.items.map {
+      case up: UserProfile => up.copy(account = userDAO.findByProfileId(up.id))
+      case group => group
+    })
+    Ok(views.html.group.show(item, pageWithAccounts, params, annotations))
   }
 
   def history(id: String) = historyAction(id) {
@@ -45,7 +51,17 @@ case class Groups @Inject()(implicit globalConfig: global.GlobalConfig, searchDi
         users, groups, groupRoutes.createPost))
   }
 
-  def createPost = createPostAction.async(form) {
+  /**
+   * Extract a set of group members from the form POST data and
+   * convert it into params for the backend call.
+   */
+  private def memberExtractor: Request[AnyContent] => Map[String,Seq[String]] = { implicit r =>
+    Map(Constants.MEMBER -> Form(Forms.single(
+      Constants.MEMBER -> Forms.seq(Forms.nonEmptyText)
+    )).bindFromRequest().value.getOrElse(Seq.empty))
+  }
+
+  def createPost = createPostAction.async(form, memberExtractor) {
       formsOrItem => implicit userOpt => implicit request =>
     formsOrItem match {
       case Left((errorForm,accForm)) => getUsersAndGroups { users => groups =>
