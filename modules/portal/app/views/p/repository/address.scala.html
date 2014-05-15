@@ -32,7 +32,7 @@
             }
             @address.url.map { t =>
                 <span class="glyphicon glyphicon-globe" title="Web"></span>
-                <a href="@t" title="Website">@Messages("portal.repository.url")</a><br>
+                <a href="@views.p.Helpers.normalizeUrl(t)" title="Website">@Messages("portal.repository.url")</a><br>
             }
         </address>
     }

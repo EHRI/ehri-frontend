@@ -1,6 +1,7 @@
 package views.p
 
 import models.{UserProfile, Annotation}
+import java.net.{MalformedURLException, URL}
 
 object AnnotationViewType extends Enumeration {
   type Type = Value
@@ -42,5 +43,14 @@ object Helpers {
     val (mine,others) = annotations.filterNot(_.isPromoted).partition(_.isOwnedBy(userOpt))
     val promoted = annotations.filter(_.isPromoted)
     Map(Mine -> mine, Promoted -> promoted, Other -> others)
+  }
+
+  def normalizeUrl(s: String): String = {
+    try {
+      new URL(s).toString
+    } catch {
+      case e: MalformedURLException if e.getMessage.startsWith("no protocol") => "http://" + s
+      case _: MalformedURLException => s
+    }
   }
 }
