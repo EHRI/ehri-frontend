@@ -1,8 +1,8 @@
-@(item: AnyModel, watched: Boolean, context: Option[AnyModel] = None)(implicit userOpt: Option[UserProfile], req: RequestHeader, globalConfig: global.GlobalConfig, lang: Lang)
+@(item: AnyModel, watched: Boolean)(implicit userOpt: Option[UserProfile], req: RequestHeader, globalConfig: global.GlobalConfig, lang: Lang, context: Option[Holder[_]] = None)
 
 @item match {
     case d: DocumentaryUnit => {
-        @documentaryUnit.listItem(d, watched, context)
+        @documentaryUnit.listItem(d, watched)
     }
     case d: HistoricalAgent => {
         @historicalAgent.listItem(d, watched)
