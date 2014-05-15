@@ -247,10 +247,15 @@ case class SolrQueryBuilder(writerType: WriterType, debugQuery: Boolean = false)
     }
 
     // Mmmn, speckcheck
-    // TODO: Add quality params here...
     req.set("spellcheck", "true")
+    req.set("spellcheck.count", "10")
     req.set("spellcheck.q", queryString)
     req.set("spellcheck.extendedResults", "true")
+    req.set("spellcheck.accuracy", "0.6")
+    req.set("spellcheck.onlyMorePopular", "true")
+    req.set("spellcheck.collate", "true")
+    req.set("spellcheck.maxCollations", "10")
+    req.set("spellcheck.maxCollationTries", "10")
 
     // Facet the request accordingly
     constrain(req, facets, allFacets)

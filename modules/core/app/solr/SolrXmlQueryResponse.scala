@@ -65,13 +65,16 @@ case class SolrXmlQueryResponse(response: Elem) extends QueryResponse {
    * Get the *first* spellcheck suggestion offered. Ultimately, more might be useful,
    * but the first is okay for now...
    */
-  lazy val spellcheckSuggestion: Option[(String,String)] = {
-    for {
-      suggestion <- (response \ "lst" \ "lst").find(hasAttr("name", "suggestions"))
-      name <- (suggestion \ "lst" \ "@name").headOption
-      word <- (suggestion \ "lst" \ "arr" \ "lst" \ "str").find(hasAttr("name", "word"))
-    } yield (name.text, word.text)
-  }
+  lazy val spellcheckSuggestion: Option[(String,String)] = rawSpellcheckSuggestions
+    .sortBy(s => s._3).reverse.headOption.map(s => s._1 -> s._2)
+
+  private def rawSpellcheckSuggestions: Seq[(String,String,Int)] = for {
+    suggestions <- (response \ "lst" \ "lst").filter(hasAttr("name", "suggestions"))
+    name <- suggestions \ "lst" \ "@name"
+    words <- suggestions \ "lst" \ "arr" \ "lst"
+    word <- words \ "str"
+    freq <- words \ "int"
+  } yield (name.text, word.text, freq.text.toInt)
 
   /**
    * Parse highlight data of the form:

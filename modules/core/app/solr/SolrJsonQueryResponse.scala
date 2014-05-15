@@ -23,11 +23,16 @@ case class SolrJsonQueryResponse(response: JsValue) extends QueryResponse {
    * Fetch the first available spellcheck suggestion.
    */
   lazy val spellcheckSuggestion: Option[(String, String)] = for {
+    (word, suggests) <- rawSpellcheckSuggestions
+    best <- suggests.sortBy(_.freq).reverse.headOption
+  } yield (word, best.word)
+
+
+  private def rawSpellcheckSuggestions: Option[(String,Seq[Suggestion])] = for {
     suggest <- (response \ "spellcheck"\ "suggestions").asOpt[Seq[JsValue]] if suggest.size > 2
     word <- suggest(0).asOpt[String]
     correct <- (suggest(1) \ "suggestion").asOpt(Reads.seq(Suggestion.suggestionReads))
-    first <- correct.headOption
-  } yield (word, first.word)
+  } yield (word, correct)
 
   /**
    * Extract query phrases from the 'q' parameter.
