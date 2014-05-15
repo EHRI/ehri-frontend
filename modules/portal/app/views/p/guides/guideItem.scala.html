@@ -1,0 +1,56 @@
+@(item: models.base.AnyModel, hit: utils.search.SearchHit, action: Call, conceptMode:String = "default")(implicit userOpt: Option[UserProfile], req: RequestHeader, globalConfig: global.GlobalConfig, lang: Lang)
+
+@item match {
+    case d: DocumentaryUnit => {
+        ""
+    }
+    case d: HistoricalAgent => {
+        <div class="item-option  item-to-preview"><i class="glyphicon glyphicon-info-sign"></i></div>
+        <a class="item-title">@d.toStringLang</a>
+        <div class="hidden-md hidden-lg item-description">
+            @d.model.descriptions.headOption.map { desc =>
+                <dl>
+                    <dt>@Messages("isaar." + desc.entityType.toString)</dt>
+                        @desc.dates.map { dp =>
+                            <dd>@dp.years</dd>
+                        }
+                </dl>
+                @desc.details.datesOfExistence.map { d =>
+                    <p>@Html(views.Helpers.renderMarkdown(d))</p>
+                }
+                @desc.details.history.map { d =>
+                    <p>@Html(views.Helpers.renderMarkdown(d))</p>
+                }
+                @desc.details.generalContext.map { d =>
+                    <p>@Html(views.Helpers.renderMarkdown(d))</p>
+                }
+            }
+        </div>
+    }
+    case d: Concept => {
+        <span class="item-title keyword-title">
+            @d.broaderTerms.map { bt =>
+                <span class="item-parent">
+                    @bt.toStringLang
+                </span>
+            }
+            @conceptMode match { 
+                case "organisation" => {
+                    @if(d.childCount.getOrElse(0) > 0) {
+                        <a href="@action?parent=@d.id">
+                    } else {
+                        <a>
+                    }
+                } 
+                case _ => {
+                    <a>
+                }
+            }
+                @d.toStringLang
+            </a>
+        </span>
+    }
+    case _ => {
+        ""
+    }
+}

@@ -3,14 +3,19 @@
 # ~~~~
 
 # Home page
-GET     /			@controllers.guides.Home.places
-GET     /timeline		@controllers.guides.Home.timeBrowse
-GET     /keywords		@controllers.guides.Home.keywordBrowse
-GET     /people			@controllers.guides.Home.personBrowse
-GET     /results		@controllers.guides.Home.resultsBrowse
-GET     /item			@controllers.guides.Home.itemShow
-GET     /organisation	@controllers.guides.Home.organizationsShow
+GET		/				@controllers.guides.GuidesAdmin.listGuides
+GET		/create			@controllers.guides.GuidesAdmin.create()
+POST	/create			@controllers.guides.GuidesAdmin.createPost()
 
+#Guides directed
+GET		/:path				@controllers.guides.GuidesAdmin.listPages(path: String)
+GET		/:path/edit			@controllers.guides.GuidesAdmin.edit(path: String)
+POST	/:path/edit			@controllers.guides.GuidesAdmin.editPost(path: String)
+GET		/:path/delete		@controllers.guides.GuidesAdmin.delete(path: String)
 
-# Map static resources from the /public folder to the /assets URL path
-GET     /assets/*file	controllers.guides.Assets.at(path="/public", file)
+#Guides Pages
+GET		/:gPath/create			@controllers.guides.GuidesAdmin.createPages(gPath: String)
+POST	/:gPath/create			@controllers.guides.GuidesAdmin.createPagesPost(gPath: String)
+GET		/:gPath/:path			@controllers.guides.GuidesAdmin.editPages(gPath: String, path: String)
+POST	/:gPath/:path			@controllers.guides.GuidesAdmin.editPagesPost(gPath: String, path: String)
+GET		/:gPath/:path/delete	@controllers.guides.GuidesAdmin.deletePages(gPath: String, path: String)
