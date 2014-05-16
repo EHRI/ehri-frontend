@@ -326,8 +326,9 @@ jQuery(function ($) {
   $(document).on("click", ".delete-annotation", function(e) {
     e.preventDefault();
     var $elem = $(this),
-        id = $elem.data("item");
-    if (confirm("Delete annotation?")) { // FIXME: i18n?
+        id = $elem.data("item"),
+        check = $elem.attr("title");
+    if (confirm(check + "?")) {
       var $ann = $elem.closest(".annotation");
       $ann.hide();
       jsRoutes.controllers.portal.Annotations.deleteAnnotationPost(id).ajax({
