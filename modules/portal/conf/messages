@@ -233,3 +233,5 @@ portal.feedback=Feedback
 portal.feedback.message=Let us know what you think...
 portal.feedback.thanks=Thanks !
 portal.feedback.thanks.message=Your feedback is greatly appreciated.
+
+portal.guides.faceted=Browse
