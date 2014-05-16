@@ -9,7 +9,7 @@ implicit userOpt: Option[UserProfile], req: RequestHeader, globalConfig: global.
         @formHelpers.csrfToken()
         @userProfile.renderForm(item, f)
 
-        @formHelpers.submitButtonWithLogMessageInput(Messages("submitButton.updateUserProfile"), cancel = Some(globalConfig.routeRegistry.urlFor(item)))
+        @formHelpers.submitButtonWithLogMessageInput(Messages("submitButton.updateUserProfile"))
 	}
 		
 } {

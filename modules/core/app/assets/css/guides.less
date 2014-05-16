@@ -1,3 +1,4 @@
+@val : lala;
 //
 // Load Dependencies
 // --------------------------------------------------
@@ -34,6 +35,33 @@ body > .container {
 //
 // Content
 // --------------------------------------------------
+.facet-form {
+	> h1 > .btn-sm {
+		margin-top:-4px;
+	}
+	> ul.facet-search {
+		display:none;
+	}
+	> ul.facet-list {
+		display:none;
+		overflow-y:scroll;
+		max-height:200px;
+		position:relative;
+	}
+	.facet-scroll {
+		height:1px;
+		min-height:1px;
+		margin:0;
+		padding:0;
+		overflow:hidden;
+		visibility:hidden;
+		&.loading {
+			height:auto;
+			min-height:20px;
+			visibility:visible;
+		}
+	}
+}
 #main {
 	article {
 		background-color:@content-color;
