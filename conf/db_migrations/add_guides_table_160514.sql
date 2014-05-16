@@ -12,7 +12,7 @@ CREATE TABLE `research_guide_page` (
   PRIMARY KEY (`id_research_guide_page`),
   KEY `fk_research_guide_page_1` (`id_research_guide`),
   KEY `index3` (`id_research_guide`),
-  CONSTRAINT `fk_research_guide_page_1` FOREIGN KEY (`id_research_guide`) REFERENCES `research_guide` (`id_research_guide`) ON DELETE NO CASCADE ON UPDATE NO CASCADE
+  CONSTRAINT `fk_research_guide_page_1` FOREIGN KEY (`id_research_guide`) REFERENCES `research_guide` (`id_research_guide`) ON DELETE CASCADE ON UPDATE CASCADE
 );
 
 

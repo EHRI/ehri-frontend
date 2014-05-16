@@ -49,8 +49,6 @@ CREATE TABLE token (
 
 ALTER TABLE token ADD CONSTRAINT token_profile_id FOREIGN KEY (id) REFERENCES users (id) ON DELETE CASCADE;
 
-
-
 CREATE TABLE `research_guide_page` (
   `id_research_guide_page` int(11) NOT NULL AUTO_INCREMENT,
   `id_research_guide` int(11) DEFAULT NULL,
@@ -62,7 +60,7 @@ CREATE TABLE `research_guide_page` (
   PRIMARY KEY (`id_research_guide_page`),
   KEY `fk_research_guide_page_1` (`id_research_guide`),
   KEY `index3` (`id_research_guide`),
-  CONSTRAINT `fk_research_guide_page_1` FOREIGN KEY (`id_research_guide`) REFERENCES `research_guide` (`id_research_guide`) ON DELETE NO CASCADE ON UPDATE NO CASCADE
+  CONSTRAINT `fk_research_guide_page_1` FOREIGN KEY (`id_research_guide`) REFERENCES `research_guide` (`id_research_guide`) ON DELETE CASCADE ON UPDATE CASCADE
 );
 
 
