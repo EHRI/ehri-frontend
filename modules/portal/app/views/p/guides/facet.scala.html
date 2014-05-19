@@ -1,0 +1,168 @@
+<<<<<<< HEAD
+@(template: (GuidesPage, (GuidesData, List[GuidesPage])))(implicit userOpt: Option[UserProfile], request: RequestHeader, prefs: utils.SessionPrefs, globalConfig: global.GlobalConfig, lang: Lang, flash: Flash)
+
+@import models.{GuidesPage, GuidesData}
+=======
+@(template: (GuidesPage, (Guide, List[GuidesPage])))(implicit userOpt: Option[UserProfile], request: RequestHeader, prefs: utils.SessionPrefs, globalConfig: global.GlobalConfig, lang: Lang, flash: Flash)
+
+@import models.{GuidesPage, Guide}
+>>>>>>> guides
+
+@js = {
+    <script type="text/javascript">
+    $(document).ready(function() {
+        $(".facet-form h1 .search").on("click", function(e) {
+            e.preventDefault();
+            cross = $(this).children(".glyphicon");
+            if(cross.hasClass("glyphicon-search")) {
+                $(this).parents(".facet-form").children(".facet-search").show();
+                cross.removeClass("glyphicon-search").addClass("glyphicon-remove");
+            } else {
+                $(this).parents(".facet-form").children(".facet-search").hide();
+                cross.removeClass("glyphicon-remove").addClass("glyphicon-search");
+                $.post(
+                    form.attr("data-target"),
+                    {},
+                    function(data) {
+                        form.children("ul.facet-list").html(data).show();
+                        if(cross.hasClass("glyphicon-plus-sign")) {
+                            cross.removeClass("glyphicon-plus-sign").addClass("glyphicon-minus-sign");
+                        }
+                    },
+                    "html"
+                );
+            }
+        });
+        $(".facet-form .facet-search button[type='submit']").on("click", function(e) {
+            e.preventDefault();
+            dat = $(this);
+            form = dat.parents(".facet-form");
+            Q = form.find("input[name='q']").val();
+            $.post(
+                form.attr("data-target") + "?q=" + Q,
+                {},
+                function(data) {
+                    form.children("ul.facet-list").html(data).show();
+                },
+                "html"
+            );
+        });
+                   
+        $(".facet-form h1 .more").on("click", function(e) {
+            e.preventDefault();
+            dat = $(this);
+            cross = dat.children(".glyphicon");
+            form = dat.parents(".facet-form");
+            if(form.find("li.facet").length == 0) {
+                $.post(
+                    form.attr("data-target"),
+                    {},
+                    function(data) {
+                        form.children("ul.facet-list").html(data).show();
+                        if(cross.hasClass("glyphicon-plus-sign")) {
+                            cross.removeClass("glyphicon-plus-sign").addClass("glyphicon-minus-sign");
+                        }
+                    },
+                    "html"
+                );
+            } else {
+                form.children("ul.facet-list").toggle();
+                if(cross.hasClass("glyphicon-plus-sign")) {
+                    cross.removeClass("glyphicon-plus-sign").addClass("glyphicon-minus-sign");
+                } else {
+                    cross.addClass("glyphicon-plus-sign").removeClass("glyphicon-minus-sign");
+                }
+            }
+        });
+        $(".facet-form").on("click", " ul.facet-list a[href]", function(e) {
+            e.preventDefault();
+            form = $(this);
+            list = form.parent().parent("li.facet").children("ul");
+            if(list.children("li").length > 0) {
+                list.toggle();
+            } else {
+                $.post(
+                    form.attr("href"),
+                    {},
+                    function(data) {
+                        list.html(data);
+                    },
+                    "html"
+                );
+            }
+        });
+        $(".facet-form ul.facet-list").each(function() {
+            $(this).data("ajaxready", true).scroll(function() {
+                dat = $(this);
+                milestone = dat.children(".facet-scroll");
+
+                if($(this).data("ajaxready") == false || milestone.length == 0) {
+                    return;
+                }
+
+                offset = milestone.position();
+
+                if(($(this).height() + 5) > offset.top) {
+                    $(this).data("ajaxready", false);
+                    milestone.show();
+                    $.post(
+                        milestone.attr("data-target"),
+                        {},
+                        function(data) {
+                            milestone.remove();
+                            dat.append(data);
+                            if(dat.find(".facet-scroll") && dat.find(".facet-scroll").length == 1) {
+                                dat.data("ajaxready", true);
+                            }
+                        },
+                        "html"
+                    );
+                }
+            });
+        });
+    });
+    </script>
+}
+@facets = {
+    @for(page <- template._2._2) {
+        @if(page.position == "top" && page.layout != "md") {
+            <ul class="list-unstyled">
+                <li>
+                    <div class="facet-form" data-target="@controllers.portal.routes.Guides.layoutRetrieval(template._2._1.path, page.path)">
+                        <h1 class="nav-ehri nav-ehri-black">
+                            @page.name
+                            <a class="btn-sm btn-default pull-right search"><span class="glyphicon glyphicon-search"></span></a>
+                            <a class="btn-sm btn-default pull-right more" href="#@page.path"><span class="glyphicon glyphicon-plus-sign"></span></a>
+                        </h1>
+                        <ul class="nav nav-pills nav-ehri nav-grey-black nav-justified facet-search">
+                            <li><input class="nav-ehri nav-ehri-grey nav-ehri-input" name="q" placeholder="Quick Search" /></li>
+                            <li><button type="submit" class="nav-ehri nav-ehri-grey nav-ehri-input"><span class="glyphicon glyphicon-search"></span><span class="text-hide">Search</span></button></li>
+                        </ul>
+                        <ul class="list-unstyled nav-ehri nav-ehri-light-grey facet-list" id="@page.path">
+
+                        </ul>
+                    </div>
+                </li>
+            </ul>
+        }
+    }
+}
+@p.layout.guideLayoutFacet(template, facets= facets, scripts = js) {
+    <article>
+        <header>
+            <form role="form" action="@controllers.portal.routes.Guides.layoutRetrieval(template._2._1.path, template._1.path)">
+                <ul class="nav nav-pills nav-ehri nav-ehri-black nav-justified">
+                    <li><input class="nav-ehri nav-ehri-black nav-ehri-input" name="q" placeholder="Quick Search" /></li>
+                    <li><button type="submit" class="nav-ehri nav-ehri-black nav-ehri-input"><span class="glyphicon glyphicon-search"></span><span class="text-hide">Search</span></button></li>
+                </ul>
+            </form>
+        </header>
+        <section>
+            <section class="content-results">
+            </section>
+        </section>
+        <footer>
+        </footer>
+    </article>
+
+}

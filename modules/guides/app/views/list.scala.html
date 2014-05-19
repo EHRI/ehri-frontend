@@ -1,0 +1,19 @@
+<<<<<<< HEAD
+@(guides: List[GuidesData])(implicit userOpt: Option[UserProfile], req: RequestHeader, globalConfig: global.GlobalConfig, lang: Lang, flash: Flash)
+=======
+@(guides: List[Guide])(implicit userOpt: Option[UserProfile], req: RequestHeader, globalConfig: global.GlobalConfig, lang: Lang, flash: Flash)
+>>>>>>> guides
+
+@guidesAdminLayout("Guides", guides) {
+	<h4>Available Guides</h4>
+	<ul class="nav nav-pills nav-stacked">
+		@for(guide <- guides) {
+			<li>
+				<a href="@controllers.guides.routes.GuidesAdmin.listPages(guide.path)">@guide.name</a>
+			</li>
+		}
+		<li>
+			<a href="@controllers.guides.routes.GuidesAdmin.create()"><span class="glyphicon glyphicon-plus-sign"></span> @Messages("guides.create")</a>
+		</li>
+	</ul>
+}

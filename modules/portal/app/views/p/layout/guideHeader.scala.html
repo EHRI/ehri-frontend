@@ -1,0 +1,28 @@
+<<<<<<< HEAD
+@(location : String, menu: (GuidesData, List[GuidesPage]))(implicit request: RequestHeader, lang: Lang)
+=======
+@(location : String, menu: (Guide, List[GuidesPage]))(implicit request: RequestHeader, lang: Lang)
+>>>>>>> guides
+<div class="row">
+	<div class="col-md-3  col-md-push-9 text-center">
+		<img src="@controllers.core.routes.Assets.at("images/text-logo.png")" class="img-responsive" alt="EHRI" />
+	</div>
+	
+	<div class="col-md-9 col-md-pull-3">
+		<ul class="nav nav-pills nav-ehri nav-ehri-black nav-justified">
+
+			@for(page <- menu._2) {
+				@if(page.position == "top") {
+					<li><a @if(location == page.path) { class="active" } href="@controllers.portal.routes.Guides.layoutRetrieval(menu._1.path, page.path)">@page.name</a></li>
+
+				}
+			}
+			<li><a @if(location == "browse") { class="active" } href="@controllers.portal.routes.Guides.guideFacets(menu._1.path)"> @Messages("portal.guides.faceted")</a></li>
+		</ul>
+	</div>
+</div>
+
+
+
+
+

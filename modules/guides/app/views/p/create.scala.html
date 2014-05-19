@@ -1,0 +1,24 @@
+<<<<<<< HEAD
+@(f: Form[models.GuidesPage], g: GuidesData, pages: List[GuidesPage], guides: List[GuidesData], action: Call)(
+=======
+@(f: Form[models.GuidesPage], g: Guide, pages: List[GuidesPage], guides: List[Guide], action: Call)(
+>>>>>>> guides
+implicit userOpt: Option[UserProfile], req: RequestHeader, globalConfig: global.GlobalConfig, lang: Lang, flash: Flash, token: play.filters.csrf.CSRF.Token)
+
+@breadcrumbs = {
+	<ol class="breadcrumb">
+		<li><a href="@controllers.guides.routes.GuidesAdmin.listGuides()">Guides</a></li>
+		<li><a class="active" href="@controllers.guides.routes.GuidesAdmin.listPages(g.path)">@g.name</a></li>
+	</ol>
+}
+
+@guidesAdminLayout(Messages("guides.page.create"), guides, Some(pages -> g), breadcrumbs) {
+	@helper.form(action = action, 'class -> "entity-form form-horizontal") {
+    	@common.errorFlash(flash)
+
+        @formHelpers.csrfToken()
+    	@p.renderForm(None, f)
+
+        @formHelpers.submitButtonWithLogMessageInput(Messages("guides.page.create"))
+	}
+}

@@ -1,27 +1,30 @@
-@(title: String, location: String = "places", scripts: Html = Html(""), styles: Html = Html(""))(content: Html)(implicit request: RequestHeader, lang: Lang)
+<<<<<<< HEAD:modules/portal/app/views/p/layout/guideLayout.scala.html
+@(guide: (GuidesPage, (GuidesData, List[GuidesPage])), scripts: Html = Html(""), styles: Html = Html(""))(content: Html)(implicit request: RequestHeader, lang: Lang)
+=======
+@(guide: (GuidesPage, (Guide, List[GuidesPage])), scripts: Html = Html(""), styles: Html = Html(""))(content: Html)(implicit request: RequestHeader, lang: Lang)
+>>>>>>> guides:modules/portal/app/views/p/layout/guideLayout.scala.html
 
 <!DOCTYPE html>
 
 <html>
     <head>
-        <title>@title</title>
-	<base href="/guides/">
+        <title>@guide._2._1.name | @guide._1.name</title>
         <link rel="stylesheet" media="screen" href="@controllers.core.routes.Assets.at("css/guides.min.css")">
         @styles
     </head>
     <body>
 		<header id="top">
 			<div class="container">
-				@layout.top(location)
+				@guideHeader(guide._1.path, guide._2)
 			</div>
 			<div id="page-title" style="background-color:#360f4f;">
 				<div class="container">
 					<div class="row">
 						<div class="col-md-4 col-md-push-8">
-							<h2 style="color:white; font-variant: small-caps;font-weight: bold; margin-bottom:20px; font-size:24px; line-height:30px; ">Terezin Research Guides</h2>
+							<h2 style="color:white; font-variant: small-caps;font-weight: bold; margin-bottom:20px; font-size:24px; line-height:30px; ">@guide._2._1.name</h2>
 						</div>
 						<div class="col-md-8 col-md-pull-4">
-							<h1 style="color:white; font-variant: small-caps; font-size:30px; font-weight: bold; margin-bottom:20px;">@title</h1>
+							<h1 style="color:white; font-variant: small-caps; font-size:30px; font-weight: bold; margin-bottom:20px;">@guide._1.name</h1>
 						</div>
 					</div>
 				</div>
@@ -33,7 +36,7 @@
 					@content
 				</div>
 				<div class="col-md-4" id="right-bar">
-					@layout.right()
+					@guideSidebar(guide._1.path, guide._2)
 				</div>
 			</div>
 		</div>

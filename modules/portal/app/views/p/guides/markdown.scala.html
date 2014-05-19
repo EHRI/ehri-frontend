@@ -1,0 +1,12 @@
+<<<<<<< HEAD
+@(template: (GuidesPage, (GuidesData, List[GuidesPage])), content: String)(implicit userOpt: Option[UserProfile], request: RequestHeader, prefs: utils.SessionPrefs, globalConfig: global.GlobalConfig, lang: Lang, flash: Flash)
+=======
+@(template: (GuidesPage, (Guide, List[GuidesPage])), content: String)(implicit userOpt: Option[UserProfile], request: RequestHeader, prefs: utils.SessionPrefs, globalConfig: global.GlobalConfig, lang: Lang, flash: Flash)
+>>>>>>> guides
+
+
+@p.layout.guideLayout(template) {
+	<article>
+		@Html(views.Helpers.renderMarkdown(content))
+	</article>
+}
