@@ -7,7 +7,8 @@
         }
     } {
         @item.model.logoUrl.map { logo =>
-            @defining(item.url.getOrElse(new java.net.URL(req.path))) { url =>
+            @* FIXME: Horrid hack here... *@
+            @defining(item.url.getOrElse(new java.net.URL("http://" + req.host + req.uri))) { url =>
                 <a href="@url">
                     <img class="repository-logo" src="@logo" alt="@item.toStringLang" />
                 </a>
