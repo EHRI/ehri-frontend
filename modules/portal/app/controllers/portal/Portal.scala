@@ -178,7 +178,7 @@ case class Portal @Inject()(implicit globalConfig: global.GlobalConfig, searchDi
 
   def browseDocument(id: String) = getAction[DocumentaryUnit](EntityType.DocumentaryUnit, id) {
       item => details => implicit userOpt => implicit request =>
-    if (isAjax) Ok(p.documentaryUnit.itemDetails(item, details.annotations, details.links))
+    if (isAjax) Ok(p.documentaryUnit.itemDetails(item, details.annotations, details.links, details.watched))
     else Ok(p.documentaryUnit.show(item, details.annotations, details.links, details.watched))
   }
 
