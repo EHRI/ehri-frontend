@@ -21,7 +21,7 @@ object ConceptF {
   val ALTLABEL = "altLabel"
   val DEFINITION = "definition"
   val SCOPENOTE = "scopeNote"
-
+  
   val LONGITUDE = "longitude"
   val LATITUDE = "latitude"
 

@@ -1,0 +1,47 @@
+guides.objectId=Numeric Identifier
+guides.objectId.description=Automatic identifier
+guides.path=Path (url)
+guides.path.description=Will be available through /guides/path
+guides.name=Name
+guides.name.description=Name of the guide
+guides.description=Description
+guides.description.description=Description of the guide
+guides.picture=Picture
+guides.picture.description=Path to the picture of the guide
+guides.default=Default page
+guides.default.description=Page available at the root of the guide
+guides.active=Active
+guides.unactive=Not Active
+guides.active.description=Set 1 if guide is publicly visible, else 0
+
+guides.edit=Edit
+guides.create=Create
+guides.delete=Delete this Guide
+
+guides.page.edit=Edit a page
+guides.page.create=Create a Page
+guides.page.delete=Delete this Page
+
+guides.page.objectId=Numeric Identifier
+guides.page.name=Title
+guides.page.path=Path (url)
+guides.page.position=Menu Position
+guides.page.layout=Layout
+guides.page.content=Content
+guides.page.parent=Parent
+
+guides.page.objectId.description=Automatic Identifier
+guides.page.name.description=Title of the page to be shown in menu
+guides.page.path.description=Will be available through /guides/nameOfTheGuide/path 
+guides.page.position.description=Menu Position (top menu or right menu)
+guides.page.layout.description=Layout to render the data
+guides.page.content.description=Either markdown-formated text or identifier of a cVoc/AuthoritativeSet
+guides.page.parent.description=Parent of the guide
+
+guides.page.map=Map
+guides.page.keyword=Keywords
+guides.page.person=Persons
+guides.page.md=Free text
+guides.page.organisation=Organisations
+guides.page.side=Side menu
+guides.page.top=Top Menu
