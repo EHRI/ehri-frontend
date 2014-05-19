@@ -8,6 +8,14 @@ guides.description=Description
 guides.description.description=Description of the guide
 guides.picture=Picture
 guides.picture.description=Path to the picture of the guide
+<<<<<<< HEAD
+=======
+guides.default=Default page
+guides.default.description=Page available at the root of the guide
+guides.active=Active
+guides.unactive=Not Active
+guides.active.description=Set 1 if guide is publicly visible, else 0
+>>>>>>> guides
 
 guides.edit=Edit
 guides.create=Create

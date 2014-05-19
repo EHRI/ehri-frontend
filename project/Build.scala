@@ -120,6 +120,10 @@ object ApplicationBuild extends Build {
     appName + "-guides", appVersion, appDependencies, path = file("modules/guides")
   ).settings(otherSettings:_*).dependsOn(core)
 
+  lazy val guides = play.Project(
+    appName + "-guides", appVersion, appDependencies, path = file("modules/guides")
+  ).settings(otherSettings:_*).dependsOn(core)
+
   lazy val portal = play.Project(
     appName + "-portal", appVersion, appDependencies, path = file("modules/portal"))
     .settings(otherSettings: _*).dependsOn(core, annotation, linking)

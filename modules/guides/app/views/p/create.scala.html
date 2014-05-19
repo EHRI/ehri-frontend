@@ -1,4 +1,8 @@
+<<<<<<< HEAD
 @(f: Form[models.GuidesPage], g: GuidesData, pages: List[GuidesPage], guides: List[GuidesData], action: Call)(
+=======
+@(f: Form[models.GuidesPage], g: Guide, pages: List[GuidesPage], guides: List[Guide], action: Call)(
+>>>>>>> guides
 implicit userOpt: Option[UserProfile], req: RequestHeader, globalConfig: global.GlobalConfig, lang: Lang, flash: Flash, token: play.filters.csrf.CSRF.Token)
 
 @breadcrumbs = {
