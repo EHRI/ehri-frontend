@@ -1,18 +1,16 @@
 @(item: DocumentaryUnit)(implicit userOpt: Option[UserProfile], req: RequestHeader, globalConfig: global.GlobalConfig, lang: Lang)
 
 @wrapParent(doc: DocumentaryUnit)(html: Html) = {
-    <div class="ancestor">
-        @doc.parent.map { parent =>
-            @wrapParent(parent) {
+    @doc.parent.map { parent =>
+        @wrapParent(parent) {
+            <div class="ancestor">
                 <h4>@p.helpers.linkTo(parent)</h4>
-                <div class="ancestor">
-                    @html
-                </div>
-            }
-        }.getOrElse {
-            @html
+                @html
+            </div>
         }
-    </div>
+    }.getOrElse {
+        @html
+    }
 }
 
 
@@ -41,7 +39,9 @@
 
             @item.parent.map { parent =>
                 @wrapParent(parent) {
-                    <h4>@p.helpers.linkTo(parent)</h4>
+                    <div class="ancestor">
+                        <h4>@p.helpers.linkTo(parent)</h4>
+                    </div>
                 }
             }
         </div>
