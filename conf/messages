@@ -469,7 +469,7 @@ metrics.agentTypes=Authority Files by Entity Type
 metrics.restrictedMaterial=Restricted Material
 
 
-#CookieCuttr
+dataPolicy.header=EHRI Data Policy
 dataPolicy.notice1=This database might contain Sensitive Personal Data which according to Dutch privacy \
  law can be used for research purposes only (article 16 Dutch Data Protection Act ''Wet \
  bescherming Persoonsgegevens'').
@@ -482,6 +482,7 @@ dataPolicy.terms=I declare that I will use Sensitive Personal Data for research 
  regulations.
 dataPolicy.agree=I Agree
 
+#CookieCuttr
 cuttr.message=This site uses cookies for storing login details and user preferences.
 cuttr.what=What are cookies?
 cuttr.accept=Accept Cookies
