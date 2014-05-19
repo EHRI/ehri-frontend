@@ -42,7 +42,11 @@ package object i18n {
     case c if c.length == 2 => languageCode2ToNameOpt(code).getOrElse(code)
     case c =>lang3to2lookup.get(c)
       .flatMap(c2 => languageCode2ToNameOpt(c2))
-      .getOrElse(Messages("languageCode." + c))
+      .getOrElse {
+      val key = "languageCode." + c
+      val i18n = Messages(key)
+      if (i18n != key) i18n else c
+    }
   }
 
   /**
@@ -63,6 +67,22 @@ package object i18n {
       // This should be an IllformedLocaleException
       // but we need to work with Java 6
       case _: Exception => code
+    }
+  }
+
+  /**
+   * Convert a country code to a name, first trying
+   * the localised JDK locale names, and falling back
+   * on our i18n messages file.
+   */
+  def countryCodeToName(code: String)(implicit lang: Lang): String = {
+    new Locale("", code).getDisplayCountry(lang.toLocale) match {
+      case d if !d.isEmpty && !d.equalsIgnoreCase(code) => d
+      case c => {
+        val key = "countryCode." + c.toLowerCase
+        val i18n = Messages(key)
+        if (i18n != key) i18n else c
+      }
     }
   }
 }

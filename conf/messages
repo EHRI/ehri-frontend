@@ -42,6 +42,9 @@ lod.high=High
 languageCode.mul=Multiple
 languageCode.lad=Ladino
 
+# Country code
+countryCode.xk=Kosovo
+
 # Form errors.
 error.globalErrors=There were problems with that form:
 error.date=Date is incorrect or badly formatted

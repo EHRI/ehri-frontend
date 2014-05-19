@@ -136,12 +136,8 @@ package object Helpers {
   /**
    * Get the country name for a given code.
    */
-  def countryCodeToName(code: String)(implicit lang: Lang): String = {
-    new Locale("", code).getDisplayCountry(lang.toLocale) match {
-      case d if !d.isEmpty => d
-      case _ => code
-    }
-  }
+  def countryCodeToName(code: String)(implicit lang: Lang): String =
+    utils.i18n.countryCodeToName(code)(lang)
 
   /**
    * Function that shouldn't be necessary. Extract a list of values from
