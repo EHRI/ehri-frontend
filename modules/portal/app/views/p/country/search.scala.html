@@ -5,7 +5,7 @@
 
     @p.layout.mainContent {
         @p.common.itemDetailsLink(Messages("portal.showDetails"), controllers.portal.routes.Portal.browseCountry(item.id))
-    }
 
-    @childItemSearch(item, result, params, facets, action, watched)
+        @childItemSearch(item, result, params, facets, action, watched)
+    }
 }

@@ -1,5 +1,7 @@
 @(item: Concept, desc: ConceptDescriptionF, links: List[Link], annotations: Seq[Annotation])(implicit userOpt: Option[UserProfile], req: RequestHeader, prefs: utils.SessionPrefs, globalConfig: global.GlobalConfig, lang: Lang, fieldPrefix: String)
 
+@import ConceptF._
+
 @p.common.descriptionOutline(item, desc, annotations) {
     @defining(Annotation.fieldAnnotations(desc.id, annotations)) { implicit fieldAnnotations =>
         @* Description *must* have an ID here or something bad has gone wrong! *@
@@ -10,6 +12,13 @@
                 @p.common.otherNameList(desc.altLabels)
             </div>
 
+            @p.common.listField(item, descId, desc.definition, DEFINITION)
+            @p.common.listField(item, descId, desc.scopeNote, SCOPENOTE)
+            @for(longitude <- desc.longitude ; latitude <- desc.latitude) {
+                <div class="map" data-longitude="@longitude" data-latitude="@latitude">
+
+                </div>
+            }
         }
     }
 

@@ -1,6 +1,10 @@
 @(item: Concept, watched: Boolean)(implicit userOpt: Option[UserProfile], req: RequestHeader, globalConfig: global.GlobalConfig, lang: Lang)
 
 @p.layout.infobar {
+    @item.vocabulary.map { vocab =>
+        @println("vocab: " + vocab.toStringLang)
+        <li>@p.helpers.linkTo(vocab, views.Helpers.ellipsize(vocab.toStringLang, 100))</li>
+    }
     @item.broaderTerms.map { term =>
         <li>@p.helpers.linkTo(term, views.Helpers.ellipsize(term.toStringLang, 100))</li>
     }
