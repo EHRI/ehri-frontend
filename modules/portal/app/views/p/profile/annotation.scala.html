@@ -6,7 +6,7 @@
             @p.helpers.linkToWithFragment(src, "#" + annotation.id)
         }
         @annotation.model.field.map { field =>
-            - <strong>@field</strong>
+            - <strong>@Messages(field)</strong>
         }
     </div>
     <blockquote>@annotation.model.body</blockquote>

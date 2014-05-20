@@ -219,6 +219,17 @@ jQuery(function ($) {
     return loaderContainer;
   }
 
+  function showAnnotationControl($form) {
+    var $annoItem = $form.prev().find(".annotate-item");
+    var $annoBtn = $form.parents(".item-text-field").find(".annotate-field");
+
+    if($annoItem.length !== "undefined" && $annoItem.length === 1) {
+      $annoItem.show();
+    } else {
+      $annoBtn.show();
+    }
+  }
+
   // Load an annotation form...
   $(document).on("click", ".annotate-item", function(e) {
     e.preventDefault();
@@ -254,19 +265,13 @@ jQuery(function ($) {
   $(document).on("submit", ".annotate-item-form", function(e) {
     e.preventDefault();
     var $form = $(this);
-    var $annoItem = $form.prev().find(".annotate-item");
-    var $annoBtn = $form.parents(".item-text-field").find(".annotate-field");
     var action = $form.attr("action");
     $.ajax({
       url: $form.attr("action"),
       data: $form.serialize(),
       method: "POST",
       success: function(data) {
-        if($annoItem.length !== "undefined" && $annoItem.length === 1) {
-          $annoItem.show();
-        } else {
-          $annoBtn.show();
-        }
+        showAnnotationControl($form);
         $form.parents(".annotation-set").find(".annotation-list").append(data);
         $form.remove();
       }
@@ -307,7 +312,7 @@ jQuery(function ($) {
     var $form = $(e.target).parents(".annotate-item-form");
     var hasData = $("textarea[name='body']", $form).val().trim() !== "";
     if (!hasData || confirm("Discard comment?")) {
-      $form.prev().find(".annotate-field, .annotate-item").show();
+      showAnnotationControl($form);
       $form.remove()
     }
   });
