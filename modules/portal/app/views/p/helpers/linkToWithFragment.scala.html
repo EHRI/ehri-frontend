@@ -10,6 +10,7 @@
         case m: UserProfile => { @controllers.portal.routes.Social.browseUser(m.id) }
         case m: Link => { @controllers.portal.routes.Portal.browseLink(m.id) }
         case m: Annotation => { @controllers.portal.routes.Portal.browseAnnotation(m.id) }
+        case m: Vocabulary => { @controllers.portal.routes.Portal.browseVocabulary(m.id) }
         case _ => { "#" }
     }
 }

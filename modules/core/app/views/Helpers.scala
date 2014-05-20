@@ -7,7 +7,7 @@ import play.api.i18n.{Messages, Lang}
 import org.apache.commons.lang3.text.WordUtils
 import org.apache.commons.lang3.StringUtils
 import models._
-import org.pegdown.PegDownProcessor
+import org.pegdown.{Extensions, PegDownProcessor}
 
 
 package object Helpers {
@@ -34,7 +34,7 @@ package object Helpers {
     //val pegdownParser = new Parser(Extensions.AUTOLINKS)
     //new PegDownProcessor//(pegdownParser)
     Option(markdownParser.get).getOrElse {
-      val parser = new PegDownProcessor
+      val parser = new PegDownProcessor(Extensions.AUTOLINKS)
       markdownParser.set(parser)
       parser
     }

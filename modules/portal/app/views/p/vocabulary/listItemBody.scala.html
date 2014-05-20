@@ -1,0 +1,13 @@
+@(item: Vocabulary)(implicit req: RequestHeader, lang: Lang)
+
+@views.html.common.childCount(item) { count =>
+    @if(count > 0) {
+        <small>
+            <a href="@controllers.portal.routes.Portal.browseVocabulary(item.id)#search-items">@Messages("country.childCount", count)</a>
+        </small>
+    }
+}
+
+@item.model.description.map { desc =>
+    @Html(views.Helpers.renderMarkdown(desc))
+}

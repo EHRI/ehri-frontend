@@ -1,0 +1,7 @@
+@(item: Vocabulary, watched: Boolean = false)(implicit req: RequestHeader, lang: Lang)
+
+@p.layout.searchItemOutline(item, watched) {
+    <a href="@controllers.portal.routes.Portal.browseVocabulary(item.id)">@item.toStringLang</a>
+} {
+    @listItemBody(item)
+}

@@ -178,7 +178,7 @@ case class Portal @Inject()(implicit globalConfig: global.GlobalConfig, searchDi
 
   def browseDocument(id: String) = getAction[DocumentaryUnit](EntityType.DocumentaryUnit, id) {
       item => details => implicit userOpt => implicit request =>
-    if (isAjax) Ok(p.documentaryUnit.itemDetails(item, details.annotations, details.links))
+    if (isAjax) Ok(p.documentaryUnit.itemDetails(item, details.annotations, details.links, details.watched))
     else Ok(p.documentaryUnit.show(item, details.annotations, details.links, details.watched))
   }
 
@@ -218,6 +218,27 @@ case class Portal @Inject()(implicit globalConfig: global.GlobalConfig, searchDi
       ann => details => implicit userOpt => implicit request =>
     Ok(p.annotation.show(ann))
   }
+
+  def browseVocabulary(id: String) = getAction[Vocabulary](EntityType.Vocabulary, id) {
+    item => details => implicit userOpt => implicit request =>
+      if (isAjax) Ok(p.vocabulary.itemDetails(item, details.annotations, details.links, details.watched))
+      else Ok(p.vocabulary.show(item, details.annotations, details.links, details.watched))
+  }
+
+  def searchVocabulary(id: String) = getAction.async[Vocabulary](EntityType.Vocabulary, id) {
+    item => details => implicit userOpt => implicit request =>
+      val filters = Map(SolrConstants.HOLDER_ID -> item.id, SolrConstants.TOP_LEVEL -> true.toString)
+      searchAction[Concept](filters,
+        defaultParams = Some(SearchParams(entities = List(EntityType.Concept))),
+        entityFacets = conceptFacets) {
+        page => params => facets => _ => _ =>
+          if (isAjax) Ok(p.vocabulary.childItemSearch(item, page, params, facets,
+            portalRoutes.searchVocabulary(id), details.watched))
+          else Ok(p.vocabulary.search(item, page, params, facets,
+            portalRoutes.searchVocabulary(id), details.watched))
+      }.apply(request)
+  }
+
 
   def browseConcept(id: String) = getAction.async[Concept](EntityType.Concept, id) {
     item => details => implicit userOpt => implicit request =>
