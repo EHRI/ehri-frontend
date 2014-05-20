@@ -101,7 +101,7 @@ object ApplicationBuild extends Build {
     includeFilter in (Assets, LessKeys.less) := "*.less",
     excludeFilter in (Assets, LessKeys.less) := "_*.less",
 
-    pipelineStages := Seq(rjs, digest, gzip),
+    pipelineStages := Seq(digest, gzip),
 
     resolvers += Resolver.file("Local Repository", file("/home/mike/dev/play/playframework/repository/local"))(Resolver.ivyStylePatterns),
     resolvers += "neo4j-public-repository" at "http://m2.neo4j.org/content/groups/public",
