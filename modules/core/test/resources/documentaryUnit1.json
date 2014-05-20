@@ -1,0 +1,168 @@
+{
+  "id" : "ua-000001-r-0001",
+  "data" : {
+    "scope" : "high",
+    "publicationStatus" : "Draft",
+    "copyright" : "unknown",
+    "identifier" : "123456"
+  },
+  "type" : "documentaryUnit",
+  "relationships" : {
+    "describes" : [ {
+      "id" : "ua-000001-p-0001-eng",
+      "data" : {
+        "languageCode" : "eng",
+        "name" : "Випадкове Документ.",
+        "levelOfDescription" : "collection",
+        "rulesAndConventions" : "EHRI Guidelines for Description v.1.0"
+      },
+      "type" : "documentDescription",
+      "relationships" : {
+        "hasDate" : [ {
+          "id" : "d5882905-bc07-11e3-985a-bf23af5268e8",
+          "data" : {
+            "startDate" : "1940",
+            "precision" : "year",
+            "type" : "creation"
+          },
+          "type" : "datePeriod",
+          "relationships" : {
+          },
+          "meta" : {
+            "gid" : 316551
+          }
+        } ]
+      },
+      "meta" : {
+        "gid" : 316547
+      }
+    }, {
+      "id" : "ua-000001-r-0001-ukr",
+      "data" : {
+        "languageCode" : "ukr",
+        "languageOfMaterial" : [ "deu", "ukr" ],
+        "name" : "Випадкове Документ",
+        "extentAndMedium" : "8 files",
+        "levelOfDescription" : "collection",
+        "archivistNote" : "An archivist note",
+        "scriptOfMaterial" : [ "Cyrl", "Latn" ],
+        "scopeAndContent" : "Some scope and content",
+        "notes" : [ "Just adding a note to this descriptions" ],
+        "rulesAndConventions" : "ISAD (G)"
+      },
+      "type" : "documentDescription",
+      "relationships" : {
+        "hasUnknownProperty" : [ {
+          "id" : "4bf95f1c-825a-4ef6-90de-189182ed0770",
+          "data" : {
+            "ehri_copyright" : "no",
+            "ehri_scope" : "low",
+            "ehri_priorty" : "1"
+          },
+          "type" : "property",
+          "relationships" : {
+          },
+          "meta" : {
+            "gid" : 40792
+          }
+        } ],
+        "hasDate" : [ {
+          "id" : "9ba9f939-13b0-43fb-a7c8-910667b7f855",
+          "data" : {
+            "startDate" : "1940",
+            "endDate" : "1940"
+          },
+          "type" : "datePeriod",
+          "relationships" : {
+          },
+          "meta" : {
+            "gid" : 40791
+          }
+        } ]
+      },
+      "meta" : {
+        "gid" : 40790
+      }
+    } ],
+    "heldBy" : [ {
+      "id" : "ua-003305",
+      "data" : {
+        "identifier" : "003305"
+      },
+      "type" : "repository",
+      "relationships" : {
+        "describes" : [ {
+          "id" : "ua-000001-eng-000001-desc",
+          "data" : {
+            "languageCode" : "eng",
+            "name" : "A Random Archive"
+          },
+          "type" : "repositoryDescription",
+          "relationships" : {
+          }
+        } ],
+        "hasCountry" : [ {
+          "id" : "uk",
+          "data" : {
+            "identifier" : "uk"
+          },
+          "type" : "country",
+          "relationships" : {
+          },
+          "meta" : {
+            "childCount" : 49
+          }
+        } ]
+      },
+      "meta" : {
+        "childCount" : 41
+      }
+    } ],
+    "lifecycleEvent" : [ {
+      "id" : "69a7e51a-d9dc-11e3-8719-2d00b7768750",
+      "data" : {
+        "timestamp" : "2014-05-12T14:50:43.989+01:00",
+        "eventType" : "modifyDependent"
+      },
+      "type" : "systemEvent",
+      "relationships" : {
+        "hasActioner" : [ {
+          "id" : "bob",
+          "data" : {
+            "name" : "Bob",
+            "identifier" : "bob"
+          },
+          "type" : "userProfile",
+          "relationships" : {
+            "belongsTo" : [ {
+              "id" : "admin",
+              "data" : {
+                "name" : "Administrators",
+                "identifier" : "admin"
+              },
+              "type" : "group",
+              "relationships" : {
+              },
+              "meta" : {
+                "childCount" : 3
+              }
+            } ]
+          },
+          "meta" : {
+            "followers" : 1,
+            "following" : 11,
+            "watching" : 3
+          }
+        } ]
+      },
+      "meta" : {
+        "childCount" : 1
+      }
+    } ]
+  },
+  "meta" : {
+    "watchedBy" : 0,
+    "childCount" : 0,
+    "gid" : 40789
+  }
+}

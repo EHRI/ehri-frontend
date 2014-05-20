@@ -10,7 +10,7 @@
 	            <div class="item-text-field-value">
 			        <ul>
 			            @list.map { item =>
-			                <li>@transformFunc(item)</li>
+			                <li>@Html(views.Helpers.renderMarkdown(transformFunc(item)))</li>
 			            }
 			        </ul>
 	            </div>

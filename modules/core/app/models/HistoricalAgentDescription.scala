@@ -86,10 +86,8 @@ object HistoricalAgentDescriptionF {
     (__ \ TYPE).readIfEquals(EntityType.HistoricalAgentDescription) and
     (__ \ ID).readNullable[String] and
     (__ \ DATA \ LANG_CODE).read[String] and
-    ((__ \ DATA \ ENTITY_TYPE).read[HistoricalAgentType.Value]
-      orElse Reads.pure(HistoricalAgentType.CorporateBody)) and
-    ((__ \ DATA \ AUTHORIZED_FORM_OF_NAME).read[String]
-      orElse Reads.pure(UNNAMED_PLACEHOLDER)) and
+    (__ \ DATA \ ENTITY_TYPE).readWithDefault(HistoricalAgentType.CorporateBody) and
+    (__ \ DATA \ AUTHORIZED_FORM_OF_NAME).readWithDefault(UNNAMED_PLACEHOLDER) and
     (__ \ DATA \ OTHER_FORMS_OF_NAME).readListOrSingleNullable[String] and
     (__ \ DATA \ PARALLEL_FORMS_OF_NAME).readListOrSingleNullable[String] and
     (__ \ RELATIONSHIPS \ ENTITY_HAS_DATE).nullableListReads[DatePeriodF] and
@@ -122,7 +120,8 @@ object HistoricalAgentDescriptionF {
   implicit val historicalAgentDescriptionFormat: Format[HistoricalAgentDescriptionF] =
     Format(historicalAgentDescriptionReads,historicalAgentDescriptionWrites)
 
-  implicit object Converter extends RestConvertable[HistoricalAgentDescriptionF] with ClientConvertable[HistoricalAgentDescriptionF] {
+  implicit object Converter extends RestConvertable[HistoricalAgentDescriptionF]
+      with ClientConvertable[HistoricalAgentDescriptionF] {
     val restFormat = historicalAgentDescriptionFormat
 
     private implicit val accessPointFormat = AccessPointF.Converter.clientFormat

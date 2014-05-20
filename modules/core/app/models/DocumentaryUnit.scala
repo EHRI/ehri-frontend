@@ -66,8 +66,7 @@ object DocumentaryUnitF {
     (__ \ DATA \ IDENTIFIER).read[String] and
     (__ \ DATA \ OTHER_IDENTIFIERS).readListOrSingleNullable[String] and
     (__ \ DATA \ PUBLICATION_STATUS).readNullable[PublicationStatus.Value] and
-    ((__ \ DATA \ COPYRIGHT).read[Option[CopyrightStatus.Value]]
-      orElse Reads.pure(Some(CopyrightStatus.Unknown))) and
+    (__ \ DATA \ COPYRIGHT).readWithDefault(Option(CopyrightStatus.Unknown)) and
     (__ \ DATA \ SCOPE).readNullable[Scope.Value] and
     (__ \ RELATIONSHIPS \ DESCRIPTION_FOR_ENTITY).nullableListReads[DocumentaryUnitDescriptionF]
   )(DocumentaryUnitF.apply _)
@@ -109,9 +108,8 @@ object DocumentaryUnit {
     (__ \ RELATIONSHIPS \ DOC_HELD_BY_REPOSITORY).nullableHeadReads[Repository] and
     (__ \ RELATIONSHIPS \ DOC_IS_CHILD_OF).lazyNullableHeadReads(metaReads) and
     (__ \ RELATIONSHIPS \ IS_ACCESSIBLE_TO).nullableListReads(Accessor.Converter.restReads) and
-    (__ \ RELATIONSHIPS \ ENTITY_HAS_LIFECYCLE_EVENT).lazyNullableHeadReads(
-      SystemEvent.Converter.restReads) and
-    (__ \ META).readNullable[JsObject].map(_.getOrElse(JsObject(Seq())))
+    (__ \ RELATIONSHIPS \ ENTITY_HAS_LIFECYCLE_EVENT).nullableHeadReads[SystemEvent] and
+    (__ \ META).readWithDefault(Json.obj())
   )(DocumentaryUnit.apply _)
 
 

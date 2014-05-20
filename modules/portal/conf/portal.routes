@@ -53,6 +53,8 @@ GET         /links/:id                      @controllers.portal.Portal.browseLin
 GET         /annotation/:id                 @controllers.portal.Portal.browseAnnotation(id: String)
 GET         /activity                       @controllers.portal.Social.personalisedActivity(offset: Int ?= 0)
 GET         /activity/:id                   @controllers.portal.Portal.itemHistory(id: String)
+GET         /vocabularies/:id               @controllers.portal.Portal.browseVocabulary(id: String)
+GET         /vocabularies/:id/search        @controllers.portal.Portal.searchVocabulary(id: String)
 GET         /newsFeed                       @controllers.portal.Portal.newsFeed
 GET         /item/:entityType/:id           @controllers.portal.Portal.browseItem(entityType: EntityType.Value, id: String)
 

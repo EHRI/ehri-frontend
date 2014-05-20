@@ -2,30 +2,36 @@
 
 <div class="annotation item-text-field clearfix @{if(annotation.isPromoted) "promoted"}" id="@annotation.id">
 	<div class="item-text-field-header">
-	    @for(user <- annotation.user ; event <- annotation.latestEvent) {
-            <div>@p.helpers.linkTo(user)</div>
+	    @for(them <- annotation.user ; event <- annotation.latestEvent) {
+            <div>@p.helpers.linkTo(them)</div>
 	        <small class="text-muted">
 	            <a class="time-permalink" href="#@annotation.id"><span class="glyphicon glyphicon-time"></span> @views.Helpers.relativeDate(event.model.timestamp)</a>
 
-
 	            @if(editable) {
 	            	<ul class="list-inline">
-		                <li><a data-item="@annotation.id" class="edit-annotation" href="@controllers.portal.routes.Annotations.editAnnotation(annotation.id)">Edit</a></li>
-		                <li><a data-item="@annotation.id" class="delete-annotation" href="@controllers.portal.routes.Annotations.deleteAnnotation(annotation.id)">Delete</a></li>
+		                <li>
+                            <a data-item="@annotation.id" class="edit-annotation" href="@controllers.portal.routes.Annotations.editAnnotation(annotation.id)">
+                                @Messages("portal.social.editAnnotation")
+                            </a>
+                        </li>
+		                <li>
+                            <a data-item="@annotation.id" title="@Messages("portal.social.deleteAnnotation")" class="delete-annotation" href="@controllers.portal.routes.Annotations.deleteAnnotation(annotation.id)">
+                            @Messages("portal.social.deleteAnnotation")
+                            </a>
+                        </li>
 		            </ul>
-	            } else {
-		            @userOpt.map { user =>
-		                @if(!annotation.isPromoted && user.hasPermission(defines.ContentTypes.Annotation, defines.PermissionType.Promote) && annotation.model.isPromotable) {
-		                	<ul class="list-inline">
-		                		@if(editable) {
-					                <li><a data-item="@annotation.id" class="edit-annotation" href="@controllers.portal.routes.Annotations.editAnnotation(annotation.id)">Edit</a></li>
-					                <li><a data-item="@annotation.id" class="delete-annotation" href="@controllers.portal.routes.Annotations.deleteAnnotation(annotation.id)">Delete</a></li>
-		                	}
-		                   		<li><a data-item="@annotation.id" class="promote-annotation" href="@controllers.annotation.routes.Annotations.promote(annotation.id)">Promote</a></li>
-		               		</ul>
-		                }
-		            }
-		        }
+	            }
+                @userOpt.map { user =>
+                    @if(!annotation.isPromoted && user.hasPermission(defines.ContentTypes.Annotation, defines.PermissionType.Promote) && annotation.model.isPromotable) {
+                        <ul class="list-inline">
+                            <li>
+                                <a data-item="@annotation.id" title="@Messages("portal.social.promoteAnnotation.title")" class="promote-annotation" href="@controllers.annotation.routes.Annotations.promote(annotation.id)">
+                                    @Messages("portal.social.promoteAnnotation")
+                                </a>
+                            </li>
+                        </ul>
+                    }
+                }
 	        </small>
 	    }
 	</div>

@@ -39,15 +39,9 @@ jQuery(function ($) {
     return $.cookie(COOKIE_NAME) === 'true';
   }
 
-  function hasScreenSpaceForWidget() {
-    // Goodness help us...
-    return $(window).height() > 600;
-  }
-
   function hideDataPolicy() {
     $.cookie(COOKIE_NAME, true, {expires: 365, path: "/"});
-    $dataPolicyWidget.hide(200);
-    $("footer").css("marginBottom", "");
+    $dataPolicyWidget.modal("hide");
   }
 
   function getWidgetPosition() {
@@ -56,17 +50,10 @@ jQuery(function ($) {
 
   function showDataPolicy() {
     // Show layout banner
-    $dataPolicyWidget.show().width(window.width)
-        .css({
-          position: "fixed",
-          left: 0,
-          top: getWidgetPosition()
-        });
-
-    $(window).resize(function(e) {
-      $dataPolicyWidget.css({
-        top: getWidgetPosition()
-      })
+    $dataPolicyWidget.modal({
+      backdrop: "static",
+      keyboard: false,
+      show: true
     });
 
     $dataPolicyWidget.find("form").validate({
@@ -75,12 +62,9 @@ jQuery(function ($) {
         "agree-data-policy-terms": ""
       }
     });
-    // Ensure footer has padding so all
-    // content clears the banner.
-    $("footer").css("marginBottom", $dataPolicyWidget.outerHeight());
   }
 
-  if ($dataPolicyWidget.length > 0 && !getDataPolicy() && hasScreenSpaceForWidget()) {
+  if ($dataPolicyWidget.length > 0 && !getDataPolicy()) {
     showDataPolicy();
   }
 

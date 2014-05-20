@@ -1,11 +1,11 @@
-@(params: utils.search.SearchParams = utils.search.SearchParams.empty, autofocus: Boolean = true)(implicit userOpt: Option[UserProfile], request: RequestHeader, globalConfig: global.GlobalConfig, lang: Lang, flash: Flash)
+@(params: utils.search.SearchParams = utils.search.SearchParams.empty, autofocus: Boolean = false, placeholder: String = "search.queryPlaceholder")(implicit userOpt: Option[UserProfile], request: RequestHeader, globalConfig: global.GlobalConfig, lang: Lang, flash: Flash)
 
 @import utils.search.SearchParams
 <div class="search-bar">
     <div class="form-group search-box">
         <div class="input-group">
             <input type="search"
-                   placeholder="@Messages("search.queryPlaceholder")" class="form-control" name="@SearchParams.QUERY" value="@params.query" @{if(autofocus) "autofocus"} />
+                   placeholder="@Messages(placeholder)" class="form-control" name="@SearchParams.QUERY" value="@params.query" @{if(autofocus) "autofocus"} />
                     <span class="input-group-btn">
                         <button class="btn btn-default">
                             <span class="glyphicon glyphicon-search"></span>

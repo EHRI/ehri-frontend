@@ -42,6 +42,9 @@ lod.high=High
 languageCode.mul=Multiple
 languageCode.lad=Ladino
 
+# Country code
+countryCode.xk=Kosovo
+
 # Form errors.
 error.globalErrors=There were problems with that form:
 error.date=Date is incorrect or badly formatted
@@ -228,19 +231,6 @@ users.groups=Group Membership
 users.search=Search Users
 
 #
-# Groups
-#
-group.admin=Admin
-group.identifier=Group Identifier
-group.identifier.description=A short, lower-case, 1-word identifier
-group.name=Group Name
-group.name.description=A title-case display for the group
-group.description=Group Description
-group.description.description=A description of this group''s purpose
-group.members=Group Members
-group.membersPageHeader={2,choice,0#No members found|1#One member|1<Group Members {0,number,integer} to {1,number,integer} of {2,number,integer}}
-
-#
 # System Events
 #
 systemEvents.itemAtTime=Action at {0}
@@ -369,6 +359,7 @@ deleting.deleteDescriptionConfirmationMessage=Are you sure you want to delete it
 accessor.notInAnyGroups=This user does not belong to any groups.
 accessor.currentGroups=Current Groups
 accessor.removeGroup=Remove
+accessor.removeUserFromGroup=Remove {0} from group {1}?
 accessor.itemCannotBeAddedToAdditionalGroups=This {0} cannot be added to additional groups
 
 permissions.itemPermissionsForItem=Item-level Permissions for {0}
@@ -481,7 +472,7 @@ metrics.agentTypes=Authority Files by Entity Type
 metrics.restrictedMaterial=Restricted Material
 
 
-#CookieCuttr
+dataPolicy.header=EHRI Data Policy
 dataPolicy.notice1=This database might contain Sensitive Personal Data which according to Dutch privacy \
  law can be used for research purposes only (article 16 Dutch Data Protection Act ''Wet \
  bescherming Persoonsgegevens'').
@@ -494,6 +485,7 @@ dataPolicy.terms=I declare that I will use Sensitive Personal Data for research 
  regulations.
 dataPolicy.agree=I Agree
 
+#CookieCuttr
 cuttr.message=This site uses cookies for storing login details and user preferences.
 cuttr.what=What are cookies?
 cuttr.accept=Accept Cookies

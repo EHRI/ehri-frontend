@@ -70,15 +70,13 @@ object VirtualUnit {
 
   implicit val metaReads: Reads[VirtualUnit] = (
     __.read[VirtualUnitF](virtualUnitReads) and
-    (__ \ RELATIONSHIPS \ VC_DESCRIBED_BY).nullableListReads(
-      DocumentaryUnitDescriptionF.Converter.restFormat) and
+    (__ \ RELATIONSHIPS \ VC_DESCRIBED_BY).nullableListReads(DocumentaryUnitDescriptionF.Converter.restFormat) and
     (__ \ RELATIONSHIPS \ VC_HAS_AUTHOR).nullableHeadReads(Accessor.Converter.restReads) and
     (__ \ RELATIONSHIPS \ VC_IS_PART_OF).lazyNullableHeadReads(metaReads) and
     (__ \ RELATIONSHIPS \ DOC_IS_CHILD_OF).nullableHeadReads[Repository] and
     (__ \ RELATIONSHIPS \ IS_ACCESSIBLE_TO).lazyNullableListReads(Accessor.Converter.restReads) and
-    (__ \ RELATIONSHIPS \ ENTITY_HAS_LIFECYCLE_EVENT).lazyNullableHeadReads(
-      SystemEvent.Converter.restReads) and
-    (__ \ META).readNullable[JsObject].map(_.getOrElse(JsObject(Seq())))
+    (__ \ RELATIONSHIPS \ ENTITY_HAS_LIFECYCLE_EVENT).nullableHeadReads[SystemEvent] and
+    (__ \ META).readWithDefault(Json.obj())
   )(VirtualUnit.apply _)
 
 

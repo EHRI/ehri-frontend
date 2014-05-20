@@ -13,9 +13,9 @@
     </li>
 }.getOrElse {
     <li class="unresolved-access-point" id=" @accessPoint.id">
-        @accessPoint.name
+        @Html(views.Helpers.renderMarkdown(accessPoint.name))
         @accessPoint.description.filter(_.trim.isEmpty).map { desc =>
-        <small><p class="text-muted">@desc</p></small>
+        <small><p class="text-muted">@Html(views.Helpers.renderMarkdown(desc))</p></small>
         }
     </li>
 }

@@ -67,7 +67,7 @@ object Country {
     // Latest event
     (__ \ RELATIONSHIPS \ IS_ACCESSIBLE_TO).nullableListReads(Accessor.Converter.restReads) and
     (__ \ RELATIONSHIPS \ ENTITY_HAS_LIFECYCLE_EVENT).nullableHeadReads[SystemEvent] and
-    (__ \ META).readNullable[JsObject].map(_.getOrElse(JsObject(Seq())))
+    (__ \ META).readWithDefault(Json.obj())
   )(Country.apply _)
 
   implicit object Converter extends ClientConvertable[Country] with RestReadable[Country] {

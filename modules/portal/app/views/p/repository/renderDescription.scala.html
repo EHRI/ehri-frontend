@@ -5,24 +5,17 @@
 @import views.html.p.common.textField
 @import views.html.p.common.listField
 
-@otherNameList(list: Option[List[String]]) = {
-    @defining(list.toList.flatten) { pfn =>
-        @if(!pfn.isEmpty) {
-            <small class="text-muted">
-                <ul class="list-unstyled list-inline comma-sep other-name-list">
-                    @pfn.map { p =>
-                        <li>@p</li>
-                    }
-                </ul>
-            </small>
-        }
-    }
-}
-
 @p.common.descriptionOutline(item, desc, annotations) {
     @defining(Annotation.fieldAnnotations(desc.id, annotations)) { implicit fieldAnnotations =>
         @desc.id.map { descId =>
-            @descriptionSection(DESCRIPTION_AREA) {        
+
+            <div class="item-header">
+                <h1>@desc.name</h1>
+                @p.common.otherNameList(desc.otherFormsOfName)
+                @p.common.otherNameList(desc.parallelFormsOfName)
+            </div>
+
+            @descriptionSection(DESCRIPTION_AREA) {
                 @textField(item, descId, desc.details.history, HISTORY)
                 @textField(item, descId, desc.details.generalContext, GEOCULTURAL_CONTEXT)
                 @textField(item, descId, desc.details.mandates, MANDATES)

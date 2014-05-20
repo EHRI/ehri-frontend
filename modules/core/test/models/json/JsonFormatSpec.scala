@@ -1,10 +1,16 @@
 package models.json
 
-import play.api.libs.json.Json
+import play.api.libs.json.{JsValue, Json}
 import play.api.test.PlaySpecification
 import models._
+import scala.io.Source
 
 class JsonFormatSpec extends PlaySpecification {
+
+  private def readResource(name: String): JsValue = Json.parse(Source.fromInputStream(getClass
+    .getClassLoader.getResourceAsStream(name)).getLines().mkString("\n"))
+
+
 
   "Documentary Unit Format should read and write with no changes" in {
     val validation = Json.parse(testjson.documentaryUnitTestJson).validate[DocumentaryUnitF]
@@ -19,6 +25,14 @@ class JsonFormatSpec extends PlaySpecification {
     // And error when parsing the wrong type
     val badParse = Json.parse(testjson.repoTestJson).validate[DocumentaryUnitF]
     badParse.asEither must beLeft
+  }
+
+  "Documentary Unit metadata should read correctly" in {
+    val doc: DocumentaryUnit = readResource("documentaryUnit1.json").as[DocumentaryUnit]
+    doc.holder must beSome
+    doc.latestEvent must beSome
+    doc.meta.value.get("childCount") must beSome
+    doc.model.descriptions.headOption must beSome
   }
 
   "HistoricalAgent Format should read and write with no changes" in {
@@ -37,6 +51,16 @@ class JsonFormatSpec extends PlaySpecification {
     repo mustEqual Json.toJson(repo).as[RepositoryF]
     val badParse = Json.parse(testjson.documentaryUnitTestJson).validate[RepositoryF]
     badParse.asEither must beLeft
+  }
+
+  "Repository metadata should read correctly" in {
+    val repository: Repository = readResource("repository1.json").as[Repository]
+    repository.country must beSome
+    repository.latestEvent must beSome
+    repository.meta.value.get("childCount") must beSome
+    repository.model.descriptions.headOption must beSome.which { desc =>
+      desc.maintenanceEvents.headOption must beSome
+    }
   }
 
   "Concept Format should read and write with no changes" in {
@@ -99,6 +123,5 @@ class JsonFormatSpec extends PlaySpecification {
     validation2.asEither must beRight
     val virtualUnit2 = validation2.get
     virtualUnit2.descriptionRefs.headOption must beNone
-
   }
 }

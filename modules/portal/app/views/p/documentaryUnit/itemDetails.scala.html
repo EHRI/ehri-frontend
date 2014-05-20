@@ -1,4 +1,4 @@
-@(item: DocumentaryUnit, annotations: Seq[Annotation], links: List[Link])(implicit userOpt: Option[UserProfile], request: RequestHeader, prefs: utils.SessionPrefs, globalConfig: global.GlobalConfig, lang: Lang, flash: Flash)
+@(item: DocumentaryUnit, annotations: Seq[Annotation], links: List[Link], watched: List[models.base.AnyModel])(implicit userOpt: Option[UserProfile], request: RequestHeader, prefs: utils.SessionPrefs, globalConfig: global.GlobalConfig, lang: Lang, flash: Flash)
 
 <div id="item-details">
     @defining(IsadG.FIELD_PREFIX) { implicit fieldPrefix =>
@@ -7,20 +7,12 @@
                 @renderDescription(item, desc, links, annotations)
             }
         } {
-
-            @logoAndLink(item)
-
-            @p.common.tablePanel(Messages("portal.item.details")) {
-                @item.model.descriptions.map { desc =>
-                    @details(item, desc)
-                }
-            }
-
+            @archivalContext(item)
             @p.common.latestAction(item, controllers.portal.routes.Portal.itemHistory(item.id))
         }
 
         @p.common.relatedItemsContainer(item) {
-            @p.common.relatedItems(item, links)
+            @p.common.relatedItems(item, links, watched)
         }
     }
 </div>

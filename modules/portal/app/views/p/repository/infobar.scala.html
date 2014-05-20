@@ -5,10 +5,7 @@
         <li>@p.helpers.linkTo(country)</li>
     }
 } {
-    <h1>@item.toStringLang</h1>
-    @item.model.primaryDescription.map { desc =>
-        @alternateNames(item, desc)
-    }
+
 } {
     @userOpt.map { user =>
         @p.common.watchButtons(item, watched)

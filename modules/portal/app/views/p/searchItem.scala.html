@@ -1,4 +1,4 @@
-@(item: models.base.AnyModel, hit: utils.search.SearchHit, watched: Boolean)(implicit userOpt: Option[UserProfile], req: RequestHeader, globalConfig: global.GlobalConfig, lang: Lang)
+@(item: AnyModel, hit: utils.search.SearchHit, watched: Boolean)(implicit userOpt: Option[UserProfile], req: RequestHeader, globalConfig: global.GlobalConfig, lang: Lang, context: Option[Holder[_]] = None)
 
 @item match {
     case d: DocumentaryUnit => {

@@ -9,6 +9,7 @@ import eu.ehri.project.definitions.Ontology
 import play.api.data.Form
 import play.api.data.Forms._
 import play.api.libs.json.JsObject
+import backend.rest.Constants
 
 
 object ConceptF {
@@ -90,7 +91,7 @@ object Concept {
     (__ \ RELATIONSHIPS \ CONCEPT_HAS_BROADER).lazyNullableListReads[Concept](metaReads) and
     (__ \ RELATIONSHIPS \ IS_ACCESSIBLE_TO).nullableListReads[Accessor](Accessor.Converter.restReads) and
     (__ \ RELATIONSHIPS \ ENTITY_HAS_LIFECYCLE_EVENT).nullableHeadReads[SystemEvent] and
-    (__ \ META).readNullable[JsObject].map(_.getOrElse(JsObject(Seq())))
+    (__ \ META).readWithDefault(Json.obj())
   )(Concept.apply _)
 
   implicit object Converter extends ClientConvertable[Concept] with RestReadable[Concept] {
@@ -109,6 +110,10 @@ object Concept {
 
   implicit object Resource extends RestResource[Concept] {
     val entityType = EntityType.Concept
+
+    override def defaultParams = Seq(
+      Constants.INCLUDE_PROPERTIES_PARAM -> VocabularyF.NAME
+    )
   }
 
   val form = Form(

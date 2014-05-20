@@ -16,13 +16,12 @@
 
     @common.filterableList("group.membersPageHeader", page, params) {
         <ul>
-            @page.items.map {
-                case u: UserProfile => {
-                    @userProfile.listItem(u)
-                }
-                case g: Group => {
-                    @group.listItem(g)
-                }
+            @page.items.map { member =>
+                <h4><a href="@globalConfig.routeRegistry.urlFor(member)">@member.toStringLang</a></h4>
+                <a class="ajax-action" href="@controllers.core.routes.Groups.removeMember(item.id, member.isA, member.id)" title="@Messages("accessor.removeUserFromGroup", member.toStringLang, item.toStringLang)">
+                    @Messages("accessor.removeGroup")
+                </a>
+                <hr />
             }
         </ul>
     }

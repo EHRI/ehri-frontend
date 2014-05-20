@@ -91,4 +91,9 @@ object Constants {
    */
   val DATE_PATTERN = "yyyy-MM-dd"
 
+  /**
+   * Group members
+   */
+  val MEMBER = "member"
+
 }

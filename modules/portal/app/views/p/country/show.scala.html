@@ -1,7 +1,7 @@
-@(item: Country, annotations: Seq[Annotation], links: List[Link], watched: Boolean = false)(implicit userOpt: Option[UserProfile], request: RequestHeader, prefs: utils.SessionPrefs, globalConfig: global.GlobalConfig, lang: Lang, flash: Flash)
+@(item: Country, annotations: Seq[Annotation], links: List[Link], watched: List[models.base.AnyModel] = Nil)(implicit userOpt: Option[UserProfile], request: RequestHeader, prefs: utils.SessionPrefs, globalConfig: global.GlobalConfig, lang: Lang, flash: Flash)
 
 @p.layout.portalLayout(item.toStringLang, EntityType.Country.toString) {
-    @infobar(item, watched)
+    @infobar(item, watched.exists(_.id == item.id))
 
     @p.layout.mainContent {
         @itemDetails(item, annotations, links, watched)

@@ -52,8 +52,7 @@ object AnnotationF {
   implicit val annotationReads: Reads[AnnotationF] = (
     (__ \ TYPE).readIfEquals(EntityType.Annotation) and
     (__ \ ID).readNullable[String] and
-    ((__ \ DATA \ ANNOTATION_TYPE_PROP).readNullable[AnnotationType.Value]
-      orElse Reads.pure(Some(AnnotationType.Comment))) and
+    (__ \ DATA \ ANNOTATION_TYPE_PROP).readWithDefault(Option(AnnotationType.Comment)) and
     (__ \ DATA \ BODY).read[String] and
     (__ \ DATA \ FIELD).readNullable[String] and
     (__ \ DATA \ COMMENT).readNullable[String] and
@@ -98,7 +97,7 @@ object Annotation {
     (__ \ RELATIONSHIPS \ IS_ACCESSIBLE_TO).nullableListReads[Accessor] and
     (__ \ RELATIONSHIPS \ PROMOTED_BY).nullableListReads[UserProfile] and
     (__ \ RELATIONSHIPS \ ENTITY_HAS_LIFECYCLE_EVENT).nullableHeadReads[SystemEvent] and
-    (__ \ META).readNullable[JsObject].map(_.getOrElse(JsObject(Seq())))
+    (__ \ META).readWithDefault(Json.obj())
   )(Annotation.apply _)
 
   implicit object Converter extends ClientConvertable[Annotation] with RestReadable[Annotation] {

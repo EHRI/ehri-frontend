@@ -38,6 +38,12 @@ package object json {
     def lazyReadListOrSingleNullable[T](r: => Reads[T]): Reads[Option[List[T]]] =
       Reads(js => readListOrSingleNullable(r).reads(js))
 
+    /**
+     * Attempt to read a path, falling back on a default value.
+     */
+    def readWithDefault[T](t: T)(implicit r: Reads[T]): Reads[T] =
+      path.read[T].orElse(Reads.pure(t))
+
     def nullableListReads[T](implicit r: Reads[T]): Reads[List[T]] = new Reads[List[T]] {
       def reads(json: JsValue): JsResult[List[T]] = {
         path.asSingleJsResult(json).fold(

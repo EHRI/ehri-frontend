@@ -10,9 +10,21 @@
 	}
 }
 
-
 .description-holder {
-	.description-annotations {
+    .description {
+      .item-header {
+        h2.other-names {
+          font-size: 1.3em;
+        }
+
+        h1, h2 {
+          margin-top: 0;
+        }
+        margin-bottom: @large-margin;
+      }
+    }
+
+    .description-annotations {
 		position:relative;
 	}
 	.description-section, .description-annotations {
@@ -113,4 +125,21 @@
 			}
 		}
 	}
+}
+
+.archival-context {
+  .panel;
+
+  .ancestor {
+    h4 {
+      font-size: 1.1em;
+    }
+    padding-left: @medium-padding;
+    margin-bottom: @medium-margin;
+  }
+  margin-bottom: @large-margin;
+
+  .panel-details {
+    margin-bottom: @small-margin;
+  }
 }

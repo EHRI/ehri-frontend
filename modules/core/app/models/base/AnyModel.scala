@@ -162,18 +162,18 @@ trait Holder[+T] extends AnyModel {
   = meta.value.get(Entity.CHILD_COUNT).flatMap(_.asOpt[Int])
 }
 
-trait Hierarchical[+T] extends AnyModel {
+trait Hierarchical[+T <: Hierarchical[T]] extends AnyModel {
   self: MetaModel[_] =>
 
   /**
    * The parent item of this item.
    */
-  def parent: Option[Hierarchical[T]]
+  def parent: Option[T]
 
   /**
    * List of ancestor items 'above' this one, including the parent.
    */
-  def ancestors: List[Hierarchical[T]] =
+  def ancestors: List[T] =
     (parent.map(p => p :: p.ancestors) getOrElse List.empty).distinct
 }
 
