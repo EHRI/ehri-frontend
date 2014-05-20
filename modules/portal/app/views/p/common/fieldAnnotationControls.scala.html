@@ -6,14 +6,8 @@
         @p.common.inlineAnnotationList(annotations)
 
         @userOpt.map { user =>
-        <div class="annotate-item-controls">
-            @item.contentType.map { ct =>
-                @if(user.hasPermission(ct, PermissionType.Annotate)) {
-                    <a title="@Messages("portal.social.createFieldAnnotation")" data-item="@item.id" data-did="@nodeId" data-field="@key" class="annotate-field inactive" href="@controllers.portal.routes.Annotations.annotateField(item.id, nodeId, key)">
-                    <span class="glyphicon glyphicon-comment"></span>
-                    </a>
-                }
-            }
+        <div class="annotate-item-controls" data-target="@nodeId-@key">
+
             @defining(annotations.count(!_.isOwnedBy(userOpt))) { otherCount =>
                 @if(otherCount > 0) {
                     <a title="@Messages("portal.social.showPublicAnnotations", otherCount)" class="show-other-annotations" href="#">

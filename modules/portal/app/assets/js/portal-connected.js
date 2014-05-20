@@ -202,7 +202,12 @@ jQuery(function ($) {
     if(typeof loaderContainer !== "undefined") {
       loaderContainer.remove();
     }
-    $elem.hide().parent().after(data);
+    if($elem.hasClass("annotate-field")) {
+      $elem.hide();
+      $(".annotate-item-controls[data-target='" + $elem.attr("data-target") + "']").after(data);
+    } else {
+      $elem.hide().parent().after(data);
+    }
     $(data).find("select.custom-accessors").select2({
       placeholder: "Select a set of groups or users",
       width: "copy"
@@ -249,13 +254,19 @@ jQuery(function ($) {
   $(document).on("submit", ".annotate-item-form", function(e) {
     e.preventDefault();
     var $form = $(this);
+    var $annoItem = $form.prev().find(".annotate-item");
+    var $annoBtn = $form.parents(".item-text-field").find(".annotate-field");
     var action = $form.attr("action");
     $.ajax({
       url: $form.attr("action"),
       data: $form.serialize(),
       method: "POST",
       success: function(data) {
-        $form.prev().find(".annotate-field, .annotate-item").show()
+        if($annoItem.length !== "undefined" && $annoItem.length === 1) {
+          $annoItem.show();
+        } else {
+          $annoBtn.show();
+        }
         $form.parents(".annotation-set").find(".annotation-list").append(data);
         $form.remove();
       }

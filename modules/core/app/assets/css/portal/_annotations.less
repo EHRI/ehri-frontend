@@ -2,11 +2,34 @@
 	color: @almost-black;
 }
 a.annotate-field.inactive {
-	opacity: 0;
+	opacity: 0.3;
+	color:black;
+	border-size:0px;
 }
-a.annotate-field:hover, a.annotate-item:hover {
+a.annotate-field {
+	&:extend(.btn);
+	text-decoration: none;
+	//background-color: @glow-color;
+	opacity:1;
+	color:black;
+	display:block;
+	border-width:0px;
+	text-align:left;
+	padding:3px 3px;
+}
+a.annotate-item:hover {
 	text-decoration: none;
 	background-color: @glow-color;
+	opacity:1;
+	color:black;
+}
+a.annotate-field:hover {
+	padding:2px 2px;
+	border-width:1px;
+	&:after {
+		content:attr(title);
+		display:inline-block;
+	}
 }
 a.time-permalink {
 	text-decoration: none;

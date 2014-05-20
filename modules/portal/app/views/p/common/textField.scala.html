@@ -6,6 +6,7 @@
         <div class="item-text-field" id="@nodeId-@key">
             <h4 class="item-text-field-header">
                 @Messages(fieldPrefix + "." + key)
+                @fieldAnnotationButton(item, nodeId, key)
             </h4>
             <div class="item-text-field-value">
                 @Html(views.Helpers.renderMarkdown(value))
