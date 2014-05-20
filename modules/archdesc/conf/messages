@@ -311,6 +311,14 @@ isadg.datesOfDescriptions=Dates of Descriptions
 isadg.datesOfDescriptions.description=To indicate when this description was prepared and/or revised.\n\n\
 Record the date(s) the entry was prepared and/or revised. (3.7.3)
 
+isadg.provenance=Process Info
+isadg.provenance.description=Information about accessioning, arranging, describing, preserving, storing,\
+  or otherwise preparing the described materials for research use. Specific aspects of each of these \
+  activities may be encoded separately within other elements, such as acquisition (3.2.4), \
+  arrangement (3.3.4), extent and medium (3.1.5), etc. This is a synthetic field not strictly present\
+  in the ISAD(G) specification but intended to contain more general process information as given within\
+  the EAD <processinfo> field.
+
 isadg.accessPoints=Access Points
 isadg.accessPoints.creatorAccess=Creators
 isadg.accessPoints.corporateBodyAccess=Corporate Bodies
@@ -590,4 +598,3 @@ isdiah.maintenanceNotes.description=To document additional information relating 
 Record notes pertinent to the creation and maintenance of the description. For\
  example, the names of persons responsible for creating and/or revising the description\
  may be recorded here. (5.6.9)
-

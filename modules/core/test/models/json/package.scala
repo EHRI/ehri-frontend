@@ -40,7 +40,8 @@ package object testjson {
             "identifier" : "GB 1556 WL 760",
             "appraisal" : "",
             "publicationDate" : "",
-            "locationOfCopies" : ""
+            "locationOfCopies" : "",
+            "provenance": "test"
           },
           "type" : "documentDescription",
           "relationships" : {
