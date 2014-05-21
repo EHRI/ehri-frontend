@@ -1,0 +1,20 @@
+@()(implicit request: RequestHeader, lang: Lang)
+
+<div id="data-policy" class="modal fade" style="display: none">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h4>@Messages("dataPolicy.header")</h4>
+        </div>
+        <div class="modal-body">
+        <p>@Messages("dataPolicy.notice1")</p>
+        <p>@Messages("dataPolicy.notice2")</p>
+        </div>
+        <form class="modal-footer">
+            <label>
+                <input type="checkbox" name="agree-data-policy-terms" required checked />
+                @Messages("dataPolicy.terms")
+            </label>
+            <input id="agree-data-policy" type="submit" value="@Messages("dataPolicy.agree")" />
+        </form>
+    </div>
+</div>

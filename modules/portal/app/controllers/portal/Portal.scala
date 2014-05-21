@@ -276,6 +276,12 @@ case class Portal @Inject()(implicit globalConfig: global.GlobalConfig, searchDi
     }
   }
 
+  def dataPolicy = Cached("pages:portalDataPolicy") {
+    userProfileAction { implicit userOpt => implicit request =>
+      Ok(p.dataPolicy())
+    }
+  }
+
   case class NewsItem(title: String, link: String, description: Html)
 
   object NewsItem {
