@@ -1,4 +1,36 @@
 jQuery(function($) {
+  /*
+  *   Quite mode by Thibault Clérice GitHub@PonteIneptique
+  */
+  $(".form-horizontal .form-group").each(function(e) {
+    var $textarea = $(this).find("textarea");
+    var $formgroup = $(this);
+    if($textarea.length !== "undefined" && $textarea.length === 1 && !$formgroup.hasClass("inline-formset")) {
+      $(this).find(".control-label").append('<div><a href="#" class="quite-toggle"><span class="glyphicon glyphicon-remove"></span><span class="glyphicon glyphicon-leaf"></span> Quite mode</a></div>');
+    }
+  });
+  $(".form-group").on("click", ".quite-toggle", function(e) {
+    e.preventDefault();
+    var $formgroup = $(this).parents(".form-group");
+    var $blockhelp = $formgroup.find(".help-block");
+    $formgroup.toggleClass("quite");
+    if($formgroup.hasClass("quite")) {
+      $blockhelp.data("html", $blockhelp.html()).html($(".markdown-cheatsheet").html());
+    } else {
+      $blockhelp.html($blockhelp.data("html"));
+    }
+  });
+
+  $(".form-group").on("keydown", function(e) {
+    var $formgroup = $(this);
+    if (e.keyCode == 27) {
+        $formgroup.removeClass("quite");
+    }
+  });
+
+  /*
+  * End of quite mode
+  */
   /**
    * Markdown helper
    */
@@ -64,15 +96,17 @@ jQuery(function($) {
       var that = $(this);
       that.attr("data-content", that.attr("title"));
       that.attr("title", that.parents(".control-group").find(".control-label").text());
-      that.popover({
-        html: true,
-        delay:{
-          show: 500,
-          hide: 100
-        },
-        trigger: "blur",
-        placement: "bottom"
-      });
+      if(!that.parents(".control-group").hasClass("quite")) {
+        that.popover({
+          html: true,
+          delay:{
+            show: 500,
+            hide: 100
+          },
+          trigger: "blur",
+          placement: "bottom"
+        });
+      }
   });
 
   /**
