@@ -1,20 +1,24 @@
 jQuery(function($) {
   /*
-  *   Quite mode by Thibault Clérice GitHub@PonteIneptique
+  *   Quiet mode by Thibault Clérice GitHub@PonteIneptique
   */
   $(".form-horizontal .form-group").each(function(e) {
     var $textarea = $(this).find("textarea");
     var $formgroup = $(this);
     if($textarea.length !== "undefined" && $textarea.length === 1 && !$formgroup.hasClass("inline-formset")) {
-      $(this).find(".control-label").append('<div><a href="#" class="quite-toggle"><span class="glyphicon glyphicon-remove"></span><span class="glyphicon glyphicon-leaf"></span> Quite mode</a></div>');
+      $textarea.parent().append('<div><a href="#" class="quiet-toggle"><span class="glyphicon glyphicon-remove"></span><span class="glyphicon glyphicon-fullscreen"></span><span class="Press Esc or Tab to continue"></span></a></div>');
     }
   });
-  $(".form-group").on("click", ".quite-toggle", function(e) {
+  $(".form-group").on("click", ".quiet-toggle", function(e) {
+    $(this).trigger("quiet-toggle")
+  });
+
+  $(".form-group").on("quiet-toggle", ".quiet-toggle", function(e) {
     e.preventDefault();
     var $formgroup = $(this).parents(".form-group");
     var $blockhelp = $formgroup.find(".help-block");
-    $formgroup.toggleClass("quite");
-    if($formgroup.hasClass("quite")) {
+    $formgroup.toggleClass("quiet");
+    if($formgroup.hasClass("quiet")) {
       $blockhelp.data("html", $blockhelp.html()).html($(".markdown-cheatsheet").html());
     } else {
       $blockhelp.html($blockhelp.data("html"));
@@ -23,13 +27,34 @@ jQuery(function($) {
 
   $(".form-group").on("keydown", function(e) {
     var $formgroup = $(this);
-    if (e.keyCode == 27) {
-        $formgroup.removeClass("quite");
+    if($formgroup.hasClass("quiet")) {
+      if (e.keyCode == 27) {
+          e.preventDefault();
+          $formgroup.find(".quiet-toggle").trigger("quiet-toggle");
+      } else if (e.keyCode == 9) {
+        e.preventDefault();
+        $formgroup.find(".quiet-toggle").trigger("quiet-toggle");
+
+        var $next = $formgroup.nextAll(".form-group:has(.quiet-toggle)").first();
+        if($next.length !== "undefined" && $next.length === 1) {
+          $next.find(".quiet-toggle").trigger("quiet-toggle");
+        } else {
+          var $fieldset = $formgroup.parents("fieldset");
+          $fieldset.nextAll("fieldset").each(function (e) {
+            var $next = $(this).find(".form-group:has(.quiet-toggle)").first();
+            if($next.length !== "undefined" && $next.length === 1) {
+              $next.find(".quiet-toggle").trigger("quiet-toggle");
+              console.log(true);
+              return false;
+            }
+          });
+        }
+      }
     }
   });
 
   /*
-  * End of quite mode
+  * End of quiet mode
   */
   /**
    * Markdown helper
@@ -96,7 +121,7 @@ jQuery(function($) {
       var that = $(this);
       that.attr("data-content", that.attr("title"));
       that.attr("title", that.parents(".control-group").find(".control-label").text());
-      if(!that.parents(".control-group").hasClass("quite")) {
+      if(!that.parents(".control-group").hasClass("quiet")) {
         that.popover({
           html: true,
           delay:{

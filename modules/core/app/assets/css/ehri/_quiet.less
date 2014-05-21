@@ -1,20 +1,24 @@
 .form-group {
-	.quite-toggle {
+	position:relative;
+	.quiet-toggle {
 		opacity:0.2;
+		position:absolute;
+		right:17px;
+		top:1px;
 		
-		.glyphicon-remove {
+		.glyphicon-remove, .help-text {
 			display:none;
 		}
-		.glyphicon-leaf {
+		.glyphicon-fullscreen {
 			display:inline-block;
 		}
 	}
 	&:hover {
-		.quite-toggle {
+		.quiet-toggle {
 			opacity:1;
 		}
 	}
-	&.quite {
+	&.quiet {
 		display:block;
 		position: fixed;
 		width: 100%;
@@ -29,11 +33,12 @@
 		z-index: 9000;
 
 
-		.quite-toggle {
-			.glyphicon-remove {
+		.quiet-toggle {
+			position:fixed;
+			.glyphicon-remove, .help-text {
 				display:inline-block;
 			}
-			.glyphicon-leaf {
+			.glyphicon-fullscreen {
 				display:none;
 			}
 		}
