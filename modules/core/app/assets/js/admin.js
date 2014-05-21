@@ -71,7 +71,7 @@ jQuery(function($) {
           hide: 100
         },
         trigger: "blur",
-        placement: "right"
+        placement: "bottom"
       });
   });
 
