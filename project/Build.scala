@@ -37,7 +37,7 @@ object ApplicationBuild extends Build {
 
   scalacOptions in ThisBuild ++= Seq("-unchecked", "-deprecation")
 
-  val appDependencies = Seq(
+  val coreDependencies = Seq(
     jdbc,
     anorm,
     cache,
@@ -65,10 +65,6 @@ object ApplicationBuild extends Build {
     "joda-time" % "joda-time" % "2.1",
     "org.mindrot" % "jbcrypt" % "0.3m",
 
-    // S3 Upload plugin
-    "nl.rhinofly" %% "play-s3" % "3.3.3",
-    "net.coobird" % "thumbnailator" % "[0.4, 0.5)",
-
     // Mailer...
     "com.typesafe" %% "play-plugins-mailer" % "2.2.0",
 
@@ -77,6 +73,12 @@ object ApplicationBuild extends Build {
 
     // Time formatting library
     "org.ocpsoft.prettytime" % "prettytime" % "1.0.8.Final"
+  )
+  
+  val portalDependencies = Seq(
+    // S3 Upload plugin
+    "nl.rhinofly" %% "play-s3" % "3.3.3",
+    "net.coobird" % "thumbnailator" % "[0.4, 0.5)"
   )
 
   val testDependencies = Seq(
@@ -91,17 +93,9 @@ object ApplicationBuild extends Build {
     "ehri-project" % "ehri-extension" % "0.0.1-SNAPSHOT" % "test" classifier "tests" classifier ""
   )
 
-  val otherSettings = Seq(
+  val commonSettings = Seq(
     templateImports in Compile ++= Seq("models.base._", "models.forms._", "acl._", "defines._"),
     routesImport += "defines.EntityType",
-
-    JsEngineKeys.parallelism := 1,
-
-    // Less files with an underscore are excluded
-    includeFilter in (Assets, LessKeys.less) := "*.less",
-    excludeFilter in (Assets, LessKeys.less) := "_*.less",
-
-    pipelineStages := Seq(digest, gzip),
 
     resolvers += Resolver.file("Local Repository", file("/home/mike/dev/play/playframework/repository/local"))(Resolver.ivyStylePatterns),
     resolvers += "neo4j-public-repository" at "http://m2.neo4j.org/content/groups/public",
@@ -113,7 +107,29 @@ object ApplicationBuild extends Build {
     // SBT magic: http://stackoverflow.com/a/12772739/285374
     resourceDirectory in Test <<= baseDirectory apply {
       (baseDir: File) => baseDir / "test/resources"
-    }
+    },
+
+    // Less files with an underscore are excluded
+    includeFilter in (Assets, LessKeys.less) := "*.less",
+    excludeFilter in (Assets, LessKeys.less) := "_*.less"
+  )
+
+  val assetSettings = Seq(
+
+    JsEngineKeys.parallelism := 1,
+
+    pipelineStages := Seq(rjs),
+
+    appBuildProfile := s"""|({
+                       |  appDir: "${appDir.value}",
+                       |  baseUrl: "js",
+                       |  dir: "${dir.value}",
+                       |  modules: [
+                       |      {
+                       |           name: "main"
+                       |      }
+                       |  ]
+                       |})""".stripMargin
   )
 
   lazy val core = Project(appName + "-core", file("modules/core"))
@@ -121,64 +137,58 @@ object ApplicationBuild extends Build {
     .enablePlugins(SbtWeb).settings(
       version := appVersion,
       name := appName + "-core",
-      libraryDependencies ++= appDependencies
-  ).settings(otherSettings: _*)
+      libraryDependencies ++= coreDependencies
+  ).settings(commonSettings: _*)
 
   lazy val annotation = Project(appName + "-annotation", file("modules/annotation"))
     .enablePlugins(play.PlayScala).settings(
     version := appVersion,
-    libraryDependencies ++= appDependencies
-  ).settings(otherSettings: _*).dependsOn(core)
+    libraryDependencies ++= coreDependencies
+  ).settings(commonSettings: _*).dependsOn(core)
 
   lazy val linking = Project(appName + "-linking", file("modules/linking"))
     .enablePlugins(play.PlayScala).settings(
-    version := appVersion,
-    libraryDependencies ++= appDependencies
-  ).settings(otherSettings: _*).dependsOn(core, annotation)
+    version := appVersion
+  ).settings(commonSettings: _*).dependsOn(core, annotation)
 
   lazy val archdesc = Project(appName + "-archdesc", file("modules/archdesc"))
     .enablePlugins(play.PlayScala).settings(
-    version := appVersion,
-    libraryDependencies ++= appDependencies
-  ).settings(otherSettings: _*).dependsOn(core, annotation, linking)
+    version := appVersion
+  ).settings(commonSettings: _*).dependsOn(core, annotation, linking)
 
   lazy val authorities = Project(appName + "-authorities", file("modules/authorities"))
     .enablePlugins(play.PlayScala).settings(
-    version := appVersion,
-    libraryDependencies ++= appDependencies
-  ).settings(otherSettings: _*).dependsOn(core, annotation, linking)
+    version := appVersion
+  ).settings(commonSettings: _*).dependsOn(core, annotation, linking)
 
   lazy val vocabs = Project(appName + "-vocabs", file("modules/vocabs"))
     .enablePlugins(play.PlayScala).settings(
-    version := appVersion,
-    libraryDependencies ++= appDependencies
-  ).settings(otherSettings: _*).dependsOn(core, annotation, linking)
+    version := appVersion
+  ).settings(commonSettings: _*).dependsOn(core, annotation, linking)
 
   lazy val portal = Project(appName + "-portal", file("modules/portal"))
     .enablePlugins(play.PlayScala).settings(
     version := appVersion,
-    libraryDependencies ++= appDependencies
-  ).settings(otherSettings: _*).dependsOn(core, annotation, linking)
+    libraryDependencies ++= portalDependencies
+  ).settings(commonSettings: _*).dependsOn(core, annotation, linking)
 
   lazy val admin = Project(appName + "-admin", file("modules/admin"))
     .enablePlugins(play.PlayScala).settings(
-    version := appVersion,
-    libraryDependencies ++= appDependencies
-  ).settings(otherSettings: _*).dependsOn(core, archdesc, authorities, vocabs, portal)
+    version := appVersion
+  ).settings(commonSettings: _*).dependsOn(core, archdesc, authorities, vocabs, portal)
     .aggregate(core, archdesc, authorities, vocabs, portal)
 
   lazy val guides = Project(appName + "-guides", file("modules/guides"))
     .enablePlugins(play.PlayScala).settings(
-    version := appVersion,
-    libraryDependencies ++= appDependencies
-  ).settings(otherSettings: _*).dependsOn(core, annotation, linking)
+    version := appVersion
+  ).settings(commonSettings: _*).dependsOn(core, annotation, linking)
 
   lazy val main = Project(appName, file("."))
     .enablePlugins(play.PlayScala).settings(
     version := appVersion,
-    libraryDependencies ++= appDependencies ++ testDependencies
-  ).settings(otherSettings: _*).dependsOn(admin, portal, guides)
-    .aggregate(admin, portal, guides)
+    libraryDependencies ++= coreDependencies ++ testDependencies
+  ).settings(commonSettings ++ assetSettings: _*).dependsOn(core, annotation, linking, admin, portal, guides)
+    .aggregate(core, annotation, linking, admin, portal, guides)
 
 
   override def rootProject = Some(main)
