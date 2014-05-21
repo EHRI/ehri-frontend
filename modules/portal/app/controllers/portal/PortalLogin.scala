@@ -1,7 +1,7 @@
 package controllers.portal
 
 import play.api.mvc.{RequestHeader, Action, Controller}
-import models.{UserProfileF, AccountDAO, Account}
+import models.{SignupData, UserProfileF, AccountDAO, Account}
 import play.api.libs.concurrent.Execution.Implicits._
 import scala.concurrent.Future.{successful => immediate}
 import jp.t2v.lab.play2.auth.LoginLogout
@@ -10,8 +10,6 @@ import play.api.Logger
 import controllers.core.auth.oauth2.{LinkedInOauth2Provider, FacebookOauth2Provider, GoogleOAuth2Provider, Oauth2LoginHandler}
 import controllers.core.auth.openid.OpenIDLoginHandler
 import controllers.core.auth.userpass.UserPasswordLoginHandler
-import play.api.data.Form
-import play.api.data.Forms._
 import play.api.Play._
 import utils.forms._
 import java.util.UUID
@@ -19,7 +17,7 @@ import play.api.i18n.Messages
 import backend.ApiUser
 import utils.SessionPrefs
 import com.google.common.net.HttpHeaders
-import scala.collection.{JavaConverters, JavaConversions}
+import scala.collection.JavaConversions
 
 /**
  * @author Mike Bryant (http://github.com/mikesname)
@@ -33,22 +31,10 @@ trait PortalLogin extends OpenIDLoginHandler with Oauth2LoginHandler with UserPa
   private val portalRoutes = controllers.portal.routes.Portal
   private val profileRoutes = controllers.portal.routes.Profile
 
-  val signupForm = Form(
-    tuple(
-      "name" -> nonEmptyText,
-      "email" -> email,
-      "password" -> nonEmptyText(minLength = 6),
-      "confirm" -> nonEmptyText(minLength = 6),
-      "allowMessaging" -> ignored(true)
-    ) verifying("login.passwordsDoNotMatch", f => f match {
-      case (_, _, pw, pwc, _) => pw == pwc
-    })
-  )
-
   def signup = Action { implicit request =>
     val recaptchaKey = current.configuration.getString("recaptcha.key.public")
       .getOrElse("fakekey")
-    Ok(views.html.p.account.signup(signupForm, profileRoutes.signupPost(), recaptchaKey))
+    Ok(views.html.p.account.signup(SignupData.form, profileRoutes.signupPost(), recaptchaKey))
   }
 
   def sendValidationEmail(email: String, uuid: UUID)(implicit request: RequestHeader) {
@@ -72,31 +58,30 @@ trait PortalLogin extends OpenIDLoginHandler with Oauth2LoginHandler with UserPa
 
     checkRecapture.flatMap { ok =>
       if (!ok) {
-        val form = signupForm.bindFromRequest
+        val form = SignupData.form.bindFromRequest
             .discardingErrors.withGlobalError("error.badRecaptcha")
         immediate(BadRequest(views.html.p.account.signup(form,
           profileRoutes.signupPost(), recaptchaKey)))
       } else {
-        signupForm.bindFromRequest.fold(
+        SignupData.form.bindFromRequest.fold(
           errForm => immediate(BadRequest(views.html.p.account.signup(errForm,
             profileRoutes.signupPost(), recaptchaKey))),
           data => {
-            val (name, email, pw, _, allowMessaging) = data
-            userDAO.findByEmail(email).map { _ =>
-              val form = signupForm.withGlobalError("error.emailExists")
+            userDAO.findByEmail(data.email).map { _ =>
+              val form = SignupData.form.withGlobalError("error.emailExists")
               immediate(BadRequest(views.html.p.account.signup(form,
                 profileRoutes.signupPost(), recaptchaKey)))
             } getOrElse {
               implicit val apiUser = ApiUser()
               backend.createNewUserProfile(
-                  data = Map(UserProfileF.NAME -> name), groups = defaultPortalGroups)
+                  data = Map(UserProfileF.NAME -> data.name), groups = defaultPortalGroups)
                   .flatMap { userProfile =>
-                val account = userDAO.createWithPassword(userProfile.id, email.toLowerCase,
-                    verified = false, staff = false, allowMessaging = allowMessaging,
-                  Account.hashPassword(pw))
+                val account = userDAO.createWithPassword(userProfile.id, data.email.toLowerCase,
+                    verified = false, staff = false, allowMessaging = data.allowMessaging,
+                  Account.hashPassword(data.password))
                 val uuid = UUID.randomUUID()
                 account.createValidationToken(uuid)
-                sendValidationEmail(email, uuid)
+                sendValidationEmail(data.email, uuid)
 
                 gotoLoginSucceeded(userProfile.id).map(r =>
                   r.flashing("success" -> "portal.signup.needToConfirmEmail"))

@@ -1,4 +1,6 @@
-@(form: Form[(String,String,String,String,Boolean)], action: Call, recaptchaKey: String)(implicit request: RequestHeader, globalConfig: global.GlobalConfig, flash: Flash, lang: Lang, token: play.filters.csrf.CSRF.Token)
+@(form: Form[SignupData], action: Call, recaptchaKey: String)(implicit request: RequestHeader, globalConfig: global.GlobalConfig, flash: Flash, lang: Lang, token: play.filters.csrf.CSRF.Token)
+
+@import SignupData.{form => _, _}
 
 @implicitField = @{ views.html.helper.FieldConstructor(p.helpers.fieldTemplateSignUp.f) }
 
@@ -8,13 +10,21 @@
 
     @formHelpers.globalErrors(form)
 
-    @helper.inputText(form("name"))
-    @helper.inputText(form("email"))
-    @helper.inputPassword(form("password"))
-    @helper.inputPassword(form("confirm"))
+    @helper.inputText(form(NAME))
+    @helper.inputText(form(EMAIL))
+    @helper.inputPassword(form(PASSWORD))
+    @helper.inputPassword(form(CONFIRM))
+    @helper.checkbox(form(AGREE_TERMS), '_label -> Html(Messages(
+        "portal.signup.dataPolicyNag",
+        "<a target='_blank' href='" + controllers.portal.routes.Portal.dataPolicy() + "'>",
+        "</a>")
+    ))
 
     @common.recaptcha(recaptchaKey)
-
+    <div class="signup-check">
+        <input type="hidden" name="@TIMESTAMP" value="@org.joda.time.DateTime.now().toString()" />
+        @helper.inputText(form(BLANK_CHECK), 'title -> "[Leave this blank]", 'autocomplete -> "off", 'class -> "signup-check")
+    </div>
     <div class="form-group field">
         <div class="input">
             <button type="submit" class="button post">@Messages("submitButton.signup")</button>

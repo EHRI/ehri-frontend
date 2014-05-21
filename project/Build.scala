@@ -116,20 +116,6 @@ object ApplicationBuild extends Build {
 
   val assetSettings = Seq(
 
-    JsEngineKeys.parallelism := 1,
-
-    pipelineStages := Seq(rjs),
-
-    appBuildProfile := s"""|({
-                       |  appDir: "${appDir.value}",
-                       |  baseUrl: "js",
-                       |  dir: "${dir.value}",
-                       |  modules: [
-                       |      {
-                       |           name: "main"
-                       |      }
-                       |  ]
-                       |})""".stripMargin
   )
 
   lazy val core = Project(appName + "-core", file("modules/core"))
@@ -186,10 +172,21 @@ object ApplicationBuild extends Build {
   lazy val main = Project(appName, file("."))
     .enablePlugins(play.PlayScala).settings(
     version := appVersion,
-    libraryDependencies ++= coreDependencies ++ testDependencies
+    libraryDependencies ++= coreDependencies ++ testDependencies,
+    pipelineStages := Seq(rjs),
+
+    appBuildProfile := s"""|({
+                       |  appDir: "${appDir.value}",
+                       |  baseUrl: "js",
+                       |  dir: "${dir.value}",
+                       |  modules: [
+                       |      {
+                       |           name: "main"
+                       |      }
+                       |  ]
+                       |})""".stripMargin
   ).settings(commonSettings ++ assetSettings: _*).dependsOn(core, annotation, linking, admin, portal, guides)
     .aggregate(core, annotation, linking, admin, portal, guides)
-
 
   override def rootProject = Some(main)
 }
