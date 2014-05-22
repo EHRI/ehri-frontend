@@ -1,0 +1,18 @@
+@(result: utils.search.ItemPage[(_,utils.search.SearchHit)], params: utils.search.SearchParams)(implicit req: RequestHeader)
+
+@import utils.search.SearchParams
+
+<div class="search-summary">
+    @Messages("pagination.displayingItems", result.offset + 1, result.offset + result.items.size, result.total)
+
+    @result.spellcheck.map { case (actual, corrected) =>
+        @defining(params.query.map(_.toLowerCase.replace(actual.toLowerCase, corrected))) { suggestion =>
+            (@Messages("search.spellingSuggestion")
+        <i>
+            <strong>
+                <a href="@utils.joinPath(req.path, req.queryString.updated(SearchParams.QUERY, suggestion.toSeq))">@suggestion</a>
+        </strong>
+        </i>?)
+        }
+    }
+</div>
