@@ -6,7 +6,8 @@ jQuery(function ($) {
 	  delay : {
 	    show: 600,
 	    hide: 100
-	  }
+	  },
+    container: 'body'
 	});
 
   /**

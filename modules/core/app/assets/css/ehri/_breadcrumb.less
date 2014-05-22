@@ -6,70 +6,135 @@ ol.collapsible {
 	padding-left:0;
 	margin:0;
 	font-size:90%;
-	text-transform:lowercase;
 	li {
-		text-transform:capitalize;
-		overflow:hidden;
-		display:inline-block;
-		text-wrap:none;
-		height:18px;
+		display:block;
+		float:left;
 		white-space: nowrap;
-		width:70px;
-
-		> a {
+		position:relative;
+		& > a {
 			white-space: nowrap;
+			display:block;
+			width:30px;
+			overflow:hidden;
+			text-decoration:none;
+		}
+
+		.legend {
+			display:none;
 		}
 		&:hover {
 			width:auto;
 			overflow:none;
+			& > a {
+				width:auto;
+			}
+			.legend {
+				display:inline;
+			}
 		}
 	}
-	&.breadcrumb {
-		font-size:100%;
-		max-height:34px;
-		li:last-child {
-			width:auto;
-			overflow:hidden;
+	&.not li > a {
+		width:auto;
+		.legend {
+			display:inline;
+		}
+	}
+}
+ol.breadcrumb.collapsible {
+	li {
+		border:1px solid @dark-gray;
+		padding:6px 12px 6px 24px;
+
+		&:first-child {
+			padding:6px 6px 6px 10px;
+		}
+		&:last-child {
+			padding:6px 18px 6px 24px;
+		}
+		&:not(:last-child) {
+			&:after {
+				content: " ";
+				display: block;
+				width: 0;
+				height: 0;
+				border-top: 17px solid transparent;
+				border-bottom: 17px solid transparent;
+				border-left: 10px solid @dark-gray;
+				position: absolute;
+				top: 50%;
+				margin-top: -17px;
+				left: 100%;
+				z-index: 3;
+			}
+			&:before {
+				content: " ";
+				display: block;
+				width: 0;
+				height: 0;
+				border-top: 17px solid transparent;
+				border-bottom: 17px solid transparent;
+				border-left: 10px solid @dark-gray;
+				position: absolute;
+				top: 50%;
+				margin-top: -17px;
+				margin-left: 1px;
+				left: 100%;
+				z-index: 3;
+			}
+		}
+		&:not(:last-child):after {
+		  border-left: 10px solid @pale-gray;
+		}
+		&:not(:last-child):before {
+		  border-left: 10px solid @dark-gray;
+		}
+		&:hover:not(:last-child):after {
+		  border-left: 10px solid @dark-gray;;
+		}
+		&:hover:not(:last-child):before {
+		  border-left: 10px solid @dark-gray;
 		}
 		&:hover {
-			li:last-child {
-				width:70px;
-				&:hover {
-					width:auto;
-					overflow:none;
-				}
-			}
+			background-color:@dark-gray;
 		}
 	}
 }
 .search-item-body > ol.collapsible {
 	max-height:20px;
 	li {
-		width:30px;
+		& > a { width:50px; display:inline-block; }
+
 		&:before {
-			content : " > ";
-			display:inline-block;
+			content: "";
+			display: block;
+			float: left;
+			font-family: 'Glyphicons Halflings';
+			font-size: 70%;
+			font-style: normal;
+			font-weight: normal;
+			line-height: 200%;
+			opacity: 0.7;
+			text-align: center;
+			vertical-align: bottom;
+			width: 10px;
+			-webkit-font-smoothing: antialiased;
+			-moz-osx-font-smoothing: grayscale;
 		}
 
 		&:first-child:before {
 			display:none;
 		}
+
 		&:hover {
-			width:auto;
-			overflow:none;
-		}
-	}
-	li:last-child {
-		width:auto;
-		overflow:hidden;
-	}
-	&:hover {
-		li:last-child {
-			width:30px;
-			&:hover {
+			& > a {
 				width:auto;
 				overflow:none;
 			}
+		}
+	}
+	li:only-child {
+		> a {
+			width:auto;
 		}
 	}
 }

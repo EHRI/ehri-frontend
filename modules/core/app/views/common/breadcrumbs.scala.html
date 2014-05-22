@@ -12,7 +12,7 @@
     }
 }
 
-<ol class="breadcrumb">
+<ol class="collapsible">
     @defining(if (!items.isEmpty) 200 / items.length else 300) { truncateLength =>
         @if(!items.isEmpty) {
             @items.init.map { i =>
