@@ -6,7 +6,8 @@ jQuery(function ($) {
 	  delay : {
 	    show: 600,
 	    hide: 100
-	  }
+	  },
+    container: 'body'
 	});
 
   /**
@@ -203,11 +204,13 @@ jQuery(function ($) {
       loaderContainer.remove();
     }
     if($elem.hasClass("annotate-field")) {
-      $elem.hide();
-      $(".annotate-item-controls[data-target='" + $elem.attr("data-target") + "']").after(data);
+      var $container = $(".annotate-item-controls[data-target='" + $elem.attr("data-target") + "']");
     } else {
-      $elem.hide().parent().after(data);
+      var $container = $elem.parent();
     }
+      $elem.hide();
+      $container.after(data);
+      $container.next().find("textarea").focus();
     $(data).find("select.custom-accessors").select2({
       placeholder: "Select a set of groups or users",
       width: "copy"
