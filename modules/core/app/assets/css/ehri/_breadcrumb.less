@@ -14,7 +14,7 @@ ol.collapsible {
 		& > a {
 			white-space: nowrap;
 			display:block;
-			width:30px;
+			max-width:30px;
 			overflow:hidden;
 			text-decoration:none;
 		}
@@ -23,18 +23,22 @@ ol.collapsible {
 			display:none;
 		}
 		&:hover {
-			width:auto;
 			overflow:none;
 			& > a {
-				width:auto;
+				max-width:none;
 			}
 			.legend {
 				display:inline;
 			}
 		}
+		&:only-child {
+			> a {
+				max-width:none;
+			}
+		}
 	}
 	&.not li > a {
-		width:auto;
+		max-width:none;
 		.legend {
 			display:inline;
 		}
@@ -100,9 +104,8 @@ ol.breadcrumb.collapsible {
 	}
 }
 .search-item-body > ol.collapsible {
-	max-height:20px;
 	li {
-		& > a { width:50px; display:inline-block; }
+		& > a { max-width:50px; display:inline-block; }
 
 		&:before {
 			content: "";
@@ -127,14 +130,14 @@ ol.breadcrumb.collapsible {
 
 		&:hover {
 			& > a {
-				width:auto;
+				max-width:none;
 				overflow:none;
 			}
 		}
 	}
 	li:only-child {
 		> a {
-			width:auto;
+			max-width:none;
 		}
 	}
 }
