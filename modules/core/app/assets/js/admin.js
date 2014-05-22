@@ -20,6 +20,7 @@ jQuery(function($) {
     $formgroup.toggleClass("quiet");
     if($formgroup.hasClass("quiet")) {
       $blockhelp.data("html", $blockhelp.html()).html($(".markdown-cheatsheet").html());
+      $formgroup.find("textarea").focus();
     } else {
       $blockhelp.html($blockhelp.data("html"));
     }
