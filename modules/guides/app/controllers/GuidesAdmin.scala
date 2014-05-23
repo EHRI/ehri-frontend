@@ -42,7 +42,7 @@ case class GuidesAdmin @Inject()(implicit globalConfig: global.GlobalConfig, bac
 
   def edit(path: String) = userProfileAction {
     implicit userOpt => implicit request =>
-      Guide.find(path) match {
+      Guide.find(path, false) match {
         case Some(guide) => Ok(views.html.edit(formGuide.fill(guide), guide, Guide.findAll(), Some(guide.getPages), guidesRoutes.editPost(path)))
         case _ => Ok(views.html.list(Guide.findAll()))
       }
@@ -50,7 +50,7 @@ case class GuidesAdmin @Inject()(implicit globalConfig: global.GlobalConfig, bac
 
   def delete(path: String) = userProfileAction {
     implicit userOpt => implicit request =>
-      Guide.find(path) match {
+      Guide.find(path, false) match {
         case Some(guide) => {
           guide.delete() match {
             case 1 => Ok(views.html.list(Guide.findAll()))
@@ -63,15 +63,18 @@ case class GuidesAdmin @Inject()(implicit globalConfig: global.GlobalConfig, bac
 
   def editPost(path: String) = userProfileAction {
     implicit userOpt => implicit request =>
-      Guide.find(path) match {
+      Guide.find(path, false) match {
         case Some(guide) => {
           formGuide.bindFromRequest.fold(
           errorForm => {
             BadRequest(views.html.edit(errorForm, guide, Guide.findAll(), Some(guide.getPages), guidesRoutes.editPost(path)))
           }, {
             case g: Guide =>
-              g.update()
-              Ok(views.html.edit(formGuide.fill(g), guide, Guide.findAll(), Some(guide.getPages), guidesRoutes.editPost(path)))
+              g.update() match {
+                case 1 => Ok(views.html.list(Guide.findAll()))
+                case _ => Ok(views.html.edit(formGuide.fill(g), guide, Guide.findAll(), Some(guide.getPages), guidesRoutes.editPost(path)))
+              }
+              
           }
           )
         }
@@ -81,16 +84,16 @@ case class GuidesAdmin @Inject()(implicit globalConfig: global.GlobalConfig, bac
 
   def create() = userProfileAction {
     implicit userOpt => implicit request =>
-      Ok(views.html.create(formGuide, Guide.findAll(), guidesRoutes.createPost))
+      Ok(views.html.create(formGuide.fill(Guide.blueprint()), Guide.findAll(), guidesRoutes.createPost))
   }
 
   def createPost() = userProfileAction {
     implicit userOpt => implicit request =>
       formGuide.bindFromRequest.fold(
       errorForm => {
-        BadRequest(views.html.create(formGuide, Guide.findAll(), guidesRoutes.createPost))
+        BadRequest(views.html.create(errorForm, Guide.findAll(), guidesRoutes.createPost))
       }, {
-        case Guide(_, name, path, picture, description, active, _) =>
+        case Guide(_, name, path, picture, description, active, default) =>
           Guide.create(name, path, picture, description) match {
             case Some(i) => Ok(views.html.list(Guide.findAll()))
             case _ => Ok(views.html.create(formGuide, Guide.findAll(), guidesRoutes.createPost))
@@ -109,7 +112,7 @@ case class GuidesAdmin @Inject()(implicit globalConfig: global.GlobalConfig, bac
 
   def listPages(path: String) = userProfileAction {
     implicit userOpt => implicit request =>
-      Guide.find(path) match {
+      Guide.find(path, false) match {
         case Some(guide) => Ok(views.html.p.list(GuidesPage.findAll(path), guide, Guide.findAll()))
         case _ => Ok(views.html.list(Guide.findAll()))
       }
@@ -118,7 +121,7 @@ case class GuidesAdmin @Inject()(implicit globalConfig: global.GlobalConfig, bac
   def editPages(gPath: String, path: String) = userProfileAction {
     implicit userOpt => implicit request =>
 
-      Guide.find(gPath) match {
+      Guide.find(gPath, false) match {
         case Some(guide) => {
           guide.getPage(path) match {
             case Some(pageLayout) => Ok(views.html.p.edit(formPage.fill(pageLayout), pageLayout, guide, GuidesPage.findAll(gPath), Guide.findAll(), guidesRoutes.editPagesPost(gPath, path)))
@@ -134,7 +137,7 @@ case class GuidesAdmin @Inject()(implicit globalConfig: global.GlobalConfig, bac
 
   def editPagesPost(gPath: String, path: String) = userProfileAction {
     implicit userOpt => implicit request =>
-      Guide.find(gPath) match {
+      Guide.find(gPath, false) match {
         case Some(guide) => {
           guide.getPage(path) match {
             case Some(pageLayout) =>
@@ -159,7 +162,7 @@ case class GuidesAdmin @Inject()(implicit globalConfig: global.GlobalConfig, bac
 
   def createPages(gPath: String) = userProfileAction {
     implicit userOpt => implicit request =>
-      Guide.find(gPath) match {
+      Guide.find(gPath, false) match {
         case Some(guide) => Ok(views.html.p.create(formPage.fill(GuidesPage.blueprint(guide.objectId)), guide, GuidesPage.findAll(gPath), Guide.findAll(), guidesRoutes.createPagesPost(gPath)))
         case _ => Ok(views.html.list(Guide.findAll()))
       }
@@ -168,7 +171,7 @@ case class GuidesAdmin @Inject()(implicit globalConfig: global.GlobalConfig, bac
 
   def createPagesPost(gPath: String) = userProfileAction {
     implicit userOpt => implicit request =>
-      Guide.find(gPath) match {
+      Guide.find(gPath, false) match {
         case Some(guide) => {
           formPage.bindFromRequest.fold(
           errorForm => {
@@ -193,7 +196,7 @@ case class GuidesAdmin @Inject()(implicit globalConfig: global.GlobalConfig, bac
 
   def deletePages(gPath: String, path: String) = userProfileAction {
     implicit userOpt => implicit request =>
-      Guide.find(gPath) match {
+      Guide.find(gPath, false) match {
         case Some(guide) => {
           guide.getPage(path) match {
             case Some(page) => {
