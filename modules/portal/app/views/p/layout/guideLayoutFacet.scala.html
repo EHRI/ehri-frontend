@@ -1,0 +1,55 @@
+@(guide: (GuidesPage, (Guide, List[GuidesPage])), facets: Html = Html(""), scripts: Html = Html(""), styles: Html = Html(""))(content: Html)(implicit request: RequestHeader, lang: Lang)
+
+<!DOCTYPE html>
+
+<html>
+    <head>
+        <title>@guide._2._1.name | @Messages("portal.guides.faceted")</title>
+        <link rel="stylesheet" media="screen" href="@controllers.core.routes.Assets.at("css/guides.min.css")">
+        @styles
+    </head>
+    <body>
+		<header id="top">
+			<div class="container">
+				@guideHeader(guide._1.path, guide._2)
+			</div>
+			<div id="page-title" style="background-color:#360f4f;">
+				<div class="container">
+					<div class="row">
+						<div class="col-md-4 col-md-push-8">
+							<h2 style="color:white; font-variant: small-caps;font-weight: bold; margin-bottom:20px; font-size:24px; line-height:30px; ">@guide._2._1.name</h2>
+						</div>
+						<div class="col-md-8 col-md-pull-4">
+							<h1 style="color:white; font-variant: small-caps; font-size:30px; font-weight: bold; margin-bottom:20px;"> @Messages("portal.guides.faceted")</h1>
+						</div>
+					</div>
+				</div>
+			</div>
+		</header>
+		<div class="container">
+			<div class="row">
+				<div class="col-md-8" id="main">
+					@content
+				</div>
+				<div class="col-md-4" id="facets">
+					@facets
+				</div>
+			</div>
+		</div>
+		<footer id="right-bar" class="container">
+			<div class="well">
+				<hr />
+				<ul class="nav">
+					@for(page <- guide._2._2) {
+						@if(page.position == "side") {
+							<li><a href="@controllers.portal.routes.Guides.layoutRetrieval(guide._2._1.path, page.path)">@page.name</a></li>
+						}
+					}
+				</ul>
+			</div>
+		</footer>
+        <script src="//ajax.googleapis.com/ajax/libs/jquery/1.10.2/jquery.min.js"></script>
+        <script src="@controllers.core.routes.Assets.at("bootstrap/js/bootstrap.min.js")"></script>
+		@scripts
+    </body>
+</html>
