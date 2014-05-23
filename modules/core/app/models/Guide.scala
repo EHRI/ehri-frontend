@@ -5,25 +5,26 @@ import play.api.data.Forms._
 
 import anorm._
 import anorm.SqlParser._
-import anorm.~
 import play.api.Play.current
 import play.api.db.DB
+import language.postfixOps
 
 /**
  * @author Thibault Clérice (http://github.com/ponteineptique)
  */
 case class Guide(
-  objectId: Option[Int],
-  name: String,
-  path: String,
-  picture: Option[String],
-  description: Option[String],
-  active: Int = 0,
-  default: Int = 0
-) {
-  def update(): Int = DB.withConnection { implicit connection =>
-    SQL(
-      """
+                  objectId: Option[Int],
+                  name: String,
+                  path: String,
+                  picture: Option[String],
+                  description: Option[String],
+                  active: Int = 0,
+                  default: Int = 0
+                  ) {
+  def update(): Int = DB.withConnection {
+    implicit connection =>
+      SQL(
+        """
       UPDATE
         research_guide
       SET 
@@ -36,20 +37,66 @@ case class Guide(
       WHERE 
         id_research_guide = {i}
       LIMIT 1
-      """
-    ).on('n -> name, 'p -> path, 'pi -> picture, 'de -> description, 'i -> objectId, 'active -> active, 'default -> default).executeUpdate()
+        """
+      ).on('n -> name, 'p -> path, 'pi -> picture, 'de -> description, 'i -> objectId, 'active -> active, 'default -> default).executeUpdate()
   }
 
-  def delete(): Int = DB.withConnection { implicit connection =>
-    SQL(
-      """
+  def delete(): Int = DB.withConnection {
+    implicit connection =>
+      SQL(
+        """
       DELETE FROM
         research_guide
       WHERE 
         id_research_guide = {i}
       LIMIT 1
-      """
-    ).on('i -> objectId).executeUpdate()
+        """
+      ).on('i -> objectId).executeUpdate()            
+  }
+  
+  def getPages: List[GuidesPage] = DB.withConnection { implicit connection =>
+    objectId.map { id =>
+        SQL( """
+        SELECT
+          rgp.*
+        FROM
+          research_guide_page rgp,
+          research_guide rg
+        WHERE
+          id_research_guide = {id}
+             """).on('id -> id).as(GuidesPage.rowExtractor *)
+    }.toList.flatten
+  }
+
+  def getPage(page: String): Option[GuidesPage] = DB.withConnection { implicit connection =>
+    objectId.flatMap { id =>
+      SQL( """
+        SELECT
+          rgp.*
+        FROM
+          research_guide_page rgp,
+          research_guide rg
+        WHERE
+          id_research_guide = {id} AND
+          id_research_guide_page = {page}
+           """
+      ).on('id -> id, 'path -> path).as(GuidesPage.rowExtractor.singleOpt)
+    }
+  }
+
+  def getDefaultPage: Option[GuidesPage] = DB.withConnection { implicit connection =>
+    objectId.flatMap { id =>
+      SQL( """
+        SELECT
+          *
+        FROM
+          research_guide_page
+        WHERE
+          id_research_guide = {id} AND
+          id_research_guide_page = {gid}
+           """
+      ).on('id -> id, 'gid -> default).as(GuidesPage.rowExtractor.singleOpt)
+    }
   }
 }
 
@@ -74,96 +121,72 @@ object Guide {
       "default" -> number
     )(Guide.apply _)(Guide.unapply _)
   )
+
+  val rowExtractor = {
+    get[Option[Int]]("id_research_guide") ~
+      get[String]("name_research_guide") ~
+      get[String]("path_research_guide") ~
+      get[Option[String]]("picture_research_guide") ~
+      get[Option[String]]("description_research_guide") ~
+      get[Int]("active_research_guide") ~
+      get[Int]("default_research_guide") map {
+      case gid ~ name ~ path ~ pic ~ desc ~ active ~ deft =>
+        Guide(gid, name, path, pic, desc, active, deft)
+    }
+  }
+
   /*
   *   Create function
   */
-  def create(name: String, path: String, picture: Option[String], description: Option[String]): Option[Long] = DB.withConnection { implicit connection =>
-    SQL(
-      """
+  def create(name: String, path: String, picture: Option[String], description: Option[String]): Option[Long] = DB.withConnection {
+    implicit connection =>
+      SQL(
+        """
       INSERT INTO
         research_guide
       (name_research_guide,path_research_guide, picture_research_guide, description_research_guide)
       VALUES
       ({n}, {p}, {pi}, {de})
-      """
-    ).on('n -> name, 'p -> path, 'pi -> picture, 'de -> description).executeInsert()
+        """
+      ).on('n -> name, 'p -> path, 'pi -> picture, 'de -> description).executeInsert()
   }
 
   /*
   *   Listing functions
   */
-  def findAll(active:Boolean = false): List[Guide] = DB.withConnection { implicit connection =>
-    SQL(
-    if (active) """
+  def findAll(active: Boolean = false): List[Guide] = DB.withConnection {
+    implicit connection =>
+      SQL(
+        if (active) """
       SELECT * FROM research_guide WHERE active_research_guide = 1
-    """ else """
+                    """
+        else """
       SELECT * FROM research_guide
-    """
-    ).apply().map { row =>
-      Guide(
-      row[Option[Int]]("id_research_guide"),
-      row[String]("name_research_guide"),
-      row[String]("path_research_guide"),
-      row[Option[String]]("picture_research_guide"),
-      row[Option[String]]("description_research_guide"),
-      row[Int]("active_research_guide"),
-      row[Int]("default_research_guide")
-      )
-    }.toList
+             """
+      ).as(rowExtractor *)
   }
 
-  def find(param: Any, active:Int = 0): Option[Guide] = DB.withConnection { implicit connection =>
-    SQL(
-      param match {
-        case p:String => 
-          if(active==1) """
-          SELECT 
-            * 
-          FROM 
+  def find(param: String, active: Boolean = true): Option[Guide] = DB.withConnection {
+    implicit connection =>
+      (if (active) SQL("""
+          SELECT
+            *
+          FROM
             research_guide
-          WHERE 
+          WHERE
             path_research_guide = {param} AND
             active_research_guide = 1
           LIMIT 1
-        """ else """
-          SELECT 
-            * 
-          FROM 
+        """) else SQL("""
+          SELECT
+            *
+          FROM
             research_guide
-          WHERE 
+          WHERE
             path_research_guide = {param}
           LIMIT 1
-        """
-        case p:Int => if(active == 1) """
-          SELECT 
-            * 
-          FROM 
-            research_guide
-          WHERE 
-            id_research_guide = {param} AND
-            active_research_guide = 1
-          LIMIT 1
-        """ else """
-          SELECT 
-            * 
-          FROM 
-            research_guide
-          WHERE 
-            id_research_guide = {param}
-          LIMIT 1
-        """ 
-      }
-    ).on('param -> param).apply().headOption.map { row =>
-      Guide(
-        row[Option[Int]]("id_research_guide"),
-        row[String]("name_research_guide"),
-        row[String]("path_research_guide"),
-        row[Option[String]]("picture_research_guide"),
-        row[Option[String]]("description_research_guide"),
-        row[Int]("active_research_guide"),
-        row[Int]("default_research_guide")
-      )
-    }
+        """)
+        ).on('param -> param).as(rowExtractor.singleOpt)
   }
 }
 

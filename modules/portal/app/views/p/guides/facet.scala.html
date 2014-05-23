@@ -14,7 +14,7 @@
             } else {
                 $(this).parents(".facet-form").children(".facet-search").hide();
                 cross.removeClass("glyphicon-remove").addClass("glyphicon-search");
-                $.post(
+                $.get(
                     form.attr("data-target"),
                     {},
                     function(data) {
@@ -32,7 +32,7 @@
             dat = $(this);
             form = dat.parents(".facet-form");
             Q = form.find("input[name='q']").val();
-            $.post(
+            $.get(
                 form.attr("data-target") + "?q=" + Q,
                 {},
                 function(data) {
@@ -48,7 +48,7 @@
             cross = dat.children(".glyphicon");
             form = dat.parents(".facet-form");
             if(form.find("li.facet").length == 0) {
-                $.post(
+                $.get(
                     form.attr("data-target"),
                     {},
                     function(data) {
@@ -75,7 +75,7 @@
             if(list.children("li").length > 0) {
                 list.toggle();
             } else {
-                $.post(
+                $.get(
                     form.attr("href"),
                     {},
                     function(data) {
@@ -99,7 +99,7 @@
                 if(($(this).height() + 5) > offset.top) {
                     $(this).data("ajaxready", false);
                     milestone.show();
-                    $.post(
+                    $.get(
                         milestone.attr("data-target"),
                         {},
                         function(data) {
