@@ -94,7 +94,7 @@ jQuery(function ($) {
 		var followFunc = jsRoutes.controllers.portal.Social.followUserPost,
 		    unfollowFunc = jsRoutes.controllers.portal.Social.unfollowUserPost,
 		    followerListFunc = jsRoutes.controllers.portal.Social.followersForUser,
-		    $elem = $(e.target),
+		    $elem = $(this),
 		    id = $elem.data("item"),
 		    follow = $elem.hasClass("follow");
 
@@ -134,10 +134,9 @@ jQuery(function ($) {
 
 		var watchFunc = jsRoutes.controllers.portal.Social.watchItemPost,
 		    unwatchFunc = jsRoutes.controllers.portal.Social.unwatchItemPost,
-		    $elem = $(e.target),
+		    $elem = $(this),
 		    id = $elem.data("item"),
 		    watch = $elem.hasClass("watch");
-
 		var call, $other;
 		if (watch) {
 		  call = watchFunc;
