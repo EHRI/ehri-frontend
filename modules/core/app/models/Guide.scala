@@ -58,10 +58,9 @@ case class Guide(
     objectId.map { id =>
         SQL( """
         SELECT
-          rgp.*
+          *
         FROM
-          research_guide_page rgp,
-          research_guide rg
+          research_guide_page
         WHERE
           id_research_guide = {id}
              """).on('id -> id).as(GuidesPage.rowExtractor *)
@@ -72,15 +71,14 @@ case class Guide(
     objectId.flatMap { id =>
       SQL( """
         SELECT
-          rgp.*
+          *
         FROM
-          research_guide_page rgp,
-          research_guide rg
+          research_guide_page
         WHERE
           id_research_guide = {id} AND
-          id_research_guide_page = {page}
+          path_research_guide_page = {page}
            """
-      ).on('id -> id, 'path -> path).as(GuidesPage.rowExtractor.singleOpt)
+      ).on('id -> id, 'page -> page).as(GuidesPage.rowExtractor.singleOpt)
     }
   }
 
@@ -135,6 +133,7 @@ object Guide {
     }
   }
 
+  def blueprint(): Guide = Guide(Some(0), "", "", Some(""), Some(""), 0, 0)
   /*
   *   Create function
   */
