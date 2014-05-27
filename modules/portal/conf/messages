@@ -13,6 +13,7 @@ portal.profile.preferences.updatePreferences=Update Preferences
 portal.login=Sign In
 portal.logout=Sign Out
 portal.login.moreOptions=More login options
+portal.login.alreadyLoggedIn=You are already logged in as {0}
 portal.login.loginWith=Log in with {0}
 portal.login.error=There was a problem with your details
 portal.logoutSucceeded=You have been logged out

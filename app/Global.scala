@@ -78,8 +78,8 @@ package globalConfig {
       EntityType.Country -> controllers.archdesc.routes.Countries.get,
       EntityType.VirtualUnit -> controllers.archdesc.routes.VirtualUnits.get
     ), default = controllers.admin.routes.Home.index(),
-      login = controllers.core.routes.Admin.login(),
-      logout = controllers.core.routes.Admin.logout())
+      login = controllers.portal.routes.Profile.login(),
+      logout = controllers.portal.routes.Profile.logout())
   }
 }
 

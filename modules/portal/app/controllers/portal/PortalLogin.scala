@@ -120,8 +120,12 @@ trait PortalLogin extends OpenIDLoginHandler with Oauth2LoginHandler with UserPa
     "google" -> profileRoutes.googleLogin
   )
 
-  def login = optionalUserAction { implicit maybeUser => implicit request =>
-    Ok(views.html.p.account.login(openidForm, passwordLoginForm, oauthProviders))
+  def login = optionalUserAction { implicit accountOpt => implicit request =>
+    accountOpt match {
+      case Some(user) => Redirect(portalRoutes.index())
+        .flashing("warning" -> Messages("portal.login.alreadyLoggedIn", user.email))
+      case None => Ok(views.html.p.account.login(openidForm, passwordLoginForm, oauthProviders))
+    }
   }
 
   def openIDLoginPost = openIDLoginPostAction(profileRoutes.openIDCallback()) { formError => implicit request =>

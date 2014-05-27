@@ -106,27 +106,26 @@ object ApplicationBuild extends Build {
     appName + "-linking", appVersion, path = file("modules/linking")
   ).settings(otherSettings: _*).dependsOn(core, annotation)
 
-  lazy val archdesc = play.Project(
-    appName + "-archdesc", appVersion, path = file("modules/archdesc")
-  ).settings(otherSettings: _*).dependsOn(core, annotation, linking)
-
-  lazy val authorities = play.Project(
-    appName + "-authorities", appVersion, path = file("modules/authorities")
-  ).settings(otherSettings: _*).dependsOn(core, annotation, linking)
-
-  lazy val vocabs = play.Project(
-    appName + "-vocabs", appVersion, path = file("modules/vocabs")
-  ).settings(otherSettings: _*).dependsOn(core, annotation, linking)
-
   lazy val portal = play.Project(
     appName + "-portal", appVersion, portalDependencies, path = file("modules/portal"))
     .settings(otherSettings: _*).dependsOn(core, annotation, linking)
     .aggregate(core, annotation, linking)
 
+  lazy val archdesc = play.Project(
+    appName + "-archdesc", appVersion, path = file("modules/archdesc")
+  ).settings(otherSettings: _*).dependsOn(portal)
+
+  lazy val authorities = play.Project(
+    appName + "-authorities", appVersion, path = file("modules/authorities")
+  ).settings(otherSettings: _*).dependsOn(portal)
+
+  lazy val vocabs = play.Project(
+    appName + "-vocabs", appVersion, path = file("modules/vocabs")
+  ).settings(otherSettings: _*).dependsOn(portal)
+
   lazy val admin = play.Project(
     appName + "-admin", appVersion, path = file("modules/admin")
-  ).settings(otherSettings: _*).dependsOn(core, archdesc, authorities, vocabs, portal)
-    .aggregate(core, linking, annotation, archdesc, authorities, vocabs, portal)
+  ).settings(otherSettings: _*).dependsOn(archdesc, authorities, vocabs)
 
   lazy val guides = play.Project(
     appName + "-guides", appVersion, path = file("modules/guides")
@@ -134,8 +133,8 @@ object ApplicationBuild extends Build {
     .aggregate(archdesc)
 
   lazy val main = play.Project(appName, appVersion, testDependencies
-  ).settings(otherSettings: _*).dependsOn(admin, portal, guides)
-    .aggregate(admin, portal, guides)
+  ).settings(otherSettings: _*).dependsOn(portal, guides, admin)
+    .aggregate(portal, guides, admin)
 
 
   override def rootProject = Some(main)

@@ -43,79 +43,11 @@ case class Admin @Inject()(implicit globalConfig: global.GlobalConfig, backend: 
   implicit def resource = new RestResource[UserProfile] {
     val entityType = EntityType.UserProfile
   }
-  // Login functions are unrestricted
-  override val staffOnly = false
 
-  def openIDCallback = openIDCallbackAction.async { formOrAccount => implicit request =>
-    implicit val accountOpt: Option[Account] = None
-    formOrAccount match {
-      case Right(account) => gotoLoginSucceeded(account.id)
-      case Left(formError) =>
-        immediate(BadRequest(views.html.admin.pwLogin(
-          passwordLoginForm,
-          formError,
-          actionPw = routes.Admin.loginPost(),
-          actionOpenId = routes.Admin.openIDLoginPost())))
-    }
-  }
+  override val staffOnly = true
 
-  def openIDLogin = optionalUserAction { implicit maybeUser => implicit request =>
-    if (maybeUser.isEmpty) {
-      Ok(views.html.admin.pwLogin(
-          passwordLoginForm,
-          openidForm,
-          actionPw = routes.Admin.loginPost(),
-          actionOpenId = routes.Admin.openIDLoginPost()))
-    } else {
-      Redirect(defaultLoginUrl)
-    }
-  }
 
-  def openIDLoginPost = openIDLoginPostAction(routes.Admin.openIDCallback()) { formError => implicit request =>
-    implicit val accountOpt: Option[Account] = None
-    BadRequest(views.html.admin.pwLogin(
-          passwordLoginForm,
-          formError,
-          actionPw = routes.Admin.loginPost(),
-          actionOpenId = routes.Admin.openIDLoginPost()))
-  }
-
-  /**
-   * Login via a password...
-   * @return
-   */
-  def login = optionalUserAction { implicit maybeUser => implicit request =>
-    if (maybeUser.isEmpty) {
-      Ok(views.html.admin.pwLogin(
-          passwordLoginForm,
-          openidForm,
-          actionPw = routes.Admin.loginPost(),
-          actionOpenId = routes.Admin.openIDLoginPost()))
-    } else {
-      Redirect(defaultLoginUrl)
-    }
-  }
-
-  def loginPost = loginPostAction.async { accountOrErr => implicit request =>
-    accountOrErr match {
-      case Left(errorForm) =>
-        immediate(BadRequest(views.html.admin.pwLogin(
-          errorForm,
-          openidForm,
-          actionPw = routes.Admin.loginPost(),
-          actionOpenId = routes.Admin.openIDLoginPost())))
-      case Right(account) if !account.verified =>
-        immediate(Redirect(defaultLoginUrl)
-          .flashing("warning" -> "login.notVerified"))
-      case Right(account) =>
-        gotoLoginSucceeded(account.id)
-    }
-  }
-
-  def logout = optionalUserAction.async { implicit maybeUser => implicit request =>
-    Logger.logger.info("User '{}' logged out", maybeUser.map(_.id).getOrElse("?"))
-    gotoLogoutSucceeded
-  }
+  private val groupMembershipForm = Form(single("group" -> list(nonEmptyText)))
 
   private val userPasswordForm = Form(
     tuple(
@@ -128,8 +60,6 @@ case class Admin @Inject()(implicit globalConfig: global.GlobalConfig, backend: 
       case (_, _, _, pw, pwc) => pw == pwc
     })
   )
-
-  private val groupMembershipForm = Form(single("group" -> list(nonEmptyText)))
 
   /**
    * Create a user's account for them with a pre-set password. This is an
@@ -179,81 +109,6 @@ case class Admin @Inject()(implicit globalConfig: global.GlobalConfig, backend: 
           saveUser(em, username, name, pw, allGroups)
       }
     )
-  }
-
-  /**
-   * Allow a logged in user to change their password.
-   * @return
-   */
-  def changePassword = userProfileAction { implicit user => implicit request =>
-    Ok(views.html.admin.pwChangePassword(
-      changePasswordForm, controllers.core.routes.Admin.changePasswordPost()))
-  }
-
-  /**
-   * Store a changed password.
-   * @return
-   */
-  def changePasswordPost = changePasswordPostAction { boolOrErr => implicit userOpt => implicit request =>
-    boolOrErr match {
-      case Right(true) =>
-        Redirect(globalConfig.routeRegistry.default)
-          .flashing("success" -> Messages("login.passwordChanged"))
-      case Right(false) =>
-        Redirect(controllers.core.routes.Admin.changePassword())
-          .flashing("error" -> Messages("login.badUsernameOrPassword"))
-      case Left(errForm) =>
-        BadRequest(views.html.admin.pwChangePassword(errForm,
-          controllers.core.routes.Admin.changePasswordPost()))
-    }
-  }
-
-  def forgotPassword = Action { implicit request =>
-    val recaptchaKey = current.configuration.getString("recaptcha.key.public")
-          .getOrElse("fakekey")
-    Ok(views.html.admin.forgotPassword(forgotPasswordForm,
-      recaptchaKey, controllers.core.routes.Admin.forgotPasswordPost()))
-  }
-
-  def forgotPasswordPost = forgotPasswordPostAction { uuidOrErr => implicit request =>
-    val recaptchaKey = current.configuration.getString("recaptcha.key.public")
-          .getOrElse("fakekey")
-    uuidOrErr match {
-      case Right((account,uuid)) =>
-        sendResetEmail(account.email, uuid)
-        Redirect(controllers.core.routes.Admin.passwordReminderSent())
-      case Left(errForm) =>
-        BadRequest(views.html.admin.forgotPassword(errForm,
-          recaptchaKey, controllers.core.routes.Admin.forgotPasswordPost()))
-    }
-  }
-
-  def passwordReminderSent = Action { implicit request =>
-    Ok(views.html.admin.passwordReminderSent())
-  }
-
-  def resetPassword(token: String) = Action { implicit request =>
-    userDAO.findByResetToken(token).map { account =>
-      Ok(views.html.admin.resetPassword(resetPasswordForm,
-          controllers.core.routes.Admin.resetPasswordPost(token)))
-    }.getOrElse {
-      Redirect(controllers.core.routes.Admin.forgotPassword())
-        .flashing("error" -> Messages("login.expiredOrInvalidResetToken"))
-    }
-  }
-
-  def resetPasswordPost(token: String) = resetPasswordPostAction(token) { boolOrForm => implicit request =>
-    boolOrForm match {
-      case Left(errForm) =>
-        BadRequest(views.html.admin.resetPassword(errForm,
-          controllers.core.routes.Admin.resetPasswordPost(token)))
-      case Right(true) =>
-        Redirect(globalConfig.routeRegistry.login)
-          .flashing("warning" -> "login.passwordResetNowLogin")
-      case Right(false) =>
-        Redirect(controllers.core.routes.Admin.forgotPassword())
-          .flashing("error" -> Messages("login.expiredOrInvalidResetToken"))
-    }
   }
 
   /**
@@ -308,15 +163,5 @@ case class Admin @Inject()(implicit globalConfig: global.GlobalConfig, backend: 
         }
       }
     }
-  }
-
-  private def sendResetEmail(email: String, uuid: UUID)(implicit request: RequestHeader) {
-    import com.typesafe.plugin._
-    use[MailerPlugin].email
-      .setSubject("EHRI Password Reset")
-      .setRecipient(email)
-      .setFrom("EHRI Password Reset <noreply@ehri-project.eu>")
-      .send(views.txt.admin.mail.forgotPassword(uuid).body,
-      views.html.admin.mail.forgotPassword(uuid).body)
   }
 }

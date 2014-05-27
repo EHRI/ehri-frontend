@@ -14,11 +14,6 @@ GET     /localeData                             @controllers.core.Application.lo
 GET     /sparql                                 @controllers.core.ApiController.sparql
 GET     /sparqlQuery                            @controllers.core.ApiController.sparqlQuery
 
-# OpenID
-GET     /login                                  @controllers.core.Admin.login
-POST	/login							        @controllers.core.Admin.loginPost
-GET     /logout                                 @controllers.core.Admin.logout
-
 # Generic item redirection
 GET /item/:id                                   @controllers.core.Application.get(id: String)
 GET /anyitem/:id                                @controllers.core.Application.getGeneric(id: String)
@@ -27,26 +22,9 @@ GET /item/:type/:id                             @controllers.core.Application.ge
 # Simple filtering
 GET /filter                                     @controllers.core.SearchFilter.filter
 
-# Plugin-handled login
-# OpenID
-GET     /openid                                 @controllers.core.Admin.openIDCallback
-GET 	/openidLogin  					        @controllers.core.Admin.openIDLogin
-POST	/openidLogin   					        @controllers.core.Admin.openIDLoginPost
-
-# Mozilla Persona
-# GET	    /persona						        @controllers.core.PersonaLoginHandler.personaLogin
-# POST	/persona						        @controllers.core.PersonaLoginHandler.personaLoginPost
-
 # Admin routes - FIXME: Move to admin controller when reverse-route dependencies are resolved
 GET     /createUser                             @controllers.core.Admin.createUser
 POST    /createUser                             @controllers.core.Admin.createUserPost
-GET     /changePassword                         @controllers.core.Admin.changePassword
-POST    /changePassword                         @controllers.core.Admin.changePasswordPost
-GET     /forgot                                 @controllers.core.Admin.forgotPassword
-POST    /forgot                                 @controllers.core.Admin.forgotPasswordPost
-GET     /prs                                    @controllers.core.Admin.passwordReminderSent
-GET     /rstp/:token                            @controllers.core.Admin.resetPassword(token: String)
-POST    /rstp/:token                            @controllers.core.Admin.resetPasswordPost(token: String)
 
 GET     /events                                 @controllers.core.SystemEvents.list
 GET     /events/show/:id                        @controllers.core.SystemEvents.get(id: String)
