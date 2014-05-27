@@ -2,11 +2,11 @@
 
 @layout.rightSidebar(item.toStringLang, breadcrumbs = common.breadcrumbs(List(item))) {
 
-    @defining("authoritativeSet") { implicit  prefix =>
+    @defining(EntityType.AuthoritativeSet.toString) { implicit  prefix =>
         @common.stringValue(item.model.description, models.AuthoritativeSetF.DESCRIPTION)
     }
 
-    @views.html.search.searchSection(Messages("authoritativeSet.items")) {
+    @views.html.search.searchSection(Messages(EntityType.AuthoritativeSet + ".items")) {
         @views.html.search.searchForm(page, params, action, autofocus = false) {
             @historicalAgent.searchItemList(page)
         }

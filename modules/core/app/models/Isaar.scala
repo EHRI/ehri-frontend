@@ -14,8 +14,6 @@ case object Isaar {
     implicit val format = defines.EnumUtils.enumFormat(this)
   }
 
-  val FIELD_PREFIX = "isaar"
-
   val ACCESS_POINTS = "accessPoints"
   val UNKNOWN_DATA = "unknownData"
 

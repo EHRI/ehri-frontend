@@ -34,12 +34,13 @@ case class DocumentaryUnits @Inject()(implicit globalConfig: global.GlobalConfig
   import solr.facet._
 
   private val entityFacets: FacetBuilder = { implicit request =>
+    val prefix = EntityType.DocumentaryUnit.toString
     List(
       QueryFacetClass(
         key="childCount",
-        name=Messages("documentaryUnit.searchInside"),
+        name=Messages(prefix + ".searchInside"),
         param="items",
-        render=s => Messages("documentaryUnit." + s),
+        render=s => Messages(prefix + "." + s),
         facets=List(
           SolrQueryFacet(value = "false", solrValue = "0", name = Some("noChildItems")),
           SolrQueryFacet(value = "true", solrValue = "[1 TO *]", name = Some("hasChildItems"))
@@ -60,14 +61,14 @@ case class DocumentaryUnits @Inject()(implicit globalConfig: global.GlobalConfig
       ),
       FieldFacetClass(
         key=IsadG.LANG_CODE,
-        name=Messages(IsadG.FIELD_PREFIX + "." + IsadG.LANG_CODE),
+        name=Messages(prefix + "." + IsadG.LANG_CODE),
         param="lang",
         render=Helpers.languageCodeToName,
         display = FacetDisplay.Choice
       ),
       FieldFacetClass(
         key="holderName",
-        name=Messages("documentaryUnit.heldBy"),
+        name=Messages(prefix + ".heldBy"),
         param="holder",
         sort = FacetSort.Name,
         display = FacetDisplay.DropDown
@@ -91,7 +92,6 @@ case class DocumentaryUnits @Inject()(implicit globalConfig: global.GlobalConfig
   implicit val resource = DocumentaryUnit.Resource
 
   val formDefaults: Option[Configuration] = current.configuration.getConfig(EntityType.DocumentaryUnit)
-  val descDefaults: Option[Configuration] = formDefaults.flatMap(_.getConfig(IsadG.FIELD_PREFIX))
 
   val contentType = ContentTypes.DocumentaryUnit
   val targetContentTypes = Seq(ContentTypes.DocumentaryUnit)
@@ -191,7 +191,7 @@ case class DocumentaryUnits @Inject()(implicit globalConfig: global.GlobalConfig
   def createDescription(id: String) = withItemPermission[DocumentaryUnit](id, PermissionType.Update, contentType) {
       item => implicit userOpt => implicit request =>
     Ok(views.html.documentaryUnit.createDescription(item,
-        descriptionForm, descDefaults, docRoutes.createDescriptionPost(id)))
+        descriptionForm, formDefaults, docRoutes.createDescriptionPost(id)))
   }
 
   def createDescriptionPost(id: String) = createDescriptionPostAction(id, EntityType.DocumentaryUnitDescription, descriptionForm) {
@@ -199,7 +199,7 @@ case class DocumentaryUnits @Inject()(implicit globalConfig: global.GlobalConfig
     formOrItem match {
       case Left(errorForm) => {
         Ok(views.html.documentaryUnit.createDescription(item,
-          errorForm, descDefaults, docRoutes.createDescriptionPost(id)))
+          errorForm, formDefaults, docRoutes.createDescriptionPost(id)))
       }
       case Right(updated) => Redirect(docRoutes.get(item.id))
         .flashing("success" -> Messages("confirmations.itemWasCreated", item.id))

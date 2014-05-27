@@ -35,9 +35,9 @@ case class VirtualUnits @Inject()(implicit globalConfig: global.GlobalConfig, se
     List(
       QueryFacetClass(
         key="childCount",
-        name=Messages("virtualUnit.searchInside"),
+        name=Messages(EntityType.VirtualUnit + ".searchInside"),
         param="items",
-        render=s => Messages("documentaryUnit." + s),
+        render=s => Messages(EntityType.DocumentaryUnit + "." + s),
         facets=List(
           SolrQueryFacet(value = "false", solrValue = "0", name = Some("noChildItems")),
           SolrQueryFacet(value = "true", solrValue = "[1 TO *]", name = Some("hasChildItems"))
@@ -58,7 +58,7 @@ case class VirtualUnits @Inject()(implicit globalConfig: global.GlobalConfig, se
       ),
       FieldFacetClass(
         key=IsadG.LANG_CODE,
-        name=Messages(IsadG.FIELD_PREFIX + "." + IsadG.LANG_CODE),
+        name=Messages(EntityType.VirtualUnit + "." + IsadG.LANG_CODE),
         param="lang",
         render=Helpers.languageCodeToName,
         display = FacetDisplay.Choice
@@ -69,7 +69,6 @@ case class VirtualUnits @Inject()(implicit globalConfig: global.GlobalConfig, se
   implicit val resource = VirtualUnit.Resource
 
   val formDefaults: Option[Configuration] = current.configuration.getConfig(EntityType.VirtualUnit)
-  val descDefaults: Option[Configuration] = formDefaults.flatMap(_.getConfig(IsadG.FIELD_PREFIX))
 
   val contentType = ContentTypes.VirtualUnit
   val targetContentTypes = Seq(ContentTypes.VirtualUnit)
@@ -188,7 +187,7 @@ case class VirtualUnits @Inject()(implicit globalConfig: global.GlobalConfig, se
   def createDescription(id: String) = withItemPermission[VirtualUnit](id, PermissionType.Update, contentType) {
     item => implicit userOpt => implicit request =>
       Ok(views.html.virtualUnit.createDescription(item,
-        descriptionForm, descDefaults, vuRoutes.createDescriptionPost(id)))
+        descriptionForm, formDefaults, vuRoutes.createDescriptionPost(id)))
   }
 
   def createDescriptionPost(id: String) = createDescriptionPostAction(id, EntityType.DocumentaryUnitDescription, descriptionForm) {
@@ -196,7 +195,7 @@ case class VirtualUnits @Inject()(implicit globalConfig: global.GlobalConfig, se
       formOrItem match {
         case Left(errorForm) => {
           Ok(views.html.virtualUnit.createDescription(item,
-            errorForm, descDefaults, vuRoutes.createDescriptionPost(id)))
+            errorForm, formDefaults, vuRoutes.createDescriptionPost(id)))
         }
         case Right(updated) => Redirect(vuRoutes.get(item.id))
           .flashing("success" -> Messages("confirmations.itemWasCreated", item.id))

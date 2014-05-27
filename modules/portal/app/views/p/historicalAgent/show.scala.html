@@ -11,7 +11,7 @@
     }
 
     @p.layout.mainContent {
-        @defining(Isaar.FIELD_PREFIX) { implicit fieldPrefix =>
+        @defining(EntityType.HistoricalAgent.toString) { implicit fieldPrefix =>
             @p.common.descriptionContainer(item.model.descriptions) {
                 @item.model.descriptions.map { desc =>
                     @renderDescription(item, desc, links, annotations)
