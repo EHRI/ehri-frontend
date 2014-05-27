@@ -1,6 +1,6 @@
 @(formPw: Form[(String,String)], formOpenId: Form[String], actionPw: Call, actionOpenId: Call)(implicit request: RequestHeader, globalConfig: global.GlobalConfig, flash: Flash, lang: Lang, token: play.filters.csrf.CSRF.Token)
 
-@implicitField = @{ views.html.helper.FieldConstructor(formHelpers.fieldTemplate.f) }
+@implicitField = @{ views.html.helper.FieldConstructor(formHelpers.fieldTemplateEmpty.f) }
 
 @loginScripts = {
     <script src="@controllers.core.routes.Assets.at("jquery-openid/jquery.openid.js")"></script>
@@ -25,12 +25,11 @@
                     <h3>With email</h3>
                     @common.errorFlash(flash)
 
-                    @formHelpers.globalErrors(formPw)
-
                     @formHelpers.csrfToken()
                     <div class="form-block">
-                        <input type="email" id="email" name="email" class="form-control" autofocus="autofocus" placeholder="@Messages("login.email")" />
-                        <input type="password" id="password" name="password" class="form-control" placeholder="@Messages("login.password")" />
+                        @formHelpers.globalErrors(formPw, msg = Messages("portal.login.error"))
+                        @helper.inputText(formPw("email"), 'class -> "form-control", 'autofocus -> "autofocus", 'placeholder -> Messages("login.email"), 'type -> "email", 'required -> "required")
+                        @helper.inputPassword(formPw("password"), 'class -> "form-control", 'placeholder -> Messages("login.password"), 'required -> "required")
                     </div>
 
                     <input type="submit" class="login-button" value="@Messages("submitButton.loginWithPassword")" />
@@ -45,6 +44,7 @@
                     <h3>@Messages("login.openid")</h3>
                     @formHelpers.csrfToken()
                     <div class="form-block">
+                        @formHelpers.globalErrors(formOpenId, msg = Messages("portal.login.error"))
                         <ul class="providers nav nav-tabs nav-justified text-center">
                             <li class="openid active" title="OpenID">
                                 <a><i class="icon-social openid"></i></a>
@@ -84,8 +84,6 @@
                                 <span class="input-group-addon"></span>
                             </div>
                         </fieldset>
-
-                        @formHelpers.globalErrors(formOpenId)
 
                         <div class="clearfix"></div>
                         

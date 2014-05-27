@@ -12,6 +12,8 @@ portal.profile.preferences.updatePreferences=Update Preferences
 
 portal.login=Sign In
 portal.logout=Sign Out
+portal.login.moreOptions=More login options
+portal.login.error=There was a problem with your details
 portal.logoutSucceeded=You have been logged out
 portal.signup=Create an Account
 portal.signup.dataPolicyNag=By creating an account I agree to abide by the terms of the {0} EHRI data policy {1}.

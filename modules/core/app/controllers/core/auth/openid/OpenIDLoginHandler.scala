@@ -48,7 +48,8 @@ trait OpenIDLoginHandler {
     def async(handler: Call)(f: Form[String] => Request[AnyContent] => Future[SimpleResult]): Action[AnyContent] = {
       Action.async { implicit request =>
         try {
-          openidForm.bindFromRequest.fold(
+          val boundForm: Form[String] = openidForm.bindFromRequest
+          boundForm.fold(
             error => {
               Logger.info("bad request " + error.toString)
               f(error)(request)
@@ -61,12 +62,12 @@ trait OpenIDLoginHandler {
                 .recoverWith {
                 case t: ConnectException => {
                   Logger.warn("OpenID Login connect exception: {}", t)
-                  f(openidForm.fill(openidUrl)
+                  f(boundForm
                     .withGlobalError(Messages("openid.openIdUrlError", openidUrl)))(request)
                 }
                 case t => {
                   Logger.warn("OpenID Login argument exception: {}", t)
-                  f(openidForm.fill(openidUrl)
+                  f(boundForm
                     .withGlobalError(Messages("openid.openIdUrlError", openidUrl)))(request)
                 }
               }

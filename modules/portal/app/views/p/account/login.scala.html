@@ -1,6 +1,6 @@
 @(openIdForm: Form[String], pwForm: Form[(String,String)], oauthProviders: Map[String,Call] = Map.empty)(implicit userOpt: Option[Account], request: RequestHeader, globalConfig: global.GlobalConfig, flash: Flash, lang: Lang, token: play.filters.csrf.CSRF.Token)
 
-@implicitField = @{ views.html.helper.FieldConstructor(p.helpers.fieldTemplate.f) }
+@implicitField = @{ views.html.helper.FieldConstructor(formHelpers.fieldTemplateEmpty.f) }
 
 @openIdJquery = {
     <script src="@controllers.core.routes.Assets.at("jquery-openid/jquery.openid.js")"></script>
@@ -37,12 +37,12 @@
                     <a href="@call" class="button @name" title="@name">Log in with <i class="icon-social @name"></i></a>
                 }
             }
-            <a href="#" class="show-more">More login option</a>
-            <div class="more-login-option">
+            <a href="#" class="show-more">@Messages("portal.login.moreOptions")</a>
+            <div class="more-login-option @{if(openIdForm.hasErrors) "errors"}">
                 <div class="form-block">
-                    <ul class="providers nav nav-tabs nav-justified nav-tabs-xs text-center">
-                       
+                    @formHelpers.globalErrors(openIdForm)
 
+                    <ul class="providers nav nav-tabs nav-justified nav-tabs-xs text-center">
                         <li class="openid active" title="OpenID">
                             <a><i class="icon-social openid"></i></a>
                             <span><strong>http://{your-openid-url}</strong></span>
@@ -76,10 +76,10 @@
                     <div class="clearfix"></div>
                                 
                     <fieldset class="identifier openid">
-                     <input class="form-control" type="text" name="openid_identifier" id="openid_identifier" placeholder="@Messages("portal.openIdEnterUrl")" />
+
+                     <input class="form-control" type="text" name="openid_identifier" id="openid_identifier" value="@openIdForm("openid_identifier").value" placeholder="@Messages("portal.openIdEnterUrl")" />
                     </fieldset>
                 </div>
-                @formHelpers.globalErrors(openIdForm)
 
                 <input type="submit" class="button post login-button openid" value="@Messages("submitButton.loginWithOpenid")" />
             </div>
@@ -87,13 +87,16 @@
         @helper.form(action = controllers.portal.routes.Profile.passwordLoginPost, 'class -> "login-form form validate-form", 'role -> "form") {
             <p>@Messages("portal.loginByPassword")</p>
 
-            @formHelpers.globalErrors(pwForm)
-
             @formHelpers.csrfToken()
 
             <div class="form-block">
-                <input type="email" class="form-control" name="email" id="pw-email" placeholder="@Messages("login.email")" />
-                <input type="password" class="form-control" name="password" id="pw-pw" placeholder="@Messages("login.password")" />
+                @formHelpers.globalErrors(pwForm)
+
+                @*<input type="email" class="form-control" name="email" id="pw-email" placeholder="@Messages("login.email")" />
+                <input type="password" class="form-control" name="password" id="pw-pw" placeholder="@Messages("login.password")" />*@
+                @helper.inputText(pwForm("email"), 'class -> "form-control", 'autofocus -> "autofocus", 'placeholder -> Messages("login.email"), 'type -> "email", 'required -> "required")
+                @helper.inputPassword(pwForm("password"), 'class -> "form-control", 'placeholder -> Messages("login.password"), 'required -> "required")
+
             </div>
 
             <input type="submit" class="login-button button post" value="@Messages("submitButton.loginWithPassword")" />
