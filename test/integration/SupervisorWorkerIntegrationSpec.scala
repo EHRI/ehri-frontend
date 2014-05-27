@@ -128,7 +128,7 @@ class SupervisorWorkerIntegrationSpec extends Neo4jRunnerSpec(classOf[Supervisor
         "group[]" -> Seq(headArchivistsGroupId, archivistsGroupId) // NB: Note brackets on param name!!!
       )
       val haUserCreatePost = route(fakeLoggedInHtmlRequest(privilegedUser, POST,
-        controllers.core.routes.Admin.createUserPost().url)
+        controllers.admin.routes.Admin.createUserPost().url)
         .withHeaders(formPostHeaders.toSeq: _*), haUserData).get
       status(haUserCreatePost) must equalTo(SEE_OTHER)
 
@@ -158,7 +158,7 @@ class SupervisorWorkerIntegrationSpec extends Neo4jRunnerSpec(classOf[Supervisor
         "group[]" -> Seq(archivistsGroupId) // NB: Note brackets on param name!!!
       )
       val aUserCreatePost = route(fakeLoggedInHtmlRequest(privilegedUser, POST,
-        controllers.core.routes.Admin.createUserPost().url)
+        controllers.admin.routes.Admin.createUserPost().url)
         .withHeaders(formPostHeaders.toSeq: _*), aUserData).get
       status(aUserCreatePost) must equalTo(SEE_OTHER)
 

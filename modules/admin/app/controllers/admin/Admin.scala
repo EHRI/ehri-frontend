@@ -1,4 +1,4 @@
-package controllers.core
+package controllers.admin
 
 import play.api.mvc._
 import play.api.libs.concurrent.Execution.Implicits._
@@ -10,11 +10,8 @@ import play.api.i18n.Messages
 import models.{UserProfile,UserProfileF,Account,AccountDAO}
 import controllers.base.{ControllerHelpers, AuthController}
 
-import com.google.inject._
 import jp.t2v.lab.play2.auth.LoginLogout
-import play.api.Play.current
 import scala.concurrent.Await
-import play.api.Logger
 import scala.concurrent.duration.Duration
 import java.util.concurrent.TimeUnit
 import models.json.RestResource
@@ -26,8 +23,8 @@ import scala.concurrent.Future.{successful => immediate}
 import backend.Backend
 import controllers.core.auth.openid.OpenIDLoginHandler
 import controllers.core.auth.userpass.UserPasswordLoginHandler
-import models.sql.SqlAccount
-import java.util.UUID
+
+import com.google.inject._
 
 /**
  * Controller for handling user admin actions.
@@ -46,6 +43,7 @@ case class Admin @Inject()(implicit globalConfig: global.GlobalConfig, backend: 
 
   override val staffOnly = true
 
+  private val adminRoutes = controllers.admin.routes.Admin
 
   private val groupMembershipForm = Form(single("group" -> list(nonEmptyText)))
 
@@ -69,7 +67,7 @@ case class Admin @Inject()(implicit globalConfig: global.GlobalConfig, backend: 
       implicit userOpt => implicit request =>
     getGroups { groups =>
       Ok(views.html.admin.createUser(userPasswordForm, groupMembershipForm, groups,
-        controllers.core.routes.Admin.createUserPost()))
+        adminRoutes.createUserPost()))
     }
   }
 
@@ -102,7 +100,7 @@ case class Admin @Inject()(implicit globalConfig: global.GlobalConfig, backend: 
     userPasswordForm.bindFromRequest.fold(
       errorForm => {
           immediate(Ok(views.html.admin.createUser(errorForm, groupMembershipForm.bindFromRequest,
-              allGroups, controllers.core.routes.Admin.createUserPost())))
+              allGroups, adminRoutes.createUserPost())))
       },
       {
         case (em, username, name, pw, _) =>
@@ -133,7 +131,7 @@ case class Admin @Inject()(implicit globalConfig: global.GlobalConfig, backend: 
       case ValidationError(errorSet) => {
         val errForm = user.getFormErrors(errorSet, userPasswordForm.bindFromRequest)
         immediate(BadRequest(views.html.admin.createUser(errForm, groupMembershipForm.bindFromRequest,
-          allGroups, controllers.core.routes.Admin.createUserPost())))
+          allGroups, adminRoutes.createUserPost())))
       }
     }
   }
@@ -148,7 +146,7 @@ case class Admin @Inject()(implicit globalConfig: global.GlobalConfig, backend: 
       val errForm = userPasswordForm.bindFromRequest
         .withError(FormError("email", Messages("admin.userEmailAlreadyRegistered", account.id)))
       immediate(BadRequest(views.html.admin.createUser(errForm, groupMembershipForm.bindFromRequest,
-        allGroups, controllers.core.routes.Admin.createUserPost())))
+        allGroups, adminRoutes.createUserPost())))
     } getOrElse {
       // It's not registered, so create the account...
       val user = UserProfileF(id = None, identifier = username, name = name,

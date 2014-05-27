@@ -7,6 +7,9 @@ GET     /overview                           @controllers.admin.Home.overview
 # Js Routes
 GET     /routes                             @controllers.admin.Home.jsRoutes
 
+GET     /createUser                         @controllers.admin.Admin.createUser
+POST    /createUser                         @controllers.admin.Admin.createUserPost
+
 GET     /updateIndex                        @controllers.admin.AdminSearch.updateIndex
 POST    /updateIndex                        @controllers.admin.AdminSearch.updateIndexPost
 

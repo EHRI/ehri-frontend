@@ -15,8 +15,10 @@
     }
 } {
     @common.sidebarActions { user =>
+        @* FIXME: Removed till modules deps are refactored
         @common.sidebarAction(user.isAdmin && user.hasPermission(ContentTypes.UserProfile, PermissionType.Create)) {
             <a href="@controllers.core.routes.Admin.createUser">@Messages("actions.createUserProfile")</a>
         }
+        *@
     }
 }

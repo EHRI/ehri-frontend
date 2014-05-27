@@ -86,7 +86,7 @@ class CountryScopeIntegrationSpec extends Neo4jRunnerSpec(classOf[CountryScopeIn
         "group[]" -> Seq(groupId) // NB: Note brackets on param name!!!
       )
       val userCreatePost = route(fakeLoggedInHtmlRequest(privilegedUser, POST,
-        controllers.core.routes.Admin.createUserPost().url)
+        controllers.admin.routes.Admin.createUserPost().url)
         .withHeaders(formPostHeaders.toSeq: _*), newUserData).get
       status(userCreatePost) must equalTo(SEE_OTHER)
 

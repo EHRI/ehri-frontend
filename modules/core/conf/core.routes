@@ -22,10 +22,6 @@ GET /item/:type/:id                             @controllers.core.Application.ge
 # Simple filtering
 GET /filter                                     @controllers.core.SearchFilter.filter
 
-# Admin routes - FIXME: Move to admin controller when reverse-route dependencies are resolved
-GET     /createUser                             @controllers.core.Admin.createUser
-POST    /createUser                             @controllers.core.Admin.createUserPost
-
 GET     /events                                 @controllers.core.SystemEvents.list
 GET     /events/show/:id                        @controllers.core.SystemEvents.get(id: String)
 
