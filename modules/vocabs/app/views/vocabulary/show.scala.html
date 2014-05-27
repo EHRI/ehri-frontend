@@ -5,12 +5,12 @@
 @layout.rightSidebar(item.toStringLang, breadcrumbs = common.breadcrumbs(List(item))) {
 
     @common.annotated(item, annotations) {
-        @defining("vocabulary") { implicit  prefix =>
+        @defining(EntityType.Vocabulary.toString) { implicit  prefix =>
             @common.stringValue(item.model.description, VocabularyF.DESCRIPTION)
         }
     }
 
-    @views.html.search.searchSection(Messages("vocabulary.items")) {
+    @views.html.search.searchSection(Messages(EntityType.Vocabulary + ".items")) {
         @views.html.search.searchForm(result, params, action, autofocus = false) {
             @concept.searchItemList(result)
         }

@@ -4,9 +4,9 @@
     <div class="annotation-header">
         @annotation.target.map { src =>
             @p.helpers.linkToWithFragment(src, "#" + annotation.id)
-        }
-        @annotation.model.field.map { field =>
-            - <strong>@Messages(field)</strong>
+            @annotation.model.field.map { field =>
+            - <strong>@Messages(src.isA.toString + "." + field)</strong>
+            }
         }
     </div>
     <blockquote>@annotation.model.body</blockquote>

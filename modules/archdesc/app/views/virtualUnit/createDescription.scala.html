@@ -5,7 +5,7 @@
 
 @layout.rightSidebar(Messages("actions.createDescription"), breadcrumbs = breadcrumbs(item), scripts = formHelpers.dateJs()) {
 
-    @defining(IsadG.FIELD_PREFIX) { implicit fieldPrefix =>
+    @defining(EntityType.DocumentaryUnit.toString) { implicit fieldPrefix =>
         @helper.form(action = action, 'class -> "entity-form form-horizontal") {
             @formHelpers.csrfToken()
             @defining(defaults) { implicit defs =>

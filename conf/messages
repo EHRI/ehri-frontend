@@ -224,17 +224,6 @@ admin.createNewUser=Create New User
 admin.userEmailAlreadyRegistered=A user with that email is already registered: {0}
 
 #
-# Users
-#
-users.email=Email
-users.username=Username
-users.realname=Full Name
-users.password=Password
-users.passwordConfirm=Confirm Password
-users.groups=Group Membership
-users.search=Search Users
-
-#
 # System Events
 #
 systemEvents.itemAtTime=Action at {0}

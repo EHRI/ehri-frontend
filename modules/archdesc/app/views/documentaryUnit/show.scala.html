@@ -75,15 +75,15 @@
 
         <div class="header-actions clearfix">
             @item.holder.map { holder =>
-            <h4>@Messages("documentaryUnit.heldBy"): <a href="@controllers.archdesc.routes.Repositories.get(holder.id)">@holder.toStringLang</a></h4>
+            <h4>@Messages(EntityType.DocumentaryUnit + ".heldBy"): <a href="@controllers.archdesc.routes.Repositories.get(holder.id)">@holder.toStringLang</a></h4>
             }
 
             @item.parent.map { parent =>
-            <h4>@Messages("documentaryUnit.parentItem"): <a href="@controllers.archdesc.routes.DocumentaryUnits.get(parent.id)">@parent.toStringLang</a></h4>
+            <h4>@Messages(EntityType.DocumentaryUnit + ".parentItem"): <a href="@controllers.archdesc.routes.DocumentaryUnits.get(parent.id)">@parent.toStringLang</a></h4>
             }
         </div>
 
-        @defining(IsadG.FIELD_PREFIX) { implicit fieldPrefix =>
+        @defining(EntityType.DocumentaryUnit.toString) { implicit fieldPrefix =>
             @if(!item.model.descriptions.isEmpty) {
                 <div class="description-viewport">
                     @item.descriptions.zipWithIndex.map { case (desc,i) =>
@@ -96,7 +96,7 @@
                     }
                 </div>
             } else {
-                <p class="text-muted">@Messages("documentaryUnit.noDescriptions")</p>
+                <p class="text-muted">@Messages(EntityType.DocumentaryUnit + ".noDescriptions")</p>
                 <a href="@controllers.archdesc.routes.DocumentaryUnits.createDescription(item.id)" class="btn btn-primary">@Messages("actions.createDescription")</a>
             }
         }

@@ -1,4 +1,7 @@
 
+#
+# Users
+#
 userProfile.staff=Staff
 userProfile.staff.description=User can access admin pages
 userProfile.active=Active
@@ -18,6 +21,14 @@ userProfile.deleteConfirmationMessage=User profiles should almost never be delet
   concerning the provenance of items. A better alternative is to deactivate the profile instead. Please consider \
   this action carefully.
 userProfile.deactivateUser=Deactivate user ''{0}''?
+userProfile.email=Email
+userProfile.username=Username
+userProfile.realname=Full Name
+userProfile.password=Password
+userProfile.passwordConfirm=Confirm Password
+userProfile.groups=Group Membership
+userProfile.search=Search Users
+
 confirmations.userWasDeactivated=User ''{0}'' was deactivated.
 actions.deactivateUser=Deactivate User
 submitButton.deactivateUser=Deactivate User

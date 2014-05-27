@@ -34,7 +34,7 @@ case class Home @Inject()(implicit globalConfig: global.GlobalConfig, searchDisp
 
       FieldFacetClass(
         key=IsadG.LANG_CODE,
-        name=Messages(IsadG.FIELD_PREFIX + "." + IsadG.LANG_CODE),
+        name=Messages(EntityType.DocumentaryUnit + "." + IsadG.LANG_CODE),
         param="lang",
         render= (s: String) => Helpers.languageCodeToName(s)
       ),
@@ -42,14 +42,14 @@ case class Home @Inject()(implicit globalConfig: global.GlobalConfig, searchDisp
       // Holding repository
       FieldFacetClass(
         key="repositoryName",
-        name=Messages("documentaryUnit.heldBy"),
+        name=Messages(EntityType.DocumentaryUnit + ".heldBy"),
         param="holder"
       ),
 
       // Repositories by country
       FieldFacetClass(
         key="countryCode",
-        name=Messages("isdiah.countryCode"),
+        name=Messages(EntityType.Repository + ".countryCode"),
         param="country",
         render= (s: String) => Helpers.countryCodeToName(s)
       ),
@@ -57,9 +57,9 @@ case class Home @Inject()(implicit globalConfig: global.GlobalConfig, searchDisp
       // Historical agent type
       FieldFacetClass(
         key=models.Isaar.ENTITY_TYPE,
-        name=Messages(Isaar.FIELD_PREFIX + "." + Isaar.ENTITY_TYPE),
+        name=Messages(EntityType.HistoricalAgent + "." + Isaar.ENTITY_TYPE),
         param="cpf",
-        render=s => Messages(Isaar.FIELD_PREFIX + "." + s)
+        render=s => Messages(EntityType.HistoricalAgent + "." + s)
       )
     )
   }

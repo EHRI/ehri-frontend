@@ -30,7 +30,7 @@
             <ul class="list-unstyled">
             @AccessPointType.values.toList.map { accessPointType =>
                 <li class="accessPointList @accessPointType">
-                    <h3>@Messages("isadg." + IsadG.ACCESS_POINTS + "." + accessPointType)</h3>
+                    <h3>@Messages(EntityType.DocumentaryUnit + "." + IsadG.ACCESS_POINTS + "." + accessPointType)</h3>
                     <ul class="item-annotation-links list-unstyled">
                         <li ng-repeat="access in getAccessPointsWithType('@accessPointType')" id="{{access.accessPoint.id}}">
                             <span ng-switch="access.link != null">
