@@ -1,12 +1,39 @@
 .annotation-set a {
 	color: @almost-black;
 }
-a.annotate-field.inactive {
+a.annotate-field.inactive, .annotable a.annotate-field.inactive {
 	opacity: 0;
+	color:black;
+	border-size:0px;
 }
-a.annotate-field:hover, a.annotate-item:hover {
+.annotable:hover {
+	background-color: @pale-gray!important;
+}
+a.annotate-field {
+	&:extend(.btn);
+	text-decoration: none;
+	background-color: @pale-gray;
+	opacity:1;
+	color:black;
+	display:inline-block;
+	border-width:0px;
+	text-align:left;
+	padding:3px 3px;
+}
+a.annotate-item:hover {
 	text-decoration: none;
 	background-color: @glow-color;
+	opacity:1;
+	color:black;
+}
+a.annotate-field:hover {
+	padding:2px 2px;
+	border-width:1px;
+	background-color:white;
+	&:after {
+		content:attr(title);
+		display:inline-block;
+	}
 }
 a.time-permalink {
 	text-decoration: none;

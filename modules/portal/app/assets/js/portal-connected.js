@@ -6,7 +6,8 @@ jQuery(function ($) {
 	  delay : {
 	    show: 600,
 	    hide: 100
-	  }
+	  },
+    container: 'body'
 	});
 
   /**
@@ -93,7 +94,7 @@ jQuery(function ($) {
 		var followFunc = jsRoutes.controllers.portal.Social.followUserPost,
 		    unfollowFunc = jsRoutes.controllers.portal.Social.unfollowUserPost,
 		    followerListFunc = jsRoutes.controllers.portal.Social.followersForUser,
-		    $elem = $(e.target),
+		    $elem = $(this),
 		    id = $elem.data("item"),
 		    follow = $elem.hasClass("follow");
 
@@ -133,10 +134,9 @@ jQuery(function ($) {
 
 		var watchFunc = jsRoutes.controllers.portal.Social.watchItemPost,
 		    unwatchFunc = jsRoutes.controllers.portal.Social.unwatchItemPost,
-		    $elem = $(e.target),
+		    $elem = $(this),
 		    id = $elem.data("item"),
 		    watch = $elem.hasClass("watch");
-
 		var call, $other;
 		if (watch) {
 		  call = watchFunc;
@@ -202,7 +202,14 @@ jQuery(function ($) {
     if(typeof loaderContainer !== "undefined") {
       loaderContainer.remove();
     }
-    $elem.hide().parent().after(data);
+    if($elem.hasClass("annotate-field")) {
+      var $container = $(".annotate-item-controls[data-target='" + $elem.attr("data-target") + "']");
+    } else {
+      var $container = $elem.parent();
+    }
+      $elem.hide();
+      $container.after(data);
+      $container.next().find("textarea").focus();
     $(data).find("select.custom-accessors").select2({
       placeholder: "Select a set of groups or users",
       width: "copy"
@@ -212,6 +219,17 @@ jQuery(function ($) {
   function insertAnnotationLoader($elem) {
     loaderContainer = $loader.appendTo($elem.parent().parent());
     return loaderContainer;
+  }
+
+  function showAnnotationControl($form) {
+    var $annoItem = $form.prev().find(".annotate-item");
+    var $annoBtn = $form.parents(".item-text-field").find(".annotate-field");
+
+    if($annoItem.length !== "undefined" && $annoItem.length === 1) {
+      $annoItem.show();
+    } else {
+      $annoBtn.show();
+    }
   }
 
   // Load an annotation form...
@@ -255,7 +273,7 @@ jQuery(function ($) {
       data: $form.serialize(),
       method: "POST",
       success: function(data) {
-        $form.prev().find(".annotate-field, .annotate-item").show()
+        showAnnotationControl($form);
         $form.parents(".annotation-set").find(".annotation-list").append(data);
         $form.remove();
       }
@@ -296,7 +314,7 @@ jQuery(function ($) {
     var $form = $(e.target).parents(".annotate-item-form");
     var hasData = $("textarea[name='body']", $form).val().trim() !== "";
     if (!hasData || confirm("Discard comment?")) {
-      $form.prev().find(".annotate-field, .annotate-item").show();
+      showAnnotationControl($form);
       $form.remove()
     }
   });

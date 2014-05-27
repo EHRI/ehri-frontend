@@ -162,7 +162,7 @@ object ApplicationBuild extends Build {
     .enablePlugins(play.PlayScala).settings(
     version := appVersion
   ).settings(commonSettings: _*).dependsOn(core, archdesc, authorities, vocabs, portal)
-    .aggregate(core, archdesc, authorities, vocabs, portal)
+    .aggregate(core, linking, annotation, archdesc, authorities, vocabs, portal)
 
   lazy val guides = Project(appName + "-guides", file("modules/guides"))
     .enablePlugins(play.PlayScala).settings(

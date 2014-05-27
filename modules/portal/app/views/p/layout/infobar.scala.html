@@ -1,15 +1,19 @@
 @(breadcrumbs: Html)(content: Html)(controls: Html = Html(""))
 
 <div class="info-bar">
-    @if(!controls.body.isEmpty) {
-        <div class="header-controls pull-right">
-            @controls
-        </div>
-    }
     @if(!breadcrumbs.body.trim.isEmpty) {
-        <ol class="breadcrumb">
+        <ol class="collapsible breadcrumb">
             @breadcrumbs
+            @if(!controls.body.isEmpty) {
+                @controls
+            }
         </ol>
+    } else {
+        @if(!controls.body.isEmpty) {
+            <ol class="collapsible not breadcrumb">
+                @controls
+            </ol>
+        }
     }
     @content
     <div class="clearfix"></div>

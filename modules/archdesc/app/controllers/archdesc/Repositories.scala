@@ -31,12 +31,13 @@ case class Repositories @Inject()(implicit globalConfig: global.GlobalConfig, se
   import solr.facet._
 
   private val repositoryFacets: FacetBuilder = { implicit request =>
+    val prefix = EntityType.Repository.toString
     List(
       QueryFacetClass(
         key="childCount",
-        name=Messages("repository.itemsHeldOnline"),
+        name=Messages(prefix + ".itemsHeldOnline"),
         param="items",
-        render=s => Messages("repository." + s),
+        render=s => Messages(prefix + "." + s),
         facets=List(
           SolrQueryFacet(value = "false", solrValue = "0", name = Some("noChildItems")),
           SolrQueryFacet(value = "true", solrValue = "[1 TO *]", name = Some("hasChildItems"))
@@ -57,7 +58,7 @@ case class Repositories @Inject()(implicit globalConfig: global.GlobalConfig, se
       ),
       FieldFacetClass(
         key="countryCode",
-        name=Messages("isdiah.countryCode"),
+        name=Messages(prefix + ".countryCode"),
         param="country",
         render=Helpers.countryCodeToName,
         sort = FacetSort.Name
@@ -85,10 +86,9 @@ case class Repositories @Inject()(implicit globalConfig: global.GlobalConfig, se
   val contentType = ContentTypes.Repository
   val targetContentTypes = Seq(ContentTypes.DocumentaryUnit)
 
-  private val form = models
-    .Repository.form
+  private val form = models.Repository.form
 
-  val childFormDefaults: Option[Configuration] = current.configuration.getConfig(EntityType.DocumentaryUnit)
+  private val childFormDefaults: Option[Configuration] = current.configuration.getConfig(EntityType.DocumentaryUnit)
 
   private val childForm = models.DocumentaryUnit.form
 

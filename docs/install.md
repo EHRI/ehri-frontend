@@ -18,6 +18,19 @@ For now, re-use the example Solr core (named "collection1", inside the example/s
     curl https://rawgithub.com/mikesname/ehri-indexer/master/solrconf/schema.xml > $SOLR_HOME/example/solr/collection1/conf/schema.xml
     curl https://rawgithub.com/mikesname/ehri-indexer/master/solrconf/solrconfig.xml > $SOLR_HOME/example/solr/collection1/conf/solrconfig.xml
 
+or simply create a symbolic link
+
+    ln -fs ~/dev/ehri-indexer/solrconf/solrconfig.xml $SOLR_HOME/example/solr/collection1/conf/solrconfig.xml
+    ln -fs ~/dev/ehri-indexer/solrconf/schema.xml $SOLR_HOME/example/solr/collection1/conf/schema.xml
+
+If you have an issue with dependencies :
+
+    mkdir $SOLR_HOME/example/solr/lib
+    ln -s $SOLR_HOME/contrib/analysis-extras/lib/*.jar $SOLR_HOME/example/solr/lib/
+    ln -s $SOLR_HOME/contrib/analysis-extras/lucene-libs/*.jar $SOLR_HOME/example/solr/lib/
+    ln -s $SOLR_HOME/contrib/langid/lib/*.jar $SOLR_HOME/example/solr/lib/
+    ln -s $SOLR_HOME/dist/*.jar  $SOLR_HOME/example/solr/lib/
+
 You should now able able to start the Solr server in another shell:
 
     cd $SOLR_HOME/example
