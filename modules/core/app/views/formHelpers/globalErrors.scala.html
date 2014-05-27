@@ -1,9 +1,8 @@
-@(form: Form[_])(implicit lang: Lang)
+@(form: Form[_], msg: String = "")(implicit lang: Lang)
 
 @if(!form.globalErrors.isEmpty) {
     <div class="alert alert-danger alert-block">
-        <h4>@Messages("error.globalErrors")</h4>
-        <p>
+        <h4>@{if(!msg.isEmpty) msg else Messages("error.globalErrors")}</h4>
         <ul>
         @form.globalErrors.map { error =>
             <li>@Messages(error.message)</li>
