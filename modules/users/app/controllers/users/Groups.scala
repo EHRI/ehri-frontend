@@ -1,4 +1,4 @@
-package controllers.core
+package controllers.users
 
 import play.api.libs.concurrent.Execution.Implicits._
 import controllers.generic._
@@ -24,7 +24,7 @@ case class Groups @Inject()(implicit globalConfig: global.GlobalConfig, searchDi
   implicit val resource = Group.Resource
 
   private val form = models.Group.form
-  private val groupRoutes = controllers.core.routes.Groups
+  private val groupRoutes = controllers.users.routes.Groups
 
   def get(id: String) = getWithChildrenAction[Accessor](id) {
       item => page => params => annotations => links => implicit maybeUser => implicit request =>

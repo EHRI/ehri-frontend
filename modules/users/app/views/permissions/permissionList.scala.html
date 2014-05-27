@@ -9,12 +9,12 @@
             @accessorOpt.map { accessor =>
                 @accessor match {
                     case u: UserProfile => {
-                        <a href="@controllers.core.routes.UserProfiles.revokePermission(accessor.id, perm.id)">
+                        <a href="@controllers.users.routes.UserProfiles.revokePermission(accessor.id, perm.id)">
                             <i title="@Messages("actions.revokePermission")" class="glyphicon glyphicon-remove"></i>
                         </a>
                     }
                     case u: Group => {
-                        <a href="@controllers.core.routes.Groups.revokePermission(accessor.id, perm.id)">
+                        <a href="@controllers.users.routes.Groups.revokePermission(accessor.id, perm.id)">
                             <i title="@Messages("actions.revokePermission")" class="glyphicon glyphicon-remove"></i>
                         </a>
                     }

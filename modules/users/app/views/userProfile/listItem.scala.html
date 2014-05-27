@@ -1,7 +1,7 @@
 @(item: UserProfile)(implicit req: RequestHeader, lang: Lang)
 
 @common.searchItemOutline(item.id) {
-    <a href="@controllers.core.routes.UserProfiles.get(item.id)">@item.toStringLang</a>
+    <a href="@controllers.users.routes.UserProfiles.get(item.id)">@item.toStringLang</a>
     @item.account.map { acc =>
         @if(acc.staff) {
             <div class="label label-success">@Messages("userProfile.staff")</div>
@@ -15,7 +15,7 @@
     <small>
         <ul class="list-unstyled text-muted inline inline-separator">
             @item.groups.distinct.map { acc =>
-                <li><a class="alt" href="@controllers.core.routes.Groups.get(acc.id)">@acc.toStringLang</a></li>
+                <li><a class="alt" href="@controllers.users.routes.Groups.get(acc.id)">@acc.toStringLang</a></li>
             }
             @item.model.location.filterNot(_.trim.isEmpty).map { loc =>
                 <li>@loc</li>

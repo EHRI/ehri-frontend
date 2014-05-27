@@ -1,4 +1,4 @@
-package controllers.core
+package controllers.users
 
 import play.api.libs.concurrent.Execution.Implicits._
 import controllers.generic._
@@ -55,7 +55,7 @@ case class UserProfiles @Inject()(implicit globalConfig: global.GlobalConfig, se
 
   val form = models.UserProfile.form
 
-  private val userRoutes = controllers.core.routes.UserProfiles
+  private val userRoutes = controllers.users.routes.UserProfiles
   
 
   def get(id: String) = getAction(id) {

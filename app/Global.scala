@@ -47,8 +47,8 @@ package globalConfig {
         ("contentTypes.cvocConcept",      controllers.vocabs.routes.Concepts.search().url)
       )
       val adminSection: Iterable[(String, String)] = Seq(
-        ("contentTypes.userProfile",      controllers.core.routes.UserProfiles.search().url),
-        ("contentTypes.group",            controllers.core.routes.Groups.list().url),
+        ("contentTypes.userProfile",      controllers.users.routes.UserProfiles.search().url),
+        ("contentTypes.group",            controllers.users.routes.Groups.list().url),
         ("contentTypes.country",          controllers.archdesc.routes.Countries.search().url),
         ("contentTypes.cvocVocabulary",   controllers.vocabs.routes.Vocabularies.list().url),
         ("contentTypes.authoritativeSet", controllers.authorities.routes.AuthoritativeSets.list().url),
@@ -68,8 +68,8 @@ package globalConfig {
       EntityType.DocumentaryUnit -> controllers.archdesc.routes.DocumentaryUnits.get,
       EntityType.HistoricalAgent -> controllers.authorities.routes.HistoricalAgents.get,
       EntityType.Repository -> controllers.archdesc.routes.Repositories.get,
-      EntityType.Group -> controllers.core.routes.Groups.get,
-      EntityType.UserProfile -> controllers.core.routes.UserProfiles.get,
+      EntityType.Group -> controllers.users.routes.Groups.get,
+      EntityType.UserProfile -> controllers.users.routes.UserProfiles.get,
       EntityType.Annotation -> controllers.annotation.routes.Annotations.get,
       EntityType.Link -> controllers.linking.routes.Links.get,
       EntityType.Vocabulary -> controllers.vocabs.routes.Vocabularies.get,

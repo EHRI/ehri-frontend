@@ -98,18 +98,22 @@ object ApplicationBuild extends Build {
     appName + "-core", appVersion, coreDependencies, path = file("modules/core")
   ).settings(otherSettings: _*)
 
+  lazy val users = play.Project(
+    appName + "-users", appVersion, path = file("modules/users")
+  ).settings(otherSettings: _*).dependsOn(core).aggregate(core)
+
   lazy val annotation = play.Project(
     appName + "-annotation", appVersion, path = file("modules/annotation")
-  ).settings(otherSettings: _*).dependsOn(core)
+  ).settings(otherSettings: _*).dependsOn(users)
 
   lazy val linking = play.Project(
     appName + "-linking", appVersion, path = file("modules/linking")
-  ).settings(otherSettings: _*).dependsOn(core, annotation)
+  ).settings(otherSettings: _*).dependsOn(users, annotation)
 
   lazy val portal = play.Project(
     appName + "-portal", appVersion, portalDependencies, path = file("modules/portal"))
-    .settings(otherSettings: _*).dependsOn(core, annotation, linking)
-    .aggregate(core, annotation, linking)
+    .settings(otherSettings: _*).dependsOn(users, annotation, linking)
+    .aggregate(users, annotation, linking)
 
   lazy val archdesc = play.Project(
     appName + "-archdesc", appVersion, path = file("modules/archdesc")

@@ -18,7 +18,7 @@
 } {
     @common.sidebarActions { user =>
         @common.sidebarAction(user.hasPermission(ContentTypes.Group, PermissionType.Create)) {
-            <a href="@controllers.core.routes.Groups.create">@Messages("Create New Group")</a>
+            <a href="@controllers.users.routes.Groups.create">@Messages("Create New Group")</a>
         }
     }
 }

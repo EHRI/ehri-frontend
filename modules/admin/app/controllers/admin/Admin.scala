@@ -157,7 +157,7 @@ case class Admin @Inject()(implicit globalConfig: global.GlobalConfig, backend: 
         userDAO.createWithPassword(profile.id, email.toLowerCase, verified = true,
             staff = true, allowMessaging = true, Account.hashPassword(pw))
         grantOwnerPerms(profile) {
-          Redirect(controllers.core.routes.UserProfiles.search())
+          Redirect(controllers.users.routes.UserProfiles.search())
         }
       }
     }
