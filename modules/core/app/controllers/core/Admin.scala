@@ -52,8 +52,8 @@ case class Admin @Inject()(implicit globalConfig: global.GlobalConfig, backend: 
       case Right(account) => gotoLoginSucceeded(account.id)
       case Left(formError) =>
         immediate(BadRequest(views.html.admin.pwLogin(
-          formPw = passwordLoginForm,
-          formOpenId = formError, 
+          passwordLoginForm,
+          formError,
           actionPw = routes.Admin.loginPost(),
           actionOpenId = routes.Admin.openIDLoginPost())))
     }
@@ -62,8 +62,8 @@ case class Admin @Inject()(implicit globalConfig: global.GlobalConfig, backend: 
   def openIDLogin = optionalUserAction { implicit maybeUser => implicit request =>
     if (maybeUser.isEmpty) {
       Ok(views.html.admin.pwLogin(
-          formPw = passwordLoginForm,
-          formOpenId = openidForm, 
+          passwordLoginForm,
+          openidForm,
           actionPw = routes.Admin.loginPost(),
           actionOpenId = routes.Admin.openIDLoginPost()))
     } else {
@@ -74,8 +74,8 @@ case class Admin @Inject()(implicit globalConfig: global.GlobalConfig, backend: 
   def openIDLoginPost = openIDLoginPostAction(routes.Admin.openIDCallback()) { formError => implicit request =>
     implicit val accountOpt: Option[Account] = None
     BadRequest(views.html.admin.pwLogin(
-          formPw = passwordLoginForm,
-          formOpenId = formError, 
+          passwordLoginForm,
+          formError,
           actionPw = routes.Admin.loginPost(),
           actionOpenId = routes.Admin.openIDLoginPost()))
   }
@@ -87,8 +87,8 @@ case class Admin @Inject()(implicit globalConfig: global.GlobalConfig, backend: 
   def login = optionalUserAction { implicit maybeUser => implicit request =>
     if (maybeUser.isEmpty) {
       Ok(views.html.admin.pwLogin(
-          formPw = passwordLoginForm, 
-          formOpenId = openidForm, 
+          passwordLoginForm,
+          openidForm,
           actionPw = routes.Admin.loginPost(),
           actionOpenId = routes.Admin.openIDLoginPost()))
     } else {
@@ -100,8 +100,8 @@ case class Admin @Inject()(implicit globalConfig: global.GlobalConfig, backend: 
     accountOrErr match {
       case Left(errorForm) =>
         immediate(BadRequest(views.html.admin.pwLogin(
-          formPw = errorForm,
-          formOpenId = openidForm, 
+          errorForm,
+          openidForm,
           actionPw = routes.Admin.loginPost(),
           actionOpenId = routes.Admin.openIDLoginPost())))
       case Right(account) if !account.verified =>

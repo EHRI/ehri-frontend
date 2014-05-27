@@ -138,10 +138,10 @@ trait OpenIDLoginHandler {
       = attrs.get("email").orElse(attrs.get("axemail"))
 
   private def extractName(attrs: Map[String,String]): Option[String] = {
-    val fullName = (for {
+    val fullName = for {
       fn <- attrs.get("firstname")
       ln <- attrs.get("lastname")
-    } yield s"$fn $ln")
+    } yield s"$fn $ln"
     attrs.get("name").orElse(attrs.get("fullname")).orElse(fullName)
   }
 }
