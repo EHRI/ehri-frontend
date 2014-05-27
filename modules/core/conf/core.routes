@@ -22,7 +22,4 @@ GET /item/:type/:id                             @controllers.core.Application.ge
 # Simple filtering
 GET /filter                                     @controllers.core.SearchFilter.filter
 
-GET     /events                                 @controllers.core.SystemEvents.list
-GET     /events/show/:id                        @controllers.core.SystemEvents.get(id: String)
-
 GET /assets/*file       controllers.core.Assets.at(path="/public", file)

@@ -34,4 +34,7 @@ POST	/group/add/:id/:userType/:userId	    @controllers.users.Groups.addMemberPos
 GET		/group/remove/:id/:userType/:userId	    @controllers.users.Groups.removeMember(id: String, userType: defines.EntityType.Value, userId: String)
 POST	/group/remove/:id/:userType/:userId	    @controllers.users.Groups.removeMemberPost(id: String, userType: defines.EntityType.Value, userId: String)
 
+GET     /events                                 @controllers.users.SystemEvents.list
+GET     /events/show/:id                        @controllers.users.SystemEvents.get(id: String)
+
 GET /assets/*file       controllers.users.Assets.at(path="/public", file)

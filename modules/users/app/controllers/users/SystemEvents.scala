@@ -1,4 +1,4 @@
-package controllers.core
+package controllers.users
 
 import defines._
 import models.{AccountDAO, SystemEvent}

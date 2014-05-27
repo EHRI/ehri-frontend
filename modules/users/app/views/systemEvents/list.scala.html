@@ -8,7 +8,7 @@
 @layout.rightSidebar(Messages("actions.listSystemEvents")) {
 
     <div class="event-filter">
-        @helper.form(action = controllers.core.routes.SystemEvents.list, 'class -> "form-inline", 'role -> "form") {
+        @helper.form(action = controllers.users.routes.SystemEvents.list, 'class -> "form-inline", 'role -> "form") {
             <input type="hidden" name="@OFFSET_PARAM" value="@params.offset" />
             <input type="hidden" name="@LIMIT_PARAM" value="@params.limit" />
             @defining("systemEvents") { implicit fieldPrefix =>
@@ -32,7 +32,7 @@
 	@list.map { item =>
 	  	<div class="list-item">
 			<h4>
-                <a data-timestamp="@item.time" href="@controllers.core.routes.SystemEvents.get(item.id)">
+                <a data-timestamp="@item.time" href="@controllers.users.routes.SystemEvents.get(item.id)">
                     @item.scope.map { scope =>
                         @scope.toStringLang -
                     }
@@ -49,7 +49,7 @@
             </small>
             <small>
             @item.firstSubject.map { s =>
-                <a href="@controllers.core.routes.SystemEvents.get(item.id)#subjects">@Messages("systemEvents.subjects", s.toStringLang, item.childCount.map(_ - 1).getOrElse(0))</a>
+                <a href="@controllers.users.routes.SystemEvents.get(item.id)#subjects">@Messages("systemEvents.subjects", s.toStringLang, item.childCount.map(_ - 1).getOrElse(0))</a>
             }
             @item.model.logMessage.map { lm =>
                 <p>@lm</p>

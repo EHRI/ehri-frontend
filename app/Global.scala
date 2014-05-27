@@ -53,7 +53,7 @@ package globalConfig {
         ("contentTypes.cvocVocabulary",   controllers.vocabs.routes.Vocabularies.list().url),
         ("contentTypes.authoritativeSet", controllers.authorities.routes.AuthoritativeSets.list().url),
         ("s1", "-"),
-        ("contentTypes.systemEvent",      controllers.core.routes.SystemEvents.list().url),
+        ("contentTypes.systemEvent",      controllers.users.routes.SystemEvents.list().url),
         ("s2", "-"),
         ("search.updateIndex",            controllers.admin.routes.AdminSearch.updateIndex().url)
       )
@@ -64,7 +64,7 @@ package globalConfig {
     }
 
     val routeRegistry = new RouteRegistry(Map(
-      EntityType.SystemEvent -> controllers.core.routes.SystemEvents.get,
+      EntityType.SystemEvent -> controllers.users.routes.SystemEvents.get,
       EntityType.DocumentaryUnit -> controllers.archdesc.routes.DocumentaryUnits.get,
       EntityType.HistoricalAgent -> controllers.authorities.routes.HistoricalAgents.get,
       EntityType.Repository -> controllers.archdesc.routes.Repositories.get,
