@@ -24,7 +24,6 @@ dates.after=After {0,number,#}
 dates.all=All
 
 datePeriod.type.creation=Creation
-
 datePeriod.precision=Precision
 datePeriod.precision.year=Year
 datePeriod.precision.quarter=Quarter

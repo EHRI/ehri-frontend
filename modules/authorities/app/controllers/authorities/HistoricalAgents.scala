@@ -31,13 +31,13 @@ case class HistoricalAgents @Inject()(implicit globalConfig: global.GlobalConfig
     List(
       FieldFacetClass(
         key=models.Isaar.ENTITY_TYPE,
-        name=Messages(EntityType.HistoricalAgent + "." + Isaar.ENTITY_TYPE),
+        name=Messages("historicalAgent." + Isaar.ENTITY_TYPE),
         param="cpf",
-        render=s => Messages(EntityType.HistoricalAgent + "." + s)
+        render=s => Messages("historicalAgent." + s)
       ),
       FieldFacetClass(
         key=SolrConstants.HOLDER_NAME,
-        name=Messages(EntityType.HistoricalAgent + ".authoritativeSet"),
+        name=Messages("historicalAgent.authoritativeSet"),
         param="set",
         sort = FacetSort.Name
       )

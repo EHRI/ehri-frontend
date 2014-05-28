@@ -35,7 +35,7 @@ trait FacetConfig extends Search {
       solrQuery = formatAsSolrQuery(dateString)
     } yield QueryFacetClass(
       key = "dateRange",
-      name = Messages(EntityType.DocumentaryUnit + "." + DATE_PARAM),
+      name = Messages("documentaryUnit." + DATE_PARAM),
       param = DATE_PARAM,
       sort = FacetSort.Fixed,
       facets=List(
@@ -53,7 +53,7 @@ trait FacetConfig extends Search {
     List(
       FieldFacetClass(
         key = IsadG.LANG_CODE,
-        name = Messages(EntityType.DocumentaryUnit + "." + IsadG.LANG_CODE),
+        name = Messages("documentaryUnit." + IsadG.LANG_CODE),
         param = "lang",
         render = (s: String) => Helpers.languageCodeToName(s),
         display = FacetDisplay.Choice,
@@ -82,14 +82,14 @@ trait FacetConfig extends Search {
       ),
       FieldFacetClass(
         key=Isaar.ENTITY_TYPE,
-        name=Messages(EntityType.HistoricalAgent + "." + Isaar.ENTITY_TYPE),
+        name=Messages("historicalAgent." + Isaar.ENTITY_TYPE),
         param="cpf",
-        render=s => Messages(EntityType.HistoricalAgent + "." + s),
+        render=s => Messages("historicalAgent." + s),
         display = FacetDisplay.Choice
       ),
       FieldFacetClass(
         key="countryCode",
-        name=Messages(EntityType.Repository + ".countryCode"),
+        name=Messages("repository.countryCode"),
         param="country",
         render= (s: String) => Helpers.countryCodeToName(s),
         sort = FacetSort.Name,
@@ -97,7 +97,7 @@ trait FacetConfig extends Search {
       ),
       FieldFacetClass(
         key="holderName",
-        name=Messages(EntityType.DocumentaryUnit + ".heldBy"),
+        name=Messages("documentaryUnit.heldBy"),
         param="holder",
         sort = FacetSort.Name,
         display = FacetDisplay.DropDown
@@ -110,9 +110,9 @@ trait FacetConfig extends Search {
     List(
       FieldFacetClass(
         key=Isaar.ENTITY_TYPE,
-        name=Messages(EntityType.HistoricalAgent + "." + Isaar.ENTITY_TYPE),
+        name=Messages("historicalAgent." + Isaar.ENTITY_TYPE),
         param="cpf",
-        render=s => Messages(EntityType.HistoricalAgent + "." + s),
+        render=s => Messages("historicalAgent." + s),
         display = FacetDisplay.Choice
       )
     )
@@ -149,7 +149,7 @@ trait FacetConfig extends Search {
       ),
       FieldFacetClass(
         key="countryCode",
-        name=Messages(EntityType.Repository + ".countryCode"),
+        name=Messages("repository.countryCode"),
         param="country",
         render= (s: String) => Helpers.countryCodeToName(s),
         sort = FacetSort.Name,
@@ -163,7 +163,7 @@ trait FacetConfig extends Search {
     List(
       FieldFacetClass(
         key = IsadG.LANG_CODE,
-        name = Messages(EntityType.DocumentaryUnit + "." + IsadG.LANG_CODE),
+        name = Messages("documentaryUnit." + IsadG.LANG_CODE),
         param = "lang",
         render = (s: String) => Helpers.languageCodeToName(s),
         display = FacetDisplay.Choice,
@@ -215,7 +215,7 @@ trait FacetConfig extends Search {
     docSearchFacets(request) ++ List(
       FieldFacetClass(
         key="holderName",
-        name=Messages(EntityType.DocumentaryUnit + ".heldBy"),
+        name=Messages("documentaryUnit.heldBy"),
         param="holder",
         sort = FacetSort.Name,
         display = FacetDisplay.DropDown
@@ -227,7 +227,7 @@ trait FacetConfig extends Search {
     List(
       FieldFacetClass(
         key="holderName",
-        name=Messages(EntityType.Concept + ".inVocabulary"),
+        name=Messages("concept.inVocabulary"),
         param="vocab",
         render=s => s,
         display = FacetDisplay.Choice

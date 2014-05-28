@@ -35,9 +35,9 @@ case class VirtualUnits @Inject()(implicit globalConfig: global.GlobalConfig, se
     List(
       QueryFacetClass(
         key="childCount",
-        name=Messages(EntityType.VirtualUnit + ".searchInside"),
+        name=Messages("virtualUnit.searchInside"),
         param="items",
-        render=s => Messages(EntityType.DocumentaryUnit + "." + s),
+        render=s => Messages("documentaryUnit." + s),
         facets=List(
           SolrQueryFacet(value = "false", solrValue = "0", name = Some("noChildItems")),
           SolrQueryFacet(value = "true", solrValue = "[1 TO *]", name = Some("hasChildItems"))
@@ -58,7 +58,7 @@ case class VirtualUnits @Inject()(implicit globalConfig: global.GlobalConfig, se
       ),
       FieldFacetClass(
         key=IsadG.LANG_CODE,
-        name=Messages(EntityType.VirtualUnit + "." + IsadG.LANG_CODE),
+        name=Messages("virtualUnit." + IsadG.LANG_CODE),
         param="lang",
         render=Helpers.languageCodeToName,
         display = FacetDisplay.Choice

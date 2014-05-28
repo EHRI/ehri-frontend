@@ -2,7 +2,7 @@
 
 @import defines._
 
-@layout.rightSidebar(Messages(EntityType.Group + ".list")) {
+@layout.rightSidebar(Messages("group.list")) {
 	<h3>@Messages("pagination.displayingItems", items.offset + 1, items.offset + items.items.size, items.total)</h3>
 
     @common.pagination(items)
@@ -18,7 +18,7 @@
 } {
     @common.sidebarActions { user =>
         @common.sidebarAction(user.hasPermission(ContentTypes.Group, PermissionType.Create)) {
-            <a href="@controllers.users.routes.Groups.create">@Messages(EntityType.Group + ".create")</a>
+            <a href="@controllers.users.routes.Groups.create">@Messages("group.create")</a>
         }
     }
 }

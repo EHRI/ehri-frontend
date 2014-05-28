@@ -10,7 +10,7 @@
         }
     }
 
-    @views.html.search.searchSection(Messages(EntityType.Vocabulary + ".items")) {
+    @views.html.search.searchSection(Messages("vocabulary.items")) {
         @views.html.search.searchForm(result, params, action, autofocus = false) {
             @concept.searchItemList(result)
         }

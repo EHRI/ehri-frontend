@@ -50,7 +50,7 @@
     </ul>
     @views.html.common.childCount(item) { count =>
         @if(count > 0) {
-            <a href="@controllers.archdesc.routes.DocumentaryUnits.get(item.id)#search-items">@Messages(EntityType.DocumentaryUnit + ".childCount", count)</a>
+            <a href="@controllers.archdesc.routes.DocumentaryUnits.get(item.id)#search-items">@Messages("documentaryUnit.childCount", count)</a>
         }
     }
 </small>

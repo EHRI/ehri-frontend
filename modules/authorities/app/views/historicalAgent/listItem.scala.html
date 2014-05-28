@@ -21,7 +21,7 @@
         }
         <small>
             <ul class="list-unstyled text-muted inline inline-separator">
-                <li>@Messages(EntityType.HistoricalAgent + "." + desc.entityType.toString)</li>
+                <li>@Messages("historicalAgent." + desc.entityType.toString)</li>
                 @desc.dates.map { dp =>
                     <li>@dp.years</li>
                 }

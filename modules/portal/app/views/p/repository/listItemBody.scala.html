@@ -18,7 +18,7 @@
     <small>
         @conciseAddress(item, desc, includeCountry = showCountry)
         @views.html.common.childCount(item) { count =>
-            <a href="@controllers.portal.routes.Portal.browseRepository(item.id)#search-items">@Messages(EntityType.Repository + ".childCount", count)</a>
+            <a href="@controllers.portal.routes.Portal.browseRepository(item.id)#search-items">@Messages("repository.childCount", count)</a>
         }
     </small>
     @desc.details.generalContext.map { gc =>

@@ -1,6 +1,6 @@
 @(items: backend.Page[UserProfile], params: utils.PageParams)(implicit userOpt: Option[UserProfile], req: RequestHeader, globalConfig: global.GlobalConfig, lang: Lang, flash: Flash)
 
-@layout.rightSidebar(Messages(EntityType.UserProfile + ".list")) {
+@layout.rightSidebar(Messages("userProfile.list")) {
 
     @common.filterableList("pagination.displayingItems", items, params) {
         <ul class="list-unstyled">
@@ -14,7 +14,7 @@
 } {
     @common.sidebarActions { user =>
         @common.sidebarAction(user.isAdmin && user.hasPermission(ContentTypes.UserProfile, PermissionType.Create)) {
-            <a href="@controllers.users.routes.UserProfiles.createUser">@Messages(EntityType.UserProfile + ".create")</a>
+            <a href="@controllers.users.routes.UserProfiles.createUser">@Messages("userProfile.create")</a>
         }
     }
 }

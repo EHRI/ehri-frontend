@@ -5,7 +5,7 @@ implicit userOpt: Option[UserProfile], request: RequestHeader, globalConfig: glo
 
 @layout.rightSidebar(Messages(item.isA + ".delete.item", item.toStringLang), breadcrumbs = common.breadcrumbs(List(item))) {
     <p class="alert alert-danger">
-        @Messages(EntityType.UserProfile + ".delete.confirm")
+        @Messages("userProfile.delete.confirm")
     </p>
     @helper.form(action = action, 'class -> "form-horizontal") {
         @formHelpers.csrfToken()
