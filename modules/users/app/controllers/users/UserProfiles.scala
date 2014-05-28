@@ -2,16 +2,22 @@ package controllers.users
 
 import play.api.libs.concurrent.Execution.Implicits._
 import controllers.generic._
-import models.{AdminUserData, AccountDAO, UserProfile, UserProfileF}
+import models._
 import play.api.i18n.Messages
 import defines.{PermissionType, ContentTypes}
 import utils.search._
 import com.google.inject._
 import backend.Backend
-import play.api.data.{Forms, Form}
+import play.api.data.{FormError, Forms, Form}
 import scala.concurrent.Future.{successful => immediate}
 import play.api.libs.json.Json
+import scala.concurrent.{Await, Future}
+import play.api.mvc.Request
+import java.util.concurrent.TimeUnit
+import backend.rest.{ValidationError, RestHelpers}
+import scala.concurrent.duration.Duration
 import solr.facet.FieldFacetClass
+import play.api.mvc.SimpleResult
 import solr.facet.SolrQueryFacet
 import play.api.libs.json.JsObject
 import solr.facet.QueryFacetClass
@@ -56,7 +62,125 @@ case class UserProfiles @Inject()(implicit globalConfig: global.GlobalConfig, se
   val form = models.UserProfile.form
 
   private val userRoutes = controllers.users.routes.UserProfiles
-  
+
+
+  private val groupMembershipForm = Form(Forms.single("group" -> Forms.list(Forms.nonEmptyText)))
+
+  private val userPasswordForm = Form(
+    Forms.tuple(
+      "email" -> Forms.email,
+      "identifier" -> Forms.nonEmptyText(minLength= 3, maxLength = 20),
+      "name" -> Forms.nonEmptyText,
+      "password" -> Forms.nonEmptyText(minLength = 6),
+      "confirm" -> Forms.nonEmptyText(minLength = 6)
+    ) verifying("login.passwordsDoNotMatch", f => f match {
+      case (_, _, _, pw, pwc) => pw == pwc
+    })
+  )
+
+  /**
+   * Create a user's account for them with a pre-set password. This is an
+   * admin only function and should be removed eventually.
+   */
+  def createUser = withContentPermission.async(PermissionType.Create, ContentTypes.UserProfile) {
+    implicit userOpt => implicit request =>
+      getGroups { groups =>
+        Ok(views.html.userProfile.createUser(userPasswordForm, groupMembershipForm, groups,
+          userRoutes.createUserPost()))
+      }
+  }
+
+  /**
+   * Create a user. Currently this gets a bit gnarly. I'd like
+   * to apologise to the world for the state of this code.
+   *
+   * We basically have to nit together a bunch of Rest operations
+   * with an account db operation, and handle various different
+   * types of validation:
+   *
+   *  - bind the form, if it's okay manually construct a user object
+   *  - try and save the user object - if server validation fails,
+   *    i.e. username already exists, redisplay the form with the
+   *    appropriate error.
+   *  - we also need a list of all possible groups the user
+   *    could be added to
+   *  - we also need to tweak permissions on the user's own
+   *    account so they can edit it... all in all not nice.
+   *
+   * @return
+   */
+  def createUserPost = withContentPermission.async(PermissionType.Create, ContentTypes.UserProfile) {
+    implicit userOpt => implicit request =>
+
+    // Blocking! This helps simplify the nest of callbacks.
+      val allGroups: List[(String, String)] = Await.result(
+        RestHelpers.getGroupList, Duration(1, TimeUnit.MINUTES))
+
+      userPasswordForm.bindFromRequest.fold(
+      errorForm => {
+        immediate(Ok(views.html.userProfile.createUser(errorForm, groupMembershipForm.bindFromRequest,
+          allGroups, userRoutes.createUserPost())))
+      },
+      {
+        case (em, username, name, pw, _) =>
+          saveUser(em, username, name, pw, allGroups)
+      }
+      )
+  }
+
+  /**
+   *  Grant a user permissions on their own account.
+   */
+  private def grantOwnerPerms[T](profile: UserProfile)(f: => SimpleResult)(
+    implicit request: Request[T], userOpt: Option[UserProfile]): Future[SimpleResult] = {
+    backend.setItemPermissions(profile, ContentTypes.UserProfile,
+      profile.id, List(PermissionType.Owner.toString)).map { perms =>
+      f
+    }
+  }
+
+  /**
+   * Create a user's profile on the ReSt interface.
+   */
+  private def createUserProfile[T](user: UserProfileF, groups: Seq[String], allGroups: List[(String,String)])(f: UserProfile => Future[SimpleResult])(
+    implicit request: Request[T], userOpt: Option[UserProfile]): Future[SimpleResult] = {
+    backend.create[UserProfile,UserProfileF](user, params = Map("group" -> groups)).flatMap { item =>
+      f(item)
+    } recoverWith {
+      case ValidationError(errorSet) => {
+        val errForm = user.getFormErrors(errorSet, userPasswordForm.bindFromRequest)
+        immediate(BadRequest(views.html.userProfile.createUser(errForm, groupMembershipForm.bindFromRequest,
+          allGroups, userRoutes.createUserPost())))
+      }
+    }
+  }
+
+  /**
+   * Save a user, creating both an account and a profile.
+   */
+  private def saveUser[T](email: String, username: String, name: String, pw: String, allGroups: List[(String, String)])(
+    implicit request: Request[T], userOpt: Option[UserProfile]): Future[SimpleResult] = {
+    // check if the email is already registered...
+    userDAO.findByEmail(email.toLowerCase).map { account =>
+      val errForm = userPasswordForm.bindFromRequest
+        .withError(FormError("email", Messages("admin.userEmailAlreadyRegistered", account.id)))
+      immediate(BadRequest(views.html.userProfile.createUser(errForm, groupMembershipForm.bindFromRequest,
+        allGroups, userRoutes.createUserPost())))
+    } getOrElse {
+      // It's not registered, so create the account...
+      val user = UserProfileF(id = None, identifier = username, name = name,
+        location = None, about = None, languages = Nil)
+      val groups = groupMembershipForm.bindFromRequest.value.getOrElse(List())
+
+      createUserProfile(user, groups, allGroups) { profile =>
+        userDAO.createWithPassword(profile.id, email.toLowerCase, verified = true,
+          staff = true, allowMessaging = true, Account.hashPassword(pw))
+        grantOwnerPerms(profile) {
+          Redirect(controllers.users.routes.UserProfiles.search())
+        }
+      }
+    }
+  }
 
   def get(id: String) = getAction(id) {
       item => annotations => links => implicit userOpt => implicit request =>
