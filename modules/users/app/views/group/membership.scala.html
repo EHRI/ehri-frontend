@@ -2,13 +2,13 @@
 
 @implicitField = @{ views.html.helper.FieldConstructor(formHelpers.fieldTemplate.f) }
 
-@layout.rightSidebar(Messages(item.isA + ".manageGroups"), breadcrumbs = common.breadcrumbs(List(item))) {
+@layout.rightSidebar(Messages("accessor.groups.manage"), breadcrumbs = common.breadcrumbs(List(item))) {
 	
 	@if(!item.groups.isEmpty) {
 	  <strong>@Messages("accessor.currentGroups"): </strong>&nbsp;
 	  @item.groups.map { group =>
 	    <a href="@controllers.users.routes.Groups.get(group.id)">@group.toStringLang</a>
-        (<a class="ajax-action" href="@controllers.users.routes.Groups.removeMember(group.id, item.isA, item.id)" title="@Messages("accessor.removeFromGroup.item", item.toStringLang, group.toStringLang)">@Messages("accessor.removeFromGroup")</a>)
+        (<a class="ajax-action" href="@controllers.users.routes.Groups.removeMember(group.id, item.isA, item.id)" title="@Messages("accessor.groups.remove.item", item.toStringLang, group.toStringLang)">@Messages("accessor.groups.remove")</a>)
 	  }	  
 	}
     
@@ -21,7 +21,7 @@
 	  <ul>
 	  @groups.map { case (identifier, name) =>
 	  	<li>
-	    	<a class="ajax-action" href="@controllers.users.routes.Groups.addMember(identifier, item.isA, item.id)" title="@Messages("accessor.addToGroup.item", item.toStringLang, name)">@name</a>
+	    	<a class="ajax-action" href="@controllers.users.routes.Groups.addMember(identifier, item.isA, item.id)" title="@Messages("accessor.groups.add.item", item.toStringLang, name)">@name</a>
 	  	</li>
 	  }	  
 	  </ul>

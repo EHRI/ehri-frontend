@@ -227,7 +227,7 @@ case class UserProfiles @Inject()(implicit globalConfig: global.GlobalConfig, se
           acc.setActive(data.active).setStaff(data.staff)
         }
         Redirect(userRoutes.search())
-          .flashing("success" -> Messages("confirmations.userWasDeactivated", item.toStringLang))
+          .flashing("success" -> Messages("item.update.confirmation", item.toStringLang))
       }
     )
   }

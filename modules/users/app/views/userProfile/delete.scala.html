@@ -3,7 +3,7 @@ implicit userOpt: Option[UserProfile], request: RequestHeader, globalConfig: glo
 
 @implicitField = @{ views.html.helper.FieldConstructor(formHelpers.fieldTemplate.f) }
 
-@layout.rightSidebar(Messages(item.isA + ".delete.item", item.toStringLang), breadcrumbs = common.breadcrumbs(List(item))) {
+@layout.rightSidebar(Messages("userProfile.delete.item", item.toStringLang), breadcrumbs = common.breadcrumbs(List(item))) {
     <p class="alert alert-danger">
         @Messages("userProfile.delete.confirm")
     </p>
@@ -14,7 +14,7 @@ implicit userOpt: Option[UserProfile], request: RequestHeader, globalConfig: glo
             @formHelpers.lineInput(checkForm(""), "delete.check")
         }
 
-        @formHelpers.submitButtonWithLogMessageInput(Messages(item.isA + ".delete.submit"), cancel = Some(cancel))
+        @formHelpers.submitButtonWithLogMessageInput(Messages("userProfile.delete.submit"), cancel = Some(cancel))
     }
 } {
 
