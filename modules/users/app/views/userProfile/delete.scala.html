@@ -1,22 +1,20 @@
-@(item: AnyModel, checkForm: Form[String], action: Call, cancel: Call)(
+@(item: UserProfile, checkForm: Form[String], action: Call, cancel: Call)(
 implicit userOpt: Option[UserProfile], request: RequestHeader, globalConfig: global.GlobalConfig, flash: Flash, token: play.filters.csrf.CSRF.Token)
 
 @implicitField = @{ views.html.helper.FieldConstructor(formHelpers.fieldTemplate.f) }
 
-@layout.rightSidebar(Messages("actions.deleteItem", item.toStringLang), breadcrumbs = common.breadcrumbs(List(item))) {
-
-    <p>@Messages("deleting.deleteConfirmationMessage", item.toStringLang)</p>
+@layout.rightSidebar(Messages(item.isA + ".delete.item", item.toStringLang), breadcrumbs = common.breadcrumbs(List(item))) {
     <p class="alert alert-danger">
-        @Messages("userProfile.deleteConfirmationMessage")
+        @Messages(EntityType.UserProfile + ".delete.confirm")
     </p>
     @helper.form(action = action, 'class -> "form-horizontal") {
         @formHelpers.csrfToken()
 
         @defining(EntityType.UserProfile.toString) { implicit fieldPrefix =>
-            @formHelpers.lineInput(checkForm(""), "deleteCheck")
+            @formHelpers.lineInput(checkForm(""), "delete.check")
         }
 
-        @formHelpers.submitButtonWithLogMessageInput(Messages("submitButton.deleteItem"), cancel = Some(cancel))
+        @formHelpers.submitButtonWithLogMessageInput(Messages(item.isA + ".delete.submit"), cancel = Some(cancel))
     }
 } {
 

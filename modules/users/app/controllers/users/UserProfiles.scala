@@ -85,7 +85,7 @@ case class UserProfiles @Inject()(implicit globalConfig: global.GlobalConfig, se
   def createUser = withContentPermission.async(PermissionType.Create, ContentTypes.UserProfile) {
     implicit userOpt => implicit request =>
       getGroups { groups =>
-        Ok(views.html.userProfile.createUser(userPasswordForm, groupMembershipForm, groups,
+        Ok(views.html.userProfile.create(userPasswordForm, groupMembershipForm, groups,
           userRoutes.createUserPost()))
       }
   }
@@ -118,7 +118,7 @@ case class UserProfiles @Inject()(implicit globalConfig: global.GlobalConfig, se
 
       userPasswordForm.bindFromRequest.fold(
       errorForm => {
-        immediate(Ok(views.html.userProfile.createUser(errorForm, groupMembershipForm.bindFromRequest,
+        immediate(Ok(views.html.userProfile.create(errorForm, groupMembershipForm.bindFromRequest,
           allGroups, userRoutes.createUserPost())))
       },
       {
@@ -149,7 +149,7 @@ case class UserProfiles @Inject()(implicit globalConfig: global.GlobalConfig, se
     } recoverWith {
       case ValidationError(errorSet) => {
         val errForm = user.getFormErrors(errorSet, userPasswordForm.bindFromRequest)
-        immediate(BadRequest(views.html.userProfile.createUser(errForm, groupMembershipForm.bindFromRequest,
+        immediate(BadRequest(views.html.userProfile.create(errForm, groupMembershipForm.bindFromRequest,
           allGroups, userRoutes.createUserPost())))
       }
     }
@@ -164,7 +164,7 @@ case class UserProfiles @Inject()(implicit globalConfig: global.GlobalConfig, se
     userDAO.findByEmail(email.toLowerCase).map { account =>
       val errForm = userPasswordForm.bindFromRequest
         .withError(FormError("email", Messages("admin.userEmailAlreadyRegistered", account.id)))
-      immediate(BadRequest(views.html.userProfile.createUser(errForm, groupMembershipForm.bindFromRequest,
+      immediate(BadRequest(views.html.userProfile.create(errForm, groupMembershipForm.bindFromRequest,
         allGroups, userRoutes.createUserPost())))
     } getOrElse {
       // It's not registered, so create the account...
@@ -234,10 +234,7 @@ case class UserProfiles @Inject()(implicit globalConfig: global.GlobalConfig, se
 
   private def deleteForm(user: UserProfile): Form[String] = Form(
     Forms.single("deleteCheck" -> Forms.nonEmptyText.verifying("error.invalidName", f => f match {
-      case name => {
-        println(s"Names: $name vs ${user.model.name}")
-        name == user.model.name
-      }
+      case name => name == user.model.name
     }))
   )
 

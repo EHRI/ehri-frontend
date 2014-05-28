@@ -1,3 +1,17 @@
+# Users- and Group-related i18n messages
+
+accessor.notInAnyGroups=This user does not belong to any groups.
+accessor.currentGroups=Current Groups
+accessor.itemCannotBeAddedToAdditionalGroups=This {0} cannot be added to additional groups
+
+accessor.addToGroup=Add
+accessor.addToGroup.item=Add {0} to group {1}?
+accessor.addToGroup.submit=Submit
+accessor.removeFromGroup=Remove
+accessor.removeFromGroup.item=Remove {0} from group {1}?
+accessor.removeFromGroup.submit=Remove
+accessor.grantPermissions.item=Grant Permissions for {0}
+
 #
 # Users
 #
@@ -15,10 +29,6 @@ userProfile.about=About
 userProfile.identifier=Identifier
 userProfile.manageUser=Manage User
 userProfile.deleteCheck.description=Confirm you want to delete this user.
-userProfile.deleteCheck=Type the user''s full name to confirm you want to delete their account.
-userProfile.deleteConfirmationMessage=User profiles should almost never be deleted as doing so loses information \
-  concerning the provenance of items. A better alternative is to deactivate the profile instead. Please consider \
-  this action carefully.
 userProfile.deactivateUser=Deactivate user ''{0}''?
 userProfile.email=Email
 userProfile.username=Username
@@ -27,15 +37,36 @@ userProfile.password=Password
 userProfile.passwordConfirm=Confirm Password
 userProfile.groups=Group Membership
 userProfile.search=Search Users
+userProfile.missingAccount=No account found
+userProfile.list=Users
+userProfile.create=Create New User
+userProfile.create.submit=Create User
+userProfile.edit=Update User
+userProfile.edit.item=Update User {0}
+userProfile.edit.submit=Update User
+userProfile.manage=Manage User
+userProfile.manage.item=Manage User {0}
+userProfile.manage.submit=Submit
+userProfile.delete=Delete User
+userProfile.delete.item=Delete User {0}
+userProfile.delete.confirm=User profiles should almost never be deleted as doing so loses information \
+  concerning the provenance of items. A better alternative is to deactivate the profile instead. Please consider \
+  this action carefully.
+userProfile.delete.check=Type the user''s full name to confirm you want to delete their account.
+userProfile.delete.submit=Delete User
+userProfile.manageGlobalPermissions=Manage Global Permissions
+userProfile.manageGlobalPermissions.submit=Submit
+userProfile.showPermissions=Show Per-Item Permissions
+userProfile.manageGroups=Add/Remove Parent Groups
+userProfile.manageGroups.submit=Submit
+userProfile.history=Item History
 
 confirmations.userWasDeactivated=User ''{0}'' was deactivated.
-actions.deactivateUser=Deactivate User
-submitButton.deactivateUser=Deactivate User
-userProfile.missingAccount=No account found
 
 #
 # Groups
 #
+group.list=Groups
 group.admin=Admin
 group.identifier=Group Identifier
 group.identifier.description=A short, lower-case, 1-word identifier
@@ -45,4 +76,18 @@ group.description=Group Description
 group.description.description=A description of this group''s purpose
 group.members=Group Members
 group.membersPageHeader={2,choice,0#No members found|1#One member|1<Group Members {0,number,integer} to {1,number,integer} of {2,number,integer}}
-
+group.create=Create New Group
+group.create.submit=Create Group
+group.edit=Update Group
+group.edit.item=Update Group {0}
+group.edit.submit=Update Group
+group.delete=Delete Group
+group.delete.item=Delete Group {0}
+group.delete.confirm=
+group.delete.submit=Delete Group
+group.manageGlobalPermissions=Manage Global Permissions
+group.manageGlobalPermissions.submit=Submit
+group.showPermissions=Show Per-Item Permissions
+group.manageGroups=Add/Remove Parent Groups
+group.manageGroups.submit=Submit
+group.history=Item History

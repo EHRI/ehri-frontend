@@ -3,13 +3,13 @@ implicit userOpt: Option[UserProfile], req: RequestHeader, globalConfig: global.
 
 @implicitField = @{ views.html.helper.FieldConstructor(formHelpers.fieldTemplate.f) }
 
-@layout.rightSidebar(Messages("actions.updateUserProfile"), breadcrumbs = common.breadcrumbs(List(item))) {
+@layout.rightSidebar(Messages(item.isA + ".edit"), breadcrumbs = common.breadcrumbs(List(item))) {
 
     @helper.form(action = action, 'class -> "entity-form form-horizontal") {
         @formHelpers.csrfToken()
         @userProfile.renderForm(item, f)
 
-        @formHelpers.submitButtonWithLogMessageInput(Messages("submitButton.updateUserProfile"), cancel = Some(globalConfig.routeRegistry.urlFor(item)))
+        @formHelpers.submitButtonWithLogMessageInput(Messages(item.isA + ".edit.submit"), cancel = Some(globalConfig.routeRegistry.urlFor(item)))
 	}
 		
 } {

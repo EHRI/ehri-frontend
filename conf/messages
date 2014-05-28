@@ -264,8 +264,7 @@ actions.updateDescription=Update Description
 actions.listSystemEvents=System Events
 actions.listUserProfiles=Users
 actions.listGroups=Groups
-actions.createUserProfile=Create User
-actions.createGroup=Create Group
+
 actions.updateUserProfile=Update Profile
 actions.updateGroup=Update Group
 actions.linkTo=Link to another item
@@ -282,17 +281,11 @@ actions.createNewItem=Create New Item
 actions.setVisibility=Set Visibility
 actions.promote=Promote Item Publicly
 actions.demote=Remove Item Promotion
-actions.modifyPermissions=Modify Permissions
-actions.listPermissionGrants=Show Per-Item Permissions
-actions.createNewUser=Create New User Profile
-actions.createNewGroup=Create New Group
-actions.modifyGroups=Add/Remove Parent Groups
-actions.manageGroupsFor=Manage Groups: {0}
+
 actions.historyForItem=Change history for item: {0}
 actions.showHistory=Item History
 actions.addNewGroup=Add New Group
 actions.addUserToGroup=Add {0} to group {1}?
-actions.removeUserFromGroup=Remove {0} from group {1}?
 actions.updateGlobalPermissions=Update Global Permissions
 actions.manageScopedPermissions=Scoped Permissions
 actions.manageScopedPermissionsText=Scoped permissions allow you to grant permissions for users or groups to perform\
@@ -324,21 +317,15 @@ actions.save=Save
 actions.send=Send
 
 # Submit buttons
-submitButton.signup=Submit
-submitButton.createUserProfile=Create User
-submitButton.createGroup=Create Group
 submitButton.updateUserProfile=Update Profile
 submitButton.updateGroup=Update Group
 submitButton.deleteItem=Delete Item
 submitButton.setVisibility=Set Visibility
 submitButton.promote=Promote Item
 submitButton.demote=Remove Promotion
-submitButton.addItemToGroup=Add Item to Group
-submitButton.removeItemFromGroup=Remove Item from Group
 submitButton.annotate=Annotate Item
 submitButton.linkAnnotate=Link Items
 submitButton.updateGlobalPermissions=Update Global Permissions
-submitButton.createUser=Create User
 submitButton.loginWithPassword=Sign In
 submitButton.loginWithOpenid=Sign In With OpenID
 submitButton.changePassword=Change Password
@@ -347,12 +334,6 @@ submitButton.updateDescription=Update Description
 
 deleting.deleteConfirmationMessage=Are you sure you want to delete item: "{0}"?  This action cannot be undone.
 deleting.deleteDescriptionConfirmationMessage=Are you sure you want to delete item description: "{0}"?  This action cannot be undone.
-
-accessor.notInAnyGroups=This user does not belong to any groups.
-accessor.currentGroups=Current Groups
-accessor.removeGroup=Remove
-accessor.removeUserFromGroup=Remove {0} from group {1}?
-accessor.itemCannotBeAddedToAdditionalGroups=This {0} cannot be added to additional groups
 
 permissions.itemPermissionsForItem=Item-level Permissions for {0}
 permissions.scopedPermissionsForItem=Scoped Permissions for {0}

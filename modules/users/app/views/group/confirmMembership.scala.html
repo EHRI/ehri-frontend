@@ -3,13 +3,13 @@ implicit userOpt: Option[UserProfile], req: RequestHeader, globalConfig: global.
 
 @implicitField = @{ views.html.helper.FieldConstructor(formHelpers.fieldTemplate.f) }
 
-@layout.rightSidebar(Messages("actions.addUserToGroup", item.toStringLang, group.toStringLang)) {
+@layout.rightSidebar(Messages("accessor.addToGroup.item", item.toStringLang, group.toStringLang)) {
 	
 	@helper.form(action = action, 'class -> "entity-form form-horizontal") {
         @formHelpers.csrfToken()
         <div class="form-group">
             <div class="col-sm-offset-2 col-sm-10">
-            	<button type="submit" class="btn btn-primary">@Messages("Submit")</button>
+            	<button type="submit" class="btn btn-primary">@Messages("accessor.addToGroup.submit")</button>
             </div>
         </div>
 

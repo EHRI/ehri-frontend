@@ -8,7 +8,7 @@
 } {
     @common.sidebarActions { user =>
         @common.sidebarAction(user.isAdmin && user.hasPermission(ContentTypes.UserProfile, PermissionType.Create)) {
-            <a href="@controllers.users.routes.UserProfiles.createUser">@Messages("actions.createUserProfile")</a>
+            <a href="@controllers.users.routes.UserProfiles.createUser">@Messages(EntityType.UserProfile + ".create")</a>
         }
     }
     @common.facetList(result.facets, action)

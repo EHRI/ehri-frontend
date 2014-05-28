@@ -3,12 +3,12 @@ implicit userOpt: Option[UserProfile], req: RequestHeader, globalConfig: global.
 
 @import models.GroupF
 
-@layout.rightSidebar(Messages("actions.updateGroup"), breadcrumbs = common.breadcrumbs(List(item))) {
+@layout.rightSidebar(Messages(item.isA + ".edit"), breadcrumbs = common.breadcrumbs(List(item))) {
 	@helper.form(action = action, 'class -> "entity-form form-horizontal") {
         @formHelpers.csrfToken()
         @group.renderForm(Some(item), f)
 
-        @formHelpers.submitButtonWithLogMessageInput(Messages("submitButton.updateGroup"), cancel = Some(globalConfig.routeRegistry.urlFor(item)))
+        @formHelpers.submitButtonWithLogMessageInput(Messages(item.isA + ".edit.submit"), cancel = Some(globalConfig.routeRegistry.urlFor(item)))
 	}
 } {
 
