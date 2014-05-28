@@ -3,13 +3,13 @@
 
 @implicitField = @{ views.html.helper.FieldConstructor(formHelpers.fieldTemplate.f) }
 
-@layout.rightSidebar(Messages("actions.managePermissions", item), breadcrumbs = common.breadcrumbs(List(item))) {
+@layout.rightSidebar(Messages("actions.managePermissions.item", item.toStringLang), breadcrumbs = common.breadcrumbs(List(item))) {
 
 
     <h3>@Messages("actions.manageItemPermissions")</h3>
     <div class="well well-small text-muted">
         <i class="glyphicon glyphicon-info-sign"></i>
-        @Messages("actions.manageItemPermissionsText")
+        @Messages("actions.manageItemPermissions.info")
     </div>
     <a href="@itemPermAction">@Messages("actions.manageItemPermissions")</a>
 
@@ -20,7 +20,7 @@
     <h3>@Messages("actions.manageScopedPermissions")</h3>
     <div class="well well-small text-muted">
         <i class="glyphicon glyphicon-info-sign"></i>
-        @Messages("actions.manageScopedPermissionsText")
+        @Messages("actions.manageScopedPermissions.info")
     </div>
     <a href="@scopePermAction">@Messages("actions.manageScopedPermissions")</a>
 

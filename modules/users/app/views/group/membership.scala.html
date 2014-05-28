@@ -17,7 +17,7 @@
 	@if(groups.isEmpty) {
 	  <strong>@Messages("accessor.itemCannotBeAddedToAdditionalGroups", item.isA)</strong>
 	} else {
-	  <strong>@Messages("actions.addNewGroup"): </strong>&nbsp;
+	  <strong>@Messages("accessor.addNewGroup"): </strong>&nbsp;
 	  <ul>
 	  @groups.map { case (identifier, name) =>
 	  	<li>

@@ -225,32 +225,33 @@ admin.userEmailAlreadyRegistered=A user with that email is already registered: {
 #
 # System Events
 #
-systemEvents.itemAtTime=Action at {0}
-systemEvents.lastUpdated=Updated {0}
-systemEvents.creation=Item created
-systemEvents.createDependent=Description added
-systemEvents.modification=Item modified
-systemEvents.modifyDependent=Description modified
-systemEvents.deletion=Item deleted
-systemEvents.deleteDependent=Description deleted
-systemEvents.link=Link created
-systemEvents.annotation=Annotation created
-systemEvents.setGlobalPermissions=Global permissions modified
-systemEvents.setItemPermissions=Item-level permissions modified
-systemEvents.setVisibility=Visibility modified
-systemEvents.addGroup=Member added to group
-systemEvents.removeGroup=Member removed from group
-systemEvents.ingest=Items imported
-systemEvents.promotion=Item Promoted
-systemEvents.demotion=Item Promotion Removed
-systemEvents.unknown=Unknown action
-systemEvents.scope=Scope
-systemEvents.subjects={1,choice,-1#No subjects|0#{0}|0<{0} and {1,number,integer} more...}
-systemEvents.newerEvents=More recent events
-systemEvents.olderEvents=Older events
-systemEvents.et=Event Type
-systemEvents.filter=Filter Events
-systemEvents.user=Users
+systemEvent.itemAtTime=Action at {0}
+systemEvent.lastUpdated=Updated {0}
+systemEvent.creation=Item created
+systemEvent.createDependent=Description added
+systemEvent.modification=Item modified
+systemEvent.modifyDependent=Description modified
+systemEvent.deletion=Item deleted
+systemEvent.deleteDependent=Description deleted
+systemEvent.link=Link created
+systemEvent.annotation=Annotation created
+systemEvent.setGlobalPermissions=Global permissions modified
+systemEvent.setItemPermissions=Item-level permissions modified
+systemEvent.setVisibility=Visibility modified
+systemEvent.addGroup=Member added to group
+systemEvent.removeGroup=Member removed from group
+systemEvent.ingest=Items imported
+systemEvent.promotion=Item Promoted
+systemEvent.demotion=Item Promotion Removed
+systemEvent.unknown=Unknown action
+systemEvent.scope=Scope
+systemEvent.subjects={1,choice,-1#No subjects|0#{0}|0<{0} and {1,number,integer} more...}
+systemEvent.newerEvents=More recent events
+systemEvent.olderEvents=Older events
+systemEvent.et=Event Type
+systemEvent.filter=Filter Events
+systemEvent.user=Users
+systemEvent.list=System Events
 
 
 # Actions
@@ -261,9 +262,6 @@ actions.history=History
 actions.addNew=Add New
 actions.createDescription=Add Description
 actions.updateDescription=Update Description
-actions.listSystemEvents=System Events
-actions.listUserProfiles=Users
-actions.listGroups=Groups
 
 actions.updateUserProfile=Update Profile
 actions.updateGroup=Update Group
@@ -271,7 +269,6 @@ actions.linkTo=Link to another item
 actions.linkToDocumentaryUnit=Link to a documentary unit
 actions.linkToHistoricalAgent=Link to an authority file
 
-actions.backToList=Back to List
 actions.viewProfile=View Profile
 actions.exportJson=Export JSON
 actions.deleteItem=Delete Item
@@ -282,32 +279,31 @@ actions.setVisibility=Set Visibility
 actions.promote=Promote Item Publicly
 actions.demote=Remove Item Promotion
 
-actions.historyForItem=Change history for item: {0}
-actions.showHistory=Item History
-actions.addNewGroup=Add New Group
-actions.addUserToGroup=Add {0} to group {1}?
+item.history=Item History
+item.history.item=Change history for item: {0}
+actions.managePermissions.item=Manage Permissions for {0}
+actions.managePermissions=Manage Permissions
+
 actions.updateGlobalPermissions=Update Global Permissions
 actions.manageScopedPermissions=Scoped Permissions
-actions.manageScopedPermissionsText=Scoped permissions allow you to grant permissions for users or groups to perform\
+actions.manageScopedPermissions.info=Scoped permissions allow you to grant permissions for users or groups to perform\
   actions on all items ''within'' another item (the scope), i.e. all documentary units within a given repository.
-actions.manageScopedPermissionsForAccessor=Scoped Permissions for {0}
-actions.manageScopedPermissionsForItem=Scoped Permissions for {0}
+actions.manageAccessorScopedPermissions.item=Scoped Permissions for {0}
+actions.manageScopedPermissions.item=Scoped Permissions for {0}
 actions.manageItemPermissions=Item-level Permissions
-actions.manageItemPermissionsText=Item-level permissions allow you to grant permissions for users or groups to perform\
+actions.manageItemPermissions.item=Item-level Permissions for {0}
+actions.manageItemPermissions.info=Item-level permissions allow you to grant permissions for users or groups to perform\
   actions on a single item, i.e. updating a repository''s descriptive information.
-actions.manageItemPermissionsForAccessor=Item-level Permissions for {0}
-actions.manageItemPermissionsForItem=Item-level Permissions for {0}
-actions.grantPermissionsInScope=Manage Permissions in scope {0} for {1}
-actions.grantPermissionsOnItem=Manage Permissions on {0} for {1}
+actions.manageAccessorItemPermissions.item=Item-level Permissions for {0}
+actions.grantPermissionsInScope.item=Manage Permissions in scope {0} for {1}
+actions.grantPermissions.item=Manage Permissions on {0} for {1}
 actions.updatePermissions=Update Permissions
 actions.manageGlobalPermissions=Manage Global Permissions
-actions.managePermissions=Manage Permissions
 actions.cancel=Cancel
 actions.subjectsForAction=Subjects
-actions.annotate=Annotate {0}
-actions.linkAnnotate=Link ''{0}'' to ''{1}''
-actions.annotateThisItem=Annotate Item
-actions.manageGroups=Manage Groups
+actions.annotate.item=Annotate {0}
+actions.linkAnnotate.item=Link ''{0}'' to ''{1}''
+actions.annotate=Annotate Item
 actions.manageAccessPoints=Manage Access Points
 actions.revokePermission=Revoke
 actions.addNewConceptDescription=Add Concept Description

@@ -20,7 +20,7 @@
             <a href="@controllers.archdesc.routes.Repositories.managePermissions(item.id)">@Messages("actions.managePermissions")</a>
         }
         @common.sidebarAction() {
-            <a  href="@controllers.archdesc.routes.Repositories.history(item.id)">@Messages("actions.showHistory")</a>
+            <a  href="@controllers.archdesc.routes.Repositories.history(item.id)">@Messages("item.history")</a>
         }
         @common.sidebarAction(user.isAdmin) {
             <a href="@controllers.archdesc.routes.Repositories.updateIndex(item.id)">@Messages("search.updateIndex")</a>

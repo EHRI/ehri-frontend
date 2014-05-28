@@ -3,10 +3,10 @@
 
 @implicitField = @{ views.html.helper.FieldConstructor(formHelpers.fieldTemplate.f) }
 
-@layout.rightSidebar(Messages("actions.manageItemPermissionsForAccessor", item.toStringLang), breadcrumbs = common.breadcrumbs(List(item))) {
+@layout.rightSidebar(Messages("actions.manageAccessorItemPermissions.item", item.toStringLang), breadcrumbs = common.breadcrumbs(List(item))) {
     <div class="well well-small text-muted">
         <i class="glyphicon glyphicon-info-sign"></i>
-        @Messages("actions.manageItemPermissionsText")
+        @Messages("actions.manageItemPermissions.info")
     </div>
 
     @if(!groups.isEmpty) {

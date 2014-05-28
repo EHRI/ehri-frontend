@@ -19,7 +19,7 @@
             <a href="@controllers.authorities.routes.HistoricalAgents.managePermissions(item.id)">@Messages("actions.managePermissions")</a>
         }
         @common.sidebarAction() {
-            <a href="@controllers.authorities.routes.HistoricalAgents.history(item.id)">@Messages("actions.showHistory")</a>
+            <a href="@controllers.authorities.routes.HistoricalAgents.history(item.id)">@Messages("item.history")</a>
         }
         @common.sidebarAction() {
             <a href="@controllers.core.routes.ApiController.getItem(ContentTypes.HistoricalAgent.toString, item.id)">@Messages("actions.exportJson")</a>

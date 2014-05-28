@@ -3,14 +3,13 @@
 accessor.notInAnyGroups=This user does not belong to any groups.
 accessor.currentGroups=Current Groups
 accessor.itemCannotBeAddedToAdditionalGroups=This {0} cannot be added to additional groups
-
+accessor.addNewGroup=Add New Group
 accessor.addToGroup=Add
 accessor.addToGroup.item=Add {0} to group {1}?
 accessor.addToGroup.submit=Submit
 accessor.removeFromGroup=Remove
 accessor.removeFromGroup.item=Remove {0} from group {1}?
 accessor.removeFromGroup.submit=Remove
-accessor.grantPermissions.item=Grant Permissions for {0}
 
 #
 # Users

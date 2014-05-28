@@ -5,13 +5,13 @@
 @implicitField = @{ views.html.helper.FieldConstructor(formHelpers.cleanFieldTemplate.f) }
 
 
-@layout.rightSidebar(Messages("actions.listSystemEvents")) {
+@layout.rightSidebar(Messages("systemEvent.list")) {
 
     <div class="event-filter">
         @helper.form(action = controllers.users.routes.SystemEvents.list, 'class -> "form-inline", 'role -> "form") {
             <input type="hidden" name="@OFFSET_PARAM" value="@params.offset" />
             <input type="hidden" name="@LIMIT_PARAM" value="@params.limit" />
-            @defining("systemEvents") { implicit fieldPrefix =>
+            @defining(EntityType.SystemEvent.toString) { implicit fieldPrefix =>
                 @formHelpers.multiselectInput(
                     filterForm(EVENT_TYPE),
                     EVENT_TYPE,
@@ -49,7 +49,7 @@
             </small>
             <small>
             @item.firstSubject.map { s =>
-                <a href="@controllers.users.routes.SystemEvents.get(item.id)#subjects">@Messages("systemEvents.subjects", s.toStringLang, item.childCount.map(_ - 1).getOrElse(0))</a>
+                <a href="@controllers.users.routes.SystemEvents.get(item.id)#subjects">@Messages("systemEvent.subjects", s.toStringLang, item.childCount.map(_ - 1).getOrElse(0))</a>
             }
             @item.model.logMessage.map { lm =>
                 <p>@lm</p>
@@ -67,17 +67,12 @@
                         @Messages("systemEvents.newerEvents")</a>
                 </li>
             } else {
-                <li class="disabled"><a>@Messages("systemEvents.newerEvents")</a></li>
+                <li class="disabled"><a>@Messages("systemEvent.newerEvents")</a></li>
             }
             <li><a href="@utils.joinPath(req.path, req.queryString.updated(OFFSET_PARAM, Seq((params.offset + params.limit).toString)))">
-            @Messages("systemEvents.olderEvents")</a></li>
+            @Messages("systemEvent.olderEvents")</a></li>
         </ul>
     </div>
-
-    @*
-        @common.pagination(page)
-    *@
-
 } {
 
 }

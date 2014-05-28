@@ -108,6 +108,7 @@ case class SystemEvent(
 
   def time = DateTimeFormat.forPattern(SystemEventF.FORMAT).print(model.timestamp)
 
-  def toStringLang = Messages("systemEvents." + model.eventType.map(_.toString).getOrElse("unknown"))
+  override def toStringLang(implicit lang: play.api.i18n.Lang) =
+    Messages(isA + "." + model.eventType.map(_.toString).getOrElse("unknown"))(lang)
 }
 
