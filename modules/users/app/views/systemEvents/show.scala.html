@@ -26,7 +26,7 @@
     }
 
     <div id="subjects">
-        <h4>@{Messages("actions.subjectsForAction") + ": " + Messages("pagination.displayingItems", page.offset + 1, page.offset + page.items.size, page.total)}</h4>
+        <h4>@{Messages("systemEvent.subjects") + ": " + Messages("pagination.displayingItems", page.offset + 1, page.offset + page.items.size, page.total)}</h4>
         @common.pagination(page)
         <ul class="list-unstyled">
             @page.items.map { item =>

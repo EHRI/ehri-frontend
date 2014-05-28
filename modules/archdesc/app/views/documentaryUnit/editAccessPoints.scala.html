@@ -55,7 +55,7 @@
                             <small ng-switch-when="false">
                                 <a ng-click="initialiseEdit('@accessPointType')">
                                     <i class="glyphicon glyphicon-plus-sign"></i>
-                                    @Messages("accessPoints.addNew")
+                                    @Messages("accessPoint.create")
                                 </a>
 
                             </small>
@@ -63,11 +63,11 @@
                                 <h4>@Messages("accessPoints.newAccessPoint")</h4>
                                 <div class="form-group">
                                     <label class="col-sm-3 control-label">
-                                        @Messages("accessPoints.name")
+                                        @Messages("accessPoint.name")
                                     </label>
                                     <div class="col-sm-9">
                                         <div class="input-group">
-                                            <input class="form-control" type="text" placeholder="@Messages("accessPoints.name")" ng-change="queryNameMatches()" ng-model="tempAccessPoint.name" autofocus="true" />
+                                            <input class="form-control" type="text" placeholder="@Messages("accessPoint.name")" ng-change="queryNameMatches()" ng-model="tempAccessPoint.name" autofocus="true" />
                                              <div class="input-group-btn">
                                                 <a class="btn btn-default" ng-click="openBrowseDialog()">
                                                     <i class="glyphicon glyphicon-search"></i>
@@ -86,10 +86,10 @@
                                 </div>
                                 <div class="form-group">
                                     <label class="col-sm-3 control-label">
-                                        @Messages("accessPoints.description")
+                                        @Messages("accessPoint.description")
                                     </label>
                                     <div class="col-sm-9">
-                                        <input type="text" class="form-control" placeholder="@Messages("accessPoints.description")" ng-model="tempAccessPoint.description" />
+                                        <input type="text" class="form-control" placeholder="@Messages("accessPoint.description")" ng-model="tempAccessPoint.description" />
                                     </div>
                                 </div>
                                 <div class="form-group" ng-switch="tempAccessPoint.link != null">
@@ -106,8 +106,8 @@
                                 <div class="form-group">
                                     <div class="col-sm-offset-3 col-sm-9">
                                         <button class="btn btn-small btn-primary" ng-click="saveNewAccessPoint()" ng-disabled="!hasValidNewAccessPoint('@accessPointType')">
-                                            @Messages("actions.save")</button>
-                                        <button class="btn btn-small btn-danger" ng-click="cancelAddAccessPoint()">@Messages("actions.cancel")</button>
+                                            @Messages("save")</button>
+                                        <button class="btn btn-small btn-danger" ng-click="cancelAddAccessPoint()">@Messages("cancel")</button>
                                     </div>
                                 </div>
                             </div>

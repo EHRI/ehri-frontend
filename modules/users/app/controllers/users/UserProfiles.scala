@@ -255,7 +255,7 @@ case class UserProfiles @Inject()(implicit globalConfig: global.GlobalConfig, se
         // For the users we need to clean up by deleting their profile id, if any...
         userDAO.findByProfileId(id).map(_.delete())
         Redirect(userRoutes.search())
-          .flashing("success" -> Messages("confirmations.itemWasDeleted", id))
+          .flashing("success" -> Messages("item.delete.confirmation", id))
       }
     )
   }
@@ -274,7 +274,7 @@ case class UserProfiles @Inject()(implicit globalConfig: global.GlobalConfig, se
   def permissionsPost(id: String) = setGlobalPermissionsPostAction(id) {
       item => perms => implicit userOpt => implicit request =>
     Redirect(userRoutes.get(id))
-        .flashing("success" -> Messages("confirmations.itemWasUpdated", id))
+        .flashing("success" -> Messages("item.update.confirmation", id))
   }
 
   def revokePermission(id: String, permId: String) = revokePermissionAction(id, permId) {
@@ -286,7 +286,7 @@ case class UserProfiles @Inject()(implicit globalConfig: global.GlobalConfig, se
   def revokePermissionPost(id: String, permId: String) = revokePermissionActionPost(id, permId) {
     item => bool => implicit userOpt => implicit request =>
       Redirect(userRoutes.grantList(id))
-        .flashing("success" -> Messages("confirmations.itemWasDeleted", id))
+        .flashing("success" -> Messages("item.delete.confirmation", id))
   }
 }
 

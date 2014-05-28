@@ -1,23 +1,27 @@
+#
+# Basic strings
+#
+cancel=Cancel
+save=Save
+send=Send
+
 # General main page parts
-banner.heading=EHRI Dev Test
 banner.signin=Sign In
 banner.signout=Sign Out
 footer.footerText=This is a development version of the EHRI data entry interface.
-
 pages.home=Home
 pages.search=Search
-pages.admin=Admin
-pages.admin.title=EHRI Admin
-pages.admin.message=Administration actions - careful now!
-pages.admin.userManagement=Manage Users
-pages.admin.searchAdmin=Manage Search Index
 pages.more=More
 
-forms.adminArea=Administration Area
+#
+# General form-related strings
+#
 forms.logMessagePlaceholder=Tell people what you''re doing (optional)...
 forms.search=Search
 
+#
 # Dates
+#
 dates.exact={0,number,#}
 dates.before=Before {0,number,#}
 dates.between=Between {0,number,#} and {1,number,#}
@@ -32,20 +36,27 @@ datePeriod.precision.month=Month
 datePeriod.precision.week=Week
 datePeriod.precision.day=Day
 
+#
 # Levels of detail...
+#
 lod=Level of Detail
 lod.low=Low
 lod.medium=Medium
 lod.high=High
 
-# Language code
+#
+# Additional Language codes
+#
 languageCode.mul=Multiple
 languageCode.lad=Ladino
 
-# Country code
+#
+# Additional/alternate ountry codes
+#
 countryCode.xk=Kosovo
 
-
+#
+# Form constraints and formats
 constraint.required=*
 format.boolean=On/Off
 
@@ -53,10 +64,6 @@ format.boolean=On/Off
 # Search
 #
 search.type=Item Type
-search.filterItems=Filter Items
-search.sortItems=Sort Items
-search.sortReversed=(Descending)
-search.noItemsFound=No Items Found
 search.updateIndex=Refresh Search Index
 search.updateIndexFor=Refresh searching index for {0}
 search.clearEntireIndex=Clear Entire Index First
@@ -70,10 +77,8 @@ search.sort.lastUpdated.desc.title=Display most recently-changed results first
 search.sort.score.desc=Relevance
 search.sort.score.desc.title=Display results in order of search relevance
 search.identifier=Identifier
-search.numDescriptions={0,choice,0#No descriptions|1#|1<{0,number,integer} Descriptions}
 search.spellingSuggestion=Did you mean
 search.queryPlaceholder=Search...
-search.batchSize=Batch size for reindexing
 
 #
 # Login-related
@@ -194,6 +199,7 @@ pagination.displayingItems={2,choice,0#No items found|1#One item found|1<Display
 describedEntity.availableDescriptions=Available Descriptions
 describedEntity.editDescription=Edit Description
 describedEntity.deleteDescription=Delete Description
+describedEntity.deleteDescription.info=Are you sure you want to delete item description: "{0}"?  This action cannot be undone.
 describedEntity.noDescriptions=This item has not been provided with a description
 describedEntity.noData=No information given
 describedEntity.notGiven=Not Given
@@ -205,6 +211,7 @@ describedEntity.createDescription.item=Add Description to {0}
 describedEntity.createDescription.submit=Add Description
 describedEntity.updateDescription=Update Description
 describedEntity.updateDescription.submit=Update Description
+describedEntity.manageAccessPoints=Manage Access Points
 
 #
 # Annotations
@@ -213,19 +220,26 @@ annotation.bodyText=Text
 annotation.field=Field
 annotation.annotationType=Type
 annotation.emptyBodyText=[Missing Annotation Text]
+annotation.delete=Delete Annotation
+annotation.delete.submit=Delete Annotation
+annotation.create.item=Annotate {0}
+annotation.create=Annotate Item
 
 #
 # Linking
 #
 link.linkTo=Links to Other Items
+link.linkTo.submit=Link Items
 link.items=Linked Items
 link.itemLink=Item Link
 link.creator=Link Created By
 link.description=Link Body
 link.description.description=Some text that describes how these items are related.
 link.create=Link to another item
+link.create.item=Link ''{0}'' to ''{1}''
 link.create.to.documentaryUnit=Link to a documentary unit
 link.create.to.historicalAgent=Link to an authority file
+link.delete=Delete Link
 
 #
 # System Events
@@ -258,42 +272,37 @@ systemEvent.filter=Filter Events
 systemEvent.user=Users
 systemEvent.list=System Events
 
-
-# Actions
-actions=Actions
-actions.edit=Edit
-actions.delete=Delete
-actions.history=History
-actions.addNew=Add New
-
-actions.exportJson=Export JSON
-actions.deleteItem=Delete Item
-actions.deleteAnnotation=Delete Annotation
-actions.updateItem=Edit Item
-actions.setVisibility=Set Visibility
-actions.promote=Promote Item Publicly
-actions.demote=Remove Item Promotion
-actions.cancel=Cancel
-actions.subjectsForAction=Subjects
-actions.annotate.item=Annotate {0}
-actions.linkAnnotate.item=Link ''{0}'' to ''{1}''
-actions.annotate=Annotate Item
-actions.manageAccessPoints=Manage Access Points
-actions.revokePermission=Revoke
-actions.addNewConceptDescription=Add Concept Description
-actions.deleteConceptDescription=Delete Description
-actions.deleteLink=Delete Link
-actions.save=Save
-actions.send=Send
-
-
+#
+# Generic actions
+#
 item.history=Item History
 item.history.item=Change history for item: {0}
+item.annotate.submit=Annotate Item
+item.export.json=Export JSON
+item.delete=Delete Item
+item.delete.info=Are you sure you want to delete item: "{0}"?  This action cannot be undone.
+item.delete.submit=Delete Item
+item.delete.confirmation=Item successfully deleted
+item.create=Create Item
+item.create.submit=Create
+item.create.confirmation=Item successfully created
+item.update=Edit Item
+item.update.confirmation=Item successfully updated
+item.promote=Promote Item Publicly
+item.promote.submit=Promote Item
+item.promote.confirmation=Item promoted
+item.demote=Remove Item Promotion
+item.demote.submit=Remove Promotion
+item.demote.confirmation=Item promotion removed
 
+
+#
 # Permissions
+#
 permissions.manage.item=Manage Permissions for {0}
 permissions.manage=Manage Permissions
 permissions.global.update=Update Global Permissions
+permissions.global.update.submit=Update Global Permissions
 permissions.global.manage=Manage Global Permissions
 permissions.scopeLevel.manage=Scoped Permissions
 permissions.scopeLevel.manage.info=Scoped permissions allow you to grant permissions for users or groups to perform\
@@ -311,38 +320,21 @@ permissions.grant.submit=Update Permissions
 permissions.update=Update Permissions
 permissions.update.submit=Update Permissions
 permissions.permissionGrants={2,choice,0#No permissions granted|1#One permission granted|1<Displaying grants {0,number,integer} to {1,number,integer} of {2,number,integer}}
-
-
-
-# Submit buttons
-submitButton.updateGroup=Update Group
-submitButton.deleteItem=Delete Item
-submitButton.setVisibility=Set Visibility
-submitButton.promote=Promote Item
-submitButton.demote=Remove Promotion
-submitButton.annotate=Annotate Item
-submitButton.linkAnnotate=Link Items
-submitButton.updateGlobalPermissions=Update Global Permissions
-submitButton.loginWithPassword=Sign In
-submitButton.loginWithOpenid=Sign In With OpenID
-submitButton.changePassword=Change Password
-submitButton.createDescription=Create Description
-submitButton.updateDescription=Update Description
-
-deleting.deleteConfirmationMessage=Are you sure you want to delete item: "{0}"?  This action cannot be undone.
-deleting.deleteDescriptionConfirmationMessage=Are you sure you want to delete item description: "{0}"?  This action cannot be undone.
-
 permissions.itemPermissionsForItem=Item-level Permissions for {0}
 permissions.scopedPermissionsForItem=Scoped Permissions for {0}
 permissions.inheritedFrom=Inherited From: {0}
+permissions.revoke=Revoke
 
-confirmations.profileUpdated=Profile successfully updated
-confirmations.itemWasCreated=Item successfully created
-confirmations.itemWasUpdated=Item successfully updated
-confirmations.itemWasDeleted=Item successfully deleted
-confirmations.itemWasPromoted=Item promoted
-confirmations.itemWasDemoted=Item promotion removed
+#
+# Actions
+#
+actions=Actions
 
+#
+# Item visibility
+#
+visibility.update=Set Visibility
+visibility.update.submit=Submit
 visibility.visibleToEveryone=Unrestricted visibility
 visibility.visibleToEveryoneMessage=This item currently has no visibility restrictions and is therefore accessible to everyone.
 visibility.restrictedVisibility=Restricted Visibility
@@ -376,6 +368,8 @@ profile.notInAnyGroups=None
 profile.notSupplied=Not supplied
 profile.update=Update Profile
 profile.update.submit=Update Profile
+profile.update.confirmation=Profile successfully updated
+
 
 #
 # Form misc
@@ -418,26 +412,27 @@ permissionGrant.targets=Targets
 permissionGrant.scope=Scope
 permissionGrant.grantedBy=Granted By
 
-# Access Points
-accessPoints.addNew=Add New
+#
+# Access points
+#
+accessPoint.create=Add New
 accessPoints.newAccessPoint=New Access Point
-accessPoints.browse=Search
-accessPoints.name=Name of link target...
-accessPoints.description=Optional description...
-accessPoints.type.creatorAccess=Creator(s)
-accessPoints.type.personAccess=People
-accessPoints.type.familyAccess=Families
-accessPoints.type.corporateBodyAccess=Corporate Bodies
-accessPoints.type.placeAccess=Places
-accessPoints.type.subjectAccess=Subjects
-accessPoints.type.otherAccess=Miscellaneous
-
-
+accessPoint.browse=Search
+accessPoint.name=Name of link target...
+accessPoint.description=Optional description...
+accessPoint.type.creatorAccess=Creator(s)
+accessPoint.type.personAccess=People
+accessPoint.type.familyAccess=Families
+accessPoint.type.corporateBodyAccess=Corporate Bodies
+accessPoint.type.placeAccess=Places
+accessPoint.type.subjectAccess=Subjects
+accessPoint.type.otherAccess=Miscellaneous
 # References not on this item, but from another item's access points
-accessPoints.externalReferences=External references to this item
+accessPoint.externalReferences=External references to this item
 
-
+#
 # Metrics
+#
 metrics.languageOfMaterial=Archival Descriptions - Language of Material
 metrics.holdingRepository=Archival Descriptions - Holding Repository
 metrics.repositoryCountries=Repositories by Country
@@ -445,6 +440,9 @@ metrics.agentTypes=Authority Files by Entity Type
 metrics.restrictedMaterial=Restricted Material
 
 
+#
+# Miscellaneous UI
+#
 dataPolicy.header=EHRI Data Policy
 dataPolicy.notice1=This database might contain Sensitive Personal Data which according to Dutch privacy \
  law can be used for research purposes only (article 16 Dutch Data Protection Act ''Wet \

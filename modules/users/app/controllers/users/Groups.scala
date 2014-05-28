@@ -69,7 +69,7 @@ case class Groups @Inject()(implicit globalConfig: global.GlobalConfig, searchDi
           errorForm, accForm, users, groups, groupRoutes.createPost))
       }
       case Right(item) => Future.successful(Redirect(groupRoutes.get(item.id))
-        .flashing("success" -> Messages("confirmations.itemWasCreated", item.id)))
+        .flashing("success" -> Messages("item.create.confirmation", item.id)))
     }
   }
 
@@ -85,7 +85,7 @@ case class Groups @Inject()(implicit globalConfig: global.GlobalConfig, searchDi
       case Left(errorForm) =>
         BadRequest(views.html.group.edit(item, errorForm, groupRoutes.updatePost(id)))
       case Right(item) => Redirect(groupRoutes.get(item.id))
-        .flashing("success" -> Messages("confirmations.itemWasUpdated", item.id))
+        .flashing("success" -> Messages("item.update.confirmation", item.id))
     }
   }
 
@@ -98,7 +98,7 @@ case class Groups @Inject()(implicit globalConfig: global.GlobalConfig, searchDi
   def deletePost(id: String) = deletePostAction(id) {
       ok => implicit userOpt => implicit request =>
     Redirect(groupRoutes.list)
-        .flashing("success" -> Messages("confirmations.itemWasDeleted", id))
+        .flashing("success" -> Messages("item.delete.confirmation", id))
   }
 
   def grantList(id: String) = grantListAction(id) {
@@ -115,7 +115,7 @@ case class Groups @Inject()(implicit globalConfig: global.GlobalConfig, searchDi
   def permissionsPost(id: String) = setGlobalPermissionsPostAction(id) {
       item => perms => implicit userOpt => implicit request =>
     Redirect(groupRoutes.get(id))
-        .flashing("success" -> Messages("confirmations.itemWasUpdated", id))
+        .flashing("success" -> Messages("item.update.confirmation", id))
   }
 
 
@@ -128,7 +128,7 @@ case class Groups @Inject()(implicit globalConfig: global.GlobalConfig, searchDi
   def revokePermissionPost(id: String, permId: String) = revokePermissionActionPost(id, permId) {
       item => bool => implicit userOpt => implicit request =>
     Redirect(groupRoutes.grantList(id))
-      .flashing("success" -> Messages("confirmations.itemWasDeleted", id))
+      .flashing("success" -> Messages("item.delete.confirmation", id))
   }
 
   /*
@@ -187,7 +187,7 @@ case class Groups @Inject()(implicit globalConfig: global.GlobalConfig, searchDi
         item => implicit userOpt => implicit request =>
       backend.addGroup(id, userId).map { ok =>
         Redirect(groupRoutes.membership(userType, userId))
-          .flashing("success" -> Messages("confirmations.itemWasUpdated", id))
+          .flashing("success" -> Messages("item.update.confirmation", id))
       }
     }
   }
@@ -215,7 +215,7 @@ case class Groups @Inject()(implicit globalConfig: global.GlobalConfig, searchDi
         item => implicit userOpt => implicit request =>
       backend.removeGroup(id, userId).map { ok =>
         Redirect(groupRoutes.membership(userType, userId))
-          .flashing("success" -> Messages("confirmations.itemWasUpdated", id))
+          .flashing("success" -> Messages("item.update.confirmation", id))
       }
     }
   }

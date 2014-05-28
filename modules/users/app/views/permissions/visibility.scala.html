@@ -2,7 +2,7 @@
 implicit userOpt: Option[UserProfile], req: RequestHeader, globalConfig: global.GlobalConfig, lang: Lang, flash: Flash, token: play.filters.csrf.CSRF.Token)
 
 
-@layout.rightSidebar(Messages("actions.setVisibility"), breadcrumbs = common.breadcrumbs(List(item))) {
+@layout.rightSidebar(Messages("visibility.update"), breadcrumbs = common.breadcrumbs(List(item))) {
 	
 	@if(item.accessors.isEmpty) {
         <h3>@Messages("visibility.visibleToEveryone")</h3>
@@ -26,7 +26,7 @@ implicit userOpt: Option[UserProfile], req: RequestHeader, globalConfig: global.
 	@helper.form(action = action, 'class -> "entity-form form-horizontal") {
         @formHelpers.csrfToken()
         @permissions.renderVisibilityForm(f, users, groups)
-        @formHelpers.submitButtonWithLogMessageInput(Messages("submitButton.setVisibility"), cancel = Some(globalConfig.routeRegistry.urlFor(item)))
+        @formHelpers.submitButtonWithLogMessageInput(Messages("visibility.update.submit"), cancel = Some(globalConfig.routeRegistry.urlFor(item)))
 	}
 } {
 

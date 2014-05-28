@@ -26,10 +26,10 @@
             <a href="@controllers.archdesc.routes.Countries.createRepository(item.id)">@Messages("actions.createRepository")</a>
         }
         @common.sidebarAction(user.hasPermission(ContentTypes.Country, PermissionType.Update)) {
-            <a href="@controllers.archdesc.routes.Countries.update(item.id)">@Messages("actions.updateItem")</a>
+            <a href="@controllers.archdesc.routes.Countries.update(item.id)">@Messages("item.update")</a>
         }
         @common.sidebarAction(user.hasPermission(ContentTypes.Country, PermissionType.Delete)) {
-            <a href="@controllers.archdesc.routes.Countries.delete(item.id)">@Messages("actions.deleteItem")</a>
+            <a href="@controllers.archdesc.routes.Countries.delete(item.id)">@Messages("item.delete")</a>
         }
         @common.sidebarAction(user.hasPermission(ContentTypes.Country, PermissionType.Grant)) {
             <a href="@controllers.archdesc.routes.Countries.managePermissions(item.id)">@Messages("permissions.manage")</a>

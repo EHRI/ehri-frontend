@@ -85,7 +85,7 @@
                             </fieldset>
                         </div>
 
-                        <input type="submit" class="button post login-button openid" value="@Messages("submitButton.loginWithOpenid")" />
+                        <input type="submit" class="button post login-button openid" value="@Messages("portal.login.openid.submit")" />
                     </div>
                 }
                 @helper.form(action = controllers.portal.routes.Profile.passwordLoginPost, 'class -> "login-form form validate-form", 'role -> "form") {
@@ -100,7 +100,7 @@
                         @helper.inputPassword(pwForm("password"), 'class -> "form-control", 'placeholder -> Messages("login.password"), 'required -> "required")
                     </div>
 
-                    <input type="submit" class="login-button button post" value="@Messages("submitButton.loginWithPassword")" />
+                    <input type="submit" class="login-button button post" value="@Messages("portal.login.password.submit")" />
                     <p class="text-center">
                         <em><strong>or</strong></em>
                     </p>

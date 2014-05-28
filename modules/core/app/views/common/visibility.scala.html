@@ -19,7 +19,7 @@
     }
     @userOpt.map { user =>
         @if(user.hasPermission(contentType, PermissionType.Update)) {
-            <p><small><a href="@url">@Messages("actions.setVisibility")</a></small></p>
+            <p><small><a href="@url">@Messages("visibility.update")</a></small></p>
         }
     }
 </div>

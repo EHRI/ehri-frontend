@@ -65,10 +65,10 @@
             <a href="@controllers.vocabs.routes.Concepts.createConcept(item.id)">@Messages("actions.createNarrowerConcept")</a>
         }
         @common.sidebarAction(user.hasPermission(ContentTypes.Concept, PermissionType.Update)) {
-            <a href="@controllers.vocabs.routes.Concepts.update(item.id)">@Messages("actions.updateItem")</a>
+            <a href="@controllers.vocabs.routes.Concepts.update(item.id)">@Messages("item.update")</a>
         }
         @common.sidebarAction(user.hasPermission(ContentTypes.Concept, PermissionType.Delete)) {
-            <a href="@controllers.vocabs.routes.Concepts.delete(item.id)">@Messages("actions.deleteItem")</a>
+            <a href="@controllers.vocabs.routes.Concepts.delete(item.id)">@Messages("item.delete")</a>
         }
         @common.sidebarAction(user.hasPermission(ContentTypes.Concept, PermissionType.Grant)) {
             <a href="@controllers.vocabs.routes.Concepts.managePermissions(item.id)">@Messages("permissions.manage")</a>

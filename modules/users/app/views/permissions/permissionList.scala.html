@@ -10,12 +10,12 @@
                 @accessor match {
                     case u: UserProfile => {
                         <a href="@controllers.users.routes.UserProfiles.revokePermission(accessor.id, perm.id)">
-                            <i title="@Messages("actions.revokePermission")" class="glyphicon glyphicon-remove"></i>
+                            <i title="@Messages("permissions.revoke")" class="glyphicon glyphicon-remove"></i>
                         </a>
                     }
                     case u: Group => {
                         <a href="@controllers.users.routes.Groups.revokePermission(accessor.id, perm.id)">
-                            <i title="@Messages("actions.revokePermission")" class="glyphicon glyphicon-remove"></i>
+                            <i title="@Messages("permissions.revoke")" class="glyphicon glyphicon-remove"></i>
                         </a>
                     }
                 }

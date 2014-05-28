@@ -1,12 +1,12 @@
 @(item: AnyModel, description: Description, action: Call, cancel: Call)(
 implicit userOpt: Option[UserProfile], request: RequestHeader, globalConfig: global.GlobalConfig, flash: Flash, token: play.filters.csrf.CSRF.Token)
 
-@layout.rightSidebar(Messages("actions.deleteItem", item.toStringLang), breadcrumbs = common.breadcrumbs(List(item))) {
+@layout.rightSidebar(Messages("item.delete", item.toStringLang), breadcrumbs = common.breadcrumbs(List(item))) {
 
-    <p>@Messages("deleting.deleteDescriptionConfirmationMessage", description.name)</p>
+    <p>@Messages("describedEntity.deleteDescription.info", description.name)</p>
     @helper.form(action = action, 'class -> "form-horizontal") {
         @formHelpers.csrfToken()
-        @formHelpers.submitButtonWithLogMessageInput(Messages("submitButton.deleteItem"), cancel = Some(globalConfig.routeRegistry.urlFor(item)))
+        @formHelpers.submitButtonWithLogMessageInput(Messages("item.delete.submit"), cancel = Some(globalConfig.routeRegistry.urlFor(item)))
     }
 } {
 

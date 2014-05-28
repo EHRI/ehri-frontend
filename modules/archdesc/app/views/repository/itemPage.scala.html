@@ -11,10 +11,10 @@
             <a href="@controllers.archdesc.routes.Repositories.createDoc(item.id)">@Messages("actions.createNewDocUnit")</a>
         }
         @common.sidebarAction(user.hasPermission(ContentTypes.Repository, PermissionType.Update)) {
-            <a href="@controllers.archdesc.routes.Repositories.update(item.id)">@Messages("actions.updateItem")</a>
+            <a href="@controllers.archdesc.routes.Repositories.update(item.id)">@Messages("item.update")</a>
         }
         @common.sidebarAction(user.hasPermission(ContentTypes.Repository, PermissionType.Delete)) {
-            <a href="@controllers.archdesc.routes.Repositories.delete(item.id)">@Messages("actions.deleteItem")</a>
+            <a href="@controllers.archdesc.routes.Repositories.delete(item.id)">@Messages("item.delete")</a>
         }
         @common.sidebarAction(user.hasPermission(ContentTypes.Repository, PermissionType.Grant)) {
             <a href="@controllers.archdesc.routes.Repositories.managePermissions(item.id)">@Messages("permissions.manage")</a>
@@ -26,7 +26,7 @@
             <a href="@controllers.archdesc.routes.Repositories.updateIndex(item.id)">@Messages("search.updateIndex")</a>
         }
         @common.sidebarAction() {
-            <a href="@controllers.core.routes.ApiController.getItem(ContentTypes.Repository.toString, item.id)">@Messages("actions.exportJson")</a>
+            <a href="@controllers.core.routes.ApiController.getItem(ContentTypes.Repository.toString, item.id)">@Messages("item.export.json")</a>
         }
     }
 }

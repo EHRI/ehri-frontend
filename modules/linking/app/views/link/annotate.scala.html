@@ -3,7 +3,7 @@ implicit userOpt: Option[UserProfile], req: RequestHeader, globalConfig: global.
 
 @implicitField = @{ views.html.helper.FieldConstructor(formHelpers.fieldTemplate.f) }
 
-@layout.rightSidebar(Messages("actions.annotate", item)) {
+@layout.rightSidebar(Messages("annotation.create", item)) {
 	@helper.form(action = action, 'class -> "entity-form form-horizontal") {
         @formHelpers.csrfToken()
         @formHelpers.textInput(form(""), AnnotationF.BODY)
@@ -11,7 +11,7 @@ implicit userOpt: Option[UserProfile], req: RequestHeader, globalConfig: global.
         @formHelpers.hiddenInput(form(AnnotationF.ANNOTATION_TYPE))
 
 		<div class="form-actions">
-			<button type="submit" class="btn btn-primary">@Messages("submitButton.annotate")</button>
+			<button type="submit" class="btn btn-primary">@Messages("item.annotate.submit")</button>
 		</div>
 	}
 } {

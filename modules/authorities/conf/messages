@@ -226,7 +226,7 @@ Record notes pertinent to the creation and maintenance of the authority record. 
   names of persons responsible for creating the authority record may be recorded here.
 
 historicalAgent.accessPoints=Access Points
-historicalAgent.accessPoints.description=
+historicalAgent.accessPoint.description=
 
 historicalAgent.accessPoints.creatorAccess=Creators
 historicalAgent.accessPoints.creatorAccess.description=
