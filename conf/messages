@@ -2,6 +2,7 @@
 banner.heading=EHRI Dev Test
 banner.signin=Sign In
 banner.signout=Sign Out
+footer.footerText=This is a development version of the EHRI data entry interface.
 
 pages.home=Home
 pages.search=Search
@@ -44,18 +45,13 @@ languageCode.lad=Ladino
 # Country code
 countryCode.xk=Kosovo
 
-# Form errors.
-error.globalErrors=There were problems with that form:
-error.date=Date is incorrect or badly formatted
-error.badUrl=URL is incorrect or badly formatted
-error.required=Required
-error.emailExists=Email is either invalid or is already registered
+
 constraint.required=*
 format.boolean=On/Off
 
-# General messages
-error.unknownUser=Unknown user
-
+#
+# Search
+#
 search.type=Item Type
 search.filterItems=Filter Items
 search.sortItems=Sort Items
@@ -79,8 +75,9 @@ search.spellingSuggestion=Did you mean
 search.queryPlaceholder=Search...
 search.batchSize=Batch size for reindexing
 
-footer.footerText=This is a development version of the EHRI data entry interface.
-
+#
+# Login-related
+#
 login.login=Sign In
 login.logout=Sign Out
 login.openid=With OpenID
@@ -109,21 +106,36 @@ login.sendPasswordResetLink=Submit
 login.submitPasswordReset=Submit
 login.forgotPasswordLink=Click here if you have a password account but have forgotten or lost your password.
 login.passwordResetNowLogin=Your password has been reset. Now please log in using the new one.
+
+#
+# Miscellaneous errors
+#
+error.globalErrors=There were problems with that form:
+error.date=Date is incorrect or badly formatted
+error.badUrl=URL is incorrect or badly formatted
+error.required=Required
+error.emailExists=Email is either invalid or is already registered
+error.unknownUser=Unknown user
 error.emailNotFound=That email was not found on our system.
 error.badRecaptcha=The Recaptcha check (intended to ensure you are a human and not an automated spamming machine) did not\
     get the right response. Tip: you can keep refreshing the challenge text until you get something more readable.
-openid.openIdError=There was a problem logging you in with OpenID.\
+error.openId=There was a problem logging you in with OpenID.\
   This may because your provider does not support attribute exchange. The error messages was: {0}
-openid.openIdUrlError=There was no response from the given openid provider: ''{0}''.\
+error.openId.url=There was no response from the given openid provider: ''{0}''.\
   Please ensure the provider URL is correct.
+error.userEmailAlreadyRegistered=A user with that email is already registered: {0}
 
+#
 # Mail stuff
+#
 mail.forgotPasswordMailHeading=EHRI Password Reset
 mail.forgotPasswordMessage=To reset your password, please follow the link below. Note: this link can only be used \
   to reset your password once.
 mail.forgotPasswordFooter=
 
+#
 # Friendly names for content types
+#
 contentTypes.group=Groups
 contentTypes.userProfile=Users
 contentTypes.repository=Repositories
@@ -149,14 +161,6 @@ permissionTypes.grant=Grant
 permissionTypes.annotate=Annotate
 permissionTypes.owner=Owner
 permissionTypes.promote=Promote
-
-# Permission grant list paginations
-permissions.permissionGrants={2,choice,0#No permissions granted|1#One permission granted|1<Displaying grants {0,number,integer} to {1,number,integer} of {2,number,integer}}
-
-
-# general models.forms
-update.heading=Update {0}
-create.heading=Create New Item
 
 #
 # Custom page error reporting
@@ -196,6 +200,11 @@ describedEntity.notGiven=Not Given
 describedEntity.additionalData=Additional Harvested Data (Click to display)
 describedEntity.additionalData.key=Key
 describedEntity.additionalData.value=Value
+describedEntity.createDescription=Add Description
+describedEntity.createDescription.item=Add Description to {0}
+describedEntity.createDescription.submit=Add Description
+describedEntity.updateDescription=Update Description
+describedEntity.updateDescription.submit=Update Description
 
 #
 # Annotations
@@ -214,12 +223,9 @@ link.itemLink=Item Link
 link.creator=Link Created By
 link.description=Link Body
 link.description.description=Some text that describes how these items are related.
-
-#
-# Admin
-#
-admin.createNewUser=Create New User
-admin.userEmailAlreadyRegistered=A user with that email is already registered: {0}
+link.create=Link to another item
+link.create.to.documentaryUnit=Link to a documentary unit
+link.create.to.historicalAgent=Link to an authority file
 
 #
 # System Events
@@ -259,45 +265,14 @@ actions.edit=Edit
 actions.delete=Delete
 actions.history=History
 actions.addNew=Add New
-actions.createDescription=Add Description
-actions.updateDescription=Update Description
 
-actions.updateUserProfile=Update Profile
-actions.updateGroup=Update Group
-actions.linkTo=Link to another item
-actions.linkToDocumentaryUnit=Link to a documentary unit
-actions.linkToHistoricalAgent=Link to an authority file
-
-actions.viewProfile=View Profile
 actions.exportJson=Export JSON
 actions.deleteItem=Delete Item
 actions.deleteAnnotation=Delete Annotation
 actions.updateItem=Edit Item
-actions.createNewItem=Create New Item
 actions.setVisibility=Set Visibility
 actions.promote=Promote Item Publicly
 actions.demote=Remove Item Promotion
-
-item.history=Item History
-item.history.item=Change history for item: {0}
-actions.managePermissions.item=Manage Permissions for {0}
-actions.managePermissions=Manage Permissions
-
-actions.updateGlobalPermissions=Update Global Permissions
-actions.manageScopedPermissions=Scoped Permissions
-actions.manageScopedPermissions.info=Scoped permissions allow you to grant permissions for users or groups to perform\
-  actions on all items ''within'' another item (the scope), i.e. all documentary units within a given repository.
-actions.manageAccessorScopedPermissions.item=Scoped Permissions for {0}
-actions.manageScopedPermissions.item=Scoped Permissions for {0}
-actions.manageItemPermissions=Item-level Permissions
-actions.manageItemPermissions.item=Item-level Permissions for {0}
-actions.manageItemPermissions.info=Item-level permissions allow you to grant permissions for users or groups to perform\
-  actions on a single item, i.e. updating a repository''s descriptive information.
-actions.manageAccessorItemPermissions.item=Item-level Permissions for {0}
-actions.grantPermissionsInScope.item=Manage Permissions in scope {0} for {1}
-actions.grantPermissions.item=Manage Permissions on {0} for {1}
-actions.updatePermissions=Update Permissions
-actions.manageGlobalPermissions=Manage Global Permissions
 actions.cancel=Cancel
 actions.subjectsForAction=Subjects
 actions.annotate.item=Annotate {0}
@@ -311,8 +286,35 @@ actions.deleteLink=Delete Link
 actions.save=Save
 actions.send=Send
 
+
+item.history=Item History
+item.history.item=Change history for item: {0}
+
+# Permissions
+permissions.manage.item=Manage Permissions for {0}
+permissions.manage=Manage Permissions
+permissions.global.update=Update Global Permissions
+permissions.global.manage=Manage Global Permissions
+permissions.scopeLevel.manage=Scoped Permissions
+permissions.scopeLevel.manage.info=Scoped permissions allow you to grant permissions for users or groups to perform\
+  actions on all items ''within'' another item (the scope), i.e. all documentary units within a given repository.
+permissions.scopeLevel.manage.item=Scoped Permissions for {0}
+permissions.accessor.scopeLevel.item=Scoped Permissions for {0}
+permissions.itemLevel.manage=Item-level Permissions
+permissions.itemLevel.manage.item=Item-level Permissions for {0}
+permissions.itemLevel.manage.info=Item-level permissions allow you to grant permissions for users or groups to perform\
+  actions on a single item, i.e. updating a repository''s descriptive information.
+permissions.accessor.itemLevel.item=Item-level Permissions for {0}
+permissions.scopeLevel.grant.item=Manage Permissions in scope {0} for {1}
+permissions.grant.item=Manage Permissions on {0} for {1}
+permissions.grant.submit=Update Permissions
+permissions.update=Update Permissions
+permissions.update.submit=Update Permissions
+permissions.permissionGrants={2,choice,0#No permissions granted|1#One permission granted|1<Displaying grants {0,number,integer} to {1,number,integer} of {2,number,integer}}
+
+
+
 # Submit buttons
-submitButton.updateUserProfile=Update Profile
 submitButton.updateGroup=Update Group
 submitButton.deleteItem=Delete Item
 submitButton.setVisibility=Set Visibility
@@ -354,6 +356,7 @@ visibility.promotedBy=Promoted By
 #
 # User Profile Field definitions
 #
+profile.show=View Profile
 profile.account=Account
 profile.identifier=Identifier
 profile.identifier.description=Your user name
@@ -371,6 +374,8 @@ profile.noBioGiven=No biography given
 profile.groupsBelongedTo=Groups
 profile.notInAnyGroups=None
 profile.notSupplied=Not supplied
+profile.update=Update Profile
+profile.update.submit=Update Profile
 
 #
 # Form misc

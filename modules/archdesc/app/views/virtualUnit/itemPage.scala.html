@@ -14,7 +14,7 @@
             <a href="@controllers.archdesc.routes.VirtualUnits.createChild(item.id)">@Messages("actions.createChildVirtualUnit")</a>
         }
         @common.sidebarAction(user.hasPermission(ContentTypes.VirtualUnit, PermissionType.Annotate)) {
-            <a href="@controllers.archdesc.routes.VirtualUnits.linkAnnotateSelect(item.id, EntityType.VirtualUnit)">@Messages("actions.linkTo")</a>
+            <a href="@controllers.archdesc.routes.VirtualUnits.linkAnnotateSelect(item.id, EntityType.VirtualUnit)">@Messages("link.create")</a>
         }
         @common.sidebarAction(user.hasPermission(ContentTypes.VirtualUnit, PermissionType.Update)) {
             <a href="@controllers.archdesc.routes.VirtualUnits.update(item.id)">@Messages("actions.updateItem")</a>
@@ -26,7 +26,7 @@
             <a href="@controllers.archdesc.routes.VirtualUnits.delete(item.id)">@Messages("actions.deleteItem")</a>
             }
         @common.sidebarAction(user.hasPermission(ContentTypes.VirtualUnit, PermissionType.Grant)) {
-            <a href="@controllers.archdesc.routes.VirtualUnits.managePermissions(item.id)">@Messages("actions.managePermissions")</a>
+            <a href="@controllers.archdesc.routes.VirtualUnits.managePermissions(item.id)">@Messages("permissions.manage")</a>
         }
         @common.sidebarAction() {
             <a href="@controllers.core.routes.ApiController.getItem(ContentTypes.VirtualUnit.toString, item.id)">@Messages("actions.exportJson")</a>

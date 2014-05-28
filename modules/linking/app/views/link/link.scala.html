@@ -8,7 +8,7 @@ implicit userOpt: Option[UserProfile], req: RequestHeader, globalConfig: global.
 	@helper.form(action = action, 'class -> "entity-form form-horizontal") {
         @formHelpers.csrfToken()
 		<fieldset id="annotate-area">
-            <legend>@Messages("actions.linkTo")</legend>
+            <legend>@Messages("link.create")</legend>
             @defining("link") { implicit fieldPrefix =>
                 @formHelpers.textInput(form(""), LinkF.DESCRIPTION)
                 <input type="hidden" value="@LinkF.LinkType.Associative" name="@form(LinkF.LINK_TYPE).name" />

@@ -37,13 +37,13 @@ case class Concepts @Inject()(implicit globalConfig: global.GlobalConfig, search
     List(
       FieldFacetClass(
         key="languageCode", // FIXME - define elsewhere
-        name=Messages("concept.languageCode"),
+        name=Messages("cvocConcept.languageCode"),
         param="lang",
         render=(s: String) => Helpers.languageCodeToName(s)
       ),
       FieldFacetClass(
         key="holderName",
-        name=Messages("concept.inVocabulary"),
+        name=Messages("cvocConcept.inVocabulary"),
         param="set",
         sort = FacetSort.Name
       )

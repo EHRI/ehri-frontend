@@ -32,7 +32,7 @@
             <a href="@controllers.archdesc.routes.Countries.delete(item.id)">@Messages("actions.deleteItem")</a>
         }
         @common.sidebarAction(user.hasPermission(ContentTypes.Country, PermissionType.Grant)) {
-            <a href="@controllers.archdesc.routes.Countries.managePermissions(item.id)">@Messages("actions.managePermissions")</a>
+            <a href="@controllers.archdesc.routes.Countries.managePermissions(item.id)">@Messages("permissions.manage")</a>
         }
         @common.sidebarAction() {
             <a href="@controllers.archdesc.routes.Countries.history(item.id)">@Messages("item.history")</a>

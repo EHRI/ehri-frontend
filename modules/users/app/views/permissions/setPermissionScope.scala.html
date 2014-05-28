@@ -3,7 +3,7 @@
         )
 @import defines.PermissionType
 
-@layout.rightSidebar(Messages("actions.grantPermissionsInScope.item", item.toStringLang, accessor.toStringLang), breadcrumbs = common.breadcrumbs(List(item))) {
+@layout.rightSidebar(Messages("permissions.scopeLevel.grant.item", item.toStringLang, accessor.toStringLang), breadcrumbs = common.breadcrumbs(List(item))) {
 
     @helper.form(action = action, 'class -> "entity-form form-horizontal") {
         @formHelpers.csrfToken()
@@ -39,7 +39,7 @@
 
         </fieldset>
 
-        @formHelpers.submitButtonWithLogMessageInput(Messages("actions.updatePermissions"), cancel = Some(globalConfig.routeRegistry.urlFor(item)))
+        @formHelpers.submitButtonWithLogMessageInput(Messages("permissions.update"), cancel = Some(globalConfig.routeRegistry.urlFor(item)))
     }
 } {
 

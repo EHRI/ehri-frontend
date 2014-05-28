@@ -227,7 +227,7 @@ trait FacetConfig extends Search {
     List(
       FieldFacetClass(
         key="holderName",
-        name=Messages("concept.inVocabulary"),
+        name=Messages("cvocConcept.inVocabulary"),
         param="vocab",
         render=s => s,
         display = FacetDisplay.Choice

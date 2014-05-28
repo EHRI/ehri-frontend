@@ -2,9 +2,9 @@
 
 @implicitField = @{ views.html.helper.FieldConstructor(formHelpers.fieldTemplate.f) }
 
-@layout.rightSidebar(Messages("actions.manageItemPermissions.item", item.toStringLang), breadcrumbs = common.breadcrumbs(List(item))) {
+@layout.rightSidebar(Messages("permissions.itemLevel.manage.item", item.toStringLang), breadcrumbs = common.breadcrumbs(List(item))) {
 
-    <a href="@itemPermAction">@Messages("actions.manageItemPermissions")</a>
+    <a href="@itemPermAction">@Messages("permissions.itemLevel.manage")</a>
 
     @permissions.permissionList(None, page, "page")
 } {

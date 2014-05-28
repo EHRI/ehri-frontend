@@ -3,7 +3,7 @@ implicit userOpt: Option[UserProfile], req: RequestHeader, globalConfig: global.
 
 @implicitField = @{ views.html.helper.FieldConstructor(formHelpers.fieldTemplate.f) }
 
-@layout.rightSidebar(Messages("actions.updateGlobalPermissions", item.toStringLang), breadcrumbs = common.breadcrumbs(List(item))) {
+@layout.rightSidebar(Messages("permissions.global.update", item.toStringLang), breadcrumbs = common.breadcrumbs(List(item))) {
 	
 	@if(!item.groups.isEmpty) {
 	  <strong>Parent Groups: </strong>&nbsp;

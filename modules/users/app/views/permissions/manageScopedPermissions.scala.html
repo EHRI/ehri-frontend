@@ -3,26 +3,26 @@
 
 @implicitField = @{ views.html.helper.FieldConstructor(formHelpers.fieldTemplate.f) }
 
-@layout.rightSidebar(Messages("actions.managePermissions.item", item.toStringLang), breadcrumbs = common.breadcrumbs(List(item))) {
+@layout.rightSidebar(Messages("permissions.manage.item", item.toStringLang), breadcrumbs = common.breadcrumbs(List(item))) {
 
 
-    <h3>@Messages("actions.manageItemPermissions")</h3>
+    <h3>@Messages("permissions.itemLevel.manage")</h3>
     <div class="well well-small text-muted">
         <i class="glyphicon glyphicon-info-sign"></i>
-        @Messages("actions.manageItemPermissions.info")
+        @Messages("permissions.itemLevel.manage.info")
     </div>
-    <a href="@itemPermAction">@Messages("actions.manageItemPermissions")</a>
+    <a href="@itemPermAction">@Messages("permissions.itemLevel.manage")</a>
 
     @permissions.permissionList(None, itemPage, "page")
 
     <hr />
 
-    <h3>@Messages("actions.manageScopedPermissions")</h3>
+    <h3>@Messages("permissions.scopeLevel.manage")</h3>
     <div class="well well-small text-muted">
         <i class="glyphicon glyphicon-info-sign"></i>
-        @Messages("actions.manageScopedPermissions.info")
+        @Messages("permissions.scopeLevel.manage.info")
     </div>
-    <a href="@scopePermAction">@Messages("actions.manageScopedPermissions")</a>
+    <a href="@scopePermAction">@Messages("permissions.scopeLevel.manage")</a>
 
     @permissions.permissionList(None, scopePage, "spage")
 

@@ -163,7 +163,7 @@ case class UserProfiles @Inject()(implicit globalConfig: global.GlobalConfig, se
     // check if the email is already registered...
     userDAO.findByEmail(email.toLowerCase).map { account =>
       val errForm = userPasswordForm.bindFromRequest
-        .withError(FormError("email", Messages("admin.userEmailAlreadyRegistered", account.id)))
+        .withError(FormError("email", Messages("error.userEmailAlreadyRegistered", account.id)))
       immediate(BadRequest(views.html.userProfile.create(errForm, groupMembershipForm.bindFromRequest,
         allGroups, userRoutes.createUserPost())))
     } getOrElse {

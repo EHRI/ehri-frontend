@@ -10,7 +10,7 @@
         }
     }
 
-    @views.html.search.searchSection(Messages("vocabulary.items")) {
+    @views.html.search.searchSection(Messages("cvocVocabulary.items")) {
         @views.html.search.searchForm(result, params, action, autofocus = false) {
             @concept.searchItemList(result)
         }
@@ -30,7 +30,7 @@
             <a href="@controllers.vocabs.routes.Vocabularies.delete(item.id)">@Messages("actions.deleteItem")</a>
         }
         @sidebarAction(user.hasPermission(ContentTypes.Vocabulary, PermissionType.Grant)) {
-            <a href="@controllers.vocabs.routes.Vocabularies.managePermissions(item.id)">@Messages("actions.managePermissions")</a>
+            <a href="@controllers.vocabs.routes.Vocabularies.managePermissions(item.id)">@Messages("permissions.manage")</a>
         }
         @sidebarAction() {
             <a href="@controllers.vocabs.routes.Vocabularies.history(item.id)">@Messages("item.history")</a>

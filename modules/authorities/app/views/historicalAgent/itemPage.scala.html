@@ -16,7 +16,7 @@
             <a href="@controllers.authorities.routes.HistoricalAgents.delete(item.id)">@Messages("actions.deleteItem")</a>
         }
         @common.sidebarAction(user.hasPermission(ContentTypes.HistoricalAgent, PermissionType.Grant)) {
-            <a href="@controllers.authorities.routes.HistoricalAgents.managePermissions(item.id)">@Messages("actions.managePermissions")</a>
+            <a href="@controllers.authorities.routes.HistoricalAgents.managePermissions(item.id)">@Messages("permissions.manage")</a>
         }
         @common.sidebarAction() {
             <a href="@controllers.authorities.routes.HistoricalAgents.history(item.id)">@Messages("item.history")</a>

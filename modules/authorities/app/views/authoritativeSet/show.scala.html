@@ -28,7 +28,7 @@
             <a href="@controllers.authorities.routes.AuthoritativeSets.delete(item.id)">@Messages("actions.deleteItem")</a>
         }
         @common.sidebarAction(user.hasPermission(ContentTypes.AuthoritativeSet, PermissionType.Grant)) {
-            <a href="@controllers.authorities.routes.AuthoritativeSets.managePermissions(item.id)">@Messages("actions.managePermissions")</a>
+            <a href="@controllers.authorities.routes.AuthoritativeSets.managePermissions(item.id)">@Messages("permissions.manage")</a>
         }
         @common.sidebarAction() {
             <a href="@controllers.authorities.routes.AuthoritativeSets.history(item.id)">@Messages("item.history")</a>

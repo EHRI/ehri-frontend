@@ -53,7 +53,7 @@
             <div class="sidebar-section-footer">
                 <i class="glyphicon glyphicon-plus-sign"></i>
                 <a href="@controllers.archdesc.routes.DocumentaryUnits.createDescription(item.id)">
-                    @Messages("actions.createDescription")
+                    @Messages("describedEntity.createDescription")
                 </a>
             </div>
         </div>
@@ -97,7 +97,7 @@
                 </div>
             } else {
                 <p class="text-muted">@Messages("documentaryUnit.noDescriptions")</p>
-                <a href="@controllers.archdesc.routes.DocumentaryUnits.createDescription(item.id)" class="btn btn-primary">@Messages("actions.createDescription")</a>
+                <a href="@controllers.archdesc.routes.DocumentaryUnits.createDescription(item.id)" class="btn btn-primary">@Messages("describedEntity.createDescription")</a>
             }
         }
 

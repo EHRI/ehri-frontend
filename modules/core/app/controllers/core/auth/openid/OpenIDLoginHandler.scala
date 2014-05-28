@@ -63,19 +63,19 @@ trait OpenIDLoginHandler {
                 case t: ConnectException => {
                   Logger.warn("OpenID Login connect exception: {}", t)
                   f(boundForm
-                    .withGlobalError(Messages("openid.openIdUrlError", openidUrl)))(request)
+                    .withGlobalError(Messages("error.openId.url", openidUrl)))(request)
                 }
                 case t => {
                   Logger.warn("OpenID Login argument exception: {}", t)
                   f(boundForm
-                    .withGlobalError(Messages("openid.openIdUrlError", openidUrl)))(request)
+                    .withGlobalError(Messages("error.openId.url", openidUrl)))(request)
                 }
               }
             }
           )
         } catch {
           case _: Throwable => f(openidForm
-            .withGlobalError(Messages("openid.openIdUrlError")))(request)
+            .withGlobalError(Messages("error.openId.url")))(request)
         }
       }
     }
@@ -119,8 +119,8 @@ trait OpenIDLoginHandler {
             }
           }
         } recoverWith {
-          case t => f(Left(openidForm.withGlobalError("openid.openIdError", t.getMessage)))(request)
-            .map(_.flashing("error" -> Messages("openid.openIdError", t.getMessage)))
+          case t => f(Left(openidForm.withGlobalError("error.openId", t.getMessage)))(request)
+            .map(_.flashing("error" -> Messages("error.openId", t.getMessage)))
         }
       }
     }

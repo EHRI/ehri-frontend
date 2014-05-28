@@ -3,7 +3,7 @@
  
 @implicitField = @{ views.html.helper.FieldConstructor(formHelpers.fieldTemplate.f) }
 
-@layout.rightSidebar(Messages("actions.updateDescription"), breadcrumbs = documentaryUnit.breadcrumbs(item), scripts = formHelpers.dateJs()) {
+@layout.rightSidebar(Messages("describedEntity.updateDescription"), breadcrumbs = documentaryUnit.breadcrumbs(item), scripts = formHelpers.dateJs()) {
 
     @defining(EntityType.DocumentaryUnit.toString) { implicit fieldPrefix =>
         @helper.form(action = action, 'class -> "entity-form form-horizontal") {
