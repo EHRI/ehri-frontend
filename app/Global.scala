@@ -52,7 +52,7 @@ package globalConfig {
         ("contentTypes.country",          controllers.archdesc.routes.Countries.search().url),
         ("contentTypes.cvocVocabulary",   controllers.vocabs.routes.Vocabularies.list().url),
         ("contentTypes.authoritativeSet", controllers.authorities.routes.AuthoritativeSets.list().url),
-        ("contentTypes.guides", controllers.guides.routes.GuidesAdmin.listGuides().url),
+        ("contentTypes.guides", controllers.guides.routes.Guides.list().url),
         ("s1", "-"),
         ("contentTypes.systemEvent",      controllers.users.routes.SystemEvents.list().url),
         ("s2", "-"),

@@ -1,0 +1,35 @@
+@(title: String, guides: List[Guide], layouts: Option[(List[GuidePage], Guide)] = None, breadcrumbs:Html = Html(""), sideBar: Html= Html(""))(content: Html)(implicit userOpt: Option[UserProfile], req: RequestHeader, globalConfig: global.GlobalConfig, lang: Lang, flash: Flash)
+
+@layout.rightSidebar(title, breadcrumbs = breadcrumbs) {
+	<div>
+		@content
+	</div>
+} {
+	<h4>@Messages("guide.list")</h4>
+	<ul class="nav nav-pills nav-stacked">
+		@for(guide <- guides) {
+			<li>
+				<a href="@controllers.guides.routes.Guides.show(guide.path)">@guide.name</a>
+			</li>
+		}
+		<li>
+			<a href="@controllers.guides.routes.Guides.create()"><span class="glyphicon glyphicon-plus-sign"></span>
+                @Messages("guide.create")
+            </a>
+		</li>
+	</ul>
+	@layouts.map { pages =>
+		<h4>@Messages("guidePage.list")</h4>
+		<ul class="nav nav-pills nav-stacked">
+			@for(page <- pages._1) {
+				<li>
+					<a href="@controllers.guides.routes.GuidePages.edit(pages._2.path, page.path)">@page.name</a>
+				</li>
+			}
+			<li>
+				<a href="@controllers.guides.routes.GuidePages.create(pages._2.path)"><span class="glyphicon glyphicon-plus-sign"></span> @Messages("guidePage.create")</a>
+			</li>
+		</ul>
+	}
+	@sideBar
+}

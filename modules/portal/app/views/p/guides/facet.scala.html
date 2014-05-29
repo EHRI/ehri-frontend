@@ -1,6 +1,6 @@
-@(template: (GuidesPage, (Guide, List[GuidesPage])))(implicit userOpt: Option[UserProfile], request: RequestHeader, prefs: utils.SessionPrefs, globalConfig: global.GlobalConfig, lang: Lang, flash: Flash)
+@(template: (GuidePage, (Guide, List[GuidePage])))(implicit userOpt: Option[UserProfile], request: RequestHeader, prefs: utils.SessionPrefs, globalConfig: global.GlobalConfig, lang: Lang, flash: Flash)
 
-@import models.{GuidesPage, Guide}
+@import models.{GuidePage, Guide}
 
 @js = {
     <script type="text/javascript">

@@ -1,4 +1,4 @@
-@(item: Option[Guide], f: Form[models.Guide], listPages: Option[List[GuidesPage]] = None)
+@(item: Option[Guide], f: Form[models.Guide], listPages: Option[List[GuidePage]] = None)
 
 @implicitField = @{ views.html.helper.FieldConstructor(formHelpers.fieldTemplate.f) }
 
@@ -8,7 +8,7 @@
     @formHelpers.lineInput(f(""), Guide.PATH)
     @formHelpers.lineInput(f(""), Guide.PICTURE)
     @formHelpers.textInput(f(""), Guide.DESCRIPTION)
-    @formHelpers.choiceNumericInput(f("active"), Guide.ACTIVE, List(1 -> Messages("guides.active"), 0 -> Messages("guides.unactive")))
+    @formHelpers.checkbox(f("active"), Guide.ACTIVE)
     @listPages match {
 	    case Some(pages) => {
 			@formHelpers.choiceNumericInput(f("default"), Guide.DEFAULT, pages.map(row => {
