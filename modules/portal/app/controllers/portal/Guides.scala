@@ -14,6 +14,7 @@ import models.Guide
 import models.GuidePage
 
 import com.google.inject._
+import play.api.Play.current
 
 case class Guides @Inject()(implicit globalConfig: global.GlobalConfig, searchDispatcher: Dispatcher, searchResolver: Resolver, backend: Backend,
                             userDAO: AccountDAO)
@@ -25,16 +26,8 @@ case class Guides @Inject()(implicit globalConfig: global.GlobalConfig, searchDi
 
   val defaultPreferences = new SessionPrefs
 
-  private val portalRoutes = controllers.portal.routes.Portal
-
-  /**
-   * Full text search action that returns a complete page of item data.
-   * @return
-   */
-  private implicit val anyModelReads = AnyModel.Converter.restReads
-  private val defaultSearchTypes = List(EntityType.Repository, EntityType.DocumentaryUnit, EntityType.HistoricalAgent,
-    EntityType.Country)
-  private val defaultSearchParams = SearchParams(entities = defaultSearchTypes, sort = Some(SearchOrder.Score))
+  override val staffOnly = current.configuration.getBoolean("ehri.portal.secured").getOrElse(true)
+  override val verifiedOnly = current.configuration.getBoolean("ehri.portal.secured").getOrElse(true)
 
   /*
   *
