@@ -84,7 +84,7 @@ trait PortalLogin extends OpenIDLoginHandler with Oauth2LoginHandler with UserPa
                 sendValidationEmail(data.email, uuid)
 
                 gotoLoginSucceeded(userProfile.id).map(r =>
-                  r.flashing("success" -> "portal.signup.needToConfirmEmail"))
+                  r.flashing("success" -> "portal.signup.confirmation"))
               }
             }
           }
@@ -97,7 +97,7 @@ trait PortalLogin extends OpenIDLoginHandler with Oauth2LoginHandler with UserPa
     userDAO.findByResetToken(token, isSignUp = true).map { account =>
       account.verify(token)
       gotoLoginSucceeded(account.id)
-        .map(_.flashing("success" -> "portal.email.validated"))
+        .map(_.flashing("success" -> "portal.signup.validation.confirmation"))
     } getOrElse {
       immediate(BadRequest(
           views.html.errors.itemNotFound(Some(Messages("portal.signup.invalidSignupToken")))))

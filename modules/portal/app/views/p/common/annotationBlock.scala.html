@@ -11,12 +11,12 @@
 	            	<ul class="list-inline">
 		                <li>
                             <a data-item="@annotation.id" class="edit-annotation" href="@controllers.portal.routes.Annotations.editAnnotation(annotation.id)">
-                                @Messages("portal.social.editAnnotation")
+                                @Messages("portal.annotation.update")
                             </a>
                         </li>
 		                <li>
-                            <a data-item="@annotation.id" title="@Messages("portal.social.deleteAnnotation")" class="delete-annotation" href="@controllers.portal.routes.Annotations.deleteAnnotation(annotation.id)">
-                            @Messages("portal.social.deleteAnnotation")
+                            <a data-item="@annotation.id" title="@Messages("portal.annotation.delete.title")" class="delete-annotation" href="@controllers.portal.routes.Annotations.deleteAnnotation(annotation.id)">
+                            @Messages("portal.annotation.delete")
                             </a>
                         </li>
 		            </ul>
@@ -25,8 +25,8 @@
                     @if(!annotation.isPromoted && user.hasPermission(defines.ContentTypes.Annotation, defines.PermissionType.Promote) && annotation.model.isPromotable) {
                         <ul class="list-inline">
                             <li>
-                                <a data-item="@annotation.id" title="@Messages("portal.social.promoteAnnotation.title")" class="promote-annotation" href="@controllers.annotation.routes.Annotations.promote(annotation.id)">
-                                    @Messages("portal.social.promoteAnnotation")
+                                <a data-item="@annotation.id" title="@Messages("portal.annotation.promote.title")" class="promote-annotation" href="@controllers.annotation.routes.Annotations.promote(annotation.id)">
+                                    @Messages("portal.annotation.promote")
                                 </a>
                             </li>
                         </ul>

@@ -13,10 +13,10 @@
             @annotationForm(f, visForm, accessorsForm, users, groups)
             <div class="form-group pull-right">
                 <div class="checkbox-inline">
-                    @helper.checkbox(f(ALLOW_PUBLIC), '_label -> Messages("portal.contributionVisibility.allowPublic"))
+                    @helper.checkbox(f(ALLOW_PUBLIC), '_label -> Messages("portal.contribution.visibility.allowPublic"))
                 </div>
                 <button class="btn btn-primary" type="submit" class="submit-annotation">
-                    @Messages("portal.social.saveAnnotation")
+                    @Messages("portal.annotation.update.submit")
                 </button>
             </div>
         </div>
