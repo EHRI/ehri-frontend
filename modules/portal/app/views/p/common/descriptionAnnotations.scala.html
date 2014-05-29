@@ -2,7 +2,7 @@
 
 <div class="description-annotations annotation-set clearfix">
     <h3 class="block-header small">
-        @Messages("portal.social.annotation")
+        @Messages("portal.annotation")
     </h3>
     @defining(Annotation.itemAnnotations(desc.id, annotations).filter(_.model.field.isEmpty)) { annotations =>
         @p.common.annotationBlockList(annotations)
@@ -14,7 +14,7 @@
                     @desc.id.map { did =>
                         <a data-item="@item.id" data-did="@did" class="annotate-item"
                            href="@controllers.portal.routes.Annotations.annotate(item.id, did)">
-                            <span class="glyphicon glyphicon-edit"></span> @Messages("portal.social.createAnnotation")
+                            <span class="glyphicon glyphicon-edit"></span> @Messages("portal.annotation.create")
                         </a>
                     }
                 </div>

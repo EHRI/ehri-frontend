@@ -1,0 +1,62 @@
+@(accessorOpt: Option[Accessor], page: backend.Page[PermissionGrant], pageParamName: String = "page")(implicit req: RequestHeader, globalConfig: global.GlobalConfig)
+
+<h3>@Messages("pagination.displayingItems", page.offset + 1, page.offset + page.items.size, page.total)</h3>
+<ul>
+@page.items.map { perm =>
+    <div class="list-item">
+        <h4>
+            @perm.model.permission
+            @accessorOpt.map { accessor =>
+                @accessor match {
+                    case u: UserProfile => {
+                        <a href="@controllers.users.routes.UserProfiles.revokePermission(accessor.id, perm.id)">
+                            <i title="@Messages("permissions.revoke")" class="glyphicon glyphicon-remove"></i>
+                        </a>
+                    }
+                    case u: Group => {
+                        <a href="@controllers.users.routes.Groups.revokePermission(accessor.id, perm.id)">
+                            <i title="@Messages("permissions.revoke")" class="glyphicon glyphicon-remove"></i>
+                        </a>
+                    }
+                }
+            }
+        </h4>
+        <ul>
+            @perm.accessor.map { accessor =>
+                <li>
+                    @Messages("permissionGrant.accessor"):
+                    <a href="@globalConfig.routeRegistry.urlFor(accessor)">@accessor.toStringLang</a>
+                </li>
+            }
+            @perm.targets.map { t =>
+                <li>
+                    @Messages("permissionGrant.targets"):
+                    @t match {
+                        case c: ContentType => {
+                            <strong>@Messages("contentTypes." + c.id)</strong>
+                        }
+                        case t => {
+                            <a href="@globalConfig.routeRegistry.urlFor(t)">@t.toStringLang</a>
+                        }
+                    }
+
+                </li>
+            }
+            @perm.scope.map { s =>
+                <li>
+                    @Messages("permissionGrant.scope"):
+                    <a href="@globalConfig.routeRegistry.urlFor(s)">@s.toStringLang</a>
+                </li>
+            }
+            @perm.grantee.map { s =>
+                <li>
+                    @Messages("permissionGrant.grantedBy"):
+                    <a href="@globalConfig.routeRegistry.urlFor(s)">@s.toStringLang</a>
+                </li>
+            }
+        </ul>
+    </div>
+}
+</ul>
+@common.pagination(page, pageParamName)
+

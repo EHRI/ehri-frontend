@@ -137,7 +137,7 @@ case class Repositories @Inject()(implicit globalConfig: global.GlobalConfig, se
       case Left(errorForm) =>
         BadRequest(views.html.repository.edit(item, errorForm, repositoryRoutes.updatePost(id)))
       case Right(doc) => Redirect(repositoryRoutes.get(doc.id))
-        .flashing("success" -> Messages("confirmations.itemWasUpdated", doc.id))
+        .flashing("success" -> Messages("item.update.confirmation", doc.id))
     }
   }
 
@@ -155,7 +155,7 @@ case class Repositories @Inject()(implicit globalConfig: global.GlobalConfig, se
           errorForm, childFormDefaults, accForm, users, groups, repositoryRoutes.createDocPost(id)))
       }
       case Right(citem) => immediate(Redirect(controllers.archdesc.routes.DocumentaryUnits.get(citem.id))
-        .flashing("success" -> Messages("confirmations.itemWasCreated", citem.id)))
+        .flashing("success" -> Messages("item.create.confirmation", citem.id)))
     }
   }
 
@@ -167,7 +167,7 @@ case class Repositories @Inject()(implicit globalConfig: global.GlobalConfig, se
 
   def deletePost(id: String) = deletePostAction(id) { ok => implicit userOpt => implicit request =>
     Redirect(repositoryRoutes.search())
-        .flashing("success" -> Messages("confirmations.itemWasDeleted", id))
+        .flashing("success" -> Messages("item.delete.confirmation", id))
   }
 
   def visibility(id: String) = visibilityAction(id) { item => users => groups => implicit userOpt => implicit request =>
@@ -179,7 +179,7 @@ case class Repositories @Inject()(implicit globalConfig: global.GlobalConfig, se
   def visibilityPost(id: String) = visibilityPostAction(id) {
       ok => implicit userOpt => implicit request =>
     Redirect(repositoryRoutes.get(id))
-        .flashing("success" -> Messages("confirmations.itemWasUpdated", id))
+        .flashing("success" -> Messages("item.update.confirmation", id))
   }
 
   def managePermissions(id: String) = manageScopedPermissionsAction(id) {
@@ -209,7 +209,7 @@ case class Repositories @Inject()(implicit globalConfig: global.GlobalConfig, se
   def setItemPermissionsPost(id: String, userType: EntityType.Value, userId: String) = setItemPermissionsPostAction(id, userType, userId) {
       bool => implicit userOpt => implicit request =>
     Redirect(repositoryRoutes.managePermissions(id))
-        .flashing("success" -> Messages("confirmations.itemWasUpdated", id))
+        .flashing("success" -> Messages("item.update.confirmation", id))
   }
 
   def setScopedPermissions(id: String, userType: EntityType.Value, userId: String) = setScopedPermissionsAction(id, userType, userId) {
@@ -221,7 +221,7 @@ case class Repositories @Inject()(implicit globalConfig: global.GlobalConfig, se
   def setScopedPermissionsPost(id: String, userType: EntityType.Value, userId: String) = setScopedPermissionsPostAction(id, userType, userId) {
       perms => implicit userOpt => implicit request =>
     Redirect(repositoryRoutes.managePermissions(id))
-        .flashing("success" -> Messages("confirmations.itemWasUpdated", id))
+        .flashing("success" -> Messages("item.update.confirmation", id))
   }
 
   def updateIndex(id: String) = adminAction.async { implicit userOpt => implicit request =>

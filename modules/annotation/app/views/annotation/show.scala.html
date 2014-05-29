@@ -27,7 +27,7 @@
 
     @common.sidebarActions { user =>
         @common.sidebarAction(user.hasPermission(ContentTypes.Annotation, PermissionType.Delete)) {
-            <a href="@controllers.annotation.routes.Annotations.delete(item.id)">@Messages("actions.deleteAnnotation")</a>
+            <a href="@controllers.annotation.routes.Annotations.delete(item.id)">@Messages("annotation.delete")</a>
         }
     }
 }

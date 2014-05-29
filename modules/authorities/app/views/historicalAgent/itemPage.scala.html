@@ -10,19 +10,19 @@
 
     @common.sidebarActions { user =>
         @common.sidebarAction(user.hasPermission(ContentTypes.HistoricalAgent, PermissionType.Update)) {
-            <a href="@controllers.authorities.routes.HistoricalAgents.update(item.id)">@Messages("actions.updateItem")</a>
+            <a href="@controllers.authorities.routes.HistoricalAgents.update(item.id)">@Messages("item.update")</a>
         }
         @common.sidebarAction(user.hasPermission(ContentTypes.HistoricalAgent, PermissionType.Delete)) {
-            <a href="@controllers.authorities.routes.HistoricalAgents.delete(item.id)">@Messages("actions.deleteItem")</a>
+            <a href="@controllers.authorities.routes.HistoricalAgents.delete(item.id)">@Messages("item.delete")</a>
         }
         @common.sidebarAction(user.hasPermission(ContentTypes.HistoricalAgent, PermissionType.Grant)) {
-            <a href="@controllers.authorities.routes.HistoricalAgents.managePermissions(item.id)">@Messages("actions.managePermissions")</a>
+            <a href="@controllers.authorities.routes.HistoricalAgents.managePermissions(item.id)">@Messages("permissions.manage")</a>
         }
         @common.sidebarAction() {
-            <a href="@controllers.authorities.routes.HistoricalAgents.history(item.id)">@Messages("actions.showHistory")</a>
+            <a href="@controllers.authorities.routes.HistoricalAgents.history(item.id)">@Messages("item.history")</a>
         }
         @common.sidebarAction() {
-            <a href="@controllers.core.routes.ApiController.getItem(ContentTypes.HistoricalAgent.toString, item.id)">@Messages("actions.exportJson")</a>
+            <a href="@controllers.core.routes.ApiController.getItem(ContentTypes.HistoricalAgent.toString, item.id)">@Messages("item.export.json")</a>
         }
     }
 }

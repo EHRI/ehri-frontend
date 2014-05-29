@@ -11,6 +11,7 @@ GET     /*path/                         controllers.GlobalController.untrail(pat
 # Defer other routes to modules
 -> /admin               core.Routes
 -> /admin               admin.Routes
+-> /admin               users.Routes
 -> /admin/link          linking.Routes
 -> /admin/annotation    annotation.Routes
 -> /admin/sets          authorities.Routes

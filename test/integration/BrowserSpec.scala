@@ -13,8 +13,8 @@ class BrowserSpec extends PlaySpecification {
     }
 
     "deny access to admin routes" in new WithBrowser {
-      browser.goTo(controllers.core.routes.UserProfiles.search().url)
-      browser.$("title").getTexts.get(0) must equalTo(Messages("login.login"))
+      browser.goTo(controllers.admin.routes.AdminSearch.search().url)
+      browser.$("title").getTexts.get(0) must equalTo(Messages("portal.login"))
     }
   }
 }

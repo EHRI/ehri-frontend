@@ -1,0 +1,37 @@
+@(f: play.api.data.Form[(String, String, String, String, String)], gf: Form[List[String]], groups: Seq[(String,String)], action: Call)(
+implicit userOpt: Option[UserProfile], req: RequestHeader, globalConfig: global.GlobalConfig, lang: Lang, flash: Flash, token: play.filters.csrf.CSRF.Token)
+
+@implicitField = @{ views.html.helper.FieldConstructor(formHelpers.fieldTemplate.f) }
+
+@import formHelpers._
+
+@layout.rightSidebar(Messages("userProfile.create")) {
+
+
+    @formHelpers.globalErrors(f)
+
+	@helper.form(action = action, 'class -> "entity-form form-horizontal") {
+        @formHelpers.csrfToken()
+        @helper.inputText(f("email"), 'autofocus -> "autofocus", 'class -> "form-control", '_label -> Messages("userProfile.email"))
+        @helper.inputText(f("identifier"), 'class -> "form-control", '_label -> Messages("userProfile.username"))
+        @helper.inputText(f("name"), 'class -> "form-control", '_label -> Messages("userProfile.realname"))
+        @helper.inputPassword(f("password"), 'class -> "form-control", '_label -> Messages("userProfile.password"))
+        @helper.inputPassword(f("confirm"), 'class -> "form-control", '_label -> Messages("userProfile.passwordConfirm"))
+
+        <div class="form-group">
+            <label class="col-sm-2 control-label" for="@gf("group").id">@Messages("userProfile.groups")</label>
+            <div class="col-sm-10">
+                <select class="form-control select2" data-placeholder="@Messages("visibility.chooseGroups")" name="@(gf("group").name)[]" id="@gf("group").id" multiple>
+                    @groups.map { case(id, name) =>
+                        <option value="@id" @{if(gf.value.map(_.contains(id)).getOrElse(false)) "selected"}>@name</option>
+                    }
+                </select>
+
+            </div>
+        </div>
+
+        @formHelpers.submitButton(Messages("userProfile.create.submit"), cancel = Some(controllers.users.routes.UserProfiles.search))
+	}
+} {
+
+}

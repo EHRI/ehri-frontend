@@ -156,7 +156,7 @@ case class Profile @Inject()(implicit globalConfig: global.GlobalConfig, searchD
         errForm, imageForm, changePasswordForm, accountPrefsForm))),
       profile => backend.patch[UserProfile](user.id, Json.toJson(profile).as[JsObject]).map { userProfile =>
         Redirect(profileRoutes.profile())
-          .flashing("success" -> Messages("confirmations.profileUpdated"))
+          .flashing("success" -> Messages("profile.update.confirmation"))
       }
     )
   }
@@ -208,7 +208,7 @@ case class Profile @Inject()(implicit globalConfig: global.GlobalConfig, searchD
             convertAndUploadFile(file, user, request).flatMap { url =>
               backend.patch(user.id, Json.obj(UserProfileF.IMAGE_URL -> url)).map { _ =>
                 Redirect(profileRoutes.profile())
-                  .flashing("success" -> "confirmations.profileUpdated")
+                  .flashing("success" -> "profile.update.confirmation")
               }
             }.recover {
               case S3Exception(status, code, message, originalXml) =>

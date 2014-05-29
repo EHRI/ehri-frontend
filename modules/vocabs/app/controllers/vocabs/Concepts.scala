@@ -37,13 +37,13 @@ case class Concepts @Inject()(implicit globalConfig: global.GlobalConfig, search
     List(
       FieldFacetClass(
         key="languageCode", // FIXME - define elsewhere
-        name=Messages(EntityType.Concept + ".languageCode"),
+        name=Messages("cvocConcept.languageCode"),
         param="lang",
         render=(s: String) => Helpers.languageCodeToName(s)
       ),
       FieldFacetClass(
         key="holderName",
-        name=Messages(EntityType.Concept + ".inVocabulary"),
+        name=Messages("cvocConcept.inVocabulary"),
         param="set",
         sort = FacetSort.Name
       )
@@ -83,7 +83,7 @@ case class Concepts @Inject()(implicit globalConfig: global.GlobalConfig, search
       case Left(errorForm) => BadRequest(views.html.concept.edit(
           oldItem, errorForm, conceptRoutes.updatePost(id)))
       case Right(item) => Redirect(conceptRoutes.get(item.id))
-        .flashing("success" -> play.api.i18n.Messages("confirmations.itemWasUpdated", item.id))
+        .flashing("success" -> play.api.i18n.Messages("item.update.confirmation", item.id))
     }
   }
 
@@ -101,7 +101,7 @@ case class Concepts @Inject()(implicit globalConfig: global.GlobalConfig, search
           errorForm, accForm, users, groups, conceptRoutes.createConceptPost(id)))
       }
       case Right(citem) => immediate(Redirect(conceptRoutes.get(id))
-        .flashing("success" -> Messages("confirmations.itemWasCreated", citem.id)))
+        .flashing("success" -> Messages("item.create.confirmation", citem.id)))
     }
   }
 
@@ -113,7 +113,7 @@ case class Concepts @Inject()(implicit globalConfig: global.GlobalConfig, search
   def deletePost(id: String) = deletePostAction(id) {
       ok => implicit userOpt => implicit request =>
     Redirect(conceptRoutes.search())
-        .flashing("success" -> Messages("confirmations.itemWasDeleted", id))
+        .flashing("success" -> Messages("item.delete.confirmation", id))
   }
 
   def visibility(id: String) = visibilityAction(id) {
@@ -126,7 +126,7 @@ case class Concepts @Inject()(implicit globalConfig: global.GlobalConfig, search
   def visibilityPost(id: String) = visibilityPostAction(id) {
       ok => implicit userOpt => implicit request =>
     Redirect(conceptRoutes.get(id))
-        .flashing("success" -> Messages("confirmations.itemWasUpdated", id))
+        .flashing("success" -> Messages("item.update.confirmation", id))
   }
 
   def managePermissions(id: String) = manageScopedPermissionsAction(id) {
@@ -156,7 +156,7 @@ case class Concepts @Inject()(implicit globalConfig: global.GlobalConfig, search
   def setItemPermissionsPost(id: String, userType: EntityType.Value, userId: String) = setItemPermissionsPostAction(id, userType, userId) {
       bool => implicit userOpt => implicit request =>
     Redirect(conceptRoutes.managePermissions(id))
-        .flashing("success" -> Messages("confirmations.itemWasUpdated", id))
+        .flashing("success" -> Messages("item.update.confirmation", id))
   }
 
   def setScopedPermissions(id: String, userType: EntityType.Value, userId: String) = setScopedPermissionsAction(id, userType, userId) {
@@ -168,7 +168,7 @@ case class Concepts @Inject()(implicit globalConfig: global.GlobalConfig, search
   def setScopedPermissionsPost(id: String, userType: EntityType.Value, userId: String) = setScopedPermissionsPostAction(id, userType, userId) {
       perms => implicit userOpt => implicit request =>
     Redirect(conceptRoutes.managePermissions(id))
-        .flashing("success" -> Messages("confirmations.itemWasUpdated", id))
+        .flashing("success" -> Messages("item.update.confirmation", id))
   }
 
   def linkAnnotate(id: String, toType: EntityType.Value, to: String) = linkAction(id, toType, to) {
@@ -186,7 +186,7 @@ case class Concepts @Inject()(implicit globalConfig: global.GlobalConfig, search
       }
       case Right(annotation) => {
         Redirect(conceptRoutes.get(id))
-          .flashing("success" -> Messages("confirmations.itemWasUpdated", id))
+          .flashing("success" -> Messages("item.update.confirmation", id))
       }
     }
   }

@@ -1,0 +1,39 @@
+@(item: SystemEvent, page: backend.Page[AnyModel], params: utils.PageParams)(implicit userOpt: Option[UserProfile], req: RequestHeader, globalConfig: global.GlobalConfig, lang: Lang, flash: Flash)
+
+@title(item: SystemEvent) = {
+    @item.scope.map { scope =>
+        @scope.toStringLang -
+    }
+    @item.toStringLang
+}
+
+@layout.rightSidebar(title(item), breadcrumbs = common.breadcrumbs(List(item))) {
+
+    <p>
+        @item.actioner.map { accessor =>
+            <a href="@globalConfig.routeRegistry.urlFor(accessor)">@accessor.toStringLang</a>:
+        }
+        <time>@item.time</time>
+        (@views.Helpers.relativeDate(item.model.timestamp))
+    </p>
+
+    @item.model.logMessage.map { lm =>
+        <blockquote>@lm</blockquote>
+    }
+
+    @item.scope.map { scope =>
+        @Messages("systemEvents.scope"):  <a href="@globalConfig.routeRegistry.urlFor(scope)">@scope.toStringLang</a>
+    }
+
+    <div id="subjects">
+        <h4>@Messages("systemEvent.subjects"): @Messages("pagination.displayingItems", page.offset + 1, page.offset + page.items.size, page.total)</h4>
+        @common.pagination(page)
+        <ul class="list-unstyled">
+            @page.items.map { item =>
+            <li><a href="@globalConfig.routeRegistry.urlFor(item)">@item.toStringLang</a></li>
+            }
+        </ul>
+    </div>
+} {
+
+}

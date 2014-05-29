@@ -2,7 +2,7 @@
 
 <div class="item-text-field-annotation-container">
     <div class="item-text-field-annotations annotation-set">
-        <h5 class="annotate-item-header">@Messages("portal.social.createFieldAnnotation")</h5>
+        <h5 class="annotate-item-header">@Messages("portal.annotation.field.create")</h5>
         @p.common.inlineAnnotationList(annotations)
 
         @userOpt.map { user =>
@@ -10,7 +10,7 @@
 
             @defining(annotations.count(!_.isOwnedBy(userOpt))) { otherCount =>
                 @if(otherCount > 0) {
-                    <a title="@Messages("portal.social.showPublicAnnotations", otherCount)" class="show-other-annotations" href="#">
+                    <a title="@Messages("portal.annotation.showPublic", otherCount)" class="show-other-annotations" href="#">
                         <span class="glyphicon glyphicon-chevron-down"></span>
                         @otherCount
                     </a>

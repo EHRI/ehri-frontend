@@ -30,7 +30,7 @@
                 @helper.form(action = controllers.portal.routes.Profile.openIDLoginPost, 'class -> "openid form validate-form", 'role -> "form") {
                     @formHelpers.csrfToken()
                     <p>
-                        @Messages("portal.loginByProvider")
+                        @Messages("portal.login.oauth.info")
                     </p>
                     @oauthProviders.map { case (name, call) =>
                         <a href="@call" class="button @name" title="@name">
@@ -78,18 +78,18 @@
                             <fieldset class="identifier openid">
                                 @helper.inputText(
                                     openIdForm("openid_identifier"),
-                                    'placeholder -> Messages("portal.openIdEnterUrl"),
+                                    'placeholder -> Messages("portal.login.openid.urlPlaceholder"),
                                     'class -> "form-control",
                                     'type -> "url"
                                 )
                             </fieldset>
                         </div>
 
-                        <input type="submit" class="button post login-button openid" value="@Messages("submitButton.loginWithOpenid")" />
+                        <input type="submit" class="button post login-button openid" value="@Messages("portal.login.openid.submit")" />
                     </div>
                 }
                 @helper.form(action = controllers.portal.routes.Profile.passwordLoginPost, 'class -> "login-form form validate-form", 'role -> "form") {
-                    <p>@Messages("portal.loginByPassword")</p>
+                    <p>@Messages("portal.login.password.info")</p>
 
                     @formHelpers.csrfToken()
 
@@ -100,7 +100,7 @@
                         @helper.inputPassword(pwForm("password"), 'class -> "form-control", 'placeholder -> Messages("login.password"), 'required -> "required")
                     </div>
 
-                    <input type="submit" class="login-button button post" value="@Messages("submitButton.loginWithPassword")" />
+                    <input type="submit" class="login-button button post" value="@Messages("portal.login.password.submit")" />
                     <p class="text-center">
                         <em><strong>or</strong></em>
                     </p>
@@ -115,9 +115,9 @@
         <hr />
 
         <p>
-            @Messages("portal.recoverAccount")
+            @Messages("portal.login.recover")
         </p>
-        <a href="@controllers.portal.routes.Profile.forgotPassword">@Messages("portal.forgotPasswordLink")</a>
+        <a href="@controllers.portal.routes.Profile.forgotPassword">@Messages("portal.login.recover.link")</a>
     }
 
 }(None, request, globalConfig, flash, lang)
