@@ -4,7 +4,7 @@ import helpers.{WithSqlFile, Neo4jRunnerSpec}
 import play.api.test.FakeRequest
 
 
-class GuideSpec extends Neo4jRunnerSpec(classOf[GuideSpec]) {
+class GuidesSpec extends Neo4jRunnerSpec(classOf[GuidesSpec]) {
 
   private val guideRoutes = controllers.portal.routes.Guides
 

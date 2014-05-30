@@ -25,4 +25,4 @@ CREATE TABLE research_guide_page (
   menu VARCHAR(45) DEFAULT NULL
 );
 
-ALTER TABLE research_guide_page ADD CONSTRAINT research_guide_page_id FOREIGN KEY (research_guide_id) REFERENCES research_guide (id) ON DELETE NO ACTION ON UPDATE CASCADE;
+ALTER TABLE research_guide_page ADD CONSTRAINT research_guide_page_id FOREIGN KEY (research_guide_id) REFERENCES research_guide (id) ON DELETE CASCADE;

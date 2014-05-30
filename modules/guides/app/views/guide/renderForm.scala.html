@@ -12,7 +12,7 @@
     @listPages match {
 	    case Some(pages) => {
 			@formHelpers.choiceNumericInput(f("default"), Guide.DEFAULT, pages.map(row => {
-				row.objectId.getOrElse(0) -> row.name
+				row.objectId.getOrElse(0L) -> row.name
 			}))
 		}
 		case _ => {

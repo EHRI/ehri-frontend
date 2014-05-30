@@ -34,7 +34,7 @@ case class GuidePages @Inject()(implicit globalConfig: global.GlobalConfig, back
          guide <- Guide.find(gPath)
          page <- guide.getPage(path)
        } yield Ok(views.html.guidePage.edit(guide, page,
-         formPage.fill(page), GuidePage.findAll(gPath), Guide.findAll(),
+         formPage.fill(page), GuidePage.find(gPath), Guide.findAll(),
             guidePagesRoutes.editPost(gPath, path)))
      }
    }
@@ -48,7 +48,7 @@ case class GuidePages @Inject()(implicit globalConfig: global.GlobalConfig, back
          formPage.bindFromRequest.fold(
            errorForm => {
              BadRequest(views.html.guidePage.edit(guide, page,
-               errorForm, GuidePage.findAll(gPath),
+               errorForm, GuidePage.find(gPath),
                Guide.findAll(), guidePagesRoutes.editPost(gPath, path)))
            }, {
               case page: GuidePage =>
@@ -63,10 +63,10 @@ case class GuidePages @Inject()(implicit globalConfig: global.GlobalConfig, back
 
    def create(gPath: String) = userProfileAction { implicit userOpt => implicit request =>
      itemOr404 {
-       Guide.find(gPath, active = false).map { guide =>
+       Guide.find(gPath, activeOnly = false).map { guide =>
          Ok(views.html.guidePage.create(guide,
            formPage.fill(GuidePage.blueprint(guide.objectId)),
-           GuidePage.findAll(gPath), Guide.findAll(),
+           GuidePage.find(gPath), Guide.findAll(),
            guidePagesRoutes.createPost(gPath)))
        }
      }
@@ -74,10 +74,10 @@ case class GuidePages @Inject()(implicit globalConfig: global.GlobalConfig, back
 
    def createPost(gPath: String) = userProfileAction { implicit userOpt => implicit request =>
      itemOr404 {
-       Guide.find(gPath, active = false).flatMap { guide =>
+       Guide.find(gPath, activeOnly = false).flatMap { guide =>
          formPage.bindFromRequest.fold(
            errorForm => {
-             Some(BadRequest(views.html.guidePage.create(guide, errorForm, GuidePage.findAll(gPath), Guide.findAll(), guidePagesRoutes.createPost(gPath))))
+             Some(BadRequest(views.html.guidePage.create(guide, errorForm, GuidePage.find(gPath), Guide.findAll(), guidePagesRoutes.createPost(gPath))))
            }, {
              case GuidePage(_, layout, name, path, menu, cypher, parent) => {
                GuidePage.create(layout, name, path, menu, cypher, guide.objectId).map { guidePage =>

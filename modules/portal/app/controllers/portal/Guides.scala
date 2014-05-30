@@ -15,6 +15,7 @@ import models.GuidePage
 
 import com.google.inject._
 import play.api.Play.current
+import models.GuidePage.Layout
 
 case class Guides @Inject()(implicit globalConfig: global.GlobalConfig, searchDispatcher: Dispatcher, searchResolver: Resolver, backend: Backend,
                             userDAO: AccountDAO)
@@ -70,14 +71,14 @@ case class Guides @Inject()(implicit globalConfig: global.GlobalConfig, searchDi
   * Return a list of guides
   */
   def listGuides() = userProfileAction { implicit userOpt => implicit request =>
-    Ok(p.guides.guidesList(Guide.findAll(active = true)))
+    Ok(p.guides.guidesList(Guide.findAll(activeOnly = true)))
   }
 
   /*
   * Return a homepage for a guide
   */
   def home(path: String) = itemOr404Action {
-    Guide.find(path, active = true).map { guide =>
+    Guide.find(path, activeOnly = true).map { guide =>
       guideLayout(guide, guide.getDefaultPage)
     }
   }
@@ -86,7 +87,7 @@ case class Guides @Inject()(implicit globalConfig: global.GlobalConfig, searchDi
   * Return a layout for a guide and a given path
   */
   def layoutRetrieval(path: String, page: String) = itemOr404Action {
-    Guide.find(path, active = true).map  { guide =>
+    Guide.find(path, activeOnly = true).map  { guide =>
       guideLayout(guide, guide.getPage(page))
     }
   }
@@ -100,13 +101,16 @@ case class Guides @Inject()(implicit globalConfig: global.GlobalConfig, searchDi
 
 
   def guideLayout(guide: Guide, temp: Option[GuidePage]) = itemOr404Action {
-    temp.map {
-      case page if page.layout == "person" => guideAuthority(page, Map("holderId" -> page.content), guide)
-      case page if page.layout == "map" => guideMap(page, Map("holderId" -> page.content), guide)
-      case page if page.layout == "keyword" => guideKeyword(page, Map("holderId" -> page.content), guide)
-      case page if page.layout == "organisation" => guideOrganization(page, Map("holderId" -> page.content), guide)
-      case page if page.layout == "md" => guideMarkdown(page, page.content, guide)
-      case _ => pageNotFound()
+    println(temp.map(_.layout))
+    temp.map { page =>
+      page.layout match {
+        case Layout.Person => guideAuthority(page, Map("holderId" -> page.content), guide)
+        case Layout.Map => guideMap(page, Map("holderId" -> page.content), guide)
+        case Layout.Keyword => guideKeyword(page, Map("holderId" -> page.content), guide)
+        case Layout.Organisation => guideOrganization(page, Map("holderId" -> page.content), guide)
+        case Layout.Markdown => guideMarkdown(page, page.content, guide)
+        case _ => pageNotFound()
+      }
     }
   }
 
@@ -192,7 +196,7 @@ case class Guides @Inject()(implicit globalConfig: global.GlobalConfig, searchDi
   *   Faceted search
   */
   def guideFacets(path: String) = itemOr404Action {
-    Guide.find(path, active = true).map { guide =>
+    Guide.find(path, activeOnly = true).map { guide =>
       userProfileAction { implicit userOpt => implicit request =>
         Ok(p.guides.facet(GuidePage.faceted -> (guide -> guide.getPages)))
       }

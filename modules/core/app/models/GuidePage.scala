@@ -8,19 +8,20 @@ import anorm.SqlParser._
 import play.api.Play.current
 import play.api.db.DB
 import language.postfixOps
+import defines.{StorableEnum, BindableEnum}
 
 
 /**
  * @author Thibault Clérice (http://github.com/ponteineptique)
  */
 case class GuidePage(
-  objectId: Option[Int],
-  layout: String,
+  objectId: Option[Long] = None,
+  layout: GuidePage.Layout.Value,
   name: String,
   path: String,
-  position: String,
+  position: GuidePage.MenuPosition.Value,
   content: String,
-  parent: Int
+  parent: Long
 ) {
   /*
   * Edit a page
@@ -65,43 +66,43 @@ object GuidePage {
   val CONTENT = "content"
   val PARENT = "parent"
 
-  val layouts: List[String] = List(
-    "md",
-    "organisation",
-    "person",
-    "map",
-    "keyword"
-  )
+  object Layout extends Enumeration with StorableEnum {
+    val Markdown = Value("md")
+    val Organisation = Value("organisation")
+    val Person = Value("person")
+    val Map = Value("map")
+    val Keyword = Value("keyword")
+  }
 
-  val positions: List[String] = List(
-    "top",
-    "side"
-  )
+  object MenuPosition extends Enumeration with StorableEnum {
+    val Top = Value("top")
+    val Side = Value("side")
+  }
 
   implicit val form = Form(
     mapping(
-      "objectId" -> optional(number),
-      "layout" -> nonEmptyText,
+      "objectId" -> optional(longNumber),
+      "layout" -> models.forms.enum(Layout),
       "name" -> nonEmptyText,
       "path" -> nonEmptyText,
-      "position" -> nonEmptyText,
+      "position" -> models.forms.enum(MenuPosition),
       "content" -> nonEmptyText,
-      "parent" -> number
-    )(GuidePage.apply _)(GuidePage.unapply _)
+      "parent" -> longNumber
+    )(GuidePage.apply)(GuidePage.unapply)
   )
 
-  def blueprint(guideId: Option[Int]): GuidePage = {
-    GuidePage(None, "", "", "", "", "", guideId.getOrElse(0))
+  def blueprint(guideId: Option[Long]): GuidePage = {
+    GuidePage(None, Layout.Markdown, "", "", MenuPosition.Side, "", guideId.getOrElse(0))
   }
 
   val rowExtractor = {
-    get[Option[Int]]("id") ~
-    get[String]("layout") ~
+    get[Option[Long]]("id") ~
+    get[Layout.Value]("layout") ~
     get[String]("name") ~
     get[String]("path") ~
-    get[String]("menu") ~
+    get[MenuPosition.Value]("menu") ~
     get[String]("cypher") ~
-    get[Int]("research_guide_id") map {
+    get[Long]("research_guide_id") map {
       case pid ~ layout ~ name ~ path ~ menu ~ query ~ id  =>
         GuidePage(pid, layout, name, path, menu, query, id)
     }
@@ -110,7 +111,8 @@ object GuidePage {
   /*
   * Create a new page
   */
-  def create(layout: String, name: String, path: String, menu: String, cypher: String, parent: Option[Int]): Option[Long] = DB.withConnection {
+  def create(layout: Layout.Value, name: String, path: String, menu: MenuPosition.Value = MenuPosition.Side,
+             cypher: String, parent: Option[Long]): Option[Long] = DB.withConnection {
     implicit connection =>
       SQL(
         """INSERT INTO research_guide_page (layout, name, path, menu, cypher, research_guide_id)
@@ -121,19 +123,23 @@ object GuidePage {
   /*
   * List or find data
   */
-  def findAll(path: String): List[GuidePage] = DB.withConnection {
-    implicit connection =>
-      SQL( """SELECT * FROM research_guide_page WHERE path = {path}""")
-        .on('path -> path).as(rowExtractor *)
+  def find(path: String): List[GuidePage] = DB.withConnection { implicit connection =>
+    SQL( """SELECT * FROM research_guide_page WHERE path = {path}""")
+      .on('path -> path).as(rowExtractor *)
+  }
+
+  def findAll(): List[GuidePage] = DB.withConnection { implicit connection =>
+    SQL( """SELECT * FROM research_guide_page""")
+      .as(rowExtractor *)
   }
 
   def faceted: GuidePage = {
     GuidePage(
       None,
-      "facet",
+      Layout.Markdown,
       "portal.guides.faceted",
       "browse",
-      "top",
+      MenuPosition.Top,
       "",
       0
     )

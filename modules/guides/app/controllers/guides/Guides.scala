@@ -12,7 +12,6 @@ import models.{GuidePage, AccountDAO, Guide}
 case class Guides @Inject()(implicit globalConfig: global.GlobalConfig, backend: Backend, userDAO: AccountDAO) extends Controller with AuthController with ControllerHelpers {
 
   private val formGuide = models.Guide.form
-  private val formPage = models.GuidePage.form
   private final val guidesRoutes = controllers.guides.routes.Guides
 
   /*
@@ -30,7 +29,7 @@ case class Guides @Inject()(implicit globalConfig: global.GlobalConfig, backend:
 
   def show(path: String) = userProfileAction {
     implicit userOpt => implicit request =>
-      Guide.find(path, active = false) match {
+      Guide.find(path, activeOnly = false) match {
         case Some(guide) => Ok(views.html.guide.show(guide, guide.getPages, Guide.findAll()))
         case _ => Ok(views.html.guide.list(Guide.findAll()))
       }
@@ -38,7 +37,7 @@ case class Guides @Inject()(implicit globalConfig: global.GlobalConfig, backend:
 
   def edit(path: String) = userProfileAction {
     implicit userOpt => implicit request =>
-      Guide.find(path, active = false) match {
+      Guide.find(path, activeOnly = false) match {
         case Some(guide) => Ok(views.html.guide.edit(guide, formGuide.fill(guide), Guide.findAll(), Some(guide.getPages), guidesRoutes.editPost(path)))
         case _ => Ok(views.html.guide.list(Guide.findAll()))
       }
@@ -46,7 +45,7 @@ case class Guides @Inject()(implicit globalConfig: global.GlobalConfig, backend:
 
   def delete(path: String) = userProfileAction { implicit userOpt => implicit request =>
     itemOr404 {
-      Guide.find(path, active = false).map { guide =>
+      Guide.find(path, activeOnly = false).map { guide =>
         guide.delete()
         Redirect(guidesRoutes.list()).flashing("success" -> "item.delete.confirmation")
       }
@@ -55,7 +54,7 @@ case class Guides @Inject()(implicit globalConfig: global.GlobalConfig, backend:
 
   def editPost(path: String) = userProfileAction { implicit userOpt => implicit request =>
     itemOr404 {
-      Guide.find(path, active = false).map { guide =>
+      Guide.find(path, activeOnly = false).map { guide =>
         formGuide.bindFromRequest.fold(
           errorForm => {
             BadRequest(views.html.guide.edit(guide, errorForm, Guide.findAll(), Some(guide.getPages), guidesRoutes.editPost(path)))
@@ -82,7 +81,7 @@ case class Guides @Inject()(implicit globalConfig: global.GlobalConfig, backend:
       }, {
         case Guide(_, name, path, picture, description, active, default) => {
           itemOr404 {
-            Guide.create(name, path, picture, description).map { guide =>
+            Guide.create(name, path, picture, description, active = active).map { guide =>
               Redirect(guidesRoutes.show(guide.path))
             }
           }
