@@ -6,7 +6,7 @@
         @common.stringValue(item.model.description, models.AuthoritativeSetF.DESCRIPTION)
     }
 
-    @views.html.search.searchSection(Messages(EntityType.AuthoritativeSet + ".items")) {
+    @views.html.search.searchSection(Messages("authoritativeSet.items")) {
         @views.html.search.searchForm(page, params, action, autofocus = false) {
             @historicalAgent.searchItemList(page)
         }
@@ -22,16 +22,16 @@
             <a href="@controllers.authorities.routes.AuthoritativeSets.createHistoricalAgent(item.id)">@Messages("actions.createHistoricalAgent")</a>
         }
         @common.sidebarAction(user.hasPermission(ContentTypes.AuthoritativeSet, PermissionType.Update)) {
-            <a href="@controllers.authorities.routes.AuthoritativeSets.update(item.id)">@Messages("actions.updateItem")</a>
+            <a href="@controllers.authorities.routes.AuthoritativeSets.update(item.id)">@Messages("item.update")</a>
         }
         @common.sidebarAction(user.hasPermission(ContentTypes.AuthoritativeSet, PermissionType.Delete)) {
-            <a href="@controllers.authorities.routes.AuthoritativeSets.delete(item.id)">@Messages("actions.deleteItem")</a>
+            <a href="@controllers.authorities.routes.AuthoritativeSets.delete(item.id)">@Messages("item.delete")</a>
         }
         @common.sidebarAction(user.hasPermission(ContentTypes.AuthoritativeSet, PermissionType.Grant)) {
-            <a href="@controllers.authorities.routes.AuthoritativeSets.managePermissions(item.id)">@Messages("actions.managePermissions")</a>
+            <a href="@controllers.authorities.routes.AuthoritativeSets.managePermissions(item.id)">@Messages("permissions.manage")</a>
         }
         @common.sidebarAction() {
-            <a href="@controllers.authorities.routes.AuthoritativeSets.history(item.id)">@Messages("actions.showHistory")</a>
+            <a href="@controllers.authorities.routes.AuthoritativeSets.history(item.id)">@Messages("item.history")</a>
         }
     }
 }

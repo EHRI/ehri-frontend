@@ -36,7 +36,7 @@ class SolrQueryParserSpec extends PlaySpecification {
       val allFacets = List(
         FieldFacetClass(
           key=IsadG.LANG_CODE,
-          name=Messages(EntityType.DocumentaryUnit + "." + IsadG.LANG_CODE),
+          name=Messages("documentaryUnit." + IsadG.LANG_CODE),
           param="lang",
           render=Helpers.languageCodeToName
         )
@@ -77,7 +77,7 @@ class SolrQueryParserSpec extends PlaySpecification {
       val allFacets = List(
         FieldFacetClass(
           key=IsadG.LANG_CODE,
-          name=Messages(EntityType.DocumentaryUnit + "." + IsadG.LANG_CODE),
+          name=Messages("documentaryUnit." + IsadG.LANG_CODE),
           param="lang",
           render=Helpers.languageCodeToName
         )

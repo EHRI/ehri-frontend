@@ -16,13 +16,13 @@
     }
     <small>
         <ul class="list-unstyled text-muted list-inline inline-separator">
-            <li>@Messages(EntityType.HistoricalAgent + "." + desc.entityType.toString)</li>
+            <li>@Messages("historicalAgent." + desc.entityType.toString)</li>
                 @desc.dates.map { dp =>
             <li>@dp.years</li>
             }
             @item.latestEvent.map { event =>
             <li title="@common.eventTitle(event)">
-                <time datetime="@event.model.timestamp">@Messages("systemEvents.lastUpdated", views.Helpers.relativeDate(event.model.timestamp))</time>
+                <time datetime="@event.model.timestamp">@Messages("systemEvent.lastUpdated", views.Helpers.relativeDate(event.model.timestamp))</time>
             </li>
             }
         </ul>

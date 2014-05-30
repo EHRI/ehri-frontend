@@ -39,7 +39,7 @@ case class Links @Inject()(implicit globalConfig: global.GlobalConfig, backend: 
 
   def visibilityPost(id: String) = visibilityPostAction(id) { ok => implicit userOpt => implicit request =>
     Redirect(controllers.linking.routes.Links.get(id))
-        .flashing("success" -> Messages("confirmations.itemWasUpdated", id))
+        .flashing("success" -> Messages("item.update.confirmation", id))
   }
 
   def delete(id: String, redirect: Option[String] = None) = deleteAction(id) { item => implicit userOpt => implicit request =>
@@ -52,7 +52,7 @@ case class Links @Inject()(implicit globalConfig: global.GlobalConfig, backend: 
       ok => implicit userOpt => implicit request =>
     Redirect(redirect.map(r => controllers.core.routes.Application.get(r))
         .getOrElse(globalConfig.routeRegistry.default))
-        .flashing("success" -> Messages("confirmations.itemWasDeleted", id))
+        .flashing("success" -> Messages("item.delete.confirmation", id))
   }
 
 
@@ -62,7 +62,7 @@ case class Links @Inject()(implicit globalConfig: global.GlobalConfig, backend: 
 
   def promotePost(id: String) = promotePostAction(id) { item => bool => implicit userOpt => implicit request =>
     Redirect(controllers.linking.routes.Links.get(id))
-      .flashing("success" -> Messages("confirmations.itemWasPromoted"))
+      .flashing("success" -> Messages("item.promote.confirmation"))
   }
 
   def demote(id: String) = demoteAction(id) { item => implicit userOpt => implicit request =>
@@ -72,6 +72,6 @@ case class Links @Inject()(implicit globalConfig: global.GlobalConfig, backend: 
 
   def demotePost(id: String) = demotePostAction(id) { item => bool => implicit userOpt => implicit request =>
     Redirect(controllers.linking.routes.Links.get(id))
-      .flashing("success" -> Messages("confirmations.itemWasDemoted"))
+      .flashing("success" -> Messages("item.demote.confirmation"))
   }
 }

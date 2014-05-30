@@ -77,7 +77,7 @@ class AnnotationsSpec extends Neo4jRunnerSpec(classOf[AnnotationsSpec]) {
 
       // First we need to grant permission by adding the user to the portal group
       val addGroup = route(fakeLoggedInHtmlRequest(privilegedUser, POST,
-          controllers.core.routes.Groups
+          controllers.users.routes.Groups
             .addMemberPost("portal", EntityType.UserProfile, unprivilegedUser.id).url), "").get
       status(addGroup) must equalTo(SEE_OTHER)
 

@@ -432,6 +432,7 @@ section.login .show-more {
 section.login .more-login-option {
   display: none;
 }
+
 section.login > div.wrap {
   margin-left: -15px;
   margin-right: -15px;

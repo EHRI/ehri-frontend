@@ -1,0 +1,31 @@
+@(item: Accessible, itemPage: backend.Page[PermissionGrant], scopePage: backend.Page[PermissionGrant], itemPermAction: Call, scopePermAction: Call)(
+    implicit userOpt: Option[UserProfile], req: RequestHeader, globalConfig: global.GlobalConfig, lang: Lang, flash: Flash)
+
+@implicitField = @{ views.html.helper.FieldConstructor(formHelpers.fieldTemplate.f) }
+
+@layout.rightSidebar(Messages("permissions.manage.item", item.toStringLang), breadcrumbs = common.breadcrumbs(List(item))) {
+
+
+    <h3>@Messages("permissions.itemLevel.manage")</h3>
+    <div class="well well-small text-muted">
+        <i class="glyphicon glyphicon-info-sign"></i>
+        @Messages("permissions.itemLevel.manage.info")
+    </div>
+    <a href="@itemPermAction">@Messages("permissions.itemLevel.manage")</a>
+
+    @permissions.permissionList(None, itemPage, "page")
+
+    <hr />
+
+    <h3>@Messages("permissions.scopeLevel.manage")</h3>
+    <div class="well well-small text-muted">
+        <i class="glyphicon glyphicon-info-sign"></i>
+        @Messages("permissions.scopeLevel.manage.info")
+    </div>
+    <a href="@scopePermAction">@Messages("permissions.scopeLevel.manage")</a>
+
+    @permissions.permissionList(None, scopePage, "spage")
+
+} {
+
+}

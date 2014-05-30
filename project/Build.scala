@@ -126,48 +126,52 @@ object ApplicationBuild extends Build {
       libraryDependencies ++= coreDependencies
   ).settings(commonSettings: _*)
 
+  lazy val users = Project(appName + "-users", file("modules/users"))
+    .enablePlugins(play.PlayScala).settings(
+    version := appVersion
+  ).settings(commonSettings: _*).dependsOn(core)
+
   lazy val annotation = Project(appName + "-annotation", file("modules/annotation"))
     .enablePlugins(play.PlayScala).settings(
     version := appVersion,
     libraryDependencies ++= coreDependencies
-  ).settings(commonSettings: _*).dependsOn(core)
+  ).settings(commonSettings: _*).dependsOn(users)
 
   lazy val linking = Project(appName + "-linking", file("modules/linking"))
     .enablePlugins(play.PlayScala).settings(
     version := appVersion
-  ).settings(commonSettings: _*).dependsOn(core, annotation)
-
-  lazy val archdesc = Project(appName + "-archdesc", file("modules/archdesc"))
-    .enablePlugins(play.PlayScala).settings(
-    version := appVersion
-  ).settings(commonSettings: _*).dependsOn(core, annotation, linking)
-
-  lazy val authorities = Project(appName + "-authorities", file("modules/authorities"))
-    .enablePlugins(play.PlayScala).settings(
-    version := appVersion
-  ).settings(commonSettings: _*).dependsOn(core, annotation, linking)
-
-  lazy val vocabs = Project(appName + "-vocabs", file("modules/vocabs"))
-    .enablePlugins(play.PlayScala).settings(
-    version := appVersion
-  ).settings(commonSettings: _*).dependsOn(core, annotation, linking)
+  ).settings(commonSettings: _*).dependsOn(annotation)
 
   lazy val portal = Project(appName + "-portal", file("modules/portal"))
     .enablePlugins(play.PlayScala).settings(
     version := appVersion,
     libraryDependencies ++= portalDependencies
-  ).settings(commonSettings: _*).dependsOn(core, annotation, linking)
+  ).settings(commonSettings: _*).dependsOn(linking)
 
-  lazy val admin = Project(appName + "-admin", file("modules/admin"))
+  lazy val archdesc = Project(appName + "-archdesc", file("modules/archdesc"))
     .enablePlugins(play.PlayScala).settings(
     version := appVersion
-  ).settings(commonSettings: _*).dependsOn(core, archdesc, authorities, vocabs, portal)
-    .aggregate(core, linking, annotation, archdesc, authorities, vocabs, portal)
+  ).settings(commonSettings: _*).dependsOn(portal)
+
+  lazy val authorities = Project(appName + "-authorities", file("modules/authorities"))
+    .enablePlugins(play.PlayScala).settings(
+    version := appVersion
+  ).settings(commonSettings: _*).dependsOn(portal)
+
+  lazy val vocabs = Project(appName + "-vocabs", file("modules/vocabs"))
+    .enablePlugins(play.PlayScala).settings(
+    version := appVersion
+  ).settings(commonSettings: _*).dependsOn(portal)
 
   lazy val guides = Project(appName + "-guides", file("modules/guides"))
     .enablePlugins(play.PlayScala).settings(
     version := appVersion
-  ).settings(commonSettings: _*).dependsOn(core, annotation, linking)
+  ).settings(commonSettings: _*).dependsOn(archdesc)
+
+  lazy val admin = Project(appName + "-admin", file("modules/admin"))
+    .enablePlugins(play.PlayScala).settings(
+    version := appVersion
+  ).settings(commonSettings: _*).dependsOn(archdesc, authorities, vocabs, guides)
 
   lazy val main = Project(appName, file("."))
     .enablePlugins(play.PlayScala).settings(
@@ -185,8 +189,8 @@ object ApplicationBuild extends Build {
                        |      }
                        |  ]
                        |})""".stripMargin
-  ).settings(commonSettings ++ assetSettings: _*).dependsOn(core, annotation, linking, admin, portal, guides)
-    .aggregate(core, annotation, linking, admin, portal, guides)
+  ).settings(commonSettings ++ assetSettings: _*).dependsOn(admin)
+    .aggregate(core, users, annotation, linking, portal, archdesc, authorities, vocabs, guides, admin)
 
   override def rootProject = Some(main)
 }

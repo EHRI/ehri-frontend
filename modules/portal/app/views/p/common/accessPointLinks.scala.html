@@ -7,7 +7,7 @@
  *@
 @if(!desc.accessPoints.isEmpty) {
     <div class="description-section">
-    <h3>@Messages("accessPoints.externalReferences")</h3>
+    <h3>@Messages("accessPoint.externalReferences")</h3>
     @AccessPointF.AccessPointType.values.toList.map { accessPointType =>
         @defining(desc.accessPoints.filter(_.accessPointType == accessPointType)) { apLinks =>
             @if(!apLinks.isEmpty) {

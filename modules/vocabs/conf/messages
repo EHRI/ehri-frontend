@@ -2,7 +2,7 @@
 
 actions.updateConcept=Update Term
 actions.updateVocabulary=Update Vocabulary
-actions.linkToConcept=Link to a vocabulary term
+link.createConcept=Link to a vocabulary term
 actions.listConcepts=Terms
 actions.listVocabularies=Vocabularies
 actions.createConcept=Create New Term
@@ -39,5 +39,7 @@ cvocConcept.search=Search Terms
 cvocConcept.broaderTerms=Broader Terms
 cvocConcept.narrowerTerms=Narrower Terms
 cvocConcept.narrowerTermsPageHeader={2,choice,0#No narrower terms found|1#One narrower term found|1<Narrower terms {0,number,integer} to {1,number,integer} of {2,number,integer}}
+cvocConcept.createDescription=Add Concept Description
+cvocConcept.deleteDescription=Delete Description
 
 

@@ -3,7 +3,7 @@ implicit userOpt: Option[UserProfile], req: RequestHeader, globalConfig: global.
 
 @implicitField = @{ views.html.helper.FieldConstructor(formHelpers.fieldTemplate.f) }
 
-@layout.rightSidebar(Messages("actions.linkAnnotate", item)) {
+@layout.rightSidebar(Messages("link.create.item", item)) {
 	
 	@helper.form(action = action, 'class -> "entity-form form-horizontal") {
         @formHelpers.csrfToken()
@@ -20,7 +20,7 @@ implicit userOpt: Option[UserProfile], req: RequestHeader, globalConfig: global.
         }
 
         <div class="form-actions">
-			<button type="submit" class="btn btn-primary">@Messages("submitButton.linkAnnotate")</button>
+			<button type="submit" class="btn btn-primary">@Messages("link.linkTo.submit")</button>
 		</div>
 	}
 } {

@@ -30,12 +30,12 @@
                 }
                 @item.latestEvent.map { event =>
                     <li title="@common.eventTitle(event)">
-                        <time datetime="@event.model.timestamp">@Messages("systemEvents.lastUpdated", views.Helpers.relativeDate(event.model.timestamp))</time>
+                        <time datetime="@event.model.timestamp">@Messages("systemEvent.lastUpdated", views.Helpers.relativeDate(event.model.timestamp))</time>
                     </li>
                 }
             </ul>
             @views.html.common.childCount(item) { count =>
-                <a href="@controllers.archdesc.routes.Repositories.get(item.id)#search-items">@Messages(EntityType.Repository + ".childCount", count)</a>
+                <a href="@controllers.archdesc.routes.Repositories.get(item.id)#search-items">@Messages("repository.childCount", count)</a>
             }
         </small>
 

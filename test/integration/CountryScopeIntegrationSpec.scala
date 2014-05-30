@@ -52,13 +52,13 @@ class CountryScopeIntegrationSpec extends Neo4jRunnerSpec(classOf[CountryScopeIn
         "description" -> Seq("Group for UK archivists")
       )
       val groupCreatePost = route(fakeLoggedInHtmlRequest(privilegedUser, POST,
-        controllers.core.routes.Groups.create().url)
+        controllers.users.routes.Groups.create().url)
         .withHeaders(formPostHeaders.toSeq: _*), groupData).get
       status(groupCreatePost) must equalTo(SEE_OTHER)
 
       // Check we can read the group
       val groupRead = route(fakeLoggedInHtmlRequest(privilegedUser, GET,
-        controllers.core.routes.Groups.get(groupId).url)).get
+        controllers.users.routes.Groups.get(groupId).url)).get
       status(groupRead) must equalTo(OK)
 
       // Grant scoped permissions for the group to create repos and docs in country gb
@@ -86,13 +86,13 @@ class CountryScopeIntegrationSpec extends Neo4jRunnerSpec(classOf[CountryScopeIn
         "group[]" -> Seq(groupId) // NB: Note brackets on param name!!!
       )
       val userCreatePost = route(fakeLoggedInHtmlRequest(privilegedUser, POST,
-        controllers.core.routes.Admin.createUserPost().url)
+        controllers.users.routes.UserProfiles.createUserPost().url)
         .withHeaders(formPostHeaders.toSeq: _*), newUserData).get
       status(userCreatePost) must equalTo(SEE_OTHER)
 
       // Check we can read the user's page
       val userRead =  route(fakeLoggedInHtmlRequest(privilegedUser, GET,
-        controllers.core.routes.UserProfiles.get(userId).url)).get
+        controllers.users.routes.UserProfiles.get(userId).url)).get
       status(userRead) must equalTo(OK)
 
       // Fetch the user's profile to perform subsequent logins
@@ -107,7 +107,7 @@ class CountryScopeIntegrationSpec extends Neo4jRunnerSpec(classOf[CountryScopeIn
       // Check the user can read their profile as themselves...
       // Check we can read the user's page
       val userReadAsSelf =  route(fakeLoggedInHtmlRequest(fakeAccount, GET,
-        controllers.core.routes.UserProfiles.get(userId).url)).get
+        controllers.users.routes.UserProfiles.get(userId).url)).get
       status(userReadAsSelf) must equalTo(OK)
 
       // Now we're going to create a repository as the new user

@@ -291,7 +291,7 @@ case class Social @Inject()(implicit globalConfig: global.GlobalConfig, searchDi
         else Ok(p.social.messageUser(userTo, messageForm,
           socialRoutes.sendMessagePost(userId), recaptchaKey))
       } else {
-        BadRequest(Messages("portal.social.sendMessage.userNotAcceptingMessages"))
+        BadRequest(Messages("portal.social.message.send.userNotAcceptingMessages"))
       }
     }
   }
@@ -316,14 +316,14 @@ case class Social @Inject()(implicit globalConfig: global.GlobalConfig, searchDi
         onError(userTo, boundForm.withGlobalError("error.badRecaptcha"))
       } else if (!allowed) {
         onError(userTo, boundForm
-          .withGlobalError("portal.social.sendMessage.userNotAcceptingMessages"))
+          .withGlobalError("portal.social.message.send.userNotAcceptingMessages"))
       } else {
         boundForm.fold(
           errForm => onError(userTo, errForm),
           data => {
             val (subject, message) = data
             sendMessageEmail(user, userTo, subject, message)
-            val msg = Messages("portal.social.messageSent")
+            val msg = Messages("portal.social.message.send.confirmation")
             if (isAjax) Ok(Json.obj("ok" -> msg))
             else Redirect(socialRoutes.browseUser(userId))
               .flashing("success" -> msg)

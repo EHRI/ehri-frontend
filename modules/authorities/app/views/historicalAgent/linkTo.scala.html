@@ -2,12 +2,12 @@
 
 @historicalAgent.itemPage(item) {
 
-    <h3>@Messages("actions.linkTo")</h3>
+    <h3>@Messages("link.create")</h3>
 
     <ul>
-        <li><a href="@controllers.authorities.routes.HistoricalAgents.linkAnnotateSelect(item.id, defines.EntityType.HistoricalAgent)">@Messages("actions.linkToHistoricalAgent")</a></li>
-        <li><a href="@controllers.authorities.routes.HistoricalAgents.linkAnnotateSelect(item.id, defines.EntityType.Concept)">@Messages("actions.linkToConcept")</a></li>
-        <li><a href="@controllers.authorities.routes.HistoricalAgents.linkAnnotateSelect(item.id, defines.EntityType.DocumentaryUnit)">@Messages("actions.linkToDocumentaryUnit")</a></li>
+        <li><a href="@controllers.authorities.routes.HistoricalAgents.linkAnnotateSelect(item.id, defines.EntityType.HistoricalAgent)">@Messages("link.create.to.historicalAgent")</a></li>
+        <li><a href="@controllers.authorities.routes.HistoricalAgents.linkAnnotateSelect(item.id, defines.EntityType.Concept)">@Messages("link.createConcept")</a></li>
+        <li><a href="@controllers.authorities.routes.HistoricalAgents.linkAnnotateSelect(item.id, defines.EntityType.DocumentaryUnit)">@Messages("link.create.to.documentaryUnit")</a></li>
     </ul>
 
 }

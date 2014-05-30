@@ -21,14 +21,14 @@
             @item.latestEvent.map { event =>
             <li title="@common.eventTitle(event)">
                 <time datetime="@event.model.timestamp">
-                    @Messages("systemEvents.lastUpdated", views.Helpers.relativeDate(event.model.timestamp))
+                    @Messages("systemEvent.lastUpdated", views.Helpers.relativeDate(event.model.timestamp))
                 </time>
             </li>
             }
         </ul>
         @views.html.common.childCount(item) { count =>
             @if(count > 0) {
-                <a href="@controllers.portal.routes.Portal.browseDocument(item.id)#search-items">@Messages(EntityType.DocumentaryUnit + ".childCount", count)</a>
+                <a href="@controllers.portal.routes.Portal.browseDocument(item.id)#search-items">@Messages("documentaryUnit.childCount", count)</a>
             }
         }
     </small>

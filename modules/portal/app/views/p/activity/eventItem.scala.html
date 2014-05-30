@@ -37,7 +37,7 @@
 }
 
 @eventTitle(user: Html, eventType: String, item: models.base.AnyModel) = {
-    @Html(Messages("portal.social.timeline.eventType." + eventType, user, Messages("portal.social.timeline.target." + item.isA.toString)))
+    @Html(Messages("portal.timeline.eventType." + eventType, user, Messages("portal.timeline.target." + item.isA.toString)))
 }
 
 @eventBody(event: SystemEvent, user: models.base.Accessor, et: Any, subject: models.base.AnyModel)(content: Html) = {
