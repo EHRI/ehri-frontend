@@ -177,18 +177,7 @@ object ApplicationBuild extends Build {
     .enablePlugins(play.PlayScala).settings(
     version := appVersion,
     libraryDependencies ++= coreDependencies ++ testDependencies,
-    pipelineStages := Seq(rjs),
-
-    appBuildProfile := s"""|({
-                       |  appDir: "${appDir.value}",
-                       |  baseUrl: "js",
-                       |  dir: "${dir.value}",
-                       |  modules: [
-                       |      {
-                       |           name: "main"
-                       |      }
-                       |  ]
-                       |})""".stripMargin
+    pipelineStages := Seq(rjs)
   ).settings(commonSettings ++ assetSettings: _*).dependsOn(admin)
     .aggregate(core, users, annotation, linking, portal, archdesc, authorities, vocabs, guides, admin)
 
