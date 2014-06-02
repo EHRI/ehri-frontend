@@ -14,54 +14,41 @@ case class Guides @Inject()(implicit globalConfig: global.GlobalConfig, backend:
   private val formGuide = models.Guide.form
   private final val guidesRoutes = controllers.guides.routes.Guides
 
-  /*
-  *	Routes related action
-  *
-  *	Guides
-  */
-
-  /* List the available guides */
-  def list() = userProfileAction {
-    implicit userOpt => implicit request =>
-      Ok(views.html.guide.list(Guide.findAll()))
+  def list() = userProfileAction { implicit userOpt => implicit request =>
+    Ok(views.html.guide.list(Guide.findAll()))
   }
 
-
-  def show(path: String) = userProfileAction {
-    implicit userOpt => implicit request =>
-      Guide.find(path, activeOnly = false) match {
-        case Some(guide) => Ok(views.html.guide.show(guide, guide.getPages, Guide.findAll()))
-        case _ => Ok(views.html.guide.list(Guide.findAll()))
-      }
-  }
-
-  def edit(path: String) = userProfileAction {
-    implicit userOpt => implicit request =>
-      Guide.find(path, activeOnly = false) match {
-        case Some(guide) => Ok(views.html.guide.edit(guide, formGuide.fill(guide), Guide.findAll(), Some(guide.getPages), guidesRoutes.editPost(path)))
-        case _ => Ok(views.html.guide.list(Guide.findAll()))
-      }
-  }
-
-  def delete(path: String) = userProfileAction { implicit userOpt => implicit request =>
+  def show(path: String) = withUserAction { implicit user => implicit request =>
     itemOr404 {
       Guide.find(path, activeOnly = false).map { guide =>
-        guide.delete()
-        Redirect(guidesRoutes.list()).flashing("success" -> "item.delete.confirmation")
+        Ok(views.html.guide.show(guide, guide.findPages(), Guide.findAll()))
       }
     }
   }
 
-  def editPost(path: String) = userProfileAction { implicit userOpt => implicit request =>
+  def edit(path: String) = withUserAction { implicit user => implicit request =>
+    itemOr404 {
+      Guide.find(path, activeOnly = false).map { guide =>
+        Ok(views.html.guide.edit(guide, formGuide.fill(guide), Guide.findAll(),
+          guide.findPages(), guidesRoutes.editPost(path)))
+      }
+    }
+  }
+
+  def editPost(path: String) = withUserAction { implicit user => implicit request =>
     itemOr404 {
       Guide.find(path, activeOnly = false).map { guide =>
         formGuide.bindFromRequest.fold(
           errorForm => {
-            BadRequest(views.html.guide.edit(guide, errorForm, Guide.findAll(), Some(guide.getPages), guidesRoutes.editPost(path)))
+            BadRequest(views.html.guide.edit(guide, errorForm, Guide.findAll(),
+              guide.findPages(), guidesRoutes.editPost(path)))
           },
-          guide => {
-            guide.update()
-            Redirect(guidesRoutes.show(path))
+          updated => {
+            // This ensures we don't depend on the objectId in the form,
+            // which might differ from that in the form if someone
+            // has somehow changed it...
+            updated.copy(id = guide.id).update()
+            Redirect(guidesRoutes.show(updated.path))
               .flashing("success" -> "item.update.confirmation")
           }
         )
@@ -69,12 +56,11 @@ case class Guides @Inject()(implicit globalConfig: global.GlobalConfig, backend:
     }
   }
 
-  def create() = userProfileAction {
-    implicit userOpt => implicit request =>
-      Ok(views.html.guide.create(formGuide.fill(Guide.blueprint()), Guide.findAll(), guidesRoutes.createPost()))
+  def create() = withUserAction { implicit user => implicit request =>
+    Ok(views.html.guide.create(formGuide.fill(Guide.blueprint()), Guide.findAll(), guidesRoutes.createPost()))
   }
 
-  def createPost() = userProfileAction { implicit userOpt => implicit request =>
+  def createPost() = withUserAction { implicit user => implicit request =>
     formGuide.bindFromRequest.fold(
       errorForm => {
         BadRequest(views.html.guide.create(errorForm, Guide.findAll(), guidesRoutes.createPost()))
@@ -88,5 +74,22 @@ case class Guides @Inject()(implicit globalConfig: global.GlobalConfig, backend:
         }
       }
     )
+  }
+
+  def delete(path: String) = withUserAction { implicit user => implicit request =>
+    itemOr404 {
+      Guide.find(path).map { guide =>
+        Ok(views.html.guide.delete(guide, Guide.findAll(), guidesRoutes.deletePost(path)))
+      }
+    }
+  }
+
+  def deletePost(path: String) = withUserAction { implicit user => implicit request =>
+    itemOr404 {
+      Guide.find(path, activeOnly = false).map { guide =>
+        guide.delete()
+        Redirect(guidesRoutes.list()).flashing("success" -> "item.delete.confirmation")
+      }
+    }
   }
 }

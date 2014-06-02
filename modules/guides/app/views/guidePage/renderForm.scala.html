@@ -3,7 +3,6 @@
 @implicitField = @{ views.html.helper.FieldConstructor(formHelpers.fieldTemplate.f) }
 
 @defining(GuidePage.PREFIX) { implicit fieldPrefix =>
-    @formHelpers.hiddenInput(f("objectId"))
     @formHelpers.lineInput(f(""), GuidePage.NAME)
     @formHelpers.lineInput(f(""), GuidePage.PATH)
    	@formHelpers.choiceInput(f("position"), GuidePage.POSITION, GuidePage.MenuPosition.values.toList.map(row => {

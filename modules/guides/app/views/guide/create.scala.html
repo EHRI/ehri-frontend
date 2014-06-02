@@ -3,15 +3,15 @@ implicit userOpt: Option[UserProfile], req: RequestHeader, globalConfig: global.
 
 @breadcrumbs = {
 	<ol class="breadcrumb">
-		<li><a href="@controllers.guides.routes.Guides.list()">Guides</a></li>
+		<li><a href="@controllers.guides.routes.Guides.list()">@Messages("guide.heading")</a></li>
 	</ol>
 }
 
 @guide.guidesAdminLayout(Messages("guide.create"), guides, breadcrumbs = breadcrumbs) {
 	@helper.form(action = action, 'class -> "entity-form form-horizontal") {
         @formHelpers.csrfToken()
-    	@renderForm(None, f)
+    	@renderForm(None, f, pages = Nil)
 
-        @formHelpers.submitButtonWithLogMessageInput(Messages("guide.create"))
+        @formHelpers.submitButton(Messages("guide.create"))
 	}
 }

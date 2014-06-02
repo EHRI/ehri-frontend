@@ -1,23 +1,18 @@
-@(item: Option[Guide], f: Form[models.Guide], listPages: Option[List[GuidePage]] = None)
+@(item: Option[Guide], f: Form[models.Guide], pages: List[GuidePage])
 
 @implicitField = @{ views.html.helper.FieldConstructor(formHelpers.fieldTemplate.f) }
 
 @defining(Guide.PREFIX) { implicit fieldPrefix =>
-    @formHelpers.hiddenInput(f("objectId"))
     @formHelpers.lineInput(f(""), Guide.NAME)
     @formHelpers.lineInput(f(""), Guide.PATH)
     @formHelpers.lineInput(f(""), Guide.PICTURE)
     @formHelpers.textInput(f(""), Guide.DESCRIPTION)
     @formHelpers.checkbox(f("active"), Guide.ACTIVE)
-    @listPages match {
-	    case Some(pages) => {
-			@formHelpers.choiceNumericInput(f("default"), Guide.DEFAULT, pages.map(row => {
-				row.objectId.getOrElse(0L) -> row.name
-			}))
-		}
-		case _ => {
-    		@formHelpers.hiddenInput(f("default"))
-		}
-	}
-   
+    @if(pages.isEmpty) {
+        @formHelpers.hiddenInput(f("default"))
+    } else {
+        @formHelpers.choiceNumericInput(f("default"), Guide.DEFAULT, pages.map(row => {
+            row.objectId.getOrElse(0L) -> row.name
+        }))
+    }
 }

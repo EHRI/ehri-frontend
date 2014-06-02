@@ -12,8 +12,8 @@ class GuideSpec extends PlaySpecification {
 
       Guide.find("terezin") must beSome.which { guide =>
         guide.name must equalTo("Terezin")
-        guide.getPages.size must beGreaterThan(0)
-        guide.getPage("people") must beSome.which { page =>
+        guide.findPages.size must beGreaterThan(0)
+        guide.findPage("people") must beSome.which { page =>
           page.name must equalTo("People")
         }
       }
@@ -59,7 +59,7 @@ class GuideSpec extends PlaySpecification {
           path = "test",
           menu = GuidePage.MenuPosition.Side,
           cypher = "",
-          parent = guide.objectId
+          parent = guide.id
         ) must beSome
       }
     }

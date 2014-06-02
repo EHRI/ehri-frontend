@@ -1,3 +1,4 @@
+guide.heading=Guides
 guide.list=Available Guides
 guide.objectId=Numeric Identifier
 guide.objectId.description=Automatic identifier
@@ -22,6 +23,7 @@ guide.create=Create New Guide
 guide.create.submit=Submit
 guide.delete=Delete this Guide
 guide.delete.item=Delete this Guide
+guide.delete.check=Delete this Guide?
 guide.delete.submit=Delete
 
 
@@ -32,6 +34,7 @@ guidePage.update.submit=Submit
 guidePage.create=Create a Page
 guidePage.create.submit=Create
 guidePage.delete=Delete this Page
+guidePage.delete.check=Delete this Page?
 guidePage.delete.item=Delete {0}
 guidePage.delete.submit=Delete
 

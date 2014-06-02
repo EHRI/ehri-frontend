@@ -88,7 +88,7 @@ case class Guides @Inject()(implicit globalConfig: global.GlobalConfig, searchDi
   */
   def layoutRetrieval(path: String, page: String) = itemOr404Action {
     Guide.find(path, activeOnly = true).map  { guide =>
-      guideLayout(guide, guide.getPage(page))
+      guideLayout(guide, guide.findPage(page))
     }
   }
 
@@ -101,7 +101,6 @@ case class Guides @Inject()(implicit globalConfig: global.GlobalConfig, searchDi
 
 
   def guideLayout(guide: Guide, temp: Option[GuidePage]) = itemOr404Action {
-    println(temp.map(_.layout))
     temp.map { page =>
       page.layout match {
         case Layout.Person => guideAuthority(page, Map("holderId" -> page.content), guide)
@@ -129,7 +128,7 @@ case class Guides @Inject()(implicit globalConfig: global.GlobalConfig, searchDi
     ) {
       page => params => facets => _ => _ =>
         if (isAjax) Ok(p.guides.ajax(template -> guide, page, params))
-        else Ok(p.guides.person(template -> (guide -> guide.getPages), page, params))
+        else Ok(p.guides.person(template -> (guide -> guide.findPages), page, params))
     }.apply(request)
   }
 
@@ -141,7 +140,7 @@ case class Guides @Inject()(implicit globalConfig: global.GlobalConfig, searchDi
       entityFacets = conceptFacets) {
       page => params => facets => _ => _ =>
         if (isAjax) Ok(p.guides.ajax(template -> guide, page, params))
-        else Ok(p.guides.keywords(template -> (guide -> guide.getPages), page, params))
+        else Ok(p.guides.keywords(template -> (guide -> guide.findPages), page, params))
     }.apply(request)
   }
 
@@ -153,7 +152,7 @@ case class Guides @Inject()(implicit globalConfig: global.GlobalConfig, searchDi
       entityFacets = conceptFacets) {
       page => params => facets => _ => _ =>
         if (isAjax) Ok(p.guides.ajax(template -> guide, page, params))
-        else Ok(p.guides.places(template -> (guide -> guide.getPages), page, params))
+        else Ok(p.guides.places(template -> (guide -> guide.findPages), page, params))
     }.apply(request)
   }
 
@@ -166,7 +165,7 @@ case class Guides @Inject()(implicit globalConfig: global.GlobalConfig, searchDi
     ) {
       page => params => facets => _ => _ =>
         if (isAjax) Ok(p.guides.ajax(template -> guide, page, params))
-        else Ok(p.guides.keywords(template -> (guide -> guide.getPages), page, params))
+        else Ok(p.guides.keywords(template -> (guide -> guide.findPages), page, params))
     }.apply(request)
   }
 
@@ -174,7 +173,7 @@ case class Guides @Inject()(implicit globalConfig: global.GlobalConfig, searchDi
   *   Layout named "md" [Markdown]
   */
   def guideMarkdown(template: GuidePage, content: String, guide: Guide) = userProfileAction { implicit userOpt => implicit request =>
-    Ok(p.guides.markdown(template -> (guide -> guide.getPages), content))
+    Ok(p.guides.markdown(template -> (guide -> guide.findPages), content))
   }
 
 
@@ -198,7 +197,7 @@ case class Guides @Inject()(implicit globalConfig: global.GlobalConfig, searchDi
   def guideFacets(path: String) = itemOr404Action {
     Guide.find(path, activeOnly = true).map { guide =>
       userProfileAction { implicit userOpt => implicit request =>
-        Ok(p.guides.facet(GuidePage.faceted -> (guide -> guide.getPages)))
+        Ok(p.guides.facet(GuidePage.faceted -> (guide -> guide.findPages)))
       }
     }
   }
