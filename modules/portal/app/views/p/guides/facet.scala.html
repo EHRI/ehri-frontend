@@ -119,7 +119,7 @@
 }
 @facets = {
     @for(page <- template._2._2) {
-        @if(page.position == "top" && page.layout != "md") {
+        @if(page.position == GuidePage.MenuPosition.Top && page.layout != GuidePage.Layout.Markdown) {
             <ul class="list-unstyled">
                 <li>
                     <div class="facet-form" data-target="@controllers.portal.routes.Guides.layoutRetrieval(template._2._1.path, page.path)">
