@@ -2,7 +2,7 @@
 
 @import controllers.archdesc.Repositories
 
-@layout.rightSidebar(Messages("actions.listRepositories")) {
+@layout.rightSidebar(Messages("repository.list")) {
     @common.filterableList("pagination.displayingItems", page, params) {
         @repository.itemList(page)
     }
