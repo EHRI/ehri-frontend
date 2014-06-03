@@ -100,7 +100,8 @@ case class Countries @Inject()(implicit globalConfig: global.GlobalConfig, searc
     idGenerator.getNextNumericIdentifier(EntityType.Repository).map { newid =>
       val form = childForm.bind(Map(Entity.IDENTIFIER -> newid))
       Ok(views.html.repository.create(
-        item, form, childFormDefaults, VisibilityForm.form, users, groups, countryRoutes.createRepositoryPost(id)))
+        item, form, childFormDefaults, VisibilityForm.form.fill(item.accessors.map(_.id)),
+        users, groups, countryRoutes.createRepositoryPost(id)))
     }
   }
 

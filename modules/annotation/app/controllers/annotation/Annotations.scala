@@ -27,17 +27,15 @@ case class Annotations @Inject()(implicit globalConfig: global.GlobalConfig, bac
     Ok(views.html.systemEvents.itemList(item, page, params))
   }
 
-  def visibility(id: String) = visibilityAction(id) { item => users => groups => implicit userOpt =>
-    implicit request =>
-      Ok(views.html.permissions.visibility(item,
-        forms.VisibilityForm.form.fill(item.accessors.map(_.id)),
-        users, groups, controllers.annotation.routes.Annotations.visibilityPost(id)))
+  def visibility(id: String) = visibilityAction(id) { item => users => groups => implicit userOpt => implicit request =>
+    Ok(views.html.permissions.visibility(item,
+      forms.VisibilityForm.form.fill(item.accessors.map(_.id)),
+      users, groups, controllers.annotation.routes.Annotations.visibilityPost(id)))
   }
 
-  def visibilityPost(id: String) = visibilityPostAction(id) { ok => implicit userOpt =>
-    implicit request =>
-      Redirect(controllers.annotation.routes.Annotations.get(id))
-        .flashing("success" -> Messages("item.update.confirmation", id))
+  def visibilityPost(id: String) = visibilityPostAction(id) { ok => implicit userOpt => implicit request =>
+    Redirect(controllers.annotation.routes.Annotations.get(id))
+      .flashing("success" -> Messages("item.update.confirmation", id))
   }
 
   def delete(id: String) = deleteAction(id) { item => implicit userOpt => implicit request =>

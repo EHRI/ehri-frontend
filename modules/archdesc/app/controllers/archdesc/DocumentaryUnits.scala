@@ -171,8 +171,8 @@ case class DocumentaryUnits @Inject()(implicit globalConfig: global.GlobalConfig
 
   def createDoc(id: String) = childCreateAction(id, contentType) { item => users => groups => implicit userOpt => implicit request =>
     Ok(views.html.documentaryUnit.create(
-      item, childForm, formDefaults, VisibilityForm.form, users, groups,
-      docRoutes.createDocPost(id)))
+      item, childForm, formDefaults, VisibilityForm.form.fill(item.accessors.map(_.id)),
+      users, groups, docRoutes.createDocPost(id)))
   }
 
   def createDocPost(id: String) = childCreatePostAction.async(id, childForm, contentType) {
