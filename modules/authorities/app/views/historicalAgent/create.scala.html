@@ -3,7 +3,7 @@
 
 @implicitField = @{ views.html.helper.FieldConstructor(formHelpers.fieldTemplate.f) }
 
-@layout.rightSidebar(Messages("actions.createHistoricalAgent")) {
+@layout.rightSidebar(Messages("historicalAgent.create")) {
 	@helper.form(action = action, 'class -> "entity-form form-horizontal") {
         @formHelpers.csrfToken()
         @historicalAgent.renderForm(None, f)
@@ -15,7 +15,7 @@
             @permissions.renderVisibilityForm(vf, users, groups)
         </fieldset>
 
-        @formHelpers.submitButtonWithLogMessageInput(Messages("submitButton.createHistoricalAgent"), cancel = Some(globalConfig.routeRegistry.urlFor(item)))
+        @formHelpers.submitButtonWithLogMessageInput(Messages("historicalAgent.create.submit"), cancel = Some(globalConfig.routeRegistry.urlFor(item)))
 	}
 } {
     @formNav()

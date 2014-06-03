@@ -8,7 +8,7 @@
 
     @common.sidebarActions { user =>
         @common.sidebarAction(user.hasPermission(ContentTypes.DocumentaryUnit, PermissionType.Create)) {
-            <a href="@controllers.archdesc.routes.Repositories.createDoc(item.id)">@Messages("actions.createNewDocUnit")</a>
+            <a href="@controllers.archdesc.routes.Repositories.createDoc(item.id)">@Messages("documentaryUnit.child.create")</a>
         }
         @common.sidebarAction(user.hasPermission(ContentTypes.Repository, PermissionType.Update)) {
             <a href="@controllers.archdesc.routes.Repositories.update(item.id)">@Messages("item.update")</a>

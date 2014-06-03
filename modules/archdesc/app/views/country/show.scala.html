@@ -23,7 +23,7 @@
 
     @common.sidebarActions { user =>
         @common.sidebarAction(user.hasPermission(ContentTypes.Repository, PermissionType.Create)) {
-            <a href="@controllers.archdesc.routes.Countries.createRepository(item.id)">@Messages("actions.createRepository")</a>
+            <a href="@controllers.archdesc.routes.Countries.createRepository(item.id)">@Messages("repository.create")</a>
         }
         @common.sidebarAction(user.hasPermission(ContentTypes.Country, PermissionType.Update)) {
             <a href="@controllers.archdesc.routes.Countries.update(item.id)">@Messages("item.update")</a>

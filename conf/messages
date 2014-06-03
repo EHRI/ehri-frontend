@@ -239,6 +239,8 @@ link.create=Link to another item
 link.create.item=Link ''{0}'' to ''{1}''
 link.create.to.documentaryUnit=Link to a documentary unit
 link.create.to.historicalAgent=Link to an authority file
+link.create.to.virtualUnit=Link to Virtual Item
+link.create.to.cvocConcept=Link to a vocabulary term
 link.delete=Delete Link
 
 #

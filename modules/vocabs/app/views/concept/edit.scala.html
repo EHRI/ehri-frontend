@@ -3,13 +3,13 @@ implicit userOpt: Option[UserProfile], req: RequestHeader, globalConfig: global.
  
 @implicitField = @{ views.html.helper.FieldConstructor(formHelpers.fieldTemplate.f) }
 
-@layout.rightSidebar(Messages("actions.updateConcept"), breadcrumbs = concept.breadcrumbs(item)) {
+@layout.rightSidebar(Messages("cvocConcept.update"), breadcrumbs = concept.breadcrumbs(item)) {
 		
 	@helper.form(action = action, 'class -> "entity-form form-horizontal") {
         @formHelpers.csrfToken()
 		@concept.renderForm(Some(item), f)
 
-        @formHelpers.submitButtonWithLogMessageInput(Messages("submitButton.updateConcept"), cancel = Some(globalConfig.routeRegistry.urlFor(item)))
+        @formHelpers.submitButtonWithLogMessageInput(Messages("cvocConcept.update.submit"), cancel = Some(globalConfig.routeRegistry.urlFor(item)))
 	}
 } {
 

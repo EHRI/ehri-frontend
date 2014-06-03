@@ -139,7 +139,8 @@ case class VirtualUnits @Inject()(implicit globalConfig: global.GlobalConfig, se
   }
 
   def create = createAction { users => groups => implicit userOpt => implicit request =>
-    Ok(views.html.virtualUnit.create(None, form, VisibilityForm.form, users, groups, vuRoutes.createPost()))
+    Ok(views.html.virtualUnit.create(None, form, VisibilityForm.form,
+      users, groups, vuRoutes.createPost()))
   }
 
   def createPost = createPostAction.async(form) { formsOrItem => implicit userOpt => implicit request =>
@@ -154,8 +155,8 @@ case class VirtualUnits @Inject()(implicit globalConfig: global.GlobalConfig, se
 
   def createChild(id: String) = childCreateAction(id, contentType) { item => users => groups => implicit userOpt => implicit request =>
     Ok(views.html.virtualUnit.create(
-      Some(item), childForm, VisibilityForm.form, users, groups,
-      vuRoutes.createChildPost(id)))
+      Some(item), childForm, VisibilityForm.form.fill(item.accessors.map(_.id)),
+      users, groups, vuRoutes.createChildPost(id)))
   }
 
   def createChildPost(id: String) = childCreatePostAction.async(id, childForm, contentType) {

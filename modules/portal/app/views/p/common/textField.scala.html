@@ -1,15 +1,8 @@
 @(item: AnyModel, nodeId: String, valueOpt: Option[String], key: String)(implicit fieldPrefix: String, userOpt: Option[UserProfile], req: RequestHeader, prefs: utils.SessionPrefs, globalConfig: global.GlobalConfig, lang: Lang, fieldAnnotations: Seq[Annotation])
 
 @defining(fieldAnnotations.filter(_.model.field==Some(key))) { anns =>
-
     @valueOpt.filterNot(_.isEmpty).map { value =>
-        <div class="item-text-field @userOpt.map { user =>
-    @item.contentType.map { ct =>
-        @if(user.hasPermission(ct, PermissionType.Annotate)) {
-            annotable
-    }
-}
-}" id="@nodeId-@key">
+        <div class="item-text-field @{if(views.p.Helpers.isAnnotatable(item, userOpt)) "annotable"}" id="@nodeId-@key">
             <h4 class="item-text-field-header">
                 @Messages(fieldPrefix + "." + key)
                 @fieldAnnotationButton(item, nodeId, key)

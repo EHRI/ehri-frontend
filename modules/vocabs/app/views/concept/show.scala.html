@@ -62,7 +62,7 @@
 
     @common.sidebarActions { user =>
         @common.sidebarAction(user.hasPermission(ContentTypes.Concept, PermissionType.Create)) {
-            <a href="@controllers.vocabs.routes.Concepts.createConcept(item.id)">@Messages("actions.createNarrowerConcept")</a>
+            <a href="@controllers.vocabs.routes.Concepts.createConcept(item.id)">@Messages("cvocConcept.narrower.create")</a>
         }
         @common.sidebarAction(user.hasPermission(ContentTypes.Concept, PermissionType.Update)) {
             <a href="@controllers.vocabs.routes.Concepts.update(item.id)">@Messages("item.update")</a>
