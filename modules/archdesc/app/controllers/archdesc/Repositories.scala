@@ -144,7 +144,8 @@ case class Repositories @Inject()(implicit globalConfig: global.GlobalConfig, se
   def createDoc(id: String) = childCreateAction(id, ContentTypes.DocumentaryUnit) {
       item => users => groups => implicit userOpt => implicit request =>
     Ok(views.html.documentaryUnit.create(item, childForm, childFormDefaults,
-        VisibilityForm.form, users, groups, repositoryRoutes.createDocPost(id)))
+      VisibilityForm.form.fill(item.accessors.map(_.id)),
+      users, groups, repositoryRoutes.createDocPost(id)))
   }
 
   def createDocPost(id: String) = childCreatePostAction.async(id, childForm, ContentTypes.DocumentaryUnit) {

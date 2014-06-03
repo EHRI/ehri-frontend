@@ -2,6 +2,8 @@ package views.p
 
 import models.{UserProfile, Annotation}
 import java.net.{MalformedURLException, URL}
+import models.base.AnyModel
+import defines.PermissionType
 
 object AnnotationViewType extends Enumeration {
   type Type = Value
@@ -51,6 +53,12 @@ object Helpers {
     } catch {
       case e: MalformedURLException if e.getMessage.startsWith("no protocol") => "http://" + s
       case _: MalformedURLException => s
+    }
+  }
+
+  def isAnnotatable(item: AnyModel, userOpt: Option[UserProfile]) = userOpt.exists { user =>
+    item.contentType.exists {
+      ct => user.hasPermission(ct, PermissionType.Annotate)
     }
   }
 }
