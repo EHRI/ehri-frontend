@@ -12,7 +12,7 @@
         @formHelpers.hiddenInput(f("default"))
     } else {
         @formHelpers.choiceNumericInput(f("default"), Guide.DEFAULT, pages.map(row => {
-            row.objectId.getOrElse(0L) -> row.name
+            row.id.getOrElse(0L) -> row.name
         }))
     }
 }
