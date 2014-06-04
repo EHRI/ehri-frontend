@@ -15,5 +15,8 @@
         @common.sidebarAction(user.isAdmin) {
             <a href="@controllers.admin.routes.Home.metrics">@Messages("admin.metrics.show")</a>
         }
+        @common.sidebarAction() {
+            <a href="@controllers.users.routes.SystemEvents.list">@Messages("systemEvent.list")</a>
+        }
     }
 }
