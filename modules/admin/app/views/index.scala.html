@@ -11,5 +11,9 @@
         </ul>
     }
 } {
-    @* TODO: Useful stuff goes here... *@
+    @common.sidebarActions { user =>
+        @common.sidebarAction(user.isAdmin) {
+            <a href="@controllers.admin.routes.Home.metrics">@Messages("admin.metrics.show")</a>
+        }
+    }
 }

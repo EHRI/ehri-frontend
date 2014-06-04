@@ -2,7 +2,9 @@
 
 
 GET     /                                   @controllers.admin.Home.index
+GET     /metrics                            @controllers.admin.Home.metrics
 GET     /overview                           @controllers.admin.Home.overview
+GET     /login                              @controllers.admin.Home.loginRedirect
 
 # Js Routes
 GET     /routes                             @controllers.admin.Home.jsRoutes

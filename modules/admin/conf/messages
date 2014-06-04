@@ -2,4 +2,5 @@
 
 admin.recentActivity=Recent Activity
 admin.home.title=Welcome to the EHRI Administration interface
-admin.metric.title=Data Metrics
+admin.metrics=Data Metrics
+admin.metrics.show=Data Overview Graphs
