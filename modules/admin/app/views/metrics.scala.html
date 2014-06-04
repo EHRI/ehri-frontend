@@ -94,15 +94,15 @@
             });
             $.getJSON(jsRoutes.controllers.admin.Metrics.agentTypes().url, function(data) {
                 plotData(plotPie, data, "typeOfEntity", "agent-types", 5, function(code) {
-                    if (code == "corporateBody") return "Corporate Body"
-                    else if (code == "family") return "Family"
-                    else if (code == "person") return "Person"
+                    if (code == "corporateBody") return "Corporate Body";
+                    else if (code == "family") return "Family";
+                    else if (code == "person") return "Person";
                     return code;
                 });
             });
             $.getJSON(jsRoutes.controllers.admin.Metrics.restricted().url, function(data) {
                 plotData(plotPie, data, "restricted", "restricted-data", 5, function(code) {
-                    if (code == "true") return "Restricted"
+                    if (code == "true") return "Restricted";
                     else return "Not Restricted"
                 });
             });
@@ -110,7 +110,7 @@
     </script>
 }
 
-@layout.noSidebar(Messages("admin.metrics.title"), scripts = extrascript) {
+@layout.noSidebar(Messages("admin.metrics"), scripts = extrascript) {
 
     <div class="row">
         <div class="col-md-6 overview-box">

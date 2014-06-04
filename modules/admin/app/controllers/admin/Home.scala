@@ -101,6 +101,10 @@ case class Home @Inject()(implicit globalConfig: global.GlobalConfig, searchDisp
     Ok(views.html.metrics())
   }
 
+  def loginRedirect() = Action {
+    MovedPermanently(controllers.portal.routes.Profile.login().url)
+  }
+
   /**
    * Full text search action that returns a complete page of item data.
    * @return
@@ -118,7 +122,7 @@ case class Home @Inject()(implicit globalConfig: global.GlobalConfig, searchDisp
         ))
         )
       }
-      case _ => Ok("hello")
+      case _ => MovedPermanently(controllers.admin.routes.Home.metrics().url)
     }
   }
 

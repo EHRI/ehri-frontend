@@ -6,7 +6,7 @@ implicit userOpt: Option[UserProfile], req: RequestHeader, globalConfig: global.
         @formHelpers.csrfToken()
         @country.renderForm(Some(item), f)
 
-        @formHelpers.submitButtonWithLogMessageInput(Messages("country.update.submit"), cancel = Some(globalConfig.routeRegistry.urlFor(item)))
+        @formHelpers.submitButtonWithLogMessageInput(Messages("country.update.submit"), cancel = views.Helpers.linkToOpt(item))
 	}
 } {
 

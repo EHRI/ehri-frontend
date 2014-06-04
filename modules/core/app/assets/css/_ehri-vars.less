@@ -72,3 +72,14 @@
 .highlight-glow {
   text-shadow: rgba(82, 168, 236, 0.8) 0 0 10px;
 }
+
+// HACK! Grey colour for disabled links in pagination is overridden
+// by the entity colour class:
+// https://github.com/mikesname/docview/issues/268
+.pagination > li.disabled > a {
+  color: @muted-gray;
+}
+
+.watch-controls > a, .watch-controls > a:hover {
+  text-decoration: none;
+}

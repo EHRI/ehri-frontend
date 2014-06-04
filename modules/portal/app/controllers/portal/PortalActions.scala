@@ -59,7 +59,7 @@ trait PortalActions {
           for {
             user <- backend.get[UserProfile](account.id)
             userWithAccount = user.copy(account=Some(account))
-            watched <- backend.listWatching(account.id)
+            watched <- watchedItems(Some(user))
             r <- f(UserDetails(Some(userWithAccount), watched))(request)
           } yield r
         } getOrElse {
