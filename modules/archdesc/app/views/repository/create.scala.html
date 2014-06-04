@@ -9,12 +9,12 @@
 	<script type="text/javascript" src="@controllers.core.routes.Assets.at("js/address.js")"></script>
 }
 
-@layout.rightSidebar(Messages("actions.createRepository"), scripts = scripts, breadcrumbs = common.breadcrumbs(List(item))) {
+@layout.rightSidebar(Messages("repository.create"), scripts = scripts, breadcrumbs = common.breadcrumbs(List(item))) {
 	@helper.form(action = action, 'class -> "entity-form form-horizontal") {
         @formHelpers.csrfToken()
         @repository.renderForm(None, f, defaults)
         @permissions.renderVisibilityForm(vf, users, groups)
-        @formHelpers.submitButtonWithLogMessageInput(Messages("submitButton.createRepository"), cancel = Some(globalConfig.routeRegistry.urlFor(item)))
+        @formHelpers.submitButtonWithLogMessageInput(Messages("repository.create.submit"), cancel = views.Helpers.linkToOpt(item))
 	}
 } {
 	@formNav()

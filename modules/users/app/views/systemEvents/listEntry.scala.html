@@ -1,11 +1,28 @@
 @(item: SystemEvent)(implicit globalConfig: global.GlobalConfig)
 
 <li class="list-item">
-    <h5><a href="@controllers.users.routes.SystemEvents.get(item.id)">@item.time</a>
-        @item.actioner.map { accessor =>
-            - <a href="@globalConfig.routeRegistry.urlFor(accessor)">@accessor.toStringLang</a>
+    <h4>
+        <a data-timestamp="@item.time" href="@controllers.users.routes.SystemEvents.get(item.id)">
+            @item.scope.map { scope =>
+            @scope.toStringLang -
+            }
+            <i>@item.toStringLang</i>
+        </a>
+    </h4>
+    <small>
+        <ul class="list-unstyled text-muted inline inline-separator">
+            @item.actioner.map { accessor =>
+            <li><a class="alt" href="@globalConfig.routeRegistry.urlFor(accessor)">@accessor.toStringLang</a></li>
+            }
+            <li>@views.Helpers.relativeDate(item.model.timestamp)</li>
+        </ul>
+    </small>
+    <small>
+        @item.firstSubject.map { s =>
+        <a href="@controllers.users.routes.SystemEvents.get(item.id)#subjects">@Messages("systemEvent.subjects.list", s.toStringLang, item.childCount.map(_ - 1).getOrElse(0))</a>
         }
-        - @item.toStringLang
-    </h5>
-    <p>@item.model.logMessage</p>
+        @item.model.logMessage.map { lm =>
+        <p>@lm</p>
+        }
+    </small>
 </li>

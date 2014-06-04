@@ -84,7 +84,7 @@ AuthoritativeSets @Inject()(implicit globalConfig: global.GlobalConfig, searchDi
     idGenerator.getNextChildNumericIdentifier(id, EntityType.HistoricalAgent).map { newid =>
       Ok(views.html.historicalAgent.create(
         item, childForm.bind(Map(Entity.IDENTIFIER -> newid)),
-          VisibilityForm.form, users, groups,
+        VisibilityForm.form.fill(item.accessors.map(_.id)), users, groups,
           setRoutes.createHistoricalAgentPost(id)))
     }
   }

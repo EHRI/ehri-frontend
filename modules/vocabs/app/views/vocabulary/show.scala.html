@@ -21,7 +21,7 @@
 
     @common.sidebarActions { user =>
         @sidebarAction(user.hasPermission(ContentTypes.Vocabulary, PermissionType.Create)) {
-            <a href="@controllers.vocabs.routes.Vocabularies.createConcept(item.id)">@Messages("actions.createTopLevelConcept")</a>
+            <a href="@controllers.vocabs.routes.Vocabularies.createConcept(item.id)">@Messages("cvocConcept.topLevel.create")</a>
         }
         @sidebarAction(user.hasPermission(ContentTypes.Vocabulary, PermissionType.Update)) {
             <a href="@controllers.vocabs.routes.Vocabularies.update(item.id)">@Messages("item.update")</a>

@@ -77,7 +77,8 @@ case class Vocabularies @Inject()(implicit globalConfig: global.GlobalConfig, se
   def createConcept(id: String) = childCreateAction(id, ContentTypes.Concept) {
       item => users => groups => implicit userOpt => implicit request =>
     Ok(views.html.concept.create(
-      item, childForm, VisibilityForm.form, users, groups, vocabRoutes.createConceptPost(id)))
+      item, childForm, VisibilityForm.form.fill(item.accessors.map(_.id)),
+      users, groups, vocabRoutes.createConceptPost(id)))
   }
 
   def createConceptPost(id: String) = childCreatePostAction.async(id, childForm, ContentTypes.Concept) {

@@ -1,24 +1,16 @@
 # Authority i18n messages
 
-actions.listHistoricalAgents=Authorities
-actions.updateHistoricalAgent=Update Authority
-actions.updateAuthoritativeSet=Update Authority Set
-actions.listAuthoritativeSets=Authority Sets
-actions.createHistoricalAgent=Create Authority
-actions.createAuthoritativeSet=Create New Authority Set
-actions.createTopLevelConcept=Create Top-level Term
-actions.createNarrowerConcept=Create Narrower Term
-actions.createNewHistoricalAgent=Create New Authority
-submitButton.createHistoricalAgent=Create Authority
-submitButton.updateHistoricalAgent=Update Authority
-submitButton.updateAuthoritativeSet=Update Authority Set
-submitButton.createAuthoritativeSet=Create Authority Set
-
 #
 # Historical Agents
 #
 historicalAgent.search=Search Authorities
 historicalAgent.authoritativeSet=Set
+historicalAgent.list=Authorities
+historicalAgent.create=Create Authority
+historicalAgent.create.submit=Create Authority
+historicalAgent.update=Update Authority
+historicalAgent.update.submit=Update Authority
+
 
 #
 # Authority set
@@ -30,6 +22,11 @@ authoritativeSet.name=Name
 authoritativeSet.name.description=A title-case display name for this set
 authoritativeSet.description=Description
 authoritativeSet.description.description=A description of this set''s purpose
+authoritativeSet.list=Authority Sets
+authoritativeSet.create=Create New Authority Set
+authoritativeSet.create.submit=Create Authority Set
+authoritativeSet.update=Update Authority Set
+authoritativeSet.update.submit=Update Authority Set
 
 
 #

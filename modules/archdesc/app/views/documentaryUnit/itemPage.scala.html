@@ -11,7 +11,7 @@
 
     @common.sidebarActions { user =>
         @common.sidebarAction(user.hasPermission(ContentTypes.DocumentaryUnit, PermissionType.Create)) {
-            <a href="@controllers.archdesc.routes.DocumentaryUnits.createDoc(item.id)">@Messages("actions.createChildDocUnit")</a>
+            <a href="@controllers.archdesc.routes.DocumentaryUnits.createDoc(item.id)">@Messages("documentaryUnit.child.create")</a>
         }
         @common.sidebarAction(user.hasPermission(ContentTypes.DocumentaryUnit, PermissionType.Annotate)) {
             <a href="@controllers.archdesc.routes.DocumentaryUnits.linkAnnotateSelect(item.id, EntityType.DocumentaryUnit)">@Messages("link.create")</a>

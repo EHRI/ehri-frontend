@@ -50,10 +50,12 @@ case class Portal @Inject()(implicit globalConfig: global.GlobalConfig, searchDi
     EntityType.Country)
   private val defaultSearchParams = SearchParams(entities = defaultSearchTypes, sort = Some(SearchOrder.Score))
 
-  def search = searchAction[AnyModel](defaultParams = Some(defaultSearchParams),
-        entityFacets = globalSearchFacets, mode = SearchMode.DefaultNone) {
-      page => params => facets => implicit userOpt => implicit request =>
-    Ok(p.search(page, params, facets, portalRoutes.search))
+  def search = userBrowseAction.async { implicit userDetails => implicit request =>
+    searchAction[AnyModel](defaultParams = Some(defaultSearchParams),
+      entityFacets = globalSearchFacets, mode = SearchMode.DefaultNone) {
+      page => params => facets => _ => _ =>
+        Ok(p.search(page, params, facets, portalRoutes.search(), userDetails.watchedItems))
+    }.apply(request)
   }
 
 
@@ -130,14 +132,13 @@ case class Portal @Inject()(implicit globalConfig: global.GlobalConfig, searchDi
     }.apply(request)
   }
 
-  def browseRepositories =  userProfileAction.async { implicit userOpt => implicit request =>
-    watchedItems.flatMap { watched =>
-      searchAction[Repository](defaultParams = Some(SearchParams(entities = List(EntityType.Repository))),
-        entityFacets = repositorySearchFacets) {
-          page => params => facets => implicit userOpt => implicit request =>
-        Ok(p.repository.list(page, params, facets, portalRoutes.browseRepositories()))
-      }.apply(request)
-    }
+  def browseRepositories =  userBrowseAction.async { implicit userDetails => implicit request =>
+    searchAction[Repository](defaultParams = Some(SearchParams(entities = List(EntityType.Repository))),
+      entityFacets = repositorySearchFacets) {
+        page => params => facets => _ => _ =>
+      Ok(p.repository.list(page, params, facets, portalRoutes.browseRepositories(),
+        userDetails.watchedItems))
+    }.apply(request)
   }
 
   def browseRepository(id: String) = getAction[Repository](EntityType.Repository, id) {
@@ -202,7 +203,8 @@ case class Portal @Inject()(implicit globalConfig: global.GlobalConfig, searchDi
     searchAction[HistoricalAgent](defaultParams = Some(SearchParams(entities = List(EntityType.HistoricalAgent))),
       entityFacets = historicalAgentFacets) {
         page => params => facets => _ => _ =>
-      Ok(p.historicalAgent.list(page, params, facets, portalRoutes.browseHistoricalAgents()))
+      Ok(p.historicalAgent.list(page, params, facets,
+        portalRoutes.browseHistoricalAgents(), userDetails.watchedItems))
     }.apply(request)
   }
 

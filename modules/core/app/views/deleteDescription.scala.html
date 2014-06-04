@@ -6,7 +6,7 @@ implicit userOpt: Option[UserProfile], request: RequestHeader, globalConfig: glo
     <p>@Messages("describedEntity.deleteDescription.info", description.name)</p>
     @helper.form(action = action, 'class -> "form-horizontal") {
         @formHelpers.csrfToken()
-        @formHelpers.submitButtonWithLogMessageInput(Messages("item.delete.submit"), cancel = Some(globalConfig.routeRegistry.urlFor(item)))
+        @formHelpers.submitButtonWithLogMessageInput(Messages("item.delete.submit"), cancel = views.Helpers.linkToOpt(item))
     }
 } {
 

@@ -12,31 +12,6 @@ urlPattern.description=The URL pattern is used to provide automatic linking from
 logoUrl=Logo URL
 logoUrl.description=A URL to a logo image for the repository.
 
-actions.updateCountry=Update Country
-actions.updateDocumentaryUnit=Update Collection
-actions.updateRepository=Update Repository
-actions.listDocumentaryUnits=Collections
-actions.listRepositories=Repositories
-actions.createDocumentaryUnit=Create Collection
-actions.createRepository=Create Repository
-actions.createCountry=Add Country
-actions.listCountries=Countries
-actions.createNewDocUnit=Create New Collection
-actions.createChildDocUnit=Create Child Collection
-actions.createNewRepository=Create New Repository
-actions.listVirtualUnits=Virtual Item Collections
-actions.createVirtualUnit=Create Virtual Item
-actions.updateVirtualUnit=Update Virtual Item
-link.createVirtualUnit=Link to Virtual Item
-actions.createChildVirtualUnit=Create Child Virtual Item
-submitButton.createDocumentaryUnit=Create Collection
-submitButton.createRepository=Create Repository
-submitButton.updateDocumentaryUnit=Update Collection
-submitButton.updateRepository=Update Repository
-submitButton.createCountry=Add Country
-submitButton.updateCountry=Update Country
-submitButton.createVirtualUnit=Create Virtual Item
-
 #
 # Virtual Units
 #
@@ -44,7 +19,12 @@ virtualUnit.search=Virtual Collections
 virtualUnit.searchInside=Structure
 virtualUnit.parentItem=Parent Virtual Item
 virtualUnit.noDescriptions=No linked descriptions
-
+virtualUnit.list=Virtual Item Collections
+virtualUnit.create=Create Virtual Item
+virtualUnit.create.submit=Create Virtual Item
+virtualUnit.update=Update Virtual Item
+virtualUnit.update.submit=Update
+virtualUnit.child.create=Create Child Virtual Item
 
 #
 # Documentary Units
@@ -58,7 +38,12 @@ documentaryUnit.searchInside=Structure
 documentaryUnit.hasChildItems=Container
 documentaryUnit.noChildItems=Single level
 documentaryUnit.childCount={0,choice,0#No child items|1#1 child item|1<{0,number,integer} child items}
-
+documentaryUnit.list=Collections
+documentaryUnit.create=Create Collection
+documentaryUnit.create.submit=Create Collection
+documentaryUnit.update=Update Collection
+documentaryUnit.update.submit=Update Collection
+documentaryUnit.child.create=Create New Child Item
 
 
 documentDescription.identifier=Description ID (Optional)
@@ -79,7 +64,11 @@ country.abstract=Abstract
 country.abstract.description=An abstract of the report for this country
 country.report=Report
 country.report.description=The report describing this country''s archival situation
-
+country.list=Countries
+country.create=Add Country
+country.create.submit=Add Country
+country.update=Update Country
+country.update.submit=Update Country
 
 #
 # Repositories
@@ -90,10 +79,12 @@ repository.itemsHeldOnline=Items on EHRI
 repository.hasChildItems=Yes
 repository.noChildItems=No
 repository.childCount={0,choice,0#No archival descriptions available|1#1 archival description available|1<{0,number,integer} archival descriptions available}
+repository.list=Repositories
+repository.create=Create Repository
+repository.create.submit=Create Repository
+repository.update=Update Repository
+repository.update.submit=Update Repository
 
-#
-# ISAD(G)-based field set
-#
 
 # Form sections
 documentaryUnit.identityArea=Identity Area

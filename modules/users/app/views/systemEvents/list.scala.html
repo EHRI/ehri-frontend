@@ -29,50 +29,10 @@
     </div>
 
 	<ul class="list-unstyled">
-	@list.map { item =>
-	  	<div class="list-item">
-			<h4>
-                <a data-timestamp="@item.time" href="@controllers.users.routes.SystemEvents.get(item.id)">
-                    @item.scope.map { scope =>
-                        @scope.toStringLang -
-                    }
-                    <i>@item.toStringLang</i>
-                </a>
-			</h4>
-            <small>
-                <ul class="list-unstyled text-muted inline inline-separator">
-                    @item.actioner.map { accessor =>
-                        <li><a class="alt" href="@globalConfig.routeRegistry.urlFor(accessor)">@accessor.toStringLang</a></li>
-                    }
-                    <li>@views.Helpers.relativeDate(item.model.timestamp)</li>
-                </ul>
-            </small>
-            <small>
-            @item.firstSubject.map { s =>
-                <a href="@controllers.users.routes.SystemEvents.get(item.id)#subjects">@Messages("systemEvent.subjects.list", s.toStringLang, item.childCount.map(_ - 1).getOrElse(0))</a>
-            }
-            @item.model.logMessage.map { lm =>
-                <p>@lm</p>
-            }
-            </small>
-		</div>
-	}
+	@list.map(e => listEntry(e))
 	</ul>
 
-    <div id="pagination" class="pull-right">
-        <ul class="pagination">
-            @if(params.offset > 0) {
-                <li>
-                    <a href="@utils.joinPath(req.path, req.queryString.updated(OFFSET_PARAM, Seq((math.max(0,params.offset - params.limit)).toString)))">
-                        @Messages("systemEvent.newerEvents")</a>
-                </li>
-            } else {
-                <li class="disabled"><a>@Messages("systemEvent.newerEvents")</a></li>
-            }
-            <li><a href="@utils.joinPath(req.path, req.queryString.updated(OFFSET_PARAM, Seq((params.offset + params.limit).toString)))">
-            @Messages("systemEvent.olderEvents")</a></li>
-        </ul>
-    </div>
+    @eventPagination(params)
 } {
 
 }

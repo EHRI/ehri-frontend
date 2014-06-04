@@ -22,7 +22,7 @@ implicit userOpt: Option[UserProfile], req: RequestHeader, globalConfig: global.
 }
 
 
-@layout.rightSidebar(Messages("actions.createConcept")) {
+@layout.rightSidebar(Messages("cvocConcept.create")) {
 
 	@helper.form(action = action, 'class -> "entity-form form-horizontal") {
         @formHelpers.csrfToken()
@@ -30,7 +30,7 @@ implicit userOpt: Option[UserProfile], req: RequestHeader, globalConfig: global.
 
         @permissions.renderVisibilityForm(vf, users, groups)
 
-        @formHelpers.submitButtonWithLogMessageInput(Messages("submitButton.createConcept"), cancel = Some(globalConfig.routeRegistry.urlFor(item)))
+        @formHelpers.submitButtonWithLogMessageInput(Messages("cvocConcept.create.submit"), cancel = views.Helpers.linkToOpt(item))
 	}
 } {
 
