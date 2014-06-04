@@ -4,7 +4,7 @@
     <ul class="list-unstyled">
         @browseUsersList(them, users, following)
     </ul>
-    @p.helpers.pagination(users)
+    @common.pagination(users)
 } else {
     <p class="text-muted">
         @Messages("portal.social.noFollowersYet", them.toStringLang)
