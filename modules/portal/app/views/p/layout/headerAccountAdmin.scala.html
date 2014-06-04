@@ -10,6 +10,11 @@
             <span class="hidden-responsive">@user.model.name</span>
         </a>
     </li>
+    @if(user.account.exists(_.staff)) {
+        <li>
+            <a href="/admin">@Messages("pages.admin")</a>
+        </li>
+    }
     <li>
         <a href="@controllers.portal.routes.Profile.logout">
             <span class="hidden-responsive">@Messages("portal.logout")</span>
