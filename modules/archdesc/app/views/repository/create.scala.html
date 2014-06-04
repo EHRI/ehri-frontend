@@ -14,7 +14,7 @@
         @formHelpers.csrfToken()
         @repository.renderForm(None, f, defaults)
         @permissions.renderVisibilityForm(vf, users, groups)
-        @formHelpers.submitButtonWithLogMessageInput(Messages("repository.create.submit"), cancel = Some(globalConfig.routeRegistry.urlFor(item)))
+        @formHelpers.submitButtonWithLogMessageInput(Messages("repository.create.submit"), cancel = views.Helpers.linkToOpt(item))
 	}
 } {
 	@formNav()

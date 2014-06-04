@@ -39,7 +39,7 @@
 
         </fieldset>
 
-        @formHelpers.submitButtonWithLogMessageInput(Messages("permissions.update"), cancel = Some(globalConfig.routeRegistry.urlFor(item)))
+        @formHelpers.submitButtonWithLogMessageInput(Messages("permissions.update"), cancel = views.Helpers.linkToOpt(item))
     }
 } {
 

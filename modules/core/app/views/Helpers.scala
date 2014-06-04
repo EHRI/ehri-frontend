@@ -8,6 +8,8 @@ import org.apache.commons.lang3.text.WordUtils
 import org.apache.commons.lang3.StringUtils
 import models._
 import org.pegdown.{Extensions, PegDownProcessor}
+import models.base.AnyModel
+import play.api.mvc.Call
 
 
 package object Helpers {
@@ -147,5 +149,13 @@ package object Helpers {
    */
   def fieldValues(field: play.api.data.Field): List[String] = {
     0.until(if (field.indexes.isEmpty) 0 else field.indexes.max + 1).flatMap(i => field("[" + i + "]").value).toList
+  }
+
+  def linkTo(item: AnyModel)(implicit globalConfig: global.GlobalConfig): Call = {
+    globalConfig.routeRegistry.urlFor(item)
+  }
+
+  def linkToOpt(item: AnyModel)(implicit globalConfig: global.GlobalConfig): Option[Call] = {
+    globalConfig.routeRegistry.optionalUrlFor(item)
   }
 }
