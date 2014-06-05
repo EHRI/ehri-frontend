@@ -1,7 +1,7 @@
 package controllers.authorities
 
 import controllers.generic._
-import _root_.forms.VisibilityForm
+import forms.VisibilityForm
 import models._
 import play.api.i18n.Messages
 import defines.{EntityType, ContentTypes, PermissionType}
@@ -46,6 +46,7 @@ case class HistoricalAgents @Inject()(implicit globalConfig: global.GlobalConfig
 
   // Search params
   val DEFAULT_SEARCH_PARAMS = SearchParams(entities = List(resource.entityType))
+
 
 
   def search = searchAction[HistoricalAgent](defaultParams = Some(DEFAULT_SEARCH_PARAMS), entityFacets = entityFacets) {

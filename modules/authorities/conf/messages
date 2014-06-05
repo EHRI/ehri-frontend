@@ -166,7 +166,7 @@ Provide any significant information on the social, cultural, economic, political
 # Control
 historicalAgent.controlArea=Control Area
 
-historicalAgent.descriptionIdentifier=Institution Identifier
+historicalAgent.descriptionIdentifier=Description Identifier
 historicalAgent.descriptionIdentifier.description=
 
 historicalAgent.institutionIdentifier=Institution Identifier
