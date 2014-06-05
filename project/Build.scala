@@ -54,7 +54,7 @@ object ApplicationBuild extends Build {
     "com.google.inject" % "guice" % "3.0",
     "com.tzavellas" % "sse-guice" % "0.7.1",
 
-    "jp.t2v" %% "play2-auth" % "0.12.0-SNAPSHOT",
+    "jp.t2v" %% "play2-auth" % "0.12.0",
 
     "mysql" % "mysql-connector-java" % "5.1.25",
 
