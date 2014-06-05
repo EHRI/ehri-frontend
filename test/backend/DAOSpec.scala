@@ -169,6 +169,11 @@ class DAOSpec extends helpers.Neo4jRunnerSpec(classOf[DAOSpec]) {
       newItemPerms.get(PermissionType.Update) must beSome
       newItemPerms.get(PermissionType.Delete) must beSome
     }
+
+    "be able to list permissions" in new FakeApp {
+      val page = await(testBackend.listScopePermissionGrants("r1", PageParams.empty))
+      page.items must not(beEmpty)
+    }
   }
 
   "VisibilityDAO" should {

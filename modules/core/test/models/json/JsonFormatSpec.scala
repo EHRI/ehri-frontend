@@ -124,4 +124,10 @@ class JsonFormatSpec extends PlaySpecification {
     val virtualUnit2 = validation2.get
     virtualUnit2.descriptionRefs.headOption must beNone
   }
+
+  "Content type format should read and write correctly" in {
+    val value: JsValue = Json.parse(testjson.contentTypeTestJson)
+    val validation = value.validate[ContentType](ContentType.reads)
+    validation.asEither must beRight
+  }
 }

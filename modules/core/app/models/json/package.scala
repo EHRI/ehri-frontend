@@ -21,8 +21,6 @@ package object json {
     def readIfEquals[T](t: T)(implicit r: Reads[T]): Reads[T] =
       path.read[T](Reads.filter[T](ValidationError("validate.error.incorrectType", t))(_ == t))
 
-    def formatIfEquals[T](t: T)(implicit f: Format[T]): OFormat[T] = path.format[T](readIfEquals(t))
-
     /**
      * Attempt to read a list of T, falling back to a single T.
      */

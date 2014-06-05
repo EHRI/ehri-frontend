@@ -648,4 +648,12 @@ package object testjson {
         }
       }
     """
+
+  val contentTypeTestJson = """
+  {
+    "id" : "documentaryUnit",
+    "data" : { },
+    "type" : "contentType",
+    "relationships" : { }
+  }"""
 }
