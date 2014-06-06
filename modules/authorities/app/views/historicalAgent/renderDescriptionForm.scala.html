@@ -1,0 +1,70 @@
+@(desc: Field)(implicit fieldPrefix: String, defaults: Option[play.api.Configuration] = None, userOpt: Option[UserProfile], req: RequestHeader, globalConfig: global.GlobalConfig, lang: Lang)
+
+@import models.Isaar._
+@import HistoricalAgentF._
+@import models.DatePeriodF._
+@import formHelpers._
+
+@implicitField = @{ views.html.helper.FieldConstructor(formHelpers.fieldTemplate.f) }
+
+<div class="description-form" id="@desc("form").id">
+
+    @choiceInput(desc(LANG_CODE), LANG_CODE, views.Helpers.languagePairList, blank=true)
+
+    @descriptionFormSection(IDENTITY_AREA) {
+        @hiddenInput(desc(Entity.ID))
+        @enumChoiceInput(desc(ENTITY_TYPE), HistoricalAgentType, ENTITY_TYPE, blank=true)
+        @lineInput(desc, AUTHORIZED_FORM_OF_NAME)
+        @inlineNameSet(desc, PARALLEL_FORMS_OF_NAME)
+        @inlineNameSet(desc, OTHER_FORMS_OF_NAME)
+    }
+
+    @descriptionFormSection(DESCRIPTION_AREA) {
+
+        <div class="inline-formset form-group clearfix" data-prefix="@DATES">
+            <!-- Template for adding inline date forms via JS -->
+            <label class="col-sm-3 control-label">
+                @Messages(fieldPrefix + "." + DATES)
+                <a href="#" class="add-inline-element"><i class="glyphicon glyphicon-plus-sign"></i></a>
+            </label>
+            <div class="inline-element-template form-template">
+                @inlineDateSet(desc(DATES + "[IDX]"))
+            </div>
+            <div class="col-sm-9 inline-element-list">
+                @helper.repeat(desc(DATES), min = 0) { desc =>
+                    @inlineDateSet(desc)
+                }
+            </div>
+        </div>
+
+
+        @defining(desc(DESCRIPTION_AREA)) { desc =>
+            @textInput(desc, DATES_OF_EXISTENCE)
+            @textInput(desc, HISTORY)
+            @textInput(desc, PLACES)
+            @textInput(desc, LEGAL_STATUS)
+            @textInput(desc, FUNCTIONS)
+            @textInput(desc, MANDATES)
+            @textInput(desc, INTERNAL_STRUCTURE)
+            @textInput(desc, GENERAL_CONTEXT)
+        }
+    }
+
+    @descriptionFormSection(CONTROL_AREA) {
+        @defining(desc(CONTROL_AREA)) { desc =>
+            @lineInput(desc, DESCRIPTION_IDENTIFIER)
+            @lineInput(desc, INSTITUTION_IDENTIFIER)
+            @textInput(desc, RULES_CONVENTIONS)
+            @textInput(desc, STATUS)
+            @textInput(desc, LEVEL_OF_DETAIL)
+            @textInput(desc, DATES_CVD)
+            @multiselectInput(desc(LANGUAGES_USED), LANGUAGES_USED, views.Helpers.languagePairList)
+            @multiselectInput(desc(SCRIPTS_USED), SCRIPTS_USED, views.Helpers.scriptPairList)
+            @inlineTextSet(desc, SOURCES)
+            @textInput(desc, MAINTENANCE_NOTES)
+        }
+    }
+
+    @hiddenAccessPointSet(desc, ACCESS_POINTS)
+    @hiddenUnknownDataSet(desc, UNKNOWN_DATA)
+</div>

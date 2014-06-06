@@ -8,7 +8,11 @@
 @p.common.descriptionOutline(item, desc, annotations) {
     @defining(Annotation.fieldAnnotations(desc.id, annotations)) { implicit fieldAnnotations =>
         @desc.id.map { descId =>
-        
+            <div class="item-header">
+                <h1>@desc.name</h1>
+                @p.common.otherNameList(desc.parallelFormsOfName)
+            </div>
+
             @descriptionSection(DESCRIPTION_AREA) {
                 @textField(item, descId,   desc.details.datesOfExistence, DATES_OF_EXISTENCE)
                 @textField(item, descId,   desc.details.history, HISTORY)

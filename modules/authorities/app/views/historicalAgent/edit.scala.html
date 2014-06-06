@@ -6,7 +6,7 @@ implicit userOpt: Option[UserProfile], req: RequestHeader, globalConfig: global.
 @layout.rightSidebar(Messages("historicalAgent.update"), breadcrumbs = common.breadcrumbs(List(item)), scripts = formHelpers.dateJs()) {
     @helper.form(action = action, 'class -> "entity-form form-horizontal") {
         @formHelpers.csrfToken()
-        @historicalAgent.renderForm(Some(item), f)
+        @historicalAgent.renderForm(f)
 
         <fieldset id="admin-area">
         <legend>@Messages("Administration")</legend>

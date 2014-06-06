@@ -120,6 +120,14 @@ class EntityViewsSpec extends Neo4jRunnerSpec(classOf[EntityViewsSpec]) {
         controllers.authorities.routes.HistoricalAgents.updatePost("a1").url).withHeaders(formPostHeaders.toSeq: _*), testData).get
       status(cr) must equalTo(UNAUTHORIZED)
     }
+
+    "show correct default values in the form when creating new items" in new FakeApp(
+      Map("historicalAgent.rulesAndConventions" -> "SOME RANDOM VALUE")) {
+      val form = route(fakeLoggedInHtmlRequest(privilegedUser, GET,
+        controllers.authorities.routes.AuthoritativeSets.createHistoricalAgent("auths").url)).get
+      status(form) must equalTo(OK)
+      contentAsString(form) must contain("SOME RANDOM VALUE")
+    }
   }
 
   "UserProfile views" should {

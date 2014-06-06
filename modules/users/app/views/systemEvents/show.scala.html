@@ -11,28 +11,44 @@
 
     <p>
         @item.actioner.map { accessor =>
-            <a href="@globalConfig.routeRegistry.urlFor(accessor)">@accessor.toStringLang</a>:
+            <a href="@views.Helpers.linkTo(accessor)">@accessor.toStringLang</a>:
         }
         <time>@item.time</time>
         (@views.Helpers.relativeDate(item.model.timestamp))
     </p>
 
-    @item.model.logMessage.map { lm =>
+    @item.model.logMessage.filterNot(_.trim.isEmpty).map { lm =>
         <blockquote>@lm</blockquote>
     }
 
     @item.scope.map { scope =>
-        @Messages("systemEvent.scope"):  <a href="@globalConfig.routeRegistry.urlFor(scope)">@scope.toStringLang</a>
+        @Messages("systemEvent.scope"):  <a href="@views.Helpers.linkTo(scope)">@scope.toStringLang</a>
     }
 
     <div id="subjects">
-        <h4>@Messages("systemEvent.subjects"): @Messages("pagination.displayingItems", page.offset + 1, page.offset + page.items.size, page.total)</h4>
-        @common.pagination(page)
-        <ul class="list-unstyled">
-            @page.items.map { item =>
-            <li><a href="@globalConfig.routeRegistry.urlFor(item)">@item.toStringLang</a></li>
+        @* If it's a deletion event the subject won't be available (because
+            it's been deleted. In this case we have to look for data in
+            the last connected item version. *@
+        @if(item.model.eventType.exists(_ == EventType.deletion)) {
+            @item.version.map { version =>
+                @Messages("systemEvent.deletion.itemInfo", version.model.itemType, version.model.itemId)
+                @version.model.entity.map { entity =>
+                    <h4>@entity.toStringLang</h4>
+                }.getOrElse {
+                    @Messages("systemEvent.deletion.noInfo")
+                }
+            }.getOrElse {
+                @Messages("systemEvent.deletion.noInfo")
             }
-        </ul>
+        } else {
+                <h4>@Messages("systemEvent.subjects"): @Messages("pagination.displayingItems", page.offset + 1, page.offset + page.items.size, page.total)</h4>
+                @common.pagination(page)
+                <ul class="list-unstyled">
+                    @page.items.map { item =>
+                    <li><a href="@views.Helpers.linkTo(item)">@item.toStringLang</a></li>
+                    }
+                </ul>
+        }
     </div>
 } {
 
