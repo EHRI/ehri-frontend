@@ -3,13 +3,11 @@
 @p.layout.portalLayout(Messages("portal.profile.deleteProfile")) {
     @p.layout.infobar {
     } {
-        <h1>@Messages("portal.profile.deleteProfile")</h1>
-    } {
     }
 
     @p.layout.mainContent {
-    <div class="col-sm-10">
+        <h1>@Messages("portal.profile.deleteProfile")</h1>
         @deleteProfileForm(confirmForm, action)
-    </div>
+
     }
 }

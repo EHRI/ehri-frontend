@@ -4,6 +4,9 @@
     @infobar(item, watched.exists(_.id == item.id))
 
     @p.layout.mainContent {
+        @p.common.itemHeader {
+            <h1>@item.toStringLang</h1>
+        }
         @itemDetails(item, annotations, links, watched)
 
         @p.common.childItemLink(item, controllers.portal.routes.Portal.searchCountry(item.id))

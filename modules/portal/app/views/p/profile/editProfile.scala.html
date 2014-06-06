@@ -3,11 +3,10 @@
 @p.layout.portalLayout(Messages("portal.profile")) {
     @p.layout.infobar {
     } {
-        <h1>@Messages("portal.profile")</h1>
-    } {
     }
 
     @p.layout.mainContent {
+        <h1>@Messages("portal.profile")</h1>
         @userOpt.flatMap(_.account).map { account =>
             @if(!account.verified) {
                 <fieldset>

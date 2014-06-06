@@ -3,8 +3,6 @@
 @p.layout.portalLayout(item.toStringLang, EntityType.HistoricalAgent.toString) {
     @p.layout.infobar {
     } {
-        <h1>@item.toStringLang</h1>
-    } {
         @userOpt.map { user =>
             @p.common.watchButtons(item, watched.exists(_.id == item.id))
         }
