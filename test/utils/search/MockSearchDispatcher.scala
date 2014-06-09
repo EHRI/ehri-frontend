@@ -25,7 +25,7 @@ case class MockSearchDispatcher(backend: Backend) extends Dispatcher {
     allFacets: FacetClassList, filters: Map[String,Any] = Map.empty)
 
   
-  def filter(params: SearchParams, filters: Map[String,Any] = Map.empty)(
+  def filter(params: SearchParams, filters: Map[String,Any] = Map.empty, extra: Map[String,Any] = Map.empty)(
       implicit userOpt: Option[UserProfile]): Future[ItemPage[(String,String, EntityType.Value)]] = {
 
     def modelToHit(m: AnyModel): (String,String,EntityType.Value)
@@ -42,7 +42,8 @@ case class MockSearchDispatcher(backend: Backend) extends Dispatcher {
   }
 
   def search(params: SearchParams, facets: List[AppliedFacet], allFacets: FacetClassList,
-             filters: Map[String,Any] = Map.empty, mode: SearchMode.Value = SearchMode.DefaultAll)(
+             filters: Map[String,Any] = Map.empty, extra: Map[String,Any] = Map.empty,
+             mode: SearchMode.Value = SearchMode.DefaultAll)(
       implicit userOpt: Option[UserProfile]): Future[ItemPage[SearchHit]] = {
     paramBuffer += ParamLog(params, facets, allFacets, filters)
 
@@ -64,7 +65,7 @@ case class MockSearchDispatcher(backend: Backend) extends Dispatcher {
       oftype, offset = 0, limit = params.limit.getOrElse(100), total = oftype.size, facets = Nil)
   }
 
-  def facet(facet: String, sort: FacetQuerySort.Value, params: SearchParams, facets: List[AppliedFacet], allFacets: FacetClassList, filters: Map[String,Any] = Map.empty)(
+  def facet(facet: String, sort: FacetQuerySort.Value, params: SearchParams, facets: List[AppliedFacet], allFacets: FacetClassList, filters: Map[String,Any] = Map.empty, extra: Map[String,Any] = Map.empty)(
       implicit userOpt: Option[UserProfile]): Future[FacetPage[Facet]] = {
 
     // UNIMPLEMENTED

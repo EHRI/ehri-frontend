@@ -8,9 +8,7 @@ import models.json.{ClientConvertable, RestReadable}
 import play.api.libs.json.Json
 import utils.search._
 import play.api.Logger
-import play.api.i18n.Lang
 import controllers.base.{ControllerHelpers, AuthController}
-import backend.rest.SearchDAO
 
 
 /**
@@ -59,7 +57,7 @@ trait Search extends Controller with AuthController with ControllerHelpers {
    * Action that restricts the search to the inherited entity type
    * and applies.
    */
-  def searchAction[MT](filters: Map[String,Any] = Map.empty, defaultParams: Option[SearchParams] = None,
+  def searchAction[MT](filters: Map[String,Any] = Map.empty, extra: Map[String,Any] = Map.empty, defaultParams: Option[SearchParams] = None,
                         entityFacets: FacetBuilder = emptyFacets, mode: SearchMode.Value = SearchMode.DefaultAll)(
       f: ItemPage[(MT, SearchHit)] => SearchParams => List[AppliedFacet] => Option[UserProfile] => Request[AnyContent] => SimpleResult)(implicit rd: RestReadable[MT], cfmt: ClientConvertable[MT]): Action[AnyContent] = {
     userProfileAction.async { implicit userOpt => implicit request =>
@@ -72,7 +70,7 @@ trait Search extends Controller with AuthController with ControllerHelpers {
 
       val allFacets = entityFacets(request)
       val facets: List[AppliedFacet] = bindFacetsFromRequest(allFacets)
-      searchDispatcher.search(sp, facets, allFacets, filters, mode).flatMap { res =>
+      searchDispatcher.search(sp, facets, allFacets, filters, extra, mode).flatMap { res =>
         val ids = res.items.map(_.id)
         searchResolver.resolve[MT](res.items).map { list =>
           if (list.size != ids.size) {
