@@ -56,7 +56,9 @@ case class Guides @Inject()(implicit globalConfig: global.GlobalConfig, searchDi
   */
   def mapParams(request: Request[Any]): Map[String, Any] = {
     request.getQueryString("center") match {
-      case Some(center) => Map("pt" -> center, "sfield" -> "location", "sort" -> "geodist() asc")
+      case Some(center) => {
+          Map("pt" -> center, "sfield" -> "location", "sort" -> "geodist() asc")
+      }
       case _ => Map.empty
     }
   }
@@ -178,7 +180,16 @@ case class Guides @Inject()(implicit globalConfig: global.GlobalConfig, searchDi
   *   Layout named "map" [Concept]
   */
   def guideMap(template: GuidePage, params: Map[String, String], guide: Guide) = userBrowseAction.async { implicit userDetails => implicit request =>
-    searchAction[Concept](params, extra = mapParams(request), defaultParams = Some(SearchParams(entities = List(EntityType.Concept), sort = Some(SearchOrder.Location))),
+    searchAction[Concept](
+      params, 
+      extra = mapParams(request), 
+      defaultParams = Some(SearchParams(
+        entities = List(EntityType.Concept), 
+        sort = request.getQueryString("center") match {
+          case Some(center) => {Some(SearchOrder.Location)}
+          case _ => {Some(SearchOrder.Name)}
+        }
+      )),
       entityFacets = conceptFacets) {
       page => params => facets => _ => _ =>
       render {
