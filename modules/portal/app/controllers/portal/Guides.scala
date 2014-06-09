@@ -13,6 +13,7 @@ import utils._
 import models.Guide
 import models.GuidePage
 import play.api.libs.json.Json
+import play.api.libs.json.JsValue
 
 import com.google.inject._
 import play.api.Play.current
@@ -48,6 +49,33 @@ case class Guides @Inject()(implicit globalConfig: global.GlobalConfig, searchDi
         Some(SearchParams(query = Some("isTopLevel:true"), entities = List(eT)))
       }
     }
+  }
+
+  /*
+  * Return Map extras param if needed
+  */
+  def mapParams(request: Request[Any]): Map[String, Any] = {
+    request.getQueryString("center") match {
+      case Some(center) => Map("pt" -> center, "sfield" -> "location", "sort" -> "geodist() asc")
+      case _ => Map.empty
+    }
+  }
+
+  def returnJson(hits:utils.search.ItemPage[(models.Concept, utils.search.SearchHit)]): List[JsValue] = {
+
+      hits.items.map { case(item, id) =>
+        item.descriptions.map { case(desc) =>
+          Json.toJson(Map(
+            "id" -> item.id,
+            "latitude" -> desc.latitude.getOrElse(None).toString,
+            "longitude" -> desc.longitude.getOrElse(None).toString,
+            "name" -> desc.name.toString
+          ))
+        }.toList
+        /*
+        Json.toJson(item)(Concept.Converter.clientFormat)
+        */
+      }.toList.flatten
   }
 
   /*
@@ -150,17 +178,18 @@ case class Guides @Inject()(implicit globalConfig: global.GlobalConfig, searchDi
   *   Layout named "map" [Concept]
   */
   def guideMap(template: GuidePage, params: Map[String, String], guide: Guide) = userBrowseAction.async { implicit userDetails => implicit request =>
-    searchAction[Concept](params, defaultParams = Some(SearchParams(entities = List(EntityType.Concept))),
+    searchAction[Concept](params, extra = mapParams(request), defaultParams = Some(SearchParams(entities = List(EntityType.Concept), sort = Some(SearchOrder.Location))),
       entityFacets = conceptFacets) {
       page => params => facets => _ => _ =>
-      /*render {
-        case Accepts.Html() => {*/
-            if (isAjax) Ok(p.guides.ajax(template -> guide, page, params))
-            else Ok(p.guides.places(template -> (guide -> guide.findPages), page, params))
-        /* }
-        case Accepts.Json() => Ok(Json.toJson(page._2))
-        
-      }*/
+      render {
+        case Accepts.Html() => {
+          if (isAjax) Ok(p.guides.ajax(template -> guide, page, params))
+          else Ok(p.guides.places(template -> (guide -> guide.findPages), page, params))
+        }
+        case Accepts.Json() => {
+          Ok(Json.toJson(returnJson(page)))
+        }
+      }
     }.apply(request)
   }
 

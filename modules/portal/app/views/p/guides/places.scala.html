@@ -3,43 +3,77 @@
 @js = {
 	<script type="text/javascript" src="@controllers.core.routes.Assets.at("js/leaflet.js")"></script>
 	<script type="text/javascript">
-		var map = L.map('map').setView([50.508174054149, 14.152353697237], 13);
+		/*
+			Functions
+		*/
+		addMarker = function(data) {
+			if(!$items[data.id]) {
+				L.marker([parseFloat(data.latitude), parseFloat(data.longitude)]).addTo($map).bindPopup(data.name)
+				$items[data.id] = true;
+			}
+		}
+
+		addMarkerList = function(data) {
+			var i = 0;
+			while(data[i]) {
+				if(data[i].latitude !== "None" && data[i].longitude !== "None") {
+					addMarker(data[i])
+				}
+				++i;
+			}
+		}
+		/*
+			Variables
+		*/
+		var $map = L.map('map').setView([50.508174054149, 14.152353697237], 13),
+			$items = {},
+			$bounds = [],
+			$originalMarkers = [];
+
+
+		/*
+			Initiate
+		*/
 		L.tileLayer('http://{s}.tile.osm.org/{z}/{x}/{y}.png', {
 			attribution: '&copy; <a href="http://osm.org/copyright">OpenStreetMap</a> contributors'
-		}).addTo(map);
+		}).addTo($map);
 		
-		var $bounds = []
+		
+		/*
+			Movement loading
+		*/
+    	$map.on('moveend', function(e) {
+    		$.get(
+    			"@controllers.portal.routes.Guides.layoutRetrieval(template._2._1.path, template._1.path)", 
+    			{ center : [$map.getCenter().lat, $map.getCenter().lng].join(",") }, 
+    			function (data) { addMarkerList(data) }, 
+    			"json")
+    	});
+
+    	/*
+    		<-- Specific data for the page
+    	*/
 
 		@page.items.map { case(item, hit) =>
 			@item.model.descriptions.headOption.map { desc =>
 				@if(desc.longitude.nonEmpty) {
-					L.marker([@desc.latitude, @desc.longitude])
-						.addTo(map)
-			    		.bindPopup("@item.toStringLang")
+					$originalMarkers.push(
+						{
+							id : "@item.id",
+							latitude : @desc.latitude,
+							longitude : @desc.longitude,
+							name : "@item.toStringLang"
+						}
+					)
 			    	$bounds.push([@desc.latitude, @desc.longitude])
 		    	}
 	    	}
     	}
-    	map.fitBounds($bounds);
-    	map.on('moveend', function(e) {
-    		var $bounds = map.getBounds()
-    		var $NE = [$bounds._northEast.lat,$bounds._northEast.lng]
-    		var $SW = [$bounds._southWest.lat,$bounds._southWest.lng]
-    		var $C  = [map.getCenter().lat, map.getCenter().lng]
-
-    		$.get(
-    			"@controllers.portal.routes.Guides.layoutRetrieval(template._2._1.path, template._1.path)", 
-    			{
-    				sfield : "location", 
-    				pt : $C.join(","),
-    				sort : "geodist() asc"
-    			}, 
-    			function(data) {
-    				console.log(data)
-    			}
-    			, "json"
-    		)
-    	});
+    	/*
+			--> Specific data for the page
+    	*/
+    	addMarkerList($originalMarkers)
+    	$map.fitBounds($bounds);
 	</script>
 }
 @css = {
