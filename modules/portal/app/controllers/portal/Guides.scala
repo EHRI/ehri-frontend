@@ -12,6 +12,7 @@ import controllers.base.{SessionPreferences, ControllerHelpers}
 import utils._
 import models.Guide
 import models.GuidePage
+import play.api.libs.json.Json
 
 import com.google.inject._
 import play.api.Play.current
@@ -48,6 +49,11 @@ case class Guides @Inject()(implicit globalConfig: global.GlobalConfig, searchDi
       }
     }
   }
+
+  /*
+  * MAP Functions
+  *   -> ?wt=json&indent=true&fl=name,location,id&q=*:*&sfield=location&pt=47.17701840683218,17.38037109375&sort=geodist%28%29%20asc&fq=type%3A%28cvocConcept%29&fq=accessibleTo%3AALLUSERS&fq=holderId%3A%22terezin-places%22&rows=20
+  */
 
   /*
   *
@@ -147,8 +153,14 @@ case class Guides @Inject()(implicit globalConfig: global.GlobalConfig, searchDi
     searchAction[Concept](params, defaultParams = Some(SearchParams(entities = List(EntityType.Concept))),
       entityFacets = conceptFacets) {
       page => params => facets => _ => _ =>
-        if (isAjax) Ok(p.guides.ajax(template -> guide, page, params))
-        else Ok(p.guides.places(template -> (guide -> guide.findPages), page, params))
+      /*render {
+        case Accepts.Html() => {*/
+            if (isAjax) Ok(p.guides.ajax(template -> guide, page, params))
+            else Ok(p.guides.places(template -> (guide -> guide.findPages), page, params))
+        /* }
+        case Accepts.Json() => Ok(Json.toJson(page._2))
+        
+      }*/
     }.apply(request)
   }
 

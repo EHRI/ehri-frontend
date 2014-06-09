@@ -7,6 +7,8 @@
 		L.tileLayer('http://{s}.tile.osm.org/{z}/{x}/{y}.png', {
 			attribution: '&copy; <a href="http://osm.org/copyright">OpenStreetMap</a> contributors'
 		}).addTo(map);
+		
+		var $bounds = []
 
 		@page.items.map { case(item, hit) =>
 			@item.model.descriptions.headOption.map { desc =>
@@ -14,9 +16,30 @@
 					L.marker([@desc.latitude, @desc.longitude])
 						.addTo(map)
 			    		.bindPopup("@item.toStringLang")
+			    	$bounds.push([@desc.latitude, @desc.longitude])
 		    	}
 	    	}
     	}
+    	map.fitBounds($bounds);
+    	map.on('moveend', function(e) {
+    		var $bounds = map.getBounds()
+    		var $NE = [$bounds._northEast.lat,$bounds._northEast.lng]
+    		var $SW = [$bounds._southWest.lat,$bounds._southWest.lng]
+    		var $C  = [map.getCenter().lat, map.getCenter().lng]
+
+    		$.get(
+    			"@controllers.portal.routes.Guides.layoutRetrieval(template._2._1.path, template._1.path)", 
+    			{
+    				sfield : "location", 
+    				pt : $C.join(","),
+    				sort : "geodist() asc"
+    			}, 
+    			function(data) {
+    				console.log(data)
+    			}
+    			, "json"
+    		)
+    	});
 	</script>
 }
 @css = {
