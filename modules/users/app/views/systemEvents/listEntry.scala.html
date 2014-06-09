@@ -4,7 +4,7 @@
     <h4>
         <a data-timestamp="@item.time" href="@controllers.users.routes.SystemEvents.get(item.id)">
             @item.scope.map { scope =>
-            @scope.toStringLang -
+                @scope.toStringLang -
             }
             <i>@item.toStringLang</i>
         </a>
@@ -12,17 +12,30 @@
     <small>
         <ul class="list-unstyled text-muted inline inline-separator">
             @item.actioner.map { accessor =>
-            <li><a class="alt" href="@globalConfig.routeRegistry.urlFor(accessor)">@accessor.toStringLang</a></li>
+                <li><a class="alt" href="@views.Helpers.linkTo(accessor)">@accessor.toStringLang</a></li>
             }
             <li>@views.Helpers.relativeDate(item.model.timestamp)</li>
         </ul>
     </small>
     <small>
         @item.firstSubject.map { s =>
-        <a href="@controllers.users.routes.SystemEvents.get(item.id)#subjects">@Messages("systemEvent.subjects.list", s.toStringLang, item.childCount.map(_ - 1).getOrElse(0))</a>
+            <a href="@controllers.users.routes.SystemEvents.get(item.id)#subjects">
+                @Messages("systemEvent.subjects.list", s.toStringLang, item.childCount.map(_ - 1).getOrElse(0))
+            </a>
+        }.getOrElse {
+            @item.version.map { version =>
+                @Messages("systemEvent.deletion.itemInfo", version.model.itemType, version.model.itemId)
+                @version.model.entity.map { entity =>
+                    <p>@entity.toStringLang</p>
+                }.getOrElse {
+                    @Messages("systemEvent.deletion.noInfo")
+                }
+            }.getOrElse {
+                @Messages("systemEvent.deletion.noInfo")
+            }
         }
-        @item.model.logMessage.map { lm =>
-        <p>@lm</p>
+        @item.model.logMessage.filterNot(_.trim.isEmpty).map { lm =>
+            <blockquote>@lm</blockquote>
         }
     </small>
 </li>

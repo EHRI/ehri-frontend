@@ -27,6 +27,7 @@ object EntityType extends BindableEnum {
   val UnknownProperty = Value("property")
   val MaintenanceEvent = Value("maintenanceEvent")
   val VirtualUnit = Value("virtualUnit")
+  val Version = Value("version")
 
   implicit val format = defines.EnumUtils.enumFormat(this)
 }

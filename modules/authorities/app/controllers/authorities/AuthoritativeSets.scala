@@ -10,6 +10,8 @@ import utils.search.{Resolver, Dispatcher, SearchOrder, SearchParams}
 import com.google.inject._
 import scala.concurrent.Future.{successful => immediate}
 import backend.{IdGenerator, Backend}
+import play.api.Configuration
+import play.api.Play.current
 
 @Singleton
 case class
@@ -21,6 +23,7 @@ AuthoritativeSets @Inject()(implicit globalConfig: global.GlobalConfig, searchDi
   with Annotate[AuthoritativeSet]
   with Search {
 
+  private val formDefaults: Option[Configuration] = current.configuration.getConfig(EntityType.HistoricalAgent)
   implicit val resource = AuthoritativeSet.Resource
   val contentType = ContentTypes.AuthoritativeSet
 
@@ -84,7 +87,7 @@ AuthoritativeSets @Inject()(implicit globalConfig: global.GlobalConfig, searchDi
     idGenerator.getNextChildNumericIdentifier(id, EntityType.HistoricalAgent).map { newid =>
       Ok(views.html.historicalAgent.create(
         item, childForm.bind(Map(Entity.IDENTIFIER -> newid)),
-        VisibilityForm.form.fill(item.accessors.map(_.id)), users, groups,
+        formDefaults, VisibilityForm.form.fill(item.accessors.map(_.id)), users, groups,
           setRoutes.createHistoricalAgentPost(id)))
     }
   }
@@ -94,7 +97,7 @@ AuthoritativeSets @Inject()(implicit globalConfig: global.GlobalConfig, searchDi
     formsOrItem match {
       case Left((errorForm,accForm)) => getUsersAndGroups { users => groups =>
         BadRequest(views.html.historicalAgent.create(item,
-          errorForm, accForm, users, groups, setRoutes.createHistoricalAgentPost(id)))
+          errorForm, formDefaults, accForm, users, groups, setRoutes.createHistoricalAgentPost(id)))
       }
       case Right(citem) => immediate(Redirect(controllers.authorities.routes.HistoricalAgents.get(citem.id))
         .flashing("success" -> Messages("item.create.confirmation", citem.id)))
