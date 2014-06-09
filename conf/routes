@@ -17,7 +17,7 @@ GET     /*path/                         controllers.GlobalController.untrail(pat
 -> /admin/sets          authorities.Routes
 -> /admin/arch          archdesc.Routes
 -> /admin/voc           vocabs.Routes
--> /guides              guides.Routes
+-> /admin/guides        guides.Routes
 
 # Portal is special
 -> /                    portal.Routes

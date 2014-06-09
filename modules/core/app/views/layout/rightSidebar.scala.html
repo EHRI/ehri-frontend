@@ -2,10 +2,6 @@
 
 @layout.adminLayout(title, scripts, styles) {
 
-    @if(breadcrumbs.body.trim.isEmpty) {
-        @common.breadcrumbs()
-    }
-
     <div class="success-pullup pull-right">
         @common.successFlash(flash)
     </div>

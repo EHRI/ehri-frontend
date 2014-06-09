@@ -104,6 +104,12 @@ GET         /data-policy                    @controllers.portal.Portal.dataPolic
 
 GET         /filter                         @controllers.portal.Portal.filter
 
+# Guide
+GET          /guides                        @controllers.portal.Guides.listGuides()
+GET         /guides/:guide                  @controllers.portal.Guides.home(guide: String)
+GET 		/guides/:guide/browse			@controllers.portal.Guides.guideFacets(guide: String)
+GET         /guides/:guide/:page          @controllers.portal.Guides.layoutRetrieval(guide: String, page: String)
+
 # Various JS data helpers
 GET         /routes                         controllers.portal.PortalData.jsRoutes
 GET         /globalData                         controllers.portal.PortalData.globalData

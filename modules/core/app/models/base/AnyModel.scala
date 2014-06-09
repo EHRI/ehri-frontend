@@ -24,7 +24,7 @@ trait AnyModel {
   }
 
   def toStringLang(implicit lang: Lang): String = this match {
-    case e: MetaModel[_] => e.toStringLang(Lang.defaultLang)
+    case e: MetaModel[_] => e.toStringLang(lang)
     case t => t.toString
   }
 

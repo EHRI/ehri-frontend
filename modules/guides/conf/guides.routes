@@ -1,16 +1,19 @@
-# Routes
-# This file defines all application routes (Higher priority routes first)
-# ~~~~
-
 # Home page
-GET     /			@controllers.guides.Home.places
-GET     /timeline		@controllers.guides.Home.timeBrowse
-GET     /keywords		@controllers.guides.Home.keywordBrowse
-GET     /people			@controllers.guides.Home.personBrowse
-GET     /results		@controllers.guides.Home.resultsBrowse
-GET     /item			@controllers.guides.Home.itemShow
-GET     /organisation	@controllers.guides.Home.organizationsShow
+GET		/				        @controllers.guides.Guides.list()
+GET		/create			        @controllers.guides.Guides.create()
+POST	/create			        @controllers.guides.Guides.createPost()
 
+#Guides
+GET		/:path				    @controllers.guides.Guides.show(path: String)
+GET		/:path/edit			    @controllers.guides.Guides.edit(path: String)
+POST	/:path/edit			    @controllers.guides.Guides.editPost(path: String)
+GET		/:path/delete		    @controllers.guides.Guides.delete(path: String)
+POST	/:path/delete		    @controllers.guides.Guides.deletePost(path: String)
 
-# Map static resources from the /public folder to the /assets URL path
-GET     /assets/*file	controllers.guides.Assets.at(path="/public", file)
+#Guide Pages
+GET		/:gPath/create			@controllers.guides.GuidePages.create(gPath: String)
+POST	/:gPath/create			@controllers.guides.GuidePages.createPost(gPath: String)
+GET		/:gPath/:path			@controllers.guides.GuidePages.edit(gPath: String, path: String)
+POST	/:gPath/:path			@controllers.guides.GuidePages.editPost(gPath: String, path: String)
+GET		/:gPath/:path/delete	@controllers.guides.GuidePages.delete(gPath: String, path: String)
+POST    /:gPath/:path/delete	@controllers.guides.GuidePages.deletePost(gPath: String, path: String)
