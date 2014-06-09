@@ -121,7 +121,7 @@ trait Read[MT] extends Generic[MT] {
   }
 
   def versionsAction(id: String)(
-    f: MT => Page[Version] => PageParams => Option[UserProfile] => Request[AnyContent] => SimpleResult)(implicit rd: RestReadable[MT]) = {
+    f: MT => Page[Version] => PageParams => Option[UserProfile] => Request[AnyContent] => Result)(implicit rd: RestReadable[MT]) = {
     userProfileAction.async { implicit userOpt => implicit request =>
       val params = PageParams.fromRequest(request)
       for {
