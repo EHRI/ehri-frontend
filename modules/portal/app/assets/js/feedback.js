@@ -6,7 +6,7 @@ jQuery(function($) {
   // gross and fragile.
   var $formContainer = $("#suggestions"),
       $cancel = $("a#cancel", $formContainer),
-      $form = $("form#suggestion-form")
+      $form = $("form#suggestion-form"),
       $submit = $("button[type='submit']", $form),
       $thanks = $(".alert-success", $formContainer),
       $text = $("textarea[name='text']", $form),
@@ -16,7 +16,7 @@ jQuery(function($) {
 
   function feedbackOut(e) {
     if($(e.target).parents(".slide-out-div").length != 1 || $(e.target).hasClass("feedback-close") || $(e.target).parent().hasClass("feedback-close")) {
-      $handle.trigger("click")
+      $handle.trigger("click");
     }
   }
   $handle.on("click", function(e) {
@@ -40,7 +40,7 @@ jQuery(function($) {
 
   $form.validate({
     showErrors: function(em, el) {}
-  })
+  });
 
   
   $form.on("keyup", function(event) {
@@ -53,9 +53,9 @@ jQuery(function($) {
 
   $cancel.on("click", function(e) {
     e.preventDefault();
-    $text.val("")
+    $text.val("");
     $handle.trigger("click");
-  })
+  });
 
   $submit.on("click", function(event) {
     event.preventDefault();

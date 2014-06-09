@@ -6,7 +6,7 @@ var EhriJs = EhriJs || {};
 
 EhriJs.alert = function(msg, type) {
   var $flash = $(".flash.alert-" + type);
-  if ($flash.length == 0) {
+  if ($flash.length === 0) {
     $flash = $("<div class=\"flash alert alert-" + type + "\">" +
         "<button type=\"button\" class=\"close\" data-dismiss=\"alert\">&times;</button>" +
         "<span class=\"flash-content\">" + msg + "</span>" +
@@ -39,7 +39,7 @@ $(".breadcrumb.collapsible").each(function(e) {
   var $ol = $(this);
   var $width = $ol.width();
   var $li = $ol.find("li");
-  var $padding = parseInt($li.outerWidth() - $li.width())
+  var $padding = parseInt($li.outerWidth() - $li.width());
   if ($li.length !== "undefined" && $li.length > 0) {
     var $max = $width / $li.length;
     $max = $max - $padding;
@@ -57,7 +57,7 @@ $(".breadcrumb.collapsible > li").hover(function() {
       $right = $prev.offset().left + $prev.outerWidth();
       $top = $prev.offset().top;
     }
-    $actual.next().css("margin-left", $actual.outerWidth())
+    $actual.next().css("margin-left", $actual.outerWidth());
     $actual.css({
       "top": $top, 
       "left": $right,
@@ -132,7 +132,7 @@ $(".panel-history").each(function() {
           $(this).parents(".panel-history").toggleClass("inactive");
           $(this).toggleClass("glyphicon-plus").toggleClass("glyphicon-minus");
       })
-    )
+    );
 });
 
 /*
@@ -225,7 +225,7 @@ $loader = $( "<div></div>" ).addClass("text-center loader-container").append($("
         $link.removeClass("loading");
         $link.data("inverse-text", $text.text());
         $text.text($inverse);
-      }, "html")
+      }, "html");
     }
   });
 
@@ -241,7 +241,7 @@ $loader = $( "<div></div>" ).addClass("text-center loader-container").append($("
         $(this).select2(select2Opts);
         $link.hide();
       });
-    })
+    });
   });
 
   function checkLoadVisibility() {
@@ -249,13 +249,13 @@ $loader = $( "<div></div>" ).addClass("text-center loader-container").append($("
       var $item = $(this);
       if(!$item.hasClass("loading")) {
         if (($(window).scrollTop() + $(window).height()) > $item.offset().top) {
-          $item.trigger("visible")
+          $item.trigger("visible");
         }
       }
     });
   }
 
-  checkLoadVisibility()
+  checkLoadVisibility();
   $(window).scroll(function(e) {
     checkLoadVisibility();
   });
@@ -342,7 +342,8 @@ $loader = $( "<div></div>" ).addClass("text-center loader-container").append($("
     update: function(prefsObj) {
       var prefs = prefsObj || {};
       // Fire and forget!
-      jsRoutes.controllers.portal.Profile.updatePrefs().ajax({ data: prefsObj })
+      jsRoutes.controllers.portal.Profile.updatePrefs()
+          .ajax({ data: prefsObj });
     },
 
     updateValue: function(key, value) {
