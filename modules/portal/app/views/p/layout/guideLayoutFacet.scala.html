@@ -1,4 +1,4 @@
-@(guide: (GuidesPage, (Guide, List[GuidesPage])), facets: Html = Html(""), scripts: Html = Html(""), styles: Html = Html(""))(content: Html)(implicit request: RequestHeader, lang: Lang)
+@(guide: (GuidePage, (Guide, List[GuidePage])), facets: Html = Html(""), scripts: Html = Html(""), styles: Html = Html(""))(content: Html)(implicit request: RequestHeader, lang: Lang)
 
 <!DOCTYPE html>
 
@@ -41,7 +41,7 @@
 				<hr />
 				<ul class="nav">
 					@for(page <- guide._2._2) {
-						@if(page.position == "side") {
+						@if(page.position == GuidePage.MenuPosition.Side) {
 							<li><a href="@controllers.portal.routes.Guides.layoutRetrieval(guide._2._1.path, page.path)">@page.name</a></li>
 						}
 					}

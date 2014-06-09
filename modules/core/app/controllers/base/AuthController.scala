@@ -13,6 +13,17 @@ import defines.PermissionType
 import defines.ContentTypes
 import backend.{ApiUser, Backend}
 import backend.rest.{ItemNotFound,PermissionDenied}
+import play.api.mvc.Results._
+import scala.Some
+import play.api.mvc.SimpleResult
+import backend.ApiUser
+import play.api.mvc.Cookie
+import utils._
+import scala.Some
+import play.api.mvc.SimpleResult
+import backend.ApiUser
+import play.api.mvc.Cookie
+import views.html.errors.{itemNotFound, pageNotFound}
 
 /**
  * Trait containing composable Action wrappers to handle different
@@ -275,5 +286,12 @@ trait AuthController extends Controller with ControllerHelpers with AsyncAuth wi
       if (maybeUser.isDefined) f(maybeUser)(request)
       else authenticationFailed(request)
     }
+  }
+
+  /**
+   * Wrap some code generating an optional result, falling back to a 404.
+   */
+  def itemOr404(f: => Option[SimpleResult])(implicit request: RequestHeader): SimpleResult = {
+    f.getOrElse(NotFound(renderError("errors.itemNotFound", itemNotFound())))
   }
 }

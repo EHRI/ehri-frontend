@@ -2,29 +2,27 @@
 *	Add Guides MySQL Structure
 */
 
-CREATE TABLE `research_guide` (
-  `id_research_guide` int(11) NOT NULL AUTO_INCREMENT,
-  `name_research_guide` varchar(255) DEFAULT NULL,
-  `path_research_guide` varchar(45) DEFAULT NULL,
-  `picture_research_guide` varchar(255) DEFAULT NULL,
-  `description_research_guide` text,
-  `active_research_guide` int(1) DEFAULT 0,
-  `default_research_guide` int(1) DEFAULT 0,
-  PRIMARY KEY (`id_research_guide`),
-  UNIQUE KEY `name_research_guide_UNIQUE` (`name_research_guide`),
-  UNIQUE KEY `path_research_guide_UNIQUE` (`path_research_guide`)
+CREATE TABLE research_guide (
+  id INTEGER(11) NOT NULL AUTO_INCREMENT PRIMARY KEY,
+  name VARCHAR(255) DEFAULT NULL,
+  path VARCHAR(45) DEFAULT NULL,
+  picture VARCHAR(255) DEFAULT NULL,
+  description text,
+  active BOOLEAN NULL DEFAULT 0,
+  `default` int(1) DEFAULT 0
 );
 
-CREATE TABLE `research_guide_page` (
-  `id_research_guide_page` int(11) NOT NULL AUTO_INCREMENT,
-  `id_research_guide` int(11) DEFAULT NULL,
-  `name_research_guide_page` varchar(45) DEFAULT NULL,
-  `layout_research_guide_page` varchar(45) DEFAULT NULL,
-  `cypher_research_guide_page` text,
-  `path_research_guide_page` varchar(45) DEFAULT NULL,
-  `menu_research_guide_page` varchar(45) DEFAULT NULL,
-  PRIMARY KEY (`id_research_guide_page`),
-  KEY `fk_research_guide_page_1` (`id_research_guide`),
-  KEY `index3` (`id_research_guide`),
-  CONSTRAINT `fk_research_guide_page_1` FOREIGN KEY (`id_research_guide`) REFERENCES `research_guide` (`id_research_guide`) ON DELETE NO ACTION ON UPDATE CASCADE
+ALTER TABLE research_guide ADD CONSTRAINT research_guide_name_unique UNIQUE(name);
+ALTER TABLE research_guide ADD CONSTRAINT research_guide_path_unique UNIQUE(path);
+
+CREATE TABLE research_guide_page (
+  id INTEGER(11) NOT NULL AUTO_INCREMENT PRIMARY KEY,
+  research_guide_id INTEGER(11) DEFAULT NULL,
+  name VARCHAR(45) DEFAULT NULL,
+  layout VARCHAR(45) DEFAULT NULL,
+  content text,
+  path VARCHAR(45) DEFAULT NULL,
+  position VARCHAR(45) DEFAULT NULL
 );
+
+ALTER TABLE research_guide_page ADD CONSTRAINT research_guide_page_id FOREIGN KEY (research_guide_id) REFERENCES research_guide (id) ON DELETE CASCADE;

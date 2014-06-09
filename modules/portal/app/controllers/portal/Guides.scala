@@ -11,9 +11,11 @@ import backend.Backend
 import controllers.base.{SessionPreferences, ControllerHelpers}
 import utils._
 import models.Guide
-import models.GuidesPage
+import models.GuidePage
 
 import com.google.inject._
+import play.api.Play.current
+import models.GuidePage.Layout
 
 case class Guides @Inject()(implicit globalConfig: global.GlobalConfig, searchDispatcher: Dispatcher, searchResolver: Resolver, backend: Backend,
                             userDAO: AccountDAO)
@@ -25,16 +27,8 @@ case class Guides @Inject()(implicit globalConfig: global.GlobalConfig, searchDi
 
   val defaultPreferences = new SessionPrefs
 
-  private val portalRoutes = controllers.portal.routes.Portal
-
-  /**
-   * Full text search action that returns a complete page of item data.
-   * @return
-   */
-  private implicit val anyModelReads = AnyModel.Converter.restReads
-  private val defaultSearchTypes = List(EntityType.Repository, EntityType.DocumentaryUnit, EntityType.HistoricalAgent,
-    EntityType.Country)
-  private val defaultSearchParams = SearchParams(entities = defaultSearchTypes, sort = Some(SearchOrder.Score))
+  override val staffOnly = current.configuration.getBoolean("ehri.portal.secured").getOrElse(true)
+  override val verifiedOnly = current.configuration.getBoolean("ehri.portal.secured").getOrElse(true)
 
   /*
   *
@@ -65,63 +59,57 @@ case class Guides @Inject()(implicit globalConfig: global.GlobalConfig, searchDi
   *
   */
 
-  private def itemNotFound(item: String) = Action {
-    implicit request =>
-      NotFound(views.html.errors.itemNotFound(Some(item)))
+  private def pageNotFound() = Action { implicit request =>
+    NotFound(views.html.errors.pageNotFound())
   }
 
-  private def pageNotFound() = Action {
-    implicit request =>
-      NotFound(views.html.errors.pageNotFound())
+  def itemOr404Action(f: => Option[Action[AnyContent]]): Action[AnyContent] = {
+    f.getOrElse(pageNotFound())
   }
 
   /*
   * Return a list of guides
   */
-  def listGuides() = userProfileAction {
-    implicit userOpt => implicit request =>
-      Ok(p.guides.guidesList(Guide.findAll(active = true)))
+  def listGuides() = userProfileAction { implicit userOpt => implicit request =>
+    Ok(p.guides.guidesList(Guide.findAll(activeOnly = true)))
   }
 
   /*
   * Return a homepage for a guide
   */
-  def home(path: String) = {
-    Guide.find(path, active = true) match {
-      /* We need active guide only */
-      case Some(guide) => guideLayout(guide, guide.getDefaultPage)
-      case _ => itemNotFound(path)
+  def home(path: String) = itemOr404Action {
+    Guide.find(path, activeOnly = true).map { guide =>
+      guideLayout(guide, guide.getDefaultPage)
     }
   }
 
   /*
   * Return a layout for a guide and a given path
   */
-  def layoutRetrieval(path: String, page: String) = {
-    Guide.find(path, active = true) match {
-      /* We need active guide only */
-      case Some(guide) => guideLayout(guide, guide.getPage(page))
-      case _ => itemNotFound(path)
+  def layoutRetrieval(path: String, page: String) = itemOr404Action {
+    Guide.find(path, activeOnly = true).map  { guide =>
+      guideLayout(guide, guide.findPage(page))
     }
   }
 
 
   /*
   *
-  * Link a layout [GuidesPage] to a correct template function
+  * Link a layout [GuidePage] to a correct template function
   *
   */
 
 
-  def guideLayout(guide: Guide, temp: Option[GuidesPage]) = {
-    /* Function mapping */
-    temp match {
-      case Some(t) if t.layout == "person" => guideAuthority(t, Map("holderId" -> t.content), guide)
-      case Some(t) if t.layout == "map" => guideMap(t, Map("holderId" -> t.content), guide)
-      case Some(t) if t.layout == "keyword" => guideKeyword(t, Map("holderId" -> t.content), guide)
-      case Some(t) if t.layout == "organisation" => guideOrganization(t, Map("holderId" -> t.content), guide)
-      case Some(t) if t.layout == "md" => guideMarkdown(t, t.content, guide)
-      case _ => pageNotFound()
+  def guideLayout(guide: Guide, temp: Option[GuidePage]) = itemOr404Action {
+    temp.map { page =>
+      page.layout match {
+        case Layout.Person => guideAuthority(page, Map("holderId" -> page.content), guide)
+        case Layout.Map => guideMap(page, Map("holderId" -> page.content), guide)
+        case Layout.Keyword => guideKeyword(page, Map("holderId" -> page.content), guide)
+        case Layout.Organisation => guideOrganization(page, Map("holderId" -> page.content), guide)
+        case Layout.Markdown => guideMarkdown(page, page.content, guide)
+        case _ => pageNotFound()
+      }
     }
   }
 
@@ -135,62 +123,57 @@ case class Guides @Inject()(implicit globalConfig: global.GlobalConfig, searchDi
   /*
   *   Layout named "person" [HistoricalAgent]
   */
-  def guideAuthority(template: GuidesPage, params: Map[String, String], guide: Guide) = userBrowseAction.async {
-    implicit userDetails => implicit request =>
-      searchAction[HistoricalAgent](params, defaultParams = Some(SearchParams(entities = List(EntityType.HistoricalAgent)))
-      ) {
-        page => params => facets => _ => _ =>
-          if (isAjax) Ok(p.guides.ajax(template -> guide, page, params))
-          else Ok(p.guides.person(template -> (guide -> guide.getPages), page, params))
-      }.apply(request)
+  def guideAuthority(template: GuidePage, params: Map[String, String], guide: Guide) = userBrowseAction.async { implicit userDetails => implicit request =>
+    searchAction[HistoricalAgent](params, defaultParams = Some(SearchParams(entities = List(EntityType.HistoricalAgent)))
+    ) {
+      page => params => facets => _ => _ =>
+        if (isAjax) Ok(p.guides.ajax(template -> guide, page, params))
+        else Ok(p.guides.person(template -> (guide -> guide.findPages), page, params))
+    }.apply(request)
   }
 
   /*
   *   Layout named "keyword" [Concept]
   */
-  def guideKeyword(template: GuidesPage, params: Map[String, String], guide: Guide) = userBrowseAction.async {
-    implicit userDetails => implicit request =>
-      searchAction[Concept](params, defaultParams = Some(SearchParams(entities = List(EntityType.Concept))),
-        entityFacets = conceptFacets) {
-        page => params => facets => _ => _ =>
-          if (isAjax) Ok(p.guides.ajax(template -> guide, page, params))
-          else Ok(p.guides.keywords(template -> (guide -> guide.getPages), page, params))
-      }.apply(request)
+  def guideKeyword(template: GuidePage, params: Map[String, String], guide: Guide) = userBrowseAction.async { implicit userDetails => implicit request =>
+    searchAction[Concept](params, defaultParams = Some(SearchParams(entities = List(EntityType.Concept))),
+      entityFacets = conceptFacets) {
+      page => params => facets => _ => _ =>
+        if (isAjax) Ok(p.guides.ajax(template -> guide, page, params))
+        else Ok(p.guides.keywords(template -> (guide -> guide.findPages), page, params))
+    }.apply(request)
   }
 
   /*
   *   Layout named "map" [Concept]
   */
-  def guideMap(template: GuidesPage, params: Map[String, String], guide: Guide) = userBrowseAction.async {
-    implicit userDetails => implicit request =>
-      searchAction[Concept](params, defaultParams = Some(SearchParams(entities = List(EntityType.Concept))),
-        entityFacets = conceptFacets) {
-        page => params => facets => _ => _ =>
-          if (isAjax) Ok(p.guides.ajax(template -> guide, page, params))
-          else Ok(p.guides.places(template -> (guide -> guide.getPages), page, params))
-      }.apply(request)
+  def guideMap(template: GuidePage, params: Map[String, String], guide: Guide) = userBrowseAction.async { implicit userDetails => implicit request =>
+    searchAction[Concept](params, defaultParams = Some(SearchParams(entities = List(EntityType.Concept))),
+      entityFacets = conceptFacets) {
+      page => params => facets => _ => _ =>
+        if (isAjax) Ok(p.guides.ajax(template -> guide, page, params))
+        else Ok(p.guides.places(template -> (guide -> guide.findPages), page, params))
+    }.apply(request)
   }
 
   /*
   *   Layout named "organisation" [Concept]
   */
-  def guideOrganization(template: GuidesPage, params: Map[String, String], guide: Guide) = userBrowseAction.async {
-    implicit userDetails => implicit request =>
-      searchAction[Concept](params, defaultParams = getParams(request, EntityType.Concept),
-        entityFacets = conceptFacets
-      ) {
-        page => params => facets => _ => _ =>
-          if (isAjax) Ok(p.guides.ajax(template -> guide, page, params))
-          else Ok(p.guides.keywords(template -> (guide -> guide.getPages), page, params))
-      }.apply(request)
+  def guideOrganization(template: GuidePage, params: Map[String, String], guide: Guide) = userBrowseAction.async { implicit userDetails => implicit request =>
+    searchAction[Concept](params, defaultParams = getParams(request, EntityType.Concept),
+      entityFacets = conceptFacets
+    ) {
+      page => params => facets => _ => _ =>
+        if (isAjax) Ok(p.guides.ajax(template -> guide, page, params))
+        else Ok(p.guides.keywords(template -> (guide -> guide.findPages), page, params))
+    }.apply(request)
   }
 
   /*
   *   Layout named "md" [Markdown]
   */
-  def guideMarkdown(template: GuidesPage, content: String, guide: Guide) = userProfileAction {
-    implicit userOpt => implicit request =>
-      Ok(p.guides.markdown(template -> (guide -> guide.getPages), content))
+  def guideMarkdown(template: GuidePage, content: String, guide: Guide) = userProfileAction { implicit userOpt => implicit request =>
+    Ok(p.guides.markdown(template -> (guide -> guide.findPages), content))
   }
 
 
@@ -211,14 +194,11 @@ case class Guides @Inject()(implicit globalConfig: global.GlobalConfig, searchDi
   /*
   *   Faceted search
   */
-  def guideFacets(path: String) = {
-    Guide.find(path, active = true) match {
-      /* We need active guide only */
-      case Some(guide) => userProfileAction {
-        implicit userOpt => implicit request =>
-          Ok(p.guides.facet(GuidesPage.faceted -> (guide -> guide.getPages)))
+  def guideFacets(path: String) = itemOr404Action {
+    Guide.find(path, activeOnly = true).map { guide =>
+      userProfileAction { implicit userOpt => implicit request =>
+        Ok(p.guides.facet(GuidePage.faceted -> (guide -> guide.findPages)))
       }
-      case _ => itemNotFound(path)
     }
   }
 }

@@ -1,6 +1,6 @@
-@(template: (GuidesPage, (Guide, List[GuidesPage])))(implicit userOpt: Option[UserProfile], request: RequestHeader, prefs: utils.SessionPrefs, globalConfig: global.GlobalConfig, lang: Lang, flash: Flash)
+@(template: (GuidePage, (Guide, List[GuidePage])))(implicit userOpt: Option[UserProfile], request: RequestHeader, prefs: utils.SessionPrefs, globalConfig: global.GlobalConfig, lang: Lang, flash: Flash)
 
-@import models.{GuidesPage, Guide}
+@import models.{GuidePage, Guide}
 
 @js = {
     <script type="text/javascript">
@@ -119,7 +119,7 @@
 }
 @facets = {
     @for(page <- template._2._2) {
-        @if(page.position == "top" && page.layout != "md") {
+        @if(page.position == GuidePage.MenuPosition.Top && page.layout != GuidePage.Layout.Markdown) {
             <ul class="list-unstyled">
                 <li>
                     <div class="facet-form" data-target="@controllers.portal.routes.Guides.layoutRetrieval(template._2._1.path, page.path)">
