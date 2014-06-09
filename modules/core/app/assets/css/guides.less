@@ -178,13 +178,22 @@ body > .container {
 	.list-item {
 		margin:0;
 		padding:0;
+		list-style-type:none;
 		
 		.item-wrapper {
 			margin:0 0 1em 0;
 			padding:0;
 			display:block;
 			position:relative;
-			
+			a {
+				color:@ehri-darkest-grey;
+				&[href] {
+					color:@ehri-purple;
+				}
+				&:hover {
+					text-decoration:none;
+				}
+			}
 			.item-option {
 				cursor:pointer;
 				position:absolute;
@@ -279,10 +288,6 @@ body > .container {
 		&.hierarchy {
 			.list-item {
 				margin-left:20px;
-				border-left:2px solid @content-color;
-				&:hover {
-					border-left:2px dashed lighten(@ehri-dark-purple, 20%);
-				}
 				.item-wrapper {
 					> .item-title {
 						border-left:none!important;

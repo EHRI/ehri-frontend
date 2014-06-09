@@ -40,15 +40,11 @@ case class Guides @Inject()(implicit globalConfig: global.GlobalConfig, searchDi
   /*
   *  Return SearchParams for items with hierarchy
   */
-  def getParams(request: Request[Any], eT: EntityType.Value, hierarchy: Boolean = false): Option[SearchParams] = {
+  def getParams(request: Request[Any], eT: EntityType.Value): Option[SearchParams] = {
     request.getQueryString("parent") match {
       case Some(parent) => Some(SearchParams(query = Some("parentId:" + parent), entities = List(eT)))
       case _ => {
-        hierarchy match {
-          case true => Some(SearchParams(query = Some("isTopLevel:true"), entities = List(eT)))
-          case _ => Some(SearchParams(entities = List(eT)))
-        }
-
+        Some(SearchParams(query = Some("isTopLevel:true"), entities = List(eT)))
       }
     }
   }
@@ -165,7 +161,7 @@ case class Guides @Inject()(implicit globalConfig: global.GlobalConfig, searchDi
     ) {
       page => params => facets => _ => _ =>
         if (isAjax) Ok(p.guides.ajax(template -> guide, page, params))
-        else Ok(p.guides.keywords(template -> (guide -> guide.findPages), page, params))
+        else Ok(p.guides.organisation(template -> (guide -> guide.findPages), page, params))
     }.apply(request)
   }
 
