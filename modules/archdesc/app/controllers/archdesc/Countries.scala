@@ -12,6 +12,7 @@ import scala.concurrent.Future.{successful => immediate}
 import backend.{IdGenerator, Backend}
 import play.api.Configuration
 import play.api.Play.current
+import solr.SolrConstants
 
 
 @Singleton
@@ -43,10 +44,13 @@ case class Countries @Inject()(implicit globalConfig: global.GlobalConfig, searc
   private final val countryRoutes = controllers.archdesc.routes.Countries
 
   def get(id: String) = getAction.async(id) { item => annotations => links => implicit userOpt => implicit request =>
-    searchAction[Repository](Map("countryCode" -> item.id), defaultParams = Some(SearchParams(entities = List(EntityType.Repository)))) {
-        page => params => facets => _ => _ =>
-      Ok(views.html.country.show(item, page, params, facets, countryRoutes.get(id), annotations, links))
-    }.apply(request)
+    Query(
+      filters = Map(SolrConstants.COUNTRY_CODE -> item.id),
+      defaultParams = Some(SearchParams(entities = List(EntityType.Repository)))
+    ).get[Repository].map { result =>
+      Ok(views.html.country.show(item, result.page, result.params, result.facets,
+        countryRoutes.get(id), annotations, links))
+    }
   }
 
   def history(id: String) = historyAction(id) { item => page => params => implicit userOpt => implicit request =>

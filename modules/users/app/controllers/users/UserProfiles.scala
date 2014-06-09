@@ -187,9 +187,10 @@ case class UserProfiles @Inject()(implicit globalConfig: global.GlobalConfig, se
     Ok(views.html.userProfile.show(item, annotations))
   }
 
-  def search = {
-    searchAction[UserProfile](defaultParams = Some(DEFAULT_SEARCH_PARAMS), entityFacets = entityFacets) {
-        page => params => facets => implicit userOpt => implicit request =>
+  def search = userProfileAction.async { implicit userOpt => implicit request =>
+    Query(
+      defaultParams = Some(DEFAULT_SEARCH_PARAMS), entityFacets = entityFacets
+    ).get[UserProfile].map { case QueryResult(page, params, facets) =>
       // Crap alert! Lookup accounts for users. This is undesirable 'cos it's
       // one DB SELECT per user, but since it's just a management page it shouldn't
       // matter too much.

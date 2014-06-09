@@ -9,6 +9,7 @@ import play.api.libs.json.Json
 import utils.search._
 import play.api.Logger
 import controllers.base.{ControllerHelpers, AuthController}
+import scala.concurrent.Future
 
 
 /**
@@ -53,6 +54,44 @@ trait Search extends Controller with AuthController with ControllerHelpers {
     }
   }
 
+  case class QueryResult[MT](
+    page: ItemPage[(MT, SearchHit)],
+    params: SearchParams,
+    facets: List[AppliedFacet]
+  )
+
+  case class Query(
+    filters: Map[String,Any] = Map.empty,
+    extra: Map[String,Any] = Map.empty,
+    defaultParams: Option[SearchParams] = None,
+    entityFacets: FacetBuilder = emptyFacets,
+    mode: SearchMode.Value = SearchMode.DefaultAll
+  ) {
+    def get[MT](implicit request: Request[AnyContent], userOpt: Option[UserProfile], rd: RestReadable[MT]): Future[QueryResult[MT]] = {
+      val params = defaultParams.map( p => p.copy(sort = defaultSortFunction(p, request)))
+
+      // Override the entity type with the controller entity type
+      val sp = SearchParams.form.bindFromRequest
+        .value.getOrElse(SearchParams.empty)
+        .setDefault(params)
+
+      val allFacets = entityFacets(request)
+      val facets: List[AppliedFacet] = bindFacetsFromRequest(allFacets)
+
+      for {
+        res <- searchDispatcher.search(sp, facets, allFacets, filters, extra, mode)
+        list <- searchResolver.resolve[MT](res.items)
+      } yield {
+        if (list.size != res.size) {
+          Logger.logger.warn("Items returned by search were not found in database: {} -> {}",
+            (res.items.map(_.id), list))
+        }
+        QueryResult(res.copy(items = list.zip(res.items)), sp, facets)
+      }
+    }
+  }
+
+
   /**
    * Action that restricts the search to the inherited entity type
    * and applies.
@@ -61,32 +100,14 @@ trait Search extends Controller with AuthController with ControllerHelpers {
                         entityFacets: FacetBuilder = emptyFacets, mode: SearchMode.Value = SearchMode.DefaultAll)(
       f: ItemPage[(MT, SearchHit)] => SearchParams => List[AppliedFacet] => Option[UserProfile] => Request[AnyContent] => SimpleResult)(implicit rd: RestReadable[MT], cfmt: ClientConvertable[MT]): Action[AnyContent] = {
     userProfileAction.async { implicit userOpt => implicit request =>
-      val params = defaultParams.map( p => p.copy(sort = defaultSortFunction(p, request)))
-
-      // Override the entity type with the controller entity type
-      val sp = SearchParams.form.bindFromRequest
-          .value.getOrElse(SearchParams())
-          .setDefault(params)
-
-      val allFacets = entityFacets(request)
-      val facets: List[AppliedFacet] = bindFacetsFromRequest(allFacets)
-      searchDispatcher.search(sp, facets, allFacets, filters, extra, mode).flatMap { res =>
-        val ids = res.items.map(_.id)
-        searchResolver.resolve[MT](res.items).map { list =>
-          if (list.size != ids.size) {
-            Logger.logger.warn("Items returned by search were not found in database: {} -> {}",
-              (ids, list))
-          }
-          val page = res.copy(items = list.zip(res.items))
-          render {
-            case Accepts.Json() | Accepts.JavaScript() => Ok(Json.obj(
-              "page" -> Json.toJson(res.copy(items = list))(ItemPage.itemPageWrites),
-              "params" -> Json.toJson(sp)(SearchParams.Converter.clientFormat),
-              "appliedFacets" -> Json.toJson(facets)
-            )).as(play.api.http.ContentTypes.JSON)
-            case _ => f(page)(sp)(facets)(userOpt)(request)
-          }
-        }
+      Query(
+        filters,
+        extra,
+        defaultParams,
+        entityFacets,
+        mode
+      ).get[MT].map { r =>
+        f(r.page)(r.params)(r.facets)(userOpt)(request)
       }
     }
   }
@@ -101,7 +122,6 @@ trait Search extends Controller with AuthController with ControllerHelpers {
         .value.getOrElse(SearchParams())
         .setDefault(params)
 
-    println(sp)
       searchDispatcher.filter(sp, filters).map { res =>
         f(res)(userOpt)(request)
       }

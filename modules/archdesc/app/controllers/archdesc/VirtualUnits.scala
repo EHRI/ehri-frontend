@@ -1,6 +1,7 @@
 package controllers.archdesc
 
-import _root_.forms.VisibilityForm
+import play.api.libs.concurrent.Execution.Implicits._
+import forms.VisibilityForm
 import models._
 import controllers.generic._
 import play.api.mvc._
@@ -81,38 +82,41 @@ case class VirtualUnits @Inject()(implicit globalConfig: global.GlobalConfig, se
 
   private val vuRoutes = controllers.archdesc.routes.VirtualUnits
 
-  def search = Action.async { request =>
+  def search = userProfileAction.async { implicit userOpt => implicit request =>
   // What filters we gonna use? How about, only list stuff here that
   // has no parent items - UNLESS there's a query, in which case we're
   // going to peer INSIDE items... dodgy logic, maybe...
 
     val filters = if (request.getQueryString(SearchParams.QUERY).isEmpty)
       Map(SolrConstants.TOP_LEVEL -> true) else Map.empty[String,Any]
-
-    searchAction[VirtualUnit](filters, defaultParams = Some(DEFAULT_SEARCH_PARAMS),
-      entityFacets = entityFacets) {
-      page => params => facets => implicit userOpt => implicit request =>
-        Ok(views.html.virtualUnit.search(page, params, facets, vuRoutes.search()))
-    }.apply(request)
+    Query(
+      filters = filters,
+      defaultParams = Some(DEFAULT_SEARCH_PARAMS),
+      entityFacets = entityFacets
+    ).get[VirtualUnit].map { result =>
+      Ok(views.html.virtualUnit.search(result.page, result.params, result.facets, vuRoutes.search()))
+    }
   }
 
   def searchChildren(id: String) = itemPermissionAction.async[VirtualUnit](contentType, id) {
-    item => implicit userOpt => implicit request =>
-
-      searchAction[VirtualUnit](Map("parentId" -> item.id), entityFacets = entityFacets) {
-        page => params => facets => implicit userOpt => implicit request =>
-          Ok(views.html.virtualUnit.search(page, params, facets, vuRoutes.search()))
-      }.apply(request)
+      item => implicit userOpt => implicit request =>
+    Query(
+      filters = Map(SolrConstants.PARENT_ID -> item.id),
+      entityFacets = entityFacets
+    ).get[VirtualUnit].map { result =>
+      Ok(views.html.virtualUnit.search(result.page, result.params, result.facets, vuRoutes.search()))
+    }
   }
 
   def get(id: String) = getAction.async(id) { item => annotations => links => implicit userOpt => implicit request =>
-    searchAction[VirtualUnit](Map("parentId" -> item.id),
+    Query(
+      filters = Map(SolrConstants.PARENT_ID -> item.id),
       defaultParams = Some(SearchParams(entities = List(EntityType.VirtualUnit))),
-      entityFacets = entityFacets) {
-      page => params => facets => _ => _ =>
-        Ok(views.html.virtualUnit.show(item, page, params, facets,
+      entityFacets = entityFacets
+    ).get[VirtualUnit].map { result =>
+      Ok(views.html.virtualUnit.show(item, result.page, result.params, result.facets,
           vuRoutes.get(id), annotations, links))
-    }.apply(request)
+    }
   }
 
   def history(id: String) = historyAction(id) { item => page => params => implicit userOpt => implicit request =>
