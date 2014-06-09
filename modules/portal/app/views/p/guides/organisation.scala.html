@@ -5,15 +5,38 @@
 @js = {
 	<script type="text/javascript">
 	$(document).ready(function() {
-		$(".show-hierarchy").on("click", function(e) { e.preventDefault();
-			$(".content-results > .list-item").addClass("hierarchy");
-			$(this).addClass("active");
-			$(".show-list").removeClass("active");
-		});
-		$(".show-list").on("click", function(e) { e.preventDefault();
-			$(".content-results > .list-item").removeClass("hierarchy");
-			$(this).addClass("active");
-			$(".show-hierarchy").removeClass("active");
+		var loadOrganisation = function($ul, $href) {
+			$.get(
+                $href,
+                function(data) {
+                	var $data = $("<ul />");
+                	$data.html(data)
+                	$data.find("li").removeClass("facet").addClass("item-wrapper")
+                	$data.find("input[type='checkbox']").remove()
+                	$ul.html($data.html());
+                },
+                "html"
+            );
+		}
+		$(".content-results").on("click", "a[href]", function(e) {
+            e.preventDefault();
+			var $elem = $(this),
+				$href = $elem.attr("href"),
+				$parent = $elem.parents("li:first"),
+				$ul = $parent.find("ul:first")
+			if($ul === "undefined" || $ul.length === 0) {
+				$parent.append($("<ul />", {"class" : "list-item hierarchy"}))
+				var $ul = $parent.find("ul:first")
+				loadOrganisation($ul, $href);
+			} else {
+				var $li = $ul.find("li:first");
+				if($li === "undefined" || $li.length === 0) {
+					loadOrganisation($ul, $href);
+				} else {
+					$ul.toggle()
+				}
+			}
+
 		});
 	});
 	</script>
@@ -35,6 +58,7 @@
 				    @page.items.map { case(item, hit) =>
 				        @defining(Some(hit.id)) { implicit descriptionId =>
 				            <li class="item-wrapper">
+
 				                @guideItem(item, hit, controllers.portal.routes.Guides.layoutRetrieval(template._2._1.path, template._1.path), template._1.path)
 				            </li>
 				        }

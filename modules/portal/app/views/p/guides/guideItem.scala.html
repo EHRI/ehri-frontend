@@ -38,8 +38,6 @@
                 case "organisation" => {
                     @if(d.childCount.getOrElse(0) > 0) {
                         <a href="@action?parent=@d.id">
-                    } else {
-                        <a>
                     }
                 } 
                 case _ => {
@@ -47,7 +45,13 @@
                 }
             }
                 @d.toStringLang
-            </a>
+            @conceptMode match { 
+                case "organisation" => {
+                    @if(d.childCount.getOrElse(0) > 0) {
+                        </a>
+                    }
+                }
+            }
         </span>
     }
     case _ => {

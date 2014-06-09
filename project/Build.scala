@@ -126,7 +126,7 @@ object ApplicationBuild extends Build {
   lazy val vocabs = play.Project(
     appName + "-vocabs", appVersion, path = file("modules/vocabs")
   ).settings(otherSettings: _*).dependsOn(portal)
-
+  
   lazy val guides = play.Project(
     appName + "-guides", appVersion, path = file("modules/guides")
   ).settings(otherSettings: _*).dependsOn(archdesc)
