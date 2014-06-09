@@ -1,10 +1,10 @@
 package controllers.admin
 
+import play.api.libs.concurrent.Execution.Implicits._
 import models.{AccountDAO, Isaar, IsadG}
 import models.base.AnyModel
 import controllers.generic.Search
 import play.api.Play.current
-import play.api._
 import play.api.mvc._
 import defines.EntityType
 import play.api.i18n.Messages
@@ -14,9 +14,9 @@ import utils.search._
 import solr.facet.FieldFacetClass
 
 import com.google.inject._
-import play.api.http.MimeTypes
 import play.api.cache.{Cache, Cached}
 import backend.Backend
+import models.json.ClientConvertable
 
 
 @Singleton
@@ -29,6 +29,17 @@ case class Metrics @Inject()(implicit globalConfig: global.GlobalConfig, searchD
     EntityType.Repository,
     EntityType.HistoricalAgent
   )
+
+  private def jsonResponse[T](result: QueryResult[T])(implicit request: Request[AnyContent], w: ClientConvertable[T]): SimpleResult = {
+    render {
+      case Accepts.Json() | Accepts.JavaScript() => Ok(Json.obj(
+        "page" -> Json.toJson(result.page.copy(items = result.page.items.map(_._1)))(ItemPage.itemPageWrites),
+        "params" -> Json.toJson(result.params)(SearchParams.Converter.clientFormat),
+        "appliedFacets" -> Json.toJson(result.facets)
+      )).as(play.api.http.ContentTypes.JSON)
+      case _ => UnsupportedMediaType
+    }
+  }
 
   // For all of the metrics we're just using facet counts,
   // so set the result limit to be zero.
@@ -46,13 +57,11 @@ case class Metrics @Inject()(implicit globalConfig: global.GlobalConfig, searchD
   }
 
   def languageOfMaterial = Cached("pages:langMetric", metricCacheTime) {
-    searchAction[AnyModel](
-      defaultParams = Some(defaultParams.copy(entities = List(EntityType.DocumentaryUnit))),
-      entityFacets = langCountFacets) {
-      page => params => facets => implicit userOpt => implicit request =>
-        render {
-          case _ => UnsupportedMediaType
-        }
+    userProfileAction.async { implicit userOpt => implicit request =>
+      Query(
+        defaultParams = Some(defaultParams.copy(entities = List(EntityType.DocumentaryUnit))),
+        entityFacets = langCountFacets
+      ).get[AnyModel].map(jsonResponse[AnyModel])
     }
   }
 
@@ -69,13 +78,11 @@ case class Metrics @Inject()(implicit globalConfig: global.GlobalConfig, searchD
   }
 
   def holdingRepository = Cached("pages:repoMetric", metricCacheTime) {
-    searchAction[AnyModel](
-      defaultParams = Some(defaultParams.copy(entities = List(EntityType.DocumentaryUnit))),
-      entityFacets = holdingRepoFacets) {
-      page => params => facets => implicit userOpt => implicit request =>
-        render {
-          case _ => UnsupportedMediaType
-        }
+    userProfileAction.async { implicit userOpt => implicit request =>
+      Query(
+        defaultParams = Some(defaultParams.copy(entities = List(EntityType.DocumentaryUnit))),
+        entityFacets = holdingRepoFacets
+      ).get[AnyModel].map(jsonResponse[AnyModel])
     }
   }
 
@@ -93,13 +100,11 @@ case class Metrics @Inject()(implicit globalConfig: global.GlobalConfig, searchD
   }
 
   def repositoryCountries = Cached("pages:repoCountryMetric", metricCacheTime) {
-    searchAction[AnyModel](
-      defaultParams = Some(defaultParams.copy(entities = List(EntityType.Repository))),
-      entityFacets = countryRepoFacets) {
-      page => params => facets => implicit userOpt => implicit request =>
-        render {
-          case _ => UnsupportedMediaType
-        }
+    userProfileAction.async { implicit userOpt => implicit request =>
+      Query(
+       defaultParams = Some(defaultParams.copy(entities = List(EntityType.Repository))),
+        entityFacets = countryRepoFacets
+      ).get[AnyModel].map(jsonResponse[AnyModel])
     }
   }
 
@@ -116,15 +121,13 @@ case class Metrics @Inject()(implicit globalConfig: global.GlobalConfig, searchD
   }
 
   def restricted = Cached("pages:restrictedMetric", metricCacheTime) {
-    searchAction[AnyModel](
-      defaultParams = Some(defaultParams.copy(
-        entities = List(EntityType.HistoricalAgent,
-          EntityType.DocumentaryUnit, EntityType.HistoricalAgent))),
-      entityFacets = restrictedFacets) {
-      page => params => facets => implicit userOpt => implicit request =>
-        render {
-          case _ => UnsupportedMediaType
-        }
+    userProfileAction.async { implicit userOpt => implicit request =>
+      Query(
+        defaultParams = Some(defaultParams.copy(
+          entities = List(EntityType.HistoricalAgent,
+            EntityType.DocumentaryUnit, EntityType.HistoricalAgent))),
+        entityFacets = restrictedFacets
+      ).get[AnyModel].map(jsonResponse[AnyModel])
     }
   }
 
@@ -142,13 +145,11 @@ case class Metrics @Inject()(implicit globalConfig: global.GlobalConfig, searchD
   }
 
   def agentTypes = Cached("pages:agentTypeMetric", metricCacheTime) {
-    searchAction[AnyModel](
-      defaultParams = Some(defaultParams.copy(entities = List(EntityType.HistoricalAgent))),
-      entityFacets = agentTypeFacets) {
-      page => params => facets => implicit userOpt => implicit request =>
-        render {
-          case _ => UnsupportedMediaType
-        }
+    userProfileAction.async { implicit userOpt => implicit request =>
+      Query(
+        defaultParams = Some(defaultParams.copy(entities = List(EntityType.HistoricalAgent))),
+        entityFacets = agentTypeFacets
+      ).get[AnyModel].map(jsonResponse[AnyModel])
     }
   }
 

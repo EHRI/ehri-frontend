@@ -1,6 +1,7 @@
 package controllers.vocabs
 
-import _root_.forms.VisibilityForm
+import play.api.libs.concurrent.Execution.Implicits._
+import forms.VisibilityForm
 import controllers.generic._
 import models._
 import play.api.i18n.Messages
@@ -9,6 +10,7 @@ import utils.search.{Resolver, Dispatcher, SearchParams}
 import com.google.inject._
 import scala.concurrent.Future.{successful => immediate}
 import backend.Backend
+import solr.SolrConstants
 
 
 @Singleton
@@ -30,11 +32,14 @@ case class Vocabularies @Inject()(implicit globalConfig: global.GlobalConfig, se
   private val vocabRoutes = controllers.vocabs.routes.Vocabularies
 
   def get(id: String) = getAction.async(id) { item => annotations => links => implicit userOpt => implicit request =>
-    searchAction[Concept](Map("holderId" -> item.id), defaultParams = Some(SearchParams(entities=List(EntityType.Concept)))) {
-      page => params => facets => _ => _ =>
-        Ok(views.html.vocabulary.show(
-          item, page, params, facets, vocabRoutes.get(id), annotations, links))
-    }.apply(request)
+    Query(
+      filters = Map(SolrConstants.HOLDER_ID -> item.id),
+      defaultParams = Some(SearchParams(entities=List(EntityType.Concept)))
+    ).get[Concept].map { result =>
+      Ok(views.html.vocabulary.show(
+          item, result.page, result.params, result.facets,
+        vocabRoutes.get(id), annotations, links))
+    }
   }
 
   def history(id: String) = historyAction(id) { item => page => params => implicit userOpt => implicit request =>
@@ -124,13 +129,13 @@ case class Vocabularies @Inject()(implicit globalConfig: global.GlobalConfig, se
   def addItemPermissions(id: String) = addItemPermissionsAction(id) {
       item => users => groups => implicit userOpt => implicit request =>
     Ok(views.html.permissions.permissionItem(item, users, groups,
-        vocabRoutes.setItemPermissions _))
+        vocabRoutes.setItemPermissions))
   }
 
   def addScopedPermissions(id: String) = addItemPermissionsAction(id) {
       item => users => groups => implicit userOpt => implicit request =>
     Ok(views.html.permissions.permissionScope(item, users, groups,
-        vocabRoutes.setScopedPermissions _))
+        vocabRoutes.setScopedPermissions))
   }
 
   def setItemPermissions(id: String, userType: EntityType.Value, userId: String) = setItemPermissionsAction(id, userType, userId) {

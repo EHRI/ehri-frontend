@@ -1,6 +1,7 @@
 package controllers.archdesc
 
-import _root_.forms.VisibilityForm
+import play.api.libs.concurrent.Execution.Implicits._
+import forms.VisibilityForm
 import controllers.generic._
 import models._
 import play.api.i18n.Messages
@@ -110,12 +111,14 @@ case class Repositories @Inject()(implicit globalConfig: global.GlobalConfig, se
     val filters = (if (request.getQueryString(SearchParams.QUERY).filterNot(_.trim.isEmpty).isEmpty)
       Map(SolrConstants.TOP_LEVEL -> true) else Map.empty[String,Any]) ++ Map(SolrConstants.HOLDER_ID -> item.id)
 
-    searchAction[DocumentaryUnit](filters,
-        defaultParams = Some(SearchParams(entities = List(EntityType.DocumentaryUnit))),
-        entityFacets = repositoryFacets) {
-      page => params => facets => _ => _ =>
-        Ok(views.html.repository.show(item, page, params, facets, repositoryRoutes.get(id), annotations, links))
-    }.apply(request)
+    Query(
+      filters = filters,
+      defaultParams = Some(SearchParams(entities = List(EntityType.DocumentaryUnit))),
+      entityFacets = repositoryFacets
+    ).get[DocumentaryUnit].map { result =>
+      Ok(views.html.repository.show(item, result.page, result.params, result.facets,
+        repositoryRoutes.get(id), annotations, links))
+    }
   }
 
   def history(id: String) = historyAction(id) { item => page => params => implicit userOpt => implicit request =>

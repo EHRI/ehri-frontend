@@ -1,6 +1,7 @@
 package controllers.archdesc
 
-import _root_.forms.VisibilityForm
+import play.api.libs.concurrent.Execution.Implicits._
+import forms.VisibilityForm
 import models._
 import controllers.generic._
 import play.api.mvc._
@@ -105,7 +106,7 @@ case class DocumentaryUnits @Inject()(implicit globalConfig: global.GlobalConfig
   private val docRoutes = controllers.archdesc.routes.DocumentaryUnits
 
 
-  def search = Action.async { request =>
+  def search = userProfileAction.async { implicit userOpt => implicit request =>
     // What filters we gonna use? How about, only list stuff here that
     // has no parent items - UNLESS there's a query, in which case we're
     // going to peer INSIDE items... dodgy logic, maybe...
@@ -113,20 +114,27 @@ case class DocumentaryUnits @Inject()(implicit globalConfig: global.GlobalConfig
     val filters = if (request.getQueryString(SearchParams.QUERY).isEmpty)
       Map(SolrConstants.TOP_LEVEL -> true) else Map.empty[String,Any]
 
-    searchAction[DocumentaryUnit](filters, defaultParams = Some(DEFAULT_SEARCH_PARAMS),
-        entityFacets = entityFacets) {
-        page => params => facets => implicit userOpt => implicit request =>
-      Ok(views.html.documentaryUnit.search(page, params, facets, docRoutes.search()))
-    }.apply(request)
+    Query(
+      filters = filters,
+      defaultParams = Some(DEFAULT_SEARCH_PARAMS),
+      entityFacets = entityFacets
+    ).get[DocumentaryUnit].map { result =>
+      Ok(views.html.documentaryUnit.search(
+        result.page, result.params, result.facets,
+        docRoutes.search()))
+    }
   }
 
   def searchChildren(id: String) = itemPermissionAction.async[DocumentaryUnit](contentType, id) {
       item => implicit userOpt => implicit request =>
-
-    searchAction[DocumentaryUnit](Map("parentId" -> item.id), entityFacets = entityFacets) {
-      page => params => facets => implicit userOpt => implicit request =>
-        Ok(views.html.documentaryUnit.search(page, params, facets, docRoutes.search()))
-    }.apply(request)
+    Query(
+      filters = Map(SolrConstants.PARENT_ID -> item.id),
+      entityFacets = entityFacets
+    ).get[DocumentaryUnit].map { result =>
+      Ok(views.html.documentaryUnit.search(
+        result.page, result.params, result.facets,
+        docRoutes.search()))
+    }
   }
 
   /*def get(id: String) = getWithChildrenAction(id) {
@@ -137,13 +145,14 @@ case class DocumentaryUnits @Inject()(implicit globalConfig: global.GlobalConfig
   }*/
 
   def get(id: String) = getAction.async(id) { item => annotations => links => implicit userOpt => implicit request =>
-    searchAction[DocumentaryUnit](Map("parentId" -> item.id),
-          defaultParams = Some(SearchParams(entities = List(EntityType.DocumentaryUnit))),
-          entityFacets = entityFacets) {
-        page => params => facets => _ => _ =>
-      Ok(views.html.documentaryUnit.show(item, page, params, facets,
+    Query(
+      filters = Map(SolrConstants.PARENT_ID -> item.id),
+      defaultParams = Some(SearchParams(entities = List(EntityType.DocumentaryUnit))),
+      entityFacets = entityFacets
+    ).get[DocumentaryUnit].map { result =>
+      Ok(views.html.documentaryUnit.show(item, result.page, result.params, result.facets,
           docRoutes.get(id), annotations, links))
-    }.apply(request)
+    }
   }
 
   def history(id: String) = historyAction(id) { item => page => params => implicit userOpt => implicit request =>
