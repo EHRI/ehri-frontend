@@ -39,12 +39,12 @@ case class SolrDispatcher(queryBuilder: QueryBuilder, responseParser: ResponsePa
    * @param userOpt An optional current user
    * @return a tuple of id, name, and type
    */
-  def filter(params: SearchParams, filters: Map[String, Any] = Map.empty)(
+  def filter(params: SearchParams, filters: Map[String, Any] = Map.empty, extra: Map[String, Any] = Map.empty)(
     implicit userOpt: Option[UserProfile]): Future[ItemPage[(String, String, EntityType.Value)]] = {
     val limit = params.limit.getOrElse(100)
     val offset = (Math.max(params.page.getOrElse(1), 1) - 1) * limit
 
-    val queryRequest = queryBuilder.simpleFilter(params, filters)
+    val queryRequest = queryBuilder.simpleFilter(params, filters, extra)
     Logger.logger.debug(queryRequest.queryString())
 
     WS.url(buildSearchUrl(queryRequest)).get().map { response =>
@@ -64,12 +64,13 @@ case class SolrDispatcher(queryBuilder: QueryBuilder, responseParser: ResponsePa
    * @return a set of SearchDescriptions for matching results.
    */
   def search(params: SearchParams, facets: List[AppliedFacet], allFacets: List[FacetClass[Facet]],
-             filters: Map[String, Any] = Map.empty, mode: SearchMode.Value = SearchMode.DefaultAll)(
+             filters: Map[String, Any] = Map.empty, extra: Map[String, Any] = Map.empty,
+             mode: SearchMode.Value = SearchMode.DefaultAll)(
               implicit userOpt: Option[UserProfile]): Future[ItemPage[SearchHit]] = {
     val limit = params.limit.getOrElse(Constants.DEFAULT_LIST_LIMIT)
     val offset = (Math.max(params.page.getOrElse(1), 1) - 1) * limit
 
-    val queryRequest = queryBuilder.search(params, facets, allFacets, filters, mode)(userOpt)
+    val queryRequest = queryBuilder.search(params, facets, allFacets, filters, extra, mode)(userOpt)
     val url = buildSearchUrl(queryRequest)
     Logger.logger.debug("SOLR: {}", url)
     WS.url(buildSearchUrl(queryRequest)).get().map { response =>
@@ -93,7 +94,7 @@ case class SolrDispatcher(queryBuilder: QueryBuilder, responseParser: ResponsePa
   def facet(facet: String, sort: FacetQuerySort.Value = FacetQuerySort.Name,
             params: SearchParams,
             facets: List[AppliedFacet], allFacets: List[FacetClass[Facet]],
-            filters: Map[String, Any] = Map.empty)(
+            filters: Map[String, Any] = Map.empty, extra: Map[String,Any] = Map.empty)(
              implicit userOpt: Option[UserProfile]): Future[FacetPage[Facet]] = {
     val limit = params.limit.getOrElse(Constants.DEFAULT_LIST_LIMIT)
     val offset = (Math.max(params.page.getOrElse(1), 1) - 1) * limit
