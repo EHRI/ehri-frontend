@@ -40,7 +40,7 @@
             </ul>
             <div class="sidebar-section-footer">
                 <i class="glyphicon glyphicon-plus-sign"></i>
-                <a href="@controllers.archdesc.routes.VirtualUnits.createDescription(item.id)">@Messages("actions.createDescription")</a>
+                <a href="@controllers.archdesc.routes.VirtualUnits.createDescription(item.id)">@Messages("describedEntity.createDescription")</a>
             </div>
         </div>
     }
@@ -73,11 +73,11 @@
         </div>
 
         @* NB: We should NOT have *both* virtual and referenced descriptions! *@
-        @defining(IsadG.FIELD_PREFIX) { implicit fieldPrefix =>
+        @defining(EntityType.DocumentaryUnit.toString) { implicit fieldPrefix =>
             @descriptionSet(item.descriptions, editable = true)
         }
 
-        @defining(IsadG.FIELD_PREFIX) { implicit fieldPrefix =>
+        @defining(EntityType.DocumentaryUnit.toString) { implicit fieldPrefix =>
             @descriptionSet(item.descriptionRefs, editable = false)
         }
 

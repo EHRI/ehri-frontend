@@ -75,6 +75,7 @@ object SystemEvent {
     (__ \ RELATIONSHIPS \ EVENT_HAS_SCOPE).lazyNullableHeadReads(AnyModel.Converter.restReads) and
     (__ \ RELATIONSHIPS \ EVENT_HAS_FIRST_SUBJECT).lazyNullableHeadReads(AnyModel.Converter.restReads) and
     (__ \ RELATIONSHIPS \ EVENT_HAS_ACTIONER).lazyNullableHeadReads(Accessor.Converter.restReads) and
+    (__ \ RELATIONSHIPS \ VERSION_HAS_EVENT).nullableHeadReads(Version.Converter.restReads) and
     (__ \ META).readWithDefault(Json.obj())
   )(SystemEvent.apply _)
 
@@ -87,6 +88,7 @@ object SystemEvent {
       (__ \ "scope").lazyFormatNullable[AnyModel](AnyModel.Converter.clientFormat) and
       (__ \ "firstSubject").lazyFormatNullable[AnyModel](AnyModel.Converter.clientFormat) and
       (__ \ "user").lazyFormatNullable[Accessor](Accessor.Converter.clientFormat) and
+      (__ \ "version").lazyFormatNullable(Version.Converter.clientFormat) and
       (__ \ "meta").format[JsObject]
     )(SystemEvent.apply _, unlift(SystemEvent.unapply))
   }
@@ -101,6 +103,7 @@ case class SystemEvent(
   scope: Option[AnyModel] = None,
   firstSubject: Option[AnyModel] = None,
   actioner: Option[Accessor] = None,
+  version: Option[Version] = None,
   meta: JsObject = JsObject(Seq())
 ) extends AnyModel
   with MetaModel[SystemEventF]
@@ -108,6 +111,7 @@ case class SystemEvent(
 
   def time = DateTimeFormat.forPattern(SystemEventF.FORMAT).print(model.timestamp)
 
-  def toStringLang = Messages("systemEvents." + model.eventType.map(_.toString).getOrElse("unknown"))
+  override def toStringLang(implicit lang: play.api.i18n.Lang) =
+    Messages(isA + "." + model.eventType.map(_.toString).getOrElse("unknown"))(lang)
 }
 

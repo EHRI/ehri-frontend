@@ -6,7 +6,7 @@
 @historicalAgent.itemPage(item) {
 
     @common.annotated(item, annotations) {
-        @defining(Isaar.FIELD_PREFIX) { implicit fieldPrefix =>
+        @defining(EntityType.HistoricalAgent.toString) { implicit fieldPrefix =>
             @item.model.identifier
             @if(!item.model.descriptions.isEmpty) {
                 @item.model.descriptions.map { desc =>

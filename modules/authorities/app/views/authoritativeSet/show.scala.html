@@ -2,7 +2,7 @@
 
 @layout.rightSidebar(item.toStringLang, breadcrumbs = common.breadcrumbs(List(item))) {
 
-    @defining("authoritativeSet") { implicit  prefix =>
+    @defining(EntityType.AuthoritativeSet.toString) { implicit  prefix =>
         @common.stringValue(item.model.description, models.AuthoritativeSetF.DESCRIPTION)
     }
 
@@ -19,19 +19,19 @@
 
     @common.sidebarActions { user =>
         @common.sidebarAction(user.hasPermission(ContentTypes.HistoricalAgent, PermissionType.Create)) {
-            <a href="@controllers.authorities.routes.AuthoritativeSets.createHistoricalAgent(item.id)">@Messages("actions.createHistoricalAgent")</a>
+            <a href="@controllers.authorities.routes.AuthoritativeSets.createHistoricalAgent(item.id)">@Messages("historicalAgent.create")</a>
         }
         @common.sidebarAction(user.hasPermission(ContentTypes.AuthoritativeSet, PermissionType.Update)) {
-            <a href="@controllers.authorities.routes.AuthoritativeSets.update(item.id)">@Messages("actions.updateItem")</a>
+            <a href="@controllers.authorities.routes.AuthoritativeSets.update(item.id)">@Messages("item.update")</a>
         }
         @common.sidebarAction(user.hasPermission(ContentTypes.AuthoritativeSet, PermissionType.Delete)) {
-            <a href="@controllers.authorities.routes.AuthoritativeSets.delete(item.id)">@Messages("actions.deleteItem")</a>
+            <a href="@controllers.authorities.routes.AuthoritativeSets.delete(item.id)">@Messages("item.delete")</a>
         }
         @common.sidebarAction(user.hasPermission(ContentTypes.AuthoritativeSet, PermissionType.Grant)) {
-            <a href="@controllers.authorities.routes.AuthoritativeSets.managePermissions(item.id)">@Messages("actions.managePermissions")</a>
+            <a href="@controllers.authorities.routes.AuthoritativeSets.managePermissions(item.id)">@Messages("permissions.manage")</a>
         }
         @common.sidebarAction() {
-            <a href="@controllers.authorities.routes.AuthoritativeSets.history(item.id)">@Messages("actions.showHistory")</a>
+            <a href="@controllers.authorities.routes.AuthoritativeSets.history(item.id)">@Messages("item.history")</a>
         }
     }
 }

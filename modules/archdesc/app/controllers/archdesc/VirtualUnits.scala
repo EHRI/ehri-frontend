@@ -58,7 +58,7 @@ case class VirtualUnits @Inject()(implicit globalConfig: global.GlobalConfig, se
       ),
       FieldFacetClass(
         key=IsadG.LANG_CODE,
-        name=Messages(IsadG.FIELD_PREFIX + "." + IsadG.LANG_CODE),
+        name=Messages("virtualUnit." + IsadG.LANG_CODE),
         param="lang",
         render=Helpers.languageCodeToName,
         display = FacetDisplay.Choice
@@ -69,7 +69,6 @@ case class VirtualUnits @Inject()(implicit globalConfig: global.GlobalConfig, se
   implicit val resource = VirtualUnit.Resource
 
   val formDefaults: Option[Configuration] = current.configuration.getConfig(EntityType.VirtualUnit)
-  val descDefaults: Option[Configuration] = formDefaults.flatMap(_.getConfig(IsadG.FIELD_PREFIX))
 
   val contentType = ContentTypes.VirtualUnit
   val targetContentTypes = Seq(ContentTypes.VirtualUnit)
@@ -135,12 +134,13 @@ case class VirtualUnits @Inject()(implicit globalConfig: global.GlobalConfig, se
       case Left(errorForm) => BadRequest(views.html.virtualUnit.edit(
           olditem, errorForm, vuRoutes.updatePost(id)))
       case Right(item) => Redirect(vuRoutes.get(item.id))
-        .flashing("success" -> play.api.i18n.Messages("confirmations.itemWasUpdated", item.id))
+        .flashing("success" -> play.api.i18n.Messages("item.update.confirmation", item.id))
     }
   }
 
   def create = createAction { users => groups => implicit userOpt => implicit request =>
-    Ok(views.html.virtualUnit.create(None, form, VisibilityForm.form, users, groups, vuRoutes.createPost()))
+    Ok(views.html.virtualUnit.create(None, form, VisibilityForm.form,
+      users, groups, vuRoutes.createPost()))
   }
 
   def createPost = createPostAction.async(form) { formsOrItem => implicit userOpt => implicit request =>
@@ -149,14 +149,14 @@ case class VirtualUnits @Inject()(implicit globalConfig: global.GlobalConfig, se
         BadRequest(views.html.virtualUnit.create(None, errorForm, accForm, users, groups, vuRoutes.createPost()))
       }
       case Right(item) => immediate(Redirect(vuRoutes.get(item.id))
-        .flashing("success" -> Messages("confirmations.itemWasCreated", item.id)))
+        .flashing("success" -> Messages("item.create.confirmation", item.id)))
     }
   }
 
   def createChild(id: String) = childCreateAction(id, contentType) { item => users => groups => implicit userOpt => implicit request =>
     Ok(views.html.virtualUnit.create(
-      Some(item), childForm, VisibilityForm.form, users, groups,
-      vuRoutes.createChildPost(id)))
+      Some(item), childForm, VisibilityForm.form.fill(item.accessors.map(_.id)),
+      users, groups, vuRoutes.createChildPost(id)))
   }
 
   def createChildPost(id: String) = childCreatePostAction.async(id, childForm, contentType) {
@@ -168,7 +168,7 @@ case class VirtualUnits @Inject()(implicit globalConfig: global.GlobalConfig, se
           vuRoutes.createChildPost(id)))
       }
       case Right(doc) => immediate(Redirect(vuRoutes.get(doc.id))
-        .flashing("success" -> Messages("confirmations.itemWasCreated", doc.id)))
+        .flashing("success" -> Messages("item.create.confirmation", doc.id)))
     }
   }
 
@@ -182,13 +182,13 @@ case class VirtualUnits @Inject()(implicit globalConfig: global.GlobalConfig, se
   def deletePost(id: String) = deletePostAction(id) {
       ok => implicit userOpt => implicit request =>
     Redirect(vuRoutes.search())
-        .flashing("success" -> Messages("confirmations.itemWasDeleted", id))
+        .flashing("success" -> Messages("item.delete.confirmation", id))
   }
 
   def createDescription(id: String) = withItemPermission[VirtualUnit](id, PermissionType.Update, contentType) {
     item => implicit userOpt => implicit request =>
       Ok(views.html.virtualUnit.createDescription(item,
-        descriptionForm, descDefaults, vuRoutes.createDescriptionPost(id)))
+        descriptionForm, formDefaults, vuRoutes.createDescriptionPost(id)))
   }
 
   def createDescriptionPost(id: String) = createDescriptionPostAction(id, EntityType.DocumentaryUnitDescription, descriptionForm) {
@@ -196,10 +196,10 @@ case class VirtualUnits @Inject()(implicit globalConfig: global.GlobalConfig, se
       formOrItem match {
         case Left(errorForm) => {
           Ok(views.html.virtualUnit.createDescription(item,
-            errorForm, descDefaults, vuRoutes.createDescriptionPost(id)))
+            errorForm, formDefaults, vuRoutes.createDescriptionPost(id)))
         }
         case Right(updated) => Redirect(vuRoutes.get(item.id))
-          .flashing("success" -> Messages("confirmations.itemWasCreated", item.id))
+          .flashing("success" -> Messages("item.create.confirmation", item.id))
       }
   }
 
@@ -219,7 +219,7 @@ case class VirtualUnits @Inject()(implicit globalConfig: global.GlobalConfig, se
             errorForm, vuRoutes.updateDescriptionPost(id, did)))
         }
         case Right(updated) => Redirect(vuRoutes.get(item.id))
-          .flashing("success" -> Messages("confirmations.itemWasCreated", item.id))
+          .flashing("success" -> Messages("item.create.confirmation", item.id))
       }
   }
 
@@ -233,7 +233,7 @@ case class VirtualUnits @Inject()(implicit globalConfig: global.GlobalConfig, se
   def deleteDescriptionPost(id: String, did: String) = deleteDescriptionPostAction(id, EntityType.DocumentaryUnitDescription, did) {
     ok => implicit userOpt => implicit request =>
       Redirect(vuRoutes.get(id))
-        .flashing("success" -> Messages("confirmations.itemWasDeleted", id))
+        .flashing("success" -> Messages("item.delete.confirmation", id))
   }
 
   def visibility(id: String) = visibilityAction(id) {
@@ -246,7 +246,7 @@ case class VirtualUnits @Inject()(implicit globalConfig: global.GlobalConfig, se
   def visibilityPost(id: String) = visibilityPostAction(id) {
       ok => implicit userOpt => implicit request =>
     Redirect(vuRoutes.get(id))
-        .flashing("success" -> Messages("confirmations.itemWasUpdated", id))
+        .flashing("success" -> Messages("item.update.confirmation", id))
   }
 
   def managePermissions(id: String) = manageScopedPermissionsAction(id) {
@@ -277,7 +277,7 @@ case class VirtualUnits @Inject()(implicit globalConfig: global.GlobalConfig, se
   def setItemPermissionsPost(id: String, userType: EntityType.Value, userId: String) = setItemPermissionsPostAction(id, userType, userId) {
       bool => implicit userOpt => implicit request =>
     Redirect(vuRoutes.managePermissions(id))
-        .flashing("success" -> Messages("confirmations.itemWasUpdated", id))
+        .flashing("success" -> Messages("item.update.confirmation", id))
   }
 
   def setScopedPermissions(id: String, userType: EntityType.Value, userId: String) = setScopedPermissionsAction(id, userType, userId) {
@@ -289,7 +289,7 @@ case class VirtualUnits @Inject()(implicit globalConfig: global.GlobalConfig, se
   def setScopedPermissionsPost(id: String, userType: EntityType.Value, userId: String) = setScopedPermissionsPostAction(id, userType, userId) {
       perms => implicit userOpt => implicit request =>
     Redirect(vuRoutes.managePermissions(id))
-        .flashing("success" -> Messages("confirmations.itemWasUpdated", id))
+        .flashing("success" -> Messages("item.update.confirmation", id))
   }
 
   def linkTo(id: String) = withItemPermission[VirtualUnit](id, PermissionType.Annotate, contentType) {
@@ -319,7 +319,7 @@ case class VirtualUnits @Inject()(implicit globalConfig: global.GlobalConfig, se
       }
       case Right(annotation) => {
         Redirect(vuRoutes.get(id))
-          .flashing("success" -> Messages("confirmations.itemWasUpdated", id))
+          .flashing("success" -> Messages("item.update.confirmation", id))
       }
     }
   }
@@ -339,7 +339,7 @@ case class VirtualUnits @Inject()(implicit globalConfig: global.GlobalConfig, se
       }
       case Right(annotations) => {
         Redirect(vuRoutes.get(id))
-          .flashing("success" -> Messages("confirmations.itemWasUpdated", id))
+          .flashing("success" -> Messages("item.update.confirmation", id))
       }
     }
   }

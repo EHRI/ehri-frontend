@@ -84,7 +84,7 @@ trait PortalLogin extends OpenIDLoginHandler with Oauth2LoginHandler with UserPa
                 sendValidationEmail(data.email, uuid)
 
                 gotoLoginSucceeded(userProfile.id).map(r =>
-                  r.flashing("success" -> "portal.signup.needToConfirmEmail"))
+                  r.flashing("success" -> "portal.signup.confirmation"))
               }
             }
           }
@@ -97,7 +97,7 @@ trait PortalLogin extends OpenIDLoginHandler with Oauth2LoginHandler with UserPa
     userDAO.findByResetToken(token, isSignUp = true).map { account =>
       account.verify(token)
       gotoLoginSucceeded(account.id)
-        .map(_.flashing("success" -> "portal.email.validated"))
+        .map(_.flashing("success" -> "portal.signup.validation.confirmation"))
     } getOrElse {
       immediate(BadRequest(
           views.html.errors.itemNotFound(Some(Messages("portal.signup.invalidSignupToken")))))
@@ -110,8 +110,8 @@ trait PortalLogin extends OpenIDLoginHandler with Oauth2LoginHandler with UserPa
       case Right(account) => gotoLoginSucceeded(account.id)
         .map(_.withSession("access_uri" -> portalRoutes.index().url))
       case Left(formError) =>
-        immediate(BadRequest(views.html.openIDLogin(formError,
-          action = profileRoutes.openIDLoginPost())))
+        immediate(BadRequest(
+          views.html.p.account.login(formError, passwordLoginForm, oauthProviders)))
     }
   }
 
@@ -120,13 +120,18 @@ trait PortalLogin extends OpenIDLoginHandler with Oauth2LoginHandler with UserPa
     "google" -> profileRoutes.googleLogin
   )
 
-  def login = optionalUserAction { implicit maybeUser => implicit request =>
-    Ok(views.html.p.account.login(openidForm, passwordLoginForm, oauthProviders))
+  def login = optionalUserAction { implicit accountOpt => implicit request =>
+    accountOpt match {
+      case Some(user) => Redirect(portalRoutes.index())
+        .flashing("warning" -> Messages("portal.login.alreadyLoggedIn", user.email))
+      case None => Ok(views.html.p.account.login(openidForm, passwordLoginForm, oauthProviders))
+    }
   }
 
   def openIDLoginPost = openIDLoginPostAction(profileRoutes.openIDCallback()) { formError => implicit request =>
     implicit val accountOpt: Option[Account] = None
-    BadRequest(views.html.openIDLogin(formError, action = profileRoutes.openIDLoginPost()))
+    BadRequest(
+      views.html.p.account.login(formError, passwordLoginForm, oauthProviders))
   }
 
   def passwordLoginPost = loginPostAction.async { accountOrErr => implicit request =>

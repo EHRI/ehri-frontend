@@ -5,12 +5,12 @@
 @layout.rightSidebar(item.toStringLang, breadcrumbs = common.breadcrumbs(List(item))) {
 
     @common.annotated(item, annotations) {
-        @defining("vocabulary") { implicit  prefix =>
+        @defining(EntityType.Vocabulary.toString) { implicit  prefix =>
             @common.stringValue(item.model.description, VocabularyF.DESCRIPTION)
         }
     }
 
-    @views.html.search.searchSection(Messages("vocabulary.items")) {
+    @views.html.search.searchSection(Messages("cvocVocabulary.items")) {
         @views.html.search.searchForm(result, params, action, autofocus = false) {
             @concept.searchItemList(result)
         }
@@ -21,19 +21,19 @@
 
     @common.sidebarActions { user =>
         @sidebarAction(user.hasPermission(ContentTypes.Vocabulary, PermissionType.Create)) {
-            <a href="@controllers.vocabs.routes.Vocabularies.createConcept(item.id)">@Messages("actions.createTopLevelConcept")</a>
+            <a href="@controllers.vocabs.routes.Vocabularies.createConcept(item.id)">@Messages("cvocConcept.topLevel.create")</a>
         }
         @sidebarAction(user.hasPermission(ContentTypes.Vocabulary, PermissionType.Update)) {
-            <a href="@controllers.vocabs.routes.Vocabularies.update(item.id)">@Messages("actions.updateItem")</a>
+            <a href="@controllers.vocabs.routes.Vocabularies.update(item.id)">@Messages("item.update")</a>
         }
         @sidebarAction(user.hasPermission(ContentTypes.Vocabulary, PermissionType.Delete)) {
-            <a href="@controllers.vocabs.routes.Vocabularies.delete(item.id)">@Messages("actions.deleteItem")</a>
+            <a href="@controllers.vocabs.routes.Vocabularies.delete(item.id)">@Messages("item.delete")</a>
         }
         @sidebarAction(user.hasPermission(ContentTypes.Vocabulary, PermissionType.Grant)) {
-            <a href="@controllers.vocabs.routes.Vocabularies.managePermissions(item.id)">@Messages("actions.managePermissions")</a>
+            <a href="@controllers.vocabs.routes.Vocabularies.managePermissions(item.id)">@Messages("permissions.manage")</a>
         }
         @sidebarAction() {
-            <a href="@controllers.vocabs.routes.Vocabularies.history(item.id)">@Messages("actions.showHistory")</a>
+            <a href="@controllers.vocabs.routes.Vocabularies.history(item.id)">@Messages("item.history")</a>
         }
     }
 }

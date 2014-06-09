@@ -2,12 +2,12 @@
 
 @virtualUnit.itemPage(item) {
 
-    <h3>@Messages("actions.linkTo")</h3>
+    <h3>@Messages("link.create")</h3>
 
     <ul>
-        <li><a href="@controllers.archdesc.routes.VirtualUnits.linkAnnotateSelect(item.id, defines.EntityType.HistoricalAgent)">@Messages("actions.linkToHistoricalAgent")</a></li>
-        <li><a href="@controllers.archdesc.routes.VirtualUnits.linkAnnotateSelect(item.id, defines.EntityType.Concept)">@Messages("actions.linkToConcept")</a></li>
-        <li><a href="@controllers.archdesc.routes.VirtualUnits.linkAnnotateSelect(item.id, defines.EntityType.VirtualUnit)">@Messages("actions.linkToVirtualUnit")</a></li>
+        <li><a href="@controllers.archdesc.routes.VirtualUnits.linkAnnotateSelect(item.id, defines.EntityType.HistoricalAgent)">@Messages("link.create.to.historicalAgent")</a></li>
+        <li><a href="@controllers.archdesc.routes.VirtualUnits.linkAnnotateSelect(item.id, defines.EntityType.Concept)">@Messages("link.create.to.cvocConcept")</a></li>
+        <li><a href="@controllers.archdesc.routes.VirtualUnits.linkAnnotateSelect(item.id, defines.EntityType.VirtualUnit)">@Messages("link.create.to.virtualUnit")</a></li>
     </ul>
 
 }

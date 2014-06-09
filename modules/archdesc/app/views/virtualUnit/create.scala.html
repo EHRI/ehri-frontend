@@ -11,14 +11,14 @@
     }
 }
 
-@layout.rightSidebar(Messages("actions.createVirtualUnit"), breadcrumbs = breadcrumbs) {
+@layout.rightSidebar(Messages("virtualUnit.create"), breadcrumbs = breadcrumbs) {
 
 	@helper.form(action = action, 'class -> "entity-form form-horizontal") {
         @formHelpers.csrfToken()
 		@virtualUnit.renderForm(f)
 
         @permissions.renderVisibilityForm(vf, users, groups)
-        @formHelpers.submitButtonWithLogMessageInput(Messages("submitButton.createVirtualUnit"), cancel = item.map(i => globalConfig.routeRegistry.urlFor(i)))
+        @formHelpers.submitButtonWithLogMessageInput(Messages("virtualUnit.create.submit"), cancel = item.map(i => globalConfig.routeRegistry.urlFor(i)))
     }
 } {
 

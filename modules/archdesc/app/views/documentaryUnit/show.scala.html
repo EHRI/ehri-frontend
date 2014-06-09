@@ -11,7 +11,7 @@
                 <ul class="dropdown-menu">
                     <li>
                         <a href="@controllers.archdesc.routes.DocumentaryUnits.manageAccessPoints(id, did)">
-                            @Messages("actions.manageAccessPoints")
+                            @Messages("describedEntity.manageAccessPoints")
                         </a>
                     </li>
                     <li>
@@ -53,7 +53,7 @@
             <div class="sidebar-section-footer">
                 <i class="glyphicon glyphicon-plus-sign"></i>
                 <a href="@controllers.archdesc.routes.DocumentaryUnits.createDescription(item.id)">
-                    @Messages("actions.createDescription")
+                    @Messages("describedEntity.createDescription")
                 </a>
             </div>
         </div>
@@ -83,7 +83,7 @@
             }
         </div>
 
-        @defining(IsadG.FIELD_PREFIX) { implicit fieldPrefix =>
+        @defining(EntityType.DocumentaryUnit.toString) { implicit fieldPrefix =>
             @if(!item.model.descriptions.isEmpty) {
                 <div class="description-viewport">
                     @item.descriptions.zipWithIndex.map { case (desc,i) =>
@@ -97,7 +97,7 @@
                 </div>
             } else {
                 <p class="text-muted">@Messages("documentaryUnit.noDescriptions")</p>
-                <a href="@controllers.archdesc.routes.DocumentaryUnits.createDescription(item.id)" class="btn btn-primary">@Messages("actions.createDescription")</a>
+                <a href="@controllers.archdesc.routes.DocumentaryUnits.createDescription(item.id)" class="btn btn-primary">@Messages("describedEntity.createDescription")</a>
             }
         }
 

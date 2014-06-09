@@ -86,7 +86,7 @@ class ProfileSpec extends Neo4jRunnerSpec(classOf[ProfileSpec]) {
       status(logout) must equalTo(SEE_OTHER)
       flash(logout).get("success") must beSome.which { fl =>
         // NB: No i18n here...
-        fl must contain("portal.logoutSucceeded")
+        fl must contain("portal.logout.confirmation")
       }
     }
   }

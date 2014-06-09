@@ -41,7 +41,7 @@ class RepositoryViewsSpec extends Neo4jRunnerSpec(classOf[RepositoryViewsSpec]) 
     }
 
     "show correct default values in the form when creating new items" in new FakeApp(
-      Map("repository.isdiah.holdings" -> "SOME RANDOM VALUE")) {
+      Map("repository.holdings" -> "SOME RANDOM VALUE")) {
       val form = route(fakeLoggedInHtmlRequest(privilegedUser, GET,
         controllers.archdesc.routes.Countries.createRepository(COUNTRY).url)).get
       status(form) must equalTo(OK)
@@ -49,7 +49,7 @@ class RepositoryViewsSpec extends Neo4jRunnerSpec(classOf[RepositoryViewsSpec]) 
     }
 
     "NOT show default values in the form when editing items" in new FakeApp(
-      Map("repository.isdiah.holdings" -> "SOME RANDOM VALUE")) {
+      Map("repository.holdings" -> "SOME RANDOM VALUE")) {
       val form = route(fakeLoggedInHtmlRequest(privilegedUser, GET,
         controllers.archdesc.routes.Repositories.update("r1").url)).get
       status(form) must equalTo(OK)

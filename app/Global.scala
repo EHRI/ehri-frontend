@@ -47,14 +47,14 @@ package globalConfig {
         ("contentTypes.cvocConcept",      controllers.vocabs.routes.Concepts.search().url)
       )
       val adminSection: Iterable[(String, String)] = Seq(
-        ("contentTypes.userProfile",      controllers.core.routes.UserProfiles.search().url),
-        ("contentTypes.group",            controllers.core.routes.Groups.list().url),
+        ("contentTypes.userProfile",      controllers.users.routes.UserProfiles.search().url),
+        ("contentTypes.group",            controllers.users.routes.Groups.list().url),
         ("contentTypes.country",          controllers.archdesc.routes.Countries.search().url),
         ("contentTypes.cvocVocabulary",   controllers.vocabs.routes.Vocabularies.list().url),
         ("contentTypes.authoritativeSet", controllers.authorities.routes.AuthoritativeSets.list().url),
         ("contentTypes.guides", controllers.guides.routes.GuidesAdmin.listGuides().url),
         ("s1", "-"),
-        ("contentTypes.systemEvent",      controllers.core.routes.SystemEvents.list().url),
+        ("contentTypes.systemEvent",      controllers.users.routes.SystemEvents.list().url),
         ("s2", "-"),
         ("search.updateIndex",            controllers.admin.routes.AdminSearch.updateIndex().url)
       )
@@ -65,12 +65,12 @@ package globalConfig {
     }
 
     val routeRegistry = new RouteRegistry(Map(
-      EntityType.SystemEvent -> controllers.core.routes.SystemEvents.get,
+      EntityType.SystemEvent -> controllers.users.routes.SystemEvents.get,
       EntityType.DocumentaryUnit -> controllers.archdesc.routes.DocumentaryUnits.get,
       EntityType.HistoricalAgent -> controllers.authorities.routes.HistoricalAgents.get,
       EntityType.Repository -> controllers.archdesc.routes.Repositories.get,
-      EntityType.Group -> controllers.core.routes.Groups.get,
-      EntityType.UserProfile -> controllers.core.routes.UserProfiles.get,
+      EntityType.Group -> controllers.users.routes.Groups.get,
+      EntityType.UserProfile -> controllers.users.routes.UserProfiles.get,
       EntityType.Annotation -> controllers.annotation.routes.Annotations.get,
       EntityType.Link -> controllers.linking.routes.Links.get,
       EntityType.Vocabulary -> controllers.vocabs.routes.Vocabularies.get,
@@ -79,8 +79,8 @@ package globalConfig {
       EntityType.Country -> controllers.archdesc.routes.Countries.get,
       EntityType.VirtualUnit -> controllers.archdesc.routes.VirtualUnits.get
     ), default = controllers.admin.routes.Home.index(),
-      login = controllers.core.routes.Admin.login(),
-      logout = controllers.core.routes.Admin.logout())
+      login = controllers.portal.routes.Profile.login(),
+      logout = controllers.portal.routes.Profile.logout())
   }
 }
 

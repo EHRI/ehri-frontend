@@ -8,17 +8,17 @@
             <a class="time-permalink" href="#@annotation.id">@views.Helpers.relativeDate(event.model.timestamp)</a>
 
             @if(editable) {
-                <a data-item="@annotation.id" title="@Messages("portal.social.editAnnotation.title")" class="edit-annotation" href="@controllers.portal.routes.Annotations.editAnnotation(annotation.id)">
-                    @Messages("portal.social.editAnnotation")
+                <a data-item="@annotation.id" title="@Messages("portal.annotation.update.title")" class="edit-annotation" href="@controllers.portal.routes.Annotations.editAnnotation(annotation.id)">
+                    @Messages("portal.annotation.update")
                 </a>
-                <a data-item="@annotation.id" title="@Messages("portal.social.deleteAnnotation.title")" class="delete-annotation" href="@controllers.portal.routes.Annotations.deleteAnnotation(annotation.id)">
-                    @Messages("portal.social.deleteAnnotation")
+                <a data-item="@annotation.id" title="@Messages("portal.annotation.delete.title")" class="delete-annotation" href="@controllers.portal.routes.Annotations.deleteAnnotation(annotation.id)">
+                    @Messages("portal.annotation.delete")
                 </a>
             }
             @userOpt.map { user =>
                 @if(!annotation.isPromoted && user.hasPermission(defines.ContentTypes.Annotation, defines.PermissionType.Promote) && annotation.model.isPromotable) {
-                    <a data-item="@annotation.id" title="@Messages("portal.social.promoteAnnotation.title")" class="promote-annotation" href="@controllers.annotation.routes.Annotations.promote(annotation.id)">
-                        @Messages("portal.social.promoteAnnotation")
+                    <a data-item="@annotation.id" title="@Messages("portal.annotation.promote.title")" class="promote-annotation" href="@controllers.annotation.routes.Annotations.promote(annotation.id)">
+                        @Messages("portal.annotation.promote")
                     </a>
                 }
             }

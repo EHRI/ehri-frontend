@@ -34,7 +34,7 @@ case class Home @Inject()(implicit globalConfig: global.GlobalConfig, searchDisp
 
       FieldFacetClass(
         key=IsadG.LANG_CODE,
-        name=Messages(IsadG.FIELD_PREFIX + "." + IsadG.LANG_CODE),
+        name=Messages("documentaryUnit." + IsadG.LANG_CODE),
         param="lang",
         render= (s: String) => Helpers.languageCodeToName(s)
       ),
@@ -49,7 +49,7 @@ case class Home @Inject()(implicit globalConfig: global.GlobalConfig, searchDisp
       // Repositories by country
       FieldFacetClass(
         key="countryCode",
-        name=Messages("isdiah.countryCode"),
+        name=Messages("repository.countryCode"),
         param="country",
         render= (s: String) => Helpers.countryCodeToName(s)
       ),
@@ -57,9 +57,9 @@ case class Home @Inject()(implicit globalConfig: global.GlobalConfig, searchDisp
       // Historical agent type
       FieldFacetClass(
         key=models.Isaar.ENTITY_TYPE,
-        name=Messages(Isaar.FIELD_PREFIX + "." + Isaar.ENTITY_TYPE),
+        name=Messages("historicalAgent." + Isaar.ENTITY_TYPE),
         param="cpf",
-        render=s => Messages(Isaar.FIELD_PREFIX + "." + s)
+        render=s => Messages("historicalAgent." + s)
       )
     )
   }
@@ -101,6 +101,10 @@ case class Home @Inject()(implicit globalConfig: global.GlobalConfig, searchDisp
     Ok(views.html.metrics())
   }
 
+  def loginRedirect() = Action {
+    MovedPermanently(controllers.portal.routes.Profile.login().url)
+  }
+
   /**
    * Full text search action that returns a complete page of item data.
    * @return
@@ -118,7 +122,7 @@ case class Home @Inject()(implicit globalConfig: global.GlobalConfig, searchDisp
         ))
         )
       }
-      case _ => Ok("hello")
+      case _ => MovedPermanently(controllers.admin.routes.Home.metrics().url)
     }
   }
 

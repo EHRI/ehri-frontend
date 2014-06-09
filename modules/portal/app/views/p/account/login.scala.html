@@ -1,6 +1,6 @@
 @(openIdForm: Form[String], pwForm: Form[(String,String)], oauthProviders: Map[String,Call] = Map.empty)(implicit userOpt: Option[Account], request: RequestHeader, globalConfig: global.GlobalConfig, flash: Flash, lang: Lang, token: play.filters.csrf.CSRF.Token)
 
-@implicitField = @{ views.html.helper.FieldConstructor(p.helpers.fieldTemplate.f) }
+@implicitField = @{ views.html.helper.FieldConstructor(formHelpers.fieldTemplateEmpty.f) }
 
 @openIdJquery = {
     <script src="@controllers.core.routes.Assets.at("jquery-openid/jquery.openid.js")"></script>
@@ -25,95 +25,99 @@
         <h3>@Messages("portal.login")</h3>
         <hr />
 
-<section class="login">
-    <div class="wrap">
-        @helper.form(action = controllers.portal.routes.Profile.openIDLoginPost, 'class -> "openid form validate-form", 'role -> "form") {
-            <p>
-                @Messages("portal.loginByProvider")
-            </p>
-            @formHelpers.csrfToken()
-             @if(!oauthProviders.isEmpty) {
-                @oauthProviders.map { case (name, call) =>
-                    <a href="@call" class="button @name" title="@name">Log in with <i class="icon-social @name"></i></a>
-                }
-            }
-            <a href="#" class="show-more">More login option</a>
-            <div class="more-login-option">
-                <div class="form-block">
-                    <ul class="providers nav nav-tabs nav-justified nav-tabs-xs text-center">
-                       
+        <section class="login">
+            <div class="wrap">
+                @helper.form(action = controllers.portal.routes.Profile.openIDLoginPost, 'class -> "openid form validate-form", 'role -> "form") {
+                    @formHelpers.csrfToken()
+                    <p>
+                        @Messages("portal.login.oauth.info")
+                    </p>
+                    @oauthProviders.map { case (name, call) =>
+                        <a href="@call" class="button @name" title="@name">
+                            @Html(Messages("portal.login.loginWith", Html("<i class='icon-social " + name + "'></i>")))
+                        </a>
+                    }
+                    <a href="#" class="show-more">@Messages("portal.login.moreOptions")</a>
+                    <div class="more-login-option @{if(openIdForm.hasErrors) "errors"}">
+                        <div class="form-block">
+                            @formHelpers.globalErrors(openIdForm)
 
-                        <li class="openid active" title="OpenID">
-                            <a><i class="icon-social openid"></i></a>
-                            <span><strong>http://{your-openid-url}</strong></span>
-                        </li>
-                        <li class="direct" title="Yahoo">
-                            <a><i class="icon-social yahoo"></i></a>
-                            <span>http://me.yahoo.com/</span>
-                        </li>
-                        <li class="username" title="Flickr user name">
-                            <a><i class="icon-social flickr"></i></a>
-                            <span>http://flickr.com/<strong>username</strong>/</span>
-                        </li>
-                        <li class="username" title="Wordpress blog name">
-                            <a><i class="icon-social wordpress"></i></a>
-                            <span>http://<strong>username</strong>.wordpress.com</span>
-                        </li>
-                        <li class="username" title="Blogger blog name">
-                            <a><i class="icon-social blogger"></i></a>
-                            <span>http://<strong>username</strong>.blogspot.com/</span>
-                        </li>
-                    </ul>
+                            <ul class="providers nav nav-tabs nav-justified nav-tabs-xs text-center">
+                                <li class="openid active" title="OpenID">
+                                    <a><i class="icon-social openid"></i></a>
+                                    <span><strong>http://{your-openid-url}</strong></span>
+                                </li>
+                                <li class="direct" title="Yahoo">
+                                    <a><i class="icon-social yahoo"></i></a>
+                                    <span>http://me.yahoo.com/</span>
+                                </li>
+                                <li class="username" title="Flickr user name">
+                                    <a><i class="icon-social flickr"></i></a>
+                                    <span>http://flickr.com/<strong>username</strong>/</span>
+                                </li>
+                                <li class="username" title="Wordpress blog name">
+                                    <a><i class="icon-social wordpress"></i></a>
+                                    <span>http://<strong>username</strong>.wordpress.com</span>
+                                </li>
+                                <li class="username" title="Blogger blog name">
+                                    <a><i class="icon-social blogger"></i></a>
+                                    <span>http://<strong>username</strong>.blogspot.com/</span>
+                                </li>
+                            </ul>
 
-                    <fieldset style="display:none;">
-                        <label for="openid_username">Or manually enter your <span>Provider user name</span> URL:</label>
-                        <div class="input-group input-group-sm">
-                            <span class="input-group-addon"></span>
-                            <input type="text" class="form-control" name="openid_username" />
-                            <span class="input-group-addon"></span>
+                            <fieldset style="display:none;">
+                                <label for="openid_username">Or manually enter your <span>Provider user name</span> URL:</label>
+                                <div class="input-group input-group-sm">
+                                    <span class="input-group-addon"></span>
+                                    <input type="text" class="form-control" name="openid_username" />
+                                    <span class="input-group-addon"></span>
+                                </div>
+                            </fieldset>
+                            <div class="clearfix"></div>
+
+                            <fieldset class="identifier openid">
+                                @helper.inputText(
+                                    openIdForm("openid_identifier"),
+                                    'placeholder -> Messages("portal.login.openid.urlPlaceholder"),
+                                    'class -> "form-control",
+                                    'type -> "url"
+                                )
+                            </fieldset>
                         </div>
-                    </fieldset>
-                    <div class="clearfix"></div>
-                                
-                    <fieldset class="identifier openid">
-                     <input class="form-control" type="text" name="openid_identifier" id="openid_identifier" placeholder="@Messages("portal.openIdEnterUrl")" />
-                    </fieldset>
-                </div>
-                @formHelpers.globalErrors(openIdForm)
 
-                <input type="submit" class="button post login-button openid" value="@Messages("submitButton.loginWithOpenid")" />
+                        <input type="submit" class="button post login-button openid" value="@Messages("portal.login.openid.submit")" />
+                    </div>
+                }
+                @helper.form(action = controllers.portal.routes.Profile.passwordLoginPost, 'class -> "login-form form validate-form", 'role -> "form") {
+                    <p>@Messages("portal.login.password.info")</p>
+
+                    @formHelpers.csrfToken()
+
+                    <div class="form-block">
+                        @formHelpers.globalErrors(pwForm)
+
+                        @helper.inputText(pwForm("email"), 'class -> "form-control", 'autofocus -> "autofocus", 'placeholder -> Messages("login.email"), 'type -> "email", 'required -> "required")
+                        @helper.inputPassword(pwForm("password"), 'class -> "form-control", 'placeholder -> Messages("login.password"), 'required -> "required")
+                    </div>
+
+                    <input type="submit" class="login-button button post" value="@Messages("portal.login.password.submit")" />
+                    <p class="text-center">
+                        <em><strong>or</strong></em>
+                    </p>
+                    <p class="text-center">
+                        <a class="button post" href="@controllers.portal.routes.Profile.signup">@Messages("portal.signup")</a>
+                    </p>
+
+                }
             </div>
-        }
-        @helper.form(action = controllers.portal.routes.Profile.passwordLoginPost, 'class -> "login-form form validate-form", 'role -> "form") {
-            <p>@Messages("portal.loginByPassword")</p>
-
-            @formHelpers.globalErrors(pwForm)
-
-            @formHelpers.csrfToken()
-
-            <div class="form-block">
-                <input type="email" class="form-control" name="email" id="pw-email" placeholder="@Messages("login.email")" />
-                <input type="password" class="form-control" name="password" id="pw-pw" placeholder="@Messages("login.password")" />
-            </div>
-
-            <input type="submit" class="login-button button post" value="@Messages("submitButton.loginWithPassword")" />
-            <p class="text-center">
-                <em><strong>or</strong></em>
-            </p>
-            <p class="text-center">
-                <a class="button post" href="@controllers.portal.routes.Profile.signup">@Messages("portal.signup")</a>
-            </p>
-
-        }
-    </div>
-</section>
+        </section>
 
         <hr />
 
         <p>
-            @Messages("portal.recoverAccount")
+            @Messages("portal.login.recover")
         </p>
-        <a href="@controllers.portal.routes.Profile.forgotPassword">@Messages("portal.forgotPasswordLink")</a>
+        <a href="@controllers.portal.routes.Profile.forgotPassword">@Messages("portal.login.recover.link")</a>
     }
 
 }(None, request, globalConfig, flash, lang)

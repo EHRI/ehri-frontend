@@ -2,8 +2,20 @@ package utils
 
 import play.api.i18n.{Lang, Messages}
 import java.util.Locale
+import org.apache.commons.lang3.text.WordUtils
 
 package object i18n {
+
+  def languagePairList(implicit lang: Lang): List[(String,String)] = {
+    val locale = lang.toLocale
+    val localeLangs = utils.i18n.lang3to2lookup.map { case (c3,c2) =>
+      c3 -> WordUtils.capitalize(new java.util.Locale(c2).getDisplayLanguage(locale))
+    }.toList
+
+    (localeLangs ::: utils.Data
+      .additionalLanguages.map(l => l -> Messages("languageCode." + l))).sortBy(_._2)
+  }
+
   /**
    * Lazily build a lookup of ISO 639-2 (3-letter) to 639-1 (2-letter) codes
    */
@@ -49,6 +61,8 @@ package object i18n {
     }
   }
 
+  def scriptPairList(lang: Lang) = utils.Data.scripts.sortBy(_._2)
+
   /**
    * Get the script name for a given code. This doesn't work with Java 6 so we have to sacrifice
    * localised script names. On Java 7 we'd do:
@@ -84,5 +98,15 @@ package object i18n {
         if (i18n != key) i18n else c
       }
     }
+  }
+
+  /**
+   * Get a list of country->name pairs for the given language.
+   */
+  def countryPairList(implicit lang: Lang): List[(String,String)] = {
+    val locale = lang.toLocale
+    java.util.Locale.getISOCountries.map { code =>
+      code -> WordUtils.capitalize(new java.util.Locale(locale.getLanguage, code).getDisplayCountry(locale))
+    }.toList.sortBy(_._2)
   }
 }

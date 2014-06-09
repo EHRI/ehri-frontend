@@ -1,0 +1,14 @@
+@(f: Form[models.GroupF], vf: Form[List[String]], users: Seq[(String,String)], groups: Seq[(String,String)], action: Call)(
+    implicit userOpt: Option[UserProfile], req: RequestHeader, globalConfig: global.GlobalConfig, lang: Lang, flash: Flash, token: play.filters.csrf.CSRF.Token)
+
+@layout.rightSidebar(Messages("group.create")) {
+	@helper.form(action = action, 'class -> "entity-form form-horizontal") {
+        @formHelpers.csrfToken()
+        @renderForm(None, f)
+        @memberForm(users, groups)
+
+        @formHelpers.submitButtonWithLogMessageInput(Messages("group.create.submit"))
+	}
+} {
+
+}

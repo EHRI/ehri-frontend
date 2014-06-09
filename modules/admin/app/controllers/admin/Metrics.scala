@@ -38,7 +38,7 @@ case class Metrics @Inject()(implicit globalConfig: global.GlobalConfig, searchD
     List(
       FieldFacetClass(
         key=IsadG.LANG_CODE,
-        name=Messages(IsadG.FIELD_PREFIX + "." + IsadG.LANG_CODE),
+        name=Messages("documentaryUnit." + IsadG.LANG_CODE),
         param="lang",
         render= (s: String) => Helpers.languageCodeToName(s)
       )
@@ -85,7 +85,7 @@ case class Metrics @Inject()(implicit globalConfig: global.GlobalConfig, searchD
       // Repositories by country
       FieldFacetClass(
         key="countryCode",
-        name=Messages("isdiah.countryCode"),
+        name=Messages("repository.countryCode"),
         param="country",
         render=Helpers.countryCodeToName
       )
@@ -134,9 +134,9 @@ case class Metrics @Inject()(implicit globalConfig: global.GlobalConfig, searchD
       // Historical agent type
       FieldFacetClass(
         key=models.Isaar.ENTITY_TYPE,
-        name=Messages(Isaar.FIELD_PREFIX + "." + Isaar.ENTITY_TYPE),
+        name=Messages("historicalAgent." + Isaar.ENTITY_TYPE),
         param="cpf",
-        render=s => Messages(Isaar.FIELD_PREFIX + "." + s)
+        render=s => Messages("historicalAgent." + s)
       )
     )
   }

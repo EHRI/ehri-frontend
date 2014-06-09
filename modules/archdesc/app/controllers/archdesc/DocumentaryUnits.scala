@@ -34,12 +34,13 @@ case class DocumentaryUnits @Inject()(implicit globalConfig: global.GlobalConfig
   import solr.facet._
 
   private val entityFacets: FacetBuilder = { implicit request =>
+    val prefix = EntityType.DocumentaryUnit.toString
     List(
       QueryFacetClass(
         key="childCount",
-        name=Messages("documentaryUnit.searchInside"),
+        name=Messages(prefix + ".searchInside"),
         param="items",
-        render=s => Messages("documentaryUnit." + s),
+        render=s => Messages(prefix + "." + s),
         facets=List(
           SolrQueryFacet(value = "false", solrValue = "0", name = Some("noChildItems")),
           SolrQueryFacet(value = "true", solrValue = "[1 TO *]", name = Some("hasChildItems"))
@@ -60,14 +61,14 @@ case class DocumentaryUnits @Inject()(implicit globalConfig: global.GlobalConfig
       ),
       FieldFacetClass(
         key=IsadG.LANG_CODE,
-        name=Messages(IsadG.FIELD_PREFIX + "." + IsadG.LANG_CODE),
+        name=Messages(prefix + "." + IsadG.LANG_CODE),
         param="lang",
         render=Helpers.languageCodeToName,
         display = FacetDisplay.Choice
       ),
       FieldFacetClass(
         key="holderName",
-        name=Messages("documentaryUnit.heldBy"),
+        name=Messages(prefix + ".heldBy"),
         param="holder",
         sort = FacetSort.Name,
         display = FacetDisplay.DropDown
@@ -91,7 +92,6 @@ case class DocumentaryUnits @Inject()(implicit globalConfig: global.GlobalConfig
   implicit val resource = DocumentaryUnit.Resource
 
   val formDefaults: Option[Configuration] = current.configuration.getConfig(EntityType.DocumentaryUnit)
-  val descDefaults: Option[Configuration] = formDefaults.flatMap(_.getConfig(IsadG.FIELD_PREFIX))
 
   val contentType = ContentTypes.DocumentaryUnit
   val targetContentTypes = Seq(ContentTypes.DocumentaryUnit)
@@ -165,14 +165,14 @@ case class DocumentaryUnits @Inject()(implicit globalConfig: global.GlobalConfig
       case Left(errorForm) => BadRequest(views.html.documentaryUnit.edit(
           olditem, errorForm, docRoutes.updatePost(id)))
       case Right(item) => Redirect(docRoutes.get(item.id))
-        .flashing("success" -> play.api.i18n.Messages("confirmations.itemWasUpdated", item.id))
+        .flashing("success" -> play.api.i18n.Messages("item.update.confirmation", item.id))
     }
   }
 
   def createDoc(id: String) = childCreateAction(id, contentType) { item => users => groups => implicit userOpt => implicit request =>
     Ok(views.html.documentaryUnit.create(
-      item, childForm, formDefaults, VisibilityForm.form, users, groups,
-      docRoutes.createDocPost(id)))
+      item, childForm, formDefaults, VisibilityForm.form.fill(item.accessors.map(_.id)),
+      users, groups, docRoutes.createDocPost(id)))
   }
 
   def createDocPost(id: String) = childCreatePostAction.async(id, childForm, contentType) {
@@ -184,14 +184,14 @@ case class DocumentaryUnits @Inject()(implicit globalConfig: global.GlobalConfig
           docRoutes.createDocPost(id)))
       }
       case Right(doc) => immediate(Redirect(docRoutes.get(doc.id))
-        .flashing("success" -> Messages("confirmations.itemWasCreated", doc.id)))
+        .flashing("success" -> Messages("item.create.confirmation", doc.id)))
     }
   }
 
   def createDescription(id: String) = withItemPermission[DocumentaryUnit](id, PermissionType.Update, contentType) {
       item => implicit userOpt => implicit request =>
     Ok(views.html.documentaryUnit.createDescription(item,
-        descriptionForm, descDefaults, docRoutes.createDescriptionPost(id)))
+        descriptionForm, formDefaults, docRoutes.createDescriptionPost(id)))
   }
 
   def createDescriptionPost(id: String) = createDescriptionPostAction(id, EntityType.DocumentaryUnitDescription, descriptionForm) {
@@ -199,10 +199,10 @@ case class DocumentaryUnits @Inject()(implicit globalConfig: global.GlobalConfig
     formOrItem match {
       case Left(errorForm) => {
         Ok(views.html.documentaryUnit.createDescription(item,
-          errorForm, descDefaults, docRoutes.createDescriptionPost(id)))
+          errorForm, formDefaults, docRoutes.createDescriptionPost(id)))
       }
       case Right(updated) => Redirect(docRoutes.get(item.id))
-        .flashing("success" -> Messages("confirmations.itemWasCreated", item.id))
+        .flashing("success" -> Messages("item.create.confirmation", item.id))
     }
   }
 
@@ -222,7 +222,7 @@ case class DocumentaryUnits @Inject()(implicit globalConfig: global.GlobalConfig
           errorForm, docRoutes.updateDescriptionPost(id, did)))
       }
       case Right(updated) => Redirect(docRoutes.get(item.id))
-        .flashing("success" -> Messages("confirmations.itemWasCreated", item.id))
+        .flashing("success" -> Messages("item.create.confirmation", item.id))
     }
   }
 
@@ -236,7 +236,7 @@ case class DocumentaryUnits @Inject()(implicit globalConfig: global.GlobalConfig
   def deleteDescriptionPost(id: String, did: String) = deleteDescriptionPostAction(id, EntityType.DocumentaryUnitDescription, did) {
       ok => implicit userOpt => implicit request =>
     Redirect(docRoutes.get(id))
-        .flashing("success" -> Messages("confirmations.itemWasDeleted", id))
+        .flashing("success" -> Messages("item.delete.confirmation", id))
   }
 
   def delete(id: String) = deleteAction(id) {
@@ -249,7 +249,7 @@ case class DocumentaryUnits @Inject()(implicit globalConfig: global.GlobalConfig
   def deletePost(id: String) = deletePostAction(id) {
       ok => implicit userOpt => implicit request =>
     Redirect(docRoutes.search())
-        .flashing("success" -> Messages("confirmations.itemWasDeleted", id))
+        .flashing("success" -> Messages("item.delete.confirmation", id))
   }
 
   def visibility(id: String) = visibilityAction(id) {
@@ -262,7 +262,7 @@ case class DocumentaryUnits @Inject()(implicit globalConfig: global.GlobalConfig
   def visibilityPost(id: String) = visibilityPostAction(id) {
       ok => implicit userOpt => implicit request =>
     Redirect(docRoutes.get(id))
-        .flashing("success" -> Messages("confirmations.itemWasUpdated", id))
+        .flashing("success" -> Messages("item.update.confirmation", id))
   }
 
   def managePermissions(id: String) = manageScopedPermissionsAction(id) {
@@ -293,7 +293,7 @@ case class DocumentaryUnits @Inject()(implicit globalConfig: global.GlobalConfig
   def setItemPermissionsPost(id: String, userType: EntityType.Value, userId: String) = setItemPermissionsPostAction(id, userType, userId) {
       bool => implicit userOpt => implicit request =>
     Redirect(docRoutes.managePermissions(id))
-        .flashing("success" -> Messages("confirmations.itemWasUpdated", id))
+        .flashing("success" -> Messages("item.update.confirmation", id))
   }
 
   def setScopedPermissions(id: String, userType: EntityType.Value, userId: String) = setScopedPermissionsAction(id, userType, userId) {
@@ -305,7 +305,7 @@ case class DocumentaryUnits @Inject()(implicit globalConfig: global.GlobalConfig
   def setScopedPermissionsPost(id: String, userType: EntityType.Value, userId: String) = setScopedPermissionsPostAction(id, userType, userId) {
       perms => implicit userOpt => implicit request =>
     Redirect(docRoutes.managePermissions(id))
-        .flashing("success" -> Messages("confirmations.itemWasUpdated", id))
+        .flashing("success" -> Messages("item.update.confirmation", id))
   }
 
   def linkTo(id: String) = withItemPermission[DocumentaryUnit](id, PermissionType.Annotate, contentType) {
@@ -335,7 +335,7 @@ case class DocumentaryUnits @Inject()(implicit globalConfig: global.GlobalConfig
       }
       case Right(annotation) => {
         Redirect(docRoutes.get(id))
-          .flashing("success" -> Messages("confirmations.itemWasUpdated", id))
+          .flashing("success" -> Messages("item.update.confirmation", id))
       }
     }
   }
@@ -355,7 +355,7 @@ case class DocumentaryUnits @Inject()(implicit globalConfig: global.GlobalConfig
       }
       case Right(annotations) => {
         Redirect(docRoutes.get(id))
-          .flashing("success" -> Messages("confirmations.itemWasUpdated", id))
+          .flashing("success" -> Messages("item.update.confirmation", id))
       }
     }
   }

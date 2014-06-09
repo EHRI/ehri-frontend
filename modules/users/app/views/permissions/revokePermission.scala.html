@@ -1,0 +1,14 @@
+@(item: Accessor, perm: PermissionGrant, action: Call, cancel: Call)(
+implicit userOpt: Option[UserProfile], request: RequestHeader, globalConfig: global.GlobalConfig, flash: Flash, token: play.filters.csrf.CSRF.Token)
+
+@layout.rightSidebar(Messages("item.delete", perm), breadcrumbs = common.breadcrumbs(List(item))) {
+
+    <p>@Messages("item.delete.info", perm)</p>
+    @helper.form(action = helper.CSRF(action), 'class -> "form-actions") {
+
+        @formHelpers.submitButtonWithLogMessageInput(Messages("item.delete.submit"), cancel = views.Helpers.linkToOpt(item))
+    }
+} {
+
+}
+

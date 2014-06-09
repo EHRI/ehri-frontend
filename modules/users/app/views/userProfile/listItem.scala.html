@@ -1,0 +1,33 @@
+@(item: UserProfile)(implicit req: RequestHeader, lang: Lang)
+
+@common.searchItemOutline(item.id) {
+    <a href="@controllers.users.routes.UserProfiles.get(item.id)">@item.toStringLang</a>
+    @item.account.map { acc =>
+        @if(acc.staff) {
+            <div class="label label-success">@Messages("userProfile.staff")</div>
+        }
+        <div class="label @{if(acc.active) "label-primary" else "label-warning"}">@Messages("userProfile.active." + acc.active.toString)</div>
+    }.getOrElse {
+        <div class="label label-default">@Messages("userProfile.missingAccount")</div>
+    }
+} {
+
+    <small>
+        <ul class="list-unstyled text-muted inline inline-separator">
+            @item.groups.distinct.map { acc =>
+                <li><a class="alt" href="@controllers.users.routes.Groups.get(acc.id)">@acc.toStringLang</a></li>
+            }
+            @item.model.location.filterNot(_.trim.isEmpty).map { loc =>
+                <li>@loc</li>
+            }
+        </ul>
+        <ul class="list-unstyled text-muted inline inline-separator">
+            @item.latestEvent.map { event =>
+            <li title="@common.eventTitle(event)">@Messages("systemEvent.lastUpdated", views.Helpers.relativeDate(event.model.timestamp))</li>
+            }
+        </ul>
+    </small>
+    @item.model.about.filterNot(_.trim.isEmpty).map { about =>
+        <p>@about</p>
+    }
+}

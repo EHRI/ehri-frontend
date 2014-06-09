@@ -7,12 +7,12 @@
         }
         <li><span class="text-muted">@views.Helpers.languageCodeToName(desc.languageCode)</span></li>
         @item.latestEvent.map { event =>
-            <li title="@event.time">@Messages("systemEvents.lastUpdated", views.Helpers.relativeDate(event.model.timestamp))</li>
+            <li title="@event.time">@Messages("systemEvent.lastUpdated", views.Helpers.relativeDate(event.model.timestamp))</li>
         }
     </ul>
 @if(item.broaderTerms.size > 0) {
     <ul class="list-unstyled inline inline-separator">
-        <li>@Messages("concept.broaderTerms")</li>
+        <li>@Messages("cvocConcept.broaderTerms")</li>
         @item.broaderTerms.map { bt =>
             <li>
                 <a href="@controllers.vocabs.routes.Concepts.get(bt.id)">

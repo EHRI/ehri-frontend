@@ -3,7 +3,7 @@
 @repository.itemPage(item) {
 
     @common.annotated(item, annotations) {
-        @defining(Isdiah.FIELD_PREFIX) { implicit fieldPrefix =>
+        @defining(EntityType.Repository.toString) { implicit fieldPrefix =>
             @item.model.identifier
             @item.model.priority.map { p =>
                 <span class="badge priority@p">

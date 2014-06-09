@@ -72,7 +72,7 @@ case class Countries @Inject()(implicit globalConfig: global.GlobalConfig, searc
         BadRequest(views.html.country.create(errorForm, accForm, users, groups, countryRoutes.createPost()))
       }
       case Right(item) => immediate(Redirect(countryRoutes.get(item.id))
-        .flashing("success" -> Messages("confirmations.itemWasCreated", item.id)))
+        .flashing("success" -> Messages("item.create.confirmation", item.id)))
     }
   }
 
@@ -86,7 +86,7 @@ case class Countries @Inject()(implicit globalConfig: global.GlobalConfig, searc
       case Left(errorForm) => BadRequest(views.html.country.edit(
           olditem, errorForm, countryRoutes.updatePost(id)))
       case Right(item) => Redirect(countryRoutes.get(item.id))
-        .flashing("success" -> play.api.i18n.Messages("confirmations.itemWasUpdated", item.id))
+        .flashing("success" -> play.api.i18n.Messages("item.update.confirmation", item.id))
     }
   }
 
@@ -100,7 +100,8 @@ case class Countries @Inject()(implicit globalConfig: global.GlobalConfig, searc
     idGenerator.getNextNumericIdentifier(EntityType.Repository).map { newid =>
       val form = childForm.bind(Map(Entity.IDENTIFIER -> newid))
       Ok(views.html.repository.create(
-        item, form, childFormDefaults, VisibilityForm.form, users, groups, countryRoutes.createRepositoryPost(id)))
+        item, form, childFormDefaults, VisibilityForm.form.fill(item.accessors.map(_.id)),
+        users, groups, countryRoutes.createRepositoryPost(id)))
     }
   }
 
@@ -112,7 +113,7 @@ case class Countries @Inject()(implicit globalConfig: global.GlobalConfig, searc
           errorForm, childFormDefaults, accForm, users, groups, countryRoutes.createRepositoryPost(id)))
       }
       case Right(citem) => immediate(Redirect(controllers.archdesc.routes.Repositories.get(citem.id))
-        .flashing("success" -> Messages("confirmations.itemWasCreated", citem.id)))
+        .flashing("success" -> Messages("item.create.confirmation", citem.id)))
     }
   }
 
@@ -124,7 +125,7 @@ case class Countries @Inject()(implicit globalConfig: global.GlobalConfig, searc
 
   def deletePost(id: String) = deletePostAction(id) { ok => implicit userOpt => implicit request =>
     Redirect(countryRoutes.search())
-        .flashing("success" -> Messages("confirmations.itemWasDeleted", id))
+        .flashing("success" -> Messages("item.delete.confirmation", id))
   }
 
   def visibility(id: String) = visibilityAction(id) { item => users => groups => implicit userOpt => implicit request =>
@@ -135,7 +136,7 @@ case class Countries @Inject()(implicit globalConfig: global.GlobalConfig, searc
 
   def visibilityPost(id: String) = visibilityPostAction(id) { ok => implicit userOpt => implicit request =>
     Redirect(countryRoutes.get(id))
-        .flashing("success" -> Messages("confirmations.itemWasUpdated", id))
+        .flashing("success" -> Messages("item.update.confirmation", id))
   }
 
   def managePermissions(id: String) = manageScopedPermissionsAction(id) {
@@ -165,7 +166,7 @@ case class Countries @Inject()(implicit globalConfig: global.GlobalConfig, searc
   def setItemPermissionsPost(id: String, userType: EntityType.Value, userId: String) = setItemPermissionsPostAction(id, userType, userId) {
       bool => implicit userOpt => implicit request =>
     Redirect(countryRoutes.managePermissions(id))
-        .flashing("success" -> Messages("confirmations.itemWasUpdated", id))
+        .flashing("success" -> Messages("item.update.confirmation", id))
   }
 
   def setScopedPermissions(id: String, userType: EntityType.Value, userId: String) = setScopedPermissionsAction(id, userType, userId) {
@@ -177,7 +178,7 @@ case class Countries @Inject()(implicit globalConfig: global.GlobalConfig, searc
   def setScopedPermissionsPost(id: String, userType: EntityType.Value, userId: String) = setScopedPermissionsPostAction(id, userType, userId) {
       perms => implicit userOpt => implicit request =>
     Redirect(countryRoutes.managePermissions(id))
-        .flashing("success" -> Messages("confirmations.itemWasUpdated", id))
+        .flashing("success" -> Messages("item.update.confirmation", id))
   }
 }
 

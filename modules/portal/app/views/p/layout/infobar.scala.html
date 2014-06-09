@@ -1,21 +1,14 @@
-@(breadcrumbs: Html)(content: Html)(controls: Html = Html(""))
+@(breadcrumbs: Html)(controls: Html = Html(""))
 
-<div class="info-bar">
-    @if(!breadcrumbs.body.trim.isEmpty) {
-        <ol class="collapsible breadcrumb">
-            @breadcrumbs
-            @if(!controls.body.isEmpty) {
-                @controls
-            }
-        </ol>
-    } else {
-        @if(!controls.body.isEmpty) {
-            <ol class="collapsible not breadcrumb">
-                @controls
+@if(!breadcrumbs.body.trim.isEmpty || !controls.body.trim.isEmpty) {
+    <nav class="info-bar" role="navigation">
+        <div class="collapse navbar-collapse">
+            <ol class="navbar-nav collapsible breadcrumb">
+                @breadcrumbs
             </ol>
-        }
-    }
-    @content
-    <div class="clearfix"></div>
-</div>
-
+            <div class="nav navbar-nav navbar-right">
+                @controls
+            </div>
+        </div>
+    </nav>
+}

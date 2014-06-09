@@ -1,22 +1,28 @@
+#
+# Basic strings
+#
+cancel=Cancel
+save=Save
+send=Send
+
 # General main page parts
-banner.heading=EHRI Dev Test
 banner.signin=Sign In
 banner.signout=Sign Out
-
+footer.footerText=This is a development version of the EHRI data entry interface.
 pages.home=Home
 pages.search=Search
-pages.admin=Admin
-pages.admin.title=EHRI Admin
-pages.admin.message=Administration actions - careful now!
-pages.admin.userManagement=Manage Users
-pages.admin.searchAdmin=Manage Search Index
 pages.more=More
+pages.admin=Admin Site
 
-forms.adminArea=Administration Area
+#
+# General form-related strings
+#
 forms.logMessagePlaceholder=Tell people what you''re doing (optional)...
 forms.search=Search
 
+#
 # Dates
+#
 dates.exact={0,number,#}
 dates.before=Before {0,number,#}
 dates.between=Between {0,number,#} and {1,number,#}
@@ -24,7 +30,6 @@ dates.after=After {0,number,#}
 dates.all=All
 
 datePeriod.type.creation=Creation
-
 datePeriod.precision=Precision
 datePeriod.precision.year=Year
 datePeriod.precision.quarter=Quarter
@@ -32,36 +37,34 @@ datePeriod.precision.month=Month
 datePeriod.precision.week=Week
 datePeriod.precision.day=Day
 
+#
 # Levels of detail...
+#
 lod=Level of Detail
 lod.low=Low
 lod.medium=Medium
 lod.high=High
 
-# Language code
+#
+# Additional Language codes
+#
 languageCode.mul=Multiple
 languageCode.lad=Ladino
 
-# Country code
+#
+# Additional/alternate ountry codes
+#
 countryCode.xk=Kosovo
 
-# Form errors.
-error.globalErrors=There were problems with that form:
-error.date=Date is incorrect or badly formatted
-error.badUrl=URL is incorrect or badly formatted
-error.required=Required
-error.emailExists=Email is either invalid or is already registered
+#
+# Form constraints and formats
 constraint.required=*
 format.boolean=On/Off
 
-# General messages
-error.unknownUser=Unknown user
-
+#
+# Search
+#
 search.type=Item Type
-search.filterItems=Filter Items
-search.sortItems=Sort Items
-search.sortReversed=(Descending)
-search.noItemsFound=No Items Found
 search.updateIndex=Refresh Search Index
 search.updateIndexFor=Refresh searching index for {0}
 search.clearEntireIndex=Clear Entire Index First
@@ -75,23 +78,18 @@ search.sort.lastUpdated.desc.title=Display most recently-changed results first
 search.sort.score.desc=Relevance
 search.sort.score.desc.title=Display results in order of search relevance
 search.identifier=Identifier
-search.numDescriptions={0,choice,0#No descriptions|1#|1<{0,number,integer} Descriptions}
 search.spellingSuggestion=Did you mean
 search.queryPlaceholder=Search...
-search.batchSize=Batch size for reindexing
 
-footer.footerText=This is a development version of the EHRI data entry interface.
-
+#
+# Login-related
+#
 login.login=Sign In
 login.logout=Sign Out
 login.openid=With OpenID
 login.existingAccount=With an existing account
 login.withPassword=Using a password
 login.changePassword=Change Password
-login.adminLoginMessage=Note: only EHRI partners are given passwords.\
-   To sign up normally, please use the ''Sign In'' link at the top of the page and login with your OpenID account.
-login.linkToPasswordLogin=Click here if you have been given a password.
-login.linkToOpenIDLogin=Click here to log in by OpenID.
 login.email=Email
 login.password=Password
 login.badUsernameOrPassword=Incorrect username or password
@@ -110,21 +108,36 @@ login.sendPasswordResetLink=Submit
 login.submitPasswordReset=Submit
 login.forgotPasswordLink=Click here if you have a password account but have forgotten or lost your password.
 login.passwordResetNowLogin=Your password has been reset. Now please log in using the new one.
+
+#
+# Miscellaneous errors
+#
+error.globalErrors=There were problems with that form:
+error.date=Date is incorrect or badly formatted
+error.badUrl=URL is incorrect or badly formatted
+error.required=Required
+error.emailExists=Email is either invalid or is already registered
+error.unknownUser=Unknown user
 error.emailNotFound=That email was not found on our system.
 error.badRecaptcha=The Recaptcha check (intended to ensure you are a human and not an automated spamming machine) did not\
     get the right response. Tip: you can keep refreshing the challenge text until you get something more readable.
-openid.openIdError=There was a problem logging you in with OpenID.\
+error.openId=There was a problem logging you in with OpenID.\
   This may because your provider does not support attribute exchange. The error messages was: {0}
-openid.openIdUrlError=There was no response from the given openid provider: ''{0}''.\
+error.openId.url=There was no response from the given openid provider: ''{0}''.\
   Please ensure the provider URL is correct.
+error.userEmailAlreadyRegistered=A user with that email is already registered: {0}
 
+#
 # Mail stuff
+#
 mail.forgotPasswordMailHeading=EHRI Password Reset
 mail.forgotPasswordMessage=To reset your password, please follow the link below. Note: this link can only be used \
   to reset your password once.
 mail.forgotPasswordFooter=
 
+#
 # Friendly names for content types
+#
 contentTypes.group=Groups
 contentTypes.userProfile=Users
 contentTypes.repository=Repositories
@@ -151,14 +164,6 @@ permissionTypes.grant=Grant
 permissionTypes.annotate=Annotate
 permissionTypes.owner=Owner
 permissionTypes.promote=Promote
-
-# Permission grant list paginations
-permissions.permissionGrants={2,choice,0#No permissions granted|1#One permission granted|1<Displaying grants {0,number,integer} to {1,number,integer} of {2,number,integer}}
-
-
-# general models.forms
-update.heading=Update {0}
-create.heading=Create New Item
 
 #
 # Custom page error reporting
@@ -192,12 +197,19 @@ pagination.displayingItems={2,choice,0#No items found|1#One item found|1<Display
 describedEntity.availableDescriptions=Available Descriptions
 describedEntity.editDescription=Edit Description
 describedEntity.deleteDescription=Delete Description
+describedEntity.deleteDescription.info=Are you sure you want to delete item description: "{0}"?  This action cannot be undone.
 describedEntity.noDescriptions=This item has not been provided with a description
 describedEntity.noData=No information given
 describedEntity.notGiven=Not Given
 describedEntity.additionalData=Additional Harvested Data (Click to display)
 describedEntity.additionalData.key=Key
 describedEntity.additionalData.value=Value
+describedEntity.createDescription=Add Description
+describedEntity.createDescription.item=Add Description to {0}
+describedEntity.createDescription.submit=Add Description
+describedEntity.updateDescription=Update Description
+describedEntity.updateDescription.submit=Update Description
+describedEntity.manageAccessPoints=Manage Access Points
 
 #
 # Annotations
@@ -206,177 +218,128 @@ annotation.bodyText=Text
 annotation.field=Field
 annotation.annotationType=Type
 annotation.emptyBodyText=[Missing Annotation Text]
+annotation.delete=Delete Annotation
+annotation.delete.submit=Delete Annotation
+annotation.create.item=Annotate {0}
+annotation.create=Annotate Item
 
 #
 # Linking
 #
 link.linkTo=Links to Other Items
+link.linkTo.submit=Link Items
 link.items=Linked Items
 link.itemLink=Item Link
 link.creator=Link Created By
 link.description=Link Body
 link.description.description=Some text that describes how these items are related.
-
-#
-# Admin
-#
-admin.createNewUser=Create New User
-admin.userEmailAlreadyRegistered=A user with that email is already registered: {0}
-
-#
-# Users
-#
-users.email=Email
-users.username=Username
-users.realname=Full Name
-users.password=Password
-users.passwordConfirm=Confirm Password
-users.groups=Group Membership
-users.search=Search Users
+link.create=Link to another item
+link.create.item=Link ''{0}'' to ''{1}''
+link.create.to.documentaryUnit=Link to a documentary unit
+link.create.to.historicalAgent=Link to an authority file
+link.create.to.virtualUnit=Link to Virtual Item
+link.create.to.cvocConcept=Link to a vocabulary term
+link.delete=Delete Link
 
 #
 # System Events
 #
-systemEvents.itemAtTime=Action at {0}
-systemEvents.lastUpdated=Updated {0}
-systemEvents.creation=Item created
-systemEvents.createDependent=Description added
-systemEvents.modification=Item modified
-systemEvents.modifyDependent=Description modified
-systemEvents.deletion=Item deleted
-systemEvents.deleteDependent=Description deleted
-systemEvents.link=Link created
-systemEvents.annotation=Annotation created
-systemEvents.setGlobalPermissions=Global permissions modified
-systemEvents.setItemPermissions=Item-level permissions modified
-systemEvents.setVisibility=Visibility modified
-systemEvents.addGroup=Member added to group
-systemEvents.removeGroup=Member removed from group
-systemEvents.ingest=Items imported
-systemEvents.promotion=Item Promoted
-systemEvents.demotion=Item Promotion Removed
-systemEvents.unknown=Unknown action
-systemEvents.scope=Scope
-systemEvents.subjects={1,choice,-1#No subjects|0#{0}|0<{0} and {1,number,integer} more...}
-systemEvents.newerEvents=More recent events
-systemEvents.olderEvents=Older events
-systemEvents.et=Event Type
-systemEvents.filter=Filter Events
-systemEvents.user=Users
+systemEvent.itemAtTime=Action at {0}
+systemEvent.lastUpdated=Updated {0}
+systemEvent.creation=Item created
+systemEvent.createDependent=Description added
+systemEvent.modification=Item modified
+systemEvent.modifyDependent=Description modified
+systemEvent.deletion=Item deleted
+systemEvent.deletion.noInfo=No item info available
+systemEvent.deletion.itemInfo=Item type {0} with id ''{1}''
+systemEvent.deleteDependent=Description deleted
+systemEvent.link=Link created
+systemEvent.annotation=Annotation created
+systemEvent.setGlobalPermissions=Global permissions modified
+systemEvent.setItemPermissions=Item-level permissions modified
+systemEvent.setVisibility=Visibility modified
+systemEvent.addGroup=Member added to group
+systemEvent.removeGroup=Member removed from group
+systemEvent.ingest=Items imported
+systemEvent.promotion=Item Promoted
+systemEvent.demotion=Item Promotion Removed
+systemEvent.unknown=Unknown action
+systemEvent.scope=Scope
+systemEvent.subjects=Subjects
+systemEvent.subjects.list={1,choice,-1#No subjects|0#{0}|0<{0} and {1,number,integer} more...}
+systemEvent.newerEvents=More recent events
+systemEvent.olderEvents=Older events
+systemEvent.et=Event Type
+systemEvent.filter=Filter Events
+systemEvent.user=Users
+systemEvent.list=System Events
+
+#
+# Generic actions
+#
+item.history=Item History
+item.history.item=Change history for item: {0}
+item.annotate.submit=Annotate Item
+item.export.json=Export JSON
+item.delete=Delete Item
+item.delete.info=Are you sure you want to delete item: "{0}"?  This action cannot be undone.
+item.delete.submit=Delete Item
+item.delete.confirmation=Item successfully deleted
+item.create=Create Item
+item.create.submit=Create
+item.create.confirmation=Item successfully created
+item.update=Edit Item
+item.update.confirmation=Item successfully updated
+item.promote=Promote Item Publicly
+item.promote.submit=Promote Item
+item.promote.confirmation=Item promoted
+item.demote=Remove Item Promotion
+item.demote.submit=Remove Promotion
+item.demote.confirmation=Item promotion removed
 
 
-# Actions
-actions=Actions
-actions.edit=Edit
-actions.delete=Delete
-actions.history=History
-actions.addNew=Add New
-actions.createDescription=Add Description
-actions.updateDescription=Update Description
-actions.listSystemEvents=System Events
-actions.listUserProfiles=Users
-actions.listGroups=Groups
-actions.createUserProfile=Create User
-actions.createGroup=Create Group
-actions.updateUserProfile=Update Profile
-actions.updateGroup=Update Group
-actions.linkTo=Link to another item
-actions.linkToDocumentaryUnit=Link to a documentary unit
-actions.linkToHistoricalAgent=Link to an authority file
-
-actions.backToList=Back to List
-actions.viewProfile=View Profile
-actions.exportJson=Export JSON
-actions.deleteItem=Delete Item
-actions.deleteAnnotation=Delete Annotation
-actions.updateItem=Edit Item
-actions.createNewItem=Create New Item
-actions.setVisibility=Set Visibility
-actions.promote=Promote Item Publicly
-actions.demote=Remove Item Promotion
-actions.modifyPermissions=Modify Permissions
-actions.listPermissionGrants=Show Per-Item Permissions
-actions.createNewUser=Create New User Profile
-actions.createNewGroup=Create New Group
-actions.modifyGroups=Add/Remove Parent Groups
-actions.manageGroupsFor=Manage Groups: {0}
-actions.historyForItem=Change history for item: {0}
-actions.showHistory=Item History
-actions.addNewGroup=Add New Group
-actions.addUserToGroup=Add {0} to group {1}?
-actions.removeUserFromGroup=Remove {0} from group {1}?
-actions.updateGlobalPermissions=Update Global Permissions
-actions.manageScopedPermissions=Scoped Permissions
-actions.manageScopedPermissionsText=Scoped permissions allow you to grant permissions for users or groups to perform\
+#
+# Permissions
+#
+permissions.manage.item=Manage Permissions for {0}
+permissions.manage=Manage Permissions
+permissions.global.update=Update Global Permissions
+permissions.global.update.submit=Update Global Permissions
+permissions.global.manage=Manage Global Permissions
+permissions.global.manage.submit=Update Permissions
+permissions.scopeLevel.manage=Scoped Permissions
+permissions.scopeLevel.manage.info=Scoped permissions allow you to grant permissions for users or groups to perform\
   actions on all items ''within'' another item (the scope), i.e. all documentary units within a given repository.
-actions.manageScopedPermissionsForAccessor=Scoped Permissions for {0}
-actions.manageScopedPermissionsForItem=Scoped Permissions for {0}
-actions.manageItemPermissions=Item-level Permissions
-actions.manageItemPermissionsText=Item-level permissions allow you to grant permissions for users or groups to perform\
+permissions.scopeLevel.manage.item=Scoped Permissions for {0}
+permissions.accessor.scopeLevel.item=Scoped Permissions for {0}
+permissions.itemLevel.show=Show Item-level Permissions
+permissions.itemLevel.manage=Item-level Permissions
+permissions.itemLevel.manage.item=Item-level Permissions for {0}
+permissions.itemLevel.manage.info=Item-level permissions allow you to grant permissions for users or groups to perform\
   actions on a single item, i.e. updating a repository''s descriptive information.
-actions.manageItemPermissionsForAccessor=Item-level Permissions for {0}
-actions.manageItemPermissionsForItem=Item-level Permissions for {0}
-actions.grantPermissionsInScope=Manage Permissions in scope {0} for {1}
-actions.grantPermissionsOnItem=Manage Permissions on {0} for {1}
-actions.updatePermissions=Update Permissions
-actions.manageGlobalPermissions=Manage Global Permissions
-actions.managePermissions=Manage Permissions
-actions.cancel=Cancel
-actions.subjectsForAction=Subjects
-actions.annotate=Annotate {0}
-actions.linkAnnotate=Link ''{0}'' to ''{1}''
-actions.annotateThisItem=Annotate Item
-actions.manageGroups=Manage Groups
-actions.manageAccessPoints=Manage Access Points
-actions.revokePermission=Revoke
-actions.addNewConceptDescription=Add Concept Description
-actions.deleteConceptDescription=Delete Description
-actions.deleteLink=Delete Link
-actions.save=Save
-actions.send=Send
-
-# Submit buttons
-submitButton.signup=Submit
-submitButton.createUserProfile=Create User
-submitButton.createGroup=Create Group
-submitButton.updateUserProfile=Update Profile
-submitButton.updateGroup=Update Group
-submitButton.deleteItem=Delete Item
-submitButton.setVisibility=Set Visibility
-submitButton.promote=Promote Item
-submitButton.demote=Remove Promotion
-submitButton.addItemToGroup=Add Item to Group
-submitButton.removeItemFromGroup=Remove Item from Group
-submitButton.annotate=Annotate Item
-submitButton.linkAnnotate=Link Items
-submitButton.updateGlobalPermissions=Update Global Permissions
-submitButton.createUser=Create User
-submitButton.loginWithPassword=Sign In
-submitButton.loginWithOpenid=Sign In With OpenID
-submitButton.changePassword=Change Password
-submitButton.createDescription=Create Description
-submitButton.updateDescription=Update Description
-
-deleting.deleteConfirmationMessage=Are you sure you want to delete item: "{0}"?  This action cannot be undone.
-deleting.deleteDescriptionConfirmationMessage=Are you sure you want to delete item description: "{0}"?  This action cannot be undone.
-
-accessor.notInAnyGroups=This user does not belong to any groups.
-accessor.currentGroups=Current Groups
-accessor.removeGroup=Remove
-accessor.removeUserFromGroup=Remove {0} from group {1}?
-accessor.itemCannotBeAddedToAdditionalGroups=This {0} cannot be added to additional groups
-
+permissions.accessor.itemLevel.item=Item-level Permissions for {0}
+permissions.scopeLevel.grant.item=Manage Permissions in scope {0} for {1}
+permissions.grant.item=Manage Permissions on {0} for {1}
+permissions.grant.submit=Update Permissions
+permissions.update=Update Permissions
+permissions.update.submit=Update Permissions
+permissions.permissionGrants={2,choice,0#No permissions granted|1#One permission granted|1<Displaying grants {0,number,integer} to {1,number,integer} of {2,number,integer}}
 permissions.itemPermissionsForItem=Item-level Permissions for {0}
 permissions.scopedPermissionsForItem=Scoped Permissions for {0}
 permissions.inheritedFrom=Inherited From: {0}
+permissions.revoke=Revoke
 
-confirmations.profileUpdated=Profile successfully updated
-confirmations.itemWasCreated=Item successfully created
-confirmations.itemWasUpdated=Item successfully updated
-confirmations.itemWasDeleted=Item successfully deleted
-confirmations.itemWasPromoted=Item promoted
-confirmations.itemWasDemoted=Item promotion removed
+#
+# Actions
+#
+actions=Actions
 
+#
+# Item visibility
+#
+visibility.update=Set Visibility
+visibility.update.submit=Submit
 visibility.visibleToEveryone=Unrestricted visibility
 visibility.visibleToEveryoneMessage=This item currently has no visibility restrictions and is therefore accessible to everyone.
 visibility.restrictedVisibility=Restricted Visibility
@@ -390,6 +353,7 @@ visibility.promotedBy=Promoted By
 #
 # User Profile Field definitions
 #
+profile.show=View Profile
 profile.account=Account
 profile.identifier=Identifier
 profile.identifier.description=Your user name
@@ -407,6 +371,10 @@ profile.noBioGiven=No biography given
 profile.groupsBelongedTo=Groups
 profile.notInAnyGroups=None
 profile.notSupplied=Not supplied
+profile.update=Update Profile
+profile.update.submit=Update Profile
+profile.update.confirmation=Profile successfully updated
+
 
 #
 # Form misc
@@ -449,26 +417,27 @@ permissionGrant.targets=Targets
 permissionGrant.scope=Scope
 permissionGrant.grantedBy=Granted By
 
-# Access Points
-accessPoints.addNew=Add New
+#
+# Access points
+#
+accessPoint.create=Add New
 accessPoints.newAccessPoint=New Access Point
-accessPoints.browse=Search
-accessPoints.name=Name of link target...
-accessPoints.description=Optional description...
-accessPoints.type.creatorAccess=Creator(s)
-accessPoints.type.personAccess=People
-accessPoints.type.familyAccess=Families
-accessPoints.type.corporateBodyAccess=Corporate Bodies
-accessPoints.type.placeAccess=Places
-accessPoints.type.subjectAccess=Subjects
-accessPoints.type.otherAccess=Miscellaneous
-
-
+accessPoint.browse=Search
+accessPoint.name=Name of link target...
+accessPoint.description=Optional description...
+accessPoint.type.creatorAccess=Creator(s)
+accessPoint.type.personAccess=People
+accessPoint.type.familyAccess=Families
+accessPoint.type.corporateBodyAccess=Corporate Bodies
+accessPoint.type.placeAccess=Places
+accessPoint.type.subjectAccess=Subjects
+accessPoint.type.otherAccess=Miscellaneous
 # References not on this item, but from another item's access points
-accessPoints.externalReferences=External references to this item
+accessPoint.externalReferences=External references to this item
 
-
+#
 # Metrics
+#
 metrics.languageOfMaterial=Archival Descriptions - Language of Material
 metrics.holdingRepository=Archival Descriptions - Holding Repository
 metrics.repositoryCountries=Repositories by Country
@@ -476,6 +445,9 @@ metrics.agentTypes=Authority Files by Entity Type
 metrics.restrictedMaterial=Restricted Material
 
 
+#
+# Miscellaneous UI
+#
 dataPolicy.header=EHRI Data Policy
 dataPolicy.notice1=This database might contain Sensitive Personal Data which according to Dutch privacy \
  law can be used for research purposes only (article 16 Dutch Data Protection Act ''Wet \

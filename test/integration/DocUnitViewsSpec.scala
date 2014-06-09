@@ -101,7 +101,7 @@ class DocUnitViewsSpec extends Neo4jRunnerSpec(classOf[DocUnitViewsSpec]) {
     }
 
     "show correct default values in the form when creating new items" in new FakeApp(
-      Map("documentaryUnit.isadg.rulesAndConventions" -> "SOME RANDOM VALUE")) {
+      Map("documentaryUnit.rulesAndConventions" -> "SOME RANDOM VALUE")) {
       val form = route(fakeLoggedInHtmlRequest(privilegedUser, GET,
         controllers.archdesc.routes.Repositories.createDoc("r1").url)).get
       status(form) must equalTo(OK)
@@ -109,7 +109,7 @@ class DocUnitViewsSpec extends Neo4jRunnerSpec(classOf[DocUnitViewsSpec]) {
     }
 
     "NOT show default values in the form when editing items" in new FakeApp(
-      Map("documentaryUnit.isadg.rulesAndConventions" -> "SOME RANDOM VALUE")) {
+      Map("documentaryUnit.rulesAndConventions" -> "SOME RANDOM VALUE")) {
       val form = route(fakeLoggedInHtmlRequest(privilegedUser, GET,
         controllers.archdesc.routes.DocumentaryUnits.update("c1").url)).get
       status(form) must equalTo(OK)

@@ -48,7 +48,8 @@ trait OpenIDLoginHandler {
     def async(handler: Call)(f: Form[String] => Request[AnyContent] => Future[SimpleResult]): Action[AnyContent] = {
       Action.async { implicit request =>
         try {
-          openidForm.bindFromRequest.fold(
+          val boundForm: Form[String] = openidForm.bindFromRequest
+          boundForm.fold(
             error => {
               Logger.info("bad request " + error.toString)
               f(error)(request)
@@ -61,20 +62,20 @@ trait OpenIDLoginHandler {
                 .recoverWith {
                 case t: ConnectException => {
                   Logger.warn("OpenID Login connect exception: {}", t)
-                  f(openidForm.fill(openidUrl)
-                    .withGlobalError(Messages("openid.openIdUrlError", openidUrl)))(request)
+                  f(boundForm
+                    .withGlobalError(Messages("error.openId.url", openidUrl)))(request)
                 }
                 case t => {
                   Logger.warn("OpenID Login argument exception: {}", t)
-                  f(openidForm.fill(openidUrl)
-                    .withGlobalError(Messages("openid.openIdUrlError", openidUrl)))(request)
+                  f(boundForm
+                    .withGlobalError(Messages("error.openId.url", openidUrl)))(request)
                 }
               }
             }
           )
         } catch {
           case _: Throwable => f(openidForm
-            .withGlobalError(Messages("openid.openIdUrlError")))(request)
+            .withGlobalError(Messages("error.openId.url")))(request)
         }
       }
     }
@@ -118,8 +119,8 @@ trait OpenIDLoginHandler {
             }
           }
         } recoverWith {
-          case t => f(Left(openidForm.withGlobalError("openid.openIdError", t.getMessage)))(request)
-            .map(_.flashing("error" -> Messages("openid.openIdError", t.getMessage)))
+          case t => f(Left(openidForm.withGlobalError("error.openId", t.getMessage)))(request)
+            .map(_.flashing("error" -> Messages("error.openId", t.getMessage)))
         }
       }
     }
@@ -137,10 +138,10 @@ trait OpenIDLoginHandler {
       = attrs.get("email").orElse(attrs.get("axemail"))
 
   private def extractName(attrs: Map[String,String]): Option[String] = {
-    val fullName = (for {
+    val fullName = for {
       fn <- attrs.get("firstname")
       ln <- attrs.get("lastname")
-    } yield s"$fn $ln")
+    } yield s"$fn $ln"
     attrs.get("name").orElse(attrs.get("fullname")).orElse(fullName)
   }
 }

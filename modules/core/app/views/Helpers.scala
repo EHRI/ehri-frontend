@@ -8,6 +8,8 @@ import org.apache.commons.lang3.text.WordUtils
 import org.apache.commons.lang3.StringUtils
 import models._
 import org.pegdown.{Extensions, PegDownProcessor}
+import models.base.AnyModel
+import play.api.mvc.Call
 
 
 package object Helpers {
@@ -91,15 +93,8 @@ package object Helpers {
   /**
    * Get a list of code->name pairs for the given language.
    */
-  def languagePairList(implicit lang: Lang): List[(String,String)] = {
-    val locale = lang.toLocale
-    val localeLangs = utils.i18n.lang3to2lookup.map { case (c3,c2) =>
-      c3 -> WordUtils.capitalize(new java.util.Locale(c2).getDisplayLanguage(locale))
-    }.toList
-
-    (localeLangs ::: utils.Data
-      .additionalLanguages.map(l => l -> Messages("languageCode." + l))).sortBy(_._2)
-  }
+  def languagePairList(implicit lang: Lang): List[(String,String)] =
+    utils.i18n.languagePairList(lang)
 
   /**
    * Get a list of ISO15924 script.
@@ -107,19 +102,14 @@ package object Helpers {
    * NB: The implicit lang parameter is currently ignored because
    * the script data is not localised.
    */
-  def scriptPairList(implicit lang: Lang): List[(String,String)] = {
-    utils.Data.scripts.sortBy(_._2)
-  }
+  def scriptPairList(implicit lang: Lang): List[(String,String)] =
+    utils.i18n.scriptPairList(lang)
 
   /**
    * Get a list of country->name pairs for the given language.
    */
-  def countryPairList(implicit lang: Lang): List[(String,String)] = {
-    val locale = lang.toLocale
-    java.util.Locale.getISOCountries.map { code =>
-      code -> WordUtils.capitalize(new java.util.Locale(locale.getLanguage, code).getDisplayCountry(locale))
-    }.toList.sortBy(_._2)
-  }
+  def countryPairList(implicit lang: Lang): List[(String,String)] =
+    utils.i18n.countryPairList(lang)
 
   /**
    * Get a language name for a given code.
@@ -147,5 +137,13 @@ package object Helpers {
    */
   def fieldValues(field: play.api.data.Field): List[String] = {
     0.until(if (field.indexes.isEmpty) 0 else field.indexes.max + 1).flatMap(i => field("[" + i + "]").value).toList
+  }
+
+  def linkTo(item: AnyModel)(implicit globalConfig: global.GlobalConfig): Call = {
+    globalConfig.routeRegistry.urlFor(item)
+  }
+
+  def linkToOpt(item: AnyModel)(implicit globalConfig: global.GlobalConfig): Option[Call] = {
+    globalConfig.routeRegistry.optionalUrlFor(item)
   }
 }

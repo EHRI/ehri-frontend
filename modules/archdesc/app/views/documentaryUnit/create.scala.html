@@ -19,14 +19,14 @@
     }
 }
 
-@layout.rightSidebar(Messages("actions.createDocumentaryUnit"), breadcrumbs = breadcrumbs, scripts = formHelpers.dateJs()) {
+@layout.rightSidebar(Messages("documentaryUnit.create"), breadcrumbs = breadcrumbs, scripts = formHelpers.dateJs()) {
 
 	@helper.form(action = action, 'class -> "entity-form form-horizontal") {
         @formHelpers.csrfToken()
 		@documentaryUnit.renderForm(f, defaults)
 
         @permissions.renderVisibilityForm(vf, users, groups)
-		@formHelpers.submitButtonWithLogMessageInput(Messages("submitButton.createDocumentaryUnit"), cancel = Some(globalConfig.routeRegistry.urlFor(item)))
+		@formHelpers.submitButtonWithLogMessageInput(Messages("documentaryUnit.create.submit"), cancel = views.Helpers.linkToOpt(item))
 	}
 } {
    @documentaryUnit.formNav()

@@ -78,11 +78,11 @@ case class Application @Inject()(implicit globalConfig: global.GlobalConfig, bac
         |  },
         |}
       """.stripMargin.format(
-        Locale.getISOLanguages.map{
-          l => l + ": \"" + views.Helpers.languageCodeToName(l) + "\""
+        utils.i18n.languagePairList.map{ case (code, name) =>
+          code + ": \"" + name + "\""
         }.mkString(",\n  "),
-        Locale.getISOCountries.map{ cn =>
-          cn.toLowerCase + ": \"" + views.Helpers.countryCodeToName(cn) + "\""
+        utils.i18n.countryPairList.map{ case (code, name) =>
+          code.toLowerCase + ": \"" + name + "\""
         }.mkString(",\n  ")
       )
 

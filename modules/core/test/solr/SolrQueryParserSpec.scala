@@ -6,6 +6,7 @@ import solr.facet.FieldFacetClass
 import models.IsadG
 import play.api.i18n.Messages
 import views.Helpers
+import defines.EntityType
 
 
 /**
@@ -35,7 +36,7 @@ class SolrQueryParserSpec extends PlaySpecification {
       val allFacets = List(
         FieldFacetClass(
           key=IsadG.LANG_CODE,
-          name=Messages(IsadG.FIELD_PREFIX + "." + IsadG.LANG_CODE),
+          name=Messages("documentaryUnit." + IsadG.LANG_CODE),
           param="lang",
           render=Helpers.languageCodeToName
         )
@@ -76,7 +77,7 @@ class SolrQueryParserSpec extends PlaySpecification {
       val allFacets = List(
         FieldFacetClass(
           key=IsadG.LANG_CODE,
-          name=Messages(IsadG.FIELD_PREFIX + "." + IsadG.LANG_CODE),
+          name=Messages("documentaryUnit." + IsadG.LANG_CODE),
           param="lang",
           render=Helpers.languageCodeToName
         )

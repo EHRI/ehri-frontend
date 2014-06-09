@@ -57,7 +57,8 @@ trait UserPasswordLoginHandler {
 
     def async(f: Either[Form[(String,String)], Account] => Request[AnyContent] => Future[SimpleResult]): Action[AnyContent] = {
       Action.async { implicit request =>
-        passwordLoginForm.bindFromRequest.fold(
+        val boundForm = passwordLoginForm.bindFromRequest
+        boundForm.fold(
           errorForm => f(Left(errorForm))(request),
           data => {
             val (email, pw) = data
@@ -65,7 +66,7 @@ trait UserPasswordLoginHandler {
               Logger.logger.info("User '{}' logged in via password", account.id)
               f(Right(account))(request)
             } getOrElse {
-              f(Left(passwordLoginForm.withGlobalError("login.badUsernameOrPassword")))(request)
+              f(Left(boundForm.withGlobalError("login.badUsernameOrPassword")))(request)
             }
           }
         )

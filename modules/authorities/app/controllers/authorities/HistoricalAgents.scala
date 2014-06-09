@@ -1,7 +1,7 @@
 package controllers.authorities
 
 import controllers.generic._
-import _root_.forms.VisibilityForm
+import forms.VisibilityForm
 import models._
 import play.api.i18n.Messages
 import defines.{EntityType, ContentTypes, PermissionType}
@@ -31,9 +31,9 @@ case class HistoricalAgents @Inject()(implicit globalConfig: global.GlobalConfig
     List(
       FieldFacetClass(
         key=models.Isaar.ENTITY_TYPE,
-        name=Messages(Isaar.FIELD_PREFIX + "." + Isaar.ENTITY_TYPE),
+        name=Messages("historicalAgent." + Isaar.ENTITY_TYPE),
         param="cpf",
-        render=s => Messages(Isaar.FIELD_PREFIX + "." + s)
+        render=s => Messages("historicalAgent." + s)
       ),
       FieldFacetClass(
         key=SolrConstants.HOLDER_NAME,
@@ -46,6 +46,7 @@ case class HistoricalAgents @Inject()(implicit globalConfig: global.GlobalConfig
 
   // Search params
   val DEFAULT_SEARCH_PARAMS = SearchParams(entities = List(resource.entityType))
+
 
 
   def search = searchAction[HistoricalAgent](defaultParams = Some(DEFAULT_SEARCH_PARAMS), entityFacets = entityFacets) {
@@ -77,7 +78,7 @@ case class HistoricalAgents @Inject()(implicit globalConfig: global.GlobalConfig
       case Left(errorForm) =>
         BadRequest(views.html.historicalAgent.edit(item, errorForm, histRoutes.updatePost(id)))
       case Right(updated) => Redirect(histRoutes.get(updated.id))
-        .flashing("success" -> Messages("confirmations.itemWasUpdated", updated.id))
+        .flashing("success" -> Messages("item.update.confirmation", updated.id))
     }
   }
 
@@ -89,7 +90,7 @@ case class HistoricalAgents @Inject()(implicit globalConfig: global.GlobalConfig
 
   def deletePost(id: String) = deletePostAction(id) { ok => implicit userOpt => implicit request =>
     Redirect(histRoutes.search())
-        .flashing("success" -> Messages("confirmations.itemWasDeleted", id))
+        .flashing("success" -> Messages("item.delete.confirmation", id))
   }
 
   def visibility(id: String) = visibilityAction(id) { item => users => groups => implicit userOpt => implicit request =>
@@ -101,7 +102,7 @@ case class HistoricalAgents @Inject()(implicit globalConfig: global.GlobalConfig
   def visibilityPost(id: String) = visibilityPostAction(id) {
       ok => implicit userOpt => implicit request =>
     Redirect(histRoutes.get(id))
-        .flashing("success" -> Messages("confirmations.itemWasUpdated", id))
+        .flashing("success" -> Messages("item.update.confirmation", id))
   }
 
   def managePermissions(id: String) = manageItemPermissionsAction(id) {
@@ -125,7 +126,7 @@ case class HistoricalAgents @Inject()(implicit globalConfig: global.GlobalConfig
   def setItemPermissionsPost(id: String, userType: EntityType.Value, userId: String) = setItemPermissionsPostAction(id, userType, userId) {
       bool => implicit userOpt => implicit request =>
     Redirect(histRoutes.managePermissions(id))
-        .flashing("success" -> Messages("confirmations.itemWasUpdated", id))
+        .flashing("success" -> Messages("item.update.confirmation", id))
   }
 
   def linkTo(id: String) = withItemPermission[HistoricalAgent](id, PermissionType.Annotate, contentType) {
@@ -155,7 +156,7 @@ case class HistoricalAgents @Inject()(implicit globalConfig: global.GlobalConfig
         }
         case Right(annotation) => {
           Redirect(histRoutes.get(id))
-            .flashing("success" -> Messages("confirmations.itemWasUpdated", id))
+            .flashing("success" -> Messages("item.update.confirmation", id))
         }
       }
   }

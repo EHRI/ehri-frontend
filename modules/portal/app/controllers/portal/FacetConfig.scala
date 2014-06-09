@@ -11,6 +11,7 @@ import utils.DateFacetUtils
 import solr.facet.SolrQueryFacet
 import solr.facet.FieldFacetClass
 import solr.facet.QueryFacetClass
+import defines.EntityType
 
 
 /**
@@ -34,7 +35,7 @@ trait FacetConfig extends Search {
       solrQuery = formatAsSolrQuery(dateString)
     } yield QueryFacetClass(
       key = "dateRange",
-      name = Messages(IsadG.FIELD_PREFIX + "." + DATE_PARAM),
+      name = Messages("documentaryUnit." + DATE_PARAM),
       param = DATE_PARAM,
       sort = FacetSort.Fixed,
       facets=List(
@@ -52,7 +53,7 @@ trait FacetConfig extends Search {
     List(
       FieldFacetClass(
         key = IsadG.LANG_CODE,
-        name = Messages(IsadG.FIELD_PREFIX + "." + IsadG.LANG_CODE),
+        name = Messages("documentaryUnit." + IsadG.LANG_CODE),
         param = "lang",
         render = (s: String) => Helpers.languageCodeToName(s),
         display = FacetDisplay.Choice,
@@ -81,14 +82,14 @@ trait FacetConfig extends Search {
       ),
       FieldFacetClass(
         key=Isaar.ENTITY_TYPE,
-        name=Messages(Isaar.FIELD_PREFIX + "." + Isaar.ENTITY_TYPE),
+        name=Messages("historicalAgent." + Isaar.ENTITY_TYPE),
         param="cpf",
-        render=s => Messages(Isaar.FIELD_PREFIX + "." + s),
+        render=s => Messages("historicalAgent." + s),
         display = FacetDisplay.Choice
       ),
       FieldFacetClass(
         key="countryCode",
-        name=Messages("isdiah.countryCode"),
+        name=Messages("repository.countryCode"),
         param="country",
         render= (s: String) => Helpers.countryCodeToName(s),
         sort = FacetSort.Name,
@@ -109,9 +110,9 @@ trait FacetConfig extends Search {
     List(
       FieldFacetClass(
         key=Isaar.ENTITY_TYPE,
-        name=Messages(Isaar.FIELD_PREFIX + "." + Isaar.ENTITY_TYPE),
+        name=Messages("historicalAgent." + Isaar.ENTITY_TYPE),
         param="cpf",
-        render=s => Messages(Isaar.FIELD_PREFIX + "." + s),
+        render=s => Messages("historicalAgent." + s),
         display = FacetDisplay.Choice
       )
     )
@@ -148,7 +149,7 @@ trait FacetConfig extends Search {
       ),
       FieldFacetClass(
         key="countryCode",
-        name=Messages("isdiah.countryCode"),
+        name=Messages("repository.countryCode"),
         param="country",
         render= (s: String) => Helpers.countryCodeToName(s),
         sort = FacetSort.Name,
@@ -162,7 +163,7 @@ trait FacetConfig extends Search {
     List(
       FieldFacetClass(
         key = IsadG.LANG_CODE,
-        name = Messages(IsadG.FIELD_PREFIX + "." + IsadG.LANG_CODE),
+        name = Messages("documentaryUnit." + IsadG.LANG_CODE),
         param = "lang",
         render = (s: String) => Helpers.languageCodeToName(s),
         display = FacetDisplay.Choice,
@@ -226,7 +227,7 @@ trait FacetConfig extends Search {
     List(
       FieldFacetClass(
         key="holderName",
-        name=Messages("concept.inVocabulary"),
+        name=Messages("cvocConcept.inVocabulary"),
         param="vocab",
         render=s => s,
         display = FacetDisplay.Choice

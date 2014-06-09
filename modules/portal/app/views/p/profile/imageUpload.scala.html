@@ -3,11 +3,10 @@
 @p.layout.portalLayout(Messages("portal.profile")) {
     @p.layout.infobar {
     } {
-        <h1>@Messages("portal.profile")</h1>
-    } {
     }
 
     @p.layout.mainContent {
+        <h1>@Messages("portal.profile")</h1>
         <h3>@Messages("portal.profile.updateProfileImage")</h3>
         @imageUploadForm(f, controllers.portal.routes.Profile.updateProfileImagePost)
     }
