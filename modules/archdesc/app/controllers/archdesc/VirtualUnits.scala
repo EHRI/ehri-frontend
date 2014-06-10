@@ -1,9 +1,9 @@
 package controllers.archdesc
 
-import _root_.forms.VisibilityForm
+import play.api.libs.concurrent.Execution.Implicits._
+import forms.VisibilityForm
 import models._
 import controllers.generic._
-import play.api.mvc._
 import play.api.i18n.Messages
 import defines.{ContentTypes,EntityType,PermissionType}
 import views.Helpers
@@ -77,42 +77,43 @@ case class VirtualUnits @Inject()(implicit globalConfig: global.GlobalConfig, se
   val childForm = models.VirtualUnit.form
   val descriptionForm = models.DocumentaryUnitDescription.form
 
-  val DEFAULT_SEARCH_PARAMS = SearchParams(entities=List(resource.entityType))
-
   private val vuRoutes = controllers.archdesc.routes.VirtualUnits
 
-  def search = Action.async { request =>
+  def search = userProfileAction.async { implicit userOpt => implicit request =>
   // What filters we gonna use? How about, only list stuff here that
   // has no parent items - UNLESS there's a query, in which case we're
   // going to peer INSIDE items... dodgy logic, maybe...
 
     val filters = if (request.getQueryString(SearchParams.QUERY).isEmpty)
       Map(SolrConstants.TOP_LEVEL -> true) else Map.empty[String,Any]
-
-    searchAction[VirtualUnit](filters, defaultParams = Some(DEFAULT_SEARCH_PARAMS),
-      entityFacets = entityFacets) {
-      page => params => facets => implicit userOpt => implicit request =>
-        Ok(views.html.virtualUnit.search(page, params, facets, vuRoutes.search()))
-    }.apply(request)
+    find[VirtualUnit](
+      filters = filters,
+      entities = List(EntityType.VirtualUnit),
+      facetBuilder = entityFacets
+    ).map { result =>
+      Ok(views.html.virtualUnit.search(result.page, result.params, result.facets, vuRoutes.search()))
+    }
   }
 
   def searchChildren(id: String) = itemPermissionAction.async[VirtualUnit](contentType, id) {
-    item => implicit userOpt => implicit request =>
-
-      searchAction[VirtualUnit](Map("parentId" -> item.id), entityFacets = entityFacets) {
-        page => params => facets => implicit userOpt => implicit request =>
-          Ok(views.html.virtualUnit.search(page, params, facets, vuRoutes.search()))
-      }.apply(request)
+      item => implicit userOpt => implicit request =>
+    find[VirtualUnit](
+      filters = Map(SolrConstants.PARENT_ID -> item.id),
+      facetBuilder = entityFacets
+    ).map { result =>
+      Ok(views.html.virtualUnit.search(result.page, result.params, result.facets, vuRoutes.search()))
+    }
   }
 
   def get(id: String) = getAction.async(id) { item => annotations => links => implicit userOpt => implicit request =>
-    searchAction[VirtualUnit](Map("parentId" -> item.id),
-      defaultParams = Some(SearchParams(entities = List(EntityType.VirtualUnit))),
-      entityFacets = entityFacets) {
-      page => params => facets => _ => _ =>
-        Ok(views.html.virtualUnit.show(item, page, params, facets,
+    find[VirtualUnit](
+      filters = Map(SolrConstants.PARENT_ID -> item.id),
+      entities = List(EntityType.VirtualUnit),
+      facetBuilder = entityFacets
+    ).map { result =>
+      Ok(views.html.virtualUnit.show(item, result.page, result.params, result.facets,
           vuRoutes.get(id), annotations, links))
-    }.apply(request)
+    }
   }
 
   def history(id: String) = historyAction(id) { item => page => params => implicit userOpt => implicit request =>
@@ -134,7 +135,7 @@ case class VirtualUnits @Inject()(implicit globalConfig: global.GlobalConfig, se
       case Left(errorForm) => BadRequest(views.html.virtualUnit.edit(
           olditem, errorForm, vuRoutes.updatePost(id)))
       case Right(item) => Redirect(vuRoutes.get(item.id))
-        .flashing("success" -> play.api.i18n.Messages("item.update.confirmation", item.id))
+        .flashing("success" -> "item.update.confirmation")
     }
   }
 
@@ -149,7 +150,7 @@ case class VirtualUnits @Inject()(implicit globalConfig: global.GlobalConfig, se
         BadRequest(views.html.virtualUnit.create(None, errorForm, accForm, users, groups, vuRoutes.createPost()))
       }
       case Right(item) => immediate(Redirect(vuRoutes.get(item.id))
-        .flashing("success" -> Messages("item.create.confirmation", item.id)))
+        .flashing("success" -> "item.create.confirmation"))
     }
   }
 
@@ -168,7 +169,7 @@ case class VirtualUnits @Inject()(implicit globalConfig: global.GlobalConfig, se
           vuRoutes.createChildPost(id)))
       }
       case Right(doc) => immediate(Redirect(vuRoutes.get(doc.id))
-        .flashing("success" -> Messages("item.create.confirmation", doc.id)))
+        .flashing("success" -> "item.create.confirmation"))
     }
   }
 
@@ -182,58 +183,58 @@ case class VirtualUnits @Inject()(implicit globalConfig: global.GlobalConfig, se
   def deletePost(id: String) = deletePostAction(id) {
       ok => implicit userOpt => implicit request =>
     Redirect(vuRoutes.search())
-        .flashing("success" -> Messages("item.delete.confirmation", id))
+        .flashing("success" -> "item.delete.confirmation")
   }
 
   def createDescription(id: String) = withItemPermission[VirtualUnit](id, PermissionType.Update, contentType) {
-    item => implicit userOpt => implicit request =>
-      Ok(views.html.virtualUnit.createDescription(item,
-        descriptionForm, formDefaults, vuRoutes.createDescriptionPost(id)))
+      item => implicit userOpt => implicit request =>
+    Ok(views.html.virtualUnit.createDescription(item,
+      descriptionForm, formDefaults, vuRoutes.createDescriptionPost(id)))
   }
 
   def createDescriptionPost(id: String) = createDescriptionPostAction(id, EntityType.DocumentaryUnitDescription, descriptionForm) {
-    item => formOrItem => implicit userOpt => implicit request =>
-      formOrItem match {
-        case Left(errorForm) => {
-          Ok(views.html.virtualUnit.createDescription(item,
-            errorForm, formDefaults, vuRoutes.createDescriptionPost(id)))
-        }
-        case Right(updated) => Redirect(vuRoutes.get(item.id))
-          .flashing("success" -> Messages("item.create.confirmation", item.id))
+      item => formOrItem => implicit userOpt => implicit request =>
+    formOrItem match {
+      case Left(errorForm) => {
+        Ok(views.html.virtualUnit.createDescription(item,
+          errorForm, formDefaults, vuRoutes.createDescriptionPost(id)))
       }
+      case Right(updated) => Redirect(vuRoutes.get(item.id))
+        .flashing("success" -> "item.create.confirmation")
+    }
   }
 
   def updateDescription(id: String, did: String) = withItemPermission[VirtualUnit](id, PermissionType.Update, contentType) {
-    item => implicit userOpt => implicit request =>
-      val desc = item.model.description(did).getOrElse(sys.error("Description not found: " + did))
+      item => implicit userOpt => implicit request =>
+    itemOr404(item.model.description(did)) { desc =>
       Ok(views.html.virtualUnit.editDescription(item,
-        descriptionForm.fill(desc),
-        vuRoutes.updateDescriptionPost(id, did)))
+        descriptionForm.fill(desc), vuRoutes.updateDescriptionPost(id, did)))
+    }
   }
 
   def updateDescriptionPost(id: String, did: String) = updateDescriptionPostAction(id, EntityType.DocumentaryUnitDescription, did, descriptionForm) {
-    item => formOrItem => implicit userOpt => implicit request =>
-      formOrItem match {
-        case Left(errorForm) => {
-          Ok(views.html.virtualUnit.editDescription(item,
-            errorForm, vuRoutes.updateDescriptionPost(id, did)))
-        }
-        case Right(updated) => Redirect(vuRoutes.get(item.id))
-          .flashing("success" -> Messages("item.create.confirmation", item.id))
+      item => formOrItem => implicit userOpt => implicit request =>
+    formOrItem match {
+      case Left(errorForm) => {
+        Ok(views.html.virtualUnit.editDescription(item,
+          errorForm, vuRoutes.updateDescriptionPost(id, did)))
       }
+      case Right(updated) => Redirect(vuRoutes.get(item.id))
+        .flashing("success" -> "item.create.confirmation")
+    }
   }
 
   def deleteDescription(id: String, did: String) = deleteDescriptionAction(id, did) {
-    item => description => implicit userOpt => implicit request =>
-      Ok(views.html.deleteDescription(item, description,
-        vuRoutes.deleteDescriptionPost(id, did),
-        vuRoutes.get(id)))
+      item => description => implicit userOpt => implicit request =>
+    Ok(views.html.deleteDescription(item, description,
+      vuRoutes.deleteDescriptionPost(id, did),
+      vuRoutes.get(id)))
   }
 
   def deleteDescriptionPost(id: String, did: String) = deleteDescriptionPostAction(id, EntityType.DocumentaryUnitDescription, did) {
-    ok => implicit userOpt => implicit request =>
-      Redirect(vuRoutes.get(id))
-        .flashing("success" -> Messages("item.delete.confirmation", id))
+      ok => implicit userOpt => implicit request =>
+    Redirect(vuRoutes.get(id))
+      .flashing("success" -> "item.delete.confirmation")
   }
 
   def visibility(id: String) = visibilityAction(id) {
@@ -246,7 +247,7 @@ case class VirtualUnits @Inject()(implicit globalConfig: global.GlobalConfig, se
   def visibilityPost(id: String) = visibilityPostAction(id) {
       ok => implicit userOpt => implicit request =>
     Redirect(vuRoutes.get(id))
-        .flashing("success" -> Messages("item.update.confirmation", id))
+        .flashing("success" -> "item.update.confirmation")
   }
 
   def managePermissions(id: String) = manageScopedPermissionsAction(id) {
@@ -277,7 +278,7 @@ case class VirtualUnits @Inject()(implicit globalConfig: global.GlobalConfig, se
   def setItemPermissionsPost(id: String, userType: EntityType.Value, userId: String) = setItemPermissionsPostAction(id, userType, userId) {
       bool => implicit userOpt => implicit request =>
     Redirect(vuRoutes.managePermissions(id))
-        .flashing("success" -> Messages("item.update.confirmation", id))
+        .flashing("success" -> "item.update.confirmation")
   }
 
   def setScopedPermissions(id: String, userType: EntityType.Value, userId: String) = setScopedPermissionsAction(id, userType, userId) {
@@ -289,7 +290,7 @@ case class VirtualUnits @Inject()(implicit globalConfig: global.GlobalConfig, se
   def setScopedPermissionsPost(id: String, userType: EntityType.Value, userId: String) = setScopedPermissionsPostAction(id, userType, userId) {
       perms => implicit userOpt => implicit request =>
     Redirect(vuRoutes.managePermissions(id))
-        .flashing("success" -> Messages("item.update.confirmation", id))
+        .flashing("success" -> "item.update.confirmation")
   }
 
   def linkTo(id: String) = withItemPermission[VirtualUnit](id, PermissionType.Annotate, contentType) {
@@ -298,10 +299,9 @@ case class VirtualUnits @Inject()(implicit globalConfig: global.GlobalConfig, se
   }
 
   def linkAnnotateSelect(id: String, toType: EntityType.Value) = linkSelectAction(id, toType) {
-    item => page => params => facets => etype => implicit userOpt => implicit request =>
-      Ok(views.html.link.linkSourceList(item, page, params, facets, etype,
-          vuRoutes.linkAnnotateSelect(id, toType),
-          vuRoutes.linkAnnotate))
+      item => page => params => facets => etype => implicit userOpt => implicit request =>
+    Ok(views.html.link.linkSourceList(item, page, params, facets, etype,
+        vuRoutes.linkAnnotateSelect(id, toType), vuRoutes.linkAnnotate))
   }
 
   def linkAnnotate(id: String, toType: EntityType.Value, to: String) = linkAction(id, toType, to) {
@@ -319,7 +319,7 @@ case class VirtualUnits @Inject()(implicit globalConfig: global.GlobalConfig, se
       }
       case Right(annotation) => {
         Redirect(vuRoutes.get(id))
-          .flashing("success" -> Messages("item.update.confirmation", id))
+          .flashing("success" -> "item.update.confirmation")
       }
     }
   }
@@ -339,7 +339,7 @@ case class VirtualUnits @Inject()(implicit globalConfig: global.GlobalConfig, se
       }
       case Right(annotations) => {
         Redirect(vuRoutes.get(id))
-          .flashing("success" -> Messages("item.update.confirmation", id))
+          .flashing("success" -> "item.update.confirmation")
       }
     }
   }

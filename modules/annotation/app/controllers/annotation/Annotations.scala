@@ -2,9 +2,7 @@ package controllers.annotation
 
 import defines.ContentTypes
 import models.{AccountDAO, Annotation}
-import play.api.i18n.Messages
 import com.google.inject._
-import global.GlobalConfig
 import controllers.generic.{Annotate, Delete, Read, Visibility}
 import backend.Backend
 
@@ -35,7 +33,7 @@ case class Annotations @Inject()(implicit globalConfig: global.GlobalConfig, bac
 
   def visibilityPost(id: String) = visibilityPostAction(id) { ok => implicit userOpt => implicit request =>
     Redirect(controllers.annotation.routes.Annotations.get(id))
-      .flashing("success" -> Messages("item.update.confirmation", id))
+      .flashing("success" -> "item.update.confirmation")
   }
 
   def delete(id: String) = deleteAction(id) { item => implicit userOpt => implicit request =>
@@ -48,7 +46,7 @@ case class Annotations @Inject()(implicit globalConfig: global.GlobalConfig, bac
       ok => implicit userOpt => implicit request =>
     Redirect(redirect.map(r => controllers.core.routes.Application.get(r))
         .getOrElse(globalConfig.routeRegistry.default))
-        .flashing("success" -> Messages("item.delete.confirmation", id))
+        .flashing("success" -> "item.delete.confirmation")
   }
 
   def promote(id: String) = promoteAction(id) { item => implicit userOpt => implicit request =>
@@ -57,7 +55,7 @@ case class Annotations @Inject()(implicit globalConfig: global.GlobalConfig, bac
 
   def promotePost(id: String) = promotePostAction(id) { item => bool => implicit userOpt => implicit request =>
     Redirect(controllers.annotation.routes.Annotations.get(id))
-      .flashing("success" -> Messages("item.promote.confirmation"))
+      .flashing("success" -> "item.promote.confirmation")
   }
 
   def demote(id: String) = demoteAction(id) { item => implicit userOpt => implicit request =>
@@ -67,6 +65,6 @@ case class Annotations @Inject()(implicit globalConfig: global.GlobalConfig, bac
 
   def demotePost(id: String) = demotePostAction(id) { item => bool => implicit userOpt => implicit request =>
     Redirect(controllers.annotation.routes.Annotations.get(id))
-      .flashing("success" -> Messages("item.demote.confirmation"))
+      .flashing("success" -> "item.demote.confirmation")
   }
 }

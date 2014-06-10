@@ -111,7 +111,7 @@ case class Home @Inject()(implicit globalConfig: global.GlobalConfig, searchDisp
   private implicit val anyModelReads = AnyModel.Converter.restReads
 
   def overview = searchAction[AnyModel](
-      defaultParams = Some(SearchParams(limit=Some(0))),
+      defaultParams = SearchParams(limit=Some(0)),
       entityFacets = entityFacets) {
       page => params => facets => implicit userOpt => implicit request =>
     render {

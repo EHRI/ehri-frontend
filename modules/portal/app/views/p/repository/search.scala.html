@@ -3,11 +3,12 @@
 @p.layout.portalLayout(item.toStringLang, item.isA.toString) {
     @infobar(item, watched.exists(_.id == item.id))
 
-    @p.layout.mainContent {
-        @p.common.itemHeader {
-            <h1>@item.toStringLang</h1>
+    @views.html.layout.mainContent {
+        @p.common.itemDetailsLink(Messages("portal.showDetails"), controllers.portal.routes.Portal.browseRepository(item.id)) {
+            @p.common.itemHeader {
+                <h1>@item.toStringLang</h1>
+            }
         }
-        @p.common.itemDetailsLink(Messages("portal.showDetails"), controllers.portal.routes.Portal.browseRepository(item.id))
 
         @childItemSearch(item, result, params, facets, action, watched)
     }

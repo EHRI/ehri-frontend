@@ -5,7 +5,7 @@
     } {
     }
 
-    @p.layout.mainContent {
+    @views.html.layout.mainContent {
         <h1>@Messages("portal.profile")</h1>
         @userOpt.flatMap(_.account).map { account =>
             @if(!account.verified) {

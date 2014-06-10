@@ -4,14 +4,14 @@ import play.api.libs.concurrent.Execution.Implicits._
 import _root_.forms.VisibilityForm
 import controllers.generic._
 import models._
-import play.api.i18n.Messages
 import defines.{ContentTypes, EntityType}
-import utils.search.{Resolver, SearchParams, Dispatcher}
+import utils.search.{Resolver, Dispatcher}
 import com.google.inject._
 import scala.concurrent.Future.{successful => immediate}
 import backend.{IdGenerator, Backend}
 import play.api.Configuration
 import play.api.Play.current
+import solr.SolrConstants
 
 
 @Singleton
@@ -37,16 +37,17 @@ case class Countries @Inject()(implicit globalConfig: global.GlobalConfig, searc
   private val form = models.Country.form
   private val childForm = models.Repository.form
 
-  // Search memebers
-  private val DEFAULT_SEARCH_PARAMS = SearchParams(entities = List(resource.entityType))
-
   private final val countryRoutes = controllers.archdesc.routes.Countries
 
+
   def get(id: String) = getAction.async(id) { item => annotations => links => implicit userOpt => implicit request =>
-    searchAction[Repository](Map("countryCode" -> item.id), defaultParams = Some(SearchParams(entities = List(EntityType.Repository)))) {
-        page => params => facets => _ => _ =>
-      Ok(views.html.country.show(item, page, params, facets, countryRoutes.get(id), annotations, links))
-    }.apply(request)
+    find[Repository](
+      filters = Map(SolrConstants.COUNTRY_CODE -> item.id),
+      entities = List(EntityType.Repository)
+    ).map { result =>
+      Ok(views.html.country.show(item, result.page, result.params, result.facets,
+        countryRoutes.get(id), annotations, links))
+    }
   }
 
   def history(id: String) = historyAction(id) { item => page => params => implicit userOpt => implicit request =>
@@ -57,7 +58,7 @@ case class Countries @Inject()(implicit globalConfig: global.GlobalConfig, searc
     Ok(views.html.country.list(page, params))
   }
 
-  def search = searchAction[Country](defaultParams = Some(DEFAULT_SEARCH_PARAMS)) {
+  def search = searchAction[Country](entities = List(resource.entityType)) {
       page => params => facets => implicit userOpt => implicit request =>
     Ok(views.html.country.search(page, params, facets, countryRoutes.search))
   }
@@ -72,7 +73,7 @@ case class Countries @Inject()(implicit globalConfig: global.GlobalConfig, searc
         BadRequest(views.html.country.create(errorForm, accForm, users, groups, countryRoutes.createPost()))
       }
       case Right(item) => immediate(Redirect(countryRoutes.get(item.id))
-        .flashing("success" -> Messages("item.create.confirmation", item.id)))
+        .flashing("success" -> "item.create.confirmation"))
     }
   }
 
@@ -86,7 +87,7 @@ case class Countries @Inject()(implicit globalConfig: global.GlobalConfig, searc
       case Left(errorForm) => BadRequest(views.html.country.edit(
           olditem, errorForm, countryRoutes.updatePost(id)))
       case Right(item) => Redirect(countryRoutes.get(item.id))
-        .flashing("success" -> play.api.i18n.Messages("item.update.confirmation", item.id))
+        .flashing("success" -> "item.update.confirmation")
     }
   }
 
@@ -113,7 +114,7 @@ case class Countries @Inject()(implicit globalConfig: global.GlobalConfig, searc
           errorForm, childFormDefaults, accForm, users, groups, countryRoutes.createRepositoryPost(id)))
       }
       case Right(citem) => immediate(Redirect(controllers.archdesc.routes.Repositories.get(citem.id))
-        .flashing("success" -> Messages("item.create.confirmation", citem.id)))
+        .flashing("success" -> "item.create.confirmation"))
     }
   }
 
@@ -125,7 +126,7 @@ case class Countries @Inject()(implicit globalConfig: global.GlobalConfig, searc
 
   def deletePost(id: String) = deletePostAction(id) { ok => implicit userOpt => implicit request =>
     Redirect(countryRoutes.search())
-        .flashing("success" -> Messages("item.delete.confirmation", id))
+        .flashing("success" -> "item.delete.confirmation")
   }
 
   def visibility(id: String) = visibilityAction(id) { item => users => groups => implicit userOpt => implicit request =>
@@ -136,7 +137,7 @@ case class Countries @Inject()(implicit globalConfig: global.GlobalConfig, searc
 
   def visibilityPost(id: String) = visibilityPostAction(id) { ok => implicit userOpt => implicit request =>
     Redirect(countryRoutes.get(id))
-        .flashing("success" -> Messages("item.update.confirmation", id))
+        .flashing("success" -> "item.update.confirmation")
   }
 
   def managePermissions(id: String) = manageScopedPermissionsAction(id) {
@@ -166,7 +167,7 @@ case class Countries @Inject()(implicit globalConfig: global.GlobalConfig, searc
   def setItemPermissionsPost(id: String, userType: EntityType.Value, userId: String) = setItemPermissionsPostAction(id, userType, userId) {
       bool => implicit userOpt => implicit request =>
     Redirect(countryRoutes.managePermissions(id))
-        .flashing("success" -> Messages("item.update.confirmation", id))
+        .flashing("success" -> "item.update.confirmation")
   }
 
   def setScopedPermissions(id: String, userType: EntityType.Value, userId: String) = setScopedPermissionsAction(id, userType, userId) {
@@ -178,7 +179,7 @@ case class Countries @Inject()(implicit globalConfig: global.GlobalConfig, searc
   def setScopedPermissionsPost(id: String, userType: EntityType.Value, userId: String) = setScopedPermissionsPostAction(id, userType, userId) {
       perms => implicit userOpt => implicit request =>
     Redirect(countryRoutes.managePermissions(id))
-        .flashing("success" -> Messages("item.update.confirmation", id))
+        .flashing("success" -> "item.update.confirmation")
   }
 }
 

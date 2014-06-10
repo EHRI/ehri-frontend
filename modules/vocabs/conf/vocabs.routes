@@ -21,6 +21,8 @@ POST    /permissions/:id/:userType/:userId      @controllers.vocabs.Vocabularies
 GET     /scope/:id/add                          @controllers.vocabs.Vocabularies.addScopedPermissions(id: String)
 GET     /scope/:id/:userType/:userId            @controllers.vocabs.Vocabularies.setScopedPermissions(id: String, userType: EntityType.Value, userId: String)
 POST    /scope/:id/:userType/:userId            @controllers.vocabs.Vocabularies.setScopedPermissionsPost(id: String, userType: EntityType.Value, userId: String)
+GET     /reindex/:id                            @controllers.vocabs.Vocabularies.updateIndex(id: String)
+POST    /reindex/:id                            @controllers.vocabs.Vocabularies.updateIndexPost(id: String)
 
 GET     /concepts/meta/:id                      @controllers.vocabs.Concepts.getClientJson(id)
 GET     /concepts                               @controllers.vocabs.Concepts.search

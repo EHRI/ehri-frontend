@@ -12,14 +12,15 @@ import play.api.Routes
 import play.api.http.MimeTypes
 import models.AccountDAO
 import com.ning.http.client.{Response => NingResponse}
+import defines.EntityType
 
 case class ApiController @Inject()(implicit globalConfig: global.GlobalConfig, backend: Backend, userDAO: AccountDAO) extends Controller with AuthController with ControllerHelpers {
 
-  def listItems(contentType: String) = Action.async { implicit request =>
+  def listItems(contentType: EntityType.Value) = Action.async { implicit request =>
     get(s"$contentType/list")(request)
   }
 
-  def getItem(contentType: String, id: String) = Action.async { implicit request =>
+  def getItem(contentType: EntityType.Value, id: String) = Action.async { implicit request =>
     get(s"$contentType/$id")(request)
   }
 

@@ -45,11 +45,9 @@ trait Linking[MT <: AnyModel] extends Read[MT] with Search {
       f: MT => ItemPage[(AnyModel,SearchHit)] => SearchParams => List[AppliedFacet] => EntityType.Value => Option[UserProfile] => Request[AnyContent] => Result)(implicit rd: RestReadable[MT]) = {
     withItemPermission.async[MT](id, PermissionType.Annotate, contentType) {
         item => implicit userOpt => implicit request =>
-      //val linkSrcEntityType = EntityType.withName(toType)
-      searchAction[AnyModel](defaultParams = Some(SearchParams(entities = List(toType), excludes=Some(List(id))))) {
-          page => params => facets => _ => _ =>
-        f(item)(page)(params)(facets)(toType)(userOpt)(request)
-      }.apply(request)
+      find[AnyModel](defaultParams = SearchParams(entities = List(toType), excludes=Some(List(id)))).map { r =>
+        f(item)(r.page)(r.params)(r.facets)(toType)(userOpt)(request)
+      }
     }
   }
 

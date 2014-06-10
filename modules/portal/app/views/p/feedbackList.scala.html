@@ -1,7 +1,7 @@
 @(feedback: Seq[Feedback])(implicit userOpt: Option[UserProfile], prefs: utils.SessionPrefs, request: RequestHeader, lang: Lang, flash: Flash, globalConfig: global.GlobalConfig)
 
 @p.layout.portalLayout(Messages("portal.feedback.list")) {
-    @p.layout.mainContent {
+    @views.html.layout.mainContent {
         <h2>@Messages("portal.feedback.list")</h2>
         <table class="table-bordered table-hover table-condensed table-striped" width="100%">
             <tr>

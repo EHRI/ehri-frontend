@@ -35,6 +35,10 @@ trait PortalActions {
 
   self: AuthController with ControllerHelpers =>
 
+  /**
+   * Ensure that functions requiring an optional user in scope
+   * can retrieve it automatically from a user details object.
+   */
   implicit def userFromDetails(implicit details: UserDetails): Option[UserProfile] = details.userOpt
 
   /**
