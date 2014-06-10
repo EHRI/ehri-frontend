@@ -3,7 +3,7 @@
 @p.layout.portalLayout(item.toStringLang, EntityType.Concept.toString) {
     @infobar(item, watched.exists(_.id == item.id))
 
-    @p.layout.mainContent {
+    @views.html.layout.mainContent {
         @itemDetails(item, annotations, links, watched)
     }
 }

@@ -3,7 +3,7 @@
 @p.layout.portalLayout(item.toStringLang, EntityType.Country.toString) {
     @infobar(item, watched.exists(_.id == item.id))
 
-    @p.layout.mainContent {
+    @views.html.layout.mainContent {
         @p.common.itemDetailsLink(Messages("portal.showDetails"), controllers.portal.routes.Portal.browseCountry(item.id))
 
         @childItemSearch(item, result, params, facets, action, watched)

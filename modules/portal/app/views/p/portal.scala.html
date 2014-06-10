@@ -29,7 +29,7 @@
         </h1>
     </div>
 
-    @p.layout.mainContent {
+    @views.html.layout.mainContent {
         @helper.form(action = controllers.portal.routes.Portal.search, 'role -> "form") {
             @p.common.searchBar()
 
