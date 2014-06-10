@@ -68,8 +68,8 @@ case class GuidePages @Inject()(implicit globalConfig: global.GlobalConfig, back
           Some(BadRequest(views.html.guidePage.create(guide, errorForm,
             guide.findPages(), Guide.findAll(), guidePagesRoutes.createPost(gPath))))
         }, {
-          case GuidePage(_, layout, name, path, menu, cypher, parent) => {
-            GuidePage.create(layout, name, path, menu, cypher, guide.id).map { guidePage =>
+          case GuidePage(_, layout, name, path, menu, cypher, parent, params) => {
+            GuidePage.create(layout, name, path, menu, cypher, guide.id, params).map { guidePage =>
               Redirect(controllers.guides.routes.Guides.show(guide.path))
                 .flashing("success" -> "item.create.confirmation")
             }

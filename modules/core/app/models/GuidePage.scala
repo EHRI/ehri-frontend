@@ -9,7 +9,7 @@ import play.api.Play.current
 import play.api.db.DB
 import language.postfixOps
 import defines.StorableEnum
-
+import play.core.parsers.FormUrlEncodedParser
 
 /**
  * @author Thibault Clérice (http://github.com/ponteineptique)
@@ -21,7 +21,8 @@ case class GuidePage(
   path: String,
   position: GuidePage.MenuPosition.Value,
   content: String,
-  parent: Option[Long]
+  parent: Option[Long],
+  params: Option[String] = None
 ) {
   /*
   * Edit a page
@@ -38,11 +39,12 @@ case class GuidePage(
         path = {p},
         position = {m},
         content = {c},
-        research_guide_id = {parent}
+        research_guide_id = {parent},
+        params = {params}
       WHERE id = {id}
       LIMIT 1
         """
-      ).on('l -> layout, 'n -> name, 'p -> path, 'm -> position, 'c -> content, 'parent -> parent, 'id -> id).executeUpdate()
+      ).on('l -> layout, 'n -> name, 'p -> path, 'm -> position, 'c -> content, 'parent -> parent, 'id -> id, 'params -> params).executeUpdate()
   }
 
   /*
@@ -52,6 +54,13 @@ case class GuidePage(
     implicit connection =>
       SQL("""DELETE FROM research_guide_page WHERE id = {i} LIMIT 1""")
         .on('i -> id).executeUpdate()
+  }
+
+  def getParams(): Map[String,Seq[String]] = {
+    params match {
+      case Some(str) => FormUrlEncodedParser.parse(str)
+      case _ => Map.empty
+    }
   }
 }
 
@@ -65,6 +74,7 @@ object GuidePage {
   val POSITION = "position"
   val CONTENT = "content"
   val PARENT = "parent"
+  val PARAMS = "params"
 
   object Layout extends Enumeration with StorableEnum {
     val Markdown = Value("md")
@@ -87,7 +97,8 @@ object GuidePage {
       PATH -> nonEmptyText,
       POSITION -> models.forms.enum(MenuPosition),
       CONTENT -> nonEmptyText,
-      PARENT -> optional(longNumber)
+      PARENT -> optional(longNumber),
+      PARAMS -> optional(nonEmptyText)
     )(GuidePage.apply)(GuidePage.unapply)
   )
 
@@ -102,9 +113,10 @@ object GuidePage {
     get[String](PATH) ~
     get[MenuPosition.Value](POSITION) ~
     get[String](CONTENT) ~
-    get[Option[Long]]("research_guide_id") map {
-      case oid ~ layout ~ name ~ path ~ menu ~ query ~ pid  =>
-        GuidePage(oid, layout, name, path, menu, query, pid)
+    get[Option[Long]]("research_guide_id") ~
+    get[Option[String]](PARAMS) map {
+      case oid ~ layout ~ name ~ path ~ menu ~ query ~ pid ~ params  =>
+        GuidePage(oid, layout, name, path, menu, query, pid, params)
     }
   }
 
@@ -112,12 +124,12 @@ object GuidePage {
   * Create a new page
   */
   def create(layout: Layout.Value, name: String, path: String, menu: MenuPosition.Value = MenuPosition.Side,
-             cypher: String, parent: Option[Long]): Option[Long] = DB.withConnection {
+             cypher: String, parent: Option[Long], params: Option[String]): Option[Long] = DB.withConnection {
     implicit connection =>
       SQL(
-        """INSERT INTO research_guide_page (layout, name, path, position, content, research_guide_id)
-           VALUES ({l}, {n}, {p}, {m}, {c}, {parent})""")
-        .on('l -> layout, 'n -> name, 'p -> path, 'm -> menu, 'c -> cypher, 'parent -> parent).executeInsert()
+        """INSERT INTO research_guide_page (layout, name, path, position, content, research_guide_id, params)
+           VALUES ({l}, {n}, {p}, {m}, {c}, {parent}, {params})""")
+        .on('l -> layout, 'n -> name, 'p -> path, 'm -> menu, 'c -> cypher, 'parent -> parent, 'params -> params).executeInsert()
   }
 
   /*
@@ -141,6 +153,7 @@ object GuidePage {
       "browse",
       MenuPosition.Top,
       "",
+      None,
       None
     )
   }
