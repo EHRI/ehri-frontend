@@ -55,13 +55,13 @@ case class Guides @Inject()(implicit globalConfig: global.GlobalConfig, searchDi
   /*
   * Return Map extras param if needed
   */
-  def mapParams(request: Request[AnyContent]): (Map[String, Any], utils.search.SearchOrder.Value) = {
+  def mapParams(request: Request[AnyContent]): (utils.search.SearchOrder.Value, Map[String, Any]) = {
     GeoCoordinates.form.bindFromRequest(request.queryString).fold(
       errorForm => {
-        (Map.empty -> SearchOrder.Name)
+        (SearchOrder.Name -> Map.empty)
       },
       latlng => { 
-        (Map("pt" -> latlng.toString, "sfield" -> "location", "sort" -> "geodist() asc") -> SearchOrder.Location)
+        (SearchOrder.Location -> Map("pt" -> latlng.toString, "sfield" -> "location", "sort" -> "geodist() asc"))
       }
     )
   }
@@ -79,11 +79,6 @@ case class Guides @Inject()(implicit globalConfig: global.GlobalConfig, searchDi
         }.toList
       }.toList.flatten
   }
-
-  /*
-  * MAP Functions
-  *   -> ?wt=json&indent=true&fl=name,location,id&q=*:*&sfield=location&pt=47.17701840683218,17.38037109375&sort=geodist%28%29%20asc&fq=type%3A%28cvocConcept%29&fq=accessibleTo%3AALLUSERS&fq=holderId%3A%22terezin-places%22&rows=20
-  */
 
   /*
   *
@@ -176,13 +171,13 @@ case class Guides @Inject()(implicit globalConfig: global.GlobalConfig, searchDi
   *   Layout named "map" [Concept]
   */
   def guideMap(template: GuidePage, params: Map[String, String], guide: Guide) = userBrowseAction.async { implicit userDetails => implicit request =>
-    mapParams(request) match { case geoloc =>
+    mapParams(request) match { case (sort, geoloc) =>
       find[Concept](
         params, 
-        extra = geoloc._1,
+        extra = geoloc,
         defaultParams = SearchParams(
           entities = List(EntityType.Concept), 
-          sort = Some(geoloc._2)
+          sort = Some(sort)
         ),
         entities = List(EntityType.Concept), 
         facetBuilder = conceptFacets).map { r =>
