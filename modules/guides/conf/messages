@@ -45,6 +45,7 @@ guidePage.position=Menu Position
 guidePage.layout=Layout
 guidePage.content=Content
 guidePage.parent=Parent
+guidePage.params=Default parameters
 
 guidePage.objectId.description=Automatic Identifier
 guidePage.name.description=Title of the page to be shown in menu
@@ -53,6 +54,7 @@ guidePage.position.description=Menu Position (top menu or right menu)
 guidePage.layout.description=Layout to render the data
 guidePage.content.description=Either markdown-formated text or identifier of a cVoc/AuthoritativeSet
 guidePage.parent.description=Parent of the guide
+guidePage.params.description=An URL query string to be parsed. eg. : lat=80&lng=15
 
 guidePage.map=Map
 guidePage.keyword=Keywords
