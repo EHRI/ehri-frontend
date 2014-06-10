@@ -1,6 +1,7 @@
-@(text: String, link: Call)(implicit userOpt: Option[UserProfile], request: RequestHeader, lang: Lang)
+@(text: String, link: Call)(html: Html = Html(""))(implicit userOpt: Option[UserProfile], request: RequestHeader, lang: Lang)
 
 <div class="content-load">
+    <div class="content-load-placeholder">@html</div>
     <div class="content-load-data" style="display: none"></div>
     <a class="toggle" data-inverse-text="@Messages("portal.hideDetails")" href="@link">
     <span class="text">@text</span>

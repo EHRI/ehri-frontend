@@ -2,7 +2,7 @@
 
 <div id="item-details">
     @defining(EntityType.DocumentaryUnit.toString) { implicit fieldPrefix =>
-        @p.common.descriptionContainer(item.model.descriptions) {
+        @views.html.layout.descriptionContainer(item.model.descriptions) {
             @item.model.descriptions.map { desc =>
                 @renderDescription(item, desc, links, annotations)
             }

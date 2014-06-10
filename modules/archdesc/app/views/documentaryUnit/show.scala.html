@@ -87,7 +87,7 @@
             @if(!item.model.descriptions.isEmpty) {
                 <div class="description-viewport">
                     @item.descriptions.zipWithIndex.map { case (desc,i) =>
-                        @defining(desc.id.getOrElse("INVALID_DESC_ID")) { descId =>
+                        @desc.id.map { descId =>
                             <div class="description-holder" id="desc-@descId">
                                 @actions("Actions", item.id, descId)
                                 @documentaryUnit.renderDescription(item, desc, links)
