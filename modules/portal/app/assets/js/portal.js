@@ -212,15 +212,18 @@ $loader = $( "<div></div>" ).addClass("text-center loader-container").append($("
         $text = $(".text", $link),
         $inverse = $link.data("inverse-text");
     var $container = $link.parent(),
-        $data = $(".content-load-data", $container);
+        $data = $(".content-load-data", $container),
+        $place = $(".content-load-placeholder", $container);
     if ($container.hasClass("loaded")) {
       $data.toggle(300);
+      $place.toggle(300);
       $link.data("inverse-text", $text.text());
       $text.text($inverse);
     } else {
       $link.addClass("loading");
       $.get(this.href, function(data) {
         $data.append(data).show(300);
+        $place.hide(300);
         $container.addClass("loaded");
         $link.removeClass("loading");
         $link.data("inverse-text", $text.text());
