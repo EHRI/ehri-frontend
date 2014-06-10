@@ -1,9 +1,9 @@
 package controllers.archdesc
 
-import _root_.forms.VisibilityForm
+import play.api.libs.concurrent.Execution.Implicits._
+import forms.VisibilityForm
 import models._
 import controllers.generic._
-import play.api.mvc._
 import play.api.i18n.Messages
 import defines.{ContentTypes,EntityType,PermissionType}
 import views.Helpers
@@ -100,12 +100,10 @@ case class DocumentaryUnits @Inject()(implicit globalConfig: global.GlobalConfig
   val childForm = models.DocumentaryUnit.form
   val descriptionForm = models.DocumentaryUnitDescription.form
 
-  val DEFAULT_SEARCH_PARAMS = SearchParams(entities=List(resource.entityType))
-
   private val docRoutes = controllers.archdesc.routes.DocumentaryUnits
 
 
-  def search = Action.async { request =>
+  def search = userProfileAction.async { implicit userOpt => implicit request =>
     // What filters we gonna use? How about, only list stuff here that
     // has no parent items - UNLESS there's a query, in which case we're
     // going to peer INSIDE items... dodgy logic, maybe...
@@ -113,20 +111,27 @@ case class DocumentaryUnits @Inject()(implicit globalConfig: global.GlobalConfig
     val filters = if (request.getQueryString(SearchParams.QUERY).isEmpty)
       Map(SolrConstants.TOP_LEVEL -> true) else Map.empty[String,Any]
 
-    searchAction[DocumentaryUnit](filters, defaultParams = Some(DEFAULT_SEARCH_PARAMS),
-        entityFacets = entityFacets) {
-        page => params => facets => implicit userOpt => implicit request =>
-      Ok(views.html.documentaryUnit.search(page, params, facets, docRoutes.search()))
-    }.apply(request)
+    find[DocumentaryUnit](
+      filters = filters,
+      entities=List(resource.entityType),
+      facetBuilder = entityFacets
+    ).map { result =>
+      Ok(views.html.documentaryUnit.search(
+        result.page, result.params, result.facets,
+        docRoutes.search()))
+    }
   }
 
   def searchChildren(id: String) = itemPermissionAction.async[DocumentaryUnit](contentType, id) {
       item => implicit userOpt => implicit request =>
-
-    searchAction[DocumentaryUnit](Map("parentId" -> item.id), entityFacets = entityFacets) {
-      page => params => facets => implicit userOpt => implicit request =>
-        Ok(views.html.documentaryUnit.search(page, params, facets, docRoutes.search()))
-    }.apply(request)
+    find[DocumentaryUnit](
+      filters = Map(SolrConstants.PARENT_ID -> item.id),
+      facetBuilder = entityFacets
+    ).map { result =>
+      Ok(views.html.documentaryUnit.search(
+        result.page, result.params, result.facets,
+        docRoutes.search()))
+    }
   }
 
   /*def get(id: String) = getWithChildrenAction(id) {
@@ -137,13 +142,14 @@ case class DocumentaryUnits @Inject()(implicit globalConfig: global.GlobalConfig
   }*/
 
   def get(id: String) = getAction.async(id) { item => annotations => links => implicit userOpt => implicit request =>
-    searchAction[DocumentaryUnit](Map("parentId" -> item.id),
-          defaultParams = Some(SearchParams(entities = List(EntityType.DocumentaryUnit))),
-          entityFacets = entityFacets) {
-        page => params => facets => _ => _ =>
-      Ok(views.html.documentaryUnit.show(item, page, params, facets,
+    find[DocumentaryUnit](
+      filters = Map(SolrConstants.PARENT_ID -> item.id),
+      entities = List(EntityType.DocumentaryUnit),
+      facetBuilder = entityFacets
+    ).map { result =>
+      Ok(views.html.documentaryUnit.show(item, result.page, result.params, result.facets,
           docRoutes.get(id), annotations, links))
-    }.apply(request)
+    }
   }
 
   def history(id: String) = historyAction(id) { item => page => params => implicit userOpt => implicit request =>
@@ -165,7 +171,7 @@ case class DocumentaryUnits @Inject()(implicit globalConfig: global.GlobalConfig
       case Left(errorForm) => BadRequest(views.html.documentaryUnit.edit(
           olditem, errorForm, docRoutes.updatePost(id)))
       case Right(item) => Redirect(docRoutes.get(item.id))
-        .flashing("success" -> play.api.i18n.Messages("item.update.confirmation", item.id))
+        .flashing("success" -> "item.update.confirmation")
     }
   }
 
@@ -184,7 +190,7 @@ case class DocumentaryUnits @Inject()(implicit globalConfig: global.GlobalConfig
           docRoutes.createDocPost(id)))
       }
       case Right(doc) => immediate(Redirect(docRoutes.get(doc.id))
-        .flashing("success" -> Messages("item.create.confirmation", doc.id)))
+        .flashing("success" -> "item.create.confirmation"))
     }
   }
 
@@ -202,16 +208,17 @@ case class DocumentaryUnits @Inject()(implicit globalConfig: global.GlobalConfig
           errorForm, formDefaults, docRoutes.createDescriptionPost(id)))
       }
       case Right(updated) => Redirect(docRoutes.get(item.id))
-        .flashing("success" -> Messages("item.create.confirmation", item.id))
+        .flashing("success" -> "item.create.confirmation")
     }
   }
 
   def updateDescription(id: String, did: String) = withItemPermission[DocumentaryUnit](id, PermissionType.Update, contentType) {
       item => implicit userOpt => implicit request =>
-    val desc = item.model.description(did).getOrElse(sys.error("Description not found: " + did))
-    Ok(views.html.documentaryUnit.editDescription(item,
-      descriptionForm.fill(desc),
-      docRoutes.updateDescriptionPost(id, did)))
+    itemOr404(item.model.description(did)) { desc =>
+      Ok(views.html.documentaryUnit.editDescription(item,
+        descriptionForm.fill(desc),
+        docRoutes.updateDescriptionPost(id, did)))
+    }
   }
 
   def updateDescriptionPost(id: String, did: String) = updateDescriptionPostAction(id, EntityType.DocumentaryUnitDescription, did, descriptionForm) {
@@ -222,7 +229,7 @@ case class DocumentaryUnits @Inject()(implicit globalConfig: global.GlobalConfig
           errorForm, docRoutes.updateDescriptionPost(id, did)))
       }
       case Right(updated) => Redirect(docRoutes.get(item.id))
-        .flashing("success" -> Messages("item.create.confirmation", item.id))
+        .flashing("success" -> "item.update.confirmation")
     }
   }
 
@@ -236,7 +243,7 @@ case class DocumentaryUnits @Inject()(implicit globalConfig: global.GlobalConfig
   def deleteDescriptionPost(id: String, did: String) = deleteDescriptionPostAction(id, EntityType.DocumentaryUnitDescription, did) {
       ok => implicit userOpt => implicit request =>
     Redirect(docRoutes.get(id))
-        .flashing("success" -> Messages("item.delete.confirmation", id))
+        .flashing("success" -> "item.delete.confirmation")
   }
 
   def delete(id: String) = deleteAction(id) {
@@ -249,7 +256,7 @@ case class DocumentaryUnits @Inject()(implicit globalConfig: global.GlobalConfig
   def deletePost(id: String) = deletePostAction(id) {
       ok => implicit userOpt => implicit request =>
     Redirect(docRoutes.search())
-        .flashing("success" -> Messages("item.delete.confirmation", id))
+        .flashing("success" -> "item.delete.confirmation")
   }
 
   def visibility(id: String) = visibilityAction(id) {
@@ -262,7 +269,7 @@ case class DocumentaryUnits @Inject()(implicit globalConfig: global.GlobalConfig
   def visibilityPost(id: String) = visibilityPostAction(id) {
       ok => implicit userOpt => implicit request =>
     Redirect(docRoutes.get(id))
-        .flashing("success" -> Messages("item.update.confirmation", id))
+        .flashing("success" -> "item.update.confirmation")
   }
 
   def managePermissions(id: String) = manageScopedPermissionsAction(id) {
@@ -293,7 +300,7 @@ case class DocumentaryUnits @Inject()(implicit globalConfig: global.GlobalConfig
   def setItemPermissionsPost(id: String, userType: EntityType.Value, userId: String) = setItemPermissionsPostAction(id, userType, userId) {
       bool => implicit userOpt => implicit request =>
     Redirect(docRoutes.managePermissions(id))
-        .flashing("success" -> Messages("item.update.confirmation", id))
+        .flashing("success" -> "item.update.confirmation")
   }
 
   def setScopedPermissions(id: String, userType: EntityType.Value, userId: String) = setScopedPermissionsAction(id, userType, userId) {
@@ -305,7 +312,7 @@ case class DocumentaryUnits @Inject()(implicit globalConfig: global.GlobalConfig
   def setScopedPermissionsPost(id: String, userType: EntityType.Value, userId: String) = setScopedPermissionsPostAction(id, userType, userId) {
       perms => implicit userOpt => implicit request =>
     Redirect(docRoutes.managePermissions(id))
-        .flashing("success" -> Messages("item.update.confirmation", id))
+        .flashing("success" -> "item.update.confirmation")
   }
 
   def linkTo(id: String) = withItemPermission[DocumentaryUnit](id, PermissionType.Annotate, contentType) {
@@ -335,7 +342,7 @@ case class DocumentaryUnits @Inject()(implicit globalConfig: global.GlobalConfig
       }
       case Right(annotation) => {
         Redirect(docRoutes.get(id))
-          .flashing("success" -> Messages("item.update.confirmation", id))
+          .flashing("success" -> "item.update.confirmation")
       }
     }
   }
@@ -355,7 +362,7 @@ case class DocumentaryUnits @Inject()(implicit globalConfig: global.GlobalConfig
       }
       case Right(annotations) => {
         Redirect(docRoutes.get(id))
-          .flashing("success" -> Messages("item.update.confirmation", id))
+          .flashing("success" -> "item.update.confirmation")
       }
     }
   }

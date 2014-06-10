@@ -45,7 +45,7 @@
     	$map.on('moveend', function(e) {
     		$.get(
     			"@controllers.portal.routes.Guides.layoutRetrieval(template._2._1.path, template._1.path)", 
-    			{ center : [$map.getCenter().lat, $map.getCenter().lng].join(",") }, 
+    			{ lat : $map.getCenter().lat, lng: $map.getCenter().lng }, 
     			function (data) { addMarkerList(data) }, 
     			"json")
     	});

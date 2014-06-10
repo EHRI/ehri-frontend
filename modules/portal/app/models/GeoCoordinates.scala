@@ -9,18 +9,6 @@ import play.api.data.Form
 * Represents Geo Coordinates with latitude and longitude
 *
 */
-object GeoCoordinates {
-
-  val form = Form(
-    tuple(
-      "lat" -> bigDecimal,
-      "lng" -> bigDecimal
-    ) verifying("validCoords", f => f match {
-      case (lat, lng) =>
-        lat <= 180 && lat >= -180 && lng <= 180 && lng >= -180
-    })
-  )
-} 
 
 case class GeoCoordinates(
   lat: BigDecimal,
@@ -28,3 +16,18 @@ case class GeoCoordinates(
 ) {
   override def toString = List(lat, lng).mkString(",")
 }
+object GeoCoordinates {
+
+  val form = Form(
+    mapping(
+      "lat" -> bigDecimal.verifying("validCoords", f => f match {
+        case lat =>
+          lat <= 180 && lat >= -180
+      }),
+      "lng" -> bigDecimal.verifying("validCoords", f => f match {
+        case lng =>
+          lng <= 180 && lng >= -180
+      })
+    )(GeoCoordinates.apply)(GeoCoordinates.unapply)
+  )
+} 

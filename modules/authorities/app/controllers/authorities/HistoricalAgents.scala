@@ -5,7 +5,7 @@ import forms.VisibilityForm
 import models._
 import play.api.i18n.Messages
 import defines.{EntityType, ContentTypes, PermissionType}
-import utils.search.{Resolver, Dispatcher, SearchParams, FacetSort}
+import utils.search.{Resolver, Dispatcher, FacetSort}
 import com.google.inject._
 import solr.SolrConstants
 import backend.Backend
@@ -44,12 +44,8 @@ case class HistoricalAgents @Inject()(implicit globalConfig: global.GlobalConfig
     )
   }
 
-  // Search params
-  val DEFAULT_SEARCH_PARAMS = SearchParams(entities = List(resource.entityType))
 
-
-
-  def search = searchAction[HistoricalAgent](defaultParams = Some(DEFAULT_SEARCH_PARAMS), entityFacets = entityFacets) {
+  def search = searchAction[HistoricalAgent](entities = List(resource.entityType), entityFacets = entityFacets) {
       page => params => facets => implicit userOpt => implicit request =>
     Ok(views.html.historicalAgent.search(page, params, facets, histRoutes.search()))
   }
@@ -78,7 +74,7 @@ case class HistoricalAgents @Inject()(implicit globalConfig: global.GlobalConfig
       case Left(errorForm) =>
         BadRequest(views.html.historicalAgent.edit(item, errorForm, histRoutes.updatePost(id)))
       case Right(updated) => Redirect(histRoutes.get(updated.id))
-        .flashing("success" -> Messages("item.update.confirmation", updated.id))
+        .flashing("success" -> "item.update.confirmation")
     }
   }
 
@@ -90,7 +86,7 @@ case class HistoricalAgents @Inject()(implicit globalConfig: global.GlobalConfig
 
   def deletePost(id: String) = deletePostAction(id) { ok => implicit userOpt => implicit request =>
     Redirect(histRoutes.search())
-        .flashing("success" -> Messages("item.delete.confirmation", id))
+        .flashing("success" -> "item.delete.confirmation")
   }
 
   def visibility(id: String) = visibilityAction(id) { item => users => groups => implicit userOpt => implicit request =>
@@ -102,7 +98,7 @@ case class HistoricalAgents @Inject()(implicit globalConfig: global.GlobalConfig
   def visibilityPost(id: String) = visibilityPostAction(id) {
       ok => implicit userOpt => implicit request =>
     Redirect(histRoutes.get(id))
-        .flashing("success" -> Messages("item.update.confirmation", id))
+        .flashing("success" -> "item.update.confirmation")
   }
 
   def managePermissions(id: String) = manageItemPermissionsAction(id) {
@@ -126,7 +122,7 @@ case class HistoricalAgents @Inject()(implicit globalConfig: global.GlobalConfig
   def setItemPermissionsPost(id: String, userType: EntityType.Value, userId: String) = setItemPermissionsPostAction(id, userType, userId) {
       bool => implicit userOpt => implicit request =>
     Redirect(histRoutes.managePermissions(id))
-        .flashing("success" -> Messages("item.update.confirmation", id))
+        .flashing("success" -> "item.update.confirmation")
   }
 
   def linkTo(id: String) = withItemPermission[HistoricalAgent](id, PermissionType.Annotate, contentType) {
@@ -156,7 +152,7 @@ case class HistoricalAgents @Inject()(implicit globalConfig: global.GlobalConfig
         }
         case Right(annotation) => {
           Redirect(histRoutes.get(id))
-            .flashing("success" -> Messages("item.update.confirmation", id))
+            .flashing("success" -> "item.update.confirmation")
         }
       }
   }
