@@ -55,8 +55,8 @@ case class Guides @Inject()(implicit globalConfig: global.GlobalConfig, searchDi
   /*
   * Return Map extras param if needed
   */
-  def mapParams(request: Request[AnyContent]): (utils.search.SearchOrder.Value, Map[String, Any]) = {
-    GeoCoordinates.form.bindFromRequest(request.queryString).fold(
+  def mapParams(request: Map[String,Seq[String]]): (utils.search.SearchOrder.Value, Map[String, Any]) = {
+    GeoCoordinates.form.bindFromRequest(request).fold(
       errorForm => {
         (SearchOrder.Name -> Map.empty)
       },
@@ -171,7 +171,13 @@ case class Guides @Inject()(implicit globalConfig: global.GlobalConfig, searchDi
   *   Layout named "map" [Concept]
   */
   def guideMap(template: GuidePage, params: Map[String, String], guide: Guide) = userBrowseAction.async { implicit userDetails => implicit request =>
-    mapParams(request) match { case (sort, geoloc) =>
+    mapParams(
+        if (request.queryString.contains("lat") && request.queryString.contains("lng")) {
+          request.queryString
+        } else {
+          template.getParams()
+        }
+      ) match { case (sort, geoloc) =>
       find[Concept](
         params, 
         extra = geoloc,
