@@ -40,15 +40,13 @@ case class Groups @Inject()(implicit globalConfig: global.GlobalConfig, searchDi
     Ok(views.html.systemEvents.itemList(item, page, params))
   }
 
-  def list = pageAction {
-      page => params => implicit maybeUser => implicit request =>
+  def list = pageAction { page => params => implicit maybeUser => implicit request =>
     Ok(views.html.group.list(page, params))
   }
 
-  def create = createAction {
-      users => groups => implicit userOpt => implicit request =>
+  def create = createAction { users => groups => implicit userOpt => implicit request =>
     Ok(views.html.group.create(form, VisibilityForm.form,
-        users, groups, groupRoutes.createPost))
+        users, groups, groupRoutes.createPost()))
   }
 
   /**
@@ -66,10 +64,10 @@ case class Groups @Inject()(implicit globalConfig: global.GlobalConfig, searchDi
     formsOrItem match {
       case Left((errorForm,accForm)) => getUsersAndGroups { users => groups =>
         BadRequest(views.html.group.create(
-          errorForm, accForm, users, groups, groupRoutes.createPost))
+          errorForm, accForm, users, groups, groupRoutes.createPost()))
       }
       case Right(item) => Future.successful(Redirect(groupRoutes.get(item.id))
-        .flashing("success" -> Messages("item.create.confirmation", item.id)))
+        .flashing("success" -> "item.create.confirmation"))
     }
   }
 
@@ -84,8 +82,8 @@ case class Groups @Inject()(implicit globalConfig: global.GlobalConfig, searchDi
     formOrItem match {
       case Left(errorForm) =>
         BadRequest(views.html.group.edit(item, errorForm, groupRoutes.updatePost(id)))
-      case Right(item) => Redirect(groupRoutes.get(item.id))
-        .flashing("success" -> Messages("item.update.confirmation", item.id))
+      case Right(updated) => Redirect(groupRoutes.get(updated.id))
+        .flashing("success" -> "item.update.confirmation")
     }
   }
 
@@ -97,8 +95,8 @@ case class Groups @Inject()(implicit globalConfig: global.GlobalConfig, searchDi
 
   def deletePost(id: String) = deletePostAction(id) {
       ok => implicit userOpt => implicit request =>
-    Redirect(groupRoutes.list)
-        .flashing("success" -> Messages("item.delete.confirmation", id))
+    Redirect(groupRoutes.list())
+        .flashing("success" -> "item.delete.confirmation")
   }
 
   def grantList(id: String) = grantListAction(id) {
@@ -115,7 +113,7 @@ case class Groups @Inject()(implicit globalConfig: global.GlobalConfig, searchDi
   def permissionsPost(id: String) = setGlobalPermissionsPostAction(id) {
       item => perms => implicit userOpt => implicit request =>
     Redirect(groupRoutes.get(id))
-        .flashing("success" -> Messages("item.update.confirmation", id))
+        .flashing("success" -> "item.update.confirmation")
   }
 
 
@@ -128,7 +126,7 @@ case class Groups @Inject()(implicit globalConfig: global.GlobalConfig, searchDi
   def revokePermissionPost(id: String, permId: String) = revokePermissionActionPost(id, permId) {
       item => bool => implicit userOpt => implicit request =>
     Redirect(groupRoutes.grantList(id))
-      .flashing("success" -> Messages("item.delete.confirmation", id))
+      .flashing("success" -> "item.delete.confirmation")
   }
 
   /*
@@ -187,7 +185,7 @@ case class Groups @Inject()(implicit globalConfig: global.GlobalConfig, searchDi
         item => implicit userOpt => implicit request =>
       backend.addGroup(id, userId).map { ok =>
         Redirect(groupRoutes.membership(userType, userId))
-          .flashing("success" -> Messages("item.update.confirmation", id))
+          .flashing("success" -> "item.update.confirmation")
       }
     }
   }
@@ -215,7 +213,7 @@ case class Groups @Inject()(implicit globalConfig: global.GlobalConfig, searchDi
         item => implicit userOpt => implicit request =>
       backend.removeGroup(id, userId).map { ok =>
         Redirect(groupRoutes.membership(userType, userId))
-          .flashing("success" -> Messages("item.update.confirmation", id))
+          .flashing("success" -> "item.update.confirmation")
       }
     }
   }

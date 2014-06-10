@@ -6,7 +6,7 @@ import models.{Link, AccountDAO, Concept, ConceptF}
 import play.api.i18n.Messages
 import defines.{ContentTypes, EntityType}
 import views.Helpers
-import utils.search.{Resolver, SearchParams, FacetSort, Dispatcher}
+import utils.search.{Resolver, FacetSort, Dispatcher}
 import com.google.inject._
 import scala.concurrent.Future.{successful => immediate}
 import solr.facet.FieldFacetClass
@@ -80,7 +80,7 @@ case class Concepts @Inject()(implicit globalConfig: global.GlobalConfig, search
       case Left(errorForm) => BadRequest(views.html.concept.edit(
           oldItem, errorForm, conceptRoutes.updatePost(id)))
       case Right(item) => Redirect(conceptRoutes.get(item.id))
-        .flashing("success" -> play.api.i18n.Messages("item.update.confirmation", item.id))
+        .flashing("success" -> "item.update.confirmation")
     }
   }
 
@@ -98,7 +98,7 @@ case class Concepts @Inject()(implicit globalConfig: global.GlobalConfig, search
           errorForm, accForm, users, groups, conceptRoutes.createConceptPost(id)))
       }
       case Right(citem) => immediate(Redirect(conceptRoutes.get(id))
-        .flashing("success" -> Messages("item.create.confirmation", citem.id)))
+        .flashing("success" -> "item.create.confirmation"))
     }
   }
 
@@ -110,7 +110,7 @@ case class Concepts @Inject()(implicit globalConfig: global.GlobalConfig, search
   def deletePost(id: String) = deletePostAction(id) {
       ok => implicit userOpt => implicit request =>
     Redirect(conceptRoutes.search())
-        .flashing("success" -> Messages("item.delete.confirmation", id))
+        .flashing("success" -> "item.delete.confirmation")
   }
 
   def visibility(id: String) = visibilityAction(id) {
@@ -123,7 +123,7 @@ case class Concepts @Inject()(implicit globalConfig: global.GlobalConfig, search
   def visibilityPost(id: String) = visibilityPostAction(id) {
       ok => implicit userOpt => implicit request =>
     Redirect(conceptRoutes.get(id))
-        .flashing("success" -> Messages("item.update.confirmation", id))
+        .flashing("success" -> "item.update.confirmation")
   }
 
   def managePermissions(id: String) = manageScopedPermissionsAction(id) {
@@ -153,7 +153,7 @@ case class Concepts @Inject()(implicit globalConfig: global.GlobalConfig, search
   def setItemPermissionsPost(id: String, userType: EntityType.Value, userId: String) = setItemPermissionsPostAction(id, userType, userId) {
       bool => implicit userOpt => implicit request =>
     Redirect(conceptRoutes.managePermissions(id))
-        .flashing("success" -> Messages("item.update.confirmation", id))
+        .flashing("success" -> "item.update.confirmation")
   }
 
   def setScopedPermissions(id: String, userType: EntityType.Value, userId: String) = setScopedPermissionsAction(id, userType, userId) {
@@ -165,7 +165,7 @@ case class Concepts @Inject()(implicit globalConfig: global.GlobalConfig, search
   def setScopedPermissionsPost(id: String, userType: EntityType.Value, userId: String) = setScopedPermissionsPostAction(id, userType, userId) {
       perms => implicit userOpt => implicit request =>
     Redirect(conceptRoutes.managePermissions(id))
-        .flashing("success" -> Messages("item.update.confirmation", id))
+        .flashing("success" -> "item.update.confirmation")
   }
 
   def linkAnnotate(id: String, toType: EntityType.Value, to: String) = linkAction(id, toType, to) {
@@ -183,7 +183,7 @@ case class Concepts @Inject()(implicit globalConfig: global.GlobalConfig, search
       }
       case Right(annotation) => {
         Redirect(conceptRoutes.get(id))
-          .flashing("success" -> Messages("item.update.confirmation", id))
+          .flashing("success" -> "item.update.confirmation")
       }
     }
   }

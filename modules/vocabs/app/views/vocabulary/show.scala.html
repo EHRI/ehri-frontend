@@ -35,5 +35,11 @@
         @sidebarAction() {
             <a href="@controllers.vocabs.routes.Vocabularies.history(item.id)">@Messages("item.history")</a>
         }
+        @common.sidebarAction(user.isAdmin) {
+            <a href="@controllers.vocabs.routes.Vocabularies.updateIndex(item.id)">@Messages("search.updateIndex")</a>
+        }
+        @common.sidebarAction() {
+            <a href="@controllers.core.routes.ApiController.getItem(item.isA, item.id)">@Messages("item.export.json")</a>
+        }
     }
 }

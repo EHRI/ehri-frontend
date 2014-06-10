@@ -20,6 +20,8 @@ POST    /permissions/:id/:userType/:userId @controllers.authorities.Authoritativ
 GET     /scope/:id/add                     @controllers.authorities.AuthoritativeSets.addScopedPermissions(id: String)
 GET     /scope/:id/:userType/:userId       @controllers.authorities.AuthoritativeSets.setScopedPermissions(id: String, userType: EntityType.Value, userId: String)
 POST    /scope/:id/:userType/:userId       @controllers.authorities.AuthoritativeSets.setScopedPermissionsPost(id: String, userType: EntityType.Value, userId: String)
+GET     /reindex/:id                       @controllers.authorities.AuthoritativeSets.updateIndex(id: String)
+POST    /reindex/:id                       @controllers.authorities.AuthoritativeSets.updateIndexPost(id: String)
 
 GET     /cpf                               @controllers.authorities.HistoricalAgents.search
 GET     /cpf/list                          @controllers.authorities.HistoricalAgents.list

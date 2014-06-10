@@ -4,7 +4,6 @@ import play.api.libs.concurrent.Execution.Implicits._
 import forms.VisibilityForm
 import models._
 import controllers.generic._
-import play.api.mvc._
 import play.api.i18n.Messages
 import defines.{ContentTypes,EntityType,PermissionType}
 import views.Helpers
@@ -172,7 +171,7 @@ case class DocumentaryUnits @Inject()(implicit globalConfig: global.GlobalConfig
       case Left(errorForm) => BadRequest(views.html.documentaryUnit.edit(
           olditem, errorForm, docRoutes.updatePost(id)))
       case Right(item) => Redirect(docRoutes.get(item.id))
-        .flashing("success" -> play.api.i18n.Messages("item.update.confirmation", item.id))
+        .flashing("success" -> "item.update.confirmation")
     }
   }
 
@@ -191,7 +190,7 @@ case class DocumentaryUnits @Inject()(implicit globalConfig: global.GlobalConfig
           docRoutes.createDocPost(id)))
       }
       case Right(doc) => immediate(Redirect(docRoutes.get(doc.id))
-        .flashing("success" -> Messages("item.create.confirmation", doc.id)))
+        .flashing("success" -> "item.create.confirmation"))
     }
   }
 
@@ -209,16 +208,17 @@ case class DocumentaryUnits @Inject()(implicit globalConfig: global.GlobalConfig
           errorForm, formDefaults, docRoutes.createDescriptionPost(id)))
       }
       case Right(updated) => Redirect(docRoutes.get(item.id))
-        .flashing("success" -> Messages("item.create.confirmation", item.id))
+        .flashing("success" -> "item.create.confirmation")
     }
   }
 
   def updateDescription(id: String, did: String) = withItemPermission[DocumentaryUnit](id, PermissionType.Update, contentType) {
       item => implicit userOpt => implicit request =>
-    val desc = item.model.description(did).getOrElse(sys.error("Description not found: " + did))
-    Ok(views.html.documentaryUnit.editDescription(item,
-      descriptionForm.fill(desc),
-      docRoutes.updateDescriptionPost(id, did)))
+    itemOr404(item.model.description(did)) { desc =>
+      Ok(views.html.documentaryUnit.editDescription(item,
+        descriptionForm.fill(desc),
+        docRoutes.updateDescriptionPost(id, did)))
+    }
   }
 
   def updateDescriptionPost(id: String, did: String) = updateDescriptionPostAction(id, EntityType.DocumentaryUnitDescription, did, descriptionForm) {
@@ -229,7 +229,7 @@ case class DocumentaryUnits @Inject()(implicit globalConfig: global.GlobalConfig
           errorForm, docRoutes.updateDescriptionPost(id, did)))
       }
       case Right(updated) => Redirect(docRoutes.get(item.id))
-        .flashing("success" -> Messages("item.create.confirmation", item.id))
+        .flashing("success" -> "item.update.confirmation")
     }
   }
 
@@ -243,7 +243,7 @@ case class DocumentaryUnits @Inject()(implicit globalConfig: global.GlobalConfig
   def deleteDescriptionPost(id: String, did: String) = deleteDescriptionPostAction(id, EntityType.DocumentaryUnitDescription, did) {
       ok => implicit userOpt => implicit request =>
     Redirect(docRoutes.get(id))
-        .flashing("success" -> Messages("item.delete.confirmation", id))
+        .flashing("success" -> "item.delete.confirmation")
   }
 
   def delete(id: String) = deleteAction(id) {
@@ -256,7 +256,7 @@ case class DocumentaryUnits @Inject()(implicit globalConfig: global.GlobalConfig
   def deletePost(id: String) = deletePostAction(id) {
       ok => implicit userOpt => implicit request =>
     Redirect(docRoutes.search())
-        .flashing("success" -> Messages("item.delete.confirmation", id))
+        .flashing("success" -> "item.delete.confirmation")
   }
 
   def visibility(id: String) = visibilityAction(id) {
@@ -269,7 +269,7 @@ case class DocumentaryUnits @Inject()(implicit globalConfig: global.GlobalConfig
   def visibilityPost(id: String) = visibilityPostAction(id) {
       ok => implicit userOpt => implicit request =>
     Redirect(docRoutes.get(id))
-        .flashing("success" -> Messages("item.update.confirmation", id))
+        .flashing("success" -> "item.update.confirmation")
   }
 
   def managePermissions(id: String) = manageScopedPermissionsAction(id) {
@@ -300,7 +300,7 @@ case class DocumentaryUnits @Inject()(implicit globalConfig: global.GlobalConfig
   def setItemPermissionsPost(id: String, userType: EntityType.Value, userId: String) = setItemPermissionsPostAction(id, userType, userId) {
       bool => implicit userOpt => implicit request =>
     Redirect(docRoutes.managePermissions(id))
-        .flashing("success" -> Messages("item.update.confirmation", id))
+        .flashing("success" -> "item.update.confirmation")
   }
 
   def setScopedPermissions(id: String, userType: EntityType.Value, userId: String) = setScopedPermissionsAction(id, userType, userId) {
@@ -312,7 +312,7 @@ case class DocumentaryUnits @Inject()(implicit globalConfig: global.GlobalConfig
   def setScopedPermissionsPost(id: String, userType: EntityType.Value, userId: String) = setScopedPermissionsPostAction(id, userType, userId) {
       perms => implicit userOpt => implicit request =>
     Redirect(docRoutes.managePermissions(id))
-        .flashing("success" -> Messages("item.update.confirmation", id))
+        .flashing("success" -> "item.update.confirmation")
   }
 
   def linkTo(id: String) = withItemPermission[DocumentaryUnit](id, PermissionType.Annotate, contentType) {
@@ -342,7 +342,7 @@ case class DocumentaryUnits @Inject()(implicit globalConfig: global.GlobalConfig
       }
       case Right(annotation) => {
         Redirect(docRoutes.get(id))
-          .flashing("success" -> Messages("item.update.confirmation", id))
+          .flashing("success" -> "item.update.confirmation")
       }
     }
   }
@@ -362,7 +362,7 @@ case class DocumentaryUnits @Inject()(implicit globalConfig: global.GlobalConfig
       }
       case Right(annotations) => {
         Redirect(docRoutes.get(id))
-          .flashing("success" -> Messages("item.update.confirmation", id))
+          .flashing("success" -> "item.update.confirmation")
       }
     }
   }

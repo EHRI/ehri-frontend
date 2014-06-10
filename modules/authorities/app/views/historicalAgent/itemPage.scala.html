@@ -22,7 +22,7 @@
             <a href="@controllers.authorities.routes.HistoricalAgents.history(item.id)">@Messages("item.history")</a>
         }
         @common.sidebarAction() {
-            <a href="@controllers.core.routes.ApiController.getItem(ContentTypes.HistoricalAgent.toString, item.id)">@Messages("item.export.json")</a>
+            <a href="@controllers.core.routes.ApiController.getItem(item.isA, item.id)">@Messages("item.export.json")</a>
         }
     }
 }
