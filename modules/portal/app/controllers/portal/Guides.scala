@@ -58,7 +58,7 @@ case class Guides @Inject()(implicit globalConfig: global.GlobalConfig, searchDi
   def mapParams(request: Request[AnyContent]): (Map[String, Any], utils.search.SearchOrder.Value) = {
     GeoCoordinates.form.bindFromRequest(request.queryString).fold(
       errorForm => {
-        (Map("pt" -> errorForm.toString) -> SearchOrder.Name)
+        (Map.empty -> SearchOrder.Name)
       },
       latlng => { 
         (Map("pt" -> latlng.toString, "sfield" -> "location", "sort" -> "geodist() asc") -> SearchOrder.Location)
