@@ -3,36 +3,36 @@
 @import utils.search.{SearchParams,SearchOrder}
 
 @helper.form(action = action, 'class -> "") {
-<div class="row">
-    <div class="col-md-12">
-        <div class="input-group">
-            <input type="text"
-                    placeholder="@Messages("search.queryPlaceholder")"
-                    class="form-control" name="@SearchParams.QUERY" value="@params.query" @{if(autofocus) "autofocus"} />
-            <span class="input-group-btn">
-                 <button class="btn btn-default">
-                    <i class="glyphicon glyphicon-search"></i>
-                     @Messages("forms.search")
-                </button>
-            </span>
+    <div class="row">
+        <div class="col-md-12">
+            <div class="input-group">
+                <input type="text"
+                        placeholder="@Messages("search.queryPlaceholder")"
+                        class="form-control" name="@SearchParams.QUERY" value="@params.query" @{if(autofocus) "autofocus"} />
+                <span class="input-group-btn">
+                     <button class="btn btn-default">
+                        <i class="glyphicon glyphicon-search"></i>
+                         @Messages("forms.search")
+                    </button>
+                </span>
+            </div>
         </div>
     </div>
-</div>
-<div class="row">
-    <div class="col-md-6">
-        @common.searchSummary(result, params)
+    <div class="row">
+        <div class="col-md-6">
+            @common.searchSummary(result, params)
+        </div>
+        <div class="col-md-6">
+            @common.searchSort(params)
+        </div>
     </div>
-    <div class="col-md-6">
-        @common.searchSort(params)
+    <div class="row">
+        <div class="col-md-12">
+            <p>
+                @common.selectedFacets(result)
+            </p>
+        </div>
     </div>
-</div>
-<div class="row">
-    <div class="col-md-12">
-        <p>
-            @common.selectedFacets(result)
-        </p>
-    </div>
-</div>
     @html
     @common.pagination(result)
 }
