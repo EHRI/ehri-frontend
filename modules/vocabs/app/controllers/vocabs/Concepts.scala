@@ -50,16 +50,13 @@ case class Concepts @Inject()(implicit globalConfig: global.GlobalConfig, search
     )
   }
 
-  // Search params
-  val DEFAULT_SEARCH_PARAMS = SearchParams(entities = List(EntityType.Concept))
-
 
   def get(id: String) = getWithChildrenAction[Concept](id) {
       item => page => params => annotations => links => implicit userOpt => implicit request =>
     Ok(views.html.concept.show(item, page, params, annotations))
   }
 
-  def search = searchAction[Concept](defaultParams = Some(DEFAULT_SEARCH_PARAMS), entityFacets = entityFacets) {
+  def search = searchAction[Concept](entities = List(EntityType.Concept), entityFacets = entityFacets) {
       page => params => facets => implicit userOpt => implicit request =>
     Ok(views.html.concept.search(page, params, facets, conceptRoutes.search()))
   }

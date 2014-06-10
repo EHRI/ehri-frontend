@@ -53,13 +53,12 @@ case class Portal @Inject()(implicit globalConfig: global.GlobalConfig, searchDi
     EntityType.Country
   )
 
-  private val defaultSearchParams = SearchParams(entities = defaultSearchTypes, sort = Some(SearchOrder.Score))
-
   def search = userBrowseAction.async { implicit userDetails => implicit request =>
-    Query(
-      defaultParams = Some(defaultSearchParams),
-      entityFacets = globalSearchFacets, mode = SearchMode.DefaultNone
-    ).get[AnyModel].map { case QueryResult(page, params, facets) =>
+    find[AnyModel](
+      defaultParams = SearchParams(
+        entities = defaultSearchTypes, sort = Some(SearchOrder.Score)),
+      facetBuilder = globalSearchFacets, mode = SearchMode.DefaultNone
+    ).map { case QueryResult(page, params, facets) =>
       Ok(p.search(page, params, facets, portalRoutes.search(), userDetails.watchedItems))
     }
   }
@@ -81,11 +80,12 @@ case class Portal @Inject()(implicit globalConfig: global.GlobalConfig, searchDi
   }
 
   def index = userProfileAction.async { implicit userOpt => implicit request =>
-    Query(
-      defaultParams = Some(SearchParams(sort = Some(SearchOrder.Country),
-      entities = List(EntityType.Repository, EntityType.DocumentaryUnit, EntityType.HistoricalAgent, EntityType.Country))),
-      entityFacets = entityMetrics
-    ).get[AnyModel].map { case QueryResult(page, params, facets) =>
+    find[AnyModel](
+      defaultParams = SearchParams(
+        sort = Some(SearchOrder.Country),
+        entities = List(EntityType.Repository, EntityType.DocumentaryUnit, EntityType.HistoricalAgent, EntityType.Country)),
+      facetBuilder = entityMetrics
+    ).map { case QueryResult(page, params, facets) =>
       Ok(p.portal(Stats(page.facets)))
     }
   }
@@ -104,19 +104,20 @@ case class Portal @Inject()(implicit globalConfig: global.GlobalConfig, searchDi
   }
 
   def browseCountries = userBrowseAction.async { implicit userDetails => implicit request =>
-    Query(defaultParams = Some(SearchParams(entities = List(EntityType.Country))),
-      entityFacets = countryFacets
-    ).get[Country].map { case QueryResult(page, params, facets) =>
+    find[Country](entities = List(EntityType.Country),
+      facetBuilder = countryFacets
+    ).map { case QueryResult(page, params, facets) =>
       Ok(p.country.list(page, params, facets, portalRoutes.browseCountries(), userDetails.watchedItems))
     }
   }
 
   def browseRepositoriesByCountry = userBrowseAction.async { implicit userDetails => implicit request =>
-    Query(
-      defaultParams = Some(SearchParams(sort = Some(SearchOrder.Country),
-        entities = List(EntityType.Repository))),
-      entityFacets = repositorySearchFacets
-    ).get[Repository].map { case QueryResult(page, params, facets) =>
+    find[Repository](
+      defaultParams = SearchParams(
+        sort = Some(SearchOrder.Country),
+        entities = List(EntityType.Repository)),
+      facetBuilder = repositorySearchFacets
+    ).map { case QueryResult(page, params, facets) =>
         Ok(p.repository.listByCountry(page, params, facets,
           portalRoutes.browseRepositoriesByCountry(),
           userDetails.watchedItems))
@@ -131,11 +132,11 @@ case class Portal @Inject()(implicit globalConfig: global.GlobalConfig, searchDi
 
   def searchCountry(id: String) = getAction.async[Country](EntityType.Country, id) {
       item => details => implicit userOpt => implicit request =>
-    Query(
+    find[Repository](
       filters = Map("countryCode" -> item.id),
-      entityFacets = repositorySearchFacets,
-      defaultParams = Some(SearchParams(entities = List(EntityType.Repository)))
-    ).get[Repository].map { case QueryResult(page, params, facets) =>
+      facetBuilder = repositorySearchFacets,
+      entities = List(EntityType.Repository)
+    ).map { case QueryResult(page, params, facets) =>
       if (isAjax) Ok(p.country.childItemSearch(item, page, params, facets,
           portalRoutes.searchCountry(id), details.watched))
       else Ok(p.country.search(item, page, params, facets,
@@ -144,10 +145,10 @@ case class Portal @Inject()(implicit globalConfig: global.GlobalConfig, searchDi
   }
 
   def browseRepositories =  userBrowseAction.async { implicit userDetails => implicit request =>
-    Query(
-      defaultParams = Some(SearchParams(entities = List(EntityType.Repository))),
-      entityFacets = repositorySearchFacets
-    ).get[Repository].map { case QueryResult(page, params, facets) =>
+    find[Repository](
+      entities = List(EntityType.Repository),
+      facetBuilder = repositorySearchFacets
+    ).map { case QueryResult(page, params, facets) =>
       Ok(p.repository.list(page, params, facets, portalRoutes.browseRepositories(),
         userDetails.watchedItems))
     }
@@ -163,11 +164,11 @@ case class Portal @Inject()(implicit globalConfig: global.GlobalConfig, searchDi
       item => details => implicit userOpt => implicit request =>
     val filters = (if (request.getQueryString(SearchParams.QUERY).filterNot(_.trim.isEmpty).isEmpty)
       Map(SolrConstants.TOP_LEVEL -> true) else Map.empty[String,Any]) ++ Map(SolrConstants.HOLDER_ID -> item.id)
-    Query(
+    find[DocumentaryUnit](
       filters = filters,
-      defaultParams = Some(SearchParams(entities = List(EntityType.DocumentaryUnit))),
-      entityFacets = docSearchFacets
-    ).get[DocumentaryUnit].map { case QueryResult(page, params, facets) =>
+      entities = List(EntityType.DocumentaryUnit),
+      facetBuilder = docSearchFacets
+    ).map { case QueryResult(page, params, facets) =>
         if(isAjax) Ok(p.repository.childItemSearch(item, page, params, facets,
           portalRoutes.searchRepository(id), details.watched))
         else Ok(p.repository.search(item, page, params, facets,
@@ -176,20 +177,22 @@ case class Portal @Inject()(implicit globalConfig: global.GlobalConfig, searchDi
   }
 
   def browseDocuments = userBrowseAction.async { implicit userDetails => implicit request =>
-    Query(
-      defaultParams = Some(SearchParams(entities = List(EntityType.DocumentaryUnit))),
-      entityFacets = docSearchFacets
-    ).get[DocumentaryUnit].map { case QueryResult(page, params, facets) =>
+    find[DocumentaryUnit](
+      entities = List(EntityType.DocumentaryUnit),
+      facetBuilder = docSearchFacets
+    ).map { case QueryResult(page, params, facets) =>
       Ok(p.documentaryUnit.list(page, params, facets, portalRoutes.browseDocuments(),
         userDetails.watchedItems))
     }
   }
 
   def browseDocumentsByRepository = userBrowseAction.async { implicit userDetails => implicit request =>
-    Query(
-      defaultParams = Some(SearchParams(sort = Some(SearchOrder.Holder), entities = List(EntityType.DocumentaryUnit))),
-      entityFacets = docSearchRepositoryFacets
-    ).get[DocumentaryUnit].map { case QueryResult(page, params, facets) =>
+    find[DocumentaryUnit](
+      defaultParams = SearchParams(
+        sort = Some(SearchOrder.Holder),
+        entities = List(EntityType.DocumentaryUnit)),
+      facetBuilder = docSearchRepositoryFacets
+    ).map { case QueryResult(page, params, facets) =>
       Ok(p.documentaryUnit.listByRepository(page, params, facets, portalRoutes.browseDocumentsByRepository(),
         userDetails.watchedItems))
     }
@@ -203,11 +206,11 @@ case class Portal @Inject()(implicit globalConfig: global.GlobalConfig, searchDi
 
   def searchDocument(id: String) = getAction.async[DocumentaryUnit](EntityType.DocumentaryUnit, id) {
       item => details => implicit userOpt => implicit request =>
-    Query(
+    find[DocumentaryUnit](
       filters = Map(SolrConstants.PARENT_ID -> item.id),
-      defaultParams = Some(SearchParams(entities = List(EntityType.DocumentaryUnit))),
-      entityFacets = docSearchFacets
-    ).get[DocumentaryUnit].map { case QueryResult(page, params, facets) =>
+      entities = List(EntityType.DocumentaryUnit),
+      facetBuilder = docSearchFacets
+    ).map { case QueryResult(page, params, facets) =>
       if (isAjax) Ok(p.documentaryUnit.childItemSearch(item, page, params, facets,
           portalRoutes.searchDocument(id), details.watched))
       else Ok(p.documentaryUnit.search(item, page, params, facets,
@@ -216,10 +219,10 @@ case class Portal @Inject()(implicit globalConfig: global.GlobalConfig, searchDi
   }
 
   def browseHistoricalAgents = userBrowseAction.async { implicit userDetails => implicit request =>
-    Query(
-      defaultParams = Some(SearchParams(entities = List(EntityType.HistoricalAgent))),
-      entityFacets = historicalAgentFacets
-    ).get[HistoricalAgent].map { case QueryResult(page, params, facets) =>
+    find[HistoricalAgent](
+      entities = List(EntityType.HistoricalAgent),
+      facetBuilder = historicalAgentFacets
+    ).map { case QueryResult(page, params, facets) =>
       Ok(p.historicalAgent.list(page, params, facets,
         portalRoutes.browseHistoricalAgents(), userDetails.watchedItems))
     }
@@ -249,11 +252,11 @@ case class Portal @Inject()(implicit globalConfig: global.GlobalConfig, searchDi
   def searchVocabulary(id: String) = getAction.async[Vocabulary](EntityType.Vocabulary, id) {
       item => details => implicit userOpt => implicit request =>
     val filters = Map(SolrConstants.HOLDER_ID -> item.id, SolrConstants.TOP_LEVEL -> true.toString)
-    Query(
+    find[Concept](
       filters = filters,
-      defaultParams = Some(SearchParams(entities = List(EntityType.Concept))),
-      entityFacets = conceptFacets
-    ).get[Concept].map { case QueryResult(page, params, facets) =>
+      entities = List(EntityType.Concept),
+      facetBuilder = conceptFacets
+    ).map { case QueryResult(page, params, facets) =>
       if (isAjax) Ok(p.vocabulary.childItemSearch(item, page, params, facets,
         portalRoutes.searchVocabulary(id), details.watched))
       else Ok(p.vocabulary.search(item, page, params, facets,
@@ -264,21 +267,21 @@ case class Portal @Inject()(implicit globalConfig: global.GlobalConfig, searchDi
 
   def browseConcept(id: String) = getAction.async[Concept](EntityType.Concept, id) {
       item => details => implicit userOpt => implicit request =>
-    Query(
+    find[Concept](
       filters = Map("parentId" -> item.id),
-      entityFacets = conceptFacets,
-      defaultParams = Some(SearchParams(entities = List(EntityType.Concept)))
-    ).get[Concept].map { case QueryResult(page, params, facets) =>
+      facetBuilder = conceptFacets,
+      entities = List(EntityType.Concept)
+    ).map { case QueryResult(page, params, facets) =>
       Ok(p.concept.show(item, page, params, facets,
         portalRoutes.browseConcept(id), details.annotations, details.links, details.watched))
     }
   }
 
   def browseConcepts = userBrowseAction.async { implicit userDetails => implicit request =>
-    Query(
-      defaultParams = Some(SearchParams(entities = List(EntityType.Concept))),
-      entityFacets = conceptFacets
-    ).get[Concept].map { case QueryResult(page, params, facets) =>
+    find[Concept](
+      entities = List(EntityType.Concept),
+      facetBuilder = conceptFacets
+    ).map { case QueryResult(page, params, facets) =>
       Ok(p.concept.list(page, params, facets, portalRoutes.browseConcepts(),
         userDetails.watchedItems))
     }

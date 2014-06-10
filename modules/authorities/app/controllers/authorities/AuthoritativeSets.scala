@@ -12,6 +12,7 @@ import scala.concurrent.Future.{successful => immediate}
 import backend.{IdGenerator, Backend}
 import play.api.Configuration
 import play.api.Play.current
+import solr.SolrConstants
 
 @Singleton
 case class
@@ -32,17 +33,14 @@ AuthoritativeSets @Inject()(implicit globalConfig: global.GlobalConfig, searchDi
   private val childForm = models.HistoricalAgent.form
   private val setRoutes = controllers.authorities.routes.AuthoritativeSets
 
-  // Search params
-  val DEFAULT_SEARCH_PARAMS = SearchParams(sort = Some(SearchOrder.Name), entities=List(resource.entityType))
 
-
-  def get(id: String) = getAction.async(id) {
-      item => annotations => links => implicit userOpt => implicit request =>
-    searchAction[HistoricalAgent](Map("holderId" -> item.id), defaultParams = Some(SearchParams(entities=List(EntityType.HistoricalAgent)))) {
-        page => params => facets => _ => _ =>
+  def get(id: String) = getAction.async(id) { item => annotations => links => implicit userOpt => implicit request =>
+    find[HistoricalAgent](
+      filters = Map(SolrConstants.HOLDER_ID -> item.id),
+      entities=List(EntityType.HistoricalAgent)).map { r =>
       Ok(views.html.authoritativeSet.show(
-          item, page, params, facets, setRoutes.get(id), annotations, links))
-    }.apply(request)
+          item, r.page, r.params, r.facets, setRoutes.get(id), annotations, links))
+    }
   }
 
   def history(id: String) = historyAction(id) { item => page => params => implicit userOpt => implicit request =>
@@ -54,13 +52,13 @@ AuthoritativeSets @Inject()(implicit globalConfig: global.GlobalConfig, searchDi
   }
 
   def create = createAction { users => groups => implicit userOpt => implicit request =>
-    Ok(views.html.authoritativeSet.create(form, VisibilityForm.form, users, groups, setRoutes.createPost))
+    Ok(views.html.authoritativeSet.create(form, VisibilityForm.form, users, groups, setRoutes.createPost()))
   }
 
   def createPost = createPostAction.async(form) { formsOrItem => implicit userOpt => implicit request =>
     formsOrItem match {
       case Left((errorForm,accForm)) => getUsersAndGroups { users => groups =>
-        BadRequest(views.html.authoritativeSet.create(errorForm, accForm, users, groups, setRoutes.createPost))
+        BadRequest(views.html.authoritativeSet.create(errorForm, accForm, users, groups, setRoutes.createPost()))
       }
       case Right(item) => immediate(Redirect(setRoutes.get(item.id))
         .flashing("success" -> Messages("item.create.confirmation", item.id)))
@@ -135,13 +133,13 @@ AuthoritativeSets @Inject()(implicit globalConfig: global.GlobalConfig, searchDi
   def addItemPermissions(id: String) = addItemPermissionsAction(id) {
       item => users => groups => implicit userOpt => implicit request =>
     Ok(views.html.permissions.permissionItem(item, users, groups,
-        setRoutes.setItemPermissions _))
+        setRoutes.setItemPermissions))
   }
 
   def addScopedPermissions(id: String) = addItemPermissionsAction(id) {
       item => users => groups => implicit userOpt => implicit request =>
     Ok(views.html.permissions.permissionScope(item, users, groups,
-        setRoutes.setScopedPermissions _))
+        setRoutes.setScopedPermissions))
   }
 
   def setItemPermissions(id: String, userType: EntityType.Value, userId: String) = setItemPermissionsAction(id, userType, userId) {

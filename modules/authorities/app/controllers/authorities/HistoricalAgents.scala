@@ -44,12 +44,8 @@ case class HistoricalAgents @Inject()(implicit globalConfig: global.GlobalConfig
     )
   }
 
-  // Search params
-  val DEFAULT_SEARCH_PARAMS = SearchParams(entities = List(resource.entityType))
 
-
-
-  def search = searchAction[HistoricalAgent](defaultParams = Some(DEFAULT_SEARCH_PARAMS), entityFacets = entityFacets) {
+  def search = searchAction[HistoricalAgent](entities = List(resource.entityType), entityFacets = entityFacets) {
       page => params => facets => implicit userOpt => implicit request =>
     Ok(views.html.historicalAgent.search(page, params, facets, histRoutes.search()))
   }

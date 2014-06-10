@@ -93,12 +93,10 @@ case class Repositories @Inject()(implicit globalConfig: global.GlobalConfig, se
 
   private val childForm = models.DocumentaryUnit.form
 
-  private val DEFAULT_SEARCH_PARAMS = SearchParams(entities = List(resource.entityType))
-
   private val repositoryRoutes = controllers.archdesc.routes.Repositories
 
 
-  def search = searchAction[Repository](defaultParams = Some(DEFAULT_SEARCH_PARAMS), entityFacets = repositoryFacets) {
+  def search = searchAction[Repository](entities = List(resource.entityType), entityFacets = repositoryFacets) {
       page => params => facets => implicit userOpt => implicit request =>
     Ok(views.html.repository.search(page, params, facets, repositoryRoutes.search()))
   }
@@ -111,11 +109,11 @@ case class Repositories @Inject()(implicit globalConfig: global.GlobalConfig, se
     val filters = (if (request.getQueryString(SearchParams.QUERY).filterNot(_.trim.isEmpty).isEmpty)
       Map(SolrConstants.TOP_LEVEL -> true) else Map.empty[String,Any]) ++ Map(SolrConstants.HOLDER_ID -> item.id)
 
-    Query(
+    find[DocumentaryUnit](
       filters = filters,
-      defaultParams = Some(SearchParams(entities = List(EntityType.DocumentaryUnit))),
-      entityFacets = repositoryFacets
-    ).get[DocumentaryUnit].map { result =>
+      entities = List(EntityType.DocumentaryUnit),
+      facetBuilder = repositoryFacets
+    ).map { result =>
       Ok(views.html.repository.show(item, result.page, result.params, result.facets,
         repositoryRoutes.get(id), annotations, links))
     }

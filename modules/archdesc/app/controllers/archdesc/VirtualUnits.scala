@@ -78,8 +78,6 @@ case class VirtualUnits @Inject()(implicit globalConfig: global.GlobalConfig, se
   val childForm = models.VirtualUnit.form
   val descriptionForm = models.DocumentaryUnitDescription.form
 
-  val DEFAULT_SEARCH_PARAMS = SearchParams(entities=List(resource.entityType))
-
   private val vuRoutes = controllers.archdesc.routes.VirtualUnits
 
   def search = userProfileAction.async { implicit userOpt => implicit request =>
@@ -89,31 +87,31 @@ case class VirtualUnits @Inject()(implicit globalConfig: global.GlobalConfig, se
 
     val filters = if (request.getQueryString(SearchParams.QUERY).isEmpty)
       Map(SolrConstants.TOP_LEVEL -> true) else Map.empty[String,Any]
-    Query(
+    find[VirtualUnit](
       filters = filters,
-      defaultParams = Some(DEFAULT_SEARCH_PARAMS),
-      entityFacets = entityFacets
-    ).get[VirtualUnit].map { result =>
+      entities = List(EntityType.VirtualUnit),
+      facetBuilder = entityFacets
+    ).map { result =>
       Ok(views.html.virtualUnit.search(result.page, result.params, result.facets, vuRoutes.search()))
     }
   }
 
   def searchChildren(id: String) = itemPermissionAction.async[VirtualUnit](contentType, id) {
       item => implicit userOpt => implicit request =>
-    Query(
+    find[VirtualUnit](
       filters = Map(SolrConstants.PARENT_ID -> item.id),
-      entityFacets = entityFacets
-    ).get[VirtualUnit].map { result =>
+      facetBuilder = entityFacets
+    ).map { result =>
       Ok(views.html.virtualUnit.search(result.page, result.params, result.facets, vuRoutes.search()))
     }
   }
 
   def get(id: String) = getAction.async(id) { item => annotations => links => implicit userOpt => implicit request =>
-    Query(
+    find[VirtualUnit](
       filters = Map(SolrConstants.PARENT_ID -> item.id),
-      defaultParams = Some(SearchParams(entities = List(EntityType.VirtualUnit))),
-      entityFacets = entityFacets
-    ).get[VirtualUnit].map { result =>
+      entities = List(EntityType.VirtualUnit),
+      facetBuilder = entityFacets
+    ).map { result =>
       Ok(views.html.virtualUnit.show(item, result.page, result.params, result.facets,
           vuRoutes.get(id), annotations, links))
     }

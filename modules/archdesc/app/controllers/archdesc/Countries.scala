@@ -38,16 +38,14 @@ case class Countries @Inject()(implicit globalConfig: global.GlobalConfig, searc
   private val form = models.Country.form
   private val childForm = models.Repository.form
 
-  // Search memebers
-  private val DEFAULT_SEARCH_PARAMS = SearchParams(entities = List(resource.entityType))
-
   private final val countryRoutes = controllers.archdesc.routes.Countries
 
+
   def get(id: String) = getAction.async(id) { item => annotations => links => implicit userOpt => implicit request =>
-    Query(
+    find[Repository](
       filters = Map(SolrConstants.COUNTRY_CODE -> item.id),
-      defaultParams = Some(SearchParams(entities = List(EntityType.Repository)))
-    ).get[Repository].map { result =>
+      entities = List(EntityType.Repository)
+    ).map { result =>
       Ok(views.html.country.show(item, result.page, result.params, result.facets,
         countryRoutes.get(id), annotations, links))
     }
@@ -61,7 +59,7 @@ case class Countries @Inject()(implicit globalConfig: global.GlobalConfig, searc
     Ok(views.html.country.list(page, params))
   }
 
-  def search = searchAction[Country](defaultParams = Some(DEFAULT_SEARCH_PARAMS)) {
+  def search = searchAction[Country](entities = List(resource.entityType)) {
       page => params => facets => implicit userOpt => implicit request =>
     Ok(views.html.country.search(page, params, facets, countryRoutes.search))
   }
