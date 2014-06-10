@@ -29,7 +29,7 @@
             <a href="@controllers.archdesc.routes.DocumentaryUnits.managePermissions(item.id)">@Messages("permissions.manage")</a>
         }
         @common.sidebarAction() {
-            <a href="@controllers.core.routes.ApiController.getItem(ContentTypes.DocumentaryUnit.toString, item.id)">@Messages("item.export.json")</a>
+            <a href="@controllers.core.routes.ApiController.getItem(item.isA, item.id)">@Messages("item.export.json")</a>
         }
     }
 }

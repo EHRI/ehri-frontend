@@ -2,8 +2,8 @@
 
 # API
 GET     /api/:id                                @controllers.core.ApiController.getAny(id: String)
-GET     /api/:contentType/list                  @controllers.core.ApiController.listItems(contentType: String)
-GET     /api/:contentType/:id                   @controllers.core.ApiController.getItem(contentType: String, id: String)
+GET     /api/:contentType/list                  @controllers.core.ApiController.listItems(contentType: defines.EntityType.Value)
+GET     /api/:contentType/:id                   @controllers.core.ApiController.getItem(contentType: defines.EntityType.Value, id: String)
 GET     /api/*path                              @controllers.core.ApiController.get(path: String)
 
 # Change locale

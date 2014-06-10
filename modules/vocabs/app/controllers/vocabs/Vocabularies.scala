@@ -4,9 +4,8 @@ import play.api.libs.concurrent.Execution.Implicits._
 import forms.VisibilityForm
 import controllers.generic._
 import models._
-import play.api.i18n.Messages
 import defines.{ContentTypes, EntityType}
-import utils.search.{Resolver, Dispatcher, SearchParams}
+import utils.search.{Indexer, Resolver, Dispatcher}
 import com.google.inject._
 import scala.concurrent.Future.{successful => immediate}
 import backend.Backend
@@ -14,11 +13,12 @@ import solr.SolrConstants
 
 
 @Singleton
-case class Vocabularies @Inject()(implicit globalConfig: global.GlobalConfig, searchDispatcher: Dispatcher, searchResolver: Resolver, backend: Backend, userDAO: AccountDAO) extends CRUD[VocabularyF,Vocabulary]
+case class Vocabularies @Inject()(implicit globalConfig: global.GlobalConfig, searchDispatcher: Dispatcher, searchIndexer: Indexer, searchResolver: Resolver, backend: Backend, userDAO: AccountDAO) extends CRUD[VocabularyF,Vocabulary]
   with Creator[ConceptF, Concept, Vocabulary]
   with Visibility[Vocabulary]
   with ScopePermissions[Vocabulary]
   with Annotate[Vocabulary]
+  with Indexable[Vocabulary]
   with Search {
 
   implicit val resource = Vocabulary.Resource
@@ -60,7 +60,7 @@ case class Vocabularies @Inject()(implicit globalConfig: global.GlobalConfig, se
         BadRequest(views.html.vocabulary.create(errorForm, accForm, users, groups, vocabRoutes.createPost))
       }
       case Right(item) => immediate(Redirect(vocabRoutes.get(item.id))
-        .flashing("success" -> Messages("item.create.confirmation", item.id)))
+        .flashing("success" -> "item.create.confirmation"))
     }
   }
 
@@ -75,7 +75,7 @@ case class Vocabularies @Inject()(implicit globalConfig: global.GlobalConfig, se
       case Left(errorForm) => BadRequest(views.html.vocabulary.edit(
           olditem, errorForm, vocabRoutes.updatePost(id)))
       case Right(item) => Redirect(vocabRoutes.get(item.id))
-        .flashing("success" -> play.api.i18n.Messages("item.update.confirmation", item.id))
+        .flashing("success" -> "item.update.confirmation")
     }
   }
 
@@ -94,7 +94,7 @@ case class Vocabularies @Inject()(implicit globalConfig: global.GlobalConfig, se
           errorForm, accForm, users, groups, vocabRoutes.createConceptPost(id)))
       }
       case Right(citem) => immediate(Redirect(vocabRoutes.get(id))
-        .flashing("success" -> Messages("item.create.confirmation", citem.id)))
+        .flashing("success" -> "item.create.confirmation"))
     }
   }
 
@@ -106,7 +106,7 @@ case class Vocabularies @Inject()(implicit globalConfig: global.GlobalConfig, se
 
   def deletePost(id: String) = deletePostAction(id) { ok => implicit userOpt => implicit request =>
     Redirect(vocabRoutes.list())
-        .flashing("success" -> Messages("item.delete.confirmation", id))
+      .flashing("success" -> "item.delete.confirmation")
   }
 
   def visibility(id: String) = visibilityAction(id) { item => users => groups => implicit userOpt => implicit request =>
@@ -117,7 +117,7 @@ case class Vocabularies @Inject()(implicit globalConfig: global.GlobalConfig, se
 
   def visibilityPost(id: String) = visibilityPostAction(id) { ok => implicit userOpt => implicit request =>
     Redirect(vocabRoutes.get(id))
-        .flashing("success" -> Messages("item.update.confirmation", id))
+        .flashing("success" -> "item.update.confirmation")
   }
 
   def managePermissions(id: String) = manageScopedPermissionsAction(id) {
@@ -147,7 +147,7 @@ case class Vocabularies @Inject()(implicit globalConfig: global.GlobalConfig, se
   def setItemPermissionsPost(id: String, userType: EntityType.Value, userId: String) = setItemPermissionsPostAction(id, userType, userId) {
       bool => implicit userOpt => implicit request =>
     Redirect(vocabRoutes.managePermissions(id))
-        .flashing("success" -> Messages("item.update.confirmation", id))
+        .flashing("success" -> "item.update.confirmation")
   }
 
   def setScopedPermissions(id: String, userType: EntityType.Value, userId: String) = setScopedPermissionsAction(id, userType, userId) {
@@ -159,8 +159,17 @@ case class Vocabularies @Inject()(implicit globalConfig: global.GlobalConfig, se
   def setScopedPermissionsPost(id: String, userType: EntityType.Value, userId: String) = setScopedPermissionsPostAction(id, userType, userId) {
       perms => implicit userOpt => implicit request =>
     Redirect(vocabRoutes.managePermissions(id))
-        .flashing("success" -> Messages("item.update.confirmation", id))
+        .flashing("success" -> "item.update.confirmation")
   }
+
+  def updateIndex(id: String) = adminAction.async { implicit userOpt => implicit request =>
+    getEntity(id, userOpt) { item =>
+      Ok(views.html.search.updateItemIndex(item,
+        action = vocabRoutes.updateIndexPost(id)))
+    }
+  }
+
+  def updateIndexPost(id: String) = updateChildItemsPost(SolrConstants.HOLDER_ID, id)
 }
 
 
