@@ -18,6 +18,7 @@ import play.api.libs.json.JsValue
 import com.google.inject._
 import play.api.Play.current
 import models.GuidePage.Layout
+import models.GeoCoordinates
 
 case class Guides @Inject()(implicit globalConfig: global.GlobalConfig, searchDispatcher: Dispatcher, searchResolver: Resolver, backend: Backend,
                             userDAO: AccountDAO)
@@ -31,6 +32,7 @@ case class Guides @Inject()(implicit globalConfig: global.GlobalConfig, searchDi
 
   override val staffOnly = current.configuration.getBoolean("ehri.portal.secured").getOrElse(true)
   override val verifiedOnly = current.configuration.getBoolean("ehri.portal.secured").getOrElse(true)
+
 
   /*
   *
@@ -54,13 +56,15 @@ case class Guides @Inject()(implicit globalConfig: global.GlobalConfig, searchDi
   /*
   * Return Map extras param if needed
   */
-  def mapParams(request: Request[Any]): Map[String, Any] = {
-    request.getQueryString("center") match {
-      case Some(center) => {
-          Map("pt" -> center, "sfield" -> "location", "sort" -> "geodist() asc")
+  def mapParams(request: Request[AnyContent])(f: Map[String, String] => Option[String]) = {
+    GeoCoordinates.form.bindFromRequest(request.queryString).fold(
+      errorForm => {
+        f(Map.empty)(SearchOrder.Name)
+      },
+      latlng => { 
+        f(Map("pt" -> latlng, "sfield" -> "location", "sort" -> "geodist() asc"))(SearchOrder.Location)
       }
-      case _ => Map.empty
-    }
+    )
   }
 
   def returnJson(hits:utils.search.ItemPage[(models.Concept, utils.search.SearchHit)]): List[JsValue] = {
@@ -180,28 +184,27 @@ case class Guides @Inject()(implicit globalConfig: global.GlobalConfig, searchDi
   *   Layout named "map" [Concept]
   */
   def guideMap(template: GuidePage, params: Map[String, String], guide: Guide) = userBrowseAction.async { implicit userDetails => implicit request =>
-    searchAction[Concept](
-      params, 
-      extra = mapParams(request), 
-      defaultParams = Some(SearchParams(
-        entities = List(EntityType.Concept), 
-        sort = request.getQueryString("center") match {
-          case Some(center) => {Some(SearchOrder.Location)}
-          case _ => {Some(SearchOrder.Name)}
+    mapParams(request) { extra => sort =>
+      searchAction[Concept](
+        params, 
+        extra =  extra,
+        defaultParams = Some(SearchParams(
+          entities = List(EntityType.Concept), 
+          sort = sort
+        )),
+        entityFacets = conceptFacets) {
+        page => params => facets => _ => _ =>
+        render {
+          case Accepts.Html() => {
+            if (isAjax) Ok(p.guides.ajax(template -> guide, page, params))
+            else Ok(p.guides.places(template -> (guide -> guide.findPages), page, params))
+          }
+          case Accepts.Json() => {
+            Ok(Json.toJson(returnJson(page)))
+          }
         }
-      )),
-      entityFacets = conceptFacets) {
-      page => params => facets => _ => _ =>
-      render {
-        case Accepts.Html() => {
-          if (isAjax) Ok(p.guides.ajax(template -> guide, page, params))
-          else Ok(p.guides.places(template -> (guide -> guide.findPages), page, params))
-        }
-        case Accepts.Json() => {
-          Ok(Json.toJson(returnJson(page)))
-        }
-      }
-    }.apply(request)
+      }.apply(request)
+    }
   }
 
   /*
