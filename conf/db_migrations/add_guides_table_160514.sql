@@ -22,7 +22,8 @@ CREATE TABLE research_guide_page (
   layout VARCHAR(45) DEFAULT NULL,
   content text,
   path VARCHAR(45) DEFAULT NULL,
-  position VARCHAR(45) DEFAULT NULL
+  position VARCHAR(45) DEFAULT NULL,
+  params VARCHAR(255) DEFAULT NULL
 );
 
 ALTER TABLE research_guide_page ADD CONSTRAINT research_guide_page_id FOREIGN KEY (research_guide_id) REFERENCES research_guide (id) ON DELETE CASCADE;
