@@ -32,10 +32,10 @@ case class Vocabularies @Inject()(implicit globalConfig: global.GlobalConfig, se
   private val vocabRoutes = controllers.vocabs.routes.Vocabularies
 
   def get(id: String) = getAction.async(id) { item => annotations => links => implicit userOpt => implicit request =>
-    Query(
+    find[Concept](
       filters = Map(SolrConstants.HOLDER_ID -> item.id),
-      defaultParams = Some(SearchParams(entities=List(EntityType.Concept)))
-    ).get[Concept].map { result =>
+      entities = List(EntityType.Concept)
+    ).map { result =>
       Ok(views.html.vocabulary.show(
           item, result.page, result.params, result.facets,
         vocabRoutes.get(id), annotations, links))

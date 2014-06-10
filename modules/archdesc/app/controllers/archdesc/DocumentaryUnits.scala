@@ -101,8 +101,6 @@ case class DocumentaryUnits @Inject()(implicit globalConfig: global.GlobalConfig
   val childForm = models.DocumentaryUnit.form
   val descriptionForm = models.DocumentaryUnitDescription.form
 
-  val DEFAULT_SEARCH_PARAMS = SearchParams(entities=List(resource.entityType))
-
   private val docRoutes = controllers.archdesc.routes.DocumentaryUnits
 
 
@@ -114,11 +112,11 @@ case class DocumentaryUnits @Inject()(implicit globalConfig: global.GlobalConfig
     val filters = if (request.getQueryString(SearchParams.QUERY).isEmpty)
       Map(SolrConstants.TOP_LEVEL -> true) else Map.empty[String,Any]
 
-    Query(
+    find[DocumentaryUnit](
       filters = filters,
-      defaultParams = Some(DEFAULT_SEARCH_PARAMS),
-      entityFacets = entityFacets
-    ).get[DocumentaryUnit].map { result =>
+      entities=List(resource.entityType),
+      facetBuilder = entityFacets
+    ).map { result =>
       Ok(views.html.documentaryUnit.search(
         result.page, result.params, result.facets,
         docRoutes.search()))
@@ -127,10 +125,10 @@ case class DocumentaryUnits @Inject()(implicit globalConfig: global.GlobalConfig
 
   def searchChildren(id: String) = itemPermissionAction.async[DocumentaryUnit](contentType, id) {
       item => implicit userOpt => implicit request =>
-    Query(
+    find[DocumentaryUnit](
       filters = Map(SolrConstants.PARENT_ID -> item.id),
-      entityFacets = entityFacets
-    ).get[DocumentaryUnit].map { result =>
+      facetBuilder = entityFacets
+    ).map { result =>
       Ok(views.html.documentaryUnit.search(
         result.page, result.params, result.facets,
         docRoutes.search()))
@@ -145,11 +143,11 @@ case class DocumentaryUnits @Inject()(implicit globalConfig: global.GlobalConfig
   }*/
 
   def get(id: String) = getAction.async(id) { item => annotations => links => implicit userOpt => implicit request =>
-    Query(
+    find[DocumentaryUnit](
       filters = Map(SolrConstants.PARENT_ID -> item.id),
-      defaultParams = Some(SearchParams(entities = List(EntityType.DocumentaryUnit))),
-      entityFacets = entityFacets
-    ).get[DocumentaryUnit].map { result =>
+      entities = List(EntityType.DocumentaryUnit),
+      facetBuilder = entityFacets
+    ).map { result =>
       Ok(views.html.documentaryUnit.show(item, result.page, result.params, result.facets,
           docRoutes.get(id), annotations, links))
     }
