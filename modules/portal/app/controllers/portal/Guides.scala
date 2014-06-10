@@ -12,10 +12,13 @@ import controllers.base.{SessionPreferences, ControllerHelpers}
 import utils._
 import models.Guide
 import models.GuidePage
+import play.api.libs.json.Json
+import play.api.libs.json.JsValue
 
 import com.google.inject._
 import play.api.Play.current
 import models.GuidePage.Layout
+import models.GeoCoordinates
 import solr.SolrConstants
 
 case class Guides @Inject()(implicit globalConfig: global.GlobalConfig, searchDispatcher: Dispatcher, searchResolver: Resolver, backend: Backend,
@@ -30,6 +33,7 @@ case class Guides @Inject()(implicit globalConfig: global.GlobalConfig, searchDi
 
   override val staffOnly = current.configuration.getBoolean("ehri.portal.secured").getOrElse(true)
   override val verifiedOnly = current.configuration.getBoolean("ehri.portal.secured").getOrElse(true)
+
 
   /*
   *
@@ -46,6 +50,34 @@ case class Guides @Inject()(implicit globalConfig: global.GlobalConfig, searchDi
       case Some(parent) => SearchParams(query = Some(SolrConstants.PARENT_ID + ":" + parent), entities = List(eT))
       case _ => SearchParams(query = Some(SolrConstants.TOP_LEVEL + ":" + true), entities = List(eT))
     }
+  }
+
+  /*
+  * Return Map extras param if needed
+  */
+  def mapParams(request: Request[AnyContent]): (utils.search.SearchOrder.Value, Map[String, Any]) = {
+    GeoCoordinates.form.bindFromRequest(request.queryString).fold(
+      errorForm => {
+        (SearchOrder.Name -> Map.empty)
+      },
+      latlng => { 
+        (SearchOrder.Location -> Map("pt" -> latlng.toString, "sfield" -> "location", "sort" -> "geodist() asc"))
+      }
+    )
+  }
+
+  def returnJson(hits:utils.search.ItemPage[(models.Concept, utils.search.SearchHit)]): List[JsValue] = {
+
+      hits.items.map { case(item, id) =>
+        item.descriptions.map { case(desc) =>
+          Json.toJson(Map(
+            "id" -> item.id,
+            "latitude" -> desc.latitude.getOrElse(None).toString,
+            "longitude" -> desc.longitude.getOrElse(None).toString,
+            "name" -> desc.name.toString
+          ))
+        }.toList
+      }.toList.flatten
   }
 
   /*
@@ -139,9 +171,26 @@ case class Guides @Inject()(implicit globalConfig: global.GlobalConfig, searchDi
   *   Layout named "map" [Concept]
   */
   def guideMap(template: GuidePage, params: Map[String, String], guide: Guide) = userBrowseAction.async { implicit userDetails => implicit request =>
-    find[Concept](params, entities = List(EntityType.Concept), facetBuilder = conceptFacets).map { r =>
-      if (isAjax) Ok(p.guides.ajax(template -> guide, r.page, r.params))
-      else Ok(p.guides.places(template -> (guide -> guide.findPages), r.page, r.params))
+    mapParams(request) match { case (sort, geoloc) =>
+      find[Concept](
+        params, 
+        extra = geoloc,
+        defaultParams = SearchParams(
+          entities = List(EntityType.Concept), 
+          sort = Some(sort)
+        ),
+        entities = List(EntityType.Concept), 
+        facetBuilder = conceptFacets).map { r =>
+          render {
+            case Accepts.Html() => {
+              if (isAjax) Ok(p.guides.ajax(template -> guide, r.page, r.params))
+              else Ok(p.guides.places(template -> (guide -> guide.findPages), r.page, r.params))
+            }
+            case Accepts.Json() => {
+              Ok(Json.toJson(returnJson(r.page)))
+            }
+          }
+      }
     }
   }
 
