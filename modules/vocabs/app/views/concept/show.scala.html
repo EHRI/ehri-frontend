@@ -1,80 +1,52 @@
-@(item: Concept, page: backend.Page[Concept], params: utils.PageParams, annotations: Seq[Annotation])(implicit userOpt: Option[UserProfile], req: RequestHeader, globalConfig: global.GlobalConfig, lang: Lang, flash: Flash)
+@(item: Concept, page: backend.Page[Concept], params: utils.PageParams, links: Seq[Link], annotations: Seq[Annotation])(implicit userOpt: Option[UserProfile], req: RequestHeader, globalConfig: global.GlobalConfig, lang: Lang, flash: Flash)
 
-@layout.rightSidebar(item.toStringLang, breadcrumbs = concept.breadcrumbs(item)) {
-    <div class="row">
-        <div class="col-md-8">
-
-            @defining(EntityType.Concept.toString) { implicit prefix =>
-                <div class="description-viewport">
-                    @item.descriptions.zipWithIndex.map { case (desc,i) =>
-                    <div class="description-holder" id="desc-@desc.id">
-                        @concept.renderDescription(item, desc)
+@layout.adminLayout(item.toStringLang) {
+    @breadcrumbs(item)
+    @layout.mainContent {
+        @layout.itemDetails {
+            @defining(item.isA.toString) { implicit fieldPrefix =>
+                @layout.descriptionContainer(item.model.descriptions) {
+                    <div class="row">
+                        <div class="col-md-8">
+                            @item.model.descriptions.map { desc =>
+                                @renderDescription(item, desc, links, annotations)
+                            }
+                        </div>
+                        <div class="col-md-4">
+                            @if(!item.broaderTerms.isEmpty || item.vocabulary.isDefined) {
+                                <div class="well well-small">
+                                @item.vocabulary.map { v =>
+                                    <h5>@Messages("cvocConcept.inVocabulary")</h5>
+                                    <p class="text-muted"><a href="@controllers.vocabs.routes.Vocabularies.get(v.id)">@v.toStringLang</a></p>
+                                }
+                                @if(!item.broaderTerms.isEmpty) {
+                                    <hr />
+                                    <h5>@Messages("cvocConcept.broaderTerms")</h5>
+                                    <ul>
+                                    @item.broaderTerms.sortBy(_.toString).map { t =>
+                                        <li><a href="@controllers.vocabs.routes.Concepts.get(t.id)">@t.toStringLang</a></li>
+                                    }
+                                    </ul>
+                                }
+                                </div>
+                            }
+                        </div>
                     </div>
+
+                    @common.filterableList("cvocConcept.narrowerTermsPageHeader", page, params) {
+                        <ul>
+                            @page.items.map(c => concept.listItem(c))
+                        </ul>
                     }
-                </div>
-            }
 
-        </div>
-        <div class="col-md-4">
-            @if(!item.broaderTerms.isEmpty || item.vocabulary.isDefined) {
-                <div class="well well-small">
-                @item.vocabulary.map { v =>
-                    <h5>@Messages("cvocConcept.inVocabulary")</h5>
-                    <p class="text-muted"><a href="@controllers.vocabs.routes.Vocabularies.get(v.id)">@v.toStringLang</a></p>
+                } {
+                    @common.latestAction(item, controllers.vocabs.routes.Concepts.history(item.id))
+                    @common.visibility(item, controllers.vocabs.routes.Concepts.visibility(item.id), ContentTypes.Concept)
+                    @adminActions(item)
                 }
-                @if(!item.broaderTerms.isEmpty) {
-                    <hr />
-                    <h5>@Messages("cvocConcept.broaderTerms")</h5>
-                    <ul>
-                    @item.broaderTerms.sortBy(_.toString).map { t =>
-                        <li><a href="@controllers.vocabs.routes.Concepts.get(t.id)">@t.toStringLang</a></li>
-                    }
-                    </ul>
-                }
-                </div>
             }
-        </div>
-    </div>
-    @common.filterableList(EntityType.Concept + ".narrowerTermsPageHeader", page, params) {
-        <ul>
-            @page.items.map(c => concept.listItem(c))
-        </ul>
-    }
-} {
 
-    @if(!item.model.descriptions.isEmpty) {
-        <div class="sidebar-section">
-            <header><h3>@Messages("describedEntity.availableDescriptions")</h3></header>
-            <ul class="list-group description-switcher">
-            @item.descriptions.map { d =>
-                <li class="list-group-item">
-                    <a class="description-switch" href="#desc-@d.id">
-                        @views.Helpers.languageCodeToName(d.languageCode) - @d.name
-                    </a>
-                </li>
-            }
-            </ul>
-        </div>
-    }
-
-    @common.visibility(item, controllers.vocabs.routes.Concepts.visibility(item.id), ContentTypes.Concept)
-    @common.latestAction(item, controllers.vocabs.routes.Concepts.history(item.id))
-
-    @common.sidebarActions { user =>
-        @common.sidebarAction(user.hasPermission(ContentTypes.Concept, PermissionType.Create)) {
-            <a href="@controllers.vocabs.routes.Concepts.createConcept(item.id)">@Messages("cvocConcept.narrower.create")</a>
-        }
-        @common.sidebarAction(user.hasPermission(ContentTypes.Concept, PermissionType.Update)) {
-            <a href="@controllers.vocabs.routes.Concepts.update(item.id)">@Messages("item.update")</a>
-        }
-        @common.sidebarAction(user.hasPermission(ContentTypes.Concept, PermissionType.Delete)) {
-            <a href="@controllers.vocabs.routes.Concepts.delete(item.id)">@Messages("item.delete")</a>
-        }
-        @common.sidebarAction(user.hasPermission(ContentTypes.Concept, PermissionType.Grant)) {
-            <a href="@controllers.vocabs.routes.Concepts.managePermissions(item.id)">@Messages("permissions.manage")</a>
-        }
-        @common.sidebarAction() {
-            <a href="@controllers.vocabs.routes.Concepts.history(item.id)">@Messages("item.history")</a>
+            @link.annotationLinks(item, links)
         }
     }
 }

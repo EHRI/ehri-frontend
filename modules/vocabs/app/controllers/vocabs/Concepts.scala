@@ -53,7 +53,7 @@ case class Concepts @Inject()(implicit globalConfig: global.GlobalConfig, search
 
   def get(id: String) = getWithChildrenAction[Concept](id) {
       item => page => params => annotations => links => implicit userOpt => implicit request =>
-    Ok(views.html.concept.show(item, page, params, annotations))
+    Ok(views.html.concept.show(item, page, params, links, annotations))
   }
 
   def search = searchAction[Concept](entities = List(EntityType.Concept), entityFacets = entityFacets) {

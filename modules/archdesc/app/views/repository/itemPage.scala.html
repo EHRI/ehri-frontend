@@ -1,32 +1,10 @@
 @(item: Repository, scripts: Html = Html(""), styles: Html = Html(""))(html: Html)(implicit userOpt: Option[UserProfile], req: RequestHeader, globalConfig: global.GlobalConfig, lang: Lang, flash: Flash)
 
-@layout.rightSidebar(item.toStringLang, breadcrumbs = common.breadcrumbs(item.country.toList ::: List(item)), scripts = scripts, styles = styles) {
+@layout.rightSidebar(item.toStringLang, breadcrumbs = breadcrumbs(item), scripts = scripts, styles = styles) {
     @html
 } {
     @common.latestAction(item, controllers.archdesc.routes.Repositories.history(item.id))
     @common.visibility(item, controllers.archdesc.routes.Repositories.visibility(item.id), ContentTypes.Repository)
 
-    @common.sidebarActions { user =>
-        @common.sidebarAction(user.hasPermission(ContentTypes.DocumentaryUnit, PermissionType.Create)) {
-            <a href="@controllers.archdesc.routes.Repositories.createDoc(item.id)">@Messages("documentaryUnit.child.create")</a>
-        }
-        @common.sidebarAction(user.hasPermission(ContentTypes.Repository, PermissionType.Update)) {
-            <a href="@controllers.archdesc.routes.Repositories.update(item.id)">@Messages("item.update")</a>
-        }
-        @common.sidebarAction(user.hasPermission(ContentTypes.Repository, PermissionType.Delete)) {
-            <a href="@controllers.archdesc.routes.Repositories.delete(item.id)">@Messages("item.delete")</a>
-        }
-        @common.sidebarAction(user.hasPermission(ContentTypes.Repository, PermissionType.Grant)) {
-            <a href="@controllers.archdesc.routes.Repositories.managePermissions(item.id)">@Messages("permissions.manage")</a>
-        }
-        @common.sidebarAction() {
-            <a  href="@controllers.archdesc.routes.Repositories.history(item.id)">@Messages("item.history")</a>
-        }
-        @common.sidebarAction(user.isAdmin) {
-            <a href="@controllers.archdesc.routes.Repositories.updateIndex(item.id)">@Messages("search.updateIndex")</a>
-        }
-        @common.sidebarAction() {
-            <a href="@controllers.core.routes.ApiController.getItem(item.isA, item.id)">@Messages("item.export.json")</a>
-        }
-    }
+    @adminActions(item)
 }

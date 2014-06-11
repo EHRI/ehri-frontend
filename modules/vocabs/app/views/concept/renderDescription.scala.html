@@ -1,4 +1,4 @@
-@(item: Concept, desc: ConceptDescriptionF)(implicit prefix: String, userOpt: Option[UserProfile], req: RequestHeader, globalConfig: global.GlobalConfig, lang: Lang)
+@(item: Concept, desc: ConceptDescriptionF, links: Seq[Link], annotations: Seq[Annotation])(implicit prefix: String, userOpt: Option[UserProfile], req: RequestHeader, globalConfig: global.GlobalConfig, lang: Lang)
 
 @import ConceptF._
 
@@ -13,16 +13,18 @@
     </dd>
 }
 
-<dl class="dl-horizontal">
-    <dt>@Messages(prefix + "." + PREFLABEL)</dt>
-    <dd>
-        @desc.name
-        <i class="text-muted">
-            [@views.Helpers.languageCodeToName(desc.languageCode)]
-        </i>
-    </dd>
-    @listItem(desc.altLabels.toList.flatten, ALTLABEL)
-    @listItem(desc.scopeNote.toList.flatten, SCOPENOTE)
-    @listItem(desc.definition.toList.flatten, DEFINITION)
-</dl>
-
+@common.descriptionOutline(item, desc) {
+    <h2>@desc.name</h2>
+    <dl class="dl-horizontal">
+        <dt>@Messages(prefix + "." + PREFLABEL)</dt>
+        <dd>
+            @desc.name
+            <i class="text-muted">
+                [@views.Helpers.languageCodeToName(desc.languageCode)]
+            </i>
+        </dd>
+        @listItem(desc.altLabels.toList.flatten, ALTLABEL)
+        @listItem(desc.scopeNote.toList.flatten, SCOPENOTE)
+        @listItem(desc.definition.toList.flatten, DEFINITION)
+    </dl>
+}

@@ -1,5 +1,8 @@
-@(item: Description, langCode: String, actions: Html = Html(""))(html: Html)(implicit fieldPrefix: String, lang: Lang)
+@(item: WithDescriptions[Description], desc: Description, actions: Html = Html(""))(html: Html)(implicit fieldPrefix: String, lang: Lang)
 
-<div data-lang="@langCode" class="description @item.isA" id="@item.id">
-    @html
+<div class="description-holder" id="desc-@desc.id">
+    @actions
+    <div data-lang="@desc.languageCode" class="description">
+        @html
+    </div>
 </div>
