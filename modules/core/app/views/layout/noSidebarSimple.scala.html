@@ -2,7 +2,7 @@
 
 @layout.adminLayoutSimple(title, scripts, styles) {
 
-    <div class="container">
+    @mainContent {
         <article class="single">
             <section class="main">
                 <h2>@title</h2>
@@ -12,5 +12,5 @@
                 @content
             </section>
         </article>
-    </div>
+    }
 }

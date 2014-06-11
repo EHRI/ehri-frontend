@@ -277,6 +277,7 @@ systemEvent.list=System Events
 #
 # Generic actions
 #
+item.actions=Actions
 item.history=Item History
 item.history.item=Change history for item: {0}
 item.annotate.submit=Annotate Item
