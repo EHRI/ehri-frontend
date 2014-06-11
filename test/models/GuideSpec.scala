@@ -59,7 +59,8 @@ class GuideSpec extends PlaySpecification {
           path = "test",
           menu = GuidePage.MenuPosition.Side,
           cypher = "",
-          parent = guide.id
+          parent = guide.id,
+          params = None
         ) must beSome
       }
     }

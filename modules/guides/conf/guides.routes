@@ -1,19 +1,19 @@
 # Home page
-GET		/				        @controllers.guides.Guides.list()
-GET		/create			        @controllers.guides.Guides.create()
-POST	/create			        @controllers.guides.Guides.createPost()
+GET     /guides                         @controllers.guides.Guides.list()
+GET     /guides/create                  @controllers.guides.Guides.create()
+POST    /guides/create                  @controllers.guides.Guides.createPost()
 
 #Guides
-GET		/:path				    @controllers.guides.Guides.show(path: String)
-GET		/:path/edit			    @controllers.guides.Guides.edit(path: String)
-POST	/:path/edit			    @controllers.guides.Guides.editPost(path: String)
-GET		/:path/delete		    @controllers.guides.Guides.delete(path: String)
-POST	/:path/delete		    @controllers.guides.Guides.deletePost(path: String)
+GET     /guides/:path		            @controllers.guides.Guides.show(path: String)
+GET     /guides/:path/edit	            @controllers.guides.Guides.edit(path: String)
+POST    /guides/:path/edit	            @controllers.guides.Guides.editPost(path: String)
+GET     /guides/:path/delete            @controllers.guides.Guides.delete(path: String)
+POST    /guides/:path/delete            @controllers.guides.Guides.deletePost(path: String)
 
 #Guide Pages
-GET		/:gPath/create			@controllers.guides.GuidePages.create(gPath: String)
-POST	/:gPath/create			@controllers.guides.GuidePages.createPost(gPath: String)
-GET		/:gPath/:path			@controllers.guides.GuidePages.edit(gPath: String, path: String)
-POST	/:gPath/:path			@controllers.guides.GuidePages.editPost(gPath: String, path: String)
-GET		/:gPath/:path/delete	@controllers.guides.GuidePages.delete(gPath: String, path: String)
-POST    /:gPath/:path/delete	@controllers.guides.GuidePages.deletePost(gPath: String, path: String)
+GET     /guides/:gPath/create		    @controllers.guides.GuidePages.create(gPath: String)
+POST    /guides/:gPath/create		    @controllers.guides.GuidePages.createPost(gPath: String)
+GET     /guides/:gPath/:path		    @controllers.guides.GuidePages.edit(gPath: String, path: String)
+POST    /guides/:gPath/:path		    @controllers.guides.GuidePages.editPost(gPath: String, path: String)
+GET     /guides/:gPath/:path/delete	    @controllers.guides.GuidePages.delete(gPath: String, path: String)
+POST    /guides/:gPath/:path/delete	    @controllers.guides.GuidePages.deletePost(gPath: String, path: String)

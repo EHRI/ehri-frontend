@@ -12,12 +12,12 @@ GET     /*path/                         controllers.GlobalController.untrail(pat
 -> /admin               core.Routes
 -> /admin               admin.Routes
 -> /admin               users.Routes
--> /admin/link          linking.Routes
--> /admin/annotation    annotation.Routes
--> /admin/sets          authorities.Routes
--> /admin/arch          archdesc.Routes
--> /admin/voc           vocabs.Routes
--> /admin/guides        guides.Routes
+-> /admin               linking.Routes
+-> /admin               annotation.Routes
+-> /admin               authorities.Routes
+-> /admin               archdesc.Routes
+-> /admin               vocabs.Routes
+-> /admin               guides.Routes
 
 # Portal is special
 -> /                    portal.Routes

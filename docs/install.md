@@ -49,13 +49,13 @@ To set up and build the indexer, do the following:
     cd ehri-indexer
     mvn clean compile assembly:single
 
-If all goes well this will result in a single Jar file called `ehri-indexer-1 .0-SNAPSHOT-jar-with-dependencies.jar` ending up in the `target` directory.
+If all goes well this will result in a single Jar file called `index-helper-1.0.1-jar-with-dependencies.jar` ending up in the `target` directory.
 
 ### Installing Play 2.2.1:
 
 Download and install Play 2.2.x:
 
-    export PLAY_VERSION=2.2.2
+    export PLAY_VERSION=2.2.3
     wget http://downloads.typesafe.com/play/${PLAY_VERSION}/play-${PLAY_VERSION}.zip
     unzip -d ~/apps play-${PLAY_VERSION}
 
@@ -125,7 +125,7 @@ One setting you definitely should change is the value of the `solr.path` key, wh
 
 Also, we need to put the indexer utility where the interface can find it, in the `bin` directory, named `indexer`. This can be done with a symlink:
 
-    ln -s ~/dev/ehri-indexer/target/ehri-indexer-1 .0-SNAPSHOT-jar-with-dependencies.jar ~/dev/docview/bin/indexer
+    ln -s ~/dev/ehri-indexer/target/index-helper-1.0.1-jar-with-dependencies.jar ~/dev/docview/bin/indexer
 
 Start Neo4j server, if you haven't already:
 

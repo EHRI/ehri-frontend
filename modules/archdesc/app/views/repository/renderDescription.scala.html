@@ -1,9 +1,10 @@
-@(item: Repository, desc: RepositoryDescriptionF, links: List[Link])(implicit userOpt: Option[UserProfile], req: RequestHeader, globalConfig: global.GlobalConfig, lang: Lang, fieldPrefix: String)
+@(item: Repository, desc: RepositoryDescriptionF, links: Seq[Link], annotations: Seq[Annotation])(implicit userOpt: Option[UserProfile], req: RequestHeader, globalConfig: global.GlobalConfig, lang: Lang, fieldPrefix: String)
 
 @import Isdiah._
 @import common.descriptionSection
 
-@common.descriptionOutline(desc, desc.languageCode) {
+@common.descriptionOutline(item, desc) {
+    <h2>@desc.name</h2>
 
     @descriptionSection(IDENTITY_AREA) {
         @common.stringValue(Some(desc.name), AUTHORIZED_FORM_OF_NAME)

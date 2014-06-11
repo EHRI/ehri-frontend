@@ -1,16 +1,16 @@
 # Routes for annotation functionality
 
-GET     /show/:id                    @controllers.annotation.Annotations.get(id: String)
-GET     /history/:id                 @controllers.annotation.Annotations.history(id: String)
-GET     /visibility/:id              @controllers.annotation.Annotations.visibility(id: String)
-POST    /visibility/:id              @controllers.annotation.Annotations.visibilityPost(id: String)
-GET     /delete/:id                  @controllers.annotation.Annotations.delete(id: String)
-POST    /delete/:id                  @controllers.annotation.Annotations.deletePost(id: String)
-GET     /getFor/:id                  @controllers.annotation.Annotations.getAnnotationJson(id: String)
-GET     /promote/:id                 @controllers.annotation.Annotations.promote(id: String)
-POST    /promote/:id                 @controllers.annotation.Annotations.promotePost(id: String)
-GET     /demote/:id                  @controllers.annotation.Annotations.demote(id: String)
-POST    /demote/:id                  @controllers.annotation.Annotations.demotePost(id: String)
+GET     /annotations/:id/show                    @controllers.annotation.Annotations.get(id: String)
+GET     /annotations/:id/history                 @controllers.annotation.Annotations.history(id: String)
+GET     /annotations/:id/visibility              @controllers.annotation.Annotations.visibility(id: String)
+POST    /annotations/:id/visibility              @controllers.annotation.Annotations.visibilityPost(id: String)
+GET     /annotations/:id/delete                  @controllers.annotation.Annotations.delete(id: String)
+POST    /annotations/:id/delete                  @controllers.annotation.Annotations.deletePost(id: String)
+GET     /annotations/:id/getFor                  @controllers.annotation.Annotations.getAnnotationJson(id: String)
+GET     /annotations/:id/promote                 @controllers.annotation.Annotations.promote(id: String)
+POST    /annotations/:id/promote                 @controllers.annotation.Annotations.promotePost(id: String)
+GET     /annotations/:id/demote                  @controllers.annotation.Annotations.demote(id: String)
+POST    /annotations/:id/demote                  @controllers.annotation.Annotations.demotePost(id: String)
 
 # Ugh, ugly REST violation - create an annotation on *another* entity
-POST    /create/:id                  @controllers.annotation.Annotations.createAnnotationJsonPost(id: String)
+POST    /annotations/create/:id                  @controllers.annotation.Annotations.createAnnotationJsonPost(id: String)
