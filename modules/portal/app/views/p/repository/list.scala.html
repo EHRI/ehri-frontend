@@ -2,10 +2,10 @@
 
 @p.layout.portalLayout(Messages("portal.browse.repositories"), EntityType.Repository.toString) {
     @views.html.layout.mainContent {
-        @p.searchForm(page, params, action, autofocus = false) {
+        @views.html.common.search.searchForm(page, params, action, autofocus = false) {
             @p.searchItemList(page, watched)
         } {
-            @p.facetList(page.facets, action)
+            @views.html.common.search.facetList(page.facets, action)
         }
     }
 }

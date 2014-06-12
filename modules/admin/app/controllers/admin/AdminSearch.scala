@@ -30,13 +30,16 @@ case class AdminSearch @Inject()(implicit globalConfig: global.GlobalConfig, sea
         key = IsadG.LANG_CODE,
         name = Messages("documentaryUnit." + IsadG.LANG_CODE),
         param = "lang",
-        render = (s: String) => Helpers.languageCodeToName(s)
+        render = (s: String) => Helpers.languageCodeToName(s),
+        display = FacetDisplay.DropDown,
+        sort = FacetSort.Name
       ),
       FieldFacetClass(
         key = "type",
         name = Messages("search.type"),
         param = "type",
-        render = s => Messages("contentTypes." + s)
+        render = s => Messages("contentTypes." + s),
+        display = FacetDisplay.Choice
       ),
       FieldFacetClass(
         key = "copyrightStatus",

@@ -2,7 +2,7 @@
 
 @import Isaar._
 
-@common.searchItemOutline(item.id) {
+@common.search.searchItemOutline(item.id) {
     <a href="@controllers.authorities.routes.HistoricalAgents.get(item.id)">@item.toStringLang</a>
 } {
     @item.model.descriptions.headOption.map { desc =>

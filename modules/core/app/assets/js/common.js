@@ -96,5 +96,15 @@ jQuery(function($) {
   $(document).on("change", ".autosubmit", function (e) {
     $(e.target).closest("form").submit();
   });
+
+  /*
+   Search helpers
+   */
+  $(".page-content").on("click", ".search-helper-toggle", function () {
+    $("#search-helper").toggle();
+  }).on("click", "#search-helper .close", function(e) {
+    e.preventDefault();
+    $("#search-helper").toggle();
+  });
 });
 
