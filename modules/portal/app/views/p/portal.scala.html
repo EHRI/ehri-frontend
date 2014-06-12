@@ -31,7 +31,7 @@
 
     @views.html.layout.mainContent {
         @helper.form(action = controllers.portal.routes.Portal.search, 'role -> "form") {
-            @p.common.searchBar()
+            @views.html.common.search.searchBar()
 
             <h3 class="landing-header @EntityType.DocumentaryUnit">
                 <a class="" href="@controllers.portal.routes.Portal.browseDocuments">@Messages("portal.browse.documents")</a>

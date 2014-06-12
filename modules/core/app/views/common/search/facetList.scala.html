@@ -60,34 +60,37 @@
 }
 
 @facetList(fc: FacetClass[Facet]) = {
-    @defining(fc.sorted.filter(_.count > 0)) { sortedActive =>
-        <div class="facet-class">
-            <h4 class="facet-label">@Messages(fc.name)</h4>
-            <ul class="facet-options">
-                @sortedActive.map { f =>
-                    @if(f.applied) {
-                    <input type="hidden" name="@fc.param" value="@f.value" />
-                    <li title="@fc.pretty(f)" class="selected-filter">
-                        @views.Helpers.ellipsize(fc.pretty(f), 25)
-                        (@f.count)
-                        <a class="remove-filter alt" href="@pathWithoutFacet(fc, f,
-                                                    call.url, req.queryString.filterKeys(_!="page"))"><span class="glyphicon glyphicon-remove"></span></a>
-                    </li>
-                    } else {
-                    <li class="type-highlight @f.value" title="@fc.pretty(f)">
-                        <a class="alt" href="@pathWithFacet(fc, f, call.url, req.queryString.filterKeys(_!="page"))">
-                        @views.Helpers.ellipsize(fc.pretty(f), 25)
-                        (@f.count)
-                        </a>
-                    </li>
+    @if(!fc.sorted.isEmpty) {
+        @defining(fc.sorted.filter(_.count > 0)) { sortedActive =>
+            <div class="facet-class">
+                <h4 class="facet-label">@Messages(fc.name)</h4>
+                <ul class="facet-options">
+                    @sortedActive.map { f =>
+                        @if(f.applied) {
+                        <input type="hidden" name="@fc.param" value="@f.value" />
+                        <li title="@fc.pretty(f)" class="selected-filter">
+                            @views.Helpers.ellipsize(fc.pretty(f), 25)
+                            (@f.count)
+                            <a class="remove-filter alt" href="@pathWithoutFacet(fc, f,
+                                                        call.url, req.queryString.filterKeys(_!="page"))"><span class="glyphicon glyphicon-remove"></span></a>
+                        </li>
+                        } else {
+                        <li class="type-highlight @f.value" title="@fc.pretty(f)">
+                            <a class="alt" href="@pathWithFacet(fc, f, call.url, req.queryString.filterKeys(_!="page"))">
+                            @views.Helpers.ellipsize(fc.pretty(f), 25)
+                            (@f.count)
+                            </a>
+                        </li>
+                        }
                     }
-                }
-            </ul>
-        </div>
+                </ul>
+            </div>
+        }
     }
 }
 
 @facets.map { fc =>
+    <div class="facet-list">
     @fc.display match {
         case FacetDisplay.DropDown => {
             @facetDropDown(fc)
@@ -102,4 +105,5 @@
             @facetList(fc)
         }
     }
+    </div>
 }

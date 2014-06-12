@@ -46,6 +46,34 @@ case class DocumentaryUnits @Inject()(implicit globalConfig: global.GlobalConfig
           SolrQueryFacet(value = "true", solrValue = "[1 TO *]", name = Some("hasChildItems"))
         )
       ),
+      FieldFacetClass(
+        key=IsadG.LANG_CODE,
+        name=Messages(prefix + "." + IsadG.LANG_CODE),
+        param="lang",
+        render=Helpers.languageCodeToName,
+        display = FacetDisplay.DropDown
+      ),
+      FieldFacetClass(
+        key="holderName",
+        name=Messages(prefix + ".heldBy"),
+        param="holder",
+        sort = FacetSort.Name,
+        display = FacetDisplay.DropDown
+      ),
+      FieldFacetClass(
+        key="countryCode",
+        name=Messages("repository.countryCode"),
+        param="country",
+        render= (s: String) => Helpers.countryCodeToName(s),
+        sort = FacetSort.Name,
+        display = FacetDisplay.DropDown
+      ),
+      FieldFacetClass(
+        key="copyrightStatus",
+        name=Messages("copyrightStatus.copyright"),
+        param="copyright",
+        render=s => Messages("copyrightStatus." + s)
+      ),
       QueryFacetClass(
         key="charCount",
         name=Messages("lod"),
@@ -58,26 +86,6 @@ case class DocumentaryUnits @Inject()(implicit globalConfig: global.GlobalConfig
         ),
         sort = FacetSort.Fixed,
         display = FacetDisplay.List
-      ),
-      FieldFacetClass(
-        key=IsadG.LANG_CODE,
-        name=Messages(prefix + "." + IsadG.LANG_CODE),
-        param="lang",
-        render=Helpers.languageCodeToName,
-        display = FacetDisplay.Choice
-      ),
-      FieldFacetClass(
-        key="holderName",
-        name=Messages(prefix + ".heldBy"),
-        param="holder",
-        sort = FacetSort.Name,
-        display = FacetDisplay.DropDown
-      ),
-      FieldFacetClass(
-        key="copyrightStatus",
-        name=Messages("copyrightStatus.copyright"),
-        param="copyright",
-        render=s => Messages("copyrightStatus." + s)
       ),
       FieldFacetClass(
         key="scope",

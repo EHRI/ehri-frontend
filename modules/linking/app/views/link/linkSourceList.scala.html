@@ -1,20 +1,18 @@
 @(item: AnyModel, page: utils.search.ItemPage[(AnyModel,utils.search.SearchHit)], params: utils.search.SearchParams, facets: List[utils.search.AppliedFacet], entityType: EntityType.Value, action: Call, linkAction: (String,EntityType.Value,String) => Call)(
 implicit userOpt: Option[UserProfile], req: RequestHeader, globalConfig: global.GlobalConfig, lang: Lang, flash: Flash)
 
-@layout.rightSidebar(Messages("link.create"), breadcrumbs = common.breadcrumbs(List(item))) {
-    @views.html.search.searchSection(Messages("contentTypes." + entityType.toString)) {
-        @views.html.search.searchForm(page, params, action, autofocus = false) {
-            <ul>
-                @page.items.map { case (otherItem, descId) =>
+@layout.adminSearchLayout(Messages("link.create"), page, params, facets, action, breadcrumbs = common.breadcrumbs(List(item))) {
+    @search.searchSection(Messages("contentTypes." + entityType.toString)) {
+        <ul>
+            @page.items.map { case (otherItem, descId) =>
 
-                    <li>
-                        <a href="@linkAction(item.id, entityType, otherItem.id)">
-                            @otherItem.toStringLang
-                        </a>
-                    </li>
-                }
-            </ul>
-        }
+                <li>
+                    <a href="@linkAction(item.id, entityType, otherItem.id)">
+                        @otherItem.toStringLang
+                    </a>
+                </li>
+            }
+        </ul>
     }
 } {
 
