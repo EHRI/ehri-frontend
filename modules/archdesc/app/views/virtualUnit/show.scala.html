@@ -28,10 +28,10 @@
 
                 @item.childCount.filter(_ > 0).map { count =>
                     @views.html.search.searchSection(Messages("documentaryUnit.searchInside", item.toStringAbbr(lang))) {
-                        @views.html.search.searchForm(result, params, action, autofocus = false) {
+                        @views.html.common.search.searchForm(result, params, action, autofocus = false) {
                             @searchItemList(result)
                         } {
-                            @common.facetList(result.facets, action)
+                            @common.search.facetList(result.facets, action)
                         }
                     }
                 }

@@ -4,5 +4,5 @@
 @layout.adminSearchLayout(Messages("cvocConcept.search"), result, params, facets, action) {
     @concept.searchItemList(result)
 } {
-    @common.facetList(result.facets, action)
+    @common.search.facetList(result.facets, action)
 }

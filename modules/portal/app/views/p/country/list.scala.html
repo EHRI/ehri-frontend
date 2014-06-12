@@ -2,10 +2,10 @@
 
 @p.layout.portalLayout(Messages("portal.browse.countries"), EntityType.Country.toString) {
     @views.html.layout.mainContent {
-        @views.html.search.searchForm(page, params, action, autofocus = false) {
+        @views.html.common.search.searchForm(page, params, action, autofocus = false) {
             @p.searchItemList(page, watched)
         } {
-            @views.html.common.facetList(page.facets, action)
+            @views.html.common.search.facetList(page.facets, action)
         }
     }
 }

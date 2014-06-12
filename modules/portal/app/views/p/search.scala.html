@@ -2,10 +2,10 @@
 
 @p.layout.portalLayout(Messages("forms.search")) {
     @views.html.layout.mainContent {
-        @views.html.search.searchForm(result, params, action) {
+        @views.html.common.search.searchForm(result, params, action) {
             @searchItemList(result, watching)
         } {
-            @views.html.common.facetList(result.facets, action)
+            @views.html.common.search.facetList(result.facets, action)
         }
     }
 }

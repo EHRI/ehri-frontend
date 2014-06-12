@@ -7,14 +7,14 @@
     }
 
     @views.html.search.searchSection(Messages("authoritativeSet.items")) {
-        @views.html.search.searchForm(page, params, action, autofocus = false) {
+        @views.html.common.search.searchForm(page, params, action, autofocus = false) {
             @historicalAgent.searchItemList(page)
         } {
-            @common.facetList(page.facets, action)
+            @common.search.facetList(page.facets, action)
         }
     }
 } {
-    @common.facetList(page.facets, action)
+    @common.search.facetList(page.facets, action)
 
     @common.visibility(item, controllers.authorities.routes.AuthoritativeSets.visibility(item.id), ContentTypes.AuthoritativeSet)
     @common.latestAction(item, controllers.authorities.routes.AuthoritativeSets.history(item.id))

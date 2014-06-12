@@ -4,5 +4,5 @@
 @layout.adminSearchLayout(Messages("repository.search"), result, params, facets, action) {
     @repository.searchItemList(result)
 } {
-    @common.facetList(result.facets, action)
+    @common.search.facetList(result.facets, action)
 }

@@ -4,5 +4,5 @@
 @layout.adminSearchLayout(Messages("cvocVocabulary.search"), result, params, facets, action) {
     @vocabulary.searchItemList(result)
 } {
-    @common.facetList(result.facets, action)
+    @common.search.facetList(result.facets, action)
 }

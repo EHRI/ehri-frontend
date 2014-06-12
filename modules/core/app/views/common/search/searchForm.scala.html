@@ -5,20 +5,20 @@
 @if(params.isFiltered || !result.items.isEmpty) {
     @helper.form(action = action, 'role -> "form") {
 
-    @common.searchBar(params, autofocus = autofocus, placeholder = key)
+    @common.search.searchBar(params, autofocus = autofocus, placeholder = key)
     <div class="row">
         <div class="col-md-9">
             <div class="row">
                 <div class="col-md-6">
-                    @common.searchSummary(result, params)
+                    @common.search.searchSummary(result, params)
                 </div>
                 <div class="col-md-6">
-                    @common.searchSort(params)
+                    @common.search.searchSort(params)
                 </div>
             </div>
 
             <p>
-                @common.selectedFacets(result)
+                @common.search.selectedFacets(result)
             </p>
 
             @html

@@ -29,9 +29,9 @@
 }
 
 @p.layout.portalLayout(Messages("portal.browse.documents"), EntityType.DocumentaryUnit.toString) {
-    @views.html.search.searchForm(page, params, action, autofocus = false) {
+    @views.html.common.search.searchForm(page, params, action, autofocus = false) {
         @itemByHolderList(page.items, None)
     } {
-        @views.html.common.facetList(page.facets, action)
+        @views.html.common.search.facetList(page.facets, action)
     }
 }
