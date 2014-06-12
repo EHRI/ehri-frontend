@@ -1,7 +1,7 @@
 @()(implicit req: RequestHeader, lang: Lang)
 
 @js = {
-	<script type="text/javascript" src="@controllers.core.routes.Assets.at("js/leaflet.js")"></script>
+	<script type="text/javascript" src="@controllers.core.routes.Assets.at("js/lib/leaflet.js")"></script>
 	<script type="text/javascript">
 		var map = L.map('map').setView([51.505, -0.09], 13);
 		L.tileLayer('http://{s}.tile.osm.org/{z}/{x}/{y}.png', {
@@ -10,7 +10,7 @@
 	</script>
 }
 @css = {
-    <link rel="stylesheet" media="screen" href="@controllers.guides.routes.Assets.at("css/leaflet.css")">
+    <link rel="stylesheet" media="screen" href="@controllers.guides.routes.Assets.at("css/lib/leaflet.css")">
 }
 @layout.main("Places browsing", "places", scripts = js, styles = css) {
 	<article>

@@ -145,7 +145,9 @@ object ApplicationBuild extends Build {
   lazy val portal = Project(appName + "-portal", file("modules/portal"))
     .enablePlugins(play.PlayScala).settings(
     version := appVersion,
-    libraryDependencies ++= portalDependencies
+    libraryDependencies ++= portalDependencies,
+    pipelineStages := Seq(rjs, digest, gzip),
+    RjsKeys.mainModule := "portal-main"
   ).settings(commonSettings: _*).dependsOn(linking)
 
   lazy val archdesc = Project(appName + "-archdesc", file("modules/archdesc"))
@@ -176,8 +178,7 @@ object ApplicationBuild extends Build {
   lazy val main = Project(appName, file("."))
     .enablePlugins(play.PlayScala).settings(
     version := appVersion,
-    libraryDependencies ++= coreDependencies ++ testDependencies,
-    pipelineStages := Seq(rjs)
+    libraryDependencies ++= coreDependencies ++ testDependencies
   ).settings(commonSettings ++ assetSettings: _*).dependsOn(admin)
     .aggregate(core, users, annotation, linking, portal, archdesc, authorities, vocabs, guides, admin)
 

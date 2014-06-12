@@ -109,3 +109,4 @@ GET         /routes                         controllers.portal.PortalData.jsRout
 GET         /globalData                         controllers.portal.PortalData.globalData
 
 GET         /assets/*file                       controllers.portal.Assets.at(path="/public", file)
+GET         /versioned/*file                    controllers.portal.Assets.versioned(path="/public", file: Asset)
