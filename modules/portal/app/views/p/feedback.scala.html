@@ -3,7 +3,7 @@
 
 @p.layout.portalLayoutSimple(Messages("portal.feedback")) {
     <script src="//ajax.googleapis.com/ajax/libs/jquery/1.10.2/jquery.min.js"></script>
-    <script src="@controllers.portal.routes.Assets.at("js/jquery.validate.min.js")"></script>
+    <script src="@controllers.portal.routes.Assets.versioned("js/lib/jquery.validate.js")"></script>
 
     @views.html.layout.mainContent {
         @p.layout.feedback(form)
