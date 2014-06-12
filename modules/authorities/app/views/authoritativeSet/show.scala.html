@@ -9,6 +9,8 @@
     @views.html.search.searchSection(Messages("authoritativeSet.items")) {
         @views.html.search.searchForm(page, params, action, autofocus = false) {
             @historicalAgent.searchItemList(page)
+        } {
+            @common.facetList(page.facets, action)
         }
     }
 } {

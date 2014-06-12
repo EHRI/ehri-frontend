@@ -62,12 +62,15 @@ case class Repositories @Inject()(implicit globalConfig: global.GlobalConfig, se
         name=Messages(prefix + ".countryCode"),
         param="country",
         render=Helpers.countryCodeToName,
+        display = FacetDisplay.DropDown,
         sort = FacetSort.Name
       ),
       FieldFacetClass(
         key="priority",
         name=Messages("priority"),
         param="priority",
+        sort = FacetSort.Name,
+        display = FacetDisplay.Choice,
         render= {
           case s if s == "0" => Messages("priority.zero")
           case s if s == "1" => Messages("priority.one")

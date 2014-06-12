@@ -2,10 +2,10 @@
 
 @p.layout.portalLayout(Messages("portal.browse.historicalAgents"), EntityType.HistoricalAgent.toString) {
     @views.html.layout.mainContent {
-        @p.searchForm(page, params, action, autofocus = false) {
+        @views.html.search.searchForm(page, params, action, autofocus = false) {
             @p.searchItemList(page, watched)
         } {
-            @p.facetList(page.facets, action)
+            @views.html.common.facetList(page.facets, action)
         }
     }
 }

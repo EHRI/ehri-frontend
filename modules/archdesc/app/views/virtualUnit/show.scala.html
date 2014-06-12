@@ -21,17 +21,19 @@
                     }
 
                     @link.annotationLinks(item, links)
-
-                    @item.childCount.filter(_ > 0).map { count =>
-                        @views.html.search.searchSection(Messages("documentaryUnit.searchInside", item.toStringAbbr(lang))) {
-                            @views.html.search.searchForm(result, params, action, autofocus = false) {
-                                @searchItemList(result)
-                            }
-                        }
-                    }
                 } {
                     @common.latestAction(item, controllers.archdesc.routes.DocumentaryUnits.history(item.id))
                     @adminActions(item)
+                }
+
+                @item.childCount.filter(_ > 0).map { count =>
+                    @views.html.search.searchSection(Messages("documentaryUnit.searchInside", item.toStringAbbr(lang))) {
+                        @views.html.search.searchForm(result, params, action, autofocus = false) {
+                            @searchItemList(result)
+                        } {
+                            @common.facetList(result.facets, action)
+                        }
+                    }
                 }
             }
         }

@@ -5,7 +5,7 @@ import forms.VisibilityForm
 import models._
 import play.api.i18n.Messages
 import defines.{EntityType, ContentTypes, PermissionType}
-import utils.search.{Resolver, Dispatcher, FacetSort}
+import utils.search.{FacetDisplay, Resolver, Dispatcher, FacetSort}
 import com.google.inject._
 import solr.SolrConstants
 import backend.Backend
@@ -33,7 +33,8 @@ case class HistoricalAgents @Inject()(implicit globalConfig: global.GlobalConfig
         key=models.Isaar.ENTITY_TYPE,
         name=Messages("historicalAgent." + Isaar.ENTITY_TYPE),
         param="cpf",
-        render=s => Messages("historicalAgent." + s)
+        render=s => Messages("historicalAgent." + s),
+        display = FacetDisplay.Choice
       ),
       FieldFacetClass(
         key=SolrConstants.HOLDER_NAME,

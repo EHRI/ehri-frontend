@@ -13,6 +13,8 @@
     @views.html.search.searchSection(Messages("cvocVocabulary.items")) {
         @views.html.search.searchForm(result, params, action, autofocus = false) {
             @concept.searchItemList(result)
+        } {
+            @common.facetList(result.facets, action)
         }
     }
 } {
