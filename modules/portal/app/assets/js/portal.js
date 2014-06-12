@@ -189,18 +189,6 @@ $(".panel-history").each(function() {
 });
   //Need to reenable enter for getSearch
 
-/*
-  Search helpers
-*/
-$(".page-content").on("click", ".search-helper-toggle", function () {
-  $("#search-helper").toggle();
-});
-
-$(".page-content").on("click", "#search-helper .close", function(e) {
-  e.preventDefault();
-  $("#search-helper").toggle();
-});
-
 /* 
   Loadings
 */

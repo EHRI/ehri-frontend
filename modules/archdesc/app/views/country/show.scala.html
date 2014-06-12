@@ -12,12 +12,14 @@
     }
 
     @views.html.search.searchSection(Messages("country.searchInside", item.toStringAbbr)) {
-        @views.html.search.searchForm(result, params, action, autofocus = false) {
+        @views.html.common.search.searchForm(result, params, action, autofocus = false) {
             @repository.searchItemList(result)
+        } {
+            @common.search.facetList(result.facets, action)
         }
     }
 } {
-    @common.facetList(result.facets, action)
+    @common.search.facetList(result.facets, action)
     @common.visibility(item, controllers.archdesc.routes.Countries.visibility(item.id), ContentTypes.Country)
     @common.latestAction(item, controllers.archdesc.routes.Countries.history(item.id))
 

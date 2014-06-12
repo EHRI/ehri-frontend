@@ -6,7 +6,7 @@ import models.{Link, AccountDAO, Concept, ConceptF}
 import play.api.i18n.Messages
 import defines.{ContentTypes, EntityType}
 import views.Helpers
-import utils.search.{Resolver, FacetSort, Dispatcher}
+import utils.search.{FacetDisplay, Resolver, FacetSort, Dispatcher}
 import com.google.inject._
 import scala.concurrent.Future.{successful => immediate}
 import solr.facet.FieldFacetClass
@@ -39,7 +39,9 @@ case class Concepts @Inject()(implicit globalConfig: global.GlobalConfig, search
         key="languageCode", // FIXME - define elsewhere
         name=Messages("cvocConcept.languageCode"),
         param="lang",
-        render=(s: String) => Helpers.languageCodeToName(s)
+        render=(s: String) => Helpers.languageCodeToName(s),
+        display = FacetDisplay.DropDown,
+        sort = FacetSort.Name
       ),
       FieldFacetClass(
         key="holderName",
