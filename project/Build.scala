@@ -1,3 +1,4 @@
+
 import com.typesafe.sbt.jse.JsEngineImport.JsEngineKeys
 import sbt._
 import Keys._
@@ -78,7 +79,8 @@ object ApplicationBuild extends Build {
   val portalDependencies = Seq(
     // S3 Upload plugin
     "nl.rhinofly" %% "play-s3" % "5.0.0",
-    "net.coobird" % "thumbnailator" % "[0.4, 0.5)"
+    "net.coobird" % "thumbnailator" % "[0.4, 0.5)",
+    "net.sf.opencsv" % "opencsv" % "2.3"
   )
 
   val testDependencies = Seq(

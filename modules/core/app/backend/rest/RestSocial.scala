@@ -161,13 +161,15 @@ trait RestSocial extends Social with RestDAO {
   }
 
   def userAnnotations(userId: String, params: PageParams = PageParams.empty)(implicit apiUser: ApiUser, executionContext: ExecutionContext): Future[Page[Annotation]] = {
-    userCall(enc(requestUrl, userId, EntityType.Annotation, "page")).get().map { r =>
+    userCall(enc(requestUrl, userId, EntityType.Annotation, "page"))
+        .withQueryString(params.toSeq: _*).get().map { r =>
       checkErrorAndParse(r)(Page.pageReads(Annotation.Converter.restReads))
     }
   }
 
   def userLinks(userId: String, params: PageParams = PageParams.empty)(implicit apiUser: ApiUser, executionContext: ExecutionContext): Future[Page[Link]] = {
-    userCall(enc(requestUrl, userId, EntityType.Link, "page")).get().map { r =>
+    userCall(enc(requestUrl, userId, EntityType.Link, "page"))
+        .withQueryString(params.toSeq: _*).get().map { r =>
       checkErrorAndParse(r)(Page.pageReads(Link.Converter.restReads))
     }
   }

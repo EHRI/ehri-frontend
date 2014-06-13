@@ -8,6 +8,15 @@
         </li>
     }
     </ul>
+    @common.pagination(annotations, pageParam = "apage")
+    <div class="pull-right small text-muted">
+        <span class="glyphicon glyphicon-download"></span>
+        @for(fmt <- Seq(DataFormat.Text, DataFormat.Csv, DataFormat.Json)) {
+            <a class="alt" target="_blank" title="@Messages("portal.download.format." + fmt)" href="@controllers.portal.routes.Profile.annotations(format = fmt)&limit=-1">
+            @fmt
+            </a>
+        }
+    </div>
 } else {
      <p class="text-muted">
          @Messages("portal.annotation.none")

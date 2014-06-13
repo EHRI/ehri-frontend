@@ -22,6 +22,9 @@ trait GlobalConfig {
   def isTestMode = current.configuration.getBoolean("ehri.testing").getOrElse(true)
   def isStageMode = current.configuration.getBoolean("ehri.staging").getOrElse(false)
 
+  lazy val https =
+    current.configuration.getBoolean("securesocial.ssl").getOrElse(false)
+
   lazy val skipRecaptcha =
     current.configuration.getBoolean("recaptcha.skip").getOrElse(false)
 

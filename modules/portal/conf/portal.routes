@@ -59,6 +59,7 @@ GET         /newsFeed                       @controllers.portal.Portal.newsFeed
 GET         /item/:entityType/:id           @controllers.portal.Portal.browseItem(entityType: EntityType.Value, id: String)
 
 # Annotations...
+GET         /annotations                    @controllers.portal.Profile.annotations(format: controllers.DataFormat.Value ?= controllers.DataFormat.Html)
 GET         /annotation/:id                 @controllers.portal.Annotations.annotation(id: String)
 GET         /annotate/:aid/delete           @controllers.portal.Annotations.deleteAnnotation(aid: String)
 POST        /annotate/:aid/delete           @controllers.portal.Annotations.deleteAnnotationPost(aid: String)
@@ -91,7 +92,7 @@ GET         /watch/:id                      @controllers.portal.Profile.watchIte
 POST        /watch/:id                      @controllers.portal.Profile.watchItemPost(id: String)
 GET         /unwatch/:id                    @controllers.portal.Profile.unwatchItem(id: String)
 POST        /unwatch/:id                    @controllers.portal.Profile.unwatchItemPost(id: String)
-GET         /watching                       @controllers.portal.Profile.watching
+GET         /watching                       @controllers.portal.Profile.watching(format: controllers.DataFormat.Value ?= controllers.DataFormat.Html)
 
 GET         /account                        @controllers.portal.Profile.account
 GET         /profile                        @controllers.portal.Profile.profile
