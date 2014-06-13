@@ -51,8 +51,9 @@ portal.mail.unverifiedEmailResend=To re-send a verification email
 portal.mail.unverifiedEmailResendSubmit=click here
 portal.mail.emailConfirmationResent=We''ve sent you an email which you can use to confirm you email address.
 
-portal.mail.messageEmailHeading=New message from {0}
-portal.mail.messageEmailFooter=To respond, reply directly to this message. You can opt-out from receiving user messages by updating your preferences
+portal.mail.message.subject=EHRI: Message from {0}: {1}
+portal.mail.message.heading=New message from {0}
+portal.mail.message.footer=To respond, reply directly to this message. You can opt-out from receiving user messages by updating your preferences
 
 portal.preferences.showUserContent=Show User-Generated Comments and Links
 
