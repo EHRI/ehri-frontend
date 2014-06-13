@@ -106,5 +106,53 @@ jQuery(function($) {
     e.preventDefault();
     $("#search-helper").toggle();
   });
+
+  /*
+   *   Breadcrumb and collapsible
+   */
+  $(".breadcrumb.collapsible").each(function(e) {
+    var $ol = $(this);
+    var $width = $ol.width();
+    var $li = $ol.find("li");
+    var $padding = parseInt($li.outerWidth() - $li.width())
+    if ($li.length !== "undefined" && $li.length > 0) {
+      var $max = $width / $li.length;
+      $max = $max - $padding;
+      $li.find("a:visible").css("max-width", $max);
+      $li.data("max-width", $max);
+    }
+  });
+
+  $(".breadcrumb.collapsible > li").hover(function() {
+    var $actual = $(this);
+    var $offset = $actual.offset();
+    var $right = $offset.left;
+    var $top = $offset.top;
+    var $prev = $actual.prev();
+    if($prev.length !="undefined"&& $prev.length === 1) {
+      $right = $prev.offset().left + $prev.outerWidth();
+      $top = $prev.offset().top;
+    }
+    $actual.next().css("margin-left", $actual.outerWidth())
+    $actual.css({
+      "top": $top,
+      "left": $right,
+      "position": "fixed",
+      "z-index" : 9000
+    });
+    $actual.find("a:visible").css("max-width", "");
+
+  } , function() {
+    var $actual = $(this);
+    $actual.next().css("margin-left", 0);
+    $actual.before().css("z-index", "");
+    $actual.css({
+      "top": 0,
+      "left": 0,
+      "position": "relative",
+      "z-index" : ""
+    });
+    $actual.find("a:visible").css("max-width", $actual.data("max-width"));
+  });
 });
 

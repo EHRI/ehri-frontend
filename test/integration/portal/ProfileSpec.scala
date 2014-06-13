@@ -15,6 +15,7 @@ class ProfileSpec extends Neo4jRunnerSpec(classOf[ProfileSpec]) {
   import mocks.{privilegedUser, unprivilegedUser}
 
   private val profileRoutes = controllers.portal.routes.Profile
+  private val portalRoutes = controllers.portal.routes.Portal
 
   override def getConfig = Map(
     "recaptcha.skip" -> true,
@@ -22,6 +23,30 @@ class ProfileSpec extends Neo4jRunnerSpec(classOf[ProfileSpec]) {
   )
 
   "Portal views" should {
+    "allow watching and unwatching items" in new FakeApp {
+      val watch = route(fakeLoggedInHtmlRequest(privilegedUser, POST,
+        profileRoutes.watchItemPost("c1").url), "").get
+      status(watch) must equalTo(SEE_OTHER)
+
+      // Watched items show up on the profile - maybe change this?
+      val watching = route(fakeLoggedInHtmlRequest(privilegedUser, GET,
+        profileRoutes.watching().url)).get
+      // Check the following page contains a link to the user we just followed
+      contentAsString(watching) must contain(
+        portalRoutes.browseDocument("c1").url)
+
+      // Unwatch
+      val unwatch = route(fakeLoggedInHtmlRequest(privilegedUser, POST,
+        profileRoutes.unwatchItemPost("c1").url), "").get
+      status(unwatch) must equalTo(SEE_OTHER)
+
+      val watching2 = route(fakeLoggedInHtmlRequest(privilegedUser, GET,
+        profileRoutes.watching().url)).get
+      // Check the profile contains no links to the item we just unwatched
+      contentAsString(watching2) must not contain portalRoutes.browseDocument("c1").url
+
+    }
+
     "allow viewing profile" in new FakeApp {
       val prof = route(fakeLoggedInHtmlRequest(privilegedUser, GET,
         profileRoutes.profile().url)).get
