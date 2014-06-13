@@ -109,8 +109,9 @@ case class Social @Inject()(implicit globalConfig: global.GlobalConfig, searchDi
     } yield Ok(p.social.browseUser(them, theirActivity, followed, canMessage))
   }
 
-  def followUser(userId: String) = withUserAction.async { implicit user => implicit request =>
-    ???
+  def followUser(userId: String) = withUserAction { implicit user => implicit request =>
+    Ok(p.helpers.simpleForm("portal.social.follow",
+      socialRoutes.followUserPost(userId)))
   }
 
   def followUserPost(userId: String) = withUserAction.async { implicit user => implicit request =>
@@ -123,8 +124,9 @@ case class Social @Inject()(implicit globalConfig: global.GlobalConfig, searchDi
     }
   }
 
-  def unfollowUser(userId: String) = withUserAction.async { implicit user => implicit request =>
-    ???
+  def unfollowUser(userId: String) = withUserAction { implicit user => implicit request =>
+    Ok(p.helpers.simpleForm("portal.social.unfollow",
+      socialRoutes.unfollowUserPost(userId)))
   }
 
   def unfollowUserPost(userId: String) = withUserAction.async { implicit user => implicit request =>
@@ -137,8 +139,9 @@ case class Social @Inject()(implicit globalConfig: global.GlobalConfig, searchDi
     }
   }
 
-  def blockUser(userId: String) = withUserAction.async { implicit user => implicit request =>
-    ???
+  def blockUser(userId: String) = withUserAction { implicit user => implicit request =>
+    Ok(p.helpers.simpleForm("portal.social.block",
+      socialRoutes.blockUserPost(userId)))
   }
 
   def blockUserPost(userId: String) = withUserAction.async { implicit user => implicit request =>
@@ -151,8 +154,9 @@ case class Social @Inject()(implicit globalConfig: global.GlobalConfig, searchDi
     }
   }
 
-  def unblockUser(userId: String) = withUserAction.async { implicit user => implicit request =>
-    ???
+  def unblockUser(userId: String) = withUserAction { implicit user => implicit request =>
+    Ok(p.helpers.simpleForm("portal.social.unblock",
+      socialRoutes.unblockUserPost(userId)))
   }
 
   def unblockUserPost(userId: String) = withUserAction.async { implicit user => implicit request =>
@@ -196,42 +200,6 @@ case class Social @Inject()(implicit globalConfig: global.GlobalConfig, searchDi
     }
   }
 
-  def watchItem(id: String) = withUserAction.async { implicit user => implicit request =>
-    ???
-  }
-
-  def watchItemPost(id: String) = withUserAction.async { implicit user => implicit request =>
-    backend.watch(user.id, id).map { _ =>
-      if (isAjax) {
-        Ok("ok")
-      } else {
-        Redirect(socialRoutes.browseUsers())
-      }
-    }
-  }
-
-  def unwatchItem(id: String) = withUserAction.async { implicit user => implicit request =>
-    ???
-  }
-
-  def unwatchItemPost(id: String) = withUserAction.async { implicit user => implicit request =>
-    backend.unwatch(user.id, id).map { _ =>
-      if (isAjax) {
-        Ok("ok")
-      } else {
-        Redirect(socialRoutes.browseUsers())
-      }
-    }
-  }
-
-  def watching = withUserAction.async { implicit user => implicit request =>
-    val watchParams = PageParams.fromRequest(request)
-    backend.pageWatching(user.id, watchParams).map { watchList =>
-      Ok(p.profile.watchedItems(watchList))
-    }
-  }
-
-
   import play.api.data.Form
   import play.api.data.Forms._
   import utils.forms.checkRecapture
@@ -244,38 +212,35 @@ case class Social @Inject()(implicit globalConfig: global.GlobalConfig, searchDi
 
   /**
    * Ascertain if a user can receive messages from other users.
-   *  - they've got an account
-   *  - they have messaging enabled
-   *  - they're not blocking the current user
    */
-  private def canMessage(userId: String, otherId: String)(implicit apiUser: ApiUser): Future[Boolean] = {
+  private def canMessage(senderId: String, recipientId: String)(implicit apiUser: ApiUser): Future[Boolean] = {
     // First, find their account. If we don't have
     // an account we don't have an email, so we can't
-    // message them...
-    userDAO.findByProfileId(otherId).filter(_.allowMessaging).map { account =>
-      // If they've got messaging disabled we can't mail them...
-      if (!account.allowMessaging) Future.successful(false)
-        // And nor can we if they're blocking us specifically ;(
-      else backend.isBlocking(otherId, userId).map(blocking => !blocking)
-      backend.isBlocking(otherId, userId).map(blocking => !blocking)
-    }.getOrElse(Future.successful(false))
+    // message them... Ignore accounts which have disabled
+    // messaging.
+    userDAO.findByProfileId(recipientId).filter(_.allowMessaging).map { account =>
+      // If the recipient is blocking the sender they can't send
+      // a message.
+      backend.isBlocking(recipientId, senderId).map(blocking => !blocking)
+    } getOrElse {
+      Future.successful(false)
+    }
   }
 
-  private def sendMessageEmail(from: UserProfile, to: UserProfile, subject: String, message: String)(implicit request: RequestHeader): Boolean = {
-    (for {
+  private def sendMessageEmail(from: UserProfile, to: UserProfile, subject: String, message: String)(implicit request: RequestHeader): Unit = {
+    for {
       accFrom <- userDAO.findByProfileId(from.id)
       accTo <- userDAO.findByProfileId(to.id)
     } yield {
       import com.typesafe.plugin._
       use[MailerPlugin].email
-        .setSubject(s"EHRI: Message from ${from.toStringLang}: $subject")
+        .setSubject(Messages("portal.mail.message.subject", from.toStringLang, subject))
         .setRecipient(accTo.email)
         .setReplyTo(accFrom.email)
-        .setFrom("EHRI Email Validation <noreply@ehri-project.eu>")
+        .setFrom("EHRI User <noreply@ehri-project.eu>")
         .send(views.txt.p.social.mail.messageEmail(from, subject, message).body,
         views.html.p.social.mail.messageEmail(from, subject, message).body)
-      true
-    }).getOrElse(false)
+    }
   }
 
   def sendMessage(userId: String) = withUserAction.async { implicit user => implicit request =>

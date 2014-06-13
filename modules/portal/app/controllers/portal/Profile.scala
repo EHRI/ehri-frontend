@@ -56,6 +56,37 @@ case class Profile @Inject()(implicit globalConfig: global.GlobalConfig, searchD
     Ok(Json.toJson(userOpt.flatMap(_.account)))
   }
 
+  def watchItem(id: String) = withUserAction { implicit user => implicit request =>
+    Ok(p.helpers.simpleForm("portal.profile.watch",
+      profileRoutes.watchItemPost(id)))
+  }
+
+  def watchItemPost(id: String) = withUserAction.async { implicit user => implicit request =>
+    backend.watch(user.id, id).map { _ =>
+      if (isAjax) Ok("ok")
+      else Redirect(profileRoutes.watching)
+    }
+  }
+
+  def unwatchItem(id: String) = withUserAction { implicit user => implicit request =>
+    Ok(p.helpers.simpleForm("portal.profile.unwatch",
+      profileRoutes.unwatchItemPost(id)))
+  }
+
+  def unwatchItemPost(id: String) = withUserAction.async { implicit user => implicit request =>
+    backend.unwatch(user.id, id).map { _ =>
+      if (isAjax) Ok("ok")
+      else Redirect(profileRoutes.watching)
+    }
+  }
+
+  def watching = withUserAction.async { implicit user => implicit request =>
+    val watchParams = PageParams.fromRequest(request)
+    backend.pageWatching(user.id, watchParams).map { watchList =>
+      Ok(p.profile.watchedItems(watchList))
+    }
+  }
+
   def prefs = Action { implicit request =>
     Ok(Json.toJson(preferences))
   }

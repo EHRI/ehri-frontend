@@ -1,7 +1,7 @@
 @()(implicit userOpt: Option[UserProfile], request: RequestHeader, globalConfig: global.GlobalConfig, sessionPrefs: utils.SessionPrefs, flash: Flash, lang: Lang)
 
-@p.layout.portalLayout(Messages("dataPolicy.header")) {
-    @p.layout.infobar {
+@layout.portalLayout(Messages("dataPolicy.header")) {
+    @views.html.layout.infobar {
     } {
     }
 

@@ -132,8 +132,8 @@ jQuery(function ($) {
 	$(document).on("click", "a.watch, a.unwatch", function (e) {
 		e.preventDefault();
 
-		var watchFunc = jsRoutes.controllers.portal.Social.watchItemPost,
-		    unwatchFunc = jsRoutes.controllers.portal.Social.unwatchItemPost,
+		var watchFunc = jsRoutes.controllers.portal.Profile.watchItemPost,
+		    unwatchFunc = jsRoutes.controllers.portal.Profile.unwatchItemPost,
 		    $elem = $(this),
 		    id = $elem.data("item"),
 		    watch = $elem.hasClass("watch");
