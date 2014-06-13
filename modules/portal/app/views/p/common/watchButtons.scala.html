@@ -3,14 +3,14 @@
 <div class="watch-controls pull-right btn-group">
     <a data-item="@item.id"
        class=" btn  btn-danger unwatch"
-       style="@(if(!watching) "display: none;")" title="@Messages("portal.social.unwatch.tooltip")" href="@controllers.portal.routes.Social.unwatchItem(item.id)">
+       style="@(if(!watching) "display: none;")" title="@Messages("portal.profile.unwatch.tooltip")" href="@controllers.portal.routes.Profile.unwatchItem(item.id)">
         <span class="glyphicon glyphicon-star"></span>
-        <span class="legend">@Messages("portal.social.unwatch")</span>
+        <span class="legend">@Messages("portal.profile.unwatch")</span>
     </a>
     <a data-item="@item.id"
        class=" btn  btn-danger watch"
-       style="@(if(watching) "display: none")" title="@Messages("portal.social.watch.tooltip")" href="@controllers.portal.routes.Social.watchItem(item.id)">
+       style="@(if(watching) "display: none")" title="@Messages("portal.profile.watch.tooltip")" href="@controllers.portal.routes.Profile.watchItem(item.id)">
         <span class="glyphicon glyphicon-star-empty"></span>
-        <span class="legend">@Messages("portal.social.watch")</span>
+        <span class="legend">@Messages("portal.profile.watch")</span>
     </a>
 </div>

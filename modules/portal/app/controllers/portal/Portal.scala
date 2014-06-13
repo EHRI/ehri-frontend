@@ -99,6 +99,7 @@ case class Portal @Inject()(implicit globalConfig: global.GlobalConfig, searchDi
       case EntityType.Country => Redirect(portalRoutes.browseCountry(id))
       case EntityType.Link => Redirect(portalRoutes.browseLink(id))
       case EntityType.Annotation => Redirect(portalRoutes.browseAnnotation(id))
+      case EntityType.Vocabulary => Redirect(portalRoutes.browseVocabulary(id))
       case _ => NotFound(renderError("errors.pageNotFound", pageNotFound()))
     }
   }

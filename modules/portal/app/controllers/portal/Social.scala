@@ -109,8 +109,9 @@ case class Social @Inject()(implicit globalConfig: global.GlobalConfig, searchDi
     } yield Ok(p.social.browseUser(them, theirActivity, followed, canMessage))
   }
 
-  def followUser(userId: String) = withUserAction.async { implicit user => implicit request =>
-    ???
+  def followUser(userId: String) = withUserAction { implicit user => implicit request =>
+    Ok(p.helpers.simpleForm("portal.social.follow",
+      socialRoutes.followUserPost(userId)))
   }
 
   def followUserPost(userId: String) = withUserAction.async { implicit user => implicit request =>
@@ -123,8 +124,9 @@ case class Social @Inject()(implicit globalConfig: global.GlobalConfig, searchDi
     }
   }
 
-  def unfollowUser(userId: String) = withUserAction.async { implicit user => implicit request =>
-    ???
+  def unfollowUser(userId: String) = withUserAction { implicit user => implicit request =>
+    Ok(p.helpers.simpleForm("portal.social.unfollow",
+      socialRoutes.unfollowUserPost(userId)))
   }
 
   def unfollowUserPost(userId: String) = withUserAction.async { implicit user => implicit request =>
@@ -137,8 +139,9 @@ case class Social @Inject()(implicit globalConfig: global.GlobalConfig, searchDi
     }
   }
 
-  def blockUser(userId: String) = withUserAction.async { implicit user => implicit request =>
-    ???
+  def blockUser(userId: String) = withUserAction { implicit user => implicit request =>
+    Ok(p.helpers.simpleForm("portal.social.block",
+      socialRoutes.blockUserPost(userId)))
   }
 
   def blockUserPost(userId: String) = withUserAction.async { implicit user => implicit request =>
@@ -151,8 +154,9 @@ case class Social @Inject()(implicit globalConfig: global.GlobalConfig, searchDi
     }
   }
 
-  def unblockUser(userId: String) = withUserAction.async { implicit user => implicit request =>
-    ???
+  def unblockUser(userId: String) = withUserAction { implicit user => implicit request =>
+    Ok(p.helpers.simpleForm("portal.social.unblock",
+      socialRoutes.unblockUserPost(userId)))
   }
 
   def unblockUserPost(userId: String) = withUserAction.async { implicit user => implicit request =>
@@ -195,42 +199,6 @@ case class Social @Inject()(implicit globalConfig: global.GlobalConfig, searchDi
         Ok(p.social.listFollowing(them, theirFollowing, params, whoImFollowing))
     }
   }
-
-  def watchItem(id: String) = withUserAction.async { implicit user => implicit request =>
-    ???
-  }
-
-  def watchItemPost(id: String) = withUserAction.async { implicit user => implicit request =>
-    backend.watch(user.id, id).map { _ =>
-      if (isAjax) {
-        Ok("ok")
-      } else {
-        Redirect(socialRoutes.browseUsers())
-      }
-    }
-  }
-
-  def unwatchItem(id: String) = withUserAction.async { implicit user => implicit request =>
-    ???
-  }
-
-  def unwatchItemPost(id: String) = withUserAction.async { implicit user => implicit request =>
-    backend.unwatch(user.id, id).map { _ =>
-      if (isAjax) {
-        Ok("ok")
-      } else {
-        Redirect(socialRoutes.browseUsers())
-      }
-    }
-  }
-
-  def watching = withUserAction.async { implicit user => implicit request =>
-    val watchParams = PageParams.fromRequest(request)
-    backend.pageWatching(user.id, watchParams).map { watchList =>
-      Ok(p.profile.watchedItems(watchList))
-    }
-  }
-
 
   import play.api.data.Form
   import play.api.data.Forms._
