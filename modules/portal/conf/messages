@@ -4,9 +4,9 @@ portal.footerText=This is a development version of the EHRI portal interface.
 
 portal.feedback.list=Submitted Feedback
 portal.download=Download
-portal.download.text=Download as plain text
-portal.download.csv=Download as CSV
-portal.download.json=Download as JSON
+portal.download.format.txt=Download as plain text
+portal.download.format.csv=Download as CSV
+portal.download.format.json=Download as JSON
 
 portal.profile.preferences=Preferences
 portal.profile.preferences.updated=Preferences Updated
