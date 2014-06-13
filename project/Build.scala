@@ -63,7 +63,8 @@ object ApplicationBuild extends Build {
   val portalDependencies = Seq(
     // S3 Upload plugin
     "nl.rhinofly" %% "play-s3" % "3.3.3",
-    "net.coobird" % "thumbnailator" % "[0.4, 0.5)"
+    "net.coobird" % "thumbnailator" % "[0.4, 0.5)",
+    "net.sf.opencsv" % "opencsv" % "2.3"
   )
 
   val testDependencies = Seq(

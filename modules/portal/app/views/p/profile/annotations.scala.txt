@@ -1,0 +1,12 @@
+@(annotations: utils.AbstractPage[Annotation])(implicit userOpt: Option[UserProfile], request: RequestHeader, prefs: utils.SessionPrefs, globalConfig: global.GlobalConfig, lang: Lang, flash: Flash)
+@userOpt.map { user => @defining(user.toStringLang + " - " + Messages("portal.annotation.list")) { title =>
+@title
+@{"=" * title.size}}}
+@annotations.map { annotation =>
+        @annotation.target.map { src =>
+* @{src.toStringLang + annotation.model.field.map { field => ": " + Messages(src.isA.toString + "." + field)}.getOrElse("")}}
+
+  @annotation.model.body
+        @for(user <- annotation.user ; event <- annotation.latestEvent ; src <- annotation.target) {
+  @{views.p.Helpers.linkTo(src).absoluteURL(globalConfig.https).trim + "#" + annotation.id}
+  @event.model.timestamp}}
