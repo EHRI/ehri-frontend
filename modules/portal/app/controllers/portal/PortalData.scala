@@ -14,6 +14,8 @@ object PortalData extends Controller {
   def jsRoutes = Action { implicit request =>
     Ok(
       Routes.javascriptRouter("jsRoutes")(
+        controllers.portal.routes.javascript.Profile.watchItemPost,
+        controllers.portal.routes.javascript.Profile.unwatchItemPost,
         controllers.portal.routes.javascript.Profile.updatePrefs,
         controllers.portal.routes.javascript.Profile.profile,
         controllers.portal.routes.javascript.Profile.updateProfile,
@@ -21,8 +23,6 @@ object PortalData extends Controller {
         controllers.portal.routes.javascript.Social.personalisedActivity,
         controllers.portal.routes.javascript.Social.followUserPost,
         controllers.portal.routes.javascript.Social.unfollowUserPost,
-        controllers.portal.routes.javascript.Social.watchItemPost,
-        controllers.portal.routes.javascript.Social.unwatchItemPost,
         controllers.portal.routes.javascript.Social.followersForUser,
         controllers.portal.routes.javascript.Social.blockUserPost,
         controllers.portal.routes.javascript.Social.unblockUserPost,

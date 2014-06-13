@@ -1,14 +1,14 @@
-@(watchList: utils.AbstractPage[models.base.AnyModel])(implicit userOpt: Option[UserProfile], request: RequestHeader, prefs: utils.SessionPrefs, globalConfig: global.GlobalConfig, lang: Lang, flash: Flash) Flash)
+@(watchList: utils.AbstractPage[models.base.AnyModel])(implicit userOpt: Option[UserProfile], request: RequestHeader, prefs: utils.SessionPrefs, globalConfig: global.GlobalConfig, lang: Lang, flash: Flash)
 
 @* user should always be defined here *@
 @userOpt.map { user =>
-    @p.layout.portalLayout(Messages("portal.social.watchedItems")) {
-        @p.layout.infobar {
+    @p.layout.portalLayout(Messages("portal.profile.watchedItems")) {
+        @layout.infobar {
         } {
         }
 
         @views.html.layout.mainContent {
-            <h1>@Messages("portal.social.watchedItems")</h1>
+            <h1>@Messages("portal.profile.watchedItems")</h1>
             @itemWatchList(user, watchList)
         }
     }

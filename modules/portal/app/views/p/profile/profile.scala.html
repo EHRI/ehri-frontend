@@ -16,7 +16,7 @@
             <div class="user-profile-content">
                 @defining(request.getQueryString("tab").getOrElse("0")) { activeTab =>
                     <div class="tab-header">
-                        <h3 class="block-header user @(if(activeTab == "0") "active")"><a href="#user-watch-list" data-tabidx="0" data-toggle="tab">@Messages("portal.social.watchedItems")</a></h3>
+                        <h3 class="block-header user @(if(activeTab == "0") "active")"><a href="#user-watch-list" data-tabidx="0" data-toggle="tab">@Messages("portal.profile.watchedItems")</a></h3>
                         <h3 class="block-header user @(if(activeTab == "1") "active")"><a href="#user-annotations" data-tabidx="1" data-toggle="tab">@Messages("portal.annotation.list")</a></h3>
                         <h3 class="block-header user @(if(activeTab == "2") "active")"><a href="#user-links" data-tabidx="2" data-toggle="tab">@Messages("portal.link.list")</a></h3>
                     </div>

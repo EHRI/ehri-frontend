@@ -82,84 +82,84 @@ jQuery(function ($) {
         } else {
           $elem.data("offset", offset + limit);
         }
-      }
-    });
-  });
+		  }
+		});
+	});
 
-  /**
-   * Handler following/unfollowing users via Ajax.
-   */
-  $(document).on("click", "a.follow, a.unfollow", function (e) {
-    e.preventDefault();
+	/**
+	* Handler following/unfollowing users via Ajax.
+	*/
+	$(document).on("click", "a.follow, a.unfollow", function (e) {
+		e.preventDefault();
 
-    var followFunc = jsRoutes.controllers.portal.Social.followUserPost,
-        unfollowFunc = jsRoutes.controllers.portal.Social.unfollowUserPost,
-        followerListFunc = jsRoutes.controllers.portal.Social.followersForUser,
-        $elem = $(this),
-        id = $elem.data("item"),
-        follow = $elem.hasClass("follow");
+		var followFunc = jsRoutes.controllers.portal.Social.followUserPost,
+		    unfollowFunc = jsRoutes.controllers.portal.Social.unfollowUserPost,
+		    followerListFunc = jsRoutes.controllers.portal.Social.followersForUser,
+		    $elem = $(this),
+		    id = $elem.data("item"),
+		    follow = $elem.hasClass("follow");
 
-    var call, $other;
-    if (follow) {
-      call = followFunc;
-      $other = $elem.parent().find("a.unfollow");
-    } else {
-      call = unfollowFunc;
-      $other = $elem.parent().find("a.follow");
-    }
+		var call, $other;
+		if (follow) {
+		  call = followFunc;
+		  $other = $elem.parent().find("a.unfollow");
+		} else {
+		  call = unfollowFunc;
+		  $other = $elem.parent().find("a.follow");
+		}
 
-    call(id).ajax({
-      success: function () {
-        // Swap the buttons and, if necessary, reload
-        // their followers list...
-        $elem.hide();
-        $other.show();
-        $(".browse-users-followers")
-            .load(followerListFunc(id).url);
+		call(id).ajax({
+		  success: function () {
+		    // Swap the buttons and, if necessary, reload
+		    // their followers list...
+		    $elem.hide();
+		    $other.show();
+		    $(".browse-users-followers")
+		        .load(followerListFunc(id).url);
 
-        // If a follower count is shown, munge it...
-        var fc = $(".user-follower-count");
-        if (fc.size()) {
-          var cnt = parseInt(fc.html(), 10);
-          fc.html(follow ? (cnt + 1) : (cnt - 1));
-        }
-      }
-    });
-  });
+		    // If a follower count is shown, munge it...
+		    var fc = $(".user-follower-count");
+		    if (fc.size()) {
+		      var cnt = parseInt(fc.html(), 10);
+		      fc.html(follow ? (cnt + 1) : (cnt - 1));
+		    }
+		  }
+		});
+	});
 
-  /**
-   * Handle watching/unwatching items using Ajax...
-   */
-  $(document).on("click", "a.watch, a.unwatch", function (e) {
-    e.preventDefault();
+	/**
+	* Handle watching/unwatching items using Ajax...
+	*/
+	$(document).on("click", "a.watch, a.unwatch", function (e) {
+		e.preventDefault();
 
-    var watchFunc = jsRoutes.controllers.portal.Social.watchItemPost,
-        unwatchFunc = jsRoutes.controllers.portal.Social.unwatchItemPost,
-        $elem = $(this),
-        id = $elem.data("item"),
-        watch = $elem.hasClass("watch");
-    var call, $other;
-    if (watch) {
-      call = watchFunc;
-      $other = $elem.parent().find("a.unwatch");
-    } else {
-      call = unwatchFunc;
-      $other = $elem.parent().find("a.watch");
-    }
+		var watchFunc = jsRoutes.controllers.portal.Profile.watchItemPost,
+		    unwatchFunc = jsRoutes.controllers.portal.Profile.unwatchItemPost,
+		    $elem = $(this),
+		    id = $elem.data("item"),
+		    watch = $elem.hasClass("watch");
+		var call, $other;
+		if (watch) {
+		  call = watchFunc;
+		  $other = $elem.parent().find("a.unwatch");
+		} else {
+		  call = unwatchFunc;
+		  $other = $elem.parent().find("a.watch");
+		}
 
-    call(id).ajax({
-      success: function () {
-        // Swap the buttons and, if necessary, reload
-        // their followers list...
-        $elem.hide();
-        $other.show();
+		call(id).ajax({
+		  success: function () {
+		    // Swap the buttons and, if necessary, reload
+		    // their followers list...
+		    $elem.hide();
+		    $other.show();
 
-        // If a watch count is shown, munge it...
-        var fc = $(".item-watch-count");
-        if (fc.size()) {
-          var cnt = parseInt(fc.html(), 10);
-          fc.html(watch ? (cnt + 1) : (cnt - 1));
-        }
+		    // If a watch count is shown, munge it...
+		    var fc = $(".item-watch-count");
+		    if (fc.size()) {
+		      var cnt = parseInt(fc.html(), 10);
+		      fc.html(watch ? (cnt + 1) : (cnt - 1));
+		    }
 
         //If it is on profile page, remove the row
         if (watch === false) {
