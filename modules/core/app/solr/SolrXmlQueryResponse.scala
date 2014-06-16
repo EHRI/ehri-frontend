@@ -1,13 +1,9 @@
 package solr
 
-import solr.facet.{QueryFacetClass, FieldFacetClass}
 import scala.xml.{Node, Elem}
 import defines.EntityType
 import utils.search._
 import play.api.Logger
-import utils.search.SearchHit
-import solr.facet.FieldFacetClass
-import solr.facet.QueryFacetClass
 import com.github.seratch.scalikesolr._
 import utils.search.QueryResponse
 import utils.search.SearchHit
@@ -50,8 +46,6 @@ case class SolrXmlQueryResponse(response: Elem) extends QueryResponse {
       attrs <- strn.attributes.get("name")
       name <- attrs.headOption
     } yield name.text -> strn.text) ++ Seq(HOLDER_NAME -> parent)).toMap
-
-    //(doc \ "arr").filter(hasAttr("name", HOLDER_NAME)
 
     SearchHit(
       id = id,

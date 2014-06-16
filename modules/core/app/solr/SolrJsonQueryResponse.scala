@@ -52,6 +52,7 @@ case class SolrJsonQueryResponse(response: JsValue) extends QueryResponse {
 
       val fields = jsObj.value.collect {
         case (field, JsString(str)) => field -> str
+        case (field, JsArray(JsString(str) :: _)) => field -> str
       }.toMap
 
       hit.copy(fields = fields, highlights = highlights, phrases = phrases)

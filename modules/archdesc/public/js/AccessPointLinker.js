@@ -142,6 +142,7 @@
     $provide.factory('$names', function() {
       return {
         cvocConcept: "Concept/Keyword",
+        cvocVocabulary: "Vocabulary",
         documentaryUnit: "Archival Unit",
         repository: "Repository",
         historicalAgent: "Authority"
