@@ -4,9 +4,9 @@ portal.footerText=This is a development version of the EHRI portal interface.
 
 portal.feedback.list=Submitted Feedback
 portal.download=Download
-portal.download.text=Download as plain text
-portal.download.csv=Download as CSV
-portal.download.json=Download as JSON
+portal.download.format.txt=Download as plain text
+portal.download.format.csv=Download as CSV
+portal.download.format.json=Download as JSON
 
 portal.profile.preferences=Preferences
 portal.profile.preferences.updated=Preferences Updated
@@ -192,19 +192,17 @@ portal.social.block.submit=Block User
 portal.social.unblock=Unblock User
 portal.social.unblock.submit=Unblock User
 
-portal.profile.watchedItems=Watched Items
-portal.profile.watchedItems.view.text=View as plain text
-portal.profile.watchItem=Add item to your watch list
-portal.profile.unwatchItem=Remove item from your watch list
+portal.profile.watch.list=Watched Items
 portal.profile.watch=Watch Item
+portal.profile.watch.title=Add item to your watch list
 portal.profile.watch.tooltip=Click to see updates to this item in your activity list.
 portal.profile.watch.submit=Watch Item
 portal.profile.unwatch=Unwatch Item
 portal.profile.unwatch.tooltip=Click to stop getting updates to this item posted in your activity list.
 portal.profile.unwatch.submit=Unwatch Item
+portal.profile.unwatch.title=Remove item from your watch list
 
 portal.annotation=Notes
-portal.annotation.view.text=View as plain text
 portal.annotation.list=Notes
 portal.annotation.none=You haven''t made any notes yet.
 portal.annotation.create=Add Note
