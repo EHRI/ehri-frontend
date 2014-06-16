@@ -202,14 +202,13 @@ jQuery(function ($) {
     if(typeof loaderContainer !== "undefined") {
       loaderContainer.remove();
     }
-    if($elem.hasClass("annotate-field")) {
-      var $container = $(".annotate-item-controls[data-target='" + $elem.attr("data-target") + "']");
-    } else {
-      var $container = $elem.parent();
-    }
-      $elem.hide();
-      $container.after(data);
-      $container.next().find("textarea").focus();
+    var $container = $elem.hasClass("annotate-field")
+      ? $(".annotate-item-controls[data-target='" + $elem.attr("data-target") + "']")
+      : $elem.parent();
+
+    $elem.hide();
+    $container.after(data);
+    $container.next().find("textarea").focus();
     $(data).find("select.custom-accessors").select2({
       placeholder: "Select a set of groups or users",
       width: "copy"
