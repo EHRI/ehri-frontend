@@ -3,20 +3,11 @@
 <!DOCTYPE html>
 
 <html lang="@lang.code">
-    <head>
-        <title>@title</title>
-        
-        <link href='http://fonts.googleapis.com/css?family=Lato:400,700' rel='stylesheet' type='text/css'>
-        <link rel="stylesheet" href="@controllers.core.routes.Assets.at("css/portal.min.css")">
-        <meta name="viewport" content="width=device-width, initial-scale=1">
-
-        @styles
-
-    </head>
+    @head(title, styles = styles)
     <body>
-        @p.layout.simpleHeader(itemClass)
         <div id="wrap">
-
+            @simpleHeader(itemClass)
+            @views.html.common.flash(flash)
             <div class="page-content">
                 @content
                 <div id="push"></div>
