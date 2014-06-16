@@ -85,7 +85,7 @@
           params = params + "&page=" + page;
         }
         return $http.get($service.filter().url + params);
-      }
+      };
       var limitTypes = function(type) {
         if(Array.isArray(type)) {
           return type;
@@ -100,16 +100,14 @@
           return ["cvocConcept"];
         }
         return [];
-      }
+      };
       return {
         search: function(type, searchTerm, page) {
-          var type = this.limitTypes(type);
-          return search(type, searchTerm, page);
+          return search(this.limitTypes(type), searchTerm, page);
         },
         limitTypes : limitTypes,
         filter: function(type, searchTerm, page) {
-          var type = this.limitTypes(type);
-          return search(type, (searchTerm || "PLACEHOLDER_NO_RESULTS"), page);
+          return search(this.limitTypes(type), (searchTerm || "PLACEHOLDER_NO_RESULTS"), page);
         },
 
         detail: function(type, id) {
@@ -133,7 +131,8 @@
         createAccessPoint: jsRoutes.controllers.archdesc.DocumentaryUnits.createAccessPoint,
         getAccessPoints: jsRoutes.controllers.archdesc.DocumentaryUnits.getAccessPointsJson,
         deleteLink: jsRoutes.controllers.archdesc.DocumentaryUnits.deleteLink,
-        deleteAccessPoint: jsRoutes.controllers.archdesc.DocumentaryUnits.deleteAccessPointAction,
+        deleteAccessPoint: jsRoutes.controllers.archdesc.DocumentaryUnits.deleteAccessPoint,
+        deleteLinkAndAccessPoint: jsRoutes.controllers.archdesc.DocumentaryUnits.deleteLinkAndAccessPoint,
         redirectUrl: function(id) {
           return jsRoutes.controllers.archdesc.DocumentaryUnits.get(id).url;
         }
@@ -143,6 +142,7 @@
     $provide.factory('$names', function() {
       return {
         cvocConcept: "Concept/Keyword",
+        cvocVocabulary: "Vocabulary",
         documentaryUnit: "Archival Unit",
         repository: "Repository",
         historicalAgent: "Authority"
@@ -200,7 +200,7 @@ function LinkCtrl($scope, $window, $search, $names, $rootScope, $modalInstance, 
     currentPage : 1, //Current page of pagination
     maxSize : 5, // Number of pagination buttons shown
     numPages : false  // Number of pages (get from query)
-  }
+  };
 
   // Trigger moreResults if current page changes
   $scope.$watch("pageInfos.currentPage", function(newValue, oldValue) {
@@ -211,7 +211,7 @@ function LinkCtrl($scope, $window, $search, $names, $rootScope, $modalInstance, 
 
   $rootScope.readableType = function(code) {
     return $names[code] ? $names[code] : code;
-  }
+  };
 
   /**
    * Trigger a search for the current search term.
@@ -227,7 +227,7 @@ function LinkCtrl($scope, $window, $search, $names, $rootScope, $modalInstance, 
       $scope.pageInfos.numPages = parseInt( response.data.numPages);
 
     });
-  }
+  };
 
   /**
    * Fetch more results for the current search term.
@@ -243,7 +243,7 @@ function LinkCtrl($scope, $window, $search, $names, $rootScope, $modalInstance, 
       $scope.pageInfos.currentPage = parseInt(response.data.page);
 
     });
-  }
+  };
 
   /**
    * Narrow the search to a particular type of item.
@@ -257,7 +257,7 @@ function LinkCtrl($scope, $window, $search, $names, $rootScope, $modalInstance, 
     }
     $scope.type = $search.limitTypes(type);
     $scope.doSearch($scope.q);
-  }
+  };
 
   /**
    * Select a particular item. A second click will un-select
@@ -274,7 +274,7 @@ function LinkCtrl($scope, $window, $search, $names, $rootScope, $modalInstance, 
         $scope.itemData = response.data;
       });
     }
-  }
+  };
 
   /**
    * Select an item, closing the dialog.
@@ -282,7 +282,7 @@ function LinkCtrl($scope, $window, $search, $names, $rootScope, $modalInstance, 
   $scope.selectItem = function() {
     if ($scope.item)
       $scope.close($scope.item);
-  }
+  };
 
   /**
    * Close the dialog.
@@ -324,7 +324,7 @@ function LinkerCtrl($scope, $service, $search, $dialog, $names, $rootScope, $win
 
   $scope.readableType = function(code) {
     return $names[code] ? $names[code] : code;
-  }
+  };
 
   /**
    * Initialize the scope with the item and description IDs.
@@ -335,7 +335,7 @@ function LinkerCtrl($scope, $service, $search, $dialog, $names, $rootScope, $win
     $scope.itemId = itemId;
     $scope.descriptionId = descriptionId;
     $scope.getAccessPointList();
-  }
+  };
 
   /* Nasty stateful var tracking an access point
    * in the process of being created.
@@ -365,7 +365,7 @@ function LinkerCtrl($scope, $service, $search, $dialog, $names, $rootScope, $win
    */
   $scope.editInProgress = function(type) {
     return $scope.tempAccessPoint !== null && $scope.tempAccessPoint.type == type;
-  }
+  };
 
   /**
    * Determine if the access point currently being added is valid.
@@ -376,7 +376,7 @@ function LinkerCtrl($scope, $service, $search, $dialog, $names, $rootScope, $win
     return $scope.tempAccessPoint !== null
       && $scope.tempAccessPoint.type == type
       && $scope.tempAccessPoint.name != "";
-  }
+  };
 
   /**
    * Delete an access point with a link.
@@ -395,21 +395,9 @@ function LinkerCtrl($scope, $service, $search, $dialog, $names, $rootScope, $win
 
     $dialog.messageBox(title, msg, btns, function(result) {
         if (result == 1) {
-          $service.deleteLink($scope.itemId, accessLinkId).ajax({
-            headers: {"Accept": "application/json; charset=utf-8"},
+          $service.deleteLinkAndAccessPoint($scope.itemId, $scope.descriptionId, accessPointId, accessLinkId).ajax({
             success: function(data) {
-              if (data === true) {
-
-
-                $service.deleteAccessPoint($scope.itemId, $scope.descriptionId, accessPointId).ajax({
-                  headers: {"Accept": "application/json; charset=utf-8"},
-                  success: function(data) {
-                    if (data === true) {
-                      $scope.getAccessPointList();
-                    }
-                  }
-                });
-              }
+              $scope.getAccessPointList();
             }
           });
         }
@@ -428,7 +416,7 @@ function LinkerCtrl($scope, $service, $search, $dialog, $names, $rootScope, $win
       }
       return true;
     });
-  }
+  };
 
   /**
    * When the user clicks a potenial match, add it
@@ -444,10 +432,10 @@ function LinkerCtrl($scope, $service, $search, $dialog, $names, $rootScope, $win
       name: match[1],
       targetType: match[2],
       type: "associative"
-    }
+    };
     // Clear the list of matches
     $scope.matches = [];
-  }
+  };
 
   /**
    * Delete an access point.
@@ -490,7 +478,7 @@ function LinkerCtrl($scope, $service, $search, $dialog, $names, $rootScope, $win
         return $scope.accesslist.data[idx].data;
       }
     }
-  }
+  };
 
   /**
    *
@@ -545,10 +533,7 @@ function LinkerCtrl($scope, $service, $search, $dialog, $names, $rootScope, $win
               type: $scope.tempAccessPoint.link.type,
               description: $scope.tempAccessPoint.description
             }),
-            headers: ajaxHeaders,
-            error: function() {
-              console.log(arguments)
-            }
+            headers: ajaxHeaders
           }).done(function(data) {
               $scope.cancelAddAccessPoint();
               $scope.getAccessPointList();
@@ -556,10 +541,8 @@ function LinkerCtrl($scope, $service, $search, $dialog, $names, $rootScope, $win
               console.log(arguments)
             });
         }
-      }).error(function() {
-        console.log(arguments)
       });
-  }
+  };
 
   /**
    * Get a URL for an item given only its ID.
@@ -568,7 +551,7 @@ function LinkerCtrl($scope, $service, $search, $dialog, $names, $rootScope, $win
    */
   $scope.getUrl = function(id) {
     return $service.get(id).url;
-  }
+  };
 
   /**
    * Get a URL for an item given its type and id. This is more
@@ -579,7 +562,7 @@ function LinkerCtrl($scope, $service, $search, $dialog, $names, $rootScope, $win
    */
   $scope.getTypeUrl = function(type, id) {
     return $service.getItem(type, id).url;
-  }
+  };
 
   /**
    * Cancel the operation of adding an access point.
@@ -587,7 +570,7 @@ function LinkerCtrl($scope, $service, $search, $dialog, $names, $rootScope, $win
   $scope.cancelAddAccessPoint = function() {
     $scope.tempAccessPoint = null;
     $scope.matches = [];
-  }
+  };
 
   /**
    * Remove just the linked item when adding an access point
@@ -595,7 +578,7 @@ function LinkerCtrl($scope, $service, $search, $dialog, $names, $rootScope, $win
    */
   $scope.removeTempAccessPointLink = function() {
     $scope.tempAccessPoint.link = null;
-  }
+  };
 
   /**
    * Fetch the current list of access points for the current item and description.
@@ -604,7 +587,6 @@ function LinkerCtrl($scope, $service, $search, $dialog, $names, $rootScope, $win
   $scope.getAccessPointList = function() {
     $service.getAccessPoints($scope.itemId, $scope.descriptionId).ajax({
       success: function(data) {
-        console.log(data)
         for (var i in data) {
           if (data[i].id === $scope.descriptionId) {
             $scope.accesslist = data[i];
@@ -614,5 +596,5 @@ function LinkerCtrl($scope, $service, $search, $dialog, $names, $rootScope, $win
         }
       }
     });
-  }
+  };
 }

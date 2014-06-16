@@ -435,6 +435,8 @@ accessPoint.type.subjectAccess=Subjects
 accessPoint.type.otherAccess=Miscellaneous
 # References not on this item, but from another item's access points
 accessPoint.externalReferences=External references to this item
+accessPoint.delete=Remove Access Point
+accessPoint.delete.submit=Remove
 
 #
 # Metrics
