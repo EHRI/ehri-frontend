@@ -2,8 +2,9 @@ package integration
 
 import models.{AnnotationF, AccessPointF}
 import helpers._
-import play.api.libs.json.{JsValue, Json}
+import play.api.libs.json.{JsBoolean, JsValue, Json}
 import controllers.generic.{AccessPointLink, Annotate}
+import models.LinkF.LinkType
 
 /**
  * Spec for testing various JSON endpoints used by Ajax components etc.
@@ -14,7 +15,7 @@ class APISpec extends Neo4jRunnerSpec(classOf[APISpec]) {
 
   "Link JSON endpoints" should {
     "allow creating and reading" in new FakeApp {
-      val json = Json.toJson(new AccessPointLink("a1", description = Some("Test link")))
+      val json = Json.toJson(new AccessPointLink("a1", Some(LinkType.Associative), Some("Test link")))
       val cr = route(fakeLoggedInHtmlRequest(privilegedUser, POST,
         controllers.archdesc.routes.DocumentaryUnits.createLink("c1", "ur1").url)
         .withHeaders(jsonPostHeaders.toSeq: _*), json).get
@@ -36,10 +37,9 @@ class APISpec extends Neo4jRunnerSpec(classOf[APISpec]) {
       val id = (jsap \ "id").as[String]
 
       val del = route(fakeLoggedInJsonRequest(privilegedUser, POST,
-        controllers.archdesc.routes.DocumentaryUnits.deleteAccessPointAction("c1", "cd1", id).url)
+        controllers.archdesc.routes.DocumentaryUnits.deleteAccessPoint("c1", "cd1", id).url)
           .withHeaders(jsonPostHeaders.toSeq: _*), "").get
       status(del) must equalTo(OK)
-      println(contentAsString(del))
     }
 
     "allow creating new links" in new FakeApp {
@@ -49,7 +49,12 @@ class APISpec extends Neo4jRunnerSpec(classOf[APISpec]) {
         controllers.archdesc.routes.DocumentaryUnits.createLink("c1", "ur1").url)
         .withHeaders(jsonPostHeaders.toSeq: _*), json).get
       status(cr) must equalTo(CREATED)
-      println(contentAsString(cr))
+      val id = (contentAsJson(cr) \ "id").as[String]
+      val del = route(fakeLoggedInJsonRequest(privilegedUser, POST,
+        controllers.archdesc.routes.DocumentaryUnits.deleteLinkAndAccessPoint("c1", "cd1", "ur1", id).url)
+          .withHeaders(jsonPostHeaders.toSeq: _*), "").get
+      status(del) must equalTo(OK)
+      contentAsJson(del) must equalTo(JsBoolean(value = true))
     }
   }
 

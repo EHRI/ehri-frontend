@@ -43,8 +43,10 @@ POST    /units/:id/linkjs                                @controllers.archdesc.D
 POST    /units/:id/accessPoints/create/:desc             @controllers.archdesc.DocumentaryUnits.createAccessPoint(id: String, desc: String)
 GET     /units/:id/accessPoints/:desc                    @controllers.archdesc.DocumentaryUnits.manageAccessPoints(id: String, desc: String)
 GET     /units/:id/accessPointsJs                        @controllers.archdesc.DocumentaryUnits.getAccessPointsJson(id: String)
-POST    /units/:id/deleteAccess/:did/:accessPoint        @controllers.archdesc.DocumentaryUnits.deleteAccessPointAction(id: String, did: String, accessPoint: String)
+POST    /units/:id/deleteAccess/:did/:accessPoint        @controllers.archdesc.DocumentaryUnits.deleteAccessPoint(id: String, did: String, accessPoint: String)
 POST    /units/:id/deleteLink/:link                      @controllers.archdesc.DocumentaryUnits.deleteLink(id: String, link: String)
+POST    /units/:id/deleteLink/:did/:accessPoint/:link    @controllers.archdesc.DocumentaryUnits.deleteLinkAndAccessPoint(id: String, did: String, accessPoint: String, link: String)
+
 
 # Virtual Documentary Units
 GET     /virtual                                             @controllers.archdesc.VirtualUnits.search
