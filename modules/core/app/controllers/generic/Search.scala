@@ -122,7 +122,7 @@ trait Search extends Controller with AuthController with ControllerHelpers {
   }
 
   def filterAction(filters: Map[String, Any] = Map.empty, defaultParams: Option[SearchParams] = None)(
-    f: ItemPage[(String, String, EntityType.Value)] => Option[UserProfile] => Request[AnyContent] => Result): Action[AnyContent] = {
+    f: ItemPage[(String, String, EntityType.Value, Option[String])] => Option[UserProfile] => Request[AnyContent] => Result): Action[AnyContent] = {
     userProfileAction.async { implicit userOpt => implicit request =>
       val params = defaultParams.map(p => p.copy(sort = defaultSortFunction(p, request)))
       // Override the entity type with the controller entity type

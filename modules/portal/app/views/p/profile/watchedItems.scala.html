@@ -2,13 +2,13 @@
 
 @* user should always be defined here *@
 @userOpt.map { user =>
-    @p.layout.portalLayout(Messages("portal.profile.watchedItems")) {
+    @p.layout.portalLayout(Messages("portal.profile.watch.list")) {
         @layout.infobar {
         } {
         }
 
         @views.html.layout.mainContent {
-            <h1>@Messages("portal.profile.watchedItems")</h1>
+            <h1>@Messages("portal.profile.watch.list")</h1>
             @itemWatchList(user, watchList)
         }
     }

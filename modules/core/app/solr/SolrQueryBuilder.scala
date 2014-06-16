@@ -173,7 +173,7 @@ case class SolrQueryBuilder(writerType: WriterType, debugQuery: Boolean = false)
     applyAccessFilter(req, userOpt)
     setGrouping(req)
     req.set("qf", s"$NAME_MATCH^2.0 $NAME_NGRAM")
-    req.setFieldsToReturn(FieldsToReturn(s"$ID $ITEM_ID $NAME_EXACT $TYPE $DB_ID"))
+    req.setFieldsToReturn(FieldsToReturn(s"$ID $ITEM_ID $NAME_EXACT $TYPE $HOLDER_NAME $DB_ID"))
     if (alphabetical) req.setSort(Sort(s"$NAME_SORT asc"))
     req.setQueryParserType(QueryParserType("edismax"))
 

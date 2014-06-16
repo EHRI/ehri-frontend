@@ -26,10 +26,10 @@ case class MockSearchDispatcher(backend: Backend) extends Dispatcher {
 
   
   def filter(params: SearchParams, filters: Map[String,Any] = Map.empty, extra: Map[String,Any] = Map.empty)(
-      implicit userOpt: Option[UserProfile]): Future[ItemPage[(String,String, EntityType.Value)]] = {
+      implicit userOpt: Option[UserProfile]): Future[ItemPage[(String,String, EntityType.Value, Option[String])]] = {
 
-    def modelToHit(m: AnyModel): (String,String,EntityType.Value)
-        = (m.id, m.toStringLang(Lang.defaultLang), m.isA)
+    def modelToHit(m: AnyModel): (String,String,EntityType.Value, Option[String])
+        = (m.id, m.toStringLang(Lang.defaultLang), m.isA, None)
 
     for {
       docs <- backend.list[DocumentaryUnit]()

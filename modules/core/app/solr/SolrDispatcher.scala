@@ -42,7 +42,7 @@ case class SolrDispatcher(queryBuilder: QueryBuilder, responseParser: ResponsePa
    * @return a tuple of id, name, and type
    */
   def filter(params: SearchParams, filters: Map[String, Any] = Map.empty, extra: Map[String, Any] = Map.empty)(
-    implicit userOpt: Option[UserProfile]): Future[ItemPage[(String, String, EntityType.Value)]] = {
+    implicit userOpt: Option[UserProfile]): Future[ItemPage[(String, String, EntityType.Value, Option[String])]] = {
     val limit = params.limit.getOrElse(100)
     val offset = (Math.max(params.page.getOrElse(1), 1) - 1) * limit
 
@@ -51,7 +51,7 @@ case class SolrDispatcher(queryBuilder: QueryBuilder, responseParser: ResponsePa
 
     WS.url(buildSearchUrl(queryRequest)).get().map { response =>
       val parser = responseParser(checkError(response).body)
-      val items = parser.items.map(i => (i.itemId, i.name, i.`type`))
+      val items = parser.items.map(i => (i.itemId, i.name, i.`type`, i.fields.get(SolrConstants.HOLDER_NAME)))
       ItemPage(items, offset, limit, parser.count, Nil)
     }
   }

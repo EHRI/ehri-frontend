@@ -41,7 +41,7 @@
 					<div class="result list-group list-group-small">
 						<a class="list-group-item" ng-class="result.isSelected && 'active'" ng-repeat="result in results[pageInfos.currentPage]" ng-click="setItem(result)">
                             {{result.1}}
-                            <span class="badge">{{readableType(result.2)}}</span>
+                            <span class="badge">{{readableType(result.2)}}<span ng-show="item.3!=''"> / {{item.3}}</span></span>
 						</a>
 					</div>
 				</div>
