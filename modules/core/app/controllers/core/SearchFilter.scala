@@ -18,8 +18,8 @@ case class SearchFilter @Inject()(implicit globalConfig: global.GlobalConfig, se
     Ok(Json.obj(
       "numPages" -> page.numPages,
       "page" -> page.page,
-      "items" -> page.items.map { case (id, name, t) =>
-        Json.arr(id, name, t.toString)
+      "items" -> page.items.map { case (id, name, t, parent) =>
+        Json.arr(id, name, t.toString, parent)
       }
     ))
   }

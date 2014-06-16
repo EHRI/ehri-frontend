@@ -103,8 +103,8 @@ case class AdminSearch @Inject()(implicit globalConfig: global.GlobalConfig, sea
         "numPages" -> page.numPages,
         "page" -> page.page,
         "items" -> page.items.map {
-          case (id, name, t) =>
-            Json.arr(id, name, t.toString)
+          case (id, name, t, parent) =>
+            Json.arr(id, name, Messages(t.toString), parent)
         }
       ))
   }
