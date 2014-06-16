@@ -43,11 +43,15 @@ case class SolrXmlQueryResponse(response: Elem) extends QueryResponse {
     val gid = (doc \ "long").filter(hasAttr("name", DB_ID)).text.toLong
     val highlights: Map[String,Seq[String]] = highlightMap.getOrElse(id, Map.empty)
 
-    val fields = (for {
+    val parent: String = (doc \ "arr").filter(hasAttr("name", HOLDER_NAME)).text
+
+    val fields = ((for {
       strn <- (doc \ "str").filter(hasAttr("name"))
       attrs <- strn.attributes.get("name")
       name <- attrs.headOption
-    } yield name.text -> strn.text).toMap
+    } yield name.text -> strn.text) ++ Seq(HOLDER_NAME -> parent)).toMap
+
+    //(doc \ "arr").filter(hasAttr("name", HOLDER_NAME)
 
     SearchHit(
       id = id,
