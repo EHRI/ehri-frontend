@@ -19,6 +19,9 @@
             controllers.archdesc.routes.javascript.DocumentaryUnits.deleteAccessPointAction,
             controllers.archdesc.routes.javascript.DocumentaryUnits.deleteLink
         )
+        <style type="text/css">
+            .modal-dialog { width: 80%;}
+        </style>
     }
 
 @import AccessPointF._
@@ -77,7 +80,7 @@
                                         <p class="help-block">
                                             <div class="potential-matches list-group list-group-small" style="overflow: auto; max-height: 200px">
                                                 <a class="list-group-item" ng-repeat="item in matches" ng-click="selectLinkMatch(item)">
-                                                    <span class="badge">{{readableType(item[2])}}</span>
+                                                    <span class="badge">{{readableType(item[2])}}<span ng-show="item[3]!=''"> / {{item[3]}}</span></span>
                                                     {{item[1]}}
                                                 </a>
                                             </div>
