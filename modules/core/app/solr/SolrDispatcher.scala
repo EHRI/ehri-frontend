@@ -10,7 +10,6 @@ import utils.search._
 import utils.search.SearchHit
 import com.github.seratch.scalikesolr.request.QueryRequest
 import backend.rest.Constants
-import solr.SolrConstants
 
 
 /**
