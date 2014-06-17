@@ -4,12 +4,10 @@ import scala.concurrent.ExecutionContext.Implicits._
 import defines.EntityType
 import models._
 import scala.concurrent.Future
-import backend.{ApiUser, Backend}
+import backend.Backend
 import models.base.{DescribedMeta, Described, Description, AnyModel}
 import play.api.i18n.Lang
-import utils.search.SearchHit
 import backend.ApiUser
-import utils.search.FacetPage
 
 /**
  * This class mocks a search displatcher by simply returning
