@@ -128,8 +128,8 @@ object ApplicationBuild extends Build {
     appName + "-vocabs", appVersion, path = file("modules/vocabs")
   ).settings(otherSettings: _*).dependsOn(portal)
 
-  lazy val admin = play.Project(
-    appName + "-admin", appVersion, path = file("modules/admin")
+  lazy val adminUtils = play.Project(
+    appName + "-adminutils", appVersion, path = file("modules/adminutils")
   ).settings(otherSettings: _*)
     .dependsOn(archdesc, authorities, vocabs)
     .aggregate(archdesc, authorities, vocabs)
@@ -140,8 +140,8 @@ object ApplicationBuild extends Build {
     .aggregate(archdesc)
 
   lazy val main = play.Project(appName, appVersion, testDependencies
-  ).settings(otherSettings: _*).dependsOn(portal, guides, admin)
-    .aggregate(portal, guides, admin)
+  ).settings(otherSettings: _*).dependsOn(portal, guides, adminUtils)
+    .aggregate(portal, guides, adminUtils)
 
 
   override def rootProject = Some(main)
