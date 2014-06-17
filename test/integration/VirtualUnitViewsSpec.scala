@@ -61,7 +61,7 @@ class VirtualUnitViewsSpec extends Neo4jRunnerSpec(classOf[VirtualUnitViewsSpec]
       contentAsString(show) must contain(vuRoutes.get("vc1").url)
     }
 
-    "allow creating new items when logged in as privileged user" in new FakeApp {
+    "allow creating new items with owned descriptions" in new FakeApp {
       val testData: Map[String, Seq[String]] = Map(
         "identifier" -> Seq("hello-kitty"),
         "descriptions[0].languageCode" -> Seq("en"),
@@ -80,6 +80,27 @@ class VirtualUnitViewsSpec extends Neo4jRunnerSpec(classOf[VirtualUnitViewsSpec]
       status(show) must equalTo(OK)
 
       contentAsString(show) must contain("Some content")
+      contentAsString(show) must contain("Parent Virtual Item")
+      // After having created an item it should contain a 'history' pane
+      // on the show page
+      contentAsString(show) must contain(vuRoutes.history("hello-kitty").url)
+      mockIndexer.eventBuffer.last must equalTo("hello-kitty")
+    }
+
+    "allow creating new items with referenced descriptions" in new FakeApp {
+      val testData: Map[String, Seq[String]] = Map(
+        "identifier" -> Seq("hello-kitty"),
+        VirtualUnitF.DESCRIPTION_REF -> Seq("cd1")
+      )
+      val cr = route(fakeLoggedInHtmlRequest(privilegedUser, POST,
+        vuRoutes.createChild("vc1").url)
+        .withHeaders(formPostHeaders.toSeq: _*), testData).get
+      status(cr) must equalTo(SEE_OTHER)
+
+      val show = route(fakeLoggedInHtmlRequest(privilegedUser, GET, redirectLocation(cr).get)).get
+      status(show) must equalTo(OK)
+
+      contentAsString(show) must contain("Some description text for c1")
       contentAsString(show) must contain("Parent Virtual Item")
       // After having created an item it should contain a 'history' pane
       // on the show page
