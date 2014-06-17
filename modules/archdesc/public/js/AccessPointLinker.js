@@ -124,7 +124,7 @@
     $provide.factory('$service', function() {
       return {
         get: jsRoutes.controllers.core.Application.get,
-        getItem: jsRoutes.controllers.core.ApiController.getItem,
+        getItem: jsRoutes.controllers.core.Application.getType,
         filter: jsRoutes.controllers.core.SearchFilter.filter,
         createLink: jsRoutes.controllers.archdesc.DocumentaryUnits.createLink,
         createMultipleLinks: jsRoutes.controllers.archdesc.DocumentaryUnits.linkMultiAnnotatePost,
