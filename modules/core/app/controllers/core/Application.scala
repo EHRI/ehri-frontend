@@ -23,10 +23,6 @@ case class Application @Inject()(implicit globalConfig: global.GlobalConfig, bac
 
   /**
    * Action for redirecting to any item page, given a raw id.
-   * TODO: Ultimately implement this in a better way, not
-   * requiring two DB hits (including the redirect...)
-   * @param id
-   * @return
    */
   def get(id: String) = userProfileAction.async { implicit userOpt => implicit request =>
     implicit val rd: RestReadable[AnyModel] = AnyModel.Converter
@@ -45,10 +41,6 @@ case class Application @Inject()(implicit globalConfig: global.GlobalConfig, bac
 
   /**
    * Action for redirecting to any item page, given a raw id.
-   * TODO: Ultimately implement this in a better way, not
-   * requiring two DB hits (including the redirect...)
-   * @param id
-   * @return
    */
   def getType(`type`: String, id: String) = userProfileAction { implicit userOpt => implicit request =>
     globalConfig.routeRegistry.optionalUrlFor(EntityType.withName(`type`), id)

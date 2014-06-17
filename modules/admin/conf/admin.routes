@@ -1,32 +1,43 @@
-# Routes for portal routes
+# Routes for user- and group-related functionality
+
+GET     /users                                  @controllers.admin.UserProfiles.search
+GET     /users/list                             @controllers.admin.UserProfiles.list
+GET     /users/create                           @controllers.admin.UserProfiles.createUser
+POST    /users/create                           @controllers.admin.UserProfiles.createUserPost
+GET     /users/:id                              @controllers.admin.UserProfiles.get(id: String)
+GET     /users/:id/history                      @controllers.admin.UserProfiles.history(id: String)
+GET     /users/:id/delete                       @controllers.admin.UserProfiles.delete(id: String)
+POST    /users/:id/delete                       @controllers.admin.UserProfiles.deletePost(id: String)
+GET     /users/:id/update                       @controllers.admin.UserProfiles.update(id: String)
+POST    /users/:id/update                       @controllers.admin.UserProfiles.updatePost(id: String)
+GET     /users/:id/permissions                  @controllers.admin.UserProfiles.permissions(id: String)
+POST    /users/:id/permissions                  @controllers.admin.UserProfiles.permissionsPost(id: String)
+GET     /users/:id/permissions/list             @controllers.admin.UserProfiles.grantList(id: String)
+GET     /users/:id/permissions/revoke/:perm     @controllers.admin.UserProfiles.revokePermission(id: String, perm: String)
+POST    /users/:id/permissions/revoke/:perm     @controllers.admin.UserProfiles.revokePermissionPost(id: String, perm: String)
 
 
-GET     /                                   @controllers.admin.Home.index
-GET     /metrics                            @controllers.admin.Home.metrics
-GET     /overview                           @controllers.admin.Home.overview
-GET     /login                              @controllers.admin.Home.loginRedirect
+GET     /groups                                  @controllers.admin.Groups.list
+GET     /groups/create                           @controllers.admin.Groups.create
+POST    /groups/create                           @controllers.admin.Groups.createPost
+GET     /groups/:id                              @controllers.admin.Groups.get(id: String)
+GET     /groups/:id/history                      @controllers.admin.Groups.history(id: String)
+GET     /groups/:id/delete                       @controllers.admin.Groups.delete(id: String)
+POST    /groups/:id/delete                       @controllers.admin.Groups.deletePost(id: String)
+GET     /groups/:id/update                       @controllers.admin.Groups.update(id: String)
+POST    /groups/:id/update                       @controllers.admin.Groups.updatePost(id: String)
+GET     /groups/:id/permissions                  @controllers.admin.Groups.permissions(id: String)
+POST    /groups/:id/permissions                  @controllers.admin.Groups.permissionsPost(id: String)
+GET     /groups/:id/permissions/list             @controllers.admin.Groups.grantList(id: String)
+GET     /groups/:id/permissions/revoke/:perm     @controllers.admin.Groups.revokePermission(id: String, perm: String)
+POST    /groups/:id/permissions/revoke/:perm     @controllers.admin.Groups.revokePermissionPost(id: String, perm: String)
+GET		/groups/members/:userType/:userId	     @controllers.admin.Groups.membership(userType: defines.EntityType.Value, userId: String)
+GET		/groups/:id/add/:userType/:userId	     @controllers.admin.Groups.addMember(id: String, userType: defines.EntityType.Value, userId: String)
+POST	/groups/:id/add/:userType/:userId	     @controllers.admin.Groups.addMemberPost(id: String, userType: defines.EntityType.Value, userId: String)
+GET		/groups/:id/remove/:userType/:userId	 @controllers.admin.Groups.removeMember(id: String, userType: defines.EntityType.Value, userId: String)
+POST	/groups/:id/remove/:userType/:userId	 @controllers.admin.Groups.removeMemberPost(id: String, userType: defines.EntityType.Value, userId: String)
 
-# Js Routes
-GET     /routes                             @controllers.admin.Home.jsRoutes
+GET     /events                                 @controllers.admin.SystemEvents.list
+GET     /events/:id                             @controllers.admin.SystemEvents.get(id: String)
 
-GET     /updateIndex                        @controllers.admin.AdminSearch.updateIndex
-POST    /updateIndex                        @controllers.admin.AdminSearch.updateIndexPost
-
-# Search testing
-GET     /search                             @controllers.admin.AdminSearch.search
-
-# Get JSON (id,name) pair for a given type
-GET     /filter                             @controllers.admin.AdminSearch.filter
-
-# Metrics
-GET     /metrics/languageOfMaterial         @controllers.admin.Metrics.languageOfMaterial
-GET     /metrics/holdingRepository          @controllers.admin.Metrics.holdingRepository
-GET     /metrics/repositoryCountries        @controllers.admin.Metrics.repositoryCountries
-GET     /metrics/agentTypes                 @controllers.admin.Metrics.agentTypes
-GET     /metrics/restricted                 @controllers.admin.Metrics.restricted
-GET     /metrics/_clear                     @controllers.admin.Metrics.clearCached
-
-# Monitoring
-GET     /monitor/_check                     @controllers.admin.Utils.checkDb
-
-GET     /assets/*file                       controllers.admin.Assets.at(path="/public", file)
+GET /assets/*file                               controllers.admin.Assets.at(path="/public", file)

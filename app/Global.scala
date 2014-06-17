@@ -40,22 +40,22 @@ package globalConfig {
 
     implicit lazy val menuConfig: MenuConfig = new MenuConfig {
       val mainSection: Iterable[(String, String)] = Seq(
-        ("pages.search",                  controllers.admin.routes.AdminSearch.search().url),
+        ("pages.search",                  controllers.adminutils.routes.AdminSearch.search().url),
         ("contentTypes.documentaryUnit",  controllers.archdesc.routes.DocumentaryUnits.search().url),
         ("contentTypes.historicalAgent",  controllers.authorities.routes.HistoricalAgents.search().url),
         ("contentTypes.repository",       controllers.archdesc.routes.Repositories.search().url),
         ("contentTypes.cvocConcept",      controllers.vocabs.routes.Concepts.search().url)
       )
       val adminSection: Iterable[(String, String)] = Seq(
-        ("contentTypes.userProfile",      controllers.users.routes.UserProfiles.search().url),
-        ("contentTypes.group",            controllers.users.routes.Groups.list().url),
+        ("contentTypes.userProfile",      controllers.admin.routes.UserProfiles.search().url),
+        ("contentTypes.group",            controllers.admin.routes.Groups.list().url),
         ("contentTypes.country",          controllers.archdesc.routes.Countries.search().url),
         ("contentTypes.cvocVocabulary",   controllers.vocabs.routes.Vocabularies.list().url),
         ("contentTypes.authoritativeSet", controllers.authorities.routes.AuthoritativeSets.list().url),
         ("s1", "-"),
-        ("contentTypes.systemEvent",      controllers.users.routes.SystemEvents.list().url),
+        ("contentTypes.systemEvent",      controllers.admin.routes.SystemEvents.list().url),
         ("s2", "-"),
-        ("search.updateIndex",            controllers.admin.routes.AdminSearch.updateIndex().url)
+        ("search.updateIndex",            controllers.adminutils.routes.AdminSearch.updateIndex().url)
       )
       val authSection: Iterable[(String,String)] = Seq(
         ("portal.home", controllers.portal.routes.Portal.index().url),
@@ -64,12 +64,12 @@ package globalConfig {
     }
 
     val routeRegistry = new RouteRegistry(Map(
-      EntityType.SystemEvent -> controllers.users.routes.SystemEvents.get,
+      EntityType.SystemEvent -> controllers.admin.routes.SystemEvents.get,
       EntityType.DocumentaryUnit -> controllers.archdesc.routes.DocumentaryUnits.get,
       EntityType.HistoricalAgent -> controllers.authorities.routes.HistoricalAgents.get,
       EntityType.Repository -> controllers.archdesc.routes.Repositories.get,
-      EntityType.Group -> controllers.users.routes.Groups.get,
-      EntityType.UserProfile -> controllers.users.routes.UserProfiles.get,
+      EntityType.Group -> controllers.admin.routes.Groups.get,
+      EntityType.UserProfile -> controllers.admin.routes.UserProfiles.get,
       EntityType.Annotation -> controllers.annotation.routes.Annotations.get,
       EntityType.Link -> controllers.linking.routes.Links.get,
       EntityType.Vocabulary -> controllers.vocabs.routes.Vocabularies.get,
@@ -77,7 +77,7 @@ package globalConfig {
       EntityType.Concept -> controllers.vocabs.routes.Concepts.get,
       EntityType.Country -> controllers.archdesc.routes.Countries.get,
       EntityType.VirtualUnit -> controllers.archdesc.routes.VirtualUnits.get
-    ), default = controllers.admin.routes.Home.index(),
+    ), default = controllers.adminutils.routes.Home.index(),
       login = controllers.portal.routes.Profile.login(),
       logout = controllers.portal.routes.Profile.logout())
   }
