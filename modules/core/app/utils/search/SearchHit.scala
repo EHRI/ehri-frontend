@@ -7,7 +7,7 @@ import solr.SolrConstants._
 import play.api.templates.{HtmlFormat, Html}
 
 /**
- * User: michaelb
+ * Class representing a search engine hit
  */
 case class SearchHit(
   id: String,
