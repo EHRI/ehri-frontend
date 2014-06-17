@@ -18,7 +18,7 @@ trait RestLinks extends Links with RestDAO {
   final val BODY_TYPE = "bodyType"
   final val BODY_NAME = "bodyName"
 
-  private def requestUrl = "http://%s:%d/%s/%s".format(host, port, mount, EntityType.Link)
+  private def requestUrl = s"http://$host:$port/$mount/${EntityType.Link}"
 
   implicit val linkMetaReads = Link.Converter.restReads
 
@@ -26,7 +26,7 @@ trait RestLinks extends Links with RestDAO {
    * Fetch links for the given item.
    */
   def getLinksForItem(id: String)(implicit apiUser: ApiUser, executionContext: ExecutionContext): Future[List[Link]] = {
-    userCall(enc(requestUrl, "for/%s?limit=1000".format(id))).get.map { response =>
+    userCall(enc(requestUrl, "for", id)).withQueryString(Constants.LIMIT_PARAM -> "-1").get().map { response =>
       checkErrorAndParse(response)(Reads.list(linkMetaReads))
     }
   }
@@ -35,7 +35,7 @@ trait RestLinks extends Links with RestDAO {
    * Create a single link.
    */
   def linkItems(id: String, src: String, link: LinkF, accessPoint: Option[String] = None)(implicit apiUser: ApiUser, executionContext: ExecutionContext): Future[Link] = {
-    userCall(enc(requestUrl, id, accessPoint.map(ap => s"${src}?${BODY_PARAM}=${ap}").getOrElse(src)))
+    userCall(enc(requestUrl, id, src)).withQueryString(accessPoint.map(BODY_PARAM ->).toSeq: _*)
       .post(Json.toJson(link)(LinkF.Converter.restFormat)).map { response =>
       checkErrorAndParse[Link](response)(linkMetaReads)
     }
@@ -46,7 +46,7 @@ trait RestLinks extends Links with RestDAO {
    */
   def deleteLink(id: String, linkId: String)(implicit apiUser: ApiUser, executionContext: ExecutionContext): Future[Boolean] = {
     val url = enc(requestUrl, "for", id, linkId)
-    userCall(url).delete.map { response =>
+    userCall(url).delete().map { response =>
       checkError(response)
       eventHandler.handleDelete(linkId)
       true
