@@ -15,6 +15,7 @@ import backend.Backend
 import play.api.Play.current
 import play.api.Configuration
 import solr.facet.{FieldFacetClass, SolrQueryFacet, QueryFacetClass}
+import play.api.mvc.AnyContent
 
 
 @Singleton
@@ -160,7 +161,23 @@ case class VirtualUnits @Inject()(implicit globalConfig: global.GlobalConfig, se
       users, groups, vuRoutes.createChildPost(id)))
   }
 
-  def createChildPost(id: String) = childCreatePostAction.async(id, childForm, contentType) {
+  def createChildRef(id: String) = childCreateAction(id, contentType) { item => users => groups => implicit userOpt => implicit request =>
+    Ok(views.html.virtualUnit.createRef(
+      Some(item), childForm, VisibilityForm.form.fill(item.accessors.map(_.id)),
+      users, groups, vuRoutes.createChildPost(id)))
+  }
+
+  def descriptionRefs: ExtraParams[AnyContent] = { implicit request =>
+    import play.api.data.Form
+    import play.api.data.Forms._
+    val form = Form(single(VirtualUnitF.DESCRIPTION_REF -> nonEmptyText))
+    form.bindFromRequest.fold(
+      errs => Map.empty,
+      descRefs => Map("description" -> Seq(descRefs))
+    )
+  }
+
+  def createChildPost(id: String) = childCreatePostAction.async(id, childForm, contentType, descriptionRefs) {
       item => formsOrItem => implicit userOpt => implicit request =>
     formsOrItem match {
       case Left((errorForm,accForm)) => getUsersAndGroups { users => groups =>
@@ -202,6 +219,16 @@ case class VirtualUnits @Inject()(implicit globalConfig: global.GlobalConfig, se
       case Right(updated) => Redirect(vuRoutes.get(item.id))
         .flashing("success" -> "item.create.confirmation")
     }
+  }
+
+  def createDescriptionRef(id: String, did: String) = withItemPermission[VirtualUnit](id, PermissionType.Update, contentType) {
+    item => implicit userOpt => implicit request =>
+    ???
+  }
+
+  def createDescriptionRefPost(id: String, did: String) = createDescriptionPostAction(id, EntityType.DocumentaryUnitDescription, descriptionForm) {
+      item => formOrItem => implicit userOpt => implicit request =>
+    ???
   }
 
   def updateDescription(id: String, did: String) = withItemPermission[VirtualUnit](id, PermissionType.Update, contentType) {

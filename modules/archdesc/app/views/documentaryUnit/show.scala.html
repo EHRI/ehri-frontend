@@ -19,7 +19,7 @@
             @defining(item.isA.toString) { implicit fieldPrefix =>
                 @layout.descriptionContainer(item.model.descriptions) {
                     @item.model.descriptions.map { desc =>
-                        @renderDescription(item, desc, links, annotations, editable = true)
+                        @renderDescription(item, desc, links, annotations, actions = descriptionActions(item, desc))
                     }
 
                     @link.annotationLinks(item, links)

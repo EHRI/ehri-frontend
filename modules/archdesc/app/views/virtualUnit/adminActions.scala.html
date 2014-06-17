@@ -4,6 +4,9 @@
     @common.sidebarAction(user.hasPermission(ContentTypes.VirtualUnit, PermissionType.Create)) {
         <a href="@controllers.archdesc.routes.VirtualUnits.createChild(item.id)">@Messages("virtualUnit.child.create")</a>
     }
+    @common.sidebarAction(user.hasPermission(ContentTypes.VirtualUnit, PermissionType.Create)) {
+        <a href="@controllers.archdesc.routes.VirtualUnits.createChildRef(item.id)">@Messages("virtualUnit.child.createRef")</a>
+    }
     @common.sidebarAction(user.hasPermission(ContentTypes.VirtualUnit, PermissionType.Annotate)) {
         <a href="@controllers.archdesc.routes.VirtualUnits.linkAnnotateSelect(item.id, EntityType.VirtualUnit)">@Messages("link.create")</a>
     }
