@@ -1,0 +1,57 @@
+@(form: Form[(Boolean,List[EntityType.Value])], types: Seq[EntityType.Value], action: Call)(implicit userOpt: Option[UserProfile], req: RequestHeader, globalConfig: global.GlobalConfig, flash: Flash, lang: Lang, token: play.filters.csrf.CSRF.Token)
+
+@import defines.EntityType
+
+@extraStyle = {
+    <style>
+        #update-progress {
+            max-height: 200px;
+            overflow: auto;
+        }
+        #update-progress pre {
+            background-color: #fff;
+            font-size: 0.7em;
+        }
+    </style>
+}
+
+@extraScript = {
+    <script type="application/javascript">
+        var POLL_URL = "@action.url";
+        var DONE_MSG = "<message>@controllers.generic.Indexable.DONE_MESSAGE</message>";
+        var ERR_MSG = "<message>@controllers.generic.Indexable.ERR_MESSAGE</message>";
+    </script>
+    <script src="@controllers.core.routes.Assets.at("js/index_utils.js")" type="text/javascript"></script>
+}
+
+@implicitField = @{ views.html.helper.FieldConstructor(formHelpers.fieldTemplate.f) }
+
+@layout.rightSidebar(Messages("search.updateIndex"), scripts=extraScript, styles = extraStyle) {
+    @helper.form(action = action, 'id -> "update-form", 'class -> "form-horizontal") {
+        @formHelpers.csrfToken()
+        
+        @helper.checkbox(form("all"), '_label -> Messages("search.clearEntireIndex"))
+
+        <div class="form-group">
+            <label class="col-sm-3 form-label">@Messages("search.typesToUpdate")</label>
+            <div class="col-sm-9">
+                <label class="checkbox"><input type="checkbox" id="select-all" /> @Messages("search.selectAllTypes")</label>
+                <hr />
+                @types.map { et =>
+                    <label class="checkbox">
+                        <input type="checkbox" name="type[]" value="@et" />
+                        @Messages("contentTypes." + et.toString)
+                    </label>
+                }
+            </div>
+        </div>
+        <div class="form-actions">
+            <input type="submit" id="submit-update" class="btn btn-danger" value="@Messages("search.updateIndex")" />
+        </div>
+
+        <div id="update-progress">
+        </div>
+    }
+} {
+
+}
