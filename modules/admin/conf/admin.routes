@@ -1,5 +1,15 @@
 # Routes for user- and group-related functionality
 
+# API
+GET     /api/:id                                @controllers.admin.ApiController.getAny(id: String)
+GET     /api/:contentType/list                  @controllers.admin.ApiController.listItems(contentType: defines.EntityType.Value)
+GET     /api/:contentType/:id                   @controllers.admin.ApiController.getItem(contentType: defines.EntityType.Value, id: String)
+GET     /api/*path                              @controllers.admin.ApiController.get(path: String)
+
+# API Sparql queries - TESTING
+GET     /sparql                                 @controllers.admin.ApiController.sparql
+GET     /sparqlQuery                            @controllers.admin.ApiController.sparqlQuery
+
 GET     /users                                  @controllers.admin.UserProfiles.search
 GET     /users/list                             @controllers.admin.UserProfiles.list
 GET     /users/create                           @controllers.admin.UserProfiles.createUser

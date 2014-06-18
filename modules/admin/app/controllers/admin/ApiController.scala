@@ -1,4 +1,4 @@
-package controllers.core
+package controllers.admin
 
 import controllers.base.AuthController
 import play.api.mvc.{Action, Controller}
@@ -76,7 +76,7 @@ case class ApiController @Inject()(implicit globalConfig: global.GlobalConfig, b
 
   def sparql = userProfileAction { implicit userOpt => implicit request =>
     Ok(views.html.sparqlForm(sparqlForm.fill(defaultSparql),
-        controllers.core.routes.ApiController.sparqlQuery))
+        controllers.admin.routes.ApiController.sparqlQuery))
   }
 
   def sparqlQuery = userProfileAction.async { implicit userOpt => implicit request =>
