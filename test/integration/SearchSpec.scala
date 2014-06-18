@@ -36,6 +36,12 @@ class SearchSpec extends Neo4jRunnerSpec(classOf[SearchSpec]) {
         .last.filters.get(SolrConstants.TOP_LEVEL) must equalTo(None)
     }
 
+    "handle simple filtering" in new FakeApp {
+      val filter = route(fakeLoggedInJsonRequest(privilegedUser, GET,
+        controllers.adminutils.routes.AdminSearch.filter().url + "?q=c")).get
+      println(contentAsJson(filter))
+    }
+
     "perform indexing correctly" in new FakeApp {
 
       val cmd: List[String] = List(

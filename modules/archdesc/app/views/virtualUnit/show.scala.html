@@ -15,10 +15,7 @@
                 @layout.descriptionContainer(item.model.descriptions) {
                     @if(item.model.descriptions.isEmpty && item.descriptionRefs.isEmpty) {
                         <p class="text-muted">@Messages("documentaryUnit.noDescriptions")</p>
-                        <a href="@controllers.archdesc.routes.DocumentaryUnits.createDescription(item.id)" class="btn btn-primary">
-                            @Messages("describedEntity.createDescription")
-                        </a>
-                        <a href="@controllers.archdesc.routes.DocumentaryUnits.createDescription(item.id)" class="btn btn-primary">
+                        <a href="@controllers.archdesc.routes.VirtualUnits.createDescription(item.id)" class="btn btn-primary">
                             @Messages("describedEntity.createDescription")
                         </a>
                     } else {

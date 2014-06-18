@@ -61,6 +61,7 @@ GET     /virtual/:id/update                                  @controllers.archde
 POST    /virtual/:id/update                                  @controllers.archdesc.VirtualUnits.updatePost(id: String)
 GET     /virtual/:id/create                                  @controllers.archdesc.VirtualUnits.createChild(id: String)
 GET     /virtual/:id/createRef                               @controllers.archdesc.VirtualUnits.createChildRef(id: String)
+POST    /virtual/:id/createRef                               @controllers.archdesc.VirtualUnits.createChildRefPost(id: String)
 POST    /virtual/:id/create                                  @controllers.archdesc.VirtualUnits.createChildPost(id: String)
 GET     /virtual/:id/createDescription                       @controllers.archdesc.VirtualUnits.createDescription(id: String)
 POST    /virtual/:id/createDescription                       @controllers.archdesc.VirtualUnits.createDescriptionPost(id: String)

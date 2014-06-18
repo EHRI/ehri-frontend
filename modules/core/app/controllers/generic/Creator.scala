@@ -61,7 +61,6 @@ trait Creator[CF <: Model with Persistable, CMT <: MetaModel[CF], MT <: MetaMode
   def createChildPostAction(item: MT, form: Form[CF], ct: ContentTypes.Value, extraParams: ExtraParams[AnyContent])(f: AsyncCreationContextCallback)(
       implicit userOpt: Option[UserProfile], request: Request[AnyContent], fmt: RestConvertable[CF], crd: RestReadable[CMT], rd: RestReadable[MT]): Future[SimpleResult] = {
     val extra = extraParams.apply(request)
-    println("Using extra: " + extra)
     form.bindFromRequest.fold(
       errorForm => f(item)(Left((errorForm, VisibilityForm.form)))(userOpt)(request),
       citem => {

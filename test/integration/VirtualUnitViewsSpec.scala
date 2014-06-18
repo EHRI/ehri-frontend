@@ -93,7 +93,7 @@ class VirtualUnitViewsSpec extends Neo4jRunnerSpec(classOf[VirtualUnitViewsSpec]
         VirtualUnitF.DESCRIPTION_REF -> Seq("cd1")
       )
       val cr = route(fakeLoggedInHtmlRequest(privilegedUser, POST,
-        vuRoutes.createChild("vc1").url)
+        vuRoutes.createChildRefPost("vc1").url)
         .withHeaders(formPostHeaders.toSeq: _*), testData).get
       status(cr) must equalTo(SEE_OTHER)
 

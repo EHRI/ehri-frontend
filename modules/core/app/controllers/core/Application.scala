@@ -9,11 +9,12 @@ import jp.t2v.lab.play2.auth.AsyncAuth
 import play.api.libs.json.Json
 import defines.EntityType
 import com.google.inject._
-import play.api.http.ContentTypes
+import play.api.http.{MimeTypes, ContentTypes}
 import java.util.Locale
 import backend.Backend
 import backend.rest.SearchDAO
 import models.AccountDAO
+import play.api.Routes
 
 case class Application @Inject()(implicit globalConfig: global.GlobalConfig, backend: Backend, userDAO: AccountDAO) extends Controller with AsyncAuth with AuthConfigImpl with AuthController {
 
@@ -46,6 +47,14 @@ case class Application @Inject()(implicit globalConfig: global.GlobalConfig, bac
     globalConfig.routeRegistry.optionalUrlFor(EntityType.withName(`type`), id)
       .map(Redirect)
       .getOrElse(NotFound(views.html.errors.itemNotFound()))
+  }
+
+  def jsRoutes = Action { implicit request =>
+    Ok(
+      Routes.javascriptRouter("jsRoutes")(
+        controllers.core.routes.javascript.SearchFilter.filter
+      )
+    ).as(MimeTypes.JAVASCRIPT)
   }
 
   def localeData(lang: String) = Action { request =>

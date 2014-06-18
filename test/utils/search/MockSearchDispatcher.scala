@@ -27,10 +27,10 @@ case class MockSearchDispatcher(backend: Backend) extends Dispatcher {
 
   
   def filter(params: SearchParams, filters: Map[String,Any] = Map.empty, extra: Map[String,Any] = Map.empty)(
-      implicit userOpt: Option[UserProfile]): Future[ItemPage[(String,String, EntityType.Value, Option[String])]] = {
+      implicit userOpt: Option[UserProfile]): Future[ItemPage[FilterHit]] = {
 
-    def modelToHit(m: AnyModel): (String,String,EntityType.Value, Option[String])
-        = (m.id, m.toStringLang(Lang.defaultLang), m.isA, None)
+    def modelToHit(m: AnyModel): FilterHit =
+      FilterHit(m.id, m.id, m.toStringLang(Lang.defaultLang), m.isA, None, 0L)
 
     for {
       docs <- backend.list[DocumentaryUnit]()
@@ -38,7 +38,7 @@ case class MockSearchDispatcher(backend: Backend) extends Dispatcher {
       agents <- backend.list[HistoricalAgent]()
       virtualUnits <- backend.list[VirtualUnit]()
       all = docs.map(modelToHit) ++ repos.map(modelToHit) ++ agents.map(modelToHit) ++ virtualUnits.map(modelToHit)
-      oftype = all.filter(h => params.entities.contains(h._3))
+      oftype = all.filter(h => params.entities.contains(h.`type`))
     } yield ItemPage(
         oftype, offset = 0, limit = params.limit.getOrElse(100), total = oftype.size, facets = Nil)
   }
