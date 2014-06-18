@@ -128,6 +128,7 @@ case class Guides @Inject()(implicit globalConfig: global.GlobalConfig, searchDi
 
 
   def guideLayout(guide: Guide, temp: Option[GuidePage]) = itemOr404Action {
+    println(guide + " -> "+ temp)
     temp.map { page =>
       page.layout match {
         case Layout.Person => guideAuthority(page, Map("holderId" -> page.content), guide)

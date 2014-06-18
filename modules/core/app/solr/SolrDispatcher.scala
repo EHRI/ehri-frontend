@@ -10,7 +10,6 @@ import utils.search._
 import utils.search.SearchHit
 import com.github.seratch.scalikesolr.request.QueryRequest
 import backend.rest.Constants
-import solr.SolrConstants
 
 
 /**
@@ -41,7 +40,7 @@ case class SolrDispatcher(queryBuilder: QueryBuilder, responseParser: ResponsePa
    * @return a tuple of id, name, and type
    */
   def filter(params: SearchParams, filters: Map[String, Any] = Map.empty, extra: Map[String, Any] = Map.empty)(
-    implicit userOpt: Option[UserProfile]): Future[ItemPage[(String, String, EntityType.Value, Option[String])]] = {
+    implicit userOpt: Option[UserProfile]): Future[ItemPage[FilterHit]] = {
     val limit = params.limit.getOrElse(100)
     val offset = (Math.max(params.page.getOrElse(1), 1) - 1) * limit
 
@@ -50,7 +49,7 @@ case class SolrDispatcher(queryBuilder: QueryBuilder, responseParser: ResponsePa
 
     WS.url(buildSearchUrl(queryRequest)).get().map { response =>
       val parser = responseParser(checkError(response).body)
-      val items = parser.items.map(i => (i.itemId, i.name, i.`type`, i.fields.get(SolrConstants.HOLDER_NAME)))
+      val items = parser.items.map(i => FilterHit(i.itemId, i.id, i.name, i.`type`, i.fields.get(SolrConstants.HOLDER_NAME), i.gid))
       ItemPage(items, offset, limit, parser.count, Nil)
     }
   }

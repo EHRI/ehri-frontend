@@ -23,18 +23,28 @@ trait AnyModel {
     case e: NoSuchElementException => None
   }
 
+  /**
+   * Language-dependent version of the name
+   */
   def toStringLang(implicit lang: Lang): String = this match {
     case e: MetaModel[_] => e.toStringLang(lang)
     case t => t.toString
   }
 
-  def toStringAbbr(implicit lang: Lang) = s"TODO (with abbr): $isA [$id]"
+  /**
+   * Abbreviated version of the canonical name
+   */
+  def toStringAbbr(implicit lang: Lang) = toStringLang(lang)
 }
 
 trait Model {
   def id: Option[String]
 
   def isA: EntityType.Value
+}
+
+trait Aliased extends AnyModel {
+  def allNames(implicit lang: Lang): Seq[String] = Seq(toStringLang(lang))
 }
 
 object AnyModel {

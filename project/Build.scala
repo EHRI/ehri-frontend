@@ -99,22 +99,22 @@ object ApplicationBuild extends Build {
     appName + "-core", appVersion, coreDependencies, path = file("modules/core")
   ).settings(otherSettings: _*)
 
-  lazy val users = play.Project(
-    appName + "-users", appVersion, path = file("modules/users")
+  lazy val admin = play.Project(
+    appName + "-admin", appVersion, path = file("modules/admin")
   ).settings(otherSettings: _*).dependsOn(core).aggregate(core)
 
   lazy val annotation = play.Project(
     appName + "-annotation", appVersion, path = file("modules/annotation")
-  ).settings(otherSettings: _*).dependsOn(users)
+  ).settings(otherSettings: _*).dependsOn(admin)
 
   lazy val linking = play.Project(
     appName + "-linking", appVersion, path = file("modules/linking")
-  ).settings(otherSettings: _*).dependsOn(users, annotation)
+  ).settings(otherSettings: _*).dependsOn(admin, annotation)
 
   lazy val portal = play.Project(
     appName + "-portal", appVersion, portalDependencies, path = file("modules/portal"))
-    .settings(otherSettings: _*).dependsOn(users, annotation, linking)
-    .aggregate(users, annotation, linking)
+    .settings(otherSettings: _*).dependsOn(admin, annotation, linking)
+    .aggregate(admin, annotation, linking)
 
   lazy val archdesc = play.Project(
     appName + "-archdesc", appVersion, path = file("modules/archdesc")
@@ -127,19 +127,21 @@ object ApplicationBuild extends Build {
   lazy val vocabs = play.Project(
     appName + "-vocabs", appVersion, path = file("modules/vocabs")
   ).settings(otherSettings: _*).dependsOn(portal)
-  
+
   lazy val guides = play.Project(
     appName + "-guides", appVersion, path = file("modules/guides")
   ).settings(otherSettings: _*).dependsOn(archdesc)
     .aggregate(archdesc)
 
-  lazy val admin = play.Project(
-    appName + "-admin", appVersion, path = file("modules/admin")
-  ).settings(otherSettings: _*).dependsOn(archdesc, authorities, vocabs, guides)
+  lazy val adminUtils = play.Project(
+    appName + "-adminutils", appVersion, path = file("modules/adminutils")
+  ).settings(otherSettings: _*)
+    .dependsOn(archdesc, authorities, vocabs)
+    .aggregate(archdesc, authorities, vocabs)
 
   lazy val main = play.Project(appName, appVersion, testDependencies
-  ).settings(otherSettings: _*).dependsOn(portal, guides, admin)
-    .aggregate(portal, guides, admin)
+  ).settings(otherSettings: _*).dependsOn(portal, guides, adminUtils)
+    .aggregate(portal, guides, adminUtils)
 
 
   override def rootProject = Some(main)

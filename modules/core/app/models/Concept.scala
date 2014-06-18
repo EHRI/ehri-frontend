@@ -17,7 +17,7 @@ object ConceptF {
   val ACCESS_POINTS = "accessPoints"
   val UNKNOWN_DATA = "unknownData"
 
-  val LANGUAGE = "languageCode"
+  val LANG_CODE = "languageCode"
   val PREFLABEL = "name"
   val ALTLABEL = "altLabel"
   val DEFINITION = "definition"

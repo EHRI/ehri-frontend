@@ -298,6 +298,7 @@ item.promote.confirmation=Item promoted
 item.demote=Remove Item Promotion
 item.demote.submit=Remove Promotion
 item.demote.confirmation=Item promotion removed
+item.noItemsFound=No items found
 
 
 #

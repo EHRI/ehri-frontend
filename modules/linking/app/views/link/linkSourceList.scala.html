@@ -2,7 +2,7 @@
 implicit userOpt: Option[UserProfile], req: RequestHeader, globalConfig: global.GlobalConfig, lang: Lang, flash: Flash)
 
 @layout.adminSearchLayout(Messages("link.create"), page, params, facets, action, breadcrumbs = common.breadcrumbs(List(item))) {
-    @search.searchSection(Messages("contentTypes." + entityType.toString)) {
+    @search.searchSection(Messages("contentTypes." + entityType.toString), page) {
         <ul>
             @page.items.map { case (otherItem, descId) =>
 

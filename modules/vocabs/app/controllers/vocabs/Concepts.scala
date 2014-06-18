@@ -36,8 +36,8 @@ case class Concepts @Inject()(implicit globalConfig: global.GlobalConfig, search
   private def entityFacets: FacetBuilder = { implicit request =>
     List(
       FieldFacetClass(
-        key="languageCode", // FIXME - define elsewhere
-        name=Messages("cvocConcept.languageCode"),
+        key=ConceptF.LANG_CODE,
+        name=Messages("cvocConcept." + ConceptF.LANG_CODE),
         param="lang",
         render=(s: String) => Helpers.languageCodeToName(s),
         display = FacetDisplay.DropDown,

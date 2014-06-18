@@ -1,40 +1,10 @@
-@(item: WithDescriptions[Description], desc: DocumentaryUnitDescriptionF, links: Seq[Link], annotations: Seq[Annotation], editable: Boolean = false)(implicit fieldPrefix: String, userOpt: Option[UserProfile], req: RequestHeader, globalConfig: global.GlobalConfig, lang: Lang)
+@(item: WithDescriptions[Description], desc: DocumentaryUnitDescriptionF, links: Seq[Link], annotations: Seq[Annotation], actions: Html = Html(""))(implicit fieldPrefix: String, userOpt: Option[UserProfile], req: RequestHeader, globalConfig: global.GlobalConfig, lang: Lang)
 
 @import defines._
 @import models.IsadG._
 @import views.html.common.descriptionSection
 
-@actions(id: String, did: String) = {
-    @userOpt.map { user =>
-        @if(user.hasPermission(ContentTypes.DocumentaryUnit, PermissionType.Update)) {
-            <div class="btn-group pull-right">
-                <a class="btn btn-default dropdown-toggle" data-toggle="dropdown" href="#">
-                    @Messages("item.actions")
-                    <span class="caret"></span>
-                </a>
-                <ul class="dropdown-menu">
-                    <li>
-                        <a href="@controllers.archdesc.routes.DocumentaryUnits.manageAccessPoints(id, did)">
-                            @Messages("describedEntity.manageAccessPoints")
-                        </a>
-                    </li>
-                    <li>
-                        <a href="@controllers.archdesc.routes.DocumentaryUnits.updateDescription(id, did)">
-                            @Messages("describedEntity.editDescription")
-                        </a>
-                    </li>
-                    <li>
-                        <a class="alert alert-danger" href="@controllers.archdesc.routes.DocumentaryUnits.deleteDescription(id, did)">
-                            @Messages("describedEntity.deleteDescription")
-                        </a>
-                    </li>
-                </ul>
-            </div>
-        }
-    }
-}
-
-@common.descriptionOutline(item, desc, actions(item.id, desc.id.getOrElse("NO-ID"))) {
+@common.descriptionOutline(item, desc, actions = actions) {
     <h2>@desc.name</h2>
     @common.listValue(desc.identity.parallelFormsOfName, PARALLEL_FORMS_OF_NAME)
 

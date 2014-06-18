@@ -11,14 +11,22 @@ import utils.search._
 import com.google.inject._
 import solr.SolrConstants
 import scala.concurrent.Future.{successful => immediate}
-import backend.Backend
+import backend.{IdGenerator, Backend}
 import play.api.Play.current
 import play.api.Configuration
 import solr.facet.{FieldFacetClass, SolrQueryFacet, QueryFacetClass}
+import play.api.mvc.AnyContent
+import play.api.data.Form
+import play.api.data.Forms._
+import solr.facet.FieldFacetClass
+import scala.Some
+import solr.facet.SolrQueryFacet
+import solr.facet.QueryFacetClass
 
 
 @Singleton
-case class VirtualUnits @Inject()(implicit globalConfig: global.GlobalConfig, searchDispatcher: Dispatcher, searchResolver: Resolver, backend: Backend, userDAO: AccountDAO) extends Read[VirtualUnit]
+case class VirtualUnits @Inject()(implicit globalConfig: global.GlobalConfig, searchDispatcher: Dispatcher, idGenerator: IdGenerator,
+                                  searchResolver: Resolver, backend: Backend, userDAO: AccountDAO) extends Read[VirtualUnit]
   with Visibility[VirtualUnit]
   with Create[VirtualUnitF,VirtualUnit]
   with Creator[VirtualUnitF, VirtualUnit, VirtualUnit]
@@ -76,6 +84,8 @@ case class VirtualUnits @Inject()(implicit globalConfig: global.GlobalConfig, se
   val form = models.VirtualUnit.form
   val childForm = models.VirtualUnit.form
   val descriptionForm = models.DocumentaryUnitDescription.form
+
+  private def makeId(id: String) = s"vu-$id"
 
   private val vuRoutes = controllers.archdesc.routes.VirtualUnits
 
@@ -139,25 +149,33 @@ case class VirtualUnits @Inject()(implicit globalConfig: global.GlobalConfig, se
     }
   }
 
-  def create = createAction { users => groups => implicit userOpt => implicit request =>
-    Ok(views.html.virtualUnit.create(None, form, VisibilityForm.form,
-      users, groups, vuRoutes.createPost()))
+  def create = createAction.async { users => groups => implicit userOpt => implicit request =>
+    idGenerator.getNextNumericIdentifier(EntityType.VirtualUnit).map { newId =>
+      Ok(views.html.virtualUnit.create(None, form.bind(Map(Entity.IDENTIFIER -> makeId(newId))),
+        VisibilityForm.form,
+        users, groups, vuRoutes.createPost()))
+    }
   }
 
   def createPost = createPostAction.async(form) { formsOrItem => implicit userOpt => implicit request =>
     formsOrItem match {
       case Left((errorForm,accForm)) => getUsersAndGroups { users => groups =>
-        BadRequest(views.html.virtualUnit.create(None, errorForm, accForm, users, groups, vuRoutes.createPost()))
+        BadRequest(views.html.virtualUnit.create(None, errorForm, accForm,
+          users, groups, vuRoutes.createPost()))
       }
       case Right(item) => immediate(Redirect(vuRoutes.get(item.id))
         .flashing("success" -> "item.create.confirmation"))
     }
   }
 
-  def createChild(id: String) = childCreateAction(id, contentType) { item => users => groups => implicit userOpt => implicit request =>
-    Ok(views.html.virtualUnit.create(
-      Some(item), childForm, VisibilityForm.form.fill(item.accessors.map(_.id)),
-      users, groups, vuRoutes.createChildPost(id)))
+  def createChild(id: String) = childCreateAction.async(id, contentType) {
+      item => users => groups => implicit userOpt => implicit request =>
+    idGenerator.getNextNumericIdentifier(EntityType.VirtualUnit).map { newId =>
+      Ok(views.html.virtualUnit.create(
+        Some(item), childForm.bind(Map(Entity.IDENTIFIER -> makeId(newId))),
+        VisibilityForm.form.fill(item.accessors.map(_.id)),
+        users, groups, vuRoutes.createChildPost(id)))
+    }
   }
 
   def createChildPost(id: String) = childCreatePostAction.async(id, childForm, contentType) {
@@ -171,6 +189,39 @@ case class VirtualUnits @Inject()(implicit globalConfig: global.GlobalConfig, se
       case Right(doc) => immediate(Redirect(vuRoutes.get(doc.id))
         .flashing("success" -> "item.create.confirmation"))
     }
+  }
+
+  val refForm = Form(single(VirtualUnitF.DESCRIPTION_REF -> nonEmptyText))
+
+  def createChildRef(id: String) = childCreateAction.async(id, contentType) {
+    item => users => groups => implicit userOpt => implicit request =>
+      idGenerator.getNextNumericIdentifier(EntityType.VirtualUnit).map { newId =>
+        Ok(views.html.virtualUnit.createRef(
+          Some(item), childForm.bind(Map(Entity.IDENTIFIER -> makeId(newId))),
+          refForm,
+          VisibilityForm.form.fill(item.accessors.map(_.id)),
+          users, groups, vuRoutes.createChildRefPost(id)))
+      }
+  }
+
+  def descriptionRefs: ExtraParams[AnyContent] = { implicit request =>
+    refForm.bindFromRequest.fold(
+      errs => Map.empty,
+      descRef => Map("description" -> Seq(descRef))
+    )
+  }
+
+  def createChildRefPost(id: String) = childCreatePostAction.async(id, childForm, contentType, descriptionRefs) {
+    item => formsOrItem => implicit userOpt => implicit request =>
+      formsOrItem match {
+        case Left((errorForm,accForm)) => getUsersAndGroups { users => groups =>
+          BadRequest(views.html.virtualUnit.createRef(Some(item),
+            errorForm, refForm.bindFromRequest, accForm, users, groups,
+            vuRoutes.createChildRefPost(id)))
+        }
+        case Right(doc) => immediate(Redirect(vuRoutes.get(doc.id))
+          .flashing("success" -> "item.create.confirmation"))
+      }
   }
 
   def delete(id: String) = deleteAction(id) {
@@ -202,6 +253,16 @@ case class VirtualUnits @Inject()(implicit globalConfig: global.GlobalConfig, se
       case Right(updated) => Redirect(vuRoutes.get(item.id))
         .flashing("success" -> "item.create.confirmation")
     }
+  }
+
+  def createDescriptionRef(id: String, did: String) = withItemPermission[VirtualUnit](id, PermissionType.Update, contentType) {
+    item => implicit userOpt => implicit request =>
+    ???
+  }
+
+  def createDescriptionRefPost(id: String, did: String) = createDescriptionPostAction(id, EntityType.DocumentaryUnitDescription, descriptionForm) {
+      item => formOrItem => implicit userOpt => implicit request =>
+    ???
   }
 
   def updateDescription(id: String, did: String) = withItemPermission[VirtualUnit](id, PermissionType.Update, contentType) {

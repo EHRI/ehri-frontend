@@ -15,7 +15,7 @@ class GuidesSpec extends Neo4jRunnerSpec(classOf[GuidesSpec]) {
   override def getConfig = Map("recaptcha.skip" -> true)
 
   "Guide views" should {
-    "show index page for fixture guide" in new WithSqlFile("guide-fixtures.sql") {
+    "show index page for fixture guide" in new WithSqlFile("guide-fixtures.sql", fakeApplication()) {
       val doc = route(FakeRequest(GET, guideRoutes.home("terezin").url)).get
       status(doc) must equalTo(OK)
     }

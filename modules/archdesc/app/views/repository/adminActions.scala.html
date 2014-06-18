@@ -20,6 +20,6 @@
         <a href="@controllers.archdesc.routes.Repositories.updateIndex(item.id)">@Messages("search.updateIndex")</a>
     }
     @common.sidebarAction() {
-        <a href="@controllers.core.routes.ApiController.getItem(item.isA, item.id)">@Messages("item.export.json")</a>
+        <a href="@controllers.admin.routes.ApiController.getItem(item.isA, item.id)">@Messages("item.export.json")</a>
     }
 }

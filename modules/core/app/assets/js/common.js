@@ -90,6 +90,54 @@ jQuery(function($) {
     $("select.select2").select2(select2Opts);
   });
 
+  var filterUrl = "/admin/filter"; // FIXME: Use reverse routes
+
+  $(".select2.item-filter").select2({
+    minimumInputLength: 2,
+    val: $(this).val(),
+    initSelection: function(element, cb) {
+      var value = $(element).val();
+      if (!value) {
+        cb(null);
+      } else {
+        $.getJSON(filterUrl + "?q=id:" + value, function(data) {
+          if(data.items.length == 0) {
+            cb({id: value, text: value});
+          } else {
+            cb({
+              id: data.items[0].did,
+              text: data.items[0].name
+            });
+          }
+        });
+      }
+    },
+    ajax: {
+      url: filterUrl,
+      dataType: "json",
+      data: function(term, page ) {
+        return {
+          q: term,
+          limit: 20,
+          page: page,
+          "st[]": $(this).data("entity-type")
+        }
+      },
+      results: function(data, page) {
+        return {
+          results: data.items.map(function(value, idx) {            return {
+              id: value.did,
+              text: value.name
+            }
+          })
+        };
+      }
+    },
+    formatResult: function(value) {
+      return $("<div>" + value.text + "<span class='label label-primary pull-right'>" + value.id + "</span></div>");
+    }
+  });
+
 
   // Handling form-submission via links, i.e. search form
   // when facets are clicked
