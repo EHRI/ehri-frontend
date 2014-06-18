@@ -50,19 +50,23 @@ POST    /units/:id/deleteLink/:did/:accessPoint/:link    @controllers.archdesc.D
 
 # Virtual Documentary Units
 GET     /virtual                                             @controllers.archdesc.VirtualUnits.search
+GET     /virtual/create                                      @controllers.archdesc.VirtualUnits.create
+POST    /virtual/create                                      @controllers.archdesc.VirtualUnits.createPost
+GET     /virtual/:id                                         @controllers.archdesc.VirtualUnits.get(id: String)
 GET     /virtual/:id/meta                                    @controllers.archdesc.VirtualUnits.getClientJson(id)
-GET     /virtual/:id/show                                    @controllers.archdesc.VirtualUnits.get(id: String)
 GET     /virtual/:id/history                                 @controllers.archdesc.VirtualUnits.history(id: String)
 GET     /virtual/:id/delete                                  @controllers.archdesc.VirtualUnits.delete(id: String)
 POST    /virtual/:id/delete                                  @controllers.archdesc.VirtualUnits.deletePost(id: String)
 GET     /virtual/:id/update                                  @controllers.archdesc.VirtualUnits.update(id: String)
 POST    /virtual/:id/update                                  @controllers.archdesc.VirtualUnits.updatePost(id: String)
-GET     /virtual/create                                      @controllers.archdesc.VirtualUnits.create
-POST    /virtual/create                                      @controllers.archdesc.VirtualUnits.createPost
 GET     /virtual/:id/create                                  @controllers.archdesc.VirtualUnits.createChild(id: String)
+GET     /virtual/:id/createRef                               @controllers.archdesc.VirtualUnits.createChildRef(id: String)
+POST    /virtual/:id/createRef                               @controllers.archdesc.VirtualUnits.createChildRefPost(id: String)
 POST    /virtual/:id/create                                  @controllers.archdesc.VirtualUnits.createChildPost(id: String)
 GET     /virtual/:id/createDescription                       @controllers.archdesc.VirtualUnits.createDescription(id: String)
 POST    /virtual/:id/createDescription                       @controllers.archdesc.VirtualUnits.createDescriptionPost(id: String)
+GET     /virtual/:id/createRef/:did                          @controllers.archdesc.VirtualUnits.createDescriptionRef(id: String, did: String)
+POST    /virtual/:id/createRef/:did                          @controllers.archdesc.VirtualUnits.createDescriptionRefPost(id: String, did: String)
 GET     /virtual/:id/updateDescription/:did                  @controllers.archdesc.VirtualUnits.updateDescription(id: String, did: String)
 POST    /virtual/:id/updateDescription/:did                  @controllers.archdesc.VirtualUnits.updateDescriptionPost(id: String, did: String)
 GET     /virtual/:id/deleteDescription/:did                  @controllers.archdesc.VirtualUnits.deleteDescription(id: String, did: String)

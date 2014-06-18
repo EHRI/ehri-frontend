@@ -12,9 +12,12 @@ import backend.rest.Constants
 import play.api.data.Form
 import play.api.data.Forms._
 import play.api.libs.json.JsObject
+import play.api.i18n.Lang
 
 
 object VirtualUnitF {
+
+  val DESCRIPTION_REF = "descriptionRef"
 
   import models.Entity._
   import Ontology._
@@ -64,6 +67,7 @@ case class VirtualUnitF(
 }
 
 object VirtualUnit {
+
   import models.Entity._
   import models.VirtualUnitF._
   import Ontology._
@@ -138,6 +142,11 @@ case class VirtualUnit(
   with DescribedMeta[DocumentaryUnitDescriptionF, VirtualUnitF]
   with Accessible {
 
+  override def toStringLang(implicit lang: Lang): String = {
+    if (!model.descriptions.isEmpty) super.toStringLang(lang)
+    else descriptionRefs.headOption.map(_.name).getOrElse(id)
+  }
+
   def allDescriptions: List[DocumentaryUnitDescriptionF]
     = descriptionRefs ++ model.descriptions
 
@@ -145,7 +154,7 @@ case class VirtualUnit(
     new DocumentaryUnitF(
       id = model.id,
       identifier = model.identifier,
-      descriptions = descriptionRefs ++ model.descriptions
+      descriptions = allDescriptions
     ),
     holder = holder,
     accessors = accessors

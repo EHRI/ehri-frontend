@@ -4,6 +4,9 @@
     @common.sidebarAction(user.hasPermission(ContentTypes.VirtualUnit, PermissionType.Create)) {
         <a href="@controllers.archdesc.routes.VirtualUnits.createChild(item.id)">@Messages("virtualUnit.child.create")</a>
     }
+    @common.sidebarAction(user.hasPermission(ContentTypes.VirtualUnit, PermissionType.Create)) {
+        <a href="@controllers.archdesc.routes.VirtualUnits.createChildRef(item.id)">@Messages("virtualUnit.child.createRef")</a>
+    }
     @common.sidebarAction(user.hasPermission(ContentTypes.VirtualUnit, PermissionType.Annotate)) {
         <a href="@controllers.archdesc.routes.VirtualUnits.linkAnnotateSelect(item.id, EntityType.VirtualUnit)">@Messages("link.create")</a>
     }
@@ -20,6 +23,6 @@
         <a href="@controllers.archdesc.routes.VirtualUnits.managePermissions(item.id)">@Messages("permissions.manage")</a>
     }
     @common.sidebarAction() {
-        <a href="@controllers.core.routes.ApiController.getItem(item.isA, item.id)">@Messages("item.export.json")</a>
+        <a href="@controllers.admin.routes.ApiController.getItem(item.isA, item.id)">@Messages("item.export.json")</a>
     }
 }

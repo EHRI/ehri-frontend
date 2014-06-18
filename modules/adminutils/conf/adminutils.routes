@@ -1,0 +1,32 @@
+# Routes for portal routes
+
+
+GET     /                                   @controllers.adminutils.Home.index
+GET     /metrics                            @controllers.adminutils.Home.metrics
+GET     /overview                           @controllers.adminutils.Home.overview
+GET     /login                              @controllers.adminutils.Home.loginRedirect
+
+# Js Routes
+GET     /routes                             @controllers.adminutils.Home.jsRoutes
+
+GET     /updateIndex                        @controllers.adminutils.AdminSearch.updateIndex
+POST    /updateIndex                        @controllers.adminutils.AdminSearch.updateIndexPost
+
+# Search testing
+GET     /search                             @controllers.adminutils.AdminSearch.search
+
+# Get JSON (id,name) pair for a given type
+GET     /filter                             @controllers.adminutils.AdminSearch.filter
+
+# Metrics
+GET     /metrics/languageOfMaterial         @controllers.adminutils.Metrics.languageOfMaterial
+GET     /metrics/holdingRepository          @controllers.adminutils.Metrics.holdingRepository
+GET     /metrics/repositoryCountries        @controllers.adminutils.Metrics.repositoryCountries
+GET     /metrics/agentTypes                 @controllers.adminutils.Metrics.agentTypes
+GET     /metrics/restricted                 @controllers.adminutils.Metrics.restricted
+GET     /metrics/_clear                     @controllers.adminutils.Metrics.clearCached
+
+# Monitoring
+GET     /monitor/_check                     @controllers.adminutils.Utils.checkDb
+
+GET     /assets/*file                       controllers.adminutils.Assets.at(path="/public", file)

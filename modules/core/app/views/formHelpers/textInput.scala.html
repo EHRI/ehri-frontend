@@ -1,5 +1,14 @@
-@(desc: play.api.data.Field, fieldName: String)(implicit prefix: String = "", defaults: Option[play.api.Configuration] = None, lang: Lang, fieldConstructor: views.html.helper.FieldConstructor)
+@(desc: play.api.data.Field, fieldName: String, args: (Symbol,Any)*)(implicit prefix: String = "", defaults: Option[play.api.Configuration] = None, lang: Lang, fieldConstructor: views.html.helper.FieldConstructor)
 
 @defining(desc(fieldName)) { field =>
-    @helper.textarea(field.copy(value = field.value.orElse(defaults.flatMap(_.getString(fieldName)))), 'title -> views.Helpers.renderMarkdown(Messages(prefix + "." + fieldName + ".description")), 'rows -> 4, 'class -> "form-control", '_label -> Messages(if (prefix.isEmpty) fieldName else "%s.%s".format(prefix, fieldName)))
+    @helper.textarea(
+        field = field.copy(value = field.value.orElse(defaults.flatMap(_.getString(fieldName)))),
+        args = views.Helpers.argsWithDefaults(
+            args.map { case (s,v) => if(s == 'class) s -> (v.toString + " form-control") else s -> v },
+            'rows -> 4,
+            '_label -> Messages(if (prefix.isEmpty) fieldName else s"$prefix.$fieldName"),
+            'title -> views.Helpers.renderMarkdown(Messages((if (prefix != "") prefix + "." else "") + fieldName + ".description")),
+            'class -> "form-control"
+        ): _*
+    )
 }

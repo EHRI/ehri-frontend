@@ -1,6 +1,81 @@
-# Admin messages
+# Users- and Group-related i18n messages
 
-admin.recentActivity=Recent Activity
-admin.home.title=Welcome to the EHRI Administration interface
-admin.metrics=Data Metrics
-admin.metrics.show=Data Overview Graphs
+accessor.groups.manage=Manage Groups
+accessor.groups.manage.submit=Submit
+accessor.notInAnyGroups=This user does not belong to any groups.
+accessor.currentGroups=Current Groups
+accessor.itemCannotBeAddedToAdditionalGroups=This {0} cannot be added to additional groups
+accessor.addNewGroup=Add New Group
+accessor.groups.add=Add
+accessor.groups.add.item=Add {0} to group {1}?
+accessor.groups.add.submit=Submit
+accessor.groups.remove=Remove
+accessor.groups.remove.item=Remove {0} from group {1}?
+accessor.groups.remove.submit=Remove
+
+#
+# Users
+#
+userProfile.staff=Staff
+userProfile.staff.description=User can access admin pages
+userProfile.active=Active
+userProfile.active.description=Whether this user profile is currently active.
+userProfile.active.true=Active
+userProfile.active.false=Inactive
+userProfile.name=Full name
+userProfile.name.description=The user''s full name
+userProfile.languages=Languages
+userProfile.languages.description=
+userProfile.about=About
+userProfile.identifier=Identifier
+userProfile.manageUser=Manage User
+userProfile.deleteCheck.description=Confirm you want to delete this user.
+userProfile.deactivateUser=Deactivate user ''{0}''?
+userProfile.email=Email
+userProfile.username=Username
+userProfile.realname=Full Name
+userProfile.password=Password
+userProfile.passwordConfirm=Confirm Password
+userProfile.groups=Group Membership
+userProfile.search=Search Users
+userProfile.missingAccount=No account found
+userProfile.list=Users
+userProfile.create=Create New User
+userProfile.create.submit=Create User
+userProfile.update=Update User
+userProfile.update.item=Update User {0}
+userProfile.update.submit=Update User
+userProfile.manage=Manage User
+userProfile.manage.item=Manage User {0}
+userProfile.manage.submit=Submit
+userProfile.delete=Delete User
+userProfile.delete.item=Delete User {0}
+userProfile.delete.confirm=User profiles should almost never be deleted as doing so loses information \
+  concerning the provenance of items. A better alternative is to deactivate the profile instead. Please consider \
+  this action carefully.
+userProfile.delete.check=Type the user''s full name to confirm you want to delete their account.
+userProfile.delete.submit=Delete User
+
+#
+# Groups
+#
+group.list=Groups
+group.admin=Admin
+group.identifier=Group Identifier
+group.identifier.description=A short, lower-case, 1-word identifier
+group.name=Group Name
+group.name.description=A title-case display for the group
+group.description=Group Description
+group.description.description=A description of this group''s purpose
+group.members=Group Members
+group.membersPageHeader={2,choice,0#No members found|1#One member|1<Group Members {0,number,integer} to {1,number,integer} of {2,number,integer}}
+group.create=Create New Group
+group.create.submit=Create Group
+group.edit=Update Group
+group.edit.item=Update Group {0}
+group.edit.submit=Update Group
+group.delete=Delete Group
+group.delete.item=Delete Group {0}
+group.delete.confirm=
+group.delete.submit=Delete Group
+group.parentGroups=Parent Groups

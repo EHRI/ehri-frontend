@@ -124,7 +124,7 @@
     $provide.factory('$service', function() {
       return {
         get: jsRoutes.controllers.core.Application.get,
-        getItem: jsRoutes.controllers.core.ApiController.getItem,
+        getItem: jsRoutes.controllers.core.Application.getType,
         filter: jsRoutes.controllers.core.SearchFilter.filter,
         createLink: jsRoutes.controllers.archdesc.DocumentaryUnits.createLink,
         createMultipleLinks: jsRoutes.controllers.archdesc.DocumentaryUnits.linkMultiAnnotatePost,
@@ -270,7 +270,7 @@ function LinkCtrl($scope, $window, $search, $names, $rootScope, $modalInstance, 
       $scope.item = $scope.itemData = null;
     } else {
       $scope.item = item;
-      return $search.detail(item[2], item[0]).then(function(response) {
+      return $search.detail(item[3], item[0]).then(function(response) {
         $scope.itemData = response.data;
       });
     }
@@ -426,11 +426,11 @@ function LinkerCtrl($scope, $service, $search, $dialog, $names, $rootScope, $win
   $scope.selectLinkMatch = function(match) {
     // FIXME: Overwriting the user's typed-in text is
     // perhaps not the best behaviour to use here!
-    $scope.tempAccessPoint.name = match[1];
+    $scope.tempAccessPoint.name = match.name;
     $scope.tempAccessPoint.link = {
-      target: match[0],
-      name: match[1],
-      targetType: match[2],
+      target: match.id,
+      name: match.name,
+      targetType: match.type,
       type: "associative"
     };
     // Clear the list of matches

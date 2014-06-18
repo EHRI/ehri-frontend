@@ -19,7 +19,7 @@
             @defining(item.isA.toString) { implicit fieldPrefix =>
                 @layout.descriptionContainer(item.model.descriptions) {
                     @item.model.descriptions.map { desc =>
-                        @renderDescription(item, desc, links, annotations, editable = true)
+                        @renderDescription(item, desc, links, annotations, actions = descriptionActions(item, desc))
                     }
 
                     @link.annotationLinks(item, links)
@@ -30,7 +30,7 @@
                 }
 
                 @item.childCount.filter(_ > 0).map { count =>
-                    @views.html.search.searchSection(Messages("documentaryUnit.searchInside", item.toStringAbbr(lang))) {
+                    @views.html.search.searchSection(Messages("documentaryUnit.searchInside", item.toStringAbbr(lang)), result) {
                         @views.html.common.search.searchForm(result, params, action, autofocus = false) {
                             @searchItemList(result)
                         } {

@@ -117,7 +117,6 @@ object ApplicationBuild extends Build {
   )
 
   val assetSettings = Seq(
-
   )
 
   lazy val core = Project(appName + "-core", file("modules/core"))
@@ -128,7 +127,7 @@ object ApplicationBuild extends Build {
       libraryDependencies ++= coreDependencies
   ).settings(commonSettings: _*)
 
-  lazy val users = Project(appName + "-users", file("modules/users"))
+  lazy val admin = Project(appName + "-admin", file("modules/admin"))
     .enablePlugins(play.PlayScala).settings(
     version := appVersion
   ).settings(commonSettings: _*).dependsOn(core)
@@ -137,7 +136,7 @@ object ApplicationBuild extends Build {
     .enablePlugins(play.PlayScala).settings(
     version := appVersion,
     libraryDependencies ++= coreDependencies
-  ).settings(commonSettings: _*).dependsOn(users)
+  ).settings(commonSettings: _*).dependsOn(admin)
 
   lazy val linking = Project(appName + "-linking", file("modules/linking"))
     .enablePlugins(play.PlayScala).settings(
@@ -170,7 +169,7 @@ object ApplicationBuild extends Build {
     version := appVersion
   ).settings(commonSettings: _*).dependsOn(archdesc)
 
-  lazy val admin = Project(appName + "-admin", file("modules/admin"))
+  lazy val adminUtils = Project(appName + "-adminutils", file("modules/adminutils"))
     .enablePlugins(play.PlayScala).settings(
     version := appVersion
   ).settings(commonSettings: _*).dependsOn(archdesc, authorities, vocabs, guides)
@@ -180,8 +179,8 @@ object ApplicationBuild extends Build {
     version := appVersion,
     libraryDependencies ++= coreDependencies ++ testDependencies,
     pipelineStages := Seq(rjs)
-  ).settings(commonSettings ++ assetSettings: _*).dependsOn(admin)
-    .aggregate(core, users, annotation, linking, portal, archdesc, authorities, vocabs, guides, admin)
+  ).settings(commonSettings ++ assetSettings: _*).dependsOn(adminUtils)
+    .aggregate(core, admin, annotation, linking, portal, archdesc, authorities, vocabs, guides, adminUtils)
 
   override def rootProject = Some(main)
 }
