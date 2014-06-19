@@ -1,5 +1,9 @@
 # Routes for user- and group-related functionality
 
+# Generic item redirection
+GET     /item/:id                               @controllers.admin.Admin.get(id: String)
+GET     /item/:type/:id                         @controllers.admin.Admin.getType(type: String, id: String)
+
 # API
 GET     /api/:id                                @controllers.admin.ApiController.getAny(id: String)
 GET     /api/:contentType/list                  @controllers.admin.ApiController.listItems(contentType: defines.EntityType.Value)

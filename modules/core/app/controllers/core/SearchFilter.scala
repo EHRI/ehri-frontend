@@ -10,6 +10,9 @@ import models.AccountDAO
 @Singleton
 case class SearchFilter @Inject()(implicit globalConfig: global.GlobalConfig, searchDispatcher: Dispatcher, searchResolver: Resolver, backend: Backend, userDAO: AccountDAO) extends Search {
 
+  override val staffOnly = false
+  override val verifiedOnly = false
+
   /**
    * Quick filter action that searches applies a 'q' string filter to
    * only the name_ngram field and returns an id/name pair.
