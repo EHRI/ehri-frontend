@@ -248,15 +248,16 @@ case class Repositories @Inject()(implicit globalConfig: global.GlobalConfig, se
     implicit val apiUser = ApiUser(userOpt.map(_.id))
 
     val params = ListParams(limit = -1) // can't get around large limits yet...
+    val eadId: String = repositoryRoutes.exportEad(id).absoluteURL(globalConfig.https)
 
     def fetchTree(doc: DocumentaryUnit): Future[DocTree] = {
       for {
         children <- backend.listChildren[DocumentaryUnit,DocumentaryUnit](doc.id, params)
         trees <- Future.sequence(children.map(c => {
           if (c.childCount.getOrElse(0) > 0) fetchTree(c)
-          else Future.successful(DocTree(c, Seq.empty))
+          else Future.successful(DocTree(eadId, c, Seq.empty))
         }))
-      } yield DocTree(doc, trees)
+      } yield DocTree(eadId, doc, trees)
     }
 
     for {
@@ -264,7 +265,11 @@ case class Repositories @Inject()(implicit globalConfig: global.GlobalConfig, se
       docs <- backend.listChildren[Repository,DocumentaryUnit](id, params)
       trees <- Future.sequence(docs.map(c => {
         if (c.childCount.getOrElse(0) > 0) fetchTree(c)
-        else Future.successful(DocTree(c, Seq.empty))
+        else Future.successful(DocTree(
+          eadId,
+          c,
+          Seq.empty)
+        )
       }))
     } yield {
       Ok(views.export.ead.Helpers.tidyXml(

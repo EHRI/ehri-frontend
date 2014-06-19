@@ -388,6 +388,7 @@ case class DocumentaryUnits @Inject()(implicit globalConfig: global.GlobalConfig
     implicit val apiUser = ApiUser(userOpt.map(_.id))
 
     val params = ListParams(limit = -1) // can't get around large limits yet...
+    val eadId: String = docRoutes.exportEad(id).absoluteURL(globalConfig.https)
 
     def fetchTree(id: String): Future[DocTree] = {
       for {
@@ -395,9 +396,9 @@ case class DocumentaryUnits @Inject()(implicit globalConfig: global.GlobalConfig
         children <- backend.listChildren[DocumentaryUnit,DocumentaryUnit](id, params)
         trees <- Future.sequence(children.map(c => {
           if (c.childCount.getOrElse(0) > 0) fetchTree(c.id)
-          else Future.successful(DocTree(c, Seq.empty))
+          else Future.successful(DocTree(eadId, c, Seq.empty))
         }))
-      } yield DocTree(doc, trees)
+      } yield DocTree(eadId, doc, trees)
     }
 
     fetchTree(id).map { tree =>

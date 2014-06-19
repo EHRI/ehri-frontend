@@ -9,6 +9,7 @@ import models.DocumentaryUnit
  * @author Mike Bryant (http://github.com/mikesname)
  */
 case class DocTree(
+  id: String,
   item: DocumentaryUnit,
   children: Seq[DocTree]
 )

@@ -5,5 +5,5 @@
     @repository.model.primaryDescription.flatMap(_.addresses.headOption).map { add =>
         @address(add)
     }
-    <date></date>
+    <date>@org.joda.time.DateTime.now()</date>
 </publicationstmt>
