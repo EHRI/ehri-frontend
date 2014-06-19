@@ -24,6 +24,7 @@
 
                     @link.annotationLinks(item, links)
                 } {
+                    @common.identifiers(item.model.identifier, item.model.otherIdentifiers)
                     @common.latestAction(item, controllers.archdesc.routes.DocumentaryUnits.history(item.id))
                     @common.visibility(item, controllers.archdesc.routes.DocumentaryUnits.visibility(item.id), ContentTypes.DocumentaryUnit)
                     @adminActions(item)
