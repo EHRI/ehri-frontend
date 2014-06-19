@@ -193,6 +193,13 @@ trait FacetConfig extends Search {
         display = FacetDisplay.List
       ),
       FieldFacetClass(
+        key="holderName",
+        name=Messages("portal.facet.holder"),
+        param="holder",
+        sort = FacetSort.Name,
+        display = FacetDisplay.DropDown
+      ),
+      FieldFacetClass(
         key="countryCode",
         name=Messages("portal.facet.location"),
         param="country",

@@ -139,6 +139,7 @@ portal.facet.lod.medium=Medium
 portal.facet.lod.high=High
 portal.facet.placeholder.lod=Select Level of Detail
 portal.facet.location=Location
+portal.facet.holder=Holding Institution
 portal.facet.placeholder.holder=Filter by Institution
 portal.facet.placeholder.country=Filter Country
 portal.facet.placeholder.lang=Filter Language
