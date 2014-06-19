@@ -46,21 +46,21 @@
                                     </label>
                                     <div class="col-sm-9">
                                         <div class="input-group">
-                                            <input class="form-control quicksearch" type="text" placeholder="@Messages("accessPoint.name")" autofocus="true" />
+                                            <input class="form-control quicksearch" name="@accessPointType.toString" type="text" placeholder="@Messages("accessPoint.name")" autofocus="true" />
                                              <div class="input-group-btn">
                                                 <a class="btn btn-default">
                                                     <i class="glyphicon glyphicon-search"></i>
                                                 </a>
                                                 @accessPointType.toString match {
                                                     case "creatorAccess" | "personAccess" => {
-                                                        <button type="button" value ="historicalAgent" class="btn btn-primary type" disabled="true">@Messages("contentTypes.historicalAgent")</button>
+                                                        <button type="button" value ="historicalAgent" class="btn btn-info type" disabled="true">@Messages("contentTypes.historicalAgent")</button>
                                                     }
                                                     case "placeAccess" => {
-                                                        <button type="button" value="cvocConcept" class="btn btn-default btn-primary type">@Messages("contentTypes.cvocConcept")</button>
-                                                        <button type="button" value="country" class="btn btn-default btn-primary type">@Messages("contentTypes.country")</button>
+                                                        <button type="button" value="cvocConcept" class="btn btn-info type">@Messages("contentTypes.cvocConcept")</button>
+                                                        <button type="button" value="country" class="btn btn-info type">@Messages("contentTypes.country")</button>
                                                     }
                                                     case "subjectAccess" => {
-                                                        <button type="button" value="cvocConcept" class="btn btn-primary type" disabled="true">@Messages("contentTypes.cvocConcept")</button>
+                                                        <button type="button" value="cvocConcept" class="btn btn-info type" disabled="true">@Messages("contentTypes.cvocConcept")</button>
                                                     }
                                                     case _ => { }
                                                 }

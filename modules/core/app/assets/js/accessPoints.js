@@ -1,8 +1,8 @@
 $(document).ready(function() {
 	/* Search and URLS	*/
 	$search = function() {
-      var search = function(types, page, callback) {
-        var params = "?limit=10&q=%QUERY";
+      var search = function(types, searchTerm, page, callback) {
+        var params = "?limit=10&q=" + searchTerm;
         if (types && types.length > 0) {
           if(Array.isArray(types)) {
             params = params + "&" + (types.map(function(t) { return "st[]=" + t }).join("&"));
@@ -16,7 +16,7 @@ $(document).ready(function() {
         return $service.filter().url + params;
       };
       var limitTypes = function(element) {
-      	$types = element.parent().find(".type.btn-primary")
+      	$types = element.parents(".input-group").first().find(".type.btn-info")
       	if($types === "undefined" || $types.length == 0) {
        		return []	
       	} else {
@@ -27,9 +27,14 @@ $(document).ready(function() {
       		return data
       	}
       };
+      var searchTerm = function(element) {
+      	var $name = element.attr("name");
+      	return $(".tt-input[name='" + $name + "']").val()
+      }
       return {
+      	searchTerm : function(element) { return searchTerm(element); },
         search: function(element, page) {
-          return search(this.limitTypes(element), page);
+          return search(this.limitTypes(element), this.searchTerm(element), page);
         },
         limitTypes : limitTypes,
         filter: function(type, searchTerm, page, callback) {
@@ -80,7 +85,7 @@ $(document).ready(function() {
 	});
 	$(".type:not([disabled])").on("click", function(e) {
 		e.preventDefault();
-		$(this).toggleClass("btn-primary")
+		$(this).toggleClass("btn-info")
 	});
 
 	/* Click on result */
@@ -95,14 +100,18 @@ $(document).ready(function() {
 	/* Search input */
 	$(".quicksearch").each(function() {
 		$quicksearch = $(this);
-		var $url = $search().search($quicksearch);
+
 		var $quicksearchBH = new Bloodhound({
 		                      datumTokenizer: function (d) {
 		                            return Bloodhound.tokenizers.whitespace(d); 
 		                      },
 		                      queryTokenizer: Bloodhound.tokenizers.whitespace,
 		                      remote: {
-		                        url : $url,
+		                      	elem : $quicksearch,
+		                        url : $search().search($quicksearch),
+		                        replace : function() { 
+		                        	return $search().search(this.elem) 
+		                        },
 		                        filter : function(parsedResponse) {
 		                          var result = [];
 		                          var alreadyResult = [];
