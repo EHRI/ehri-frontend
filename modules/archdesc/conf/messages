@@ -9,33 +9,8 @@ urlPattern.description=The URL pattern is used to provide automatic linking from
   other institution''s site. The given URL must be a valid except for the substitution of '''{'identifier'}''' \
   where the item''s identifier should go.
 
-logoUrl=Logo URL
+logoUrl=Logo URLM
 logoUrl.description=A URL to a logo image for the repository.
-
-actions.updateCountry=Update Country
-actions.updateDocumentaryUnit=Update Collection
-actions.updateRepository=Update Repository
-actions.listDocumentaryUnits=Collections
-actions.listRepositories=Repositories
-actions.createDocumentaryUnit=Create Collection
-actions.createRepository=Create Repository
-actions.createCountry=Add Country
-actions.listCountries=Countries
-actions.createNewDocUnit=Create New Collection
-actions.createChildDocUnit=Create Child Collection
-actions.createNewRepository=Create New Repository
-actions.listVirtualUnits=Virtual Item Collections
-actions.createVirtualUnit=Create Virtual Item
-actions.updateVirtualUnit=Update Virtual Item
-actions.linkToVirtualUnit=Link to Virtual Item
-actions.createChildVirtualUnit=Create Child Virtual Item
-submitButton.createDocumentaryUnit=Create Collection
-submitButton.createRepository=Create Repository
-submitButton.updateDocumentaryUnit=Update Collection
-submitButton.updateRepository=Update Repository
-submitButton.createCountry=Add Country
-submitButton.updateCountry=Update Country
-submitButton.createVirtualUnit=Create Virtual Item
 
 #
 # Virtual Units
@@ -44,7 +19,18 @@ virtualUnit.search=Virtual Collections
 virtualUnit.searchInside=Structure
 virtualUnit.parentItem=Parent Virtual Item
 virtualUnit.noDescriptions=No linked descriptions
-
+virtualUnit.list=Virtual Item Collections
+virtualUnit.create=Create Virtual Item
+virtualUnit.create.submit=Create Virtual Item
+virtualUnit.update=Update Virtual Item
+virtualUnit.update.submit=Update
+virtualUnit.child.create=Create Child Virtual Item
+virtualUnit.child.createRef=Create Child Item Reference
+virtualUnit.identifier=Identifier
+virtualUnit.identifier.description=The unique identifier for this virtual unit
+virtualUnit.descriptionRef=Ext. Description ID
+virtualUnit.descriptionRef.description=The ID of the non-virtual documentary unit description references\
+  by this virtual item.
 
 #
 # Documentary Units
@@ -58,7 +44,12 @@ documentaryUnit.searchInside=Structure
 documentaryUnit.hasChildItems=Container
 documentaryUnit.noChildItems=Single level
 documentaryUnit.childCount={0,choice,0#No child items|1#1 child item|1<{0,number,integer} child items}
-
+documentaryUnit.list=Collections
+documentaryUnit.create=Create Collection
+documentaryUnit.create.submit=Create Collection
+documentaryUnit.update=Update Collection
+documentaryUnit.update.submit=Update Collection
+documentaryUnit.child.create=Create New Child Item
 
 
 documentDescription.identifier=Description ID (Optional)
@@ -79,7 +70,11 @@ country.abstract=Abstract
 country.abstract.description=An abstract of the report for this country
 country.report=Report
 country.report.description=The report describing this country''s archival situation
-
+country.list=Countries
+country.create=Add Country
+country.create.submit=Add Country
+country.update=Update Country
+country.update.submit=Update Country
 
 #
 # Repositories
@@ -90,29 +85,31 @@ repository.itemsHeldOnline=Items on EHRI
 repository.hasChildItems=Yes
 repository.noChildItems=No
 repository.childCount={0,choice,0#No archival descriptions available|1#1 archival description available|1<{0,number,integer} archival descriptions available}
+repository.list=Repositories
+repository.create=Create Repository
+repository.create.submit=Create Repository
+repository.update=Update Repository
+repository.update.submit=Update Repository
 
-#
-# ISAD(G)-based field set
-#
 
 # Form sections
-isadg.identityArea=Identity Area
-isadg.descriptionsArea=Descriptions
-isadg.administrationArea=Administration
-isadg.contextArea=Context Area
-isadg.contentArea=Content Area
-isadg.conditionsArea=Conditions Area
-isadg.materialsArea=Materials Area
-isadg.notesArea=Notes Area
-isadg.controlArea=Control Area
+documentaryUnit.identityArea=Identity Area
+documentaryUnit.descriptionsArea=Descriptions
+documentaryUnit.administrationArea=Administration
+documentaryUnit.contextArea=Context Area
+documentaryUnit.contentArea=Content Area
+documentaryUnit.conditionsArea=Conditions Area
+documentaryUnit.materialsArea=Materials Area
+documentaryUnit.notesArea=Notes Area
+documentaryUnit.controlArea=Control Area
 
-isadg.ref=Web Source
-isadg.ref.description=If this description is sourced from an online resource \
+documentaryUnit.ref=Web Source
+documentaryUnit.ref.description=If this description is sourced from an online resource \
   enter the URL of that resource here. Note: web page URLs are not necessarily stable \
   identifiers so this should not be considered a replacement for the identifier field. \
   (3.1.1 - extended)
-isadg.name=Title
-isadg.name.description=To name the unit of description.\n\n\
+documentaryUnit.name=Title
+documentaryUnit.name.description=To name the unit of description.\n\n\
 Provide either a formal title or a concise supplied title in accordance with the rules of\
  multilevel description and national conventions.\n\n\
 If appropriate, abridge a long formal title, but only if this can be done without loss of\
@@ -123,20 +120,20 @@ For supplied titles, at the higher level, include the name of the creator of the
  appropriate, a phrase reflecting function, activity, subject, location, or theme.\n\n\
 Distinguish between formal and supplied titles according to national or language\
  conventions. (3.1.2)
-isadg.parallelFormsOfName=Parallel Names
-isadg.parallelFormsOfName.description=
+documentaryUnit.parallelFormsOfName=Parallel Names
+documentaryUnit.parallelFormsOfName.description=
 
-isadg.identifier=Description Code
-isadg.identifier.description=To identify uniquely the unit of description and to provide a\
+documentaryUnit.identifier=Description Code
+documentaryUnit.identifier.description=To identify uniquely the unit of description and to provide a\
  link to the description that represents it.\n\n\
 A specific local reference code, control number, or other unique identifier within the scope\
   of the holding repository.\n\n\
 NB: Contra ISAD(G) 3.1.1 do not include the country and repository\
   code here.
-isadg.otherIdentifiers=Other Ref. Codes
+documentaryUnit.otherIdentifiers=Other Ref. Codes
 
-isadg.dates=Dates
-isadg.dates.description=To identify and record the date(s) of the unit of description.\n\n\
+documentaryUnit.dates=Dates
+documentaryUnit.dates.description=To identify and record the date(s) of the unit of description.\n\n\
 Record at least one of the following types of dates for the unit of description, as\
  appropriate to the materials and the level of description.\n\
 Date(s) when records were accumulated in the transaction of business or the conduct of\
@@ -150,36 +147,36 @@ Record as a single date or a range of dates as appropriate. A range of dates sho
  be inclusive unless the unit of description is a record-keeping system (or part thereof) in\
  active use. (3.1.3)
 
-isadg.levelOfDescription=Level of Description
-isadg.levelOfDescription.description=To identify the level of arrangement of the unit of description. (3.1.4)
+documentaryUnit.levelOfDescription=Level of Description
+documentaryUnit.levelOfDescription.description=To identify the level of arrangement of the unit of description. (3.1.4)
 
-isadg.collection=Collection
-isadg.subcollection=Sub Collection
-isadg.fonds=Fonds
-isadg.subfonds=Subfonds
-isadg.recordGroup=Record Group
-isadg.subrecordGroup=Sub Record Group
-isadg.series=Series
-isadg.subseries=Subseries
-isadg.file=File
-isadg.item=Item
-isadg.creation=Creation
+documentaryUnit.collection=Collection
+documentaryUnit.subcollection=Sub Collection
+documentaryUnit.fonds=Fonds
+documentaryUnit.subfonds=Subfonds
+documentaryUnit.recordGroup=Record Group
+documentaryUnit.subrecordGroup=Sub Record Group
+documentaryUnit.series=Series
+documentaryUnit.subseries=Subseries
+documentaryUnit.file=File
+documentaryUnit.item=Item
+documentaryUnit.creation=Creation
 
-isadg.extentAndMedium=Extent and Medium of the Unit of Description
-isadg.extentAndMedium.description=\
+documentaryUnit.extentAndMedium=Extent and Medium of the Unit of Description
+documentaryUnit.extentAndMedium.description=\
   To identify and describe:\n\
    1. the physical or logical extent and\n\
    2. the medium of the unit of description.\n\n\
 Record the extent of the unit of description by giving the number of physical or logical\
  units in arabic numerals and the unit of measurement. Give the specific medium (media)\
  of the unit of description. (3.1.5)
-isadg.languageCode=Language of Description
+documentaryUnit.languageCode=Language of Description
 
-isadg.abstract=Abstract
-isadg.abstract.description=
+documentaryUnit.abstract=Abstract
+documentaryUnit.abstract.description=
 
-isadg.biographicalHistory=Administrative and Biographical History
-isadg.biographicalHistory.description=To provide an administrative history of, or biographical details on,\
+documentaryUnit.biographicalHistory=Administrative and Biographical History
+documentaryUnit.biographicalHistory.description=To provide an administrative history of, or biographical details on,\
   the creator (or creators) of the unit of description to place the material in context and make it\
   better understood.\n\n\
 Record concisely any significant information on the origin, progress, development and work\
@@ -187,8 +184,8 @@ Record concisely any significant information on the origin, progress, developmen
  individuals) responsible for the creation of the unit of description. If additional information\
  is available in a published source, cite the source. (3.2.2)
 
-isadg.archivalHistory=Archival History
-isadg.archivalHistory.description=To provide information on the history of the unit of description\
+documentaryUnit.archivalHistory=Archival History
+documentaryUnit.archivalHistory.description=To provide information on the history of the unit of description\
   that is significant for its authenticity, integrity and interpretation.\n\n\
 Record the successive transfers of ownership, responsibility and/or custody of the unit of\
  description and indicate those actions, such as history of the arrangement, production of\
@@ -200,129 +197,137 @@ Optionally, when the unit of description is acquired directly from the creator, 
  an archival history but rather, record this information as the Immediate source of\
  acquisition. (3.2.3)
 
-isadg.acquisition=Immediate Source of Acquisition or Transfer
-isadg.acquisition.description=To identify the immediate source of acquisition or transfer.\n\n\
+documentaryUnit.acquisition=Immediate Source of Acquisition or Transfer
+documentaryUnit.acquisition.description=To identify the immediate source of acquisition or transfer.\n\n\
 Record the source from which the unit of description was acquired and the date and/or\
  method of acquisition if any or all of this information is not confidential. If the source is\
  unknown, record that information. Optionally, add accession numbers or codes. (3.2.4)
 
-isadg.scopeAndContent=Scope and Content
-isadg.scopeAndContent.description=To enable users to judge the potential relevance of the unit of description.\n\n\
+documentaryUnit.scopeAndContent=Scope and Content
+documentaryUnit.scopeAndContent.description=To enable users to judge the potential relevance of the unit of description.\n\n\
 Give a summary of the scope (such as, time periods, geography) and content, (such as\
  documentary forms, subject matter, administrative processes) of the unit of description,\
  appropriate to the level of description. (3.3.1)
 
-isadg.appraisal=Appraisal
-isadg.appraisal.description=To provide information on any appraisal, destruction and scheduling action.\n\n\
+documentaryUnit.appraisal=Appraisal
+documentaryUnit.appraisal.description=To provide information on any appraisal, destruction and scheduling action.\n\n\
 Record appraisal, destruction and scheduling actions taken on or planned for the unit of\
  description, especially if they may affect the interpretation of the material. (3.3.2)
 
-isadg.accruals=Accruals
-isadg.accruals.description=To inform the user of foreseen additions to the unit of description.\n\n\
+documentaryUnit.accruals=Accruals
+documentaryUnit.accruals.description=To inform the user of foreseen additions to the unit of description.\n\n\
 Indicate if accruals are expected. Where appropriate, give an estimate of their quantity and\
  frequency. (3.3.3)
 
-isadg.systemOfArrangement=System of Arrangement
-isadg.systemOfArrangement.description=To provide information on the internal structure, the order\
+documentaryUnit.systemOfArrangement=System of Arrangement
+documentaryUnit.systemOfArrangement.description=To provide information on the internal structure, the order\
   and/or the system of classification of the unit of description.\n\n\
 Specify the internal structure, order and/or the system of classification of the unit of\
  description. Note how these have been treated by the archivist. For electronic records,\
  record or reference information on system design. (3.3.4)
 
-isadg.conditionsOfAccess=Conditions Governing Access
-isadg.conditionsOfAccess.description=To provide information on the legal status or other\
+documentaryUnit.conditionsOfAccess=Conditions Governing Access
+documentaryUnit.conditionsOfAccess.description=To provide information on the legal status or other\
  regulations that restrict or affect access to the unit of description.\n\n\
 Specify the law or legal status, contract, regulation or policy that affects access to the unit\
  of description. Indicate the extent of the period of closure and the date at which the\
  material will open when appropriate. (3.4.1)
 
-isadg.conditionsOfReproduction=Conditions Governing Reproduction
-isadg.conditionsOfReproduction.description=To identify any restrictions on reproduction\
+documentaryUnit.conditionsOfReproduction=Conditions Governing Reproduction
+documentaryUnit.conditionsOfReproduction.description=To identify any restrictions on reproduction\
   of the unit of description.\n\n\
 Give information about conditions, such as copyright, governing the reproduction of the\
  unit of description after access has been provided. If the existence of such conditions is\
  unknown, record this. If there are no conditions, no statement is necessary. (3.4.2)
 
-isadg.languageOfMaterial=Language(s) of Materials
-isadg.languageOfMaterial.description=To identify the language(s) employed in the unit of description.\n\n\
+documentaryUnit.languageOfMaterial=Language(s) of Materials
+documentaryUnit.languageOfMaterial.description=To identify the language(s) employed in the unit of description.\n\n\
 Record the language(s) and/or script(s) of the materials comprising the unit of description.\
  Note any distinctive alphabets, scripts, symbol systems or abbreviations employed. (3.4.3)
 
-isadg.scriptOfMaterial=Script(s) of Materials
-isadg.scriptOfMaterial.description=To identify the script(s) employed in the unit of description.\n\n\
+documentaryUnit.scriptOfMaterial=Script(s) of Materials
+documentaryUnit.scriptOfMaterial.description=To identify the script(s) employed in the unit of description.\n\n\
 Record the language(s) and/or script(s) of the materials comprising the unit of description.\
  Note any distinctive alphabets, scripts, symbol systems or abbreviations employed. (3.4.3)
 
-isadg.physicalCharacteristics=Physical Characteristics and Technical Requirements
-isadg.physicalCharacteristics.description=To provide information about any important physical\
+documentaryUnit.physicalCharacteristics=Physical Characteristics and Technical Requirements
+documentaryUnit.physicalCharacteristics.description=To provide information about any important physical\
  characteristics or technical requirements that affect use of the unit of description.\n\n\
 Indicate any important physical conditions, such as preservation requirements, that affect\
  the use of the unit of description. Note any software and/or hardware required to access\
  the unit of description. (3.4.4)
 
-isadg.findingAids=Finding Aids
-isadg.findingAids.description=To identify any finding aids to the unit of description.\n\n\
+documentaryUnit.findingAids=Finding Aids
+documentaryUnit.findingAids.description=To identify any finding aids to the unit of description.\n\n\
   Give information about any finding aids that the repository or records creator may have\
 that provide information relating to the context and contents of the unit of description.\
 If appropriate, include information on where to obtain a copy. (3.4.5)
 
-isadg.locationOfOriginals=Existence and Location of Originals
-isadg.locationOfOriginals.description=To indicate the existence, location, availability\
+documentaryUnit.locationOfOriginals=Existence and Location of Originals
+documentaryUnit.locationOfOriginals.description=To indicate the existence, location, availability\
  and/or destruction of originals where the unit of description consists of copies.\n\n\
 If the original of the unit of description is available (either in the institution or elsewhere)\
  record its location, together with any significant control numbers. If the originals no longer\
  exist, or their location is unknown, give that information. (3.5.1)
 
-isadg.locationOfCopies=Existence and Location of Copies
-isadg.locationOfCopies.description=To indicate the existence, location and availability\
+documentaryUnit.locationOfCopies=Existence and Location of Copies
+documentaryUnit.locationOfCopies.description=To indicate the existence, location and availability\
  of copies of the unit of description.\n\n\
 If the copy of the unit of description is available (either in the institution or elsewhere)\
  record its location, together with any significant control numbers. (3.5.2)
 
-isadg.relatedUnitsOfDescription=Related Units of Description
-isadg.relatedUnitsOfDescription.description=To identify related units of description.\n\n\
+documentaryUnit.relatedUnitsOfDescription=Related Units of Description
+documentaryUnit.relatedUnitsOfDescription.description=To identify related units of description.\n\n\
 Record information about units of description in the same repository or elsewhere that are\
  related by provenance or other association(s). Use appropriate introductory wording and\
  explain the nature of the relationship . If the related unit of description is a finding aid, use\
  the finding aids element of description (3.4.5) to make the reference to it. (3.5.3)
 
-isadg.publicationNote=Publication Note
-isadg.publicationNote.description=To identify any publications that are about or are \
+documentaryUnit.publicationNote=Publication Note
+documentaryUnit.publicationNote.description=To identify any publications that are about or are \
  based on the use, study, or analysis of the unit of description.\n\n\
 Record a citation to, and/or information about a publication that is about or based on the\
  use, study, or analysis of the unit of description. Include references to published facsimiles\
  or transcriptions. (3.5.4)
 
-isadg.notes=Note(s)
-isadg.notes.description=To provide information that cannot be accommodated in any of the other areas.\n\n\
+documentaryUnit.notes=Note(s)
+documentaryUnit.notes.description=To provide information that cannot be accommodated in any of the other areas.\n\n\
 Record specialized or other important information not accommodated by any of the\
  defined elements of description. (3.6.1)
 
-isadg.archivistNote=Archivist Note
-isadg.archivistNote.description=To explain how the description was prepared and by whom.\n\n\
+documentaryUnit.archivistNote=Archivist Note
+documentaryUnit.archivistNote.description=To explain how the description was prepared and by whom.\n\n\
 Record notes on sources consulted in preparing the description and who prepared it. (3.7.1)
 
-isadg.rulesAndConventions=Rules and Conventions
-isadg.rulesAndConventions.description=To identify the protocols on which the description is based.\n\n\
+documentaryUnit.rulesAndConventions=Rules and Conventions
+documentaryUnit.rulesAndConventions.description=To identify the protocols on which the description is based.\n\n\
 Record the international, national and/or local rules or conventions followed in preparing\
  the description. (3.7.2)
 
-isadg.datesOfDescriptions=Dates of Descriptions
-isadg.datesOfDescriptions.description=To indicate when this description was prepared and/or revised.\n\n\
+documentaryUnit.datesOfDescriptions=Dates of Descriptions
+documentaryUnit.datesOfDescriptions.description=To indicate when this description was prepared and/or revised.\n\n\
 Record the date(s) the entry was prepared and/or revised. (3.7.3)
 
-isadg.accessPoints=Access Points
-isadg.accessPoints.creatorAccess=Creators
-isadg.accessPoints.corporateBodyAccess=Corporate Bodies
-isadg.accessPoints.familyAccess=Families
-isadg.accessPoints.personAccess=Persons
-isadg.accessPoints.subjectAccess=Subject Access Points
-isadg.accessPoints.placeAccess=Place Access Points
-isadg.accessPoints.otherAccess=Other Access Points
+documentaryUnit.provenance=Process Info
+documentaryUnit.provenance.description=Information about accessioning, arranging, describing, preserving, storing,\
+  or otherwise preparing the described materials for research use. Specific aspects of each of these \
+  activities may be encoded separately within other elements, such as acquisition (3.2.4), \
+  arrangement (3.3.4), extent and medium (3.1.5), etc. This is a synthetic field not strictly present\
+  in the ISAD(G) specification but intended to contain more general process information as given within\
+  the EAD <processinfo> field.
+
+documentaryUnit.accessPoints=Access Points
+documentaryUnit.accessPoints.creatorAccess=Creators
+documentaryUnit.accessPoints.corporateBodyAccess=Corporate Bodies
+documentaryUnit.accessPoints.familyAccess=Families
+documentaryUnit.accessPoints.personAccess=Persons
+documentaryUnit.accessPoints.subjectAccess=Subject Access Points
+documentaryUnit.accessPoints.placeAccess=Place Access Points
+documentaryUnit.accessPoints.otherAccess=Other Access Points
 
 # isad(g) dates
-isadg.startDate=Start Date
-isadg.endDate=End Date
+documentaryUnit.startDate=Start Date
+documentaryUnit.endDate=End Date
 
 
 #
@@ -330,29 +335,29 @@ isadg.endDate=End Date
 #
 
 # Form sections
-isdiah.descriptionArea=Description Area
-isdiah.identity=Identity Area
-isdiah.contact=Contact Area
-isdiah.addresses=Address Area
-isdiah.access=Access Area
-isdiah.services=Services Area
-isdiah.administrationArea=Administration
+repository.descriptionArea=Description Area
+repository.identity=Identity Area
+repository.contact=Contact Area
+repository.addresses=Address Area
+repository.access=Access Area
+repository.services=Services Area
+repository.administrationArea=Administration
 
 # Identity Section
-isdiah.identityArea=Identity Area
-isdiah.identifier=Identifier
-isdiah.identifier.description=EHRI identifier field. This is an auto-generated number.
+repository.identityArea=Identity Area
+repository.identifier=Identifier
+repository.identifier.description=EHRI identifier field. This is an auto-generated number.
 
-isdiah.name=Authorized Form Of Name
-isdiah.name.description=To create an authorised access point that uniquely identifies the institution with\
+repository.name=Authorized Form Of Name
+repository.name.description=To create an authorised access point that uniquely identifies the institution with\
   archival holdings.\n\n\
 Record the standardised form of name of the institution with archival holdings, adding\
  appropriate qualifiers (for instance dates, place, etc.), if necessary. Specify separately\
  in the Rules and/or conventions used element (5.6.3) which set of rules has been\
  applied for this element. (5.1.2)
 
-isdiah.parallelFormsOfName=Parallel Names
-isdiah.parallelFormsOfName.description=To indicate the various forms in which the authorised form \
+repository.parallelFormsOfName=Parallel Names
+repository.parallelFormsOfName.description=To indicate the various forms in which the authorised form \
   of name of an institution with archival holdings occurs in other languages or script form(s).\n\n\
 Record the parallel form(s) of name of the institution with archival holdings in\
  accordance with any relevant national or international conventions or rules applied by\
@@ -360,71 +365,71 @@ Record the parallel form(s) of name of the institution with archival holdings in
  qualifiers required by those conventions or rules. Specify in the Rules and/or\
  conventions used element (5.6.3) which rules have been applied. (5.1.3)
 
-isdiah.otherFormsOfName=Other Names
-isdiah.otherFormsOfName.description=To indicate any other name(s) for the institution with \
+repository.otherFormsOfName=Other Names
+repository.otherFormsOfName.description=To indicate any other name(s) for the institution with \
   archival holdings not used elsewhere in the Identity Area.\n\n\
 Record any other name(s) by which the institution with archival holdings may be\
  known. This could include other forms of the same name, acronyms, other\
  institutional names, or changes of name over time, including, if possible, relevant dates. (5.1.4)
 
-isdiah.languageCode=Language of Description
-isdiah.scriptCode=Script of Description
+repository.languageCode=Language of Description
+repository.scriptCode=Script of Description
 
-isdiah.institutionType=Type of Institution with Archival Holdings
-isdiah.institutionType.description=To identify the type of an institution with archival holdings.\n\n\
+repository.institutionType=Type of Institution with Archival Holdings
+repository.institutionType.description=To identify the type of an institution with archival holdings.\n\n\
 Record the type of the institution with archival holdings.\n\n\
 Note: different consistent systems of criteria can be used and/or combined to classify\
  institutions with archival holdings, in accordance with any relevant national or\
  international conventions, rules or controlled vocabularies. (5.1.5)
 
 # AddressF
-isdiah.addressArea=Address Area
-isdiah.addressName=Address Name/Type
-isdiah.addressName.description=A short descriptive indicating the type of address given below\
+repository.addressArea=Address Area
+repository.addressName=Address Name/Type
+repository.addressName.description=A short descriptive indicating the type of address given below\
   e.g ''primary''
 
-isdiah.contactPerson=Contact Person
-isdiah.contactPerson.description=To provide users with all the information needed to contact members of staff.\n\n\
+repository.contactPerson=Contact Person
+repository.contactPerson.description=To provide users with all the information needed to contact members of staff.\n\n\
 Record the name, the contact details and the position of the members of staff (first\
  name, surname, area of responsibility, email, etc.). This information may relate to the\
  Administrative structure element (5.3.4).
 
-isdiah.street=Street Address
-isdiah.street.description=
-isdiah.municipality=City
-isdiah.municipality.description=
-isdiah.firstdem=Region
-isdiah.firstdem.description=
-isdiah.countryCode=Country Code
-isdiah.countryCode.description=
-isdiah.email=Email
-isdiah.email.description=
-isdiah.telephone=Telephone
-isdiah.telephone.description=
-isdiah.postalcode=Post Code
-isdiah.postalcode.description=
-isdiah.fax=Fax
-isdiah.fax.description=
-isdiah.webpage=Website Address
-isdiah.webpage.description=
+repository.street=Street Address
+repository.street.description=
+repository.municipality=City
+repository.municipality.description=
+repository.firstdem=Region
+repository.firstdem.description=
+repository.countryCode=Country Code
+repository.countryCode.description=
+repository.email=Email
+repository.email.description=
+repository.telephone=Telephone
+repository.telephone.description=
+repository.postalcode=Post Code
+repository.postalcode.description=
+repository.fax=Fax
+repository.fax.description=
+repository.webpage=Website Address
+repository.webpage.description=
 
 # Description
-isdiah.history=History of the Institution with Archival Holdings
-isdiah.history.description=To provide a concise history of the institution with archival holdings.\n\n\
+repository.history=History of the Institution with Archival Holdings
+repository.history.description=To provide a concise history of the institution with archival holdings.\n\n\
 Record any relevant information about the history of the institution with archival\
   holdings. This element may include information on dates of establishment, changes of\
   names, changes of legislative mandates, or of any other sources of authority for the\
   institution with archival holdings. (5.3.1)
 
-isdiah.geoculturalContext=Geographical and Cultural Context
-isdiah.geoculturalContext.description=To provide information about the geographical and \
+repository.geoculturalContext=Geographical and Cultural Context
+repository.geoculturalContext.description=To provide information about the geographical and \
  cultural context of the institution with archival holdings.\n\n\
 Identify the geographical area the institution with archival holdings belongs to.\
  Record any other relevant information about the cultural context of the institution with\
  archival holdings. (5.3.2)
 
-isdiah.mandates=Mandates/Sources of Authority
-isdiah.mandates.description=To indicate the sources of authority for the institution with \
+repository.mandates=Mandates/Sources of Authority
+repository.mandates.description=To indicate the sources of authority for the institution with \
   archival holdings in terms of its powers, functions, responsibilities or sphere of \
   activities, including territorial.\n\n\
 Record any document, law, directive or charter which acts as a source of authority for\
@@ -432,14 +437,14 @@ Record any document, law, directive or charter which acts as a source of authori
  together with information on the jurisdiction(s) and covering dates when the\
  mandate(s) applied or were changed. (5.3.3)
 
-isdiah.administrativeStructure=Administrative Structure
-isdiah.administrativeStructure.description=To represent the current administrative structure\
+repository.administrativeStructure=Administrative Structure
+repository.administrativeStructure.description=To represent the current administrative structure\
   of the institution with archival holdings.\n\n\
 Describe, in narrative form or using organisational charts, the current administrative\
  structure of the institution with archival holdings.(5.3.4)
 
-isdiah.records=Records Management and Collecting Policies
-isdiah.records.description=To provide information about the records management and collecting\
+repository.records=Records Management and Collecting Policies
+repository.records.description=To provide information about the records management and collecting\
   policies of the institution with archival holdings.\n\n\
 Record information about the records management and collecting policies of the\
  institution with archival holdings. Define the scope and nature of material which the\
@@ -447,23 +452,23 @@ Record information about the records management and collecting policies of the\
  acquire archival materials by transfer, gift, purchase and/or loan. If the policy includes\
  active survey and/or rescue work, this might be spelt out. (5.3.5)
 
-isdiah.buildings=Building(s)
-isdiah.buildings.description=To provide information about the building(s) of the institution\
+repository.buildings=Building(s)
+repository.buildings.description=To provide information about the building(s) of the institution\
   with archival holdings.\n\n\
 Record information on the building(s) of the institution with archival holdings\
  (general and architectural characteristics of the building, capacity of storage areas,\
  etc). Where possible, provide information which can be used for generating statistics. (5.3.6)
 
 
-isdiah.holdings=Archival and Other Holdings
-isdiah.holdings.description=To provide a profile of the holdings of the institution.\n\n\
+repository.holdings=Archival and Other Holdings
+repository.holdings.description=To provide a profile of the holdings of the institution.\n\n\
 Record a short description of the holdings of the institution with archival holdings,\
  describing how and when they were formed. Provide information on volume of\
  holdings, media formats, thematic coverage, etc. See chapter 6 for guidance on how to\
  establish links to archival databases and/or detailed descriptions of the holdings. (5.3.7)
 
-isdiah.findingAids=Finding Aids, Guides, and Publication
-isdiah.findingAids.description=To provide a general overview of the published and/or\
+repository.findingAids=Finding Aids, Guides, and Publication
+repository.findingAids.description=To provide a general overview of the published and/or\
   unpublished finding aids and guides prepared by the institution with archival \
   holdings and any other relevant publications.\n\n\
 Record the title and other pertinent details of the published and/or unpublished finding\
@@ -473,37 +478,37 @@ Record the title and other pertinent details of the published and/or unpublished
  guidance on how to establish links to online archival catalogues and/or finding aids. (5.3.8)
 
 # Access
-isdiah.accessArea=Access Area
-isdiah.accessArea.description=
+repository.accessArea=Access Area
+repository.accessArea.description=
 
-isdiah.openingTimes=Opening Times
-isdiah.openingTimes.description=To provide information on opening times and dates of annual closures.\n\n\
+repository.openingTimes=Opening Times
+repository.openingTimes.description=To provide information on opening times and dates of annual closures.\n\n\
 Record the opening hours of the institution with archival holdings and annual,\
   seasonal and public holidays, and any other planned closures. Record times\
   associated with the availability and/or delivery of services (for example, exhibition\
   spaces, reference services, etc.). (5.4.1)
 
-isdiah.conditions=Conditions of Access
-isdiah.conditions.description=To provide information about the conditions, requirements\
+repository.conditions=Conditions of Access
+repository.conditions.description=To provide information about the conditions, requirements\
   and procedures for access to, and use of institutional services.\n\n\
 Describe access policies, including any restrictions and/or regulations for the use of\
  materials and facilities. Record information about registration, appointments, readers?\
  tickets, letters of introduction, admission fees, etc. Where appropriate, make reference\
  to the relevant legislation. (5.4.2)
 
-isdiah.accessibility=Accessibility
-isdiah.accessibility.description=To provide accessibility information related to the\
+repository.accessibility=Accessibility
+repository.accessibility.description=To provide accessibility information related to the\
   institution with archival holdings and its services.\n\n\
 Record information about travelling to the institution with archival holdings and\
  details for users with disabilities, including building features, specialised equipment\
  or tools, parking or lifts. (5.4.3)
 
 # Services
-isdiah.servicesArea=Services Area
-isdiah.servicesArea.description=
+repository.servicesArea=Services Area
+repository.servicesArea.description=
 
-isdiah.researchServices=Research Services
-isdiah.researchServices.description=To describe the research services provided by the\
+repository.researchServices=Research Services
+repository.researchServices.description=To describe the research services provided by the\
   institution with archival holdings.\n\n\
 Record information about the onsite services provided by the institution with archival\
  holdings such as languages spoken by staff, research and consultation rooms, enquiry\
@@ -512,25 +517,25 @@ Record information about the onsite services provided by the institution with ar
  undertaken by the institution with archival holdings, and the fee charge if applicable. (5.5.1)
 
 
-isdiah.reproductionServices=Reproduction Services
-isdiah.reproductionServices.description=To provide information about reproduction services.\n\n\
+repository.reproductionServices=Reproduction Services
+repository.reproductionServices.description=To provide information about reproduction services.\n\n\
 Record information about reproduction services available to the public (microfilms,\
  photocopies, photographs, digitised copies). Specify general conditions and\
  restrictions to the services, including applicable fees and publication rules. (5.5.2)
 
-isdiah.publicAreas=Public Areas
-isdiah.publicAreas.description=To provide information about areas of the institution\
+repository.publicAreas=Public Areas
+repository.publicAreas.description=To provide information about areas of the institution\
   available for public use.\n\n\
 Record information about spaces available for public use (permanent or temporary\
  exhibitions, free or charged internet connection, cash machines, cafeterias, restaurants,\
  shops, etc.). (5.5.3)
 
 # Control
-isdiah.controlArea=Control Area
-isdiah.controlArea.description=
+repository.controlArea=Control Area
+repository.controlArea.description=
 
-isdiah.descriptionIdentifier=Description Identifier
-isdiah.descriptionIdentifier.description=To identify the description of the institution with \
+repository.descriptionIdentifier=Description Identifier
+repository.descriptionIdentifier.description=To identify the description of the institution with \
   archival holdings uniquely within the context in which it will be used.\n\n\
 Record a unique description identifier in accordance with local and/or national\
  conventions. If the description is to be used internationally, record the code of the\
@@ -539,28 +544,28 @@ Record a unique description identifier in accordance with local and/or national\
  the description is an international organisation, give the organisational identifier in\
  place of the country code. (5.6.1)
 
-isdiah.institutionIdentifier=Institution Identifier
-isdiah.institutionIdentifier.description=To identify the agency(ies) responsible for the description.\n\n\
+repository.institutionIdentifier=Institution Identifier
+repository.institutionIdentifier.description=To identify the agency(ies) responsible for the description.\n\n\
 Record the full authorised form of name(s) of the agency(ies) responsible for creating,\
  modifying or disseminating the description or, alternatively, record a code for the\
  agency in accordance with the national or international agency code standard. (5.6.2)
 
-isdiah.rulesAndConventions=Rules and Conventions
-isdiah.rulesAndConventions.description=To identify the national or international conventions\
+repository.rulesAndConventions=Rules and Conventions
+repository.rulesAndConventions.description=To identify the national or international conventions\
   or rules applied in creating the description.\n\n\
 Record the names, and, where useful, the editions or publication dates of the\
  conventions or rules applied. Specify, separately, which rules have been applied for\
  creating the Authorised form(s) of name. Include reference to any system(s) of dating\
  used to identify dates in this description (e.g. ISO 8601). (5.6.3)
 
-isdiah.status=Status
-isdiah.status.description=To indicate the drafting status of the description so \
+repository.status=Status
+repository.status.description=To indicate the drafting status of the description so \
   that users can understand the current status of the description.\n\n\
 Record the current status of the description, indicating whether it is a draft, finalized\
  and/or revised or deleted. (5.6.4)
 
-isdiah.levelOfDetail=Level of Detail
-isdiah.levelOfDetail.description=To indicate whether the description applies a minimal,\
+repository.levelOfDetail=Level of Detail
+repository.levelOfDetail.description=To indicate whether the description applies a minimal,\
   partial or a full level of detail.\n\n\
 Record whether the description consists of a minimal, partial or full level of detail in\
  accordance with relevant international and/or national guidelines and/or rules. In the\
@@ -569,25 +574,24 @@ Record whether the description consists of a minimal, partial or full level of d
  while full descriptions are those that convey information for all relevant ISDIAH\
  elements of description. (5.6.5)
 
-isdiah.datesCVD=Dates of Creation and Deletion
-isdiah.datesCVD.description=To indicate when this description was created, revised or deleted.\n\n\
+repository.datesCVD=Dates of Creation and Deletion
+repository.datesCVD.description=To indicate when this description was created, revised or deleted.\n\n\
 Record the date the description was created and the dates of any revisions to the\
  description. Specify in the Rules and/or conventions used element (5.6.3) the\
  system(s) of dating used, e.g. ISO 8601. (5.6.6)
 
-isdiah.languages=Languages Used
-isdiah.scripts=Scripts Used
+repository.languages=Languages Used
+repository.scripts=Scripts Used
 
-isdiah.sources=Sources
-isdiah.sources.description=To indicate the sources consulted in creating the description\
+repository.sources=Sources
+repository.sources.description=To indicate the sources consulted in creating the description\
   of the institution with archival holdings.\n\n\
 Record the sources consulted in establishing the description of the institution with\
  archival holdings. (5.6.8)
 
-isdiah.maintenanceNotes=Maintenance Notes
-isdiah.maintenanceNotes.description=To document additional information relating to the\
+repository.maintenanceNotes=Maintenance Notes
+repository.maintenanceNotes.description=To document additional information relating to the\
   creation of and changes to the description.\n\n\
 Record notes pertinent to the creation and maintenance of the description. For\
  example, the names of persons responsible for creating and/or revising the description\
  may be recorded here. (5.6.9)
-

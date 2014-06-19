@@ -40,7 +40,8 @@ package object testjson {
             "identifier" : "GB 1556 WL 760",
             "appraisal" : "",
             "publicationDate" : "",
-            "locationOfCopies" : ""
+            "locationOfCopies" : "",
+            "provenance": "test"
           },
           "type" : "documentDescription",
           "relationships" : {
@@ -647,4 +648,12 @@ package object testjson {
         }
       }
     """
+
+  val contentTypeTestJson = """
+  {
+    "id" : "documentaryUnit",
+    "data" : { },
+    "type" : "contentType",
+    "relationships" : { }
+  }"""
 }

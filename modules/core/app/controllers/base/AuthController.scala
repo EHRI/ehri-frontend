@@ -8,11 +8,12 @@ import play.api.mvc._
 import play.api.i18n.Lang
 import jp.t2v.lab.play2.auth.AsyncAuth
 import play.api.libs.concurrent.Execution.Implicits._
-import defines.EntityType
+import utils.renderError
 import defines.PermissionType
 import defines.ContentTypes
 import backend.{ApiUser, Backend}
 import backend.rest.{ItemNotFound,PermissionDenied}
+import views.html.errors.itemNotFound
 
 /**
  * Trait containing composable Action wrappers to handle different
@@ -77,10 +78,10 @@ trait AuthController extends Controller with ControllerHelpers with AsyncAuth wi
       optionalUserAction.async[A](bodyParser) { implicit maybeAccount => implicit request =>
         maybeAccount.map { account =>
           if (staffOnly && secured && !account.staff) {
-            immediate(Unauthorized(utils.renderError("errors.staffOnly",
+            immediate(Unauthorized(renderError("errors.staffOnly",
               views.html.errors.staffOnly())))
           } else if (verifiedOnly && secured && !account.verified) {
-            immediate(Unauthorized(utils.renderError("errors.verifiedOnly",
+            immediate(Unauthorized(renderError("errors.verifiedOnly",
               views.html.errors.verifiedOnly())))
           } else {
             // For the permissions to be properly initialized they must
@@ -145,9 +146,9 @@ trait AuthController extends Controller with ControllerHelpers with AsyncAuth wi
    *    - the item permissions for that user
    */
   object itemPermissionAction {
-    def async[MT](contentType: ContentTypes.Value, id: String)(f: MT => Option[UserProfile] => Request[AnyContent] => Future[SimpleResult])(
-        implicit rs: RestResource[MT], rd: RestReadable[MT]): Action[AnyContent] = {
-      userProfileAction.async { implicit userOpt => implicit request =>
+    def async[A,MT](bodyParser: BodyParser[A], contentType: ContentTypes.Value, id: String)(f: MT => Option[UserProfile] => Request[A] => Future[SimpleResult])(
+        implicit rs: RestResource[MT], rd: RestReadable[MT]): Action[A] = {
+      userProfileAction.async(bodyParser = bodyParser) { implicit userOpt => implicit request =>
         userOpt.map { user =>
 
           // NB: We have to re-fetch the global perms here because they need to be
@@ -169,10 +170,17 @@ trait AuthController extends Controller with ControllerHelpers with AsyncAuth wi
       }
     }
 
+    def async[MT](contentType: ContentTypes.Value, id: String)(f: MT => Option[UserProfile] => Request[AnyContent] => Future[SimpleResult])(
+      implicit rs: RestResource[MT], rd: RestReadable[MT]): Action[AnyContent] =
+      async(BodyParsers.parse.anyContent, contentType, id)(f)
+
     def apply[MT](contentType: ContentTypes.Value, id: String)(f: MT => Option[UserProfile] => Request[AnyContent] => SimpleResult)(
-        implicit rs: RestResource[MT], rd: RestReadable[MT]): Action[AnyContent] = {
+        implicit rs: RestResource[MT], rd: RestReadable[MT]): Action[AnyContent] =
       async(contentType, id)(f.andThen(_.andThen(_.andThen(t => Future.successful(t)))))
-    }
+
+    def apply[A, MT](bodyParser: BodyParser[A], contentType: ContentTypes.Value, id: String)(f: MT => Option[UserProfile] => Request[AnyContent] => SimpleResult)(
+      implicit rs: RestResource[MT], rd: RestReadable[MT]): Action[AnyContent] =
+      async(BodyParsers.parse.anyContent, contentType, id)(f.andThen(_.andThen(_.andThen(t => Future.successful(t)))))
   }
 
   /**
@@ -226,9 +234,9 @@ trait AuthController extends Controller with ControllerHelpers with AsyncAuth wi
    * and return an action with the user in scope.
    */
   object withItemPermission {
-    def async[MT](id: String, perm: PermissionType.Value, contentType: ContentTypes.Value, permContentType: Option[ContentTypes.Value] = None)(
-        f: MT => Option[UserProfile] => Request[AnyContent] => Future[SimpleResult])(implicit rs: RestResource[MT], rd: RestReadable[MT]): Action[AnyContent] = {
-      itemPermissionAction.async[MT](contentType, id) { entity => implicit maybeUser => implicit request =>
+    def async[A,MT](bodyParser: BodyParser[A], id: String, perm: PermissionType.Value, contentType: ContentTypes.Value, permContentType: Option[ContentTypes.Value] = None)(
+        f: MT => Option[UserProfile] => Request[A] => Future[SimpleResult])(implicit rs: RestResource[MT], rd: RestReadable[MT]): Action[A] = {
+      itemPermissionAction.async[A,MT](bodyParser, contentType, id) { entity => implicit maybeUser => implicit request =>
         maybeUser.flatMap { user =>
           if (user.hasPermission(permContentType.getOrElse(contentType), perm)) Some(f(entity)(maybeUser)(request))
           else None
@@ -238,10 +246,18 @@ trait AuthController extends Controller with ControllerHelpers with AsyncAuth wi
       }
     }
 
+    def async[MT](id: String, perm: PermissionType.Value, contentType: ContentTypes.Value, permContentType: Option[ContentTypes.Value] = None)(
+        f: MT => Option[UserProfile] => Request[AnyContent] => Future[SimpleResult])(implicit rs: RestResource[MT], rd: RestReadable[MT]): Action[AnyContent] =
+      async(BodyParsers.parse.anyContent, id, perm, contentType, permContentType)(f)
+
+    def apply[A,MT](bodyParser: BodyParser[A], id: String, perm: PermissionType.Value, contentType: ContentTypes.Value, permContentType: Option[ContentTypes.Value] = None)(
+      f: MT => Option[UserProfile] => Request[A] => SimpleResult)(implicit rs: RestResource[MT], rd: RestReadable[MT]): Action[A] =
+      async(bodyParser, id, perm, contentType, permContentType)(f.andThen(_.andThen(_.andThen(t => Future.successful(t)))))
+
     def apply[MT](id: String, perm: PermissionType.Value, contentType: ContentTypes.Value, permContentType: Option[ContentTypes.Value] = None)(
-        f: MT => Option[UserProfile] => Request[AnyContent] => SimpleResult)(implicit rs: RestResource[MT], rd: RestReadable[MT]): Action[AnyContent] = {
-      async(id, perm, contentType, permContentType)(f.andThen(_.andThen(_.andThen(t => Future.successful(t)))))
-    }
+      f: MT => Option[UserProfile] => Request[AnyContent] => SimpleResult)(implicit rs: RestResource[MT], rd: RestReadable[MT]): Action[AnyContent] =
+      async(BodyParsers.parse.anyContent, id, perm, contentType, permContentType)(f.andThen(_.andThen(_.andThen(t => Future.successful(t)))))
+
   }
 
   /**
@@ -275,5 +291,20 @@ trait AuthController extends Controller with ControllerHelpers with AsyncAuth wi
       if (maybeUser.isDefined) f(maybeUser)(request)
       else authenticationFailed(request)
     }
+  }
+
+  /**
+   * Wrap some code generating an optional result, falling back to a 404.
+   */
+  def itemOr404(f: => Option[SimpleResult])(implicit request: RequestHeader): SimpleResult = {
+    f.getOrElse(NotFound(renderError("errors.itemNotFound", itemNotFound())))
+  }
+
+  /**
+   * Given an optional item and a function to produce a
+   * result from it, run the function or fall back on a 404.
+   */
+  def itemOr404[T](item: Option[T])(f: => T => SimpleResult)(implicit request: RequestHeader): SimpleResult = {
+    item.map(f).getOrElse(NotFound(renderError("errors.itemNotFound", itemNotFound())))
   }
 }

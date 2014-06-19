@@ -10,6 +10,7 @@ import models.forms._
 import play.api.data.Form
 import play.api.data.Forms._
 import defines.EnumUtils._
+import models.Isdiah._
 
 case class IsadGIdentity(
   name: String,
@@ -56,7 +57,8 @@ case class IsadGMaterials(
 case class IsadGControl(
   archivistNote: Option[String] = None,
   rulesAndConventions: Option[String] = None,
-  datesOfDescriptions: Option[String] = None
+  datesOfDescriptions: Option[String] = None,
+  provenance: Option[String] = None
 )
 
 object DocumentaryUnitDescriptionF {
@@ -99,11 +101,13 @@ object DocumentaryUnitDescriptionF {
           NOTES -> d.notes,
           ARCHIVIST_NOTE -> d.control.archivistNote,
           RULES_CONVENTIONS -> d.control.rulesAndConventions,
-          DATES_DESCRIPTIONS -> d.control.datesOfDescriptions
+          DATES_DESCRIPTIONS -> d.control.datesOfDescriptions,
+          PROVENANCE -> d.control.provenance
         ),
         RELATIONSHIPS -> Json.obj(
           ENTITY_HAS_DATE -> Json.toJson(d.dates.map(Json.toJson(_)).toSeq),
           HAS_ACCESS_POINT -> Json.toJson(d.accessPoints.map(Json.toJson(_)).toSeq),
+          HAS_MAINTENANCE_EVENT -> Json.toJson(d.maintenanceEvents.map(Json.toJson(_)).toSeq),
           HAS_UNKNOWN_PROPERTY -> Json.toJson(d.unknownProperties.map(Json.toJson(_)).toSeq)
         )
       )
@@ -155,9 +159,11 @@ object DocumentaryUnitDescriptionF {
     (__ \ DATA).read[IsadGControl]((
       (__ \ ARCHIVIST_NOTE).readNullable[String] and
       (__ \ RULES_CONVENTIONS).readNullable[String] and
-      (__ \ DATES_DESCRIPTIONS).readNullable[String]
+      (__ \ DATES_DESCRIPTIONS).readNullable[String] and
+      (__ \ PROVENANCE).readNullable[String]
     )(IsadGControl.apply _)) and
     (__ \ RELATIONSHIPS \ HAS_ACCESS_POINT).nullableListReads[AccessPointF] and
+    (__ \ RELATIONSHIPS \ HAS_MAINTENANCE_EVENT).nullableListReads[Entity] and
     (__ \ RELATIONSHIPS \ HAS_UNKNOWN_PROPERTY).nullableListReads[Entity]
   )(DocumentaryUnitDescriptionF.apply _)
 
@@ -191,6 +197,7 @@ case class DocumentaryUnitDescriptionF(
   notes: Option[List[String]] = None,
   control: IsadGControl,
   accessPoints: List[AccessPointF] = Nil,
+  maintenanceEvents: List[Entity] = Nil,
   unknownProperties: List[Entity] = Nil
 ) extends Model with Persistable with Description with Temporal {
   import IsadG._
@@ -228,7 +235,8 @@ case class DocumentaryUnitDescriptionF(
     PUBLICATION_NOTE -> materials.publicationNote,
     ARCHIVIST_NOTE -> control.archivistNote,
     RULES_CONVENTIONS -> control.rulesAndConventions,
-    DATES_DESCRIPTIONS -> control.datesOfDescriptions
+    DATES_DESCRIPTIONS -> control.datesOfDescriptions,
+    PROVENANCE -> control.provenance
   )
 }
 
@@ -280,9 +288,11 @@ object DocumentaryUnitDescription {
       CONTROL_AREA -> mapping(
         ARCHIVIST_NOTE -> optional(text),
         RULES_CONVENTIONS -> optional(text),
-        DATES_DESCRIPTIONS -> optional(text)
+        DATES_DESCRIPTIONS -> optional(text),
+        PROVENANCE -> optional(text)
       )(IsadGControl.apply)(IsadGControl.unapply),
       ACCESS_POINTS -> list(AccessPoint.form.mapping),
+      MAINTENANCE_EVENTS -> list(entity),
       UNKNOWN_DATA -> list(entity)
     )(DocumentaryUnitDescriptionF.apply)(DocumentaryUnitDescriptionF.unapply)
   )

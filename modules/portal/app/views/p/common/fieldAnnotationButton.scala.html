@@ -1,0 +1,12 @@
+@(item: AnyModel, nodeId: String, key: String)(implicit userOpt: Option[UserProfile], request: RequestHeader, prefs: utils.SessionPrefs, globalConfig: global.GlobalConfig, lang: Lang)
+@userOpt.map { user =>
+	@item.contentType.map { ct =>
+	    @if(user.hasPermission(ct, PermissionType.Annotate)) {
+	        <div>
+		        	<a title="@Messages("portal.annotation.field.create")" data-item="@item.id" data-did="@nodeId" data-field="@key" data-target="@nodeId-@key" class="annotate-field inactive" href="@controllers.portal.routes.Annotations.annotateField(item.id, nodeId, key)">
+		        <span class="glyphicon glyphicon-edit"></span>
+		        </a>
+		    </div>
+	    }
+	}
+}

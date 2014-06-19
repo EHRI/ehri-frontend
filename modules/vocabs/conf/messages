@@ -1,45 +1,46 @@
 # Skos/Concept i18n definitions
 
-actions.updateConcept=Update Term
-actions.updateVocabulary=Update Vocabulary
-actions.linkToConcept=Link to a vocabulary term
-actions.listConcepts=Terms
-actions.listVocabularies=Vocabularies
-actions.createConcept=Create New Term
-actions.createVocabulary=Create New Vocabulary
-submitButton.createVocabulary=Create Vocabulary
-submitButton.createConcept=Create Term
-submitButton.updateVocabulary=Update Vocabulary
-submitButton.updateConcept=Update Term
-
 #
 # Vocabularies
 #
-cvocVocabulary.items=Concepts
 cvocVocabulary.identifier=Identifier
 cvocVocabulary.identifier.description=A short, lowercase, 1-word identifier
 cvocVocabulary.name=Name
 cvocVocabulary.name.description=A title-case display name for this vocabulary
-cvocVocabulary.description=Description
 cvocVocabulary.description.description=A description of this vocabulary''s purpose
-
+cvocVocabulary.description=Description
+cvocVocabulary.items=Search Terms
+cvocVocabulary.search=Search Vocabularies
+cvocVocabulary.list=Vocabularies
+cvocVocabulary.create=Create New Vocabulary
+cvocVocabulary.create.submit=Create Vocabulary
+cvocVocabulary.update=Update Vocabulary
+cvocVocabulary.update.submit=Update Vocabulary
 
 #
 # Concepts
 #
-concept.descriptions=Descriptions
-concept.languageCode=Language
-concept.name=Preferred Label
-concept.altLabel=Alt. Label(s)
-concept.scopeNote=Scope Note
-concept.definition=Definition
-concept.inVocabulary=Vocabulary
-concept.search=Search Terms
-concept.broaderTerms=Broader Terms
-concept.narrowerTerms=Narrower Terms
-concept.narrowerTermsPageHeader={2,choice,0#No narrower terms found|1#One narrower term found|1<Narrower terms {0,number,integer} to {1,number,integer} of {2,number,integer}}
-vocabulary.toplevelTermsPageHeader={2,choice,0#No top-level terms found|1#One top-level term found|1<Top-level terms {0,number,integer} to {1,number,integer} of {2,number,integer}}
-vocabulary.description=Description
-vocabulary.items=Search Terms
-vocabulary.search=Search Vocabularies
+cvocConcept.descriptions=Descriptions
+cvocConcept.languageCode=Language
+cvocConcept.name=Preferred Label
+cvocConcept.altLabel=Alt. Label(s)
+cvocConcept.scopeNote=Scope Note
+cvocConcept.definition=Definition
+cvocConcept.inVocabulary=Vocabulary
+cvocConcept.search=Search Terms
+cvocConcept.broaderTerms=Broader Terms
+cvocConcept.narrowerTerms=Narrower Terms
+cvocConcept.narrowerTermsPageHeader={2,choice,0#No narrower terms found|1#One narrower term found|1<Narrower terms {0,number,integer} to {1,number,integer} of {2,number,integer}}
+cvocConcept.createDescription=Add Concept Description
+cvocConcept.deleteDescription=Delete Description
+cvocConcept.list=Terms
+cvocConcept.create=Create New Term
+cvocConcept.create.submit=Create Term
+cvocConcept.update=Update Term
+cvocConcept.update.submit=Update Term
+cvocConcept.topLevel.create=Create Top-level Term
+cvocConcept.topLevel.list={2,choice,0#No top-level terms found|1#One top-level term found|1<Top-level terms {0,number,integer} to {1,number,integer} of {2,number,integer}}
+cvocConcept.narrower.create=Create Narrower Term
+
+
 

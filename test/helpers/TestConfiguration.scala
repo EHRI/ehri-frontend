@@ -104,7 +104,7 @@ trait TestConfiguration {
    */
   def fakeApplication(additionalConfiguration: Map[String, Any] = Map(), global: => GlobalSettings = getGlobal) = {
     FakeApplication(
-      additionalConfiguration = additionalConfiguration ++ getConfig,
+      additionalConfiguration = getConfig ++ additionalConfiguration,
       additionalPlugins = getPlugins,
       withGlobal = Some(global)
     )

@@ -2,9 +2,7 @@ package controllers.annotation
 
 import defines.ContentTypes
 import models.{AccountDAO, Annotation}
-import play.api.i18n.Messages
 import com.google.inject._
-import global.GlobalConfig
 import controllers.generic.{Annotate, Delete, Read, Visibility}
 import backend.Backend
 
@@ -27,17 +25,15 @@ case class Annotations @Inject()(implicit globalConfig: global.GlobalConfig, bac
     Ok(views.html.systemEvents.itemList(item, page, params))
   }
 
-  def visibility(id: String) = visibilityAction(id) { item => users => groups => implicit userOpt =>
-    implicit request =>
-      Ok(views.html.permissions.visibility(item,
-        forms.VisibilityForm.form.fill(item.accessors.map(_.id)),
-        users, groups, controllers.annotation.routes.Annotations.visibilityPost(id)))
+  def visibility(id: String) = visibilityAction(id) { item => users => groups => implicit userOpt => implicit request =>
+    Ok(views.html.permissions.visibility(item,
+      forms.VisibilityForm.form.fill(item.accessors.map(_.id)),
+      users, groups, controllers.annotation.routes.Annotations.visibilityPost(id)))
   }
 
-  def visibilityPost(id: String) = visibilityPostAction(id) { ok => implicit userOpt =>
-    implicit request =>
-      Redirect(controllers.annotation.routes.Annotations.get(id))
-        .flashing("success" -> Messages("confirmations.itemWasUpdated", id))
+  def visibilityPost(id: String) = visibilityPostAction(id) { ok => implicit userOpt => implicit request =>
+    Redirect(controllers.annotation.routes.Annotations.get(id))
+      .flashing("success" -> "item.update.confirmation")
   }
 
   def delete(id: String) = deleteAction(id) { item => implicit userOpt => implicit request =>
@@ -48,9 +44,9 @@ case class Annotations @Inject()(implicit globalConfig: global.GlobalConfig, bac
 
   def deletePost(id: String, redirect: Option[String] = None) = deletePostAction(id) {
       ok => implicit userOpt => implicit request =>
-    Redirect(redirect.map(r => controllers.core.routes.Application.get(r))
+    Redirect(redirect.map(r => controllers.admin.routes.Admin.get(r))
         .getOrElse(globalConfig.routeRegistry.default))
-        .flashing("success" -> Messages("confirmations.itemWasDeleted", id))
+        .flashing("success" -> "item.delete.confirmation")
   }
 
   def promote(id: String) = promoteAction(id) { item => implicit userOpt => implicit request =>
@@ -59,7 +55,7 @@ case class Annotations @Inject()(implicit globalConfig: global.GlobalConfig, bac
 
   def promotePost(id: String) = promotePostAction(id) { item => bool => implicit userOpt => implicit request =>
     Redirect(controllers.annotation.routes.Annotations.get(id))
-      .flashing("success" -> Messages("confirmations.itemWasPromoted"))
+      .flashing("success" -> "item.promote.confirmation")
   }
 
   def demote(id: String) = demoteAction(id) { item => implicit userOpt => implicit request =>
@@ -69,6 +65,6 @@ case class Annotations @Inject()(implicit globalConfig: global.GlobalConfig, bac
 
   def demotePost(id: String) = demotePostAction(id) { item => bool => implicit userOpt => implicit request =>
     Redirect(controllers.annotation.routes.Annotations.get(id))
-      .flashing("success" -> Messages("confirmations.itemWasDemoted"))
+      .flashing("success" -> "item.demote.confirmation")
   }
 }

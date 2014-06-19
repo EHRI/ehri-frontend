@@ -1,7 +1,7 @@
 
 .facet-list li a {
   color: #666;
-  font-weight: bold;
+  font-size: 0.9em;
 }
 
 .facet-list li.selected-filter {
@@ -10,6 +10,9 @@
 }
 
 .selected-facet {
+  margin-right: @small-margin;
+  padding: @small-padding;
+
   & {
     .make-btn-group(@btn-size: xs);
   }
@@ -26,14 +29,30 @@
       color:@pale-gray;
     }
   }
-
 }
 
 /** child items */
-/* Highlight the current search sort */
 .child-count a {
   margin-top: @small-margin;
   color: @almost-black;
   font-weight: lighter;
   .highlight-glow();
 }
+
+.search-sort {
+  margin-top: @medium-margin;
+}
+
+.search-summary {
+  margin-top: @medium-margin;
+  font-size: 1.3em;
+  line-height: 1.1;
+  font-weight: 500;
+}
+
+/* Highlight the current search sort */
+.current-search-sort {
+  text-decoration: underline;
+  text-shadow: rgba(82, 168, 236, 0.8) 0 0 10px;
+}
+

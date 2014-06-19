@@ -1,13 +1,14 @@
-@(item: Repository, annotations: Seq[Annotation], links: List[Link], watched: Boolean)(implicit userOpt: Option[UserProfile], req: RequestHeader, prefs: utils.SessionPrefs, globalConfig: global.GlobalConfig, lang: Lang, flash: Flash)
+@(item: Repository, annotations: Seq[Annotation], links: List[Link], watched: List[models.base.AnyModel])(implicit userOpt: Option[UserProfile], req: RequestHeader, prefs: utils.SessionPrefs, globalConfig: global.GlobalConfig, lang: Lang, flash: Flash)
 
-@defining(Isdiah.FIELD_PREFIX) { implicit fieldPrefix =>
-    @p.common.descriptionContainer(item.model.descriptions) {
+@defining(EntityType.Repository.toString) { implicit fieldPrefix =>
+    @views.html.layout.descriptionContainer(item.model.descriptions) {
         @item.model.descriptions.map { desc =>
             @renderDescription(item, desc, links, annotations)
         }
     } {
         @item.model.logoUrl.map { logo =>
-            @defining(item.url.getOrElse(new java.net.URL(req.path))) { url =>
+            @* FIXME: Horrid hack here... *@
+            @defining(item.url.getOrElse(new java.net.URL("http://" + req.host + req.uri))) { url =>
                 <a href="@url">
                     <img class="repository-logo" src="@logo" alt="@item.toStringLang" />
                 </a>

@@ -162,7 +162,7 @@ case class SolrQueryBuilder(writerType: WriterType, debugQuery: Boolean = false)
    * Run a simple filter on the name_ngram field of all entities
    * of a given type.
    */
-  def simpleFilter(params: SearchParams, filters: Map[String,Any] = Map.empty, alphabetical: Boolean = false)(
+  def simpleFilter(params: SearchParams, filters: Map[String,Any] = Map.empty, extra: Map[String,Any] = Map.empty, alphabetical: Boolean = false)(
       implicit userOpt: Option[UserProfile]): QueryRequest = {
 
     val excludeIds = params.excludes.toList.flatten.map(id => s" -$ITEM_ID:$id").mkString
@@ -173,7 +173,7 @@ case class SolrQueryBuilder(writerType: WriterType, debugQuery: Boolean = false)
     applyAccessFilter(req, userOpt)
     setGrouping(req)
     req.set("qf", s"$NAME_MATCH^2.0 $NAME_NGRAM")
-    req.setFieldsToReturn(FieldsToReturn(s"$ID $ITEM_ID $NAME_EXACT $TYPE $DB_ID"))
+    req.setFieldsToReturn(FieldsToReturn(s"$ID $ITEM_ID $NAME_EXACT $TYPE $HOLDER_NAME $DB_ID"))
     if (alphabetical) req.setSort(Sort(s"$NAME_SORT asc"))
     req.setQueryParserType(QueryParserType("edismax"))
 
@@ -185,6 +185,10 @@ case class SolrQueryBuilder(writerType: WriterType, debugQuery: Boolean = false)
     req.setMaximumRowsReturned(MaximumRowsReturned(limit))
     req.setWriterType(writerType)
 
+    extra.map { case (key, value) =>
+      req.set(key, value)
+    }
+
     req
   }
 
@@ -192,8 +196,10 @@ case class SolrQueryBuilder(writerType: WriterType, debugQuery: Boolean = false)
   /**
    * Build a query given a set of search parameters.
    */
-  def search(params: SearchParams, facets: List[AppliedFacet], allFacets: FacetClassList, filters: Map[String,Any] = Map.empty,
-              mode: SearchMode.Value = SearchMode.DefaultAll)(
+  def search(params: SearchParams, facets: List[AppliedFacet], allFacets: FacetClassList,
+             filters: Map[String,Any] = Map.empty,
+             extra: Map[String,Any] = Map.empty,
+             mode: SearchMode.Value = SearchMode.DefaultAll)(
       implicit userOpt: Option[UserProfile]): QueryRequest = {
 
     val excludeIds = params.excludes.toList.flatten.map(id => s" -$ITEM_ID:$id").mkString
@@ -247,10 +253,15 @@ case class SolrQueryBuilder(writerType: WriterType, debugQuery: Boolean = false)
     }
 
     // Mmmn, speckcheck
-    // TODO: Add quality params here...
     req.set("spellcheck", "true")
+    req.set("spellcheck.count", "10")
     req.set("spellcheck.q", queryString)
     req.set("spellcheck.extendedResults", "true")
+    req.set("spellcheck.accuracy", "0.6")
+    req.set("spellcheck.onlyMorePopular", "true")
+    req.set("spellcheck.collate", "true")
+    req.set("spellcheck.maxCollations", "10")
+    req.set("spellcheck.maxCollationTries", "10")
 
     // Facet the request accordingly
     constrain(req, facets, allFacets)
@@ -291,6 +302,10 @@ case class SolrQueryBuilder(writerType: WriterType, debugQuery: Boolean = false)
 
     // Set JSON writer type!
     req.setWriterType(writerType)
+
+    extra.map { case (key, value) =>
+      req.set(key, value)
+    }
 
     req
   }

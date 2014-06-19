@@ -20,16 +20,14 @@
         <ul class="nav">
             @userOpt.map { currentUser =>
                 @if(currentUser.id == user.id) {
-                    @if(profilePage == true) {
+                    @if(profilePage) {
                         <li><a href="@controllers.portal.routes.Social.browseUser(user.id)"><i class="glyphicon glyphicon-list"></i> @Messages("portal.activity")</a></li>
-                        <li class="@(if(activeTab == "0") "active")"><a href="#user-watch-list" data-tabidx="0" data-toggle="tab"><span class="glyphicon glyphicon-star"></span> @Messages("portal.social.watchedItems")</a></li>
-                        <li class="@(if(activeTab == "1") "active")"><a href="#user-annotations" data-tabidx="1" data-toggle="tab"><span class="glyphicon glyphicon-edit"></span> @Messages("portal.social.annotations")</a></li>
-                        <li class="@(if(activeTab == "2") "active")"><a href="#user-links" data-tabidx="2" data-toggle="tab"><span class="glyphicon glyphicon-link"></span> @Messages("portal.social.links")</a></li>
+                        <li class="@(if(activeTab == "0") "active")"><a href="#user-watch-list" data-tabidx="0" data-toggle="tab"><span class="glyphicon glyphicon-star"></span> @Messages("portal.profile.watch.list")</a></li>
+                        <li class="@(if(activeTab == "1") "active")"><a href="#user-annotations" data-tabidx="1" data-toggle="tab"><span class="glyphicon glyphicon-edit"></span> @Messages("portal.annotation.list")</a></li>
                     } else {
                         <li class="active"><a href="@controllers.portal.routes.Social.browseUser(user.id)"><i class="glyphicon glyphicon-list"></i> @Messages("portal.activity")</a></li>
-                        <li><a href="@controllers.portal.routes.Profile.profile?tab=0"><span class="glyphicon glyphicon-star"></span> @Messages("portal.social.watchedItems")</a></li>
-                        <li><a href="@controllers.portal.routes.Profile.profile?tab=1"><span class="glyphicon glyphicon-edit"></span> @Messages("portal.social.annotations")</a></li>
-                        <li><a href="@controllers.portal.routes.Profile.profile?tab=2"><span class="glyphicon glyphicon-link"></span> @Messages("portal.social.links")</a></li>
+                        <li><a href="@controllers.portal.routes.Profile.profile?tab=0"><span class="glyphicon glyphicon-star"></span> @Messages("portal.profile.watch.list")</a></li>
+                        <li><a href="@controllers.portal.routes.Profile.profile?tab=1"><span class="glyphicon glyphicon-edit"></span> @Messages("portal.annotation.list")</a></li>
                     }
                 } else {
                     <li><a href="@controllers.portal.routes.Social.browseUser(user.id)"><i class="glyphicon glyphicon-list"></i> @Messages("portal.activity")</a></li>

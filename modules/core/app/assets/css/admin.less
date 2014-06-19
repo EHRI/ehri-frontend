@@ -24,7 +24,7 @@
 @import "./bootstrap/_input-groups.less";
 @import "./bootstrap/_navs.less";
 @import "./bootstrap/_navbar.less";
-@import "./bootstrap/_breadcrumbs.less";
+//@import "./bootstrap/_breadcrumbs.less";
 @import "./bootstrap/_pagination.less";
   //@import "./bootstrap/_pager.less";
 @import "./bootstrap/_labels.less";
@@ -50,14 +50,27 @@
   // --> Bootstrap
 @import "./_chosen.less";
   //EHRI
+@import "./ehri/_variables.less";
+
+// Override @max-body-width for admin pages
+@max-body-width: 1600px;
+
 @import "./ehri/_navbar.less";
 @import "./ehri/_descriptions.less";
 @import "./ehri/_layout.less";
+@import "./ehri/_layouts.less";
 @import "./ehri/_buttons.less";
 @import "./ehri/_login.less";
 @import "./ehri/_search.less";
 @import "./ehri/_sidebar.less";
+@import "./ehri/_responsive.less";
 @import "./ehri/_markdown.less";
+@import "./ehri/_quiet.less";
+@import "./ehri/_visibility.less";
+@import "./ehri/_searchbar.less";
+@import "./ehri/_panels.less";
+@import "./ehri/_breadcrumb.less";
+
   //Zocial
 @import "./icons/_zocial.less";
   //Select2

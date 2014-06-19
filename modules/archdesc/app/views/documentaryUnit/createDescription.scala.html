@@ -3,16 +3,16 @@
  
 @implicitField = @{ views.html.helper.FieldConstructor(formHelpers.fieldTemplate.f) }
 
-@layout.rightSidebar(Messages("actions.createDescription"), breadcrumbs = documentaryUnit.breadcrumbs(item), scripts = formHelpers.dateJs()) {
+@layout.rightSidebar(Messages("describedEntity.createDescription"), breadcrumbs = documentaryUnit.breadcrumbs(item), scripts = formHelpers.dateJs()) {
 
-    @defining(IsadG.FIELD_PREFIX) { implicit fieldPrefix =>
+    @defining(EntityType.DocumentaryUnit.toString) { implicit fieldPrefix =>
         @helper.form(action = action, 'class -> "entity-form form-horizontal") {
             @formHelpers.csrfToken()
             @defining(defaults) { implicit defs =>
                 @documentaryUnit.renderDescriptionForm(f(""))
             }
 
-            @formHelpers.submitButtonWithLogMessageInput(Messages("submitButton.createDescription"), cancel = Some(globalConfig.routeRegistry.urlFor(item)))
+            @formHelpers.submitButtonWithLogMessageInput(Messages("describedEntity.createDescription.submit"), cancel = views.Helpers.linkToOpt(item))
         }
     }
 } {

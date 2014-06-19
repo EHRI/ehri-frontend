@@ -16,14 +16,14 @@
 
         @userOpt.map { user =>
             @if(item.promotors.exists(p => p.id == user.id)) {
-                <p><small><a href="@demoteUrl">@Messages("actions.demote")</a></small></p>
+                <p><small><a href="@demoteUrl">@Messages("item.demote")</a></small></p>
             } else {
                 @if(user.hasPermission(contentType, PermissionType.Promote)) {
                     <h4>
                         <i class="glyphicon glyphicon-star"></i>
                         @Messages("visibility.notPromoted")
                     </h4>
-                    <p><small><a href="@promoteUrl">@Messages("actions.promote")</a></small></p>
+                    <p><small><a href="@promoteUrl">@Messages("item.promote")</a></small></p>
                 }
             }
         }

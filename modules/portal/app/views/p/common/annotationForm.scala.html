@@ -8,27 +8,27 @@
 
 <div class="form-group markdown">
     <textarea autofocus required class="form-control" name="@BODY"
-        placeholder="@Messages("portal.social.annotation.placeholder")">@f(BODY).value</textarea>
+        placeholder="@Messages("portal.annotation.placeholder")">@f(BODY).value</textarea>
 
     <div class="markdown-helper" title="@Messages("mdCheatsheet.title")">@Messages("mdCheatsheet.title")</div>
     @common.markdownCheatsheet()
 </div>
 <div class="form-group" style="display:none;">
-    <label class="col-sm-5 control-label">@Messages("portal.contributionVisibility")</label>
+    <label class="col-sm-5 control-label">@Messages("portal.contribution.visibility")</label>
 
     <div class="col-sm-7">
         <div id="@PARAM">
             <label for="@(PARAM)_@(Me)" class="radio-inline">
                 <input class="visibility" type="radio" id="@(PARAM)_@(Me)" name="@PARAM" value="@Me" @{if(visForm.value == Some(Me)) "checked"}>
-                @Messages("portal.contributionVisibility.me")
+                @Messages("portal.contribution.visibility.me")
             </label>
             <label for="@(PARAM)_@(Groups)" class="radio-inline">
                 <input class="visibility" type="radio" id="@(PARAM)_@(Groups)" name="@PARAM" value="@Groups" @{if(visForm.value == Some(Groups)) "checked"}>
-                @Messages("portal.contributionVisibility.groups")
+                @Messages("portal.contribution.visibility.groups")
             </label>
             <label for="@(PARAM)_@(Custom)" class="radio-inline">
                 <input class="visibility" type="radio" id="@(PARAM)_@(Custom)" name="@PARAM" value="@Custom" @{if(visForm.value == Some(Custom)) "checked"}>
-                @Messages("portal.contributionVisibility.custom")
+                @Messages("portal.contribution.visibility.custom")
             </label>
 
         </div>

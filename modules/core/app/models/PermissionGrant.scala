@@ -50,7 +50,7 @@ object PermissionGrant {
   private implicit val userProfileMetaReads = models.UserProfile.Converter.restReads
 
   implicit val metaReads: Reads[PermissionGrant] = (
-    __.read[PermissionGrantF] and
+    __.read(permissionGrantReads) and
     (__ \ RELATIONSHIPS \ PERMISSION_GRANT_HAS_SUBJECT).lazyNullableHeadReads(Accessor.Converter.restReads) and
     (__ \ RELATIONSHIPS \ PERMISSION_GRANT_HAS_TARGET).lazyNullableListReads(AnyModel.Converter.restReads) and
     (__ \ RELATIONSHIPS \ PERMISSION_GRANT_HAS_SCOPE).lazyNullableHeadReads(AnyModel.Converter.restReads) and

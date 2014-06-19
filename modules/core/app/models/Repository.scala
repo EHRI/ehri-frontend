@@ -15,6 +15,7 @@ import java.net.URL
 import play.api.data.Form
 import play.api.data.Forms._
 import play.api.libs.json.JsObject
+import play.api.i18n.Lang
 
 
 object RepositoryF {
@@ -86,16 +87,25 @@ case class RepositoryF(
   with Described[RepositoryDescriptionF]
 
 case class Repository(
-                       model: RepositoryF,
-                       country: Option[Country] = None,
-                       accessors: List[Accessor] = Nil,
-                       latestEvent: Option[SystemEvent] = None,
-                       meta: JsObject = JsObject(Seq())
-                       ) extends AnyModel
-with MetaModel[RepositoryF]
-with DescribedMeta[RepositoryDescriptionF,RepositoryF]
-with Accessible
-with Holder[DocumentaryUnit] {
+  model: RepositoryF,
+  country: Option[Country] = None,
+  accessors: List[Accessor] = Nil,
+  latestEvent: Option[SystemEvent] = None,
+  meta: JsObject = JsObject(Seq())
+) extends AnyModel
+  with MetaModel[RepositoryF]
+  with Aliased
+  with DescribedMeta[RepositoryDescriptionF,RepositoryF]
+  with Accessible
+  with Holder[DocumentaryUnit] {
+
+  override def allNames(implicit lang: Lang) = model.primaryDescription(lang) match {
+    case Some(desc) => desc.name :: (desc.otherFormsOfName.toList.flatten ++ desc.parallelFormsOfName.toList.flatten)
+    case None => Seq(toStringLang(lang))
+  }
+
+  override def toStringAbbr(implicit lang: Lang): String =
+    allNames.reduceLeft( (a, b) => if (a.length < b.length) a else b)
 
   def url: Option[URL] = (for {
     desc <- descriptions

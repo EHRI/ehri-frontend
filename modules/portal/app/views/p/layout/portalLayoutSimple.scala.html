@@ -3,19 +3,11 @@
 <!DOCTYPE html>
 
 <html lang="@lang.code">
-    <head>
-        <title>@title</title>
-        
-        <link href='http://fonts.googleapis.com/css?family=Lato:400,700' rel='stylesheet' type='text/css'>
-        <link rel="stylesheet" href="@controllers.core.routes.Assets.at("css/portal.min.css")">
-
-        @styles
-
-    </head>
+    @head(title, styles = styles)
     <body>
-        @p.layout.simpleHeader(itemClass)
         <div id="wrap">
-
+            @simpleHeader(itemClass)
+            @views.html.common.flash(flash)
             <div class="page-content">
                 @content
                 <div id="push"></div>
@@ -23,7 +15,7 @@
         </div>
         @p.layout.footer()
 
-        <script src="//ajax.googleapis.com/ajax/libs/jquery/1.10.2/jquery.min.js"></script>
+        <script src="//ajax.googleapis.com/ajax/libs/jquery/1.8.3/jquery.min.js"></script>
         <script src="@controllers.portal.routes.Assets.at("js/jquery.validate.min.js")"></script>
         <script src="@controllers.core.routes.Assets.at("bootstrap/js/bootstrap.min.js")"></script>
 

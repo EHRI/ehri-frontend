@@ -1,9 +1,9 @@
 @(user : UserProfile, additionalTitle : String = "")(controls: Html = Html(""))(implicit userOpt: Option[UserProfile], request: RequestHeader, prefs: utils.SessionPrefs, globalConfig: global.GlobalConfig, lang: Lang, flash: Flash)
 
 
-<div class="user-profile-bar">
+<nav class="info-bar user-profile-bar collapse navbar-collapse">
     @if(!controls.body.isEmpty) {
-        <div class="header-controls pull-right">
+        <div class="nav navbar-nav navbar-right">
             @controls
         </div>
     }
@@ -21,6 +21,7 @@
         } else {
             @user.model.name
         }
-    </a></h1>
-</div>
+        </a>
+    </h1>
+</nav>
 

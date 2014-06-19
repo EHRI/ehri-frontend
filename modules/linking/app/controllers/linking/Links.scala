@@ -3,12 +3,10 @@ package controllers.linking
 import defines.ContentTypes
 import forms.VisibilityForm
 import models.{AccountDAO, Link}
-import play.api.i18n.Messages
-
 import com.google.inject._
-import global.GlobalConfig
 import controllers.generic.{Annotate, Delete, Read, Visibility}
 import backend.Backend
+
 
 case class Links @Inject()(implicit globalConfig: global.GlobalConfig, backend: Backend, userDAO: AccountDAO) extends Read[Link]
   with Visibility[Link]
@@ -39,20 +37,20 @@ case class Links @Inject()(implicit globalConfig: global.GlobalConfig, backend: 
 
   def visibilityPost(id: String) = visibilityPostAction(id) { ok => implicit userOpt => implicit request =>
     Redirect(controllers.linking.routes.Links.get(id))
-        .flashing("success" -> Messages("confirmations.itemWasUpdated", id))
+        .flashing("success" -> "item.update.confirmation")
   }
 
   def delete(id: String, redirect: Option[String] = None) = deleteAction(id) { item => implicit userOpt => implicit request =>
     Ok(views.html.delete(
       item, controllers.linking.routes.Links.deletePost(id, redirect),
-        controllers.core.routes.Application.get(id)))
+        controllers.admin.routes.Admin.get(id)))
   }
 
   def deletePost(id: String, redirect: Option[String] = None) = deletePostAction(id) {
       ok => implicit userOpt => implicit request =>
-    Redirect(redirect.map(r => controllers.core.routes.Application.get(r))
+    Redirect(redirect.map(r => controllers.admin.routes.Admin.get(r))
         .getOrElse(globalConfig.routeRegistry.default))
-        .flashing("success" -> Messages("confirmations.itemWasDeleted", id))
+        .flashing("success" -> "item.delete.confirmation")
   }
 
 
@@ -62,7 +60,7 @@ case class Links @Inject()(implicit globalConfig: global.GlobalConfig, backend: 
 
   def promotePost(id: String) = promotePostAction(id) { item => bool => implicit userOpt => implicit request =>
     Redirect(controllers.linking.routes.Links.get(id))
-      .flashing("success" -> Messages("confirmations.itemWasPromoted"))
+      .flashing("success" -> "item.promote.confirmation")
   }
 
   def demote(id: String) = demoteAction(id) { item => implicit userOpt => implicit request =>
@@ -72,6 +70,6 @@ case class Links @Inject()(implicit globalConfig: global.GlobalConfig, backend: 
 
   def demotePost(id: String) = demotePostAction(id) { item => bool => implicit userOpt => implicit request =>
     Redirect(controllers.linking.routes.Links.get(id))
-      .flashing("success" -> Messages("confirmations.itemWasDemoted"))
+      .flashing("success" -> "item.demote.confirmation")
   }
 }

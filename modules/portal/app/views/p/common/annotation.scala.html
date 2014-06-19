@@ -11,6 +11,6 @@
 
     <blockquote>@annotation.model.body</blockquote>
     @for(user <- annotation.user ; event <- annotation.latestEvent) {
-        <small class="context text-muted">@Html(Messages("portal.social.annotationCreatedBy", p.helpers.linkTo(user).body.trim, event.model.datetime))</small>
+        <small class="context text-muted">@Html(Messages("portal.annotation.createdBy", p.helpers.linkTo(user).body.trim, event.model.datetime))</small>
     }
 </div>

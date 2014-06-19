@@ -1,94 +1,50 @@
-@(item: VirtualUnit, result: utils.search.ItemPage[(AnyModel, utils.search.SearchHit)], params: utils.search.SearchParams, facets: List[utils.search.AppliedFacet], action: Call, annotations: Seq[Annotation], links: List[Link])(implicit userOpt: Option[UserProfile], req: RequestHeader, globalConfig: global.GlobalConfig, lang: Lang, flash: Flash)
+@(item: VirtualUnit, result: utils.search.ItemPage[(AnyModel, utils.search.SearchHit)], params: utils.search.SearchParams, facets: List[utils.search.AppliedFacet], action: Call, annotations: Seq[Annotation], links: Seq[Link])(implicit userOpt: Option[UserProfile], req: RequestHeader, globalConfig: global.GlobalConfig, lang: Lang, flash: Flash)
 
-@actions(title: String, id: String, did: String) = {
-    @userOpt.map { user =>
-        @if(user.hasPermission(ContentTypes.DocumentaryUnit, PermissionType.Update)) {
-        <div class="btn-group pull-right">
-            <a class="button get dropdown-toggle" data-toggle="dropdown" href="#">
-                @title
-                <span class="caret"></span>
-            </a>
-            <ul class="dropdown-menu">
-                <li><a href="@controllers.archdesc.routes.VirtualUnits.updateDescription(id, did)">@Messages("describedEntity.editDescription")</a></li>
-                <li><a class="alert alert-danger" href="@controllers.archdesc.routes.VirtualUnits.deleteDescription(id, did)">@Messages("describedEntity.deleteDescription")</a></li>
-            </ul>
-        </div>
-        }
-    }
-}
-
-
-@extrascripts = {
-
-}
-
-@sidebar = {
-
-    @if(!item.descriptions.isEmpty) {
-        <div class="sidebar-section">
-            <header><h3>@Messages("describedEntity.availableDescriptions")</h3></header>
-            <ul class="list-group description-switcher">
-                @defining(item.descriptions ++ item.descriptionRefs) { allDescriptions =>
-                    @allDescriptions.map { d =>
-                    <li class="list-group-item">
-                        <a class="description-switch" href="#desc-@d.id">
-                            @views.Helpers.languageCodeToName(d.languageCode) - @d.name
+@layout.adminLayout(item.toStringLang) {
+    @breadcrumbs(item)
+    @layout.mainContent {
+        @layout.itemDetails {
+            <div class="header-actions clearfix">
+                @item.parent.map { parent =>
+                    <h4>@Messages("virtualUnit.parentItem"):
+                        <a href="@controllers.archdesc.routes.VirtualUnits.get(parent.id)">@parent.toStringLang</a>
+                    </h4>
+                }
+            </div>
+            @defining(EntityType.DocumentaryUnit.toString) { implicit fieldPrefix =>
+                @layout.descriptionContainer(item.model.descriptions) {
+                    @if(item.model.descriptions.isEmpty && item.descriptionRefs.isEmpty) {
+                        <p class="text-muted">@Messages("documentaryUnit.noDescriptions")</p>
+                        <a href="@controllers.archdesc.routes.VirtualUnits.createDescription(item.id)" class="btn btn-primary">
+                            @Messages("describedEntity.createDescription")
                         </a>
-                    </li>
+                    } else {
+                        @item.model.descriptions.map { desc =>
+                            @documentaryUnit.renderDescription(item, desc, links, annotations, actions = descriptionActions(item, desc))
+                        }
+                        @item.descriptionRefs.map { desc =>
+                            @documentaryUnit.renderDescription(item, desc, links, annotations)
+                        }
+                    }
+
+                    @link.annotationLinks(item, links)
+                } {
+                    @common.latestAction(item, controllers.archdesc.routes.VirtualUnits.history(item.id))
+                    @common.visibility(item, controllers.archdesc.routes.VirtualUnits.visibility(item.id), ContentTypes.VirtualUnit)
+                    @adminActions(item)
+                }
+
+                @item.childCount.filter(_ > 0).map { count =>
+                    @views.html.search.searchSection(Messages("documentaryUnit.searchInside", item.toStringAbbr(lang)), result) {
+                        @views.html.common.search.searchForm(result, params, action, autofocus = false) {
+                            @searchItemList(result)
+                        } {
+                            @common.search.facetList(result.facets, action)
+                        }
                     }
                 }
-            </ul>
-            <div class="sidebar-section-footer">
-                <i class="glyphicon glyphicon-plus-sign"></i>
-                <a href="@controllers.archdesc.routes.VirtualUnits.createDescription(item.id)">@Messages("actions.createDescription")</a>
-            </div>
-        </div>
-    }
-}
-
-@descriptionSet(descriptions: Seq[DocumentaryUnitDescriptionF], editable: Boolean)(implicit fieldPrefix: String) = {
-    @if(!descriptions.isEmpty) {
-        <div class="description-viewport">
-            @descriptions.zipWithIndex.map { case (desc,i) =>
-                @defining(desc.id.getOrElse("INVALID_DESC_ID")) { descId =>
-                    <div class="description-holder" id="desc-@descId">
-                        @if(editable) {
-                            @actions("Actions", item.id, descId)
-                        }
-                        @documentaryUnit.renderDescription(item, desc, links)
-                    </div>
-                }
-            }
-        </div>
-    }
-}
-
-@virtualUnit.itemPage(item, scripts = extrascripts, sidebar = sidebar) {
-    @common.annotated(item, annotations) {
-
-        <div class="header-actions clearfix">
-            @item.parent.map { parent =>
-            <h4>@Messages("virtualUnit.parentItem"): <a href="@controllers.archdesc.routes.VirtualUnits.get(parent.id)">@parent.toStringLang</a></h4>
-            }
-        </div>
-
-        @* NB: We should NOT have *both* virtual and referenced descriptions! *@
-        @defining(IsadG.FIELD_PREFIX) { implicit fieldPrefix =>
-            @descriptionSet(item.descriptions, editable = true)
-        }
-
-        @defining(IsadG.FIELD_PREFIX) { implicit fieldPrefix =>
-            @descriptionSet(item.descriptionRefs, editable = false)
-        }
-
-        @link.annotationLinks(item, links)
-    }
-
-    @item.childCount.map { count =>
-        @views.html.search.searchSection(Messages("documentaryUnit.searchInside", item.toStringAbbr(lang))) {
-            @views.html.search.searchForm(result, params, action, autofocus = false) {
-                @documentaryUnit.searchItemList(result)
             }
         }
+
     }
 }

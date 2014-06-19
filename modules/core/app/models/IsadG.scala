@@ -21,8 +21,6 @@ case object IsadG {
   }
 
 
-  val FIELD_PREFIX = "isadg"
-
   val ACCESS_POINTS = "accessPoints"
   val UNKNOWN_DATA = "unknownData"
 
@@ -73,4 +71,5 @@ case object IsadG {
   val ARCHIVIST_NOTE = "archivistNote"
   val RULES_CONVENTIONS = "rulesAndConventions"
   val DATES_DESCRIPTIONS = "datesOfDescriptions"
+  val PROVENANCE ="provenance"
 }

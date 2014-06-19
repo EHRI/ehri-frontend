@@ -1,4 +1,4 @@
-@(form: Form[(String,String,String,String,Boolean)], action: Call, recaptchaKey: String)(implicit request: RequestHeader, globalConfig: global.GlobalConfig, flash: Flash, lang: Lang, token: play.filters.csrf.CSRF.Token)
+@(form: Form[SignupData], action: Call, recaptchaKey: String)(implicit request: RequestHeader, globalConfig: global.GlobalConfig, flash: Flash, lang: Lang, token: play.filters.csrf.CSRF.Token)
 
 @validationJs = {
 
@@ -18,7 +18,7 @@
 
 @p.layout.portalLayoutSimple(Messages("portal.signup"), scripts=validationJs, styles = styles) {
 
-    @p.layout.mainContent {
+    @views.html.layout.mainContent {
         @signupForm(form, action, recaptchaKey)
         <div class="clearfix"></div>
     }

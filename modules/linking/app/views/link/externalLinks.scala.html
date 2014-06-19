@@ -2,7 +2,7 @@
 * Render links to external items that have an access point pointing to this item.
 *
 *@
-@(item: DescribedMeta[Description, Described[Description]], links: List[Link])(implicit userOpt: Option[UserProfile], req: RequestHeader, globalConfig: global.GlobalConfig)
+@(item: DescribedMeta[Description, Described[Description]], links: Seq[Link])(implicit userOpt: Option[UserProfile], req: RequestHeader, globalConfig: global.GlobalConfig)
 
 @opposingTarget(item: AnyModel, link: Link) = @{
     link.targets.filterNot(p => item.id == p.id).headOption
@@ -15,7 +15,7 @@
             @if(!notLinked.isEmpty) {
                 <div class="external-links">
                     <hr />
-                    <h3>@Messages("accessPoints.externalReferences")</h3>
+                    <h3>@Messages("accessPoint.externalReferences")</h3>
                     <ul>
                         @notLinked.map { link =>
                             @opposingTarget(item, link).map { other =>

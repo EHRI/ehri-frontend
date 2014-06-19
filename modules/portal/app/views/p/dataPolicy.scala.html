@@ -1,17 +1,13 @@
-@()(implicit userOpt: Option[UserProfile], request: RequestHeader, lang: Lang)
+@()(implicit userOpt: Option[UserProfile], request: RequestHeader, globalConfig: global.GlobalConfig, sessionPrefs: utils.SessionPrefs, flash: Flash, lang: Lang)
 
-@if(userOpt.isEmpty) {
-    <div id="data-policy" style="display:none">
+@layout.portalLayout(Messages("dataPolicy.header")) {
+    @views.html.layout.infobar {
+    } {
+    }
+
+    @views.html.layout.mainContent {
+        <h1>@Messages("dataPolicy.header")</h1>
         <p>@Messages("dataPolicy.notice1")</p>
         <p>@Messages("dataPolicy.notice2")</p>
-
-        <form>
-            <label>
-                <input type="checkbox" name="agree-data-policy-terms" required />
-
-                @Messages("dataPolicy.terms")
-            </label>
-            <input id="agree-data-policy" type="submit" value="@Messages("dataPolicy.agree")" />
-        </form>
-    </div>
+    }
 }

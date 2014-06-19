@@ -1,4 +1,4 @@
-@(item: models.base.AnyModel, watched: Boolean)(implicit userOpt: Option[UserProfile], req: RequestHeader, globalConfig: global.GlobalConfig, lang: Lang)
+@(item: AnyModel, watched: Boolean)(implicit userOpt: Option[UserProfile], req: RequestHeader, globalConfig: global.GlobalConfig, lang: Lang, context: Option[Holder[_]] = None)
 
 @item match {
     case d: DocumentaryUnit => {
@@ -12,6 +12,9 @@
     }
     case d: Country => {
         @country.listItem(d, watched)
+    }
+    case d: Concept => {
+        @concept.listItem(d, watched)
     }
     case _ => {
         @item.toStringLang

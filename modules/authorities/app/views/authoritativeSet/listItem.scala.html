@@ -1,12 +1,12 @@
 @(item: AuthoritativeSet)(implicit req: RequestHeader, lang: Lang)
 
-@common.searchItemOutline(item.id) {
+@common.search.searchItemOutline(item.id) {
     <a href="@controllers.authorities.routes.AuthoritativeSets.get(item.id)">@item.toStringLang</a>
 } {
     <small>
         <ul class="list-unstyled text-muted inline inline-separator">
             @item.latestEvent.map { event =>
-            <li title="@common.eventTitle(event)">@Messages("systemEvents.lastUpdated", views.Helpers.relativeDate(event.model.timestamp))</li>
+            <li title="@common.eventTitle(event)">@Messages("systemEvent.lastUpdated", views.Helpers.relativeDate(event.model.timestamp))</li>
             }
         </ul>
     </small>

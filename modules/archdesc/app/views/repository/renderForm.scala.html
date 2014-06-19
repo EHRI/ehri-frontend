@@ -6,11 +6,11 @@
 @implicitField = @{ views.html.helper.FieldConstructor(formHelpers.fieldTemplate.f) }
 
 
-@defining(FIELD_PREFIX) { implicit fieldPrefix =>
+@defining(EntityType.Repository.toString) { implicit fieldPrefix =>
     @formHelpers.lineInput(f(""), IDENTIFIER)
 
     @helper.repeat(f("descriptions"), min=math.max(f("descriptions").indexes.length, 1)) { desc =>
-        @defining(defaults.flatMap(_.getConfig(FIELD_PREFIX))) { implicit defs =>
+        @defining(defaults) { implicit defs =>
             @renderDescriptionForm(desc)
         }
     }

@@ -2,7 +2,7 @@ package controllers.portal
 
 import play.api.libs.concurrent.Execution.Implicits._
 import defines.{ContentTypes, EntityType}
-import utils.{ListParams, PageParams}
+import utils.{FutureCache, ListParams, PageParams}
 import models.{Link, Annotation, UserProfile}
 import play.api.mvc._
 import models.json.{RestResource, ClientConvertable, RestReadable}
@@ -17,8 +17,11 @@ import scala.concurrent.Future
 case class ItemDetails(
   annotations: Seq[Annotation],
   links: List[Link],
-  watched: Boolean
-)
+  watched: List[AnyModel] = Nil
+) {
+  def isWatching(item: AnyModel): Boolean =
+    watched.exists(_.id == item.id)
+}
 
 case class UserDetails(
   userOpt: Option[UserProfile] = None,
@@ -32,14 +35,21 @@ trait PortalActions {
 
   self: AuthController with ControllerHelpers =>
 
+  /**
+   * Ensure that functions requiring an optional user in scope
+   * can retrieve it automatically from a user details object.
+   */
   implicit def userFromDetails(implicit details: UserDetails): Option[UserProfile] = details.userOpt
 
   /**
    * Fetched watched items for an optional user.
    */
-  def watchedItems(implicit userOpt: Option[UserProfile]): Future[List[AnyModel]] =
-    userOpt.map(user => backend.listWatching(user.id, ListParams()))
-      .getOrElse(Future.successful(List.empty[AnyModel]))
+  def watchedItems(implicit userOpt: Option[UserProfile]): Future[List[AnyModel]] = {
+    userOpt.map(user => {
+      // TODO: Figure out a caching strategy that isn't too fragile
+      backend.listWatching(user.id, ListParams.empty.withoutLimit)
+    }).getOrElse(Future.successful(List.empty[AnyModel]))
+  }
 
 
   /**
@@ -53,7 +63,7 @@ trait PortalActions {
           for {
             user <- backend.get[UserProfile](account.id)
             userWithAccount = user.copy(account=Some(account))
-            watched <- backend.listWatching(account.id)
+            watched <- watchedItems(Some(user))
             r <- f(UserDetails(Some(userWithAccount), watched))(request)
           } yield r
         } getOrElse {
@@ -104,10 +114,10 @@ trait PortalActions {
           else Future.successful(false)
 
         for {
-          watching <- isWatching
+          watched <- watchedItems
           anns <- backend.getAnnotationsForItem(id)
           links <- backend.getLinksForItem(id)
-          r <- f(item)(ItemDetails(anns, links, watching))(userOpt)(request)
+          r <- f(item)(ItemDetails(anns, links, watched))(userOpt)(request)
         } yield r
       }
     }

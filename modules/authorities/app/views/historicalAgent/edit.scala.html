@@ -3,17 +3,17 @@ implicit userOpt: Option[UserProfile], req: RequestHeader, globalConfig: global.
 
 @implicitField = @{ views.html.helper.FieldConstructor(formHelpers.fieldTemplate.f) }
 
-@layout.rightSidebar(Messages("actions.updateHistoricalAgent"), breadcrumbs = common.breadcrumbs(List(item)), scripts = formHelpers.dateJs()) {
+@layout.rightSidebar(Messages("historicalAgent.update"), breadcrumbs = common.breadcrumbs(List(item)), scripts = formHelpers.dateJs()) {
     @helper.form(action = action, 'class -> "entity-form form-horizontal") {
         @formHelpers.csrfToken()
-        @historicalAgent.renderForm(Some(item), f)
+        @historicalAgent.renderForm(f)
 
         <fieldset id="admin-area">
         <legend>@Messages("Administration")</legend>
         @formHelpers.enumChoiceInput(f("publicationStatus"), defines.PublicationStatus, "Publication Status")
         </fieldset>
 
-        @formHelpers.submitButtonWithLogMessageInput(Messages("submitButton.updateHistoricalAgent"), cancel = Some(globalConfig.routeRegistry.urlFor(item)))
+        @formHelpers.submitButtonWithLogMessageInput(Messages("historicalAgent.update.submit"), cancel = views.Helpers.linkToOpt(item))
     }
 } {
     @formNav()

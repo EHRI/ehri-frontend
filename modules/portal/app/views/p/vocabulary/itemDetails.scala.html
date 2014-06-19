@@ -1,0 +1,11 @@
+@(item: Vocabulary, annotations: Seq[Annotation], links: List[Link], watched: List[AnyModel])(implicit userOpt: Option[UserProfile], request: RequestHeader, prefs: utils.SessionPrefs, globalConfig: global.GlobalConfig, lang: Lang, flash: Flash)
+
+<div id="item-details">
+    @p.layout.rightSidebar {
+        @item.model.description.map { desc =>
+            @Html(views.Helpers.renderMarkdown(desc))
+        }
+    } {
+        @p.common.latestAction(item, controllers.portal.routes.Portal.itemHistory(item.id))
+    }
+</div>

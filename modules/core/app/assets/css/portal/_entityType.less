@@ -18,8 +18,9 @@
         color: @color;
       }
     }
-	a:not([class]),
-	a& ,
+    // MB: Removing this, even though it
+    // was probably added for a very good reason...
+	//a:not([class]),
 	& > a {
 	 	color: @color;
 	}

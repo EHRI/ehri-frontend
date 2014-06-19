@@ -1,0 +1,31 @@
+@(item: WithDescriptions[Description], desc: DocumentaryUnitDescriptionF)(implicit fieldPrefix: String, userOpt: Option[UserProfile], req: RequestHeader, globalConfig: global.GlobalConfig, lang: Lang)
+
+@userOpt.map { user =>
+    @if(user.hasPermission(ContentTypes.DocumentaryUnit, PermissionType.Update)) {
+        @desc.id.map { did =>
+            <div class="btn-group pull-right">
+                <a class="btn btn-default dropdown-toggle" data-toggle="dropdown" href="#">
+                    @Messages("item.actions")
+                    <span class="caret"></span>
+                </a>
+                <ul class="dropdown-menu">
+                    <li>
+                        <a href="@controllers.archdesc.routes.DocumentaryUnits.manageAccessPoints(item.id, did)">
+                            @Messages("describedEntity.manageAccessPoints")
+                        </a>
+                    </li>
+                    <li>
+                        <a href="@controllers.archdesc.routes.DocumentaryUnits.updateDescription(item.id, did)">
+                            @Messages("describedEntity.editDescription")
+                        </a>
+                    </li>
+                    <li>
+                        <a class="alert alert-danger" href="@controllers.archdesc.routes.DocumentaryUnits.deleteDescription(item.id, did)">
+                            @Messages("describedEntity.deleteDescription")
+                        </a>
+                    </li>
+                </ul>
+            </div>
+        }
+    }
+}

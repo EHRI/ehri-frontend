@@ -36,15 +36,15 @@
         }
         <li><span class="text-muted">@views.Helpers.languageCodeToName(desc.languageCode)</span></li>
 
-        @desc.dates.headOption.map { dp =>
+        @desc.dates.headOption.filterNot(_.years.isEmpty).map { dp =>
             <li>@dp.years</li>
         }
         @desc.identity.extentAndMedium.map { s =>
-            <li>@s</li>
+            <li>@StringUtils.normalizeSpace(Html(StringUtils.abbreviate(s, 25)).body)</li>
         }
         @item.latestEvent.map { event =>
             <li title="@common.eventTitle(event)">
-                <time datetime="@event.model.timestamp">@Messages("systemEvents.lastUpdated", views.Helpers.relativeDate(event.model.timestamp))</time>
+                <time datetime="@event.model.timestamp">@Messages("systemEvent.lastUpdated", views.Helpers.relativeDate(event.model.timestamp))</time>
             </li>
         }
     </ul>
@@ -55,7 +55,6 @@
     }
 </small>
 @desc.displayText.map(StringUtils.abbreviate(_, 600)).map { sc =>
-    <p>@sc</p>
+    <p>@Html(views.Helpers.renderMarkdown(sc))</p>
 }
-
 

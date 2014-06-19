@@ -2,21 +2,15 @@
 
 <div class="item-text-field-annotation-container">
     <div class="item-text-field-annotations annotation-set">
-        <h5 class="annotate-item-header">@Messages("portal.social.createFieldAnnotation")</h5>
+        <h5 class="annotate-item-header">@Messages("portal.annotation.field.create")</h5>
         @p.common.inlineAnnotationList(annotations)
 
         @userOpt.map { user =>
-        <div class="annotate-item-controls">
-            @item.contentType.map { ct =>
-                @if(user.hasPermission(ct, PermissionType.Annotate)) {
-                    <a title="@Messages("portal.social.createFieldAnnotation")" data-item="@item.id" data-did="@nodeId" data-field="@key" class="annotate-field inactive" href="@controllers.portal.routes.Annotations.annotateField(item.id, nodeId, key)">
-                    <span class="glyphicon glyphicon-comment"></span>
-                    </a>
-                }
-            }
+        <div class="annotate-item-controls" data-target="@nodeId-@key">
+
             @defining(annotations.count(!_.isOwnedBy(userOpt))) { otherCount =>
                 @if(otherCount > 0) {
-                    <a title="@Messages("portal.social.showPublicAnnotations", otherCount)" class="show-other-annotations" href="#">
+                    <a title="@Messages("portal.annotation.showPublic", otherCount)" class="show-other-annotations" href="#">
                         <span class="glyphicon glyphicon-chevron-down"></span>
                         @otherCount
                     </a>

@@ -27,10 +27,10 @@ implicit userOpt: Option[UserProfile], req: RequestHeader, globalConfig: global.
                     <input type="input" class="form-control" name="confirm" placeholder="@Messages("portal.profile.deleteProfileCheck")" />
                 </div>
                 <div class="form-group">
-                    <button type="submit" class="button danger">
+                    <button type="submit" class=" btn  btn-danger ">
                         @Messages("portal.profile.deleteProfile")
                     </button>
-                    <a class="button cancel" href="@controllers.portal.routes.Profile.profile">@Messages("actions.cancel")</a>
+                    <a class=" btn  btn-cancel " href="@controllers.portal.routes.Profile.profile">@Messages("cancel")</a>
                 </div>
             </div>
         </div>

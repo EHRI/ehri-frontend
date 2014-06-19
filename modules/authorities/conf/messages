@@ -1,24 +1,16 @@
 # Authority i18n messages
 
-actions.listHistoricalAgents=Authorities
-actions.updateHistoricalAgent=Update Authority
-actions.updateAuthoritativeSet=Update Authority Set
-actions.listAuthoritativeSets=Authority Sets
-actions.createHistoricalAgent=Create Authority
-actions.createAuthoritativeSet=Create New Authority Set
-actions.createTopLevelConcept=Create Top-level Term
-actions.createNarrowerConcept=Create Narrower Term
-actions.createNewHistoricalAgent=Create New Authority
-submitButton.createHistoricalAgent=Create Authority
-submitButton.updateHistoricalAgent=Update Authority
-submitButton.updateAuthoritativeSet=Update Authority Set
-submitButton.createAuthoritativeSet=Create Authority Set
-
 #
 # Historical Agents
 #
 historicalAgent.search=Search Authorities
 historicalAgent.authoritativeSet=Set
+historicalAgent.list=Authorities
+historicalAgent.create=Create Authority
+historicalAgent.create.submit=Create Authority
+historicalAgent.update=Update Authority
+historicalAgent.update.submit=Update Authority
+
 
 #
 # Authority set
@@ -30,6 +22,11 @@ authoritativeSet.name=Name
 authoritativeSet.name.description=A title-case display name for this set
 authoritativeSet.description=Description
 authoritativeSet.description.description=A description of this set''s purpose
+authoritativeSet.list=Authority Sets
+authoritativeSet.create=Create New Authority Set
+authoritativeSet.create.submit=Create Authority Set
+authoritativeSet.update=Update Authority Set
+authoritativeSet.update.submit=Update Authority Set
 
 
 #
@@ -37,23 +34,23 @@ authoritativeSet.description.description=A description of this set''s purpose
 #
 
 # Form sections
-isaar.descriptionArea=Description Area
-isaar.identity=Identity Area
-isaar.services=Services Area
-isaar.administrationArea=Administration
+historicalAgent.descriptionArea=Description Area
+historicalAgent.identity=Identity Area
+historicalAgent.services=Services Area
+historicalAgent.administrationArea=Administration
 
 # Identity Section
-isaar.identityArea=Identity Area
+historicalAgent.identityArea=Identity Area
 
-isaar.dates=Dates
-isaar.creation=Creation
+historicalAgent.dates=Dates
+historicalAgent.creation=Creation
 
-isaar.identifier=Identifier
-isaar.identifier.description=To identify the authority record uniquely within the\
+historicalAgent.identifier=Identifier
+historicalAgent.identifier.description=To identify the authority record uniquely within the\
   context in which it will be used. (5.4.1)
 
-isaar.name=Authorized Form Of Name
-isaar.name.description=To create an authorized access point that uniquely identifies a \
+historicalAgent.name=Authorized Form Of Name
+historicalAgent.name.description=To create an authorized access point that uniquely identifies a \
   corporate body, person or family.\n\n\
 Record the standardized form of name for the entity being described in accordance with\
  any relevant national or international conventions or rules applied by the agency that\
@@ -62,8 +59,8 @@ Record the standardized form of name for the entity being described in accordanc
  entities with similar names. Specify separately in the Rules and/or conventions element\
  (5.4.3) which set of rules has been applied for this element.
 
-isaar.parallelFormsOfName=Parallel Names
-isaar.parallelFormsOfName.description=To indicate the various forms in which the Authorized\
+historicalAgent.parallelFormsOfName=Parallel Names
+historicalAgent.parallelFormsOfName.description=To indicate the various forms in which the Authorized\
   form of name occurs in other languages or script forms(s).\n\n\
 Record the parallel form(s) of name in accordance with any relevant national or\
  international conventions or rules applied by the agency that created the authority record,\
@@ -71,8 +68,8 @@ Record the parallel form(s) of name in accordance with any relevant national or\
  rules. Specify in the Rules and/or conventions element (5.4.3) which rules have been\
  applied
 
-isaar.standardisedFormsOfName=Standardized Names According to Other Rules
-isaar.standarisedFormsOfName.description=To indicate standardized forms of name for the corporate\
+historicalAgent.standardisedFormsOfName=Standardized Names According to Other Rules
+historicalAgent.standarisedFormsOfName.description=To indicate standardized forms of name for the corporate\
   body, person or family that have been constructed according to rules other than those\
   used to construct the authorised form of name. This can facilitate the sharing of authority\
   records between different professional communities.\n\n\
@@ -80,8 +77,8 @@ Record the standardized form of name for the entity being described in accordanc
   other conventions or rules. Specify the rules and/or if appropriate the name of the agency\
   by which these standardized forms of name have been constructed.
 
-isaar.otherFormsOfName=Other Names
-isaar.otherFormsOfName.description=To indicate any other name(s) for the corporate body, person or\
+historicalAgent.otherFormsOfName=Other Names
+historicalAgent.otherFormsOfName.description=To indicate any other name(s) for the corporate body, person or\
   family not used elsewhere in the Identity Area.\n\n\
 Record other names by which the entity may be known, such as:\n\n\
  1. other forms of the same name, e.g. acronyms;\n\
@@ -91,24 +88,24 @@ Record other names by which the entity may be known, such as:\n\n\
  4. names and prenominal and postnominal titles of persons and families, e.g. titles of\
  nobility, or titles of honour held by the individual or family.
 
-isaar.languageCode=Language of Description
-isaar.languageCode.description=
+historicalAgent.languageCode=Language of Description
+historicalAgent.languageCode.description=
 
-isaar.typeOfEntity=Authority Type
-isaar.typeOfEntity.description=To indicate whether the entity being described is a \
+historicalAgent.typeOfEntity=Authority Type
+historicalAgent.typeOfEntity.description=To indicate whether the entity being described is a \
   corporate body, person or family.\n\n\
 Specify the type of entity (corporate body, person or family) that is being described in this\
  authority record.
 
 
-isaar.corporateBody=Corporate Body
-isaar.family=Family
-isaar.person=Person
+historicalAgent.corporateBody=Corporate Body
+historicalAgent.family=Family
+historicalAgent.person=Person
 
 
 # Description
-isaar.datesOfExistence=Dates of Existence
-isaar.datesOfExistence.description=To indicate the dates of existence of the corporate body, person or family.\n\n\
+historicalAgent.datesOfExistence=Dates of Existence
+historicalAgent.datesOfExistence.description=To indicate the dates of existence of the corporate body, person or family.\n\n\
 Record the dates of existence of the entity being described. For corporate bodies include\
  the date of establishment/foundation/enabling legislation and dissolution. For persons\
  include the dates or approximate dates of birth and death or, when these dates are not\
@@ -116,33 +113,33 @@ Record the dates of existence of the entity being described. For corporate bodie
  recorded according to relevant conventions or rules. Specify in the Rules and/or\
  conventions element (5.4.3) the system(s) of dating used, e.g. ISO 8601.
 
-isaar.biographicalHistory=History
-isaar.biographicalHistory.description=To provide a concise history of the corporate body, person or family.\n\n\
+historicalAgent.biographicalHistory=History
+historicalAgent.biographicalHistory.description=To provide a concise history of the corporate body, person or family.\n\n\
 Record in narrative form or as a chronology the main life events, activities, achievements\
  and/or roles of the entity being described. This may include information on gender,\
  nationality, family and religious or political affiliations. Wherever possible, supply dates\
  as an integral component of the narrative description.
 
-isaar.place=Places
-isaar.place.description=To indicate the predominant places and/or jurisdictions where the corporate body, person\
+historicalAgent.place=Places
+historicalAgent.place.description=To indicate the predominant places and/or jurisdictions where the corporate body, person\
   or family was based, lived or resided or had some other connection.\n\n\
 Record the name of the predominant place(s)/jurisdiction(s), together with the nature and\
   covering dates of the relationship with the entity.
 
-isaar.legalStatus=Legal Status
-isaar.legalStatus.description=To indicate the legal status of a corporate body.\n\n\
+historicalAgent.legalStatus=Legal Status
+historicalAgent.legalStatus.description=To indicate the legal status of a corporate body.\n\n\
 Record the legal status and where appropriate the type of corporate body together with the\
   covering dates when this status applied.
 
-isaar.functions=Functions
-isaar.functions.description=To indicate the functions, occupations and activities performed by the\
+historicalAgent.functions=Functions
+historicalAgent.functions.description=To indicate the functions, occupations and activities performed by the\
   corporate body, person or family.\n\n\
 Record the functions, occupations and activities performed by the entity being described,\
   together with the covering dates when useful. If necessary, describe the nature of the\
   function, occupation or activity.
 
-isaar.mandates=Mandates
-isaar.mandates.description=To indicate the sources of authority for the corporate body, person\
+historicalAgent.mandates=Mandates
+historicalAgent.mandates.description=To indicate the sources of authority for the corporate body, person\
   or family in terms of its powers, functions, responsibilities or sphere of activities,\
   including territorial.\n\n\
 Record any document, law, directive or charter which acts as a source of authority for the\
@@ -150,8 +147,8 @@ Record any document, law, directive or charter which acts as a source of authori
   information on the jurisdiction(s) and covering dates when the mandate(s) applied or were\
   changed.
 
-isaar.structure=Internal Structure
-isaar.structure.description=To describe and/or represent the internal administrative structure(s)\
+historicalAgent.structure=Internal Structure
+historicalAgent.structure.description=To describe and/or represent the internal administrative structure(s)\
   of a corporate body or the genealogy of a family.\n\n\
 Describe the internal structure of a corporate body and the dates of any changes to that\
   structure that are significant to the understanding of the way that corporate body\
@@ -159,43 +156,43 @@ Describe the internal structure of a corporate body and the dates of any changes
   Describe the genealogy of a family (e.g. by means of a family tree) in a way that\
   demonstrates the inter-relationships of its members with covering dates.
 
-isaar.generalContext=General Context
-isaar.generalContext.description=To provide significant information on the general social,\
+historicalAgent.generalContext=General Context
+historicalAgent.generalContext.description=To provide significant information on the general social,\
   cultural, economic, political and/or historical context in which the corporate body, person\
   or family operated, lived or was active.\n\n\
 Provide any significant information on the social, cultural, economic, political and/or\
   historical context in which the entity being described operated.
 
 # Control
-isaar.controlArea=Control Area
+historicalAgent.controlArea=Control Area
 
-isaar.descriptionIdentifier=Institution Identifier
-isaar.descriptionIdentifier.description=
+historicalAgent.descriptionIdentifier=Description Identifier
+historicalAgent.descriptionIdentifier.description=
 
-isaar.institutionIdentifier=Institution Identifier
-isaar.institutionIdentifier.description=To identify the agency(ies) responsible for the authority record.\n\n\
+historicalAgent.institutionIdentifier=Institution Identifier
+historicalAgent.institutionIdentifier.description=To identify the agency(ies) responsible for the authority record.\n\n\
 Record the full authorized form of name(s) of the agency(ies) responsible for creating,\
   modifying or dissemninating the authority record or, alternatively, record a code for the\
   agency in accordance with the national or international agency code standard. Include \
   reference to any systems of identification used to identify the institutions (e.g. ISO\
   15511).
 
-isaar.rulesAndConventions=Rules and Conventions
-isaar.rulesAndConventions.description=To identify the national or international conventions\
+historicalAgent.rulesAndConventions=Rules and Conventions
+historicalAgent.rulesAndConventions.description=To identify the national or international conventions\
   or rules applied in creating the archival authority record.\n\n\
 Record the names and where useful the editions or publication dates of the conventions or\
   rules applied. Specify separately which rules have been applied for creating the\
   Authorized form of name. Include reference to any system(s) of dating used to identify\
   dates in this authority record (e.g. ISO 8601).
 
-isaar.status=Status
-isaar.status.description=To indicate the drafting status of the authority record\
+historicalAgent.status=Status
+historicalAgent.status.description=To indicate the drafting status of the authority record\
   so that users can understand the current status of the authority record.\n\n\
 Record the current status of the authority record, indicating whether the record is a draft,\
   finalized and/or revised or deleted.
 
-isaar.levelOfDetail=Level of Detail
-isaar.levelOfDetail.description=To indicate whether the authority record applies a minimal,\
+historicalAgent.levelOfDetail=Level of Detail
+historicalAgent.levelOfDetail.description=To indicate whether the authority record applies a minimal,\
   partial or a full level of detail.\n\n\
 Indicate whether the record consists of a minimal, partial or full level of detail in\
   accordance with relevant international and/or national guidelines and/or rules. In the\
@@ -204,48 +201,48 @@ Indicate whether the record consists of a minimal, partial or full level of deta
   records are those that convey information for all relevant ISAAR(CPF) elements of\
   description.
 
-isaar.datesCVD=Dates of Creation and Deletion
-isaar.datesCVD.description=To indicate when this authority record was created, revised or deleted.\n\n\
+historicalAgent.datesCVD=Dates of Creation and Deletion
+historicalAgent.datesCVD.description=To indicate when this authority record was created, revised or deleted.\n\n\
 Record the date the authority record was created and the dates of any revisions to the\
   record. Specify in the Rules and/or conventions element (5.4.3) the system(s) of dating\
   used, e.g. ISO 8601.
 
-isaar.languages=Languages
-isaar.languages.description=To indicate the language(s) used to create the authority record.
+historicalAgent.languages=Languages
+historicalAgent.languages.description=To indicate the language(s) used to create the authority record.
 
-isaar.scripts=Scripts
-isaar.scripts.description=To indicate the script(s) used to create the authority record.
+historicalAgent.scripts=Scripts
+historicalAgent.scripts.description=To indicate the script(s) used to create the authority record.
 
-isaar.source=Sources
-isaar.source.description=To identify the sources consulted in creating the authority record.\n\n\
+historicalAgent.source=Sources
+historicalAgent.source.description=To identify the sources consulted in creating the authority record.\n\n\
 Record the sources consulted in establishing the authority record.
 
-isaar.maintenanceNotes=Maintenance Notes
-isaar.maintenanceNotes.description=To document the creation of and changes to the authority record.\n\n\
+historicalAgent.maintenanceNotes=Maintenance Notes
+historicalAgent.maintenanceNotes.description=To document the creation of and changes to the authority record.\n\n\
 Record notes pertinent to the creation and maintenance of the authority record. The\
   names of persons responsible for creating the authority record may be recorded here.
 
-isaar.accessPoints=Access Points
-isaar.accessPoints.description=
+historicalAgent.accessPoints=Access Points
+historicalAgent.accessPoint.description=
 
-isaar.accessPoints.creatorAccess=Creators
-isaar.accessPoints.creatorAccess.description=
+historicalAgent.accessPoints.creatorAccess=Creators
+historicalAgent.accessPoints.creatorAccess.description=
 
-isaar.accessPoints.corporateBodyAccess=Corporate Bodies
-isaar.accessPoints.corporateBodyAccess.description=
+historicalAgent.accessPoints.corporateBodyAccess=Corporate Bodies
+historicalAgent.accessPoints.corporateBodyAccess.description=
 
-isaar.accessPoints.familyAccess=Families
-isaar.accessPoints.family.description=
+historicalAgent.accessPoints.familyAccess=Families
+historicalAgent.accessPoints.family.description=
 
-isaar.accessPoints.personAccess=Persons
-isaar.accessPoints.personAccess.description=
+historicalAgent.accessPoints.personAccess=Persons
+historicalAgent.accessPoints.personAccess.description=
 
-isaar.accessPoints.subjectAccess=Subject Access Points
-isaar.accessPoints.subjectAccess.description=
+historicalAgent.accessPoints.subjectAccess=Subject Access Points
+historicalAgent.accessPoints.subjectAccess.description=
 
-isaar.accessPoints.placeAccess=Place Access Points
-isaar.accessPoints.placeAccess.description=
+historicalAgent.accessPoints.placeAccess=Place Access Points
+historicalAgent.accessPoints.placeAccess.description=
 
-isaar.accessPoints.otherAccess=Other Access Points
-isaar.accessPoints.otherAccess.description=
+historicalAgent.accessPoints.otherAccess=Other Access Points
+historicalAgent.accessPoints.otherAccess.description=
 

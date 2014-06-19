@@ -11,6 +11,14 @@
     @defining(Annotation.fieldAnnotations(desc.id, annotations)) { implicit fieldAnnotations =>
         @* Description *must* have an ID here or something bad has gone wrong! *@
         @desc.id.map { descId =>
+
+            <div class="item-header">
+                <h1>@desc.name</h1>
+                @p.common.otherNameList(desc.identity.parallelFormsOfName)
+            </div>
+
+            @details(item, desc)
+
             @descriptionSection(IDENTITY_AREA) {
                 @textField(item, descId, desc.identity.`abstract`, ABSTRACT)
                 @textField(item, descId, desc.identity.extentAndMedium, EXTENT_MEDIUM)

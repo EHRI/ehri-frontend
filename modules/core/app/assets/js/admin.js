@@ -1,4 +1,62 @@
 jQuery(function($) {
+  /*
+  *   Quiet mode by Thibault Clérice GitHub@PonteIneptique
+  */
+  $(".form-horizontal .form-group").each(function(e) {
+    var $textarea = $(this).find("textarea");
+    var $formgroup = $(this);
+    if($textarea.length !== "undefined" && $textarea.length === 1 && !$formgroup.hasClass("inline-formset")) {
+      $textarea.parent().append('<div><a href="#" class="quiet-toggle"><span class="glyphicon glyphicon-remove"></span><span class="glyphicon glyphicon-fullscreen"></span><span class="Press Esc or Tab to continue"></span></a></div>');
+    }
+  });
+  $(".form-group").on("click", ".quiet-toggle", function(e) {
+    $(this).trigger("quiet-toggle")
+  });
+
+  $(".form-group").on("quiet-toggle", ".quiet-toggle", function(e) {
+    e.preventDefault();
+    var $formgroup = $(this).parents(".form-group");
+    var $blockhelp = $formgroup.find(".help-block");
+    $formgroup.toggleClass("quiet");
+    if($formgroup.hasClass("quiet")) {
+      $blockhelp.data("html", $blockhelp.html()).html($(".markdown-cheatsheet").html());
+      $formgroup.find("textarea").focus();
+    } else {
+      $blockhelp.html($blockhelp.data("html"));
+    }
+  });
+
+  $(".form-group").on("keydown", function(e) {
+    var $formgroup = $(this);
+    if($formgroup.hasClass("quiet")) {
+      if (e.keyCode == 27) {
+          e.preventDefault();
+          $formgroup.find(".quiet-toggle").trigger("quiet-toggle");
+      } else if (e.keyCode == 9) {
+        e.preventDefault();
+        $formgroup.find(".quiet-toggle").trigger("quiet-toggle");
+
+        var $next = $formgroup.nextAll(".form-group:has(.quiet-toggle)").first();
+        if($next.length !== "undefined" && $next.length === 1) {
+          $next.find(".quiet-toggle").trigger("quiet-toggle");
+        } else {
+          var $fieldset = $formgroup.parents("fieldset");
+          $fieldset.nextAll("fieldset").each(function (e) {
+            var $next = $(this).find(".form-group:has(.quiet-toggle)").first();
+            if($next.length !== "undefined" && $next.length === 1) {
+              $next.find(".quiet-toggle").trigger("quiet-toggle");
+              console.log(true);
+              return false;
+            }
+          });
+        }
+      }
+    }
+  });
+
+  /*
+  * End of quiet mode
+  */
   /**
    * Markdown helper
    */
@@ -64,31 +122,50 @@ jQuery(function($) {
       var that = $(this);
       that.attr("data-content", that.attr("title"));
       that.attr("title", that.parents(".control-group").find(".control-label").text());
-      that.popover({
-        html: true,
-        delay:{
-          show: 500,
-          hide: 100
-        },
-        trigger: "blur",
-        placement: "right"
-      });
+      if(!that.parents(".control-group").hasClass("quiet")) {
+        that.popover({
+          html: true,
+          delay:{
+            show: 500,
+            hide: 100
+          },
+          trigger: "blur",
+          placement: "bottom"
+        });
+      }
+  });
+
+  /**
+   * Quick and dirty way of Ajax-ing a link which
+   * directs to an empty submit form.
+   */
+  $("a.ajax-action").click(function(e) {
+    var $link = $(this),
+        href = $link.attr("href"),
+        check = $link.attr("title");
+    e.preventDefault();
+    if (confirm(check)) {
+      $.post(href, function(d) {
+        location.reload();
+      })
+    }
   });
 
   // Make multi-selects pretty
-  $("select.select2").select2();
+  $("select.select2:not(.inline-element-template select.select2)").select2();
 
 
   // Fade success flash message after 3 seconds
   $(".success-pullup").fadeOut(3000);
 
   // Delete inline date period tables
-  $(".remove-inline-element").on("click", function(event) {
-    $(this).closest(".inline-element").remove();
+  $(".inline-element-list").on("click", ".remove-inline-element", function(event) {
     event.preventDefault();
+    $(this).parents(".inline-element").first().remove();
   });
 
   $(".add-inline-element").on("click", function(event) {
+    event.preventDefault();
     var container = $(event.target).closest(".inline-formset");
     var set = container.children(".inline-element-list");
     var prefix = container.data("prefix");
@@ -107,8 +184,8 @@ jQuery(function($) {
     set.append(elem);
 
     // Add select2 support...
-    elem.find("select.select2").select2();
-    event.preventDefault();
+    elem.find("div.select2-container").remove()
+    elem.find("select.select2").removeClass(".select2-offscreen").select2();
   });
 
 });

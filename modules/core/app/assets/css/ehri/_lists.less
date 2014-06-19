@@ -1,0 +1,42 @@
+/** Inline lists - Bootstrap doesn't actually do this by itself */
+ul.inline li {
+  display: inline;
+  padding-left: 0em;
+}
+
+/** Put a separator between the bars of inline lists */
+ul.inline-separator li:after {
+  content: " | ";
+}
+
+ul.inline-separator li:last-child:after {
+  content: "";
+}
+
+/** Inline lists with a comma separator */
+ul.comma-sep, ul.slash-sep {
+  display: inline;
+  margin: 0;
+  padding: 0;
+}
+
+ul.comma-sep li, ul.slash-sep li {
+  display: inline;
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+ul.comma-sep li:after {
+  content: ", ";
+  color: #aaa;
+}
+
+ul.comma-sep li:last-child:after, ul.slash-sep li:last-child:after {
+  content: "";
+}
+
+ul.slash-sep li:after {
+  content: " / ";
+  color: #aaa;
+}

@@ -9,6 +9,7 @@ import eu.ehri.project.definitions.Ontology
 import play.api.data.Form
 import play.api.data.Forms._
 import play.api.libs.json.JsObject
+import backend.rest.Constants
 
 
 object ConceptF {
@@ -16,7 +17,7 @@ object ConceptF {
   val ACCESS_POINTS = "accessPoints"
   val UNKNOWN_DATA = "unknownData"
 
-  val LANGUAGE = "languageCode"
+  val LANG_CODE = "languageCode"
   val PREFLABEL = "name"
   val ALTLABEL = "altLabel"
   val DEFINITION = "definition"
@@ -109,6 +110,10 @@ object Concept {
 
   implicit object Resource extends RestResource[Concept] {
     val entityType = EntityType.Concept
+
+    override def defaultParams = Seq(
+      Constants.INCLUDE_PROPERTIES_PARAM -> VocabularyF.NAME
+    )
   }
 
   val form = Form(

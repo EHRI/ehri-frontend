@@ -8,11 +8,8 @@
         case EventType.creation => {
             <div class="timeline-badge success"><i class="glyphicon glyphicon-floppy-disk"></i></div>
         }
-        case EventType.modification | EventType.createDependent | EventType.modifyDependent => {
+        case EventType.modification | EventType.createDependent | EventType.modifyDependent | EventType.deleteDependent => {
             <div class="timeline-badge info"><i class="glyphicon glyphicon-refresh"></i></div>
-        }
-        case EventType.deleteDependent => {
-            <div class="timeline-badge warning"><i class="glyphicon glyphicon-remove"></i></div>
         }
         case EventType.ingest => {
             <div class="timeline-badge info"><i class="glyphicon glyphicon-save"></i></div>
@@ -40,7 +37,7 @@
 }
 
 @eventTitle(user: Html, eventType: String, item: models.base.AnyModel) = {
-    @Html(Messages("portal.social.timeline.eventType." + eventType, user, Messages("portal.social.timeline.target." + item.isA.toString)))
+    @Html(Messages("portal.timeline.eventType." + eventType, user, Messages("portal.timeline.target." + item.isA.toString)))
 }
 
 @eventBody(event: SystemEvent, user: models.base.Accessor, et: Any, subject: models.base.AnyModel)(content: Html) = {

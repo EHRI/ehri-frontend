@@ -3,26 +3,76 @@ package integration.portal
 import scala.concurrent.ExecutionContext.Implicits.global
 import helpers.Neo4jRunnerSpec
 import models._
-import play.api.test.FakeRequest
 import backend.ApiUser
-import mocks.MockBufferedMailer
 import play.api.mvc.MultipartFormData.FilePart
 import play.api.mvc.MultipartFormData
+import play.api.http.MimeTypes
+import play.api.libs.json.JsObject
 
 
 class ProfileSpec extends Neo4jRunnerSpec(classOf[ProfileSpec]) {
   import mocks.{privilegedUser, unprivilegedUser}
 
   private val profileRoutes = controllers.portal.routes.Profile
-
-  override def getConfig = Map("recaptcha.skip" -> true)
+  private val portalRoutes = controllers.portal.routes.Portal
 
   "Portal views" should {
+    "allow watching and unwatching items" in new FakeApp {
+      val watch = route(fakeLoggedInHtmlRequest(privilegedUser, POST,
+        profileRoutes.watchItemPost("c1").url), "").get
+      status(watch) must equalTo(SEE_OTHER)
+
+      // Watched items show up on the profile - maybe change this?
+      val watching = route(fakeLoggedInHtmlRequest(privilegedUser, GET,
+        profileRoutes.watching().url)).get
+      // Check the following page contains a link to the user we just followed
+      contentAsString(watching) must contain(
+        portalRoutes.browseDocument("c1").url)
+
+      // Unwatch
+      val unwatch = route(fakeLoggedInHtmlRequest(privilegedUser, POST,
+        profileRoutes.unwatchItemPost("c1").url), "").get
+      status(unwatch) must equalTo(SEE_OTHER)
+
+      val watching2 = route(fakeLoggedInHtmlRequest(privilegedUser, GET,
+        profileRoutes.watching().url)).get
+      // Check the profile contains no links to the item we just unwatched
+      contentAsString(watching2) must not contain portalRoutes.browseDocument("c1").url
+
+    }
+    
+    "allow fetching watched items as text, JSON, or CSV" in new FakeApp {
+      import controllers.DataFormat
+      val watch = route(fakeLoggedInHtmlRequest(privilegedUser, POST,
+        profileRoutes.watchItemPost("c1").url), "").get
+      status(watch) must equalTo(SEE_OTHER)
+
+      val watchingText = route(fakeLoggedInHtmlRequest(privilegedUser, GET,
+        profileRoutes.watching(format = DataFormat.Text).url)).get
+      contentType(watchingText)  must beSome.which { ct =>
+        ct must be equalTo MimeTypes.TEXT.toString
+      }
+      
+      val watchingJson = route(fakeLoggedInHtmlRequest(privilegedUser, GET,
+        profileRoutes.watching(format = DataFormat.Json).url)).get
+      contentType(watchingJson)  must beSome.which { ct =>
+        ct must be equalTo MimeTypes.JSON.toString
+      }
+      contentAsJson(watchingJson).validate[Seq[JsObject]].asOpt must beSome
+      
+      val watchingCsv = route(fakeLoggedInHtmlRequest(privilegedUser, GET,
+        profileRoutes.watching(format = DataFormat.Csv).url)).get
+      println(contentAsString(watchingCsv))
+      contentType(watchingCsv)  must beSome.which { ct =>
+        ct must be equalTo "text/csv"
+      }
+    }
+
     "allow viewing profile" in new FakeApp {
       val prof = route(fakeLoggedInHtmlRequest(privilegedUser, GET,
         profileRoutes.profile().url)).get
       status(prof) must equalTo(OK)
-    }
+    }       
 
     "allow editing profile" in new FakeApp {
       val testName = "Inigo Montoya"
@@ -82,54 +132,7 @@ class ProfileSpec extends Neo4jRunnerSpec(classOf[ProfileSpec]) {
       status(logout) must equalTo(SEE_OTHER)
       flash(logout).get("success") must beSome.which { fl =>
         // NB: No i18n here...
-        fl must contain("portal.logoutSucceeded")
-      }
-    }
-  }
-
-  "Signup process" should {
-    "create a validation token and send a mail on signup" in new FakeApp {
-      val testEmail: String = "test@example.com"
-      val numSentMails = MockBufferedMailer.mailBuffer.size
-      val numAccounts = mocks.userFixtures.size
-      val data: Map[String,Seq[String]] = Map(
-        "name" -> Seq("Test Name"),
-        "email" -> Seq(testEmail),
-        "password" -> Seq("testpass"),
-        "confirm" -> Seq("testpass"),
-        CSRF_TOKEN_NAME -> Seq(fakeCsrfString)
-      )
-      val signup = route(FakeRequest(POST, profileRoutes.signupPost().url)
-        .withSession(CSRF_TOKEN_NAME -> fakeCsrfString), data).get
-      status(signup) must equalTo(SEE_OTHER)
-      MockBufferedMailer.mailBuffer.size must beEqualTo(numSentMails + 1)
-      MockBufferedMailer.mailBuffer.last.to must contain(testEmail)
-      mocks.userFixtures.size must equalTo(numAccounts + 1)
-      val userOpt = mocks.userFixtures.values.find(u => u.email == testEmail)
-      userOpt must beSome.which { user =>
-        user.verified must beFalse
-      }
-    }
-
-    "allow unverified user to log in" in new FakeApp {
-      val testEmail: String = "test@example.com"
-      val testName: String = "Test Name"
-      val data: Map[String,Seq[String]] = Map(
-        "name" -> Seq(testName),
-        "email" -> Seq(testEmail),
-        "password" -> Seq("testpass"),
-        "confirm" -> Seq("testpass"),
-        CSRF_TOKEN_NAME -> Seq(fakeCsrfString)
-      )
-      val signup = route(FakeRequest(POST, profileRoutes.signupPost().url)
-        .withSession(CSRF_TOKEN_NAME -> fakeCsrfString), data).get
-      status(signup) must equalTo(SEE_OTHER)
-      mocks.userFixtures.find(_._2.email == testEmail) must beSome.which { case(uid, u) =>
-        // Ensure we can log in and view our profile
-        val index = route(fakeLoggedInHtmlRequest(u, GET,
-          profileRoutes.profile().url)).get
-        status(index) must equalTo(OK)
-        contentAsString(index) must contain(testName)
+        fl must contain("portal.logout.confirmation")
       }
     }
   }

@@ -30,7 +30,7 @@
 
     @common.sidebarActions { user =>
         @common.sidebarAction(user.hasPermission(ContentTypes.Link, PermissionType.Delete)) {
-            <a href="@controllers.linking.routes.Links.delete(item.id, src)">@Messages("actions.deleteLink")</a>
+            <a href="@controllers.linking.routes.Links.delete(item.id, src)">@Messages("link.delete")</a>
         }
     }
 }

@@ -3,12 +3,12 @@ implicit userOpt: Option[UserProfile], req: RequestHeader, globalConfig: global.
  
 @implicitField = @{ views.html.helper.FieldConstructor(formHelpers.fieldTemplate.f) }
 
-@layout.rightSidebar(Messages("actions.updateVirtualUnit"), breadcrumbs = virtualUnit.breadcrumbs(item), scripts = formHelpers.dateJs()) {
+@layout.rightSidebar(Messages("virtualUnit.update"), breadcrumbs = virtualUnit.breadcrumbs(item), scripts = formHelpers.dateJs()) {
 		
 	@helper.form(action = action, 'class -> "entity-form form-horizontal") {
         @formHelpers.csrfToken()
 		@virtualUnit.renderForm(f)
-        @formHelpers.submitButtonWithLogMessageInput(Messages("submitButton.updateVirtualUnit"), cancel = Some(globalConfig.routeRegistry.urlFor(item)))
+        @formHelpers.submitButtonWithLogMessageInput(Messages("virtualUnit.update.submit"), cancel = views.Helpers.linkToOpt(item))
 	}
 } {
 
