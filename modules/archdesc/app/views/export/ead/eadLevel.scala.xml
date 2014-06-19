@@ -17,9 +17,9 @@
 
 <c@cno>
     <did>
-        <unitid>@tree.item.id</unitid>
-        <unittitle>@tree.item.toStringLang</unittitle>
+        <unitid>@tree.item.model.identifier</unitid>
         @tree.item.model.primaryDescription.map { desc =>
+            <unittitle>@desc.name</unittitle>
             @desc.dates.map { date =>
                 <unitdate>@date.years.trim</unitdate>
             }
