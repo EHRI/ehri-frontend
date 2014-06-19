@@ -8,7 +8,16 @@
             </li>
         }
     </ul>
-    @p.helpers.pagination(items)
+    @common.pagination(items, pageParam = "wpage")
+    <div class="pull-right small text-muted">
+        <span class="glyphicon glyphicon-download"></span>
+        @for(fmt <- Seq(DataFormat.Text, DataFormat.Csv, DataFormat.Json)) {
+            <a class="alt" target="_blank" title="@Messages("portal.download.format." + fmt.toString)" href="@controllers.portal.routes.Profile.watching(format = fmt)&limit=-1">
+            @fmt
+            </a>
+        }
+
+    </div>
 } else {
     <p class="text-muted">
         @Messages("portal.social.noItemsWatchedYet")

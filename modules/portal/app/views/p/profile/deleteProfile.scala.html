@@ -1,15 +1,13 @@
 @(confirmForm: Form[String], action: Call)(implicit userOpt: Option[UserProfile], request: RequestHeader, prefs: utils.SessionPrefs, globalConfig: global.GlobalConfig, lang: Lang, flash: Flash, token: play.filters.csrf.CSRF.Token)
 
 @p.layout.portalLayout(Messages("portal.profile.deleteProfile")) {
-    @p.layout.infobar {
-    } {
-        <h1>@Messages("portal.profile.deleteProfile")</h1>
+    @layout.infobar {
     } {
     }
 
-    @p.layout.mainContent {
-    <div class="col-sm-10">
+    @views.html.layout.mainContent {
+        <h1>@Messages("portal.profile.deleteProfile")</h1>
         @deleteProfileForm(confirmForm, action)
-    </div>
+
     }
 }

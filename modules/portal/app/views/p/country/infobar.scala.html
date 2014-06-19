@@ -1,9 +1,7 @@
 @(item: Country, watched: Boolean)(implicit userOpt: Option[UserProfile], req: RequestHeader, globalConfig: global.GlobalConfig, lang: Lang)
 
-@p.layout.infobar {
+@layout.infobar {
 
-} {
-    <h1>@item.toStringLang</h1>
 } {
     @userOpt.map { user =>
         @p.common.watchButtons(item, watched)

@@ -1,11 +1,9 @@
 @(item: Repository, watched: Boolean)(implicit userOpt: Option[UserProfile], req: RequestHeader, globalConfig: global.GlobalConfig, lang: Lang)
 
-@p.layout.infobar {
+@layout.infobar {
     @item.country.map { country =>
         <li>@p.helpers.linkTo(country)</li>
     }
-} {
-
 } {
     @userOpt.map { user =>
         @p.common.watchButtons(item, watched)

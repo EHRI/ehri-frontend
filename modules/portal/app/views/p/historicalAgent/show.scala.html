@@ -1,18 +1,16 @@
-@(item: HistoricalAgent, annotations: Seq[Annotation], links: List[Link], watched: List[models.base.AnyModel] = Nil)(implicit userOpt: Option[UserProfile], request: RequestHeader, prefs: utils.SessionPrefs, globalConfig: global.GlobalConfig, lang: Lang, flash: Flash)
+@(item: HistoricalAgent, annotations: Seq[Annotation], links: List[Link], watched: List[AnyModel])(implicit userOpt: Option[UserProfile], request: RequestHeader, prefs: utils.SessionPrefs, globalConfig: global.GlobalConfig, lang: Lang, flash: Flash)
 
 @p.layout.portalLayout(item.toStringLang, EntityType.HistoricalAgent.toString) {
-    @p.layout.infobar {
-    } {
-        <h1>@item.toStringLang</h1>
+    @layout.infobar {
     } {
         @userOpt.map { user =>
             @p.common.watchButtons(item, watched.exists(_.id == item.id))
         }
     }
 
-    @p.layout.mainContent {
+    @views.html.layout.mainContent {
         @defining(EntityType.HistoricalAgent.toString) { implicit fieldPrefix =>
-            @p.common.descriptionContainer(item.model.descriptions) {
+            @views.html.layout.descriptionContainer(item.model.descriptions) {
                 @item.model.descriptions.map { desc =>
                     @renderDescription(item, desc, links, annotations)
                 }

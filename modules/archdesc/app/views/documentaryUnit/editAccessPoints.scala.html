@@ -8,7 +8,7 @@
 
         @helper.javascriptRouter("jsRoutes")(
             controllers.core.routes.javascript.Application.get,
-            controllers.core.routes.javascript.ApiController.getItem,
+            controllers.core.routes.javascript.Application.getType,
             controllers.core.routes.javascript.SearchFilter.filter,
             controllers.archdesc.routes.javascript.DocumentaryUnits.linkMultiAnnotatePost,
             controllers.archdesc.routes.javascript.DocumentaryUnits.get,
@@ -16,9 +16,13 @@
             controllers.archdesc.routes.javascript.DocumentaryUnits.createAccessPoint,
             controllers.archdesc.routes.javascript.DocumentaryUnits.getLink,
             controllers.archdesc.routes.javascript.DocumentaryUnits.getAccessPointsJson,
-            controllers.archdesc.routes.javascript.DocumentaryUnits.deleteAccessPointAction,
-            controllers.archdesc.routes.javascript.DocumentaryUnits.deleteLink
+            controllers.archdesc.routes.javascript.DocumentaryUnits.deleteAccessPoint,
+            controllers.archdesc.routes.javascript.DocumentaryUnits.deleteLink,
+            controllers.archdesc.routes.javascript.DocumentaryUnits.deleteLinkAndAccessPoint
         )
+        <style type="text/css">
+            .modal-dialog { width: 80%;}
+        </style>
     }
 
 @import AccessPointF._
@@ -35,14 +39,14 @@
                         <li ng-repeat="access in getAccessPointsWithType('@accessPointType')" id="{{access.accessPoint.id}}">
                             <span ng-switch="access.link != null">
                                 <span ng-switch-when="true">
-                                    <a href="{{getTypeUrl(access.target.type, access.target.id)}}">{{access.accessPoint.name}}</a>
-                                    <a title="@Messages("accessPoint.removeAccessPoint")"
+                                    <a target="_blank" href="{{getTypeUrl(access.target.type, access.target.id)}}">{{access.accessPoint.name}}</a>
+                                    <a title="@Messages("accessPoint.delete")"
                                     class="glyphicon glyphicon-remove" ng-click="deleteAccessPointWithLink(access.accessPoint.id, access.link.id, access.accessPoint.name)"></a>
                                 </span>
 
                                 <span ng-switch-when="false">
                                     {{access.accessPoint.name}}
-                                    <a title="@Messages("accessPoint.removeAccessPoint")"
+                                    <a title="@Messages("accessPoint.delete")"
                                         class="glyphicon glyphicon-remove" ng-click="deleteAccessPoint(access.accessPoint.id, access.accessPoint.name)"></a>
                                 </span>
                             </span>
@@ -77,8 +81,8 @@
                                         <p class="help-block">
                                             <div class="potential-matches list-group list-group-small" style="overflow: auto; max-height: 200px">
                                                 <a class="list-group-item" ng-repeat="item in matches" ng-click="selectLinkMatch(item)">
-                                                    <span class="badge">{{readableType(item[2])}}</span>
-                                                    {{item[1]}}
+                                                    <span class="badge">{{readableType(item.type)}}<span ng-show="item.parent!=''"> / {{item.parent}}</span></span>
+                                                    {{item.name}}
                                                 </a>
                                             </div>
                                         </p>
@@ -98,7 +102,7 @@
                                     <div ng-switch-when="true" class="col-sm-9">
                                         <i class="glyphicon glyphicon-link"></i>
                                         <a target="_blank" href="{{getUrl(tempAccessPoint.link.target)}}">{{tempAccessPoint.link.name}}</a>
-                                        <a title="@Messages("accessPoint.removeAccessPointLink")"
+                                        <a title="@Messages("accessPoint.delete")"
                                            class="glyphicon glyphicon-remove" ng-click="removeTempAccessPointLink()"></a>
                                     </div>
 

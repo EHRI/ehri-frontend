@@ -6,29 +6,29 @@ import models._
 import play.api.i18n.Messages
 import play.api.mvc._
 import defines.{ContentTypes, EntityType}
-import play.api.libs.json.Json
+import play.api.libs.json.{JsValue, JsArray, Json, JsObject}
 import utils.{SessionPrefs, PageParams}
 import scala.concurrent.Future.{successful => immediate}
 import jp.t2v.lab.play2.auth.LoginLogout
 import play.api.libs.Files.TemporaryFile
 import play.api.Play.current
-import java.io.File
+import java.io.{StringWriter, File}
 import org.apache.commons.io.FileUtils
-import play.api.libs.json.JsObject
 import play.Logger
 import scala.concurrent.Future
-import play.api.mvc.MultipartFormData.FilePart
 import views.html.p
 import utils.search.{Resolver, Dispatcher}
 import backend.Backend
 
 import com.google.inject._
 import net.coobird.thumbnailator.tasks.UnsupportedFormatException
-import play.api.data.Forms
 import play.api.mvc.MaxSizeExceeded
 import play.api.mvc.MultipartFormData.FilePart
 import scala.Some
-import play.api.libs.json.JsObject
+import controllers.DataFormat
+import play.api.http.{HeaderNames, MimeTypes}
+import org.joda.time.format.ISODateTimeFormat
+import models.base.AnyModel
 
 /**
  * @author Mike Bryant (http://github.com/mikesname)
@@ -56,6 +56,127 @@ case class Profile @Inject()(implicit globalConfig: global.GlobalConfig, searchD
     Ok(Json.toJson(userOpt.flatMap(_.account)))
   }
 
+  def watchItem(id: String) = withUserAction { implicit user => implicit request =>
+    Ok(p.helpers.simpleForm("portal.profile.watch",
+      profileRoutes.watchItemPost(id)))
+  }
+
+  def watchItemPost(id: String) = withUserAction.async { implicit user => implicit request =>
+    backend.watch(user.id, id).map { _ =>
+      if (isAjax) Ok("ok")
+      else Redirect(profileRoutes.watching())
+    }
+  }
+
+  def unwatchItem(id: String) = withUserAction { implicit user => implicit request =>
+    Ok(p.helpers.simpleForm("portal.profile.unwatch",
+      profileRoutes.unwatchItemPost(id)))
+  }
+
+  def unwatchItemPost(id: String) = withUserAction.async { implicit user => implicit request =>
+    backend.unwatch(user.id, id).map { _ =>
+      if (isAjax) Ok("ok")
+      else Redirect(profileRoutes.watching())
+    }
+  }
+
+  case class ExportWatchItem(
+    name: String,
+    url: String
+  ) {
+    def toCsv: Array[String] = Array(name, url)
+  }
+
+  object ExportWatchItem {
+    def fromItem(item: AnyModel)(implicit request: RequestHeader): ExportWatchItem = new ExportWatchItem(
+      item.toStringLang,
+      views.p.Helpers.linkTo(item).absoluteURL(globalConfig.https)
+    )
+    implicit val writes = Json.writes[ExportWatchItem]
+  }
+
+  def watching(format: DataFormat.Value = DataFormat.Html) = withUserAction.async { implicit user => implicit request =>
+    val watchParams = PageParams.fromRequest(request)
+    backend.pageWatching(user.id, watchParams).map { watchList =>
+      format match {
+        case DataFormat.Text => Ok(views.txt.p.profile.watchedItems(watchList))
+            .as(MimeTypes.TEXT)
+        case DataFormat.Csv => Ok(writeCsv(
+          List("Item", "URL"),
+          watchList.items.map(a => ExportWatchItem.fromItem(a).toCsv)))
+          .as("text/csv")
+          .withHeaders(HeaderNames.CONTENT_DISPOSITION -> ("attachment; filename=" + user.id + "_watched.csv"))
+        case DataFormat.Json =>
+          Ok(Json.toJson(watchList.items.map(ExportWatchItem.fromItem)))
+            .as(MimeTypes.JSON)
+        case _ => Ok(p.profile.watchedItems(watchList))
+      }
+    }
+  }
+
+  // A condensed version of an annotation for export
+  case class ExportAnnotation(target: Option[String], field: Option[String], body: String,
+                              time: Option[String], url: Option[String]) {
+    // NB: Using nulls here because the OpenCSV expects them in
+    // the absence of a value (rather than, say, empty strings)
+    def toCsv: Array[String] = Array(
+      target.getOrElse(null),
+      field.getOrElse(null),
+      body,
+      time.getOrElse(null),
+      url.getOrElse(null)
+    )
+  }
+
+  object ExportAnnotation {
+    def fromAnnotation(annotation: Annotation)(implicit request: RequestHeader): ExportAnnotation = new ExportAnnotation(
+      annotation.target.map(_.toStringLang),
+      annotation.model.field,
+      annotation.model.body,
+      annotation.latestEvent
+        .map(_.model.timestamp.toString(ISODateTimeFormat.dateTime)),
+      annotation.target
+        .map(t => views.p.Helpers.linkTo(t).absoluteURL(globalConfig.https) + "#" + annotation.id)
+    )
+    import play.api.libs.json._
+    implicit val writes = Json.writes[ExportAnnotation]
+  }
+
+  def annotations(format: DataFormat.Value = DataFormat.Html) = withUserAction.async { implicit user => implicit request =>
+    val params = PageParams.fromRequest(request)
+    backend.userAnnotations(user.id, params).map { page =>
+      format match {
+        case DataFormat.Text =>
+          Ok(views.txt.p.profile.annotations(page).body.trim)
+            .as(MimeTypes.TEXT)
+        case DataFormat.Csv => Ok(writeCsv(
+            List("Item", "Field", "Note", "Time", "URL"),
+            page.items.map(a => ExportAnnotation.fromAnnotation(a).toCsv)))
+          .as("text/csv")
+          .withHeaders(HeaderNames.CONTENT_DISPOSITION -> ("attachment; filename=" + user.id + "_notes.csv"))
+        case DataFormat.Json =>
+          Ok(Json.toJson(page.items.map(ExportAnnotation.fromAnnotation)))
+            .as(MimeTypes.JSON)
+        case _ => Ok(p.profile.annotations(page))
+      }
+    }
+  }
+
+  def writeCsv(headers: Seq[String], data: Seq[Array[String]])(implicit request: RequestHeader): String = {
+    import au.com.bytecode.opencsv.CSVWriter
+    val buffer = new StringWriter()
+    val csvWriter = new CSVWriter(buffer)
+    csvWriter.writeNext(headers.toArray)
+    for (item <- data) {
+      csvWriter.writeNext(item)
+    }
+    csvWriter.close()
+    buffer.getBuffer.toString
+  }
+
+  def annotationListToJson(annotations: Seq[Annotation])(implicit request: RequestHeader): JsValue
+    = Json.toJson(annotations.map(ExportAnnotation.fromAnnotation))
+
   def prefs = Action { implicit request =>
     Ok(Json.toJson(preferences))
   }
@@ -71,15 +192,12 @@ case class Profile @Inject()(implicit globalConfig: global.GlobalConfig, searchD
   }
 
   def profile = withUserAction.async { implicit user => implicit request =>
-    val watchParams = PageParams.fromRequest(request, namespace = "watch")
-    val linkParams = PageParams.fromRequest(request, namespace = "link")
-    val annParams = PageParams.fromRequest(request, namespace = "ann")
-  
+    val watchParams = PageParams.fromRequest(request, namespace = "w")
+    val annParams = PageParams.fromRequest(request, namespace = "a")
     for {
       watchList <- backend.pageWatching(user.id, watchParams)
-      links <- backend.userLinks(user.id, linkParams)
       anns <- backend.userAnnotations(user.id, annParams)
-    } yield Ok(p.profile.profile(watchList, anns, links))
+    } yield Ok(p.profile.profile(watchList, anns))
   }
 
   import play.api.data.Form

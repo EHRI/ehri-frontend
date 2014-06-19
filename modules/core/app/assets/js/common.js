@@ -90,11 +90,117 @@ jQuery(function($) {
     $("select.select2").select2(select2Opts);
   });
 
+  var filterUrl = "/admin/filter"; // FIXME: Use reverse routes
+
+  $(".select2.item-filter").select2({
+    minimumInputLength: 2,
+    val: $(this).val(),
+    initSelection: function(element, cb) {
+      var value = $(element).val();
+      if (!value) {
+        cb(null);
+      } else {
+        $.getJSON(filterUrl + "?q=id:" + value, function(data) {
+          if(data.items.length == 0) {
+            cb({id: value, text: value});
+          } else {
+            cb({
+              id: data.items[0].did,
+              text: data.items[0].name
+            });
+          }
+        });
+      }
+    },
+    ajax: {
+      url: filterUrl,
+      dataType: "json",
+      data: function(term, page ) {
+        return {
+          q: term,
+          limit: 20,
+          page: page,
+          "st[]": $(this).data("entity-type")
+        }
+      },
+      results: function(data, page) {
+        return {
+          results: data.items.map(function(value, idx) {            return {
+              id: value.did,
+              text: value.name
+            }
+          })
+        };
+      }
+    },
+    formatResult: function(value) {
+      return $("<div>" + value.text + "<span class='label label-primary pull-right'>" + value.id + "</span></div>");
+    }
+  });
+
 
   // Handling form-submission via links, i.e. search form
   // when facets are clicked
   $(document).on("change", ".autosubmit", function (e) {
     $(e.target).closest("form").submit();
+  });
+
+  /*
+   Search helpers
+   */
+  $(".page-content").on("click", ".search-helper-toggle", function () {
+    $("#search-helper").toggle();
+  }).on("click", "#search-helper .close", function(e) {
+    e.preventDefault();
+    $("#search-helper").toggle();
+  });
+
+  /*
+   *   Breadcrumb and collapsible
+   */
+  $(".breadcrumb.collapsible").each(function(e) {
+    var $ol = $(this);
+    var $width = $ol.width();
+    var $li = $ol.find("li");
+    var $padding = parseInt($li.outerWidth() - $li.width())
+    if ($li.length !== "undefined" && $li.length > 0) {
+      var $max = $width / $li.length;
+      $max = $max - $padding;
+      $li.find("a:visible").css("max-width", $max);
+      $li.data("max-width", $max);
+    }
+  });
+
+  $(".breadcrumb.collapsible > li").hover(function() {
+    var $actual = $(this);
+    var $offset = $actual.offset();
+    var $right = $offset.left;
+    var $top = $offset.top;
+    var $prev = $actual.prev();
+    if($prev.length !="undefined"&& $prev.length === 1) {
+      $right = $prev.offset().left + $prev.outerWidth();
+      $top = $prev.offset().top;
+    }
+    $actual.next().css("margin-left", $actual.outerWidth())
+    $actual.css({
+      "top": $top,
+      "left": $right,
+      "position": "fixed",
+      "z-index" : 9000
+    });
+    $actual.find("a:visible").css("max-width", "");
+
+  } , function() {
+    var $actual = $(this);
+    $actual.next().css("margin-left", 0);
+    $actual.before().css("z-index", "");
+    $actual.css({
+      "top": 0,
+      "left": 0,
+      "position": "relative",
+      "z-index" : ""
+    });
+    $actual.find("a:visible").css("max-width", $actual.data("max-width"));
   });
 });
 

@@ -6,7 +6,7 @@ import defines.{EntityType, ContentTypes, PermissionType}
 import utils.{ListParams, PageParams}
 import backend.rest.{CypherIdGenerator, ItemNotFound, ValidationError}
 import backend.rest.cypher.CypherDAO
-import play.api.libs.json.{JsObject, Json}
+import play.api.libs.json.{JsString, Json}
 
 /**
  * Spec for testing individual data access components work as expected.
@@ -169,6 +169,11 @@ class DAOSpec extends helpers.Neo4jRunnerSpec(classOf[DAOSpec]) {
       newItemPerms.get(PermissionType.Update) must beSome
       newItemPerms.get(PermissionType.Delete) must beSome
     }
+
+    "be able to list permissions" in new FakeApp {
+      val page = await(testBackend.listScopePermissionGrants("r1", PageParams.empty))
+      page.items must not(beEmpty)
+    }
   }
 
   "VisibilityDAO" should {
@@ -238,8 +243,10 @@ class DAOSpec extends helpers.Neo4jRunnerSpec(classOf[DAOSpec]) {
   "CypherDAO" should {
     "get a JsValue for a graph item" in new FakeApp {
       val dao = new CypherDAO
-      // FIXME: Cypher seems
-      val res = await(dao.cypher("START n = node:entities('__ID__:admin') RETURN n.identifier, n.name"))
+      val res = await(dao.cypher(
+        """START n = node:entities(__ID__ = {id})
+           RETURN n.identifier, n.name""",
+          Map("id" -> JsString("admin"))))
       // It should return one list value in the data section
       val list = (res \ "data").as[List[List[String]]]
       list(0)(0) mustEqual "admin"

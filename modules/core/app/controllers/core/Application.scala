@@ -9,11 +9,12 @@ import jp.t2v.lab.play2.auth.AsyncAuth
 import play.api.libs.json.Json
 import defines.EntityType
 import com.google.inject._
-import play.api.http.ContentTypes
+import play.api.http.{MimeTypes, ContentTypes}
 import java.util.Locale
 import backend.Backend
 import backend.rest.SearchDAO
 import models.AccountDAO
+import play.api.Routes
 
 case class Application @Inject()(implicit globalConfig: global.GlobalConfig, backend: Backend, userDAO: AccountDAO) extends Controller with AsyncAuth with AuthConfigImpl with AuthController {
 
@@ -23,10 +24,6 @@ case class Application @Inject()(implicit globalConfig: global.GlobalConfig, bac
 
   /**
    * Action for redirecting to any item page, given a raw id.
-   * TODO: Ultimately implement this in a better way, not
-   * requiring two DB hits (including the redirect...)
-   * @param id
-   * @return
    */
   def get(id: String) = userProfileAction.async { implicit userOpt => implicit request =>
     implicit val rd: RestReadable[AnyModel] = AnyModel.Converter
@@ -45,15 +42,19 @@ case class Application @Inject()(implicit globalConfig: global.GlobalConfig, bac
 
   /**
    * Action for redirecting to any item page, given a raw id.
-   * TODO: Ultimately implement this in a better way, not
-   * requiring two DB hits (including the redirect...)
-   * @param id
-   * @return
    */
   def getType(`type`: String, id: String) = userProfileAction { implicit userOpt => implicit request =>
     globalConfig.routeRegistry.optionalUrlFor(EntityType.withName(`type`), id)
       .map(Redirect)
       .getOrElse(NotFound(views.html.errors.itemNotFound()))
+  }
+
+  def jsRoutes = Action { implicit request =>
+    Ok(
+      Routes.javascriptRouter("jsRoutes")(
+        controllers.core.routes.javascript.SearchFilter.filter
+      )
+    ).as(MimeTypes.JAVASCRIPT)
   }
 
   def localeData(lang: String) = Action { request =>
@@ -78,11 +79,11 @@ case class Application @Inject()(implicit globalConfig: global.GlobalConfig, bac
         |  },
         |}
       """.stripMargin.format(
-        Locale.getISOLanguages.map{
-          l => l + ": \"" + views.Helpers.languageCodeToName(l) + "\""
+        utils.i18n.languagePairList.map{ case (code, name) =>
+          code + ": \"" + name + "\""
         }.mkString(",\n  "),
-        Locale.getISOCountries.map{ cn =>
-          cn.toLowerCase + ": \"" + views.Helpers.countryCodeToName(cn) + "\""
+        utils.i18n.countryPairList.map{ case (code, name) =>
+          code.toLowerCase + ": \"" + name + "\""
         }.mkString(",\n  ")
       )
 

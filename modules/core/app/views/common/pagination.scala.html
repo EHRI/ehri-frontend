@@ -1,8 +1,7 @@
 @(page: utils.AbstractPage[_], pageParam: String = "page")(implicit req: RequestHeader)
 
 @if(page.hasMultiplePages) {
-    <div id="pagination" class="pull-right">
-        <ul class="pagination">
+    <ul id="pagination" class="pagination">
         @views.Helpers.paginationRanges(page.page.toInt + 1, page.numPages.toInt).map { range =>
             @range.map { cp =>
                 @if(cp == page.page.toInt) {
@@ -15,6 +14,5 @@
                 <li class="disabled"><a>...</a></li>
             }
         }
-        </ul>
-    </div>
+    </ul>
 }

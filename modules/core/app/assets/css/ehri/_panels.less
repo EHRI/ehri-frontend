@@ -52,3 +52,67 @@
 		.panel-title;
 	}
 }
+
+
+.panel-history {
+  &:extend(.panel);
+  .panel-rework();
+  .panel-color(@medium-gray, #000000);
+  .hidden-one-col;
+
+  .glyphicon {
+    font-size:12px;
+    cursor:pointer;
+  }
+
+  .panel-body {
+    padding:5px 15px;
+  }
+  .panel-footer {
+    padding:0px 15px;
+  }
+  &.inactive {
+    .panel-body, .panel-footer {
+      display:none;
+    }
+  }
+}
+
+.panel-details {
+  &:extend(.panel);
+  .panel-rework();
+  .panel-color();
+}
+
+.facet-class {
+  &:extend(.panel);
+  > ul {
+    .list-unstyled;
+  }
+
+  .panel-rework(facet-label, facet-options);
+  .panel-color(@medium-gray, #000000, facet-label, facet-options);
+
+  .facet-label {
+    margin-bottom:5px;
+  }
+}
+
+body.documentaryUnit .panel-details {
+  .panel-color(@doc-color);
+}
+
+body.country .panel-details {
+  .panel-color(@country-color);
+}
+
+body.repository .panel-details, body .panel-details.repository {
+  .panel-color(@repo-color);
+}
+
+body.historicalAgent .panel-details {
+  .panel-color(@agent-color);
+}
+body.user .panel-details {
+  .panel-color(@user-color);
+}

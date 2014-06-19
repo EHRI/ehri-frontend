@@ -4,23 +4,27 @@ import play.api.libs.concurrent.Execution.Implicits._
 import _root_.forms.VisibilityForm
 import controllers.generic._
 import models._
-import play.api.i18n.Messages
 import defines.{ContentTypes, EntityType}
-import utils.search.{Resolver, Dispatcher, SearchOrder, SearchParams}
+import utils.search.{Indexer, Resolver, Dispatcher}
 import com.google.inject._
 import scala.concurrent.Future.{successful => immediate}
 import backend.{IdGenerator, Backend}
+import play.api.Configuration
+import play.api.Play.current
+import solr.SolrConstants
 
 @Singleton
 case class
-AuthoritativeSets @Inject()(implicit globalConfig: global.GlobalConfig, searchDispatcher: Dispatcher,
+AuthoritativeSets @Inject()(implicit globalConfig: global.GlobalConfig, searchDispatcher: Dispatcher, searchIndexer: Indexer,
             searchResolver: Resolver, backend: Backend, idGenerator: IdGenerator, userDAO: AccountDAO) extends CRUD[AuthoritativeSetF,AuthoritativeSet]
   with Creator[HistoricalAgentF, HistoricalAgent, AuthoritativeSet]
   with Visibility[AuthoritativeSet]
   with ScopePermissions[AuthoritativeSet]
   with Annotate[AuthoritativeSet]
+  with Indexable[AuthoritativeSet]
   with Search {
 
+  private val formDefaults: Option[Configuration] = current.configuration.getConfig(EntityType.HistoricalAgent)
   implicit val resource = AuthoritativeSet.Resource
   val contentType = ContentTypes.AuthoritativeSet
 
@@ -29,17 +33,14 @@ AuthoritativeSets @Inject()(implicit globalConfig: global.GlobalConfig, searchDi
   private val childForm = models.HistoricalAgent.form
   private val setRoutes = controllers.authorities.routes.AuthoritativeSets
 
-  // Search params
-  val DEFAULT_SEARCH_PARAMS = SearchParams(sort = Some(SearchOrder.Name), entities=List(resource.entityType))
 
-
-  def get(id: String) = getAction.async(id) {
-      item => annotations => links => implicit userOpt => implicit request =>
-    searchAction[HistoricalAgent](Map("holderId" -> item.id), defaultParams = Some(SearchParams(entities=List(EntityType.HistoricalAgent)))) {
-        page => params => facets => _ => _ =>
+  def get(id: String) = getAction.async(id) { item => annotations => links => implicit userOpt => implicit request =>
+    find[HistoricalAgent](
+      filters = Map(SolrConstants.HOLDER_ID -> item.id),
+      entities=List(EntityType.HistoricalAgent)).map { r =>
       Ok(views.html.authoritativeSet.show(
-          item, page, params, facets, setRoutes.get(id), annotations, links))
-    }.apply(request)
+          item, r.page, r.params, r.facets, setRoutes.get(id), annotations, links))
+    }
   }
 
   def history(id: String) = historyAction(id) { item => page => params => implicit userOpt => implicit request =>
@@ -51,16 +52,16 @@ AuthoritativeSets @Inject()(implicit globalConfig: global.GlobalConfig, searchDi
   }
 
   def create = createAction { users => groups => implicit userOpt => implicit request =>
-    Ok(views.html.authoritativeSet.create(form, VisibilityForm.form, users, groups, setRoutes.createPost))
+    Ok(views.html.authoritativeSet.create(form, VisibilityForm.form, users, groups, setRoutes.createPost()))
   }
 
   def createPost = createPostAction.async(form) { formsOrItem => implicit userOpt => implicit request =>
     formsOrItem match {
       case Left((errorForm,accForm)) => getUsersAndGroups { users => groups =>
-        BadRequest(views.html.authoritativeSet.create(errorForm, accForm, users, groups, setRoutes.createPost))
+        BadRequest(views.html.authoritativeSet.create(errorForm, accForm, users, groups, setRoutes.createPost()))
       }
       case Right(item) => immediate(Redirect(setRoutes.get(item.id))
-        .flashing("success" -> Messages("item.create.confirmation", item.id)))
+        .flashing("success" -> "item.create.confirmation"))
     }
   }
 
@@ -75,7 +76,7 @@ AuthoritativeSets @Inject()(implicit globalConfig: global.GlobalConfig, searchDi
       case Left(errorForm) => BadRequest(views.html.authoritativeSet.edit(
           olditem, errorForm, setRoutes.updatePost(id)))
       case Right(item) => Redirect(setRoutes.get(item.id))
-        .flashing("success" -> play.api.i18n.Messages("item.update.confirmation", item.id))
+        .flashing("success" -> "item.update.confirmation")
     }
   }
 
@@ -84,7 +85,7 @@ AuthoritativeSets @Inject()(implicit globalConfig: global.GlobalConfig, searchDi
     idGenerator.getNextChildNumericIdentifier(id, EntityType.HistoricalAgent).map { newid =>
       Ok(views.html.historicalAgent.create(
         item, childForm.bind(Map(Entity.IDENTIFIER -> newid)),
-        VisibilityForm.form.fill(item.accessors.map(_.id)), users, groups,
+        formDefaults, VisibilityForm.form.fill(item.accessors.map(_.id)), users, groups,
           setRoutes.createHistoricalAgentPost(id)))
     }
   }
@@ -94,10 +95,10 @@ AuthoritativeSets @Inject()(implicit globalConfig: global.GlobalConfig, searchDi
     formsOrItem match {
       case Left((errorForm,accForm)) => getUsersAndGroups { users => groups =>
         BadRequest(views.html.historicalAgent.create(item,
-          errorForm, accForm, users, groups, setRoutes.createHistoricalAgentPost(id)))
+          errorForm, formDefaults, accForm, users, groups, setRoutes.createHistoricalAgentPost(id)))
       }
       case Right(citem) => immediate(Redirect(controllers.authorities.routes.HistoricalAgents.get(citem.id))
-        .flashing("success" -> Messages("item.create.confirmation", citem.id)))
+        .flashing("success" -> "item.create.confirmation"))
     }
   }
 
@@ -109,7 +110,7 @@ AuthoritativeSets @Inject()(implicit globalConfig: global.GlobalConfig, searchDi
 
   def deletePost(id: String) = deletePostAction(id) { ok => implicit userOpt => implicit request =>
     Redirect(setRoutes.list())
-        .flashing("success" -> Messages("item.delete.confirmation", id))
+        .flashing("success" -> "item.delete.confirmation")
   }
 
   def visibility(id: String) = visibilityAction(id) { item => users => groups => implicit userOpt => implicit request =>
@@ -120,7 +121,7 @@ AuthoritativeSets @Inject()(implicit globalConfig: global.GlobalConfig, searchDi
 
   def visibilityPost(id: String) = visibilityPostAction(id) { ok => implicit userOpt => implicit request =>
     Redirect(setRoutes.get(id))
-        .flashing("success" -> Messages("item.update.confirmation", id))
+        .flashing("success" -> "item.update.confirmation")
   }
 
   def managePermissions(id: String) = manageScopedPermissionsAction(id) {
@@ -132,13 +133,13 @@ AuthoritativeSets @Inject()(implicit globalConfig: global.GlobalConfig, searchDi
   def addItemPermissions(id: String) = addItemPermissionsAction(id) {
       item => users => groups => implicit userOpt => implicit request =>
     Ok(views.html.permissions.permissionItem(item, users, groups,
-        setRoutes.setItemPermissions _))
+        setRoutes.setItemPermissions))
   }
 
   def addScopedPermissions(id: String) = addItemPermissionsAction(id) {
       item => users => groups => implicit userOpt => implicit request =>
     Ok(views.html.permissions.permissionScope(item, users, groups,
-        setRoutes.setScopedPermissions _))
+        setRoutes.setScopedPermissions))
   }
 
   def setItemPermissions(id: String, userType: EntityType.Value, userId: String) = setItemPermissionsAction(id, userType, userId) {
@@ -150,7 +151,7 @@ AuthoritativeSets @Inject()(implicit globalConfig: global.GlobalConfig, searchDi
   def setItemPermissionsPost(id: String, userType: EntityType.Value, userId: String) = setItemPermissionsPostAction(id, userType, userId) {
       bool => implicit userOpt => implicit request =>
     Redirect(setRoutes.managePermissions(id))
-        .flashing("success" -> Messages("item.update.confirmation", id))
+        .flashing("success" -> "item.update.confirmation")
   }
 
   def setScopedPermissions(id: String, userType: EntityType.Value, userId: String) = setScopedPermissionsAction(id, userType, userId) {
@@ -162,8 +163,18 @@ AuthoritativeSets @Inject()(implicit globalConfig: global.GlobalConfig, searchDi
   def setScopedPermissionsPost(id: String, userType: EntityType.Value, userId: String) = setScopedPermissionsPostAction(id, userType, userId) {
       perms => implicit userOpt => implicit request =>
     Redirect(setRoutes.managePermissions(id))
-        .flashing("success" -> Messages("item.update.confirmation", id))
+        .flashing("success" -> "item.update.confirmation")
   }
+
+
+  def updateIndex(id: String) = adminAction.async { implicit userOpt => implicit request =>
+    getEntity(id, userOpt) { item =>
+      Ok(views.html.search.updateItemIndex(item,
+        action = setRoutes.updateIndexPost(id)))
+    }
+  }
+
+  def updateIndexPost(id: String) = updateChildItemsPost(SolrConstants.HOLDER_ID, id)
 }
 
 

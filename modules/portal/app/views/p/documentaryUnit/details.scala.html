@@ -1,60 +1,50 @@
 @(item: DocumentaryUnit, desc: DocumentaryUnitDescriptionF)(implicit userOpt: Option[UserProfile], request: RequestHeader, lang: Lang, globalConfig: global.GlobalConfig)
 
 <div class="item-details panel panel-default">
-    <dl>
+    <dl class="dl-horizontal">
         <dt>@Messages("portal.documentaryUnit.identifier")</dt>
         <dd>@item.model.identifier</dd>
-    </dl>
+
         @item.model.otherIdentifiers.map { idents =>
-            <dl>
-                <dt>@Messages("portal.documentaryUnit.otherIdentifiers")</dt>
-                <dd>
-                    <ul class="list-inline">
-                    @idents.map { ident =>
-                        <li>@ident</li>
-                    }
-                    </ul>
-                </dd>
-            </dl>
+            <dt>@Messages("portal.documentaryUnit.otherIdentifiers")</dt>
+            <dd>
+                <ul class="list-inline">
+                @idents.map { ident =>
+                    <li>@ident</li>
+                }
+                </ul>
+            </dd>
         }
         @if(!desc.dates.isEmpty) {
-            <dl>
-                <dt>@Messages("portal.documentaryUnit.dates")</dt>
-                <dd>@desc.dates.map(_.years).mkString(", ")</dd>
-            </dl>
+            <dt>@Messages("portal.documentaryUnit.dates")</dt>
+            <dd>@desc.dates.map(_.years).mkString(", ")</dd>
         }
         @desc.identity.levelOfDescription.map { e =>
-            <dl>
-                <dt>@Messages("portal.documentaryUnit.levelOfDescription")</dt>
-                <dd>@e</dd>
-            </dl>
+            <dt>@Messages("portal.documentaryUnit.levelOfDescription")</dt>
+            <dd>@e</dd>
         }
         @desc.conditions.languageOfMaterials.map { langs =>
             @if(!langs.isEmpty) {
-                <dl>
-                    <dt>@Messages("portal.documentaryUnit.languageOfMaterials")</dt>
-                    <dd>
-                        <ul class="list-unstyled list-inline comma-sep">
-                            @langs.map { l =>
-                                <li>@views.Helpers.languageCodeToName(l)</li>
-                            }
-                        </ul>
-                    </dd>
-                </dl>
+                <dt>@Messages("portal.documentaryUnit.languageOfMaterials")</dt>
+                <dd>
+                    <ul class="list-unstyled list-inline comma-sep">
+                        @langs.map { l =>
+                            <li>@views.Helpers.languageCodeToName(l)</li>
+                        }
+                    </ul>
+                </dd>
             }
         }
         @desc.conditions.scriptOfMaterials.map { scr =>
             @if(!scr.isEmpty) {
-                <dl>
-                    <dt>@Messages("portal.documentaryUnit.scriptOfMaterials")</dt>
-                    <dd>
-                        <ul class="list-unstyled list-inline comma-sep">
-                            @scr.map { s =>
-                            <li>@views.Helpers.scriptCodeToName(s)</li>
-                            }
-                        </ul>
-                    </dd>
-                </dl>
+                <dt>@Messages("portal.documentaryUnit.scriptOfMaterials")</dt>
+                <dd>
+                    <ul class="list-unstyled list-inline comma-sep">
+                        @scr.map { s =>
+                        <li>@views.Helpers.scriptCodeToName(s)</li>
+                        }
+                    </ul>
+                </dd>
             }
         }
     </dl>

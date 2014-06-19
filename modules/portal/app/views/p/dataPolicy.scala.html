@@ -1,13 +1,12 @@
 @()(implicit userOpt: Option[UserProfile], request: RequestHeader, globalConfig: global.GlobalConfig, sessionPrefs: utils.SessionPrefs, flash: Flash, lang: Lang)
 
-@p.layout.portalLayout(Messages("dataPolicy.header")) {
-    @p.layout.infobar {
-    } {
-        <h1>@Messages("dataPolicy.header")</h1>
+@layout.portalLayout(Messages("dataPolicy.header")) {
+    @views.html.layout.infobar {
     } {
     }
 
-    @p.layout.mainContent {
+    @views.html.layout.mainContent {
+        <h1>@Messages("dataPolicy.header")</h1>
         <p>@Messages("dataPolicy.notice1")</p>
         <p>@Messages("dataPolicy.notice2")</p>
     }

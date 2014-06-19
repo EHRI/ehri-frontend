@@ -119,4 +119,15 @@ trait Read[MT] extends Generic[MT] {
       } yield f(item)(events)(params)(userOpt)(request)
     }
   }
+
+  def versionsAction(id: String)(
+    f: MT => Page[Version] => PageParams => Option[UserProfile] => Request[AnyContent] => Result)(implicit rd: RestReadable[MT]) = {
+    userProfileAction.async { implicit userOpt => implicit request =>
+      val params = PageParams.fromRequest(request)
+      for {
+        item <- backend.get(id)
+        events <- backend.versions(id, params)
+      } yield f(item)(events)(params)(userOpt)(request)
+    }
+  }
 }

@@ -1,5 +1,4 @@
-ol.collapsible {
-	width:100%;
+.collapsible {
 	overflow:hidden;
 	box-sizing: border-box;
 	list-style:none outside none;
@@ -17,6 +16,7 @@ ol.collapsible {
 			max-width:300px;
 			overflow:hidden;
 			text-decoration:none;
+            padding: 0 0;
 		}
 
 		.legend {
@@ -44,7 +44,7 @@ ol.collapsible {
 		}
 	}
 }
-ol.breadcrumb.collapsible {
+.breadcrumb.collapsible {
 	li {
 		border:1px solid @dark-gray;
 		padding:6px 12px 6px 24px;
@@ -105,7 +105,10 @@ ol.breadcrumb.collapsible {
 }
 .search-item-body > ol.collapsible {
 	li {
-		& > a { max-width:50px; display:inline-block; }
+		& > a {
+          max-width:50px;
+          display:inline-block;
+        }
 
 		&:before {
 			content: "";

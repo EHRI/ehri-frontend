@@ -4,8 +4,6 @@ import defines.EntityType
 import models.base.Model
 import play.api.libs.json._
 import models.json._
-import play.api.data.Form
-import play.api.data.Forms._
 
 
 object AddressF {
@@ -83,14 +81,13 @@ case class AddressF(
 }
 
 object Address {
-  // TODO: Move field defs to AddressF object?
   import Isdiah._
+  import play.api.data.Form
+  import play.api.data.Forms._
 
   def isValidWebsite(s: String): Boolean = {
     import utils.forms.isValidUrl
-    // FIXME: This is lame...
-    if (!s.trim.startsWith("http://") && s.contains("."))
-      isValidUrl("http://" + s)
+    if (!s.trim.startsWith("http://") && s.contains(".")) isValidUrl("http://" + s)
     else isValidUrl(s)
   }
 

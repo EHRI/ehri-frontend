@@ -1,6 +1,6 @@
 @(item: DocumentaryUnit, watched: Boolean)(implicit userOpt: Option[UserProfile], req: RequestHeader, globalConfig: global.GlobalConfig, lang: Lang)
 
-@p.layout.infobar {
+@layout.infobar {
     @item.holder.flatMap(_.country).map { country =>
         <li>@p.helpers.linkTo(country)</li>
     }
@@ -10,8 +10,6 @@
     @item.ancestors.reverse.map { ann =>
         <li>@p.helpers.linkTo(ann, views.Helpers.ellipsize(ann.toStringLang, 100))</li>
     }
-} {
-
 } {
     @userOpt.map { user =>
         @p.common.watchButtons(item, watched)

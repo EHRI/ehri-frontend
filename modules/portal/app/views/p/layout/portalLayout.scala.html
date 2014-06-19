@@ -3,15 +3,7 @@
 <!DOCTYPE html>
 
 <html lang="@lang.code">
-    <head>
-        <title>@title</title>
-        
-        <link href='http://fonts.googleapis.com/css?family=Lato:400,700' rel='stylesheet' type='text/css'>
-        <link rel="stylesheet" href="@controllers.core.routes.Assets.at("css/portal.css")">
-        <meta name="viewport" content="width=device-width, initial-scale=1">
-
-        @styles
-    </head>
+    @head(title, styles = styles)
     <body class="@itemClass">
         <script src="//ajax.googleapis.com/ajax/libs/jquery/1.8.3/jquery.min.js"></script>
         <script src="@controllers.portal.routes.Assets.at("js/feedback.js")"></script>
@@ -23,7 +15,7 @@
         <script src="@controllers.core.routes.Assets.at("select2/select2.min.js")"></script>
         <script src="@controllers.core.routes.Assets.at("js/common.js")" type="text/javascript"></script>
         <div id="wrap">
-            @p.layout.header()
+            @header()
             @views.html.common.flash(flash)
             <div class="page-content">
                 @content
@@ -37,8 +29,8 @@
         }
 
         <script src="@controllers.portal.routes.Assets.at("js/jquery.hoverIntent.min.js")"></script>
-        <script src="@controllers.portal.routes.Assets.at("js/dependencies/jquery.cookie.js")"></script>
-        <script src="@controllers.portal.routes.Assets.at("js/dependencies/jquery.cookiecuttr.js")"></script>
+        <script src="@controllers.portal.routes.Assets.at("js/lib/jquery.cookie.js")"></script>
+        <script src="@controllers.portal.routes.Assets.at("js/lib/jquery.cookiecuttr.js")"></script>
 
         <script src="@controllers.core.routes.Assets.at("bootstrap/js/bootstrap.min.js")"></script>
 

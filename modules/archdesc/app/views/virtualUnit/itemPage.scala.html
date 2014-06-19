@@ -8,28 +8,5 @@
 
     @common.visibility(item, controllers.archdesc.routes.VirtualUnits.visibility(item.id), ContentTypes.VirtualUnit)
     @common.latestAction(item, controllers.archdesc.routes.VirtualUnits.history(item.id))
-
-    @common.sidebarActions { user =>
-        @common.sidebarAction(user.hasPermission(ContentTypes.VirtualUnit, PermissionType.Create)) {
-            <a href="@controllers.archdesc.routes.VirtualUnits.createChild(item.id)">@Messages("virtualUnit.child.create")</a>
-        }
-        @common.sidebarAction(user.hasPermission(ContentTypes.VirtualUnit, PermissionType.Annotate)) {
-            <a href="@controllers.archdesc.routes.VirtualUnits.linkAnnotateSelect(item.id, EntityType.VirtualUnit)">@Messages("link.create")</a>
-        }
-        @common.sidebarAction(user.hasPermission(ContentTypes.VirtualUnit, PermissionType.Update)) {
-            <a href="@controllers.archdesc.routes.VirtualUnits.update(item.id)">@Messages("item.update")</a>
-        }
-        @common.sidebarAction(user.hasPermission(ContentTypes.VirtualUnit, PermissionType.Update)) {
-            <a href="@controllers.archdesc.routes.VirtualUnits.visibility(item.id)">@Messages("visibility.update")</a>
-            }
-        @common.sidebarAction(user.hasPermission(ContentTypes.VirtualUnit, PermissionType.Delete)) {
-            <a href="@controllers.archdesc.routes.VirtualUnits.delete(item.id)">@Messages("item.delete")</a>
-            }
-        @common.sidebarAction(user.hasPermission(ContentTypes.VirtualUnit, PermissionType.Grant)) {
-            <a href="@controllers.archdesc.routes.VirtualUnits.managePermissions(item.id)">@Messages("permissions.manage")</a>
-        }
-        @common.sidebarAction() {
-            <a href="@controllers.core.routes.ApiController.getItem(ContentTypes.VirtualUnit.toString, item.id)">@Messages("item.export.json")</a>
-        }
-    }
+    @adminActions(item)
 }

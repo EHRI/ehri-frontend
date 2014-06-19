@@ -23,12 +23,18 @@ trait AnyModel {
     case e: NoSuchElementException => None
   }
 
+  /**
+   * Language-dependent version of the name
+   */
   def toStringLang(implicit lang: Lang): String = this match {
     case e: MetaModel[_] => e.toStringLang(Lang.defaultLang)
     case t => t.toString
   }
 
-  def toStringAbbr(implicit lang: Lang) = s"TODO (with abbr): $isA [$id]"
+  /**
+   * Abbreviated version of the canonical name
+   */
+  def toStringAbbr(implicit lang: Lang) = toStringLang(lang)
 }
 
 trait Model {
@@ -37,19 +43,22 @@ trait Model {
   def isA: EntityType.Value
 }
 
+trait Aliased extends AnyModel {
+  def allNames(implicit lang: Lang): Seq[String] = Seq(toStringLang(lang))
+}
+
 object AnyModel {
 
   implicit object Converter extends RestReadable[AnyModel] with ClientConvertable[AnyModel] {
     implicit val restReads: Reads[AnyModel] = new Reads[AnyModel] {
       def reads(json: JsValue): JsResult[AnyModel] = {
         // Sniff the type...
-        val et = (json \ "type").as[EntityType.Value](defines.EnumUtils.enumReads(EntityType))
-        Utils.restReadRegistry.get(et).map {
-          reads =>
-            json.validate(reads)
+        val et = (json \ Entity.TYPE).as(defines.EnumUtils.enumReads(EntityType))
+        Utils.restReadRegistry.get(et).map { reads =>
+          json.validate(reads)
         }.getOrElse {
           JsError(
-            JsPath(List(KeyPathNode("type"))),
+            JsPath(List(KeyPathNode(Entity.TYPE))),
             ValidationError(s"Unregistered AnyModel type for REST: $et (registered: ${Utils.restReadRegistry.keySet}"))
         }
       }
@@ -57,12 +66,11 @@ object AnyModel {
 
     implicit val clientFormat: Format[AnyModel] = new Format[AnyModel] {
       def reads(json: JsValue): JsResult[AnyModel] = {
-        val et = (json \ "type").as[EntityType.Value](defines.EnumUtils.enumReads(EntityType))
-        Utils.clientFormatRegistry.get(et).map {
-          format =>
-            json.validate(format)
+        val et = (json \ Entity.TYPE).as(defines.EnumUtils.enumReads(EntityType))
+        Utils.clientFormatRegistry.get(et).map { format =>
+          json.validate(format)
         }.getOrElse {
-          JsError(JsPath(List(KeyPathNode("type"))), ValidationError("Unregistered AnyModel type for Client read: " + et))
+          JsError(JsPath(List(KeyPathNode(Entity.TYPE))), ValidationError("Unregistered AnyModel type for Client read: " + et))
         }
       }
 

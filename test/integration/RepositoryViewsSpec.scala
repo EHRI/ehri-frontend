@@ -77,8 +77,8 @@ class RepositoryViewsSpec extends Neo4jRunnerSpec(classOf[RepositoryViewsSpec]) 
         controllers.archdesc.routes.Countries.createRepositoryPost(COUNTRY).url).withHeaders(formPostHeaders.toSeq: _*), testData).get
       status(cr) must equalTo(SEE_OTHER)
 
-      // FIXME: This route will change when a property ID mapping scheme is devised
-      val show = route(fakeLoggedInHtmlRequest(privilegedUser, GET, redirectLocation(cr).get)).get
+      val show = route(fakeLoggedInHtmlRequest(privilegedUser, GET,
+        redirectLocation(cr).get)).get
       status(show) must equalTo(OK)
       contentAsString(show) must contain("Some history")
       contentAsString(show) must contain("Some content")

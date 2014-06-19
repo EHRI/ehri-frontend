@@ -8,13 +8,13 @@ class BrowserSpec extends PlaySpecification {
   "Application" should {
 
     "handle 404s properly for missing pages" in new WithBrowser {
-      browser.goTo(controllers.admin.routes.Home.index().url + "/idontexist")
+      browser.goTo(controllers.adminutils.routes.Home.index().url + "/idontexist")
       browser.$("#error-title").getTexts.get(0) must equalTo(Messages("errors.pageNotFound"))
     }
 
     "deny access to admin routes" in new WithBrowser {
-      browser.goTo(controllers.admin.routes.AdminSearch.search().url)
-      browser.$("title").getTexts.get(0) must equalTo(Messages("portal.login"))
+      browser.goTo(controllers.adminutils.routes.AdminSearch.search().url)
+      browser.$("title").getTexts.get(0) must contain(Messages("portal.login"))
     }
   }
 }

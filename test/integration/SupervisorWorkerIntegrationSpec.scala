@@ -64,7 +64,7 @@ class SupervisorWorkerIntegrationSpec extends Neo4jRunnerSpec(classOf[Supervisor
         "description" -> Seq("Group for the Head Archivists in Test Repo")
       )
       val headArchivistsGroupCreatePost = route(fakeLoggedInHtmlRequest(privilegedUser, POST,
-        controllers.users.routes.Groups.create().url)
+        controllers.admin.routes.Groups.create().url)
         .withHeaders(formPostHeaders.toSeq: _*), headArchivistsGroupData).get
       status(headArchivistsGroupCreatePost) must equalTo(SEE_OTHER)
 
@@ -75,17 +75,17 @@ class SupervisorWorkerIntegrationSpec extends Neo4jRunnerSpec(classOf[Supervisor
         "description" -> Seq("Group for the Archivists in Test Repo")
       )
       val archivistsGroupCreatePost = route(fakeLoggedInHtmlRequest(privilegedUser, POST,
-        controllers.users.routes.Groups.create().url)
+        controllers.admin.routes.Groups.create().url)
         .withHeaders(formPostHeaders.toSeq: _*), archivistsGroupData).get
       status(archivistsGroupCreatePost) must equalTo(SEE_OTHER)
 
       // Check we can read both groups
       val groupRead1 = route(fakeLoggedInHtmlRequest(privilegedUser, GET,
-        controllers.users.routes.Groups.get(headArchivistsGroupId).url)).get
+        controllers.admin.routes.Groups.get(headArchivistsGroupId).url)).get
       status(groupRead1) must equalTo(OK)
 
       val groupRead2 = route(fakeLoggedInHtmlRequest(privilegedUser, GET,
-        controllers.users.routes.Groups.get(archivistsGroupId).url)).get
+        controllers.admin.routes.Groups.get(archivistsGroupId).url)).get
       status(groupRead2) must equalTo(OK)
 
       // Grant scoped permissions for the head archivists to create, update, and delete
@@ -128,13 +128,13 @@ class SupervisorWorkerIntegrationSpec extends Neo4jRunnerSpec(classOf[Supervisor
         "group[]" -> Seq(headArchivistsGroupId, archivistsGroupId) // NB: Note brackets on param name!!!
       )
       val haUserCreatePost = route(fakeLoggedInHtmlRequest(privilegedUser, POST,
-        controllers.users.routes.UserProfiles.createUserPost().url)
+        controllers.admin.routes.UserProfiles.createUserPost().url)
         .withHeaders(formPostHeaders.toSeq: _*), haUserData).get
       status(haUserCreatePost) must equalTo(SEE_OTHER)
 
       // Check we can read the user's page
       val haUserRead =  route(fakeLoggedInHtmlRequest(privilegedUser, GET,
-        controllers.users.routes.UserProfiles.get(headArchivistUserId).url)).get
+        controllers.admin.routes.UserProfiles.get(headArchivistUserId).url)).get
       status(haUserRead) must equalTo(OK)
 
       // Fetch the user's profile to perform subsequent logins
@@ -158,13 +158,13 @@ class SupervisorWorkerIntegrationSpec extends Neo4jRunnerSpec(classOf[Supervisor
         "group[]" -> Seq(archivistsGroupId) // NB: Note brackets on param name!!!
       )
       val aUserCreatePost = route(fakeLoggedInHtmlRequest(privilegedUser, POST,
-        controllers.users.routes.UserProfiles.createUserPost().url)
+        controllers.admin.routes.UserProfiles.createUserPost().url)
         .withHeaders(formPostHeaders.toSeq: _*), aUserData).get
       status(aUserCreatePost) must equalTo(SEE_OTHER)
 
       // Check we can read the user's page
       val aUserRead =  route(fakeLoggedInHtmlRequest(privilegedUser, GET,
-        controllers.users.routes.UserProfiles.get(archivistUserId).url)).get
+        controllers.admin.routes.UserProfiles.get(archivistUserId).url)).get
       status(aUserRead) must equalTo(OK)
 
       // Fetch the user's profile to perform subsequent logins
@@ -178,11 +178,11 @@ class SupervisorWorkerIntegrationSpec extends Neo4jRunnerSpec(classOf[Supervisor
 
       // Check each user can read their profile as themselves...
       val haUserReadAsSelf =  route(fakeLoggedInHtmlRequest(haAccount, GET,
-        controllers.users.routes.UserProfiles.get(headArchivistUserId).url)).get
+        controllers.admin.routes.UserProfiles.get(headArchivistUserId).url)).get
       status(haUserReadAsSelf) must equalTo(OK)
 
       val aUserReadAsSelf =  route(fakeLoggedInHtmlRequest(aAccount, GET,
-        controllers.users.routes.UserProfiles.get(archivistUserId).url)).get
+        controllers.admin.routes.UserProfiles.get(archivistUserId).url)).get
       status(aUserReadAsSelf) must equalTo(OK)
 
       // Test the Head Archivist can Create, Update, and Delete documentary units within repoId

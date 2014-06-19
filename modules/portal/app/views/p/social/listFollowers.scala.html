@@ -8,7 +8,7 @@
         }
     }
 
-    <div class="main-content">
+    @views.html.layout.mainContent {
         @profileForUser(them)
         <div class="user-profile-activity">
             <h3 class="block-header user">@Messages("portal.social.userFollowing", them.toStringLang)</h3>
@@ -16,5 +16,5 @@
                 @followerList(them, users, params, myFollowing)
             </div>
         </div>
-    </div>
+    }
 }

@@ -1,13 +1,12 @@
 @(profileForm: play.api.data.Form[ProfileData], imageForm: Form[String], pwForm: Form[(String,String,String)], accForm: Form[AccountPreferences])(implicit userOpt: Option[UserProfile], request: RequestHeader, prefs: utils.SessionPrefs, globalConfig: global.GlobalConfig, lang: Lang, flash: Flash, token: play.filters.csrf.CSRF.Token)
 
 @p.layout.portalLayout(Messages("portal.profile")) {
-    @p.layout.infobar {
-    } {
-        <h1>@Messages("portal.profile")</h1>
+    @layout.infobar {
     } {
     }
 
-    @p.layout.mainContent {
+    @views.html.layout.mainContent {
+        <h1>@Messages("portal.profile")</h1>
         @userOpt.flatMap(_.account).map { account =>
             @if(!account.verified) {
                 <fieldset>
@@ -36,7 +35,7 @@
         <h3>@Messages("portal.profile.deleteProfile")</h3>
         <p>
         <div class="col-sm-offset-4 col-sm-8">
-            <a href="@controllers.portal.routes.Profile.deleteProfile" class="button danger">@Messages("portal.profile.deleteProfileLink")</a>
+            <a href="@controllers.portal.routes.Profile.deleteProfile" class=" btn  btn-danger ">@Messages("portal.profile.deleteProfileLink")</a>
         </div>
     }
 }

@@ -36,7 +36,7 @@ object AccessPointF {
   implicit val accessPointReads: Reads[AccessPointF] = (
     (__ \ ETYPE).readIfEquals(EntityType.AccessPoint) and
     (__ \ ID).readNullable[String] and
-    ((__ \ DATA \ TYPE).read[AccessPointType.Value] orElse Reads.pure(AccessPointType.Other)) and
+    (__ \ DATA \ TYPE).readWithDefault(AccessPointType.Other) and
     // FIXME: Target should be consistent!!!
     ((__ \ DATA \ TARGET).read[String]
       orElse (__ \ DATA \ DESCRIPTION).read[String]

@@ -5,7 +5,7 @@
     <script src="//ajax.googleapis.com/ajax/libs/jquery/1.10.2/jquery.min.js"></script>
     <script src="@controllers.portal.routes.Assets.at("js/jquery.validate.min.js")"></script>
 
-    @p.layout.mainContent {
+    @views.html.layout.mainContent {
         @p.layout.feedback(form)
     }
 }(None, request, globalConfig, flash, lang)

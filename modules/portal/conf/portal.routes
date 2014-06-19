@@ -59,6 +59,7 @@ GET         /newsFeed                       @controllers.portal.Portal.newsFeed
 GET         /item/:entityType/:id           @controllers.portal.Portal.browseItem(entityType: EntityType.Value, id: String)
 
 # Annotations...
+GET         /annotations                    @controllers.portal.Profile.annotations(format: controllers.DataFormat.Value ?= controllers.DataFormat.Html)
 GET         /annotation/:id                 @controllers.portal.Annotations.annotation(id: String)
 GET         /annotate/:aid/delete           @controllers.portal.Annotations.deleteAnnotation(aid: String)
 POST        /annotate/:aid/delete           @controllers.portal.Annotations.deleteAnnotationPost(aid: String)
@@ -79,17 +80,19 @@ GET         /unfollow/:userId               @controllers.portal.Social.unfollowU
 POST        /unfollow/:userId               @controllers.portal.Social.unfollowUserPost(userId: String)
 GET         /people/:userId/following       @controllers.portal.Social.followingForUser(userId: String)
 GET         /people/:userId/followers       @controllers.portal.Social.followersForUser(userId: String)
-GET         /watch/:id                      @controllers.portal.Social.watchItem(id: String)
-POST        /watch/:id                      @controllers.portal.Social.watchItemPost(id: String)
-GET         /unwatch/:id                    @controllers.portal.Social.unwatchItem(id: String)
-POST        /unwatch/:id                    @controllers.portal.Social.unwatchItemPost(id: String)
-GET         /watching                       @controllers.portal.Social.watching
 GET         /block/:userId                  @controllers.portal.Social.blockUser(userId: String)
 POST        /block/:userId                  @controllers.portal.Social.blockUserPost(userId: String)
 GET         /unblock/:userId                @controllers.portal.Social.unblockUser(userId: String)
 POST        /unblock/:userId                @controllers.portal.Social.unblockUserPost(userId: String)
 GET         /message/:userId                @controllers.portal.Social.sendMessage(userId: String)
 POST        /message/:userId                @controllers.portal.Social.sendMessagePost(userId: String)
+
+
+GET         /watch/:id                      @controllers.portal.Profile.watchItem(id: String)
+POST        /watch/:id                      @controllers.portal.Profile.watchItemPost(id: String)
+GET         /unwatch/:id                    @controllers.portal.Profile.unwatchItem(id: String)
+POST        /unwatch/:id                    @controllers.portal.Profile.unwatchItemPost(id: String)
+GET         /watching                       @controllers.portal.Profile.watching(format: controllers.DataFormat.Value ?= controllers.DataFormat.Html)
 
 GET         /account                        @controllers.portal.Profile.account
 GET         /profile                        @controllers.portal.Profile.profile

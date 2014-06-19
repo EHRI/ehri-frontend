@@ -1,10 +1,10 @@
-@(item: WithDescriptions[Description], desc: DocumentaryUnitDescriptionF, links: List[Link])(implicit fieldPrefix: String, userOpt: Option[UserProfile], req: RequestHeader, globalConfig: global.GlobalConfig, lang: Lang)
+@(item: WithDescriptions[Description], desc: DocumentaryUnitDescriptionF, links: Seq[Link], annotations: Seq[Annotation], actions: Html = Html(""))(implicit fieldPrefix: String, userOpt: Option[UserProfile], req: RequestHeader, globalConfig: global.GlobalConfig, lang: Lang)
 
 @import defines._
 @import models.IsadG._
 @import views.html.common.descriptionSection
 
-@common.descriptionOutline(desc, desc.languageCode) {
+@common.descriptionOutline(item, desc, actions = actions) {
     <h2>@desc.name</h2>
     @common.listValue(desc.identity.parallelFormsOfName, PARALLEL_FORMS_OF_NAME)
 

@@ -5,11 +5,13 @@
 
 @implicitField = @{ views.html.helper.FieldConstructor(formHelpers.fieldTemplate.f) }
 
-@defining(EntityType.DocumentaryUnit.toString) { implicit fieldPrefix =>
+@defining(EntityType.VirtualUnit.toString) { implicit fieldPrefix =>
 
     @formHelpers.lineInput(f(""), Entity.IDENTIFIER)
 
     @helper.repeat(f("descriptions"), min=math.max(f("descriptions").indexes.length, 1)) { desc =>
-        @documentaryUnit.renderDescriptionForm(desc)
+        @defining(EntityType.DocumentaryUnit.toString) { implicit fieldPrefix =>
+            @documentaryUnit.renderDescriptionForm(desc)
+        }
     }
 }

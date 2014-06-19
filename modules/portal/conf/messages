@@ -3,6 +3,10 @@ portal.home=Home
 portal.footerText=This is a development version of the EHRI portal interface.
 
 portal.feedback.list=Submitted Feedback
+portal.download=Download
+portal.download.format.txt=Download as plain text
+portal.download.format.csv=Download as CSV
+portal.download.format.json=Download as JSON
 
 portal.profile.preferences=Preferences
 portal.profile.preferences.updated=Preferences Updated
@@ -51,8 +55,9 @@ portal.mail.unverifiedEmailResend=To re-send a verification email
 portal.mail.unverifiedEmailResendSubmit=click here
 portal.mail.emailConfirmationResent=We''ve sent you an email which you can use to confirm you email address.
 
-portal.mail.messageEmailHeading=New message from {0}
-portal.mail.messageEmailFooter=To respond, reply directly to this message. You can opt-out from receiving user messages by updating your preferences
+portal.mail.message.subject=EHRI: Message from {0}: {1}
+portal.mail.message.heading=New message from {0}
+portal.mail.message.footer=To respond, reply directly to this message. You can opt-out from receiving user messages by updating your preferences
 
 portal.preferences.showUserContent=Show User-Generated Comments and Links
 
@@ -171,7 +176,9 @@ portal.social.message.send.userNotAcceptingMessages=This user has messaging disa
 portal.social.users=People
 portal.social.browseUsers=People on EHRI
 portal.social.follow=Follow
+portal.social.follow.submit=Follow User
 portal.social.unfollow=Unfollow
+portal.social.unfollow.submit=Unfollow User
 portal.social.followers=Followers
 portal.social.following=Following
 portal.social.followedBy=Followed By
@@ -180,16 +187,22 @@ portal.social.noFollowingYet={0} isn''t following anyone yet.
 portal.social.noItemsWatchedYet=You''re not watching any items yet.
 portal.social.userFollowing=Users Following {0}
 portal.social.usersFollowedBy=Users Followed by {0}
+portal.social.block=Block User
+portal.social.block.submit=Block User
+portal.social.unblock=Unblock User
+portal.social.unblock.submit=Unblock User
+
+portal.profile.watch.list=Watched Items
+portal.profile.watch=Watch Item
+portal.profile.watch.title=Add item to your watch list
+portal.profile.watch.tooltip=Click to see updates to this item in your activity list.
+portal.profile.watch.submit=Watch Item
+portal.profile.unwatch=Unwatch Item
+portal.profile.unwatch.tooltip=Click to stop getting updates to this item posted in your activity list.
+portal.profile.unwatch.submit=Unwatch Item
+portal.profile.unwatch.title=Remove item from your watch list
 
 portal.annotation=Notes
-portal.social.watch=Watch Item
-portal.social.unwatch=Unwatch Item
-portal.social.watchItem=Add item to your watch list
-portal.social.unwatchItem=Remove item from your watch list
-portal.social.watchedItems=Watched Items
-portal.social.watch.tooltip=Click to see updates to this item in your activity list.
-portal.social.unwatch.tooltip=Click to stop getting updates to this item posted in your activity list.
-
 portal.annotation.list=Notes
 portal.annotation.none=You haven''t made any notes yet.
 portal.annotation.create=Add Note

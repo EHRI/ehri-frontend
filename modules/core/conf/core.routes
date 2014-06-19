@@ -1,18 +1,8 @@
 # Routes for core functionality
 
-# API
-GET     /api/:id                                @controllers.core.ApiController.getAny(id: String)
-GET     /api/:contentType/list                  @controllers.core.ApiController.listItems(contentType: String)
-GET     /api/:contentType/:id                   @controllers.core.ApiController.getItem(contentType: String, id: String)
-GET     /api/*path                              @controllers.core.ApiController.get(path: String)
-
 # Change locale
 GET     /locale/:lang                           @controllers.core.Application.changeLocale(lang: String)
 GET     /localeData                             @controllers.core.Application.localeData(lang: String ?= "en")
-
-# API Sparql queries - TESTING
-GET     /sparql                                 @controllers.core.ApiController.sparql
-GET     /sparqlQuery                            @controllers.core.ApiController.sparqlQuery
 
 # Generic item redirection
 GET /item/:id                                   @controllers.core.Application.get(id: String)
