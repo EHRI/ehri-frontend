@@ -1,11 +1,6 @@
 @(item: DocumentaryUnit, desc: DocumentaryUnitDescriptionF)(implicit userOpt: Option[UserProfile], req: RequestHeader, globalConfig: global.GlobalConfig, lang: Lang, flash: Flash)
 
     @extrascripts = {
-        <script src="http://ajax.googleapis.com/ajax/libs/angularjs/1.0.5/angular.min.js"></script>
-        <script src="http://ajax.googleapis.com/ajax/libs/angularjs/1.0.5/angular-sanitize.min.js"></script>
-        <script src="@controllers.core.routes.Assets.at("js/ui-bootstrap-0.10.0.min.js")" type="text/javascript"></script>
-        <script src="@controllers.archdesc.routes.Assets.at("js/AccessPointLinker.js")" type="text/javascript"></script>
-
         @helper.javascriptRouter("jsRoutes")(
             controllers.core.routes.javascript.Application.get,
             controllers.core.routes.javascript.Application.getType,
@@ -20,6 +15,9 @@
             controllers.archdesc.routes.javascript.DocumentaryUnits.deleteLink,
             controllers.archdesc.routes.javascript.DocumentaryUnits.deleteLinkAndAccessPoint
         )
+        <script src="@controllers.core.routes.Assets.at("js/handlebar.min.js")"></script>
+        <script src="@controllers.core.routes.Assets.at("js/typeahead.min.js")"></script>
+        <script type="text/javascript" src="@controllers.core.routes.Assets.at("js/accessPoints.js")"></script>
         <style type="text/css">
             .modal-dialog { width: 80%;}
         </style>
@@ -29,41 +27,18 @@
 
 @documentaryUnit.itemPage(item, scripts = extrascripts) {
     <h4>&quot;@desc.name&quot;</h4>
-    <div ng-app="AccessPointLinker" class="ng-cloak">
-        <div ng-controller="LinkerCtrl" ng-init="init('@item.id','@desc.id')">
+    <div>
+        <div>
             <ul class="list-unstyled">
             @AccessPointType.values.toList.map { accessPointType =>
                 <li class="accessPointList @accessPointType">
                     <h3>@Messages("documentaryUnit." + IsadG.ACCESS_POINTS + "." + accessPointType)</h3>
                     <ul class="item-annotation-links list-unstyled">
-                        <li ng-repeat="access in getAccessPointsWithType('@accessPointType')" id="{{access.accessPoint.id}}">
-                            <span ng-switch="access.link != null">
-                                <span ng-switch-when="true">
-                                    <a target="_blank" href="{{getTypeUrl(access.target.type, access.target.id)}}">{{access.accessPoint.name}}</a>
-                                    <a title="@Messages("accessPoint.delete")"
-                                    class="glyphicon glyphicon-remove" ng-click="deleteAccessPointWithLink(access.accessPoint.id, access.link.id, access.accessPoint.name)"></a>
-                                </span>
 
-                                <span ng-switch-when="false">
-                                    {{access.accessPoint.name}}
-                                    <a title="@Messages("accessPoint.delete")"
-                                        class="glyphicon glyphicon-remove" ng-click="deleteAccessPoint(access.accessPoint.id, access.accessPoint.name)"></a>
-                                </span>
-                            </span>
-                            <small ng-show="access.accessPoint.description">
-                                <p class="text-muted">{{access.accessPoint.description}}</p>
-                            </small>
-                        </li>
+                        <li>
+                            <a href="#" class="add-access-toggle"><small><i class="glyphicon glyphicon-plus-sign"></i>@Messages("accessPoint.create")</small></a>
 
-                        <li ng-switch="editInProgress('@accessPointType')">
-                            <small ng-switch-when="false">
-                                <a ng-click="initialiseEdit('@accessPointType')">
-                                    <i class="glyphicon glyphicon-plus-sign"></i>
-                                    @Messages("accessPoint.create")
-                                </a>
-
-                            </small>
-                            <div class="form-horizontal" ng-switch-when="true" class="new-access-point">
+                            <div class="form-horizontal"  class="new-access-point" style="">
                                 <h4>@Messages("accessPoints.newAccessPoint")</h4>
                                 <div class="form-group">
                                     <label class="col-sm-3 control-label">
@@ -71,47 +46,53 @@
                                     </label>
                                     <div class="col-sm-9">
                                         <div class="input-group">
-                                            <input class="form-control" type="text" placeholder="@Messages("accessPoint.name")" ng-change="queryNameMatches()" ng-model="tempAccessPoint.name" autofocus="true" />
+                                            <input class="form-control quicksearch" type="text" placeholder="@Messages("accessPoint.name")" autofocus="true" />
                                              <div class="input-group-btn">
-                                                <a class="btn btn-default" ng-click="openBrowseDialog()">
+                                                <a class="btn btn-default">
                                                     <i class="glyphicon glyphicon-search"></i>
                                                 </a>
+                                                @accessPointType.toString match {
+                                                    case "creatorAccess" | "personAccess" => {
+                                                        <button type="button" value ="historicalAgent" class="btn btn-primary type" disabled="true">@Messages("contentTypes.historicalAgent")</button>
+                                                    }
+                                                    case "placeAccess" => {
+                                                        <button type="button" value="cvocConcept" class="btn btn-default btn-primary type">@Messages("contentTypes.cvocConcept")</button>
+                                                        <button type="button" value="country" class="btn btn-default btn-primary type">@Messages("contentTypes.country")</button>
+                                                    }
+                                                    case "subjectAccess" => {
+                                                        <button type="button" value="cvocConcept" class="btn btn-primary type" disabled="true">@Messages("contentTypes.cvocConcept")</button>
+                                                    }
+                                                    case _ => { }
+                                                }
                                             </div>
                                         </div>
-                                        <p class="help-block">
-                                            <div class="potential-matches list-group list-group-small" style="overflow: auto; max-height: 200px">
-                                                <a class="list-group-item" ng-repeat="item in matches" ng-click="selectLinkMatch(item)">
-                                                    <span class="badge">{{readableType(item.type)}}<span ng-show="item.parent!=''"> / {{item.parent}}</span></span>
-                                                    {{item.name}}
-                                                </a>
+                                    </div>
+                                </div>
+                                <div class="append-in">
+                                    <div class="form-group model" style="display:none;">
+                                        <div class="col-sm-9 col-sm-offset-3">
+                                            <div class="input-group">
+                                                <div class="input-group-btn">
+                                                    <a class="btn btn-success">
+                                                        <i class="glyphicon glyphicon-link"></i>
+                                                    </a>
+                                                    <button class="btn btn-success" value="lala">
+                                                        THE NAME
+                                                    </button>
+                                                </div>
+                                                <input type="text" class="form-control" placeholder="@Messages("accessPoint.description")" />
+                                                <div class="input-group-btn">
+                                                    <a title="@Messages("accessPoint.delete")" class="btn btn-danger"><span class="glyphicon glyphicon-remove"></span></a>
+                                                </div>
                                             </div>
-                                        </p>
+                                        </div>
                                     </div>
-                                </div>
-                                <div class="form-group">
-                                    <label class="col-sm-3 control-label">
-                                        @Messages("accessPoint.description")
-                                    </label>
-                                    <div class="col-sm-9">
-                                        <input type="text" class="form-control" placeholder="@Messages("accessPoint.description")" ng-model="tempAccessPoint.description" />
-                                    </div>
-                                </div>
-                                <div class="form-group" ng-switch="tempAccessPoint.link != null">
-                                    <label ng-switch-when="true"  class="col-sm-3 control-label">Options
-                                    </label>
-                                    <div ng-switch-when="true" class="col-sm-9">
-                                        <i class="glyphicon glyphicon-link"></i>
-                                        <a target="_blank" href="{{getUrl(tempAccessPoint.link.target)}}">{{tempAccessPoint.link.name}}</a>
-                                        <a title="@Messages("accessPoint.delete")"
-                                           class="glyphicon glyphicon-remove" ng-click="removeTempAccessPointLink()"></a>
-                                    </div>
-
                                 </div>
                                 <div class="form-group">
                                     <div class="col-sm-offset-3 col-sm-9">
-                                        <button class="btn btn-small btn-primary" ng-click="saveNewAccessPoint()" ng-disabled="!hasValidNewAccessPoint('@accessPointType')">
+                                        <button class="btn btn-small btn-primary">
                                             @Messages("save")</button>
-                                        <button class="btn btn-small btn-danger" ng-click="cancelAddAccessPoint()">@Messages("cancel")</button>
+                                        <button class="btn btn-small btn-danger">@Messages("cancel")</button>
                                     </div>
                                 </div>
                             </div>
