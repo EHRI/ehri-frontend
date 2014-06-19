@@ -90,7 +90,7 @@ jQuery(function($) {
     $("select.select2").select2(select2Opts);
   });
 
-  var filterUrl = "/admin/filter"; // FIXME: Use reverse routes
+  var filterUrl = "/filter"; // FIXME: Use reverse routes
 
   $(".select2.item-filter").select2({
     minimumInputLength: 2,

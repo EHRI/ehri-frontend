@@ -9,15 +9,16 @@ GET     /assets/*file                   controllers.Assets.at(path="/public", fi
 GET     /*path/                         controllers.GlobalController.untrail(path)
 
 # Defer other routes to modules
--> /admin               core.Routes
--> /admin               adminutils.Routes
+-> /                    core.Routes
+-> /                    portal.Routes
+
+# Admin routes
 -> /admin               admin.Routes
 -> /admin               linking.Routes
 -> /admin               annotation.Routes
 -> /admin               authorities.Routes
 -> /admin               archdesc.Routes
 -> /admin               vocabs.Routes
+-> /admin               adminutils.Routes
 -> /guides              guides.Routes
 
-# Portal is special
--> /                    portal.Routes

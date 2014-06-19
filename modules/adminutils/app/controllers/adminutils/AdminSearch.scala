@@ -93,20 +93,6 @@ case class AdminSearch @Inject()(implicit globalConfig: global.GlobalConfig, sea
     }
   }
 
-  /**
-   * Quick filter action that searches applies a 'q' string filter to
-   * only the name_ngram field and returns an id/name pair.
-   */
-  def filter = filterAction() {
-    page => implicit userOpt => implicit request =>
-      Ok(Json.obj(
-        "numPages" -> page.numPages,
-        "page" -> page.page,
-        "items" -> page.items
-      ))
-  }
-
-
   import play.api.data.Form
   import play.api.data.Forms._
   import models.forms.enum
