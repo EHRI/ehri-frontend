@@ -15,6 +15,7 @@ import backend.{ApiUser, Backend}
 import utils.ListParams
 import play.api.Play.current
 import play.api.Configuration
+import play.api.http.MimeTypes
 
 
 @Singleton
@@ -402,7 +403,8 @@ case class DocumentaryUnits @Inject()(implicit globalConfig: global.GlobalConfig
     }
 
     fetchTree(id).map { tree =>
-      Ok(views.export.ead.Helpers.tidyXml(views.xml.export.ead.documentaryUnitEad(tree).body)).as("text/xml")
+      Ok(views.export.ead.Helpers.tidyXml(views.xml.export.ead.documentaryUnitEad(tree).body))
+        .as(MimeTypes.XML)
     }
   }
 }

@@ -16,6 +16,7 @@ import utils.ListParams
 import scala.concurrent.ExecutionContext
 import play.api.Configuration
 import play.api.Play.current
+import play.api.http.MimeTypes
 
 @Singleton
 case class Repositories @Inject()(implicit globalConfig: global.GlobalConfig, searchDispatcher: Dispatcher, searchIndexer: Indexer, searchResolver: Resolver, backend: Backend, userDAO: AccountDAO) extends Read[Repository]
@@ -273,7 +274,8 @@ case class Repositories @Inject()(implicit globalConfig: global.GlobalConfig, se
       }))
     } yield {
       Ok(views.export.ead.Helpers.tidyXml(
-          views.xml.export.ead.repositoryEad(repo, trees).body)).as("text/xml")
+          views.xml.export.ead.repositoryEad(repo, trees).body))
+        .as(MimeTypes.XML)
     }
   }
 }
