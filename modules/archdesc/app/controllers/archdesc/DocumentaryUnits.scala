@@ -115,7 +115,7 @@ case class DocumentaryUnits @Inject()(implicit globalConfig: global.GlobalConfig
     // has no parent items - UNLESS there's a query, in which case we're
     // going to peer INSIDE items... dodgy logic, maybe...
     
-    val filters = if (request.getQueryString(SearchParams.QUERY).isEmpty)
+    val filters = if (request.getQueryString(SearchParams.QUERY).filterNot(_.trim.isEmpty).isEmpty)
       Map(SolrConstants.TOP_LEVEL -> true) else Map.empty[String,Any]
 
     find[DocumentaryUnit](

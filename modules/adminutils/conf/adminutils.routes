@@ -15,9 +15,6 @@ POST    /updateIndex                        @controllers.adminutils.AdminSearch.
 # Search testing
 GET     /search                             @controllers.adminutils.AdminSearch.search
 
-# Get JSON (id,name) pair for a given type
-GET     /filter                             @controllers.adminutils.AdminSearch.filter
-
 # Metrics
 GET     /metrics/languageOfMaterial         @controllers.adminutils.Metrics.languageOfMaterial
 GET     /metrics/holdingRepository          @controllers.adminutils.Metrics.holdingRepository

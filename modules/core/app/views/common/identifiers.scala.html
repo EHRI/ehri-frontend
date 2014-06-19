@@ -1,0 +1,12 @@
+@(id: String, altIds: Option[Seq[String]] = None)(implicit userOpt: Option[UserProfile], request: RequestHeader, globalConfig: global.GlobalConfig, lang: Lang)
+
+@common.sidebarSection(name = Some(Messages("item.identifier"))) {
+    <ul class="list-group">
+        <li class="list-group-item"><strong>@id</strong></li>
+        @altIds.filterNot(_.isEmpty).map { ids =>
+            @ids.map { id =>
+                <li class="list-group-item">@id</li>
+            }
+        }
+    </ul>
+}
