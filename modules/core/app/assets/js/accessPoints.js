@@ -1,6 +1,11 @@
 $(document).ready(function() {
+	var ajaxHeaders = {
+	"ajax-ignore-csrf": true,
+	"Content-Type": "application/json",
+	"Accept": "application/json; charset=utf-8"
+	};
 	/* Search and URLS	*/
-	$search = function() {
+	var $search = function() {
       var search = function(types, searchTerm, page, callback) {
         var params = "?limit=10&q=" + searchTerm;
         if (types && types.length > 0) {
@@ -54,7 +59,7 @@ $(document).ready(function() {
       };
     };
 
-    $service = {
+    var $service = {
         get: jsRoutes.controllers.core.Application.get,
         getItem: jsRoutes.controllers.core.Application.getType,
         filter: jsRoutes.controllers.core.SearchFilter.filter,
@@ -68,16 +73,85 @@ $(document).ready(function() {
         redirectUrl: function(id) {
           return jsRoutes.controllers.archdesc.DocumentaryUnits.get(id).url;
         }
-      };
+	};
+
+	/**
+	* Gather data about one access point
+	*
+	*/
+	var makeScope = function($container) {
+		var $element = $container.find(".element-name"),
+			$item = $container.parents(".item-annotation-links").first(),
+			o = {
+				/* Data for access point*/
+				id : $item.data("id"),
+				did : $item.data("did"),
+				name : $element.text(),
+				type : $container.parents(".new-access-point").first().data("type"),
+				description: $container.find(".element-description").val(),
+				/* Data for link */
+				link : {
+					target: $element.val(),
+					name: $element.text(),
+					targetType: $element.data("type"),
+					type: "associative"
+				},
+
+				/* FOR RETRIEVAL PURPOSE */
+				container: $container
+			}
+		return o;
+	}
+
+	/**
+	* Save the new access point data to the server, refreshing
+	* the list of access points when done.
+	* Scope is the object returned in makeScope
+	*/
+	var saveNewAccessPoint = function($scope) {
+		$service.createAccessPoint($scope.id, $scope.did).ajax({
+		  data: JSON.stringify({
+		    name: $scope.name,
+		    accessPointType: $scope.type,
+		    isA: "relationship",
+		    description: $scope.description
+		  }),
+		  headers: ajaxHeaders
+		}).done(function(data) {
+			console.log(data)
+			$service.createLink($scope.id, data.id).ajax({
+				data: JSON.stringify({
+					target: $scope.link.target,
+					type: $scope.link.type,
+					description: $scope.description
+				}),
+				headers: ajaxHeaders
+			}).done(function(data) {
+				$scope.container.remove()
+				/* $scope.getAccessPointList(); NEED TO UPDATE ACCESS POINT LIST */
+			}).error(function() {
+				console.log(arguments)
+			});
+	  	});
+	};
 
     /* MODEL APPEND */
-    $appends = function(elem, name, id) {
+    var appends = function(elem, name, id, did, type) {
     	$accesslist = elem.parents(".accessPointList");
     	$target = $accesslist.find(".append-in")
     	var $model = $accesslist.find(".model")
-
-
+    	var $element = $model.data("target", id).clone().removeClass("model").addClass("element")
+    	$element.find(".element-name").text(name).val(id).data("did", did).data("type", type)
+    	$target.append($element.show())
     }
+
+    $(".append-in").on("click", ".btn-danger", function() {
+    	var $elem = $(this),
+    		$parent = $elem.parents(".element").first()
+
+    	$parent.remove()
+    })
+
 	/* Triggers */
 	$(".add-access-toggle").on("click", function(e) {
 		e.preventDefault();
@@ -93,10 +167,23 @@ $(document).ready(function() {
 		e.preventDefault()
 		var $elem = $(this),
 			$id = $elem.data("target"),
-			$name = $elem.data("name");
-
+			$name = $elem.data("name"),
+			$did = $elem.data("did"),
+			$type = $elem.data("type");
+		appends($elem, $name, $id, $did, $type)
 	})
 
+	/* Save access point */
+	$(".new-access-point .element-save").on("click", function(e) {
+		e.preventDefault();
+		var $form = $(this).parents(".new-access-point").first(),
+			$accesspoints = $form.find(".append-in > .element")
+
+		$accesspoints.each(function() {
+			var data = makeScope($(this))
+			saveNewAccessPoint(data)
+		})
+	})
 	/* Search input */
 	$(".quicksearch").each(function() {
 		$quicksearch = $(this);
@@ -124,7 +211,8 @@ $(document).ready(function() {
 		                                name: parsedResponse.items[i].name,
 		                                value: parsedResponse.items[i].name,
 		                                type : parsedResponse.items[i].type,
-		                                parent : parsedResponse.items[i].parent
+		                                parent : parsedResponse.items[i].parent,
+		                                did: parsedResponse.items[i].did
 		                              });
 		                              alreadyResult.push(parsedResponse.items[i][1]);
 		                            }
@@ -134,7 +222,7 @@ $(document).ready(function() {
 		                      }
 		                    });
 		$quicksearchBH.initialize();
-		var $quicksearchTemplate = Handlebars.compile('<a class="add-access-element" data-name="{{name}}" data-target="{{id}}">{{name}} <span class="badge pull-right">{{parent}} {{type}}</span></a>');
+		var $quicksearchTemplate = Handlebars.compile('<a class="add-access-element" data-type="{{type}}" data-did="{{did}}" data-name="{{name}}" data-target="{{id}}">{{name}} <span class="badge pull-right">{{parent}} {{type}}</span></a>');
 
 		/**
 		* Initialize typeahead.js

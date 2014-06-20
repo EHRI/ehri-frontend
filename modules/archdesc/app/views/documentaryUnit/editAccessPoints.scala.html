@@ -27,81 +27,76 @@
 
 @documentaryUnit.itemPage(item, scripts = extrascripts) {
     <h4>&quot;@desc.name&quot;</h4>
-    <div>
-        <div>
-            <ul class="list-unstyled">
-            @AccessPointType.values.toList.map { accessPointType =>
-                <li class="accessPointList @accessPointType">
-                    <h3>@Messages("documentaryUnit." + IsadG.ACCESS_POINTS + "." + accessPointType)</h3>
-                    <ul class="item-annotation-links list-unstyled">
+    <ul class="list-unstyled">
+    @AccessPointType.values.toList.map { accessPointType =>
+        <li class="accessPointList @accessPointType">
+            <h3>@Messages("documentaryUnit." + IsadG.ACCESS_POINTS + "." + accessPointType)</h3>
+            <ul class="item-annotation-links list-unstyled" data-id="@item.id" data-did="@desc.id">
 
-                        <li>
-                            <a href="#" class="add-access-toggle"><small><i class="glyphicon glyphicon-plus-sign"></i>@Messages("accessPoint.create")</small></a>
+                <li>
+                    <a href="#" class="add-access-toggle"><small><i class="glyphicon glyphicon-plus-sign"></i>@Messages("accessPoint.create")</small></a>
 
-                            <div class="form-horizontal"  class="new-access-point" style="">
-                                <h4>@Messages("accessPoints.newAccessPoint")</h4>
-                                <div class="form-group">
-                                    <label class="col-sm-3 control-label">
-                                        @Messages("accessPoint.name")
-                                    </label>
-                                    <div class="col-sm-9">
-                                        <div class="input-group">
-                                            <input class="form-control quicksearch" name="@accessPointType.toString" type="text" placeholder="@Messages("accessPoint.name")" autofocus="true" />
-                                             <div class="input-group-btn">
-                                                <a class="btn btn-default">
-                                                    <i class="glyphicon glyphicon-search"></i>
-                                                </a>
-                                                @accessPointType.toString match {
-                                                    case "creatorAccess" | "personAccess" => {
-                                                        <button type="button" value ="historicalAgent" class="btn btn-info type" disabled="true">@Messages("contentTypes.historicalAgent")</button>
-                                                    }
-                                                    case "placeAccess" => {
-                                                        <button type="button" value="cvocConcept" class="btn btn-info type">@Messages("contentTypes.cvocConcept")</button>
-                                                        <button type="button" value="country" class="btn btn-info type">@Messages("contentTypes.country")</button>
-                                                    }
-                                                    case "subjectAccess" => {
-                                                        <button type="button" value="cvocConcept" class="btn btn-info type" disabled="true">@Messages("contentTypes.cvocConcept")</button>
-                                                    }
-                                                    case _ => { }
-                                                }
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                                <div class="append-in">
-                                    <div class="form-group model" style="display:none;">
-                                        <div class="col-sm-9 col-sm-offset-3">
-                                            <div class="input-group">
-                                                <div class="input-group-btn">
-                                                    <a class="btn btn-success">
-                                                        <i class="glyphicon glyphicon-link"></i>
-                                                    </a>
-                                                    <button class="btn btn-success" value="lala">
-                                                        THE NAME
-                                                    </button>
-                                                </div>
-                                                <input type="text" class="form-control" placeholder="@Messages("accessPoint.description")" />
-                                                <div class="input-group-btn">
-                                                    <a title="@Messages("accessPoint.delete")" class="btn btn-danger"><span class="glyphicon glyphicon-remove"></span></a>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                                <div class="form-group">
-                                    <div class="col-sm-offset-3 col-sm-9">
-                                        <button class="btn btn-small btn-primary">
-                                            @Messages("save")</button>
-                                        <button class="btn btn-small btn-danger">@Messages("cancel")</button>
+                    <div class="form-horizontal new-access-point" data-type="@accessPointType.toString" style="">
+                        <h4>@Messages("accessPoints.newAccessPoint")</h4>
+                        <div class="form-group">
+                            <label class="col-sm-3 control-label">
+                                @Messages("accessPoint.name")
+                            </label>
+                            <div class="col-sm-9">
+                                <div class="input-group">
+                                    <input class="form-control quicksearch" name="@accessPointType.toString" type="text" placeholder="@Messages("accessPoint.name")" autofocus="true" />
+                                     <div class="input-group-btn">
+                                        <a class="btn btn-default">
+                                            <i class="glyphicon glyphicon-search"></i>
+                                        </a>
+                                        @accessPointType.toString match {
+                                            case "creatorAccess" | "personAccess" => {
+                                                <button type="button" value ="historicalAgent" class="btn btn-info type" disabled="true">@Messages("contentTypes.historicalAgent")</button>
+                                            }
+                                            case "placeAccess" => {
+                                                <button type="button" value="cvocConcept" class="btn btn-info type">@Messages("contentTypes.cvocConcept")</button>
+                                                <button type="button" value="country" class="btn btn-info type">@Messages("contentTypes.country")</button>
+                                            }
+                                            case "subjectAccess" => {
+                                                <button type="button" value="cvocConcept" class="btn btn-info type" disabled="true">@Messages("contentTypes.cvocConcept")</button>
+                                            }
+                                            case _ => { }
+                                        }
                                     </div>
                                 </div>
                             </div>
-                        </li>
-                    </ul>
-                    <hr />
+                        </div>
+                        <div class="append-in">
+                            <div class="form-group model" style="display:none;">
+                                <div class="col-sm-9 col-sm-offset-3">
+                                    <div class="input-group">
+                                        <div class="input-group-btn">
+                                            <a class="btn btn-success">
+                                                <i class="glyphicon glyphicon-link"></i>
+                                            </a>
+                                            <button class="btn btn-success element-name" name="@accessPointType.toString" data-did="" value="">
+                                            </button>
+                                        </div>
+                                        <input type="text" class="form-control element-description" placeholder="@Messages("accessPoint.description")" />
+                                        <div class="input-group-btn">
+                                            <a title="@Messages("accessPoint.delete")" class="btn btn-danger"><span class="glyphicon glyphicon-remove"></span></a>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <div class="col-sm-offset-3 col-sm-9">
+                                <button class="btn btn-small btn-primary element-save">
+                                    @Messages("save")</button>
+                                <button class="btn btn-small btn-danger">@Messages("cancel")</button>
+                            </div>
+                        </div>
+                    </div>
                 </li>
-            }
             </ul>
-        </div>
-    </div>
+            <hr />
+        </li>
+    }
+    </ul>
 }
