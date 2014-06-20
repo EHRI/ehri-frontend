@@ -76,6 +76,74 @@ $(document).ready(function() {
 	};
 
 	/**
+	* Get list of access points
+	*
+	*/
+	getAccessPointList = function() {
+		var $item = $(".item-annotation-links"),
+			$itemId = $item.data("id"),
+			$descriptionId = $item.data("did"),
+			$accesslist= false;
+		$service.getAccessPoints($itemId, $descriptionId).ajax({
+			success: function(data) {
+				for (var i in data) {
+					if (data[i].id === $descriptionId) {
+						$accesslist = data[i];
+						break;
+					}
+				}
+				//If we have an access point list
+				if($accesslist) {
+					//For each access point type
+					$.each($accesslist["data"], function(index, arr) {
+						//We get temporary element and the model as well which we clone
+						var $container = $(".accessPointList."+arr["type"]+ " .item-annotation-links"),
+							$model = $container.find(".access-saved.model").clone().removeClass("model"),
+							$notmodel = $container.find(".access-saved:not(.model)")
+						//We remove old iems
+						$notmodel.remove();
+						//For each element, we create and prepend a new line
+						$.each(arr["data"], function(index, a) {
+							var $element = $model.clone();
+							$element.attr("id", a.accessPoint.id)
+							if(typeof a.link !== "undefined") {
+								$element.data("link", a.link.id)
+							}
+							$element.find(".access-saved-name").text(a.accessPoint.name)
+							if(typeof a.target !== "undefined") {
+								$element.find(".access-saved-name").attr("href", $service.getItem(a.target.type, a.target.id).url)
+							}
+							if(a.accessPoint.description) {
+								$element.find(".access-saved-description").html("<p>" + a.accessPoint.description + "</p>")
+							}
+							/* Remove confirmation */
+							$element.find(".access-saved-delete").confirmation({
+								title : 'Delete link for this access point ?',
+								singleton: true,
+								popout: true,
+								placement: 'bottom',
+								trigger: "click",
+								onConfirm : function() {
+									$service.deleteLinkAndAccessPoint($itemId, $descriptionId, a.accessPoint.id, $element.data("link")).ajax({
+										success: function(data) {
+											getAccessPointList();
+										}
+									});
+								},
+								onCancel : function () {
+									$element.find(".access-saved-delete").confirmation('hide')
+								}
+							})
+							/* Finally append it*/
+							$container.prepend($element)
+						})	
+					})
+				}
+				return $accesslist;
+			}
+		});
+	};
+	/**
 	* Gather data about one access point
 	*
 	*/
@@ -128,10 +196,15 @@ $(document).ready(function() {
 				headers: ajaxHeaders
 			}).done(function(data) {
 				$scope.container.remove()
+				return true;
 				/* $scope.getAccessPointList(); NEED TO UPDATE ACCESS POINT LIST */
 			}).error(function() {
 				console.log(arguments)
+				return false;
 			});
+	  	}).error(function() {
+			console.log(arguments)
+	  		return false;
 	  	});
 	};
 
@@ -181,7 +254,7 @@ $(document).ready(function() {
 
 		$accesspoints.each(function() {
 			var data = makeScope($(this))
-			saveNewAccessPoint(data)
+			return saveNewAccessPoint(data)
 		})
 	})
 	/* Search input */
@@ -242,4 +315,7 @@ $(document).ready(function() {
 			    }
 			});
 	})
+
+	/* Init trigger */
+	getAccessPointList()
 });

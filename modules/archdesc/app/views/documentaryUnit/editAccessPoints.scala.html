@@ -17,9 +17,11 @@
         )
         <script src="@controllers.core.routes.Assets.at("js/handlebar.min.js")"></script>
         <script src="@controllers.core.routes.Assets.at("js/typeahead.min.js")"></script>
+        <script src="@controllers.core.routes.Assets.at("js/bootstrap.confirmation.min.js")"></script>
         <script type="text/javascript" src="@controllers.core.routes.Assets.at("js/accessPoints.js")"></script>
         <style type="text/css">
             .modal-dialog { width: 80%;}
+            .model { display:none; }
         </style>
     }
 
@@ -32,8 +34,12 @@
         <li class="accessPointList @accessPointType">
             <h3>@Messages("documentaryUnit." + IsadG.ACCESS_POINTS + "." + accessPointType)</h3>
             <ul class="item-annotation-links list-unstyled" data-id="@item.id" data-did="@desc.id">
-
-                <li>
+                <li class="access-saved model" id="linkId">
+                    <a href="#" class="access-saved-name"></a> 
+                    <a href="#" class="access-saved-delete" title="@Messages("accessPoint.delete")"><span class="glyphicon glyphicon-remove"></span></a>
+                    <small class="access-saved-description text-muted"></small>
+                </li>
+                <li class="add-access-toggle-container">
                     <a href="#" class="add-access-toggle"><small><i class="glyphicon glyphicon-plus-sign"></i>@Messages("accessPoint.create")</small></a>
 
                     <div class="form-horizontal new-access-point" data-type="@accessPointType.toString" style="">
