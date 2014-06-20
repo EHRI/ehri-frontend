@@ -4,6 +4,7 @@ import helpers._
 import models.{GroupF, Group, UserProfileF, UserProfile}
 import defines.EntityType
 import solr.SolrConstants
+import play.api.test.FakeRequest
 
 /**
  * Spec to test various page views operate as expected.
@@ -36,10 +37,10 @@ class SearchSpec extends Neo4jRunnerSpec(classOf[SearchSpec]) {
         .last.filters.get(SolrConstants.TOP_LEVEL) must equalTo(None)
     }
 
-    "handle simple filtering" in new FakeApp {
-      val filter = route(fakeLoggedInJsonRequest(privilegedUser, GET,
-        controllers.adminutils.routes.AdminSearch.filter().url + "?q=c")).get
-      println(contentAsJson(filter))
+    "allow search filtering for non-logged in users" in new FakeApp {
+      val filter = route(FakeRequest(GET,
+        controllers.core.routes.SearchFilter.filter().url + "?q=c")).get
+      status(filter) must equalTo(OK)
     }
 
     "perform indexing correctly" in new FakeApp {

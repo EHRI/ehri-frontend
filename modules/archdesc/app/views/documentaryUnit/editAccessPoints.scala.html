@@ -2,9 +2,9 @@
 
     @extrascripts = {
         @helper.javascriptRouter("jsRoutes")(
-            controllers.core.routes.javascript.Application.get,
-            controllers.core.routes.javascript.Application.getType,
             controllers.core.routes.javascript.SearchFilter.filter,
+            controllers.admin.routes.javascript.Admin.get,
+            controllers.admin.routes.javascript.Admin.getType,
             controllers.archdesc.routes.javascript.DocumentaryUnits.linkMultiAnnotatePost,
             controllers.archdesc.routes.javascript.DocumentaryUnits.get,
             controllers.archdesc.routes.javascript.DocumentaryUnits.createLink,
