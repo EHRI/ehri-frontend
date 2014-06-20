@@ -60,9 +60,9 @@ $(document).ready(function() {
     };
 
     var $service = {
-        get: jsRoutes.controllers.core.Application.get,
-        getItem: jsRoutes.controllers.core.Application.getType,
         filter: jsRoutes.controllers.core.SearchFilter.filter,
+        get: jsRoutes.controllers.admin.Admin.get,
+        getItem: jsRoutes.controllers.admin.Admin.getType,
         createLink: jsRoutes.controllers.archdesc.DocumentaryUnits.createLink,
         createMultipleLinks: jsRoutes.controllers.archdesc.DocumentaryUnits.linkMultiAnnotatePost,
         createAccessPoint: jsRoutes.controllers.archdesc.DocumentaryUnits.createAccessPoint,
@@ -79,7 +79,7 @@ $(document).ready(function() {
 	* Get list of access points
 	*
 	*/
-	getAccessPointList = function() {
+	var getAccessPointList = function() {
 		var $item = $(".item-annotation-links"),
 			$itemId = $item.data("id"),
 			$descriptionId = $item.data("did"),
@@ -177,7 +177,7 @@ $(document).ready(function() {
 	* Scope is the object returned in makeScope
 	*/
 	var saveNewAccessPoint = function($scope) {
-		$service.createAccessPoint($scope.id, $scope.did).ajax({
+		return $service.createAccessPoint($scope.id, $scope.did).ajax({
 		  data: JSON.stringify({
 		    name: $scope.name,
 		    accessPointType: $scope.type,
@@ -185,34 +185,14 @@ $(document).ready(function() {
 		    description: $scope.description
 		  }),
 		  headers: ajaxHeaders
-		}).done(function(data) {
-			console.log(data)
-			$service.createLink($scope.id, data.id).ajax({
-				data: JSON.stringify({
-					target: $scope.link.target,
-					type: $scope.link.type,
-					description: $scope.description
-				}),
-				headers: ajaxHeaders
-			}).done(function(data) {
-				$scope.container.remove()
-				return true;
-				/* $scope.getAccessPointList(); NEED TO UPDATE ACCESS POINT LIST */
-			}).error(function() {
-				console.log(arguments)
-				return false;
-			});
-	  	}).error(function() {
-			console.log(arguments)
-	  		return false;
-	  	});
+		})
 	};
 
     /* MODEL APPEND */
     var appends = function(elem, name, id, did, type) {
     	$accesslist = elem.parents(".accessPointList");
     	$target = $accesslist.find(".append-in")
-    	var $model = $accesslist.find(".model")
+    	var $model = $accesslist.find(".element.model")
     	var $element = $model.data("target", id).clone().removeClass("model").addClass("element")
     	$element.find(".element-name").text(name).val(id).data("did", did).data("type", type)
     	$target.append($element.show())
@@ -236,9 +216,9 @@ $(document).ready(function() {
 	});
 
 	/* Click on result */
-	$(".input-group").on("click", ".add-access-element", function(e) {
+	$(".input-group").on("click", ".tt-suggestion:has(.add-access-element)", function(e) {
 		e.preventDefault()
-		var $elem = $(this),
+		var $elem = $(this).find(".add-access-element"),
 			$id = $elem.data("target"),
 			$name = $elem.data("name"),
 			$did = $elem.data("did"),
@@ -250,11 +230,31 @@ $(document).ready(function() {
 	$(".new-access-point .element-save").on("click", function(e) {
 		e.preventDefault();
 		var $form = $(this).parents(".new-access-point").first(),
-			$accesspoints = $form.find(".append-in > .element")
+			$accesspoints = $form.find(".append-in > .element:not(.model)"),
+			$requests = [],
+			$requests2 = []
 
 		$accesspoints.each(function() {
-			var data = makeScope($(this))
-			return saveNewAccessPoint(data)
+			var $scope = makeScope($(this))
+			$requests.push(saveNewAccessPoint($scope).done(function(data) {
+				$requests2.push($service.createLink($scope.id, data.id).ajax({
+					data: JSON.stringify({
+						target: $scope.link.target,
+						type: $scope.link.type,
+						description: $scope.description
+					}),
+					headers: ajaxHeaders
+				}).done(function(data) {
+					$scope.container.remove()
+				}));
+		  	}))
+		})
+		var defer = $.when.apply($, $requests);
+		defer.done(function () {
+			var defer2 = $.when.apply($, $requests2)
+			defer2.done(function () {
+				getAccessPointList();
+			})
 		})
 	})
 	/* Search input */
