@@ -125,8 +125,9 @@ trait RestDAO {
           )
         }
         case _ => {
-          Logger.logger.error(response.body)
-          sys.error(response.body)
+          val err = s"Unexpected response: ${response.status}: '${response.body}'"
+          Logger.logger.error(err)
+          sys.error(err)
         }
       }
     }

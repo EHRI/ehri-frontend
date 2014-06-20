@@ -15,9 +15,8 @@ import backend.{EventHandler, ApiUser}
  */
 trait RestDescriptions extends RestDAO {
 
-  private val entities = new EntityDAO(eventHandler)
-
   val eventHandler: EventHandler
+  private val entities = new EntityDAO(eventHandler)
 
   private def requestUrl = "http://%s:%d/%s/description".format(host, port, mount)
 
@@ -58,33 +57,20 @@ trait RestDescriptions extends RestDAO {
     }
   }
 
-  def createAccessPoint[MT,DT](id: String, did: String, item: DT, logMsg: Option[String] = None)(
-        implicit apiUser: ApiUser, rs: RestResource[MT], fmt: RestConvertable[DT], rd: RestReadable[MT], executionContext: ExecutionContext): Future[(MT,DT)] = {
-    userCall(enc(requestUrl, id, did, EntityType.AccessPoint.toString))
+  def createAccessPoint[DT](id: String, did: String, item: DT, logMsg: Option[String] = None)(
+        implicit apiUser: ApiUser, fmt: RestConvertable[DT], executionContext: ExecutionContext): Future[DT] = {
+    userCall(enc(requestUrl, id, did, EntityType.AccessPoint))
         .withHeaders(msgHeader(logMsg): _*)
-        .post(Json.toJson(item)(fmt.restFormat)).flatMap { response =>
-      entities.get(id).map { item =>
-        eventHandler.handleUpdate(id)
-        Cache.remove(id)
-        (item, checkErrorAndParse[DT](response)(fmt.restFormat))
-      }
+        .post(Json.toJson(item)(fmt.restFormat)).map { response =>
+      eventHandler.handleUpdate(id)
+      Cache.remove(id)
+      checkErrorAndParse[DT](response)(fmt.restFormat)
     }
   }
 
-  def deleteAccessPoint[MT <: AnyModel](id: String, did: String, apid: String, logMsg: Option[String] = None)(
-        implicit apiUser: ApiUser, rs: RestResource[MT], rd: RestReadable[MT], executionContext: ExecutionContext): Future[MT] = {
-    userCall(enc(requestUrl, id, did, EntityType.AccessPoint.toString, apid)).withHeaders(msgHeader(logMsg): _*).delete().flatMap { response =>
-      entities.get(id).map { item =>
-        eventHandler.handleUpdate(id)
-        Cache.remove(id)
-        item
-      }
-    }
-  }
-
-  def deleteAccessPoint(id: String, logMsg: Option[String] = None)(implicit apiUser: ApiUser, executionContext: ExecutionContext): Future[Boolean] = {
-    val url = enc(requestUrl, "accessPoint", id)
-    userCall(url).withHeaders(msgHeader(logMsg): _*).delete.map { response =>
+  def deleteAccessPoint(id: String, did: String, apid: String, logMsg: Option[String] = None)(implicit apiUser: ApiUser, executionContext: ExecutionContext): Future[Boolean] = {
+    val url = enc(requestUrl, id, did, EntityType.AccessPoint, apid)
+    userCall(url).withHeaders(msgHeader(logMsg): _*).delete().map { response =>
       checkError(response)
       eventHandler.handleDelete(id)
       true
