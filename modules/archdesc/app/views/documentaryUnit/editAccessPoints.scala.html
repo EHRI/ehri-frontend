@@ -22,6 +22,7 @@
         <style type="text/css">
             .modal-dialog { width: 80%;}
             .model { display:none; }
+            .new-access-point { display: none; }
         </style>
     }
 
@@ -36,7 +37,7 @@
             <ul class="item-annotation-links list-unstyled" data-id="@item.id" data-did="@desc.id">
                 <li class="access-saved model" id="linkId">
                     <a href="#" class="access-saved-name"></a> 
-                    <a href="#" class="access-saved-delete" title="@Messages("accessPoint.delete")"><span class="glyphicon glyphicon-remove"></span></a>
+                    <a class="access-saved-delete" title="@Messages("accessPoint.delete")"><span class="glyphicon glyphicon-remove"></span></a>
                     <small class="access-saved-description text-muted"></small>
                 </li>
                 <li class="add-access-toggle-container">

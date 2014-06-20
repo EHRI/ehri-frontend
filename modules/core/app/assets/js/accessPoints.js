@@ -176,8 +176,8 @@ $(document).ready(function() {
 	* the list of access points when done.
 	* Scope is the object returned in makeScope
 	*/
-	var saveNewAccessPoint = function($scope) {
-		return $service.createAccessPoint($scope.id, $scope.did).ajax({
+	var saveNewAccessPoint = function($scope, $accesspoints) {
+		$service.createAccessPoint($scope.id, $scope.did).ajax({
 		  data: JSON.stringify({
 		    name: $scope.name,
 		    accessPointType: $scope.type,
@@ -185,6 +185,26 @@ $(document).ready(function() {
 		    description: $scope.description
 		  }),
 		  headers: ajaxHeaders
+		}).done(function(data) {
+				$service.createLink($scope.id, data.id).ajax({
+					data: JSON.stringify({
+						target: $scope.link.target,
+						type: $scope.link.type,
+						description: $scope.description
+					}),
+					headers: ajaxHeaders
+				}).done(function(data) {
+					$scope.container.remove()
+					/* Now that it is done, we get to the next if it exist */
+					if($accesspoints.length > 0) {
+						var $scope2 = makeScope($accesspoints.first()),
+							$accessPointList = $accesspoints.slice(1);
+
+						saveNewAccessPoint($scope2, $accessPointList);
+					} else {
+						getAccessPointList();
+					}
+				})
 		})
 	};
 
@@ -208,7 +228,7 @@ $(document).ready(function() {
 	/* Triggers */
 	$(".add-access-toggle").on("click", function(e) {
 		e.preventDefault();
-		$(this).next().toggle();
+		$(this).next().toggle().find(".form-control.quicksearch.tt-input").val("").focus();
 	});
 	$(".type:not([disabled])").on("click", function(e) {
 		e.preventDefault();
@@ -234,28 +254,11 @@ $(document).ready(function() {
 			$requests = [],
 			$requests2 = []
 
-		$accesspoints.each(function() {
-			var $scope = makeScope($(this))
-			$requests.push(saveNewAccessPoint($scope).done(function(data) {
-				$requests2.push($service.createLink($scope.id, data.id).ajax({
-					data: JSON.stringify({
-						target: $scope.link.target,
-						type: $scope.link.type,
-						description: $scope.description
-					}),
-					headers: ajaxHeaders
-				}).done(function(data) {
-					$scope.container.remove()
-				}));
-		  	}))
-		})
-		var defer = $.when.apply($, $requests);
-		defer.done(function () {
-			var defer2 = $.when.apply($, $requests2)
-			defer2.done(function () {
-				getAccessPointList();
-			})
-		})
+		if($accesspoints.length > 0) {
+			var $scope = makeScope($accesspoints.first()),
+				$accessPointList = $accesspoints.slice(1)
+			saveNewAccessPoint($scope, $accessPointList);
+		}
 	})
 	/* Search input */
 	$(".quicksearch").each(function() {
