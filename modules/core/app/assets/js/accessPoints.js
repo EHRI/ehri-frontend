@@ -6,6 +6,18 @@ $(document).ready(function() {
 	};
 	/* Search and URLS	*/
 	var $search = function() {
+	  var page = function($element) {
+
+		var $container = $element.parents(".input-group").first(),
+			$page = $container.find(".pages:not(.change-page):visible"),
+			$actual = parseInt($page.find(".page").text());
+
+	  		if(typeof $page !== "undefined" && parseInt($actual) != 0) {
+	  			return $actual
+	  		} else {
+	  			return 1
+	  		}
+		}
       var search = function(types, searchTerm, page, callback) {
         var params = "?limit=10&q=" + searchTerm;
         if (types && types.length > 0) {
@@ -21,13 +33,13 @@ $(document).ready(function() {
         return $service.filter().url + params;
       };
       var limitTypes = function(element) {
-      	$types = element.parents(".input-group").first().find(".type.btn-info")
+      	var $types = element.parents(".input-group").first().find(".type.active")
       	if($types === "undefined" || $types.length == 0) {
        		return []	
       	} else {
       		data = []
       		$types.each(function () {
-      			data.push($(this).val())
+      			data.push($(this).data("value"))
       		})
       		return data
       	}
@@ -38,14 +50,11 @@ $(document).ready(function() {
       }
       return {
       	searchTerm : function(element) { return searchTerm(element); },
-        search: function(element, page) {
-          return search(this.limitTypes(element), this.searchTerm(element), page);
+      	page : function(element) { return page(element); },
+        search: function(element) {
+          return search(this.limitTypes(element), this.searchTerm(element), this.page(element));
         },
         limitTypes : limitTypes,
-        filter: function(type, searchTerm, page, callback) {
-          return search(this.limitTypes(type), (searchTerm || "PLACEHOLDER_NO_RESULTS"), page, callback);
-        },
-
         detail: function(type, id, callback) {
           return $.get($service.getItem(type, id).url, {
             headers: {
@@ -230,9 +239,9 @@ $(document).ready(function() {
 		e.preventDefault();
 		$(this).next().toggle().find(".form-control.quicksearch.tt-input").val("").focus();
 	});
-	$(".type:not([disabled])").on("click", function(e) {
+	$(".type:not([data-disabled])").on("click", function(e) {
 		e.preventDefault();
-		$(this).toggleClass("btn-info")
+		$(this).toggleClass("active")
 	});
 
 	/* Click on result */
@@ -276,9 +285,15 @@ $(document).ready(function() {
 		                        	return $search().search(this.elem) 
 		                        },
 		                        filter : function(parsedResponse) {
-		                          var result = [];
-		                          var alreadyResult = [];
+		                          var result = [],
+		                          		alreadyResult = [];
+		                          		$container = this.elem.parents(".input-group").first(),
+		                          		$pages = $container.find(".pages"),
+									 	$page = $container.find(".pages:not(.change-page)");
 
+									$pages.show();
+									$page.find(".max").text(parsedResponse.numPages)
+									$page.find(".page").text(parsedResponse.page)
 		                          for (var i=0; i<parsedResponse.items.length; i++) {
 		                            //Need to check if item not already in the db
 		                            if($.inArray( parsedResponse.items[i].name , alreadyResult) === -1) {
@@ -317,8 +332,36 @@ $(document).ready(function() {
 			        e.preventDefault();
 			    }
 			});
+	});
+
+	$(".dropdown-menu.filters").on("click",function(e){ e.stopPropagation() });
+
+	$(".accessPointList").on("click", "[data-apply='confirmation']", function(e) {
+		e.preventDefault();
 	})
 
+	$(".pages.change-page").on("click", function() {
+		var $element = $(this),
+			$container = $element.parents(".input-group").first(),
+			$page = $container.find(".pages:not(.change-page)"),
+			$max = parseInt($page.find(".max").text()),
+			$actual = parseInt($page.find(".page").text()),
+			$input = $container.find(".form-control.quicksearch.tt-input"),
+			$val = $input.val(),
+			$next = $actual;
+
+		if($element.find(".glyphicon-minus").length == 1 && $actual - 1 >= 1) {
+			$next = $actual -1;
+		} else if ($element.find(".glyphicon-plus").length == 1 && $actual + 1 <= $max) {
+			$next = $actual + 1;
+		}
+
+		if($next != $actual) {
+			$page.find(".page").text($next);
+			$input.typeahead('val', "");
+			$input.typeahead('val', $val);
+		}
+	})
 	/* Init trigger */
 	getAccessPointList()
 });

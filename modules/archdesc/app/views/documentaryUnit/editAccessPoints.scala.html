@@ -23,11 +23,15 @@
             .modal-dialog { width: 80%;}
             .model { display:none; }
             .new-access-point { display: none; }
+            .pages { display: none; }
         </style>
     }
 
 @import AccessPointF._
 
+@filterDropdown(t: String, option: String = "") = {
+    <li data-value="@t" class="active type" @option><a>@Messages("contentTypes." + t)</a></li>
+}
 @documentaryUnit.itemPage(item, scripts = extrascripts) {
     <h4>&quot;@desc.name&quot;</h4>
     <ul class="list-unstyled">
@@ -56,19 +60,31 @@
                                         <a class="btn btn-default">
                                             <i class="glyphicon glyphicon-search"></i>
                                         </a>
-                                        @accessPointType.toString match {
-                                            case "creatorAccess" | "personAccess" => {
-                                                <button type="button" value ="historicalAgent" class="btn btn-info type" disabled="true">@Messages("contentTypes.historicalAgent")</button>
+                                        <button class="btn btn-info pages change-page"><span class="glyphicon glyphicon-minus"></span></button>
+                                        <button class="btn btn-info pages"><span class="page"></span>/<span class="max"></span></button>
+                                        <button class="btn btn-info pages change-page"><span class="glyphicon glyphicon-plus"></span></button>
+                                        <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown">Filters <span class="caret"></span></button>
+                                        <ul class="dropdown-menu filters pull-right">
+                                            <li class="dropdown-header">@Messages("contentTypes")</li>
+                                            @accessPointType.toString match {
+                                                case "creatorAccess" | "personAccess" => {
+                                                    @filterDropdown("historicalAgent", "data-disabled='true'")
+                                                }
+                                                case "placeAccess" => {
+                                                    @filterDropdown("cvocConcept")
+                                                    @filterDropdown("country")
+                                                }
+                                                case "subjectAccess" => {
+                                                    @filterDropdown("cvocConcept", "data-disabled")
+                                                }
+                                                case _ => { 
+                                                    @filterDropdown("cvocConcept")
+                                                    @filterDropdown("historicalAgent")
+                                                    @filterDropdown("documentaryUnit")
+                                                }
                                             }
-                                            case "placeAccess" => {
-                                                <button type="button" value="cvocConcept" class="btn btn-info type">@Messages("contentTypes.cvocConcept")</button>
-                                                <button type="button" value="country" class="btn btn-info type">@Messages("contentTypes.country")</button>
-                                            }
-                                            case "subjectAccess" => {
-                                                <button type="button" value="cvocConcept" class="btn btn-info type" disabled="true">@Messages("contentTypes.cvocConcept")</button>
-                                            }
-                                            case _ => { }
-                                        }
+                                            <li class="divider"></li>
+                                        </ul>
                                     </div>
                                 </div>
                             </div>
