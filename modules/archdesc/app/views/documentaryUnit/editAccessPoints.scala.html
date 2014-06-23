@@ -24,6 +24,7 @@
             .model { display:none; }
             .new-access-point { display: none; }
             .pages { display: none; }
+            .submit-group { display : none; }
         </style>
     }
 
@@ -50,10 +51,10 @@
                     <div class="form-horizontal new-access-point" data-type="@accessPointType.toString" style="">
                         <h4>@Messages("accessPoints.newAccessPoint")</h4>
                         <div class="form-group">
-                            <label class="col-sm-3 control-label">
+                            <label class="col-sm-2 control-label">
                                 @Messages("accessPoint.name")
                             </label>
-                            <div class="col-sm-9">
+                            <div class="col-sm-10">
                                 <div class="input-group">
                                     <input class="form-control quicksearch" name="@accessPointType.toString" type="text" placeholder="@Messages("accessPoint.name")" autofocus="true" />
                                      <div class="input-group-btn">
@@ -92,7 +93,7 @@
                         </div>
                         <div class="append-in">
                             <div class="form-group model element" style="display:none;">
-                                <div class="col-sm-9 col-sm-offset-3">
+                                <div class="col-sm-10 col-sm-offset-2">
                                     <div class="input-group">
                                         <div class="input-group-btn">
                                             <a class="btn btn-success">
@@ -109,8 +110,8 @@
                                 </div>
                             </div>
                         </div>
-                        <div class="form-group">
-                            <div class="col-sm-offset-3 col-sm-9">
+                        <div class="form-group submit-group">
+                            <div class="col-sm-offset-2 col-sm-10">
                                 <button class="btn btn-small btn-primary element-save">
                                     @Messages("save")</button>
                                 <button class="btn btn-small btn-danger">@Messages("cancel")</button>

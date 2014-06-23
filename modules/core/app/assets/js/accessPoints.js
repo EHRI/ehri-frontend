@@ -187,6 +187,23 @@ $(document).ready(function() {
   * the list of access points when done.
   * Scope is the object returned in makeScope
   */
+
+  var nextNewAccesspoint = function($scope, $accesspoints, $parent) {
+    var $parent = $scope.container.parents(".accessPointList").first();
+    $scope.container.remove();
+    // Now that it is done, we get to the next if it exist
+      if($accesspoints.length > 0) {
+        var $scope2 = makeScope($accesspoints.first()),
+          $accessPointList = $accesspoints.slice(1);
+
+        saveNewAccessPoint($scope2, $accessPointList);
+        
+      } else {
+        getAccessPointList();
+        //Show the Save and cancel buttons
+        $parent.find(".submit-group").hide()
+    }
+  }
   var saveNewAccessPoint = function($scope, $accesspoints) {
     $service.createAccessPoint($scope.id, $scope.did).ajax({
       data: JSON.stringify({
@@ -198,16 +215,7 @@ $(document).ready(function() {
       headers: ajaxHeaders
     }).done(function(data) {
       if($scope.link.targetType == null) {
-        $scope.container.remove()
-        /* Now that it is done, we get to the next if it exist */
-        if($accesspoints.length > 0) {
-          var $scope2 = makeScope($accesspoints.first()),
-            $accessPointList = $accesspoints.slice(1);
-
-          saveNewAccessPoint($scope2, $accessPointList);
-        } else {
-          getAccessPointList();
-        }
+        nextNewAccesspoint($scope, $accesspoints)
       } else {
         $service.createLink($scope.id, data.id).ajax({
           data: JSON.stringify({
@@ -217,16 +225,7 @@ $(document).ready(function() {
           }),
           headers: ajaxHeaders
         }).done(function(data) {
-          $scope.container.remove()
-          /* Now that it is done, we get to the next if it exist */
-          if($accesspoints.length > 0) {
-            var $scope2 = makeScope($accesspoints.first()),
-              $accessPointList = $accesspoints.slice(1);
-
-            saveNewAccessPoint($scope2, $accessPointList);
-          } else {
-            getAccessPointList();
-          }
+          nextNewAccesspoint($scope, $accesspoints)
         })
       }
     })
@@ -245,6 +244,9 @@ $(document).ready(function() {
       var $element = $model.data("target", id).clone().removeClass("model").addClass("element")
       $element.find(".element-name").text(name).val(id).data("did", did).data("type", type)
       $target.append($element.show())
+
+      //Show the Save and cancel buttons
+      $accesslist.find(".submit-group").show()
     }
 
     $(".append-in").on("click", ".btn-danger", function() {
