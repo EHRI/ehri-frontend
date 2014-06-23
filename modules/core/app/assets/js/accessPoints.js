@@ -68,7 +68,7 @@ $(document).ready(function() {
       };
     };
 
-    var $service = {
+  var $service = {
         filter: jsRoutes.controllers.core.SearchFilter.filter,
         get: jsRoutes.controllers.admin.Admin.get,
         getItem: jsRoutes.controllers.admin.Admin.getType,
@@ -135,7 +135,12 @@ $(document).ready(function() {
                 placement: 'bottom',
                 trigger: "click",
                 onConfirm : function() {
-                  $service.deleteLinkAndAccessPoint($itemId, $descriptionId, a.accessPoint.id, $element.data("link")).ajax({
+                  if(a.target !== "undefined") {
+                    var $route = $service.deleteAccessPoint($itemId, $descriptionId, a.accessPoint.id)
+                  } else {
+                    var $route = $service.deleteLinkAndAccessPoint($itemId, $descriptionId, a.accessPoint.id, $element.data("link"))
+                  }
+                  $route.ajax({
                     success: function(data) {
                       getAccessPointList();
                     }
@@ -197,7 +202,7 @@ $(document).ready(function() {
           $accessPointList = $accesspoints.slice(1);
 
         saveNewAccessPoint($scope2, $accessPointList);
-        
+
       } else {
         getAccessPointList();
         //Show the Save and cancel buttons
