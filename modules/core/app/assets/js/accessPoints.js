@@ -195,6 +195,18 @@ $(document).ready(function() {
 		  }),
 		  headers: ajaxHeaders
 		}).done(function(data) {
+			if($scope.link.targetType == null) {
+				$scope.container.remove()
+				/* Now that it is done, we get to the next if it exist */
+				if($accesspoints.length > 0) {
+					var $scope2 = makeScope($accesspoints.first()),
+						$accessPointList = $accesspoints.slice(1);
+
+					saveNewAccessPoint($scope2, $accessPointList);
+				} else {
+					getAccessPointList();
+				}
+			} else {
 				$service.createLink($scope.id, data.id).ajax({
 					data: JSON.stringify({
 						target: $scope.link.target,
@@ -214,12 +226,18 @@ $(document).ready(function() {
 						getAccessPointList();
 					}
 				})
+			}
 		})
 	};
 
     /* MODEL APPEND */
     var appends = function(elem, name, id, did, type) {
-    	$accesslist = elem.parents(".accessPointList");
+    	if(!elem.hasClass("accessPointList")) {
+	    	$accesslist = elem.parents(".accessPointList");
+	    } else {
+	    	$accesslist = elem;
+	    }
+    	$accesslist.find(".form-control.quicksearch.tt-input").typeahead('val', "")
     	$target = $accesslist.find(".append-in")
     	var $model = $accesslist.find(".element.model")
     	var $element = $model.data("target", id).clone().removeClass("model").addClass("element")
@@ -253,6 +271,15 @@ $(document).ready(function() {
 			$did = $elem.data("did"),
 			$type = $elem.data("type");
 		appends($elem, $name, $id, $did, $type)
+	});
+
+	$(".add-access-text").on("click", function(e) {
+		e.preventDefault();
+		var $accesslist = $(this).parents(".accessPointList"),
+			$input = $accesslist.find(".form-control.quicksearch.tt-input");
+			$name = $input.val();
+
+		appends($accesslist, $name, null, null, null)
 	})
 
 	/* Save access point */
