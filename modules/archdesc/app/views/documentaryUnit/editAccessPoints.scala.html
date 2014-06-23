@@ -67,15 +67,15 @@
                                         <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown">Filters <span class="caret"></span></button>
                                         <ul class="dropdown-menu filters pull-right">
                                             <li class="dropdown-header">@Messages("contentTypes")</li>
-                                            @accessPointType.toString match {
-                                                case "creatorAccess" | "personAccess" => {
+                                            @accessPointType match {
+                                                case AccessPointType.CreatorAccess | AccessPointType.PersonAccess => {
                                                     @filterDropdown("historicalAgent", "data-disabled='true'")
                                                 }
-                                                case "placeAccess" => {
+                                                case AccessPointType.PlaceAccess => {
                                                     @filterDropdown("cvocConcept")
                                                     @filterDropdown("country")
                                                 }
-                                                case "subjectAccess" => {
+                                                case AccessPointType.SubjectAccess => {
                                                     @filterDropdown("cvocConcept", "data-disabled")
                                                 }
                                                 case _ => { 
