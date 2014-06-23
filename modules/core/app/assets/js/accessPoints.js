@@ -121,6 +121,8 @@ $(document).ready(function() {
               $element.find(".access-saved-name").text(a.accessPoint.name)
               if(typeof a.target !== "undefined") {
                 $element.find(".access-saved-name").attr("href", $service.getItem(a.target.type, a.target.id).url)
+              } else {
+                $element.find(".access-saved-name").removeAttr("href").css("color", "#000000");
               }
               if(a.accessPoint.description) {
                 $element.find(".access-saved-description").html("<p>" + a.accessPoint.description + "</p>")
