@@ -1,0 +1,9 @@
+@(repository: Repository)(implicit lang: Lang)
+
+<publicationstmt>
+    <publisher encodinganalog="Publisher">@repository.toStringLang</publisher>
+    @repository.model.primaryDescription.flatMap(_.addresses.headOption).map { add =>
+        @address(add)
+    }
+    <date>@org.joda.time.DateTime.now()</date>
+</publicationstmt>

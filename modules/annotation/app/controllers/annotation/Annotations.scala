@@ -44,7 +44,7 @@ case class Annotations @Inject()(implicit globalConfig: global.GlobalConfig, bac
 
   def deletePost(id: String, redirect: Option[String] = None) = deletePostAction(id) {
       ok => implicit userOpt => implicit request =>
-    Redirect(redirect.map(r => controllers.core.routes.Application.get(r))
+    Redirect(redirect.map(r => controllers.admin.routes.Admin.get(r))
         .getOrElse(globalConfig.routeRegistry.default))
         .flashing("success" -> "item.delete.confirmation")
   }

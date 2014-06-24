@@ -9,7 +9,7 @@ import defines.EntityType
  */
 trait Dispatcher {
   def filter(params: SearchParams, filters: Map[String,Any] = Map.empty, extra: Map[String,Any] = Map.empty)(
-      implicit userOpt: Option[UserProfile]): Future[ItemPage[(String,String,EntityType.Value)]]
+      implicit userOpt: Option[UserProfile]): Future[ItemPage[FilterHit]]
 
   def search(params: SearchParams, facets: List[AppliedFacet], allFacets: FacetClassList,
              filters: Map[String,Any] = Map.empty, extra: Map[String,Any] = Map.empty,

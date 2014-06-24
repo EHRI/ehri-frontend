@@ -13,21 +13,29 @@
             </div>
             @defining(EntityType.DocumentaryUnit.toString) { implicit fieldPrefix =>
                 @layout.descriptionContainer(item.model.descriptions) {
-                    @item.model.descriptions.map { desc =>
-                        @documentaryUnit.renderDescription(item, desc, links, annotations, editable = true)
-                    }
-                    @item.descriptionRefs.map { desc =>
-                        @documentaryUnit.renderDescription(item, desc, links, annotations, editable = false)
+                    @if(item.model.descriptions.isEmpty && item.descriptionRefs.isEmpty) {
+                        <p class="text-muted">@Messages("documentaryUnit.noDescriptions")</p>
+                        <a href="@controllers.archdesc.routes.VirtualUnits.createDescription(item.id)" class="btn btn-primary">
+                            @Messages("describedEntity.createDescription")
+                        </a>
+                    } else {
+                        @item.model.descriptions.map { desc =>
+                            @documentaryUnit.renderDescription(item, desc, links, annotations, actions = descriptionActions(item, desc))
+                        }
+                        @item.descriptionRefs.map { desc =>
+                            @documentaryUnit.renderDescription(item, desc, links, annotations)
+                        }
                     }
 
                     @link.annotationLinks(item, links)
                 } {
-                    @common.latestAction(item, controllers.archdesc.routes.DocumentaryUnits.history(item.id))
+                    @common.latestAction(item, controllers.archdesc.routes.VirtualUnits.history(item.id))
+                    @common.visibility(item, controllers.archdesc.routes.VirtualUnits.visibility(item.id), ContentTypes.VirtualUnit)
                     @adminActions(item)
                 }
 
                 @item.childCount.filter(_ > 0).map { count =>
-                    @views.html.search.searchSection(Messages("documentaryUnit.searchInside", item.toStringAbbr(lang))) {
+                    @views.html.search.searchSection(Messages("documentaryUnit.searchInside", item.toStringAbbr(lang)), result) {
                         @views.html.common.search.searchForm(result, params, action, autofocus = false) {
                             @searchItemList(result)
                         } {

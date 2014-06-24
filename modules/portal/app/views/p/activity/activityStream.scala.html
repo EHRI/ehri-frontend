@@ -2,20 +2,20 @@
 
 <div class="activity-stream-wrapper">
     @if(!events.isEmpty) {
-    <div class="timeline-container">
-        <ul id="activity-stream" class="timeline">
-            @eventItems(events)
-        </ul>
-    </div>
-    @if(more) {
-    <button data-limit="@params.limit" data-offset="@(params.offset + params.limit)"
-            id="activity-stream-fetchmore" class="btn btn-default btn-block">
-        @Messages("portal.activity.fetchMore")
-    </button>
-    }
+        <div class="timeline-container">
+            <ul id="activity-stream" class="timeline">
+                @eventItems(events)
+            </ul>
+        </div>
+        @if(more) {
+            <button data-limit="@params.limit" data-offset="@(params.offset + params.limit)"
+                    id="activity-stream-fetchmore" class="btn btn-default btn-block">
+                @Messages("portal.activity.fetchMore")
+            </button>
+        }
     } else {
-    <p class="text-muted">
-        @Messages("portal.activity.noActivityYet")
-    </p>
+        <p class="text-muted">
+            @Messages("portal.activity.noActivityYet")
+        </p>
     }
 </div>

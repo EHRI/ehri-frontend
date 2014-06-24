@@ -73,9 +73,7 @@ case class Portal @Inject()(implicit globalConfig: global.GlobalConfig, searchDi
     Ok(Json.obj(
       "numPages" -> page.numPages,
       "page" -> page.page,
-      "items" -> page.items.map { case (id, name, t) =>
-        Json.arr(id, name, t.toString)
-      }
+      "items" -> page.items
     ))
   }
 
@@ -180,7 +178,11 @@ case class Portal @Inject()(implicit globalConfig: global.GlobalConfig, searchDi
   }
 
   def browseDocuments = userBrowseAction.async { implicit userDetails => implicit request =>
+    val filters = if (request.getQueryString(SearchParams.QUERY).filterNot(_.trim.isEmpty).isEmpty)
+      Map(SolrConstants.TOP_LEVEL -> true) else Map.empty[String,Any]
+
     find[DocumentaryUnit](
+      filters = filters,
       entities = List(EntityType.DocumentaryUnit),
       facetBuilder = docSearchFacets
     ).map { case QueryResult(page, params, facets) =>
@@ -190,7 +192,10 @@ case class Portal @Inject()(implicit globalConfig: global.GlobalConfig, searchDi
   }
 
   def browseDocumentsByRepository = userBrowseAction.async { implicit userDetails => implicit request =>
+    val filters = if (request.getQueryString(SearchParams.QUERY).filterNot(_.trim.isEmpty).isEmpty)
+      Map(SolrConstants.TOP_LEVEL -> true) else Map.empty[String,Any]
     find[DocumentaryUnit](
+      filters = filters,
       defaultParams = SearchParams(
         sort = Some(SearchOrder.Holder),
         entities = List(EntityType.DocumentaryUnit)),

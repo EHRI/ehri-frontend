@@ -4,8 +4,6 @@ import defines.EntityType
 import models.base.Model
 import play.api.libs.json._
 import models.json._
-import play.api.data.Form
-import play.api.data.Forms._
 
 
 object AddressF {
@@ -78,19 +76,30 @@ case class AddressF(
   url: List[String] = Nil
   ) extends Model {
 
+  def toSeq: Seq[String] = Seq(
+    streetAddress,
+    city,
+    region,
+    postalCode,
+    countryCode.map(views.Helpers.countryCodeToName),
+    email.headOption,
+    telephone.headOption,
+    fax.headOption,
+    url.headOption
+  ).flatten
+
   override def toString
       = List(name, contactPerson,streetAddress,city).filter(_.isDefined).mkString(", ")
 }
 
 object Address {
-  // TODO: Move field defs to AddressF object?
   import Isdiah._
+  import play.api.data.Form
+  import play.api.data.Forms._
 
   def isValidWebsite(s: String): Boolean = {
     import utils.forms.isValidUrl
-    // FIXME: This is lame...
-    if (!s.trim.startsWith("http://") && s.contains("."))
-      isValidUrl("http://" + s)
+    if (!s.trim.startsWith("http://") && s.contains(".")) isValidUrl("http://" + s)
     else isValidUrl(s)
   }
 

@@ -24,11 +24,17 @@ trait Create[F <: Model with Persistable, MT <: MetaModel[F]] extends Generic[MT
    * Create an item. Because the item must have an initial visibility we need
    * to collect the users and group lists at the point of creation
    */
-  def createAction(f: Seq[(String,String)] => Seq[(String,String)] => Option[UserProfile] => Request[AnyContent] => Result) = {
-    withContentPermission.async(PermissionType.Create, contentType) { implicit userOpt => implicit request =>
-      getUsersAndGroups { users => groups =>
-        f(users)(groups)(userOpt)(request)
+  object createAction {
+    def async(f: Seq[(String,String)] => Seq[(String,String)] => Option[UserProfile] => Request[AnyContent] => Future[Result]) = {
+      withContentPermission.async(PermissionType.Create, contentType) { implicit userOpt => implicit request =>
+        getUsersAndGroups.async { users => groups =>
+          f(users)(groups)(userOpt)(request)
+        }
       }
+    }
+
+    def apply(f: Seq[(String,String)] => Seq[(String,String)] => Option[UserProfile] => Request[AnyContent] => Result) = {
+      async(f.andThen(_.andThen(_.andThen(_.andThen(t => immediate(t))))))
     }
   }
 

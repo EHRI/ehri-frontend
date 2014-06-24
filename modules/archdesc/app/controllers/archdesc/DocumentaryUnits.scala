@@ -11,9 +11,11 @@ import utils.search._
 import com.google.inject._
 import solr.SolrConstants
 import scala.concurrent.Future.{successful => immediate}
-import backend.Backend
+import backend.{ApiUser, Backend}
+import utils.ListParams
 import play.api.Play.current
 import play.api.Configuration
+import play.api.http.MimeTypes
 
 
 @Singleton
@@ -34,13 +36,12 @@ case class DocumentaryUnits @Inject()(implicit globalConfig: global.GlobalConfig
   import solr.facet._
 
   private val entityFacets: FacetBuilder = { implicit request =>
-    val prefix = EntityType.DocumentaryUnit.toString
     List(
       QueryFacetClass(
         key="childCount",
-        name=Messages(prefix + ".searchInside"),
+        name=Messages("documentaryUnit.searchInside"),
         param="items",
-        render=s => Messages(prefix + "." + s),
+        render=s => Messages("documentaryUnit." + s),
         facets=List(
           SolrQueryFacet(value = "false", solrValue = "0", name = Some("noChildItems")),
           SolrQueryFacet(value = "true", solrValue = "[1 TO *]", name = Some("hasChildItems"))
@@ -48,14 +49,14 @@ case class DocumentaryUnits @Inject()(implicit globalConfig: global.GlobalConfig
       ),
       FieldFacetClass(
         key=IsadG.LANG_CODE,
-        name=Messages(prefix + "." + IsadG.LANG_CODE),
+        name=Messages("documentaryUnit." + IsadG.LANG_CODE),
         param="lang",
         render=Helpers.languageCodeToName,
         display = FacetDisplay.DropDown
       ),
       FieldFacetClass(
         key="holderName",
-        name=Messages(prefix + ".heldBy"),
+        name=Messages("documentaryUnit.heldBy"),
         param="holder",
         sort = FacetSort.Name,
         display = FacetDisplay.DropDown
@@ -116,7 +117,7 @@ case class DocumentaryUnits @Inject()(implicit globalConfig: global.GlobalConfig
     // has no parent items - UNLESS there's a query, in which case we're
     // going to peer INSIDE items... dodgy logic, maybe...
     
-    val filters = if (request.getQueryString(SearchParams.QUERY).isEmpty)
+    val filters = if (request.getQueryString(SearchParams.QUERY).filterNot(_.trim.isEmpty).isEmpty)
       Map(SolrConstants.TOP_LEVEL -> true) else Map.empty[String,Any]
 
     find[DocumentaryUnit](
@@ -378,6 +379,33 @@ case class DocumentaryUnits @Inject()(implicit globalConfig: global.GlobalConfig
   def manageAccessPoints(id: String, descriptionId: String) = manageAccessPointsAction(id, descriptionId) {
       item => desc => implicit userOpt => implicit request =>
     Ok(views.html.documentaryUnit.editAccessPoints(item, desc))
+  }
+
+  import play.api.libs.concurrent.Execution.Implicits._
+  import utils.ead.DocTree
+
+  def exportEad(id: String) = optionalUserAction.async { implicit userOpt => implicit request =>
+    import scala.concurrent.Future
+    implicit val apiUser = ApiUser(userOpt.map(_.id))
+
+    val params = ListParams(limit = -1) // can't get around large limits yet...
+    val eadId: String = docRoutes.exportEad(id).absoluteURL(globalConfig.https)
+
+    def fetchTree(id: String): Future[DocTree] = {
+      for {
+        doc <- backend.get[DocumentaryUnit](id)
+        children <- backend.listChildren[DocumentaryUnit,DocumentaryUnit](id, params)
+        trees <- Future.sequence(children.map(c => {
+          if (c.childCount.getOrElse(0) > 0) fetchTree(c.id)
+          else Future.successful(DocTree(eadId, c, Seq.empty))
+        }))
+      } yield DocTree(eadId, doc, trees)
+    }
+
+    fetchTree(id).map { tree =>
+      Ok(views.export.ead.Helpers.tidyXml(views.xml.export.ead.documentaryUnitEad(tree).body))
+        .as(MimeTypes.XML)
+    }
   }
 }
 

@@ -6,7 +6,7 @@ import models.base._
 import defines._
 import models._
 import play.api.data.Form
-import play.api.libs.json.{Writes, JsError, Json}
+import play.api.libs.json.{JsValue, Writes, JsError, Json}
 import utils.search.{SearchHit, AppliedFacet, SearchParams, ItemPage}
 import play.api.Play.current
 import play.api.cache.Cache
@@ -101,43 +101,35 @@ trait Linking[MT <: AnyModel] extends Read[MT] with Search {
     }
   }
 
-
   /**
    * Create a link, via Json, for any arbitrary two objects, via an access point.
    */
-  def createLink(id: String, apid: String)(implicit rd: RestReadable[MT]) = Action.async(parse.json) { request =>
-    request.body.validate[AccessPointLink].fold(
-      errors => { // oh dear, we have an error...
-        immediate(BadRequest(JsError.toFlatJson(errors)))
-      },
-      ann => {
-        withItemPermission.async[MT](id, PermissionType.Annotate, contentType) {
-            item => implicit userOpt => implicit request =>
+  def createLink(id: String, apid: String)(implicit rd: RestReadable[MT]) = {
+    withItemPermission.async[JsValue,MT](parse.json, id, PermissionType.Annotate, contentType) {
+        item => implicit userOpt => implicit request =>
+      request.body.validate[AccessPointLink].fold(
+        errors => immediate(BadRequest(JsError.toFlatJson(errors))),
+        ann => {
           val link = new LinkF(id = None, linkType=LinkF.LinkType.Associative, description=ann.description)
           backend.linkItems(id, ann.target, link, Some(apid)).map { ann =>
             Cache.remove(id)
             Created(Json.toJson(ann)(Link.Converter.clientFormat))
           }
-        // TODO: Fix AuthController so we can use the
-          // various auth action composers with body parsers
-          // other than AnyContent
-        }.apply(request.map(js => AnyContentAsEmpty))
-      }
-    )
+        }
+      )
+    }
   }
 
   /**
    * Create a link, via Json, for the object with the given id and a set of
    * other objects.
    */
-  def createMultipleLinks(id: String)(implicit rd: RestReadable[MT]) = Action.async(parse.json) { request =>
-    request.body.validate[List[AccessPointLink]].fold(
-      errors => { // oh dear, we have an error...
-        immediate(BadRequest(JsError.toFlatJson(errors)))
-      },
-      anns => {
-        withItemPermission.async[MT](id, PermissionType.Annotate, contentType) {
-            item => implicit userOpt => implicit request =>
+  def createMultipleLinks(id: String)(implicit rd: RestReadable[MT]) = {
+    withItemPermission.async[JsValue, MT](parse.json, id, PermissionType.Annotate, contentType) {
+        item => implicit userOpt => implicit request =>
+      request.body.validate[List[AccessPointLink]].fold(
+        errors => immediate(BadRequest(JsError.toFlatJson(errors))),
+        anns => {
           val links = anns.map(ann =>
             (ann.target, new LinkF(id = None, linkType=ann.`type`.getOrElse(LinkF.LinkType.Associative), description=ann.description), None)
           )
@@ -145,31 +137,24 @@ trait Linking[MT <: AnyModel] extends Read[MT] with Search {
             Cache.remove(id)
             Created(Json.toJson(newLinks)(Writes.list(Link.Converter.clientFormat)))
           }
-        }.apply(request.map(js => AnyContentAsEmpty))
-      }
-    )
+        }
+      )
+    }
   }
-
 
   /**
    * Create a link, via Json, for any arbitrary two objects, via an access point.
    */
-  def createAccessPoint(id: String, did: String)(implicit rd: RestReadable[MT]) = Action.async(parse.json) { request =>
-    request.body.validate[AccessPointF](AccessPointLink.accessPointFormat).fold(
-      errors => { // oh dear, we have an error...
-        immediate(BadRequest(JsError.toFlatJson(errors)))
-      },
-      ap => {
-        withItemPermission.async[MT](id, PermissionType.Update, contentType) { item => implicit userOpt => implicit request =>
-          backend.createAccessPoint(id, did, ap).map { case (_, ann) =>
-            Created(Json.toJson(ann)(AccessPointF.Converter.clientFormat  ))
-          }
-          // TODO: Fix AuthController so we can use the
-          // various auth action composers with body parsers
-          // other than AnyContent
-        }.apply(request.map(js => AnyContentAsEmpty))
-      }
-    )
+  def createAccessPoint(id: String, did: String)(implicit rd: RestReadable[MT]) = {
+    withItemPermission.async[JsValue,MT](parse.json, id, PermissionType.Update, contentType) {
+        item => implicit userOpt => implicit request =>
+      request.body.validate[AccessPointF](AccessPointLink.accessPointFormat).fold(
+        errors => immediate(BadRequest(JsError.toFlatJson(errors))),
+        ap => backend.createAccessPoint(id, did, ap).map { ann =>
+          Created(Json.toJson(ann)(AccessPointF.Converter.clientFormat  ))
+        }
+      )
+    }
   }
 
   /**
@@ -191,35 +176,53 @@ trait Linking[MT <: AnyModel] extends Read[MT] with Search {
     val res = for {
       link <- linkOpt
       target <- link.opposingTarget(id)
-    } yield {
-      new AccessPointLink(
-        target = target.id,
-        `type` = None, // TODO: Add
-        description = link.model.description
-      )
-    }
+    } yield new AccessPointLink(
+      target = target.id,
+      `type` = Some(link.model.linkType),
+      description = link.model.description
+    )
     Ok(Json.toJson(res))
   }
 
   /**
-   * Delete an access point by ID. FIXME: This should probably be moved elsewhere.
+   * Delete an access point by ID.
    */
-  def deleteAccessPointAction(id: String, did: String, accessPointId: String)(implicit rd: RestReadable[MT]) = withItemPermission.async[MT](id, PermissionType.Update, contentType) {
-      bool => implicit userOpt => implicit request =>
-    backend.deleteAccessPoint(id, did, accessPointId).map { ok =>
-      Cache.remove(id)
-      Ok(Json.toJson(true))
+  def deleteAccessPoint(id: String, did: String, accessPointId: String)(implicit rd: RestReadable[MT]) = {
+    withItemPermission.async[MT](id, PermissionType.Update, contentType) {
+        bool => implicit userOpt => implicit request =>
+      backend.deleteAccessPoint(id, did, accessPointId).map { ok =>
+        Cache.remove(id)
+        Ok(Json.toJson(true))
+      }
     }
   }
 
   /**
    * Delete a link.
    */
-  def deleteLink(id: String, linkId: String)(implicit rd: RestReadable[MT]) = withItemPermission.async[MT](id, PermissionType.Annotate, contentType) {
-      bool => implicit userOpt => implicit request =>
-    backend.deleteLink(id, linkId).map { ok =>
-      Cache.remove(id)
-      Ok(Json.toJson(ok))
+  def deleteLink(id: String, linkId: String)(implicit rd: RestReadable[MT]) = {
+    withItemPermission.async[MT](id, PermissionType.Annotate, contentType) {
+        bool => implicit userOpt => implicit request =>
+      backend.deleteLink(id, linkId).map { ok =>
+        Cache.remove(id)
+        Ok(Json.toJson(ok))
+      }
+    }
+  }
+
+  /**
+   * Delete a link and an access point in one go.
+   */
+  def deleteLinkAndAccessPoint(id: String, did: String, accessPointId: String, linkId: String)(implicit rd: RestReadable[MT]) = {
+    withItemPermission.async[MT](id, PermissionType.Annotate, contentType) {
+        bool => implicit userOpt => implicit request =>
+      for {
+        oneOk <- backend.deleteLink(id, linkId)
+        _ <- backend.deleteAccessPoint(id, did, accessPointId) if oneOk
+      } yield {
+        Cache.remove(id)
+        Ok(Json.toJson(true))
+      }
     }
   }
 }

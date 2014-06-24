@@ -6,29 +6,28 @@ import models._
 import play.api.i18n.Messages
 import play.api.mvc._
 import defines.{ContentTypes, EntityType}
-import play.api.libs.json.Json
+import play.api.libs.json.{JsValue, Json, JsObject}
 import utils.{SessionPrefs, PageParams}
 import scala.concurrent.Future.{successful => immediate}
 import jp.t2v.lab.play2.auth.LoginLogout
 import play.api.libs.Files.TemporaryFile
 import play.api.Play.current
-import java.io.File
-import org.apache.commons.io.FileUtils
-import play.api.libs.json.JsObject
+import java.io.{StringWriter, File}
 import play.Logger
 import scala.concurrent.Future
-import play.api.mvc.MultipartFormData.FilePart
 import views.html.p
 import utils.search.{Resolver, Dispatcher}
 import backend.Backend
 
 import com.google.inject._
 import net.coobird.thumbnailator.tasks.UnsupportedFormatException
-import play.api.data.Forms
 import play.api.mvc.MaxSizeExceeded
 import play.api.mvc.MultipartFormData.FilePart
-import scala.Some
-import play.api.libs.json.JsObject
+import controllers.DataFormat
+import play.api.http.{HeaderNames, MimeTypes}
+import org.joda.time.format.ISODateTimeFormat
+import models.base.AnyModel
+import net.coobird.thumbnailator.Thumbnails
 
 /**
  * @author Mike Bryant (http://github.com/mikesname)
@@ -64,7 +63,7 @@ case class Profile @Inject()(implicit globalConfig: global.GlobalConfig, searchD
   def watchItemPost(id: String) = withUserAction.async { implicit user => implicit request =>
     backend.watch(user.id, id).map { _ =>
       if (isAjax) Ok("ok")
-      else Redirect(profileRoutes.watching)
+      else Redirect(profileRoutes.watching())
     }
   }
 
@@ -76,16 +75,106 @@ case class Profile @Inject()(implicit globalConfig: global.GlobalConfig, searchD
   def unwatchItemPost(id: String) = withUserAction.async { implicit user => implicit request =>
     backend.unwatch(user.id, id).map { _ =>
       if (isAjax) Ok("ok")
-      else Redirect(profileRoutes.watching)
+      else Redirect(profileRoutes.watching())
     }
   }
 
-  def watching = withUserAction.async { implicit user => implicit request =>
+  case class ExportWatchItem(
+    name: String,
+    url: String
+  ) {
+    def toCsv: Array[String] = Array(name, url)
+  }
+
+  object ExportWatchItem {
+    def fromItem(item: AnyModel)(implicit request: RequestHeader): ExportWatchItem = new ExportWatchItem(
+      item.toStringLang,
+      views.p.Helpers.linkTo(item).absoluteURL(globalConfig.https)
+    )
+    implicit val writes = Json.writes[ExportWatchItem]
+  }
+
+  def watching(format: DataFormat.Value = DataFormat.Html) = withUserAction.async { implicit user => implicit request =>
     val watchParams = PageParams.fromRequest(request)
     backend.pageWatching(user.id, watchParams).map { watchList =>
-      Ok(p.profile.watchedItems(watchList))
+      format match {
+        case DataFormat.Text => Ok(views.txt.p.profile.watchedItems(watchList))
+            .as(MimeTypes.TEXT)
+        case DataFormat.Csv => Ok(writeCsv(
+          List("Item", "URL"),
+          watchList.items.map(a => ExportWatchItem.fromItem(a).toCsv)))
+          .as("text/csv")
+          .withHeaders(HeaderNames.CONTENT_DISPOSITION -> ("attachment; filename=" + user.id + "_watched.csv"))
+        case DataFormat.Json =>
+          Ok(Json.toJson(watchList.items.map(ExportWatchItem.fromItem)))
+            .as(MimeTypes.JSON)
+        case _ => Ok(p.profile.watchedItems(watchList))
+      }
     }
   }
+
+  // A condensed version of an annotation for export
+  case class ExportAnnotation(target: Option[String], field: Option[String], body: String,
+                              time: Option[String], url: Option[String]) {
+    // NB: Using nulls here because the OpenCSV expects them in
+    // the absence of a value (rather than, say, empty strings)
+    def toCsv: Array[String] = Array(
+      target.getOrElse(null),
+      field.getOrElse(null),
+      body,
+      time.getOrElse(null),
+      url.getOrElse(null)
+    )
+  }
+
+  object ExportAnnotation {
+    def fromAnnotation(annotation: Annotation)(implicit request: RequestHeader): ExportAnnotation = new ExportAnnotation(
+      annotation.target.map(_.toStringLang),
+      annotation.model.field,
+      annotation.model.body,
+      annotation.latestEvent
+        .map(_.model.timestamp.toString(ISODateTimeFormat.dateTime)),
+      annotation.target
+        .map(t => views.p.Helpers.linkTo(t).absoluteURL(globalConfig.https) + "#" + annotation.id)
+    )
+    import play.api.libs.json._
+    implicit val writes = Json.writes[ExportAnnotation]
+  }
+
+  def annotations(format: DataFormat.Value = DataFormat.Html) = withUserAction.async { implicit user => implicit request =>
+    val params = PageParams.fromRequest(request)
+    backend.userAnnotations(user.id, params).map { page =>
+      format match {
+        case DataFormat.Text =>
+          Ok(views.txt.p.profile.annotations(page).body.trim)
+            .as(MimeTypes.TEXT)
+        case DataFormat.Csv => Ok(writeCsv(
+            List("Item", "Field", "Note", "Time", "URL"),
+            page.items.map(a => ExportAnnotation.fromAnnotation(a).toCsv)))
+          .as("text/csv")
+          .withHeaders(HeaderNames.CONTENT_DISPOSITION -> ("attachment; filename=" + user.id + "_notes.csv"))
+        case DataFormat.Json =>
+          Ok(Json.toJson(page.items.map(ExportAnnotation.fromAnnotation)))
+            .as(MimeTypes.JSON)
+        case _ => Ok(p.profile.annotations(page))
+      }
+    }
+  }
+
+  def writeCsv(headers: Seq[String], data: Seq[Array[String]])(implicit request: RequestHeader): String = {
+    import au.com.bytecode.opencsv.CSVWriter
+    val buffer = new StringWriter()
+    val csvWriter = new CSVWriter(buffer)
+    csvWriter.writeNext(headers.toArray)
+    for (item <- data) {
+      csvWriter.writeNext(item)
+    }
+    csvWriter.close()
+    buffer.getBuffer.toString
+  }
+
+  def annotationListToJson(annotations: Seq[Annotation])(implicit request: RequestHeader): JsValue
+    = Json.toJson(annotations.map(ExportAnnotation.fromAnnotation))
 
   def prefs = Action { implicit request =>
     Ok(Json.toJson(preferences))
@@ -102,15 +191,12 @@ case class Profile @Inject()(implicit globalConfig: global.GlobalConfig, searchD
   }
 
   def profile = withUserAction.async { implicit user => implicit request =>
-    val watchParams = PageParams.fromRequest(request, namespace = "watch")
-    val linkParams = PageParams.fromRequest(request, namespace = "link")
-    val annParams = PageParams.fromRequest(request, namespace = "ann")
-  
+    val watchParams = PageParams.fromRequest(request, namespace = "w")
+    val annParams = PageParams.fromRequest(request, namespace = "a")
     for {
       watchList <- backend.pageWatching(user.id, watchParams)
-      links <- backend.userLinks(user.id, linkParams)
       anns <- backend.userAnnotations(user.id, annParams)
-    } yield Ok(p.profile.profile(watchList, anns, links))
+    } yield Ok(p.profile.profile(watchList, anns))
   }
 
   import play.api.data.Form
@@ -224,7 +310,6 @@ case class Profile @Inject()(implicit globalConfig: global.GlobalConfig, searchD
   private def uploadParser = parse.maxLength(5 * 1024 * 1024, parse.multipartFormData)
 
   def updateProfileImagePost() = withUserAction.async(uploadParser) { implicit user => implicit request =>
-    import fly.play.s3._
 
     def onError(err: String) =
       BadRequest(p.profile.editProfile(profileDataForm,
@@ -241,11 +326,6 @@ case class Profile @Inject()(implicit globalConfig: global.GlobalConfig, searchD
                 Redirect(profileRoutes.profile())
                   .flashing("success" -> "profile.update.confirmation")
               }
-            }.recover {
-              case S3Exception(status, code, message, originalXml) =>
-                Logger.error(s"$originalXml")
-                Logger.error("Error: " + message)
-                BadRequest(message)
             }
           } catch {
             case e: UnsupportedFormatException => immediate(onError("badFileType"))
@@ -263,31 +343,28 @@ case class Profile @Inject()(implicit globalConfig: global.GlobalConfig, searchD
     = file.contentType.exists(_.toLowerCase.startsWith("image/"))
 
   private def convertAndUploadFile(file: FilePart[TemporaryFile], user: UserProfile, request: RequestHeader): Future[String] = {
-    import fly.play.s3._
-    import fly.play.s3.BucketFile
-    import net.coobird.thumbnailator.Thumbnails
+    import awscala._
+    import awscala.s3._
 
     val bucketName: String = current.configuration.getString("aws.bucket")
       .getOrElse(sys.error("Invalid configuration: no aws.bucket key found"))
     val instanceName: String = current.configuration.getString("aws.instance")
       .getOrElse(request.host)
+    val accessKey =current.configuration.getString("aws.accessKeyId")
+      .getOrElse(sys.error("Invalid configuration: no aws.accessKeyId found"))
+    val secret =current.configuration.getString("aws.secretKey")
+      .getOrElse(sys.error("Invalid configuration: no aws.secretKey found"))
 
-    val bucket = S3(bucketName)
-    val ctype = file.contentType.getOrElse("application/octet-stream")
+    implicit val s3 = S3(Credentials(accessKey, secret))
+
+    val bucket: Bucket = s3.bucket(bucketName)
+      .getOrElse(sys.error(s"Bucket $bucketName not found"))
     val extension = file.filename.substring(file.filename.lastIndexOf("."))
     val awsName = s"images/$instanceName/${user.id}$extension"
     val temp = File.createTempFile(user.id, extension)
     Thumbnails.of(file.ref.file).size(200, 200).toFile(temp)
-    val bis = FileUtils.readFileToByteArray(temp)
 
-    val bucketFile: BucketFile = new BucketFile(awsName, ctype, bis)
-    val upload: Future[Unit] = bucket.add(bucketFile)
-
-    // Try and ensure we clean up afterwards...
-    upload.onComplete { unit =>
-      temp.delete()
-      file.ref.file.delete()
-    }
-    upload.map(_ => bucket.url(awsName))
+    bucket.putAsPublicRead(awsName, temp)
+    Future.successful(s"http://${bucket.name}.s3.amazonaws.com/$awsName")
   }
 }

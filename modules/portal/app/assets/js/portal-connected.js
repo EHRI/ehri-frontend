@@ -203,12 +203,10 @@ jQuery(function ($) {
     if (typeof loaderContainer !== "undefined") {
       loaderContainer.remove();
     }
-    var $container;
-    if ($elem.hasClass("annotate-field")) {
-      $container = $(".annotate-item-controls[data-target='" + $elem.attr("data-target") + "']");
-    } else {
-      $container = $elem.parent();
-    }
+    var $container = $elem.hasClass("annotate-field")
+      ? $(".annotate-item-controls[data-target='" + $elem.attr("data-target") + "']")
+      : $elem.parent();
+
     $elem.hide();
     $container.after(data);
     $container.next().find("textarea").focus();

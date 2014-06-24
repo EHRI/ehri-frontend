@@ -4,6 +4,7 @@ import helpers._
 import models.{GroupF, Group, UserProfileF, UserProfile}
 import defines.EntityType
 import solr.SolrConstants
+import play.api.test.FakeRequest
 
 /**
  * Spec to test various page views operate as expected.
@@ -36,20 +37,32 @@ class SearchSpec extends Neo4jRunnerSpec(classOf[SearchSpec]) {
         .last.filters.get(SolrConstants.TOP_LEVEL) must equalTo(None)
     }
 
+    "allow search filtering for non-logged in users" in new FakeApp {
+      val filter = route(FakeRequest(GET,
+        controllers.core.routes.SearchFilter.filter().url + "?q=c")).get
+      status(filter) must equalTo(OK)
+    }
+
     "perform indexing correctly" in new FakeApp {
 
-      val data = Map[String,Seq[String]](
+      val cmd: List[String] = List(
+        EntityType.DocumentaryUnit.toString,
+        EntityType.Repository.toString
+      )
+      val data = Map[String, Seq[String]](
         "all" -> Seq("true"),
-        "type[]" -> Seq(
-          EntityType.DocumentaryUnit.toString,
-          EntityType.Repository.toString
-        )
+        "type[]" -> cmd
       )
 
       val idx = route(fakeLoggedInHtmlRequest(privilegedUser, POST,
-          controllers.admin.routes.AdminSearch.updateIndexPost().url), data).get
+          controllers.adminutils.routes.AdminSearch.updateIndexPost().url), data).get
       status(idx) must equalTo(OK)
-      // TODO: Check index buffer - problematic due to chunked response?
+      // NB: reading the content of the chunked response as a string is
+      // necessary to exhaust the iteratee and fill the event buffer.
+      contentAsString(idx) must contain("Done")
+      mockIndexer.eventBuffer.lastOption must beSome.which { bufcmd =>
+        bufcmd must equalTo(cmd.toString())
+      }
     }
 
     "perform hierarchy indexing correctly" in new FakeApp {
@@ -57,14 +70,19 @@ class SearchSpec extends Neo4jRunnerSpec(classOf[SearchSpec]) {
       val idx = route(fakeLoggedInHtmlRequest(privilegedUser, POST,
         controllers.archdesc.routes.Repositories.updateIndexPost("r1").url), "").get
       status(idx) must equalTo(OK)
-      // TODO: Check index buffer - problematic due to chunked response?
+      // NB: reading the content of the chunked response as a string is
+      // necessary to exhaust the iteratee and fill the event buffer.
+      contentAsString(idx) must contain("Done")
+      mockIndexer.eventBuffer.lastOption must beSome.which { bufcmd =>
+        bufcmd must equalTo("r1")
+      }
     }
   }
 
   "Search metrics" should {
     "response to JSON" in new FakeApp {
       val repoMetrics = route(fakeLoggedInJsonRequest(privilegedUser, GET,
-        controllers.admin.routes.Metrics.repositoryCountries().url)).get
+        controllers.adminutils.routes.Metrics.repositoryCountries().url)).get
       status(repoMetrics) must equalTo(OK)
     }
   }

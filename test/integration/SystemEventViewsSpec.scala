@@ -19,7 +19,7 @@ class SystemEventViewsSpec extends Neo4jRunnerSpec(classOf[SystemEventViewsSpec]
       // After deleting an item, the event should be top of our list and
       // include the item title extracted from the last version
       val events = route(fakeLoggedInHtmlRequest(privilegedUser, GET,
-        controllers.users.routes.SystemEvents.list().url)).get
+        controllers.admin.routes.SystemEvents.list().url)).get
       contentAsString(events) must contain("An Authority 1")
     }
   }

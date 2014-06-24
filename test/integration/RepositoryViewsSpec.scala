@@ -2,6 +2,7 @@ package integration
 
 import helpers._
 import models.{GroupF, Group, UserProfileF, UserProfile}
+import play.api.http.MimeTypes
 
 /**
  * Created by mike on 05/06/13.
@@ -77,8 +78,8 @@ class RepositoryViewsSpec extends Neo4jRunnerSpec(classOf[RepositoryViewsSpec]) 
         controllers.archdesc.routes.Countries.createRepositoryPost(COUNTRY).url).withHeaders(formPostHeaders.toSeq: _*), testData).get
       status(cr) must equalTo(SEE_OTHER)
 
-      // FIXME: This route will change when a property ID mapping scheme is devised
-      val show = route(fakeLoggedInHtmlRequest(privilegedUser, GET, redirectLocation(cr).get)).get
+      val show = route(fakeLoggedInHtmlRequest(privilegedUser, GET,
+        redirectLocation(cr).get)).get
       status(show) must equalTo(OK)
       contentAsString(show) must contain("Some history")
       contentAsString(show) must contain("Some content")
@@ -155,6 +156,15 @@ class RepositoryViewsSpec extends Neo4jRunnerSpec(classOf[RepositoryViewsSpec]) 
       val show = route(fakeLoggedInHtmlRequest(unprivilegedUser, GET, controllers.archdesc.routes.Repositories.get("r1").url)).get
       status(show) must equalTo(OK)
       contentAsString(show) must not contain "New Content for r1"
+    }
+
+    "allow EAD export" in new FakeApp {
+      val ead = route(fakeLoggedInHtmlRequest(privilegedUser, GET,
+        controllers.archdesc.routes.Repositories.exportEad("r1").url)).get
+      status(ead) must equalTo(OK)
+      contentType(ead) must beSome.which { ct =>
+        ct must equalTo(MimeTypes.XML)
+      }
     }
   }
 }

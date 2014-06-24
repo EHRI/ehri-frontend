@@ -1,122 +1,127 @@
 @(item: DocumentaryUnit, desc: DocumentaryUnitDescriptionF)(implicit userOpt: Option[UserProfile], req: RequestHeader, globalConfig: global.GlobalConfig, lang: Lang, flash: Flash)
 
     @extrascripts = {
-        <script src="http://ajax.googleapis.com/ajax/libs/angularjs/1.0.5/angular.min.js"></script>
-        <script src="http://ajax.googleapis.com/ajax/libs/angularjs/1.0.5/angular-sanitize.min.js"></script>
-        <script src="@controllers.core.routes.Assets.at("js/ui-bootstrap-0.10.0.min.js")" type="text/javascript"></script>
-        <script src="@controllers.archdesc.routes.Assets.at("js/AccessPointLinker.js")" type="text/javascript"></script>
-
         @helper.javascriptRouter("jsRoutes")(
-            controllers.core.routes.javascript.Application.get,
-            controllers.core.routes.javascript.ApiController.getItem,
             controllers.core.routes.javascript.SearchFilter.filter,
+            controllers.admin.routes.javascript.Admin.get,
+            controllers.admin.routes.javascript.Admin.getType,
             controllers.archdesc.routes.javascript.DocumentaryUnits.linkMultiAnnotatePost,
             controllers.archdesc.routes.javascript.DocumentaryUnits.get,
             controllers.archdesc.routes.javascript.DocumentaryUnits.createLink,
             controllers.archdesc.routes.javascript.DocumentaryUnits.createAccessPoint,
             controllers.archdesc.routes.javascript.DocumentaryUnits.getLink,
             controllers.archdesc.routes.javascript.DocumentaryUnits.getAccessPointsJson,
-            controllers.archdesc.routes.javascript.DocumentaryUnits.deleteAccessPointAction,
-            controllers.archdesc.routes.javascript.DocumentaryUnits.deleteLink
+            controllers.archdesc.routes.javascript.DocumentaryUnits.deleteAccessPoint,
+            controllers.archdesc.routes.javascript.DocumentaryUnits.deleteLink,
+            controllers.archdesc.routes.javascript.DocumentaryUnits.deleteLinkAndAccessPoint
         )
+        <script src="@controllers.core.routes.Assets.at("js/handlebar.js")"></script>
+        <script src="@controllers.core.routes.Assets.at("js/typeahead.js")"></script>
+        <script src="@controllers.core.routes.Assets.at("js/bootstrap.confirmation.js")"></script>
+        <script type="text/javascript" src="@controllers.core.routes.Assets.at("js/accessPoints.js")"></script>
+        <style type="text/css">
+            .modal-dialog { width: 80%;}
+            .model { display:none; }
+            .new-access-point { display: none; }
+            .pages { display: none; }
+            .submit-group { display : none; }
+        </style>
     }
 
 @import AccessPointF._
 
+@filterDropdown(t: String, option: String = "") = {
+    <li data-value="@t" class="active type" @option><a>@Messages("contentTypes." + t)</a></li>
+}
 @documentaryUnit.itemPage(item, scripts = extrascripts) {
     <h4>&quot;@desc.name&quot;</h4>
-    <div ng-app="AccessPointLinker" class="ng-cloak">
-        <div ng-controller="LinkerCtrl" ng-init="init('@item.id','@desc.id')">
-            <ul class="list-unstyled">
-            @AccessPointType.values.toList.map { accessPointType =>
-                <li class="accessPointList @accessPointType">
-                    <h3>@Messages("documentaryUnit." + IsadG.ACCESS_POINTS + "." + accessPointType)</h3>
-                    <ul class="item-annotation-links list-unstyled">
-                        <li ng-repeat="access in getAccessPointsWithType('@accessPointType')" id="{{access.accessPoint.id}}">
-                            <span ng-switch="access.link != null">
-                                <span ng-switch-when="true">
-                                    <a href="{{getTypeUrl(access.target.type, access.target.id)}}">{{access.accessPoint.name}}</a>
-                                    <a title="@Messages("accessPoint.removeAccessPoint")"
-                                    class="glyphicon glyphicon-remove" ng-click="deleteAccessPointWithLink(access.accessPoint.id, access.link.id, access.accessPoint.name)"></a>
-                                </span>
+    <ul class="list-unstyled">
+    @AccessPointType.values.toList.map { accessPointType =>
+        <li class="accessPointList @accessPointType">
+            <h3>@Messages("documentaryUnit." + IsadG.ACCESS_POINTS + "." + accessPointType)</h3>
+            <ul class="item-annotation-links list-unstyled" data-id="@item.id" data-did="@desc.id">
+                <li class="access-saved model" id="linkId">
+                    <a href="#" class="access-saved-name"></a> 
+                    <a class="access-saved-delete" title="@Messages("accessPoint.delete")"><span class="glyphicon glyphicon-remove"></span></a>
+                    <small class="access-saved-description text-muted"></small>
+                </li>
+                <li class="add-access-toggle-container">
+                    <a href="#" class="add-access-toggle"><small><i class="glyphicon glyphicon-plus-sign"></i>@Messages("accessPoint.create")</small></a>
 
-                                <span ng-switch-when="false">
-                                    {{access.accessPoint.name}}
-                                    <a title="@Messages("accessPoint.removeAccessPoint")"
-                                        class="glyphicon glyphicon-remove" ng-click="deleteAccessPoint(access.accessPoint.id, access.accessPoint.name)"></a>
-                                </span>
-                            </span>
-                            <small ng-show="access.accessPoint.description">
-                                <p class="text-muted">{{access.accessPoint.description}}</p>
-                            </small>
-                        </li>
-
-                        <li ng-switch="editInProgress('@accessPointType')">
-                            <small ng-switch-when="false">
-                                <a ng-click="initialiseEdit('@accessPointType')">
-                                    <i class="glyphicon glyphicon-plus-sign"></i>
-                                    @Messages("accessPoint.create")
-                                </a>
-
-                            </small>
-                            <div class="form-horizontal" ng-switch-when="true" class="new-access-point">
-                                <h4>@Messages("accessPoints.newAccessPoint")</h4>
-                                <div class="form-group">
-                                    <label class="col-sm-3 control-label">
-                                        @Messages("accessPoint.name")
-                                    </label>
-                                    <div class="col-sm-9">
-                                        <div class="input-group">
-                                            <input class="form-control" type="text" placeholder="@Messages("accessPoint.name")" ng-change="queryNameMatches()" ng-model="tempAccessPoint.name" autofocus="true" />
-                                             <div class="input-group-btn">
-                                                <a class="btn btn-default" ng-click="openBrowseDialog()">
-                                                    <i class="glyphicon glyphicon-search"></i>
-                                                </a>
-                                            </div>
-                                        </div>
-                                        <p class="help-block">
-                                            <div class="potential-matches list-group list-group-small" style="overflow: auto; max-height: 200px">
-                                                <a class="list-group-item" ng-repeat="item in matches" ng-click="selectLinkMatch(item)">
-                                                    <span class="badge">{{readableType(item[2])}}</span>
-                                                    {{item[1]}}
-                                                </a>
-                                            </div>
-                                        </p>
-                                    </div>
-                                </div>
-                                <div class="form-group">
-                                    <label class="col-sm-3 control-label">
-                                        @Messages("accessPoint.description")
-                                    </label>
-                                    <div class="col-sm-9">
-                                        <input type="text" class="form-control" placeholder="@Messages("accessPoint.description")" ng-model="tempAccessPoint.description" />
-                                    </div>
-                                </div>
-                                <div class="form-group" ng-switch="tempAccessPoint.link != null">
-                                    <label ng-switch-when="true"  class="col-sm-3 control-label">Options
-                                    </label>
-                                    <div ng-switch-when="true" class="col-sm-9">
-                                        <i class="glyphicon glyphicon-link"></i>
-                                        <a target="_blank" href="{{getUrl(tempAccessPoint.link.target)}}">{{tempAccessPoint.link.name}}</a>
-                                        <a title="@Messages("accessPoint.removeAccessPointLink")"
-                                           class="glyphicon glyphicon-remove" ng-click="removeTempAccessPointLink()"></a>
-                                    </div>
-
-                                </div>
-                                <div class="form-group">
-                                    <div class="col-sm-offset-3 col-sm-9">
-                                        <button class="btn btn-small btn-primary" ng-click="saveNewAccessPoint()" ng-disabled="!hasValidNewAccessPoint('@accessPointType')">
-                                            @Messages("save")</button>
-                                        <button class="btn btn-small btn-danger" ng-click="cancelAddAccessPoint()">@Messages("cancel")</button>
+                    <div class="form-horizontal new-access-point" data-type="@accessPointType.toString" style="">
+                        <h4>@Messages("accessPoints.newAccessPoint")</h4>
+                        <div class="form-group">
+                            <label class="col-sm-2 control-label">
+                                @Messages("accessPoint.name")
+                            </label>
+                            <div class="col-sm-10">
+                                <div class="input-group">
+                                    <input class="form-control quicksearch" name="@accessPointType.toString" type="text" placeholder="@Messages("accessPoint.name")" autofocus="true" />
+                                     <div class="input-group-btn">
+                                        <a class="btn btn-default">
+                                            <i class="glyphicon glyphicon-search"></i>
+                                        </a>
+                                        <button class="btn btn-success add-access-text" title="Add a text access point"><span class="glyphicon glyphicon-plus-sign"></span></button>
+                                        <button class="btn btn-info pages change-page"><span class="glyphicon glyphicon-minus"></span></button>
+                                        <button class="btn btn-info pages"><span class="page"></span>/<span class="max"></span></button>
+                                        <button class="btn btn-info pages change-page"><span class="glyphicon glyphicon-plus"></span></button>
+                                        <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown">Filters <span class="caret"></span></button>
+                                        <ul class="dropdown-menu filters pull-right">
+                                            <li class="dropdown-header">@Messages("contentTypes")</li>
+                                            @accessPointType match {
+                                                case AccessPointType.CreatorAccess | AccessPointType.PersonAccess => {
+                                                    @filterDropdown("historicalAgent", "data-disabled='true'")
+                                                }
+                                                case AccessPointType.PlaceAccess => {
+                                                    @filterDropdown("cvocConcept")
+                                                    @filterDropdown("country")
+                                                }
+                                                case AccessPointType.SubjectAccess => {
+                                                    @filterDropdown("cvocConcept", "data-disabled")
+                                                }
+                                                case _ => { 
+                                                    @filterDropdown("cvocConcept")
+                                                    @filterDropdown("historicalAgent")
+                                                    @filterDropdown("documentaryUnit")
+                                                }
+                                            }
+                                            <li class="divider"></li>
+                                        </ul>
                                     </div>
                                 </div>
                             </div>
-                        </li>
-                    </ul>
-                    <hr />
+                        </div>
+                        <div class="append-in">
+                            <div class="form-group model element" style="display:none;">
+                                <div class="col-sm-10 col-sm-offset-2">
+                                    <div class="input-group">
+                                        <div class="input-group-btn">
+                                            <a class="btn btn-success">
+                                                <i class="glyphicon glyphicon-link"></i>
+                                            </a>
+                                            <button class="btn btn-success element-name" name="@accessPointType.toString" data-did="" value="">
+                                            </button>
+                                        </div>
+                                        <input type="text" class="form-control element-description" placeholder="@Messages("accessPoint.description")" />
+                                        <div class="input-group-btn">
+                                            <a title="@Messages("accessPoint.delete")" class="btn btn-danger"><span class="glyphicon glyphicon-remove"></span></a>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="form-group submit-group">
+                            <div class="col-sm-offset-2 col-sm-10">
+                                <button class="btn btn-small btn-primary element-save">
+                                    @Messages("save")</button>
+                                <button class="btn btn-small btn-danger">@Messages("cancel")</button>
+                            </div>
+                        </div>
+                    </div>
                 </li>
-            }
             </ul>
-        </div>
-    </div>
+            <hr />
+        </li>
+    }
+    </ul>
 }

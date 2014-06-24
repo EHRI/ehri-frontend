@@ -2,8 +2,7 @@
 
 @import utils.search.SearchParams
 
-@if(params.isFiltered || !result.items.isEmpty) {
-    @helper.form(action = action, 'role -> "form") {
+@helper.form(action = action, 'role -> "form") {
 
     @common.search.searchBar(params, autofocus = autofocus, placeholder = key)
     <div class="row">
@@ -28,5 +27,4 @@
             @facets
         </div>
     </div>
-    }
 }

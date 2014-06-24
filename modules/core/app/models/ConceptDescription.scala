@@ -22,7 +22,7 @@ object ConceptDescriptionF {
         ID -> d.id,
         TYPE -> d.isA,
         DATA -> Json.obj(
-          LANGUAGE -> d.languageCode,
+          LANG_CODE -> d.languageCode,
           PREFLABEL -> d.name,
           ALTLABEL -> d.altLabels,
           DEFINITION -> d.definition,
@@ -41,7 +41,7 @@ object ConceptDescriptionF {
   implicit val conceptDescriptionReads: Reads[ConceptDescriptionF] = (
     (__ \ TYPE).readIfEquals(EntityType.ConceptDescription) and
     (__ \ ID).readNullable[String] and
-    (__ \ DATA \ LANGUAGE).read[String] and
+    (__ \ DATA \ LANG_CODE).read[String] and
     (__ \ DATA \ PREFLABEL).read[String] and
     (__ \ DATA \ ALTLABEL).readListOrSingleNullable[String] and
     (__ \ DATA \ DEFINITION).readListOrSingleNullable[String] and
@@ -89,7 +89,7 @@ object ConceptDescription {
   val form = Form(mapping(
     ISA -> ignored(EntityType.ConceptDescription),
     ID -> optional(nonEmptyText),
-    LANGUAGE -> nonEmptyText,
+    LANG_CODE -> nonEmptyText,
     PREFLABEL -> nonEmptyText,
     ALTLABEL -> optional(list(nonEmptyText)),
     DEFINITION -> optional(list(nonEmptyText)),

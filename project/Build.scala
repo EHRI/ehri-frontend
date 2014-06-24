@@ -1,3 +1,4 @@
+
 import com.typesafe.sbt.jse.JsEngineImport.JsEngineKeys
 import sbt._
 import Keys._
@@ -76,9 +77,11 @@ object ApplicationBuild extends Build {
   )
   
   val portalDependencies = Seq(
+    "net.coobird" % "thumbnailator" % "[0.4, 0.5)",
+    "net.sf.opencsv" % "opencsv" % "2.3",
+
     // S3 Upload plugin
-    "nl.rhinofly" %% "play-s3" % "5.0.0",
-    "net.coobird" % "thumbnailator" % "[0.4, 0.5)"
+    "com.github.seratch" %% "awscala" % "0.2.+"
   )
 
   val testDependencies = Seq(
@@ -115,7 +118,6 @@ object ApplicationBuild extends Build {
   )
 
   val assetSettings = Seq(
-
   )
 
   lazy val core = Project(appName + "-core", file("modules/core"))
@@ -126,7 +128,7 @@ object ApplicationBuild extends Build {
       libraryDependencies ++= coreDependencies
   ).settings(commonSettings: _*)
 
-  lazy val users = Project(appName + "-users", file("modules/users"))
+  lazy val admin = Project(appName + "-admin", file("modules/admin"))
     .enablePlugins(play.PlayScala).settings(
     version := appVersion
   ).settings(commonSettings: _*).dependsOn(core)
@@ -135,7 +137,7 @@ object ApplicationBuild extends Build {
     .enablePlugins(play.PlayScala).settings(
     version := appVersion,
     libraryDependencies ++= coreDependencies
-  ).settings(commonSettings: _*).dependsOn(users)
+  ).settings(commonSettings: _*).dependsOn(admin)
 
   lazy val linking = Project(appName + "-linking", file("modules/linking"))
     .enablePlugins(play.PlayScala).settings(
@@ -170,7 +172,7 @@ object ApplicationBuild extends Build {
     version := appVersion
   ).settings(commonSettings: _*).dependsOn(archdesc)
 
-  lazy val admin = Project(appName + "-admin", file("modules/admin"))
+  lazy val adminUtils = Project(appName + "-adminutils", file("modules/adminutils"))
     .enablePlugins(play.PlayScala).settings(
     version := appVersion
   ).settings(commonSettings: _*).dependsOn(archdesc, authorities, vocabs, guides)
@@ -179,8 +181,8 @@ object ApplicationBuild extends Build {
     .enablePlugins(play.PlayScala).settings(
     version := appVersion,
     libraryDependencies ++= coreDependencies ++ testDependencies
-  ).settings(commonSettings ++ assetSettings: _*).dependsOn(admin)
-    .aggregate(core, users, annotation, linking, portal, archdesc, authorities, vocabs, guides, admin)
+  ).settings(commonSettings ++ assetSettings: _*).dependsOn(adminUtils)
+    .aggregate(core, admin, annotation, linking, portal, archdesc, authorities, vocabs, guides, adminUtils)
 
   override def rootProject = Some(main)
 }

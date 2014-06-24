@@ -103,11 +103,11 @@ $(".panel-history").each(function() {
 
                               for (var i=0; i<parsedResponse.items.length; i++) {
                                 //Need to check if item not already in the db
-                                if($.inArray( parsedResponse.items[i][1] , alreadyResult) === -1) {
+                                if($.inArray( parsedResponse.items[i].name , alreadyResult) === -1) {
                                   result.push({
-                                    name: parsedResponse.items[i][1],
-                                    value: parsedResponse.items[i][1],
-                                    href : jsRoutes.controllers.portal.Portal.browseItem(parsedResponse.items[i][2], parsedResponse.items[i][0]).url
+                                    name: parsedResponse.items[i].name,
+                                    value: parsedResponse.items[i].name,
+                                    href : jsRoutes.controllers.portal.Portal.browseItem(parsedResponse.items[i].type, parsedResponse.items[i].id).url
                                   });
                                   alreadyResult.push(parsedResponse.items[i][1]);
                                 }

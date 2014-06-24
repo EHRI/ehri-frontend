@@ -19,18 +19,19 @@
             @defining(item.isA.toString) { implicit fieldPrefix =>
                 @layout.descriptionContainer(item.model.descriptions) {
                     @item.model.descriptions.map { desc =>
-                        @renderDescription(item, desc, links, annotations, editable = true)
+                        @renderDescription(item, desc, links, annotations, actions = descriptionActions(item, desc))
                     }
 
                     @link.annotationLinks(item, links)
                 } {
+                    @common.identifiers(item.model.identifier, item.model.otherIdentifiers)
                     @common.latestAction(item, controllers.archdesc.routes.DocumentaryUnits.history(item.id))
                     @common.visibility(item, controllers.archdesc.routes.DocumentaryUnits.visibility(item.id), ContentTypes.DocumentaryUnit)
                     @adminActions(item)
                 }
 
                 @item.childCount.filter(_ > 0).map { count =>
-                    @views.html.search.searchSection(Messages("documentaryUnit.searchInside", item.toStringAbbr(lang))) {
+                    @views.html.search.searchSection(Messages("documentaryUnit.searchInside", item.toStringAbbr(lang)), result) {
                         @views.html.common.search.searchForm(result, params, action, autofocus = false) {
                             @searchItemList(result)
                         } {
