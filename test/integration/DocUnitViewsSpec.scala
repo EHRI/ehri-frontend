@@ -270,5 +270,14 @@ class DocUnitViewsSpec extends Neo4jRunnerSpec(classOf[DocUnitViewsSpec]) {
         controllers.archdesc.routes.DocumentaryUnits.history("c1").url)).get
       status(show) must equalTo(OK)
     }
+
+    "allow EAD export" in new FakeApp {
+      val ead = route(fakeLoggedInHtmlRequest(privilegedUser, GET,
+        controllers.archdesc.routes.DocumentaryUnits.exportEad("c1").url)).get
+      status(ead) must equalTo(OK)
+      contentType(ead) must beSome.which { ct =>
+        ct must equalTo(MimeTypes.XML)
+      }
+    }
   }
 }

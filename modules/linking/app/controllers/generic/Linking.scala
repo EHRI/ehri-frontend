@@ -150,7 +150,7 @@ trait Linking[MT <: AnyModel] extends Read[MT] with Search {
         item => implicit userOpt => implicit request =>
       request.body.validate[AccessPointF](AccessPointLink.accessPointFormat).fold(
         errors => immediate(BadRequest(JsError.toFlatJson(errors))),
-        ap => backend.createAccessPoint(id, did, ap).map { case (_, ann) =>
+        ap => backend.createAccessPoint(id, did, ap).map { ann =>
           Created(Json.toJson(ann)(AccessPointF.Converter.clientFormat  ))
         }
       )

@@ -76,6 +76,18 @@ case class AddressF(
   url: List[String] = Nil
   ) extends Model {
 
+  def toSeq: Seq[String] = Seq(
+    streetAddress,
+    city,
+    region,
+    postalCode,
+    countryCode.map(views.Helpers.countryCodeToName),
+    email.headOption,
+    telephone.headOption,
+    fax.headOption,
+    url.headOption
+  ).flatten
+
   override def toString
       = List(name, contactPerson,streetAddress,city).filter(_.isDefined).mkString(", ")
 }

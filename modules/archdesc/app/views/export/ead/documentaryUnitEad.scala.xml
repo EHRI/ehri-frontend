@@ -1,0 +1,10 @@
+@(tree: utils.ead.DocTree)(implicit lang: Lang)
+
+<ead>
+    @tree.item.holder.map { r =>
+        @header(tree.item.toStringLang, r, Seq(tree))
+    }
+    <archdesc>
+        @eadLevel(1, tree)
+    </archdesc>
+</ead>
