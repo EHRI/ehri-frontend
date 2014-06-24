@@ -1,0 +1,11 @@
+@(repository: Repository)(implicit lang: Lang)
+
+<profiledesc>
+    <creation>
+        <date></date>
+    </creation>
+    <langusage>
+
+    </langusage>
+    <descrules encodinganalog="3.7.2">ISAD(G)</descrules>
+</profiledesc>

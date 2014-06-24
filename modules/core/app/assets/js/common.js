@@ -160,32 +160,39 @@ jQuery(function($) {
    */
   $(".breadcrumb.collapsible").each(function(e) {
     var $ol = $(this),
-        $width = $ol.width(),
+        $width = $ol.outerWidth(),
         $li = $ol.find("li"),
         $padding = parseInt($li.outerWidth() - $li.width());
 
-    if ($li.length !== "undefined" && $li.length > 0) {
+    if ($li.length !== "undefined" && $li.length > 1) {
       var $max = $width / $li.length;
       $max = $max - $padding;
       $max =  parseInt($max) - 1;
       $li.find("a:visible").css("max-width", $max);
       $li.data("max-width", $max);
+    } else if($li.length !== "undefined" && $li.length == 1) {
+       var $max = $width / $li.length;
+            $max = $max - $padding;
+            $max =  parseInt($max) - 1;
+      $li.find("a:visible").css("max-width", $max);
+      $li.data("max-width", $max).addClass("single");
     }
   });
 
-  $(".breadcrumb.collapsible > li").hover(function() {
+  $(".breadcrumb.collapsible > li:not(.single)").hover(function() {
     //because some title could be SO LARGE, we have to compute what will be the end of the windows and make it stick a maximum to it...
     var $actual = $(this),
         $offset = $actual.offset(),
         $right = $offset.left,
         $top = $offset.top,
-        $prev = $actual.prev(),
+        $prev = $actual.prev("li"),
         $max = Math.max(document.documentElement["clientWidth"], document.body["offsetWidth"], document.documentElement["offsetWidth"]);
 
 
     if($prev.length !="undefined"&& $prev.length === 1) {
       $right = $prev.offset().left + $prev.outerWidth();
       $top = $prev.offset().top;
+      console.log("prev exist")
     }
 
     $actual.next().css("margin-left", $actual.outerWidth())

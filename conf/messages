@@ -138,6 +138,7 @@ mail.forgotPasswordFooter=
 #
 # Friendly names for content types
 #
+contentTypes=Content types
 contentTypes.group=Groups
 contentTypes.userProfile=Users
 contentTypes.repository=Repositories

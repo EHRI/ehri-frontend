@@ -29,17 +29,16 @@ class APISpec extends Neo4jRunnerSpec(classOf[APISpec]) {
     "allow creating new access points and deleting them" in new FakeApp {
       val ap = new AccessPointF(id = None, accessPointType=AccessPointF.AccessPointType.SubjectAccess, name="Test text")
       val json = Json.toJson(ap)(controllers.generic.AccessPointLink.accessPointFormat)
-      val cr = route(fakeLoggedInHtmlRequest(privilegedUser, POST,
-        controllers.archdesc.routes.DocumentaryUnits.createAccessPoint("c1", "cd1").url)
-        .withHeaders(jsonPostHeaders.toSeq: _*), json).get
+      val cr = route(fakeLoggedInJsonRequest(privilegedUser, POST,
+        controllers.archdesc.routes.DocumentaryUnits
+          .createAccessPoint("c1", "cd1").url), json).get
       status(cr) must equalTo(CREATED)
-      val jsap: JsValue = contentAsJson(cr)
-      val id = (jsap \ "id").as[String]
-
-      val del = route(fakeLoggedInJsonRequest(privilegedUser, POST,
-        controllers.archdesc.routes.DocumentaryUnits.deleteAccessPoint("c1", "cd1", id).url)
-          .withHeaders(jsonPostHeaders.toSeq: _*), "").get
-      status(del) must equalTo(OK)
+      (contentAsJson(cr) \ "id").asOpt[String] must beSome.which { id =>
+        val del = route(fakeLoggedInJsonRequest(privilegedUser, POST,
+          controllers.archdesc.routes.DocumentaryUnits
+            .deleteAccessPoint("c1", "cd1", id).url), "").get
+        status(del) must equalTo(OK)
+      }
     }
 
     "allow creating new links" in new FakeApp {
@@ -49,12 +48,14 @@ class APISpec extends Neo4jRunnerSpec(classOf[APISpec]) {
         controllers.archdesc.routes.DocumentaryUnits.createLink("c1", "ur1").url)
         .withHeaders(jsonPostHeaders.toSeq: _*), json).get
       status(cr) must equalTo(CREATED)
-      val id = (contentAsJson(cr) \ "id").as[String]
-      val del = route(fakeLoggedInJsonRequest(privilegedUser, POST,
-        controllers.archdesc.routes.DocumentaryUnits.deleteLinkAndAccessPoint("c1", "cd1", "ur1", id).url)
+      (contentAsJson(cr) \ "id").asOpt[String] must beSome.which { id =>
+        val del = route(fakeLoggedInJsonRequest(privilegedUser, POST,
+          controllers.archdesc.routes.DocumentaryUnits
+            .deleteLinkAndAccessPoint("c1", "cd1", "ur1", id).url)
           .withHeaders(jsonPostHeaders.toSeq: _*), "").get
-      status(del) must equalTo(OK)
-      contentAsJson(del) must equalTo(JsBoolean(value = true))
+        status(del) must equalTo(OK)
+        contentAsJson(del) must equalTo(JsBoolean(value = true))
+      }
     }
   }
 

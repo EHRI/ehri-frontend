@@ -29,6 +29,7 @@ POST    /units/:id/permissions/:userType/:userId         @controllers.archdesc.D
 GET     /units/:id/scope/add                             @controllers.archdesc.DocumentaryUnits.addScopedPermissions(id: String)
 GET     /units/:id/scope/:userType/:userId               @controllers.archdesc.DocumentaryUnits.setScopedPermissions(id: String, userType: EntityType.Value, userId: String)
 POST    /units/:id/scope/:userType/:userId               @controllers.archdesc.DocumentaryUnits.setScopedPermissionsPost(id: String, userType: EntityType.Value, userId: String)
+GET     /units/:id/ead                                   @controllers.archdesc.DocumentaryUnits.exportEad(id: String)
 
 GET     /units/:id/link                                  @controllers.archdesc.DocumentaryUnits.linkTo(id: String)
 GET     /units/:id/link/:toType                          @controllers.archdesc.DocumentaryUnits.linkAnnotateSelect(id: String, toType: EntityType.Value)
@@ -115,6 +116,7 @@ GET     /institutions/:id/scope/:userType/:userId         @controllers.archdesc.
 POST    /institutions/:id/scope/:userType/:userId         @controllers.archdesc.Repositories.setScopedPermissionsPost(id: String, userType: EntityType.Value, userId: String)
 GET     /institutions/:id/reindex                         @controllers.archdesc.Repositories.updateIndex(id: String)
 POST    /institutions/:id/reindex                         @controllers.archdesc.Repositories.updateIndexPost(id: String)
+GET     /institutions/:id/ead                             @controllers.archdesc.Repositories.exportEad(id: String)
 
 GET     /countries                                        @controllers.archdesc.Countries.search
 GET     /countries/create                                 @controllers.archdesc.Countries.create

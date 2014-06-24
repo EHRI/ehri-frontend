@@ -11,9 +11,11 @@ import utils.search._
 import com.google.inject._
 import solr.SolrConstants
 import scala.concurrent.Future.{successful => immediate}
-import backend.Backend
+import backend.{ApiUser, Backend}
+import utils.ListParams
 import play.api.Play.current
 import play.api.Configuration
+import play.api.http.MimeTypes
 
 
 @Singleton
@@ -377,6 +379,33 @@ case class DocumentaryUnits @Inject()(implicit globalConfig: global.GlobalConfig
   def manageAccessPoints(id: String, descriptionId: String) = manageAccessPointsAction(id, descriptionId) {
       item => desc => implicit userOpt => implicit request =>
     Ok(views.html.documentaryUnit.editAccessPoints(item, desc))
+  }
+
+  import play.api.libs.concurrent.Execution.Implicits._
+  import utils.ead.DocTree
+
+  def exportEad(id: String) = optionalUserAction.async { implicit userOpt => implicit request =>
+    import scala.concurrent.Future
+    implicit val apiUser = ApiUser(userOpt.map(_.id))
+
+    val params = ListParams(limit = -1) // can't get around large limits yet...
+    val eadId: String = docRoutes.exportEad(id).absoluteURL(globalConfig.https)
+
+    def fetchTree(id: String): Future[DocTree] = {
+      for {
+        doc <- backend.get[DocumentaryUnit](id)
+        children <- backend.listChildren[DocumentaryUnit,DocumentaryUnit](id, params)
+        trees <- Future.sequence(children.map(c => {
+          if (c.childCount.getOrElse(0) > 0) fetchTree(c.id)
+          else Future.successful(DocTree(eadId, c, Seq.empty))
+        }))
+      } yield DocTree(eadId, doc, trees)
+    }
+
+    fetchTree(id).map { tree =>
+      Ok(views.export.ead.Helpers.tidyXml(views.xml.export.ead.documentaryUnitEad(tree).body))
+        .as(MimeTypes.XML)
+    }
   }
 }
 
