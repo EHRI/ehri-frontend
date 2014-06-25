@@ -47,8 +47,8 @@ case class IsadGConditions(
 ) extends AttributeSet
 
 case class IsadGMaterials(
-  locationOfOriginals: Option[String] = None,
-  locationOfCopies: Option[String] = None,
+  locationOfOriginals: Option[List[String]] = None,
+  locationOfCopies: Option[List[String]] = None,
   relatedUnitsOfDescription: Option[String] = None,
   publicationNote: Option[String] = None
 ) extends AttributeSet
@@ -150,8 +150,8 @@ object DocumentaryUnitDescriptionF {
       (__ \ FINDING_AIDS).readNullable[String]
     )(IsadGConditions.apply _)) and
     (__ \ DATA).read[IsadGMaterials]((
-      (__ \ LOCATION_ORIGINALS).readNullable[String] and
-      (__ \ LOCATION_COPIES).readNullable[String] and
+      (__ \ LOCATION_ORIGINALS).readListOrSingleNullable[String] and
+      (__ \ LOCATION_COPIES).readListOrSingleNullable[String] and
       (__ \ RELATED_UNITS).readNullable[String] and
       (__ \ PUBLICATION_NOTE).readNullable[String]
     )(IsadGMaterials.apply _)) and
@@ -229,8 +229,8 @@ case class DocumentaryUnitDescriptionF(
     REPROD_COND -> conditions.conditionsOfReproduction,
     PHYSICAL_CHARS -> conditions.physicalCharacteristics,
     FINDING_AIDS -> conditions.findingAids,
-    LOCATION_ORIGINALS -> materials.locationOfOriginals,
-    LOCATION_COPIES -> materials.locationOfCopies,
+    LOCATION_ORIGINALS -> materials.locationOfOriginals.map(_.mkString("\n")),
+    LOCATION_COPIES -> materials.locationOfCopies.map(_.mkString("\n")),
     RELATED_UNITS -> materials.relatedUnitsOfDescription,
     PUBLICATION_NOTE -> materials.publicationNote,
     ARCHIVIST_NOTE -> control.archivistNote,
@@ -279,8 +279,8 @@ object DocumentaryUnitDescription {
         FINDING_AIDS -> optional(text)
       )(IsadGConditions.apply)(IsadGConditions.unapply),
       MATERIALS_AREA -> mapping(
-        LOCATION_ORIGINALS -> optional(text),
-        LOCATION_COPIES -> optional(text),
+        LOCATION_ORIGINALS -> optional(list(nonEmptyText)),
+        LOCATION_COPIES -> optional(list(nonEmptyText)),
         RELATED_UNITS -> optional(text),
         PUBLICATION_NOTE -> optional(text)
       )(IsadGMaterials.apply)(IsadGMaterials.unapply),
