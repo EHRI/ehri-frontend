@@ -125,7 +125,9 @@ object ApplicationBuild extends Build {
     .enablePlugins(SbtWeb).settings(
       version := appVersion,
       name := appName + "-core",
-      libraryDependencies ++= coreDependencies
+      libraryDependencies ++= coreDependencies,
+      pipelineStages := Seq(rjs, digest, gzip),
+      RjsKeys.mainModule := "core-main"
   ).settings(commonSettings: _*)
 
   lazy val admin = Project(appName + "-admin", file("modules/admin"))
