@@ -157,6 +157,8 @@ case class VirtualUnit(
       descriptions = allDescriptions
     ),
     holder = holder,
-    accessors = accessors
+    accessors = accessors,
+    latestEvent = latestEvent,
+    meta = meta
   )
 }
