@@ -6,7 +6,7 @@ import play.api.libs.concurrent.Execution.Implicits._
 import play.api.libs.json.{Json,JsValue}
 import play.api.libs.json.Reads
 import play.api.libs.json.__
-import play.api.libs.ws.Response
+import play.api.libs.ws.WSResponse
 import play.api.libs.ws.WS
 import backend.rest.RestDAO
 
@@ -32,11 +32,13 @@ object CypherDAO {
 
 case class CypherDAO() extends RestDAO {
 
+  import play.api.Play.current
+
   def requestUrl = "http://%s:%d/db/data/cypher".format(host, port)
 
   import CypherErrorReader._
 
-  def checkCypherError(r: Response): JsValue = r.json.validate[CypherError].fold(
+  def checkCypherError(r: WSResponse): JsValue = r.json.validate[CypherError].fold(
     valid = err => throw err,
     invalid = e => r.json
   )

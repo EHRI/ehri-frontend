@@ -48,7 +48,7 @@ class SessionPreferencesSpec extends PlaySpecification with Results {
   "Session preferences" should {
     "show the default" in {
       val controller = new PrefTestController()
-      val result: Future[SimpleResult] = controller.testGetPrefs().apply(FakeRequest())
+      val result: Future[Result] = controller.testGetPrefs().apply(FakeRequest())
       val bodyText: String = contentAsString(result)
       bodyText must be equalTo TestPrefs.default.toString
     }
@@ -59,7 +59,7 @@ class SessionPreferencesSpec extends PlaySpecification with Results {
       val req = FakeRequest().withSession(
         SessionPreferences.DEFAULT_STORE_KEY -> Json.stringify(Json.toJson(prefs))
       )
-      val result: Future[SimpleResult] = controller.testGetPrefs().apply(req)
+      val result: Future[Result] = controller.testGetPrefs().apply(req)
       val bodyText: String = contentAsString(result)
       bodyText must be equalTo prefs.toString
     }
@@ -67,7 +67,7 @@ class SessionPreferencesSpec extends PlaySpecification with Results {
     "update correctly" in new FakeApp {
       val langs = List("eng")
       val controller = new PrefTestController()
-      val result: Future[SimpleResult] = controller.testSavePrefs(langs).apply(FakeRequest())
+      val result: Future[Result] = controller.testSavePrefs(langs).apply(FakeRequest())
       val bodyText: String = contentAsString(result)
       session(result).get(SessionPreferences.DEFAULT_STORE_KEY) must beSome.which { str =>
         val prefs = Json.parse(str).as[TestPrefs]

@@ -9,7 +9,7 @@ import models.json.{RestResource, ClientConvertable, RestReadable}
 import controllers.base.{ControllerHelpers, AuthController}
 import backend.Page
 import models.base.AnyModel
-import play.api.mvc.SimpleResult
+import play.api.mvc.Result
 import backend.ApiUser
 import scala.concurrent.Future
 
@@ -56,7 +56,7 @@ trait PortalActions {
    * Action which fetches a user's profile and list of watched items.
    */
   object userBrowseAction {
-    def async(f: UserDetails => Request[AnyContent] => Future[SimpleResult]): Action[AnyContent] = {
+    def async(f: UserDetails => Request[AnyContent] => Future[Result]): Action[AnyContent] = {
       optionalUserAction.async { accountOpt => request =>
         accountOpt.map { account =>
           implicit val apiUser: ApiUser = ApiUser(Some(account.id))
@@ -72,13 +72,13 @@ trait PortalActions {
       }
     }
 
-    def apply(f: UserDetails => Request[AnyContent] => SimpleResult): Action[AnyContent] = {
+    def apply(f: UserDetails => Request[AnyContent] => Result): Action[AnyContent] = {
       async(f.andThen(_.andThen(t => Future.successful(t))))
     }
   }
 
   def pageAction[MT](entityType: EntityType.Value, paramsOpt: Option[PageParams] = None)(
-      f: Page[MT] => PageParams => List[AnyModel] => Option[UserProfile] => Request[AnyContent] => SimpleResult)(
+      f: Page[MT] => PageParams => List[AnyModel] => Option[UserProfile] => Request[AnyContent] => Result)(
     implicit rs: RestResource[MT], rd: RestReadable[MT]) = {
     userProfileAction.async { implicit userOpt => implicit request =>
       val params = paramsOpt.getOrElse(PageParams.fromRequest(request))
@@ -89,7 +89,7 @@ trait PortalActions {
     }
   }
 
-  def listAction[MT](entityType: EntityType.Value, paramsOpt: Option[ListParams] = None)(f: List[MT] => ListParams => Option[UserProfile] => Request[AnyContent] => SimpleResult)(
+  def listAction[MT](entityType: EntityType.Value, paramsOpt: Option[ListParams] = None)(f: List[MT] => ListParams => Option[UserProfile] => Request[AnyContent] => Result)(
     implicit rs: RestResource[MT], rd: RestReadable[MT]) = {
     userProfileAction.async { implicit userOpt => implicit request =>
       val params = paramsOpt.getOrElse(ListParams.fromRequest(request))
@@ -106,7 +106,7 @@ trait PortalActions {
    */
   object getAction {
     def async[MT](entityType: EntityType.Value, id: String)(
-      f: MT => ItemDetails => Option[UserProfile] => Request[AnyContent] => Future[SimpleResult])(
+      f: MT => ItemDetails => Option[UserProfile] => Request[AnyContent] => Future[Result])(
                    implicit rs: RestResource[MT], rd: RestReadable[MT], cfmt: ClientConvertable[MT]): Action[AnyContent] = {
       itemPermissionAction.async[MT](contentType = ContentTypes.withName(entityType.toString), id) { item => implicit userOpt => implicit request =>
         def isWatching =
@@ -123,7 +123,7 @@ trait PortalActions {
     }
 
     def apply[MT](entityType: EntityType.Value, id: String)(
-      f: MT => ItemDetails => Option[UserProfile] => Request[AnyContent] => SimpleResult)(
+      f: MT => ItemDetails => Option[UserProfile] => Request[AnyContent] => Result)(
                    implicit rs: RestResource[MT], rd: RestReadable[MT], cfmt: ClientConvertable[MT]) = {
       async(entityType, id)(f.andThen(_.andThen(_.andThen(_.andThen(t => Future.successful(t))))))
     }
@@ -134,7 +134,7 @@ trait PortalActions {
    */
   object getWithChildrenAction {
     def async[CT, MT](entityType: EntityType.Value, id: String)(
-      f: MT => Page[CT] => PageParams =>  ItemDetails => Option[UserProfile] => Request[AnyContent] => Future[SimpleResult])(
+      f: MT => Page[CT] => PageParams =>  ItemDetails => Option[UserProfile] => Request[AnyContent] => Future[Result])(
                        implicit rs: RestResource[MT], rd: RestReadable[MT], crd: RestReadable[CT], cfmt: ClientConvertable[MT]): Action[AnyContent] = {
       getAction.async[MT](entityType, id) { item => details => implicit userOpt => implicit request =>
         val params = PageParams.fromRequest(request)
@@ -145,7 +145,7 @@ trait PortalActions {
     }
 
     def apply[CT, MT](entityType: EntityType.Value, id: String)(
-      f: MT => Page[CT] => PageParams =>  ItemDetails => Option[UserProfile] => Request[AnyContent] => SimpleResult)(
+      f: MT => Page[CT] => PageParams =>  ItemDetails => Option[UserProfile] => Request[AnyContent] => Result)(
                        implicit rs: RestResource[MT], rd: RestReadable[MT], crd: RestReadable[CT], cfmt: ClientConvertable[MT]): Action[AnyContent] = {
       async(entityType, id)(f.andThen(_.andThen(_.andThen(_.andThen(_.andThen(_.andThen(t => Future.successful(t))))))))
     }

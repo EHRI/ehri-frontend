@@ -1,6 +1,6 @@
 package controllers.base
 
-import play.api.mvc.{SimpleResult, RequestHeader}
+import play.api.mvc.{Result, RequestHeader}
 import play.api.libs.json.{Writes, Reads, Json}
 import play.api.Logger
 
@@ -41,10 +41,10 @@ trait SessionPreferences[T] {
 
   /**
    * Implicit extension method class that can be imported to provide
-   * a `withPreferences` method to the SimpleResult class.
+   * a `withPreferences` method to the Result class.
    */
-  implicit class SimpleResultOps(result: SimpleResult) {
-    def withPreferences(preferences: T)(implicit request: RequestHeader, wts: Writes[T]): SimpleResult = {
+  implicit class ResultOps(result: Result) {
+    def withPreferences(preferences: T)(implicit request: RequestHeader, wts: Writes[T]): Result = {
       result.withSession(
         request.session + (storeKey -> Json.stringify(Json.toJson(preferences)(wts))))
     }

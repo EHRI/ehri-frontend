@@ -11,6 +11,7 @@ import backend.Backend
 import play.api.Routes
 import play.api.http.MimeTypes
 import models.AccountDAO
+import com.ning.http.client.{Response => NingResponse}
 import defines.EntityType
 
 case class ApiController @Inject()(implicit globalConfig: global.GlobalConfig, backend: Backend, userDAO: AccountDAO) extends Controller with AuthController with ControllerHelpers {
@@ -31,9 +32,10 @@ case class ApiController @Inject()(implicit globalConfig: global.GlobalConfig, b
     implicit request =>
     val url = urlpart + (if(request.rawQueryString.trim.isEmpty) "" else "?" + request.rawQueryString)
     backend.query(url, request.headers).map { r =>
-        Status(r.status)
-          .chunked(Enumerator.fromStream(r.ahcResponse.getResponseBodyAsStream))
-          .as(r.ahcResponse.getContentType)
+      val response: NingResponse = r.underlying[NingResponse]
+      Status(r.status)
+        .chunked(Enumerator.fromStream(response.getResponseBodyAsStream))
+        .as(response.getContentType)
     }
   }
 
@@ -80,9 +82,10 @@ case class ApiController @Inject()(implicit globalConfig: global.GlobalConfig, b
 
   def sparqlQuery = userProfileAction.async { implicit userOpt => implicit request =>
     backend.query("sparql", request.headers, request.queryString).map { r =>
+      val response: NingResponse = r.underlying[NingResponse]
       Status(r.status)
-        .chunked(Enumerator.fromStream(r.ahcResponse.getResponseBodyAsStream))
-        .as(r.ahcResponse.getContentType)
+        .chunked(Enumerator.fromStream(response.getResponseBodyAsStream))
+        .as(response.getContentType)
     }
   }
 }

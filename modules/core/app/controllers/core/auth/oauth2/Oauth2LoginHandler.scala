@@ -12,7 +12,7 @@ import play.api.cache.Cache
 import java.util.UUID
 import java.net.URLEncoder
 import play.api.Play._
-import play.api.mvc.SimpleResult
+import play.api.mvc.Result
 import play.api.mvc.Call
 import models.sql.OAuth2Association
 import play.api.libs.json.{JsString, Json}
@@ -104,7 +104,7 @@ trait Oauth2LoginHandler {
   }
 
   object oauth2LoginPostAction {
-    def async(provider: OAuth2Provider, handler: Call)(f: Account => Request[AnyContent] => Future[SimpleResult]): Action[AnyContent] = {
+    def async(provider: OAuth2Provider, handler: Call)(f: Account => Request[AnyContent] => Future[Result]): Action[AnyContent] = {
       Action.async { implicit request =>
         val sessionId = request.session.get(SessionKey).getOrElse(UUID.randomUUID().toString)
 
@@ -150,7 +150,7 @@ trait Oauth2LoginHandler {
       }
     }
 
-    def apply(provider: OAuth2Provider, handler: Call)(f: Account => Request[AnyContent] => SimpleResult): Action[AnyContent] = {
+    def apply(provider: OAuth2Provider, handler: Call)(f: Account => Request[AnyContent] => Result): Action[AnyContent] = {
       async(provider, handler)(f.andThen(_.andThen(t => immediate(t))))
     }
   }

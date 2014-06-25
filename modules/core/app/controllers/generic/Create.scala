@@ -17,15 +17,15 @@ import backend.rest.ValidationError
  */
 trait Create[F <: Model with Persistable, MT <: MetaModel[F]] extends Generic[MT] {
 
-  type CreateCallback = Either[(Form[F],Form[List[String]]),MT] => Option[UserProfile] => Request[AnyContent] => SimpleResult
-  type AsyncCreateCallback = Either[(Form[F],Form[List[String]]),MT] => Option[UserProfile] => Request[AnyContent] => Future[SimpleResult]
+  type CreateCallback = Either[(Form[F],Form[List[String]]),MT] => Option[UserProfile] => Request[AnyContent] => Result
+  type AsyncCreateCallback = Either[(Form[F],Form[List[String]]),MT] => Option[UserProfile] => Request[AnyContent] => Future[Result]
 
   /**
    * Create an item. Because the item must have an initial visibility we need
    * to collect the users and group lists at the point of creation
    */
   object createAction {
-    def async(f: Seq[(String,String)] => Seq[(String,String)] => Option[UserProfile] => Request[AnyContent] => Future[SimpleResult]) = {
+    def async(f: Seq[(String,String)] => Seq[(String,String)] => Option[UserProfile] => Request[AnyContent] => Future[Result]) = {
       withContentPermission.async(PermissionType.Create, contentType) { implicit userOpt => implicit request =>
         getUsersAndGroups.async { users => groups =>
           f(users)(groups)(userOpt)(request)
@@ -33,7 +33,7 @@ trait Create[F <: Model with Persistable, MT <: MetaModel[F]] extends Generic[MT
       }
     }
 
-    def apply(f: Seq[(String,String)] => Seq[(String,String)] => Option[UserProfile] => Request[AnyContent] => SimpleResult) = {
+    def apply(f: Seq[(String,String)] => Seq[(String,String)] => Option[UserProfile] => Request[AnyContent] => Result) = {
       async(f.andThen(_.andThen(_.andThen(_.andThen(t => immediate(t))))))
     }
   }

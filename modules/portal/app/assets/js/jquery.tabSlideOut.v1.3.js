@@ -57,7 +57,7 @@
 
     //set initial tabHandle css
 
-    if (settings.pathToTabImage != null) {
+    if (settings.pathToTabImage) {
       settings.tabHandle.css({
         'background': 'url(' + settings.pathToTabImage + ') no-repeat',
         'width': settings.imageWidth,
@@ -162,7 +162,7 @@
 
     var clickAction = function (e) {
       settings.tabHandle.click(function (event) {
-        event.preventDefault()
+        event.preventDefault();
 
         if ($tab.hasClass('open')) {
           if (settings.onSlideIn) {

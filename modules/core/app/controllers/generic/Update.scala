@@ -17,10 +17,10 @@ import backend.rest.ValidationError
  */
 trait Update[F <: Model with Persistable, MT <: MetaModel[F]] extends Generic[MT] {
 
-  type UpdateCallback = MT => Either[Form[F], MT] => Option[UserProfile] => Request[AnyContent] => SimpleResult
-  type AsyncUpdateCallback = MT => Either[Form[F], MT] => Option[UserProfile] => Request[AnyContent] => Future[SimpleResult]
+  type UpdateCallback = MT => Either[Form[F], MT] => Option[UserProfile] => Request[AnyContent] => Result
+  type AsyncUpdateCallback = MT => Either[Form[F], MT] => Option[UserProfile] => Request[AnyContent] => Future[Result]
 
-  def updateAction(id: String)(f: MT => Option[UserProfile] => Request[AnyContent] => SimpleResult)(
+  def updateAction(id: String)(f: MT => Option[UserProfile] => Request[AnyContent] => Result)(
     implicit rd: RestReadable[MT]) = {
     withItemPermission[MT](id, PermissionType.Update, contentType) { item => implicit userOpt => implicit request =>
       f(item)(userOpt)(request)

@@ -5,11 +5,11 @@ import models.{AccountDAO, Isaar, IsadG}
 import models.base.AnyModel
 import controllers.generic.Search
 import play.api.Play.current
-import play.api.mvc._
 import defines.EntityType
 import play.api.i18n.Messages
-import views.Helpers
+import play.api.mvc.{AnyContent, Request, Result}
 import play.api.libs.json.Json
+import views.Helpers
 import utils.search._
 import solr.facet.FieldFacetClass
 
@@ -30,7 +30,7 @@ case class Metrics @Inject()(implicit globalConfig: global.GlobalConfig, searchD
     EntityType.HistoricalAgent
   )
 
-  private def jsonResponse[T](result: QueryResult[T])(implicit request: Request[AnyContent], w: ClientConvertable[T]): SimpleResult = {
+  private def jsonResponse[T](result: QueryResult[T])(implicit request: Request[AnyContent], w: ClientConvertable[T]): Result = {
     render {
       case Accepts.Json() | Accepts.JavaScript() => Ok(Json.obj(
         "page" -> Json.toJson(result.page.copy(items = result.page.items.map(_._1)))(ItemPage.itemPageWrites),
@@ -56,7 +56,7 @@ case class Metrics @Inject()(implicit globalConfig: global.GlobalConfig, searchD
     )
   }
 
-  def languageOfMaterial = Cached("pages:langMetric", metricCacheTime) {
+  def languageOfMaterial = Cached.status(_ => "pages:langMetric", OK, metricCacheTime) {
     userProfileAction.async { implicit userOpt => implicit request =>
       find[AnyModel](
         entities = List(EntityType.DocumentaryUnit),
@@ -77,7 +77,7 @@ case class Metrics @Inject()(implicit globalConfig: global.GlobalConfig, searchD
     )
   }
 
-  def holdingRepository = Cached("pages:repoMetric", metricCacheTime) {
+  def holdingRepository = Cached.status(_ => "pages:repoMetric", OK, metricCacheTime) {
     userProfileAction.async { implicit userOpt => implicit request =>
       find[AnyModel](
         entities = List(EntityType.DocumentaryUnit),
@@ -99,10 +99,10 @@ case class Metrics @Inject()(implicit globalConfig: global.GlobalConfig, searchD
     )
   }
 
-  def repositoryCountries = Cached("pages:repoCountryMetric", metricCacheTime) {
+  def repositoryCountries = Cached.status(_ => "pages:repoCountryMetric", OK, metricCacheTime) {
     userProfileAction.async { implicit userOpt => implicit request =>
       find[AnyModel](
-       entities = List(EntityType.Repository),
+        entities = List(EntityType.Repository),
         facetBuilder = countryRepoFacets
       ).map(jsonResponse[AnyModel])
     }
@@ -120,7 +120,7 @@ case class Metrics @Inject()(implicit globalConfig: global.GlobalConfig, searchD
     )
   }
 
-  def restricted = Cached("pages:restrictedMetric", metricCacheTime) {
+  def restricted = Cached.status(_ => "pages:restrictedMetric", OK, metricCacheTime) {
     userProfileAction.async { implicit userOpt => implicit request =>
       find[AnyModel](
         entities = List(EntityType.HistoricalAgent,
@@ -143,7 +143,7 @@ case class Metrics @Inject()(implicit globalConfig: global.GlobalConfig, searchD
     )
   }
 
-  def agentTypes = Cached("pages:agentTypeMetric", metricCacheTime) {
+  def agentTypes = Cached.status(_ => "pages:agentTypeMetric", OK, metricCacheTime) {
     userProfileAction.async { implicit userOpt => implicit request =>
       find[AnyModel](
         entities = List(EntityType.HistoricalAgent),

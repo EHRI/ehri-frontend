@@ -1,5 +1,5 @@
 import play.api.i18n.Messages
-import play.api.templates.Html
+import play.twirl.api.Html
 import views.html.layout.errorLayout
 
 package object utils {

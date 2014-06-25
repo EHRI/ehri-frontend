@@ -11,7 +11,7 @@ import scala.concurrent.Future.{successful => immediate}
 import backend.{ApiUser, Backend}
 import play.api.data.Form
 import play.api.data.Forms._
-import play.api.mvc.SimpleResult
+import play.api.mvc.Result
 import play.api.i18n.Messages
 import utils.forms.isValidUrl
 import java.net.ConnectException
@@ -45,7 +45,7 @@ trait OpenIDLoginHandler {
   }))
 
   object openIDLoginPostAction {
-    def async(handler: Call)(f: Form[String] => Request[AnyContent] => Future[SimpleResult]): Action[AnyContent] = {
+    def async(handler: Call)(f: Form[String] => Request[AnyContent] => Future[Result]): Action[AnyContent] = {
       Action.async { implicit request =>
         try {
           val boundForm: Form[String] = openidForm.bindFromRequest
@@ -80,13 +80,13 @@ trait OpenIDLoginHandler {
       }
     }
 
-    def apply(handler: Call)(f: Form[String] => Request[AnyContent] => SimpleResult): Action[AnyContent] = {
+    def apply(handler: Call)(f: Form[String] => Request[AnyContent] => Result): Action[AnyContent] = {
       async(handler)(f.andThen(_.andThen(t => immediate(t))))
     }
   }
 
   object openIDCallbackAction {
-    def async(f: Either[Form[String],Account] => Request[AnyContent] => Future[SimpleResult]): Action[AnyContent] = {
+    def async(f: Either[Form[String],Account] => Request[AnyContent] => Future[Result]): Action[AnyContent] = {
       val canMessageUsers = play.api.Play.current.configuration
         .getBoolean("ehri.users.messaging.default").getOrElse(false)
       Action.async { implicit request =>
@@ -125,7 +125,7 @@ trait OpenIDLoginHandler {
       }
     }
 
-    def apply(f: Either[Form[String],Account] => Request[AnyContent] => SimpleResult): Action[AnyContent] = {
+    def apply(f: Either[Form[String],Account] => Request[AnyContent] => Result): Action[AnyContent] = {
       async(f.andThen(_.andThen(t => immediate(t))))
     }
   }

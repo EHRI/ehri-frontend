@@ -6,14 +6,13 @@ import models._
 import play.api.i18n.Messages
 import play.api.mvc._
 import defines.{ContentTypes, EntityType}
-import play.api.libs.json.{JsValue, JsArray, Json, JsObject}
+import play.api.libs.json.{JsValue, Json, JsObject}
 import utils.{SessionPrefs, PageParams}
 import scala.concurrent.Future.{successful => immediate}
 import jp.t2v.lab.play2.auth.LoginLogout
 import play.api.libs.Files.TemporaryFile
 import play.api.Play.current
 import java.io.{StringWriter, File}
-import org.apache.commons.io.FileUtils
 import play.Logger
 import scala.concurrent.Future
 import views.html.p
@@ -24,11 +23,11 @@ import com.google.inject._
 import net.coobird.thumbnailator.tasks.UnsupportedFormatException
 import play.api.mvc.MaxSizeExceeded
 import play.api.mvc.MultipartFormData.FilePart
-import scala.Some
 import controllers.DataFormat
 import play.api.http.{HeaderNames, MimeTypes}
 import org.joda.time.format.ISODateTimeFormat
 import models.base.AnyModel
+import net.coobird.thumbnailator.Thumbnails
 
 /**
  * @author Mike Bryant (http://github.com/mikesname)
@@ -311,7 +310,6 @@ case class Profile @Inject()(implicit globalConfig: global.GlobalConfig, searchD
   private def uploadParser = parse.maxLength(5 * 1024 * 1024, parse.multipartFormData)
 
   def updateProfileImagePost() = withUserAction.async(uploadParser) { implicit user => implicit request =>
-    import fly.play.s3._
 
     def onError(err: String) =
       BadRequest(p.profile.editProfile(profileDataForm,
@@ -328,11 +326,6 @@ case class Profile @Inject()(implicit globalConfig: global.GlobalConfig, searchD
                 Redirect(profileRoutes.profile())
                   .flashing("success" -> "profile.update.confirmation")
               }
-            }.recover {
-              case S3Exception(status, code, message, originalXml) =>
-                Logger.error(s"$originalXml")
-                Logger.error("Error: " + message)
-                BadRequest(message)
             }
           } catch {
             case e: UnsupportedFormatException => immediate(onError("badFileType"))
@@ -350,31 +343,28 @@ case class Profile @Inject()(implicit globalConfig: global.GlobalConfig, searchD
     = file.contentType.exists(_.toLowerCase.startsWith("image/"))
 
   private def convertAndUploadFile(file: FilePart[TemporaryFile], user: UserProfile, request: RequestHeader): Future[String] = {
-    import fly.play.s3._
-    import fly.play.s3.BucketFile
-    import net.coobird.thumbnailator.Thumbnails
+    import awscala._
+    import awscala.s3._
 
     val bucketName: String = current.configuration.getString("aws.bucket")
       .getOrElse(sys.error("Invalid configuration: no aws.bucket key found"))
     val instanceName: String = current.configuration.getString("aws.instance")
       .getOrElse(request.host)
+    val accessKey =current.configuration.getString("aws.accessKeyId")
+      .getOrElse(sys.error("Invalid configuration: no aws.accessKeyId found"))
+    val secret =current.configuration.getString("aws.secretKey")
+      .getOrElse(sys.error("Invalid configuration: no aws.secretKey found"))
 
-    val bucket = S3(bucketName)
-    val ctype = file.contentType.getOrElse("application/octet-stream")
+    implicit val s3 = S3(Credentials(accessKey, secret))
+
+    val bucket: Bucket = s3.bucket(bucketName)
+      .getOrElse(sys.error(s"Bucket $bucketName not found"))
     val extension = file.filename.substring(file.filename.lastIndexOf("."))
     val awsName = s"images/$instanceName/${user.id}$extension"
     val temp = File.createTempFile(user.id, extension)
     Thumbnails.of(file.ref.file).size(200, 200).toFile(temp)
-    val bis = FileUtils.readFileToByteArray(temp)
 
-    val bucketFile: BucketFile = new BucketFile(awsName, ctype, bis)
-    val upload: Future[Unit] = bucket.add(bucketFile)
-
-    // Try and ensure we clean up afterwards...
-    upload.onComplete { unit =>
-      temp.delete()
-      file.ref.file.delete()
-    }
-    upload.map(_ => bucket.url(awsName))
+    bucket.putAsPublicRead(awsName, temp)
+    Future.successful(s"http://${bucket.name}.s3.amazonaws.com/$awsName")
   }
 }

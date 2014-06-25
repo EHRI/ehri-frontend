@@ -2,7 +2,7 @@ package utils.search
 
 import play.api.test.PlaySpecification
 import defines.EntityType
-import play.api.templates.Html
+import play.twirl.api.Html
 
 /**
  * @author Mike Bryant (http://github.com/mikesname)

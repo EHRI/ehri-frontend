@@ -2,7 +2,7 @@ package controllers.core.auth.oauth2
 
 import play.api.libs.json._
 import play.api.libs.functional.syntax._
-import play.api.libs.ws.Response
+import play.api.libs.ws.WSResponse
 import play.api.Logger
 
 /**
@@ -12,7 +12,7 @@ object GoogleOAuth2Provider extends OAuth2Provider {
 
   val name = "google"
 
-  def getUserData(response: Response): UserData = {
+  def getUserData(response: WSResponse): UserData = {
     Logger.debug("User info: " + Json.prettyPrint(response.json))
     response.json.as[UserData]((
       (__ \ Id).read[String] and

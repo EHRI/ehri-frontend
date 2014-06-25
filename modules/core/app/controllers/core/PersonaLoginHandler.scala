@@ -20,6 +20,8 @@ trait PersonaLoginHandler {
 
   self: Controller =>
 
+  import play.api.Play.current
+
   def globalConfig: global.GlobalConfig
   def backend: Backend
   def userDAO: AccountDAO
@@ -29,7 +31,7 @@ trait PersonaLoginHandler {
 
 
   object personaLoginPost {
-    def async(f: Either[String,Account] => Request[AnyContent] => Future[SimpleResult]): Action[AnyContent] = {
+    def async(f: Either[String,Account] => Request[AnyContent] => Future[Result]): Action[AnyContent] = {
       val canMessageUsers = play.api.Play.current.configuration
         .getBoolean("ehri.users.messaging.default").getOrElse(false)
 
@@ -62,7 +64,7 @@ trait PersonaLoginHandler {
       }
     }
 
-    def apply(f: Either[String,Account] => Request[AnyContent] => SimpleResult): Action[AnyContent] = {
+    def apply(f: Either[String,Account] => Request[AnyContent] => Result): Action[AnyContent] = {
       async(f.andThen(_.andThen(t => immediate(t))))
     }
   }

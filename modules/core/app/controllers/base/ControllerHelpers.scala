@@ -51,13 +51,13 @@ trait ControllerHelpers {
    * Get a complete list of possible groups
    */
   object getGroups {
-    def async(f: Seq[(String,String)] => Future[SimpleResult])(implicit userOpt: Option[UserProfile], request: RequestHeader): Future[SimpleResult] = {
+    def async(f: Seq[(String,String)] => Future[Result])(implicit userOpt: Option[UserProfile], request: RequestHeader): Future[Result] = {
       RestHelpers.getGroupList.flatMap { groups =>
         f(groups)
       }
     }
 
-    def apply(f: Seq[(String,String)] => SimpleResult)(implicit userOpt: Option[UserProfile], request: RequestHeader): Future[SimpleResult] = {
+    def apply(f: Seq[(String,String)] => Result)(implicit userOpt: Option[UserProfile], request: RequestHeader): Future[Result] = {
       async(f.andThen(t => immediate(t)))
     }
   }
@@ -66,8 +66,8 @@ trait ControllerHelpers {
    * Get a list of users and groups.
    */
   object getUsersAndGroups {
-    def async(f: Seq[(String,String)] => Seq[(String,String)] => Future[SimpleResult])(
-      implicit userOpt: Option[UserProfile], request: RequestHeader): Future[SimpleResult] = {
+    def async(f: Seq[(String,String)] => Seq[(String,String)] => Future[Result])(
+      implicit userOpt: Option[UserProfile], request: RequestHeader): Future[Result] = {
       for {
         users <- RestHelpers.getUserList
         groups <- RestHelpers.getGroupList
@@ -75,8 +75,8 @@ trait ControllerHelpers {
       } yield r
     }
 
-    def apply(f: Seq[(String,String)] => Seq[(String,String)] => SimpleResult)(
-      implicit userOpt: Option[UserProfile], request: RequestHeader): Future[SimpleResult] = {
+    def apply(f: Seq[(String,String)] => Seq[(String,String)] => Result)(
+      implicit userOpt: Option[UserProfile], request: RequestHeader): Future[Result] = {
       async(f.andThen(_.andThen(t => immediate(t))))
     }
   }

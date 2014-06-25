@@ -12,7 +12,7 @@ import play.api.libs.json.Json
 import play.api.cache.Cached
 import defines.EntityType
 import play.api.libs.ws.WS
-import play.api.templates.Html
+import play.twirl.api.Html
 import solr.SolrConstants
 import backend.Backend
 import controllers.base.{SessionPreferences, ControllerHelpers}
@@ -77,14 +77,16 @@ case class Portal @Inject()(implicit globalConfig: global.GlobalConfig, searchDi
     ))
   }
 
-  def index = userProfileAction.async { implicit userOpt => implicit request =>
-    find[AnyModel](
-      defaultParams = SearchParams(
-        sort = Some(SearchOrder.Country),
-        entities = List(EntityType.Repository, EntityType.DocumentaryUnit, EntityType.HistoricalAgent, EntityType.Country)),
-      facetBuilder = entityMetrics
-    ).map { case QueryResult(page, params, facets) =>
-      Ok(p.portal(Stats(page.facets)))
+  def index = Cached.status(_ => "page:index", OK, 60) {
+    userProfileAction.async { implicit userOpt => implicit request =>
+      find[AnyModel](
+        defaultParams = SearchParams(
+          sort = Some(SearchOrder.Country),
+          entities = List(EntityType.Repository, EntityType.DocumentaryUnit, EntityType.HistoricalAgent, EntityType.Country)),
+        facetBuilder = entityMetrics
+      ).map { case QueryResult(page, params, facets) =>
+        Ok(p.portal(Stats(page.facets)))
+      }
     }
   }
 
@@ -303,7 +305,7 @@ case class Portal @Inject()(implicit globalConfig: global.GlobalConfig, searchDi
     }
   }
 
-  def placeholder = Cached("pages:portalPlaceholder") {
+  def placeholder = Cached.status(_ => "pages:portalPlaceholder", OK, 60 * 60) {
     Action { implicit request =>
       Ok(views.html.placeholder())
     }
@@ -328,7 +330,7 @@ case class Portal @Inject()(implicit globalConfig: global.GlobalConfig, searchDi
     }
   }
 
-  def newsFeed = Cached("pages.newsFeed", 3600) {
+  def newsFeed = Cached.status(_ => "pages.newsFeed", OK, 60 * 60) {
     Action.async { request =>
       WS.url("http://www.ehri-project.eu/rss.xml").get().map { r =>
         Ok(p.newsFeed(NewsItem.fromRss(r.body)))

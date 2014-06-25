@@ -17,7 +17,7 @@ import java.util.concurrent.TimeUnit
 import backend.rest.{ValidationError, RestHelpers}
 import scala.concurrent.duration.Duration
 import solr.facet.FieldFacetClass
-import play.api.mvc.SimpleResult
+import play.api.mvc.Result
 import solr.facet.SolrQueryFacet
 import play.api.libs.json.JsObject
 import solr.facet.QueryFacetClass
@@ -128,8 +128,8 @@ case class UserProfiles @Inject()(implicit globalConfig: global.GlobalConfig, se
   /**
    *  Grant a user permissions on their own account.
    */
-  private def grantOwnerPerms[T](profile: UserProfile)(f: => SimpleResult)(
-    implicit request: Request[T], userOpt: Option[UserProfile]): Future[SimpleResult] = {
+  private def grantOwnerPerms[T](profile: UserProfile)(f: => Result)(
+    implicit request: Request[T], userOpt: Option[UserProfile]): Future[Result] = {
     backend.setItemPermissions(profile, ContentTypes.UserProfile,
       profile.id, List(PermissionType.Owner.toString)).map { perms =>
       f
@@ -139,8 +139,8 @@ case class UserProfiles @Inject()(implicit globalConfig: global.GlobalConfig, se
   /**
    * Create a user's profile on the ReSt interface.
    */
-  private def createUserProfile[T](user: UserProfileF, groups: Seq[String], allGroups: List[(String,String)])(f: UserProfile => Future[SimpleResult])(
-    implicit request: Request[T], userOpt: Option[UserProfile]): Future[SimpleResult] = {
+  private def createUserProfile[T](user: UserProfileF, groups: Seq[String], allGroups: List[(String,String)])(f: UserProfile => Future[Result])(
+    implicit request: Request[T], userOpt: Option[UserProfile]): Future[Result] = {
     backend.create[UserProfile,UserProfileF](user, params = Map("group" -> groups)).flatMap { item =>
       f(item)
     } recoverWith {
@@ -156,7 +156,7 @@ case class UserProfiles @Inject()(implicit globalConfig: global.GlobalConfig, se
    * Save a user, creating both an account and a profile.
    */
   private def saveUser[T](email: String, username: String, name: String, pw: String, allGroups: List[(String, String)])(
-    implicit request: Request[T], userOpt: Option[UserProfile]): Future[SimpleResult] = {
+    implicit request: Request[T], userOpt: Option[UserProfile]): Future[Result] = {
     // check if the email is already registered...
     userDAO.findByEmail(email.toLowerCase).map { account =>
       val errForm = userPasswordForm.bindFromRequest

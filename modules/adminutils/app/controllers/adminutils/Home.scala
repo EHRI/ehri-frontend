@@ -4,7 +4,6 @@ import play.api.libs.concurrent.Execution.Implicits._
 import models.{AccountDAO, Isaar, IsadG}
 import models.base.AnyModel
 import controllers.generic.Search
-import play.api._
 import play.api.mvc._
 import defines.{EventType, EntityType}
 import play.api.i18n.Messages

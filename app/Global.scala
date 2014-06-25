@@ -16,7 +16,7 @@ import play.api._
 import play.api.libs.json.{Json, JsPath, JsError}
 import play.api.mvc._
 
-import play.api.mvc.SimpleResult
+import play.api.mvc.Result
 import play.api.Play.current
 import play.api.templates.Html
 import play.filters.csrf._
@@ -169,7 +169,7 @@ object Global extends WithFilters(CSRFFilter()) with GlobalSettings {
     }
   }
 
-  override def onHandlerNotFound(request: RequestHeader): Future[SimpleResult] = {
+  override def onHandlerNotFound(request: RequestHeader): Future[Result] = {
     implicit def req = request
     immediate(NotFound(renderError("errors.pageNotFound", pageNotFound())))
   }

@@ -1,14 +1,14 @@
 jQuery(function ($) {
-	/*
-	  Tooltip
-	*/
-	$('.watch , .unwatch').tooltip({
-	  delay : {
-	    show: 600,
-	    hide: 100
-	  },
+  /*
+   Tooltip
+   */
+  $('.watch , .unwatch').tooltip({
+    delay: {
+      show: 600,
+      hide: 100
+    },
     container: 'body'
-	});
+  });
 
   /**
    *  Profile page
@@ -19,63 +19,64 @@ jQuery(function ($) {
     // e.relatedTarget // previous tab
     var t = $(e.target).data("tabidx"); // chop off #
     $(".tab-header h3").removeClass("active");
-    $(".tab-header h3 a[data-tabidx='" + t + "']").parent().addClass("active");
+    $(".tab-header h3 a[data-tabidx='" + t + "']")
+        .parent()
+        .addClass("active");
   });
 
   /**
    * Markdown helper
    */
 
-   $(document).on("click", ".markdown textarea", function() {
-      $(this).parent().addClass("active").delay(2000).queue(function(next){
-        if($(".popover .description-markdown-cheatsheet").length == 0) {
-          $(this).removeClass("active");
-        }
-        next();
-      });
-   });
-
-   $(document).on("change", ".markdown textarea", function() {
-      $(this).parent().removeClass("active");
-   });
-   $(document).on("keyup", ".markdown textarea", function() {
-      $(this).parent().removeClass("active");
-   });
-
-   $(document).on("click", ".markdown .markdown-helper", function() {
-      that = $(this);
-
-      if(typeof that.attr("data-popovered") === "undefined" || that.attr("data-popovered") !== "true") {
-        that.popover({
-          html: true,
-          placement: "bottom",
-          content : function () {
-            return $(".markdown-cheatsheet").html();
-          }
-        });
-        that.attr("data-popovered", "true");
-        that.popover("show");
-
-        that.on('hidden.bs.popover', function () {
-          that.parents(".markdown").removeClass("active");
-        });
+  $(document).on("click", ".markdown textarea", function () {
+    $(this).parent().addClass("active").delay(2000).queue(function (next) {
+      if ($(".popover .description-markdown-cheatsheet").length === 0) {
+        $(this).removeClass("active");
       }
-   });
+      next();
+    });
+  });
 
-	/**
-	 * Activity-related functions
-	 */
+  $(document).on("change", ".markdown textarea", function () {
+    $(this).parent().removeClass("active");
+  });
+  $(document).on("keyup", ".markdown textarea", function () {
+    $(this).parent().removeClass("active");
+  });
 
-  // Fetch more activity...
-	$("#activity-stream-fetchmore").click(function (event) {
+  $(document).on("click", ".markdown .markdown-helper", function () {
+    that = $(this);
+
+    if (typeof that.attr("data-popovered") === "undefined" || that.attr("data-popovered") !== "true") {
+      that.popover({
+        html: true,
+        placement: "bottom",
+        content: function () {
+          return $(".markdown-cheatsheet").html();
+        }
+      });
+      that.attr("data-popovered", "true");
+      that.popover("show");
+
+      that.on('hidden.bs.popover', function () {
+        that.parents(".markdown").removeClass("active");
+      });
+    }
+  });
+
+  /**
+   * Activity-related functions
+   */
+
+    // Fetch more activity...
+  $("#activity-stream-fetchmore").click(function (event) {
     var $elem = $(event.target);
-		var offset = $(event.target).data("offset");
-		var limit = $(event.target).data("limit")
-		jsRoutes.controllers.portal.Social.personalisedActivity(offset).ajax({
-		  success: function (data, _, response) {
-        console.log("Header: " + response.getResponseHeader("activity-more"))
-		    var done = response.getResponseHeader("activity-more") != 'true';
-		    $("#activity-stream").append(data);
+    var offset = $(event.target).data("offset");
+    var limit = $(event.target).data("limit");
+    jsRoutes.controllers.portal.Social.personalisedActivity(offset).ajax({
+      success: function (data, _, response) {
+        var done = response.getResponseHeader("activity-more") != 'true';
+        $("#activity-stream").append(data);
         if (done) {
           $elem.hide();
         } else {
@@ -161,45 +162,45 @@ jQuery(function ($) {
 		    }
 
         //If it is on profile page, remove the row
-        if(watch === false) {
-          if($("#user-watch-list").length ==1) {
+        if (watch === false) {
+          if ($("#user-watch-list").length == 1) {
             var par = $("#" + id);
-            par.hide(300, function() {
+            par.hide(300, function () {
               par.remove();
             });
           }
         }
-		  }
-		});
-	});
+      }
+    });
+  });
 
-/**
- * Annotation-related functions
- */
+  /**
+   * Annotation-related functions
+   */
 
-  // Hide annotate field links unless we hover the field...
-  $(".item-text-field").hoverIntent(function(inEvent) {
+    // Hide annotate field links unless we hover the field...
+  $(".item-text-field").hoverIntent(function () {
     $(".item-text-field").not(this).find(".annotate-field")
         .addClass("inactive");
     $(".annotate-field", this).removeClass("inactive");
-  }, function(outEvent) {
+  }, function () {
     $(".annotate-field", this).addClass("inactive");
   });
 
 
   // Show/hide hidden annotations...
-  $(".show-other-annotations").click(function(event) {
+  $(".show-other-annotations").click(function (event) {
     event.preventDefault();
     $(this).find("span")
         .toggleClass("glyphicon-chevron-up")
         .toggleClass("glyphicon-chevron-down")
-      .end()
+        .end()
         .closest(".item-text-field-annotations, .description-annotations")
         .find(".other").toggle();
   });
 
   function insertAnnotationForm($elem, data, loaderContainer) {
-    if(typeof loaderContainer !== "undefined") {
+    if (typeof loaderContainer !== "undefined") {
       loaderContainer.remove();
     }
     var $container = $elem.hasClass("annotate-field")
@@ -224,7 +225,7 @@ jQuery(function ($) {
     var $annoItem = $form.prev().find(".annotate-item");
     var $annoBtn = $form.parents(".item-text-field").find(".annotate-field");
 
-    if($annoItem.length !== "undefined" && $annoItem.length === 1) {
+    if ($annoItem.length !== "undefined" && $annoItem.length === 1) {
       $annoItem.show();
     } else {
       $annoBtn.show();
@@ -232,21 +233,21 @@ jQuery(function ($) {
   }
 
   // Load an annotation form...
-  $(document).on("click", ".annotate-item", function(e) {
+  $(document).on("click", ".annotate-item", function (e) {
     e.preventDefault();
     var $elem = $(this),
         id = $elem.data("item"),
         did = $elem.data("did");
     jsRoutes.controllers.portal.Annotations.annotate(id, did).ajax({
       success: function (data) {
-        insertAnnotationForm($elem, data)
+        insertAnnotationForm($elem, data);
       }
     });
   });
 
   // Fields are very similar but we have to use the field as part
   // of the form submission url...
-  $(document).on("click", ".annotate-field", function(e) {
+  $(document).on("click", ".annotate-field", function (e) {
     e.preventDefault();
     var $elem = $(this),
         id = $elem.data("item"),
@@ -255,7 +256,7 @@ jQuery(function ($) {
     loaderContainer = insertAnnotationLoader($elem);
     jsRoutes.controllers.portal.Annotations.annotateField(id, did, field).ajax({
       success: function (data) {
-        insertAnnotationForm($elem, data, loaderContainer)
+        insertAnnotationForm($elem, data, loaderContainer);
       }
     });
   });
@@ -263,11 +264,11 @@ jQuery(function ($) {
 
   // POST back an annotation form and then replace it with the returned
   // data.
-  $(document).on("submit", ".annotate-item-form", function(e) {
+  $(document).on("submit", ".annotate-item-form", function (e) {
     e.preventDefault();
     var $form = $(this);
     var action = $form.attr("action");
-    $.post($form.attr("action"), $form.serialize(), function(data) {
+    $.post($form.attr("action"), $form.serialize(), function (data) {
       showAnnotationControl($form);
       $form.parents(".annotation-set").find(".annotation-list").append(data);
       $form.remove();
@@ -276,61 +277,61 @@ jQuery(function ($) {
 
   // Fields are very similar but we have to use the field as part
   // of the form submission url...
-  $(document).on("click", ".edit-annotation", function(e) {
+  $(document).on("click", ".edit-annotation", function (e) {
     e.preventDefault();
     var $elem = $(this),
         id = $elem.data("item");
     jsRoutes.controllers.portal.Annotations.editAnnotation(id).ajax({
-      success: function(data) {
+      success: function (data) {
         //$elem.closest(".annotation").hide().after(data)
         $(data)
-          .insertAfter($elem.closest(".annotation").hide())
-          .find("select.custom-accessors").select2({
-            placeholder: "Select a set of groups or users",
-            width: "copy"
-          });
+            .insertAfter($elem.closest(".annotation").hide())
+            .find("select.custom-accessors").select2({
+              placeholder: "Select a set of groups or users",
+              width: "copy"
+            });
       }
     });
   });
 
-  $(document).on("click", ".edit-annotation-form .close", function(e) {
+  $(document).on("click", ".edit-annotation-form .close", function (e) {
     e.preventDefault();
     var $form = $(e.target).parents(".edit-annotation-form");
     var hasData = $("textarea[name='body']", $form).val().trim() !== "";
     if (!hasData || confirm("Discard comment?")) {
       $form.prev(".annotation").show();
-      $form.remove()
+      $form.remove();
     }
   });
 
-  $(document).on("click", ".annotate-item-form .close", function(e) {
+  $(document).on("click", ".annotate-item-form .close", function (e) {
     e.preventDefault();
     var $form = $(e.target).parents(".annotate-item-form");
     var hasData = $("textarea[name='body']", $form).val().trim() !== "";
     if (!hasData || confirm("Discard comment?")) {
       showAnnotationControl($form);
-      $form.remove()
+      $form.remove();
     }
   });
 
   // POST back an annotation form and then replace it with the returned
   // data.
-  $(document).on("submit", ".edit-annotation-form", function(e) {
+  $(document).on("submit", ".edit-annotation-form", function (e) {
     e.preventDefault();
     var $form = $(this);
     var action = $form.closest("form").attr("action");
-    if($form.parents(".description-annotations") !== "undefined" && $form.parents(".description-annotations").length >= 1) {
+    if ($form.parents(".description-annotations") !== "undefined" && $form.parents(".description-annotations").length >= 1) {
       action += "?isField=false";
     }
-    $.post(action, $form.serialize(), function(data) {
-      $form.next(".annotate-field").show()
+    $.post(action, $form.serialize(), function (data) {
+      $form.next(".annotate-field").show();
       $form.replaceWith(data);
     });
   });
 
   // Fields are very similar but we have to use the field as part
   // of the form submission url...
-  $(document).on("click", ".delete-annotation", function(e) {
+  $(document).on("click", ".delete-annotation", function (e) {
     e.preventDefault();
     var $elem = $(this),
         id = $elem.data("item"),
@@ -339,10 +340,10 @@ jQuery(function ($) {
       var $ann = $elem.closest(".annotation");
       $ann.hide();
       jsRoutes.controllers.portal.Annotations.deleteAnnotationPost(id).ajax({
-        success: function(data) {
+        success: function () {
           $ann.remove();
         },
-        error: function() {
+        error: function () {
           $ann.show();
         }
       });
@@ -350,28 +351,28 @@ jQuery(function ($) {
   });
 
   // Handling of custom visibility selector.
-  $(document).on("change", "input[type=radio].visibility", function(e) {
+  $(document).on("change", "input[type=radio].visibility", function (e) {
     $(".custom-visibility")
         .toggle(e.target.value === "custom")
         .find("select.custom-accessors").select2({
-      placeholder: "Select a set of groups or users",
-      width: "copy"
-    });
+          placeholder: "Select a set of groups or users",
+          width: "copy"
+        });
   });
 
   // Set visibility of annotations
   // POST back an annotation form and then replace it with the returned
   // data.
-  $(document).on("change", ".edit-annotation-form .visibility, .edit-annotation-form .custom-accessors", function(e) {
+  $(document).on("change", ".edit-annotation-form .visibility, .edit-annotation-form .custom-accessors", function (e) {
     e.preventDefault();
     // Toggle the accessors list
     var $form = $(this).closest("form"),
-      id = $form.prev(".annotation").attr("id"),
-      data = $form.serialize();
+        id = $form.prev(".annotation").attr("id"),
+        data = $form.serialize();
     jsRoutes.controllers.portal.Annotations.setAnnotationVisibilityPost(id).ajax({
       data: data,
-      success: function(data) {
-        console.log("Set visibility to ", data)
+      success: function (data) {
+        console.log("Set visibility to ", data);
       }
     });
   });
@@ -383,16 +384,15 @@ jQuery(function ($) {
   /*
    *   History
    */
-  $("body").on("submit", ".message-form", function(e) {
+  $("body").on("submit", ".message-form", function (e) {
     var $form = $(this);
     e.preventDefault();
-    $.post($form.attr("action"), $form.serialize(), function(data) {
-      console.log("Data: ", data)
-    }).done(function(data) {
-      EhriJs.alertSuccess(data["ok"]);
-      $form.closest(".modal").modal("hide");
-    }).fail(function() {
-      // TODO: Figure out what to do here...
-    });
+    $.post($form.attr("action"), $form.serialize())
+        .done(function (data) {
+          EhriJs.alertSuccess(data.ok);
+          $form.closest(".modal").modal("hide");
+        }).fail(function () {
+          // TODO: Figure out what to do here...
+        });
   });
 });

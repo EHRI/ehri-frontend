@@ -4,7 +4,7 @@ import defines.EntityType
 import scala.annotation.tailrec
 import scala._
 import solr.SolrConstants._
-import play.api.templates.{HtmlFormat, Html}
+import play.twirl.api.{HtmlFormat, Html}
 
 /**
  * Class representing a search engine hit

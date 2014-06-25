@@ -13,7 +13,7 @@ import backend.rest.cypher.CypherDAO
 import play.api.libs.json.Json
 import eu.ehri.project.definitions.Ontology
 import scala.concurrent.Future
-import play.api.mvc.SimpleResult
+import play.api.mvc.Result
 import forms.VisibilityForm
 import com.google.common.net.HttpHeaders
 import backend.Backend
@@ -188,7 +188,7 @@ case class Annotations @Inject()(implicit globalConfig: global.GlobalConfig, sea
   /**
    * Get other users who belong to a user's groups.
    */
-  private def getCanShareWith(user: UserProfile)(f: Seq[(String,String)] => Seq[(String,String)] => SimpleResult): Future[SimpleResult] = {
+  private def getCanShareWith(user: UserProfile)(f: Seq[(String,String)] => Seq[(String,String)] => Result): Future[Result] = {
 
     import play.api.libs.json._
 

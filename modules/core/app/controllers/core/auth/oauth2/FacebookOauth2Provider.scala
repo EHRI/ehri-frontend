@@ -2,7 +2,7 @@ package controllers.core.auth.oauth2
 
 import play.api.libs.json._
 import play.api.libs.functional.syntax._
-import play.api.libs.ws.Response
+import play.api.libs.ws.WSResponse
 import play.api.Logger
 
 /**
@@ -12,7 +12,7 @@ object FacebookOauth2Provider extends OAuth2Provider {
   val name = "facebook"
 
   // facebook does not follow the OAuth2 spec :-\
-  override def buildOAuth2Info(response: Response): OAuth2Info = {
+  override def buildOAuth2Info(response: WSResponse): OAuth2Info = {
     response.body.split("&|=") match {
       case Array(OAuth2Constants.AccessToken, token, "expires", expiresIn) => OAuth2Info(token, None, Some(expiresIn.toInt))
       case Array(OAuth2Constants.AccessToken, token) => OAuth2Info(token)
@@ -22,7 +22,7 @@ object FacebookOauth2Provider extends OAuth2Provider {
     }
   }
 
-  def getUserData(response: Response): UserData = {
+  def getUserData(response: WSResponse): UserData = {
     Logger.debug("Facebook user info: " + Json.prettyPrint(response.json))
     response.json.as[UserData]((
       (__ \ Id).read[String] and

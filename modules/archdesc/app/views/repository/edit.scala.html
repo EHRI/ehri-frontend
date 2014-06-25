@@ -3,15 +3,10 @@ implicit userOpt: Option[UserProfile], req: RequestHeader, globalConfig: global.
 
 @implicitField = @{ views.html.helper.FieldConstructor(formHelpers.fieldTemplate.f) }
 
-@scripts = {
-	<script type="text/javascript" src="@controllers.core.routes.Assets.at("js/typeahead.min.js")"></script>
-	<script type="text/javascript" src="@controllers.core.routes.Assets.at("js/handlebar.min.js")"></script>
-	<script type="text/javascript" src="@controllers.core.routes.Assets.at("js/address.min.js")"></script>
-}
-@layout.rightSidebar(Messages("repository.update"), scripts = scripts, breadcrumbs = common.breadcrumbs(List(item))) {
+@layout.rightSidebar(Messages("repository.update"), breadcrumbs = common.breadcrumbs(List(item))) {
     @helper.form(action = action, 'class -> "entity-form form-horizontal") {
         @formHelpers.csrfToken()
-        @repository.renderForm(Some(item), f)
+        @repository.renderForm(f)
 
         @formHelpers.submitButtonWithLogMessageInput(Messages("repository.update.submit"), cancel = views.Helpers.linkToOpt(item))
     }

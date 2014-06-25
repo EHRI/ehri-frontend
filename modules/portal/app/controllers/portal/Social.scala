@@ -13,7 +13,7 @@ import models.AccountDAO
 import backend.{ApiUser, Backend}
 
 import com.google.inject._
-import play.api.mvc.{SimpleResult, RequestHeader}
+import play.api.mvc.{Result, RequestHeader}
 import play.api.i18n.Messages
 import play.api.libs.json.Json
 import scala.concurrent.Future
@@ -266,7 +266,7 @@ case class Social @Inject()(implicit globalConfig: global.GlobalConfig, searchDi
       .getOrElse("fakekey")
     val boundForm = messageForm.bindFromRequest
 
-    def onError(userTo: UserProfile, form: Form[(String,String)]): SimpleResult = {
+    def onError(userTo: UserProfile, form: Form[(String,String)]): Result = {
       if (isAjax) BadRequest(form.errorsAsJson)
       else BadRequest(p.social.messageUser(userTo, form,
         socialRoutes.sendMessagePost(userId), recaptchaKey))

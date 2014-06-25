@@ -17,6 +17,8 @@ import backend.rest.RestDAO
 case class Utils @Inject()(implicit globalConfig: global.GlobalConfig, backend: Backend, userDAO: AccountDAO)
     extends AuthController with ControllerHelpers with RestDAO {
 
+  import play.api.Play.current
+
   override val staffOnly = false
 
   /**

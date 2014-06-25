@@ -10,6 +10,8 @@ import utils.search.{Resolver, SearchHit}
 
 trait SearchDAO extends RestDAO {
 
+  import play.api.Play.current
+
   def requestUrl = "http://%s:%d/%s/entities".format(host, port, mount)
 
   def get[MT](id: String)(implicit apiUser: ApiUser,  rd: RestReadable[MT]): Future[MT] = {

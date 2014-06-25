@@ -12,14 +12,14 @@ import models.json.{RestResource, RestReadable}
  */
 trait Delete[MT] extends Generic[MT] {
 
-  def deleteAction(id: String)(f: MT => Option[UserProfile] => Request[AnyContent] => SimpleResult)(
+  def deleteAction(id: String)(f: MT => Option[UserProfile] => Request[AnyContent] => Result)(
       implicit rd: RestReadable[MT]) = {
     withItemPermission[MT](id, PermissionType.Delete, contentType) { item => implicit userOpt => implicit request =>
       f(item)(userOpt)(request)
     }
   }
 
-  def deletePostAction(id: String)(f: Boolean => Option[UserProfile] => Request[AnyContent] => SimpleResult)(implicit rd: RestReadable[MT]) = {
+  def deletePostAction(id: String)(f: Boolean => Option[UserProfile] => Request[AnyContent] => Result)(implicit rd: RestReadable[MT]) = {
     withItemPermission.async[MT](id, PermissionType.Delete, contentType) { item => implicit userOpt => implicit request =>
       backend.delete[MT](id, logMsg = getLogMessage).map { ok =>
         f(ok)(userOpt)(request)
