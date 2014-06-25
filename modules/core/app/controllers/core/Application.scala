@@ -20,6 +20,14 @@ case class Application @Inject()(implicit globalConfig: global.GlobalConfig, bac
   override val staffOnly = false
   override val verifiedOnly = false
 
+  /**
+   * Handle trailing slashes with a permanent redirect.
+   */
+  def untrail(path: String) = Action { request =>
+    val query = if (request.rawQueryString != "") "?" + request.rawQueryString else ""
+    MovedPermanently("/" + path + query)
+  }
+
   def jsRoutes = Action { implicit request =>
     Ok(
       Routes.javascriptRouter("jsRoutes")(
