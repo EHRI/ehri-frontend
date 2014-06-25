@@ -45,8 +45,8 @@
             }
             
             @descriptionSection(MATERIALS_AREA) {
-                @textField(item, descId, desc.materials.locationOfOriginals, LOCATION_ORIGINALS)
-                @textField(item, descId, desc.materials.locationOfCopies, LOCATION_COPIES)
+                @listField(item, descId, desc.materials.locationOfOriginals, LOCATION_ORIGINALS)
+                @listField(item, descId, desc.materials.locationOfCopies, LOCATION_COPIES)
                 @textField(item, descId, desc.materials.relatedUnitsOfDescription, RELATED_UNITS)
                 @textField(item, descId, desc.materials.publicationNote, PUBLICATION_NOTE)
             }

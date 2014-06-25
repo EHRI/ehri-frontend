@@ -39,8 +39,8 @@
     }
 
     @descriptionSection(MATERIALS_AREA) {
-        @common.stringValue(desc.materials.locationOfOriginals, LOCATION_ORIGINALS)
-        @common.stringValue(desc.materials.locationOfCopies, LOCATION_COPIES)
+        @common.listValue(desc.materials.locationOfOriginals, LOCATION_ORIGINALS)
+        @common.listValue(desc.materials.locationOfCopies, LOCATION_COPIES)
         @common.stringValue(desc.materials.relatedUnitsOfDescription, RELATED_UNITS)
         @common.stringValue(desc.materials.publicationNote, PUBLICATION_NOTE)
     }
