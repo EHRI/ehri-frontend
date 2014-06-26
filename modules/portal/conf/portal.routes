@@ -1,8 +1,5 @@
 # Routes for portal routes
 
-# Placeholder for / until site is more functional...
-GET         /placeholder                              @controllers.portal.Portal.placeholder
-
 GET         /                               @controllers.portal.Portal.index
 
 GET         /feedback                       @controllers.portal.Feedback.feedback
@@ -109,7 +106,7 @@ GET         /filter                         @controllers.portal.Portal.filter
 
 # Various JS data helpers
 GET         /routes                         controllers.portal.PortalData.jsRoutes
-GET         /globalData                         controllers.portal.PortalData.globalData
+GET         /globalData                     controllers.portal.PortalData.globalData
 
-GET         /assets/*file                       controllers.portal.Assets.at(path="/public", file)
-GET         /versioned/*file                    controllers.portal.Assets.versioned(path="/public", file: Asset)
+GET         /assets/*file                   controllers.portal.Assets.at(path="/public", file)
+GET         /v/*file                        controllers.portal.Assets.versioned(path="/public", file: Asset)
