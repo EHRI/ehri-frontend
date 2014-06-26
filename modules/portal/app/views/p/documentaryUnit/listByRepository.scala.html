@@ -29,9 +29,11 @@
 }
 
 @p.layout.portalLayout(Messages("portal.browse.documents"), EntityType.DocumentaryUnit.toString) {
+   <div class="main-content">
     @views.html.common.search.searchForm(page, params, action, autofocus = false) {
         @itemByHolderList(page.items, None)
     } {
         @views.html.common.search.facetList(page.facets, action)
     }
+</div>
 }

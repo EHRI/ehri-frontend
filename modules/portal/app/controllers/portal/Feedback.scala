@@ -1,7 +1,7 @@
 package controllers.portal
 
 import play.api.libs.concurrent.Execution.Implicits._
-import play.api.mvc.Controller
+import play.api.mvc.{RequestHeader, Controller}
 import controllers.base.{AuthController, ControllerHelpers}
 import scala.concurrent.Future.{successful => immediate}
 import backend.{Backend, FeedbackDAO}
@@ -25,6 +25,21 @@ case class Feedback @Inject()(implicit globalConfig: global.GlobalConfig, feedba
     Ok(views.html.p.feedback(models.Feedback.form))
   }
 
+  private def sendMessageEmail(feedback: models.Feedback)(implicit request: RequestHeader): Unit = {
+    for {
+      accTo <- current.configuration.getString("ehri.portal.feedback.copyTo")
+    } yield {
+      import com.typesafe.plugin._
+      val text = feedback.text.getOrElse("No message provided")
+      use[MailerPlugin].email
+        .setSubject("EHRI Portal Feedback")
+        .setRecipient(accTo)
+        .setReplyTo(feedback.email.getOrElse("noreply@ehri-project.eu"))
+        .setFrom("EHRI User <noreply@ehri-project.eu>")
+        .send(text, text)
+    }
+  }
+
   def feedbackPost = userProfileAction.async { implicit userOpt => implicit request =>
     models.Feedback.form.bindFromRequest.fold(
       errorForm => {
@@ -40,8 +55,8 @@ case class Feedback @Inject()(implicit globalConfig: global.GlobalConfig, feedba
           .copy(
             context = Some(models.FeedbackContext.fromRequest),
             mode = Some(play.api.Play.current.mode))
-
         feedbackDAO.create(moreFeedback).map { id =>
+          sendMessageEmail(moreFeedback)
           if (isAjax) Ok(id)
           else Redirect(controllers.portal.routes.Portal.index())
             .flashing("success" -> "Thanks for your feedback!")
