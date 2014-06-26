@@ -289,12 +289,15 @@ case class Profile @Inject()(implicit globalConfig: global.GlobalConfig, searchD
       errForm => immediate(BadRequest(p.profile.deleteProfile(
         errForm.withGlobalError("portal.profile.deleteProfile.badConfirmation"),
         profileRoutes.deleteProfilePost()))),
-
       _ => {
-        val anonymous = UserProfileF(id = Some(user.id),
+        // Here we are not going to delete their whole profile, since
+        // that would destroy the record of the user's activities and
+        // the provenance of the data. Instead we just anonymize it by
+        // updating the record with minimal information
+        val anonProfile = UserProfileF(id = Some(user.id),
           identifier = user.model.identifier, name = user.model.identifier,
           active = false)
-        backend.update(user.id, anonymous).flatMap { bool =>
+        backend.update(user.id, anonProfile).flatMap { bool =>
           user.account.get.delete()
           gotoLogoutSucceeded
             .map(_.flashing("success" -> "portal.profile.profileDeleted"))
