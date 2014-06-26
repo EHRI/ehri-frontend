@@ -7,7 +7,7 @@
 }
 
 @itemByCountryList(repos: Seq[(Repository,utils.search.SearchHit)], lastOpt: Option[(Repository,utils.search.SearchHit)]) = {
-
+    
     @repos.headOption.map { case (repo, hit) =>
         @lastOpt.map { case (last, lhit) =>
             @if(last.country != repo.country) {
@@ -30,9 +30,11 @@
 }
 
 @p.layout.portalLayout(Messages("portal.browse.repositories"), EntityType.Repository.toString) {
+   <div class="main-content">
     @views.html.common.search.searchForm(page, params, action, autofocus = false) {
         @itemByCountryList(page.items, None)
     } {
         @views.html.common.search.facetList(page.facets, action)
     }
+</div>
 }
