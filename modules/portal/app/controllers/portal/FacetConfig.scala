@@ -252,6 +252,24 @@ trait FacetConfig extends Search {
   protected val conceptFacets: FacetBuilder = { implicit request =>
     List(
       FieldFacetClass(
+        key = IsadG.LANG_CODE,
+        name = Messages("cvocConcept." + IsadG.LANG_CODE),
+        param = "lang",
+        render = (s: String) => Helpers.languageCodeToName(s),
+        display = FacetDisplay.Choice,
+        sort = FacetSort.Name
+      ),
+      QueryFacetClass(
+        key="isTopLevel",
+        name=Messages("portal.facet.container"),
+        param="top",
+        render=s => Messages("portal.facet.topLevel." + s),
+        facets=List(
+          SolrQueryFacet(value = "true", solrValue = "true")
+        ),
+        display = FacetDisplay.Boolean
+      ),
+      FieldFacetClass(
         key="holderName",
         name=Messages("cvocConcept.inVocabulary"),
         param="vocab",

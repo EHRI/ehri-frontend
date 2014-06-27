@@ -4,6 +4,8 @@
     @p.layout.searchItemOutline(item, watched) {
         <a href="@controllers.portal.routes.Portal.browseConcept(item.id)">@item.toStringLang</a>
     } {
-        @listItemBody(item)
+        @defining(Some(hit.id)) { implicit descId =>
+            @listItemBody(item)
+        }
     }
 }
