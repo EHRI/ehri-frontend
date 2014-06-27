@@ -249,10 +249,6 @@ trait FacetConfig extends Search {
     )
   }
 
-  protected val docSearchRepositoryFacets: FacetBuilder = { implicit request =>
-    docSearchFacets(request)
-  }
-
   protected val conceptFacets: FacetBuilder = { implicit request =>
     List(
       FieldFacetClass(

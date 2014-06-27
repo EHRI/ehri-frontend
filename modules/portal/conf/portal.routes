@@ -35,7 +35,6 @@ GET         /countries/institutions         @controllers.portal.Portal.browseRep
 GET         /countries                      @controllers.portal.Portal.browseCountries
 GET         /countries/:id                  @controllers.portal.Portal.browseCountry(id: String)
 GET         /countries/:id/search           @controllers.portal.Portal.searchCountry(id: String)
-GET         /institutions/items             @controllers.portal.Portal.browseDocumentsByRepository
 GET         /institutions                   @controllers.portal.Portal.browseRepositories
 GET         /institutions/:id               @controllers.portal.Portal.browseRepository(id: String)
 GET         /institutions/:id/search        @controllers.portal.Portal.searchRepository(id: String)
