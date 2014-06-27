@@ -194,6 +194,8 @@ trait Description extends Model {
 
   def unknownProperties: List[Entity]
 
+  def displayText: Option[String]
+
   // Unknown, unparsed data
   def toSeq: Seq[(String, Option[String])]
 

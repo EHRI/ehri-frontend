@@ -152,6 +152,8 @@ case class HistoricalAgentDescriptionF(
   with Description
   with Temporal {
 
+  def displayText = details.history orElse details.generalContext orElse details.functions
+
   import Isaar._
 
   def toSeq = Seq(

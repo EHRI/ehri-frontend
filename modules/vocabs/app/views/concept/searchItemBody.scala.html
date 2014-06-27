@@ -1,7 +1,9 @@
 @(item: Concept, desc: ConceptDescriptionF)(implicit lang: Lang)
 
+@import org.apache.commons.lang3.StringUtils
+
 <small>
-<ul class="list-unstyled text-muted inline inline-separator">
+    <ul class="list-unstyled text-muted inline inline-separator">
         @item.vocabulary.map { vocab =>
             <li><a class="alt" href="@controllers.vocabs.routes.Vocabularies.get(vocab.id)">@vocab.toStringLang</a></li>
         }
@@ -23,10 +25,7 @@
     </ul>
 }
 </small>
-@desc.scopeNote.map { note =>
-    <p>@note</p>
-}
-@desc.definition.map { definition =>
-    <p>@definition</p>
-}
 
+@desc.displayText.map(StringUtils.abbreviate(_, 600)).map { sc =>
+    @Html(views.Helpers.renderMarkdown(sc))
+}

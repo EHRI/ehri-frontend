@@ -55,6 +55,6 @@
     }
 </small>
 @desc.displayText.map(StringUtils.abbreviate(_, 600)).map { sc =>
-    <p>@Html(views.Helpers.renderMarkdown(sc))</p>
+    @Html(views.Helpers.renderMarkdown(sc))
 }
 

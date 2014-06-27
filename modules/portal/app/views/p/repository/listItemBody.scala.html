@@ -1,6 +1,8 @@
-@(item: Repository, showCountry: Boolean)(implicit userOpt: Option[UserProfile], req: RequestHeader, lang: Lang)
+@(item: Repository, showCountry: Boolean)(implicit userOpt: Option[UserProfile], req: RequestHeader, lang: Lang, descriptionId: Option[String] = None)
 
-@item.model.primaryDescription.map { desc =>
+@import org.apache.commons.lang3.StringUtils
+
+@item.model.primaryDescription(descriptionId).map { desc =>
 
     @defining((desc.parallelFormsOfName ++ desc.otherFormsOfName).flatten) { ofn =>
         @if(!ofn.isEmpty) {
@@ -21,8 +23,8 @@
             <a href="@controllers.portal.routes.Portal.browseRepository(item.id)#search-items">@Messages("repository.childCount", count)</a>
         }
     </small>
-    @desc.details.generalContext.map { gc =>
-        <p>@Html(views.Helpers.renderMarkdown(gc))</p>
+    @desc.displayText.map(StringUtils.abbreviate(_, 600)).map { sc =>
+        @Html(views.Helpers.renderMarkdown(sc))
     }
 }.getOrElse {
     <small>@Messages("describedEntity.noDescriptions")</small>
