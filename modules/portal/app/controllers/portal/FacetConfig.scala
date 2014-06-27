@@ -114,12 +114,43 @@ trait FacetConfig extends Search {
         param="cpf",
         render=s => Messages("historicalAgent." + s),
         display = FacetDisplay.Choice
+      ),
+      FieldFacetClass(
+        key="holderName",
+        name=Messages("historicalAgent.authoritativeSet"),
+        param="set",
+        render=s => s,
+        display = FacetDisplay.Choice
       )
     )
   }
 
   protected val countryFacets: FacetBuilder = { implicit request =>
-    List() // TODO?
+    List(
+      QueryFacetClass(
+        key="childCount",
+        name=Messages("portal.facet.itemsHeldOnline"),
+        param="data",
+        render=s => Messages("portal.facet.itemsHeldOnline." + s),
+        facets=List(
+          SolrQueryFacet(value = "yes", solrValue = "[1 TO *]", name = Some("yes"))
+        ),
+        display = FacetDisplay.Boolean
+      ),
+      QueryFacetClass(
+        key="charCount",
+        name=Messages("portal.facet.lod"),
+        param="lod",
+        render=s => Messages("portal.facet.lod." + s),
+        facets=List(
+          SolrQueryFacet(value = "low", solrValue = "[0 TO 200]", name = Some("low")),
+          SolrQueryFacet(value = "medium", solrValue = "[201 TO 5000]", name = Some("medium")),
+          SolrQueryFacet(value = "high", solrValue = "[5001 TO *]", name = Some("high"))
+        ),
+        sort = FacetSort.Fixed,
+        display = FacetDisplay.List
+      )
+    )
   }
 
   protected val repositorySearchFacets: FacetBuilder = { implicit request =>
@@ -217,19 +248,7 @@ trait FacetConfig extends Search {
       )
     )
   }
-
-  protected val docSearchRepositoryFacets: FacetBuilder = { implicit request =>
-    docSearchFacets(request) ++ List(
-      FieldFacetClass(
-        key="holderName",
-        name=Messages("documentaryUnit.heldBy"),
-        param="holder",
-        sort = FacetSort.Name,
-        display = FacetDisplay.DropDown
-      )
-    )
-  }
-
+  
   protected val conceptFacets: FacetBuilder = { implicit request =>
     List(
       FieldFacetClass(

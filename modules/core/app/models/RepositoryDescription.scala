@@ -179,6 +179,8 @@ case class RepositoryDescriptionF(
 
   import Isdiah._
 
+  def displayText = details.history orElse details.generalContext
+
   def toSeq = Seq(
     HISTORY -> details.history,
     GEOCULTURAL_CONTEXT -> details.generalContext,

@@ -28,13 +28,13 @@
         </ul>
     </small>
     @desc.details.datesOfExistence.map { d =>
-        <p>@Html(views.Helpers.renderMarkdown(d))</p>
+        @Html(views.Helpers.renderMarkdown(d))
     }
     @desc.details.history.map { d =>
-        <p>@Html(views.Helpers.renderMarkdown(d))</p>
+        @Html(views.Helpers.renderMarkdown(d))
     }
     @desc.details.generalContext.map { d =>
-        <p>@Html(views.Helpers.renderMarkdown(d))</p>
+        @Html(views.Helpers.renderMarkdown(d))
     }
 }.getOrElse {
     <small>@Messages("describedEntity.noDescriptions")</small>

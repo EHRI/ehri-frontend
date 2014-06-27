@@ -76,6 +76,8 @@ case class ConceptDescriptionF(
   unknownProperties: List[Entity] = Nil
 ) extends Model with Persistable with Description {
 
+  def displayText = scopeNote.flatMap(_.headOption) orElse definition.flatMap(_.headOption)
+
   // NA - no single valued optional text fields
   // here...
   def toSeq = Seq()

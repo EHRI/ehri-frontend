@@ -1,8 +1,5 @@
 # Routes for portal routes
 
-# Placeholder for / until site is more functional...
-GET         /placeholder                              @controllers.portal.Portal.placeholder
-
 GET         /                               @controllers.portal.Portal.index
 
 GET         /feedback                       @controllers.portal.Feedback.feedback
@@ -38,7 +35,6 @@ GET         /countries/institutions         @controllers.portal.Portal.browseRep
 GET         /countries                      @controllers.portal.Portal.browseCountries
 GET         /countries/:id                  @controllers.portal.Portal.browseCountry(id: String)
 GET         /countries/:id/search           @controllers.portal.Portal.searchCountry(id: String)
-GET         /institutions/items             @controllers.portal.Portal.browseDocumentsByRepository
 GET         /institutions                   @controllers.portal.Portal.browseRepositories
 GET         /institutions/:id               @controllers.portal.Portal.browseRepository(id: String)
 GET         /institutions/:id/search        @controllers.portal.Portal.searchRepository(id: String)
@@ -109,7 +105,7 @@ GET         /filter                         @controllers.portal.Portal.filter
 
 # Various JS data helpers
 GET         /routes                         controllers.portal.PortalData.jsRoutes
-GET         /globalData                         controllers.portal.PortalData.globalData
+GET         /globalData                     controllers.portal.PortalData.globalData
 
-GET         /assets/*file                       controllers.portal.Assets.at(path="/public", file)
-GET         /versioned/*file                    controllers.portal.Assets.versioned(path="/public", file: Asset)
+GET         /assets/*file                   controllers.portal.Assets.at(path="/public", file)
+GET         /v/*file                        controllers.portal.Assets.versioned(path="/public", file: Asset)

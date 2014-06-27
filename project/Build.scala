@@ -67,10 +67,10 @@ object ApplicationBuild extends Build {
     "org.mindrot" % "jbcrypt" % "0.3m",
 
     // Mailer...
-    "com.typesafe" %% "play-plugins-mailer" % "2.2.0",
+    "com.typesafe.play.plugins" %% "play-plugins-mailer" % "2.3.0",
 
     // Solr stuff
-    "com.github.seratch" %% "scalikesolr" % "[4.3,)",
+    "com.github.seratch" %% "scalikesolr" % "4.6.0",
 
     // Time formatting library
     "org.ocpsoft.prettytime" % "prettytime" % "1.0.8.Final"
@@ -105,7 +105,6 @@ object ApplicationBuild extends Build {
     resolvers += "Local Maven Repository" at "file:///" + Path.userHome.absolutePath + "/.m2/repository",
     resolvers += "Codahale" at "http://repo.codahale.com",
     resolvers += "Typesafe Repository" at "http://repo.typesafe.com/typesafe/releases/",
-    resolvers += "Rhinofly Internal Repository" at "http://maven-repository.rhinofly.net:8081/artifactory/libs-release-local",
 
     // SBT magic: http://stackoverflow.com/a/12772739/285374
     resourceDirectory in Test <<= baseDirectory apply {

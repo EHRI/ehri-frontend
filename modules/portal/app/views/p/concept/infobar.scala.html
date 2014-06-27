@@ -2,7 +2,6 @@
 
 @layout.infobar {
     @item.vocabulary.map { vocab =>
-        @println("vocab: " + vocab.toStringLang)
         <li>@p.helpers.linkTo(vocab, views.Helpers.ellipsize(vocab.toStringLang, 100))</li>
     }
     @item.broaderTerms.map { term =>
