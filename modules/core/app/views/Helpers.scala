@@ -98,7 +98,7 @@ package object Helpers {
     if(tags.replaceAllIn(text, "").length() <= max) {
       text
     } else {
-      StringUtils.abbreviate(text.replaceAll("<[^>]*>", ""), 600)
+      StringUtils.abbreviate(text.replaceAll("<[^>]*>", ""), max)
     }
   }
 
