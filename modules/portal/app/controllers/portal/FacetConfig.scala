@@ -219,7 +219,15 @@ trait FacetConfig extends Search {
   }
 
   protected val docSearchRepositoryFacets: FacetBuilder = { implicit request =>
-    docSearchFacets(request)
+    docSearchFacets(request) ++ List(
+      FieldFacetClass(
+        key="holderName",
+        name=Messages("documentaryUnit.heldBy"),
+        param="holder",
+        sort = FacetSort.Name,
+        display = FacetDisplay.DropDown
+      )
+    )
   }
 
   protected val conceptFacets: FacetBuilder = { implicit request =>
