@@ -1,7 +1,5 @@
 @(item: Concept)(implicit req: RequestHeader, lang: Lang, descriptionId: Option[String] = None)
 
-@import org.apache.commons.lang3.StringUtils
-
 @item.model.primaryDescription(descriptionId).map { desc =>
     <small>
         <ul class="list-unstyled text-muted inline inline-separator">
@@ -27,7 +25,7 @@
         }
     </small>
 
-    @desc.displayText.map(StringUtils.abbreviate(_, 600)).map { sc =>
+    @desc.displayText.map(views.Helpers.ellipsize(_, 600)).map { sc =>
         @Html(views.Helpers.renderMarkdown(sc))
     }
 }

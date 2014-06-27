@@ -1,7 +1,5 @@
 @(item: Concept, desc: ConceptDescriptionF)(implicit lang: Lang)
 
-@import org.apache.commons.lang3.StringUtils
-
 <small>
     <ul class="list-unstyled text-muted inline inline-separator">
         @item.vocabulary.map { vocab =>
@@ -26,6 +24,6 @@
 }
 </small>
 
-@desc.displayText.map(StringUtils.abbreviate(_, 600)).map { sc =>
+@desc.displayText.map(views.Helpers.ellipsize(_, 600)).map { sc =>
     @Html(views.Helpers.renderMarkdown(sc))
 }

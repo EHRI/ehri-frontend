@@ -30,10 +30,7 @@
     @desc.details.datesOfExistence.map { d =>
         @Html(views.Helpers.renderMarkdown(d))
     }
-    @desc.details.history.map { d =>
-        @Html(views.Helpers.renderMarkdown(d))
-    }
-    @desc.details.generalContext.map { d =>
+    @desc.displayText.map(s => views.Helpers.ellipsize(s, 600)).map { d =>
         @Html(views.Helpers.renderMarkdown(d))
     }
 }.getOrElse {
