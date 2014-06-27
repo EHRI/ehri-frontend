@@ -15,9 +15,6 @@
         </small>
     }
 }
-
-
-
 @if(!item.ancestors.isEmpty) {
     <small>
         <ul class="list-unstyled text-muted inline inline-separator">
@@ -54,7 +51,7 @@
         }
     }
 </small>
-@desc.displayText.map(StringUtils.abbreviate(_, 600)).map { sc =>
-    <p>@Html(views.Helpers.renderMarkdown(sc))</p>
+@desc.displayText.map(views.Helpers.ellipsize(_, 600)).map { sc =>
+    @Html(views.Helpers.renderMarkdown(sc))
 }
 

@@ -116,7 +116,7 @@ object SearchParams {
       FIELD -> optional(list(nonEmptyText)),
       EXCLUDE -> optional(list(nonEmptyText)),
       FILTERS -> optional(list(nonEmptyText))
-    )(SearchParams.apply _)(SearchParams.unapply _)
+    )(SearchParams.apply)(SearchParams.unapply)
   )
 
   // JSON (de)serialization

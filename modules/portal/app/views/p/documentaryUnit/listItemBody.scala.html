@@ -33,8 +33,8 @@
         }
     </small>
 
-    @desc.displayText.map(StringUtils.abbreviate(_, 600)).map { sc =>
-        <p>@Html(views.Helpers.renderMarkdown(sc))</p>
+    @desc.displayText.map(views.Helpers.ellipsize(_, 600)).map { sc =>
+        @Html(views.Helpers.renderMarkdown(sc))
     }
 }.getOrElse {
     <small>@Messages("describedEntity.noDescriptions")</small>

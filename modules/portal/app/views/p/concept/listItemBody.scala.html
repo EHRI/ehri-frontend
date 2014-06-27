@@ -1,2 +1,32 @@
-@(item: Concept)(implicit req: RequestHeader, lang: Lang)
+@(item: Concept)(implicit req: RequestHeader, lang: Lang, descriptionId: Option[String] = None)
+
+@item.model.primaryDescription(descriptionId).map { desc =>
+    <small>
+        <ul class="list-unstyled text-muted inline inline-separator">
+            @item.vocabulary.map { vocab =>
+                <li><a class="alt" href="@controllers.portal.routes.Portal.browseVocabulary(vocab.id)">@vocab.toStringLang</a></li>
+            }
+            <li><span class="text-muted">@views.Helpers.languageCodeToName(desc.languageCode)</span></li>
+            @item.latestEvent.map { event =>
+                <li title="@event.time">@Messages("systemEvent.lastUpdated", views.Helpers.relativeDate(event.model.timestamp))</li>
+            }
+        </ul>
+        @if(item.broaderTerms.size > 0) {
+            <ul class="list-unstyled inline inline-separator">
+                <li>@Messages("cvocConcept.broaderTerms")</li>
+                @item.broaderTerms.map { bt =>
+                <li>
+                    <a href="@controllers.portal.routes.Portal.browseVocabulary(bt.id)">
+                        @bt.toStringLang
+                    </a>
+                </li>
+                }
+            </ul>
+        }
+    </small>
+
+    @desc.displayText.map(views.Helpers.ellipsize(_, 600)).map { sc =>
+        @Html(views.Helpers.renderMarkdown(sc))
+    }
+}
 

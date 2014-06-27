@@ -20,6 +20,7 @@ case class TestDescriptionF(
 ) extends Model
   with Description {
   def toSeq = Seq.empty
+  def displayText = None
 }
 
 case class TestModelF(

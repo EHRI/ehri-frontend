@@ -1,6 +1,7 @@
 @(item: Repository)(implicit req: RequestHeader, lang: Lang)
 
 @import Isdiah._
+@import org.apache.commons.lang3.StringUtils
 
 @common.search.searchItemOutline(item.id) {
     <a href="@controllers.archdesc.routes.Repositories.get(item.id)">@item.toStringLang</a>
@@ -39,8 +40,8 @@
             }
         </small>
 
-        @desc.details.generalContext.map { gc =>
-            <p>@gc</p>
+        @desc.displayText.map(StringUtils.abbreviate(_, 600)).map { sc =>
+            @Html(views.Helpers.renderMarkdown(sc))
         }
     }.getOrElse {
         <small>@Messages("describedEntity.noDescriptions")</small>
