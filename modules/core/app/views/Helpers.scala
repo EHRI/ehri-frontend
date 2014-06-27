@@ -10,6 +10,7 @@ import models._
 import org.pegdown.{Extensions, PegDownProcessor}
 import models.base.AnyModel
 import play.api.mvc.Call
+import scala.util.matching.Regex
 
 
 package object Helpers {
@@ -91,7 +92,15 @@ package object Helpers {
   /**
    * Function to truncate and add ellipses to long strings
    */
-  def ellipsize(text: String, max: Int) = StringUtils.abbreviateMiddle(text, "...", max)
+  def ellipsize(text: String, max: Int): String = {
+    val tags = new Regex("/<.*?>/")
+    // First check an element has a size below the max
+    if(tags.replaceAllIn(text, "").length() <= max) {
+      text
+    } else {
+      StringUtils.abbreviate(text.replaceAll("<[^>]*>", ""), 600)
+    }
+  }
 
   /**
    * Get a list of code->name pairs for the given language.

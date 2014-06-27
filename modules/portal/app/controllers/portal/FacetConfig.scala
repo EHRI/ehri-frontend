@@ -248,7 +248,7 @@ trait FacetConfig extends Search {
       )
     )
   }
-
+  
   protected val conceptFacets: FacetBuilder = { implicit request =>
     List(
       FieldFacetClass(

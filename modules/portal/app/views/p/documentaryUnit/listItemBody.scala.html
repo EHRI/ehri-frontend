@@ -33,7 +33,7 @@
         }
     </small>
 
-    @desc.displayText.map(StringUtils.abbreviate(_, 600)).map { sc =>
+    @desc.displayText.map(views.Helpers.ellipsize(_, 600)).map { sc =>
         @Html(views.Helpers.renderMarkdown(sc))
     }
 }.getOrElse {
