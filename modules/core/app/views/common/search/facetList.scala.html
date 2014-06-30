@@ -95,9 +95,9 @@
             @Messages(fc.name)
 
             @if(fc.sorted.isEmpty) {
-                <div class="date-submit pull-right">
-                    <span class="glyphicon glyphicon-refresh"></span>
-                </div>
+                <a href="#" class="date-submit pull-right">
+                    <span class="glyphicon glyphicon-ok-circle"></span>
+                </a>
             }
         </h4>   
         @if(!fc.sorted.isEmpty) {
@@ -125,12 +125,13 @@
             </ul>
         } else {
             <div class="facet-options">
+                <input type="hidden" class="target" name="@fc.param" value="" />
                 <div class="form-group">
                     <label class="control-label col-sm-6">
                         Start year
                     </label>
                     <div class="col-sm-6">
-                        <input type="text" class="form-control begin input-sm" name="@fc.param" />
+                        <input type="text" data-target="begin" class="form-control date input-sm" />
                     </div>
                 </div>
                 <div class="form-group">
@@ -138,7 +139,7 @@
                         End year
                     </label>
                     <div class="col-sm-6">
-                        <input type="text" class="form-control end input-sm" name="@fc.param" />
+                        <input type="text" data-target="end" class="form-control date input-sm" />
                     </div>
                 </div>
                 <br clear="both" />
