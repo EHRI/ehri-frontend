@@ -4,7 +4,12 @@
     @tree.item.holder.map { r =>
         @header(tree.item.toStringLang, r, Seq(tree))
     }
-    <archdesc>
-        @eadLevel(1, tree)
+    <archdesc level="@tree.item.model.primaryDescription.flatMap(_.identity.levelOfDescription).getOrElse("otherlevel")">
+        @desc(tree)
+        <dsc>
+            @for(t <- tree.children) {
+                @eadLevel(1, t)
+            }
+        </dsc>
     </archdesc>
 </ead>

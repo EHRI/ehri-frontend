@@ -1,0 +1,45 @@
+@(tree: utils.ead.DocTree)(implicit lang: Lang)
+
+@import AccessPointF.AccessPointType
+
+@accessType(tag: String, head: String, description: Description, apType: AccessPointType.Value) = {
+    @defining(description.accessPoints.filter(_.accessPointType == apType)) { accessPoints =>
+        @if(!accessPoints.isEmpty) {
+            <controlaccess>
+                <head>@head:</head>
+                @accessPoints.map { ap =>
+                    <@tag>@ap.name</@tag>
+                }
+            </controlaccess>
+        }
+    }
+}
+
+<did>
+    <unitid>@tree.item.model.identifier</unitid>
+    @tree.item.model.primaryDescription.map { desc =>
+        <unittitle>@desc.name</unittitle>
+        @desc.dates.map { date =>
+            <unitdate>@date.years.trim</unitdate>
+        }
+    }
+</did>
+@tree.item.model.primaryDescription.map { desc =>
+    @desc.context.biographicalHistory.map { sc =>
+        <biogHist>
+            @Xml(views.Helpers.renderMarkdown(sc))
+        </biogHist>
+    }
+    @desc.content.scopeAndContent.map { sc =>
+        <scopeContent>
+            @Xml(views.Helpers.renderMarkdown(sc))
+        </scopeContent>
+    }
+
+    @accessType("persname", "People", desc, AccessPointType.PersonAccess)
+    @accessType("famname", "People", desc, AccessPointType.FamilyAccess)
+    @accessType("corpname", "Organizations", desc, AccessPointType.CorporateBodyAccess)
+    @accessType("geogname", "Places", desc, AccessPointType.PlaceAccess)
+    @accessType("subject", "Subjects", desc, AccessPointType.SubjectAccess)
+    @accessType("name", "Other Access Terms", desc, AccessPointType.Other)
+}
