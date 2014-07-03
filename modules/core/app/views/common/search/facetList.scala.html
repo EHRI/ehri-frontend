@@ -89,6 +89,64 @@
     }
 }
 
+@facetDate(fc: FacetClass[Facet]) = {
+    <div class="facet-class facet-date">
+        <h4 class="facet-label">
+            @Messages(fc.name)
+
+            @if(fc.sorted.isEmpty) {
+                <a href="#" class="date-submit pull-right">
+                    <span class="glyphicon glyphicon-ok-circle"></span>
+                </a>
+            }
+        </h4>   
+        @if(!fc.sorted.isEmpty) {
+            <ul class="facet-options">     
+                @defining(fc.sorted.filter(_.count > 0)) { sortedActive =>
+                    @sortedActive.map { f =>
+                        @if(f.applied) {
+                        <input type="hidden" name="@fc.param" value="@f.value" />
+                        <li title="@fc.pretty(f)" class="selected-filter">
+                            @views.Helpers.ellipsize(fc.pretty(f), 25)
+                            (@f.count)
+                            <a class="remove-filter alt" href="@pathWithoutFacet(fc, f,
+                                                        call.url, req.queryString.filterKeys(_!="page"))"><span class="glyphicon glyphicon-remove"></span></a>
+                        </li>
+                        } else {
+                        <li class="type-highlight @f.value" title="@fc.pretty(f)">
+                            <a class="alt" href="@pathWithFacet(fc, f, call.url, req.queryString.filterKeys(_!="page"))">
+                            @views.Helpers.ellipsize(fc.pretty(f), 25)
+                            (@f.count)
+                            </a>
+                        </li>
+                        }
+                    }
+                }
+            </ul>
+        } else {
+            <div class="facet-options">
+                <input type="hidden" class="target" name="@fc.param" value="" />
+                <div class="form-group">
+                    <label class="control-label col-sm-6">
+                        Start year
+                    </label>
+                    <div class="col-sm-6">
+                        <input type="text" data-target="begin" class="form-control date input-sm" />
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label class="control-label col-sm-6">
+                        End year
+                    </label>
+                    <div class="col-sm-6">
+                        <input type="text" data-target="end" class="form-control date input-sm" />
+                    </div>
+                </div>
+                <br clear="both" />
+            </div>
+        }
+    </div>
+}
 @facets.map { fc =>
     <div class="facet-list">
     @fc.display match {
@@ -100,6 +158,9 @@
         }
         case FacetDisplay.Choice => {
             @facetChoice(fc)
+        }
+        case FacetDisplay.Date => {
+            @facetDate(fc)
         }
         case _ => {
             @facetList(fc)
