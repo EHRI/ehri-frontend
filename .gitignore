@@ -1,6 +1,5 @@
 bin/indexer
 logs
-lib
 project/project
 project/target
 target

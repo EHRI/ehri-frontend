@@ -12,7 +12,7 @@ import solr.facet.SolrQueryFacet
 import solr.facet.FieldFacetClass
 import solr.facet.QueryFacetClass
 import defines.EntityType
-
+import DateFacetUtils._
 
 /**
  * Facet configuration for various kinds of searches.
@@ -23,28 +23,29 @@ trait FacetConfig extends Search {
 
   this: Controller =>
   
-  /**
-   * Return a date query facet if valid start/end params have been given.
-   */
-  private def dateQuery(implicit request: RequestHeader): Option[QueryFacetClass] = {
 
-    import DateFacetUtils._
-
+  private def dateList(implicit request: RequestHeader): Option[SolrQueryFacet] = {
     for {
       dateString <- dateQueryForm.bindFromRequest(request.queryString).value
       solrQuery = formatAsSolrQuery(dateString)
-    } yield QueryFacetClass(
+    } yield 
+    SolrQueryFacet(
+      value = dateString,
+      solrValue = solrQuery,
+      name = formatReadable(dateString)
+    )
+  }
+  /**
+   * Return a date query facet if valid start/end params have been given.
+   */
+  private def dateQuery(implicit request: RequestHeader): QueryFacetClass = {
+    QueryFacetClass(
       key = "dateRange",
       name = Messages("documentaryUnit." + DATE_PARAM),
       param = DATE_PARAM,
       sort = FacetSort.Fixed,
-      facets=List(
-        SolrQueryFacet(
-          value = dateString,
-          solrValue = solrQuery,
-          name = formatReadable(dateString)
-        )
-      )
+      display = FacetDisplay.Date,
+      facets= dateList(request).toList
     )
   }
 
@@ -106,7 +107,7 @@ trait FacetConfig extends Search {
   }
 
   protected val historicalAgentFacets: FacetBuilder = { implicit request =>
-    dateQuery(request).toList ++
+    List(dateQuery(request))  ++
     List(
       FieldFacetClass(
         key=Isaar.ENTITY_TYPE,
@@ -190,7 +191,7 @@ trait FacetConfig extends Search {
   }
 
   protected val docSearchFacets: FacetBuilder = { implicit request =>
-    dateQuery(request).toList ++
+    List(dateQuery(request)) ++
     List(
       FieldFacetClass(
         key = IsadG.LANG_CODE,

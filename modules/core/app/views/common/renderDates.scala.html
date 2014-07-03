@@ -1,7 +1,7 @@
 @(item: Temporal, label: String)(implicit fieldPrefix: String, userOpt: Option[UserProfile], request: RequestHeader, lang: Lang)
 
 @if(!item.dates.isEmpty) {
-    <h4>@Messages(fieldPrefix + "." + label)</h4>
+    <h5>@Messages(fieldPrefix + "." + label)</h5>
     <table>
         @item.dates.map { dp =>
         <tr id="@dp.id">
