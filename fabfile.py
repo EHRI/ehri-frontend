@@ -15,6 +15,7 @@ from fabric.contrib.project import upload_project
 from contextlib import contextmanager as _contextmanager
 
 # globals
+env.play_bin = 'activator'
 env.project_name = 'docview'
 env.prod = False
 env.use_ssh_config = True
@@ -52,7 +53,7 @@ def deploy():
 def clean_deploy():
     """Build a clean version and deploy."""
     check_java_version()
-    local('play clean stage')
+    local("%(play_bin)s clean stage" % env)
     deploy()
 
 def get_version_stamp():
