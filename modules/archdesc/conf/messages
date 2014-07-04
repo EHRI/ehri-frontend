@@ -154,12 +154,14 @@ documentaryUnit.collection=Collection
 documentaryUnit.subcollection=Sub Collection
 documentaryUnit.fonds=Fonds
 documentaryUnit.subfonds=Subfonds
-documentaryUnit.recordGroup=Record Group
-documentaryUnit.subrecordGroup=Sub Record Group
+documentaryUnit.recordgrp=Record Group
+documentaryUnit.subgrp=Sub Record Group
 documentaryUnit.series=Series
 documentaryUnit.subseries=Subseries
 documentaryUnit.file=File
 documentaryUnit.item=Item
+documentaryUnit.otherlevel=Other Level
+documentaryUnit.class=Class
 documentaryUnit.creation=Creation
 
 documentaryUnit.extentAndMedium=Extent and Medium of the Unit of Description

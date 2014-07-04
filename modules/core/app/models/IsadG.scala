@@ -10,12 +10,14 @@ case object IsadG {
     val Subfonds = Value("subfonds")
     val Collection = Value("collection")
     val Subcollection = Value("subcollection")
-    val RecordGroup = Value("recordGroup")
-    val SubRecordGroup =Value("subrecordGroup")
+    val RecordGroup = Value("recordgrp")
+    val SubRecordGroup =Value("subgrp")
     val Series = Value("series")
     val Subseries = Value("subseries")
     val File = Value("file")
     val Item = Value("item")
+    val Other = Value("otherlevel")
+    val Class = Value("class")
 
     implicit val format = defines.EnumUtils.enumFormat(this)
   }
