@@ -27,12 +27,12 @@
 @tree.item.model.primaryDescription.map { desc =>
     @desc.context.biographicalHistory.map { sc =>
         <biogHist>
-            @Xml(views.Helpers.renderMarkdown(sc))
+            @Xml(views.export.ead.Helpers.renderMarkdownAsEad(sc))
         </biogHist>
     }
     @desc.content.scopeAndContent.map { sc =>
         <scopeContent>
-            @Xml(views.Helpers.renderMarkdown(sc))
+            @Xml(views.export.ead.Helpers.renderMarkdownAsEad(sc))
         </scopeContent>
     }
 

@@ -43,10 +43,10 @@ GET         /units/:id                      @controllers.portal.Portal.browseDoc
 GET         /units/:id/search               @controllers.portal.Portal.searchDocument(id: String)
 GET         /authorities                    @controllers.portal.Portal.browseHistoricalAgents
 GET         /authorities/:id                @controllers.portal.Portal.browseHistoricalAgent(id: String)
-GET         /keyword                        @controllers.portal.Portal.browseConcepts
-GET         /keyword/:id                    @controllers.portal.Portal.browseConcept(id: String)
+GET         /keywords                       @controllers.portal.Portal.browseConcepts
+GET         /keywords/:id                   @controllers.portal.Portal.browseConcept(id: String)
 GET         /links/:id                      @controllers.portal.Portal.browseLink(id: String)
-GET         /annotation/:id                 @controllers.portal.Portal.browseAnnotation(id: String)
+GET         /annotations/:id                @controllers.portal.Portal.browseAnnotation(id: String)
 GET         /activity                       @controllers.portal.Social.personalisedActivity(offset: Int ?= 0)
 GET         /activity/:id                   @controllers.portal.Portal.itemHistory(id: String)
 GET         /vocabularies/:id               @controllers.portal.Portal.browseVocabulary(id: String)

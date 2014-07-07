@@ -1,10 +1,6 @@
 package views
 
-import java.util.Locale
-
-import play.api.i18n.{Messages, Lang}
-
-import org.apache.commons.lang3.text.WordUtils
+import play.api.i18n.Lang
 import org.apache.commons.lang3.StringUtils
 import models._
 import org.pegdown.{Extensions, PegDownProcessor}
@@ -29,7 +25,7 @@ package object Helpers {
   // Initialize Markdown processor for rendering markdown. NB: The
   // instance is apparently not thread safe, so using a threadlocal
   // here to be on the safe side.
-  val markdownParser = new ThreadLocal[PegDownProcessor]
+  private val markdownParser = new ThreadLocal[PegDownProcessor]
   def getMarkdownProcessor = {
     // NB: Eventually we want auto-linking. However this seems
     // to crash pegdown at the moment.
@@ -43,9 +39,8 @@ package object Helpers {
     }
   }
 
-  private val markdownProcessor = getMarkdownProcessor
+  def renderMarkdown(text: String): String = getMarkdownProcessor.markdownToHtml(text)
 
-  def renderMarkdown(text: String): String = markdownProcessor.markdownToHtml(text)
 
   /**
    * Condense multiple descriptions that are next to each other in a list.

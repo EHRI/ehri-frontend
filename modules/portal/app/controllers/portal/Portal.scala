@@ -77,17 +77,26 @@ case class Portal @Inject()(implicit globalConfig: global.GlobalConfig, searchDi
     ))
   }
 
-  def index = Cached.status(_ => "page:index", OK, 60) {
-    userProfileAction.async { implicit userOpt => implicit request =>
+  /**
+   * Portal index. Currently this just shows an overview of the data
+   * extracted from the search engine facet counts for different
+   * types.
+   */
+  def index = userProfileAction.async { implicit userOpt => implicit request =>
+    FutureCache.getOrElse("index:metrics", 60 * 5) {
       find[AnyModel](
         defaultParams = SearchParams(
-          sort = Some(SearchOrder.Country),
-          entities = List(EntityType.Repository, EntityType.DocumentaryUnit, EntityType.HistoricalAgent, EntityType.Country)),
+          // we don't need results here because we're only using the facets
+          limit = Some(0),
+          entities = List(
+            EntityType.Repository,
+            EntityType.DocumentaryUnit,
+            EntityType.HistoricalAgent,
+            EntityType.Country)
+        ),
         facetBuilder = entityMetrics
-      ).map { case QueryResult(page, params, facets) =>
-        Ok(p.portal(Stats(page.facets)))
-      }
-    }
+      ).map(_.page.facets)
+    }.map(facets => Ok(p.portal(Stats(facets))))
   }
 
   def browseItem(entityType: EntityType.Value, id: String) = Action { implicit request =>
