@@ -38,10 +38,10 @@
         <script src="@controllers.portal.routes.PortalData.jsRoutes"></script>
 
         <!-- portal-specific js -->
-        <script src="@controllers.portal.routes.Assets.versioned("js/portal.js")"></script>
+        <script src="@controllers.portal.routes.Assets.versioned("js/portal.min.js")"></script>
 
         @if(userOpt.isDefined) {
-            <script src="@controllers.portal.routes.Assets.versioned("js/portal-connected.js")"></script>
+            <script src="@controllers.portal.routes.Assets.versioned("js/portal-connected.min.js")"></script>
         }
 
         @if(globalConfig.analyticsEnabled) {
