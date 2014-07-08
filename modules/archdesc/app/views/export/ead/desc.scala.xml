@@ -53,6 +53,9 @@
             </langmaterial>
         }
         @textField("abstract", desc.identity.`abstract`)
+        @desc.identity.physicalLocation.toList.flatten.map { loc =>
+            <physloc>@loc</physloc>
+        }
     }
 </did>
 @tree.item.model.primaryDescription.map { desc =>

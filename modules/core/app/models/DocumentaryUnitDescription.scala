@@ -21,6 +21,7 @@ case class IsadGIdentity(
   @Annotations.Relation(Ontology.ENTITY_HAS_DATE)
   dates: List[DatePeriodF] = Nil,
   levelOfDescription: Option[String] = None,
+  physicalLocation: Option[List[String]] = None,
   extentAndMedium: Option[String] = None
 ) extends AttributeSet
 
@@ -80,6 +81,7 @@ object DocumentaryUnitDescriptionF {
           ABSTRACT -> d.identity.`abstract`,
           LANG_CODE -> d.languageCode,
           LEVEL_OF_DESCRIPTION -> d.identity.levelOfDescription,
+          PHYSICAL_LOCATION -> d.identity.physicalLocation,
           EXTENT_MEDIUM -> d.identity.extentAndMedium,
           ADMIN_BIOG -> d.context.biographicalHistory,
           ARCH_HIST -> d.context.archivalHistory,
@@ -128,6 +130,7 @@ object DocumentaryUnitDescriptionF {
       (__ \ DATA \ ABSTRACT).readNullable[String] and
       (__ \ RELATIONSHIPS \ ENTITY_HAS_DATE).nullableListReads[DatePeriodF] and
       (__ \ DATA \ LEVEL_OF_DESCRIPTION).readNullable[String] and
+      (__ \ DATA \ PHYSICAL_LOCATION).readListOrSingleNullable[String] and
       (__ \ DATA \ EXTENT_MEDIUM).readNullable[String]
     )(IsadGIdentity.apply _)) and
     (__ \ DATA).read[IsadGContext]((
@@ -217,6 +220,7 @@ case class DocumentaryUnitDescriptionF(
   def toSeq = Seq(
     ABSTRACT -> identity.`abstract`,
     LEVEL_OF_DESCRIPTION -> identity.levelOfDescription,
+    PHYSICAL_LOCATION -> identity.physicalLocation.map(_.mkString("\n")),
     EXTENT_MEDIUM -> identity.extentAndMedium,
     ADMIN_BIOG -> context.biographicalHistory,
     ARCH_HIST -> context.archivalHistory,
@@ -257,6 +261,7 @@ object DocumentaryUnitDescription {
         ABSTRACT -> optional(nonEmptyText),
         DATES -> list(DatePeriod.form.mapping),
         LEVEL_OF_DESCRIPTION -> optional(text),
+        PHYSICAL_LOCATION -> optional(list(nonEmptyText)),
         EXTENT_MEDIUM -> optional(nonEmptyText)
       )(IsadGIdentity.apply)(IsadGIdentity.unapply),
       CONTEXT_AREA -> mapping(
