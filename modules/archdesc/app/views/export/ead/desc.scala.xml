@@ -41,9 +41,9 @@
             <unitdate>@date.years.trim</unitdate>
         }
         @desc.identity.extentAndMedium.map { sc =>
-            <phsydesc>
+            <physdesc>
                 <extent>@sc</extent>
-            </phsydesc>
+            </physdesc>
         }
         @desc.conditions.languageOfMaterials.map { langs =>
             <langmaterial>
@@ -77,7 +77,6 @@
     @textField("otherfindaid", desc.conditions.findingAids)
     @textField("phystech", desc.conditions.physicalCharacteristics)
 
-    @textField("descrules", desc.control.rulesAndConventions)
     @textField("processinfo", desc.control.archivistNote)
     <!-- TODO: combine processinfo fields -->
     @textField("processinfo", desc.control.archivistNote)
@@ -86,7 +85,7 @@
     @desc.notes.filterNot(_.isEmpty).map { notes =>
         <odd>
             @notes.map { note =>
-                <note>@note</note>
+                <note>@Xml(views.export.ead.Helpers.renderMarkdownAsEad(note))</note>
             }
         </odd>
     }

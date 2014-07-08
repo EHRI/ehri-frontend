@@ -14,6 +14,6 @@
             </author>
         </titlestmt>
         @publicationStatement(repo)
-        @profileDesc(repo)
     </filedesc>
+    @profileDesc(repo)
 </eadheader>

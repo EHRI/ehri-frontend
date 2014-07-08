@@ -1,9 +1,10 @@
 @(cno: Int, tree: utils.ead.DocTree)(implicit lang: Lang)
 
-<c@cno level="@tree.item.model.primaryDescription.flatMap(_.identity.levelOfDescription).getOrElse("otherlevel")">
-    @desc(tree)
-    @for(t <- tree.children) {
-        @eadLevel(cno + 1, t)
-    }
-</c@cno>
-
+@defining(f"c$cno%02d") { levelTag =>
+    <@levelTag level="@tree.item.model.primaryDescription.flatMap(_.identity.levelOfDescription).getOrElse("otherlevel")">
+        @desc(tree)
+        @for(t <- tree.children) {
+            @eadLevel(cno + 1, t)
+        }
+    </@levelTag>
+}
