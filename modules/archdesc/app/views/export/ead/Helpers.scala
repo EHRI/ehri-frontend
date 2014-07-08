@@ -30,10 +30,8 @@ object Helpers {
     }
   }
 
-  private val eadSerializer = new ToEadSerializer(new LinkRenderer)
-
-  def renderMarkdownAsEad(text: String): String =
-    eadSerializer.toEad(getMarkdownProcessor.parseMarkdown(
+  def renderMarkdownAsEad(text: String): String = new ToEadSerializer(new LinkRenderer)
+      .toEad(getMarkdownProcessor.parseMarkdown(
       getMarkdownProcessor.prepareSource(text.toCharArray)))
 
 }
