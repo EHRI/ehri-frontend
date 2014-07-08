@@ -15,6 +15,24 @@
     }
 }
 
+@textField(tag: String, data: Option[String]) = {
+    @data.map { content =>
+        <@tag>
+            @Xml(views.export.ead.Helpers.renderMarkdownAsEad(content))
+        </@tag>
+    }
+}
+
+@textListField(tag: String, data: Option[Seq[String]]) = {
+    @data.filterNot(_.isEmpty).map { content =>
+        <@tag>
+            @content.map { v =>
+                @Xml(views.export.ead.Helpers.renderMarkdownAsEad(v))
+            }
+        </@tag>
+    }
+}
+
 <did>
     <unitid>@tree.item.model.identifier</unitid>
     @tree.item.model.primaryDescription.map { desc =>
@@ -22,18 +40,55 @@
         @desc.dates.map { date =>
             <unitdate>@date.years.trim</unitdate>
         }
+        @desc.identity.extentAndMedium.map { sc =>
+            <phsydesc>
+                <extent>@sc</extent>
+            </phsydesc>
+        }
+        @desc.conditions.languageOfMaterials.map { langs =>
+            <langmaterial>
+                @langs.map { lang =>
+                    <language langcode="@lang">@views.Helpers.languageCodeToName(lang)</language>
+                }
+            </langmaterial>
+        }
+        @textField("abstract", desc.identity.`abstract`)
+        @desc.identity.physicalLocation.toList.flatten.map { loc =>
+            <physloc>@loc</physloc>
+        }
     }
 </did>
 @tree.item.model.primaryDescription.map { desc =>
-    @desc.context.biographicalHistory.map { sc =>
-        <biogHist>
-            @Xml(views.export.ead.Helpers.renderMarkdownAsEad(sc))
-        </biogHist>
-    }
-    @desc.content.scopeAndContent.map { sc =>
-        <scopeContent>
-            @Xml(views.export.ead.Helpers.renderMarkdownAsEad(sc))
-        </scopeContent>
+
+    @textField("bioghist", desc.context.biographicalHistory)
+    @textField("custodhist", desc.context.archivalHistory)
+    @textField("acqinfo", desc.context.acquisition)
+
+    @textField("scopecontent", desc.content.scopeAndContent)
+    @textField("arrangement", desc.content.systemOfArrangement)
+    @textField("accruals", desc.content.accruals)
+    @textField("appraisal", desc.content.appraisal)
+
+    @textListField("originalsloc", desc.materials.locationOfOriginals)
+    @textListField("altformavail", desc.materials.locationOfCopies)
+
+    @textField("accessrestrict", desc.conditions.conditionsOfAccess)
+    @textField("userestrict", desc.conditions.conditionsOfReproduction)
+    @textField("otherfindaid", desc.conditions.findingAids)
+    @textField("phystech", desc.conditions.physicalCharacteristics)
+
+    @textField("descrules", desc.control.rulesAndConventions)
+    @textField("processinfo", desc.control.archivistNote)
+    <!-- TODO: combine processinfo fields -->
+    @textField("processinfo", desc.control.archivistNote)
+    @textField("processinfo", desc.control.datesOfDescriptions)
+
+    @desc.notes.filterNot(_.isEmpty).map { notes =>
+        <odd>
+            @notes.map { note =>
+                <note>@note</note>
+            }
+        </odd>
     }
 
     @accessType("persname", "People", desc, AccessPointType.PersonAccess)

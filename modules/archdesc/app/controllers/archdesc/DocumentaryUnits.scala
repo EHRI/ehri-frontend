@@ -402,8 +402,24 @@ case class DocumentaryUnits @Inject()(implicit globalConfig: global.GlobalConfig
       } yield DocTree(eadId, doc, trees)
     }
 
-    fetchTree(id).map { tree =>
-      Ok(views.export.ead.Helpers.tidyXml(views.xml.export.ead.documentaryUnitEad(tree).body))
+    // Ugh, need to fetch the repository manually to
+    // ensure we have detailed address info. Otherwise we'll
+    // only get mandatory fields and relations.
+    def fetchRepository(rid: Option[String]): Future[Option[Repository]] = {
+      rid.map { id =>
+        backend.get[Repository](id).map(r => Some(r))
+      } getOrElse {
+        Future.successful(Option.empty[Repository])
+      }
+    }
+
+    for {
+      doc <- backend.get[DocumentaryUnit](id)
+      repository <- fetchRepository(doc.holder.map(_.id))
+      tree <- fetchTree(id)
+      treeWithRepo = tree.copy(item = tree.item.copy(holder = repository))
+    } yield {
+      Ok(views.export.ead.Helpers.tidyXml(views.xml.export.ead.documentaryUnitEad(treeWithRepo).body))
         .as(MimeTypes.XML)
     }
   }
