@@ -23,6 +23,16 @@ class ToEadSerializerSpec extends PlaySpecification {
       | * two item
       | * three item
       |
+      |EAD does not allow paras in list items, so this:
+      |
+      | * one item
+      |
+      | * two item
+      |
+      | * three item
+      |
+      |should render the same as the first item.
+      |
       |Here is an ordered list:
       |
       | 1. one item
@@ -39,9 +49,11 @@ class ToEadSerializerSpec extends PlaySpecification {
         .prepareSource(testMd.toCharArray))
       val eadSerializer = new ToEadSerializer(new LinkRenderer)
       val ead: String = eadSerializer.toEad(markdown)
+      println(ead)
       ead must contain("<head>")
       ead must contain("<list>")
       ead must contain("<item>")
+      ead must not contain "<item><p>"
       ead must contain("extptr")
     }
   }
