@@ -76,6 +76,17 @@
 
     @textField("descrules", desc.control.rulesAndConventions)
     @textField("processinfo", desc.control.archivistNote)
+    <!-- TODO: combine processinfo fields -->
+    @textField("processinfo", desc.control.archivistNote)
+    @textField("processinfo", desc.control.datesOfDescriptions)
+
+    @desc.notes.filterNot(_.isEmpty).map { notes =>
+        <odd>
+            @notes.map { note =>
+                <note>@note</note>
+            }
+        </odd>
+    }
 
     @accessType("persname", "People", desc, AccessPointType.PersonAccess)
     @accessType("famname", "People", desc, AccessPointType.FamilyAccess)

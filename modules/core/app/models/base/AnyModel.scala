@@ -183,6 +183,12 @@ trait Hierarchical[+T <: Hierarchical[T]] extends AnyModel {
    */
   def ancestors: List[T] =
     (parent.map(p => p :: p.ancestors) getOrElse List.empty).distinct
+
+  /**
+   * Get the top level of the hierarchy, which may or may
+   * not be the current item.
+   */
+  def topLevel: T = ancestors.lastOption.getOrElse(this.asInstanceOf[T])
 }
 
 trait Description extends Model {
