@@ -71,6 +71,7 @@
 
     @textListField("originalsloc", desc.materials.locationOfOriginals)
     @textListField("altformavail", desc.materials.locationOfCopies)
+    @textListField("relatedmaterial", desc.materials.relatedUnitsOfDescription)
 
     @textField("accessrestrict", desc.conditions.conditionsOfAccess)
     @textField("userestrict", desc.conditions.conditionsOfReproduction)

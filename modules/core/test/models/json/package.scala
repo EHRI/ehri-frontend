@@ -39,6 +39,7 @@ package object testjson {
             "scopeAndContent" : "Appeal to the council of the Jewish community, Berlin, concerning the leadership of the Jewish organisation, Jüdische Volkspartei signed by Kozower, lawyer, 23 Sep 1933.",
             "identifier" : "GB 1556 WL 760",
             "appraisal" : "",
+            "sources" : [ "test source" ],
             "publicationDate" : "",
             "locationOfCopies" : "",
             "provenance": "test"

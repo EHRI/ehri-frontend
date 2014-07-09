@@ -43,7 +43,7 @@
     @descriptionSection(MATERIALS_AREA) {
         @common.listValue(desc.materials.locationOfOriginals, LOCATION_ORIGINALS)
         @common.listValue(desc.materials.locationOfCopies, LOCATION_COPIES)
-        @common.stringValue(desc.materials.relatedUnitsOfDescription, RELATED_UNITS)
+        @common.listValue(desc.materials.relatedUnitsOfDescription, RELATED_UNITS)
         @common.stringValue(desc.materials.publicationNote, PUBLICATION_NOTE)
     }
 
@@ -53,6 +53,7 @@
 
     @descriptionSection(CONTROL_AREA) {
         @common.stringValue(desc.control.archivistNote, ARCHIVIST_NOTE)
+        @common.listValue(desc.control.sources, SOURCES)
         @common.stringValue(desc.control.rulesAndConventions, RULES_CONVENTIONS)
         @common.stringValue(desc.control.datesOfDescriptions, DATES_DESCRIPTIONS)
         @common.stringValue(desc.control.provenance, PROVENANCE)
