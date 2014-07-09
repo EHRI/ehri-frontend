@@ -73,7 +73,7 @@
         @defining(desc(MATERIALS_AREA)) { desc =>
             @inlineTextSet(desc, LOCATION_ORIGINALS)
             @inlineTextSet(desc, LOCATION_COPIES)
-            @textInput(desc, RELATED_UNITS)
+            @inlineTextSet(desc, RELATED_UNITS)
             @textInput(desc, PUBLICATION_NOTE)
         }
     }
@@ -85,6 +85,7 @@
     @descriptionFormSection(CONTROL_AREA) {
         @defining(desc(CONTROL_AREA)) { desc =>
             @textInput(desc, ARCHIVIST_NOTE)
+            @inlineTextSet(desc, SOURCES)
             @textInput(desc, RULES_CONVENTIONS)
             @textInput(desc, DATES_DESCRIPTIONS)
             @textInput(desc, PROVENANCE)

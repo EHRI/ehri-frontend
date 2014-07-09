@@ -50,13 +50,14 @@ case class IsadGConditions(
 case class IsadGMaterials(
   locationOfOriginals: Option[List[String]] = None,
   locationOfCopies: Option[List[String]] = None,
-  relatedUnitsOfDescription: Option[String] = None,
+  relatedUnitsOfDescription: Option[List[String]] = None,
   publicationNote: Option[String] = None
 ) extends AttributeSet
 
 
 case class IsadGControl(
   archivistNote: Option[String] = None,
+  sources: Option[List[String]] = None,
   rulesAndConventions: Option[String] = None,
   datesOfDescriptions: Option[String] = None,
   provenance: Option[String] = None
@@ -102,6 +103,7 @@ object DocumentaryUnitDescriptionF {
           PUBLICATION_NOTE -> d.materials.publicationNote,
           NOTES -> d.notes,
           ARCHIVIST_NOTE -> d.control.archivistNote,
+          SOURCES -> d.control.sources,
           RULES_CONVENTIONS -> d.control.rulesAndConventions,
           DATES_DESCRIPTIONS -> d.control.datesOfDescriptions,
           PROVENANCE -> d.control.provenance
@@ -155,12 +157,13 @@ object DocumentaryUnitDescriptionF {
     (__ \ DATA).read[IsadGMaterials]((
       (__ \ LOCATION_ORIGINALS).readListOrSingleNullable[String] and
       (__ \ LOCATION_COPIES).readListOrSingleNullable[String] and
-      (__ \ RELATED_UNITS).readNullable[String] and
+      (__ \ RELATED_UNITS).readListOrSingleNullable[String] and
       (__ \ PUBLICATION_NOTE).readNullable[String]
     )(IsadGMaterials.apply _)) and
     (__ \ DATA \ NOTES).readListOrSingleNullable[String] and
     (__ \ DATA).read[IsadGControl]((
       (__ \ ARCHIVIST_NOTE).readNullable[String] and
+      (__ \ SOURCES).readListOrSingleNullable[String] and
       (__ \ RULES_CONVENTIONS).readNullable[String] and
       (__ \ DATES_DESCRIPTIONS).readNullable[String] and
       (__ \ PROVENANCE).readNullable[String]
@@ -235,9 +238,10 @@ case class DocumentaryUnitDescriptionF(
     FINDING_AIDS -> conditions.findingAids,
     LOCATION_ORIGINALS -> materials.locationOfOriginals.map(_.mkString("\n")),
     LOCATION_COPIES -> materials.locationOfCopies.map(_.mkString("\n")),
-    RELATED_UNITS -> materials.relatedUnitsOfDescription,
+    RELATED_UNITS -> materials.relatedUnitsOfDescription.map(_.mkString("\n")),
     PUBLICATION_NOTE -> materials.publicationNote,
     ARCHIVIST_NOTE -> control.archivistNote,
+    SOURCES -> control.sources.map(_.mkString("\n")),
     RULES_CONVENTIONS -> control.rulesAndConventions,
     DATES_DESCRIPTIONS -> control.datesOfDescriptions,
     PROVENANCE -> control.provenance
@@ -286,12 +290,13 @@ object DocumentaryUnitDescription {
       MATERIALS_AREA -> mapping(
         LOCATION_ORIGINALS -> optional(list(nonEmptyText)),
         LOCATION_COPIES -> optional(list(nonEmptyText)),
-        RELATED_UNITS -> optional(text),
+        RELATED_UNITS -> optional(list(nonEmptyText)),
         PUBLICATION_NOTE -> optional(text)
       )(IsadGMaterials.apply)(IsadGMaterials.unapply),
       NOTES -> optional(list(nonEmptyText)),
       CONTROL_AREA -> mapping(
         ARCHIVIST_NOTE -> optional(text),
+        SOURCES -> optional(list(nonEmptyText)),
         RULES_CONVENTIONS -> optional(text),
         DATES_DESCRIPTIONS -> optional(text),
         PROVENANCE -> optional(text)

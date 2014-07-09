@@ -75,4 +75,5 @@ case object IsadG {
   val RULES_CONVENTIONS = "rulesAndConventions"
   val DATES_DESCRIPTIONS = "datesOfDescriptions"
   val PROVENANCE ="provenance"
+  val SOURCES ="sources"
 }
