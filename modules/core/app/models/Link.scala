@@ -8,6 +8,7 @@ import play.api.i18n.Lang
 import eu.ehri.project.definitions.Ontology
 import play.api.data.Form
 import play.api.data.Forms._
+import play.api.libs.json.JsObject
 
 
 object LinkF {
@@ -15,12 +16,13 @@ object LinkF {
   val LINK_TYPE = "type"
   val DESCRIPTION = "description"
   val ALLOW_PUBLIC = Ontology.IS_PROMOTABLE
+  val DATES = "dates"
 
   object LinkType extends Enumeration {
     type Type = Value
-    val Hierarchical = Value("hierarchical")
     val Associative = Value("associative")
     val Family = Value("family")
+    val Hierarchical = Value("hierarchical")
     val Temporal = Value("temporal")
 
     implicit val format = defines.EnumUtils.enumFormat(this)
@@ -39,6 +41,9 @@ object LinkF {
           LINK_TYPE -> d.linkType,
           DESCRIPTION -> d.description,
           IS_PROMOTABLE -> d.isPromotable
+        ),
+        RELATIONSHIPS -> Json.obj(
+          ENTITY_HAS_DATE -> Json.toJson(d.dates.map(Json.toJson(_)).toSeq)
         )
       )
     }
@@ -47,10 +52,10 @@ object LinkF {
   implicit val linkReads: Reads[LinkF] = (
     (__ \ TYPE).readIfEquals(EntityType.Link) and
     (__ \ ID).readNullable[String] and
-    ((__ \ DATA \ LINK_TYPE).read[LinkType.Value]
-      orElse Reads.pure(LinkType.Associative)) and
+    (__ \ DATA \ LINK_TYPE).readWithDefault(LinkType.Associative) and
     (__ \ DATA \ DESCRIPTION).readNullable[String] and
-    (__ \ DATA \ IS_PROMOTABLE).readNullable[Boolean].map(_.getOrElse(false))
+    (__ \ DATA \ IS_PROMOTABLE).readWithDefault(false) and
+    (__ \ RELATIONSHIPS \ ENTITY_HAS_DATE).nullableListReads[DatePeriodF]
   )(LinkF.apply _)
 
   implicit val linkFormat: Format[LinkF] = Format(linkReads,linkWrites)
@@ -66,8 +71,10 @@ case class LinkF(
   id: Option[String],
   linkType: LinkF.LinkType.Type,
   description: Option[String],
-  isPromotable: Boolean = false
-) extends Model with Persistable
+  isPromotable: Boolean = false,
+  @Annotations.Relation(Ontology.ENTITY_HAS_DATE)
+  dates: List[DatePeriodF] = Nil
+) extends Model with Persistable with Temporal
 
 
 object Link {
@@ -104,7 +111,7 @@ object Link {
       (__ \ "promotedBy").nullableListFormat(UserProfile.Converter.clientFormat) and
       (__ \ "event").formatNullable[SystemEvent](SystemEvent.Converter.clientFormat) and
       (__ \ "meta").format[JsObject]
-    )(Link.apply _, unlift(Link.unapply _))
+    )(Link.apply _, unlift(Link.unapply))
   }
 
   implicit object Resource extends RestResource[Link] {
@@ -116,9 +123,10 @@ object Link {
   val form = Form(mapping(
     Entity.ISA -> ignored(EntityType.Link),
     Entity.ID -> optional(nonEmptyText),
-    LINK_TYPE -> models.forms.enum(LinkType),
+    LINK_TYPE -> default(models.forms.enum(LinkType), LinkType.Associative),
     DESCRIPTION -> optional(nonEmptyText), // TODO: Validate this server side
-    Ontology.IS_PROMOTABLE -> default(boolean, false)
+    Ontology.IS_PROMOTABLE -> default(boolean, false),
+    DATES -> list(DatePeriod.form.mapping)
   )(LinkF.apply)(LinkF.unapply))
 
   val multiForm = Form(    single(

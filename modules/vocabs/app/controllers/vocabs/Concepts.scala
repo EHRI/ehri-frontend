@@ -172,7 +172,7 @@ case class Concepts @Inject()(implicit globalConfig: global.GlobalConfig, search
 
   def linkAnnotate(id: String, toType: EntityType.Value, to: String) = linkAction(id, toType, to) {
       target => source => implicit userOpt => implicit request =>
-    Ok(views.html.link.link(target, source,
+    Ok(views.html.link.create(target, source,
             Link.form, conceptRoutes.linkAnnotatePost(id, toType, to)))
   }
 
@@ -180,7 +180,7 @@ case class Concepts @Inject()(implicit globalConfig: global.GlobalConfig, search
       formOrAnnotation => implicit userOpt => implicit request =>
     formOrAnnotation match {
       case Left((target,source,errorForm)) => {
-          BadRequest(views.html.link.link(target, source,
+          BadRequest(views.html.link.create(target, source,
               errorForm, conceptRoutes.linkAnnotatePost(id, toType, to)))
       }
       case Right(annotation) => {

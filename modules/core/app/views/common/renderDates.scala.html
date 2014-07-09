@@ -2,9 +2,9 @@
 
 @if(!item.dates.isEmpty) {
     <h5>@Messages(fieldPrefix + "." + label)</h5>
-    <table>
+    <table class="date-periods">
         @item.dates.map { dp =>
-        <tr id="@dp.id">
+        <tr class="date-period" id="@dp.id">
             <td>
                 @defining(dp.`type`) { typeOpt =>
                    @typeOpt.map { t =>

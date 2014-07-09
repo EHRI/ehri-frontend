@@ -1,7 +1,3 @@
-@**
-* Render annotation comments around some HTML content
-*
-*@
 @(item: DescribedMeta[Description, Described[Description]], desc: models.base.Description, links: List[Link])(implicit prefix: String, userOpt: Option[UserProfile], req: RequestHeader, globalConfig: global.GlobalConfig)
 
 @relatedLinks(list: List[AccessPointF], accessPointType: AccessPointF.AccessPointType.Value) = {
@@ -10,7 +6,10 @@
             @list.map { accessPoint =>
                 @accessPoint.target(item, links).map { case (link, other) =>
                     <li class="resolved-access-point" id="@accessPoint.id">
-                         @p.helpers.linkTo(other, accessPoint.name) [<a href="@controllers.linking.routes.Links.get(link.id)">*</a>]
+                         @p.helpers.linkTo(other, accessPoint.name)
+                        @if(!link.model.dates.isEmpty) {
+                            <small>@link.model.dateRange</small>
+                        }
                         @link.model.description.map { desc =>
                             <small><p class="text-muted">@desc</p></small>
                         }

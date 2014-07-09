@@ -21,7 +21,7 @@ trait Search extends Controller with AuthController with ControllerHelpers {
   def searchResolver: utils.search.Resolver
 
   type FacetBuilder = RequestHeader => FacetClassList
-  private val emptyFacets: FacetBuilder = { lang => List.empty[FacetClass[Facet]]}
+  protected val emptyFacets: FacetBuilder = { lang => List.empty[FacetClass[Facet]]}
 
   def bindFacetsFromRequest(facetClasses: FacetClassList)(implicit request: Request[AnyContent]): List[AppliedFacet] = {
     facetClasses.flatMap { fc =>
