@@ -7,11 +7,15 @@ import defines._
 import models._
 import play.api.data.Form
 import play.api.libs.json.{JsValue, Writes, JsError, Json}
-import utils.search.{SearchHit, AppliedFacet, SearchParams, ItemPage}
+import utils.search._
 import play.api.Play.current
 import play.api.cache.Cache
 import models.json.RestReadable
 import scala.concurrent.Future.{successful => immediate}
+import play.api.i18n.Messages
+import utils.search.SearchHit
+import solr.facet.FieldFacetClass
+import play.api.mvc.Result
 
 /**
  * Class representing an access point link.
@@ -29,7 +33,7 @@ object AccessPointLink {
   // handlers for creating/listing/deleting links via JSON
   implicit val linkTypeFormat = defines.EnumUtils.enumFormat(LinkF.LinkType)
   implicit val accessPointTypeFormat = defines.EnumUtils.enumFormat(AccessPointF.AccessPointType)
-  implicit val accessPointFormat = Json.format[AccessPointF] // AccessPointF.Converter.clientFormat
+  implicit val accessPointFormat = Json.format[AccessPointF]
   implicit val accessPointLinkReads = Json.format[AccessPointLink]
 }
 
@@ -41,11 +45,11 @@ object AccessPointLink {
  */
 trait Linking[MT <: AnyModel] extends Read[MT] with Search {
 
-  def linkSelectAction(id: String, toType: EntityType.Value)(
+  def linkSelectAction(id: String, toType: EntityType.Value, facets: FacetBuilder = emptyFacets)(
       f: MT => ItemPage[(AnyModel,SearchHit)] => SearchParams => List[AppliedFacet] => EntityType.Value => Option[UserProfile] => Request[AnyContent] => Result)(implicit rd: RestReadable[MT]) = {
     withItemPermission.async[MT](id, PermissionType.Annotate, contentType) {
         item => implicit userOpt => implicit request =>
-      find[AnyModel](defaultParams = SearchParams(entities = List(toType), excludes=Some(List(id)))).map { r =>
+      find[AnyModel](facetBuilder = facets, defaultParams = SearchParams(entities = List(toType), excludes=Some(List(id)))).map { r =>
         f(item)(r.page)(r.params)(r.facets)(toType)(userOpt)(request)
       }
     }

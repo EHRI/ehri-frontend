@@ -2,25 +2,30 @@ package controllers.linking
 
 import defines.ContentTypes
 import forms.VisibilityForm
-import models.{AccountDAO, Link}
+import models.{LinkF, AccountDAO, Link}
 import com.google.inject._
-import controllers.generic.{Annotate, Delete, Read, Visibility}
+import controllers.generic._
 import backend.Backend
 
 
 case class Links @Inject()(implicit globalConfig: global.GlobalConfig, backend: Backend, userDAO: AccountDAO) extends Read[Link]
   with Visibility[Link]
+  with Update[LinkF, Link]
   with Delete[Link]
   with Annotate[Link] {
 
   implicit val resource = Link.Resource
 
   val contentType = ContentTypes.Link
+  
+  private val form = Link.form
+
+  private val linkRoutes = controllers.linking.routes.Links
 
   def get(id: String) = getAndRedirect(id, None)
 
   def getAndRedirect(id: String, redirect: Option[String] = None) = getAction(id) { item => links => _ => implicit userOpt => implicit request =>
-    Ok(views.html.link.details(item, links, redirect))
+    Ok(views.html.link.show(item, links, redirect))
   }
 
   def history(id: String) = historyAction(id) {
@@ -32,17 +37,30 @@ case class Links @Inject()(implicit globalConfig: global.GlobalConfig, backend: 
       item => users => groups => implicit userOpt => implicit request =>
     Ok(views.html.permissions.visibility(item,
         VisibilityForm.form.fill(item.accessors.map(_.id)),
-        users, groups,  controllers.linking.routes.Links.visibilityPost(id)))
+        users, groups,  linkRoutes.visibilityPost(id)))
   }
 
   def visibilityPost(id: String) = visibilityPostAction(id) { ok => implicit userOpt => implicit request =>
-    Redirect(controllers.linking.routes.Links.get(id))
+    Redirect(linkRoutes.get(id))
         .flashing("success" -> "item.update.confirmation")
   }
+  
+  def update(id: String) = updateAction(id) { item => implicit userOpt => implicit request =>
+    Ok(views.html.link.edit(item, form.fill(item.model), linkRoutes.updatePost(id)))
+  }
+
+  def updatePost(id: String) = updatePostAction(id, form) { olditem => formOrItem => implicit userOpt => implicit request =>
+    formOrItem match {
+      case Left(errorForm) => BadRequest(views.html.link.edit(
+          olditem, errorForm, linkRoutes.updatePost(id)))
+      case Right(item) => Redirect(linkRoutes.get(id))
+        .flashing("success" -> "item.update.confirmation")
+    }
+  }  
 
   def delete(id: String, redirect: Option[String] = None) = deleteAction(id) { item => implicit userOpt => implicit request =>
     Ok(views.html.delete(
-      item, controllers.linking.routes.Links.deletePost(id, redirect),
+      item, linkRoutes.deletePost(id, redirect),
         controllers.admin.routes.Admin.get(id)))
   }
 
@@ -55,21 +73,21 @@ case class Links @Inject()(implicit globalConfig: global.GlobalConfig, backend: 
 
 
   def promote(id: String) = promoteAction(id) { item => implicit userOpt => implicit request =>
-    Ok(views.html.permissions.promote(item, controllers.linking.routes.Links.promotePost(id)))
+    Ok(views.html.permissions.promote(item, linkRoutes.promotePost(id)))
   }
 
   def promotePost(id: String) = promotePostAction(id) { item => bool => implicit userOpt => implicit request =>
-    Redirect(controllers.linking.routes.Links.get(id))
+    Redirect(linkRoutes.get(id))
       .flashing("success" -> "item.promote.confirmation")
   }
 
   def demote(id: String) = demoteAction(id) { item => implicit userOpt => implicit request =>
     Ok(views.html.permissions.demote(item,
-      controllers.linking.routes.Links.demotePost(id)))
+      linkRoutes.demotePost(id)))
   }
 
   def demotePost(id: String) = demotePostAction(id) { item => bool => implicit userOpt => implicit request =>
-    Redirect(controllers.linking.routes.Links.get(id))
+    Redirect(linkRoutes.get(id))
       .flashing("success" -> "item.demote.confirmation")
   }
 }

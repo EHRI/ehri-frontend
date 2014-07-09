@@ -288,4 +288,5 @@ trait Described[+T <: Description] extends Model {
 
 trait Temporal {
   def dates: List[DatePeriodF]
+  def dateRange: String = dates.map(_.years).mkString(", ")
 }

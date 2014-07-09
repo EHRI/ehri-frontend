@@ -1,19 +1,10 @@
 @(item: AnyModel, src: AnyModel, form: play.api.data.Form[LinkF], action: Call)(
 implicit userOpt: Option[UserProfile], req: RequestHeader, globalConfig: global.GlobalConfig, lang: Lang, flash: Flash, token: play.filters.csrf.CSRF.Token)
 
-@implicitField = @{ views.html.helper.FieldConstructor(formHelpers.fieldTemplate.f) }
-
 @layout.rightSidebar(Messages("link.create.item", item.toStringLang, src.toStringLang), breadcrumbs = common.breadcrumbs(List(item))) {
 	
 	@helper.form(action = action, 'class -> "entity-form form-horizontal") {
-        @formHelpers.csrfToken()
-		<fieldset id="annotate-area">
-            <legend>@Messages("link.create")</legend>
-            @defining("link") { implicit fieldPrefix =>
-                @formHelpers.textInput(form(""), LinkF.DESCRIPTION)
-                <input type="hidden" value="@LinkF.LinkType.Associative" name="@form(LinkF.LINK_TYPE).name" />
-            }
-		</fieldset>
+        @linkForm(form)
 
         @formHelpers.submitButtonWithLogMessageInput(Messages("link.linkTo.submit"), cancel = views.Helpers.linkToOpt(item))
 	}
