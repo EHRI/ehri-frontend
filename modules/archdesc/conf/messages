@@ -50,6 +50,7 @@ documentaryUnit.create.submit=Create Collection
 documentaryUnit.update=Update Collection
 documentaryUnit.update.submit=Update Collection
 documentaryUnit.child.create=Create New Child Item
+documentaryUnit.export.ead=Export EAD (Testing)
 
 
 documentDescription.identifier=Description ID (Optional)

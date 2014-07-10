@@ -1,9 +1,7 @@
 @(tree: utils.ead.DocTree)(implicit lang: Lang)
 
 <ead>
-    @tree.item.holder.map { r =>
-        @header(tree.item.toStringLang, r, Seq(tree))
-    }
+    @header(tree)
     <archdesc level="@tree.item.model.primaryDescription.flatMap(_.identity.levelOfDescription).getOrElse("otherlevel")">
         @desc(tree)
         <dsc>
