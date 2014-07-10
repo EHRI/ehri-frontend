@@ -189,6 +189,11 @@ trait Hierarchical[+T <: Hierarchical[T]] extends AnyModel {
    * not be the current item.
    */
   def topLevel: T = ancestors.lastOption.getOrElse(this.asInstanceOf[T])
+
+  /**
+   * Determine if an item is top level, i.e. has no parents.
+   */
+  def isTopLevel: Boolean = parent.isEmpty
 }
 
 trait Description extends Model {
