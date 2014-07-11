@@ -6,7 +6,9 @@
         <date></date>
     </creation>
     @tree.item.model.primaryDescription.map { desc =>
-        <langusage langcode="@desc.languageCode">@views.Helpers.languageCodeToName(desc.languageCode)</langusage>
+        <langusage>
+            <language langcode="@desc.languageCode">@views.Helpers.languageCodeToName(desc.languageCode)</language>
+        </langusage>
     }
     <descrules encodinganalog="3.7.2">ISAD(G)</descrules>
 </profiledesc>
