@@ -15,7 +15,7 @@ import backend.{ApiUser, Backend}
 import utils.ListParams
 import play.api.Play.current
 import play.api.Configuration
-import play.api.http.MimeTypes
+import play.api.http.{HeaderNames, MimeTypes}
 
 
 @Singleton
@@ -421,6 +421,7 @@ case class DocumentaryUnits @Inject()(implicit globalConfig: global.GlobalConfig
     } yield {
       Ok(views.export.ead.Helpers.tidyXml(views.xml.export.ead.documentaryUnitEad(treeWithRepo).body))
         .as(MimeTypes.XML)
+        //.withHeaders(HeaderNames.CONTENT_DISPOSITION -> s"attachment; filename=$id-ead.xml")
     }
   }
 }

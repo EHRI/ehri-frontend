@@ -1,0 +1,15 @@
+@(link: Link, item: AnyModel)(implicit userOpt: Option[UserProfile], req: RequestHeader, globalConfig: global.GlobalConfig)
+
+<a href="@globalConfig.routeRegistry.urlFor(item)">@item.toStringLang</a>
+<small>
+    <span class="label label-default">@Messages("link." + link.model.linkType.toString)</span>
+</small>
+<a href="@controllers.linking.routes.Links.getAndRedirect(link.id, Some(item.id))">
+    <span class="glyphicon glyphicon-link"></span>
+</a>
+@if(!link.model.dates.isEmpty) {
+    <small>@link.model.dateRange</small>
+}
+@link.model.description.map { desc =>
+    <small><p class="text-muted">@desc</p></small>
+}

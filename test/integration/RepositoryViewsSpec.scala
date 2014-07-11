@@ -157,14 +157,5 @@ class RepositoryViewsSpec extends Neo4jRunnerSpec(classOf[RepositoryViewsSpec]) 
       status(show) must equalTo(OK)
       contentAsString(show) must not contain "New Content for r1"
     }
-
-    "allow EAD export" in new FakeApp {
-      val ead = route(fakeLoggedInHtmlRequest(privilegedUser, GET,
-        controllers.archdesc.routes.Repositories.exportEad("r1").url)).get
-      status(ead) must equalTo(OK)
-      contentType(ead) must beSome.which { ct =>
-        ct must equalTo(MimeTypes.XML)
-      }
-    }
   }
 }

@@ -22,15 +22,7 @@
 
                 @annotationLinks.map { link =>
                     @opposingTarget(item, link).map { other =>
-                        <li class="resolved-access-point">
-                            <a href="@globalConfig.routeRegistry.urlFor(other)">@other.toStringLang</a>
-                            <a class="alt" href="@controllers.linking.routes.Links.getAndRedirect(link.id, Some(item.id))">
-                                &times;
-                            </a>
-                            @link.model.description.map { desc =>
-                                <p>@desc</p>
-                            }
-                        </li>
+                        @views.html.link.itemLink(link, other)
                     }.getOrElse {
                         @link.model.description.map { desc =>
                             <p>@desc</p>

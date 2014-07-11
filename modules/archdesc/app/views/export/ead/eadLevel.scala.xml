@@ -2,7 +2,12 @@
 
 @defining(f"c$cno%02d") { levelTag =>
     <@levelTag level="@tree.item.model.primaryDescription.flatMap(_.identity.levelOfDescription).getOrElse("otherlevel")">
-        @desc(tree)
+        @tree.item.model.primaryDescription.map { description =>
+            <did>
+                @did(tree.item, description)
+            </did>
+            @desc(description)
+        }
         @for(t <- tree.children) {
             @eadLevel(cno + 1, t)
         }

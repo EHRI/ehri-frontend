@@ -1,5 +1,6 @@
-@(repository: Repository)(implicit lang: Lang)
+@(tree: utils.ead.DocTree)(implicit lang: Lang)
 
+@tree.item.holder.map { repository =>
 <publicationstmt>
     <publisher encodinganalog="Publisher">@repository.toStringLang</publisher>
     @repository.model.primaryDescription.flatMap(_.addresses.headOption).map { add =>
@@ -7,3 +8,4 @@
     }
     <date>@org.joda.time.DateTime.now()</date>
 </publicationstmt>
+}
