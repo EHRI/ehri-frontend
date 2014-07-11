@@ -104,7 +104,7 @@ case class Profile @Inject()(implicit globalConfig: global.GlobalConfig, searchD
           List("Item", "URL"),
           watchList.items.map(a => ExportWatchItem.fromItem(a).toCsv)))
           .as("text/csv")
-          .withHeaders(HeaderNames.CONTENT_DISPOSITION -> ("attachment; filename=" + user.id + "_watched.csv"))
+          .withHeaders(HeaderNames.CONTENT_DISPOSITION -> s"attachment; filename=${user.id}_watched.csv")
         case DataFormat.Json =>
           Ok(Json.toJson(watchList.items.map(ExportWatchItem.fromItem)))
             .as(MimeTypes.JSON)
@@ -152,7 +152,7 @@ case class Profile @Inject()(implicit globalConfig: global.GlobalConfig, searchD
             List("Item", "Field", "Note", "Time", "URL"),
             page.items.map(a => ExportAnnotation.fromAnnotation(a).toCsv)))
           .as("text/csv")
-          .withHeaders(HeaderNames.CONTENT_DISPOSITION -> ("attachment; filename=" + user.id + "_notes.csv"))
+          .withHeaders(HeaderNames.CONTENT_DISPOSITION -> s"attachment; filename=${user.id}_notes.csv")
         case DataFormat.Json =>
           Ok(Json.toJson(page.items.map(ExportAnnotation.fromAnnotation)))
             .as(MimeTypes.JSON)
