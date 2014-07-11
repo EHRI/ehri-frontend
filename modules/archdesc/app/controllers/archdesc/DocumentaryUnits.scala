@@ -421,7 +421,7 @@ case class DocumentaryUnits @Inject()(implicit globalConfig: global.GlobalConfig
     } yield {
       Ok(views.export.ead.Helpers.tidyXml(views.xml.export.ead.documentaryUnitEad(treeWithRepo).body))
         .as(MimeTypes.XML)
-        .withHeaders(HeaderNames.CONTENT_DISPOSITION -> s"attachment; filename=$id-ead.xml")
+        //.withHeaders(HeaderNames.CONTENT_DISPOSITION -> s"attachment; filename=$id-ead.xml")
     }
   }
 }

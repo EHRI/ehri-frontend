@@ -3,7 +3,8 @@
 
 <profiledesc>
     <creation>
-        <date></date>
+        This EAD file was exported from the EHRI admin database tool.
+        <date>@org.joda.time.DateTime.now().toString()</date>
     </creation>
     @tree.item.model.primaryDescription.map { desc =>
         <langusage>

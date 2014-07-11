@@ -1,4 +1,4 @@
-@(tree: utils.ead.DocTree)(implicit lang: Lang)
+@(desc: DocumentaryUnitDescriptionF)(implicit lang: Lang)
 
 @import AccessPointF.AccessPointType
 
@@ -15,86 +15,39 @@
     }
 }
 
-@textField(tag: String, data: Option[String]) = {
-    @data.map { content =>
-        <@tag>
-            @Xml(views.export.ead.Helpers.renderMarkdownAsEad(content))
-        </@tag>
-    }
+@textField("bioghist", desc.context.biographicalHistory)
+@textField("custodhist", desc.context.archivalHistory)
+@textField("acqinfo", desc.context.acquisition)
+
+@textField("scopecontent", desc.content.scopeAndContent)
+@textField("arrangement", desc.content.systemOfArrangement)
+@textField("accruals", desc.content.accruals)
+@textField("appraisal", desc.content.appraisal)
+
+@textListField("originalsloc", desc.materials.locationOfOriginals)
+@textListField("altformavail", desc.materials.locationOfCopies)
+@textListField("relatedmaterial", desc.materials.relatedUnitsOfDescription)
+
+@textField("accessrestrict", desc.conditions.conditionsOfAccess)
+@textField("userestrict", desc.conditions.conditionsOfReproduction)
+@textField("otherfindaid", desc.conditions.findingAids)
+@textField("phystech", desc.conditions.physicalCharacteristics)
+
+@textField("processinfo", desc.control.archivistNote)
+@textField("processinfo", desc.control.datesOfDescriptions)
+@textListField("sources", desc.control.sources)
+
+@desc.notes.filterNot(_.isEmpty).map { notes =>
+    <odd>
+        @notes.map { note =>
+            <note>@Xml(views.export.ead.Helpers.renderMarkdownAsEad(note))</note>
+        }
+    </odd>
 }
 
-@textListField(tag: String, data: Option[Seq[String]]) = {
-    @data.filterNot(_.isEmpty).map { content =>
-        <@tag>
-            @content.map { v =>
-                @Xml(views.export.ead.Helpers.renderMarkdownAsEad(v))
-            }
-        </@tag>
-    }
-}
-
-<did>
-    <unitid>@tree.item.model.identifier</unitid>
-    @tree.item.model.primaryDescription.map { desc =>
-        <unittitle>@desc.name</unittitle>
-        @desc.dates.map { date =>
-            <unitdate>@date.years.trim</unitdate>
-        }
-        @desc.identity.extentAndMedium.map { sc =>
-            <physdesc>
-                <extent>@sc</extent>
-            </physdesc>
-        }
-        @desc.conditions.languageOfMaterials.map { langs =>
-            <langmaterial>
-                @langs.map { lang =>
-                    <language langcode="@lang">@views.Helpers.languageCodeToName(lang)</language>
-                }
-            </langmaterial>
-        }
-        @textField("abstract", desc.identity.`abstract`)
-        @desc.identity.physicalLocation.toList.flatten.map { loc =>
-            <physloc>@loc</physloc>
-        }
-    }
-</did>
-@tree.item.model.primaryDescription.map { desc =>
-
-    @textField("bioghist", desc.context.biographicalHistory)
-    @textField("custodhist", desc.context.archivalHistory)
-    @textField("acqinfo", desc.context.acquisition)
-
-    @textField("scopecontent", desc.content.scopeAndContent)
-    @textField("arrangement", desc.content.systemOfArrangement)
-    @textField("accruals", desc.content.accruals)
-    @textField("appraisal", desc.content.appraisal)
-
-    @textListField("originalsloc", desc.materials.locationOfOriginals)
-    @textListField("altformavail", desc.materials.locationOfCopies)
-    @textListField("relatedmaterial", desc.materials.relatedUnitsOfDescription)
-
-    @textField("accessrestrict", desc.conditions.conditionsOfAccess)
-    @textField("userestrict", desc.conditions.conditionsOfReproduction)
-    @textField("otherfindaid", desc.conditions.findingAids)
-    @textField("phystech", desc.conditions.physicalCharacteristics)
-
-    @textField("processinfo", desc.control.archivistNote)
-    <!-- TODO: combine processinfo fields -->
-    @textField("processinfo", desc.control.archivistNote)
-    @textField("processinfo", desc.control.datesOfDescriptions)
-
-    @desc.notes.filterNot(_.isEmpty).map { notes =>
-        <odd>
-            @notes.map { note =>
-                <note>@Xml(views.export.ead.Helpers.renderMarkdownAsEad(note))</note>
-            }
-        </odd>
-    }
-
-    @accessType("persname", "People", desc, AccessPointType.PersonAccess)
-    @accessType("famname", "People", desc, AccessPointType.FamilyAccess)
-    @accessType("corpname", "Organizations", desc, AccessPointType.CorporateBodyAccess)
-    @accessType("geogname", "Places", desc, AccessPointType.PlaceAccess)
-    @accessType("subject", "Subjects", desc, AccessPointType.SubjectAccess)
-    @accessType("name", "Other Access Terms", desc, AccessPointType.Other)
-}
+@accessType("persname", "People", desc, AccessPointType.PersonAccess)
+@accessType("famname", "People", desc, AccessPointType.FamilyAccess)
+@accessType("corpname", "Organizations", desc, AccessPointType.CorporateBodyAccess)
+@accessType("geogname", "Places", desc, AccessPointType.PlaceAccess)
+@accessType("subject", "Subjects", desc, AccessPointType.SubjectAccess)
+@accessType("name", "Other Access Terms", desc, AccessPointType.Other)
