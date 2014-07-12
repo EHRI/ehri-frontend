@@ -419,7 +419,7 @@ case class DocumentaryUnits @Inject()(implicit globalConfig: global.GlobalConfig
       tree <- fetchTree(id)
       treeWithRepo = tree.copy(item = tree.item.copy(holder = repository))
     } yield {
-      Ok(views.export.ead.Helpers.tidyXml(views.xml.export.ead.documentaryUnitEad(treeWithRepo).body))
+      Ok(views.export.ead.Helpers.tidyXml(views.xml.export.ead.ead(treeWithRepo).body))
         .as(MimeTypes.XML)
         //.withHeaders(HeaderNames.CONTENT_DISPOSITION -> s"attachment; filename=$id-ead.xml")
     }

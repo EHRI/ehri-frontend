@@ -1,6 +1,6 @@
-@(tree: utils.ead.DocTree)(implicit lang: Lang)
+@(item: DocumentaryUnit)(implicit lang: Lang)
 
-@tree.item.holder.map { repository =>
+@item.holder.map { repository =>
 <publicationstmt>
     <publisher encodinganalog="Publisher">@repository.toStringLang</publisher>
     @repository.model.primaryDescription.flatMap(_.addresses.headOption).map { add =>
