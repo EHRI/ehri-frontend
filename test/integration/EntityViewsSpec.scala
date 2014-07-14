@@ -118,7 +118,7 @@ class EntityViewsSpec extends Neo4jRunnerSpec(classOf[EntityViewsSpec]) {
       )
       val cr = route(fakeLoggedInHtmlRequest(unprivilegedUser, POST,
         controllers.authorities.routes.HistoricalAgents.updatePost("a1").url).withHeaders(formPostHeaders.toSeq: _*), testData).get
-      status(cr) must equalTo(UNAUTHORIZED)
+      status(cr) must equalTo(FORBIDDEN)
     }
 
     "show correct default values in the form when creating new items" in new FakeApp(

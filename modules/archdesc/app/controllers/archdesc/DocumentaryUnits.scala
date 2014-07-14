@@ -12,10 +12,10 @@ import com.google.inject._
 import solr.SolrConstants
 import scala.concurrent.Future.{successful => immediate}
 import backend.{ApiUser, Backend}
-import utils.ListParams
 import play.api.Play.current
 import play.api.Configuration
 import play.api.http.{HeaderNames, MimeTypes}
+import utils.ead.EadExporter
 
 
 @Singleton
@@ -385,43 +385,12 @@ case class DocumentaryUnits @Inject()(implicit globalConfig: global.GlobalConfig
   import utils.ead.DocTree
 
   def exportEad(id: String) = optionalUserAction.async { implicit userOpt => implicit request =>
-    import scala.concurrent.Future
     implicit val apiUser = ApiUser(userOpt.map(_.id))
-
-    val params = ListParams(limit = -1) // can't get around large limits yet...
     val eadId: String = docRoutes.exportEad(id).absoluteURL(globalConfig.https)
 
-    def fetchTree(id: String): Future[DocTree] = {
-      for {
-        doc <- backend.get[DocumentaryUnit](id)
-        children <- backend.listChildren[DocumentaryUnit,DocumentaryUnit](id, params)
-        trees <- Future.sequence(children.map(c => {
-          if (c.childCount.getOrElse(0) > 0) fetchTree(c.id)
-          else Future.successful(DocTree(eadId, c, Seq.empty))
-        }))
-      } yield DocTree(eadId, doc, trees)
-    }
-
-    // Ugh, need to fetch the repository manually to
-    // ensure we have detailed address info. Otherwise we'll
-    // only get mandatory fields and relations.
-    def fetchRepository(rid: Option[String]): Future[Option[Repository]] = {
-      rid.map { id =>
-        backend.get[Repository](id).map(r => Some(r))
-      } getOrElse {
-        Future.successful(Option.empty[Repository])
-      }
-    }
-
-    for {
-      doc <- backend.get[DocumentaryUnit](id)
-      repository <- fetchRepository(doc.holder.map(_.id))
-      tree <- fetchTree(id)
-      treeWithRepo = tree.copy(item = tree.item.copy(holder = repository))
-    } yield {
-      Ok(views.export.ead.Helpers.tidyXml(views.xml.export.ead.ead(treeWithRepo).body))
-        .as(MimeTypes.XML)
-        //.withHeaders(HeaderNames.CONTENT_DISPOSITION -> s"attachment; filename=$id-ead.xml")
+    EadExporter(backend).exportEad(id, eadId).map { xml =>
+      Ok(xml).as(MimeTypes.XML)
+      //.withHeaders(HeaderNames.CONTENT_DISPOSITION -> s"attachment; filename=$id-ead.xml")
     }
   }
 }

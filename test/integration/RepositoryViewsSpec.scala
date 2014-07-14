@@ -150,7 +150,7 @@ class RepositoryViewsSpec extends Neo4jRunnerSpec(classOf[RepositoryViewsSpec]) 
       )
       val cr = route(fakeLoggedInHtmlRequest(unprivilegedUser, POST,
         controllers.archdesc.routes.Repositories.updatePost("r1").url).withHeaders(formPostHeaders.toSeq: _*), testData).get
-      status(cr) must equalTo(UNAUTHORIZED)
+      status(cr) must equalTo(FORBIDDEN)
 
       // We can view the item when not logged in...
       val show = route(fakeLoggedInHtmlRequest(unprivilegedUser, GET, controllers.archdesc.routes.Repositories.get("r1").url)).get
