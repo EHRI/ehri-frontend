@@ -1,4 +1,4 @@
-@(tree: utils.ead.DocTree)(implicit lang: Lang)
+@(item: DocumentaryUnit)(implicit lang: Lang)
 
 
 <profiledesc>
@@ -6,7 +6,7 @@
         This EAD file was exported from the EHRI admin database tool.
         <date>@org.joda.time.DateTime.now().toString()</date>
     </creation>
-    @tree.item.model.primaryDescription.map { desc =>
+    @item.model.primaryDescription.map { desc =>
         <langusage>
             <language langcode="@desc.languageCode">@views.Helpers.languageCodeToName(desc.languageCode)</language>
         </langusage>
