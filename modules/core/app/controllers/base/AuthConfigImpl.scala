@@ -26,12 +26,6 @@ trait AuthConfigImpl extends AuthConfig with Results {
 
   protected val ACCESS_URI: String = "access_uri"
 
-
-  /**
-   * Dummy permission (which is not actually used.)
-   */
-  sealed trait Permission
-
   type Id = String
 
   override lazy val idContainer: IdContainer[Id] = new CookieIdContainer[Id]
@@ -40,7 +34,8 @@ trait AuthConfigImpl extends AuthConfig with Results {
    * Whether use the secure option or not use it in the cookie.
    * However default is false, I strongly recommend using true in a production.
    */
-  override lazy val cookieSecureOption: Boolean = play.api.Play.current.configuration
+  override lazy val cookieSecureOption: Boolean =
+    play.api.Play.current.configuration
       .getBoolean("auth.cookie.secure").getOrElse(false)
 
   /** 
@@ -48,16 +43,6 @@ trait AuthConfigImpl extends AuthConfig with Results {
    * `User`, `Account` and so on.
    */
   type User = models.Account
-
-  /**
-   * A type that is defined by every action for authorization.
-   * This sample uses the following trait.
-   *
-   * sealed trait Permission
-   * case object Administrator extends Permission
-   * case object NormalUser extends Permission
-   */
-  type Authority = Permission
 
   /**
    * A `ClassManifest` is used to get an id from the Cache API.
@@ -68,21 +53,22 @@ trait AuthConfigImpl extends AuthConfig with Results {
   /**
    * A duration of the session timeout in seconds
    */
-  val sessionTimeoutInSeconds: Int = 604800 // 1 week
+  def sessionTimeoutInSeconds: Int = 604800 // 1 week
 
   /**
    * A function that returns a `User` object from an `Id`.
    * Describe the procedure according to your application.
    */
-  def resolveUser(id: Id)(implicit context: ExecutionContext): Future[Option[User]] = immediate(userDAO.findByProfileId(id))
+  def resolveUser(id: Id)(implicit context: ExecutionContext): Future[Option[User]] =
+    immediate(userDAO.findByProfileId(id))
 
   /**
    * A redirect target after a successful user login.
    */
   def loginSucceeded(request: RequestHeader)(implicit context: ExecutionContext): Future[Result] = {
-    val uri = request.session.get("access_uri").getOrElse(defaultLoginUrl.url)
+    val uri = request.session.get(ACCESS_URI).getOrElse(defaultLoginUrl.url)
     Logger.logger.debug("Redirecting logged-in user to: {}", uri)
-    immediate(Redirect(uri).withSession(request.session - "access_uri"))
+    immediate(Redirect(uri).withSession(request.session - ACCESS_URI))
   }
 
   /**
@@ -106,8 +92,10 @@ trait AuthConfigImpl extends AuthConfig with Results {
   /**
    * A redirect target after a failed authorization.
    */
-  def authorizationFailed(request: RequestHeader)(implicit context: ExecutionContext): Future[Result]
-      = immediate(Forbidden("no permission"))
+  def authorizationFailed(request: RequestHeader)(implicit context: ExecutionContext): Future[Result] = {
+    implicit val req = request
+    immediate(Forbidden(views.html.errors.permissionDenied()))
+  }
 
   /**
    * A function that authorizes a user by `Authority`.

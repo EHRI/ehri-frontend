@@ -32,7 +32,7 @@ class DocUnitPermissionsSpec extends Neo4jRunnerSpec(classOf[DocUnitPermissionsS
       // Check we cannot create an item...
       val cr = route(fakeLoggedInHtmlRequest(unprivilegedUser, POST,
         controllers.archdesc.routes.Repositories.createDocPost("r2").url).withHeaders(formPostHeaders.toSeq: _*), testData).get
-      status(cr) must equalTo(UNAUTHORIZED)
+      status(cr) must equalTo(FORBIDDEN)
 
       // Grant permissions to create docs within the scope of r2
       val permTestData: Map[String, List[String]] = Map(
@@ -68,7 +68,7 @@ class DocUnitPermissionsSpec extends Neo4jRunnerSpec(classOf[DocUnitPermissionsS
       // Check we cannot create an item...
       val cr = route(fakeLoggedInHtmlRequest(unprivilegedUser, POST,
         controllers.archdesc.routes.DocumentaryUnits.updatePost(testItem).url).withHeaders(formPostHeaders.toSeq: _*), testData).get
-      status(cr) must equalTo(UNAUTHORIZED)
+      status(cr) must equalTo(FORBIDDEN)
 
       // Grant permissions to update item c1
       val permTestData: Map[String, List[String]] = Map(

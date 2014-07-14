@@ -126,7 +126,7 @@ class CountryScopeIntegrationSpec extends Neo4jRunnerSpec(classOf[CountryScopeIn
       val otherRepoCreatePost = route(fakeLoggedInHtmlRequest(fakeAccount, POST,
         controllers.archdesc.routes.Countries.createRepositoryPost(otherCountryId).url)
           .withHeaders(formPostHeaders.toSeq: _*), repoData).get
-      status(otherRepoCreatePost) must equalTo(UNAUTHORIZED)
+      status(otherRepoCreatePost) must equalTo(FORBIDDEN)
 
 
       // Test we can read the new repository

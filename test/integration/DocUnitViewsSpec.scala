@@ -249,8 +249,9 @@ class DocUnitViewsSpec extends Neo4jRunnerSpec(classOf[DocUnitViewsSpec]) {
       )
 
       val cr = route(fakeLoggedInHtmlRequest(unprivilegedUser, POST,
-        controllers.archdesc.routes.DocumentaryUnits.updatePost("c4").url).withHeaders(formPostHeaders.toSeq: _*), testData).get
-      status(cr) must equalTo(UNAUTHORIZED)
+        controllers.archdesc.routes.DocumentaryUnits.updatePost("c4")
+          .url).withHeaders(formPostHeaders.toSeq: _*), testData).get
+      status(cr) must equalTo(FORBIDDEN)
 
       // We can view the item when not logged in...
       val show = route(fakeLoggedInHtmlRequest(unprivilegedUser, GET, controllers.archdesc.routes.DocumentaryUnits.get("c4").url)).get
