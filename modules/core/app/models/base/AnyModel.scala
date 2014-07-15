@@ -136,23 +136,30 @@ trait WithDescriptions[+T <: Description] extends AnyModel {
   /**
    * Links that relate to access points on this item's description(s)
    */
-  def accessPointLinks(links: Seq[Link]): Seq[Link]
-  = links.filterNot(link => link.bodies.map(_.id).intersect(allAccessPoints.map(_.id)).isEmpty)
+  def accessPointLinks(links: Seq[Link]): Seq[(Link,AccessPointF)] = for {
+    link <- links.filterNot(_.bodies.isEmpty)
+    accessPoint <- allAccessPoints.find(a => link.bodies.map(_.id).contains(a.id))
+  } yield (link, accessPoint)
 
+  /**
+   * Links that related to access points, ordered by access point type.
+   */
+  def accessPointLinksByType(links: Seq[Link]): Map[AccessPointF.AccessPointType.Value, Seq[(Link, AccessPointF)]] =
+    accessPointLinks(links).groupBy(_._2.accessPointType)
 
   /**
    * Links that point to this item from other item's access points.
    */
-  def externalLinks(links: Seq[Link]): Seq[Link]
-  = links.filter(link =>
-    !link.bodies.isEmpty
-      && link.bodies.map(_.id).intersect(allAccessPoints.map(_.id)).isEmpty)
+  def externalLinks(links: Seq[Link]): Seq[Link] = for {
+    link <- links.filterNot(_.bodies.isEmpty)
+      if link.bodies.map(_.id).intersect(allAccessPoints.map(_.id)).isEmpty
+  } yield link
 
   /**
    * Links that don't relate to access points.
    */
-  def annotationLinks(links: Seq[Link]): Seq[Link]
-  = links.filter(link => link.bodies.isEmpty)
+  def annotationLinks(links: Seq[Link]): Seq[Link] =
+    links.filter(link => link.bodies.isEmpty)
 }
 
 trait DescribedMeta[+TD <: Description, +T <: Described[TD]] extends MetaModel[T] with WithDescriptions[TD] {
