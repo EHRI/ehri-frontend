@@ -59,7 +59,7 @@
         @common.stringValue(desc.control.provenance, PROVENANCE)
     }
 
-    @link.relatedLinks(item, desc, links)
+    @link.accessPointLinks(item, desc, links)
 
     @desc.unknownProperties.map { e =>
         @common.unknownData(e)

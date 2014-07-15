@@ -38,8 +38,7 @@
         @common.stringValue(desc.control.maintenanceNotes, MAINTENANCE_NOTES)
     }
 
-    @link.relatedLinks(item, desc, links)
-    @link.externalLinks(item, links)
+    @link.accessPointLinks(item, desc, links)
 
     @desc.unknownProperties.map { e =>
         @common.unknownData(e)

@@ -1,0 +1,27 @@
+@(item: WithDescriptions[Description], desc: models.base.Description, links: Seq[Link])(implicit prefix: String, userOpt: Option[UserProfile], req: RequestHeader, globalConfig: global.GlobalConfig)
+
+@if(!desc.accessPoints.isEmpty) {
+    <h3>@Messages(prefix + ".accessPoints")</h3>
+    @defining(item.accessPointLinksByType(links)) { accessPointLinks =>
+        @AccessPointF.AccessPointType.values.toList.map { apt =>
+            @accessPointLinks.get(apt).map { linksOfType =>
+                <h4>@Messages("accessPoint.type." + apt.toString)</h4>
+                <ul class="access-point-links">
+                    @for((link, accessPoint) <- linksOfType) {
+                        @link.opposingTarget(item).map { other =>
+                            <li class="access-point-link resolved-access-point">
+                            @views.html.link.itemLink(link, other)
+                            </li>
+                        }.getOrElse {
+                            @link.model.description.map { desc =>
+                                <li class="access-point">
+                                    @desc
+                                </li>
+                            }
+                        }
+                    }
+                </ul>
+            }
+        }
+    }
+}

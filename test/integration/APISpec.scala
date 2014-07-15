@@ -17,13 +17,13 @@ class APISpec extends Neo4jRunnerSpec(classOf[APISpec]) {
     "allow creating and reading" in new FakeApp {
       val json = Json.toJson(new AccessPointLink("a1", Some(LinkType.Associative), Some("Test link")))
       val cr = route(fakeLoggedInHtmlRequest(privilegedUser, POST,
-        controllers.archdesc.routes.DocumentaryUnits.createLink("c1", "ur1").url)
+        controllers.archdesc.routes.DocumentaryUnits.createLink("c1", "ur2").url)
         .withHeaders(jsonPostHeaders.toSeq: _*), json).get
       status(cr) must equalTo(CREATED)
       val cr2 = route(fakeLoggedInHtmlRequest(privilegedUser, GET,
-        controllers.archdesc.routes.DocumentaryUnits.getLink("c1", "ur1").url)).get
+        controllers.archdesc.routes.DocumentaryUnits.getLink("c1", "ur2").url)).get
       status(cr2) must equalTo(OK)
-      Json.parse(contentAsString(cr2)) mustEqual json
+      contentAsJson(cr2) mustEqual json
     }
 
     "allow creating new access points and deleting them" in new FakeApp {

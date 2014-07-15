@@ -22,6 +22,20 @@ class DocUnitLinkAnnotateSpec extends Neo4jRunnerSpec(classOf[DocUnitLinkAnnotat
 
   "DocumentaryUnit views" should {
 
+    "contain correct access point links" in new FakeApp {
+      val show = route(fakeLoggedInHtmlRequest(privilegedUser, GET, docRoutes.get("c1").url)).get
+      contentAsString(show) must contain("access-point-links")
+      contentAsString(show) must contain(
+        controllers.authorities.routes.HistoricalAgents.get("a1").url)
+    }
+
+    "contain correct annotation links" in new FakeApp {
+      val show = route(fakeLoggedInHtmlRequest(privilegedUser, GET, docRoutes.get("c1").url)).get
+      contentAsString(show) must contain("annotation-links")
+      contentAsString(show) must contain(
+        docRoutes.get("c4").url)
+    }
+
     "allow linking to items via annotation" in new FakeApp {
       val testItem = "c1"
       val linkSrc = "cvocc1"

@@ -128,6 +128,14 @@ class EntityViewsSpec extends Neo4jRunnerSpec(classOf[EntityViewsSpec]) {
       status(form) must equalTo(OK)
       contentAsString(form) must contain("SOME RANDOM VALUE")
     }
+
+    "contain links to external items" in new FakeApp {
+      val show = route(fakeLoggedInHtmlRequest(privilegedUser, GET,
+        controllers.authorities.routes.HistoricalAgents.get("a1").url)).get
+      contentAsString(show) must contain("external-item-link")
+      contentAsString(show) must contain(
+        controllers.archdesc.routes.DocumentaryUnits.get("c1").url)
+    }
   }
 
   "UserProfile views" should {
