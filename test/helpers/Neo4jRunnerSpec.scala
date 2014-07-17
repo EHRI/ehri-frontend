@@ -4,8 +4,7 @@ import org.specs2.mutable._
 import org.specs2.specification.{Fragments, Step}
 import eu.ehri.extension.AbstractAccessibleEntityResource
 import play.api.test.{PlaySpecification, WithApplication}
-import org.neo4j.server.configuration.ThirdPartyJaxRsPackage
-import eu.ehri.extension.test.helpers.{ServerRunner, CompatServerRunner}
+import eu.ehri.extension.test.helpers.ServerRunner
 
 /**
  * Specs2 magic to provide equivalent of JUnit's beforeClass/afterClass.
@@ -30,18 +29,8 @@ abstract class Neo4jRunnerSpec(cls: Class[_]) extends PlaySpecification with Use
   val testPort = 7575
   def config = Map("neo4j.server.port" -> testPort) ++ getConfig
 
-  // FIXME: This really sucks but there's a problem with loading the ServerBuilder from Scala
-  // The CompatServerRunner class is temporary
-  val runner: CompatServerRunner = CompatServerRunner
-      .getInstance(cls.getName, testPort)
-  runner.getConfigurator
-    .getThirdpartyJaxRsPackages
-    .add(new ThirdPartyJaxRsPackage(
-    classOf[AbstractAccessibleEntityResource[_]].getPackage.getName, "/ehri"))
-
-//  val runner = ServerRunner.getInstance(testPort,
-//    classOf[AbstractAccessibleEntityResource[_]].getPackage.getName,
-//    "/ehri")
+  val runner = ServerRunner.getInstance(testPort,
+    classOf[AbstractAccessibleEntityResource[_]].getPackage.getName, "ehri")
 
   /**
    * Test running Fake Application. We have general all-test configuration,
