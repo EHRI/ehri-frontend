@@ -9,9 +9,7 @@ import org.pegdown.{LinkRenderer, Extensions, PegDownProcessor}
  * @author Mike Bryant (http://github.com/mikesname)
  */
 object Helpers {
-  def tidyXml(xml: String): String = {
-    XmlFormatter.format(xml)
-  }
+  def tidyXml(xml: String): String = XmlFormatter.format(xml)
 
   // Initialize Markdown processor for rendering markdown. NB: The
   // instance is apparently not thread safe, so using a threadlocal
