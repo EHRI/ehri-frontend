@@ -4,6 +4,7 @@ import models.{HashedPassword, AccountDAO, Account}
 import play.api.db.DB
 import anorm._
 import anorm.SqlParser._
+import scala.language.postfixOps
 import play.api.Play.current
 import java.util.UUID
 import play.api.Logger

@@ -87,9 +87,8 @@ object ApplicationBuild extends Build {
   val testDependencies = Seq(
     "jp.t2v" %% "play2-auth-test" % "0.12.0-SNAPSHOT" % "test",
 
-    // Forced logback to older version due to conflict with Neo4j
-    "ch.qos.logback" % "logback-core" % "1.0.3" force(),
-    "ch.qos.logback" % "logback-classic" % "1.0.3" force(),
+    "org.neo4j" % "neo4j-kernel" % "1.9.7" classifier "tests" classifier "",
+    "org.neo4j.app" % "neo4j-server" % "1.9.7" classifier "tests" classifier "",
 
     "com.sun.jersey" % "jersey-core" % "1.9" % "test",
     "ehri-project" % "ehri-frames" % "0.1-SNAPSHOT" % "test" classifier "tests" classifier "",
@@ -100,7 +99,6 @@ object ApplicationBuild extends Build {
     templateImports in Compile ++= Seq("models.base._", "models.forms._", "acl._", "defines._"),
     routesImport += "defines.EntityType",
 
-    resolvers += Resolver.file("Local Repository", file("/home/mike/dev/play/playframework/repository/local"))(Resolver.ivyStylePatterns),
     resolvers += "neo4j-public-repository" at "http://m2.neo4j.org/content/groups/public",
     resolvers += "Local Maven Repository" at "file:///" + Path.userHome.absolutePath + "/.m2/repository",
     resolvers += "Codahale" at "http://repo.codahale.com",
