@@ -4,61 +4,58 @@ package views.export.ead;
  * @author Mike Bryant (http://github.com/mikesname)
  */
 
-import java.io.IOException;
-
+import org.apache.xml.serialize.Method;
 import org.apache.xml.serialize.OutputFormat;
 import org.apache.xml.serialize.XMLSerializer;
-import org.w3c.dom.Document;
+import org.w3c.dom.bootstrap.DOMImplementationRegistry;
+import org.w3c.dom.ls.DOMImplementationLS;
+import org.w3c.dom.ls.LSSerializer;
 import org.xml.sax.InputSource;
-import org.xml.sax.SAXException;
 
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
-import javax.xml.parsers.ParserConfigurationException;
-import java.io.IOException;
 import java.io.StringReader;
 import java.io.StringWriter;
-import java.io.Writer;
+
 
 /**
  * Pretty-prints xml, supplied as a string.
  * <p/>
  * eg.
  * <code>
- * String formattedXml = new XmlFormatter().format("<tag><nested>hello</nested></tag>");
+ * String formattedXml = XmlFormatter.format("<tag><nested>hello</nested></tag>");
  * </code>
  */
 public class XmlFormatter {
-
-    public static String format(String unformattedXml) {
+    // FIXME: This should be the (much more verbose) non-deprecated
+    // method of tidying an XML document, but due to some unknown
+    // bug only seems to work half the time. It also insists on
+    // outputting in UTF-16 rather than UTF-8.
+    public static String format2(String unformattedXml) {
         try {
-            final Document document = parseXmlFile(unformattedXml);
-
-            OutputFormat format = new OutputFormat(document);
-            format.setLineWidth(65);
-            format.setIndenting(true);
-            format.setIndent(2);
-            Writer out = new StringWriter();
-            XMLSerializer serializer = new XMLSerializer(out, format);
-            serializer.serialize(document);
-
-            return out.toString();
-        } catch (IOException e) {
+            DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
+            final DocumentBuilder builder = factory.newDocumentBuilder();
+            DOMImplementationRegistry registry = DOMImplementationRegistry.newInstance();
+            DOMImplementationLS domImpl =
+                    (DOMImplementationLS)registry.getDOMImplementation("LS");
+            final LSSerializer writer = domImpl.createLSSerializer();
+            writer.getDomConfig().setParameter("format-pretty-print", true);
+            return writer.writeToString(
+                    builder.parse(new InputSource(new StringReader(unformattedXml))));
+        } catch (Exception e) {
             throw new RuntimeException(e);
         }
     }
 
-    private static Document parseXmlFile(String in) {
+    public static String format(String unformattedXml) {
         try {
-            DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
-            DocumentBuilder db = dbf.newDocumentBuilder();
-            InputSource is = new InputSource(new StringReader(in));
-            return db.parse(is);
-        } catch (ParserConfigurationException e) {
-            throw new RuntimeException(e);
-        } catch (SAXException e) {
-            throw new RuntimeException(e);
-        } catch (IOException e) {
+            DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
+            final DocumentBuilder builder = factory.newDocumentBuilder();
+            StringWriter stringWriter = new StringWriter();
+            XMLSerializer serializer = new XMLSerializer(stringWriter, new OutputFormat(Method.XML, "UTF-8", true));
+            serializer.serialize(builder.parse(new InputSource(new StringReader(unformattedXml))));
+            return stringWriter.toString();
+        } catch (Exception e) {
             throw new RuntimeException(e);
         }
     }
