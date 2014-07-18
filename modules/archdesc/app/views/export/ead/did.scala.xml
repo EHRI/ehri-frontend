@@ -1,0 +1,24 @@
+@(item: DocumentaryUnit, desc: DocumentaryUnitDescriptionF)(implicit lang: Lang)
+
+<unitid>@item.model.identifier</unitid>
+<unittitle>@desc.name</unittitle>
+@desc.dates.map { date =>
+    <unitdate>@date.years.trim</unitdate>
+}
+@desc.identity.extentAndMedium.map { sc =>
+    <physdesc>
+        <extent>@sc</extent>
+    </physdesc>
+}
+@desc.conditions.languageOfMaterials.map { langs =>
+    <langmaterial>
+        @langs.map { lang =>
+        <language langcode="@lang">@views.Helpers.languageCodeToName(lang)</language>
+        }
+    </langmaterial>
+}
+@textField("abstract", desc.identity.`abstract`)
+
+@desc.identity.physicalLocation.toList.flatten.map { loc =>
+    <physloc>@loc</physloc>
+}

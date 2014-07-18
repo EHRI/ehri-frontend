@@ -1,0 +1,21 @@
+@(item: DescribedMeta[_,_], links: Seq[Link], watched: List[AnyModel])(implicit userOpt: Option[UserProfile], req: RequestHeader, lang: Lang, globalConfig: global.GlobalConfig)
+
+@defining(item.annotationLinks(links)) { links =>
+    @if(!links.isEmpty) {
+    <h3>@Messages("portal.item.annotationLinks")</h3>
+    <ul class="annotation-links list-unstyled item-links">
+        @for(link <- links) {
+        <li class="annotation-link">
+            @link.opposingTarget(item).map { t =>
+                @p.listItem(t, watched = watched.exists(_.id == t.id))
+            }
+            @link.model.description.map { desc =>
+            <small>
+                @desc
+            </small>
+            }
+        </li>
+        }
+    </ul>
+    }
+}

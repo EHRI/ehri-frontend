@@ -16,13 +16,14 @@
                     </h4>
                 }
             </div>
-            @defining(item.isA.toString) { implicit fieldPrefix =>
+            @defining("documentaryUnit") { implicit fieldPrefix =>
                 @layout.descriptionContainer(item.model.descriptions) {
                     @item.model.descriptions.map { desc =>
                         @renderDescription(item, desc, links, annotations, actions = descriptionActions(item, desc))
                     }
 
                     @link.annotationLinks(item, links)
+                    @link.externalLinks(item, links)
                 } {
                     @common.identifiers(item.model.identifier, item.model.otherIdentifiers)
                     @common.latestAction(item, controllers.archdesc.routes.DocumentaryUnits.history(item.id))

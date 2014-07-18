@@ -1,4 +1,4 @@
-@(tree: utils.ead.DocTree)(implicit lang: Lang)
+@(desc: DocumentaryUnitDescriptionF)(implicit lang: Lang)
 
 @import AccessPointF.AccessPointType
 
@@ -15,31 +15,39 @@
     }
 }
 
-<did>
-    <unitid>@tree.item.model.identifier</unitid>
-    @tree.item.model.primaryDescription.map { desc =>
-        <unittitle>@desc.name</unittitle>
-        @desc.dates.map { date =>
-            <unitdate>@date.years.trim</unitdate>
-        }
-    }
-</did>
-@tree.item.model.primaryDescription.map { desc =>
-    @desc.context.biographicalHistory.map { sc =>
-        <biogHist>
-            @Xml(views.export.ead.Helpers.renderMarkdownAsEad(sc))
-        </biogHist>
-    }
-    @desc.content.scopeAndContent.map { sc =>
-        <scopeContent>
-            @Xml(views.export.ead.Helpers.renderMarkdownAsEad(sc))
-        </scopeContent>
-    }
+@textField("bioghist", desc.context.biographicalHistory)
+@textField("custodhist", desc.context.archivalHistory)
+@textField("acqinfo", desc.context.acquisition)
 
-    @accessType("persname", "People", desc, AccessPointType.PersonAccess)
-    @accessType("famname", "People", desc, AccessPointType.FamilyAccess)
-    @accessType("corpname", "Organizations", desc, AccessPointType.CorporateBodyAccess)
-    @accessType("geogname", "Places", desc, AccessPointType.PlaceAccess)
-    @accessType("subject", "Subjects", desc, AccessPointType.SubjectAccess)
-    @accessType("name", "Other Access Terms", desc, AccessPointType.Other)
+@textField("scopecontent", desc.content.scopeAndContent)
+@textField("arrangement", desc.content.systemOfArrangement)
+@textField("accruals", desc.content.accruals)
+@textField("appraisal", desc.content.appraisal)
+
+@textListField("originalsloc", desc.materials.locationOfOriginals)
+@textListField("altformavail", desc.materials.locationOfCopies)
+@textListField("relatedmaterial", desc.materials.relatedUnitsOfDescription)
+
+@textField("accessrestrict", desc.conditions.conditionsOfAccess)
+@textField("userestrict", desc.conditions.conditionsOfReproduction)
+@textField("otherfindaid", desc.conditions.findingAids)
+@textField("phystech", desc.conditions.physicalCharacteristics)
+
+@textField("processinfo", desc.control.archivistNote)
+@textField("processinfo", desc.control.datesOfDescriptions)
+@textListField("sources", desc.control.sources)
+
+@desc.notes.filterNot(_.isEmpty).map { notes =>
+    <odd>
+        @notes.map { note =>
+            <note>@Xml(views.export.ead.Helpers.renderMarkdownAsEad(note))</note>
+        }
+    </odd>
 }
+
+@accessType("persname", "People", desc, AccessPointType.PersonAccess)
+@accessType("famname", "People", desc, AccessPointType.FamilyAccess)
+@accessType("corpname", "Organizations", desc, AccessPointType.CorporateBodyAccess)
+@accessType("geogname", "Places", desc, AccessPointType.PlaceAccess)
+@accessType("subject", "Subjects", desc, AccessPointType.SubjectAccess)
+@accessType("name", "Other Access Terms", desc, AccessPointType.Other)

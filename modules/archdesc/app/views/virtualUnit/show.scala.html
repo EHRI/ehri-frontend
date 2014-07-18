@@ -28,6 +28,7 @@
                     }
 
                     @link.annotationLinks(item, links)
+                    @link.externalLinks(item, links)
                 } {
                     @common.latestAction(item, controllers.archdesc.routes.VirtualUnits.history(item.id))
                     @common.visibility(item, controllers.archdesc.routes.VirtualUnits.visibility(item.id), ContentTypes.VirtualUnit)

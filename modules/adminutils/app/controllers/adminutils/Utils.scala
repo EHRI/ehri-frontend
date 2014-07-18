@@ -1,7 +1,7 @@
 package controllers.adminutils
 
 import controllers.base.{AuthController, ControllerHelpers}
-import models.{AccountDAO, Group}
+import models.{UserProfile, Account, AccountDAO, Group}
 import play.api.libs.concurrent.Execution.Implicits._
 
 import com.google.inject._
@@ -9,6 +9,8 @@ import play.api.mvc.Action
 import backend.{ApiUser, Backend}
 import play.api.libs.ws.WS
 import backend.rest.RestDAO
+import utils.ListParams
+import backend.rest.cypher.CypherDAO
 
 /**
  * Controller for various monitoring functions.
@@ -34,6 +36,32 @@ case class Utils @Inject()(implicit globalConfig: global.GlobalConfig, backend: 
       )
     } recover {
       case err => ServiceUnavailable("ko\n" + err.getClass.getName)
+    }
+  }
+
+  /**
+   * Check users in the accounts DB have profiles in
+   * the graph DB, and vice versa.
+   */
+  val checkUserSync = Action.async { implicit request =>
+    val accounts: Seq[Account] = userDAO.findAll(ListParams.empty.withoutLimit)
+    for {
+      profileIds <- CypherDAO().get(
+        """START n = node:entities("__ISA__:userProfile")
+          |RETURN n.__ID__
+        """.stripMargin, Map.empty, CypherDAO.stringList)
+      accountIds = accounts.map(_.id)
+    } yield {
+      val noProfile = accountIds.diff(profileIds)
+      // Going nicely imperative here - sorry!
+      var out = ""
+      if (!noProfile.isEmpty) {
+        out += "Users have account but no profile\n"
+        noProfile.foreach { u =>
+          out += s"  $u\n"
+        }
+      }
+      Ok(out)
     }
   }
 }

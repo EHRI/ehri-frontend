@@ -1,11 +1,15 @@
-@(repository: Repository)(implicit lang: Lang)
+@(item: DocumentaryUnit)(implicit lang: Lang)
+
 
 <profiledesc>
     <creation>
-        <date></date>
+        This EAD file was exported from the EHRI admin database tool.
+        <date>@org.joda.time.DateTime.now().toString()</date>
     </creation>
-    <langusage>
-
-    </langusage>
+    @item.model.primaryDescription.map { desc =>
+        <langusage>
+            <language langcode="@desc.languageCode">@views.Helpers.languageCodeToName(desc.languageCode)</language>
+        </langusage>
+    }
     <descrules encodinganalog="3.7.2">ISAD(G)</descrules>
 </profiledesc>

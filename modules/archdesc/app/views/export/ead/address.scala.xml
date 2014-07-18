@@ -1,7 +1,9 @@
 @(address: AddressF)(implicit lang: Lang)
 
+@if(!address.toSeq.isEmpty) {
 <address>
     @address.toSeq.map { line =>
         <addressline>@line</addressline>
     }
 </address>
+}

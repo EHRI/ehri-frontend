@@ -30,6 +30,7 @@ dates.after=After {0,number,#}
 dates.all=All
 
 datePeriod.type.creation=Creation
+datePeriod.type.existence=Existence
 datePeriod.precision=Precision
 datePeriod.precision.year=Year
 datePeriod.precision.quarter=Quarter
@@ -227,19 +228,29 @@ annotation.create=Annotate Item
 # Linking
 #
 link.linkTo=Links to Other Items
-link.linkTo.submit=Link Items
-link.items=Linked Items
-link.itemLink=Item Link
-link.creator=Link Created By
-link.description=Link Body
+link.linkTo.submit=Create Relationship
+link.items=Related Items
+link.itemLink=Relationship
+link.creator=Relationship Created By
+link.description=Description of Relationship
 link.description.description=Some text that describes how these items are related.
 link.create=Link to another item
 link.create.item=Link ''{0}'' to ''{1}''
+link.update=Update Relation
+link.update.submit=Submit
 link.create.to.documentaryUnit=Link to a documentary unit
 link.create.to.historicalAgent=Link to an authority file
 link.create.to.virtualUnit=Link to Virtual Item
 link.create.to.cvocConcept=Link to a vocabulary term
-link.delete=Delete Link
+link.delete=Delete Relationship
+link.dates=Dates of Relationship
+link.type=Type of Relationship
+link.associative=Associative
+link.hierarchical=Hierarchical
+link.family=Familial
+link.temporal=Temporal
+link.creation=Creation
+link.existence=Existence
 
 #
 # System Events

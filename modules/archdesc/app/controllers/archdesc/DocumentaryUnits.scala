@@ -12,10 +12,10 @@ import com.google.inject._
 import solr.SolrConstants
 import scala.concurrent.Future.{successful => immediate}
 import backend.{ApiUser, Backend}
-import utils.ListParams
 import play.api.Play.current
 import play.api.Configuration
-import play.api.http.MimeTypes
+import play.api.http.{HeaderNames, MimeTypes}
+import utils.ead.EadExporter
 
 
 @Singleton
@@ -338,7 +338,7 @@ case class DocumentaryUnits @Inject()(implicit globalConfig: global.GlobalConfig
 
   def linkAnnotate(id: String, toType: EntityType.Value, to: String) = linkAction(id, toType, to) {
       target => source => implicit userOpt => implicit request =>
-    Ok(views.html.link.link(target, source,
+    Ok(views.html.link.create(target, source,
         Link.form, docRoutes.linkAnnotatePost(id, toType, to)))
   }
 
@@ -346,7 +346,7 @@ case class DocumentaryUnits @Inject()(implicit globalConfig: global.GlobalConfig
       formOrAnnotation => implicit userOpt => implicit request =>
     formOrAnnotation match {
       case Left((target,source,errorForm)) => {
-        BadRequest(views.html.link.link(target, source,
+        BadRequest(views.html.link.create(target, source,
           errorForm, docRoutes.linkAnnotatePost(id, toType, to)))
       }
       case Right(annotation) => {
@@ -385,26 +385,12 @@ case class DocumentaryUnits @Inject()(implicit globalConfig: global.GlobalConfig
   import utils.ead.DocTree
 
   def exportEad(id: String) = optionalUserAction.async { implicit userOpt => implicit request =>
-    import scala.concurrent.Future
     implicit val apiUser = ApiUser(userOpt.map(_.id))
-
-    val params = ListParams(limit = -1) // can't get around large limits yet...
     val eadId: String = docRoutes.exportEad(id).absoluteURL(globalConfig.https)
 
-    def fetchTree(id: String): Future[DocTree] = {
-      for {
-        doc <- backend.get[DocumentaryUnit](id)
-        children <- backend.listChildren[DocumentaryUnit,DocumentaryUnit](id, params)
-        trees <- Future.sequence(children.map(c => {
-          if (c.childCount.getOrElse(0) > 0) fetchTree(c.id)
-          else Future.successful(DocTree(eadId, c, Seq.empty))
-        }))
-      } yield DocTree(eadId, doc, trees)
-    }
-
-    fetchTree(id).map { tree =>
-      Ok(views.export.ead.Helpers.tidyXml(views.xml.export.ead.documentaryUnitEad(tree).body))
-        .as(MimeTypes.XML)
+    EadExporter(backend).exportEad(id, eadId).map { xml =>
+      Ok(xml).as(MimeTypes.XML)
+      //.withHeaders(HeaderNames.CONTENT_DISPOSITION -> s"attachment; filename=$id-ead.xml")
     }
   }
 }

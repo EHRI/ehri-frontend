@@ -1,0 +1,10 @@
+@(tag: String, data: Option[Seq[String]])
+
+@data.filterNot(_.isEmpty).map { content =>
+    <@tag>
+        @content.map { v =>
+            @Xml(views.export.ead.Helpers.renderMarkdownAsEad(v))
+        }
+    </@tag>
+}
+

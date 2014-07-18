@@ -318,12 +318,12 @@ class SupervisorWorkerIntegrationSpec extends Neo4jRunnerSpec(classOf[Supervisor
           controllers.archdesc.routes.DocumentaryUnits.update(doc3Id).url).withHeaders(formPostHeaders.toSeq: _*),
           doc3Data.updated("descriptions[0].identityArea.name", Seq("Foobar"))).get
       println("STATUS: " + status(doc3UpdateRead))
-      status(doc3UpdateRead) must equalTo(UNAUTHORIZED)
+      status(doc3UpdateRead) must equalTo(FORBIDDEN)
 
       // Now ensure the ordinary archivist cannot delete it!
       val doc3DeleteRead = route(fakeLoggedInHtmlRequest(aAccount, POST,
           controllers.archdesc.routes.DocumentaryUnits.delete(doc3Id).url).withHeaders(formPostHeaders.toSeq: _*)).get
-      status(doc3UpdateRead) must equalTo(UNAUTHORIZED)
+      status(doc3UpdateRead) must equalTo(FORBIDDEN)
 
       // Test the ordinary archivist can Create a documentary units within repoId
       // and the head archivist CAN delete it...

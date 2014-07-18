@@ -9,9 +9,7 @@ import org.pegdown.{LinkRenderer, Extensions, PegDownProcessor}
  * @author Mike Bryant (http://github.com/mikesname)
  */
 object Helpers {
-  def tidyXml(xml: String): String = {
-    XmlFormatter.format(xml)
-  }
+  def tidyXml(xml: String): String = XmlFormatter.format(xml)
 
   // Initialize Markdown processor for rendering markdown. NB: The
   // instance is apparently not thread safe, so using a threadlocal
@@ -30,10 +28,8 @@ object Helpers {
     }
   }
 
-  private val eadSerializer = new ToEadSerializer(new LinkRenderer)
-
-  def renderMarkdownAsEad(text: String): String =
-    eadSerializer.toEad(getMarkdownProcessor.parseMarkdown(
+  def renderMarkdownAsEad(text: String): String = new ToEadSerializer(new LinkRenderer)
+      .toEad(getMarkdownProcessor.parseMarkdown(
       getMarkdownProcessor.prepareSource(text.toCharArray)))
 
 }

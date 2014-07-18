@@ -4,14 +4,13 @@ import models.base.Model
 import org.joda.time.DateTime
 
 import defines.EntityType
-import models.json._
-import play.api.libs.json._
-import play.api.libs.functional.syntax._
-import play.api.data.Form
-import play.api.data.Forms._
 
 
 object DatePeriodF {
+
+  import models.json._
+  import play.api.libs.json._
+  import play.api.libs.functional.syntax._
 
   val TYPE = "type"
   val START_DATE = "startDate"
@@ -21,6 +20,7 @@ object DatePeriodF {
   object DatePeriodType extends Enumeration {
     type Type = Value
     val Creation = Value("creation")
+    val Existence = Value("existence")
 
     implicit val format = defines.EnumUtils.enumFormat(this)
   }
@@ -73,7 +73,7 @@ object DatePeriodF {
 case class DatePeriodF(
   isA: EntityType.Value = EntityType.DatePeriod,
   id: Option[String],
-  `type`: Option[DatePeriodF.DatePeriodType.Type],
+  `type`: Option[DatePeriodF.DatePeriodType.Type] = None,
   startDate: Option[String] = None,
   endDate: Option[String] = None,
   precision: Option[DatePeriodF.DatePeriodPrecision.Type] = None
@@ -105,6 +105,9 @@ object DatePeriod {
       case e: IllegalArgumentException => false
     }
   }
+
+  import play.api.data.Form
+  import play.api.data.Forms._
 
   val form = Form(mapping(
     ISA -> ignored(EntityType.DatePeriod),

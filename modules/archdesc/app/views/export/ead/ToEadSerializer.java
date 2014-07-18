@@ -27,6 +27,7 @@ public class ToEadSerializer implements Visitor {
     protected TableNode currentTableNode;
     protected int currentTableColumn;
     protected boolean inTableHeader;
+    protected boolean inListItem;
 
     public ToEadSerializer(LinkRenderer linkRenderer) {
         this.linkRenderer = linkRenderer;
@@ -121,7 +122,9 @@ public class ToEadSerializer implements Visitor {
 
     public void visit(ListItemNode node) {
         printer.println();
+        inListItem = true;
         printTag(node, "item");
+        inListItem = false;
     }
 
     public void visit(MailLinkNode node) {
@@ -133,7 +136,11 @@ public class ToEadSerializer implements Visitor {
     }
 
     public void visit(ParaNode node) {
-        printTag(node, "p");
+        if (!inListItem) {
+            printTag(node, "p");
+        } else {
+            visitChildren(node);
+        }
     }
 
     public void visit(QuotedNode node) {

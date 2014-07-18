@@ -367,7 +367,7 @@ case class VirtualUnits @Inject()(implicit globalConfig: global.GlobalConfig, se
 
   def linkAnnotate(id: String, toType: EntityType.Value, to: String) = linkAction(id, toType, to) {
       target => source => implicit userOpt => implicit request =>
-    Ok(views.html.link.link(target, source,
+    Ok(views.html.link.create(target, source,
         Link.form, vuRoutes.linkAnnotatePost(id, toType, to)))
   }
 
@@ -375,7 +375,7 @@ case class VirtualUnits @Inject()(implicit globalConfig: global.GlobalConfig, se
       formOrAnnotation => implicit userOpt => implicit request =>
     formOrAnnotation match {
       case Left((target,source,errorForm)) => {
-        BadRequest(views.html.link.link(target, source,
+        BadRequest(views.html.link.create(target, source,
           errorForm, vuRoutes.linkAnnotatePost(id, toType, to)))
       }
       case Right(annotation) => {

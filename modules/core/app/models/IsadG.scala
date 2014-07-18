@@ -32,6 +32,7 @@ case object IsadG {
   val REF = "ref"
   val DATES = "dates"
   val LEVEL_OF_DESCRIPTION = "levelOfDescription"
+  val PHYSICAL_LOCATION = "physicalLocation"
   val EXTENT_MEDIUM = "extentAndMedium"
   val PUB_STATUS = "publicationStatus"
   val LANG_CODE = "languageCode"
@@ -74,4 +75,5 @@ case object IsadG {
   val RULES_CONVENTIONS = "rulesAndConventions"
   val DATES_DESCRIPTIONS = "datesOfDescriptions"
   val PROVENANCE ="provenance"
+  val SOURCES ="sources"
 }

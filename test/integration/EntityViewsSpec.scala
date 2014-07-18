@@ -118,7 +118,7 @@ class EntityViewsSpec extends Neo4jRunnerSpec(classOf[EntityViewsSpec]) {
       )
       val cr = route(fakeLoggedInHtmlRequest(unprivilegedUser, POST,
         controllers.authorities.routes.HistoricalAgents.updatePost("a1").url).withHeaders(formPostHeaders.toSeq: _*), testData).get
-      status(cr) must equalTo(UNAUTHORIZED)
+      status(cr) must equalTo(FORBIDDEN)
     }
 
     "show correct default values in the form when creating new items" in new FakeApp(
@@ -127,6 +127,14 @@ class EntityViewsSpec extends Neo4jRunnerSpec(classOf[EntityViewsSpec]) {
         controllers.authorities.routes.AuthoritativeSets.createHistoricalAgent("auths").url)).get
       status(form) must equalTo(OK)
       contentAsString(form) must contain("SOME RANDOM VALUE")
+    }
+
+    "contain links to external items" in new FakeApp {
+      val show = route(fakeLoggedInHtmlRequest(privilegedUser, GET,
+        controllers.authorities.routes.HistoricalAgents.get("a1").url)).get
+      contentAsString(show) must contain("external-item-link")
+      contentAsString(show) must contain(
+        controllers.archdesc.routes.DocumentaryUnits.get("c1").url)
     }
   }
 

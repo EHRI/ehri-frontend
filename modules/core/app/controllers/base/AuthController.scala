@@ -215,12 +215,10 @@ trait AuthController extends Controller with ControllerHelpers with AsyncAuth wi
   object adminAction {
     def async(f: Option[UserProfile] => Request[AnyContent] => Future[Result]): Action[AnyContent] = {
       userProfileAction.async { implicit  maybeUser => implicit request =>
-        maybeUser.flatMap { user =>
-          if (user.isAdmin) Some(f(maybeUser)(request))
-          else None
-        } getOrElse {
-          immediate(Unauthorized(views.html.errors.permissionDenied()))
-        }
+        maybeUser.map { user =>
+          if (user.isAdmin) f(maybeUser)(request)
+          else authorizationFailed(request)
+        } getOrElse authenticationFailed(request)
       }
     }
 
@@ -237,12 +235,10 @@ trait AuthController extends Controller with ControllerHelpers with AsyncAuth wi
     def async[A,MT](bodyParser: BodyParser[A], id: String, perm: PermissionType.Value, contentType: ContentTypes.Value, permContentType: Option[ContentTypes.Value] = None)(
         f: MT => Option[UserProfile] => Request[A] => Future[Result])(implicit rs: RestResource[MT], rd: RestReadable[MT]): Action[A] = {
       itemPermissionAction.async[A,MT](bodyParser, contentType, id) { entity => implicit maybeUser => implicit request =>
-        maybeUser.flatMap { user =>
-          if (user.hasPermission(permContentType.getOrElse(contentType), perm)) Some(f(entity)(maybeUser)(request))
-          else None
-        } getOrElse {
-          immediate(Unauthorized(views.html.errors.permissionDenied()))
-        }
+        maybeUser.map { user =>
+          if (user.hasPermission(permContentType.getOrElse(contentType), perm)) f(entity)(maybeUser)(request)
+          else authorizationFailed(request)
+        } getOrElse authenticationFailed(request)
       }
     }
 
@@ -267,11 +263,8 @@ trait AuthController extends Controller with ControllerHelpers with AsyncAuth wi
     def async(perm: PermissionType.Value, contentType: ContentTypes.Value)(
         f: Option[UserProfile] => Request[AnyContent] => Future[Result]): Action[AnyContent] = {
       withUserAction.async { implicit user => implicit request =>
-        if (user.hasPermission(contentType, perm)) {
-          f(Some(user))(request)
-        } else {
-          immediate(Unauthorized(views.html.errors.permissionDenied()))
-        }
+        if (user.hasPermission(contentType, perm)) f(Some(user))(request)
+        else authorizationFailed(request)
       }
     }
 

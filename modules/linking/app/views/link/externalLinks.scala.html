@@ -1,38 +1,17 @@
-@**
-* Render links to external items that have an access point pointing to this item.
-*
-*@
 @(item: DescribedMeta[Description, Described[Description]], links: Seq[Link])(implicit userOpt: Option[UserProfile], req: RequestHeader, globalConfig: global.GlobalConfig)
 
-@opposingTarget(item: AnyModel, link: Link) = @{
-    link.targets.filterNot(p => item.id == p.id).headOption
-}
-
-
-@if(!links.isEmpty) {
-    @defining(item.descriptions.flatMap(_.accessPoints)) { allAccessPoints =>
-        @defining(item.externalLinks(links)) { notLinked =>
-            @if(!notLinked.isEmpty) {
-                <div class="external-links">
-                    <hr />
-                    <h3>@Messages("accessPoint.externalReferences")</h3>
-                    <ul>
-                        @notLinked.map { link =>
-                            @opposingTarget(item, link).map { other =>
-                                <li class="resolved-access-point">
-                                    <a href="@globalConfig.routeRegistry.urlFor(other)">@other.toStringLang</a>
-                                    <a class="alt" href="@controllers.linking.routes.Links.getAndRedirect(link.id, Some(item.id))">
-                                        &times;
-                                    </a>
-                                    @link.model.description.map { desc =>
-                                        <p>@desc</p>
-                                    }
-                                </li>
-                            }
-                        }
-                    </ul>
-                </div>
-            }
-        }
+@defining(item.externalLinks(links)) { externalLinks =>
+    @if(!externalLinks.isEmpty) {
+        <div class="external-links">
+            <hr />
+            <h3>@Messages("accessPoint.externalReferences")</h3>
+            <ul>
+                @for(link <- externalLinks ; other <- link.opposingTarget(item)) {
+                    <li class="external-item-link">
+                        @views.html.link.itemLink(link, other)
+                    </li>
+                }
+            </ul>
+        </div>
     }
 }

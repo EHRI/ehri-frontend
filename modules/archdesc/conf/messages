@@ -50,6 +50,7 @@ documentaryUnit.create.submit=Create Collection
 documentaryUnit.update=Update Collection
 documentaryUnit.update.submit=Update Collection
 documentaryUnit.child.create=Create New Child Item
+documentaryUnit.export.ead=Export EAD (Testing)
 
 
 documentDescription.identifier=Description ID (Optional)
@@ -163,6 +164,10 @@ documentaryUnit.item=Item
 documentaryUnit.otherlevel=Other Level
 documentaryUnit.class=Class
 documentaryUnit.creation=Creation
+
+documentaryUnit.physicalLocation=Physical Location
+documentaryUnit.physicalLocation.description=The physical location or shelf number of the item(s)\
+  within their repository or holding institution. (No direct ISAD(G) field equivalent.)
 
 documentaryUnit.extentAndMedium=Extent and Medium of the Unit of Description
 documentaryUnit.extentAndMedium.description=\
@@ -298,8 +303,11 @@ Record specialized or other important information not accommodated by any of the
  defined elements of description. (3.6.1)
 
 documentaryUnit.archivistNote=Archivist Note
-documentaryUnit.archivistNote.description=To explain how the description was prepared and by whom.\n\n\
-Record notes on sources consulted in preparing the description and who prepared it. (3.7.1)
+documentaryUnit.archivistNote.description=To explain how the description was prepared and by whom. (3.7.1)
+
+documentaryUnit.sources=Sources
+documentaryUnit.sources.description=Record notes on sources consulted in preparing the\
+  description and who prepared it. (3.7.1)
 
 documentaryUnit.rulesAndConventions=Rules and Conventions
 documentaryUnit.rulesAndConventions.description=To identify the protocols on which the description is based.\n\n\
