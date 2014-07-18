@@ -17,6 +17,7 @@ case class Guide(
   name: String,
   path: String,
   picture: Option[String] = None,
+  virtualUnit: Option[String] = None,
   description: Option[String] = None,
   active: Boolean,
   default: Long = 0
@@ -30,6 +31,7 @@ case class Guide(
       name = {n},
       path = {p},
       picture = {pi},
+      virtualUnit = {vu},
       description = {de},
       active = {active},
       `default` = {default}
@@ -37,7 +39,7 @@ case class Guide(
       id = {i}
     LIMIT 1
       """
-    ).on('n -> name, 'p -> path, 'pi -> picture, 'de -> description, 'i -> id, 'active -> active, 'default -> default)
+    ).on('n -> name, 'p -> path, 'vu -> virtualUnit, 'pi -> picture, 'de -> description, 'i -> id, 'active -> active, 'default -> default)
       .executeUpdate()
   }
 
@@ -73,6 +75,7 @@ object Guide {
   val OBJECTID = "id"
   val PATH = "path"
   val NAME = "name"
+  val VIRTUALUNIT = "virtualUnit"
   val DESCRIPTION = "description"
   val PICTURE = "picture"
   val ACTIVE = "active"
@@ -84,6 +87,7 @@ object Guide {
       NAME -> nonEmptyText,
       PATH -> nonEmptyText,
       PICTURE -> optional(nonEmptyText),
+      VIRTUALUNIT -> optional(nonEmptyText),
       DESCRIPTION -> optional(text),
       ACTIVE -> boolean,
       DEFAULT -> longNumber
@@ -95,24 +99,25 @@ object Guide {
       get[String](NAME) ~
       get[String](PATH) ~
       get[Option[String]](PICTURE) ~
+      get[Option[String]](VIRTUALUNIT) ~
       get[Option[String]](DESCRIPTION) ~
       get[Boolean](ACTIVE) ~
       get[Long](DEFAULT) map {
-      case gid ~ name ~ path ~ pic ~ desc ~ active ~ deft =>
-        Guide(gid, name, path, pic, desc, active, deft)
+      case gid ~ name ~ path ~ pic ~ virtualUnit ~ desc ~ active ~ deft =>
+        Guide(gid, name, path, pic, virtualUnit, desc, active, deft)
     }
   }
 
-  def blueprint(): Guide = Guide(Some(0), "", "", Some(""), Some(""), active = false, 0)
+  def blueprint(): Guide = Guide(Some(0), "", "", Some(""), Some(""), Some(""), active = false, 0)
 
   /*
   *   Create function
   */
-  def create(name: String, path: String, picture: Option[String] = None, description: Option[String] = None, active: Boolean): Option[Guide] = DB.withConnection { implicit connection =>
+  def create(name: String, path: String, picture: Option[String] = None, virtualUnit: Option[String] = None, description: Option[String] = None, active: Boolean): Option[Guide] = DB.withConnection { implicit connection =>
     val id: Option[Long] = SQL("""
       INSERT INTO research_guide
-      (name, path, picture, description, active) VALUES ({n}, {p}, {pi}, {de}, {a})""")
-      .on('n -> name, 'p -> path, 'pi -> picture, 'de -> description, 'a -> active).executeInsert()
+      (name, path, picture, virtualUnit, description, active) VALUES ({n}, {p}, {pi}, {vu}, {de}, {a})""")
+      .on('n -> name, 'p -> path, 'pi -> picture, 'vu -> virtualUnit, 'de -> description, 'a -> active).executeInsert()
     id.flatMap(findById)
   }
 

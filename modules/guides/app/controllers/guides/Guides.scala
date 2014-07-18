@@ -65,9 +65,9 @@ case class Guides @Inject()(implicit globalConfig: global.GlobalConfig, backend:
       errorForm => {
         BadRequest(views.html.guide.create(errorForm, Guide.findAll(), guidesRoutes.createPost()))
       }, {
-        case Guide(_, name, path, picture, description, active, default) => {
+        case Guide(_, name, path, picture, virtualUnit, description, active, default) => {
           itemOr404 {
-            Guide.create(name, path, picture, description, active = active).map { guide =>
+            Guide.create(name, path, picture, virtualUnit, description, active = active).map { guide =>
               Redirect(guidesRoutes.show(guide.path))
             }
           }
