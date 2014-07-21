@@ -1,6 +1,7 @@
 package models
 
 import java.util.UUID
+import utils.ListParams
 
 case class MockAccount(id: String, email: String, verified: Boolean = false, staff: Boolean = false, active: Boolean = true,
                         allowMessaging: Boolean = true) extends Account {
@@ -70,4 +71,6 @@ object MockAccountDAO extends AccountDAO {
       = MockAccountDAO.tokens.find(t => t._1 == token && t._3 == isSignUp).flatMap { case (t, p, s) =>
     findByProfileId(p)
   }
+
+  def findAll(params: ListParams): Seq[Account] = mocks.userFixtures.values.toSeq
 }

@@ -73,7 +73,7 @@ object DatePeriodF {
 case class DatePeriodF(
   isA: EntityType.Value = EntityType.DatePeriod,
   id: Option[String],
-  `type`: Option[DatePeriodF.DatePeriodType.Type],
+  `type`: Option[DatePeriodF.DatePeriodType.Type] = None,
   startDate: Option[String] = None,
   endDate: Option[String] = None,
   precision: Option[DatePeriodF.DatePeriodPrecision.Type] = None

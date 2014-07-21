@@ -13,8 +13,6 @@ import eu.ehri.project.definitions.Ontology
 case class CypherIdGenerator(idFormat: String = "%06d") extends IdGenerator with RestDAO {
   val cypher = new CypherDAO
 
-  private val extractNums = "(\\d+)\\D*$".r
-
   private def safeInt(s : String) : Option[Int] = try {
     Some(s.toInt)
   } catch {

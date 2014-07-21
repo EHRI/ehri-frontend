@@ -5,6 +5,7 @@ import backend.{ApiUser, Backend}
 import scala.concurrent.Future
 import utils.ListParams
 import models.{Repository, DocumentaryUnit}
+import views.export.ead.XmlFormatter
 
 /**
  * Class which interacts with the backend to create an EAD document
@@ -44,6 +45,6 @@ case class EadExporter(backend: Backend)(implicit apiUser: ApiUser) {
     repository <- fetchRepository(doc.holder.map(_.id))
     tree <- fetchTree(id, eadId)
     treeWithRepo = tree.copy(item = tree.item.copy(holder = repository))
-  } yield views.export.ead.Helpers.tidyXml(
+  } yield XmlFormatter.format(
       views.xml.export.ead.ead(treeWithRepo).body)
 }

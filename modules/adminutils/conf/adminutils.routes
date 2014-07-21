@@ -25,5 +25,6 @@ GET     /metrics/_clear                     @controllers.adminutils.Metrics.clea
 
 # Monitoring
 GET     /monitor/_check                     @controllers.adminutils.Utils.checkDb
+GET     /monitor/_checkUserSync             @controllers.adminutils.Utils.checkUserSync
 
 GET     /assets/*file                       controllers.adminutils.Assets.at(path="/public", file)

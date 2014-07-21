@@ -27,7 +27,9 @@ object CypherErrorReader {
 }
 
 object CypherDAO {
-  
+  import play.api.libs.json._
+  val stringList: Reads[List[String]] =
+    (__ \ "data").read[List[List[String]]].map(_.flatMap(_.headOption))
 }
 
 case class CypherDAO() extends RestDAO {
@@ -47,5 +49,8 @@ case class CypherDAO() extends RestDAO {
     val data = Json.obj("query" -> scriptBody, "params" -> params)
     Logger.logger.debug("Cypher: {}", Json.toJson(data))
     WS.url(requestUrl).withHeaders(headers.toList: _*).post(data).map(checkCypherError)
-  }  
+  }
+
+  def get[T](scriptBody: String, params: Map[String,JsValue], r: Reads[T]): Future[T] =
+    cypher(scriptBody, params).map(_.as(r))
 }
