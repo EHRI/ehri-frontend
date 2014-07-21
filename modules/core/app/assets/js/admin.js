@@ -57,6 +57,25 @@ jQuery(function($) {
   /*
   * End of quiet mode
   */
+
+  /**
+  * form-group-hidden Module
+  */
+  $(".toggle-form-group-hidden").on("click", function(e) {
+    e.preventDefault();
+    var $elem = $(this),
+        $target = $($elem.attr("href"));
+    $target.toggleClass("form-group-hidden");
+    if($target.hasClass("form-group-hidden")) {
+      $elem.find(".glyphicon").addClass("glyphicon-plus-sign").removeClass("glyphicon-minus-sign")
+    } else {
+      $elem.find(".glyphicon").addClass("glyphicon-minus-sign").removeClass("glyphicon-plus-sign")
+    }
+
+  })
+  /**
+  * END form-group-hidden Module
+  */
   /**
    * Markdown helper
    */

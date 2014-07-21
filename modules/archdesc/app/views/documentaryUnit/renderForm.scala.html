@@ -17,7 +17,7 @@
     }
 }
 
-@formHelpers.descriptionFormSection(ADMINISTRATION_AREA) {
+@formHelpers.descriptionFormSection(ADMINISTRATION_AREA, true) {
     @formHelpers.enumChoiceInput(f(PUB_STATUS), defines.PublicationStatus, Messages(PUB_STATUS))
     @defining("copyrightStatus") { implicit fieldPrefix =>
         @formHelpers.enumChoiceInput(f(COPYRIGHT), CopyrightStatus, Messages(COPYRIGHT))
