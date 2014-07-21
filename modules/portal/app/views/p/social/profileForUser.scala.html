@@ -30,8 +30,13 @@
                         <li><a href="@controllers.portal.routes.Profile.profile?tab=1"><span class="glyphicon glyphicon-edit"></span> @Messages("portal.annotation.list")</a></li>
                     }
                 } else {
-                    <li class="@(if(activeTab == "0") "active")"><a href="#user-watch-list" data-tabidx="0" data-toggle="tab"><span class="glyphicon glyphicon-star"></span> @Messages("portal.profile.watch.list")</a></li>
-                    <li class="@(if(activeTab == "1") "active")"><a href="#user-activity" data-tabidx="1" data-toggle="tab"><span class="glyphicon glyphicon-list"></span> @Messages("portal.activity")</a></li>
+                    @if(profilePage) {
+                        <li class="@(if(activeTab == "0") "active")"><a href="#user-watch-list" data-tabidx="0" data-toggle="tab"><span class="glyphicon glyphicon-star"></span> @Messages("portal.profile.watch.list")</a></li>
+                        <li class="@(if(activeTab == "1") "active")"><a href="#user-activity" data-tabidx="1" data-toggle="tab"><span class="glyphicon glyphicon-list"></span> @Messages("portal.activity")</a></li>
+                    } else {
+                        <li class="active"><a href="@controllers.portal.routes.Social.browseUser(user.id)"><i class="glyphicon glyphicon-list"></i> @Messages("portal.activity")</a></li>
+                        <li><a href="@controllers.portal.routes.Social.browseUser(user.id)?tab=1"><span class="glyphicon glyphicon-star"></span> @Messages("portal.profile.watch.list")</a></li>
+                    }
                 }
             }
         </ul>
