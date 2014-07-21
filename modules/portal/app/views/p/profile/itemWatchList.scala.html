@@ -1,25 +1,32 @@
 @(them: UserProfile, items: utils.AbstractPage[AnyModel])(implicit req: RequestHeader, userOpt: Option[UserProfile], lang: Lang, globalConfig: global.GlobalConfig)
 
-@if(!items.isEmpty) {
-    <ul class="list-unstyled watched-items">
-        @items.map { item =>
-            <li>
-                @p.listItem(item, true)
-            </li>
-        }
-    </ul>
-    @common.pagination(items, pageParam = "wpage")
-    <div class="pull-right small text-muted">
-        <span class="glyphicon glyphicon-download"></span>
-        @for(fmt <- Seq(DataFormat.Text, DataFormat.Csv, DataFormat.Json)) {
-            <a class="alt" target="_blank" title="@Messages("portal.download.format." + fmt.toString)" href="@controllers.portal.routes.Profile.watching(format = fmt)&limit=-1">
-            @fmt
-            </a>
-        }
+@defining(userOpt.exists(_.id == them.id)) { isCurrentUser =>
 
-    </div>
-} else {
-    <p class="text-muted">
-        @Messages("portal.social.noItemsWatchedYet")
-    </p>
+    @if(!items.isEmpty) {
+        <ul class="list-unstyled watched-items">
+            @items.map { item =>
+                <li>
+                    @p.listItem(item, true)
+                </li>
+            }
+        </ul>
+        @common.pagination(items, pageParam = "wpage")
+        <div class="pull-right small text-muted">
+            <span class="glyphicon glyphicon-download"></span>
+            @for(fmt <- Seq(DataFormat.Text, DataFormat.Csv, DataFormat.Json)) {
+                <a class="alt" target="_blank" title="@Messages("portal.download.format." + fmt.toString)" href="@controllers.portal.routes.Profile.watching(format = fmt)&limit=-1">
+                @fmt
+                </a>
+            }
+
+        </div>
+    } else {
+        <p class="text-muted">
+            @if(isCurrentUser) {
+                @Messages("portal.social.noItemsWatchedYet")
+            } else {
+                @Messages("portal.social.noUserItemsWatchedYet", them.toStringLang)
+            }
+        </p>
+    }
 }

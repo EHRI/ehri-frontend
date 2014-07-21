@@ -1,4 +1,4 @@
-@(them: UserProfile, events: List[SystemEvent], followed: Boolean, canMessage: Boolean)(implicit userOpt: Option[UserProfile], request: RequestHeader, prefs: utils.SessionPrefs, globalConfig: global.GlobalConfig, lang: Lang, flash: Flash)
+@(them: UserProfile, events: List[SystemEvent], watchList: utils.AbstractPage[AnyModel], followed: Boolean, canMessage: Boolean)(implicit userOpt: Option[UserProfile], request: RequestHeader, prefs: utils.SessionPrefs, globalConfig: global.GlobalConfig, lang: Lang, flash: Flash)
 
 @p.layout.portalLayout(them.toStringLang, "user") {
     @profileBar(them){
@@ -10,20 +10,41 @@
         }
     }
 
-    <div class="main-content">
+    @layout.mainContent {
         @profileForUser(them)
-        <div class="user-profile-activity">
 
-                <h3 class="block-header user">@Messages("portal.activity")</h3>
-                @if(!events.isEmpty) {
-                <div class="timeline-container">
-                    <ul id="activity-stream" class="timeline">
-                        @p.activity.eventItems(events)
-                    </ul>
+        <div class="user-profile-content">
+            @defining(request.getQueryString("tab").getOrElse("0")) { activeTab =>
+                <div class="tab-header">
+                    <h3 class="block-header user @(if(activeTab == "0") "active")">
+                        <a href="#user-watch-list" data-tabidx="0" title="@Messages("portal.profile.watch.list")" data-toggle="tab">
+                            @Messages("portal.profile.watch.list")
+                        </a>
+                    </h3>
+                    <h3 class="block-header user @(if(activeTab == "1") "active")">
+                        <a href="#user-activity" data-tabidx="1" title="@Messages("portal.activity")" data-toggle="tab">
+                            @Messages("portal.activity")
+                        </a>
+                    </h3>
                 </div>
-                } else {
-                    <p class="text-muted">@Messages("portal.activity.noUserActivityYet")</p>
-                }
+                <div class="tab-content">
+                    <div class="tab-pane @(if(activeTab == "0") "active")" id="user-watch-list">
+                        @p.profile.itemWatchList(them, watchList)
+                    </div>
+                    <div class="tab-pane @(if(activeTab == "1") "active")" id="user-activity">
+                        @if(!events.isEmpty) {
+                        <div class="timeline-container">
+                            <ul id="activity-stream" class="timeline">
+                                @p.activity.eventItems(events)
+                            </ul>
+                        </div>
+                        } else {
+                            <p class="text-muted">@Messages("portal.activity.noUserActivityYet")</p>
+                        }
+                    </div>
+                </div>
+            }
         </div>
-    </div>
+
+    }
 }
