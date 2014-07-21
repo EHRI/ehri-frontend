@@ -44,12 +44,13 @@ trait PortalActions {
   /**
    * Fetched watched items for an optional user.
    */
-  def watchedItems(implicit userOpt: Option[UserProfile]): Future[List[AnyModel]] = {
-    userOpt.map(user => {
-      // TODO: Figure out a caching strategy that isn't too fragile
-      backend.listWatching(user.id, ListParams.empty.withoutLimit)
-    }).getOrElse(Future.successful(List.empty[AnyModel]))
-  }
+  def watchedItems(implicit userOpt: Option[UserProfile]): Future[List[AnyModel]] =
+    watchedItems1(userOpt.map(_.id))
+
+  def watchedItems1(userId: Option[String]): Future[List[AnyModel]] = userId.map { id =>
+    implicit val apiUser = ApiUser(Some(id))
+    backend.listWatching(id, ListParams.empty.withoutLimit)
+  }.getOrElse(Future.successful(List.empty[AnyModel]))
 
 
   /**
@@ -60,10 +61,12 @@ trait PortalActions {
       optionalUserAction.async { accountOpt => request =>
         accountOpt.map { account =>
           implicit val apiUser: ApiUser = ApiUser(Some(account.id))
+          val userF: Future[UserProfile] = backend.get[UserProfile](account.id)
+          val watchedF: Future[List[AnyModel]] = watchedItems1(userId = Some(account.id))
           for {
-            user <- backend.get[UserProfile](account.id)
+            user <- userF
             userWithAccount = user.copy(account=Some(account))
-            watched <- watchedItems(Some(user))
+            watched <- watchedF
             r <- f(UserDetails(Some(userWithAccount), watched))(request)
           } yield r
         } getOrElse {
@@ -82,9 +85,11 @@ trait PortalActions {
     implicit rs: RestResource[MT], rd: RestReadable[MT]) = {
     userProfileAction.async { implicit userOpt => implicit request =>
       val params = paramsOpt.getOrElse(PageParams.fromRequest(request))
+      val pageF: Future[Page[MT]] = backend.page(params)
+      val watchedF: Future[List[AnyModel]] = watchedItems
       for {
-        page <- backend.page(params)
-        watched <- watchedItems
+        page <- pageF
+        watched <- watchedF
       } yield f(page)(params)(watched)(userOpt)(request)
     }
   }
@@ -108,15 +113,15 @@ trait PortalActions {
     def async[MT](entityType: EntityType.Value, id: String)(
       f: MT => ItemDetails => Option[UserProfile] => Request[AnyContent] => Future[Result])(
                    implicit rs: RestResource[MT], rd: RestReadable[MT], cfmt: ClientConvertable[MT]): Action[AnyContent] = {
-      itemPermissionAction.async[MT](contentType = ContentTypes.withName(entityType.toString), id) { item => implicit userOpt => implicit request =>
-        def isWatching =
-          if (userOpt.isDefined)backend.isWatching(userOpt.get.id, id)
-          else Future.successful(false)
-
+      itemPermissionAction.async[MT](contentType = ContentTypes.withName(entityType.toString), id) {
+          item => implicit userOpt => implicit request =>
+        val watchedF: Future[List[AnyModel]] = watchedItems
+        val annotationF: Future[Seq[Annotation]] = backend.getAnnotationsForItem(id)
+        val linksF: Future[List[Link]] = backend.getLinksForItem(id)
         for {
-          watched <- watchedItems
-          anns <- backend.getAnnotationsForItem(id)
-          links <- backend.getLinksForItem(id)
+          watched <- watchedF
+          anns <- annotationF
+          links <- linksF
           r <- f(item)(ItemDetails(anns, links, watched))(userOpt)(request)
         } yield r
       }

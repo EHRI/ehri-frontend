@@ -56,20 +56,6 @@ trait AuthController extends Controller with ControllerHelpers with AsyncAuth wi
   }
 
   /**
-   * ActionBuilder that randles REST errors appropriately...
-   */
-  object RestAction extends ActionBuilder[Request] {
-    def invokeBlock[A](request: Request[A], block: (Request[A]) => Future[Result]) = {
-      block(request) recoverWith {
-        case e: PermissionDenied => Future.successful(play.api.mvc.Results.Unauthorized("denied! No stairway!"))
-        case e: ItemNotFound => Future.successful(play.api.mvc.Results.NotFound("Not found! " + e.toString))
-        case e: java.net.ConnectException => Future.successful(play.api.mvc.Results.NotFound("No database!"))
-      }
-    }
-  }
-
-
-  /**
    * SystemEvent composition that adds extra context to regular requests. Namely,
    * the profile of the user requesting the page, and her permissions.
    */
@@ -85,7 +71,7 @@ trait AuthController extends Controller with ControllerHelpers with AsyncAuth wi
               views.html.errors.verifiedOnly())))
           } else {
             // For the permissions to be properly initialized they must
-            // recieve a completely-constructed instance of the UserProfile
+            // receive a completely-constructed instance of the UserProfile
             // object, complete with the groups it belongs to. Since this isn't
             // available initially, and we don't want to block for it to become
             // available, we should probably add the account to the permissions when
@@ -93,9 +79,11 @@ trait AuthController extends Controller with ControllerHelpers with AsyncAuth wi
             val fakeProfile = UserProfile(UserProfileF(id=Some(account.id), identifier="", name=""))
             implicit val maybeUser = Some(fakeProfile)
 
+            val userF = backend.get[UserProfile](UserProfile.Resource, account.id)
+            val globalPermsF = backend.getGlobalPermissions(fakeProfile)
             for {
-              user <- backend.get[UserProfile](UserProfile.Resource, account.id)
-              globalPerms <- backend.getGlobalPermissions(fakeProfile)
+              user <- userF
+              globalPerms <- globalPermsF
               up = user.copy(account = Some(account), globalPermissions = Some(globalPerms.copy(user=user)))
               r <- f(Some(up))(request)
             } yield r
@@ -155,10 +143,13 @@ trait AuthController extends Controller with ControllerHelpers with AsyncAuth wi
           // within the scope of the particular item. This could be optimised, but
           // it would involve some duplication of code.
           // These requests should execute in parallel...
+          val scopedPermsF = backend.getScopePermissions(user, id)
+          val itemPermsF = backend.getItemPermissions(user, contentType, id)
+          val getF = backend.get(rs, id)
           for {
-            globalPerms <- backend.getScopePermissions(user, id)
-            itemPerms <- backend.getItemPermissions(user, contentType, id)
-            item <- backend.get(rs, id)
+            globalPerms <- scopedPermsF
+            itemPerms <- itemPermsF
+            item <- getF
             up = user.copy(globalPermissions = Some(globalPerms), itemPermissions = Some(itemPerms))
             r <- f(item)(Some(up))(request)
           } yield r
@@ -234,7 +225,8 @@ trait AuthController extends Controller with ControllerHelpers with AsyncAuth wi
   object withItemPermission {
     def async[A,MT](bodyParser: BodyParser[A], id: String, perm: PermissionType.Value, contentType: ContentTypes.Value, permContentType: Option[ContentTypes.Value] = None)(
         f: MT => Option[UserProfile] => Request[A] => Future[Result])(implicit rs: RestResource[MT], rd: RestReadable[MT]): Action[A] = {
-      itemPermissionAction.async[A,MT](bodyParser, contentType, id) { entity => implicit maybeUser => implicit request =>
+      itemPermissionAction.async[A,MT](bodyParser, contentType, id) {
+          entity => implicit maybeUser => implicit request =>
         maybeUser.map { user =>
           if (user.hasPermission(permContentType.getOrElse(contentType), perm)) f(entity)(maybeUser)(request)
           else authorizationFailed(request)

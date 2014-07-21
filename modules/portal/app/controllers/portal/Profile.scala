@@ -17,7 +17,7 @@ import play.Logger
 import scala.concurrent.Future
 import views.html.p
 import utils.search.{Resolver, Dispatcher}
-import backend.Backend
+import backend.{Page, Backend}
 
 import com.google.inject._
 import net.coobird.thumbnailator.tasks.UnsupportedFormatException
@@ -193,9 +193,11 @@ case class Profile @Inject()(implicit globalConfig: global.GlobalConfig, searchD
   def profile = withUserAction.async { implicit user => implicit request =>
     val watchParams = PageParams.fromRequest(request, namespace = "w")
     val annParams = PageParams.fromRequest(request, namespace = "a")
+    val watchingF = backend.pageWatching(user.id, watchParams)
+    val annotationsF = backend.userAnnotations(user.id, annParams)
     for {
-      watchList <- backend.pageWatching(user.id, watchParams)
-      anns <- backend.userAnnotations(user.id, annParams)
+      watchList <- watchingF
+      anns <- annotationsF
     } yield Ok(p.profile.profile(watchList, anns))
   }
 
@@ -324,12 +326,11 @@ case class Profile @Inject()(implicit globalConfig: global.GlobalConfig, searchD
       case Right(multipartForm) => multipartForm.file("image").map { file =>
         if (isValidContentType(file)) {
           try {
-            convertAndUploadFile(file, user, request).flatMap { url =>
-              backend.patch(user.id, Json.obj(UserProfileF.IMAGE_URL -> url)).map { _ =>
-                Redirect(profileRoutes.profile())
+            for {
+              url <- convertAndUploadFile(file, user, request)
+              _ <- backend.patch(user.id, Json.obj(UserProfileF.IMAGE_URL -> url))
+            } yield Redirect(profileRoutes.profile())
                   .flashing("success" -> "profile.update.confirmation")
-              }
-            }
           } catch {
             case e: UnsupportedFormatException => immediate(onError("badFileType"))
           }
