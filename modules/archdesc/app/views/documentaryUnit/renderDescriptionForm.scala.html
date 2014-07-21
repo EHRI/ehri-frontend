@@ -35,8 +35,8 @@
                     }
                 </div>
             </div>
-            @enumChoiceInput(desc(LEVEL_OF_DESCRIPTION), LevelOfDescription, LEVEL_OF_DESCRIPTION, blank=true)
-            @inlineNameSet(desc, PHYSICAL_LOCATION)
+        @enumChoiceInput(desc(LEVEL_OF_DESCRIPTION), LevelOfDescription, LEVEL_OF_DESCRIPTION, blank=true)
+            @hiddenInputSet(desc, PHYSICAL_LOCATION)
             @textInput(desc, EXTENT_MEDIUM)
         }
     }
