@@ -1,12 +1,16 @@
-@(value: Option[List[String]], fieldName: String, transformFunc: (String => String) = { s => s})(implicit prefix: String = "")
+@(value: Option[List[String]], fieldName: String, transformFunc: (String => String) = { s => s})(implicit fieldPrefix: String = "")
 
 @value.map { list =>
     @if(!list.isEmpty) {
-        <h5>@Messages(if (prefix.isEmpty) fieldName else "%s.%s".format(prefix, fieldName))</h5>
-        <ul>
-            @list.map { item =>
-                <li>@transformFunc(item)</li>
-            }
-        </ul>
+    	<div class="item-text-field" id="@fieldName">
+            <h4 class="item-text-field-header">@Messages(if (fieldPrefix.isEmpty) fieldName else "%s.%s".format(fieldPrefix, fieldName))</h4>
+            <div class="item-text-field-value">
+		        <ul>
+	            @list.map { item =>
+	                <li>@transformFunc(item)</li>
+	            }
+        		</ul>
+            </div>
+    	</div>
     }
 }
