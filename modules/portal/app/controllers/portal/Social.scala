@@ -96,9 +96,9 @@ case class Social @Inject()(implicit globalConfig: global.GlobalConfig, searchDi
   }
 
   def browseUser(userId: String) = withUserAction.async { implicit user => implicit request =>
+    // Show the profile home page of a defined user.
+    // Activity is the default page
     val params = ListParams.fromRequest(request)
-    val watchParams = PageParams.fromRequest(request)
-    val watching: Future[Page[AnyModel]] = backend.pageWatching(userId, watchParams)
     val eventParams = SystemEventParams.fromRequest(request).copy(users = List(userId))
       .copy(eventTypes = activityEventTypes)
       .copy(itemTypes = activityItemTypes)
@@ -109,10 +109,24 @@ case class Social @Inject()(implicit globalConfig: global.GlobalConfig, searchDi
     for {
       them <- backend.get[UserProfile](userId)
       theirActivity <- events
+      followed <- isFollowing
+      canMessage <- allowMessage
+    } yield Ok(p.social.browseUser(them, theirActivity, followed, canMessage))
+  }
+
+  def watchedByUser(userId: String) = withUserAction.async { implicit user => implicit request =>
+    // Show a list of watched item by a defined User
+    val watchParams = PageParams.fromRequest(request)
+    val watching: Future[Page[AnyModel]] = backend.pageWatching(userId, watchParams)
+    val isFollowing: Future[Boolean] = backend.isFollowing(user.id, userId)
+    val allowMessage: Future[Boolean] = canMessage(user.id, userId)
+
+    for {
+      them <- backend.get[UserProfile](userId)
       theirWatching <- watching
       followed <- isFollowing
       canMessage <- allowMessage
-    } yield Ok(p.social.browseUser(them, theirActivity, theirWatching, followed, canMessage))
+    } yield Ok(p.social.userWatched(them, theirWatching, followed, canMessage))
   }
 
   def followUser(userId: String) = withUserAction { implicit user => implicit request =>
