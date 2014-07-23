@@ -104,13 +104,14 @@ case class Social @Inject()(implicit globalConfig: global.GlobalConfig, searchDi
       .copy(itemTypes = activityItemTypes)
     val events: Future[List[SystemEvent]] = backend.listEvents(params, eventParams)
     val isFollowing: Future[Boolean] = backend.isFollowing(user.id, userId)
+    val allowMessage: Future[Boolean] = canMessage(user.id, userId)
 
     for {
       them <- backend.get[UserProfile](userId)
       theirActivity <- events
       theirWatching <- watching
       followed <- isFollowing
-      canMessage <- canMessage(user.id, userId)
+      canMessage <- allowMessage
     } yield Ok(p.social.browseUser(them, theirActivity, theirWatching, followed, canMessage))
   }
 
