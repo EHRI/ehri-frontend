@@ -15,27 +15,15 @@
         }
     </ul>
     <hr />
-
-    @defining(request.getQueryString("tab").getOrElse("0")) { activeTab =>
-        <ul class="nav">
-            @userOpt.map { currentUser =>
-                @if(currentUser.id == user.id) {
-                    @if(profilePage) {
-                        <li><a href="@controllers.portal.routes.Social.browseUser(user.id)"><i class="glyphicon glyphicon-list"></i> @Messages("portal.activity")</a></li>
-                        <li class="@(if(activeTab == "0") "active")"><a href="#user-watch-list" data-tabidx="0" data-toggle="tab"><span class="glyphicon glyphicon-star"></span> @Messages("portal.profile.watch.list")</a></li>
-                        <li class="@(if(activeTab == "1") "active")"><a href="#user-annotations" data-tabidx="1" data-toggle="tab"><span class="glyphicon glyphicon-edit"></span> @Messages("portal.annotation.list")</a></li>
-                    } else {
-                        <li class="active"><a href="@controllers.portal.routes.Social.browseUser(user.id)"><i class="glyphicon glyphicon-list"></i> @Messages("portal.activity")</a></li>
-                        <li><a href="@controllers.portal.routes.Profile.profile?tab=0"><span class="glyphicon glyphicon-star"></span> @Messages("portal.profile.watch.list")</a></li>
-                        <li><a href="@controllers.portal.routes.Profile.profile?tab=1"><span class="glyphicon glyphicon-edit"></span> @Messages("portal.annotation.list")</a></li>
-                    }
-                } else {
-                    <li class="@(if(activeTab == "0") "active")"><a href="#user-watch-list" data-tabidx="0" data-toggle="tab"><span class="glyphicon glyphicon-star"></span> @Messages("portal.profile.watch.list")</a></li>
-                    <li class="@(if(activeTab == "1") "active")"><a href="#user-activity" data-tabidx="1" data-toggle="tab"><span class="glyphicon glyphicon-list"></span> @Messages("portal.activity")</a></li>
-                }
+    <ul class="nav">
+        <li class="@views.Helpers.maybeActive(controllers.portal.routes.Social.browseUser(user.id).url)"><a href="@controllers.portal.routes.Social.browseUser(user.id)"><i class="glyphicon glyphicon-list"></i> @Messages("portal.activity")</a></li>
+        <li class="@views.Helpers.maybeActive(controllers.portal.routes.Social.watchedByUser(user.id).url)"><a href="@controllers.portal.routes.Social.watchedByUser(user.id)"><span class="glyphicon glyphicon-star"></span> @Messages("portal.profile.watch.list")</a></li>
+        @userOpt.map { currentUser =>
+            @if(currentUser.id == user.id) {
+                <li class="@views.Helpers.maybeActive(controllers.portal.routes.Profile.profile.url)"><a href="@controllers.portal.routes.Profile.profile"><span class="glyphicon glyphicon-edit"></span> @Messages("portal.annotation.list")</a></li>
             }
-        </ul>
-    }
+        }
+    </ul>
     <hr />
     <div class="user-profile-social">
         <a class="followers" href="@controllers.portal.routes.Social.followersForUser(user.id)">

@@ -191,14 +191,11 @@ case class Profile @Inject()(implicit globalConfig: global.GlobalConfig, searchD
   }
 
   def profile = withUserAction.async { implicit user => implicit request =>
-    val watchParams = PageParams.fromRequest(request, namespace = "w")
     val annParams = PageParams.fromRequest(request, namespace = "a")
-    val watchingF = backend.pageWatching(user.id, watchParams)
     val annotationsF = backend.userAnnotations(user.id, annParams)
     for {
-      watchList <- watchingF
       anns <- annotationsF
-    } yield Ok(p.profile.profile(watchList, anns))
+    } yield Ok(p.profile.profile(anns))
   }
 
   import play.api.data.Form
