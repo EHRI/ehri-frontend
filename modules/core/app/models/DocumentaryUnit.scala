@@ -14,7 +14,6 @@ import play.api.data.Form
 import play.api.data.Forms._
 import play.api.libs.json.JsObject
 
-
 object DocumentaryUnitF {
 
   object CopyrightStatus extends Enumeration {
@@ -32,6 +31,17 @@ object DocumentaryUnitF {
 
     implicit val format = defines.EnumUtils.enumFormat(this)
   }
+
+  object LinksTypes extends Enumeration {
+    type Type = Value
+    val ConceptLink = Value("cvocConcept")
+    val HistoricalAgentLink = Value("historicalAgent")
+    val DocumentaryUnitLink = Value("documentaryUnit")
+    val countryLink = Value("country")
+
+    implicit val format = defines.EnumUtils.enumFormat(this)
+  }
+
 
   val OTHER_IDENTIFIERS = "otherIdentifiers"
   val PUBLICATION_STATUS = "publicationStatus"

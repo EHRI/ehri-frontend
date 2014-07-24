@@ -151,20 +151,7 @@ jQuery(function($) {
     }
   });
 
-  // Make multi-selects pretty
-  $("select.select2:not(.inline-element-template select.select2)").select2();
-
-
-  // Fade success flash message after 3 seconds
-  $(".success-pullup").fadeOut(3000);
-
-  // Delete inline date period tables
-  $(".inline-element-list").on("click", ".remove-inline-element", function(event) {
-    event.preventDefault();
-    $(this).parents(".inline-element").first().remove();
-  });
-
-  $(".add-inline-element").on("click", function(event) {
+  addInlineElement = function(event) {
     event.preventDefault();
     var container = $(event.target).closest(".inline-formset");
     var set = container.children(".inline-element-list");
@@ -185,7 +172,28 @@ jQuery(function($) {
 
     // Add select2 support...
     elem.find("div.select2-container").remove()
-    elem.find("select.select2").removeClass(".select2-offscreen").select2();
+    elem.find("select.select2").removeClass(".select2-offscreen").select2();    
+  }
+
+  removeInlineElement = function (event) {
+    event.preventDefault();
+    $(event.target).parents(".inline-element").first().remove();
+  }
+
+  // Make multi-selects pretty
+  $("select.select2:not(.inline-element-template select.select2)").select2();
+
+
+  // Fade success flash message after 3 seconds
+  $(".success-pullup").fadeOut(3000);
+
+  // Delete inline date period tables
+  $(".inline-element-list").on("click", ".remove-inline-element", function(event) {
+    removeInlineElement(event);
+  });
+
+  $(".add-inline-element").on("click", function(event) {
+    addInlineElement(event)
   });
 
 });

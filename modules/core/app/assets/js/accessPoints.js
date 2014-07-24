@@ -305,6 +305,7 @@ $(document).ready(function() {
       saveNewAccessPoint($scope, $accessPointList);
     }
   })
+
   /* Search input */
   $(".quicksearch").each(function() {
     $quicksearch = $(this);
@@ -398,6 +399,25 @@ $(document).ready(function() {
       $input.typeahead('val', $val);
     }
   })
+
+
+  /* Save link */
+  $(".new-link .element-save").on("click", function(e) {
+    e.preventDefault();
+    var $form = $(this).parents(".new-access-point").first(),
+      $links = $form.find(".append-in > .element:not(.model)"),
+      $requests = [],
+      $requests2 = []
+
+    if($accesspoints.length > 0) {
+      var $scope = makeLinkScope($links.first()),
+        $linksList = $accesspoints.slice(1)
+      saveNewLink($scope, $linksList);
+    }
+  })
+
   /* Init trigger */
-  getAccessPointList()
+  if(typeof LINK_ACTION === "undefined") {
+    getAccessPointList()
+  }
 });
