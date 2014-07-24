@@ -191,6 +191,7 @@ portal.social.followedBy=Followed By
 portal.social.noFollowersYet=No one''s following {0} yet.
 portal.social.noFollowingYet={0} isn''t following anyone yet.
 portal.social.noItemsWatchedYet=You''re not watching any items yet.
+portal.social.noUserItemsWatchedYet={0} is not watching any items yet.
 portal.social.userFollowing=Users Following {0}
 portal.social.usersFollowedBy=Users Followed by {0}
 portal.social.block=Block User

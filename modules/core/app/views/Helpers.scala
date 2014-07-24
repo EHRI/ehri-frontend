@@ -7,6 +7,7 @@ import org.pegdown.{Extensions, PegDownProcessor}
 import models.base.AnyModel
 import play.api.mvc.Call
 import scala.util.matching.Regex
+import play.api.mvc.RequestHeader
 
 
 package object Helpers {
@@ -152,5 +153,13 @@ package object Helpers {
 
   def linkToOpt(item: AnyModel)(implicit globalConfig: global.GlobalConfig): Option[Call] = {
     globalConfig.routeRegistry.optionalUrlFor(item)
+  }
+
+  def maybeActive(url: String)(implicit request: RequestHeader) = {
+    if(request.path.equals(url)) "active" else ""
+  }
+
+  def maybeActivePath(url: String)(implicit request: RequestHeader) = {
+    if(request.path.startsWith(url)) "active" else ""
   }
 }

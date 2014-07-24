@@ -34,8 +34,9 @@ trait RestGeneric extends Generic with RestDAO {
     } else {
       val url = enc(requestUrl, resource.entityType, id)
       userCall(url, resource.defaultParams).get().map { response =>
+        val item = checkErrorAndParse(response)(rd.restReads)
         Cache.set(id, response.json, cacheTime)
-        checkErrorAndParse(response)(rd.restReads)
+        item
       }
     }
   }

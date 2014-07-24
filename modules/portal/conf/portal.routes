@@ -74,6 +74,7 @@ GET         /follow/:userId                 @controllers.portal.Social.followUse
 POST        /follow/:userId                 @controllers.portal.Social.followUserPost(userId: String)
 GET         /unfollow/:userId               @controllers.portal.Social.unfollowUser(userId: String)
 POST        /unfollow/:userId               @controllers.portal.Social.unfollowUserPost(userId: String)
+GET         /people/:userId/watched       	@controllers.portal.Social.watchedByUser(userId: String)
 GET         /people/:userId/following       @controllers.portal.Social.followingForUser(userId: String)
 GET         /people/:userId/followers       @controllers.portal.Social.followersForUser(userId: String)
 GET         /block/:userId                  @controllers.portal.Social.blockUser(userId: String)

@@ -1,6 +1,5 @@
 package integration
 
-import scala.concurrent.ExecutionContext.Implicits.global
 import helpers._
 import models.{Group, UserProfileF, UserProfile}
 import defines._
@@ -20,7 +19,6 @@ class EntityViewsSpec extends Neo4jRunnerSpec(classOf[EntityViewsSpec]) {
   val noItemsHeader = "No items found"
 
   "HistoricalAgent views" should {
-
     "list should get some items" in new FakeApp {
 
       val list = route(fakeLoggedInHtmlRequest(unprivilegedUser, GET,
