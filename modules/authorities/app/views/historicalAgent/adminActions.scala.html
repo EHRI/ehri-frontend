@@ -5,7 +5,7 @@
         <a href="@controllers.authorities.routes.HistoricalAgents.update(item.id)">@Messages("item.update")</a>
     }
     @common.sidebarAction(user.hasPermission(ContentTypes.HistoricalAgent, PermissionType.Annotate)) {
-        <a href="@controllers.authorities.routes.HistoricalAgents.linkAnnotateSelect(item.id, EntityType.HistoricalAgent)">@Messages("link.create")</a>
+        <a href="@controllers.authorities.routes.HistoricalAgents.linkTo(item.id)">@Messages("link.create")</a>
     }
     @common.sidebarAction(user.hasPermission(ContentTypes.HistoricalAgent, PermissionType.Delete)) {
         <a href="@controllers.authorities.routes.HistoricalAgents.delete(item.id)">@Messages("item.delete")</a>
