@@ -307,7 +307,7 @@ $(document).ready(function() {
       var $accesslist = $(this).parents(".accessPointList"),
         $input = $accesslist.find(".form-control.quicksearch.tt-input");
         $name = $input.val();
-      if($name.length > 0) {
+      if($name.replace(/\s/g,"").length > 0) {
        appends($accesslist, $name, null, null, null)
       }
     })
