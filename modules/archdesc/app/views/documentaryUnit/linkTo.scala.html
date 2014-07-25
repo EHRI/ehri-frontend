@@ -21,34 +21,6 @@
 		  $(".append-in").on("click", ".add-inline-element", function(event) {
 		    addInlineElement(event)
 		  });
-
-		/* MODEL :
-		  $.post(
-			  "http://localhost:9000/admin/units/ua-003305-r-2493/link/documentaryunit/nl-002896-mf942761-mf943654-mf945254-mf945456-mf945458-mf945543-mf945544-mf945545-mf947670-mf947671",
-			  {
-			    description : "LALALA",
-			    type : "familial",
-			    dates : [
-			      {
-			        startDate : "1990-01-10",
-			        endDate : "2099-01-20",
-			        datesPrecision : "day",
-			        type : "creation",
-			      },
-			      {
-			        startDate : "1990-01-10",
-			        endDate : "2099-01-20",
-			        datesPrecision : "day",
-			        type : "creation",
-			      }
-			    ]
-			  },
-			  function(data) {
-			    console.log(data);
-			  },
-			  "json"
-			);
-		*/
     });
 	  </script>
     <style type="text/css">
@@ -57,8 +29,12 @@
         .new-access-point { display: none; }
         .pages { display: none; }
         .submit-group { display : none; }
-        .element .form-group { margin-bottom:0;}
+        /*.element .form-group { margin-bottom:0;}*/
         .help-block { display:none;}
+        .form-group.element:not(.model) {
+            border:1px solid rgba(252,​ 252,​ 252, 1.0);
+            padding:5px;
+        }
     </style>
 }
 
@@ -87,7 +63,7 @@
                                         <a class="btn btn-default">
                                             <i class="glyphicon glyphicon-search"></i>
                                         </a>
-                                        <button class="btn btn-success add-access-text" title="Add a text access point"><span class="glyphicon glyphicon-plus-sign"></span></button>
+                                        <button class="btn btn-success add-access-text hidden" title="Add a text access point"><span class="glyphicon glyphicon-plus-sign"></span></button>
                                         <button class="btn btn-info pages change-page"><span class="glyphicon glyphicon-minus"></span></button>
                                         <button class="btn btn-info pages"><span class="page"></span>/<span class="max"></span></button>
                                         <button class="btn btn-info pages change-page"><span class="glyphicon glyphicon-plus"></span></button>
@@ -103,18 +79,19 @@
                         </div>
                         <div class="append-in">
                             <div class="form-group model element" style="display:none;" data-action="link">
-                                <div class="col-sm-10 col-sm-offset-2">
-                                    <div class="input-group">
-                                        <div class="input-group-btn">
-                                            <a class="btn btn-success">
-                                                <i class="glyphicon glyphicon-link"></i>
-                                            </a>
-                                            <button class="btn btn-success element-name" name="@linkType.toString" data-did="" value="">
-                                            </button>
-                                        </div>
-                                        <input type="text" class="form-control element-description" placeholder="@Messages("link.description")" />
-                                        <div class="input-group-btn">
-                                            <a title="@Messages("accessPoint.delete")" class="btn btn-danger"><span class="glyphicon glyphicon-remove"></span></a>
+                                <div class="col-sm-12">
+                                    <div class="btn-group btn-group-xs">
+                                        <button class="btn btn-success">
+                                            <i class="glyphicon glyphicon-link"></i>
+                                        </button>
+                                        <button class="btn btn-success element-name" name="@linkType.toString" data-did="" value="">
+                                        </button>
+                                        <button title="@Messages("accessPoint.delete")" class="btn btn-danger"><span class="glyphicon glyphicon-remove"></span></button>
+                                    </div>
+                                    <div class="form-group">
+                                        <label class="col-sm-3 control-label">@Messages("link.description")</label>
+                                        <div class="col-sm-9">
+                                            <textarea type="text" class="form-control element-description no-quite" placeholder="@Messages("link.description")"></textarea>
                                         </div>
                                     </div>
 
@@ -139,14 +116,6 @@
 								            </div>
 								        }
 								    }
-	                                <div class="input-group">
-	                                    <div class="input-group-btn">
-	                                        <a class="btn btn-info">
-	                                            <i class="glyphicon glyphicon-info-sign"></i>
-	                                        </a>
-	                                    </div>
-	                                    <input type="text" class="form-control element-action-description" placeholder="@Messages("forms.logMessagePlaceholder")" />
-	                                </div>
 
                                 </div>
                             </div>

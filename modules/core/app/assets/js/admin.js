@@ -3,7 +3,7 @@ jQuery(function($) {
   *   Quiet mode by Thibault Clérice GitHub@PonteIneptique
   */
   $(".form-horizontal .form-group").each(function(e) {
-    var $textarea = $(this).find("textarea");
+    var $textarea = $(this).find("textarea:not(.no-quite)");
     var $formgroup = $(this);
     if($textarea.length !== "undefined" && $textarea.length === 1 && !$formgroup.hasClass("inline-formset")) {
       $textarea.parent().append('<div><a href="#" class="quiet-toggle"><span class="glyphicon glyphicon-remove"></span><span class="glyphicon glyphicon-fullscreen"></span><span class="Press Esc or Tab to continue"></span></a></div>');
