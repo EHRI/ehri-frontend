@@ -109,12 +109,10 @@ $(document).ready(function() {
   if(typeof LINK_ACTION === "undefined") {
     $.extend($service, $accessPointsServices)
   } else {
-    if(LINK_ACTION === "documentaryUnit") {
-      $.extend($service, $documentaryUnitServices);
-    }
+    $service.saveLink = jsRoutes.controllers.archdesc[CONTROLLER_NAME].linkAnnotatePost
   }
 
-  var nextSave = function($scope, $accesspoints, callback, secondCallback) {
+  var nextSave = function($scope, $accesspoints, $button, callback, secondCallback) {
     var $parent = $scope.container.parents(".accessPointList").first();
     $scope.container.remove();
     // Now that it is done, we get to the next if it exist
@@ -122,7 +120,7 @@ $(document).ready(function() {
         var $scope2 = makeScope($accesspoints.first()),
           $accessPointList = $accesspoints.slice(1);
 
-        callback($scope2, $accessPointList);
+        callback($scope2, $accessPointList, $button);
 
       } else {
         secondCallback()
@@ -151,10 +149,32 @@ $(document).ready(function() {
     $accesslist.find(".submit-group").show()
   }
 
+  /*
+   *  Simple fix for field text checking
+   */
+   $(".element-save").text(SAVE_LABEL)
+
+  /*
+   *  Remove elements when clicking cancel
+   */
+  $(".submit-group .btn-danger").on("click", function(e) {
+    var $parent = $(this).parents(".form-horizontal").first(),
+        $appends = $parent.find(".element:not(.model)")
+
+    $parent.find(".submit-group").hide();
+    $appends.remove();
+
+  })
+
   $(".append-in").on("click", ".btn-danger", function() {
     var $elem = $(this),
-      $parent = $elem.parents(".element").first()
+      $parent = $elem.parents(".element").first(),
+      $siblings = $parent.parent().find(".element:not(.model)");
 
+    if($siblings.length == 1) {
+
+     $parent.parents(".form-horizontal").find(".submit-group").hide();
+    }
     $parent.remove()
   })
 
@@ -287,8 +307,9 @@ $(document).ready(function() {
       var $accesslist = $(this).parents(".accessPointList"),
         $input = $accesslist.find(".form-control.quicksearch.tt-input");
         $name = $input.val();
-
-      appends($accesslist, $name, null, null, null)
+      if($name.length > 0) {
+       appends($accesslist, $name, null, null, null)
+      }
     })
 
     /* 
@@ -301,10 +322,12 @@ $(document).ready(function() {
         $requests = [],
         $requests2 = []
 
-      if($accesspoints.length > 0) {
-        var $scope = makeScope($accesspoints.first()),
-          $accessPointList = $accesspoints.slice(1)
-        saveNewAccessPoint($scope, $accessPointList);
+      if($(this).text() == SAVE_LABEL) {
+        if($accesspoints.length > 0) {
+          var $scope = makeScope($accesspoints.first()),
+            $accessPointList = $accesspoints.slice(1)
+          saveNewAccessPoint($scope, $accessPointList);
+        }
       }
     })
     /**
@@ -414,7 +437,8 @@ $(document).ready(function() {
     * the list of access points when done.
     * Scope is the object returned in makeScope
     */
-    var saveNewAccessPoint = function($scope, $accesspoints) {
+    var saveNewAccessPoint = function($scope, $accesspoints, $button) {
+      $button.text("Saving...");
       $service.createAccessPoint($scope.id, $scope.did).ajax({
         data: JSON.stringify({
           name: $scope.name,
@@ -425,7 +449,10 @@ $(document).ready(function() {
         headers: ajaxHeaders
       }).done(function(data) {
         if($scope.link.targetType == null) {
-          nextSave($scope, $accesspoints, saveNewAccessPoint, getAccessPointList)
+          nextSave($scope, $accesspoints, $button, saveNewAccessPoint, function() {
+            $button.text(SAVE_LABEL);
+            getAccessPointList()
+          })
         } else {
           $service.createLink($scope.id, data.id).ajax({
             data: JSON.stringify({
@@ -435,7 +462,10 @@ $(document).ready(function() {
             }),
             headers: ajaxHeaders
           }).done(function(data) {
-            nextSave($scope, $accesspoints, saveNewAccessPoint, getAccessPointList)
+            nextSave($scope, $accesspoints, $button, saveNewAccessPoint, function() {
+              $button.text(SAVE_LABEL);
+              getAccessPointList()
+            })
           })
         }
       })
@@ -488,13 +518,16 @@ $(document).ready(function() {
      */
 
 
-    var save = function($scope, $links) {
-      console.log($service)
+    var save = function($scope, $links, $save) {
+
+      $save.text("Saving...");
       $service.saveLink($scope.id, $scope.type, $scope.target).ajax({
         data : JSON.stringify($scope.link),
         headers : ajaxHeaders
       }).done(function (data) {
-        nextSave($scope, $links, save, function (e) { return true; })
+        nextSave($scope, $links, $save, save, function (e) { 
+          $save.text(SAVE_LABEL);
+        })
       });
     };
 
@@ -503,15 +536,17 @@ $(document).ready(function() {
      */
     $(".new-link .element-save").on("click", function(e) {
       e.preventDefault();
-      var $form = $(this).parents(".new-link").first(),
-        $links = $form.find(".append-in > .element:not(.model)"),
-        $requests = [],
-        $requests2 = []
+      if($(this).text() == SAVE_LABEL) {
+        var $form = $(this).parents(".new-link").first(),
+          $links = $form.find(".append-in > .element:not(.model)"),
+          $requests = [],
+          $requests2 = []
 
-      if($links.length > 0) {
-        var $scope = makeScope($links.first()),
-          $linksList = $links.slice(1);
-        save($scope, $linksList);
+        if($links.length > 0) {
+          var $scope = makeScope($links.first()),
+            $linksList = $links.slice(1);
+          save($scope, $linksList, $(this));
+        }
       }
     });
 

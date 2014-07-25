@@ -192,7 +192,6 @@ jQuery(function($) {
     if($prev.length !="undefined"&& $prev.length === 1) {
       $right = $prev.offset().left + $prev.outerWidth();
       $top = $prev.offset().top;
-      console.log("prev exist")
     }
 
     $actual.next().css("margin-left", $actual.outerWidth())
