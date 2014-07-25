@@ -5,22 +5,14 @@
         controllers.core.routes.javascript.SearchFilter.filter,
         controllers.admin.routes.javascript.Admin.get,
         controllers.admin.routes.javascript.Admin.getType,
-        controllers.archdesc.routes.javascript.DocumentaryUnits.linkMultiAnnotatePost,
-        controllers.archdesc.routes.javascript.DocumentaryUnits.get,
-        controllers.archdesc.routes.javascript.DocumentaryUnits.createLink,
-        controllers.archdesc.routes.javascript.DocumentaryUnits.createAccessPoint,
-        controllers.archdesc.routes.javascript.DocumentaryUnits.getLink,
-        controllers.archdesc.routes.javascript.DocumentaryUnits.getAccessPointsJson,
-        controllers.archdesc.routes.javascript.DocumentaryUnits.deleteAccessPoint,
-        controllers.archdesc.routes.javascript.DocumentaryUnits.deleteLink,
-        controllers.archdesc.routes.javascript.DocumentaryUnits.deleteLinkAndAccessPoint
+        controllers.archdesc.routes.javascript.DocumentaryUnits.linkAnnotatePost
     )
     <script src="@controllers.core.routes.Assets.versioned("js/lib/handlebar.js")"></script>
     <script src="@controllers.core.routes.Assets.versioned("js/lib/typeahead.js")"></script>
     <script src="@controllers.core.routes.Assets.versioned("js/bootstrap.confirmation.js")"></script>
     <script src="@controllers.core.routes.Assets.versioned("js/accessPoints.js")"></script>
     <script type="text/javascript">
-    LINK_ACTION = false;
+    LINK_ACTION = "documentaryUnit";
     $(document).ready(function() {
 		  // Delete inline date period tables
 		  $(".append-in").on("click", ".remove-inline-element", function(event) {

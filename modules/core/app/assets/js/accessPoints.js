@@ -4,7 +4,9 @@ $(document).ready(function() {
   "Content-Type": "application/json",
   "Accept": "application/json; charset=utf-8"
   };
-  /* Search and URLS  */
+  /* 
+   * Search and URLS  : independant from link or accesspoints
+  */
   var $search = function() {
     var page = function($element) {
 
@@ -49,12 +51,27 @@ $(document).ready(function() {
         return $(".tt-input[name='" + $name + "']").val()
       }
       return {
+        /*
+         *  Return the query string
+         */
         searchTerm : function(element) { return searchTerm(element); },
+        /*
+         *  Return the page of a current search
+         */
         page : function(element) { return page(element); },
+        /*
+         * Search for an element
+         */
         search: function(element) {
           return search(this.limitTypes(element), this.searchTerm(element), this.page(element));
         },
+        /*
+         *  Limit the types of items a request has
+         */
         limitTypes : limitTypes,
+        /*
+         *  Get details about an item
+         */
         detail: function(type, id, callback) {
           return $.get($service.getItem(type, id).url, {
             headers: {
@@ -69,131 +86,35 @@ $(document).ready(function() {
     };
 
   var $service = {
-        filter: jsRoutes.controllers.core.SearchFilter.filter,
-        get: jsRoutes.controllers.admin.Admin.get,
-        getItem: jsRoutes.controllers.admin.Admin.getType,
-        createLink: jsRoutes.controllers.archdesc.DocumentaryUnits.createLink,
-        createMultipleLinks: jsRoutes.controllers.archdesc.DocumentaryUnits.linkMultiAnnotatePost,
-        createAccessPoint: jsRoutes.controllers.archdesc.DocumentaryUnits.createAccessPoint,
-        getAccessPoints: jsRoutes.controllers.archdesc.DocumentaryUnits.getAccessPointsJson,
-        deleteLink: jsRoutes.controllers.archdesc.DocumentaryUnits.deleteLink,
-        deleteAccessPoint: jsRoutes.controllers.archdesc.DocumentaryUnits.deleteAccessPoint,
-        deleteLinkAndAccessPoint: jsRoutes.controllers.archdesc.DocumentaryUnits.deleteLinkAndAccessPoint,
-        redirectUrl: function(id) {
-          return jsRoutes.controllers.archdesc.DocumentaryUnits.get(id).url;
-        }
+    filter: jsRoutes.controllers.core.SearchFilter.filter,
+    get: jsRoutes.controllers.admin.Admin.get,
+    getItem: jsRoutes.controllers.admin.Admin.getType
   };
-
-  /**
-  * Get list of access points
-  *
-  */
-  var getAccessPointList = function() {
-    var $item = $(".item-annotation-links"),
-      $itemId = $item.data("id"),
-      $descriptionId = $item.data("did"),
-      $accesslist= false;
-    $service.getAccessPoints($itemId, $descriptionId).ajax({
-      success: function(data) {
-        for (var i in data) {
-          if (data[i].id === $descriptionId) {
-            $accesslist = data[i];
-            break;
-          }
-        }
-        //If we have an access point list
-        if($accesslist) {
-          //For each access point type
-          $.each($accesslist["data"], function(index, arr) {
-            //We get temporary element and the model as well which we clone
-            var $container = $(".accessPointList."+arr["type"]+ " .item-annotation-links"),
-              $model = $container.find(".access-saved.model").clone().removeClass("model"),
-              $notmodel = $container.find(".access-saved:not(.model)")
-            //We remove old iems
-            $notmodel.remove();
-            //For each element, we create and prepend a new line
-            $.each(arr["data"], function(index, a) {
-              var $element = $model.clone();
-              $element.attr("id", a.accessPoint.id)
-              if(typeof a.link !== "undefined") {
-                $element.data("link", a.link.id)
-              }
-              $element.find(".access-saved-name").text(a.accessPoint.name)
-              if(typeof a.target !== "undefined") {
-                $element.find(".access-saved-name").attr("href", $service.getItem(a.target.type, a.target.id).url)
-              } else {
-                $element.find(".access-saved-name").removeAttr("href").css("color", "#000000");
-              }
-              if(a.accessPoint.description) {
-                $element.find(".access-saved-description").html("<p>" + a.accessPoint.description + "</p>")
-              }
-              /* Remove confirmation */
-              $element.find(".access-saved-delete").confirmation({
-                title : 'Delete link for this access point ?',
-                singleton: true,
-                popout: true,
-                placement: 'bottom',
-                trigger: "click",
-                onConfirm : function() {
-                  if(a.target !== "undefined") {
-                    var $route = $service.deleteAccessPoint($itemId, $descriptionId, a.accessPoint.id)
-                  } else {
-                    var $route = $service.deleteLinkAndAccessPoint($itemId, $descriptionId, a.accessPoint.id, $element.data("link"))
-                  }
-                  $route.ajax({
-                    success: function(data) {
-                      getAccessPointList();
-                    }
-                  });
-                },
-                onCancel : function () {
-                  $element.find(".access-saved-delete").confirmation('hide')
-                }
-              })
-              /* Finally append it*/
-              $container.prepend($element)
-            })  
-          })
-        }
-        return $accesslist;
-      }
-    });
-  };
-  /**
-  * Gather data about one access point
-  *
-  */
-  var makeScope = function($container) {
-    var $element = $container.find(".element-name"),
-      $item = $container.parents(".item-annotation-links").first(),
-      o = {
-        /* Data for access point*/
-        id : $item.data("id"),
-        did : $item.data("did"),
-        name : $element.text(),
-        type : $container.parents(".new-access-point").first().data("type"),
-        description: $container.find(".element-description").val(),
-        /* Data for link */
-        link : {
-          target: $element.val(),
-          name: $element.text(),
-          targetType: $element.data("type"),
-          type: "associative"
-        },
-
-        /* FOR RETRIEVAL PURPOSE */
-        container: $container
-      }
-    return o;
+  var $accessPointsServices = {
+    createLink: jsRoutes.controllers.archdesc.DocumentaryUnits.createLink,
+    createMultipleLinks: jsRoutes.controllers.archdesc.DocumentaryUnits.linkMultiAnnotatePost,
+    createAccessPoint: jsRoutes.controllers.archdesc.DocumentaryUnits.createAccessPoint,
+    getAccessPoints: jsRoutes.controllers.archdesc.DocumentaryUnits.getAccessPointsJson,
+    deleteLink: jsRoutes.controllers.archdesc.DocumentaryUnits.deleteLink,
+    deleteAccessPoint: jsRoutes.controllers.archdesc.DocumentaryUnits.deleteAccessPoint,
+    deleteLinkAndAccessPoint: jsRoutes.controllers.archdesc.DocumentaryUnits.deleteLinkAndAccessPoint,
+    redirectUrl: function(id) {
+      return jsRoutes.controllers.archdesc.DocumentaryUnits.get(id).url;
+    }
+  }
+  var $documentaryUnitServices = {
+    saveLink : jsRoutes.controllers.archdesc.DocumentaryUnits.linkAnnotatePost
   }
 
-  /**
-  * Save the new access point data to the server, refreshing
-  * the list of access points when done.
-  * Scope is the object returned in makeScope
-  */
+  if(typeof LINK_ACTION === "undefined") {
+    $.extend($service, $accessPointsServices)
+  } else {
+    if(LINK_ACTION === "documentaryUnit") {
+      $.extend($service, $documentaryUnitServices);
+    }
+  }
 
-  var nextNewAccesspoint = function($scope, $accesspoints, $parent) {
+  var nextSave = function($scope, $accesspoints, callback, secondCallback) {
     var $parent = $scope.container.parents(".accessPointList").first();
     $scope.container.remove();
     // Now that it is done, we get to the next if it exist
@@ -201,65 +122,41 @@ $(document).ready(function() {
         var $scope2 = makeScope($accesspoints.first()),
           $accessPointList = $accesspoints.slice(1);
 
-        saveNewAccessPoint($scope2, $accessPointList);
+        callback($scope2, $accessPointList);
 
       } else {
-        getAccessPointList();
+        secondCallback()
         //Show the Save and cancel buttons
         $parent.find(".submit-group").hide()
     }
   }
-  var saveNewAccessPoint = function($scope, $accesspoints) {
-    $service.createAccessPoint($scope.id, $scope.did).ajax({
-      data: JSON.stringify({
-        name: $scope.name,
-        accessPointType: $scope.type,
-        isA: "relationship",
-        description: $scope.description
-      }),
-      headers: ajaxHeaders
-    }).done(function(data) {
-      if($scope.link.targetType == null) {
-        nextNewAccesspoint($scope, $accesspoints)
-      } else {
-        $service.createLink($scope.id, data.id).ajax({
-          data: JSON.stringify({
-            target: $scope.link.target,
-            type: $scope.link.type,
-            description: $scope.description
-          }),
-          headers: ajaxHeaders
-        }).done(function(data) {
-          nextNewAccesspoint($scope, $accesspoints)
-        })
-      }
-    })
-  };
 
-    /* MODEL APPEND */
-    var appends = function(elem, name, id, did, type) {
-      if(!elem.hasClass("accessPointList")) {
-        $accesslist = elem.parents(".accessPointList");
-      } else {
-        $accesslist = elem;
-      }
-      $accesslist.find(".form-control.quicksearch.tt-input").typeahead('val', "")
-      $target = $accesslist.find(".append-in")
-      var $model = $accesslist.find(".element.model")
-      var $element = $model.data("target", id).clone().removeClass("model").addClass("element")
-      $element.find(".element-name").text(name).val(id).data("did", did).data("type", type)
-      $target.append($element.show())
-
-      //Show the Save and cancel buttons
-      $accesslist.find(".submit-group").show()
+  /*
+   *  Appends the modified model with given informations
+   */
+  var appends = function(elem, name, id, did, type) {
+    if(!elem.hasClass("accessPointList")) {
+      $accesslist = elem.parents(".accessPointList");
+    } else {
+      $accesslist = elem;
     }
+    $accesslist.find(".form-control.quicksearch.tt-input").typeahead('val', "")
+    $target = $accesslist.find(".append-in")
+    var $model = $accesslist.find(".element.model")
+    var $element = $model.data("target", id).clone().removeClass("model").addClass("element")
+    $element.find(".element-name").text(name).val(id).data("did", did).data("type", type)
+    $target.append($element.show())
 
-    $(".append-in").on("click", ".btn-danger", function() {
-      var $elem = $(this),
-        $parent = $elem.parents(".element").first()
+    //Show the Save and cancel buttons
+    $accesslist.find(".submit-group").show()
+  }
 
-      $parent.remove()
-    })
+  $(".append-in").on("click", ".btn-danger", function() {
+    var $elem = $(this),
+      $parent = $elem.parents(".element").first()
+
+    $parent.remove()
+  })
 
   /* Triggers */
   $(".add-access-toggle").on("click", function(e) {
@@ -282,31 +179,9 @@ $(document).ready(function() {
     appends($elem, $name, $id, $did, $type)
   });
 
-  $(".add-access-text").on("click", function(e) {
-    e.preventDefault();
-    var $accesslist = $(this).parents(".accessPointList"),
-      $input = $accesslist.find(".form-control.quicksearch.tt-input");
-      $name = $input.val();
-
-    appends($accesslist, $name, null, null, null)
-  })
-
-  /* Save access point */
-  $(".new-access-point .element-save").on("click", function(e) {
-    e.preventDefault();
-    var $form = $(this).parents(".new-access-point").first(),
-      $accesspoints = $form.find(".append-in > .element:not(.model)"),
-      $requests = [],
-      $requests2 = []
-
-    if($accesspoints.length > 0) {
-      var $scope = makeScope($accesspoints.first()),
-        $accessPointList = $accesspoints.slice(1)
-      saveNewAccessPoint($scope, $accessPointList);
-    }
-  })
-
-  /* Search input */
+  /*
+   *  Search Input : doesn't change wether it is access points or links
+   */
   $(".quicksearch").each(function() {
     $quicksearch = $(this);
 
@@ -398,26 +273,247 @@ $(document).ready(function() {
       $input.typeahead('val', "");
       $input.typeahead('val', $val);
     }
-  })
+  });
 
-
-  /* Save link */
-  $(".new-link .element-save").on("click", function(e) {
-    e.preventDefault();
-    var $form = $(this).parents(".new-access-point").first(),
-      $links = $form.find(".append-in > .element:not(.model)"),
-      $requests = [],
-      $requests2 = []
-
-    if($accesspoints.length > 0) {
-      var $scope = makeLinkScope($links.first()),
-        $linksList = $accesspoints.slice(1)
-      saveNewLink($scope, $linksList);
-    }
-  })
-
-  /* Init trigger */
+  /*
+   *    Division between accessPoints functionnalities and Link functionnalities
+   */
   if(typeof LINK_ACTION === "undefined") {
+    /*
+     *  Add an access point without a link to an item
+     */
+    $(".add-access-text").on("click", function(e) {
+      e.preventDefault();
+      var $accesslist = $(this).parents(".accessPointList"),
+        $input = $accesslist.find(".form-control.quicksearch.tt-input");
+        $name = $input.val();
+
+      appends($accesslist, $name, null, null, null)
+    })
+
+    /* 
+     * Save all access points in a category
+     */ 
+    $(".new-access-point .element-save").on("click", function(e) {
+      e.preventDefault();
+      var $form = $(this).parents(".new-access-point").first(),
+        $accesspoints = $form.find(".append-in > .element:not(.model)"),
+        $requests = [],
+        $requests2 = []
+
+      if($accesspoints.length > 0) {
+        var $scope = makeScope($accesspoints.first()),
+          $accessPointList = $accesspoints.slice(1)
+        saveNewAccessPoint($scope, $accessPointList);
+      }
+    })
+    /**
+    * Get list of access points
+    *
+    */
+    var getAccessPointList = function() {
+      var $item = $(".item-annotation-links"),
+        $itemId = $item.data("id"),
+        $descriptionId = $item.data("did"),
+        $accesslist= false;
+      $service.getAccessPoints($itemId, $descriptionId).ajax({
+        success: function(data) {
+          for (var i in data) {
+            if (data[i].id === $descriptionId) {
+              $accesslist = data[i];
+              break;
+            }
+          }
+          //If we have an access point list
+          if($accesslist) {
+            //For each access point type
+            $.each($accesslist["data"], function(index, arr) {
+              //We get temporary element and the model as well which we clone
+              var $container = $(".accessPointList."+arr["type"]+ " .item-annotation-links"),
+                $model = $container.find(".access-saved.model").clone().removeClass("model"),
+                $notmodel = $container.find(".access-saved:not(.model)")
+              //We remove old iems
+              $notmodel.remove();
+              //For each element, we create and prepend a new line
+              $.each(arr["data"], function(index, a) {
+                var $element = $model.clone();
+                $element.attr("id", a.accessPoint.id)
+                if(typeof a.link !== "undefined") {
+                  $element.data("link", a.link.id)
+                }
+                $element.find(".access-saved-name").text(a.accessPoint.name)
+                if(typeof a.target !== "undefined") {
+                  $element.find(".access-saved-name").attr("href", $service.getItem(a.target.type, a.target.id).url)
+                } else {
+                  $element.find(".access-saved-name").removeAttr("href").css("color", "#000000");
+                }
+                if(a.accessPoint.description) {
+                  $element.find(".access-saved-description").html("<p>" + a.accessPoint.description + "</p>")
+                }
+                /* Remove confirmation */
+                $element.find(".access-saved-delete").confirmation({
+                  title : 'Delete link for this access point ?',
+                  singleton: true,
+                  popout: true,
+                  placement: 'bottom',
+                  trigger: "click",
+                  onConfirm : function() {
+                    if(a.target !== "undefined") {
+                      var $route = $service.deleteAccessPoint($itemId, $descriptionId, a.accessPoint.id)
+                    } else {
+                      var $route = $service.deleteLinkAndAccessPoint($itemId, $descriptionId, a.accessPoint.id, $element.data("link"))
+                    }
+                    $route.ajax({
+                      success: function(data) {
+                        getAccessPointList();
+                      }
+                    });
+                  },
+                  onCancel : function () {
+                    $element.find(".access-saved-delete").confirmation('hide')
+                  }
+                })
+                /* Finally append it*/
+                $container.prepend($element)
+              })  
+            })
+          }
+          return $accesslist;
+        }
+      });
+    };
+    /**
+    * Gather data about one access point
+    */
+    var makeScope = function($container) {
+      var $element = $container.find(".element-name"),
+        $item = $container.parents(".item-annotation-links").first(),
+        o = {
+          /* Data for access point*/
+          id : $item.data("id"),
+          did : $item.data("did"),
+          name : $element.text(),
+          type : $container.parents(".new-access-point").first().data("type"),
+          description: $container.find(".element-description").val(),
+          /* Data for link */
+          link : {
+            target: $element.val(),
+            name: $element.text(),
+            targetType: $element.data("type"),
+            type: "associative"
+          },
+
+          /* FOR RETRIEVAL PURPOSE */
+          container: $container
+        }
+      return o;
+    }
+
+    /**
+    * Save the new access point data to the server, refreshing
+    * the list of access points when done.
+    * Scope is the object returned in makeScope
+    */
+    var saveNewAccessPoint = function($scope, $accesspoints) {
+      $service.createAccessPoint($scope.id, $scope.did).ajax({
+        data: JSON.stringify({
+          name: $scope.name,
+          accessPointType: $scope.type,
+          isA: "relationship",
+          description: $scope.description
+        }),
+        headers: ajaxHeaders
+      }).done(function(data) {
+        if($scope.link.targetType == null) {
+          nextSave($scope, $accesspoints, saveNewAccessPoint, getAccessPointList)
+        } else {
+          $service.createLink($scope.id, data.id).ajax({
+            data: JSON.stringify({
+              target: $scope.link.target,
+              type: $scope.link.type,
+              description: $scope.description
+            }),
+            headers: ajaxHeaders
+          }).done(function(data) {
+            nextSave($scope, $accesspoints, saveNewAccessPoint, getAccessPointList)
+          })
+        }
+      })
+    };
+
     getAccessPointList()
+  } else {
+    /*
+     *  Functions for links
+     */
+
+     /*
+      *   Scope Maker : formats data
+      */
+      var makeScope = function($container) {
+        var $element = $container.find(".element-name"),
+            $item = $container.parents(".item-annotation-links").first(),
+          o = {
+            /* Data for access point*/
+            id : $item.data("id"),
+            type : $container.parents(".new-link").first().data("type"),
+            target: $element.val(),
+            /* Data for link */
+            link : {
+              description: $container.find(".element-description").val(),
+              type: $container.find("[name='type']").val(),
+              dates : [],
+              logMessage : $container.find(".element-action-description").val()
+            },
+
+            /* FOR RETRIEVAL PURPOSE */
+            container: $container
+          }
+          $container.find(".inline-element-list table").each(function() {
+              var $d = $(this);
+              o.link.dates.push(
+                {
+                  startDate : $d.find("[name$='startDate']").val(),
+                  endDate : $d.find("[name$='startDate']").val(),
+                  precision : $d.find("[name$='precision']").val(),
+                  type : $d.find("[name$='type']").val(),
+                }
+              );
+          });
+        return o;
+      }
+
+    /*
+     *  Save a Link
+     */
+
+
+    var save = function($scope, $links) {
+      console.log($service)
+      $service.saveLink($scope.id, $scope.type, $scope.target).ajax({
+        data : JSON.stringify($scope.link),
+        headers : ajaxHeaders
+      }).done(function (data) {
+        nextSave($scope, $links, save, function (e) { return true; })
+      });
+    };
+
+    /* 
+     *  Link save trigger
+     */
+    $(".new-link .element-save").on("click", function(e) {
+      e.preventDefault();
+      var $form = $(this).parents(".new-link").first(),
+        $links = $form.find(".append-in > .element:not(.model)"),
+        $requests = [],
+        $requests2 = []
+
+      if($links.length > 0) {
+        var $scope = makeScope($links.first()),
+          $linksList = $links.slice(1);
+        save($scope, $linksList);
+      }
+    });
+
   }
 });
