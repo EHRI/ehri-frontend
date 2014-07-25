@@ -1,13 +1,45 @@
-@(item: HistoricalAgent)(implicit userOpt: Option[UserProfile], req: RequestHeader, globalConfig: global.GlobalConfig, lang: Lang, flash: Flash)
+@(item: HistoricalAgent, form: play.api.data.Form[LinkF])(implicit userOpt: Option[UserProfile], req: RequestHeader, globalConfig: global.GlobalConfig, lang: Lang, flash: Flash)
 
-@historicalAgent.itemPage(item) {
+@extrascripts = {
+    @helper.javascriptRouter("jsRoutes")(
+        controllers.core.routes.javascript.SearchFilter.filter,
+        controllers.admin.routes.javascript.Admin.get,
+        controllers.admin.routes.javascript.Admin.getType,
+        controllers.authorities.routes.javascript.HistoricalAgents.linkAnnotatePost
+    )
+    <script src="@controllers.core.routes.Assets.versioned("js/lib/handlebar.js")"></script>
+    <script src="@controllers.core.routes.Assets.versioned("js/lib/typeahead.js")"></script>
+    <script src="@controllers.core.routes.Assets.versioned("js/bootstrap.confirmation.js")"></script>
+    <script src="@controllers.core.routes.Assets.versioned("js/admin-linker.js")"></script>
+    <script type="text/javascript">
+        LINK_ACTION = "documentaryUnit";
+        SAVE_LABEL = "@Messages("save")";
+        CONTROLLER_NAME = "HistoricalAgents";
+        MODULE_NAME = "authorities";
+    </script>
+    <style type="text/css">
+        .modal-dialog { width: 80%;}
+        .model { display:none; }
+        .new-access-point { display: none; }
+        .pages { display: none; }
+        .submit-group { display : none; }
+        /*.element .form-group { margin-bottom:0;}*/
+        .help-block { display:none;}
+        .form-group.element:not(.model) {
+            border:1px solid rgba(252,​ 252,​ 252, 1.0);
+            padding:5px;
+        }
+    </style>
+}
 
+@import HistoricalAgentF.LinksTypes
+
+@historicalAgent.itemPage(item, scripts = extrascripts) {
     <h3>@Messages("link.create")</h3>
 
-    <ul>
-        <li><a href="@controllers.authorities.routes.HistoricalAgents.linkAnnotateSelect(item.id, defines.EntityType.HistoricalAgent)">@Messages("link.create.to.historicalAgent")</a></li>
-        <li><a href="@controllers.authorities.routes.HistoricalAgents.linkAnnotateSelect(item.id, defines.EntityType.Concept)">@Messages("link.create.to.cvocConcept")</a></li>
-        <li><a href="@controllers.authorities.routes.HistoricalAgents.linkAnnotateSelect(item.id, defines.EntityType.DocumentaryUnit)">@Messages("link.create.to.documentaryUnit")</a></li>
+    <ul class="list-unstyled">
+    @LinksTypes.values.toList.map { linkType =>
+        @formHelpers.adminLinker(item.id, linkType.toString, form)
+    }
     </ul>
-
 }

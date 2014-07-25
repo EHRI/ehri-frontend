@@ -90,26 +90,21 @@ $(document).ready(function() {
     get: jsRoutes.controllers.admin.Admin.get,
     getItem: jsRoutes.controllers.admin.Admin.getType
   };
-  var $accessPointsServices = {
-    createLink: jsRoutes.controllers.archdesc.DocumentaryUnits.createLink,
-    createMultipleLinks: jsRoutes.controllers.archdesc.DocumentaryUnits.linkMultiAnnotatePost,
-    createAccessPoint: jsRoutes.controllers.archdesc.DocumentaryUnits.createAccessPoint,
-    getAccessPoints: jsRoutes.controllers.archdesc.DocumentaryUnits.getAccessPointsJson,
-    deleteLink: jsRoutes.controllers.archdesc.DocumentaryUnits.deleteLink,
-    deleteAccessPoint: jsRoutes.controllers.archdesc.DocumentaryUnits.deleteAccessPoint,
-    deleteLinkAndAccessPoint: jsRoutes.controllers.archdesc.DocumentaryUnits.deleteLinkAndAccessPoint,
-    redirectUrl: function(id) {
-      return jsRoutes.controllers.archdesc.DocumentaryUnits.get(id).url;
-    }
-  }
-  var $documentaryUnitServices = {
-    saveLink : jsRoutes.controllers.archdesc.DocumentaryUnits.linkAnnotatePost
-  }
 
   if(typeof LINK_ACTION === "undefined") {
-    $.extend($service, $accessPointsServices)
+    $.extend($service, {
+      createLink: jsRoutes.controllers.archdesc.DocumentaryUnits.createLink,
+      createMultipleLinks: jsRoutes.controllers.archdesc.DocumentaryUnits.linkMultiAnnotatePost,
+      createAccessPoint: jsRoutes.controllers.archdesc.DocumentaryUnits.createAccessPoint,
+      getAccessPoints: jsRoutes.controllers.archdesc.DocumentaryUnits.getAccessPointsJson,
+      deleteLink: jsRoutes.controllers.archdesc.DocumentaryUnits.deleteLink,
+      deleteAccessPoint: jsRoutes.controllers.archdesc.DocumentaryUnits.deleteAccessPoint,
+      deleteLinkAndAccessPoint: jsRoutes.controllers.archdesc.DocumentaryUnits.deleteLinkAndAccessPoint,
+      redirectUrl: function(id) {
+        return jsRoutes.controllers.archdesc.DocumentaryUnits.get(id).url;
+      }})
   } else {
-    $service.saveLink = jsRoutes.controllers.archdesc[CONTROLLER_NAME].linkAnnotatePost
+    $service.saveLink = jsRoutes.controllers[MODULE_NAME][CONTROLLER_NAME].linkAnnotatePost
   }
 
   var nextSave = function($scope, $accesspoints, $button, callback, secondCallback) {
@@ -550,5 +545,13 @@ $(document).ready(function() {
       }
     });
 
+    // Delete inline date period tables
+    $(".append-in").on("click", ".remove-inline-element", function(event) {
+      removeInlineElement(event);
+    });
+    $(".append-in").on("click", ".add-inline-element", function(event) {
+      addInlineElement(event)
+    });
+    
   }
 });

@@ -10,21 +10,13 @@
     <script src="@controllers.core.routes.Assets.versioned("js/lib/handlebar.js")"></script>
     <script src="@controllers.core.routes.Assets.versioned("js/lib/typeahead.js")"></script>
     <script src="@controllers.core.routes.Assets.versioned("js/bootstrap.confirmation.js")"></script>
-    <script src="@controllers.core.routes.Assets.versioned("js/accessPoints.js")"></script>
+    <script src="@controllers.core.routes.Assets.versioned("js/admin-linker.js")"></script>
     <script type="text/javascript">
-    LINK_ACTION = "documentaryUnit";
-    SAVE_LABEL = "@Messages("save")";
-    CONTROLLER_NAME = "DocumentaryUnits"
-    $(document).ready(function() {
-		  // Delete inline date period tables
-		  $(".append-in").on("click", ".remove-inline-element", function(event) {
-		    removeInlineElement(event);
-		  });
-		  $(".append-in").on("click", ".add-inline-element", function(event) {
-		    addInlineElement(event)
-		  });
-    });
-	  </script>
+        LINK_ACTION = "documentaryUnit";
+        SAVE_LABEL = "@Messages("save")";
+        CONTROLLER_NAME = "DocumentaryUnits"
+        MODULE_NAME = "archdesc";
+    </script>
     <style type="text/css">
         .modal-dialog { width: 80%;}
         .model { display:none; }
@@ -41,99 +33,13 @@
 }
 
 @import DocumentaryUnitF.LinksTypes
-@import LinkF._
-@implicitField = @{ views.html.helper.FieldConstructor(formHelpers.fieldTemplate.f) }
 
-@filterDropdown(t: String, option: String = "") = {
-    <li data-value="@t" class="active type" @option><a>@Messages("contentTypes." + t)</a></li>
-}
 @documentaryUnit.itemPage(item, scripts = extrascripts) {
     <h3>@Messages("link.create")</h3>
 
     <ul class="list-unstyled">
     @LinksTypes.values.toList.map { linkType =>
-        <li class="accessPointList @linkType">
-            <h3>@Messages("contentTypes." + linkType)</h3>
-            <ul class="item-annotation-links list-unstyled" data-id="@item.id">
-                <li class="add-access-toggle-container">
-                    <div class="form-horizontal new-link" data-type="@linkType.toString" style="">
-                        <div class="form-group">
-                            <div class="col-sm-12">
-                                <div class="input-group">
-                                    <input class="form-control quicksearch" name="@linkType.toString" type="text" placeholder="@Messages("accessPoint.name")" autofocus="true" />
-                                     <div class="input-group-btn">
-                                        <a class="btn btn-default">
-                                            <i class="glyphicon glyphicon-search"></i>
-                                        </a>
-                                        <button class="btn btn-success add-access-text hidden" title="Add a text access point"><span class="glyphicon glyphicon-plus-sign"></span></button>
-                                        <button class="btn btn-info pages change-page"><span class="glyphicon glyphicon-minus"></span></button>
-                                        <button class="btn btn-info pages"><span class="page"></span>/<span class="max"></span></button>
-                                        <button class="btn btn-info pages change-page"><span class="glyphicon glyphicon-plus"></span></button>
-                                        <button type="button" class="btn btn-default dropdown-toggle hidden" data-toggle="dropdown">Filters <span class="caret"></span></button>
-                                        <ul class="dropdown-menu filters pull-right hidden">
-                                            <li class="dropdown-header">@Messages("contentTypes")</li>
-                                                @filterDropdown(linkType.toString)
-                                            <li class="divider"></li>
-                                        </ul>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="append-in">
-                            <div class="form-group model element" style="display:none;" data-action="link">
-                                <div class="col-sm-12">
-                                    <div class="btn-group btn-group-xs">
-                                        <button class="btn btn-success">
-                                            <i class="glyphicon glyphicon-link"></i>
-                                        </button>
-                                        <button class="btn btn-success element-name" name="@linkType.toString" data-did="" value="">
-                                        </button>
-                                        <button title="@Messages("accessPoint.delete")" class="btn btn-danger"><span class="glyphicon glyphicon-remove"></span></button>
-                                    </div>
-                                    <div class="form-group">
-                                        <label class="col-sm-3 control-label">@Messages("link.description")</label>
-                                        <div class="col-sm-9">
-                                            <textarea type="text" class="form-control element-description no-quite" placeholder="@Messages("link.description")"></textarea>
-                                        </div>
-                                    </div>
-
-                            	    @defining("link") { implicit fieldPrefix =>
-								        @defining(form("")) { desc =>
-								            @formHelpers.enumChoiceInput(form(LINK_TYPE), LinkType, LINK_TYPE, blank=true)
-
-								            <div class="inline-formset form-group clearfix" data-prefix="@DATES">
-								                <!-- Template for adding inline date forms via JS -->
-								                <label class="col-sm-3 control-label">
-								                    @Messages(fieldPrefix + "." + DATES)
-								                    <a href="#" class="add-inline-element"><i class="glyphicon glyphicon-plus-sign"></i></a>
-								                </label>
-								                <div class="inline-element-template form-template">
-								                    @formHelpers.inlineDateSet(desc(DATES + "[IDX]"))
-								                </div>
-								                <div class="col-sm-9 inline-element-list">
-								                    @helper.repeat(desc(DATES), min = 0) { desc =>
-								                        @formHelpers.inlineDateSet(desc)
-								                    }
-								                </div>
-								            </div>
-								        }
-								    }
-
-                                </div>
-                            </div>
-                        </div>
-                        <div class="form-group submit-group">
-                            <div class="col-sm-offset-2 col-sm-10">
-                                <button class="btn btn-small btn-primary element-save">
-                                    @Messages("save")</button>
-                                <button class="btn btn-small btn-danger">@Messages("cancel")</button>
-                            </div>
-                        </div>
-                    </div>
-                </li>
-            </ul>
-            <hr />
-        </li>
+        @formHelpers.adminLinker(item.id, linkType.toString, form)
     }
     </ul>
 }
