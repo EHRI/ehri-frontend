@@ -234,6 +234,35 @@ case class Guides @Inject()(implicit globalConfig: global.GlobalConfig, searchDi
   */
 
   /*
+  *   Faceted request
+  */
+  def searchFacets(guide: Guide) = { implicit request =>
+    cypher.CypherDAO()
+              .cypher("""
+START 
+    virtualUnit = node:entities("__ID__:{{guide}}),
+    accessPoints = node:entities("__ID__:terezin-terms-keyword-jmp-104 OR __ID__:terezin-terms-keyword-jmp-2 OR __ID__:terezin-terms-keyword-jmp-258 OR __ID__:terezin-places-place-jmp-old-1")
+MATCH 
+    (link)-[:inContextOf]->virtualUnit,
+    (doc)<-[:hasLinkTarget]-(link)-[:hasLinkTarget]->accessPoints
+WHERE doc.__ISA__ = "documentaryUnit"
+WITH collect(accessPoints.__ID__) AS accessPointsId, doc
+WHERE ALL (x IN ['terezin-terms-keyword-jmp-104', 'terezin-places-place-jmp-old-1', 'terezin-terms-keyword-jmp-2', 'terezin-terms-keyword-jmp-258']
+           WHERE x IN accessPointsId)
+RETURN doc.__ID__""",
+        Map(
+          /* All IDS */
+          "guide" -> JsString(guide.virtualUnit)
+          /* End IDS */
+        )).map { goe =>
+      /*
+    either we get doc.id and search for it
+      functionToParseDocuments(goe)
+    or parse documents
+    */
+    }    
+  }
+  /*
   *   Faceted search
   */
   def guideFacets(path: String) = itemOr404Action {
