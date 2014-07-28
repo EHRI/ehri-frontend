@@ -54,6 +54,7 @@ CREATE TABLE research_guide (
   name VARCHAR(255) DEFAULT NULL,
   path VARCHAR(45) DEFAULT NULL,
   picture VARCHAR(255) DEFAULT NULL,
+  virtualUnit VARCHAR(255) DEFAULT NULL,
   description text,
   active BOOLEAN NULL DEFAULT 0,
   `default` int(1) DEFAULT 0
