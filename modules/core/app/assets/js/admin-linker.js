@@ -105,6 +105,7 @@ $(document).ready(function() {
       }})
   } else {
     $service.saveLink = jsRoutes.controllers[MODULE_NAME][CONTROLLER_NAME].linkAnnotatePost
+    $service.goTo = jsRoutes.controllers[MODULE_NAME][CONTROLLER_NAME].get
   }
 
   var nextSave = function($scope, $accesspoints, $button, callback, secondCallback) {
@@ -522,6 +523,8 @@ $(document).ready(function() {
       }).done(function (data) {
         nextSave($scope, $links, $save, save, function (e) { 
           $save.text(SAVE_LABEL);
+          // Redirect
+          location.href = $service.goTo($scope.id).url
         })
       });
     };
