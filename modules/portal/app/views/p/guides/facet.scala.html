@@ -1,4 +1,4 @@
-@(template: (GuidePage, (Guide, List[GuidePage])))(implicit userOpt: Option[UserProfile], request: RequestHeader, prefs: utils.SessionPrefs, globalConfig: global.GlobalConfig, lang: Lang, flash: Flash)
+@(results: Option[DocumentaryUnit], template: (GuidePage, (Guide, List[GuidePage])))(implicit userOpt: Option[UserProfile], request: RequestHeader, prefs: utils.SessionPrefs, globalConfig: global.GlobalConfig, lang: Lang, flash: Flash)
 
 @import models.{GuidePage, Guide}
 
@@ -153,6 +153,7 @@
         </header>
         <section>
             <section class="content-results">
+                @results
             </section>
         </section>
         <footer>

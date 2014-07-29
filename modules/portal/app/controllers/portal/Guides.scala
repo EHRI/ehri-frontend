@@ -8,7 +8,10 @@ import views.html.p
 import utils.search._
 import defines.EntityType
 import backend.Backend
+import backend.rest.SearchDAO
 import controllers.base.{SessionPreferences, ControllerHelpers}
+import scala.concurrent.Future
+import scala.concurrent.Future.{successful => immediate}
 import utils._
 import models.Guide
 import models.GuidePage
@@ -20,6 +23,12 @@ import play.api.Play.current
 import models.GuidePage.Layout
 import models.GeoCoordinates
 import solr.SolrConstants
+import backend.rest.cypher.CypherDAO
+import play.api.libs.json.{JsString, JsValue, JsArray}
+import backend.rest.RestBackend
+
+import play.api.data._
+import play.api.data.Forms._
 
 case class Guides @Inject()(implicit globalConfig: global.GlobalConfig, searchDispatcher: Dispatcher, searchResolver: Resolver, backend: Backend,
                             userDAO: AccountDAO)
@@ -33,7 +42,6 @@ case class Guides @Inject()(implicit globalConfig: global.GlobalConfig, searchDi
 
   override val staffOnly = current.configuration.getBoolean("ehri.portal.secured").getOrElse(true)
   override val verifiedOnly = current.configuration.getBoolean("ehri.portal.secured").getOrElse(true)
-
 
   /*
   *
@@ -234,42 +242,56 @@ case class Guides @Inject()(implicit globalConfig: global.GlobalConfig, searchDi
   */
 
   /*
+  * Form for browse 
+  */
+  val facetsForm = Form(
+    single(
+      "kw" -> list(text)
+    )
+  )
+
+  /*
   *   Faceted request
   */
-  def searchFacets(guide: Guide) = { implicit request =>
-    cypher.CypherDAO()
-              .cypher("""
-START 
-    virtualUnit = node:entities("__ID__:{{guide}}),
-    accessPoints = node:entities("__ID__:terezin-terms-keyword-jmp-104 OR __ID__:terezin-terms-keyword-jmp-2 OR __ID__:terezin-terms-keyword-jmp-258 OR __ID__:terezin-places-place-jmp-old-1")
-MATCH 
-    (link)-[:inContextOf]->virtualUnit,
-    (doc)<-[:hasLinkTarget]-(link)-[:hasLinkTarget]->accessPoints
-WHERE doc.__ISA__ = "documentaryUnit"
-WITH collect(accessPoints.__ID__) AS accessPointsId, doc
-WHERE ALL (x IN ['terezin-terms-keyword-jmp-104', 'terezin-places-place-jmp-old-1', 'terezin-terms-keyword-jmp-2', 'terezin-terms-keyword-jmp-258']
-           WHERE x IN accessPointsId)
-RETURN doc.__ID__""",
-        Map(
-          /* All IDS */
-          "guide" -> JsString(guide.virtualUnit)
-          /* End IDS */
-        )).map { goe =>
-      /*
-    either we get doc.id and search for it
-      functionToParseDocuments(goe)
-    or parse documents
-    */
-    }    
+  def searchFacets(guide: Guide, request : Map[String,Seq[String]]): Future[Seq[Long]] = {
+    val ids = facetsForm.bindFromRequest(request).get
+    val cypher = new CypherDAO
+    val query = 
+    s"""
+        START 
+          virtualUnit = node:entities(__ID__= {guide}),
+          accessPoints = node:entities("__ID__:""" ++ ids.mkString(" OR __ID__:")++ """")
+        MATCH 
+             (link)-[:inContextOf]->virtualUnit,
+            (doc)<-[:hasLinkTarget]-(link)-[:hasLinkTarget]->accessPoints
+         WHERE doc.__ISA__ = "documentaryUnit"
+         WITH collect(accessPoints.__ID__) AS accessPointsId, doc
+         WHERE ALL (x IN [{accesslist}]
+                   WHERE x IN accessPointsId)
+         RETURN id(doc) as ids
+        """.stripMargin
+    cypher.cypher(query, 
+    Map(
+      /* All IDS */
+      "guide" -> JsString(guide.virtualUnit),
+      "accesslist" -> Json.toJson(ids)
+      /* End IDS */
+    )).map { r =>
+      (r \ "data").as[Seq[Seq[Long]]].flatten
+    }
   }
   /*
   *   Faceted search
   */
-  def guideFacets(path: String) = itemOr404Action {
+  def guideFacets(path: String) = userProfileAction.async { implicit userOpt => implicit request =>
     Guide.find(path, activeOnly = true).map { guide =>
-      userProfileAction { implicit userOpt => implicit request =>
-        Ok(p.guides.facet(GuidePage.faceted -> (guide -> guide.findPages)))
-      }
+      object lookup extends SearchDAO
+      for {
+        ids <- searchFacets(guide, request.queryString)
+        docs <- lookup.listByGid[DocumentaryUnit](ids)
+      } yield Ok(docs.toString)
+    } getOrElse {
+      immediate(NotFound("oh dear!"))
     }
   }
 }
