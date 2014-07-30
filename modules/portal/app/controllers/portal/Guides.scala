@@ -300,9 +300,9 @@ case class Guides @Inject()(implicit globalConfig: global.GlobalConfig, searchDi
         for {
           ids <- searchFacets(guide, request.queryString)
           docs <- lookup.listByGid[DocumentaryUnit](ids)
-        } yield Ok(p.guides.facet(Some(docs), GuidePage.faceted -> (guide -> guide.findPages)))
+        } yield Ok(p.guides.facet(docs, GuidePage.faceted -> (guide -> guide.findPages)))
       } else {
-        immediate(Ok(p.guides.facet(None, GuidePage.faceted -> (guide -> guide.findPages))))
+        immediate(Ok(p.guides.facet(List(), GuidePage.faceted -> (guide -> guide.findPages))))
       }
     } getOrElse {
       immediate(NotFound("oh dear!"))
