@@ -17,6 +17,7 @@ import models.Guide
 import models.GuidePage
 import play.api.libs.json.Json
 import play.api.libs.json.JsValue
+import models.base.AnyModel
 
 import com.google.inject._
 import play.api.Play.current
@@ -257,8 +258,8 @@ case class Guides @Inject()(implicit globalConfig: global.GlobalConfig, searchDi
   /*
   *   Faceted request
   */
-  def searchFacets(guide: Guide, request : Map[String,Seq[String]]): Future[Seq[Long]] = {
-    val ids = facetsForm.bindFromRequest(request).get
+  def searchFacets(guide: Guide, ids: List[String]): Future[Seq[Long]] = {
+    
     val cypher = new CypherDAO
     val query = 
     s"""
@@ -270,9 +271,9 @@ case class Guides @Inject()(implicit globalConfig: global.GlobalConfig, searchDi
             (doc)<-[:hasLinkTarget]-(link)-[:hasLinkTarget]->accessPoints
          WHERE doc.__ISA__ = "documentaryUnit"
          WITH collect(accessPoints.__ID__) AS accessPointsId, doc
-         WHERE ALL (x IN {accesslist}
+         WHERE ALL (x IN {accesslist} 
                    WHERE x IN accessPointsId)
-         RETURN id(doc) as ids
+         RETURN ID(doc)
         """.stripMargin
     cypher.cypher(query, 
     Map(
@@ -291,21 +292,21 @@ case class Guides @Inject()(implicit globalConfig: global.GlobalConfig, searchDi
     Guide.find(path, activeOnly = true).map { guide =>
 
       /*
-       *  If we have keyword, we make a query
+       *  If we have keyword, we make a query 
        */
-
-        println(request.queryString.contains("kw[]"))
       if (request.queryString.contains("kw[]")) {
+        val facets = facetsForm.bindFromRequest(request.queryString).get
         object lookup extends SearchDAO
         for {
-          ids <- searchFacets(guide, request.queryString)
-          docs <- lookup.listByGid[DocumentaryUnit](ids)
-        } yield Ok(p.guides.facet(docs, GuidePage.faceted -> (guide -> guide.findPages)))
+          ids <- searchFacets(guide, facets)
+          docs <- lookup.listByGid[DocumentaryUnit](ids.slice(0,10))
+          accessPoints <- lookup.list[AnyModel](facets)
+        } yield Ok(p.guides.facet(ids.size, docs, accessPoints, GuidePage.faceted -> (guide -> guide.findPages)))
       } else {
-        immediate(Ok(p.guides.facet(List(), GuidePage.faceted -> (guide -> guide.findPages))))
+        immediate(Ok(p.guides.facet(0, List(), List(), GuidePage.faceted -> (guide -> guide.findPages))))
       }
     } getOrElse {
-      immediate(NotFound("oh dear!"))
+      immediate(NotFound(views.html.errors.pageNotFound()))
     }
   }
 }
