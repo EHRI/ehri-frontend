@@ -250,23 +250,28 @@ case class Guides @Inject()(implicit globalConfig: global.GlobalConfig, searchDi
     )
   )
 
+  def getFacetQuery(ids: List[String]) : String = {
+    ids.map("__ID__:" + _ ).reduce((a, b) => a + " OR " + b)
+  }
+
   /*
   *   Faceted request
   */
   def searchFacets(guide: Guide, request : Map[String,Seq[String]]): Future[Seq[Long]] = {
     val ids = facetsForm.bindFromRequest(request).get
+    /*if (request.queryString.contains("kw") */
     val cypher = new CypherDAO
     val query = 
     s"""
         START 
-          virtualUnit = node:entities(__ID__= {guide}),
-          accessPoints = node:entities("__ID__:""" ++ ids.mkString(" OR __ID__:")++ """")
+          virtualUnit = node:entities(__ID__= {guide}), 
+          accessPoints = node:entities(" """ ++ getFacetQuery(ids) ++ """ ")
         MATCH 
              (link)-[:inContextOf]->virtualUnit,
             (doc)<-[:hasLinkTarget]-(link)-[:hasLinkTarget]->accessPoints
          WHERE doc.__ISA__ = "documentaryUnit"
          WITH collect(accessPoints.__ID__) AS accessPointsId, doc
-         WHERE ALL (x IN [{accesslist}]
+         WHERE ALL (x IN {accesslist}
                    WHERE x IN accessPointsId)
          RETURN id(doc) as ids
         """.stripMargin
