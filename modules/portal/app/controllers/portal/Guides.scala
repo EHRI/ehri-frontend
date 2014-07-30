@@ -259,7 +259,6 @@ case class Guides @Inject()(implicit globalConfig: global.GlobalConfig, searchDi
   */
   def searchFacets(guide: Guide, request : Map[String,Seq[String]]): Future[Seq[Long]] = {
     val ids = facetsForm.bindFromRequest(request).get
-    /*if (request.queryString.contains("kw") */
     val cypher = new CypherDAO
     val query = 
     s"""
@@ -290,11 +289,21 @@ case class Guides @Inject()(implicit globalConfig: global.GlobalConfig, searchDi
   */
   def guideFacets(path: String) = userProfileAction.async { implicit userOpt => implicit request =>
     Guide.find(path, activeOnly = true).map { guide =>
-      object lookup extends SearchDAO
-      for {
-        ids <- searchFacets(guide, request.queryString)
-        docs <- lookup.listByGid[DocumentaryUnit](ids)
-      } yield Ok(docs.toString)
+
+      /*
+       *  If we have keyword, we make a query
+       */
+
+        println(request.queryString.contains("kw[]"))
+      if (request.queryString.contains("kw[]")) {
+        object lookup extends SearchDAO
+        for {
+          ids <- searchFacets(guide, request.queryString)
+          docs <- lookup.listByGid[DocumentaryUnit](ids)
+        } yield Ok(p.guides.facet(Some(docs), GuidePage.faceted -> (guide -> guide.findPages)))
+      } else {
+        immediate(Ok(p.guides.facet(None, GuidePage.faceted -> (guide -> guide.findPages))))
+      }
     } getOrElse {
       immediate(NotFound("oh dear!"))
     }

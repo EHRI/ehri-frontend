@@ -32,7 +32,12 @@
 					@content
 				</div>
 				<div class="col-md-4" id="facets">
-					@facets
+					<form method="GET" action="@controllers.portal.routes.Guides.layoutRetrieval(guide._2._1.path, guide._1.path)">
+		                <ul class="nav nav-pills nav-ehri nav-ehri-black nav-justified">
+		                    <li><button type="submit" class="nav-ehri nav-ehri-black nav-ehri-input"><span class="glyphicon glyphicon-search"></span><span class="text-hide">Search</span></button></li>
+		                </ul>
+						@facets
+					</form>
 				</div>
 			</div>
 		</div>
@@ -42,7 +47,7 @@
 				<ul class="nav">
 					@for(page <- guide._2._2) {
 						@if(page.position == GuidePage.MenuPosition.Side) {
-							<li><a href="@controllers.portal.routes.Guides.layoutRetrieval(guide._2._1.path, page.path)">@page.name</a></li>
+							<li><a href="@controllers.portal.routes.Guides.guideFacets(guide._2._1.path)">@page.name</a></li>
 						}
 					}
 				</ul>

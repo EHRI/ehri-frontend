@@ -6,12 +6,12 @@
             @item match {
                 case d: HistoricalAgent => {
         <li class="facet" data-target="@d.id" >
-            <input type="checkbox" name="@template._1.path,[]" value="@d.id" /> 
+            <input type="checkbox" name="kw[]" value="@d.id" /> 
                     <a class="item-title">@d.toStringLang</a>
                 }
                 case d: Concept => {
         <li class="facet" data-target="@d.id" >
-            <input type="checkbox" name="@template._1.path,[]" value="@d.id" /> 
+            <input type="checkbox" name="kw[]" value="@d.id" /> 
                     <span class="item-title">
                         @**
                             @d.broaderTerms.map { bt =>
