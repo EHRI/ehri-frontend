@@ -1,4 +1,4 @@
-@(resultsNumber: Int, results: List[DocumentaryUnit], accessPoints: List[AnyModel], template: (GuidePage, (Guide, List[GuidePage])))(implicit userOpt: Option[UserProfile], request: RequestHeader, prefs: utils.SessionPrefs, globalConfig: global.GlobalConfig, lang: Lang, flash: Flash)
+@(resultsNumber: (Int, (Int, Int)), results: List[DocumentaryUnit], accessPoints: List[AnyModel], template: (GuidePage, (Guide, List[GuidePage])))(implicit userOpt: Option[UserProfile], request: RequestHeader, prefs: utils.SessionPrefs, globalConfig: global.GlobalConfig, lang: Lang, flash: Flash)
 
 @import models.{GuidePage, Guide}
 
@@ -167,7 +167,8 @@
 @p.layout.guideLayoutFacet(template, facets= facets, scripts = js) {
     <article>
         <header>
-            @resultsNumber Results
+            
+            <p>@Messages("pagination.displayingItems", resultsNumber._2._1 + 1, if(resultsNumber._2._2 + 1 < resultsNumber._1) { resultsNumber._2._2 + 1} else {resultsNumber._1}, resultsNumber._1)</p>
             <p class="selected-facets">
             @accessPoints.map { access =>
                 

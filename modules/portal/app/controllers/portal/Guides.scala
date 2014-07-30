@@ -246,8 +246,9 @@ case class Guides @Inject()(implicit globalConfig: global.GlobalConfig, searchDi
   * Form for browse 
   */
   val facetsForm = Form(
-    single(
-      "kw" -> list(text)
+    tuple(
+      "kw" -> list(text),
+      "p" -> optional(number)
     )
   )
 
@@ -286,6 +287,29 @@ case class Guides @Inject()(implicit globalConfig: global.GlobalConfig, searchDi
     }
   }
   /*
+   *    Page defintion
+   */
+   /*
+    * Could be better rewritten
+   */
+  def facetPage(count: Int, page:Option[Int]) : (Int, Int) = {
+    val start = (page.getOrElse(1) - 1) * 10
+
+    if(start > count) {
+      val begin = count / 10 * 10 
+      val end = (count / 10 * 10) + 10
+      (begin, end)
+    } else {
+      val begin = if(start < 0) 0 else start
+      val end = if(start < 10) 10 else start+10
+      (begin, end)
+    }
+  }
+  def facetSlice(ids : Seq[Long], page:Option[Int]) : Seq[Long] = {
+    val pages = facetPage(ids.size, page)
+    ids.slice(pages._1, pages._2)
+  }
+  /*
   *   Faceted search
   */
   def guideFacets(path: String) = userProfileAction.async { implicit userOpt => implicit request =>
@@ -295,15 +319,16 @@ case class Guides @Inject()(implicit globalConfig: global.GlobalConfig, searchDi
        *  If we have keyword, we make a query 
        */
       if (request.queryString.contains("kw[]")) {
-        val facets = facetsForm.bindFromRequest(request.queryString).get
+        val valueForms = facetsForm.bindFromRequest(request.queryString).get
+
         object lookup extends SearchDAO
         for {
-          ids <- searchFacets(guide, facets)
-          docs <- lookup.listByGid[DocumentaryUnit](ids.slice(0,10))
-          accessPoints <- lookup.list[AnyModel](facets)
-        } yield Ok(p.guides.facet(ids.size, docs, accessPoints, GuidePage.faceted -> (guide -> guide.findPages)))
+          ids <- searchFacets(guide, valueForms._1)
+          docs <- lookup.listByGid[DocumentaryUnit](facetSlice(ids, valueForms._2))
+          accessPoints <- lookup.list[AnyModel](valueForms._1)
+        } yield Ok(p.guides.facet(ids.size -> facetPage(ids.size, valueForms._2), docs, accessPoints, GuidePage.faceted -> (guide -> guide.findPages)))
       } else {
-        immediate(Ok(p.guides.facet(0, List(), List(), GuidePage.faceted -> (guide -> guide.findPages))))
+        immediate(Ok(p.guides.facet(0 -> (0 -> 0), List(), List(), GuidePage.faceted -> (guide -> guide.findPages))))
       }
     } getOrElse {
       immediate(NotFound(views.html.errors.pageNotFound()))
