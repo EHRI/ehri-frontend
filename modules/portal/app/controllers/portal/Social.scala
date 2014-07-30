@@ -2,21 +2,21 @@ package controllers.portal
 
 import play.api.libs.concurrent.Execution.Implicits._
 import controllers.base.{SessionPreferences, AuthController, ControllerHelpers}
-import models.UserProfile
+import models.{SystemEvent, UserProfile, AccountDAO}
 import views.html.p
 import utils.{SessionPrefs, PageParams, SystemEventParams, ListParams}
 import utils.search.{Resolver, SearchOrder, Dispatcher, SearchParams}
 import defines.{EventType, EntityType}
 import play.api.Play.current
 import solr.SolrConstants
-import models.AccountDAO
-import backend.{ApiUser, Backend}
+import backend.{Page, ApiUser, Backend}
 
 import com.google.inject._
 import play.api.mvc.{Result, RequestHeader}
 import play.api.i18n.Messages
 import play.api.libs.json.Json
 import scala.concurrent.Future
+import models.base.AnyModel
 
 /**
  * @author Mike Bryant (http://github.com/mikesname)
@@ -96,17 +96,37 @@ case class Social @Inject()(implicit globalConfig: global.GlobalConfig, searchDi
   }
 
   def browseUser(userId: String) = withUserAction.async { implicit user => implicit request =>
+    // Show the profile home page of a defined user.
+    // Activity is the default page
     val params = ListParams.fromRequest(request)
     val eventParams = SystemEventParams.fromRequest(request).copy(users = List(userId))
       .copy(eventTypes = activityEventTypes)
       .copy(itemTypes = activityItemTypes)
+    val events: Future[List[SystemEvent]] = backend.listEvents(params, eventParams)
+    val isFollowing: Future[Boolean] = backend.isFollowing(user.id, userId)
+    val allowMessage: Future[Boolean] = canMessage(user.id, userId)
 
     for {
       them <- backend.get[UserProfile](userId)
-      theirActivity <- backend.listEvents(params, eventParams)
-      followed <- backend.isFollowing(user.id, userId)
-      canMessage <- canMessage(user.id, userId)
+      theirActivity <- events
+      followed <- isFollowing
+      canMessage <- allowMessage
     } yield Ok(p.social.browseUser(them, theirActivity, followed, canMessage))
+  }
+
+  def watchedByUser(userId: String) = withUserAction.async { implicit user => implicit request =>
+    // Show a list of watched item by a defined User
+    val watchParams = PageParams.fromRequest(request)
+    val watching: Future[Page[AnyModel]] = backend.pageWatching(userId, watchParams)
+    val isFollowing: Future[Boolean] = backend.isFollowing(user.id, userId)
+    val allowMessage: Future[Boolean] = canMessage(user.id, userId)
+
+    for {
+      them <- backend.get[UserProfile](userId)
+      theirWatching <- watching
+      followed <- isFollowing
+      canMessage <- allowMessage
+    } yield Ok(p.social.userWatched(them, theirWatching, followed, canMessage))
   }
 
   def followUser(userId: String) = withUserAction { implicit user => implicit request =>

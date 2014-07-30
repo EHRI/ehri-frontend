@@ -114,9 +114,9 @@ jQuery(function ($) {
 		    // their followers list...
 		    $elem.hide();
 		    $other.show();
-		    $(".browse-users-followers")
-		        .load(followerListFunc(id).url);
-
+        if($elem.parents(".user-list-item").size() === 0) {
+          $(".browse-users-followers").load(followerListFunc(id).url);
+        }
 		    // If a follower count is shown, munge it...
 		    var fc = $(".user-follower-count");
 		    if (fc.size()) {

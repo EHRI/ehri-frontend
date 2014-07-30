@@ -9,7 +9,7 @@
     }
 
     @views.html.layout.mainContent {
-        @profileForUser(them)
+        @profileForUser(them, true)
         <div class="user-profile-activity">
             <h3 class="block-header user">@Messages("portal.social.usersFollowedBy", them.toStringLang)</h3>
             <div class="browse-users-following">

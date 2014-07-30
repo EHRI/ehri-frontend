@@ -12,14 +12,13 @@ package models.base
  * TODO: Improve all of this drastically.
  */
 
-import defines._
 import models.Relation
 import backend.ErrorSet
 
 
 object Persistable {
   def getRelationToAttributeMap(p: AnyRef): Map[String,String] = {
-    (Map[String,String]() /: p.getClass.getDeclaredFields) { (a, f) =>
+    p.getClass.getDeclaredFields.foldLeft(Map.empty[String,String]) { (a, f) =>
       f.setAccessible(true)
       // If there's a relationship annotation on the value, 
       // add it to the map
@@ -88,9 +87,9 @@ object Persistable {
     val newpath = attr match {
       case Some(s) => index match {
         case Some(i) => path match {
-          case Some(p) if p.isEmpty => "%s[%d]".format(s, i)
-          case Some(p) => "%s.%s[%d]".format(p, s, i)
-          case None => "%s[%d]".format(s, i)
+          case Some(p) if p.isEmpty => s"$s[$i]"
+          case Some(p) => s"$p.$s[$i]"
+          case None => s"$s[$i]"
         }
         case _ => ""
       }
@@ -98,19 +97,19 @@ object Persistable {
     }
 
     // Map the top-level errors
-    val nmap = (currentMap /: errorSet.errors.toSeq) { (m, kev) =>
+    val nmap = errorSet.errors.toSeq.foldLeft(currentMap) { case (m, (kv1, kv2)) =>
       if (newpath.isEmpty)
-        m + (kev._1 -> kev._2)
+        m + (kv1 -> kv2)
       else
-        m + ("%s.%s".format(newpath, kev._1) -> kev._2)
+        m + (s"$newpath.$kv1" -> kv2)
     }
 
     // And then the nested relationship errors
-    (nmap /: errorSet.relationships) { (m, kev) =>
+    errorSet.relationships.foldLeft(nmap) { (m, kev) =>
       val (rel, errorSets) = kev
-      val attrName = relmap.getOrElse(rel, sys.error("Unknown error map relationship for %s: %s (%s)".format(this, rel, relmap)))
-      (m /: errorSets.zipWithIndex) { (mm, esi) => esi._1 match {
-          case Some(es) => unfurlErrors(es, relmap, mm, Some(newpath), Some(attrName), Some(esi._2))
+      val attrName = relmap.getOrElse(rel, sys.error(s"Unknown error map relationship for $this: $rel ($relmap)"))
+      errorSets.zipWithIndex.foldLeft(m) { case (mm, (e1, e2)) => e1 match {
+          case Some(es) => unfurlErrors(es, relmap, mm, Some(newpath), Some(attrName), Some(e2))
           case None => mm
         }
       }
@@ -128,14 +127,10 @@ trait Persistable {
   import play.api.data.FormError
   import play.api.data.Form
 
-  def id: Option[String]
-  def isA: EntityType.Value
-
   def getFormErrors[T](errorSet: ErrorSet, form: Form[T]): Form[T] = {
     val serverErrors: Seq[FormError] = errorsToForm(errorSet)
     form.copy(errors = form.errors ++ serverErrors)
   }
-
 
   /**
    * Map a tree of errors from the server into form errors.

@@ -28,14 +28,14 @@ trait RestGeneric extends Generic with RestDAO {
       = m.map(ks => ks._2.map(s => ks._1 -> s)).flatten.toSeq
 
   def get[MT](resource: RestResource[MT], id: String)(implicit apiUser: ApiUser, rd: RestReadable[MT], executionContext: ExecutionContext): Future[MT] = {
-    val cached = Cache.getAs[JsValue](id)
-    if (cached.isDefined) {
-      Future.successful(jsonReadToRestError(cached.get, rd.restReads))
-    } else {
+    Cache.getAs[JsValue](id) match {
+      case Some(json) => Future.successful(jsonReadToRestError(json, rd.restReads))
+      case _ =>
       val url = enc(requestUrl, resource.entityType, id)
       userCall(url, resource.defaultParams).get().map { response =>
+        val item = checkErrorAndParse(response)(rd.restReads)
         Cache.set(id, response.json, cacheTime)
-        checkErrorAndParse(response)(rd.restReads)
+        item
       }
     }
   }

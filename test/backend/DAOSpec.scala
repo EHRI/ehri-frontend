@@ -19,6 +19,13 @@ class DAOSpec extends helpers.Neo4jRunnerSpec(classOf[DAOSpec]) {
   //class FakeApp extends WithApplication(FakeApplication(additionalConfiguration = config, withGlobal = Some(getGlobal)))
 
   "EntityDAO" should {
+    "not cache invalid responses (as per bug #324)" in new FakeApp {
+      // Previously this would error the second time because the bad
+      // response would be cached and error on JSON deserialization.
+      await(testBackend.get[UserProfile]("invalid-id")) must throwA[ItemNotFound]
+      await(testBackend.get[UserProfile]("invalid-id")) must throwA[ItemNotFound]
+    }
+
     "get an item by id" in new FakeApp {
       await(testBackend.get[UserProfile](userProfile.id))
     }

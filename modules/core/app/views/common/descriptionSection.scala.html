@@ -1,7 +1,6 @@
 @(name:String)(html: Html)(implicit fieldPrefix: String, lang: Lang)
-
 <h4>@Messages(fieldPrefix + "." + name)</h4>
-<div class="@{name}-section">
+<div class="description-section @{name}-section">
     @if(html.toString.trim.isEmpty) {
         <i><small><p class="text-muted">@Messages("describedEntity.noData")</p></small></i>
     } else {

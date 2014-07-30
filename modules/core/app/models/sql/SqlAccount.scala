@@ -8,6 +8,7 @@ import scala.language.postfixOps
 import play.api.Play.current
 import java.util.UUID
 import play.api.Logger
+import utils.ListParams
 
 /**
  * @author Mike Bryant (http://github.com/mikesname)
@@ -146,6 +147,13 @@ object SqlAccount extends AccountDAO {
         select * from users where email = {email} and verified = {verified}
       """
     ).on('email -> email, 'verified -> verified).as(SqlAccount.simple.singleOpt)
+  }
+
+  def findAll(params: ListParams = ListParams.empty): Seq[Account] = DB.withConnection { implicit connection =>
+    val query = if (params.hasLimit)
+      s"select * from users offset ${params.offset} limit ${params.limit}"
+      else "select * from users"
+    SQL(query).as(SqlAccount.simple *)
   }
 
   def findByEmail(email: String): Option[Account] = DB.withConnection { implicit connection =>
