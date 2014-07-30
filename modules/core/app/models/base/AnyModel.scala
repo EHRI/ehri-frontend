@@ -279,9 +279,10 @@ trait Described[+T <: Description] extends Model {
    * @param lang The current language
    * @return The first description found with a matching language code
    */
-  def primaryDescription(implicit lang: Lang): Option[T] = descriptions.find { d =>
-    d.languageCode == utils.i18n.lang2to3lookup.getOrElse(lang.code, lang.code)
-  }.orElse(descriptions.headOption)
+  def primaryDescription(implicit lang: Lang): Option[T] = {
+    val code3 = utils.i18n.lang2to3lookup.getOrElse(lang.language, lang.language)
+    descriptions.find(_.languageCode == code3).orElse(descriptions.headOption)
+  }
 
   /**
    * Get a description with the given ID, falling back on the first
