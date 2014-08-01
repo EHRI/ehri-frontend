@@ -1,10 +1,16 @@
-@(value: Option[String], fieldName: String)(implicit prefix: String = "")
+@(value: Option[String], fieldName: String)(implicit fieldPrefix: String = "")
 
 @value.map { str =>
     @if(!str.trim.isEmpty) {
-        <h5>
-            @Messages(if (prefix.isEmpty) fieldName else "%s.%s".format(prefix, fieldName))
-        </h5>
-        <p>@Html(views.Helpers.renderMarkdown(str))</p>
+        <div class="item-text-field" id="@fieldName">
+            <h4 class="item-text-field-header">
+            	@Messages(if (fieldPrefix.isEmpty) fieldName else "%s.%s".format(fieldPrefix, fieldName))
+            </h4>
+            <div class="item-text-field-value">
+                @Html(views.Helpers.renderMarkdown(str))
+            </div>
+        </div>
     }
 }
+
+

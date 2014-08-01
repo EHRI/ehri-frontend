@@ -10,11 +10,13 @@
         }
     }
 
-    <div class="main-content">
+    @layout.mainContent {
         @profileForUser(them)
-        <div class="user-profile-activity">
-
-                <h3 class="block-header user">@Messages("portal.activity")</h3>
+        <div class="user-profile-content">
+                <h3 class="block-header user">
+                    @Messages("portal.activity")
+                </h3>
+            <div id="user-activity">
                 @if(!events.isEmpty) {
                 <div class="timeline-container">
                     <ul id="activity-stream" class="timeline">
@@ -24,6 +26,7 @@
                 } else {
                     <p class="text-muted">@Messages("portal.activity.noUserActivityYet")</p>
                 }
+            </div>
         </div>
-    </div>
+    }
 }
