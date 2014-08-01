@@ -313,7 +313,7 @@ case class Guides @Inject()(implicit globalConfig: global.GlobalConfig, searchDi
   def pagify(docsId : Seq[Long], docsItems: List[DocumentaryUnit], accessPoints: List[AnyModel], page: Option[Int] = None) : ItemPage[DocumentaryUnit] = {
     facetPage(docsId.size, page) match { 
       case (start, end) =>
-       ItemPage(docsItems.map { doc =>
+       ItemPage(docsItems.slice(start, end).map { doc =>
           doc
         }, start, end - start, docsId.size, List(), None)
       }
@@ -329,14 +329,14 @@ case class Guides @Inject()(implicit globalConfig: global.GlobalConfig, searchDi
        *  If we have keyword, we make a query 
        */
       if (request.queryString.contains("kw[]")) {
-        val valueForms = facetsForm.bindFromRequest(request.queryString).get
+        val (selectedFacets, page) = facetsForm.bindFromRequest(request.queryString).get
 
         object lookup extends SearchDAO
         for {
-          ids <- searchFacets(guide, valueForms._1)
-          docs <- lookup.listByGid[DocumentaryUnit](facetSlice(ids, valueForms._2))
-          accessPoints <- lookup.list[AnyModel](valueForms._1)
-        } yield Ok(p.guides.facet(pagify(ids, docs, accessPoints, valueForms._2), accessPoints, GuidePage.faceted -> (guide -> guide.findPages)))
+          ids <- searchFacets(guide, selectedFacets)
+          docs <- lookup.listByGid[DocumentaryUnit](facetSlice(ids, page))
+          accessPoints <- lookup.list[AnyModel](selectedFacets)
+        } yield Ok(p.guides.facet(pagify(ids, docs, accessPoints, page), accessPoints, GuidePage.faceted -> (guide -> guide.findPages)))
         //} yield Ok()
       } else {
         immediate(Ok(p.guides.facet(ItemPage(Seq(), 0,0,0, List()), List(), GuidePage.faceted -> (guide -> guide.findPages))))
