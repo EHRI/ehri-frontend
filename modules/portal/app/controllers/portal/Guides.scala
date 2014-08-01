@@ -309,6 +309,16 @@ case class Guides @Inject()(implicit globalConfig: global.GlobalConfig, searchDi
     val pages = facetPage(ids.size, page)
     ids.slice(pages._1, pages._2)
   }
+
+  def pagify(docsId : Seq[Long], docsItems: List[DocumentaryUnit], accessPoints: List[AnyModel], page: Option[Int] = None) : ItemPage[DocumentaryUnit] = {
+    facetPage(docsId.size, page) match { 
+      case (start, end) =>
+       ItemPage(docsItems.map { doc =>
+          doc
+        }, start, end - start, docsId.size, List(), None)
+      }
+  }
+
   /*
   *   Faceted search
   */
@@ -326,9 +336,10 @@ case class Guides @Inject()(implicit globalConfig: global.GlobalConfig, searchDi
           ids <- searchFacets(guide, valueForms._1)
           docs <- lookup.listByGid[DocumentaryUnit](facetSlice(ids, valueForms._2))
           accessPoints <- lookup.list[AnyModel](valueForms._1)
-        } yield Ok(p.guides.facet(ids.size -> facetPage(ids.size, valueForms._2), docs, accessPoints, GuidePage.faceted -> (guide -> guide.findPages)))
+        } yield Ok(p.guides.facet(pagify(ids, docs, accessPoints, valueForms._2), accessPoints, GuidePage.faceted -> (guide -> guide.findPages)))
+        //} yield Ok()
       } else {
-        immediate(Ok(p.guides.facet(0 -> (0 -> 0), List(), List(), GuidePage.faceted -> (guide -> guide.findPages))))
+        immediate(Ok(p.guides.facet(ItemPage(Seq(), 0,0,0, List()), List(), GuidePage.faceted -> (guide -> guide.findPages))))
       }
     } getOrElse {
       immediate(NotFound(views.html.errors.pageNotFound()))
