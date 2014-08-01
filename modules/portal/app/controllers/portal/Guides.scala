@@ -248,7 +248,7 @@ case class Guides @Inject()(implicit globalConfig: global.GlobalConfig, searchDi
   val facetsForm = Form(
     tuple(
       "kw" -> list(text),
-      "p" -> optional(number)
+      "page" -> optional(number)
     )
   )
 
@@ -298,10 +298,12 @@ case class Guides @Inject()(implicit globalConfig: global.GlobalConfig, searchDi
     if(start > count) {
       val begin = count / 10 * 10 
       val end = (count / 10 * 10) + 10
+      println((begin, end, count))
       (begin, end)
     } else {
       val begin = if(start < 0) 0 else start
       val end = if(start < 10) 10 else start+10
+      println((begin, end, count))
       (begin, end)
     }
   }
@@ -313,7 +315,7 @@ case class Guides @Inject()(implicit globalConfig: global.GlobalConfig, searchDi
   def pagify(docsId : Seq[Long], docsItems: List[DocumentaryUnit], accessPoints: List[AnyModel], page: Option[Int] = None) : ItemPage[DocumentaryUnit] = {
     facetPage(docsId.size, page) match { 
       case (start, end) =>
-       ItemPage(docsItems.slice(start, end).map { doc =>
+       ItemPage(docsItems.map { doc =>
           doc
         }, start, end - start, docsId.size, List(), None)
       }
