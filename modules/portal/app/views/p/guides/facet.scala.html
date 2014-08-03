@@ -168,6 +168,7 @@
     <article>
         <header>
             <h3>@Messages("pagination.displayingItems", items.offset + 1, items.offset + items.items.size, items.total)</h3>
+            @views.html.common.search.selectedFacets(items)
             <p class="selected-facets">
             @accessPoints.map { access =>
                 
