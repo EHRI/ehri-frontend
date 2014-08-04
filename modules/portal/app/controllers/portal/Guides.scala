@@ -315,19 +315,23 @@ case class Guides @Inject()(implicit globalConfig: global.GlobalConfig, searchDi
   }
 
   def pagify(docsId : Seq[Long], docsItems: List[DocumentaryUnit], accessPoints: List[AnyModel], page: Option[Int] = None) : ItemPage[DocumentaryUnit] = {
+    class GuideFacet(val value : String, val name : Option[String], val applied : Boolean, val count : Int, val sort : String) extends Facet
+    class GuideFacetClass extends FacetClass[GuideFacet]
     facetPage(docsId.size, page) match { 
       case (start, end) =>
        ItemPage(docsItems.map { doc =>
           doc
-        }, start, end - start, docsId.size, List(FacetClass {
+        }, start, end - start, docsId.size, List(new GuideFacetClass {
            val param = "kw[]";
            val name = "Access Points";
            val key = "kw";
            val facets = accessPoints.map { ap =>
-                new Facet{ val value = ap.id; val name = Some(ap.identifier); val applied = true; val count = 1; val sort = "" }
+                new GuideFacet(ap.id, Some("Test"), true, 1, "SORT");
               };
            val display = FacetDisplay.List;
            val sort = FacetSort.Fixed;
+           val fieldType = "neo4j";
+           def render(s : String): String = { s }
           }), None)
       }
   }
