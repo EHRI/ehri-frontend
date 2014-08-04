@@ -21,4 +21,6 @@ trait AbstractPage[+A] extends Iterable[A] {
   lazy val next = Option(page + 1).filter(_ => (offset + items.size) < total)
 
   //def isEmpty = total == 0 // items.isEmpty? Not sure of the best semantics here?
+
+  def isLimited = limit == -1
 }
