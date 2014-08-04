@@ -319,15 +319,16 @@ case class Guides @Inject()(implicit globalConfig: global.GlobalConfig, searchDi
       case (start, end) =>
        ItemPage(docsItems.map { doc =>
           doc
-        }, start, end - start, docsId.size, List(new FacetClass(param = "kw[]",
-            name = "Access Points",
-            key = "kw",
-            facets = accessPoints.map { ap =>
-                new Facet(value = ap.id, name= Some(ap.identifier), applied =  true, count = 1, sort = "")
-              }.toList,
-            display = FacetDisplay.List,
-            sort = FacetSort.Fixed
-          )), None)
+        }, start, end - start, docsId.size, List(FacetClass {
+           val param = "kw[]";
+           val name = "Access Points";
+           val key = "kw";
+           val facets = accessPoints.map { ap =>
+                new Facet{ val value = ap.id; val name = Some(ap.identifier); val applied = true; val count = 1; val sort = "" }
+              };
+           val display = FacetDisplay.List;
+           val sort = FacetSort.Fixed;
+          }), None)
       }
   }
 
