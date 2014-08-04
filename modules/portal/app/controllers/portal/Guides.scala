@@ -19,6 +19,7 @@ import play.api.libs.json.Json
 import play.api.libs.json.JsValue
 import models.base.AnyModel
 import solr.facet.FieldFacetClass
+import utils.search.{Facet, FacetClass}
 
 import com.google.inject._
 import play.api.Play.current
@@ -318,11 +319,12 @@ case class Guides @Inject()(implicit globalConfig: global.GlobalConfig, searchDi
       case (start, end) =>
        ItemPage(docsItems.map { doc =>
           doc
-        }, start, end - start, docsId.size, List(FieldFacetClass(
-            param = "kw[]",
+        }, start, end - start, docsId.size, List(new FacetClass(param = "kw[]",
             name = "Access Points",
             key = "kw",
-            facets = accessPoints,
+            facets = accessPoints.map { ap =>
+                new Facet(value = ap.id, name= Some(ap.identifier), applied =  true, count = 1, sort = "")
+              }.toList,
             display = FacetDisplay.List,
             sort = FacetSort.Fixed
           )), None)
