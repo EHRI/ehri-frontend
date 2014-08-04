@@ -40,7 +40,7 @@ object Page {
     (__ \ "offset").write[Int] and
     (__ \ "limit").write[Int] and
     (__ \ "values").lazyWrite(Writes.seq[T](r))
-  )(unlift(Page.unapply[T] _))
+  )(unlift(Page.unapply[T]))
 
   implicit def pageFormat[T](implicit r: Reads[T], w: Writes[T]): Format[Page[T]]
     = Format(pageReads(r), pageWrites(w))
