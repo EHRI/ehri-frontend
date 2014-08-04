@@ -21,21 +21,21 @@ trait RestPermissions extends Permissions with RestDAO {
   implicit val permissionGrantMetaReads = PermissionGrant.Converter.restReads
   implicit val pageReads = Page.pageReads(permissionGrantMetaReads)
 
-  private def baseUrl = "http://%s:%d/%s".format(host, port, mount)
-  private def requestUrl = "%s/permission".format(baseUrl)
+  private def baseUrl = s"http://$host:$port/$mount"
+  private def requestUrl = s"$baseUrl/permission"
 
   def listPermissionGrants[T <: Accessor](user: T, params: PageParams)(implicit apiUser: ApiUser, executionContext: ExecutionContext): Future[Page[PermissionGrant]] =
-    listWithUrl(enc(requestUrl, "page", user.id), params)
+    listWithUrl(enc(requestUrl, "list", user.id), params)
 
   def listItemPermissionGrants(id: String, params: PageParams)(implicit apiUser: ApiUser, executionContext: ExecutionContext): Future[Page[PermissionGrant]] =
-    listWithUrl(enc(requestUrl, "pageForItem", id), params)
+    listWithUrl(enc(requestUrl, "listForItem", id), params)
 
   def listScopePermissionGrants(id: String, params: PageParams)(implicit apiUser: ApiUser, executionContext: ExecutionContext): Future[Page[PermissionGrant]] =
-    listWithUrl(enc(requestUrl, "pageForScope", id), params)
+    listWithUrl(enc(requestUrl, "listForScope", id), params)
 
   private def listWithUrl(url: String, params: PageParams)(implicit apiUser: ApiUser, executionContext: ExecutionContext): Future[Page[PermissionGrant]] = {
-    userCall(url).withQueryString(params.toSeq: _*).get().map { response =>
-      checkErrorAndParse[Page[PermissionGrant]](response)
+    userCall(url).withQueryString(params.queryParams: _*).get().map { response =>
+      parsePage[PermissionGrant](response)
     }
   }
 

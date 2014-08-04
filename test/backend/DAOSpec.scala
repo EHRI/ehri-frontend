@@ -3,7 +3,7 @@ package backend
 import scala.concurrent.ExecutionContext.Implicits.global
 import models._
 import defines.{EntityType, ContentTypes, PermissionType}
-import utils.{ListParams, PageParams}
+import utils.PageParams
 import backend.rest.{CypherIdGenerator, ItemNotFound, ValidationError}
 import backend.rest.cypher.CypherDAO
 import play.api.libs.json.{JsString, Json}
@@ -108,13 +108,11 @@ class DAOSpec extends helpers.Neo4jRunnerSpec(classOf[DAOSpec]) {
     }
 
     "page items" in new FakeApp {
-      val r = await(testBackend.page[UserProfile](PageParams()))
+      val r = await(testBackend.list[UserProfile]())
       r.items.length mustEqual 5
-    }
-
-    "list items" in new FakeApp {
-      var r = await(testBackend.list[UserProfile](ListParams()))
-      r.length mustEqual 5
+      r.page mustEqual 1
+      r.count mustEqual backend.rest.Constants.DEFAULT_LIST_LIMIT
+      r.total mustEqual 5
     }
 
     "count items" in new FakeApp {
@@ -214,9 +212,9 @@ class DAOSpec extends helpers.Neo4jRunnerSpec(classOf[DAOSpec]) {
       await(testBackend.isFollowing(userProfile.id, "reto")) must beFalse
       await(testBackend.follow(userProfile.id, "reto"))
       await(testBackend.isFollowing(userProfile.id, "reto")) must beTrue
-      val following = await(testBackend.listFollowing(userProfile.id))
+      val following = await(testBackend.following(userProfile.id))
       following.exists(_.id == "reto") must beTrue
-      val followingPage = await(testBackend.pageFollowing(userProfile.id))
+      val followingPage = await(testBackend.following(userProfile.id))
       followingPage.total must equalTo(1)
       await(testBackend.unfollow(userProfile.id, "reto"))
       await(testBackend.isFollowing(userProfile.id, "reto")) must beFalse
@@ -226,9 +224,9 @@ class DAOSpec extends helpers.Neo4jRunnerSpec(classOf[DAOSpec]) {
       await(testBackend.isWatching(userProfile.id, "c1")) must beFalse
       await(testBackend.watch(userProfile.id, "c1"))
       await(testBackend.isWatching(userProfile.id, "c1")) must beTrue
-      val watching = await(testBackend.listWatching(userProfile.id))
+      val watching = await(testBackend.watching(userProfile.id))
       watching.exists(_.id == "c1") must beTrue
-      val watchingPage = await(testBackend.pageWatching(userProfile.id))
+      val watchingPage = await(testBackend.watching(userProfile.id))
       watchingPage.total must equalTo(1)
       await(testBackend.unwatch(userProfile.id, "c1"))
       await(testBackend.isWatching(userProfile.id, "c1")) must beFalse
@@ -238,9 +236,9 @@ class DAOSpec extends helpers.Neo4jRunnerSpec(classOf[DAOSpec]) {
       await(testBackend.isBlocking(userProfile.id, "reto")) must beFalse
       await(testBackend.block(userProfile.id, "reto"))
       await(testBackend.isBlocking(userProfile.id, "reto")) must beTrue
-      val blocking = await(testBackend.listBlocked(userProfile.id))
+      val blocking = await(testBackend.blocked(userProfile.id))
       blocking.exists(_.id == "reto") must beTrue
-      val blockingPage = await(testBackend.pageBlocked(userProfile.id))
+      val blockingPage = await(testBackend.blocked(userProfile.id))
       blockingPage.total must equalTo(1)
       await(testBackend.unblock(userProfile.id, "reto"))
       await(testBackend.isBlocking(userProfile.id, "reto")) must beFalse

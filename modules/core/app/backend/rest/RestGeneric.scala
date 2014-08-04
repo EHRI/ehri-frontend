@@ -7,7 +7,7 @@ import models.json.{RestResource, RestReadable, RestConvertable}
 import play.api.Play.current
 import play.api.cache.Cache
 import models.base.AnyModel
-import utils.{PageParams,ListParams}
+import utils.PageParams
 import backend.{Generic, EventHandler, ApiUser, Page}
 import play.api.http.Status
 import models.Entity
@@ -50,7 +50,7 @@ trait RestGeneric extends Generic with RestDAO {
     }
   }
 
-  def create[MT,T](item: T, accessors: List[String] = Nil,
+  def create[MT,T](item: T, accessors: Seq[String] = Nil,
       params: Map[String,Seq[String]] = Map(),
       logMsg: Option[String] = None)(implicit apiUser: ApiUser, rs: RestResource[MT], wrt: RestConvertable[T], rd: RestReadable[MT], executionContext: ExecutionContext): Future[MT] = {
     val url = enc(requestUrl, rs.entityType)
@@ -67,7 +67,7 @@ trait RestGeneric extends Generic with RestDAO {
     }
   }
 
-  def createInContext[MT,T,TT](id: String, contentType: ContentTypes.Value, item: T, accessors: List[String] = Nil, params: Map[String, Seq[String]] = Map(),
+  def createInContext[MT,T,TT](id: String, contentType: ContentTypes.Value, item: T, accessors: Seq[String] = Nil, params: Map[String, Seq[String]] = Map.empty,
       logMsg: Option[String] = None)(
         implicit apiUser: ApiUser, wrt: RestConvertable[T], rs: RestResource[MT], rd: RestReadable[TT], executionContext: ExecutionContext): Future[TT] = {
     val url = enc(requestUrl, rs.entityType, id, contentType)
@@ -124,55 +124,34 @@ trait RestGeneric extends Generic with RestDAO {
     delete(rs.entityType, id, logMsg)
   }
 
-  def listJson[MT](params: ListParams = ListParams())(implicit apiUser: ApiUser, rs: RestResource[MT], executionContext: ExecutionContext): Future[List[JsObject]] = {
+  def listJson[MT](params: PageParams = PageParams.empty)(implicit apiUser: ApiUser, rs: RestResource[MT], executionContext: ExecutionContext): Future[Page[JsObject]] = {
     val url = enc(requestUrl, rs.entityType, "list")
-    userCall(url).withQueryString(params.toSeq: _*).get().map { response =>
-      checkErrorAndParse[List[JsObject]](response)
+    userCall(url).withQueryString(params.queryParams:_*).get().map { response =>
+      parsePage[JsObject](response)
     }
   }
 
-  def list[MT](params: ListParams = ListParams())(implicit apiUser: ApiUser, rs: RestResource[MT], rd: RestReadable[MT], executionContext: ExecutionContext): Future[List[MT]] = {
+  def list[MT](params: PageParams = PageParams.empty)(implicit apiUser: ApiUser, rs: RestResource[MT], rd: RestReadable[MT], executionContext: ExecutionContext): Future[Page[MT]] = {
     val url = enc(requestUrl, rs.entityType, "list")
-    userCall(url).withQueryString(params.toSeq: _*).get().map { response =>
-      checkErrorAndParse(response)(Reads.list(rd.restReads))
+    userCall(url).withQueryString(params.queryParams: _*).get().map { response =>
+      parsePage(response)(rd.restReads)
     }
   }
 
-  def listChildren[MT,CMT](id: String, params: ListParams = ListParams())(
-      implicit apiUser: ApiUser, rs: RestResource[MT], rd: RestReadable[CMT], executionContext: ExecutionContext): Future[List[CMT]] = {
-    userCall(enc(requestUrl, rs.entityType, id, "list")).withQueryString(params.toSeq:_*).get().map { response =>
-      checkErrorAndParse(response)(Reads.list(rd.restReads))
+  def listChildren[MT,CMT](id: String, params: PageParams = PageParams.empty)(implicit apiUser: ApiUser, rs: RestResource[MT], rd: RestReadable[CMT], executionContext: ExecutionContext): Future[Page[CMT]] = {
+    userCall(enc(requestUrl, rs.entityType, id, "list")).withQueryString(params.queryParams: _*).get().map { response =>
+      parsePage(response)(rd.restReads)
     }
   }
 
-  def pageJson[MT](params: PageParams = PageParams())(implicit apiUser: ApiUser, rs: RestResource[MT], executionContext: ExecutionContext): Future[Page[JsObject]] = {
-    val url = enc(requestUrl, rs.entityType, "page")
-    userCall(url).withQueryString(params.toSeq:_*).get().map { response =>
-      checkErrorAndParse(response)(Page.pageReads[JsObject])
-    }
-  }
-
-  def page[MT](params: PageParams = PageParams())(implicit apiUser: ApiUser, rs: RestResource[MT], rd: RestReadable[MT], executionContext: ExecutionContext): Future[Page[MT]] = {
-    val url = enc(requestUrl, rs.entityType, "page")
-    userCall(url).withQueryString(params.toSeq: _*).get().map { response =>
-      checkErrorAndParse(response)(Page.pageReads(rd.restReads))
-    }
-  }
-
-  def pageChildren[MT,CMT](id: String, params: PageParams = utils.PageParams())(implicit apiUser: ApiUser, rs: RestResource[MT], rd: RestReadable[CMT], executionContext: ExecutionContext): Future[Page[CMT]] = {
-    userCall(enc(requestUrl, rs.entityType, id, "page")).withQueryString(params.toSeq: _*).get().map { response =>
-      checkErrorAndParse(response)(Page.pageReads(rd.restReads))
-    }
-  }
-
-  def count[MT](params: PageParams = PageParams())(implicit apiUser: ApiUser, rs: RestResource[MT], executionContext: ExecutionContext): Future[Long] = {
-    userCall(enc(requestUrl, rs.entityType, "count")).withQueryString(params.toSeq: _*).get().map { response =>
+  def count[MT](params: PageParams = PageParams.empty)(implicit apiUser: ApiUser, rs: RestResource[MT], executionContext: ExecutionContext): Future[Long] = {
+    userCall(enc(requestUrl, rs.entityType, "count")).withQueryString(params.queryParams: _*).get().map { response =>
       checkErrorAndParse[Long](response)
     }
   }
 
-  def countChildren[MT](id: String, params: PageParams = PageParams())(implicit apiUser: ApiUser, rs: RestResource[MT], executionContext: ExecutionContext): Future[Long] = {
-    userCall(enc(requestUrl, rs.entityType, id, "count")).withQueryString(params.toSeq: _*).get().map { response =>
+  def countChildren[MT](id: String, params: PageParams = PageParams.empty)(implicit apiUser: ApiUser, rs: RestResource[MT], executionContext: ExecutionContext): Future[Long] = {
+    userCall(enc(requestUrl, rs.entityType, id, "count")).withQueryString(params.queryParams: _*).get().map { response =>
       checkErrorAndParse[Long](response)
     }
   }

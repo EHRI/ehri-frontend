@@ -4,7 +4,7 @@ import play.api.libs.json.{Json, JsValue, Writes}
 import play.api.Plugin
 import java.util.UUID
 import org.mindrot.jbcrypt.BCrypt
-import utils.ListParams
+import utils.PageParams
 
 
 private [models] object HashedPassword {
@@ -60,7 +60,7 @@ trait AccountDAO extends Plugin {
   def findVerifiedByProfileId(id: String, verified: Boolean = true): Option[Account]
 	def findByProfileId(id: String): Option[Account]
   def findVerifiedByEmail(email: String, verified: Boolean = true): Option[Account]
-  def findAll(params: ListParams = ListParams.empty): Seq[Account]
+  def findAll(params: PageParams = PageParams.empty): Seq[Account]
   def findByEmail(email: String): Option[Account]
   def create(id: String, email: String, verified: Boolean, staff: Boolean, allowMessaging: Boolean): Account
   def createWithPassword(id: String, email: String, verified: Boolean, staff: Boolean, allowMessaging: Boolean, hashed: HashedPassword): Account

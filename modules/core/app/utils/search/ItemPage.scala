@@ -6,16 +6,16 @@ import models.json.ClientConvertable
 /**
  * Page of search result items
  * @param items
- * @param offset
- * @param limit
+ * @param page
+ * @param count
  * @param total
  * @param facets
  * @tparam A
  */
 case class ItemPage[+A](
   items: Seq[A],
-  offset: Int,
-  limit:Int,
+  page: Int,
+  count:Int,
   total: Long,
   facets: utils.search.FacetClassList,
   spellcheck: Option[(String,String)] = None

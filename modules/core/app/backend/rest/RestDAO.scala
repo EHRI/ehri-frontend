@@ -6,7 +6,7 @@ import play.api.http.ContentTypes
 import play.api.libs.ws.{WS, WSResponse}
 import play.api.libs.json._
 import play.api.libs.ws.WSRequestHolder
-import backend.{ErrorSet, ApiUser}
+import backend.{Page, ErrorSet, ApiUser}
 import com.fasterxml.jackson.core.JsonParseException
 import models.{UserProfileF, UserProfile}
 
@@ -136,6 +136,29 @@ trait RestDAO {
 
   private[rest] def checkErrorAndParse[T](response: WSResponse)(implicit reader: Reads[T]): T = {
     jsonReadToRestError(checkError(response).json, reader)
+  }
+
+  private[rest] def parsePage[T](response: WSResponse)(implicit rd: Reads[T]): Page[T] = {
+    checkError(response).json.validate(Reads.seq(rd)).fold(
+      invalid => {
+        println(Json.prettyPrint(response.json))
+        Logger.error("Bad JSON: " + invalid)
+        throw new BadJson(invalid)
+      },
+      items => {
+        val Extractor = """page=(-?\d+); count=(-?\d+); total=(-?\d+)""".r
+        val pagination = response.header(HeaderNames.CONTENT_RANGE).getOrElse("")
+        Extractor.findFirstIn(pagination) match {
+          case Some(Extractor(page, count, total)) => Page(
+            items = items,
+            page = page.toInt,
+            count = count.toInt,
+            total = total.toInt
+          )
+          case m => Page(items = items, page = 1, count = -1, total = -1)
+        }
+      }
+    )
   }
 
   private[rest] def jsonReadToRestError[T](json: JsValue, reader: Reads[T]): T = {

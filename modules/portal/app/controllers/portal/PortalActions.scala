@@ -2,7 +2,7 @@ package controllers.portal
 
 import play.api.libs.concurrent.Execution.Implicits._
 import defines.{ContentTypes, EntityType}
-import utils.{FutureCache, ListParams, PageParams}
+import utils.{FutureCache, PageParams}
 import models.{Link, Annotation, UserProfile}
 import play.api.mvc._
 import models.json.{RestResource, ClientConvertable, RestReadable}
@@ -15,9 +15,9 @@ import scala.concurrent.Future
 
 
 case class ItemDetails(
-  annotations: Seq[Annotation],
-  links: List[Link],
-  watched: List[AnyModel] = Nil
+  annotations: Page[Annotation],
+  links: Page[Link],
+  watched: Seq[AnyModel] = Nil
 ) {
   def isWatching(item: AnyModel): Boolean =
     watched.exists(_.id == item.id)
@@ -25,7 +25,7 @@ case class ItemDetails(
 
 case class UserDetails(
   userOpt: Option[UserProfile] = None,
-  watchedItems: List[AnyModel] = Nil
+  watchedItems: Seq[AnyModel] = Nil
 )
 
 /**
@@ -44,13 +44,13 @@ trait PortalActions {
   /**
    * Fetched watched items for an optional user.
    */
-  def watchedItems(implicit userOpt: Option[UserProfile]): Future[List[AnyModel]] =
+  def watchedItems(implicit userOpt: Option[UserProfile]): Future[Page[AnyModel]] =
     watchedItems1(userOpt.map(_.id))
 
-  def watchedItems1(userId: Option[String]): Future[List[AnyModel]] = userId.map { id =>
+  def watchedItems1(userId: Option[String]): Future[Page[AnyModel]] = userId.map { id =>
     implicit val apiUser = ApiUser(Some(id))
-    backend.listWatching(id, ListParams.empty.withoutLimit)
-  }.getOrElse(Future.successful(List.empty[AnyModel]))
+    backend.watching(id, PageParams.empty.withoutLimit)
+  }.getOrElse(Future.successful(Page.empty[AnyModel]))
 
 
   /**
@@ -62,7 +62,7 @@ trait PortalActions {
         accountOpt.map { account =>
           implicit val apiUser: ApiUser = ApiUser(Some(account.id))
           val userF: Future[UserProfile] = backend.get[UserProfile](account.id)
-          val watchedF: Future[List[AnyModel]] = watchedItems1(userId = Some(account.id))
+          val watchedF: Future[Seq[AnyModel]] = watchedItems1(userId = Some(account.id))
           for {
             user <- userF
             userWithAccount = user.copy(account=Some(account))
@@ -81,12 +81,12 @@ trait PortalActions {
   }
 
   def pageAction[MT](entityType: EntityType.Value, paramsOpt: Option[PageParams] = None)(
-      f: Page[MT] => PageParams => List[AnyModel] => Option[UserProfile] => Request[AnyContent] => Result)(
+      f: Page[MT] => PageParams => Seq[AnyModel] => Option[UserProfile] => Request[AnyContent] => Result)(
     implicit rs: RestResource[MT], rd: RestReadable[MT]) = {
     userProfileAction.async { implicit userOpt => implicit request =>
       val params = paramsOpt.getOrElse(PageParams.fromRequest(request))
-      val pageF: Future[Page[MT]] = backend.page(params)
-      val watchedF: Future[List[AnyModel]] = watchedItems
+      val pageF: Future[Page[MT]] = backend.list(params)
+      val watchedF: Future[Seq[AnyModel]] = watchedItems
       for {
         page <- pageF
         watched <- watchedF
@@ -94,10 +94,10 @@ trait PortalActions {
     }
   }
 
-  def listAction[MT](entityType: EntityType.Value, paramsOpt: Option[ListParams] = None)(f: List[MT] => ListParams => Option[UserProfile] => Request[AnyContent] => Result)(
+  def listAction[MT](entityType: EntityType.Value, paramsOpt: Option[PageParams] = None)(f: Page[MT] => PageParams => Option[UserProfile] => Request[AnyContent] => Result)(
     implicit rs: RestResource[MT], rd: RestReadable[MT]) = {
     userProfileAction.async { implicit userOpt => implicit request =>
-      val params = paramsOpt.getOrElse(ListParams.fromRequest(request))
+      val params = paramsOpt.getOrElse(PageParams.fromRequest(request))
       backend.list(params).map { list =>
         f(list)(params)(userOpt)(request)
       }
@@ -115,9 +115,9 @@ trait PortalActions {
                    implicit rs: RestResource[MT], rd: RestReadable[MT], cfmt: ClientConvertable[MT]): Action[AnyContent] = {
       itemPermissionAction.async[MT](contentType = ContentTypes.withName(entityType.toString), id) {
           item => implicit userOpt => implicit request =>
-        val watchedF: Future[List[AnyModel]] = watchedItems
-        val annotationF: Future[Seq[Annotation]] = backend.getAnnotationsForItem(id)
-        val linksF: Future[List[Link]] = backend.getLinksForItem(id)
+        val watchedF: Future[Page[AnyModel]] = watchedItems
+        val annotationF: Future[Page[Annotation]] = backend.getAnnotationsForItem(id)
+        val linksF: Future[Page[Link]] = backend.getLinksForItem(id)
         for {
           watched <- watchedF
           anns <- annotationF
@@ -143,7 +143,7 @@ trait PortalActions {
                        implicit rs: RestResource[MT], rd: RestReadable[MT], crd: RestReadable[CT], cfmt: ClientConvertable[MT]): Action[AnyContent] = {
       getAction.async[MT](entityType, id) { item => details => implicit userOpt => implicit request =>
         val params = PageParams.fromRequest(request)
-        backend.pageChildren[MT,CT](id, params).flatMap { children =>
+        backend.listChildren[MT,CT](id, params).flatMap { children =>
           f(item)(children)(params)(details)(userOpt)(request)
         }
       }

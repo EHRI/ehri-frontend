@@ -3,7 +3,7 @@ package utils.ead
 import play.api.libs.concurrent.Execution.Implicits._
 import backend.{ApiUser, Backend}
 import scala.concurrent.Future
-import utils.ListParams
+import utils.PageParams
 import models.{Repository, DocumentaryUnit}
 import views.export.ead.XmlFormatter
 
@@ -14,7 +14,7 @@ import views.export.ead.XmlFormatter
  * @author Mike Bryant (http://github.com/mikesname)
  */
 case class EadExporter(backend: Backend)(implicit apiUser: ApiUser) {
-  private val params = ListParams(limit = -1) // can't get around large limits yet...
+  private val params = PageParams.empty.withoutLimit // can't get around large limits yet...
 
   /**
    * Fetch the full item and it's set of children, recursively.

@@ -22,6 +22,11 @@ object Constants {
   val PATCH_HEADER_NAME = "Patch"
 
   /**
+   * Indicate that we want to stream list results.
+   */
+  val STREAM_HEADER = "X-Stream"
+
+  /**
    * Parameter for specifying allowed accessors to resources.
    */
   val ACCESSOR_PARAM = "accessibleTo"
@@ -42,14 +47,9 @@ object Constants {
   val cacheTime = 60 * 5 // 5 minutes
 
   /**
-   * Offset for lists
-   */
-  val OFFSET_PARAM = "offset"
-
-  /**
    * Limit for lists
    */
-  final val LIMIT_PARAM = "limit"
+  final val COUNT_PARAM = "count"
 
   /**
    * Page for pages

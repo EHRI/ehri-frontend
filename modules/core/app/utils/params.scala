@@ -4,64 +4,41 @@ import play.api.mvc.RequestHeader
 import play.api.data.Form
 import play.api.data.Forms._
 import backend.rest.Constants._
-import eu.ehri.project.definitions.EventTypes
 import defines.{EntityType, EventType}
 import org.joda.time.DateTime
 import org.joda.time.format.ISODateTimeFormat
 import utils.SystemEventParams.ShowType
 
-/**
- * A list offset and limit.
- */
-case class ListParams(offset: Int = 0, limit: Int = DEFAULT_LIST_LIMIT) {
-  /**
-   * The REST interface follows a convention whereby a limit of -1
-   * returns ALL items.
-   */
-  def withoutLimit = copy(limit = -1)
-  def hasLimit = limit > -1
-
-  def toSeq: Seq[(String,String)]
-      = (List(OFFSET_PARAM -> offset.toString) ::: List(LIMIT_PARAM -> limit.toString)).toSeq
-}
-
-object ListParams {
-
-  def empty: ListParams = new ListParams()
-
-  def fromRequest(request: RequestHeader, namespace: String = ""): ListParams = {
-    Form(
-      mapping(
-        namespace + OFFSET_PARAM -> default(number, 0),
-        namespace + LIMIT_PARAM -> default(number, DEFAULT_LIST_LIMIT)
-      )(ListParams.apply)(ListParams.unapply)
-    ).bindFromRequest(request.queryString).value.getOrElse(new ListParams())
-  }
-}
 
 object PageParams {
 
-  def empty: PageParams = new PageParams()
+  def streamHeader: (String, String) = STREAM_HEADER -> true.toString
+
+  def empty: PageParams = new PageParams
 
   def fromRequest(request: RequestHeader, namespace: String = ""): PageParams = {
     Form(
       mapping(
         namespace + PAGE_PARAM -> default(number, 1),
-        namespace + LIMIT_PARAM -> default(number, DEFAULT_LIST_LIMIT)
+        namespace + COUNT_PARAM -> default(number, DEFAULT_LIST_LIMIT)
       )(PageParams.apply)(PageParams.unapply)
-    ).bindFromRequest(request.queryString).value.getOrElse(new PageParams())
+    ).bindFromRequest(request.queryString).value.getOrElse(empty)
   }
 }
 
 /**
  * Class for handling page parameter data
  */
-case class PageParams(page: Int = 1, limit: Int = DEFAULT_LIST_LIMIT) {
-  def offset: Int = (page - 1) * limit
-  def range: String = s"$offset-${offset + limit}"
+case class PageParams(page: Int = 1, count: Int = DEFAULT_LIST_LIMIT) {
+  def withoutLimit = copy(count = -1)
+  def hasLimit = count < 0
+  def offset: Int = (page - 1) * count
 
-  def toSeq: Seq[(String,String)]
-        = (List(OFFSET_PARAM -> offset.toString) ::: List(LIMIT_PARAM -> limit.toString)).toSeq
+  def queryParams: Seq[(String,String)] =
+    Seq(PAGE_PARAM -> page.toString,  COUNT_PARAM -> count.toString)
+
+  def headers: Seq[(String,String)] =
+    if (hasLimit) Seq.empty else Seq(PageParams.streamHeader)
 }
 
 

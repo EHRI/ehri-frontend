@@ -1,4 +1,4 @@
-@(item: DescribedMeta[Description, Described[Description]], desc: models.base.Description, links: List[Link])(implicit prefix: String, userOpt: Option[UserProfile], req: RequestHeader, globalConfig: global.GlobalConfig, lang: Lang)
+@(item: DescribedMeta[Description, Described[Description]], desc: Description, links: Seq[Link])(implicit prefix: String, userOpt: Option[UserProfile], req: RequestHeader, globalConfig: global.GlobalConfig, lang: Lang)
 
 @p.common.descriptionSection("accessPointLinks", Messages("portal.item.accessPointLinks")) {
     @if(!desc.accessPoints.isEmpty) {

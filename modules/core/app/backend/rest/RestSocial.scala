@@ -2,11 +2,10 @@ package backend.rest
 
 import backend.{Page, EventHandler, Social, ApiUser}
 import scala.concurrent.{ExecutionContext, Future}
-import utils.{FutureCache, PageParams, ListParams}
+import utils.{FutureCache, PageParams}
 import models.{VirtualUnit, Link, Annotation, UserProfile}
 import defines.EntityType
 import models.json.RestReadable
-import play.api.libs.json.{JsValue, Json, Reads}
 import models.base.AnyModel
 import play.api.cache.Cache
 
@@ -62,39 +61,21 @@ trait RestSocial extends Social with RestDAO {
     }
   }
 
-  def listFollowers(userId: String, params: ListParams = ListParams.empty)(implicit apiUser: ApiUser, rd: RestReadable[UserProfile], executionContext: ExecutionContext): Future[List[UserProfile]] = {
-    userCall(enc(requestUrl, userId, "followers")).withQueryString(params.toSeq: _*).get().map { r =>
-      checkErrorAndParse(r)(Reads.list(rd.restReads))
+  def followers(userId: String, params: PageParams = PageParams.empty)(implicit apiUser: ApiUser, rd: RestReadable[UserProfile], executionContext: ExecutionContext): Future[Page[UserProfile]] = {
+    userCall(enc(requestUrl, userId, "followers")).withQueryString(params.queryParams: _*).get().map { r =>
+      parsePage(r)(rd.restReads)
     }
   }
 
-  def pageFollowers(userId: String, params: PageParams = PageParams.empty)(implicit apiUser: ApiUser, rd: RestReadable[UserProfile], executionContext: ExecutionContext): Future[Page[UserProfile]] = {
-    userCall(enc(requestUrl, userId, "followers", "page")).withQueryString(params.toSeq: _*).get().map { r =>
-      checkErrorAndParse(r)(Page.pageReads(rd.restReads))
+  def following(userId: String, params: PageParams = PageParams.empty)(implicit apiUser: ApiUser, rd: RestReadable[UserProfile], executionContext: ExecutionContext): Future[Page[UserProfile]] = {
+    userCall(enc(requestUrl, userId, "following")).withQueryString(params.queryParams: _*).get().map { r =>
+      parsePage(r)(rd.restReads)
     }
   }
 
-  def listFollowing(userId: String, params: ListParams = ListParams.empty)(implicit apiUser: ApiUser, rd: RestReadable[UserProfile], executionContext: ExecutionContext): Future[List[UserProfile]] = {
-    userCall(enc(requestUrl, userId, "following")).withQueryString(params.toSeq: _*).get().map { r =>
-      checkErrorAndParse(r)(Reads.list(rd.restReads))
-    }
-  }
-
-  def pageFollowing(userId: String, params: PageParams = PageParams.empty)(implicit apiUser: ApiUser, rd: RestReadable[UserProfile], executionContext: ExecutionContext): Future[Page[UserProfile]] = {
-    userCall(enc(requestUrl, userId, "following", "page")).withQueryString(params.toSeq: _*).get().map { r =>
-      checkErrorAndParse(r)(Page.pageReads(rd.restReads))
-    }
-  }
-
-  def listWatching(userId: String, params: ListParams = ListParams.empty)(implicit apiUser: ApiUser, rd: RestReadable[AnyModel], executionContext: ExecutionContext): Future[List[AnyModel]] = {
-    userCall(enc(requestUrl, userId, "watching")).withQueryString(params.toSeq: _*).get().map { r =>
-      checkErrorAndParse(r)(Reads.list(rd.restReads))
-    }
-  }
-
-  def pageWatching(userId: String, params: PageParams = PageParams.empty)(implicit apiUser: ApiUser, rd: RestReadable[AnyModel], executionContext: ExecutionContext): Future[Page[AnyModel]] = {
-    userCall(enc(requestUrl, userId, "watching", "page")).withQueryString(params.toSeq: _*).get().map { r =>
-      checkErrorAndParse(r)(Page.pageReads(rd.restReads))
+  def watching(userId: String, params: PageParams = PageParams.empty)(implicit apiUser: ApiUser, rd: RestReadable[AnyModel], executionContext: ExecutionContext): Future[Page[AnyModel]] = {
+    userCall(enc(requestUrl, userId, "watching")).withQueryString(params.queryParams: _*).get().map { r =>
+      parsePage(r)(rd.restReads)
     }
   }
 
@@ -123,15 +104,9 @@ trait RestSocial extends Social with RestDAO {
     }
   }
 
-  def listBlocked(userId: String, params: ListParams = ListParams.empty)(implicit apiUser: ApiUser, rd: RestReadable[AnyModel], executionContext: ExecutionContext): Future[List[AnyModel]] = {
-    userCall(enc(requestUrl, userId, "blocked")).withQueryString(params.toSeq: _*).get().map { r =>
-      checkErrorAndParse(r)(Reads.list(rd.restReads))
-    }
-  }
-
-  def pageBlocked(userId: String, params: PageParams = PageParams.empty)(implicit apiUser: ApiUser, rd: RestReadable[AnyModel], executionContext: ExecutionContext): Future[Page[AnyModel]] = {
-    userCall(enc(requestUrl, userId, "blocked", "page")).withQueryString(params.toSeq: _*).get().map { r =>
-      checkErrorAndParse(r)(Page.pageReads(rd.restReads))
+  def blocked(userId: String, params: PageParams = PageParams.empty)(implicit apiUser: ApiUser, rd: RestReadable[AnyModel], executionContext: ExecutionContext): Future[Page[AnyModel]] = {
+    userCall(enc(requestUrl, userId, "blocked")).withQueryString(params.queryParams: _*).get().map { r =>
+      parsePage(r)(rd.restReads)
     }
   }
 
@@ -161,22 +136,22 @@ trait RestSocial extends Social with RestDAO {
   }
 
   def userAnnotations(userId: String, params: PageParams = PageParams.empty)(implicit apiUser: ApiUser, executionContext: ExecutionContext): Future[Page[Annotation]] = {
-    userCall(enc(requestUrl, userId, EntityType.Annotation, "page"))
-        .withQueryString(params.toSeq: _*).get().map { r =>
-      checkErrorAndParse(r)(Page.pageReads(Annotation.Converter.restReads))
+    userCall(enc(requestUrl, userId, EntityType.Annotation))
+        .withQueryString(params.queryParams: _*).get().map { r =>
+      parsePage(r)(Annotation.Converter.restReads)
     }
   }
 
   def userLinks(userId: String, params: PageParams = PageParams.empty)(implicit apiUser: ApiUser, executionContext: ExecutionContext): Future[Page[Link]] = {
-    userCall(enc(requestUrl, userId, EntityType.Link, "page"))
-        .withQueryString(params.toSeq: _*).get().map { r =>
-      checkErrorAndParse(r)(Page.pageReads(Link.Converter.restReads))
+    userCall(enc(requestUrl, userId, EntityType.Link))
+        .withQueryString(params.queryParams: _*).get().map { r =>
+      parsePage(r)(Link.Converter.restReads)
     }
   }
 
   def userBookmarks(userId: String, params: PageParams = PageParams.empty)(implicit apiUser: ApiUser, executionContext: ExecutionContext): Future[Page[VirtualUnit]] = {
     userCall(enc(requestUrl, EntityType.VirtualUnit, "forUser", userId)).get().map { r =>
-      checkErrorAndParse(r)(Page.pageReads(VirtualUnit.Converter.restReads))
+      parsePage(r)(VirtualUnit.Converter.restReads)
     }
   }
 }

@@ -44,7 +44,6 @@ case class SolrDispatcher(queryBuilder: QueryBuilder, responseParser: ResponsePa
   def filter(params: SearchParams, filters: Map[String, Any] = Map.empty, extra: Map[String, Any] = Map.empty)(
     implicit userOpt: Option[UserProfile]): Future[ItemPage[FilterHit]] = {
     val limit = params.limit.getOrElse(100)
-    val offset = (Math.max(params.page.getOrElse(1), 1) - 1) * limit
 
     val queryRequest = queryBuilder.simpleFilter(params, filters, extra)
     Logger.logger.debug(queryRequest.queryString())
@@ -52,7 +51,7 @@ case class SolrDispatcher(queryBuilder: QueryBuilder, responseParser: ResponsePa
     WS.url(buildSearchUrl(queryRequest)).get().map { response =>
       val parser = responseParser(checkError(response).body)
       val items = parser.items.map(i => FilterHit(i.itemId, i.id, i.name, i.`type`, i.fields.get(SolrConstants.HOLDER_NAME), i.gid))
-      ItemPage(items, offset, limit, parser.count, Nil)
+      ItemPage(items, params.page.getOrElse(1), limit, parser.count, Nil)
     }
   }
 
@@ -70,14 +69,13 @@ case class SolrDispatcher(queryBuilder: QueryBuilder, responseParser: ResponsePa
              mode: SearchMode.Value = SearchMode.DefaultAll)(
               implicit userOpt: Option[UserProfile]): Future[ItemPage[SearchHit]] = {
     val limit = params.limit.getOrElse(Constants.DEFAULT_LIST_LIMIT)
-    val offset = (Math.max(params.page.getOrElse(1), 1) - 1) * limit
 
     val queryRequest = queryBuilder.search(params, facets, allFacets, filters, extra, mode)(userOpt)
     val url = buildSearchUrl(queryRequest)
     Logger.logger.debug("SOLR: {}", url)
     WS.url(buildSearchUrl(queryRequest)).get().map { response =>
       val parser = responseParser(checkError(response).body)
-      ItemPage(parser.items, offset, limit, parser.count,
+      ItemPage(parser.items, params.page.getOrElse(1), limit, parser.count,
         parser.extractFacetData(facets, allFacets), spellcheck = parser.spellcheckSuggestion)
     }
   }
@@ -116,7 +114,7 @@ case class SolrDispatcher(queryBuilder: QueryBuilder, responseParser: ResponsePa
         case FacetQuerySort.Name => facetClass.sortedByName.slice(offset, offset + limit)
         case _ => facetClass.sortedByCount.slice(offset, offset + limit)
       }
-      FacetPage(facetClass, facetLabels, offset, limit, facetClass.count)
+      FacetPage(facetClass, facetLabels, params.page.getOrElse(1), limit, facetClass.count)
     }
   }
 }

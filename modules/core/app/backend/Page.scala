@@ -8,15 +8,15 @@ import backend.rest.Constants
  * Class representing a page of data.
  */
 case class Page[+T](
-  total: Long,
-  offset: Int,
-  limit: Int,
-  items: Seq[T]
+  total: Long = 0,
+  page: Int = 1,
+  count: Int = Constants.DEFAULT_LIST_LIMIT,
+  items: Seq[T] = Seq.empty[T]
 ) extends utils.AbstractPage[T]
 
 object Page {
 
-  def empty[T] = new Page(0, 0, Constants.DEFAULT_LIST_LIMIT, Seq.empty[T])
+  def empty[T] = new Page[T]
 
   implicit def restReads[T](implicit apiUser: ApiUser, rd: RestReadable[T]): Reads[Page[T]] = {
     Page.pageReads(rd.restReads)
@@ -30,15 +30,15 @@ object Page {
 
   implicit def pageReads[T](implicit r: Reads[T]): Reads[Page[T]] = (
     (__ \ "total").read[Long] and
-    (__ \ "offset").read[Int] and
-    (__ \ "limit").read[Int] and
+    (__ \ "page").read[Int] and
+    (__ \ "count").read[Int] and
     (__ \ "values").lazyRead(Reads.seq[T](r))
   )(Page.apply[T] _)
 
   implicit def pageWrites[T](implicit r: Writes[T]): Writes[Page[T]] = (
     (__ \ "total").write[Long] and
-    (__ \ "offset").write[Int] and
-    (__ \ "limit").write[Int] and
+    (__ \ "page").write[Int] and
+    (__ \ "count").write[Int] and
     (__ \ "values").lazyWrite(Writes.seq[T](r))
   )(unlift(Page.unapply[T]))
 

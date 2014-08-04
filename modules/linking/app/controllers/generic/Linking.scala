@@ -93,7 +93,7 @@ trait Linking[MT <: AnyModel] extends Read[MT] with Search {
   }
 
   def linkPostMultiAction(id: String)(
-      f: Either[(MT,Form[List[(String,LinkF,Option[String])]]),List[Link]] => Option[UserProfile] => Request[AnyContent] => Result)(implicit rd: RestReadable[MT]): Action[AnyContent] = {
+      f: Either[(MT,Form[List[(String,LinkF,Option[String])]]),Seq[Link]] => Option[UserProfile] => Request[AnyContent] => Result)(implicit rd: RestReadable[MT]): Action[AnyContent] = {
     withItemPermission.async[MT](id, PermissionType.Update, contentType) { item => implicit userOpt => implicit request =>
       val multiForm: Form[List[(String,LinkF,Option[String])]] = Link.multiForm
       multiForm.bindFromRequest.fold(
@@ -139,7 +139,7 @@ trait Linking[MT <: AnyModel] extends Read[MT] with Search {
           )
           backend.linkMultiple(id, links).map { newLinks =>
             Cache.remove(id)
-            Created(Json.toJson(newLinks)(Writes.list(Link.Converter.clientFormat)))
+            Created(Json.toJson(newLinks)(Writes.seq(Link.Converter.clientFormat)))
           }
         }
       )
@@ -164,7 +164,7 @@ trait Linking[MT <: AnyModel] extends Read[MT] with Search {
   /**
    * Fetch links for a given item.
    */
-  def getLinksAction(id: String)(f: List[Link] => Option[UserProfile] => Request[AnyContent] => Result) = {
+  def getLinksAction(id: String)(f: Seq[Link] => Option[UserProfile] => Request[AnyContent] => Result) = {
     userProfileAction.async { implicit  userOpt => implicit request =>
       backend.getLinksForItem(id).map { links =>
         f(links)(userOpt)(request)
