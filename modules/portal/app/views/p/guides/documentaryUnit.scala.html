@@ -1,0 +1,11 @@
+@(item: DocumentaryUnit, annotations: Seq[Annotation], links: List[Link], watched: List[models.base.AnyModel],template: (GuidePage, (Guide, List[GuidePage])))(implicit userOpt: Option[UserProfile], request: RequestHeader, prefs: utils.SessionPrefs, globalConfig: global.GlobalConfig, lang: Lang, flash: Flash)
+
+@p.layout.guideLayout(template) {
+    <div id="item-details">
+        @defining(EntityType.DocumentaryUnit.toString) { implicit fieldPrefix =>
+            @item.model.descriptions.map { desc =>
+                @p.documentaryUnit.renderDescription(item, desc, links, annotations)
+            }
+        }
+    </div>
+}

@@ -356,13 +356,27 @@ case class Guides @Inject()(implicit globalConfig: global.GlobalConfig, searchDi
           ids <- searchFacets(guide, selectedFacets)
           docs <- lookup.listByGid[DocumentaryUnit](facetSlice(ids, page))
           accessPoints <- lookup.list[AnyModel](selectedFacets)
-        } yield Ok(p.guides.facet(pagify(ids, docs, accessPoints, page), accessPoints, GuidePage.faceted -> (guide -> guide.findPages)))
+        } yield Ok(p.guides.facet(pagify(ids, docs, accessPoints, page), GuidePage.faceted -> (guide -> guide.findPages)))
         //} yield Ok()
       } else {
-        immediate(Ok(p.guides.facet(ItemPage(Seq(), 0,0,0, List()), List(), GuidePage.faceted -> (guide -> guide.findPages))))
+        immediate(Ok(p.guides.facet(ItemPage(Seq(), 0,0,0, List()), GuidePage.faceted -> (guide -> guide.findPages))))
       }
     } getOrElse {
       immediate(NotFound(views.html.errors.pageNotFound()))
     }
   }
+
+  /*
+  *   Unit browse
+  */
+    def browseDocument(path: String, id: String) = getAction[DocumentaryUnit](EntityType.DocumentaryUnit, id) {
+      item => details => implicit userOpt => implicit request =>
+      Guide.find(path, activeOnly = true).map { guide =>
+        if (isAjax) Ok("Hello")
+        else Ok(p.guides.documentaryUnit(item, details.annotations, details.links, details.watched,  GuidePage.document(Some(item.toStringLang)) -> (guide -> guide.findPages)))
+      } getOrElse {
+        NotFound(views.html.errors.pageNotFound())
+      }
+    } 
+
 }
