@@ -318,7 +318,7 @@ case class Guides @Inject()(implicit globalConfig: global.GlobalConfig, searchDi
   class GuideFacet(val value : String, val name : Option[String], val applied : Boolean, val count : Int, val sort : String) extends Facet
   class GuideFacetClass(val facets: List[GuideFacet]) extends FacetClass[GuideFacet] {
     val param = "kw[]";
-    val name = "Access Points";
+    val name = "Keyword";
     val key = "kw"
     val display = FacetDisplay.List;
     val sort = FacetSort.Fixed;
@@ -334,7 +334,7 @@ case class Guides @Inject()(implicit globalConfig: global.GlobalConfig, searchDi
       case (start, end) =>
        ItemPage(docsItems.map { doc =>
           doc
-        }, start, end - start, docsId.size, List( new GuideFacetClass (accessPoints.map { ap => new GuideFacet(ap.id, Some("Test"), true, 1, "SORT"); } ) )
+        }, start, end - start, docsId.size, List( new GuideFacetClass (accessPoints.map { ap => new GuideFacet(ap.id, Some(ap.toStringLang), true, 1, "SORT"); } ) )
          , None)
       }
   }
