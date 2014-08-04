@@ -1,4 +1,4 @@
-@(guide: (GuidePage, (Guide, List[GuidePage])), scripts: Html = Html(""), styles: Html = Html(""))(content: Html)(implicit request: RequestHeader, lang: Lang)
+@(guide: (GuidePage, (Guide, List[GuidePage])), scripts: Html = Html(""), styles: Html = Html(""), optionalContent: Option[Html] = None)(content: Html)(implicit request: RequestHeader, lang: Lang)
 
 <!DOCTYPE html>
 
@@ -32,7 +32,7 @@
 					@content
 				</div>
 				<div class="col-md-4" id="right-bar">
-					@guideSidebar(guide._1.path, guide._2)
+					@guideSidebar(guide._1.path, guide._2, optionalContent)
 				</div>
 			</div>
 		</div>

@@ -372,8 +372,8 @@ case class Guides @Inject()(implicit globalConfig: global.GlobalConfig, searchDi
     def browseDocument(path: String, id: String) = getAction[DocumentaryUnit](EntityType.DocumentaryUnit, id) {
       item => details => implicit userOpt => implicit request =>
       Guide.find(path, activeOnly = true).map { guide =>
-        if (isAjax) Ok("Hello")
-        else Ok(p.guides.documentaryUnit(item, details.annotations, details.links, details.watched,  GuidePage.document(Some(item.toStringLang)) -> (guide -> guide.findPages)))
+        /*if (isAjax) Ok("Hello")
+        else*/ Ok(p.guides.documentaryUnit(item, details.annotations, details.links, details.watched,  GuidePage.document(Some(item.toStringLang)) -> (guide -> guide.findPages)))
       } getOrElse {
         NotFound(views.html.errors.pageNotFound())
       }
