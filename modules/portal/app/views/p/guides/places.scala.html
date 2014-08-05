@@ -8,7 +8,9 @@
 		*/
 		addMarker = function(data) {
 			if(!$items[data.id]) {
-				L.marker([parseFloat(data.latitude), parseFloat(data.longitude)]).addTo($map).bindPopup(data.name)
+				L.marker([parseFloat(data.latitude), parseFloat(data.longitude)]).addTo($map).bindPopup(
+					'<a href="@controllers.portal.routes.Guides.guideFacets(template._2._1.path)?kw[]=' + data.id + '">'+ data.name + '</a>'
+				)
 				$items[data.id] = true;
 			}
 		}
