@@ -2,33 +2,31 @@ package controllers.portal
 
 import play.api.libs.concurrent.Execution.Implicits._
 import controllers.generic.Search
-import models._
 import play.api.mvc._
 import views.html.p
+
+import utils._
 import utils.search._
 import defines.EntityType
+
 import backend.Backend
-import backend.rest.SearchDAO
+import backend.rest.{SearchDAO, RestBackend}
+import backend.rest.cypher.CypherDAO
+
 import controllers.base.{SessionPreferences, ControllerHelpers}
 import scala.concurrent.Future
 import scala.concurrent.Future.{successful => immediate}
-import utils._
-import models.Guide
-import models.GuidePage
-import play.api.libs.json.Json
-import play.api.libs.json.JsValue
+
+import models._
+import models.{Guide, GuidePage, GeoCoordinates}
+import models.GuidePage.Layout
 import models.base.AnyModel
-import solr.facet.FieldFacetClass
 import utils.search.{Facet, FacetClass}
+import play.api.libs.json.{Json, JsString, JsValue }
 
 import com.google.inject._
 import play.api.Play.current
-import models.GuidePage.Layout
-import models.GeoCoordinates
 import solr.SolrConstants
-import backend.rest.cypher.CypherDAO
-import play.api.libs.json.{JsString, JsValue, JsArray}
-import backend.rest.RestBackend
 
 import play.api.data._
 import play.api.data.Forms._
