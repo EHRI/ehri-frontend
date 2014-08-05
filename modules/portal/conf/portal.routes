@@ -103,6 +103,8 @@ POST        /profile/editImage              @controllers.portal.Profile.updatePr
 GET         /data-policy                    @controllers.portal.Portal.dataPolicy
 
 GET         /filter                         @controllers.portal.Portal.filter
+GET         /accesspoints/:id          @controllers.portal.Portal.linkedData(id:String)
+GET         /accesspoints/:id/:context          @controllers.portal.Portal.linkedDataInContext(id:String, context: String)
 
 # Guide
 GET          /guides                        @controllers.portal.Guides.listGuides()
