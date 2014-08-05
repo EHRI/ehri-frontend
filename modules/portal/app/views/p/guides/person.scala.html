@@ -36,14 +36,11 @@
 		<section>
 			<section class="row">
 				<section class="content-results col-md-8">
-					<ul class="list-unstyled search-result-list">
-					</ul>
-
 					<ul class="list-item">
 					    @page.items.map { case(item, hit) =>
 					        @defining(Some(hit.id)) { implicit descriptionId =>
 					            <li class="item-wrapper">
-					                @guideItem(item, hit, controllers.portal.routes.Guides.layoutRetrieval(template._2._1.path, template._1.layout))
+					                @guideItem(item, hit, controllers.portal.routes.Guides.layoutRetrieval(template._2._1.path, template._1.layout), Some(template._2._1.path))
 					            </li>
 					        }
 					    }

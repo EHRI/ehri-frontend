@@ -1,12 +1,20 @@
-@(item: models.base.AnyModel, hit: utils.search.SearchHit, action: Call, conceptMode:String = "default")(implicit userOpt: Option[UserProfile], req: RequestHeader, globalConfig: global.GlobalConfig, lang: Lang)
+@(item: models.base.AnyModel, hit: utils.search.SearchHit, action: Call, guidePath: Option[String] = None, conceptMode:String = "default")(implicit userOpt: Option[UserProfile], req: RequestHeader, globalConfig: global.GlobalConfig, lang: Lang)
 
+@filteredLink(id: String) = {
+    @guidePath match {
+        case Some(gPath) =>  { 
+            <a href="@controllers.portal.routes.Guides.guideFacets(gPath)?kw[]=@id "><span class="glyphicon glyphicon-search"></span></a>
+        }
+        case  _ =>  { # }
+    }
+}
 @item match {
     case d: DocumentaryUnit => {
         ""
     }
     case d: HistoricalAgent => {
         <div class="item-option  item-to-preview"><i class="glyphicon glyphicon-info-sign"></i></div>
-        <a class="item-title">@d.toStringLang</a>
+        <a class="item-title">@d.toStringLang</a>@filteredLink(d.id)
         <div class="hidden-md hidden-lg item-description">
             @d.model.descriptions.headOption.map { desc =>
                 <dl>
@@ -32,7 +40,7 @@
             @d.broaderTerms.map { bt =>
                 <span class="item-parent">
                     @bt.toStringLang
-                </span>
+                </span> @filteredLink(d.id)
             }
             @conceptMode match { 
                 case "organisation" => {
@@ -46,7 +54,7 @@
                     @d.toStringLang
                 }
             }
-        </span>
+        </span> @filteredLink(d.id)
     }
     case _ => {
         ""
