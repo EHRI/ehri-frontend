@@ -20,22 +20,22 @@ trait SearchDAO extends RestDAO {
     }
   }
 
-  def listByGid[MT](ids: Seq[Long])(implicit apiUser: ApiUser,  rd: RestReadable[MT]): Future[List[MT]] = {
+  def listByGid[MT](ids: Seq[Long])(implicit apiUser: ApiUser,  rd: RestReadable[MT]): Future[Seq[MT]] = {
     // NB: Using POST here because the list of IDs can
     // potentially overflow the GET param length...
-    if (ids.isEmpty) Future.successful(List.empty[MT])
+    if (ids.isEmpty) Future.successful(Seq.empty[MT])
     else WS.url(enc(requestUrl, "listByGraphId"))
         .withHeaders(authHeaders.toSeq: _*).post(Json.toJson(ids)).map { response =>
-      checkErrorAndParse(response)(Reads.list(rd.restReads))
+      checkErrorAndParse(response)(Reads.seq(rd.restReads))
     }
   }
 
-  def list[MT](ids: Seq[String])(implicit apiUser: ApiUser,  rd: RestReadable[MT]): Future[List[MT]] = {
+  def list[MT](ids: Seq[String])(implicit apiUser: ApiUser,  rd: RestReadable[MT]): Future[Seq[MT]] = {
     // NB: Using POST here because the list of IDs can
     // potentially overflow the GET param length...
-    if (ids.isEmpty) Future.successful(List.empty[MT])
+    if (ids.isEmpty) Future.successful(Seq.empty[MT])
     else WS.url(requestUrl).withHeaders(authHeaders.toSeq: _*).post(Json.toJson(ids)).map { response =>
-      checkErrorAndParse(response)(Reads.list(rd.restReads))
+      checkErrorAndParse(response)(Reads.seq(rd.restReads))
     }
   }
 }
@@ -46,7 +46,7 @@ object SearchDAO extends SearchDAO
  * Resolve search hits to DB items by the GID field
  */
 case class GidSearchResolver() extends RestDAO with SearchDAO with Resolver {
-  def resolve[MT](docs: Seq[SearchHit])(implicit apiUser: ApiUser,  rd: RestReadable[MT]): Future[List[MT]] =
+  def resolve[MT](docs: Seq[SearchHit])(implicit apiUser: ApiUser,  rd: RestReadable[MT]): Future[Seq[MT]] =
     listByGid(docs.map(_.gid))
 }
 
@@ -54,6 +54,6 @@ case class GidSearchResolver() extends RestDAO with SearchDAO with Resolver {
  * Resolve search hits to DB items by the itemId field
  */
 case class IdSearchResolver() extends RestDAO with SearchDAO with Resolver {
-  def resolve[MT](docs: Seq[SearchHit])(implicit apiUser: ApiUser,  rd: RestReadable[MT]): Future[List[MT]] =
+  def resolve[MT](docs: Seq[SearchHit])(implicit apiUser: ApiUser,  rd: RestReadable[MT]): Future[Seq[MT]] =
     list(docs.map(_.itemId))
 }

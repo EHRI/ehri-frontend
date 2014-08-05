@@ -7,8 +7,8 @@ import models.json.{RestResource, RestReadable, RestConvertable}
 import play.api.Play.current
 import play.api.cache.Cache
 import models.base.AnyModel
-import utils.PageParams
-import backend.{Generic, EventHandler, ApiUser, Page}
+import utils.{Page, PageParams}
+import backend.{Generic, EventHandler, ApiUser}
 import play.api.http.Status
 import models.Entity
 

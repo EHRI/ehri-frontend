@@ -1,7 +1,7 @@
 package backend
 
 import scala.concurrent.{ExecutionContext, Future}
-import utils.{SystemEventParams, PageParams}
+import utils.{Page, SystemEventParams, PageParams}
 import models._
 import models.base.AnyModel
 

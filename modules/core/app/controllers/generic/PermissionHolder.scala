@@ -8,8 +8,7 @@ import models._
 
 import play.api.libs.concurrent.Execution.Implicits._
 import models.json.{RestResource, RestReadable}
-import utils.PageParams
-import backend.Page
+import utils.{Page, PageParams}
 
 /**
  * Trait for managing permissions on Accessor models that can have permissions assigned to them.

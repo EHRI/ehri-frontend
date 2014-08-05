@@ -8,8 +8,8 @@ import models.PermissionGrant
 import play.api.libs.json.Json
 import play.api.Play.current
 import play.api.cache.Cache
-import utils.{FutureCache, PageParams}
-import backend.{Permissions, EventHandler, Page, ApiUser}
+import utils.{Page, FutureCache, PageParams}
+import backend.{Permissions, EventHandler, ApiUser}
 
 
 trait RestPermissions extends Permissions with RestDAO {

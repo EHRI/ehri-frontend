@@ -1,4 +1,4 @@
-package backend
+package utils
 
 import models.json.{ClientConvertable, RestReadable}
 import play.api.libs.json.{Writes, Reads}
@@ -18,7 +18,7 @@ object Page {
 
   def empty[T] = new Page[T]
 
-  implicit def restReads[T](implicit apiUser: ApiUser, rd: RestReadable[T]): Reads[Page[T]] = {
+  implicit def restReads[T](implicit rd: RestReadable[T]): Reads[Page[T]] = {
     Page.pageReads(rd.restReads)
   }
   implicit def clientFormat[T](implicit cfmt: ClientConvertable[T]): Writes[Page[T]] = {

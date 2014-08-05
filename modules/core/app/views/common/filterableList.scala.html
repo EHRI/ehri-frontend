@@ -1,10 +1,10 @@
-@(paginationKey: String, page: backend.Page[AnyModel], params: utils.PageParams)(listBody: Html)(implicit userOpt: Option[UserProfile], req: RequestHeader, globalConfig: global.GlobalConfig, lang: Lang, flash: Flash)
+@(paginationKey: String, page: utils.Page[AnyModel], params: utils.PageParams)(listBody: Html)(implicit userOpt: Option[UserProfile], req: RequestHeader, globalConfig: global.GlobalConfig, lang: Lang, flash: Flash)
 
 
 <hr />
 <div class="item-list">
     @if(page.total > 0) {
-        <h3>@Messages(paginationKey, page.offset + 1, page.offset + page.items.size, page.total)</h3>
+        <h3>@Messages(paginationKey, page.start, page.end, page.total)</h3>
     } else {
         <h3>@Messages(paginationKey, 1, 0, 0)</h3>
     }

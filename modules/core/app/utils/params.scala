@@ -19,8 +19,8 @@ object PageParams {
   def fromRequest(request: RequestHeader, namespace: String = ""): PageParams = {
     Form(
       mapping(
-        namespace + PAGE_PARAM -> default(number, 1),
-        namespace + COUNT_PARAM -> default(number, DEFAULT_LIST_LIMIT)
+        namespace + PAGE_PARAM -> default(number(min = 1), 1),
+        namespace + COUNT_PARAM -> default(number(min = 1, max = MAX_LIST_LIMIT), DEFAULT_LIST_LIMIT)
       )(PageParams.apply)(PageParams.unapply)
     ).bindFromRequest(request.queryString).value.getOrElse(empty)
   }
@@ -85,7 +85,6 @@ object SystemEventParams {
     )(SystemEventParams.apply)(SystemEventParams.unapply)
   )
 
-  def fromRequest(request: RequestHeader): SystemEventParams = {
-    form.bindFromRequest(request.queryString).value.getOrElse(new SystemEventParams())
-  }
+  def fromRequest(request: RequestHeader): SystemEventParams =
+    form.bindFromRequest(request.queryString).value.getOrElse(SystemEventParams.empty)
 }

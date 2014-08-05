@@ -6,8 +6,7 @@ import models.base._
 import defines._
 import models.{PermissionGrant, UserProfile}
 import models.json.RestReadable
-import utils.PageParams
-import backend.Page
+import utils.{Page, PageParams}
 
 /**
  * Trait for setting permissions on an individual item.

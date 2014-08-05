@@ -1,8 +1,8 @@
 package backend.rest
 
-import backend.{Page, EventHandler, Social, ApiUser}
+import backend.{EventHandler, Social, ApiUser}
 import scala.concurrent.{ExecutionContext, Future}
-import utils.{FutureCache, PageParams}
+import utils.{Page, FutureCache, PageParams}
 import models.{VirtualUnit, Link, Annotation, UserProfile}
 import defines.EntityType
 import models.json.RestReadable

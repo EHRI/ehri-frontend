@@ -4,12 +4,12 @@ import play.api.libs.concurrent.Execution.Implicits._
 import controllers.base.{SessionPreferences, AuthController, ControllerHelpers}
 import models.{SystemEvent, UserProfile, AccountDAO}
 import views.html.p
-import utils.{SessionPrefs, PageParams, SystemEventParams}
+import utils.{Page, SessionPrefs, PageParams, SystemEventParams}
 import utils.search.{Resolver, SearchOrder, Dispatcher, SearchParams}
 import defines.{EventType, EntityType}
 import play.api.Play.current
 import solr.SolrConstants
-import backend.{Page, ApiUser, Backend}
+import backend.{ApiUser, Backend}
 
 import com.google.inject._
 import play.api.mvc.{Result, RequestHeader}
@@ -86,7 +86,7 @@ case class Social @Inject()(implicit globalConfig: global.GlobalConfig, searchDi
     // we can mark who's following and who isn't
     val filters = Map(SolrConstants.ACTIVE -> true.toString)
     val defaultParams = SearchParams(entities = List(EntityType.UserProfile), excludes = Some(List(user.id)),
-          sort = Some(SearchOrder.Name), limit = Some(40))
+          sort = Some(SearchOrder.Name), count = 40)
     val searchParams = SearchParams.form.bindFromRequest.value
       .getOrElse(defaultParams).setDefault(Some(defaultParams))
 

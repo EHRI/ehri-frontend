@@ -4,8 +4,8 @@ import scala.concurrent.{ExecutionContext, Future}
 import models.json.RestReadable
 import models.base.AnyModel
 import models.{Version, SystemEvent}
-import utils.{SystemEventParams, PageParams}
-import backend.{Events, ApiUser, Page}
+import utils.{Page, SystemEventParams, PageParams}
+import backend.{Events, ApiUser}
 import defines.EntityType
 
 

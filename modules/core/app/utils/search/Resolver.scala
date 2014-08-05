@@ -14,5 +14,5 @@ import models.json.RestReadable
  * @author Mike Bryant (http://github.com/mikesname)
  */
 trait Resolver {
-  def resolve[MT](results: Seq[SearchHit])(implicit apiUser: ApiUser, rd: RestReadable[MT]): Future[List[MT]]
+  def resolve[MT](results: Seq[SearchHit])(implicit apiUser: ApiUser, rd: RestReadable[MT]): Future[Seq[MT]]
 }

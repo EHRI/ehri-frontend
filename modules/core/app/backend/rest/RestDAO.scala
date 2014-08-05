@@ -6,9 +6,10 @@ import play.api.http.ContentTypes
 import play.api.libs.ws.{WS, WSResponse}
 import play.api.libs.json._
 import play.api.libs.ws.WSRequestHolder
-import backend.{Page, ErrorSet, ApiUser}
+import backend.{ErrorSet, ApiUser}
 import com.fasterxml.jackson.core.JsonParseException
 import models.{UserProfileF, UserProfile}
+import utils.Page
 
 
 trait RestDAO {

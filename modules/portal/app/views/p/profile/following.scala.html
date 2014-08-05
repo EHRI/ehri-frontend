@@ -1,4 +1,4 @@
-@(user: UserProfile, follows: backend.Page[UserProfile])(implicit req: RequestHeader, lang: Lang)
+@(user: UserProfile, follows: utils.Page[UserProfile])(implicit req: RequestHeader, lang: Lang)
 
 @p.common.footerPanel(Messages("portal.profile.following")) {
     @if(!follows.isEmpty) {

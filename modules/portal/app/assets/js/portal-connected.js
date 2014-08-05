@@ -72,7 +72,7 @@ jQuery(function ($) {
   $("#activity-stream-fetchmore").click(function (event) {
     var $elem = $(event.target);
     var page = $(event.target).data("page");
-    var count = $(event.target).data("count");
+    var count = $(event.target).data("limit");
     jsRoutes.controllers.portal.Social.personalisedActivity(page, count).ajax({
       success: function (data, _, response) {
         var done = response.getResponseHeader("activity-more") != 'true';

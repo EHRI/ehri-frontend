@@ -17,7 +17,7 @@ import play.Logger
 import scala.concurrent.Future
 import views.html.p
 import utils.search.{Resolver, Dispatcher}
-import backend.{Page, Backend}
+import backend.{Backend}
 
 import com.google.inject._
 import net.coobird.thumbnailator.tasks.UnsupportedFormatException

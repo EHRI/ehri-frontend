@@ -1,7 +1,7 @@
 package backend
 
 import scala.concurrent.{ExecutionContext, Future}
-import utils.PageParams
+import utils.{Page, PageParams}
 import models._
 import models.base.Accessor
 import acl.{ItemPermissionSet, GlobalPermissionSet}

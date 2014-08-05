@@ -3,6 +3,8 @@ package utils.search
 import defines.EntityType
 import models.json.ClientConvertable
 import play.api.libs.json.{Json, Format}
+import backend.rest.Constants._
+
 
 object SearchField extends Enumeration {
   type Field = Value
@@ -51,8 +53,8 @@ object SearchMode extends Enumeration {
  */
 case class SearchParams(
   query: Option[String] = None,
-  page: Option[Int] = Some(1),
-  limit: Option[Int] = Some(SearchParams.DEFAULT_LIMIT),
+  page: Int = 1,
+  count: Int = DEFAULT_LIST_LIMIT,
   sort: Option[SearchOrder.Value] = None,
   reverse: Option[Boolean] = Some(false),
   entities: List[EntityType.Value] = Nil,
@@ -67,14 +69,14 @@ case class SearchParams(
    */
   def isFiltered: Boolean = query.filterNot(_.trim.isEmpty).isDefined
 
+  def offset = Math.max(0, (page - 1) * count)
+
   /**
    * Set unset values from another (optional) instance.
    */
   def setDefault(default: Option[SearchParams]): SearchParams = default match {
-    case Some(d) => SearchParams(
+    case Some(d) => copy(
       query = query orElse d.query,
-      page = page orElse d.page,
-      limit = limit orElse d.limit,
       sort = sort orElse d.sort,
       reverse = reverse orElse d.reverse,
       entities = if (entities.isEmpty) d.entities else entities,
@@ -87,11 +89,8 @@ case class SearchParams(
 }
 
 object SearchParams {
-  val DEFAULT_LIMIT = 20
   val REVERSE = "desc"
   val SORT = "sort"
-  val LIMIT = "limit"
-  val PAGE = "page"
   val QUERY = "q"
   val FIELD = "qf"
   val ENTITY = "st"
@@ -107,8 +106,8 @@ object SearchParams {
   val form = Form(
     mapping(
       QUERY -> optional(nonEmptyText),
-      PAGE -> optional(number),
-      LIMIT -> optional(number),
+      PAGE_PARAM -> default(number(min = 1), 1),
+      COUNT_PARAM -> default(number(min = 0, max = MAX_LIST_LIMIT), DEFAULT_LIST_LIMIT),
       SORT -> optional(models.forms.enum(SearchOrder)),
       REVERSE -> optional(boolean),
       ENTITY -> list(models.forms.enum(EntityType)),

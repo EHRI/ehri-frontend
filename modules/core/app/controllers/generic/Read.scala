@@ -4,8 +4,7 @@ import play.api.libs.concurrent.Execution.Implicits._
 import play.api.mvc._
 import models._
 import models.json.{RestResource, RestReadable, ClientConvertable}
-import utils.PageParams
-import backend.Page
+import utils.{Page, PageParams}
 
 import scala.concurrent.Future
 

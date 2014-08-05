@@ -2,12 +2,11 @@ package controllers.portal
 
 import play.api.libs.concurrent.Execution.Implicits._
 import defines.{ContentTypes, EntityType}
-import utils.{FutureCache, PageParams}
+import utils.{Page, FutureCache, PageParams}
 import models.{Link, Annotation, UserProfile}
 import play.api.mvc._
 import models.json.{RestResource, ClientConvertable, RestReadable}
 import controllers.base.{ControllerHelpers, AuthController}
-import backend.Page
 import models.base.AnyModel
 import play.api.mvc.Result
 import backend.ApiUser

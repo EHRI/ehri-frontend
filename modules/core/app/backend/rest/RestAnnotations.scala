@@ -4,8 +4,8 @@ import scala.concurrent.{ExecutionContext, Future}
 import play.api.libs.json.{Reads, Json}
 import defines.EntityType
 import models._
-import backend.{Page, Annotations, EventHandler, ApiUser}
-import utils.PageParams
+import backend.{Annotations, EventHandler, ApiUser}
+import utils.{Page, PageParams}
 
 
 /**

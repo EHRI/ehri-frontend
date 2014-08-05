@@ -49,7 +49,7 @@ object Constants {
   /**
    * Limit for lists
    */
-  final val COUNT_PARAM = "count"
+  final val COUNT_PARAM = "limit"
 
   /**
    * Page for pages
@@ -60,6 +60,11 @@ object Constants {
    * Default limit
    */
   final val DEFAULT_LIST_LIMIT = 20
+
+  /**
+   * Max list limit
+   */
+  final val MAX_LIST_LIMIT = 100
 
   /**
    * User filter

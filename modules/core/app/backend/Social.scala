@@ -1,7 +1,7 @@
 package backend
 
 import scala.concurrent.{ExecutionContext, Future}
-import utils.PageParams
+import utils.{Page, PageParams}
 import models.{VirtualUnit, Link, Annotation, UserProfile}
 import models.json.RestReadable
 import models.base.AnyModel
