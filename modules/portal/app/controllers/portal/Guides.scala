@@ -268,7 +268,7 @@ case class Guides @Inject()(implicit globalConfig: global.GlobalConfig, searchDi
     s"""
         START 
           virtualUnit = node:entities(__ID__= {guide}), 
-          accessPoints = node:entities(" """ ++ getFacetQuery(ids) ++ """ ")
+          accessPoints = node:entities({guideFacets})
         MATCH 
              (link)-[:inContextOf]->virtualUnit,
             (doc)<-[:hasLinkTarget]-(link)-[:hasLinkTarget]->accessPoints
@@ -282,7 +282,8 @@ case class Guides @Inject()(implicit globalConfig: global.GlobalConfig, searchDi
     Map(
       /* All IDS */
       "guide" -> JsString(guide.virtualUnit),
-      "accesslist" -> Json.toJson(ids)
+      "accesslist" -> Json.toJson(ids),
+      "guideFacets" -> JsString(getFacetQuery(ids))
       /* End IDS */
     )).map { r =>
       (r \ "data").as[Seq[Seq[Long]]].flatten
