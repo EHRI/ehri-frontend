@@ -4,7 +4,6 @@ import play.api.libs.json._
 import defines._
 import models.base.Accessor
 import scala.util.control.Exception._
-import scala.Some
 
 object GlobalPermissionSet {
 
@@ -42,8 +41,7 @@ object GlobalPermissionSet {
 /**
  * Global permissions granted to either a UserProfileF or a GroupF.
  */
-case class GlobalPermissionSet(data: GlobalPermissionSet.PermData)
-  extends PermissionSet {
+case class GlobalPermissionSet(data: GlobalPermissionSet.PermData) extends PermissionSet {
 
   /**
    * Check if this permission set has the given permission.

@@ -22,7 +22,8 @@ object ItemPermissionSet {
     pd.flatMap { userPermMap =>
       userPermMap.headOption.map { case (userId, plist) =>
         val perms = plist.flatMap { ps =>
-          catching(classOf[NoSuchElementException]).opt(PermissionType.withName(ps))
+          catching(classOf[NoSuchElementException])
+            .opt(PermissionType.withName(ps))
         }
         userId -> perms
       }
@@ -33,8 +34,7 @@ object ItemPermissionSet {
 /**
  * Item-level permissions granted to either a UserProfileF or a GroupF.
  */
-case class ItemPermissionSet(contentType: ContentTypes.Value, data: ItemPermissionSet.PermData)
-	extends PermissionSet {
+case class ItemPermissionSet(contentType: ContentTypes.Value, data: ItemPermissionSet.PermData) extends PermissionSet {
 
   /**
    * Check if this permission set has the given permission.

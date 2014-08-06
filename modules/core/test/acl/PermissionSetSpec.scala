@@ -1,7 +1,7 @@
 package acl
 
 import play.api.test.PlaySpecification
-import defines.{ContentTypes, PermissionType, EntityType}
+import defines.{ContentTypes, PermissionType}
 import play.api.libs.json.Json
 import models.{UserProfileF, UserProfile}
 
