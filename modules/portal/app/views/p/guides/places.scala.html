@@ -2,26 +2,51 @@
 
 @js = {
 	<script type="text/javascript" src="@controllers.core.routes.Assets.versioned("js/lib/leaflet.js")"></script>
+	<script src="@controllers.portal.routes.PortalData.jsRoutes"></script>
 	<script type="text/javascript">
 		/*
 			Functions
 		*/
+		var VIRTUAL_UNIT = "michal-frankl-ehri-terezin-research-guide",
+		       VIRTUAL_UNIT_ROUTE = "@controllers.portal.routes.Guides.guideFacets(template._2._1.path)?kw[]=",
+		       GUIDE_PATH = "@template._2._1.path";
+
 		addMarker = function(data) {
 			if(!$items[data.id]) {
-				L.marker([parseFloat(data.latitude), parseFloat(data.longitude)]).addTo($map).bindPopup(
-					'<a href="@controllers.portal.routes.Guides.guideFacets(template._2._1.path)?kw[]=' + data.id + '">'+ data.name + '</a>'
-				)
 				$items[data.id] = true;
+				return L.marker([parseFloat(data.latitude),parseFloat(data.longitude)]).addTo($map).bindPopup('<b>'+ data.name + '</b>', {
+					minWidth : 300
+				})
 			}
+			return false;
 		}
 
 		addMarkerList = function(data) {
 			var i = 0;
 			while(data[i]) {
 				if(data[i].latitude !== "None" && data[i].longitude !== "None") {
-					addMarker(data[i])
+					bindMarker(addMarker(data[i]), data[i].id)
 				}
 				++i;
+			}
+		}
+
+		bindMarker = function(marker, id) {
+			if(marker) {
+				marker.on("popupopen", function(elem) {
+					$.get("http://localhost:9000/accesspoints/" + id + "/" + VIRTUAL_UNIT, function(data) {
+						var links = [];
+						$.each(data, function(index, link) {
+							links.push('<li><a href="'+ jsRoutes.controllers.portal.Guides.browseDocument(GUIDE_PATH, link.id).url +'">'+ link.name+'</a></li>')
+						})
+						$(elem.popup._contentNode).html(
+							$(elem.popup._contentNode).html() +
+							'<ul>' +
+							links.join(" ") +
+							'<li><a href="'+ VIRTUAL_UNIT_ROUTE+ data.id + '">More...</a></li></ul>'
+						)
+					});
+				})
 			}
 		}
 		/*
@@ -48,7 +73,10 @@
     		$.get(
     			"@controllers.portal.routes.Guides.layoutRetrieval(template._2._1.path, template._1.path)", 
     			{ lat : $map.getCenter().lat, lng: $map.getCenter().lng }, 
-    			function (data) { addMarkerList(data) }, 
+    			function (data) { 
+    				addMarkerList(data);
+
+    			}, 
     			"json")
     	});
 
@@ -76,6 +104,7 @@
     	*/
     	addMarkerList($originalMarkers)
     	$map.fitBounds($bounds);
+
 	</script>
 }
 @css = {
