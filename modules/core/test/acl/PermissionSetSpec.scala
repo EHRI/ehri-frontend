@@ -27,8 +27,7 @@ class PermissionSetSpec extends PlaySpecification {
         )
       )
 
-      val json = Json.toJson(data)
-      val permSet = GlobalPermissionSet(json)
+      val permSet = Json.toJson(data).as[GlobalPermissionSet]
       permSet.has(ContentTypes.DocumentaryUnit, PermissionType.Create) must beTrue
       permSet.has(ContentTypes.DocumentaryUnit, PermissionType.Update) must beTrue
       permSet.has(ContentTypes.DocumentaryUnit, PermissionType.Annotate) must beFalse
@@ -47,8 +46,7 @@ class PermissionSetSpec extends PlaySpecification {
         )
       )
 
-      val json = Json.toJson(data)
-      val permSet = ItemPermissionSet(ContentTypes.DocumentaryUnit, json)
+      val permSet = Json.toJson(data).as(ItemPermissionSet.restReads(ContentTypes.DocumentaryUnit))
       permSet.has(PermissionType.Create) must beTrue
       permSet.has(PermissionType.Update) must beTrue
       permSet.has(PermissionType.Annotate) must beFalse

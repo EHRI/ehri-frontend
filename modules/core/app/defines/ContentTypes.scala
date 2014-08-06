@@ -1,8 +1,5 @@
 package defines
 
-
-// FIXME: Remove this duplication with the
-// entity types enum
 object ContentTypes extends Enumeration() {
   type Type = Value
   val HistoricalAgent = Value("historicalAgent")
@@ -18,4 +15,6 @@ object ContentTypes extends Enumeration() {
   val Link = Value("link")
   val Country = Value("country")
   val VirtualUnit = Value("virtualUnit")
+
+  implicit val format = defines.EnumUtils.enumFormat(this)
 }

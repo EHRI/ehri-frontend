@@ -39,18 +39,16 @@ trait RestPermissions extends Permissions with RestDAO {
   def getGlobalPermissions(userId: String)(implicit apiUser: ApiUser, executionContext: ExecutionContext): Future[GlobalPermissionSet] = {
     val url = enc(requestUrl, userId)
     FutureCache.getOrElse[GlobalPermissionSet](url, cacheTime) {
-      userCall(url).get().map { response =>
-        GlobalPermissionSet(checkError(response).json)
-      }
+      userCall(url).get()
+        .map(checkErrorAndParse[GlobalPermissionSet])
     }
   }
 
   def setGlobalPermissions(userId: String, data: Map[String, List[String]])(implicit apiUser: ApiUser, executionContext: ExecutionContext): Future[GlobalPermissionSet] = {
     val url = enc(requestUrl, userId)
     FutureCache.set(url, cacheTime) {
-      userCall(url).post(Json.toJson(data)).map { response =>
-        GlobalPermissionSet(checkError(response).json)
-      }
+      userCall(url).post(Json.toJson(data))
+        .map(checkErrorAndParse[GlobalPermissionSet])
     }
   }
 
@@ -58,7 +56,7 @@ trait RestPermissions extends Permissions with RestDAO {
     val url = enc(requestUrl, userId, id)
     FutureCache.getOrElse[ItemPermissionSet](url, cacheTime) {
       userCall(url).get().map { response =>
-        ItemPermissionSet(contentType, checkError(response).json)
+        checkErrorAndParse(response)(ItemPermissionSet.restReads(contentType))
       }
     }
   }
@@ -67,7 +65,7 @@ trait RestPermissions extends Permissions with RestDAO {
     val url = enc(requestUrl, userId, id)
     FutureCache.set(url, cacheTime) {
       userCall(url).post(Json.toJson(data)).map { response =>
-        ItemPermissionSet(contentType, checkError(response).json)
+        checkErrorAndParse(response)(ItemPermissionSet.restReads(contentType))
       }
     }
   }
@@ -75,18 +73,16 @@ trait RestPermissions extends Permissions with RestDAO {
   def getScopePermissions(userId: String, id: String)(implicit apiUser: ApiUser, executionContext: ExecutionContext): Future[GlobalPermissionSet] = {
     val url = enc(requestUrl, userId, "scope", id)
     FutureCache.getOrElse[GlobalPermissionSet](url, cacheTime) {
-      userCall(url).get().map { response =>
-        GlobalPermissionSet(checkError(response).json)
-      }
+      userCall(url).get()
+        .map(checkErrorAndParse[GlobalPermissionSet])
     }
   }
 
   def setScopePermissions(userId: String, id: String, data: Map[String,List[String]])(implicit apiUser: ApiUser, executionContext: ExecutionContext): Future[GlobalPermissionSet] = {
     val url = enc(requestUrl, userId, "scope", id)
     FutureCache.set(url, cacheTime) {
-      userCall(url).post(Json.toJson(data)).map { response =>
-        GlobalPermissionSet(checkError(response).json)
-      }
+      userCall(url).post(Json.toJson(data))
+        .map(checkErrorAndParse[GlobalPermissionSet])
     }
   }
 
