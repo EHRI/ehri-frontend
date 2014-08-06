@@ -37,6 +37,11 @@ object Constants {
   val GROUP_PARAM = "group"
 
   /**
+   * Parameter for default group membership.
+   */
+  val ID_PARAM = "id"
+
+  /**
    * Properties serialization params.
    */
   val INCLUDE_PROPERTIES_PARAM = "_ip"

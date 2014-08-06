@@ -20,18 +20,15 @@ trait RestSocial extends Social with RestDAO {
 
   private def requestUrl = "http://%s:%d/%s/%s".format(host, port, mount, EntityType.UserProfile)
 
-  private def followUrl(userId: String, otherId: String) = enc(requestUrl, userId, "follow", otherId)
   private def followingUrl(userId: String) = enc(requestUrl, userId, "following")
-  private def watchUrl(userId: String, otherId: String) = enc(requestUrl, userId, "watch", otherId)
   private def watchingUrl(userId: String) = enc(requestUrl, userId, "watching")
+  private def blockedUrl(userId: String) = enc(requestUrl, userId, "blocked")
   private def isFollowingUrl(userId: String, otherId: String) = enc(requestUrl, userId, "isFollowing", otherId)
   private def isWatchingUrl(userId: String, otherId: String) = enc(requestUrl, userId, "isWatching", otherId)
-  private def blockedUrl(userId: String) = enc(requestUrl, userId, "blocked")
-  private def blockUrl(userId: String, otherId: String) = enc(requestUrl, userId, "block", otherId)
   private def isBlockingUrl(userId: String, otherId: String) = enc(requestUrl, userId, "isBlocking", otherId)
 
   def follow(userId: String, otherId: String)(implicit apiUser: ApiUser, executionContext: ExecutionContext): Future[Unit] = {
-    userCall(followUrl(userId, otherId)).post("").map { r =>
+    userCall(followingUrl(userId)).withQueryString(ID_PARAM -> otherId).post("").map { r =>
       checkError(r)
       Cache.set(isFollowingUrl(userId, otherId), true, cacheTime)
       Cache.remove(followingUrl(userId))
@@ -39,7 +36,7 @@ trait RestSocial extends Social with RestDAO {
     }
   }
   def unfollow(userId: String, otherId: String)(implicit apiUser: ApiUser, executionContext: ExecutionContext): Future[Unit] = {
-    userCall(followUrl(userId, otherId)).delete().map { r =>
+    userCall(followingUrl(userId)).withQueryString(ID_PARAM -> otherId).delete().map { r =>
       checkError(r)
       Cache.set(isFollowingUrl(userId, otherId), false, cacheTime)
       Cache.remove(followingUrl(userId))
@@ -68,7 +65,7 @@ trait RestSocial extends Social with RestDAO {
   }
 
   def following(userId: String, params: PageParams = PageParams.empty)(implicit apiUser: ApiUser, rd: RestReadable[UserProfile], executionContext: ExecutionContext): Future[Page[UserProfile]] = {
-    userCall(enc(requestUrl, userId, "following")).withQueryString(params.queryParams: _*).get().map { r =>
+    userCall(followingUrl(userId)).withQueryString(params.queryParams: _*).get().map { r =>
       parsePage(r)(rd.restReads)
     }
   }
@@ -80,7 +77,7 @@ trait RestSocial extends Social with RestDAO {
   }
 
   def watch(userId: String, otherId: String)(implicit apiUser: ApiUser, executionContext: ExecutionContext): Future[Unit] = {
-    userCall(watchUrl(userId, otherId)).post("").map { r =>
+    userCall(watchingUrl(userId)).withQueryString(ID_PARAM -> otherId).post("").map { r =>
       Cache.set(isWatchingUrl(userId, otherId), true, cacheTime)
       Cache.remove(watchingUrl(userId))
       checkError(r)
@@ -88,7 +85,7 @@ trait RestSocial extends Social with RestDAO {
   }
 
   def unwatch(userId: String, otherId: String)(implicit apiUser: ApiUser, executionContext: ExecutionContext): Future[Unit] = {
-    userCall(watchUrl(userId, otherId)).delete().map { r =>
+    userCall(watchingUrl(userId)).withQueryString(ID_PARAM -> otherId).delete().map { r =>
       Cache.set(isWatchingUrl(userId, otherId), false, cacheTime)
       Cache.remove(watchingUrl(userId))
       checkError(r)
@@ -105,13 +102,13 @@ trait RestSocial extends Social with RestDAO {
   }
 
   def blocked(userId: String, params: PageParams = PageParams.empty)(implicit apiUser: ApiUser, rd: RestReadable[AnyModel], executionContext: ExecutionContext): Future[Page[AnyModel]] = {
-    userCall(enc(requestUrl, userId, "blocked")).withQueryString(params.queryParams: _*).get().map { r =>
+    userCall(blockedUrl(userId)).withQueryString(params.queryParams: _*).get().map { r =>
       parsePage(r)(rd.restReads)
     }
   }
 
   def block(userId: String, otherId: String)(implicit apiUser: ApiUser, executionContext: ExecutionContext): Future[Unit] = {
-    userCall(blockUrl(userId, otherId)).post("").map { r =>
+    userCall(blockedUrl(userId)).withQueryString(ID_PARAM -> otherId).post("").map { r =>
       Cache.set(isBlockingUrl(userId, otherId), true, cacheTime)
       Cache.remove(blockedUrl(userId))
       checkError(r)
@@ -119,7 +116,7 @@ trait RestSocial extends Social with RestDAO {
   }
 
   def unblock(userId: String, otherId: String)(implicit apiUser: ApiUser, executionContext: ExecutionContext): Future[Unit] = {
-    userCall(blockUrl(userId, otherId)).delete().map { r =>
+    userCall(blockedUrl(userId)).withQueryString(ID_PARAM -> otherId).delete().map { r =>
       Cache.set(isBlockingUrl(userId, otherId), false, cacheTime)
       Cache.remove(blockedUrl(userId))
       checkError(r)

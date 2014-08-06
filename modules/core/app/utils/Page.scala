@@ -18,9 +18,6 @@ object Page {
 
   def empty[T] = new Page[T]
 
-  implicit def restReads[T](implicit rd: RestReadable[T]): Reads[Page[T]] = {
-    Page.pageReads(rd.restReads)
-  }
   implicit def clientFormat[T](implicit cfmt: ClientConvertable[T]): Writes[Page[T]] = {
     Page.pageWrites(cfmt.clientFormat)
   }
@@ -28,21 +25,11 @@ object Page {
   import play.api.libs.json._
   import play.api.libs.functional.syntax._
 
-  implicit def pageReads[T](implicit r: Reads[T]): Reads[Page[T]] = (
-    (__ \ "total").read[Long] and
-    (__ \ "page").read[Int] and
-    (__ \ "count").read[Int] and
-    (__ \ "values").lazyRead(Reads.seq[T](r))
-  )(Page.apply[T] _)
-
   implicit def pageWrites[T](implicit r: Writes[T]): Writes[Page[T]] = (
     (__ \ "total").write[Long] and
     (__ \ "page").write[Int] and
     (__ \ "count").write[Int] and
     (__ \ "values").lazyWrite(Writes.seq[T](r))
   )(unlift(Page.unapply[T]))
-
-  implicit def pageFormat[T](implicit r: Reads[T], w: Writes[T]): Format[Page[T]]
-    = Format(pageReads(r), pageWrites(w))
 }
 

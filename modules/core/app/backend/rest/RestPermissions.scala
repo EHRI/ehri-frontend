@@ -10,6 +10,7 @@ import play.api.Play.current
 import play.api.cache.Cache
 import utils.{Page, FutureCache, PageParams}
 import backend.{Permissions, EventHandler, ApiUser}
+import models.json.RestReadable
 
 
 trait RestPermissions extends Permissions with RestDAO {
@@ -18,22 +19,19 @@ trait RestPermissions extends Permissions with RestDAO {
 
   import Constants._
 
-  implicit val permissionGrantMetaReads = PermissionGrant.Converter.restReads
-  implicit val pageReads = Page.pageReads(permissionGrantMetaReads)
-
   private def baseUrl = s"http://$host:$port/$mount"
   private def requestUrl = s"$baseUrl/permission"
 
-  def listPermissionGrants[T <: Accessor](user: T, params: PageParams)(implicit apiUser: ApiUser, executionContext: ExecutionContext): Future[Page[PermissionGrant]] =
+  def listPermissionGrants[T <: Accessor](user: T, params: PageParams)(implicit apiUser: ApiUser, rd: RestReadable[PermissionGrant], executionContext: ExecutionContext): Future[Page[PermissionGrant]] =
     listWithUrl(enc(requestUrl, "list", user.id), params)
 
-  def listItemPermissionGrants(id: String, params: PageParams)(implicit apiUser: ApiUser, executionContext: ExecutionContext): Future[Page[PermissionGrant]] =
+  def listItemPermissionGrants(id: String, params: PageParams)(implicit apiUser: ApiUser, rd: RestReadable[PermissionGrant], executionContext: ExecutionContext): Future[Page[PermissionGrant]] =
     listWithUrl(enc(requestUrl, "listForItem", id), params)
 
-  def listScopePermissionGrants(id: String, params: PageParams)(implicit apiUser: ApiUser, executionContext: ExecutionContext): Future[Page[PermissionGrant]] =
+  def listScopePermissionGrants(id: String, params: PageParams)(implicit apiUser: ApiUser, rd: RestReadable[PermissionGrant], executionContext: ExecutionContext): Future[Page[PermissionGrant]] =
     listWithUrl(enc(requestUrl, "listForScope", id), params)
 
-  private def listWithUrl(url: String, params: PageParams)(implicit apiUser: ApiUser, executionContext: ExecutionContext): Future[Page[PermissionGrant]] = {
+  private def listWithUrl(url: String, params: PageParams)(implicit apiUser: ApiUser, rd: RestReadable[PermissionGrant], executionContext: ExecutionContext): Future[Page[PermissionGrant]] = {
     userCall(url).withQueryString(params.queryParams: _*).get().map { response =>
       parsePage[PermissionGrant](response)
     }
