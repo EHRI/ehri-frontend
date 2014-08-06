@@ -4,6 +4,7 @@ import play.api.libs.json.{JsString, JsValue}
 import defines.EntityType
 import play.api.libs.concurrent.Execution.Implicits._
 import scala.concurrent.Future
+import backend.rest.cypher.CypherDAO
 
 
 trait RestHelpers {

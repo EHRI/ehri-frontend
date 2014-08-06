@@ -1,5 +1,4 @@
-import play.api.libs.json.JsResult
-import play.api.mvc.QueryStringBindable
+import anorm.{ToStatement, TypeDoesNotMatch, MayErr, Column}
 
 package object defines {
 
@@ -9,6 +8,7 @@ package object defines {
   import play.api.libs.json._
 
   import play.api.mvc.PathBindable
+  import play.api.mvc.QueryStringBindable
 
   abstract class BindableEnum extends Enumeration {
     
@@ -37,6 +37,27 @@ package object defines {
         stringBinder.unbind(key, value)
       }
     }
+  }
+
+  trait StorableEnum {
+    self: Enumeration =>
+
+    implicit def rowToEnum: Column[Value] = {
+      Column.nonNull[Value] { (value, meta) =>
+        try {
+          MayErr(Right(withName(value.toString)))
+        } catch {
+          case e: Throwable => Left(TypeDoesNotMatch(
+            s"Cannot convert $value: ${value.asInstanceOf[AnyRef].getClass} to ${getClass.getName}"))
+        }
+      }
+    }
+
+    implicit def enumToStatement = new ToStatement[Value] {
+      def set(s: java.sql.PreparedStatement, index: Int, value: Value): Unit =
+        s.setObject(index, value.toString)
+    }
+
   }
 
   object EnumUtils {

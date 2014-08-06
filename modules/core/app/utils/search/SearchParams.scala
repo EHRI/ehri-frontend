@@ -21,6 +21,7 @@ object SearchOrder extends Enumeration {
   val DateNewest = Value("lastUpdated.desc")
   val Country = Value("countryCode.asc")
   val Holder = Value("repositoryName.asc")
+  val Location = Value("geodist().asc")
 
   implicit val format = defines.EnumUtils.enumFormat(SearchOrder)
 }

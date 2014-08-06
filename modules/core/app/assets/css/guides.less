@@ -1,7 +1,64 @@
 //
 // Load Dependencies
 // --------------------------------------------------
-@import "./_bootstrap.less";
+// <-- Bootstrap
+
+// Core variables and mixins
+@import "./bootstrap/_variables.less";
+@import "./_ehri-vars.less";
+@import "./ehri/_variables.less";
+@import "./bootstrap/_mixins.less";
+
+// Reset
+@import "./bootstrap/_normalize.less";
+@import "./bootstrap/_print.less";
+
+// Core CSS
+@import "./bootstrap/_scaffolding.less";
+@import "./bootstrap/_type.less";
+@import "./bootstrap/_code.less";
+@import "./bootstrap/_grid.less";
+@import "./bootstrap/_tables.less";
+@import "./bootstrap/_forms.less";
+@import "./bootstrap/_buttons.less";
+
+// Components
+@import "./bootstrap/_component-animations.less";
+@import "./bootstrap/_glyphicons.less";
+@import "./bootstrap/_dropdowns.less";
+@import "./bootstrap/_button-groups.less";
+@import "./bootstrap/_input-groups.less";
+@import "./bootstrap/_navs.less";
+@import "./bootstrap/_navbar.less";
+//@import "./bootstrap/_breadcrumbs.less";
+@import "./bootstrap/_pagination.less";
+//@import "./bootstrap/_pager.less";
+@import "./bootstrap/_labels.less";
+@import "./bootstrap/_badges.less";
+//@import "./bootstrap/_jumbotron.less";
+@import "./bootstrap/_thumbnails.less";
+@import "./bootstrap/_alerts.less";
+//@import "./bootstrap/_progress-bars.less";
+//@import "./bootstrap/_media.less";
+@import "./bootstrap/_list-group.less";
+@import "./bootstrap/_panels.less";
+@import "./bootstrap/_wells.less";
+@import "./bootstrap/_close.less";
+
+// Components w/ JavaScript
+@import "./bootstrap/_modals.less";
+@import "./bootstrap/_tooltip.less";
+@import "./bootstrap/_popovers.less";
+//@import "./bootstrap/_carousel.less";
+
+// Utility classes
+@import "./bootstrap/_utilities.less";
+@import "./bootstrap/_responsive-utilities.less";
+// --> Bootstrap
+
+
+@import "./ehri/_buttons.less";
+@import "./ehri/_breadcrumb.less";
 @import "./_font-awesome.less";
 @import "./guides/_jquery.ui.less";
 @import "./guides/_jquery.ui.theme.less";
@@ -12,7 +69,11 @@
 
 @import "./bootstrap/_variables.less";
 @import "./bootstrap/_mixins.less";
-
+@import "./ehri/_search.less";
+@import "./ehri/_searchItem.less";
+@import "./ehri/_descriptions.less";
+@import "./ehri/_visibility.less";
+@import "./ehri/_panels.less";
 //
 // Guides Stuff
 // --------------------------------------------------
@@ -34,6 +95,33 @@ body > .container {
 //
 // Content
 // --------------------------------------------------
+.facet-form {
+	> h1 > .btn-sm {
+		margin-top:-4px;
+	}
+	> ul.facet-search {
+		display:none;
+	}
+	> ul.facet-list {
+		display:none;
+		overflow-y:scroll;
+		max-height:200px;
+		position:relative;
+	}
+	.facet-scroll {
+		height:1px;
+		min-height:1px;
+		margin:0;
+		padding:0;
+		overflow:hidden;
+		visibility:hidden;
+		&.loading {
+			height:auto;
+			min-height:20px;
+			visibility:visible;
+		}
+	}
+}
 #main {
 	article {
 		background-color:@content-color;
@@ -150,13 +238,22 @@ body > .container {
 	.list-item {
 		margin:0;
 		padding:0;
+		list-style-type:none;
 		
 		.item-wrapper {
 			margin:0 0 1em 0;
 			padding:0;
 			display:block;
 			position:relative;
-			
+			a {
+				color:@ehri-darkest-grey;
+				&[href] {
+					color:@ehri-purple;
+				}
+				&:hover {
+					text-decoration:none;
+				}
+			}
 			.item-option {
 				cursor:pointer;
 				position:absolute;
@@ -251,10 +348,6 @@ body > .container {
 		&.hierarchy {
 			.list-item {
 				margin-left:20px;
-				border-left:2px solid @content-color;
-				&:hover {
-					border-left:2px dashed lighten(@ehri-dark-purple, 20%);
-				}
 				.item-wrapper {
 					> .item-title {
 						border-left:none!important;

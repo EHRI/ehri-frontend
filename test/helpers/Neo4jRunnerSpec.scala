@@ -38,7 +38,7 @@ abstract class Neo4jRunnerSpec(cls: Class[_]) extends PlaySpecification with Use
    * will be merged.
    * @param specificConfig A map of config values for this test
    */
-  case class FakeApp(specificConfig: Map[String,Any] = Map.empty) extends WithApplication(
+  abstract class FakeApp(specificConfig: Map[String,Any] = Map.empty) extends WithApplication(
     fakeApplication(additionalConfiguration = config ++ specificConfig, global = getGlobal))
 
   /**

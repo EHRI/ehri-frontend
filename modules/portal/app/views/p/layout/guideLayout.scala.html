@@ -1,0 +1,77 @@
+@(guide: (GuidePage, (Guide, List[GuidePage])), scripts: Html = Html(""), styles: Html = Html(""), optionalContent: Option[Html] = None)(content: Html)(implicit request: RequestHeader, lang: Lang)
+
+<!DOCTYPE html>
+
+<html>
+    <head>
+        <title>@guide._2._1.name | @guide._1.name</title>
+        <link rel="stylesheet" media="screen" href="@controllers.core.routes.Assets.versioned("css/guides.css")">
+        @styles
+    </head>
+    <body>
+		<header id="top">
+			<div class="container">
+				@guideHeader(guide._1.path, guide._2)
+			</div>
+			<div id="page-title" style="background-color:#360f4f;">
+				<div class="container">
+					<div class="row">
+						<div class="col-md-4 col-md-push-8">
+							<h2 style="color:white; font-variant: small-caps;font-weight: bold; margin-bottom:20px; font-size:24px; line-height:30px; ">@guide._2._1.name</h2>
+						</div>
+						<div class="col-md-8 col-md-pull-4">
+							<h1 style="color:white; font-variant: small-caps; font-size:30px; font-weight: bold; margin-bottom:20px;">@guide._1.name</h1>
+						</div>
+					</div>
+				</div>
+			</div>
+		</header>
+		<div class="container">
+			<div class="row">
+				<div class="col-md-8" id="main">
+					@content
+				</div>
+				<div class="col-md-4" id="right-bar">
+					@guideSidebar(guide._1.path, guide._2, optionalContent)
+				</div>
+			</div>
+		</div>
+		</div>
+         <script src="//ajax.googleapis.com/ajax/libs/jquery/1.10.2/jquery.min.js"></script>
+         <script src="@controllers.core.routes.Assets.at("bootstrap/js/bootstrap.min.js")"></script>
+	<script src="@controllers.portal.routes.PortalData.jsRoutes"></script>
+	<script type="text/javascript">
+		VIRTUAL_UNIT = "@guide._2._1.virtualUnit";
+		VIRTUAL_UNIT_ROUTE = "@controllers.portal.routes.Guides.guideFacets(guide._2._1.path)?kw[]=";
+		GUIDE_PATH = "@guide._2._1.path";
+		$(document).ready(function() {
+
+			$("#main").on('mouseover', ".popover-accesspoints", function() {
+				var e=$(this);
+				if(e.data("loaded")) {
+					return true;
+				}
+				e.data("loaded", true)
+
+				e.unbind('mouseover');
+				e.css("cursor", "wait")
+				$.get(jsRoutes.controllers.portal.Portal.linkedDataInContext(e.attr("data-target"), VIRTUAL_UNIT).url,function(d){
+					var links = []
+					if(d.length > 0) {
+						$.each(d, function(index, link) {
+									links.push('<li><a href="'+ jsRoutes.controllers.portal.Guides.browseDocument(GUIDE_PATH, link.id).url +'">'+ link.name+'</a></li>')
+								})
+						var links = '<small><ul class="list-unstyled">' + links.join(" ") + '<li><a href="'+ VIRTUAL_UNIT_ROUTE + e.attr("data-target") + '">More...</a></li></ul></small>';
+						e.popover({content: links, html: true, trigger: "click", container : "body"}).popover('show');
+						e.css("cursor", "pointer");
+					} else {
+						e.css("cursor", "pointer");
+						e.hide();
+					}
+				});
+			});
+		})
+	</script>
+		@scripts
+    </body>
+</html>

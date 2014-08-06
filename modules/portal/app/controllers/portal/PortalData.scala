@@ -7,6 +7,7 @@ import play.api.cache.Cached
 import play.api.Play.current
 
 
+
 /**
  * @author Mike Bryant (http://github.com/mikesname)
  */
@@ -39,7 +40,10 @@ object PortalData extends Controller {
           controllers.portal.routes.javascript.Annotations.deleteAnnotationPost,
           controllers.portal.routes.javascript.Annotations.setAnnotationVisibilityPost,
           controllers.core.routes.javascript.SearchFilter.filter,
-          controllers.portal.routes.javascript.Portal.browseItem
+          controllers.portal.routes.javascript.Portal.browseItem,
+          controllers.portal.routes.javascript.Guides.browseDocument,
+          controllers.portal.routes.javascript.Portal.linkedData,
+          controllers.portal.routes.javascript.Portal.linkedDataInContext
         )
       ).as(MimeTypes.JAVASCRIPT)
     }
@@ -62,4 +66,7 @@ object PortalData extends Controller {
       ).as(MimeTypes.JAVASCRIPT)
     }
   }
+
+
+  
 }

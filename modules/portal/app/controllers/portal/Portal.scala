@@ -22,6 +22,16 @@ import utils._
 import com.google.inject._
 import views.html.errors.pageNotFound
 
+/*
+ *    "Linked" Data import
+ */
+import scala.concurrent.Future
+import scala.concurrent.Future.{successful => immediate}
+
+import backend.rest.cypher.CypherDAO
+import backend.rest.{SearchDAO}
+import play.api.libs.json.{Json, JsValue, JsString, JsArray}
+
 @Singleton
 case class Portal @Inject()(implicit globalConfig: global.GlobalConfig, searchDispatcher: Dispatcher, searchResolver: Resolver, backend: Backend,
     userDAO: AccountDAO)
@@ -330,6 +340,70 @@ case class Portal @Inject()(implicit globalConfig: global.GlobalConfig, searchDi
         Ok(p.newsFeed(NewsItem.fromRss(r.body)))
       }
     }
+  }
+
+
+  def searchLinks(target: String, context: Option[String] = None): Future[Seq[Long]] = {
+    
+    val cypher = new CypherDAO
+    context match {
+      case Some(str) => {
+        val query =  s"""
+        START 
+          virtualUnit = node:entities(__ID__= {inContext}), 
+          accessPoints = node:entities(__ID__= {accessPoint})
+        MATCH 
+             (link)-[:inContextOf]->virtualUnit,
+            (doc)<-[:hasLinkTarget]-(link)-[:hasLinkTarget]->accessPoints
+         WHERE doc <> accessPoints
+         RETURN ID(doc) LIMIT 5
+        """.stripMargin
+        val params =  Map(
+          "inContext" -> JsString(str),
+          "accessPoint" -> JsString(target)
+        )
+        cypher.cypher(query, params).map { r =>
+          (r \ "data").as[Seq[Seq[Long]]].flatten
+        }
+      }
+      case _ => {
+        val query : String =  
+        s"""
+        START 
+          accessPoints = node:entities(__ID__= {accessPoint})
+        MATCH 
+             (doc)<-[:hasLinkTarget]-(link)-[:hasLinkTarget]->accessPoints
+         WHERE doc <> accessPoints
+         RETURN ID(doc) LIMIT 5
+        """.stripMargin
+        val params =  Map(
+          "accessPoint" -> JsString(target)
+        )
+        cypher.cypher(query, params).map { r =>
+          (r \ "data").as[Seq[Seq[Long]]].flatten
+        }
+      }
+    }
+  }
+
+  def linkedData(id: String) = userBrowseAction.async { implicit userDetails => implicit request =>
+    object lookup extends SearchDAO
+    for {
+      ids <- searchLinks(id)
+      docs <- lookup.listByGid[AnyModel](ids)
+    } yield Ok(Json.toJson(docs.map { doc =>
+      Json.toJson(FilterHit(doc.id, "", doc.toStringLang, doc.isA, None, 0))
+    }))
+  }
+
+  def linkedDataInContext(id: String, context: String) = userBrowseAction.async { implicit userDetails => implicit request =>
+    object lookup extends SearchDAO
+    for {
+      ids <- searchLinks(id, Some(context))
+      docs <- lookup.listByGid[AnyModel](ids)
+    } yield Ok(Json.toJson(docs.map { doc =>
+      Json.toJson(FilterHit(doc.id, "", doc.toStringLang, doc.isA, None, 0))
+    }))
   }
 }
 
