@@ -2,15 +2,10 @@
 
 @js = {
 	<script type="text/javascript" src="@controllers.core.routes.Assets.versioned("js/lib/leaflet.js")"></script>
-	<script src="@controllers.portal.routes.PortalData.jsRoutes"></script>
 	<script type="text/javascript">
 		/*
 			Functions
 		*/
-		var VIRTUAL_UNIT = "michal-frankl-ehri-terezin-research-guide",
-		       VIRTUAL_UNIT_ROUTE = "@controllers.portal.routes.Guides.guideFacets(template._2._1.path)?kw[]=",
-		       GUIDE_PATH = "@template._2._1.path";
-
 		addMarker = function(data) {
 			if(!$items[data.id]) {
 				$items[data.id] = true;

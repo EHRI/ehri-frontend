@@ -37,8 +37,32 @@
 			</div>
 		</div>
 		</div>
-        <script src="//ajax.googleapis.com/ajax/libs/jquery/1.10.2/jquery.min.js"></script>
-        <script src="@controllers.core.routes.Assets.at("bootstrap/js/bootstrap.min.js")"></script>
+         <script src="//ajax.googleapis.com/ajax/libs/jquery/1.10.2/jquery.min.js"></script>
+         <script src="@controllers.core.routes.Assets.at("bootstrap/js/bootstrap.min.js")"></script>
+	<script src="@controllers.portal.routes.PortalData.jsRoutes"></script>
+	<script type="text/javascript">
+		VIRTUAL_UNIT = "@guide._2._1.virtualUnit";
+		VIRTUAL_UNIT_ROUTE = "@controllers.portal.routes.Guides.guideFacets(guide._2._1.path)?kw[]=";
+		GUIDE_PATH = "@guide._2._1.path";
+		$(document).ready(function() {
+			
+			$('.popover-accesspoints').on('mouseover',function() {
+				var e=$(this);
+				console.log(e)
+				e.unbind('mouseover');
+				e.css("cursor", "wait")
+				$.get(jsRoutes.controllers.portal.Portal.linkedDataInContext(e.attr("data-target"), VIRTUAL_UNIT).url,function(d){
+					var links = []
+					$.each(d, function(index, link) {
+								links.push('<li><a href="'+ jsRoutes.controllers.portal.Guides.browseDocument(GUIDE_PATH, link.id).url +'">'+ link.name+'</a></li>')
+							})
+					var links = '<small><ul class="list-unstyled">' + links.join(" ") + '<li><a href="'+ VIRTUAL_UNIT_ROUTE + e.attr("data-target") + '">More...</a></li></ul></small>';
+					e.popover({content: links, html: true, trigger: "click", container : "body"}).popover('show');
+					e.css("cursor", "pointer");
+				});
+			});
+		})
+	</script>
 		@scripts
     </body>
 </html>
