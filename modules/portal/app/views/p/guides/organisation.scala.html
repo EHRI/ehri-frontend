@@ -7,19 +7,19 @@
 	$(document).ready(function() {
 		var loadOrganisation = function($ul, $href) {
 			$.get(
-                $href,
-                function(data) {
-                	var $data = $("<ul />");
-                	$data.html(data)
-                	$data.find("li").removeClass("facet").addClass("item-wrapper")
-                	$data.find("input[type='checkbox']").remove()
-                	$ul.html($data.html());
-                },
-                "html"
-            );
+	                $href,
+	                function(data) {
+	                	var $data = $("<ul />");
+	                	$data.html(data)
+	                	$data.find("li").removeClass("facet").addClass("item-wrapper")
+	                	$data.find("input[type='checkbox']").remove()
+	                	$ul.html($data.html());
+	                },
+	                "html"
+	            );
 		}
 		$(".content-results").on("click", "a[href]", function(e) {
-            e.preventDefault();
+           		 e.preventDefault();
 			var $elem = $(this),
 				$href = $elem.attr("href"),
 				$parent = $elem.parents("li:first"),
@@ -54,12 +54,26 @@
 		</header>
 		<section>
 			<section class="content-results">
-				<ul class="list-item hierarchy">
+				<ul class="list-unstyled">
 				    @page.items.map { case(item, hit) =>
 				        @defining(Some(hit.id)) { implicit descriptionId =>
-				            <li class="item-wrapper">
+				            <li>
 
-				                @guideItem(item, hit, controllers.portal.routes.Guides.layoutRetrieval(template._2._1.path, template._1.path), Some(template._2._1.path), template._1.layout)
+					    <div class="search-item" id="@item.id">
+					            <h3 class="search-item-heading type-highlight @item.isA.toString">
+					                <a href="@controllers.portal.routes.Guides.guideFacets(template._2._1.path)?kw[]=@item.id">@item.toStringLang</a>
+					            </h3>
+					            <div class="search-item-body">
+					            	@item match { 
+					            		 case d: HistoricalAgent => {
+					            		 	 @p.historicalAgent.listItemBody(d)
+					            		}
+					            		case _ => {
+
+					            		}
+						            }
+					            </div>
+					    </div>
 				            </li>
 				        }
 				    }

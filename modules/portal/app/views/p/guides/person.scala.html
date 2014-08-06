@@ -34,29 +34,33 @@
 			</form>
 		</header>
 		<section>
-			<section class="row">
-				<section class="content-results col-md-8">
-					<ul class="list-item">
-					    @page.items.map { case(item, hit) =>
-					        @defining(Some(hit.id)) { implicit descriptionId =>
-					            <li class="item-wrapper">
-					                @guideItem(item, hit, controllers.portal.routes.Guides.layoutRetrieval(template._2._1.path, template._1.layout), Some(template._2._1.path))
-					            </li>
-					        }
-					    }
-					</ul>
-				</section>
-				<section class="col-md-4 hidden-sm hidden-xs">
-					<div  class="person-item" id="person-preview">
-						<div class="preview-closer"><i class="close" aria-hidden="true" >&times;</i></div>
-						<h2>
-						</h2>
-						<div class="person-desc">
-						
-						</div>
-					</div>
-				</section>
-			</section>
+			<ul class="list-unstyled">
+			    @page.items.map { case(item, hit) =>
+			        @defining(Some(hit.id)) { implicit descriptionId =>
+			            <li>
+
+				    <div class="search-item" id="@item.id">
+				            <h3 class="search-item-heading type-highlight @item.isA.toString">
+				                <a href="@controllers.portal.routes.Guides.guideFacets(template._2._1.path)?kw[]=@item.id">@item.toStringLang</a>
+				            </h3>
+				            <div class="search-item-body">
+				                
+				            	@item match { 
+				            		 case d: HistoricalAgent => {
+				            		 	 @p.historicalAgent.listItemBody(d)
+				            		}
+				            		case _ => {
+
+				            		}
+					            }
+				            </div>
+				    </div>
+			            </li>
+			        }
+			    }
+			</ul>
+
+
 		</section>
 		<footer>
 			@common.pagination(page)
