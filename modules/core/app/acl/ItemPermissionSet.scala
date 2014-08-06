@@ -40,16 +40,16 @@ object ItemPermissionSet {
   /**
    * Construct an item permission set from a JSON value.
    */
-  def apply[T <: Accessor](accessor: T, contentType: ContentTypes.Value, json: JsValue) = json.validate[List[Map[String, List[String]]]].fold(
-    valid = { pd => new ItemPermissionSet(accessor, contentType, extract(pd)) },
-    invalid = { e => sys.error(e.toString) }
+  def apply(contentType: ContentTypes.Value, json: JsValue) = json.validate[List[Map[String, List[String]]]].fold(
+    valid = { pd => new ItemPermissionSet(contentType, extract(pd)) },
+    invalid = { e => sys.error(e.toString()) }
   )
 }
 
 /**
  * Item-level permissions granted to either a UserProfileF or a GroupF.
  */
-case class ItemPermissionSet[+T <: Accessor](user: T, contentType: ContentTypes.Value, data: ItemPermissionSet.PermData)
+case class ItemPermissionSet(contentType: ContentTypes.Value, data: ItemPermissionSet.PermData)
 	extends PermissionSet {
 
   /**
@@ -62,7 +62,7 @@ case class ItemPermissionSet[+T <: Accessor](user: T, contentType: ContentTypes.
    * Get the permission grant for a given permission (if any), which contains
    * the accessor to whom the permission was granted.
    */  
-  def get(permission: PermissionType.Value): Option[Permission[T]] = {
+  def get[T <: Accessor](user: Accessor, permission: PermissionType.Value): Option[Permission[T]] = {
     val accessors = data.flatMap { case (uid, perms) =>
         if (perms.exists(p => PermissionType.in(p, permission))) Some((uid, permission))
         else None

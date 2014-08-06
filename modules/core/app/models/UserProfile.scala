@@ -149,8 +149,8 @@ case class UserProfile(
   latestEvent: Option[SystemEvent] = None,
   meta: JsObject = JsObject(Seq()),
   account: Option[Account] = None,
-  globalPermissions: Option[GlobalPermissionSet[UserProfile]] = None,
-  itemPermissions: Option[ItemPermissionSet[UserProfile]] = None
+  globalPermissions: Option[GlobalPermissionSet] = None,
+  itemPermissions: Option[ItemPermissionSet] = None
 ) extends AnyModel
   with MetaModel[UserProfileF]
   with Accessor

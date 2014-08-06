@@ -3,12 +3,6 @@ package acl
 import play.api.libs.json._
 import defines._
 import models.base.Accessor
-import defines.PermissionType.Annotate
-import defines.PermissionType.Create
-import defines.PermissionType.Delete
-import defines.PermissionType.Owner
-import defines.PermissionType.Update
-import scala.Option.option2Iterable
 
 object GlobalPermissionSet {
 
@@ -55,16 +49,16 @@ object GlobalPermissionSet {
   /**
    * Construct a new global permission set from a JSON value.
    */
-  def apply[T <: Accessor](accessor: T, json: JsValue): GlobalPermissionSet[T] = json.validate[List[Map[String, Map[String, List[String]]]]].fold(
-    valid = { pd => new GlobalPermissionSet(accessor, extract(pd)) },
-    invalid = { e => sys.error(e.toString) }
+  def apply(json: JsValue): GlobalPermissionSet = json.validate[List[Map[String, Map[String, List[String]]]]].fold(
+    valid = { pd => new GlobalPermissionSet(extract(pd)) },
+    invalid = { e => sys.error(e.toString()) }
   )
 }
 
 /**
  * Global permissions granted to either a UserProfileF or a GroupF.
  */
-case class GlobalPermissionSet[+T <: Accessor](val user: T, val data: GlobalPermissionSet.PermData)
+case class GlobalPermissionSet(data: GlobalPermissionSet.PermData)
   extends PermissionSet {
 
   /**
@@ -78,11 +72,11 @@ case class GlobalPermissionSet[+T <: Accessor](val user: T, val data: GlobalPerm
    * Get the permission grant for a given permission (if any), which contains
    * the accessor to whom the permission was granted.
    */
-  def get(contentType: ContentTypes.Value, permission: PermissionType.Value): Option[Permission[T]] = {
+  def get[T <: Accessor](user: T, contentType: ContentTypes.Value, permission: PermissionType.Value): Option[Permission[T]] = {
     val accessors = data.flatMap {
-      case (user, perms) =>
+      case (u, perms) =>
         perms.get(contentType).flatMap { permSet =>
-          if (permSet.exists(p => PermissionType.in(p, permission))) Some((user, permission))
+          if (permSet.exists(p => PermissionType.in(p, permission))) Some((u, permission))
           else None
         }
     }

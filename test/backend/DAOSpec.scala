@@ -1,6 +1,5 @@
 package backend
 
-import scala.concurrent.ExecutionContext.Implicits.global
 import models._
 import defines.{EntityType, ContentTypes, PermissionType}
 import utils.PageParams
@@ -15,8 +14,6 @@ class DAOSpec extends helpers.Neo4jRunnerSpec(classOf[DAOSpec]) {
   val userProfile = UserProfile(UserProfileF(id = Some("mike"), identifier = "mike", name = "Mike"))
   val entityType = EntityType.UserProfile
   implicit val apiUser: ApiUser = ApiUser(Some(userProfile.id))
-
-  //class FakeApp extends WithApplication(FakeApplication(additionalConfiguration = config, withGlobal = Some(getGlobal)))
 
   "EntityDAO" should {
     "not cache invalid responses (as per bug #324)" in new FakeApp {
@@ -126,8 +123,8 @@ class DAOSpec extends helpers.Neo4jRunnerSpec(classOf[DAOSpec]) {
 
   "PermissionDAO" should {
     "be able to fetch user's own permissions" in new FakeApp {
-      val perms = await(testBackend.getGlobalPermissions(userProfile))
-      perms.get(ContentTypes.DocumentaryUnit, PermissionType.Create) must beSome
+      val perms = await(testBackend.getGlobalPermissions(userProfile.id))
+      perms.get(userProfile, ContentTypes.DocumentaryUnit, PermissionType.Create) must beSome
     }
 
     "be able to set a user's permissions" in new FakeApp {
@@ -136,43 +133,43 @@ class DAOSpec extends helpers.Neo4jRunnerSpec(classOf[DAOSpec]) {
         ContentTypes.Repository.toString -> List(PermissionType.Create.toString, PermissionType.Update.toString, PermissionType.Delete.toString),
         ContentTypes.DocumentaryUnit.toString -> List(PermissionType.Create.toString, PermissionType.Update.toString, PermissionType.Delete.toString)
       )
-      val perms = await(testBackend.getGlobalPermissions(user))
-      perms.get(ContentTypes.DocumentaryUnit, PermissionType.Create) must beNone
-      perms.get(ContentTypes.DocumentaryUnit, PermissionType.Update) must beNone
-      perms.get(ContentTypes.Repository, PermissionType.Create) must beNone
-      perms.get(ContentTypes.Repository, PermissionType.Update) must beNone
-      val newperms = await(testBackend.setGlobalPermissions(user, data))
-      newperms.get(ContentTypes.DocumentaryUnit, PermissionType.Create) must beSome
-      newperms.get(ContentTypes.DocumentaryUnit, PermissionType.Update) must beSome
-      newperms.get(ContentTypes.Repository, PermissionType.Create) must beSome
-      newperms.get(ContentTypes.Repository, PermissionType.Update) must beSome
+      val perms = await(testBackend.getGlobalPermissions(user.id))
+      perms.get(user, ContentTypes.DocumentaryUnit, PermissionType.Create) must beNone
+      perms.get(user, ContentTypes.DocumentaryUnit, PermissionType.Update) must beNone
+      perms.get(user, ContentTypes.Repository, PermissionType.Create) must beNone
+      perms.get(user, ContentTypes.Repository, PermissionType.Update) must beNone
+      val newperms = await(testBackend.setGlobalPermissions(user.id, data))
+      newperms.get(user, ContentTypes.DocumentaryUnit, PermissionType.Create) must beSome
+      newperms.get(user, ContentTypes.DocumentaryUnit, PermissionType.Update) must beSome
+      newperms.get(user, ContentTypes.Repository, PermissionType.Create) must beSome
+      newperms.get(user, ContentTypes.Repository, PermissionType.Update) must beSome
     }
 
     "be able to set a user's permissions within a scope" in new FakeApp {
       val user = UserProfile(UserProfileF(id = Some("reto"), identifier = "reto", name = "Reto"))
       val data = Map(ContentTypes.DocumentaryUnit.toString -> List("update", "delete"))
-      val perms = await(testBackend.getScopePermissions(user, "r1"))
-      perms.get(ContentTypes.DocumentaryUnit, PermissionType.Update) must beNone
-      perms.get(ContentTypes.DocumentaryUnit, PermissionType.Delete) must beNone
-      perms.get(ContentTypes.Repository, PermissionType.Create) must beNone
-      perms.get(ContentTypes.Repository, PermissionType.Update) must beNone
-      await(testBackend.setScopePermissions(user, "r1", data))
+      val perms = await(testBackend.getScopePermissions(user.id, "r1"))
+      perms.get(user, ContentTypes.DocumentaryUnit, PermissionType.Update) must beNone
+      perms.get(user, ContentTypes.DocumentaryUnit, PermissionType.Delete) must beNone
+      perms.get(user, ContentTypes.Repository, PermissionType.Create) must beNone
+      perms.get(user, ContentTypes.Repository, PermissionType.Update) must beNone
+      await(testBackend.setScopePermissions(user.id, "r1", data))
       // Since c1 is held by r1, we should now have permissions to update and delete c1.
-      val newItemPerms = await(testBackend.getItemPermissions(user, ContentTypes.DocumentaryUnit, "c1"))
-      newItemPerms.get(PermissionType.Update) must beSome
-      newItemPerms.get(PermissionType.Delete) must beSome
+      val newItemPerms = await(testBackend.getItemPermissions(user.id, ContentTypes.DocumentaryUnit, "c1"))
+      newItemPerms.get(user, PermissionType.Update) must beSome
+      newItemPerms.get(user, PermissionType.Delete) must beSome
     }
 
     "be able to set a user's permissions for an item" in new FakeApp {
       val user = UserProfile(UserProfileF(id = Some("reto"), identifier = "reto", name = "Reto"))
       // NB: Currently, there's already a test permission grant for Reto-create on c1...
       val data = List("update", "delete")
-      val perms = await(testBackend.getItemPermissions(user, ContentTypes.DocumentaryUnit, "c1"))
-      perms.get(PermissionType.Update) must beNone
-      perms.get(PermissionType.Delete) must beNone
-      val newItemPerms = await(testBackend.setItemPermissions(user, ContentTypes.DocumentaryUnit, "c1", data))
-      newItemPerms.get(PermissionType.Update) must beSome
-      newItemPerms.get(PermissionType.Delete) must beSome
+      val perms = await(testBackend.getItemPermissions(user.id, ContentTypes.DocumentaryUnit, "c1"))
+      perms.get(user, PermissionType.Update) must beNone
+      perms.get(user, PermissionType.Delete) must beNone
+      val newItemPerms = await(testBackend.setItemPermissions(user.id, ContentTypes.DocumentaryUnit, "c1", data))
+      newItemPerms.get(user, PermissionType.Update) must beSome
+      newItemPerms.get(user, PermissionType.Delete) must beSome
     }
 
     "be able to list permissions" in new FakeApp {
@@ -197,7 +194,7 @@ class DAOSpec extends helpers.Neo4jRunnerSpec(classOf[DAOSpec]) {
       ann1.promotors must beEmpty
       await(testBackend.promote("ann1")) must beTrue
       val ann1_2: Annotation = await(testBackend.get[Annotation]("ann1"))
-      ann1_2.promotors must not beEmpty
+      (ann1_2.promotors must not).beEmpty
       private val pid: String = ann1_2.promotors.head.id
       pid must equalTo(apiUser.id.get)
 

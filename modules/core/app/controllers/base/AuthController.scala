@@ -80,11 +80,11 @@ trait AuthController extends Controller with ControllerHelpers with AsyncAuth wi
             implicit val maybeUser = Some(fakeProfile)
 
             val userF = backend.get[UserProfile](UserProfile.Resource, account.id)
-            val globalPermsF = backend.getGlobalPermissions(fakeProfile)
+            val globalPermsF = backend.getGlobalPermissions(account.id)
             for {
               user <- userF
               globalPerms <- globalPermsF
-              up = user.copy(account = Some(account), globalPermissions = Some(globalPerms.copy(user=user)))
+              up = user.copy(account = Some(account), globalPermissions = Some(globalPerms))
               r <- f(Some(up))(request)
             } yield r
           }
@@ -143,8 +143,8 @@ trait AuthController extends Controller with ControllerHelpers with AsyncAuth wi
           // within the scope of the particular item. This could be optimised, but
           // it would involve some duplication of code.
           // These requests should execute in parallel...
-          val scopedPermsF = backend.getScopePermissions(user, id)
-          val itemPermsF = backend.getItemPermissions(user, contentType, id)
+          val scopedPermsF = backend.getScopePermissions(user.id, id)
+          val itemPermsF = backend.getItemPermissions(user.id, contentType, id)
           val getF = backend.get(rs, id)
           for {
             globalPerms <- scopedPermsF
