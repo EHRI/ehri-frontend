@@ -45,20 +45,29 @@
 		VIRTUAL_UNIT_ROUTE = "@controllers.portal.routes.Guides.guideFacets(guide._2._1.path)?kw[]=";
 		GUIDE_PATH = "@guide._2._1.path";
 		$(document).ready(function() {
-			
-			$('.popover-accesspoints').on('mouseover',function() {
+
+			$("#main").on('mouseover', ".popover-accesspoints", function() {
 				var e=$(this);
-				console.log(e)
+				if(e.data("loaded")) {
+					return true;
+				}
+				e.data("loaded", true)
+
 				e.unbind('mouseover');
 				e.css("cursor", "wait")
 				$.get(jsRoutes.controllers.portal.Portal.linkedDataInContext(e.attr("data-target"), VIRTUAL_UNIT).url,function(d){
 					var links = []
-					$.each(d, function(index, link) {
-								links.push('<li><a href="'+ jsRoutes.controllers.portal.Guides.browseDocument(GUIDE_PATH, link.id).url +'">'+ link.name+'</a></li>')
-							})
-					var links = '<small><ul class="list-unstyled">' + links.join(" ") + '<li><a href="'+ VIRTUAL_UNIT_ROUTE + e.attr("data-target") + '">More...</a></li></ul></small>';
-					e.popover({content: links, html: true, trigger: "click", container : "body"}).popover('show');
-					e.css("cursor", "pointer");
+					if(d.length > 0) {
+						$.each(d, function(index, link) {
+									links.push('<li><a href="'+ jsRoutes.controllers.portal.Guides.browseDocument(GUIDE_PATH, link.id).url +'">'+ link.name+'</a></li>')
+								})
+						var links = '<small><ul class="list-unstyled">' + links.join(" ") + '<li><a href="'+ VIRTUAL_UNIT_ROUTE + e.attr("data-target") + '">More...</a></li></ul></small>';
+						e.popover({content: links, html: true, trigger: "click", container : "body"}).popover('show');
+						e.css("cursor", "pointer");
+					} else {
+						e.css("cursor", "pointer");
+						e.hide();
+					}
 				});
 			});
 		})

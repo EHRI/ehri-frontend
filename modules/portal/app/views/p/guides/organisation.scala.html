@@ -61,7 +61,7 @@
 
 					    <div class="search-item" id="@item.id">
 					            <h3 class="search-item-heading type-highlight @item.isA.toString">
-					                <a>@item.toStringLang</a> <a class="popover-accesspoints" data-target="@item.id"><span class="glyphicon glyphicon-search"></span></a>
+					                @guideItem(item, hit, controllers.portal.routes.Guides.layoutRetrieval(template._2._1.path, template._1.path), Some(template._2._1.path), template._1.layout) <a class="popover-accesspoints" data-target="@item.id"><span class="glyphicon glyphicon-search"></span></a>
 					            </h3>
 					            <div class="search-item-body">
 					            	@item match { 

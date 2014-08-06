@@ -13,13 +13,6 @@
         <li class="facet" data-target="@d.id" >
             <input type="checkbox" name="kw[]" value="@d.id" /> 
                     <span class="item-title">
-                        @**
-                            @d.broaderTerms.map { bt =>
-                                <span class="item-parent">
-                                    @bt.toStringLang
-                                </span>
-                            }
-                        **@
                         @template._1.layout match { 
                             case GuidePage.Layout.Organisation => {
                                 @if(d.childCount.getOrElse(0) > 0) {
@@ -33,7 +26,16 @@
                             }
                         }
                             @d.toStringLang
-                        </a>
+
+                        @template._1.layout match { 
+                            case GuidePage.Layout.Organisation => {
+                                </a>
+                                <a class="popover-accesspoints" data-target="@d.id"><span class="glyphicon glyphicon-search"></span></a>
+                            } 
+                            case _ => {
+                                </a>
+                            }
+                        }
                     </span>
                     @if(d.childCount.getOrElse(0) > 0) {
                         <ul></ul>

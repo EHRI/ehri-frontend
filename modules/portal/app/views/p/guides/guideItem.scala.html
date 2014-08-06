@@ -40,7 +40,7 @@
             @d.broaderTerms.map { bt =>
                 <span class="item-parent">
                     @bt.toStringLang
-                </span> @filteredLink(d.id)
+                </span>
             }
             @conceptMode match { 
                 case "organisation" => {
@@ -54,7 +54,7 @@
                     @d.toStringLang
                 }
             }
-        </span> @filteredLink(d.id)
+        </span>
     }
     case _ => {
         ""
