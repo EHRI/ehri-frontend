@@ -31,7 +31,7 @@ case class Guide(
       name = {n},
       path = {p},
       picture = {pi},
-      virtualUnit = {vu},
+      virtual_unit = {vu},
       description = {de},
       active = {active},
       `default` = {default}
@@ -116,7 +116,7 @@ object Guide {
   def create(name: String, path: String, picture: Option[String] = None, virtualUnit: String, description: Option[String] = None, active: Boolean): Option[Guide] = DB.withConnection { implicit connection =>
     val id: Option[Long] = SQL("""
       INSERT INTO research_guide
-      (name, path, picture, virtualUnit, description, active) VALUES ({n}, {p}, {pi}, {vu}, {de}, {a})""")
+      (name, path, picture, virtual_unit, description, active) VALUES ({n}, {p}, {pi}, {vu}, {de}, {a})""")
       .on('n -> name, 'p -> path, 'pi -> picture, 'vu -> virtualUnit, 'de -> description, 'a -> active).executeInsert()
     id.flatMap(findById)
   }
