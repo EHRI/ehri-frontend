@@ -1,0 +1,23 @@
+@(location: String, menu: (Guide, List[GuidePage]), sidebar: Option[Html] = None)(implicit request: RequestHeader, lang: Lang)
+
+<div class="well">
+	<article>
+		@sidebar.getOrElse {
+			Lorem ipsum dolor sit amet, consectetur adipiscing elit. Aenean fringilla augue lacus, nec molestie sem dapibus a. Maecenas sollicitudin ac ipsum at commodo. Curabitur varius ultricies purus, eget imperdiet nisl fringilla ac. In hendrerit libero turpis, vitae pretium quam sagittis vitae. Ut elementum diam ac adipiscing volutpat.
+		}
+	</article>
+</div>
+<hr />
+
+<div class="well">
+	<ul class="nav nav-pills nav-stacked">
+
+		@for(page <- menu._2) {
+			@if(page.position == GuidePage.MenuPosition.Side) {
+				<li><a @if(location == page.path) { class="active" } href="@controllers.portal.routes.Guides.layoutRetrieval(menu._1.path, page.path)">@page.name</a></li>
+			}
+		}
+	</ul>
+</div>
+
+<hr />

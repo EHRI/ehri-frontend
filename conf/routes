@@ -13,6 +13,6 @@
 -> /admin               authorities.Routes
 -> /admin               archdesc.Routes
 -> /admin               vocabs.Routes
+-> /admin               guides.Routes
 -> /admin               adminutils.Routes
--> /guides              guides.Routes
 
