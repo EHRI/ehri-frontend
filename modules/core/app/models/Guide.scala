@@ -75,7 +75,7 @@ object Guide {
   val OBJECTID = "id"
   val PATH = "path"
   val NAME = "name"
-  val VIRTUALUNIT = "virtualUnit"
+  val VIRTUALUNIT = "virtual_unit"
   val DESCRIPTION = "description"
   val PICTURE = "picture"
   val ACTIVE = "active"
