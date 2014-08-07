@@ -24,7 +24,6 @@ case class SolrFieldFacet(
   count: Int = 0,
   applied: Boolean = false
 ) extends SolrFacet {
-  def sort = name.getOrElse(value)
   def solrValue = solr
 }
 
@@ -38,9 +37,7 @@ case class SolrQueryFacet(
   name: Option[String] = None,
   value: String,
   solrValue: String
-) extends SolrFacet {
-  def sort = name.getOrElse(value)
-}
+) extends SolrFacet
 
 
 trait SolrFacetClass[+T <: SolrFacet] extends FacetClass[T] {

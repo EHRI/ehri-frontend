@@ -311,7 +311,7 @@ case class Guides @Inject()(implicit globalConfig: global.GlobalConfig, searchDi
     ids.slice(pages._1, pages._2)
   }
 
-  case class GuideFacet(value : String, name : Option[String], applied : Boolean, count : Int, sort: String) extends Facet
+  case class GuideFacet(value : String, name : Option[String], applied : Boolean, count : Int) extends Facet
   case class GuideFacetClass(
     param: String = "kw[]",
     name: String = "Keyword",
@@ -332,8 +332,12 @@ case class Guides @Inject()(implicit globalConfig: global.GlobalConfig, searchDi
         page = start,
         count = end - start,
         total = docsId.size,
-        facets = List(GuideFacetClass (facets = accessPoints.map { ap =>
-          GuideFacet(ap.id, Some(ap.toStringLang), applied = true, 1, ap.toStringLang); }.toList )
+        facets = List(
+          GuideFacetClass(
+            facets = accessPoints.map { ap =>
+              GuideFacet(value = ap.id, name = Some(ap.toStringLang), applied = true, count = 1)
+            }.toList
+          )
         )
       )
     }

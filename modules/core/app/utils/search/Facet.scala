@@ -28,7 +28,7 @@ trait Facet {
   val name: Option[String]
   val applied: Boolean
   val count: Int
-  def sort: String
+  def sortName: String = name.getOrElse(value)
 }
 
 object Facet {
@@ -52,7 +52,7 @@ trait FacetClass[+T <: Facet] {
   val fieldType: String
 
   def count: Int = facets.length
-  def sortedByName = facets.sortWith((a, b) => a.sort < b.sort)
+  def sortedByName = facets.sortWith((a, b) => a.sortName < b.sortName)
   def sortedByCount = facets.sortWith((a, b) => b.count < a.count)
   def sorted: List[T] = sort match {
     case FacetSort.Name => sortedByName
