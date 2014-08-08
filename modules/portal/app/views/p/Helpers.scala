@@ -83,4 +83,11 @@ object Helpers {
       }
     }
   }
+
+  /**
+   * Fetch a gravitar URL for the user, defaulting to the stock picture.
+   */
+  def gravitar(img: Option[String]): String =
+    img.map(_.replaceFirst("https?://", "//"))
+      .getOrElse(controllers.portal.routes.Assets.at("img/default-gravitar.png").url)
 }
