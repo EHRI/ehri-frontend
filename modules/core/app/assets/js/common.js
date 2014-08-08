@@ -100,12 +100,12 @@ jQuery(function($) {
       if (!value) {
         cb(null);
       } else {
-        $.getJSON(filterUrl + "?q=id:" + value, function(data) {
+        $.getJSON(filterUrl + "?q=itemId:" + value, function(data) {
           if(data.items.length == 0) {
             cb({id: value, text: value});
           } else {
             cb({
-              id: data.items[0].did,
+              id: data.items[0].id,
               text: data.items[0].name
             });
           }
@@ -125,8 +125,10 @@ jQuery(function($) {
       },
       results: function(data, page) {
         return {
-          results: data.items.map(function(value, idx) {            return {
-              id: value.did,
+          results: data.items.map(function(value, idx) {
+            console.log(data)
+            return {
+              id: value.id,
               text: value.name
             }
           })

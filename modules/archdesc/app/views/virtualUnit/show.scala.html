@@ -13,7 +13,7 @@
             </div>
             @defining(EntityType.DocumentaryUnit.toString) { implicit fieldPrefix =>
                 @layout.descriptionContainer(item.model.descriptions) {
-                    @if(item.model.descriptions.isEmpty && item.descriptionRefs.isEmpty) {
+                    @if(item.model.descriptions.isEmpty && item.includedUnits.isEmpty) {
                         <p class="text-muted">@Messages("documentaryUnit.noDescriptions")</p>
                         <a href="@controllers.archdesc.routes.VirtualUnits.createDescription(item.id)" class="btn btn-primary">
                             @Messages("describedEntity.createDescription")
@@ -22,7 +22,7 @@
                         @item.model.descriptions.map { desc =>
                             @documentaryUnit.renderDescription(item, desc, links, annotations, actions = descriptionActions(item, desc))
                         }
-                        @item.descriptionRefs.map { desc =>
+                        @item.includedUnits.flatMap(_.descriptions).map { desc =>
                             @documentaryUnit.renderDescription(item, desc, links, annotations)
                         }
                     }
@@ -35,13 +35,11 @@
                     @adminActions(item)
                 }
 
-                @item.childCount.filter(_ > 0).map { count =>
-                    @views.html.search.searchSection(Messages("documentaryUnit.searchInside", item.toStringAbbr(lang)), result) {
-                        @views.html.common.search.searchForm(result, params, action, autofocus = false) {
-                            @searchItemList(result)
-                        } {
-                            @common.search.facetList(result.facets, action)
-                        }
+                @views.html.search.searchSection(Messages("documentaryUnit.searchInside", item.toStringAbbr(lang)), result) {
+                    @views.html.common.search.searchForm(result, params, action, autofocus = false) {
+                        @searchItemList(result)
+                    } {
+                        @common.search.facetList(result.facets, action)
                     }
                 }
             }

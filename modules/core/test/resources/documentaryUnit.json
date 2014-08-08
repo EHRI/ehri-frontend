@@ -1,0 +1,128 @@
+{
+  "id" : "wiener-library-GB 1556 WL 760",
+  "data" : {
+    "creators" : [ "Jüdische Volkspartei" ],
+    "unitDates" : [ "1933" ],
+    "corporateBodies" : [ "Jüdische Volkspartei" ],
+    "subjects" : [ ],
+    "name" : "  Appeal regarding leadership",
+    "nameAccess" : [ ],
+    "places" : [ "Berlin", "Europe", "Germany", "Western Europe" ],
+    "identifier" : "GB 1556 WL 760"
+  },
+  "type" : "documentaryUnit",
+  "relationships" : {
+    "describes" : [ {
+      "id" : "7786576c-9aee-4a83-9463-ef747cdef6d3",
+      "data" : {
+        "systemOfArrangement" : "",
+        "physicalCharacteristics" : "",
+        "locationOfOriginals" : "",
+        "conditionsOfReproduction" : "Copies can be made for personal use. Permission must be sought for publication.",
+        "languagesOfMaterial" : [ "en" ],
+        "conditionsOfAccess" : "Open",
+        "rules" : "",
+        "publisher" : "Wiener Library",
+        "creationDate" : "",
+        "accruals" : "",
+        "archivalHistory" : "",
+        "acquisition" : "Jewish Central Information Office",
+        "name" : "Jüdische Volkspartei:  Appeal regarding leadership",
+        "languageCode" : "en",
+        "depthOfDescription" : 0,
+        "extentAndMedium" : "1 item",
+        "levelOfDescription" : "fonds",
+        "scopeAndContent" : "Appeal to the council of the Jewish community, Berlin, concerning the leadership of the Jewish organisation, Jüdische Volkspartei signed by Kozower, lawyer, 23 Sep 1933.",
+        "identifier" : "GB 1556 WL 760",
+        "appraisal" : "",
+        "sources" : [ "test source" ],
+        "publicationDate" : "",
+        "locationOfCopies" : "",
+        "provenance": "test"
+      },
+      "type" : "documentDescription",
+      "relationships" : {
+        "relatesTo": [ {
+          "id": "dfkskekdkslekfs",
+          "type": "relationship",
+          "data" : {
+            "name": "Something",
+            "description": "Something else"
+          }
+        } ],
+        "hasDate" : [ {
+          "id" : "28f011c9-f913-4942-a11c-89fbbe8d0eb9",
+          "data" : {
+            "startDate" : "1933-01-01",
+            "endDate" : "1959-01-01"
+          },
+          "type" : "datePeriod",
+          "relationships" : {
+          }
+        } ]
+      }
+    } ],
+    "heldBy" : [ {
+      "id" : "wiener-library",
+      "data" : {
+        "publicationStatus" : "Draft",
+        "name" : "Wiener Library",
+        "identifier" : "wiener-library"
+      },
+      "type" : "repository",
+      "relationships" : {
+        "describes" : [ {
+          "id" : "5379607d-0b92-48a0-8309-c6b9e209a0dd",
+          "data" : {
+            "otherFormsOfName" : [ "The Wiener Library" ],
+            "history" : "The Wiener Library is in London",
+            "languageCode" : "en"
+          },
+          "type" : "repositoryDescription",
+          "relationships" : {
+            "hasAddress" : [ {
+              "id" : "134494ac-ff89-457c-b1d0-b0d88bc60836",
+              "data" : {
+                "addressName" : "primary"
+              },
+              "type" : "address",
+              "relationships" : {
+              }
+            } ]
+          }
+        } ]
+      }
+    } ],
+    "lifecycleEvent" : [ {
+      "id" : "d65dedc3-5b7e-4688-89f6-f7198f165f28",
+      "data" : {
+        "timestamp" : "2013-02-14T13:02:52.447Z",
+        "identifier" : "c83f104f-9487-4c2f-8bcf-e183316ee1b8",
+        "logMessage" : "Imported from command-line"
+      },
+      "type" : "systemEvent",
+      "relationships" : {
+        "hasActioner" : [ {
+          "id" : "mike",
+          "data" : {
+            "name" : "mike",
+            "identifier" : "mike"
+          },
+          "type" : "userProfile",
+          "relationships" : {
+            "belongsTo" : [ {
+              "id" : "admin",
+              "data" : {
+                "name" : "Administrators",
+                "identifier" : "admin"
+              },
+              "type" : "group",
+              "relationships" : {
+              }
+            } ]
+          }
+        } ]
+      }
+    } ]
+  }
+}

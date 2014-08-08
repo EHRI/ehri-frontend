@@ -1,0 +1,73 @@
+{
+  "id" : "another-test-authority",
+  "data" : {
+    "publicationStatus" : "Draft",
+    "name" : "Test Authority 2",
+    "identifier" : "another-test-authority"
+  },
+  "type" : "historicalAgent",
+  "relationships" : {
+    "describes" : [ {
+      "id" : "cdb5d0aa-2100-49f9-8481-2b7b278825fa",
+      "data" : {
+        "otherFormsOfName" : [ "Another name for Test Authority 2" ],
+        "history" : "Testing",
+        "languages" : [ "en" ],
+        "scripts" : [ "Latn" ],
+        "languageCode" : "en",
+        "name" : "Test Authority 2",
+        "typeOfEntity" : "corporateBody",
+        "parallelFormsOfName" : [ "Parellel name for Test Authority 2" ],
+        "datesOfExistence" : "1900-2000",
+        "history": "Some history"
+      },
+      "type" : "historicalAgentDescription",
+      "relationships" : {
+        "relatesTo": [ {
+          "id": "dfkskekdkslekfs",
+          "type": "relationship",
+          "data" : {
+            "name": "Something",
+            "description": "Something else"
+          }
+        } ]
+      }
+    } ],
+    "lifecycleEvent" : [ {
+      "id" : "e2e15165-8fd1-42b1-8512-319177267050",
+      "data" : {
+        "timestamp" : "2013-03-08T17:19:39.224+01:00",
+        "identifier" : "5a47b976-91b1-42e7-9342-ba3175560ee3",
+        "logMessage" : "Updating item (historicalAgent): 'another-test-authority'"
+      },
+      "type" : "systemEvent",
+      "relationships" : {
+        "hasActioner" : [ {
+          "id" : "mike",
+          "data" : {
+            "languages" : [ "en" ],
+            "location" : "London",
+            "name" : "Mike Bryant",
+            "about" : "Testing the system",
+            "identifier" : "mike"
+          },
+          "type" : "userProfile",
+          "relationships" : {
+            "belongsTo" : [ {
+              "id" : "admin",
+              "data" : {
+                "description" : "The all-powerful system administrators who never accidentally delete stuff.",
+                "name" : "Administrators",
+                "identifier" : "admin"
+              },
+              "type" : "group",
+              "relationships" : {
+              }
+            } ]
+          }
+        } ]
+      }
+    } ],
+    "access" : []
+  }
+}
