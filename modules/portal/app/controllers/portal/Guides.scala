@@ -67,10 +67,10 @@ case class Guides @Inject()(implicit globalConfig: global.GlobalConfig, searchDi
   def mapParams(request: Map[String,Seq[String]]): (utils.search.SearchOrder.Value, Map[String, Any]) = {
     GeoCoordinates.form.bindFromRequest(request).fold(
       errorForm => {
-        (SearchOrder.Name -> Map.empty)
+        SearchOrder.Name -> Map.empty
       },
       latlng => { 
-        (SearchOrder.Location -> Map("pt" -> latlng.toString, "sfield" -> "location", "sort" -> "geodist() asc"))
+        SearchOrder.Location -> Map("pt" -> latlng.toString, "sfield" -> "location", "sort" -> "geodist() asc")
       }
     )
   }
@@ -137,13 +137,12 @@ case class Guides @Inject()(implicit globalConfig: global.GlobalConfig, searchDi
 
 
   def guideLayout(guide: Guide, temp: Option[GuidePage]) = itemOr404Action {
-    println(guide + " -> "+ temp)
     temp.map { page =>
       page.layout match {
-        case Layout.Person => guideAuthority(page, Map("holderId" -> page.content), guide)
-        case Layout.Map => guideMap(page, Map("holderId" -> page.content), guide)
-        case Layout.Keyword => guideKeyword(page, Map("holderId" -> page.content), guide)
-        case Layout.Organisation => guideOrganization(page, Map("holderId" -> page.content), guide)
+        case Layout.Person => guideAuthority(page, Map(SolrConstants.HOLDER_ID -> page.content), guide)
+        case Layout.Map => guideMap(page, Map(SolrConstants.HOLDER_ID -> page.content), guide)
+        case Layout.Keyword => guideKeyword(page, Map(SolrConstants.HOLDER_ID -> page.content), guide)
+        case Layout.Organisation => guideOrganization(page, Map(SolrConstants.HOLDER_ID -> page.content), guide)
         case Layout.Markdown => guideMarkdown(page, page.content, guide)
         case _ => pageNotFound()
       }
@@ -299,43 +298,49 @@ case class Guides @Inject()(implicit globalConfig: global.GlobalConfig, searchDi
     if(start > count) {
       val begin = count / 10 * 10 
       val end = (count / 10 * 10) + 10
-      println((begin, end, count))
       (begin, end)
     } else {
       val begin = if(start < 0) 0 else start
       val end = if(start < 10) 10 else start+10
-      println((begin, end, count))
       (begin, end)
     }
   }
+
   def facetSlice(ids : Seq[Long], page:Option[Int]) : Seq[Long] = {
     val pages = facetPage(ids.size, page)
     ids.slice(pages._1, pages._2)
   }
 
-
-  class GuideFacet(val value : String, val name : Option[String], val applied : Boolean, val count : Int, val sort : String) extends Facet
-  class GuideFacetClass(val facets: List[GuideFacet]) extends FacetClass[GuideFacet] {
-    val param = "kw[]";
-    val name = "Keyword";
-    val key = "kw"
-    val display = FacetDisplay.List;
-    val sort = FacetSort.Fixed;
-    val fieldType = "neo4j";
-    def render = (s : String) => s;
+  case class GuideFacet(value : String, name : Option[String], applied : Boolean, count : Int) extends Facet
+  case class GuideFacetClass(
+    param: String = "kw[]",
+    name: String = "Keyword",
+    key: String = "kw",
+    display: FacetDisplay.Value = FacetDisplay.List,
+    sort:FacetSort.Value = FacetSort.Fixed,
+    fieldType: String = "neo4j",
+    facets: List[GuideFacet]
+  ) extends FacetClass[GuideFacet] {
+    def render = (s : String) => s
   }
 
 
-  def pagify(docsId : Seq[Long], docsItems: List[DocumentaryUnit], accessPoints: List[AnyModel], page: Option[Int] = None) : ItemPage[DocumentaryUnit] = {
-
-
+  def pagify(docsId : Seq[Long], docsItems: Seq[DocumentaryUnit], accessPoints: Seq[AnyModel], page: Option[Int] = None): ItemPage[DocumentaryUnit] = {
     facetPage(docsId.size, page) match { 
-      case (start, end) =>
-       ItemPage(docsItems.map { doc =>
-          doc
-        }, start, end - start, docsId.size, List( new GuideFacetClass (accessPoints.map { ap => new GuideFacet(ap.id, Some(ap.toStringLang), true, 1, "SORT"); } ) )
-         , None)
-      }
+      case (start, end) => ItemPage(
+        items = docsItems,
+        page = start,
+        count = end - start,
+        total = docsId.size,
+        facets = List(
+          GuideFacetClass(
+            facets = accessPoints.map { ap =>
+              GuideFacet(value = ap.id, name = Some(ap.toStringLang), applied = true, count = 1)
+            }.toList
+          )
+        )
+      )
+    }
   }
 
   /*
@@ -343,23 +348,20 @@ case class Guides @Inject()(implicit globalConfig: global.GlobalConfig, searchDi
   */
   def guideFacets(path: String) = userProfileAction.async { implicit userOpt => implicit request =>
     Guide.find(path, activeOnly = true).map { guide =>
-
       /*
        *  If we have keyword, we make a query 
        */
-      if (request.queryString.contains("kw[]")) {
-        val (selectedFacets, page) = facetsForm.bindFromRequest(request.queryString).get
-
-        object lookup extends SearchDAO
-        for {
-          ids <- searchFacets(guide, selectedFacets)
-          docs <- lookup.listByGid[DocumentaryUnit](facetSlice(ids, page))
-          accessPoints <- lookup.list[AnyModel](selectedFacets)
-        } yield Ok(p.guides.facet(pagify(ids, docs, accessPoints, page), GuidePage.faceted -> (guide -> guide.findPages)))
-        //} yield Ok()
-      } else {
-        immediate(Ok(p.guides.facet(ItemPage(Seq(), 0,0,0, List()), GuidePage.faceted -> (guide -> guide.findPages))))
-      }
+      val defaultResult = Ok(p.guides.facet(ItemPage(Seq(), 0, 0, 0, List()), GuidePage.faceted -> (guide -> guide.findPages)))
+      facetsForm.bindFromRequest(request.queryString).fold(
+        errs => immediate(defaultResult), {
+          case (selectedFacets, page) if !selectedFacets.isEmpty => for {
+            ids <- searchFacets(guide, selectedFacets)
+            docs <- SearchDAO.listByGid[DocumentaryUnit](facetSlice(ids, page))
+            accessPoints <- SearchDAO.list[AnyModel](selectedFacets)
+          } yield Ok(p.guides.facet(pagify(ids, docs, accessPoints, page), GuidePage.faceted -> (guide -> guide.findPages)))
+          case _ => immediate(defaultResult)
+        }
+      )
     } getOrElse {
       immediate(NotFound(views.html.errors.pageNotFound()))
     }
@@ -369,13 +371,15 @@ case class Guides @Inject()(implicit globalConfig: global.GlobalConfig, searchDi
   *   Unit browse
   */
     def browseDocument(path: String, id: String) = getAction[DocumentaryUnit](EntityType.DocumentaryUnit, id) {
-      item => details => implicit userOpt => implicit request =>
-      Guide.find(path, activeOnly = true).map { guide =>
-        /*if (isAjax) Ok("Hello")
-        else*/ Ok(p.guides.documentaryUnit(item, details.annotations, details.links, details.watched,  GuidePage.document(Some(item.toStringLang)) -> (guide -> guide.findPages)))
-      } getOrElse {
-        NotFound(views.html.errors.pageNotFound())
+        item => details => implicit userOpt => implicit request =>
+      itemOr404(Guide.find(path, activeOnly = true)) { guide =>
+        Ok(p.guides.documentaryUnit(
+          item,
+          details.annotations,
+          details.links,
+          details.watched,
+          GuidePage.document(Some(item.toStringLang)) -> (guide -> guide.findPages))
+        )
       }
-    } 
-
+    }
 }

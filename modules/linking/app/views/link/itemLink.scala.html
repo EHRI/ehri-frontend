@@ -1,4 +1,4 @@
-@(link: Link, item: AnyModel)(implicit userOpt: Option[UserProfile], req: RequestHeader, globalConfig: global.GlobalConfig)
+@(link: Link, item: AnyModel)(implicit userOpt: Option[UserProfile], req: RequestHeader, globalConfig: global.GlobalConfig, lang: Lang)
 
 <a href="@globalConfig.routeRegistry.urlFor(item)">@item.toStringLang</a>
 <small>

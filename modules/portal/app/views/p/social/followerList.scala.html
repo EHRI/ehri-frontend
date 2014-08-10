@@ -1,4 +1,4 @@
-@(them: UserProfile, users: utils.AbstractPage[UserProfile], params: utils.PageParams, following: List[UserProfile] = Nil)(implicit req: RequestHeader, userOpt: Option[UserProfile], lang: Lang)
+@(them: UserProfile, users: utils.AbstractPage[UserProfile], params: utils.PageParams, following: Seq[UserProfile] = Nil)(implicit req: RequestHeader, userOpt: Option[UserProfile], lang: Lang)
 
 @if(!users.isEmpty) {
     <ul class="list-unstyled">

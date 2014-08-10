@@ -1,4 +1,4 @@
-@(item: WithDescriptions[Description], desc: models.base.Description, links: Seq[Link])(implicit prefix: String, userOpt: Option[UserProfile], req: RequestHeader, globalConfig: global.GlobalConfig)
+@(item: WithDescriptions[Description], desc: models.base.Description, links: Seq[Link])(implicit prefix: String, userOpt: Option[UserProfile], req: RequestHeader, globalConfig: global.GlobalConfig, lang: Lang)
 
 @if(!desc.accessPoints.isEmpty) {
     <h3>@Messages(prefix + ".accessPoints")</h3>

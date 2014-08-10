@@ -28,11 +28,6 @@ case class SolrQueryBuilder(writerType: WriterType, debugQuery: Boolean = false)
   import SolrConstants._
 
   /**
-   * Convert a page value to an offset, given a particular limit.
-   */
-  private def page2offset(page: Int, limit: Int) = (Math.max(page, 1) - 1) * limit
-
-  /**
    * Set a list of facets on a request.
    */
   private def setRequestFacets(request: QueryRequest, flist: FacetClassList): Unit = {
@@ -178,11 +173,9 @@ case class SolrQueryBuilder(writerType: WriterType, debugQuery: Boolean = false)
     req.setQueryParserType(QueryParserType("edismax"))
 
     // Setup start and number of objects returned
-    val limit = params.limit.getOrElse(DEFAULT_FILTER_LIMIT)
-    params.page.map { page =>
-      req.setStartRow(StartRow(page2offset(page, limit)))
-    }
-    req.setMaximumRowsReturned(MaximumRowsReturned(limit))
+    req.setStartRow(StartRow(params.offset))
+
+    req.setMaximumRowsReturned(MaximumRowsReturned(params.count))
     req.setWriterType(writerType)
 
     extra.map { case (key, value) =>
@@ -289,11 +282,8 @@ case class SolrQueryBuilder(writerType: WriterType, debugQuery: Boolean = false)
     req.setIsDebugQueryEnabled(IsDebugQueryEnabled(debugQuery = debugQuery))
 
     // Setup start and number of objects returned
-    val limit = params.limit.getOrElse(DEFAULT_SEARCH_LIMIT)
-    params.page.map { page =>
-      req.setStartRow(StartRow(page2offset(page, limit)))
-    }
-    req.setMaximumRowsReturned(MaximumRowsReturned(limit))
+    req.setStartRow(StartRow(params.offset))
+    req.setMaximumRowsReturned(MaximumRowsReturned(params.count))
 
     // Group results by item id, as opposed to the document-level
     // description (for non-multi-description entities this will

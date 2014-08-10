@@ -130,7 +130,7 @@ case class UserProfiles @Inject()(implicit globalConfig: global.GlobalConfig, se
    */
   private def grantOwnerPerms[T](profile: UserProfile)(f: => Result)(
     implicit request: Request[T], userOpt: Option[UserProfile]): Future[Result] = {
-    backend.setItemPermissions(profile, ContentTypes.UserProfile,
+    backend.setItemPermissions(profile.id, ContentTypes.UserProfile,
       profile.id, List(PermissionType.Owner.toString)).map { perms =>
       f
     }

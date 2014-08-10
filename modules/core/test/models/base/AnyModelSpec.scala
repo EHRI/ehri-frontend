@@ -64,6 +64,7 @@ class AnyModelSpec extends PlaySpecification {
     "pick the right locale-dependent name" in {
       testModel.toStringLang(Lang("en")) must equalTo("name1")
       testModel.toStringLang(Lang("fr")) must equalTo("name2")
+      testModel.toStringLang(Lang("en", "GB")) must equalTo("name1")
     }
 
     "count descriptions properly" in {

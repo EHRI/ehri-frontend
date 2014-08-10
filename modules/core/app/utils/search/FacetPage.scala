@@ -4,15 +4,15 @@ package utils.search
  * A paged list of facets.
  * @param fc
  * @param items
- * @param offset
- * @param limit
+ * @param page
+ * @param count
  * @param total
  * @tparam A
  */
 case class FacetPage[+A](
   fc: FacetClass[Facet],
   items: Seq[A],
-  offset: Int,
-  limit: Int,
+  page: Int,
+  count: Int,
   total: Long
 ) extends utils.AbstractPage[A]

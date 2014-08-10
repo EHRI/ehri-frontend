@@ -8,15 +8,14 @@ import models._
 
 import play.api.libs.concurrent.Execution.Implicits._
 import models.json.{RestResource, RestReadable}
-import utils.PageParams
-import backend.Page
+import utils.{Page, PageParams}
 
 /**
  * Trait for managing permissions on Accessor models that can have permissions assigned to them.
  */
 trait PermissionHolder[MT <: Accessor] extends Read[MT] {
 
-  type GlobalPermissionCallback = MT => GlobalPermissionSet[MT] => Option[UserProfile] => Request[AnyContent] => Result
+  type GlobalPermissionCallback = MT => GlobalPermissionSet => Option[UserProfile] => Request[AnyContent] => Result
 
   implicit object PermissionGrantResource extends RestResource[PermissionGrant] {
     val entityType = EntityType.PermissionGrant
@@ -30,7 +29,7 @@ trait PermissionHolder[MT <: Accessor] extends Read[MT] {
       implicit rd: RestReadable[MT]) = {
     withItemPermission.async[MT](id, PermissionType.Grant, contentType) { item => implicit userOpt => implicit request =>
       val params = PageParams.fromRequest(request)
-      backend.listPermissionGrants(item, params).map { perms =>
+      backend.listPermissionGrants(item.id, params).map { perms =>
         f(item)(perms)(userOpt)(request)
       }
     }
@@ -39,7 +38,7 @@ trait PermissionHolder[MT <: Accessor] extends Read[MT] {
 
   def setGlobalPermissionsAction(id: String)(f: GlobalPermissionCallback)(implicit rd: RestReadable[MT]) = {
     withItemPermission.async[MT](id, PermissionType.Grant, contentType) { item => implicit userOpt => implicit request =>
-      backend.getGlobalPermissions(item).map { perms =>
+      backend.getGlobalPermissions(item.id).map { perms =>
         f(item)(perms)(userOpt)(request)
       }
     }
@@ -51,7 +50,7 @@ trait PermissionHolder[MT <: Accessor] extends Read[MT] {
       val perms: Map[String, List[String]] = ContentTypes.values.toList.map { ct =>
         (ct.toString, data.get(ct.toString).map(_.toList).getOrElse(List()))
       }.toMap
-      backend.setGlobalPermissions(item, perms).map { perms =>
+      backend.setGlobalPermissions(item.id, perms).map { perms =>
         f(item)(perms)(userOpt)(request)
       }
     }

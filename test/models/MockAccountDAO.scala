@@ -1,7 +1,7 @@
 package models
 
 import java.util.UUID
-import utils.ListParams
+import utils.PageParams
 
 case class MockAccount(id: String, email: String, verified: Boolean = false, staff: Boolean = false, active: Boolean = true,
                         allowMessaging: Boolean = true) extends Account {
@@ -72,5 +72,5 @@ object MockAccountDAO extends AccountDAO {
     findByProfileId(p)
   }
 
-  def findAll(params: ListParams): Seq[Account] = mocks.userFixtures.values.toSeq
+  def findAll(params: PageParams): Seq[Account] = mocks.userFixtures.values.toSeq
 }

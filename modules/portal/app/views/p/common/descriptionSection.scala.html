@@ -1,11 +1,10 @@
-@(name:String)(html: Html)(implicit fieldPrefix: String, lang: Lang)
+@(name:String, title: String = "")(html: Html)(implicit fieldPrefix: String, lang: Lang)
 
-    @if(html.toString.trim.isEmpty) {
-		<div class="description-section @{name}-section empty">
-		    @html
-		</div>
-    } else {
-		<div class="description-section @{name}-section">
-		    @html
-		</div>
-    }
+@if(!html.body.trim.isEmpty) {
+    <div class="description-section @{name}-section">
+        @if(!title.isEmpty) {
+            <h3>@title</h3>
+        }
+        @html
+    </div>
+}

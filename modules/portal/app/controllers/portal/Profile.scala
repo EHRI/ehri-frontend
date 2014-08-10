@@ -17,7 +17,7 @@ import play.Logger
 import scala.concurrent.Future
 import views.html.p
 import utils.search.{Resolver, Dispatcher}
-import backend.{Page, Backend}
+import backend.{Backend}
 
 import com.google.inject._
 import net.coobird.thumbnailator.tasks.UnsupportedFormatException
@@ -96,7 +96,7 @@ case class Profile @Inject()(implicit globalConfig: global.GlobalConfig, searchD
 
   def watching(format: DataFormat.Value = DataFormat.Html) = withUserAction.async { implicit user => implicit request =>
     val watchParams = PageParams.fromRequest(request)
-    backend.pageWatching(user.id, watchParams).map { watchList =>
+    backend.watching(user.id, watchParams).map { watchList =>
       format match {
         case DataFormat.Text => Ok(views.txt.p.profile.watchedItems(watchList))
             .as(MimeTypes.TEXT)

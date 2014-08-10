@@ -13,7 +13,7 @@ import backend.rest.SearchDAO
  * User: michaelb
  */
 case class MockSearchResolver() extends SearchDAO with Resolver {
-  def resolve[MT](results: Seq[SearchHit])(implicit apiUser: ApiUser, rd: RestReadable[MT]): Future[List[MT]] = {
+  def resolve[MT](results: Seq[SearchHit])(implicit apiUser: ApiUser, rd: RestReadable[MT]): Future[Seq[MT]] = {
     list(results.map(_.itemId))
   }
 }

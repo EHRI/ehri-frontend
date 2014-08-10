@@ -1,4 +1,4 @@
-@(item: DescribedMeta[_,_], links: Seq[Link], watched: List[AnyModel])(implicit userOpt: Option[UserProfile], req: RequestHeader, lang: Lang, globalConfig: global.GlobalConfig)
+@(item: DescribedMeta[_,_], links: Seq[Link], watched: Seq[AnyModel])(implicit userOpt: Option[UserProfile], req: RequestHeader, lang: Lang, globalConfig: global.GlobalConfig)
 
 @defining(item.externalLinks(links)) { links =>
     @if(!links.isEmpty) {

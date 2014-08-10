@@ -22,6 +22,11 @@ object Constants {
   val PATCH_HEADER_NAME = "Patch"
 
   /**
+   * Indicate that we want to stream list results.
+   */
+  val STREAM_HEADER = "X-Stream"
+
+  /**
    * Parameter for specifying allowed accessors to resources.
    */
   val ACCESSOR_PARAM = "accessibleTo"
@@ -30,6 +35,11 @@ object Constants {
    * Parameter for default group membership.
    */
   val GROUP_PARAM = "group"
+
+  /**
+   * Parameter for default group membership.
+   */
+  val ID_PARAM = "id"
 
   /**
    * Properties serialization params.
@@ -42,14 +52,9 @@ object Constants {
   val cacheTime = 60 * 5 // 5 minutes
 
   /**
-   * Offset for lists
-   */
-  val OFFSET_PARAM = "offset"
-
-  /**
    * Limit for lists
    */
-  final val LIMIT_PARAM = "limit"
+  final val COUNT_PARAM = "limit"
 
   /**
    * Page for pages
@@ -60,6 +65,11 @@ object Constants {
    * Default limit
    */
   final val DEFAULT_LIST_LIMIT = 20
+
+  /**
+   * Max list limit
+   */
+  final val MAX_LIST_LIMIT = 100
 
   /**
    * User filter

@@ -1,4 +1,3 @@
 package acl
 
-
 trait PermissionSet
