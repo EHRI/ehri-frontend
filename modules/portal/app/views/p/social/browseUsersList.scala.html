@@ -1,4 +1,4 @@
-@(them: UserProfile, users: Iterable[UserProfile], following: List[UserProfile] = Nil)(implicit req: RequestHeader, userOpt: Option[UserProfile], lang: Lang)
+@(them: UserProfile, users: Iterable[UserProfile], following: Seq[UserProfile] = Nil)(implicit req: RequestHeader, userOpt: Option[UserProfile], lang: Lang)
 
 @users.map { other =>
     <li class="user-list-item">

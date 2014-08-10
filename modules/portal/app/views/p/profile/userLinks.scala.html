@@ -1,4 +1,4 @@
-@(user: UserProfile, links: backend.Page[Link])(implicit req: RequestHeader, userOpt: Option[UserProfile], lang: Lang)
+@(user: UserProfile, links: utils.Page[Link])(implicit req: RequestHeader, userOpt: Option[UserProfile], lang: Lang)
 
 @p.common.footerPanel(Messages("portal.profile.links")) {
     @if(!links.isEmpty) {

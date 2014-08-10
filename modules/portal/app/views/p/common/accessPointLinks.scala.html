@@ -1,23 +1,22 @@
-@(item: DescribedMeta[Description, Described[Description]], desc: models.base.Description, links: List[Link])(implicit prefix: String, userOpt: Option[UserProfile], req: RequestHeader, globalConfig: global.GlobalConfig)
+@(item: DescribedMeta[Description, Described[Description]], desc: Description, links: Seq[Link])(implicit prefix: String, userOpt: Option[UserProfile], req: RequestHeader, globalConfig: global.GlobalConfig, lang: Lang)
 
-@if(!desc.accessPoints.isEmpty) {
-    <div class="description-section">
-    <h3>@Messages("portal.item.accessPointLinks")</h3>
-    @AccessPointF.AccessPointType.values.toList.map { accessPointType =>
-        @defining(desc.accessPoints.filter(_.accessPointType == accessPointType)) { apLinks =>
-            @if(!apLinks.isEmpty) {
-                <div class="item-text-field">
-                    <h4 class="item-text-field-header">@Messages("accessPoint.type." + accessPointType)</h4>
-                    <div class="item-text-field-value">
-                        <ul class="list-unstyled item-access-point-links">
-                            @apLinks.map { accessPoint =>
-                                @p.common.accessPointLink(item, accessPoint, links)
-                            }
-                        </ul>
+@p.common.descriptionSection("accessPointLinks", Messages("portal.item.accessPointLinks")) {
+    @if(!desc.accessPoints.isEmpty) {
+        @AccessPointF.AccessPointType.values.toList.map { accessPointType =>
+            @defining(desc.accessPoints.filter(_.accessPointType == accessPointType)) { apLinks =>
+                @if(!apLinks.isEmpty) {
+                    <div class="item-text-field">
+                        <h4 class="item-text-field-header">@Messages("accessPoint.type." + accessPointType)</h4>
+                        <div class="item-text-field-value">
+                            <ul class="list-unstyled item-access-point-links">
+                                @apLinks.map { accessPoint =>
+                                    @p.common.accessPointLink(item, accessPoint, links)
+                                }
+                            </ul>
+                        </div>
                     </div>
-                </div>
+                }
             }
         }
     }
-    </div>
 }

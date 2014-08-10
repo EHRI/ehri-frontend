@@ -6,8 +6,7 @@ import models.base._
 import defines._
 import models.{PermissionGrant, UserProfile}
 import models.json.RestReadable
-import utils.PageParams
-import backend.Page
+import utils.{Page, PageParams}
 
 /**
  * Trait for setting visibility on any AccessibleEntity.
@@ -29,17 +28,17 @@ trait ScopePermissions[MT] extends ItemPermissions[MT] {
   }
 
   def setScopedPermissionsAction(id: String, userType: EntityType.Value, userId: String)(
-      f: MT => Accessor => acl.GlobalPermissionSet[Accessor] => Option[UserProfile] => Request[AnyContent] => Result)(implicit rd: RestReadable[MT]) = {
+      f: MT => Accessor => acl.GlobalPermissionSet => Option[UserProfile] => Request[AnyContent] => Result)(implicit rd: RestReadable[MT]) = {
     withItemPermission.async[MT](id, PermissionType.Grant, contentType) { item => implicit userOpt => implicit request =>
       for {
         accessor <- backend.get[Accessor](Accessor.resourceFor(userType), userId)
-        perms <- backend.getScopePermissions(accessor, id)
-      } yield f(item)(accessor)(perms.copy(user=accessor))(userOpt)(request)
+        perms <- backend.getScopePermissions(userId, id)
+      } yield f(item)(accessor)(perms)(userOpt)(request)
     }
   }
 
   def setScopedPermissionsPostAction(id: String, userType: EntityType.Value, userId: String)(
-      f: acl.GlobalPermissionSet[Accessor] => Option[UserProfile] => Request[AnyContent] => Result)(implicit rd: RestReadable[MT]) = {
+      f: acl.GlobalPermissionSet => Option[UserProfile] => Request[AnyContent] => Result)(implicit rd: RestReadable[MT]) = {
     withItemPermission.async[MT](id, PermissionType.Grant, contentType) { item => implicit userOpt => implicit request =>
       val data = request.body.asFormUrlEncoded.getOrElse(Map())
       val perms: Map[String, List[String]] = targetContentTypes.map { ct =>
@@ -48,7 +47,7 @@ trait ScopePermissions[MT] extends ItemPermissions[MT] {
 
       for {
         accessor <- backend.get[Accessor](Accessor.resourceFor(userType), userId)
-        perms <- backend.setScopePermissions(accessor, id, perms)
+        perms <- backend.setScopePermissions(userId, id, perms)
       } yield f(perms)(userOpt)(request)
     }
   }

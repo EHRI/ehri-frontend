@@ -6,10 +6,10 @@ import play.api.libs.concurrent.Execution.Implicits._
 
 import com.google.inject._
 import play.api.mvc.Action
-import backend.{ApiUser, Backend}
+import backend.Backend
 import play.api.libs.ws.WS
 import backend.rest.RestDAO
-import utils.ListParams
+import utils.PageParams
 import backend.rest.cypher.CypherDAO
 
 /**
@@ -44,7 +44,7 @@ case class Utils @Inject()(implicit globalConfig: global.GlobalConfig, backend: 
    * the graph DB, and vice versa.
    */
   val checkUserSync = Action.async { implicit request =>
-    val accounts: Seq[Account] = userDAO.findAll(ListParams.empty.withoutLimit)
+    val accounts: Seq[Account] = userDAO.findAll(PageParams.empty.withoutLimit)
     for {
       profileIds <- CypherDAO().get(
         """START n = node:entities("__ISA__:userProfile")

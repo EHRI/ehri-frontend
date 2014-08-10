@@ -78,10 +78,10 @@ object Persistable {
   def unfurlErrors(        
       errorSet: ErrorSet,
       relmap: Map[String,String],
-      currentMap: Map[String,List[String]] = Map(),
+      currentMap: Map[String, Seq[String]] = Map(),
       path: Option[String] = None,
       attr: Option[String] = None,
-      index: Option[Int] = None): Map[String,List[String]] = {
+      index: Option[Int] = None): Map[String, Seq[String]] = {
 
     // TODO: Tidy this mess up
     val newpath = attr match {

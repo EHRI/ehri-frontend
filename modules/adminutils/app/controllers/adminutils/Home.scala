@@ -16,7 +16,7 @@ import com.google.inject._
 import play.api.http.MimeTypes
 import scala.concurrent.Future.{successful => immediate}
 import backend.Backend
-import utils.{SystemEventParams, ListParams}
+import utils.{SystemEventParams, PageParams}
 
 
 @Singleton
@@ -84,7 +84,7 @@ case class Home @Inject()(implicit globalConfig: global.GlobalConfig, searchDisp
     )
 
     userOpt.map { user =>
-      val listParams = ListParams.fromRequest(request)
+      val listParams = PageParams.fromRequest(request)
       val eventFilter = SystemEventParams.fromRequest(request)
         .copy(eventTypes = activityEventTypes)
         .copy(itemTypes = activityItemTypes)
@@ -111,7 +111,7 @@ case class Home @Inject()(implicit globalConfig: global.GlobalConfig, searchDisp
   private implicit val anyModelReads = AnyModel.Converter.restReads
 
   def overview = searchAction[AnyModel](
-      defaultParams = SearchParams(limit=Some(0)),
+      defaultParams = SearchParams(count=0),
       entityFacets = entityFacets) {
       page => params => facets => implicit userOpt => implicit request =>
     render {

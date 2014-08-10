@@ -5,6 +5,7 @@ import defines.EntityType
 import models._
 import play.api.libs.json.{Reads, Json}
 import backend.{Links, EventHandler, ApiUser}
+import utils.{Page, PageParams}
 
 
 /**
@@ -25,9 +26,11 @@ trait RestLinks extends Links with RestDAO {
   /**
    * Fetch links for the given item.
    */
-  def getLinksForItem(id: String)(implicit apiUser: ApiUser, executionContext: ExecutionContext): Future[List[Link]] = {
-    userCall(enc(requestUrl, "for", id)).withQueryString(Constants.LIMIT_PARAM -> "-1").get().map { response =>
-      checkErrorAndParse(response)(Reads.list(linkMetaReads))
+  def getLinksForItem(id: String)(implicit apiUser: ApiUser, executionContext: ExecutionContext): Future[Page[Link]] = {
+    val pageParams = PageParams.empty.withoutLimit
+    userCall(enc(requestUrl, "for", id)).withQueryString(pageParams.queryParams: _*)
+      .get().map { response =>
+      parsePage(response)(linkMetaReads)
     }
   }
 
@@ -56,7 +59,7 @@ trait RestLinks extends Links with RestDAO {
   /**
    * Create multiple links. NB: This function is NOT transactional.
    */
-  def linkMultiple(id: String, srcToLinks: List[(String,LinkF,Option[String])])(implicit apiUser: ApiUser, executionContext: ExecutionContext): Future[List[Link]] = {
+  def linkMultiple(id: String, srcToLinks: Seq[(String,LinkF,Option[String])])(implicit apiUser: ApiUser, executionContext: ExecutionContext): Future[Seq[Link]] = {
     Future.sequence {
       srcToLinks.map {
         case (other, ann, accessPoint) => linkItems(id, other, ann, accessPoint)

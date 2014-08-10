@@ -138,8 +138,8 @@ class EntityViewsSpec extends Neo4jRunnerSpec(classOf[EntityViewsSpec]) {
 
   "UserProfile views" should {
 
-    val subjectUser = UserProfile(UserProfileF(id = Some("reto"), identifier = "reto", name = "Reto"))
     val id = "reto"
+    val subjectUser = UserProfile(UserProfileF(id = Some(id), identifier = id, name = "Reto"))
 
     "reliably set permissions" in new FakeApp {
       val testData: Map[String, List[String]] = Map(
@@ -147,15 +147,16 @@ class EntityViewsSpec extends Neo4jRunnerSpec(classOf[EntityViewsSpec]) {
         ContentTypes.DocumentaryUnit.toString -> List(PermissionType.Create.toString)
       )
       val cr = route(fakeLoggedInHtmlRequest(privilegedUser, POST,
-        controllers.admin.routes.UserProfiles.permissionsPost(subjectUser.id).url).withHeaders(formPostHeaders.toSeq: _*), testData).get
+        controllers.admin.routes.UserProfiles.permissionsPost(subjectUser.id).url)
+        .withHeaders(formPostHeaders.toSeq: _*), testData).get
       status(cr) must equalTo(SEE_OTHER)
 
       // Now check we can read back the same permissions.
-      val perms = await(testBackend.getGlobalPermissions(subjectUser))
-      perms.get(ContentTypes.Repository, PermissionType.Create) must beSome
-      perms.get(ContentTypes.Repository, PermissionType.Create).get.inheritedFrom must beNone
-      perms.get(ContentTypes.DocumentaryUnit, PermissionType.Create) must beSome
-      perms.get(ContentTypes.DocumentaryUnit, PermissionType.Create).get.inheritedFrom must beNone
+      val perms = await(testBackend.getGlobalPermissions(id))
+      perms.get(subjectUser, ContentTypes.Repository, PermissionType.Create) must beSome
+      perms.get(subjectUser, ContentTypes.Repository, PermissionType.Create).get.inheritedFrom must beNone
+      perms.get(subjectUser, ContentTypes.DocumentaryUnit, PermissionType.Create) must beSome
+      perms.get(subjectUser, ContentTypes.DocumentaryUnit, PermissionType.Create).get.inheritedFrom must beNone
     }
 
     "link to other privileged actions when logged in" in new FakeApp {

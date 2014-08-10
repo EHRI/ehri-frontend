@@ -3,69 +3,45 @@ package acl
 import play.api.libs.json._
 import defines._
 import models.base.Accessor
-import defines.PermissionType.Annotate
-import defines.PermissionType.Create
-import defines.PermissionType.Delete
-import defines.PermissionType.Owner
-import defines.PermissionType.Update
-import scala.Option.option2Iterable
+import scala.util.control.Exception._
 
 object GlobalPermissionSet {
 
   // Type alias for the very verbose permission-set data structure
-  type PermData = List[(String, Map[ContentTypes.Value, List[PermissionType.Value]])]
-  type PermDataRaw = List[Map[String, Map[String, List[String]]]]
+  type PermData = Seq[(String, Map[ContentTypes.Value, Seq[PermissionType.Value]])]
 
   /**
    * Convert the 'raw' string version of the Permission data into
-   * a less stringly typed version: all the entity types and permissions
+   * a less "stringly" typed version: all the entity types and permissions
    * should all correspond to Enum values in ContentType and PermissionType.
-   * 
+   *
    * NB: The Map[String, Map[String, List[String]]] items in each list are
    * only maps to make them a homogeneous data set, and there should be only
    * one key/value per map, hence we flatMap through them taking only the first
    * value in each, converting them to a tuple for internal use.
    *
    */
-  private def extract(pd: PermDataRaw): PermData = {
+  implicit val restReads: Reads[GlobalPermissionSet] = Reads.seq(Reads.map(Reads.map(Reads.seq[String]))).map { pd =>
     pd.flatMap { pmap =>
       pmap.headOption.map { case (user, perms) =>
         (user, perms.flatMap {
           case (et, plist) =>
             val perms = plist.flatMap { ps =>
-              try {
-                Some(PermissionType.withName(ps))
-              } catch {
-                case e: NoSuchElementException => None
-              }
+              catching(classOf[NoSuchElementException])
+                .opt(PermissionType.withName(ps))
             }
-
-            try {
-              Some((ContentTypes.withName(et), perms))
-            } catch {
-              // If we get an expected permission, just ignore it... this makes
-              // for less painful server upgrades!
-              case e: NoSuchElementException => None
-          }
+            catching(classOf[NoSuchElementException])
+              .opt(ContentTypes.withName(et) -> perms)
         })
       }
     }
-  }
-
-  /**
-   * Construct a new global permission set from a JSON value.
-   */
-  def apply[T <: Accessor](accessor: T, json: JsValue): GlobalPermissionSet[T] = json.validate[List[Map[String, Map[String, List[String]]]]].fold(
-    valid = { pd => new GlobalPermissionSet(accessor, extract(pd)) },
-    invalid = { e => sys.error(e.toString) }
-  )
+  }.map(valid => GlobalPermissionSet(valid))
 }
 
 /**
  * Global permissions granted to either a UserProfileF or a GroupF.
  */
-case class GlobalPermissionSet[+T <: Accessor](val user: T, val data: GlobalPermissionSet.PermData)
-  extends PermissionSet {
+case class GlobalPermissionSet(data: GlobalPermissionSet.PermData) extends PermissionSet {
 
   /**
    * Check if this permission set has the given permission.
@@ -78,11 +54,11 @@ case class GlobalPermissionSet[+T <: Accessor](val user: T, val data: GlobalPerm
    * Get the permission grant for a given permission (if any), which contains
    * the accessor to whom the permission was granted.
    */
-  def get(contentType: ContentTypes.Value, permission: PermissionType.Value): Option[Permission[T]] = {
+  def get[T <: Accessor](user: T, contentType: ContentTypes.Value, permission: PermissionType.Value): Option[Permission[T]] = {
     val accessors = data.flatMap {
-      case (user, perms) =>
+      case (u, perms) =>
         perms.get(contentType).flatMap { permSet =>
-          if (permSet.exists(p => PermissionType.in(p, permission))) Some((user, permission))
+          if (permSet.exists(p => PermissionType.in(p, permission))) Some((u, permission))
           else None
         }
     }

@@ -43,7 +43,7 @@ case class Metrics @Inject()(implicit globalConfig: global.GlobalConfig, searchD
 
   // For all of the metrics we're just using facet counts,
   // so set the result limit to be zero.
-  private val defaultParams = SearchParams(limit=Some(0))
+  private val defaultParams = SearchParams(count=0)
 
   private val langCountFacets: FacetBuilder = { implicit request =>
     List(
@@ -59,6 +59,7 @@ case class Metrics @Inject()(implicit globalConfig: global.GlobalConfig, searchD
   def languageOfMaterial = Cached.status(_ => "pages:langMetric", OK, metricCacheTime) {
     userProfileAction.async { implicit userOpt => implicit request =>
       find[AnyModel](
+        defaultParams = defaultParams,
         entities = List(EntityType.DocumentaryUnit),
         facetBuilder = langCountFacets
       ).map(jsonResponse[AnyModel])
@@ -80,6 +81,7 @@ case class Metrics @Inject()(implicit globalConfig: global.GlobalConfig, searchD
   def holdingRepository = Cached.status(_ => "pages:repoMetric", OK, metricCacheTime) {
     userProfileAction.async { implicit userOpt => implicit request =>
       find[AnyModel](
+        defaultParams = defaultParams,
         entities = List(EntityType.DocumentaryUnit),
         facetBuilder = holdingRepoFacets
       ).map(jsonResponse[AnyModel])
@@ -102,6 +104,7 @@ case class Metrics @Inject()(implicit globalConfig: global.GlobalConfig, searchD
   def repositoryCountries = Cached.status(_ => "pages:repoCountryMetric", OK, metricCacheTime) {
     userProfileAction.async { implicit userOpt => implicit request =>
       find[AnyModel](
+        defaultParams = defaultParams,
         entities = List(EntityType.Repository),
         facetBuilder = countryRepoFacets
       ).map(jsonResponse[AnyModel])
@@ -123,6 +126,7 @@ case class Metrics @Inject()(implicit globalConfig: global.GlobalConfig, searchD
   def restricted = Cached.status(_ => "pages:restrictedMetric", OK, metricCacheTime) {
     userProfileAction.async { implicit userOpt => implicit request =>
       find[AnyModel](
+        defaultParams = defaultParams,
         entities = List(EntityType.HistoricalAgent,
             EntityType.DocumentaryUnit, EntityType.HistoricalAgent),
         facetBuilder = restrictedFacets

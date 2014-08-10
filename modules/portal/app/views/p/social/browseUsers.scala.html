@@ -1,4 +1,4 @@
-@(user: UserProfile, users: utils.search.ItemPage[UserProfile], params: utils.search.SearchParams, following: List[UserProfile])(implicit userOpt: Option[UserProfile], request: RequestHeader, prefs: utils.SessionPrefs, globalConfig: global.GlobalConfig, lang: Lang, flash: Flash)
+@(user: UserProfile, users: utils.search.ItemPage[UserProfile], params: utils.search.SearchParams, following: Seq[UserProfile])(implicit userOpt: Option[UserProfile], request: RequestHeader, prefs: utils.SessionPrefs, globalConfig: global.GlobalConfig, lang: Lang, flash: Flash)
 
 @import utils.search.SearchParams
 

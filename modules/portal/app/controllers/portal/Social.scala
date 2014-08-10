@@ -4,12 +4,12 @@ import play.api.libs.concurrent.Execution.Implicits._
 import controllers.base.{SessionPreferences, AuthController, ControllerHelpers}
 import models.{SystemEvent, UserProfile, AccountDAO}
 import views.html.p
-import utils.{SessionPrefs, PageParams, SystemEventParams, ListParams}
+import utils.{Page, SessionPrefs, PageParams, SystemEventParams}
 import utils.search.{Resolver, SearchOrder, Dispatcher, SearchParams}
 import defines.{EventType, EntityType}
 import play.api.Play.current
 import solr.SolrConstants
-import backend.{Page, ApiUser, Backend}
+import backend.{ApiUser, Backend}
 
 import com.google.inject._
 import play.api.mvc.{Result, RequestHeader}
@@ -17,6 +17,7 @@ import play.api.i18n.Messages
 import play.api.libs.json.Json
 import scala.concurrent.Future
 import models.base.AnyModel
+import backend.rest.Constants
 
 /**
  * @author Mike Bryant (http://github.com/mikesname)
@@ -59,21 +60,23 @@ case class Social @Inject()(implicit globalConfig: global.GlobalConfig, searchDi
 
   private val socialRoutes = controllers.portal.routes.Social
 
-  def personalisedActivity(offset: Int = 0) = withUserAction.async { implicit user => implicit request =>
+  def personalisedActivity(page: Int = 1, count: Int = Constants.DEFAULT_LIST_LIMIT) = {
+    withUserAction.async { implicit user => implicit request =>
     // NB: Increasing the limit by 1 over the default so we can
     // detect if there are additional items to display
-    val listParams = ListParams.fromRequest(request).copy(offset = offset)
-    val incParams = listParams.copy(limit = listParams.limit + 1)
-    val eventFilter = SystemEventParams.fromRequest(request)
-      .copy(eventTypes = activityEventTypes)
-      .copy(itemTypes = activityItemTypes)
-    backend.listEventsForUser(user.id, incParams, eventFilter).map { events =>
-      val more = events.size > listParams.limit
+      val listParams = PageParams.fromRequest(request).copy(page = page)
+      val incParams = listParams.copy(count = listParams.count + 1)
+      val eventFilter = SystemEventParams.fromRequest(request)
+        .copy(eventTypes = activityEventTypes)
+        .copy(itemTypes = activityItemTypes)
+      backend.listEventsForUser(user.id, incParams, eventFilter).map { events =>
+        val more = events.size > listParams.count
 
-      val displayEvents = events.take(listParams.limit)
-      if (isAjax) Ok(p.activity.eventItems(displayEvents))
-        .withHeaders("activity-more" -> more.toString)
-      else Ok(p.activity.activity(displayEvents, listParams, more))
+        val displayEvents = events.take(listParams.count)
+        if (isAjax) Ok(p.activity.eventItems(displayEvents))
+          .withHeaders("activity-more" -> more.toString)
+        else Ok(p.activity.activity(displayEvents, listParams, more))
+      }
     }
   }
 
@@ -83,13 +86,13 @@ case class Social @Inject()(implicit globalConfig: global.GlobalConfig, searchDi
     // we can mark who's following and who isn't
     val filters = Map(SolrConstants.ACTIVE -> true.toString)
     val defaultParams = SearchParams(entities = List(EntityType.UserProfile), excludes = Some(List(user.id)),
-          sort = Some(SearchOrder.Name), limit = Some(40))
+          sort = Some(SearchOrder.Name), count = 40)
     val searchParams = SearchParams.form.bindFromRequest.value
       .getOrElse(defaultParams).setDefault(Some(defaultParams))
 
     for {
-      following <- backend.listFollowing(user.id, ListParams())
-      blocked <- backend.listBlocked(user.id, ListParams())
+      following <- backend.following(user.id, PageParams.empty)
+      blocked <- backend.blocked(user.id, PageParams.empty)
       srch <- searchDispatcher.search(searchParams, Nil, Nil, filters)
       users <- searchResolver.resolve[UserProfile](srch.items)
     } yield Ok(p.social.browseUsers(user, srch.copy(items = users), searchParams, following))
@@ -98,11 +101,11 @@ case class Social @Inject()(implicit globalConfig: global.GlobalConfig, searchDi
   def browseUser(userId: String) = withUserAction.async { implicit user => implicit request =>
     // Show the profile home page of a defined user.
     // Activity is the default page
-    val params = ListParams.fromRequest(request)
+    val params = PageParams.fromRequest(request)
     val eventParams = SystemEventParams.fromRequest(request).copy(users = List(userId))
       .copy(eventTypes = activityEventTypes)
       .copy(itemTypes = activityItemTypes)
-    val events: Future[List[SystemEvent]] = backend.listEvents(params, eventParams)
+    val events: Future[Seq[SystemEvent]] = backend.listEvents(params, eventParams)
     val isFollowing: Future[Boolean] = backend.isFollowing(user.id, userId)
     val allowMessage: Future[Boolean] = canMessage(user.id, userId)
 
@@ -117,7 +120,7 @@ case class Social @Inject()(implicit globalConfig: global.GlobalConfig, searchDi
   def watchedByUser(userId: String) = withUserAction.async { implicit user => implicit request =>
     // Show a list of watched item by a defined User
     val watchParams = PageParams.fromRequest(request)
-    val watching: Future[Page[AnyModel]] = backend.pageWatching(userId, watchParams)
+    val watching: Future[Page[AnyModel]] = backend.watching(userId, watchParams)
     val isFollowing: Future[Boolean] = backend.isFollowing(user.id, userId)
     val allowMessage: Future[Boolean] = canMessage(user.id, userId)
 
@@ -196,8 +199,8 @@ case class Social @Inject()(implicit globalConfig: global.GlobalConfig, searchDi
     val params = PageParams.fromRequest(request)
     for {
       them <- backend.get[UserProfile](userId)
-      theirFollowers <- backend.pageFollowers(userId, params)
-      whoImFollowing <- backend.listFollowing(user.id)
+      theirFollowers <- backend.followers(userId, params)
+      whoImFollowing <- backend.following(user.id)
     } yield {
       if (isAjax)
         Ok(p.social.followerList(them, theirFollowers, params, whoImFollowing))
@@ -210,8 +213,8 @@ case class Social @Inject()(implicit globalConfig: global.GlobalConfig, searchDi
     val params = PageParams.fromRequest(request)
     for {
       them <- backend.get[UserProfile](userId)
-      theirFollowing <- backend.pageFollowing(userId, params)
-      whoImFollowing <- backend.listFollowing(user.id)
+      theirFollowing <- backend.following(userId, params)
+      whoImFollowing <- backend.following(user.id)
     } yield {
       if (isAjax)
         Ok(p.social.followingList(them, theirFollowing, params, whoImFollowing))

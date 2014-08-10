@@ -343,7 +343,8 @@ permissions.permissionGrants={2,choice,0#No permissions granted|1#One permission
 permissions.itemPermissionsForItem=Item-level Permissions for {0}
 permissions.scopedPermissionsForItem=Scoped Permissions for {0}
 permissions.inheritedFrom=Inherited From: {0}
-permissions.revoke=Revoke
+permissions.revoke=Revoke Permission?
+permissions.revoke.submit=Revoke
 
 #
 # Actions

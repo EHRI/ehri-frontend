@@ -6,6 +6,7 @@ import defines.{PermissionType,EntityType}
 import models.json._
 import play.api.libs.json._
 import play.api.libs.json.JsObject
+import play.api.i18n.Lang
 
 
 object PermissionGrantF {
@@ -85,4 +86,8 @@ case class PermissionGrant(
   grantee: Option[UserProfile] = None,
   meta: JsObject = JsObject(Seq())
 ) extends AnyModel
-  with MetaModel[PermissionGrantF]
+  with MetaModel[PermissionGrantF] {
+
+  override def toStringLang(implicit lang: Lang): String =
+    s"<PermissionGrant: ${accessor.map(_.toStringLang)}: ${targets.headOption.map(_.toStringLang)} [${model.permission}}]>"
+}

@@ -5,6 +5,7 @@ import play.api.libs.json.{Reads, Json}
 import defines.EntityType
 import models._
 import backend.{Annotations, EventHandler, ApiUser}
+import utils.{Page, PageParams}
 
 
 /**
@@ -13,14 +14,15 @@ import backend.{Annotations, EventHandler, ApiUser}
 trait RestAnnotations extends Annotations with RestDAO {
 
   val eventHandler: EventHandler
-  import Constants.{ACCESSOR_PARAM,LIMIT_PARAM}
+  import Constants.ACCESSOR_PARAM
 
-  private def requestUrl = "http://%s:%d/%s/%s".format(host, port, mount, EntityType.Annotation)
+  private def requestUrl = s"http://$host:$port/$mount/${EntityType.Annotation}"
 
-  def getAnnotationsForItem(id: String)(implicit apiUser: ApiUser, executionContext: ExecutionContext): Future[Seq[Annotation]] = {
+  def getAnnotationsForItem(id: String)(implicit apiUser: ApiUser, executionContext: ExecutionContext): Future[Page[Annotation]] = {
     val url = enc(requestUrl, "for", id)
-    userCall(url).withQueryString(LIMIT_PARAM -> "-1").get().map { response =>
-      checkErrorAndParse(response)(Reads.list(Annotation.Converter.restReads))
+    val pageParams = PageParams.empty.withoutLimit
+    userCall(url).withQueryString(pageParams.queryParams: _*).get().map { response =>
+      parsePage(response)(Annotation.Converter.restReads)
     }
   }
 
