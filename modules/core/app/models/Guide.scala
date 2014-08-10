@@ -20,7 +20,7 @@ case class Guide(
   picture: Option[String] = None,
   virtualUnit: String,
   description: Option[String] = None,
-  active: Boolean,
+  active: Int = 0,
   default: Long = 0
 ) {
   def update(): Unit = DB.withConnection { implicit connection =>
@@ -90,7 +90,7 @@ object Guide {
       PICTURE -> optional(nonEmptyText),
       VIRTUALUNIT -> nonEmptyText,
       DESCRIPTION -> optional(text),
-      ACTIVE -> boolean,
+      ACTIVE -> number,
       DEFAULT -> longNumber
     )(Guide.apply)(Guide.unapply)
   )
@@ -102,19 +102,19 @@ object Guide {
       get[Option[String]](PICTURE) ~
       get[String](VIRTUALUNIT) ~
       get[Option[String]](DESCRIPTION) ~
-      get[Boolean](ACTIVE) ~
+      get[Int](ACTIVE) ~
       get[Long](DEFAULT) map {
       case gid ~ name ~ path ~ pic ~ virtualUnit ~ desc ~ active ~ deft =>
         Guide(gid, name, path, pic, virtualUnit, desc, active, deft)
     }
   }
 
-  def blueprint(): Guide = Guide(Some(0), "", "", Some(""), "", Some(""), active = false, 0)
+  def blueprint(): Guide = Guide(Some(0), "", "", Some(""), "", Some(""), active = 0, 0)
 
   /*
   *   Create function
   */
-  def create(name: String, path: String, picture: Option[String] = None, virtualUnit: String, description: Option[String] = None, active: Boolean): Option[Guide] = DB.withConnection { implicit connection =>
+  def create(name: String, path: String, picture: Option[String] = None, virtualUnit: String, description: Option[String] = None, active: Int): Option[Guide] = DB.withConnection { implicit connection =>
     val id: Option[Long] = SQL("""
       INSERT INTO research_guide
         (name, path, picture, virtual_unit, description, active) VALUES ({n}, {p}, {pi}, {vu}, {de}, {a})""")
