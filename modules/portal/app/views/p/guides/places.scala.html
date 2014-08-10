@@ -29,7 +29,7 @@
 		bindMarker = function(marker, id) {
 			if(marker) {
 				marker.on("popupopen", function(elem) {
-					$.get("http://localhost:9000/accesspoints/" + id + "/" + VIRTUAL_UNIT, function(data) {
+					$.get(jsRoutes.controllers.portal.Portal.linkedDataInContext(id , VIRTUAL_UNIT).url, function(data) {
 						var links = [];
 						$.each(data, function(index, link) {
 							links.push('<li><a href="'+ jsRoutes.controllers.portal.Guides.browseDocument(GUIDE_PATH, link.id).url +'">'+ link.name+'</a></li>')
