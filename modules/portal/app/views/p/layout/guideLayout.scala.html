@@ -54,7 +54,7 @@
 				e.data("loaded", true)
 
 				e.unbind('mouseover');
-				e.css("cursor", "wait")
+				e.css("cursor", "wait");
 				$.get(jsRoutes.controllers.portal.Portal.linkedDataInContext(e.attr("data-target"), VIRTUAL_UNIT).url,function(d){
 					var links = []
 					if(d.length > 0) {
@@ -65,8 +65,11 @@
 						e.popover({content: links, html: true, trigger: "click", container : "body"}).popover('show');
 						e.css("cursor", "pointer");
 					} else {
+
+						if(e.find(".glyphicon-search").length > 0) {
+							e.hide();
+						}
 						e.css("cursor", "pointer");
-						e.hide();
 					}
 				});
 			});
