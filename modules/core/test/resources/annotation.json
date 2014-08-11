@@ -1,0 +1,10 @@
+{
+  "id" : "f21d0367-125f-4bbb-9f77-d79e4b723472",
+  "data" : {
+    "body" : "Test Annotation",
+    "annotationType" : "comment",
+    "identifier" : "a318bfed-be6d-447f-ae7a-e10529836f32"
+  },
+  "type" : "annotation",
+  "relationships" : {}
+}

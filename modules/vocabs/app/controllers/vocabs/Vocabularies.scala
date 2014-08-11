@@ -51,13 +51,13 @@ case class Vocabularies @Inject()(implicit globalConfig: global.GlobalConfig, se
   }
 
   def create = createAction { users => groups => implicit userOpt => implicit request =>
-    Ok(views.html.vocabulary.create(form, VisibilityForm.form, users, groups, vocabRoutes.createPost))
+    Ok(views.html.vocabulary.create(form, VisibilityForm.form, users, groups, vocabRoutes.createPost()))
   }
 
   def createPost = createPostAction.async(form) { formsOrItem => implicit userOpt => implicit request =>
     formsOrItem match {
       case Left((errorForm,accForm)) => getUsersAndGroups { users => groups =>
-        BadRequest(views.html.vocabulary.create(errorForm, accForm, users, groups, vocabRoutes.createPost))
+        BadRequest(views.html.vocabulary.create(errorForm, accForm, users, groups, vocabRoutes.createPost()))
       }
       case Right(item) => immediate(Redirect(vocabRoutes.get(item.id))
         .flashing("success" -> "item.create.confirmation"))

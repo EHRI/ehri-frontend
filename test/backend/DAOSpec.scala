@@ -53,9 +53,9 @@ class DAOSpec extends helpers.Neo4jRunnerSpec(classOf[DAOSpec]) {
       val doc = VirtualUnitF(id = None, identifier = "foobar")
       val r = await(testBackend
         .createInContext[VirtualUnit,VirtualUnitF,VirtualUnit]("vc1", ContentTypes.VirtualUnit,
-            doc, params = Map("description" -> Seq("cd1"))))
-      r.descriptionRefs.headOption must beSome.which { desc =>
-        desc.id must equalTo(Some("cd1"))
+            doc, params = Map("id" -> Seq("c1"))))
+      r.includedUnits.headOption must beSome.which { desc =>
+        desc.id must equalTo("c1")
       }
     }
 

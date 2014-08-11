@@ -1,0 +1,67 @@
+{
+  "id" : "wiener-library",
+  "data" : {
+    "publicationStatus" : "Draft",
+    "name" : "Wiener Library",
+    "identifier" : "wiener-library"
+  },
+  "type" : "repository",
+  "relationships" : {
+    "describes" : [ {
+      "id" : "9c5eadd2-6c57-4467-ba02-cd4b2c49ffa6",
+      "data" : {
+        "languageCode" : "en",
+        "name" : "Wiener Library"
+      },
+      "type" : "repositoryDescription",
+      "relationships" : {
+        "hasAddress" : [ {
+          "id" : "d9569bef-a939-4565-83ae-a52e57e6b222",
+          "data" : {
+            "streetAddress" : "29 Russell Square",
+            "name" : "Primary",
+            "city" : "London"
+          },
+          "type" : "address",
+          "relationships" : {
+          }
+        } ]
+      }
+    } ],
+    "lifecycleEvent" : [ {
+      "id" : "936e8380-1747-46b1-9dc9-cd64db493798",
+      "data" : {
+        "timestamp" : "2013-03-08T19:00:54.731+01:00",
+        "identifier" : "babe0ea4-8c66-4607-b545-199b29976bba",
+        "logMessage" : "Added annotation"
+      },
+      "type" : "systemEvent",
+      "relationships" : {
+        "hasActioner" : [ {
+          "id" : "mike",
+          "data" : {
+            "languages" : [ "en" ],
+            "location" : "London",
+            "name" : "Mike Bryant",
+            "about" : "Testing the system",
+            "identifier" : "mike"
+          },
+          "type" : "userProfile",
+          "relationships" : {
+            "belongsTo" : [ {
+              "id" : "admin",
+              "data" : {
+                "description" : "The all-powerful system administrators who never accidentally delete stuff.",
+                "name" : "Administrators",
+                "identifier" : "admin"
+              },
+              "type" : "group",
+              "relationships" : {
+              }
+            } ]
+          }
+        } ]
+      }
+    } ]
+  }
+}

@@ -9,9 +9,7 @@
     }
    
     <a href="#" class="gravitar">
-        @defining(user.model.imageUrl.getOrElse(controllers.portal.routes.Assets.at("img/default-gravitar.png").url)) { src =>
-            <img src="@src" alt="@user.model.name"/>
-        }
+        <img src="@views.p.Helpers.gravitar(user.model.imageUrl)" alt="@user.model.name"/>
     </a>
     <h1><a 
         @for(us <- userOpt if user.id != us.id) { href="@controllers.portal.routes.Social.browseUser(user.id)" }

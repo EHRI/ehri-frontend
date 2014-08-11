@@ -14,13 +14,11 @@ import defines.EntityType
  */
 class SolrQueryParserSpec extends PlaySpecification {
 
-  private def xmlResponseString: String = Source.fromInputStream(getClass
-      .getClassLoader.getResourceAsStream("solrQueryResponse1.xml"))
-      .getLines().mkString("\n")
+  private def xmlResponseString: String =
+    helpers.resourceAsString("solrQueryResponse1.xml")
 
-  private def jsonResponseString: String = Source.fromInputStream(getClass
-    .getClassLoader.getResourceAsStream("solrQueryResponse1.json"))
-    .getLines().mkString("\n")
+  private def jsonResponseString: String =
+    helpers.resourceAsString("solrQueryResponse1.json")
 
   "Solr XML Query Parser" should {
     "parse the correct number of docs with the right IDs" in {

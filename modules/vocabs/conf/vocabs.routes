@@ -1,10 +1,10 @@
 # Routes for vocabularies and concepts
 
 GET     /vocabularies                                        @controllers.vocabs.Vocabularies.list
-GET     /vocabularies/:id                                    @controllers.vocabs.Vocabularies.get(id: String)
-GET     /vocabularies/:id/history                            @controllers.vocabs.Vocabularies.history(id: String)
 GET     /vocabularies/create                                 @controllers.vocabs.Vocabularies.create
 POST    /vocabularies/create                                 @controllers.vocabs.Vocabularies.createPost
+GET     /vocabularies/:id                                    @controllers.vocabs.Vocabularies.get(id: String)
+GET     /vocabularies/:id/history                            @controllers.vocabs.Vocabularies.history(id: String)
 GET     /vocabularies/:id/delete                             @controllers.vocabs.Vocabularies.delete(id: String)
 POST    /vocabularies/:id/delete                             @controllers.vocabs.Vocabularies.deletePost(id: String)
 GET     /vocabularies/:id/update                             @controllers.vocabs.Vocabularies.update(id: String)

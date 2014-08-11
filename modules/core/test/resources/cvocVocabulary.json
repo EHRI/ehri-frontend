@@ -1,0 +1,10 @@
+{
+  "id" : "ehri-skos",
+  "data" : {
+    "description" : "Preliminary SKOS version of the WP18 thesaurus",
+    "name" : "EHRI Skos",
+    "identifier" : "ehri-skos"
+  },
+  "type" : "cvocVocabulary",
+  "relationships" : {}
+}

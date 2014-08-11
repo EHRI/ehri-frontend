@@ -47,9 +47,7 @@
             <div class="timeline-heading">
                 @user match {
                     case up: UserProfile => {
-                        @defining(up.model.imageUrl.getOrElse(controllers.portal.routes.Assets.at("img/default-gravitar.png").url)) { src =>
-                            <img src="@src" alt="@up.model.name" class="gravitar pull-left" />
-                        }
+                        <img src="@views.p.Helpers.gravitar(up.model.imageUrl)" alt="@up.model.name" class="gravitar pull-left" />
                     }
                 }
 

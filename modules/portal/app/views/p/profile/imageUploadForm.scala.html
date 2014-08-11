@@ -8,9 +8,7 @@
 
         <div class="form-group">
             <label class="col-md-4 control-label">
-                @defining(user.model.imageUrl.getOrElse(controllers.portal.routes.Assets.at("img/default-gravitar.png").url)) { src =>
-                    <img height="100" width="100" class="img-responsive img-thumbnail" src="@src" />
-                }
+                <img height="100" width="100" class="img-responsive img-thumbnail" src="@views.p.Helpers.gravitar(user.model.imageUrl)" />
             </label>
             <div class="col-md-8">
                 <input class="form-control" type="file" name="image" />
