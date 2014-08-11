@@ -32,7 +32,7 @@ class GuidesSpec extends Neo4jRunnerSpec(classOf[GuidesSpec]) {
       Guide.VIRTUALUNIT -> Seq("hello"),
       Guide.DESCRIPTION -> Seq("Hello, world"),
       Guide.DEFAULT -> Seq("0"),
-      Guide.ACTIVE -> Seq("1")
+      Guide.ACTIVE -> Seq(true.toString)
     )
 
     "be able to create guides"  in new WithSqlFile("guide-fixtures.sql", fakeApplication()) {
