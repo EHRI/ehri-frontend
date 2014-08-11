@@ -89,7 +89,8 @@ object Guide {
       PICTURE -> optional(nonEmptyText),
       VIRTUALUNIT -> nonEmptyText,
       DESCRIPTION -> optional(text),
-      ACTIVE -> number,
+      // FIXME: Active really shouldn't be an int
+      ACTIVE -> optional(boolean).transform[Int](f => if(f.getOrElse(false)) 1 else 0, i => Some(i > 0)),
       DEFAULT -> longNumber
     )(Guide.apply)(Guide.unapply)
   )
