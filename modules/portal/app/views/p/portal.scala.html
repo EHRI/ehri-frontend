@@ -10,7 +10,7 @@
 <script>
     jQuery(document).ready(function ($) {
         $("#news-feed")
-                .load("@controllers.portal.routes.Portal.newsFeed.url")
+                .load("@controllers.portal.routes.Portal.newsFeed.absoluteURL(secure = globalConfig.https)")
     });
 </script>
 }
