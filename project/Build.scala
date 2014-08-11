@@ -13,7 +13,6 @@ import com.typesafe.sbt.less.Import._
 import com.typesafe.sbt.rjs.Import._
 import com.typesafe.sbt.digest.Import._
 import com.typesafe.sbt.gzip.Import._
-import com.typesafe.sbt.uglify.Import._
 
 object ApplicationBuild extends Build {
 
@@ -124,7 +123,7 @@ object ApplicationBuild extends Build {
       version := appVersion,
       name := appName + "-core",
       libraryDependencies ++= coreDependencies,
-      pipelineStages := Seq(rjs, digest, gzip, uglify),
+      pipelineStages := Seq(rjs, digest, gzip),
       RjsKeys.mainModule := "core-main"
   ).settings(commonSettings: _*)
 
@@ -148,7 +147,7 @@ object ApplicationBuild extends Build {
     .enablePlugins(play.PlayScala).settings(
     version := appVersion,
     libraryDependencies ++= portalDependencies,
-    pipelineStages := Seq(rjs, digest, gzip, uglify),
+    pipelineStages := Seq(rjs, digest, gzip),
     RjsKeys.mainModule := "portal-main"
   ).settings(commonSettings: _*).dependsOn(linking)
 
