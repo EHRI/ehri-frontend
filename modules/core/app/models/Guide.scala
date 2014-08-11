@@ -8,7 +8,6 @@ import anorm.SqlParser._
 import play.api.Play.current
 import play.api.db.DB
 import language.postfixOps
-import models.VirtualUnit
 
 /**
  * @author Thibault Clérice (http://github.com/ponteineptique)
