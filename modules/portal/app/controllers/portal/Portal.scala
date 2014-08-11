@@ -326,7 +326,7 @@ case class Portal @Inject()(implicit globalConfig: global.GlobalConfig, searchDi
 
   def newsFeed = Cached.status(_ => "pages.newsFeed", OK, 60 * 60) {
     Action.async { request =>
-      WS.url("http://www.ehri-project.eu/rss.xml").get().map { r =>
+      WS.url("https://ehri-project.eu/rss.xml").get().map { r =>
         Ok(p.newsFeed(NewsItem.fromRss(r.body)))
       }
     }
