@@ -5,17 +5,17 @@
 @p.layout.portalLayoutSimple("Guides") {
 	<div>
 		<h3 class="landing-header user">
-            <a class="" href="./">Guides</a>
-        </h3>
+	            <a class="" href="./">Guides</a>
+	        </h3>
 
-        <div class="landing-blurb">
+	        <div class="landing-blurb">
 			<ul class="media-list">
 				@for(guide <- guides) {
 					@guide match {
 						case g: Guide => {
 							<li class="media">
-								<a class="pull-left" href="#">
-									<img class="media-object" src="@g.picture" alt="@g.name">
+								<a class="pull-left" href="@controllers.portal.routes.Guides.home(g.path)">
+									<img class="media-object" src="@g.picture" alt="@g.name" style="width:128px; height:auto;">
 								</a>
 								<div class="media-body">
 									<h4 class="media-heading"><a href="@controllers.portal.routes.Guides.home(g.path)">@g.name</a></h4>
