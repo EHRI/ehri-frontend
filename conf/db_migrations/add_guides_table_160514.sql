@@ -9,7 +9,7 @@ CREATE TABLE research_guide (
   picture VARCHAR(255) DEFAULT NULL,
   virtual_unit VARCHAR(255) DEFAULT NULL,
   description text,
-  active BOOLEAN NULL DEFAULT 0,
+  active INT(1) NULL DEFAULT 0,
   `default` int(1) DEFAULT 0
 );
 
