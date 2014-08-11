@@ -14,7 +14,6 @@ import scala.concurrent.Future.{successful => immediate}
 import backend.{IdGenerator, Backend}
 import play.api.Play.current
 import play.api.Configuration
-import solr.facet.{FieldFacetClass, SolrQueryFacet, QueryFacetClass}
 import play.api.mvc.AnyContent
 import play.api.data.Form
 import play.api.data.Forms._
@@ -22,6 +21,7 @@ import solr.facet.FieldFacetClass
 import scala.Some
 import solr.facet.SolrQueryFacet
 import solr.facet.QueryFacetClass
+import backend.rest.Constants
 
 
 @Singleton
@@ -191,7 +191,7 @@ case class VirtualUnits @Inject()(implicit globalConfig: global.GlobalConfig, se
     }
   }
 
-  val refForm = Form(single(VirtualUnitF.DESCRIPTION_REF -> nonEmptyText))
+  def refForm = Form(single(VirtualUnitF.INCLUDE_REF -> nonEmptyText))
 
   def createChildRef(id: String) = childCreateAction.async(id, contentType) {
     item => users => groups => implicit userOpt => implicit request =>
@@ -206,8 +206,8 @@ case class VirtualUnits @Inject()(implicit globalConfig: global.GlobalConfig, se
 
   def descriptionRefs: ExtraParams[AnyContent] = { implicit request =>
     refForm.bindFromRequest.fold(
-      errs => Map.empty,
-      descRef => Map("description" -> Seq(descRef))
+      _ => Map.empty,
+      descRef => Map(Constants.ID_PARAM -> Seq(descRef))
     )
   }
 

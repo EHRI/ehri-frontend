@@ -13,6 +13,7 @@ guide.picture.description=Path to the picture of the guide
 guide.default=Default page
 guide.default.description=Page available at the root of the guide
 guide.active=Active
+guide.virtual_unit=Virtual Unit ID
 guide.unactive=Not Active
 guide.active.description=Set 1 if guide is publicly visible, else 0
 

@@ -29,6 +29,7 @@ class GuidesSpec extends Neo4jRunnerSpec(classOf[GuidesSpec]) {
       Guide.NAME -> Seq("Hello"),
       Guide.PATH -> Seq("hello"),
       Guide.PICTURE -> Seq("/foo/bar"),
+      Guide.VIRTUALUNIT -> Seq("hello"),
       Guide.DESCRIPTION -> Seq("Hello, world"),
       Guide.DEFAULT -> Seq("0"),
       Guide.ACTIVE -> Seq(true.toString)

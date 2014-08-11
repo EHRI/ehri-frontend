@@ -17,7 +17,7 @@ import play.api.i18n.Lang
 
 object VirtualUnitF {
 
-  val DESCRIPTION_REF = "descriptionRef"
+  val INCLUDE_REF = "includeRef"
 
   import models.Entity._
   import Ontology._
@@ -74,7 +74,7 @@ object VirtualUnit {
 
   implicit val metaReads: Reads[VirtualUnit] = (
     __.read[VirtualUnitF](virtualUnitReads) and
-    (__ \ RELATIONSHIPS \ VC_DESCRIBED_BY).nullableListReads(DocumentaryUnitDescriptionF.Converter.restFormat) and
+    (__ \ RELATIONSHIPS \ VC_INCLUDES_UNIT).nullableListReads(DocumentaryUnit.Converter.restReads) and
     (__ \ RELATIONSHIPS \ VC_HAS_AUTHOR).nullableHeadReads(Accessor.Converter.restReads) and
     (__ \ RELATIONSHIPS \ VC_IS_PART_OF).lazyNullableHeadReads(metaReads) and
     (__ \ RELATIONSHIPS \ DOC_IS_CHILD_OF).nullableHeadReads[Repository] and
@@ -89,7 +89,7 @@ object VirtualUnit {
 
     val clientFormat: Format[VirtualUnit] = (
       __.format[VirtualUnitF](VirtualUnitF.Converter.clientFormat) and
-      (__ \ "descriptions").nullableListFormat(DocumentaryUnitDescriptionF.Converter.clientFormat) and
+      (__ \ "descriptions").nullableListFormat(DocumentaryUnit.Converter.clientFormat) and
       (__ \ "author").formatNullable[Accessor](Accessor.Converter.clientFormat) and
       (__ \ "parent").lazyFormatNullable[VirtualUnit](clientFormat) and
       (__ \ "holder").formatNullable[Repository](Repository.Converter.clientFormat) and
@@ -128,7 +128,7 @@ object VirtualUnit {
 
 case class VirtualUnit(
   model: VirtualUnitF,
-  descriptionRefs: List[DocumentaryUnitDescriptionF] = List.empty,
+  includedUnits: List[DocumentaryUnit] = List.empty,
   author: Option[Accessor] = None,
   parent: Option[VirtualUnit] = None,
   holder: Option[Repository] = None,
@@ -144,11 +144,11 @@ case class VirtualUnit(
 
   override def toStringLang(implicit lang: Lang): String = {
     if (!model.descriptions.isEmpty) super.toStringLang(lang)
-    else descriptionRefs.headOption.map(_.name).getOrElse(id)
+    else includedUnits.headOption.map(_.toStringLang(lang)).getOrElse(id)
   }
 
   def allDescriptions: List[DocumentaryUnitDescriptionF]
-    = descriptionRefs ++ model.descriptions
+    = includedUnits.flatMap(_.descriptions) ++ model.descriptions
 
   def asDocumentaryUnit: DocumentaryUnit = new DocumentaryUnit(
     new DocumentaryUnitF(

@@ -1,0 +1,58 @@
+{
+  "id" : "mike",
+  "data" : {
+    "languages" : [ "en" ],
+    "location" : "London",
+    "name" : "Mike Bryant",
+    "about" : "Testing the system",
+    "identifier" : "mike"
+  },
+  "type" : "userProfile",
+  "relationships" : {
+    "lifecycleEvent" : [ {
+      "id" : "8d852619-339c-447c-9934-ed21d8584d7a",
+      "data" : {
+        "timestamp" : "2013-03-08T17:39:16.216+01:00",
+        "identifier" : "c21c4f71-a6ab-49c8-b450-97bf8ea39687",
+        "logMessage" : "Updating item (userProfile): 'mike'"
+      },
+      "type" : "systemEvent",
+      "relationships" : {
+        "hasActioner" : [ {
+          "id" : "mike",
+          "data" : {
+            "languages" : [ "en" ],
+            "location" : "London",
+            "name" : "Mike Bryant",
+            "about" : "Testing the system",
+            "identifier" : "mike"
+          },
+          "type" : "userProfile",
+          "relationships" : {
+            "belongsTo" : [ {
+              "id" : "admin",
+              "data" : {
+                "description" : "The all-powerful system administrators who never accidentally delete stuff.",
+                "name" : "Administrators",
+                "identifier" : "admin"
+              },
+              "type" : "group",
+              "relationships" : {
+              }
+            } ]
+          }
+        } ]
+      }
+    } ],
+    "belongsTo" : [ {
+      "id" : "admin",
+      "data" : {
+        "description" : "The all-powerful system administrators who never accidentally delete stuff.",
+        "name" : "Administrators",
+        "identifier" : "admin"
+      },
+      "type" : "group",
+      "relationships" : {}
+    } ]
+  }
+}
