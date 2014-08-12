@@ -58,9 +58,10 @@ guidePage.parent.description=Parent of the guide
 guidePage.params.description=An URL query string to be parsed. eg. : lat=80&lng=15
 
 guidePage.map=Map
-guidePage.keyword=Keywords
+guidePage.keyword=Horizontally Organized Concepts
 guidePage.person=Persons
 guidePage.md=Free text
-guidePage.organisation=Organisations
+guidePage.organisation=Vertically Organized Concepts
+guidePage.document=Document
 guidePage.side=Side menu
 guidePage.top=Top Menu

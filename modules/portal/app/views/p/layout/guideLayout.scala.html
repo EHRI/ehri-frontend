@@ -9,34 +9,33 @@
         @styles
     </head>
     <body>
-		<header id="top">
+	<header id="top">
+		<div class="container">
+			@guideHeader(guide._1.path, guide._2)
+		</div>
+		<div id="page-title" style="background-color:#360f4f;">
 			<div class="container">
-				@guideHeader(guide._1.path, guide._2)
-			</div>
-			<div id="page-title" style="background-color:#360f4f;">
-				<div class="container">
-					<div class="row">
-						<div class="col-md-4 col-md-push-8">
-							<h2 class="guide-name">@guide._2._1.name</h2>
-						</div>
-						<div class="col-md-8 col-md-pull-4">
-							<h1 class="guide-title">@guide._1.name</h1>
-						</div>
+				<div class="row">
+					<div class="col-md-4 col-md-push-8">
+						<h2 class="guide-name">@guide._2._1.name</h2>
+					</div>
+					<div class="col-md-8 col-md-pull-4">
+						<h1 class="guide-title">@guide._1.name</h1>
 					</div>
 				</div>
 			</div>
-		</header>
-		<div class="container">
-			<div class="row">
-				<div class="col-md-8" id="main">
-					@content
-				</div>
-				<div class="col-md-4" id="right-bar">
-					@guideSidebar(guide._1.path, guide._2, optionalContent)
-				</div>
+		</div>
+	</header>
+	<div class="container">
+		<div class="row">
+			<div class="col-md-8" id="main">
+				@content
+			</div>
+			<div class="col-md-4" id="right-bar">
+				@guideSidebar(guide._1.path, guide._2, optionalContent)
 			</div>
 		</div>
-		</div>
+	</div>
          <script src="//ajax.googleapis.com/ajax/libs/jquery/1.10.2/jquery.min.js"></script>
          <script src="@controllers.core.routes.Assets.at("bootstrap/js/bootstrap.min.js")"></script>
 	<script src="@controllers.portal.routes.PortalData.jsRoutes"></script>

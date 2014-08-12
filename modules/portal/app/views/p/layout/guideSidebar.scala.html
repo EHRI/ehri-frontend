@@ -17,6 +17,7 @@
 				<li><a @if(location == page.path) { class="active" } href="@controllers.portal.routes.Guides.layoutRetrieval(menu._1.path, page.path)">@page.name</a></li>
 			}
 		}
+		<li><a href="@controllers.portal.routes.Guides.listGuides()">@Messages("guides")</a></li>
 	</ul>
 </div>
 

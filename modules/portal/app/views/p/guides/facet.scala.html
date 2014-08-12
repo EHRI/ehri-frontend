@@ -3,23 +3,24 @@
 @import models.{GuidePage, Guide}
 
 @js = {
-    <script type="text/javascript" src="@controllers.portal.routes.Assets.versioned("js/portal-guide.js")">
-
-    </script>
+    <script type="text/javascript" src="@controllers.portal.routes.Assets.versioned("js/portal-guide.js")"></script>
 }
 @facets = {
+    
+    @views.html.common.search.selectedFacets(items)
+
     @for(page <- template._2._2) {
         @if(page.position == GuidePage.MenuPosition.Top && page.layout != GuidePage.Layout.Markdown) {
             <ul class="list-unstyled">
                 <li>
-                    <div class="facet-form" data-target="@controllers.portal.routes.Guides.layoutRetrieval(template._2._1.path, page.path)">
+                    <div class="facet-form @page.path" data-name="@page.path" data-target="@controllers.portal.routes.Guides.layoutRetrieval(template._2._1.path, page.path)">
                         <h1 class="nav-ehri nav-ehri-black">
                             @page.name
                             <a class="btn-sm btn-default pull-right search"><span class="glyphicon glyphicon-search"></span></a>
                             <a class="btn-sm btn-default pull-right more" href="#@page.path"><span class="glyphicon glyphicon-plus-sign"></span></a>
                         </h1>
                         <ul class="nav nav-pills nav-ehri nav-grey-black nav-justified facet-search">
-                            <li><input class="nav-ehri nav-ehri-grey nav-ehri-input q" placeholder="Quick Search" /></li>
+                            <li><input class="nav-ehri nav-ehri-grey nav-ehri-input q" name="@page.path" placeholder="Quick Search" /></li>
                             <li><button type="submit" class="nav-ehri nav-ehri-grey nav-ehri-input"><span class="glyphicon glyphicon-search"></span><span class="text-hide">Search</span></button></li>
                         </ul>
                         <ul class="list-unstyled nav-ehri nav-ehri-light-grey facet-list" id="@page.path">
@@ -62,11 +63,10 @@
 }
 
 
-@p.layout.guideLayoutFacet(template, facets= facets, scripts = js) {
+@p.layout.guideLayoutFacet(template, facets = facets, scripts = js) {
     <article>
         <header>
             <h3>@Messages("pagination.displayingItems", items.offset + 1, items.offset + items.items.size, items.total)</h3>
-            @views.html.common.search.selectedFacets(items)
         </header>
         <section>
             <section class="content-results">
