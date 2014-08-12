@@ -122,12 +122,13 @@ case class VirtualUnits @Inject()(implicit globalConfig: global.GlobalConfig, se
       entities = List(EntityType.VirtualUnit),
       facetBuilder = entityFacets
     ).map { result =>
-      Ok(views.html.virtualUnit.show(Some(item), item, result.page, result.params, result.facets,
+      Ok(views.html.virtualUnit.show(Nil, item, result.page, result.params, result.facets,
           vuRoutes.get(id), annotations, links))
     }
   }
 
-  def getInVc(vid: String, id: String) = userProfileAction.async { implicit userOpt => implicit request =>
+  def getInVc(id: String, pathStr: Option[String]) = userProfileAction.async { implicit userOpt => implicit request =>
+    val pathIds = pathStr.map(_.split(",").toList).getOrElse(List.empty)
     def includedChildren(parent: AnyModel): Future[QueryResult[AnyModel]] = parent match {
       case d: DocumentaryUnit => find[AnyModel](
           filters = Map(SolrConstants.PARENT_ID -> d.id),
@@ -143,7 +144,7 @@ case class VirtualUnits @Inject()(implicit globalConfig: global.GlobalConfig, se
       case _ => Future.successful(QueryResult.empty)
     }
 
-    val vcF: Future[VirtualUnit] = backend.get[VirtualUnit](vid)
+    val pathF: Future[List[AnyModel]] = Future.sequence(pathIds.map(pid => backend.getAny[AnyModel](pid)))
     val itemF: Future[AnyModel] = backend.getAny[AnyModel](id)
     val linksF: Future[Seq[Link]] = backend.getLinksForItem(id)
     val annsF: Future[Seq[Annotation]] = backend.getAnnotationsForItem(id)
@@ -151,10 +152,10 @@ case class VirtualUnits @Inject()(implicit globalConfig: global.GlobalConfig, se
       item <- itemF
       links <- linksF
       annotations <- annsF
-      vc <- vcF
+      path <- pathF
       children <- includedChildren(item)
-    } yield Ok(views.html.virtualUnit.showVc(Some(vc), item, children.page, children.params, children.facets,
-      vuRoutes.getInVc(vid, id), annotations, links))
+    } yield Ok(views.html.virtualUnit.showVc(path, item, children.page, children.params, children.facets,
+      vuRoutes.getInVc(id, pathStr), annotations, links))
   }
 
   def history(id: String) = historyAction(id) { item => page => params => implicit userOpt => implicit request =>

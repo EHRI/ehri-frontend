@@ -1,12 +1,13 @@
-@(collection: Option[VirtualUnit], item: AnyModel)(implicit userOpt: Option[UserProfile], req: RequestHeader, globalConfig: global.GlobalConfig, lang: Lang, descriptionId: Option[String] = None)
+@(path: List[AnyModel], item: AnyModel)(implicit userOpt: Option[UserProfile], req: RequestHeader, globalConfig: global.GlobalConfig, lang: Lang, descriptionId: Option[String] = None)
 
 @common.search.searchItemOutline(item.id) {
     @* include an anchor to the selected description *@
     @defining(descriptionId.map(did => "#desc-" + did).getOrElse("")) { anchor =>
-        @collection.map { vc =>
-            <a href="@{controllers.archdesc.routes.VirtualUnits.getInVc(vc.id, item.id) + anchor}">@item.toStringLang</a>
-        }.getOrElse {
-
+        @if(!path.isEmpty) {
+            @defining(path.map(_.id).mkString(",")) { pathStr =>
+            <a href="@{controllers.archdesc.routes.VirtualUnits.getInVc(item.id, Some(pathStr)) + anchor}">@item.toStringLang</a>
+            }
+        } else {
             <a href="@{controllers.archdesc.routes.VirtualUnits.get(item.id) + anchor}">@item.toStringLang</a>
         }
     }
