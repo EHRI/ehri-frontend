@@ -13,16 +13,18 @@ import models.json.ClientConvertable
  * @tparam A
  */
 case class ItemPage[+A](
-  items: Seq[A],
-  page: Int,
-  count:Int,
-  total: Long,
-  facets: utils.search.FacetClassList,
+  items: Seq[A] = Seq.empty,
+  page: Int = 1,
+  count:Int = 0,
+  total: Long = 0,
+  facets: utils.search.FacetClassList = List.empty,
   spellcheck: Option[(String,String)] = None
 ) extends utils.AbstractPage[A]
 
 
 object ItemPage {
+
+  def empty[T]: ItemPage[T] = new ItemPage[T]()
 
   import play.api.libs.functional.syntax._
   import play.api.libs.json._
