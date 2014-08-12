@@ -47,7 +47,15 @@
                 <a href="@controllers.portal.routes.Guides.browseDocument(template._2._1.path, item.id)">@item.toStringLang</a>
             </h3>
             <div class="search-item-body">
-                <ol class="collapsible">@wrapParent(item, item.parent)</ol>
+                <ol class="collapsible">
+
+                    @item.holder.map { holder =>
+                        <li>
+                            @linkTo(holder, template)
+                        </li>
+                    }
+                    @wrapParent(item, item.parent)
+                </ol>
                 @p.documentaryUnit.listItemBody(item, false)
             </div>
     </div>

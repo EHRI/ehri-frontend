@@ -1,0 +1,71 @@
+@(item: Repository, template: (GuidePage, (Guide, List[GuidePage])))(implicit userOpt: Option[UserProfile], request: RequestHeader, prefs: utils.SessionPrefs, globalConfig: global.GlobalConfig, lang: Lang, flash: Flash)
+
+@import Isdiah._
+@import p.common.descriptionSection
+@import views.html.common.listValue
+@import views.html.common.stringValue
+@import views.html.common.renderDates
+
+@optionalContent = {
+    @item.model.logoUrl.map { logo =>
+            @* FIXME: Horrid hack here... *@
+            @defining(item.url.getOrElse(new java.net.URL("http://" + request.host + request.uri))) { url =>
+                <a href="@url">
+                    <img class="repository-logo" src="@logo" alt="@item.toStringLang" />
+                </a>
+            }
+        }
+
+        @* FIXME: This will list addresses for multiple descriptions
+        regardless of which one is being displayed *@
+        @p.common.panel(Messages("portal.repository.contact")) {
+            @item.model.descriptions.map { desc =>
+                @p.repository.address(item, desc)
+            }
+        }
+}
+@p.layout.guideLayout(template, optionalContent = Some(optionalContent)) {
+    @defining(EntityType.Repository.toString) { implicit prefix =>
+        @item.model.descriptions.map { desc =>
+            <div class="item-header">
+                @p.common.otherNameList(desc.otherFormsOfName)
+                @p.common.otherNameList(desc.parallelFormsOfName)
+            </div>
+
+            @descriptionSection(DESCRIPTION_AREA) {
+                @stringValue(desc.details.history, HISTORY)
+                @stringValue(desc.details.generalContext, GEOCULTURAL_CONTEXT)
+                @stringValue(desc.details.mandates, MANDATES)
+                @stringValue(desc.details.administrativeStructure, ADMINISTRATIVE_STRUCTURE)
+                @stringValue(desc.details.records, RECORDS)
+                @stringValue(desc.details.buildings, BUILDINGS)
+                @stringValue(desc.details.holdings, HOLDINGS)
+                @stringValue(desc.details.findingAids, FINDING_AIDS)
+            }
+
+            @descriptionSection(ACCESS_AREA) {
+                @stringValue(desc.access.openingTimes, OPENING_TIMES)
+                @stringValue(desc.access.conditions, CONDITIONS)
+                @stringValue(desc.access.accessibility, ACCESSIBILITY)
+            }
+
+            @descriptionSection(SERVICES_AREA) {
+                @stringValue(desc.services.researchServices, RESEARCH_SERVICES)
+                @stringValue(desc.services.reproductionServices, REPROD_SERVICES)
+                @stringValue(desc.services.publicAreas, PUBLIC_AREAS)
+            }
+
+            @descriptionSection(CONTROL_AREA) {
+                @stringValue(desc.control.descriptionIdentifier, DESCRIPTION_IDENTIFIER)
+                @stringValue(desc.control.institutionIdentifier, INSTITUTION_IDENTIFIER)
+                @stringValue(desc.control.rulesAndConventions, RULES_CONVENTIONS)
+                @stringValue(desc.control.status, STATUS)
+                @stringValue(desc.control.levelOfDetail, LEVEL_OF_DETAIL)
+                @stringValue(desc.control.datesCDR, DATES_CVD)
+                @listValue(desc.control.languages, LANGUAGES_USED, transformFunc = {s => views.Helpers.languageCodeToName(s)})
+                @listValue(desc.control.scripts, SCRIPTS_USED, transformFunc = {s => views.Helpers.scriptCodeToName(s)})
+                @listValue(desc.control.sources, SOURCES)
+            }
+        }
+    }
+}

@@ -162,6 +162,10 @@ object GuidePage {
   def document(title: Option[String] = None): GuidePage = {
     GuidePage(None, Layout.Document, title.getOrElse("Documents"), "documents", MenuPosition.Top, "", None, None)
   }
+
+  def repository(title: Option[String] = None): GuidePage = {
+    GuidePage(None, Layout.Document, title.getOrElse("Repository"), "repository", MenuPosition.Top, "", None, None)
+  }
 }
 
 
