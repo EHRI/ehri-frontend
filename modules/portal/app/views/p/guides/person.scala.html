@@ -18,10 +18,10 @@
 
 				    <div class="search-item" id="@item.id">
 				            <h3 class="search-item-heading type-highlight @item.isA.toString">
-				                <a class="popover-accesspoints" data-target="@item.id">@item.toStringLang</a> 
+				                @item.toStringLang
 				            </h3>
 				            <div class="search-item-body">
-				                <div><small><a  href="@controllers.portal.routes.Guides.guideFacets(template._2._1.path)?kw[]=@item.id"><span class="glyphicon glyphicon-search"></span></a> <a target="_blank" href="http://www.holocaust.cz/en/victims/@item.model.identifier"><span class="glyphicon glyphicon-globe" title="Web"></span></a></small></div>
+				                <div><small><a class="popover-accesspoints" data-target="@item.id"><span class="glyphicon glyphicon-search"></span></a> <a target="_blank" href="http://www.holocaust.cz/en/victims/@item.model.identifier"><span class="glyphicon glyphicon-globe" title="Web"></span></a></small></div>
 				            	@item match { 
 				            		 case d: HistoricalAgent => {
 				            		 	 @p.historicalAgent.listItemBody(d)
