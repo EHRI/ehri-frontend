@@ -14,7 +14,7 @@ trait SearchDAO extends RestDAO {
 
   def requestUrl = "http://%s:%d/%s/entities".format(host, port, mount)
 
-  def get[MT](id: String)(implicit apiUser: ApiUser,  rd: RestReadable[MT]): Future[MT] = {
+  def getAny[MT](id: String)(implicit apiUser: ApiUser,  rd: RestReadable[MT]): Future[MT] = {
     WS.url(enc(requestUrl, id)).withHeaders(authHeaders.toSeq: _*).get().map { response =>
       checkErrorAndParse(response)(rd.restReads)
     }
