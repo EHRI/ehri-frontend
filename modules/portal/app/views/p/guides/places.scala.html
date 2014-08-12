@@ -34,12 +34,11 @@
 						$.each(data, function(index, link) {
 							links.push('<li><a href="'+ jsRoutes.controllers.portal.Guides.browseDocument(GUIDE_PATH, link.id).url +'">'+ link.name+'</a></li>')
 						})
-						$(elem.popup._contentNode).html(
-							$(elem.popup._contentNode).html() +
-							'<ul>' +
-							links.join(" ") +
-							'<li><a href="'+ VIRTUAL_UNIT_ROUTE+ data.id + '">More...</a></li></ul>'
-						)
+						var html = $(elem.popup._contentNode).html();
+						if(links.length > 0) { var html = html + '<ul>' + links.join(" "); }
+						if(links.length == 5) { var html = html + '<li><a href="'+ VIRTUAL_UNIT_ROUTE+ id + '">More...</a></li>'; }
+						if(links.length > 0) { var html = html + '</ul>'; }
+						$(elem.popup._contentNode).html(html)
 					});
 				})
 			}
