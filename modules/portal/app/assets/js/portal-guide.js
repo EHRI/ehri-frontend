@@ -1,7 +1,12 @@
 $(document).ready(function() {
+    $('.facet-form').tooltip({
+        selector : '[data-toggle="tooltip"]',
+        container : 'body'
+    });
     $(".facet-form h1 .search").on("click", function(e) {
         e.preventDefault();
         cross = $(this).children(".glyphicon");
+
         if(cross.hasClass("glyphicon-search")) {
             $(this).parents(".facet-form").children(".facet-search").show();
             cross.removeClass("glyphicon-search").addClass("glyphicon-remove");
