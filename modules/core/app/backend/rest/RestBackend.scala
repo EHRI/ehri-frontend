@@ -18,7 +18,8 @@ case class RestBackend(eventHandler: EventHandler)
   with RestLinks
   with RestEvents
   with RestSocial
-  with RestVisibility {
+  with RestVisibility
+  with SearchDAO {
 
   private val api = new ApiDAO
   private val admin = new AdminDAO(eventHandler)
