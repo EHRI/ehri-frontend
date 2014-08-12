@@ -1,4 +1,4 @@
-@(result: utils.search.ItemPage[(AnyModel, utils.search.SearchHit)])(implicit userOpt: Option[UserProfile], req: RequestHeader, globalConfig: global.GlobalConfig, lang: Lang)
+@(collection: Option[VirtualUnit], result: utils.search.ItemPage[(AnyModel, utils.search.SearchHit)])(implicit userOpt: Option[UserProfile], req: RequestHeader, globalConfig: global.GlobalConfig, lang: Lang)
 
 <ul class="list-unstyled">
     @result.items.map { case(item, hit) =>
@@ -6,7 +6,10 @@
             <li>
                 @item match {
                     case d: VirtualUnit => {
-                        @listItem(d)
+                        @listItem(collection, d)
+                    }
+                    case d: DocumentaryUnit => {
+                        @listItem(collection, d)
                     }
                     case _ => {
                         <div>Unknown model for list: @item</div>

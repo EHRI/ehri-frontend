@@ -18,10 +18,11 @@ import play.api.mvc.AnyContent
 import play.api.data.Form
 import play.api.data.Forms._
 import solr.facet.FieldFacetClass
-import scala.Some
 import solr.facet.SolrQueryFacet
 import solr.facet.QueryFacetClass
 import backend.rest.Constants
+import scala.concurrent.Future
+import models.base.AnyModel
 
 
 @Singleton
@@ -121,9 +122,39 @@ case class VirtualUnits @Inject()(implicit globalConfig: global.GlobalConfig, se
       entities = List(EntityType.VirtualUnit),
       facetBuilder = entityFacets
     ).map { result =>
-      Ok(views.html.virtualUnit.show(item, result.page, result.params, result.facets,
+      Ok(views.html.virtualUnit.show(Some(item), item, result.page, result.params, result.facets,
           vuRoutes.get(id), annotations, links))
     }
+  }
+
+  def getInVc(vid: String, id: String) = userProfileAction.async { implicit userOpt => implicit request =>
+    def includedChildren(parent: AnyModel): Future[QueryResult[AnyModel]] = parent match {
+      case d: DocumentaryUnit => find[AnyModel](
+          filters = Map(SolrConstants.PARENT_ID -> d.id),
+          entities = List(d.isA),
+          facetBuilder = entityFacets)
+      case d: VirtualUnit => d.includedUnits match {
+        case other :: _ => includedChildren(other)
+        case _ => find[AnyModel](
+          filters = Map(SolrConstants.PARENT_ID -> d.id),
+          entities = List(d.isA),
+          facetBuilder = entityFacets)
+      }
+      case _ => Future.successful(QueryResult.empty)
+    }
+
+    val vcF: Future[VirtualUnit] = backend.get[VirtualUnit](vid)
+    val itemF: Future[AnyModel] = backend.getAny[AnyModel](id)
+    val linksF: Future[Seq[Link]] = backend.getLinksForItem(id)
+    val annsF: Future[Seq[Annotation]] = backend.getAnnotationsForItem(id)
+    for {
+      item <- itemF
+      links <- linksF
+      annotations <- annsF
+      vc <- vcF
+      children <- includedChildren(item)
+    } yield Ok(views.html.virtualUnit.showVc(Some(vc), item, children.page, children.params, children.facets,
+      vuRoutes.getInVc(vid, id), annotations, links))
   }
 
   def history(id: String) = historyAction(id) { item => page => params => implicit userOpt => implicit request =>
