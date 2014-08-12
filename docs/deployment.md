@@ -23,6 +23,6 @@ fab prod deploy
 Alternatively you can just do `fab prod clean_deploy` to clean/build and deploy in one go. Currently the
 available commands are:
 
-One the server the app is run from within `/opt/webapps/docview`. With that dir there is a symlink `target` which
+One the server the app is run from within `/opt/webapps/docview`. Within that dir there is a symlink called `target` which
 points to the current version with the `deploys` directory. A version is named with the current Git hash appended
 with the date. The contents of each deploy directory is the `target` directory that sbt creates.
