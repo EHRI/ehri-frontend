@@ -16,6 +16,15 @@
 		padding:10px 10px;
 		display:block;
 		width:100%;
+
+		&[type="button"], &[type="submit"] { cursor:pointer; }
+
+		&.nav-ehri-light-grey {	background-color:lighten(@ehri-darkest-grey, 20%);	}
+		&.nav-ehri-grey {	
+	color:white; background-color:lighten(@ehri-darkest-grey, 10%);	}
+		&.nav-ehri-black {	
+	color:white; background-color:@ehri-darkest-grey;	}
+
 		&.nav-ehri-light-grey:hover {	background-color:lighten(@ehri-darkest-grey, 30%);	}
 		&.nav-ehri-grey:hover {	background-color:lighten(@ehri-darkest-grey, 20%);	}
 		&.nav-ehri-black:hover {	background-color:lighten(@ehri-darkest-grey, 10%);	}

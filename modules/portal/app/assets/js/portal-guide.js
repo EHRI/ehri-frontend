@@ -1,4 +1,28 @@
+
+//From stackoverflow
+var urlParams;
+(window.onpopstate = function () {
+    var match,
+        pl     = /\+/g,  // Regex for replacing addition symbol with a space
+        search = /([^&=]+)=?([^&]*)/g,
+        decode = function (s) { return decodeURIComponent(s.replace(pl, " ")); },
+        query  = window.location.search.substring(1);
+
+    urlParams = {};
+    while (match = search.exec(query))
+       urlParams[decode(match[1])] = decode(match[2]);
+})();
+
 $(document).ready(function() {
+
+    console.log(urlParams);
+      // Handling form-submission via links, i.e. search form
+      // when facets are clicked
+      $('.facet-form').on("change", "input[type='checkbox']", function (e) {
+        $(e.target).closest("form").submit();
+      });
+
+    //Tooltip
     $('.facet-form').tooltip({
         selector : '[data-toggle="tooltip"]',
         container : 'body'
@@ -112,5 +136,23 @@ $(document).ready(function() {
                 );
             }
         });
+    });
+
+
+    $(".facet-form").each(function() {
+        var form = $(this),
+               $param = urlParams[form.attr("data-name")];
+        if($param !== "undefined" && $param !== "") {
+            $(this).find(".search").trigger("click");
+            Q = form.find("input.q").val($param);
+            $.get(
+                form.attr("data-target") + "?q=" + $param,
+                {},
+                function(data) {
+                    form.children("ul.facet-list").html(data).show();
+                },
+                "html"
+            );
+        }
     });
 });
