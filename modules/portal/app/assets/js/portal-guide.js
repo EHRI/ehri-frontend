@@ -15,7 +15,6 @@ var urlParams;
 
 $(document).ready(function() {
 
-    console.log(urlParams);
       // Handling form-submission via links, i.e. search form
       // when facets are clicked
       $('.facet-form').on("change", "input[type='checkbox']", function (e) {
@@ -142,7 +141,7 @@ $(document).ready(function() {
     $(".facet-form").each(function() {
         var form = $(this),
                $param = urlParams[form.attr("data-name")];
-        if($param !== "undefined" && $param !== "") {
+        if(form.attr("data-name") in urlParams && $param != "") {
             $(this).find(".search").trigger("click");
             Q = form.find("input.q").val($param);
             $.get(
