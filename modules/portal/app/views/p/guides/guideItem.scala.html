@@ -14,7 +14,9 @@
     }
     case d: HistoricalAgent => {
         <div class="item-option  item-to-preview"><i class="glyphicon glyphicon-info-sign"></i></div>
-        <a class="item-title">@d.toStringLang</a>@filteredLink(d.id)
+        <a class="item-title">@d.toStringLang</a> @filteredLink(d.id) 
+
+            <a target="_blank" href="http://www.holocaust.cz/en/victims/@d.model.identifier"><span class="glyphicon glyphicon-globe" title="Web"></span></a>
         <div class="hidden-md hidden-lg item-description">
             @d.model.descriptions.headOption.map { desc =>
                 <dl>
