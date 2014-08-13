@@ -16,6 +16,9 @@
     case d: Concept => {
         @concept.searchItem(d, hit, watched)
     }
+    case d: VirtualUnit => {
+        @virtualUnit.searchItem(d, Seq.empty, hit, watched)
+    }
     case _ => {
         @views.html.common.search.searchItem(item)
     }

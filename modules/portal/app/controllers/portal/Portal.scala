@@ -222,6 +222,20 @@ case class Portal @Inject()(implicit globalConfig: global.GlobalConfig, searchDi
     }
   }
 
+  def browseVirtuals = userBrowseAction.async { implicit userDetails => implicit request =>
+    val filters = if (request.getQueryString(SearchParams.QUERY).filterNot(_.trim.isEmpty).isEmpty)
+      Map(SolrConstants.TOP_LEVEL -> true) else Map.empty[String,Any]
+
+    find[VirtualUnit](
+      filters = filters,
+      entities = List(EntityType.VirtualUnit),
+      facetBuilder = docSearchFacets
+    ).map { case QueryResult(page, params, facets) =>
+      Ok(p.virtualUnit.list(page, params, facets, portalRoutes.browseVirtuals(),
+        userDetails.watchedItems))
+    }
+  }
+
   def browseVirtual(id: String, pathStr: Option[String]) = userProfileAction.async { implicit userOpt => implicit request =>
     val pathIds = pathStr.map(_.split(",").toList).getOrElse(List.empty)
     val pathF: Future[List[AnyModel]] = Future.sequence(pathIds.map(pid => backend.getAny[AnyModel](pid)))
@@ -242,7 +256,8 @@ case class Portal @Inject()(implicit globalConfig: global.GlobalConfig, searchDi
     val pathIds = pathStr.map(_.split(",").toList).getOrElse(List.empty)
 
     def buildFilter(v: VirtualUnit): String = {
-      val pairs: List[(String, String)] = SolrConstants.PARENT_ID -> v.id :: v.includedUnits.map(inc => SolrConstants.ITEM_ID -> inc.id)
+      val pairs: List[(String, String)] =
+        SolrConstants.PARENT_ID -> v.id :: v.includedUnits.map(inc => SolrConstants.ITEM_ID -> inc.id)
       s"(${pairs.map(t => t._1 + ":" + t._2).mkString(" OR ")})"
     }
 
