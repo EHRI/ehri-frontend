@@ -22,13 +22,15 @@
 				            </h3>
 				            <div class="search-item-body">
 				                <div><small><a class="popover-accesspoints" data-target="@item.id"><span class="glyphicon glyphicon-search"></span></a> <a target="_blank" href="http://www.holocaust.cz/en/victims/@item.model.identifier"><span class="glyphicon glyphicon-globe" title="Web"></span></a></small></div>
-				            	@item match { 
-				            		 case d: HistoricalAgent => {
-				            		 	 @p.historicalAgent.listItemBody(d)
-				            		}
-				            		case _ => {
-
-				            		}
+					            @item.model.descriptions.headOption.map { desc =>
+	            		 	        		<div class="item-description">
+					                @desc.details.history.map { d =>
+					                    <p>@Html(views.Helpers.renderMarkdown(d))</p>
+					                }
+					                @desc.details.generalContext.map { d =>
+					                    <p>@Html(views.Helpers.renderMarkdown(d))</p>
+					                }
+					        		</div>
 					            }
 				            </div>
 				    </div>
