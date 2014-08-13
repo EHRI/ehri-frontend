@@ -51,14 +51,18 @@
 
          			var markerLocation = new L.LatLng(parseFloat(data.latitude),parseFloat(data.longitude));
 
-			var markerProperty = {};
+			var markerProperty = {
+				title : data.name,
+				alt : data.name
+			};
 			if("marker" in data) {
-				var markerProperty = {icon : redIcon};
+				markerProperty.icon = redIcon;
 			}
 
-			return L.marker(markerLocation, markerProperty).addTo($map).bindPopup('<b>'+ data.name + '</b>', {
+			$items[data.id] = L.marker(markerLocation, markerProperty).addTo($map).bindPopup('<b>'+ data.name + '</b>', {
 				minWidth : 300
-			})
+			});
+			return $items[data.id];
 		}
 		return false;
 	}
@@ -82,7 +86,7 @@
 						links.push('<li><a href="'+ jsRoutes.controllers.portal.Guides.browseDocument(GUIDE_PATH, link.id).url +'">'+ link.name+'</a></li>')
 					})
 					var html = $(elem.popup._contentNode).html();
-					if(links.length > 0) { var html = html + '<ul>' + links.join(" "); }
+					if(links.length > 0) { var html = html + '<ul class="list-unstyled">' + links.join(" "); }
 					if(links.length == 5) { var html = html + '<li><a href="'+ VIRTUAL_UNIT_ROUTE+ id + '">More...</a></li>'; }
 					if(links.length > 0) { var html = html + '</ul>'; }
 					$(elem.popup._contentNode).html(html)
@@ -151,6 +155,17 @@
     	addMarkerList($originalMarkers)
     	$map.fitBounds($bounds);
 
+    	$(".zoom-to").on("click", function(e) {
+    		e.preventDefault()
+    		var $elem = $(this),
+    			$lng = $elem.attr("data-longitude"),
+    			$lat = $elem.attr("data-latitude"),
+    			$id = $elem.attr("data-id"),
+    			$markerLocation = new L.LatLng(parseFloat($lat),parseFloat($lng));
+    		$map.panTo($markerLocation)
+    		$items[$id].openPopup()
+    	})
+
 	</script>
 }
 @css = {
@@ -173,12 +188,20 @@
 				            <li>
 
 					    <div class="search-item" id="@item.id">
+
+						@item.model.descriptions.headOption.map { desc =>
+							@if(desc.longitude.nonEmpty) {
+								<a class="zoom-to" href="#map" data-id="@item.id" data-longitude="@desc.longitude" data-latitude="@desc.latitude"><span class=" glyphicon glyphicon-map-marker"></span></a> 
+							}
+						}
 					                @guideItem(item, hit, controllers.portal.routes.Guides.layoutRetrieval(template._2._1.path, template._1.path), Some(template._2._1.path), template._1.layout)
 					    </div>
 				            </li>
 				        }
 				    }
 				</ul>
+
+                			@common.pagination(page)
 			</div>
 		</section>
 		}
