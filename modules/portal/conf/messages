@@ -89,6 +89,7 @@ portal.browse.documents=Archival Descriptions
 portal.browse.historicalAgents=Historical Agents
 portal.browse.documentsByRepository=Archival Descriptions By Institution
 portal.browse.concepts=Keywords
+portal.browse.virtualUnits=Virtual Collections
 
 portal.landingBlurb.repositories=Browse {0} in {1}.
 portal.landingBlurb.repositoryLink={0} repositories
