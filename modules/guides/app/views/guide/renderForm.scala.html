@@ -8,6 +8,7 @@
     @formHelpers.lineInput(f(""), Guide.PICTURE)
     @formHelpers.lineInput(f(""), Guide.VIRTUALUNIT)
     @formHelpers.textInput(f(""), Guide.DESCRIPTION)
+    @formHelpers.textInput(f(""), Guide.CSS)
     @formHelpers.checkbox(f(""), Guide.ACTIVE)
     @if(pages.isEmpty) {
         @formHelpers.hiddenInput(f("default"))

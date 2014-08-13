@@ -5,15 +5,18 @@
 <html>
     <head>
         <title>@guide._2._1.name | @guide._1.name</title>
-        <link rel="stylesheet" media="screen" href="@controllers.core.routes.Assets.versioned("css/guides.css")">
-        @styles
+        <link rel="stylesheet" media="screen" href="@controllers.core.routes.Assets.versioned("css/guides.css")" />
+        @guide._2._1.css match {
+	        case Some(css) => { @styles <style type="text/css">@css</style>}
+	        case _ => { @styles }
+	}
     </head>
     <body>
 	<header id="top">
 		<div class="container">
 			@guideHeader(guide._1.path, guide._2)
 		</div>
-		<div id="page-title" style="background-color:#360f4f;">
+		<div id="page-title">
 			<div class="container">
 				<div class="row">
 					<div class="col-md-4 col-md-push-8">
