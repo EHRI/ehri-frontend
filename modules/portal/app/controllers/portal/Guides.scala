@@ -160,7 +160,7 @@ case class Guides @Inject()(implicit globalConfig: global.GlobalConfig, searchDi
   *   Layout named "person" [HistoricalAgent]
   */
   def guideAuthority(template: GuidePage, params: Map[String, String], guide: Guide) = userBrowseAction.async { implicit userDetails => implicit request =>
-    find[HistoricalAgent](filters = params, entities = List(EntityType.HistoricalAgent)).map { r =>
+    find[HistoricalAgent](filters = params, defaultParams = SearchParams(sort = Some(utils.search.SearchOrder.CharCount)), entities = List(EntityType.HistoricalAgent)).map { r =>
       if (isAjax) Ok(p.guides.ajax(template -> guide, r.page, r.params))
       else Ok(p.guides.person(template -> (guide -> guide.findPages), r.page, r.params))
     }
@@ -229,10 +229,36 @@ case class Guides @Inject()(implicit globalConfig: global.GlobalConfig, searchDi
 
 
   /*
+  *  Layout named "document"
+  */
+    def browseDocument(path: String, id: String) = getAction[DocumentaryUnit](EntityType.DocumentaryUnit, id) {
+        item => details => implicit userOpt => implicit request =>
+      itemOr404(Guide.find(path, activeOnly = true)) { guide =>
+        Ok(p.guides.documentaryUnit(
+          item,
+          details.annotations,
+          details.links,
+          details.watched,
+          GuidePage.document(Some(item.toStringLang)) -> (guide -> guide.findPages))
+        )
+      }
+    }
+
+    /*
+     * Function for displaying repository
+     */
+
+     def browseRepository(path: String, id: String) = getAction[Repository](EntityType.Repository, id) {
+        item => details => implicit userOpt => implicit request =>
+        itemOr404(Guide.find(path, activeOnly = true)) { guide => 
+          Ok(p.guides.repository(item, GuidePage.repository(Some(item.toStringLang)) -> (guide -> guide.findPages)))
+        }
+    }
+
+  /*
   *
   * Ajax functionnalities for guides
   *
-  * Can be tested through
       $.post(
       "http://localhost:9000/guides/:guide/:page",
       {},
@@ -242,6 +268,11 @@ case class Guides @Inject()(implicit globalConfig: global.GlobalConfig, searchDi
   *
   */
 
+/*********************************************
+ *
+ *        FACETED SEARCH PART
+ * 
+ */
   /*
   * Form for browse 
   */
@@ -289,9 +320,6 @@ case class Guides @Inject()(implicit globalConfig: global.GlobalConfig, searchDi
   }
   /*
    *    Page defintion
-   */
-   /*
-    * Could be better rewritten
    */
   def facetPage(count: Int, page:Option[Int]) : (Int, Int) = {
     val start = (page.getOrElse(1) - 1) * 10
@@ -367,32 +395,5 @@ case class Guides @Inject()(implicit globalConfig: global.GlobalConfig, searchDi
       immediate(NotFound(views.html.errors.pageNotFound()))
     }
   }
-
-  /*
-  *   Unit browse
-  */
-    def browseDocument(path: String, id: String) = getAction[DocumentaryUnit](EntityType.DocumentaryUnit, id) {
-        item => details => implicit userOpt => implicit request =>
-      itemOr404(Guide.find(path, activeOnly = true)) { guide =>
-        Ok(p.guides.documentaryUnit(
-          item,
-          details.annotations,
-          details.links,
-          details.watched,
-          GuidePage.document(Some(item.toStringLang)) -> (guide -> guide.findPages))
-        )
-      }
-    }
-
-    /*
-     *  Repo browse
-     */
-
-     def browseRepository(path: String, id: String) = getAction[Repository](EntityType.Repository, id) {
-        item => details => implicit userOpt => implicit request =>
-        itemOr404(Guide.find(path, activeOnly = true)) { guide => 
-          Ok(p.guides.repository(item, GuidePage.repository(Some(item.toStringLang)) -> (guide -> guide.findPages)))
-        }
-    }
 
 }
