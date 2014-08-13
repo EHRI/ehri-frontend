@@ -192,7 +192,8 @@ case class Guides @Inject()(implicit globalConfig: global.GlobalConfig, searchDi
         extra = geoloc,
         defaultParams = SearchParams(
           entities = List(EntityType.Concept), 
-          sort = Some(sort)
+          sort = Some(sort),
+          count = 50
         ),
         entities = List(EntityType.Concept), 
         facetBuilder = conceptFacets).map { r =>

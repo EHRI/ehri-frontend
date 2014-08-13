@@ -1,70 +1,117 @@
+
 @(template: (GuidePage, (Guide, List[GuidePage])), page: utils.search.ItemPage[(Concept,utils.search.SearchHit)], params: utils.search.SearchParams)(implicit userOpt: Option[UserProfile], request: RequestHeader, prefs: utils.SessionPrefs, globalConfig: global.GlobalConfig, lang: Lang, flash: Flash)
 
 @js = {
 	<script src="//cdn.leafletjs.com/leaflet-0.7.3/leaflet.js"></script>
 	<script type="text/javascript">
-		/*
-			Functions
-		*/
-		addMarker = function(data) {
-			if(!$items[data.id]) {
-				$items[data.id] = true;
-				return L.marker([parseFloat(data.latitude),parseFloat(data.longitude)]).addTo($map).bindPopup('<b>'+ data.name + '</b>', {
-					minWidth : 300
-				})
+	/*
+	 *	Params
+	 */
+	 //From stackoverflow
+	 function isNumeric(n) {
+	  return !isNaN(parseFloat(n)) && isFinite(n);
+	}
+	var templateParams = "@template._1.params".replace("&amp;","&"),
+	       mapParams = {
+	       	lat : 50.508174054149,
+	       	lng : 14.152353697237,
+	       	zoom : 13
+	       };
+	(window.onpopstate = function () {
+	    var match,
+	        pl     = /\+/g,  // Regex for replacing addition symbol with a space
+	        search = /([^&=]+)=?([^&]*)/g,
+	        decode = function (s) { return decodeURIComponent(s.replace(pl, " ")); },
+	        query  = window.location.search.substring(1);
+
+	    while (match = search.exec(templateParams))
+	       if(isNumeric(match[2])) { mapParams[decode(match[1])] = parseFloat(decode(match[2])); }
+	       else { mapParams[decode(match[1])] = decode(match[2]); }
+
+	    while (match = search.exec(query))
+	       if(isNumeric(match[2])) { mapParams[decode(match[1])] = parseFloat(decode(match[2])); }
+	       else { mapParams[decode(match[1])] = decode(match[2]); }
+	})();
+
+	//var myIcon = L.icon({imageUrl: '@controllers.core.routes.Assets.at("images/marker-icon-red.png")'});
+
+         var RedIcon = L.Icon.Default.extend({
+            options: {
+            	    iconUrl: '@controllers.core.routes.Assets.at("images/marker-icon-red.png")'
+            }
+         });
+         var redIcon = new RedIcon();
+
+	/*
+		Functions
+	*/
+	addMarker = function(data) {
+		if(!$items[data.id]) {
+			$items[data.id] = true;
+
+         			var markerLocation = new L.LatLng(parseFloat(data.latitude),parseFloat(data.longitude));
+
+			var markerProperty = {};
+			if("marker" in data) {
+				var markerProperty = {icon : redIcon};
 			}
-			return false;
-		}
 
-		addMarkerList = function(data) {
-			var i = 0;
-			while(data[i]) {
-				if(data[i].latitude !== "None" && data[i].longitude !== "None") {
-					bindMarker(addMarker(data[i]), data[i].id)
-				}
-				++i;
+			return L.marker(markerLocation, markerProperty).addTo($map).bindPopup('<b>'+ data.name + '</b>', {
+				minWidth : 300
+			})
+		}
+		return false;
+	}
+
+	addMarkerList = function(data) {
+		var i = 0;
+		while(data[i]) {
+			if(data[i].latitude !== "None" && data[i].longitude !== "None") {
+				bindMarker(addMarker(data[i]), data[i].id)
 			}
+			++i;
 		}
+	}
 
-		bindMarker = function(marker, id) {
-			if(marker) {
-				marker.on("popupopen", function(elem) {
-					$.get(jsRoutes.controllers.portal.Portal.linkedDataInContext(id , VIRTUAL_UNIT).url, function(data) {
-						var links = [];
-						$.each(data, function(index, link) {
-							links.push('<li><a href="'+ jsRoutes.controllers.portal.Guides.browseDocument(GUIDE_PATH, link.id).url +'">'+ link.name+'</a></li>')
-						})
-						var html = $(elem.popup._contentNode).html();
-						if(links.length > 0) { var html = html + '<ul>' + links.join(" "); }
-						if(links.length == 5) { var html = html + '<li><a href="'+ VIRTUAL_UNIT_ROUTE+ id + '">More...</a></li>'; }
-						if(links.length > 0) { var html = html + '</ul>'; }
-						$(elem.popup._contentNode).html(html)
-					});
-				})
-			}
+	bindMarker = function(marker, id) {
+		if(marker) {
+			marker.on("popupopen", function(elem) {
+				$.get(jsRoutes.controllers.portal.Portal.linkedDataInContext(id , VIRTUAL_UNIT).url, function(data) {
+					var links = [];
+					$.each(data, function(index, link) {
+						links.push('<li><a href="'+ jsRoutes.controllers.portal.Guides.browseDocument(GUIDE_PATH, link.id).url +'">'+ link.name+'</a></li>')
+					})
+					var html = $(elem.popup._contentNode).html();
+					if(links.length > 0) { var html = html + '<ul>' + links.join(" "); }
+					if(links.length == 5) { var html = html + '<li><a href="'+ VIRTUAL_UNIT_ROUTE+ id + '">More...</a></li>'; }
+					if(links.length > 0) { var html = html + '</ul>'; }
+					$(elem.popup._contentNode).html(html)
+				});
+			})
 		}
-		/*
-			Variables
-		*/
+	}
+	/*
+		Variables
+	*/
 
-		var $map = L.map('map').setView([50.508174054149, 14.152353697237], 13),
-			$items = {},
-			$bounds = [],
-			$originalMarkers = [];
+	var $map = L.map('map').setView([mapParams.lat, mapParams.lng], mapParams.zoom),
+		$items = {},
+		$bounds = [],
+		$originalMarkers = [];
 
 
 
-		/*
-			Initiate
-		*/
-		L.tileLayer('http://{s}.tile.osm.org/{z}/{x}/{y}.png', {
-			attribution: '&copy; <a href="http://osm.org/copyright">OpenStreetMap</a> contributors'
-		}).addTo($map);
-		
-		
-		/*
-			Movement loading
-		*/
+	/*
+		Initiate
+	*/
+	L.tileLayer('http://{s}.tile.osm.org/{z}/{x}/{y}.png', {
+		attribution: '&copy; <a href="http://osm.org/copyright">OpenStreetMap</a> contributors'
+	}).addTo($map);
+	
+	
+	/*
+		Movement loading
+	*/
     	$map.on('moveend', function(e) {
     		$.get(
     			"@controllers.portal.routes.Guides.layoutRetrieval(template._2._1.path, template._1.path)", 
@@ -83,14 +130,17 @@
 		@page.items.map { case(item, hit) =>
 			@item.model.descriptions.headOption.map { desc =>
 				@if(desc.longitude.nonEmpty) {
-					$originalMarkers.push(
-						{
-							id : "@item.id",
-							latitude : @desc.latitude,
-							longitude : @desc.longitude,
-							name : "@item.toStringLang"
-						}
-					)
+
+					var m = {
+						id : "@item.id",
+						latitude : @desc.latitude,
+						longitude : @desc.longitude,
+						name : "@item.toStringLang"
+					}
+					if("q" in mapParams && mapParams.q.length > 0 && mapParams.q != "undefined") {
+						m.marker = true;
+					}
+					$originalMarkers.push(m)
 			    	$bounds.push([@desc.latitude, @desc.longitude])
 		    	}
 	    	}
@@ -106,7 +156,38 @@
 @css = {
 	<link rel="stylesheet" href="//cdn.leafletjs.com/leaflet-0.7.3/leaflet.css" />
 }
-@p.layout.guideLayout(template, js, css) {
+@optionalContent = {
+
+	@params.query match {
+		case Some(text) => {
+			<section class="archival-context panel-details repository">
+			<div class="panel-heading">
+				<h3>
+					Search results
+				</h3>
+			</div>
+			<div class="panel-body">
+				<ul class="list-unstyled">
+				    @page.items.map { case(item, hit) =>
+				        @defining(Some(hit.id)) { implicit descriptionId =>
+				            <li>
+
+					    <div class="search-item" id="@item.id">
+					                @guideItem(item, hit, controllers.portal.routes.Guides.layoutRetrieval(template._2._1.path, template._1.path), Some(template._2._1.path), template._1.layout)
+					    </div>
+				            </li>
+				        }
+				    }
+				</ul>
+			</div>
+		</section>
+		}
+		case _ => {
+			@Html(views.Helpers.renderMarkdown(template._2._1.description.getOrElse("")))
+		}
+	}
+}
+@p.layout.guideLayout(template, js, css, optionalContent = Some(optionalContent)) {
 	<article>
 		<header>
 			<form role="form" action="@controllers.portal.routes.Guides.layoutRetrieval(template._2._1.path, template._1.path)">
@@ -122,5 +203,6 @@
 		<footer>
 		</footer>
 	</article>
+
 
 }
