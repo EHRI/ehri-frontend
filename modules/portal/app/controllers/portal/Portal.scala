@@ -22,6 +22,7 @@ import utils._
 import com.google.inject._
 import views.html.errors.pageNotFound
 import org.joda.time.DateTime
+import scala.concurrent.Future
 
 @Singleton
 case class Portal @Inject()(implicit globalConfig: global.GlobalConfig, searchDispatcher: Dispatcher, searchResolver: Resolver, backend: Backend,
@@ -218,6 +219,66 @@ case class Portal @Inject()(implicit globalConfig: global.GlobalConfig, searchDi
           portalRoutes.searchDocument(id), details.watched))
       else Ok(p.documentaryUnit.search(item, page, params, facets,
         portalRoutes.searchDocument(id), details.watched))
+    }
+  }
+
+  def browseVirtual(id: String, pathStr: Option[String]) = userProfileAction.async { implicit userOpt => implicit request =>
+    val pathIds = pathStr.map(_.split(",").toList).getOrElse(List.empty)
+    val pathF: Future[List[AnyModel]] = Future.sequence(pathIds.map(pid => backend.getAny[AnyModel](pid)))
+    val itemF: Future[AnyModel] = backend.getAny[AnyModel](id)
+    val linksF: Future[Seq[Link]] = backend.getLinksForItem(id)
+    val annsF: Future[Seq[Annotation]] = backend.getAnnotationsForItem(id)
+    val watchedF: Future[Page[AnyModel]] = watchedItems
+    for {
+      watched <- watchedF
+      item <- itemF
+      links <- linksF
+      annotations <- annsF
+      path <- pathF
+    } yield Ok(p.virtualUnit.show(item, annotations, links, watched, path))
+  }
+
+  def searchVirtual(id: String, pathStr: Option[String]) = userProfileAction.async { implicit userOpt => implicit request =>
+    val pathIds = pathStr.map(_.split(",").toList).getOrElse(List.empty)
+
+    def buildFilter(v: VirtualUnit): String = {
+      val pairs: List[(String, String)] = SolrConstants.PARENT_ID -> v.id :: v.includedUnits.map(inc => SolrConstants.ITEM_ID -> inc.id)
+      s"(${pairs.map(t => t._1 + ":" + t._2).mkString(" OR ")})"
+    }
+
+    def includedChildren(parent: AnyModel): Future[QueryResult[AnyModel]] = parent match {
+      case d: DocumentaryUnit => find[AnyModel](
+        filters = Map(SolrConstants.PARENT_ID -> d.id),
+        entities = List(d.isA),
+        facetBuilder = docSearchFacets)
+      case d: VirtualUnit => d.includedUnits match {
+        //case other :: _ => includedChildren(other)
+        case _ => find[AnyModel](
+          filters = Map(buildFilter(d) -> Unit),
+          entities = List(EntityType.VirtualUnit, EntityType.DocumentaryUnit),
+          facetBuilder = docSearchFacets)
+      }
+      case _ => Future.successful(QueryResult.empty)
+    }
+
+    val pathF: Future[List[AnyModel]] = Future.sequence(pathIds.map(pid => backend.getAny[AnyModel](pid)))
+    val itemF: Future[AnyModel] = backend.getAny[AnyModel](id)
+    val linksF: Future[Seq[Link]] = backend.getLinksForItem(id)
+    val annsF: Future[Seq[Annotation]] = backend.getAnnotationsForItem(id)
+    val watchedF: Future[Page[AnyModel]] = watchedItems
+    for {
+      watched <- watchedF
+      item <- itemF
+      links <- linksF
+      annotations <- annsF
+      path <- pathF
+      children <- includedChildren(item)
+    } yield {
+      if (isAjax)
+        Ok(p.virtualUnit.childItemSearch(item, children.page, children.params, children.facets,
+          portalRoutes.searchVirtual(id, pathStr), watched, path))
+      else Ok(p.virtualUnit.search(item, children.page, children.params, children.facets,
+          portalRoutes.searchVirtual(id, pathStr), watched, path))
     }
   }
 

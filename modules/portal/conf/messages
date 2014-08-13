@@ -65,6 +65,7 @@ portal.browse=Browse
 portal.showDetails=Show Item Details
 portal.hideDetails=Hide Item Details
 portal.showItems={0,choice,0#{0} Items|1#1 Item|1<{0,number,integer} Items}
+portal.showChildItems=Child Items
 portal.profile=Profile
 portal.profile.updateProfile=Edit Profile
 portal.profile.updateProfileImage=Set Profile Image

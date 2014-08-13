@@ -1,0 +1,13 @@
+@(item: AnyModel, path: Seq[AnyModel], watched: Boolean)(implicit userOpt: Option[UserProfile], req: RequestHeader, globalConfig: global.GlobalConfig, lang: Lang)
+
+@layout.infobar {
+    @path.map { prev =>
+        <li>@p.helpers.linkTo(prev)</li>
+    }
+    <li>@p.helpers.linkTo(item)</li>
+} {
+    @userOpt.map { user =>
+        @p.common.watchButtons(item, watched)
+    }
+}
+

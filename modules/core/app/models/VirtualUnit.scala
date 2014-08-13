@@ -154,11 +154,14 @@ case class VirtualUnit(
     new DocumentaryUnitF(
       id = model.id,
       identifier = model.identifier,
-      descriptions = allDescriptions
+      descriptions = if(descriptions.isEmpty) allDescriptions else descriptions
     ),
     holder = holder,
     accessors = accessors,
     latestEvent = latestEvent,
     meta = meta
   )
+
+  override def childCount: Option[Int]
+  = meta.value.get(Entity.CHILD_COUNT).flatMap(_.asOpt[Int]).map(_ + includedUnits.size)
 }

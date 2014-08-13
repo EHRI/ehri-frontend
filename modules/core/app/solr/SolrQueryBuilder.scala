@@ -271,8 +271,11 @@ case class SolrQueryBuilder(writerType: WriterType, debugQuery: Boolean = false)
     // Apply other arbitrary hard filters
     filters.map { case (key, value) =>
       val filter = value match {
-        case s: String => "%s:\"%s\"".format(key, s)
-        case _ => "%s:%s".format(key, value)
+        // Have to quote strings
+        case s: String => "%s:\"%s\"".format(key, value)
+        // not value means the key is a query!
+        case Unit => key
+        case _ => s"$key:$value"
       }
       req.setFilterQuery(FilterQuery(multiple = req.filterQuery.getMultiple ++ Seq(filter)))
     }
