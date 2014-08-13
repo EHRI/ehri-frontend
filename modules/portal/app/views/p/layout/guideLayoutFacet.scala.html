@@ -6,12 +6,8 @@
     <head>
         <title>@guide._2._1.name | @Messages("portal.guides.faceted")</title>
         <link rel="stylesheet" media="screen" href="@controllers.core.routes.Assets.versioned("css/guides.css")">
-        
-        @guide._2._1.css match {
-	        case Some(css) => { @styles <style type="text/css">@css</style>}
-	        case _ => { @styles }
-	    }
-	        
+        @styles
+        <style type="text/css">@guide._2._1.css.getOrElse("")</style>
     </head>
     <body>
 		<header id="top">
