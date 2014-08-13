@@ -1,6 +1,6 @@
 @(them: UserProfile, users: utils.AbstractPage[UserProfile], params: utils.PageParams, myFollowing: Seq[UserProfile])(implicit userOpt: Option[UserProfile], request: RequestHeader, prefs: utils.SessionPrefs, globalConfig: global.GlobalConfig, lang: Lang, flash: Flash)
 
-@p.layout.portalLayout(Messages("portal.social.userFollowing", them.toStringLang), "user") {
+@p.layout.portalLayout(Messages("portal.social.userFollowing", them.toStringLang), EntityType.UserProfile.toString) {
 
     @p.social.profileBar(them){
         @for(user <- userOpt if user.id != them.id) {

@@ -1,0 +1,14 @@
+@(item: AnyModel, link: Call)(implicit userOpt: Option[UserProfile], request: RequestHeader, prefs: utils.SessionPrefs, globalConfig: global.GlobalConfig, lang: Lang, flash: Flash)
+
+@item match {
+    case d: Holder[_] => {
+        <div class="content-load">
+            <div class="content-load-data">
+
+            </div>
+            <a class="load-in-view" href="@link">@Messages("portal.showChildItems")</a>
+        </div>
+    }
+    case _ => {
+    }
+}

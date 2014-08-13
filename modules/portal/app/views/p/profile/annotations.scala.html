@@ -2,7 +2,7 @@
 
 @* user should always be defined here *@
 @userOpt.map { user =>
-    @p.layout.portalLayout(Messages("portal.annotation.list")) {
+    @p.layout.portalLayout(Messages("portal.annotation.list"), EntityType.UserProfile.toString) {
         @layout.infobar {
         } {
         }

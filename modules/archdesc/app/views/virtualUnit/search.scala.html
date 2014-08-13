@@ -2,7 +2,7 @@
     implicit userOpt: Option[UserProfile], req: RequestHeader, globalConfig: global.GlobalConfig, lang: Lang, flash: Flash)
 
 @layout.adminSearchLayout(Messages("virtualUnit.search"), result, params, facets, action) {
-    @searchItemList(result)
+    @searchItemList(Nil, result)
 } {
     @common.search.facetList(result.facets, action)
 }
