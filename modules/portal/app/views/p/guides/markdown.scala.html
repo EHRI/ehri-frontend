@@ -1,8 +1,14 @@
 @(template: (GuidePage, (Guide, List[GuidePage])), content: String)(implicit userOpt: Option[UserProfile], request: RequestHeader, prefs: utils.SessionPrefs, globalConfig: global.GlobalConfig, lang: Lang, flash: Flash)
 
+@js = {
+	template._1.description.getOrElse("")
+}
+@sidebar = {
 
-@p.layout.guideLayout(template) {
+	@Html(views.Helpers.renderMarkdown(template._1.description.getOrElse("")))
+}
+@p.layout.guideLayout(template, scripts = js, optionalContent = Some(sidebar)) {
 	<article>
-		@Html(views.Helpers.renderMarkdown(content))
+		@content
 	</article>
 }

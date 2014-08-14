@@ -19,6 +19,7 @@ case class Guide(
   picture: Option[String] = None,
   virtualUnit: String,
   description: Option[String] = None,
+  css: Option[String] = None,
   active: Int = 0,
   default: Long = 0
 ) {
@@ -33,13 +34,14 @@ case class Guide(
       picture = {pi},
       virtual_unit = {vu},
       description = {de},
+      css = {css},
       active = {active},
       `default` = {default}
     WHERE
       id = {i}
     LIMIT 1
       """
-    ).on('n -> name, 'p -> path, 'vu -> virtualUnit, 'pi -> picture, 'de -> description, 'i -> id, 'active -> active, 'default -> default)
+    ).on('n -> name, 'p -> path, 'vu -> virtualUnit, 'pi -> picture, 'de -> description, 'i -> id, 'css -> css, 'active -> active, 'default -> default)
       .executeUpdate()
   }
 
@@ -80,6 +82,7 @@ object Guide {
   val PICTURE = "picture"
   val ACTIVE = "active"
   val DEFAULT = "default"
+  val CSS = "css"
 
   implicit val form = Form(
     mapping(
@@ -89,6 +92,7 @@ object Guide {
       PICTURE -> optional(nonEmptyText),
       VIRTUALUNIT -> nonEmptyText,
       DESCRIPTION -> optional(text),
+      CSS -> optional(text),
       // FIXME: Active really shouldn't be an int
       ACTIVE -> optional(boolean).transform[Int](f => if(f.getOrElse(false)) 1 else 0, i => Some(i > 0)),
       DEFAULT -> longNumber
@@ -102,23 +106,24 @@ object Guide {
       get[Option[String]](PICTURE) ~
       get[String](VIRTUALUNIT) ~
       get[Option[String]](DESCRIPTION) ~
+      get[Option[String]](CSS) ~
       get[Int](ACTIVE) ~
       get[Long](DEFAULT) map {
-      case gid ~ name ~ path ~ pic ~ virtualUnit ~ desc ~ active ~ deft =>
-        Guide(gid, name, path, pic, virtualUnit, desc, active, deft)
+      case gid ~ name ~ path ~ pic ~ virtualUnit ~ desc ~ css ~ active ~ deft =>
+        Guide(gid, name, path, pic, virtualUnit, desc, css, active, deft)
     }
   }
 
-  def blueprint(): Guide = Guide(Some(0), "", "", Some(""), "", Some(""), active = 0, 0)
+  def blueprint(): Guide = Guide(Some(0), "", "", Some(""), "", Some(""), Some(""), active = 0, 0)
 
   /*
   *   Create function
   */
-  def create(name: String, path: String, picture: Option[String] = None, virtualUnit: String, description: Option[String] = None, active: Int): Option[Guide] = DB.withConnection { implicit connection =>
+  def create(name: String, path: String, picture: Option[String] = None, virtualUnit: String, description: Option[String] = None, css: Option[String] = None, active: Int): Option[Guide] = DB.withConnection { implicit connection =>
     val id: Option[Long] = SQL("""
       INSERT INTO research_guide
-        (name, path, picture, virtual_unit, description, active) VALUES ({n}, {p}, {pi}, {vu}, {de}, {a})""")
-      .on('n -> name, 'p -> path, 'pi -> picture, 'vu -> virtualUnit, 'de -> description, 'a -> active).executeInsert()
+        (name, path, picture, virtual_unit, description, css, active) VALUES ({n}, {p}, {pi}, {vu}, {de}, {css}, {a})""")
+      .on('n -> name, 'p -> path, 'pi -> picture, 'vu -> virtualUnit, 'de -> description, 'css -> css, 'a -> active).executeInsert()
     id.flatMap(findById)
   }
 

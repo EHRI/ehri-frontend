@@ -13,6 +13,7 @@
    		row.toString -> Messages(fieldPrefix + "." + row)
 	}))
     @formHelpers.textInput(f(""), GuidePage.CONTENT)
+    @formHelpers.textInput(f(""), GuidePage.DESCRIPTION)
     @formHelpers.textInput(f(""), GuidePage.PARAMS)
     @formHelpers.hiddenInput(f("parent"))
 }

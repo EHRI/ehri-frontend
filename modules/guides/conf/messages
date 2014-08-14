@@ -12,6 +12,8 @@ guide.picture=Picture
 guide.picture.description=Path to the picture of the guide
 guide.default=Default page
 guide.default.description=Page available at the root of the guide
+guide.css=CSS personnalization for the guide
+guide.css.description= Some CSS styling
 guide.active=Active
 guide.virtual_unit=Virtual Unit ID
 guide.unactive=Not Active
@@ -46,6 +48,7 @@ guidePage.position=Menu Position
 guidePage.layout=Layout
 guidePage.content=Content
 guidePage.parent=Parent
+guidePage.description=Secondary Content
 guidePage.params=Default parameters
 
 guidePage.objectId.description=Automatic Identifier
@@ -53,9 +56,10 @@ guidePage.name.description=Title of the page to be shown in menu
 guidePage.path.description=Will be available through /guides/nameOfTheGuide/path
 guidePage.position.description=Menu Position (top menu or right menu)
 guidePage.layout.description=Layout to render the data
-guidePage.content.description=Either markdown-formated text or identifier of a cVoc/AuthoritativeSet
+guidePage.content.description=Either markdown-formated text, identifier of a cVoc/AuthoritativeSet or Html
 guidePage.parent.description=Parent of the guide
 guidePage.params.description=An URL query string to be parsed. eg. : lat=80&lng=15
+guidePage.description.description=Secondary content. In normal case, the description of the page shown in the right part of the guide. In case of a free text page, you should write the javascript here
 
 guidePage.map=Map
 guidePage.keyword=Horizontally Organized Concepts

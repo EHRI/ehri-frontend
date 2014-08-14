@@ -49,6 +49,7 @@ CREATE TABLE token (
 
 ALTER TABLE token ADD CONSTRAINT token_profile_id FOREIGN KEY (id) REFERENCES users (id) ON DELETE CASCADE;
 
+
 CREATE TABLE research_guide (
   id INTEGER(11) NOT NULL AUTO_INCREMENT PRIMARY KEY,
   name VARCHAR(255) DEFAULT NULL,
@@ -56,6 +57,7 @@ CREATE TABLE research_guide (
   picture VARCHAR(255) DEFAULT NULL,
   virtual_unit VARCHAR(255) DEFAULT NULL,
   description text,
+  `css` text,
   active INT(1) NULL DEFAULT 0,
   `default` int(1) DEFAULT 0
 );
@@ -71,8 +73,10 @@ CREATE TABLE research_guide_page (
   content text,
   path VARCHAR(45) DEFAULT NULL,
   position VARCHAR(45) DEFAULT NULL,
+  `description` text,
   params VARCHAR(255) DEFAULT NULL
 );
+
 
 ALTER TABLE research_guide_page ADD CONSTRAINT research_guide_page_id FOREIGN KEY (research_guide_id) REFERENCES research_guide (id) ON DELETE CASCADE;
 

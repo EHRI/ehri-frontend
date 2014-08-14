@@ -22,6 +22,7 @@ case class GuidePage(
   position: GuidePage.MenuPosition.Value,
   content: String,
   parent: Option[Long],
+  description: Option[String] = None,
   params: Option[String] = None
 ) {
   /*
@@ -40,11 +41,12 @@ case class GuidePage(
         position = {m},
         content = {c},
         research_guide_id = {parent},
-        params = {params}
+        params = {params},
+        description = {desc}
       WHERE id = {id}
       LIMIT 1
         """
-      ).on('l -> layout, 'n -> name, 'p -> path, 'm -> position, 'c -> content, 'parent -> parent, 'id -> id, 'params -> params).executeUpdate()
+      ).on('l -> layout, 'n -> name, 'p -> path, 'm -> position, 'c -> content, 'parent -> parent, 'id -> id, 'params -> params, 'desc -> description).executeUpdate()
   }
 
   /*
@@ -75,6 +77,7 @@ object GuidePage {
   val CONTENT = "content"
   val PARENT = "parent"
   val PARAMS = "params"
+  val DESCRIPTION = "description"
 
   object Layout extends Enumeration with StorableEnum {
     val Markdown = Value("md")
@@ -99,6 +102,7 @@ object GuidePage {
       POSITION -> models.forms.enum(MenuPosition),
       CONTENT -> nonEmptyText,
       PARENT -> optional(longNumber),
+      DESCRIPTION -> optional(nonEmptyText),
       PARAMS -> optional(nonEmptyText)
     )(GuidePage.apply)(GuidePage.unapply)
   )
@@ -114,10 +118,11 @@ object GuidePage {
     get[String](PATH) ~
     get[MenuPosition.Value](POSITION) ~
     get[String](CONTENT) ~
-    get[Option[Long]]("research_guide_id") ~
+    get[Option[Long]]("research_guide_id") ~ 
+    get[Option[String]](DESCRIPTION) ~ 
     get[Option[String]](PARAMS) map {
-      case oid ~ layout ~ name ~ path ~ menu ~ query ~ pid ~ params  =>
-        GuidePage(oid, layout, name, path, menu, query, pid, params)
+      case oid ~ layout ~ name ~ path ~ menu ~ query ~ pid ~ description ~ params  =>
+        GuidePage(oid, layout, name, path, menu, query, pid, description, params)
     }
   }
 
@@ -125,12 +130,12 @@ object GuidePage {
   * Create a new page
   */
   def create(layout: Layout.Value, name: String, path: String, menu: MenuPosition.Value = MenuPosition.Side,
-             cypher: String, parent: Option[Long] = None, params: Option[String] = None): Option[Long] = DB.withConnection {
+             cypher: String, parent: Option[Long] = None, description: Option[String], params: Option[String] = None): Option[Long] = DB.withConnection {
     implicit connection =>
       SQL(
-        """INSERT INTO research_guide_page (layout, name, path, position, content, research_guide_id, params)
-           VALUES ({l}, {n}, {p}, {m}, {c}, {parent}, {params})""")
-        .on('l -> layout, 'n -> name, 'p -> path, 'm -> menu, 'c -> cypher, 'parent -> parent, 'params -> params).executeInsert()
+        """INSERT INTO research_guide_page (layout, name, path, position, content, research_guide_id, description, params)
+           VALUES ({l}, {n}, {p}, {m}, {c}, {parent}, {desc}, {params})""")
+        .on('l -> layout, 'n -> name, 'p -> path, 'm -> menu, 'c -> cypher, 'parent -> parent, 'desc -> description, 'params -> params).executeInsert()
   }
 
   /*

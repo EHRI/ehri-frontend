@@ -2,7 +2,10 @@
 
 @import models.{GuidePage, Guide}
 
-@p.layout.guideLayout(template) {
+@sidebar = {
+	@Html(views.Helpers.renderMarkdown(template._1.description.getOrElse("")))
+}
+@p.layout.guideLayout(template, optionalContent = Some(sidebar)) {
 	<article>
 		<header>
 			<form role="form" action="@controllers.portal.routes.Guides.layoutRetrieval(template._2._1.path, template._1.path)">

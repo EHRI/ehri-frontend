@@ -7,52 +7,40 @@
         <title>@guide._2._1.name | @Messages("portal.guides.faceted")</title>
         <link rel="stylesheet" media="screen" href="@controllers.core.routes.Assets.versioned("css/guides.css")">
         @styles
+        <style type="text/css">@guide._2._1.css.getOrElse("")</style>
     </head>
     <body>
-		<header id="top">
-			<div class="container">
-				@guideHeader(guide._1.path, guide._2)
+
+	<header id="top">
+		@guideHeader(guide._1.path, guide._2, guide._2._1.name, Messages("portal.guides.faceted"))
+	</header>
+	<div class="container">
+		<div class="row">
+			<div class="col-md-8" id="main">
+				@content
 			</div>
-			<div id="page-title" style="background-color:#360f4f;">
-				<div class="container">
-					<div class="row">
-						<div class="col-md-4 col-md-push-8">
-							<h2 class="guide-name">@guide._2._1.name</h2>
-						</div>
-						<div class="col-md-8 col-md-pull-4">
-							<h1 class="guide-title">@Messages("portal.guides.faceted")</h1>
-						</div>
-					</div>
-				</div>
-			</div>
-		</header>
-		<div class="container">
-			<div class="row">
-				<div class="col-md-8" id="main">
-					@content
-				</div>
-				<div class="col-md-4" id="facets">
-					<form method="GET" action="@controllers.portal.routes.Guides.layoutRetrieval(guide._2._1.path, guide._1.path)">
-		                <ul class="nav nav-pills nav-ehri nav-ehri-black nav-justified">
-		                    <li><button type="submit" class="nav-ehri nav-ehri-black nav-ehri-input"><span class="glyphicon glyphicon-search"></span><span class="text-hide">Search</span></button></li>
-		                </ul>
-						@facets
-					</form>
-				</div>
+			<div class="col-md-4" id="facets">
+				<form method="GET" action="@controllers.portal.routes.Guides.layoutRetrieval(guide._2._1.path, guide._1.path)">
+	                <ul class="nav nav-pills nav-ehri nav-ehri-black nav-justified">
+	                    <li><button type="submit" class="nav-ehri nav-ehri-black nav-ehri-input"><span class="glyphicon glyphicon-search"></span><span class="text-hide">Search</span></button></li>
+	                </ul>
+					@facets
+				</form>
 			</div>
 		</div>
-		<footer id="right-bar" class="container">
-			<div class="well">
-				<hr />
-				<ul class="nav">
-					@for(page <- guide._2._2) {
-						@if(page.position == GuidePage.MenuPosition.Side) {
-							<li><a href="@controllers.portal.routes.Guides.guideFacets(guide._2._1.path)">@page.name</a></li>
-						}
+	</div>
+	<footer id="right-bar" class="container">
+		<div class="well">
+			<hr />
+			<ul class="nav">
+				@for(page <- guide._2._2) {
+					@if(page.position == GuidePage.MenuPosition.Side) {
+						<li><a href="@controllers.portal.routes.Guides.guideFacets(guide._2._1.path)">@page.name</a></li>
 					}
-				</ul>
-			</div>
-		</footer>
+				}
+			</ul>
+		</div>
+	</footer>
         <script src="//ajax.googleapis.com/ajax/libs/jquery/1.10.2/jquery.min.js"></script>
         <script src="@controllers.core.routes.Assets.at("bootstrap/js/bootstrap.min.js")"></script>
 		@scripts
