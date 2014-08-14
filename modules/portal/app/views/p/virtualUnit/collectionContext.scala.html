@@ -1,4 +1,4 @@
-@(path: Seq[AnyModel])(implicit userOpt: Option[UserProfile], req: RequestHeader, globalConfig: global.GlobalConfig, lang: Lang)
+@(item: AnyModel, path: Seq[AnyModel])(implicit userOpt: Option[UserProfile], req: RequestHeader, globalConfig: global.GlobalConfig, lang: Lang)
 
 
 <section class="collection-context panel-details virtualUnit">
@@ -6,5 +6,10 @@
         <div class="panel-heading">
             <h3>@p.helpers.linkTo(vc)</h3>
         </div>
+        @if(item.isInstanceOf[DocumentaryUnit]) {
+            <div class="panel-body">
+                @p.helpers.linkTo(item.asInstanceOf[DocumentaryUnit], Messages("portal.virtualUnit.viewInArchivalContext"))
+            </div>
+        }
     }
 </section>

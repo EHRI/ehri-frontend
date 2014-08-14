@@ -41,9 +41,6 @@ GET         /institutions/:id/search        @controllers.portal.Portal.searchRep
 GET         /units                          @controllers.portal.Portal.browseDocuments
 GET         /units/:id                      @controllers.portal.Portal.browseDocument(id: String)
 GET         /units/:id/search               @controllers.portal.Portal.searchDocument(id: String)
-GET         /virtual                        @controllers.portal.Portal.browseVirtuals
-GET         /virtual/:id                    @controllers.portal.Portal.browseVirtual(id: String, via: Option[String] ?= None)
-GET         /virtual/:id/search             @controllers.portal.Portal.searchVirtual(id: String, via: Option[String] ?= None)
 GET         /authorities                    @controllers.portal.Portal.browseHistoricalAgents
 GET         /authorities/:id                @controllers.portal.Portal.browseHistoricalAgent(id: String)
 GET         /keywords                       @controllers.portal.Portal.browseConcepts
@@ -56,6 +53,13 @@ GET         /vocabularies/:id               @controllers.portal.Portal.browseVoc
 GET         /vocabularies/:id/search        @controllers.portal.Portal.searchVocabulary(id: String)
 GET         /newsFeed                       @controllers.portal.Portal.newsFeed
 GET         /item/:entityType/:id           @controllers.portal.Portal.browseItem(entityType: EntityType.Value, id: String)
+
+# Virtual Units
+GET         /virtual                        @controllers.portal.VirtualUnits.browseVirtualCollections
+GET         /virtual/:id                    @controllers.portal.VirtualUnits.browseVirtualCollection(id: String)
+GET         /virtual/:id/search             @controllers.portal.VirtualUnits.searchVirtualCollection(id: String)
+GET         /virtual/:via/:id/search        @controllers.portal.VirtualUnits.searchVirtualUnit(via: String, id: String)
+GET         /virtual/:via/:id               @controllers.portal.VirtualUnits.browseVirtualUnit(via: String, id: String)
 
 # Annotations...
 GET         /annotations                    @controllers.portal.Profile.annotations(format: controllers.DataFormat.Value ?= controllers.DataFormat.Html)
