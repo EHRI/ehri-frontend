@@ -5,7 +5,9 @@
 <html>
     <head>
         <title>@guide._2._1.name | @guide._1.name</title>
-        <link rel="stylesheet" media="screen" href="@controllers.core.routes.Assets.versioned("css/guides.css")" />
+        <link rel="stylesheet" media="screen" href="@controllers.core.routes.Assets.versioned("css/guides.css")">
+        @styles
+        <style type="text/css">@guide._2._1.css.getOrElse("")</style>
     </head>
     <body>
 	<header id="top">
