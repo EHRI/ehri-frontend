@@ -5,7 +5,7 @@
         @path.lastOption.map { p =>
             @wrapParent(doc, path.dropRight(1))
             <li>
-                <a class="search-item-parent-name type-highlight @p.isA" href="@controllers.portal.routes.Portal.browseVirtual(p.id, views.p.Helpers.pathToParam(path))">@p.toStringLang</a>
+                <a class="search-item-parent-name type-highlight @p.isA" href="@views.p.Helpers.virtualUnitUrl(path, item.id)">@p.toStringLang</a>
             </li>
         }
     }
@@ -17,7 +17,7 @@
                 @p.common.watchButtonsSmall(item, watched)
             </div>
             <h3 class="search-item-heading type-highlight @item.isA.toString">
-                <a class="@item.isA" href="@controllers.portal.routes.Portal.browseVirtual(item.id, views.p.Helpers.pathToParam(path))">@item.toStringLang</a>
+                <a class="@item.isA" href="@views.p.Helpers.virtualUnitUrl(path, item.id)">@item.toStringLang</a>
             </h3>
             <div class="search-item-body">
                 <ol class="collapsible">@wrapParent(item, path)</ol>

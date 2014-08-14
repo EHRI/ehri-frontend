@@ -139,6 +139,8 @@ portal.historicalAgent.entityType.family=Family
 portal.historicalAgent.entityType.corporateBody=Corporate Body
 portal.historicalAgent.set=Historical Agent
 
+portal.virtualUnit.viewInArchivalContext=View in archival context
+
 portal.facet.lod=Level of Detail
 portal.facet.lod.low=Low
 portal.facet.lod.medium=Medium
