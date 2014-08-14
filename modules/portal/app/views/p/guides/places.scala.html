@@ -77,20 +77,37 @@
 		}
 	}
 
+	panToPopup = function(elem)  {
+
+		var px = $map.project(elem.popup._latlng);
+		px.y -= elem.popup._container.clientHeight/2
+		$map.panTo($map.unproject(px),{animate: true});
+	}
+
 	bindMarker = function(marker, id) {
 		if(marker) {
 			marker.on("popupopen", function(elem) {
-				$.get(jsRoutes.controllers.portal.Portal.linkedDataInContext(id , VIRTUAL_UNIT).url, function(data) {
-					var links = [];
-					$.each(data, function(index, link) {
-						links.push('<li><a href="'+ jsRoutes.controllers.portal.Guides.browseDocument(GUIDE_PATH, link.id).url +'">'+ link.name+'</a></li>')
-					})
-					var html = $(elem.popup._contentNode).html();
-					if(links.length > 0) { var html = html + '<ul class="list-unstyled">' + links.join(" "); }
-					if(links.length == 5) { var html = html + '<li><a href="'+ VIRTUAL_UNIT_ROUTE+ id + '">More...</a></li>'; }
-					if(links.length > 0) { var html = html + '</ul>'; }
-					$(elem.popup._contentNode).html(html)
-				});
+				if(id in $markers) {
+					var html = $markers[id];
+					$(elem.popup._contentNode).html(html);
+					panToPopup(elem);
+				} else {
+
+					$.get(jsRoutes.controllers.portal.Portal.linkedDataInContext(id , VIRTUAL_UNIT).url, function(data) {
+						var links = [];
+						$.each(data, function(index, link) {
+							links.push('<li><a href="'+ jsRoutes.controllers.portal.Guides.browseDocument(GUIDE_PATH, link.id).url +'">'+ link.name+'</a></li>')
+						})
+						var html = $(elem.popup._contentNode).html();
+						if(links.length > 0) { var html = html + '<ul class="list-unstyled">' + links.join(" "); }
+						if(links.length == 5) { var html = html + '<li><a href="'+ VIRTUAL_UNIT_ROUTE+ id + '">More...</a></li>'; }
+						if(links.length > 0) { var html = html + '</ul>'; }
+						$markers[id] = html;
+						$(elem.popup._contentNode).html(html)
+						panToPopup(elem);
+					});
+				}
+
 			})
 		}
 	}
@@ -101,7 +118,8 @@
 	var $map = L.map('map').setView([mapParams.lat, mapParams.lng], mapParams.zoom),
 		$items = {},
 		$bounds = [],
-		$originalMarkers = [];
+		$originalMarkers = [],
+		$markers = {};
 
 
 
