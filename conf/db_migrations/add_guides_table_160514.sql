@@ -9,6 +9,7 @@ CREATE TABLE research_guide (
   picture VARCHAR(255) DEFAULT NULL,
   virtual_unit VARCHAR(255) DEFAULT NULL,
   description text,
+  `css` text,
   active INT(1) NULL DEFAULT 0,
   `default` int(1) DEFAULT 0
 );
@@ -24,6 +25,7 @@ CREATE TABLE research_guide_page (
   content text,
   path VARCHAR(45) DEFAULT NULL,
   position VARCHAR(45) DEFAULT NULL,
+  `description` text,
   params VARCHAR(255) DEFAULT NULL
 );
 
