@@ -141,6 +141,13 @@ portal.historicalAgent.set=Historical Agent
 
 portal.virtualUnit.viewInArchivalContext=View in archival context
 
+portal.bookmarkSet.create=Create Bookmark Set
+portal.bookmarkSet.create.submit=Submit
+portal.bookmarkSet.edit=Edit Bookmark Set
+portal.bookmarkSet.edit.submit=Submit
+portal.bookmarkSet.delete=Delete Bookmark Set
+portal.bookmarkSet.delete.submit=Delete
+
 portal.facet.lod=Level of Detail
 portal.facet.lod.low=Low
 portal.facet.lod.medium=Medium

@@ -1,0 +1,19 @@
+@(form: Form[BookmarkSet], action: Call)(implicit userOpt: Option[UserProfile], request: RequestHeader, lang: Lang, token: play.filters.csrf.CSRF.Token)
+
+@import BookmarkSet._
+
+@implicitField = @{ views.html.helper.FieldConstructor(p.helpers.fieldTemplate.f) }
+
+@helper.form(action = action, 'role -> "form", 'class -> "form-horizontal validate-form", 'id -> "bookmark-set-form") {
+    @formHelpers.csrfToken()
+    @helper.inputText(form(NAME))
+    @formHelpers.textInput(form(""), DESCRIPTION)
+
+    <div class="form-group">
+        <div class="col-sm-offset-4 col-sm-8">
+            <button type="submit" class=" btn  btn-post ">
+                @Messages("portal.bookmarkSet.create.submit")
+            </button>
+        </div>
+    </div>
+}
