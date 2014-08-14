@@ -3,7 +3,11 @@
 @js = {
 	template._1.description.getOrElse("")
 }
-@p.layout.guideLayout(template, scripts = js) {
+@sidebar = {
+
+	@Html(views.Helpers.renderMarkdown(template._1.description.getOrElse("")))
+}
+@p.layout.guideLayout(template, scripts = js, optionalContent = Some(sidebar)) {
 	<article>
 		@content
 	</article>

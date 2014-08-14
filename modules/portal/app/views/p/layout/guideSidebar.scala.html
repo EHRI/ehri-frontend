@@ -1,13 +1,16 @@
 @(location: String, menu: (Guide, List[GuidePage]), sidebar: Option[Html] = None)(implicit request: RequestHeader, lang: Lang)
 
-<div class="well">
-	<article>
-		@sidebar.getOrElse {
-			@Html(views.Helpers.renderMarkdown(menu._1.description.getOrElse("")))
-		}
-	</article>
-</div>
-<hr />
+@sidebar match {
+	case Some(htm) => {
+		<div class="well">
+			<article>
+				@htm
+			</article>
+		</div>
+		<hr />
+	}
+	case _ => { }
+}
 
 <div class="well">
 	<ul class="nav nav-pills nav-stacked">
@@ -19,6 +22,14 @@
 		}
 		<li><a href="@controllers.portal.routes.Guides.listGuides()">@Messages("guides")</a></li>
 	</ul>
+</div>
+
+<hr />
+
+<div class="well">
+	<article>
+		@Html(views.Helpers.renderMarkdown(menu._1.description.getOrElse("")))
+	</article>
 </div>
 
 <hr />

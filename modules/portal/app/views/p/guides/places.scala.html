@@ -171,6 +171,8 @@
 @css = {
 	<link rel="stylesheet" href="//cdn.leafletjs.com/leaflet-0.7.3/leaflet.css" />
 }
+
+
 @optionalContent = {
 
 	@params.query match {
@@ -206,7 +208,7 @@
 		</section>
 		}
 		case _ => {
-			@Html(views.Helpers.renderMarkdown(template._2._1.description.getOrElse("")))
+			@Html(views.Helpers.renderMarkdown(template._1.description.getOrElse("")))
 		}
 	}
 }
