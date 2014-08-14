@@ -3,11 +3,12 @@ package backend.rest
 import backend.{EventHandler, Social, ApiUser}
 import scala.concurrent.{ExecutionContext, Future}
 import utils.{Page, FutureCache, PageParams}
-import models.{VirtualUnit, Link, Annotation, UserProfile}
+import models._
 import defines.EntityType
 import models.json.RestReadable
 import models.base.AnyModel
 import play.api.cache.Cache
+import backend.ApiUser
 
 /**
  * @author Mike Bryant (http://github.com/mikesname)
@@ -150,6 +151,16 @@ trait RestSocial extends Social with RestDAO {
     userCall(enc(requestUrl, EntityType.VirtualUnit, "forUser", userId)).get().map { r =>
       parsePage(r)(VirtualUnit.Converter.restReads)
     }
+  }
+
+  def addBookmark[VT](setId: String, id: String)(implicit apiUser: ApiUser, executionContext: ExecutionContext): Future[Unit] = {
+    userCall(enc(requestUrl, EntityType.VirtualUnit, setId))
+      .withQueryString(ID_PARAM -> id).post("").map(_ => ())
+  }
+
+  def deleteBookmark[VT](setId: String, id: String)(implicit apiUser: ApiUser, executionContext: ExecutionContext): Future[Unit] = {
+    userCall(enc(requestUrl, EntityType.VirtualUnit, setId))
+      .withQueryString(ID_PARAM -> id).delete().map(_ => ())
   }
 }
 

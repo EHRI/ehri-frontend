@@ -10,17 +10,19 @@ import views.html.p
 import utils.search._
 import defines.EntityType
 import solr.SolrConstants
-import backend.Backend
+import backend.{IdGenerator, Backend}
 import controllers.base.{SessionPreferences, ControllerHelpers}
 import jp.t2v.lab.play2.auth.LoginLogout
 import utils._
+import play.api.data.Form
+import play.api.data.Forms._
 
 import com.google.inject._
 import scala.concurrent.Future
 
 @Singleton
 case class VirtualUnits @Inject()(implicit globalConfig: global.GlobalConfig, searchDispatcher: Dispatcher, searchResolver: Resolver, backend: Backend,
-    userDAO: AccountDAO)
+    userDAO: AccountDAO, idGenerator: IdGenerator)
   extends Controller
   with LoginLogout
   with ControllerHelpers
@@ -47,6 +49,33 @@ case class VirtualUnits @Inject()(implicit globalConfig: global.GlobalConfig, se
     item => details => implicit userOpt => implicit request =>
       if (isAjax) Ok(p.virtualUnit.itemDetailsVc(item, details.annotations, details.links, details.watched))
       else Ok(p.virtualUnit.show(item, details.annotations, details.links, details.watched))
+  }
+
+  def createBookmarkSet = withUserAction { implicit user => implicit request =>
+    ???
+  }
+
+  def createBookmarkSetPost = withUserAction.async { implicit user => implicit request =>
+    def bookmarkLang: String = utils.i18n.lang2to3lookup.getOrElse(request2lang.language, "eng")
+    def bookmarkSetToVu(genId: String, bs: BookmarkSet): VirtualUnitF = VirtualUnitF(
+      identifier = genId,
+      descriptions = List(
+        DocumentaryUnitDescriptionF(
+          id = None, languageCode = bookmarkLang, identity = IsadGIdentity(name = bs.name)
+        )
+      )
+    )
+
+    BookmarkSet.bookmarkForm.bindFromRequest.fold(
+      errs => ???,
+      bs => for {
+        nextid <- idGenerator.getNextNumericIdentifier(EntityType.VirtualUnit)
+        vuForm = bookmarkSetToVu(nextid, bs)
+        vu <- backend.create[VirtualUnit,VirtualUnitF](vuForm)
+      } yield {
+        ???
+      }
+    )
   }
 
   def searchVirtualCollection(id: String) = getAction.async[VirtualUnit](EntityType.VirtualUnit, id) {
