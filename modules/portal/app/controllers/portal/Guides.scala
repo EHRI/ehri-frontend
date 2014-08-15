@@ -95,27 +95,31 @@ case class Guides @Inject()(implicit globalConfig: global.GlobalConfig, searchDi
    *    Count Links by items
    */
   def countLinks(virtualUnit: String, target: List[String]): Future[Map[String, Long]] = {
-    val cypher = new CypherDAO
-      val query =  s"""
-        START 
-          virtualUnit = node:entities(__ID__= {inContext}), 
-          accessPoints = node:entities({accessPoint})
-        MATCH 
-             (link)-[:inContextOf]->virtualUnit,
-            (doc)<-[:hasLinkTarget]-(link)-[:hasLinkTarget]->accessPoints
-         WHERE doc <> accessPoints
-         RETURN accessPoints.__ID__, COUNT(ID(doc))
-        """.stripMargin
-        val params =  Map(
-          "inContext" -> JsString(virtualUnit),
-          "accessPoint" -> JsString(getFacetQuery(target))
-        )
-        cypher.cypher(query, params).map { json =>
-          (json \ "data").as[List[List[JsValue]]].flatMap {
-            case JsString(id) :: JsNumber(count) :: _ => Some(id -> count.toLong)
-            case _ => None
-          }.toMap
-        }
+    if(target.length > 0){
+        val cypher = new CypherDAO
+        val query =  s"""
+          START 
+            virtualUnit = node:entities(__ID__= {inContext}), 
+            accessPoints = node:entities({accessPoint})
+          MATCH 
+               (link)-[:inContextOf]->virtualUnit,
+              (doc)<-[:hasLinkTarget]-(link)-[:hasLinkTarget]->accessPoints
+           WHERE doc <> accessPoints
+           RETURN accessPoints.__ID__, COUNT(ID(doc))
+          """.stripMargin
+          val params =  Map(
+            "inContext" -> JsString(virtualUnit),
+            "accessPoint" -> JsString(getFacetQuery(target))
+          )
+          cypher.cypher(query, params).map { json =>
+            (json \ "data").as[List[List[JsValue]]].flatMap {
+              case JsString(id) :: JsNumber(count) :: _ => Some(id -> count.toLong)
+              case _ => None
+            }.toMap
+          }
+      } else {
+        Future.successful(Map.empty[String,Long])
+      }
   }
   /*
   *
