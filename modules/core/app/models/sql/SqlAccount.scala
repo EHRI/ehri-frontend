@@ -105,7 +105,7 @@ case class SqlAccount(id: String, email: String, verified: Boolean = false, staf
   def createValidationToken(token: UUID): Unit = DB.withConnection { implicit connection =>
     SQL(
       """INSERT INTO token (id, token, expires, is_sign_up)
-         VAlUES ({id}, {token}, DATE_ADD(NOW(), INTERVAL 1 DAY), 1)""")
+         VAlUES ({id}, {token}, DATE_ADD(NOW(), INTERVAL 1 WEEK), 1)""")
       .on('id -> id, 'token -> token.toString).executeInsert()
   }
 

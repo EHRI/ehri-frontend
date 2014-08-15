@@ -54,6 +54,13 @@ GET         /vocabularies/:id/search        @controllers.portal.Portal.searchVoc
 GET         /newsFeed                       @controllers.portal.Portal.newsFeed
 GET         /item/:entityType/:id           @controllers.portal.Portal.browseItem(entityType: EntityType.Value, id: String)
 
+# Virtual Units
+GET         /virtual                        @controllers.portal.VirtualUnits.browseVirtualCollections
+GET         /virtual/:id                    @controllers.portal.VirtualUnits.browseVirtualCollection(id: String)
+GET         /virtual/:id/search             @controllers.portal.VirtualUnits.searchVirtualCollection(id: String)
+GET         /virtual/:via/:id/search        @controllers.portal.VirtualUnits.searchVirtualUnit(via: String, id: String)
+GET         /virtual/:via/:id               @controllers.portal.VirtualUnits.browseVirtualUnit(via: String, id: String)
+
 # Annotations...
 GET         /annotations                    @controllers.portal.Profile.annotations(format: controllers.DataFormat.Value ?= controllers.DataFormat.Html)
 GET         /annotation/:id                 @controllers.portal.Annotations.annotation(id: String)

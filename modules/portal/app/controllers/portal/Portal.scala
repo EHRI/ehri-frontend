@@ -21,6 +21,7 @@ import utils._
 
 import com.google.inject._
 import views.html.errors.pageNotFound
+import org.joda.time.DateTime
 
 /*
  *    "Linked" Data import
@@ -321,15 +322,20 @@ case class Portal @Inject()(implicit globalConfig: global.GlobalConfig, searchDi
     }
   }
 
-  case class NewsItem(title: String, link: String, description: Html)
+  case class NewsItem(title: String, link: String, description: Html, pubDate: Option[DateTime] = None)
 
   object NewsItem {
+    import scala.util.control.Exception._
+    import org.joda.time.format.DateTimeFormat
     def fromRss(feed: String): Seq[NewsItem] = {
+      val pat = DateTimeFormat.forPattern("EEE, dd MMM yyyy H:m:s Z")
       (xml.XML.loadString(feed) \\ "item").map { item =>
-        new NewsItem(
-          (item \ "title").text,
-          (item \ "link").text,
-          Html((item \ "description").text))
+        NewsItem(
+          title = (item \ "title").text,
+          link = (item \ "link").text,
+          description = Html((item \ "description").text),
+          pubDate = allCatch.opt(DateTime.parse((item \ "pubDate").text, pat))
+        )
       }
     }
   }

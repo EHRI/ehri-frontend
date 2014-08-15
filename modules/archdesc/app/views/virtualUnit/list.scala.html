@@ -2,7 +2,7 @@
 
 @layout.rightSidebar(Messages("virtualUnit.list")) {
     @common.filterableList("pagination.displayingItems", page, params) {
-        @virtualUnit.itemList(page)
+        @virtualUnit.itemList(Nil, page)
     }
 } {
     @common.sidebarActions { user =>

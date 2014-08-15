@@ -1,18 +1,16 @@
-@(item: VirtualUnit)(implicit userOpt: Option[UserProfile], req: RequestHeader, globalConfig: global.GlobalConfig, lang: Lang, descriptionId: Option[String] = None)
+@(path: List[AnyModel], item: AnyModel)(implicit userOpt: Option[UserProfile], req: RequestHeader, globalConfig: global.GlobalConfig, lang: Lang, descriptionId: Option[String] = None)
 
 @common.search.searchItemOutline(item.id) {
     @* include an anchor to the selected description *@
     @defining(descriptionId.map(did => "#desc-" + did).getOrElse("")) { anchor =>
-        <a href="@{controllers.archdesc.routes.VirtualUnits.get(item.id) + anchor}">@item.toStringLang</a>
-    }
-} {
-    @item.model.primaryDescription(descriptionId).map { desc =>
-        @documentaryUnit.searchItemBody(item.asDocumentaryUnit, desc)
-    }.getOrElse {
-        @item.includedUnits.flatMap(_.descriptions).headOption.map { desc =>
-            @documentaryUnit.searchItemBody(item.asDocumentaryUnit, desc)
-        }.getOrElse {
-            <small>@Messages("describedEntity.noDescriptions")</small>
+        @if(!path.isEmpty) {
+            @defining(path.map(_.id).mkString(",")) { pathStr =>
+            <a href="@{controllers.archdesc.routes.VirtualUnits.getInVc(item.id, Some(pathStr)) + anchor}">@item.toStringLang</a>
+            }
+        } else {
+            <a href="@{controllers.archdesc.routes.VirtualUnits.get(item.id) + anchor}">@item.toStringLang</a>
         }
     }
+} {
+    @listItemBody(item)
 }

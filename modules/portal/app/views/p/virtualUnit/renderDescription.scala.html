@@ -1,0 +1,68 @@
+@(item: DocumentaryUnit, desc: DocumentaryUnitDescriptionF, links: Seq[Link], annotations: Seq[Annotation])(implicit fieldPrefix: String, userOpt: Option[UserProfile], req: RequestHeader, prefs: utils.SessionPrefs, globalConfig: global.GlobalConfig, lang: Lang)
+
+@import defines._
+@import models.IsadG._
+@import p.common.descriptionSection
+@import p.common.textField
+@import p.common.listField
+
+
+@p.common.descriptionOutline(item, desc, annotations) {
+    @defining(Annotation.fieldAnnotations(desc.id, annotations)) { implicit fieldAnnotations =>
+        @* Description *must* have an ID here or something bad has gone wrong! *@
+        @desc.id.map { descId =>
+
+            <div class="item-header">
+                <h1>@desc.name</h1>
+                @p.common.otherNameList(desc.identity.parallelFormsOfName)
+            </div>
+
+            @details(item, desc)
+
+            @descriptionSection(IDENTITY_AREA) {
+                @textField(item, descId, desc.identity.`abstract`, ABSTRACT)
+                @textField(item, descId, desc.identity.extentAndMedium, EXTENT_MEDIUM)
+            }
+
+            @descriptionSection(CONTEXT_AREA) {
+                @textField(item, descId, desc.context.biographicalHistory, ADMIN_BIOG)
+                @textField(item, descId, desc.context.archivalHistory, ARCH_HIST)
+                @textField(item, descId, desc.context.acquisition, ACQUISITION)
+            }
+            
+            @descriptionSection(CONTENT_AREA) {
+                @textField(item, descId, desc.content.scopeAndContent, SCOPE_CONTENT)
+                @textField(item, descId, desc.content.appraisal, APPRAISAL)
+                @textField(item, descId, desc.content.accruals, ACCRUALS)
+                @textField(item, descId, desc.content.systemOfArrangement, SYS_ARR)
+            }
+            
+            @descriptionSection(CONDITIONS_AREA) {
+                @textField(item, descId, desc.conditions.conditionsOfAccess, ACCESS_COND)
+                @textField(item, descId, desc.conditions.conditionsOfReproduction, REPROD_COND)
+                @textField(item, descId, desc.conditions.physicalCharacteristics, PHYSICAL_CHARS)
+                @textField(item, descId, desc.conditions.findingAids, FINDING_AIDS)
+            }
+            
+            @descriptionSection(MATERIALS_AREA) {
+                @listField(item, descId, desc.materials.locationOfOriginals, LOCATION_ORIGINALS)
+                @listField(item, descId, desc.materials.locationOfCopies, LOCATION_COPIES)
+                @listField(item, descId, desc.materials.relatedUnitsOfDescription, RELATED_UNITS)
+                @textField(item, descId, desc.materials.publicationNote, PUBLICATION_NOTE)
+            }
+            
+            @descriptionSection(NOTES_AREA) {
+                @listField(item, descId, desc.notes, NOTES)
+            }
+            
+            @descriptionSection(CONTROL_AREA) {
+                @textField(item, descId, desc.control.archivistNote, ARCHIVIST_NOTE)
+                @listField(item, descId, desc.control.sources, SOURCES)
+                @textField(item, descId, desc.control.rulesAndConventions, RULES_CONVENTIONS)
+                @textField(item, descId, desc.control.datesOfDescriptions, DATES_DESCRIPTIONS)
+            }
+        }
+    }
+
+    @p.common.accessPointLinks(item, desc, links)
+}

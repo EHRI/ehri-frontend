@@ -65,6 +65,7 @@ portal.browse=Browse
 portal.showDetails=Show Item Details
 portal.hideDetails=Hide Item Details
 portal.showItems={0,choice,0#{0} Items|1#1 Item|1<{0,number,integer} Items}
+portal.showChildItems=Child Items
 portal.profile=Profile
 portal.profile.updateProfile=Edit Profile
 portal.profile.updateProfileImage=Set Profile Image
@@ -88,6 +89,7 @@ portal.browse.documents=Archival Descriptions
 portal.browse.historicalAgents=Historical Agents
 portal.browse.documentsByRepository=Archival Descriptions By Institution
 portal.browse.concepts=Keywords
+portal.browse.virtualUnits=Virtual Collections
 
 portal.landingBlurb.repositories=Browse {0} in {1}.
 portal.landingBlurb.repositoryLink={0} repositories
@@ -136,6 +138,8 @@ portal.historicalAgent.entityType.person=Person
 portal.historicalAgent.entityType.family=Family
 portal.historicalAgent.entityType.corporateBody=Corporate Body
 portal.historicalAgent.set=Historical Agent
+
+portal.virtualUnit.viewInArchivalContext=View in archival context
 
 portal.facet.lod=Level of Detail
 portal.facet.lod.low=Low

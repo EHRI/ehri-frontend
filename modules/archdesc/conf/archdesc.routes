@@ -91,6 +91,7 @@ POST    /virtual/:id/linkjs/:accessPoint                     @controllers.archde
 GET     /virtual/:id/linkjs/:accessPoint                     @controllers.archdesc.VirtualUnits.getLink(id: String, accessPoint: String)
 POST    /virtual/:id/linkjs                                  @controllers.archdesc.VirtualUnits.createMultipleLinks(id: String)
 POST    /virtual/:id/deleteLink/:link                        @controllers.archdesc.VirtualUnits.deleteLink(id: String, link: String)
+GET     /virtual/in/:id                                     @controllers.archdesc.VirtualUnits.getInVc(id: String, path: Option[String])
 
 # Testing
 GET     /institutions/meta/:id                            @controllers.archdesc.Repositories.getClientJson(id)

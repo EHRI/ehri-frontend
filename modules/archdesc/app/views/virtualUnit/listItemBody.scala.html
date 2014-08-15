@@ -1,0 +1,23 @@
+@(item: AnyModel)(implicit userOpt: Option[UserProfile], req: RequestHeader, globalConfig: global.GlobalConfig, lang: Lang, descriptionId: Option[String] = None)
+
+@item match {
+    case d: VirtualUnit => {
+        @d.model.primaryDescription(descriptionId).map { desc =>
+            @documentaryUnit.searchItemBody(d.asDocumentaryUnit, desc)
+        }.getOrElse {
+            @d.includedUnits.flatMap(_.descriptions).headOption.map { desc =>
+                @documentaryUnit.searchItemBody(d.asDocumentaryUnit, desc)
+            }.getOrElse {
+                <small>@Messages("describedEntity.noDescriptions")</small>
+            }
+        }
+    }
+    case d: DocumentaryUnit => {
+        @d.model.primaryDescription(descriptionId).map { desc =>
+            @documentaryUnit.searchItemBody(d, desc)
+        }
+    }
+    case _ => {
+        <div>Unknown model for list: @item</div>
+    }
+}
