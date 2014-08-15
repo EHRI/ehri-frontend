@@ -44,7 +44,7 @@ trait Social {
 
   def userBookmarks(userId: String, params: PageParams = PageParams.empty)(implicit apiUser: ApiUser, executionContext: ExecutionContext): Future[Page[VirtualUnit]]
 
-  def addBookmark[VT](setId: String, id: String)(implicit apiUser: ApiUser, executionContext: ExecutionContext): Future[Unit]
+  def addBookmark(setId: String, id: String)(implicit apiUser: ApiUser, executionContext: ExecutionContext): Future[Unit]
 
-  def deleteBookmark[VT](setId: String, id: String)(implicit apiUser: ApiUser, executionContext: ExecutionContext): Future[Unit]
+  def deleteBookmark(setId: String, id: String)(implicit apiUser: ApiUser, executionContext: ExecutionContext): Future[Unit]
 }

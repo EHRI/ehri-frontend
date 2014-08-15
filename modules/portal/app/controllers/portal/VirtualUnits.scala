@@ -40,15 +40,17 @@ case class VirtualUnits @Inject()(implicit globalConfig: global.GlobalConfig, se
   override val verifiedOnly = current.configuration.getBoolean("ehri.portal.secured").getOrElse(true)
 
   private def buildFilter(v: VirtualUnit): Map[String,Any] = {
+    // Nastiness. We want a Solr query that will allow searching
+    // both the child virtual collections of a VU as well as the
+    // physical documentary units it includes. Since there is no
+    // connection from the DU to VUs it belongs to (and creating
+    // one is not feasible) we need to do this badness:
+    // - load the VU from the graph along with its included DUs
+    // - query for anything that has the VUs parent ID *or* anything
+    // with an itemId among its included DUs
     val pairs: List[(String, String)] =
       SolrConstants.PARENT_ID -> v.id :: v.includedUnits.map(inc => SolrConstants.ITEM_ID -> inc.id)
     Map(s"(${pairs.map(t => t._1 + ":" + t._2).mkString(" OR ")})" -> Unit)
-  }
-
-  def browseVirtualCollection(id: String) = getAction[VirtualUnit](EntityType.VirtualUnit, id) {
-    item => details => implicit userOpt => implicit request =>
-      if (isAjax) Ok(p.virtualUnit.itemDetailsVc(item, details.annotations, details.links, details.watched))
-      else Ok(p.virtualUnit.show(item, details.annotations, details.links, details.watched))
   }
 
   def createBookmarkSet(items: List[String] = Nil) = withUserAction { implicit user => implicit request =>
@@ -82,9 +84,15 @@ case class VirtualUnits @Inject()(implicit globalConfig: global.GlobalConfig, se
           params = Map(Constants.ID_PARAM -> items))
       } yield {
         if (isAjax) Ok("ok")
-        else Redirect(controllers.portal.routes.VirtualUnits.browseVirtualCollections())
+        else Redirect(vuRoutes.browseVirtualCollections())
       }
     )
+  }
+
+  def browseVirtualCollection(id: String) = getAction[VirtualUnit](EntityType.VirtualUnit, id) {
+    item => details => implicit userOpt => implicit request =>
+      if (isAjax) Ok(p.virtualUnit.itemDetailsVc(item, details.annotations, details.links, details.watched))
+      else Ok(p.virtualUnit.show(item, details.annotations, details.links, details.watched))
   }
 
   def searchVirtualCollection(id: String) = getAction.async[VirtualUnit](EntityType.VirtualUnit, id) {
