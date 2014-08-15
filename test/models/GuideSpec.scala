@@ -6,12 +6,14 @@ import play.api.test.PlaySpecification
 
 class GuideSpec extends PlaySpecification {
 
+  val terezinGuideName = "Terezín Research Guide" // note diacritic i!
+
   "Guide model" should {
     "locate items correctly" in new WithSqlFile("guide-fixtures.sql") {
-      Guide.findAll(activeOnly = true).size must equalTo(1)
+      Guide.findAll(activeOnly = true).size must equalTo(2)
 
       Guide.find("terezin") must beSome.which { guide =>
-        guide.name must equalTo("Terezin")
+        guide.name must equalTo(terezinGuideName)
         guide.findPages().size must beGreaterThan(0)
         guide.findPage("people") must beSome.which { page =>
           page.name must equalTo("People")
@@ -20,9 +22,9 @@ class GuideSpec extends PlaySpecification {
     }
 
     "create items correctly" in new WithSqlFile("guide-fixtures.sql") {
-      Guide.findAll(activeOnly = true).size must equalTo(1)
-      Guide.create(name = "Test", path = "test", virtualUnit = "test", active = 1) must beSome
       Guide.findAll(activeOnly = true).size must equalTo(2)
+      Guide.create(name = "Test", path = "test", virtualUnit = "test", active = 1) must beSome
+      Guide.findAll(activeOnly = true).size must equalTo(3)
       Guide.find("test") must beSome
     }
 
@@ -31,7 +33,7 @@ class GuideSpec extends PlaySpecification {
         val updated = guide.copy(path = "foo")
         updated.update()
         Guide.find("foo") must beSome.which { foo =>
-          foo.name must equalTo("Terezin")
+          foo.name must equalTo(terezinGuideName)
         }
       }
     }
@@ -70,7 +72,7 @@ class GuideSpec extends PlaySpecification {
         val updated = guide.copy(path = "foo")
         updated.update()
         Guide.find("foo") must beSome.which { foo =>
-          foo.name must equalTo("Terezin")
+          foo.name must equalTo(terezinGuideName)
         }
       }
     }

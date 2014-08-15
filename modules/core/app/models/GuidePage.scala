@@ -21,7 +21,7 @@ case class GuidePage(
   path: String,
   position: GuidePage.MenuPosition.Value,
   content: String,
-  parent: Option[Long],
+  parent: Option[Long] = None,
   description: Option[String] = None,
   params: Option[String] = None
 ) {
@@ -130,7 +130,7 @@ object GuidePage {
   * Create a new page
   */
   def create(layout: Layout.Value, name: String, path: String, menu: MenuPosition.Value = MenuPosition.Side,
-             cypher: String, parent: Option[Long] = None, description: Option[String], params: Option[String] = None): Option[Long] = DB.withConnection {
+             cypher: String, parent: Option[Long] = None, description: Option[String] = None, params: Option[String] = None): Option[Long] = DB.withConnection {
     implicit connection =>
       SQL(
         """INSERT INTO research_guide_page (layout, name, path, position, content, research_guide_id, description, params)

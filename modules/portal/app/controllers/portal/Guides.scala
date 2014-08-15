@@ -22,7 +22,7 @@ import models.{Guide, GuidePage, GeoCoordinates}
 import models.GuidePage.Layout
 import models.base.AnyModel
 import utils.search.{Facet, FacetClass}
-import play.api.libs.json.{Json, JsString, JsValue }
+import play.api.libs.json.{Json, JsString, JsValue, JsNumber}
 
 import com.google.inject._
 import play.api.Play.current
@@ -75,7 +75,7 @@ case class Guides @Inject()(implicit globalConfig: global.GlobalConfig, searchDi
     )
   }
 
-  def returnJson(hits:utils.search.ItemPage[(models.Concept, utils.search.SearchHit)]): List[JsValue] = {
+  def returnJson(hits:utils.search.ItemPage[(models.Concept, utils.search.SearchHit)], linksCount: Map[String, Long]): List[JsValue] = {
 
       hits.items.map { case(item, id) =>
         item.descriptions.map { case(desc) =>
@@ -83,12 +83,44 @@ case class Guides @Inject()(implicit globalConfig: global.GlobalConfig, searchDi
             "id" -> item.id,
             "latitude" -> desc.latitude.getOrElse(None).toString,
             "longitude" -> desc.longitude.getOrElse(None).toString,
-            "name" -> desc.name.toString
+            "name" -> desc.name.toString,
+            "links" -> linksCount.get(item.id).getOrElse(0).toString
           ))
         }.toList
       }.toList.flatten
   }
 
+
+  /*
+   *    Count Links by items
+   */
+  def countLinks(virtualUnit: String, target: List[String]): Future[Map[String, Long]] = {
+    if(target.length > 0){
+        val cypher = new CypherDAO
+        val query =  s"""
+          START 
+            virtualUnit = node:entities(__ID__= {inContext}), 
+            accessPoints = node:entities({accessPoint})
+          MATCH 
+               (link)-[:inContextOf]->virtualUnit,
+              (doc)<-[:hasLinkTarget]-(link)-[:hasLinkTarget]->accessPoints
+           WHERE doc <> accessPoints
+           RETURN accessPoints.__ID__, COUNT(ID(doc))
+          """.stripMargin
+          val params =  Map(
+            "inContext" -> JsString(virtualUnit),
+            "accessPoint" -> JsString(getFacetQuery(target))
+          )
+          cypher.cypher(query, params).map { json =>
+            (json \ "data").as[List[List[JsValue]]].flatMap {
+              case JsString(id) :: JsNumber(count) :: _ => Some(id -> count.toLong)
+              case _ => None
+            }.toMap
+          }
+      } else {
+        Future.successful(Map.empty[String,Long])
+      }
+  }
   /*
   *
   *   Routes functions for normal HTML
@@ -160,19 +192,27 @@ case class Guides @Inject()(implicit globalConfig: global.GlobalConfig, searchDi
   *   Layout named "person" [HistoricalAgent]
   */
   def guideAuthority(template: GuidePage, params: Map[String, String], guide: Guide) = userBrowseAction.async { implicit userDetails => implicit request =>
-    find[HistoricalAgent](filters = params, defaultParams = SearchParams(sort = Some(utils.search.SearchOrder.CharCount)), entities = List(EntityType.HistoricalAgent)).map { r =>
-      if (isAjax) Ok(p.guides.ajax(template -> guide, r.page, r.params))
-      else Ok(p.guides.person(template -> (guide -> guide.findPages), r.page, r.params))
-    }
+     for { 
+          r <- find[HistoricalAgent](filters = params, defaultParams = SearchParams(sort = Some(utils.search.SearchOrder.CharCount)), entities = List(EntityType.HistoricalAgent))
+          links <- countLinks(guide.virtualUnit, r.page.items.map { case(item, hit) => item.id }.toList)
+      }
+      yield {
+          if (isAjax) Ok(p.guides.ajax(template -> guide, r.page, r.params, links))
+          else Ok(p.guides.person(template -> (guide -> guide.findPages), r.page, r.params, links))
+      }
   }
 
   /*
   *   Layout named "keyword" [Concept]
   */
   def guideKeyword(template: GuidePage, params: Map[String, String], guide: Guide) = userBrowseAction.async { implicit userDetails => implicit request =>
-    find[Concept](filters = params, entities = List(EntityType.Concept), facetBuilder = conceptFacets).map { r =>
-      if (isAjax) Ok(p.guides.ajax(template -> guide, r.page, r.params))
-      else Ok(p.guides.keywords(template -> (guide -> guide.findPages), r.page, r.params))
+     for { 
+        r <- find[Concept](filters = params, entities = List(EntityType.Concept), facetBuilder = conceptFacets)
+        links <- countLinks(guide.virtualUnit, r.page.items.map { case(item, hit) => item.id }.toList)
+      }
+      yield {
+        if (isAjax) Ok(p.guides.ajax(template -> guide, r.page, r.params, links))
+        else Ok(p.guides.keywords(template -> (guide -> guide.findPages), r.page, r.params, links))
     }
   }
 
@@ -187,23 +227,18 @@ case class Guides @Inject()(implicit globalConfig: global.GlobalConfig, searchDi
           template.getParams()
         }
       ) match { case (sort, geoloc) =>
-      find[Concept](
-        params, 
-        extra = geoloc,
-        defaultParams = SearchParams(
-          entities = List(EntityType.Concept), 
-          sort = Some(sort),
-          count = 50
-        ),
-        entities = List(EntityType.Concept), 
-        facetBuilder = conceptFacets).map { r =>
+      for {
+        r <- find[Concept](params, extra = geoloc, defaultParams = SearchParams(entities = List(EntityType.Concept),sort = Some(sort),count = 50), entities = List(EntityType.Concept), facetBuilder = conceptFacets)
+        links <- countLinks(guide.virtualUnit, r.page.items.map { case(item, hit) => item.id }.toList)
+      }
+      yield {
           render {
             case Accepts.Html() => {
-              if (isAjax) Ok(p.guides.ajax(template -> guide, r.page, r.params))
-              else Ok(p.guides.places(template -> (guide -> guide.findPages), r.page, r.params))
+              if (isAjax) Ok(p.guides.ajax(template -> guide, r.page, r.params, links))
+              else Ok(p.guides.places(template -> (guide -> guide.findPages), r.page, r.params, links, Json.toJson(returnJson(r.page, links))))
             }
             case Accepts.Json() => {
-              Ok(Json.toJson(returnJson(r.page)))
+              Ok(Json.toJson(returnJson(r.page, links)))
             }
           }
       }
@@ -214,9 +249,13 @@ case class Guides @Inject()(implicit globalConfig: global.GlobalConfig, searchDi
   *   Layout named "organisation" [Concept]
   */
   def guideOrganization(template: GuidePage, params: Map[String, String], guide: Guide) = userBrowseAction.async { implicit userDetails => implicit request =>
-    find[Concept](params, defaultParams = getParams(request, EntityType.Concept), facetBuilder = conceptFacets).map { r =>
-      if (isAjax) Ok(p.guides.ajax(template -> guide, r.page, r.params))
-      else Ok(p.guides.organisation(template -> (guide -> guide.findPages), r.page, r.params))
+     for { 
+        r <- find[Concept](params, defaultParams = getParams(request, EntityType.Concept), facetBuilder = conceptFacets)
+        links <- countLinks(guide.virtualUnit, r.page.items.map { case(item, hit) => item.id }.toList)
+      }
+      yield {
+        if (isAjax) Ok(p.guides.ajax(template -> guide, r.page, r.params, links))
+        else Ok(p.guides.organisation(template -> (guide -> guide.findPages), r.page, r.params, links))
     }
   }
 
