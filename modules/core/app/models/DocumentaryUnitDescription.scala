@@ -193,7 +193,7 @@ object DocumentaryUnitDescriptionF {
 
 case class DocumentaryUnitDescriptionF(
   isA: EntityType.Value = EntityType.DocumentaryUnitDescription,
-  id: Option[String],
+  id: Option[String] = None,
   languageCode: String,
   identity: IsadGIdentity,
   context: IsadGContext = IsadGContext(),
