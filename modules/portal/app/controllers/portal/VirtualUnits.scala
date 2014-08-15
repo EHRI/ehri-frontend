@@ -10,17 +10,19 @@ import views.html.p
 import utils.search._
 import defines.EntityType
 import solr.SolrConstants
-import backend.Backend
+import backend.{IdGenerator, Backend}
 import controllers.base.{SessionPreferences, ControllerHelpers}
 import jp.t2v.lab.play2.auth.LoginLogout
 import utils._
 
 import com.google.inject._
 import scala.concurrent.Future
+import scala.concurrent.Future.{successful => immediate}
+import backend.rest.Constants
 
 @Singleton
 case class VirtualUnits @Inject()(implicit globalConfig: global.GlobalConfig, searchDispatcher: Dispatcher, searchResolver: Resolver, backend: Backend,
-    userDAO: AccountDAO)
+    userDAO: AccountDAO, idGenerator: IdGenerator)
   extends Controller
   with LoginLogout
   with ControllerHelpers
@@ -38,9 +40,62 @@ case class VirtualUnits @Inject()(implicit globalConfig: global.GlobalConfig, se
   override val verifiedOnly = current.configuration.getBoolean("ehri.portal.secured").getOrElse(true)
 
   private def buildFilter(v: VirtualUnit): Map[String,Any] = {
+    // Nastiness. We want a Solr query that will allow searching
+    // both the child virtual collections of a VU as well as the
+    // physical documentary units it includes. Since there is no
+    // connection from the DU to VUs it belongs to (and creating
+    // one is not feasible) we need to do this badness:
+    // - load the VU from the graph along with its included DUs
+    // - query for anything that has the VUs parent ID *or* anything
+    // with an itemId among its included DUs
     val pairs: List[(String, String)] =
       SolrConstants.PARENT_ID -> v.id :: v.includedUnits.map(inc => SolrConstants.ITEM_ID -> inc.id)
     Map(s"(${pairs.map(t => t._1 + ":" + t._2).mkString(" OR ")})" -> Unit)
+  }
+
+  def listBookmarkSets = withUserAction.async { implicit user => implicit request =>
+    val pageF = backend.userBookmarks(user.id, PageParams.fromRequest(request))
+    val watchedF = watchedItems
+    for {
+      page <- pageF
+      watched <- watchedF
+    } yield Ok(p.profile.bookmarkSets(page, watched))
+  }
+
+  def createBookmarkSet(items: List[String] = Nil) = withUserAction { implicit user => implicit request =>
+    if (isAjax) Ok(p.profile.bookmarkSetForm(BookmarkSet.bookmarkForm, vuRoutes.createBookmarkSetPost(items)))
+    else Ok(p.profile.createBookmarkSet(BookmarkSet.bookmarkForm, vuRoutes.createBookmarkSetPost(items)))
+  }
+
+  def createBookmarkSetPost(items: List[String] = Nil) = withUserAction.async { implicit user => implicit request =>
+    def bookmarkLang: String = utils.i18n.lang2to3lookup.getOrElse(request2lang.language, "eng")
+    def bookmarkSetToVu(genId: String, bs: BookmarkSet): VirtualUnitF = VirtualUnitF(
+      identifier = genId,
+      descriptions = List(
+        DocumentaryUnitDescriptionF(
+          id = None, languageCode = bookmarkLang, identity = IsadGIdentity(name = bs.name),
+          content = IsadGContent(scopeAndContent = bs.description)
+        )
+      )
+    )
+
+    BookmarkSet.bookmarkForm.bindFromRequest.fold(
+      errs => immediate {
+        if (isAjax) Ok(p.profile.bookmarkSetForm(errs, vuRoutes.createBookmarkSetPost(items)))
+        else Ok(p.profile.createBookmarkSet(errs, vuRoutes.createBookmarkSetPost(items)))
+      },
+      bs => for {
+        nextid <- idGenerator.getNextNumericIdentifier(EntityType.VirtualUnit)
+        vuForm = bookmarkSetToVu(s"${user.id}-vu$nextid", bs)
+        vu <- backend.create[VirtualUnit,VirtualUnitF](
+          vuForm,
+          accessors = Seq(user.id),
+          params = Map(Constants.ID_PARAM -> items))
+      } yield {
+        if (isAjax) Ok("ok")
+        else Redirect(vuRoutes.listBookmarkSets())
+      }
+    )
   }
 
   def browseVirtualCollection(id: String) = getAction[VirtualUnit](EntityType.VirtualUnit, id) {

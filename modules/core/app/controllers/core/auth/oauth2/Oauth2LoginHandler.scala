@@ -16,6 +16,7 @@ import play.api.mvc.Result
 import play.api.mvc.Call
 import models.sql.OAuth2Association
 import play.api.libs.json.{JsString, Json}
+import controllers.core.auth.AccountHelpers
 
 /**
  * Oauth2 login handler implementation, cribbed extensively
@@ -23,7 +24,7 @@ import play.api.libs.json.{JsString, Json}
  *
  * @author Mike Bryant (http://github.com/mikesname)
  */
-trait Oauth2LoginHandler {
+trait Oauth2LoginHandler extends AccountHelpers {
 
   self: Controller =>
 
@@ -31,8 +32,6 @@ trait Oauth2LoginHandler {
 
   val userDAO: AccountDAO
 
-  private val CanMessageUsers = play.api.Play.current.configuration
-    .getBoolean("ehri.users.messaging.default").getOrElse(false)
   private val SSLEnabled = current.configuration.getBoolean("securesocial.ssl").getOrElse(true)
   private val SessionKey = "sid"
 
@@ -83,9 +82,9 @@ trait Oauth2LoginHandler {
           UserProfileF.NAME -> userData.name,
           UserProfileF.IMAGE_URL -> userData.imageUrl
         )
-        backend.createNewUserProfile(profileData).map { userProfile =>
+        backend.createNewUserProfile(profileData, groups = defaultPortalGroups).map { userProfile =>
           val account = userDAO.create(userProfile.id, userData.email.toLowerCase, verified = true, staff = false,
-            allowMessaging = CanMessageUsers)
+            allowMessaging = canMessage)
           OAuth2Association.addAssociation(account, userData.providerId, provider.name)
           account
         }
