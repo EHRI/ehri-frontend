@@ -18,11 +18,12 @@ import backend.ApiUser
 import utils.SessionPrefs
 import com.google.common.net.HttpHeaders
 import scala.collection.JavaConversions
+import controllers.core.auth.AccountHelpers
 
 /**
  * @author Mike Bryant (http://github.com/mikesname)
  */
-trait PortalLogin extends OpenIDLoginHandler with Oauth2LoginHandler with UserPasswordLoginHandler {
+trait PortalLogin extends OpenIDLoginHandler with Oauth2LoginHandler with UserPasswordLoginHandler with AccountHelpers {
 
   self: Controller with AuthController with LoginLogout with SessionPreferences[SessionPrefs] =>
 
@@ -50,11 +51,6 @@ trait PortalLogin extends OpenIDLoginHandler with Oauth2LoginHandler with UserPa
   def signupPost = Action.async { implicit request =>
     val recaptchaKey = current.configuration.getString("recaptcha.key.public")
       .getOrElse("fakekey")
-
-    val defaultPortalGroups: List[String] = play.api.Play.current.configuration
-      .getStringList("ehri.portal.defaultUserGroups")
-      .map(JavaConversions.collectionAsScalaIterable(_).toList)
-      .getOrElse(List.empty)
 
     checkRecapture.flatMap { ok =>
       if (!ok) {
