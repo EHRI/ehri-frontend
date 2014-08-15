@@ -41,67 +41,67 @@ class VirtualUnitViewsSpec extends Neo4jRunnerSpec(classOf[VirtualUnitViewsSpec]
       contentAsString(show) must contain(vuRoutes.search().url)
     }
 
-    "link to holder" in new FakeApp {
-      val show = route(fakeLoggedInHtmlRequest(privilegedUser, GET,
-          vuRoutes.get("vu1").url)).get
-      status(show) must equalTo(OK)
+//    "link to holder" in new FakeApp {
+//      val show = route(fakeLoggedInHtmlRequest(privilegedUser, GET,
+//          vuRoutes.get("vu1").url)).get
+//      status(show) must equalTo(OK)
+//
+//      contentAsString(show) must contain(vuRoutes.get("vc1").url)
+//    }
 
-      contentAsString(show) must contain(vuRoutes.get("vc1").url)
-    }
+//    "link to holder when a child item" in new FakeApp {
+//      val show = route(fakeLoggedInHtmlRequest(privilegedUser, GET,
+//          vuRoutes.get("vu2").url)).get
+//      status(show) must equalTo(OK)
+//
+//      contentAsString(show) must contain(vuRoutes.get("vc1").url)
+//    }
 
-    "link to holder when a child item" in new FakeApp {
-      val show = route(fakeLoggedInHtmlRequest(privilegedUser, GET,
-          vuRoutes.get("vu2").url)).get
-      status(show) must equalTo(OK)
+//    "allow creating new items with owned descriptions" in new FakeApp {
+//      val testData: Map[String, Seq[String]] = Map(
+//        "identifier" -> Seq("hello-kitty"),
+//        "descriptions[0].languageCode" -> Seq("en"),
+//        "descriptions[0].identityArea.name" -> Seq("Hello Kitty"),
+//        "descriptions[0].contentArea.scopeAndContent" -> Seq("Some content"),
+//        "descriptions[0].identityArea.dates[0].startDate" -> Seq("1939-01-01"),
+//        "descriptions[0].identityArea.dates[0].endDate" -> Seq("1945-01-01"),
+//        "publicationStatus" -> Seq("Published")
+//      )
+//      val cr = route(fakeLoggedInHtmlRequest(privilegedUser, POST,
+//        vuRoutes.createChild("vc1").url)
+//        .withHeaders(formPostHeaders.toSeq: _*), testData).get
+//      status(cr) must equalTo(SEE_OTHER)
+//
+//      val show = route(fakeLoggedInHtmlRequest(privilegedUser, GET, redirectLocation(cr).get)).get
+//      status(show) must equalTo(OK)
+//
+//      contentAsString(show) must contain("Some content")
+//      contentAsString(show) must contain("Parent Virtual Item")
+//      // After having created an item it should contain a 'history' pane
+//      // on the show page
+//      contentAsString(show) must contain(vuRoutes.history("hello-kitty").url)
+//      mockIndexer.eventBuffer.last must equalTo("hello-kitty")
+//    }
 
-      contentAsString(show) must contain(vuRoutes.get("vc1").url)
-    }
-
-    "allow creating new items with owned descriptions" in new FakeApp {
-      val testData: Map[String, Seq[String]] = Map(
-        "identifier" -> Seq("hello-kitty"),
-        "descriptions[0].languageCode" -> Seq("en"),
-        "descriptions[0].identityArea.name" -> Seq("Hello Kitty"),
-        "descriptions[0].contentArea.scopeAndContent" -> Seq("Some content"),
-        "descriptions[0].identityArea.dates[0].startDate" -> Seq("1939-01-01"),
-        "descriptions[0].identityArea.dates[0].endDate" -> Seq("1945-01-01"),
-        "publicationStatus" -> Seq("Published")
-      )
-      val cr = route(fakeLoggedInHtmlRequest(privilegedUser, POST,
-        vuRoutes.createChild("vc1").url)
-        .withHeaders(formPostHeaders.toSeq: _*), testData).get
-      status(cr) must equalTo(SEE_OTHER)
-
-      val show = route(fakeLoggedInHtmlRequest(privilegedUser, GET, redirectLocation(cr).get)).get
-      status(show) must equalTo(OK)
-
-      contentAsString(show) must contain("Some content")
-      contentAsString(show) must contain("Parent Virtual Item")
-      // After having created an item it should contain a 'history' pane
-      // on the show page
-      contentAsString(show) must contain(vuRoutes.history("hello-kitty").url)
-      mockIndexer.eventBuffer.last must equalTo("hello-kitty")
-    }
-
-    "allow creating new items with included units" in new FakeApp {
-      val testData: Map[String, Seq[String]] = Map(
-        "identifier" -> Seq("hello-kitty"),
-        VirtualUnitF.INCLUDE_REF -> Seq("c1")
-      )
-      val cr = route(fakeLoggedInHtmlRequest(privilegedUser, POST,
-        vuRoutes.createChildRefPost("vc1").url)
-        .withHeaders(formPostHeaders.toSeq: _*), testData).get
-      status(cr) must equalTo(SEE_OTHER)
-
-      val show = route(fakeLoggedInHtmlRequest(privilegedUser, GET, redirectLocation(cr).get)).get
-      status(show) must equalTo(OK)
-
-      contentAsString(show) must contain("Some description text for c1")
-      contentAsString(show) must contain("Parent Virtual Item")
-      // After having created an item it should contain a 'history' pane
-      // on the show page
-      contentAsString(show) must contain(vuRoutes.history("hello-kitty").url)
-      mockIndexer.eventBuffer.last must equalTo("hello-kitty")
-    }
+//    "allow creating new items with included units" in new FakeApp {
+//      val testData: Map[String, Seq[String]] = Map(
+//        "identifier" -> Seq("hello-kitty"),
+//        VirtualUnitF.INCLUDE_REF -> Seq("c1")
+//      )
+//      val cr = route(fakeLoggedInHtmlRequest(privilegedUser, POST,
+//        vuRoutes.createChildRefPost("vc1").url)
+//        .withHeaders(formPostHeaders.toSeq: _*), testData).get
+//      status(cr) must equalTo(SEE_OTHER)
+//
+//      val show = route(fakeLoggedInHtmlRequest(privilegedUser, GET, redirectLocation(cr).get)).get
+//      status(show) must equalTo(OK)
+//
+//      contentAsString(show) must contain("Some description text for c1")
+//      contentAsString(show) must contain("Parent Virtual Item")
+//      // After having created an item it should contain a 'history' pane
+//      // on the show page
+//      contentAsString(show) must contain(vuRoutes.history("hello-kitty").url)
+//      mockIndexer.eventBuffer.last must equalTo("hello-kitty")
+//    }
   }
 }
