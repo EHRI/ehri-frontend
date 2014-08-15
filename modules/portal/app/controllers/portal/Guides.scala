@@ -22,7 +22,7 @@ import models.{Guide, GuidePage, GeoCoordinates}
 import models.GuidePage.Layout
 import models.base.AnyModel
 import utils.search.{Facet, FacetClass}
-import play.api.libs.json.{Json, JsString, JsValue }
+import play.api.libs.json.{Json, JsString, JsValue, JsNumber}
 
 import com.google.inject._
 import play.api.Play.current
@@ -157,7 +157,7 @@ case class Guides @Inject()(implicit globalConfig: global.GlobalConfig, searchDi
   */
 
 
-  def countLinks(virtualUnit: String, target: List[String]): Future[Map[String, Int]] = {
+  def countLinks(virtualUnit: String, target: List[String]): Future[Map[String, Long]] = {
     val cypher = new CypherDAO
       val query =  s"""
         START 
@@ -173,8 +173,11 @@ case class Guides @Inject()(implicit globalConfig: global.GlobalConfig, searchDi
           "inContext" -> JsString(virtualUnit),
           "accessPoint" -> JsString(getFacetQuery(target))
         )
-        cypher.cypher(query, params).map { r =>
-          (r \ "data").as[Map[String, Int]]
+        cypher.cypher(query, params).map { json =>
+          (json \ "data").as[List[List[JsValue]]].flatMap {
+            case JsString(id) :: JsNumber(count) :: _ => Some(id -> count.toLong)
+            case _ => None
+          }.toMap
         }
   }
 
