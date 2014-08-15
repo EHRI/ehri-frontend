@@ -49,7 +49,7 @@
 								})
 
 						var html = '<small><ul class="list-unstyled">' + links.join(" ") + '<li>';
-						if(links.length == 5) { var html = html + '<a href="'+ VIRTUAL_UNIT_ROUTE + e.attr("data-target") + '">More...</a></li>'; }
+						if(links.length == 5) { var html = html + '<a href="'+ VIRTUAL_UNIT_ROUTE + e.attr("data-target") + '">' + (parseInt(e.attr("data-count")) - d.length) + ' more ...</a></li>'; }
 						var html = html + '</ul></small>';
 						e.popover({content: html, html: true, trigger: "click", container : "body"}).popover('show');
 						e.css("cursor", "pointer");

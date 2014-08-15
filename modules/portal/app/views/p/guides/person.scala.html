@@ -25,9 +25,13 @@
 				                @item.toStringLang
 				            </h3>
 				            <div class="search-item-body">
-				                <div><small><a class="popover-accesspoints" data-target="@item.id"><span class="glyphicon glyphicon-search"></span></a> <a target="_blank" href="http://www.holocaust.cz/en/victims/@item.model.identifier"><span class="glyphicon glyphicon-globe" title="Web"></span></a></small></div>
+				                <div>
+				                	<small>
+				                		<a class="popover-accesspoints" data-count="@linkCount.get(item.id).getOrElse(0)" data-target="@item.id"><span class="glyphicon glyphicon-search"></span></a> 
+				                		<a target="_blank" href="http://www.holocaust.cz/en/victims/@item.model.identifier"><span class="glyphicon glyphicon-globe" title="Web"></span></a>
+				                	</small>
+				                </div>
 					            @item.model.descriptions.headOption.map { desc =>
-					            @desc.accessPoints.length
 	            		 	        		<div class="item-description">
 					                @desc.details.history.map { d =>
 					                    <p>@Html(views.Helpers.renderMarkdown(d))</p>
