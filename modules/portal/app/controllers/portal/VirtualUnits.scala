@@ -53,6 +53,15 @@ case class VirtualUnits @Inject()(implicit globalConfig: global.GlobalConfig, se
     Map(s"(${pairs.map(t => t._1 + ":" + t._2).mkString(" OR ")})" -> Unit)
   }
 
+  def listBookmarkSets = withUserAction.async { implicit user => implicit request =>
+    val pageF = backend.userBookmarks(user.id, PageParams.fromRequest(request))
+    val watchedF = watchedItems
+    for {
+      page <- pageF
+      watched <- watchedF
+    } yield Ok(p.profile.bookmarkSets(page, watched))
+  }
+
   def createBookmarkSet(items: List[String] = Nil) = withUserAction { implicit user => implicit request =>
     if (isAjax) Ok(p.profile.bookmarkSetForm(BookmarkSet.bookmarkForm, vuRoutes.createBookmarkSetPost(items)))
     else Ok(p.profile.createBookmarkSet(BookmarkSet.bookmarkForm, vuRoutes.createBookmarkSetPost(items)))
@@ -84,7 +93,7 @@ case class VirtualUnits @Inject()(implicit globalConfig: global.GlobalConfig, se
           params = Map(Constants.ID_PARAM -> items))
       } yield {
         if (isAjax) Ok("ok")
-        else Redirect(vuRoutes.browseVirtualCollections())
+        else Redirect(vuRoutes.listBookmarkSets())
       }
     )
   }
