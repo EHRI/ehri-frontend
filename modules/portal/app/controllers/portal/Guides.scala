@@ -156,14 +156,40 @@ case class Guides @Inject()(implicit globalConfig: global.GlobalConfig, searchDi
   *
   */
 
+
+  def countLinks(virtualUnit: String, target: List[String]): Future[Map[String, Int]] = {
+    val cypher = new CypherDAO
+      val query =  s"""
+        START 
+          virtualUnit = node:entities(__ID__= {inContext}), 
+          accessPoints = node:entities({accessPoint})
+        MATCH 
+             (link)-[:inContextOf]->virtualUnit,
+            (doc)<-[:hasLinkTarget]-(link)-[:hasLinkTarget]->accessPoints
+         WHERE doc <> accessPoints
+         RETURN accessPoints.__ID__, COUNT(ID(doc))
+        """.stripMargin
+        val params =  Map(
+          "inContext" -> JsString(virtualUnit),
+          "accessPoint" -> JsString(getFacetQuery(target))
+        )
+        cypher.cypher(query, params).map { r =>
+          (r \ "data").as[Map[String, Int]]
+        }
+  }
+
   /*
   *   Layout named "person" [HistoricalAgent]
   */
   def guideAuthority(template: GuidePage, params: Map[String, String], guide: Guide) = userBrowseAction.async { implicit userDetails => implicit request =>
-    find[HistoricalAgent](filters = params, defaultParams = SearchParams(sort = Some(utils.search.SearchOrder.CharCount)), entities = List(EntityType.HistoricalAgent)).map { r =>
-      if (isAjax) Ok(p.guides.ajax(template -> guide, r.page, r.params))
-      else Ok(p.guides.person(template -> (guide -> guide.findPages), r.page, r.params))
-    }
+     for { 
+          r <- find[HistoricalAgent](filters = params, defaultParams = SearchParams(sort = Some(utils.search.SearchOrder.CharCount)), entities = List(EntityType.HistoricalAgent))
+          links <- countLinks(guide.virtualUnit, r.page.items.map { case(item, hit) => item.id }.toList)
+      }
+      yield {
+          if (isAjax) Ok(p.guides.ajax(template -> guide, r.page, r.params))
+          else Ok(p.guides.person(template -> (guide -> guide.findPages), r.page, r.params, links))
+      }
   }
 
   /*
