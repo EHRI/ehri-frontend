@@ -57,7 +57,7 @@ trait OpenIDLoginHandler {
 
               OpenID.redirectURL(
                 openidUrl,
-                handler.absoluteURL(),
+                handler.absoluteURL(globalConfig.https),
                 attributes).map(url => Redirect(url))
                 .recoverWith {
                 case t: ConnectException => {
