@@ -193,15 +193,15 @@ object DocumentaryUnitDescriptionF {
 
 case class DocumentaryUnitDescriptionF(
   isA: EntityType.Value = EntityType.DocumentaryUnitDescription,
-  id: Option[String],
+  id: Option[String] = None,
   languageCode: String,
   identity: IsadGIdentity,
-  context: IsadGContext,
-  content: IsadGContent,
-  conditions: IsadGConditions,
-  materials: IsadGMaterials,
+  context: IsadGContext = IsadGContext(),
+  content: IsadGContent = IsadGContent(),
+  conditions: IsadGConditions = IsadGConditions(),
+  materials: IsadGMaterials = IsadGMaterials(),
   notes: Option[List[String]] = None,
-  control: IsadGControl,
+  control: IsadGControl = IsadGControl(),
   accessPoints: List[AccessPointF] = Nil,
   maintenanceEvents: List[Entity] = Nil,
   unknownProperties: List[Entity] = Nil

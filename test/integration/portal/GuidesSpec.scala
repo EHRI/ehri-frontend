@@ -46,7 +46,7 @@ class GuidesSpec extends Neo4jRunnerSpec(classOf[GuidesSpec]) {
 
     "be able to edit guides, including changing the URL"  in new WithSqlFile("guide-fixtures.sql", fakeApplication()) {
       val edit = route(fakeLoggedInHtmlRequest(privilegedUser, POST,
-        guideAdminRoutes.editPost("jewcom").url), guideData).get
+        guideAdminRoutes.editPost("jewishcommunity").url), guideData).get
       status(edit) must equalTo(SEE_OTHER)
       redirectLocation(edit).get must equalTo(guideAdminRoutes.show("hello").url)
       val doc = route(fakeLoggedInHtmlRequest(privilegedUser, GET,
@@ -57,7 +57,7 @@ class GuidesSpec extends Neo4jRunnerSpec(classOf[GuidesSpec]) {
 
     "redirect after deleting guides" in new WithSqlFile("guide-fixtures.sql", fakeApplication()) {
       val del = route(fakeLoggedInHtmlRequest(privilegedUser, POST,
-        guideAdminRoutes.deletePost("jewcom").url)).get
+        guideAdminRoutes.deletePost("jewishcommunity").url)).get
       status(del) must equalTo(SEE_OTHER)
       redirectLocation(del).get must equalTo(guideAdminRoutes.list().url)
     }

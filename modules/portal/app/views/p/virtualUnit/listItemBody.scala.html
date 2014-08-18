@@ -1,12 +1,14 @@
-@(item: VirtualUnit, path: Seq[AnyModel])(implicit userOpt: Option[UserProfile], req: RequestHeader, globalConfig: global.GlobalConfig, lang: Lang, descriptionId: Option[String] = None)
+@(item: VirtualUnit, path: Seq[AnyModel], showAuthor: Boolean = true)(implicit userOpt: Option[UserProfile], req: RequestHeader, globalConfig: global.GlobalConfig, lang: Lang, descriptionId: Option[String] = None)
 
 @import org.apache.commons.lang3.StringUtils
 
 @item.model.primaryDescription(descriptionId).map { desc =>
     <small>
         <ul class="list-unstyled text-muted list-inline inline-separator">
-            @item.author.map { author =>
-                <li>@p.helpers.linkTo(author)</li>
+            @if(showAuthor) {
+                @item.author.map { author =>
+                    <li>@p.helpers.linkTo(author)</li>
+                }
             }
             <li><span class="text-muted">@views.Helpers.languageCodeToName(desc.languageCode)</span></li>
 

@@ -1,4 +1,4 @@
-@(from: UserProfile, subject: String, message: String)(implicit req: RequestHeader, lang: Lang)
+@(from: UserProfile, subject: String, message: String)(implicit req: RequestHeader, globalConfig: global.GlobalConfig, lang: Lang)
 
 @p.layout.mailLayout(Messages("portal.mail.message.heading", from.toStringLang)) {
 

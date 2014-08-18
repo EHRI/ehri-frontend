@@ -51,7 +51,7 @@ trait RestGeneric extends Generic with RestDAO {
   }
 
   def create[MT,T](item: T, accessors: Seq[String] = Nil,
-      params: Map[String,Seq[String]] = Map(),
+      params: Map[String,Seq[String]] = Map.empty,
       logMsg: Option[String] = None)(implicit apiUser: ApiUser, rs: RestResource[MT], wrt: RestConvertable[T], rd: RestReadable[MT], executionContext: ExecutionContext): Future[MT] = {
     val url = enc(requestUrl, rs.entityType)
     userCall(url)

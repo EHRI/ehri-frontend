@@ -3,11 +3,12 @@ package backend.rest
 import backend.{EventHandler, Social, ApiUser}
 import scala.concurrent.{ExecutionContext, Future}
 import utils.{Page, FutureCache, PageParams}
-import models.{VirtualUnit, Link, Annotation, UserProfile}
+import models._
 import defines.EntityType
 import models.json.RestReadable
 import models.base.AnyModel
 import play.api.cache.Cache
+import backend.ApiUser
 
 /**
  * @author Mike Bryant (http://github.com/mikesname)
@@ -18,7 +19,8 @@ trait RestSocial extends Social with RestDAO {
   import play.api.Play.current
   val eventHandler: EventHandler
 
-  private def requestUrl = "http://%s:%d/%s/%s".format(host, port, mount, EntityType.UserProfile)
+  private def baseUrl = s"http://$host:$port/$mount"
+  private def requestUrl = s"$baseUrl/${EntityType.UserProfile}"
 
   private def followingUrl(userId: String) = enc(requestUrl, userId, "following")
   private def watchingUrl(userId: String) = enc(requestUrl, userId, "watching")
@@ -147,9 +149,19 @@ trait RestSocial extends Social with RestDAO {
   }
 
   def userBookmarks(userId: String, params: PageParams = PageParams.empty)(implicit apiUser: ApiUser, executionContext: ExecutionContext): Future[Page[VirtualUnit]] = {
-    userCall(enc(requestUrl, EntityType.VirtualUnit, "forUser", userId)).get().map { r =>
+    userCall(enc(requestUrl, userId, EntityType.VirtualUnit)).get().map { r =>
       parsePage(r)(VirtualUnit.Converter.restReads)
     }
+  }
+
+  def addBookmark(setId: String, id: String)(implicit apiUser: ApiUser, executionContext: ExecutionContext): Future[Unit] = {
+    userCall(enc(baseUrl, EntityType.VirtualUnit, setId, "includes"))
+      .withQueryString(ID_PARAM -> id).post("").map(_ => ())
+  }
+
+  def deleteBookmark(setId: String, id: String)(implicit apiUser: ApiUser, executionContext: ExecutionContext): Future[Unit] = {
+    userCall(enc(baseUrl, EntityType.VirtualUnit, setId, "includes"))
+      .withQueryString(ID_PARAM -> id).delete().map(_ => ())
   }
 }
 

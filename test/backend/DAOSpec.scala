@@ -240,6 +240,48 @@ class DAOSpec extends helpers.Neo4jRunnerSpec(classOf[DAOSpec]) {
       await(testBackend.unblock(userProfile.id, "reto"))
       await(testBackend.isBlocking(userProfile.id, "reto")) must beFalse
     }
+
+    "handle virtual collections" in new FakeApp {
+      val data = VirtualUnitF(
+        identifier = "vc-test",
+        descriptions = List(
+          DocumentaryUnitDescriptionF(
+            languageCode = "eng",
+            identity = IsadGIdentity(name = "VC Test")
+          )
+        )
+      )
+      // Create a new VC
+      val vc = await(testBackend.create[VirtualUnit,VirtualUnitF](data))
+      vc.id must equalTo("vc-test")
+      vc.author must beSome.which { author =>
+        author.id must equalTo(userProfile.id)
+      }
+
+      // Ensure we can load VCs for the user
+      val vcs = await(testBackend.userBookmarks(userProfile.id))
+      vcs.size must equalTo(1)
+      vcs.headOption must beSome.which { ovc =>
+        ovc.id must equalTo(vc.id)
+      }
+
+      vc.includedUnits.size must equalTo(0)
+
+      // Add an included unit to the VC (a bookmark)
+      await(testBackend.addBookmark(vc.id, "c4"))
+      await(testBackend.userBookmarks(userProfile.id)).headOption must beSome.which { ovc =>
+        ovc.includedUnits.size must equalTo(1)
+        ovc.includedUnits.headOption must beSome.which { iu =>
+          iu.id must equalTo("c4")
+        }
+      }
+
+      // Delete the included unit
+      await(testBackend.deleteBookmark(vc.id, "c4"))
+      await(testBackend.userBookmarks(userProfile.id)).headOption must beSome.which { ovc =>
+        ovc.includedUnits.size must equalTo(0)
+      }
+    }
   }
 
   "CypherDAO" should {
