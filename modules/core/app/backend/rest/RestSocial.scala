@@ -21,7 +21,6 @@ trait RestSocial extends Social with RestDAO {
   val eventHandler: EventHandler
 
   private def baseUrl = s"http://$host:$port/$mount"
-
   private def requestUrl = s"$baseUrl/${EntityType.UserProfile}"
 
   private def followingUrl(userId: String) = enc(requestUrl, userId, "following")

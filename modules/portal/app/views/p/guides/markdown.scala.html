@@ -1,13 +1,11 @@
 @(template: (GuidePage, (Guide, List[GuidePage])), content: String)(implicit userOpt: Option[UserProfile], request: RequestHeader, prefs: utils.SessionPrefs, globalConfig: global.GlobalConfig, lang: Lang, flash: Flash)
 
 @js = {
-	template._1.description.getOrElse("")
+	<script type="text/javascript">
+		@template._1.description.getOrElse("")
+	</script>
 }
-@sidebar = {
-
-	@Html(views.Helpers.renderMarkdown(template._1.description.getOrElse("")))
-}
-@p.layout.guideLayout(template, scripts = js, optionalContent = Some(sidebar)) {
+@p.layout.guideLayout(template, scripts = js) {
 	<article>
 		@content
 	</article>
