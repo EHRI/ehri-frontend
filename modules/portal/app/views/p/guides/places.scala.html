@@ -169,6 +169,9 @@
     		var ORIGINAL = true;
 	}
     	addMarkerList($originalMarkers)
+    	$.each($originalMarkers, function(i, m) {
+    		$bounds.push([parseFloat(m.latitude), parseFloat(m.longitude)])
+    	});
     	$map.fitBounds($bounds);
     	var ORIGINAL = false;
 
