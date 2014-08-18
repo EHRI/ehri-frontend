@@ -91,6 +91,7 @@ object GuidePage {
   object MenuPosition extends Enumeration with StorableEnum {
     val Top = Value("top")
     val Side = Value("side")
+    val Nowhere = Value("nowhere")
   }
 
   implicit val form = Form(
