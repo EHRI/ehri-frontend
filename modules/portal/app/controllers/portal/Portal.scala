@@ -6,6 +6,8 @@ import models._
 import models.base.AnyModel
 import play.api.libs.concurrent.Execution.Implicits._
 import play.api.mvc._
+import play.api.data.Form
+import play.api.data.Forms._
 import views.html.p
 import utils.search._
 import play.api.libs.json.Json
@@ -349,7 +351,16 @@ case class Portal @Inject()(implicit globalConfig: global.GlobalConfig, searchDi
   }
 
 
-  def searchLinks(target: String, context: Option[String] = None): Future[Seq[Long]] = {
+  val searchLinksForm = Form(
+    single(
+      "type" -> optional(text.verifying("NoTypeGiven", f => f match {
+          case c => EntityType.values.map( v => v.toString).contains(c)
+        }))
+    )
+  )
+
+
+  def searchLinks(target: String, documentType: String = EntityType.DocumentaryUnit.toString, context: Option[String] = None): Future[Seq[Long]] = {
     
     val cypher = new CypherDAO
     context match {
@@ -361,12 +372,13 @@ case class Portal @Inject()(implicit globalConfig: global.GlobalConfig, searchDi
         MATCH 
              (link)-[:inContextOf]->virtualUnit,
             (doc)<-[:hasLinkTarget]-(link)-[:hasLinkTarget]->accessPoints
-         WHERE doc <> accessPoints
+         WHERE doc <> accessPoints AND doc.__ISA__ = {type}
          RETURN ID(doc) LIMIT 5
         """.stripMargin
         val params =  Map(
           "inContext" -> JsString(str),
-          "accessPoint" -> JsString(target)
+          "accessPoint" -> JsString(target),
+          "type" -> JsString(documentType)
         )
         cypher.cypher(query, params).map { r =>
           (r \ "data").as[Seq[Seq[Long]]].flatten
@@ -379,11 +391,12 @@ case class Portal @Inject()(implicit globalConfig: global.GlobalConfig, searchDi
           accessPoints = node:entities(__ID__= {accessPoint})
         MATCH 
              (doc)<-[:hasLinkTarget]-(link)-[:hasLinkTarget]->accessPoints
-         WHERE doc <> accessPoints
+         WHERE doc <> accessPoints AND doc.__ISA__ = {type}
          RETURN ID(doc) LIMIT 5
         """.stripMargin
         val params =  Map(
-          "accessPoint" -> JsString(target)
+          "accessPoint" -> JsString(target),
+          "type" -> JsString(documentType)
         )
         cypher.cypher(query, params).map { r =>
           (r \ "data").as[Seq[Seq[Long]]].flatten
@@ -393,9 +406,14 @@ case class Portal @Inject()(implicit globalConfig: global.GlobalConfig, searchDi
   }
 
   def linkedData(id: String) = userBrowseAction.async { implicit userDetails => implicit request =>
+
     object lookup extends SearchDAO
     for {
-      ids <- searchLinks(id)
+      ids <- searchLinksForm.bindFromRequest(request.queryString).fold(
+        errs => searchLinks(id), {
+            case Some(t) => { searchLinks(id, t)}
+            case _ => { searchLinks(id) }
+        })
       docs <- lookup.listByGid[AnyModel](ids)
     } yield Ok(Json.toJson(docs.map { doc =>
       Json.toJson(FilterHit(doc.id, "", doc.toStringLang, doc.isA, None, 0))
@@ -405,7 +423,11 @@ case class Portal @Inject()(implicit globalConfig: global.GlobalConfig, searchDi
   def linkedDataInContext(id: String, context: String) = userBrowseAction.async { implicit userDetails => implicit request =>
     object lookup extends SearchDAO
     for {
-      ids <- searchLinks(id, Some(context))
+      ids <-  searchLinksForm.bindFromRequest(request.queryString).fold(
+        errs => searchLinks(id, context=Some(context)), {
+            case Some(t) => { searchLinks(id, t, Some(context))}
+            case _ => { searchLinks(id, context=Some(context)) }
+        })
       docs <- lookup.listByGid[AnyModel](ids)
     } yield Ok(Json.toJson(docs.map { doc =>
       Json.toJson(FilterHit(doc.id, "", doc.toStringLang, doc.isA, None, 0))
