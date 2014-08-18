@@ -1,4 +1,4 @@
-@(user: UserProfile, annotations: utils.Page[Annotation])(implicit req: RequestHeader, userOpt: Option[UserProfile], lang: Lang)
+@(user: UserProfile, annotations: utils.Page[Annotation])(implicit userOpt: Option[UserProfile], req: RequestHeader, lang: Lang)
 
 @p.common.footerPanel(Messages("portal.profile.annotations")) {
     @if(!annotations.isEmpty) {
