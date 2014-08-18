@@ -62,6 +62,7 @@ GET         /virtual/:via/:id/search        @controllers.portal.VirtualUnits.sea
 GET         /virtual/:via/:id               @controllers.portal.VirtualUnits.browseVirtualUnit(via: String, id: String)
 
 # Bookmark Sets (user-friendly virtual units)
+POST        /bookmark/:id                   @controllers.portal.VirtualUnits.bookmark(id: String, bsId: Option[String] ?= None)
 GET         /bookmarkSets                   @controllers.portal.VirtualUnits.listBookmarkSets
 GET         /bookmarkSets/create            @controllers.portal.VirtualUnits.createBookmarkSet(item: List[String] ?= Nil)
 POST        /bookmarkSets/create            @controllers.portal.VirtualUnits.createBookmarkSetPost(item: List[String] ?= Nil)

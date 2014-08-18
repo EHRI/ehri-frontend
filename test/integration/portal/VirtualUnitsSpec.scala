@@ -16,6 +16,20 @@ class VirtualUnitsSpec extends Neo4jRunnerSpec(classOf[VirtualUnitsSpec]) {
   )
   
   "VirtualUnit views" should {
+    "create a default bookmark set when bookmarking an item" in new FakeApp {
+      val bookmark1 = route(fakeLoggedInHtmlRequest(privilegedUser, POST, vuRoutes
+        .bookmark("c1").url), "").get
+      status(bookmark1) must equalTo(SEE_OTHER)
+      val defId: String = s"${privilegedUser.id}-bookmarks"
+      redirectLocation(bookmark1) must equalTo(Some(vuRoutes
+        .browseVirtualCollection(defId).url))
+
+      val bookmark2 = route(fakeLoggedInHtmlRequest(privilegedUser, POST, vuRoutes
+        .bookmark("c2", Some(defId)).url), "").get
+      redirectLocation(bookmark1) must equalTo(Some(vuRoutes
+        .browseVirtualCollection(defId).url))
+    }
+
     "allow users to create VUs (simplified as bookmark sets)" in new FakeApp {
       val create = route(fakeLoggedInHtmlRequest(privilegedUser, POST, vuRoutes
         .createBookmarkSetPost(item = List("c4")).url), data).get
