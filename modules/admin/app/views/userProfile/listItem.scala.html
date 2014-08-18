@@ -1,4 +1,4 @@
-@(item: UserProfile)(implicit req: RequestHeader, lang: Lang)
+@(item: UserProfile)(implicit userOpt: Option[UserProfile], req: RequestHeader, lang: Lang)
 
 @common.search.searchItemOutline(item.id) {
     <a href="@controllers.admin.routes.UserProfiles.get(item.id)">@item.toStringLang</a>

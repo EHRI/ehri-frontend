@@ -1,4 +1,4 @@
-@(item: Vocabulary, hit: utils.search.SearchHit, watched: Boolean = false)(implicit req: RequestHeader, lang: Lang)
+@(item: Vocabulary, hit: utils.search.SearchHit, watched: Boolean = false)(implicit userOpt: Option[UserProfile], req: RequestHeader, lang: Lang)
 
 @p.common.searchHits(hit) {
     @p.layout.searchItemOutline(item, watched) {
