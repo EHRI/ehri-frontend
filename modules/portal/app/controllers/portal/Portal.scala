@@ -415,8 +415,8 @@ case class Portal @Inject()(implicit globalConfig: global.GlobalConfig, searchDi
             case _ => { searchLinks(id) }
         })
       docs <- lookup.listByGid[AnyModel](ids)
-    } yield Ok(Json.toJson(docs.map { doc =>
-      Json.toJson(FilterHit(doc.id, "", doc.toStringLang, doc.isA, None, 0))
+    } yield Ok(Json.toJson(docs.zip(ids).map { case (doc, gid) =>
+      Json.toJson(FilterHit(doc.id, "", doc.toStringLang, doc.isA, None, gid))
     }))
   }
 
@@ -429,8 +429,8 @@ case class Portal @Inject()(implicit globalConfig: global.GlobalConfig, searchDi
             case _ => { searchLinks(id, context=Some(context)) }
         })
       docs <- lookup.listByGid[AnyModel](ids)
-    } yield Ok(Json.toJson(docs.map { doc =>
-      Json.toJson(FilterHit(doc.id, "", doc.toStringLang, doc.isA, None, 0))
+    } yield Ok(Json.toJson(docs.zip(ids).map { case (doc, gid) =>
+      Json.toJson(FilterHit(doc.id, "", doc.toStringLang, doc.isA, None, gid))
     }))
   }
 }
