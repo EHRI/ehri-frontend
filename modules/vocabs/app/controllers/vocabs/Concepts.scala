@@ -22,8 +22,7 @@ case class Concepts @Inject()(implicit globalConfig: global.GlobalConfig, search
   with ScopePermissions[Concept]
   with Linking[Concept]
   with Annotate[Concept]
-  with Search
-  with Api[Concept] {
+  with Search {
 
   val targetContentTypes = Seq(ContentTypes.Concept)
 

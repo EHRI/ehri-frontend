@@ -36,8 +36,7 @@ case class VirtualUnits @Inject()(implicit globalConfig: global.GlobalConfig, se
   with Annotate[VirtualUnit]
   with Linking[VirtualUnit]
   with Descriptions[DocumentaryUnitDescriptionF, VirtualUnitF, VirtualUnit]
-  with Search
-  with Api[VirtualUnit] {
+  with Search {
 
   private val entityFacets: FacetBuilder = { implicit request =>
     List(

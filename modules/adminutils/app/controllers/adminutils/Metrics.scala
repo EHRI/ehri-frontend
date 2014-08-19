@@ -32,11 +32,27 @@ case class Metrics @Inject()(implicit globalConfig: global.GlobalConfig, searchD
 
   import client.json._
 
+  import play.api.libs.functional.syntax._
+  import play.api.libs.json._
+  implicit def itemPageWrites[MT](implicit rd: ClientWriteable[MT]): Writes[ItemPage[MT]] = (
+    (__ \ "items").lazyWrite[Seq[MT]](Writes.seq(rd.clientFormat)) and
+    (__ \ "page").write[Int] and
+    (__ \ "count").write[Int] and
+    (__ \ "total").write[Long] and
+    (__ \ "facetClasses").lazyWrite(Writes.list[FacetClass[Facet]](FacetClass.facetClassWrites)) and
+    (__ \ "spellcheck").writeNullable(
+      (__ \ "given").write[String] and
+      (__ \ "correction").write[String]
+      tupled
+    )
+  )(unlift(ItemPage.unapply[MT]))
+
+
   private def jsonResponse[T](result: QueryResult[T])(implicit request: Request[AnyContent], w: ClientWriteable[T]): Result = {
     render {
       case Accepts.Json() | Accepts.JavaScript() => Ok(Json.obj(
-        "page" -> Json.toJson(result.page.copy(items = result.page.items.map(_._1)))(ItemPage.itemPageWrites),
-        "params" -> Json.toJson(result.params)(SearchParams.Converter.clientFormat),
+        "page" -> Json.toJson(result.page.copy(items = result.page.items.map(_._1)))(itemPageWrites),
+        "params" -> Json.toJson(result.params),
         "appliedFacets" -> Json.toJson(result.facets)
       )).as(play.api.http.ContentTypes.JSON)
       case _ => UnsupportedMediaType

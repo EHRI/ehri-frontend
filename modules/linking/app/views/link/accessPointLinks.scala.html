@@ -1,7 +1,5 @@
 @(item: WithDescriptions[Description], desc: models.base.Description, links: Seq[Link])(implicit prefix: String, userOpt: Option[UserProfile], req: RequestHeader, globalConfig: global.GlobalConfig, lang: Lang)
 
-@println(item.accessPointLinksByType(links))
-
 @if(!desc.accessPoints.isEmpty) {
     <h3>@Messages(prefix + ".accessPoints")</h3>
     @defining(item.accessPointLinksByType(links)) { accessPointLinks =>

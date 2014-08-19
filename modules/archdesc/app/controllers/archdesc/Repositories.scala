@@ -15,6 +15,7 @@ import backend.Backend
 import play.api.Configuration
 import play.api.Play.current
 
+
 @Singleton
 case class Repositories @Inject()(implicit globalConfig: global.GlobalConfig, searchDispatcher: Dispatcher, searchIndexer: Indexer, searchResolver: Resolver, backend: Backend, userDAO: AccountDAO) extends Read[Repository]
   with Update[RepositoryF, Repository]
@@ -24,7 +25,6 @@ case class Repositories @Inject()(implicit globalConfig: global.GlobalConfig, se
   with ScopePermissions[Repository]
   with Annotate[Repository]
   with Search
-  with Api[Repository]
   with Indexable[Repository] {
 
   // Documentary unit facets
