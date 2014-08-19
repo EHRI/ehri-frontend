@@ -1,12 +1,12 @@
 package backend.rest
 
 import scala.concurrent.{ExecutionContext, Future}
-import models.json.RestReadable
 import models.base.AnyModel
 import models.{Version, SystemEvent}
 import utils.{Page, SystemEventParams, PageParams}
-import backend.{Events, ApiUser}
+import backend.{BackendReadable, Events, ApiUser}
 import defines.EntityType
+import java.lang.Readable
 
 
 /**
@@ -18,14 +18,14 @@ trait RestEvents extends Events with RestDAO {
   private def requestUrl = s"$baseUrl/${EntityType.SystemEvent}"
 
   def history(id: String, params: PageParams)(implicit apiUser: ApiUser, executionContext: ExecutionContext): Future[Page[SystemEvent]] = {
-    implicit val rd: RestReadable[SystemEvent] = SystemEvent.Converter
+    implicit val rd: BackendReadable[SystemEvent] = SystemEvent.Converter
     userCall(enc(requestUrl, "for", id)).withQueryString(params.queryParams: _*).get().map { response =>
       parsePage(response)(rd.restReads)
     }
   }
 
   def versions(id: String, params: PageParams)(implicit apiUser: ApiUser, executionContext: ExecutionContext): Future[Page[Version]] = {
-    implicit val rd: RestReadable[Version] = Version.Converter
+    implicit val rd: BackendReadable[Version] = Version.Converter
     userCall(enc(requestUrl, "versions", id))
       .withQueryString(params.queryParams: _*)
       .withHeaders(params.headers: _*)

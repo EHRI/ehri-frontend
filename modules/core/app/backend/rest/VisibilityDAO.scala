@@ -3,9 +3,9 @@ package backend.rest
 import scala.concurrent.{ExecutionContext, Future}
 import play.api.Play.current
 import play.api.cache.Cache
-import models.json.RestReadable
-import backend.{Visibility, EventHandler, ApiUser}
+import backend.{BackendReadable, Visibility, EventHandler, ApiUser}
 import play.api.http.Status
+import java.lang.Readable
 
 
 /**
@@ -19,7 +19,7 @@ trait RestVisibility extends Visibility with RestDAO {
 
   private def requestUrl = "http://%s:%d/%s".format(host, port, mount)
 
-  def setVisibility[MT](id: String, data: List[String])(implicit apiUser: ApiUser, rd: RestReadable[MT], executionContext: ExecutionContext): Future[MT] = {
+  def setVisibility[MT](id: String, data: List[String])(implicit apiUser: ApiUser, rd: BackendReadable[MT], executionContext: ExecutionContext): Future[MT] = {
     userCall(enc(requestUrl, "access", id))
         .withQueryString(data.map(a => ACCESSOR_PARAM -> a): _*)
         .post("").map { response =>

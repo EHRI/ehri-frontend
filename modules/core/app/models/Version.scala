@@ -4,8 +4,9 @@ import models.base.{MetaModel, Model, AnyModel}
 import defines.EntityType
 import play.api.libs.json._
 import play.api.libs.functional.syntax._
-import models.json.{ClientConvertable, RestReadable, JsPathExtensions}
+import models.json.{ClientWriteable, JsPathExtensions}
 import com.fasterxml.jackson.core.JsonParseException
+import backend.BackendReadable
 
 /**
  * Class that holds data about a version of another item.
@@ -41,7 +42,7 @@ object VersionF {
     (__ \ DATA \ VERSION_ENTITY_DATA).readNullable[String]
   )(VersionF.apply _)
 
-  implicit object Converter extends RestReadable[VersionF] with ClientConvertable[VersionF] {
+  implicit object Converter extends BackendReadable[VersionF] with ClientWriteable[VersionF] {
     val restReads: Reads[VersionF] = reads
     val clientFormat = Json.format[VersionF]
   }
@@ -63,7 +64,7 @@ object Version {
     (__ \ META).readWithDefault(Json.obj())
   )(Version.apply _)
 
-  implicit object Converter extends RestReadable[Version] with ClientConvertable[Version] {
+  implicit object Converter extends BackendReadable[Version] with ClientWriteable[Version] {
     val restReads = metaReads
     implicit val clientFormat: Format[Version] = (
       __.format[VersionF](VersionF.Converter.clientFormat) and

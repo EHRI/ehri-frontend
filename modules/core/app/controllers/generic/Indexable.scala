@@ -4,11 +4,11 @@ import play.api.libs.concurrent.Execution.Implicits._
 import play.api.mvc.Controller
 import controllers.base.{ControllerHelpers, AuthController}
 import utils.search.Indexer
-import models.json.RestResource
 import play.api.libs.iteratee.{Enumerator, Concurrent}
 import scala.concurrent.Future
 import scala.util.{Failure, Success}
 import play.api.Logger
+import backend.BackendResource
 
 
 object Indexable {
@@ -69,7 +69,7 @@ trait Indexable[MT] extends Controller with AuthController with ControllerHelper
    * @param id The parent item id
    * @return An action returning a chunked progress response.
    */
-  def updateChildItemsPost(field: String, id: String)(implicit rs: RestResource[MT]) = adminAction { implicit userOpt => implicit request =>
+  def updateChildItemsPost(field: String, id: String)(implicit rs: BackendResource[MT]) = adminAction { implicit userOpt => implicit request =>
     println("INDEXING WITH: " + searchIndexer)
     val channel = Concurrent.unicast[String] { chan =>
 

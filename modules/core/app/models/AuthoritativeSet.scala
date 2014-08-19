@@ -10,6 +10,7 @@ import play.api.libs.json._
 import play.api.libs.functional.syntax._
 import play.api.data.Form
 import play.api.data.Forms._
+import backend.{BackendReadable, BackendResource, BackendContentType, BackendWriteable}
 
 
 object AuthoritativeSetF {
@@ -44,7 +45,7 @@ object AuthoritativeSetF {
   implicit val authoritativeSetFormat: Format[AuthoritativeSetF]
   = Format(authoritativeSetReads,authoritativeSetWrites)
 
-  implicit object Converter extends RestConvertable[AuthoritativeSetF] with ClientConvertable[AuthoritativeSetF] {
+  implicit object Converter extends BackendWriteable[AuthoritativeSetF] with ClientWriteable[AuthoritativeSetF] {
     lazy val restFormat = authoritativeSetFormat
     lazy val clientFormat = Json.format[AuthoritativeSetF]
   }
@@ -74,7 +75,7 @@ object AuthoritativeSet {
     (__ \ META).readWithDefault(Json.obj())
   )(AuthoritativeSet.apply _)
 
-  implicit object Converter extends ClientConvertable[AuthoritativeSet] with RestReadable[AuthoritativeSet] {
+  implicit object Converter extends ClientWriteable[AuthoritativeSet] with BackendReadable[AuthoritativeSet] {
     val restReads = metaReads
 
     val clientFormat: Format[AuthoritativeSet] = (
@@ -85,7 +86,7 @@ object AuthoritativeSet {
     )(AuthoritativeSet.apply _, unlift(AuthoritativeSet.unapply))
   }
 
-  implicit object Resource extends RestResource[AuthoritativeSet] with RestContentType[AuthoritativeSet] {
+  implicit object Resource extends BackendResource[AuthoritativeSet] with BackendContentType[AuthoritativeSet] {
     val entityType = EntityType.AuthoritativeSet
     val contentType = ContentTypes.AuthoritativeSet
   }

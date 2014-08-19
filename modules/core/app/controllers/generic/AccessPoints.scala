@@ -5,8 +5,8 @@ import models.base.{Described, MetaModel, Model, Description}
 import defines.{PermissionType, EntityType}
 import models.{UserProfile, LinkF, AccessPointF}
 import play.api.libs.json.Json
-import models.json.{RestResource, RestContentType, RestReadable}
 import play.api.mvc.{Result, Request, AnyContent}
+import backend.{BackendContentType, BackendResource}
 
 /**
  * @author Mike Bryant (http://github.com/mikesname)
@@ -18,7 +18,7 @@ trait AccessPoints[D <: Description, T <: Model with Described[D], MT <: MetaMod
   case class Target(id: String, `type`: EntityType.Value)
   case class LinkItem(accessPoint: AccessPointF, link: Option[LinkF], target: Option[Target])
 
-  def manageAccessPointsAction(id: String, descriptionId: String)(f: MT => D => Option[UserProfile] => Request[AnyContent] => Result)(implicit rd: RestReadable[MT], rs: RestResource[MT], ct: RestContentType[MT]) = {
+  def manageAccessPointsAction(id: String, descriptionId: String)(f: MT => D => Option[UserProfile] => Request[AnyContent] => Result)(implicit rd: _root_.backend.BackendReadable[MT], rs: BackendResource[MT], ct: BackendContentType[MT]) = {
     withItemPermission[MT](id, PermissionType.Annotate) { item => implicit userOpt => implicit request =>
       item.model.description(descriptionId).map { desc =>
         f(item)(desc)(userOpt)(request)
@@ -84,7 +84,7 @@ trait AccessPoints[D <: Description, T <: Model with Described[D], MT <: MetaMod
    *   } ]
    *
    */
-  def getAccessPointsJson(id: String)(implicit rd: RestReadable[MT], rs: RestResource[MT]) = userProfileAction.async { implicit userOpt => implicit request =>
+  def getAccessPointsJson(id: String)(implicit rd: _root_.backend.BackendReadable[MT], rs: BackendResource[MT]) = userProfileAction.async { implicit userOpt => implicit request =>
     getEntity.async(id, userOpt) { item =>
       backend.getLinksForItem(id).map { links =>
         implicit val accessPointFormat = AccessPointF.Converter.clientFormat

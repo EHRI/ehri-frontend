@@ -3,13 +3,14 @@ package models.base
 import play.api.libs.json._
 import defines.{ContentTypes, EntityType}
 import play.api.i18n.Lang
-import models.json.{RestResource, Utils, ClientConvertable, RestReadable}
+import models.json.{Utils, ClientWriteable}
 import models._
 import play.api.Logger
 import play.api.data.validation.ValidationError
 import play.api.libs.json.KeyPathNode
 import scala.collection.SortedMap
 import java.util.NoSuchElementException
+import backend.{BackendReadable, BackendResource}
 
 
 trait AnyModel {
@@ -49,7 +50,7 @@ trait Aliased extends AnyModel {
 
 object AnyModel {
 
-  implicit object Converter extends RestReadable[AnyModel] with ClientConvertable[AnyModel] {
+  implicit object Converter extends BackendReadable[AnyModel] with ClientWriteable[AnyModel] {
     implicit val restReads: Reads[AnyModel] = new Reads[AnyModel] {
       def reads(json: JsValue): JsResult[AnyModel] = {
         // Sniff the type...
@@ -89,7 +90,7 @@ object AnyModel {
    * This function allows getting a dynamic Resource for an Accessor given
    * the entity type.
    */
-  def resourceFor(t: EntityType.Value): RestResource[AnyModel] = new RestResource[AnyModel] {
+  def resourceFor(t: EntityType.Value): BackendResource[AnyModel] = new BackendResource[AnyModel] {
     def entityType: EntityType.Value = t
   }
 }

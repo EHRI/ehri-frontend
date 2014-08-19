@@ -9,6 +9,7 @@ import eu.ehri.project.definitions.Ontology
 import play.api.data.Form
 import play.api.data.Forms._
 import models.forms._
+import backend.BackendWriteable
 
 case class IsaarDetail(
   datesOfExistence: Option[String] = None,
@@ -120,8 +121,8 @@ object HistoricalAgentDescriptionF {
   implicit val historicalAgentDescriptionFormat: Format[HistoricalAgentDescriptionF] =
     Format(historicalAgentDescriptionReads,historicalAgentDescriptionWrites)
 
-  implicit object Converter extends RestConvertable[HistoricalAgentDescriptionF]
-      with ClientConvertable[HistoricalAgentDescriptionF] {
+  implicit object Converter extends BackendWriteable[HistoricalAgentDescriptionF]
+      with ClientWriteable[HistoricalAgentDescriptionF] {
     val restFormat = historicalAgentDescriptionFormat
 
     private implicit val accessPointFormat = AccessPointF.Converter.clientFormat

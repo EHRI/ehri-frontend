@@ -1,7 +1,7 @@
 package utils.search
 
 import defines.EntityType
-import models.json.ClientConvertable
+import models.json.ClientWriteable
 import play.api.libs.json.{Json, Format}
 import backend.rest.Constants._
 
@@ -118,7 +118,7 @@ object SearchParams {
   )
 
   // JSON (de)serialization
-  implicit object Converter extends ClientConvertable[SearchParams] {
+  implicit object Converter extends ClientWriteable[SearchParams] {
     implicit val clientFormat: Format[SearchParams] = Json.format[SearchParams]
   }
 }

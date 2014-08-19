@@ -11,6 +11,8 @@ import play.api.data.Form
 import play.api.data.Forms._
 import defines.EnumUtils._
 import models.Isdiah._
+import backend.BackendWriteable
+
 
 case class IsadGIdentity(
   name: String,
@@ -173,10 +175,10 @@ object DocumentaryUnitDescriptionF {
     (__ \ RELATIONSHIPS \ HAS_UNKNOWN_PROPERTY).nullableListReads[Entity]
   )(DocumentaryUnitDescriptionF.apply _)
 
-  implicit val documentaryUnitDescriptionFormat: Format[DocumentaryUnitDescriptionF]
-  = Format(documentaryUnitDescriptionReads, documentaryUnitDescriptionWrites)
+  implicit val documentaryUnitDescriptionFormat: Format[DocumentaryUnitDescriptionF] =
+    Format(documentaryUnitDescriptionReads, documentaryUnitDescriptionWrites)
 
-  implicit object Converter extends RestConvertable[DocumentaryUnitDescriptionF] with ClientConvertable[DocumentaryUnitDescriptionF] {
+  implicit object Converter extends BackendWriteable[DocumentaryUnitDescriptionF] with ClientWriteable[DocumentaryUnitDescriptionF] {
     val restFormat = documentaryUnitDescriptionFormat
 
     private implicit val accessPointFormat = AccessPointF.Converter.clientFormat

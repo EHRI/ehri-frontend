@@ -12,6 +12,8 @@ import play.api.data.Form
 import play.api.data.Forms._
 import play.api.libs.json.JsObject
 import eu.ehri.project.definitions.Ontology
+import backend.{BackendReadable, BackendContentType, BackendResource, BackendWriteable}
+
 
 object VocabularyType extends Enumeration {
   type Type = Value
@@ -47,7 +49,7 @@ object VocabularyF {
 
   implicit val vocabularyFormat: Format[VocabularyF] = Format(vocabularyReads,vocabularyWrites)
 
-  implicit object Converter extends RestConvertable[VocabularyF] with ClientConvertable[VocabularyF] {
+  implicit object Converter extends BackendWriteable[VocabularyF] with ClientWriteable[VocabularyF] {
     lazy val restFormat = vocabularyFormat
     lazy val clientFormat = Json.format[VocabularyF]
   }
@@ -77,7 +79,7 @@ object Vocabulary {
     (__ \ META).readWithDefault(Json.obj())
   )(Vocabulary.apply _)
 
-  implicit object Converter extends ClientConvertable[Vocabulary] with RestReadable[Vocabulary] {
+  implicit object Converter extends ClientWriteable[Vocabulary] with BackendReadable[Vocabulary] {
     val restReads = metaReads
 
     val clientFormat: Format[Vocabulary] = (
@@ -88,7 +90,7 @@ object Vocabulary {
     )(Vocabulary.apply _, unlift(Vocabulary.unapply))
   }
 
-  implicit object Resource extends RestResource[Vocabulary] with RestContentType[Vocabulary] {
+  implicit object Resource extends BackendResource[Vocabulary] with BackendContentType[Vocabulary] {
     val entityType = EntityType.Vocabulary
     val contentType = ContentTypes.Vocabulary
   }

@@ -9,6 +9,7 @@ import eu.ehri.project.definitions.Ontology
 import models.forms._
 import play.api.data.Form
 import play.api.data.Forms._
+import backend.BackendWriteable
 
 
 private[models] case class IsdiahDetails(
@@ -146,7 +147,7 @@ object RepositoryDescriptionF {
   implicit val repositoryDescriptionFormat: Format[RepositoryDescriptionF]
   = Format(repositoryDescriptionReads, repositoryDescriptionWrites)
 
-  implicit object Converter extends RestConvertable[RepositoryDescriptionF] with ClientConvertable[RepositoryDescriptionF] {
+  implicit object Converter extends BackendWriteable[RepositoryDescriptionF] with ClientWriteable[RepositoryDescriptionF] {
     val restFormat = repositoryDescriptionFormat
 
     private implicit val addressFormat = AddressF.Converter.clientFormat

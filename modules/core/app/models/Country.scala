@@ -10,6 +10,8 @@ import play.api.libs.json._
 import play.api.libs.functional.syntax._
 import play.api.data.Form
 import play.api.data.Forms._
+import backend.{BackendReadable, BackendContentType, BackendResource, BackendWriteable}
+
 
 object CountryF {
 
@@ -42,7 +44,7 @@ object CountryF {
 
   implicit val countryFormat: Format[CountryF] = Format(countryReads,countryWrites)
 
-  implicit object Converter extends RestConvertable[CountryF] with ClientConvertable[CountryF] {
+  implicit object Converter extends BackendWriteable[CountryF] with ClientWriteable[CountryF] {
     lazy val restFormat = countryFormat
     lazy val clientFormat = Json.format[CountryF]
   }
@@ -70,7 +72,7 @@ object Country {
     (__ \ META).readWithDefault(Json.obj())
   )(Country.apply _)
 
-  implicit object Converter extends ClientConvertable[Country] with RestReadable[Country] {
+  implicit object Converter extends ClientWriteable[Country] with BackendReadable[Country] {
     val restReads = metaReads
 
     val clientFormat: Format[Country] = (
@@ -78,10 +80,10 @@ object Country {
       (__ \ "accessibleTo").nullableListFormat(Accessor.Converter.clientFormat) and
       (__ \ "event").formatNullable[SystemEvent](SystemEvent.Converter.clientFormat) and
       (__ \ "meta").format[JsObject]
-    )(Country.apply _, unlift(Country.unapply _))
+    )(Country.apply _, unlift(Country.unapply))
   }
 
-  implicit object Resource extends RestResource[Country] with RestContentType[Country] {
+  implicit object Resource extends BackendResource[Country] with BackendContentType[Country] {
     val entityType = EntityType.Country
     val contentType = ContentTypes.Country
   }

@@ -10,6 +10,7 @@ import play.api.data.Form
 import play.api.data.Forms._
 import play.api.libs.json.JsObject
 import eu.ehri.project.definitions.Ontology
+import backend.{BackendReadable, BackendResource, BackendContentType, BackendWriteable}
 
 object GroupF {
 
@@ -42,7 +43,7 @@ object GroupF {
 
   implicit val groupFormat: Format[GroupF] = Format(groupReads,groupWrites)
 
-  implicit object Converter extends RestConvertable[GroupF] with ClientConvertable[GroupF] {
+  implicit object Converter extends BackendWriteable[GroupF] with ClientWriteable[GroupF] {
     lazy val restFormat = groupFormat
     lazy val clientFormat = Json.format[GroupF]
   }
@@ -71,7 +72,7 @@ object Group {
     (__ \ META).readWithDefault(Json.obj())
   )(Group.apply _)
 
-  implicit object Converter extends ClientConvertable[Group] with RestReadable[Group] {
+  implicit object Converter extends ClientWriteable[Group] with BackendReadable[Group] {
     val restReads = metaReads
 
     val clientFormat: Format[Group] = (
@@ -80,10 +81,10 @@ object Group {
       (__ \ "accessibleTo").lazyNullableListFormat(Accessor.Converter.clientFormat) and
       (__ \ "event").formatNullable[SystemEvent](SystemEvent.Converter.clientFormat) and
       (__ \ "meta").format[JsObject]
-    )(Group.apply _, unlift(Group.unapply _))
+    )(Group.apply _, unlift(Group.unapply))
   }
 
-  implicit object Resource extends RestResource[Group] with RestContentType[Group] {
+  implicit object Resource extends BackendResource[Group] with BackendContentType[Group] {
     val entityType = EntityType.Group
     val contentType = ContentTypes.Group
   }

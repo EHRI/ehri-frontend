@@ -10,6 +10,7 @@ import play.api.i18n.Lang
 import play.api.data.Form
 import play.api.data.Forms._
 import play.api.libs.json.JsObject
+import backend.{BackendReadable, BackendWriteable}
 
 
 object AccessPointF {
@@ -60,7 +61,7 @@ object AccessPointF {
 
   implicit val accessPointFormat: Format[AccessPointF] = Format(accessPointReads,accessPointWrites)
 
-  implicit object Converter extends RestConvertable[AccessPointF] with ClientConvertable[AccessPointF] {
+  implicit object Converter extends BackendWriteable[AccessPointF] with ClientWriteable[AccessPointF] {
     lazy val restFormat = accessPointFormat
     lazy val clientFormat = Json.format[AccessPointF]
   }
@@ -106,7 +107,7 @@ object AccessPoint {
       (__ \ META).readNullable[JsObject].map(_.getOrElse(JsObject(Seq())))
     )(AccessPoint.apply _)
 
-  implicit object Converter extends RestReadable[AccessPoint] with ClientConvertable[AccessPoint] {
+  implicit object Converter extends BackendReadable[AccessPoint] with ClientWriteable[AccessPoint] {
     val restReads = metaReads
 
     // This hassle necessary because single-field case classes require special handling,

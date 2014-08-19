@@ -4,11 +4,12 @@ import play.api.mvc._
 import play.api.libs.concurrent.Execution.Implicits._
 import models.UserProfile
 import defines.EntityType
-import models.json.{ClientConvertable, RestReadable}
+import models.json.ClientWriteable
 import utils.search._
 import play.api.Logger
 import controllers.base.{ControllerHelpers, AuthController}
 import scala.concurrent.Future
+import backend.BackendReadable
 
 
 /**
@@ -65,7 +66,7 @@ trait Search extends Controller with AuthController with ControllerHelpers {
                entities: Seq[EntityType.Value] = Nil,
                facetBuilder: FacetBuilder = emptyFacets,
                mode: SearchMode.Value = SearchMode.DefaultAll)(
-                implicit request: RequestHeader, userOpt: Option[UserProfile], rd: RestReadable[MT]): Future[QueryResult[MT]] = {
+                implicit request: RequestHeader, userOpt: Option[UserProfile], rd: BackendReadable[MT]): Future[QueryResult[MT]] = {
 
     val params = defaultParams
       .copy(sort = defaultSortFunction(defaultParams, request))
@@ -110,7 +111,7 @@ trait Search extends Controller with AuthController with ControllerHelpers {
                        entities: Seq[EntityType.Value] = Nil,
                        entityFacets: FacetBuilder = emptyFacets,
                        mode: SearchMode.Value = SearchMode.DefaultAll)(
-                        f: ItemPage[(MT, SearchHit)] => SearchParams => List[AppliedFacet] => Option[UserProfile] => Request[AnyContent] => Result)(implicit rd: RestReadable[MT], cfmt: ClientConvertable[MT]): Action[AnyContent] = {
+                        f: ItemPage[(MT, SearchHit)] => SearchParams => List[AppliedFacet] => Option[UserProfile] => Request[AnyContent] => Result)(implicit rd: BackendReadable[MT], cfmt: ClientWriteable[MT]): Action[AnyContent] = {
     userProfileAction.async { implicit userOpt => implicit request =>
       find[MT](
         filters,

@@ -4,6 +4,7 @@ import defines.EntityType
 import models.base.Model
 import play.api.libs.json._
 import models.json._
+import backend.BackendWriteable
 
 
 object AddressF {
@@ -53,7 +54,7 @@ object AddressF {
 
   implicit val addressFormat: Format[AddressF] = Format(addressReads,addressWrites)
 
-  implicit object Converter extends RestConvertable[AddressF] with ClientConvertable[AddressF] {
+  implicit object Converter extends BackendWriteable[AddressF] with ClientWriteable[AddressF] {
     val restFormat: Format[AddressF] = addressFormat
     val clientFormat = Json.format[AddressF]
   }

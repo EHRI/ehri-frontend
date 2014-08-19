@@ -13,6 +13,7 @@ import play.api.data.Form
 import play.api.data.Forms._
 import play.api.libs.json.JsObject
 import play.api.i18n.Lang
+import backend.{BackendContentType, BackendResource, BackendReadable, BackendWriteable}
 
 
 object VirtualUnitF {
@@ -46,7 +47,7 @@ object VirtualUnitF {
 
   implicit val VirtualUnitFormat: Format[VirtualUnitF] = Format(virtualUnitReads,virtualUnitWrites)
 
-  implicit object Converter extends RestConvertable[VirtualUnitF] with ClientConvertable[VirtualUnitF] {
+  implicit object Converter extends BackendWriteable[VirtualUnitF] with ClientWriteable[VirtualUnitF] {
     val restFormat = VirtualUnitFormat
     val clientFormat = Json.format[VirtualUnitF]
   }
@@ -84,7 +85,7 @@ object VirtualUnit {
   )(VirtualUnit.apply _)
 
 
-  implicit object Converter extends RestReadable[VirtualUnit] with ClientConvertable[VirtualUnit] {
+  implicit object Converter extends BackendReadable[VirtualUnit] with ClientWriteable[VirtualUnit] {
     implicit val restReads = metaReads
 
     val clientFormat: Format[VirtualUnit] = (
@@ -99,7 +100,7 @@ object VirtualUnit {
     )(VirtualUnit.apply _, unlift(VirtualUnit.unapply))
   }
 
-  implicit object Resource extends RestResource[VirtualUnit] with RestContentType[VirtualUnit] {
+  implicit object Resource extends BackendResource[VirtualUnit] with BackendContentType[VirtualUnit] {
     val entityType = EntityType.VirtualUnit
     val contentType = ContentTypes.VirtualUnit
 

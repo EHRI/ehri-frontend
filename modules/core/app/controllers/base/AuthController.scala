@@ -3,7 +3,6 @@ package controllers.base
 import scala.concurrent.Future
 import scala.concurrent.Future.{successful => immediate}
 import models.{UserProfileF, UserProfile}
-import models.json.{RestContentType, RestResource, RestReadable}
 import play.api.mvc._
 import play.api.i18n.Lang
 import jp.t2v.lab.play2.auth.AsyncAuth
@@ -11,7 +10,7 @@ import play.api.libs.concurrent.Execution.Implicits._
 import utils.renderError
 import defines.PermissionType
 import defines.ContentTypes
-import backend.{ApiUser, Backend}
+import backend.{BackendContentType, BackendResource, ApiUser, Backend}
 import views.html.errors.itemNotFound
 
 /**
@@ -111,8 +110,8 @@ trait AuthController extends Controller with ControllerHelpers with AsyncAuth wi
    * Given an item ID fetch the item.
    */
   object itemAction {
-    def async[MT](resource: RestResource[MT], id: String)(f: MT => Option[UserProfile] => Request[AnyContent] => Future[Result])(
-        implicit rd: RestReadable[MT]): Action[AnyContent] = {
+    def async[MT](resource: BackendResource[MT], id: String)(f: MT => Option[UserProfile] => Request[AnyContent] => Future[Result])(
+        implicit rd: _root_.backend.BackendReadable[MT]): Action[AnyContent] = {
       userProfileAction.async { implicit userOpt => implicit request =>
         backend.get(resource, id).flatMap { item =>
           f(item)(userOpt)(request)
@@ -120,8 +119,8 @@ trait AuthController extends Controller with ControllerHelpers with AsyncAuth wi
       }
     }
 
-    def apply[MT](resource: RestResource[MT], id: String)(f: MT => Option[UserProfile] => Request[AnyContent] => Result)(
-      implicit rd: RestReadable[MT]): Action[AnyContent] = {
+    def apply[MT](resource: BackendResource[MT], id: String)(f: MT => Option[UserProfile] => Request[AnyContent] => Result)(
+      implicit rd: _root_.backend.BackendReadable[MT]): Action[AnyContent] = {
       async(resource, id)(f.andThen(_.andThen(_.andThen(t => Future.successful(t)))))
     }
   }
@@ -134,7 +133,7 @@ trait AuthController extends Controller with ControllerHelpers with AsyncAuth wi
    */
   object itemPermissionAction {
     def async[A,MT](bodyParser: BodyParser[A], id: String)(f: MT => Option[UserProfile] => Request[A] => Future[Result])(
-        implicit rs: RestResource[MT], rd: RestReadable[MT], ct: RestContentType[MT]): Action[A] = {
+        implicit rs: BackendResource[MT], rd: _root_.backend.BackendReadable[MT], ct: BackendContentType[MT]): Action[A] = {
       userProfileAction.async(bodyParser = bodyParser) { implicit userOpt => implicit request =>
         userOpt.map { user =>
 
@@ -161,15 +160,15 @@ trait AuthController extends Controller with ControllerHelpers with AsyncAuth wi
     }
 
     def async[MT](id: String)(f: MT => Option[UserProfile] => Request[AnyContent] => Future[Result])(
-      implicit rs: RestResource[MT], rd: RestReadable[MT], ct: RestContentType[MT]): Action[AnyContent] =
+      implicit rs: BackendResource[MT], rd: _root_.backend.BackendReadable[MT], ct: BackendContentType[MT]): Action[AnyContent] =
       async(BodyParsers.parse.anyContent, id)(f)
 
     def apply[MT](contentType: ContentTypes.Value, id: String)(f: MT => Option[UserProfile] => Request[AnyContent] => Result)(
-        implicit rs: RestResource[MT], rd: RestReadable[MT], ct: RestContentType[MT]): Action[AnyContent] =
+        implicit rs: BackendResource[MT], rd: _root_.backend.BackendReadable[MT], ct: BackendContentType[MT]): Action[AnyContent] =
       async(id)(f.andThen(_.andThen(_.andThen(t => Future.successful(t)))))
 
     def apply[A, MT](bodyParser: BodyParser[A], contentType: ContentTypes.Value, id: String)(f: MT => Option[UserProfile] => Request[AnyContent] => Result)(
-      implicit rs: RestResource[MT], rd: RestReadable[MT], ct: RestContentType[MT]): Action[AnyContent] =
+      implicit rs: BackendResource[MT], rd: _root_.backend.BackendReadable[MT], ct: BackendContentType[MT]): Action[AnyContent] =
       async(BodyParsers.parse.anyContent, id)(f.andThen(_.andThen(_.andThen(t => Future.successful(t)))))
   }
 
@@ -223,7 +222,7 @@ trait AuthController extends Controller with ControllerHelpers with AsyncAuth wi
    */
   object withItemPermission {
     def async[A,MT](bodyParser: BodyParser[A], id: String, perm: PermissionType.Value, permContentType: Option[ContentTypes.Value] = None)(
-        f: MT => Option[UserProfile] => Request[A] => Future[Result])(implicit rs: RestResource[MT], rd: RestReadable[MT], ct: RestContentType[MT]): Action[A] = {
+        f: MT => Option[UserProfile] => Request[A] => Future[Result])(implicit rs: BackendResource[MT], rd: _root_.backend.BackendReadable[MT], ct: BackendContentType[MT]): Action[A] = {
       itemPermissionAction.async[A,MT](bodyParser, id) {
           entity => implicit maybeUser => implicit request =>
         maybeUser.map { user =>
@@ -234,15 +233,15 @@ trait AuthController extends Controller with ControllerHelpers with AsyncAuth wi
     }
 
     def async[MT](id: String, perm: PermissionType.Value, permContentType: Option[ContentTypes.Value] = None)(
-        f: MT => Option[UserProfile] => Request[AnyContent] => Future[Result])(implicit rs: RestResource[MT], rd: RestReadable[MT], ct: RestContentType[MT]): Action[AnyContent] =
+        f: MT => Option[UserProfile] => Request[AnyContent] => Future[Result])(implicit rs: BackendResource[MT], rd: _root_.backend.BackendReadable[MT], ct: BackendContentType[MT]): Action[AnyContent] =
       async(BodyParsers.parse.anyContent, id, perm, permContentType)(f)
 
     def apply[A,MT](bodyParser: BodyParser[A], id: String, perm: PermissionType.Value, contentType: ContentTypes.Value, permContentType: Option[ContentTypes.Value] = None)(
-      f: MT => Option[UserProfile] => Request[A] => Result)(implicit rs: RestResource[MT], rd: RestReadable[MT], ct: RestContentType[MT]): Action[A] =
+      f: MT => Option[UserProfile] => Request[A] => Result)(implicit rs: BackendResource[MT], rd: _root_.backend.BackendReadable[MT], ct: BackendContentType[MT]): Action[A] =
       async(bodyParser, id, perm, permContentType)(f.andThen(_.andThen(_.andThen(t => Future.successful(t)))))
 
     def apply[MT](id: String, perm: PermissionType.Value, permContentType: Option[ContentTypes.Value] = None)(
-      f: MT => Option[UserProfile] => Request[AnyContent] => Result)(implicit rs: RestResource[MT], rd: RestReadable[MT], ct: RestContentType[MT]): Action[AnyContent] =
+      f: MT => Option[UserProfile] => Request[AnyContent] => Result)(implicit rs: BackendResource[MT], rd: _root_.backend.BackendReadable[MT], ct: BackendContentType[MT]): Action[AnyContent] =
       async(BodyParsers.parse.anyContent, id, perm, permContentType)(f.andThen(_.andThen(_.andThen(t => Future.successful(t)))))
   }
 

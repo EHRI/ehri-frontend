@@ -9,6 +9,7 @@ import eu.ehri.project.definitions.Ontology
 import play.api.data.Form
 import play.api.data.Forms._
 import play.api.libs.json.JsObject
+import backend.{BackendContentType, BackendResource, BackendReadable, BackendWriteable}
 
 
 object LinkF {
@@ -60,7 +61,7 @@ object LinkF {
 
   implicit val linkFormat: Format[LinkF] = Format(linkReads,linkWrites)
 
-  implicit object Converter extends RestConvertable[LinkF] with ClientConvertable[LinkF] {
+  implicit object Converter extends BackendWriteable[LinkF] with ClientWriteable[LinkF] {
     lazy val restFormat = linkFormat
     lazy val clientFormat = Json.format[LinkF]
   }
@@ -98,7 +99,7 @@ object Link {
     (__ \ META).readWithDefault(Json.obj())
   )(Link.apply _)
 
-  implicit object Converter extends RestReadable[Link] with ClientConvertable[Link] {
+  implicit object Converter extends BackendReadable[Link] with ClientWriteable[Link] {
     val restReads = metaReads
 
     private implicit val linkFormat = Json.format[LinkF]
@@ -114,7 +115,7 @@ object Link {
     )(Link.apply _, unlift(Link.unapply))
   }
 
-  implicit object Resource extends RestResource[Link] with RestContentType[Link] {
+  implicit object Resource extends BackendResource[Link] with BackendContentType[Link] {
     val entityType = EntityType.Link
     val contentType = ContentTypes.Link
   }

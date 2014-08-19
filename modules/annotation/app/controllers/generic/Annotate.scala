@@ -6,8 +6,8 @@ import defines._
 import models._
 import play.api.data.Form
 import play.api.libs.json.{Writes, Format, Json, JsError}
-import models.json.{RestResource, RestContentType, RestReadable}
 import scala.concurrent.Future.{successful => immediate}
+import backend.{BackendContentType, BackendResource}
 
 
 object Annotate {
@@ -25,13 +25,13 @@ trait Annotate[MT] extends Read[MT] {
 
   import Annotate._
 
-  def annotationAction(id: String)(f: MT => Form[AnnotationF] => Option[UserProfile] => Request[AnyContent] => Result)(implicit rd: RestReadable[MT], rs: RestResource[MT], ct: RestContentType[MT]): Action[AnyContent] = {
+  def annotationAction(id: String)(f: MT => Form[AnnotationF] => Option[UserProfile] => Request[AnyContent] => Result)(implicit rd: _root_.backend.BackendReadable[MT], rs: BackendResource[MT], ct: BackendContentType[MT]): Action[AnyContent] = {
     withItemPermission[MT](id, PermissionType.Annotate) { item => implicit userOpt => implicit request =>
       f(item)(Annotation.form.bindFromRequest)(userOpt)(request)
     }
   }
 
-  def annotationPostAction(id: String)(f: Either[Form[AnnotationF],Annotation] => Option[UserProfile] => Request[AnyContent] => Result)(implicit rd: RestReadable[MT], rs: RestResource[MT], ct: RestContentType[MT]) = {
+  def annotationPostAction(id: String)(f: Either[Form[AnnotationF],Annotation] => Option[UserProfile] => Request[AnyContent] => Result)(implicit rd: _root_.backend.BackendReadable[MT], rs: BackendResource[MT], ct: BackendContentType[MT]) = {
     withItemPermission.async[MT](id, PermissionType.Annotate) { item => implicit userOpt => implicit request =>
       Annotation.form.bindFromRequest.fold(
         errorForm => immediate(f(Left(errorForm))(userOpt)(request)),

@@ -2,7 +2,6 @@ package controllers.generic
 
 import play.api.mvc.Controller
 import defines.ContentTypes
-import models.json.{RestContentType, RestResource}
 import controllers.base.{ControllerHelpers, AuthController}
 import backend.Backend
 
