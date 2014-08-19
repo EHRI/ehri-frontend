@@ -25,6 +25,8 @@ class GuidesSpec extends Neo4jRunnerSpec(classOf[GuidesSpec]) {
       status(doc) must equalTo(NOT_FOUND)
     }
 
+    
+
     val guideData = Map(
       Guide.NAME -> Seq("Hello"),
       Guide.PATH -> Seq("hello"),
