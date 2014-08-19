@@ -3,7 +3,6 @@ package controllers.generic
 import play.api.libs.concurrent.Execution.Implicits._
 import play.api.mvc._
 import models._
-import models.json.ClientWriteable
 import utils.{Page, PageParams}
 
 import scala.concurrent.Future
@@ -46,7 +45,7 @@ trait Read[MT] extends Generic[MT] {
 
   object getAction {
     def async(id: String)(f: MT => Page[Annotation] => Page[Link] => Option[UserProfile] => Request[AnyContent] => Future[Result])(
-        implicit rd: BackendReadable[MT], crd: ClientWriteable[MT], ct: BackendContentType[MT]) = {
+        implicit rd: BackendReadable[MT], ct: BackendContentType[MT]) = {
       itemPermissionAction.async[MT](id) { item => implicit maybeUser => implicit request =>
           // NB: Effectively disable paging here by using a high limit
         val annsReq = backend.getAnnotationsForItem(id)
@@ -60,14 +59,14 @@ trait Read[MT] extends Generic[MT] {
     }
 
     def apply(id: String)(f: MT => Page[Annotation] => Page[Link] => Option[UserProfile] => Request[AnyContent] => Result)(
-      implicit rd: BackendReadable[MT], crd: ClientWriteable[MT], ct: BackendContentType[MT]) = {
+      implicit rd: BackendReadable[MT], ct: BackendContentType[MT]) = {
       async(id)(f.andThen(_.andThen(_.andThen(_.andThen(_.andThen(t => Future.successful(t)))))))
     }
   }
 
   object getWithChildrenAction {
     def async[CT](id: String)(f: MT => Page[CT] => PageParams =>  Page[Annotation] => Page[Link] => Option[UserProfile] => Request[AnyContent] => Future[Result])(
-          implicit rd: BackendReadable[MT], ct: BackendContentType[MT], crd: BackendReadable[CT], cfmt: ClientWriteable[MT]) = {
+          implicit rd: BackendReadable[MT], ct: BackendContentType[MT], crd: BackendReadable[CT]) = {
       itemPermissionAction.async[MT](id) { item => implicit userOpt => implicit request =>
         val params = PageParams.fromRequest(request)
         for {
@@ -80,13 +79,13 @@ trait Read[MT] extends Generic[MT] {
     }
 
     def apply[CT](id: String)(f: MT => Page[CT] => PageParams =>  Page[Annotation] => Page[Link] => Option[UserProfile] => Request[AnyContent] => Result)(
-      implicit rd: BackendReadable[MT], ct: BackendContentType[MT], crd: BackendReadable[CT], cfmt: ClientWriteable[MT]) = {
+      implicit rd: BackendReadable[MT], ct: BackendContentType[MT], crd: BackendReadable[CT]) = {
       async(id)(f.andThen(_.andThen(_.andThen(_.andThen(_.andThen(_.andThen(_.andThen(t => Future.successful(t)))))))))
     }
   }
 
   def pageAction(f: Page[MT] => PageParams => Option[UserProfile] => Request[AnyContent] => Result)(
-      implicit rd: BackendReadable[MT], rs: BackendResource[MT], cfmt: ClientWriteable[MT]) = {
+      implicit rd: BackendReadable[MT], rs: BackendResource[MT]) = {
     userProfileAction.async { implicit userOpt => implicit request =>
       val params = PageParams.fromRequest(request)
       backend.list(params).map { page =>

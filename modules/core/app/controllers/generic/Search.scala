@@ -4,7 +4,6 @@ import play.api.mvc._
 import play.api.libs.concurrent.Execution.Implicits._
 import models.UserProfile
 import defines.EntityType
-import models.json.ClientWriteable
 import utils.search._
 import play.api.Logger
 import controllers.base.{ControllerHelpers, AuthController}
@@ -111,7 +110,7 @@ trait Search extends Controller with AuthController with ControllerHelpers {
                        entities: Seq[EntityType.Value] = Nil,
                        entityFacets: FacetBuilder = emptyFacets,
                        mode: SearchMode.Value = SearchMode.DefaultAll)(
-                        f: ItemPage[(MT, SearchHit)] => SearchParams => List[AppliedFacet] => Option[UserProfile] => Request[AnyContent] => Result)(implicit rd: BackendReadable[MT], cfmt: ClientWriteable[MT]): Action[AnyContent] = {
+                        f: ItemPage[(MT, SearchHit)] => SearchParams => List[AppliedFacet] => Option[UserProfile] => Request[AnyContent] => Result)(implicit rd: BackendReadable[MT]): Action[AnyContent] = {
     userProfileAction.async { implicit userOpt => implicit request =>
       find[MT](
         filters,
