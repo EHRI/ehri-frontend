@@ -17,16 +17,22 @@ trait RestSocial extends Social with RestDAO {
 
   import backend.rest.Constants._
   import play.api.Play.current
+
   val eventHandler: EventHandler
 
   private def baseUrl = s"http://$host:$port/$mount"
   private def requestUrl = s"$baseUrl/${EntityType.UserProfile}"
 
   private def followingUrl(userId: String) = enc(requestUrl, userId, "following")
+
   private def watchingUrl(userId: String) = enc(requestUrl, userId, "watching")
+
   private def blockedUrl(userId: String) = enc(requestUrl, userId, "blocked")
+
   private def isFollowingUrl(userId: String, otherId: String) = enc(requestUrl, userId, "isFollowing", otherId)
+
   private def isWatchingUrl(userId: String, otherId: String) = enc(requestUrl, userId, "isWatching", otherId)
+
   private def isBlockingUrl(userId: String, otherId: String) = enc(requestUrl, userId, "isBlocking", otherId)
 
   def follow(userId: String, otherId: String)(implicit apiUser: ApiUser, executionContext: ExecutionContext): Future[Unit] = {
@@ -37,6 +43,7 @@ trait RestSocial extends Social with RestDAO {
       Cache.remove(userId)
     }
   }
+
   def unfollow(userId: String, otherId: String)(implicit apiUser: ApiUser, executionContext: ExecutionContext): Future[Unit] = {
     userCall(followingUrl(userId)).withQueryString(ID_PARAM -> otherId).delete().map { r =>
       checkError(r)
@@ -45,6 +52,7 @@ trait RestSocial extends Social with RestDAO {
       Cache.remove(userId)
     }
   }
+
   def isFollowing(userId: String, otherId: String)(implicit apiUser: ApiUser, executionContext: ExecutionContext): Future[Boolean] = {
     val url = isFollowingUrl(userId, otherId)
     FutureCache.getOrElse[Boolean](url) {
@@ -136,14 +144,14 @@ trait RestSocial extends Social with RestDAO {
 
   def userAnnotations(userId: String, params: PageParams = PageParams.empty)(implicit apiUser: ApiUser, executionContext: ExecutionContext): Future[Page[Annotation]] = {
     userCall(enc(requestUrl, userId, EntityType.Annotation))
-        .withQueryString(params.queryParams: _*).get().map { r =>
+      .withQueryString(params.queryParams: _*).get().map { r =>
       parsePage(r)(Annotation.Converter.restReads)
     }
   }
 
   def userLinks(userId: String, params: PageParams = PageParams.empty)(implicit apiUser: ApiUser, executionContext: ExecutionContext): Future[Page[Link]] = {
     userCall(enc(requestUrl, userId, EntityType.Link))
-        .withQueryString(params.queryParams: _*).get().map { r =>
+      .withQueryString(params.queryParams: _*).get().map { r =>
       parsePage(r)(Link.Converter.restReads)
     }
   }
@@ -162,6 +170,11 @@ trait RestSocial extends Social with RestDAO {
   def deleteBookmark(setId: String, id: String)(implicit apiUser: ApiUser, executionContext: ExecutionContext): Future[Unit] = {
     userCall(enc(baseUrl, EntityType.VirtualUnit, setId, "includes"))
       .withQueryString(ID_PARAM -> id).delete().map(_ => ())
+  }
+
+  def moveBookmarks(fromSet: String, toSet: String, ids: Seq[String])(implicit apiUser: ApiUser, executionContext: ExecutionContext): Future[Unit] = {
+    userCall(enc(baseUrl, EntityType.VirtualUnit, fromSet, "includes", toSet))
+      .withQueryString(ids.map(id => ID_PARAM -> id): _*).post("").map(_ => ())
   }
 }
 

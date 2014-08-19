@@ -18,7 +18,7 @@ import utils._
 import com.google.inject._
 import scala.concurrent.Future
 import scala.concurrent.Future.{successful => immediate}
-import backend.rest.Constants
+import backend.rest.{ItemNotFound, Constants}
 
 @Singleton
 case class VirtualUnits @Inject()(implicit globalConfig: global.GlobalConfig, searchDispatcher: Dispatcher, searchResolver: Resolver, backend: Backend,
@@ -53,6 +53,53 @@ case class VirtualUnits @Inject()(implicit globalConfig: global.GlobalConfig, se
     Map(s"(${pairs.map(t => t._1 + ":" + t._2).mkString(" OR ")})" -> Unit)
   }
 
+  private def defaultBookmarkSetId(implicit user: UserProfile): String =
+    s"${user.id}-bookmarks"
+
+  private def bookmarkLang(implicit request: RequestHeader): String =
+    utils.i18n.lang2to3lookup.getOrElse(request2lang.language, "eng")
+
+  private def bookmarkSetToVu(genId: String, bs: BookmarkSet)(implicit request: RequestHeader): VirtualUnitF = {
+    VirtualUnitF(
+      identifier = genId,
+      descriptions = List(
+        DocumentaryUnitDescriptionF(
+          id = None, languageCode = bookmarkLang, identity = IsadGIdentity(name = bs.name),
+          content = IsadGContent(scopeAndContent = bs.description)
+        )
+      )
+    )
+  }
+
+  private def defaultBookmarkSet(implicit user: UserProfile, request: RequestHeader): VirtualUnitF =
+    bookmarkSetToVu(defaultBookmarkSetId, BookmarkSet(s"Bookmarked Items", description = None))
+
+  /**
+   * Bookmark an item, creating (if necessary) a default virtual
+   * collection private to the user.
+   */
+  def bookmark(itemId: String, bsId: Option[String] = None) = withUserAction.async {
+      implicit user => implicit request =>
+
+    def getOrCreateBS(idOpt: Option[String]): Future[VirtualUnit] = {
+      backend.get[VirtualUnit](idOpt.getOrElse(defaultBookmarkSetId)).map { vu =>
+        backend.addBookmark(vu.id, itemId)
+        vu
+      } recoverWith {
+        case e: ItemNotFound => backend.create[VirtualUnit,VirtualUnitF](
+          item = defaultBookmarkSet,
+          accessors = Seq(user.id),
+          params = Map(Constants.ID_PARAM -> Seq(itemId))
+        )
+      }
+    }
+
+    getOrCreateBS(bsId).map { vu =>
+      if (isAjax) Ok("ok")
+      else Redirect(vuRoutes.browseVirtualCollection(id = vu.id))
+    }
+  }
+
   def listBookmarkSets = withUserAction.async { implicit user => implicit request =>
     val pageF = backend.userBookmarks(user.id, PageParams.fromRequest(request))
     val watchedF = watchedItems
@@ -68,16 +115,6 @@ case class VirtualUnits @Inject()(implicit globalConfig: global.GlobalConfig, se
   }
 
   def createBookmarkSetPost(items: List[String] = Nil) = withUserAction.async { implicit user => implicit request =>
-    def bookmarkLang: String = utils.i18n.lang2to3lookup.getOrElse(request2lang.language, "eng")
-    def bookmarkSetToVu(genId: String, bs: BookmarkSet): VirtualUnitF = VirtualUnitF(
-      identifier = genId,
-      descriptions = List(
-        DocumentaryUnitDescriptionF(
-          id = None, languageCode = bookmarkLang, identity = IsadGIdentity(name = bs.name),
-          content = IsadGContent(scopeAndContent = bs.description)
-        )
-      )
-    )
 
     BookmarkSet.bookmarkForm.bindFromRequest.fold(
       errs => immediate {
