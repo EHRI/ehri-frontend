@@ -1,7 +1,7 @@
 package models
 
 import models.base._
-import defines.EntityType
+import defines.{ContentTypes, EntityType}
 import models.json._
 import play.api.libs.json._
 import play.api.libs.functional.syntax._
@@ -10,6 +10,7 @@ import play.api.data.Form
 import play.api.data.Forms._
 import defines.EnumUtils._
 import play.api.libs.json.JsObject
+import backend.{BackendResource, BackendContentType, BackendReadable, BackendWriteable}
 
 
 object AnnotationF {
@@ -61,7 +62,7 @@ object AnnotationF {
 
   implicit val annotationFormat: Format[AnnotationF] = Format(annotationReads,annotationWrites)
 
-  implicit object Converter extends RestConvertable[AnnotationF] with ClientConvertable[AnnotationF] {
+  implicit object Converter extends BackendWriteable[AnnotationF] with ClientWriteable[AnnotationF] {
     lazy val restFormat = annotationFormat
     lazy val clientFormat = Json.format[AnnotationF]
   }
@@ -100,7 +101,7 @@ object Annotation {
     (__ \ META).readWithDefault(Json.obj())
   )(Annotation.apply _)
 
-  implicit object Converter extends ClientConvertable[Annotation] with RestReadable[Annotation] {
+  implicit object Converter extends ClientWriteable[Annotation] with BackendReadable[Annotation] {
     val restReads = metaReads
 
     val clientFormat: Format[Annotation] = (
@@ -117,8 +118,9 @@ object Annotation {
     )(Annotation.apply _, unlift(Annotation.unapply))
   }
 
-  implicit object Resource extends RestResource[Annotation] {
+  implicit object Resource extends BackendResource[Annotation] with BackendContentType[Annotation] {
     val entityType = EntityType.Annotation
+    val contentType = ContentTypes.Annotation
   }
 
   /**

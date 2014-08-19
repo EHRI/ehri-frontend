@@ -16,7 +16,7 @@ import solr.facet.FieldFacetClass
 import com.google.inject._
 import play.api.cache.{Cache, Cached}
 import backend.Backend
-import models.json.ClientConvertable
+import models.json.ClientWriteable
 
 
 @Singleton
@@ -30,7 +30,7 @@ case class Metrics @Inject()(implicit globalConfig: global.GlobalConfig, searchD
     EntityType.HistoricalAgent
   )
 
-  private def jsonResponse[T](result: QueryResult[T])(implicit request: Request[AnyContent], w: ClientConvertable[T]): Result = {
+  private def jsonResponse[T](result: QueryResult[T])(implicit request: Request[AnyContent], w: ClientWriteable[T]): Result = {
     render {
       case Accepts.Json() | Accepts.JavaScript() => Ok(Json.obj(
         "page" -> Json.toJson(result.page.copy(items = result.page.items.map(_._1)))(ItemPage.itemPageWrites),

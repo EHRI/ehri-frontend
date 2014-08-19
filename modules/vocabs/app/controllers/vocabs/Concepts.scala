@@ -12,6 +12,7 @@ import scala.concurrent.Future.{successful => immediate}
 import solr.facet.FieldFacetClass
 import backend.Backend
 
+
 @Singleton
 case class Concepts @Inject()(implicit globalConfig: global.GlobalConfig, searchDispatcher: Dispatcher, searchResolver: Resolver, backend: Backend, userDAO: AccountDAO) extends Creator[ConceptF, Concept, Concept]
   with Visibility[Concept]
@@ -24,9 +25,6 @@ case class Concepts @Inject()(implicit globalConfig: global.GlobalConfig, search
   with Search
   with Api[Concept] {
 
-  implicit val resource = Concept.Resource
-
-  val contentType = ContentTypes.Concept
   val targetContentTypes = Seq(ContentTypes.Concept)
 
   private val form = models.Concept.form
@@ -86,13 +84,13 @@ case class Concepts @Inject()(implicit globalConfig: global.GlobalConfig, search
     }
   }
 
-  def createConcept(id: String) = childCreateAction(id, ContentTypes.Concept) {
+  def createConcept(id: String) = childCreateAction(id) {
       item => users => groups => implicit userOpt => implicit request =>
     Ok(views.html.concept.create(
         item, childForm, VisibilityForm.form, users, groups, conceptRoutes.createConceptPost(id)))
   }
 
-  def createConceptPost(id: String) = childCreatePostAction.async(id, childForm, ContentTypes.Concept) {
+  def createConceptPost(id: String) = childCreatePostAction.async(id, childForm) {
       item => formsOrItem => implicit userOpt => implicit request =>
     formsOrItem match {
       case Left((errorForm,accForm)) => getUsersAndGroups { users => groups =>
@@ -148,7 +146,7 @@ case class Concepts @Inject()(implicit globalConfig: global.GlobalConfig, search
 
   def setItemPermissions(id: String, userType: EntityType.Value, userId: String) = setItemPermissionsAction(id, userType, userId) {
       item => accessor => perms => implicit userOpt => implicit request =>
-    Ok(views.html.permissions.setPermissionItem(item, accessor, perms, contentType,
+    Ok(views.html.permissions.setPermissionItem(item, accessor, perms, Concept.Resource.contentType,
         conceptRoutes.setItemPermissionsPost(id, userType, userId)))
   }
 

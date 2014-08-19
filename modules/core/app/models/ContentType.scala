@@ -5,6 +5,8 @@ import defines.EntityType
 import models.json._
 import play.api.libs.json._
 import play.api.libs.functional.syntax._
+import backend.BackendReadable
+
 
 object ContentType {
   val reads: Reads[ContentType] = (
@@ -19,7 +21,7 @@ object ContentType {
 
   implicit val restFormat = Format(reads, writes)
 
-  implicit object Converter extends ClientConvertable[ContentType] with RestReadable[ContentType] {
+  implicit object Converter extends ClientWriteable[ContentType] with BackendReadable[ContentType] {
     val restReads = reads
     val clientFormat = restFormat
   }

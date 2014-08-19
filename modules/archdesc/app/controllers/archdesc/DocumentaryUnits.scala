@@ -14,7 +14,7 @@ import scala.concurrent.Future.{successful => immediate}
 import backend.{ApiUser, Backend}
 import play.api.Play.current
 import play.api.Configuration
-import play.api.http.{HeaderNames, MimeTypes}
+import play.api.http.MimeTypes
 import utils.ead.EadExporter
 
 
@@ -97,12 +97,8 @@ case class DocumentaryUnits @Inject()(implicit globalConfig: global.GlobalConfig
     )
   }
 
-
-  implicit val resource = DocumentaryUnit.Resource
-
   val formDefaults: Option[Configuration] = current.configuration.getConfig(EntityType.DocumentaryUnit)
 
-  val contentType = ContentTypes.DocumentaryUnit
   val targetContentTypes = Seq(ContentTypes.DocumentaryUnit)
 
   val form = models.DocumentaryUnit.form
@@ -122,7 +118,7 @@ case class DocumentaryUnits @Inject()(implicit globalConfig: global.GlobalConfig
 
     find[DocumentaryUnit](
       filters = filters,
-      entities=List(resource.entityType),
+      entities=List(EntityType.DocumentaryUnit),
       facetBuilder = entityFacets
     ).map { result =>
       Ok(views.html.documentaryUnit.search(
@@ -131,7 +127,7 @@ case class DocumentaryUnits @Inject()(implicit globalConfig: global.GlobalConfig
     }
   }
 
-  def searchChildren(id: String) = itemPermissionAction.async[DocumentaryUnit](contentType, id) {
+  def searchChildren(id: String) = itemPermissionAction.async[DocumentaryUnit](id) {
       item => implicit userOpt => implicit request =>
     find[DocumentaryUnit](
       filters = Map(SolrConstants.PARENT_ID -> item.id),
@@ -184,13 +180,13 @@ case class DocumentaryUnits @Inject()(implicit globalConfig: global.GlobalConfig
     }
   }
 
-  def createDoc(id: String) = childCreateAction(id, contentType) { item => users => groups => implicit userOpt => implicit request =>
+  def createDoc(id: String) = childCreateAction(id) { item => users => groups => implicit userOpt => implicit request =>
     Ok(views.html.documentaryUnit.create(
       item, childForm, formDefaults, VisibilityForm.form.fill(item.accessors.map(_.id)),
       users, groups, docRoutes.createDocPost(id)))
   }
 
-  def createDocPost(id: String) = childCreatePostAction.async(id, childForm, contentType) {
+  def createDocPost(id: String) = childCreatePostAction.async(id, childForm) {
       item => formsOrItem => implicit userOpt => implicit request =>
     formsOrItem match {
       case Left((errorForm,accForm)) => getUsersAndGroups { users => groups =>
@@ -203,7 +199,7 @@ case class DocumentaryUnits @Inject()(implicit globalConfig: global.GlobalConfig
     }
   }
 
-  def createDescription(id: String) = withItemPermission[DocumentaryUnit](id, PermissionType.Update, contentType) {
+  def createDescription(id: String) = withItemPermission[DocumentaryUnit](id, PermissionType.Update) {
       item => implicit userOpt => implicit request =>
     Ok(views.html.documentaryUnit.createDescription(item,
         descriptionForm, formDefaults, docRoutes.createDescriptionPost(id)))
@@ -221,7 +217,7 @@ case class DocumentaryUnits @Inject()(implicit globalConfig: global.GlobalConfig
     }
   }
 
-  def updateDescription(id: String, did: String) = withItemPermission[DocumentaryUnit](id, PermissionType.Update, contentType) {
+  def updateDescription(id: String, did: String) = withItemPermission[DocumentaryUnit](id, PermissionType.Update) {
       item => implicit userOpt => implicit request =>
     itemOr404(item.model.description(did)) { desc =>
       Ok(views.html.documentaryUnit.editDescription(item,
@@ -302,7 +298,7 @@ case class DocumentaryUnits @Inject()(implicit globalConfig: global.GlobalConfig
 
   def setItemPermissions(id: String, userType: EntityType.Value, userId: String) = setItemPermissionsAction(id, userType, userId) {
       item => accessor => perms => implicit userOpt => implicit request =>
-    Ok(views.html.permissions.setPermissionItem(item, accessor, perms, contentType,
+    Ok(views.html.permissions.setPermissionItem(item, accessor, perms, DocumentaryUnit.Resource.contentType,
         docRoutes.setItemPermissionsPost(id, userType, userId)))
   }
 
@@ -324,7 +320,7 @@ case class DocumentaryUnits @Inject()(implicit globalConfig: global.GlobalConfig
         .flashing("success" -> "item.update.confirmation")
   }
 
-  def linkTo(id: String) = withItemPermission[DocumentaryUnit](id, PermissionType.Annotate, contentType) {
+  def linkTo(id: String) = withItemPermission[DocumentaryUnit](id, PermissionType.Annotate) {
       item => implicit userOpt => implicit request =>
     Ok(views.html.documentaryUnit.linkTo(item))
   }
@@ -382,7 +378,6 @@ case class DocumentaryUnits @Inject()(implicit globalConfig: global.GlobalConfig
   }
 
   import play.api.libs.concurrent.Execution.Implicits._
-  import utils.ead.DocTree
 
   def exportEad(id: String) = optionalUserAction.async { implicit userOpt => implicit request =>
     implicit val apiUser = ApiUser(userOpt.map(_.id))

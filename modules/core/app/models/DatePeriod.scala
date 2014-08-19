@@ -4,6 +4,7 @@ import models.base.Model
 import org.joda.time.DateTime
 
 import defines.EntityType
+import backend.BackendWriteable
 
 
 object DatePeriodF {
@@ -64,7 +65,7 @@ object DatePeriodF {
 
   implicit val datePeriodFormat: Format[DatePeriodF] = Format(datePeriodReads,datePeriodWrites)
 
-  implicit object Converter extends RestConvertable[DatePeriodF] with ClientConvertable[DatePeriodF] {
+  implicit object Converter extends BackendWriteable[DatePeriodF] with ClientWriteable[DatePeriodF] {
     lazy val restFormat = datePeriodFormat
     lazy val clientFormat = Json.format[DatePeriodF]
   }

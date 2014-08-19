@@ -7,6 +7,7 @@ import models.json._
 import play.api.libs.json._
 import play.api.libs.json.JsObject
 import play.api.i18n.Lang
+import backend.{BackendReadable, BackendResource}
 
 
 object PermissionGrantF {
@@ -27,7 +28,7 @@ object PermissionGrantF {
     (__ \ RELATIONSHIPS \ PERM_REL \\ ID).read[String].map(PermissionType.withName)
   )(PermissionGrantF.apply _)
 
-  implicit object Converter extends RestReadable[PermissionGrantF] with ClientConvertable[PermissionGrantF] {
+  implicit object Converter extends BackendReadable[PermissionGrantF] with ClientWriteable[PermissionGrantF] {
     val restReads = permissionGrantReads
     val clientFormat = Json.format[PermissionGrantF]
   }
@@ -59,7 +60,7 @@ object PermissionGrant {
     (__ \ META).readWithDefault(Json.obj())
   )(PermissionGrant.apply _)
 
-  implicit object Converter extends RestReadable[PermissionGrant] with ClientConvertable[PermissionGrant] {
+  implicit object Converter extends BackendReadable[PermissionGrant] with ClientWriteable[PermissionGrant] {
     private implicit val permissionGrantFormat = Json.format[PermissionGrantF]
 
     implicit val restReads = metaReads
@@ -73,7 +74,7 @@ object PermissionGrant {
     )(PermissionGrant.apply, unlift(PermissionGrant.unapply))
   }
 
-  implicit object Resource extends RestResource[PermissionGrant] {
+  implicit object Resource extends BackendResource[PermissionGrant] {
     val entityType = EntityType.PermissionGrant
   }
 }

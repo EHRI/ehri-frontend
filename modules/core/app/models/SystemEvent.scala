@@ -3,12 +3,13 @@ package models
 import models.base._
 import org.joda.time.DateTime
 import org.joda.time.format.{ISODateTimeFormat, DateTimeFormat}
-import defines.{EntityType, EventType}
+import defines.{ContentTypes, EntityType, EventType}
 import models.json._
 import play.api.libs.json._
 import play.api.libs.functional.syntax._
 import play.api.i18n.Messages
 import play.api.libs.json.JsObject
+import backend.{BackendContentType, BackendResource, BackendReadable}
 
 object SystemEventF {
 
@@ -48,7 +49,7 @@ object SystemEventF {
 
   implicit val systemEventFormat: Format[SystemEventF] = Format(systemEventReads,systemEventWrites)
 
-  implicit object Converter extends RestReadable[SystemEventF] with ClientConvertable[SystemEventF] {
+  implicit object Converter extends backend.BackendReadable[SystemEventF] with ClientWriteable[SystemEventF] {
     val restReads = systemEventFormat
     val clientFormat = Json.format[SystemEventF]
   }
@@ -79,7 +80,7 @@ object SystemEvent {
     (__ \ META).readWithDefault(Json.obj())
   )(SystemEvent.apply _)
 
-  implicit object Converter extends ClientConvertable[SystemEvent] with RestReadable[SystemEvent] {
+  implicit object Converter extends ClientWriteable[SystemEvent] with BackendReadable[SystemEvent] {
     private implicit val systemEventFormat = Json.format[SystemEventF]
 
     val restReads = metaReads
@@ -93,8 +94,9 @@ object SystemEvent {
     )(SystemEvent.apply _, unlift(SystemEvent.unapply))
   }
 
-  implicit object Resource extends RestResource[SystemEvent] {
+  implicit object Resource extends BackendResource[SystemEvent] with BackendContentType[SystemEvent] {
     val entityType = EntityType.SystemEvent
+    val contentType = ContentTypes.SystemEvent
   }
 }
 

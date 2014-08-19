@@ -84,9 +84,6 @@ case class Repositories @Inject()(implicit globalConfig: global.GlobalConfig, se
     )
   }
 
-  implicit val resource = Repository.Resource
-
-  val contentType = ContentTypes.Repository
   val targetContentTypes = Seq(ContentTypes.DocumentaryUnit)
 
   private val form = models.Repository.form
@@ -98,7 +95,7 @@ case class Repositories @Inject()(implicit globalConfig: global.GlobalConfig, se
   private val repositoryRoutes = controllers.archdesc.routes.Repositories
 
 
-  def search = searchAction[Repository](entities = List(resource.entityType), entityFacets = repositoryFacets) {
+  def search = searchAction[Repository](entities = List(EntityType.Repository), entityFacets = repositoryFacets) {
       page => params => facets => implicit userOpt => implicit request =>
     Ok(views.html.repository.search(page, params, facets, repositoryRoutes.search()))
   }
@@ -144,14 +141,14 @@ case class Repositories @Inject()(implicit globalConfig: global.GlobalConfig, se
     }
   }
 
-  def createDoc(id: String) = childCreateAction(id, ContentTypes.DocumentaryUnit) {
+  def createDoc(id: String) = childCreateAction(id) {
       item => users => groups => implicit userOpt => implicit request =>
     Ok(views.html.documentaryUnit.create(item, childForm, childFormDefaults,
       VisibilityForm.form.fill(item.accessors.map(_.id)),
       users, groups, repositoryRoutes.createDocPost(id)))
   }
 
-  def createDocPost(id: String) = childCreatePostAction.async(id, childForm, ContentTypes.DocumentaryUnit) {
+  def createDocPost(id: String) = childCreatePostAction.async(id, childForm) {
       item => formsOrItem => implicit userOpt => implicit request =>
     formsOrItem match {
       case Left((errorForm,accForm)) => getUsersAndGroups { users => groups =>
@@ -206,7 +203,7 @@ case class Repositories @Inject()(implicit globalConfig: global.GlobalConfig, se
 
   def setItemPermissions(id: String, userType: EntityType.Value, userId: String) = setItemPermissionsAction(id, userType, userId) {
       item => accessor => perms => implicit userOpt => implicit request =>
-    Ok(views.html.permissions.setPermissionItem(item, accessor, perms, contentType,
+    Ok(views.html.permissions.setPermissionItem(item, accessor, perms, Repository.Resource.contentType,
         repositoryRoutes.setItemPermissionsPost(id, userType, userId)))
   }
 

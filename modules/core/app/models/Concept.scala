@@ -2,7 +2,7 @@ package models
 
 import base._
 
-import defines.EntityType
+import defines.{ContentTypes, EntityType}
 import models.json._
 import play.api.libs.json._
 import eu.ehri.project.definitions.Ontology
@@ -10,6 +10,7 @@ import play.api.data.Form
 import play.api.data.Forms._
 import play.api.libs.json.JsObject
 import backend.rest.Constants
+import backend.{BackendContentType, BackendResource, BackendReadable, BackendWriteable}
 
 
 object ConceptF {
@@ -60,7 +61,7 @@ object ConceptF {
   implicit val conceptFormat: Format[ConceptF] = Format(conceptReads,conceptWrites)
 
 
-  implicit object Converter extends RestConvertable[ConceptF] with ClientConvertable[ConceptF] {
+  implicit object Converter extends BackendWriteable[ConceptF] with ClientWriteable[ConceptF] {
     val restFormat = conceptFormat
 
     private implicit val conceptDscFmt = ConceptDescriptionF.Converter.clientFormat
@@ -94,7 +95,7 @@ object Concept {
     (__ \ META).readWithDefault(Json.obj())
   )(Concept.apply _)
 
-  implicit object Converter extends ClientConvertable[Concept] with RestReadable[Concept] {
+  implicit object Converter extends ClientWriteable[Concept] with BackendReadable[Concept] {
     val restReads = metaReads
 
     val clientFormat: Format[Concept] = (
@@ -105,11 +106,12 @@ object Concept {
       (__ \ "accessibleTo").nullableListFormat(Accessor.Converter.clientFormat) and
       (__ \ "event").formatNullable[SystemEvent](SystemEvent.Converter.clientFormat) and
       (__ \ "meta").format[JsObject]
-    )(Concept.apply _, unlift(Concept.unapply _))
+    )(Concept.apply _, unlift(Concept.unapply))
   }
 
-  implicit object Resource extends RestResource[Concept] {
+  implicit object Resource extends BackendResource[Concept] with BackendContentType[Concept] {
     val entityType = EntityType.Concept
+    val contentType = ContentTypes.Concept
 
     override def defaultParams = Seq(
       Constants.INCLUDE_PROPERTIES_PARAM -> VocabularyF.NAME

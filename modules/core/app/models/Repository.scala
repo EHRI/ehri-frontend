@@ -4,7 +4,7 @@ package models
  * Classes representing an ISDIAH collection-holding institution
  */
 
-import defines.{EntityType, PublicationStatus}
+import defines.{ContentTypes, EntityType, PublicationStatus}
 
 import play.api.libs.json._
 import models.base._
@@ -16,6 +16,7 @@ import play.api.data.Form
 import play.api.data.Forms._
 import play.api.libs.json.JsObject
 import play.api.i18n.Lang
+import backend.{BackendReadable, BackendContentType, BackendResource, BackendWriteable}
 
 
 object RepositoryF {
@@ -60,7 +61,7 @@ object RepositoryF {
 
   implicit val repositoryFormat: Format[RepositoryF] = Format(repositoryReads,repositoryWrites)
 
-  implicit object Converter extends RestConvertable[RepositoryF] with ClientConvertable[RepositoryF] {
+  implicit object Converter extends BackendWriteable[RepositoryF] with ClientWriteable[RepositoryF] {
     val restFormat = repositoryFormat
 
     private implicit val repoDescFmt = RepositoryDescriptionF.Converter.clientFormat
@@ -127,7 +128,7 @@ object Repository {
     (__ \ META).readWithDefault(Json.obj())
   )(Repository.apply _)
 
-  implicit object Converter extends ClientConvertable[Repository] with RestReadable[Repository] {
+  implicit object Converter extends ClientWriteable[Repository] with BackendReadable[Repository] {
     val restReads = metaReads
 
     val clientFormat: Format[Repository] = (
@@ -139,8 +140,9 @@ object Repository {
     )(Repository.apply _, unlift(Repository.unapply))
   }
 
-  implicit object Resource extends RestResource[Repository] {
+  implicit object Resource extends BackendResource[Repository] with BackendContentType[Repository] {
     val entityType = EntityType.Repository
+    val contentType = ContentTypes.Repository
   }
 
   /**

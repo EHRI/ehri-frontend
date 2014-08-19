@@ -5,9 +5,8 @@ import play.api.libs.json._
 import defines.EntityType
 import play.api.Play.current
 import play.api.cache.Cache
-import models.json.{RestResource, RestReadable, RestConvertable}
 import models.base.AnyModel
-import backend.{EventHandler, ApiUser}
+import backend.{BackendWriteable, BackendResource, EventHandler, ApiUser}
 
 
 /**
@@ -21,7 +20,7 @@ trait RestDescriptions extends RestDAO {
   private def requestUrl = "http://%s:%d/%s/description".format(host, port, mount)
 
   def createDescription[MT,DT](id: String, item: DT, logMsg: Option[String] = None)(
-        implicit apiUser: ApiUser, rs: RestResource[MT], fmt: RestConvertable[DT], rd: RestReadable[MT], executionContext: ExecutionContext): Future[MT] = {
+        implicit apiUser: ApiUser, rs: BackendResource[MT], fmt: BackendWriteable[DT], rd: backend.BackendReadable[MT], executionContext: ExecutionContext): Future[MT] = {
     userCall(enc(requestUrl, id)).withHeaders(msgHeader(logMsg): _*)
         .post(Json.toJson(item)(fmt.restFormat)).flatMap { response =>
       checkError(response)
@@ -34,7 +33,7 @@ trait RestDescriptions extends RestDAO {
   }
 
   def updateDescription[MT,DT](id: String, did: String, item: DT, logMsg: Option[String] = None)(
-      implicit apiUser: ApiUser, rs: RestResource[MT], fmt: RestConvertable[DT], rd: RestReadable[MT], executionContext: ExecutionContext): Future[MT] = {
+      implicit apiUser: ApiUser, rs: BackendResource[MT], fmt: BackendWriteable[DT], rd: backend.BackendReadable[MT], executionContext: ExecutionContext): Future[MT] = {
     userCall(enc(requestUrl, id, did)).withHeaders(msgHeader(logMsg): _*)
         .put(Json.toJson(item)(fmt.restFormat)).flatMap { response =>
       checkError(response)
@@ -47,7 +46,7 @@ trait RestDescriptions extends RestDAO {
   }
 
   def deleteDescription[MT](id: String, did: String, logMsg: Option[String] = None)(
-      implicit apiUser: ApiUser, rs: RestResource[MT], rd: RestReadable[MT], executionContext: ExecutionContext): Future[Boolean] = {
+      implicit apiUser: ApiUser, rs: BackendResource[MT], rd: backend.BackendReadable[MT], executionContext: ExecutionContext): Future[Boolean] = {
     userCall(enc(requestUrl, id, did)).withHeaders(msgHeader(logMsg): _*)
           .delete().map { response =>
       checkError(response)
@@ -58,7 +57,7 @@ trait RestDescriptions extends RestDAO {
   }
 
   def createAccessPoint[DT](id: String, did: String, item: DT, logMsg: Option[String] = None)(
-        implicit apiUser: ApiUser, fmt: RestConvertable[DT], executionContext: ExecutionContext): Future[DT] = {
+        implicit apiUser: ApiUser, fmt: BackendWriteable[DT], executionContext: ExecutionContext): Future[DT] = {
     userCall(enc(requestUrl, id, did, EntityType.AccessPoint))
         .withHeaders(msgHeader(logMsg): _*)
         .post(Json.toJson(item)(fmt.restFormat)).map { response =>

@@ -1,7 +1,7 @@
 package utils.search
 
 import language.postfixOps
-import models.json.ClientConvertable
+import models.json.ClientWriteable
 
 /**
  * Page of search result items
@@ -30,7 +30,7 @@ object ItemPage {
   import play.api.libs.json._
   import play.api.libs.json.util._
 
-  implicit def itemPageWrites[MT](implicit rd: ClientConvertable[MT]): Writes[ItemPage[MT]] = (
+  implicit def itemPageWrites[MT](implicit rd: ClientWriteable[MT]): Writes[ItemPage[MT]] = (
     (__ \ "items").lazyWrite[Seq[MT]](Writes.seq(rd.clientFormat)) and
     (__ \ "offset").write[Int] and
     (__ \ "limit").write[Int] and

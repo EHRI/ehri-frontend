@@ -4,11 +4,12 @@ import controllers.generic._
 import forms.VisibilityForm
 import models._
 import play.api.i18n.Messages
-import defines.{EntityType, ContentTypes, PermissionType}
+import defines.{EntityType, PermissionType}
 import utils.search.{FacetDisplay, Resolver, Dispatcher, FacetSort}
 import com.google.inject._
 import solr.SolrConstants
 import backend.Backend
+
 
 @Singleton
 case class HistoricalAgents @Inject()(implicit globalConfig: global.GlobalConfig, searchDispatcher: Dispatcher, searchResolver: Resolver, backend: Backend, userDAO: AccountDAO) extends CRUD[HistoricalAgentF,HistoricalAgent]
@@ -17,10 +18,6 @@ case class HistoricalAgents @Inject()(implicit globalConfig: global.GlobalConfig
   with Linking[HistoricalAgent]
   with Annotate[HistoricalAgent]
   with Search {
-
-  implicit val resource = HistoricalAgent.Resource
-
-  val contentType = ContentTypes.HistoricalAgent
 
   private val form = models.HistoricalAgent.form
   private val histRoutes = controllers.authorities.routes.HistoricalAgents
@@ -46,7 +43,7 @@ case class HistoricalAgents @Inject()(implicit globalConfig: global.GlobalConfig
   }
 
 
-  def search = searchAction[HistoricalAgent](entities = List(resource.entityType), entityFacets = entityFacets) {
+  def search = searchAction[HistoricalAgent](entities = List(EntityType.HistoricalAgent), entityFacets = entityFacets) {
       page => params => facets => implicit userOpt => implicit request =>
     Ok(views.html.historicalAgent.search(page, params, facets, histRoutes.search()))
   }
@@ -116,7 +113,7 @@ case class HistoricalAgents @Inject()(implicit globalConfig: global.GlobalConfig
 
   def setItemPermissions(id: String, userType: EntityType.Value, userId: String) = setItemPermissionsAction(id, userType, userId) {
       item => accessor => perms => implicit userOpt => implicit request =>
-    Ok(views.html.permissions.setPermissionItem(item, accessor, perms, contentType,
+    Ok(views.html.permissions.setPermissionItem(item, accessor, perms, HistoricalAgent.Resource.contentType,
         histRoutes.setItemPermissionsPost(id, userType, userId)))
   }
 
@@ -126,7 +123,7 @@ case class HistoricalAgents @Inject()(implicit globalConfig: global.GlobalConfig
         .flashing("success" -> "item.update.confirmation")
   }
 
-  def linkTo(id: String) = withItemPermission[HistoricalAgent](id, PermissionType.Annotate, contentType) {
+  def linkTo(id: String) = withItemPermission[HistoricalAgent](id, PermissionType.Annotate) {
       item => implicit userOpt => implicit request =>
     Ok(views.html.historicalAgent.linkTo(item))
   }

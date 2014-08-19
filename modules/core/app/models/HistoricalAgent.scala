@@ -4,7 +4,7 @@ package models
  * Classes representing an ISDIAH collection-holding institution
  */
 
-import defines.{EntityType, PublicationStatus}
+import defines.{ContentTypes, EntityType, PublicationStatus}
 import base._
 
 import play.api.libs.json._
@@ -15,6 +15,7 @@ import play.api.data.Form
 import play.api.data.Forms._
 import models.forms._
 import play.api.libs.json.JsObject
+import backend.{BackendReadable, BackendContentType, BackendResource, BackendWriteable}
 
 object HistoricalAgentF {
 
@@ -51,7 +52,7 @@ object HistoricalAgentF {
 
   implicit val historicalAgentFormat: Format[HistoricalAgentF] = Format(historicalAgentReads,historicalAgentWrites)
 
-  implicit object Converter extends RestConvertable[HistoricalAgentF] with ClientConvertable[HistoricalAgentF] {
+  implicit object Converter extends BackendWriteable[HistoricalAgentF] with ClientWriteable[HistoricalAgentF] {
     lazy val restFormat = historicalAgentFormat
 
     private implicit val haDescFmt = HistoricalAgentDescriptionF.Converter.clientFormat
@@ -89,7 +90,7 @@ object HistoricalAgent {
     (__ \ META).readWithDefault(Json.obj())
   )(HistoricalAgent.apply _)
 
-  implicit object Converter extends ClientConvertable[HistoricalAgent] with RestReadable[HistoricalAgent] {
+  implicit object Converter extends ClientWriteable[HistoricalAgent] with BackendReadable[HistoricalAgent] {
     val restReads = metaReads
 
     implicit val clientFormat: Format[HistoricalAgent] = (
@@ -98,11 +99,12 @@ object HistoricalAgent {
       (__ \ "accessibleTo").nullableListFormat(Accessor.Converter.clientFormat) and
       (__ \ "event").formatNullable[SystemEvent](SystemEvent.Converter.clientFormat) and
       (__ \ "meta").format[JsObject]
-    )(HistoricalAgent.apply _, unlift(HistoricalAgent.unapply _))
+    )(HistoricalAgent.apply _, unlift(HistoricalAgent.unapply))
   }
 
-  implicit object Resource extends RestResource[HistoricalAgent] {
+  implicit object Resource extends BackendResource[HistoricalAgent] with BackendContentType[HistoricalAgent] {
     val entityType = EntityType.HistoricalAgent
+    val contentType = ContentTypes.HistoricalAgent
   }
 
   val form = Form(

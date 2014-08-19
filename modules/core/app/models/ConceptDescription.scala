@@ -6,9 +6,10 @@ import models.json._
 import play.api.libs.functional.syntax._
 import play.api.libs.json._
 import play.api.data.Form
-import play.api.data.format.Formats._
 import play.api.data.Forms._
 import models.forms._
+import backend.BackendWriteable
+
 
 object ConceptDescriptionF {
 
@@ -54,7 +55,7 @@ object ConceptDescriptionF {
 
   implicit val conceptDescriptionFormat: Format[ConceptDescriptionF] = Format(conceptDescriptionReads,conceptDescriptionWrites)
 
-  implicit object Converter extends RestConvertable[ConceptDescriptionF] with ClientConvertable[ConceptDescriptionF] {
+  implicit object Converter extends BackendWriteable[ConceptDescriptionF] with ClientWriteable[ConceptDescriptionF] {
     lazy val restFormat = conceptDescriptionFormat
 
     private implicit val accessPointFormat = AccessPointF.Converter.clientFormat

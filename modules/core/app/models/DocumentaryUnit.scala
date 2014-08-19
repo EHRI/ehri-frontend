@@ -13,6 +13,7 @@ import java.net.URL
 import play.api.data.Form
 import play.api.data.Forms._
 import play.api.libs.json.JsObject
+import backend.{BackendReadable, BackendWriteable, BackendResource, BackendContentType}
 
 
 object DocumentaryUnitF {
@@ -73,7 +74,7 @@ object DocumentaryUnitF {
 
   implicit val documentaryUnitFormat: Format[DocumentaryUnitF] = Format(documentaryUnitReads,documentaryUnitWrites)
 
-  implicit object Converter extends RestConvertable[DocumentaryUnitF] with ClientConvertable[DocumentaryUnitF] {
+  implicit object Converter extends BackendWriteable[DocumentaryUnitF] with ClientWriteable[DocumentaryUnitF] {
     val restFormat = documentaryUnitFormat
     val clientFormat = Json.format[DocumentaryUnitF]
   }
@@ -113,7 +114,7 @@ object DocumentaryUnit {
   )(DocumentaryUnit.apply _)
 
 
-  implicit object Converter extends RestReadable[DocumentaryUnit] with ClientConvertable[DocumentaryUnit] {
+  implicit object Converter extends BackendReadable[DocumentaryUnit] with ClientWriteable[DocumentaryUnit] {
     implicit val restReads = metaReads
 
     val clientFormat: Format[DocumentaryUnit] = (
@@ -126,8 +127,9 @@ object DocumentaryUnit {
     )(DocumentaryUnit.apply _, unlift(DocumentaryUnit.unapply))
   }
 
-  implicit object Resource extends RestResource[DocumentaryUnit] {
+  implicit object Resource extends BackendResource[DocumentaryUnit] with BackendContentType[DocumentaryUnit] {
     val entityType = EntityType.DocumentaryUnit
+    val contentType = ContentTypes.DocumentaryUnit
 
     /**
      * When displaying doc units we need the

@@ -15,6 +15,7 @@ import play.api.data.Forms._
 import utils.forms._
 import play.api.libs.json.JsObject
 import eu.ehri.project.definitions.Ontology
+import backend.{BackendContentType, BackendResource, BackendReadable, BackendWriteable}
 
 
 object UserProfileF {
@@ -65,7 +66,7 @@ object UserProfileF {
 
   implicit val userProfileFormat: Format[UserProfileF] = Format(userProfileReads,userProfileWrites)
 
-  implicit object Converter extends RestConvertable[UserProfileF] with ClientConvertable[UserProfileF] {
+  implicit object Converter extends BackendWriteable[UserProfileF] with ClientWriteable[UserProfileF] {
     lazy val restFormat = userProfileFormat
     lazy val clientFormat = Json.format[UserProfileF]
   }
@@ -100,7 +101,7 @@ object UserProfile {
     (__ \ META).readWithDefault(Json.obj())
   )(UserProfile.quickApply _)
 
-  implicit object Converter extends ClientConvertable[UserProfile] with RestReadable[UserProfile] {
+  implicit object Converter extends ClientWriteable[UserProfile] with BackendReadable[UserProfile] {
 
     val restReads = metaReads
     val clientFormat: Format[UserProfile] = (
@@ -109,11 +110,12 @@ object UserProfile {
       (__ \ "accessibleTo").lazyNullableListFormat(Accessor.Converter.clientFormat) and
       (__ \ "event").formatNullable[SystemEvent](SystemEvent.Converter.clientFormat) and
       (__ \ "meta").format[JsObject]
-    )(UserProfile.quickApply _, unlift(UserProfile.quickUnapply _))
+    )(UserProfile.quickApply _, unlift(UserProfile.quickUnapply))
   }
 
-  implicit object Resource extends RestResource[UserProfile] {
+  implicit object Resource extends BackendResource[UserProfile] with BackendContentType[UserProfile] {
     val entityType = EntityType.UserProfile
+    val contentType = ContentTypes.UserProfile
   }
 
   // Constructor, sans account and perms
