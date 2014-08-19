@@ -4,7 +4,7 @@ import play.api.libs.concurrent.Execution.Implicits._
 import controllers.generic._
 import models._
 import play.api.i18n.Messages
-import defines.{PermissionType, ContentTypes}
+import defines.{EntityType, PermissionType, ContentTypes}
 import utils.search._
 import com.google.inject._
 import backend.Backend
@@ -51,10 +51,6 @@ case class UserProfiles @Inject()(implicit globalConfig: global.GlobalConfig, se
       )
     )
   }
-
-  implicit val resource = UserProfile.Resource
-
-  val contentType = ContentTypes.UserProfile
 
   val form = models.UserProfile.form
 
@@ -186,7 +182,7 @@ case class UserProfiles @Inject()(implicit globalConfig: global.GlobalConfig, se
 
   def search = userProfileAction.async { implicit userOpt => implicit request =>
     find[UserProfile](
-      entities = List(resource.entityType), facetBuilder = entityFacets
+      entities = List(EntityType.UserProfile), facetBuilder = entityFacets
     ).map { case QueryResult(page, params, facets) =>
       // Crap alert! Lookup accounts for users. This is undesirable 'cos it's
       // one DB SELECT per user, but since it's just a management page it shouldn't

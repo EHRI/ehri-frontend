@@ -27,7 +27,6 @@ object Indexable {
  * @author Mike Bryant (http://github.com/mikesname)
  */
 trait Indexable[MT] extends Controller with AuthController with ControllerHelpers {
-  implicit val resource: RestResource[MT]
 
   def searchIndexer: Indexer
 
@@ -70,7 +69,7 @@ trait Indexable[MT] extends Controller with AuthController with ControllerHelper
    * @param id The parent item id
    * @return An action returning a chunked progress response.
    */
-  def updateChildItemsPost(field: String, id: String) = adminAction { implicit userOpt => implicit request =>
+  def updateChildItemsPost(field: String, id: String)(implicit rs: RestResource[MT]) = adminAction { implicit userOpt => implicit request =>
     println("INDEXING WITH: " + searchIndexer)
     val channel = Concurrent.unicast[String] { chan =>
 
@@ -83,7 +82,7 @@ trait Indexable[MT] extends Controller with AuthController with ControllerHelper
       }
 
       val job = clearIndex.flatMap { _ =>
-        searchIndexer.withChannel(chan, wrapMsg).indexChildren(resource.entityType, id)
+        searchIndexer.withChannel(chan, wrapMsg).indexChildren(rs.entityType, id)
       }
 
       job.onComplete {

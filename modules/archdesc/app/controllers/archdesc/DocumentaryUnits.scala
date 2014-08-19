@@ -97,9 +97,6 @@ case class DocumentaryUnits @Inject()(implicit globalConfig: global.GlobalConfig
     )
   }
 
-
-  implicit val resource = DocumentaryUnit.Resource
-
   val formDefaults: Option[Configuration] = current.configuration.getConfig(EntityType.DocumentaryUnit)
 
   val targetContentTypes = Seq(ContentTypes.DocumentaryUnit)
@@ -121,7 +118,7 @@ case class DocumentaryUnits @Inject()(implicit globalConfig: global.GlobalConfig
 
     find[DocumentaryUnit](
       filters = filters,
-      entities=List(resource.entityType),
+      entities=List(EntityType.DocumentaryUnit),
       facetBuilder = entityFacets
     ).map { result =>
       Ok(views.html.documentaryUnit.search(

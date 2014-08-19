@@ -5,23 +5,18 @@ import controllers.generic._
 import forms.VisibilityForm
 import models.{UserProfile, AccountDAO, Group, GroupF}
 import models.base.Accessor
-import play.api.i18n.Messages
-import defines.{EntityType, ContentTypes, PermissionType}
+import defines.{EntityType, PermissionType}
 import com.google.inject._
 import utils.search.{Resolver, Dispatcher}
 import scala.concurrent.Future
 import backend.Backend
 import backend.rest.{Constants, RestHelpers}
-import models.json.RestResource
 import play.api.mvc.{Request, AnyContent}
 import play.api.data.{Forms, Form}
 
 case class Groups @Inject()(implicit globalConfig: global.GlobalConfig, searchDispatcher: Dispatcher, searchResolver: Resolver, backend: Backend, userDAO: AccountDAO) extends PermissionHolder[Group]
   with Visibility[Group]
   with CRUD[GroupF, Group] {
-
-  val contentType = ContentTypes.Group
-  implicit val resource = Group.Resource
 
   private val form = models.Group.form
   private val groupRoutes = controllers.admin.routes.Groups

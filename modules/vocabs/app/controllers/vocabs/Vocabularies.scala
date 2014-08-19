@@ -21,9 +21,6 @@ case class Vocabularies @Inject()(implicit globalConfig: global.GlobalConfig, se
   with Indexable[Vocabulary]
   with Search {
 
-  implicit val resource = Vocabulary.Resource
-
-  val contentType = ContentTypes.Vocabulary
   val targetContentTypes = Seq(ContentTypes.Concept)
 
   val form = models.Vocabulary.form
@@ -140,7 +137,7 @@ case class Vocabularies @Inject()(implicit globalConfig: global.GlobalConfig, se
 
   def setItemPermissions(id: String, userType: EntityType.Value, userId: String) = setItemPermissionsAction(id, userType, userId) {
       item => accessor => perms => implicit userOpt => implicit request =>
-    Ok(views.html.permissions.setPermissionItem(item, accessor, perms, contentType,
+    Ok(views.html.permissions.setPermissionItem(item, accessor, perms, Vocabulary.Resource.contentType,
         vocabRoutes.setItemPermissionsPost(id, userType, userId)))
   }
 

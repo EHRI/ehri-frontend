@@ -1,6 +1,5 @@
 package controllers.admin
 
-import defines._
 import models.{AccountDAO, SystemEvent}
 import play.api.libs.concurrent.Execution.Implicits._
 import com.google.inject._
@@ -10,11 +9,6 @@ import backend.Backend
 import backend.rest.RestHelpers
 
 case class SystemEvents @Inject()(implicit globalConfig: global.GlobalConfig, backend: Backend, userDAO: AccountDAO) extends Read[SystemEvent] {
-
-  implicit val resource = SystemEvent.Resource
-
-  val entityType = EntityType.SystemEvent
-  val contentType = ContentTypes.SystemEvent
 
   def get(id: String) = getAction.async(id) {
       item => annotations => links => implicit userOpt => implicit request =>

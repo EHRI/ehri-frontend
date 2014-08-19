@@ -74,11 +74,8 @@ case class VirtualUnits @Inject()(implicit globalConfig: global.GlobalConfig, se
     )
   }
 
-  implicit val resource = VirtualUnit.Resource
-
   val formDefaults: Option[Configuration] = current.configuration.getConfig(EntityType.VirtualUnit)
 
-  val contentType = ContentTypes.VirtualUnit
   val targetContentTypes = Seq(ContentTypes.VirtualUnit)
 
   val form = models.VirtualUnit.form
@@ -332,7 +329,7 @@ case class VirtualUnits @Inject()(implicit globalConfig: global.GlobalConfig, se
 
   def setItemPermissions(id: String, userType: EntityType.Value, userId: String) = setItemPermissionsAction(id, userType, userId) {
       item => accessor => perms => implicit userOpt => implicit request =>
-    Ok(views.html.permissions.setPermissionItem(item, accessor, perms, contentType,
+    Ok(views.html.permissions.setPermissionItem(item, accessor, perms, VirtualUnit.Resource.contentType,
         vuRoutes.setItemPermissionsPost(id, userType, userId)))
   }
 

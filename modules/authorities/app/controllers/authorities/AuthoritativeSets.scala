@@ -25,8 +25,6 @@ AuthoritativeSets @Inject()(implicit globalConfig: global.GlobalConfig, searchDi
   with Search {
 
   private val formDefaults: Option[Configuration] = current.configuration.getConfig(EntityType.HistoricalAgent)
-  implicit val resource = AuthoritativeSet.Resource
-  val contentType = ContentTypes.AuthoritativeSet
 
   val targetContentTypes = Seq(ContentTypes.HistoricalAgent)
   private val form = models.AuthoritativeSet.form
@@ -144,7 +142,7 @@ AuthoritativeSets @Inject()(implicit globalConfig: global.GlobalConfig, searchDi
 
   def setItemPermissions(id: String, userType: EntityType.Value, userId: String) = setItemPermissionsAction(id, userType, userId) {
       item => accessor => perms => implicit userOpt => implicit request =>
-    Ok(views.html.permissions.setPermissionItem(item, accessor, perms, contentType,
+    Ok(views.html.permissions.setPermissionItem(item, accessor, perms, AuthoritativeSet.Resource.contentType,
         setRoutes.setItemPermissionsPost(id, userType, userId)))
   }
 
