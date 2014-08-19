@@ -173,7 +173,6 @@ case class Guides @Inject()(implicit globalConfig: global.GlobalConfig, searchDi
       page.layout match {
         case Layout.Person => guideAuthority(page, Map(SolrConstants.HOLDER_ID -> page.content), guide)
         case Layout.Map => guideMap(page, Map(SolrConstants.HOLDER_ID -> page.content), guide)
-        case Layout.Keyword => guideKeyword(page, Map(SolrConstants.HOLDER_ID -> page.content), guide)
         case Layout.Organisation => guideOrganization(page, Map(SolrConstants.HOLDER_ID -> page.content), guide)
         case Layout.Markdown => guideMarkdown(page, page.content, guide)
         case _ => pageNotFound()
@@ -200,20 +199,6 @@ case class Guides @Inject()(implicit globalConfig: global.GlobalConfig, searchDi
           if (isAjax) Ok(p.guides.ajax(template -> guide, r.page, r.params, links))
           else Ok(p.guides.person(template -> (guide -> guide.findPages), r.page, r.params, links))
       }
-  }
-
-  /*
-  *   Layout named "keyword" [Concept]
-  */
-  def guideKeyword(template: GuidePage, params: Map[String, String], guide: Guide) = userBrowseAction.async { implicit userDetails => implicit request =>
-     for { 
-        r <- find[Concept](filters = params, entities = List(EntityType.Concept), facetBuilder = conceptFacets)
-        links <- countLinks(guide.virtualUnit, r.page.items.map { case(item, hit) => item.id }.toList)
-      }
-      yield {
-        if (isAjax) Ok(p.guides.ajax(template -> guide, r.page, r.params, links))
-        else Ok(p.guides.keywords(template -> (guide -> guide.findPages), r.page, r.params, links))
-    }
   }
 
   /*

@@ -2,11 +2,11 @@
 
 @js = {
 	<script type="text/javascript">
-		@template._1.description.getOrElse("")
+		@Html(template._1.description.getOrElse(""))
 	</script>
 }
 @p.layout.guideLayout(template, scripts = js) {
 	<article>
-		@content
+		@Html(content)
 	</article>
 }
