@@ -21,6 +21,11 @@ $(document).ready(function() {
         $(e.target).closest("form").submit();
       });
 
+
+    $(document).on("change", ".autosubmit", function (e) {
+     $(e.target).closest("form").submit();
+    });
+
     //Tooltip
     $('.facet-form').tooltip({
         selector : '[data-toggle="tooltip"]',

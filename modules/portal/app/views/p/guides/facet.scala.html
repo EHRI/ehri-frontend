@@ -1,34 +1,56 @@
-@(items: utils.search.ItemPage[DocumentaryUnit], template: (GuidePage, (Guide, List[GuidePage])))(implicit userOpt: Option[UserProfile], request: RequestHeader, prefs: utils.SessionPrefs, globalConfig: global.GlobalConfig, lang: Lang, flash: Flash)
+@(items: utils.search.ItemPage[DocumentaryUnit], available: Map[String, List[AnyModel]], template: (GuidePage, (Guide, List[GuidePage])))(implicit userOpt: Option[UserProfile], request: RequestHeader, prefs: utils.SessionPrefs, globalConfig: global.GlobalConfig, lang: Lang, flash: Flash)
 
 @import models.{GuidePage, Guide}
 
+@selectTwo(pageName: String, content: String) = {
+    <div class="facet-class">
+        <h4 class="facet-label">@pageName</h4>
+        <div class="facet-options">
+            <select multiple style="width: 100%" name="kw[]" data-placeholder="@pageName" class="form-control select2 autosubmit">
+                <option></option>
+                @available.get(content).map { listAvailable =>
+                    @listAvailable.map{ f=>
+                        <option value="@f.id">@f.toStringLang</option>
+                    }
+                }
+            </select>
+        </div>
+    </div>
+}
+
 @js = {
+    <script type="text/javascript" src="@controllers.portal.routes.Assets.versioned("js/portal-guide.js")"></script>
     <script type="text/javascript" src="@controllers.portal.routes.Assets.versioned("js/portal-guide-facet.js")"></script>
+    <script src="@controllers.core.routes.Assets.versioned("select2/select2.js")"></script>
+    <script type="text/javascript">
+        $(".select2").select2()
+    </script>
 }
 @facets = {
-    
     @views.html.common.search.selectedFacets(items)
 
     @for(page <- template._2._2) {
         @if(page.position == GuidePage.MenuPosition.Top && page.layout != GuidePage.Layout.Markdown) {
-            <ul class="list-unstyled">
-                <li>
-                    <div class="facet-form @page.path" data-name="@page.path" data-target="@controllers.portal.routes.Guides.layoutRetrieval(template._2._1.path, page.path)">
-                        <h1 class="nav-ehri nav-ehri-black">
-                            @page.name
-                            <a class="btn-sm btn-default pull-right search"><span class="glyphicon glyphicon-search"></span></a>
-                            <a class="btn-sm btn-default pull-right more" href="#@page.path"><span class="glyphicon glyphicon-plus-sign"></span></a>
-                        </h1>
-                        <ul class="nav nav-pills nav-ehri nav-grey-black nav-justified facet-search">
-                            <li><input class="nav-ehri nav-ehri-grey nav-ehri-input q" name="@page.path" placeholder="Quick Search" /></li>
-                            <li><button type="submit" class="nav-ehri nav-ehri-grey nav-ehri-input"><span class="glyphicon glyphicon-search"></span><span class="text-hide">Search</span></button></li>
-                        </ul>
-                        <ul class="list-unstyled nav-ehri nav-ehri-light-grey facet-list" id="@page.path">
-
-                        </ul>
-                    </div>
-                </li>
-            </ul>
+            @if(!available.isEmpty){
+                        @selectTwo(page.name, page.content)} else{
+                                    <ul class="list-unstyled">
+                                        <li>
+                                            <div class="facet-form @page.path" data-name="@page.path" data-target="@controllers.portal.routes.Guides.layoutRetrieval(template._2._1.path, page.path)">
+                                                <h1 class="nav-ehri nav-ehri-black">
+                                                    @page.name
+                                                    <a class="btn-sm btn-default pull-right search"><span class="glyphicon glyphicon-search"></span></a>
+                                                    <a class="btn-sm btn-default pull-right more" href="#@page.path"><span class="glyphicon glyphicon-plus-sign"></span></a>
+                                                </h1>
+                                                <ul class="nav nav-pills nav-ehri nav-grey-black nav-justified facet-search">
+                                                    <li><input class="nav-ehri nav-ehri-grey nav-ehri-input q" name="@page.path" placeholder="Quick Search" /></li>
+                                                    <li><button type="submit" class="nav-ehri nav-ehri-grey nav-ehri-input"><span class="glyphicon glyphicon-search"></span><span class="text-hide">Search</span></button></li>
+                                                </ul>
+                                                <ul class="list-unstyled nav-ehri nav-ehri-light-grey facet-list" id="@page.path">
+                        
+                                                </ul>
+                                            </div>
+                                        </li>
+                                    </ul>}
         }
     }
 }

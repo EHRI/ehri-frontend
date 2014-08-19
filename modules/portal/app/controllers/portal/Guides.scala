@@ -173,7 +173,6 @@ case class Guides @Inject()(implicit globalConfig: global.GlobalConfig, searchDi
       page.layout match {
         case Layout.Person => guideAuthority(page, Map(SolrConstants.HOLDER_ID -> page.content), guide)
         case Layout.Map => guideMap(page, Map(SolrConstants.HOLDER_ID -> page.content), guide)
-        case Layout.Keyword => guideKeyword(page, Map(SolrConstants.HOLDER_ID -> page.content), guide)
         case Layout.Organisation => guideOrganization(page, Map(SolrConstants.HOLDER_ID -> page.content), guide)
         case Layout.Markdown => guideMarkdown(page, page.content, guide)
         case _ => pageNotFound()
@@ -200,20 +199,6 @@ case class Guides @Inject()(implicit globalConfig: global.GlobalConfig, searchDi
           if (isAjax) Ok(p.guides.ajax(template -> guide, r.page, r.params, links))
           else Ok(p.guides.person(template -> (guide -> guide.findPages), r.page, r.params, links))
       }
-  }
-
-  /*
-  *   Layout named "keyword" [Concept]
-  */
-  def guideKeyword(template: GuidePage, params: Map[String, String], guide: Guide) = userBrowseAction.async { implicit userDetails => implicit request =>
-     for { 
-        r <- find[Concept](filters = params, entities = List(EntityType.Concept), facetBuilder = conceptFacets)
-        links <- countLinks(guide.virtualUnit, r.page.items.map { case(item, hit) => item.id }.toList)
-      }
-      yield {
-        if (isAjax) Ok(p.guides.ajax(template -> guide, r.page, r.params, links))
-        else Ok(p.guides.keywords(template -> (guide -> guide.findPages), r.page, r.params, links))
-    }
   }
 
   /*
@@ -330,7 +315,6 @@ case class Guides @Inject()(implicit globalConfig: global.GlobalConfig, searchDi
   *   Faceted request
   */
   def searchFacets(guide: Guide, ids: List[String]): Future[Seq[Long]] = {
-    
     val cypher = new CypherDAO
     val query = 
     s"""
@@ -357,6 +341,33 @@ case class Guides @Inject()(implicit globalConfig: global.GlobalConfig, searchDi
       (r \ "data").as[Seq[Seq[Long]]].flatten
     }
   }
+
+  /* Function to get items*/
+  def otherFacets(guide: Guide, ids: Seq[Long]): Future[Seq[Long]] = {
+    println(ids)
+    val cypher = new CypherDAO
+    val query = 
+    s"""
+        START 
+          virtualUnit = node:entities(__ID__= {guide}), 
+          doc = node({docList})
+        MATCH 
+             (link)-[:inContextOf]->virtualUnit,
+            doc<-[:hasLinkTarget]-(link)-[:hasLinkTarget]->(accessPoints)
+          WHERE doc <> accessPoints
+         RETURN DISTINCT ID(accessPoints)
+        """.stripMargin
+    cypher.cypher(query, 
+    Map(
+      /* All IDS */
+      "guide" -> JsString(guide.virtualUnit),
+      "docList" -> Json.toJson(ids)
+      /* End IDS */
+    )).map { r =>
+      (r \ "data").as[Seq[Seq[Long]]].flatten
+    }
+  }
+
   /*
    *    Page defintion
    */
@@ -411,6 +422,32 @@ case class Guides @Inject()(implicit globalConfig: global.GlobalConfig, searchDi
     }
   }
 
+  def mapAccessPoints(guide: Guide, facets: Seq[AnyModel]): Map[String, List[AnyModel]] = {
+    guide.findPages().map( page => 
+        page.content -> facets.map { facet =>
+          facet match {
+            case f:Concept => {
+              f.vocabulary match {
+                case Some(s:Vocabulary) => if(s.id == page.content) { facet }  else None
+                case _ => None
+              }
+              
+            }
+            case f:HistoricalAgent => {
+              f.set match {
+                case Some(s:AuthoritativeSet) => if(s.id == page.content) { facet }  else None
+                case _ => None
+              }
+            }
+            case _ => None
+          }
+        }.flatMap {
+          case f:AnyModel => Some(f)
+          case _ => None
+        }.toList
+      ).toMap
+  }
+
   /*
   *   Faceted search
   */
@@ -419,14 +456,16 @@ case class Guides @Inject()(implicit globalConfig: global.GlobalConfig, searchDi
       /*
        *  If we have keyword, we make a query 
        */
-      val defaultResult = Ok(p.guides.facet(ItemPage(Seq(), 0, 0, 0, List()), GuidePage.faceted -> (guide -> guide.findPages)))
+      val defaultResult = Ok(p.guides.facet(ItemPage(Seq(), 0, 0, 0, List()), Map().empty, GuidePage.faceted -> (guide -> guide.findPages)))
       facetsForm.bindFromRequest(request.queryString).fold(
         errs => immediate(defaultResult), {
           case (selectedFacets, page) if !selectedFacets.isEmpty => for {
             ids <- searchFacets(guide, selectedFacets)
             docs <- SearchDAO.listByGid[DocumentaryUnit](facetSlice(ids, page))
-            accessPoints <- SearchDAO.list[AnyModel](selectedFacets)
-          } yield Ok(p.guides.facet(pagify(ids, docs, accessPoints, page), GuidePage.faceted -> (guide -> guide.findPages)))
+            selectedAccessPoints <- SearchDAO.list[AnyModel](selectedFacets)
+            availableFacets <- otherFacets(guide, ids)
+            tempAccessPoints <- SearchDAO.listByGid[AnyModel](availableFacets)
+          } yield Ok(p.guides.facet(pagify(ids, docs, selectedAccessPoints, page), mapAccessPoints(guide, tempAccessPoints), GuidePage.faceted -> (guide -> guide.findPages)))
           case _ => immediate(defaultResult)
         }
       )

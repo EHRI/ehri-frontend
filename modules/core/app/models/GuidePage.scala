@@ -84,8 +84,6 @@ object GuidePage {
     val Organisation = Value("organisation")
     val Person = Value("person")
     val Map = Value("map")
-    val Keyword = Value("keyword")
-    val Document = Value("document")
   }
 
   object MenuPosition extends Enumeration with StorableEnum {
@@ -166,11 +164,11 @@ object GuidePage {
   }
 
   def document(title: Option[String] = None): GuidePage = {
-    GuidePage(None, Layout.Document, title.getOrElse("Documents"), "documents", MenuPosition.Top, "", None, None)
+    GuidePage(None, Layout.Markdown, title.getOrElse("Documents"), "documents", MenuPosition.Top, "", None, None)
   }
 
   def repository(title: Option[String] = None): GuidePage = {
-    GuidePage(None, Layout.Document, title.getOrElse("Repository"), "repository", MenuPosition.Top, "", None, None)
+    GuidePage(None, Layout.Markdown, title.getOrElse("Repository"), "repository", MenuPosition.Top, "", None, None)
   }
 }
 

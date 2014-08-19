@@ -62,11 +62,9 @@ guidePage.params.description=An URL query string to be parsed. eg. : lat=80&lng=
 guidePage.description.description=Secondary content. In normal case, the description of the page shown in the right part of the guide. In case of a free text page, you should write the javascript here
 
 guidePage.map=Map
-guidePage.keyword=Horizontally Organized Concepts
 guidePage.person=Persons
 guidePage.md=Free text
 guidePage.organisation=Vertically Organized Concepts
-guidePage.document=Document
 guidePage.side=Side menu
 guidePage.top=Top Menu
 guidePage.nowhere=Hidden

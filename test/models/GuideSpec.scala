@@ -23,7 +23,9 @@ class GuideSpec extends PlaySpecification {
 
     "create items correctly" in new WithSqlFile("guide-fixtures.sql") {
       Guide.findAll(activeOnly = true).size must equalTo(2)
-      Guide.create(name = "Test", path = "test", virtualUnit = "test", active = 1) must beSome
+      Guide.create(name = "Test", path = "test", virtualUnit = "test", active = 1) must beSome.which {
+        guide.name must equalTo("Test")
+      }
       Guide.findAll(activeOnly = true).size must equalTo(3)
       Guide.find("test") must beSome
     }
@@ -42,6 +44,7 @@ class GuideSpec extends PlaySpecification {
       Guide.find("terezin") must beSome.which { guide =>
         guide.delete()
         Guide.find("terezin") must beNone
+        Guide.findAll(activeOnly = false).size must equalTo(1)
       }
     }
   }
@@ -55,6 +58,7 @@ class GuideSpec extends PlaySpecification {
 
     "create items correctly" in new WithSqlFile("guide-fixtures.sql") {
       Guide.find("terezin") must beSome.which { guide =>
+        val pages: List[GuidePage] = GuidePage.findAll()
         GuidePage.create(
           layout = GuidePage.Layout.Map,
           name = "Test",
@@ -62,8 +66,10 @@ class GuideSpec extends PlaySpecification {
           menu = GuidePage.MenuPosition.Side,
           cypher = "",
           parent = guide.id,
+          description = Some("Here is a description")
           params = None
         ) must beSome
+        GuidePage.findAll().size must equalTo(pages.size + 1)
       }
     }
 
