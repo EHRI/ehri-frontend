@@ -1,7 +1,7 @@
 package models
 
 import models.base._
-import defines.EntityType
+import defines.{ContentTypes, EntityType}
 import play.api.libs.json._
 import models.json._
 import play.api.i18n.Lang
@@ -83,8 +83,9 @@ object Group {
     )(Group.apply _, unlift(Group.unapply _))
   }
 
-  implicit object Resource extends RestResource[Group] {
+  implicit object Resource extends RestResource[Group] with RestContentType[Group] {
     val entityType = EntityType.Group
+    val contentType = ContentTypes.Group
   }
 
   val form = Form(

@@ -206,7 +206,7 @@ case class UserProfiles @Inject()(implicit globalConfig: global.GlobalConfig, se
     Ok(views.html.userProfile.list(page, params))
   }
 
-  def update(id: String) = withItemPermission[UserProfile](id, PermissionType.Update, contentType) {
+  def update(id: String) = withItemPermission[UserProfile](id, PermissionType.Update) {
       item => implicit userOpt => implicit request =>
     val userWithAccount = item.copy(account = userDAO.findByProfileId(id))
     Ok(views.html.userProfile.edit(item, AdminUserData.form.fill(
@@ -214,7 +214,7 @@ case class UserProfiles @Inject()(implicit globalConfig: global.GlobalConfig, se
       userRoutes.updatePost(id)))
   }
 
-  def updatePost(id: String) = withItemPermission.async[UserProfile](id, PermissionType.Update, contentType) {
+  def updatePost(id: String) = withItemPermission.async[UserProfile](id, PermissionType.Update) {
       item => implicit userOpt => implicit request =>
     val userWithAccount = item.copy(account = userDAO.findByProfileId(id))
     AdminUserData.form.bindFromRequest.fold(
@@ -242,7 +242,7 @@ case class UserProfiles @Inject()(implicit globalConfig: global.GlobalConfig, se
           userRoutes.get(id)))
   }
 
-  def deletePost(id: String) = withItemPermission.async[UserProfile](id, PermissionType.Delete, contentType) {
+  def deletePost(id: String) = withItemPermission.async[UserProfile](id, PermissionType.Delete) {
       item => implicit userOpt => implicit request =>
     deleteForm(item).bindFromRequest.fold(
       errForm => {

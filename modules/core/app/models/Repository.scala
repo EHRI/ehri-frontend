@@ -4,7 +4,7 @@ package models
  * Classes representing an ISDIAH collection-holding institution
  */
 
-import defines.{EntityType, PublicationStatus}
+import defines.{ContentTypes, EntityType, PublicationStatus}
 
 import play.api.libs.json._
 import models.base._
@@ -139,8 +139,9 @@ object Repository {
     )(Repository.apply _, unlift(Repository.unapply))
   }
 
-  implicit object Resource extends RestResource[Repository] {
+  implicit object Resource extends RestResource[Repository] with RestContentType[Repository] {
     val entityType = EntityType.Repository
+    val contentType = ContentTypes.Repository
   }
 
   /**

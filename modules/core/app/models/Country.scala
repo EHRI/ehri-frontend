@@ -3,7 +3,7 @@ package models
 import base._
 
 import models.base.Persistable
-import defines.EntityType
+import defines.{ContentTypes, EntityType}
 import models.json._
 import play.api.i18n.Lang
 import play.api.libs.json._
@@ -81,8 +81,9 @@ object Country {
     )(Country.apply _, unlift(Country.unapply _))
   }
 
-  implicit object Resource extends RestResource[Country] {
+  implicit object Resource extends RestResource[Country] with RestContentType[Country] {
     val entityType = EntityType.Country
+    val contentType = ContentTypes.Country
   }
 
   val form = Form(

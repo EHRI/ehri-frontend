@@ -7,7 +7,7 @@ import play.api.data._
 import defines.PermissionType
 import models.UserProfile
 import forms.VisibilityForm
-import models.json.{RestReadable, RestConvertable}
+import models.json.{RestResource, RestContentType, RestReadable, RestConvertable}
 import scala.concurrent.Future.{successful => immediate}
 import scala.concurrent.Future
 import backend.rest.ValidationError
@@ -25,22 +25,22 @@ trait Create[F <: Model with Persistable, MT <: MetaModel[F]] extends Generic[MT
    * to collect the users and group lists at the point of creation
    */
   object createAction {
-    def async(f: Seq[(String,String)] => Seq[(String,String)] => Option[UserProfile] => Request[AnyContent] => Future[Result]) = {
-      withContentPermission.async(PermissionType.Create, contentType) { implicit userOpt => implicit request =>
+    def async(f: Seq[(String,String)] => Seq[(String,String)] => Option[UserProfile] => Request[AnyContent] => Future[Result])(implicit rs: RestResource[MT], ct: RestContentType[MT]) = {
+      withContentPermission.async(PermissionType.Create, ct.contentType) { implicit userOpt => implicit request =>
         getUsersAndGroups.async { users => groups =>
           f(users)(groups)(userOpt)(request)
         }
       }
     }
 
-    def apply(f: Seq[(String,String)] => Seq[(String,String)] => Option[UserProfile] => Request[AnyContent] => Result) = {
+    def apply(f: Seq[(String,String)] => Seq[(String,String)] => Option[UserProfile] => Request[AnyContent] => Result)(implicit rs: RestResource[MT], ct: RestContentType[MT]) = {
       async(f.andThen(_.andThen(_.andThen(_.andThen(t => immediate(t))))))
     }
   }
 
   object createPostAction {
-    def async(form: Form[F], pf: Request[AnyContent] => Map[String,Seq[String]] = _ => Map.empty)(f: AsyncCreateCallback)(implicit fmt: RestConvertable[F], rd: RestReadable[MT]) = {
-      withContentPermission.async(PermissionType.Create, contentType) { implicit userOpt => implicit request =>
+    def async(form: Form[F], pf: Request[AnyContent] => Map[String,Seq[String]] = _ => Map.empty)(f: AsyncCreateCallback)(implicit fmt: RestConvertable[F], rd: RestReadable[MT], rs: RestResource[MT], ct: RestContentType[MT]) = {
+      withContentPermission.async(PermissionType.Create, ct.contentType) { implicit userOpt => implicit request =>
         form.bindFromRequest.fold(
           errorForm => f(Left((errorForm,VisibilityForm.form)))(userOpt)(request),
           doc => {
@@ -61,7 +61,7 @@ trait Create[F <: Model with Persistable, MT <: MetaModel[F]] extends Generic[MT
       }
     }
 
-    def apply(form: Form[F])(f: CreateCallback)(implicit fmt: RestConvertable[F], rd: RestReadable[MT]) = {
+    def apply(form: Form[F])(f: CreateCallback)(implicit fmt: RestConvertable[F], rd: RestReadable[MT], rs: RestResource[MT], ct: RestContentType[MT]) = {
       async(form)(f.andThen(_.andThen(_.andThen(t => immediate(t)))))
     }
   }

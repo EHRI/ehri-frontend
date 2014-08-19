@@ -1,7 +1,7 @@
 package models
 
 import models.base._
-import defines.EntityType
+import defines.{ContentTypes, EntityType}
 import models.json._
 import play.api.libs.json._
 import play.api.libs.functional.syntax._
@@ -117,8 +117,9 @@ object Annotation {
     )(Annotation.apply _, unlift(Annotation.unapply))
   }
 
-  implicit object Resource extends RestResource[Annotation] {
+  implicit object Resource extends RestResource[Annotation] with RestContentType[Annotation] {
     val entityType = EntityType.Annotation
+    val contentType = ContentTypes.Annotation
   }
 
   /**

@@ -112,8 +112,9 @@ object UserProfile {
     )(UserProfile.quickApply _, unlift(UserProfile.quickUnapply _))
   }
 
-  implicit object Resource extends RestResource[UserProfile] {
+  implicit object Resource extends RestResource[UserProfile] with RestContentType[UserProfile] {
     val entityType = EntityType.UserProfile
+    val contentType = ContentTypes.UserProfile
   }
 
   // Constructor, sans account and perms

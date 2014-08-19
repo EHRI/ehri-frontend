@@ -99,8 +99,9 @@ object VirtualUnit {
     )(VirtualUnit.apply _, unlift(VirtualUnit.unapply))
   }
 
-  implicit object Resource extends RestResource[VirtualUnit] {
+  implicit object Resource extends RestResource[VirtualUnit] with RestContentType[VirtualUnit] {
     val entityType = EntityType.VirtualUnit
+    val contentType = ContentTypes.VirtualUnit
 
     /**
      * When displaying doc units we need the

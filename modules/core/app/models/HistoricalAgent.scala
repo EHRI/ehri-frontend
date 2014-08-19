@@ -4,7 +4,7 @@ package models
  * Classes representing an ISDIAH collection-holding institution
  */
 
-import defines.{EntityType, PublicationStatus}
+import defines.{ContentTypes, EntityType, PublicationStatus}
 import base._
 
 import play.api.libs.json._
@@ -101,8 +101,9 @@ object HistoricalAgent {
     )(HistoricalAgent.apply _, unlift(HistoricalAgent.unapply _))
   }
 
-  implicit object Resource extends RestResource[HistoricalAgent] {
+  implicit object Resource extends RestResource[HistoricalAgent] with RestContentType[HistoricalAgent] {
     val entityType = EntityType.HistoricalAgent
+    val contentType = ContentTypes.HistoricalAgent
   }
 
   val form = Form(

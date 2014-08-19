@@ -86,13 +86,13 @@ case class Concepts @Inject()(implicit globalConfig: global.GlobalConfig, search
     }
   }
 
-  def createConcept(id: String) = childCreateAction(id, ContentTypes.Concept) {
+  def createConcept(id: String) = childCreateAction(id) {
       item => users => groups => implicit userOpt => implicit request =>
     Ok(views.html.concept.create(
         item, childForm, VisibilityForm.form, users, groups, conceptRoutes.createConceptPost(id)))
   }
 
-  def createConceptPost(id: String) = childCreatePostAction.async(id, childForm, ContentTypes.Concept) {
+  def createConceptPost(id: String) = childCreatePostAction.async(id, childForm) {
       item => formsOrItem => implicit userOpt => implicit request =>
     formsOrItem match {
       case Left((errorForm,accForm)) => getUsersAndGroups { users => groups =>

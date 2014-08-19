@@ -60,7 +60,7 @@ case class Countries @Inject()(implicit globalConfig: global.GlobalConfig, searc
 
   def search = searchAction[Country](entities = List(resource.entityType)) {
       page => params => facets => implicit userOpt => implicit request =>
-    Ok(views.html.country.search(page, params, facets, countryRoutes.search))
+    Ok(views.html.country.search(page, params, facets, countryRoutes.search()))
   }
 
   def create = createAction { users => groups => implicit userOpt => implicit request =>
@@ -91,7 +91,7 @@ case class Countries @Inject()(implicit globalConfig: global.GlobalConfig, searc
     }
   }
 
-  def createRepository(id: String) = childCreateAction.async(id, ContentTypes.Repository) {
+  def createRepository(id: String) = childCreateAction.async(id) {
       item => users => groups => implicit userOpt => implicit request =>
 
     // Beware! This is dubious because there could easily be contention
@@ -106,7 +106,7 @@ case class Countries @Inject()(implicit globalConfig: global.GlobalConfig, searc
     }
   }
 
-  def createRepositoryPost(id: String) = childCreatePostAction.async(id, childForm, ContentTypes.Repository) {
+  def createRepositoryPost(id: String) = childCreatePostAction.async(id, childForm) {
       item => formsOrItem => implicit userOpt => implicit request =>
     formsOrItem match {
       case Left((errorForm,accForm)) => getUsersAndGroups { users => groups =>

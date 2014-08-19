@@ -6,7 +6,7 @@ import play.api.mvc._
 import play.api.data.Form
 import defines.{EntityType, PermissionType}
 import models.UserProfile
-import models.json.{RestReadable, RestConvertable}
+import models.json.{RestResource, RestContentType, RestReadable, RestConvertable}
 import scala.concurrent.Future.{successful => immediate}
 import backend.rest.ValidationError
 
@@ -22,8 +22,8 @@ trait Descriptions[D <: Description with Persistable, T <: Model with Described[
    */
   def createDescriptionPostAction(id: String, descriptionType: EntityType.Value, form: Form[D])(
       f: MT => Either[Form[D], MT] => Option[UserProfile] => Request[AnyContent] => Result)(
-        implicit fmt: RestConvertable[D], rd: RestReadable[MT]) = {
-    withItemPermission.async[MT](id, PermissionType.Update, contentType) {
+        implicit fmt: RestConvertable[D], rd: RestReadable[MT], rs: RestResource[MT], ct: RestContentType[MT]) = {
+    withItemPermission.async[MT](id, PermissionType.Update) {
         item => implicit userOpt => implicit request =>
       form.bindFromRequest.fold(
         ef => immediate(f(item)(Left(ef))(userOpt)(request)),
@@ -44,8 +44,8 @@ trait Descriptions[D <: Description with Persistable, T <: Model with Described[
    */
   def updateDescriptionPostAction(id: String, descriptionType: EntityType.Value, did: String, form: Form[D])(
     f: MT => Either[Form[D],MT] => Option[UserProfile] => Request[AnyContent] => Result)(
-           implicit fmt: RestConvertable[D], rd: RestReadable[MT]) = {
-    withItemPermission.async[MT](id, PermissionType.Update, contentType) {
+           implicit fmt: RestConvertable[D], rd: RestReadable[MT], rs: RestResource[MT], ct: RestContentType[MT]) = {
+    withItemPermission.async[MT](id, PermissionType.Update) {
         item => implicit userOpt => implicit request =>
       form.bindFromRequest.fold(
         ef => immediate(f(item)(Left(ef))(userOpt)(request)),
@@ -62,8 +62,8 @@ trait Descriptions[D <: Description with Persistable, T <: Model with Described[
   }
 
   def deleteDescriptionAction(id: String, did: String)(
-      f: MT => D => Option[UserProfile] => Request[AnyContent] => Result)(implicit rd: RestReadable[MT]) = {
-    withItemPermission[MT](id, PermissionType.Update, contentType) {
+      f: MT => D => Option[UserProfile] => Request[AnyContent] => Result)(implicit rd: RestReadable[MT], rs: RestResource[MT], ct: RestContentType[MT]) = {
+    withItemPermission[MT](id, PermissionType.Update) {
         item => implicit userOpt => implicit request =>
       item.model.description(did).map { desc =>
         f(item)(desc)(userOpt)(request)
@@ -77,8 +77,8 @@ trait Descriptions[D <: Description with Persistable, T <: Model with Described[
    * Delete an item's description with the given id.
    */
   def deleteDescriptionPostAction(id: String, descriptionType: EntityType.Value, did: String)(
-      f: Boolean => Option[UserProfile] => Request[AnyContent] => Result)(implicit rd: RestReadable[MT]) = {
-    withItemPermission.async[MT](id, PermissionType.Update, contentType) {
+      f: Boolean => Option[UserProfile] => Request[AnyContent] => Result)(implicit rd: RestReadable[MT], rs: RestResource[MT], ct: RestContentType[MT]) = {
+    withItemPermission.async[MT](id, PermissionType.Update) {
         item => implicit userOpt => implicit request =>
       backend.deleteDescription(id, did, logMsg = getLogMessage).map { ok =>
         f(ok)(userOpt)(request)

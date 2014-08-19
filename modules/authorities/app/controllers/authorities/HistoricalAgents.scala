@@ -126,7 +126,7 @@ case class HistoricalAgents @Inject()(implicit globalConfig: global.GlobalConfig
         .flashing("success" -> "item.update.confirmation")
   }
 
-  def linkTo(id: String) = withItemPermission[HistoricalAgent](id, PermissionType.Annotate, contentType) {
+  def linkTo(id: String) = withItemPermission[HistoricalAgent](id, PermissionType.Annotate) {
       item => implicit userOpt => implicit request =>
     Ok(views.html.historicalAgent.linkTo(item))
   }

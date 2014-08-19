@@ -126,8 +126,9 @@ object DocumentaryUnit {
     )(DocumentaryUnit.apply _, unlift(DocumentaryUnit.unapply))
   }
 
-  implicit object Resource extends RestResource[DocumentaryUnit] {
+  implicit object Resource extends RestResource[DocumentaryUnit] with RestContentType[DocumentaryUnit] {
     val entityType = EntityType.DocumentaryUnit
+    val contentType = ContentTypes.DocumentaryUnit
 
     /**
      * When displaying doc units we need the

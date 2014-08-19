@@ -3,7 +3,7 @@ package models
 import models.base._
 import org.joda.time.DateTime
 import org.joda.time.format.{ISODateTimeFormat, DateTimeFormat}
-import defines.{EntityType, EventType}
+import defines.{ContentTypes, EntityType, EventType}
 import models.json._
 import play.api.libs.json._
 import play.api.libs.functional.syntax._
@@ -93,8 +93,9 @@ object SystemEvent {
     )(SystemEvent.apply _, unlift(SystemEvent.unapply))
   }
 
-  implicit object Resource extends RestResource[SystemEvent] {
+  implicit object Resource extends RestResource[SystemEvent] with RestContentType[SystemEvent] {
     val entityType = EntityType.SystemEvent
+    val contentType = ContentTypes.SystemEvent
   }
 }
 

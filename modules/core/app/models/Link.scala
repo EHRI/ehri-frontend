@@ -1,7 +1,7 @@
 package models
 
 import models.base._
-import defines.EntityType
+import defines.{ContentTypes, EntityType}
 import play.api.libs.json._
 import models.json._
 import play.api.i18n.Lang
@@ -114,8 +114,9 @@ object Link {
     )(Link.apply _, unlift(Link.unapply))
   }
 
-  implicit object Resource extends RestResource[Link] {
+  implicit object Resource extends RestResource[Link] with RestContentType[Link] {
     val entityType = EntityType.Link
+    val contentType = ContentTypes.Link
   }
 
   import LinkF._

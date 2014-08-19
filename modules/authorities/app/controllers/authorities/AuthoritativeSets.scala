@@ -80,7 +80,7 @@ AuthoritativeSets @Inject()(implicit globalConfig: global.GlobalConfig, searchDi
     }
   }
 
-  def createHistoricalAgent(id: String) = childCreateAction.async(id, ContentTypes.HistoricalAgent) {
+  def createHistoricalAgent(id: String) = childCreateAction.async(id) {
       item => users => groups => implicit userOpt => implicit request =>
     idGenerator.getNextChildNumericIdentifier(id, EntityType.HistoricalAgent).map { newid =>
       Ok(views.html.historicalAgent.create(
@@ -90,7 +90,7 @@ AuthoritativeSets @Inject()(implicit globalConfig: global.GlobalConfig, searchDi
     }
   }
 
-  def createHistoricalAgentPost(id: String) = childCreatePostAction.async(id, childForm, ContentTypes.HistoricalAgent) {
+  def createHistoricalAgentPost(id: String) = childCreatePostAction.async(id, childForm) {
       item => formsOrItem => implicit userOpt => implicit request =>
     formsOrItem match {
       case Left((errorForm,accForm)) => getUsersAndGroups { users => groups =>

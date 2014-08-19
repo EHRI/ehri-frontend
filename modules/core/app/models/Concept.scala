@@ -2,7 +2,7 @@ package models
 
 import base._
 
-import defines.EntityType
+import defines.{ContentTypes, EntityType}
 import models.json._
 import play.api.libs.json._
 import eu.ehri.project.definitions.Ontology
@@ -108,8 +108,9 @@ object Concept {
     )(Concept.apply _, unlift(Concept.unapply _))
   }
 
-  implicit object Resource extends RestResource[Concept] {
+  implicit object Resource extends RestResource[Concept] with RestContentType[Concept] {
     val entityType = EntityType.Concept
+    val contentType = ContentTypes.Concept
 
     override def defaultParams = Seq(
       Constants.INCLUDE_PROPERTIES_PARAM -> VocabularyF.NAME

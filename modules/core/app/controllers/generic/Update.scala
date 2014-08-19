@@ -7,7 +7,7 @@ import play.api.data.Form
 import defines.PermissionType
 import models.UserProfile
 import play.api.Logger
-import models.json.{RestReadable, RestConvertable}
+import models.json.{RestResource, RestContentType, RestReadable, RestConvertable}
 import scala.concurrent.Future.{successful => immediate}
 import scala.concurrent.Future
 import backend.rest.ValidationError
@@ -21,8 +21,8 @@ trait Update[F <: Model with Persistable, MT <: MetaModel[F]] extends Generic[MT
   type AsyncUpdateCallback = MT => Either[Form[F], MT] => Option[UserProfile] => Request[AnyContent] => Future[Result]
 
   def updateAction(id: String)(f: MT => Option[UserProfile] => Request[AnyContent] => Result)(
-    implicit rd: RestReadable[MT]) = {
-    withItemPermission[MT](id, PermissionType.Update, contentType) { item => implicit userOpt => implicit request =>
+    implicit rd: RestReadable[MT], rs: RestResource[MT], ct: RestContentType[MT]) = {
+    withItemPermission[MT](id, PermissionType.Update) { item => implicit userOpt => implicit request =>
       f(item)(userOpt)(request)
     }
   }
@@ -33,15 +33,15 @@ trait Update[F <: Model with Persistable, MT <: MetaModel[F]] extends Generic[MT
    */
   object updatePostAction {
     def async(id: String, form: Form[F], transform: F => F = identity)(f: AsyncUpdateCallback)(
-        implicit fmt: RestConvertable[F], rd: RestReadable[MT]) = {
-      withItemPermission.async[MT](id, PermissionType.Update, contentType) {
+        implicit fmt: RestConvertable[F], rd: RestReadable[MT], rs: RestResource[MT], ct: RestContentType[MT]) = {
+      withItemPermission.async[MT](id, PermissionType.Update) {
           item => implicit userOpt => implicit request =>
         updateAction.async(item, form, transform)(f)
       }
     }
 
     def apply(id: String, form: Form[F], transform: F => F = identity)(f: UpdateCallback)(
-      implicit fmt: RestConvertable[F], rd: RestReadable[MT]) = {
+      implicit fmt: RestConvertable[F], rd: RestReadable[MT], rs: RestResource[MT], ct: RestContentType[MT]) = {
       async(id, form, transform)(f.andThen(_.andThen(_.andThen(_.andThen(t => immediate(t))))))
     }
   }
@@ -52,9 +52,9 @@ trait Update[F <: Model with Persistable, MT <: MetaModel[F]] extends Generic[MT
    * given it is assumed that update perms exist (and the server will
    * error if they don't)
    */
-  object updateAction {
+  private object updateAction {
     def async(item: MT, form: Form[F], transform: F => F = identity)(f: AsyncUpdateCallback)(
-        implicit userOpt: Option[UserProfile], request: Request[AnyContent], fmt: RestConvertable[F], rd: RestReadable[MT]) = {
+        implicit userOpt: Option[UserProfile], request: Request[AnyContent], fmt: RestConvertable[F], rd: RestReadable[MT], rs: RestResource[MT]) = {
       form.bindFromRequest.fold(
         errorForm => {
           Logger.logger.debug("Form errors: {}", errorForm.errors)
@@ -77,7 +77,7 @@ trait Update[F <: Model with Persistable, MT <: MetaModel[F]] extends Generic[MT
     }
 
     def apply(item: MT, form: Form[F], transform: F => F = identity)(f: UpdateCallback)(
-      implicit userOpt: Option[UserProfile], request: Request[AnyContent], fmt: RestConvertable[F], rd: RestReadable[MT]) = {
+      implicit userOpt: Option[UserProfile], request: Request[AnyContent], fmt: RestConvertable[F], rd: RestReadable[MT], rs: RestResource[MT], ct: RestContentType[MT]) = {
       async(item, form, transform)(f.andThen(_.andThen(_.andThen(_.andThen(t => immediate(t))))))
     }
   }

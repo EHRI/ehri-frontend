@@ -3,7 +3,7 @@ package models
 import base._
 
 import models.base.Persistable
-import defines.EntityType
+import defines.{ContentTypes, EntityType}
 import play.api.libs.json._
 import models.json._
 import play.api.i18n.Lang
@@ -88,8 +88,9 @@ object Vocabulary {
     )(Vocabulary.apply _, unlift(Vocabulary.unapply))
   }
 
-  implicit object Resource extends RestResource[Vocabulary] {
+  implicit object Resource extends RestResource[Vocabulary] with RestContentType[Vocabulary] {
     val entityType = EntityType.Vocabulary
+    val contentType = ContentTypes.Vocabulary
   }
 
   val form = Form(

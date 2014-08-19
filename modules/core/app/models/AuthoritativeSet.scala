@@ -3,7 +3,7 @@ package models
 import base._
 
 import models.base.Persistable
-import defines.EntityType
+import defines.{ContentTypes, EntityType}
 import models.json._
 import play.api.i18n.Lang
 import play.api.libs.json._
@@ -85,8 +85,9 @@ object AuthoritativeSet {
     )(AuthoritativeSet.apply _, unlift(AuthoritativeSet.unapply))
   }
 
-  implicit object Resource extends RestResource[AuthoritativeSet] {
+  implicit object Resource extends RestResource[AuthoritativeSet] with RestContentType[AuthoritativeSet] {
     val entityType = EntityType.AuthoritativeSet
+    val contentType = ContentTypes.AuthoritativeSet
   }
 
   val form = Form(

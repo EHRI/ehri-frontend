@@ -1,7 +1,7 @@
 package models.json
 
 import play.api.libs.json.{Reads, Writes, Format}
-import defines.EntityType
+import defines.{EntityType,ContentTypes}
 
 /**
  * Type classes for connecting models to REST functionality.
@@ -17,6 +17,13 @@ trait RestResource[T] {
    * Default serialization params for specific types.
    */
   def defaultParams: Seq[(String, String)] = Seq.empty
+}
+
+trait RestContentType[T] {
+  /**
+   * The content type of the resource.
+   */
+  def contentType: ContentTypes.Value
 }
 
 trait RestReadable[T] {
