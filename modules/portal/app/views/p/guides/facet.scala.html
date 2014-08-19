@@ -1,4 +1,4 @@
-@(items: utils.search.ItemPage[DocumentaryUnit], template: (GuidePage, (Guide, List[GuidePage])))(implicit userOpt: Option[UserProfile], request: RequestHeader, prefs: utils.SessionPrefs, globalConfig: global.GlobalConfig, lang: Lang, flash: Flash)
+@(items: utils.search.ItemPage[DocumentaryUnit], available: Map[String, List[AnyModel]], template: (GuidePage, (Guide, List[GuidePage])))(implicit userOpt: Option[UserProfile], request: RequestHeader, prefs: utils.SessionPrefs, globalConfig: global.GlobalConfig, lang: Lang, flash: Flash)
 
 @import models.{GuidePage, Guide}
 
@@ -7,6 +7,8 @@
 }
 @facets = {
     
+    @available
+
     @views.html.common.search.selectedFacets(items)
 
     @for(page <- template._2._2) {
