@@ -3,11 +3,11 @@ package controllers.generic
 import play.api.libs.concurrent.Execution.Implicits._
 import play.api.mvc._
 import models._
-import models.json.{ClientWriteable}
+import models.json.ClientWriteable
 import utils.{Page, PageParams}
 
 import scala.concurrent.Future
-import backend.{BackendContentType, BackendResource}
+import backend.{BackendReadable, BackendContentType, BackendResource}
 
 /**
  * Controller trait which handles the listing and showing of Entities that
@@ -19,34 +19,34 @@ trait Read[MT] extends Generic[MT] {
 
   object getEntity {
     def async(id: String, user: Option[UserProfile])(f: MT => Future[Result])(
-        implicit rd: _root_.backend.BackendReadable[MT], rs: BackendResource[MT], userOpt: Option[UserProfile], request: RequestHeader): Future[Result] = {
+        implicit rd: BackendReadable[MT], rs: BackendResource[MT], userOpt: Option[UserProfile], request: RequestHeader): Future[Result] = {
       backend.get(id).flatMap { item =>
         f(item)
       }
     }
 
     def apply(id: String, user: Option[UserProfile])(f: MT => Result)(
-        implicit rd: _root_.backend.BackendReadable[MT], rs: BackendResource[MT], userOpt: Option[UserProfile], request: RequestHeader): Future[Result] = {
+        implicit rd: BackendReadable[MT], rs: BackendResource[MT], userOpt: Option[UserProfile], request: RequestHeader): Future[Result] = {
       async(id, user)(f.andThen(t => Future.successful(t)))
     }
   }
 
   object getEntityT {
     def async[T](resource: BackendResource[T], id: String)(f: T => Future[Result])(
-        implicit userOpt: Option[UserProfile], request: RequestHeader, rd: _root_.backend.BackendReadable[T], rs: BackendResource[MT]): Future[Result] = {
+        implicit userOpt: Option[UserProfile], request: RequestHeader, rd: BackendReadable[T], rs: BackendResource[MT]): Future[Result] = {
       backend.get[T](resource, id).flatMap { item =>
         f(item)
       }
     }
     def apply[T](resource: BackendResource[T], id: String)(f: T => Result)(
-      implicit rd: _root_.backend.BackendReadable[T], rs: BackendResource[MT], userOpt: Option[UserProfile], request: RequestHeader): Future[Result] = {
+      implicit rd: BackendReadable[T], rs: BackendResource[MT], userOpt: Option[UserProfile], request: RequestHeader): Future[Result] = {
       async(resource, id)(f.andThen(t => Future.successful(t)))
     }
   }
 
   object getAction {
     def async(id: String)(f: MT => Page[Annotation] => Page[Link] => Option[UserProfile] => Request[AnyContent] => Future[Result])(
-        implicit rd: _root_.backend.BackendReadable[MT], rs: BackendResource[MT], crd: ClientWriteable[MT], ct: BackendContentType[MT]) = {
+        implicit rd: BackendReadable[MT], crd: ClientWriteable[MT], ct: BackendContentType[MT]) = {
       itemPermissionAction.async[MT](id) { item => implicit maybeUser => implicit request =>
           // NB: Effectively disable paging here by using a high limit
         val annsReq = backend.getAnnotationsForItem(id)
@@ -60,14 +60,14 @@ trait Read[MT] extends Generic[MT] {
     }
 
     def apply(id: String)(f: MT => Page[Annotation] => Page[Link] => Option[UserProfile] => Request[AnyContent] => Result)(
-      implicit rd: _root_.backend.BackendReadable[MT], rs: BackendResource[MT], crd: ClientWriteable[MT], ct: BackendContentType[MT]) = {
+      implicit rd: BackendReadable[MT], crd: ClientWriteable[MT], ct: BackendContentType[MT]) = {
       async(id)(f.andThen(_.andThen(_.andThen(_.andThen(_.andThen(t => Future.successful(t)))))))
     }
   }
 
   object getWithChildrenAction {
     def async[CT](id: String)(f: MT => Page[CT] => PageParams =>  Page[Annotation] => Page[Link] => Option[UserProfile] => Request[AnyContent] => Future[Result])(
-          implicit rd: _root_.backend.BackendReadable[MT], rs: BackendResource[MT], crd: _root_.backend.BackendReadable[CT], cfmt: ClientWriteable[MT], ct: BackendContentType[MT]) = {
+          implicit rd: BackendReadable[MT], ct: BackendContentType[MT], crd: BackendReadable[CT], cfmt: ClientWriteable[MT]) = {
       itemPermissionAction.async[MT](id) { item => implicit userOpt => implicit request =>
         val params = PageParams.fromRequest(request)
         for {
@@ -80,13 +80,13 @@ trait Read[MT] extends Generic[MT] {
     }
 
     def apply[CT](id: String)(f: MT => Page[CT] => PageParams =>  Page[Annotation] => Page[Link] => Option[UserProfile] => Request[AnyContent] => Result)(
-      implicit rd: _root_.backend.BackendReadable[MT], rs: BackendResource[MT], crd: _root_.backend.BackendReadable[CT], cfmt: ClientWriteable[MT], ct: BackendContentType[MT]) = {
+      implicit rd: BackendReadable[MT], ct: BackendContentType[MT], crd: BackendReadable[CT], cfmt: ClientWriteable[MT]) = {
       async(id)(f.andThen(_.andThen(_.andThen(_.andThen(_.andThen(_.andThen(_.andThen(t => Future.successful(t)))))))))
     }
   }
 
   def pageAction(f: Page[MT] => PageParams => Option[UserProfile] => Request[AnyContent] => Result)(
-      implicit rd: _root_.backend.BackendReadable[MT], rs: BackendResource[MT], cfmt: ClientWriteable[MT]) = {
+      implicit rd: BackendReadable[MT], rs: BackendResource[MT], cfmt: ClientWriteable[MT]) = {
     userProfileAction.async { implicit userOpt => implicit request =>
       val params = PageParams.fromRequest(request)
       backend.list(params).map { page =>
@@ -96,7 +96,7 @@ trait Read[MT] extends Generic[MT] {
   }
 
   def historyAction(id: String)(
-      f: MT => Page[SystemEvent] => PageParams => Option[UserProfile] => Request[AnyContent] => Result)(implicit rd: _root_.backend.BackendReadable[MT], rs: BackendResource[MT]) = {
+      f: MT => Page[SystemEvent] => PageParams => Option[UserProfile] => Request[AnyContent] => Result)(implicit rd: BackendReadable[MT], rs: BackendResource[MT]) = {
     userProfileAction.async { implicit userOpt => implicit request =>
       val params = PageParams.fromRequest(request)
       val getF: Future[MT] = backend.get(id)
@@ -109,7 +109,7 @@ trait Read[MT] extends Generic[MT] {
   }
 
   def versionsAction(id: String)(
-    f: MT => Page[Version] => PageParams => Option[UserProfile] => Request[AnyContent] => Result)(implicit rd: _root_.backend.BackendReadable[MT], rs: BackendResource[MT]) = {
+    f: MT => Page[Version] => PageParams => Option[UserProfile] => Request[AnyContent] => Result)(implicit rd: BackendReadable[MT], rs: BackendResource[MT]) = {
     userProfileAction.async { implicit userOpt => implicit request =>
       val params = PageParams.fromRequest(request)
       val getF: Future[MT] = backend.get(id)

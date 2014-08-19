@@ -13,7 +13,7 @@ import play.api.cache.Cache
 import scala.concurrent.Future.{successful => immediate}
 import utils.search.SearchHit
 import play.api.mvc.Result
-import backend.{BackendReadable, BackendContentType, BackendResource}
+import backend.{BackendReadable, BackendContentType}
 
 /**
  * Class representing an access point link.
@@ -44,7 +44,7 @@ object AccessPointLink {
 trait Linking[MT <: AnyModel] extends Read[MT] with Search {
 
   def linkSelectAction(id: String, toType: EntityType.Value, facets: FacetBuilder = emptyFacets)(
-      f: MT => ItemPage[(AnyModel,SearchHit)] => SearchParams => List[AppliedFacet] => EntityType.Value => Option[UserProfile] => Request[AnyContent] => Result)(implicit rd: BackendReadable[MT], rs: BackendResource[MT], ct: BackendContentType[MT]) = {
+      f: MT => ItemPage[(AnyModel,SearchHit)] => SearchParams => List[AppliedFacet] => EntityType.Value => Option[UserProfile] => Request[AnyContent] => Result)(implicit rd: BackendReadable[MT], ct: BackendContentType[MT]) = {
     withItemPermission.async[MT](id, PermissionType.Annotate) {
         item => implicit userOpt => implicit request =>
       find[AnyModel](facetBuilder = facets, defaultParams = SearchParams(entities = List(toType), excludes=Some(List(id)))).map { r =>
@@ -53,7 +53,7 @@ trait Linking[MT <: AnyModel] extends Read[MT] with Search {
     }
   }
 
-  def linkAction(id: String, toType: EntityType.Value, to: String)(f: MT => AnyModel => Option[UserProfile] => Request[AnyContent] => Result)(implicit rd: BackendReadable[MT], rs: BackendResource[MT], ct: BackendContentType[MT]) = {
+  def linkAction(id: String, toType: EntityType.Value, to: String)(f: MT => AnyModel => Option[UserProfile] => Request[AnyContent] => Result)(implicit rd: BackendReadable[MT], ct: BackendContentType[MT]) = {
     withItemPermission.async[MT](id, PermissionType.Annotate) {
         item => implicit userOpt => implicit request =>
 
@@ -64,7 +64,7 @@ trait Linking[MT <: AnyModel] extends Read[MT] with Search {
   }
 
   def linkPostAction(id: String, toType: EntityType.Value, to: String)(
-      f: Either[(MT, AnyModel,Form[LinkF]),Link] => Option[UserProfile] => Request[AnyContent] => Result)(implicit rd: BackendReadable[MT], rs: BackendResource[MT], ct: BackendContentType[MT]) = {
+      f: Either[(MT, AnyModel,Form[LinkF]),Link] => Option[UserProfile] => Request[AnyContent] => Result)(implicit rd: BackendReadable[MT], ct: BackendContentType[MT]) = {
 
     implicit val linkWrites: Writes[LinkF] = models.LinkF.linkWrites
 
@@ -83,7 +83,7 @@ trait Linking[MT <: AnyModel] extends Read[MT] with Search {
     }
   }
 
-  def linkMultiAction(id: String)(f: MT => Option[UserProfile] => Request[AnyContent] => Result)(implicit rd: BackendReadable[MT], rs: BackendResource[MT], ct: BackendContentType[MT]) = {
+  def linkMultiAction(id: String)(f: MT => Option[UserProfile] => Request[AnyContent] => Result)(implicit rd: BackendReadable[MT], ct: BackendContentType[MT]) = {
     withItemPermission[MT](id, PermissionType.Annotate) {
         item => implicit userOpt => implicit request =>
       f(item)(userOpt)(request)
@@ -91,7 +91,7 @@ trait Linking[MT <: AnyModel] extends Read[MT] with Search {
   }
 
   def linkPostMultiAction(id: String)(
-      f: Either[(MT,Form[List[(String,LinkF,Option[String])]]),Seq[Link]] => Option[UserProfile] => Request[AnyContent] => Result)(implicit rd: BackendReadable[MT], rs: BackendResource[MT], ct: BackendContentType[MT]): Action[AnyContent] = {
+      f: Either[(MT,Form[List[(String,LinkF,Option[String])]]),Seq[Link]] => Option[UserProfile] => Request[AnyContent] => Result)(implicit rd: BackendReadable[MT], ct: BackendContentType[MT]): Action[AnyContent] = {
     withItemPermission.async[MT](id, PermissionType.Update) { item => implicit userOpt => implicit request =>
       val multiForm: Form[List[(String,LinkF,Option[String])]] = Link.multiForm
       multiForm.bindFromRequest.fold(
@@ -106,7 +106,7 @@ trait Linking[MT <: AnyModel] extends Read[MT] with Search {
   /**
    * Create a link, via Json, for any arbitrary two objects, via an access point.
    */
-  def createLink(id: String, apid: String)(implicit rd: BackendReadable[MT], rs: BackendResource[MT], ct: BackendContentType[MT]) = {
+  def createLink(id: String, apid: String)(implicit rd: BackendReadable[MT], ct: BackendContentType[MT]) = {
     withItemPermission.async[JsValue,MT](parse.json, id, PermissionType.Annotate) {
         item => implicit userOpt => implicit request =>
       request.body.validate[AccessPointLink].fold(
@@ -126,7 +126,7 @@ trait Linking[MT <: AnyModel] extends Read[MT] with Search {
    * Create a link, via Json, for the object with the given id and a set of
    * other objects.
    */
-  def createMultipleLinks(id: String)(implicit rd: BackendReadable[MT], rs: BackendResource[MT], ct: BackendContentType[MT]) = {
+  def createMultipleLinks(id: String)(implicit rd: BackendReadable[MT], ct: BackendContentType[MT]) = {
     withItemPermission.async[JsValue, MT](parse.json, id, PermissionType.Annotate) {
         item => implicit userOpt => implicit request =>
       request.body.validate[List[AccessPointLink]].fold(
@@ -147,7 +147,7 @@ trait Linking[MT <: AnyModel] extends Read[MT] with Search {
   /**
    * Create a link, via Json, for any arbitrary two objects, via an access point.
    */
-  def createAccessPoint(id: String, did: String)(implicit rd: BackendReadable[MT], rs: BackendResource[MT], ct: BackendContentType[MT]) = {
+  def createAccessPoint(id: String, did: String)(implicit rd: BackendReadable[MT], ct: BackendContentType[MT]) = {
     withItemPermission.async[JsValue,MT](parse.json, id, PermissionType.Update) {
         item => implicit userOpt => implicit request =>
       request.body.validate[AccessPointF](AccessPointLink.accessPointFormat).fold(
@@ -189,7 +189,7 @@ trait Linking[MT <: AnyModel] extends Read[MT] with Search {
   /**
    * Delete an access point by ID.
    */
-  def deleteAccessPoint(id: String, did: String, accessPointId: String)(implicit rd: BackendReadable[MT], rs: BackendResource[MT], ct: BackendContentType[MT]) = {
+  def deleteAccessPoint(id: String, did: String, accessPointId: String)(implicit rd: BackendReadable[MT], ct: BackendContentType[MT]) = {
     withItemPermission.async[MT](id, PermissionType.Update) {
         bool => implicit userOpt => implicit request =>
       backend.deleteAccessPoint(id, did, accessPointId).map { ok =>
@@ -202,7 +202,7 @@ trait Linking[MT <: AnyModel] extends Read[MT] with Search {
   /**
    * Delete a link.
    */
-  def deleteLink(id: String, linkId: String)(implicit rd: BackendReadable[MT], rs: BackendResource[MT], ct: BackendContentType[MT]) = {
+  def deleteLink(id: String, linkId: String)(implicit rd: BackendReadable[MT], ct: BackendContentType[MT]) = {
     withItemPermission.async[MT](id, PermissionType.Annotate) {
         bool => implicit userOpt => implicit request =>
       backend.deleteLink(id, linkId).map { ok =>
@@ -215,7 +215,7 @@ trait Linking[MT <: AnyModel] extends Read[MT] with Search {
   /**
    * Delete a link and an access point in one go.
    */
-  def deleteLinkAndAccessPoint(id: String, did: String, accessPointId: String, linkId: String)(implicit rd: BackendReadable[MT], rs: BackendResource[MT], ct: BackendContentType[MT]) = {
+  def deleteLinkAndAccessPoint(id: String, did: String, accessPointId: String, linkId: String)(implicit rd: BackendReadable[MT], ct: BackendContentType[MT]) = {
     withItemPermission.async[MT](id, PermissionType.Annotate) {
         bool => implicit userOpt => implicit request =>
       for {

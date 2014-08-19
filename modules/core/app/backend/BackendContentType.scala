@@ -5,7 +5,7 @@ import defines.ContentTypes
 /**
  * @author Mike Bryant (http://github.com/mikesname)
  */
-trait BackendContentType[T] {
+trait BackendContentType[T] extends BackendResource[T] {
   /**
    * The content type of the resource.
    */

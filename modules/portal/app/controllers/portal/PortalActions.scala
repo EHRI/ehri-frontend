@@ -111,7 +111,7 @@ trait PortalActions {
   object getAction {
     def async[MT](entityType: EntityType.Value, id: String)(
       f: MT => ItemDetails => Option[UserProfile] => Request[AnyContent] => Future[Result])(
-                   implicit rs: BackendResource[MT], rd: BackendReadable[MT], ct: BackendContentType[MT], cfmt: ClientWriteable[MT]): Action[AnyContent] = {
+                   implicit rd: BackendReadable[MT], ct: BackendContentType[MT], cfmt: ClientWriteable[MT]): Action[AnyContent] = {
       itemPermissionAction.async[MT](id) {
           item => implicit userOpt => implicit request =>
         val watchedF: Future[Page[AnyModel]] = watchedItems
@@ -128,7 +128,7 @@ trait PortalActions {
 
     def apply[MT](entityType: EntityType.Value, id: String)(
       f: MT => ItemDetails => Option[UserProfile] => Request[AnyContent] => Result)(
-                   implicit rs: BackendResource[MT], rd: BackendReadable[MT], ct: BackendContentType[MT], cfmt: ClientWriteable[MT]) = {
+                   implicit rd: BackendReadable[MT], ct: BackendContentType[MT], cfmt: ClientWriteable[MT]) = {
       async(entityType, id)(f.andThen(_.andThen(_.andThen(_.andThen(t => Future.successful(t))))))
     }
   }
@@ -139,7 +139,7 @@ trait PortalActions {
   object getWithChildrenAction {
     def async[CT, MT](entityType: EntityType.Value, id: String)(
       f: MT => Page[CT] => PageParams =>  ItemDetails => Option[UserProfile] => Request[AnyContent] => Future[Result])(
-                       implicit rs: BackendResource[MT], rd: BackendReadable[MT], ct: BackendContentType[MT], crd: BackendReadable[CT], cfmt: ClientWriteable[MT]): Action[AnyContent] = {
+                       implicit rd: BackendReadable[MT], ct: BackendContentType[MT], crd: BackendReadable[CT], cfmt: ClientWriteable[MT]): Action[AnyContent] = {
       getAction.async[MT](entityType, id) { item => details => implicit userOpt => implicit request =>
         val params = PageParams.fromRequest(request)
         backend.listChildren[MT,CT](id, params).flatMap { children =>
@@ -150,7 +150,7 @@ trait PortalActions {
 
     def apply[CT, MT](entityType: EntityType.Value, id: String)(
       f: MT => Page[CT] => PageParams =>  ItemDetails => Option[UserProfile] => Request[AnyContent] => Result)(
-                       implicit rs: BackendResource[MT], rd: BackendReadable[MT], ct: BackendContentType[MT], crd: BackendReadable[CT], cfmt: ClientWriteable[MT]): Action[AnyContent] = {
+                       implicit rd: BackendReadable[MT], ct: BackendContentType[MT], crd: BackendReadable[CT], cfmt: ClientWriteable[MT]): Action[AnyContent] = {
       async(entityType, id)(f.andThen(_.andThen(_.andThen(_.andThen(_.andThen(_.andThen(t => Future.successful(t))))))))
     }
   }

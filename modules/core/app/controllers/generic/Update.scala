@@ -10,7 +10,7 @@ import play.api.Logger
 import scala.concurrent.Future.{successful => immediate}
 import scala.concurrent.Future
 import backend.rest.ValidationError
-import backend.{BackendWriteable, BackendContentType, BackendResource}
+import backend.{BackendReadable, BackendWriteable, BackendContentType, BackendResource}
 
 /**
  * Controller trait which updates an AccessibleEntity.
@@ -21,7 +21,7 @@ trait Update[F <: Model with Persistable, MT <: MetaModel[F]] extends Generic[MT
   type AsyncUpdateCallback = MT => Either[Form[F], MT] => Option[UserProfile] => Request[AnyContent] => Future[Result]
 
   def updateAction(id: String)(f: MT => Option[UserProfile] => Request[AnyContent] => Result)(
-    implicit rd: _root_.backend.BackendReadable[MT], rs: BackendResource[MT], ct: BackendContentType[MT]) = {
+    implicit rd: BackendReadable[MT], ct: BackendContentType[MT]) = {
     withItemPermission[MT](id, PermissionType.Update) { item => implicit userOpt => implicit request =>
       f(item)(userOpt)(request)
     }
@@ -33,7 +33,7 @@ trait Update[F <: Model with Persistable, MT <: MetaModel[F]] extends Generic[MT
    */
   object updatePostAction {
     def async(id: String, form: Form[F], transform: F => F = identity)(f: AsyncUpdateCallback)(
-        implicit fmt: BackendWriteable[F], rd: _root_.backend.BackendReadable[MT], rs: BackendResource[MT], ct: BackendContentType[MT]) = {
+        implicit fmt: BackendWriteable[F], rd: BackendReadable[MT], ct: BackendContentType[MT]) = {
       withItemPermission.async[MT](id, PermissionType.Update) {
           item => implicit userOpt => implicit request =>
         updateAction.async(item, form, transform)(f)
@@ -41,7 +41,7 @@ trait Update[F <: Model with Persistable, MT <: MetaModel[F]] extends Generic[MT
     }
 
     def apply(id: String, form: Form[F], transform: F => F = identity)(f: UpdateCallback)(
-      implicit fmt: BackendWriteable[F], rd: _root_.backend.BackendReadable[MT], rs: BackendResource[MT], ct: BackendContentType[MT]) = {
+      implicit fmt: BackendWriteable[F], rd: BackendReadable[MT], ct: BackendContentType[MT]) = {
       async(id, form, transform)(f.andThen(_.andThen(_.andThen(_.andThen(t => immediate(t))))))
     }
   }
@@ -54,7 +54,7 @@ trait Update[F <: Model with Persistable, MT <: MetaModel[F]] extends Generic[MT
    */
   private object updateAction {
     def async(item: MT, form: Form[F], transform: F => F = identity)(f: AsyncUpdateCallback)(
-        implicit userOpt: Option[UserProfile], request: Request[AnyContent], fmt: BackendWriteable[F], rd: _root_.backend.BackendReadable[MT], rs: BackendResource[MT]) = {
+        implicit userOpt: Option[UserProfile], request: Request[AnyContent], fmt: BackendWriteable[F], rd: BackendReadable[MT], rs: BackendResource[MT]) = {
       form.bindFromRequest.fold(
         errorForm => {
           Logger.logger.debug("Form errors: {}", errorForm.errors)
@@ -77,7 +77,7 @@ trait Update[F <: Model with Persistable, MT <: MetaModel[F]] extends Generic[MT
     }
 
     def apply(item: MT, form: Form[F], transform: F => F = identity)(f: UpdateCallback)(
-      implicit userOpt: Option[UserProfile], request: Request[AnyContent], fmt: BackendWriteable[F], rd: _root_.backend.BackendReadable[MT], rs: BackendResource[MT], ct: BackendContentType[MT]) = {
+      implicit userOpt: Option[UserProfile], request: Request[AnyContent], fmt: BackendWriteable[F], rd: BackendReadable[MT], rs: BackendResource[MT]) = {
       async(item, form, transform)(f.andThen(_.andThen(_.andThen(_.andThen(t => immediate(t))))))
     }
   }
