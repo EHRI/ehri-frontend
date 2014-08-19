@@ -65,9 +65,8 @@ object DatePeriodF {
 
   implicit val datePeriodFormat: Format[DatePeriodF] = Format(datePeriodReads,datePeriodWrites)
 
-  implicit object Converter extends BackendWriteable[DatePeriodF] with ClientWriteable[DatePeriodF] {
+  implicit object Converter extends BackendWriteable[DatePeriodF] {
     lazy val restFormat = datePeriodFormat
-    lazy val clientFormat = Json.format[DatePeriodF]
   }
 }
 

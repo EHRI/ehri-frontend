@@ -54,9 +54,8 @@ object AddressF {
 
   implicit val addressFormat: Format[AddressF] = Format(addressReads,addressWrites)
 
-  implicit object Converter extends BackendWriteable[AddressF] with ClientWriteable[AddressF] {
+  implicit object Converter extends BackendWriteable[AddressF] {
     val restFormat: Format[AddressF] = addressFormat
-    val clientFormat = Json.format[AddressF]
   }
 }
 

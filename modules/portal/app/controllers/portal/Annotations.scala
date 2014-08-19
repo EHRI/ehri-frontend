@@ -41,7 +41,7 @@ case class Annotations @Inject()(implicit globalConfig: global.GlobalConfig, sea
 
   def annotation(id: String) = userProfileAction.async { implicit userProfile => implicit request =>
     backend.get[Annotation](id).map { ann =>
-      Ok(Json.toJson(ann)(Annotation.Converter.clientFormat))
+      Ok(Json.toJson(ann)(client.json.annotationJson.clientFormat))
     }
   }
 

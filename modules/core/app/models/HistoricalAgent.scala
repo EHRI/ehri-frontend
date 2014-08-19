@@ -52,11 +52,8 @@ object HistoricalAgentF {
 
   implicit val historicalAgentFormat: Format[HistoricalAgentF] = Format(historicalAgentReads,historicalAgentWrites)
 
-  implicit object Converter extends BackendWriteable[HistoricalAgentF] with ClientWriteable[HistoricalAgentF] {
+  implicit object Converter extends BackendWriteable[HistoricalAgentF] {
     lazy val restFormat = historicalAgentFormat
-
-    private implicit val haDescFmt = HistoricalAgentDescriptionF.Converter.clientFormat
-    lazy val clientFormat = Json.format[HistoricalAgentF]
   }
 }
 
@@ -90,16 +87,8 @@ object HistoricalAgent {
     (__ \ META).readWithDefault(Json.obj())
   )(HistoricalAgent.apply _)
 
-  implicit object Converter extends ClientWriteable[HistoricalAgent] with BackendReadable[HistoricalAgent] {
+  implicit object Converter extends BackendReadable[HistoricalAgent] {
     val restReads = metaReads
-
-    implicit val clientFormat: Format[HistoricalAgent] = (
-      __.format[HistoricalAgentF](HistoricalAgentF.Converter.clientFormat) and
-      (__ \ "set").formatNullable[AuthoritativeSet](AuthoritativeSet.Converter.clientFormat) and
-      (__ \ "accessibleTo").nullableListFormat(Accessor.Converter.clientFormat) and
-      (__ \ "event").formatNullable[SystemEvent](SystemEvent.Converter.clientFormat) and
-      (__ \ "meta").format[JsObject]
-    )(HistoricalAgent.apply _, unlift(HistoricalAgent.unapply))
   }
 
   implicit object Resource extends BackendResource[HistoricalAgent] with BackendContentType[HistoricalAgent] {

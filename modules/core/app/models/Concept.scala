@@ -61,11 +61,8 @@ object ConceptF {
   implicit val conceptFormat: Format[ConceptF] = Format(conceptReads,conceptWrites)
 
 
-  implicit object Converter extends BackendWriteable[ConceptF] with ClientWriteable[ConceptF] {
+  implicit object Converter extends BackendWriteable[ConceptF] {
     val restFormat = conceptFormat
-
-    private implicit val conceptDscFmt = ConceptDescriptionF.Converter.clientFormat
-    val clientFormat = Json.format[ConceptF]
   }
 }
 
@@ -95,18 +92,8 @@ object Concept {
     (__ \ META).readWithDefault(Json.obj())
   )(Concept.apply _)
 
-  implicit object Converter extends ClientWriteable[Concept] with BackendReadable[Concept] {
+  implicit object Converter extends BackendReadable[Concept] {
     val restReads = metaReads
-
-    val clientFormat: Format[Concept] = (
-      __.format[ConceptF](ConceptF.Converter.clientFormat) and
-      (__ \ "vocabulary").formatNullable[Vocabulary](Vocabulary.Converter.clientFormat) and
-      (__ \ "parent").lazyFormatNullable[Concept](clientFormat) and
-      (__ \ "broaderTerms").lazyNullableListFormat(clientFormat) and
-      (__ \ "accessibleTo").nullableListFormat(Accessor.Converter.clientFormat) and
-      (__ \ "event").formatNullable[SystemEvent](SystemEvent.Converter.clientFormat) and
-      (__ \ "meta").format[JsObject]
-    )(Concept.apply _, unlift(Concept.unapply))
   }
 
   implicit object Resource extends BackendResource[Concept] with BackendContentType[Concept] {

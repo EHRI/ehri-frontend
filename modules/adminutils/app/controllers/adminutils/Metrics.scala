@@ -30,6 +30,8 @@ case class Metrics @Inject()(implicit globalConfig: global.GlobalConfig, searchD
     EntityType.HistoricalAgent
   )
 
+  import client.json._
+
   private def jsonResponse[T](result: QueryResult[T])(implicit request: Request[AnyContent], w: ClientWriteable[T]): Result = {
     render {
       case Accepts.Json() | Accepts.JavaScript() => Ok(Json.obj(

@@ -5,7 +5,7 @@ import play.api.libs.concurrent.Execution.Implicits._
 import defines._
 import models._
 import play.api.data.Form
-import play.api.libs.json.{Writes, Format, Json, JsError}
+import play.api.libs.json.{Format, Json, JsError}
 import scala.concurrent.Future.{successful => immediate}
 import backend.{BackendReadable, BackendContentType}
 
@@ -52,15 +52,6 @@ trait Annotate[MT] extends Read[MT] {
         f(anns)(userOpt)(request)
       }
     }
-  }
-
-  //
-  // JSON endpoints
-  //
-
-  def getAnnotationJson(id: String) = getAnnotationsAction(id) {
-      anns => implicit userOpt => implicit request =>
-    Ok(Json.toJson(anns)(Writes.seq(Annotation.Converter.clientFormat)))
   }
 
   /**

@@ -42,11 +42,8 @@ object CountryF {
     (__ \ DATA \ REPORT).readNullable[String]
   )(CountryF.apply _)
 
-  implicit val countryFormat: Format[CountryF] = Format(countryReads,countryWrites)
-
-  implicit object Converter extends BackendWriteable[CountryF] with ClientWriteable[CountryF] {
-    lazy val restFormat = countryFormat
-    lazy val clientFormat = Json.format[CountryF]
+  implicit object Converter extends BackendWriteable[CountryF] {
+    lazy val restFormat = Format(countryReads,countryWrites)
   }
 }
 
@@ -72,15 +69,8 @@ object Country {
     (__ \ META).readWithDefault(Json.obj())
   )(Country.apply _)
 
-  implicit object Converter extends ClientWriteable[Country] with BackendReadable[Country] {
+  implicit object Converter extends BackendReadable[Country] {
     val restReads = metaReads
-
-    val clientFormat: Format[Country] = (
-      __.format[CountryF](CountryF.Converter.clientFormat) and
-      (__ \ "accessibleTo").nullableListFormat(Accessor.Converter.clientFormat) and
-      (__ \ "event").formatNullable[SystemEvent](SystemEvent.Converter.clientFormat) and
-      (__ \ "meta").format[JsObject]
-    )(Country.apply _, unlift(Country.unapply))
   }
 
   implicit object Resource extends BackendResource[Country] with BackendContentType[Country] {

@@ -3,9 +3,6 @@
 # Home page
 GET     /units                                           @controllers.archdesc.DocumentaryUnits.search
 GET     /units/list                                      @controllers.archdesc.DocumentaryUnits.list
-# Testing
-GET     /units/meta/:id                                  @controllers.archdesc.DocumentaryUnits.getClientJson(id)
-
 GET     /units/:id                                       @controllers.archdesc.DocumentaryUnits.get(id: String)
 GET     /units/:id/history                               @controllers.archdesc.DocumentaryUnits.history(id: String)
 GET     /units/:id/delete                                @controllers.archdesc.DocumentaryUnits.delete(id: String)
@@ -54,7 +51,6 @@ GET     /virtual                                             @controllers.archde
 GET     /virtual/create                                      @controllers.archdesc.VirtualUnits.create
 POST    /virtual/create                                      @controllers.archdesc.VirtualUnits.createPost
 GET     /virtual/:id                                         @controllers.archdesc.VirtualUnits.get(id: String)
-GET     /virtual/:id/meta                                    @controllers.archdesc.VirtualUnits.getClientJson(id)
 GET     /virtual/:id/history                                 @controllers.archdesc.VirtualUnits.history(id: String)
 GET     /virtual/:id/delete                                  @controllers.archdesc.VirtualUnits.delete(id: String)
 POST    /virtual/:id/delete                                  @controllers.archdesc.VirtualUnits.deletePost(id: String)
@@ -91,9 +87,6 @@ POST    /virtual/:id/linkjs/:accessPoint                     @controllers.archde
 GET     /virtual/:id/linkjs/:accessPoint                     @controllers.archdesc.VirtualUnits.getLink(id: String, accessPoint: String)
 POST    /virtual/:id/linkjs                                  @controllers.archdesc.VirtualUnits.createMultipleLinks(id: String)
 POST    /virtual/:id/deleteLink/:link                        @controllers.archdesc.VirtualUnits.deleteLink(id: String, link: String)
-
-# Testing
-GET     /institutions/meta/:id                            @controllers.archdesc.Repositories.getClientJson(id)
 
 GET     /institutions                                     @controllers.archdesc.Repositories.search
 GET     /institutions/list                                @controllers.archdesc.Repositories.list
