@@ -5,7 +5,6 @@ import play.api.Play.current
 import play.api.cache.Cache
 import backend.{BackendReadable, Visibility, EventHandler, ApiUser}
 import play.api.http.Status
-import java.lang.Readable
 
 
 /**

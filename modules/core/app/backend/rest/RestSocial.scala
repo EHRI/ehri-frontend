@@ -7,7 +7,6 @@ import models.{VirtualUnit, Link, Annotation, UserProfile}
 import defines.EntityType
 import models.base.AnyModel
 import play.api.cache.Cache
-import java.lang.Readable
 
 /**
  * @author Mike Bryant (http://github.com/mikesname)

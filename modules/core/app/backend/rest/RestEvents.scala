@@ -6,7 +6,6 @@ import models.{Version, SystemEvent}
 import utils.{Page, SystemEventParams, PageParams}
 import backend.{BackendReadable, Events, ApiUser}
 import defines.EntityType
-import java.lang.Readable
 
 
 /**

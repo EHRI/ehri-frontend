@@ -1,7 +1,6 @@
 package backend
 
 import scala.concurrent.{ExecutionContext, Future}
-import backend.BackendReadable
 
 /**
  * @author Mike Bryant (http://github.com/mikesname)

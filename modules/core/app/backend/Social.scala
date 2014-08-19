@@ -4,7 +4,7 @@ import scala.concurrent.{ExecutionContext, Future}
 import utils.{Page, PageParams}
 import models.{VirtualUnit, Link, Annotation, UserProfile}
 import models.base.AnyModel
-import backend.BackendReadable
+
 
 /**
  * @author Mike Bryant (http://github.com/mikesname)

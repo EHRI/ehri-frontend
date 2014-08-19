@@ -9,7 +9,6 @@ import play.api.Play.current
 import play.api.cache.Cache
 import utils.{Page, FutureCache, PageParams}
 import backend.{BackendReadable, Permissions, EventHandler, ApiUser}
-import java.lang.Readable
 
 
 trait RestPermissions extends Permissions with RestDAO {

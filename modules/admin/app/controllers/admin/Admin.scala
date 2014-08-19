@@ -11,7 +11,7 @@ import models.AccountDAO
 import defines.EntityType
 import models.base.AnyModel
 import backend.rest.SearchDAO
-import java.lang.Readable
+
 
 case class Admin @Inject()(implicit globalConfig: global.GlobalConfig, backend: Backend, userDAO: AccountDAO) extends Controller with AuthController with ControllerHelpers {
 
