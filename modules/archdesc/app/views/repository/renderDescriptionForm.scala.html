@@ -3,10 +3,11 @@
 @import Isdiah._
 @import RepositoryF._
 @import formHelpers._
+@import Description._
 
 @implicitField = @{ views.html.helper.FieldConstructor(formHelpers.fieldTemplate.f) }
 
-<div class="description-form" id="@desc("form").id">
+@common.descriptionForm(desc) {
     @choiceInput(desc(LANG_CODE), LANG_CODE, views.Helpers.languagePairList, blank=true)
 
     @descriptionFormSection(IDENTITY_AREA) {
@@ -78,8 +79,4 @@
             @textInput(desc, MAINTENANCE_NOTES)
         }
     }
-
-    @hiddenAccessPointSet(desc, ACCESS_POINTS)
-    @hiddenUnknownDataSet(desc, MAINTENANCE_EVENTS)
-    @hiddenUnknownDataSet(desc, UNKNOWN_DATA)
-</div>
+}

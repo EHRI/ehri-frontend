@@ -10,6 +10,8 @@ import play.api.data.Form
 import play.api.data.Forms._
 import models.forms._
 import backend.BackendWriteable
+import Description._
+
 
 case class IsaarDetail(
   datesOfExistence: Option[String] = None,
@@ -72,7 +74,8 @@ object HistoricalAgentDescriptionF {
           LANGUAGES_USED -> d.control.languages,
           SCRIPTS_USED -> d.control.scripts,
           SOURCES -> d.control.sources,
-          MAINTENANCE_NOTES -> d.control.maintenanceNotes
+          MAINTENANCE_NOTES -> d.control.maintenanceNotes,
+          CREATION_PROCESS -> d.creationProcess
         ),
         RELATIONSHIPS -> Json.obj(
           HAS_ACCESS_POINT -> Json.toJson(d.accessPoints.map(Json.toJson(_)).toSeq),
@@ -114,6 +117,7 @@ object HistoricalAgentDescriptionF {
       (__ \ SOURCES).readListOrSingleNullable[String] and
       (__ \ MAINTENANCE_NOTES).readNullable[String]
     )(IsaarControl.apply _)) and
+    (__ \ DATA \ CREATION_PROCESS).readWithDefault(CreationProcess.Manual) and
     (__ \ RELATIONSHIPS \ HAS_ACCESS_POINT).nullableListReads[AccessPointF] and
     (__ \ RELATIONSHIPS \ HAS_UNKNOWN_PROPERTY).nullableListReads[Entity]
   )(HistoricalAgentDescriptionF.apply _)
@@ -146,6 +150,7 @@ case class HistoricalAgentDescriptionF(
   dates: List[DatePeriodF] = Nil,
   details: IsaarDetail,
   control: IsaarControl,
+  creationProcess: CreationProcess.Value = CreationProcess.Manual,
   accessPoints: List[AccessPointF],
   unknownProperties: List[Entity] = Nil
 ) extends Model
@@ -212,6 +217,7 @@ object HistoricalAgentDescription {
         SOURCES -> optional(list(nonEmptyText)),
         MAINTENANCE_NOTES -> optional(text)
       )(IsaarControl.apply)(IsaarControl.unapply),
+      CREATION_PROCESS -> default(enum(CreationProcess), CreationProcess.Manual),
       ACCESS_POINTS -> list(AccessPoint.form.mapping),
       UNKNOWN_DATA -> list(entity)
     )(HistoricalAgentDescriptionF.apply)(HistoricalAgentDescriptionF.unapply)

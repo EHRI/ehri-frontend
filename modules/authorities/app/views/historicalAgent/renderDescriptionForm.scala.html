@@ -4,15 +4,14 @@
 @import HistoricalAgentF._
 @import models.DatePeriodF._
 @import formHelpers._
+@import Description._
 
 @implicitField = @{ views.html.helper.FieldConstructor(formHelpers.fieldTemplate.f) }
 
-<div class="description-form" id="@desc("form").id">
-
+@common.descriptionForm(desc) {
     @choiceInput(desc(LANG_CODE), LANG_CODE, views.Helpers.languagePairList, blank=true)
 
     @descriptionFormSection(IDENTITY_AREA) {
-        @hiddenInput(desc(Entity.ID))
         @enumChoiceInput(desc(ENTITY_TYPE), HistoricalAgentType, ENTITY_TYPE, blank=true)
         @lineInput(desc, AUTHORIZED_FORM_OF_NAME)
         @inlineNameSet(desc, PARALLEL_FORMS_OF_NAME)
@@ -64,7 +63,4 @@
             @textInput(desc, MAINTENANCE_NOTES)
         }
     }
-
-    @hiddenAccessPointSet(desc, ACCESS_POINTS)
-    @hiddenUnknownDataSet(desc, UNKNOWN_DATA)
-</div>
+}

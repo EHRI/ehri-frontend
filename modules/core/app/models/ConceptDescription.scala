@@ -10,6 +10,9 @@ import play.api.data.Forms._
 import models.forms._
 import backend.BackendWriteable
 
+import Description._
+import eu.ehri.project.definitions.Ontology._
+import models.base.Description.CREATION_PROCESS
 
 object ConceptDescriptionF {
 
@@ -29,7 +32,8 @@ object ConceptDescriptionF {
           DEFINITION -> d.definition,
           SCOPENOTE -> d.scopeNote,
           LONGITUDE -> d.longitude,
-          LATITUDE -> d.latitude
+          LATITUDE -> d.latitude,
+          CREATION_PROCESS -> d.creationProcess
         ),
         RELATIONSHIPS -> Json.obj(
           Ontology.HAS_ACCESS_POINT -> Json.toJson(d.accessPoints.map(Json.toJson(_)).toSeq),
@@ -49,6 +53,7 @@ object ConceptDescriptionF {
     (__ \ DATA \ SCOPENOTE).readListOrSingleNullable[String] and
     (__ \ DATA \ LONGITUDE).readNullable[BigDecimal] and
     (__ \ DATA \ LATITUDE).readNullable[BigDecimal] and
+    (__ \ DATA \ CREATION_PROCESS).readWithDefault(CreationProcess.Manual) and
     (__ \ RELATIONSHIPS \ Ontology.HAS_ACCESS_POINT).nullableListReads[AccessPointF] and
     (__ \ RELATIONSHIPS \ Ontology.HAS_UNKNOWN_PROPERTY).nullableListReads[Entity]
   )(ConceptDescriptionF.apply _)
@@ -73,6 +78,7 @@ case class ConceptDescriptionF(
   scopeNote: Option[List[String]] = None,
   longitude: Option[BigDecimal] = None,
   latitude: Option[BigDecimal] = None,
+  creationProcess: Description.CreationProcess.Value = Description.CreationProcess.Manual,
   accessPoints: List[AccessPointF] = Nil,
   unknownProperties: List[Entity] = Nil
 ) extends Model with Persistable with Description {
@@ -99,6 +105,7 @@ object ConceptDescription {
     SCOPENOTE -> optional(list(nonEmptyText)),
     LONGITUDE -> optional(bigDecimal),
     LATITUDE -> optional(bigDecimal),
+    CREATION_PROCESS -> default(enum(CreationProcess), CreationProcess.Manual),
     ACCESS_POINTS -> list(AccessPoint.form.mapping),
     UNKNOWN_DATA -> list(entity)
   )(ConceptDescriptionF.apply)(ConceptDescriptionF.unapply))

@@ -2,14 +2,14 @@ package controllers.adminutils
 
 import play.api.libs.concurrent.Execution.Implicits._
 import play.api.libs.iteratee.{Concurrent, Enumerator}
-import models.{AccountDAO, IsadG}
+import models.AccountDAO
 import concurrent.Future
 import play.api.i18n.Messages
 import views.Helpers
 import play.api.libs.json.{Writes, Json}
 
 import com.google.inject._
-import models.base.AnyModel
+import models.base.{Description, AnyModel}
 import utils.search._
 import play.api.Logger
 import controllers.generic.{Indexable, Search}
@@ -27,8 +27,8 @@ case class AdminSearch @Inject()(implicit globalConfig: global.GlobalConfig, sea
   private val entityFacets: FacetBuilder = { implicit request =>
     List(
       FieldFacetClass(
-        key = IsadG.LANG_CODE,
-        name = Messages("documentaryUnit." + IsadG.LANG_CODE),
+        key = Description.LANG_CODE,
+        name = Messages("documentaryUnit." + Description.LANG_CODE),
         param = "lang",
         render = (s: String) => Helpers.languageCodeToName(s),
         display = FacetDisplay.DropDown,

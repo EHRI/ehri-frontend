@@ -10,7 +10,7 @@ import models.forms._
 import play.api.data.Form
 import play.api.data.Forms._
 import backend.BackendWriteable
-
+import Description._
 
 private[models] case class IsdiahDetails(
   history: Option[String] = None,
@@ -87,7 +87,8 @@ object RepositoryDescriptionF {
           LANGUAGES_USED -> d.control.languages,
           SCRIPTS_USED -> d.control.scripts,
           SOURCES -> d.control.sources,
-          MAINTENANCE_NOTES -> d.control.maintenanceNotes
+          MAINTENANCE_NOTES -> d.control.maintenanceNotes,
+          CREATION_PROCESS -> d.creationProcess
         ),
         RELATIONSHIPS -> Json.obj(
           ENTITY_HAS_ADDRESS -> Json.toJson(d.addresses.map(Json.toJson(_)).toSeq),
@@ -139,6 +140,7 @@ object RepositoryDescriptionF {
       (__ \ SOURCES).readListOrSingleNullable[String] and
       (__ \ MAINTENANCE_NOTES).readNullable[String]
     )(IsdiahControl.apply _)) and
+    (__ \ DATA \ CREATION_PROCESS).readWithDefault(CreationProcess.Manual) and
     (__ \ RELATIONSHIPS \ HAS_ACCESS_POINT).nullableListReads[AccessPointF] and
     (__ \ RELATIONSHIPS \ HAS_MAINTENANCE_EVENT).nullableListReads[Entity] and
     (__ \ RELATIONSHIPS \ HAS_UNKNOWN_PROPERTY).nullableListReads[Entity]
@@ -173,6 +175,7 @@ case class RepositoryDescriptionF(
   access: IsdiahAccess,
   services: IsdiahServices,
   control: IsdiahControl,
+  creationProcess: CreationProcess.Value = CreationProcess.Manual,
   accessPoints: List[AccessPointF] = Nil,
   maintenanceEvents: List[Entity] = Nil,
   unknownProperties: List[Entity] = Nil
@@ -252,6 +255,7 @@ object RepositoryDescription {
         SOURCES -> optional(list(nonEmptyText)),
         MAINTENANCE_NOTES -> optional(text)
       )(IsdiahControl.apply)(IsdiahControl.unapply),
+      CREATION_PROCESS -> default(enum(CreationProcess), CreationProcess.Manual),
       ACCESS_POINTS -> list(AccessPoint.form.mapping),
       MAINTENANCE_EVENTS -> list(entity),
       UNKNOWN_DATA -> list(entity)

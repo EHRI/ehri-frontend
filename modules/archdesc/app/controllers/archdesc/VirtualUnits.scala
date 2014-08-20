@@ -22,6 +22,7 @@ import scala.Some
 import solr.facet.SolrQueryFacet
 import solr.facet.QueryFacetClass
 import backend.rest.Constants
+import models.base.Description
 
 
 @Singleton
@@ -65,8 +66,8 @@ case class VirtualUnits @Inject()(implicit globalConfig: global.GlobalConfig, se
         display = FacetDisplay.List
       ),
       FieldFacetClass(
-        key=IsadG.LANG_CODE,
-        name=Messages("virtualUnit." + IsadG.LANG_CODE),
+        key=Description.LANG_CODE,
+        name=Messages("virtualUnit." + Description.LANG_CODE),
         param="lang",
         render=Helpers.languageCodeToName,
         display = FacetDisplay.Choice

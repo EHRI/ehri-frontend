@@ -211,6 +211,8 @@ trait Description extends Model {
 
   def accessPoints: List[AccessPointF]
 
+  def creationProcess: Description.CreationProcess.Value
+
   def unknownProperties: List[Entity]
 
   def displayText: Option[String]
@@ -223,6 +225,21 @@ trait Description extends Model {
 }
 
 object Description {
+
+  val LANG_CODE = "languageCode"
+  val CREATION_PROCESS = "creationProcess"
+  val ACCESS_POINTS = "accessPoints"
+  val UNKNOWN_DATA = "unknownData"
+  val MAINTENANCE_EVENTS = "maintenanceEvents"
+
+  object CreationProcess extends Enumeration {
+    type Type = Value
+    val Import = Value("IMPORT")
+    val Manual = Value("MANUAL")
+
+    implicit val format = defines.EnumUtils.enumFormat(this)
+  }
+
   /**
    * Somewhat gnarly function to get the first value from
    * a set of descriptions that is available, along with an

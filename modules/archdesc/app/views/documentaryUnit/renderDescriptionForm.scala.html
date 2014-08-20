@@ -1,15 +1,15 @@
 @(desc: Field)(implicit fieldPrefix: String, defaults: Option[play.api.Configuration] = None, userOpt: Option[UserProfile], req: RequestHeader, globalConfig: global.GlobalConfig, lang: Lang)
 
 @import models.IsadG._
+@import Description._
 @import models.DatePeriodF._
 @import formHelpers._
 
 
 @implicitField = @{ views.html.helper.FieldConstructor(formHelpers.fieldTemplate.f) }
 
-<div class="description-form" id="@desc("form").id">
+@common.descriptionForm(desc) {
     @choiceInput(desc(LANG_CODE), LANG_CODE, views.Helpers.languagePairList, blank = true)
-    @hiddenInput(desc(Entity.ID))
 
     @descriptionFormSection(IDENTITY_AREA) {
         @defining(desc(IDENTITY_AREA)) { desc =>
@@ -91,11 +91,4 @@
             @textInput(desc, PROVENANCE)
         }
     }
-
-        @* NB: Access points are hidden in this form because they are managed *@
-        @* separately from the accessPoints page. *@
-        @hiddenAccessPointSet(desc, ACCESS_POINTS)
-        @hiddenUnknownDataSet(desc, UNKNOWN_DATA)
-
-
-</div>
+}
