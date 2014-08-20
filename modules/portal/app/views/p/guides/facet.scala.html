@@ -88,7 +88,7 @@
 @p.layout.guideLayoutFacet(template, facets = facets, scripts = js) {
     <article>
         <header>
-            <h3>@Messages("pagination.displayingItems", items.offset + 1, items.offset + items.items.size, items.total)</h3>
+            <h3>@Messages("pagination.displayingItems", items.page + 1, items.page + items.count, items.total)</h3>
         </header>
         <section>
             <section class="content-results">

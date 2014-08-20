@@ -380,7 +380,7 @@ case class Guides @Inject()(implicit globalConfig: global.GlobalConfig, searchDi
       (begin, end)
     } else {
       val begin = if(start < 0) 0 else start
-      val end = if(start < 10) 10 else start+10
+      val end = if(start < 10) 10 else if(start+10 > count)  count else start + 10
       (begin, end)
     }
   }
