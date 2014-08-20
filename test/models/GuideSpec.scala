@@ -23,7 +23,7 @@ class GuideSpec extends PlaySpecification {
 
     "create items correctly" in new WithSqlFile("guide-fixtures.sql") {
       Guide.findAll(activeOnly = true).size must equalTo(2)
-      Guide.create(name = "Test", path = "test", virtualUnit = "test", active = 1) must beSome.which {
+      Guide.create(name = "Test", path = "test", virtualUnit = "test", active = 1) must beSome.which { guide =>
         guide.name must equalTo("Test")
       }
       Guide.findAll(activeOnly = true).size must equalTo(3)
@@ -66,7 +66,7 @@ class GuideSpec extends PlaySpecification {
           menu = GuidePage.MenuPosition.Side,
           cypher = "",
           parent = guide.id,
-          description = Some("Here is a description")
+          description = Some("Here is a description"),
           params = None
         ) must beSome
         GuidePage.findAll().size must equalTo(pages.size + 1)
