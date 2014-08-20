@@ -125,15 +125,8 @@ object HistoricalAgentDescriptionF {
   implicit val historicalAgentDescriptionFormat: Format[HistoricalAgentDescriptionF] =
     Format(historicalAgentDescriptionReads,historicalAgentDescriptionWrites)
 
-  implicit object Converter extends BackendWriteable[HistoricalAgentDescriptionF]
-      with ClientWriteable[HistoricalAgentDescriptionF] {
+  implicit object Converter extends BackendWriteable[HistoricalAgentDescriptionF]  {
     val restFormat = historicalAgentDescriptionFormat
-
-    private implicit val accessPointFormat = AccessPointF.Converter.clientFormat
-    private implicit val datePeriodFormat = DatePeriodF.Converter.clientFormat
-    private implicit val isaarDetailsFormat = Json.format[IsaarDetail]
-    private implicit val isaarControlFormat = Json.format[IsaarControl]
-    val clientFormat = Json.format[HistoricalAgentDescriptionF]
   }
 }
 

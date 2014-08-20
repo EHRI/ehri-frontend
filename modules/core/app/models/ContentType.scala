@@ -21,9 +21,8 @@ object ContentType {
 
   implicit val restFormat = Format(reads, writes)
 
-  implicit object Converter extends ClientWriteable[ContentType] with BackendReadable[ContentType] {
+  implicit object Converter extends BackendReadable[ContentType] {
     val restReads = reads
-    val clientFormat = restFormat
   }
 }
 

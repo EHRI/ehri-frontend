@@ -60,11 +60,8 @@ object ConceptDescriptionF {
 
   implicit val conceptDescriptionFormat: Format[ConceptDescriptionF] = Format(conceptDescriptionReads,conceptDescriptionWrites)
 
-  implicit object Converter extends BackendWriteable[ConceptDescriptionF] with ClientWriteable[ConceptDescriptionF] {
+  implicit object Converter extends BackendWriteable[ConceptDescriptionF] {
     lazy val restFormat = conceptDescriptionFormat
-
-    private implicit val accessPointFormat = AccessPointF.Converter.clientFormat
-    lazy val clientFormat = Json.format[ConceptDescriptionF]
   }
 }
 

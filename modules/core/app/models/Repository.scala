@@ -61,11 +61,8 @@ object RepositoryF {
 
   implicit val repositoryFormat: Format[RepositoryF] = Format(repositoryReads,repositoryWrites)
 
-  implicit object Converter extends BackendWriteable[RepositoryF] with ClientWriteable[RepositoryF] {
+  implicit object Converter extends BackendWriteable[RepositoryF] {
     val restFormat = repositoryFormat
-
-    private implicit val repoDescFmt = RepositoryDescriptionF.Converter.clientFormat
-    val clientFormat = Json.format[RepositoryF]
   }
 }
 
@@ -128,16 +125,8 @@ object Repository {
     (__ \ META).readWithDefault(Json.obj())
   )(Repository.apply _)
 
-  implicit object Converter extends ClientWriteable[Repository] with BackendReadable[Repository] {
+  implicit object Converter extends BackendReadable[Repository] {
     val restReads = metaReads
-
-    val clientFormat: Format[Repository] = (
-      __.format[RepositoryF](RepositoryF.Converter.clientFormat) and
-      (__ \ "country").formatNullable[Country](Country.Converter.clientFormat) and
-      (__ \ "accessibleTo").nullableListFormat(Accessor.Converter.clientFormat) and
-      (__ \ "event").formatNullable[SystemEvent](SystemEvent.Converter.clientFormat) and
-      (__ \ "meta").format[JsObject]
-    )(Repository.apply _, unlift(Repository.unapply))
   }
 
   implicit object Resource extends BackendResource[Repository] with BackendContentType[Repository] {

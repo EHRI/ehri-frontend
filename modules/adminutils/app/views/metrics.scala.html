@@ -83,16 +83,16 @@
 
 
         $(function() {
-            $.getJSON(jsRoutes.controllers.admin.Metrics.languageOfMaterial().url, function(data) {
+            $.getJSON(jsRoutes.controllers.adminutils.Metrics.languageOfMaterial().url, function(data) {
                 plotData(plotPie, data, "languageCode", "document-languages", 5, LocaleData.languageCodeToName);
             });
-            $.getJSON(jsRoutes.controllers.admin.Metrics.holdingRepository().url, function(data) {
+            $.getJSON(jsRoutes.controllers.adminutils.Metrics.holdingRepository().url, function(data) {
                 plotData(plotPie, data, "repositoryName", "document-holders", 5);
             });
-            $.getJSON(jsRoutes.controllers.admin.Metrics.repositoryCountries().url, function(data) {
+            $.getJSON(jsRoutes.controllers.adminutils.Metrics.repositoryCountries().url, function(data) {
                 plotData(plotPie, data, "countryCode", "repository-countries", 10, LocaleData.countryCodeToName);
             });
-            $.getJSON(jsRoutes.controllers.admin.Metrics.agentTypes().url, function(data) {
+            $.getJSON(jsRoutes.controllers.adminutils.Metrics.agentTypes().url, function(data) {
                 plotData(plotPie, data, "typeOfEntity", "agent-types", 5, function(code) {
                     if (code == "corporateBody") return "Corporate Body";
                     else if (code == "family") return "Family";
@@ -100,7 +100,7 @@
                     return code;
                 });
             });
-            $.getJSON(jsRoutes.controllers.admin.Metrics.restricted().url, function(data) {
+            $.getJSON(jsRoutes.controllers.adminutils.Metrics.restricted().url, function(data) {
                 plotData(plotPie, data, "restricted", "restricted-data", 5, function(code) {
                     if (code == "true") return "Restricted";
                     else return "Not Restricted"

@@ -45,9 +45,8 @@ object AuthoritativeSetF {
   implicit val authoritativeSetFormat: Format[AuthoritativeSetF]
   = Format(authoritativeSetReads,authoritativeSetWrites)
 
-  implicit object Converter extends BackendWriteable[AuthoritativeSetF] with ClientWriteable[AuthoritativeSetF] {
+  implicit object Converter extends BackendWriteable[AuthoritativeSetF] {
     lazy val restFormat = authoritativeSetFormat
-    lazy val clientFormat = Json.format[AuthoritativeSetF]
   }
 }
 
@@ -75,15 +74,8 @@ object AuthoritativeSet {
     (__ \ META).readWithDefault(Json.obj())
   )(AuthoritativeSet.apply _)
 
-  implicit object Converter extends ClientWriteable[AuthoritativeSet] with BackendReadable[AuthoritativeSet] {
+  implicit object Converter extends BackendReadable[AuthoritativeSet] {
     val restReads = metaReads
-
-    val clientFormat: Format[AuthoritativeSet] = (
-      __.format[AuthoritativeSetF](AuthoritativeSetF.Converter.clientFormat) and
-      (__ \ "accessibleTo").nullableListFormat(Accessor.Converter.clientFormat) and
-      (__ \ "event").formatNullable[SystemEvent](SystemEvent.Converter.clientFormat) and
-      (__ \ "meta").format[JsObject]
-    )(AuthoritativeSet.apply _, unlift(AuthoritativeSet.unapply))
   }
 
   implicit object Resource extends BackendResource[AuthoritativeSet] with BackendContentType[AuthoritativeSet] {

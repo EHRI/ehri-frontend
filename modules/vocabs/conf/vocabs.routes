@@ -23,7 +23,6 @@ POST    /vocabularies/:id/scope/:userType/:userId            @controllers.vocabs
 GET     /vocabularies/:id/reindex                            @controllers.vocabs.Vocabularies.updateIndex(id: String)
 POST    /vocabularies/:id/reindex                            @controllers.vocabs.Vocabularies.updateIndexPost(id: String)
 
-GET     /keywords/meta/:id                                   @controllers.vocabs.Concepts.getClientJson(id)
 GET     /keywords                                            @controllers.vocabs.Concepts.search
 GET     /keywords/list                                       @controllers.vocabs.Concepts.list
 GET     /keywords/:id                                        @controllers.vocabs.Concepts.get(id: String)

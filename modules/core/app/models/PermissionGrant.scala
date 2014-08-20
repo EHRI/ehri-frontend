@@ -28,9 +28,8 @@ object PermissionGrantF {
     (__ \ RELATIONSHIPS \ PERM_REL \\ ID).read[String].map(PermissionType.withName)
   )(PermissionGrantF.apply _)
 
-  implicit object Converter extends BackendReadable[PermissionGrantF] with ClientWriteable[PermissionGrantF] {
+  implicit object Converter extends BackendReadable[PermissionGrantF] {
     val restReads = permissionGrantReads
-    val clientFormat = Json.format[PermissionGrantF]
   }
 }
 
@@ -60,18 +59,8 @@ object PermissionGrant {
     (__ \ META).readWithDefault(Json.obj())
   )(PermissionGrant.apply _)
 
-  implicit object Converter extends BackendReadable[PermissionGrant] with ClientWriteable[PermissionGrant] {
-    private implicit val permissionGrantFormat = Json.format[PermissionGrantF]
-
+  implicit object Converter extends BackendReadable[PermissionGrant] {
     implicit val restReads = metaReads
-    implicit val clientFormat: Format[PermissionGrant] = (
-      __.format[PermissionGrantF](PermissionGrantF.Converter.restReads) and
-      (__ \ "accessor").lazyFormatNullable[Accessor](Accessor.Converter.clientFormat) and
-      (__ \ "targets").nullableListFormat(AnyModel.Converter.clientFormat) and
-      (__ \ "scope").lazyFormatNullable[AnyModel](AnyModel.Converter.clientFormat) and
-      (__ \ "grantedBy").lazyFormatNullable[UserProfile](UserProfile.Converter.clientFormat) and
-      (__ \ "meta").format[JsObject]
-    )(PermissionGrant.apply, unlift(PermissionGrant.unapply))
   }
 
   implicit object Resource extends BackendResource[PermissionGrant] {

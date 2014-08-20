@@ -66,9 +66,8 @@ object UserProfileF {
 
   implicit val userProfileFormat: Format[UserProfileF] = Format(userProfileReads,userProfileWrites)
 
-  implicit object Converter extends BackendWriteable[UserProfileF] with ClientWriteable[UserProfileF] {
+  implicit object Converter extends BackendWriteable[UserProfileF] {
     lazy val restFormat = userProfileFormat
-    lazy val clientFormat = Json.format[UserProfileF]
   }
 }
 
@@ -101,16 +100,8 @@ object UserProfile {
     (__ \ META).readWithDefault(Json.obj())
   )(UserProfile.quickApply _)
 
-  implicit object Converter extends ClientWriteable[UserProfile] with BackendReadable[UserProfile] {
-
+  implicit object Converter extends BackendReadable[UserProfile] {
     val restReads = metaReads
-    val clientFormat: Format[UserProfile] = (
-      __.format[UserProfileF](UserProfileF.Converter.clientFormat) and
-      (__ \ "groups").nullableListFormat(Group.Converter.clientFormat) and
-      (__ \ "accessibleTo").lazyNullableListFormat(Accessor.Converter.clientFormat) and
-      (__ \ "event").formatNullable[SystemEvent](SystemEvent.Converter.clientFormat) and
-      (__ \ "meta").format[JsObject]
-    )(UserProfile.quickApply _, unlift(UserProfile.quickUnapply))
   }
 
   implicit object Resource extends BackendResource[UserProfile] with BackendContentType[UserProfile] {

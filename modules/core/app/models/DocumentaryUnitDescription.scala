@@ -179,18 +179,8 @@ object DocumentaryUnitDescriptionF {
   implicit val documentaryUnitDescriptionFormat: Format[DocumentaryUnitDescriptionF] =
     Format(documentaryUnitDescriptionReads, documentaryUnitDescriptionWrites)
 
-  implicit object Converter extends BackendWriteable[DocumentaryUnitDescriptionF] with ClientWriteable[DocumentaryUnitDescriptionF] {
+  implicit object Converter extends BackendWriteable[DocumentaryUnitDescriptionF] {
     val restFormat = documentaryUnitDescriptionFormat
-
-    private implicit val accessPointFormat = AccessPointF.Converter.clientFormat
-    private implicit val datePeriodFormat = DatePeriodF.Converter.clientFormat
-    private implicit val isadGIdentityFormat = Json.format[IsadGIdentity]
-    private implicit val isadGContextFormat = Json.format[IsadGContext]
-    private implicit val isadGContentFormat = Json.format[IsadGContent]
-    private implicit val isadGConditionsFormat = Json.format[IsadGConditions]
-    private implicit val isadGMaterialsFormat = Json.format[IsadGMaterials]
-    private implicit val isadGControlFormat = Json.format[IsadGControl]
-    val clientFormat = Json.format[DocumentaryUnitDescriptionF]
   }
 }
 

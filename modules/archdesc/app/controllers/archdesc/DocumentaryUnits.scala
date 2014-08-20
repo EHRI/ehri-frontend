@@ -30,8 +30,7 @@ case class DocumentaryUnits @Inject()(implicit globalConfig: global.GlobalConfig
   with Linking[DocumentaryUnit]
   with Descriptions[DocumentaryUnitDescriptionF, DocumentaryUnitF, DocumentaryUnit]
   with AccessPoints[DocumentaryUnitDescriptionF, DocumentaryUnitF, DocumentaryUnit]
-  with Search
-  with Api[DocumentaryUnit] {
+  with Search {
 
   // Documentary unit facets
   import solr.facet._

@@ -47,11 +47,8 @@ object SystemEventF {
     (__ \ DATA \ EVENT_PROP).readNullable[EventType.Value]
   )(SystemEventF.apply _)
 
-  implicit val systemEventFormat: Format[SystemEventF] = Format(systemEventReads,systemEventWrites)
-
-  implicit object Converter extends backend.BackendReadable[SystemEventF] with ClientWriteable[SystemEventF] {
-    val restReads = systemEventFormat
-    val clientFormat = Json.format[SystemEventF]
+  implicit object Converter extends backend.BackendReadable[SystemEventF] {
+    val restReads = Format(systemEventReads,systemEventWrites)
   }
 }
 
@@ -80,18 +77,8 @@ object SystemEvent {
     (__ \ META).readWithDefault(Json.obj())
   )(SystemEvent.apply _)
 
-  implicit object Converter extends ClientWriteable[SystemEvent] with BackendReadable[SystemEvent] {
-    private implicit val systemEventFormat = Json.format[SystemEventF]
-
+  implicit object Converter extends BackendReadable[SystemEvent] {
     val restReads = metaReads
-    implicit val clientFormat: Format[SystemEvent] = (
-      __.format[SystemEventF](SystemEventF.Converter.clientFormat) and
-      (__ \ "scope").lazyFormatNullable[AnyModel](AnyModel.Converter.clientFormat) and
-      (__ \ "firstSubject").lazyFormatNullable[AnyModel](AnyModel.Converter.clientFormat) and
-      (__ \ "user").lazyFormatNullable[Accessor](Accessor.Converter.clientFormat) and
-      (__ \ "version").lazyFormatNullable(Version.Converter.clientFormat) and
-      (__ \ "meta").format[JsObject]
-    )(SystemEvent.apply _, unlift(SystemEvent.unapply))
   }
 
   implicit object Resource extends BackendResource[SystemEvent] with BackendContentType[SystemEvent] {

@@ -83,7 +83,7 @@ case class AdminSearch @Inject()(implicit globalConfig: global.GlobalConfig, sea
       case Accepts.Json() => {
         Ok(Json.toJson(Json.obj(
           "numPages" -> page.numPages,
-          "page" -> Json.toJson(page.items.map(_._1))(Writes.seq(AnyModel.Converter.clientFormat)),
+          "page" -> Json.toJson(page.items.map(_._1))(Writes.seq(client.json.anyModelJson.clientFormat)),
           "facets" -> facets
         ))
         )

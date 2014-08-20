@@ -12,7 +12,7 @@ import play.api.data.Forms._
 import backend.BackendWriteable
 import Description._
 
-private[models] case class IsdiahDetails(
+case class IsdiahDetails(
   history: Option[String] = None,
   generalContext: Option[String] = None,
   mandates: Option[String] = None,
@@ -23,19 +23,19 @@ private[models] case class IsdiahDetails(
   findingAids: Option[String] = None
 ) extends AttributeSet
 
-private[models] case class IsdiahAccess(
+case class IsdiahAccess(
   openingTimes: Option[String] = None,
   conditions: Option[String] = None,
   accessibility: Option[String] = None
 ) extends AttributeSet
 
-private[models] case class IsdiahServices(
+case class IsdiahServices(
   researchServices: Option[String] = None,
   reproductionServices: Option[String] = None,
   publicAreas: Option[String] = None
 ) extends AttributeSet
 
-private[models] case class IsdiahControl(
+case class IsdiahControl(
   descriptionIdentifier: Option[String] = None,
   institutionIdentifier: Option[String] = None,
   rulesAndConventions: Option[String] = None,
@@ -149,16 +149,8 @@ object RepositoryDescriptionF {
   implicit val repositoryDescriptionFormat: Format[RepositoryDescriptionF]
   = Format(repositoryDescriptionReads, repositoryDescriptionWrites)
 
-  implicit object Converter extends BackendWriteable[RepositoryDescriptionF] with ClientWriteable[RepositoryDescriptionF] {
+  implicit object Converter extends BackendWriteable[RepositoryDescriptionF] {
     val restFormat = repositoryDescriptionFormat
-
-    private implicit val addressFormat = AddressF.Converter.clientFormat
-    private implicit val accessPointFormat = AccessPointF.Converter.clientFormat
-    private implicit val isdiahDetailsFormat = Json.format[IsdiahDetails]
-    private implicit val isdiahAccessFormat = Json.format[IsdiahAccess]
-    private implicit val isdiahServicesFormat = Json.format[IsdiahServices]
-    private implicit val isdiahControlFormat = Json.format[IsdiahControl]
-    val clientFormat = Json.format[RepositoryDescriptionF]
   }
 }
 
