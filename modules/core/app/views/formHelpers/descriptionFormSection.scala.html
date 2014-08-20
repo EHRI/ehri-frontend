@@ -1,6 +1,9 @@
-@(fieldName: String)(html: Html)(implicit fieldPrefix: String = "")
+@(fieldName: String, toggle: Boolean = false)(html: Html)(implicit fieldPrefix: String = "")
 
-<fieldset id="@fieldName">
-    <legend>@Messages(if(fieldPrefix.isEmpty) fieldName else fieldPrefix + "." + fieldName)</legend>
+<fieldset id="@fieldName" @if(toggle) { class="form-group-hidden" }>
+    <legend>
+    	@Messages(if(fieldPrefix.isEmpty) fieldName else fieldPrefix + "." + fieldName)
+	    @if(toggle) { <a href="#@fieldName" class="toggle-form-group-hidden" title="Toggle"><span class="glyphicon glyphicon-plus-sign"></span></a>}
+	</legend>
     @html
 </fieldset>
