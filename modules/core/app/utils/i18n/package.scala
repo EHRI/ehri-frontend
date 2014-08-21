@@ -6,6 +6,8 @@ import org.apache.commons.lang3.text.WordUtils
 
 package object i18n {
 
+  val defaultLang: String = Locale.getDefault.getISO3Language
+
   def languagePairList(implicit lang: Lang): List[(String,String)] = {
     val locale = lang.toLocale
     val localeLangs = utils.i18n.lang3to2lookup.map { case (c3,c2) =>
