@@ -34,6 +34,11 @@ case class SolrQueryBuilder(writerType: WriterType, debugQuery: Boolean = false)
     ITEM_ID, NAME_EXACT, NAME_MATCH, OTHER_NAMES, PARALLEL_NAMES, NAME_SORT, TEXT
   ).map(f => f -> app.configuration.getDouble(s"ehri.search.boost.$f"))
 
+  private lazy val spellcheckParams: Seq[(String,Option[String])] = Seq(
+    "count", "onlyMorePopular", "extendedResults", "accuracy",
+    "collate", "maxCollations", "maxCollationTries"
+  ).map(f => f -> app.configuration.getString(s"ehri.search.spellcheck.$f"))
+
 
   /**
    * Set a list of facets on a request.
@@ -259,14 +264,11 @@ case class SolrQueryBuilder(writerType: WriterType, debugQuery: Boolean = false)
 
     // Mmmn, speckcheck
     req.set("spellcheck", "true")
-    req.set("spellcheck.count", "10")
     req.set("spellcheck.q", queryString)
-    req.set("spellcheck.extendedResults", "true")
-    req.set("spellcheck.accuracy", "0.6")
-    req.set("spellcheck.onlyMorePopular", "true")
-    req.set("spellcheck.collate", "true")
-    req.set("spellcheck.maxCollations", "10")
-    req.set("spellcheck.maxCollationTries", "10")
+
+    spellcheckParams.collect { case (key, Some(value)) =>
+      req.set(s"spellcheck.$key", value)
+    }
 
     // Facet the request accordingly
     constrain(req, facets, allFacets)

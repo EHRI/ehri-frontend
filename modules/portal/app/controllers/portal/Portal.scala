@@ -31,7 +31,7 @@ case class Portal @Inject()(implicit globalConfig: global.GlobalConfig, searchDi
   with ControllerHelpers
   with Search
   with FacetConfig
-  with PortalActions
+  with PortalBase
   with SessionPreferences[SessionPrefs] {
 
   val defaultPreferences = new SessionPrefs
