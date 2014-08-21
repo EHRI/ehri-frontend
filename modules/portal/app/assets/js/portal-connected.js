@@ -175,6 +175,23 @@ jQuery(function ($) {
   });
 
   /**
+   * Bookmark items.
+   */
+  $(document).on("click", "a.bookmark-item", function (e) {
+    e.preventDefault();
+
+    var call = jsRoutes.controllers.portal.VirtualUnits.bookmarkPost,
+        $elem = $(this),
+        id = $elem.data("item");
+
+    call(id).ajax({
+      success: function () {
+        $elem.addClass("bookmarked");
+      }
+    });
+  });
+
+  /**
    * Annotation-related functions
    */
 

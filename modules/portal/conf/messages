@@ -103,6 +103,7 @@ portal.landingBlurb.corporateBodyLink={0,choice,0#{0} corporate bodies|1#1 corpo
 portal.landingBlurb.personLink={0} Persons
 portal.landingBlurb.familyLink={0,choice,0#{0} families|1#1 family|1<{0,number,integer} families}
 
+portal.bookmark.tooltip=Save this item to your bookmarks.
 portal.bookmarkedItems=Bookmarked Items
 portal.newsFeed=Latest News
 portal.latestUpdates=Recent Updates

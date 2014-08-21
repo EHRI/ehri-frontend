@@ -21,6 +21,7 @@ import scala.concurrent.Future.{successful => immediate}
 import backend.rest.{ItemNotFound, Constants}
 import play.api.i18n.Lang
 import play.api.http.HeaderNames
+import play.api.cache.Cache
 
 @Singleton
 case class VirtualUnits @Inject()(implicit globalConfig: global.GlobalConfig, searchDispatcher: Dispatcher, searchResolver: Resolver, backend: Backend,
@@ -114,6 +115,7 @@ case class VirtualUnits @Inject()(implicit globalConfig: global.GlobalConfig, se
     }
 
     getOrCreateBS(bsId).map { vu =>
+      Cache.remove(vu.id)
       (if (isAjax) Ok("ok")
       else Redirect(vuRoutes.browseVirtualCollection(id = vu.id)))
         .withHeaders(HeaderNames.LOCATION -> vuRoutes.browseVirtualCollection(vu.id).url)
