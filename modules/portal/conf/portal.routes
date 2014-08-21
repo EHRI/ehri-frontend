@@ -62,7 +62,9 @@ GET         /virtual/:via/:id/search        @controllers.portal.VirtualUnits.sea
 GET         /virtual/:via/:id               @controllers.portal.VirtualUnits.browseVirtualUnit(via: String, id: String)
 
 # Bookmark Sets (user-friendly virtual units)
-POST        /bookmark/:id                   @controllers.portal.VirtualUnits.bookmark(id: String, bsId: Option[String] ?= None)
+GET         /bookmark/:id                   @controllers.portal.VirtualUnits.bookmark(id: String, bsId: Option[String] ?= None)
+POST        /bookmark/:id                   @controllers.portal.VirtualUnits.bookmarkPost(id: String, bsId: Option[String] ?= None)
+POST        /bookmarkInNewSet/:id           @controllers.portal.VirtualUnits.bookmarkInNewSetPost(id: String)
 GET         /bookmarkSets                   @controllers.portal.VirtualUnits.listBookmarkSets
 GET         /bookmarkSets/create            @controllers.portal.VirtualUnits.createBookmarkSet(item: List[String] ?= Nil)
 POST        /bookmarkSets/create            @controllers.portal.VirtualUnits.createBookmarkSetPost(item: List[String] ?= Nil)
@@ -96,7 +98,6 @@ GET         /unblock/:userId                @controllers.portal.Social.unblockUs
 POST        /unblock/:userId                @controllers.portal.Social.unblockUserPost(userId: String)
 GET         /message/:userId                @controllers.portal.Social.sendMessage(userId: String)
 POST        /message/:userId                @controllers.portal.Social.sendMessagePost(userId: String)
-
 
 GET         /watch/:id                      @controllers.portal.Profile.watchItem(id: String)
 POST        /watch/:id                      @controllers.portal.Profile.watchItemPost(id: String)

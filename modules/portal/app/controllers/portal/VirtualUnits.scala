@@ -19,6 +19,8 @@ import com.google.inject._
 import scala.concurrent.Future
 import scala.concurrent.Future.{successful => immediate}
 import backend.rest.{ItemNotFound, Constants}
+import play.api.i18n.Lang
+import play.api.http.HeaderNames
 
 @Singleton
 case class VirtualUnits @Inject()(implicit globalConfig: global.GlobalConfig, searchDispatcher: Dispatcher, searchResolver: Resolver, backend: Backend,
@@ -56,29 +58,46 @@ case class VirtualUnits @Inject()(implicit globalConfig: global.GlobalConfig, se
   private def defaultBookmarkSetId(implicit user: UserProfile): String =
     s"${user.id}-bookmarks"
 
-  private def bookmarkLang(implicit request: RequestHeader): String =
-    utils.i18n.lang2to3lookup.getOrElse(request2lang.language, "eng")
+  private def bookmarkLang(implicit lang: Lang): String =
+    utils.i18n.lang2to3lookup.getOrElse(lang.language, utils.i18n.defaultLang)
 
-  private def bookmarkSetToVu(genId: String, bs: BookmarkSet)(implicit request: RequestHeader): VirtualUnitF = {
+  private def bookmarkSetToVu(genId: String, bs: BookmarkSet): VirtualUnitF = {
     VirtualUnitF(
       identifier = genId,
       descriptions = List(
         DocumentaryUnitDescriptionF(
-          id = None, languageCode = bookmarkLang, identity = IsadGIdentity(name = bs.name),
+          id = None, languageCode = bs.lang, identity = IsadGIdentity(name = bs.name),
           content = IsadGContent(scopeAndContent = bs.description)
         )
       )
     )
   }
 
-  private def defaultBookmarkSet(implicit user: UserProfile, request: RequestHeader): VirtualUnitF =
-    bookmarkSetToVu(defaultBookmarkSetId, BookmarkSet(s"Bookmarked Items", description = None))
+  private def defaultBookmarkSet(lang: String)(implicit user: UserProfile): VirtualUnitF =
+    bookmarkSetToVu(defaultBookmarkSetId, BookmarkSet(s"Bookmarked Items", lang = lang, description = None))
+
+  private def createVirtualCollection(bs: BookmarkSet, items: List[String] = Nil)(implicit user: UserProfile): Future[VirtualUnit] =
+    for {
+      nextid <- idGenerator.getNextNumericIdentifier(EntityType.VirtualUnit)
+      vuForm = bookmarkSetToVu(s"${user.id}-vu$nextid", bs)
+      vu <- backend.create[VirtualUnit,VirtualUnitF](
+        vuForm,
+        accessors = Seq(user.id),
+        params = Map(Constants.ID_PARAM -> items))
+    } yield vu
+
+  def bookmark(itemId: String, bsId: Option[String] = None) = withUserAction.async {
+      implicit user => implicit request =>
+    ???
+  }
+
+  def bookmarkInNewSetPost(id: String) = createBookmarkSetPost(List(id))
 
   /**
    * Bookmark an item, creating (if necessary) a default virtual
    * collection private to the user.
    */
-  def bookmark(itemId: String, bsId: Option[String] = None) = withUserAction.async {
+  def bookmarkPost(itemId: String, bsId: Option[String] = None) = withUserAction.async {
       implicit user => implicit request =>
 
     def getOrCreateBS(idOpt: Option[String]): Future[VirtualUnit] = {
@@ -87,7 +106,7 @@ case class VirtualUnits @Inject()(implicit globalConfig: global.GlobalConfig, se
         vu
       } recoverWith {
         case e: ItemNotFound => backend.create[VirtualUnit,VirtualUnitF](
-          item = defaultBookmarkSet,
+          item = defaultBookmarkSet(bookmarkLang),
           accessors = Seq(user.id),
           params = Map(Constants.ID_PARAM -> Seq(itemId))
         )
@@ -95,8 +114,9 @@ case class VirtualUnits @Inject()(implicit globalConfig: global.GlobalConfig, se
     }
 
     getOrCreateBS(bsId).map { vu =>
-      if (isAjax) Ok("ok")
-      else Redirect(vuRoutes.browseVirtualCollection(id = vu.id))
+      (if (isAjax) Ok("ok")
+      else Redirect(vuRoutes.browseVirtualCollection(id = vu.id)))
+        .withHeaders(HeaderNames.LOCATION -> vuRoutes.browseVirtualCollection(vu.id).url)
     }
   }
 
@@ -115,22 +135,15 @@ case class VirtualUnits @Inject()(implicit globalConfig: global.GlobalConfig, se
   }
 
   def createBookmarkSetPost(items: List[String] = Nil) = withUserAction.async { implicit user => implicit request =>
-
     BookmarkSet.bookmarkForm.bindFromRequest.fold(
       errs => immediate {
         if (isAjax) Ok(p.profile.bookmarkSetForm(errs, vuRoutes.createBookmarkSetPost(items)))
         else Ok(p.profile.createBookmarkSet(errs, vuRoutes.createBookmarkSetPost(items)))
       },
-      bs => for {
-        nextid <- idGenerator.getNextNumericIdentifier(EntityType.VirtualUnit)
-        vuForm = bookmarkSetToVu(s"${user.id}-vu$nextid", bs)
-        vu <- backend.create[VirtualUnit,VirtualUnitF](
-          vuForm,
-          accessors = Seq(user.id),
-          params = Map(Constants.ID_PARAM -> items))
-      } yield {
-        if (isAjax) Ok("ok")
-        else Redirect(vuRoutes.listBookmarkSets())
+      bs => createVirtualCollection(bs, items).map { vu =>
+        (if (isAjax) Ok("ok")
+        else Redirect(vuRoutes.browseVirtualCollection(id = vu.id)))
+          .withHeaders(HeaderNames.LOCATION -> vuRoutes.browseVirtualCollection(vu.id).url)
       }
     )
   }
