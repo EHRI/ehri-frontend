@@ -21,7 +21,7 @@
             }
         }
         <div class="indented-search-item">
-            @searchItem(repo, hit, watched.exists(_ == repo.id), showCountry=false)
+            @searchItem(repo, hit, watched.contains(repo.id), showCountry=false)
         </div>
     }
     @if(!repos.isEmpty) {
