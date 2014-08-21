@@ -1,11 +1,12 @@
-@(desc: play.api.data.Field)(implicit userOpt: Option[UserProfile], prefix: String, lang: Lang)
+@(desc: play.api.data.Field)(implicit userOpt: Option[UserProfile], req: RequestHeader, globalConfig: global.GlobalConfig, prefix: String, lang: Lang)
 
 @import ConceptF._
 @import formHelpers._
+@import Description._
 
 @implicitField = @{ views.html.helper.FieldConstructor(formHelpers.fieldTemplate.f) }
 
-<div class="concept-description-form inline-element well well-small">
+@common.descriptionForm(desc, cls = "concept-description-form inline-element well well-small") {
     <div class="form-group">
         <div class="col-sm-9 col-sm-offset-3 text-right">
             <a class="remove-inline-element" tabindex="-1" href="#">
@@ -14,7 +15,6 @@
         </div>
     </div>
 
-    @hiddenInput(desc(Entity.ID))
 
     @choiceInput(desc(LANG_CODE), LANG_CODE, views.Helpers.languagePairList, blank=true)
 
@@ -48,7 +48,4 @@
 
     @hiddenInput(desc(LONGITUDE))
     @hiddenInput(desc(LATITUDE))
-    @hiddenAccessPointSet(desc, ACCESS_POINTS)
-    @hiddenUnknownDataSet(desc, UNKNOWN_DATA)
-
-</div>
+}

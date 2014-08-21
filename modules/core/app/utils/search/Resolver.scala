@@ -1,8 +1,7 @@
 package utils.search
 
 import scala.concurrent.Future
-import backend.ApiUser
-import models.json.RestReadable
+import backend.{BackendReadable, ApiUser}
 
 /**
  * Component responsible for resolving items from the
@@ -14,5 +13,5 @@ import models.json.RestReadable
  * @author Mike Bryant (http://github.com/mikesname)
  */
 trait Resolver {
-  def resolve[MT](results: Seq[SearchHit])(implicit apiUser: ApiUser, rd: RestReadable[MT]): Future[Seq[MT]]
+  def resolve[MT](results: Seq[SearchHit])(implicit apiUser: ApiUser, rd: BackendReadable[MT]): Future[Seq[MT]]
 }

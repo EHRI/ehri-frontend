@@ -1,11 +1,10 @@
 package backend.rest
 
-import backend.{EventHandler, Social, ApiUser}
+import backend.{BackendReadable, EventHandler, Social, ApiUser}
 import scala.concurrent.{ExecutionContext, Future}
 import utils.{Page, FutureCache, PageParams}
 import models._
 import defines.EntityType
-import models.json.RestReadable
 import models.base.AnyModel
 import play.api.cache.Cache
 import backend.ApiUser
@@ -68,19 +67,19 @@ trait RestSocial extends Social with RestDAO {
     }
   }
 
-  def followers(userId: String, params: PageParams = PageParams.empty)(implicit apiUser: ApiUser, rd: RestReadable[UserProfile], executionContext: ExecutionContext): Future[Page[UserProfile]] = {
+  def followers(userId: String, params: PageParams = PageParams.empty)(implicit apiUser: ApiUser, rd: BackendReadable[UserProfile], executionContext: ExecutionContext): Future[Page[UserProfile]] = {
     userCall(enc(requestUrl, userId, "followers")).withQueryString(params.queryParams: _*).get().map { r =>
       parsePage(r)(rd.restReads)
     }
   }
 
-  def following(userId: String, params: PageParams = PageParams.empty)(implicit apiUser: ApiUser, rd: RestReadable[UserProfile], executionContext: ExecutionContext): Future[Page[UserProfile]] = {
+  def following(userId: String, params: PageParams = PageParams.empty)(implicit apiUser: ApiUser, rd: BackendReadable[UserProfile], executionContext: ExecutionContext): Future[Page[UserProfile]] = {
     userCall(followingUrl(userId)).withQueryString(params.queryParams: _*).get().map { r =>
       parsePage(r)(rd.restReads)
     }
   }
 
-  def watching(userId: String, params: PageParams = PageParams.empty)(implicit apiUser: ApiUser, rd: RestReadable[AnyModel], executionContext: ExecutionContext): Future[Page[AnyModel]] = {
+  def watching(userId: String, params: PageParams = PageParams.empty)(implicit apiUser: ApiUser, rd: BackendReadable[AnyModel], executionContext: ExecutionContext): Future[Page[AnyModel]] = {
     userCall(enc(requestUrl, userId, "watching")).withQueryString(params.queryParams: _*).get().map { r =>
       parsePage(r)(rd.restReads)
     }
@@ -111,7 +110,7 @@ trait RestSocial extends Social with RestDAO {
     }
   }
 
-  def blocked(userId: String, params: PageParams = PageParams.empty)(implicit apiUser: ApiUser, rd: RestReadable[AnyModel], executionContext: ExecutionContext): Future[Page[AnyModel]] = {
+  def blocked(userId: String, params: PageParams = PageParams.empty)(implicit apiUser: ApiUser, rd: BackendReadable[AnyModel], executionContext: ExecutionContext): Future[Page[AnyModel]] = {
     userCall(blockedUrl(userId)).withQueryString(params.queryParams: _*).get().map { r =>
       parsePage(r)(rd.restReads)
     }

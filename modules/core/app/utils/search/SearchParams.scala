@@ -1,9 +1,8 @@
 package utils.search
 
 import defines.EntityType
-import models.json.ClientConvertable
-import play.api.libs.json.{Json, Format}
 import backend.rest.Constants._
+import play.api.libs.json.Json
 
 
 object SearchField extends Enumeration {
@@ -104,6 +103,8 @@ object SearchParams {
 
   def empty: SearchParams = new SearchParams()
 
+  implicit val writes = Json.writes[SearchParams]
+
   // Form deserialization
   val form = Form(
     mapping(
@@ -118,9 +119,4 @@ object SearchParams {
       FILTERS -> optional(list(nonEmptyText))
     )(SearchParams.apply)(SearchParams.unapply)
   )
-
-  // JSON (de)serialization
-  implicit object Converter extends ClientConvertable[SearchParams] {
-    implicit val clientFormat: Format[SearchParams] = Json.format[SearchParams]
-  }
 }

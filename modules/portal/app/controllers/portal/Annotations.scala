@@ -8,7 +8,7 @@ import play.api.Play.current
 import views.html.p
 import utils.{SessionPrefs, ContributionVisibility}
 import scala.concurrent.Future.{successful => immediate}
-import defines.{ContentTypes, PermissionType}
+import defines.PermissionType
 import backend.rest.cypher.CypherDAO
 import play.api.libs.json.Json
 import eu.ehri.project.definitions.Ontology
@@ -41,7 +41,7 @@ case class Annotations @Inject()(implicit globalConfig: global.GlobalConfig, sea
 
   def annotation(id: String) = userProfileAction.async { implicit userProfile => implicit request =>
     backend.get[Annotation](id).map { ann =>
-      Ok(Json.toJson(ann)(Annotation.Converter.clientFormat))
+      Ok(Json.toJson(ann)(client.json.annotationJson.clientFormat))
     }
   }
 
@@ -76,7 +76,7 @@ case class Annotations @Inject()(implicit globalConfig: global.GlobalConfig, sea
   }
 
   // Ajax
-  def editAnnotation(aid: String, isField: Boolean) = withItemPermission.async[Annotation](aid, PermissionType.Update, ContentTypes.Annotation) {
+  def editAnnotation(aid: String, isField: Boolean) = withItemPermission.async[Annotation](aid, PermissionType.Update) {
       item => implicit userOpt => implicit request =>
     val vis = getContributionVisibility(item, userOpt.get)
     getCanShareWith(userOpt.get) { users => groups =>
@@ -88,7 +88,7 @@ case class Annotations @Inject()(implicit globalConfig: global.GlobalConfig, sea
     }
   }
 
-  def editAnnotationPost(aid: String, isField: Boolean) = withItemPermission.async[Annotation](aid, PermissionType.Update, ContentTypes.Annotation) {
+  def editAnnotationPost(aid: String, isField: Boolean) = withItemPermission.async[Annotation](aid, PermissionType.Update) {
       item => implicit userOpt => implicit request =>
     // save an override field, becuase it's not possible to change it.
     val field = item.model.field
@@ -103,7 +103,7 @@ case class Annotations @Inject()(implicit globalConfig: global.GlobalConfig, sea
     )
   }
 
-  def setAnnotationVisibilityPost(aid: String) = withItemPermission.async[Annotation](aid, PermissionType.Update, ContentTypes.Annotation) {
+  def setAnnotationVisibilityPost(aid: String) = withItemPermission.async[Annotation](aid, PermissionType.Update) {
       item => implicit userOpt => implicit request =>
     val accessors = getAccessors(userOpt.get)
     backend.setVisibility[Annotation](aid, accessors).map { ann =>
@@ -112,12 +112,12 @@ case class Annotations @Inject()(implicit globalConfig: global.GlobalConfig, sea
   }
 
   // Ajax
-  def deleteAnnotation(aid: String) = withItemPermission[Annotation](aid, PermissionType.Delete, ContentTypes.Annotation) {
+  def deleteAnnotation(aid: String) = withItemPermission[Annotation](aid, PermissionType.Delete) {
       item => implicit userOpt => implicit request =>
     ???
   }
 
-  def deleteAnnotationPost(aid: String) = withItemPermission.async[Annotation](aid, PermissionType.Delete, ContentTypes.Annotation) {
+  def deleteAnnotationPost(aid: String) = withItemPermission.async[Annotation](aid, PermissionType.Delete) {
       item => implicit userOpt => implicit request =>
     backend.delete[Annotation](aid).map { done =>
       Ok(true.toString)

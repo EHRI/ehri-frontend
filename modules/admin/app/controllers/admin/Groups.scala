@@ -5,23 +5,18 @@ import controllers.generic._
 import forms.VisibilityForm
 import models.{UserProfile, AccountDAO, Group, GroupF}
 import models.base.Accessor
-import play.api.i18n.Messages
-import defines.{EntityType, ContentTypes, PermissionType}
+import defines.{EntityType, PermissionType}
 import com.google.inject._
 import utils.search.{Resolver, Dispatcher}
 import scala.concurrent.Future
 import backend.Backend
 import backend.rest.{Constants, RestHelpers}
-import models.json.RestResource
 import play.api.mvc.{Request, AnyContent}
 import play.api.data.{Forms, Form}
 
 case class Groups @Inject()(implicit globalConfig: global.GlobalConfig, searchDispatcher: Dispatcher, searchResolver: Resolver, backend: Backend, userDAO: AccountDAO) extends PermissionHolder[Group]
   with Visibility[Group]
   with CRUD[GroupF, Group] {
-
-  val contentType = ContentTypes.Group
-  implicit val resource = Group.Resource
 
   private val form = models.Group.form
   private val groupRoutes = controllers.admin.routes.Groups
@@ -138,7 +133,7 @@ case class Groups @Inject()(implicit globalConfig: global.GlobalConfig, searchDi
    */
   def membership(userType: EntityType.Value, userId: String) = {
     implicit val resource = Accessor.resourceFor(userType)
-    withItemPermission.async[Accessor](userId, PermissionType.Grant, ContentTypes.withName(userType)) {
+    withItemPermission.async[Accessor](userId, PermissionType.Grant) {
         item => implicit userOpt => implicit request =>
       for {
         groups <- RestHelpers.getGroupList
@@ -167,7 +162,7 @@ case class Groups @Inject()(implicit globalConfig: global.GlobalConfig, searchDi
    */
   def addMember(id: String, userType: EntityType.Value, userId: String) = {
     implicit val resource = Accessor.resourceFor(userType)
-    withItemPermission.async[Accessor](userId, PermissionType.Grant, ContentTypes.withName(userType)) {
+    withItemPermission.async[Accessor](userId, PermissionType.Grant) {
         item => implicit userOpt => implicit request =>
       backend.get[Group](id).map { group =>
         Ok(views.html.group.confirmMembership(group, item,
@@ -181,7 +176,7 @@ case class Groups @Inject()(implicit globalConfig: global.GlobalConfig, searchDi
    */
   def addMemberPost(id: String, userType: EntityType.Value, userId: String) = {
     implicit val resource = Accessor.resourceFor(userType)
-    withItemPermission.async[Accessor](userId, PermissionType.Grant, ContentTypes.withName(userType)) {
+    withItemPermission.async[Accessor](userId, PermissionType.Grant) {
         item => implicit userOpt => implicit request =>
       backend.addGroup(id, userId).map { ok =>
         Redirect(groupRoutes.membership(userType, userId))
@@ -195,7 +190,7 @@ case class Groups @Inject()(implicit globalConfig: global.GlobalConfig, searchDi
    */
   def removeMember(id: String, userType: EntityType.Value, userId: String) = {
     implicit val resource = Accessor.resourceFor(userType)
-    withItemPermission.async[Accessor](userId, PermissionType.Grant, ContentTypes.withName(userType)) {
+    withItemPermission.async[Accessor](userId, PermissionType.Grant) {
         item => implicit userOpt => implicit request =>
       backend.get[Group](id).map { group =>
         Ok(views.html.group.removeMembership(group, item,
@@ -209,7 +204,7 @@ case class Groups @Inject()(implicit globalConfig: global.GlobalConfig, searchDi
    */
   def removeMemberPost(id: String, userType: EntityType.Value, userId: String) = {
     implicit val resource = Accessor.resourceFor(userType)
-    withItemPermission.async[Accessor](userId, PermissionType.Grant, ContentTypes.withName(userType)) {
+    withItemPermission.async[Accessor](userId, PermissionType.Grant) {
         item => implicit userOpt => implicit request =>
       backend.removeGroup(id, userId).map { ok =>
         Redirect(groupRoutes.membership(userType, userId))

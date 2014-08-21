@@ -1,12 +1,10 @@
 package solr
 
 import play.api.test.PlaySpecification
-import scala.io.Source
 import solr.facet.FieldFacetClass
-import models.IsadG
 import play.api.i18n.Messages
 import views.Helpers
-import defines.EntityType
+import models.base.Description
 
 
 /**
@@ -33,8 +31,8 @@ class SolrQueryParserSpec extends PlaySpecification {
       val qp = SolrXmlQueryResponse(xmlResponseString)
       val allFacets = List(
         FieldFacetClass(
-          key=IsadG.LANG_CODE,
-          name=Messages("documentaryUnit." + IsadG.LANG_CODE),
+          key=Description.LANG_CODE,
+          name=Messages("documentaryUnit." + Description.LANG_CODE),
           param="lang",
           render=Helpers.languageCodeToName
         )
@@ -74,8 +72,8 @@ class SolrQueryParserSpec extends PlaySpecification {
       val qp = SolrJsonQueryResponse(jsonResponseString)
       val allFacets = List(
         FieldFacetClass(
-          key=IsadG.LANG_CODE,
-          name=Messages("documentaryUnit." + IsadG.LANG_CODE),
+          key=Description.LANG_CODE,
+          name=Messages("documentaryUnit." + Description.LANG_CODE),
           param="lang",
           render=Helpers.languageCodeToName
         )

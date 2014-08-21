@@ -1,7 +1,5 @@
 package utils
 
-import models.json.{ClientConvertable, RestReadable}
-import play.api.libs.json.{Writes, Reads}
 import backend.rest.Constants
 
 /**
@@ -17,10 +15,6 @@ case class Page[+T](
 object Page {
 
   def empty[T] = new Page[T]
-
-  implicit def clientFormat[T](implicit cfmt: ClientConvertable[T]): Writes[Page[T]] = {
-    Page.pageWrites(cfmt.clientFormat)
-  }
 
   import play.api.libs.json._
   import play.api.libs.functional.syntax._

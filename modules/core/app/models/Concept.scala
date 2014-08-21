@@ -2,7 +2,7 @@ package models
 
 import base._
 
-import defines.EntityType
+import defines.{ContentTypes, EntityType}
 import models.json._
 import play.api.libs.json._
 import eu.ehri.project.definitions.Ontology
@@ -10,14 +10,11 @@ import play.api.data.Form
 import play.api.data.Forms._
 import play.api.libs.json.JsObject
 import backend.rest.Constants
+import backend.{BackendContentType, BackendResource, BackendReadable, BackendWriteable}
 
 
 object ConceptF {
 
-  val ACCESS_POINTS = "accessPoints"
-  val UNKNOWN_DATA = "unknownData"
-
-  val LANG_CODE = "languageCode"
   val PREFLABEL = "name"
   val ALTLABEL = "altLabel"
   val DEFINITION = "definition"
@@ -60,11 +57,8 @@ object ConceptF {
   implicit val conceptFormat: Format[ConceptF] = Format(conceptReads,conceptWrites)
 
 
-  implicit object Converter extends RestConvertable[ConceptF] with ClientConvertable[ConceptF] {
+  implicit object Converter extends BackendWriteable[ConceptF] {
     val restFormat = conceptFormat
-
-    private implicit val conceptDscFmt = ConceptDescriptionF.Converter.clientFormat
-    val clientFormat = Json.format[ConceptF]
   }
 }
 
@@ -94,22 +88,13 @@ object Concept {
     (__ \ META).readWithDefault(Json.obj())
   )(Concept.apply _)
 
-  implicit object Converter extends ClientConvertable[Concept] with RestReadable[Concept] {
+  implicit object Converter extends BackendReadable[Concept] {
     val restReads = metaReads
-
-    val clientFormat: Format[Concept] = (
-      __.format[ConceptF](ConceptF.Converter.clientFormat) and
-      (__ \ "vocabulary").formatNullable[Vocabulary](Vocabulary.Converter.clientFormat) and
-      (__ \ "parent").lazyFormatNullable[Concept](clientFormat) and
-      (__ \ "broaderTerms").lazyNullableListFormat(clientFormat) and
-      (__ \ "accessibleTo").nullableListFormat(Accessor.Converter.clientFormat) and
-      (__ \ "event").formatNullable[SystemEvent](SystemEvent.Converter.clientFormat) and
-      (__ \ "meta").format[JsObject]
-    )(Concept.apply _, unlift(Concept.unapply _))
   }
 
-  implicit object Resource extends RestResource[Concept] {
+  implicit object Resource extends BackendResource[Concept] with BackendContentType[Concept] {
     val entityType = EntityType.Concept
+    val contentType = ContentTypes.Concept
 
     override def defaultParams = Seq(
       Constants.INCLUDE_PROPERTIES_PARAM -> VocabularyF.NAME

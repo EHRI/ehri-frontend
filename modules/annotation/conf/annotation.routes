@@ -6,7 +6,6 @@ GET     /annotations/:id/visibility              @controllers.annotation.Annotat
 POST    /annotations/:id/visibility              @controllers.annotation.Annotations.visibilityPost(id: String)
 GET     /annotations/:id/delete                  @controllers.annotation.Annotations.delete(id: String)
 POST    /annotations/:id/delete                  @controllers.annotation.Annotations.deletePost(id: String)
-GET     /annotations/:id/getFor                  @controllers.annotation.Annotations.getAnnotationJson(id: String)
 GET     /annotations/:id/promote                 @controllers.annotation.Annotations.promote(id: String)
 POST    /annotations/:id/promote                 @controllers.annotation.Annotations.promotePost(id: String)
 GET     /annotations/:id/demote                  @controllers.annotation.Annotations.demote(id: String)

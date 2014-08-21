@@ -7,6 +7,7 @@ import play.api.libs.json.{Json, JsObject}
 import defines.EntityType
 import models.{Entity, AccessPointF}
 import play.api.i18n.Lang
+import Description._
 
 case class TestDescriptionF(
   id: Option[String],
@@ -14,6 +15,7 @@ case class TestDescriptionF(
   name: String,
   languageCode: String,
   @Relation(Ontology.HAS_ACCESS_POINT)
+  creationProcess: CreationProcess.Value = CreationProcess.Manual,
   accessPoints: List[AccessPointF] = Nil,
   @Relation(Ontology.HAS_ACCESS_POINT)
   unknownProperties: List[Entity] = Nil

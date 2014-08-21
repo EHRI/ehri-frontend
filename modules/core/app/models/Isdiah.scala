@@ -9,12 +9,7 @@ case object Isdiah {
     type Type = Value
   }
 
-  val ACCESS_POINTS = "accessPoints"
-  val UNKNOWN_DATA = "unknownData"
-  val MAINTENANCE_EVENTS = "maintenanceEvents"
-
   val IDENTIFIER = "identifier"
-  val LANG_CODE = "languageCode"
   val ADMINISTRATION_AREA = "administrationArea"
 
   // Field set

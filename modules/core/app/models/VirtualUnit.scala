@@ -13,6 +13,7 @@ import play.api.data.Form
 import play.api.data.Forms._
 import play.api.libs.json.JsObject
 import play.api.i18n.Lang
+import backend.{BackendContentType, BackendResource, BackendReadable, BackendWriteable}
 
 
 object VirtualUnitF {
@@ -44,11 +45,8 @@ object VirtualUnitF {
     (__ \ RELATIONSHIPS \ DESCRIPTION_FOR_ENTITY).nullableListReads[DocumentaryUnitDescriptionF]
   )(VirtualUnitF.apply _)
 
-  implicit val VirtualUnitFormat: Format[VirtualUnitF] = Format(virtualUnitReads,virtualUnitWrites)
-
-  implicit object Converter extends RestConvertable[VirtualUnitF] with ClientConvertable[VirtualUnitF] {
-    val restFormat = VirtualUnitFormat
-    val clientFormat = Json.format[VirtualUnitF]
+  implicit object Converter extends BackendWriteable[VirtualUnitF] {
+    val restFormat = Format(virtualUnitReads,virtualUnitWrites)
   }
 }
 
@@ -84,23 +82,13 @@ object VirtualUnit {
   )(VirtualUnit.apply _)
 
 
-  implicit object Converter extends RestReadable[VirtualUnit] with ClientConvertable[VirtualUnit] {
+  implicit object Converter extends BackendReadable[VirtualUnit] {
     implicit val restReads = metaReads
-
-    val clientFormat: Format[VirtualUnit] = (
-      __.format[VirtualUnitF](VirtualUnitF.Converter.clientFormat) and
-      (__ \ "descriptions").nullableListFormat(DocumentaryUnit.Converter.clientFormat) and
-      (__ \ "author").formatNullable[Accessor](Accessor.Converter.clientFormat) and
-      (__ \ "parent").lazyFormatNullable[VirtualUnit](clientFormat) and
-      (__ \ "holder").formatNullable[Repository](Repository.Converter.clientFormat) and
-      (__ \ "accessibleTo").nullableListFormat(Accessor.Converter.clientFormat) and
-      (__ \ "event").formatNullable[SystemEvent](SystemEvent.Converter.clientFormat) and
-      (__ \ "meta").format[JsObject]
-    )(VirtualUnit.apply _, unlift(VirtualUnit.unapply))
   }
 
-  implicit object Resource extends RestResource[VirtualUnit] {
+  implicit object Resource extends BackendResource[VirtualUnit] with BackendContentType[VirtualUnit] {
     val entityType = EntityType.VirtualUnit
+    val contentType = ContentTypes.VirtualUnit
 
     /**
      * When displaying doc units we need the

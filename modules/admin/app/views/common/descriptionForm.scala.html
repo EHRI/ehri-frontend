@@ -1,0 +1,29 @@
+@(descriptionField: Field, cls: String = "description-form")(data: Html)(implicit fieldPrefix: String, defaults: Option[play.api.Configuration] = None, userOpt: Option[UserProfile], req: RequestHeader, globalConfig: global.GlobalConfig, lang: Lang)
+
+@import Description._
+@import formHelpers._
+
+<div class="@cls" id="@descriptionField("form").id">
+    @*
+     * If a description has the creation process set to IMPORT show a warning that
+     * subsequent data updates might overwrite changes to manually inputted data
+     *@
+    @descriptionField(CREATION_PROCESS).value.map { creationProcess =>
+        @if(creationProcess == CreationProcess.Import.toString) {
+            <p class="alert alert-danger" role="alert">
+                @Messages("describedEntity.creationProcess.importWarning")
+            </p>
+        }
+    }
+
+    @hiddenInput(descriptionField(Entity.ID))
+    @hiddenInput(descriptionField(CREATION_PROCESS))
+
+    @data
+
+    @* NB: Access points are hidden in this form because they are managed *@
+    @* separately from the accessPoints page. *@
+    @hiddenAccessPointSet(descriptionField, ACCESS_POINTS)
+    @hiddenUnknownDataSet(descriptionField, UNKNOWN_DATA)
+    @hiddenUnknownDataSet(descriptionField, MAINTENANCE_EVENTS)
+</div>

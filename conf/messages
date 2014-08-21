@@ -212,6 +212,9 @@ describedEntity.createDescription.submit=Add Description
 describedEntity.updateDescription=Update Description
 describedEntity.updateDescription.submit=Update Description
 describedEntity.manageAccessPoints=Manage Access Points
+describedEntity.creationProcess.importWarning=Warning! This description is marked as being\
+  created via an import process. This means that changes to the data may be overwritten if\
+  the import data is subsequently updated.
 
 #
 # Annotations
