@@ -23,9 +23,17 @@ import solr.facet.QueryFacetClass
  * Build a Solr query. This class uses the (mutable) scalikesolr
  * QueryRequest class.
  */
-case class SolrQueryBuilder(writerType: WriterType, debugQuery: Boolean = false) extends QueryBuilder {
+case class SolrQueryBuilder(writerType: WriterType, debugQuery: Boolean = false)(implicit app: play.api.Application) extends QueryBuilder {
 
   import SolrConstants._
+
+  /**
+   * Look up boost values from configuration for default query fields.
+   */
+  private lazy val queryFieldsWithBoost: Seq[(String,Option[Double])] = Seq(
+    ITEM_ID, NAME_EXACT, NAME_MATCH, OTHER_NAMES, PARALLEL_NAMES, NAME_SORT, TEXT
+  ).map(f => f -> app.configuration.getDouble(s"ehri.search.boost.$f"))
+
 
   /**
    * Set a list of facets on a request.
@@ -242,7 +250,11 @@ case class SolrQueryBuilder(writerType: WriterType, debugQuery: Boolean = false)
     params.fields.filterNot(_.isEmpty).map { fieldList =>
       req.set("qf", fieldList.mkString(" "))
     } getOrElse {
-      req.set("qf", s"$ITEM_ID^2.0 $NAME_EXACT^4.0 $NAME_MATCH^4.0 $OTHER_NAMES^1.0 $PARALLEL_NAMES^1.0 $NAME_SORT^0.3 $TEXT")
+      val qfFields: String = queryFieldsWithBoost.map { case (key, boostOpt) =>
+        boostOpt.map(b => s"$key^$b").getOrElse(key)
+      }.mkString(" ")
+      Logger.debug(s"Query fields: $qfFields")
+      req.set("qf", qfFields)
     }
 
     // Mmmn, speckcheck
