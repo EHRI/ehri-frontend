@@ -1,8 +1,8 @@
 package controllers.adminutils
 
 import play.api.libs.concurrent.Execution.Implicits._
-import models.{AccountDAO, Isaar, IsadG}
-import models.base.AnyModel
+import models.{AccountDAO, Isaar}
+import models.base.{Description, AnyModel}
 import controllers.generic.Search
 import play.api.mvc._
 import defines.{EventType, EntityType}
@@ -32,8 +32,8 @@ case class Home @Inject()(implicit globalConfig: global.GlobalConfig, searchDisp
     List(
 
       FieldFacetClass(
-        key=IsadG.LANG_CODE,
-        name=Messages("documentaryUnit." + IsadG.LANG_CODE),
+        key=Description.LANG_CODE,
+        name=Messages("documentaryUnit." + Description.LANG_CODE),
         param="lang",
         render= (s: String) => Helpers.languageCodeToName(s)
       ),

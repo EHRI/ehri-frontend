@@ -3,9 +3,8 @@ package models.base
 import play.api.libs.json._
 import defines.{ContentTypes, EntityType}
 import play.api.i18n.Lang
-import models.json.{Utils, ClientWriteable}
+import models.json.Utils
 import models._
-import play.api.Logger
 import play.api.data.validation.ValidationError
 import play.api.libs.json.KeyPathNode
 import scala.collection.SortedMap
@@ -50,7 +49,7 @@ trait Aliased extends AnyModel {
 
 object AnyModel {
 
-  implicit object Converter extends BackendReadable[AnyModel] with ClientWriteable[AnyModel] {
+  implicit object Converter extends BackendReadable[AnyModel] {
     implicit val restReads: Reads[AnyModel] = new Reads[AnyModel] {
       def reads(json: JsValue): JsResult[AnyModel] = {
         // Sniff the type...
@@ -62,26 +61,6 @@ object AnyModel {
             JsPath(List(KeyPathNode(Entity.TYPE))),
             ValidationError(s"Unregistered AnyModel type for REST: $et (registered: ${Utils.restReadRegistry.keySet}"))
         }
-      }
-    }
-
-    implicit val clientFormat: Format[AnyModel] = new Format[AnyModel] {
-      def reads(json: JsValue): JsResult[AnyModel] = {
-        val et = (json \ Entity.TYPE).as(defines.EnumUtils.enumReads(EntityType))
-        Utils.clientFormatRegistry.get(et).map { format =>
-          json.validate(format)
-        }.getOrElse {
-          JsError(JsPath(List(KeyPathNode(Entity.TYPE))), ValidationError("Unregistered AnyModel type for Client read: " + et))
-        }
-      }
-
-      def writes(a: AnyModel): JsValue = {
-        Utils.clientFormatRegistry.get(a.isA).fold({
-          // FIXME: Throw an error here???
-          Logger.logger.warn("Unregistered AnyModel type {} (Writing to Client)", a.isA)
-          Json.toJson(Entity(id = a.id, `type` = a.isA, relationships = Map.empty))(Entity.entityFormat)
-        })(format =>
-          Json.toJson(a)(format))
       }
     }
   }
@@ -211,6 +190,8 @@ trait Description extends Model {
 
   def accessPoints: List[AccessPointF]
 
+  def creationProcess: Description.CreationProcess.Value
+
   def unknownProperties: List[Entity]
 
   def displayText: Option[String]
@@ -223,6 +204,21 @@ trait Description extends Model {
 }
 
 object Description {
+
+  val LANG_CODE = "languageCode"
+  val CREATION_PROCESS = "creationProcess"
+  val ACCESS_POINTS = "accessPoints"
+  val UNKNOWN_DATA = "unknownData"
+  val MAINTENANCE_EVENTS = "maintenanceEvents"
+
+  object CreationProcess extends Enumeration {
+    type Type = Value
+    val Import = Value("IMPORT")
+    val Manual = Value("MANUAL")
+
+    implicit val format = defines.EnumUtils.enumFormat(this)
+  }
+
   /**
    * Somewhat gnarly function to get the first value from
    * a set of descriptions that is available, along with an

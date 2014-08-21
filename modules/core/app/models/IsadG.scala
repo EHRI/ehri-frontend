@@ -22,10 +22,6 @@ case object IsadG {
     implicit val format = defines.EnumUtils.enumFormat(this)
   }
 
-
-  val ACCESS_POINTS = "accessPoints"
-  val UNKNOWN_DATA = "unknownData"
-
   /* ISAD(G)-based field set */
   val TITLE = "name"
   val PARALLEL_FORMS_OF_NAME = "parallelFormsOfName"
@@ -35,7 +31,6 @@ case object IsadG {
   val PHYSICAL_LOCATION = "physicalLocation"
   val EXTENT_MEDIUM = "extentAndMedium"
   val PUB_STATUS = "publicationStatus"
-  val LANG_CODE = "languageCode"
   val ABSTRACT = "abstract"
 
   val IDENTITY_AREA = "identityArea"

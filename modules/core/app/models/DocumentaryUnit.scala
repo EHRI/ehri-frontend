@@ -74,9 +74,8 @@ object DocumentaryUnitF {
 
   implicit val documentaryUnitFormat: Format[DocumentaryUnitF] = Format(documentaryUnitReads,documentaryUnitWrites)
 
-  implicit object Converter extends BackendWriteable[DocumentaryUnitF] with ClientWriteable[DocumentaryUnitF] {
+  implicit object Converter extends BackendWriteable[DocumentaryUnitF] {
     val restFormat = documentaryUnitFormat
-    val clientFormat = Json.format[DocumentaryUnitF]
   }
 }
 
@@ -114,17 +113,8 @@ object DocumentaryUnit {
   )(DocumentaryUnit.apply _)
 
 
-  implicit object Converter extends BackendReadable[DocumentaryUnit] with ClientWriteable[DocumentaryUnit] {
+  implicit object Converter extends BackendReadable[DocumentaryUnit] {
     implicit val restReads = metaReads
-
-    val clientFormat: Format[DocumentaryUnit] = (
-      __.format(DocumentaryUnitF.Converter.clientFormat) and
-      (__ \ "holder").formatNullable[Repository](Repository.Converter.clientFormat) and
-      (__ \ "parent").lazyFormatNullable[DocumentaryUnit](clientFormat) and
-      (__ \ "accessibleTo").nullableListFormat(Accessor.Converter.clientFormat) and
-      (__ \ "event").formatNullable[SystemEvent](SystemEvent.Converter.clientFormat) and
-      (__ \ "meta").format[JsObject]
-    )(DocumentaryUnit.apply _, unlift(DocumentaryUnit.unapply))
   }
 
   implicit object Resource extends BackendResource[DocumentaryUnit] with BackendContentType[DocumentaryUnit] {

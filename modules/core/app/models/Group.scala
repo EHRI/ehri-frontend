@@ -43,9 +43,8 @@ object GroupF {
 
   implicit val groupFormat: Format[GroupF] = Format(groupReads,groupWrites)
 
-  implicit object Converter extends BackendWriteable[GroupF] with ClientWriteable[GroupF] {
+  implicit object Converter extends BackendWriteable[GroupF] {
     lazy val restFormat = groupFormat
-    lazy val clientFormat = Json.format[GroupF]
   }
 }
 
@@ -72,16 +71,8 @@ object Group {
     (__ \ META).readWithDefault(Json.obj())
   )(Group.apply _)
 
-  implicit object Converter extends ClientWriteable[Group] with BackendReadable[Group] {
+  implicit object Converter extends BackendReadable[Group] {
     val restReads = metaReads
-
-    val clientFormat: Format[Group] = (
-      __.format[GroupF](GroupF.Converter.clientFormat) and
-      (__ \ "groups").lazyNullableListFormat(clientFormat) and
-      (__ \ "accessibleTo").lazyNullableListFormat(Accessor.Converter.clientFormat) and
-      (__ \ "event").formatNullable[SystemEvent](SystemEvent.Converter.clientFormat) and
-      (__ \ "meta").format[JsObject]
-    )(Group.apply _, unlift(Group.unapply))
   }
 
   implicit object Resource extends BackendResource[Group] with BackendContentType[Group] {

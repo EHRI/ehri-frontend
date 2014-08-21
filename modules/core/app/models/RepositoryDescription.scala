@@ -10,9 +10,9 @@ import models.forms._
 import play.api.data.Form
 import play.api.data.Forms._
 import backend.BackendWriteable
+import Description._
 
-
-private[models] case class IsdiahDetails(
+case class IsdiahDetails(
   history: Option[String] = None,
   generalContext: Option[String] = None,
   mandates: Option[String] = None,
@@ -23,19 +23,19 @@ private[models] case class IsdiahDetails(
   findingAids: Option[String] = None
 ) extends AttributeSet
 
-private[models] case class IsdiahAccess(
+case class IsdiahAccess(
   openingTimes: Option[String] = None,
   conditions: Option[String] = None,
   accessibility: Option[String] = None
 ) extends AttributeSet
 
-private[models] case class IsdiahServices(
+case class IsdiahServices(
   researchServices: Option[String] = None,
   reproductionServices: Option[String] = None,
   publicAreas: Option[String] = None
 ) extends AttributeSet
 
-private[models] case class IsdiahControl(
+case class IsdiahControl(
   descriptionIdentifier: Option[String] = None,
   institutionIdentifier: Option[String] = None,
   rulesAndConventions: Option[String] = None,
@@ -87,7 +87,8 @@ object RepositoryDescriptionF {
           LANGUAGES_USED -> d.control.languages,
           SCRIPTS_USED -> d.control.scripts,
           SOURCES -> d.control.sources,
-          MAINTENANCE_NOTES -> d.control.maintenanceNotes
+          MAINTENANCE_NOTES -> d.control.maintenanceNotes,
+          CREATION_PROCESS -> d.creationProcess
         ),
         RELATIONSHIPS -> Json.obj(
           ENTITY_HAS_ADDRESS -> Json.toJson(d.addresses.map(Json.toJson(_)).toSeq),
@@ -139,6 +140,7 @@ object RepositoryDescriptionF {
       (__ \ SOURCES).readListOrSingleNullable[String] and
       (__ \ MAINTENANCE_NOTES).readNullable[String]
     )(IsdiahControl.apply _)) and
+    (__ \ DATA \ CREATION_PROCESS).readWithDefault(CreationProcess.Manual) and
     (__ \ RELATIONSHIPS \ HAS_ACCESS_POINT).nullableListReads[AccessPointF] and
     (__ \ RELATIONSHIPS \ HAS_MAINTENANCE_EVENT).nullableListReads[Entity] and
     (__ \ RELATIONSHIPS \ HAS_UNKNOWN_PROPERTY).nullableListReads[Entity]
@@ -147,16 +149,8 @@ object RepositoryDescriptionF {
   implicit val repositoryDescriptionFormat: Format[RepositoryDescriptionF]
   = Format(repositoryDescriptionReads, repositoryDescriptionWrites)
 
-  implicit object Converter extends BackendWriteable[RepositoryDescriptionF] with ClientWriteable[RepositoryDescriptionF] {
+  implicit object Converter extends BackendWriteable[RepositoryDescriptionF] {
     val restFormat = repositoryDescriptionFormat
-
-    private implicit val addressFormat = AddressF.Converter.clientFormat
-    private implicit val accessPointFormat = AccessPointF.Converter.clientFormat
-    private implicit val isdiahDetailsFormat = Json.format[IsdiahDetails]
-    private implicit val isdiahAccessFormat = Json.format[IsdiahAccess]
-    private implicit val isdiahServicesFormat = Json.format[IsdiahServices]
-    private implicit val isdiahControlFormat = Json.format[IsdiahControl]
-    val clientFormat = Json.format[RepositoryDescriptionF]
   }
 }
 
@@ -173,6 +167,7 @@ case class RepositoryDescriptionF(
   access: IsdiahAccess,
   services: IsdiahServices,
   control: IsdiahControl,
+  creationProcess: CreationProcess.Value = CreationProcess.Manual,
   accessPoints: List[AccessPointF] = Nil,
   maintenanceEvents: List[Entity] = Nil,
   unknownProperties: List[Entity] = Nil
@@ -252,6 +247,7 @@ object RepositoryDescription {
         SOURCES -> optional(list(nonEmptyText)),
         MAINTENANCE_NOTES -> optional(text)
       )(IsdiahControl.apply)(IsdiahControl.unapply),
+      CREATION_PROCESS -> default(enum(CreationProcess), CreationProcess.Manual),
       ACCESS_POINTS -> list(AccessPoint.form.mapping),
       MAINTENANCE_EVENTS -> list(entity),
       UNKNOWN_DATA -> list(entity)

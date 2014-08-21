@@ -3,25 +3,15 @@ package models.base
 import defines.{ContentTypes, EntityType}
 import models._
 import play.api.libs.json._
-import models.json.ClientWriteable
 import backend.{BackendContentType, BackendResource}
 
 object Accessor {
   final val BELONGS_REL = "belongsTo"
 
-  implicit object Converter extends backend.BackendReadable[Accessor] with ClientWriteable[Accessor] {
+  implicit object Converter extends backend.BackendReadable[Accessor] {
     implicit val restReads: Reads[Accessor] = new Reads[Accessor] {
       def reads(json: JsValue): JsResult[Accessor] = {
         json.validate[Accessor](AnyModel.Converter.restReads.asInstanceOf[Reads[Accessor]])
-      }
-    }
-
-    implicit val clientFormat: Format[Accessor] = new Format[Accessor] {
-      def reads(json: JsValue): JsResult[Accessor] = {
-        json.validate[Accessor](AnyModel.Converter.clientFormat.asInstanceOf[Format[Accessor]])
-      }
-      def writes(a: Accessor): JsValue = {
-        Json.toJson(a)(AnyModel.Converter.clientFormat.asInstanceOf[Format[Accessor]])
       }
     }
   }

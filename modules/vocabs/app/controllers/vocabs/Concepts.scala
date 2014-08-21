@@ -11,6 +11,7 @@ import com.google.inject._
 import scala.concurrent.Future.{successful => immediate}
 import solr.facet.FieldFacetClass
 import backend.Backend
+import models.base.Description
 
 
 @Singleton
@@ -22,8 +23,7 @@ case class Concepts @Inject()(implicit globalConfig: global.GlobalConfig, search
   with ScopePermissions[Concept]
   with Linking[Concept]
   with Annotate[Concept]
-  with Search
-  with Api[Concept] {
+  with Search {
 
   val targetContentTypes = Seq(ContentTypes.Concept)
 
@@ -34,8 +34,8 @@ case class Concepts @Inject()(implicit globalConfig: global.GlobalConfig, search
   private def entityFacets: FacetBuilder = { implicit request =>
     List(
       FieldFacetClass(
-        key=ConceptF.LANG_CODE,
-        name=Messages("cvocConcept." + ConceptF.LANG_CODE),
+        key=Description.LANG_CODE,
+        name=Messages("cvocConcept." + Description.LANG_CODE),
         param="lang",
         render=(s: String) => Helpers.languageCodeToName(s),
         display = FacetDisplay.DropDown,

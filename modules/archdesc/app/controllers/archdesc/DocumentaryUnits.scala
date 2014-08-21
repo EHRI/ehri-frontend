@@ -16,6 +16,7 @@ import play.api.Play.current
 import play.api.Configuration
 import play.api.http.MimeTypes
 import utils.ead.EadExporter
+import models.base.Description
 
 
 @Singleton
@@ -29,8 +30,7 @@ case class DocumentaryUnits @Inject()(implicit globalConfig: global.GlobalConfig
   with Linking[DocumentaryUnit]
   with Descriptions[DocumentaryUnitDescriptionF, DocumentaryUnitF, DocumentaryUnit]
   with AccessPoints[DocumentaryUnitDescriptionF, DocumentaryUnitF, DocumentaryUnit]
-  with Search
-  with Api[DocumentaryUnit] {
+  with Search {
 
   // Documentary unit facets
   import solr.facet._
@@ -48,8 +48,8 @@ case class DocumentaryUnits @Inject()(implicit globalConfig: global.GlobalConfig
         )
       ),
       FieldFacetClass(
-        key=IsadG.LANG_CODE,
-        name=Messages("documentaryUnit." + IsadG.LANG_CODE),
+        key=Description.LANG_CODE,
+        name=Messages("documentaryUnit." + Description.LANG_CODE),
         param="lang",
         render=Helpers.languageCodeToName,
         display = FacetDisplay.DropDown

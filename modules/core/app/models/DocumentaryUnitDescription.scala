@@ -10,9 +10,8 @@ import models.forms._
 import play.api.data.Form
 import play.api.data.Forms._
 import defines.EnumUtils._
-import models.Isdiah._
 import backend.BackendWriteable
-
+import Description._
 
 case class IsadGIdentity(
   name: String,
@@ -108,7 +107,8 @@ object DocumentaryUnitDescriptionF {
           SOURCES -> d.control.sources,
           RULES_CONVENTIONS -> d.control.rulesAndConventions,
           DATES_DESCRIPTIONS -> d.control.datesOfDescriptions,
-          PROVENANCE -> d.control.provenance
+          PROVENANCE -> d.control.provenance,
+          CREATION_PROCESS -> d.creationProcess
         ),
         RELATIONSHIPS -> Json.obj(
           ENTITY_HAS_DATE -> Json.toJson(d.dates.map(Json.toJson(_)).toSeq),
@@ -170,6 +170,7 @@ object DocumentaryUnitDescriptionF {
       (__ \ DATES_DESCRIPTIONS).readNullable[String] and
       (__ \ PROVENANCE).readNullable[String]
     )(IsadGControl.apply _)) and
+    (__ \ DATA \ CREATION_PROCESS).readWithDefault(CreationProcess.Manual) and
     (__ \ RELATIONSHIPS \ HAS_ACCESS_POINT).nullableListReads[AccessPointF] and
     (__ \ RELATIONSHIPS \ HAS_MAINTENANCE_EVENT).nullableListReads[Entity] and
     (__ \ RELATIONSHIPS \ HAS_UNKNOWN_PROPERTY).nullableListReads[Entity]
@@ -178,18 +179,8 @@ object DocumentaryUnitDescriptionF {
   implicit val documentaryUnitDescriptionFormat: Format[DocumentaryUnitDescriptionF] =
     Format(documentaryUnitDescriptionReads, documentaryUnitDescriptionWrites)
 
-  implicit object Converter extends BackendWriteable[DocumentaryUnitDescriptionF] with ClientWriteable[DocumentaryUnitDescriptionF] {
+  implicit object Converter extends BackendWriteable[DocumentaryUnitDescriptionF] {
     val restFormat = documentaryUnitDescriptionFormat
-
-    private implicit val accessPointFormat = AccessPointF.Converter.clientFormat
-    private implicit val datePeriodFormat = DatePeriodF.Converter.clientFormat
-    private implicit val isadGIdentityFormat = Json.format[IsadGIdentity]
-    private implicit val isadGContextFormat = Json.format[IsadGContext]
-    private implicit val isadGContentFormat = Json.format[IsadGContent]
-    private implicit val isadGConditionsFormat = Json.format[IsadGConditions]
-    private implicit val isadGMaterialsFormat = Json.format[IsadGMaterials]
-    private implicit val isadGControlFormat = Json.format[IsadGControl]
-    val clientFormat = Json.format[DocumentaryUnitDescriptionF]
   }
 }
 
@@ -204,6 +195,7 @@ case class DocumentaryUnitDescriptionF(
   materials: IsadGMaterials = IsadGMaterials(),
   notes: Option[List[String]] = None,
   control: IsadGControl = IsadGControl(),
+  creationProcess: CreationProcess.Value = CreationProcess.Manual,
   accessPoints: List[AccessPointF] = Nil,
   maintenanceEvents: List[Entity] = Nil,
   unknownProperties: List[Entity] = Nil
@@ -303,6 +295,7 @@ object DocumentaryUnitDescription {
         DATES_DESCRIPTIONS -> optional(text),
         PROVENANCE -> optional(text)
       )(IsadGControl.apply)(IsadGControl.unapply),
+      CREATION_PROCESS -> default(enum(CreationProcess), CreationProcess.Manual),
       ACCESS_POINTS -> list(AccessPoint.form.mapping),
       MAINTENANCE_EVENTS -> list(entity),
       UNKNOWN_DATA -> list(entity)
