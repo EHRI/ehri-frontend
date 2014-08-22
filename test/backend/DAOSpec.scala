@@ -245,7 +245,7 @@ class DAOSpec extends helpers.Neo4jRunnerSpec(classOf[DAOSpec]) {
       await(testBackend.isBlocking(userProfile.id, "reto")) must beFalse
     }
 
-    "handle virtual collections" in new FakeApp {
+    "handle virtual collections (and bookmarks)" in new FakeApp {
       val data = VirtualUnitF(
         identifier = "vc-test",
         descriptions = List(

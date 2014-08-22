@@ -180,7 +180,7 @@ jQuery(function ($) {
   $(document).on("click", "a.bookmark-item", function (e) {
     e.preventDefault();
 
-    var call = jsRoutes.controllers.portal.VirtualUnits.bookmarkPost,
+    var call = jsRoutes.controllers.portal.Bookmarks.bookmarkPost,
         $elem = $(this),
         id = $elem.data("item");
 
