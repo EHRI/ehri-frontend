@@ -42,7 +42,7 @@
                 "portal.landingBlurb.documents",
                 countLink(controllers.portal.routes.Portal.browseDocuments.url,
                 "portal.landingBlurb.documentLink", stats.documentaryUnitCount).body.trim,
-                countLink(controllers.portal.routes.Portal.browseRepositories().url,
+                countLink(controllers.portal.routes.Portal.browseRepositories().url + "?data=yes",
                 "portal.landingBlurb.inRepositoryLink", stats.inRepositoryCount).body.trim
                 ))}
             </div>
@@ -56,7 +56,7 @@
                 "portal.landingBlurb.repositories",
                 countLink(controllers.portal.routes.Portal.browseRepositories().url,
                 "portal.landingBlurb.repositoryLink", stats.repositoryCount).body.trim,
-                countLink(controllers.portal.routes.Portal.browseCountries().url, "portal.landingBlurb.inCountryLink",
+                countLink(controllers.portal.routes.Portal.browseCountries().url + "?data=yes", "portal.landingBlurb.inCountryLink",
                 stats.inCountryCount).body.trim
                 ))}
             </div>
