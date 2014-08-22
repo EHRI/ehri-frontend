@@ -38,7 +38,11 @@ class DAOSpec extends helpers.Neo4jRunnerSpec(classOf[DAOSpec]) {
           .createInContext[Repository,DocumentaryUnitF,DocumentaryUnit]("r1", ContentTypes.DocumentaryUnit, doc))
       r.holder must beSome
       r.holder.get.id must equalTo("r1")
-      mockIndexer.eventBuffer.last must equalTo("nl-r1-foobar")
+      // This triggers an update event for the parent and a create
+      // event for the new child
+      val events = mockIndexer.eventBuffer.takeRight(2)
+      events.headOption must beSome.which(_ must equalTo("r1"))
+      events.lastOption must beSome.which(_ must equalTo("nl-r1-foobar"))
     }
 
     "create an item in (doc) context" in new FakeApp {

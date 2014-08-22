@@ -7,7 +7,7 @@
         @for(link <- links) {
         <li class="external-link">
             @link.opposingTarget(item).map { t =>
-                @p.listItem(t, watched = watched.exists(_ == t.id))
+                @p.listItem(t, watched = watched.contains(t.id))
             }
             @link.model.description.map { desc =>
             <small>

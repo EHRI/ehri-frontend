@@ -4,7 +4,7 @@
     @layout.infobar {
     } {
         @userOpt.map { user =>
-            @p.common.watchButtons(item, watched.exists(_ == item.id))
+            @p.common.watchButtons(item, watched.contains(item.id))
         }
     }
 

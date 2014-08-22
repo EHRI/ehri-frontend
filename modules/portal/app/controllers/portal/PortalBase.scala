@@ -34,7 +34,7 @@ trait PortalBase {
   /**
    * Fetched watched items for an optional user.
    */
-  private def watchedItemIds(implicit userIdOpt: Option[String]): Future[Seq[String]] = userIdOpt.map { userId =>
+  protected def watchedItemIds(implicit userIdOpt: Option[String]): Future[Seq[String]] = userIdOpt.map { userId =>
     FutureCache.getOrElse(userWatchCacheKey(userId), 20 * 60) {
       implicit val apiUser: ApiUser = ApiUser(Some(userId))
       backend.watching(userId, PageParams.empty.withoutLimit).map { page =>

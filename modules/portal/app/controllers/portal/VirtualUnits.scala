@@ -31,7 +31,7 @@ case class VirtualUnits @Inject()(implicit globalConfig: global.GlobalConfig, se
   with ControllerHelpers
   with Search
   with FacetConfig
-  with PortalActions
+  with PortalBase
   with SessionPreferences[SessionPrefs] {
 
   val defaultPreferences = new SessionPrefs
@@ -124,7 +124,7 @@ case class VirtualUnits @Inject()(implicit globalConfig: global.GlobalConfig, se
 
   def listBookmarkSets = withUserAction.async { implicit user => implicit request =>
     val pageF = backend.userBookmarks(user.id, PageParams.fromRequest(request))
-    val watchedF = watchedItems
+    val watchedF = watchedItemIds(userIdOpt = Some(user.id))
     for {
       page <- pageF
       watched <- watchedF
@@ -190,7 +190,7 @@ case class VirtualUnits @Inject()(implicit globalConfig: global.GlobalConfig, se
     val itemF: Future[AnyModel] = backend.getAny[AnyModel](id)
     val linksF: Future[Seq[Link]] = backend.getLinksForItem(id)
     val annsF: Future[Seq[Annotation]] = backend.getAnnotationsForItem(id)
-    val watchedF: Future[Page[AnyModel]] = watchedItems
+    val watchedF: Future[Seq[String]] = watchedItemIds(userIdOpt = userOpt.map(_.id))
     for {
       watched <- watchedF
       item <- itemF
@@ -224,7 +224,7 @@ case class VirtualUnits @Inject()(implicit globalConfig: global.GlobalConfig, se
     val itemF: Future[AnyModel] = backend.getAny[AnyModel](id)
     val linksF: Future[Seq[Link]] = backend.getLinksForItem(id)
     val annsF: Future[Seq[Annotation]] = backend.getAnnotationsForItem(id)
-    val watchedF: Future[Page[AnyModel]] = watchedItems
+    val watchedF: Future[Seq[String]] = watchedItemIds(userIdOpt = userOpt.map(_.id))
     for {
       watched <- watchedF
       item <- itemF

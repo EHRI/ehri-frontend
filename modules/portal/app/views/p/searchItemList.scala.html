@@ -3,7 +3,7 @@
 <ul class="list-unstyled search-result-list">
     @result.items.map { case(item, hit) =>
         @defining(Some(hit.id)) { implicit descriptionId =>
-            @defining(watched.exists(_ == item.id)) { watched =>
+            @defining(watched.contains(item.id)) { watched =>
             <li>
                 @searchItem(item, hit, watched)
             </li>
