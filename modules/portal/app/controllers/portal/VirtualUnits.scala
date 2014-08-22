@@ -87,12 +87,21 @@ case class VirtualUnits @Inject()(implicit globalConfig: global.GlobalConfig, se
         params = Map(Constants.ID_PARAM -> items))
     } yield vu
 
+  def removeBookmarksPost(set: String, ids: Seq[String]) = withUserAction.async { implicit user => implicit request =>
+    backend.deleteBookmarks(set, ids).map(_ => Ok("ok"))
+  }
+
+  def moveBookmarksPost(fromSet: String, toSet: String, ids: Seq[String] = Seq.empty) = withUserAction.async {
+      implicit user => implicit request =>
+    backend.moveBookmarks(fromSet, toSet, ids).map(_ => Ok("ok"))
+  }
+
+  def bookmarkInNewSetPost(id: String) = createBookmarkSetPost(List(id))
+
   def bookmark(itemId: String, bsId: Option[String] = None) = withUserAction.async {
       implicit user => implicit request =>
     ???
   }
-
-  def bookmarkInNewSetPost(id: String) = createBookmarkSetPost(List(id))
 
   /**
    * Bookmark an item, creating (if necessary) a default virtual

@@ -167,13 +167,15 @@ trait RestSocial extends Social with RestDAO {
       .withQueryString(ID_PARAM -> id).post("").map(_ => ())
   }
 
-  def deleteBookmark(setId: String, id: String)(implicit apiUser: ApiUser, executionContext: ExecutionContext): Future[Unit] = {
-    userCall(enc(baseUrl, EntityType.VirtualUnit, setId, "includes"))
-      .withQueryString(ID_PARAM -> id).delete().map(_ => ())
+  def deleteBookmarks(set: String, ids: Seq[String])(implicit apiUser: ApiUser, executionContext: ExecutionContext): Future[Unit] = {
+    if (ids.isEmpty) Future.successful(())
+    else userCall(enc(baseUrl, EntityType.VirtualUnit, set, "includes"))
+      .withQueryString(ids.map ( id => ID_PARAM -> id): _*).delete().map(_ => ())
   }
 
   def moveBookmarks(fromSet: String, toSet: String, ids: Seq[String])(implicit apiUser: ApiUser, executionContext: ExecutionContext): Future[Unit] = {
-    userCall(enc(baseUrl, EntityType.VirtualUnit, fromSet, "includes", toSet))
+    if (ids.isEmpty) Future.successful(())
+    else userCall(enc(baseUrl, EntityType.VirtualUnit, fromSet, "includes", toSet))
       .withQueryString(ids.map(id => ID_PARAM -> id): _*).post("").map(_ => ())
   }
 }

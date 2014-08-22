@@ -281,7 +281,7 @@ class DAOSpec extends helpers.Neo4jRunnerSpec(classOf[DAOSpec]) {
       }
 
       // Delete the included unit
-      await(testBackend.deleteBookmark(vc.id, "c4"))
+      await(testBackend.deleteBookmarks(vc.id, Seq("c4")))
       await(testBackend.userBookmarks(userProfile.id)).headOption must beSome.which { ovc =>
         ovc.includedUnits.size must equalTo(0)
       }
