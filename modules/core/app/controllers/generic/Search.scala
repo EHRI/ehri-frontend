@@ -39,10 +39,9 @@ trait Search extends Controller with AuthController with ControllerHelpers {
 
   private def defaultSortFunction(sp: SearchParams, request: RequestHeader): Option[SearchOrder.Value] = {
     if (sp.sort.isDefined) sp.sort
-    else {
-      val q = request.getQueryString(SearchParams.QUERY)
-      if (q.exists(!_.trim.isEmpty)) Some(SearchOrder.Score)
-      else Some(SearchOrder.Name)
+    else Some {
+      if (request.getQueryString(SearchParams.QUERY).exists(!_.trim.isEmpty)) SearchOrder.Score
+      else SearchOrder.DateNewest
     }
   }
 
