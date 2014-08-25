@@ -80,7 +80,10 @@ trait RestGeneric extends Generic with RestDAO {
         .post(Json.toJson(item)(wrt.restFormat)).map { response =>
       val created = checkErrorAndParse(response)(rd.restReads)
       created match {
-        case item: AnyModel => eventHandler.handleCreate(item.id)
+        case item: AnyModel =>
+          // also reindex parent since this will update child count caches
+          eventHandler.handleUpdate(id)
+          eventHandler.handleCreate(item.id)
         case _ =>
       }
       created

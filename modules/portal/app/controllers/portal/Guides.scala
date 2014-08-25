@@ -36,7 +36,7 @@ case class Guides @Inject()(implicit globalConfig: global.GlobalConfig, searchDi
   extends ControllerHelpers
   with Search
   with FacetConfig
-  with PortalActions
+  with PortalBase
   with SessionPreferences[SessionPrefs] {
 
   val defaultPreferences = new SessionPrefs
@@ -192,7 +192,7 @@ case class Guides @Inject()(implicit globalConfig: global.GlobalConfig, searchDi
   */
   def guideAuthority(template: GuidePage, params: Map[String, String], guide: Guide) = userBrowseAction.async { implicit userDetails => implicit request =>
      for { 
-          r <- find[HistoricalAgent](filters = params, defaultParams = SearchParams(sort = Some(utils.search.SearchOrder.CharCount)), entities = List(EntityType.HistoricalAgent))
+          r <- find[HistoricalAgent](filters = params, defaultParams = SearchParams(sort = Some(utils.search.SearchOrder.Detail)), entities = List(EntityType.HistoricalAgent))
           links <- countLinks(guide.virtualUnit, r.page.items.map { case(item, hit) => item.id }.toList)
       }
       yield {

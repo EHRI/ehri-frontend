@@ -23,9 +23,22 @@ import solr.facet.QueryFacetClass
  * Build a Solr query. This class uses the (mutable) scalikesolr
  * QueryRequest class.
  */
-case class SolrQueryBuilder(writerType: WriterType, debugQuery: Boolean = false) extends QueryBuilder {
+case class SolrQueryBuilder(writerType: WriterType, debugQuery: Boolean = false)(implicit app: play.api.Application) extends QueryBuilder {
 
   import SolrConstants._
+
+  /**
+   * Look up boost values from configuration for default query fields.
+   */
+  private lazy val queryFieldsWithBoost: Seq[(String,Option[Double])] = Seq(
+    ITEM_ID, NAME_EXACT, NAME_MATCH, OTHER_NAMES, PARALLEL_NAMES, NAME_SORT, TEXT
+  ).map(f => f -> app.configuration.getDouble(s"ehri.search.boost.$f"))
+
+  private lazy val spellcheckParams: Seq[(String,Option[String])] = Seq(
+    "count", "onlyMorePopular", "extendedResults", "accuracy",
+    "collate", "maxCollations", "maxCollationTries"
+  ).map(f => f -> app.configuration.getString(s"ehri.search.spellcheck.$f"))
+
 
   /**
    * Set a list of facets on a request.
@@ -242,19 +255,20 @@ case class SolrQueryBuilder(writerType: WriterType, debugQuery: Boolean = false)
     params.fields.filterNot(_.isEmpty).map { fieldList =>
       req.set("qf", fieldList.mkString(" "))
     } getOrElse {
-      req.set("qf", s"$ITEM_ID^2.0 $NAME_EXACT^4.0 $NAME_MATCH^4.0 $OTHER_NAMES^1.0 $PARALLEL_NAMES^1.0 $NAME_SORT^0.3 $TEXT")
+      val qfFields: String = queryFieldsWithBoost.map { case (key, boostOpt) =>
+        boostOpt.map(b => s"$key^$b").getOrElse(key)
+      }.mkString(" ")
+      Logger.debug(s"Query fields: $qfFields")
+      req.set("qf", qfFields)
     }
 
     // Mmmn, speckcheck
     req.set("spellcheck", "true")
-    req.set("spellcheck.count", "10")
     req.set("spellcheck.q", queryString)
-    req.set("spellcheck.extendedResults", "true")
-    req.set("spellcheck.accuracy", "0.6")
-    req.set("spellcheck.onlyMorePopular", "true")
-    req.set("spellcheck.collate", "true")
-    req.set("spellcheck.maxCollations", "10")
-    req.set("spellcheck.maxCollationTries", "10")
+
+    spellcheckParams.collect { case (key, Some(value)) =>
+      req.set(s"spellcheck.$key", value)
+    }
 
     // Facet the request accordingly
     constrain(req, facets, allFacets)

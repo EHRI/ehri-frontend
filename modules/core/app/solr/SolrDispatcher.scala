@@ -68,7 +68,7 @@ case class SolrDispatcher(queryBuilder: QueryBuilder, responseParser: ResponsePa
              mode: SearchMode.Value = SearchMode.DefaultAll)(
               implicit userOpt: Option[UserProfile]): Future[ItemPage[SearchHit]] = {
 
-    val queryRequest = queryBuilder.search(params, facets, allFacets, filters, extra, mode)(userOpt)
+    val queryRequest = queryBuilder.search(params, facets, allFacets, filters, extra, mode)
     val url = buildSearchUrl(queryRequest)
     Logger.logger.debug("SOLR: {}", url)
     WS.url(buildSearchUrl(queryRequest)).get().map { response =>
@@ -99,7 +99,7 @@ case class SolrDispatcher(queryBuilder: QueryBuilder, responseParser: ResponsePa
     // actually care about the documents, so even this is
     // not strictly necessary... we also don't care about the
     // ordering.
-    val queryRequest = queryBuilder.search(params, facets, allFacets, filters)(userOpt)
+    val queryRequest = queryBuilder.search(params, facets, allFacets, filters)
 
     WS.url(buildSearchUrl(queryRequest)).get().map { response =>
       val facetClasses = responseParser(checkError(response).body).extractFacetData(facets, allFacets)

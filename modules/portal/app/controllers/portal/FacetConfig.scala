@@ -158,7 +158,7 @@ trait FacetConfig extends Search {
       QueryFacetClass(
         key="childCount",
         name=Messages("portal.facet.itemsHeldOnline"),
-        param="docs",
+        param="data",
         render=s => Messages("portal.facet.itemsHeldOnline." + s),
         facets=List(
           SolrQueryFacet(value = "yes", solrValue = "[1 TO *]", name = Some("yes"))
@@ -203,10 +203,10 @@ trait FacetConfig extends Search {
       QueryFacetClass(
         key="childCount",
         name=Messages("portal.facet.container"),
-        param="items",
+        param="data",
         render=s => Messages("portal.facet.container." + s),
         facets=List(
-          SolrQueryFacet(value = "true", solrValue = "[1 TO *]", name = Some("hasChildItems"))
+          SolrQueryFacet(value = "yes", solrValue = "[1 TO *]", name = Some("hasChildItems"))
         ),
         display = FacetDisplay.Boolean
       ),

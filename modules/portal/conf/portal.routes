@@ -62,10 +62,14 @@ GET         /virtual/:via/:id/search        @controllers.portal.VirtualUnits.sea
 GET         /virtual/:via/:id               @controllers.portal.VirtualUnits.browseVirtualUnit(via: String, id: String)
 
 # Bookmark Sets (user-friendly virtual units)
-POST        /bookmark/:id                   @controllers.portal.VirtualUnits.bookmark(id: String, bsId: Option[String] ?= None)
-GET         /bookmarkSets                   @controllers.portal.VirtualUnits.listBookmarkSets
-GET         /bookmarkSets/create            @controllers.portal.VirtualUnits.createBookmarkSet(item: List[String] ?= Nil)
-POST        /bookmarkSets/create            @controllers.portal.VirtualUnits.createBookmarkSetPost(item: List[String] ?= Nil)
+GET         /bookmark/:id                   @controllers.portal.Bookmarks.bookmark(id: String, bsId: Option[String] ?= None)
+POST        /bookmark/:id                   @controllers.portal.Bookmarks.bookmarkPost(id: String, bsId: Option[String] ?= None)
+POST        /bookmarkInNewSet/:id           @controllers.portal.Bookmarks.bookmarkInNewSetPost(id: String)
+POST        /removeBookmarks/:set           @controllers.portal.Bookmarks.removeBookmarksPost(set: String, ids: List[String] ?= Nil)
+POST        /moveBookmarks/:fromSet/:toSet  @controllers.portal.Bookmarks.moveBookmarksPost(fromSet: String, toSet: String, ids: List[String] ?= Nil)
+GET         /bookmarkSets                   @controllers.portal.Bookmarks.listBookmarkSets
+GET         /bookmarkSets/create            @controllers.portal.Bookmarks.createBookmarkSet(item: List[String] ?= Nil)
+POST        /bookmarkSets/create            @controllers.portal.Bookmarks.createBookmarkSetPost(item: List[String] ?= Nil)
 
 # Annotations...
 GET         /annotations                    @controllers.portal.Profile.annotations(format: controllers.DataFormat.Value ?= controllers.DataFormat.Html)
@@ -96,7 +100,6 @@ GET         /unblock/:userId                @controllers.portal.Social.unblockUs
 POST        /unblock/:userId                @controllers.portal.Social.unblockUserPost(userId: String)
 GET         /message/:userId                @controllers.portal.Social.sendMessage(userId: String)
 POST        /message/:userId                @controllers.portal.Social.sendMessagePost(userId: String)
-
 
 GET         /watch/:id                      @controllers.portal.Profile.watchItem(id: String)
 POST        /watch/:id                      @controllers.portal.Profile.watchItemPost(id: String)

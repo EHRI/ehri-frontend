@@ -19,11 +19,11 @@ object SearchOrder extends Enumeration {
   type Order = Value
   val Score = Value("score.desc")
   val Name = Value("name_sort.asc")
-  val CharCount = Value("charCount.desc")
   val DateNewest = Value("lastUpdated.desc")
   val Country = Value("countryCode.asc")
   val Holder = Value("repositoryName.asc")
   val Location = Value("geodist().asc")
+  val Detail = Value("charCount.desc")
 
   implicit val format = defines.EnumUtils.enumFormat(SearchOrder)
 }

@@ -35,6 +35,7 @@ import net.coobird.thumbnailator.Thumbnails
 case class Profile @Inject()(implicit globalConfig: global.GlobalConfig, searchDispatcher: Dispatcher, searchResolver: Resolver, backend: Backend,
                             userDAO: AccountDAO)
     extends LoginLogout with AuthController with ControllerHelpers
+    with PortalBase
     with PortalLogin
     with PortalAuthConfigImpl
     with SessionPreferences[SessionPrefs] {
@@ -62,6 +63,7 @@ case class Profile @Inject()(implicit globalConfig: global.GlobalConfig, searchD
 
   def watchItemPost(id: String) = withUserAction.async { implicit user => implicit request =>
     backend.watch(user.id, id).map { _ =>
+      clearWatchedItemsCache(user.id)
       if (isAjax) Ok("ok")
       else Redirect(profileRoutes.watching())
     }
@@ -74,6 +76,7 @@ case class Profile @Inject()(implicit globalConfig: global.GlobalConfig, searchD
 
   def unwatchItemPost(id: String) = withUserAction.async { implicit user => implicit request =>
     backend.unwatch(user.id, id).map { _ =>
+      clearWatchedItemsCache(user.id)
       if (isAjax) Ok("ok")
       else Redirect(profileRoutes.watching())
     }

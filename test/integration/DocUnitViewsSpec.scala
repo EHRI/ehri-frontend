@@ -273,6 +273,13 @@ class DocUnitViewsSpec extends Neo4jRunnerSpec(classOf[DocUnitViewsSpec]) {
       status(show) must equalTo(OK)
     }
 
+    "throw a 404 when fetching items with the wrong type" in new FakeApp {
+      // r1 is a repository, not a doc unit
+      val show = route(fakeLoggedInHtmlRequest(privilegedUser, GET,
+        docRoutes.get("r1").url)).get
+      status(show) must throwA[ItemNotFound]
+    }
+
     "allow EAD export" in new FakeApp {
       val ead = route(fakeLoggedInHtmlRequest(privilegedUser, GET,
         docRoutes.exportEad("c1").url)).get

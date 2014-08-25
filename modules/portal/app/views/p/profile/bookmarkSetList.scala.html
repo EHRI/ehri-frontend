@@ -1,4 +1,4 @@
-@(them: UserProfile, items: utils.AbstractPage[VirtualUnit], watchList: utils.AbstractPage[AnyModel])(implicit req: RequestHeader, userOpt: Option[UserProfile], lang: Lang, globalConfig: global.GlobalConfig)
+@(them: UserProfile, items: utils.AbstractPage[VirtualUnit], watched: Seq[String])(implicit req: RequestHeader, userOpt: Option[UserProfile], lang: Lang, globalConfig: global.GlobalConfig)
 
 @defining(userOpt.exists(_.id == them.id)) { isCurrentUser =>
 
@@ -6,7 +6,7 @@
         <ul class="list-unstyled watched-items">
             @items.map { item =>
                 <li>
-                    @p.virtualUnit.listItemVc(item, Seq.empty, watched = watchList.exists(_.id == item.id), showContext = false)
+                    @p.virtualUnit.listItemVc(item, Seq.empty, watched = watched.contains(item.id), showContext = false)
                 </li>
             }
         </ul>

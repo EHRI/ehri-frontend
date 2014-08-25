@@ -38,7 +38,11 @@ class DAOSpec extends helpers.Neo4jRunnerSpec(classOf[DAOSpec]) {
           .createInContext[Repository,DocumentaryUnitF,DocumentaryUnit]("r1", ContentTypes.DocumentaryUnit, doc))
       r.holder must beSome
       r.holder.get.id must equalTo("r1")
-      mockIndexer.eventBuffer.last must equalTo("nl-r1-foobar")
+      // This triggers an update event for the parent and a create
+      // event for the new child
+      val events = mockIndexer.eventBuffer.takeRight(2)
+      events.headOption must beSome.which(_ must equalTo("r1"))
+      events.lastOption must beSome.which(_ must equalTo("nl-r1-foobar"))
     }
 
     "create an item in (doc) context" in new FakeApp {
@@ -241,7 +245,7 @@ class DAOSpec extends helpers.Neo4jRunnerSpec(classOf[DAOSpec]) {
       await(testBackend.isBlocking(userProfile.id, "reto")) must beFalse
     }
 
-    "handle virtual collections" in new FakeApp {
+    "handle virtual collections (and bookmarks)" in new FakeApp {
       val data = VirtualUnitF(
         identifier = "vc-test",
         descriptions = List(
@@ -277,7 +281,7 @@ class DAOSpec extends helpers.Neo4jRunnerSpec(classOf[DAOSpec]) {
       }
 
       // Delete the included unit
-      await(testBackend.deleteBookmark(vc.id, "c4"))
+      await(testBackend.deleteBookmarks(vc.id, Seq("c4")))
       await(testBackend.userBookmarks(userProfile.id)).headOption must beSome.which { ovc =>
         ovc.includedUnits.size must equalTo(0)
       }
