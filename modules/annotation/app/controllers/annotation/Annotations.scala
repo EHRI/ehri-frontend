@@ -1,6 +1,5 @@
 package controllers.annotation
 
-import defines.ContentTypes
 import models.{AccountDAO, Annotation}
 import com.google.inject._
 import controllers.generic.{Annotate, Delete, Read, Visibility}
@@ -11,10 +10,6 @@ case class Annotations @Inject()(implicit globalConfig: global.GlobalConfig, bac
   with Visibility[Annotation]
   with Delete[Annotation]
   with Annotate[Annotation] {
-
-  implicit val resource = Annotation.Resource
-
-  val contentType = ContentTypes.Annotation
 
   def get(id: String) = getAction(id) { item => annotations => links => implicit userOpt => implicit request =>
     Ok(views.html.annotation.details(item, annotations))

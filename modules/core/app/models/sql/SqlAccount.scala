@@ -8,7 +8,7 @@ import scala.language.postfixOps
 import play.api.Play.current
 import java.util.UUID
 import play.api.Logger
-import utils.ListParams
+import utils.PageParams
 
 /**
  * @author Mike Bryant (http://github.com/mikesname)
@@ -105,7 +105,7 @@ case class SqlAccount(id: String, email: String, verified: Boolean = false, staf
   def createValidationToken(token: UUID): Unit = DB.withConnection { implicit connection =>
     SQL(
       """INSERT INTO token (id, token, expires, is_sign_up)
-         VAlUES ({id}, {token}, DATE_ADD(NOW(), INTERVAL 1 DAY), 1)""")
+         VAlUES ({id}, {token}, DATE_ADD(NOW(), INTERVAL 1 WEEK), 1)""")
       .on('id -> id, 'token -> token.toString).executeInsert()
   }
 
@@ -149,9 +149,9 @@ object SqlAccount extends AccountDAO {
     ).on('email -> email, 'verified -> verified).as(SqlAccount.simple.singleOpt)
   }
 
-  def findAll(params: ListParams = ListParams.empty): Seq[Account] = DB.withConnection { implicit connection =>
+  def findAll(params: PageParams = PageParams.empty): Seq[Account] = DB.withConnection { implicit connection =>
     val query = if (params.hasLimit)
-      s"select * from users offset ${params.offset} limit ${params.limit}"
+      s"select * from users offset ${params.offset} limit ${params.count}"
       else "select * from users"
     SQL(query).as(SqlAccount.simple *)
   }

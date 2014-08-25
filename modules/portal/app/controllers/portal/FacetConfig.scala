@@ -1,6 +1,6 @@
 package controllers.portal
 
-import models.{Isaar, IsadG}
+import models.Isaar
 import play.api.i18n.Messages
 import views.Helpers
 import utils.search.{FacetSort, FacetDisplay}
@@ -11,7 +11,7 @@ import utils.DateFacetUtils
 import solr.facet.SolrQueryFacet
 import solr.facet.FieldFacetClass
 import solr.facet.QueryFacetClass
-import defines.EntityType
+import models.base.Description
 
 
 /**
@@ -52,8 +52,8 @@ trait FacetConfig extends Search {
   protected val globalSearchFacets: FacetBuilder = { implicit request =>
     List(
       FieldFacetClass(
-        key = IsadG.LANG_CODE,
-        name = Messages("documentaryUnit." + IsadG.LANG_CODE),
+        key = Description.LANG_CODE,
+        name = Messages("documentaryUnit." + Description.LANG_CODE),
         param = "lang",
         render = (s: String) => Helpers.languageCodeToName(s),
         display = FacetDisplay.Choice,
@@ -158,7 +158,7 @@ trait FacetConfig extends Search {
       QueryFacetClass(
         key="childCount",
         name=Messages("portal.facet.itemsHeldOnline"),
-        param="docs",
+        param="data",
         render=s => Messages("portal.facet.itemsHeldOnline." + s),
         facets=List(
           SolrQueryFacet(value = "yes", solrValue = "[1 TO *]", name = Some("yes"))
@@ -193,8 +193,8 @@ trait FacetConfig extends Search {
     dateQuery(request).toList ++
     List(
       FieldFacetClass(
-        key = IsadG.LANG_CODE,
-        name = Messages("documentaryUnit." + IsadG.LANG_CODE),
+        key = Description.LANG_CODE,
+        name = Messages("documentaryUnit." + Description.LANG_CODE),
         param = "lang",
         render = (s: String) => Helpers.languageCodeToName(s),
         display = FacetDisplay.Choice,
@@ -203,10 +203,10 @@ trait FacetConfig extends Search {
       QueryFacetClass(
         key="childCount",
         name=Messages("portal.facet.container"),
-        param="items",
+        param="data",
         render=s => Messages("portal.facet.container." + s),
         facets=List(
-          SolrQueryFacet(value = "true", solrValue = "[1 TO *]", name = Some("hasChildItems"))
+          SolrQueryFacet(value = "yes", solrValue = "[1 TO *]", name = Some("hasChildItems"))
         ),
         display = FacetDisplay.Boolean
       ),
@@ -252,8 +252,8 @@ trait FacetConfig extends Search {
   protected val conceptFacets: FacetBuilder = { implicit request =>
     List(
       FieldFacetClass(
-        key = IsadG.LANG_CODE,
-        name = Messages("cvocConcept." + IsadG.LANG_CODE),
+        key = Description.LANG_CODE,
+        name = Messages("cvocConcept." + Description.LANG_CODE),
         param = "lang",
         render = (s: String) => Helpers.languageCodeToName(s),
         display = FacetDisplay.Choice,

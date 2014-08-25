@@ -1,6 +1,5 @@
 package controllers.linking
 
-import defines.ContentTypes
 import forms.VisibilityForm
 import models.{LinkF, AccountDAO, Link}
 import com.google.inject._
@@ -14,10 +13,6 @@ case class Links @Inject()(implicit globalConfig: global.GlobalConfig, backend: 
   with Delete[Link]
   with Annotate[Link] {
 
-  implicit val resource = Link.Resource
-
-  val contentType = ContentTypes.Link
-  
   private val form = Link.form
 
   private val linkRoutes = controllers.linking.routes.Links

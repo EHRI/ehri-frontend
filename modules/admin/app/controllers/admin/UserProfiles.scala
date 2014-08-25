@@ -4,7 +4,7 @@ import play.api.libs.concurrent.Execution.Implicits._
 import controllers.generic._
 import models._
 import play.api.i18n.Messages
-import defines.{PermissionType, ContentTypes}
+import defines.{EntityType, PermissionType, ContentTypes}
 import utils.search._
 import com.google.inject._
 import backend.Backend
@@ -51,10 +51,6 @@ case class UserProfiles @Inject()(implicit globalConfig: global.GlobalConfig, se
       )
     )
   }
-
-  implicit val resource = UserProfile.Resource
-
-  val contentType = ContentTypes.UserProfile
 
   val form = models.UserProfile.form
 
@@ -130,7 +126,7 @@ case class UserProfiles @Inject()(implicit globalConfig: global.GlobalConfig, se
    */
   private def grantOwnerPerms[T](profile: UserProfile)(f: => Result)(
     implicit request: Request[T], userOpt: Option[UserProfile]): Future[Result] = {
-    backend.setItemPermissions(profile, ContentTypes.UserProfile,
+    backend.setItemPermissions(profile.id, ContentTypes.UserProfile,
       profile.id, List(PermissionType.Owner.toString)).map { perms =>
       f
     }
@@ -186,7 +182,7 @@ case class UserProfiles @Inject()(implicit globalConfig: global.GlobalConfig, se
 
   def search = userProfileAction.async { implicit userOpt => implicit request =>
     find[UserProfile](
-      entities = List(resource.entityType), facetBuilder = entityFacets
+      entities = List(EntityType.UserProfile), facetBuilder = entityFacets
     ).map { case QueryResult(page, params, facets) =>
       // Crap alert! Lookup accounts for users. This is undesirable 'cos it's
       // one DB SELECT per user, but since it's just a management page it shouldn't
@@ -206,7 +202,7 @@ case class UserProfiles @Inject()(implicit globalConfig: global.GlobalConfig, se
     Ok(views.html.userProfile.list(page, params))
   }
 
-  def update(id: String) = withItemPermission[UserProfile](id, PermissionType.Update, contentType) {
+  def update(id: String) = withItemPermission[UserProfile](id, PermissionType.Update) {
       item => implicit userOpt => implicit request =>
     val userWithAccount = item.copy(account = userDAO.findByProfileId(id))
     Ok(views.html.userProfile.edit(item, AdminUserData.form.fill(
@@ -214,7 +210,7 @@ case class UserProfiles @Inject()(implicit globalConfig: global.GlobalConfig, se
       userRoutes.updatePost(id)))
   }
 
-  def updatePost(id: String) = withItemPermission.async[UserProfile](id, PermissionType.Update, contentType) {
+  def updatePost(id: String) = withItemPermission.async[UserProfile](id, PermissionType.Update) {
       item => implicit userOpt => implicit request =>
     val userWithAccount = item.copy(account = userDAO.findByProfileId(id))
     AdminUserData.form.bindFromRequest.fold(
@@ -242,7 +238,7 @@ case class UserProfiles @Inject()(implicit globalConfig: global.GlobalConfig, se
           userRoutes.get(id)))
   }
 
-  def deletePost(id: String) = withItemPermission.async[UserProfile](id, PermissionType.Delete, contentType) {
+  def deletePost(id: String) = withItemPermission.async[UserProfile](id, PermissionType.Delete) {
       item => implicit userOpt => implicit request =>
     deleteForm(item).bindFromRequest.fold(
       errForm => {

@@ -47,7 +47,7 @@ GET         /keywords                       @controllers.portal.Portal.browseCon
 GET         /keywords/:id                   @controllers.portal.Portal.browseConcept(id: String)
 GET         /links/:id                      @controllers.portal.Portal.browseLink(id: String)
 GET         /annotations/:id                @controllers.portal.Portal.browseAnnotation(id: String)
-GET         /activity                       @controllers.portal.Social.personalisedActivity(offset: Int ?= 0)
+GET         /activity                       @controllers.portal.Social.personalisedActivity(page: Int ?= 1, count: Int ?= 20)
 GET         /activity/:id                   @controllers.portal.Portal.itemHistory(id: String)
 GET         /vocabularies/:id               @controllers.portal.Portal.browseVocabulary(id: String)
 GET         /vocabularies/:id/search        @controllers.portal.Portal.searchVocabulary(id: String)

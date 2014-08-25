@@ -211,6 +211,9 @@ describedEntity.createDescription.submit=Add Description
 describedEntity.updateDescription=Update Description
 describedEntity.updateDescription.submit=Update Description
 describedEntity.manageAccessPoints=Manage Access Points
+describedEntity.creationProcess.importWarning=Warning! This description is marked as being\
+  created via an import process. This means that changes to the data may be overwritten if\
+  the import data is subsequently updated.
 
 #
 # Annotations
@@ -342,7 +345,8 @@ permissions.permissionGrants={2,choice,0#No permissions granted|1#One permission
 permissions.itemPermissionsForItem=Item-level Permissions for {0}
 permissions.scopedPermissionsForItem=Scoped Permissions for {0}
 permissions.inheritedFrom=Inherited From: {0}
-permissions.revoke=Revoke
+permissions.revoke=Revoke Permission?
+permissions.revoke.submit=Revoke
 
 #
 # Actions

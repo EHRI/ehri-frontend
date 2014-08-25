@@ -9,7 +9,7 @@
     @item.model.primaryDescription(descriptionId).map { desc =>
         @documentaryUnit.searchItemBody(item.asDocumentaryUnit, desc)
     }.getOrElse {
-        @item.descriptionRefs.headOption.map { desc =>
+        @item.includedUnits.flatMap(_.descriptions).headOption.map { desc =>
             @documentaryUnit.searchItemBody(item.asDocumentaryUnit, desc)
         }.getOrElse {
             <small>@Messages("describedEntity.noDescriptions")</small>

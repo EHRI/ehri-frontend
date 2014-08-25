@@ -138,8 +138,8 @@ class EntityViewsSpec extends Neo4jRunnerSpec(classOf[EntityViewsSpec]) {
 
   "UserProfile views" should {
 
-    val subjectUser = UserProfile(UserProfileF(id = Some("reto"), identifier = "reto", name = "Reto"))
     val id = "reto"
+    val subjectUser = UserProfile(UserProfileF(id = Some(id), identifier = id, name = "Reto"))
 
     "reliably set permissions" in new FakeApp {
       val testData: Map[String, List[String]] = Map(
@@ -147,15 +147,16 @@ class EntityViewsSpec extends Neo4jRunnerSpec(classOf[EntityViewsSpec]) {
         ContentTypes.DocumentaryUnit.toString -> List(PermissionType.Create.toString)
       )
       val cr = route(fakeLoggedInHtmlRequest(privilegedUser, POST,
-        controllers.admin.routes.UserProfiles.permissionsPost(subjectUser.id).url).withHeaders(formPostHeaders.toSeq: _*), testData).get
+        controllers.admin.routes.UserProfiles.permissionsPost(subjectUser.id).url)
+        .withHeaders(formPostHeaders.toSeq: _*), testData).get
       status(cr) must equalTo(SEE_OTHER)
 
       // Now check we can read back the same permissions.
-      val perms = await(testBackend.getGlobalPermissions(subjectUser))
-      perms.get(ContentTypes.Repository, PermissionType.Create) must beSome
-      perms.get(ContentTypes.Repository, PermissionType.Create).get.inheritedFrom must beNone
-      perms.get(ContentTypes.DocumentaryUnit, PermissionType.Create) must beSome
-      perms.get(ContentTypes.DocumentaryUnit, PermissionType.Create).get.inheritedFrom must beNone
+      val perms = await(testBackend.getGlobalPermissions(id))
+      perms.get(subjectUser, ContentTypes.Repository, PermissionType.Create) must beSome
+      perms.get(subjectUser, ContentTypes.Repository, PermissionType.Create).get.inheritedFrom must beNone
+      perms.get(subjectUser, ContentTypes.DocumentaryUnit, PermissionType.Create) must beSome
+      perms.get(subjectUser, ContentTypes.DocumentaryUnit, PermissionType.Create).get.inheritedFrom must beNone
     }
 
     "link to other privileged actions when logged in" in new FakeApp {
@@ -257,6 +258,166 @@ class EntityViewsSpec extends Neo4jRunnerSpec(classOf[EntityViewsSpec]) {
 
       val groupFetch = await(testBackend.get[Group]("niod"))
       groupFetch.groups.map(_.id) must not contain "admin"
+    }
+  }
+
+  "HistoricalAgent views" should {
+    "list should get some items" in new FakeApp {
+
+      val list = route(fakeLoggedInHtmlRequest(unprivilegedUser, GET,
+        controllers.authorities.routes.HistoricalAgents.list().url)).get
+      status(list) must equalTo(OK)
+      contentAsString(list) must contain(multipleItemsHeader)
+      contentAsString(list) must contain("a1")
+      contentAsString(list) must contain("a2")
+    }
+
+    "allow creating new items when logged in as privileged user" in new FakeApp {
+      val testData: Map[String, Seq[String]] = Map(
+        "identifier" -> Seq("wiener-library"),
+        "descriptions[0].languageCode" -> Seq("en"),
+        "descriptions[0].typeOfEntity" -> Seq("corporateBody"),
+        "descriptions[0].name" -> Seq("Wiener Library"),
+        "descriptions[0].otherFormsOfName[0]" -> Seq("Wiener Library (Alt)"),
+        "descriptions[0].parallelFormsOfName[0]" -> Seq("Wiener Library (Alt)"),
+        "descriptions[0].descriptionArea.biographicalHistory" -> Seq("Some history"),
+        "descriptions[0].descriptionArea.generalContext" -> Seq("Some content"),
+        "publicationStatus" -> Seq("Published")
+      )
+      val cr = route(fakeLoggedInHtmlRequest(privilegedUser, POST,
+        controllers.authorities.routes.AuthoritativeSets
+          .createHistoricalAgent("auths").url).withHeaders(formPostHeaders.toSeq: _*), testData).get
+      status(cr) must equalTo(SEE_OTHER)
+
+      val show = route(fakeLoggedInHtmlRequest(privilegedUser, GET,
+        redirectLocation(cr).get)).get
+      status(show) must equalTo(OK)
+      contentAsString(show) must contain("Some history")
+      contentAsString(show) must contain("Some content")
+    }
+
+    "error if missing mandatory values" in new FakeApp {
+      val testData: Map[String, Seq[String]] = Map(
+      )
+      val cr = route(fakeLoggedInHtmlRequest(privilegedUser, POST,
+        controllers.authorities.routes.AuthoritativeSets
+          .createHistoricalAgent("auths").url).withHeaders(formPostHeaders.toSeq: _*), testData).get
+      status(cr) must equalTo(BAD_REQUEST)
+    }
+
+    "give a form error when creating items with an existing identifier" in new FakeApp {
+      val testData: Map[String, Seq[String]] = Map(
+        "identifier" -> Seq("a1"),
+        "descriptions[0].name" -> Seq("A test"),
+        "descriptions[0].typeOfEntity" -> Seq("corporateBody"),
+        "descriptions[0].languageCode" -> Seq("en")
+      )
+      val cr = route(fakeLoggedInHtmlRequest(privilegedUser, POST,
+        controllers.authorities.routes.AuthoritativeSets
+          .createHistoricalAgent("auths").url).withHeaders(formPostHeaders.toSeq: _*), testData).get
+      status(cr) must equalTo(SEE_OTHER)
+      val cr2 = route(fakeLoggedInHtmlRequest(privilegedUser, POST,
+        controllers.authorities.routes.AuthoritativeSets
+          .createHistoricalAgent("auths").url).withHeaders(formPostHeaders.toSeq: _*), testData).get
+      status(cr2) must equalTo(BAD_REQUEST)
+    }
+
+    "link to other privileged actions when logged in" in new FakeApp {
+      val show = route(fakeLoggedInHtmlRequest(privilegedUser, GET, controllers.authorities.routes.HistoricalAgents.get("a1").url)).get
+      status(show) must equalTo(OK)
+      contentAsString(show) must contain(controllers.authorities.routes.HistoricalAgents.update("a1").url)
+      contentAsString(show) must contain(controllers.authorities.routes.HistoricalAgents.delete("a1").url)
+      contentAsString(show) must contain(controllers.authorities.routes.HistoricalAgents.visibility("a1").url)
+      contentAsString(show) must contain(controllers.authorities.routes.HistoricalAgents.search().url)
+    }
+
+    "allow updating items when logged in as privileged user" in new FakeApp {
+      val testData: Map[String, Seq[String]] = Map(
+        "identifier" -> Seq("a1"),
+        "descriptions[0].typeOfEntity" -> Seq("corporateBody"),
+        "descriptions[0].languageCode" -> Seq("en"),
+        "descriptions[0].name" -> Seq("An Authority"),
+        "descriptions[0].otherFormsOfName[0]" -> Seq("An Authority (Alt)"),
+        "descriptions[0].parallelFormsOfName[0]" -> Seq("An Authority 2 (Alt)"),
+        "descriptions[0].descriptionArea.history" -> Seq("New History for a1"),
+        "descriptions[0].descriptionArea.generalContext" -> Seq("New Content for a1"),
+        "publicationStatus" -> Seq("Draft")
+      )
+      val cr = route(fakeLoggedInHtmlRequest(privilegedUser, POST,
+        controllers.authorities.routes.HistoricalAgents.updatePost("a1").url).withHeaders(formPostHeaders.toSeq: _*), testData).get
+      status(cr) must equalTo(SEE_OTHER)
+
+      val show = route(fakeLoggedInHtmlRequest(privilegedUser, GET, redirectLocation(cr).get)).get
+      status(show) must equalTo(OK)
+      contentAsString(show) must contain("New Content for a1")
+    }
+
+    "disallow updating items when logged in as unprivileged user" in new FakeApp {
+      val testData: Map[String, Seq[String]] = Map(
+        "identifier" -> Seq("a1")
+      )
+      val cr = route(fakeLoggedInHtmlRequest(unprivilegedUser, POST,
+        controllers.authorities.routes.HistoricalAgents.updatePost("a1").url).withHeaders(formPostHeaders.toSeq: _*), testData).get
+      status(cr) must equalTo(FORBIDDEN)
+    }
+
+    "show correct default values in the form when creating new items" in new FakeApp(
+      Map("historicalAgent.rulesAndConventions" -> "SOME RANDOM VALUE")) {
+      val form = route(fakeLoggedInHtmlRequest(privilegedUser, GET,
+        controllers.authorities.routes.AuthoritativeSets.createHistoricalAgent("auths").url)).get
+      status(form) must equalTo(OK)
+      contentAsString(form) must contain("SOME RANDOM VALUE")
+    }
+
+    "contain links to external items" in new FakeApp {
+      val show = route(fakeLoggedInHtmlRequest(privilegedUser, GET,
+        controllers.authorities.routes.HistoricalAgents.get("a1").url)).get
+      contentAsString(show) must contain("external-item-link")
+      contentAsString(show) must contain(
+        controllers.archdesc.routes.DocumentaryUnits.get("c1").url)
+    }
+  }
+
+  "Vocabulary views" should {
+    "allow creating new items when logged in as privileged user" in new FakeApp {
+      val testData: Map[String, Seq[String]] = Map(
+        "identifier" -> Seq("test-vocab"),
+        "name" -> Seq("Test Vocab")
+      )
+      val cr = route(fakeLoggedInHtmlRequest(privilegedUser, POST,
+        controllers.vocabs.routes.Vocabularies
+          .create().url).withHeaders(formPostHeaders.toSeq: _*), testData).get
+      status(cr) must equalTo(SEE_OTHER)
+
+      val show = route(fakeLoggedInHtmlRequest(privilegedUser, GET,
+        redirectLocation(cr).get)).get
+      status(show) must equalTo(OK)
+      contentAsString(show) must contain("Test Vocab")
+    }
+
+    "error if missing mandatory values" in new FakeApp {
+      val testData: Map[String, Seq[String]] = Map(
+        "identifier" -> Seq("test-vocab")
+      )
+      val cr = route(fakeLoggedInHtmlRequest(privilegedUser, POST,
+        controllers.vocabs.routes.Vocabularies
+          .create().url).withHeaders(formPostHeaders.toSeq: _*), testData).get
+      status(cr) must equalTo(BAD_REQUEST)
+    }
+
+    "allow updating items when logged in as privileged user" in new FakeApp {
+      val testData: Map[String, Seq[String]] = Map(
+        "identifier" -> Seq("cvoc1"),
+        "name" -> Seq("Another Name")
+      )
+      val cr = route(fakeLoggedInHtmlRequest(privilegedUser, POST,
+        controllers.vocabs.routes.Vocabularies.updatePost("cvoc1").url)
+        .withHeaders(formPostHeaders.toSeq: _*), testData).get
+      status(cr) must equalTo(SEE_OTHER)
+
+      val show = route(fakeLoggedInHtmlRequest(privilegedUser, GET, redirectLocation(cr).get)).get
+      status(show) must equalTo(OK)
+      contentAsString(show) must contain("Another Name")
     }
   }
 }

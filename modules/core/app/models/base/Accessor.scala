@@ -1,26 +1,17 @@
 package models.base
 
-import defines.EntityType
+import defines.{ContentTypes, EntityType}
 import models._
 import play.api.libs.json._
-import models.json.{RestResource, ClientConvertable, RestReadable}
+import backend.{BackendContentType, BackendResource}
 
 object Accessor {
   final val BELONGS_REL = "belongsTo"
 
-  implicit object Converter extends RestReadable[Accessor] with ClientConvertable[Accessor] {
+  implicit object Converter extends backend.BackendReadable[Accessor] {
     implicit val restReads: Reads[Accessor] = new Reads[Accessor] {
       def reads(json: JsValue): JsResult[Accessor] = {
         json.validate[Accessor](AnyModel.Converter.restReads.asInstanceOf[Reads[Accessor]])
-      }
-    }
-
-    implicit val clientFormat: Format[Accessor] = new Format[Accessor] {
-      def reads(json: JsValue): JsResult[Accessor] = {
-        json.validate[Accessor](AnyModel.Converter.clientFormat.asInstanceOf[Format[Accessor]])
-      }
-      def writes(a: Accessor): JsValue = {
-        Json.toJson(a)(AnyModel.Converter.clientFormat.asInstanceOf[Format[Accessor]])
       }
     }
   }
@@ -29,8 +20,9 @@ object Accessor {
    * This function allows getting a dynamic Resource for an Accessor given
    * the entity type.
    */
-  def resourceFor(t: EntityType.Value): RestResource[Accessor] = new RestResource[Accessor] {
+  def resourceFor(t: EntityType.Value): BackendResource[Accessor] with BackendContentType[Accessor] = new BackendResource[Accessor] with backend.BackendContentType[Accessor] {
     def entityType: EntityType.Value = t
+    def contentType: ContentTypes.Value = ContentTypes.withName(t.toString)
   }
 }
 

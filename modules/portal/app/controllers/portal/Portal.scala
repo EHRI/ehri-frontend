@@ -21,6 +21,7 @@ import utils._
 
 import com.google.inject._
 import views.html.errors.pageNotFound
+import org.joda.time.DateTime
 
 @Singleton
 case class Portal @Inject()(implicit globalConfig: global.GlobalConfig, searchDispatcher: Dispatcher, searchResolver: Resolver, backend: Backend,
@@ -30,7 +31,7 @@ case class Portal @Inject()(implicit globalConfig: global.GlobalConfig, searchDi
   with ControllerHelpers
   with Search
   with FacetConfig
-  with PortalActions
+  with PortalBase
   with SessionPreferences[SessionPrefs] {
 
   val defaultPreferences = new SessionPrefs
@@ -87,7 +88,7 @@ case class Portal @Inject()(implicit globalConfig: global.GlobalConfig, searchDi
       find[AnyModel](
         defaultParams = SearchParams(
           // we don't need results here because we're only using the facets
-          limit = Some(0),
+          count = 0,
           entities = List(
             EntityType.Repository,
             EntityType.DocumentaryUnit,
@@ -311,15 +312,20 @@ case class Portal @Inject()(implicit globalConfig: global.GlobalConfig, searchDi
     }
   }
 
-  case class NewsItem(title: String, link: String, description: Html)
+  case class NewsItem(title: String, link: String, description: Html, pubDate: Option[DateTime] = None)
 
   object NewsItem {
+    import scala.util.control.Exception._
+    import org.joda.time.format.DateTimeFormat
     def fromRss(feed: String): Seq[NewsItem] = {
+      val pat = DateTimeFormat.forPattern("EEE, dd MMM yyyy H:m:s Z")
       (xml.XML.loadString(feed) \\ "item").map { item =>
-        new NewsItem(
-          (item \ "title").text,
-          (item \ "link").text,
-          Html((item \ "description").text))
+        NewsItem(
+          title = (item \ "title").text,
+          link = (item \ "link").text,
+          description = Html((item \ "description").text),
+          pubDate = allCatch.opt(DateTime.parse((item \ "pubDate").text, pat))
+        )
       }
     }
   }

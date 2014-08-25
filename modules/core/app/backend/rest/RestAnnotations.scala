@@ -1,10 +1,13 @@
 package backend.rest
 
 import scala.concurrent.{ExecutionContext, Future}
-import play.api.libs.json.{Reads, Json}
+import play.api.libs.json.Json
 import defines.EntityType
 import models._
-import backend.{Annotations, EventHandler, ApiUser}
+import backend._
+import utils.{Page, PageParams}
+import backend.ApiUser
+import backend.Annotations
 
 
 /**
@@ -13,30 +16,31 @@ import backend.{Annotations, EventHandler, ApiUser}
 trait RestAnnotations extends Annotations with RestDAO {
 
   val eventHandler: EventHandler
-  import Constants.{ACCESSOR_PARAM,LIMIT_PARAM}
+  import Constants.ACCESSOR_PARAM
 
-  private def requestUrl = "http://%s:%d/%s/%s".format(host, port, mount, EntityType.Annotation)
+  private def requestUrl = s"http://$host:$port/$mount/${EntityType.Annotation}"
 
-  def getAnnotationsForItem(id: String)(implicit apiUser: ApiUser, executionContext: ExecutionContext): Future[Seq[Annotation]] = {
+  def getAnnotationsForItem(id: String)(implicit apiUser: ApiUser, rs: BackendReadable[Annotation], executionContext: ExecutionContext): Future[Page[Annotation]] = {
     val url = enc(requestUrl, "for", id)
-    userCall(url).withQueryString(LIMIT_PARAM -> "-1").get().map { response =>
-      checkErrorAndParse(response)(Reads.list(Annotation.Converter.restReads))
+    val pageParams = PageParams.empty.withoutLimit
+    userCall(url).withQueryString(pageParams.queryParams: _*).get().map { response =>
+      parsePage(response)(rs.restReads)
     }
   }
 
-  def createAnnotation(id: String, ann: AnnotationF, accessors: Seq[String] = Nil)(implicit apiUser: ApiUser, executionContext: ExecutionContext): Future[Annotation] = {
+  def createAnnotation(id: String, ann: AnnotationF, accessors: Seq[String] = Nil)(implicit apiUser: ApiUser, rs: BackendReadable[Annotation], wr: BackendWriteable[AnnotationF], executionContext: ExecutionContext): Future[Annotation] = {
     userCall(enc(requestUrl, id))
         .withQueryString(accessors.map(a => ACCESSOR_PARAM -> a): _*)
-        .post(Json.toJson(ann)(AnnotationF.annotationFormat)).map { response =>
-      checkErrorAndParse(response)(Annotation.Converter.restReads)
+        .post(Json.toJson(ann)(wr.restFormat)).map { response =>
+      checkErrorAndParse(response)(rs.restReads)
     }
   }
 
-  def createAnnotationForDependent(id: String, did: String, ann: AnnotationF, accessors: Seq[String] = Nil)(implicit apiUser: ApiUser, executionContext: ExecutionContext): Future[Annotation] = {
+  def createAnnotationForDependent(id: String, did: String, ann: AnnotationF, accessors: Seq[String] = Nil)(implicit apiUser: ApiUser, rs: BackendReadable[Annotation], wr: BackendWriteable[AnnotationF], executionContext: ExecutionContext): Future[Annotation] = {
     userCall(enc(requestUrl, id, did))
       .withQueryString(accessors.map(a => ACCESSOR_PARAM -> a): _*)
-      .post(Json.toJson(ann)(AnnotationF.annotationFormat)).map { response =>
-      checkErrorAndParse(response)(Annotation.Converter.restReads)
+      .post(Json.toJson(ann)(wr.restFormat)).map { response =>
+      checkErrorAndParse(response)(rs.restReads)
     }
   }
 }

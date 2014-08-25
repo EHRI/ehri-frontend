@@ -1,7 +1,7 @@
 package acl
 
 import play.api.test.PlaySpecification
-import defines.{ContentTypes, PermissionType, EntityType}
+import defines.{ContentTypes, PermissionType}
 import play.api.libs.json.Json
 import models.{UserProfileF, UserProfile}
 
@@ -27,8 +27,7 @@ class PermissionSetSpec extends PlaySpecification {
         )
       )
 
-      val json = Json.toJson(data)
-      val permSet = GlobalPermissionSet(user, json)
+      val permSet = Json.toJson(data).as[GlobalPermissionSet]
       permSet.has(ContentTypes.DocumentaryUnit, PermissionType.Create) must beTrue
       permSet.has(ContentTypes.DocumentaryUnit, PermissionType.Update) must beTrue
       permSet.has(ContentTypes.DocumentaryUnit, PermissionType.Annotate) must beFalse
@@ -47,8 +46,7 @@ class PermissionSetSpec extends PlaySpecification {
         )
       )
 
-      val json = Json.toJson(data)
-      val permSet = ItemPermissionSet(user, ContentTypes.DocumentaryUnit, json)
+      val permSet = Json.toJson(data).as(ItemPermissionSet.restReads(ContentTypes.DocumentaryUnit))
       permSet.has(PermissionType.Create) must beTrue
       permSet.has(PermissionType.Update) must beTrue
       permSet.has(PermissionType.Annotate) must beFalse

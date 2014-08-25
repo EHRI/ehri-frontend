@@ -1,7 +1,7 @@
 package models
 
 import models.base._
-import defines.EntityType
+import defines.{ContentTypes, EntityType}
 import models.json._
 import play.api.libs.json._
 import play.api.libs.functional.syntax._
@@ -10,6 +10,7 @@ import play.api.data.Form
 import play.api.data.Forms._
 import defines.EnumUtils._
 import play.api.libs.json.JsObject
+import backend.{BackendResource, BackendContentType, BackendReadable, BackendWriteable}
 
 
 object AnnotationF {
@@ -59,11 +60,8 @@ object AnnotationF {
     (__ \ DATA \ IS_PROMOTABLE).readNullable[Boolean].map(_.getOrElse(false))
   )(AnnotationF.apply _)
 
-  implicit val annotationFormat: Format[AnnotationF] = Format(annotationReads,annotationWrites)
-
-  implicit object Converter extends RestConvertable[AnnotationF] with ClientConvertable[AnnotationF] {
-    lazy val restFormat = annotationFormat
-    lazy val clientFormat = Json.format[AnnotationF]
+  implicit object Converter extends BackendWriteable[AnnotationF] {
+    lazy val restFormat = Format(annotationReads,annotationWrites)
   }
 }
 
@@ -100,25 +98,13 @@ object Annotation {
     (__ \ META).readWithDefault(Json.obj())
   )(Annotation.apply _)
 
-  implicit object Converter extends ClientConvertable[Annotation] with RestReadable[Annotation] {
+  implicit object Converter extends BackendReadable[Annotation] {
     val restReads = metaReads
-
-    val clientFormat: Format[Annotation] = (
-      __.format[AnnotationF](AnnotationF.Converter.clientFormat) and
-      (__ \ "annotations").lazyNullableListFormat(clientFormat) and
-      (__ \ "user").lazyFormatNullable[UserProfile](UserProfile.Converter.clientFormat) and
-      (__ \ "source").lazyFormatNullable[AnyModel](AnyModel.Converter.clientFormat) and
-      (__ \ "target").lazyFormatNullable[AnyModel](AnyModel.Converter.clientFormat) and
-      (__ \ "targetPart").lazyFormatNullable[Entity](Entity.entityFormat) and
-      (__ \ "accessibleTo").nullableListFormat(Accessor.Converter.clientFormat) and
-      (__ \ "promotedBy").nullableListFormat(UserProfile.Converter.clientFormat) and
-      (__ \ "event").formatNullable[SystemEvent](SystemEvent.Converter.clientFormat) and
-      (__ \ "meta").format[JsObject]
-    )(Annotation.apply _, unlift(Annotation.unapply))
   }
 
-  implicit object Resource extends RestResource[Annotation] {
+  implicit object Resource extends BackendResource[Annotation] with BackendContentType[Annotation] {
     val entityType = EntityType.Annotation
+    val contentType = ContentTypes.Annotation
   }
 
   /**

@@ -3,13 +3,15 @@ package models
 import base._
 
 import models.base.Persistable
-import defines.EntityType
+import defines.{ContentTypes, EntityType}
 import models.json._
 import play.api.i18n.Lang
 import play.api.libs.json._
 import play.api.libs.functional.syntax._
 import play.api.data.Form
 import play.api.data.Forms._
+import backend.{BackendReadable, BackendContentType, BackendResource, BackendWriteable}
+
 
 object CountryF {
 
@@ -40,11 +42,8 @@ object CountryF {
     (__ \ DATA \ REPORT).readNullable[String]
   )(CountryF.apply _)
 
-  implicit val countryFormat: Format[CountryF] = Format(countryReads,countryWrites)
-
-  implicit object Converter extends RestConvertable[CountryF] with ClientConvertable[CountryF] {
-    lazy val restFormat = countryFormat
-    lazy val clientFormat = Json.format[CountryF]
+  implicit object Converter extends BackendWriteable[CountryF] {
+    lazy val restFormat = Format(countryReads,countryWrites)
   }
 }
 
@@ -70,19 +69,13 @@ object Country {
     (__ \ META).readWithDefault(Json.obj())
   )(Country.apply _)
 
-  implicit object Converter extends ClientConvertable[Country] with RestReadable[Country] {
+  implicit object Converter extends BackendReadable[Country] {
     val restReads = metaReads
-
-    val clientFormat: Format[Country] = (
-      __.format[CountryF](CountryF.Converter.clientFormat) and
-      (__ \ "accessibleTo").nullableListFormat(Accessor.Converter.clientFormat) and
-      (__ \ "event").formatNullable[SystemEvent](SystemEvent.Converter.clientFormat) and
-      (__ \ "meta").format[JsObject]
-    )(Country.apply _, unlift(Country.unapply _))
   }
 
-  implicit object Resource extends RestResource[Country] {
+  implicit object Resource extends BackendResource[Country] with BackendContentType[Country] {
     val entityType = EntityType.Country
+    val contentType = ContentTypes.Country
   }
 
   val form = Form(

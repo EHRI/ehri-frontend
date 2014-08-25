@@ -1,0 +1,46 @@
+{
+  "id" : "restricted-access",
+  "data" : {
+    "description" : "Users/Groups who can view restricted material.",
+    "name" : "Restricted Access",
+    "identifier" : "restricted-access"
+  },
+  "type" : "group",
+  "relationships" : {
+    "lifecycleEvent" : [ {
+      "id" : "98114aa9-e5f7-48bb-8deb-8543633b539a",
+      "data" : {
+        "timestamp" : "2013-03-10T18:37:17.300+01:00",
+        "identifier" : "81805f42-5772-4ae9-a494-521f82523fc1",
+        "logMessage" : "Added userProfile to group"
+      },
+      "type" : "systemEvent",
+      "relationships" : {
+        "hasActioner" : [ {
+          "id" : "mike",
+          "data" : {
+            "languages" : [ "en" ],
+            "location" : "London",
+            "name" : "Mike Bryant",
+            "about" : "Testing the system",
+            "identifier" : "mike"
+          },
+          "type" : "userProfile",
+          "relationships" : {
+            "belongsTo" : [ {
+              "id" : "admin",
+              "data" : {
+                "description" : "The all-powerful system administrators who never accidentally delete stuff.",
+                "name" : "Administrators",
+                "identifier" : "admin"
+              },
+              "type" : "group",
+              "relationships" : {
+              }
+            } ]
+          }
+        } ]
+      }
+    } ]
+  }
+}

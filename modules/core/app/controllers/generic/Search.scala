@@ -4,11 +4,11 @@ import play.api.mvc._
 import play.api.libs.concurrent.Execution.Implicits._
 import models.UserProfile
 import defines.EntityType
-import models.json.{ClientConvertable, RestReadable}
 import utils.search._
 import play.api.Logger
 import controllers.base.{ControllerHelpers, AuthController}
 import scala.concurrent.Future
+import backend.BackendReadable
 
 
 /**
@@ -23,7 +23,7 @@ trait Search extends Controller with AuthController with ControllerHelpers {
   type FacetBuilder = RequestHeader => FacetClassList
   protected val emptyFacets: FacetBuilder = { lang => List.empty[FacetClass[Facet]]}
 
-  def bindFacetsFromRequest(facetClasses: FacetClassList)(implicit request: Request[AnyContent]): List[AppliedFacet] = {
+  def bindFacetsFromRequest(facetClasses: FacetClassList)(implicit request: RequestHeader): List[AppliedFacet] = {
     facetClasses.flatMap { fc =>
       request.queryString.get(fc.param).map(_.filterNot(_.trim.isEmpty)).map { values =>
         AppliedFacet(fc.key, values.toList)
@@ -35,9 +35,9 @@ trait Search extends Controller with AuthController with ControllerHelpers {
    * Search sort logic. By default, if there's a query, items come out
    * sorted by their score. Otherwise, they are sorted by name.
    */
-  type SortFunction = (SearchParams => Request[_]) => Option[SearchOrder.Value]
+  type SortFunction = (SearchParams => RequestHeader) => Option[SearchOrder.Value]
 
-  private def defaultSortFunction(sp: SearchParams, request: Request[_]): Option[SearchOrder.Value] = {
+  private def defaultSortFunction(sp: SearchParams, request: RequestHeader): Option[SearchOrder.Value] = {
     if (sp.sort.isDefined) sp.sort
     else {
       val q = request.getQueryString(SearchParams.QUERY)
@@ -65,13 +65,13 @@ trait Search extends Controller with AuthController with ControllerHelpers {
                entities: Seq[EntityType.Value] = Nil,
                facetBuilder: FacetBuilder = emptyFacets,
                mode: SearchMode.Value = SearchMode.DefaultAll)(
-                implicit request: Request[AnyContent], userOpt: Option[UserProfile], rd: RestReadable[MT]): Future[QueryResult[MT]] = {
+                implicit request: RequestHeader, userOpt: Option[UserProfile], rd: BackendReadable[MT]): Future[QueryResult[MT]] = {
 
     val params = defaultParams
       .copy(sort = defaultSortFunction(defaultParams, request))
       .copy(entities = if (entities.isEmpty) defaultParams.entities else entities.toList)
 
-    val sp = SearchParams.form.bindFromRequest
+    val sp = SearchParams.form.bindFromRequest(request.queryString)
       .value.getOrElse(SearchParams.empty)
       .setDefault(Some(params))
 
@@ -91,10 +91,14 @@ trait Search extends Controller with AuthController with ControllerHelpers {
   }
 
   case class QueryResult[MT](
-    page: ItemPage[(MT, SearchHit)],
-    params: SearchParams,
-    facets: List[AppliedFacet]
+    page: ItemPage[(MT, SearchHit)] = ItemPage.empty,
+    params: SearchParams = SearchParams.empty,
+    facets: List[AppliedFacet] = Nil
   )
+
+  object QueryResult {
+    def empty[T]: QueryResult[T] = QueryResult(ItemPage.empty, SearchParams.empty, List.empty)
+  }
 
   /**
    * Action that restricts the search to the inherited entity type
@@ -106,7 +110,7 @@ trait Search extends Controller with AuthController with ControllerHelpers {
                        entities: Seq[EntityType.Value] = Nil,
                        entityFacets: FacetBuilder = emptyFacets,
                        mode: SearchMode.Value = SearchMode.DefaultAll)(
-                        f: ItemPage[(MT, SearchHit)] => SearchParams => List[AppliedFacet] => Option[UserProfile] => Request[AnyContent] => Result)(implicit rd: RestReadable[MT], cfmt: ClientConvertable[MT]): Action[AnyContent] = {
+                        f: ItemPage[(MT, SearchHit)] => SearchParams => List[AppliedFacet] => Option[UserProfile] => Request[AnyContent] => Result)(implicit rd: BackendReadable[MT]): Action[AnyContent] = {
     userProfileAction.async { implicit userOpt => implicit request =>
       find[MT](
         filters,

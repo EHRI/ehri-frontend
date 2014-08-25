@@ -1,7 +1,7 @@
 package models
 
 import models.base._
-import defines.EntityType
+import defines.{ContentTypes, EntityType}
 import play.api.libs.json._
 import models.json._
 import play.api.i18n.Lang
@@ -9,6 +9,7 @@ import eu.ehri.project.definitions.Ontology
 import play.api.data.Form
 import play.api.data.Forms._
 import play.api.libs.json.JsObject
+import backend.{BackendContentType, BackendResource, BackendReadable, BackendWriteable}
 
 
 object LinkF {
@@ -58,11 +59,8 @@ object LinkF {
     (__ \ RELATIONSHIPS \ ENTITY_HAS_DATE).nullableListReads[DatePeriodF]
   )(LinkF.apply _)
 
-  implicit val linkFormat: Format[LinkF] = Format(linkReads,linkWrites)
-
-  implicit object Converter extends RestConvertable[LinkF] with ClientConvertable[LinkF] {
-    lazy val restFormat = linkFormat
-    lazy val clientFormat = Json.format[LinkF]
+  implicit object Converter extends BackendWriteable[LinkF] {
+    lazy val restFormat = Format(linkReads,linkWrites)
   }
 }
 
@@ -84,7 +82,7 @@ object Link {
 
   private implicit val anyModelReads = AnyModel.Converter.restReads
   private implicit val userProfileMetaReads = models.UserProfile.Converter.restReads
-  private implicit val accessPointReads = models.AccessPointF.accessPointReads
+  private implicit val accessPointReads = models.AccessPoint.Converter.restReads
   private implicit val systemEventReads = SystemEvent.Converter.restReads
 
   implicit val metaReads: Reads[Link] = (
@@ -98,24 +96,13 @@ object Link {
     (__ \ META).readWithDefault(Json.obj())
   )(Link.apply _)
 
-  implicit object Converter extends RestReadable[Link] with ClientConvertable[Link] {
+  implicit object Converter extends BackendReadable[Link] {
     val restReads = metaReads
-
-    private implicit val linkFormat = Json.format[LinkF]
-    val clientFormat: Format[Link] = (
-      __.format[LinkF](LinkF.Converter.clientFormat) and
-      (__ \ "targets").nullableListFormat(AnyModel.Converter.clientFormat) and
-      (__ \ "user").lazyFormatNullable[UserProfile](UserProfile.Converter.clientFormat) and
-      (__ \ "accessPoints").nullableListFormat(AccessPointF.Converter.clientFormat) and
-      (__ \ "accessibleTo").nullableListFormat(Accessor.Converter.clientFormat) and
-      (__ \ "promotedBy").nullableListFormat(UserProfile.Converter.clientFormat) and
-      (__ \ "event").formatNullable[SystemEvent](SystemEvent.Converter.clientFormat) and
-      (__ \ "meta").format[JsObject]
-    )(Link.apply _, unlift(Link.unapply))
   }
 
-  implicit object Resource extends RestResource[Link] {
+  implicit object Resource extends BackendResource[Link] with BackendContentType[Link] {
     val entityType = EntityType.Link
+    val contentType = ContentTypes.Link
   }
 
   import LinkF._

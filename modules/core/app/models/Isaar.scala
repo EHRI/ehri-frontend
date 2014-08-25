@@ -14,14 +14,10 @@ case object Isaar {
     implicit val format = defines.EnumUtils.enumFormat(this)
   }
 
-  val ACCESS_POINTS = "accessPoints"
-  val UNKNOWN_DATA = "unknownData"
-
   val IDENTIFIER = "identifier"
   val NAME = "name"
   val PUBLICATION_STATUS = "publicationStatus"
 
-  val LANG_CODE = "languageCode"
   val ADMINISTRATION_AREA = "administrationArea"
 
   // Field set

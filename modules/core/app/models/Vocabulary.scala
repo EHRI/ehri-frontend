@@ -3,7 +3,7 @@ package models
 import base._
 
 import models.base.Persistable
-import defines.EntityType
+import defines.{ContentTypes, EntityType}
 import play.api.libs.json._
 import models.json._
 import play.api.i18n.Lang
@@ -12,6 +12,8 @@ import play.api.data.Form
 import play.api.data.Forms._
 import play.api.libs.json.JsObject
 import eu.ehri.project.definitions.Ontology
+import backend.{BackendReadable, BackendContentType, BackendResource, BackendWriteable}
+
 
 object VocabularyType extends Enumeration {
   type Type = Value
@@ -47,9 +49,8 @@ object VocabularyF {
 
   implicit val vocabularyFormat: Format[VocabularyF] = Format(vocabularyReads,vocabularyWrites)
 
-  implicit object Converter extends RestConvertable[VocabularyF] with ClientConvertable[VocabularyF] {
+  implicit object Converter extends BackendWriteable[VocabularyF] {
     lazy val restFormat = vocabularyFormat
-    lazy val clientFormat = Json.format[VocabularyF]
   }
 }
 
@@ -77,19 +78,13 @@ object Vocabulary {
     (__ \ META).readWithDefault(Json.obj())
   )(Vocabulary.apply _)
 
-  implicit object Converter extends ClientConvertable[Vocabulary] with RestReadable[Vocabulary] {
+  implicit object Converter extends BackendReadable[Vocabulary] {
     val restReads = metaReads
-
-    val clientFormat: Format[Vocabulary] = (
-      __.format[VocabularyF](VocabularyF.Converter.clientFormat) and
-      (__ \ "accessibleTo").nullableListFormat(Accessor.Converter.clientFormat) and
-      (__ \ "event").formatNullable[SystemEvent](SystemEvent.Converter.clientFormat) and
-      (__ \ "meta").format[JsObject]
-    )(Vocabulary.apply _, unlift(Vocabulary.unapply))
   }
 
-  implicit object Resource extends RestResource[Vocabulary] {
+  implicit object Resource extends BackendResource[Vocabulary] with BackendContentType[Vocabulary] {
     val entityType = EntityType.Vocabulary
+    val contentType = ContentTypes.Vocabulary
   }
 
   val form = Form(

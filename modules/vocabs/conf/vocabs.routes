@@ -1,10 +1,10 @@
 # Routes for vocabularies and concepts
 
 GET     /vocabularies                                        @controllers.vocabs.Vocabularies.list
-GET     /vocabularies/:id                                    @controllers.vocabs.Vocabularies.get(id: String)
-GET     /vocabularies/:id/history                            @controllers.vocabs.Vocabularies.history(id: String)
 GET     /vocabularies/create                                 @controllers.vocabs.Vocabularies.create
 POST    /vocabularies/create                                 @controllers.vocabs.Vocabularies.createPost
+GET     /vocabularies/:id                                    @controllers.vocabs.Vocabularies.get(id: String)
+GET     /vocabularies/:id/history                            @controllers.vocabs.Vocabularies.history(id: String)
 GET     /vocabularies/:id/delete                             @controllers.vocabs.Vocabularies.delete(id: String)
 POST    /vocabularies/:id/delete                             @controllers.vocabs.Vocabularies.deletePost(id: String)
 GET     /vocabularies/:id/update                             @controllers.vocabs.Vocabularies.update(id: String)
@@ -23,7 +23,6 @@ POST    /vocabularies/:id/scope/:userType/:userId            @controllers.vocabs
 GET     /vocabularies/:id/reindex                            @controllers.vocabs.Vocabularies.updateIndex(id: String)
 POST    /vocabularies/:id/reindex                            @controllers.vocabs.Vocabularies.updateIndexPost(id: String)
 
-GET     /keywords/meta/:id                                   @controllers.vocabs.Concepts.getClientJson(id)
 GET     /keywords                                            @controllers.vocabs.Concepts.search
 GET     /keywords/list                                       @controllers.vocabs.Concepts.list
 GET     /keywords/:id                                        @controllers.vocabs.Concepts.get(id: String)

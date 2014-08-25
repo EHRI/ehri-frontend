@@ -43,8 +43,6 @@ case class SolrDispatcher(queryBuilder: QueryBuilder, responseParser: ResponsePa
    */
   def filter(params: SearchParams, filters: Map[String, Any] = Map.empty, extra: Map[String, Any] = Map.empty)(
     implicit userOpt: Option[UserProfile]): Future[ItemPage[FilterHit]] = {
-    val limit = params.limit.getOrElse(100)
-    val offset = (Math.max(params.page.getOrElse(1), 1) - 1) * limit
 
     val queryRequest = queryBuilder.simpleFilter(params, filters, extra)
     Logger.logger.debug(queryRequest.queryString())
@@ -52,7 +50,7 @@ case class SolrDispatcher(queryBuilder: QueryBuilder, responseParser: ResponsePa
     WS.url(buildSearchUrl(queryRequest)).get().map { response =>
       val parser = responseParser(checkError(response).body)
       val items = parser.items.map(i => FilterHit(i.itemId, i.id, i.name, i.`type`, i.fields.get(SolrConstants.HOLDER_NAME), i.gid))
-      ItemPage(items, offset, limit, parser.count, Nil)
+      ItemPage(items, params.page, params.count, parser.count, Nil)
     }
   }
 
@@ -69,15 +67,13 @@ case class SolrDispatcher(queryBuilder: QueryBuilder, responseParser: ResponsePa
              filters: Map[String, Any] = Map.empty, extra: Map[String, Any] = Map.empty,
              mode: SearchMode.Value = SearchMode.DefaultAll)(
               implicit userOpt: Option[UserProfile]): Future[ItemPage[SearchHit]] = {
-    val limit = params.limit.getOrElse(Constants.DEFAULT_LIST_LIMIT)
-    val offset = (Math.max(params.page.getOrElse(1), 1) - 1) * limit
 
-    val queryRequest = queryBuilder.search(params, facets, allFacets, filters, extra, mode)(userOpt)
+    val queryRequest = queryBuilder.search(params, facets, allFacets, filters, extra, mode)
     val url = buildSearchUrl(queryRequest)
     Logger.logger.debug("SOLR: {}", url)
     WS.url(buildSearchUrl(queryRequest)).get().map { response =>
       val parser = responseParser(checkError(response).body)
-      ItemPage(parser.items, offset, limit, parser.count,
+      ItemPage(parser.items, params.page, params.count, parser.count,
         parser.extractFacetData(facets, allFacets), spellcheck = parser.spellcheckSuggestion)
     }
   }
@@ -98,14 +94,12 @@ case class SolrDispatcher(queryBuilder: QueryBuilder, responseParser: ResponsePa
             facets: List[AppliedFacet], allFacets: List[FacetClass[Facet]],
             filters: Map[String, Any] = Map.empty, extra: Map[String,Any] = Map.empty)(
              implicit userOpt: Option[UserProfile]): Future[FacetPage[Facet]] = {
-    val limit = params.limit.getOrElse(Constants.DEFAULT_LIST_LIMIT)
-    val offset = (Math.max(params.page.getOrElse(1), 1) - 1) * limit
 
     // create a response returning 0 documents - we don't
     // actually care about the documents, so even this is
     // not strictly necessary... we also don't care about the
     // ordering.
-    val queryRequest = queryBuilder.search(params, facets, allFacets, filters)(userOpt)
+    val queryRequest = queryBuilder.search(params, facets, allFacets, filters)
 
     WS.url(buildSearchUrl(queryRequest)).get().map { response =>
       val facetClasses = responseParser(checkError(response).body).extractFacetData(facets, allFacets)
@@ -113,10 +107,10 @@ case class SolrDispatcher(queryBuilder: QueryBuilder, responseParser: ResponsePa
       val facetClass = facetClasses.find(_.param == facet).getOrElse(
         throw new Exception("Unknown facet: " + facet))
       val facetLabels = sort match {
-        case FacetQuerySort.Name => facetClass.sortedByName.slice(offset, offset + limit)
-        case _ => facetClass.sortedByCount.slice(offset, offset + limit)
+        case FacetQuerySort.Name => facetClass.sortedByName.slice(params.offset, params.offset + params.count)
+        case _ => facetClass.sortedByCount.slice(params.offset, params.offset + params.count)
       }
-      FacetPage(facetClass, facetLabels, offset, limit, facetClass.count)
+      FacetPage(facetClass, facetLabels, params.page, params.count, facetClass.count)
     }
   }
 }

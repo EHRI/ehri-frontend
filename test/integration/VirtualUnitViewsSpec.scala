@@ -2,10 +2,6 @@ package integration
 
 import helpers.{formPostHeaders,Neo4jRunnerSpec}
 import models._
-import play.api.i18n.Messages
-import play.api.test.FakeRequest
-import play.api.http.{MimeTypes, HeaderNames}
-import backend.rest.ItemNotFound
 
 
 class VirtualUnitViewsSpec extends Neo4jRunnerSpec(classOf[VirtualUnitViewsSpec]) {
@@ -87,10 +83,10 @@ class VirtualUnitViewsSpec extends Neo4jRunnerSpec(classOf[VirtualUnitViewsSpec]
       mockIndexer.eventBuffer.last must equalTo("hello-kitty")
     }
 
-    "allow creating new items with referenced descriptions" in new FakeApp {
+    "allow creating new items with included units" in new FakeApp {
       val testData: Map[String, Seq[String]] = Map(
         "identifier" -> Seq("hello-kitty"),
-        VirtualUnitF.DESCRIPTION_REF -> Seq("cd1")
+        VirtualUnitF.INCLUDE_REF -> Seq("c1")
       )
       val cr = route(fakeLoggedInHtmlRequest(privilegedUser, POST,
         vuRoutes.createChildRefPost("vc1").url)

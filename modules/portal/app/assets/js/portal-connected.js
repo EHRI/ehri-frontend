@@ -71,16 +71,16 @@ jQuery(function ($) {
     // Fetch more activity...
   $("#activity-stream-fetchmore").click(function (event) {
     var $elem = $(event.target);
-    var offset = $(event.target).data("offset");
-    var limit = $(event.target).data("limit");
-    jsRoutes.controllers.portal.Social.personalisedActivity(offset).ajax({
+    var page = $(event.target).data("page");
+    var count = $(event.target).data("limit");
+    jsRoutes.controllers.portal.Social.personalisedActivity(page, count).ajax({
       success: function (data, _, response) {
         var done = response.getResponseHeader("activity-more") != 'true';
         $("#activity-stream").append(data);
         if (done) {
           $elem.hide();
         } else {
-          $elem.data("offset", offset + limit);
+          $elem.data("page", page + 1);
         }
 		  }
 		});

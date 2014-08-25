@@ -1,17 +1,117 @@
 package backend.rest
 
 import play.api.{Logger, Play}
-import play.api.http.HeaderNames
-import play.api.http.ContentTypes
-import play.api.libs.ws.{WS, WSResponse}
+import play.api.http.{Writeable, ContentTypeOf, HeaderNames, ContentTypes}
 import play.api.libs.json._
-import play.api.libs.ws.WSRequestHolder
 import backend.{ErrorSet, ApiUser}
 import com.fasterxml.jackson.core.JsonParseException
-import models.{UserProfileF, UserProfile}
+import utils.Page
 
 
 trait RestDAO {
+
+  import play.api.libs.concurrent.Execution.Implicits._
+  import play.api.libs.ws.{EmptyBody, InMemoryBody, WSBody, WS, WSResponse}
+
+  /**
+   * Wrapper for WS.
+   */
+  private[rest] case class BackendRequest(
+    url: String,
+    headers: Seq[(String,String)] = Seq.empty,
+    queryString: Seq[(String,String)] = Seq.empty,
+    method: String = "GET",
+    body: WSBody = EmptyBody
+    )(implicit apiUser: ApiUser, app: play.api.Application) {
+
+    import scala.util.matching.Regex
+    import play.api.cache.Cache
+    import scala.concurrent.Future
+
+    private val CCExtractor: Regex = """.*?max-age=(\d+)""".r
+
+    private def conditionalCache(url: String, method: String, response: WSResponse): WSResponse = {
+      val doCache = app.configuration.getBoolean("ehri.ws.cache").getOrElse(false)
+      if (doCache) {
+        response.header(HeaderNames.CACHE_CONTROL) match {
+          // if there's a max-age cache on a GET request cache the response.
+          case Some(CCExtractor(age)) if method == "GET"
+            && age.toInt > 0
+            && response.status >= 200 && response.status < 300 =>
+            Logger.trace(s"CACHING: $method $url $age")
+            Cache.set(url, response, age.toInt)
+          // if not, ensure it's invalidated
+          case _ if method != "GET" =>
+            val itemUrl = response.header(HeaderNames.LOCATION).getOrElse(url)
+            Logger.trace(s"Evicting from cache: $method $itemUrl")
+            Cache.remove(itemUrl)
+          case _ =>
+        }
+      }
+      response
+    }
+
+    def get(): Future[WSResponse] = copy(method = "GET").execute()
+
+    def post[T](body: T)(implicit wrt: Writeable[T], ct: ContentTypeOf[T]) =
+      withMethod("POST").withBody(body).execute()
+
+    def put[T](body: T)(implicit wrt: Writeable[T], ct: ContentTypeOf[T]) =
+      withMethod("PUT").withBody(body).execute()
+
+    def delete() = withMethod("DELETE").execute()
+
+    /**
+     * Sets the body for this request. Copy and paste from WSRequest :(
+     */
+    def withBody[T](body: T)(implicit wrt: Writeable[T], ct: ContentTypeOf[T]): BackendRequest = {
+      val wsBody = InMemoryBody(wrt.transform(body))
+      if (headers.contains("Content-Type")) {
+        withBody(wsBody)
+      } else {
+        ct.mimeType.fold(withBody(wsBody)) { contentType =>
+          withBody(wsBody).withHeaders("Content-Type" -> contentType)
+        }
+      }
+    }
+
+    def withBody(body: WSBody):BackendRequest = copy(body = body)
+
+    def withHeaders(hrds: (String, String)*): BackendRequest =
+      copy(headers = headers ++ hrds)
+
+    def withQueryString(parameters: (String, String)*): BackendRequest =
+      copy(queryString = queryString ++ parameters)
+
+    def withMethod(method: String) = copy(method = method)
+
+    def execute(): Future[WSResponse] = {
+
+      def queryStringMap: Map[String,Seq[String]] = queryString.foldLeft(Map.empty[String,Seq[String]]) { case (m, (k, v)) =>
+        m.get(k).map { s =>
+          m.updated(k, s ++ Seq(v))
+        } getOrElse {
+          m.updated(k, Seq(v))
+        }
+      }
+      def runWs: Future[WSResponse] = {
+        Logger.debug(s"WS: $apiUser $method $url?${joinQueryString(queryStringMap)}")
+        WS.url(url)
+          .withQueryString(queryString: _*)
+          .withHeaders(headers: _*)
+          .withBody(body)
+          .execute(method)
+          .map(checkError)
+          .map(r => conditionalCache(url, method, r))
+      }
+      if (method == "GET") Cache.getAs[WSResponse](url) match {
+        case Some(r) =>
+          Logger.trace(s"Retrieved from cache: $url")
+          Future.successful(r)
+        case _ => runWs
+      } else runWs
+    }
+  }
 
   import Constants._
   import play.api.http.Status._
@@ -20,7 +120,8 @@ trait RestDAO {
   /**
    * Header to add for log messages.
    */
-  def msgHeader(msg: Option[String]): Seq[(String,String)] = msg.map(m => Seq(LOG_MESSAGE_HEADER_NAME -> m)).getOrElse(Seq[(String,String)]())
+  def msgHeader(msg: Option[String]): Seq[(String,String)] =
+    msg.map(m => Seq(LOG_MESSAGE_HEADER_NAME -> m)).getOrElse(Seq.empty)
 
   /**
    * Join params into a query string
@@ -58,9 +159,8 @@ trait RestDAO {
         .getOrElse(List.empty[String])
 
 
-  def userCall(url: String, params: Seq[(String,String)] = Seq.empty)(implicit apiUser: ApiUser): WSRequestHolder = {
-    Logger.logger.debug("[{} {}] {}", apiUser, this.getClass.getCanonicalName, url)
-    WS.url(url).withHeaders(authHeaders.toSeq: _*)
+  def userCall(url: String, params: Seq[(String,String)] = Seq.empty)(implicit apiUser: ApiUser): BackendRequest = {
+    BackendRequest(url).withHeaders(authHeaders.toSeq: _*)
       .withQueryString(params: _*)
       .withQueryString(includeProps.map(p => Constants.INCLUDE_PROPERTIES_PARAM -> p).toSeq: _*)
   }
@@ -136,6 +236,29 @@ trait RestDAO {
 
   private[rest] def checkErrorAndParse[T](response: WSResponse)(implicit reader: Reads[T]): T = {
     jsonReadToRestError(checkError(response).json, reader)
+  }
+
+  private[rest] def parsePage[T](response: WSResponse)(implicit rd: Reads[T]): Page[T] = {
+    checkError(response).json.validate(Reads.seq(rd)).fold(
+      invalid => {
+        println(Json.prettyPrint(response.json))
+        Logger.error("Bad JSON: " + invalid)
+        throw new BadJson(invalid)
+      },
+      items => {
+        val Extractor = """page=(-?\d+); count=(-?\d+); total=(-?\d+)""".r
+        val pagination = response.header(HeaderNames.CONTENT_RANGE).getOrElse("")
+        Extractor.findFirstIn(pagination) match {
+          case Some(Extractor(page, count, total)) => Page(
+            items = items,
+            page = page.toInt,
+            count = count.toInt,
+            total = total.toInt
+          )
+          case m => Page(items = items, page = 1, count = -1, total = -1)
+        }
+      }
+    )
   }
 
   private[rest] def jsonReadToRestError[T](json: JsValue, reader: Reads[T]): T = {

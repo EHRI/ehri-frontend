@@ -1,9 +1,7 @@
 package utils.search
 
 import scala.concurrent.Future
-import utils.search._
-import backend.ApiUser
-import models.json.RestReadable
+import backend.{BackendReadable, ApiUser}
 import backend.rest.SearchDAO
 
 /**
@@ -13,7 +11,7 @@ import backend.rest.SearchDAO
  * User: michaelb
  */
 case class MockSearchResolver() extends SearchDAO with Resolver {
-  def resolve[MT](results: Seq[SearchHit])(implicit apiUser: ApiUser, rd: RestReadable[MT]): Future[List[MT]] = {
+  def resolve[MT](results: Seq[SearchHit])(implicit apiUser: ApiUser, rd: BackendReadable[MT]): Future[Seq[MT]] = {
     list(results.map(_.itemId))
   }
 }

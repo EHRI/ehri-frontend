@@ -1,57 +1,52 @@
 package controllers.generic
 
-import defines.{EntityType, ContentTypes, PermissionType}
+import defines.{ContentTypes, PermissionType}
 import acl.GlobalPermissionSet
 import models.base.Accessor
 import play.api.mvc._
 import models._
 
 import play.api.libs.concurrent.Execution.Implicits._
-import models.json.{RestResource, RestReadable}
-import utils.PageParams
-import backend.Page
+import utils.{Page, PageParams}
+import backend.{BackendReadable, BackendContentType, BackendResource}
 
 /**
  * Trait for managing permissions on Accessor models that can have permissions assigned to them.
  */
 trait PermissionHolder[MT <: Accessor] extends Read[MT] {
 
-  type GlobalPermissionCallback = MT => GlobalPermissionSet[MT] => Option[UserProfile] => Request[AnyContent] => Result
-
-  implicit object PermissionGrantResource extends RestResource[PermissionGrant] {
-    val entityType = EntityType.PermissionGrant
-  }
+  type GlobalPermissionCallback = MT => GlobalPermissionSet => Option[UserProfile] => Request[AnyContent] => Result
 
   /**
    * Display a list of permissions that have been granted to the given accessor.
    */
   def grantListAction(id: String)(
       f: MT => Page[PermissionGrant] => Option[UserProfile] => Request[AnyContent] => Result)(
-      implicit rd: RestReadable[MT]) = {
-    withItemPermission.async[MT](id, PermissionType.Grant, contentType) { item => implicit userOpt => implicit request =>
+      implicit rd: BackendReadable[MT], ct: BackendContentType[MT]) = {
+    withItemPermission.async[MT](id, PermissionType.Grant) { item => implicit userOpt => implicit request =>
       val params = PageParams.fromRequest(request)
-      backend.listPermissionGrants(item, params).map { perms =>
+      backend.listPermissionGrants(item.id, params).map { perms =>
         f(item)(perms)(userOpt)(request)
       }
     }
   }
 
 
-  def setGlobalPermissionsAction(id: String)(f: GlobalPermissionCallback)(implicit rd: RestReadable[MT]) = {
-    withItemPermission.async[MT](id, PermissionType.Grant, contentType) { item => implicit userOpt => implicit request =>
-      backend.getGlobalPermissions(item).map { perms =>
+  def setGlobalPermissionsAction(id: String)(f: GlobalPermissionCallback)(implicit rd: BackendReadable[MT], ct: BackendContentType[MT]) = {
+    withItemPermission.async[MT](id, PermissionType.Grant) { item => implicit userOpt => implicit request =>
+      backend.getGlobalPermissions(item.id).map { perms =>
         f(item)(perms)(userOpt)(request)
       }
     }
   }
 
-  def setGlobalPermissionsPostAction(id: String)(f: GlobalPermissionCallback)(implicit rd: RestReadable[MT]) = {
-    withItemPermission.async[MT](id, PermissionType.Grant, contentType) { item => implicit userOpt => implicit request =>
-      val data = request.body.asFormUrlEncoded.getOrElse(Map())
+  def setGlobalPermissionsPostAction(id: String)(f: GlobalPermissionCallback)(implicit rd: BackendReadable[MT], ct: BackendContentType[MT]) = {
+    withItemPermission.async[MT](id, PermissionType.Grant) { item => implicit userOpt => implicit request =>
+      val data = request.body.asFormUrlEncoded.getOrElse(Map.empty)
       val perms: Map[String, List[String]] = ContentTypes.values.toList.map { ct =>
         (ct.toString, data.get(ct.toString).map(_.toList).getOrElse(List()))
       }.toMap
-      backend.setGlobalPermissions(item, perms).map { perms =>
+      backend.setGlobalPermissions(item.id, perms).map { perms =>
         f(item)(perms)(userOpt)(request)
       }
     }
@@ -59,8 +54,8 @@ trait PermissionHolder[MT <: Accessor] extends Read[MT] {
 
   def revokePermissionAction(id: String, permId: String)(
       f: MT => PermissionGrant => Option[UserProfile] => Request[AnyContent] => Result)(
-      implicit rd: RestReadable[MT]) = {
-    withItemPermission.async[MT](id, PermissionType.Grant, contentType) { item => implicit userOpt => implicit request =>
+      implicit rd: BackendReadable[MT], ct: BackendContentType[MT]) = {
+    withItemPermission.async[MT](id, PermissionType.Grant) { item => implicit userOpt => implicit request =>
       backend.get[PermissionGrant](permId).map { perm =>
         f(item)(perm)(userOpt)(request)
       }
@@ -69,8 +64,8 @@ trait PermissionHolder[MT <: Accessor] extends Read[MT] {
 
   def revokePermissionActionPost(id: String, permId: String)(
       f: MT => Boolean => Option[UserProfile] => Request[AnyContent] => Result)(
-      implicit rd: RestReadable[MT]) = {
-    withItemPermission.async[MT](id, PermissionType.Grant, contentType) { item => implicit userOpt => implicit request =>
+      implicit rd: BackendReadable[MT], ct: BackendContentType[MT]) = {
+    withItemPermission.async[MT](id, PermissionType.Grant) { item => implicit userOpt => implicit request =>
       backend.delete(permId).map { ok =>
         f(item)(ok)(userOpt)(request)
       }

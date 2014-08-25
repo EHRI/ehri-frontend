@@ -25,8 +25,6 @@ AuthoritativeSets @Inject()(implicit globalConfig: global.GlobalConfig, searchDi
   with Search {
 
   private val formDefaults: Option[Configuration] = current.configuration.getConfig(EntityType.HistoricalAgent)
-  implicit val resource = AuthoritativeSet.Resource
-  val contentType = ContentTypes.AuthoritativeSet
 
   val targetContentTypes = Seq(ContentTypes.HistoricalAgent)
   private val form = models.AuthoritativeSet.form
@@ -80,7 +78,7 @@ AuthoritativeSets @Inject()(implicit globalConfig: global.GlobalConfig, searchDi
     }
   }
 
-  def createHistoricalAgent(id: String) = childCreateAction.async(id, ContentTypes.HistoricalAgent) {
+  def createHistoricalAgent(id: String) = childCreateAction.async(id) {
       item => users => groups => implicit userOpt => implicit request =>
     idGenerator.getNextChildNumericIdentifier(id, EntityType.HistoricalAgent).map { newid =>
       Ok(views.html.historicalAgent.create(
@@ -90,7 +88,7 @@ AuthoritativeSets @Inject()(implicit globalConfig: global.GlobalConfig, searchDi
     }
   }
 
-  def createHistoricalAgentPost(id: String) = childCreatePostAction.async(id, childForm, ContentTypes.HistoricalAgent) {
+  def createHistoricalAgentPost(id: String) = childCreatePostAction.async(id, childForm) {
       item => formsOrItem => implicit userOpt => implicit request =>
     formsOrItem match {
       case Left((errorForm,accForm)) => getUsersAndGroups { users => groups =>
@@ -144,7 +142,7 @@ AuthoritativeSets @Inject()(implicit globalConfig: global.GlobalConfig, searchDi
 
   def setItemPermissions(id: String, userType: EntityType.Value, userId: String) = setItemPermissionsAction(id, userType, userId) {
       item => accessor => perms => implicit userOpt => implicit request =>
-    Ok(views.html.permissions.setPermissionItem(item, accessor, perms, contentType,
+    Ok(views.html.permissions.setPermissionItem(item, accessor, perms, AuthoritativeSet.Resource.contentType,
         setRoutes.setItemPermissionsPost(id, userType, userId)))
   }
 

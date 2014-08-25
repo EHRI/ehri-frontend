@@ -1,29 +1,14 @@
 package controllers.guides
 
 import play.api.mvc._
-import play.api.libs.concurrent.Execution.Implicits._
 
-import play.api.data.Form
-import play.api.data.Forms._
-import defines.{EntityType, PermissionType, ContentTypes}
-import play.api.i18n.Messages
-import models.{UserProfile,UserProfileF,Account,AccountDAO}
+import models.AccountDAO
 import controllers.base.{ControllerHelpers, AuthController}
 
 import com.google.inject._
-import play.api.Play.current
-import scala.concurrent.Await
-import play.api.Logger
-import scala.concurrent.duration.Duration
-import java.util.concurrent.TimeUnit
-import models.json.RestResource
-import backend.rest.{RestHelpers, ValidationError}
-import play.api.data.FormError
 
-import scala.concurrent.Future
-import scala.concurrent.Future.{successful => immediate}
 import backend.Backend
-import java.util.UUID
+
 
 /**
  * Controller for handling user admin actions.

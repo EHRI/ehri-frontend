@@ -1,0 +1,65 @@
+{
+  "id" : "bac412d0-e58b-4090-a419-7f007706a4ab",
+  "data" : {
+    "identifier" : "http://ehri01.dans.knaw.nl/tematres/vocab/?tema=671"
+  },
+  "type" : "cvocConcept",
+  "relationships" : {
+    "inCvoc" : [ {
+      "id" : "ehri-skos",
+      "data" : {
+        "description" : "SKOS version of the WP18 thesaurus",
+        "name" : "EHRI Skos",
+        "identifier" : "ehri-skos"
+      },
+      "type" : "cvocVocabulary",
+      "relationships" : {}
+    } ],
+    "describes" : [ {
+      "id" : "812552fc-7169-40c1-a428-5f2af5727e36",
+      "data" : {
+        "languageCode" : "en",
+        "name" : "Art culture science religion"
+      },
+      "type" : "cvocConceptDescription",
+      "relationships" : {
+      }
+    } ],
+    "lifecycleEvent" : [ {
+      "id" : "7cf4212b-011f-4b46-b85a-41ec5fda2cb4",
+      "data" : {
+        "timestamp" : "2013-02-01T17:06:38.992Z",
+        "__USER_ID_CACHE__" : "mike",
+        "identifier" : "10997557-ec46-41fa-a2b2-69e3fb00f11f",
+        "logMessage" : "Imported from command-line"
+      },
+      "type" : "systemEvent",
+      "relationships" : {
+        "hasActioner" : [ {
+          "id" : "mike",
+          "data" : {
+            "languages" : [ "en" ],
+            "location" : "London",
+            "name" : "Mike Bryant",
+            "about" : "Testing the system",
+            "identifier" : "mike"
+          },
+          "type" : "userProfile",
+          "relationships" : {
+            "belongsTo" : [ {
+              "id" : "admin",
+              "data" : {
+                "description" : "The all-powerful system administrators who never accidentally delete stuff.",
+                "name" : "Administrators",
+                "identifier" : "admin"
+              },
+              "type" : "group",
+              "relationships" : {
+              }
+            } ]
+          }
+        } ]
+      }
+    } ]
+  }
+}

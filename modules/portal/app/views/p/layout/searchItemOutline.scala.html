@@ -1,4 +1,4 @@
-@(item: AnyModel, watched: Boolean = false)(heading: Html)(body: Html = Html(""))(implicit lang: Lang)
+@(item: AnyModel, watched: Boolean = false)(heading: Html)(body: Html = Html(""))(implicit userOpt: Option[UserProfile], lang: Lang)
 
 <div class="search-item" id="@item.id">
     <div class="search-item-actions">

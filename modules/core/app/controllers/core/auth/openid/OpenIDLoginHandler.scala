@@ -15,11 +15,12 @@ import play.api.mvc.Result
 import play.api.i18n.Messages
 import utils.forms.isValidUrl
 import java.net.ConnectException
+import controllers.core.auth.AccountHelpers
 
 /**
  * OpenID login handler implementation.
  */
-trait OpenIDLoginHandler {
+trait OpenIDLoginHandler extends AccountHelpers {
 
   self: Controller =>
 
@@ -57,7 +58,7 @@ trait OpenIDLoginHandler {
 
               OpenID.redirectURL(
                 openidUrl,
-                handler.absoluteURL(),
+                handler.absoluteURL(globalConfig.https),
                 attributes).map(url => Redirect(url))
                 .recoverWith {
                 case t: ConnectException => {
@@ -87,8 +88,6 @@ trait OpenIDLoginHandler {
 
   object openIDCallbackAction {
     def async(f: Either[Form[String],Account] => Request[AnyContent] => Future[Result]): Action[AnyContent] = {
-      val canMessageUsers = play.api.Play.current.configuration
-        .getBoolean("ehri.users.messaging.default").getOrElse(false)
       Action.async { implicit request =>
         OpenID.verifiedId.flatMap { info =>
 
@@ -109,9 +108,9 @@ trait OpenIDLoginHandler {
               f(Right(acc))(request)
             } getOrElse {
               implicit val apiUser = ApiUser()
-              backend.createNewUserProfile(data).flatMap { up =>
+              backend.createNewUserProfile(data, groups = defaultPortalGroups).flatMap { up =>
                 val account = userDAO.create(up.id, email.toLowerCase, verified = true,
-                  staff = false, allowMessaging = canMessageUsers)
+                  staff = false, allowMessaging = canMessage)
                 OpenIDAssociation.addAssociation(account, info.id)
                 Logger.logger.info("User '{}' created OpenID account", account.id)
                 f(Right(account))(request)

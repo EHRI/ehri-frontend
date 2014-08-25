@@ -1,12 +1,10 @@
 package solr
 
 import play.api.test.PlaySpecification
-import scala.io.Source
 import solr.facet.FieldFacetClass
-import models.IsadG
 import play.api.i18n.Messages
 import views.Helpers
-import defines.EntityType
+import models.base.Description
 
 
 /**
@@ -14,13 +12,11 @@ import defines.EntityType
  */
 class SolrQueryParserSpec extends PlaySpecification {
 
-  private def xmlResponseString: String = Source.fromInputStream(getClass
-      .getClassLoader.getResourceAsStream("solrQueryResponse1.xml"))
-      .getLines().mkString("\n")
+  private def xmlResponseString: String =
+    helpers.resourceAsString("solrQueryResponse1.xml")
 
-  private def jsonResponseString: String = Source.fromInputStream(getClass
-    .getClassLoader.getResourceAsStream("solrQueryResponse1.json"))
-    .getLines().mkString("\n")
+  private def jsonResponseString: String =
+    helpers.resourceAsString("solrQueryResponse1.json")
 
   "Solr XML Query Parser" should {
     "parse the correct number of docs with the right IDs" in {
@@ -35,8 +31,8 @@ class SolrQueryParserSpec extends PlaySpecification {
       val qp = SolrXmlQueryResponse(xmlResponseString)
       val allFacets = List(
         FieldFacetClass(
-          key=IsadG.LANG_CODE,
-          name=Messages("documentaryUnit." + IsadG.LANG_CODE),
+          key=Description.LANG_CODE,
+          name=Messages("documentaryUnit." + Description.LANG_CODE),
           param="lang",
           render=Helpers.languageCodeToName
         )
@@ -76,8 +72,8 @@ class SolrQueryParserSpec extends PlaySpecification {
       val qp = SolrJsonQueryResponse(jsonResponseString)
       val allFacets = List(
         FieldFacetClass(
-          key=IsadG.LANG_CODE,
-          name=Messages("documentaryUnit." + IsadG.LANG_CODE),
+          key=Description.LANG_CODE,
+          name=Messages("documentaryUnit." + Description.LANG_CODE),
           param="lang",
           render=Helpers.languageCodeToName
         )

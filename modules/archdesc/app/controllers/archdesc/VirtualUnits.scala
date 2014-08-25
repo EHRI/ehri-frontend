@@ -14,7 +14,6 @@ import scala.concurrent.Future.{successful => immediate}
 import backend.{IdGenerator, Backend}
 import play.api.Play.current
 import play.api.Configuration
-import solr.facet.{FieldFacetClass, SolrQueryFacet, QueryFacetClass}
 import play.api.mvc.AnyContent
 import play.api.data.Form
 import play.api.data.Forms._
@@ -22,6 +21,8 @@ import solr.facet.FieldFacetClass
 import scala.Some
 import solr.facet.SolrQueryFacet
 import solr.facet.QueryFacetClass
+import backend.rest.Constants
+import models.base.Description
 
 
 @Singleton
@@ -36,8 +37,7 @@ case class VirtualUnits @Inject()(implicit globalConfig: global.GlobalConfig, se
   with Annotate[VirtualUnit]
   with Linking[VirtualUnit]
   with Descriptions[DocumentaryUnitDescriptionF, VirtualUnitF, VirtualUnit]
-  with Search
-  with Api[VirtualUnit] {
+  with Search {
 
   private val entityFacets: FacetBuilder = { implicit request =>
     List(
@@ -65,8 +65,8 @@ case class VirtualUnits @Inject()(implicit globalConfig: global.GlobalConfig, se
         display = FacetDisplay.List
       ),
       FieldFacetClass(
-        key=IsadG.LANG_CODE,
-        name=Messages("virtualUnit." + IsadG.LANG_CODE),
+        key=Description.LANG_CODE,
+        name=Messages("virtualUnit." + Description.LANG_CODE),
         param="lang",
         render=Helpers.languageCodeToName,
         display = FacetDisplay.Choice
@@ -74,11 +74,8 @@ case class VirtualUnits @Inject()(implicit globalConfig: global.GlobalConfig, se
     )
   }
 
-  implicit val resource = VirtualUnit.Resource
-
   val formDefaults: Option[Configuration] = current.configuration.getConfig(EntityType.VirtualUnit)
 
-  val contentType = ContentTypes.VirtualUnit
   val targetContentTypes = Seq(ContentTypes.VirtualUnit)
 
   val form = models.VirtualUnit.form
@@ -105,7 +102,7 @@ case class VirtualUnits @Inject()(implicit globalConfig: global.GlobalConfig, se
     }
   }
 
-  def searchChildren(id: String) = itemPermissionAction.async[VirtualUnit](contentType, id) {
+  def searchChildren(id: String) = itemPermissionAction.async[VirtualUnit](id) {
       item => implicit userOpt => implicit request =>
     find[VirtualUnit](
       filters = Map(SolrConstants.PARENT_ID -> item.id),
@@ -168,7 +165,7 @@ case class VirtualUnits @Inject()(implicit globalConfig: global.GlobalConfig, se
     }
   }
 
-  def createChild(id: String) = childCreateAction.async(id, contentType) {
+  def createChild(id: String) = childCreateAction.async(id) {
       item => users => groups => implicit userOpt => implicit request =>
     idGenerator.getNextNumericIdentifier(EntityType.VirtualUnit).map { newId =>
       Ok(views.html.virtualUnit.create(
@@ -178,7 +175,7 @@ case class VirtualUnits @Inject()(implicit globalConfig: global.GlobalConfig, se
     }
   }
 
-  def createChildPost(id: String) = childCreatePostAction.async(id, childForm, contentType) {
+  def createChildPost(id: String) = childCreatePostAction.async(id, childForm) {
       item => formsOrItem => implicit userOpt => implicit request =>
     formsOrItem match {
       case Left((errorForm,accForm)) => getUsersAndGroups { users => groups =>
@@ -191,9 +188,9 @@ case class VirtualUnits @Inject()(implicit globalConfig: global.GlobalConfig, se
     }
   }
 
-  val refForm = Form(single(VirtualUnitF.DESCRIPTION_REF -> nonEmptyText))
+  def refForm = Form(single(VirtualUnitF.INCLUDE_REF -> nonEmptyText))
 
-  def createChildRef(id: String) = childCreateAction.async(id, contentType) {
+  def createChildRef(id: String) = childCreateAction.async(id) {
     item => users => groups => implicit userOpt => implicit request =>
       idGenerator.getNextNumericIdentifier(EntityType.VirtualUnit).map { newId =>
         Ok(views.html.virtualUnit.createRef(
@@ -206,12 +203,12 @@ case class VirtualUnits @Inject()(implicit globalConfig: global.GlobalConfig, se
 
   def descriptionRefs: ExtraParams[AnyContent] = { implicit request =>
     refForm.bindFromRequest.fold(
-      errs => Map.empty,
-      descRef => Map("description" -> Seq(descRef))
+      _ => Map.empty,
+      descRef => Map(Constants.ID_PARAM -> Seq(descRef))
     )
   }
 
-  def createChildRefPost(id: String) = childCreatePostAction.async(id, childForm, contentType, descriptionRefs) {
+  def createChildRefPost(id: String) = childCreatePostAction.async(id, childForm, descriptionRefs) {
     item => formsOrItem => implicit userOpt => implicit request =>
       formsOrItem match {
         case Left((errorForm,accForm)) => getUsersAndGroups { users => groups =>
@@ -237,7 +234,7 @@ case class VirtualUnits @Inject()(implicit globalConfig: global.GlobalConfig, se
         .flashing("success" -> "item.delete.confirmation")
   }
 
-  def createDescription(id: String) = withItemPermission[VirtualUnit](id, PermissionType.Update, contentType) {
+  def createDescription(id: String) = withItemPermission[VirtualUnit](id, PermissionType.Update) {
       item => implicit userOpt => implicit request =>
     Ok(views.html.virtualUnit.createDescription(item,
       descriptionForm, formDefaults, vuRoutes.createDescriptionPost(id)))
@@ -255,7 +252,7 @@ case class VirtualUnits @Inject()(implicit globalConfig: global.GlobalConfig, se
     }
   }
 
-  def createDescriptionRef(id: String, did: String) = withItemPermission[VirtualUnit](id, PermissionType.Update, contentType) {
+  def createDescriptionRef(id: String, did: String) = withItemPermission[VirtualUnit](id, PermissionType.Update) {
     item => implicit userOpt => implicit request =>
     ???
   }
@@ -265,7 +262,7 @@ case class VirtualUnits @Inject()(implicit globalConfig: global.GlobalConfig, se
     ???
   }
 
-  def updateDescription(id: String, did: String) = withItemPermission[VirtualUnit](id, PermissionType.Update, contentType) {
+  def updateDescription(id: String, did: String) = withItemPermission[VirtualUnit](id, PermissionType.Update) {
       item => implicit userOpt => implicit request =>
     itemOr404(item.model.description(did)) { desc =>
       Ok(views.html.virtualUnit.editDescription(item,
@@ -332,7 +329,7 @@ case class VirtualUnits @Inject()(implicit globalConfig: global.GlobalConfig, se
 
   def setItemPermissions(id: String, userType: EntityType.Value, userId: String) = setItemPermissionsAction(id, userType, userId) {
       item => accessor => perms => implicit userOpt => implicit request =>
-    Ok(views.html.permissions.setPermissionItem(item, accessor, perms, contentType,
+    Ok(views.html.permissions.setPermissionItem(item, accessor, perms, VirtualUnit.Resource.contentType,
         vuRoutes.setItemPermissionsPost(id, userType, userId)))
   }
 
@@ -354,7 +351,7 @@ case class VirtualUnits @Inject()(implicit globalConfig: global.GlobalConfig, se
         .flashing("success" -> "item.update.confirmation")
   }
 
-  def linkTo(id: String) = withItemPermission[VirtualUnit](id, PermissionType.Annotate, contentType) {
+  def linkTo(id: String) = withItemPermission[VirtualUnit](id, PermissionType.Annotate) {
       item => implicit userOpt => implicit request =>
     Ok(views.html.virtualUnit.linkTo(item))
   }

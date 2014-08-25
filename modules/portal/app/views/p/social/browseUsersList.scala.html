@@ -1,4 +1,4 @@
-@(them: UserProfile, users: Iterable[UserProfile], following: List[UserProfile] = Nil)(implicit req: RequestHeader, userOpt: Option[UserProfile], lang: Lang)
+@(them: UserProfile, users: Iterable[UserProfile], following: Seq[UserProfile] = Nil)(implicit userOpt: Option[UserProfile], req: RequestHeader, lang: Lang)
 
 @users.map { other =>
     <li class="user-list-item">
@@ -12,9 +12,7 @@
             }
         }
         <a href="@controllers.portal.routes.Social.browseUser(other.id)" class="gravitar">
-            @defining(other.model.imageUrl.getOrElse(controllers.portal.routes.Assets.at("img/default-gravitar.png").url)) { src =>
-                <img height="48" width="48" class="img-responsive img-thumbnail" src="@src" />
-            }
+            <img height="48" width="48" class="img-responsive img-thumbnail" src="@views.p.Helpers.gravitar(other.model.imageUrl)" />
         </a>
         <div class="user-list-info">
             <a class="name" href="@controllers.portal.routes.Social.browseUser(other.id)">@other.model.name</a>

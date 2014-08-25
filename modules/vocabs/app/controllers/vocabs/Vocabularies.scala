@@ -21,9 +21,6 @@ case class Vocabularies @Inject()(implicit globalConfig: global.GlobalConfig, se
   with Indexable[Vocabulary]
   with Search {
 
-  implicit val resource = Vocabulary.Resource
-
-  val contentType = ContentTypes.Vocabulary
   val targetContentTypes = Seq(ContentTypes.Concept)
 
   val form = models.Vocabulary.form
@@ -51,13 +48,13 @@ case class Vocabularies @Inject()(implicit globalConfig: global.GlobalConfig, se
   }
 
   def create = createAction { users => groups => implicit userOpt => implicit request =>
-    Ok(views.html.vocabulary.create(form, VisibilityForm.form, users, groups, vocabRoutes.createPost))
+    Ok(views.html.vocabulary.create(form, VisibilityForm.form, users, groups, vocabRoutes.createPost()))
   }
 
   def createPost = createPostAction.async(form) { formsOrItem => implicit userOpt => implicit request =>
     formsOrItem match {
       case Left((errorForm,accForm)) => getUsersAndGroups { users => groups =>
-        BadRequest(views.html.vocabulary.create(errorForm, accForm, users, groups, vocabRoutes.createPost))
+        BadRequest(views.html.vocabulary.create(errorForm, accForm, users, groups, vocabRoutes.createPost()))
       }
       case Right(item) => immediate(Redirect(vocabRoutes.get(item.id))
         .flashing("success" -> "item.create.confirmation"))
@@ -79,14 +76,14 @@ case class Vocabularies @Inject()(implicit globalConfig: global.GlobalConfig, se
     }
   }
 
-  def createConcept(id: String) = childCreateAction(id, ContentTypes.Concept) {
+  def createConcept(id: String) = childCreateAction(id) {
       item => users => groups => implicit userOpt => implicit request =>
     Ok(views.html.concept.create(
       item, childForm, VisibilityForm.form.fill(item.accessors.map(_.id)),
       users, groups, vocabRoutes.createConceptPost(id)))
   }
 
-  def createConceptPost(id: String) = childCreatePostAction.async(id, childForm, ContentTypes.Concept) {
+  def createConceptPost(id: String) = childCreatePostAction.async(id, childForm) {
       item => formsOrItem => implicit userOpt => implicit request =>
     formsOrItem match {
       case Left((errorForm,accForm)) => getUsersAndGroups { users => groups =>
@@ -140,7 +137,7 @@ case class Vocabularies @Inject()(implicit globalConfig: global.GlobalConfig, se
 
   def setItemPermissions(id: String, userType: EntityType.Value, userId: String) = setItemPermissionsAction(id, userType, userId) {
       item => accessor => perms => implicit userOpt => implicit request =>
-    Ok(views.html.permissions.setPermissionItem(item, accessor, perms, contentType,
+    Ok(views.html.permissions.setPermissionItem(item, accessor, perms, Vocabulary.Resource.contentType,
         vocabRoutes.setItemPermissionsPost(id, userType, userId)))
   }
 

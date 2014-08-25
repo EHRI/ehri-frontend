@@ -16,8 +16,6 @@ object PermissionType extends Enumeration {
    * Unfortunately Scala enums can't have proper
    * methods/data so we have to use this hacky function
    * instead...
-   * @param p
-   * @return
    */
   private def bitMask(p: Value): Int = p match {
     case Create => 1
@@ -31,9 +29,6 @@ object PermissionType extends Enumeration {
 
   /**
    * Test permission p2 is 'in' permission p1
-   * @param p1
-   * @param p2
-   * @return
    */
   def in(p1: Value, p2: Value): Boolean = (bitMask(p1) & bitMask(p2)) == bitMask(p2)
 }
