@@ -106,7 +106,7 @@ AuthoritativeSets @Inject()(implicit globalConfig: global.GlobalConfig, searchDi
         setRoutes.get(id)))
   }
 
-  def deletePost(id: String) = deletePostAction(id) { ok => implicit userOpt => implicit request =>
+  def deletePost(id: String) = deletePostAction(id) { implicit userOpt => implicit request =>
     Redirect(setRoutes.list())
         .flashing("success" -> "item.delete.confirmation")
   }

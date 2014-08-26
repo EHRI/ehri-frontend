@@ -278,7 +278,7 @@ case class UserProfiles @Inject()(implicit globalConfig: global.GlobalConfig, se
   }
 
   def revokePermissionPost(id: String, permId: String) = revokePermissionActionPost(id, permId) {
-    item => bool => implicit userOpt => implicit request =>
+    item => implicit userOpt => implicit request =>
       Redirect(userRoutes.grantList(id))
         .flashing("success" -> Messages("item.delete.confirmation", id))
   }

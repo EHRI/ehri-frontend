@@ -166,7 +166,7 @@ case class Repositories @Inject()(implicit globalConfig: global.GlobalConfig, se
         repositoryRoutes.get(id)))
   }
 
-  def deletePost(id: String) = deletePostAction(id) { ok => implicit userOpt => implicit request =>
+  def deletePost(id: String) = deletePostAction(id) { implicit userOpt => implicit request =>
     Redirect(repositoryRoutes.search())
         .flashing("success" -> "item.delete.confirmation")
   }

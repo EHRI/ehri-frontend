@@ -18,10 +18,10 @@ trait Delete[MT] extends Generic[MT] {
     }
   }
 
-  def deletePostAction(id: String)(f: Boolean => Option[UserProfile] => Request[AnyContent] => Result)(implicit rd: BackendReadable[MT], ct: BackendContentType[MT]) = {
+  def deletePostAction(id: String)(f: Option[UserProfile] => Request[AnyContent] => Result)(implicit rd: BackendReadable[MT], ct: BackendContentType[MT]) = {
     withItemPermission.async[MT](id, PermissionType.Delete) { item => implicit userOpt => implicit request =>
-      backend.delete[MT](id, logMsg = getLogMessage).map { ok =>
-        f(ok)(userOpt)(request)
+      backend.delete[MT](id, logMsg = getLogMessage).map { _ =>
+        f(userOpt)(request)
       }
     }
   }

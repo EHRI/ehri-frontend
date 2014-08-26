@@ -228,8 +228,7 @@ case class VirtualUnits @Inject()(implicit globalConfig: global.GlobalConfig, se
         vuRoutes.get(id)))
   }
 
-  def deletePost(id: String) = deletePostAction(id) {
-      ok => implicit userOpt => implicit request =>
+  def deletePost(id: String) = deletePostAction(id) { implicit userOpt => implicit request =>
     Redirect(vuRoutes.search())
         .flashing("success" -> "item.delete.confirmation")
   }
@@ -290,7 +289,7 @@ case class VirtualUnits @Inject()(implicit globalConfig: global.GlobalConfig, se
   }
 
   def deleteDescriptionPost(id: String, did: String) = deleteDescriptionPostAction(id, EntityType.DocumentaryUnitDescription, did) {
-      ok => implicit userOpt => implicit request =>
+      implicit userOpt => implicit request =>
     Redirect(vuRoutes.get(id))
       .flashing("success" -> "item.delete.confirmation")
   }
