@@ -8,7 +8,6 @@ import play.api.cache.Cache
 import models.base.AnyModel
 import utils.{Page, PageParams}
 import backend._
-import play.api.http.Status
 import models.Entity
 import scala.Some
 import backend.ApiUser
@@ -115,18 +114,12 @@ trait RestGeneric extends Generic with RestDAO {
     }
   }
 
-  def delete[MT](entityType: EntityType.Value, id: String, logMsg: Option[String] = None)(implicit apiUser: ApiUser, executionContext: ExecutionContext): Future[Boolean] = {
-    val url = enc(requestUrl, entityType, id)
-    userCall(url).delete().map { response =>
+  def delete[MT](id: String, logMsg: Option[String] = None)(implicit apiUser: ApiUser, rs: BackendResource[MT], executionContext: ExecutionContext): Future[Unit] = {
+    userCall(enc(requestUrl, rs.entityType, id)).delete().map { response =>
       checkError(response)
       eventHandler.handleDelete(id)
       Cache.remove(id)
-      response.status == Status.OK
     }
-  }
-
-  def delete[MT](id: String, logMsg: Option[String] = None)(implicit apiUser: ApiUser, rs: BackendResource[MT], executionContext: ExecutionContext): Future[Boolean] = {
-    delete(rs.entityType, id, logMsg)
   }
 
   def listJson[MT](params: PageParams = PageParams.empty)(implicit apiUser: ApiUser, rs: BackendResource[MT], executionContext: ExecutionContext): Future[Page[JsObject]] = {

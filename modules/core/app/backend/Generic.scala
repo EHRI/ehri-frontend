@@ -23,9 +23,7 @@ trait Generic {
 
   def patch[MT](id: String, data: JsObject, logMsg: Option[String] = None)(implicit apiUser: ApiUser, rs: BackendResource[MT], rd: BackendReadable[MT], executionContext: ExecutionContext): Future[MT]
 
-  def delete[MT](entityType: EntityType.Value, id: String, logMsg: Option[String] = None)(implicit apiUser: ApiUser, executionContext: ExecutionContext): Future[Boolean]
-
-  def delete[MT](id: String, logMsg: Option[String] = None)(implicit apiUser: ApiUser, rs: BackendResource[MT], executionContext: ExecutionContext): Future[Boolean]
+  def delete[MT](id: String, logMsg: Option[String] = None)(implicit apiUser: ApiUser, rs: BackendResource[MT], executionContext: ExecutionContext): Future[Unit]
 
   def listJson[MT](params: PageParams = PageParams.empty)(implicit apiUser: ApiUser, rs: BackendResource[MT], executionContext: ExecutionContext): Future[Page[JsObject]]
 

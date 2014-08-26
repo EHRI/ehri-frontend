@@ -212,7 +212,7 @@ case class DocumentaryUnits @Inject()(implicit globalConfig: global.GlobalConfig
         Ok(views.html.documentaryUnit.createDescription(item,
           errorForm, formDefaults, docRoutes.createDescriptionPost(id)))
       }
-      case Right(updated) => Redirect(docRoutes.get(item.id))
+      case Right(_) => Redirect(docRoutes.get(item.id))
         .flashing("success" -> "item.create.confirmation")
     }
   }
@@ -233,7 +233,7 @@ case class DocumentaryUnits @Inject()(implicit globalConfig: global.GlobalConfig
         Ok(views.html.documentaryUnit.editDescription(item,
           errorForm, docRoutes.updateDescriptionPost(id, did)))
       }
-      case Right(updated) => Redirect(docRoutes.get(item.id))
+      case Right(_) => Redirect(docRoutes.get(item.id))
         .flashing("success" -> "item.update.confirmation")
     }
   }
@@ -246,7 +246,7 @@ case class DocumentaryUnits @Inject()(implicit globalConfig: global.GlobalConfig
   }
 
   def deleteDescriptionPost(id: String, did: String) = deleteDescriptionPostAction(id, EntityType.DocumentaryUnitDescription, did) {
-      ok => implicit userOpt => implicit request =>
+      implicit userOpt => implicit request =>
     Redirect(docRoutes.get(id))
         .flashing("success" -> "item.delete.confirmation")
   }
@@ -258,8 +258,7 @@ case class DocumentaryUnits @Inject()(implicit globalConfig: global.GlobalConfig
         docRoutes.get(id)))
   }
 
-  def deletePost(id: String) = deletePostAction(id) {
-      ok => implicit userOpt => implicit request =>
+  def deletePost(id: String) = deletePostAction(id) { implicit userOpt => implicit request =>
     Redirect(docRoutes.search())
         .flashing("success" -> "item.delete.confirmation")
   }

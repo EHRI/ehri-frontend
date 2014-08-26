@@ -107,8 +107,7 @@ case class Concepts @Inject()(implicit globalConfig: global.GlobalConfig, search
         item, conceptRoutes.deletePost(id), conceptRoutes.get(id)))
   }
 
-  def deletePost(id: String) = deletePostAction(id) {
-      ok => implicit userOpt => implicit request =>
+  def deletePost(id: String) = deletePostAction(id) { implicit userOpt => implicit request =>
     Redirect(conceptRoutes.search())
         .flashing("success" -> "item.delete.confirmation")
   }
