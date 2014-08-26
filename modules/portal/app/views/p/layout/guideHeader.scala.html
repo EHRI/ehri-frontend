@@ -1,4 +1,4 @@
-@(location : String, menu: (Guide, List[GuidePage]), guideName: String, pageName: String)(implicit request: RequestHeader, lang: Lang)
+@(location : String, menu: (Guide, List[GuidePage]), guideName: String)(implicit request: RequestHeader, lang: Lang)
 
 <div class="container">
 	<div class="row">
@@ -23,10 +23,7 @@
 <div id="page-title">
 	<div class="container">
 		<div class="row">
-			<div class="col-md-4 col-md-push-8">
-				<h2 class="guide-name">@pageName</h2>
-			</div>
-			<div class="col-md-8 col-md-pull-4">
+			<div class="col-md-12">
 				<h1 class="guide-title">@guideName</h1>
 			</div>
 		</div>

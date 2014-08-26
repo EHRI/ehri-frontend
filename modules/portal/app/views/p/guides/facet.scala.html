@@ -2,6 +2,15 @@
 
 @import models.{GuidePage, Guide}
 
+@js = {
+    <script type="text/javascript" src="@controllers.portal.routes.Assets.versioned("js/portal-guide.js")"></script>
+    <script type="text/javascript" src="@controllers.portal.routes.Assets.versioned("js/portal-guide-facet.js")"></script>
+    <script src="@controllers.core.routes.Assets.versioned("select2/select2.js")"></script>
+    <script type="text/javascript">
+        $(".select2").select2()
+    </script>
+}
+
 @selectTwo(pageName: String, content: String) = {
     <div class="facet-class">
         <h4 class="facet-label">@pageName</h4>
@@ -18,14 +27,6 @@
     </div>
 }
 
-@js = {
-    <script type="text/javascript" src="@controllers.portal.routes.Assets.versioned("js/portal-guide.js")"></script>
-    <script type="text/javascript" src="@controllers.portal.routes.Assets.versioned("js/portal-guide-facet.js")"></script>
-    <script src="@controllers.core.routes.Assets.versioned("select2/select2.js")"></script>
-    <script type="text/javascript">
-        $(".select2").select2()
-    </script>
-}
 @facets = {
     @views.html.common.search.selectedFacets(items)
 
@@ -88,6 +89,7 @@
 @p.layout.guideLayoutFacet(template, facets = facets, scripts = js) {
     <article>
         <header>
+            <h1>@Messages("portal.guides.faceted")</h1>
             <h3>@Messages("pagination.displayingItems", items.page + 1, items.page + items.count, items.total)</h3>
         </header>
         <section>
