@@ -35,7 +35,7 @@ case class UserProfiles @Inject()(implicit globalConfig: global.GlobalConfig, se
       QueryFacetClass(
         key="active",
         name=Messages("userProfile.active"),
-        param="staff",
+        param="active",
         render=s => Messages("userProfile.active." + s),
         facets=List(
           SolrQueryFacet(value = "true", solrValue = "1"),

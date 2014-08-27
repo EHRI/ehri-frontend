@@ -137,25 +137,58 @@ portal.historicalAgent.entityType.family=Family
 portal.historicalAgent.entityType.corporateBody=Corporate Body
 portal.historicalAgent.set=Historical Agent
 
-portal.facet.lod=Level of Detail
-portal.facet.lod.low=Low
-portal.facet.lod.medium=Medium
-portal.facet.lod.high=High
-portal.facet.placeholder.lod=Select Level of Detail
-portal.facet.location=Location
-portal.facet.holder=Holding Institution
-portal.facet.placeholder.holder=Filter by Institution
-portal.facet.placeholder.country=Filter Country
-portal.facet.placeholder.lang=Filter Language
-portal.facet.placeholder.childCount=Filter Structure
-portal.facet.placeholder.kw=Filter Keyword
-portal.facet.container=Item Structure
-portal.facet.topLevel.true=Top Level
-portal.facet.container.hasChildItems=Multi-level (container)
-portal.facet.itemsHeldOnline=Viewable Items
-portal.facet.itemsHeldOnline.yes=Catalogued Material Available
+
+# Facets
+facet.type=Item Type
+facet.type.tooltip=The type of item, e.g. institutions, archival descriptions,\
+  or authority files.
+facet.lang=Language of Description
+facet.lang.placeholder=Filter Language
+facet.lang.tooltip=The language of the electronic description.
+facet.data=Structure
+facet.data.tooltip=Whether this item is a container for other records.
+facet.data.hasChildItems=Container (multi-level)
+facet.data.placeholder=Filter Structure
+facet.source=Description Source
+facet.source.tooltip=The source of the electronic description, e.g. whether it was\
+  created by EHRI staff or imported from structured data provided by a partner institution.
+facet.source.MANUAL=EHRI
+facet.source.IMPORT=EHRI Partner
+facet.lod=Level of Detail
+facet.lod.tooltip=A rough approximation of the detail of the record based on character count.
+facet.lod.low=Low
+facet.lod.medium=Medium
+facet.lod.high=High
+facet.lod.placeholder=Select Level of Detail
+facet.kw=Keyword
+facet.kw.tooltip=Keywords associated with each record.
+facet.kw.placeholder=Filter Keyword
+facet.country=Country
+facet.country.tooltip=The country in which the source material resides.
+facet.country.placeholder=Filter Country
+facet.location=Location
+facet.holder=Holding Institution
+facet.holder.tooltip=The repository in which the source material resides.
+facet.holder.placeholder=Filter by Institution
+facet.container=Item Structure
+facet.topLevel.true=Top Level
+facet.container.hasChildItems=Multi-level (container)
+facet.itemsHeldOnline=Viewable Items
+facet.itemsHeldOnline.yes=Catalogued Material Available
 portal.multipleDescriptions=This item has multiple descriptions. Alternate descriptions may source from different repositories or represent a (partial) translation.
 portal.noDetails=---
+facet.cpf=Authority Type
+facet.cpf.tooltip=The type of entity, e.g. person, family, or corporate body.
+facet.set=Authority Set
+facet.set.tooltip=The authority set to which each item belongs.
+facet.scope=Scope
+facet.scope.tooltip=The scope of the record with regard to EHRIs remit.
+facet.priority=Priority
+facet.priority.tooltip=The priority of the institution with regard to EHRIs data entry.
+facet.active=Activity
+facet.active.tooltip=Active or disactive users.
+facet.group=Groups
+facet.group.tooltip=Groups to which users belong.
 
 # Activity...
 portal.activity=Activity

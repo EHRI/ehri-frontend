@@ -55,6 +55,14 @@ case class DocumentaryUnits @Inject()(implicit globalConfig: global.GlobalConfig
         display = FacetDisplay.DropDown
       ),
       FieldFacetClass(
+        key="creationProcess",
+        name=Messages("creationProcess"),
+        param="source",
+        render=s => Messages("creationProcess." + s),
+        sort = FacetSort.Name,
+        display = FacetDisplay.List
+      ),
+      FieldFacetClass(
         key="holderName",
         name=Messages("documentaryUnit.heldBy"),
         param="holder",
