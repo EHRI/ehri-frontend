@@ -13,7 +13,7 @@
     @doc.parent.map { parent =>
         @wrapParent(parent) {
             <div class="ancestor">
-                <h4>@linkTo(parent, template)</h4>
+                <h4>@p.guides.doc.linkTo(parent, template._2._1.path)</h4>
                 @html
             </div>
         }
@@ -28,7 +28,7 @@
 	<section class="archival-context panel-details repository">
 	    @item.holder.map { holder =>
 	        <div class="panel-heading">
-	            <h3>@linkTo(holder, template)</h3>
+	            <h3>@p.guides.doc.linkTo(holder, template._2._1.path)</h3>
 	        </div>
 	        <div class="panel-body">
 	            @if(!holder.model.primaryDescription.flatMap(_.parallelFormsOfName).isEmpty || !holder.model.logoUrl.isEmpty) {
@@ -51,7 +51,7 @@
 	            @item.parent.map { parent =>
 	                @wrapParent(parent) {
 	                    <div class="ancestor">
-	                        <h4>@linkTo(parent, template)</h4>
+	                        <h4>@p.guides.doc.linkTo(parent, template._2._1.path)</h4>
 	                    </div>
 	                }
 	            }

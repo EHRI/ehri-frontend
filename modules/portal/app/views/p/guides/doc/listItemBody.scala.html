@@ -1,0 +1,40 @@
+@(item: DocumentaryUnit, guidePath:String)(implicit userOpt: Option[UserProfile], req: RequestHeader, globalConfig: global.GlobalConfig, lang: Lang, descriptionId: Option[String] = None)
+
+
+@import org.apache.commons.lang3.StringUtils
+@item.model.primaryDescription(descriptionId).map { desc =>
+    <small>
+        <ul class="list-unstyled text-muted list-inline inline-separator">
+            @item.holder.map { holder =>
+                <li><a class="alt" href="@controllers.portal.routes.Guides.browseRepository(guidePath, holder.id)">@holder.toStringAbbr</a></li>
+            }
+            <li><span class="text-muted">@views.Helpers.languageCodeToName(desc.languageCode)</span></li>
+
+            @desc.dates.headOption.map { dp =>
+                <li>@dp.years</li>
+            }
+            @desc.identity.extentAndMedium.map { s =>
+                <li>@StringUtils.abbreviate(s, 25)</li>
+            }
+            @item.latestEvent.map { event =>
+                <li title="@common.eventTitle(event)">
+                    <time datetime="@event.model.timestamp">
+                        @Messages("systemEvent.lastUpdated", views.Helpers.relativeDate(event.model.timestamp))
+                    </time>
+                </li>
+            }
+        </ul>
+        @views.html.common.childCount(item) { count =>
+            @if(count > 0) {
+                <a href="@controllers.portal.routes.Guides.browseDocument(guidePath, item.id)#search-items">@Messages("documentaryUnit.childCount", count)</a>
+            }
+        }
+    </small>
+
+    @desc.displayText.map(views.Helpers.ellipsize(_, 600)).map { sc =>
+        @Html(views.Helpers.renderMarkdown(sc))
+    }
+}.getOrElse {
+    <small>@Messages("describedEntity.noDescriptions")</small>
+}
+

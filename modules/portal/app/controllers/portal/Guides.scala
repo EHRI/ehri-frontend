@@ -22,7 +22,7 @@ import models.{Guide, GuidePage, GeoCoordinates}
 import models.GuidePage.Layout
 import models.base.AnyModel
 import utils.search.{Facet, FacetClass}
-import play.api.libs.json.{Json, JsString, JsValue, JsNumber}
+import play.api.libs.json.{Json, JsString, JsValue, JsNumber, JsNull}
 
 import com.google.inject._
 import play.api.Play.current
@@ -161,6 +161,58 @@ case class Guides @Inject()(implicit globalConfig: global.GlobalConfig, searchDi
     }
   }
 
+  /*
+   *    Return Ajax 
+   */
+
+  def guideJson(item: AnyModel, count: Long = 0):JsValue = {
+    item match {
+      case it:HistoricalAgent => {
+          Json.obj(
+            "name" -> Json.toJson(it.toStringLang),
+            "id" -> Json.toJson(it.id),
+            "type" -> Json.toJson("historicalAgent"),
+            "links" -> Json.toJson(count),
+            "descriptions" -> Json.toJson(it.descriptions.map { case (desc) =>
+                  Json.obj(
+                    "datesOfExistence"-> Json.toJson(desc.details.datesOfExistence),
+                    "history"-> Json.toJson(desc.details.history),
+                    "places"-> Json.toJson(desc.details.places),
+                    "legalStatus"-> Json.toJson(desc.details.legalStatus),
+                    "functions"-> Json.toJson(desc.details.functions),
+                    "mandates"-> Json.toJson(desc.details.mandates),
+                    "internalStructure"-> Json.toJson(desc.details.internalStructure),
+                    "generalContext"-> Json.toJson(desc.details.generalContext)
+                  )
+              })
+          )
+      }
+      case it:Concept => {
+          Json.obj(
+            "name" -> Json.toJson(it.toStringLang),
+            "id" -> Json.toJson(it.id),
+            "type" -> Json.toJson("cvocConcept"),
+            "links" -> Json.toJson(count),
+            "parent" -> Json.toJson(it.parent match {
+                case Some(p) => Json.obj(
+                    "name" -> Json.toJson( p.toStringLang),
+                    "id" -> Json.toJson(p.id)
+                  )
+                case _ => JsNull
+              }),
+            "descriptions" -> Json.toJson(it.descriptions.map { case (desc) =>
+                Json.toJson(Map(
+                    "definition" -> Json.toJson(desc.definition),
+                    "scopeNote" -> Json.toJson(desc.scopeNote),
+                    "longitude" -> Json.toJson(desc.longitude),
+                    "latitude" -> Json.toJson(desc.latitude)
+                ))
+              }.toList)
+          )
+      }
+      case _ => JsNull
+    }
+  }
 
   /*
   *
@@ -197,8 +249,17 @@ case class Guides @Inject()(implicit globalConfig: global.GlobalConfig, searchDi
           links <- countLinks(guide.virtualUnit, r.page.items.map { case(item, hit) => item.id }.toList)
       }
       yield {
-          if (isAjax) Ok(p.guides.ajax(template -> guide, r.page, r.params, links))
-          else Ok(p.guides.person(template -> (guide -> guide.findPages), r.page, r.params, links))
+          render {
+            case Accepts.Html() => {
+              if (isAjax) Ok(p.guides.ajax(template -> guide, r.page, r.params, links))
+              else Ok(p.guides.person(template -> (guide -> guide.findPages), r.page, r.params, links))
+            }
+            case Accepts.Json() => {
+              Ok(Json.toJson(r.page.items.map { case (agent, hit) =>
+                  guideJson(agent, links.get(agent.id).getOrElse(0))
+                }))
+            }
+          }
       }
   }
 
@@ -224,7 +285,9 @@ case class Guides @Inject()(implicit globalConfig: global.GlobalConfig, searchDi
               else Ok(p.guides.places(template -> (guide -> guide.findPages), r.page, r.params, links, Json.toJson(returnJson(r.page, links))))
             }
             case Accepts.Json() => {
-              Ok(Json.toJson(returnJson(r.page, links)))
+              Ok(Json.toJson(r.page.items.map { case (concept, hit) =>
+                  guideJson(concept, links.get(concept.id).getOrElse(0))
+                }))
             }
           }
       }
@@ -240,8 +303,17 @@ case class Guides @Inject()(implicit globalConfig: global.GlobalConfig, searchDi
         links <- countLinks(guide.virtualUnit, r.page.items.map { case(item, hit) => item.id }.toList)
       }
       yield {
-        if (isAjax) Ok(p.guides.ajax(template -> guide, r.page, r.params, links))
-        else Ok(p.guides.organisation(template -> (guide -> guide.findPages), r.page, r.params, links))
+          render {
+            case Accepts.Html() => {
+                if (isAjax) Ok(p.guides.ajax(template -> guide, r.page, r.params, links))
+                else Ok(p.guides.organisation(template -> (guide -> guide.findPages), r.page, r.params, links))
+            }
+            case Accepts.Json() => {
+              Ok(Json.toJson(r.page.items.map { case (concept, hit) =>
+                  guideJson(concept, links.get(concept.id).getOrElse(0))
+                }))
+            }
+          }
     }
   }
 
