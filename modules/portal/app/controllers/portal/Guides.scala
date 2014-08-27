@@ -203,7 +203,7 @@ case class Guides @Inject()(implicit globalConfig: global.GlobalConfig, searchDi
       "items" -> Json.toJson(page.items.map { case (agent, hit) =>
                       guideJsonItem(agent, links.get(agent.id).getOrElse(0))
                     }),
-      "limit" -> Json.toJson(10),
+      "limit" -> Json.toJson(20),
       "page" -> Json.toJson(page.page.toInt),
       "total" -> Json.toJson(page.total.toInt)
     )
@@ -267,7 +267,7 @@ case class Guides @Inject()(implicit globalConfig: global.GlobalConfig, searchDi
         }
       ) match { case (sort, geoloc) =>
       for {
-        r <- find[Concept](params, extra = geoloc, defaultParams = SearchParams(entities = List(EntityType.Concept),sort = Some(sort),count = 50), entities = List(EntityType.Concept), facetBuilder = conceptFacets)
+        r <- find[Concept](params, extra = geoloc, defaultParams = SearchParams(entities = List(EntityType.Concept), sort = Some(sort)), entities = List(EntityType.Concept), facetBuilder = conceptFacets)
         links <- countLinks(guide.virtualUnit, r.page.items.map { case(item, hit) => item.id }.toList)
       }
       yield {
