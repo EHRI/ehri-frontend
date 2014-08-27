@@ -97,16 +97,22 @@ $(document).ready(function() {
     });
     $(".facet-form").on("click", " ul.facet-list a[href]", function(e) {
         e.preventDefault();
-        form = $(this);
-        list = form.parent().parent("li.facet").children("ul");
+        var form = $(this),
+               list = form.parent().parent("li.facet").children("ul"),
+               plus = form.find(".glyphicon");
         if(list.children("li").length > 0) {
             list.toggle();
+            plus.toggleClass("glyphicon-minus", list.is(":visible"))
+            plus.toggleClass("glyphicon-plus", !list.is(":visible"))
         } else {
             $.get(
                 form.attr("href"),
                 {},
                 function(data) {
                     list.html(data);
+                    plus.toggleClass("glyphicon-minus", list.is(":visible"))
+                    plus.toggleClass("glyphicon-plus", !list.is(":visible"))
+
                 },
                 "html"
             );
