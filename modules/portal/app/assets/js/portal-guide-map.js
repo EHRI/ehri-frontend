@@ -47,8 +47,8 @@ var	mapParams = {
 addMarker = function(data) {
 	if(!$items[data.id]) {
 		$items[data.id] = true;
-
-	 			var markerLocation = new L.LatLng(parseFloat(data.latitude),parseFloat(data.longitude));
+		var desc = data.descriptions[0];
+		var markerLocation = new L.LatLng(parseFloat(desc.latitude),parseFloat(desc.longitude));
 
 		var markerProperty = {
 			title : data.name,
@@ -69,8 +69,11 @@ addMarker = function(data) {
 addMarkerList = function(data) {
 	var i = 0;
 	while(data[i]) {
-		if(data[i].latitude !== "None" && data[i].longitude !== "None") {
-			bindMarker(addMarker(data[i]), data[i].id, data[i].links)
+		if(data[i].descriptions.length == 1) {
+			var desc = data[i].descriptions[0];
+			if(desc.latitude !== null && desc.longitude !== null) {
+				bindMarker(addMarker(data[i]), data[i].id, data[i].links)
+			}
 		}
 		++i;
 	}
@@ -149,14 +152,16 @@ $(".zoom-to").on("click", function(e) {
 
 /* Initiate */
 $(document).ready(function() {
-	console.log($originalMarkers)
 	ORIGINAL = false;
 	if("q" in mapParams && mapParams.q.length > 0 && mapParams.q != "undefined") {
 		ORIGINAL = true;
 	}
 	addMarkerList($originalMarkers)
 	$.each($originalMarkers, function(i, m) {
-		$bounds.push([parseFloat(m.latitude), parseFloat(m.longitude)])
+		var desc = m.descriptions[0];
+		if(desc.latitude !== null && desc.longitude !== null) {
+			$bounds.push([parseFloat(desc.latitude), parseFloat(desc.longitude)])
+		}
 	});
 	$map.fitBounds($bounds);
 	ORIGINAL = false;

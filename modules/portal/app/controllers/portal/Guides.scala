@@ -76,22 +76,6 @@ case class Guides @Inject()(implicit globalConfig: global.GlobalConfig, searchDi
     )
   }
 
-  def returnJson(hits:utils.search.ItemPage[(models.Concept, utils.search.SearchHit)], linksCount: Map[String, Long]): List[JsValue] = {
-
-      hits.items.map { case(item, id) =>
-        item.descriptions.map { case(desc) =>
-          Json.toJson(Map(
-            "id" -> item.id,
-            "latitude" -> desc.latitude.getOrElse(None).toString,
-            "longitude" -> desc.longitude.getOrElse(None).toString,
-            "name" -> desc.name.toString,
-            "links" -> linksCount.get(item.id).getOrElse(0).toString
-          ))
-        }.toList
-      }.toList.flatten
-  }
-
-
   /*
    *    Count Links by items
    */
@@ -282,7 +266,9 @@ case class Guides @Inject()(implicit globalConfig: global.GlobalConfig, searchDi
           render {
             case Accepts.Html() => {
               if (isAjax) Ok(p.guides.ajax(template -> guide, r.page, r.params, links))
-              else Ok(p.guides.places(template -> (guide -> guide.findPages), r.page, r.params, links, Json.toJson(returnJson(r.page, links))))
+              else Ok(p.guides.places(template -> (guide -> guide.findPages), r.page, r.params, links, Json.toJson(r.page.items.map { case (concept, hit) =>
+                  guideJson(concept, links.get(concept.id).getOrElse(0))
+                })))
             }
             case Accepts.Json() => {
               Ok(Json.toJson(r.page.items.map { case (concept, hit) =>
