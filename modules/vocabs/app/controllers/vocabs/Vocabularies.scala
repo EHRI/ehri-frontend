@@ -101,7 +101,7 @@ case class Vocabularies @Inject()(implicit globalConfig: global.GlobalConfig, se
         vocabRoutes.get(id)))
   }
 
-  def deletePost(id: String) = deletePostAction(id) { ok => implicit userOpt => implicit request =>
+  def deletePost(id: String) = deletePostAction(id) { implicit userOpt => implicit request =>
     Redirect(vocabRoutes.list())
       .flashing("success" -> "item.delete.confirmation")
   }

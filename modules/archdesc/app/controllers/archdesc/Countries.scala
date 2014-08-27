@@ -121,7 +121,7 @@ case class Countries @Inject()(implicit globalConfig: global.GlobalConfig, searc
         countryRoutes.get(id)))
   }
 
-  def deletePost(id: String) = deletePostAction(id) { ok => implicit userOpt => implicit request =>
+  def deletePost(id: String) = deletePostAction(id) { implicit userOpt => implicit request =>
     Redirect(countryRoutes.search())
         .flashing("success" -> "item.delete.confirmation")
   }
