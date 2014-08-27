@@ -149,7 +149,7 @@ case class Guides @Inject()(implicit globalConfig: global.GlobalConfig, searchDi
    *    Return Ajax 
    */
 
-  def guideJson(item: AnyModel, count: Long = 0):JsValue = {
+  def guideJsonItem(item: AnyModel, count: Long = 0):JsValue = {
     item match {
       case it:HistoricalAgent => {
           Json.obj(
@@ -179,7 +179,7 @@ case class Guides @Inject()(implicit globalConfig: global.GlobalConfig, searchDi
             "links" -> Json.toJson(count),
             "parent" -> Json.toJson(it.parent match {
                 case Some(p) => Json.obj(
-                    "name" -> Json.toJson( p.toStringLang),
+                    "name" -> Json.toJson(p.toStringLang),
                     "id" -> Json.toJson(p.id)
                   )
                 case _ => JsNull
@@ -198,6 +198,14 @@ case class Guides @Inject()(implicit globalConfig: global.GlobalConfig, searchDi
     }
   }
 
+  def guideJson(page: utils.search.ItemPage[(AnyModel,utils.search.SearchHit)], request:RequestHeader, links: Map[String, Long], pageParam: String = "page"):JsValue = {
+    Json.obj(
+      "items" -> Json.toJson(page.items.map { case (agent, hit) =>
+                      guideJsonItem(agent, links.get(agent.id).getOrElse(0))
+                    }),
+      "nextPage" -> (if(page.numPages >= page.page.toInt + 1) Json.toJson( utils.joinPath(request.path, request.queryString.updated(pageParam, Seq((page.page.toInt + 1).toString)))) else JsNull)
+    )
+}
   /*
   *
   * Link a layout [GuidePage] to a correct template function
@@ -239,9 +247,7 @@ case class Guides @Inject()(implicit globalConfig: global.GlobalConfig, searchDi
               else Ok(p.guides.person(template -> (guide -> guide.findPages), r.page, r.params, links))
             }
             case Accepts.Json() => {
-              Ok(Json.toJson(r.page.items.map { case (agent, hit) =>
-                  guideJson(agent, links.get(agent.id).getOrElse(0))
-                }))
+              Ok(guideJson(r.page, request, links))
             }
           }
       }
@@ -266,14 +272,10 @@ case class Guides @Inject()(implicit globalConfig: global.GlobalConfig, searchDi
           render {
             case Accepts.Html() => {
               if (isAjax) Ok(p.guides.ajax(template -> guide, r.page, r.params, links))
-              else Ok(p.guides.places(template -> (guide -> guide.findPages), r.page, r.params, links, Json.toJson(r.page.items.map { case (concept, hit) =>
-                  guideJson(concept, links.get(concept.id).getOrElse(0))
-                })))
+              else Ok(p.guides.places(template -> (guide -> guide.findPages), r.page, r.params, links, guideJson(r.page, request, links)))
             }
             case Accepts.Json() => {
-              Ok(Json.toJson(r.page.items.map { case (concept, hit) =>
-                  guideJson(concept, links.get(concept.id).getOrElse(0))
-                }))
+              Ok(guideJson(r.page, request, links))
             }
           }
       }
@@ -295,9 +297,7 @@ case class Guides @Inject()(implicit globalConfig: global.GlobalConfig, searchDi
                 else Ok(p.guides.organisation(template -> (guide -> guide.findPages), r.page, r.params, links))
             }
             case Accepts.Json() => {
-              Ok(Json.toJson(r.page.items.map { case (concept, hit) =>
-                  guideJson(concept, links.get(concept.id).getOrElse(0))
-                }))
+              Ok(guideJson(r.page, request, links))
             }
           }
     }

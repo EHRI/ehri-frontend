@@ -134,7 +134,7 @@ Movement loading and Maps Triggers
 $map.on('moveend', function(e) {
 	$.get(MAP_URL, { lat : $map.getCenter().lat, lng: $map.getCenter().lng }, 
 		function (data) { 
-			addMarkerList(data);
+			addMarkerList(data.items);
 		}, "json")
 });
 
@@ -156,6 +156,7 @@ $(document).ready(function() {
 	if("q" in mapParams && mapParams.q.length > 0 && mapParams.q != "undefined") {
 		ORIGINAL = true;
 	}
+	$originalMarkers = $originalMarkers.items;
 	addMarkerList($originalMarkers)
 	$.each($originalMarkers, function(i, m) {
 		var desc = m.descriptions[0];
