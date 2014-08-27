@@ -9,7 +9,9 @@
 
         @views.html.layout.mainContent {
             <h1>@Messages("portal.bookmarkSet.list")</h1>
-            @bookmarkSetList(user, page, watched)
+            @itemList(user, page, watched)
+            <a class="btn post" href="@controllers.portal.routes.Bookmarks.createBookmarkSet()">@Messages("portal.bookmarkSet.create")</a>
         }
     }
+
 }

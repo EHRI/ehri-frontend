@@ -110,9 +110,9 @@ case class Bookmarks @Inject()(implicit globalConfig: global.GlobalConfig, searc
 
     getOrCreateBS(bsId).map { vu =>
       Cache.remove(vu.id)
-      (if (isAjax) Ok("ok")
-      else Redirect(vuRoutes.browseVirtualCollection(id = vu.id)))
+      if (isAjax) Ok("ok")
         .withHeaders(HeaderNames.LOCATION -> vuRoutes.browseVirtualCollection(vu.id).url)
+      else Redirect(bmRoutes.listBookmarkSets())
     }
   }
 
@@ -122,24 +122,24 @@ case class Bookmarks @Inject()(implicit globalConfig: global.GlobalConfig, searc
     for {
       page <- pageF
       watched <- watchedF
-    } yield Ok(p.profile.bookmarkSets(page, watched))
+    } yield Ok(p.bookmarks.list(page, watched))
   }
 
   def createBookmarkSet(items: List[String] = Nil) = withUserAction { implicit user => implicit request =>
-    if (isAjax) Ok(p.profile.bookmarkSetForm(BookmarkSet.bookmarkForm, bmRoutes.createBookmarkSetPost(items)))
-    else Ok(p.profile.createBookmarkSet(BookmarkSet.bookmarkForm, bmRoutes.createBookmarkSetPost(items)))
+    if (isAjax) Ok(p.bookmarks.renderForm(BookmarkSet.bookmarkForm, bmRoutes.createBookmarkSetPost(items)))
+    else Ok(p.bookmarks.create(BookmarkSet.bookmarkForm, bmRoutes.createBookmarkSetPost(items)))
   }
 
   def createBookmarkSetPost(items: List[String] = Nil) = withUserAction.async { implicit user => implicit request =>
     BookmarkSet.bookmarkForm.bindFromRequest.fold(
       errs => immediate {
-        if (isAjax) Ok(p.profile.bookmarkSetForm(errs, bmRoutes.createBookmarkSetPost(items)))
-        else Ok(p.profile.createBookmarkSet(errs, bmRoutes.createBookmarkSetPost(items)))
+        if (isAjax) Ok(p.bookmarks.renderForm(errs, bmRoutes.createBookmarkSetPost(items)))
+        else Ok(p.bookmarks.create(errs, bmRoutes.createBookmarkSetPost(items)))
       },
       bs => createVirtualCollection(bs, items).map { vu =>
-        (if (isAjax) Ok("ok")
-        else Redirect(vuRoutes.browseVirtualCollection(id = vu.id)))
+        if (isAjax) Ok("ok")
           .withHeaders(HeaderNames.LOCATION -> vuRoutes.browseVirtualCollection(vu.id).url)
+        else Redirect(bmRoutes.listBookmarkSets())
       }
     )
   }
