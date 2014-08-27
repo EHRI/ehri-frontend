@@ -203,7 +203,9 @@ case class Guides @Inject()(implicit globalConfig: global.GlobalConfig, searchDi
       "items" -> Json.toJson(page.items.map { case (agent, hit) =>
                       guideJsonItem(agent, links.get(agent.id).getOrElse(0))
                     }),
-      "nextPage" -> (if(page.numPages >= page.page.toInt + 1) Json.toJson( utils.joinPath(request.path, request.queryString.updated(pageParam, Seq((page.page.toInt + 1).toString)))) else JsNull)
+      "limit" -> Json.toJson(10),
+      "page" -> Json.toJson(page.page.toInt),
+      "total" -> Json.toJson(page.total.toInt)
     )
 }
   /*
