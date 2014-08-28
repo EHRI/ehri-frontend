@@ -55,10 +55,10 @@ case class Guides @Inject()(implicit globalConfig: global.GlobalConfig, searchDi
   /*
   *  Return SearchParams for items with hierarchy
   */
-  def getParams(request: Request[Any], eT: EntityType.Value, sort: Option[utils.search.SearchOrder.Value]): SearchParams = { 
+  def getParams(request: Request[Any], eT: EntityType.Value, sort: Option[utils.search.SearchOrder.Value], isAjax: Boolean = false): SearchParams = { 
     request.getQueryString("parent") match {
       case Some(parent) => SearchParams(query = Some(SolrConstants.PARENT_ID + ":" + parent), entities = List(eT), sort = sort)
-      case _ => SearchParams(query = Some(SolrConstants.TOP_LEVEL + ":" + true), entities = List(eT), sort = sort)
+      case _ => SearchParams(query = (if(!isAjax) Some(SolrConstants.TOP_LEVEL + ":" + true) else None), entities = List(eT), sort = sort)
     }
   }
 
@@ -177,6 +177,7 @@ case class Guides @Inject()(implicit globalConfig: global.GlobalConfig, searchDi
             "id" -> Json.toJson(it.id),
             "type" -> Json.toJson("cvocConcept"),
             "links" -> Json.toJson(count),
+            "childCount" -> Json.toJson(it.childCount.getOrElse(0) ),
             "parent" -> Json.toJson(it.parent match {
                 case Some(p) => Json.obj(
                     "name" -> Json.toJson(p.toStringLang),
@@ -369,7 +370,7 @@ case class Guides @Inject()(implicit globalConfig: global.GlobalConfig, searchDi
   )
 
   def getFacetQuery(ids: List[String]) : String = {
-    ids.map("__ID__:" + _ ).reduce((a, b) => a + " OR " + b)
+    ids.filter(x => !(x.isEmpty)).map("__ID__:" + _ ).reduce((a, b) =>  a + " OR " + b)
   }
 
   /*
@@ -520,10 +521,10 @@ case class Guides @Inject()(implicit globalConfig: global.GlobalConfig, searchDi
       val defaultResult = Ok(p.guides.facet(ItemPage(Seq(), 0, 0, 0, List()), Map().empty, GuidePage.faceted -> (guide -> guide.findPages)))
       facetsForm.bindFromRequest(request.queryString).fold(
         errs => immediate(defaultResult), {
-          case (selectedFacets, page) if !selectedFacets.isEmpty => for {
-            ids <- searchFacets(guide, selectedFacets)
+          case (selectedFacets, page) if !selectedFacets.filter(x => !(x.isEmpty)).isEmpty => for {
+            ids <- searchFacets(guide, selectedFacets.filter(x => !(x.isEmpty)))
             docs <- SearchDAO.listByGid[DocumentaryUnit](facetSlice(ids, page))
-            selectedAccessPoints <- SearchDAO.list[AnyModel](selectedFacets)
+            selectedAccessPoints <- SearchDAO.list[AnyModel](selectedFacets.filter(x => !(x.isEmpty)))
             availableFacets <- otherFacets(guide, ids)
             tempAccessPoints <- SearchDAO.listByGid[AnyModel](availableFacets)
           } yield Ok(p.guides.facet(pagify(ids, docs, selectedAccessPoints, page), mapAccessPoints(guide, tempAccessPoints), GuidePage.faceted -> (guide -> guide.findPages)))

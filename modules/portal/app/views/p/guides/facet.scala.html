@@ -6,8 +6,63 @@
     <script type="text/javascript" src="@controllers.portal.routes.Assets.versioned("js/portal-guide.js")"></script>
     <script type="text/javascript" src="@controllers.portal.routes.Assets.versioned("js/portal-guide-facet.js")"></script>
     <script src="@controllers.core.routes.Assets.versioned("select2/select2.js")"></script>
+
+    @lang.language match {
+            case "en" => {}
+            case _ => {
+             <script src="@controllers.core.routes.Assets.versioned("select2/select2_locale_" + lang.language +".js")"></script>
+        }
+    }
     <script type="text/javascript">
-        $(".select2").select2()
+        $(".facet-selected").select2(),
+
+        $(".facet-browse").select2({
+            minimumInputLength: 0,
+            multiple: true,
+            ajax: {
+                url: function() {
+                    console.log($(this));
+                    return $(this).attr("data-target");
+                },
+                dataType: 'json',
+                quietMillis: 100,
+                data: function (term, page) { // page is the one-based page number tracked by Select2
+                    return {
+                        q: term, //search term
+                        page_limit: 10, // page size
+                        page: page // page number
+                    };
+                },
+                results: function (data, page) {
+                    var more = (page * 10) < data.total, // whether or not there are more results available
+                            items = data.items;
+
+                    $.each(items, function(i, e) {
+                        if(typeof e.childCount !== "undefined" && e.childCount > 0) {
+                          items[i].children = []
+                        }
+                        if(e.links === 0) {
+                           items[i].disabled = true;
+                        }
+                    })
+                    // notice we return the value of more so Select2 knows if more results can be loaded
+                    return {results: data.items, more: more};
+                }
+            },
+            formatResult: function(item) {
+                var original = item;
+                if(typeof original.parent !== "undefined" && original.parent !== null) {
+                return "<div title ='" + original.parent.name + " > " + original.name + "'>" + original.name + " ("+ original.links+")" + "</div>";
+                }
+                return "<div title ='" + original.name + "'>" + original.name + " ("+ original.links+")" + "</div>";
+                //return item.name;
+            },
+            formatSelection: function(item) {
+                return item.name
+            },
+            //dropdownCssClass: "bigdrop", // apply css that makes the dropdown taller
+            escapeMarkup: function (m) { return m; } // we do not want to escape markup since we are displaying html in results
+        });
     </script>
 }
 
@@ -15,7 +70,7 @@
     <div class="facet-class">
         <h4 class="facet-label">@pageName</h4>
         <div class="facet-options">
-            <select multiple style="width: 100%" name="kw[]" data-placeholder="@pageName" class="form-control select2 autosubmit">
+            <select multiple style="width: 100%" name="kw[]" data-placeholder="@pageName" class="form-control facet-selected select2 autosubmit">
                 <option></option>
                 @available.get(content).map { listAvailable =>
                     @listAvailable.map{ f=>
@@ -41,24 +96,13 @@
             @if(!available.isEmpty){
                         @selectTwo(page.name, page.content)
             } else{
-                    <ul class="list-unstyled">
-                        <li>
-                            <div class="facet-form @page.path" data-name="@page.path" data-target="@controllers.portal.routes.Guides.layoutRetrieval(template._2._1.path, page.path)">
-                                <h1 class="nav-ehri nav-ehri-black">
-                                    @page.name
-                                    <a class="btn-sm btn-default pull-right search"><span class="glyphicon glyphicon-search"></span></a>
-                                    <a class="btn-sm btn-default pull-right more" href="#@page.path"><span class="glyphicon glyphicon-plus-sign"></span></a>
-                                </h1>
-                                <ul class="nav nav-pills nav-ehri nav-grey-black nav-justified facet-search">
-                                    <li><input class="nav-ehri nav-ehri-grey nav-ehri-input q" name="@page.path" placeholder="Quick Search" /></li>
-                                    <li><button type="submit" class="nav-ehri nav-ehri-grey nav-ehri-input"><span class="glyphicon glyphicon-search"></span><span class="text-hide">Search</span></button></li>
-                                </ul>
-                                <ul class="list-unstyled nav-ehri nav-ehri-light-grey facet-list" id="@page.path">
-        
-                                </ul>
-                            </div>
-                        </li>
-                    </ul>}
+            <div class="facet-class">
+                <h4 class="facet-label">@page.name</h4>
+                <div class="facet-options">
+                    <input type="text" style="width: 100%;" name="kw[]" data-placeholder="@page.name" data-target="@controllers.portal.routes.Guides.layoutRetrieval(template._2._1.path, page.path)" class="form-control select2 facet-browse autosubmit" />
+                </div>
+            </div>
+            }
         }
     }
 }
