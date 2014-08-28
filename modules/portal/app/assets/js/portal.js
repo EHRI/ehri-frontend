@@ -149,6 +149,22 @@ $(".panel-history").each(function() {
 */
 $loader = $( "<div></div>" ).addClass("text-center loader-container").append($("<span></span>").addClass("loader"));
 
+  $(document).on("click", "a.child-drop-down.closed", function(e) {
+    e.preventDefault();
+    var $this = $(this);
+    $this.removeClass("closed").addClass("expanded");
+    var $container = $("<div></div>");
+    $container.insertAfter($this);
+    $container.load(this.href);
+  });
+
+  $(document).on("click", "a.child-drop-down.expanded", function(e) {
+    e.preventDefault();
+    var $this = $(this);
+    $this.next("div").remove();
+    $this.removeClass("expanded").addClass("closed");
+  });
+
   $(".content-load a.toggle").click(function(e){
     e.preventDefault();
     var $link = $(this),
