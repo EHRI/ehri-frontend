@@ -316,3 +316,7 @@ portal.feedback.thanks.message=Your feedback is greatly appreciated.
 
 portal.guides.faceted=Browse
 portal.guides=Guides
+portal.guides.more=More
+portal.guides.loading=Loading
+portal.guides.facets.hierarchy=Search or browse through the available facets of the Guide.
+portal.guides.facets.available=The facets shown here are the one available connected to the same document.

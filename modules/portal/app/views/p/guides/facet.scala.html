@@ -2,11 +2,75 @@
 
 @import models.{GuidePage, Guide}
 
+@js = {
+    <script type="text/javascript" src="@controllers.portal.routes.Assets.versioned("js/portal-guide.js")"></script>
+    <script type="text/javascript" src="@controllers.portal.routes.Assets.versioned("js/portal-guide-facet.js")"></script>
+    <script src="@controllers.core.routes.Assets.versioned("select2/select2.js")"></script>
+
+    @lang.language match {
+            case "en" => {}
+            case _ => {
+             <script src="@controllers.core.routes.Assets.versioned("select2/select2_locale_" + lang.language +".js")"></script>
+        }
+    }
+    <script type="text/javascript">
+        $(".facet-selected").select2(),
+
+        $(".facet-browse").select2({
+            minimumInputLength: 0,
+            multiple: true,
+            ajax: {
+                url: function() {
+                    console.log($(this));
+                    return $(this).attr("data-target");
+                },
+                dataType: 'json',
+                quietMillis: 100,
+                data: function (term, page) { // page is the one-based page number tracked by Select2
+                    return {
+                        q: term, //search term
+                        page_limit: 10, // page size
+                        page: page // page number
+                    };
+                },
+                results: function (data, page) {
+                    var more = (page * 10) < data.total, // whether or not there are more results available
+                            items = data.items;
+
+                    $.each(items, function(i, e) {
+                        if(typeof e.childCount !== "undefined" && e.childCount > 0) {
+                          items[i].children = []
+                        }
+                        if(e.links === 0) {
+                           items[i].disabled = true;
+                        }
+                    })
+                    // notice we return the value of more so Select2 knows if more results can be loaded
+                    return {results: data.items, more: more};
+                }
+            },
+            formatResult: function(item) {
+                var original = item;
+                if(typeof original.parent !== "undefined" && original.parent !== null) {
+                return "<div title ='" + original.parent.name + " > " + original.name + "'>" + original.name + " ("+ original.links+")" + "</div>";
+                }
+                return "<div title ='" + original.name + "'>" + original.name + " ("+ original.links+")" + "</div>";
+                //return item.name;
+            },
+            formatSelection: function(item) {
+                return item.name
+            },
+            //dropdownCssClass: "bigdrop", // apply css that makes the dropdown taller
+            escapeMarkup: function (m) { return m; } // we do not want to escape markup since we are displaying html in results
+        });
+    </script>
+}
+
 @selectTwo(pageName: String, content: String) = {
     <div class="facet-class">
         <h4 class="facet-label">@pageName</h4>
         <div class="facet-options">
-            <select multiple style="width: 100%" name="kw[]" data-placeholder="@pageName" class="form-control select2 autosubmit">
+            <select multiple style="width: 100%" name="kw[]" data-placeholder="@pageName" class="form-control facet-selected select2 autosubmit">
                 <option></option>
                 @available.get(content).map { listAvailable =>
                     @listAvailable.map{ f=>
@@ -18,82 +82,42 @@
     </div>
 }
 
-@js = {
-    <script type="text/javascript" src="@controllers.portal.routes.Assets.versioned("js/portal-guide.js")"></script>
-    <script type="text/javascript" src="@controllers.portal.routes.Assets.versioned("js/portal-guide-facet.js")"></script>
-    <script src="@controllers.core.routes.Assets.versioned("select2/select2.js")"></script>
-    <script type="text/javascript">
-        $(".select2").select2()
-    </script>
-}
 @facets = {
     @views.html.common.search.selectedFacets(items)
-
+    <p><small>
+        @if(available.isEmpty) {
+            @Messages("portal.guides.facets.hierarchy")
+        } else {
+            @Messages("portal.guides.facets.available")
+        }
+    </small></p>
     @for(page <- template._2._2) {
-        @if(page.position == GuidePage.MenuPosition.Top && page.layout != GuidePage.Layout.Markdown) {
+        @if(page.layout != GuidePage.Layout.Markdown) {
             @if(!available.isEmpty){
-                        @selectTwo(page.name, page.content)} else{
-                                    <ul class="list-unstyled">
-                                        <li>
-                                            <div class="facet-form @page.path" data-name="@page.path" data-target="@controllers.portal.routes.Guides.layoutRetrieval(template._2._1.path, page.path)">
-                                                <h1 class="nav-ehri nav-ehri-black">
-                                                    @page.name
-                                                    <a class="btn-sm btn-default pull-right search"><span class="glyphicon glyphicon-search"></span></a>
-                                                    <a class="btn-sm btn-default pull-right more" href="#@page.path"><span class="glyphicon glyphicon-plus-sign"></span></a>
-                                                </h1>
-                                                <ul class="nav nav-pills nav-ehri nav-grey-black nav-justified facet-search">
-                                                    <li><input class="nav-ehri nav-ehri-grey nav-ehri-input q" name="@page.path" placeholder="Quick Search" /></li>
-                                                    <li><button type="submit" class="nav-ehri nav-ehri-grey nav-ehri-input"><span class="glyphicon glyphicon-search"></span><span class="text-hide">Search</span></button></li>
-                                                </ul>
-                                                <ul class="list-unstyled nav-ehri nav-ehri-light-grey facet-list" id="@page.path">
-                        
-                                                </ul>
-                                            </div>
-                                        </li>
-                                    </ul>}
+                        @selectTwo(page.name, page.content)
+            } else{
+            <div class="facet-class">
+                <h4 class="facet-label">@page.name</h4>
+                <div class="facet-options">
+                    <input type="text" style="width: 100%;" name="kw[]" data-placeholder="@page.name" data-target="@controllers.portal.routes.Guides.layoutRetrieval(template._2._1.path, page.path)" class="form-control select2 facet-browse autosubmit" />
+                </div>
+            </div>
+            }
         }
     }
-}
-
-@wrapParent(doc: DocumentaryUnit, parent: Option[DocumentaryUnit]) = {
-    @parent.map { p =>
-        @wrapParent(doc, p.parent)
-        <li>
-            <a class="search-item-parent-name" href="@controllers.portal.routes.Guides.browseDocument(template._2._1.path, p.id)">@p.toStringLang</a>
-        </li>
-    }
-}
-
-@itemResult(item: DocumentaryUnit) = {
-    <div class="search-item" id="@item.id">
-            <h3 class="search-item-heading type-highlight @item.isA.toString">
-                <a href="@controllers.portal.routes.Guides.browseDocument(template._2._1.path, item.id)">@item.toStringLang</a>
-            </h3>
-            <div class="search-item-body">
-                <ol class="collapsible">
-
-                    @item.holder.map { holder =>
-                        <li>
-                            @linkTo(holder, template)
-                        </li>
-                    }
-                    @wrapParent(item, item.parent)
-                </ol>
-                @p.documentaryUnit.listItemBody(item, false)
-            </div>
-    </div>
 }
 
 
 @p.layout.guideLayoutFacet(template, facets = facets, scripts = js) {
     <article>
         <header>
+            <h1>@Messages("portal.guides.faceted")</h1>
             <h3>@Messages("pagination.displayingItems", items.page + 1, items.page + items.count, items.total)</h3>
         </header>
         <section>
             <section class="content-results">
                     @items.items.map { doc =>
-                        @itemResult(doc)
+                        @p.guides.doc.itemResult(doc, template._2._1.path)
                     }
             </section>
         </section>

@@ -5,15 +5,26 @@
 @js = {
 	<script type="text/javascript">
 	$(document).ready(function() {
-		var loadOrganisation = function($ul, $href) {
+		var loadOrganisation = function($ul, $href, append) {
+			if(typeof append === "undefined") {
+				append = false;
+			}
 			$.get(
 	                $href,
 	                function(data) {
 	                	var $data = $("<ul />");
 	                	$data.html(data)
 	                	$data.find("li").removeClass("facet").addClass("item-wrapper")
-	                	$data.find("input[type='checkbox']").remove()
-	                	$ul.html($data.html());
+	                	if($data.find(".facet-scroll.item-wrapper").length == 1) {
+	                		var page = $data.find(".facet-scroll.item-wrapper").attr("data-target")
+	                		$data.find(".facet-scroll.item-wrapper").html("<a href='" + page + "'>@Messages("portal.guides.more")</a>");
+
+	                	}
+	                	if(append === false){
+				$ul.html($data.html());
+			} else {
+				$ul.append($data.html());
+			}
 	                },
 	                "html"
 	            );
@@ -23,18 +34,26 @@
 			var $elem = $(this),
 				$href = $elem.attr("href"),
 				$parent = $elem.parents("li:first"),
-				$ul = $parent.find("ul:first")
-			if($ul === "undefined" || $ul.length === 0) {
-				$parent.append($("<ul />", {"class" : "list-item hierarchy"}))
-				var $ul = $parent.find("ul:first")
-				loadOrganisation($ul, $href);
-			} else {
-				var $li = $ul.find("li:first");
-				if($li === "undefined" || $li.length === 0) {
+				$ul = $parent.find("ul:first"),
+				$scroll = $elem.parent(".facet-scroll");
+
+			if($scroll.length === 0){
+				if($ul === "undefined" || $ul.length === 0) {
+					$parent.append($("<ul />", {"class" : "list-item hierarchy"}))
+					var $ul = $parent.find("ul:first")
 					loadOrganisation($ul, $href);
 				} else {
-					$ul.toggle()
+					var $li = $ul.find("li:first");
+					if($li === "undefined" || $li.length === 0) {
+						loadOrganisation($ul, $href);
+					} else {
+						$ul.toggle()
+					}
 				}
+			} else {
+
+				loadOrganisation($scroll.parent("ul").first(), $href, true);
+				$scroll.remove();
 			}
 
 		});
@@ -49,6 +68,7 @@
 @p.layout.guideLayout(template, scripts = js, optionalContent = Some(sidebar)) {
 	<article>
 		<header>
+			<h1>@template._1.name</h1>
 			<form role="form" action="@controllers.portal.routes.Guides.layoutRetrieval(template._2._1.path, template._1.path)">
 				<ul class="nav nav-pills nav-ehri nav-ehri-black nav-justified">
 					<li><input class="nav-ehri nav-ehri-black nav-ehri-input" name="q" placeholder="Quick Search" /></li>

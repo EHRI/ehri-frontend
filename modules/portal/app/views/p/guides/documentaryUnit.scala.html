@@ -13,7 +13,7 @@
     @doc.parent.map { parent =>
         @wrapParent(parent) {
             <div class="ancestor">
-                <h4>@linkTo(parent, template)</h4>
+                <h4>@p.guides.doc.linkTo(parent, template._2._1.path)</h4>
                 @html
             </div>
         }
@@ -28,7 +28,7 @@
 	<section class="archival-context panel-details repository">
 	    @item.holder.map { holder =>
 	        <div class="panel-heading">
-	            <h3>@linkTo(holder, template)</h3>
+	            <h3>@p.guides.doc.linkTo(holder, template._2._1.path)</h3>
 	        </div>
 	        <div class="panel-body">
 	            @if(!holder.model.primaryDescription.flatMap(_.parallelFormsOfName).isEmpty || !holder.model.logoUrl.isEmpty) {
@@ -51,7 +51,7 @@
 	            @item.parent.map { parent =>
 	                @wrapParent(parent) {
 	                    <div class="ancestor">
-	                        <h4>@linkTo(parent, template)</h4>
+	                        <h4>@p.guides.doc.linkTo(parent, template._2._1.path)</h4>
 	                    </div>
 	                }
 	            }
@@ -70,15 +70,31 @@
 				        @AccessPointF.AccessPointType.values.toList.map { apt =>
 				            @accessPointLinks.get(apt).map { linksOfType =>
 				                <h4>@Messages("accessPoint.type." + apt.toString)</h4>
-				                <ul class="access-point-links">
+				                <ul class="access-point-links list-unstyled">
 				                    @for((link, accessPoint) <- linksOfType) {
 				                        @link.opposingTarget(item).map { other =>
 				                            <li class="access-point-link resolved-access-point">
 								<a href="@controllers.portal.routes.Guides.guideFacets(template._2._1.path)?kw[]=@other.id" data-target="@other.id" class="popover-keyword">@other.toStringLang</a>
-								@if(!link.model.dates.isEmpty) {
-								<small>@link.model.dateRange</small>
-								}
+								@other match {
+									case ap:HistoricalAgent => {
+										@ap.model.descriptions.map { desc =>
+										<div class="item-description">
+											@desc.details.history.map { d =>
+											<p>@Html(views.Helpers.renderMarkdown(d))</p>
+											}
+											@desc.details.generalContext.map { d =>
+											<p>@Html(views.Helpers.renderMarkdown(d))</p>
+											}
+										}
+									}
+									case ap:Concept => {
+										
+									}
+									case _ => {
 
+									}
+								}
+								
 				                            </li>
 				                        }.getOrElse {
 				                            @link.model.description.map { desc =>
@@ -99,6 +115,10 @@
  }
 }
 @p.layout.guideLayout(template, optionalContent = Some(side)) {
+<article>
+	<header>
+		<h1>@item.toStringLang</h1>
+	</header>
     <div id="item-details">
         @defining(EntityType.DocumentaryUnit.toString) { implicit fieldPrefix =>
             @item.model.descriptions.map { desc =>

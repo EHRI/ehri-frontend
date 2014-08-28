@@ -9,13 +9,11 @@
     @defining(Some(hit.id)) { implicit descriptionId =>
             @item match {
                 case d: HistoricalAgent => {
-        <li class="facet" data-target="@d.id" >
-            <input type="checkbox" name="kw[]" value="@d.id" /> 
-                    <a class="item-title">@d.toStringLang</a>
+                    <li class="facet" data-target="@d.id" >
+                        <a class="item-title">@d.toStringLang</a>
                 }
                 case d: Concept => {
         <li class="facet" data-target="@d.id" >
-            <input type="checkbox" name="kw[]" value="@d.id" /> 
                     
                     <span class="item-title">
                         @template._1.layout match { 
@@ -48,6 +46,6 @@
 }
 @if(page.hasMultiplePages) {
     @if(page.numPages >= page.page.toInt + 1) {
-        <li class="facet-scroll" data-target="@utils.joinPath(request.path, request.queryString.updated(pageParam, Seq((page.page.toInt + 1).toString)))">Loading</li>
+        <li class="facet-scroll" data-target="@utils.joinPath(request.path, request.queryString.updated(pageParam, Seq((page.page.toInt + 1).toString)))">@Messages("portal.guides.loading")</li>
     }
 }
