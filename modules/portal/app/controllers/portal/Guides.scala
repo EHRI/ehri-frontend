@@ -41,7 +41,8 @@ case class Guides @Inject()(implicit globalConfig: global.GlobalConfig, searchDi
 
   val defaultPreferences = new SessionPrefs
   val ajaxOrder = utils.search.SearchOrder.Name
-  val htmlOrder = utils.search.SearchOrder.Detail
+  val htmlAgentOrder = utils.search.SearchOrder.Detail
+  val htmlConceptOrder = utils.search.SearchOrder.ChildCount
   override val staffOnly = current.configuration.getBoolean("ehri.portal.secured").getOrElse(true)
   override val verifiedOnly = current.configuration.getBoolean("ehri.portal.secured").getOrElse(true)
 
@@ -156,19 +157,7 @@ case class Guides @Inject()(implicit globalConfig: global.GlobalConfig, searchDi
             "name" -> Json.toJson(it.toStringLang),
             "id" -> Json.toJson(it.id),
             "type" -> Json.toJson("historicalAgent"),
-            "links" -> Json.toJson(count),
-            "descriptions" -> Json.toJson(it.descriptions.map { case (desc) =>
-                  Json.obj(
-                    "datesOfExistence"-> Json.toJson(desc.details.datesOfExistence),
-                    "history"-> Json.toJson(desc.details.history),
-                    "places"-> Json.toJson(desc.details.places),
-                    "legalStatus"-> Json.toJson(desc.details.legalStatus),
-                    "functions"-> Json.toJson(desc.details.functions),
-                    "mandates"-> Json.toJson(desc.details.mandates),
-                    "internalStructure"-> Json.toJson(desc.details.internalStructure),
-                    "generalContext"-> Json.toJson(desc.details.generalContext)
-                  )
-              })
+            "links" -> Json.toJson(count)
           )
       }
       case it:Concept => {
@@ -240,7 +229,7 @@ case class Guides @Inject()(implicit globalConfig: global.GlobalConfig, searchDi
   */
   def guideAuthority(template: GuidePage, params: Map[String, String], guide: Guide) = userBrowseAction.async { implicit userDetails => implicit request =>
      for { 
-          r <- find[HistoricalAgent](filters = params, defaultParams = SearchParams(sort = Some(if(isAjax) ajaxOrder else htmlOrder)), entities = List(EntityType.HistoricalAgent))
+          r <- find[HistoricalAgent](filters = params, defaultParams = SearchParams(sort = Some(if(isAjax) ajaxOrder else htmlAgentOrder)), entities = List(EntityType.HistoricalAgent))
           links <- countLinks(guide.virtualUnit, r.page.items.map { case(item, hit) => item.id }.toList)
       }
       yield {
@@ -290,7 +279,7 @@ case class Guides @Inject()(implicit globalConfig: global.GlobalConfig, searchDi
   */
   def guideOrganization(template: GuidePage, params: Map[String, String], guide: Guide) = userBrowseAction.async { implicit userDetails => implicit request =>
      for { 
-        r <- find[Concept](params, defaultParams = getParams(request, EntityType.Concept, Some(if(isAjax) ajaxOrder else htmlOrder)), facetBuilder = conceptFacets)
+        r <- find[Concept](params, defaultParams = getParams(request, EntityType.Concept, Some(if(isAjax) ajaxOrder else htmlConceptOrder), isAjax = isAjax), facetBuilder = conceptFacets)
         links <- countLinks(guide.virtualUnit, r.page.items.map { case(item, hit) => item.id }.toList)
       }
       yield {
