@@ -110,8 +110,9 @@ trait FacetConfig extends Search {
   }
 
   protected val historicalAgentFacets: FacetBuilder = { implicit request =>
-    List(dateQuery(request)) ++
     List(
+      // dateQuery(request),
+
       FieldFacetClass(
         key=Isaar.ENTITY_TYPE,
         name=Messages("historicalAgent." + Isaar.ENTITY_TYPE),
@@ -194,8 +195,9 @@ trait FacetConfig extends Search {
   }
 
   protected val docSearchFacets: FacetBuilder = { implicit request =>
-    List(dateQuery(request)) ++
     List(
+      //dateQuery(request),
+
       FieldFacetClass(
         key = Description.LANG_CODE,
         name = Messages("documentaryUnit." + Description.LANG_CODE),
