@@ -148,6 +148,9 @@ Record as a single date or a range of dates as appropriate. A range of dates sho
  be inclusive unless the unit of description is a record-keeping system (or part thereof) in\
  active use. (3.1.3)
 
+documentaryUnit.unitDates=Additional Dates
+documentaryUnit.unitDates.description=Legacy field for additonal date data. Prefer dates field when possible.
+
 documentaryUnit.levelOfDescription=Level of Description
 documentaryUnit.levelOfDescription.description=To identify the level of arrangement of the unit of description. (3.1.4)
 
