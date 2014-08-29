@@ -8,16 +8,13 @@
     @result.spellcheck.map { case (actual, corrected) =>
         @* Argh, lots of weirdness with spelling correction and multi-lingual expansion. *@
         @println(s"Correcting: ${params.query.getOrElse("").trim.toLowerCase} -> ${corrected.trim.toLowerCase}")
-        @if(params.query.getOrElse("").trim.toLowerCase != corrected.trim.toLowerCase) {
-            @if(params.query.getOrElse("").toLowerCase.contains(actual.toLowerCase)) {
-                @defining(params.query.map(_.toLowerCase.replace(actual.toLowerCase, corrected))) { suggestion =>
-                    (@Messages("search.spellingSuggestion")
-                <i>
+        @params.query.map(_.trim.toLowerCase).map { query =>
+            @if(query != corrected.trim.toLowerCase && query.contains(actual.trim.toLowerCase)) {
+                (@Messages("search.spellingSuggestion") <i>
                     <strong>
                         <a href="@utils.joinPath(req.path, req.queryString.updated(SearchParams.QUERY, Seq(corrected)))">@corrected</a>
-                </strong>
+                    </strong>
                 </i>?)
-                }
             }
         }
     }
