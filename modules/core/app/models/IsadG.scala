@@ -1,7 +1,5 @@
 package models
 
-import eu.ehri.project.definitions.Ontology
-
 case object IsadG {
 
   object LevelOfDescription extends Enumeration {
@@ -27,6 +25,7 @@ case object IsadG {
   val PARALLEL_FORMS_OF_NAME = "parallelFormsOfName"
   val REF = "ref"
   val DATES = "dates"
+  val UNIT_DATES = "unitDates"
   val LEVEL_OF_DESCRIPTION = "levelOfDescription"
   val PHYSICAL_LOCATION = "physicalLocation"
   val EXTENT_MEDIUM = "extentAndMedium"
