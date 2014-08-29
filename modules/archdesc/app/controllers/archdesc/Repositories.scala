@@ -36,7 +36,7 @@ case class Repositories @Inject()(implicit globalConfig: global.GlobalConfig, se
       QueryFacetClass(
         key="childCount",
         name=Messages(prefix + ".itemsHeldOnline"),
-        param="items",
+        param="data",
         render=s => Messages(prefix + "." + s),
         facets=List(
           SolrQueryFacet(value = "false", solrValue = "0", name = Some("noChildItems")),
@@ -45,9 +45,9 @@ case class Repositories @Inject()(implicit globalConfig: global.GlobalConfig, se
       ),
       QueryFacetClass(
         key="charCount",
-        name=Messages("lod"),
+        name=Messages("facet.lod"),
         param="lod",
-        render=s => Messages("lod." + s),
+        render=s => Messages("facet.lod." + s),
         facets=List(
           SolrQueryFacet(value = "low", solrValue = "[0 TO 500]", name = Some("low")),
           SolrQueryFacet(value = "medium", solrValue = "[501 TO 2000]", name = Some("medium")),
@@ -58,7 +58,7 @@ case class Repositories @Inject()(implicit globalConfig: global.GlobalConfig, se
       ),
       FieldFacetClass(
         key="countryCode",
-        name=Messages(prefix + ".countryCode"),
+        name=Messages("repository.countryCode"),
         param="country",
         render=Helpers.countryCodeToName,
         display = FacetDisplay.DropDown,
@@ -66,7 +66,7 @@ case class Repositories @Inject()(implicit globalConfig: global.GlobalConfig, se
       ),
       FieldFacetClass(
         key="priority",
-        name=Messages("priority"),
+        name=Messages("facet.priority"),
         param="priority",
         sort = FacetSort.Name,
         display = FacetDisplay.Choice,
@@ -166,7 +166,7 @@ case class Repositories @Inject()(implicit globalConfig: global.GlobalConfig, se
         repositoryRoutes.get(id)))
   }
 
-  def deletePost(id: String) = deletePostAction(id) { ok => implicit userOpt => implicit request =>
+  def deletePost(id: String) = deletePostAction(id) { implicit userOpt => implicit request =>
     Redirect(repositoryRoutes.search())
         .flashing("success" -> "item.delete.confirmation")
   }

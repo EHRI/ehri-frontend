@@ -21,8 +21,8 @@ trait Descriptions[D <: Description with Persistable, T <: Model with Described[
    * Create an additional description for the given item.
    */
   def createDescriptionPostAction(id: String, descriptionType: EntityType.Value, form: Form[D])(
-      f: MT => Either[Form[D], MT] => Option[UserProfile] => Request[AnyContent] => Result)(
-        implicit fmt: BackendWriteable[D], rd: BackendReadable[MT], ct: BackendContentType[MT]) = {
+      f: MT => Either[Form[D], D] => Option[UserProfile] => Request[AnyContent] => Result)(
+        implicit fmt: BackendWriteable[D], rd: BackendReadable[MT], drd: BackendReadable[D], ct: BackendContentType[MT]) = {
     withItemPermission.async[MT](id, PermissionType.Update) {
         item => implicit userOpt => implicit request =>
       form.bindFromRequest.fold(
@@ -43,8 +43,8 @@ trait Descriptions[D <: Description with Persistable, T <: Model with Described[
    * Update an item's description.
    */
   def updateDescriptionPostAction(id: String, descriptionType: EntityType.Value, did: String, form: Form[D])(
-    f: MT => Either[Form[D],MT] => Option[UserProfile] => Request[AnyContent] => Result)(
-           implicit fmt: BackendWriteable[D], rd: BackendReadable[MT], ct: BackendContentType[MT]) = {
+    f: MT => Either[Form[D],D] => Option[UserProfile] => Request[AnyContent] => Result)(
+           implicit fmt: BackendWriteable[D], rd: BackendReadable[MT], drd: BackendReadable[D], ct: BackendContentType[MT]) = {
     withItemPermission.async[MT](id, PermissionType.Update) {
         item => implicit userOpt => implicit request =>
       form.bindFromRequest.fold(
@@ -77,11 +77,11 @@ trait Descriptions[D <: Description with Persistable, T <: Model with Described[
    * Delete an item's description with the given id.
    */
   def deleteDescriptionPostAction(id: String, descriptionType: EntityType.Value, did: String)(
-      f: Boolean => Option[UserProfile] => Request[AnyContent] => Result)(implicit rd: BackendReadable[MT], ct: BackendContentType[MT]) = {
+      f: Option[UserProfile] => Request[AnyContent] => Result)(implicit rd: BackendReadable[MT], ct: BackendContentType[MT]) = {
     withItemPermission.async[MT](id, PermissionType.Update) {
         item => implicit userOpt => implicit request =>
-      backend.deleteDescription(id, did, logMsg = getLogMessage).map { ok =>
-        f(ok)(userOpt)(request)
+      backend.deleteDescription(id, did, logMsg = getLogMessage).map { _ =>
+        f(userOpt)(request)
       }
     }
   }
