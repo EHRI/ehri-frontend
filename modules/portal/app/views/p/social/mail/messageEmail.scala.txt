@@ -1,4 +1,4 @@
-@(from: UserProfile, subject: String, message: String)(implicit req: RequestHeader, lang: Lang)
+@(from: UserProfile, subject: String, message: String)(implicit req: RequestHeader, globalConfig: global.GlobalConfig, lang: Lang)
 
 @Messages("portal.mail.message.heading")
 
@@ -9,6 +9,6 @@
 
 @Messages("portal.mail.message.footer"):
 
-<a href="@controllers.portal.routes.Profile.updateProfile">
+<a href="@controllers.portal.routes.Profile.updateProfile.absoluteURL(secure = globalConfig.https)">
     @Messages("portal.profile.preferences.updatePreferences")
 </a>

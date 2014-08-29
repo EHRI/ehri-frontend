@@ -38,6 +38,8 @@ jQuery(function($) {
     var pollTimer = -1, nextReadPos = -1;
     var xhReq = new XMLHttpRequest();
     xhReq.open("POST", POLL_URL, true);
+    xhReq.timeout = 0;
+
     //Send the proper header information along with the request
     xhReq.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
     xhReq.send(data);

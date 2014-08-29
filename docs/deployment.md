@@ -10,9 +10,9 @@ fab -l
 
 The script assumes that you have ssh aliases for the following servers:
 
- - prod
- - stage
- - test 
+ - prod  = `ehriprod`
+ - stage = `ehristage`
+ - test = `ehritest`
  
 Once the project has been built (using `play clean stage`) it can be deployed with:
 
