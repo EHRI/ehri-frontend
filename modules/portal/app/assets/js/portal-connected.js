@@ -86,6 +86,25 @@ jQuery(function ($) {
 		});
 	});
 
+
+    var changeGlyphToLoader = function ($elem, formerIcon) {
+      var loadingClass = "glyphicon-refresh",
+            spinningClass = " spin";
+        if($elem.hasClass("glyphicon")){
+            if($elem.hasClass(formerIcon)) {
+              $elem.removeClass(formerIcon).addClass(loadingClass + spinningClass);
+            } else {
+              $elem.removeClass(loadingClass + spinningClass).addClass(formerIcon);
+            }
+          } else {
+            if($elem.find("." + loadingClass).length == 1) {
+              $elem.find("." + loadingClass).remove();
+            } else {
+              $elem.prepend('<span class="glyphicon ' + loadingClass  + spinningClass + '"></span> ')
+            }
+          }
+    }
+
 	/**
 	* Handler following/unfollowing users via Ajax.
 	*/
@@ -101,18 +120,21 @@ jQuery(function ($) {
 
 		var call, $other;
 		if (follow) {
-		  call = followFunc;
+		  var call = followFunc,
 		  $other = $elem.parent().find("a.unfollow");
+
 		} else {
-		  call = unfollowFunc;
+		  call = unfollowFunc
 		  $other = $elem.parent().find("a.follow");
 		}
 
+            changeGlyphToLoader($elem);
 		call(id).ajax({
 		  success: function () {
 		    // Swap the buttons and, if necessary, reload
 		    // their followers list...
 		    $elem.hide();
+                changeGlyphToLoader($elem);
 		    $other.show();
         if($elem.parents(".user-list-item").size() === 0) {
           $(".browse-users-followers").load(followerListFunc(id).url);
@@ -140,18 +162,22 @@ jQuery(function ($) {
 		    watch = $elem.hasClass("watch");
 		var call, $other;
 		if (watch) {
-		  call = watchFunc;
-		  $other = $elem.parent().find("a.unwatch");
+		  var call = watchFunc,
+		  $other = $elem.parent().find("a.unwatch"),
+              icon = "glyphicon-star-empty";
 		} else {
-		  call = unwatchFunc;
+		  var call = unwatchFunc,
+                   icon = "glyphicon-star",
 		  $other = $elem.parent().find("a.watch");
 		}
 
+            changeGlyphToLoader($elem.find(".glyphicon"), icon);
 		call(id).ajax({
 		  success: function () {
 		    // Swap the buttons and, if necessary, reload
 		    // their followers list...
 		    $elem.hide();
+                changeGlyphToLoader($elem.find(".glyphicon"), icon);
 		    $other.show();
 
 		    // If a watch count is shown, munge it...
