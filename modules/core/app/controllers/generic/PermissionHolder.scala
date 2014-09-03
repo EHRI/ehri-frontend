@@ -8,7 +8,7 @@ import models._
 
 import play.api.libs.concurrent.Execution.Implicits._
 import utils.{Page, PageParams}
-import backend.{BackendReadable, BackendContentType, BackendResource}
+import backend.{BackendReadable, BackendContentType}
 
 /**
  * Trait for managing permissions on Accessor models that can have permissions assigned to them.
@@ -63,11 +63,11 @@ trait PermissionHolder[MT <: Accessor] extends Read[MT] {
   }
 
   def revokePermissionActionPost(id: String, permId: String)(
-      f: MT => Boolean => Option[UserProfile] => Request[AnyContent] => Result)(
+      f: MT => Option[UserProfile] => Request[AnyContent] => Result)(
       implicit rd: BackendReadable[MT], ct: BackendContentType[MT]) = {
     withItemPermission.async[MT](id, PermissionType.Grant) { item => implicit userOpt => implicit request =>
       backend.delete(permId).map { ok =>
-        f(item)(ok)(userOpt)(request)
+        f(item)(userOpt)(request)
       }
     }
   }

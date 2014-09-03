@@ -134,9 +134,9 @@ trait FacetConfig extends Search {
     List(
       QueryFacetClass(
         key="childCount",
-        name=Messages("portal.facet.itemsHeldOnline"),
+        name=Messages("facet.itemsHeldOnline"),
         param="data",
-        render=s => Messages("portal.facet.itemsHeldOnline." + s),
+        render=s => Messages("facet.itemsHeldOnline." + s),
         facets=List(
           SolrQueryFacet(value = "yes", solrValue = "[1 TO *]", name = Some("yes"))
         ),
@@ -144,9 +144,9 @@ trait FacetConfig extends Search {
       ),
       QueryFacetClass(
         key="charCount",
-        name=Messages("portal.facet.lod"),
+        name=Messages("facet.lod"),
         param="lod",
-        render=s => Messages("portal.facet.lod." + s),
+        render=s => Messages("facet.lod." + s),
         facets=List(
           SolrQueryFacet(value = "low", solrValue = "[0 TO 200]", name = Some("low")),
           SolrQueryFacet(value = "medium", solrValue = "[201 TO 5000]", name = Some("medium")),
@@ -162,9 +162,9 @@ trait FacetConfig extends Search {
     List(
       QueryFacetClass(
         key="childCount",
-        name=Messages("portal.facet.itemsHeldOnline"),
+        name=Messages("facet.itemsHeldOnline"),
         param="data",
-        render=s => Messages("portal.facet.itemsHeldOnline." + s),
+        render=s => Messages("facet.itemsHeldOnline." + s),
         facets=List(
           SolrQueryFacet(value = "yes", solrValue = "[1 TO *]", name = Some("yes"))
         ),
@@ -172,9 +172,9 @@ trait FacetConfig extends Search {
       ),
       QueryFacetClass(
         key="charCount",
-        name=Messages("portal.facet.lod"),
+        name=Messages("facet.lod"),
         param="lod",
-        render=s => Messages("portal.facet.lod." + s),
+        render=s => Messages("facet.lod." + s),
         facets=List(
           SolrQueryFacet(value = "low", solrValue = "[0 TO 500]", name = Some("low")),
             SolrQueryFacet(value = "medium", solrValue = "[501 TO 2000]", name = Some("medium")),
@@ -207,9 +207,9 @@ trait FacetConfig extends Search {
       ),
       QueryFacetClass(
         key="childCount",
-        name=Messages("portal.facet.container"),
+        name=Messages("facet.data"),
         param="data",
-        render=s => Messages("portal.facet.container." + s),
+        render=s => Messages("facet.data." + s),
         facets=List(
           SolrQueryFacet(value = "yes", solrValue = "[1 TO *]", name = Some("hasChildItems"))
         ),
@@ -219,7 +219,7 @@ trait FacetConfig extends Search {
         key="charCount",
         name=Messages("portal.facet.lod"),
         param="lod",
-        render=s => Messages("portal.facet.lod." + s),
+        render=s => Messages("facet.lod." + s),
         facets=List(
           SolrQueryFacet(value = "low", solrValue = "[0 TO 500]", name = Some("low")),
           SolrQueryFacet(value = "medium", solrValue = "[501 TO 2000]", name = Some("medium")),
@@ -229,15 +229,23 @@ trait FacetConfig extends Search {
         display = FacetDisplay.List
       ),
       FieldFacetClass(
+        key="creationProcess",
+        name=Messages("facet.source"),
+        param="source",
+        render=s => Messages("facet.source." + s),
+        sort = FacetSort.Name,
+        display = FacetDisplay.List
+      ),
+      FieldFacetClass(
         key="holderName",
-        name=Messages("portal.facet.holder"),
+        name=Messages("facet.holder"),
         param="holder",
         sort = FacetSort.Name,
         display = FacetDisplay.DropDown
       ),
       FieldFacetClass(
         key="countryCode",
-        name=Messages("portal.facet.location"),
+        name=Messages("facet.country"),
         param="country",
         render= (s: String) => Helpers.countryCodeToName(s),
         sort = FacetSort.Name,
@@ -245,7 +253,7 @@ trait FacetConfig extends Search {
       ),
       FieldFacetClass(
         key="accessPoints",
-        name=Messages("Keyword"),
+        name=Messages("facet.kw"),
         param="kw",
         render= s => s,
         sort = FacetSort.Name,
@@ -266,9 +274,9 @@ trait FacetConfig extends Search {
       ),
       QueryFacetClass(
         key="isTopLevel",
-        name=Messages("portal.facet.container"),
+        name=Messages("facet.container"),
         param="top",
-        render=s => Messages("portal.facet.topLevel." + s),
+        render=s => Messages("facet.topLevel." + s),
         facets=List(
           SolrQueryFacet(value = "true", solrValue = "true")
         ),

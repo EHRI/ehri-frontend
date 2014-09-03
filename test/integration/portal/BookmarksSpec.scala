@@ -22,13 +22,11 @@ class BookmarksSpec extends Neo4jRunnerSpec(classOf[BookmarksSpec]) {
         .bookmarkPost("c1").url), "").get
       status(bookmark1) must equalTo(SEE_OTHER)
       val defId: String = s"${privilegedUser.id}-bookmarks"
-      redirectLocation(bookmark1) must equalTo(Some(vuRoutes
-        .browseVirtualCollection(defId).url))
+      redirectLocation(bookmark1) must equalTo(Some(bmRoutes.listBookmarkSets().url))
 
       val bookmark2 = route(fakeLoggedInHtmlRequest(privilegedUser, POST, bmRoutes
         .bookmark("c2", Some(defId)).url), "").get
-      redirectLocation(bookmark1) must equalTo(Some(vuRoutes
-        .browseVirtualCollection(defId).url))
+      redirectLocation(bookmark1) must equalTo(Some(bmRoutes.listBookmarkSets().url))
     }
 
     "create a named bookmark set when bookmarking an item" in new FakeApp {

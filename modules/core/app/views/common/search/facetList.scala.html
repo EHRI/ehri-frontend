@@ -2,13 +2,17 @@
 
 @import utils.search._
 
+@facetLabel(fc: FacetClass[_]) = {
+    <h4 data-toggle="tooltip" title="@Messages("facet." + fc.param + ".tooltip")" class="facet-label">@Messages("facet." + fc.param)</h4>
+}
+
 @facetDropDown(fc: FacetClass[Facet]) = {
     @defining(fc.sorted.filter(_.count > 0).size > 0) { active =>
         @defining(fc.sorted.size <= 1) { disabled =>
             <div class="facet-class">
-                <h4 class="facet-label">@Messages(fc.name)</h4>
+                @facetLabel(fc)
                 <div class="facet-options">
-                    <select multiple style="width: 100%" name="@fc.param" data-placeholder="@Messages("portal.facet.placeholder." + fc.param)" class="form-control select2 autosubmit">
+                    <select multiple style="width: 100%" name="@fc.param" data-placeholder="@Messages("facet." + fc.param + ".placeholder")" class="form-control select2 autosubmit">
                         <option></option>
                         @fc.sorted.filter(_.count > 0).map { f =>
                             <option value="@f.value" @{if(f.applied) "selected"}>@fc.pretty(f) (@f.count)</option>
@@ -25,7 +29,7 @@
         @* Don't bother showing choices with only one choice! *@
         @if(fc.sorted.size > 1) {
             <div class="facet-class">
-                <h4 class="facet-label">@Messages(fc.name)</h4>
+                @facetLabel(fc)
                 <div class="facet-options">
                 @fc.sorted.map { f =>
                     <div class="checkbox">
@@ -44,7 +48,7 @@
 @facetBoolean(fc: FacetClass[Facet]) = {
     @defining(fc.sorted.filter(_.count > 0).size > 0) { active =>
         <div class="facet-class">
-            <h4 class="facet-label">@Messages(fc.name)</h4>
+            @facetLabel(fc)
             <div class="facet-options">
             @fc.sorted.map { f =>
                 <div class="checkbox">
@@ -63,7 +67,7 @@
     @if(!fc.sorted.isEmpty) {
         @defining(fc.sorted.filter(_.count > 0)) { sortedActive =>
             <div class="facet-class">
-                <h4 class="facet-label">@Messages(fc.name)</h4>
+                @facetLabel(fc)
                 <ul class="facet-options">
                     @sortedActive.map { f =>
                         @if(f.applied) {

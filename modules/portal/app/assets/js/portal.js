@@ -17,6 +17,12 @@ EhriJs.alert = function(msg, type) {
   }
 };
 
+// Facet label tooltips
+$(".facet-label").tooltip({
+  placement: "top",
+  delay: 500
+});
+
 EhriJs.alertSuccess = function(msg) {
   EhriJs.alert(msg, "success");
 };

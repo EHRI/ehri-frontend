@@ -60,7 +60,7 @@ case class Links @Inject()(implicit globalConfig: global.GlobalConfig, backend: 
   }
 
   def deletePost(id: String, redirect: Option[String] = None) = deletePostAction(id) {
-      ok => implicit userOpt => implicit request =>
+      implicit userOpt => implicit request =>
     Redirect(redirect.map(r => controllers.admin.routes.Admin.get(r))
         .getOrElse(globalConfig.routeRegistry.default))
         .flashing("success" -> "item.delete.confirmation")

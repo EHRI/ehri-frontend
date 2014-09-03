@@ -88,8 +88,7 @@ case class Groups @Inject()(implicit globalConfig: global.GlobalConfig, searchDi
         item, groupRoutes.deletePost(id), groupRoutes.get(id)))
   }
 
-  def deletePost(id: String) = deletePostAction(id) {
-      ok => implicit userOpt => implicit request =>
+  def deletePost(id: String) = deletePostAction(id) { implicit userOpt => implicit request =>
     Redirect(groupRoutes.list())
         .flashing("success" -> "item.delete.confirmation")
   }
@@ -119,7 +118,7 @@ case class Groups @Inject()(implicit globalConfig: global.GlobalConfig, searchDi
   }
 
   def revokePermissionPost(id: String, permId: String) = revokePermissionActionPost(id, permId) {
-      item => bool => implicit userOpt => implicit request =>
+      item => implicit userOpt => implicit request =>
     Redirect(groupRoutes.grantList(id))
       .flashing("success" -> "item.delete.confirmation")
   }

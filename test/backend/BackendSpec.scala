@@ -10,7 +10,7 @@ import play.api.libs.json.{JsString, Json}
 /**
  * Spec for testing individual data access components work as expected.
  */
-class DAOSpec extends helpers.Neo4jRunnerSpec(classOf[DAOSpec]) {
+class BackendSpec extends helpers.Neo4jRunnerSpec(classOf[BackendSpec]) {
   val userProfile = UserProfile(UserProfileF(id = Some("mike"), identifier = "mike", name = "Mike"))
   val entityType = EntityType.UserProfile
   implicit val apiUser: ApiUser = ApiUser(Some(userProfile.id))
@@ -24,7 +24,8 @@ class DAOSpec extends helpers.Neo4jRunnerSpec(classOf[DAOSpec]) {
     }
 
     "get an item by id" in new FakeApp {
-      await(testBackend.get[UserProfile](userProfile.id))
+      val profile: UserProfile = await(testBackend.get[UserProfile](userProfile.id))
+      profile.id must equalTo(userProfile.id)
     }
 
     "create an item" in new FakeApp {
@@ -69,6 +70,11 @@ class DAOSpec extends helpers.Neo4jRunnerSpec(classOf[DAOSpec]) {
       val udata = entity.model.copy(location = Some("London"))
       val res = await(testBackend.update[UserProfile,UserProfileF](entity.id, udata))
       res.model.location must equalTo(Some("London"))
+    }
+
+    "delete an item by id" in new FakeApp {
+      await(testBackend.delete[UserProfile]("reto"))
+      await(testBackend.get[UserProfile]("reto")) must throwA[ItemNotFound]
     }
 
     "patch an item by id" in new FakeApp {
