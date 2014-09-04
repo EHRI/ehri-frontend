@@ -12,7 +12,8 @@ import play.api.data.Form
 
 case class GeoCoordinates(
   lat: BigDecimal,
-  lng: BigDecimal
+  lng: BigDecimal,
+  exclude: Option[List[String]]
 ) {
   override def toString = List(lat, lng).mkString(",")
 }
@@ -27,7 +28,8 @@ object GeoCoordinates {
       "lng" -> bigDecimal.verifying("validCoords", f => f match {
         case lng =>
           lng <= 180 && lng >= -180
-      })
+      }),
+      "exclude" -> optional(list(text))
     )(GeoCoordinates.apply)(GeoCoordinates.unapply)
   )
 } 
