@@ -95,15 +95,16 @@ bindMarker = function(marker, id, linkCount) {
 				panToPopup(elem);
 			} else {
 				if(linkCount > 0) {
-					$.get(jsRoutes.controllers.portal.Portal.linkedDataInContext(id , VIRTUAL_UNIT).url, function(data) {
+					$.get(jsRoutes.controllers.portal.Portal.linkedDataInContext(id , VIRTUAL_UNIT).url + "?type=cvocConcept", function(data) {
 						var links = [];
 						$.each(data, function(index, link) {
-							links.push('<li><a href="'+ jsRoutes.controllers.portal.Guides.browseDocument(GUIDE_PATH, link.id).url +'">'+ link.name+'</a></li>')
+							links.push('<li><a href="'+ VIRTUAL_UNIT_ROUTE + link.id + '">'+ link.name+'</a></li>')
 						})
 						var html = $(elem.popup._contentNode).html();
 						if(links.length > 0) { var html = html + '<ul class="list-unstyled">' + links.join(" "); }
-						if(links.length == 5) { var html = html + '<li><a href="'+ VIRTUAL_UNIT_ROUTE+ id + '"> ' + (linkCount - 5) + ' More...</a></li>'; }
 						if(links.length > 0) { var html = html + '</ul>'; }
+
+						html = html + '<p><small><a href="'+ VIRTUAL_UNIT_ROUTE+ id + '"> ' + linkCount + ' related documents...</a></small></p>';
 						$markers[id] = html;
 						$(elem.popup._contentNode).html(html)
 						panToPopup(elem);

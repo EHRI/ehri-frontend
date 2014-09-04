@@ -72,7 +72,7 @@ case class Guides @Inject()(implicit globalConfig: global.GlobalConfig, searchDi
         SearchOrder.Name -> Map.empty
       },
       latlng => { 
-        SearchOrder.Location -> Map("pt" -> latlng.toString, "sfield" -> "location", "sort" -> "geodist() asc")
+        SearchOrder.Location -> Map("pt" -> latlng.toString, "sfield" -> "location", "sort" -> "geodist() asc", "rows" -> 50)
       }
     )
   }
@@ -248,7 +248,7 @@ case class Guides @Inject()(implicit globalConfig: global.GlobalConfig, searchDi
   /*
   *   Layout named "map" [Concept]
   */
-  def guideMap(template: GuidePage, params: Map[String, String], guide: Guide) = userBrowseAction.async { implicit userDetails => implicit request =>
+  def guideMap(template: GuidePage, params: Map[String, Any], guide: Guide) = userBrowseAction.async { implicit userDetails => implicit request =>
     mapParams(
         if (request.queryString.contains("lat") && request.queryString.contains("lng")) {
           request.queryString

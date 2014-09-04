@@ -1,4 +1,4 @@
-@(guide: (GuidePage, (Guide, List[GuidePage])), facets: Html = Html(""), scripts: Html = Html(""), styles: Html = Html(""))(content: Html)(implicit request: RequestHeader, lang: Lang)
+@(guide: (GuidePage, (Guide, List[GuidePage])), facets: Html = Html(""), scripts: Html = Html(""), styles: Html = Html(""))(content: Html)(implicit globalConfig: global.GlobalConfig, request: RequestHeader, lang: Lang)
 
 <!DOCTYPE html>
 
