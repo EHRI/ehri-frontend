@@ -28,9 +28,9 @@ case class SolrDispatcher(queryBuilder: QueryBuilder, responseParser: ResponsePa
    * Get the Solr URL...
    */
   private def buildSearchUrl(query: QueryRequest) = {
-    "%s/select%s".format(
-      play.Play.application.configuration.getString("solr.path"),
-      query.queryString()
+    "%s/select".format(
+      play.Play.application.configuration.getString("solr.path")/*,
+        query.queryString() */
     )
   }
 
@@ -71,7 +71,8 @@ case class SolrDispatcher(queryBuilder: QueryBuilder, responseParser: ResponsePa
     val queryRequest = queryBuilder.search(params, facets, allFacets, filters, extra, mode)
     val url = buildSearchUrl(queryRequest)
     Logger.logger.debug("SOLR: {}", url)
-    WS.url(buildSearchUrl(queryRequest)).get().map { response =>
+    println(queryRequest.queryString.replaceAll("^\\?", "")))
+    WS.url(buildSearchUrl(queryRequest)).post(queryRequest.queryString.replaceAll("^\\?", "")).map { response =>
       val parser = responseParser(checkError(response).body)
       ItemPage(parser.items, params.page, params.count, parser.count,
         parser.extractFacetData(facets, allFacets), spellcheck = parser.spellcheckSuggestion)

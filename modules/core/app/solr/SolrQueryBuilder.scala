@@ -16,6 +16,7 @@ import com.github.seratch.scalikesolr.request.query.facet.Value
 import com.github.seratch.scalikesolr.request.QueryRequest
 import com.github.seratch.scalikesolr.request.query.facet.Param
 import com.github.seratch.scalikesolr.request.query.facet.FacetParam
+import com.github.seratch.scalikesolr.http.HttpMethod.POST
 import solr.facet.QueryFacetClass
 
 
@@ -195,6 +196,8 @@ case class SolrQueryBuilder(writerType: WriterType, debugQuery: Boolean = false)
       req.set(key, value)
     }
 
+
+
     req
   }
 
@@ -315,6 +318,8 @@ case class SolrQueryBuilder(writerType: WriterType, debugQuery: Boolean = false)
       req.set(key, value)
     }
 
+    req.httpMethod = POST
+    println(req.httpMethod)
     req
   }
 }

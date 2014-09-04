@@ -48,12 +48,10 @@ excludeMarker = function() {
 	var query = "",
 	markers = [];
 
-/*	$.each($LastItems, function(i, e) {
+	$.each($items, function(i, e) {
 		markers.push(i)
-	}
-	query = markers.join(" ")
-	console.log(query)
-	return query;*/
+	});
+	return markers;
 	return $lastItems.slice(0,20);
 }
 
@@ -87,7 +85,7 @@ addMarkerList = function(data) {
 		if(data[i].descriptions.length == 1) {
 			var desc = data[i].descriptions[0];
 			if(desc.latitude !== null && desc.longitude !== null) {
-				$lastItems.push(data[i].id);
+			$lastItems.push(data[i].id);
 				bindMarker(addMarker(data[i]), data[i].id, data[i].links)
 			}
 		}
