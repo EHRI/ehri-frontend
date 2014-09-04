@@ -73,7 +73,8 @@ object ApplicationBuild extends Build {
     "com.github.seratch" %% "scalikesolr" % "4.6.0",
 
     // Time formatting library
-    "org.ocpsoft.prettytime" % "prettytime" % "1.0.8.Final"
+    "org.ocpsoft.prettytime" % "prettytime" % "1.0.8.Final",
+
   )
   
   val portalDependencies = Seq(
