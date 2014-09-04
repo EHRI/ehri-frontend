@@ -222,6 +222,7 @@ case class SolrQueryBuilder(writerType: WriterType, debugQuery: Boolean = false)
     val queryString =
         //s"{!boost b=$CHILD_COUNT}" +
         params.query.getOrElse(defaultQuery).trim + excludeIds + searchFilters
+      val spellcheckQueryString = params.query.getOrElse(defaultQuery).trim
 
     val req: QueryRequest = new QueryRequest(Query(queryString))
 
@@ -264,7 +265,7 @@ case class SolrQueryBuilder(writerType: WriterType, debugQuery: Boolean = false)
 
     // Mmmn, speckcheck
     req.set("spellcheck", "true")
-    req.set("spellcheck.q", queryString)
+    req.set("spellcheck.q", spellcheckQueryString)
 
     spellcheckParams.collect { case (key, Some(value)) =>
       req.set(s"spellcheck.$key", value)

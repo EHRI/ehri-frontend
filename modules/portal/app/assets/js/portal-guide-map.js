@@ -47,14 +47,14 @@ var	mapParams = {
 excludeMarker = function() {
 	var query = "",
 	markers = [];
-	
-	$.each($items, function(i, e) {
+
+/*	$.each($LastItems, function(i, e) {
 		markers.push(i)
-	})/*
+	}
 	query = markers.join(" ")
 	console.log(query)
 	return query;*/
-	return markers;
+	return $lastItems.slice(0,20);
 }
 
 addMarker = function(data) {
@@ -82,10 +82,12 @@ addMarker = function(data) {
 
 addMarkerList = function(data) {
 	var i = 0;
+	$lastItems = [];
 	while(data[i]) {
 		if(data[i].descriptions.length == 1) {
 			var desc = data[i].descriptions[0];
 			if(desc.latitude !== null && desc.longitude !== null) {
+				$lastItems.push(data[i].id);
 				bindMarker(addMarker(data[i]), data[i].id, data[i].links)
 			}
 		}
@@ -147,7 +149,7 @@ L.tileLayer('http://{s}.tile.osm.org/{z}/{x}/{y}.png', {
 Movement loading and Maps Triggers
 */
 $map.on('moveend', function(e) {
-	$.get(MAP_URL, {exclude: excludeMarker(e), lat : $map.getCenter().lat, lng: $map.getCenter().lng }, 
+	$.post(MAP_URL, {exclude: excludeMarker(e), lat : $map.getCenter().lat, lng: $map.getCenter().lng }, 
 		function (data) { 
 			addMarkerList(data.items);
 		}, "json")
