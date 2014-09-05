@@ -318,8 +318,11 @@ case class SolrQueryBuilder(writerType: WriterType, debugQuery: Boolean = false)
       req.set(key, value)
     }
 
-    req.httpMethod = POST
-    println(req.httpMethod)
+    println(req)
+    println(params)
+    println(filters)
+    println(extra)
+
     req
   }
 }

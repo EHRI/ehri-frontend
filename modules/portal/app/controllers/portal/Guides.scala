@@ -255,6 +255,7 @@ case class Guides @Inject()(implicit globalConfig: global.GlobalConfig, searchDi
         r <- find[Concept](params,
           extra = geoloc, 
           defaultParams = SearchParams(
+              count = 30,
               entities = List(EntityType.Concept), 
               sort = sort.get("order").getOrElse(SearchOrder.Name) match {
                 case i:utils.search.SearchOrder.Value => Some(i)
@@ -405,7 +406,6 @@ case class Guides @Inject()(implicit globalConfig: global.GlobalConfig, searchDi
 
   /* Function to get items*/
   def otherFacets(guide: Guide, ids: Seq[Long]): Future[Seq[Long]] = {
-    println(ids)
     val cypher = new CypherDAO
     val query = 
     s"""
