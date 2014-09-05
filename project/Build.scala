@@ -74,6 +74,7 @@ object ApplicationBuild extends Build {
 
     // Time formatting library
     "org.ocpsoft.prettytime" % "prettytime" % "1.0.8.Final"
+
   )
   
   val portalDependencies = Seq(

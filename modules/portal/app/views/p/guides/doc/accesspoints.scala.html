@@ -1,0 +1,57 @@
+@(item: DocumentaryUnit, links: Seq[Link],template: (GuidePage, (Guide, List[GuidePage])))(implicit userOpt: Option[UserProfile], request: RequestHeader, prefs: utils.SessionPrefs, globalConfig: global.GlobalConfig, lang: Lang, flash: Flash)
+
+@import p.common.descriptionSection
+@import defines._
+@import models.IsadG._
+
+@defining(EntityType.DocumentaryUnit.toString) { implicit fieldPrefix =>
+  @descriptionSection("accessPointLinks", Messages("portal.item.accessPointLinks")) {
+  <h3>@Messages(fieldPrefix + ".accessPoints")</h3>
+  @defining(item.accessPointLinksByType(links)) { accessPointLinks =>
+      @AccessPointF.AccessPointType.values.toList.map { apt =>
+          @accessPointLinks.get(apt).map { linksOfType =>
+    <div class="item-text-field">
+      <h4 class="item-text-field-header">@Messages("accessPoint.type." + apt.toString)</h4>
+      <div class="item-text-field-value">
+        <ul class="list-unstyled item-access-point-links">
+          @for((link, accessPoint) <- linksOfType) {
+              @link.opposingTarget(item).map { other =>
+                  <li class="access-point-link resolved-access-point">
+              <a href="@controllers.portal.routes.Guides.guideFacets(template._2._1.path)?kw[]=@other.id" data-target="@other.id" class="popover-keyword type-highlight @other.isA.toString">@other.toStringLang</a>
+            @other match {
+            case ap:HistoricalAgent => {
+                @ap.model.descriptions.map { desc =>
+                  <div class="item-description">
+                    @desc.details.history.map { d =>
+                      <p>@Html(views.Helpers.renderMarkdown(d))</p>
+                    }
+                    @desc.details.generalContext.map { d =>
+                      <p>@Html(views.Helpers.renderMarkdown(d))</p>
+                    }
+                  </div>
+                }
+              }
+              case ap:Concept => {
+                
+              }
+              case _ => {
+
+              }
+            }
+                  </li>
+              }.getOrElse {
+                  @link.model.description.map { desc =>
+                      <li class="access-point">
+                          @desc
+                      </li>
+                  }
+              }
+          }
+        </ul>
+      </div>
+    </div>
+          }
+      }
+    }
+  }
+}

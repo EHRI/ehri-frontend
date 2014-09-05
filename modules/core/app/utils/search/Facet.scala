@@ -20,6 +20,7 @@ case object FacetDisplay extends Enumeration {
   val List = Value("list")
   val DropDown = Value("dropdown")
   val Boolean = Value("boolean")
+  val Date = Value("date")
 }
 
 

@@ -66,15 +66,12 @@ case class Guides @Inject()(implicit globalConfig: global.GlobalConfig, searchDi
   /*
   * Return Map extras param if needed
   */
-  def mapParams(request: Map[String,Seq[String]]): (utils.search.SearchOrder.Value, Map[String, Any]) = {
-    GeoCoordinates.form.bindFromRequest(request).fold(
-      errorForm => {
-        SearchOrder.Name -> Map.empty
-      },
-      latlng => { 
-        SearchOrder.Location -> Map("pt" -> latlng.toString, "sfield" -> "location", "sort" -> "geodist() asc")
-      }
-    )
+
+  def mapParams(geo: Option[GeoCoordinates]): (Map[String, Any], Map[String, Any]) = {
+    geo match {
+      case Some(latlng) => { Map("order" -> SearchOrder.Location, "excludes" -> latlng.exclude) -> Map("pt" -> latlng.toString, "sfield" -> "location", "sort" -> "geodist() asc") }
+      case _ => { Map("order" -> SearchOrder.Name) -> Map.empty }
+    }
   }
 
   /*
@@ -248,16 +245,30 @@ case class Guides @Inject()(implicit globalConfig: global.GlobalConfig, searchDi
   /*
   *   Layout named "map" [Concept]
   */
-  def guideMap(template: GuidePage, params: Map[String, String], guide: Guide) = userBrowseAction.async { implicit userDetails => implicit request =>
-    mapParams(
-        if (request.queryString.contains("lat") && request.queryString.contains("lng")) {
-          request.queryString
-        } else {
-          template.getParams()
+  def guideMap(template: GuidePage, params: Map[String, Any], guide: Guide) = userBrowseAction.async { implicit userDetails => implicit request =>
+    GeoCoordinates.form.bindFromRequest().fold(
+          errs => mapParams(GeoCoordinates.form.bindFromRequest(template.getParams).fold(errs => None, { case geo => Some(geo)})), {
+          case geo => mapParams(Some(geo))
         }
       ) match { case (sort, geoloc) =>
       for {
-        r <- find[Concept](params, extra = geoloc, defaultParams = SearchParams(entities = List(EntityType.Concept), sort = Some(sort)), entities = List(EntityType.Concept), facetBuilder = conceptFacets)
+        r <- find[Concept](params,
+          extra = geoloc, 
+          defaultParams = SearchParams(
+              count = 30,
+              entities = List(EntityType.Concept), 
+              sort = sort.get("order").getOrElse(SearchOrder.Name) match {
+                case i:utils.search.SearchOrder.Value => Some(i)
+                case _ => Some(SearchOrder.Name)
+              }
+              /* Not working on long list because too long query */
+              ,
+              excludes = sort.get("excludes").getOrElse(None) match {
+                case t:Option[List[String]] => t
+                case _ => None
+              }
+            )
+          , entities = List(EntityType.Concept), facetBuilder = conceptFacets)
         links <- countLinks(guide.virtualUnit, r.page.items.map { case(item, hit) => item.id }.toList)
       }
       yield {
@@ -395,7 +406,6 @@ case class Guides @Inject()(implicit globalConfig: global.GlobalConfig, searchDi
 
   /* Function to get items*/
   def otherFacets(guide: Guide, ids: Seq[Long]): Future[Seq[Long]] = {
-    println(ids)
     val cypher = new CypherDAO
     val query = 
     s"""

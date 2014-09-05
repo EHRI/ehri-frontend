@@ -1,4 +1,4 @@
-@(guide: (GuidePage, (Guide, List[GuidePage])), facets: Html = Html(""), scripts: Html = Html(""), styles: Html = Html(""))(content: Html)(implicit request: RequestHeader, lang: Lang)
+@(guide: (GuidePage, (Guide, List[GuidePage])), facets: Html = Html(""), scripts: Html = Html(""), styles: Html = Html(""))(content: Html)(implicit globalConfig: global.GlobalConfig, request: RequestHeader, lang: Lang)
 
 <!DOCTYPE html>
 
@@ -42,6 +42,7 @@
 	</footer>
         <script src="//ajax.googleapis.com/ajax/libs/jquery/1.10.2/jquery.min.js"></script>
         <script src="@controllers.core.routes.Assets.at("bootstrap/js/bootstrap.min.js")"></script>
+        	<script src="@controllers.core.routes.Assets.versioned("js/lib/jquery.history.js")"></script>
 		@scripts
     </body>
 </html>

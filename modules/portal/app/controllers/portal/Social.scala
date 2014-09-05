@@ -88,7 +88,7 @@ case class Social @Inject()(implicit globalConfig: global.GlobalConfig, searchDi
     val defaultParams = SearchParams(entities = List(EntityType.UserProfile), excludes = Some(List(user.id)),
           sort = Some(SearchOrder.Name), count = 40)
     val searchParams = SearchParams.form.bindFromRequest.value
-      .getOrElse(defaultParams).setDefault(Some(defaultParams))
+      .getOrElse(defaultParams).setDefault(Some(defaultParams), Some(request.queryString))
 
     for {
       following <- backend.following(user.id, PageParams.empty)
