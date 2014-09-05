@@ -74,34 +74,7 @@ jQuery(function ($) {
     showDataPolicy();
   }
 
-/*
-* Date search
-*/
-$(".facet-date .date-submit").on("click", function(e) {
-  $(e.target).closest("form").submit();
-})
-$(".facet-date .date").on("keyup", function(e) {
-  e.preventDefault();
-  var vals = {"begin" : "", "end" : ""},
-  $dat = $(this),
-  $parent = $dat.parents(".facet-date"),
-  getDate = function(date) {
-  if (date.length == 4 && !isNaN(parseInt(date))) {
-    return date;
-  }
-    return ""
-  },
-  val = vals["begin"] + "-" + vals["end"];
 
-  $(".date").each(function() {
-    vals[$(this).data("target")] = getDate($(this).val());
-  });
-  
-  var val = vals["begin"] + "-" + vals["end"];
-  if(val != "-") {
-     $parent.find(".target").val(val)
-  }
-});
 /*
 *   History
 */

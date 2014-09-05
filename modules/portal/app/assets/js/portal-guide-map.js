@@ -44,17 +44,6 @@ var	mapParams = {
  *
  */
 
-excludeMarker = function() {
-	var query = "",
-	markers = [];
-
-	$.each($items, function(i, e) {
-		markers.push(i)
-	});
-	return markers;
-	return $lastItems.slice(0,20);
-}
-
 addMarker = function(data) {
 	if(!$items[data.id]) {
 		$items[data.id] = true;
@@ -74,18 +63,15 @@ addMarker = function(data) {
 		});
 		return $items[data.id];
 	}
-	console.log(data.id + "already in there")
 	return false;
 }
 
 addMarkerList = function(data) {
 	var i = 0;
-	$lastItems = [];
 	while(data[i]) {
 		if(data[i].descriptions.length == 1) {
 			var desc = data[i].descriptions[0];
 			if(desc.latitude !== null && desc.longitude !== null) {
-			$lastItems.push(data[i].id);
 				bindMarker(addMarker(data[i]), data[i].id, data[i].links)
 			}
 		}
@@ -109,16 +95,15 @@ bindMarker = function(marker, id, linkCount) {
 				panToPopup(elem);
 			} else {
 				if(linkCount > 0) {
-					$.get(jsRoutes.controllers.portal.Portal.linkedDataInContext(id , VIRTUAL_UNIT).url + "?type=cvocConcept", function(data) {
+					$.get(jsRoutes.controllers.portal.Portal.linkedDataInContext(id , VIRTUAL_UNIT).url, function(data) {
 						var links = [];
 						$.each(data, function(index, link) {
-							links.push('<li><a href="'+ VIRTUAL_UNIT_ROUTE + link.id + '">'+ link.name+'</a></li>')
+							links.push('<li><a href="'+ jsRoutes.controllers.portal.Guides.browseDocument(GUIDE_PATH, link.id).url +'">'+ link.name+'</a></li>')
 						})
 						var html = $(elem.popup._contentNode).html();
 						if(links.length > 0) { var html = html + '<ul class="list-unstyled">' + links.join(" "); }
+						if(links.length == 5) { var html = html + '<li><a href="'+ VIRTUAL_UNIT_ROUTE+ id + '"> ' + (linkCount - 5) + ' More...</a></li>'; }
 						if(links.length > 0) { var html = html + '</ul>'; }
-
-						html = html + '<p><small><a href="'+ VIRTUAL_UNIT_ROUTE+ id + '"> ' + linkCount + ' related documents...</a></small></p>';
 						$markers[id] = html;
 						$(elem.popup._contentNode).html(html)
 						panToPopup(elem);
@@ -147,7 +132,7 @@ L.tileLayer('http://{s}.tile.osm.org/{z}/{x}/{y}.png', {
 Movement loading and Maps Triggers
 */
 $map.on('moveend', function(e) {
-	$.post(MAP_URL, {exclude: excludeMarker(e), lat : $map.getCenter().lat, lng: $map.getCenter().lng }, 
+	$.get(MAP_URL, { lat : $map.getCenter().lat, lng: $map.getCenter().lng }, 
 		function (data) { 
 			addMarkerList(data.items);
 		}, "json")

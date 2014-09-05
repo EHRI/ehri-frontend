@@ -373,7 +373,7 @@ case class Portal @Inject()(implicit globalConfig: global.GlobalConfig, searchDi
              (link)-[:inContextOf]->virtualUnit,
             (doc)<-[:hasLinkTarget]-(link)-[:hasLinkTarget]->accessPoints
          WHERE doc <> accessPoints AND doc.__ISA__ = {type}
-         RETURN ID(doc) LIMIT 10
+         RETURN ID(doc) LIMIT 5
         """.stripMargin
         val params =  Map(
           "inContext" -> JsString(str),

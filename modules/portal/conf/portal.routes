@@ -129,7 +129,6 @@ GET 		/guides/:guide/browse			@controllers.portal.Guides.guideFacets(guide: Stri
 GET 		/guides/:guide/document/:id			@controllers.portal.Guides.browseDocument(guide: String, id: String)
 GET 		/guides/:guide/repository/:id			@controllers.portal.Guides.browseRepository(guide: String, id: String)
 GET         /guides/:guide/:page          @controllers.portal.Guides.layoutRetrieval(guide: String, page: String)
-POST         /guides/:guide/:page          @controllers.portal.Guides.layoutRetrieval(guide: String, page: String)
 
 # Various JS data helpers
 GET         /routes                         controllers.portal.PortalData.jsRoutes

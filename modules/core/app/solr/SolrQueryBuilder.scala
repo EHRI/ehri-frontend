@@ -16,7 +16,6 @@ import com.github.seratch.scalikesolr.request.query.facet.Value
 import com.github.seratch.scalikesolr.request.QueryRequest
 import com.github.seratch.scalikesolr.request.query.facet.Param
 import com.github.seratch.scalikesolr.request.query.facet.FacetParam
-import com.github.seratch.scalikesolr.http.HttpMethod.POST
 import solr.facet.QueryFacetClass
 
 
@@ -196,8 +195,6 @@ case class SolrQueryBuilder(writerType: WriterType, debugQuery: Boolean = false)
       req.set(key, value)
     }
 
-
-
     req
   }
 
@@ -225,7 +222,6 @@ case class SolrQueryBuilder(writerType: WriterType, debugQuery: Boolean = false)
     val queryString =
         //s"{!boost b=$CHILD_COUNT}" +
         params.query.getOrElse(defaultQuery).trim + excludeIds + searchFilters
-      val spellcheckQueryString = params.query.getOrElse(defaultQuery).trim
 
     val req: QueryRequest = new QueryRequest(Query(queryString))
 
@@ -268,7 +264,7 @@ case class SolrQueryBuilder(writerType: WriterType, debugQuery: Boolean = false)
 
     // Mmmn, speckcheck
     req.set("spellcheck", "true")
-    req.set("spellcheck.q", spellcheckQueryString)
+    req.set("spellcheck.q", queryString)
 
     spellcheckParams.collect { case (key, Some(value)) =>
       req.set(s"spellcheck.$key", value)

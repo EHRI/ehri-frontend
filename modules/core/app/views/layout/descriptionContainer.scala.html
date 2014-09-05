@@ -2,7 +2,21 @@
 
 <article class="double descriptions">
     <aside class="right-sidebar description-sidebar">
-        @common.descriptionChoice(descriptions)
+        @if(descriptions.size > 1) {
+        <div class="sidebar-section">
+            <header>@Messages("portal.multipleDescriptions")</header>
+            <div class="list-group description-switcher">
+                @descriptions.map { desc =>
+                @desc.id.map { id =>
+                    <a class="list-group-item description-switch" href="#desc-@id" data-id="@id">
+                        @views.Helpers.languageCodeToName(desc.languageCode) - @desc.name
+                    </a>
+                }
+                }
+            </div>
+        </div>
+        }
+
         @sidebar
     </aside>
     <section class="main description-viewport">

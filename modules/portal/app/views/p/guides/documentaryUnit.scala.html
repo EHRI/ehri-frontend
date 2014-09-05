@@ -23,107 +23,148 @@
 }
 
 @side = {
-  @common.descriptionChoice(item.model.descriptions)
-  @defining(EntityType.DocumentaryUnit.toString) { implicit prefix =>
-    <section class="archival-context panel-details repository">
-        @item.holder.map { holder =>
-            <div class="panel-heading">
-                <h3>@p.guides.doc.linkTo(holder, template._2._1.path)</h3>
-            </div>
-            <div class="panel-body">
-                @if(!holder.model.primaryDescription.flatMap(_.parallelFormsOfName).isEmpty || !holder.model.logoUrl.isEmpty) {
-                    <ul class="list-unstyled other-name-list">
-                        @holder.model.primaryDescription.map { d =>
-                          @d.parallelFormsOfName.map { pfn =>
-                            <li>@pfn</li>
-                          }
-                        }
-                    </ul>
-                }
-                @holder.model.logoUrl.map { logo =>
-                    @defining(holder.url.map(_.toString).getOrElse(request.path)) { url =>
-                    <a href="@url">
-                        <img class="repository-logo" src="@logo" alt="@item.toStringLang" />
-                    </a>
-                    }
-                }
 
-                @item.parent.map { parent =>
-                    @wrapParent(parent) {
-                        <div class="ancestor">
-                            <h4>@p.guides.doc.linkTo(parent, template._2._1.path)</h4>
-                        </div>
-                    }
-                }
-            </div>
-        }
-    </section>
-  }
+        @defining(EntityType.DocumentaryUnit.toString) { implicit prefix =>
+	<section class="archival-context panel-details repository">
+	    @item.holder.map { holder =>
+	        <div class="panel-heading">
+	            <h3>@p.guides.doc.linkTo(holder, template._2._1.path)</h3>
+	        </div>
+	        <div class="panel-body">
+	            @if(!holder.model.primaryDescription.flatMap(_.parallelFormsOfName).isEmpty || !holder.model.logoUrl.isEmpty) {
+	                <ul class="list-unstyled other-name-list">
+	                    @holder.model.primaryDescription.map { d =>
+	                    @d.parallelFormsOfName.map { pfn =>
+	                    <li>@pfn</li>
+	                    }
+	                    }
+	                </ul>
+	            }
+	            @holder.model.logoUrl.map { logo =>
+	                @defining(holder.url.map(_.toString).getOrElse(request.path)) { url =>
+	                <a href="@url">
+	                    <img class="repository-logo" src="@logo" alt="@item.toStringLang" />
+	                </a>
+	                }
+	            }
+
+	            @item.parent.map { parent =>
+	                @wrapParent(parent) {
+	                    <div class="ancestor">
+	                        <h4>@p.guides.doc.linkTo(parent, template._2._1.path)</h4>
+	                    </div>
+	                }
+	            }
+	        </div>
+	    }
+	</section>
+ }
 }
-
 @p.layout.guideLayout(template, optionalContent = Some(side)) {
+<article class="description-holder">
+	<header class="item-header">
+		<h1>@item.toStringLang</h1>
+	</header>
+    <div id="item-details" class="description">
+        @defining(EntityType.DocumentaryUnit.toString) { implicit fieldPrefix =>
+            @item.model.descriptions.map { desc =>
+	            @p.documentaryUnit.details(item, desc)
 
-  <article class="description-viewport">
-  @defining(EntityType.DocumentaryUnit.toString) { implicit fieldPrefix =>
-    @item.model.descriptions.map { desc =>
-        <div class="description-holder" id="desc-@desc.id">
-          <div data-lang="@desc.languageCode" class="description">
-            <header class="item-header">
-              <h1>@desc.name</h1>
-              @p.common.otherNameList(desc.identity.parallelFormsOfName)
-            </header>
-            <div id="item-details">
-              @p.documentaryUnit.details(item, desc)
+	            @descriptionSection(IDENTITY_AREA) {
+	                @stringValue(desc.identity.`abstract`, ABSTRACT)
+	                @stringValue(desc.identity.extentAndMedium, EXTENT_MEDIUM)
+	            }
 
-              @descriptionSection(IDENTITY_AREA) {
-                  @stringValue(desc.identity.`abstract`, ABSTRACT)
-                  @stringValue(desc.identity.extentAndMedium, EXTENT_MEDIUM)
-              }
+	            @descriptionSection(CONTEXT_AREA) {
+	                @stringValue(desc.context.biographicalHistory, ADMIN_BIOG)
+	                @stringValue(desc.context.archivalHistory, ARCH_HIST)
+	                @stringValue(desc.context.acquisition, ACQUISITION)
+	            }
+	            
+	            @descriptionSection(CONTENT_AREA) {
+	                @stringValue(desc.content.scopeAndContent, SCOPE_CONTENT)
+	                @stringValue(desc.content.appraisal, APPRAISAL)
+	                @stringValue(desc.content.accruals, ACCRUALS)
+	                @stringValue(desc.content.systemOfArrangement, SYS_ARR)
+	            }
+	            
+	            @descriptionSection(CONDITIONS_AREA) {
+	                @stringValue(desc.conditions.conditionsOfAccess, ACCESS_COND)
+	                @stringValue(desc.conditions.conditionsOfReproduction, REPROD_COND)
+	                @stringValue(desc.conditions.physicalCharacteristics, PHYSICAL_CHARS)
+	                @stringValue(desc.conditions.findingAids, FINDING_AIDS)
+	            }
+	            
+	            @descriptionSection(MATERIALS_AREA) {
+	                @listValue(desc.materials.locationOfOriginals, LOCATION_ORIGINALS)
+	                @listValue(desc.materials.locationOfCopies, LOCATION_COPIES)
+	                @listValue(desc.materials.relatedUnitsOfDescription, RELATED_UNITS)
+	                @stringValue(desc.materials.publicationNote, PUBLICATION_NOTE)
+	            }
+	            
+	            @descriptionSection(NOTES_AREA) {
+	                @listValue(desc.notes, NOTES)
+	            }
+	            
+	            @descriptionSection(CONTROL_AREA) {
+	                @stringValue(desc.control.archivistNote, ARCHIVIST_NOTE)
+	                @listValue(desc.control.sources, SOURCES)
+	                @stringValue(desc.control.rulesAndConventions, RULES_CONVENTIONS)
+	                @stringValue(desc.control.datesOfDescriptions, DATES_DESCRIPTIONS)
+	            }
 
-              @descriptionSection(CONTEXT_AREA) {
-                  @stringValue(desc.context.biographicalHistory, ADMIN_BIOG)
-                  @stringValue(desc.context.archivalHistory, ARCH_HIST)
-                  @stringValue(desc.context.acquisition, ACQUISITION)
-              }
+		@if(!desc.accessPoints.isEmpty) {
+			@descriptionSection("accessPointLinks", Messages("portal.item.accessPointLinks")) {
+			<h3>@Messages(fieldPrefix + ".accessPoints")</h3>
+			@defining(item.accessPointLinksByType(links)) { accessPointLinks =>
+			    @AccessPointF.AccessPointType.values.toList.map { apt =>
+			        @accessPointLinks.get(apt).map { linksOfType =>
+				<div class="item-text-field">
+					<h4 class="item-text-field-header">@Messages("accessPoint.type." + apt.toString)</h4>
+					<div class="item-text-field-value">
+						<ul class="list-unstyled item-access-point-links">
+							@for((link, accessPoint) <- linksOfType) {
+							    @link.opposingTarget(item).map { other =>
+							        <li class="access-point-link resolved-access-point">
+									<a href="@controllers.portal.routes.Guides.guideFacets(template._2._1.path)?kw[]=@other.id" data-target="@other.id" class="popover-keyword type-highlight @other.isA.toString">@other.toStringLang</a>
+								@other match {
+								case ap:HistoricalAgent => {
+										@ap.model.descriptions.map { desc =>
+											<div class="item-description">
+												@desc.details.history.map { d =>
+													<p>@Html(views.Helpers.renderMarkdown(d))</p>
+												}
+												@desc.details.generalContext.map { d =>
+													<p>@Html(views.Helpers.renderMarkdown(d))</p>
+												}
+											</div>
+										}
+									}
+									case ap:Concept => {
+										
+									}
+									case _ => {
 
-              @descriptionSection(CONTENT_AREA) {
-                  @stringValue(desc.content.scopeAndContent, SCOPE_CONTENT)
-                  @stringValue(desc.content.appraisal, APPRAISAL)
-                  @stringValue(desc.content.accruals, ACCRUALS)
-                  @stringValue(desc.content.systemOfArrangement, SYS_ARR)
-              }
-
-              @descriptionSection(CONDITIONS_AREA) {
-                  @stringValue(desc.conditions.conditionsOfAccess, ACCESS_COND)
-                  @stringValue(desc.conditions.conditionsOfReproduction, REPROD_COND)
-                  @stringValue(desc.conditions.physicalCharacteristics, PHYSICAL_CHARS)
-                  @stringValue(desc.conditions.findingAids, FINDING_AIDS)
-              }
-
-              @descriptionSection(MATERIALS_AREA) {
-                  @listValue(desc.materials.locationOfOriginals, LOCATION_ORIGINALS)
-                  @listValue(desc.materials.locationOfCopies, LOCATION_COPIES)
-                  @listValue(desc.materials.relatedUnitsOfDescription, RELATED_UNITS)
-                  @stringValue(desc.materials.publicationNote, PUBLICATION_NOTE)
-              }
-
-              @descriptionSection(NOTES_AREA) {
-                  @listValue(desc.notes, NOTES)
-              }
-
-              @descriptionSection(CONTROL_AREA) {
-                  @stringValue(desc.control.archivistNote, ARCHIVIST_NOTE)
-                  @listValue(desc.control.sources, SOURCES)
-                  @stringValue(desc.control.rulesAndConventions, RULES_CONVENTIONS)
-                  @stringValue(desc.control.datesOfDescriptions, DATES_DESCRIPTIONS)
-              }
-              @if(!desc.accessPoints.isEmpty) {
-                @doc.accesspoints(item, links, template)
-              }
-            </div>
-          </div>
-        </div>
-    }
-  }
-  </article>
+									}
+								}
+							        </li>
+							    }.getOrElse {
+							        @link.model.description.map { desc =>
+							            <li class="access-point">
+							                @desc
+							            </li>
+							        }
+							    }
+							}
+						</ul>
+					</div>
+				</div>
+			        }
+			    }
+			}
+		}
+	     }
+            }
+        }
+    </div>
 }

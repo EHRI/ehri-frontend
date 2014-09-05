@@ -23,10 +23,16 @@ case class SolrDispatcher(queryBuilder: QueryBuilder, responseParser: ResponsePa
 
   // Dummy value to satisfy the RestDAO trait...
   val userProfile: Option[UserProfile] = None
+
   /**
    * Get the Solr URL...
    */
-  private val SOLR_URL = "%s/select".format(play.Play.application.configuration.getString("solr.path"))
+  private def buildSearchUrl(query: QueryRequest) = {
+    "%s/select%s".format(
+      play.Play.application.configuration.getString("solr.path"),
+      query.queryString()
+    )
+  }
 
   /**
    * Filter items on name only, returning minimal data.
@@ -41,7 +47,7 @@ case class SolrDispatcher(queryBuilder: QueryBuilder, responseParser: ResponsePa
     val queryRequest = queryBuilder.simpleFilter(params, filters, extra)
     Logger.logger.debug(queryRequest.queryString())
 
-    WS.url(SOLR_URL).withHeaders("Content-Type" -> "application/x-www-form-urlencoded; charset=utf-8").post(queryRequest.queryString.replaceAll("^\\?", "")).map { response =>
+    WS.url(buildSearchUrl(queryRequest)).get().map { response =>
       val parser = responseParser(checkError(response).body)
       val items = parser.items.map(i => FilterHit(i.itemId, i.id, i.name, i.`type`, i.fields.get(SolrConstants.HOLDER_NAME), i.gid))
       ItemPage(items, params.page, params.count, parser.count, Nil)
@@ -63,8 +69,9 @@ case class SolrDispatcher(queryBuilder: QueryBuilder, responseParser: ResponsePa
               implicit userOpt: Option[UserProfile]): Future[ItemPage[SearchHit]] = {
 
     val queryRequest = queryBuilder.search(params, facets, allFacets, filters, extra, mode)
-    Logger.logger.debug("SOLR: {}", SOLR_URL)
-    WS.url(SOLR_URL).withHeaders("Content-Type" -> "application/x-www-form-urlencoded; charset=utf-8").post(queryRequest.queryString.replaceAll("^\\?", "")).map { response =>
+    val url = buildSearchUrl(queryRequest)
+    Logger.logger.debug("SOLR: {}", url)
+    WS.url(buildSearchUrl(queryRequest)).get().map { response =>
       val parser = responseParser(checkError(response).body)
       ItemPage(parser.items, params.page, params.count, parser.count,
         parser.extractFacetData(facets, allFacets), spellcheck = parser.spellcheckSuggestion)
@@ -94,7 +101,7 @@ case class SolrDispatcher(queryBuilder: QueryBuilder, responseParser: ResponsePa
     // ordering.
     val queryRequest = queryBuilder.search(params, facets, allFacets, filters)
 
-      WS.url(SOLR_URL).withHeaders("Content-Type" -> "application/x-www-form-urlencoded; charset=utf-8").post(queryRequest.queryString.replaceAll("^\\?", "")).map { response =>
+    WS.url(buildSearchUrl(queryRequest)).get().map { response =>
       val facetClasses = responseParser(checkError(response).body).extractFacetData(facets, allFacets)
 
       val facetClass = facetClasses.find(_.param == facet).getOrElse(
