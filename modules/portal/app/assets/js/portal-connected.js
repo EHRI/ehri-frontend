@@ -174,8 +174,9 @@ jQuery(function ($) {
             if($elem.hasClass("glyphicon")) {
               var $iconElem = $elem;
             } else {
-              var $iconElem = $elem.find("glyphicon")
+              var $iconElem = $elem.find(".glyphicon")
             }
+            console.log($iconElem)
             changeGlyphToLoader($iconElem, icon);
 		call(id).ajax({
 		  success: function () {
