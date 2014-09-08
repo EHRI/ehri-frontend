@@ -171,13 +171,18 @@ jQuery(function ($) {
 		  $other = $elem.parent().find("a.watch");
 		}
 
-            changeGlyphToLoader($elem.find(".glyphicon"), icon);
+            if($elem.hasClass("glyphicon")) {
+              var $iconElem = $elem;
+            } else {
+              var $iconElem = $elem.find("glyphicon")
+            }
+            changeGlyphToLoader($iconElem, icon);
 		call(id).ajax({
 		  success: function () {
 		    // Swap the buttons and, if necessary, reload
 		    // their followers list...
 		    $elem.hide();
-                changeGlyphToLoader($elem.find(".glyphicon"), icon);
+                changeGlyphToLoader($iconElem, icon);
 		    $other.show();
 
 		    // If a watch count is shown, munge it...
