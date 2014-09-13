@@ -5,8 +5,6 @@
 @import models.IsadG._
 
 @accessPointLink(item: AnyModel, accessPoint: AccessPointF, links: Seq[Link]) = {
-
-  @accessPoint
   @accessPoint.target(item, links).map { case (link, other) =>
       <li class="resolved-access-point" id="@accessPoint.id">
           <a href="@controllers.portal.routes.Guides.guideFacets(template._2._1.path)?kw[]=@other.id" data-target="@other.id" class="popover-keyword type-highlight @other.isA.toString">@other.toStringLang</a>

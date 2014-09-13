@@ -107,8 +107,19 @@
     }
 }
 
+@sidebar = {
+<div id="facets">
+    <form method="GET" action="@controllers.portal.routes.Guides.layoutRetrieval(template._2._1.path, template._1.path)">
+        <ul class="nav nav-pills nav-ehri nav-ehri-black nav-justified">
+            <li><button type="submit" class="nav-ehri nav-ehri-black nav-ehri-input"><span class="glyphicon glyphicon-search"></span><span class="text-hide">Search</span></button></li>
+        </ul>
+        @facets
+    </form>
+</div>
+}
 
-@p.layout.guideLayoutFacet(template, facets = facets, scripts = js) {
+
+@p.layout.guideLayout(template, scripts = js, optionalContent = Some(sidebar), otherTitle = Some(Messages("portal.guides.faceted"))) {
     <article>
         <header>
             <h1>@Messages("portal.guides.faceted")</h1>
