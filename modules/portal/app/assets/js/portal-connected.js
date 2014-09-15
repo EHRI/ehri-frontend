@@ -86,7 +86,13 @@ jQuery(function ($) {
 		});
 	});
 
-
+    /**
+    *   Function for changing icon loading
+    *   It should be called twice : before the ajax call and inside the success() to revert to the original icon
+    *   $elem = DOM element in jQuery format $(elem) on which the user click. Eg : In $(document).on("click", ".btn"), this would be $(this)
+    *   formerIcon = class of the icon that should be removed. Eg. : For .glyphicon.glyphicon-star this would be "glyphicon-star"
+    * 
+    */
     var changeGlyphToLoader = function ($elem, formerIcon) {
       var loadingClass = "glyphicon-refresh",
             spinningClass = " spin";
