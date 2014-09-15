@@ -20,7 +20,7 @@
                 <a href="@controllers.portal.routes.Portal.browseDocument(item.id)">@item.toStringLang</a>
             </h3>
             <div class="search-item-body">
-                <ol class="collapsible">@wrapParent(item, item.parent)</ol>
+                <ol class="breadcrumb">@wrapParent(item, item.parent)</ol>
                 @listItemBody(item, showRepository)
             </div>
     </div>
