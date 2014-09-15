@@ -1,6 +1,6 @@
 @(them: UserProfile, watchList: utils.AbstractPage[AnyModel], followed: Boolean, canMessage: Boolean)(implicit userOpt: Option[UserProfile], request: RequestHeader, prefs: utils.SessionPrefs, globalConfig: global.GlobalConfig, lang: Lang, flash: Flash)
 
-@p.layout.portalLayout(them.toStringLang, "user") {
+@p.layout.portalLayout(Messages("portal.profile.watch.by", them.toStringLang), "user") {
     @profileBar(them){
         @for(user <- userOpt if user.id != them.id) {
         <div class="btn-group">

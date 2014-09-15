@@ -2,7 +2,7 @@
 
 @* user should always be defined here *@
 @userOpt.map { user =>
-    @p.layout.portalLayout(user.model.name, "user") {
+    @p.layout.portalLayout(Messages("portal.annotation.list.by", user.toStringLang), "user") {
 
         @p.social.profileBar(user) {
             <a class="btn btn-get" href="@controllers.portal.routes.Profile.updateProfile">
