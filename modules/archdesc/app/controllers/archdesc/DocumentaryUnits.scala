@@ -18,6 +18,7 @@ import play.api.http.MimeTypes
 import utils.ead.EadExporter
 import models.base.Description
 
+import models.Link
 
 @Singleton
 case class DocumentaryUnits @Inject()(implicit globalConfig: global.GlobalConfig, searchDispatcher: Dispatcher, searchResolver: Resolver, backend: Backend, userDAO: AccountDAO) extends Read[DocumentaryUnit]
@@ -34,7 +35,7 @@ case class DocumentaryUnits @Inject()(implicit globalConfig: global.GlobalConfig
 
   // Documentary unit facets
   import solr.facet._
-
+  
   private val entityFacets: FacetBuilder = { implicit request =>
     List(
       QueryFacetClass(
@@ -329,7 +330,7 @@ case class DocumentaryUnits @Inject()(implicit globalConfig: global.GlobalConfig
 
   def linkTo(id: String) = withItemPermission[DocumentaryUnit](id, PermissionType.Annotate) {
       item => implicit userOpt => implicit request =>
-    Ok(views.html.documentaryUnit.linkTo(item))
+    Ok(views.html.documentaryUnit.linkTo(item, Link.form))
   }
 
   def linkAnnotateSelect(id: String, toType: EntityType.Value) = linkSelectAction(id, toType) {

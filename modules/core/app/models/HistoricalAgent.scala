@@ -55,6 +55,16 @@ object HistoricalAgentF {
   implicit object Converter extends BackendWriteable[HistoricalAgentF] {
     lazy val restFormat = historicalAgentFormat
   }
+  
+  object LinksTypes extends Enumeration {
+    type Type = Value
+    val ConceptLink = Value("cvocConcept")
+    val HistoricalAgentLink = Value("historicalAgent")
+    val DocumentaryUnitLink = Value("documentaryUnit")
+    val countryLink = Value("country")
+
+    implicit val format = defines.EnumUtils.enumFormat(this)
+  }
 }
 
 case class HistoricalAgentF(

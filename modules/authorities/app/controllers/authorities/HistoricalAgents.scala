@@ -9,6 +9,7 @@ import utils.search.{FacetDisplay, Resolver, Dispatcher, FacetSort}
 import com.google.inject._
 import solr.SolrConstants
 import backend.Backend
+import models.Link
 
 
 @Singleton
@@ -125,7 +126,7 @@ case class HistoricalAgents @Inject()(implicit globalConfig: global.GlobalConfig
 
   def linkTo(id: String) = withItemPermission[HistoricalAgent](id, PermissionType.Annotate) {
       item => implicit userOpt => implicit request =>
-    Ok(views.html.historicalAgent.linkTo(item))
+    Ok(views.html.historicalAgent.linkTo(item, Link.form))
   }
 
   def linkAnnotateSelect(id: String, toType: EntityType.Value) = linkSelectAction(id, toType, facets = entityFacets) {

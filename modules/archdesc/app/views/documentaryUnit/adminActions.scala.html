@@ -5,7 +5,7 @@
         <a href="@controllers.archdesc.routes.DocumentaryUnits.createDoc(item.id)">@Messages("documentaryUnit.child.create")</a>
     }
     @common.sidebarAction(user.hasPermission(ContentTypes.DocumentaryUnit, PermissionType.Annotate)) {
-        <a href="@controllers.archdesc.routes.DocumentaryUnits.linkAnnotateSelect(item.id, EntityType.DocumentaryUnit)">@Messages("link.create")</a>
+        <a href="@controllers.archdesc.routes.DocumentaryUnits.linkTo(item.id)">@Messages("link.create")</a>
     }
     @common.sidebarAction(user.hasPermission(ContentTypes.DocumentaryUnit, PermissionType.Update)) {
         <a href="@controllers.archdesc.routes.DocumentaryUnits.createDescription(item.id)">@Messages("describedEntity.createDescription")</a>
