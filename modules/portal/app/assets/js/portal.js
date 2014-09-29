@@ -252,7 +252,7 @@ $loader = $( "<div></div>" ).addClass("text-center loader-container").append($("
   var originalmarginTrick = $marginTrick.css("margin-bottom");
   $(window).scroll(function(e) {
     var menuHeight = $smenu.outerHeight();
-    $("header#header").trigger("expander-remove");
+    //$("header#header").trigger("expander-remove");
 
     if ($(window).scrollTop() > ($pmenu.offset().top + $pmenu.outerHeight() + menuHeight)) {
       $smenu.addClass("float-nav").css({
@@ -265,7 +265,7 @@ $loader = $( "<div></div>" ).addClass("text-center loader-container").append($("
     }
   });
   $(window).resize(function(e) {
-    $("header#header").trigger("expander-remove");
+    //$("header#header").trigger("expander-remove");
     if($smenu.hasClass("float-nav")) {
       $smenu.css({
         width: $(window).width()
@@ -273,12 +273,12 @@ $loader = $( "<div></div>" ).addClass("text-center loader-container").append($("
     }
   });
   $("header#header").on("expander", function() {
-    $("header#header .float-nav .more").parent().children("li").toggleClass("available");
+    $("header#header .more").parent().children("li").toggleClass("available");
   });
-  $("header#header").on("expander-remove", function() {
-    $("header#header .float-nav .more").parent().children("li").removeClass("available");
-  });
-  $("header#header").on("click", ".float-nav .more", function() {
+  /*$("header#header").on("expander-remove", function() {
+    $("header#header .more").parent().children("li").removeClass("available");
+  });*/
+  $("header#header").on("click", ".more", function() {
     $("header#header").trigger("expander");
   });
 

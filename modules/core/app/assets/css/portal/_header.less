@@ -64,93 +64,78 @@ header#header {
   li {
     padding: 0px;
   }
-
-  //padding-top: @medium-padding;
-
-  .nav-primary {
-    background-color: @almost-black;
-    padding: @small-padding;
-    min-height:50px;
-    
-    img[rel="logo"] {
-      height:40px;
-      width:auto;
-    }
-
-
-    & > ul {
-      margin-bottom: 0;
-      padding: 0;
-      li {
-        height:40px;
-        line-height:40px;
-      }
-      li#navbar-logo a {
-        padding:0;
-      }
-    }
-    a {
-      color: #d6d6d6;
-      padding: @medium-padding;
-    }
-
-    a:hover {
-      text-decoration: none;
-      color: #FFF;
-    }
-
-    li.active a {
-      color: #FFF;
-    }
+}
+.nav-primary {
+  background-color: @almost-black;
+  padding: @small-padding;
+  min-height:50px;
+  
+  img[rel="logo"] {
+    height:40px;
+    width:auto;
   }
 
-  .nav-secondary {
-    //padding: @small-padding;
-
-    ul {
-      margin: @medium-margin;
-    }
-
+  & > ul {
+    margin-bottom: 0;
+    padding: 0;
     li {
-      // This is needed for the pointer trick below...
-      position: relative;
+      height:40px;
+      line-height:40px;
     }
-
-    // Pinched from Guardian website... thanks folks...
-    // This puts a little triangle pointer below the
-    // active menu item. Depends on parent item having
-    // relative position...
-    li.active:after {
-      content: " ";
-      border-left: 5px solid transparent;
-      border-right: 5px solid transparent;
-      border-bottom: 5px solid;
-      border-bottom-color: white;
-      position: absolute;
-      bottom: -10px;
-      margin-left: -10px;
-      left: 50%;
+    li#navbar-logo a {
+      padding:0;
     }
+  }
+  a {
+    color: #d6d6d6;
+    padding: @medium-padding;
+  }
 
-    font-size: 0.9em;
+  a:hover {
+    text-decoration: none;
+    color: #FFF;
+  }
 
-    a {
-      font-size: 1.1em;
-      color: #FFF;
-      margin: 0 @small-margin 0 @small-margin;
-    }
-    background-color: @primary-highlight;
+  li.active a {
+    color: #FFF;
+  }
+}
+
+.nav-secondary {
+  //padding: @small-padding;
+  font-size: 0.9em;
+  background-color: @primary-highlight;
+
+  ul {
+    margin: @medium-margin;
+  }
+
+  li {
+    // This is needed for the pointer trick below...
+    position: relative;
+  }
+
+  // Pinched from Guardian website... thanks folks...
+  // This puts a little triangle pointer below the
+  // active menu item. Depends on parent item having
+  // relative position...
+  li.active:after {
+    content: " ";
+    border-left: 5px solid transparent;
+    border-right: 5px solid transparent;
+    border-bottom: 5px solid;
+    border-bottom-color: white;
+    position: absolute;
+    bottom: -10px;
+    margin-left: -10px;
+    left: 50%;
   }
 
 
-
-  .float-nav {
-    position: fixed;
-    top: 0;
-    left: 0;
-    opacity: 0.9;
-    z-index: 1000;
-    box-shadow: 0px 3px 4px rgba(68, 68, 68, 0.51);
+  a {
+    font-size: 1.1em;
+    color: #FFF;
+    margin: 0 @small-margin 0 @small-margin;
   }
 
   #navbar-logo {
@@ -162,142 +147,211 @@ header#header {
     }
   }
 
-  .user-img-icon {
-    .img-responsive;
-    display: inline;
-  }
 
-  .nav-primary , .nav-secondary {
-    nav {
-      & > ul  {
-        .list-inline;
-        & > li {
+  &.float-nav {
+    position: fixed;
+    top: 0;
+    left: 0;
+    opacity: 0.9;
+    z-index: 1000;
+    box-shadow: 0px 3px 4px rgba(68, 68, 68, 0.51);
+  }
+}
+
+.user-img-icon {
+  .img-responsive;
+  display: inline;
+}
+
+/*
+ *    Nav Primary and nav-secondary shared features
+ */
+.nav-primary , .nav-secondary {
+  nav {
+    & > ul  {
+      .list-inline;
+      & > li {
+        padding:0 2px;
+      }
+    }
+    &[role="tool"]:after {
+      content: " ";
+      display: table;
+    }
+  }
+  .clearfix();
+}
+
+/*
+ *    -> Nav Primary and Nav Secondary shared features
+ *    <- Nav Primary Features
+ */
+.nav-primary {
+  & > nav[role="navigation"] {
+      display:inline-block;
+  }
+  /*
+  *     Right bar of Nav Primary
+   */
+  & > nav[role="tool"] {
+      display:block;
+      float:right;
+      margin-top:10px;
+      min-height:40px;
+    > ul {
+      text-align:right;
+      display:inline-block;
+      min-height:40px;
+
+    }
+  }
+  @media (max-width: @screen-sm-max) {
+    height:25px;
+    min-height:25px;
+    padding:0 5px;
+    margin-right:0;
+
+    & > nav > ul {
+      margin-bottom:0;
+      & > li {
+        & > a {
           padding:0 2px;
         }
       }
-      &[role="tool"]:after {
-        content: " ";
-        display: table;
-      }
     }
-    .clearfix();
-  }
-  .nav-primary {
 
-    @media (max-width: @screen-sm-max) {
-      & > nav > ul > li {
-        & > a {
-          padding:10px 2px;
-        }
-      }
+    img[rel="logo"] {
+      height:23px;
+      width:auto;
     }
-    & > nav[role="navigation"] {
-        display:inline-block;
+
+    li {
+      height:25px;
+      line-height:25px;
     }
-    & > nav[role="tool"] {
-        display:block;
-        float:right;
-        margin-top:10px;
-        min-height:40px;
+
+    nav[role="tool"] {
+        margin-top:0;
+        height:25px;
+        min-height:25px;
       > ul {
-        text-align:right;
-        display:inline-block;
-        min-height:40px;
-
-      }
-      @media (min-width: @screen-sm-min) {
-        .visible-responsive {
-          display:none;
-        }
-      }
-      @media (max-width: @screen-sm-min) {
-        margin-right:5px;
-        .hidden-responsive {
-          display:none;
-        }
-      }
-
-    }
-  }
-  .nav-secondary {
-    & > nav[role="navigation"] {
-      display:inline-block;
-      li.more {
-        cursor:pointer;
-        display:none;
-      }
-      @media (max-width: @screen-sm-max) {
-        & > ul {
-          margin-bottom:0;
-          &> li.active {
-            &:after {
-              display:none;
-            }
-            &:before {
-              display:inline-block;
-              //margin-right:2px;
-              //content:"~ ";
-            }
-          }
-        }
-      }
-     
-    }
-    & > nav[role="tool"] {
-      display:block;
-      float:right;
-
-      @media (max-width: @screen-sm-max) {
-        display:block;
-        float:none;
-      }
-    }
-    &.float-nav {
-      @media (max-width: @screen-xs-max) {
-        & > nav[role="tool"] {
-          display:none;
-        }
-        & > nav[role="navigation"] {
-          display:block;
-          & > ul {
-            display:block;
-            margin-bottom:5px;
-            .clearfix();
-            & > li {
-              display:none;
-              position:relative;
-              z-index:1001;
-              .transition(all .2s linear);
-              &.active , &.more {
-                display:block;
-              }
-              &.more {
-                text-align:right!important;
-                display:block;
-                float:right;
-                z-index:1002;
-              }
-              &.available {
-                display:block;
-                .transition(all .2s linear);
-              }
-            }
-          }
-        }
+        height:25px;
+        min-height:25px;
       }
     }
   }
 
-  .account-admin, .toolbar {
-    text-align:right;
-    > li {
-      text-align:left;
+  @media (min-width: @screen-sm-min) {
+    .visible-responsive {
+      display:none;
     }
   }
 
-
+  @media (max-width: @screen-sm-min) {
+    //margin-right:5px;
+    .hidden-responsive {
+      display:none;
+    }
+  }
 
 }
+
+/*
+ *    -> Nav Primary Features
+ *    <- Nav Secondary Features
+ */
+.nav-secondary {
+  & > nav[role="navigation"] {
+    display:inline-block;
+    li.more {
+      cursor:pointer;
+      display:none;
+    }
+    @media (max-width: @screen-sm-max) {
+      & > ul {
+        margin-bottom:0;
+        &> li.active {
+          &:after {
+            display:none;
+          }
+          &:before {
+            display:inline-block;
+            //margin-right:2px;
+            //content:"~ ";
+          }
+        }
+      }
+    }
+   
+  }
+  & > nav[role="tool"] {
+    display:block;
+    float:right;
+
+    @media (max-width: @screen-sm-max) {
+      display:block;
+      float:none;
+    }
+  }
+
+  /*
+   *    <- Small secondary when sm screen
+   */
+  @media (max-width: @screen-sm-max) {
+    & > nav[role="tool"] {
+      display:block;
+    }
+    &.float-nav {
+      nav[role="tool"] {
+        display:none;
+      }
+    }
+    & > nav[role="navigation"] {
+      display:block;
+      & > ul {
+        display:block;
+        margin-bottom:5px;
+        .clearfix();
+
+        & > li {
+          display:none;
+          position:relative;
+          z-index:1001;
+          .transition(all .2s linear);
+
+          &.active , &.more {
+            display:block;
+          }
+          &.more {
+            text-align:right!important;
+            float:right;
+            z-index:1002;
+          }
+          &.available {
+            display:block;
+            .transition(all .2s linear);
+          }
+        }
+      }
+    }
+  }
+  /*
+   *    -> Small secondary when sm screen
+   */
+}
+
+/*
+ *    -> Nav Secondary Features
+ */
+.account-admin, .toolbar {
+  text-align:right;
+  > li {
+    text-align:left;
+  }
+}
+
+
+/*
 //Responsive
 @media (max-width: @screen-sm-min) {
    header#header { 
@@ -312,6 +366,7 @@ header#header {
     }
   }
 }
+*/
 //Color change ~ type of document
 
 body.documentaryUnit header#header .nav-secondary {
