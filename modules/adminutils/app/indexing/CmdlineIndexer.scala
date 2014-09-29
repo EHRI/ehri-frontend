@@ -37,7 +37,11 @@ case class CmdlineIndexer(chan: Option[Concurrent.Channel[String]] = None, proce
     def out(s: => String) = report()
     def err(s: => String) {
       errBuffer += s
-      report()
+      // This is a hack. All progress goes to stdout but we only
+      // want to buffer that which contains the format:
+      // [type] -> [id]
+      if (s.contains("->")) report()
+      else chan.map(_.push(processFunc(s)))
     }
 
     private def report(): Unit = {
