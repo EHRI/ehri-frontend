@@ -22,7 +22,9 @@ object SearchOrder extends Enumeration {
   val DateNewest = Value("lastUpdated.desc")
   val Country = Value("countryCode.asc")
   val Holder = Value("repositoryName.asc")
+  val Location = Value("geodist().asc")
   val Detail = Value("charCount.desc")
+  val ChildCount = Value("childCount.desc")
 
   implicit val format = defines.EnumUtils.enumFormat(SearchOrder)
 }
@@ -71,12 +73,22 @@ case class SearchParams(
 
   def offset = Math.max(0, (page - 1) * count)
 
+  private def intOverride(original: Int, default: Int, request: Option[Map[String, Any]], searchParamParameter: String): Int = request match {
+    case Some(r) => {
+        if(r.contains(searchParamParameter)) original else default
+        }
+    case None => original
+  }
+
   /**
    * Set unset values from another (optional) instance.
+   * request should be used when bindFromRequest value is using .setDefault
    */
-  def setDefault(default: Option[SearchParams]): SearchParams = default match {
+  def setDefault(default: Option[SearchParams], request: Option[Map[String, Any]] = None): SearchParams = default match {
     case Some(d) => copy(
       query = query orElse d.query,
+      count = intOverride(count, d.count, request, COUNT_PARAM),
+      page = intOverride(page, d.page, request, PAGE_PARAM),
       sort = sort orElse d.sort,
       reverse = reverse orElse d.reverse,
       entities = if (entities.isEmpty) d.entities else entities,
@@ -86,6 +98,7 @@ case class SearchParams(
     )
     case None => this
   }
+
 }
 
 object SearchParams {
