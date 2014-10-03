@@ -167,6 +167,7 @@ documentaryUnit.item=Item
 documentaryUnit.otherlevel=Other Level
 documentaryUnit.class=Class
 documentaryUnit.creation=Creation
+documentaryUnit.existence=Existence
 
 documentaryUnit.physicalLocation=Physical Location
 documentaryUnit.physicalLocation.description=The physical location or shelf number of the item(s)\

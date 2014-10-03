@@ -1,25 +1,25 @@
 @(item: Temporal, fieldName: String)(implicit fieldPrefix: String, userOpt: Option[UserProfile], request: RequestHeader, lang: Lang)
 
 @if(!item.dates.isEmpty) {
-        <div class="item-text-field" id="@fieldName">
-            <h4 class="item-text-field-header">
-                @Messages(if (fieldPrefix.isEmpty) fieldName else "%s.%s".format(fieldPrefix, fieldName))
-            </h4>
-            <div class="item-text-field-value">
-                <table class="date-periods">
-                    @item.dates.map { dp =>
-                    <tr class="date-period" id="@dp.id">
-                        <td>
-                            @defining(dp.`type`) { typeOpt =>
-                               @typeOpt.map { t =>
-                                    @Messages(fieldPrefix + "." + t)
-                                }
+    <div class="item-text-field" id="@fieldName">
+        <h4 class="item-text-field-header">
+            @Messages(if (fieldPrefix.isEmpty) fieldName else "%s.%s".format(fieldPrefix, fieldName))
+        </h4>
+        <div class="item-text-field-value">
+            <table class="date-periods">
+                @item.dates.map { dp =>
+                <tr class="date-period" id="@dp.id">
+                    <td>
+                        @defining(dp.`type`) { typeOpt =>
+                           @typeOpt.map { t =>
+                                @Messages(fieldPrefix + "." + t)
                             }
-                        </td>
-                        <td>@dp.years.trim</td>
-                    </tr>
-                    }
-                </table>
-            </div>
+                        }
+                    </td>
+                    <td>@dp.years.trim</td>
+                </tr>
+                }
+            </table>
         </div>
+    </div>
 }
