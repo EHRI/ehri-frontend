@@ -88,7 +88,7 @@ case class Portal @Inject()(implicit globalConfig: global.GlobalConfig, searchDi
       find[AnyModel](
         defaultParams = SearchParams(
           // we don't need results here because we're only using the facets
-          count = 0,
+          count = Some(0),
           entities = List(
             EntityType.Repository,
             EntityType.DocumentaryUnit,

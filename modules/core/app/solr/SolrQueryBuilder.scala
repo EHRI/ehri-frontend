@@ -188,7 +188,7 @@ case class SolrQueryBuilder(writerType: WriterType, debugQuery: Boolean = false)
     // Setup start and number of objects returned
     req.setStartRow(StartRow(params.offset))
 
-    req.setMaximumRowsReturned(MaximumRowsReturned(params.count))
+    req.setMaximumRowsReturned(MaximumRowsReturned(params.countOrDefault))
     req.setWriterType(writerType)
 
     extra.map { case (key, value) =>
@@ -297,7 +297,7 @@ case class SolrQueryBuilder(writerType: WriterType, debugQuery: Boolean = false)
 
     // Setup start and number of objects returned
     req.setStartRow(StartRow(params.offset))
-    req.setMaximumRowsReturned(MaximumRowsReturned(params.count))
+    req.setMaximumRowsReturned(MaximumRowsReturned(params.countOrDefault))
 
     // Group results by item id, as opposed to the document-level
     // description (for non-multi-description entities this will
