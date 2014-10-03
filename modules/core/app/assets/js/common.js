@@ -159,7 +159,6 @@ jQuery(function($) {
 
   /*
    *   Breadcrumb and collapsible
-   */
   $(".breadcrumb.collapsible").each(function(e) {
     var $ol = $(this),
         $width = $ol.outerWidth(),
@@ -228,5 +227,6 @@ jQuery(function($) {
     });
     $actual.find("a:visible").css("max-width", $actual.data("max-width"));
   });
+   */
 });
 

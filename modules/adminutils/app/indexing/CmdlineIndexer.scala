@@ -7,6 +7,7 @@ import play.api.Play.current
 import play.api.libs.iteratee.Concurrent
 import utils.search.{IndexingError, Indexer}
 import scala.concurrent.Future
+import com.google.common.collect.EvictingQueue
 
 
 object CmdlineIndexer {
@@ -31,13 +32,22 @@ case class CmdlineIndexer(chan: Option[Concurrent.Channel[String]] = None, proce
   object logger extends ProcessLogger {
     val bufferCount = 100 // number of lines to buffer...
     var count = 0
-    val errBuffer = collection.mutable.ArrayBuffer.empty[String]
+    val errBuffer = EvictingQueue.create[String](10)
 
     def buffer[T](f: => T): T = f
     def out(s: => String) = report()
     def err(s: => String) {
-      errBuffer += s
-      report()
+      errBuffer.add(s)
+      // This is a hack. All progress goes to stdout but we only
+      // want to buffer that which contains the format:
+      // [type] -> [id]
+      if (s.contains("->")) report()
+      else chan.map(_.push(processFunc(s)))
+    }
+
+    def lastMessages: List[String] = {
+      import scala.collection.JavaConversions._
+      errBuffer.iterator().toList
     }
 
     private def report(): Unit = {
@@ -54,7 +64,7 @@ case class CmdlineIndexer(chan: Option[Concurrent.Channel[String]] = None, proce
     host <- current.configuration.getString("neo4j.server.host")
     port <- current.configuration.getInt("neo4j.server.port")
     path <- current.configuration.getString("neo4j.server.endpoint")
-  } yield "http://%s:%d/%s".format(host, port, path)).getOrElse(sys.error("Unable to find rest service url"))
+  } yield s"http://$host:$port/$path").getOrElse(sys.error("Unable to find rest service url"))
 
   private val solrUrl = current.configuration.getString("solr.path").getOrElse(sys.error("Unable to find solr service url"))
 
@@ -75,7 +85,9 @@ case class CmdlineIndexer(chan: Option[Concurrent.Channel[String]] = None, proce
     play.api.Logger.logger.debug("Index: {}", cmd.mkString(" "))
     val process: Process = cmd.run(logger)
     if (process.exitValue() != 0) {
-      throw new IndexingError("Exit code was " + process.exitValue() + "\nLast output: " + logger.errBuffer.mkString("\n"))
+      throw new IndexingError("Exit code was " + process.exitValue() + "\nLast output: \n"
+        + (if(logger.errBuffer.remainingCapacity > 0) "" else "... (truncated)\n")
+        + logger.lastMessages.mkString("\n"))
     }
   }
 
@@ -85,7 +97,7 @@ case class CmdlineIndexer(chan: Option[Concurrent.Channel[String]] = None, proce
         = runProcess(idxArgs ++ entityTypes.map(_.toString))
 
   def indexChildren(entityType: EntityType.Value, id: String): Future[Unit]
-      = runProcess(idxArgs ++ Seq("%s|%s".format(entityType, id)))
+      = runProcess(idxArgs ++ Seq(s"$entityType|$id"))
 
   def clearAll(): Future[Unit] = runProcess(clearArgs ++ Seq("--clear-all"))
 

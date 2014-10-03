@@ -192,6 +192,7 @@ facet.itemsHeldOnline.yes=Catalogued Material Available
 
 # Activity...
 portal.activity=Activity
+portal.activity.by={0} - Activity
 portal.activity.latestActivity=Latest Activity
 portal.activity.userCreatedItem={2,choice,0#{0} created item {1}|1#{0} created {1} and 1 more item|1<{0} created {1} and {2,number,integer} more items}
 portal.activity.userUpdatedItem={2,choice,0#{0} updated item {1}|1#{0} updated {1} and 1 more item|1<{0} updated {1} and {2,number,integer} more items}
@@ -233,6 +234,7 @@ portal.social.unblock=Unblock User
 portal.social.unblock.submit=Unblock User
 
 portal.profile.watch.list=Watched Items
+portal.profile.watch.by={0} - Watched Items
 portal.profile.watch=Watch Item
 portal.profile.watch.title=Add item to your watch list
 portal.profile.watch.tooltip=Click to see updates to this item in your activity list.
@@ -244,6 +246,7 @@ portal.profile.unwatch.title=Remove item from your watch list
 
 portal.annotation=Notes
 portal.annotation.list=Notes
+portal.annotation.list.by={0} - Notes
 portal.annotation.none=You haven''t made any notes yet.
 portal.annotation.create=Add Note
 portal.annotation.update=Edit

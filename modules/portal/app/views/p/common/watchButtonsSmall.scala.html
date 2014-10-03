@@ -6,7 +6,7 @@
            class="unwatch glyphicon glyphicon-star" title="@Messages("portal.profile.unwatch.tooltip")"
            style="@(if(!watching) "display: none")" href="@controllers.portal.routes.Profile.unwatchItem(item.id)"></a>
         <a data-item="@item.id"
-           class="watch glyphicon glyphicon-star"  title="@Messages("portal.profile.watch.tooltip")"
+           class="watch glyphicon glyphicon-star-empty"  title="@Messages("portal.profile.watch.tooltip")"
            style="@(if(watching) "display: none")" href="@controllers.portal.routes.Profile.watchItem(item.id)"></a>
     </div>
 }
