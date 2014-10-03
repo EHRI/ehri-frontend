@@ -322,8 +322,8 @@ documentaryUnit.datesOfDescriptions=Dates of Descriptions
 documentaryUnit.datesOfDescriptions.description=To indicate when this description was prepared and/or revised.\n\n\
 Record the date(s) the entry was prepared and/or revised. (3.7.3)
 
-documentaryUnit.provenance=Process Info
-documentaryUnit.provenance.description=Information about accessioning, arranging, describing, preserving, storing,\
+documentaryUnit.processInfo=Process Info
+documentaryUnit.processInfo.description=Information about accessioning, arranging, describing, preserving, storing,\
   or otherwise preparing the described materials for research use. Specific aspects of each of these \
   activities may be encoded separately within other elements, such as acquisition (3.2.4), \
   arrangement (3.3.4), extent and medium (3.1.5), etc. This is a synthetic field not strictly present\
