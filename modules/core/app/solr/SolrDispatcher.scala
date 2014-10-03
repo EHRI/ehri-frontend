@@ -2,14 +2,13 @@ package solr
 
 import play.api.libs.concurrent.Execution.Implicits._
 import models.UserProfile
-import play.api.libs.ws.WS
-import play.api.Logger
-import defines.EntityType
+import play.api.libs.ws.{WSResponse, WS}
+import play.api.{Play, Logger}
 import scala.concurrent.Future
 import utils.search._
 import utils.search.SearchHit
 import com.github.seratch.scalikesolr.request.QueryRequest
-import backend.rest.Constants
+import play.api.http.{MimeTypes, HeaderNames}
 
 
 /**
@@ -24,14 +23,23 @@ case class SolrDispatcher(queryBuilder: QueryBuilder, responseParser: ResponsePa
   // Dummy value to satisfy the RestDAO trait...
   val userProfile: Option[UserProfile] = None
 
+  lazy val solrPath = Play.current.configuration.getString("solr.path")
+    .getOrElse(sys.error("Missing configuration: solr.path"))
+
+  def solrSelectUrl = solrPath + "/select"
+
   /**
    * Get the Solr URL...
    */
-  private def buildSearchUrl(query: QueryRequest) = {
-    "%s/select%s".format(
-      play.Play.application.configuration.getString("solr.path"),
-      query.queryString()
-    )
+  def fullSearchUrl(query: QueryRequest) = solrSelectUrl + query.queryString
+
+  def queryAsForm(query: QueryRequest) = query.queryString().substring(1)
+
+  def dispatch(query: QueryRequest): Future[WSResponse] = {
+    Logger.logger.debug("SOLR: {}", fullSearchUrl(query))
+    WS.url(solrSelectUrl)
+      .withHeaders(HeaderNames.CONTENT_TYPE -> MimeTypes.FORM)
+      .post(queryAsForm(query))
   }
 
   /**
@@ -45,9 +53,7 @@ case class SolrDispatcher(queryBuilder: QueryBuilder, responseParser: ResponsePa
     implicit userOpt: Option[UserProfile]): Future[ItemPage[FilterHit]] = {
 
     val queryRequest = queryBuilder.simpleFilter(params, filters, extra)
-    Logger.logger.debug(queryRequest.queryString())
-
-    WS.url(buildSearchUrl(queryRequest)).get().map { response =>
+    dispatch(queryRequest).map { response =>
       val parser = responseParser(checkError(response).body)
       val items = parser.items.map(i => FilterHit(i.itemId, i.id, i.name, i.`type`, i.fields.get(SolrConstants.HOLDER_NAME), i.gid))
       ItemPage(items, params.page, params.count, parser.count, Nil)
@@ -69,9 +75,7 @@ case class SolrDispatcher(queryBuilder: QueryBuilder, responseParser: ResponsePa
               implicit userOpt: Option[UserProfile]): Future[ItemPage[SearchHit]] = {
 
     val queryRequest = queryBuilder.search(params, facets, allFacets, filters, extra, mode)
-    val url = buildSearchUrl(queryRequest)
-    Logger.logger.debug("SOLR: {}", url)
-    WS.url(buildSearchUrl(queryRequest)).get().map { response =>
+    dispatch(queryRequest).map { response =>
       val parser = responseParser(checkError(response).body)
       ItemPage(parser.items, params.page, params.count, parser.count,
         parser.extractFacetData(facets, allFacets), spellcheck = parser.spellcheckSuggestion)
@@ -100,8 +104,7 @@ case class SolrDispatcher(queryBuilder: QueryBuilder, responseParser: ResponsePa
     // not strictly necessary... we also don't care about the
     // ordering.
     val queryRequest = queryBuilder.search(params, facets, allFacets, filters)
-
-    WS.url(buildSearchUrl(queryRequest)).get().map { response =>
+    dispatch(queryRequest).map { response =>
       val facetClasses = responseParser(checkError(response).body).extractFacetData(facets, allFacets)
 
       val facetClass = facetClasses.find(_.param == facet).getOrElse(
