@@ -320,3 +320,7 @@ portal.guides.more=More
 portal.guides.loading=Loading
 portal.guides.facets.hierarchy=Search or browse through the available facets of the Guide.
 portal.guides.facets.available=The facets shown here are the one available connected to the same document.
+portal.guides.annotation=If you have anything to improve or comment on this record, you can annotate it in the standard EHRI portal interface.
+portal.guides.seeOnPortal=Portal interface
+
+portal.multipleDescriptions=Multiple descriptions
