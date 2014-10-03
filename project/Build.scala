@@ -81,7 +81,7 @@ object ApplicationBuild extends Build {
     "net.sf.opencsv" % "opencsv" % "2.3",
 
     // S3 Upload plugin
-    "com.github.seratch" %% "awscala" % "0.2.+"
+    "com.github.seratch" %% "awscala" % "0.3.+"
   )
 
   val testDependencies = Seq(
