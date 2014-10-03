@@ -10,7 +10,9 @@ GET     /api/:contentType/list                  @controllers.admin.ApiController
 GET     /api/:contentType/:id                   @controllers.admin.ApiController.getItem(contentType: defines.EntityType.Value, id: String)
 GET     /api/*path                              @controllers.admin.ApiController.get(path: String)
 
-# API Sparql queries - TESTING
+# API Sparql and Cypher queries - TESTING
+GET     /cypher                                 @controllers.admin.ApiController.cypher
+GET     /cypherQuery                            @controllers.admin.ApiController.cypherQuery
 GET     /sparql                                 @controllers.admin.ApiController.sparql
 GET     /sparqlQuery                            @controllers.admin.ApiController.sparqlQuery
 
