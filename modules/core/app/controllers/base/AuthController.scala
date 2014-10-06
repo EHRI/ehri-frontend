@@ -70,6 +70,9 @@ trait AuthController extends Controller with ControllerHelpers with AsyncAuth wi
           } else if (verifiedOnly && secured && !account.verified) {
             immediate(Unauthorized(renderError("errors.verifiedOnly",
               views.html.errors.verifiedOnly())))
+          } else if (globalConfig.readOnly) {
+            // Return early if we're read-only...
+            f(None)(request)
           } else {
             // For the permissions to be properly initialized they must
             // receive a completely-constructed instance of the UserProfile

@@ -7,7 +7,9 @@ import play.api.test.Helpers._
 import helpers.{UserFixtures, TestConfiguration}
 import play.api.i18n.Messages
 import mocks.MockBufferedMailer
-import models.{MockAccount, MockAccountDAO}
+import models.MockAccountDAO
+import models.MockAccount
+import play.api.test.FakeApplication
 
 /**
  * Basic app helpers which don't require a running DB.
@@ -22,6 +24,37 @@ class ApplicationSpec extends Specification with TestConfiguration with UserFixt
     "send 404 on a bad request" in {
       running(FakeApplication(withGlobal = Some(getGlobal))) {
         route(FakeRequest(GET, "/NOTHINGHERE")) must beNone
+      }
+    }
+
+    "show readonly warning when in READONLY mode" in {
+      running(FakeApplication(withGlobal = Some(getGlobal))) {
+        // NB: The location of this file is set in the application.conf
+        // and overridden in production configs by prod.conf. The default
+        // one is a relative file called "READONLY". We can therefore
+        // create this in the CWD to test.
+        val f = new java.io.File("READONLY")
+        f.createNewFile()
+        // Since we're not running the DB for this test we just
+        // try a route that doesn't need the backend - there's
+        // nothing significant about using the /forgot endpoint
+        // here, only that it's a simple layout
+        try {
+          val pageReadOnly = route(FakeRequest(GET,
+            controllers.portal.routes.Profile.forgotPassword().url)).get
+          status(pageReadOnly) must equalTo(OK)
+          contentAsString(pageReadOnly) must contain(Messages("portal.readonly"))
+
+          // Deleting the file should make the message go away
+          f.delete()
+
+          val page = route(FakeRequest(GET,
+            controllers.portal.routes.Profile.forgotPassword().url)).get
+          status(page) must equalTo(OK)
+          contentAsString(page) must not contain Messages("portal.readonly")
+        } finally {
+          f.deleteOnExit()
+        }
       }
     }
 

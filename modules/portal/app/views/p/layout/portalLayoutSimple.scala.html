@@ -5,6 +5,7 @@
 <html lang="@lang.code">
     @head(title, styles = styles)
     <body>
+        @p.layout.readOnly()
         <div id="wrap">
             @simpleHeader(itemClass)
             @views.html.common.flash(flash)

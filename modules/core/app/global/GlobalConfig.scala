@@ -1,6 +1,7 @@
 package global
 
 import play.api.Play.current
+import java.io.File
 
 
 trait MenuConfig {
@@ -36,4 +37,10 @@ trait GlobalConfig {
 
   lazy val languages: Seq[String] = current.configuration
         .getString("application.langs").map(_.split(",").toSeq).getOrElse(Nil)
+
+  // Set readonly mode...
+  private lazy val readOnlyFile: Option[File] = current.configuration.getString("ehri.readonly.file")
+      .map(new File(_))
+
+  def readOnly = readOnlyFile.exists(file => file.isFile && file.exists)
 }
