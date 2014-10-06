@@ -60,7 +60,7 @@ case class ApiController @Inject()(implicit globalConfig: global.GlobalConfig, b
 
   private val defaultCypher =
     """
-      |START n = node:entities(__ISA__:userProfile)
+      |START n = node:entities("__ISA__:userProfile")
       |RETURN n, n.name
       |LIMIT 100
     """.stripMargin
