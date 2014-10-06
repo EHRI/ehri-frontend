@@ -13,11 +13,10 @@ import jp.t2v.lab.play2.auth.LoginLogout
 import play.api.libs.Files.TemporaryFile
 import play.api.Play.current
 import java.io.{StringWriter, File}
-import play.Logger
 import scala.concurrent.Future
 import views.html.p
 import utils.search.{Resolver, Dispatcher}
-import backend.{Backend}
+import backend.Backend
 
 import com.google.inject._
 import net.coobird.thumbnailator.tasks.UnsupportedFormatException
