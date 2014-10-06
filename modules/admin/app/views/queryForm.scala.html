@@ -1,10 +1,10 @@
-@(form: Form[String], action: Call)(implicit userOpt: Option[UserProfile], req: RequestHeader, globalConfig: global.GlobalConfig, lang: Lang, flash: Flash)
+@(form: Form[String], action: Call, name: String)(implicit userOpt: Option[UserProfile], req: RequestHeader, globalConfig: global.GlobalConfig, lang: Lang, flash: Flash)
 
 
 @extrascripts = {
     <script type="application/javascript">
         jQuery(function($) {
-            var $f = $("#sparql-form");
+            var $f = $("#query-form");
             $f.submit(function(e) {
                 e.preventDefault();
                 e.stopPropagation();
@@ -36,9 +36,9 @@
     </style>
 }
 
-@layout.noSidebar("Sparql", scripts = extrascripts, styles = extrastyles) {
+@layout.noSidebar(name, scripts = extrascripts, styles = extrastyles) {
 
-    @helper.form(action = action, 'id -> "sparql-form") {
+    @helper.form(action = action, 'id -> "query-form") {
         @helper.textarea(form("q"))
 
         <div class="control-group">

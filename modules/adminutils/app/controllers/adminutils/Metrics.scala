@@ -61,7 +61,7 @@ case class Metrics @Inject()(implicit globalConfig: global.GlobalConfig, searchD
 
   // For all of the metrics we're just using facet counts,
   // so set the result limit to be zero.
-  private val defaultParams = SearchParams(count=0)
+  private val defaultParams = SearchParams(count=Some(0))
 
   private val langCountFacets: FacetBuilder = { implicit request =>
     List(

@@ -68,6 +68,6 @@ case object IsadG {
   val ARCHIVIST_NOTE = "archivistNote"
   val RULES_CONVENTIONS = "rulesAndConventions"
   val DATES_DESCRIPTIONS = "datesOfDescriptions"
-  val PROVENANCE ="provenance"
+  val PROCESS_INFO ="provenance"
   val SOURCES ="sources"
 }

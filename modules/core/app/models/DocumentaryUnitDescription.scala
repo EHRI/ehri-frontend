@@ -62,7 +62,7 @@ case class IsadGControl(
   sources: Option[List[String]] = None,
   rulesAndConventions: Option[String] = None,
   datesOfDescriptions: Option[String] = None,
-  provenance: Option[String] = None
+  processInfo: Option[String] = None
 )
 
 object DocumentaryUnitDescriptionF {
@@ -109,7 +109,7 @@ object DocumentaryUnitDescriptionF {
           SOURCES -> d.control.sources,
           RULES_CONVENTIONS -> d.control.rulesAndConventions,
           DATES_DESCRIPTIONS -> d.control.datesOfDescriptions,
-          PROVENANCE -> d.control.provenance,
+          PROCESS_INFO -> d.control.processInfo,
           CREATION_PROCESS -> d.creationProcess
         ),
         RELATIONSHIPS -> Json.obj(
@@ -171,7 +171,7 @@ object DocumentaryUnitDescriptionF {
       (__ \ SOURCES).readListOrSingleNullable[String] and
       (__ \ RULES_CONVENTIONS).readNullable[String] and
       (__ \ DATES_DESCRIPTIONS).readNullable[String] and
-      (__ \ PROVENANCE).readNullable[String]
+      (__ \ PROCESS_INFO).readNullable[String]
     )(IsadGControl.apply _)) and
     (__ \ DATA \ CREATION_PROCESS).readWithDefault(CreationProcess.Manual) and
     (__ \ RELATIONSHIPS \ HAS_ACCESS_POINT).nullableListReads[AccessPointF] and
@@ -241,7 +241,7 @@ case class DocumentaryUnitDescriptionF(
     SOURCES -> control.sources.map(_.mkString("\n")),
     RULES_CONVENTIONS -> control.rulesAndConventions,
     DATES_DESCRIPTIONS -> control.datesOfDescriptions,
-    PROVENANCE -> control.provenance
+    PROCESS_INFO -> control.processInfo
   )
 }
 
@@ -297,7 +297,7 @@ object DocumentaryUnitDescription {
         SOURCES -> optional(list(nonEmptyText)),
         RULES_CONVENTIONS -> optional(text),
         DATES_DESCRIPTIONS -> optional(text),
-        PROVENANCE -> optional(text)
+        PROCESS_INFO -> optional(text)
       )(IsadGControl.apply)(IsadGControl.unapply),
       CREATION_PROCESS -> default(enum(CreationProcess), CreationProcess.Manual),
       ACCESS_POINTS -> list(AccessPoint.form.mapping),
