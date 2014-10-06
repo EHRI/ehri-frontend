@@ -71,8 +71,8 @@ trait Search extends Controller with AuthController with ControllerHelpers {
       .copy(entities = if (entities.isEmpty) defaultParams.entities else entities.toList)
 
     val sp = SearchParams.form.bindFromRequest(request.queryString)
-      .value.getOrElse(SearchParams.empty)
-      .setDefault(Some(params))
+        .value.getOrElse(SearchParams.empty)
+        .setDefault(Some(params))
 
     val allFacets = facetBuilder(request)
     val boundFacets: List[AppliedFacet] = bindFacetsFromRequest(allFacets)

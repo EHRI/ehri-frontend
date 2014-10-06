@@ -55,8 +55,8 @@ object SearchMode extends Enumeration {
  */
 case class SearchParams(
   query: Option[String] = None,
-  page: Int = 1,
-  count: Int = DEFAULT_LIST_LIMIT,
+  page: Option[Int] = None,
+  count: Option[Int] = None,
   sort: Option[SearchOrder.Value] = None,
   reverse: Option[Boolean] = Some(false),
   entities: List[EntityType.Value] = Nil,
@@ -65,13 +65,17 @@ case class SearchParams(
   filters: Option[List[String]] = None
 ) {
 
+  def pageOrDefault: Int = page.getOrElse(1)
+
+  def countOrDefault: Int = count.getOrElse(DEFAULT_LIST_LIMIT)
+
   /**
    * Is there an active constraint on these params?
    * TODO: Should this include page etc?
    */
   def isFiltered: Boolean = query.filterNot(_.trim.isEmpty).isDefined
 
-  def offset = Math.max(0, (page - 1) * count)
+  def offset = Math.max(0, (pageOrDefault - 1) * countOrDefault)
 
   /**
    * Set unset values from another (optional) instance.
@@ -79,6 +83,8 @@ case class SearchParams(
   def setDefault(default: Option[SearchParams]): SearchParams = default match {
     case Some(d) => copy(
       query = query orElse d.query,
+      page = page orElse d.page,
+      count = count orElse d.count,
       sort = sort orElse d.sort,
       reverse = reverse orElse d.reverse,
       entities = if (entities.isEmpty) d.entities else entities,
@@ -110,8 +116,8 @@ object SearchParams {
   val form = Form(
     mapping(
       QUERY -> optional(nonEmptyText),
-      PAGE_PARAM -> default(number(min = 1), 1),
-      COUNT_PARAM -> default(number(min = 0, max = MAX_LIST_LIMIT), DEFAULT_LIST_LIMIT),
+      PAGE_PARAM -> optional(number(min = 1)),
+      COUNT_PARAM -> optional(number(min = 0, max = MAX_LIST_LIMIT)),
       SORT -> optional(models.forms.enum(SearchOrder)),
       REVERSE -> optional(boolean),
       ENTITY -> list(models.forms.enum(EntityType)),
