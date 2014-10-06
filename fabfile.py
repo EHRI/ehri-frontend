@@ -12,6 +12,7 @@ from datetime import datetime
 from fabric.api import *
 from fabric.contrib.console import confirm
 from fabric.contrib.project import upload_project
+from fabric.contrib.files import exists
 from contextlib import contextmanager as _contextmanager
 
 # globals
@@ -89,6 +90,17 @@ def stop():
     # NB: This doesn't use sudo() directly because it insists on asking
     # for a password, even though we should have NOPASSWD in visudo.
     run('sudo service %(project_name)s stop' % env, pty=False, shell=False)
+
+def readonly():
+    "Toggle readonly mode."
+    filename = os.path.join(env.path, "READONLY")
+    if exists(filename):
+        run("rm " + filename)
+        print("READONLY mode is OFF")
+    else:
+        run("touch " + filename)
+        print("READONLY mode is ON")
+
 
 def restart():
     "Restart docview"

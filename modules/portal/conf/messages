@@ -14,6 +14,9 @@ portal.profile.preferences.allowMessaging=Allow other users to send you messages
 portal.profile.preferences.allowMessaging.description=Your email address will not be directly accessible.
 portal.profile.preferences.updatePreferences=Update Preferences
 
+portal.readonly=The EHRI portal is currently in read-only mode while we conduct maintenance.\
+  Normal service should be resumed in due course. Thanks for your patience.
+
 portal.login=Sign In
 portal.login.moreOptions=More login options
 portal.login.alreadyLoggedIn=You are already logged in as {0}
@@ -21,6 +24,7 @@ portal.login.loginWith=Log in with {0}
 portal.login.openid.submit=Sign In With OpenID
 portal.login.openid=OpenID
 portal.login.openid.urlPlaceholder=Enter your OpenID URL
+portal.login.disabled=Login is currently disabled. Please try again later.
 portal.login.oauth.info=If you already have an account on one of these sites you can click the logo to log in to EHRI:
 portal.login.password.info=If you''ve previously created an account with EHRI, enter your email and password here:
 portal.login.password.change=Change Password

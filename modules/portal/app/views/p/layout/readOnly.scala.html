@@ -1,0 +1,7 @@
+@()(implicit req: RequestHeader, globalConfig: global.GlobalConfig, lang: Lang)
+
+@if(globalConfig.readOnly) {
+    <div class="alert alert-warning readonly-message">
+        @Messages("portal.readonly")
+    </div>
+}
