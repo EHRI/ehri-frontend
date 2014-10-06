@@ -85,7 +85,7 @@ package globalConfig {
 
 object Global extends WithFilters(CSRFFilter()) with GlobalSettings {
 
-  private def responseParser: ResponseParser = solr.SolrXmlQueryResponse
+  private def responseParser: ResponseParser = solr.SolrJsonQueryResponse
   private def queryBuilder: QueryBuilder = new solr.SolrQueryBuilder(responseParser.writerType, debugQuery = true)
   private def searchDispatcher: Dispatcher = new solr.SolrDispatcher(queryBuilder, responseParser)
   private def searchIndexer: Indexer = new indexing.CmdlineIndexer

@@ -1,6 +1,6 @@
 package controllers.portal
 
-import play.api.mvc.{RequestHeader, Action, Controller}
+import play.api.mvc._
 import models.{SignupData, UserProfileF, AccountDAO, Account}
 import play.api.libs.concurrent.Execution.Implicits._
 import scala.concurrent.Future.{successful => immediate}
@@ -14,11 +14,12 @@ import play.api.Play._
 import utils.forms._
 import java.util.UUID
 import play.api.i18n.Messages
-import backend.ApiUser
 import utils.SessionPrefs
 import com.google.common.net.HttpHeaders
-import scala.collection.JavaConversions
 import controllers.core.auth.AccountHelpers
+import scala.concurrent.Future
+import backend.ApiUser
+import play.api.mvc.Result
 
 /**
  * @author Mike Bryant (http://github.com/mikesname)
@@ -32,7 +33,27 @@ trait PortalLogin extends OpenIDLoginHandler with Oauth2LoginHandler with UserPa
   private val portalRoutes = controllers.portal.routes.Portal
   private val profileRoutes = controllers.portal.routes.Profile
 
-  def signup = Action { implicit request =>
+  /**
+   * Prevent people signin up, logging in etc when in read-only mode.
+   */
+  case class NotReadOnly[A](action: Action[A]) extends Action[A] {
+    def apply(request: Request[A]): Future[Result] = {
+      if (globalConfig.readOnly) {
+        Future.successful(Redirect(portalRoutes.index())
+          .flashing("warning" -> Messages("portal.login.disabled")))
+      } else action(request)
+    }
+    lazy val parser = action.parser
+  }
+
+  object NotReadOnlyAction extends ActionBuilder[Request] {
+    def invokeBlock[A](request: Request[A], block: (Request[A]) => Future[Result]) = {
+      block(request)
+    }
+    override def composeAction[A](action: Action[A]) = new NotReadOnly(action)
+  }
+
+  def signup = NotReadOnlyAction { implicit request =>
     val recaptchaKey = current.configuration.getString("recaptcha.key.public")
       .getOrElse("fakekey")
     Ok(views.html.p.account.signup(SignupData.form, profileRoutes.signupPost(), recaptchaKey))
@@ -48,7 +69,7 @@ trait PortalLogin extends OpenIDLoginHandler with Oauth2LoginHandler with UserPa
       views.html.p.account.mail.confirmEmail(uuid).body)
   }
 
-  def signupPost = Action.async { implicit request =>
+  def signupPost = NotReadOnlyAction.async { implicit request =>
     val recaptchaKey = current.configuration.getString("recaptcha.key.public")
       .getOrElse("fakekey")
 
@@ -89,7 +110,7 @@ trait PortalLogin extends OpenIDLoginHandler with Oauth2LoginHandler with UserPa
     }
   }
 
-  def confirmEmail(token: String) = Action.async { implicit request =>
+  def confirmEmail(token: String) = NotReadOnlyAction.async { implicit request =>
     userDAO.findByResetToken(token, isSignUp = true).map { account =>
       account.verify(token)
       gotoLoginSucceeded(account.id)
@@ -117,10 +138,14 @@ trait PortalLogin extends OpenIDLoginHandler with Oauth2LoginHandler with UserPa
   )
 
   def login = optionalUserAction { implicit accountOpt => implicit request =>
-    accountOpt match {
-      case Some(user) => Redirect(portalRoutes.index())
-        .flashing("warning" -> Messages("portal.login.alreadyLoggedIn", user.email))
-      case None => Ok(views.html.p.account.login(openidForm, passwordLoginForm, oauthProviders))
+    if (globalConfig.readOnly) {
+      Redirect(portalRoutes.index()).flashing("warning" -> Messages("portal.login.disabled"))
+    } else {
+      accountOpt match {
+        case Some(user) => Redirect(portalRoutes.index())
+          .flashing("warning" -> Messages("portal.login.alreadyLoggedIn", user.email))
+        case None => Ok(views.html.p.account.login(openidForm, passwordLoginForm, oauthProviders))
+      }
     }
   }
 

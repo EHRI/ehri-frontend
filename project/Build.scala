@@ -81,11 +81,11 @@ object ApplicationBuild extends Build {
     "net.sf.opencsv" % "opencsv" % "2.3",
 
     // S3 Upload plugin
-    "com.github.seratch" %% "awscala" % "0.2.+"
+    "com.github.seratch" %% "awscala" % "0.3.+"
   )
 
   val testDependencies = Seq(
-    "jp.t2v" %% "play2-auth-test" % "0.12.0-SNAPSHOT" % "test",
+    "jp.t2v" %% "play2-auth-test" % "0.12.0" % "test",
 
     "org.neo4j" % "neo4j-kernel" % "1.9.7" classifier "tests" classifier "",
     "org.neo4j.app" % "neo4j-server" % "1.9.7" classifier "tests" classifier "",

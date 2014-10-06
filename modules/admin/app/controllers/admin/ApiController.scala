@@ -13,6 +13,7 @@ import play.api.http.MimeTypes
 import models.AccountDAO
 import com.ning.http.client.{Response => NingResponse}
 import defines.EntityType
+import backend.rest.cypher.CypherDAO
 
 case class ApiController @Inject()(implicit globalConfig: global.GlobalConfig, backend: Backend, userDAO: AccountDAO) extends Controller with AuthController with ControllerHelpers {
 
@@ -55,7 +56,28 @@ case class ApiController @Inject()(implicit globalConfig: global.GlobalConfig, b
 
   import play.api.data.Form
   import play.api.data.Forms._
-  private val sparqlForm = Form(single("q" -> text))
+  private val queryForm = Form(single("q" -> text))
+
+  private val defaultCypher =
+    """
+      |START n = node:entities(__ISA__:userProfile)
+      |RETURN n, n.name
+      |LIMIT 100
+    """.stripMargin
+
+  def cypher = adminAction { implicit userOpt => implicit request =>
+    Ok(views.html.queryForm(queryForm.fill(defaultCypher),
+      controllers.admin.routes.ApiController.cypherQuery(), "Cypher"))
+  }
+
+  def cypherQuery = adminAction.async { implicit userOpt => implicit request =>
+    CypherDAO().stream(queryForm.bindFromRequest.value.getOrElse(""), Map.empty).map { r =>
+      val response: NingResponse = r.underlying[NingResponse]
+      Status(r.status)
+        .chunked(Enumerator.fromStream(response.getResponseBodyAsStream))
+        .as(response.getContentType)
+    }
+  }
 
   private val defaultSparql =
     """
@@ -75,12 +97,12 @@ case class ApiController @Inject()(implicit globalConfig: global.GlobalConfig, b
       |LIMIT 100
     """.stripMargin
 
-  def sparql = userProfileAction { implicit userOpt => implicit request =>
-    Ok(views.html.sparqlForm(sparqlForm.fill(defaultSparql),
-        controllers.admin.routes.ApiController.sparqlQuery))
+  def sparql = adminAction { implicit userOpt => implicit request =>
+    Ok(views.html.queryForm(queryForm.fill(defaultSparql),
+        controllers.admin.routes.ApiController.sparqlQuery(), "SparQL"))
   }
 
-  def sparqlQuery = userProfileAction.async { implicit userOpt => implicit request =>
+  def sparqlQuery = adminAction.async { implicit userOpt => implicit request =>
     backend.query("sparql", request.headers, request.queryString).map { r =>
       val response: NingResponse = r.underlying[NingResponse]
       Status(r.status)

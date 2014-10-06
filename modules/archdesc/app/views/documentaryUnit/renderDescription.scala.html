@@ -12,6 +12,7 @@
         @common.stringValue(desc.identity.ref, REF)
         @common.stringValue(desc.identity.`abstract`, ABSTRACT)
         @common.renderDates(desc, DATES)
+        @common.listValue(desc.identity.unitDates, UNIT_DATES)
         @common.stringValue(desc.identity.levelOfDescription, LEVEL_OF_DESCRIPTION)
         @common.listValue(desc.identity.physicalLocation, PHYSICAL_LOCATION)
         @common.stringValue(desc.identity.extentAndMedium, EXTENT_MEDIUM)
@@ -56,7 +57,7 @@
         @common.listValue(desc.control.sources, SOURCES)
         @common.stringValue(desc.control.rulesAndConventions, RULES_CONVENTIONS)
         @common.stringValue(desc.control.datesOfDescriptions, DATES_DESCRIPTIONS)
-        @common.stringValue(desc.control.provenance, PROVENANCE)
+        @common.stringValue(desc.control.processInfo, PROCESS_INFO)
     }
 
     @link.accessPointLinks(item, desc, links)

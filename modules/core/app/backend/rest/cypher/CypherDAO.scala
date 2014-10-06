@@ -36,7 +36,7 @@ case class CypherDAO() extends RestDAO {
 
   import play.api.Play.current
 
-  def requestUrl = "http://%s:%d/db/data/cypher".format(host, port)
+  def requestUrl = s"http://$host:$port/db/data/cypher"
 
   import CypherErrorReader._
 
@@ -53,4 +53,10 @@ case class CypherDAO() extends RestDAO {
 
   def get[T](scriptBody: String, params: Map[String,JsValue], r: Reads[T]): Future[T] =
     cypher(scriptBody, params).map(_.as(r))
+
+  def stream(scriptBody: String, params: Map[String,JsValue] = Map()): Future[WSResponse] = {
+    val data = Json.obj("query" -> scriptBody, "params" -> params)
+    Logger.logger.debug("Cypher: {}", Json.toJson(data))
+    WS.url(requestUrl).withHeaders((headers + ("X-Stream" -> "true")).toList: _*).post(data)
+  }
 }

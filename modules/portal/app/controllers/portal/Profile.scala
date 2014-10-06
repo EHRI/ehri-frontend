@@ -13,11 +13,10 @@ import jp.t2v.lab.play2.auth.LoginLogout
 import play.api.libs.Files.TemporaryFile
 import play.api.Play.current
 import java.io.{StringWriter, File}
-import play.Logger
 import scala.concurrent.Future
 import views.html.p
 import utils.search.{Resolver, Dispatcher}
-import backend.{Backend}
+import backend.Backend
 
 import com.google.inject._
 import net.coobird.thumbnailator.tasks.UnsupportedFormatException
@@ -349,9 +348,11 @@ case class Profile @Inject()(implicit globalConfig: global.GlobalConfig, searchD
   private def convertAndUploadFile(file: FilePart[TemporaryFile], user: UserProfile, request: RequestHeader): Future[String] = {
     import awscala._
     import awscala.s3._
-
+    // Ugh, this API is ugly... or maybe it's just how I'm using it...?
     val bucketName: String = current.configuration.getString("aws.bucket")
       .getOrElse(sys.error("Invalid configuration: no aws.bucket key found"))
+    val region: String = current.configuration.getString("s3.region")
+      .getOrElse(sys.error("Invalid configuration: no aws.region key found"))
     val instanceName: String = current.configuration.getString("aws.instance")
       .getOrElse(request.host)
     val accessKey =current.configuration.getString("aws.accessKeyId")
@@ -359,7 +360,7 @@ case class Profile @Inject()(implicit globalConfig: global.GlobalConfig, searchD
     val secret =current.configuration.getString("aws.secretKey")
       .getOrElse(sys.error("Invalid configuration: no aws.secretKey found"))
 
-    implicit val s3 = S3(Credentials(accessKey, secret))
+    implicit val s3 = S3(Credentials(accessKey, secret)).at(awscala.Region(region))
 
     val bucket: Bucket = s3.bucket(bucketName)
       .getOrElse(sys.error(s"Bucket $bucketName not found"))
@@ -368,7 +369,7 @@ case class Profile @Inject()(implicit globalConfig: global.GlobalConfig, searchD
     val temp = File.createTempFile(user.id, extension)
     Thumbnails.of(file.ref.file).size(200, 200).toFile(temp)
 
-    bucket.putAsPublicRead(awsName, temp)
-    Future.successful(s"http://${bucket.name}.s3.amazonaws.com/$awsName")
+    val read: PutObjectResult = bucket.putAsPublicRead(awsName, temp)
+    Future.successful(s"http://${read.bucket.name}.s3-$region.amazonaws.com/${read.key}")
   }
 }

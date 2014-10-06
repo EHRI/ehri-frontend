@@ -82,12 +82,19 @@
 }
 
 .info-bar {
-  padding: @medium-padding;
+  padding:0  @medium-padding;
   background-color: @pale-gray;
+  .btn {
+  	margin: @small-padding;
+  }
 }
 
 .info-bar > .navbar-collapse {
   padding-left: 0;
+}
+
+.alert.readonly-message {
+  margin-bottom: 0;
 }
 
 .watch-controls > a, .watch-controls > a:hover,

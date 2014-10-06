@@ -74,6 +74,34 @@ jQuery(function ($) {
     showDataPolicy();
   }
 
+/*
+* Date search
+*/
+$(".facet-date .date-submit").on("click", function(e) {
+  $(e.target).closest("form").submit();
+})
+$(".facet-date .date").on("keyup", function(e) {
+  e.preventDefault();
+  var vals = {"begin" : "", "end" : ""},
+  $dat = $(this),
+  $parent = $dat.parents(".facet-date"),
+  getDate = function(date) {
+  if (date.length == 4 && !isNaN(parseInt(date))) {
+    return date;
+  }
+    return ""
+  },
+  val = vals["begin"] + "-" + vals["end"];
+
+  $(".date").each(function() {
+    vals[$(this).data("target")] = getDate($(this).val());
+  });
+  
+  var val = vals["begin"] + "-" + vals["end"];
+  if(val != "-") {
+     $parent.find(".target").val(val)
+  }
+});
 
 /*
 *   History
@@ -240,7 +268,7 @@ $loader = $( "<div></div>" ).addClass("text-center loader-container").append($("
   var originalmarginTrick = $marginTrick.css("margin-bottom");
   $(window).scroll(function(e) {
     var menuHeight = $smenu.outerHeight();
-    $("header#header").trigger("expander-remove");
+    //$("header#header").trigger("expander-remove");
 
     if ($(window).scrollTop() > ($pmenu.offset().top + $pmenu.outerHeight() + menuHeight)) {
       $smenu.addClass("float-nav").css({
@@ -253,7 +281,7 @@ $loader = $( "<div></div>" ).addClass("text-center loader-container").append($("
     }
   });
   $(window).resize(function(e) {
-    $("header#header").trigger("expander-remove");
+    //$("header#header").trigger("expander-remove");
     if($smenu.hasClass("float-nav")) {
       $smenu.css({
         width: $(window).width()
@@ -261,12 +289,12 @@ $loader = $( "<div></div>" ).addClass("text-center loader-container").append($("
     }
   });
   $("header#header").on("expander", function() {
-    $("header#header .float-nav .more").parent().children("li").toggleClass("available");
+    $("header#header .more").parent().children("li").toggleClass("available");
   });
-  $("header#header").on("expander-remove", function() {
-    $("header#header .float-nav .more").parent().children("li").removeClass("available");
-  });
-  $("header#header").on("click", ".float-nav .more", function() {
+  /*$("header#header").on("expander-remove", function() {
+    $("header#header .more").parent().children("li").removeClass("available");
+  });*/
+  $("header#header").on("click", ".more", function() {
     $("header#header").trigger("expander");
   });
 

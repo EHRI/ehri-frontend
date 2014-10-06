@@ -21,6 +21,7 @@ case class IsadGIdentity(
   `abstract`: Option[String] = None,
   @Annotations.Relation(Ontology.ENTITY_HAS_DATE)
   dates: List[DatePeriodF] = Nil,
+  unitDates: Option[List[String]] = None,
   levelOfDescription: Option[String] = None,
   physicalLocation: Option[List[String]] = None,
   extentAndMedium: Option[String] = None
@@ -61,7 +62,7 @@ case class IsadGControl(
   sources: Option[List[String]] = None,
   rulesAndConventions: Option[String] = None,
   datesOfDescriptions: Option[String] = None,
-  provenance: Option[String] = None
+  processInfo: Option[String] = None
 )
 
 object DocumentaryUnitDescriptionF {
@@ -85,6 +86,7 @@ object DocumentaryUnitDescriptionF {
           LEVEL_OF_DESCRIPTION -> d.identity.levelOfDescription,
           PHYSICAL_LOCATION -> d.identity.physicalLocation,
           EXTENT_MEDIUM -> d.identity.extentAndMedium,
+          UNIT_DATES -> d.identity.unitDates,
           ADMIN_BIOG -> d.context.biographicalHistory,
           ARCH_HIST -> d.context.archivalHistory,
           ACQUISITION -> d.context.acquisition,
@@ -107,7 +109,7 @@ object DocumentaryUnitDescriptionF {
           SOURCES -> d.control.sources,
           RULES_CONVENTIONS -> d.control.rulesAndConventions,
           DATES_DESCRIPTIONS -> d.control.datesOfDescriptions,
-          PROVENANCE -> d.control.provenance,
+          PROCESS_INFO -> d.control.processInfo,
           CREATION_PROCESS -> d.creationProcess
         ),
         RELATIONSHIPS -> Json.obj(
@@ -133,6 +135,7 @@ object DocumentaryUnitDescriptionF {
       (__ \ DATA \ REF).readNullable[String] and
       (__ \ DATA \ ABSTRACT).readNullable[String] and
       (__ \ RELATIONSHIPS \ ENTITY_HAS_DATE).nullableListReads[DatePeriodF] and
+      (__ \ DATA \ UNIT_DATES).readListOrSingleNullable[String] and
       (__ \ DATA \ LEVEL_OF_DESCRIPTION).readNullable[String] and
       (__ \ DATA \ PHYSICAL_LOCATION).readListOrSingleNullable[String] and
       (__ \ DATA \ EXTENT_MEDIUM).readNullable[String]
@@ -168,7 +171,7 @@ object DocumentaryUnitDescriptionF {
       (__ \ SOURCES).readListOrSingleNullable[String] and
       (__ \ RULES_CONVENTIONS).readNullable[String] and
       (__ \ DATES_DESCRIPTIONS).readNullable[String] and
-      (__ \ PROVENANCE).readNullable[String]
+      (__ \ PROCESS_INFO).readNullable[String]
     )(IsadGControl.apply _)) and
     (__ \ DATA \ CREATION_PROCESS).readWithDefault(CreationProcess.Manual) and
     (__ \ RELATIONSHIPS \ HAS_ACCESS_POINT).nullableListReads[AccessPointF] and
@@ -238,7 +241,7 @@ case class DocumentaryUnitDescriptionF(
     SOURCES -> control.sources.map(_.mkString("\n")),
     RULES_CONVENTIONS -> control.rulesAndConventions,
     DATES_DESCRIPTIONS -> control.datesOfDescriptions,
-    PROVENANCE -> control.provenance
+    PROCESS_INFO -> control.processInfo
   )
 }
 
@@ -258,6 +261,7 @@ object DocumentaryUnitDescription {
         REF -> optional(text),
         ABSTRACT -> optional(nonEmptyText),
         DATES -> list(DatePeriod.form.mapping),
+        UNIT_DATES -> optional(list(nonEmptyText)),
         LEVEL_OF_DESCRIPTION -> optional(text),
         PHYSICAL_LOCATION -> optional(list(nonEmptyText)),
         EXTENT_MEDIUM -> optional(nonEmptyText)
@@ -293,7 +297,7 @@ object DocumentaryUnitDescription {
         SOURCES -> optional(list(nonEmptyText)),
         RULES_CONVENTIONS -> optional(text),
         DATES_DESCRIPTIONS -> optional(text),
-        PROVENANCE -> optional(text)
+        PROCESS_INFO -> optional(text)
       )(IsadGControl.apply)(IsadGControl.unapply),
       CREATION_PROCESS -> default(enum(CreationProcess), CreationProcess.Manual),
       ACCESS_POINTS -> list(AccessPoint.form.mapping),

@@ -35,7 +35,8 @@
                     }
                 </div>
             </div>
-        @enumChoiceInput(desc(LEVEL_OF_DESCRIPTION), LevelOfDescription, LEVEL_OF_DESCRIPTION, blank=true)
+            @hiddenInputSet(desc, UNIT_DATES)
+            @enumChoiceInput(desc(LEVEL_OF_DESCRIPTION), LevelOfDescription, LEVEL_OF_DESCRIPTION, blank=true)
             @hiddenInputSet(desc, PHYSICAL_LOCATION)
             @textInput(desc, EXTENT_MEDIUM)
         }
@@ -88,7 +89,7 @@
             @inlineTextSet(desc, SOURCES)
             @textInput(desc, RULES_CONVENTIONS)
             @textInput(desc, DATES_DESCRIPTIONS)
-            @textInput(desc, PROVENANCE)
+            @textInput(desc, PROCESS_INFO)
         }
     }
 }
