@@ -65,6 +65,7 @@ GET         /virtual/:via/:id               @controllers.portal.VirtualUnits.bro
 GET         /bookmark/:id                   @controllers.portal.Bookmarks.bookmark(id: String, bsId: Option[String] ?= None)
 POST        /bookmark/:id                   @controllers.portal.Bookmarks.bookmarkPost(id: String, bsId: Option[String] ?= None)
 GET         /bookmark/:id/contents          @controllers.portal.Bookmarks.contents(id: String)
+GET         /bookmark/:id/contents/:page    @controllers.portal.Bookmarks.moreContents(id: String, page: Int)
 POST        /bookmarkInNewSet/:id           @controllers.portal.Bookmarks.bookmarkInNewSetPost(id: String)
 POST        /removeBookmarks/:set           @controllers.portal.Bookmarks.removeBookmarksPost(set: String, ids: List[String] ?= Nil)
 POST        /moveBookmarks/:fromSet/:toSet  @controllers.portal.Bookmarks.moveBookmarksPost(fromSet: String, toSet: String, ids: List[String] ?= Nil)

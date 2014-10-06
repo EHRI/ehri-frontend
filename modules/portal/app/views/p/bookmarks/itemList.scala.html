@@ -1,20 +1,12 @@
-@(them: UserProfile, items: utils.AbstractPage[AnyModel], watched: Seq[String])(implicit req: RequestHeader, userOpt: Option[UserProfile], lang: Lang, globalConfig: global.GlobalConfig)
+@(parent: Option[AnyModel], them: UserProfile, items: Seq[AnyModel], params: utils.search.SearchParams, more: Boolean, watched: Seq[String])(implicit req: RequestHeader, userOpt: Option[UserProfile], lang: Lang, globalConfig: global.GlobalConfig)
 
 @defining(userOpt.exists(_.id == them.id)) { isCurrentUser =>
 
     @if(!items.isEmpty) {
-        <ul class="list-unstyled watched-items">
-            @items.map { item =>
-                <li class="content-load">
-                    @*p.virtualUnit.listItemVc(item, Seq.empty, watched = watched.contains(item.id), showContext = false)*@
-                    @p.helpers.linkTo(item)
-                    @item.asInstanceOf[Holder[_]].childCount.filter(_ > 0).map { count =>
-                        <a class="child-drop-down closed" href="@controllers.portal.routes.Bookmarks.contents(item.id)"><span class="glyphicon glyphicon-chevron-down"></span></a>
-                    }
-                </li>
-            }
+        <ul class="list-unstyled watched-items list-group">
+            @itemListItems(parent, items, params, more, watched)
         </ul>
-        @common.pagination(items, pageParam = "wpage")
+
     } else {
         <p class="text-muted">
             @if(isCurrentUser) {

@@ -1,0 +1,24 @@
+@(parent: Option[AnyModel], items: Seq[AnyModel], params: utils.search.SearchParams, more: Boolean, watched: Seq[String])(implicit req: RequestHeader, userOpt: Option[UserProfile], lang: Lang, globalConfig: global.GlobalConfig)
+
+@items.map { item =>
+    <li class="list-group-item bookmarks" id="bookmark-$@item.id">
+        @*p.virtualUnit.listItemVc(item, Seq.empty, watched = watched.contains(item.id), showContext = false)*@
+        @p.helpers.linkTo(item) [@item.id]
+        @item.asInstanceOf[Holder[_]].childCount.filter(_ > 0).map { count =>
+            <span class="badge">
+                <a class="bookmark-fetch-contents closed" href="@controllers.portal.routes.Bookmarks.contents(item.id)">
+                    @count
+                </a>
+            </span>
+        }
+    </li>
+}
+
+@if(more) {
+    <li class="list-group-item">
+        <a href="@controllers.portal.routes.Bookmarks.moreContents(parent.get.id, params.pageOrDefault + 1)" data-count="@params.count" data-page="@(params.pageOrDefault + 1)"
+                class="bookmarks-fetchmore btn btn-default btn-block">
+            @Messages("portal.activity.fetchMore")
+        </a>
+    </li>
+}

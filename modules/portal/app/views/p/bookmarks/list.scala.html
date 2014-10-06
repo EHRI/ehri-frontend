@@ -1,4 +1,4 @@
-@(page: utils.AbstractPage[VirtualUnit], watched: Seq[String])(implicit userOpt: Option[UserProfile], request: RequestHeader, prefs: utils.SessionPrefs, globalConfig: global.GlobalConfig, lang: Lang, flash: Flash)
+@(page: utils.AbstractPage[VirtualUnit], params: utils.search.SearchParams, watched: Seq[String])(implicit userOpt: Option[UserProfile], request: RequestHeader, prefs: utils.SessionPrefs, globalConfig: global.GlobalConfig, lang: Lang, flash: Flash)
 
 @* user should always be defined here *@
 @userOpt.map { user =>
@@ -9,7 +9,7 @@
 
         @views.html.layout.mainContent {
             <h1>@Messages("portal.bookmarkSet.list")</h1>
-            @itemList(user, page, watched)
+            @itemList(None, user, page, params, more = false, watched)
             <a class="btn post" href="@controllers.portal.routes.Bookmarks.createBookmarkSet()">@Messages("portal.bookmarkSet.create")</a>
         }
     }
