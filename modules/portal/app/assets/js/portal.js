@@ -172,37 +172,6 @@ $(".panel-history").each(function() {
 });
   //Need to reenable enter for getSearch
 
-/*
-  Bookmarks
-*/
-
-  $(document).on("click", "a.bookmark-fetch-contents", function(e) {
-    e.preventDefault();
-    var $this = $(this);
-    var $parent = $this.closest(".bookmarks");
-
-    if ($this.hasClass("closed")) {
-      $this.removeClass("closed").addClass("expanded");
-      var $container = $("<div class=\"children\"></div>");
-      $container.appendTo($parent);
-      $container.load(this.href);
-    } else {
-      $parent.find(".children").remove();
-      $this.removeClass("expanded").addClass("closed");
-    }
-  });
-
-  $(document).on("click", "a.bookmarks-fetchmore", function(e) {
-    e.preventDefault();
-    var $this = $(this);
-    var $container = $this.parent();
-    $.get(this.href, function(data) {
-      $container.replaceWith(data);
-    });
-  });
-
-
-
   /*
     Loadings
   */

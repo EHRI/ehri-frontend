@@ -3,7 +3,7 @@
 @defining(userOpt.exists(_.id == them.id)) { isCurrentUser =>
 
     @if(!items.isEmpty) {
-        <ul class="list-unstyled watched-items list-group">
+        <ul class="list-group bookmark-list">
             @itemListItems(parent, items, params, more, watched)
         </ul>
 

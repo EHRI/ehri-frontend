@@ -1,7 +1,7 @@
 @(parent: Option[AnyModel], items: Seq[AnyModel], params: utils.search.SearchParams, more: Boolean, watched: Seq[String])(implicit req: RequestHeader, userOpt: Option[UserProfile], lang: Lang, globalConfig: global.GlobalConfig)
 
 @items.map { item =>
-    <li class="list-group-item bookmarks" id="bookmark-$@item.id">
+    <li class="list-group-item bookmark-item" data-id="$@item.id">
         @*p.virtualUnit.listItemVc(item, Seq.empty, watched = watched.contains(item.id), showContext = false)*@
         @p.helpers.linkTo(item) [@item.id]
         @item.asInstanceOf[Holder[_]].childCount.filter(_ > 0).map { count =>
