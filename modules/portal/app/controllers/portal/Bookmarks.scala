@@ -182,7 +182,14 @@ case class Bookmarks @Inject()(implicit globalConfig: global.GlobalConfig, searc
       children <- includedChildren(id, item)
       watched <- watchedF
     } yield {
-      Ok(p.bookmarks.itemList(Some(item), user, children.page.copy(items = children.page.items.map(_._1)), children.params, children.page.hasMore, watched))
+      Ok(p.bookmarks.itemList(
+        Some(item),
+        user,
+        children.page.copy(items = children.page.items.map(_._1)),
+        children.params,
+        children.page.hasMore,
+        watched
+      ))
     }
   }
 
@@ -194,7 +201,13 @@ case class Bookmarks @Inject()(implicit globalConfig: global.GlobalConfig, searc
       children <- includedChildren(id, item, page = page)
       watched <- watchedF
     } yield {
-      Ok(p.bookmarks.itemListItems(Some(item), children.page.copy(items = children.page.items.map(_._1)), children.params, children.page.hasMore, watched))
+      Ok(p.bookmarks.itemListItems(
+        Some(item),
+        children.page.copy(items = children.page.items.map(_._1)),
+        children.params,
+        children.page.hasMore,
+        watched
+      ))
     }
   }
 }
