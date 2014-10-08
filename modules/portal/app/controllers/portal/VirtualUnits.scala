@@ -47,9 +47,10 @@ case class VirtualUnits @Inject()(implicit globalConfig: global.GlobalConfig, se
     // - load the VU from the graph along with its included DUs
     // - query for anything that has the VUs parent ID *or* anything
     // with an itemId among its included DUs
-    val pq = v.includedUnits.map(_.id).mkString(" ")
-    val q = s"${SolrConstants.PARENT_ID}:${v.id} OR ${SolrConstants.ITEM_ID}:($pq)"
-    Map(q -> Unit)
+    import SolrConstants._
+    val pq = v.includedUnits.map(_.id)
+    if (pq.isEmpty) Map(s"$PARENT_ID:${v.id}" -> Unit)
+    else Map(s"$PARENT_ID:${v.id} OR $ITEM_ID:(${pq.mkString(" ")})" -> Unit)
   }
 
 
