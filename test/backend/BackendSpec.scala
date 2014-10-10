@@ -291,6 +291,21 @@ class BackendSpec extends helpers.Neo4jRunnerSpec(classOf[BackendSpec]) {
       await(testBackend.userBookmarks(userProfile.id)).headOption must beSome.which { ovc =>
         ovc.includedUnits.size must equalTo(0)
       }
+
+      // Moving included units...
+      val vc2 = await(testBackend.create[VirtualUnit,VirtualUnitF](
+        data.copy(identifier = "vc-test-2")))
+      await(testBackend.addBookmark(vc.id, "c1"))
+      await(testBackend.get[VirtualUnit](vc.id))
+        .includedUnits.map(_.id) must contain("c1")
+      await(testBackend.addBookmark(vc2.id, "c2"))
+      await(testBackend.get[VirtualUnit](vc2.id))
+        .includedUnits.map(_.id) must contain("c2")
+      await(testBackend.moveBookmarks(vc.id, vc2.id, List("c1")))
+      await(testBackend.get[VirtualUnit](vc.id))
+        .includedUnits.map(_.id) must not contain "c1"
+      await(testBackend.get[VirtualUnit](vc2.id))
+        .includedUnits.map(_.id) must contain("c1")
     }
   }
 

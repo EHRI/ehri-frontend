@@ -164,19 +164,31 @@ trait RestSocial extends Social with RestDAO {
 
   def addBookmark(setId: String, id: String)(implicit apiUser: ApiUser, executionContext: ExecutionContext): Future[Unit] = {
     userCall(enc(baseUrl, EntityType.VirtualUnit, setId, "includes"))
-      .withQueryString(ID_PARAM -> id).post("").map(_ => ())
+      .withQueryString(ID_PARAM -> id).post("").map { _ =>
+      eventHandler.handleUpdate(setId)
+      Cache.remove(setId)
+    }
   }
 
   def deleteBookmarks(set: String, ids: Seq[String])(implicit apiUser: ApiUser, executionContext: ExecutionContext): Future[Unit] = {
     if (ids.isEmpty) Future.successful(())
     else userCall(enc(baseUrl, EntityType.VirtualUnit, set, "includes"))
-      .withQueryString(ids.map ( id => ID_PARAM -> id): _*).delete().map(_ => ())
+      .withQueryString(ids.map ( id => ID_PARAM -> id): _*).delete().map { _ =>
+      eventHandler.handleUpdate(set)
+      Cache.remove(set)
+    }
   }
 
   def moveBookmarks(fromSet: String, toSet: String, ids: Seq[String])(implicit apiUser: ApiUser, executionContext: ExecutionContext): Future[Unit] = {
     if (ids.isEmpty) Future.successful(())
     else userCall(enc(baseUrl, EntityType.VirtualUnit, fromSet, "includes", toSet))
-      .withQueryString(ids.map(id => ID_PARAM -> id): _*).post("").map(_ => ())
+      .withQueryString(ids.map(id => ID_PARAM -> id): _*).post("").map { _ =>
+      // Update both source and target sets in the index
+      Cache.remove(fromSet)
+      Cache.remove(toSet)
+      eventHandler.handleUpdate(fromSet)
+      eventHandler.handleUpdate(toSet)
+    }
   }
 }
 

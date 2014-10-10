@@ -148,9 +148,12 @@ case class Bookmarks @Inject()(implicit globalConfig: global.GlobalConfig, searc
   }
 
   private def buildFilter(v: VirtualUnit): Map[String,Any] = {
-    val pq = v.includedUnits.map(_.id).mkString(" ")
-    val q = s"${SolrConstants.PARENT_ID}:${v.id} OR ${SolrConstants.ITEM_ID}:($pq)"
-    Map(q -> Unit)
+    val pq = v.includedUnits.map(_.id)
+    if (pq.isEmpty) Map(s"${SolrConstants.PARENT_ID}:${v.id}" -> Unit)
+    else {
+      val q = s"${SolrConstants.PARENT_ID}:${v.id} OR ${SolrConstants.ITEM_ID}:(${pq.mkString(" ")})"
+      Map(q -> Unit)
+    }
   }
 
   private def includedChildren(id: String, parent: AnyModel, page: Int = 1)(implicit userOpt: Option[UserProfile], req: RequestHeader): Future[QueryResult[AnyModel]] = {

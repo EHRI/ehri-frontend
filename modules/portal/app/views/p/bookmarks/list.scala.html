@@ -2,60 +2,7 @@
 
 @js = {
     <script src="@controllers.portal.routes.Assets.versioned("js/lib/jquery-ui/jquery-ui.js")" type="text/javascript"></script>
-
-    <script>
-            $(function() {
-
-                /*
-                 Bookmarks
-                 */
-
-                $(document).on("click", "a.bookmark-fetch-contents", function(e) {
-                    e.preventDefault();
-                    var $this = $(this);
-                    var $parent = $this.closest(".bookmark-item");
-
-                    if ($this.hasClass("closed")) {
-                        $this.removeClass("closed").addClass("expanded");
-                        var $container = $("<div class=\"children\"></div>");
-                        $container.appendTo($parent);
-                        $container.load(this.href, function() {
-                            initDraggables($container);
-                        });
-                    } else {
-                        $parent.find(".children").remove();
-                        $this.removeClass("expanded").addClass("closed");
-                    }
-                });
-
-                $(document).on("click", "a.bookmarks-fetchmore", function(e) {
-                    e.preventDefault();
-                    var $this = $(this);
-                    var $container = $this.parent();
-                    $.get(this.href, function(data) {
-                        $container.replaceWith(data);
-                        initDraggables($container);
-                    });
-                });
-
-                function initDraggables($element) {
-                    $(".bookmark-list li", $element).draggable({
-                        revert: true,
-                        stack: ".bookmark-list li"
-                    }).droppable({
-                                accept: ".bookmark-item",
-                                drop: function(event, ui) {
-                                    var $dropped = $(this);
-                                    console.log("Dropped: ", ui.draggable.data("id"), "on", $dropped.data("id"))
-                                }
-                            });
-
-                }
-
-                initDraggables($(document));
-
-            });
-    </script>
+    <script src="@controllers.portal.routes.Assets.versioned("js/bookmarks.js")"></script>
 }
 
 @css = {

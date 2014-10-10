@@ -149,7 +149,4 @@ case class VirtualUnit(
     latestEvent = latestEvent,
     meta = meta
   )
-
-  override def childCount: Option[Int]
-  = meta.value.get(Entity.CHILD_COUNT).flatMap(_.asOpt[Int]).map(_ + includedUnits.size)
 }
