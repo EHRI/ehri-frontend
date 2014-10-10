@@ -47,33 +47,43 @@ $(function () {
   });
 
   function initDraggables($element) {
+
+    var dropOpts = {
+      hoverClass: "list-group-item-info",
+      accept: dropTargets,
+      drop: function (event, ui) {
+        var $item = ui.draggable;
+        var $dropped = $(this);
+        var $parent = $item.parent().closest(".bookmark-item");
+        if ($parent.length) {
+          console.log("Moved:", $item.attr("id"), "from", $parent.attr("id"), "to", $dropped.attr("id"))
+          var func = jsRoutes.controllers.portal.Bookmarks.moveBookmarksPost;
+          func($parent.data("id"), $dropped.data("id"), [$item.data("id")]).ajax({
+            success: function(data) {
+              console.log("data...", data)
+              loadContents($parent.data("id"));
+              loadContents($dropped.data("id"));
+            }
+          })
+        }
+      }
+    };
+
     console.log("Element: ", $element.parent())
     var dropTargets = ".bookmark-item:not(#" + $element.parent().attr("id") + ")";
     console.log("Drop targets", dropTargets)
-    $(".bookmark-list li", $element).draggable({
-      revert: true,
-      stack: ".bookmark-list li"
-    }).droppable({
-          hoverClass: "list-group-item-info",
-          accept: dropTargets,
-          drop: function (event, ui) {
-            var $item = ui.draggable;
-            var $dropped = $(this);
-            var $parent = $item.parent().closest(".bookmark-item");
-            if ($parent.length) {
-              console.log("Moved:", $item.attr("id"), "from", $parent.attr("id"), "to", $dropped.attr("id"))
-              var func = jsRoutes.controllers.portal.Bookmarks.moveBookmarksPost;
-              func($parent.data("id"), $dropped.data("id"), [$item.data("id")]).ajax({
-                success: function(data) {
-                  console.log("data...", data)
-                  loadContents($parent.data("id"));
-                  loadContents($dropped.data("id"));
-                }
-              })
-            }
-          }
-        });
 
+    $(".bookmark-list li.virtualUnit", $element).draggable({
+      revert: "invalid",
+      stack: ".bookmark-list li",
+      helper: "original"
+    }).droppable(dropOpts);
+
+    $(".bookmark-list li.documentaryUnit", $element).draggable({
+      revert: "invalid",
+      stack: ".bookmark-list li",
+      helper: "clone"
+    }).droppable(dropOpts);
   }
 
   initDraggables($(document));
