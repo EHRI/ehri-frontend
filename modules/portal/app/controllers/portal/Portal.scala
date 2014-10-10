@@ -155,6 +155,14 @@ case class Portal @Inject()(implicit globalConfig: global.GlobalConfig, searchDi
     }
   }
 
+  // The facets for documents within a repository or another document shouldn't
+  // contain the holder or country (since they'll be implied)
+  private def localDocFacets: RequestHeader => List[FacetClass[Facet]] = {
+    docSearchFacets.andThen(fcl => fcl.filterNot { fc =>
+      Seq("holder", "country", "source").contains(fc.param)
+    })
+  }
+
   def browseRepositories =  userBrowseAction.async { implicit userDetails => implicit request =>
     find[Repository](
       entities = List(EntityType.Repository),
@@ -175,10 +183,12 @@ case class Portal @Inject()(implicit globalConfig: global.GlobalConfig, searchDi
       item => details => implicit userOpt => implicit request =>
     val filters = (if (request.getQueryString(SearchParams.QUERY).filterNot(_.trim.isEmpty).isEmpty)
       Map(SolrConstants.TOP_LEVEL -> true) else Map.empty[String,Any]) ++ Map(SolrConstants.HOLDER_ID -> item.id)
+
     find[DocumentaryUnit](
       filters = filters,
       entities = List(EntityType.DocumentaryUnit),
-      facetBuilder = docSearchFacets
+      facetBuilder = localDocFacets,
+      defaultParams = SearchParams(sort = Some(SearchOrder.Id))
     ).map { case QueryResult(page, params, facets) =>
         if(isAjax) Ok(p.repository.childItemSearch(item, page, params, facets,
           portalRoutes.searchRepository(id), details.watched))
@@ -212,7 +222,8 @@ case class Portal @Inject()(implicit globalConfig: global.GlobalConfig, searchDi
     find[DocumentaryUnit](
       filters = Map(SolrConstants.PARENT_ID -> item.id),
       entities = List(EntityType.DocumentaryUnit),
-      facetBuilder = docSearchFacets
+      facetBuilder = localDocFacets,
+      defaultParams = SearchParams(sort = Some(SearchOrder.Id))
     ).map { case QueryResult(page, params, facets) =>
       if (isAjax) Ok(p.documentaryUnit.childItemSearch(item, page, params, facets,
           portalRoutes.searchDocument(id), details.watched))
