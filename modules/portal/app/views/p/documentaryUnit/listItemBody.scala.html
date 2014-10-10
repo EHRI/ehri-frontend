@@ -10,13 +10,14 @@
                     <li><a class="alt" href="@controllers.portal.routes.Portal.browseRepository(holder.id)">@holder.toStringAbbr</a></li>
                 }
             }
+            <li title="@item.model.identifier">@StringUtils.abbreviate(item.model.identifier, 15)</li>
             <li><span class="text-muted">@views.Helpers.languageCodeToName(desc.languageCode)</span></li>
 
             @desc.dates.headOption.map { dp =>
                 <li>@dp.years</li>
             }
             @desc.identity.extentAndMedium.map { s =>
-                <li>@StringUtils.abbreviate(s, 25)</li>
+                <li title="@s">@StringUtils.abbreviate(s, 25)</li>
             }
             @item.latestEvent.map { event =>
                 <li title="@common.eventTitle(event)">
