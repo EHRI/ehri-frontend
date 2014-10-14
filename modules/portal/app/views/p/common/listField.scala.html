@@ -8,7 +8,7 @@
 	            	@Messages(if (fieldPrefix.isEmpty) key else "%s.%s".format(fieldPrefix, key))
                 	@fieldAnnotationButton(item, nodeId, key)
 	            </h4>
-	            <div class="item-text-field-value">
+	            <div class="item-text-field-value" dir="auto">
 			        <ul>
 			            @list.map { item =>
 			                <li>@Html(views.Helpers.renderMarkdown(transformFunc(item)))</li>
