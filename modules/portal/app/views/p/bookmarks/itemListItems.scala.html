@@ -1,16 +1,15 @@
 @(parent: Option[AnyModel], items: Seq[AnyModel], params: utils.search.SearchParams, more: Boolean, watched: Seq[String])(implicit req: RequestHeader, userOpt: Option[UserProfile], lang: Lang, globalConfig: global.GlobalConfig)
 
 @items.map { item =>
-    <li id="bookmark-@item.id" class="list-group-item bookmark-item @item.isA" data-id="@item.id">
-        @*p.virtualUnit.listItemVc(item, Seq.empty, watched = watched.contains(item.id), showContext = false)*@
-        @p.helpers.linkTo(item) [@item.id]
-        @item.asInstanceOf[Holder[_]].childCount.filter(_ > 0).map { count =>
-            <span class="badge">
-                <a class="bookmark-fetch-contents closed" href="@controllers.portal.routes.Bookmarks.contents(item.id)">
+    <li id="bookmark-@item.id" class="list-group-item bookmark-item @item.isA @(if(parent.exists(_.isInstanceOf[VirtualUnit])) "moveable") @(if(item.isInstanceOf[VirtualUnit]) "droppable")" data-id="@item.id">
+        <div class="bookmark-data">
+            @p.helpers.linkTo(item) [@item.id]
+            @item.asInstanceOf[Holder[_]].childCount.map { count =>
+                <a class="badge bookmark-fetch-contents closed item-count" href="@controllers.portal.routes.Bookmarks.contents(item.id)">
                     @count
                 </a>
-            </span>
-        }
+            }
+        </div>
     </li>
 }
 

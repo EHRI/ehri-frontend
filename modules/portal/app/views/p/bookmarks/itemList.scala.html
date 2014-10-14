@@ -7,13 +7,5 @@
             @itemListItems(parent, items, params, more, watched)
         </ul>
 
-    } else {
-        <p class="text-muted">
-            @if(isCurrentUser) {
-                @Messages("portal.bookmarkSet.noBookmarkSetsYet")
-            } else {
-                @Messages("portal.bookmarkSet.noUserBookmarkSetsYet", them.toStringLang)
-            }
-        </p>
     }
 }
