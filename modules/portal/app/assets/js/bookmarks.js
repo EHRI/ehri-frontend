@@ -7,7 +7,7 @@ window.BS = {
    * Load the contents of a bookmark set
    * @param id The set ID
    */
-  getContents: jsRoutes.controllers.portal.Bookmarks.contents,
+  _getContents: jsRoutes.controllers.portal.Bookmarks.contents,
 
   /**
    * Move bookmarks between sets
@@ -15,7 +15,7 @@ window.BS = {
    * @param toId  To set ID
    * @param moveIds List of IDs to move
    */
-  moveBookmarks: jsRoutes.controllers.portal.Bookmarks.moveBookmarksPost,
+  _moveBookmarks: jsRoutes.controllers.portal.Bookmarks.moveBookmarksPost,
 
   /**
    * Filter a list of items selecting only the virtual units.
@@ -49,6 +49,40 @@ window.BS = {
     return $item.children("ul").first();
   },
 
+  removeItem: function($parent) {
+    var $counter = $parent
+        .children(".bookmark-data")
+        .children(".item-count");
+    var currentCount = parseInt($counter.html());
+    if (isNaN(currentCount)) {
+      currentCount = 0;
+    }
+    var newCount = Math.max(0, currentCount - 1);
+    $counter.html(newCount);
+    if (newCount == 0) {
+      $counter.hide()
+    } else {
+      $counter.show();
+    }
+  },
+
+  addItem: function($parent) {
+    var $counter = $parent
+        .children(".bookmark-data")
+        .children(".item-count");
+    var currentCount = parseInt($counter.html());
+    if (isNaN(currentCount)) {
+      currentCount = 0;
+    }
+    var newCount = currentCount + 1;
+    $counter.html(newCount);
+    if (newCount == 0) {
+      $counter.hide()
+    } else {
+      $counter.show();
+    }
+  },
+
   /**
    * Filter a list of items selecting only the virtual units.
    * @param $item A set of virtual or non-virtual items
@@ -62,14 +96,30 @@ window.BS = {
     return BS.childItems($item).length > 0;
   },
 
-  loadChildren: function($item) {
-    return BS.getContents(BS.idOf($item)).ajax({
-      success: function(data) {
-        BS.hasLoadedChildren($item)
-          ? BS.childrenOf($item).replaceWith(data)
-          : $item.append(data);
-      }
+  moveItem: function($from, $to, $item) {
+    return BS._moveBookmarks(
+        BS.idOf($from),
+        BS.idOf($to),
+        [BS.idOf($item)]
+    ).ajax().then(function() {
+        return BS.removeItem($from);
+    }).then(function() {
+        return BS.loadChildren($from);
+    }).then(function() {
+        return BS.addItem($to);
+    }).then(function() {
+        return BS.loadChildren($to);
     });
+  },
+
+  loadChildren: function($item) {
+    return BS._getContents(BS.idOf($item)).ajax()
+        .then(function(data) {
+          BS.hasLoadedChildren($item)
+              ? BS.childrenOf($item).replaceWith(data)
+              : $item.append(data);
+          console.log("Loaded children for: ", BS.idOf($item));
+        });
   }
 };
 
@@ -138,15 +188,11 @@ jQuery(function ($) {
         if ($parent.length) {
           console.log("Moved:", $item.attr("id"), "from", $parent.attr("id"), "to", $dropped.attr("id"))
           if ($parent.attr("id") != $dropped.attr("id")) {
-            var func = jsRoutes.controllers.portal.Bookmarks.moveBookmarksPost;
-            func($parent.data("id"), $dropped.data("id"), [$item.data("id")]).ajax({
-              success: function(data) {
-                console.log("data...", data)
-                loadContents($parent.data("id"));
-                modCount($parent, function(i) { return i - 1; });
-                loadContents($dropped.data("id"));
-                modCount($dropped, function(i) { return i + 1; });
-              }
+            BS.moveItem($parent, $dropped, $item)
+                .then(function() {
+                console.log("Item moved!");
+                  initDraggables($parent);
+                  initDraggables($dropped);
             });
           }
         }
@@ -163,7 +209,9 @@ jQuery(function ($) {
       helper: "original"
     });
 
-    $(".bookmark-list li.documentaryUnit.moveable", $element).draggable({
+    var $docUnits = $(".bookmark-list li.documentaryUnit.moveable", $element);
+    console.log("Setting docs draggable: " + $docUnits.length);
+    $docUnits.draggable({
       revert: "invalid",
       stack: ".bookmark-list li",
       helper: "clone"
