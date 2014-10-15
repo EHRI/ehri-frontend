@@ -65,6 +65,8 @@ case class SolrQueryBuilder(writerType: WriterType, debugQuery: Boolean = false)
    */
   private def setRequestFilters(request: QueryRequest, facetClasses: FacetClassList,
                                 appliedFacets: List[AppliedFacet]): Unit = {
+    // FIXME: THIS METHOD IS A DISASTER!!!
+
     // filter the results by applied facets
     // NB: Scalikesolr is a bit dim WRT filter queries: you can
     // apparently only have one. So instead of adding multiple
@@ -88,12 +90,9 @@ case class SolrQueryBuilder(writerType: WriterType, debugQuery: Boolean = false)
               }
             }
           } // Grr, interpolation...
-          case fc: QueryFacetClass => {
-            fc.facets.flatMap(facet => {
-              if (paramVals.contains(facet.value)) {
-                List(s"{!tag=${fc.key}}${fc.key}:${facet.solrValue}")
-              } else Nil
-            })
+          case fc: QueryFacetClass => fc.facets.collect {
+            case f if paramVals.contains(f.value) =>
+                s"{!tag=${fc.key}}${fc.key}:${f.solrValue}"
           }
           case e => {
             Logger.logger.warn("Unknown facet class type: {}", e)
