@@ -12,16 +12,15 @@
 }
 
 @p.common.searchHits(hit) {
-    <div class="search-item" id="@item.id" dir="auto">
+    <div class="search-item" id="@item.id">
             <div class="search-item-actions">
                 @p.common.watchButtonsSmall(item, watched)
                 @p.common.bookmarkButtonsSmall(item)
             </div>
-            <h3 class="search-item-heading type-highlight @item.isA.toString" dir="auto"
-                    >
+            <h3 class="search-item-heading type-highlight @item.isA.toString">
                 <a href="@controllers.portal.routes.Portal.browseDocument(item.id)">@item.toStringLang</a>
             </h3>
-            <div class="search-item-body" dir="auto">
+            <div class="search-item-body">
                 <ol class="breadcrumb">@wrapParent(item, item.parent)</ol>
                 @listItemBody(item, showRepository)
             </div>
