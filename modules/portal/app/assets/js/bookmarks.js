@@ -203,19 +203,20 @@ jQuery(function ($) {
 
     $(".bookmark-list li.droppable", $element).droppable(dropOpts);
 
-    $(".bookmark-list li.virtualUnit.moveable", $element).draggable({
-      revert: "invalid",
-      stack: ".bookmark-list li",
-      helper: "original"
-    });
+    var dragOpts = {
+      handle: ".drag-handle",
+      revert: true,
+      stack: ".bookmark-list .bookmark-item",
+      start: function() {
+        $(this).addClass("dragging")
+      },
+      stop: function() {
+        $(this).removeClass("dragging");
+      }
+    };
 
-    var $docUnits = $(".bookmark-list li.documentaryUnit.moveable", $element);
-    console.log("Setting docs draggable: " + $docUnits.length);
-    $docUnits.draggable({
-      revert: "invalid",
-      stack: ".bookmark-list li",
-      helper: "clone"
-    });
+    $(".bookmark-list li.virtualUnit.moveable", $element).draggable(dragOpts);
+    $(".bookmark-list li.documentaryUnit.moveable", $element).draggable(dragOpts);
   }
 
   initDraggables($(document));
