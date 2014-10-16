@@ -18,6 +18,8 @@
     }
 
     @params.sort.map { currentSort =>
-        <input type="hidden" name="@SearchParams.SORT" value="@currentSort">
+        @if(req.getQueryString(SearchParams.SORT).isDefined) {
+            <input type="hidden" name="@SearchParams.SORT" value="@currentSort">
+        }
     }
 </div>

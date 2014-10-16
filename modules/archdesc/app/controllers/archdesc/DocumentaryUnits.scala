@@ -139,7 +139,8 @@ case class DocumentaryUnits @Inject()(implicit globalConfig: global.GlobalConfig
       item => implicit userOpt => implicit request =>
     find[DocumentaryUnit](
       filters = Map(SolrConstants.PARENT_ID -> item.id),
-      facetBuilder = entityFacets
+      facetBuilder = entityFacets,
+      defaultOrder = SearchOrder.Id
     ).map { result =>
       Ok(views.html.documentaryUnit.search(
         result.page, result.params, result.facets,
@@ -147,18 +148,12 @@ case class DocumentaryUnits @Inject()(implicit globalConfig: global.GlobalConfig
     }
   }
 
-  /*def get(id: String) = getWithChildrenAction(id) {
-      item => page => params => annotations => links => implicit userOpt => implicit request =>
-
-    Ok(views.html.documentaryUnit.show(
-      item, page.copy(items = page.items.map(DocumentaryUnit.apply)), params, annotations, links))
-  }*/
-
   def get(id: String) = getAction.async(id) { item => annotations => links => implicit userOpt => implicit request =>
     find[DocumentaryUnit](
       filters = Map(SolrConstants.PARENT_ID -> item.id),
       entities = List(EntityType.DocumentaryUnit),
-      facetBuilder = entityFacets
+      facetBuilder = entityFacets,
+      defaultOrder = SearchOrder.Id
     ).map { result =>
       Ok(views.html.documentaryUnit.show(item, result.page, result.params, result.facets,
           docRoutes.get(id), annotations, links))
