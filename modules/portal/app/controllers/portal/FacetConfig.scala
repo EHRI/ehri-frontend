@@ -218,7 +218,7 @@ trait FacetConfig extends Search {
       ),
       QueryFacetClass(
         key="charCount",
-        name=Messages("portal.facet.lod"),
+        name=Messages("facet.lod"),
         param="lod",
         render=s => Messages("facet.lod." + s),
         facets=List(

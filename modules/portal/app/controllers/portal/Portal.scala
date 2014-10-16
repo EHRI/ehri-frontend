@@ -200,7 +200,7 @@ case class Portal @Inject()(implicit globalConfig: global.GlobalConfig, searchDi
       filters = filters,
       entities = List(EntityType.DocumentaryUnit),
       facetBuilder = localDocFacets,
-      defaultParams = SearchParams(sort = Some(SearchOrder.Id))
+      defaultOrder = SearchOrder.Id
     ).map { case QueryResult(page, params, facets) =>
         if(isAjax) Ok(p.repository.childItemSearch(item, page, params, facets,
           portalRoutes.searchRepository(id), details.watched))
@@ -235,7 +235,7 @@ case class Portal @Inject()(implicit globalConfig: global.GlobalConfig, searchDi
       filters = Map(SolrConstants.PARENT_ID -> item.id),
       entities = List(EntityType.DocumentaryUnit),
       facetBuilder = localDocFacets,
-      defaultParams = SearchParams(sort = Some(SearchOrder.Id))
+      defaultOrder = SearchOrder.Id
     ).map { case QueryResult(page, params, facets) =>
       if (isAjax) Ok(p.documentaryUnit.childItemSearch(item, page, params, facets,
           portalRoutes.searchDocument(id), details.watched))

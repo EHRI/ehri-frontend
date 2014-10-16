@@ -85,7 +85,7 @@ case class SolrJsonQueryResponse(response: JsValue) extends QueryResponse {
 
   private object SolrData {
     implicit val reads: Reads[SolrData] = (
-      (__ \ "grouped" \ ITEM_ID \ "matches").read[Int] and
+      (__ \ "grouped" \ ITEM_ID \ "ngroups").read[Int] and
         (__ \ "grouped" \ ITEM_ID \ "doclist" \ "docs").read[Seq[JsObject]] and
         (__ \ "highlighting").readNullable[Map[String,Map[String,Seq[String]]]] and
         (__ \ "facet_counts").readNullable[Map[String,Map[String,JsValue]]].map(_.getOrElse(Map.empty))

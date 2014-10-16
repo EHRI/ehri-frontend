@@ -7,7 +7,7 @@
                 @Messages(fieldPrefix + "." + key)
                 @fieldAnnotationButton(item, nodeId, key)
             </h4>
-            <div class="item-text-field-value" dir="auto">
+            <div class="item-text-field-value">
                 @Html(views.Helpers.renderMarkdown(value))
             </div>
             @fieldAnnotationControls(item, nodeId, key, anns)

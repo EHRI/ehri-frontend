@@ -18,6 +18,56 @@ import com.github.seratch.scalikesolr.request.query.facet.Param
 import com.github.seratch.scalikesolr.request.query.facet.FacetParam
 import solr.facet.QueryFacetClass
 
+object SolrQueryBuilder {
+  /**
+   * Set a list of facets on a request.
+   */
+  def getRequestFacets(flist: FacetClassList): List[FacetParam] =
+    flist.collect {
+      case qf: QueryFacetClass => qf.asParams
+      case ff: FieldFacetClass => ff.asParams
+    }.flatten
+
+  /**
+   * Apply filters to the request based on a set of applied facets.
+   */
+  def getRequestFilters(facetClasses: FacetClassList,
+                                appliedFacets: List[AppliedFacet]): List[String] = {
+    // See the spec for this to get some insight
+    // into how this mess works...
+
+    // filter the results by applied facets
+    facetClasses.flatMap { fclass =>
+      appliedFacets.filter(_.name == fclass.key).map(_.values).map { paramVals =>
+        if (paramVals.isEmpty) Nil
+        else {
+          fclass match {
+            case fc: FieldFacetClass => {
+              // Choice facets need a tag in front of the parameter so they can be
+              // excluded from count-limiting filters
+              // http://wiki.apache.org/solr/SimpleFacetParameters#Multi-Select_Faceting_and_LocalParams
+              val query = s"${fc.key}:(" + paramVals.map(v => "\"" + v + "\"").mkString(" ") + ")"
+              val tag = if (fc.multiSelect) "{!tag=" + fc.key + "}" else ""
+              List(s"$tag$query")
+            }
+
+            case fc: QueryFacetClass => fc.facets.collect {
+              case f if paramVals.contains(f.value) =>
+                if (fc.multiSelect) s"{!tag=${fc.key}}${fc.key}:${f.solrValue}"
+                else s"${fc.key}:${f.solrValue}"
+            }
+
+            case e => {
+              Logger.logger.warn("Unknown facet class type: {}", e)
+              Nil
+            }
+          }
+        }
+      }
+    }.flatten
+  }
+}
+
 
 /**
  * Build a Solr query. This class uses the (mutable) scalikesolr
@@ -26,6 +76,7 @@ import solr.facet.QueryFacetClass
 case class SolrQueryBuilder(writerType: WriterType, debugQuery: Boolean = false)(implicit app: play.api.Application) extends QueryBuilder {
 
   import SolrConstants._
+  import SolrQueryBuilder._
 
   /**
    * Look up boost values from configuration for default query fields.
@@ -39,80 +90,6 @@ case class SolrQueryBuilder(writerType: WriterType, debugQuery: Boolean = false)
     "collate", "maxCollations", "maxCollationTries"
   ).map(f => f -> app.configuration.getString(s"ehri.search.spellcheck.$f"))
 
-
-  /**
-   * Set a list of facets on a request.
-   */
-  private def setRequestFacets(request: QueryRequest, flist: FacetClassList): Unit = {
-
-    // Need to tag and exclude all 'choice' facet classes because we want
-    // the counts even if they're excluded...
-    request.setFacet(new FacetParams(
-      enabled=true,
-      params=flist.flatMap {
-        case qf: QueryFacetClass => List(qf.asParams)
-        case ff: FieldFacetClass => List(ff.asParams)
-        case e => {
-          Logger.logger.warn("Unknown facet class type: {}", e)
-          Nil
-        }
-      }.flatten
-    ))
-  }
-
-  /**
-   * Apply filters to the request based on a set of applied facets.
-   */
-  private def setRequestFilters(request: QueryRequest, facetClasses: FacetClassList,
-                                appliedFacets: List[AppliedFacet]): Unit = {
-    // filter the results by applied facets
-    // NB: Scalikesolr is a bit dim WRT filter queries: you can
-    // apparently only have one. So instead of adding multiple
-    // fq clauses, we need to join them all with '+'
-
-    val fqstrings = facetClasses.flatMap(fclass => {
-      appliedFacets.filter(_.name == fclass.key).map(_.values).map { paramVals =>
-        // If we get several field parameters for the same facet class we
-        // need to OR them together...
-        fclass match {
-          case fc: FieldFacetClass => {
-            paramVals match {
-              case Nil => Nil
-              case _ => {
-                // Choice facets need a tag in front of the parameter so they can be
-                // excluded from count-limiting filters
-                // http://wiki.apache.org/solr/SimpleFacetParameters#Multi-Select_Faceting_and_LocalParams
-                val query = "(" + paramVals.map(v => fc.key + ":\"" + v + "\"").mkString(" OR ") + ")"
-                if (fc.multiSelect) List("{!tag=" + fc.key + "}" + query)
-                else List(query)
-              }
-            }
-          } // Grr, interpolation...
-          case fc: QueryFacetClass => {
-            fc.facets.flatMap(facet => {
-              if (paramVals.contains(facet.value)) {
-                List(s"{!tag=${fc.key}}${fc.key}:${facet.solrValue}")
-              } else Nil
-            })
-          }
-          case e => {
-            Logger.logger.warn("Unknown facet class type: {}", e)
-            Nil
-          }
-        }
-      }
-    }).flatten
-    request.setFilterQuery(FilterQuery(multiple = fqstrings))
-    request.set("facet.mincount", 1)
-  }
-
-  /**
-   * Constrain a search request with the given facets.
-   */
-  private def constrain(request: QueryRequest, appliedFacets: List[AppliedFacet], allFacets: FacetClassList): Unit = {
-    setRequestFacets(request, allFacets)
-    setRequestFilters(request, allFacets, appliedFacets)
-  }
 
   /**
    * Constrain the search to entities of a given type, applying an fq
@@ -136,18 +113,33 @@ case class SolrQueryBuilder(writerType: WriterType, debugQuery: Boolean = false)
     if (userOpt.isEmpty) {
       request.setFilterQuery(
         FilterQuery(multiple = request.filterQuery.getMultiple ++
-          Seq("%s:%s".format(ACCESSOR_FIELD, ACCESSOR_ALL_PLACEHOLDER))))
-    } else if (!userOpt.get.isAdmin) {
+          Seq(s"$ACCESSOR_FIELD:$ACCESSOR_ALL_PLACEHOLDER")))
+    } else if (!userOpt.exists(_.isAdmin)) {
       // Create a boolean or query starting with the ALL placeholder, which
       // includes all the groups the user belongs to, included inherited ones,
       // i.e. accessibleTo:(ALLUSERS OR mike OR admin)
       val accessors = ACCESSOR_ALL_PLACEHOLDER :: userOpt.map(
           u => (u.id :: u.allGroups.map(_.id)).distinct).getOrElse(Nil)
+
       request.setFilterQuery(
-        FilterQuery(multiple = request.filterQuery.getMultiple ++ Seq("%s:(%s)".format(
-          ACCESSOR_FIELD, accessors.mkString(" OR ")))))
+        FilterQuery(multiple = request.filterQuery.getMultiple ++
+          Seq(s"$ACCESSOR_FIELD:(${accessors.mkString(" ")})")))
     }
   }
+
+
+  /**
+   * Constrain a search request with the given facets.
+   */
+  private def constrainToFacets(request: QueryRequest, appliedFacets: List[AppliedFacet], allFacets: FacetClassList): Unit = {
+    request.setFacet(new FacetParams(
+      enabled=true,
+      params=getRequestFacets(allFacets)
+    ))
+
+    request.setFilterQuery(FilterQuery(multiple = getRequestFilters(allFacets, appliedFacets)))
+    request.set("facet.mincount", 1)
+  }  
 
   /**
    * Group results by item id (as opposed to description id). Facet counts
@@ -271,7 +263,7 @@ case class SolrQueryBuilder(writerType: WriterType, debugQuery: Boolean = false)
     }
 
     // Facet the request accordingly
-    constrain(req, facets, allFacets)
+    constrainToFacets(req, facets, allFacets)
 
     // if we're using a specific index, constrain on that as well
     constrainEntities(req, params.entities)
