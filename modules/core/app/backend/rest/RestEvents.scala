@@ -45,6 +45,16 @@ trait RestEvents extends Events with RestDAO {
     }
   }
 
+  def listEventsByUser(userId: String, params: PageParams, filters: SystemEventParams)(implicit apiUser: ApiUser, executionContext: ExecutionContext): Future[Page[SystemEvent]] = {
+    val url: String = enc(requestUrl, "byUser", userId)
+    userCall(url)
+      .withQueryString(params.queryParams ++ filters.toSeq: _*)
+      .withHeaders(params.headers: _*)
+      .withHeaders(PageParams.streamHeader).get().map { response =>
+      parsePage(response, context = Some(url))(SystemEvent.Converter.restReads)
+    }
+  }
+
   def listEventsForUser(userId: String, params: PageParams, filters: SystemEventParams)(implicit apiUser: ApiUser, executionContext: ExecutionContext): Future[Page[SystemEvent]] = {
     val url: String = enc(requestUrl, "forUser", userId)
     userCall(url)

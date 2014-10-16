@@ -102,10 +102,10 @@ case class Social @Inject()(implicit globalConfig: global.GlobalConfig, searchDi
     // Show the profile home page of a defined user.
     // Activity is the default page
     val params = PageParams.fromRequest(request)
-    val eventParams = SystemEventParams.fromRequest(request).copy(users = List(userId))
+    val eventParams = SystemEventParams.fromRequest(request)
       .copy(eventTypes = activityEventTypes)
       .copy(itemTypes = activityItemTypes)
-    val events: Future[Seq[SystemEvent]] = backend.listEvents(params, eventParams)
+    val events: Future[Seq[SystemEvent]] = backend.listEventsByUser(userId, params, eventParams)
     val isFollowing: Future[Boolean] = backend.isFollowing(user.id, userId)
     val allowMessage: Future[Boolean] = canMessage(user.id, userId)
 
