@@ -3,7 +3,7 @@
 @items.map { item =>
     <li id="bookmark-@item.id" class="list-group-item bookmark-item @item.isA @(if(parent.exists(_.isInstanceOf[VirtualUnit])) "moveable") @(if(item.isInstanceOf[VirtualUnit]) "droppable")" data-id="@item.id">
         <div class="bookmark-data">
-            <span class="drag-handle glyphicon glyphicon-align-justify"></span>
+            <div class="drag-handle">&nbsp;</div>
             @p.helpers.linkTo(item) [@item.id]
             @item.asInstanceOf[Holder[_]].childCount.map { count =>
                 <a class="badge bookmark-fetch-contents closed item-count" href="@controllers.portal.routes.Bookmarks.contents(item.id)">

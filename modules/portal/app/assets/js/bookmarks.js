@@ -112,6 +112,16 @@ window.BS = {
     });
   },
 
+  /**
+   * Generate a selector for items which
+   * can accept this item being dropped on them.
+   * @param $item
+   */
+  acceptSelector: function($item) {
+    var $parent = $item.closest(".bookmark-item")
+    return ".bookmark-item:not(#" + $parent.attr("id") + " > ul > li)";
+  },
+
   loadChildren: function($item) {
     return BS._getContents(BS.idOf($item)).ajax()
         .then(function(data) {
@@ -174,13 +184,8 @@ jQuery(function ($) {
 
     console.log("Init draggables for: ", $element.attr("id"));
 
-    //var dropTargets = "li.bookmark-item.virtualUnit:not(#" + $element.attr("id") + ")";
-    var dropTargets = ":not(#" + $element.attr("id") + " > ul > li)";
-    console.log("Drop targets", dropTargets)
-
     var dropOpts = {
       hoverClass: "list-group-item-info",
-      accept: dropTargets,
       drop: function (event, ui) {
         var $item = ui.draggable;
         var $dropped = $(this);
@@ -199,16 +204,21 @@ jQuery(function ($) {
       }
     };
 
-    console.log("Element: ", $element)
+    $(".bookmark-list li.droppable", $element).each(function(i) {
+      var $dropItem = $(this);
+      var dropTargets = ":not(#" + this.id + " > ul > li)";
+      console.log("Drop targets", dropTargets)
+      var opts = $.extend({}, dropOpts);
+      opts.accept = dropTargets;
+      $dropItem.droppable(opts);
+    });
 
-    $(".bookmark-list li.droppable", $element).droppable(dropOpts);
 
     var dragOpts = {
       handle: ".drag-handle",
-      revert: true,
-      stack: ".bookmark-list .bookmark-item",
+      revert: "invalid",
       start: function() {
-        $(this).addClass("dragging")
+        $(this).addClass("dragging");
       },
       stop: function() {
         $(this).removeClass("dragging");
@@ -219,6 +229,6 @@ jQuery(function ($) {
     $(".bookmark-list li.documentaryUnit.moveable", $element).draggable(dragOpts);
   }
 
-  initDraggables($(document));
+  initDraggables($(".main-content"));
 
 });
