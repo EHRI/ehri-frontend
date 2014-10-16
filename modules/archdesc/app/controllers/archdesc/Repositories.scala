@@ -111,7 +111,8 @@ case class Repositories @Inject()(implicit globalConfig: global.GlobalConfig, se
     find[DocumentaryUnit](
       filters = filters,
       entities = List(EntityType.DocumentaryUnit),
-      facetBuilder = repositoryFacets
+      facetBuilder = repositoryFacets,
+      defaultOrder = SearchOrder.Id
     ).map { result =>
       Ok(views.html.repository.show(item, result.page, result.params, result.facets,
         repositoryRoutes.get(id), annotations, links))

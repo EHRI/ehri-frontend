@@ -37,11 +37,14 @@ trait Search extends Controller with AuthController with ControllerHelpers {
    */
   type SortFunction = (SearchParams => RequestHeader) => Option[SearchOrder.Value]
 
-  private def defaultSortFunction(sp: SearchParams, request: RequestHeader): Option[SearchOrder.Value] = {
-    if (sp.sort.isDefined) sp.sort
-    else Some {
-      if (request.getQueryString(SearchParams.QUERY).exists(!_.trim.isEmpty)) SearchOrder.Score
-      else SearchOrder.DateNewest
+  private def defaultSortFunction(sp: SearchParams, request: RequestHeader,
+                                  fallback: SearchOrder.Value = SearchOrder.DateNewest): Option[SearchOrder.Value] = {
+    sp.sort.orElse {
+      Some {
+        if (request.getQueryString(SearchParams.QUERY).exists(!_.trim.isEmpty))
+          SearchOrder.Score
+        else fallback
+      }
     }
   }
 
@@ -61,13 +64,14 @@ trait Search extends Controller with AuthController with ControllerHelpers {
   def find[MT](filters: Map[String, Any] = Map.empty,
                extra: Map[String, Any] = Map.empty,
                defaultParams: SearchParams = SearchParams.empty,
+               defaultOrder: SearchOrder.Value = SearchOrder.DateNewest,
                entities: Seq[EntityType.Value] = Nil,
                facetBuilder: FacetBuilder = emptyFacets,
                mode: SearchMode.Value = SearchMode.DefaultAll)(
                 implicit request: RequestHeader, userOpt: Option[UserProfile], rd: BackendReadable[MT]): Future[QueryResult[MT]] = {
 
     val params = defaultParams
-      .copy(sort = defaultSortFunction(defaultParams, request))
+      .copy(sort = defaultSortFunction(defaultParams, request, fallback = defaultOrder))
       .copy(entities = if (entities.isEmpty) defaultParams.entities else entities.toList)
 
     val sp = SearchParams.form.bindFromRequest(request.queryString)
@@ -106,6 +110,7 @@ trait Search extends Controller with AuthController with ControllerHelpers {
   def searchAction[MT](filters: Map[String, Any] = Map.empty,
                        extra: Map[String, Any] = Map.empty,
                        defaultParams: SearchParams = SearchParams.empty,
+                       defaultOrder: SearchOrder.Value = SearchOrder.DateNewest,
                        entities: Seq[EntityType.Value] = Nil,
                        entityFacets: FacetBuilder = emptyFacets,
                        mode: SearchMode.Value = SearchMode.DefaultAll)(
@@ -115,6 +120,7 @@ trait Search extends Controller with AuthController with ControllerHelpers {
         filters,
         extra,
         defaultParams,
+        defaultOrder,
         entities,
         entityFacets,
         mode
