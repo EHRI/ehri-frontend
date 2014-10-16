@@ -51,13 +51,43 @@ trait RestDAO {
       response
     }
 
+    private def queryStringMap: Map[String,Seq[String]] =
+      queryString.foldLeft(Map.empty[String,Seq[String]]) { case (m, (k, v)) =>
+        m.get(k).map { s =>
+          m.updated(k, s ++ Seq(v))
+        } getOrElse {
+          m.updated(k, Seq(v))
+        }
+      }
+
+    private def fullUrl: String = s"$url?${joinQueryString(queryStringMap)}"
+
+    private def runWs: Future[WSResponse] = {
+      Logger.debug(s"WS: $apiUser $method $fullUrl")
+      WS.url(url)
+        .withQueryString(queryString: _*)
+        .withHeaders(headers: _*)
+        .withBody(body)
+        .execute(method)
+        .map(checkError)
+        .map(r => conditionalCache(url, method, r))
+    }
+
     def get(): Future[WSResponse] = copy(method = "GET").execute()
+
+    def get[R](r: Reads[R]): Future[R] = copy(method = "GET").executeAndParse(r)
 
     def post[T](body: T)(implicit wrt: Writeable[T], ct: ContentTypeOf[T]) =
       withMethod("POST").withBody(body).execute()
 
+    def post[T, R](body: T, r: Reads[R])(implicit wrt: Writeable[T], ct: ContentTypeOf[T]) =
+      withMethod("POST").withBody(body).executeAndParse(r)
+
     def put[T](body: T)(implicit wrt: Writeable[T], ct: ContentTypeOf[T]) =
       withMethod("PUT").withBody(body).execute()
+
+    def put[T, R](body: T, r: Reads[R])(implicit wrt: Writeable[T], ct: ContentTypeOf[T]) =
+      withMethod("PUT").withBody(body).executeAndParse(r)
 
     def delete() = withMethod("DELETE").execute()
 
@@ -85,25 +115,18 @@ trait RestDAO {
 
     def withMethod(method: String) = copy(method = method)
 
-    def execute(): Future[WSResponse] = {
+    def executeAndParse[T](reads: Reads[T]): Future[T] = {
+      runWs.map { r =>
+        checkErrorAndParse(r)(reads)
+      }.recoverWith {
+        case e: BadJson => throw BadJson(
+          e.error,
+          url = Some(fullUrl)
+        )
+      }
+    }
 
-      def queryStringMap: Map[String,Seq[String]] = queryString.foldLeft(Map.empty[String,Seq[String]]) { case (m, (k, v)) =>
-        m.get(k).map { s =>
-          m.updated(k, s ++ Seq(v))
-        } getOrElse {
-          m.updated(k, Seq(v))
-        }
-      }
-      def runWs: Future[WSResponse] = {
-        Logger.debug(s"WS: $apiUser $method $url?${joinQueryString(queryStringMap)}")
-        WS.url(url)
-          .withQueryString(queryString: _*)
-          .withHeaders(headers: _*)
-          .withBody(body)
-          .execute(method)
-          .map(checkError)
-          .map(r => conditionalCache(url, method, r))
-      }
+    def execute(): Future[WSResponse] = {
       if (method == "GET") Cache.getAs[WSResponse](url) match {
         case Some(r) =>
           Logger.trace(s"Retrieved from cache: $url")
@@ -234,16 +257,21 @@ trait RestDAO {
     }
   }
 
-  private[rest] def checkErrorAndParse[T](response: WSResponse)(implicit reader: Reads[T]): T = {
-    jsonReadToRestError(checkError(response).json, reader)
-  }
+  private[rest] def checkErrorAndParse[T](response: WSResponse)(implicit reader: Reads[T]): T =
+    jsonReadToRestError(checkError(response).json, reader, context = None)
 
-  private[rest] def parsePage[T](response: WSResponse)(implicit rd: Reads[T]): Page[T] = {
+  private[rest] def checkErrorAndParse[T](response: WSResponse, context: Option[String])(implicit reader: Reads[T]): T =
+    jsonReadToRestError(checkError(response).json, reader, context)
+
+  private[rest] def parsePage[T](response: WSResponse)(implicit rd: Reads[T]): Page[T] =
+    parsePage(response, None)(rd)
+
+  private[rest] def parsePage[T](response: WSResponse, context: Option[String])(implicit rd: Reads[T]): Page[T] = {
     checkError(response).json.validate(Reads.seq(rd)).fold(
       invalid => {
         println(Json.prettyPrint(response.json))
         Logger.error("Bad JSON: " + invalid)
-        throw new BadJson(invalid)
+        throw new BadJson(invalid, url = context, data = Some(Json.prettyPrint(response.json)))
       },
       items => {
         val Extractor = """page=(-?\d+); count=(-?\d+); total=(-?\d+)""".r
@@ -261,12 +289,12 @@ trait RestDAO {
     )
   }
 
-  private[rest] def jsonReadToRestError[T](json: JsValue, reader: Reads[T]): T = {
+  private[rest] def jsonReadToRestError[T](json: JsValue, reader: Reads[T], context: Option[String] = None): T = {
     json.validate(reader).fold(
       invalid => {
         println(Json.prettyPrint(json))
         Logger.error("Bad JSON: " + invalid)
-        throw new BadJson(invalid)
+        throw new BadJson(invalid, url = context, data = Some(Json.prettyPrint(json)))
       },
       valid => valid
     )

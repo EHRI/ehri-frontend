@@ -20,9 +20,10 @@ trait RestDescriptions extends RestDAO with Descriptions {
 
   def createDescription[MT,DT](id: String, item: DT, logMsg: Option[String] = None)(
         implicit apiUser: ApiUser, rs: BackendResource[MT], fmt: BackendWriteable[DT], rd: backend.BackendReadable[DT], executionContext: ExecutionContext): Future[DT] = {
-    userCall(enc(requestUrl, id)).withHeaders(msgHeader(logMsg): _*)
+    val url: String = enc(requestUrl, id)
+    userCall(url).withHeaders(msgHeader(logMsg): _*)
         .post(Json.toJson(item)(fmt.restFormat)).map { response =>
-      val desc: DT = checkErrorAndParse(response)(rd.restReads)
+      val desc: DT = checkErrorAndParse(response, context = Some(url))(rd.restReads)
       eventHandler.handleUpdate(id)
       Cache.remove(id)
       desc
@@ -31,9 +32,10 @@ trait RestDescriptions extends RestDAO with Descriptions {
 
   def updateDescription[MT,DT](id: String, did: String, item: DT, logMsg: Option[String] = None)(
       implicit apiUser: ApiUser, rs: BackendResource[MT], fmt: BackendWriteable[DT], rd: backend.BackendReadable[DT], executionContext: ExecutionContext): Future[DT] = {
-    userCall(enc(requestUrl, id, did)).withHeaders(msgHeader(logMsg): _*)
+    val url: String = enc(requestUrl, id, did)
+    userCall(url).withHeaders(msgHeader(logMsg): _*)
         .put(Json.toJson(item)(fmt.restFormat)).map { response =>
-      val desc: DT = checkErrorAndParse(response)(rd.restReads)
+      val desc: DT = checkErrorAndParse(response, context = Some(url))(rd.restReads)
       eventHandler.handleUpdate(id)
       Cache.remove(id)
       desc
@@ -52,12 +54,13 @@ trait RestDescriptions extends RestDAO with Descriptions {
 
   def createAccessPoint[DT](id: String, did: String, item: DT, logMsg: Option[String] = None)(
         implicit apiUser: ApiUser, fmt: BackendWriteable[DT], executionContext: ExecutionContext): Future[DT] = {
-    userCall(enc(requestUrl, id, did, EntityType.AccessPoint))
+    val url: String = enc(requestUrl, id, did, EntityType.AccessPoint)
+    userCall(url)
         .withHeaders(msgHeader(logMsg): _*)
         .post(Json.toJson(item)(fmt.restFormat)).map { response =>
       eventHandler.handleUpdate(id)
       Cache.remove(id)
-      checkErrorAndParse[DT](response)(fmt.restFormat)
+      checkErrorAndParse(response, context = Some(url))(fmt.restFormat)
     }
   }
 

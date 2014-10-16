@@ -18,44 +18,49 @@ trait RestEvents extends Events with RestDAO {
 
   def history(id: String, params: PageParams)(implicit apiUser: ApiUser, executionContext: ExecutionContext): Future[Page[SystemEvent]] = {
     implicit val rd: BackendReadable[SystemEvent] = SystemEvent.Converter
-    userCall(enc(requestUrl, "for", id)).withQueryString(params.queryParams: _*).get().map { response =>
-      parsePage(response)(rd.restReads)
+    val url: String = enc(requestUrl, "for", id)
+    userCall(url).withQueryString(params.queryParams: _*).get().map { response =>
+      parsePage(response, context = Some(url))(rd.restReads)
     }
   }
 
   def versions(id: String, params: PageParams)(implicit apiUser: ApiUser, executionContext: ExecutionContext): Future[Page[Version]] = {
     implicit val rd: BackendReadable[Version] = Version.Converter
-    userCall(enc(requestUrl, "versions", id))
+    val url: String = enc(requestUrl, "versions", id)
+    userCall(url)
       .withQueryString(params.queryParams: _*)
       .withHeaders(params.headers: _*)
       .withHeaders(PageParams.streamHeader).get().map { response =>
-      parsePage(response)(rd.restReads)
+      parsePage(response, context = Some(url))(rd.restReads)
     }
   }
 
   def listEvents(params: PageParams, filters: SystemEventParams)(implicit apiUser: ApiUser, executionContext: ExecutionContext): Future[Page[SystemEvent]] = {
-    userCall(enc(requestUrl, "list"))
+    val url = enc(requestUrl, "list")
+    userCall(url)
       .withQueryString(params.queryParams ++ filters.toSeq: _*)
       .withHeaders(params.headers: _*)
       .withHeaders(PageParams.streamHeader).get().map { response =>
-      parsePage(response)(SystemEvent.Converter.restReads)
+      parsePage(response, context = Some(url))(SystemEvent.Converter.restReads)
     }
   }
 
   def listEventsForUser(userId: String, params: PageParams, filters: SystemEventParams)(implicit apiUser: ApiUser, executionContext: ExecutionContext): Future[Page[SystemEvent]] = {
-    userCall(enc(requestUrl, "forUser", userId))
+    val url: String = enc(requestUrl, "forUser", userId)
+    userCall(url)
       .withQueryString(params.queryParams ++ filters.toSeq: _*)
       .withHeaders(params.headers: _*)
       .withHeaders(PageParams.streamHeader).get().map { response =>
-      parsePage(response)(SystemEvent.Converter.restReads)
+      parsePage(response, context = Some(url))(SystemEvent.Converter.restReads)
     }
   }
 
   def subjectsForEvent(id: String, params: PageParams)(implicit apiUser: ApiUser, executionContext: ExecutionContext): Future[Page[AnyModel]] = {
-    userCall(enc(requestUrl, id, "subjects"))
+    val url: String = enc(requestUrl, id, "subjects")
+    userCall(url)
       .withQueryString(params.queryParams: _*)
       .withHeaders(params.headers: _*).get().map { response =>
-      parsePage(response)(AnyModel.Converter.restReads)
+      parsePage(response, context = Some(url))(AnyModel.Converter.restReads)
     }
   }
 }
