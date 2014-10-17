@@ -101,20 +101,44 @@ case class Social @Inject()(implicit globalConfig: global.GlobalConfig, searchDi
   def browseUser(userId: String) = withUserAction.async { implicit user => implicit request =>
     // Show the profile home page of a defined user.
     // Activity is the default page
-    val params = PageParams.fromRequest(request)
+    val listParams = PageParams.fromRequest(request)
+    val incParams = listParams.copy(count = listParams.count + 1)
     val eventParams = SystemEventParams.fromRequest(request)
       .copy(eventTypes = activityEventTypes)
       .copy(itemTypes = activityItemTypes)
-    val events: Future[Seq[SystemEvent]] = backend.listEventsByUser(userId, params, eventParams)
+    val events: Future[(Boolean, Seq[SystemEvent])] = backend
+      .listEventsByUser(userId, incParams, eventParams).map { events =>
+      val more = events.size > listParams.count
+      (more, events.take(listParams.count))
+    }
     val isFollowing: Future[Boolean] = backend.isFollowing(user.id, userId)
     val allowMessage: Future[Boolean] = canMessage(user.id, userId)
 
     for {
       them <- backend.get[UserProfile](userId)
-      theirActivity <- events
+      (more, theirActivity) <- events
       followed <- isFollowing
       canMessage <- allowMessage
-    } yield Ok(p.social.browseUser(them, theirActivity, followed, canMessage))
+    } yield Ok(p.social.browseUser(them, theirActivity, more, listParams, followed, canMessage))
+  }
+
+  def moreUserActivity(userId: String, page: Int = 1, count: Int = Constants.DEFAULT_LIST_LIMIT) = {
+    userProfileAction.async { implicit userOpt => implicit request =>
+    // NB: Increasing the limit by 1 over the default so we can
+    // detect if there are additional items to display
+      val listParams = PageParams.fromRequest(request).copy(page = page)
+      val incParams = listParams.copy(count = listParams.count + 1)
+      val eventFilter = SystemEventParams.fromRequest(request)
+        .copy(eventTypes = activityEventTypes)
+        .copy(itemTypes = activityItemTypes)
+      backend.listEventsByUser(userId, incParams, eventFilter).map { events =>
+        val more = events.size > listParams.count
+
+        val displayEvents = events.take(listParams.count)
+        Ok(p.activity.eventItems(displayEvents))
+          .withHeaders("activity-more" -> more.toString)
+      }
+    }
   }
 
   def watchedByUser(userId: String) = withUserAction.async { implicit user => implicit request =>

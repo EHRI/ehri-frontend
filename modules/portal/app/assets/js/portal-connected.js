@@ -71,16 +71,23 @@ jQuery(function ($) {
     // Fetch more activity...
   $("#activity-stream-fetchmore").click(function (event) {
     var $elem = $(event.target);
-    var page = $(event.target).data("page");
-    var count = $(event.target).data("limit");
-    jsRoutes.controllers.portal.Social.personalisedActivity(page, count).ajax({
+    var href = $(event.target).attr("data-href");
+    var page = parseInt($(event.target).attr("data-page")) || 1;
+    var limit = parseInt($(event.target).attr("data-count")) || 20;
+    $.ajax({
+      url: href,
       success: function (data, _, response) {
         var done = response.getResponseHeader("activity-more") != 'true';
         $("#activity-stream").append(data);
         if (done) {
           $elem.hide();
         } else {
-          $elem.data("page", page + 1);
+          $elem
+            .attr("data-page", (page + 1))
+            .attr("data-count", limit)
+            .attr("data-href",
+              href.replace(/page=\d+/, "page=" + (page + 1))
+                  .replace(/limit=\d+/, "limit=" + limit));
         }
 		  }
 		});

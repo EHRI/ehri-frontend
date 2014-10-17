@@ -8,7 +8,10 @@
             </ul>
         </div>
         @if(more) {
-            <button data-count="@params.count" data-page="@(params.page + 1)"
+            <button
+                    data-page="@(params.page + 1)"
+                    data-count="@params.count"
+                    data-href="@controllers.portal.routes.Social.personalisedActivity(params.page + 1, params.count)"
                     id="activity-stream-fetchmore" class="btn btn-default btn-block">
                 @Messages("portal.activity.fetchMore")
             </button>
