@@ -68,6 +68,7 @@ POST        /annotate/:id/:did/:field       @controllers.portal.Annotations.anno
 
 # Social networking stuff...
 GET         /activity                       @controllers.portal.Social.personalisedActivity(offset: Int ?= 0, limit: Int ?= 20)
+GET         /actions/:userId                @controllers.portal.Social.moreUserActivity(userId: String, offset: Int ?= 0, limit: Int ?= 20)
 GET         /people                         @controllers.portal.Social.browseUsers
 GET         /people/:userId                 @controllers.portal.Social.browseUser(userId: String)
 GET         /follow/:userId                 @controllers.portal.Social.followUser(userId: String)

@@ -9,6 +9,7 @@
         </div>
         @if(more) {
             <button data-limit="@params.limit" data-offset="@(params.offset + params.limit)"
+                    data-href="@controllers.portal.routes.Social.personalisedActivity(params.offset + params.limit, params.limit)"
                     id="activity-stream-fetchmore" class="btn btn-default btn-block">
                 @Messages("portal.activity.fetchMore")
             </button>
