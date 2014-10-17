@@ -75,19 +75,11 @@ trait RestDAO {
 
     def get(): Future[WSResponse] = copy(method = "GET").execute()
 
-    def get[R](r: Reads[R]): Future[R] = copy(method = "GET").executeAndParse(r)
-
     def post[T](body: T)(implicit wrt: Writeable[T], ct: ContentTypeOf[T]) =
       withMethod("POST").withBody(body).execute()
 
-    def post[T, R](body: T, r: Reads[R])(implicit wrt: Writeable[T], ct: ContentTypeOf[T]) =
-      withMethod("POST").withBody(body).executeAndParse(r)
-
     def put[T](body: T)(implicit wrt: Writeable[T], ct: ContentTypeOf[T]) =
       withMethod("PUT").withBody(body).execute()
-
-    def put[T, R](body: T, r: Reads[R])(implicit wrt: Writeable[T], ct: ContentTypeOf[T]) =
-      withMethod("PUT").withBody(body).executeAndParse(r)
 
     def delete() = withMethod("DELETE").execute()
 
@@ -114,17 +106,6 @@ trait RestDAO {
       copy(queryString = queryString ++ parameters)
 
     def withMethod(method: String) = copy(method = method)
-
-    def executeAndParse[T](reads: Reads[T]): Future[T] = {
-      runWs.map { r =>
-        checkErrorAndParse(r)(reads)
-      }.recoverWith {
-        case e: BadJson => throw BadJson(
-          e.error,
-          url = Some(fullUrl)
-        )
-      }
-    }
 
     def execute(): Future[WSResponse] = {
       if (method == "GET") Cache.getAs[WSResponse](url) match {
