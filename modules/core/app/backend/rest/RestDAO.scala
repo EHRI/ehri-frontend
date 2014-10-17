@@ -255,16 +255,21 @@ trait RestDAO {
         throw new BadJson(invalid, url = context, data = Some(Json.prettyPrint(response.json)))
       },
       items => {
-        val Extractor = """page=(-?\d+); count=(-?\d+); total=(-?\d+)""".r
+        val Extractor = """offset=(-?\d+); limit=(-?\d+); total=(-?\d+)""".r
         val pagination = response.header(HeaderNames.CONTENT_RANGE).getOrElse("")
         Extractor.findFirstIn(pagination) match {
-          case Some(Extractor(page, count, total)) => Page(
+          case Some(Extractor(offset, limit, total)) => Page(
             items = items,
-            page = page.toInt,
-            count = count.toInt,
+            offset = offset.toInt,
+            limit = limit.toInt,
             total = total.toInt
           )
-          case m => Page(items = items, page = 1, count = -1, total = -1)
+          case m => Page(
+            items = items,
+            offset = 0,
+            limit = Constants.DEFAULT_LIST_LIMIT,
+            total = -1
+          )
         }
       }
     )

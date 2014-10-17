@@ -1,4 +1,4 @@
-@(events: Seq[SystemEvent], params: utils.PageParams, more: Boolean)(implicit userOpt: Option[UserProfile], request: RequestHeader, prefs: utils.SessionPrefs, globalConfig: global.GlobalConfig, lang: Lang, flash: Flash)
+@(events: Seq[SystemEvent], params: utils.RangeParams, more: Boolean)(implicit userOpt: Option[UserProfile], request: RequestHeader, prefs: utils.SessionPrefs, globalConfig: global.GlobalConfig, lang: Lang, flash: Flash)
 
 <div class="activity-stream-wrapper">
     @if(!events.isEmpty) {
@@ -8,7 +8,7 @@
             </ul>
         </div>
         @if(more) {
-            <button data-count="@params.count" data-page="@(params.page + 1)"
+            <button data-limit="@params.limit" data-offset="@(params.offset + params.limit)"
                     id="activity-stream-fetchmore" class="btn btn-default btn-block">
                 @Messages("portal.activity.fetchMore")
             </button>

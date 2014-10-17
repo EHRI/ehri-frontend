@@ -149,7 +149,7 @@ class BackendSpec extends helpers.Neo4jRunnerSpec(classOf[BackendSpec]) {
       val r = await(testBackend.list[UserProfile]())
       r.items.length mustEqual 5
       r.page mustEqual 1
-      r.count mustEqual backend.rest.Constants.DEFAULT_LIST_LIMIT
+      r.limit mustEqual backend.rest.Constants.DEFAULT_LIST_LIMIT
       r.total mustEqual 5
     }
 

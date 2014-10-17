@@ -3,9 +3,11 @@ package backend.rest
 import scala.concurrent.{ExecutionContext, Future}
 import models.base.AnyModel
 import models.{Version, SystemEvent}
-import utils.{Page, SystemEventParams, PageParams}
+import utils._
 import backend.{BackendReadable, Events, ApiUser}
 import defines.EntityType
+import backend.ApiUser
+import scala.Some
 
 
 /**
@@ -30,37 +32,37 @@ trait RestEvents extends Events with RestDAO {
     userCall(url)
       .withQueryString(params.queryParams: _*)
       .withHeaders(params.headers: _*)
-      .withHeaders(PageParams.streamHeader).get().map { response =>
+      .withHeaders(Ranged.streamHeader).get().map { response =>
       parsePage(response, context = Some(url))(rd.restReads)
     }
   }
 
-  def listEvents(params: PageParams, filters: SystemEventParams)(implicit apiUser: ApiUser, executionContext: ExecutionContext): Future[Page[SystemEvent]] = {
+  def listEvents(params: RangeParams, filters: SystemEventParams)(implicit apiUser: ApiUser, executionContext: ExecutionContext): Future[Page[SystemEvent]] = {
     val url = enc(requestUrl, "list")
     userCall(url)
       .withQueryString(params.queryParams ++ filters.toSeq: _*)
       .withHeaders(params.headers: _*)
-      .withHeaders(PageParams.streamHeader).get().map { response =>
+      .withHeaders(Ranged.streamHeader).get().map { response =>
       parsePage(response, context = Some(url))(SystemEvent.Converter.restReads)
     }
   }
 
-  def listEventsByUser(userId: String, params: PageParams, filters: SystemEventParams)(implicit apiUser: ApiUser, executionContext: ExecutionContext): Future[Page[SystemEvent]] = {
+  def listEventsByUser(userId: String, params: RangeParams, filters: SystemEventParams)(implicit apiUser: ApiUser, executionContext: ExecutionContext): Future[Page[SystemEvent]] = {
     val url: String = enc(requestUrl, "byUser", userId)
     userCall(url)
       .withQueryString(params.queryParams ++ filters.toSeq: _*)
       .withHeaders(params.headers: _*)
-      .withHeaders(PageParams.streamHeader).get().map { response =>
+      .withHeaders(Ranged.streamHeader).get().map { response =>
       parsePage(response, context = Some(url))(SystemEvent.Converter.restReads)
     }
   }
 
-  def listEventsForUser(userId: String, params: PageParams, filters: SystemEventParams)(implicit apiUser: ApiUser, executionContext: ExecutionContext): Future[Page[SystemEvent]] = {
+  def listEventsForUser(userId: String, params: RangeParams, filters: SystemEventParams)(implicit apiUser: ApiUser, executionContext: ExecutionContext): Future[Page[SystemEvent]] = {
     val url: String = enc(requestUrl, "forUser", userId)
     userCall(url)
       .withQueryString(params.queryParams ++ filters.toSeq: _*)
       .withHeaders(params.headers: _*)
-      .withHeaders(PageParams.streamHeader).get().map { response =>
+      .withHeaders(Ranged.streamHeader).get().map { response =>
       parsePage(response, context = Some(url))(SystemEvent.Converter.restReads)
     }
   }

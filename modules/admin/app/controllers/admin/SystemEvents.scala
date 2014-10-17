@@ -3,7 +3,7 @@ package controllers.admin
 import models.{AccountDAO, SystemEvent}
 import play.api.libs.concurrent.Execution.Implicits._
 import com.google.inject._
-import utils.{SystemEventParams, PageParams}
+import utils.{RangeParams, SystemEventParams, PageParams}
 import controllers.generic.Read
 import backend.Backend
 import backend.rest.RestHelpers
@@ -21,7 +21,7 @@ case class SystemEvents @Inject()(implicit globalConfig: global.GlobalConfig, ba
   }
 
   def list = userProfileAction.async { implicit userOpt => implicit request =>
-    val listParams = PageParams.fromRequest(request)
+    val listParams = RangeParams.fromRequest(request)
     val eventFilter = SystemEventParams.fromRequest(request)
     val filterForm = SystemEventParams.form.fill(eventFilter)
 

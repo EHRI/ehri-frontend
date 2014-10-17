@@ -39,7 +39,7 @@ case class MockSearchDispatcher(backend: Backend) extends Dispatcher {
       all = docs.map(modelToHit) ++ repos.map(modelToHit) ++ agents.map(modelToHit) ++ virtualUnits.map(modelToHit)
       oftype = all.filter(h => params.entities.contains(h.`type`))
     } yield ItemPage(
-        oftype, page = params.pageOrDefault, count = params.countOrDefault, total = oftype.size, facets = Nil)
+        oftype, offset = params.offset, limit = params.countOrDefault, total = oftype.size, facets = Nil)
   }
 
   def search(params: SearchParams, facets: List[AppliedFacet], allFacets: FacetClassList,
@@ -64,7 +64,7 @@ case class MockSearchDispatcher(backend: Backend) extends Dispatcher {
       all = docs.map(descModelToHit) ++ repos.map(descModelToHit) ++ agents.map(descModelToHit) ++ virtualUnits.map(descModelToHit)
       oftype = all.filter(h => params.entities.contains(h.`type`))
     } yield ItemPage(
-      oftype, page = params.pageOrDefault, count = params.countOrDefault, total = oftype.size, facets = Nil)
+      oftype, offset = params.offset, limit = params.countOrDefault, total = oftype.size, facets = Nil)
   }
 
   def facet(facet: String, sort: FacetQuerySort.Value, params: SearchParams, facets: List[AppliedFacet], allFacets: FacetClassList, filters: Map[String,Any] = Map.empty, extra: Map[String,Any] = Map.empty)(

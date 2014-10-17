@@ -54,12 +54,12 @@ object Constants {
   /**
    * Limit for lists
    */
-  final val COUNT_PARAM = "limit"
+  final val LIMIT_PARAM = "limit"
 
   /**
    * Page for pages
    */
-  final val PAGE_PARAM = "page"
+  final val OFFSET_PARAM = "offset"
 
   /**
    * Default limit

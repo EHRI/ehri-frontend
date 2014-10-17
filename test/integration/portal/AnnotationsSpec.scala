@@ -131,23 +131,25 @@ class AnnotationsSpec extends Neo4jRunnerSpec(classOf[AnnotationsSpec]) {
       // Mmmn, need to get the id - this is faffy... assume there is
       // only one annotation on the item and fetch it via the api...
       implicit val apiUser = ApiUser(Some(privilegedUser.id))
-      val aid = await(testBackend.getAnnotationsForItem("c4")).head.id
-
+      await(testBackend.getAnnotationsForItem("c4")).headOption must beSome.which { aid =>
       // The privilegedUser and unprivilegedUser belong to the same group (kcl)
       // so if we set the visibility to groups it should be visible to the other
       // guy...
-      val visData = Map(
-        ContributionVisibility.PARAM -> Seq(ContributionVisibility.Groups.toString)
-      )
-      val setVis = route(fakeLoggedInHtmlRequest(privilegedUser, POST,
-        annotationRoutes.setAnnotationVisibilityPost(aid).url), visData).get
-      status(setVis) must equalTo(OK)
+        val visData = Map(
+          ContributionVisibility.PARAM -> Seq(ContributionVisibility.Groups.toString)
+        )
+        val setVis = route(fakeLoggedInHtmlRequest(privilegedUser, POST,
+          annotationRoutes.setAnnotationVisibilityPost(aid.id).url), visData).get
+        status(setVis) must equalTo(OK)
 
-      // Ensure the unprivileged user CAN now see the annotation...
-      val doc2 = route(fakeLoggedInHtmlRequest(unprivilegedUser, GET,
-        portalRoutes.browseDocument("c4").url)).get
-      status(doc2) must equalTo(OK)
-      contentAsString(doc2) must contain(testBody)
+        // Ensure the unprivileged user CAN now see the annotation...
+        val doc2 = route(fakeLoggedInHtmlRequest(unprivilegedUser, GET,
+          portalRoutes.browseDocument("c4").url)).get
+        status(doc2) must equalTo(OK)
+        contentAsString(doc2) must contain(testBody)
+
+      }
+
     }
 
     "allow annotation promotion to increase visibility" in new FakeApp {
@@ -172,14 +174,15 @@ class AnnotationsSpec extends Neo4jRunnerSpec(classOf[AnnotationsSpec]) {
 
       // Get a id via faff method and promote the item...
       implicit val apiUser = ApiUser(Some(privilegedUser.id))
-      val aid = await(testBackend.getAnnotationsForItem("c4")).head.id
-      await(testBackend.promote(aid))
+      val aid = await(testBackend.getAnnotationsForItem("c4")).headOption must beSome.which { aid =>
+        await(testBackend.promote(aid.id))
 
-      // Ensure the unprivileged user CAN now see the annotation...
-      val doc2 = route(fakeLoggedInHtmlRequest(unprivilegedUser, GET,
-        portalRoutes.browseDocument("c4").url)).get
-      status(doc2) must equalTo(OK)
-      contentAsString(doc2) must contain(testBody)
+        // Ensure the unprivileged user CAN now see the annotation...
+        val doc2 = route(fakeLoggedInHtmlRequest(unprivilegedUser, GET,
+          portalRoutes.browseDocument("c4").url)).get
+        status(doc2) must equalTo(OK)
+        contentAsString(doc2) must contain(testBody)
+      }
     }
 
     "allow deleting annotations" in new FakeApp {

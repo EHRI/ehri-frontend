@@ -2,9 +2,9 @@
 
 @if(page.hasMultiplePages) {
     <ul id="pagination" class="pagination">
-        @views.Helpers.paginationRanges(page.page.toInt + 1, page.numPages.toInt).map { range =>
+        @views.Helpers.paginationRanges(page.page + 1, page.numPages).map { range =>
             @range.map { cp =>
-                @if(cp == page.page.toInt) {
+                @if(cp == page.page) {
                     <li class="disabled"><a>@cp</a></li>
                 } else {
                     <li><a href="@utils.joinPath(req.path, req.queryString.updated(pageParam, Seq(cp.toString)))">@cp</a></li>
