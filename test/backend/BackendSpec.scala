@@ -108,6 +108,37 @@ class BackendSpec extends helpers.Neo4jRunnerSpec(classOf[BackendSpec]) {
       }
     }
 
+    "error with context data when deserializing JSON incorrectly" in new FakeApp {
+      try {
+        // deliberate use the wrong readable here to generate a
+        // deserialization error...
+        import backend.BackendReadable
+        import play.api.libs.json._
+        import play.api.libs.functional.syntax._
+        import models.base.Accessor
+        import models.json.JsPathExtensions
+        val badDeserializer = new BackendReadable[UserProfile] {
+          val restReads: Reads[UserProfile] = (
+            __.read[UserProfileF] and
+            __.lazyNullableListReads(Group.Converter.restReads) and
+            __.lazyNullableListReads(Accessor.Converter.restReads) and
+            __.nullableHeadReads[SystemEvent] and
+            __.read[JsObject]
+          )(UserProfile.quickApply _)
+        }
+
+        await(testBackend.get[UserProfile]("mike")(
+          apiUser, UserProfile.Resource, badDeserializer, concurrentExecutionContext))
+        failure("Expected BadJson error was not found!")
+      } catch {
+        case e: backend.rest.BadJson =>
+          e.url must beSome.which { url =>
+            url must endWith(s"/${UserProfile.Resource.entityType}/mike")
+          }
+        case _: Throwable => failure("Expected a json error!")
+      }
+    }
+
     "delete an item by id" in new FakeApp {
       val user = UserProfileF(id = Some("foobar"), identifier = "foo", name = "bar")
       val entity = await(testBackend.create[UserProfile,UserProfileF](user))
