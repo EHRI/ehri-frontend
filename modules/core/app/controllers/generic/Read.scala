@@ -99,7 +99,7 @@ trait Read[MT] extends Generic[MT] {
     userProfileAction.async { implicit userOpt => implicit request =>
       val params = PageParams.fromRequest(request)
       val getF: Future[MT] = backend.get(id)
-      val historyF: Future[Page[SystemEvent]] = backend.history(id, params)
+      val historyF: Future[Page[SystemEvent]] = backend.history[SystemEvent](id, params)
       for {
         item <- getF
         events <- historyF
@@ -112,7 +112,7 @@ trait Read[MT] extends Generic[MT] {
     userProfileAction.async { implicit userOpt => implicit request =>
       val params = PageParams.fromRequest(request)
       val getF: Future[MT] = backend.get(id)
-      val versionsF: Future[Page[Version]] = backend.versions(id, params)
+      val versionsF: Future[Page[Version]] = backend.versions[Version](id, params)
       for {
         item <- getF
         events <- versionsF

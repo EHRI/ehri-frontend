@@ -72,7 +72,7 @@ case class Social @Inject()(implicit globalConfig: global.GlobalConfig, searchDi
       val eventFilter = SystemEventParams.fromRequest(request)
         .copy(eventTypes = activityEventTypes)
         .copy(itemTypes = activityItemTypes)
-      backend.listEventsForUser(user.id, incParams, eventFilter).map { events =>
+      backend.listEventsForUser[SystemEvent](user.id, incParams, eventFilter).map { events =>
         val more = events.size > listParams.limit
 
         val displayEvents = events.take(listParams.limit)
@@ -110,7 +110,7 @@ case class Social @Inject()(implicit globalConfig: global.GlobalConfig, searchDi
       .copy(eventTypes = activityEventTypes)
       .copy(itemTypes = activityItemTypes)
     val events: Future[(Boolean, Seq[SystemEvent])] = backend
-      .listEventsByUser(userId, incParams, eventParams).map { events =>
+      .listEventsByUser[SystemEvent](userId, incParams, eventParams).map { events =>
       val more = events.size > listParams.limit
       (more, events.take(listParams.limit))
     }
@@ -134,7 +134,7 @@ case class Social @Inject()(implicit globalConfig: global.GlobalConfig, searchDi
       val eventFilter = SystemEventParams.fromRequest(request)
         .copy(eventTypes = activityEventTypes)
         .copy(itemTypes = activityItemTypes)
-      backend.listEventsByUser(userId, incParams, eventFilter).map { events =>
+      backend.listEventsByUser[SystemEvent](userId, incParams, eventFilter).map { events =>
         val more = events.size > listParams.limit
         val displayEvents = events.take(listParams.limit)
         Ok(p.activity.eventItems(displayEvents))
