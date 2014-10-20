@@ -31,7 +31,7 @@ trait RestPermissions extends Permissions with RestDAO {
 
   private def listWithUrl(url: String, params: PageParams)(implicit apiUser: ApiUser, rd: BackendReadable[PermissionGrant], executionContext: ExecutionContext): Future[Page[PermissionGrant]] = {
     userCall(url).withQueryString(params.queryParams: _*).get().map { response =>
-      parsePage[PermissionGrant](response)
+      parsePage[PermissionGrant](response, context = Some(url))
     }
   }
 
@@ -39,7 +39,7 @@ trait RestPermissions extends Permissions with RestDAO {
     val url = enc(requestUrl, userId)
     FutureCache.getOrElse[GlobalPermissionSet](url, cacheTime) {
       userCall(url).get()
-        .map(checkErrorAndParse[GlobalPermissionSet])
+        .map(r => checkErrorAndParse[GlobalPermissionSet](r, context = Some(url)))
     }
   }
 
@@ -47,7 +47,7 @@ trait RestPermissions extends Permissions with RestDAO {
     val url = enc(requestUrl, userId)
     FutureCache.set(url, cacheTime) {
       userCall(url).post(Json.toJson(data))
-        .map(checkErrorAndParse[GlobalPermissionSet])
+        .map(r => checkErrorAndParse[GlobalPermissionSet](r, context = Some(url)))
     }
   }
 
@@ -55,7 +55,7 @@ trait RestPermissions extends Permissions with RestDAO {
     val url = enc(requestUrl, userId, id)
     FutureCache.getOrElse[ItemPermissionSet](url, cacheTime) {
       userCall(url).get().map { response =>
-        checkErrorAndParse(response)(ItemPermissionSet.restReads(contentType))
+        checkErrorAndParse(response, context = Some(url))(ItemPermissionSet.restReads(contentType))
       }
     }
   }
@@ -64,7 +64,7 @@ trait RestPermissions extends Permissions with RestDAO {
     val url = enc(requestUrl, userId, id)
     FutureCache.set(url, cacheTime) {
       userCall(url).post(Json.toJson(data)).map { response =>
-        checkErrorAndParse(response)(ItemPermissionSet.restReads(contentType))
+        checkErrorAndParse(response, context = Some(url))(ItemPermissionSet.restReads(contentType))
       }
     }
   }
@@ -73,7 +73,7 @@ trait RestPermissions extends Permissions with RestDAO {
     val url = enc(requestUrl, userId, "scope", id)
     FutureCache.getOrElse[GlobalPermissionSet](url, cacheTime) {
       userCall(url).get()
-        .map(checkErrorAndParse[GlobalPermissionSet])
+        .map(r => checkErrorAndParse[GlobalPermissionSet](r, context = Some(url)))
     }
   }
 
@@ -81,7 +81,7 @@ trait RestPermissions extends Permissions with RestDAO {
     val url = enc(requestUrl, userId, "scope", id)
     FutureCache.set(url, cacheTime) {
       userCall(url).post(Json.toJson(data))
-        .map(checkErrorAndParse[GlobalPermissionSet])
+        .map(r => checkErrorAndParse[GlobalPermissionSet](r, context = Some(url)))
     }
   }
 

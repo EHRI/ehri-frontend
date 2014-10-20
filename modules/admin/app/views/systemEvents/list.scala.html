@@ -1,4 +1,4 @@
-@(list: Iterable[SystemEvent], params: utils.PageParams, filterForm: Form[utils.SystemEventParams], users: Seq[(String,String)])(implicit userOpt: Option[UserProfile], req: RequestHeader, globalConfig: global.GlobalConfig, lang: Lang, flash: Flash)
+@(list: Iterable[SystemEvent], params: utils.RangeParams, filterForm: Form[utils.SystemEventParams], users: Seq[(String,String)])(implicit userOpt: Option[UserProfile], req: RequestHeader, globalConfig: global.GlobalConfig, lang: Lang, flash: Flash)
 
 @import defines.EventType
 @import backend.rest.Constants._
@@ -9,8 +9,8 @@
 
     <div class="event-filter">
         @helper.form(action = controllers.admin.routes.SystemEvents.list, 'class -> "form-inline", 'role -> "form") {
-            <input type="hidden" name="@PAGE_PARAM" value="@params.page" />
-            <input type="hidden" name="@COUNT_PARAM" value="@params.count" />
+            <input type="hidden" name="@OFFSET_PARAM" value="@params.offset" />
+            <input type="hidden" name="@LIMIT_PARAM" value="@params.limit" />
             @defining(EntityType.SystemEvent.toString) { implicit fieldPrefix =>
                 @formHelpers.multiselectInput(
                     filterForm(EVENT_TYPE),

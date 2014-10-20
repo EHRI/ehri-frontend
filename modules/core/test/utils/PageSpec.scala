@@ -9,12 +9,14 @@ class PageSpec extends PlaySpecification {
 
   val data = 1 to 30
 
-  val testPage1 = Page(items = data.take(10), page = 1, count = 10, total = 30)
-  val testPage2 = Page(items = data, page = 1, count = 40, total = 30)
+  val testPage1 = Page(items = data.take(10), offset = 0, limit = 10, total = 30)
+  val testPage2 = Page(items = data.drop(10), offset = 10, limit = 40, total = 30)
+  val testPage3 = Page(items = data.drop(20).take(10), offset = 20, limit = 10, total = 30)
 
   "Page class" should {
     "provide correct offset, start, and end" in {
       testPage1.offset mustEqual 0
+      testPage1.page mustEqual 1
       testPage1.start mustEqual 1
       testPage1.end mustEqual 10
       testPage2.end mustEqual 30
@@ -22,12 +24,15 @@ class PageSpec extends PlaySpecification {
 
     "calculate number of pages correctly" in {
       testPage1.numPages mustEqual 3
+      testPage1.page mustEqual 1
       testPage2.numPages mustEqual 1
-      testPage2.hasMultiplePages must beFalse
+      testPage2.page mustEqual 2
+      testPage3.numPages mustEqual 3
+      testPage3.page mustEqual 3
     }
 
-    "not error with 0 count" in {
-      (testPage1.copy(count = 0).numPages must not).throwA[ArithmeticException]
+    "not error with 0 limit" in {
+      (testPage1.copy(limit = 0).numPages must not).throwA[ArithmeticException]
     }
   }
 }

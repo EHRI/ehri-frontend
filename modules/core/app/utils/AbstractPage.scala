@@ -5,20 +5,20 @@ package utils
  * @tparam A
  */
 trait AbstractPage[+A] extends Seq[A] {
-  def total: Long
-  def page: Int
-  def count: Int
+  def total: Int
+  def offset: Int
+  def limit: Int
   def items: Seq[A]
 
   def iterator = items.iterator
   def length = items.length
-  def numPages = (total / count.max(1)) + (total % count.max(1)).min(1)
-  def hasMultiplePages = total > count
+  def numPages: Int = (total / limit.max(1)) + (total % limit.max(1)).min(1)
+  def hasMultiplePages = total > items.size
   def apply(i: Int): A = items.apply(i)
-  def start = offset + 1
-  def end = start + items.size - 1
-  def offset = Math.max(0, (page - 1) * count)
+  def start: Int = offset + 1
+  def end: Int = offset + items.size
+  def page: Int = (Math.ceil(offset.max(0).toDouble / limit.max(1).toDouble) + 1).toInt
   def range: String = s"$start-$end"
 
-  def isLimited = count == -1
+  def isLimited = limit == -1
 }

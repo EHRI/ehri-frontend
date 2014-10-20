@@ -3,6 +3,7 @@ package utils.search
 import defines.EntityType
 import backend.rest.Constants._
 import play.api.libs.json.Json
+import utils.PageParams
 
 
 object SearchField extends Enumeration {
@@ -108,6 +109,7 @@ object SearchParams {
 
   import play.api.data.Forms._
   import play.api.data.Form
+  import utils.PageParams._
 
   def empty: SearchParams = new SearchParams()
 
@@ -118,7 +120,7 @@ object SearchParams {
     mapping(
       QUERY -> optional(nonEmptyText),
       PAGE_PARAM -> optional(number(min = 1)),
-      COUNT_PARAM -> optional(number(min = 0, max = MAX_LIST_LIMIT)),
+      LIMIT_PARAM -> optional(number(min = 0, max = MAX_LIST_LIMIT)),
       SORT -> optional(models.forms.enum(SearchOrder)),
       REVERSE -> optional(boolean),
       ENTITY -> list(models.forms.enum(EntityType)),

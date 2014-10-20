@@ -150,10 +150,26 @@ object Global extends WithFilters(CSRFFilter()) with GlobalSettings {
   override def onError(request: RequestHeader, ex: Throwable) = {
     implicit def req = request
 
-    def jsonError(err: Seq[(JsPath,Seq[play.api.data.validation.ValidationError])]) = {
-      "Unexpected JSON received from backend at %s (%s)\n\n%s".format(
-        request.path, request.method, Json.prettyPrint(JsError.toFlatJson(err))
-      )
+    def jsonError(e: BadJson): String = {
+      for {
+        url <- e.url
+        data <- e.data
+      } yield {
+        """Unexpected JSON received from backend at %s (%s %s)
+          |
+          |Data:
+          |%s
+          |
+          |Error:
+          |%s""".stripMargin.format(
+          url, request.path, request.method, data, Json.prettyPrint(JsError.toFlatJson(e.error)))
+      }
+    }.getOrElse {
+      """Unexpected JSON received from backend at %s (%s)
+
+        |Error:
+        |%s""".format(
+        request.path, request.method, Json.prettyPrint(JsError.toFlatJson(e.error)))
     }
 
     ex.getCause match {
@@ -163,8 +179,8 @@ object Global extends WithFilters(CSRFFilter()) with GlobalSettings {
         renderError("errors.itemNotFound", itemNotFound(e.value))))
       case e: java.net.ConnectException => immediate(InternalServerError(
           renderError("errors.databaseError", serverTimeout())))
+      case e: BadJson => sys.error(jsonError(e))
 
-      case BadJson(err) => sys.error(jsonError(err))
       case e => super.onError(request, e)
     }
   }
