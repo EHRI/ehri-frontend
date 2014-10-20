@@ -33,7 +33,7 @@ package object rest {
     key: Option[String] = None,
     value: Option[String] = None,
     message: Option[String] = None
-  ) extends RestError
+  ) extends RuntimeException(message.getOrElse("No further info")) with RestError
 
   case class ServerError(error: String) extends RuntimeException(error) with RestError
 
@@ -44,7 +44,20 @@ package object rest {
       url: Option[String] = None,
       data: Option[String] = None
     ) extends RestError {
-    override def toString = Json.prettyPrint(JsError.toFlatJson(error))
+    def prettyError = Json.prettyPrint(JsError.toFlatJson(error))
+    override def getMessage = url match {
+      case Some(path) => s"""Parsing error from data at $path
+        |
+        |Data:
+        |
+        |${data.getOrElse("No data available")}
+        |
+        |Error:
+        |
+        |$prettyError
+      """.stripMargin
+      case None => s"Parsing error (no context): $prettyError"
+    }
   }
 
   object ItemNotFound {
