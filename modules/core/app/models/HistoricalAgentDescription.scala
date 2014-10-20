@@ -16,7 +16,7 @@ import Description._
 case class IsaarDetail(
   datesOfExistence: Option[String] = None,
   history: Option[String] = None,
-  places: Option[String] = None,
+  places: Option[List[String]] = None,
   legalStatus: Option[String] = None,
   functions: Option[String] = None,
   mandates: Option[String] = None,
@@ -98,7 +98,7 @@ object HistoricalAgentDescriptionF {
     (__ \ DATA).read[IsaarDetail]((
       (__ \ DATES_OF_EXISTENCE).readNullable[String] and
       (__ \ HISTORY).readNullable[String] and
-      (__ \ PLACES).readNullable[String] and
+      (__ \ PLACES).readListOrSingleNullable[String] and
       (__ \ LEGAL_STATUS).readNullable[String] and
       (__ \ FUNCTIONS).readNullable[String] and
       (__ \ MANDATES).readNullable[String] and
@@ -156,7 +156,7 @@ case class HistoricalAgentDescriptionF(
   def toSeq = Seq(
     DATES_OF_EXISTENCE -> details.datesOfExistence,
     HISTORY -> details.history,
-    PLACES -> details.places,
+    PLACES -> details.places.map(_.mkString("\n")),
     LEGAL_STATUS -> details.legalStatus,
     FUNCTIONS -> details.functions,
     MANDATES -> details.mandates,
@@ -189,7 +189,7 @@ object HistoricalAgentDescription {
       DESCRIPTION_AREA -> mapping(
         DATES_OF_EXISTENCE -> optional(text),
         HISTORY -> optional(text),
-        PLACES -> optional(text),
+        PLACES -> optional(list(text)),
         LEGAL_STATUS -> optional(text),
         FUNCTIONS -> optional(text),
         MANDATES -> optional(text),
