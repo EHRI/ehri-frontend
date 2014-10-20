@@ -12,6 +12,7 @@ import scala.concurrent.Future
 import models.view.{UserDetails, ItemDetails}
 import play.api.Play.current
 import play.api.cache.Cache
+import models.base.AnyModel
 
 
 /**
@@ -37,7 +38,7 @@ trait PortalBase {
   private def watchedItemIds(implicit userIdOpt: Option[String]): Future[Seq[String]] = userIdOpt.map { userId =>
     FutureCache.getOrElse(userWatchCacheKey(userId), 20 * 60) {
       implicit val apiUser: ApiUser = ApiUser(Some(userId))
-      backend.watching(userId, PageParams.empty.withoutLimit).map { page =>
+      backend.watching[AnyModel](userId, PageParams.empty.withoutLimit).map { page =>
         page.items.map(_.id)
       }
     }

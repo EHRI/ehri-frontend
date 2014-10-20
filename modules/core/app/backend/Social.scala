@@ -2,9 +2,6 @@ package backend
 
 import scala.concurrent.{ExecutionContext, Future}
 import utils.{Page, PageParams}
-import models.{VirtualUnit, Link, Annotation, UserProfile}
-import models.base.AnyModel
-
 
 /**
  * @author Mike Bryant (http://github.com/mikesname)
@@ -18,11 +15,11 @@ trait Social {
 
   def isFollower(userId: String, otherId: String)(implicit apiUser: ApiUser, executionContext: ExecutionContext): Future[Boolean]
 
-  def followers(userId: String, params: PageParams = PageParams.empty)(implicit apiUser: ApiUser, rd: BackendReadable[UserProfile], executionContext: ExecutionContext): Future[Page[UserProfile]]
+  def followers[U](userId: String, params: PageParams = PageParams.empty)(implicit apiUser: ApiUser, rd: BackendReadable[U], executionContext: ExecutionContext): Future[Page[U]]
 
-  def following(userId: String, params: PageParams = PageParams.empty)(implicit apiUser: ApiUser, rd: BackendReadable[UserProfile], executionContext: ExecutionContext): Future[Page[UserProfile]]
+  def following[U](userId: String, params: PageParams = PageParams.empty)(implicit apiUser: ApiUser, rd: BackendReadable[U], executionContext: ExecutionContext): Future[Page[U]]
 
-  def watching(userId: String, params: PageParams = PageParams.empty)(implicit apiUser: ApiUser, rd: BackendReadable[AnyModel], executionContext: ExecutionContext): Future[Page[AnyModel]]
+  def watching[A](userId: String, params: PageParams = PageParams.empty)(implicit apiUser: ApiUser, rd: BackendReadable[A], executionContext: ExecutionContext): Future[Page[A]]
 
   def watch(userId: String, otherId: String)(implicit apiUser: ApiUser, executionContext: ExecutionContext): Future[Unit]
 
@@ -30,7 +27,7 @@ trait Social {
 
   def isWatching(userId: String, otherId: String)(implicit apiUser: ApiUser, executionContext: ExecutionContext): Future[Boolean]
 
-  def blocked(userId: String, params: PageParams = PageParams.empty)(implicit apiUser: ApiUser, rd: BackendReadable[AnyModel], executionContext: ExecutionContext): Future[Page[AnyModel]]
+  def blocked[A](userId: String, params: PageParams = PageParams.empty)(implicit apiUser: ApiUser, rd: BackendReadable[A], executionContext: ExecutionContext): Future[Page[A]]
 
   def block(userId: String, otherId: String)(implicit apiUser: ApiUser, executionContext: ExecutionContext): Future[Unit]
 
@@ -38,9 +35,9 @@ trait Social {
 
   def isBlocking(userId: String, otherId: String)(implicit apiUser: ApiUser, executionContext: ExecutionContext): Future[Boolean]
 
-  def userAnnotations(userId: String, params: PageParams = PageParams.empty)(implicit apiUser: ApiUser, executionContext: ExecutionContext): Future[Page[Annotation]]
+  def userAnnotations[A](userId: String, params: PageParams = PageParams.empty)(implicit apiUser: ApiUser, rd: BackendReadable[A], executionContext: ExecutionContext): Future[Page[A]]
 
-  def userLinks(userId: String, params: PageParams = PageParams.empty)(implicit apiUser: ApiUser, executionContext: ExecutionContext): Future[Page[Link]]
+  def userLinks[A](userId: String, params: PageParams = PageParams.empty)(implicit apiUser: ApiUser, rd: BackendReadable[A], executionContext: ExecutionContext): Future[Page[A]]
 
-  def userBookmarks(userId: String, params: PageParams = PageParams.empty)(implicit apiUser: ApiUser, executionContext: ExecutionContext): Future[Page[VirtualUnit]]
+  def userBookmarks[A](userId: String, params: PageParams = PageParams.empty)(implicit apiUser: ApiUser, rd: BackendReadable[A], executionContext: ExecutionContext): Future[Page[A]]
 }

@@ -94,8 +94,8 @@ case class Social @Inject()(implicit globalConfig: global.GlobalConfig, searchDi
       .getOrElse(defaultParams).setDefault(Some(defaultParams))
 
     for {
-      following <- backend.following(user.id, PageParams.empty)
-      blocked <- backend.blocked(user.id, PageParams.empty)
+      following <- backend.following[UserProfile](user.id, PageParams.empty)
+      blocked <- backend.blocked[UserProfile](user.id, PageParams.empty)
       srch <- searchDispatcher.search(searchParams, Nil, Nil, filters)
       users <- searchResolver.resolve[UserProfile](srch.items)
     } yield Ok(p.social.browseUsers(user, srch.copy(items = users), searchParams, following))
@@ -146,7 +146,7 @@ case class Social @Inject()(implicit globalConfig: global.GlobalConfig, searchDi
   def watchedByUser(userId: String) = withUserAction.async { implicit user => implicit request =>
     // Show a list of watched item by a defined User
     val watchParams = PageParams.fromRequest(request, namespace = "w")
-    val watching: Future[Page[AnyModel]] = backend.watching(userId, watchParams)
+    val watching: Future[Page[AnyModel]] = backend.watching[AnyModel](userId, watchParams)
     val isFollowing: Future[Boolean] = backend.isFollowing(user.id, userId)
     val allowMessage: Future[Boolean] = canMessage(user.id, userId)
 
@@ -225,8 +225,8 @@ case class Social @Inject()(implicit globalConfig: global.GlobalConfig, searchDi
     val params = PageParams.fromRequest(request)
     for {
       them <- backend.get[UserProfile](userId)
-      theirFollowers <- backend.followers(userId, params)
-      whoImFollowing <- backend.following(user.id)
+      theirFollowers <- backend.followers[UserProfile](userId, params)
+      whoImFollowing <- backend.following[UserProfile](user.id)
     } yield {
       if (isAjax)
         Ok(p.social.followerList(them, theirFollowers, params, whoImFollowing))
@@ -239,8 +239,8 @@ case class Social @Inject()(implicit globalConfig: global.GlobalConfig, searchDi
     val params = PageParams.fromRequest(request)
     for {
       them <- backend.get[UserProfile](userId)
-      theirFollowing <- backend.following(userId, params)
-      whoImFollowing <- backend.following(user.id)
+      theirFollowing <- backend.following[UserProfile](userId, params)
+      whoImFollowing <- backend.following[UserProfile](user.id)
     } yield {
       if (isAjax)
         Ok(p.social.followingList(them, theirFollowing, params, whoImFollowing))
