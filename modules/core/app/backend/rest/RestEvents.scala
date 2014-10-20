@@ -11,7 +11,6 @@ import defines.EntityType
  */
 trait RestEvents extends Events with RestDAO {
 
-  private def baseUrl = s"http://$host:$port/$mount"
   private def requestUrl = s"$baseUrl/${EntityType.SystemEvent}"
 
   def history[A](id: String, params: PageParams)(implicit apiUser: ApiUser, rd: BackendReadable[A], executionContext: ExecutionContext): Future[Page[A]] = {
@@ -70,6 +69,3 @@ trait RestEvents extends Events with RestDAO {
     }
   }
 }
-
-
-case class SystemEventDAO() extends RestEvents

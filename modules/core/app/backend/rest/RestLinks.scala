@@ -19,7 +19,7 @@ trait RestLinks extends Links with RestDAO {
   final val BODY_TYPE = "bodyType"
   final val BODY_NAME = "bodyName"
 
-  private def requestUrl = s"http://$host:$port/$mount/${EntityType.Link}"
+  private def requestUrl = s"$baseUrl/${EntityType.Link}"
 
   /**
    * Fetch links for the given item.
@@ -64,5 +64,3 @@ trait RestLinks extends Links with RestDAO {
     }
   }
 }
-
-case class LinkDAO(eventHandler: EventHandler) extends RestLinks

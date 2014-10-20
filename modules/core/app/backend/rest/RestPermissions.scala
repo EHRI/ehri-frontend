@@ -16,7 +16,6 @@ trait RestPermissions extends Permissions with RestDAO {
 
   import Constants._
 
-  private def baseUrl = s"http://$host:$port/$mount"
   private def requestUrl = s"$baseUrl/permission"
 
   def listPermissionGrants[A](userId: String, params: PageParams)(implicit apiUser: ApiUser, rd: BackendReadable[A], executionContext: ExecutionContext): Future[Page[A]] =
@@ -104,6 +103,3 @@ trait RestPermissions extends Permissions with RestDAO {
     }
   }
 }
-
-
-case class PermissionDAO(eventHandler: EventHandler) extends RestPermissions

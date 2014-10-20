@@ -16,7 +16,7 @@ trait RestDescriptions extends RestDAO with Descriptions {
 
   val eventHandler: EventHandler
 
-  private def requestUrl = s"http://$host:$port/$mount/description"
+  private def requestUrl = s"$baseUrl/description"
 
   def createDescription[MT,DT](id: String, item: DT, logMsg: Option[String] = None)(
         implicit apiUser: ApiUser, rs: BackendResource[MT], fmt: BackendWriteable[DT], rd: backend.BackendReadable[DT], executionContext: ExecutionContext): Future[DT] = {
@@ -72,6 +72,3 @@ trait RestDescriptions extends RestDAO with Descriptions {
     }
   }
 }
-
-
-case class DescriptionDAO(eventHandler: EventHandler) extends RestDescriptions
