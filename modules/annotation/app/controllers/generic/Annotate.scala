@@ -35,7 +35,7 @@ trait Annotate[MT] extends Read[MT] {
     withItemPermission.async[MT](id, PermissionType.Annotate) { item => implicit userOpt => implicit request =>
       Annotation.form.bindFromRequest.fold(
         errorForm => immediate(f(Left(errorForm))(userOpt)(request)),
-        ann => backend.createAnnotation(id, ann).map { ann =>
+        ann => backend.createAnnotation[Annotation,AnnotationF](id, ann).map { ann =>
           f(Right(ann))(userOpt)(request)
         }
       )
@@ -48,7 +48,7 @@ trait Annotate[MT] extends Read[MT] {
   def getAnnotationsAction(id: String)(
       f: Seq[Annotation] => Option[UserProfile] => Request[AnyContent] => Result) = {
     userProfileAction.async { implicit  userOpt => implicit request =>
-      backend.getAnnotationsForItem(id).map { anns =>
+      backend.getAnnotationsForItem[Annotation](id).map { anns =>
         f(anns)(userOpt)(request)
       }
     }
@@ -67,7 +67,7 @@ trait Annotate[MT] extends Read[MT] {
         // NB: No checking of permissions here - we're going to depend
         // on the server for that
         userProfileAction.async { implicit userOpt => implicit request =>
-          backend.createAnnotation(id, ap).map { ann =>
+          backend.createAnnotation[Annotation,AnnotationF](id, ap).map { ann =>
             Created(Json.toJson(ann.model)(clientAnnotationFormat))
           }
         }(request.map(js => AnyContentAsEmpty))

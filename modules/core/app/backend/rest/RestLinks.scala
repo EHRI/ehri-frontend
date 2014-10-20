@@ -2,10 +2,10 @@ package backend.rest
 
 import scala.concurrent.{ExecutionContext, Future}
 import defines.EntityType
-import models._
-import play.api.libs.json.{Reads, Json}
-import backend.{Links, EventHandler, ApiUser}
+import play.api.libs.json.Json
+import backend._
 import utils.{Page, PageParams}
+import backend.ApiUser
 
 
 /**
@@ -21,27 +21,25 @@ trait RestLinks extends Links with RestDAO {
 
   private def requestUrl = s"http://$host:$port/$mount/${EntityType.Link}"
 
-  implicit val linkMetaReads = Link.Converter.restReads
-
   /**
    * Fetch links for the given item.
    */
-  def getLinksForItem(id: String)(implicit apiUser: ApiUser, executionContext: ExecutionContext): Future[Page[Link]] = {
+  def getLinksForItem[A](id: String)(implicit apiUser: ApiUser, rd: BackendReadable[A], executionContext: ExecutionContext): Future[Page[A]] = {
     val pageParams = PageParams.empty.withoutLimit
     userCall(enc(requestUrl, "for", id)).withQueryString(pageParams.queryParams: _*)
       .get().map { response =>
-      parsePage(response)(linkMetaReads)
+      parsePage(response)(rd.restReads)
     }
   }
 
   /**
    * Create a single link.
    */
-  def linkItems(id: String, src: String, link: LinkF, accessPoint: Option[String] = None)(implicit apiUser: ApiUser, executionContext: ExecutionContext): Future[Link] = {
+  def linkItems[A,AF](id: String, src: String, link: AF, accessPoint: Option[String] = None)(implicit apiUser: ApiUser, rd: BackendReadable[A], wd: BackendWriteable[AF],  executionContext: ExecutionContext): Future[A] = {
     val url: String = enc(requestUrl, id, src)
     userCall(url).withQueryString(accessPoint.map(a => BODY_PARAM -> a).toSeq: _*)
-      .post(Json.toJson(link)(LinkF.Converter.restFormat)).map { response =>
-      checkErrorAndParse[Link](response, context = Some(url))(linkMetaReads)
+      .post(Json.toJson(link)(wd.restFormat)).map { response =>
+      checkErrorAndParse(response, context = Some(url))(rd.restReads)
     }
   }
 
@@ -60,11 +58,9 @@ trait RestLinks extends Links with RestDAO {
   /**
    * Create multiple links. NB: This function is NOT transactional.
    */
-  def linkMultiple(id: String, srcToLinks: Seq[(String,LinkF,Option[String])])(implicit apiUser: ApiUser, executionContext: ExecutionContext): Future[Seq[Link]] = {
-    Future.sequence {
-      srcToLinks.map {
-        case (other, ann, accessPoint) => linkItems(id, other, ann, accessPoint)
-      }
+  def linkMultiple[A,AF](id: String, srcToLinks: Seq[(String,AF,Option[String])])(implicit apiUser: ApiUser, rd: BackendReadable[A], wd: BackendWriteable[AF], executionContext: ExecutionContext): Future[Seq[A]] = Future.sequence {
+    srcToLinks.map {
+      case (other, ann, accessPoint) => linkItems(id, other, ann, accessPoint)
     }
   }
 }

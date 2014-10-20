@@ -81,8 +81,8 @@ trait PortalBase {
       itemPermissionAction.async[MT](id) {
           item => implicit userOpt => implicit request =>
         val watchedF: Future[Seq[String]] = watchedItemIds(userOpt.map(_.id))
-        val annotationF: Future[Page[Annotation]] = backend.getAnnotationsForItem(id)
-        val linksF: Future[Page[Link]] = backend.getLinksForItem(id)
+        val annotationF: Future[Page[Annotation]] = backend.getAnnotationsForItem[Annotation](id)
+        val linksF: Future[Page[Link]] = backend.getLinksForItem[Link](id)
         for {
           watched <- watchedF
           anns <- annotationF

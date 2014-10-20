@@ -48,8 +48,8 @@ trait Read[MT] extends Generic[MT] {
         implicit rd: BackendReadable[MT], ct: BackendContentType[MT]) = {
       itemPermissionAction.async[MT](id) { item => implicit maybeUser => implicit request =>
           // NB: Effectively disable paging here by using a high limit
-        val annsReq = backend.getAnnotationsForItem(id)
-        val linkReq = backend.getLinksForItem(id)
+        val annsReq = backend.getAnnotationsForItem[Annotation](id)
+        val linkReq = backend.getLinksForItem[Link](id)
         for {
           anns <- annsReq
           links <- linkReq
@@ -70,9 +70,9 @@ trait Read[MT] extends Generic[MT] {
       itemPermissionAction.async[MT](id) { item => implicit userOpt => implicit request =>
         val params = PageParams.fromRequest(request)
         for {
-          anns <- backend.getAnnotationsForItem(id)
+          anns <- backend.getAnnotationsForItem[Annotation](id)
           children <- backend.listChildren[MT,CT](id, params)
-          links <- backend.getLinksForItem(id)
+          links <- backend.getLinksForItem[Link](id)
           r <- f(item)(children)(params)(anns)(links)(userOpt)(request)
         } yield r
       }
