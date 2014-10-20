@@ -424,6 +424,8 @@ confirm=Confirm Password
 optional=Optional
 administrationArea=Administration Area
 publicationStatus=Publication Status
+truncated=...
+truncated.items.remaining={0,choice,0#|1#and 1 more...|1<and {0,number,integer} more...}
 
 copyrightStatus.copyright=Copyright Status
 copyrightStatus.no=No
