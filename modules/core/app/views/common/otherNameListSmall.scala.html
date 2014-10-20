@@ -1,0 +1,18 @@
+@(list: List[String])(implicit lang: Lang)
+
+@defining(list.splitAt(3)) { case (ofn, rest) =>
+    @if(!ofn.isEmpty) {
+        <small>
+            <strong>
+                <ul class="list-unstyled inline inline-separator">
+                    @ofn.map { on =>
+                        <li>@on</li>
+                    }
+                    @if(!rest.isEmpty) {
+                        <li title="@rest.mkString(", ")">@Messages("truncated")</li>
+                    }
+                </ul>
+            </strong>
+        </small>
+    }
+}

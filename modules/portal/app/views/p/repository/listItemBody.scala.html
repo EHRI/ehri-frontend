@@ -2,19 +2,7 @@
 
 @item.model.primaryDescription(descriptionId).map { desc =>
 
-    @defining((desc.parallelFormsOfName ++ desc.otherFormsOfName).flatten) { ofn =>
-        @if(!ofn.isEmpty) {
-            <small>
-                <strong>
-                    <ul class="list-unstyled list-inline inline-separator">
-                        @ofn.map { on =>
-                        <li>@on</li>
-                        }
-                    </ul>
-                </strong>
-            </small>
-        }
-    }
+    @common.otherNameListSmall((desc.parallelFormsOfName ++ desc.otherFormsOfName).flatten.toList)
     <small>
         @conciseAddress(item, desc, includeCountry = showCountry)
         @views.html.common.childCount(item) { count =>

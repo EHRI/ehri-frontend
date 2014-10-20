@@ -1,19 +1,7 @@
 @(item: HistoricalAgent)(implicit req: RequestHeader, lang: Lang)
 
 @item.model.descriptions.headOption.map { desc =>
-    @defining((desc.parallelFormsOfName ++ desc.otherFormsOfName).flatten) { ofn =>
-        @if(!ofn.isEmpty) {
-            <small>
-                <strong>
-                    <ul class="list-unstyled list-inline inline-separator">
-                        @ofn.map { on =>
-                        <li>@on</li>
-                        }
-                    </ul>
-                </strong>
-            </small>
-        }
-    }
+    @common.otherNameListSmall((desc.parallelFormsOfName ++ desc.otherFormsOfName).flatten.toList)
     <small>
         <ul class="list-unstyled text-muted list-inline inline-separator">
             <li>@Messages("historicalAgent." + desc.entityType.toString)</li>
