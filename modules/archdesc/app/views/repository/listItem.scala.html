@@ -7,20 +7,8 @@
     <a href="@controllers.archdesc.routes.Repositories.get(item.id)">@item.toStringLang</a>
 } {
     @item.model.primaryDescription.map { desc =>
+        @common.otherNameListSmall((desc.parallelFormsOfName ++ desc.otherFormsOfName).flatten.toList)
 
-        @defining((desc.parallelFormsOfName ++ desc.otherFormsOfName).flatten) { ofn =>
-            @if(!ofn.isEmpty) {
-                <small>
-                    <strong>
-                        <ul class="list-unstyled inline inline-separator">
-                            @ofn.map { on =>
-                                <li>@on</li>
-                            }
-                        </ul>
-                    </strong>
-                </small>
-            }
-         }
         <small>
             <ul class="list-unstyled text-muted inline inline-separator">
                 @item.country.map { ct =>
