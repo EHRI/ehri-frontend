@@ -17,7 +17,7 @@ trait RestSocial extends Social with RestDAO {
   import play.api.Play.current
   val eventHandler: EventHandler
 
-  private def requestUrl = "http://%s:%d/%s/%s".format(host, port, mount, EntityType.UserProfile)
+  private def requestUrl = s"$baseUrl/${EntityType.UserProfile}"
 
   private def followingUrl(userId: String) = enc(requestUrl, userId, "following")
   private def watchingUrl(userId: String) = enc(requestUrl, userId, "watching")
@@ -158,6 +158,3 @@ trait RestSocial extends Social with RestDAO {
     }
   }
 }
-
-
-case class SocialDAO(eventHandler: EventHandler) extends RestSocial

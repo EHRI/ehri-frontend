@@ -16,10 +16,8 @@ trait RestVisibility extends Visibility with RestDAO {
 
   import Constants._
 
-  private def requestUrl = "http://%s:%d/%s".format(host, port, mount)
-
   def setVisibility[MT](id: String, data: List[String])(implicit apiUser: ApiUser, rd: BackendReadable[MT], executionContext: ExecutionContext): Future[MT] = {
-    val url: String = enc(requestUrl, "access", id)
+    val url: String = enc(baseUrl, "access", id)
     userCall(url)
         .withQueryString(data.map(a => ACCESSOR_PARAM -> a): _*)
         .post("").map { response =>
@@ -31,7 +29,7 @@ trait RestVisibility extends Visibility with RestDAO {
   }
 
   def promote(id: String)(implicit apiUser: ApiUser, executionContext: ExecutionContext): Future[Boolean] = {
-    val url: String = enc(requestUrl, "promote", id)
+    val url: String = enc(baseUrl, "promote", id)
     userCall(url).post("").map { response =>
       checkError(response)
       Cache.remove(id)
@@ -40,7 +38,7 @@ trait RestVisibility extends Visibility with RestDAO {
   }
 
   def demote(id: String)(implicit apiUser: ApiUser, executionContext: ExecutionContext): Future[Boolean] = {
-    val url: String = enc(requestUrl, "promote", id)
+    val url: String = enc(baseUrl, "promote", id)
     userCall(url).delete().map { response =>
       checkError(response)
       Cache.remove(id)
@@ -48,5 +46,3 @@ trait RestVisibility extends Visibility with RestDAO {
     }
   }
 }
-
-case class VisibilityDAO(eventHandler: EventHandler) extends RestVisibility

@@ -23,8 +23,6 @@ trait RestGeneric extends Generic with RestDAO {
 
   import Constants._
 
-  private def requestUrl = "http://%s:%d/%s".format(host, port, mount)
-
   private def unpack(m: Map[String,Seq[String]]): Seq[(String,String)]
       = m.map(ks => ks._2.map(s => ks._1 -> s)).flatten.toSeq
 
@@ -32,7 +30,7 @@ trait RestGeneric extends Generic with RestDAO {
     Cache.getAs[JsValue](id) match {
       case Some(json) => Future.successful(jsonReadToRestError(json, rd.restReads))
       case _ =>
-      val url = enc(requestUrl, resource.entityType, id)
+      val url = enc(baseUrl, resource.entityType, id)
       userCall(url, resource.defaultParams).get().map { response =>
         val item = checkErrorAndParse(response, context = Some(url))(rd.restReads)
         Cache.set(id, response.json, cacheTime)
@@ -46,7 +44,7 @@ trait RestGeneric extends Generic with RestDAO {
   }
 
   def getJson[MT](id: String)(implicit apiUser: ApiUser, rs: BackendResource[MT], executionContext: ExecutionContext): Future[JsObject] = {
-    val url: String = enc(requestUrl, rs.entityType, id)
+    val url: String = enc(baseUrl, rs.entityType, id)
     userCall(url).get().map { response =>
       checkErrorAndParse[JsObject](response, context = Some(url))
     }
@@ -55,7 +53,7 @@ trait RestGeneric extends Generic with RestDAO {
   def create[MT,T](item: T, accessors: Seq[String] = Nil,
       params: Map[String,Seq[String]] = Map(),
       logMsg: Option[String] = None)(implicit apiUser: ApiUser, rs: BackendResource[MT], wrt: BackendWriteable[T], rd: backend.BackendReadable[MT], executionContext: ExecutionContext): Future[MT] = {
-    val url = enc(requestUrl, rs.entityType)
+    val url = enc(baseUrl, rs.entityType)
     userCall(url)
         .withQueryString(accessors.map(a => ACCESSOR_PARAM -> a): _*)
         .withQueryString(unpack(params):_*)
@@ -72,7 +70,7 @@ trait RestGeneric extends Generic with RestDAO {
   def createInContext[MT,T,TT](id: String, contentType: ContentTypes.Value, item: T, accessors: Seq[String] = Nil, params: Map[String, Seq[String]] = Map.empty,
       logMsg: Option[String] = None)(
         implicit apiUser: ApiUser, wrt: BackendWriteable[T], rs: BackendResource[MT], rd: backend.BackendReadable[TT], executionContext: ExecutionContext): Future[TT] = {
-    val url = enc(requestUrl, rs.entityType, id, contentType)
+    val url = enc(baseUrl, rs.entityType, id, contentType)
     userCall(url)
         .withQueryString(accessors.map(a => ACCESSOR_PARAM -> a): _*)
         .withQueryString(unpack(params):_*)
@@ -92,7 +90,7 @@ trait RestGeneric extends Generic with RestDAO {
 
   def update[MT,T](id: String, item: T, logMsg: Option[String] = None)(
       implicit apiUser: ApiUser, wrt: BackendWriteable[T], rs: BackendResource[MT], rd: backend.BackendReadable[MT], executionContext: ExecutionContext): Future[MT] = {
-    val url = enc(requestUrl, rs.entityType, id)
+    val url = enc(baseUrl, rs.entityType, id)
     userCall(url).withHeaders(msgHeader(logMsg): _*)
         .put(Json.toJson(item)(wrt.restFormat)).map { response =>
       val item = checkErrorAndParse(response, context = Some(url))(rd.restReads)
@@ -105,7 +103,7 @@ trait RestGeneric extends Generic with RestDAO {
   def patch[MT](id: String, data: JsObject, logMsg: Option[String] = None)(
       implicit apiUser: ApiUser, rs: BackendResource[MT], rd: backend.BackendReadable[MT], executionContext: ExecutionContext): Future[MT] = {
     val item = Json.obj(Entity.TYPE -> rs.entityType, Entity.DATA -> data)
-    val url = enc(requestUrl, rs.entityType, id)
+    val url = enc(baseUrl, rs.entityType, id)
     userCall(url).withHeaders((PATCH_HEADER_NAME -> true.toString) +: msgHeader(logMsg): _*)
         .put(item).map { response =>
       val item = checkErrorAndParse(response, context = Some(url))(rd.restReads)
@@ -116,7 +114,7 @@ trait RestGeneric extends Generic with RestDAO {
   }
 
   def delete[MT](id: String, logMsg: Option[String] = None)(implicit apiUser: ApiUser, rs: BackendResource[MT], executionContext: ExecutionContext): Future[Unit] = {
-    userCall(enc(requestUrl, rs.entityType, id)).delete().map { response =>
+    userCall(enc(baseUrl, rs.entityType, id)).delete().map { response =>
       checkError(response)
       eventHandler.handleDelete(id)
       Cache.remove(id)
@@ -124,37 +122,35 @@ trait RestGeneric extends Generic with RestDAO {
   }
 
   def listJson[MT](params: PageParams = PageParams.empty)(implicit apiUser: ApiUser, rs: BackendResource[MT], executionContext: ExecutionContext): Future[Page[JsObject]] = {
-    val url = enc(requestUrl, rs.entityType, "list")
+    val url = enc(baseUrl, rs.entityType, "list")
     userCall(url).withQueryString(params.queryParams:_*).get().map { response =>
       parsePage[JsObject](response, context = Some(url))
     }
   }
 
   def list[MT](params: PageParams = PageParams.empty)(implicit apiUser: ApiUser, rs: BackendResource[MT], rd: backend.BackendReadable[MT], executionContext: ExecutionContext): Future[Page[MT]] = {
-    val url = enc(requestUrl, rs.entityType, "list")
+    val url = enc(baseUrl, rs.entityType, "list")
     userCall(url).withQueryString(params.queryParams: _*).get().map { response =>
       parsePage(response, context = Some(url))(rd.restReads)
     }
   }
 
   def listChildren[MT,CMT](id: String, params: PageParams = PageParams.empty)(implicit apiUser: ApiUser, rs: BackendResource[MT], rd: backend.BackendReadable[CMT], executionContext: ExecutionContext): Future[Page[CMT]] = {
-    val url: String = enc(requestUrl, rs.entityType, id, "list")
+    val url: String = enc(baseUrl, rs.entityType, id, "list")
     userCall(url).withQueryString(params.queryParams: _*).get().map { response =>
       parsePage(response, context = Some(url))(rd.restReads)
     }
   }
 
   def count[MT](params: PageParams = PageParams.empty)(implicit apiUser: ApiUser, rs: BackendResource[MT], executionContext: ExecutionContext): Future[Long] = {
-    userCall(enc(requestUrl, rs.entityType, "count")).withQueryString(params.queryParams: _*).get().map { response =>
+    userCall(enc(baseUrl, rs.entityType, "count")).withQueryString(params.queryParams: _*).get().map { response =>
       checkErrorAndParse[Long](response)
     }
   }
 
   def countChildren[MT](id: String, params: PageParams = PageParams.empty)(implicit apiUser: ApiUser, rs: BackendResource[MT], executionContext: ExecutionContext): Future[Long] = {
-    userCall(enc(requestUrl, rs.entityType, id, "count")).withQueryString(params.queryParams: _*).get().map { response =>
+    userCall(enc(baseUrl, rs.entityType, id, "count")).withQueryString(params.queryParams: _*).get().map { response =>
       checkErrorAndParse[Long](response)
     }
   }
 }
-
-case class EntityDAO(eventHandler: EventHandler) extends RestGeneric

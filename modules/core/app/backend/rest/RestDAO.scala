@@ -179,9 +179,17 @@ trait RestDAO {
     uri.toString
   }
 
-  lazy val host: String = Play.current.configuration.getString("neo4j.server.host").get
-  lazy val port: Int = Play.current.configuration.getInt("neo4j.server.port").get
-  lazy val mount: String = Play.current.configuration.getString("neo4j.server.endpoint").get
+  private def getConfigString(key: String): String =
+    Play.current.configuration.getString(key).getOrElse(sys.error(s"Missing configuration value: '$key'"))
+
+  private def getConfigInt(key: String): Int =
+    Play.current.configuration.getInt(key).getOrElse(sys.error(s"Missing configuration value: '$key'"))
+
+  def host: String = getConfigString("neo4j.server.host")
+  def port: Int = getConfigInt("neo4j.server.port")
+  def mount: String = getConfigString("neo4j.server.endpoint")
+
+  def baseUrl = s"http://$host:$port/$mount"
 
   protected def checkError(response: WSResponse): WSResponse = {
     Logger.logger.trace("Response body ! : {}", response.body)

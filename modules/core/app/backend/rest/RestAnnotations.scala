@@ -18,7 +18,7 @@ trait RestAnnotations extends Annotations with RestDAO {
   val eventHandler: EventHandler
   import Constants.ACCESSOR_PARAM
 
-  private def requestUrl = s"http://$host:$port/$mount/${EntityType.Annotation}"
+  private def requestUrl = s"$baseUrl/${EntityType.Annotation}"
 
   def getAnnotationsForItem(id: String)(implicit apiUser: ApiUser, rs: BackendReadable[Annotation], executionContext: ExecutionContext): Future[Page[Annotation]] = {
     val url = enc(requestUrl, "for", id)
@@ -46,5 +46,3 @@ trait RestAnnotations extends Annotations with RestDAO {
     }
   }
 }
-
-case class AnnotationDAO(eventHandler: EventHandler) extends RestAnnotations
