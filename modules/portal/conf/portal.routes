@@ -47,7 +47,6 @@ GET         /keywords                       @controllers.portal.Portal.browseCon
 GET         /keywords/:id                   @controllers.portal.Portal.browseConcept(id: String)
 GET         /links/:id                      @controllers.portal.Portal.browseLink(id: String)
 GET         /annotations/:id                @controllers.portal.Portal.browseAnnotation(id: String)
-GET         /activity                       @controllers.portal.Social.personalisedActivity(page: Int ?= 1, count: Int ?= 20)
 GET         /activity/:id                   @controllers.portal.Portal.itemHistory(id: String)
 GET         /vocabularies/:id               @controllers.portal.Portal.browseVocabulary(id: String)
 GET         /vocabularies/:id/search        @controllers.portal.Portal.searchVocabulary(id: String)
@@ -85,6 +84,8 @@ GET         /annotate/:id/:did/:field       @controllers.portal.Annotations.anno
 POST        /annotate/:id/:did/:field       @controllers.portal.Annotations.annotateFieldPost(id: String, did: String, field: String)
 
 # Social networking stuff...
+GET         /activity                       @controllers.portal.Social.personalisedActivity(offset: Int ?= 0, limit: Int ?= 20)
+GET         /actions/:userId                @controllers.portal.Social.moreUserActivity(userId: String, offset: Int ?= 0, limit: Int ?= 20)
 GET         /people                         @controllers.portal.Social.browseUsers
 GET         /people/:userId                 @controllers.portal.Social.browseUser(userId: String)
 GET         /follow/:userId                 @controllers.portal.Social.followUser(userId: String)

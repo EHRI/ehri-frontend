@@ -38,9 +38,10 @@ trait RestLinks extends Links with RestDAO {
    * Create a single link.
    */
   def linkItems(id: String, src: String, link: LinkF, accessPoint: Option[String] = None)(implicit apiUser: ApiUser, executionContext: ExecutionContext): Future[Link] = {
-    userCall(enc(requestUrl, id, src)).withQueryString(accessPoint.map(a => BODY_PARAM -> a).toSeq: _*)
+    val url: String = enc(requestUrl, id, src)
+    userCall(url).withQueryString(accessPoint.map(a => BODY_PARAM -> a).toSeq: _*)
       .post(Json.toJson(link)(LinkF.Converter.restFormat)).map { response =>
-      checkErrorAndParse[Link](response)(linkMetaReads)
+      checkErrorAndParse[Link](response, context = Some(url))(linkMetaReads)
     }
   }
 

@@ -69,20 +69,23 @@ trait RestSocial extends Social with RestDAO {
   }
 
   def followers(userId: String, params: PageParams = PageParams.empty)(implicit apiUser: ApiUser, rd: BackendReadable[UserProfile], executionContext: ExecutionContext): Future[Page[UserProfile]] = {
-    userCall(enc(requestUrl, userId, "followers")).withQueryString(params.queryParams: _*).get().map { r =>
-      parsePage(r)(rd.restReads)
+    val url: String = enc(requestUrl, userId, "followers")
+    userCall(url).withQueryString(params.queryParams: _*).get().map { r =>
+      parsePage(r, context = Some(url))(rd.restReads)
     }
   }
 
   def following(userId: String, params: PageParams = PageParams.empty)(implicit apiUser: ApiUser, rd: BackendReadable[UserProfile], executionContext: ExecutionContext): Future[Page[UserProfile]] = {
-    userCall(followingUrl(userId)).withQueryString(params.queryParams: _*).get().map { r =>
-      parsePage(r)(rd.restReads)
+    val url: String = followingUrl(userId)
+    userCall(url).withQueryString(params.queryParams: _*).get().map { r =>
+      parsePage(r, context = Some(url))(rd.restReads)
     }
   }
 
   def watching(userId: String, params: PageParams = PageParams.empty)(implicit apiUser: ApiUser, rd: BackendReadable[AnyModel], executionContext: ExecutionContext): Future[Page[AnyModel]] = {
-    userCall(enc(requestUrl, userId, "watching")).withQueryString(params.queryParams: _*).get().map { r =>
-      parsePage(r)(rd.restReads)
+    val url: String = enc(requestUrl, userId, "watching")
+    userCall(url).withQueryString(params.queryParams: _*).get().map { r =>
+      parsePage(r, context = Some(url))(rd.restReads)
     }
   }
 
@@ -112,8 +115,9 @@ trait RestSocial extends Social with RestDAO {
   }
 
   def blocked(userId: String, params: PageParams = PageParams.empty)(implicit apiUser: ApiUser, rd: BackendReadable[AnyModel], executionContext: ExecutionContext): Future[Page[AnyModel]] = {
-    userCall(blockedUrl(userId)).withQueryString(params.queryParams: _*).get().map { r =>
-      parsePage(r)(rd.restReads)
+    val url: String = blockedUrl(userId)
+    userCall(url).withQueryString(params.queryParams: _*).get().map { r =>
+      parsePage(r, context = Some(url))(rd.restReads)
     }
   }
 
@@ -143,22 +147,25 @@ trait RestSocial extends Social with RestDAO {
   }
 
   def userAnnotations(userId: String, params: PageParams = PageParams.empty)(implicit apiUser: ApiUser, executionContext: ExecutionContext): Future[Page[Annotation]] = {
-    userCall(enc(requestUrl, userId, EntityType.Annotation))
-      .withQueryString(params.queryParams: _*).get().map { r =>
-      parsePage(r)(Annotation.Converter.restReads)
+    val url: String = enc(requestUrl, userId, EntityType.Annotation)
+    userCall(url)
+        .withQueryString(params.queryParams: _*).get().map { r =>
+      parsePage(r, context = Some(url))(Annotation.Converter.restReads)
     }
   }
 
   def userLinks(userId: String, params: PageParams = PageParams.empty)(implicit apiUser: ApiUser, executionContext: ExecutionContext): Future[Page[Link]] = {
-    userCall(enc(requestUrl, userId, EntityType.Link))
-      .withQueryString(params.queryParams: _*).get().map { r =>
-      parsePage(r)(Link.Converter.restReads)
+    val url: String = enc(requestUrl, userId, EntityType.Link)
+    userCall(url)
+        .withQueryString(params.queryParams: _*).get().map { r =>
+      parsePage(r, context = Some(url))(Link.Converter.restReads)
     }
   }
 
   def userBookmarks(userId: String, params: PageParams = PageParams.empty)(implicit apiUser: ApiUser, executionContext: ExecutionContext): Future[Page[VirtualUnit]] = {
-    userCall(enc(requestUrl, userId, EntityType.VirtualUnit)).get().map { r =>
-      parsePage(r)(VirtualUnit.Converter.restReads)
+    val url: String = enc(requestUrl, userId, EntityType.VirtualUnit)
+    userCall(url).get().map { r =>
+      parsePage(r, context = Some(url))(VirtualUnit.Converter.restReads)
     }
   }
 

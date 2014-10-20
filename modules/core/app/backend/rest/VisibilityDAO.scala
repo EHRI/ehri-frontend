@@ -19,10 +19,11 @@ trait RestVisibility extends Visibility with RestDAO {
   private def requestUrl = "http://%s:%d/%s".format(host, port, mount)
 
   def setVisibility[MT](id: String, data: List[String])(implicit apiUser: ApiUser, rd: BackendReadable[MT], executionContext: ExecutionContext): Future[MT] = {
-    userCall(enc(requestUrl, "access", id))
+    val url: String = enc(requestUrl, "access", id)
+    userCall(url)
         .withQueryString(data.map(a => ACCESSOR_PARAM -> a): _*)
         .post("").map { response =>
-      val r = checkErrorAndParse(response)(rd.restReads)
+      val r = checkErrorAndParse(response, context = Some(url))(rd.restReads)
       Cache.remove(id)
       eventHandler.handleUpdate(id)
       r
@@ -30,7 +31,8 @@ trait RestVisibility extends Visibility with RestDAO {
   }
 
   def promote(id: String)(implicit apiUser: ApiUser, executionContext: ExecutionContext): Future[Boolean] = {
-    userCall(enc(requestUrl, "promote", id)).post("").map { response =>
+    val url: String = enc(requestUrl, "promote", id)
+    userCall(url).post("").map { response =>
       checkError(response)
       Cache.remove(id)
       response.status == Status.OK
@@ -38,7 +40,8 @@ trait RestVisibility extends Visibility with RestDAO {
   }
 
   def demote(id: String)(implicit apiUser: ApiUser, executionContext: ExecutionContext): Future[Boolean] = {
-    userCall(enc(requestUrl, "promote", id)).delete().map { response =>
+    val url: String = enc(requestUrl, "promote", id)
+    userCall(url).delete().map { response =>
       checkError(response)
       Cache.remove(id)
       response.status == Status.OK

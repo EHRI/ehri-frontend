@@ -39,7 +39,11 @@ package object rest {
 
   case class CriticalError(error: String) extends RuntimeException(error) with RestError
 
-  case class BadJson(error: Seq[(JsPath,Seq[PlayValidationError])]) extends RestError {
+  case class BadJson(
+      error: Seq[(JsPath,Seq[PlayValidationError])],
+      url: Option[String] = None,
+      data: Option[String] = None
+    ) extends RestError {
     override def toString = Json.prettyPrint(JsError.toFlatJson(error))
   }
 

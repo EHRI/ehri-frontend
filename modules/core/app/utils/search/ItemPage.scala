@@ -7,9 +7,9 @@ import language.postfixOps
  */
 case class ItemPage[+A](
   items: Seq[A] = Seq.empty,
-  page: Int = 1,
-  count:Int = 0,
-  total: Long = 0,
+  offset: Int = 0,
+  limit:Int = 0,
+  total: Int = 0,
   facets: utils.search.FacetClassList = List.empty,
   spellcheck: Option[(String,String)] = None
 ) extends utils.AbstractPage[A]

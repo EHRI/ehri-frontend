@@ -56,7 +56,7 @@ case class SolrDispatcher(queryBuilder: QueryBuilder, responseParser: ResponsePa
     dispatch(queryRequest).map { response =>
       val parser = responseParser(checkError(response).body)
       val items = parser.items.map(i => FilterHit(i.itemId, i.id, i.name, i.`type`, i.fields.get(SolrConstants.HOLDER_NAME), i.gid))
-      ItemPage(items, params.pageOrDefault, params.countOrDefault, parser.count, Nil)
+      ItemPage(items, params.offset, params.countOrDefault, parser.count, Nil)
     }
   }
 
@@ -77,7 +77,7 @@ case class SolrDispatcher(queryBuilder: QueryBuilder, responseParser: ResponsePa
     val queryRequest = queryBuilder.search(params, facets, allFacets, filters, extra, mode)
     dispatch(queryRequest).map { response =>
       val parser = responseParser(checkError(response).body)
-      ItemPage(parser.items, params.pageOrDefault, params.countOrDefault, parser.count,
+      ItemPage(parser.items, params.offset, params.countOrDefault, parser.count,
         parser.extractFacetData(facets, allFacets), spellcheck = parser.spellcheckSuggestion)
     }
   }
@@ -113,7 +113,7 @@ case class SolrDispatcher(queryBuilder: QueryBuilder, responseParser: ResponsePa
         case FacetQuerySort.Name => facetClass.sortedByName.slice(params.offset, params.offset + params.countOrDefault)
         case _ => facetClass.sortedByCount.slice(params.offset, params.offset + params.countOrDefault)
       }
-      FacetPage(facetClass, facetLabels, params.pageOrDefault, params.countOrDefault, facetClass.count)
+      FacetPage(facetClass, facetLabels, params.offset, params.countOrDefault, facetClass.count)
     }
   }
 }

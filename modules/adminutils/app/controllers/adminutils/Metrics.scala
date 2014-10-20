@@ -38,7 +38,7 @@ case class Metrics @Inject()(implicit globalConfig: global.GlobalConfig, searchD
     (__ \ "items").lazyWrite[Seq[MT]](Writes.seq(rd.clientFormat)) and
     (__ \ "page").write[Int] and
     (__ \ "count").write[Int] and
-    (__ \ "total").write[Long] and
+    (__ \ "total").write[Int] and
     (__ \ "facetClasses").lazyWrite(Writes.list[FacetClass[Facet]](FacetClass.facetClassWrites)) and
     (__ \ "spellcheck").writeNullable(
       (__ \ "given").write[String] and
