@@ -8,7 +8,7 @@
         </li>
     }
     </ul>
-    @common.pagination(annotations, pageParam = "apage")
+    @common.pagination(annotations, namespace = "a")
     <div class="pull-right small text-muted">
         <span class="glyphicon glyphicon-download"></span>
         @for(fmt <- Seq(DataFormat.Text, DataFormat.Csv, DataFormat.Json)) {

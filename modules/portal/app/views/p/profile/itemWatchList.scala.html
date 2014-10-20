@@ -10,7 +10,7 @@
                 </li>
             }
         </ul>
-        @common.pagination(items, pageParam = "wpage")
+        @common.pagination(items, namespace = "w")
         <div class="pull-right small text-muted">
             <span class="glyphicon glyphicon-download"></span>
             @for(fmt <- Seq(DataFormat.Text, DataFormat.Csv, DataFormat.Json)) {

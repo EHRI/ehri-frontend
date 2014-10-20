@@ -97,7 +97,7 @@ case class Profile @Inject()(implicit globalConfig: global.GlobalConfig, searchD
   }
 
   def watching(format: DataFormat.Value = DataFormat.Html) = withUserAction.async { implicit user => implicit request =>
-    val watchParams = PageParams.fromRequest(request)
+    val watchParams = PageParams.fromRequest(request, namespace = "w")
     backend.watching(user.id, watchParams).map { watchList =>
       format match {
         case DataFormat.Text => Ok(views.txt.p.profile.watchedItems(watchList))
@@ -110,6 +110,7 @@ case class Profile @Inject()(implicit globalConfig: global.GlobalConfig, searchD
         case DataFormat.Json =>
           Ok(Json.toJson(watchList.items.map(ExportWatchItem.fromItem)))
             .as(MimeTypes.JSON)
+
         case _ => Ok(p.profile.watchedItems(watchList))
       }
     }

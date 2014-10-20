@@ -1,4 +1,6 @@
-@(page: utils.AbstractPage[_], pageParam: String = "page")(implicit req: RequestHeader)
+@(page: utils.AbstractPage[_], namespace: String = "")(implicit req: RequestHeader)
+
+@import utils.PageParams._
 
 @if(page.hasMultiplePages) {
     <ul id="pagination" class="pagination">
@@ -7,7 +9,9 @@
                 @if(cp == page.page) {
                     <li class="disabled"><a>@cp</a></li>
                 } else {
+                    @defining(namespace + PAGE_PARAM) { pageParam =>
                     <li><a href="@utils.joinPath(req.path, req.queryString.updated(pageParam, Seq(cp.toString)))">@cp</a></li>
+                    }
                 }
             }
             @if(range.last != page.numPages) {

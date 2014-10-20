@@ -145,7 +145,7 @@ case class Social @Inject()(implicit globalConfig: global.GlobalConfig, searchDi
 
   def watchedByUser(userId: String) = withUserAction.async { implicit user => implicit request =>
     // Show a list of watched item by a defined User
-    val watchParams = PageParams.fromRequest(request)
+    val watchParams = PageParams.fromRequest(request, namespace = "w")
     val watching: Future[Page[AnyModel]] = backend.watching(userId, watchParams)
     val isFollowing: Future[Boolean] = backend.isFollowing(user.id, userId)
     val allowMessage: Future[Boolean] = canMessage(user.id, userId)
