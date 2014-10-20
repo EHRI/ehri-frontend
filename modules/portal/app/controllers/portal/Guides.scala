@@ -10,7 +10,7 @@ import utils.search._
 import defines.EntityType
 
 import backend.Backend
-import backend.rest.{SearchDAO, RestBackend}
+import backend.rest.{Constants, SearchDAO}
 import backend.rest.cypher.CypherDAO
 
 import controllers.base.{SessionPreferences, ControllerHelpers}
@@ -46,20 +46,24 @@ case class Guides @Inject()(implicit globalConfig: global.GlobalConfig, searchDi
   override val staffOnly = current.configuration.getBoolean("ehri.portal.secured").getOrElse(true)
   override val verifiedOnly = current.configuration.getBoolean("ehri.portal.secured").getOrElse(true)
 
-  /*
-  *
-  *
-  *   General functionnalities for SQL DATA retrieval
-  *
-  */
+  private def facetPage(page: Int, limit: Int, total: Int): (Int, Int) = ((page - 1) * limit, limit)
 
   /*
   *  Return SearchParams for items with hierarchy
   */
   def getParams(request: Request[Any], eT: EntityType.Value, sort: Option[utils.search.SearchOrder.Value], isAjax: Boolean = false): SearchParams = { 
-    request.getQueryString("parent") match {
-      case Some(parent) => SearchParams(query = Some(SolrConstants.PARENT_ID + ":" + parent), entities = List(eT), sort = sort)
-      case _ => SearchParams(query = (if(!isAjax) Some(SolrConstants.TOP_LEVEL + ":" + true) else None), entities = List(eT), sort = sort)
+    request.getQueryString("parent").map { parent =>
+      SearchParams(
+        query = Some(SolrConstants.PARENT_ID + ":" + parent),
+        entities = List(eT),
+        sort = sort
+      )
+    }.getOrElse {
+      SearchParams(
+        query = if(!isAjax) Some(SolrConstants.TOP_LEVEL + ":" + true) else None,
+        entities = List(eT),
+        sort = sort
+      )
     }
   }
 
@@ -94,9 +98,8 @@ case class Guides @Inject()(implicit globalConfig: global.GlobalConfig, searchDi
             "accessPoint" -> JsString(getFacetQuery(target))
           )
           cypher.cypher(query, params).map { json =>
-            (json \ "data").as[List[List[JsValue]]].flatMap {
-              case JsString(id) :: JsNumber(count) :: _ => Some(id -> count.toLong)
-              case _ => None
+            (json \ "data").as[List[List[JsValue]]].collect {
+              case JsString(id) :: JsNumber(count) :: _ => id -> count.toLong
             }.toMap
           }
       } else {
@@ -189,9 +192,9 @@ case class Guides @Inject()(implicit globalConfig: global.GlobalConfig, searchDi
       "items" -> Json.toJson(page.items.map { case (agent, hit) =>
                       guideJsonItem(agent, links.get(agent.id).getOrElse(0))
                     }),
-      "limit" -> Json.toJson(20),
-      "page" -> Json.toJson(page.page.toInt),
-      "total" -> Json.toJson(page.total.toInt)
+      "limit" -> JsNumber(page.limit),
+      "page" -> JsNumber(page.page),
+      "total" -> JsNumber(page.total)
     )
 }
   /*
@@ -352,12 +355,13 @@ case class Guides @Inject()(implicit globalConfig: global.GlobalConfig, searchDi
   val facetsForm = Form(
     tuple(
       "kw" -> list(text),
-      "page" -> optional(number)
+      PageParams.PAGE_PARAM -> default(number, 1),
+      Constants.LIMIT_PARAM -> default(number, 10)
     )
   )
 
   def getFacetQuery(ids: List[String]) : String = {
-    ids.filter(x => !(x.isEmpty)).map("__ID__:" + _ ).reduce((a, b) =>  a + " OR " + b)
+    ids.filterNot(_.isEmpty).map("__ID__:" + _ ).reduce((a, b) =>  a + " OR " + b)
   }
 
   /*
@@ -379,8 +383,7 @@ case class Guides @Inject()(implicit globalConfig: global.GlobalConfig, searchDi
                    WHERE x IN accessPointsId)
          RETURN ID(doc)
         """.stripMargin
-    cypher.cypher(query, 
-    Map(
+    cypher.cypher(query, Map(
       /* All IDS */
       "guide" -> JsString(guide.virtualUnit),
       "accesslist" -> Json.toJson(ids),
@@ -405,8 +408,7 @@ case class Guides @Inject()(implicit globalConfig: global.GlobalConfig, searchDi
           WHERE doc <> accessPoints
          RETURN DISTINCT ID(accessPoints)
         """.stripMargin
-    cypher.cypher(query, 
-    Map(
+    cypher.cypher(query, Map(
       /* All IDS */
       "guide" -> JsString(guide.virtualUnit),
       "docList" -> Json.toJson(ids)
@@ -416,25 +418,8 @@ case class Guides @Inject()(implicit globalConfig: global.GlobalConfig, searchDi
     }
   }
 
-  /*
-   *    Page defintion
-   */
-  def facetPage(count: Int, page:Option[Int]) : (Int, Int) = {
-    val start = (page.getOrElse(1) - 1) * 10
-
-    if(start > count) {
-      val begin = count / 10 * 10 
-      val end = (count / 10 * 10) + 10
-      (begin, end)
-    } else {
-      val begin = if(start < 0) 0 else start
-      val end = if(start < 10) 10 else if(start+10 > count)  count else start + 10
-      (begin, end)
-    }
-  }
-
-  def facetSlice(ids : Seq[Long], page:Option[Int]) : Seq[Long] = {
-    val pages = facetPage(ids.size, page)
+  def facetSlice(ids : Seq[Long], page: Int, limit: Int) : Seq[Long] = {
+    val pages = facetPage(page, limit, ids.size)
     ids.slice(pages._1, pages._2)
   }
 
@@ -452,8 +437,8 @@ case class Guides @Inject()(implicit globalConfig: global.GlobalConfig, searchDi
   }
 
 
-  def pagify(docsId : Seq[Long], docsItems: Seq[DocumentaryUnit], accessPoints: Seq[AnyModel], page: Option[Int] = None): ItemPage[DocumentaryUnit] = {
-    facetPage(docsId.size, page) match { 
+  def pagify(docsId : Seq[Long], docsItems: Seq[DocumentaryUnit], accessPoints: Seq[AnyModel], page: Int, limit: Int): ItemPage[DocumentaryUnit] = {
+    facetPage(page, limit, docsId.size) match {
       case (start, end) => ItemPage(
         items = docsItems,
         offset = start,
@@ -488,16 +473,16 @@ case class Guides @Inject()(implicit globalConfig: global.GlobalConfig, searchDi
        *  If we have keyword, we make a query 
        */
       val defaultResult = Ok(p.guides.facet(ItemPage(Seq(), 0, 0, 0, List()), Map().empty, GuidePage.faceted -> (guide -> guide.findPages)))
-      facetsForm.bindFromRequest(request.queryString).fold(
+      facetsForm.bindFromRequest.fold(
         errs => immediate(defaultResult), {
-          case (selectedFacets, page) if !selectedFacets.filterNot(_.isEmpty).isEmpty => for {
+          case (selectedFacets, page, limit) if !selectedFacets.filterNot(_.isEmpty).isEmpty => for {
             ids <- searchFacets(guide, selectedFacets.filterNot(_.isEmpty))
-            docs <- SearchDAO.listByGid[DocumentaryUnit](facetSlice(ids, page))
+            docs <- SearchDAO.listByGid[DocumentaryUnit](facetSlice(ids, page, limit))
             selectedAccessPoints <- SearchDAO.list[AnyModel](selectedFacets.filterNot(_.isEmpty))
             availableFacets <- otherFacets(guide, ids)
             tempAccessPoints <- SearchDAO.listByGid[AnyModel](availableFacets)
           } yield {
-            Ok(p.guides.facet(pagify(ids, docs, selectedAccessPoints, page), mapAccessPoints(guide, tempAccessPoints), GuidePage.faceted -> (guide -> guide.findPages)))
+            Ok(p.guides.facet(pagify(ids, docs, selectedAccessPoints, page, limit), mapAccessPoints(guide, tempAccessPoints), GuidePage.faceted -> (guide -> guide.findPages)))
           }
           case _ => immediate(defaultResult)
         }
