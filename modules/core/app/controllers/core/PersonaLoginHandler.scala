@@ -9,6 +9,7 @@ import com.google.inject._
 import scala.concurrent.Future.{successful => immediate}
 import backend.{ApiUser, Backend}
 import scala.concurrent.Future
+import controllers.core.auth.AccountHelpers
 
 /**
  * Handler for Mozilla Persona-based login.
@@ -16,7 +17,7 @@ import scala.concurrent.Future
  * NOTE: Not tested for some time...
  */
 @Singleton
-trait PersonaLoginHandler {
+trait PersonaLoginHandler extends AccountHelpers {
 
   self: Controller =>
 
@@ -50,7 +51,7 @@ trait PersonaLoginHandler {
                 case Some(account) => f(Right(account))(request)
                 case None => {
                   implicit val apiUser = ApiUser()
-                  backend.createNewUserProfile().flatMap { up =>
+                  backend.createNewUserProfile(groups = defaultPortalGroups).flatMap { up =>
                     val account = userDAO.create(up.id, email, verified = true, staff = false,
                       allowMessaging = canMessageUsers)
                     f(Right(account))(request)
