@@ -2,7 +2,7 @@ package backend
 
 import scala.concurrent.{ExecutionContext, Future}
 import utils.{Page, PageParams}
-import defines.{EntityType, ContentTypes}
+import defines.ContentTypes
 import play.api.libs.json.JsObject
 
 /**

@@ -215,7 +215,7 @@ class BackendSpec extends helpers.Neo4jRunnerSpec(classOf[BackendSpec]) {
     }
 
     "be able to list permissions" in new FakeApp {
-      val page = await(testBackend.listScopePermissionGrants("r1", PageParams.empty))
+      val page = await(testBackend.listScopePermissionGrants[PermissionGrant]("r1", PageParams.empty))
       page.items must not(beEmpty)
     }
   }

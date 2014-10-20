@@ -1,7 +1,7 @@
 package controllers.core.auth.openid
 
 import models.sql.OpenIDAssociation
-import models.{Account, AccountDAO}
+import models.{UserProfile, Account, AccountDAO}
 import play.api.libs.openid._
 import play.api.libs.concurrent.Execution.Implicits._
 import play.api._

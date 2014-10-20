@@ -21,8 +21,8 @@ trait ScopePermissions[MT] extends ItemPermissions[MT] {
       val itemParams = PageParams.fromRequest(request)
       val scopeParams = PageParams.fromRequest(request, namespace = "s")
       for {
-        permGrants <- backend.listItemPermissionGrants(id, itemParams)
-        scopeGrants <- backend.listScopePermissionGrants(id, scopeParams)
+        permGrants <- backend.listItemPermissionGrants[PermissionGrant](id, itemParams)
+        scopeGrants <- backend.listScopePermissionGrants[PermissionGrant](id, scopeParams)
       } yield f(item)(permGrants)(scopeGrants)(userOpt)(request)
     }
   }
