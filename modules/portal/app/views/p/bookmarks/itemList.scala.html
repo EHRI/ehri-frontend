@@ -10,7 +10,7 @@
                 </li>
             }
         </ul>
-        @common.pagination(items, pageParam = "wpage")
+        @common.pagination(items, namespace = "w")
     } else {
         <p class="text-muted">
             @if(isCurrentUser) {
