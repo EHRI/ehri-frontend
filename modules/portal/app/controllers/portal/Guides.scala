@@ -68,12 +68,8 @@ case class Guides @Inject()(implicit globalConfig: global.GlobalConfig, searchDi
   */
   def mapParams(request: Map[String,Seq[String]]): (utils.search.SearchOrder.Value, Map[String, Any]) = {
     GeoCoordinates.form.bindFromRequest(request).fold(
-      errorForm => {
-        SearchOrder.Name -> Map.empty
-      },
-      latlng => { 
-        SearchOrder.Location -> Map("pt" -> latlng.toString, "sfield" -> "location", "sort" -> "geodist() asc")
-      }
+      errorForm => SearchOrder.Name -> Map.empty,
+      latlng => SearchOrder.Location -> Map("pt" -> latlng.toString, "sfield" -> "location", "sort" -> "geodist() asc")
     )
   }
 
@@ -227,49 +223,49 @@ case class Guides @Inject()(implicit globalConfig: global.GlobalConfig, searchDi
   /*
   *   Layout named "person" [HistoricalAgent]
   */
-  def guideAuthority(template: GuidePage, params: Map[String, String], guide: Guide) = userBrowseAction.async { implicit userDetails => implicit request =>
-     for { 
-          r <- find[HistoricalAgent](filters = params, defaultParams = SearchParams(sort = Some(if(isAjax) ajaxOrder else htmlAgentOrder)), entities = List(EntityType.HistoricalAgent))
-          links <- countLinks(guide.virtualUnit, r.page.items.map { case(item, hit) => item.id }.toList)
+  def guideAuthority(template: GuidePage, params: Map[String, String], guide: Guide) = userBrowseAction.async {
+      implicit userDetails => implicit request =>
+    for {
+      r <- find[HistoricalAgent](
+        filters = params,
+        defaultParams = SearchParams(sort = Some(if (isAjax) ajaxOrder else htmlAgentOrder)),
+        entities = List(EntityType.HistoricalAgent)
+      )
+      links <- countLinks(guide.virtualUnit, r.page.items.map { case (item, hit) => item.id}.toList)
+    } yield render {
+      case Accepts.Html() => {
+        if (isAjax) Ok(p.guides.ajax(template -> guide, r.page, r.params, links))
+        else Ok(p.guides.person(template -> (guide -> guide.findPages), r.page, r.params, links))
       }
-      yield {
-          render {
-            case Accepts.Html() => {
-              if (isAjax) Ok(p.guides.ajax(template -> guide, r.page, r.params, links))
-              else Ok(p.guides.person(template -> (guide -> guide.findPages), r.page, r.params, links))
-            }
-            case Accepts.Json() => {
-              Ok(guideJson(r.page, request, links))
-            }
-          }
+      case Accepts.Json() => {
+        Ok(guideJson(r.page, request, links))
       }
+    }
   }
 
   /*
   *   Layout named "map" [Concept]
   */
-  def guideMap(template: GuidePage, params: Map[String, String], guide: Guide) = userBrowseAction.async { implicit userDetails => implicit request =>
+  def guideMap(template: GuidePage, params: Map[String, String], guide: Guide) = userBrowseAction.async {
+      implicit userDetails => implicit request =>
     mapParams(
-        if (request.queryString.contains("lat") && request.queryString.contains("lng")) {
-          request.queryString
-        } else {
-          template.getParams()
-        }
-      ) match { case (sort, geoloc) =>
-      for {
-        r <- find[Concept](params, extra = geoloc, defaultParams = SearchParams(entities = List(EntityType.Concept), sort = Some(sort)), entities = List(EntityType.Concept), facetBuilder = conceptFacets)
-        links <- countLinks(guide.virtualUnit, r.page.items.map { case(item, hit) => item.id }.toList)
+      if (request.queryString.contains("lat") && request.queryString.contains("lng")) {
+        request.queryString
+      } else {
+        template.getParams()
       }
-      yield {
-          render {
-            case Accepts.Html() => {
-              if (isAjax) Ok(p.guides.ajax(template -> guide, r.page, r.params, links))
-              else Ok(p.guides.places(template -> (guide -> guide.findPages), r.page, r.params, links, guideJson(r.page, request, links)))
-            }
-            case Accepts.Json() => {
-              Ok(guideJson(r.page, request, links))
-            }
-          }
+    ) match {
+      case (sort, geoloc) => for {
+        r <- find[Concept](params, extra = geoloc, defaultParams = SearchParams(entities = List(EntityType.Concept), sort = Some(sort)), entities = List(EntityType.Concept), facetBuilder = conceptFacets)
+        links <- countLinks(guide.virtualUnit, r.page.items.map { case (item, hit) => item.id}.toList)
+      } yield render {
+        case Accepts.Html() => {
+          if (isAjax) Ok(p.guides.ajax(template -> guide, r.page, r.params, links))
+          else Ok(p.guides.places(template -> (guide -> guide.findPages), r.page, r.params, links, guideJson(r.page, request, links)))
+        }
+        case Accepts.Json() => {
+          Ok(guideJson(r.page, request, links))
+        }
       }
     }
   }
@@ -277,21 +273,23 @@ case class Guides @Inject()(implicit globalConfig: global.GlobalConfig, searchDi
   /*
   *   Layout named "organisation" [Concept]
   */
-  def guideOrganization(template: GuidePage, params: Map[String, String], guide: Guide) = userBrowseAction.async { implicit userDetails => implicit request =>
-     for { 
-        r <- find[Concept](params, defaultParams = getParams(request, EntityType.Concept, Some(if(isAjax) ajaxOrder else htmlConceptOrder), isAjax = isAjax), facetBuilder = conceptFacets)
-        links <- countLinks(guide.virtualUnit, r.page.items.map { case(item, hit) => item.id }.toList)
+  def guideOrganization(template: GuidePage, params: Map[String, String], guide: Guide) = userBrowseAction.async {
+    implicit userDetails => implicit request =>
+    for {
+      r <- find[Concept](
+        params,
+        defaultParams = getParams(request, EntityType.Concept, Some(if (isAjax) ajaxOrder else htmlConceptOrder), isAjax = isAjax),
+        facetBuilder = conceptFacets
+      )
+      links <- countLinks(guide.virtualUnit, r.page.items.map { case (item, hit) => item.id}.toList)
+    } yield render {
+      case Accepts.Html() => {
+        if (isAjax) Ok(p.guides.ajax(template -> guide, r.page, r.params, links))
+        else Ok(p.guides.organisation(template -> (guide -> guide.findPages), r.page, r.params, links))
       }
-      yield {
-          render {
-            case Accepts.Html() => {
-                if (isAjax) Ok(p.guides.ajax(template -> guide, r.page, r.params, links))
-                else Ok(p.guides.organisation(template -> (guide -> guide.findPages), r.page, r.params, links))
-            }
-            case Accepts.Json() => {
-              Ok(guideJson(r.page, request, links))
-            }
-          }
+      case Accepts.Json() => {
+        Ok(guideJson(r.page, request, links))
+      }
     }
   }
 
@@ -306,29 +304,29 @@ case class Guides @Inject()(implicit globalConfig: global.GlobalConfig, searchDi
   /*
   *  Layout named "document"
   */
-    def browseDocument(path: String, id: String) = getAction[DocumentaryUnit](EntityType.DocumentaryUnit, id) {
-        item => details => implicit userOpt => implicit request =>
-      itemOr404(Guide.find(path, activeOnly = true)) { guide =>
-        Ok(p.guides.documentaryUnit(
-          item,
-          details.annotations,
-          details.links,
-          details.watched,
-          GuidePage.document(Some(item.toStringLang)) -> (guide -> guide.findPages))
-        )
-      }
+  def browseDocument(path: String, id: String) = getAction[DocumentaryUnit](EntityType.DocumentaryUnit, id) {
+      item => details => implicit userOpt => implicit request =>
+    itemOr404(Guide.find(path, activeOnly = true)) { guide =>
+      Ok(p.guides.documentaryUnit(
+        item,
+        details.annotations,
+        details.links,
+        details.watched,
+        GuidePage.document(Some(item.toStringLang)) -> (guide -> guide.findPages))
+      )
     }
+  }
 
-    /*
-     * Function for displaying repository
-     */
+  /*
+   * Function for displaying repository
+   */
 
-     def browseRepository(path: String, id: String) = getAction[Repository](EntityType.Repository, id) {
-        item => details => implicit userOpt => implicit request =>
-        itemOr404(Guide.find(path, activeOnly = true)) { guide => 
-          Ok(p.guides.repository(item, GuidePage.repository(Some(item.toStringLang)) -> (guide -> guide.findPages)))
-        }
+  def browseRepository(path: String, id: String) = getAction[Repository](EntityType.Repository, id) {
+      item => details => implicit userOpt => implicit request =>
+    itemOr404(Guide.find(path, activeOnly = true)) { guide =>
+      Ok(p.guides.repository(item, GuidePage.repository(Some(item.toStringLang)) -> (guide -> guide.findPages)))
     }
+  }
 
   /*
   *
@@ -395,7 +393,6 @@ case class Guides @Inject()(implicit globalConfig: global.GlobalConfig, searchDi
 
   /* Function to get items*/
   def otherFacets(guide: Guide, ids: Seq[Long]): Future[Seq[Long]] = {
-    println(ids)
     val cypher = new CypherDAO
     val query = 
     s"""
@@ -459,8 +456,8 @@ case class Guides @Inject()(implicit globalConfig: global.GlobalConfig, searchDi
     facetPage(docsId.size, page) match { 
       case (start, end) => ItemPage(
         items = docsItems,
-        page = start,
-        count = end - start,
+        offset = start,
+        limit = end - start,
         total = docsId.size,
         facets = List(
           GuideFacetClass(
@@ -474,29 +471,12 @@ case class Guides @Inject()(implicit globalConfig: global.GlobalConfig, searchDi
   }
 
   def mapAccessPoints(guide: Guide, facets: Seq[AnyModel]): Map[String, List[AnyModel]] = {
-    guide.findPages().map( page => 
-        page.content -> facets.map { facet =>
-          facet match {
-            case f:Concept => {
-              f.vocabulary match {
-                case Some(s:Vocabulary) => if(s.id == page.content) { facet }  else None
-                case _ => None
-              }
-              
-            }
-            case f:HistoricalAgent => {
-              f.set match {
-                case Some(s:AuthoritativeSet) => if(s.id == page.content) { facet }  else None
-                case _ => None
-              }
-            }
-            case _ => None
-          }
-        }.flatMap {
-          case f:AnyModel => Some(f)
-          case _ => None
+    guide.findPages().map { page =>
+        page.content -> facets.collect {
+            case f:Concept if f.vocabulary.exists(_.id == page.content) => f
+            case f:HistoricalAgent if f.set.exists(_.id == page.content) => f
         }.toList
-      ).toMap
+    }.toMap
   }
 
   /*
@@ -510,13 +490,15 @@ case class Guides @Inject()(implicit globalConfig: global.GlobalConfig, searchDi
       val defaultResult = Ok(p.guides.facet(ItemPage(Seq(), 0, 0, 0, List()), Map().empty, GuidePage.faceted -> (guide -> guide.findPages)))
       facetsForm.bindFromRequest(request.queryString).fold(
         errs => immediate(defaultResult), {
-          case (selectedFacets, page) if !selectedFacets.filter(x => !(x.isEmpty)).isEmpty => for {
-            ids <- searchFacets(guide, selectedFacets.filter(x => !(x.isEmpty)))
+          case (selectedFacets, page) if !selectedFacets.filterNot(_.isEmpty).isEmpty => for {
+            ids <- searchFacets(guide, selectedFacets.filterNot(_.isEmpty))
             docs <- SearchDAO.listByGid[DocumentaryUnit](facetSlice(ids, page))
-            selectedAccessPoints <- SearchDAO.list[AnyModel](selectedFacets.filter(x => !(x.isEmpty)))
+            selectedAccessPoints <- SearchDAO.list[AnyModel](selectedFacets.filterNot(_.isEmpty))
             availableFacets <- otherFacets(guide, ids)
             tempAccessPoints <- SearchDAO.listByGid[AnyModel](availableFacets)
-          } yield Ok(p.guides.facet(pagify(ids, docs, selectedAccessPoints, page), mapAccessPoints(guide, tempAccessPoints), GuidePage.faceted -> (guide -> guide.findPages)))
+          } yield {
+            Ok(p.guides.facet(pagify(ids, docs, selectedAccessPoints, page), mapAccessPoints(guide, tempAccessPoints), GuidePage.faceted -> (guide -> guide.findPages)))
+          }
           case _ => immediate(defaultResult)
         }
       )
@@ -524,5 +506,4 @@ case class Guides @Inject()(implicit globalConfig: global.GlobalConfig, searchDi
       immediate(NotFound(views.html.errors.pageNotFound()))
     }
   }
-
 }
