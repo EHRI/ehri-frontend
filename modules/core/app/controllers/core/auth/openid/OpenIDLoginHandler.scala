@@ -108,7 +108,7 @@ trait OpenIDLoginHandler extends AccountHelpers {
               f(Right(acc))(request)
             } getOrElse {
               implicit val apiUser = ApiUser()
-              backend.createNewUserProfile(data, groups = defaultPortalGroups).flatMap { up =>
+              backend.createNewUserProfile[UserProfile](data, groups = defaultPortalGroups).flatMap { up =>
                 val account = userDAO.create(up.id, email.toLowerCase, verified = true,
                   staff = false, allowMessaging = canMessage)
                 OpenIDAssociation.addAssociation(account, info.id)

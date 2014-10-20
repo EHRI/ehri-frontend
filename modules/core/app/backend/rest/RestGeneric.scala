@@ -5,7 +5,6 @@ import play.api.libs.json._
 import defines.ContentTypes
 import play.api.Play.current
 import play.api.cache.Cache
-import models.base.AnyModel
 import utils.{Page, PageParams}
 import backend._
 import models.Entity
@@ -51,7 +50,7 @@ trait RestGeneric extends Generic with RestDAO {
     }
   }
 
-  def create[MT,T](item: T, accessors: Seq[String] = Nil,
+  def create[MT <: WithId, T](item: T, accessors: Seq[String] = Nil,
       params: Map[String,Seq[String]] = Map(),
       logMsg: Option[String] = None)(implicit apiUser: ApiUser, rs: BackendResource[MT], wrt: BackendWriteable[T], rd: backend.BackendReadable[MT], executionContext: ExecutionContext): Future[MT] = {
     val url = enc(requestUrl, rs.entityType)
@@ -61,14 +60,12 @@ trait RestGeneric extends Generic with RestDAO {
         .withHeaders(msgHeader(logMsg): _*)
       .post(Json.toJson(item)(wrt.restFormat)).map { response =>
       val created = checkErrorAndParse(response, context = Some(url))(rd.restReads)
-      created match {
-        case item: AnyModel => eventHandler.handleCreate(item.id); created
-        case _ => created
-      }
+      eventHandler.handleCreate(created.id)
+      created
     }
   }
 
-  def createInContext[MT,T,TT](id: String, contentType: ContentTypes.Value, item: T, accessors: Seq[String] = Nil, params: Map[String, Seq[String]] = Map.empty,
+  def createInContext[MT,T,TT <: WithId](id: String, contentType: ContentTypes.Value, item: T, accessors: Seq[String] = Nil, params: Map[String, Seq[String]] = Map.empty,
       logMsg: Option[String] = None)(
         implicit apiUser: ApiUser, wrt: BackendWriteable[T], rs: BackendResource[MT], rd: backend.BackendReadable[TT], executionContext: ExecutionContext): Future[TT] = {
     val url = enc(requestUrl, rs.entityType, id, contentType)
@@ -78,13 +75,9 @@ trait RestGeneric extends Generic with RestDAO {
         .withHeaders(msgHeader(logMsg): _*)
         .post(Json.toJson(item)(wrt.restFormat)).map { response =>
       val created = checkErrorAndParse(response, context = Some(url))(rd.restReads)
-      created match {
-        case item: AnyModel =>
-          // also reindex parent since this will update child count caches
-          eventHandler.handleUpdate(id)
-          eventHandler.handleCreate(item.id)
-        case _ =>
-      }
+      // also reindex parent since this will update child count caches
+      eventHandler.handleUpdate(id)
+      eventHandler.handleCreate(created.id)
       created
     }
   }

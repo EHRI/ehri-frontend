@@ -1,10 +1,9 @@
 package backend.rest
 
 import scala.concurrent.{ExecutionContext, Future}
-import models._
 import play.api.mvc.Headers
 import play.api.libs.ws.WSResponse
-import backend.{EventHandler, ApiUser, Backend}
+import backend._
 
 /**
   * @author Mike Bryant (http://github.com/mikesname)
@@ -29,6 +28,6 @@ case class RestBackend(eventHandler: EventHandler)
       = api.get(urlpart, headers, params)
 
   // Helpers
-  def createNewUserProfile(data: Map[String,String] = Map.empty, groups: Seq[String] = Seq.empty)(implicit apiUser: ApiUser, executionContext: ExecutionContext): Future[UserProfile]
-    = admin.createNewUserProfile(data, groups)
+  def createNewUserProfile[T <: WithId](data: Map[String,String] = Map.empty, groups: Seq[String] = Seq.empty)(implicit apiUser: ApiUser, rd: BackendReadable[T], executionContext: ExecutionContext): Future[T] =
+    admin.createNewUserProfile[T](data, groups)
  }

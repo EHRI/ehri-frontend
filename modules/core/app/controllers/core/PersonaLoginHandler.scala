@@ -1,6 +1,6 @@
 package controllers.core
 
-import models.{Account, AccountDAO}
+import models.{UserProfile, Account, AccountDAO}
 import play.api.mvc._
 import play.api.libs.ws.WS
 import play.api.libs.concurrent.Execution.Implicits._
@@ -51,7 +51,7 @@ trait PersonaLoginHandler extends AccountHelpers {
                 case Some(account) => f(Right(account))(request)
                 case None => {
                   implicit val apiUser = ApiUser()
-                  backend.createNewUserProfile(groups = defaultPortalGroups).flatMap { up =>
+                  backend.createNewUserProfile[UserProfile](groups = defaultPortalGroups).flatMap { up =>
                     val account = userDAO.create(up.id, email, verified = true, staff = false,
                       allowMessaging = canMessageUsers)
                     f(Right(account))(request)
@@ -59,7 +59,7 @@ trait PersonaLoginHandler extends AccountHelpers {
                 }
               }
             }
-            case other => f(Left(other.toString))(request)
+            case other => f(Left(other.toString()))(request)
           }
         }
       }
