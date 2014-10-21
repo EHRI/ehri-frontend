@@ -3,7 +3,6 @@ package backend.rest
 import scala.concurrent.{ExecutionContext, Future}
 import acl._
 import defines._
-import models.PermissionGrant
 import play.api.libs.json.Json
 import play.api.Play.current
 import play.api.cache.Cache
@@ -17,21 +16,20 @@ trait RestPermissions extends Permissions with RestDAO {
 
   import Constants._
 
-  private def baseUrl = s"http://$host:$port/$mount"
   private def requestUrl = s"$baseUrl/permission"
 
-  def listPermissionGrants(userId: String, params: PageParams)(implicit apiUser: ApiUser, rd: BackendReadable[PermissionGrant], executionContext: ExecutionContext): Future[Page[PermissionGrant]] =
+  def listPermissionGrants[A](userId: String, params: PageParams)(implicit apiUser: ApiUser, rd: BackendReadable[A], executionContext: ExecutionContext): Future[Page[A]] =
     listWithUrl(enc(requestUrl, "list", userId), params)
 
-  def listItemPermissionGrants(id: String, params: PageParams)(implicit apiUser: ApiUser, rd: BackendReadable[PermissionGrant], executionContext: ExecutionContext): Future[Page[PermissionGrant]] =
+  def listItemPermissionGrants[A](id: String, params: PageParams)(implicit apiUser: ApiUser, rd: BackendReadable[A], executionContext: ExecutionContext): Future[Page[A]] =
     listWithUrl(enc(requestUrl, "listForItem", id), params)
 
-  def listScopePermissionGrants(id: String, params: PageParams)(implicit apiUser: ApiUser, rd: BackendReadable[PermissionGrant], executionContext: ExecutionContext): Future[Page[PermissionGrant]] =
+  def listScopePermissionGrants[A](id: String, params: PageParams)(implicit apiUser: ApiUser, rd: BackendReadable[A], executionContext: ExecutionContext): Future[Page[A]] =
     listWithUrl(enc(requestUrl, "listForScope", id), params)
 
-  private def listWithUrl(url: String, params: PageParams)(implicit apiUser: ApiUser, rd: BackendReadable[PermissionGrant], executionContext: ExecutionContext): Future[Page[PermissionGrant]] = {
+  private def listWithUrl[A](url: String, params: PageParams)(implicit apiUser: ApiUser, rd: BackendReadable[A], executionContext: ExecutionContext): Future[Page[A]] = {
     userCall(url).withQueryString(params.queryParams: _*).get().map { response =>
-      parsePage[PermissionGrant](response, context = Some(url))
+      parsePage(response, context = Some(url))(rd.restReads)
     }
   }
 
@@ -105,6 +103,3 @@ trait RestPermissions extends Permissions with RestDAO {
     }
   }
 }
-
-
-case class PermissionDAO(eventHandler: EventHandler) extends RestPermissions

@@ -1,7 +1,6 @@
 package backend
 
 import scala.concurrent.{ExecutionContext, Future}
-import models.UserProfile
 import play.api.mvc.Headers
 import play.api.libs.ws.WSResponse
 
@@ -23,5 +22,5 @@ trait Backend
   def query(urlpart: String, headers: Headers, params: Map[String,Seq[String]] = Map.empty)(implicit apiUser: ApiUser, executionContext: ExecutionContext): Future[WSResponse]
 
   // Helpers
-  def createNewUserProfile(data: Map[String,String] = Map.empty, groups: Seq[String] = Seq.empty)(implicit apiUser: ApiUser, executionContext: ExecutionContext): Future[UserProfile]
+  def createNewUserProfile[T <: WithId](data: Map[String,String] = Map.empty, groups: Seq[String] = Seq.empty)(implicit apiUser: ApiUser, rd: BackendReadable[T], executionContext: ExecutionContext): Future[T]
 }

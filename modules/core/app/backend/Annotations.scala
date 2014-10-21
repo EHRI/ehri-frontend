@@ -1,16 +1,15 @@
 package backend
 
 import scala.concurrent.{ExecutionContext, Future}
-import models.{Annotation, AnnotationF}
 import utils.Page
 
 /**
  * @author Mike Bryant (http://github.com/mikesname)
  */
 trait Annotations {
-  def getAnnotationsForItem(id: String)(implicit apiUser: ApiUser, rs: BackendReadable[Annotation], executionContext: ExecutionContext): Future[Page[Annotation]]
+  def getAnnotationsForItem[A](id: String)(implicit apiUser: ApiUser, rs: BackendReadable[A], executionContext: ExecutionContext): Future[Page[A]]
 
-  def createAnnotation(id: String, ann: AnnotationF, accessors: Seq[String] = Nil)(implicit apiUser: ApiUser, rs: BackendReadable[Annotation], wr: BackendWriteable[AnnotationF], executionContext: ExecutionContext): Future[Annotation]
+  def createAnnotation[A,AF](id: String, ann: AF, accessors: Seq[String] = Nil)(implicit apiUser: ApiUser, rs: BackendReadable[A], wr: BackendWriteable[AF], executionContext: ExecutionContext): Future[A]
 
-  def createAnnotationForDependent(id: String, did: String, ann: AnnotationF, accessors: Seq[String] = Nil)(implicit apiUser: ApiUser, rs: BackendReadable[Annotation], wr: BackendWriteable[AnnotationF], executionContext: ExecutionContext): Future[Annotation]
+  def createAnnotationForDependent[A,AF](id: String, did: String, ann: AF, accessors: Seq[String] = Nil)(implicit apiUser: ApiUser, rs: BackendReadable[A], wr: BackendWriteable[AF], executionContext: ExecutionContext): Future[A]
 }

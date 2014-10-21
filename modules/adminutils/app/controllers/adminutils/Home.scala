@@ -1,7 +1,7 @@
 package controllers.adminutils
 
 import play.api.libs.concurrent.Execution.Implicits._
-import models.{AccountDAO, Isaar}
+import models.{SystemEvent, AccountDAO, Isaar}
 import models.base.{Description, AnyModel}
 import controllers.generic.Search
 import play.api.mvc._
@@ -88,7 +88,7 @@ case class Home @Inject()(implicit globalConfig: global.GlobalConfig, searchDisp
       val eventFilter = SystemEventParams.fromRequest(request)
         .copy(eventTypes = activityEventTypes)
         .copy(itemTypes = activityItemTypes)
-      backend.listEventsForUser(user.id, listParams, eventFilter).map { events =>
+      backend.listEventsForUser[SystemEvent](user.id, listParams, eventFilter).map { events =>
         Ok(views.html.index(Some(events)))
       }
     } getOrElse {

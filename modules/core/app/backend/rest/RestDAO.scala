@@ -179,9 +179,17 @@ trait RestDAO {
     uri.toString
   }
 
-  lazy val host: String = Play.current.configuration.getString("neo4j.server.host").get
-  lazy val port: Int = Play.current.configuration.getInt("neo4j.server.port").get
-  lazy val mount: String = Play.current.configuration.getString("neo4j.server.endpoint").get
+  private def getConfigString(key: String): String =
+    Play.current.configuration.getString(key).getOrElse(sys.error(s"Missing configuration value: '$key'"))
+
+  private def getConfigInt(key: String): Int =
+    Play.current.configuration.getInt(key).getOrElse(sys.error(s"Missing configuration value: '$key'"))
+
+  def host: String = getConfigString("neo4j.server.host")
+  def port: Int = getConfigInt("neo4j.server.port")
+  def mount: String = getConfigString("neo4j.server.endpoint")
+
+  def baseUrl = s"http://$host:$port/$mount"
 
   protected def checkError(response: WSResponse): WSResponse = {
     Logger.logger.trace("Response body ! : {}", response.body)
@@ -218,7 +226,6 @@ trait RestDAO {
           )
         } catch {
           case e: JsonParseException => {
-            Logger.error(response.body)
             throw new BadRequest(response.body)
           }
         }
@@ -247,15 +254,16 @@ trait RestDAO {
   private[rest] def parsePage[T](response: WSResponse)(implicit rd: Reads[T]): Page[T] =
     parsePage(response, None)(rd)
 
+  /**
+   * List header parser
+   */
+  private[rest] val Extractor = """offset=(-?\d+); limit=(-?\d+); total=(-?\d+)""".r
+
   private[rest] def parsePage[T](response: WSResponse, context: Option[String])(implicit rd: Reads[T]): Page[T] = {
     checkError(response).json.validate(Reads.seq(rd)).fold(
-      invalid => {
-        println(Json.prettyPrint(response.json))
-        Logger.error("Bad JSON: " + invalid)
-        throw new BadJson(invalid, url = context, data = Some(Json.prettyPrint(response.json)))
-      },
+      invalid => throw new BadJson(
+        invalid, url = context, data = Some(Json.prettyPrint(response.json))),
       items => {
-        val Extractor = """offset=(-?\d+); limit=(-?\d+); total=(-?\d+)""".r
         val pagination = response.header(HeaderNames.CONTENT_RANGE).getOrElse("")
         Extractor.findFirstIn(pagination) match {
           case Some(Extractor(offset, limit, total)) => Page(
@@ -277,11 +285,8 @@ trait RestDAO {
 
   private[rest] def jsonReadToRestError[T](json: JsValue, reader: Reads[T], context: Option[String] = None): T = {
     json.validate(reader).fold(
-      invalid => {
-        println(Json.prettyPrint(json))
-        Logger.error("Bad JSON: " + invalid)
-        throw new BadJson(invalid, url = context, data = Some(Json.prettyPrint(json)))
-      },
+      invalid => throw new BadJson(
+        invalid, url = context, data = Some(Json.prettyPrint(json))),
       valid => valid
     )
   }

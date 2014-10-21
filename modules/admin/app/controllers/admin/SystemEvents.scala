@@ -7,6 +7,7 @@ import utils.{RangeParams, SystemEventParams, PageParams}
 import controllers.generic.Read
 import backend.Backend
 import backend.rest.RestHelpers
+import models.base.AnyModel
 
 case class SystemEvents @Inject()(implicit globalConfig: global.GlobalConfig, backend: Backend, userDAO: AccountDAO) extends Read[SystemEvent] {
 
@@ -15,7 +16,7 @@ case class SystemEvents @Inject()(implicit globalConfig: global.GlobalConfig, ba
     // In addition to the item itself, we also want to fetch the subjects associated with it.
     val params = PageParams.fromRequest(request)
     val subjectParams = PageParams.fromRequest(request, namespace = "s")
-        backend.subjectsForEvent(id, params).map { page =>
+    backend.subjectsForEvent[AnyModel](id, subjectParams).map { page =>
       Ok(views.html.systemEvents.show(item, page, params))
     }
   }
@@ -27,7 +28,7 @@ case class SystemEvents @Inject()(implicit globalConfig: global.GlobalConfig, ba
 
     for {
       users <- RestHelpers.getUserList
-      events <- backend.listEvents(listParams, eventFilter)
+      events <- backend.listEvents[SystemEvent](listParams, eventFilter)
     } yield Ok(views.html.systemEvents.list(events, listParams, filterForm, users))
   }
 }
