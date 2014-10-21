@@ -1,7 +1,7 @@
-@(item: HistoricalAgent)(implicit req: RequestHeader, lang: Lang)
+@(item: HistoricalAgent, highlighter: views.Highlighter = views.NoopHighlighter)(implicit req: RequestHeader, lang: Lang)
 
 @item.model.descriptions.headOption.map { desc =>
-    @common.otherNameListSmall((desc.parallelFormsOfName ++ desc.otherFormsOfName).flatten.toList)
+    @common.otherNameListSmall((desc.parallelFormsOfName ++ desc.otherFormsOfName).flatten.toList, highlighter)
     <small>
         <ul class="list-unstyled text-muted list-inline inline-separator">
             <li>@Messages("historicalAgent." + desc.entityType.toString)</li>
@@ -10,16 +10,18 @@
             }
             @item.latestEvent.map { event =>
             <li title="@common.eventTitle(event)">
-                <time datetime="@event.model.timestamp">@Messages("systemEvent.lastUpdated", views.Helpers.relativeDate(event.model.timestamp))</time>
+                <time datetime="@event.model.timestamp">
+                    @Messages("systemEvent.lastUpdated", views.Helpers.relativeDate(event.model.timestamp))
+                </time>
             </li>
             }
         </ul>
     </small>
     @desc.details.datesOfExistence.map { d =>
-        @Html(views.Helpers.renderMarkdown(d))
+        @highlighter.highlight(views.Helpers.renderMarkdown(d))
     }
     @desc.displayText.map(s => views.Helpers.ellipsize(s, 600)).map { d =>
-        @Html(views.Helpers.renderMarkdown(d))
+        @highlighter.highlight(views.Helpers.renderMarkdown(d))
     }
 }.getOrElse {
     <small>@Messages("describedEntity.noDescriptions")</small>

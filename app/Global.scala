@@ -13,12 +13,11 @@ import java.util.concurrent.TimeUnit
 import models.AccountDAO
 import models.sql.SqlAccount
 import play.api._
-import play.api.libs.json.{Json, JsPath, JsError}
+import play.api.libs.json.{Json, JsError}
 import play.api.mvc._
 
 import play.api.mvc.Result
 import play.api.Play.current
-import play.api.templates.Html
 import play.filters.csrf._
 import scala.concurrent.duration.Duration
 
@@ -27,8 +26,6 @@ import utils.search._
 import global.GlobalConfig
 import scala.concurrent.Future
 import scala.concurrent.Future.{successful => immediate}
-import views.html.errors.itemNotFound
-import views.html.layout.errorLayout
 
 
 package globalConfig {
@@ -181,7 +178,11 @@ object Global extends WithFilters(CSRFFilter()) with GlobalSettings {
           renderError("errors.databaseError", serverTimeout())))
       case e: BadJson => sys.error(jsonError(e))
 
-      case e => super.onError(request, e)
+      case e => current.mode match {
+        case Mode.Prod => immediate(InternalServerError(
+          renderError("errors.genericProblem", fatalError())))
+        case _ => super.onError(request, ex)
+      }
     }
   }
 

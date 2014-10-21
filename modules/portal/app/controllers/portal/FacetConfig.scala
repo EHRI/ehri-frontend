@@ -112,7 +112,14 @@ trait FacetConfig extends Search {
   protected val historicalAgentFacets: FacetBuilder = { implicit request =>
     List(
       // dateQuery(request),
-
+      FieldFacetClass(
+        key = Description.LANG_CODE,
+        name = Messages("historicalAgent." + Description.LANG_CODE),
+        param = "lang",
+        render = (s: String) => Helpers.languageCodeToName(s),
+        display = FacetDisplay.Choice,
+        sort = FacetSort.Name
+      ),
       FieldFacetClass(
         key=Isaar.ENTITY_TYPE,
         name=Messages("historicalAgent." + Isaar.ENTITY_TYPE),
@@ -126,6 +133,19 @@ trait FacetConfig extends Search {
         param="set",
         render=s => s,
         display = FacetDisplay.Choice
+      ),
+      QueryFacetClass(
+        key="charCount",
+        name=Messages("facet.lod"),
+        param="lod",
+        render=s => Messages("facet.lod." + s),
+        facets=List(
+          SolrQueryFacet(value = "low", solrValue = "[0 TO 250]", name = Some("low")),
+          SolrQueryFacet(value = "medium", solrValue = "[251 TO 1000]", name = Some("medium")),
+          SolrQueryFacet(value = "high", solrValue = "[1001 TO *]", name = Some("high"))
+        ),
+        sort = FacetSort.Fixed,
+        display = FacetDisplay.List
       )
     )
   }

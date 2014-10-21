@@ -1,16 +1,18 @@
-@(item: Repository, showCountry: Boolean)(implicit userOpt: Option[UserProfile], req: RequestHeader, lang: Lang, descriptionId: Option[String] = None)
+@(item: Repository, showCountry: Boolean, highlighter: views.Highlighter = views.NoopHighlighter)(implicit userOpt: Option[UserProfile], req: RequestHeader, lang: Lang, descriptionId: Option[String] = None)
 
 @item.model.primaryDescription(descriptionId).map { desc =>
 
-    @common.otherNameListSmall((desc.parallelFormsOfName ++ desc.otherFormsOfName).flatten.toList)
+    @common.otherNameListSmall((desc.parallelFormsOfName ++ desc.otherFormsOfName).flatten.toList, highlighter)
     <small>
-        @conciseAddress(item, desc, includeCountry = showCountry)
+        @conciseAddress(item, desc, includeCountry = showCountry, highlighter = highlighter)
         @views.html.common.childCount(item) { count =>
-            <a href="@controllers.portal.routes.Portal.browseRepository(item.id)#search-items">@Messages("repository.childCount", count)</a>
+            <a href="@controllers.portal.routes.Portal.searchRepository(item.id)">
+                @Messages("repository.childCount", count)
+            </a>
         }
     </small>
     @desc.displayText.map(views.Helpers.ellipsize(_, 600)).map { sc =>
-        @Html(views.Helpers.renderMarkdown(sc))
+        @highlighter.highlight(views.Helpers.renderMarkdown(sc))
     }
 }.getOrElse {
     <small>@Messages("describedEntity.noDescriptions")</small>

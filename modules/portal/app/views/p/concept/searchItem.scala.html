@@ -1,11 +1,9 @@
 @(item: Concept, hit: utils.search.SearchHit, watched: Boolean = false)(implicit userOpt: Option[UserProfile], req: RequestHeader, lang: Lang)
 
-@p.common.searchHits(hit) {
-    @p.layout.searchItemOutline(item, watched) {
-        <a href="@controllers.portal.routes.Portal.browseConcept(item.id)">@item.toStringLang</a>
-    } {
-        @defining(Some(hit.id)) { implicit descId =>
-            @listItemBody(item)
-        }
+@p.layout.searchItemOutline(item, watched) {
+    <a href="@controllers.portal.routes.Portal.browseConcept(item.id)">@hit.highlight(item.toStringLang)</a>
+} {
+    @defining(Some(hit.id)) { implicit descId =>
+        @listItemBody(item, highlighter = hit)
     }
 }
