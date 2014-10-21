@@ -232,6 +232,8 @@ case class SolrQueryBuilder(writerType: WriterType, debugQuery: Boolean = false)
       req.setHighlighting(HighlightingParams(
           enabled=true,
           isPhraseHighlighterEnabled=IsPhraseHighlighterEnabled(usePhraseHighlighter = true)))
+      req.set("hl.simple.pre", "<em class='highlight'>")
+      req.set("hl.simple.post", "</em>")
     }
 
     // Set result ordering, defaulting to the solr default 'score asc'

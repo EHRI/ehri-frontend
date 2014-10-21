@@ -98,6 +98,10 @@
 
                         @helper.inputText(pwForm("email"), 'class -> "form-control", 'autofocus -> "autofocus", 'placeholder -> Messages("login.email"), 'type -> "email", 'required -> "required")
                         @helper.inputPassword(pwForm("password"), 'class -> "form-control", 'placeholder -> Messages("login.password"), 'required -> "required")
+
+                        <p>
+                            <a href="@controllers.portal.routes.Profile.forgotPassword">@Messages("portal.login.recover.link")</a>
+                        </p>
                     </div>
 
                     <input type="submit" class="login-button btn btn-post" value="@Messages("portal.login.password.submit")" />
@@ -113,11 +117,6 @@
         </section>
 
         <hr />
-
-        <p>
-            @Messages("portal.login.recover")
-        </p>
-        <a href="@controllers.portal.routes.Profile.forgotPassword">@Messages("portal.login.recover.link")</a>
     }
 
 }(None, request, globalConfig, flash, lang)

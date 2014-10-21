@@ -21,7 +21,7 @@
         }
         @desc.identity.levelOfDescription.map { e =>
             <dt>@Messages("portal.documentaryUnit.levelOfDescription")</dt>
-            <dd>@e</dd>
+            <dd>@Messages("portal.documentaryUnit.levelOfDescription." + e)</dd>
         }
         @desc.conditions.languageOfMaterials.map { langs =>
             @if(!langs.isEmpty) {

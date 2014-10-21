@@ -1,6 +1,6 @@
 @(perm: Option[backend.rest.PermissionDenied] = None)(implicit req: RequestHeader, lang: Lang)
 
-<p class="text-error">@Messages("errors.permissionDeniedExplanation")</p>
+<p class="text-error">@Messages("errors.permissionDenied.explanation")</p>
 
 @perm.map { error =>
     <hr/>

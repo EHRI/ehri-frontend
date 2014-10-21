@@ -1,4 +1,5 @@
 @(event: SystemEvent)
+@{s"""${event.time.trim}
 
-@{s"${event.time.trim}\n\n${event.actioner.map(_.toStringLang).getOrElse(Messages("error.unknownUser"))}: ${event.model.logMessage.getOrElse(Messages("systemEvents." + event.model.eventType.map(_.toString).getOrElse("unknown")))}"}
+${event.actioner.map(_.toStringLang).getOrElse(Messages("error.unknownUser"))}: ${event.model.logMessage.getOrElse(Messages("systemEvent." + event.model.eventType.map(_.toString).getOrElse("unknown")))}"""}
 

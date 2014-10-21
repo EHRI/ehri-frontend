@@ -2,10 +2,10 @@
 
 @import Isdiah._
 
-@p.common.searchHits(hit) {
-    @p.layout.searchItemOutline(item, watched) {
-        <a href="@controllers.portal.routes.Portal.browseRepository(item.id)">@item.toStringLang</a>
-    } {
-        @listItemBody(item, showCountry)
-    }
+@p.layout.searchItemOutline(item, watched) {
+    <a href="@controllers.portal.routes.Portal.browseRepository(item.id)">
+        @hit.highlight(item.toStringLang)
+    </a>
+} {
+    @listItemBody(item, showCountry, highlighter = hit)
 }

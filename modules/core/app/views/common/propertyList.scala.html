@@ -1,4 +1,4 @@
-@(properties: Any*)(implicit lang: Lang)
+@(properties: Any*)(implicit lang: Lang, highlighter: views.Highlighter = views.NoopHighlighter)
 
 @properties.map { property =>
     @property match {
@@ -7,13 +7,13 @@
         case s: String if s.isEmpty => {
         }
         case Some(s) => {
-            <li>@s</li>
+            <li>@highlighter.highlight(s.toString)</li>
         }
         case s: String => {
-            <li>@s</li>
+            <li>@highlighter.highlight(s)</li>
         }
         case s => {
-            <li>@s</li>
+            <li>@highlighter.highlight(s.toString)</li>
         }
     }
 }

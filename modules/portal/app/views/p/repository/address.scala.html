@@ -3,6 +3,7 @@
 <div class="item-details">
     @desc.addresses.headOption.map { address =>
         <address>
+            <p>
             @address.streetAddress.map { s =>
                 @s<br>
             }
@@ -15,9 +16,9 @@
             @item.country.map { c =>
                 @p.helpers.linkTo(c)
             }
-        </address>
+            </p>
 
-        <address>
+            <p>
             @address.telephone.map { t =>
                 <span class="glyphicon glyphicon-phone" title="@Messages("portal.repository.phone")"></span>
                 @t<br>
@@ -27,13 +28,18 @@
                 @t<br>
             }
             @address.email.map { t =>
-                <span class="glyphicon glyphicon-envelope" title="Email"></span>
-                <a href="mailto:@t">@Messages("portal.repository.email")</a><br>
+                <a class="email" href="mailto:@t">
+                    <span class="glyphicon glyphicon-envelope" title="@t"></span>
+                    @t
+                </a><br>
             }
             @address.url.map { t =>
-                <span class="glyphicon glyphicon-globe" title="Web"></span>
-                <a href="@views.p.Helpers.normalizeUrl(t)" title="Website">@Messages("portal.repository.url")</a><br>
+                <a class="url" href="@views.p.Helpers.normalizeUrl(t)" title="Website">
+                    <span class="glyphicon glyphicon-globe" title="@t"></span>
+                    @t
+                </a><br>
             }
+            </p>
         </address>
     }
 </div>
