@@ -67,6 +67,7 @@ case class SearchHit(
       }
     }
 
-    Html(tryHighlight(highlightFields, text, ok = false))
+    //Html(tryHighlight(highlightFields, text, ok = false))
+    throw new UnsupportedOperationException("blurgh")
   }
 }
