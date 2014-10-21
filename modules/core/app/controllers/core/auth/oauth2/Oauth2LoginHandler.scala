@@ -82,7 +82,7 @@ trait Oauth2LoginHandler extends AccountHelpers {
           UserProfileF.NAME -> userData.name,
           UserProfileF.IMAGE_URL -> userData.imageUrl
         )
-        backend.createNewUserProfile(profileData, groups = defaultPortalGroups).map { userProfile =>
+        backend.createNewUserProfile[UserProfile](profileData, groups = defaultPortalGroups).map { userProfile =>
           val account = userDAO.create(userProfile.id, userData.email.toLowerCase, verified = true, staff = false,
             allowMessaging = canMessage)
           OAuth2Association.addAssociation(account, userData.providerId, provider.name)

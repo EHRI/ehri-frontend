@@ -6,6 +6,7 @@ import utils.PageParams
 import backend.rest.{CypherIdGenerator, ItemNotFound, ValidationError}
 import backend.rest.cypher.CypherDAO
 import play.api.libs.json.{JsString, Json}
+import models.base.AnyModel
 
 /**
  * Spec for testing individual data access components work as expected.
@@ -214,7 +215,7 @@ class BackendSpec extends helpers.Neo4jRunnerSpec(classOf[BackendSpec]) {
     }
 
     "be able to list permissions" in new FakeApp {
-      val page = await(testBackend.listScopePermissionGrants("r1", PageParams.empty))
+      val page = await(testBackend.listScopePermissionGrants[PermissionGrant]("r1", PageParams.empty))
       page.items must not(beEmpty)
     }
   }
@@ -250,9 +251,9 @@ class BackendSpec extends helpers.Neo4jRunnerSpec(classOf[BackendSpec]) {
       await(testBackend.isFollowing(userProfile.id, "reto")) must beFalse
       await(testBackend.follow(userProfile.id, "reto"))
       await(testBackend.isFollowing(userProfile.id, "reto")) must beTrue
-      val following = await(testBackend.following(userProfile.id))
+      val following = await(testBackend.following[UserProfile](userProfile.id))
       following.exists(_.id == "reto") must beTrue
-      val followingPage = await(testBackend.following(userProfile.id))
+      val followingPage = await(testBackend.following[UserProfile](userProfile.id))
       followingPage.total must equalTo(1)
       await(testBackend.unfollow(userProfile.id, "reto"))
       await(testBackend.isFollowing(userProfile.id, "reto")) must beFalse
@@ -262,9 +263,9 @@ class BackendSpec extends helpers.Neo4jRunnerSpec(classOf[BackendSpec]) {
       await(testBackend.isWatching(userProfile.id, "c1")) must beFalse
       await(testBackend.watch(userProfile.id, "c1"))
       await(testBackend.isWatching(userProfile.id, "c1")) must beTrue
-      val watching = await(testBackend.watching(userProfile.id))
+      val watching = await(testBackend.watching[AnyModel](userProfile.id))
       watching.exists(_.id == "c1") must beTrue
-      val watchingPage = await(testBackend.watching(userProfile.id))
+      val watchingPage = await(testBackend.watching[AnyModel](userProfile.id))
       watchingPage.total must equalTo(1)
       await(testBackend.unwatch(userProfile.id, "c1"))
       await(testBackend.isWatching(userProfile.id, "c1")) must beFalse
@@ -274,9 +275,9 @@ class BackendSpec extends helpers.Neo4jRunnerSpec(classOf[BackendSpec]) {
       await(testBackend.isBlocking(userProfile.id, "reto")) must beFalse
       await(testBackend.block(userProfile.id, "reto"))
       await(testBackend.isBlocking(userProfile.id, "reto")) must beTrue
-      val blocking = await(testBackend.blocked(userProfile.id))
+      val blocking = await(testBackend.blocked[UserProfile](userProfile.id))
       blocking.exists(_.id == "reto") must beTrue
-      val blockingPage = await(testBackend.blocked(userProfile.id))
+      val blockingPage = await(testBackend.blocked[UserProfile](userProfile.id))
       blockingPage.total must equalTo(1)
       await(testBackend.unblock(userProfile.id, "reto"))
       await(testBackend.isBlocking(userProfile.id, "reto")) must beFalse
@@ -300,7 +301,7 @@ class BackendSpec extends helpers.Neo4jRunnerSpec(classOf[BackendSpec]) {
       }
 
       // Ensure we can load VCs for the user
-      val vcs = await(testBackend.userBookmarks(userProfile.id))
+      val vcs = await(testBackend.userBookmarks[VirtualUnit](userProfile.id))
       vcs.size must equalTo(1)
       vcs.headOption must beSome.which { ovc =>
         ovc.id must equalTo(vc.id)
@@ -310,7 +311,7 @@ class BackendSpec extends helpers.Neo4jRunnerSpec(classOf[BackendSpec]) {
 
       // Add an included unit to the VC (a bookmark)
       await(testBackend.addBookmark(vc.id, "c4"))
-      await(testBackend.userBookmarks(userProfile.id)).headOption must beSome.which { ovc =>
+      await(testBackend.userBookmarks[VirtualUnit](userProfile.id)).headOption must beSome.which { ovc =>
         ovc.includedUnits.size must equalTo(1)
         ovc.includedUnits.headOption must beSome.which { iu =>
           iu.id must equalTo("c4")
@@ -319,7 +320,7 @@ class BackendSpec extends helpers.Neo4jRunnerSpec(classOf[BackendSpec]) {
 
       // Delete the included unit
       await(testBackend.deleteBookmarks(vc.id, Seq("c4")))
-      await(testBackend.userBookmarks(userProfile.id)).headOption must beSome.which { ovc =>
+      await(testBackend.userBookmarks[VirtualUnit](userProfile.id)).headOption must beSome.which { ovc =>
         ovc.includedUnits.size must equalTo(0)
       }
     }

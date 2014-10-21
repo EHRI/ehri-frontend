@@ -2,22 +2,20 @@ package backend
 
 import scala.concurrent.{ExecutionContext, Future}
 import utils.{RangeParams, Page, SystemEventParams, PageParams}
-import models._
-import models.base.AnyModel
 
 /**
  * @author Mike Bryant (http://github.com/mikesname)
  */
 trait Events {
-  def subjectsForEvent(id: String, params: PageParams)(implicit apiUser: ApiUser, executionContext: ExecutionContext): Future[Page[AnyModel]]
+  def subjectsForEvent[A](id: String, params: PageParams)(implicit apiUser: ApiUser, rd: BackendReadable[A], executionContext: ExecutionContext): Future[Page[A]]
 
-  def listEvents(params: RangeParams, filters: SystemEventParams)(implicit apiUser: ApiUser, executionContext: ExecutionContext): Future[Page[SystemEvent]]
+  def listEvents[A](params: RangeParams, filters: SystemEventParams)(implicit apiUser: ApiUser, rd: BackendReadable[A], executionContext: ExecutionContext): Future[Page[A]]
 
-  def listEventsByUser(userId: String, params: RangeParams, filters: SystemEventParams)(implicit apiUser: ApiUser, executionContext: ExecutionContext): Future[Page[SystemEvent]]
+  def listEventsByUser[A](userId: String, params: RangeParams, filters: SystemEventParams)(implicit apiUser: ApiUser, rd: BackendReadable[A], executionContext: ExecutionContext): Future[Page[A]]
 
-  def listEventsForUser(userId: String, params: RangeParams, filters: SystemEventParams)(implicit apiUser: ApiUser, executionContext: ExecutionContext): Future[Page[SystemEvent]]
+  def listEventsForUser[A](userId: String, params: RangeParams, filters: SystemEventParams)(implicit apiUser: ApiUser, rd: BackendReadable[A], executionContext: ExecutionContext): Future[Page[A]]
 
-  def history(id: String, params: PageParams)(implicit apiUser: ApiUser, executionContext: ExecutionContext): Future[Page[SystemEvent]]
+  def history[A](id: String, params: PageParams)(implicit apiUser: ApiUser, rd: BackendReadable[A], executionContext: ExecutionContext): Future[Page[A]]
 
-  def versions(id: String, params: PageParams)(implicit apiUser: ApiUser, executionContext: ExecutionContext): Future[Page[Version]]
+  def versions[V](id: String, params: PageParams)(implicit apiUser: ApiUser, rd: BackendReadable[V], executionContext: ExecutionContext): Future[Page[V]]
 }

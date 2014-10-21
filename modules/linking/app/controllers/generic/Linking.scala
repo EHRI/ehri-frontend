@@ -79,7 +79,7 @@ trait Linking[MT <: AnyModel] extends Read[MT] with Search {
             f(Left((item,srcitem,errorForm)))(userOpt)(request)
           }
         },
-        ann => backend.linkItems(id, to, ann).map { ann =>
+        ann => backend.linkItems[Link, LinkF](id, to, ann).map { ann =>
           f(Right(ann))(userOpt)(request)
         }
       )
@@ -99,7 +99,7 @@ trait Linking[MT <: AnyModel] extends Read[MT] with Search {
       val multiForm: Form[List[(String,LinkF,Option[String])]] = Link.multiForm
       multiForm.bindFromRequest.fold(
         errorForm => immediate(f(Left((item,errorForm)))(userOpt)(request)),
-        links => backend.linkMultiple(id, links).map { outLinks =>
+        links => backend.linkMultiple[Link, LinkF](id, links).map { outLinks =>
           f(Right(outLinks))(userOpt)(request)
         }
       )
@@ -116,7 +116,7 @@ trait Linking[MT <: AnyModel] extends Read[MT] with Search {
         errors => immediate(BadRequest(JsError.toFlatJson(errors))),
         ann => {
           val link = new LinkF(id = None, linkType=LinkF.LinkType.Associative, description=ann.description)
-          backend.linkItems(id, ann.target, link, Some(apid)).map { ann =>
+          backend.linkItems[Link, LinkF](id, ann.target, link, Some(apid)).map { ann =>
             Cache.remove(id)
             Created(Json.toJson(ann.model))
           }
@@ -138,7 +138,7 @@ trait Linking[MT <: AnyModel] extends Read[MT] with Search {
           val links = anns.map(ann =>
             (ann.target, new LinkF(id = None, linkType=ann.`type`.getOrElse(LinkF.LinkType.Associative), description=ann.description), None)
           )
-          backend.linkMultiple(id, links).map { newLinks =>
+          backend.linkMultiple[Link, LinkF](id, links).map { newLinks =>
             Cache.remove(id)
             Created(Json.toJson(newLinks.map(_.model)))
           }
@@ -167,7 +167,7 @@ trait Linking[MT <: AnyModel] extends Read[MT] with Search {
    */
   def getLinksAction(id: String)(f: Seq[Link] => Option[UserProfile] => Request[AnyContent] => Result) = {
     userProfileAction.async { implicit  userOpt => implicit request =>
-      backend.getLinksForItem(id).map { links =>
+      backend.getLinksForItem[Link](id).map { links =>
         f(links)(userOpt)(request)
       }
     }

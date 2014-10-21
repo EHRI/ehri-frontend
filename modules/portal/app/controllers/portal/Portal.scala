@@ -314,7 +314,7 @@ case class Portal @Inject()(implicit globalConfig: global.GlobalConfig, searchDi
   }
 
   def itemHistory(id: String) = userProfileAction.async { implicit userOpt => implicit request =>
-    backend.history(id, PageParams.fromRequest(request)).map { data =>
+    backend.history[SystemEvent](id, PageParams.fromRequest(request)).map { data =>
       if (isAjax) {
         Ok(p.activity.activityModal(data))
       } else {

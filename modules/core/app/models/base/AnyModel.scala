@@ -12,7 +12,7 @@ import java.util.NoSuchElementException
 import backend.{BackendReadable, BackendResource}
 
 
-trait AnyModel {
+trait AnyModel extends backend.WithId {
   def id: String
 
   def isA: EntityType.Value

@@ -66,7 +66,7 @@ case class Annotations @Inject()(implicit globalConfig: global.GlobalConfig, sea
       errorForm => immediate(BadRequest(errorForm.errorsAsJson)),
       ann => {
         val accessors: List[String] = getAccessors(user)
-        backend.createAnnotationForDependent(id, did, ann, accessors).map { ann =>
+        backend.createAnnotationForDependent[Annotation,AnnotationF](id, did, ann, accessors).map { ann =>
           Created(p.common.annotationBlock(ann, editable = true))
             .withHeaders(
                 HttpHeaders.LOCATION -> annotationRoutes.annotation(ann.id).url)
@@ -146,7 +146,7 @@ case class Annotations @Inject()(implicit globalConfig: global.GlobalConfig, sea
         // Add the field to the model!
         val fieldAnn = ann.copy(field = Some(field))
         val accessors: List[String] = getAccessors(user)
-        backend.createAnnotationForDependent(id, did, fieldAnn, accessors).map { ann =>
+        backend.createAnnotationForDependent[Annotation,AnnotationF](id, did, fieldAnn, accessors).map { ann =>
           Created(p.common.annotationInline(ann, editable = true))
             .withHeaders(
               HttpHeaders.LOCATION -> annotationRoutes.annotation(ann.id).url)

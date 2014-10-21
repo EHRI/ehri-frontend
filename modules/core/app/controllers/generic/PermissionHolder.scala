@@ -25,7 +25,7 @@ trait PermissionHolder[MT <: Accessor] extends Read[MT] {
       implicit rd: BackendReadable[MT], ct: BackendContentType[MT]) = {
     withItemPermission.async[MT](id, PermissionType.Grant) { item => implicit userOpt => implicit request =>
       val params = PageParams.fromRequest(request)
-      backend.listPermissionGrants(item.id, params).map { perms =>
+      backend.listPermissionGrants[PermissionGrant](item.id, params).map { perms =>
         f(item)(perms)(userOpt)(request)
       }
     }

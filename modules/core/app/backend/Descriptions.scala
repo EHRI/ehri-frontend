@@ -1,7 +1,6 @@
 package backend
 
 import scala.concurrent.{ExecutionContext, Future}
-import models.base.AnyModel
 
 /**
  * @author Mike Bryant (http://github.com/mikesname)

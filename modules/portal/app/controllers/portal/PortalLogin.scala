@@ -1,7 +1,7 @@
 package controllers.portal
 
 import play.api.mvc._
-import models.{SignupData, UserProfileF, AccountDAO, Account}
+import models._
 import play.api.libs.concurrent.Execution.Implicits._
 import scala.concurrent.Future.{successful => immediate}
 import jp.t2v.lab.play2.auth.LoginLogout
@@ -90,7 +90,7 @@ trait PortalLogin extends OpenIDLoginHandler with Oauth2LoginHandler with UserPa
                 profileRoutes.signupPost(), recaptchaKey)))
             } getOrElse {
               implicit val apiUser = ApiUser()
-              backend.createNewUserProfile(
+              backend.createNewUserProfile[UserProfile](
                   data = Map(UserProfileF.NAME -> data.name), groups = defaultPortalGroups)
                   .flatMap { userProfile =>
                 val account = userDAO.createWithPassword(userProfile.id, data.email.toLowerCase,

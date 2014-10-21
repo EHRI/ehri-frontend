@@ -117,7 +117,7 @@ case class Bookmarks @Inject()(implicit globalConfig: global.GlobalConfig, searc
   }
 
   def listBookmarkSets = withUserAction.async { implicit user => implicit request =>
-    val pageF = backend.userBookmarks(user.id, PageParams.fromRequest(request))
+    val pageF = backend.userBookmarks[VirtualUnit](user.id, PageParams.fromRequest(request))
     val watchedF = watchedItemIds(userIdOpt = Some(user.id))
     for {
       page <- pageF

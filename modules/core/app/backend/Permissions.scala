@@ -2,7 +2,6 @@ package backend
 
 import scala.concurrent.{ExecutionContext, Future}
 import utils.{Page, PageParams}
-import models._
 import acl.{ItemPermissionSet, GlobalPermissionSet}
 import defines.ContentTypes
 
@@ -23,11 +22,11 @@ trait Permissions {
 
   def setScopePermissions(userId: String, id: String, data: Map[String, List[String]])(implicit apiUser: ApiUser, executionContext: ExecutionContext): Future[GlobalPermissionSet]
 
-  def listPermissionGrants(userId: String, params: PageParams)(implicit apiUser: ApiUser, rd: BackendReadable[PermissionGrant], executionContext: ExecutionContext): Future[Page[PermissionGrant]]
+  def listPermissionGrants[A](userId: String, params: PageParams)(implicit apiUser: ApiUser, rd: BackendReadable[A], executionContext: ExecutionContext): Future[Page[A]]
 
-  def listItemPermissionGrants(id: String, params: PageParams)(implicit apiUser: ApiUser, rd: BackendReadable[PermissionGrant], executionContext: ExecutionContext): Future[Page[PermissionGrant]]
+  def listItemPermissionGrants[A](id: String, params: PageParams)(implicit apiUser: ApiUser, rd: BackendReadable[A], executionContext: ExecutionContext): Future[Page[A]]
 
-  def listScopePermissionGrants(id: String, params: PageParams)(implicit apiUser: ApiUser, rd: BackendReadable[PermissionGrant], executionContext: ExecutionContext): Future[Page[PermissionGrant]]
+  def listScopePermissionGrants[A](id: String, params: PageParams)(implicit apiUser: ApiUser, rd: BackendReadable[A], executionContext: ExecutionContext): Future[Page[A]]
 
   def addGroup(groupId: String, userId: String)(implicit apiUser: ApiUser, executionContext: ExecutionContext): Future[Boolean]
 
