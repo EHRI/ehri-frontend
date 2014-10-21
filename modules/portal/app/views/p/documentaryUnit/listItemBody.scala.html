@@ -1,8 +1,9 @@
-@(item: DocumentaryUnit, showRepository: Boolean = true)(implicit userOpt: Option[UserProfile], req: RequestHeader, globalConfig: global.GlobalConfig, lang: Lang, descriptionId: Option[String] = None)
+@(item: DocumentaryUnit, showRepository: Boolean = true, highlighter: views.Highlighter = views.NoopHighlighter)(implicit userOpt: Option[UserProfile], req: RequestHeader, globalConfig: global.GlobalConfig, lang: Lang, descriptionId: Option[String] = None)
 
 @import org.apache.commons.lang3.StringUtils
 
 @item.model.primaryDescription(descriptionId).map { desc =>
+    @common.otherNameListSmall(desc.identity.parallelFormsOfName.toList.flatten)
     <small>
         <ul class="list-unstyled text-muted list-inline inline-separator">
             @if(showRepository) {
@@ -35,7 +36,7 @@
     </small>
 
     @desc.displayText.map(views.Helpers.ellipsize(_, 600)).map { sc =>
-        @Html(views.Helpers.renderMarkdown(sc))
+        @highlighter.highlight(views.Helpers.renderMarkdown(sc))
     }
 }.getOrElse {
     <small>@Messages("describedEntity.noDescriptions")</small>

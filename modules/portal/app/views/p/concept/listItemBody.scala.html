@@ -1,4 +1,4 @@
-@(item: Concept)(implicit req: RequestHeader, lang: Lang, descriptionId: Option[String] = None)
+@(item: Concept, highlighter: views.Highlighter = views.NoopHighlighter)(implicit req: RequestHeader, lang: Lang, descriptionId: Option[String] = None)
 
 @item.model.primaryDescription(descriptionId).map { desc =>
     <small>
@@ -26,7 +26,7 @@
     </small>
 
     @desc.displayText.map(views.Helpers.ellipsize(_, 600)).map { sc =>
-        @Html(views.Helpers.renderMarkdown(sc))
+        @highlighter.highlight(views.Helpers.renderMarkdown(sc))
     }
 }
 

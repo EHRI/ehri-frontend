@@ -1,4 +1,4 @@
-@(list: List[String])(implicit lang: Lang)
+@(list: List[String], highlighter: views.Highlighter = views.NoopHighlighter)(implicit lang: Lang)
 
 @defining(list.splitAt(3)) { case (ofn, rest) =>
     @if(!ofn.isEmpty) {
@@ -6,7 +6,7 @@
             <strong>
                 <ul class="list-unstyled inline inline-separator">
                     @ofn.map { on =>
-                        <li>@on</li>
+                        <li>@highlighter.highlight(on)</li>
                     }
                     @if(!rest.isEmpty) {
                         <li title="@rest.mkString(", ")">@Messages("truncated")</li>
