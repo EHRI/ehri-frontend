@@ -1,7 +1,6 @@
 package integration.portal
 
 import helpers.Neo4jRunnerSpec
-import mocks.MockBufferedMailer
 
 class HelpdeskSpec extends Neo4jRunnerSpec(classOf[HelpdeskSpec]) {
 
@@ -22,7 +21,7 @@ class HelpdeskSpec extends Neo4jRunnerSpec(classOf[HelpdeskSpec]) {
 
     "copy messages to the end-user" in new FakeApp {
       val testMailContent = "Blah"
-      val mailsBefore = MockBufferedMailer.mailBuffer.size
+      val mailsBefore = mockMailer.mailBuffer.size
       val data = Map(
         "query" -> Seq(testMailContent),
         "email" -> Seq("test@example.com"),
@@ -32,8 +31,8 @@ class HelpdeskSpec extends Neo4jRunnerSpec(classOf[HelpdeskSpec]) {
       val post = route(fakeLoggedInHtmlRequest(mocks.privilegedUser, POST,
         controllers.portal.routes.Helpdesk.helpdeskPost().url), data).get
       status(post) must equalTo(OK)
-      MockBufferedMailer.mailBuffer.size must equalTo(mailsBefore + 1)
-      MockBufferedMailer.mailBuffer.last.text must contain(testMailContent)
+      mockMailer.mailBuffer.size must equalTo(mailsBefore + 1)
+      mockMailer.mailBuffer.last.text must contain(testMailContent)
     }
 
     "give the right results" in new FakeApp {

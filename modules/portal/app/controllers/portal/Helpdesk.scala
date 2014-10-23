@@ -9,12 +9,14 @@ import play.api.Play.current
 import com.google.inject._
 import utils.SessionPrefs
 import backend.rest.SearchDAO
-import com.typesafe.plugin._
+import com.typesafe.plugin.MailerAPI
 
 /**
  * @author Mike Bryant (http://github.com/mikesname)
  */
-case class Helpdesk @Inject()(implicit helpdeskDAO: HelpdeskDAO, globalConfig: global.GlobalConfig, backend: Backend, userDAO: AccountDAO) extends Controller with ControllerHelpers with AuthController {
+case class Helpdesk @Inject()(implicit helpdeskDAO: HelpdeskDAO, globalConfig: global.GlobalConfig, backend: Backend,
+    userDAO: AccountDAO, mailer: MailerAPI)
+  extends Controller with ControllerHelpers with AuthController {
 
   // This is a publically-accessible site, but not just yet.
   override val staffOnly = current.configuration.getBoolean("ehri.portal.secured").getOrElse(true)
@@ -41,7 +43,7 @@ case class Helpdesk @Inject()(implicit helpdeskDAO: HelpdeskDAO, globalConfig: g
   }
 
   private def sendMessageEmail(email: String, query: String)(implicit request: RequestHeader): Unit = {
-    use[MailerPlugin].email
+    mailer
       .setSubject("EHRI Portal Helpdesk")
       .setRecipient(email)
       .setFrom("EHRI User <noreply@ehri-project.eu>")
