@@ -147,7 +147,7 @@ class ApplicationSpec extends Specification with TestConfiguration with UserFixt
       running(FakeApplication(withGlobal = Some(getGlobal),
         additionalConfiguration = Map("recaptcha.skip" -> true),
         additionalPlugins = getPlugins)) {
-        val numSentMails = MockBufferedMailer.mailBuffer.size
+        val numSentMails = mockMailer.mailBuffer.size
         val data: Map[String,Seq[String]] = Map(
           "email" -> Seq(mocks.unprivilegedUser.email),
           CSRF_TOKEN_NAME -> Seq(fakeCsrfString)
@@ -156,8 +156,8 @@ class ApplicationSpec extends Specification with TestConfiguration with UserFixt
           controllers.portal.routes.Profile.forgotPasswordPost().url)
           .withSession(CSRF_TOKEN_NAME -> fakeCsrfString), data).get
         status(forgot) must equalTo(SEE_OTHER)
-        MockBufferedMailer.mailBuffer.size must beEqualTo(numSentMails + 1)
-        MockBufferedMailer.mailBuffer.last.to must contain(mocks.unprivilegedUser.email)
+        mockMailer.mailBuffer.size must beEqualTo(numSentMails + 1)
+        mockMailer.mailBuffer.last.to must contain(mocks.unprivilegedUser.email)
       }
     }
 
@@ -165,7 +165,7 @@ class ApplicationSpec extends Specification with TestConfiguration with UserFixt
       running(FakeApplication(withGlobal = Some(getGlobal),
         additionalConfiguration = Map("recaptcha.skip" -> true),
         additionalPlugins = getPlugins)) {
-        val numSentMails = MockBufferedMailer.mailBuffer.size
+        val numSentMails = mockMailer.mailBuffer.size
         val data: Map[String,Seq[String]] = Map(
           "email" -> Seq(mocks.unprivilegedUser.email),
           CSRF_TOKEN_NAME -> Seq(fakeCsrfString)
@@ -174,8 +174,8 @@ class ApplicationSpec extends Specification with TestConfiguration with UserFixt
           controllers.portal.routes.Profile.forgotPasswordPost().url)
           .withSession(CSRF_TOKEN_NAME -> fakeCsrfString), data).get
         status(forgot) must equalTo(SEE_OTHER)
-        MockBufferedMailer.mailBuffer.size must beEqualTo(numSentMails + 1)
-        MockBufferedMailer.mailBuffer.last.to must contain(mocks.unprivilegedUser.email)
+        mockMailer.mailBuffer.size must beEqualTo(numSentMails + 1)
+        mockMailer.mailBuffer.last.to must contain(mocks.unprivilegedUser.email)
 
         val token = MockAccountDAO.tokens.last._1
         val resetForm = route(FakeRequest(GET,
