@@ -9,8 +9,6 @@ import utils.search.{Resolver, SearchHit}
 
 trait SearchDAO extends RestDAO {
 
-  import play.api.Play.current
-
   def requestUrl = s"http://$host:$port/$mount/entities"
 
   def getAny[MT](id: String)(implicit apiUser: ApiUser,  rd: BackendReadable[MT]): Future[MT] = {
@@ -41,12 +39,14 @@ trait SearchDAO extends RestDAO {
   }
 }
 
-object SearchDAO extends SearchDAO
+object SearchDAO extends SearchDAO {
+  implicit val app = play.api.Play.current
+}
 
 /**
  * Resolve search hits to DB items by the GID field
  */
-case class GidSearchResolver() extends RestDAO with SearchDAO with Resolver {
+case class GidSearchResolver(implicit val app: play.api.Application) extends RestDAO with SearchDAO with Resolver {
   def resolve[MT](docs: Seq[SearchHit])(implicit apiUser: ApiUser,  rd: BackendReadable[MT]): Future[Seq[MT]] =
     listByGid(docs.map(_.gid))
 }
@@ -54,7 +54,7 @@ case class GidSearchResolver() extends RestDAO with SearchDAO with Resolver {
 /**
  * Resolve search hits to DB items by the itemId field
  */
-case class IdSearchResolver() extends RestDAO with SearchDAO with Resolver {
+case class IdSearchResolver(implicit val app: play.api.Application) extends RestDAO with SearchDAO with Resolver {
   def resolve[MT](docs: Seq[SearchHit])(implicit apiUser: ApiUser,  rd: BackendReadable[MT]): Future[Seq[MT]] =
     list(docs.map(_.itemId))
 }

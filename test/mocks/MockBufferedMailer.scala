@@ -10,10 +10,7 @@ case class MockMail(to: List[String], from: List[String], text: String, html: St
  *
  * @author Mike Bryant (http://github.com/mikesname)
  */
-case class MockBufferedMailer() extends MailerBuilder {
-
-  val mailBuffer = collection.mutable.ListBuffer.empty[MockMail]
-
+case class MockBufferedMailer(mailBuffer: collection.mutable.ListBuffer[MockMail]) extends MailerBuilder {
   def send(bodyText: String, bodyHtml: String): Unit = {
     mailBuffer += MockMail(e("recipients"), e("from"), bodyText, bodyHtml)
   }

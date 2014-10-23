@@ -32,9 +32,7 @@ object CypherDAO {
     (__ \ "data").read[List[List[String]]].map(_.flatMap(_.headOption))
 }
 
-case class CypherDAO() extends RestDAO {
-
-  import play.api.Play.current
+case class CypherDAO()(implicit val app: play.api.Application) extends RestDAO {
 
   def requestUrl = s"http://$host:$port/db/data/cypher"
 

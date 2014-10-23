@@ -94,7 +94,7 @@ class DocUnitLinkAnnotateSpec extends Neo4jRunnerSpec(classOf[DocUnitLinkAnnotat
       val getR = route(fakeLoggedInHtmlRequest(privilegedUser, GET, redirectLocation(cr).get)).get
       status(getR) must equalTo(OK)
       contentAsString(getR) must contain("This is a second description")
-      mockIndexer.eventBuffer.last must equalTo("c1")
+      indexEventBuffer.last must equalTo("c1")
     }
 
     "allow updating individual descriptions" in new FakeApp {
@@ -116,7 +116,7 @@ class DocUnitLinkAnnotateSpec extends Neo4jRunnerSpec(classOf[DocUnitLinkAnnotat
       status(getR) must equalTo(OK)
       contentAsString(getR) must contain("This is an updated description")
       contentAsString(getR) must not contain "Some description text for c1"
-      mockIndexer.eventBuffer.last must equalTo("c1")
+      indexEventBuffer.last must equalTo("c1")
     }
 
     "allow deleting individual descriptions" in new FakeApp {
@@ -131,7 +131,7 @@ class DocUnitLinkAnnotateSpec extends Neo4jRunnerSpec(classOf[DocUnitLinkAnnotat
       val getR = route(fakeLoggedInHtmlRequest(privilegedUser, GET, redirectLocation(cr).get)).get
       status(getR) must equalTo(OK)
       contentAsString(getR) must not contain "Some alternate description text for c1"
-      mockIndexer.eventBuffer.last must equalTo("cd1-2")
+      indexEventBuffer.last must equalTo("cd1-2")
     }
   }
 }

@@ -8,9 +8,7 @@ import backend.FeedbackDAO
 /**
  * @author Mike Bryant (http://github.com/mikesname)
  */
-class MockFeedbackDAO extends FeedbackDAO {
-
-  var buffer = Map.empty[Int,Feedback]
+class MockFeedbackDAO(buffer: collection.mutable.HashMap[Int, Feedback]) extends FeedbackDAO {
 
   def create(feedback: Feedback)(implicit executionContext: ExecutionContext): Future[String] = {
     val key = buffer.size + 1

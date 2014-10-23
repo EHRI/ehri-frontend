@@ -25,7 +25,7 @@ class SearchSpec extends Neo4jRunnerSpec(classOf[SearchSpec]) {
       val search = route(fakeLoggedInHtmlRequest(privilegedUser, GET,
         controllers.archdesc.routes.DocumentaryUnits.search().url)).get
       status(search) must equalTo(OK)
-      mockDispatcher.paramBuffer
+      searchParamBuffer
         .last.filters.get(SolrConstants.TOP_LEVEL) must equalTo(Some(true))
     }
 
@@ -33,7 +33,7 @@ class SearchSpec extends Neo4jRunnerSpec(classOf[SearchSpec]) {
       val search = route(fakeLoggedInHtmlRequest(privilegedUser, GET,
         controllers.archdesc.routes.DocumentaryUnits.search().url + "?q=foo")).get
       status(search) must equalTo(OK)
-      mockDispatcher.paramBuffer
+      searchParamBuffer
         .last.filters.get(SolrConstants.TOP_LEVEL) must equalTo(None)
     }
 
@@ -60,7 +60,7 @@ class SearchSpec extends Neo4jRunnerSpec(classOf[SearchSpec]) {
       // NB: reading the content of the chunked response as a string is
       // necessary to exhaust the iteratee and fill the event buffer.
       contentAsString(idx) must contain("Done")
-      mockIndexer.eventBuffer.lastOption must beSome.which { bufcmd =>
+      indexEventBuffer.lastOption must beSome.which { bufcmd =>
         bufcmd must equalTo(cmd.toString())
       }
     }
@@ -73,7 +73,7 @@ class SearchSpec extends Neo4jRunnerSpec(classOf[SearchSpec]) {
       // NB: reading the content of the chunked response as a string is
       // necessary to exhaust the iteratee and fill the event buffer.
       contentAsString(idx) must contain("Done")
-      mockIndexer.eventBuffer.lastOption must beSome.which { bufcmd =>
+      indexEventBuffer.lastOption must beSome.which { bufcmd =>
         bufcmd must equalTo("r1")
       }
     }

@@ -4,10 +4,11 @@ import play.api.http.{MimeTypes, HeaderNames}
 import play.api.test.FakeRequest
 import play.api.GlobalSettings
 import play.filters.csrf.CSRFFilter
-import models.MockAccountDAO
+import backend.HelpdeskDAO.HelpdeskResponse
+import models.{Feedback, MockAccountDAO, AccountDAO, Account}
+import mocks._
 import global.GlobalConfig
 import com.tzavellas.sse.guice.ScalaModule
-import models.{AccountDAO, Account}
 import play.api.mvc.{RequestHeader, WithFilters}
 import jp.t2v.lab.play2.auth.test.Helpers._
 import controllers.base.AuthConfigImpl
@@ -16,7 +17,6 @@ import backend._
 import utils.search._
 import utils.search.MockSearchResolver
 import backend.rest.RestBackend
-import scala.Some
 import backend.rest.CypherIdGenerator
 import utils.search.MockSearchIndexer
 import play.api.test.FakeApplication
@@ -31,13 +31,33 @@ import mocks.MockBufferedMailer
  */
 trait TestConfiguration {
 
-  val CSRF_TOKEN_NAME = "csrfToken"
-  val CSRF_HEADER_NAME = "Csrf-Token"
-  val CSRF_HEADER_NOCHECK = "nocheck"
-  val fakeCsrfString = "fake-csrf-token"
-  val testPassword = "testpass"
+  import play.api.Play.current
 
-  val mockIndexer: MockSearchIndexer = new MockSearchIndexer()
+  // Stateful buffers for capturing stuff like feedback, search
+  // parameters, and reset tokens. These persist across tests in
+  // a very unclean way but are useful for determining the last-used
+  // whatsit etc...
+  val feedbackBuffer = collection.mutable.HashMap.empty[Int,Feedback]
+  val helpdeskBuffer = collection.mutable.HashMap.empty[Int, Seq[HelpdeskResponse]]
+  val mailBuffer = collection.mutable.ListBuffer.empty[MockMail]
+  val searchParamBuffer = collection.mutable.ListBuffer.empty[ParamLog]
+  val indexEventBuffer = collection.mutable.ArrayBuffer.empty[String]
+  val userDb = collection.mutable.HashMap.empty[String,Account]
+
+  // Might want to mock the backend at at some point!
+  def testBackend: Backend = new RestBackend(testEventHandler)
+
+  def mockResolver: MockSearchResolver = new MockSearchResolver
+  def idGenerator: IdGenerator = new CypherIdGenerator("%06d")
+  def mockDispatcher: Dispatcher = new MockSearchDispatcher(testBackend, searchParamBuffer)
+  def mockFeedback: FeedbackDAO = new MockFeedbackDAO(feedbackBuffer)
+  def mockHelpdesk: HelpdeskDAO = new MockHelpdeskDAO(helpdeskBuffer)
+  def mockMailer: MailerAPI = new MockBufferedMailer(mailBuffer)
+  def mockIndexer: Indexer = new MockSearchIndexer(indexEventBuffer)
+  // NB: The mutable state for the user DAO is still stored globally
+  // in the mocks package.
+  def mockUserDAO: AccountDAO = MockAccountDAO
+
   // More or less the same as run config but synchronous (so
   // we can validate the actions)
   // Note: this is defined as an implicit object here so it
@@ -48,18 +68,6 @@ trait TestConfiguration {
     def handleDelete(id: String) = mockIndexer.clearId(id)
   }
 
-  // Might want to mock this at some point!
-  val testBackend: Backend = new RestBackend(testEventHandler)
-
-  val mockDispatcher: MockSearchDispatcher = new MockSearchDispatcher(testBackend)
-  val mockResolver: MockSearchResolver = new MockSearchResolver
-  val mockFeedback: MockFeedbackDAO = new MockFeedbackDAO
-  val mockHelpdesk: MockHelpdeskDAO = new MockHelpdeskDAO
-  val idGenerator: IdGenerator = new CypherIdGenerator("%06d")
-  val mockUserDAO: AccountDAO = MockAccountDAO
-  val mockMailer: MockBufferedMailer = new MockBufferedMailer
-
-
   object TestConfig extends globalConfig.BaseConfiguration
 
   // Dummy auth config for play-2-auth
@@ -67,7 +75,6 @@ trait TestConfiguration {
     val globalConfig = TestConfig
     val userDAO = mockUserDAO
   }
-
 
   /**
    * A Global object that loads fixtures on application start.
@@ -77,9 +84,9 @@ trait TestConfiguration {
       def configure() {
         bind[GlobalConfig].toInstance(TestConfig)
         bind[Indexer].toInstance(mockIndexer)
+        bind[Backend].toInstance(testBackend)
         bind[Dispatcher].toInstance(mockDispatcher)
         bind[Resolver].toInstance(mockResolver)
-        bind[Backend].toInstance(testBackend)
         bind[FeedbackDAO].toInstance(mockFeedback)
         bind[HelpdeskDAO].toInstance(mockHelpdesk)
         bind[IdGenerator].toInstance(idGenerator)
@@ -101,6 +108,12 @@ trait TestConfiguration {
       case e => super.onError(request, e)
     }
   }
+
+  val CSRF_TOKEN_NAME = "csrfToken"
+  val CSRF_HEADER_NAME = "Csrf-Token"
+  val CSRF_HEADER_NOCHECK = "nocheck"
+  val fakeCsrfString = "fake-csrf-token"
+  val testPassword = "testpass"
 
   /**
    * Get a FakeApplication with the given configuration, plus any plugins

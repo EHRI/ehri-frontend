@@ -3,7 +3,6 @@ package backend.rest
 import scala.concurrent.{ExecutionContext, Future}
 import play.api.libs.json._
 import defines.EntityType
-import play.api.Play.current
 import play.api.cache.Cache
 import backend._
 import backend.ApiUser

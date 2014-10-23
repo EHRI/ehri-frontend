@@ -12,7 +12,6 @@ import play.api.cache.Cache
 trait RestSocial extends Social with RestDAO {
 
   import backend.rest.Constants._
-  import play.api.Play.current
   val eventHandler: EventHandler
 
   private def requestUrl = s"$baseUrl/${EntityType.UserProfile}"
