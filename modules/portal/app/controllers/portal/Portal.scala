@@ -418,28 +418,26 @@ case class Portal @Inject()(implicit globalConfig: global.GlobalConfig, searchDi
 
   def linkedData(id: String) = userBrowseAction.async { implicit userDetails => implicit request =>
 
-    object lookup extends SearchDAO
     for {
       ids <- searchLinksForm.bindFromRequest(request.queryString).fold(
         errs => searchLinks(id), {
             case Some(t) => { searchLinks(id, t)}
             case _ => { searchLinks(id) }
         })
-      docs <- lookup.listByGid[AnyModel](ids)
+      docs <- SearchDAO.listByGid[AnyModel](ids)
     } yield Ok(Json.toJson(docs.zip(ids).map { case (doc, gid) =>
       Json.toJson(FilterHit(doc.id, "", doc.toStringLang, doc.isA, None, gid))
     }))
   }
 
   def linkedDataInContext(id: String, context: String) = userBrowseAction.async { implicit userDetails => implicit request =>
-    object lookup extends SearchDAO
     for {
       ids <-  searchLinksForm.bindFromRequest(request.queryString).fold(
         errs => searchLinks(id, context=Some(context)), {
             case Some(t) => { searchLinks(id, t, Some(context))}
             case _ => { searchLinks(id, context=Some(context)) }
         })
-      docs <- lookup.listByGid[AnyModel](ids)
+      docs <- SearchDAO.listByGid[AnyModel](ids)
     } yield Ok(Json.toJson(docs.zip(ids).map { case (doc, gid) =>
       Json.toJson(FilterHit(doc.id, "", doc.toStringLang, doc.isA, None, gid))
     }))

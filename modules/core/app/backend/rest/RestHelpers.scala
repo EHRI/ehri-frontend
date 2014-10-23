@@ -9,6 +9,9 @@ import backend.rest.cypher.CypherDAO
 
 trait RestHelpers {
 
+  import play.api.Play.current
+  private val cypher = new CypherDAO()
+
   def parseUsers(json: JsValue): List[(String, String)] = {
     (json \ "data").as[List[List[String]]].flatMap {
       case x :: y :: _ => Some((x, y))
@@ -17,16 +20,14 @@ trait RestHelpers {
   }
 
   def getGroupList: Future[List[(String,String)]] = {
-    cypher.CypherDAO()
-              .cypher("START n=node:entities(__ISA__ = {isA}) RETURN n.__ID__, n.name",
+    cypher.cypher("START n=node:entities(__ISA__ = {isA}) RETURN n.__ID__, n.name",
         Map("isA" -> JsString(EntityType.Group))).map { goe =>
       parseUsers(goe)
     }    
   }
   
   def getUserList: Future[List[(String,String)]] = {
-    cypher.CypherDAO()
-              .cypher("START n=node:entities(__ISA__ = {isA}) RETURN n.__ID__, n.name",
+    cypher.cypher("START n=node:entities(__ISA__ = {isA}) RETURN n.__ID__, n.name",
         Map("isA" -> JsString(EntityType.UserProfile))).map { goe =>
       parseUsers(goe)
     }    

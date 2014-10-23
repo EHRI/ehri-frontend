@@ -1,7 +1,7 @@
 package controllers.adminutils
 
 import controllers.base.{AuthController, ControllerHelpers}
-import models.{UserProfile, Account, AccountDAO, Group}
+import models.{Account, AccountDAO, Group}
 import play.api.libs.concurrent.Execution.Implicits._
 
 import com.google.inject._
@@ -19,9 +19,9 @@ import backend.rest.cypher.CypherDAO
 case class Utils @Inject()(implicit globalConfig: global.GlobalConfig, backend: Backend, userDAO: AccountDAO)
     extends AuthController with ControllerHelpers with RestDAO {
 
-  import play.api.Play.current
-
   override val staffOnly = false
+
+  implicit val app = play.api.Play.current
 
   /**
    * Check the database is up by trying to load the admin account.

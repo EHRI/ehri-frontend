@@ -16,9 +16,8 @@ import play.api.http.{MimeTypes, HeaderNames}
  * Implements the plugin implementation so other search
  * engines/mocks can be substituted.
  */
-case class SolrDispatcher(queryBuilder: QueryBuilder, responseParser: ResponseParser) extends backend.rest.RestDAO with Dispatcher {
-
-  import play.api.Play.current
+case class SolrDispatcher(queryBuilder: QueryBuilder, responseParser: ResponseParser)(implicit val app: play.api.Application)
+  extends backend.rest.RestDAO with Dispatcher {
 
   // Dummy value to satisfy the RestDAO trait...
   val userProfile: Option[UserProfile] = None

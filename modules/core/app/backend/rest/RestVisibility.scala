@@ -1,7 +1,6 @@
 package backend.rest
 
 import scala.concurrent.{ExecutionContext, Future}
-import play.api.Play.current
 import play.api.cache.Cache
 import backend.{BackendReadable, Visibility, EventHandler, ApiUser}
 import play.api.http.Status

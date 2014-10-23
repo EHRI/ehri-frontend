@@ -4,7 +4,6 @@ import scala.concurrent.{ExecutionContext, Future}
 import acl._
 import defines._
 import play.api.libs.json.Json
-import play.api.Play.current
 import play.api.cache.Cache
 import utils.{Page, FutureCache, PageParams}
 import backend.{BackendReadable, Permissions, EventHandler, ApiUser}
