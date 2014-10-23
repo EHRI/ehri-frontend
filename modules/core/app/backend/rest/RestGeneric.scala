@@ -3,7 +3,6 @@ package backend.rest
 import scala.concurrent.{ExecutionContext, Future}
 import play.api.libs.json._
 import defines.ContentTypes
-import play.api.Play.current
 import play.api.cache.Cache
 import utils.{Page, PageParams}
 import backend._

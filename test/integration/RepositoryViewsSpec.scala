@@ -87,7 +87,7 @@ class RepositoryViewsSpec extends Neo4jRunnerSpec(classOf[RepositoryViewsSpec]) 
       contentAsString(show) must contain("Some content")
       contentAsString(show) must contain("An Address")
       contentAsString(show) must contain("12345 546395")
-      mockIndexer.eventBuffer.last must equalTo("nl-wiener-library")
+      indexEventBuffer.last must equalTo("nl-wiener-library")
     }
 
     "error if missing mandatory values" in new FakeApp {
@@ -139,7 +139,7 @@ class RepositoryViewsSpec extends Neo4jRunnerSpec(classOf[RepositoryViewsSpec]) 
       val show = route(fakeLoggedInHtmlRequest(privilegedUser, GET, redirectLocation(cr).get)).get
       status(show) must equalTo(OK)
       contentAsString(show) must contain("New Content for r1")
-      mockIndexer.eventBuffer.last must equalTo("r1")
+      indexEventBuffer.last must equalTo("r1")
     }
 
     "disallow updating items when logged in as unprivileged user" in new FakeApp {

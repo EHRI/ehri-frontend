@@ -36,7 +36,7 @@ class SocialSpec extends Neo4jRunnerSpec(classOf[SocialSpec]) {
     }
 
     "allow messaging users" in new FakeApp {
-      val numSentMails = mockMailer.mailBuffer.size
+      val numSentMails = mailBuffer.size
       val msgData = Map(
         "subject" -> Seq("Hello"),
         "message" -> Seq("World")
@@ -45,8 +45,8 @@ class SocialSpec extends Neo4jRunnerSpec(classOf[SocialSpec]) {
       val postMsg = route(fakeLoggedInHtmlRequest(privilegedUser, POST,
         socialRoutes.sendMessagePost(unprivilegedUser.id).url), msgData).get
       status(postMsg) must equalTo(SEE_OTHER)
-      mockMailer.mailBuffer.size must beEqualTo(numSentMails + 1)
-      mockMailer.mailBuffer.last.text must contain("World")
+      mailBuffer.size must beEqualTo(numSentMails + 1)
+      mailBuffer.last.text must contain("World")
     }
 
     "disallow messaging users with messaging disabled" in new FakeApp {

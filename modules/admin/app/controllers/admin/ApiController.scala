@@ -71,6 +71,7 @@ case class ApiController @Inject()(implicit globalConfig: global.GlobalConfig, b
   }
 
   def cypherQuery = adminAction.async { implicit userOpt => implicit request =>
+    import play.api.Play.current
     CypherDAO().stream(queryForm.bindFromRequest.value.getOrElse(""), Map.empty).map { r =>
       val response: NingResponse = r.underlying[NingResponse]
       Status(r.status)

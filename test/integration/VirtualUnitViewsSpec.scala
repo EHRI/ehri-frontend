@@ -80,7 +80,7 @@ class VirtualUnitViewsSpec extends Neo4jRunnerSpec(classOf[VirtualUnitViewsSpec]
 //      // After having created an item it should contain a 'history' pane
 //      // on the show page
 //      contentAsString(show) must contain(vuRoutes.history("hello-kitty").url)
-//      mockIndexer.eventBuffer.last must equalTo("hello-kitty")
+//      indexEventBuffer.last must equalTo("hello-kitty")
 //    }
 
 //    "allow creating new items with included units" in new FakeApp {
@@ -101,7 +101,7 @@ class VirtualUnitViewsSpec extends Neo4jRunnerSpec(classOf[VirtualUnitViewsSpec]
 //      // After having created an item it should contain a 'history' pane
 //      // on the show page
 //      contentAsString(show) must contain(vuRoutes.history("hello-kitty").url)
-//      mockIndexer.eventBuffer.last must equalTo("hello-kitty")
+//      indexEventBuffer.last must equalTo("hello-kitty")
 //    }
   }
 }

@@ -1,7 +1,6 @@
 package backend.parse
 
 import scala.concurrent.{ExecutionContext, Future}
-import play.api.Play._
 import play.api.libs.ws.WS
 import play.api.libs.json.{Format, Json}
 import play.api.Logger
@@ -13,7 +12,7 @@ import backend.rest.RestDAO
  * @param objectName Name of the parse object class
  * @tparam T The type of Parse object
  */
-class ParseDAO[T: Format](val objectName: String) extends RestDAO {
+abstract class ParseDAO[T: Format](objectName: String) extends RestDAO {
 
   case class Confirmation(createdAt: String, objectId: String)
 
@@ -27,11 +26,11 @@ class ParseDAO[T: Format](val objectName: String) extends RestDAO {
     implicit val format: Format[Results] = Json.format[Results]
   }
 
-  private def appKey = current.configuration.getString("parse.keys.applicationId").getOrElse("fake")
+  private def appKey = app.configuration.getString("parse.keys.applicationId").getOrElse("fake")
 
-  private def restKey = current.configuration.getString("parse.keys.restApiKey").getOrElse("fake")
+  private def restKey = app.configuration.getString("parse.keys.restApiKey").getOrElse("fake")
 
-  private def url = current.configuration.getString("parse.baseUrl").getOrElse("fake")
+  private def url = app.configuration.getString("parse.baseUrl").getOrElse("fake")
 
   private def parseHeaders = Seq(
     "X-Parse-Application-Id" -> appKey,

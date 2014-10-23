@@ -8,7 +8,7 @@ import backend._
 /**
   * @author Mike Bryant (http://github.com/mikesname)
   */
-case class RestBackend(eventHandler: EventHandler)
+case class RestBackend(eventHandler: EventHandler)(implicit val app: play.api.Application)
   extends Backend
   with RestGeneric
   with RestPermissions
