@@ -2,7 +2,6 @@ portal.welcome=Welcome to EHRI
 portal.home=Home
 portal.footerText=This is a development version of the EHRI portal interface.
 
-portal.feedback.list=Submitted Feedback
 portal.download=Download
 portal.download.format.txt=Download as plain text
 portal.download.format.csv=Download as CSV
@@ -336,3 +335,21 @@ portal.feedback=Feedback
 portal.feedback.message=Let us know what you think...
 portal.feedback.thanks=Thanks!
 portal.feedback.thanks.message=Your feedback is greatly appreciated.
+portal.feedback.list=Submitted Feedback
+
+# Helpdesk
+portal.helpdesk=Helpdesk
+portal.helpdesk.message=The helpdesk will attempt to match your query to the EHRI partner institution \
+  best placed to answer it.
+portal.helpdesk.thanks=Thanks!
+portal.helpdesk.thanks.message=Your query has been submitted.
+portal.helpdesk.query=Query
+portal.helpdesk.results=Helpdesk Contact Recommendations
+portal.helpdesk.query.placeholder=Enter your query here. Subject-specific terms are best.
+portal.helpdesk.copyMe=Email a copy of the query to your address
+portal.helpdesk.youAsked=You asked
+portal.helpdesk.institution=Institution Name
+portal.helpdesk.contactEmail=Contact Email
+portal.helpdesk.confidence=Confidence Score
+portal.helpdesk.confidence.message=How confident we are that this ranking is correct.
+portal.helpdesk.query.submit=Ask the helpdesk

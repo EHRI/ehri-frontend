@@ -1,13 +1,11 @@
 package helpers
 
 import play.api.http.{MimeTypes, HeaderNames}
-import play.api.test.{FakeApplication, FakeRequest}
+import play.api.test.FakeRequest
 import play.api.GlobalSettings
 import play.filters.csrf.CSRFFilter
 import models.MockAccountDAO
-import mocks._
 import global.GlobalConfig
-import utils.search._
 import com.tzavellas.sse.guice.ScalaModule
 import models.{AccountDAO, Account}
 import play.api.mvc.{RequestHeader, WithFilters}
@@ -15,9 +13,7 @@ import jp.t2v.lab.play2.auth.test.Helpers._
 import controllers.base.AuthConfigImpl
 import scala.concurrent.Future
 import backend._
-import backend.rest.{CypherIdGenerator, RestBackend}
 import utils.search._
-import backend.rest.RestBackend
 import utils.search.MockSearchResolver
 import backend.rest.RestBackend
 import scala.Some
@@ -25,6 +21,7 @@ import backend.rest.CypherIdGenerator
 import utils.search.MockSearchIndexer
 import play.api.test.FakeApplication
 import utils.search.MockSearchDispatcher
+import backend.helpdesk.{MockFeedbackDAO, MockHelpdeskDAO}
 
 /**
  * Mixin trait that provides some handy methods to test actions that
@@ -55,6 +52,7 @@ trait TestConfiguration {
   val mockDispatcher: MockSearchDispatcher = new MockSearchDispatcher(testBackend)
   val mockResolver: MockSearchResolver = new MockSearchResolver
   val mockFeedback: MockFeedbackDAO = new MockFeedbackDAO
+  val mockHelpdesk: MockHelpdeskDAO = new MockHelpdeskDAO
   val idGenerator: IdGenerator = new CypherIdGenerator("%06d")
   val mockUserDAO: AccountDAO = MockAccountDAO
 
@@ -80,6 +78,7 @@ trait TestConfiguration {
         bind[Resolver].toInstance(mockResolver)
         bind[Backend].toInstance(testBackend)
         bind[FeedbackDAO].toInstance(mockFeedback)
+        bind[HelpdeskDAO].toInstance(mockHelpdesk)
         bind[IdGenerator].toInstance(idGenerator)
         bind[AccountDAO].toInstance(mockUserDAO)
       }

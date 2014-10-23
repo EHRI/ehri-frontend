@@ -1,8 +1,9 @@
-package backend
+package backend.helpdesk
 
 import scala.concurrent.{ExecutionContext, Future}
 import scala.concurrent.Future.{successful => immediate}
 import models.Feedback
+import backend.FeedbackDAO
 
 /**
  * @author Mike Bryant (http://github.com/mikesname)

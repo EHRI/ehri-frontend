@@ -6,6 +6,9 @@ GET         /feedback                       @controllers.portal.Feedback.feedbac
 POST        /feedback                       @controllers.portal.Feedback.feedbackPost
 GET        /feedback/list                   @controllers.portal.Feedback.list
 
+GET         /helpdesk                       @controllers.portal.Helpdesk.helpdesk
+POST        /helpdesk                       @controllers.portal.Helpdesk.helpdeskPost
+
 GET         /login                          @controllers.portal.Profile.login
 POST        /login                          @controllers.portal.Profile.passwordLoginPost
 POST        /openid                         @controllers.portal.Profile.openIDLoginPost

@@ -2,12 +2,18 @@
 // Global request object
 //
 
+import backend.helpdesk.{TestHelpdesk, EhriHelpdesk}
+import backend.parse.ParseFeedbackDAO
 import backend.parse.ParseFeedbackDAO
 import backend.rest._
 import backend.rest.BadJson
+import backend.rest.BadJson
+import backend.rest.CypherIdGenerator
+import backend.rest.GidSearchResolver
 import backend.rest.RestBackend
 import backend.rest.GidSearchResolver
-import backend.{IdGenerator, FeedbackDAO, EventHandler, Backend}
+import backend._
+import backend.rest.RestBackend
 import defines.EntityType
 import java.util.concurrent.TimeUnit
 import models.AccountDAO
@@ -17,11 +23,13 @@ import play.api.libs.json.{Json, JsError}
 import play.api.mvc._
 
 import play.api.mvc.Result
+import play.api.mvc.Result
 import play.api.Play.current
 import play.filters.csrf._
 import scala.concurrent.duration.Duration
 
 import com.tzavellas.sse.guice.ScalaModule
+import scala.Some
 import utils.search._
 import global.GlobalConfig
 import scala.concurrent.Future
@@ -88,6 +96,7 @@ object Global extends WithFilters(CSRFFilter()) with GlobalSettings {
   private def searchIndexer: Indexer = new indexing.CmdlineIndexer
   private def searchResolver: Resolver = new GidSearchResolver
   private def feedbackDAO: FeedbackDAO = new ParseFeedbackDAO
+  private def helpdeskDAO: HelpdeskDAO = new TestHelpdesk
   private def idGenerator: IdGenerator = new CypherIdGenerator(idFormat = "%06d")
   private def userDAO: AccountDAO = SqlAccount
 
@@ -126,6 +135,7 @@ object Global extends WithFilters(CSRFFilter()) with GlobalSettings {
       bind[Resolver].toInstance(searchResolver)
       bind[Backend].toInstance(backend)
       bind[FeedbackDAO].toInstance(feedbackDAO)
+      bind[HelpdeskDAO].toInstance(helpdeskDAO)
       bind[IdGenerator].toInstance(idGenerator)
       bind[AccountDAO].toInstance(userDAO)
     }
