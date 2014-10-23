@@ -16,13 +16,13 @@ case class MockAccount(id: String, email: String, verified: Boolean = false, sta
     mocks.userFixtures -= id
     true
   }
-  def createResetToken(token: UUID) = MockAccountDAO.tokens += ((token.toString, id, false))
-  def createValidationToken(token: UUID) = MockAccountDAO.tokens += ((token.toString, id, true))
+  def createResetToken(token: UUID) = mocks.tokens += ((token.toString, id, false))
+  def createValidationToken(token: UUID) = mocks.tokens += ((token.toString, id, true))
   def expireTokens() = {  // Bit gross this, dealing with Mutable state...
     val indicesToDelete = for {
-      (t, i) <- MockAccountDAO.tokens.zipWithIndex if t._2 == id
+      (t, i) <- mocks.tokens.zipWithIndex if t._2 == id
     } yield i
-    for (i <- (MockAccountDAO.tokens.size -1) to 0 by -1) if (indicesToDelete contains i) MockAccountDAO.tokens remove i
+    for (i <- (mocks.tokens.size -1) to 0 by -1) if (indicesToDelete contains i) mocks.tokens remove i
   }
 
   private def updateWith(acc: MockAccount): MockAccount = {
@@ -37,7 +37,6 @@ case class MockAccount(id: String, email: String, verified: Boolean = false, sta
  * Find a user given their profile from the fixture store.
  */
 object MockAccountDAO extends AccountDAO {
-  val tokens = collection.mutable.ListBuffer.empty[(String,String,Boolean)]
 
   // Mock authentication
   override def authenticate(email: String, pw: String, verified: Boolean = true)
@@ -68,7 +67,7 @@ object MockAccountDAO extends AccountDAO {
   }
 
   def findByResetToken(token: String, isSignUp: Boolean = false): Option[Account]
-      = MockAccountDAO.tokens.find(t => t._1 == token && t._3 == isSignUp).flatMap { case (t, p, s) =>
+      = mocks.tokens.find(t => t._1 == token && t._3 == isSignUp).flatMap { case (t, p, s) =>
     findByProfileId(p)
   }
 

@@ -42,7 +42,7 @@ class BackendSpec extends helpers.Neo4jRunnerSpec(classOf[BackendSpec]) {
       r.holder.get.id must equalTo("r1")
       // This triggers an update event for the parent and a create
       // event for the new child
-      val events = mockIndexer.eventBuffer.takeRight(2)
+      val events = indexEventBuffer.takeRight(2)
       events.headOption must beSome.which(_ must equalTo("r1"))
       events.lastOption must beSome.which(_ must equalTo("nl-r1-foobar"))
     }

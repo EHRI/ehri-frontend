@@ -32,13 +32,13 @@ class SignupSpec extends Neo4jRunnerSpec(classOf[SignupSpec]) {
     )
 
     "create a validation token and send a mail on signup" in new FakeApp {
-      val numSentMails = mockMailer.mailBuffer.size
+      val numSentMails = mailBuffer.size
       val numAccounts = mocks.userFixtures.size
       val signup = route(FakeRequest(POST, profileRoutes.signupPost().url)
         .withSession(CSRF_TOKEN_NAME -> fakeCsrfString), data).get
       status(signup) must equalTo(SEE_OTHER)
-      mockMailer.mailBuffer.size must beEqualTo(numSentMails + 1)
-      mockMailer.mailBuffer.last.to must contain(testEmail)
+      mailBuffer.size must beEqualTo(numSentMails + 1)
+      mailBuffer.last.to must contain(testEmail)
       mocks.userFixtures.size must equalTo(numAccounts + 1)
       val userOpt = mocks.userFixtures.values.find(u => u.email == testEmail)
       userOpt must beSome.which { user =>

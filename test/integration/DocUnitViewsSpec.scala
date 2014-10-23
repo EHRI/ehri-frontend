@@ -141,7 +141,7 @@ class DocUnitViewsSpec extends Neo4jRunnerSpec(classOf[DocUnitViewsSpec]) {
       // After having created an item it should contain a 'history' pane
       // on the show page
       contentAsString(show) must contain(docRoutes.history("nl-r1-hello-kitty").url)
-      mockIndexer.eventBuffer.last must equalTo("nl-r1-hello-kitty")
+      indexEventBuffer.last must equalTo("nl-r1-hello-kitty")
     }
 
     "give a form error when creating items with the same id as existing ones" in new FakeApp {
@@ -216,7 +216,7 @@ class DocUnitViewsSpec extends Neo4jRunnerSpec(classOf[DocUnitViewsSpec]) {
       contentAsString(show) must contain("Collection 1 Parallel Name")
       contentAsString(show) must contain("New Content for c1")
       contentAsString(show) must contain("Test Note")
-      mockIndexer.eventBuffer.last must equalTo("c1")
+      indexEventBuffer.last must equalTo("c1")
     }
 
     "allow updating an item with a custom log message" in new FakeApp {
@@ -237,7 +237,7 @@ class DocUnitViewsSpec extends Neo4jRunnerSpec(classOf[DocUnitViewsSpec]) {
       status(show) must equalTo(OK)
       // Log message should be in the history section...
       contentAsString(show) must contain(msg)
-      mockIndexer.eventBuffer.last must equalTo("c1")
+      indexEventBuffer.last must equalTo("c1")
     }
 
     "disallow updating items when logged in as unprivileged user" in new FakeApp {
@@ -258,7 +258,7 @@ class DocUnitViewsSpec extends Neo4jRunnerSpec(classOf[DocUnitViewsSpec]) {
       val show = route(fakeLoggedInHtmlRequest(unprivilegedUser, GET, docRoutes.get("c4").url)).get
       status(show) must equalTo(OK)
       contentAsString(show) must not contain "New Content for c4"
-      mockIndexer.eventBuffer.last must not equalTo "c4"
+      indexEventBuffer.last must not equalTo "c4"
     }
 
     "should redirect to login page when permission denied when not logged in" in new FakeApp {

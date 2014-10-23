@@ -4,11 +4,10 @@ import play.api.http.{MimeTypes, HeaderNames}
 import play.api.test.FakeRequest
 import play.api.GlobalSettings
 import play.filters.csrf.CSRFFilter
-import models.MockAccountDAO
+import models.{Feedback, MockAccountDAO, AccountDAO, Account}
 import mocks._
 import global.GlobalConfig
 import com.tzavellas.sse.guice.ScalaModule
-import models.{AccountDAO, Account}
 import play.api.mvc.{RequestHeader, WithFilters}
 import jp.t2v.lab.play2.auth.test.Helpers._
 import controllers.base.AuthConfigImpl
@@ -31,13 +30,29 @@ trait TestConfiguration {
 
   import play.api.Play.current
 
-  val CSRF_TOKEN_NAME = "csrfToken"
-  val CSRF_HEADER_NAME = "Csrf-Token"
-  val CSRF_HEADER_NOCHECK = "nocheck"
-  val fakeCsrfString = "fake-csrf-token"
-  val testPassword = "testpass"
+  // Stateful buffers for capturing stuff like feedback, search
+  // parameters, and reset tokens. These persist across tests in
+  // a very unclean way but are useful for determining the last-used
+  // whatsit etc...
+  val feedbackBuffer = collection.mutable.HashMap.empty[Int,Feedback]
+  val mailBuffer = collection.mutable.ListBuffer.empty[MockMail]
+  val searchParamBuffer = collection.mutable.ListBuffer.empty[ParamLog]
+  val indexEventBuffer = collection.mutable.ArrayBuffer.empty[String]
+  val userDb = collection.mutable.HashMap.empty[String,Account]
 
-  val mockIndexer: MockSearchIndexer = new MockSearchIndexer
+  // Might want to mock the backend at at some point!
+  def testBackend: Backend = new RestBackend(testEventHandler)
+
+  def mockResolver: MockSearchResolver = new MockSearchResolver
+  def idGenerator: IdGenerator = new CypherIdGenerator("%06d")
+  def mockDispatcher: Dispatcher = new MockSearchDispatcher(testBackend, searchParamBuffer)
+  def mockFeedback: FeedbackDAO = new MockFeedbackDAO(feedbackBuffer)
+  def mockMailer: MailerAPI = new MockBufferedMailer(mailBuffer)
+  def mockIndexer: Indexer = new MockSearchIndexer(indexEventBuffer)
+  // NB: The mutable state for the user DAO is still stored globally
+  // in the mocks package.
+  def mockUserDAO: AccountDAO = MockAccountDAO
+
   // More or less the same as run config but synchronous (so
   // we can validate the actions)
   // Note: this is defined as an implicit object here so it
@@ -47,20 +62,6 @@ trait TestConfiguration {
     def handleUpdate(id: String) = mockIndexer.indexId(id)
     def handleDelete(id: String) = mockIndexer.clearId(id)
   }
-
-  // Might want to mock the backend at at some point!
-  def testBackend: Backend = new RestBackend(testEventHandler)
-
-  def mockResolver: MockSearchResolver = new MockSearchResolver
-  def idGenerator: IdGenerator = new CypherIdGenerator("%06d")
-
-  // NB: These are lazy vals instead of defs because we need them to be
-  // instantiated after the main app has started up, but - because they
-  // are stateful for debug purposes - not be re-created every time.
-  lazy val mockDispatcher: MockSearchDispatcher = new MockSearchDispatcher(() => testBackend)
-  lazy val mockFeedback: MockFeedbackDAO = new MockFeedbackDAO
-  lazy val mockUserDAO: AccountDAO = MockAccountDAO
-  lazy val mockMailer: MockBufferedMailer = new MockBufferedMailer
 
   object TestConfig extends globalConfig.BaseConfiguration
 
@@ -101,6 +102,12 @@ trait TestConfiguration {
       case e => super.onError(request, e)
     }
   }
+
+  val CSRF_TOKEN_NAME = "csrfToken"
+  val CSRF_HEADER_NAME = "Csrf-Token"
+  val CSRF_HEADER_NOCHECK = "nocheck"
+  val fakeCsrfString = "fake-csrf-token"
+  val testPassword = "testpass"
 
   /**
    * Get a FakeApplication with the given configuration, plus any plugins

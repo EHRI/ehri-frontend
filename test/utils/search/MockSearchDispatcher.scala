@@ -8,25 +8,19 @@ import models.base.{DescribedMeta, Described, Description, AnyModel}
 import play.api.i18n.Lang
 import backend.ApiUser
 
+/*
+ * Class to aid in debugging the last submitted request - gross...
+ */
+case class ParamLog(params: SearchParams, facets: List[AppliedFacet],
+                    allFacets: FacetClassList, filters: Map[String,Any] = Map.empty)
+
 /**
  * This class mocks a search displatcher by simply returning
  * whatever's in the backend, wrapped as a search hit...
- *
- * User: michaelb
  */
-case class MockSearchDispatcher(getBackend: () => Backend) extends Dispatcher {
+case class MockSearchDispatcher(backend: Backend, paramBuffer: collection.mutable.ListBuffer[ParamLog]) extends Dispatcher {
 
-  val paramBuffer = collection.mutable.ArrayBuffer.empty[ParamLog]
 
-  def backend: Backend = getBackend()
-
-  /*
-   * Class to aid in debugging the last submitted request - gross...
-   */
-  case class ParamLog(params: SearchParams, facets: List[AppliedFacet],
-    allFacets: FacetClassList, filters: Map[String,Any] = Map.empty)
-
-  
   def filter(params: SearchParams, filters: Map[String,Any] = Map.empty, extra: Map[String,Any] = Map.empty)(
       implicit userOpt: Option[UserProfile]): Future[ItemPage[FilterHit]] = {
 
