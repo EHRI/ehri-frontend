@@ -1,13 +1,12 @@
 package helpers
 
 import play.api.http.{MimeTypes, HeaderNames}
-import play.api.test.{FakeApplication, FakeRequest}
+import play.api.test.FakeRequest
 import play.api.GlobalSettings
 import play.filters.csrf.CSRFFilter
 import models.MockAccountDAO
 import mocks._
 import global.GlobalConfig
-import utils.search._
 import com.tzavellas.sse.guice.ScalaModule
 import models.{AccountDAO, Account}
 import play.api.mvc.{RequestHeader, WithFilters}
@@ -15,12 +14,9 @@ import jp.t2v.lab.play2.auth.test.Helpers._
 import controllers.base.AuthConfigImpl
 import scala.concurrent.Future
 import backend._
-import backend.rest.{CypherIdGenerator, RestBackend}
 import utils.search._
-import backend.rest.RestBackend
 import utils.search.MockSearchResolver
 import backend.rest.RestBackend
-import scala.Some
 import backend.rest.CypherIdGenerator
 import utils.search.MockSearchIndexer
 import play.api.test.FakeApplication
@@ -33,13 +29,15 @@ import com.typesafe.plugin.MailerAPI
  */
 trait TestConfiguration {
 
+  import play.api.Play.current
+
   val CSRF_TOKEN_NAME = "csrfToken"
   val CSRF_HEADER_NAME = "Csrf-Token"
   val CSRF_HEADER_NOCHECK = "nocheck"
   val fakeCsrfString = "fake-csrf-token"
   val testPassword = "testpass"
 
-  val mockIndexer: MockSearchIndexer = new MockSearchIndexer()
+  val mockIndexer: MockSearchIndexer = new MockSearchIndexer
   // More or less the same as run config but synchronous (so
   // we can validate the actions)
   // Note: this is defined as an implicit object here so it
@@ -50,16 +48,19 @@ trait TestConfiguration {
     def handleDelete(id: String) = mockIndexer.clearId(id)
   }
 
-  // Might want to mock this at some point!
-  val testBackend: Backend = new RestBackend(testEventHandler)
+  // Might want to mock the backend at at some point!
+  def testBackend: Backend = new RestBackend(testEventHandler)
 
-  val mockDispatcher: MockSearchDispatcher = new MockSearchDispatcher(testBackend)
-  val mockResolver: MockSearchResolver = new MockSearchResolver
-  val mockFeedback: MockFeedbackDAO = new MockFeedbackDAO
-  val idGenerator: IdGenerator = new CypherIdGenerator("%06d")
-  val mockUserDAO: AccountDAO = MockAccountDAO
-  val mockMailer: MockBufferedMailer = new MockBufferedMailer
+  def mockResolver: MockSearchResolver = new MockSearchResolver
+  def idGenerator: IdGenerator = new CypherIdGenerator("%06d")
 
+  // NB: These are lazy vals instead of defs because we need them to be
+  // instantiated after the main app has started up, but - because they
+  // are stateful for debug purposes - not be re-created every time.
+  lazy val mockDispatcher: MockSearchDispatcher = new MockSearchDispatcher(() => testBackend)
+  lazy val mockFeedback: MockFeedbackDAO = new MockFeedbackDAO
+  lazy val mockUserDAO: AccountDAO = MockAccountDAO
+  lazy val mockMailer: MockBufferedMailer = new MockBufferedMailer
 
   object TestConfig extends globalConfig.BaseConfiguration
 
@@ -69,7 +70,6 @@ trait TestConfiguration {
     val userDAO = mockUserDAO
   }
 
-
   /**
    * A Global object that loads fixtures on application start.
    */
@@ -78,9 +78,9 @@ trait TestConfiguration {
       def configure() {
         bind[GlobalConfig].toInstance(TestConfig)
         bind[Indexer].toInstance(mockIndexer)
+        bind[Backend].toInstance(testBackend)
         bind[Dispatcher].toInstance(mockDispatcher)
         bind[Resolver].toInstance(mockResolver)
-        bind[Backend].toInstance(testBackend)
         bind[FeedbackDAO].toInstance(mockFeedback)
         bind[IdGenerator].toInstance(idGenerator)
         bind[MailerAPI].toInstance(mockMailer)

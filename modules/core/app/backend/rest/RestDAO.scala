@@ -1,6 +1,6 @@
 package backend.rest
 
-import play.api.{Logger, Play}
+import play.api.Logger
 import play.api.http.{Writeable, ContentTypeOf, HeaderNames, ContentTypes}
 import play.api.libs.json._
 import backend.{ErrorSet, ApiUser}
@@ -9,6 +9,8 @@ import utils.Page
 
 
 trait RestDAO {
+
+  implicit def app: play.api.Application
 
   import play.api.libs.concurrent.Execution.Implicits._
   import play.api.libs.ws.{EmptyBody, InMemoryBody, WSBody, WS, WSResponse}
@@ -22,7 +24,7 @@ trait RestDAO {
     queryString: Seq[(String,String)] = Seq.empty,
     method: String = "GET",
     body: WSBody = EmptyBody
-    )(implicit apiUser: ApiUser, app: play.api.Application) {
+    )(implicit apiUser: ApiUser) {
 
     import scala.util.matching.Regex
     import play.api.cache.Cache
@@ -119,7 +121,6 @@ trait RestDAO {
 
   import Constants._
   import play.api.http.Status._
-  import play.api.Play.current
 
   /**
    * Header to add for log messages.
@@ -159,7 +160,7 @@ trait RestDAO {
    */
   import scala.collection.JavaConversions._
   private lazy val includeProps
-    = Play.current.configuration.getStringList("ehri.backend.includedProperties").map(_.toList)
+    = app.configuration.getStringList("ehri.backend.includedProperties").map(_.toList)
         .getOrElse(List.empty[String])
 
 
@@ -180,10 +181,10 @@ trait RestDAO {
   }
 
   private def getConfigString(key: String): String =
-    Play.current.configuration.getString(key).getOrElse(sys.error(s"Missing configuration value: '$key'"))
+    app.configuration.getString(key).getOrElse(sys.error(s"Missing configuration value: '$key'"))
 
   private def getConfigInt(key: String): Int =
-    Play.current.configuration.getInt(key).getOrElse(sys.error(s"Missing configuration value: '$key'"))
+    app.configuration.getInt(key).getOrElse(sys.error(s"Missing configuration value: '$key'"))
 
   def host: String = getConfigString("neo4j.server.host")
   def port: Int = getConfigInt("neo4j.server.port")

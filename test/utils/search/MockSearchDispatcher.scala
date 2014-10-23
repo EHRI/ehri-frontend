@@ -14,9 +14,11 @@ import backend.ApiUser
  *
  * User: michaelb
  */
-case class MockSearchDispatcher(backend: Backend) extends Dispatcher {
+case class MockSearchDispatcher(getBackend: () => Backend) extends Dispatcher {
 
   val paramBuffer = collection.mutable.ArrayBuffer.empty[ParamLog]
+
+  def backend: Backend = getBackend()
 
   /*
    * Class to aid in debugging the last submitted request - gross...

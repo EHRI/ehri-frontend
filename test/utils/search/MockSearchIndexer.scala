@@ -1,7 +1,6 @@
 package utils.search
 
 import defines.EntityType
-import utils.search._
 import play.api.Logger
 import scala.concurrent.Future
 
