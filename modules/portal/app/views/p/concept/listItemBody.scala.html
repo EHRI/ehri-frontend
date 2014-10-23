@@ -16,7 +16,7 @@
                 <li>@Messages("cvocConcept.broaderTerms")</li>
                 @item.broaderTerms.map { bt =>
                 <li>
-                    <a href="@controllers.portal.routes.Portal.browseVocabulary(bt.id)">
+                    <a href="@controllers.portal.routes.Portal.browseConcept(bt.id)">
                         @bt.toStringLang
                     </a>
                 </li>

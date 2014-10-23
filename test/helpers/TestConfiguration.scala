@@ -25,6 +25,7 @@ import backend.rest.CypherIdGenerator
 import utils.search.MockSearchIndexer
 import play.api.test.FakeApplication
 import utils.search.MockSearchDispatcher
+import com.typesafe.plugin.MailerAPI
 
 /**
  * Mixin trait that provides some handy methods to test actions that
@@ -57,6 +58,7 @@ trait TestConfiguration {
   val mockFeedback: MockFeedbackDAO = new MockFeedbackDAO
   val idGenerator: IdGenerator = new CypherIdGenerator("%06d")
   val mockUserDAO: AccountDAO = MockAccountDAO
+  val mockMailer: MockBufferedMailer = new MockBufferedMailer
 
 
   object TestConfig extends globalConfig.BaseConfiguration
@@ -81,6 +83,7 @@ trait TestConfiguration {
         bind[Backend].toInstance(testBackend)
         bind[FeedbackDAO].toInstance(mockFeedback)
         bind[IdGenerator].toInstance(idGenerator)
+        bind[MailerAPI].toInstance(mockMailer)
         bind[AccountDAO].toInstance(mockUserDAO)
       }
     }
@@ -112,10 +115,7 @@ trait TestConfiguration {
 
   def getConfig = Map.empty[String,Any]
 
-  /**
-   * Get a set of plugins necessary to enable to desired login method.
-   */
-  def getPlugins: Seq[String] = Seq("mocks.MockBufferedMailerPlugin")
+  def getPlugins = Seq.empty[String]
 
   /**
    * Get a FakeRequest with authorization cookies for the given user

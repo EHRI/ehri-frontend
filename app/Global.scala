@@ -8,6 +8,7 @@ import backend.rest.BadJson
 import backend.rest.RestBackend
 import backend.rest.GidSearchResolver
 import backend.{IdGenerator, FeedbackDAO, EventHandler, Backend}
+import com.typesafe.plugin.{CommonsMailerPlugin, MailerAPI}
 import defines.EntityType
 import java.util.concurrent.TimeUnit
 import models.AccountDAO
@@ -91,6 +92,7 @@ object Global extends WithFilters(CSRFFilter()) with GlobalSettings {
   private def feedbackDAO: FeedbackDAO = new ParseFeedbackDAO
   private def idGenerator: IdGenerator = new CypherIdGenerator(idFormat = "%06d")
   private def userDAO: AccountDAO = SqlAccount
+  private def mailer: MailerAPI = new CommonsMailerPlugin(current).email
 
   private val eventHandler = new EventHandler {
 
@@ -128,6 +130,7 @@ object Global extends WithFilters(CSRFFilter()) with GlobalSettings {
       bind[Backend].toInstance(backend)
       bind[FeedbackDAO].toInstance(feedbackDAO)
       bind[IdGenerator].toInstance(idGenerator)
+      bind[MailerAPI].toInstance(mailer)
       bind[AccountDAO].toInstance(userDAO)
     }
   }
