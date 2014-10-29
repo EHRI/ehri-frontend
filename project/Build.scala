@@ -38,15 +38,20 @@ object ApplicationBuild extends Build {
 
   scalacOptions in ThisBuild ++= Seq("-unchecked", "-deprecation")
 
-  val coreDependencies = Seq(
+  val backendDependencies = Seq(
+    // Ontology
+    ws,
+    cache,
+
+    "ehri-project" % "ehri-definitions" % "1.0",
+    "joda-time" % "joda-time" % "2.1"
+
+  )
+
+  val coreDependencies = backendDependencies ++ Seq(
     jdbc,
     anorm,
-    cache,
     filters,
-    ws,
-
-    // Ontology
-    "ehri-project" % "ehri-definitions" % "1.0",
 
     // Solely to satisfy SBT: bit.ly/16bFa4O
     "com.google.guava" % "guava" % "17.0",
@@ -63,7 +68,6 @@ object ApplicationBuild extends Build {
     // Play at runtime with an IncompatibleClassChangeError.
     "org.pegdown" % "pegdown" % "1.1.0",
 
-    "joda-time" % "joda-time" % "2.1",
     "org.mindrot" % "jbcrypt" % "0.3m",
 
     // Mailer...
@@ -96,7 +100,7 @@ object ApplicationBuild extends Build {
   )
 
   val commonSettings = Seq(
-    templateImports in Compile ++= Seq("models.base._", "models.forms._", "acl._", "defines._", "backend.Entity"),
+    templateImports in Compile ++= Seq("models.base._", "utils.forms._", "acl._", "defines._", "backend.Entity"),
     routesImport += "defines.EntityType",
 
     resolvers += "neo4j-public-repository" at "http://m2.neo4j.org/content/groups/public",
@@ -117,6 +121,13 @@ object ApplicationBuild extends Build {
   val assetSettings = Seq(
   )
 
+  lazy val backend = Project(appName + "-backend", file("modules/backend"))
+    .enablePlugins(play.PlayScala).settings(
+    version := appVersion,
+    name := appName + "-backend",
+    libraryDependencies ++= backendDependencies
+  ).settings(commonSettings: _*)
+
   lazy val core = Project(appName + "-core", file("modules/core"))
     .enablePlugins(play.PlayScala)
     .enablePlugins(SbtWeb).settings(
@@ -125,7 +136,7 @@ object ApplicationBuild extends Build {
       libraryDependencies ++= coreDependencies,
       pipelineStages := Seq(rjs, digest, gzip),
       RjsKeys.mainModule := "core-main"
-  ).settings(commonSettings: _*)
+  ).settings(commonSettings: _*).dependsOn(backend)
 
   lazy val admin = Project(appName + "-admin", file("modules/admin"))
     .enablePlugins(play.PlayScala).settings(
@@ -181,7 +192,7 @@ object ApplicationBuild extends Build {
     version := appVersion,
     libraryDependencies ++= coreDependencies ++ testDependencies
   ).settings(commonSettings ++ assetSettings: _*).dependsOn(adminUtils)
-    .aggregate(core, admin, annotation, linking, portal, archdesc, authorities, vocabs, guides, adminUtils)
+    .aggregate(backend, core, admin, annotation, linking, portal, archdesc, authorities, vocabs, guides, adminUtils)
 
   override def rootProject = Some(main)
 }

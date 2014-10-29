@@ -104,11 +104,11 @@ object SystemEventParams {
   def form: Form[SystemEventParams] = Form(
     mapping(
       USERS -> list(text),
-      EVENT_TYPE -> list(models.forms.enum(EventType)),
-      ITEM_TYPE -> list(models.forms.enum(EntityType)),
+      EVENT_TYPE -> list(utils.forms.enum(EventType)),
+      ITEM_TYPE -> list(utils.forms.enum(EntityType)),
       FROM -> optional(jodaDate(pattern = DATE_PATTERN)),
       TO -> optional(jodaDate(pattern = DATE_PATTERN)),
-      SHOW -> optional(models.forms.enum(ShowType))
+      SHOW -> optional(utils.forms.enum(ShowType))
     )(SystemEventParams.apply)(SystemEventParams.unapply)
   )
 

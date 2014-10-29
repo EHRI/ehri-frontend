@@ -132,7 +132,7 @@ object Annotation {
   val form = Form(mapping(
     ISA -> ignored(EntityType.Annotation),
     ID -> optional(nonEmptyText),
-    ANNOTATION_TYPE_PROP -> optional(models.forms.enum(AnnotationType)),
+    ANNOTATION_TYPE_PROP -> optional(utils.forms.enum(AnnotationType)),
     BODY -> nonEmptyText(maxLength = 600),
     FIELD -> optional(nonEmptyText),
     COMMENT -> optional(nonEmptyText),

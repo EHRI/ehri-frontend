@@ -115,7 +115,7 @@ object AccessPoint {
   val form = Form(mapping(
     ISA -> ignored(EntityType.AccessPoint),
     ID -> optional(nonEmptyText),
-    ETYPE -> models.forms.enum(AccessPointType),
+    ETYPE -> utils.forms.enum(AccessPointType),
     TARGET -> nonEmptyText, // TODO: Validate this server side
     DESCRIPTION -> optional(nonEmptyText)
   )(AccessPointF.apply)(AccessPointF.unapply))

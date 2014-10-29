@@ -111,7 +111,7 @@ object Link {
   val form = Form(mapping(
     Entity.ISA -> ignored(EntityType.Link),
     Entity.ID -> optional(nonEmptyText),
-    LINK_TYPE -> default(models.forms.enum(LinkType), LinkType.Associative),
+    LINK_TYPE -> default(utils.forms.enum(LinkType), LinkType.Associative),
     DESCRIPTION -> optional(nonEmptyText), // TODO: Validate this server side
     Ontology.IS_PROMOTABLE -> default(boolean, false),
     DATES -> list(DatePeriod.form.mapping)

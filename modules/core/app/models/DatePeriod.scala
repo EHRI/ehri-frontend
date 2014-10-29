@@ -112,9 +112,9 @@ object DatePeriod {
   val form = Form(mapping(
     ISA -> ignored(EntityType.DatePeriod),
     ID -> optional(nonEmptyText),
-    TYPE -> optional(models.forms.enum(DatePeriodType)),
+    TYPE -> optional(utils.forms.enum(DatePeriodType)),
     START_DATE -> optional(text verifying("error.date", dateValidator)),
     END_DATE -> optional(text verifying("error.date", dateValidator)),
-    PRECISION -> optional(models.forms.enum(DatePeriodPrecision))
+    PRECISION -> optional(utils.forms.enum(DatePeriodPrecision))
   )(DatePeriodF.apply)(DatePeriodF.unapply))
 }

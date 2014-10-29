@@ -95,7 +95,7 @@ case class AdminSearch @Inject()(implicit globalConfig: global.GlobalConfig, sea
 
   import play.api.data.Form
   import play.api.data.Forms._
-  import models.forms.enum
+  import utils.forms.enum
 
 
   private val updateIndexForm = Form(

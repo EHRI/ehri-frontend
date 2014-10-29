@@ -15,8 +15,7 @@ trait Backend
   with Annotations
   with Visibility
   with Events
-  with Social
-  with IdResolver {
+  with Social {
 
   // Direct API queries
   def query(urlpart: String, headers: Headers, params: Map[String,Seq[String]] = Map.empty)(implicit apiUser: ApiUser, executionContext: ExecutionContext): Future[WSResponse]
