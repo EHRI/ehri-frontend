@@ -9,7 +9,8 @@ import eu.ehri.project.definitions.Ontology
 import play.api.data.Form
 import play.api.data.Forms._
 import play.api.libs.json.JsObject
-import backend.{BackendContentType, BackendResource, BackendReadable, BackendWriteable}
+import backend._
+import play.api.libs.json.JsObject
 
 
 object LinkF {
@@ -29,7 +30,7 @@ object LinkF {
     implicit val format = defines.EnumUtils.enumFormat(this)
   }
 
-  import models.Entity._
+  import Entity._
   import Ontology._
   import play.api.libs.functional.syntax._
 
@@ -76,7 +77,7 @@ case class LinkF(
 
 
 object Link {
-  import models.Entity._
+  import Entity._
   import Ontology._
   import play.api.libs.functional.syntax._
 

@@ -6,7 +6,8 @@ import defines.ContentTypes
 import play.api.cache.Cache
 import utils.{Page, PageParams}
 import backend._
-import models.Entity
+import play.api.libs.json.JsObject
+import scala.Some
 import backend.ApiUser
 import play.api.libs.json.JsObject
 

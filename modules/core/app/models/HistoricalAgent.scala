@@ -15,7 +15,8 @@ import play.api.data.Form
 import play.api.data.Forms._
 import models.forms._
 import play.api.libs.json.JsObject
-import backend.{BackendReadable, BackendContentType, BackendResource, BackendWriteable}
+import backend._
+import play.api.libs.json.JsObject
 
 object HistoricalAgentF {
 

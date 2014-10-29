@@ -16,7 +16,9 @@ import play.api.data.Form
 import play.api.data.Forms._
 import play.api.libs.json.JsObject
 import play.api.i18n.Lang
-import backend.{BackendReadable, BackendContentType, BackendResource, BackendWriteable}
+import backend._
+import scala.Some
+import play.api.libs.json.JsObject
 
 
 object RepositoryF {

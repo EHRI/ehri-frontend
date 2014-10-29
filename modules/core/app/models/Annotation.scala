@@ -10,7 +10,9 @@ import play.api.data.Form
 import play.api.data.Forms._
 import defines.EnumUtils._
 import play.api.libs.json.JsObject
-import backend.{BackendResource, BackendContentType, BackendReadable, BackendWriteable}
+import backend._
+import scala.Some
+import play.api.libs.json.JsObject
 
 
 object AnnotationF {
@@ -29,7 +31,7 @@ object AnnotationF {
   }
 
   import AnnotationF.{ANNOTATION_TYPE => ANNOTATION_TYPE_PROP, _}
-  import models.Entity._
+  import Entity._
   import Ontology._
 
   implicit val annotationTypeReads = enumReads(AnnotationType)
@@ -77,7 +79,7 @@ case class AnnotationF(
 
 
 object Annotation {
-  import models.Entity._
+  import Entity._
   import Ontology._
 
   private implicit val anyModelReads = AnyModel.Converter.restReads

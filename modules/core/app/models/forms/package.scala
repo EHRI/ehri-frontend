@@ -1,5 +1,7 @@
 package models
 
+import backend.Entity
+
 
 package object forms {
 

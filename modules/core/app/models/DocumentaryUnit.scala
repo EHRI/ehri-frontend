@@ -13,7 +13,9 @@ import java.net.URL
 import play.api.data.Form
 import play.api.data.Forms._
 import play.api.libs.json.JsObject
-import backend.{BackendReadable, BackendWriteable, BackendResource, BackendContentType}
+import backend._
+import scala.Some
+import play.api.libs.json.JsObject
 
 
 object DocumentaryUnitF {
@@ -39,7 +41,7 @@ object DocumentaryUnitF {
   final val SCOPE = "scope"
   final val COPYRIGHT = "copyright"
 
-  import models.Entity._
+  import Entity._
   import eu.ehri.project.definitions.Ontology._
 
   implicit val documentaryUnitWrites: Writes[DocumentaryUnitF] = new Writes[DocumentaryUnitF] {
@@ -99,7 +101,7 @@ case class DocumentaryUnitF(
 }
 
 object DocumentaryUnit {
-  import models.Entity._
+  import Entity._
   import models.DocumentaryUnitF._
   import eu.ehri.project.definitions.Ontology.{OTHER_IDENTIFIERS => _, _}
 

@@ -8,7 +8,7 @@ import defines.{ContentTypes, EntityType}
 import utils.search.{Indexer, Resolver, Dispatcher}
 import com.google.inject._
 import scala.concurrent.Future.{successful => immediate}
-import backend.{IdGenerator, Backend}
+import backend.{Entity, IdGenerator, Backend}
 import play.api.Configuration
 import play.api.Play.current
 import solr.SolrConstants

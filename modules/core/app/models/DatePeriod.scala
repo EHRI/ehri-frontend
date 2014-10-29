@@ -4,7 +4,7 @@ import models.base.Model
 import org.joda.time.DateTime
 
 import defines.EntityType
-import backend.BackendWriteable
+import backend.{Entity, BackendWriteable}
 
 
 object DatePeriodF {

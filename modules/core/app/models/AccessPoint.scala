@@ -10,7 +10,7 @@ import play.api.i18n.Lang
 import play.api.data.Form
 import play.api.data.Forms._
 import play.api.libs.json.JsObject
-import backend.{BackendReadable, BackendWriteable}
+import backend.{Entity, BackendReadable, BackendWriteable}
 
 
 object AccessPointF {

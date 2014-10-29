@@ -11,7 +11,7 @@ import utils.search._
 import com.google.inject._
 import solr.SolrConstants
 import scala.concurrent.Future.{successful => immediate}
-import backend.{IdGenerator, Backend}
+import backend.{Entity, IdGenerator, Backend}
 import play.api.Play.current
 import play.api.Configuration
 import play.api.mvc.AnyContent

@@ -96,7 +96,7 @@ object ApplicationBuild extends Build {
   )
 
   val commonSettings = Seq(
-    templateImports in Compile ++= Seq("models.base._", "models.forms._", "acl._", "defines._"),
+    templateImports in Compile ++= Seq("models.base._", "models.forms._", "acl._", "defines._", "backend.Entity"),
     routesImport += "defines.EntityType",
 
     resolvers += "neo4j-public-repository" at "http://m2.neo4j.org/content/groups/public",

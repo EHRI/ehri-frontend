@@ -10,7 +10,7 @@ import models.forms._
 import play.api.data.Form
 import play.api.data.Forms._
 import defines.EnumUtils._
-import backend.{BackendReadable, BackendWriteable}
+import backend.{Entity, BackendReadable, BackendWriteable}
 import Description._
 
 case class IsadGIdentity(

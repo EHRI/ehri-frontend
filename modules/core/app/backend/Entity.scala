@@ -1,8 +1,7 @@
-package models
+package backend
 
 import defines._
 import play.api.libs.json._
-import models.base.AnyModel
 import play.api.libs.functional.syntax._
 
 
