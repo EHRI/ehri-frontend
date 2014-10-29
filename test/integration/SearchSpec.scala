@@ -9,7 +9,7 @@ import play.api.test.FakeRequest
 /**
  * Spec to test various page views operate as expected.
  */
-class SearchSpec extends Neo4jRunnerSpec(classOf[SearchSpec]) {
+class SearchSpec extends Neo4jRunnerSpec {
 
   import mocks.privilegedUser
 

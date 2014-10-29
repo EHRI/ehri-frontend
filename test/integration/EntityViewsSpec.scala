@@ -8,7 +8,7 @@ import backend.ApiUser
 /**
  * Spec to test various page views operate as expected.
  */
-class EntityViewsSpec extends Neo4jRunnerSpec(classOf[EntityViewsSpec]) {
+class EntityViewsSpec extends Neo4jRunnerSpec {
   import mocks.{privilegedUser,unprivilegedUser}
 
   implicit val apiUser: ApiUser = ApiUser(Some(privilegedUser.id))

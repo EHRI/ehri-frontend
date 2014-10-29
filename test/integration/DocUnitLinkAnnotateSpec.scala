@@ -5,7 +5,7 @@ import models._
 import defines._
 
 
-class DocUnitLinkAnnotateSpec extends Neo4jRunnerSpec(classOf[DocUnitLinkAnnotateSpec]) {
+class DocUnitLinkAnnotateSpec extends Neo4jRunnerSpec {
   import mocks.privilegedUser
   
   private val docRoutes = controllers.archdesc.routes.DocumentaryUnits

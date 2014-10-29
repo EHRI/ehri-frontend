@@ -10,7 +10,7 @@ import play.api.http.MimeTypes
 import play.api.libs.json.JsObject
 
 
-class ProfileSpec extends Neo4jRunnerSpec(classOf[ProfileSpec]) {
+class ProfileSpec extends Neo4jRunnerSpec {
   import mocks.{privilegedUser, unprivilegedUser}
 
   private val profileRoutes = controllers.portal.routes.Profile

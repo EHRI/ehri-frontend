@@ -6,7 +6,7 @@ import play.api.test.FakeRequest
 /**
  * Spec to test various page views operate as expected.
  */
-class UtilsSpec extends Neo4jRunnerSpec(classOf[UtilsSpec]) {
+class UtilsSpec extends Neo4jRunnerSpec {
 
   "Utils" should {
     "return a successful ping of the EHRI REST service" in new FakeApp {

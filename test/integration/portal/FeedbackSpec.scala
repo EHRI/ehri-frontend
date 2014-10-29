@@ -2,7 +2,7 @@ package integration.portal
 
 import helpers.Neo4jRunnerSpec
 
-class FeedbackSpec extends Neo4jRunnerSpec(classOf[FeedbackSpec]) {
+class FeedbackSpec extends Neo4jRunnerSpec {
 
   "Feedback views" should {
     "allow anon feedback" in new FakeApp {

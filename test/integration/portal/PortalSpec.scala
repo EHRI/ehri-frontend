@@ -5,7 +5,7 @@ import controllers.portal.ReversePortal
 import play.api.test.FakeRequest
 
 
-class PortalSpec extends Neo4jRunnerSpec(classOf[PortalSpec]) {
+class PortalSpec extends Neo4jRunnerSpec {
   import mocks.{privilegedUser, unprivilegedUser}
 
   private val portalRoutes: ReversePortal = controllers.portal.routes.Portal

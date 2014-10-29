@@ -6,7 +6,7 @@ import backend.ApiUser
 /**
  * Spec to test various page views operate as expected.
  */
-class SystemEventViewsSpec extends Neo4jRunnerSpec(classOf[SystemEventViewsSpec]) {
+class SystemEventViewsSpec extends Neo4jRunnerSpec {
   import mocks.privilegedUser
 
   "System Event views" should {

@@ -8,7 +8,7 @@ import play.api.http.{MimeTypes, HeaderNames}
 import backend.rest.ItemNotFound
 
 
-class DocUnitViewsSpec extends Neo4jRunnerSpec(classOf[DocUnitViewsSpec]) {
+class DocUnitViewsSpec extends Neo4jRunnerSpec {
   import mocks.{privilegedUser, unprivilegedUser}
 
   private val docRoutes = controllers.archdesc.routes.DocumentaryUnits

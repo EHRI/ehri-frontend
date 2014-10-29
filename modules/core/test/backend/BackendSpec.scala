@@ -3,18 +3,34 @@ package backend
 import models._
 import defines.{EntityType, ContentTypes, PermissionType}
 import utils.PageParams
-import backend.rest.{CypherIdGenerator, ItemNotFound, ValidationError}
+import backend.rest.{RestBackend, CypherIdGenerator, ItemNotFound, ValidationError}
 import backend.rest.cypher.CypherDAO
 import play.api.libs.json.{JsString, Json}
 import models.base.AnyModel
+import play.api.test.{PlaySpecification, WithApplication}
+import utils.search.{MockSearchIndexer, Indexer}
 
 /**
  * Spec for testing individual data access components work as expected.
  */
-class BackendSpec extends helpers.Neo4jRunnerSpec(classOf[BackendSpec]) {
+class BackendSpec extends backend.test.RestBackendRunner with PlaySpecification {
   val userProfile = UserProfile(UserProfileF(id = Some("mike"), identifier = "mike", name = "Mike"))
   val entityType = EntityType.UserProfile
   implicit val apiUser: ApiUser = ApiUser(Some(userProfile.id))
+
+  case class FakeApp() extends WithApplication
+
+  import play.api.Play.current
+
+  val indexEventBuffer = collection.mutable.ListBuffer.empty[String]
+  def mockIndexer: Indexer = new MockSearchIndexer(indexEventBuffer)
+
+  def testBackend: Backend = new RestBackend(testEventHandler)
+  def testEventHandler = new EventHandler {
+    def handleCreate(id: String) = mockIndexer.indexId(id)
+    def handleUpdate(id: String) = mockIndexer.indexId(id)
+    def handleDelete(id: String) = mockIndexer.clearId(id)
+  }
 
   "EntityDAO" should {
     "not cache invalid responses (as per bug #324)" in new FakeApp {

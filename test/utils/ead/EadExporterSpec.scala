@@ -12,7 +12,7 @@ import org.xml.sax.SAXParseException
 /**
  * @author Mike Bryant (http://github.com/mikesname)
  */
-class EadExporterSpec extends Neo4jRunnerSpec(classOf[EadExporterSpec]) {
+class EadExporterSpec extends Neo4jRunnerSpec {
   implicit val apiUser: ApiUser = ApiUser(Some("mike"))
 
   private def resourceInputStream(s: String): InputStream =

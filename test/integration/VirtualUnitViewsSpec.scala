@@ -4,7 +4,7 @@ import helpers.{formPostHeaders,Neo4jRunnerSpec}
 import models._
 
 
-class VirtualUnitViewsSpec extends Neo4jRunnerSpec(classOf[VirtualUnitViewsSpec]) {
+class VirtualUnitViewsSpec extends Neo4jRunnerSpec {
   import mocks.{privilegedUser, unprivilegedUser}
 
   val userProfile = UserProfile(

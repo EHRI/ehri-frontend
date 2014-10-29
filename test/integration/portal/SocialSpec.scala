@@ -5,7 +5,7 @@ import controllers.portal.{ReverseSocial, ReversePortal}
 import mocks.MockBufferedMailer
 import backend.ApiUser
 
-class SocialSpec extends Neo4jRunnerSpec(classOf[SocialSpec]) {
+class SocialSpec extends Neo4jRunnerSpec {
   import mocks.{privilegedUser, unprivilegedUser}
 
   private val socialRoutes: ReverseSocial = controllers.portal.routes.Social

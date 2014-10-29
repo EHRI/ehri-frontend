@@ -19,7 +19,7 @@ import backend.ApiUser
  *  - assign permissions to worker group to create/update/delete only their OWN items in a repo
  *  - check that these perms are respected
  */
-class SupervisorWorkerIntegrationSpec extends Neo4jRunnerSpec(classOf[SupervisorWorkerIntegrationSpec]) {
+class SupervisorWorkerIntegrationSpec extends Neo4jRunnerSpec {
   import mocks.privilegedUser
 
   implicit val apiUser: ApiUser = ApiUser(Some(privilegedUser.id))

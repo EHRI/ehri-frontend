@@ -7,7 +7,7 @@ import mocks.MockBufferedMailer
 import play.api.i18n.Messages
 
 
-class SignupSpec extends Neo4jRunnerSpec(classOf[SignupSpec]) {
+class SignupSpec extends Neo4jRunnerSpec {
 
   private val profileRoutes = controllers.portal.routes.Profile
 

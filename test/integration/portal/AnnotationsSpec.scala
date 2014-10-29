@@ -11,7 +11,7 @@ import defines.EntityType
 import backend.rest.PermissionDenied
 
 
-class AnnotationsSpec extends Neo4jRunnerSpec(classOf[AnnotationsSpec]) {
+class AnnotationsSpec extends Neo4jRunnerSpec {
   import mocks.{privilegedUser, unprivilegedUser}
 
   private val annotationRoutes: ReverseAnnotations = controllers.portal.routes.Annotations

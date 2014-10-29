@@ -21,7 +21,7 @@ import backend.ApiUser
  *  - create a doc in the repo
  *  - check that the user cannot write outside the country
  */
-class CountryScopeIntegrationSpec extends Neo4jRunnerSpec(classOf[CountryScopeIntegrationSpec]) {
+class CountryScopeIntegrationSpec extends Neo4jRunnerSpec {
   import mocks.privilegedUser
 
   implicit val apiUser: ApiUser = ApiUser(Some(privilegedUser.id))

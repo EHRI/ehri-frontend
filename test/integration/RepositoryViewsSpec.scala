@@ -7,7 +7,7 @@ import play.api.http.MimeTypes
 /**
  * Created by mike on 05/06/13.
  */
-class RepositoryViewsSpec extends Neo4jRunnerSpec(classOf[RepositoryViewsSpec]) {
+class RepositoryViewsSpec extends Neo4jRunnerSpec {
   import mocks.{privilegedUser,unprivilegedUser}
 
   private val repoRoutes = controllers.archdesc.routes.Repositories

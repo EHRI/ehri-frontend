@@ -9,7 +9,7 @@ import models.LinkF.LinkType
 /**
  * Spec for testing various JSON endpoints used by Ajax components etc.
  */
-class APISpec extends Neo4jRunnerSpec(classOf[APISpec]) {
+class APISpec extends Neo4jRunnerSpec {
 
   import mocks.privilegedUser
 

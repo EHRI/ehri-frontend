@@ -5,7 +5,7 @@ import models._
 import defines._
 
 
-class DocUnitPermissionsSpec extends Neo4jRunnerSpec(classOf[DocUnitPermissionsSpec]) {
+class DocUnitPermissionsSpec extends Neo4jRunnerSpec {
   import mocks.{privilegedUser, unprivilegedUser}
 
   private val docRoutes = controllers.archdesc.routes.DocumentaryUnits

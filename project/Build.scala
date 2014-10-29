@@ -39,13 +39,21 @@ object ApplicationBuild extends Build {
   scalacOptions in ThisBuild ++= Seq("-unchecked", "-deprecation")
 
   val backendDependencies = Seq(
-    // Ontology
     ws,
     cache,
 
+    // Ontology
     "ehri-project" % "ehri-definitions" % "1.0",
     "joda-time" % "joda-time" % "2.1"
+  )
 
+  val backendTestDependencies = Seq(
+    "org.neo4j" % "neo4j-kernel" % "1.9.7" classifier "tests" classifier "",
+    "org.neo4j.app" % "neo4j-server" % "1.9.7" classifier "tests" classifier "",
+
+    "com.sun.jersey" % "jersey-core" % "1.9" % "test",
+    "ehri-project" % "ehri-frames" % "0.1-SNAPSHOT" % "test" classifier "tests" classifier "",
+    "ehri-project" % "ehri-extension" % "0.0.1-SNAPSHOT" % "test" classifier "tests" classifier ""
   )
 
   val coreDependencies = backendDependencies ++ Seq(
@@ -88,15 +96,8 @@ object ApplicationBuild extends Build {
     "com.github.seratch" %% "awscala" % "0.3.+"
   )
 
-  val testDependencies = Seq(
-    "jp.t2v" %% "play2-auth-test" % "0.12.0" % "test",
-
-    "org.neo4j" % "neo4j-kernel" % "1.9.7" classifier "tests" classifier "",
-    "org.neo4j.app" % "neo4j-server" % "1.9.7" classifier "tests" classifier "",
-
-    "com.sun.jersey" % "jersey-core" % "1.9" % "test",
-    "ehri-project" % "ehri-frames" % "0.1-SNAPSHOT" % "test" classifier "tests" classifier "",
-    "ehri-project" % "ehri-extension" % "0.0.1-SNAPSHOT" % "test" classifier "tests" classifier ""
+  val testDependencies = backendTestDependencies ++ Seq(
+    "jp.t2v" %% "play2-auth-test" % "0.12.0" % "test"
   )
 
   val commonSettings = Seq(
@@ -125,7 +126,7 @@ object ApplicationBuild extends Build {
     .enablePlugins(play.PlayScala).settings(
     version := appVersion,
     name := appName + "-backend",
-    libraryDependencies ++= backendDependencies
+    libraryDependencies ++= backendDependencies ++ backendTestDependencies
   ).settings(commonSettings: _*)
 
   lazy val core = Project(appName + "-core", file("modules/core"))
@@ -136,7 +137,7 @@ object ApplicationBuild extends Build {
       libraryDependencies ++= coreDependencies,
       pipelineStages := Seq(rjs, digest, gzip),
       RjsKeys.mainModule := "core-main"
-  ).settings(commonSettings: _*).dependsOn(backend)
+  ).settings(commonSettings: _*).dependsOn(backend % "test->test;compile->compile")
 
   lazy val admin = Project(appName + "-admin", file("modules/admin"))
     .enablePlugins(play.PlayScala).settings(
@@ -191,7 +192,7 @@ object ApplicationBuild extends Build {
     .enablePlugins(play.PlayScala).settings(
     version := appVersion,
     libraryDependencies ++= coreDependencies ++ testDependencies
-  ).settings(commonSettings ++ assetSettings: _*).dependsOn(adminUtils)
+  ).settings(commonSettings ++ assetSettings: _*).dependsOn(backend % "test->test;compile->compile", core % "test->test", adminUtils)
     .aggregate(backend, core, admin, annotation, linking, portal, archdesc, authorities, vocabs, guides, adminUtils)
 
   override def rootProject = Some(main)
