@@ -29,4 +29,12 @@ case class RestBackend(eventHandler: EventHandler)(implicit val app: play.api.Ap
   // Helpers
   def createNewUserProfile[T <: WithId](data: Map[String,String] = Map.empty, groups: Seq[String] = Seq.empty)(implicit apiUser: ApiUser, rd: BackendReadable[T], executionContext: ExecutionContext): Future[T] =
     admin.createNewUserProfile[T](data, groups)
- }
+}
+
+object RestBackend {
+  def withNoopHandler(implicit app: play.api.Application): Backend = new RestBackend(new EventHandler {
+    def handleCreate(id: String) = ()
+    def handleUpdate(id: String) = ()
+    def handleDelete(id: String) = ()
+  })
+}

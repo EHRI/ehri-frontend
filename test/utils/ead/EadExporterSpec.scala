@@ -1,6 +1,6 @@
 package utils.ead
 
-import helpers.Neo4jRunnerSpec
+import helpers.IntegrationTestRunner
 import backend.ApiUser
 import java.io.{ByteArrayInputStream, InputStream}
 import javax.xml.validation.SchemaFactory
@@ -12,7 +12,7 @@ import org.xml.sax.SAXParseException
 /**
  * @author Mike Bryant (http://github.com/mikesname)
  */
-class EadExporterSpec extends Neo4jRunnerSpec {
+class EadExporterSpec extends IntegrationTestRunner {
   implicit val apiUser: ApiUser = ApiUser(Some("mike"))
 
   private def resourceInputStream(s: String): InputStream =
@@ -31,7 +31,7 @@ class EadExporterSpec extends Neo4jRunnerSpec {
   }
 
   "EadExporter" should {
-    "export valid EAD" in new FakeApp {
+    "export valid EAD" in new ITestApp {
       val ead  = await(EadExporter(testBackend).exportEad("c1", "http://example.com/c1/ead"))
       validateXml(stringToInputStream(ead), resourceInputStream("ead.xsd")) must not(throwA[SAXParseException])
     }

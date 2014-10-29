@@ -6,12 +6,12 @@ import backend.ApiUser
 /**
  * Spec to test various page views operate as expected.
  */
-class SystemEventViewsSpec extends Neo4jRunnerSpec {
+class SystemEventViewsSpec extends IntegrationTestRunner {
   import mocks.privilegedUser
 
   "System Event views" should {
 
-    "get details of deleted items from the last version" in new FakeApp {
+    "get details of deleted items from the last version" in new ITestApp {
 
       val del = route(fakeLoggedInHtmlRequest(privilegedUser, POST,
           controllers.authorities.routes.HistoricalAgents.deletePost("a1").url)).get

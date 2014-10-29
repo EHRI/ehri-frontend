@@ -7,7 +7,7 @@ import play.api.http.MimeTypes
 /**
  * Created by mike on 05/06/13.
  */
-class RepositoryViewsSpec extends Neo4jRunnerSpec {
+class RepositoryViewsSpec extends IntegrationTestRunner {
   import mocks.{privilegedUser,unprivilegedUser}
 
   private val repoRoutes = controllers.archdesc.routes.Repositories
@@ -27,7 +27,7 @@ class RepositoryViewsSpec extends Neo4jRunnerSpec {
 
     val COUNTRY = "nl"
 
-    "list should get some items" in new FakeApp {
+    "list should get some items" in new ITestApp {
       val list = route(fakeLoggedInHtmlRequest(unprivilegedUser, GET, repoRoutes.list().url)).get
       status(list) must equalTo(OK)
       contentAsString(list) must contain(multipleItemsHeader)
@@ -35,7 +35,7 @@ class RepositoryViewsSpec extends Neo4jRunnerSpec {
       contentAsString(list) must contain("r2")
     }
 
-    "search should get some items" in new FakeApp {
+    "search should get some items" in new ITestApp {
       val list = route(fakeLoggedInHtmlRequest(unprivilegedUser, GET, repoRoutes.search().url)).get
       status(list) must equalTo(OK)
       contentAsString(list) must contain(multipleItemsHeader)
@@ -43,7 +43,7 @@ class RepositoryViewsSpec extends Neo4jRunnerSpec {
       contentAsString(list) must contain("r2")
     }
 
-    "show correct default values in the form when creating new items" in new FakeApp(
+    "show correct default values in the form when creating new items" in new ITestApp(
       Map("repository.holdings" -> "SOME RANDOM VALUE")) {
       val form = route(fakeLoggedInHtmlRequest(privilegedUser, GET,
         controllers.archdesc.routes.Countries.createRepository(COUNTRY).url)).get
@@ -51,7 +51,7 @@ class RepositoryViewsSpec extends Neo4jRunnerSpec {
       contentAsString(form) must contain("SOME RANDOM VALUE")
     }
 
-    "NOT show default values in the form when editing items" in new FakeApp(
+    "NOT show default values in the form when editing items" in new ITestApp(
       Map("repository.holdings" -> "SOME RANDOM VALUE")) {
       val form = route(fakeLoggedInHtmlRequest(privilegedUser, GET,
         repoRoutes.update("r1").url)).get
@@ -60,7 +60,7 @@ class RepositoryViewsSpec extends Neo4jRunnerSpec {
     }
 
 
-    "allow creating new items when logged in as privileged user" in new FakeApp {
+    "allow creating new items when logged in as privileged user" in new ITestApp {
       val testData: Map[String, Seq[String]] = Map(
         "identifier" -> Seq("wiener-library"),
         "descriptions[0].languageCode" -> Seq("en"),
@@ -90,7 +90,7 @@ class RepositoryViewsSpec extends Neo4jRunnerSpec {
       indexEventBuffer.last must equalTo("nl-wiener-library")
     }
 
-    "error if missing mandatory values" in new FakeApp {
+    "error if missing mandatory values" in new ITestApp {
       val testData: Map[String, Seq[String]] = Map(
       )
       val cr = route(fakeLoggedInHtmlRequest(privilegedUser, POST,
@@ -98,7 +98,7 @@ class RepositoryViewsSpec extends Neo4jRunnerSpec {
       status(cr) must equalTo(BAD_REQUEST)
     }
 
-    "give a form error when creating items with an existing identifier" in new FakeApp {
+    "give a form error when creating items with an existing identifier" in new ITestApp {
       val testData: Map[String, Seq[String]] = Map(
         "identifier" -> Seq("r1")
       )
@@ -111,7 +111,7 @@ class RepositoryViewsSpec extends Neo4jRunnerSpec {
     }
 
 
-    "link to other privileged actions when logged in" in new FakeApp {
+    "link to other privileged actions when logged in" in new ITestApp {
       val show = route(fakeLoggedInHtmlRequest(privilegedUser, GET, repoRoutes.get("r1").url)).get
       status(show) must equalTo(OK)
       contentAsString(show) must contain(repoRoutes.update("r1").url)
@@ -121,7 +121,7 @@ class RepositoryViewsSpec extends Neo4jRunnerSpec {
       contentAsString(show) must contain(repoRoutes.search().url)
     }
 
-    "allow updating items when logged in as privileged user" in new FakeApp {
+    "allow updating items when logged in as privileged user" in new ITestApp {
       val testData: Map[String, Seq[String]] = Map(
         "identifier" -> Seq("r1"),
         "descriptions[0].languageCode" -> Seq("en"),
@@ -142,7 +142,7 @@ class RepositoryViewsSpec extends Neo4jRunnerSpec {
       indexEventBuffer.last must equalTo("r1")
     }
 
-    "disallow updating items when logged in as unprivileged user" in new FakeApp {
+    "disallow updating items when logged in as unprivileged user" in new ITestApp {
       val testData: Map[String, Seq[String]] = Map(
         "identifier" -> Seq("r1"),
         "descriptions[0].languageCode" -> Seq("en"),

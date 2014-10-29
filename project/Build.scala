@@ -101,6 +101,7 @@ object ApplicationBuild extends Build {
   )
 
   val commonSettings = Seq(
+    parallelExecution := false,
     templateImports in Compile ++= Seq("models.base._", "utils.forms._", "acl._", "defines._", "backend.Entity"),
     routesImport += "defines.EntityType",
 
@@ -136,7 +137,8 @@ object ApplicationBuild extends Build {
       name := appName + "-core",
       libraryDependencies ++= coreDependencies,
       pipelineStages := Seq(rjs, digest, gzip),
-      RjsKeys.mainModule := "core-main"
+      RjsKeys.mainModule := "core-main",
+      parallelExecution := false
   ).settings(commonSettings: _*).dependsOn(backend % "test->test;compile->compile")
 
   lazy val admin = Project(appName + "-admin", file("modules/admin"))

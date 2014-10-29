@@ -1,11 +1,11 @@
 package integration
 
-import helpers.{formPostHeaders,Neo4jRunnerSpec}
+import helpers.{formPostHeaders,IntegrationTestRunner}
 import models._
 import defines._
 
 
-class DocUnitPermissionsSpec extends Neo4jRunnerSpec {
+class DocUnitPermissionsSpec extends IntegrationTestRunner {
   import mocks.{privilegedUser, unprivilegedUser}
 
   private val docRoutes = controllers.archdesc.routes.DocumentaryUnits
@@ -17,7 +17,7 @@ class DocUnitPermissionsSpec extends Neo4jRunnerSpec {
 
   "DocumentaryUnit views" should {
 
-    "allow granting permissions to create a doc within the scope of r2" in new FakeApp {
+    "allow granting permissions to create a doc within the scope of r2" in new ITestApp {
 
       import ContentTypes._
 
@@ -53,7 +53,7 @@ class DocUnitPermissionsSpec extends Neo4jRunnerSpec {
       status(getR) must equalTo(OK)
     }
 
-    "allow granting permissions on a specific item" in new FakeApp {
+    "allow granting permissions on a specific item" in new ITestApp {
 
       import ContentTypes._
 

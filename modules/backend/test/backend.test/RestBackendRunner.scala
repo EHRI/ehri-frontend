@@ -4,6 +4,7 @@ import org.specs2.mutable.Specification
 import org.specs2.specification.{BeforeExample, Step, Fragments}
 import eu.ehri.extension.test.helpers.ServerRunner
 import eu.ehri.extension.AbstractAccessibleEntityResource
+import play.api.test.{FakeApplication, WithApplication}
 
 /**
  * Specs2 magic to provide equivalent of JUnit's beforeClass/afterClass.
@@ -24,9 +25,22 @@ trait BeforeAllAfterAll extends Specification with BeforeExample {
 trait RestBackendRunner extends BeforeAllAfterAll {
 
   val testPort = 7575
+  val testEndpoint = "ehri"
 
-  val runner = ServerRunner.getInstance(testPort,
-    classOf[AbstractAccessibleEntityResource[_]].getPackage.getName, "ehri")
+  private val runner = ServerRunner.getInstance(testPort,
+    classOf[AbstractAccessibleEntityResource[_]].getPackage.getName, testEndpoint)
+
+  val backendConfig: Map[String, Any] = Map(
+    "neo4j.server.host" -> "localhost",
+    "neo4j.server.port" -> testPort,
+    "neo4j.server.endpoint" -> testEndpoint
+  )
+
+  /**
+   * A simple test application which includes the backend's
+   * configuration. No other Play config is supplied.
+   */
+  case class TestApp() extends WithApplication(new FakeApplication(additionalConfiguration = backendConfig))
 
   /**
    * Tear down and setup fixtures before every test
@@ -45,5 +59,4 @@ trait RestBackendRunner extends BeforeAllAfterAll {
    * Stop the server after every class test
    */
   def afterAll() = runner.stop()
-
 }

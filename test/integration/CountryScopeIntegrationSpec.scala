@@ -21,7 +21,7 @@ import backend.ApiUser
  *  - create a doc in the repo
  *  - check that the user cannot write outside the country
  */
-class CountryScopeIntegrationSpec extends Neo4jRunnerSpec {
+class CountryScopeIntegrationSpec extends IntegrationTestRunner {
   import mocks.privilegedUser
 
   implicit val apiUser: ApiUser = ApiUser(Some(privilegedUser.id))
@@ -35,7 +35,7 @@ class CountryScopeIntegrationSpec extends Neo4jRunnerSpec {
 
   "The application" should {
 
-    "support read/write on Repositories and Doc Units with country scope" in new FakeApp {
+    "support read/write on Repositories and Doc Units with country scope" in new ITestApp {
       // Target country
       val countryId = "gb"
       // Country we should NOT be able to write in...
