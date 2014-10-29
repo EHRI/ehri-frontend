@@ -2,7 +2,6 @@ package acl
 
 import play.api.libs.json._
 import defines._
-import models.base.Accessor
 
 
 object ItemPermissionSet {
@@ -35,30 +34,9 @@ object ItemPermissionSet {
  * Item-level permissions granted to either a UserProfileF or a GroupF.
  */
 case class ItemPermissionSet(contentType: ContentTypes.Value, data: ItemPermissionSet.PermData) extends PermissionSet {
-
   /**
    * Check if this permission set has the given permission.
    */
   def has(permission: PermissionType.Value): Boolean =
       data.flatMap(t => t._2).exists(p => PermissionType.in(p, permission))
-
-  /**
-   * Get the permission grant for a given permission (if any), which contains
-   * the accessor to whom the permission was granted.
-   */  
-  def get[T <: Accessor](user: Accessor, permission: PermissionType.Value): Option[Permission[T]] = {
-    val accessors = data.flatMap { case (uid, perms) =>
-        if (perms.exists(p => PermissionType.in(p, permission))) Some((uid, permission))
-        else None
-    }
-    accessors.headOption.map {
-      case (userId, perm) =>
-        if (user.id == userId) Permission(perm)
-        else user.getAccessor(user.groups, userId) match {
-          case Some(u) if u.id == user.id => Permission(perm)
-          case s @ Some(u) => Permission(perm, s)
-          case x => Permission(perm)
-        }
-    }
-  }
 }

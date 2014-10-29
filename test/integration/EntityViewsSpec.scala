@@ -153,10 +153,10 @@ class EntityViewsSpec extends Neo4jRunnerSpec(classOf[EntityViewsSpec]) {
 
       // Now check we can read back the same permissions.
       val perms = await(testBackend.getGlobalPermissions(id))
-      perms.get(subjectUser, ContentTypes.Repository, PermissionType.Create) must beSome
-      perms.get(subjectUser, ContentTypes.Repository, PermissionType.Create).get.inheritedFrom must beNone
-      perms.get(subjectUser, ContentTypes.DocumentaryUnit, PermissionType.Create) must beSome
-      perms.get(subjectUser, ContentTypes.DocumentaryUnit, PermissionType.Create).get.inheritedFrom must beNone
+      subjectUser.getPermission(perms, ContentTypes.Repository, PermissionType.Create) must beSome
+      subjectUser.getPermission(perms, ContentTypes.Repository, PermissionType.Create).get.inheritedFrom must beNone
+      subjectUser.getPermission(perms, ContentTypes.DocumentaryUnit, PermissionType.Create) must beSome
+      subjectUser.getPermission(perms, ContentTypes.DocumentaryUnit, PermissionType.Create).get.inheritedFrom must beNone
     }
 
     "link to other privileged actions when logged in" in new FakeApp {
