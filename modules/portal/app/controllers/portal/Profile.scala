@@ -27,12 +27,13 @@ import play.api.http.{HeaderNames, MimeTypes}
 import org.joda.time.format.ISODateTimeFormat
 import models.base.AnyModel
 import net.coobird.thumbnailator.Thumbnails
+import com.typesafe.plugin.MailerAPI
 
 /**
  * @author Mike Bryant (http://github.com/mikesname)
  */
 case class Profile @Inject()(implicit globalConfig: global.GlobalConfig, searchDispatcher: Dispatcher, searchResolver: Resolver, backend: Backend,
-                            userDAO: AccountDAO)
+                            userDAO: AccountDAO, mailer: MailerAPI)
     extends LoginLogout with AuthController with ControllerHelpers
     with PortalBase
     with PortalLogin

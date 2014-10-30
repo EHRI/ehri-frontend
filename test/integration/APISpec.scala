@@ -9,12 +9,12 @@ import models.LinkF.LinkType
 /**
  * Spec for testing various JSON endpoints used by Ajax components etc.
  */
-class APISpec extends Neo4jRunnerSpec(classOf[APISpec]) {
+class APISpec extends IntegrationTestRunner {
 
   import mocks.privilegedUser
 
   "Link JSON endpoints" should {
-    "allow creating and reading" in new FakeApp {
+    "allow creating and reading" in new ITestApp {
       val json = Json.toJson(new AccessPointLink("a1", Some(LinkType.Associative), Some("Test link")))
       val cr = route(fakeLoggedInHtmlRequest(privilegedUser, POST,
         controllers.archdesc.routes.DocumentaryUnits.createLink("c1", "ur2").url)
@@ -26,7 +26,7 @@ class APISpec extends Neo4jRunnerSpec(classOf[APISpec]) {
       contentAsJson(cr2) mustEqual json
     }
 
-    "allow creating new access points and deleting them" in new FakeApp {
+    "allow creating new access points and deleting them" in new ITestApp {
       val ap = new AccessPointF(id = None, accessPointType=AccessPointF.AccessPointType.SubjectAccess, name="Test text")
       val json = Json.toJson(ap)(controllers.generic.AccessPointLink.accessPointFormat)
       val cr = route(fakeLoggedInJsonRequest(privilegedUser, POST,
@@ -41,7 +41,7 @@ class APISpec extends Neo4jRunnerSpec(classOf[APISpec]) {
       }
     }
 
-    "allow creating new links" in new FakeApp {
+    "allow creating new links" in new ITestApp {
       val link = new AccessPointLink("a1", description = Some("Test link"))
       val json = Json.toJson(link)
       val cr = route(fakeLoggedInHtmlRequest(privilegedUser, POST,
@@ -60,7 +60,7 @@ class APISpec extends Neo4jRunnerSpec(classOf[APISpec]) {
   }
 
   "Annotation JSON endpoints" should {
-    "allow creating annotations" in new FakeApp {
+    "allow creating annotations" in new ITestApp {
       val json = Json.toJson(new AnnotationF(id = None, body = "Hello, world!"))(
         Annotate.clientAnnotationFormat)
       val cr = route(fakeLoggedInHtmlRequest(privilegedUser, POST,

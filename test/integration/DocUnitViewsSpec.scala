@@ -1,6 +1,6 @@
 package integration
 
-import helpers.{formPostHeaders,Neo4jRunnerSpec}
+import helpers.{formPostHeaders,IntegrationTestRunner}
 import models._
 import play.api.i18n.Messages
 import play.api.test.FakeRequest
@@ -8,7 +8,7 @@ import play.api.http.{MimeTypes, HeaderNames}
 import backend.rest.ItemNotFound
 
 
-class DocUnitViewsSpec extends Neo4jRunnerSpec(classOf[DocUnitViewsSpec]) {
+class DocUnitViewsSpec extends IntegrationTestRunner {
   import mocks.{privilegedUser, unprivilegedUser}
 
   private val docRoutes = controllers.archdesc.routes.DocumentaryUnits
@@ -25,7 +25,7 @@ class DocUnitViewsSpec extends Neo4jRunnerSpec(classOf[DocUnitViewsSpec]) {
 
   "DocumentaryUnit views" should {
 
-    "list should get some (world-readable) items" in new FakeApp {
+    "list should get some (world-readable) items" in new ITestApp {
       val list = route(fakeLoggedInHtmlRequest(unprivilegedUser, GET,
         docRoutes.list().url)).get
       status(list) must equalTo(OK)
@@ -34,7 +34,7 @@ class DocUnitViewsSpec extends Neo4jRunnerSpec(classOf[DocUnitViewsSpec]) {
       contentAsString(list) must contain("c4")
     }
 
-    "list when logged in should get more items" in new FakeApp {
+    "list when logged in should get more items" in new ITestApp {
       val list = route(fakeLoggedInHtmlRequest(privilegedUser, GET,
           docRoutes.list().url)).get
       status(list) must equalTo(OK)
@@ -45,7 +45,7 @@ class DocUnitViewsSpec extends Neo4jRunnerSpec(classOf[DocUnitViewsSpec]) {
       contentAsString(list) must contain("c4")
     }
 
-    "search should find some items" in new FakeApp {
+    "search should find some items" in new ITestApp {
       val search = route(fakeLoggedInHtmlRequest(privilegedUser, GET,
           docRoutes.search().url)).get
       status(search) must equalTo(OK)
@@ -56,7 +56,7 @@ class DocUnitViewsSpec extends Neo4jRunnerSpec(classOf[DocUnitViewsSpec]) {
       contentAsString(search) must contain("c4")
     }
 
-    "link to other privileged actions when logged in" in new FakeApp {
+    "link to other privileged actions when logged in" in new ITestApp {
       val show = route(fakeLoggedInHtmlRequest(privilegedUser, GET,
           docRoutes.get("c1").url)).get
       status(show) must equalTo(OK)
@@ -67,7 +67,7 @@ class DocUnitViewsSpec extends Neo4jRunnerSpec(classOf[DocUnitViewsSpec]) {
       contentAsString(show) must contain(docRoutes.search().url)
     }
 
-    "link to holder" in new FakeApp {
+    "link to holder" in new ITestApp {
       val show = route(fakeLoggedInHtmlRequest(privilegedUser, GET,
           docRoutes.get("c1").url)).get
       status(show) must equalTo(OK)
@@ -75,7 +75,7 @@ class DocUnitViewsSpec extends Neo4jRunnerSpec(classOf[DocUnitViewsSpec]) {
       contentAsString(show) must contain(controllers.archdesc.routes.Repositories.get("r1").url)
     }
 
-    "link to holder when a child item" in new FakeApp {
+    "link to holder when a child item" in new ITestApp {
       val show = route(fakeLoggedInHtmlRequest(privilegedUser, GET,
           docRoutes.get("c2").url)).get
       status(show) must equalTo(OK)
@@ -83,26 +83,26 @@ class DocUnitViewsSpec extends Neo4jRunnerSpec(classOf[DocUnitViewsSpec]) {
       contentAsString(show) must contain(controllers.archdesc.routes.Repositories.get("r1").url)
     }
 
-    "give access to c1 when logged in" in new FakeApp {
+    "give access to c1 when logged in" in new ITestApp {
       val show = route(fakeLoggedInHtmlRequest(privilegedUser, GET,
           docRoutes.get("c1").url)).get
       status(show) must equalTo(OK)
       contentAsString(show) must contain("c1")
     }
 
-    "deny access to c2 when logged in as an ordinary user" in new FakeApp {
+    "deny access to c2 when logged in as an ordinary user" in new ITestApp {
       val show = route(fakeLoggedInHtmlRequest(unprivilegedUser, GET,
           docRoutes.get("c2").url)).get
       status(show) must throwA[ItemNotFound]
     }
 
-    "allow deleting c4 when logged in" in new FakeApp {
+    "allow deleting c4 when logged in" in new ITestApp {
       val del = route(fakeLoggedInHtmlRequest(privilegedUser, POST,
           docRoutes.deletePost("c4").url)).get
       status(del) must equalTo(SEE_OTHER)
     }
 
-    "show correct default values in the form when creating new items" in new FakeApp(
+    "show correct default values in the form when creating new items" in new ITestApp(
       Map("documentaryUnit.rulesAndConventions" -> "SOME RANDOM VALUE")) {
       val form = route(fakeLoggedInHtmlRequest(privilegedUser, GET,
         controllers.archdesc.routes.Repositories.createDoc("r1").url)).get
@@ -110,7 +110,7 @@ class DocUnitViewsSpec extends Neo4jRunnerSpec(classOf[DocUnitViewsSpec]) {
       contentAsString(form) must contain("SOME RANDOM VALUE")
     }
 
-    "NOT show default values in the form when editing items" in new FakeApp(
+    "NOT show default values in the form when editing items" in new ITestApp(
       Map("documentaryUnit.rulesAndConventions" -> "SOME RANDOM VALUE")) {
       val form = route(fakeLoggedInHtmlRequest(privilegedUser, GET,
         docRoutes.update("c1").url)).get
@@ -118,7 +118,7 @@ class DocUnitViewsSpec extends Neo4jRunnerSpec(classOf[DocUnitViewsSpec]) {
       contentAsString(form) must not contain "SOME RANDOM VALUE"
     }
 
-    "allow creating new items when logged in as privileged user" in new FakeApp {
+    "allow creating new items when logged in as privileged user" in new ITestApp {
       val testData: Map[String, Seq[String]] = Map(
         "identifier" -> Seq("hello-kitty"),
         "descriptions[0].languageCode" -> Seq("en"),
@@ -141,10 +141,10 @@ class DocUnitViewsSpec extends Neo4jRunnerSpec(classOf[DocUnitViewsSpec]) {
       // After having created an item it should contain a 'history' pane
       // on the show page
       contentAsString(show) must contain(docRoutes.history("nl-r1-hello-kitty").url)
-      mockIndexer.eventBuffer.last must equalTo("nl-r1-hello-kitty")
+      indexEventBuffer.last must equalTo("nl-r1-hello-kitty")
     }
 
-    "give a form error when creating items with the same id as existing ones" in new FakeApp {
+    "give a form error when creating items with the same id as existing ones" in new ITestApp {
       val testData: Map[String, Seq[String]] = Map(
         "identifier" -> Seq("c1"),
         "publicationStatus" -> Seq("Published")
@@ -178,7 +178,7 @@ class DocUnitViewsSpec extends Neo4jRunnerSpec(classOf[DocUnitViewsSpec]) {
       contentAsString(cr3) must contain("exists and must be unique")
     }
 
-    "give a form error when saving an item with with a bad date" in new FakeApp {
+    "give a form error when saving an item with with a bad date" in new ITestApp {
       val testData: Map[String, Seq[String]] = Map(
         "identifier" -> Seq("c1"),
         "descriptions[0].identityArea.dates[0].startDate" -> Seq("1945-01-01"),
@@ -196,7 +196,7 @@ class DocUnitViewsSpec extends Neo4jRunnerSpec(classOf[DocUnitViewsSpec]) {
       contentAsString(cr) must contain(Messages("error.date"))
     }
 
-    "allow updating items when logged in as privileged user" in new FakeApp {
+    "allow updating items when logged in as privileged user" in new ITestApp {
       val testData: Map[String, Seq[String]] = Map(
         "identifier" -> Seq("c1"),
         "descriptions[0].languageCode" -> Seq("en"),
@@ -216,10 +216,10 @@ class DocUnitViewsSpec extends Neo4jRunnerSpec(classOf[DocUnitViewsSpec]) {
       contentAsString(show) must contain("Collection 1 Parallel Name")
       contentAsString(show) must contain("New Content for c1")
       contentAsString(show) must contain("Test Note")
-      mockIndexer.eventBuffer.last must equalTo("c1")
+      indexEventBuffer.last must equalTo("c1")
     }
 
-    "allow updating an item with a custom log message" in new FakeApp {
+    "allow updating an item with a custom log message" in new ITestApp {
       val msg = "Imma updating this item!"
       val testData: Map[String, Seq[String]] = Map(
         "identifier" -> Seq("c1"),
@@ -237,10 +237,10 @@ class DocUnitViewsSpec extends Neo4jRunnerSpec(classOf[DocUnitViewsSpec]) {
       status(show) must equalTo(OK)
       // Log message should be in the history section...
       contentAsString(show) must contain(msg)
-      mockIndexer.eventBuffer.last must equalTo("c1")
+      indexEventBuffer.last must equalTo("c1")
     }
 
-    "disallow updating items when logged in as unprivileged user" in new FakeApp {
+    "disallow updating items when logged in as unprivileged user" in new ITestApp {
       val testData: Map[String, Seq[String]] = Map(
         "identifier" -> Seq("c4"),
         "descriptions[0].languageCode" -> Seq("en"),
@@ -258,29 +258,29 @@ class DocUnitViewsSpec extends Neo4jRunnerSpec(classOf[DocUnitViewsSpec]) {
       val show = route(fakeLoggedInHtmlRequest(unprivilegedUser, GET, docRoutes.get("c4").url)).get
       status(show) must equalTo(OK)
       contentAsString(show) must not contain "New Content for c4"
-      mockIndexer.eventBuffer.last must not equalTo "c4"
+      indexEventBuffer.last must not equalTo "c4"
     }
 
-    "should redirect to login page when permission denied when not logged in" in new FakeApp {
+    "should redirect to login page when permission denied when not logged in" in new ITestApp {
       val show = route(FakeRequest(GET, docRoutes.get("c1").url)
         .withHeaders(HeaderNames.ACCEPT -> MimeTypes.HTML)).get
       status(show) must equalTo(SEE_OTHER)
     }
 
-    "show history when logged in as privileged user" in new FakeApp {
+    "show history when logged in as privileged user" in new ITestApp {
       val show = route(fakeLoggedInHtmlRequest(privilegedUser, GET,
         docRoutes.history("c1").url)).get
       status(show) must equalTo(OK)
     }
 
-    "throw a 404 when fetching items with the wrong type" in new FakeApp {
+    "throw a 404 when fetching items with the wrong type" in new ITestApp {
       // r1 is a repository, not a doc unit
       val show = route(fakeLoggedInHtmlRequest(privilegedUser, GET,
         docRoutes.get("r1").url)).get
       status(show) must throwA[ItemNotFound]
     }
 
-    "allow EAD export" in new FakeApp {
+    "allow EAD export" in new ITestApp {
       val ead = route(fakeLoggedInHtmlRequest(privilegedUser, GET,
         docRoutes.exportEad("c1").url)).get
       status(ead) must equalTo(OK)

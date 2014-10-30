@@ -121,9 +121,9 @@ object SearchParams {
       QUERY -> optional(nonEmptyText),
       PAGE_PARAM -> optional(number(min = 1)),
       LIMIT_PARAM -> optional(number(min = 0, max = MAX_LIST_LIMIT)),
-      SORT -> optional(models.forms.enum(SearchOrder)),
+      SORT -> optional(utils.forms.enum(SearchOrder)),
       REVERSE -> optional(boolean),
-      ENTITY -> list(models.forms.enum(EntityType)),
+      ENTITY -> list(utils.forms.enum(EntityType)),
       FIELD -> optional(list(nonEmptyText)),
       EXCLUDE -> optional(list(nonEmptyText)),
       FILTERS -> optional(list(nonEmptyText))

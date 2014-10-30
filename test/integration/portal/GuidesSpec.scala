@@ -6,7 +6,7 @@ import mocks._
 import models.{GuidePage, Guide}
 
 
-class GuidesSpec extends Neo4jRunnerSpec(classOf[GuidesSpec]) {
+class GuidesSpec extends IntegrationTestRunner {
 
   private val guideRoutes = controllers.portal.routes.Guides
   private val guideAdminRoutes = controllers.guides.routes.Guides

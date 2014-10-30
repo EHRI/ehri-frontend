@@ -1,10 +1,10 @@
 package integration
 
-import helpers.{formPostHeaders,Neo4jRunnerSpec}
+import helpers.{formPostHeaders,IntegrationTestRunner}
 import models._
 
 
-class VirtualUnitViewsSpec extends Neo4jRunnerSpec(classOf[VirtualUnitViewsSpec]) {
+class VirtualUnitViewsSpec extends IntegrationTestRunner {
   import mocks.{privilegedUser, unprivilegedUser}
 
   val userProfile = UserProfile(
@@ -21,43 +21,43 @@ class VirtualUnitViewsSpec extends Neo4jRunnerSpec(classOf[VirtualUnitViewsSpec]
 
   "VirtualUnit views" should {
 
-    "search should find some items" in new FakeApp {
-      val search = route(fakeLoggedInHtmlRequest(privilegedUser, GET,
-          vuRoutes.search().url)).get
-      status(search) must equalTo(OK)
-      contentAsString(search) must contain(multipleItemsHeader)
-      contentAsString(search) must contain("vu1")
-    }
-
-    "link to other privileged actions when logged in" in new FakeApp {
-      val show = route(fakeLoggedInHtmlRequest(privilegedUser, GET,
-          vuRoutes.get("vu1").url)).get
-      status(show) must equalTo(OK)
-      contentAsString(show) must contain(vuRoutes.update("vu1").url)
-      contentAsString(show) must contain(vuRoutes.delete("vu1").url)
-      contentAsString(show) must contain(vuRoutes.createChild("vu1").url)
-      contentAsString(show) must contain(vuRoutes.createChildRef("vu1").url)
-      contentAsString(show) must contain(vuRoutes.visibility("vu1").url)
-      contentAsString(show) must contain(vuRoutes.search().url)
-    }
-
-//    "link to holder" in new FakeApp {
+//    "search should find some items" in new ITestApp {
+//      val search = route(fakeLoggedInHtmlRequest(privilegedUser, GET,
+//          vuRoutes.search().url)).get
+//      status(search) must equalTo(OK)
+//      contentAsString(search) must contain(multipleItemsHeader)
+//      contentAsString(search) must contain("vu1")
+//    }
+//
+//    "link to other privileged actions when logged in" in new ITestApp {
+//      val show = route(fakeLoggedInHtmlRequest(privilegedUser, GET,
+//          vuRoutes.get("vu1").url)).get
+//      status(show) must equalTo(OK)
+//      contentAsString(show) must contain(vuRoutes.update("vu1").url)
+//      contentAsString(show) must contain(vuRoutes.delete("vu1").url)
+//      contentAsString(show) must contain(vuRoutes.createChild("vu1").url)
+//      contentAsString(show) must contain(vuRoutes.createChildRef("vu1").url)
+//      contentAsString(show) must contain(vuRoutes.visibility("vu1").url)
+//      contentAsString(show) must contain(vuRoutes.search().url)
+//    }
+//
+//    "link to holder" in new ITestApp {
 //      val show = route(fakeLoggedInHtmlRequest(privilegedUser, GET,
 //          vuRoutes.get("vu1").url)).get
 //      status(show) must equalTo(OK)
 //
 //      contentAsString(show) must contain(vuRoutes.get("vc1").url)
 //    }
-
-//    "link to holder when a child item" in new FakeApp {
+//
+//    "link to holder when a child item" in new ITestApp {
 //      val show = route(fakeLoggedInHtmlRequest(privilegedUser, GET,
 //          vuRoutes.get("vu2").url)).get
 //      status(show) must equalTo(OK)
 //
 //      contentAsString(show) must contain(vuRoutes.get("vc1").url)
 //    }
-
-//    "allow creating new items with owned descriptions" in new FakeApp {
+//
+//    "allow creating new items with owned descriptions" in new ITestApp {
 //      val testData: Map[String, Seq[String]] = Map(
 //        "identifier" -> Seq("hello-kitty"),
 //        "descriptions[0].languageCode" -> Seq("en"),
@@ -80,10 +80,10 @@ class VirtualUnitViewsSpec extends Neo4jRunnerSpec(classOf[VirtualUnitViewsSpec]
 //      // After having created an item it should contain a 'history' pane
 //      // on the show page
 //      contentAsString(show) must contain(vuRoutes.history("hello-kitty").url)
-//      mockIndexer.eventBuffer.last must equalTo("hello-kitty")
+//      indexEventBuffer.last must equalTo("hello-kitty")
 //    }
-
-//    "allow creating new items with included units" in new FakeApp {
+//
+//    "allow creating new items with included units" in new ITestApp {
 //      val testData: Map[String, Seq[String]] = Map(
 //        "identifier" -> Seq("hello-kitty"),
 //        VirtualUnitF.INCLUDE_REF -> Seq("c1")
@@ -101,7 +101,7 @@ class VirtualUnitViewsSpec extends Neo4jRunnerSpec(classOf[VirtualUnitViewsSpec]
 //      // After having created an item it should contain a 'history' pane
 //      // on the show page
 //      contentAsString(show) must contain(vuRoutes.history("hello-kitty").url)
-//      mockIndexer.eventBuffer.last must equalTo("hello-kitty")
+//      indexEventBuffer.last must equalTo("hello-kitty")
 //    }
   }
 }

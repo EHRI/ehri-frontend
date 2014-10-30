@@ -9,10 +9,10 @@ import utils.search.{Resolver, SearchOrder, Dispatcher, SearchParams}
 import defines.{EventType, EntityType}
 import play.api.Play.current
 import solr.SolrConstants
-import backend.{ApiUser, Backend}
+import backend.Backend
 
 import com.google.inject._
-import play.api.mvc.{Result, RequestHeader}
+import play.api.mvc.RequestHeader
 import play.api.i18n.Messages
 import play.api.libs.json.Json
 import scala.concurrent.Future
@@ -21,6 +21,7 @@ import backend.rest.Constants
 import scala.Some
 import play.api.mvc.Result
 import backend.ApiUser
+import com.typesafe.plugin.MailerAPI
 
 /**
  * @author Mike Bryant (http://github.com/mikesname)
@@ -29,7 +30,8 @@ import backend.ApiUser
  * be greatly optimised by implementing caching for
  * just lists of IDs.
  */
-case class Social @Inject()(implicit globalConfig: global.GlobalConfig, searchDispatcher: Dispatcher, searchResolver: Resolver, backend: Backend, userDAO: AccountDAO)
+case class Social @Inject()(implicit globalConfig: global.GlobalConfig, searchDispatcher: Dispatcher, searchResolver: Resolver, backend: Backend, userDAO: AccountDAO,
+    mailer: MailerAPI)
   extends AuthController
   with ControllerHelpers
   with PortalAuthConfigImpl
@@ -281,8 +283,7 @@ case class Social @Inject()(implicit globalConfig: global.GlobalConfig, searchDi
       accFrom <- userDAO.findByProfileId(from.id)
       accTo <- userDAO.findByProfileId(to.id)
     } yield {
-      import com.typesafe.plugin._
-      use[MailerPlugin].email
+      mailer
         .setSubject(Messages("portal.mail.message.subject", from.toStringLang, subject))
         .setRecipient(accTo.email)
         .setReplyTo(accFrom.email)

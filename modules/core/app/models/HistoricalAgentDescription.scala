@@ -8,8 +8,8 @@ import play.api.libs.json._
 import eu.ehri.project.definitions.Ontology
 import play.api.data.Form
 import play.api.data.Forms._
-import models.forms._
-import backend.{BackendReadable, BackendWriteable}
+import utils.forms._
+import backend.{Entity, BackendReadable, BackendWriteable}
 import Description._
 
 

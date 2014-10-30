@@ -2,7 +2,7 @@ package controllers.portal
 
 import play.api.libs.concurrent.Execution.Implicits._
 import defines.EntityType
-import utils.{FutureCache, Page, PageParams}
+import utils.{Page, PageParams}
 import models.{Link, Annotation, UserProfile}
 import play.api.mvc._
 import controllers.base.{ControllerHelpers, AuthController}
@@ -13,6 +13,7 @@ import models.view.{UserDetails, ItemDetails}
 import play.api.Play.current
 import play.api.cache.Cache
 import models.base.AnyModel
+import caching.FutureCache
 
 
 /**

@@ -10,7 +10,8 @@ import play.api.data.Form
 import play.api.data.Forms._
 import play.api.libs.json.JsObject
 import backend.rest.Constants
-import backend.{BackendContentType, BackendResource, BackendReadable, BackendWriteable}
+import backend._
+import play.api.libs.json.JsObject
 
 
 object ConceptF {
@@ -30,7 +31,7 @@ object ConceptF {
 
   import eu.ehri.project.definitions.Ontology._
   import play.api.libs.functional.syntax._
-  import models.Entity._
+  import Entity._
 
   implicit val conceptWrites: Writes[ConceptF] = new Writes[ConceptF] {
     def writes(d: ConceptF): JsValue = {
@@ -73,7 +74,7 @@ case class ConceptF(
 object Concept {
   import eu.ehri.project.definitions.Ontology._
   import play.api.libs.functional.syntax._
-  import models.Entity._
+  import Entity._
 
   private implicit val systemEventReads = SystemEvent.Converter.restReads
   private implicit val vocabularyReads = Vocabulary.Converter.restReads

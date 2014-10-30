@@ -8,6 +8,7 @@ import models.base.AnyModel
 import play.api.mvc.Call
 import scala.util.matching.Regex
 import play.api.mvc.RequestHeader
+import backend.Entity
 
 
 package object Helpers {

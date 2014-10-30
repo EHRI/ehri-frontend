@@ -16,7 +16,9 @@ import play.api.data.Form
 import play.api.data.Forms._
 import play.api.libs.json.JsObject
 import play.api.i18n.Lang
-import backend.{BackendReadable, BackendContentType, BackendResource, BackendWriteable}
+import backend._
+import scala.Some
+import play.api.libs.json.JsObject
 
 
 object RepositoryF {
@@ -150,7 +152,7 @@ object Repository {
       ISA -> ignored(EntityType.Repository),
       ID -> optional(nonEmptyText),
       IDENTIFIER -> nonEmptyText(minLength=2), // TODO: Increase to > 2, not done yet 'cos of test fixtures
-      PUBLICATION_STATUS -> optional(models.forms.enum(defines.PublicationStatus)),
+      PUBLICATION_STATUS -> optional(utils.forms.enum(defines.PublicationStatus)),
       "descriptions" -> list(RepositoryDescription.form.mapping),
       PRIORITY -> optional(number(min = -1, max = 5)),
       URL_PATTERN -> optional(nonEmptyText verifying("errors.badUrlPattern", fields => fields match {

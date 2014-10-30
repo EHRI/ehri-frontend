@@ -8,7 +8,7 @@ import backend.ApiUser
 /**
  * Spec to test various page views operate as expected.
  */
-class EntityViewsSpec extends Neo4jRunnerSpec(classOf[EntityViewsSpec]) {
+class EntityViewsSpec extends IntegrationTestRunner {
   import mocks.{privilegedUser,unprivilegedUser}
 
   implicit val apiUser: ApiUser = ApiUser(Some(privilegedUser.id))
@@ -19,7 +19,7 @@ class EntityViewsSpec extends Neo4jRunnerSpec(classOf[EntityViewsSpec]) {
   val noItemsHeader = "No items found"
 
   "HistoricalAgent views" should {
-    "list should get some items" in new FakeApp {
+    "list should get some items" in new ITestApp {
 
       val list = route(fakeLoggedInHtmlRequest(unprivilegedUser, GET,
           controllers.authorities.routes.HistoricalAgents.list().url)).get
@@ -29,7 +29,7 @@ class EntityViewsSpec extends Neo4jRunnerSpec(classOf[EntityViewsSpec]) {
       contentAsString(list) must contain("a2")
     }
 
-    "allow creating new items when logged in as privileged user" in new FakeApp {
+    "allow creating new items when logged in as privileged user" in new ITestApp {
       val testData: Map[String, Seq[String]] = Map(
         "identifier" -> Seq("wiener-library"),
         "descriptions[0].languageCode" -> Seq("en"),
@@ -53,7 +53,7 @@ class EntityViewsSpec extends Neo4jRunnerSpec(classOf[EntityViewsSpec]) {
       contentAsString(show) must contain("Some content")
     }
 
-    "error if missing mandatory values" in new FakeApp {
+    "error if missing mandatory values" in new ITestApp {
       val testData: Map[String, Seq[String]] = Map(
       )
       val cr = route(fakeLoggedInHtmlRequest(privilegedUser, POST,
@@ -62,7 +62,7 @@ class EntityViewsSpec extends Neo4jRunnerSpec(classOf[EntityViewsSpec]) {
       status(cr) must equalTo(BAD_REQUEST)
     }
 
-    "give a form error when creating items with an existing identifier" in new FakeApp {
+    "give a form error when creating items with an existing identifier" in new ITestApp {
       val testData: Map[String, Seq[String]] = Map(
         "identifier" -> Seq("a1"),
         "descriptions[0].name" -> Seq("A test"),
@@ -80,7 +80,7 @@ class EntityViewsSpec extends Neo4jRunnerSpec(classOf[EntityViewsSpec]) {
     }
 
 
-    "link to other privileged actions when logged in" in new FakeApp {
+    "link to other privileged actions when logged in" in new ITestApp {
       val show = route(fakeLoggedInHtmlRequest(privilegedUser, GET, controllers.authorities.routes.HistoricalAgents.get("a1").url)).get
       status(show) must equalTo(OK)
       contentAsString(show) must contain(controllers.authorities.routes.HistoricalAgents.update("a1").url)
@@ -89,7 +89,7 @@ class EntityViewsSpec extends Neo4jRunnerSpec(classOf[EntityViewsSpec]) {
       contentAsString(show) must contain(controllers.authorities.routes.HistoricalAgents.search().url)
     }
 
-    "allow updating items when logged in as privileged user" in new FakeApp {
+    "allow updating items when logged in as privileged user" in new ITestApp {
       val testData: Map[String, Seq[String]] = Map(
         "identifier" -> Seq("a1"),
         "descriptions[0].typeOfEntity" -> Seq("corporateBody"),
@@ -110,7 +110,7 @@ class EntityViewsSpec extends Neo4jRunnerSpec(classOf[EntityViewsSpec]) {
       contentAsString(show) must contain("New Content for a1")
     }
 
-    "disallow updating items when logged in as unprivileged user" in new FakeApp {
+    "disallow updating items when logged in as unprivileged user" in new ITestApp {
       val testData: Map[String, Seq[String]] = Map(
         "identifier" -> Seq("a1")
       )
@@ -119,7 +119,7 @@ class EntityViewsSpec extends Neo4jRunnerSpec(classOf[EntityViewsSpec]) {
       status(cr) must equalTo(FORBIDDEN)
     }
 
-    "show correct default values in the form when creating new items" in new FakeApp(
+    "show correct default values in the form when creating new items" in new ITestApp(
       Map("historicalAgent.rulesAndConventions" -> "SOME RANDOM VALUE")) {
       val form = route(fakeLoggedInHtmlRequest(privilegedUser, GET,
         controllers.authorities.routes.AuthoritativeSets.createHistoricalAgent("auths").url)).get
@@ -127,7 +127,7 @@ class EntityViewsSpec extends Neo4jRunnerSpec(classOf[EntityViewsSpec]) {
       contentAsString(form) must contain("SOME RANDOM VALUE")
     }
 
-    "contain links to external items" in new FakeApp {
+    "contain links to external items" in new ITestApp {
       val show = route(fakeLoggedInHtmlRequest(privilegedUser, GET,
         controllers.authorities.routes.HistoricalAgents.get("a1").url)).get
       contentAsString(show) must contain("external-item-link")
@@ -141,7 +141,7 @@ class EntityViewsSpec extends Neo4jRunnerSpec(classOf[EntityViewsSpec]) {
     val id = "reto"
     val subjectUser = UserProfile(UserProfileF(id = Some(id), identifier = id, name = "Reto"))
 
-    "reliably set permissions" in new FakeApp {
+    "reliably set permissions" in new ITestApp {
       val testData: Map[String, List[String]] = Map(
         ContentTypes.Repository.toString -> List(PermissionType.Create.toString),
         ContentTypes.DocumentaryUnit.toString -> List(PermissionType.Create.toString)
@@ -153,13 +153,13 @@ class EntityViewsSpec extends Neo4jRunnerSpec(classOf[EntityViewsSpec]) {
 
       // Now check we can read back the same permissions.
       val perms = await(testBackend.getGlobalPermissions(id))
-      perms.get(subjectUser, ContentTypes.Repository, PermissionType.Create) must beSome
-      perms.get(subjectUser, ContentTypes.Repository, PermissionType.Create).get.inheritedFrom must beNone
-      perms.get(subjectUser, ContentTypes.DocumentaryUnit, PermissionType.Create) must beSome
-      perms.get(subjectUser, ContentTypes.DocumentaryUnit, PermissionType.Create).get.inheritedFrom must beNone
+      subjectUser.getPermission(perms, ContentTypes.Repository, PermissionType.Create) must beSome
+      subjectUser.getPermission(perms, ContentTypes.Repository, PermissionType.Create).get.inheritedFrom must beNone
+      subjectUser.getPermission(perms, ContentTypes.DocumentaryUnit, PermissionType.Create) must beSome
+      subjectUser.getPermission(perms, ContentTypes.DocumentaryUnit, PermissionType.Create).get.inheritedFrom must beNone
     }
 
-    "link to other privileged actions when logged in" in new FakeApp {
+    "link to other privileged actions when logged in" in new ITestApp {
       val show = route(fakeLoggedInHtmlRequest(privilegedUser, GET, controllers.admin.routes.UserProfiles.get(id).url)).get
       status(show) must equalTo(OK)
       contentAsString(show) must contain(controllers.admin.routes.UserProfiles.update(id).url)
@@ -170,7 +170,7 @@ class EntityViewsSpec extends Neo4jRunnerSpec(classOf[EntityViewsSpec]) {
       contentAsString(show) must contain(controllers.admin.routes.Groups.membership(EntityType.UserProfile, id).url)
     }
 
-    "allow adding users to groups" in new FakeApp {
+    "allow adding users to groups" in new ITestApp {
       // Going to add user Reto to group Niod
       val add = route(fakeLoggedInHtmlRequest(privilegedUser, POST,
         controllers.admin.routes.Groups.addMemberPost("niod", EntityType.UserProfile, id).url)
@@ -181,7 +181,7 @@ class EntityViewsSpec extends Neo4jRunnerSpec(classOf[EntityViewsSpec]) {
       userFetch.groups.map(_.id) must contain("niod")
     }
 
-    "allow updating account values" in new FakeApp {
+    "allow updating account values" in new ITestApp {
       mockUserDAO.findByProfileId(unprivilegedUser.id) must beSome.which { before =>
         before.staff must beTrue
         before.active must beTrue
@@ -196,14 +196,14 @@ class EntityViewsSpec extends Neo4jRunnerSpec(classOf[EntityViewsSpec]) {
       }
     }
 
-    "not allow deletion unless confirmation is given" in new FakeApp {
+    "not allow deletion unless confirmation is given" in new ITestApp {
       val del = route(fakeLoggedInHtmlRequest(privilegedUser, POST,
         controllers.admin.routes.UserProfiles.deletePost("reto").url)
         .withFormUrlEncodedBody()).get
       status(del) must equalTo(BAD_REQUEST)
     }
 
-    "allow deletion when confirmation is given" in new FakeApp {
+    "allow deletion when confirmation is given" in new ITestApp {
       // Confirmation is the user's full name
       val data = Map("deleteCheck" -> Seq("Reto"))
       val del = route(fakeLoggedInHtmlRequest(privilegedUser, POST,
@@ -211,7 +211,7 @@ class EntityViewsSpec extends Neo4jRunnerSpec(classOf[EntityViewsSpec]) {
       status(del) must equalTo(SEE_OTHER)
     }
 
-    "allow removing users from groups" in new FakeApp {
+    "allow removing users from groups" in new ITestApp {
       // Going to add remove Reto from group KCL
       val rem = route(fakeLoggedInHtmlRequest(privilegedUser, POST,
         controllers.admin.routes.Groups.removeMemberPost("kcl", EntityType.UserProfile, id).url)
@@ -227,7 +227,7 @@ class EntityViewsSpec extends Neo4jRunnerSpec(classOf[EntityViewsSpec]) {
 
     val id = "kcl"
 
-    "detail when logged in should link to other privileged actions" in new FakeApp {
+    "detail when logged in should link to other privileged actions" in new ITestApp {
       val show = route(fakeLoggedInHtmlRequest(privilegedUser, GET, controllers.admin.routes.Groups.get(id).url)).get
       status(show) must equalTo(OK)
       contentAsString(show) must contain(controllers.admin.routes.Groups.update(id).url)
@@ -238,7 +238,7 @@ class EntityViewsSpec extends Neo4jRunnerSpec(classOf[EntityViewsSpec]) {
       contentAsString(show) must contain(controllers.admin.routes.Groups.list().url)
     }
 
-    "allow adding groups to groups" in new FakeApp {
+    "allow adding groups to groups" in new ITestApp {
       // Add KCL to Admin
       val add = route(fakeLoggedInHtmlRequest(privilegedUser, POST,
         controllers.admin.routes.Groups.addMemberPost("admin", EntityType.Group, id).url)
@@ -249,7 +249,7 @@ class EntityViewsSpec extends Neo4jRunnerSpec(classOf[EntityViewsSpec]) {
       groupFetch.groups.map(_.id) must contain("admin")
     }
 
-    "allow removing groups from groups" in new FakeApp {
+    "allow removing groups from groups" in new ITestApp {
       // Remove NIOD from Admin
       val rem = route(fakeLoggedInHtmlRequest(privilegedUser, POST,
         controllers.admin.routes.Groups.removeMemberPost("admin", EntityType.Group, "niod").url)
@@ -262,7 +262,7 @@ class EntityViewsSpec extends Neo4jRunnerSpec(classOf[EntityViewsSpec]) {
   }
 
   "HistoricalAgent views" should {
-    "list should get some items" in new FakeApp {
+    "list should get some items" in new ITestApp {
 
       val list = route(fakeLoggedInHtmlRequest(unprivilegedUser, GET,
         controllers.authorities.routes.HistoricalAgents.list().url)).get
@@ -272,7 +272,7 @@ class EntityViewsSpec extends Neo4jRunnerSpec(classOf[EntityViewsSpec]) {
       contentAsString(list) must contain("a2")
     }
 
-    "allow creating new items when logged in as privileged user" in new FakeApp {
+    "allow creating new items when logged in as privileged user" in new ITestApp {
       val testData: Map[String, Seq[String]] = Map(
         "identifier" -> Seq("wiener-library"),
         "descriptions[0].languageCode" -> Seq("en"),
@@ -296,7 +296,7 @@ class EntityViewsSpec extends Neo4jRunnerSpec(classOf[EntityViewsSpec]) {
       contentAsString(show) must contain("Some content")
     }
 
-    "error if missing mandatory values" in new FakeApp {
+    "error if missing mandatory values" in new ITestApp {
       val testData: Map[String, Seq[String]] = Map(
       )
       val cr = route(fakeLoggedInHtmlRequest(privilegedUser, POST,
@@ -305,7 +305,7 @@ class EntityViewsSpec extends Neo4jRunnerSpec(classOf[EntityViewsSpec]) {
       status(cr) must equalTo(BAD_REQUEST)
     }
 
-    "give a form error when creating items with an existing identifier" in new FakeApp {
+    "give a form error when creating items with an existing identifier" in new ITestApp {
       val testData: Map[String, Seq[String]] = Map(
         "identifier" -> Seq("a1"),
         "descriptions[0].name" -> Seq("A test"),
@@ -322,7 +322,7 @@ class EntityViewsSpec extends Neo4jRunnerSpec(classOf[EntityViewsSpec]) {
       status(cr2) must equalTo(BAD_REQUEST)
     }
 
-    "link to other privileged actions when logged in" in new FakeApp {
+    "link to other privileged actions when logged in" in new ITestApp {
       val show = route(fakeLoggedInHtmlRequest(privilegedUser, GET, controllers.authorities.routes.HistoricalAgents.get("a1").url)).get
       status(show) must equalTo(OK)
       contentAsString(show) must contain(controllers.authorities.routes.HistoricalAgents.update("a1").url)
@@ -331,7 +331,7 @@ class EntityViewsSpec extends Neo4jRunnerSpec(classOf[EntityViewsSpec]) {
       contentAsString(show) must contain(controllers.authorities.routes.HistoricalAgents.search().url)
     }
 
-    "allow updating items when logged in as privileged user" in new FakeApp {
+    "allow updating items when logged in as privileged user" in new ITestApp {
       val testData: Map[String, Seq[String]] = Map(
         "identifier" -> Seq("a1"),
         "descriptions[0].typeOfEntity" -> Seq("corporateBody"),
@@ -352,7 +352,7 @@ class EntityViewsSpec extends Neo4jRunnerSpec(classOf[EntityViewsSpec]) {
       contentAsString(show) must contain("New Content for a1")
     }
 
-    "disallow updating items when logged in as unprivileged user" in new FakeApp {
+    "disallow updating items when logged in as unprivileged user" in new ITestApp {
       val testData: Map[String, Seq[String]] = Map(
         "identifier" -> Seq("a1")
       )
@@ -361,7 +361,7 @@ class EntityViewsSpec extends Neo4jRunnerSpec(classOf[EntityViewsSpec]) {
       status(cr) must equalTo(FORBIDDEN)
     }
 
-    "show correct default values in the form when creating new items" in new FakeApp(
+    "show correct default values in the form when creating new items" in new ITestApp(
       Map("historicalAgent.rulesAndConventions" -> "SOME RANDOM VALUE")) {
       val form = route(fakeLoggedInHtmlRequest(privilegedUser, GET,
         controllers.authorities.routes.AuthoritativeSets.createHistoricalAgent("auths").url)).get
@@ -369,7 +369,7 @@ class EntityViewsSpec extends Neo4jRunnerSpec(classOf[EntityViewsSpec]) {
       contentAsString(form) must contain("SOME RANDOM VALUE")
     }
 
-    "contain links to external items" in new FakeApp {
+    "contain links to external items" in new ITestApp {
       val show = route(fakeLoggedInHtmlRequest(privilegedUser, GET,
         controllers.authorities.routes.HistoricalAgents.get("a1").url)).get
       contentAsString(show) must contain("external-item-link")
@@ -379,7 +379,7 @@ class EntityViewsSpec extends Neo4jRunnerSpec(classOf[EntityViewsSpec]) {
   }
 
   "Vocabulary views" should {
-    "allow creating new items when logged in as privileged user" in new FakeApp {
+    "allow creating new items when logged in as privileged user" in new ITestApp {
       val testData: Map[String, Seq[String]] = Map(
         "identifier" -> Seq("test-vocab"),
         "name" -> Seq("Test Vocab")
@@ -395,7 +395,7 @@ class EntityViewsSpec extends Neo4jRunnerSpec(classOf[EntityViewsSpec]) {
       contentAsString(show) must contain("Test Vocab")
     }
 
-    "error if missing mandatory values" in new FakeApp {
+    "error if missing mandatory values" in new ITestApp {
       val testData: Map[String, Seq[String]] = Map(
         "identifier" -> Seq("test-vocab")
       )
@@ -405,7 +405,7 @@ class EntityViewsSpec extends Neo4jRunnerSpec(classOf[EntityViewsSpec]) {
       status(cr) must equalTo(BAD_REQUEST)
     }
 
-    "allow updating items when logged in as privileged user" in new FakeApp {
+    "allow updating items when logged in as privileged user" in new ITestApp {
       val testData: Map[String, Seq[String]] = Map(
         "identifier" -> Seq("cvoc1"),
         "name" -> Seq("Another Name")

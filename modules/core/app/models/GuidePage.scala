@@ -8,7 +8,7 @@ import anorm.SqlParser._
 import play.api.Play.current
 import play.api.db.DB
 import language.postfixOps
-import defines.StorableEnum
+import utils.db.StorableEnum
 import play.core.parsers.FormUrlEncodedParser
 
 /**
@@ -95,10 +95,10 @@ object GuidePage {
   implicit val form = Form(
     mapping(
       OBJECTID -> ignored(Option.empty[Long]),
-      LAYOUT -> models.forms.enum(Layout),
+      LAYOUT -> utils.forms.enum(Layout),
       NAME -> nonEmptyText,
       PATH -> nonEmptyText,
-      POSITION -> models.forms.enum(MenuPosition),
+      POSITION -> utils.forms.enum(MenuPosition),
       CONTENT -> nonEmptyText,
       PARENT -> optional(longNumber),
       DESCRIPTION -> optional(nonEmptyText),

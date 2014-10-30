@@ -17,4 +17,5 @@ package object mocks {
 
   // Mutable map that serves as a mock db...
   var userFixtures = users
+  val tokens = collection.mutable.ListBuffer.empty[(String,String,Boolean)]
 }

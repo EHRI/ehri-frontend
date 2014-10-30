@@ -15,7 +15,9 @@ import play.api.data.Forms._
 import utils.forms._
 import play.api.libs.json.JsObject
 import eu.ehri.project.definitions.Ontology
-import backend.{BackendContentType, BackendResource, BackendReadable, BackendWriteable}
+import backend._
+import scala.Some
+import play.api.libs.json.JsObject
 
 
 object UserProfileF {

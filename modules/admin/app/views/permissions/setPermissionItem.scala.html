@@ -16,7 +16,7 @@ implicit userOpt: Option[UserProfile], req: RequestHeader, globalConfig: global.
                 <tr>
                 @PermissionType.values.toList.map { perm =>
                     <td>
-                        @defining(perms.get(accessor, perm)) { permOpt =>
+                        @defining(accessor.getPermission(perms, perm)) { permOpt =>
                             <input type="checkbox" name="@contentType" value="@perm"
                         @if(permOpt.isDefined && permOpt.flatMap(_.inheritedFrom).isEmpty) {
                             checked
