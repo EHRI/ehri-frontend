@@ -76,8 +76,9 @@ case class SolrDispatcher(queryBuilder: QueryBuilder, responseParser: ResponsePa
     val queryRequest = queryBuilder.search(params, facets, allFacets, filters, extra, mode)
     dispatch(queryRequest).map { response =>
       val parser = responseParser(checkError(response).body)
+      val facetClassList: FacetClassList = parser.extractFacetData(facets, allFacets)
       ItemPage(parser.items, params.offset, params.countOrDefault, parser.count,
-        parser.extractFacetData(facets, allFacets), spellcheck = parser.spellcheckSuggestion)
+        facetClassList, spellcheck = parser.spellcheckSuggestion)
     }
   }
 
