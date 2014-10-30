@@ -1,40 +1,56 @@
 package backend
 
-import models._
+import play.api.Play.current
 import defines.{EntityType, ContentTypes, PermissionType}
 import utils.PageParams
-import backend.rest.{CypherIdGenerator, ItemNotFound, ValidationError}
+import backend.rest.{RestBackend, CypherIdGenerator, ItemNotFound, ValidationError}
 import backend.rest.cypher.CypherDAO
 import play.api.libs.json.{JsString, Json}
 import models.base.AnyModel
+import models._
+import play.api.test.PlaySpecification
+import utils.search.{MockSearchIndexer, Indexer}
+import helpers.RestBackendRunner
 
 /**
  * Spec for testing individual data access components work as expected.
  */
-class BackendSpec extends helpers.Neo4jRunnerSpec(classOf[BackendSpec]) {
+class BackendModelSpec extends RestBackendRunner with PlaySpecification {
+  sequential
+
   val userProfile = UserProfile(UserProfileF(id = Some("mike"), identifier = "mike", name = "Mike"))
   val entityType = EntityType.UserProfile
   implicit val apiUser: ApiUser = ApiUser(Some(userProfile.id))
 
+  val indexEventBuffer = collection.mutable.ListBuffer.empty[String]
+  def mockIndexer: Indexer = new MockSearchIndexer(indexEventBuffer)
+
+  def testBackend: Backend = new RestBackend(testEventHandler)
+  def testEventHandler = new EventHandler {
+    def handleCreate(id: String) = mockIndexer.indexId(id)
+    def handleUpdate(id: String) = mockIndexer.indexId(id)
+    def handleDelete(id: String) = mockIndexer.clearId(id)
+  }
+
   "EntityDAO" should {
-    "not cache invalid responses (as per bug #324)" in new FakeApp {
+    "not cache invalid responses (as per bug #324)" in new TestApp {
       // Previously this would error the second time because the bad
       // response would be cached and error on JSON deserialization.
       await(testBackend.get[UserProfile]("invalid-id")) must throwA[ItemNotFound]
       await(testBackend.get[UserProfile]("invalid-id")) must throwA[ItemNotFound]
     }
 
-    "get an item by id" in new FakeApp {
+    "get an item by id" in new TestApp {
       val profile: UserProfile = await(testBackend.get[UserProfile](userProfile.id))
       profile.id must equalTo(userProfile.id)
     }
 
-    "create an item" in new FakeApp {
+    "create an item" in new TestApp {
       val user = UserProfileF(id = None, identifier = "foobar", name = "Foobar")
       await(testBackend.create[UserProfile,UserProfileF](user))
     }
 
-    "create an item in (agent) context" in new FakeApp {
+    "create an item in (agent) context" in new TestApp {
       val doc = DocumentaryUnitF(id = None, identifier = "foobar")
       val r = await(testBackend
           .createInContext[Repository,DocumentaryUnitF,DocumentaryUnit]("r1", ContentTypes.DocumentaryUnit, doc))
@@ -47,7 +63,7 @@ class BackendSpec extends helpers.Neo4jRunnerSpec(classOf[BackendSpec]) {
       events.lastOption must beSome.which(_ must equalTo("nl-r1-foobar"))
     }
 
-    "create an item in (doc) context" in new FakeApp {
+    "create an item in (doc) context" in new TestApp {
       val doc = DocumentaryUnitF(id = None, identifier = "foobar")
       val r = await(testBackend
           .createInContext[DocumentaryUnit,DocumentaryUnitF,DocumentaryUnit]("c1", ContentTypes.DocumentaryUnit, doc))
@@ -55,7 +71,7 @@ class BackendSpec extends helpers.Neo4jRunnerSpec(classOf[BackendSpec]) {
       r.parent.get.id must equalTo("c1")
     }
 
-    "create an item with additional params" in new FakeApp {
+    "create an item with additional params" in new TestApp {
       val doc = VirtualUnitF(id = None, identifier = "foobar")
       val r = await(testBackend
         .createInContext[VirtualUnit,VirtualUnitF,VirtualUnit]("vc1", ContentTypes.VirtualUnit,
@@ -65,7 +81,7 @@ class BackendSpec extends helpers.Neo4jRunnerSpec(classOf[BackendSpec]) {
       }
     }
 
-    "update an item by id" in new FakeApp {
+    "update an item by id" in new TestApp {
       val user = UserProfileF(id = None, identifier = "foobar", name = "Foobar")
       val entity = await(testBackend.create[UserProfile,UserProfileF](user))
       val udata = entity.model.copy(location = Some("London"))
@@ -73,12 +89,12 @@ class BackendSpec extends helpers.Neo4jRunnerSpec(classOf[BackendSpec]) {
       res.model.location must equalTo(Some("London"))
     }
 
-    "delete an item by id" in new FakeApp {
+    "delete an item by id" in new TestApp {
       await(testBackend.delete[UserProfile]("reto"))
       await(testBackend.get[UserProfile]("reto")) must throwA[ItemNotFound]
     }
 
-    "patch an item by id" in new FakeApp {
+    "patch an item by id" in new TestApp {
       val user = UserProfileF(id = None, identifier = "foobar", name = "Foobar")
       val testVal = "http://example.com/"
       val patchData = Json.obj(UserProfileF.IMAGE_URL -> testVal)
@@ -87,7 +103,7 @@ class BackendSpec extends helpers.Neo4jRunnerSpec(classOf[BackendSpec]) {
       res.model.imageUrl must equalTo(Some(testVal))
     }
 
-    "error when creating an item with a non-unique id" in new FakeApp {
+    "error when creating an item with a non-unique id" in new TestApp {
       val user = UserProfileF(id = None, identifier = "foobar", name = "Foobar")
       await(testBackend.create[UserProfile,UserProfileF](user))
       try {
@@ -99,7 +115,7 @@ class BackendSpec extends helpers.Neo4jRunnerSpec(classOf[BackendSpec]) {
       }
     }
 
-    "error when fetching a non-existing item" in new FakeApp {
+    "error when fetching a non-existing item" in new TestApp {
       try {
         await(testBackend.get[UserProfile]("blibidyblob"))
         failure("Expected Item not found!")
@@ -109,7 +125,7 @@ class BackendSpec extends helpers.Neo4jRunnerSpec(classOf[BackendSpec]) {
       }
     }
 
-    "error with context data when deserializing JSON incorrectly" in new FakeApp {
+    "error with context data when deserializing JSON incorrectly" in new TestApp {
       try {
         // deliberate use the wrong readable here to generate a
         // deserialization error...
@@ -140,13 +156,13 @@ class BackendSpec extends helpers.Neo4jRunnerSpec(classOf[BackendSpec]) {
       }
     }
 
-    "delete an item by id" in new FakeApp {
+    "delete an item by id" in new TestApp {
       val user = UserProfileF(id = Some("foobar"), identifier = "foo", name = "bar")
       val entity = await(testBackend.create[UserProfile,UserProfileF](user))
       await(testBackend.delete[UserProfile](entity.id))
     }
 
-    "page items" in new FakeApp {
+    "page items" in new TestApp {
       val r = await(testBackend.list[UserProfile]())
       r.items.length mustEqual 5
       r.page mustEqual 1
@@ -154,74 +170,74 @@ class BackendSpec extends helpers.Neo4jRunnerSpec(classOf[BackendSpec]) {
       r.total mustEqual 5
     }
 
-    "count items" in new FakeApp {
+    "count items" in new TestApp {
       var r = await(testBackend.count[UserProfile](PageParams()))
       r mustEqual 5L
     }
 
-    "emit appropriate signals" in new FakeApp {
+    "emit appropriate signals" in new TestApp {
     }
   }
 
   "PermissionDAO" should {
-    "be able to fetch user's own permissions" in new FakeApp {
+    "be able to fetch user's own permissions" in new TestApp {
       val perms = await(testBackend.getGlobalPermissions(userProfile.id))
-      perms.get(userProfile, ContentTypes.DocumentaryUnit, PermissionType.Create) must beSome
+      userProfile.getPermission(perms, ContentTypes.DocumentaryUnit, PermissionType.Create) must beSome
     }
 
-    "be able to set a user's permissions" in new FakeApp {
+    "be able to set a user's permissions" in new TestApp {
       val user = UserProfile(UserProfileF(id = Some("reto"), identifier = "reto", name = "Reto"))
       val data = Map(
         ContentTypes.Repository.toString -> List(PermissionType.Create.toString, PermissionType.Update.toString, PermissionType.Delete.toString),
         ContentTypes.DocumentaryUnit.toString -> List(PermissionType.Create.toString, PermissionType.Update.toString, PermissionType.Delete.toString)
       )
       val perms = await(testBackend.getGlobalPermissions(user.id))
-      perms.get(user, ContentTypes.DocumentaryUnit, PermissionType.Create) must beNone
-      perms.get(user, ContentTypes.DocumentaryUnit, PermissionType.Update) must beNone
-      perms.get(user, ContentTypes.Repository, PermissionType.Create) must beNone
-      perms.get(user, ContentTypes.Repository, PermissionType.Update) must beNone
-      val newperms = await(testBackend.setGlobalPermissions(user.id, data))
-      newperms.get(user, ContentTypes.DocumentaryUnit, PermissionType.Create) must beSome
-      newperms.get(user, ContentTypes.DocumentaryUnit, PermissionType.Update) must beSome
-      newperms.get(user, ContentTypes.Repository, PermissionType.Create) must beSome
-      newperms.get(user, ContentTypes.Repository, PermissionType.Update) must beSome
+      user.getPermission(perms, ContentTypes.DocumentaryUnit, PermissionType.Create) must beNone
+      user.getPermission(perms, ContentTypes.DocumentaryUnit, PermissionType.Update) must beNone
+      user.getPermission(perms, ContentTypes.Repository, PermissionType.Create) must beNone
+      user.getPermission(perms, ContentTypes.Repository, PermissionType.Update) must beNone
+      val newPerms = await(testBackend.setGlobalPermissions(user.id, data))
+      user.getPermission(newPerms, ContentTypes.DocumentaryUnit, PermissionType.Create) must beSome
+      user.getPermission(newPerms, ContentTypes.DocumentaryUnit, PermissionType.Update) must beSome
+      user.getPermission(newPerms, ContentTypes.Repository, PermissionType.Create) must beSome
+      user.getPermission(newPerms, ContentTypes.Repository, PermissionType.Update) must beSome
     }
 
-    "be able to set a user's permissions within a scope" in new FakeApp {
+    "be able to set a user's permissions within a scope" in new TestApp {
       val user = UserProfile(UserProfileF(id = Some("reto"), identifier = "reto", name = "Reto"))
       val data = Map(ContentTypes.DocumentaryUnit.toString -> List("update", "delete"))
       val perms = await(testBackend.getScopePermissions(user.id, "r1"))
-      perms.get(user, ContentTypes.DocumentaryUnit, PermissionType.Update) must beNone
-      perms.get(user, ContentTypes.DocumentaryUnit, PermissionType.Delete) must beNone
-      perms.get(user, ContentTypes.Repository, PermissionType.Create) must beNone
-      perms.get(user, ContentTypes.Repository, PermissionType.Update) must beNone
+      user.getPermission(perms, ContentTypes.DocumentaryUnit, PermissionType.Update) must beNone
+      user.getPermission(perms, ContentTypes.DocumentaryUnit, PermissionType.Delete) must beNone
+      user.getPermission(perms, ContentTypes.Repository, PermissionType.Create) must beNone
+      user.getPermission(perms, ContentTypes.Repository, PermissionType.Update) must beNone
       await(testBackend.setScopePermissions(user.id, "r1", data))
       // Since c1 is held by r1, we should now have permissions to update and delete c1.
       val newItemPerms = await(testBackend.getItemPermissions(user.id, ContentTypes.DocumentaryUnit, "c1"))
-      newItemPerms.get(user, PermissionType.Update) must beSome
-      newItemPerms.get(user, PermissionType.Delete) must beSome
+      user.getPermission(newItemPerms, PermissionType.Update) must beSome
+      user.getPermission(newItemPerms, PermissionType.Delete) must beSome
     }
 
-    "be able to set a user's permissions for an item" in new FakeApp {
+    "be able to set a user's permissions for an item" in new TestApp {
       val user = UserProfile(UserProfileF(id = Some("reto"), identifier = "reto", name = "Reto"))
       // NB: Currently, there's already a test permission grant for Reto-create on c1...
       val data = List("update", "delete")
       val perms = await(testBackend.getItemPermissions(user.id, ContentTypes.DocumentaryUnit, "c1"))
-      perms.get(user, PermissionType.Update) must beNone
-      perms.get(user, PermissionType.Delete) must beNone
+      user.getPermission(perms, PermissionType.Update) must beNone
+      user.getPermission(perms, PermissionType.Delete) must beNone
       val newItemPerms = await(testBackend.setItemPermissions(user.id, ContentTypes.DocumentaryUnit, "c1", data))
-      newItemPerms.get(user, PermissionType.Update) must beSome
-      newItemPerms.get(user, PermissionType.Delete) must beSome
+      user.getPermission(newItemPerms, PermissionType.Update) must beSome
+      user.getPermission(newItemPerms, PermissionType.Delete) must beSome
     }
 
-    "be able to list permissions" in new FakeApp {
+    "be able to list permissions" in new TestApp {
       val page = await(testBackend.listScopePermissionGrants[PermissionGrant]("r1", PageParams.empty))
       page.items must not(beEmpty)
     }
   }
 
   "VisibilityDAO" should {
-    "set visibility correctly" in new FakeApp {
+    "set visibility correctly" in new TestApp {
       // First, fetch an object and assert its accessibility
       val c1a = await(testBackend.get[DocumentaryUnit]("c1"))
       c1a.accessors.map(_.id) must containAllOf(List("admin", "mike"))
@@ -231,7 +247,7 @@ class BackendSpec extends helpers.Neo4jRunnerSpec(classOf[BackendSpec]) {
       c1b.accessors.map(_.id) must containAllOf(List("admin", "mike", "reto"))
     }
 
-    "promote and demote items" in new FakeApp {
+    "promote and demote items" in new TestApp {
       val ann1: Annotation = await(testBackend.get[Annotation]("ann1"))
       ann1.promotors must beEmpty
       await(testBackend.promote("ann1")) must beTrue
@@ -247,7 +263,7 @@ class BackendSpec extends helpers.Neo4jRunnerSpec(classOf[BackendSpec]) {
   }
 
   "SocialDAO" should {
-    "allow following and unfollowing" in new FakeApp {
+    "allow following and unfollowing" in new TestApp {
       await(testBackend.isFollowing(userProfile.id, "reto")) must beFalse
       await(testBackend.follow(userProfile.id, "reto"))
       await(testBackend.isFollowing(userProfile.id, "reto")) must beTrue
@@ -259,7 +275,7 @@ class BackendSpec extends helpers.Neo4jRunnerSpec(classOf[BackendSpec]) {
       await(testBackend.isFollowing(userProfile.id, "reto")) must beFalse
     }
 
-    "allow watching and unwatching" in new FakeApp {
+    "allow watching and unwatching" in new TestApp {
       await(testBackend.isWatching(userProfile.id, "c1")) must beFalse
       await(testBackend.watch(userProfile.id, "c1"))
       await(testBackend.isWatching(userProfile.id, "c1")) must beTrue
@@ -271,7 +287,7 @@ class BackendSpec extends helpers.Neo4jRunnerSpec(classOf[BackendSpec]) {
       await(testBackend.isWatching(userProfile.id, "c1")) must beFalse
     }
 
-    "allow blocking and unblocking" in new FakeApp {
+    "allow blocking and unblocking" in new TestApp {
       await(testBackend.isBlocking(userProfile.id, "reto")) must beFalse
       await(testBackend.block(userProfile.id, "reto"))
       await(testBackend.isBlocking(userProfile.id, "reto")) must beTrue
@@ -283,7 +299,7 @@ class BackendSpec extends helpers.Neo4jRunnerSpec(classOf[BackendSpec]) {
       await(testBackend.isBlocking(userProfile.id, "reto")) must beFalse
     }
 
-    "handle virtual collections (and bookmarks)" in new FakeApp {
+    "handle virtual collections (and bookmarks)" in new TestApp {
       val data = VirtualUnitF(
         identifier = "vc-test",
         descriptions = List(
@@ -327,7 +343,7 @@ class BackendSpec extends helpers.Neo4jRunnerSpec(classOf[BackendSpec]) {
   }
 
   "CypherDAO" should {
-    "get a JsValue for a graph item" in new FakeApp {
+    "get a JsValue for a graph item" in new TestApp {
       val dao = new CypherDAO
       val res = await(dao.cypher(
         """START n = node:entities(__ID__ = {id})
@@ -340,12 +356,12 @@ class BackendSpec extends helpers.Neo4jRunnerSpec(classOf[BackendSpec]) {
   }
 
   "CypherIdGenerator" should {
-    "get the right next ID for repositories" in new FakeApp {
+    "get the right next ID for repositories" in new TestApp {
       val idGen = new CypherIdGenerator("%06d")
       await(idGen.getNextNumericIdentifier(EntityType.Repository)) must equalTo("000005")
     }
 
-    "get the right next ID for collections in scope" in new FakeApp {
+    "get the right next ID for collections in scope" in new TestApp {
       // There a 4 collections in the fixtures c1-c4
       val idGen = new CypherIdGenerator("c%01d")
       await(idGen.getNextChildNumericIdentifier("r1", EntityType.DocumentaryUnit)) must equalTo("c5")

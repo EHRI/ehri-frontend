@@ -14,7 +14,6 @@ import controllers.base.AuthConfigImpl
 import scala.concurrent.Future
 import backend._
 import utils.search._
-import utils.search.MockSearchResolver
 import backend.rest.RestBackend
 import backend.rest.CypherIdGenerator
 import utils.search.MockSearchIndexer
@@ -37,8 +36,7 @@ trait TestConfiguration {
   val feedbackBuffer = collection.mutable.HashMap.empty[Int,Feedback]
   val mailBuffer = collection.mutable.ListBuffer.empty[MockMail]
   val searchParamBuffer = collection.mutable.ListBuffer.empty[ParamLog]
-  val indexEventBuffer = collection.mutable.ArrayBuffer.empty[String]
-  val userDb = collection.mutable.HashMap.empty[String,Account]
+  val indexEventBuffer = collection.mutable.ListBuffer.empty[String]
 
   // Might want to mock the backend at at some point!
   def testBackend: Backend = new RestBackend(testEventHandler)

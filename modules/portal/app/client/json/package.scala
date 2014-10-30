@@ -10,6 +10,7 @@ import play.api.libs.json.KeyPathNode
 import play.api.libs.json.JsObject
 import play.api.data.validation.ValidationError
 import play.api.Logger
+import backend.Entity
 
 /**
  * @author Mike Bryant (http://github.com/mikesname)

@@ -21,7 +21,7 @@ object ApplicationBuild extends Build {
       <exclude module="org.slf4j.slf4j-log4j12"/>
     </dependencies>
 
-  parallelExecution := false
+  parallelExecution in ThisBuild := false
   logBuffered := false
 
   val appName = "docview"
@@ -38,15 +38,28 @@ object ApplicationBuild extends Build {
 
   scalacOptions in ThisBuild ++= Seq("-unchecked", "-deprecation")
 
-  val coreDependencies = Seq(
-    jdbc,
-    anorm,
-    cache,
-    filters,
+  val backendDependencies = Seq(
     ws,
+    cache,
 
     // Ontology
     "ehri-project" % "ehri-definitions" % "1.0",
+    "joda-time" % "joda-time" % "2.1"
+  )
+
+  val backendTestDependencies = Seq(
+    "org.neo4j" % "neo4j-kernel" % "1.9.7" classifier "tests" classifier "",
+    "org.neo4j.app" % "neo4j-server" % "1.9.7" classifier "tests" classifier "",
+
+    "com.sun.jersey" % "jersey-core" % "1.9" % "test",
+    "ehri-project" % "ehri-frames" % "0.1-SNAPSHOT" % "test" classifier "tests" classifier "",
+    "ehri-project" % "ehri-extension" % "0.0.1-SNAPSHOT" % "test" classifier "tests" classifier ""
+  )
+
+  val coreDependencies = backendDependencies ++ Seq(
+    jdbc,
+    anorm,
+    filters,
 
     // Solely to satisfy SBT: bit.ly/16bFa4O
     "com.google.guava" % "guava" % "17.0",
@@ -63,7 +76,6 @@ object ApplicationBuild extends Build {
     // Play at runtime with an IncompatibleClassChangeError.
     "org.pegdown" % "pegdown" % "1.1.0",
 
-    "joda-time" % "joda-time" % "2.1",
     "org.mindrot" % "jbcrypt" % "0.3m",
 
     // Mailer...
@@ -84,19 +96,13 @@ object ApplicationBuild extends Build {
     "com.github.seratch" %% "awscala" % "0.3.+"
   )
 
-  val testDependencies = Seq(
-    "jp.t2v" %% "play2-auth-test" % "0.12.0" % "test",
-
-    "org.neo4j" % "neo4j-kernel" % "1.9.7" classifier "tests" classifier "",
-    "org.neo4j.app" % "neo4j-server" % "1.9.7" classifier "tests" classifier "",
-
-    "com.sun.jersey" % "jersey-core" % "1.9" % "test",
-    "ehri-project" % "ehri-frames" % "0.1-SNAPSHOT" % "test" classifier "tests" classifier "",
-    "ehri-project" % "ehri-extension" % "0.0.1-SNAPSHOT" % "test" classifier "tests" classifier ""
+  val testDependencies = backendTestDependencies ++ Seq(
+    "jp.t2v" %% "play2-auth-test" % "0.12.0" % "test"
   )
 
   val commonSettings = Seq(
-    templateImports in Compile ++= Seq("models.base._", "models.forms._", "acl._", "defines._"),
+    parallelExecution := false,
+    templateImports in Compile ++= Seq("models.base._", "utils.forms._", "acl._", "defines._", "backend.Entity"),
     routesImport += "defines.EntityType",
 
     resolvers += "neo4j-public-repository" at "http://m2.neo4j.org/content/groups/public",
@@ -117,6 +123,13 @@ object ApplicationBuild extends Build {
   val assetSettings = Seq(
   )
 
+  lazy val backend = Project(appName + "-backend", file("modules/backend"))
+    .enablePlugins(play.PlayScala).settings(
+    version := appVersion,
+    name := appName + "-backend",
+    libraryDependencies ++= backendDependencies ++ backendTestDependencies
+  ).settings(commonSettings: _*)
+
   lazy val core = Project(appName + "-core", file("modules/core"))
     .enablePlugins(play.PlayScala)
     .enablePlugins(SbtWeb).settings(
@@ -125,7 +138,7 @@ object ApplicationBuild extends Build {
       libraryDependencies ++= coreDependencies,
       pipelineStages := Seq(rjs, digest, gzip),
       RjsKeys.mainModule := "core-main"
-  ).settings(commonSettings: _*)
+  ).settings(commonSettings: _*).dependsOn(backend % "test->test;compile->compile")
 
   lazy val admin = Project(appName + "-admin", file("modules/admin"))
     .enablePlugins(play.PlayScala).settings(
@@ -153,7 +166,8 @@ object ApplicationBuild extends Build {
 
   lazy val archdesc = Project(appName + "-archdesc", file("modules/archdesc"))
     .enablePlugins(play.PlayScala).settings(
-    version := appVersion
+    version := appVersion,
+    parallelExecution in Test := false
   ).settings(commonSettings: _*).dependsOn(portal)
 
   lazy val authorities = Project(appName + "-authorities", file("modules/authorities"))
@@ -180,8 +194,9 @@ object ApplicationBuild extends Build {
     .enablePlugins(play.PlayScala).settings(
     version := appVersion,
     libraryDependencies ++= coreDependencies ++ testDependencies
-  ).settings(commonSettings ++ assetSettings: _*).dependsOn(adminUtils)
-    .aggregate(core, admin, annotation, linking, portal, archdesc, authorities, vocabs, guides, adminUtils)
+  ).settings(commonSettings ++ assetSettings: _*)
+    .dependsOn(adminUtils)
+    .aggregate(backend, core, admin, annotation, linking, portal, archdesc, authorities, vocabs, guides, adminUtils)
 
   override def rootProject = Some(main)
 }

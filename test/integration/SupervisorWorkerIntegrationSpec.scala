@@ -19,7 +19,7 @@ import backend.ApiUser
  *  - assign permissions to worker group to create/update/delete only their OWN items in a repo
  *  - check that these perms are respected
  */
-class SupervisorWorkerIntegrationSpec extends Neo4jRunnerSpec(classOf[SupervisorWorkerIntegrationSpec]) {
+class SupervisorWorkerIntegrationSpec extends IntegrationTestRunner {
   import mocks.privilegedUser
 
   implicit val apiUser: ApiUser = ApiUser(Some(privilegedUser.id))
@@ -31,7 +31,7 @@ class SupervisorWorkerIntegrationSpec extends Neo4jRunnerSpec(classOf[Supervisor
 
   "The application" should {
 
-    "support supervisor CUD and user COD" in new FakeApp {
+    "support supervisor CUD and user COD" in new ITestApp {
 
       // Target country
       val countryId = "gb"

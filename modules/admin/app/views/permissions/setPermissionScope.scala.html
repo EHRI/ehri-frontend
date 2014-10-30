@@ -21,7 +21,7 @@
                         <td>@Messages("contentTypes." + ct)</td>
                         @PermissionType.values.toList.map { perm =>
                             <td>
-                                @defining(perms.get(accessor, ct, perm)) { permOpt =>
+                                @defining(accessor.getPermission(perms, ct, perm)) { permOpt =>
                                     <input type="checkbox" name="@ct" value="@perm"
                                 @if(permOpt.isDefined && permOpt.flatMap(_.inheritedFrom).isEmpty) {
                                     checked

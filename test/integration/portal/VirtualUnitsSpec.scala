@@ -1,16 +1,16 @@
 package integration.portal
 
-import helpers.Neo4jRunnerSpec
+import helpers.IntegrationTestRunner
 import controllers.portal.ReverseVirtualUnits
 
 
-class VirtualUnitsSpec extends Neo4jRunnerSpec(classOf[VirtualUnitsSpec]) {
+class VirtualUnitsSpec extends IntegrationTestRunner {
   import mocks.privilegedUser
 
   private val vuRoutes: ReverseVirtualUnits = controllers.portal.routes.VirtualUnits
 
   "VirtualUnit views" should {
-    "render virtual units" in new FakeApp {
+    "render virtual units" in new ITestApp {
       val show = route(fakeLoggedInHtmlRequest(privilegedUser,
         GET, vuRoutes.browseVirtualCollection("vc1").url)).get
       contentAsString(show) must contain("Virtual Collection 1")

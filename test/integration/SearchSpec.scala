@@ -9,7 +9,7 @@ import play.api.test.FakeRequest
 /**
  * Spec to test various page views operate as expected.
  */
-class SearchSpec extends Neo4jRunnerSpec(classOf[SearchSpec]) {
+class SearchSpec extends IntegrationTestRunner {
 
   import mocks.privilegedUser
 
@@ -21,7 +21,7 @@ class SearchSpec extends Neo4jRunnerSpec(classOf[SearchSpec]) {
 
   "Search views" should {
 
-    "search for hierarchical items with no query should apply a top-level filter" in new FakeApp {
+    "search for hierarchical items with no query should apply a top-level filter" in new ITestApp {
       val search = route(fakeLoggedInHtmlRequest(privilegedUser, GET,
         controllers.archdesc.routes.DocumentaryUnits.search().url)).get
       status(search) must equalTo(OK)
@@ -29,7 +29,7 @@ class SearchSpec extends Neo4jRunnerSpec(classOf[SearchSpec]) {
         .last.filters.get(SolrConstants.TOP_LEVEL) must equalTo(Some(true))
     }
 
-    "search for hierarchical item with a query should not apply a top-level filter" in new FakeApp {
+    "search for hierarchical item with a query should not apply a top-level filter" in new ITestApp {
       val search = route(fakeLoggedInHtmlRequest(privilegedUser, GET,
         controllers.archdesc.routes.DocumentaryUnits.search().url + "?q=foo")).get
       status(search) must equalTo(OK)
@@ -37,13 +37,13 @@ class SearchSpec extends Neo4jRunnerSpec(classOf[SearchSpec]) {
         .last.filters.get(SolrConstants.TOP_LEVEL) must equalTo(None)
     }
 
-    "allow search filtering for non-logged in users" in new FakeApp {
+    "allow search filtering for non-logged in users" in new ITestApp {
       val filter = route(FakeRequest(GET,
         controllers.core.routes.SearchFilter.filter().url + "?q=c")).get
       status(filter) must equalTo(OK)
     }
 
-    "perform indexing correctly" in new FakeApp {
+    "perform indexing correctly" in new ITestApp {
 
       val cmd: List[String] = List(
         EntityType.DocumentaryUnit.toString,
@@ -65,7 +65,7 @@ class SearchSpec extends Neo4jRunnerSpec(classOf[SearchSpec]) {
       }
     }
 
-    "perform hierarchy indexing correctly" in new FakeApp {
+    "perform hierarchy indexing correctly" in new ITestApp {
 
       val idx = route(fakeLoggedInHtmlRequest(privilegedUser, POST,
         controllers.archdesc.routes.Repositories.updateIndexPost("r1").url), "").get
@@ -80,7 +80,7 @@ class SearchSpec extends Neo4jRunnerSpec(classOf[SearchSpec]) {
   }
 
   "Search metrics" should {
-    "response to JSON" in new FakeApp {
+    "response to JSON" in new ITestApp {
       val repoMetrics = route(fakeLoggedInJsonRequest(privilegedUser, GET,
         controllers.adminutils.routes.Metrics.repositoryCountries().url)).get
       status(repoMetrics) must equalTo(OK)

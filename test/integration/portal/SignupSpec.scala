@@ -1,13 +1,13 @@
 package integration.portal
 
-import helpers.Neo4jRunnerSpec
+import helpers.IntegrationTestRunner
 import models._
 import play.api.test.FakeRequest
 import mocks.MockBufferedMailer
 import play.api.i18n.Messages
 
 
-class SignupSpec extends Neo4jRunnerSpec(classOf[SignupSpec]) {
+class SignupSpec extends IntegrationTestRunner {
 
   private val profileRoutes = controllers.portal.routes.Profile
 
@@ -31,7 +31,7 @@ class SignupSpec extends Neo4jRunnerSpec(classOf[SignupSpec]) {
       CSRF_TOKEN_NAME -> Seq(fakeCsrfString)
     )
 
-    "create a validation token and send a mail on signup" in new FakeApp {
+    "create a validation token and send a mail on signup" in new ITestApp {
       val numSentMails = mailBuffer.size
       val numAccounts = mocks.userFixtures.size
       val signup = route(FakeRequest(POST, profileRoutes.signupPost().url)

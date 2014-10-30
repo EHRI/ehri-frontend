@@ -1,11 +1,11 @@
 package integration
 
-import helpers.{formPostHeaders,Neo4jRunnerSpec}
+import helpers.{formPostHeaders,IntegrationTestRunner}
 import models._
 import defines._
 
 
-class DocUnitLinkAnnotateSpec extends Neo4jRunnerSpec(classOf[DocUnitLinkAnnotateSpec]) {
+class DocUnitLinkAnnotateSpec extends IntegrationTestRunner {
   import mocks.privilegedUser
   
   private val docRoutes = controllers.archdesc.routes.DocumentaryUnits
@@ -22,21 +22,21 @@ class DocUnitLinkAnnotateSpec extends Neo4jRunnerSpec(classOf[DocUnitLinkAnnotat
 
   "DocumentaryUnit views" should {
 
-    "contain correct access point links" in new FakeApp {
+    "contain correct access point links" in new ITestApp {
       val show = route(fakeLoggedInHtmlRequest(privilegedUser, GET, docRoutes.get("c1").url)).get
       contentAsString(show) must contain("access-point-links")
       contentAsString(show) must contain(
         controllers.authorities.routes.HistoricalAgents.get("a1").url)
     }
 
-    "contain correct annotation links" in new FakeApp {
+    "contain correct annotation links" in new ITestApp {
       val show = route(fakeLoggedInHtmlRequest(privilegedUser, GET, docRoutes.get("c1").url)).get
       contentAsString(show) must contain("annotation-links")
       contentAsString(show) must contain(
         docRoutes.get("c4").url)
     }
 
-    "allow linking to items via annotation" in new FakeApp {
+    "allow linking to items via annotation" in new ITestApp {
       val testItem = "c1"
       val linkSrc = "cvocc1"
       val body = "This is a link"
@@ -54,7 +54,7 @@ class DocUnitLinkAnnotateSpec extends Neo4jRunnerSpec(classOf[DocUnitLinkAnnotat
       contentAsString(getR) must contain(body)
     }
 
-    "allow linking to multiple items via a single form submission" in new FakeApp {
+    "allow linking to multiple items via a single form submission" in new ITestApp {
       val testItem = "c1"
       val body1 = "This is a link 1"
       val body2 = "This is a link 2"
@@ -78,7 +78,7 @@ class DocUnitLinkAnnotateSpec extends Neo4jRunnerSpec(classOf[DocUnitLinkAnnotat
       contentAsString(getR) must contain(body2)
     }
 
-    "allow adding extra descriptions" in new FakeApp {
+    "allow adding extra descriptions" in new ITestApp {
       val testItem = "c1"
       val testData: Map[String, Seq[String]] = Map(
         "languageCode" -> Seq("en"),
@@ -97,7 +97,7 @@ class DocUnitLinkAnnotateSpec extends Neo4jRunnerSpec(classOf[DocUnitLinkAnnotat
       indexEventBuffer.last must equalTo("c1")
     }
 
-    "allow updating individual descriptions" in new FakeApp {
+    "allow updating individual descriptions" in new ITestApp {
       val testItem = "c1"
       val testItemDesc = "cd1"
       val testData: Map[String, Seq[String]] = Map(
@@ -119,7 +119,7 @@ class DocUnitLinkAnnotateSpec extends Neo4jRunnerSpec(classOf[DocUnitLinkAnnotat
       indexEventBuffer.last must equalTo("c1")
     }
 
-    "allow deleting individual descriptions" in new FakeApp {
+    "allow deleting individual descriptions" in new ITestApp {
       val testItem = "c1"
       val testItemDesc = "cd1-2"
       // Now try again to update the item, which should succeed

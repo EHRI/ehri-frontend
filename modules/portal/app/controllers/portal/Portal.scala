@@ -22,6 +22,7 @@ import utils._
 import com.google.inject._
 import views.html.errors.pageNotFound
 import org.joda.time.DateTime
+import caching.FutureCache
 
 @Singleton
 case class Portal @Inject()(implicit globalConfig: global.GlobalConfig, searchDispatcher: Dispatcher, searchResolver: Resolver, backend: Backend,

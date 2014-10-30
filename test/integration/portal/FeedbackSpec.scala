@@ -1,11 +1,11 @@
 package integration.portal
 
-import helpers.Neo4jRunnerSpec
+import helpers.IntegrationTestRunner
 
-class FeedbackSpec extends Neo4jRunnerSpec(classOf[FeedbackSpec]) {
+class FeedbackSpec extends IntegrationTestRunner {
 
   "Feedback views" should {
-    "allow anon feedback" in new FakeApp {
+    "allow anon feedback" in new ITestApp {
       val fbCount = feedbackBuffer.size
       val fb = Map("text" -> Seq("it doesn't work"))
       val post = route(fakeLoggedInHtmlRequest(mocks.privilegedUser, POST,

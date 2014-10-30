@@ -10,14 +10,15 @@ import play.api.data.Form
 import play.api.data.Forms._
 import play.api.libs.json.JsObject
 import eu.ehri.project.definitions.Ontology
-import backend.{BackendReadable, BackendResource, BackendContentType, BackendWriteable}
+import backend._
+import play.api.libs.json.JsObject
 
 object GroupF {
 
   val NAME = "name"
   val DESCRIPTION = "description"
 
-  import models.Entity._
+  import Entity._
 
   implicit val groupWrites: Writes[GroupF] = new Writes[GroupF] {
     def writes(d: GroupF): JsValue = {

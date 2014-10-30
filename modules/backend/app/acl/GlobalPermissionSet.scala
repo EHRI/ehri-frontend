@@ -2,7 +2,6 @@ package acl
 
 import play.api.libs.json._
 import defines._
-import models.base.Accessor
 import scala.util.control.Exception._
 
 object GlobalPermissionSet {
@@ -42,39 +41,10 @@ object GlobalPermissionSet {
  * Global permissions granted to either a UserProfileF or a GroupF.
  */
 case class GlobalPermissionSet(data: GlobalPermissionSet.PermData) extends PermissionSet {
-
   /**
    * Check if this permission set has the given permission.
    */
   def has(sub: ContentTypes.Value, permission: PermissionType.Value): Boolean =
     !data.flatMap(_._2.get(sub)).filter( plist => plist.exists( p =>
         PermissionType.in(p, permission))).isEmpty
-
-  /**
-   * Get the permission grant for a given permission (if any), which contains
-   * the accessor to whom the permission was granted.
-   */
-  def get[T <: Accessor](user: T, contentType: ContentTypes.Value, permission: PermissionType.Value): Option[Permission[T]] = {
-    val accessors = data.flatMap {
-      case (u, perms) =>
-        perms.get(contentType).flatMap { permSet =>
-          if (permSet.exists(p => PermissionType.in(p, permission))) Some((u, permission))
-          else None
-        }
-    }
-    // If we have one or more accessors, then we are going to
-    // grant the permission, but we need to search the list
-    // to determine the accessor who was granted the permissions.
-    accessors.headOption.map {
-      case (userId, perm) =>
-        if (user.id == userId) Permission(perm)
-        else {
-          user.getAccessor(user.groups, userId) match {
-            case Some(u) if u.id == user.id => Permission(perm)
-            case s @ Some(u) => Permission(perm, s)
-            case x => Permission(perm)
-          }
-        }
-    }
-  }
 }

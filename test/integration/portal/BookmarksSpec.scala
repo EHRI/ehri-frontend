@@ -1,11 +1,10 @@
 package integration.portal
 
-import helpers.Neo4jRunnerSpec
-import controllers.portal.ReverseVirtualUnits
+import helpers.IntegrationTestRunner
 import models.BookmarkSet
 
 
-class BookmarksSpec extends Neo4jRunnerSpec(classOf[BookmarksSpec]) {
+class BookmarksSpec extends IntegrationTestRunner {
   import mocks.privilegedUser
 
   private val bmRoutes = controllers.portal.routes.Bookmarks
@@ -17,7 +16,7 @@ class BookmarksSpec extends Neo4jRunnerSpec(classOf[BookmarksSpec]) {
   )
   
   "Bookmark views" should {
-    "create a default bookmark set when bookmarking an item" in new FakeApp {
+    "create a default bookmark set when bookmarking an item" in new ITestApp {
       val bookmark1 = route(fakeLoggedInHtmlRequest(privilegedUser, POST, bmRoutes
         .bookmarkPost("c1").url), "").get
       status(bookmark1) must equalTo(SEE_OTHER)
@@ -29,7 +28,7 @@ class BookmarksSpec extends Neo4jRunnerSpec(classOf[BookmarksSpec]) {
       redirectLocation(bookmark1) must equalTo(Some(bmRoutes.listBookmarkSets().url))
     }
 
-    "create a named bookmark set when bookmarking an item" in new FakeApp {
+    "create a named bookmark set when bookmarking an item" in new ITestApp {
       val bookmark1 = route(fakeLoggedInHtmlRequest(privilegedUser, POST, bmRoutes
         .bookmarkInNewSetPost("c1").url), data).get
       status(bookmark1) must equalTo(SEE_OTHER)
@@ -40,7 +39,7 @@ class BookmarksSpec extends Neo4jRunnerSpec(classOf[BookmarksSpec]) {
       }
     }
 
-    "allow users to create VUs (simplified as bookmark sets)" in new FakeApp {
+    "allow users to create VUs (simplified as bookmark sets)" in new ITestApp {
       val create = route(fakeLoggedInHtmlRequest(privilegedUser, POST, bmRoutes
         .createBookmarkSetPost(item = List("c4")).url), data).get
       status(create) must equalTo(SEE_OTHER)

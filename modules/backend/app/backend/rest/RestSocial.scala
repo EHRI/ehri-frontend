@@ -1,11 +1,11 @@
 package backend.rest
 
-import backend.{BackendReadable, EventHandler, Social}
+import backend.{ApiUser, BackendReadable, EventHandler, Social}
 import scala.concurrent.{ExecutionContext, Future}
-import utils.{Page, FutureCache, PageParams}
+import utils.{Page, PageParams}
 import defines.EntityType
 import play.api.cache.Cache
-import backend.ApiUser
+import caching.FutureCache
 
 /**
  * @author Mike Bryant (http://github.com/mikesname)

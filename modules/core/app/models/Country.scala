@@ -10,7 +10,8 @@ import play.api.libs.json._
 import play.api.libs.functional.syntax._
 import play.api.data.Form
 import play.api.data.Forms._
-import backend.{BackendReadable, BackendContentType, BackendResource, BackendWriteable}
+import backend._
+import play.api.libs.json.JsObject
 
 
 object CountryF {

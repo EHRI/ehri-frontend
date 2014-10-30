@@ -5,8 +5,9 @@ import acl._
 import defines._
 import play.api.libs.json.Json
 import play.api.cache.Cache
-import utils.{Page, FutureCache, PageParams}
+import utils.{Page, PageParams}
 import backend.{BackendReadable, Permissions, EventHandler, ApiUser}
+import caching.FutureCache
 
 
 trait RestPermissions extends Permissions with RestDAO {

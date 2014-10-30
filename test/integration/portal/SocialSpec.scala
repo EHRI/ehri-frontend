@@ -1,11 +1,11 @@
 package integration.portal
 
-import helpers.Neo4jRunnerSpec
+import helpers.IntegrationTestRunner
 import controllers.portal.{ReverseSocial, ReversePortal}
 import mocks.MockBufferedMailer
 import backend.ApiUser
 
-class SocialSpec extends Neo4jRunnerSpec(classOf[SocialSpec]) {
+class SocialSpec extends IntegrationTestRunner {
   import mocks.{privilegedUser, unprivilegedUser}
 
   private val socialRoutes: ReverseSocial = controllers.portal.routes.Social
@@ -13,7 +13,7 @@ class SocialSpec extends Neo4jRunnerSpec(classOf[SocialSpec]) {
   override def getConfig = Map("recaptcha.skip" -> true)
 
   "Social views" should {
-    "allow following and unfollowing users" in new FakeApp {
+    "allow following and unfollowing users" in new ITestApp {
       val follow = route(fakeLoggedInHtmlRequest(privilegedUser, POST,
         socialRoutes.followUser(unprivilegedUser.id).url), "").get
       status(follow) must equalTo(SEE_OTHER)
@@ -35,7 +35,7 @@ class SocialSpec extends Neo4jRunnerSpec(classOf[SocialSpec]) {
       contentAsString(following2) must not contain socialRoutes.browseUser(unprivilegedUser.id).url
     }
 
-    "allow messaging users" in new FakeApp {
+    "allow messaging users" in new ITestApp {
       val numSentMails = mailBuffer.size
       val msgData = Map(
         "subject" -> Seq("Hello"),
@@ -49,7 +49,7 @@ class SocialSpec extends Neo4jRunnerSpec(classOf[SocialSpec]) {
       mailBuffer.last.text must contain("World")
     }
 
-    "disallow messaging users with messaging disabled" in new FakeApp {
+    "disallow messaging users with messaging disabled" in new ITestApp {
       val user = unprivilegedUser
       mocks.userFixtures += user.id -> user.copy(allowMessaging = false)
 
@@ -65,7 +65,7 @@ class SocialSpec extends Neo4jRunnerSpec(classOf[SocialSpec]) {
       status(postMsg2) must equalTo(OK)
     }
 
-    "disallow messaging users when blocked" in new FakeApp {
+    "disallow messaging users when blocked" in new ITestApp {
       val block = route(fakeLoggedInHtmlRequest(unprivilegedUser, POST,
         socialRoutes.blockUser(privilegedUser.id).url)).get
       status(block) must equalTo(SEE_OTHER)

@@ -17,8 +17,7 @@ case class RestBackend(eventHandler: EventHandler)(implicit val app: play.api.Ap
   with RestLinks
   with RestEvents
   with RestSocial
-  with RestVisibility
-  with SearchDAO {
+  with RestVisibility {
 
   private val api = new ApiDAO
   private val admin = new AdminDAO(eventHandler)
@@ -30,4 +29,20 @@ case class RestBackend(eventHandler: EventHandler)(implicit val app: play.api.Ap
   // Helpers
   def createNewUserProfile[T <: WithId](data: Map[String,String] = Map.empty, groups: Seq[String] = Seq.empty)(implicit apiUser: ApiUser, rd: BackendReadable[T], executionContext: ExecutionContext): Future[T] =
     admin.createNewUserProfile[T](data, groups)
- }
+
+  // Fetch any type of object. This doesn't really belong here...
+  def getAny[MT](id: String)(implicit apiUser: ApiUser,  rd: BackendReadable[MT], executionContext: ExecutionContext): Future[MT] = {
+    val url: String = enc(baseUrl, "entities", id)
+    BackendRequest(url).withHeaders(authHeaders.toSeq: _*).get().map { response =>
+      checkErrorAndParse(response, context = Some(url))(rd.restReads)
+    }
+  }
+}
+
+object RestBackend {
+  def withNoopHandler(implicit app: play.api.Application): Backend = new RestBackend(new EventHandler {
+    def handleCreate(id: String) = ()
+    def handleUpdate(id: String) = ()
+    def handleDelete(id: String) = ()
+  })
+}

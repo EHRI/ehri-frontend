@@ -1,4 +1,4 @@
-package utils
+package caching
 
 import scala.concurrent.{ExecutionContext, Future}
 import scala.reflect.ClassTag
