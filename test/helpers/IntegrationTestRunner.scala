@@ -1,6 +1,5 @@
 package helpers
 
-import backend.test.RestBackendRunner
 import play.api.test.{PlaySpecification, WithApplication}
 
 /**

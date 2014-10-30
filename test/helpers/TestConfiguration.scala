@@ -14,7 +14,6 @@ import controllers.base.AuthConfigImpl
 import scala.concurrent.Future
 import backend._
 import utils.search._
-import utils.search.MockSearchResolver
 import backend.rest.RestBackend
 import backend.rest.CypherIdGenerator
 import utils.search.MockSearchIndexer

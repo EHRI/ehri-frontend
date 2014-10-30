@@ -21,7 +21,7 @@ object ApplicationBuild extends Build {
       <exclude module="org.slf4j.slf4j-log4j12"/>
     </dependencies>
 
-  parallelExecution := false
+  parallelExecution in ThisBuild := false
   logBuffered := false
 
   val appName = "docview"
@@ -137,8 +137,7 @@ object ApplicationBuild extends Build {
       name := appName + "-core",
       libraryDependencies ++= coreDependencies,
       pipelineStages := Seq(rjs, digest, gzip),
-      RjsKeys.mainModule := "core-main",
-      parallelExecution := false
+      RjsKeys.mainModule := "core-main"
   ).settings(commonSettings: _*).dependsOn(backend % "test->test;compile->compile")
 
   lazy val admin = Project(appName + "-admin", file("modules/admin"))
@@ -167,7 +166,8 @@ object ApplicationBuild extends Build {
 
   lazy val archdesc = Project(appName + "-archdesc", file("modules/archdesc"))
     .enablePlugins(play.PlayScala).settings(
-    version := appVersion
+    version := appVersion,
+    parallelExecution in Test := false
   ).settings(commonSettings: _*).dependsOn(portal)
 
   lazy val authorities = Project(appName + "-authorities", file("modules/authorities"))
@@ -194,7 +194,8 @@ object ApplicationBuild extends Build {
     .enablePlugins(play.PlayScala).settings(
     version := appVersion,
     libraryDependencies ++= coreDependencies ++ testDependencies
-  ).settings(commonSettings ++ assetSettings: _*).dependsOn(backend % "test->test;compile->compile", core % "test->test", adminUtils)
+  ).settings(commonSettings ++ assetSettings: _*)
+    .dependsOn(adminUtils)
     .aggregate(backend, core, admin, annotation, linking, portal, archdesc, authorities, vocabs, guides, adminUtils)
 
   override def rootProject = Some(main)

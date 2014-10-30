@@ -10,11 +10,12 @@ import models.base.AnyModel
 import models._
 import play.api.test.PlaySpecification
 import utils.search.{MockSearchIndexer, Indexer}
+import helpers.RestBackendRunner
 
 /**
  * Spec for testing individual data access components work as expected.
  */
-class BackendModelSpec extends backend.test.RestBackendRunner with PlaySpecification {
+class BackendModelSpec extends RestBackendRunner with PlaySpecification {
   sequential
 
   val userProfile = UserProfile(UserProfileF(id = Some("mike"), identifier = "mike", name = "Mike"))

@@ -4,6 +4,7 @@ import play.api.test.PlaySpecification
 import play.api.libs.json.JsObject
 import defines.EntityType
 import backend.{ApiUser, Entity}
+import helpers.RestBackendRunner
 
 /**
  * A minimal object that has a resource type and can be read.
@@ -26,7 +27,7 @@ object TestResource {
 /**
  * @author Mike Bryant (http://github.com/mikesname)
  */
-class RestBackendSpec extends backend.test.RestBackendRunner with PlaySpecification {
+class RestBackendSpec extends RestBackendRunner with PlaySpecification {
   sequential
 
   def backend = RestBackend.withNoopHandler(play.api.Play.current)
