@@ -21,13 +21,7 @@
 	    </aside>
 	    <nav class="collapse navbar-collapse" id="navbar-header">
 			<ul class="nav navbar-nav navbar-left" role="navigation">
-			    @Seq(
-                ("pages.search",                  controllers.admin.routes.AdminSearch.search().url),
-                ("contentTypes.documentaryUnit",  controllers.units.routes.DocumentaryUnits.search().url),
-                ("contentTypres.historicalAgent",  controllers.authorities.routes.HistoricalAgents.search().url),
-                ("contentTypes.repository",       controllers.institutions.routes.Repositories.search().url),
-                ("contentTypes.cvocConcept",      controllers.keywords.routes.Concepts.search().url)
-                ).map { case (key, url) =>
+			    @views.admin.Helpers.mainMenu.map { case (key, url) =>
 			        @activeIfCurrent(url, Messages(key))
 			    }
 			    <li class="dropdown">
@@ -36,17 +30,7 @@
 			            <b class="caret"></b>
 			        </a>
 			        <ul class="dropdown-menu" role="menu" aria-labelledby="drop3">
-			            @Seq(
-                        ("contentTypes.userProfile",      controllers.users.routes.UserProfiles.search().url),
-                        ("contentTypes.group",            controllers.groups.routes.Groups.list().url),
-                        ("contentTypes.country",          controllers.countries.routes.Countries.search().url),
-                        ("contentTypes.cvocVocabulary",   controllers.vocabularies.routes.Vocabularies.list().url),
-                        ("contentTypes.authoritativeSet", controllers.sets.routes.AuthoritativeSets.list().url),
-                        ("s1", "-"),
-                        ("contentTypes.systemEvent",      controllers.events.routes.SystemEvents.list().url),
-                        ("s2", "-"),
-                        ("search.updateIndex",            controllers.admin.routes.AdminSearch.updateIndex().url)
-                        ).map { case (key, url) =>
+			            @views.admin.Helpers.moreMenu.map { case (key, url) =>
 			                @if(url == "-") {
 			                    <li role="presentation" class="divider"></li>
 			                } else {
@@ -67,10 +51,7 @@
 			            <b class="caret"></b>
 			        </a>
 			        <ul class="dropdown-menu" role="menu" aria-labelledby="drop3">
-			            @Seq(
-                        ("portal.home", controllers.portal.routes.Portal.index().url),
-                        ("portal.profile", controllers.portal.routes.Profile.profile().url)
-                        ).map { case (key, url) =>
+			            @views.admin.Helpers.accountMenu.map { case (key, url) =>
 			                <li role="presentation"><a role="menuitem" tabindex="-1" href="@url">@Messages(key)</a> </li>
 			            }
 			            <li role="presentation" class="divider"></li>

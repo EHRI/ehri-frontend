@@ -10,7 +10,6 @@ import backend.rest.GidSearchResolver
 import backend.{IdGenerator, FeedbackDAO, EventHandler, Backend}
 import com.github.seratch.scalikesolr.request.common.WriterType
 import com.typesafe.plugin.{CommonsMailerPlugin, MailerAPI}
-import defines.EntityType
 import java.util.concurrent.TimeUnit
 import models.AccountDAO
 import models.sql.SqlAccount
@@ -71,7 +70,6 @@ object Global extends WithFilters(CSRFFilter()) with GlobalSettings {
   private def backend: Backend = new RestBackend(eventHandler)
 
   object RunConfiguration extends GlobalConfig
-
 
   class ProdModule extends ScalaModule {
     def configure() {

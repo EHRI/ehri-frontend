@@ -12,6 +12,31 @@ object Helpers {
 
   import scala.util.control.Exception.catching
 
+  val mainMenu = Seq(
+    ("pages.search",                  controllers.admin.routes.AdminSearch.search().url),
+    ("contentTypes.documentaryUnit",  controllers.units.routes.DocumentaryUnits.search().url),
+    ("contentTypes.historicalAgent",  controllers.authorities.routes.HistoricalAgents.search().url),
+    ("contentTypes.repository",       controllers.institutions.routes.Repositories.search().url),
+    ("contentTypes.cvocConcept",      controllers.keywords.routes.Concepts.search().url)
+  )
+
+  val moreMenu = Seq(
+    ("contentTypes.userProfile",      controllers.users.routes.UserProfiles.search().url),
+    ("contentTypes.group",            controllers.groups.routes.Groups.list().url),
+    ("contentTypes.country",          controllers.countries.routes.Countries.search().url),
+    ("contentTypes.cvocVocabulary",   controllers.vocabularies.routes.Vocabularies.list().url),
+    ("contentTypes.authoritativeSet", controllers.sets.routes.AuthoritativeSets.list().url),
+    ("s1", "-"),
+    ("contentTypes.systemEvent",      controllers.events.routes.SystemEvents.list().url),
+    ("s2", "-"),
+    ("search.updateIndex",            controllers.admin.routes.AdminSearch.updateIndex().url)
+  )
+
+  val accountMenu = Seq(
+    ("portal.home", controllers.portal.routes.Portal.index().url),
+    ("portal.profile", controllers.portal.routes.Profile.profile().url)
+  )
+
   def linkTo(isA: defines.EntityType.Value, id: String): Call = {
     import defines.EntityType._
     isA match {
