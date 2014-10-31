@@ -33,34 +33,8 @@ import scala.concurrent.Future.{successful => immediate}
 package globalConfig {
 
   import global.RouteRegistry
-  import global.MenuConfig
 
   trait BaseConfiguration extends GlobalConfig {
-
-    implicit lazy val menuConfig: MenuConfig = new MenuConfig {
-      val mainSection: Iterable[(String, String)] = Seq(
-        ("pages.search",                  controllers.adminutils.routes.AdminSearch.search().url),
-        ("contentTypes.documentaryUnit",  controllers.units.routes.DocumentaryUnits.search().url),
-        ("contentTypres.historicalAgent",  controllers.authorities.routes.HistoricalAgents.search().url),
-        ("contentTypes.repository",       controllers.institutions.routes.Repositories.search().url),
-        ("contentTypes.cvocConcept",      controllers.keywords.routes.Concepts.search().url)
-      )
-      val adminSection: Iterable[(String, String)] = Seq(
-        ("contentTypes.userProfile",      controllers.users.routes.UserProfiles.search().url),
-        ("contentTypes.group",            controllers.groups.routes.Groups.list().url),
-        ("contentTypes.country",          controllers.countries.routes.Countries.search().url),
-        ("contentTypes.cvocVocabulary",   controllers.vocabularies.routes.Vocabularies.list().url),
-        ("contentTypes.authoritativeSet", controllers.sets.routes.AuthoritativeSets.list().url),
-        ("s1", "-"),
-        ("contentTypes.systemEvent",      controllers.events.routes.SystemEvents.list().url),
-        ("s2", "-"),
-        ("search.updateIndex",            controllers.adminutils.routes.AdminSearch.updateIndex().url)
-      )
-      val authSection: Iterable[(String,String)] = Seq(
-        ("portal.home", controllers.portal.routes.Portal.index().url),
-        ("portal.profile", controllers.portal.routes.Profile.profile().url)
-      )
-    }
 
     val routeRegistry = new RouteRegistry(Map(
       EntityType.SystemEvent -> controllers.events.routes.SystemEvents.get,
@@ -76,7 +50,7 @@ package globalConfig {
       EntityType.Concept -> controllers.keywords.routes.Concepts.get,
       EntityType.Country -> controllers.countries.routes.Countries.get,
       EntityType.VirtualUnit -> controllers.virtual.routes.VirtualUnits.get
-    ), default = controllers.adminutils.routes.Home.index(),
+    ), default = controllers.admin.routes.Home.index(),
       login = controllers.portal.routes.Profile.login(),
       logout = controllers.portal.routes.Profile.logout())
   }

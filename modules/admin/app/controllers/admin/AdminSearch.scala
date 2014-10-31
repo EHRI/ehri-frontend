@@ -1,4 +1,4 @@
-package controllers.adminutils
+package controllers.admin
 
 import play.api.libs.concurrent.Execution.Implicits._
 import play.api.libs.iteratee.{Concurrent, Enumerator}
@@ -89,7 +89,7 @@ case class AdminSearch @Inject()(implicit globalConfig: global.GlobalConfig, sea
         )
       }
       case _ => Ok(views.html.search.search(page, params, facets,
-        controllers.adminutils.routes.AdminSearch.search()))
+        controllers.admin.routes.AdminSearch.search()))
     }
   }
 
@@ -107,7 +107,7 @@ case class AdminSearch @Inject()(implicit globalConfig: global.GlobalConfig, sea
 
   def updateIndex() = adminAction { implicit userOpt => implicit request =>
     Ok(views.html.search.updateIndex(form = updateIndexForm, types = indexTypes,
-      action = controllers.adminutils.routes.AdminSearch.updateIndexPost()))
+      action = controllers.admin.routes.AdminSearch.updateIndexPost()))
   }
 
   /**

@@ -1,5 +1,34 @@
 # Routes for user- and group-related functionality
 
+# Routes for portal routes
+
+
+GET     /                                   @controllers.admin.Home.index
+GET     /metrics                            @controllers.admin.Home.metrics
+GET     /overview                           @controllers.admin.Home.overview
+GET     /login                              @controllers.admin.Home.loginRedirect
+
+# Js Routes
+GET     /routes                             @controllers.admin.Home.jsRoutes
+
+GET     /updateIndex                        @controllers.admin.AdminSearch.updateIndex
+POST    /updateIndex                        @controllers.admin.AdminSearch.updateIndexPost
+
+# Search testing
+GET     /search                             @controllers.admin.AdminSearch.search
+
+# Metrics
+GET     /metrics/languageOfMaterial         @controllers.admin.Metrics.languageOfMaterial
+GET     /metrics/holdingRepository          @controllers.admin.Metrics.holdingRepository
+GET     /metrics/repositoryCountries        @controllers.admin.Metrics.repositoryCountries
+GET     /metrics/agentTypes                 @controllers.admin.Metrics.agentTypes
+GET     /metrics/restricted                 @controllers.admin.Metrics.restricted
+GET     /metrics/_clear                     @controllers.admin.Metrics.clearCached
+
+# Monitoring
+GET     /monitor/_check                     @controllers.admin.Utils.checkDb
+GET     /monitor/_checkUserSync             @controllers.admin.Utils.checkUserSync
+
 # Generic item redirection
 GET     /item/:id                               @controllers.admin.Admin.get(id: String)
 GET     /item/:type/:id                         @controllers.admin.Admin.getType(type: String, id: String)
@@ -15,6 +44,8 @@ GET     /cypher                                 @controllers.admin.ApiController
 GET     /cypherQuery                            @controllers.admin.ApiController.cypherQuery
 GET     /sparql                                 @controllers.admin.ApiController.sparql
 GET     /sparqlQuery                            @controllers.admin.ApiController.sparqlQuery
+
+
 
 ->  /users      users.Routes
 ->  /groups     groups.Routes

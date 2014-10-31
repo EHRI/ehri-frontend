@@ -1,4 +1,4 @@
-package controllers.adminutils
+package controllers.admin
 
 import play.api.libs.concurrent.Execution.Implicits._
 import models.{AccountDAO, Isaar}
@@ -8,15 +8,14 @@ import play.api.Play.current
 import defines.EntityType
 import play.api.i18n.Messages
 import play.api.mvc.{AnyContent, Request, Result}
-import play.api.libs.json.Json
 import views.Helpers
+import client.json.ClientWriteable
 import utils.search._
 import solr.facet.FieldFacetClass
 
 import com.google.inject._
 import play.api.cache.{Cache, Cached}
 import backend.Backend
-import models.json.ClientWriteable
 
 
 @Singleton

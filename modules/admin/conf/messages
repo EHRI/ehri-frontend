@@ -1,3 +1,14 @@
+# Admin messages
+
+admin.recentActivity=Recent Activity
+admin.home.title=Welcome to the EHRI Administration interface
+admin.metrics=Data Metrics
+admin.metrics.show=Data Overview Graphs
+
+facet.group=Group
+facet.admin=Administrators
+
+
 # Users- and Group-related i18n messages
 
 accessor.groups.manage=Manage Groups

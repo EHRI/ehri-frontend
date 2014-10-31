@@ -8,6 +8,6 @@
 
 # Admin routes
 -> /admin               admin.Routes
--> /admin               adminutils.Routes
+-> /admin               admin.Routes
 -> /guides              guides.Routes
 

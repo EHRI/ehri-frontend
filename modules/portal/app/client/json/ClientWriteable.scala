@@ -1,4 +1,4 @@
-package models.json
+package client.json
 
 import play.api.libs.json.Writes
 

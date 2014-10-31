@@ -3,16 +3,8 @@ package global
 import play.api.Play.current
 import java.io.File
 
-
-trait MenuConfig {
-  val mainSection: Iterable[(String,String)]
-  val adminSection: Iterable[(String,String)]
-  val authSection: Iterable[(String,String)]
-}
-
 trait GlobalConfig {
 
-  val menuConfig: MenuConfig
   val routeRegistry: RouteRegistry
 
   /**

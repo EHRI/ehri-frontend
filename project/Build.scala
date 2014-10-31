@@ -158,18 +158,13 @@ object ApplicationBuild extends Build {
     version := appVersion
   ).settings(commonSettings: _*).dependsOn(admin)
 
-  lazy val adminUtils = Project(appName + "-adminutils", file("modules/adminutils"))
-    .enablePlugins(play.PlayScala).settings(
-    version := appVersion
-  ).settings(commonSettings: _*).dependsOn(admin)
-
   lazy val main = Project(appName, file("."))
     .enablePlugins(play.PlayScala).settings(
     version := appVersion,
     libraryDependencies ++= coreDependencies ++ testDependencies
   ).settings(commonSettings ++ assetSettings: _*)
-    .dependsOn(adminUtils, guides)
-    .aggregate(backend, core, admin, portal, guides, adminUtils)
+    .dependsOn(portal, admin, guides)
+    .aggregate(backend, core, admin, portal, guides)
 
   override def rootProject = Some(main)
 }

@@ -55,7 +55,7 @@ class SearchSpec extends IntegrationTestRunner {
       )
 
       val idx = route(fakeLoggedInHtmlRequest(privilegedUser, POST,
-          controllers.adminutils.routes.AdminSearch.updateIndexPost().url), data).get
+          controllers.admin.routes.AdminSearch.updateIndexPost().url), data).get
       status(idx) must equalTo(OK)
       // NB: reading the content of the chunked response as a string is
       // necessary to exhaust the iteratee and fill the event buffer.
@@ -82,7 +82,7 @@ class SearchSpec extends IntegrationTestRunner {
   "Search metrics" should {
     "response to JSON" in new ITestApp {
       val repoMetrics = route(fakeLoggedInJsonRequest(privilegedUser, GET,
-        controllers.adminutils.routes.Metrics.repositoryCountries().url)).get
+        controllers.admin.routes.Metrics.repositoryCountries().url)).get
       status(repoMetrics) must equalTo(OK)
     }
   }

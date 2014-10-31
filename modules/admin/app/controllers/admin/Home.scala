@@ -1,4 +1,4 @@
-package controllers.adminutils
+package controllers.admin
 
 import play.api.libs.concurrent.Execution.Implicits._
 import models.{SystemEvent, AccountDAO, Isaar}
@@ -121,18 +121,18 @@ case class Home @Inject()(implicit globalConfig: global.GlobalConfig, searchDisp
         ))
         )
       }
-      case _ => MovedPermanently(controllers.adminutils.routes.Home.metrics().url)
+      case _ => MovedPermanently(controllers.admin.routes.Home.metrics().url)
     }
   }
 
   def jsRoutes = Action { implicit request =>
     Ok(
       play.api.Routes.javascriptRouter("jsRoutes")(
-        controllers.adminutils.routes.javascript.Metrics.languageOfMaterial,
-        controllers.adminutils.routes.javascript.Metrics.holdingRepository,
-        controllers.adminutils.routes.javascript.Metrics.repositoryCountries,
-        controllers.adminutils.routes.javascript.Metrics.agentTypes,
-        controllers.adminutils.routes.javascript.Metrics.restricted
+        controllers.admin.routes.javascript.Metrics.languageOfMaterial,
+        controllers.admin.routes.javascript.Metrics.holdingRepository,
+        controllers.admin.routes.javascript.Metrics.repositoryCountries,
+        controllers.admin.routes.javascript.Metrics.agentTypes,
+        controllers.admin.routes.javascript.Metrics.restricted
       )
     ).as(MimeTypes.JAVASCRIPT)
   }

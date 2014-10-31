@@ -1,4 +1,4 @@
-package controllers.adminutils
+package controllers.admin
 
 import controllers.base.{AuthController, ControllerHelpers}
 import models.{Account, AccountDAO, Group}
