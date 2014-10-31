@@ -8,6 +8,7 @@ import backend.rest.BadJson
 import backend.rest.RestBackend
 import backend.rest.GidSearchResolver
 import backend.{IdGenerator, FeedbackDAO, EventHandler, Backend}
+import com.github.seratch.scalikesolr.request.common.WriterType
 import com.typesafe.plugin.{CommonsMailerPlugin, MailerAPI}
 import defines.EntityType
 import java.util.concurrent.TimeUnit
@@ -83,9 +84,13 @@ package globalConfig {
 
 object Global extends WithFilters(CSRFFilter()) with GlobalSettings {
 
-  private def responseParser: ResponseParser = solr.SolrJsonQueryResponse
-  private def queryBuilder: QueryBuilder = new solr.SolrQueryBuilder(responseParser.writerType, debugQuery = true)
-  private def searchDispatcher: Dispatcher = new solr.SolrDispatcher(queryBuilder, responseParser)
+  // This is where we tie together the various parts of the application
+  // in terms of the component implementations.
+  private def queryBuilder: QueryBuilder = new solr.SolrQueryBuilder(WriterType.JSON, debugQuery = true)
+  private def searchDispatcher: Dispatcher = new solr.SolrDispatcher(
+    queryBuilder,
+    handler = r => new solr.SolrJsonQueryResponse(r.json)
+  )
   private def searchIndexer: Indexer = new indexing.CmdlineIndexer
   private def searchResolver: Resolver = new GidSearchResolver
   private def feedbackDAO: FeedbackDAO = new ParseFeedbackDAO
