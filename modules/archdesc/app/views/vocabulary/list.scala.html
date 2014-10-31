@@ -17,7 +17,7 @@
 } {
     @common.sidebarActions { user =>
         @common.sidebarAction(user.hasPermission(ContentTypes.Vocabulary, PermissionType.Create)) {
-            <a href="@controllers.vocabs.routes.Vocabularies.create">@Messages("cvocVocabulary.create")</a>
+            <a href="@controllers.vocabularies.routes.Vocabularies.create">@Messages("cvocVocabulary.create")</a>
         }
     }
 }

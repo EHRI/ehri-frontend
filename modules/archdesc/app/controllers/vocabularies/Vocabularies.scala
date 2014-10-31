@@ -1,4 +1,4 @@
-package controllers.vocabs
+package controllers.vocabularies
 
 import play.api.libs.concurrent.Execution.Implicits._
 import forms.VisibilityForm
@@ -26,7 +26,7 @@ case class Vocabularies @Inject()(implicit globalConfig: global.GlobalConfig, se
   val form = models.Vocabulary.form
   val childForm = models.Concept.form
 
-  private val vocabRoutes = controllers.vocabs.routes.Vocabularies
+  private val vocabRoutes = controllers.vocabularies.routes.Vocabularies
 
   def get(id: String) = getAction.async(id) { item => annotations => links => implicit userOpt => implicit request =>
     find[Concept](

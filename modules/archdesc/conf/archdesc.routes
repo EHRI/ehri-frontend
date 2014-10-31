@@ -6,6 +6,8 @@
 ->  /countries      countries.Routes
 ->  /sets           sets.Routes
 ->  /authorities    authorities.Routes
+->  /vocabularies   vocabularies.Routes
+->  /keywords       keywords.Routes
 
 # Assets...
 GET /assets/*file                                         controllers.archdesc.Assets.at(path="/public", file)

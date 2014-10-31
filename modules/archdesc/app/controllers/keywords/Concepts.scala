@@ -1,4 +1,4 @@
-package controllers.vocabs
+package controllers.keywords
 
 import forms.VisibilityForm
 import controllers.generic._
@@ -29,7 +29,7 @@ case class Concepts @Inject()(implicit globalConfig: global.GlobalConfig, search
 
   private val form = models.Concept.form
   private val childForm = models.Concept.form
-  private val conceptRoutes = controllers.vocabs.routes.Concepts
+  private val conceptRoutes = controllers.keywords.routes.Concepts
 
   private def entityFacets: FacetBuilder = { implicit request =>
     List(

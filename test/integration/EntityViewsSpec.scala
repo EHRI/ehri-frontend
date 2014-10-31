@@ -385,7 +385,7 @@ class EntityViewsSpec extends IntegrationTestRunner {
         "name" -> Seq("Test Vocab")
       )
       val cr = route(fakeLoggedInHtmlRequest(privilegedUser, POST,
-        controllers.vocabs.routes.Vocabularies
+        controllers.vocabularies.routes.Vocabularies
           .create().url).withHeaders(formPostHeaders.toSeq: _*), testData).get
       status(cr) must equalTo(SEE_OTHER)
 
@@ -400,7 +400,7 @@ class EntityViewsSpec extends IntegrationTestRunner {
         "identifier" -> Seq("test-vocab")
       )
       val cr = route(fakeLoggedInHtmlRequest(privilegedUser, POST,
-        controllers.vocabs.routes.Vocabularies
+        controllers.vocabularies.routes.Vocabularies
           .create().url).withHeaders(formPostHeaders.toSeq: _*), testData).get
       status(cr) must equalTo(BAD_REQUEST)
     }
@@ -411,7 +411,7 @@ class EntityViewsSpec extends IntegrationTestRunner {
         "name" -> Seq("Another Name")
       )
       val cr = route(fakeLoggedInHtmlRequest(privilegedUser, POST,
-        controllers.vocabs.routes.Vocabularies.updatePost("cvoc1").url)
+        controllers.vocabularies.routes.Vocabularies.updatePost("cvoc1").url)
         .withHeaders(formPostHeaders.toSeq: _*), testData).get
       status(cr) must equalTo(SEE_OTHER)
 

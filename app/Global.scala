@@ -41,15 +41,15 @@ package globalConfig {
       val mainSection: Iterable[(String, String)] = Seq(
         ("pages.search",                  controllers.adminutils.routes.AdminSearch.search().url),
         ("contentTypes.documentaryUnit",  controllers.units.routes.DocumentaryUnits.search().url),
-        ("contentTypes.historicalAgent",  controllers.authorities.routes.HistoricalAgents.search().url),
+        ("contentTypres.historicalAgent",  controllers.authorities.routes.HistoricalAgents.search().url),
         ("contentTypes.repository",       controllers.institutions.routes.Repositories.search().url),
-        ("contentTypes.cvocConcept",      controllers.vocabs.routes.Concepts.search().url)
+        ("contentTypes.cvocConcept",      controllers.keywords.routes.Concepts.search().url)
       )
       val adminSection: Iterable[(String, String)] = Seq(
         ("contentTypes.userProfile",      controllers.admin.routes.UserProfiles.search().url),
         ("contentTypes.group",            controllers.admin.routes.Groups.list().url),
         ("contentTypes.country",          controllers.countries.routes.Countries.search().url),
-        ("contentTypes.cvocVocabulary",   controllers.vocabs.routes.Vocabularies.list().url),
+        ("contentTypes.cvocVocabulary",   controllers.vocabularies.routes.Vocabularies.list().url),
         ("contentTypes.authoritativeSet", controllers.sets.routes.AuthoritativeSets.list().url),
         ("s1", "-"),
         ("contentTypes.systemEvent",      controllers.admin.routes.SystemEvents.list().url),
@@ -71,9 +71,9 @@ package globalConfig {
       EntityType.UserProfile -> controllers.admin.routes.UserProfiles.get,
       EntityType.Annotation -> controllers.annotation.routes.Annotations.get,
       EntityType.Link -> controllers.linking.routes.Links.get,
-      EntityType.Vocabulary -> controllers.vocabs.routes.Vocabularies.get,
+      EntityType.Vocabulary -> controllers.vocabularies.routes.Vocabularies.get,
       EntityType.AuthoritativeSet -> controllers.sets.routes.AuthoritativeSets.get,
-      EntityType.Concept -> controllers.vocabs.routes.Concepts.get,
+      EntityType.Concept -> controllers.keywords.routes.Concepts.get,
       EntityType.Country -> controllers.countries.routes.Countries.get,
       EntityType.VirtualUnit -> controllers.virtual.routes.VirtualUnits.get
     ), default = controllers.adminutils.routes.Home.index(),

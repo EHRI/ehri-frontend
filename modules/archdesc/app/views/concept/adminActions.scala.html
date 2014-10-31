@@ -2,18 +2,18 @@
 
 @common.sidebarActions { user =>
     @common.sidebarAction(user.hasPermission(ContentTypes.Concept, PermissionType.Create)) {
-        <a href="@controllers.vocabs.routes.Concepts.createConcept(item.id)">@Messages("cvocConcept.narrower.create")</a>
+        <a href="@controllers.keywords.routes.Concepts.createConcept(item.id)">@Messages("cvocConcept.narrower.create")</a>
     }
     @common.sidebarAction(user.hasPermission(ContentTypes.Concept, PermissionType.Update)) {
-        <a href="@controllers.vocabs.routes.Concepts.update(item.id)">@Messages("item.update")</a>
+        <a href="@controllers.keywords.routes.Concepts.update(item.id)">@Messages("item.update")</a>
     }
     @common.sidebarAction(user.hasPermission(ContentTypes.Concept, PermissionType.Delete)) {
-        <a href="@controllers.vocabs.routes.Concepts.delete(item.id)">@Messages("item.delete")</a>
+        <a href="@controllers.keywords.routes.Concepts.delete(item.id)">@Messages("item.delete")</a>
     }
     @common.sidebarAction(user.hasPermission(ContentTypes.Concept, PermissionType.Grant)) {
-        <a href="@controllers.vocabs.routes.Concepts.managePermissions(item.id)">@Messages("permissions.manage")</a>
+        <a href="@controllers.keywords.routes.Concepts.managePermissions(item.id)">@Messages("permissions.manage")</a>
     }
     @common.sidebarAction() {
-        <a href="@controllers.vocabs.routes.Concepts.history(item.id)">@Messages("item.history")</a>
+        <a href="@controllers.keywords.routes.Concepts.history(item.id)">@Messages("item.history")</a>
     }
 }

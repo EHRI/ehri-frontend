@@ -170,11 +170,6 @@ object ApplicationBuild extends Build {
     parallelExecution in Test := false
   ).settings(commonSettings: _*).dependsOn(portal)
 
-  lazy val vocabs = Project(appName + "-vocabs", file("modules/vocabs"))
-    .enablePlugins(play.PlayScala).settings(
-    version := appVersion
-  ).settings(commonSettings: _*).dependsOn(portal)
-
   lazy val guides = Project(appName + "-guides", file("modules/guides"))
     .enablePlugins(play.PlayScala).settings(
     version := appVersion
@@ -183,7 +178,7 @@ object ApplicationBuild extends Build {
   lazy val adminUtils = Project(appName + "-adminutils", file("modules/adminutils"))
     .enablePlugins(play.PlayScala).settings(
     version := appVersion
-  ).settings(commonSettings: _*).dependsOn(archdesc, vocabs, guides)
+  ).settings(commonSettings: _*).dependsOn(archdesc, guides)
 
   lazy val main = Project(appName, file("."))
     .enablePlugins(play.PlayScala).settings(
@@ -191,7 +186,7 @@ object ApplicationBuild extends Build {
     libraryDependencies ++= coreDependencies ++ testDependencies
   ).settings(commonSettings ++ assetSettings: _*)
     .dependsOn(adminUtils)
-    .aggregate(backend, core, admin, annotation, linking, portal, archdesc, vocabs, guides, adminUtils)
+    .aggregate(backend, core, admin, annotation, linking, portal, archdesc, guides, adminUtils)
 
   override def rootProject = Some(main)
 }

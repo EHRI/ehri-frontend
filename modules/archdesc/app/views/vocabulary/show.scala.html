@@ -18,27 +18,27 @@
         }
     }
 } {
-    @common.visibility(item, controllers.vocabs.routes.Vocabularies.visibility(item.id), ContentTypes.Vocabulary)
-    @common.latestAction(item, controllers.vocabs.routes.Vocabularies.history(item.id))
+    @common.visibility(item, controllers.vocabularies.routes.Vocabularies.visibility(item.id), ContentTypes.Vocabulary)
+    @common.latestAction(item, controllers.vocabularies.routes.Vocabularies.history(item.id))
 
     @common.sidebarActions { user =>
         @sidebarAction(user.hasPermission(ContentTypes.Vocabulary, PermissionType.Create)) {
-            <a href="@controllers.vocabs.routes.Vocabularies.createConcept(item.id)">@Messages("cvocConcept.topLevel.create")</a>
+            <a href="@controllers.vocabularies.routes.Vocabularies.createConcept(item.id)">@Messages("cvocConcept.topLevel.create")</a>
         }
         @sidebarAction(user.hasPermission(ContentTypes.Vocabulary, PermissionType.Update)) {
-            <a href="@controllers.vocabs.routes.Vocabularies.update(item.id)">@Messages("item.update")</a>
+            <a href="@controllers.vocabularies.routes.Vocabularies.update(item.id)">@Messages("item.update")</a>
         }
         @sidebarAction(user.hasPermission(ContentTypes.Vocabulary, PermissionType.Delete)) {
-            <a href="@controllers.vocabs.routes.Vocabularies.delete(item.id)">@Messages("item.delete")</a>
+            <a href="@controllers.vocabularies.routes.Vocabularies.delete(item.id)">@Messages("item.delete")</a>
         }
         @sidebarAction(user.hasPermission(ContentTypes.Vocabulary, PermissionType.Grant)) {
-            <a href="@controllers.vocabs.routes.Vocabularies.managePermissions(item.id)">@Messages("permissions.manage")</a>
+            <a href="@controllers.vocabularies.routes.Vocabularies.managePermissions(item.id)">@Messages("permissions.manage")</a>
         }
         @sidebarAction() {
-            <a href="@controllers.vocabs.routes.Vocabularies.history(item.id)">@Messages("item.history")</a>
+            <a href="@controllers.vocabularies.routes.Vocabularies.history(item.id)">@Messages("item.history")</a>
         }
         @common.sidebarAction(user.isAdmin) {
-            <a href="@controllers.vocabs.routes.Vocabularies.updateIndex(item.id)">@Messages("search.updateIndex")</a>
+            <a href="@controllers.vocabularies.routes.Vocabularies.updateIndex(item.id)">@Messages("search.updateIndex")</a>
         }
         @common.sidebarAction() {
             <a href="@controllers.admin.routes.ApiController.getItem(item.isA, item.id)">@Messages("item.export.json")</a>

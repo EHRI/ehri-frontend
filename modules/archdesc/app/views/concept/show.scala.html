@@ -17,14 +17,14 @@
                                 <div class="well well-small">
                                 @item.vocabulary.map { v =>
                                     <h5>@Messages("cvocConcept.inVocabulary")</h5>
-                                    <p class="text-muted"><a href="@controllers.vocabs.routes.Vocabularies.get(v.id)">@v.toStringLang</a></p>
+                                    <p class="text-muted"><a href="@controllers.vocabularies.routes.Vocabularies.get(v.id)">@v.toStringLang</a></p>
                                 }
                                 @if(!item.broaderTerms.isEmpty) {
                                     <hr />
                                     <h5>@Messages("cvocConcept.broaderTerms")</h5>
                                     <ul>
                                     @item.broaderTerms.sortBy(_.toString).map { t =>
-                                        <li><a href="@controllers.vocabs.routes.Concepts.get(t.id)">@t.toStringLang</a></li>
+                                        <li><a href="@controllers.keywords.routes.Concepts.get(t.id)">@t.toStringLang</a></li>
                                     }
                                     </ul>
                                 }
@@ -40,8 +40,8 @@
                     }
 
                 } {
-                    @common.latestAction(item, controllers.vocabs.routes.Concepts.history(item.id))
-                    @common.visibility(item, controllers.vocabs.routes.Concepts.visibility(item.id), ContentTypes.Concept)
+                    @common.latestAction(item, controllers.keywords.routes.Concepts.history(item.id))
+                    @common.visibility(item, controllers.keywords.routes.Concepts.visibility(item.id), ContentTypes.Concept)
                     @adminActions(item)
                 }
             }
