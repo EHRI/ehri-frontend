@@ -8,7 +8,7 @@
         </h4>
         <ul>
             @item.accessors.map { acc =>
-                <li><a href="@globalConfig.routeRegistry.urlFor(acc)">@acc.toStringLang</a></li>
+                <li><a href="@views.admin.Helpers.linkTo(acc)">@acc.toStringLang</a></li>
             }
         </ul>
     } else {

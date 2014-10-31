@@ -17,7 +17,7 @@
     @common.filterableList("group.membersPageHeader", page, params) {
         <ul>
             @page.items.map { member =>
-                <h4><a href="@globalConfig.routeRegistry.urlFor(member)">@member.toStringLang</a></h4>
+                <h4><a href="@views.admin.Helpers.linkTo(member)">@member.toStringLang</a></h4>
                 <a class="ajax-action" href="@controllers.groups.routes.Groups.removeMember(item.id, member.isA, member.id)" title="@Messages("accessor.groups.remove.item", member.toStringLang, item.toStringLang)">
                     @Messages("accessor.groups.remove")
                 </a>

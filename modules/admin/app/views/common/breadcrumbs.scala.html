@@ -17,14 +17,14 @@
         @if(!items.isEmpty) {
             @items.init.map { i =>
                 <li>
-                    <a title="@i.toStringLang" href="@globalConfig.routeRegistry.urlFor(i)">
+                    <a title="@i.toStringLang" href="@views.admin.Helpers.linkTo(i)">
                         @i.toStringAbbr
                     </a>
                 </li>
             }
 
             <li title="@items.last.toStringLang" class="active">
-                <a href="@globalConfig.routeRegistry.urlFor(items.last)">
+                <a href="@views.admin.Helpers.linkTo(items.last)">
                     <em>@items.last.toStringAbbr</em>
                 </a>
             </li>

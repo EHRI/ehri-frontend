@@ -15,8 +15,8 @@
 	        <span class="icon-bar"></span>
 	      </button>
 		    @* Bit hacky - add home link *@
-	      <a class="navbar-brand" href="@globalConfig.routeRegistry.default.url">
-              <i class="glyphicon glyphicon-home @{if(request.path.equalsIgnoreCase(globalConfig.routeRegistry.default.url)) "white" else ""}"></i>
+	      <a class="navbar-brand" href="@controllers.admin.routes.Home.index">
+              <i class="glyphicon glyphicon-home @{if(request.path.equalsIgnoreCase(controllers.admin.routes.Home.index.url)) "white" else ""}"></i>
           </a>
 	    </aside>
 	    <nav class="collapse navbar-collapse" id="navbar-header">
@@ -75,7 +75,7 @@
 			            }
 			            <li role="presentation" class="divider"></li>
 			            <li>
-			                <a href="@globalConfig.routeRegistry.logout" id="signout">
+			                <a href="@controllers.portal.routes.Profile.logout" id="signout">
 			                    <span class="hidden-responsive">@Messages("banner.signout")</span>
 			                    <i class="glyphicon glyphicon-off"></i>
 			                </a>
@@ -83,7 +83,7 @@
 			        </ul>
 			    </li>
 			    }.getOrElse {
-			        <li><a href="@globalConfig.routeRegistry.login" id="signin">@Messages("banner.signin")</a></li>
+			        <li><a href="controllers.portal.routes.Profile.login" id="signin">@Messages("banner.signin")</a></li>
 			    }
 			</ul>
 		</nav>

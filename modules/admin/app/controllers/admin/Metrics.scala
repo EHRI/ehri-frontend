@@ -180,6 +180,6 @@ case class Metrics @Inject()(implicit globalConfig: global.GlobalConfig, searchD
     Cache.remove("pages:repoCountryMetric")
     Cache.remove("pages:repoMetric")
     Cache.remove("pages:langMetric")
-    Redirect(globalConfig.routeRegistry.default)
+    Redirect(controllers.admin.routes.Home.index())
   }
 }

@@ -10,7 +10,7 @@
         @notes.map { ann =>
             <li class="annotatable" id="@ann.id">
                 @ann.user.map { accessor =>
-                    <a href="@globalConfig.routeRegistry.urlFor(accessor)">@accessor.toStringLang</a> -
+                    <a href="@views.admin.Helpers.linkTo(accessor)">@accessor.toStringLang</a> -
                 }
                 @ann.model.body
                 @if(!ann.annotations.isEmpty) {

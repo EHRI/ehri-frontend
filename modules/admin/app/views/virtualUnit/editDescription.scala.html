@@ -10,7 +10,7 @@
             @formHelpers.csrfToken()
             @documentaryUnit.renderDescriptionForm(f(""))
 
-            @formHelpers.submitButtonWithLogMessageInput(Messages("describedEntity.updateDescription.submit"), cancel = views.Helpers.linkToOpt(item))
+            @formHelpers.submitButtonWithLogMessageInput(Messages("describedEntity.updateDescription.submit"), cancel = views.admin.Helpers.linkToOpt(item))
         }
     }
 } {

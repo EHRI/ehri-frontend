@@ -6,7 +6,7 @@
     <head>
         <title>@title</title>
 
-        <link rel="shortcut icon" type="image/png" href="@controllers.core.routes.Assets.at("images/favicon.png")">
+        <link rel="shortcut icon" type="image/png" href="@controllers.core.routes.Assets.versioned("images/favicon.png")">
         <link href="@controllers.core.routes.Assets.at("css/admin.css")" rel="stylesheet">
         
         <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -17,8 +17,8 @@
             <div class="navbar navbar-inverse navbar-fixed-top">
                 <div class="navbar-inner">
                     <ul class="nav">
-                        <li class="@{if(req.path.equalsIgnoreCase(globalConfig.routeRegistry.default.url)) "active" else ""}">
-                            <a href="@globalConfig.routeRegistry.default.url"><i class="glyphicon glyphicon-home icon-white"></i></a>
+                        <li class="@{if(req.path.equalsIgnoreCase(controllers.admin.routes.Home.index.url)) "active" else ""}">
+                            <a href="@controllers.admin.routes.Home.index"><i class="glyphicon glyphicon-home icon-white"></i></a>
                         </li>
                     </ul>
                 </div>

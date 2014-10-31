@@ -12,7 +12,7 @@
     <small>
         <ul class="list-unstyled text-muted inline inline-separator">
             @item.actioner.map { accessor =>
-                <li><a class="alt" href="@views.Helpers.linkTo(accessor)">@accessor.toStringLang</a></li>
+                <li><a class="alt" href="@views.admin.Helpers.linkTo(accessor)">@accessor.toStringLang</a></li>
             }
             <li>@views.Helpers.relativeDate(item.model.timestamp)</li>
         </ul>

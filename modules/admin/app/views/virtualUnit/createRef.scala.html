@@ -29,7 +29,7 @@
         }
 
         @permissions.renderVisibilityForm(vf, users, groups)
-        @formHelpers.submitButtonWithLogMessageInput(Messages("virtualUnit.create.submit"), cancel = item.map(i => globalConfig.routeRegistry.urlFor(i)))
+        @formHelpers.submitButtonWithLogMessageInput(Messages("virtualUnit.create.submit"), cancel = item.map(i => views.admin.Helpers.linkTo(i)))
     }
 } {
 

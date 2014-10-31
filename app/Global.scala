@@ -30,32 +30,6 @@ import scala.concurrent.Future
 import scala.concurrent.Future.{successful => immediate}
 
 
-package globalConfig {
-
-  import global.RouteRegistry
-
-  trait BaseConfiguration extends GlobalConfig {
-
-    val routeRegistry = new RouteRegistry(Map(
-      EntityType.SystemEvent -> controllers.events.routes.SystemEvents.get,
-      EntityType.DocumentaryUnit -> controllers.units.routes.DocumentaryUnits.get,
-      EntityType.HistoricalAgent -> controllers.authorities.routes.HistoricalAgents.get,
-      EntityType.Repository -> controllers.institutions.routes.Repositories.get,
-      EntityType.Group -> controllers.groups.routes.Groups.get,
-      EntityType.UserProfile -> controllers.users.routes.UserProfiles.get,
-      EntityType.Annotation -> controllers.annotation.routes.Annotations.get,
-      EntityType.Link -> controllers.linking.routes.Links.get,
-      EntityType.Vocabulary -> controllers.vocabularies.routes.Vocabularies.get,
-      EntityType.AuthoritativeSet -> controllers.sets.routes.AuthoritativeSets.get,
-      EntityType.Concept -> controllers.keywords.routes.Concepts.get,
-      EntityType.Country -> controllers.countries.routes.Countries.get,
-      EntityType.VirtualUnit -> controllers.virtual.routes.VirtualUnits.get
-    ), default = controllers.admin.routes.Home.index(),
-      login = controllers.portal.routes.Profile.login(),
-      logout = controllers.portal.routes.Profile.logout())
-  }
-}
-
 object Global extends WithFilters(CSRFFilter()) with GlobalSettings {
 
   // This is where we tie together the various parts of the application
@@ -96,7 +70,7 @@ object Global extends WithFilters(CSRFFilter()) with GlobalSettings {
 
   private def backend: Backend = new RestBackend(eventHandler)
 
-  object RunConfiguration extends globalConfig.BaseConfiguration
+  object RunConfiguration extends GlobalConfig
 
 
   class ProdModule extends ScalaModule {

@@ -39,7 +39,7 @@ class SearchSpec extends IntegrationTestRunner {
 
     "allow search filtering for non-logged in users" in new ITestApp {
       val filter = route(FakeRequest(GET,
-        controllers.core.routes.SearchFilter.filter().url + "?q=c")).get
+        controllers.admin.routes.SearchFilter.filter().url + "?q=c")).get
       status(filter) must equalTo(OK)
     }
 

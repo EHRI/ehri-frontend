@@ -45,7 +45,8 @@ GET     /cypherQuery                            @controllers.admin.ApiController
 GET     /sparql                                 @controllers.admin.ApiController.sparql
 GET     /sparqlQuery                            @controllers.admin.ApiController.sparqlQuery
 
-
+# Simple filtering
+GET /filter                                     @controllers.admin.SearchFilter.filter
 
 ->  /users      users.Routes
 ->  /groups     groups.Routes

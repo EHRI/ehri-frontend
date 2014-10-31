@@ -1,6 +1,6 @@
 @(link: Link, item: AnyModel)(implicit userOpt: Option[UserProfile], req: RequestHeader, globalConfig: global.GlobalConfig, lang: Lang)
 
-<a href="@globalConfig.routeRegistry.urlFor(item)">@item.toStringLang</a>
+<a href="@views.admin.Helpers.linkTo(item)">@item.toStringLang</a>
 <small>
     <span class="label label-default">@Messages("link." + link.model.linkType.toString)</span>
 </small>

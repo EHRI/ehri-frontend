@@ -8,7 +8,7 @@
         @formHelpers.csrfToken()
         @repository.renderForm(f, defaults)
         @permissions.renderVisibilityForm(vf, users, groups)
-        @formHelpers.submitButtonWithLogMessageInput(Messages("repository.create.submit"), cancel = views.Helpers.linkToOpt(item))
+        @formHelpers.submitButtonWithLogMessageInput(Messages("repository.create.submit"), cancel = views.admin.Helpers.linkToOpt(item))
 	}
 } {
 	@formNav()

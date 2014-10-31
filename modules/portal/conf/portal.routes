@@ -4,7 +4,7 @@ GET         /                               @controllers.portal.Portal.index
 
 GET         /feedback                       @controllers.portal.Feedback.feedback
 POST        /feedback                       @controllers.portal.Feedback.feedbackPost
-GET        /feedback/list                   @controllers.portal.Feedback.list
+GET         /feedback/list                   @controllers.portal.Feedback.list
 
 GET         /login                          @controllers.portal.Profile.login
 POST        /login                          @controllers.portal.Profile.passwordLoginPost

@@ -1,4 +1,4 @@
-package controllers.core
+package controllers.admin
 
 import play.api.libs.json.Json
 import utils.search.{Resolver, Dispatcher}

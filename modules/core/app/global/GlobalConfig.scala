@@ -5,8 +5,6 @@ import java.io.File
 
 trait GlobalConfig {
 
-  val routeRegistry: RouteRegistry
-
   /**
    * Flag to indicate whether we're running a testing config or not.
    * This is different from the usual dev/prod run configuration because

@@ -13,7 +13,7 @@ implicit userOpt: Option[UserProfile], req: RequestHeader, globalConfig: global.
         @formHelpers.enumChoiceInput(f("publicationStatus"), defines.PublicationStatus, "Publication Status")
         </fieldset>
 
-        @formHelpers.submitButtonWithLogMessageInput(Messages("historicalAgent.update.submit"), cancel = views.Helpers.linkToOpt(item))
+        @formHelpers.submitButtonWithLogMessageInput(Messages("historicalAgent.update.submit"), cancel = views.admin.Helpers.linkToOpt(item))
     }
 } {
     @formNav()

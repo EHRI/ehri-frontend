@@ -1,20 +1,25 @@
 package controllers.core
 
-import controllers.base.{AuthController, AuthConfigImpl}
 import play.api.mvc._
-import jp.t2v.lab.play2.auth.AsyncAuth
-import com.google.inject._
 import play.api.http.{MimeTypes, ContentTypes}
-import backend.Backend
-import models.AccountDAO
 import play.api.Routes
 import play.api.cache.Cached
 import play.api.Play.current
 
-case class Application @Inject()(implicit globalConfig: global.GlobalConfig, backend: Backend, userDAO: AccountDAO) extends Controller with AsyncAuth with AuthConfigImpl with AuthController {
+object Application extends Controller {
 
-  override val staffOnly = false
-  override val verifiedOnly = false
+  /**
+   * Provide functionality for changing the current locale.
+   *
+   * This is borrowed from:
+   * https://github.com/julienrf/chooze/blob/master/app/controllers/CookieLang.scala
+   */
+  private val LANG = "lang"
+
+  def changeLocale(lang: String) = Action { implicit request =>
+    val referrer = request.headers.get(REFERER).getOrElse("/")
+    Redirect(referrer).withCookies(Cookie(LANG, lang))
+  }
 
   /**
    * Handle trailing slashes with a permanent redirect.
@@ -22,16 +27,6 @@ case class Application @Inject()(implicit globalConfig: global.GlobalConfig, bac
   def untrail(path: String) = Action { request =>
     val query = if (request.rawQueryString != "") "?" + request.rawQueryString else ""
     MovedPermanently("/" + path + query)
-  }
-
-  def jsRoutes = Cached.status(_ => "pages:filterJsRoutes", OK, 3600) {
-    Action { implicit request =>
-      Ok(
-        Routes.javascriptRouter("jsRoutes")(
-          controllers.core.routes.javascript.SearchFilter.filter
-        )
-      ).as(MimeTypes.JAVASCRIPT)
-    }
   }
 
   def localeData(lang: String) = Cached.status(_ => "pages:localeData", OK, 3600) {

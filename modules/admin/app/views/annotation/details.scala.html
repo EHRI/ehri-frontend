@@ -10,12 +10,12 @@
 
         @item.user.map { u =>
             <h4>@Messages("annotation.createdBy")</h4>
-            <a href="@views.Helpers.linkTo(u)">@u.toStringLang</a>
+            <a href="@views.admin.Helpers.linkTo(u)">@u.toStringLang</a>
         }
 
         @item.target.map { t =>
             <h4>@Messages("annotation.target")</h4>
-            <a href="@views.Helpers.linkTo(t)">@t.toStringLang</a>
+            <a href="@views.admin.Helpers.linkTo(t)">@t.toStringLang</a>
         }
     }
 } {

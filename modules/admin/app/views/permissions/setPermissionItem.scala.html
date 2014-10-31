@@ -33,7 +33,7 @@ implicit userOpt: Option[UserProfile], req: RequestHeader, globalConfig: global.
 
         </fieldset>
 
-        @formHelpers.submitButtonWithLogMessageInput(Messages("permissions.grant.submit"), cancel = views.Helpers.linkToOpt(item))
+        @formHelpers.submitButtonWithLogMessageInput(Messages("permissions.grant.submit"), cancel = views.admin.Helpers.linkToOpt(item))
     }
 } {
 

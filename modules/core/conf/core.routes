@@ -3,14 +3,11 @@
 GET     /robots.txt                             controllers.core.Assets.at(path="/public", file="robots.txt")
 
 # Change locale
-GET     /locale/:lang                           @controllers.core.Application.changeLocale(lang: String)
-GET     /localeData                             @controllers.core.Application.localeData(lang: String ?= "en")
-
-# Simple filtering
-GET /filter                                     @controllers.core.SearchFilter.filter
+GET     /locale/:lang                           controllers.core.Application.changeLocale(lang: String)
+GET     /localeData                             controllers.core.Application.localeData(lang: String ?= "en")
 
 # Remove trailing slash from all URL and redirect to slashless path
-GET     /*path/                                 @controllers.core.Application.untrail(path)
+GET     /*path/                                 controllers.core.Application.untrail(path)
 
 # Map static resources from the /public folder to the /assets URL path
 GET     /assets/*file                           controllers.core.Assets.at(path="/public", file)

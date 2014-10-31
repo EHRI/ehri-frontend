@@ -6,7 +6,7 @@ implicit userOpt: Option[UserProfile], req: RequestHeader, globalConfig: global.
 	@helper.form(action = action, 'class -> "entity-form form-horizontal") {
         @linkForm(form)
 
-        @formHelpers.submitButtonWithLogMessageInput(Messages("link.linkTo.submit"), cancel = views.Helpers.linkToOpt(item))
+        @formHelpers.submitButtonWithLogMessageInput(Messages("link.linkTo.submit"), cancel = views.admin.Helpers.linkToOpt(item))
 	}
 } {
 
