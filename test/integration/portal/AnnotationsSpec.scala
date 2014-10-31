@@ -77,7 +77,7 @@ class AnnotationsSpec extends IntegrationTestRunner {
 
       // First we need to grant permission by adding the user to the portal group
       val addGroup = route(fakeLoggedInHtmlRequest(privilegedUser, POST,
-          controllers.admin.routes.Groups
+          controllers.groups.routes.Groups
             .addMemberPost("portal", EntityType.UserProfile, unprivilegedUser.id).url), "").get
       status(addGroup) must equalTo(SEE_OTHER)
 

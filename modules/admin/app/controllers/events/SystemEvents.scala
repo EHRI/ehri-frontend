@@ -1,4 +1,4 @@
-package controllers.admin
+package controllers.events
 
 import models.{AccountDAO, SystemEvent}
 import play.api.libs.concurrent.Execution.Implicits._

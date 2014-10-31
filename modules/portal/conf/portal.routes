@@ -65,6 +65,10 @@ GET         /annotate/:id/:did              @controllers.portal.Annotations.anno
 POST        /annotate/:id/:did              @controllers.portal.Annotations.annotatePost(id: String, did: String)
 GET         /annotate/:id/:did/:field       @controllers.portal.Annotations.annotateField(id: String, did: String, field: String)
 POST        /annotate/:id/:did/:field       @controllers.portal.Annotations.annotateFieldPost(id: String, did: String, field: String)
+GET         /promote/:id                    @controllers.portal.Annotations.promote(id: String)
+POST        /promote/:id                    @controllers.portal.Annotations.promotePost(id: String)
+GET         /demote/:id                     @controllers.portal.Annotations.demote(id: String)
+POST        /demote/:id                     @controllers.portal.Annotations.demotePost(id: String)
 
 # Social networking stuff...
 GET         /activity                       @controllers.portal.Social.personalisedActivity(offset: Int ?= 0, limit: Int ?= 20)

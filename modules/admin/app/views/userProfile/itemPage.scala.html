@@ -20,26 +20,26 @@
 
     @html
 } {
-    @common.latestAction(item, controllers.admin.routes.UserProfiles.history(item.id))
+    @common.latestAction(item, controllers.users.routes.UserProfiles.history(item.id))
 
     @common.sidebarActions { user =>
         @common.sidebarAction(user.hasPermission(ContentTypes.UserProfile, PermissionType.Update)) {
-            <a href="@controllers.admin.routes.UserProfiles.update(item.id)">@Messages("userProfile.update")</a>
+            <a href="@controllers.users.routes.UserProfiles.update(item.id)">@Messages("userProfile.update")</a>
         }
         @common.sidebarAction(user.hasPermission(ContentTypes.UserProfile, PermissionType.Grant)) {
-            <a href="@controllers.admin.routes.UserProfiles.permissions(item.id)">@Messages("permissions.global.manage")</a>
+            <a href="@controllers.users.routes.UserProfiles.permissions(item.id)">@Messages("permissions.global.manage")</a>
         }
         @common.sidebarAction(user.hasPermission(ContentTypes.UserProfile, PermissionType.Grant)) {
-            <a href="@controllers.admin.routes.UserProfiles.grantList(item.id)">@Messages("permissions.itemLevel.show")</a>
+            <a href="@controllers.users.routes.UserProfiles.grantList(item.id)">@Messages("permissions.itemLevel.show")</a>
         }
         @common.sidebarAction(user.hasPermission(ContentTypes.UserProfile, PermissionType.Grant)) {
-            <a href="@controllers.admin.routes.Groups.membership(item.isA, item.id)">@Messages("accessor.groups.manage")</a>
+            <a href="@controllers.groups.routes.Groups.membership(item.isA, item.id)">@Messages("accessor.groups.manage")</a>
         }
         @common.sidebarAction(user.isAdmin, danger = true) {
-            <a href="@controllers.admin.routes.UserProfiles.delete(item.id)">@Messages("userProfile.delete")</a>
+            <a href="@controllers.users.routes.UserProfiles.delete(item.id)">@Messages("userProfile.delete")</a>
         }
         @common.sidebarAction() {
-            <a href="@controllers.admin.routes.UserProfiles.history(item.id)">@Messages("item.history")</a>
+            <a href="@controllers.users.routes.UserProfiles.history(item.id)">@Messages("item.history")</a>
         }
     }
 

@@ -17,7 +17,7 @@
             }
             @userOpt.map { user =>
                 @if(!annotation.isPromoted && user.hasPermission(defines.ContentTypes.Annotation, defines.PermissionType.Promote) && annotation.model.isPromotable) {
-                    <a data-item="@annotation.id" title="@Messages("portal.annotation.promote.title")" class="promote-annotation" href="@controllers.annotation.routes.Annotations.promote(annotation.id)">
+                    <a data-item="@annotation.id" title="@Messages("portal.annotation.promote.title")" class="promote-annotation" href="@controllers.portal.routes.Annotations.promote(annotation.id)">
                         @Messages("portal.annotation.promote")
                     </a>
                 }

@@ -2,7 +2,7 @@
 
 <li class="list-item">
     <h4>
-        <a data-timestamp="@item.time" href="@controllers.admin.routes.SystemEvents.get(item.id)">
+        <a data-timestamp="@item.time" href="@controllers.events.routes.SystemEvents.get(item.id)">
             @item.scope.map { scope =>
                 @scope.toStringLang -
             }
@@ -19,7 +19,7 @@
     </small>
     <small>
         @item.firstSubject.map { s =>
-            <a href="@controllers.admin.routes.SystemEvents.get(item.id)#subjects">
+            <a href="@controllers.events.routes.SystemEvents.get(item.id)#subjects">
                 @Messages("systemEvent.subjects.list", s.toStringLang, item.childCount.map(_ - 1).getOrElse(0))
             </a>
         }.getOrElse {

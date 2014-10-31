@@ -8,7 +8,7 @@
 @layout.rightSidebar(Messages("systemEvent.list")) {
 
     <div class="event-filter">
-        @helper.form(action = controllers.admin.routes.SystemEvents.list, 'class -> "form-inline", 'role -> "form") {
+        @helper.form(action = controllers.events.routes.SystemEvents.list, 'class -> "form-inline", 'role -> "form") {
             <input type="hidden" name="@OFFSET_PARAM" value="@params.offset" />
             <input type="hidden" name="@LIMIT_PARAM" value="@params.limit" />
             @defining(EntityType.SystemEvent.toString) { implicit fieldPrefix =>

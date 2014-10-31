@@ -1,4 +1,4 @@
-package controllers.admin
+package controllers.users
 
 import play.api.libs.concurrent.Execution.Implicits._
 import controllers.generic._
@@ -54,7 +54,7 @@ case class UserProfiles @Inject()(implicit globalConfig: global.GlobalConfig, se
 
   val form = models.UserProfile.form
 
-  private val userRoutes = controllers.admin.routes.UserProfiles
+  private val userRoutes = controllers.users.routes.UserProfiles
 
 
   private val groupMembershipForm = Form(Forms.single("group" -> Forms.list(Forms.nonEmptyText)))
@@ -169,7 +169,7 @@ case class UserProfiles @Inject()(implicit globalConfig: global.GlobalConfig, se
         userDAO.createWithPassword(profile.id, email.toLowerCase, verified = true,
           staff = true, allowMessaging = true, Account.hashPassword(pw))
         grantOwnerPerms(profile) {
-          Redirect(controllers.admin.routes.UserProfiles.search())
+          Redirect(controllers.users.routes.UserProfiles.search())
         }
       }
     }

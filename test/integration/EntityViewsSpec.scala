@@ -147,7 +147,7 @@ class EntityViewsSpec extends IntegrationTestRunner {
         ContentTypes.DocumentaryUnit.toString -> List(PermissionType.Create.toString)
       )
       val cr = route(fakeLoggedInHtmlRequest(privilegedUser, POST,
-        controllers.admin.routes.UserProfiles.permissionsPost(subjectUser.id).url)
+        controllers.users.routes.UserProfiles.permissionsPost(subjectUser.id).url)
         .withHeaders(formPostHeaders.toSeq: _*), testData).get
       status(cr) must equalTo(SEE_OTHER)
 
@@ -160,20 +160,20 @@ class EntityViewsSpec extends IntegrationTestRunner {
     }
 
     "link to other privileged actions when logged in" in new ITestApp {
-      val show = route(fakeLoggedInHtmlRequest(privilegedUser, GET, controllers.admin.routes.UserProfiles.get(id).url)).get
+      val show = route(fakeLoggedInHtmlRequest(privilegedUser, GET, controllers.users.routes.UserProfiles.get(id).url)).get
       status(show) must equalTo(OK)
-      contentAsString(show) must contain(controllers.admin.routes.UserProfiles.update(id).url)
-      contentAsString(show) must contain(controllers.admin.routes.UserProfiles.delete(id).url)
-      contentAsString(show) must contain(controllers.admin.routes.UserProfiles.permissions(id).url)
-      contentAsString(show) must contain(controllers.admin.routes.UserProfiles.grantList(id).url)
-      contentAsString(show) must contain(controllers.admin.routes.UserProfiles.search().url)
-      contentAsString(show) must contain(controllers.admin.routes.Groups.membership(EntityType.UserProfile, id).url)
+      contentAsString(show) must contain(controllers.users.routes.UserProfiles.update(id).url)
+      contentAsString(show) must contain(controllers.users.routes.UserProfiles.delete(id).url)
+      contentAsString(show) must contain(controllers.users.routes.UserProfiles.permissions(id).url)
+      contentAsString(show) must contain(controllers.users.routes.UserProfiles.grantList(id).url)
+      contentAsString(show) must contain(controllers.users.routes.UserProfiles.search().url)
+      contentAsString(show) must contain(controllers.groups.routes.Groups.membership(EntityType.UserProfile, id).url)
     }
 
     "allow adding users to groups" in new ITestApp {
       // Going to add user Reto to group Niod
       val add = route(fakeLoggedInHtmlRequest(privilegedUser, POST,
-        controllers.admin.routes.Groups.addMemberPost("niod", EntityType.UserProfile, id).url)
+        controllers.groups.routes.Groups.addMemberPost("niod", EntityType.UserProfile, id).url)
           .withFormUrlEncodedBody()).get
       status(add) must equalTo(SEE_OTHER)
 
@@ -188,7 +188,7 @@ class EntityViewsSpec extends IntegrationTestRunner {
       }
       val data = Map("staff" -> Seq(false.toString), "active" -> Seq(false.toString))
       val update = route(fakeLoggedInHtmlRequest(privilegedUser, POST,
-        controllers.admin.routes.UserProfiles.updatePost(unprivilegedUser.id).url), data).get
+        controllers.users.routes.UserProfiles.updatePost(unprivilegedUser.id).url), data).get
       status(update) must equalTo(SEE_OTHER)
       mockUserDAO.findByProfileId(unprivilegedUser.id) must beSome.which { after =>
         after.staff must beFalse
@@ -198,7 +198,7 @@ class EntityViewsSpec extends IntegrationTestRunner {
 
     "not allow deletion unless confirmation is given" in new ITestApp {
       val del = route(fakeLoggedInHtmlRequest(privilegedUser, POST,
-        controllers.admin.routes.UserProfiles.deletePost("reto").url)
+        controllers.users.routes.UserProfiles.deletePost("reto").url)
         .withFormUrlEncodedBody()).get
       status(del) must equalTo(BAD_REQUEST)
     }
@@ -207,14 +207,14 @@ class EntityViewsSpec extends IntegrationTestRunner {
       // Confirmation is the user's full name
       val data = Map("deleteCheck" -> Seq("Reto"))
       val del = route(fakeLoggedInHtmlRequest(privilegedUser, POST,
-        controllers.admin.routes.UserProfiles.deletePost("reto").url), data).get
+        controllers.users.routes.UserProfiles.deletePost("reto").url), data).get
       status(del) must equalTo(SEE_OTHER)
     }
 
     "allow removing users from groups" in new ITestApp {
       // Going to add remove Reto from group KCL
       val rem = route(fakeLoggedInHtmlRequest(privilegedUser, POST,
-        controllers.admin.routes.Groups.removeMemberPost("kcl", EntityType.UserProfile, id).url)
+        controllers.groups.routes.Groups.removeMemberPost("kcl", EntityType.UserProfile, id).url)
           .withFormUrlEncodedBody()).get
       status(rem) must equalTo(SEE_OTHER)
 
@@ -228,20 +228,20 @@ class EntityViewsSpec extends IntegrationTestRunner {
     val id = "kcl"
 
     "detail when logged in should link to other privileged actions" in new ITestApp {
-      val show = route(fakeLoggedInHtmlRequest(privilegedUser, GET, controllers.admin.routes.Groups.get(id).url)).get
+      val show = route(fakeLoggedInHtmlRequest(privilegedUser, GET, controllers.groups.routes.Groups.get(id).url)).get
       status(show) must equalTo(OK)
-      contentAsString(show) must contain(controllers.admin.routes.Groups.update(id).url)
-      contentAsString(show) must contain(controllers.admin.routes.Groups.delete(id).url)
-      contentAsString(show) must contain(controllers.admin.routes.Groups.permissions(id).url)
-      contentAsString(show) must contain(controllers.admin.routes.Groups.grantList(id).url)
-      contentAsString(show) must contain(controllers.admin.routes.Groups.membership(EntityType.Group, id).url)
-      contentAsString(show) must contain(controllers.admin.routes.Groups.list().url)
+      contentAsString(show) must contain(controllers.groups.routes.Groups.update(id).url)
+      contentAsString(show) must contain(controllers.groups.routes.Groups.delete(id).url)
+      contentAsString(show) must contain(controllers.groups.routes.Groups.permissions(id).url)
+      contentAsString(show) must contain(controllers.groups.routes.Groups.grantList(id).url)
+      contentAsString(show) must contain(controllers.groups.routes.Groups.membership(EntityType.Group, id).url)
+      contentAsString(show) must contain(controllers.groups.routes.Groups.list().url)
     }
 
     "allow adding groups to groups" in new ITestApp {
       // Add KCL to Admin
       val add = route(fakeLoggedInHtmlRequest(privilegedUser, POST,
-        controllers.admin.routes.Groups.addMemberPost("admin", EntityType.Group, id).url)
+        controllers.groups.routes.Groups.addMemberPost("admin", EntityType.Group, id).url)
           .withFormUrlEncodedBody()).get
       status(add) must equalTo(SEE_OTHER)
 
@@ -252,7 +252,7 @@ class EntityViewsSpec extends IntegrationTestRunner {
     "allow removing groups from groups" in new ITestApp {
       // Remove NIOD from Admin
       val rem = route(fakeLoggedInHtmlRequest(privilegedUser, POST,
-        controllers.admin.routes.Groups.removeMemberPost("admin", EntityType.Group, "niod").url)
+        controllers.groups.routes.Groups.removeMemberPost("admin", EntityType.Group, "niod").url)
           .withFormUrlEncodedBody()).get
       status(rem) must equalTo(SEE_OTHER)
 

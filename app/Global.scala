@@ -46,13 +46,13 @@ package globalConfig {
         ("contentTypes.cvocConcept",      controllers.keywords.routes.Concepts.search().url)
       )
       val adminSection: Iterable[(String, String)] = Seq(
-        ("contentTypes.userProfile",      controllers.admin.routes.UserProfiles.search().url),
-        ("contentTypes.group",            controllers.admin.routes.Groups.list().url),
+        ("contentTypes.userProfile",      controllers.users.routes.UserProfiles.search().url),
+        ("contentTypes.group",            controllers.groups.routes.Groups.list().url),
         ("contentTypes.country",          controllers.countries.routes.Countries.search().url),
         ("contentTypes.cvocVocabulary",   controllers.vocabularies.routes.Vocabularies.list().url),
         ("contentTypes.authoritativeSet", controllers.sets.routes.AuthoritativeSets.list().url),
         ("s1", "-"),
-        ("contentTypes.systemEvent",      controllers.admin.routes.SystemEvents.list().url),
+        ("contentTypes.systemEvent",      controllers.events.routes.SystemEvents.list().url),
         ("s2", "-"),
         ("search.updateIndex",            controllers.adminutils.routes.AdminSearch.updateIndex().url)
       )
@@ -63,12 +63,12 @@ package globalConfig {
     }
 
     val routeRegistry = new RouteRegistry(Map(
-      EntityType.SystemEvent -> controllers.admin.routes.SystemEvents.get,
+      EntityType.SystemEvent -> controllers.events.routes.SystemEvents.get,
       EntityType.DocumentaryUnit -> controllers.units.routes.DocumentaryUnits.get,
       EntityType.HistoricalAgent -> controllers.authorities.routes.HistoricalAgents.get,
       EntityType.Repository -> controllers.institutions.routes.Repositories.get,
-      EntityType.Group -> controllers.admin.routes.Groups.get,
-      EntityType.UserProfile -> controllers.admin.routes.UserProfiles.get,
+      EntityType.Group -> controllers.groups.routes.Groups.get,
+      EntityType.UserProfile -> controllers.users.routes.UserProfiles.get,
       EntityType.Annotation -> controllers.annotation.routes.Annotations.get,
       EntityType.Link -> controllers.linking.routes.Links.get,
       EntityType.Vocabulary -> controllers.vocabularies.routes.Vocabularies.get,

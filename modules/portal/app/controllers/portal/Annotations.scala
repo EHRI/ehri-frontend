@@ -3,6 +3,7 @@ package controllers.portal
 import play.api.libs.concurrent.Execution.Implicits._
 import play.api.mvc._
 import controllers.base.{SessionPreferences, AuthController, ControllerHelpers}
+import controllers.generic.Visibility
 import models.{AnnotationF, Annotation, UserProfile}
 import play.api.Play.current
 import views.html.p
@@ -28,6 +29,7 @@ import com.google.inject._
 case class Annotations @Inject()(implicit globalConfig: global.GlobalConfig, searchDispatcher: Dispatcher, searchResolver: Resolver, backend: Backend, userDAO: models.AccountDAO)
   extends AuthController
   with ControllerHelpers
+  with Visibility[Annotation]
   with PortalAuthConfigImpl
   with SessionPreferences[SessionPrefs] {
 
@@ -153,6 +155,24 @@ case class Annotations @Inject()(implicit globalConfig: global.GlobalConfig, sea
         }
       }
     )
+  }
+
+
+
+  def promote(id: String) = promoteAction(id) { _ => implicit userOpt => implicit request =>
+    ???
+  }
+
+  def promotePost(id: String) = promotePostAction(id) { _ => _ => implicit userOpt => implicit request =>
+    Ok(true.toString)
+  }
+
+  def demote(id: String) = demoteAction(id) { _ => implicit userOpt => implicit request =>
+    ???
+  }
+
+  def demotePost(id: String) = demotePostAction(id) { _ => _ => implicit userOpt => implicit request =>
+    Ok(true.toString)
   }
 
   /**
