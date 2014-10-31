@@ -37,6 +37,8 @@ object PortalData extends Controller {
           controllers.portal.routes.javascript.Annotations.editAnnotationPost,
           controllers.portal.routes.javascript.Annotations.deleteAnnotation,
           controllers.portal.routes.javascript.Annotations.deleteAnnotationPost,
+          controllers.portal.routes.javascript.Annotations.promoteAnnotationPost,
+          controllers.portal.routes.javascript.Annotations.demoteAnnotationPost,
           controllers.portal.routes.javascript.Annotations.setAnnotationVisibilityPost,
           controllers.portal.routes.javascript.Portal.filter,
           controllers.portal.routes.javascript.Portal.browseItem

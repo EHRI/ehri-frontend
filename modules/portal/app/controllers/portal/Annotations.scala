@@ -159,20 +159,26 @@ case class Annotations @Inject()(implicit globalConfig: global.GlobalConfig, sea
 
 
 
-  def promote(id: String) = promoteAction(id) { _ => implicit userOpt => implicit request =>
+  def promoteAnnotation(id: String, isField: Boolean) = promoteAction(id) { _ => implicit userOpt => implicit request =>
     ???
   }
 
-  def promotePost(id: String) = promotePostAction(id) { _ => _ => implicit userOpt => implicit request =>
-    Ok(true.toString)
+  def promoteAnnotationPost(id: String, isField: Boolean) = promotePostAction.async(id) { item => _ => implicit userOpt => implicit request =>
+    backend.get[Annotation](id).map { promoted =>
+      if (isField) Ok(p.common.annotationInline(promoted, editable = item.isOwnedBy(userOpt)))
+      else Ok(p.common.annotationBlock(promoted, editable = item.isOwnedBy(userOpt)))
+    }
   }
 
-  def demote(id: String) = demoteAction(id) { _ => implicit userOpt => implicit request =>
+  def demoteAnnotation(id: String, isField: Boolean) = demoteAction(id) { _ => implicit userOpt => implicit request =>
     ???
   }
 
-  def demotePost(id: String) = demotePostAction(id) { _ => _ => implicit userOpt => implicit request =>
-    Ok(true.toString)
+  def demoteAnnotationPost(id: String, isField: Boolean) = demotePostAction.async(id) { item => _ => implicit userOpt => implicit request =>
+    backend.get[Annotation](id).map { demoted =>
+      if (isField) Ok(p.common.annotationInline(demoted, editable = item.isOwnedBy(userOpt)))
+      else Ok(p.common.annotationBlock(demoted, editable = item.isOwnedBy(userOpt)))
+    }
   }
 
   /**

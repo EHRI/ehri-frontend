@@ -61,14 +61,14 @@ POST        /annotate/:aid/delete           @controllers.portal.Annotations.dele
 GET         /annotate/:aid/edit             @controllers.portal.Annotations.editAnnotation(aid: String, isField: Boolean ?= true)
 POST        /annotate/:aid/edit             @controllers.portal.Annotations.editAnnotationPost(aid: String, isField: Boolean ?= true)
 POST        /annotate/:aid/visibility       @controllers.portal.Annotations.setAnnotationVisibilityPost(aid: String)
+GET         /annotate/:aid/promote          @controllers.portal.Annotations.promoteAnnotation(aid: String, isField: Boolean ?= true)
+POST        /annotate/:aid/promote          @controllers.portal.Annotations.promoteAnnotationPost(aid: String, isField: Boolean ?= true)
+GET         /annotate/:aid/demote           @controllers.portal.Annotations.demoteAnnotation(aid: String, isField: Boolean ?= true)
+POST        /annotate/:aid/demote           @controllers.portal.Annotations.demoteAnnotationPost(aid: String, isField: Boolean ?= true)
 GET         /annotate/:id/:did              @controllers.portal.Annotations.annotate(id: String, did: String)
 POST        /annotate/:id/:did              @controllers.portal.Annotations.annotatePost(id: String, did: String)
 GET         /annotate/:id/:did/:field       @controllers.portal.Annotations.annotateField(id: String, did: String, field: String)
 POST        /annotate/:id/:did/:field       @controllers.portal.Annotations.annotateFieldPost(id: String, did: String, field: String)
-GET         /promote/:id                    @controllers.portal.Annotations.promote(id: String)
-POST        /promote/:id                    @controllers.portal.Annotations.promotePost(id: String)
-GET         /demote/:id                     @controllers.portal.Annotations.demote(id: String)
-POST        /demote/:id                     @controllers.portal.Annotations.demotePost(id: String)
 
 # Social networking stuff...
 GET         /activity                       @controllers.portal.Social.personalisedActivity(offset: Int ?= 0, limit: Int ?= 20)

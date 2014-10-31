@@ -396,6 +396,20 @@ jQuery(function ($) {
     }
   });
 
+  $(document).on("click", ".promote-annotation, .demote-annotation", function (e) {
+    e.preventDefault();
+    var $elem = $(this),
+        id = $elem.data("item"),
+        check = $elem.attr("title"),
+        action = this.href;
+    if (confirm(check + "?")) {
+      var $ann = $elem.closest(".annotation");
+      $.post(action, function (data) {
+        $ann.replaceWith(data);
+      });
+    }
+  });
+
   // Handling of custom visibility selector.
   $(document).on("change", "input[type=radio].visibility", function (e) {
     $(".custom-visibility")
