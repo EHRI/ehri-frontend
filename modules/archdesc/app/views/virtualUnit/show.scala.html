@@ -7,7 +7,7 @@
             <div class="header-actions clearfix">
                 @item.parent.map { parent =>
                     <h4>@Messages("virtualUnit.parentItem"):
-                        <a href="@controllers.archdesc.routes.VirtualUnits.get(parent.id)">@parent.toStringLang</a>
+                        <a href="@controllers.virtual.routes.VirtualUnits.get(parent.id)">@parent.toStringLang</a>
                     </h4>
                 }
             </div>
@@ -15,7 +15,7 @@
                 @layout.descriptionContainer(item.model.descriptions) {
                     @if(item.model.descriptions.isEmpty && item.includedUnits.isEmpty) {
                         <p class="text-muted">@Messages("documentaryUnit.noDescriptions")</p>
-                        <a href="@controllers.archdesc.routes.VirtualUnits.createDescription(item.id)" class="btn btn-primary">
+                        <a href="@controllers.virtual.routes.VirtualUnits.createDescription(item.id)" class="btn btn-primary">
                             @Messages("describedEntity.createDescription")
                         </a>
                     } else {
@@ -30,8 +30,8 @@
                     @link.annotationLinks(item, links)
                     @link.externalLinks(item, links)
                 } {
-                    @common.latestAction(item, controllers.archdesc.routes.VirtualUnits.history(item.id))
-                    @common.visibility(item, controllers.archdesc.routes.VirtualUnits.visibility(item.id), ContentTypes.VirtualUnit)
+                    @common.latestAction(item, controllers.virtual.routes.VirtualUnits.history(item.id))
+                    @common.visibility(item, controllers.virtual.routes.VirtualUnits.visibility(item.id), ContentTypes.VirtualUnit)
                     @adminActions(item)
                 }
 

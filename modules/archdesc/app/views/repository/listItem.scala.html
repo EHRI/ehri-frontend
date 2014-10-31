@@ -4,7 +4,7 @@
 @import org.apache.commons.lang3.StringUtils
 
 @common.search.searchItemOutline(item.id) {
-    <a href="@controllers.archdesc.routes.Repositories.get(item.id)">@item.toStringLang</a>
+    <a href="@controllers.institutions.routes.Repositories.get(item.id)">@item.toStringLang</a>
 } {
     @item.model.primaryDescription.map { desc =>
         @common.otherNameListSmall((desc.parallelFormsOfName ++ desc.otherFormsOfName).flatten.toList)
@@ -12,7 +12,7 @@
         <small>
             <ul class="list-unstyled text-muted inline inline-separator">
                 @item.country.map { ct =>
-                    <li><strong><a class="alt" href="@controllers.archdesc.routes.Countries.get(ct.id)">@ct.toStringLang</a></strong></li>
+                    <li><strong><a class="alt" href="@controllers.countries.routes.Countries.get(ct.id)">@ct.toStringLang</a></strong></li>
                 }
                 @desc.addresses.headOption.map { address =>
                     @common.propertyList(address.streetAddress, address.city, address.region)
@@ -24,7 +24,7 @@
                 }
             </ul>
             @views.html.common.childCount(item) { count =>
-                <a href="@controllers.archdesc.routes.Repositories.get(item.id)#search-items">@Messages("repository.childCount", count)</a>
+                <a href="@controllers.institutions.routes.Repositories.get(item.id)#search-items">@Messages("repository.childCount", count)</a>
             }
         </small>
 

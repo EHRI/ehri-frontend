@@ -9,7 +9,7 @@
         <ul class="list-unstyled text-muted inline inline-separator">
             @item.ancestors.reverse.map { parent =>
                 <li>
-                    <a href="@controllers.archdesc.routes.DocumentaryUnits.get(parent.id)">@views.Helpers.ellipsize(parent.toStringLang,100)</a>
+                    <a href="@controllers.units.routes.DocumentaryUnits.get(parent.id)">@views.Helpers.ellipsize(parent.toStringLang,100)</a>
                 </li>
             }
         </ul>
@@ -18,7 +18,7 @@
 <small>
     <ul class="list-unstyled text-muted inline inline-separator">
         @item.holder.map { holder =>
-            <li><a class="alt" href="@controllers.archdesc.routes.Repositories.get(holder.id)">@holder.toStringAbbr</a></li>
+            <li><a class="alt" href="@controllers.institutions.routes.Repositories.get(holder.id)">@holder.toStringAbbr</a></li>
         }
         <li><span class="text-muted">@views.Helpers.languageCodeToName(desc.languageCode)</span></li>
 
@@ -36,7 +36,7 @@
     </ul>
     @views.html.common.childCount(item) { count =>
         @if(count > 0) {
-            <a href="@controllers.archdesc.routes.DocumentaryUnits.get(item.id)#search-items">@Messages("documentaryUnit.childCount", count)</a>
+            <a href="@controllers.units.routes.DocumentaryUnits.get(item.id)#search-items">@Messages("documentaryUnit.childCount", count)</a>
         }
     }
 </small>

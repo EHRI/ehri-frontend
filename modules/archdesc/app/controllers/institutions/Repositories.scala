@@ -1,4 +1,4 @@
-package controllers.archdesc
+package controllers.institutions
 
 import play.api.libs.concurrent.Execution.Implicits._
 import forms.VisibilityForm
@@ -92,7 +92,7 @@ case class Repositories @Inject()(implicit globalConfig: global.GlobalConfig, se
 
   private val childForm = models.DocumentaryUnit.form
 
-  private val repositoryRoutes = controllers.archdesc.routes.Repositories
+  private val repositoryRoutes = controllers.institutions.routes.Repositories
 
 
   def search = searchAction[Repository](entities = List(EntityType.Repository), entityFacets = repositoryFacets) {
@@ -156,7 +156,7 @@ case class Repositories @Inject()(implicit globalConfig: global.GlobalConfig, se
         BadRequest(views.html.documentaryUnit.create(item,
           errorForm, childFormDefaults, accForm, users, groups, repositoryRoutes.createDocPost(id)))
       }
-      case Right(citem) => immediate(Redirect(controllers.archdesc.routes.DocumentaryUnits.get(citem.id))
+      case Right(citem) => immediate(Redirect(controllers.units.routes.DocumentaryUnits.get(citem.id))
         .flashing("success" -> "item.create.confirmation"))
     }
   }
@@ -229,7 +229,7 @@ case class Repositories @Inject()(implicit globalConfig: global.GlobalConfig, se
   def updateIndex(id: String) = adminAction.async { implicit userOpt => implicit request =>
     getEntity(id, userOpt) { item =>
       Ok(views.html.search.updateItemIndex(item,
-        action = controllers.archdesc.routes.Repositories.updateIndexPost(id)))
+        action = controllers.institutions.routes.Repositories.updateIndexPost(id)))
     }
   }
 

@@ -20,8 +20,8 @@
     }
 } {
     @common.search.facetList(result.facets, action)
-    @common.visibility(item, controllers.archdesc.routes.Countries.visibility(item.id), ContentTypes.Country)
-    @common.latestAction(item, controllers.archdesc.routes.Countries.history(item.id))
+    @common.visibility(item, controllers.countries.routes.Countries.visibility(item.id), ContentTypes.Country)
+    @common.latestAction(item, controllers.countries.routes.Countries.history(item.id))
 
     @adminActions(item)
 }

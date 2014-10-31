@@ -6,7 +6,7 @@
 } {
     @common.sidebarActions { user =>
         @common.sidebarAction(user.hasPermission(ContentTypes.Country, PermissionType.Create)) {
-            <a href="@controllers.archdesc.routes.Countries.create">@Messages("country.create")</a>
+            <a href="@controllers.countries.routes.Countries.create">@Messages("country.create")</a>
         }
     }
     @common.search.facetList(result.facets, action)

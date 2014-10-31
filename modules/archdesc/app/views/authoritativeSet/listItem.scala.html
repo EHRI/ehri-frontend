@@ -1,7 +1,7 @@
 @(item: AuthoritativeSet)(implicit req: RequestHeader, lang: Lang)
 
 @common.search.searchItemOutline(item.id) {
-    <a href="@controllers.authorities.routes.AuthoritativeSets.get(item.id)">@item.toStringLang</a>
+    <a href="@controllers.sets.routes.AuthoritativeSets.get(item.id)">@item.toStringLang</a>
 } {
     <small>
         <ul class="list-unstyled text-muted inline inline-separator">

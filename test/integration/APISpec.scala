@@ -17,11 +17,11 @@ class APISpec extends IntegrationTestRunner {
     "allow creating and reading" in new ITestApp {
       val json = Json.toJson(new AccessPointLink("a1", Some(LinkType.Associative), Some("Test link")))
       val cr = route(fakeLoggedInHtmlRequest(privilegedUser, POST,
-        controllers.archdesc.routes.DocumentaryUnits.createLink("c1", "ur2").url)
+        controllers.units.routes.DocumentaryUnits.createLink("c1", "ur2").url)
         .withHeaders(jsonPostHeaders.toSeq: _*), json).get
       status(cr) must equalTo(CREATED)
       val cr2 = route(fakeLoggedInHtmlRequest(privilegedUser, GET,
-        controllers.archdesc.routes.DocumentaryUnits.getLink("c1", "ur2").url)).get
+        controllers.units.routes.DocumentaryUnits.getLink("c1", "ur2").url)).get
       status(cr2) must equalTo(OK)
       contentAsJson(cr2) mustEqual json
     }
@@ -30,12 +30,12 @@ class APISpec extends IntegrationTestRunner {
       val ap = new AccessPointF(id = None, accessPointType=AccessPointF.AccessPointType.SubjectAccess, name="Test text")
       val json = Json.toJson(ap)(controllers.generic.AccessPointLink.accessPointFormat)
       val cr = route(fakeLoggedInJsonRequest(privilegedUser, POST,
-        controllers.archdesc.routes.DocumentaryUnits
+        controllers.units.routes.DocumentaryUnits
           .createAccessPoint("c1", "cd1").url), json).get
       status(cr) must equalTo(CREATED)
       (contentAsJson(cr) \ "id").asOpt[String] must beSome.which { id =>
         val del = route(fakeLoggedInJsonRequest(privilegedUser, POST,
-          controllers.archdesc.routes.DocumentaryUnits
+          controllers.units.routes.DocumentaryUnits
             .deleteAccessPoint("c1", "cd1", id).url), "").get
         status(del) must equalTo(OK)
       }
@@ -45,12 +45,12 @@ class APISpec extends IntegrationTestRunner {
       val link = new AccessPointLink("a1", description = Some("Test link"))
       val json = Json.toJson(link)
       val cr = route(fakeLoggedInHtmlRequest(privilegedUser, POST,
-        controllers.archdesc.routes.DocumentaryUnits.createLink("c1", "ur1").url)
+        controllers.units.routes.DocumentaryUnits.createLink("c1", "ur1").url)
         .withHeaders(jsonPostHeaders.toSeq: _*), json).get
       status(cr) must equalTo(CREATED)
       (contentAsJson(cr) \ "id").asOpt[String] must beSome.which { id =>
         val del = route(fakeLoggedInJsonRequest(privilegedUser, POST,
-          controllers.archdesc.routes.DocumentaryUnits
+          controllers.units.routes.DocumentaryUnits
             .deleteLinkAndAccessPoint("c1", "cd1", "ur1", id).url)
           .withHeaders(jsonPostHeaders.toSeq: _*), "").get
         status(del) must equalTo(OK)

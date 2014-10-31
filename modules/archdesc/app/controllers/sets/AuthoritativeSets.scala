@@ -1,11 +1,11 @@
-package controllers.archdesc
+package controllers.sets
 
 import play.api.libs.concurrent.Execution.Implicits._
 import _root_.forms.VisibilityForm
 import controllers.generic._
 import models._
 import defines.{ContentTypes, EntityType}
-import utils.search.{Resolver, Dispatcher}
+import utils.search.{Indexer, Resolver, Dispatcher}
 import com.google.inject._
 import scala.concurrent.Future.{successful => immediate}
 import backend.{Entity, IdGenerator, Backend}
@@ -13,37 +13,31 @@ import play.api.Configuration
 import play.api.Play.current
 import solr.SolrConstants
 
-
 @Singleton
-case class Countries @Inject()(implicit globalConfig: global.GlobalConfig, searchDispatcher: Dispatcher, searchResolver: Resolver, backend: Backend, idGenerator: IdGenerator, userDAO: AccountDAO) extends CRUD[CountryF,Country]
-  with Creator[RepositoryF, Repository, Country]
-  with Visibility[Country]
-  with ScopePermissions[Country]
-  with Annotate[Country]
+case class
+AuthoritativeSets @Inject()(implicit globalConfig: global.GlobalConfig, searchDispatcher: Dispatcher, searchIndexer: Indexer,
+            searchResolver: Resolver, backend: Backend, idGenerator: IdGenerator, userDAO: AccountDAO) extends CRUD[AuthoritativeSetF,AuthoritativeSet]
+  with Creator[HistoricalAgentF, HistoricalAgent, AuthoritativeSet]
+  with Visibility[AuthoritativeSet]
+  with ScopePermissions[AuthoritativeSet]
+  with Annotate[AuthoritativeSet]
+  with Indexable[AuthoritativeSet]
   with Search {
 
-  /**
-   * Content types that relate to this controller.
-   */
+  private val formDefaults: Option[Configuration] = current.configuration.getConfig(EntityType.HistoricalAgent)
 
-  val targetContentTypes = Seq(ContentTypes.Repository, ContentTypes.DocumentaryUnit)
-
-  private val childFormDefaults: Option[Configuration]
-      = current.configuration.getConfig(EntityType.Repository)
-
-  private val form = models.Country.form
-  private val childForm = models.Repository.form
-
-  private final val countryRoutes = controllers.archdesc.routes.Countries
+  val targetContentTypes = Seq(ContentTypes.HistoricalAgent)
+  private val form = models.AuthoritativeSet.form
+  private val childForm = models.HistoricalAgent.form
+  private val setRoutes = controllers.sets.routes.AuthoritativeSets
 
 
   def get(id: String) = getAction.async(id) { item => annotations => links => implicit userOpt => implicit request =>
-    find[Repository](
-      filters = Map(SolrConstants.COUNTRY_CODE -> item.id),
-      entities = List(EntityType.Repository)
-    ).map { result =>
-      Ok(views.html.country.show(item, result.page, result.params, result.facets,
-        countryRoutes.get(id), annotations, links))
+    find[HistoricalAgent](
+      filters = Map(SolrConstants.HOLDER_ID -> item.id),
+      entities=List(EntityType.HistoricalAgent)).map { r =>
+      Ok(views.html.authoritativeSet.show(
+          item, r.page, r.params, r.facets, setRoutes.get(id), annotations, links))
     }
   }
 
@@ -52,131 +46,133 @@ case class Countries @Inject()(implicit globalConfig: global.GlobalConfig, searc
   }
 
   def list = pageAction { page => params => implicit userOpt => implicit request =>
-    Ok(views.html.country.list(page, params))
-  }
-
-  def search = searchAction[Country](entities = List(EntityType.Country)) {
-      page => params => facets => implicit userOpt => implicit request =>
-    Ok(views.html.country.search(page, params, facets, countryRoutes.search()))
+    Ok(views.html.authoritativeSet.list(page, params))
   }
 
   def create = createAction { users => groups => implicit userOpt => implicit request =>
-    Ok(views.html.country.create(form, VisibilityForm.form, users, groups, countryRoutes.createPost()))
+    Ok(views.html.authoritativeSet.create(form, VisibilityForm.form, users, groups, setRoutes.createPost()))
   }
 
   def createPost = createPostAction.async(form) { formsOrItem => implicit userOpt => implicit request =>
     formsOrItem match {
       case Left((errorForm,accForm)) => getUsersAndGroups { users => groups =>
-        BadRequest(views.html.country.create(errorForm, accForm, users, groups, countryRoutes.createPost()))
+        BadRequest(views.html.authoritativeSet.create(errorForm, accForm, users, groups, setRoutes.createPost()))
       }
-      case Right(item) => immediate(Redirect(countryRoutes.get(item.id))
+      case Right(item) => immediate(Redirect(setRoutes.get(item.id))
         .flashing("success" -> "item.create.confirmation"))
     }
   }
 
   def update(id: String) = updateAction(id) { item => implicit userOpt => implicit request =>
-    Ok(views.html.country.edit(item, form.fill(item.model),countryRoutes.updatePost(id)))
+    Ok(views.html.authoritativeSet.edit(
+      item, form.fill(item.model),setRoutes.updatePost(id)))
   }
 
   def updatePost(id: String) = updatePostAction(id, form) {
       olditem => formOrItem => implicit userOpt => implicit request =>
     formOrItem match {
-      case Left(errorForm) => BadRequest(views.html.country.edit(
-          olditem, errorForm, countryRoutes.updatePost(id)))
-      case Right(item) => Redirect(countryRoutes.get(item.id))
+      case Left(errorForm) => BadRequest(views.html.authoritativeSet.edit(
+          olditem, errorForm, setRoutes.updatePost(id)))
+      case Right(item) => Redirect(setRoutes.get(item.id))
         .flashing("success" -> "item.update.confirmation")
     }
   }
 
-  def createRepository(id: String) = childCreateAction.async(id) {
+  def createHistoricalAgent(id: String) = childCreateAction.async(id) {
       item => users => groups => implicit userOpt => implicit request =>
-
-    // Beware! This is dubious because there could easily be contention
-    // if two repositories get created at the same time.
-    // Currently there is not way to notify the user that they should just
-    // reset the form or increment the ID manually.
-    idGenerator.getNextNumericIdentifier(EntityType.Repository).map { newid =>
-      val form = childForm.bind(Map(Entity.IDENTIFIER -> newid))
-      Ok(views.html.repository.create(
-        item, form, childFormDefaults, VisibilityForm.form.fill(item.accessors.map(_.id)),
-        users, groups, countryRoutes.createRepositoryPost(id)))
+    idGenerator.getNextChildNumericIdentifier(id, EntityType.HistoricalAgent).map { newid =>
+      Ok(views.html.historicalAgent.create(
+        item, childForm.bind(Map(Entity.IDENTIFIER -> newid)),
+        formDefaults, VisibilityForm.form.fill(item.accessors.map(_.id)), users, groups,
+          setRoutes.createHistoricalAgentPost(id)))
     }
   }
 
-  def createRepositoryPost(id: String) = childCreatePostAction.async(id, childForm) {
+  def createHistoricalAgentPost(id: String) = childCreatePostAction.async(id, childForm) {
       item => formsOrItem => implicit userOpt => implicit request =>
     formsOrItem match {
       case Left((errorForm,accForm)) => getUsersAndGroups { users => groups =>
-        BadRequest(views.html.repository.create(item,
-          errorForm, childFormDefaults, accForm, users, groups, countryRoutes.createRepositoryPost(id)))
+        BadRequest(views.html.historicalAgent.create(item,
+          errorForm, formDefaults, accForm, users, groups, setRoutes.createHistoricalAgentPost(id)))
       }
-      case Right(citem) => immediate(Redirect(controllers.archdesc.routes.Repositories.get(citem.id))
+      case Right(citem) => immediate(Redirect(controllers.authorities.routes.HistoricalAgents.get(citem.id))
         .flashing("success" -> "item.create.confirmation"))
     }
   }
 
   def delete(id: String) = deleteAction(id) { item => implicit userOpt => implicit request =>
     Ok(views.html.delete(
-        item, countryRoutes.deletePost(id),
-        countryRoutes.get(id)))
+        item, setRoutes.deletePost(id),
+        setRoutes.get(id)))
   }
 
   def deletePost(id: String) = deletePostAction(id) { implicit userOpt => implicit request =>
-    Redirect(countryRoutes.search())
+    Redirect(setRoutes.list())
         .flashing("success" -> "item.delete.confirmation")
   }
 
   def visibility(id: String) = visibilityAction(id) { item => users => groups => implicit userOpt => implicit request =>
     Ok(views.html.permissions.visibility(item,
         VisibilityForm.form.fill(item.accessors.map(_.id)),
-        users, groups, countryRoutes.visibilityPost(id)))
+        users, groups, setRoutes.visibilityPost(id)))
   }
 
   def visibilityPost(id: String) = visibilityPostAction(id) { ok => implicit userOpt => implicit request =>
-    Redirect(countryRoutes.get(id))
+    Redirect(setRoutes.get(id))
         .flashing("success" -> "item.update.confirmation")
   }
 
   def managePermissions(id: String) = manageScopedPermissionsAction(id) {
       item => perms => sperms => implicit userOpt => implicit request =>
     Ok(views.html.permissions.manageScopedPermissions(item, perms, sperms,
-        countryRoutes.addItemPermissions(id), countryRoutes.addScopedPermissions(id)))
+        setRoutes.addItemPermissions(id), setRoutes.addScopedPermissions(id)))
   }
 
   def addItemPermissions(id: String) = addItemPermissionsAction(id) {
       item => users => groups => implicit userOpt => implicit request =>
     Ok(views.html.permissions.permissionItem(item, users, groups,
-        countryRoutes.setItemPermissions))
+        setRoutes.setItemPermissions))
   }
 
   def addScopedPermissions(id: String) = addItemPermissionsAction(id) {
       item => users => groups => implicit userOpt => implicit request =>
     Ok(views.html.permissions.permissionScope(item, users, groups,
-        countryRoutes.setScopedPermissions))
+        setRoutes.setScopedPermissions))
   }
 
   def setItemPermissions(id: String, userType: EntityType.Value, userId: String) = setItemPermissionsAction(id, userType, userId) {
       item => accessor => perms => implicit userOpt => implicit request =>
-    Ok(views.html.permissions.setPermissionItem(item, accessor, perms, Country.Resource.contentType,
-        countryRoutes.setItemPermissionsPost(id, userType, userId)))
+    Ok(views.html.permissions.setPermissionItem(item, accessor, perms, AuthoritativeSet.Resource.contentType,
+        setRoutes.setItemPermissionsPost(id, userType, userId)))
   }
 
   def setItemPermissionsPost(id: String, userType: EntityType.Value, userId: String) = setItemPermissionsPostAction(id, userType, userId) {
       bool => implicit userOpt => implicit request =>
-    Redirect(countryRoutes.managePermissions(id))
+    Redirect(setRoutes.managePermissions(id))
         .flashing("success" -> "item.update.confirmation")
   }
 
   def setScopedPermissions(id: String, userType: EntityType.Value, userId: String) = setScopedPermissionsAction(id, userType, userId) {
       item => accessor => perms => implicit userOpt => implicit request =>
     Ok(views.html.permissions.setPermissionScope(item, accessor, perms, targetContentTypes,
-        countryRoutes.setScopedPermissionsPost(id, userType, userId)))
+        setRoutes.setScopedPermissionsPost(id, userType, userId)))
   }
 
   def setScopedPermissionsPost(id: String, userType: EntityType.Value, userId: String) = setScopedPermissionsPostAction(id, userType, userId) {
       perms => implicit userOpt => implicit request =>
-    Redirect(countryRoutes.managePermissions(id))
+    Redirect(setRoutes.managePermissions(id))
         .flashing("success" -> "item.update.confirmation")
   }
+
+
+  def updateIndex(id: String) = adminAction.async { implicit userOpt => implicit request =>
+    getEntity(id, userOpt) { item =>
+      Ok(views.html.search.updateItemIndex(item,
+        action = setRoutes.updateIndexPost(id)))
+    }
+  }
+
+  def updateIndexPost(id: String) = updateChildItemsPost(SolrConstants.HOLDER_ID, id)
 }
+
 

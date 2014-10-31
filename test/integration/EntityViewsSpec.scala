@@ -42,7 +42,7 @@ class EntityViewsSpec extends IntegrationTestRunner {
         "publicationStatus" -> Seq("Published")
       )
       val cr = route(fakeLoggedInHtmlRequest(privilegedUser, POST,
-        controllers.authorities.routes.AuthoritativeSets
+        controllers.sets.routes.AuthoritativeSets
           .createHistoricalAgent("auths").url).withHeaders(formPostHeaders.toSeq: _*), testData).get
       status(cr) must equalTo(SEE_OTHER)
 
@@ -57,7 +57,7 @@ class EntityViewsSpec extends IntegrationTestRunner {
       val testData: Map[String, Seq[String]] = Map(
       )
       val cr = route(fakeLoggedInHtmlRequest(privilegedUser, POST,
-        controllers.authorities.routes.AuthoritativeSets
+        controllers.sets.routes.AuthoritativeSets
           .createHistoricalAgent("auths").url).withHeaders(formPostHeaders.toSeq: _*), testData).get
       status(cr) must equalTo(BAD_REQUEST)
     }
@@ -70,11 +70,11 @@ class EntityViewsSpec extends IntegrationTestRunner {
         "descriptions[0].languageCode" -> Seq("en")
       )
       val cr = route(fakeLoggedInHtmlRequest(privilegedUser, POST,
-        controllers.authorities.routes.AuthoritativeSets
+        controllers.sets.routes.AuthoritativeSets
           .createHistoricalAgent("auths").url).withHeaders(formPostHeaders.toSeq: _*), testData).get
       status(cr) must equalTo(SEE_OTHER)
       val cr2 = route(fakeLoggedInHtmlRequest(privilegedUser, POST,
-        controllers.authorities.routes.AuthoritativeSets
+        controllers.sets.routes.AuthoritativeSets
           .createHistoricalAgent("auths").url).withHeaders(formPostHeaders.toSeq: _*), testData).get
       status(cr2) must equalTo(BAD_REQUEST)
     }
@@ -122,7 +122,7 @@ class EntityViewsSpec extends IntegrationTestRunner {
     "show correct default values in the form when creating new items" in new ITestApp(
       Map("historicalAgent.rulesAndConventions" -> "SOME RANDOM VALUE")) {
       val form = route(fakeLoggedInHtmlRequest(privilegedUser, GET,
-        controllers.authorities.routes.AuthoritativeSets.createHistoricalAgent("auths").url)).get
+        controllers.sets.routes.AuthoritativeSets.createHistoricalAgent("auths").url)).get
       status(form) must equalTo(OK)
       contentAsString(form) must contain("SOME RANDOM VALUE")
     }
@@ -132,7 +132,7 @@ class EntityViewsSpec extends IntegrationTestRunner {
         controllers.authorities.routes.HistoricalAgents.get("a1").url)).get
       contentAsString(show) must contain("external-item-link")
       contentAsString(show) must contain(
-        controllers.archdesc.routes.DocumentaryUnits.get("c1").url)
+        controllers.units.routes.DocumentaryUnits.get("c1").url)
     }
   }
 
@@ -285,7 +285,7 @@ class EntityViewsSpec extends IntegrationTestRunner {
         "publicationStatus" -> Seq("Published")
       )
       val cr = route(fakeLoggedInHtmlRequest(privilegedUser, POST,
-        controllers.authorities.routes.AuthoritativeSets
+        controllers.sets.routes.AuthoritativeSets
           .createHistoricalAgent("auths").url).withHeaders(formPostHeaders.toSeq: _*), testData).get
       status(cr) must equalTo(SEE_OTHER)
 
@@ -300,7 +300,7 @@ class EntityViewsSpec extends IntegrationTestRunner {
       val testData: Map[String, Seq[String]] = Map(
       )
       val cr = route(fakeLoggedInHtmlRequest(privilegedUser, POST,
-        controllers.authorities.routes.AuthoritativeSets
+        controllers.sets.routes.AuthoritativeSets
           .createHistoricalAgent("auths").url).withHeaders(formPostHeaders.toSeq: _*), testData).get
       status(cr) must equalTo(BAD_REQUEST)
     }
@@ -313,11 +313,11 @@ class EntityViewsSpec extends IntegrationTestRunner {
         "descriptions[0].languageCode" -> Seq("en")
       )
       val cr = route(fakeLoggedInHtmlRequest(privilegedUser, POST,
-        controllers.authorities.routes.AuthoritativeSets
+        controllers.sets.routes.AuthoritativeSets
           .createHistoricalAgent("auths").url).withHeaders(formPostHeaders.toSeq: _*), testData).get
       status(cr) must equalTo(SEE_OTHER)
       val cr2 = route(fakeLoggedInHtmlRequest(privilegedUser, POST,
-        controllers.authorities.routes.AuthoritativeSets
+        controllers.sets.routes.AuthoritativeSets
           .createHistoricalAgent("auths").url).withHeaders(formPostHeaders.toSeq: _*), testData).get
       status(cr2) must equalTo(BAD_REQUEST)
     }
@@ -364,7 +364,7 @@ class EntityViewsSpec extends IntegrationTestRunner {
     "show correct default values in the form when creating new items" in new ITestApp(
       Map("historicalAgent.rulesAndConventions" -> "SOME RANDOM VALUE")) {
       val form = route(fakeLoggedInHtmlRequest(privilegedUser, GET,
-        controllers.authorities.routes.AuthoritativeSets.createHistoricalAgent("auths").url)).get
+        controllers.sets.routes.AuthoritativeSets.createHistoricalAgent("auths").url)).get
       status(form) must equalTo(OK)
       contentAsString(form) must contain("SOME RANDOM VALUE")
     }
@@ -374,7 +374,7 @@ class EntityViewsSpec extends IntegrationTestRunner {
         controllers.authorities.routes.HistoricalAgents.get("a1").url)).get
       contentAsString(show) must contain("external-item-link")
       contentAsString(show) must contain(
-        controllers.archdesc.routes.DocumentaryUnits.get("c1").url)
+        controllers.units.routes.DocumentaryUnits.get("c1").url)
     }
   }
 

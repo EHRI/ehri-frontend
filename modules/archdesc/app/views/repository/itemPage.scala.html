@@ -3,8 +3,8 @@
 @layout.rightSidebar(item.toStringLang, breadcrumbs = breadcrumbs(item), scripts = scripts, styles = styles) {
     @html
 } {
-    @common.latestAction(item, controllers.archdesc.routes.Repositories.history(item.id))
-    @common.visibility(item, controllers.archdesc.routes.Repositories.visibility(item.id), ContentTypes.Repository)
+    @common.latestAction(item, controllers.institutions.routes.Repositories.history(item.id))
+    @common.visibility(item, controllers.institutions.routes.Repositories.visibility(item.id), ContentTypes.Repository)
 
     @adminActions(item)
 }

@@ -6,7 +6,7 @@
 
     @sidebar
 
-    @common.visibility(item, controllers.archdesc.routes.DocumentaryUnits.visibility(item.id), ContentTypes.DocumentaryUnit)
-    @common.latestAction(item, controllers.archdesc.routes.DocumentaryUnits.history(item.id))
+    @common.visibility(item, controllers.units.routes.DocumentaryUnits.visibility(item.id), ContentTypes.DocumentaryUnit)
+    @common.latestAction(item, controllers.units.routes.DocumentaryUnits.history(item.id))
     @adminActions(item)
 }

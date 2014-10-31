@@ -7,12 +7,12 @@
             <div class="header-actions clearfix">
                 @item.holder.map { holder =>
                 <h4>@Messages("documentaryUnit.heldBy"):
-                    <a href="@controllers.archdesc.routes.Repositories.get(holder.id)">@holder.toStringLang</a>
+                    <a href="@controllers.institutions.routes.Repositories.get(holder.id)">@holder.toStringLang</a>
                 </h4>
                 }
                 @item.parent.map { parent =>
                     <h4>@Messages("documentaryUnit.parentItem"):
-                        <a href="@controllers.archdesc.routes.DocumentaryUnits.get(parent.id)">@parent.toStringLang</a>
+                        <a href="@controllers.units.routes.DocumentaryUnits.get(parent.id)">@parent.toStringLang</a>
                     </h4>
                 }
             </div>
@@ -26,8 +26,8 @@
                     @link.externalLinks(item, links)
                 } {
                     @common.identifiers(item.model.identifier, item.model.otherIdentifiers)
-                    @common.latestAction(item, controllers.archdesc.routes.DocumentaryUnits.history(item.id))
-                    @common.visibility(item, controllers.archdesc.routes.DocumentaryUnits.visibility(item.id), ContentTypes.DocumentaryUnit)
+                    @common.latestAction(item, controllers.units.routes.DocumentaryUnits.history(item.id))
+                    @common.visibility(item, controllers.units.routes.DocumentaryUnits.visibility(item.id), ContentTypes.DocumentaryUnit)
                     @adminActions(item)
                 }
 

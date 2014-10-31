@@ -3,7 +3,7 @@
 @common.search.searchItemOutline(item.id) {
     @* include an anchor to the selected description *@
     @defining(descriptionId.map(did => "#desc-" + did).getOrElse("")) { anchor =>
-        <a href="@{controllers.archdesc.routes.VirtualUnits.get(item.id) + anchor}">@item.toStringLang</a>
+        <a href="@{controllers.virtual.routes.VirtualUnits.get(item.id) + anchor}">@item.toStringLang</a>
     }
 } {
     @item.model.primaryDescription(descriptionId).map { desc =>

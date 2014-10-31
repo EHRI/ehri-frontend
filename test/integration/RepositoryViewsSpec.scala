@@ -10,7 +10,7 @@ import play.api.http.MimeTypes
 class RepositoryViewsSpec extends IntegrationTestRunner {
   import mocks.{privilegedUser,unprivilegedUser}
 
-  private val repoRoutes = controllers.archdesc.routes.Repositories
+  private val repoRoutes = controllers.institutions.routes.Repositories
 
   // Mock user who belongs to admin
   val userProfile = UserProfile(
@@ -46,7 +46,7 @@ class RepositoryViewsSpec extends IntegrationTestRunner {
     "show correct default values in the form when creating new items" in new ITestApp(
       Map("repository.holdings" -> "SOME RANDOM VALUE")) {
       val form = route(fakeLoggedInHtmlRequest(privilegedUser, GET,
-        controllers.archdesc.routes.Countries.createRepository(COUNTRY).url)).get
+        controllers.countries.routes.Countries.createRepository(COUNTRY).url)).get
       status(form) must equalTo(OK)
       contentAsString(form) must contain("SOME RANDOM VALUE")
     }
@@ -77,7 +77,7 @@ class RepositoryViewsSpec extends IntegrationTestRunner {
         "publicationStatus" -> Seq("Published")
       )
       val cr = route(fakeLoggedInHtmlRequest(privilegedUser, POST,
-        controllers.archdesc.routes.Countries.createRepositoryPost(COUNTRY).url).withHeaders(formPostHeaders.toSeq: _*), testData).get
+        controllers.countries.routes.Countries.createRepositoryPost(COUNTRY).url).withHeaders(formPostHeaders.toSeq: _*), testData).get
       status(cr) must equalTo(SEE_OTHER)
 
       val show = route(fakeLoggedInHtmlRequest(privilegedUser, GET,
@@ -94,7 +94,7 @@ class RepositoryViewsSpec extends IntegrationTestRunner {
       val testData: Map[String, Seq[String]] = Map(
       )
       val cr = route(fakeLoggedInHtmlRequest(privilegedUser, POST,
-        controllers.archdesc.routes.Countries.createRepositoryPost(COUNTRY).url).withHeaders(formPostHeaders.toSeq: _*), testData).get
+        controllers.countries.routes.Countries.createRepositoryPost(COUNTRY).url).withHeaders(formPostHeaders.toSeq: _*), testData).get
       status(cr) must equalTo(BAD_REQUEST)
     }
 
@@ -103,10 +103,10 @@ class RepositoryViewsSpec extends IntegrationTestRunner {
         "identifier" -> Seq("r1")
       )
       val cr = route(fakeLoggedInHtmlRequest(privilegedUser, POST,
-        controllers.archdesc.routes.Countries.createRepositoryPost(COUNTRY).url).withHeaders(formPostHeaders.toSeq: _*), testData).get
+        controllers.countries.routes.Countries.createRepositoryPost(COUNTRY).url).withHeaders(formPostHeaders.toSeq: _*), testData).get
       status(cr) must equalTo(SEE_OTHER)
       val cr2 = route(fakeLoggedInHtmlRequest(privilegedUser, POST,
-        controllers.archdesc.routes.Countries.createRepositoryPost(COUNTRY).url).withHeaders(formPostHeaders.toSeq: _*), testData).get
+        controllers.countries.routes.Countries.createRepositoryPost(COUNTRY).url).withHeaders(formPostHeaders.toSeq: _*), testData).get
       status(cr2) must equalTo(BAD_REQUEST)
     }
 

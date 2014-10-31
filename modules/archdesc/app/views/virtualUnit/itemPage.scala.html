@@ -6,7 +6,7 @@
 
     @sidebar
 
-    @common.visibility(item, controllers.archdesc.routes.VirtualUnits.visibility(item.id), ContentTypes.VirtualUnit)
-    @common.latestAction(item, controllers.archdesc.routes.VirtualUnits.history(item.id))
+    @common.visibility(item, controllers.virtual.routes.VirtualUnits.visibility(item.id), ContentTypes.VirtualUnit)
+    @common.latestAction(item, controllers.virtual.routes.VirtualUnits.history(item.id))
     @adminActions(item)
 }

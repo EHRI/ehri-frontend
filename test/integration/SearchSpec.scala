@@ -23,7 +23,7 @@ class SearchSpec extends IntegrationTestRunner {
 
     "search for hierarchical items with no query should apply a top-level filter" in new ITestApp {
       val search = route(fakeLoggedInHtmlRequest(privilegedUser, GET,
-        controllers.archdesc.routes.DocumentaryUnits.search().url)).get
+        controllers.units.routes.DocumentaryUnits.search().url)).get
       status(search) must equalTo(OK)
       searchParamBuffer
         .last.filters.get(SolrConstants.TOP_LEVEL) must equalTo(Some(true))
@@ -31,7 +31,7 @@ class SearchSpec extends IntegrationTestRunner {
 
     "search for hierarchical item with a query should not apply a top-level filter" in new ITestApp {
       val search = route(fakeLoggedInHtmlRequest(privilegedUser, GET,
-        controllers.archdesc.routes.DocumentaryUnits.search().url + "?q=foo")).get
+        controllers.units.routes.DocumentaryUnits.search().url + "?q=foo")).get
       status(search) must equalTo(OK)
       searchParamBuffer
         .last.filters.get(SolrConstants.TOP_LEVEL) must equalTo(None)
@@ -68,7 +68,7 @@ class SearchSpec extends IntegrationTestRunner {
     "perform hierarchy indexing correctly" in new ITestApp {
 
       val idx = route(fakeLoggedInHtmlRequest(privilegedUser, POST,
-        controllers.archdesc.routes.Repositories.updateIndexPost("r1").url), "").get
+        controllers.institutions.routes.Repositories.updateIndexPost("r1").url), "").get
       status(idx) must equalTo(OK)
       // NB: reading the content of the chunked response as a string is
       // necessary to exhaust the iteratee and fill the event buffer.

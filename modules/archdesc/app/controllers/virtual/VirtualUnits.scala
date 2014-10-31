@@ -1,4 +1,4 @@
-package controllers.archdesc
+package controllers.virtual
 
 import play.api.libs.concurrent.Execution.Implicits._
 import forms.VisibilityForm
@@ -84,7 +84,7 @@ case class VirtualUnits @Inject()(implicit globalConfig: global.GlobalConfig, se
 
   private def makeId(id: String) = s"vu-$id"
 
-  private val vuRoutes = controllers.archdesc.routes.VirtualUnits
+  private val vuRoutes = controllers.virtual.routes.VirtualUnits
 
   def search = userProfileAction.async { implicit userOpt => implicit request =>
   // What filters we gonna use? How about, only list stuff here that

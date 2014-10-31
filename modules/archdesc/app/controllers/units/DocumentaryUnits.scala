@@ -1,4 +1,4 @@
-package controllers.archdesc
+package controllers.units
 
 import play.api.libs.concurrent.Execution.Implicits._
 import forms.VisibilityForm
@@ -113,7 +113,7 @@ case class DocumentaryUnits @Inject()(implicit globalConfig: global.GlobalConfig
   val childForm = models.DocumentaryUnit.form
   val descriptionForm = models.DocumentaryUnitDescription.form
 
-  private val docRoutes = controllers.archdesc.routes.DocumentaryUnits
+  private val docRoutes = controllers.units.routes.DocumentaryUnits
 
 
   def search = userProfileAction.async { implicit userOpt => implicit request =>

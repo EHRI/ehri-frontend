@@ -10,17 +10,17 @@
                 </a>
                 <ul class="dropdown-menu">
                     <li>
-                        <a href="@controllers.archdesc.routes.DocumentaryUnits.manageAccessPoints(item.id, did)">
+                        <a href="@controllers.units.routes.DocumentaryUnits.manageAccessPoints(item.id, did)">
                             @Messages("describedEntity.manageAccessPoints")
                         </a>
                     </li>
                     <li>
-                        <a href="@controllers.archdesc.routes.DocumentaryUnits.updateDescription(item.id, did)">
+                        <a href="@controllers.units.routes.DocumentaryUnits.updateDescription(item.id, did)">
                             @Messages("describedEntity.editDescription")
                         </a>
                     </li>
                     <li>
-                        <a class="alert alert-danger" href="@controllers.archdesc.routes.DocumentaryUnits.deleteDescription(item.id, did)">
+                        <a class="alert alert-danger" href="@controllers.units.routes.DocumentaryUnits.deleteDescription(item.id, did)">
                             @Messages("describedEntity.deleteDescription")
                         </a>
                     </li>

@@ -16,27 +16,27 @@
 } {
     @common.search.facetList(page.facets, action)
 
-    @common.visibility(item, controllers.authorities.routes.AuthoritativeSets.visibility(item.id), ContentTypes.AuthoritativeSet)
-    @common.latestAction(item, controllers.authorities.routes.AuthoritativeSets.history(item.id))
+    @common.visibility(item, controllers.sets.routes.AuthoritativeSets.visibility(item.id), ContentTypes.AuthoritativeSet)
+    @common.latestAction(item, controllers.sets.routes.AuthoritativeSets.history(item.id))
 
     @common.sidebarActions { user =>
         @common.sidebarAction(user.hasPermission(ContentTypes.HistoricalAgent, PermissionType.Create)) {
-            <a href="@controllers.authorities.routes.AuthoritativeSets.createHistoricalAgent(item.id)">@Messages("historicalAgent.create")</a>
+            <a href="@controllers.sets.routes.AuthoritativeSets.createHistoricalAgent(item.id)">@Messages("historicalAgent.create")</a>
         }
         @common.sidebarAction(user.hasPermission(ContentTypes.AuthoritativeSet, PermissionType.Update)) {
-            <a href="@controllers.authorities.routes.AuthoritativeSets.update(item.id)">@Messages("item.update")</a>
+            <a href="@controllers.sets.routes.AuthoritativeSets.update(item.id)">@Messages("item.update")</a>
         }
         @common.sidebarAction(user.hasPermission(ContentTypes.AuthoritativeSet, PermissionType.Delete)) {
-            <a href="@controllers.authorities.routes.AuthoritativeSets.delete(item.id)">@Messages("item.delete")</a>
+            <a href="@controllers.sets.routes.AuthoritativeSets.delete(item.id)">@Messages("item.delete")</a>
         }
         @common.sidebarAction(user.hasPermission(ContentTypes.AuthoritativeSet, PermissionType.Grant)) {
-            <a href="@controllers.authorities.routes.AuthoritativeSets.managePermissions(item.id)">@Messages("permissions.manage")</a>
+            <a href="@controllers.sets.routes.AuthoritativeSets.managePermissions(item.id)">@Messages("permissions.manage")</a>
         }
         @common.sidebarAction() {
-            <a href="@controllers.authorities.routes.AuthoritativeSets.history(item.id)">@Messages("item.history")</a>
+            <a href="@controllers.sets.routes.AuthoritativeSets.history(item.id)">@Messages("item.history")</a>
         }
         @common.sidebarAction(user.isAdmin) {
-            <a href="@controllers.authorities.routes.AuthoritativeSets.updateIndex(item.id)">@Messages("search.updateIndex")</a>
+            <a href="@controllers.sets.routes.AuthoritativeSets.updateIndex(item.id)">@Messages("search.updateIndex")</a>
         }
         @common.sidebarAction() {
             <a href="@controllers.admin.routes.ApiController.getItem(item.isA, item.id)">@Messages("item.export.json")</a>
