@@ -1,4 +1,4 @@
-package controllers.core
+package controllers.core.auth.persona
 
 import models.{UserProfile, Account, AccountDAO}
 import play.api.mvc._
