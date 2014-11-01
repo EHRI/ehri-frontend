@@ -1,26 +1,18 @@
-//
-// Global request object
-//
+/**
+ * The application global object.
+ */
 
 import backend.parse.ParseFeedbackDAO
-import backend.rest._
-import backend.rest.BadJson
-import backend.rest.RestBackend
-import backend.rest.GidSearchResolver
 import backend.{IdGenerator, FeedbackDAO, EventHandler, Backend}
+import backend.rest._
 import com.github.seratch.scalikesolr.request.common.WriterType
 import com.typesafe.plugin.{CommonsMailerPlugin, MailerAPI}
-import java.util.concurrent.TimeUnit
 import models.AccountDAO
 import models.sql.SqlAccount
 import play.api._
-import play.api.libs.json.{Json, JsError}
-import play.api.mvc._
 
-import play.api.mvc.Result
-import play.api.Play.current
+import play.api.mvc.{RequestHeader, WithFilters, Result}
 import play.filters.csrf._
-import scala.concurrent.duration.Duration
 
 import com.tzavellas.sse.guice.ScalaModule
 import utils.search._
@@ -30,6 +22,8 @@ import scala.concurrent.Future.{successful => immediate}
 
 
 object Global extends WithFilters(CSRFFilter()) with GlobalSettings {
+
+  import play.api.Play.current
 
   // This is where we tie together the various parts of the application
   // in terms of the component implementations.
@@ -51,6 +45,9 @@ object Global extends WithFilters(CSRFFilter()) with GlobalSettings {
     // to the SolrIndexer update/delete handlers. Do this
     // asyncronously and log any failures...
     import play.api.libs.concurrent.Execution.Implicits._
+    import java.util.concurrent.TimeUnit
+    import scala.concurrent.duration.Duration
+
     def logFailure(id: String, func: String => Future[Unit]): Unit = {
       func(id) onFailure {
         case t => Logger.logger.error("Indexing error: " + t.getMessage)
@@ -100,28 +97,6 @@ object Global extends WithFilters(CSRFFilter()) with GlobalSettings {
   override def onError(request: RequestHeader, ex: Throwable) = {
     implicit def req = request
 
-    def jsonError(e: BadJson): String = {
-      for {
-        url <- e.url
-        data <- e.data
-      } yield {
-        """Unexpected JSON received from backend at %s (%s %s)
-          |
-          |Data:
-          |%s
-          |
-          |Error:
-          |%s""".stripMargin.format(
-          url, request.path, request.method, data, Json.prettyPrint(JsError.toFlatJson(e.error)))
-      }
-    }.getOrElse {
-      """Unexpected JSON received from backend at %s (%s)
-
-        |Error:
-        |%s""".format(
-        request.path, request.method, Json.prettyPrint(JsError.toFlatJson(e.error)))
-    }
-
     ex.getCause match {
       case e: PermissionDenied => immediate(Unauthorized(
         renderError("errors.permissionDenied", permissionDenied(Some(e)))))
@@ -129,12 +104,12 @@ object Global extends WithFilters(CSRFFilter()) with GlobalSettings {
         renderError("errors.itemNotFound", itemNotFound(e.value))))
       case e: java.net.ConnectException => immediate(InternalServerError(
           renderError("errors.databaseError", serverTimeout())))
-      case e: BadJson => sys.error(jsonError(e))
+      case e: BadJson => sys.error(e.getMessageWithContext(request))
 
       case e => current.mode match {
-        case Mode.Prod => immediate(InternalServerError(
+        case Mode.Dev => super.onError(request, ex)
+        case _ => immediate(InternalServerError(
           renderError("errors.genericProblem", fatalError())))
-        case _ => super.onError(request, ex)
       }
     }
   }
