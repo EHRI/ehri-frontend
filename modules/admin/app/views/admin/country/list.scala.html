@@ -1,0 +1,25 @@
+@(page: utils.Page[Country], params: utils.PageParams)(implicit userOpt: Option[UserProfile], req: RequestHeader, globalConfig: global.GlobalConfig, lang: Lang, flash: Flash)
+
+@views.html.admin.layout.rightSidebar(Messages("country.list")) {
+
+	<h3>@Messages("pagination.displayingItems", page.offset + 1, page.offset + page.items.size, page.total)</h3>
+
+    @common.pagination(page)
+	
+	<ul class="list-unstyled">
+	@page.items.map { item =>
+	  	<div class="list-item">
+			<h5>
+				<a href="@controllers.countries.routes.Countries.get(item.id)">@item.toStringLang</a>
+			</h5>
+		</div>
+	}
+	</ul>
+
+} {
+    @views.html.admin.common.sidebarActions { user =>
+        @views.html.admin.common.sidebarAction(user.hasPermission(ContentTypes.Country, PermissionType.Create)) {
+            <a href="@controllers.countries.routes.Countries.create">@Messages("country.create")</a>
+        }
+    }
+}

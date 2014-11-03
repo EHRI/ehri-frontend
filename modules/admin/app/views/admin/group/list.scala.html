@@ -1,0 +1,24 @@
+@(items: utils.Page[Group], params: utils.PageParams)(implicit userOpt: Option[UserProfile], req: RequestHeader, globalConfig: global.GlobalConfig, lang: Lang, flash: Flash)
+
+@import defines._
+
+@views.html.admin.layout.rightSidebar(Messages("group.list")) {
+	<h3>@Messages("pagination.displayingItems", items.offset + 1, items.offset + items.items.size, items.total)</h3>
+
+    @common.pagination(items)
+	
+	<ul class="list-unstyled">
+	@items.items.map { item =>
+	  	<li>
+            @views.html.admin.group.listItem(item)
+		</li>
+	}
+	</ul>
+    
+} {
+    @views.html.admin.common.sidebarActions { user =>
+        @views.html.admin.common.sidebarAction(user.hasPermission(ContentTypes.Group, PermissionType.Create)) {
+            <a href="@controllers.groups.routes.Groups.create">@Messages("group.create")</a>
+        }
+    }
+}

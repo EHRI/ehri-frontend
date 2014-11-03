@@ -46,5 +46,5 @@ case class EadExporter(backend: Backend)(implicit apiUser: ApiUser) {
     tree <- fetchTree(id, eadId)
     treeWithRepo = tree.copy(item = tree.item.copy(holder = repository))
   } yield XmlFormatter.format(
-      views.xml.export.ead.ead(treeWithRepo).body)
+      views.xml.admin.export.ead.ead(treeWithRepo).body)
 }

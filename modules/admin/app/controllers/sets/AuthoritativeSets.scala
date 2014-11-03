@@ -36,27 +36,27 @@ AuthoritativeSets @Inject()(implicit globalConfig: global.GlobalConfig, searchDi
     find[HistoricalAgent](
       filters = Map(SolrConstants.HOLDER_ID -> item.id),
       entities=List(EntityType.HistoricalAgent)).map { r =>
-      Ok(views.html.authoritativeSet.show(
+      Ok(views.html.admin.authoritativeSet.show(
           item, r.page, r.params, r.facets, setRoutes.get(id), annotations, links))
     }
   }
 
   def history(id: String) = historyAction(id) { item => page => params => implicit userOpt => implicit request =>
-    Ok(views.html.systemEvents.itemList(item, page, params))
+    Ok(views.html.admin.systemEvents.itemList(item, page, params))
   }
 
   def list = pageAction { page => params => implicit userOpt => implicit request =>
-    Ok(views.html.authoritativeSet.list(page, params))
+    Ok(views.html.admin.authoritativeSet.list(page, params))
   }
 
   def create = createAction { users => groups => implicit userOpt => implicit request =>
-    Ok(views.html.authoritativeSet.create(form, VisibilityForm.form, users, groups, setRoutes.createPost()))
+    Ok(views.html.admin.authoritativeSet.create(form, VisibilityForm.form, users, groups, setRoutes.createPost()))
   }
 
   def createPost = createPostAction.async(form) { formsOrItem => implicit userOpt => implicit request =>
     formsOrItem match {
       case Left((errorForm,accForm)) => getUsersAndGroups { users => groups =>
-        BadRequest(views.html.authoritativeSet.create(errorForm, accForm, users, groups, setRoutes.createPost()))
+        BadRequest(views.html.admin.authoritativeSet.create(errorForm, accForm, users, groups, setRoutes.createPost()))
       }
       case Right(item) => immediate(Redirect(setRoutes.get(item.id))
         .flashing("success" -> "item.create.confirmation"))
@@ -64,14 +64,14 @@ AuthoritativeSets @Inject()(implicit globalConfig: global.GlobalConfig, searchDi
   }
 
   def update(id: String) = updateAction(id) { item => implicit userOpt => implicit request =>
-    Ok(views.html.authoritativeSet.edit(
+    Ok(views.html.admin.authoritativeSet.edit(
       item, form.fill(item.model),setRoutes.updatePost(id)))
   }
 
   def updatePost(id: String) = updatePostAction(id, form) {
       olditem => formOrItem => implicit userOpt => implicit request =>
     formOrItem match {
-      case Left(errorForm) => BadRequest(views.html.authoritativeSet.edit(
+      case Left(errorForm) => BadRequest(views.html.admin.authoritativeSet.edit(
           olditem, errorForm, setRoutes.updatePost(id)))
       case Right(item) => Redirect(setRoutes.get(item.id))
         .flashing("success" -> "item.update.confirmation")
@@ -81,7 +81,7 @@ AuthoritativeSets @Inject()(implicit globalConfig: global.GlobalConfig, searchDi
   def createHistoricalAgent(id: String) = childCreateAction.async(id) {
       item => users => groups => implicit userOpt => implicit request =>
     idGenerator.getNextChildNumericIdentifier(id, EntityType.HistoricalAgent).map { newid =>
-      Ok(views.html.historicalAgent.create(
+      Ok(views.html.admin.historicalAgent.create(
         item, childForm.bind(Map(Entity.IDENTIFIER -> newid)),
         formDefaults, VisibilityForm.form.fill(item.accessors.map(_.id)), users, groups,
           setRoutes.createHistoricalAgentPost(id)))
@@ -92,7 +92,7 @@ AuthoritativeSets @Inject()(implicit globalConfig: global.GlobalConfig, searchDi
       item => formsOrItem => implicit userOpt => implicit request =>
     formsOrItem match {
       case Left((errorForm,accForm)) => getUsersAndGroups { users => groups =>
-        BadRequest(views.html.historicalAgent.create(item,
+        BadRequest(views.html.admin.historicalAgent.create(item,
           errorForm, formDefaults, accForm, users, groups, setRoutes.createHistoricalAgentPost(id)))
       }
       case Right(citem) => immediate(Redirect(controllers.authorities.routes.HistoricalAgents.get(citem.id))
@@ -101,7 +101,7 @@ AuthoritativeSets @Inject()(implicit globalConfig: global.GlobalConfig, searchDi
   }
 
   def delete(id: String) = deleteAction(id) { item => implicit userOpt => implicit request =>
-    Ok(views.html.delete(
+    Ok(views.html.admin.delete(
         item, setRoutes.deletePost(id),
         setRoutes.get(id)))
   }
@@ -112,7 +112,7 @@ AuthoritativeSets @Inject()(implicit globalConfig: global.GlobalConfig, searchDi
   }
 
   def visibility(id: String) = visibilityAction(id) { item => users => groups => implicit userOpt => implicit request =>
-    Ok(views.html.permissions.visibility(item,
+    Ok(views.html.admin.permissions.visibility(item,
         VisibilityForm.form.fill(item.accessors.map(_.id)),
         users, groups, setRoutes.visibilityPost(id)))
   }
@@ -124,25 +124,25 @@ AuthoritativeSets @Inject()(implicit globalConfig: global.GlobalConfig, searchDi
 
   def managePermissions(id: String) = manageScopedPermissionsAction(id) {
       item => perms => sperms => implicit userOpt => implicit request =>
-    Ok(views.html.permissions.manageScopedPermissions(item, perms, sperms,
+    Ok(views.html.admin.permissions.manageScopedPermissions(item, perms, sperms,
         setRoutes.addItemPermissions(id), setRoutes.addScopedPermissions(id)))
   }
 
   def addItemPermissions(id: String) = addItemPermissionsAction(id) {
       item => users => groups => implicit userOpt => implicit request =>
-    Ok(views.html.permissions.permissionItem(item, users, groups,
+    Ok(views.html.admin.permissions.permissionItem(item, users, groups,
         setRoutes.setItemPermissions))
   }
 
   def addScopedPermissions(id: String) = addItemPermissionsAction(id) {
       item => users => groups => implicit userOpt => implicit request =>
-    Ok(views.html.permissions.permissionScope(item, users, groups,
+    Ok(views.html.admin.permissions.permissionScope(item, users, groups,
         setRoutes.setScopedPermissions))
   }
 
   def setItemPermissions(id: String, userType: EntityType.Value, userId: String) = setItemPermissionsAction(id, userType, userId) {
       item => accessor => perms => implicit userOpt => implicit request =>
-    Ok(views.html.permissions.setPermissionItem(item, accessor, perms, AuthoritativeSet.Resource.contentType,
+    Ok(views.html.admin.permissions.setPermissionItem(item, accessor, perms, AuthoritativeSet.Resource.contentType,
         setRoutes.setItemPermissionsPost(id, userType, userId)))
   }
 
@@ -154,7 +154,7 @@ AuthoritativeSets @Inject()(implicit globalConfig: global.GlobalConfig, searchDi
 
   def setScopedPermissions(id: String, userType: EntityType.Value, userId: String) = setScopedPermissionsAction(id, userType, userId) {
       item => accessor => perms => implicit userOpt => implicit request =>
-    Ok(views.html.permissions.setPermissionScope(item, accessor, perms, targetContentTypes,
+    Ok(views.html.admin.permissions.setPermissionScope(item, accessor, perms, targetContentTypes,
         setRoutes.setScopedPermissionsPost(id, userType, userId)))
   }
 
@@ -167,7 +167,7 @@ AuthoritativeSets @Inject()(implicit globalConfig: global.GlobalConfig, searchDi
 
   def updateIndex(id: String) = adminAction.async { implicit userOpt => implicit request =>
     getEntity(id, userOpt) { item =>
-      Ok(views.html.search.updateItemIndex(item,
+      Ok(views.html.admin.search.updateItemIndex(item,
         action = setRoutes.updateIndexPost(id)))
     }
   }

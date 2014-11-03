@@ -1,0 +1,15 @@
+@(item: AnyModel, links: Seq[Link])(implicit userOpt: Option[UserProfile], req: RequestHeader, globalConfig: global.GlobalConfig, lang: Lang)
+
+@defining(links.filter(_.bodies.isEmpty)) { annotationLinks =>
+    @if(!annotationLinks.isEmpty) {
+        <hr />
+        <h3>@Messages("link.linkTo")</h3>
+        <ul class="annotation-links">
+            @for(link <- annotationLinks ; other <- link.opposingTarget(item)) {
+                <li class="annotation-link">
+                    @itemLink(link, other)
+                </li>
+            }
+        </ul>
+    }
+}
