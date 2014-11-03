@@ -11,7 +11,7 @@
 
     <p>
         @item.actioner.map { accessor =>
-            <a href="@views.Helpers.linkTo(accessor)">@accessor.toStringLang</a>:
+            <a href="@views.admin.Helpers.linkTo(accessor)">@accessor.toStringLang</a>:
         }
         <time>@item.time</time>
         (@views.Helpers.relativeDate(item.model.timestamp))
@@ -22,7 +22,7 @@
     }
 
     @item.scope.map { scope =>
-        @Messages("systemEvent.scope"):  <a href="@views.Helpers.linkTo(scope)">@scope.toStringLang</a>
+        @Messages("systemEvent.scope"):  <a href="@views.admin.Helpers.linkTo(scope)">@scope.toStringLang</a>
     }
 
     <div id="subjects">
@@ -45,7 +45,7 @@
                 @common.pagination(page)
                 <ul class="list-unstyled">
                     @page.items.map { item =>
-                    <li><a href="@views.Helpers.linkTo(item)">@item.toStringLang</a></li>
+                    <li><a href="@views.admin.Helpers.linkTo(item)">@item.toStringLang</a></li>
                     }
                 </ul>
         }

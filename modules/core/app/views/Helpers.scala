@@ -148,14 +148,6 @@ package object Helpers {
     0.until(if (field.indexes.isEmpty) 0 else field.indexes.max + 1).flatMap(i => field("[" + i + "]").value).toList
   }
 
-  def linkTo(item: AnyModel)(implicit globalConfig: global.GlobalConfig): Call = {
-    globalConfig.routeRegistry.urlFor(item)
-  }
-
-  def linkToOpt(item: AnyModel)(implicit globalConfig: global.GlobalConfig): Option[Call] = {
-    globalConfig.routeRegistry.optionalUrlFor(item)
-  }
-
   def maybeActive(url: String)(implicit request: RequestHeader) = {
     if(request.path.equals(url)) "active" else ""
   }

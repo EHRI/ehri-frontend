@@ -1,8 +1,8 @@
 package controllers.portal
 
-import play.api.http.MimeTypes
+import play.api.http.{ContentTypes, MimeTypes}
 import play.api.Routes
-import play.api.mvc.{Controller,Action}
+import play.api.mvc.{Cookie, Controller, Action}
 import play.api.cache.Cached
 import play.api.Play.current
 
@@ -40,8 +40,10 @@ object PortalData extends Controller {
           controllers.portal.routes.javascript.Annotations.editAnnotationPost,
           controllers.portal.routes.javascript.Annotations.deleteAnnotation,
           controllers.portal.routes.javascript.Annotations.deleteAnnotationPost,
+          controllers.portal.routes.javascript.Annotations.promoteAnnotationPost,
+          controllers.portal.routes.javascript.Annotations.demoteAnnotationPost,
           controllers.portal.routes.javascript.Annotations.setAnnotationVisibilityPost,
-          controllers.core.routes.javascript.SearchFilter.filter,
+          controllers.portal.routes.javascript.Portal.filter,
           controllers.portal.routes.javascript.Portal.browseItem,
           controllers.portal.routes.javascript.Guides.browseDocument,
           controllers.portal.routes.javascript.Portal.linkedData,
@@ -69,6 +71,59 @@ object PortalData extends Controller {
     }
   }
 
+  /**
+   * Provide functionality for changing the current locale.
+   *
+   * This is borrowed from:
+   * https://github.com/julienrf/chooze/blob/master/app/controllers/CookieLang.scala
+   */
+  private val LANG = "lang"
 
-  
+  def changeLocale(lang: String) = Action { implicit request =>
+    val referrer = request.headers.get(REFERER).getOrElse("/")
+    Redirect(referrer).withCookies(Cookie(LANG, lang))
+  }
+
+  /**
+   * Handle trailing slashes with a permanent redirect.
+   */
+  def untrail(path: String) = Action { request =>
+    val query = if (request.rawQueryString != "") "?" + request.rawQueryString else ""
+    MovedPermanently("/" + path + query)
+  }
+
+  def localeData(lang: String) = Cached.status(_ => "pages:localeData", OK, 3600) {
+    Action { request =>
+      implicit val locale = play.api.i18n.Lang(lang)
+
+      val js =
+        """
+          |var __languageData = {
+          |  %s
+          |};
+          |
+          |var __countryData = {
+          |  %s
+          |};
+          |
+          |var LocaleData = {
+          |  languageCodeToName: function(code) {
+          |    return __languageData[code] || code;
+          |  },
+          |  countryCodeToName: function(code) {
+          |    return __countryData[code] || code;
+          |  },
+          |}
+        """.stripMargin.format(
+          utils.i18n.languagePairList.map{ case (code, name) =>
+            code + ": \"" + name + "\""
+          }.mkString(",\n  "),
+          utils.i18n.countryPairList.map{ case (code, name) =>
+            code.toLowerCase + ": \"" + name + "\""
+          }.mkString(",\n  ")
+        )
+
+      Ok(js).as(ContentTypes.JAVASCRIPT)
+    }
+  }
 }

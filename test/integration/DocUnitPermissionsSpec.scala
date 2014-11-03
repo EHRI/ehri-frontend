@@ -8,7 +8,7 @@ import defines._
 class DocUnitPermissionsSpec extends IntegrationTestRunner {
   import mocks.{privilegedUser, unprivilegedUser}
 
-  private val docRoutes = controllers.archdesc.routes.DocumentaryUnits
+  private val docRoutes = controllers.units.routes.DocumentaryUnits
 
   val userProfile = UserProfile(
     model = UserProfileF(id = Some(privilegedUser.id), identifier = "test", name="test user"),
@@ -33,7 +33,7 @@ class DocUnitPermissionsSpec extends IntegrationTestRunner {
       // Trying to create the item should fail initially.
       // Check we cannot create an item...
       val cr = route(fakeLoggedInHtmlRequest(unprivilegedUser, POST,
-        controllers.archdesc.routes.Repositories.createDocPost("r2").url).withHeaders(formPostHeaders.toSeq: _*), testData).get
+        controllers.institutions.routes.Repositories.createDocPost("r2").url).withHeaders(formPostHeaders.toSeq: _*), testData).get
       status(cr) must equalTo(FORBIDDEN)
 
       // Grant permissions to create docs within the scope of r2
@@ -41,13 +41,13 @@ class DocUnitPermissionsSpec extends IntegrationTestRunner {
         DocumentaryUnit.toString -> List("create", "update", "delete")
       )
       val permReq = route(fakeLoggedInHtmlRequest(privilegedUser, POST,
-        controllers.archdesc.routes.Repositories.setScopedPermissionsPost(testRepo, EntityType.UserProfile, unprivilegedUser.id).url)
+        controllers.institutions.routes.Repositories.setScopedPermissionsPost(testRepo, EntityType.UserProfile, unprivilegedUser.id).url)
         .withHeaders(formPostHeaders.toSeq: _*), permTestData).get
       status(permReq) must equalTo(SEE_OTHER)
       // Now try again and create the item... it should succeed.
       // Check we cannot create an item...
       val cr2 = route(fakeLoggedInHtmlRequest(unprivilegedUser, POST,
-        controllers.archdesc.routes.Repositories.createDocPost(testRepo).url).withHeaders(formPostHeaders.toSeq: _*), testData).get
+        controllers.institutions.routes.Repositories.createDocPost(testRepo).url).withHeaders(formPostHeaders.toSeq: _*), testData).get
       status(cr2) must equalTo(SEE_OTHER)
       val getR = route(fakeLoggedInHtmlRequest(unprivilegedUser, GET, redirectLocation(cr2).get)).get
       status(getR) must equalTo(OK)

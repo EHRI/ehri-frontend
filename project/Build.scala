@@ -140,42 +140,15 @@ object ApplicationBuild extends Build {
       RjsKeys.mainModule := "core-main"
   ).settings(commonSettings: _*).dependsOn(backend % "test->test;compile->compile")
 
-  lazy val admin = Project(appName + "-admin", file("modules/admin"))
-    .enablePlugins(play.PlayScala).settings(
-    version := appVersion
-  ).settings(commonSettings: _*).dependsOn(core)
-
-  lazy val annotation = Project(appName + "-annotation", file("modules/annotation"))
-    .enablePlugins(play.PlayScala).settings(
-    version := appVersion,
-    libraryDependencies ++= coreDependencies
-  ).settings(commonSettings: _*).dependsOn(admin)
-
-  lazy val linking = Project(appName + "-linking", file("modules/linking"))
-    .enablePlugins(play.PlayScala).settings(
-    version := appVersion
-  ).settings(commonSettings: _*).dependsOn(annotation)
-
   lazy val portal = Project(appName + "-portal", file("modules/portal"))
     .enablePlugins(play.PlayScala).settings(
     version := appVersion,
     libraryDependencies ++= portalDependencies,
     pipelineStages := Seq(rjs, digest, gzip),
     RjsKeys.mainModule := "portal-main"
-  ).settings(commonSettings: _*).dependsOn(linking)
+  ).settings(commonSettings: _*).dependsOn(core)
 
-  lazy val archdesc = Project(appName + "-archdesc", file("modules/archdesc"))
-    .enablePlugins(play.PlayScala).settings(
-    version := appVersion,
-    parallelExecution in Test := false
-  ).settings(commonSettings: _*).dependsOn(portal)
-
-  lazy val authorities = Project(appName + "-authorities", file("modules/authorities"))
-    .enablePlugins(play.PlayScala).settings(
-    version := appVersion
-  ).settings(commonSettings: _*).dependsOn(portal)
-
-  lazy val vocabs = Project(appName + "-vocabs", file("modules/vocabs"))
+  lazy val admin = Project(appName + "-admin", file("modules/admin"))
     .enablePlugins(play.PlayScala).settings(
     version := appVersion
   ).settings(commonSettings: _*).dependsOn(portal)
@@ -183,20 +156,15 @@ object ApplicationBuild extends Build {
   lazy val guides = Project(appName + "-guides", file("modules/guides"))
     .enablePlugins(play.PlayScala).settings(
     version := appVersion
-  ).settings(commonSettings: _*).dependsOn(archdesc)
-
-  lazy val adminUtils = Project(appName + "-adminutils", file("modules/adminutils"))
-    .enablePlugins(play.PlayScala).settings(
-    version := appVersion
-  ).settings(commonSettings: _*).dependsOn(archdesc, authorities, vocabs, guides)
+  ).settings(commonSettings: _*).dependsOn(admin)
 
   lazy val main = Project(appName, file("."))
     .enablePlugins(play.PlayScala).settings(
     version := appVersion,
     libraryDependencies ++= coreDependencies ++ testDependencies
   ).settings(commonSettings ++ assetSettings: _*)
-    .dependsOn(adminUtils)
-    .aggregate(backend, core, admin, annotation, linking, portal, archdesc, authorities, vocabs, guides, adminUtils)
+    .dependsOn(portal, admin, guides)
+    .aggregate(backend, core, admin, portal, guides)
 
   override def rootProject = Some(main)
 }

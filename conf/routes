@@ -8,11 +8,5 @@
 
 # Admin routes
 -> /admin               admin.Routes
--> /admin               linking.Routes
--> /admin               annotation.Routes
--> /admin               authorities.Routes
--> /admin               archdesc.Routes
--> /admin               vocabs.Routes
--> /admin               guides.Routes
--> /admin               adminutils.Routes
+-> /admin              guides.Routes
 

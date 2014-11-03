@@ -1,0 +1,47 @@
+# Documentary Unit Routes
+
+GET     /                                          @controllers.units.DocumentaryUnits.search
+GET     /list                                      @controllers.units.DocumentaryUnits.list
+GET     /:id                                       @controllers.units.DocumentaryUnits.get(id: String)
+GET     /:id/history                               @controllers.units.DocumentaryUnits.history(id: String)
+GET     /:id/delete                                @controllers.units.DocumentaryUnits.delete(id: String)
+POST    /:id/delete                                @controllers.units.DocumentaryUnits.deletePost(id: String)
+GET     /:id/update                                @controllers.units.DocumentaryUnits.update(id: String)
+POST    /:id/update                                @controllers.units.DocumentaryUnits.updatePost(id: String)
+GET     /:id/create                                @controllers.units.DocumentaryUnits.createDoc(id: String)
+POST    /:id/create                                @controllers.units.DocumentaryUnits.createDocPost(id: String)
+GET     /:id/createDescription                     @controllers.units.DocumentaryUnits.createDescription(id: String)
+POST    /:id/createDescription                     @controllers.units.DocumentaryUnits.createDescriptionPost(id: String)
+GET     /:id/updateDescription/:did                @controllers.units.DocumentaryUnits.updateDescription(id: String, did: String)
+POST    /:id/updateDescription/:did                @controllers.units.DocumentaryUnits.updateDescriptionPost(id: String, did: String)
+GET     /:id/deleteDescription/:did                @controllers.units.DocumentaryUnits.deleteDescription(id: String, did: String)
+POST    /:id/deleteDescription/:did                @controllers.units.DocumentaryUnits.deleteDescriptionPost(id: String, did: String)
+GET     /:id/visibility                            @controllers.units.DocumentaryUnits.visibility(id: String)
+POST    /:id/visibility                            @controllers.units.DocumentaryUnits.visibilityPost(id: String)
+GET     /:id/permissions/manage                    @controllers.units.DocumentaryUnits.managePermissions(id: String)
+GET     /:id/permissions/add                       @controllers.units.DocumentaryUnits.addItemPermissions(id: String)
+GET     /:id/permissions/:userType/:userId         @controllers.units.DocumentaryUnits.setItemPermissions(id: String, userType: EntityType.Value, userId: String)
+POST    /:id/permissions/:userType/:userId         @controllers.units.DocumentaryUnits.setItemPermissionsPost(id: String, userType: EntityType.Value, userId: String)
+GET     /:id/scope/add                             @controllers.units.DocumentaryUnits.addScopedPermissions(id: String)
+GET     /:id/scope/:userType/:userId               @controllers.units.DocumentaryUnits.setScopedPermissions(id: String, userType: EntityType.Value, userId: String)
+POST    /:id/scope/:userType/:userId               @controllers.units.DocumentaryUnits.setScopedPermissionsPost(id: String, userType: EntityType.Value, userId: String)
+GET     /:id/ead                                   @controllers.units.DocumentaryUnits.exportEad(id: String)
+
+GET     /:id/link                                  @controllers.units.DocumentaryUnits.linkTo(id: String)
+GET     /:id/link/:toType                          @controllers.units.DocumentaryUnits.linkAnnotateSelect(id: String, toType: EntityType.Value)
+GET     /:id/link/:toType/:to                      @controllers.units.DocumentaryUnits.linkAnnotate(id: String, toType: EntityType.Value, to: String)
+POST    /:id/link/:toType/:to                      @controllers.units.DocumentaryUnits.linkAnnotatePost(id: String, toType: EntityType.Value, to: String)
+GET     /:id/linkm                                 @controllers.units.DocumentaryUnits.linkMultiAnnotate(id: String)
+POST    /:id/linkm                                 @controllers.units.DocumentaryUnits.linkMultiAnnotatePost(id)
+POST    /:id/linkjs/:accessPoint                   @controllers.units.DocumentaryUnits.createLink(id: String, accessPoint: String)
+GET     /:id/linkjs/:accessPoint                   @controllers.units.DocumentaryUnits.getLink(id: String, accessPoint: String)
+POST    /:id/linkjs                                @controllers.units.DocumentaryUnits.createMultipleLinks(id: String)
+# Refetch access point HTML@
+POST    /:id/accessPoints/create/:desc             @controllers.units.DocumentaryUnits.createAccessPoint(id: String, desc: String)
+GET     /:id/accessPoints/:desc                    @controllers.units.DocumentaryUnits.manageAccessPoints(id: String, desc: String)
+GET     /:id/accessPointsJs                        @controllers.units.DocumentaryUnits.getAccessPointsJson(id: String)
+POST    /:id/deleteAccess/:did/:accessPoint        @controllers.units.DocumentaryUnits.deleteAccessPoint(id: String, did: String, accessPoint: String)
+POST    /:id/deleteLink/:link                      @controllers.units.DocumentaryUnits.deleteLink(id: String, link: String)
+POST    /:id/deleteLink/:did/:accessPoint/:link    @controllers.units.DocumentaryUnits.deleteLinkAndAccessPoint(id: String, did: String, accessPoint: String, link: String)
+
+

@@ -8,7 +8,7 @@ implicit userOpt: Option[UserProfile], req: RequestHeader, globalConfig: global.
     @helper.form(action = action, 'class -> "entity-form form-horizontal") {
         @formHelpers.csrfToken()
         @userProfile.renderForm(item, f)
-        @formHelpers.submitButtonWithLogMessageInput(Messages("userProfile.update.submit"), cancel = views.Helpers.linkToOpt(item))
+        @formHelpers.submitButtonWithLogMessageInput(Messages("userProfile.update.submit"), cancel = views.admin.Helpers.linkToOpt(item))
 	}
 		
 } {

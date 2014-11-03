@@ -1,0 +1,12 @@
+@(item: DocumentaryUnit, scripts: Html = Html(""), styles: Html = Html(""), sidebar: Html = Html(""))(html: Html)(implicit userOpt: Option[UserProfile], req: RequestHeader, globalConfig: global.GlobalConfig, lang: Lang, flash: Flash)
+
+@layout.rightSidebar(item.model.identifier, breadcrumbs = documentaryUnit.breadcrumbs(item), scripts = scripts, styles = styles) {
+    @html
+} {
+
+    @sidebar
+
+    @common.visibility(item, controllers.units.routes.DocumentaryUnits.visibility(item.id), ContentTypes.DocumentaryUnit)
+    @common.latestAction(item, controllers.units.routes.DocumentaryUnits.history(item.id))
+    @adminActions(item)
+}

@@ -36,18 +36,7 @@ trait AuthController extends Controller with ControllerHelpers with AsyncAuth wi
 
   implicit def apiUser(implicit userOpt: Option[UserProfile]): ApiUser = ApiUser(userOpt.map(_.id))
 
-  /**
-   * Provide functionality for changing the current locale.
-   *
-   * This is borrowed from:
-   * https://github.com/julienrf/chooze/blob/master/app/controllers/CookieLang.scala
-   */
   private val LANG = "lang"
-
-  def changeLocale(lang: String) = Action { implicit request =>
-    val referrer = request.headers.get(REFERER).getOrElse(globalConfig.routeRegistry.default.url)
-    Redirect(referrer).withCookies(Cookie(LANG, lang))
-  }
 
   override implicit def request2lang(implicit request: RequestHeader) = {
     request.cookies.get(LANG) match {

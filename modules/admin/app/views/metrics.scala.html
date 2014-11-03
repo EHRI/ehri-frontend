@@ -1,0 +1,151 @@
+@()(implicit userOpt: Option[UserProfile] = None, req: RequestHeader, globalConfig: global.GlobalConfig, lang: Lang, flash: Flash)
+
+@extrascript = {
+
+    <script type="text/javascript" src="@controllers.portal.routes.PortalData.localeData(lang.code)"></script>
+    <script type="text/javascript" src="@controllers.admin.routes.Assets.at("js/jquery.flot.js")"></script>
+    <script type="text/javascript" src="@controllers.admin.routes.Assets.at("js/jquery.flot.pie.js")"></script>
+    <script type="text/javascript" src="@controllers.admin.routes.Home.jsRoutes"></script>
+    <script type="text/javascript">
+
+        var colors = [
+            "rgb(148,64,237)",
+            "rgb(58,131,232)",
+            "rgb(203,75,75)",
+            "rgb(189,155,51)",
+            "rgb(237,194,64)",
+            "rgb(203,75,75)",
+            "rgb(175,216,248)",
+            "rgb(77,167,77)",
+            "rgb(162,60,60)"
+        ];
+
+        var otherColor = "rgb(255,232,76)";
+
+        function plotBar(name, data) {
+            $.plot("#" + name).removeClass("loading"), data, {
+                series: {
+                    bars: {
+                        show: true
+                    }
+                },
+                legend: {
+                    position: "se"
+                }
+            }
+        }
+
+        function plotPie(name, data) {
+            $.plot($("#" + name).removeClass("loading"), data, {
+                series: {
+                    pie: {
+                        show: true
+                    }
+                },
+                legend: {
+                    position: "se"
+                }
+            });
+        }
+
+        function convertData(facetData, maxSeries, labelRenderer) {
+            var data = [];
+            var renderer = labelRenderer || function(code) {return code};
+            for (var i = 0; i < facetData.length; i++) {
+                if (i < maxSeries) {
+                    data[i] = {
+                        label: renderer(facetData[i].value),
+                        data: facetData[i].count,
+                        color: colors[i]
+                    }
+                } else {
+                    if (!data[maxSeries]) {
+                        data[maxSeries] = {
+                            label: "Other",
+                            data: 0,
+                            color: otherColor
+                        }
+                    }
+                    data[maxSeries]["data"] += facetData[i].count
+                }
+            }
+            return data;
+        }
+
+        function plotData(func, data, facetKey, placeholder, max, labelRenderer) {
+            var classes = data.page.facetClasses;
+            for (var ci = 0; ci < classes.length; ci++) {
+                if (classes[ci].key == facetKey) {
+                    func(placeholder, convertData(classes[ci].facets, max, labelRenderer));
+                }
+            }
+        }
+
+
+        $(function() {
+            $.getJSON(jsRoutes.controllers.admin.Metrics.languageOfMaterial().url, function(data) {
+                plotData(plotPie, data, "languageCode", "document-languages", 5, LocaleData.languageCodeToName);
+            });
+            $.getJSON(jsRoutes.controllers.admin.Metrics.holdingRepository().url, function(data) {
+                plotData(plotPie, data, "repositoryName", "document-holders", 5);
+            });
+            $.getJSON(jsRoutes.controllers.admin.Metrics.repositoryCountries().url, function(data) {
+                plotData(plotPie, data, "countryCode", "repository-countries", 10, LocaleData.countryCodeToName);
+            });
+            $.getJSON(jsRoutes.controllers.admin.Metrics.agentTypes().url, function(data) {
+                plotData(plotPie, data, "typeOfEntity", "agent-types", 5, function(code) {
+                    if (code == "corporateBody") return "Corporate Body";
+                    else if (code == "family") return "Family";
+                    else if (code == "person") return "Person";
+                    return code;
+                });
+            });
+            $.getJSON(jsRoutes.controllers.admin.Metrics.restricted().url, function(data) {
+                plotData(plotPie, data, "restricted", "restricted-data", 5, function(code) {
+                    if (code == "true") return "Restricted";
+                    else return "Not Restricted"
+                });
+            });
+        });
+    </script>
+}
+
+@layout.noSidebar(Messages("admin.metrics"), scripts = extrascript) {
+
+    <div class="row">
+        <div class="col-md-6 overview-box">
+            <h4>@Messages("metrics.languageOfMaterial")</h4>
+            <div id="document-languages" class="overview-item loading">
+            </div>
+        </div>
+        <div class="col-md-6 overview-box">
+            <h4>@Messages("metrics.holdingRepository")</h4>
+            <div id="document-holders" class="overview-item loading">
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-md-6 overview-box">
+            <h4>@Messages("metrics.repositoryCountries")</h4>
+            <div id="repository-countries" class="overview-item loading">
+            </div>
+        </div>
+        <div class="col-md-6 overview-box">
+            <h4>@Messages("metrics.agentTypes")</h4>
+            <div id="agent-types" class="overview-item loading">
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-md-6 overview-box">
+            <h4>@Messages("metrics.restrictedMaterial")</h4>
+            <div id="restricted-data" class="overview-item loading">
+            </div>
+        </div>
+        <div class="col-md-6 overview-box">
+
+        </div>
+    </div>
+}

@@ -32,7 +32,7 @@
     } else {
         <strong>@Messages("accessor.currentGroups")</strong>&nbsp;
         @item.groups.map { group =>
-            <a class="badge" href="@controllers.admin.routes.Groups.get(group.id)">@group.toStringLang</a>
+            <a class="badge" href="@controllers.groups.routes.Groups.get(group.id)">@group.toStringLang</a>
         }
     }
 }

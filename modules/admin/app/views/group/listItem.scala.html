@@ -1,7 +1,7 @@
 @(item: Group)(implicit req: RequestHeader, lang: Lang)
 
 @common.search.searchItemOutline(item.id) {
-    <a href="@controllers.admin.routes.Groups.get(item.id)">@item.toStringLang</a>
+    <a href="@controllers.groups.routes.Groups.get(item.id)">@item.toStringLang</a>
 } {
     <small>
         <ul class="list-unstyled text-muted inline inline-separator">

@@ -3,6 +3,7 @@ package controllers.portal
 import play.api.libs.concurrent.Execution.Implicits._
 import play.api.mvc._
 import controllers.base.{SessionPreferences, AuthController, ControllerHelpers}
+import controllers.generic.Visibility
 import models.{AnnotationF, Annotation, UserProfile}
 import play.api.Play.current
 import views.html.p
@@ -28,6 +29,7 @@ import com.google.inject._
 case class Annotations @Inject()(implicit globalConfig: global.GlobalConfig, searchDispatcher: Dispatcher, searchResolver: Resolver, backend: Backend, userDAO: models.AccountDAO)
   extends AuthController
   with ControllerHelpers
+  with Visibility[Annotation]
   with PortalAuthConfigImpl
   with SessionPreferences[SessionPrefs] {
 
@@ -153,6 +155,30 @@ case class Annotations @Inject()(implicit globalConfig: global.GlobalConfig, sea
         }
       }
     )
+  }
+
+
+
+  def promoteAnnotation(id: String, isField: Boolean) = promoteAction(id) { _ => implicit userOpt => implicit request =>
+    ???
+  }
+
+  def promoteAnnotationPost(id: String, isField: Boolean) = promotePostAction.async(id) { item => _ => implicit userOpt => implicit request =>
+    backend.get[Annotation](id).map { promoted =>
+      if (isField) Ok(p.common.annotationInline(promoted, editable = item.isOwnedBy(userOpt)))
+      else Ok(p.common.annotationBlock(promoted, editable = item.isOwnedBy(userOpt)))
+    }
+  }
+
+  def demoteAnnotation(id: String, isField: Boolean) = demoteAction(id) { _ => implicit userOpt => implicit request =>
+    ???
+  }
+
+  def demoteAnnotationPost(id: String, isField: Boolean) = demotePostAction.async(id) { item => _ => implicit userOpt => implicit request =>
+    backend.get[Annotation](id).map { demoted =>
+      if (isField) Ok(p.common.annotationInline(demoted, editable = item.isOwnedBy(userOpt)))
+      else Ok(p.common.annotationBlock(demoted, editable = item.isOwnedBy(userOpt)))
+    }
   }
 
   /**
