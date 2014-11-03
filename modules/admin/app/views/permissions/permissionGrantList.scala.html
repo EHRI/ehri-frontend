@@ -1,9 +1,0 @@
-@(item: Accessor, page: utils.Page[PermissionGrant])(implicit userOpt: Option[UserProfile], req: RequestHeader, globalConfig: global.GlobalConfig, lang: Lang, flash: Flash)
-
-@implicitField = @{ views.html.helper.FieldConstructor(formHelpers.fieldTemplate.f) }
-
-@views.html.admin.layout.rightSidebar(Messages("permissionGrant.heading", item.toStringLang), breadcrumbs = views.html.admin.common.breadcrumbs(List(item))) {
-    @permissions.permissionList(Some(item), page)
-} {
-
-}

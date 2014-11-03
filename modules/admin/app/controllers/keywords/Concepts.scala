@@ -53,31 +53,31 @@ case class Concepts @Inject()(implicit globalConfig: global.GlobalConfig, search
 
   def get(id: String) = getWithChildrenAction[Concept](id) {
       item => page => params => annotations => links => implicit userOpt => implicit request =>
-    Ok(views.html.concept.show(item, page, params, links, annotations))
+    Ok(views.html.admin.concept.show(item, page, params, links, annotations))
   }
 
   def search = searchAction[Concept](entities = List(EntityType.Concept), entityFacets = entityFacets) {
       page => params => facets => implicit userOpt => implicit request =>
-    Ok(views.html.concept.search(page, params, facets, conceptRoutes.search()))
+    Ok(views.html.admin.concept.search(page, params, facets, conceptRoutes.search()))
   }
 
   def history(id: String) = historyAction(id) { item => page => params => implicit userOpt => implicit request =>
-    Ok(views.html.systemEvents.itemList(item, page, params))
+    Ok(views.html.admin.systemEvents.itemList(item, page, params))
   }
 
   def list = pageAction { page => params => implicit userOpt => implicit request =>
-    Ok(views.html.concept.list(page, params))
+    Ok(views.html.admin.concept.list(page, params))
   }
 
   def update(id: String) = updateAction(id) {
       item => implicit userOpt => implicit request =>
-    Ok(views.html.concept.edit(item, form.fill(item.model),conceptRoutes.updatePost(id)))
+    Ok(views.html.admin.concept.edit(item, form.fill(item.model),conceptRoutes.updatePost(id)))
   }
 
   def updatePost(id: String) = updatePostAction(id, form) {
       oldItem => formOrItem => implicit userOpt => implicit request =>
     formOrItem match {
-      case Left(errorForm) => BadRequest(views.html.concept.edit(
+      case Left(errorForm) => BadRequest(views.html.admin.concept.edit(
           oldItem, errorForm, conceptRoutes.updatePost(id)))
       case Right(item) => Redirect(conceptRoutes.get(item.id))
         .flashing("success" -> "item.update.confirmation")
@@ -86,7 +86,7 @@ case class Concepts @Inject()(implicit globalConfig: global.GlobalConfig, search
 
   def createConcept(id: String) = childCreateAction(id) {
       item => users => groups => implicit userOpt => implicit request =>
-    Ok(views.html.concept.create(
+    Ok(views.html.admin.concept.create(
         item, childForm, VisibilityForm.form, users, groups, conceptRoutes.createConceptPost(id)))
   }
 
@@ -94,7 +94,7 @@ case class Concepts @Inject()(implicit globalConfig: global.GlobalConfig, search
       item => formsOrItem => implicit userOpt => implicit request =>
     formsOrItem match {
       case Left((errorForm,accForm)) => getUsersAndGroups { users => groups =>
-        BadRequest(views.html.concept.create(item,
+        BadRequest(views.html.admin.concept.create(item,
           errorForm, accForm, users, groups, conceptRoutes.createConceptPost(id)))
       }
       case Right(citem) => immediate(Redirect(conceptRoutes.get(id))
@@ -114,7 +114,7 @@ case class Concepts @Inject()(implicit globalConfig: global.GlobalConfig, search
 
   def visibility(id: String) = visibilityAction(id) {
       item => users => groups => implicit userOpt => implicit request =>
-    Ok(views.html.permissions.visibility(item,
+    Ok(views.html.admin.permissions.visibility(item,
         VisibilityForm.form.fill(item.accessors.map(_.id)),
         users, groups, conceptRoutes.visibilityPost(id)))
   }
@@ -127,25 +127,25 @@ case class Concepts @Inject()(implicit globalConfig: global.GlobalConfig, search
 
   def managePermissions(id: String) = manageScopedPermissionsAction(id) {
       item => perms => sperms => implicit userOpt => implicit request =>
-    Ok(views.html.permissions.manageScopedPermissions(item, perms, sperms,
+    Ok(views.html.admin.permissions.manageScopedPermissions(item, perms, sperms,
         conceptRoutes.addItemPermissions(id), conceptRoutes.addScopedPermissions(id)))
   }
 
   def addItemPermissions(id: String) = addItemPermissionsAction(id) {
       item => users => groups => implicit userOpt => implicit request =>
-    Ok(views.html.permissions.permissionItem(item, users, groups,
+    Ok(views.html.admin.permissions.permissionItem(item, users, groups,
         conceptRoutes.setItemPermissions))
   }
 
   def addScopedPermissions(id: String) = addItemPermissionsAction(id) {
       item => users => groups => implicit userOpt => implicit request =>
-    Ok(views.html.permissions.permissionScope(item, users, groups,
+    Ok(views.html.admin.permissions.permissionScope(item, users, groups,
         conceptRoutes.setScopedPermissions))
   }
 
   def setItemPermissions(id: String, userType: EntityType.Value, userId: String) = setItemPermissionsAction(id, userType, userId) {
       item => accessor => perms => implicit userOpt => implicit request =>
-    Ok(views.html.permissions.setPermissionItem(item, accessor, perms, Concept.Resource.contentType,
+    Ok(views.html.admin.permissions.setPermissionItem(item, accessor, perms, Concept.Resource.contentType,
         conceptRoutes.setItemPermissionsPost(id, userType, userId)))
   }
 
@@ -157,7 +157,7 @@ case class Concepts @Inject()(implicit globalConfig: global.GlobalConfig, search
 
   def setScopedPermissions(id: String, userType: EntityType.Value, userId: String) = setScopedPermissionsAction(id, userType, userId) {
       item => accessor => perms => implicit userOpt => implicit request =>
-    Ok(views.html.permissions.setPermissionScope(item, accessor, perms, targetContentTypes,
+    Ok(views.html.admin.permissions.setPermissionScope(item, accessor, perms, targetContentTypes,
         conceptRoutes.setScopedPermissionsPost(id, userType, userId)))
   }
 
@@ -169,7 +169,7 @@ case class Concepts @Inject()(implicit globalConfig: global.GlobalConfig, search
 
   def linkAnnotate(id: String, toType: EntityType.Value, to: String) = linkAction(id, toType, to) {
       target => source => implicit userOpt => implicit request =>
-    Ok(views.html.link.create(target, source,
+    Ok(views.html.admin.link.create(target, source,
             Link.form, conceptRoutes.linkAnnotatePost(id, toType, to)))
   }
 
@@ -177,7 +177,7 @@ case class Concepts @Inject()(implicit globalConfig: global.GlobalConfig, search
       formOrAnnotation => implicit userOpt => implicit request =>
     formOrAnnotation match {
       case Left((target,source,errorForm)) => {
-          BadRequest(views.html.link.create(target, source,
+          BadRequest(views.html.admin.link.create(target, source,
               errorForm, conceptRoutes.linkAnnotatePost(id, toType, to)))
       }
       case Right(annotation) => {

@@ -17,7 +17,7 @@ case class SystemEvents @Inject()(implicit globalConfig: global.GlobalConfig, ba
     val params = PageParams.fromRequest(request)
     val subjectParams = PageParams.fromRequest(request, namespace = "s")
     backend.subjectsForEvent[AnyModel](id, subjectParams).map { page =>
-      Ok(views.html.systemEvents.show(item, page, params))
+      Ok(views.html.admin.systemEvents.show(item, page, params))
     }
   }
 
@@ -29,6 +29,6 @@ case class SystemEvents @Inject()(implicit globalConfig: global.GlobalConfig, ba
     for {
       users <- RestHelpers.getUserList
       events <- backend.listEvents[SystemEvent](listParams, eventFilter)
-    } yield Ok(views.html.systemEvents.list(events, listParams, filterForm, users))
+    } yield Ok(views.html.admin.systemEvents.list(events, listParams, filterForm, users))
   }
 }

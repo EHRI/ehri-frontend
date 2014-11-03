@@ -1,0 +1,10 @@
+@(accessorOpt: Option[Accessor], page: utils.Page[PermissionGrant], namespace: String = "")(implicit req: RequestHeader, globalConfig: global.GlobalConfig, lang: Lang)
+
+<h3>@Messages("pagination.displayingItems", page.offset + 1, page.offset + page.items.size, page.total)</h3>
+<ul>
+@page.items.map { perm =>
+    @permissionGrantItem(accessorOpt, perm, showRevoke = true)
+}
+</ul>
+@common.pagination(page, namespace)
+

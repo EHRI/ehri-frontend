@@ -20,17 +20,17 @@ case class Links @Inject()(implicit globalConfig: global.GlobalConfig, backend: 
   def get(id: String) = getAndRedirect(id, None)
 
   def getAndRedirect(id: String, redirect: Option[String] = None) = getAction(id) { item => links => _ => implicit userOpt => implicit request =>
-    Ok(views.html.link.show(item, links, redirect))
+    Ok(views.html.admin.link.show(item, links, redirect))
   }
 
   def history(id: String) = historyAction(id) {
       item => page => params => implicit userOpt => implicit request =>
-    Ok(views.html.systemEvents.itemList(item, page, params))
+    Ok(views.html.admin.systemEvents.itemList(item, page, params))
   }
 
   def visibility(id: String) = visibilityAction(id) {
       item => users => groups => implicit userOpt => implicit request =>
-    Ok(views.html.permissions.visibility(item,
+    Ok(views.html.admin.permissions.visibility(item,
         VisibilityForm.form.fill(item.accessors.map(_.id)),
         users, groups,  linkRoutes.visibilityPost(id)))
   }
@@ -41,12 +41,12 @@ case class Links @Inject()(implicit globalConfig: global.GlobalConfig, backend: 
   }
   
   def update(id: String) = updateAction(id) { item => implicit userOpt => implicit request =>
-    Ok(views.html.link.edit(item, form.fill(item.model), linkRoutes.updatePost(id)))
+    Ok(views.html.admin.link.edit(item, form.fill(item.model), linkRoutes.updatePost(id)))
   }
 
   def updatePost(id: String) = updatePostAction(id, form) { olditem => formOrItem => implicit userOpt => implicit request =>
     formOrItem match {
-      case Left(errorForm) => BadRequest(views.html.link.edit(
+      case Left(errorForm) => BadRequest(views.html.admin.link.edit(
           olditem, errorForm, linkRoutes.updatePost(id)))
       case Right(item) => Redirect(linkRoutes.get(id))
         .flashing("success" -> "item.update.confirmation")
@@ -68,7 +68,7 @@ case class Links @Inject()(implicit globalConfig: global.GlobalConfig, backend: 
 
 
   def promote(id: String) = promoteAction(id) { item => implicit userOpt => implicit request =>
-    Ok(views.html.permissions.promote(item, linkRoutes.promotePost(id)))
+    Ok(views.html.admin.permissions.promote(item, linkRoutes.promotePost(id)))
   }
 
   def promotePost(id: String) = promotePostAction(id) { item => bool => implicit userOpt => implicit request =>
@@ -77,7 +77,7 @@ case class Links @Inject()(implicit globalConfig: global.GlobalConfig, backend: 
   }
 
   def demote(id: String) = demoteAction(id) { item => implicit userOpt => implicit request =>
-    Ok(views.html.permissions.demote(item,
+    Ok(views.html.admin.permissions.demote(item,
       linkRoutes.demotePost(id)))
   }
 

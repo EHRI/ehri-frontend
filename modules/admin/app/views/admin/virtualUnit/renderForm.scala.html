@@ -1,0 +1,17 @@
+@(f: play.api.data.Form[VirtualUnitF])(implicit userOpt: Option[UserProfile], req: RequestHeader, globalConfig: global.GlobalConfig, lang: Lang)
+
+@import models.IsadG._
+@import models.VirtualUnitF._
+
+@implicitField = @{ views.html.helper.FieldConstructor(formHelpers.fieldTemplate.f) }
+
+@defining(EntityType.VirtualUnit.toString) { implicit fieldPrefix =>
+
+    @formHelpers.lineInput(f(""), Entity.IDENTIFIER)
+
+    @helper.repeat(f("descriptions"), min=math.max(f("descriptions").indexes.length, 1)) { desc =>
+        @defining(EntityType.DocumentaryUnit.toString) { implicit fieldPrefix =>
+            @views.html.admin.documentaryUnit.renderDescriptionForm(desc)
+        }
+    }
+}

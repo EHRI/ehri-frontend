@@ -98,7 +98,7 @@ case class VirtualUnits @Inject()(implicit globalConfig: global.GlobalConfig, se
       entities = List(EntityType.VirtualUnit),
       facetBuilder = entityFacets
     ).map { result =>
-      Ok(views.html.virtualUnit.search(result.page, result.params, result.facets, vuRoutes.search()))
+      Ok(views.html.admin.virtualUnit.search(result.page, result.params, result.facets, vuRoutes.search()))
     }
   }
 
@@ -108,7 +108,7 @@ case class VirtualUnits @Inject()(implicit globalConfig: global.GlobalConfig, se
       filters = Map(SolrConstants.PARENT_ID -> item.id),
       facetBuilder = entityFacets
     ).map { result =>
-      Ok(views.html.virtualUnit.search(result.page, result.params, result.facets, vuRoutes.search()))
+      Ok(views.html.admin.virtualUnit.search(result.page, result.params, result.facets, vuRoutes.search()))
     }
   }
 
@@ -118,28 +118,28 @@ case class VirtualUnits @Inject()(implicit globalConfig: global.GlobalConfig, se
       entities = List(EntityType.VirtualUnit),
       facetBuilder = entityFacets
     ).map { result =>
-      Ok(views.html.virtualUnit.show(item, result.page, result.params, result.facets,
+      Ok(views.html.admin.virtualUnit.show(item, result.page, result.params, result.facets,
           vuRoutes.get(id), annotations, links))
     }
   }
 
   def history(id: String) = historyAction(id) { item => page => params => implicit userOpt => implicit request =>
-    Ok(views.html.systemEvents.itemList(item, page, params))
+    Ok(views.html.admin.systemEvents.itemList(item, page, params))
   }
 
   def list = pageAction { page => params => implicit userOpt => implicit request =>
-    Ok(views.html.virtualUnit.list(page, params))
+    Ok(views.html.admin.virtualUnit.list(page, params))
   }
 
   def update(id: String) = updateAction(id) { item => implicit userOpt => implicit request =>
-    Ok(views.html.virtualUnit.edit(
+    Ok(views.html.admin.virtualUnit.edit(
       item, form.fill(item.model),
       vuRoutes.updatePost(id)))
   }
 
   def updatePost(id: String) = updatePostAction(id, form) { olditem => formOrItem => implicit userOpt => implicit request =>
     formOrItem match {
-      case Left(errorForm) => BadRequest(views.html.virtualUnit.edit(
+      case Left(errorForm) => BadRequest(views.html.admin.virtualUnit.edit(
           olditem, errorForm, vuRoutes.updatePost(id)))
       case Right(item) => Redirect(vuRoutes.get(item.id))
         .flashing("success" -> "item.update.confirmation")
@@ -148,7 +148,7 @@ case class VirtualUnits @Inject()(implicit globalConfig: global.GlobalConfig, se
 
   def create = createAction.async { users => groups => implicit userOpt => implicit request =>
     idGenerator.getNextNumericIdentifier(EntityType.VirtualUnit).map { newId =>
-      Ok(views.html.virtualUnit.create(None, form.bind(Map(Entity.IDENTIFIER -> makeId(newId))),
+      Ok(views.html.admin.virtualUnit.create(None, form.bind(Map(Entity.IDENTIFIER -> makeId(newId))),
         VisibilityForm.form,
         users, groups, vuRoutes.createPost()))
     }
@@ -157,7 +157,7 @@ case class VirtualUnits @Inject()(implicit globalConfig: global.GlobalConfig, se
   def createPost = createPostAction.async(form) { formsOrItem => implicit userOpt => implicit request =>
     formsOrItem match {
       case Left((errorForm,accForm)) => getUsersAndGroups { users => groups =>
-        BadRequest(views.html.virtualUnit.create(None, errorForm, accForm,
+        BadRequest(views.html.admin.virtualUnit.create(None, errorForm, accForm,
           users, groups, vuRoutes.createPost()))
       }
       case Right(item) => immediate(Redirect(vuRoutes.get(item.id))
@@ -168,7 +168,7 @@ case class VirtualUnits @Inject()(implicit globalConfig: global.GlobalConfig, se
   def createChild(id: String) = childCreateAction.async(id) {
       item => users => groups => implicit userOpt => implicit request =>
     idGenerator.getNextNumericIdentifier(EntityType.VirtualUnit).map { newId =>
-      Ok(views.html.virtualUnit.create(
+      Ok(views.html.admin.virtualUnit.create(
         Some(item), childForm.bind(Map(Entity.IDENTIFIER -> makeId(newId))),
         VisibilityForm.form.fill(item.accessors.map(_.id)),
         users, groups, vuRoutes.createChildPost(id)))
@@ -179,7 +179,7 @@ case class VirtualUnits @Inject()(implicit globalConfig: global.GlobalConfig, se
       item => formsOrItem => implicit userOpt => implicit request =>
     formsOrItem match {
       case Left((errorForm,accForm)) => getUsersAndGroups { users => groups =>
-        BadRequest(views.html.virtualUnit.create(Some(item),
+        BadRequest(views.html.admin.virtualUnit.create(Some(item),
           errorForm, accForm, users, groups,
           vuRoutes.createChildPost(id)))
       }
@@ -193,7 +193,7 @@ case class VirtualUnits @Inject()(implicit globalConfig: global.GlobalConfig, se
   def createChildRef(id: String) = childCreateAction.async(id) {
     item => users => groups => implicit userOpt => implicit request =>
       idGenerator.getNextNumericIdentifier(EntityType.VirtualUnit).map { newId =>
-        Ok(views.html.virtualUnit.createRef(
+        Ok(views.html.admin.virtualUnit.createRef(
           Some(item), childForm.bind(Map(Entity.IDENTIFIER -> makeId(newId))),
           refForm,
           VisibilityForm.form.fill(item.accessors.map(_.id)),
@@ -212,7 +212,7 @@ case class VirtualUnits @Inject()(implicit globalConfig: global.GlobalConfig, se
     item => formsOrItem => implicit userOpt => implicit request =>
       formsOrItem match {
         case Left((errorForm,accForm)) => getUsersAndGroups { users => groups =>
-          BadRequest(views.html.virtualUnit.createRef(Some(item),
+          BadRequest(views.html.admin.virtualUnit.createRef(Some(item),
             errorForm, refForm.bindFromRequest, accForm, users, groups,
             vuRoutes.createChildRefPost(id)))
         }
@@ -235,7 +235,7 @@ case class VirtualUnits @Inject()(implicit globalConfig: global.GlobalConfig, se
 
   def createDescription(id: String) = withItemPermission[VirtualUnit](id, PermissionType.Update) {
       item => implicit userOpt => implicit request =>
-    Ok(views.html.virtualUnit.createDescription(item,
+    Ok(views.html.admin.virtualUnit.createDescription(item,
       descriptionForm, formDefaults, vuRoutes.createDescriptionPost(id)))
   }
 
@@ -243,7 +243,7 @@ case class VirtualUnits @Inject()(implicit globalConfig: global.GlobalConfig, se
       item => formOrItem => implicit userOpt => implicit request =>
     formOrItem match {
       case Left(errorForm) => {
-        Ok(views.html.virtualUnit.createDescription(item,
+        Ok(views.html.admin.virtualUnit.createDescription(item,
           errorForm, formDefaults, vuRoutes.createDescriptionPost(id)))
       }
       case Right(updated) => Redirect(vuRoutes.get(item.id))
@@ -264,7 +264,7 @@ case class VirtualUnits @Inject()(implicit globalConfig: global.GlobalConfig, se
   def updateDescription(id: String, did: String) = withItemPermission[VirtualUnit](id, PermissionType.Update) {
       item => implicit userOpt => implicit request =>
     itemOr404(item.model.description(did)) { desc =>
-      Ok(views.html.virtualUnit.editDescription(item,
+      Ok(views.html.admin.virtualUnit.editDescription(item,
         descriptionForm.fill(desc), vuRoutes.updateDescriptionPost(id, did)))
     }
   }
@@ -273,7 +273,7 @@ case class VirtualUnits @Inject()(implicit globalConfig: global.GlobalConfig, se
       item => formOrItem => implicit userOpt => implicit request =>
     formOrItem match {
       case Left(errorForm) => {
-        Ok(views.html.virtualUnit.editDescription(item,
+        Ok(views.html.admin.virtualUnit.editDescription(item,
           errorForm, vuRoutes.updateDescriptionPost(id, did)))
       }
       case Right(updated) => Redirect(vuRoutes.get(item.id))
@@ -296,7 +296,7 @@ case class VirtualUnits @Inject()(implicit globalConfig: global.GlobalConfig, se
 
   def visibility(id: String) = visibilityAction(id) {
       item => users => groups => implicit userOpt => implicit request =>
-    Ok(views.html.permissions.visibility(item,
+    Ok(views.html.admin.permissions.visibility(item,
         VisibilityForm.form.fill(item.accessors.map(_.id)),
         users, groups, vuRoutes.visibilityPost(id)))
   }
@@ -309,26 +309,26 @@ case class VirtualUnits @Inject()(implicit globalConfig: global.GlobalConfig, se
 
   def managePermissions(id: String) = manageScopedPermissionsAction(id) {
       item => perms => sperms => implicit userOpt => implicit request =>
-    Ok(views.html.permissions.manageScopedPermissions(item, perms, sperms,
+    Ok(views.html.admin.permissions.manageScopedPermissions(item, perms, sperms,
         vuRoutes.addItemPermissions(id),
         vuRoutes.addScopedPermissions(id)))
   }
 
   def addItemPermissions(id: String) = addItemPermissionsAction(id) {
       item => users => groups => implicit userOpt => implicit request =>
-    Ok(views.html.permissions.permissionItem(item, users, groups,
+    Ok(views.html.admin.permissions.permissionItem(item, users, groups,
         vuRoutes.setItemPermissions))
   }
 
   def addScopedPermissions(id: String) = addItemPermissionsAction(id) {
       item => users => groups => implicit userOpt => implicit request =>
-    Ok(views.html.permissions.permissionScope(item, users, groups,
+    Ok(views.html.admin.permissions.permissionScope(item, users, groups,
         vuRoutes.setScopedPermissions))
   }
 
   def setItemPermissions(id: String, userType: EntityType.Value, userId: String) = setItemPermissionsAction(id, userType, userId) {
       item => accessor => perms => implicit userOpt => implicit request =>
-    Ok(views.html.permissions.setPermissionItem(item, accessor, perms, VirtualUnit.Resource.contentType,
+    Ok(views.html.admin.permissions.setPermissionItem(item, accessor, perms, VirtualUnit.Resource.contentType,
         vuRoutes.setItemPermissionsPost(id, userType, userId)))
   }
 
@@ -340,7 +340,7 @@ case class VirtualUnits @Inject()(implicit globalConfig: global.GlobalConfig, se
 
   def setScopedPermissions(id: String, userType: EntityType.Value, userId: String) = setScopedPermissionsAction(id, userType, userId) {
       item => accessor => perms => implicit userOpt => implicit request =>
-    Ok(views.html.permissions.setPermissionScope(item, accessor, perms, targetContentTypes,
+    Ok(views.html.admin.permissions.setPermissionScope(item, accessor, perms, targetContentTypes,
         vuRoutes.setScopedPermissionsPost(id, userType, userId)))
   }
 
@@ -352,18 +352,18 @@ case class VirtualUnits @Inject()(implicit globalConfig: global.GlobalConfig, se
 
   def linkTo(id: String) = withItemPermission[VirtualUnit](id, PermissionType.Annotate) {
       item => implicit userOpt => implicit request =>
-    Ok(views.html.virtualUnit.linkTo(item))
+    Ok(views.html.admin.virtualUnit.linkTo(item))
   }
 
   def linkAnnotateSelect(id: String, toType: EntityType.Value) = linkSelectAction(id, toType) {
       item => page => params => facets => etype => implicit userOpt => implicit request =>
-    Ok(views.html.link.linkSourceList(item, page, params, facets, etype,
+    Ok(views.html.admin.link.linkSourceList(item, page, params, facets, etype,
         vuRoutes.linkAnnotateSelect(id, toType), vuRoutes.linkAnnotate))
   }
 
   def linkAnnotate(id: String, toType: EntityType.Value, to: String) = linkAction(id, toType, to) {
       target => source => implicit userOpt => implicit request =>
-    Ok(views.html.link.create(target, source,
+    Ok(views.html.admin.link.create(target, source,
         Link.form, vuRoutes.linkAnnotatePost(id, toType, to)))
   }
 
@@ -371,7 +371,7 @@ case class VirtualUnits @Inject()(implicit globalConfig: global.GlobalConfig, se
       formOrAnnotation => implicit userOpt => implicit request =>
     formOrAnnotation match {
       case Left((target,source,errorForm)) => {
-        BadRequest(views.html.link.create(target, source,
+        BadRequest(views.html.admin.link.create(target, source,
           errorForm, vuRoutes.linkAnnotatePost(id, toType, to)))
       }
       case Right(annotation) => {
@@ -383,7 +383,7 @@ case class VirtualUnits @Inject()(implicit globalConfig: global.GlobalConfig, se
 
   def linkMultiAnnotate(id: String) = linkMultiAction(id) {
       target => implicit userOpt => implicit request =>
-    Ok(views.html.link.linkMulti(target,
+    Ok(views.html.admin.link.linkMulti(target,
         Link.multiForm, vuRoutes.linkMultiAnnotatePost(id)))
   }
 
@@ -391,7 +391,7 @@ case class VirtualUnits @Inject()(implicit globalConfig: global.GlobalConfig, se
       formOrAnnotations => implicit userOpt => implicit request =>
     formOrAnnotations match {
       case Left((target,errorForms)) => {
-        BadRequest(views.html.link.linkMulti(target,
+        BadRequest(views.html.admin.link.linkMulti(target,
           errorForms, vuRoutes.linkMultiAnnotatePost(id)))
       }
       case Right(annotations) => {
