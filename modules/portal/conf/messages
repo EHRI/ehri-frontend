@@ -315,6 +315,7 @@ portal.contribution.visibility.me=Only Me
 portal.contribution.visibility.groups=My Groups
 portal.contribution.visibility.custom=Custom
 portal.contribution.visibility.allowPublic=Allow Promotion
+portal.contribution.visibility.allowPublic.title=Allow EHRI moderators to promote this note so it is visible to all users.
 
 # Image upload
 portal.error.imageTooLarge=This image was too large. Please select one smaller than 5 metabytes in size.
