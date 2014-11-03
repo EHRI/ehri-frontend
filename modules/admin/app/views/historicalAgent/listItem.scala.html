@@ -1,0 +1,35 @@
+@(item: HistoricalAgent)(implicit req: RequestHeader, lang: Lang)
+
+@import Isaar._
+
+@common.search.searchItemOutline(item.id) {
+    <a href="@controllers.authorities.routes.HistoricalAgents.get(item.id)">@item.toStringLang</a>
+} {
+    @item.model.descriptions.headOption.map { desc =>
+        @common.otherNameListSmall((desc.parallelFormsOfName ++ desc.otherFormsOfName).flatten.toList)
+        <small>
+            <ul class="list-unstyled text-muted inline inline-separator">
+                <li>@Messages("historicalAgent." + desc.entityType.toString)</li>
+                @desc.dates.map { dp =>
+                    <li>@dp.years</li>
+                }
+                @item.latestEvent.map { event =>
+                    <li title="@common.eventTitle(event)">
+                        <time datetime="@event.model.timestamp">@Messages("systemEvent.lastUpdated", views.Helpers.relativeDate(event.model.timestamp))</time>
+                    </li>
+                }
+            </ul>
+        </small>
+        @desc.details.datesOfExistence.map { d =>
+            <p>@d</p>
+        }
+        @desc.details.history.map { d =>
+            <p>@d</p>
+        }
+        @desc.details.generalContext.map { d =>
+            <p>@d</p>
+        }
+    }.getOrElse {
+        <small>@Messages("describedEntity.noDescriptions")</small>
+    }
+}

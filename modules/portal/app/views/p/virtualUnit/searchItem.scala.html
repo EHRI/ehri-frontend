@@ -11,26 +11,26 @@
     }
 }
 
-@p.common.searchHits(hit) {
-    <div class="search-item" id="@item.id">
-            <div class="search-item-actions">
-                @p.common.watchButtonsSmall(item, watched)
-            </div>
-            <h3 class="search-item-heading type-highlight @item.isA.toString">
-                <a class="@item.isA" href="@views.p.Helpers.virtualUnitUrl(path, item.id)">@item.toStringLang</a>
-            </h3>
-            <div class="search-item-body">
-                <ol class="collapsible">@wrapParent(item, path)</ol>
-                @item match {
-                    case d: DocumentaryUnit => {
-                        @p.documentaryUnit.listItemBody(d, showRepository)
-                    }
-                    case v: VirtualUnit => {
-                        @listItemBody(v, path)
-                    }
-                    case _ => {
-                    }
+<div class="search-item" id="@item.id">
+        <div class="search-item-actions">
+            @p.common.watchButtonsSmall(item, watched)
+        </div>
+        <h3 class="search-item-heading type-highlight @item.isA.toString">
+            <a class="@item.isA" href="@views.p.Helpers.virtualUnitUrl(path, item.id)">
+                @hit.highlight(item.toStringLang)
+            </a>
+        </h3>
+        <div class="search-item-body">
+            <ol class="collapsible">@wrapParent(item, path)</ol>
+            @item match {
+                case d: DocumentaryUnit => {
+                    @p.documentaryUnit.listItemBody(d, showRepository, highlighter = hit)
                 }
-            </div>
-    </div>
-}
+                case v: VirtualUnit => {
+                    @listItemBody(v, path, highlighter = hit)
+                }
+                case _ => {
+                }
+            }
+        </div>
+</div>

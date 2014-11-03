@@ -1,4 +1,4 @@
-@(item: Concept)(implicit req: RequestHeader, lang: Lang, descriptionId: Option[String] = None)
+@(item: Concept, highlighter: views.Highlighter = views.NoopHighlighter)(implicit req: RequestHeader, lang: Lang, descriptionId: Option[String] = None)
 
 @item.model.primaryDescription(descriptionId).map { desc =>
     <small>
@@ -16,7 +16,7 @@
                 <li>@Messages("cvocConcept.broaderTerms")</li>
                 @item.broaderTerms.map { bt =>
                 <li>
-                    <a href="@controllers.portal.routes.Portal.browseVocabulary(bt.id)">
+                    <a href="@controllers.portal.routes.Portal.browseConcept(bt.id)">
                         @bt.toStringLang
                     </a>
                 </li>
@@ -26,7 +26,7 @@
     </small>
 
     @desc.displayText.map(views.Helpers.ellipsize(_, 600)).map { sc =>
-        @Html(views.Helpers.renderMarkdown(sc))
+        @highlighter.highlight(views.Helpers.renderMarkdown(sc))
     }
 }
 

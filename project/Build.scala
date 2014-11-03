@@ -21,7 +21,7 @@ object ApplicationBuild extends Build {
       <exclude module="org.slf4j.slf4j-log4j12"/>
     </dependencies>
 
-  parallelExecution := false
+  parallelExecution in ThisBuild := false
   logBuffered := false
 
   val appName = "docview"
@@ -38,15 +38,28 @@ object ApplicationBuild extends Build {
 
   scalacOptions in ThisBuild ++= Seq("-unchecked", "-deprecation")
 
-  val coreDependencies = Seq(
-    jdbc,
-    anorm,
-    cache,
-    filters,
+  val backendDependencies = Seq(
     ws,
+    cache,
 
     // Ontology
     "ehri-project" % "ehri-definitions" % "1.0",
+    "joda-time" % "joda-time" % "2.1"
+  )
+
+  val backendTestDependencies = Seq(
+    "org.neo4j" % "neo4j-kernel" % "1.9.7" classifier "tests" classifier "",
+    "org.neo4j.app" % "neo4j-server" % "1.9.7" classifier "tests" classifier "",
+
+    "com.sun.jersey" % "jersey-core" % "1.9" % "test",
+    "ehri-project" % "ehri-frames" % "0.1-SNAPSHOT" % "test" classifier "tests" classifier "",
+    "ehri-project" % "ehri-extension" % "0.0.1-SNAPSHOT" % "test" classifier "tests" classifier ""
+  )
+
+  val coreDependencies = backendDependencies ++ Seq(
+    jdbc,
+    anorm,
+    filters,
 
     // Solely to satisfy SBT: bit.ly/16bFa4O
     "com.google.guava" % "guava" % "17.0",
@@ -63,7 +76,6 @@ object ApplicationBuild extends Build {
     // Play at runtime with an IncompatibleClassChangeError.
     "org.pegdown" % "pegdown" % "1.1.0",
 
-    "joda-time" % "joda-time" % "2.1",
     "org.mindrot" % "jbcrypt" % "0.3m",
 
     // Mailer...
@@ -84,19 +96,13 @@ object ApplicationBuild extends Build {
     "com.github.seratch" %% "awscala" % "0.3.+"
   )
 
-  val testDependencies = Seq(
-    "jp.t2v" %% "play2-auth-test" % "0.12.0" % "test",
-
-    "org.neo4j" % "neo4j-kernel" % "1.9.7" classifier "tests" classifier "",
-    "org.neo4j.app" % "neo4j-server" % "1.9.7" classifier "tests" classifier "",
-
-    "com.sun.jersey" % "jersey-core" % "1.9" % "test",
-    "ehri-project" % "ehri-frames" % "0.1-SNAPSHOT" % "test" classifier "tests" classifier "",
-    "ehri-project" % "ehri-extension" % "0.0.1-SNAPSHOT" % "test" classifier "tests" classifier ""
+  val testDependencies = backendTestDependencies ++ Seq(
+    "jp.t2v" %% "play2-auth-test" % "0.12.0" % "test"
   )
 
   val commonSettings = Seq(
-    templateImports in Compile ++= Seq("models.base._", "models.forms._", "acl._", "defines._"),
+    parallelExecution := false,
+    templateImports in Compile ++= Seq("models.base._", "utils.forms._", "acl._", "defines._", "backend.Entity"),
     routesImport += "defines.EntityType",
 
     resolvers += "neo4j-public-repository" at "http://m2.neo4j.org/content/groups/public",
@@ -117,6 +123,13 @@ object ApplicationBuild extends Build {
   val assetSettings = Seq(
   )
 
+  lazy val backend = Project(appName + "-backend", file("modules/backend"))
+    .enablePlugins(play.PlayScala).settings(
+    version := appVersion,
+    name := appName + "-backend",
+    libraryDependencies ++= backendDependencies ++ backendTestDependencies
+  ).settings(commonSettings: _*)
+
   lazy val core = Project(appName + "-core", file("modules/core"))
     .enablePlugins(play.PlayScala)
     .enablePlugins(SbtWeb).settings(
@@ -125,23 +138,7 @@ object ApplicationBuild extends Build {
       libraryDependencies ++= coreDependencies,
       pipelineStages := Seq(rjs, digest, gzip),
       RjsKeys.mainModule := "core-main"
-  ).settings(commonSettings: _*)
-
-  lazy val admin = Project(appName + "-admin", file("modules/admin"))
-    .enablePlugins(play.PlayScala).settings(
-    version := appVersion
-  ).settings(commonSettings: _*).dependsOn(core)
-
-  lazy val annotation = Project(appName + "-annotation", file("modules/annotation"))
-    .enablePlugins(play.PlayScala).settings(
-    version := appVersion,
-    libraryDependencies ++= coreDependencies
-  ).settings(commonSettings: _*).dependsOn(admin)
-
-  lazy val linking = Project(appName + "-linking", file("modules/linking"))
-    .enablePlugins(play.PlayScala).settings(
-    version := appVersion
-  ).settings(commonSettings: _*).dependsOn(annotation)
+  ).settings(commonSettings: _*).dependsOn(backend % "test->test;compile->compile")
 
   lazy val portal = Project(appName + "-portal", file("modules/portal"))
     .enablePlugins(play.PlayScala).settings(
@@ -149,19 +146,9 @@ object ApplicationBuild extends Build {
     libraryDependencies ++= portalDependencies,
     pipelineStages := Seq(rjs, digest, gzip),
     RjsKeys.mainModule := "portal-main"
-  ).settings(commonSettings: _*).dependsOn(linking)
+  ).settings(commonSettings: _*).dependsOn(core)
 
-  lazy val archdesc = Project(appName + "-archdesc", file("modules/archdesc"))
-    .enablePlugins(play.PlayScala).settings(
-    version := appVersion
-  ).settings(commonSettings: _*).dependsOn(portal)
-
-  lazy val authorities = Project(appName + "-authorities", file("modules/authorities"))
-    .enablePlugins(play.PlayScala).settings(
-    version := appVersion
-  ).settings(commonSettings: _*).dependsOn(portal)
-
-  lazy val vocabs = Project(appName + "-vocabs", file("modules/vocabs"))
+  lazy val admin = Project(appName + "-admin", file("modules/admin"))
     .enablePlugins(play.PlayScala).settings(
     version := appVersion
   ).settings(commonSettings: _*).dependsOn(portal)
@@ -169,19 +156,15 @@ object ApplicationBuild extends Build {
   lazy val guides = Project(appName + "-guides", file("modules/guides"))
     .enablePlugins(play.PlayScala).settings(
     version := appVersion
-  ).settings(commonSettings: _*).dependsOn(archdesc)
-
-  lazy val adminUtils = Project(appName + "-adminutils", file("modules/adminutils"))
-    .enablePlugins(play.PlayScala).settings(
-    version := appVersion
-  ).settings(commonSettings: _*).dependsOn(archdesc, authorities, vocabs, guides)
+  ).settings(commonSettings: _*).dependsOn(admin)
 
   lazy val main = Project(appName, file("."))
     .enablePlugins(play.PlayScala).settings(
     version := appVersion,
     libraryDependencies ++= coreDependencies ++ testDependencies
-  ).settings(commonSettings ++ assetSettings: _*).dependsOn(adminUtils)
-    .aggregate(core, admin, annotation, linking, portal, archdesc, authorities, vocabs, guides, adminUtils)
+  ).settings(commonSettings ++ assetSettings: _*)
+    .dependsOn(portal, admin, guides)
+    .aggregate(backend, core, admin, portal, guides)
 
   override def rootProject = Some(main)
 }

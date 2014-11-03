@@ -2,9 +2,24 @@
 
 GET         /                               @controllers.portal.Portal.index
 
+# Routes for core functionality
+
+GET         /robots.txt                     controllers.portal.Assets.at(path="/public", file="robots.txt")
+
+# Change locale
+GET         /locale/:lang                   controllers.portal.PortalData.changeLocale(lang: String)
+GET         /localeData                     controllers.portal.PortalData.localeData(lang: String ?= "en")
+
+# Remove trailing slash from all URL and redirect to slashless path
+GET         /*path/                         controllers.portal.PortalData.untrail(path)
+
+# Map static resources from the /public folder to the /assets URL path
+GET         /assets/*file                   controllers.core.Assets.at(path="/public", file)
+GET         /v/*file                        controllers.core.Assets.versioned(path="/public", file: Asset)
+
 GET         /feedback                       @controllers.portal.Feedback.feedback
 POST        /feedback                       @controllers.portal.Feedback.feedbackPost
-GET        /feedback/list                   @controllers.portal.Feedback.list
+GET         /feedback/list                  @controllers.portal.Feedback.list
 
 GET         /login                          @controllers.portal.Profile.login
 POST        /login                          @controllers.portal.Profile.passwordLoginPost
@@ -47,7 +62,6 @@ GET         /keywords                       @controllers.portal.Portal.browseCon
 GET         /keywords/:id                   @controllers.portal.Portal.browseConcept(id: String)
 GET         /links/:id                      @controllers.portal.Portal.browseLink(id: String)
 GET         /annotations/:id                @controllers.portal.Portal.browseAnnotation(id: String)
-GET         /activity                       @controllers.portal.Social.personalisedActivity(page: Int ?= 1, count: Int ?= 20)
 GET         /activity/:id                   @controllers.portal.Portal.itemHistory(id: String)
 GET         /vocabularies/:id               @controllers.portal.Portal.browseVocabulary(id: String)
 GET         /vocabularies/:id/search        @controllers.portal.Portal.searchVocabulary(id: String)
@@ -81,12 +95,18 @@ POST        /annotate/:aid/delete           @controllers.portal.Annotations.dele
 GET         /annotate/:aid/edit             @controllers.portal.Annotations.editAnnotation(aid: String, isField: Boolean ?= true)
 POST        /annotate/:aid/edit             @controllers.portal.Annotations.editAnnotationPost(aid: String, isField: Boolean ?= true)
 POST        /annotate/:aid/visibility       @controllers.portal.Annotations.setAnnotationVisibilityPost(aid: String)
+GET         /annotate/:aid/promote          @controllers.portal.Annotations.promoteAnnotation(aid: String, isField: Boolean ?= true)
+POST        /annotate/:aid/promote          @controllers.portal.Annotations.promoteAnnotationPost(aid: String, isField: Boolean ?= true)
+GET         /annotate/:aid/demote           @controllers.portal.Annotations.demoteAnnotation(aid: String, isField: Boolean ?= true)
+POST        /annotate/:aid/demote           @controllers.portal.Annotations.demoteAnnotationPost(aid: String, isField: Boolean ?= true)
 GET         /annotate/:id/:did              @controllers.portal.Annotations.annotate(id: String, did: String)
 POST        /annotate/:id/:did              @controllers.portal.Annotations.annotatePost(id: String, did: String)
 GET         /annotate/:id/:did/:field       @controllers.portal.Annotations.annotateField(id: String, did: String, field: String)
 POST        /annotate/:id/:did/:field       @controllers.portal.Annotations.annotateFieldPost(id: String, did: String, field: String)
 
 # Social networking stuff...
+GET         /activity                       @controllers.portal.Social.personalisedActivity(offset: Int ?= 0, limit: Int ?= 20)
+GET         /actions/:userId                @controllers.portal.Social.moreUserActivity(userId: String, offset: Int ?= 0, limit: Int ?= 20)
 GET         /people                         @controllers.portal.Social.browseUsers
 GET         /people/:userId                 @controllers.portal.Social.browseUser(userId: String)
 GET         /follow/:userId                 @controllers.portal.Social.followUser(userId: String)

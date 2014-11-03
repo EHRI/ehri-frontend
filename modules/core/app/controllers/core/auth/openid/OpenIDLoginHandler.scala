@@ -1,7 +1,7 @@
 package controllers.core.auth.openid
 
 import models.sql.OpenIDAssociation
-import models.{Account, AccountDAO}
+import models.{UserProfile, Account, AccountDAO}
 import play.api.libs.openid._
 import play.api.libs.concurrent.Execution.Implicits._
 import play.api._
@@ -108,7 +108,7 @@ trait OpenIDLoginHandler extends AccountHelpers {
               f(Right(acc))(request)
             } getOrElse {
               implicit val apiUser = ApiUser()
-              backend.createNewUserProfile(data, groups = defaultPortalGroups).flatMap { up =>
+              backend.createNewUserProfile[UserProfile](data, groups = defaultPortalGroups).flatMap { up =>
                 val account = userDAO.create(up.id, email.toLowerCase, verified = true,
                   staff = false, allowMessaging = canMessage)
                 OpenIDAssociation.addAssociation(account, info.id)

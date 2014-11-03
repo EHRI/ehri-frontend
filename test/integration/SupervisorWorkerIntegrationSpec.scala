@@ -19,7 +19,7 @@ import backend.ApiUser
  *  - assign permissions to worker group to create/update/delete only their OWN items in a repo
  *  - check that these perms are respected
  */
-class SupervisorWorkerIntegrationSpec extends Neo4jRunnerSpec(classOf[SupervisorWorkerIntegrationSpec]) {
+class SupervisorWorkerIntegrationSpec extends IntegrationTestRunner {
   import mocks.privilegedUser
 
   implicit val apiUser: ApiUser = ApiUser(Some(privilegedUser.id))
@@ -31,7 +31,7 @@ class SupervisorWorkerIntegrationSpec extends Neo4jRunnerSpec(classOf[Supervisor
 
   "The application" should {
 
-    "support supervisor CUD and user COD" in new FakeApp {
+    "support supervisor CUD and user COD" in new ITestApp {
 
       // Target country
       val countryId = "gb"
@@ -44,7 +44,7 @@ class SupervisorWorkerIntegrationSpec extends Neo4jRunnerSpec(classOf[Supervisor
         "descriptions[0].descriptionArea.history" -> Seq("A repository with a long history")
       )
       val repoCreatePost = route(fakeLoggedInHtmlRequest(privilegedUser, POST,
-        controllers.archdesc.routes.Countries.createRepositoryPost(countryId).url)
+        controllers.countries.routes.Countries.createRepositoryPost(countryId).url)
         .withHeaders(formPostHeaders.toSeq: _*), repoData).get
       status(repoCreatePost) must equalTo(SEE_OTHER)
 
@@ -52,7 +52,7 @@ class SupervisorWorkerIntegrationSpec extends Neo4jRunnerSpec(classOf[Supervisor
       val repoId = idFromUrl(redirectLocation(repoCreatePost).get)
 
       val repoRead = route(fakeLoggedInHtmlRequest(privilegedUser, GET,
-          controllers.archdesc.routes.Repositories.get(repoId).url)).get
+          controllers.institutions.routes.Repositories.get(repoId).url)).get
       status(repoRead) must equalTo(OK)
       contentAsString(repoRead) must contain("A Test Repository")
 
@@ -64,7 +64,7 @@ class SupervisorWorkerIntegrationSpec extends Neo4jRunnerSpec(classOf[Supervisor
         "description" -> Seq("Group for the Head Archivists in Test Repo")
       )
       val headArchivistsGroupCreatePost = route(fakeLoggedInHtmlRequest(privilegedUser, POST,
-        controllers.admin.routes.Groups.create().url)
+        controllers.groups.routes.Groups.create().url)
         .withHeaders(formPostHeaders.toSeq: _*), headArchivistsGroupData).get
       status(headArchivistsGroupCreatePost) must equalTo(SEE_OTHER)
 
@@ -75,17 +75,17 @@ class SupervisorWorkerIntegrationSpec extends Neo4jRunnerSpec(classOf[Supervisor
         "description" -> Seq("Group for the Archivists in Test Repo")
       )
       val archivistsGroupCreatePost = route(fakeLoggedInHtmlRequest(privilegedUser, POST,
-        controllers.admin.routes.Groups.create().url)
+        controllers.groups.routes.Groups.create().url)
         .withHeaders(formPostHeaders.toSeq: _*), archivistsGroupData).get
       status(archivistsGroupCreatePost) must equalTo(SEE_OTHER)
 
       // Check we can read both groups
       val groupRead1 = route(fakeLoggedInHtmlRequest(privilegedUser, GET,
-        controllers.admin.routes.Groups.get(headArchivistsGroupId).url)).get
+        controllers.groups.routes.Groups.get(headArchivistsGroupId).url)).get
       status(groupRead1) must equalTo(OK)
 
       val groupRead2 = route(fakeLoggedInHtmlRequest(privilegedUser, GET,
-        controllers.admin.routes.Groups.get(archivistsGroupId).url)).get
+        controllers.groups.routes.Groups.get(archivistsGroupId).url)).get
       status(groupRead2) must equalTo(OK)
 
       // Grant scoped permissions for the head archivists to create, update, and delete
@@ -97,7 +97,7 @@ class SupervisorWorkerIntegrationSpec extends Neo4jRunnerSpec(classOf[Supervisor
         EntityType.DocumentaryUnit.toString -> haPermissionsToGrant.map(_.toString)
       )
       val haPermSetPost = route(fakeLoggedInHtmlRequest(privilegedUser, POST,
-          controllers.archdesc.routes.Repositories.setScopedPermissionsPost(repoId, EntityType.Group, headArchivistsGroupId).url)
+          controllers.institutions.routes.Repositories.setScopedPermissionsPost(repoId, EntityType.Group, headArchivistsGroupId).url)
       .withHeaders(formPostHeaders.toSeq: _*), haPermData).get
       status(haPermSetPost) must equalTo(SEE_OTHER)
 
@@ -111,7 +111,7 @@ class SupervisorWorkerIntegrationSpec extends Neo4jRunnerSpec(classOf[Supervisor
         EntityType.DocumentaryUnit.toString -> aPermissionsToGrant.map(_.toString)
       )
       val aPermSetPost = route(fakeLoggedInHtmlRequest(privilegedUser, POST,
-          controllers.archdesc.routes.Repositories.setScopedPermissionsPost(repoId, EntityType.Group, archivistsGroupId).url)
+          controllers.institutions.routes.Repositories.setScopedPermissionsPost(repoId, EntityType.Group, archivistsGroupId).url)
       .withHeaders(formPostHeaders.toSeq: _*), aPermData).get
       status(aPermSetPost) must equalTo(SEE_OTHER)
 
@@ -128,13 +128,13 @@ class SupervisorWorkerIntegrationSpec extends Neo4jRunnerSpec(classOf[Supervisor
         "group[]" -> Seq(headArchivistsGroupId, archivistsGroupId) // NB: Note brackets on param name!!!
       )
       val haUserCreatePost = route(fakeLoggedInHtmlRequest(privilegedUser, POST,
-        controllers.admin.routes.UserProfiles.createUserPost().url)
+        controllers.users.routes.UserProfiles.createUserPost().url)
         .withHeaders(formPostHeaders.toSeq: _*), haUserData).get
       status(haUserCreatePost) must equalTo(SEE_OTHER)
 
       // Check we can read the user's page
       val haUserRead =  route(fakeLoggedInHtmlRequest(privilegedUser, GET,
-        controllers.admin.routes.UserProfiles.get(headArchivistUserId).url)).get
+        controllers.users.routes.UserProfiles.get(headArchivistUserId).url)).get
       status(haUserRead) must equalTo(OK)
 
       // Fetch the user's profile to perform subsequent logins
@@ -158,13 +158,13 @@ class SupervisorWorkerIntegrationSpec extends Neo4jRunnerSpec(classOf[Supervisor
         "group[]" -> Seq(archivistsGroupId) // NB: Note brackets on param name!!!
       )
       val aUserCreatePost = route(fakeLoggedInHtmlRequest(privilegedUser, POST,
-        controllers.admin.routes.UserProfiles.createUserPost().url)
+        controllers.users.routes.UserProfiles.createUserPost().url)
         .withHeaders(formPostHeaders.toSeq: _*), aUserData).get
       status(aUserCreatePost) must equalTo(SEE_OTHER)
 
       // Check we can read the user's page
       val aUserRead =  route(fakeLoggedInHtmlRequest(privilegedUser, GET,
-        controllers.admin.routes.UserProfiles.get(archivistUserId).url)).get
+        controllers.users.routes.UserProfiles.get(archivistUserId).url)).get
       status(aUserRead) must equalTo(OK)
 
       // Fetch the user's profile to perform subsequent logins
@@ -178,11 +178,11 @@ class SupervisorWorkerIntegrationSpec extends Neo4jRunnerSpec(classOf[Supervisor
 
       // Check each user can read their profile as themselves...
       val haUserReadAsSelf =  route(fakeLoggedInHtmlRequest(haAccount, GET,
-        controllers.admin.routes.UserProfiles.get(headArchivistUserId).url)).get
+        controllers.users.routes.UserProfiles.get(headArchivistUserId).url)).get
       status(haUserReadAsSelf) must equalTo(OK)
 
       val aUserReadAsSelf =  route(fakeLoggedInHtmlRequest(aAccount, GET,
-        controllers.admin.routes.UserProfiles.get(archivistUserId).url)).get
+        controllers.users.routes.UserProfiles.get(archivistUserId).url)).get
       status(aUserReadAsSelf) must equalTo(OK)
 
       // Test the Head Archivist can Create, Update, and Delete documentary units within repoId
@@ -195,16 +195,16 @@ class SupervisorWorkerIntegrationSpec extends Neo4jRunnerSpec(classOf[Supervisor
       )
 
       val createDoc1Post = route(fakeLoggedInHtmlRequest(haAccount, POST,
-        controllers.archdesc.routes.Repositories.createDocPost(repoId).url).withHeaders(formPostHeaders.toSeq: _*), doc1Data).get
+        controllers.institutions.routes.Repositories.createDocPost(repoId).url).withHeaders(formPostHeaders.toSeq: _*), doc1Data).get
       status(createDoc1Post) must equalTo(SEE_OTHER)
 
       // Test we can read the new repository
       val doc1Id = idFromUrl(redirectLocation(createDoc1Post).get)
       val doc1Read = route(fakeLoggedInHtmlRequest(haAccount, GET,
-          controllers.archdesc.routes.DocumentaryUnits.get(doc1Id).url)).get
+          controllers.units.routes.DocumentaryUnits.get(doc1Id).url)).get
       status(doc1Read) must equalTo(OK)
       contentAsString(doc1Read) must contain("A new document")
-      contentAsString(doc1Read) must contain(controllers.archdesc.routes.DocumentaryUnits.createDoc(doc1Id).url)
+      contentAsString(doc1Read) must contain(controllers.units.routes.DocumentaryUnits.createDoc(doc1Id).url)
 
       val doc1UpdateData = Map(
         "identifier" -> Seq("testdoc1"),
@@ -214,21 +214,21 @@ class SupervisorWorkerIntegrationSpec extends Neo4jRunnerSpec(classOf[Supervisor
       )
 
       val updateDoc1Post = route(fakeLoggedInHtmlRequest(haAccount, POST,
-        controllers.archdesc.routes.DocumentaryUnits.update(doc1Id).url).withHeaders(formPostHeaders.toSeq: _*), doc1UpdateData).get
+        controllers.units.routes.DocumentaryUnits.update(doc1Id).url).withHeaders(formPostHeaders.toSeq: _*), doc1UpdateData).get
       status(updateDoc1Post) must equalTo(SEE_OTHER)
 
       // Test the update doc contains the new info...
       val doc1UpdateRead = route(fakeLoggedInHtmlRequest(haAccount, GET,
-          controllers.archdesc.routes.DocumentaryUnits.get(doc1Id).url)).get
+          controllers.units.routes.DocumentaryUnits.get(doc1Id).url)).get
       status(doc1UpdateRead) must equalTo(OK)
       contentAsString(doc1UpdateRead) must contain("A different name")
 
       // Test we can delete the new document...
       val doc1DeleteRead = route(fakeLoggedInHtmlRequest(haAccount, POST,
-          controllers.archdesc.routes.DocumentaryUnits.delete(doc1Id).url).withHeaders(formPostHeaders.toSeq: _*)).get
+          controllers.units.routes.DocumentaryUnits.delete(doc1Id).url).withHeaders(formPostHeaders.toSeq: _*)).get
       status(doc1DeleteRead) must equalTo(SEE_OTHER)
       val doc1CheckDeleteRead = route(fakeLoggedInHtmlRequest(haAccount, GET,
-          controllers.archdesc.routes.DocumentaryUnits.get(doc1Id).url)).get
+          controllers.units.routes.DocumentaryUnits.get(doc1Id).url)).get
       status(doc1CheckDeleteRead) must throwA[ItemNotFound]
 
       // ---------------------------------------------
@@ -243,16 +243,16 @@ class SupervisorWorkerIntegrationSpec extends Neo4jRunnerSpec(classOf[Supervisor
       )
 
       val createDoc2Post = route(fakeLoggedInHtmlRequest(aAccount, POST,
-        controllers.archdesc.routes.Repositories.createDocPost(repoId).url).withHeaders(formPostHeaders.toSeq: _*), doc2Data).get
+        controllers.institutions.routes.Repositories.createDocPost(repoId).url).withHeaders(formPostHeaders.toSeq: _*), doc2Data).get
       status(createDoc2Post) must equalTo(SEE_OTHER)
 
       // Test we can read the new repository
       val doc2Id = idFromUrl(redirectLocation(createDoc2Post).get)
       val doc2Read = route(fakeLoggedInHtmlRequest(aAccount, GET,
-          controllers.archdesc.routes.DocumentaryUnits.get(doc2Id).url)).get
+          controllers.units.routes.DocumentaryUnits.get(doc2Id).url)).get
       status(doc2Read) must equalTo(OK)
       contentAsString(doc2Read) must contain("A new document")
-      contentAsString(doc2Read) must contain(controllers.archdesc.routes.DocumentaryUnits.createDoc(doc2Id).url)
+      contentAsString(doc2Read) must contain(controllers.units.routes.DocumentaryUnits.createDoc(doc2Id).url)
 
       val doc2UpdateData = Map(
         "identifier" -> Seq("testdoc2"),
@@ -262,21 +262,21 @@ class SupervisorWorkerIntegrationSpec extends Neo4jRunnerSpec(classOf[Supervisor
       )
 
       val updateDoc2Post = route(fakeLoggedInHtmlRequest(aAccount, POST,
-        controllers.archdesc.routes.DocumentaryUnits.update(doc2Id).url).withHeaders(formPostHeaders.toSeq: _*), doc2UpdateData).get
+        controllers.units.routes.DocumentaryUnits.update(doc2Id).url).withHeaders(formPostHeaders.toSeq: _*), doc2UpdateData).get
       status(updateDoc2Post) must equalTo(SEE_OTHER)
 
       // Test the update doc contains the new info...
       val doc2UpdateRead = route(fakeLoggedInHtmlRequest(aAccount, GET,
-          controllers.archdesc.routes.DocumentaryUnits.get(doc2Id).url)).get
+          controllers.units.routes.DocumentaryUnits.get(doc2Id).url)).get
       status(doc2UpdateRead) must equalTo(OK)
       contentAsString(doc2UpdateRead) must contain("A different name")
 
       // Test we can delete the new document...
       val doc2DeleteRead = route(fakeLoggedInHtmlRequest(aAccount, POST,
-          controllers.archdesc.routes.DocumentaryUnits.delete(doc2Id).url).withHeaders(formPostHeaders.toSeq: _*)).get
+          controllers.units.routes.DocumentaryUnits.delete(doc2Id).url).withHeaders(formPostHeaders.toSeq: _*)).get
       status(doc2DeleteRead) must equalTo(SEE_OTHER)
       val doc2CheckDeleteRead = route(fakeLoggedInHtmlRequest(aAccount, GET,
-          controllers.archdesc.routes.DocumentaryUnits.get(doc2Id).url)).get
+          controllers.units.routes.DocumentaryUnits.get(doc2Id).url)).get
       status(doc2CheckDeleteRead) must throwA[ItemNotFound]
 
       // HOORAY! Basic stuff seems to work - now onto the difficult things...
@@ -293,16 +293,16 @@ class SupervisorWorkerIntegrationSpec extends Neo4jRunnerSpec(classOf[Supervisor
       )
 
       val createDoc3Post = route(fakeLoggedInHtmlRequest(haAccount, POST,
-        controllers.archdesc.routes.Repositories.createDocPost(repoId).url).withHeaders(formPostHeaders.toSeq: _*), doc3Data).get
+        controllers.institutions.routes.Repositories.createDocPost(repoId).url).withHeaders(formPostHeaders.toSeq: _*), doc3Data).get
       status(createDoc3Post) must equalTo(SEE_OTHER)
 
       // Test we can read the new doc...
       val doc3Id = idFromUrl(redirectLocation(createDoc3Post).get)
       val doc3Read = route(fakeLoggedInHtmlRequest(haAccount, GET,
-          controllers.archdesc.routes.DocumentaryUnits.get(doc3Id).url)).get
+          controllers.units.routes.DocumentaryUnits.get(doc3Id).url)).get
       status(doc3Read) must equalTo(OK)
       contentAsString(doc3Read) must contain("Another new document")
-      contentAsString(doc3Read) must contain(controllers.archdesc.routes.DocumentaryUnits.createDoc(doc3Id).url)
+      contentAsString(doc3Read) must contain(controllers.units.routes.DocumentaryUnits.createDoc(doc3Id).url)
 
       // Test for #131 - UI shows item can be edited 'cos it can't. This is a backend
       // bug but test we're not seeing it here.
@@ -310,19 +310,19 @@ class SupervisorWorkerIntegrationSpec extends Neo4jRunnerSpec(classOf[Supervisor
       // NB: This was accompanied by a bug in the tests below, which were
       // throwing a PermissionError instead of returning a 401 Unauthorized!
       val doc3Read2 = route(fakeLoggedInHtmlRequest(aAccount, GET,
-        controllers.archdesc.routes.DocumentaryUnits.get(doc3Id).url)).get
-      contentAsString(doc3Read2) must not contain controllers.archdesc.routes.DocumentaryUnits.update(doc3Id).url
+        controllers.units.routes.DocumentaryUnits.get(doc3Id).url)).get
+      contentAsString(doc3Read2) must not contain controllers.units.routes.DocumentaryUnits.update(doc3Id).url
 
       // Now ensure the ordinary archivist cannot update it!
       val doc3UpdateRead = route(fakeLoggedInHtmlRequest(aAccount, POST,
-          controllers.archdesc.routes.DocumentaryUnits.update(doc3Id).url).withHeaders(formPostHeaders.toSeq: _*),
+          controllers.units.routes.DocumentaryUnits.update(doc3Id).url).withHeaders(formPostHeaders.toSeq: _*),
           doc3Data.updated("descriptions[0].identityArea.name", Seq("Foobar"))).get
       println("STATUS: " + status(doc3UpdateRead))
       status(doc3UpdateRead) must equalTo(FORBIDDEN)
 
       // Now ensure the ordinary archivist cannot delete it!
       val doc3DeleteRead = route(fakeLoggedInHtmlRequest(aAccount, POST,
-          controllers.archdesc.routes.DocumentaryUnits.delete(doc3Id).url).withHeaders(formPostHeaders.toSeq: _*)).get
+          controllers.units.routes.DocumentaryUnits.delete(doc3Id).url).withHeaders(formPostHeaders.toSeq: _*)).get
       status(doc3UpdateRead) must equalTo(FORBIDDEN)
 
       // Test the ordinary archivist can Create a documentary units within repoId
@@ -335,26 +335,26 @@ class SupervisorWorkerIntegrationSpec extends Neo4jRunnerSpec(classOf[Supervisor
       )
 
       val createDoc4Post = route(fakeLoggedInHtmlRequest(aAccount, POST,
-      controllers.archdesc.routes.Repositories.createDocPost(repoId).url).withHeaders(formPostHeaders.toSeq: _*), doc4Data).get
+      controllers.institutions.routes.Repositories.createDocPost(repoId).url).withHeaders(formPostHeaders.toSeq: _*), doc4Data).get
       status(createDoc4Post) must equalTo(SEE_OTHER)
 
       // Test we can read the new repository
       val doc4Id = idFromUrl(redirectLocation(createDoc4Post).get)
       val doc4Read = route(fakeLoggedInHtmlRequest(aAccount, GET,
-          controllers.archdesc.routes.DocumentaryUnits.get(doc4Id).url)).get
+          controllers.units.routes.DocumentaryUnits.get(doc4Id).url)).get
       status(doc4Read) must equalTo(OK)
       contentAsString(doc4Read) must contain("Another new document")
-      contentAsString(doc4Read) must contain(controllers.archdesc.routes.DocumentaryUnits.createDoc(doc4Id).url)
+      contentAsString(doc4Read) must contain(controllers.units.routes.DocumentaryUnits.createDoc(doc4Id).url)
 
       // Now ensure the head archivist CAN update it!
       val doc4UpdateRead = route(fakeLoggedInHtmlRequest(haAccount, POST,
-          controllers.archdesc.routes.DocumentaryUnits.update(doc4Id).url).withHeaders(formPostHeaders.toSeq: _*),
+          controllers.units.routes.DocumentaryUnits.update(doc4Id).url).withHeaders(formPostHeaders.toSeq: _*),
           doc4Data.updated("descriptions[0].identityArea.name", Seq("A different name"))).get
       status(doc4UpdateRead) must equalTo(SEE_OTHER)
 
      // Now ensure the head archivist CAN delete it!
       val doc4DeleteRead = route(fakeLoggedInHtmlRequest(haAccount, POST,
-          controllers.archdesc.routes.DocumentaryUnits.delete(doc4Id).url).withHeaders(formPostHeaders.toSeq: _*)).get
+          controllers.units.routes.DocumentaryUnits.delete(doc4Id).url).withHeaders(formPostHeaders.toSeq: _*)).get
       status(doc4DeleteRead) must equalTo(SEE_OTHER)
 
     }

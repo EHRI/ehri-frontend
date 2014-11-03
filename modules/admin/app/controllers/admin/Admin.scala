@@ -17,16 +17,14 @@ case class Admin @Inject()(implicit globalConfig: global.GlobalConfig, backend: 
 
   implicit val rd: BackendReadable[AnyModel] = AnyModel.Converter
 
-  private object searchDao extends SearchDAO
-
-  /**
+   /**
    * Action for redirecting to any item page, given a raw id.
    */
   def get(id: String) = userProfileAction.async { implicit userOpt => implicit request =>
     implicit val rd: BackendReadable[AnyModel] = AnyModel.Converter
-    searchDao.list(List(id)).map {
+    SearchDAO.list(List(id)).map {
       case Nil => NotFound(views.html.errors.itemNotFound())
-      case mm :: _ => globalConfig.routeRegistry.optionalUrlFor(mm.isA, mm.id)
+      case mm :: _ => views.admin.Helpers.linkToOpt(mm)
         .map(Redirect) getOrElse NotFound(views.html.errors.itemNotFound())
     }
   }
@@ -35,7 +33,7 @@ case class Admin @Inject()(implicit globalConfig: global.GlobalConfig, backend: 
    * Action for redirecting to any item page, given a raw id.
    */
   def getType(`type`: String, id: String) = userProfileAction { implicit userOpt => implicit request =>
-    globalConfig.routeRegistry.optionalUrlFor(EntityType.withName(`type`), id)
+    views.admin.Helpers.linkToOpt(EntityType.withName(`type`), id)
       .map(Redirect)
       .getOrElse(NotFound(views.html.errors.itemNotFound()))
   }

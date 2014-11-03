@@ -9,10 +9,10 @@ import play.api.data.validation.ValidationError
 import play.api.libs.json.KeyPathNode
 import scala.collection.SortedMap
 import java.util.NoSuchElementException
-import backend.{BackendReadable, BackendResource}
+import backend.{Entity, BackendReadable, BackendResource}
 
 
-trait AnyModel {
+trait AnyModel extends backend.WithId {
   def id: String
 
   def isA: EntityType.Value

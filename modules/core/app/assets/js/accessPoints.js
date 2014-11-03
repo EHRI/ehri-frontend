@@ -69,18 +69,18 @@ $(document).ready(function() {
     };
 
   var $service = {
-        filter: jsRoutes.controllers.core.SearchFilter.filter,
+        filter: jsRoutes.controllers.admin.SearchFilter.filter,
         get: jsRoutes.controllers.admin.Admin.get,
         getItem: jsRoutes.controllers.admin.Admin.getType,
-        createLink: jsRoutes.controllers.archdesc.DocumentaryUnits.createLink,
-        createMultipleLinks: jsRoutes.controllers.archdesc.DocumentaryUnits.linkMultiAnnotatePost,
-        createAccessPoint: jsRoutes.controllers.archdesc.DocumentaryUnits.createAccessPoint,
-        getAccessPoints: jsRoutes.controllers.archdesc.DocumentaryUnits.getAccessPointsJson,
-        deleteLink: jsRoutes.controllers.archdesc.DocumentaryUnits.deleteLink,
-        deleteAccessPoint: jsRoutes.controllers.archdesc.DocumentaryUnits.deleteAccessPoint,
-        deleteLinkAndAccessPoint: jsRoutes.controllers.archdesc.DocumentaryUnits.deleteLinkAndAccessPoint,
+        createLink: jsRoutes.controllers.units.DocumentaryUnits.createLink,
+        createMultipleLinks: jsRoutes.controllers.units.DocumentaryUnits.linkMultiAnnotatePost,
+        createAccessPoint: jsRoutes.controllers.units.DocumentaryUnits.createAccessPoint,
+        getAccessPoints: jsRoutes.controllers.units.DocumentaryUnits.getAccessPointsJson,
+        deleteLink: jsRoutes.controllers.units.DocumentaryUnits.deleteLink,
+        deleteAccessPoint: jsRoutes.controllers.units.DocumentaryUnits.deleteAccessPoint,
+        deleteLinkAndAccessPoint: jsRoutes.controllers.units.DocumentaryUnits.deleteLinkAndAccessPoint,
         redirectUrl: function(id) {
-          return jsRoutes.controllers.archdesc.DocumentaryUnits.get(id).url;
+          return jsRoutes.controllers.units.DocumentaryUnits.get(id).url;
         }
   };
 

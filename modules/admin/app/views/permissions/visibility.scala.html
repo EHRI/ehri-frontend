@@ -16,7 +16,7 @@ implicit userOpt: Option[UserProfile], req: RequestHeader, globalConfig: global.
             @Messages("visibility.restrictedVisibilityMessage")
             <ul>
                 @item.accessors.sortBy(_.isA).map { a =>
-                    <li><a href="@globalConfig.routeRegistry.urlFor(a)">@a.toStringLang</a></li>
+                    <li><a href="@views.admin.Helpers.linkTo(a)">@a.toStringLang</a></li>
                 }
             </ul>
         </p>
@@ -26,7 +26,7 @@ implicit userOpt: Option[UserProfile], req: RequestHeader, globalConfig: global.
 	@helper.form(action = action, 'class -> "entity-form form-horizontal") {
         @formHelpers.csrfToken()
         @permissions.renderVisibilityForm(f, users, groups)
-        @formHelpers.submitButtonWithLogMessageInput(Messages("visibility.update.submit"), cancel = views.Helpers.linkToOpt(item))
+        @formHelpers.submitButtonWithLogMessageInput(Messages("visibility.update.submit"), cancel = views.admin.Helpers.linkToOpt(item))
 	}
 } {
 

@@ -151,7 +151,7 @@ object SqlAccount extends AccountDAO {
 
   def findAll(params: PageParams = PageParams.empty): Seq[Account] = DB.withConnection { implicit connection =>
     val query = if (params.hasLimit)
-      s"select * from users offset ${params.offset} limit ${params.count}"
+      s"select * from users offset ${params.offset} limit ${params.limit}"
       else "select * from users"
     SQL(query).as(SqlAccount.simple *)
   }

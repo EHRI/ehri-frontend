@@ -11,14 +11,14 @@ import com.github.seratch.scalikesolr.request.QueryRequest
 import play.api.http.{MimeTypes, HeaderNames}
 
 
+
 /**
  * Class for fetching query results from a Solr instance.
  * Implements the plugin implementation so other search
  * engines/mocks can be substituted.
  */
-case class SolrDispatcher(queryBuilder: QueryBuilder, responseParser: ResponseParser) extends backend.rest.RestDAO with Dispatcher {
-
-  import play.api.Play.current
+case class SolrDispatcher(queryBuilder: QueryBuilder, handler: WSResponse => QueryResponse)(implicit val app: play.api.Application)
+  extends backend.rest.RestDAO with Dispatcher {
 
   // Dummy value to satisfy the RestDAO trait...
   val userProfile: Option[UserProfile] = None
@@ -54,9 +54,9 @@ case class SolrDispatcher(queryBuilder: QueryBuilder, responseParser: ResponsePa
 
     val queryRequest = queryBuilder.simpleFilter(params, filters, extra)
     dispatch(queryRequest).map { response =>
-      val parser = responseParser(checkError(response).body)
+      val parser = handler(checkError(response))
       val items = parser.items.map(i => FilterHit(i.itemId, i.id, i.name, i.`type`, i.fields.get(SolrConstants.HOLDER_NAME), i.gid))
-      ItemPage(items, params.pageOrDefault, params.countOrDefault, parser.count, Nil)
+      ItemPage(items, params.offset, params.countOrDefault, parser.count, Nil)
     }
   }
 
@@ -76,9 +76,10 @@ case class SolrDispatcher(queryBuilder: QueryBuilder, responseParser: ResponsePa
 
     val queryRequest = queryBuilder.search(params, facets, allFacets, filters, extra, mode)
     dispatch(queryRequest).map { response =>
-      val parser = responseParser(checkError(response).body)
-      ItemPage(parser.items, params.pageOrDefault, params.countOrDefault, parser.count,
-        parser.extractFacetData(facets, allFacets), spellcheck = parser.spellcheckSuggestion)
+      val parser = handler(checkError(response))
+      val facetClassList: FacetClassList = parser.extractFacetData(facets, allFacets)
+      ItemPage(parser.items, params.offset, params.countOrDefault, parser.count,
+        facetClassList, spellcheck = parser.spellcheckSuggestion)
     }
   }
 
@@ -105,7 +106,7 @@ case class SolrDispatcher(queryBuilder: QueryBuilder, responseParser: ResponsePa
     // ordering.
     val queryRequest = queryBuilder.search(params, facets, allFacets, filters)
     dispatch(queryRequest).map { response =>
-      val facetClasses = responseParser(checkError(response).body).extractFacetData(facets, allFacets)
+      val facetClasses = handler(checkError(response)).extractFacetData(facets, allFacets)
 
       val facetClass = facetClasses.find(_.param == facet).getOrElse(
         throw new Exception("Unknown facet: " + facet))
@@ -113,7 +114,7 @@ case class SolrDispatcher(queryBuilder: QueryBuilder, responseParser: ResponsePa
         case FacetQuerySort.Name => facetClass.sortedByName.slice(params.offset, params.offset + params.countOrDefault)
         case _ => facetClass.sortedByCount.slice(params.offset, params.offset + params.countOrDefault)
       }
-      FacetPage(facetClass, facetLabels, params.pageOrDefault, params.countOrDefault, facetClass.count)
+      FacetPage(facetClass, facetLabels, params.offset, params.countOrDefault, facetClass.count)
     }
   }
 }

@@ -1,0 +1,15 @@
+@(item: VirtualUnit, f: play.api.data.Form[VirtualUnitF], action: Call)(
+implicit userOpt: Option[UserProfile], req: RequestHeader, globalConfig: global.GlobalConfig, lang: Lang, flash: Flash, token: play.filters.csrf.CSRF.Token)
+ 
+@implicitField = @{ views.html.helper.FieldConstructor(formHelpers.fieldTemplate.f) }
+
+@layout.rightSidebar(Messages("virtualUnit.update"), breadcrumbs = virtualUnit.breadcrumbs(item), scripts = formHelpers.dateJs()) {
+		
+	@helper.form(action = action, 'class -> "entity-form form-horizontal") {
+        @formHelpers.csrfToken()
+		@virtualUnit.renderForm(f)
+        @formHelpers.submitButtonWithLogMessageInput(Messages("virtualUnit.update.submit"), cancel = views.admin.Helpers.linkToOpt(item))
+	}
+} {
+
+}

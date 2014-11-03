@@ -8,23 +8,19 @@ import models.base.{DescribedMeta, Described, Description, AnyModel}
 import play.api.i18n.Lang
 import backend.ApiUser
 
+/*
+ * Class to aid in debugging the last submitted request - gross...
+ */
+case class ParamLog(params: SearchParams, facets: List[AppliedFacet],
+                    allFacets: FacetClassList, filters: Map[String,Any] = Map.empty)
+
 /**
  * This class mocks a search displatcher by simply returning
  * whatever's in the backend, wrapped as a search hit...
- *
- * User: michaelb
  */
-case class MockSearchDispatcher(backend: Backend) extends Dispatcher {
+case class MockSearchDispatcher(backend: Backend, paramBuffer: collection.mutable.ListBuffer[ParamLog]) extends Dispatcher {
 
-  val paramBuffer = collection.mutable.ArrayBuffer.empty[ParamLog]
 
-  /*
-   * Class to aid in debugging the last submitted request - gross...
-   */
-  case class ParamLog(params: SearchParams, facets: List[AppliedFacet],
-    allFacets: FacetClassList, filters: Map[String,Any] = Map.empty)
-
-  
   def filter(params: SearchParams, filters: Map[String,Any] = Map.empty, extra: Map[String,Any] = Map.empty)(
       implicit userOpt: Option[UserProfile]): Future[ItemPage[FilterHit]] = {
 
@@ -39,7 +35,7 @@ case class MockSearchDispatcher(backend: Backend) extends Dispatcher {
       all = docs.map(modelToHit) ++ repos.map(modelToHit) ++ agents.map(modelToHit) ++ virtualUnits.map(modelToHit)
       oftype = all.filter(h => params.entities.contains(h.`type`))
     } yield ItemPage(
-        oftype, page = params.pageOrDefault, count = params.countOrDefault, total = oftype.size, facets = Nil)
+        oftype, offset = params.offset, limit = params.countOrDefault, total = oftype.size, facets = Nil)
   }
 
   def search(params: SearchParams, facets: List[AppliedFacet], allFacets: FacetClassList,
@@ -64,7 +60,7 @@ case class MockSearchDispatcher(backend: Backend) extends Dispatcher {
       all = docs.map(descModelToHit) ++ repos.map(descModelToHit) ++ agents.map(descModelToHit) ++ virtualUnits.map(descModelToHit)
       oftype = all.filter(h => params.entities.contains(h.`type`))
     } yield ItemPage(
-      oftype, page = params.pageOrDefault, count = params.countOrDefault, total = oftype.size, facets = Nil)
+      oftype, offset = params.offset, limit = params.countOrDefault, total = oftype.size, facets = Nil)
   }
 
   def facet(facet: String, sort: FacetQuerySort.Value, params: SearchParams, facets: List[AppliedFacet], allFacets: FacetClassList, filters: Map[String,Any] = Map.empty, extra: Map[String,Any] = Map.empty)(

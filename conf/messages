@@ -182,18 +182,20 @@ errors.staffOnlyMessage=This page is currently restricted to EHRI staff only.
 errors.verifiedOnly=Restricted
 errors.verifiedOnlyMessage=This page is currently restricted to verified users only.
 errors.itemNotFound=Item Not Found
-errors.itemNotFoundExplanation=That item couldn''t be found in the database.
+errors.itemNotFound.explanation=That item couldn''t be found in the database.
 errors.pageNotFound=Page Not Found
-errors.pageNotFoundExplanation=The page at this location either doesn''t exist or has moved.
-errors.genericProblem=We're very sorry, but there's a problem loading that page
+errors.pageNotFound.explanation=The page at this location either doesn''t exist or has moved.
+errors.genericProblem=An Error Occurred
+errors.genericProblem.explanation=We're very sorry, but there's a problem loading that page. We''ve been informed of \
+  this and will endeavour to fix the problem as soon as possible.
 errors.databaseError=Database Error
-errors.databaseErrorExplanation=I''m afraid it looks like our database server has gone down.     \
+errors.databaseError.explanation=I''m afraid it looks like our database server has gone down.     \
   There's not much we can do without it, so please try again later.
 errors.databaseMaintenance=Database Temporarily Offline
-errors.databaseMaintenanceExplanation=The EHRI database is currently offline for routine maintenance. \
+errors.databaseMaintenance.explanation=The EHRI database is currently offline for routine maintenance. \
   It should be back soon so please try again shortly.
 errors.permissionDenied=Permission Denied
-errors.permissionDeniedExplanation=It looks like you can''t do whatever it is you were attempted \
+errors.permissionDenied.explanation=It looks like you can''t do whatever it is you were attempted \
   to do. This is probably an error on our part. We'll try and fix that ASAP.
 errors.errorDetails=Details
 errors.noFurtherInfo=No additional information is available.
@@ -423,6 +425,8 @@ confirm=Confirm Password
 optional=Optional
 administrationArea=Administration Area
 publicationStatus=Publication Status
+truncated=...
+truncated.items.remaining={0,choice,0#|1#and 1 more...|1<and {0,number,integer} more...}
 
 copyrightStatus.copyright=Copyright Status
 copyrightStatus.no=No

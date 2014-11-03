@@ -71,16 +71,24 @@ jQuery(function ($) {
     // Fetch more activity...
   $("#activity-stream-fetchmore").click(function (event) {
     var $elem = $(event.target);
-    var page = $(event.target).data("page");
-    var count = $(event.target).data("limit");
-    jsRoutes.controllers.portal.Social.personalisedActivity(page, count).ajax({
+    var offset = parseInt($(event.target).attr("data-offset")) || 0;
+    var limit = parseInt($(event.target).attr("data-limit")) || 20;
+    var href = $(event.target).attr("data-href");
+    $.ajax({
+      url: href,
       success: function (data, _, response) {
         var done = response.getResponseHeader("activity-more") != 'true';
         $("#activity-stream").append(data);
         if (done) {
           $elem.hide();
         } else {
-          $elem.data("page", page + 1);
+          console.log("Replace: ", (offset + limit), limit )
+          $elem
+            .attr("data-offset", (offset + limit))
+            .attr("data-limit", limit)
+            .attr("data-href",
+              href.replace(/offset=\d+/, "offset=" + (offset + limit))
+                  .replace(/limit=\d+/, "limit=" + limit));
         }
 		  }
 		});
@@ -405,6 +413,20 @@ jQuery(function ($) {
     }
   });
 
+  $(document).on("click", ".promote-annotation, .demote-annotation", function (e) {
+    e.preventDefault();
+    var $elem = $(this),
+        id = $elem.data("item"),
+        check = $elem.attr("title"),
+        action = this.href;
+    if (confirm(check + "?")) {
+      var $ann = $elem.closest(".annotation");
+      $.post(action, function (data) {
+        $ann.replaceWith(data);
+      });
+    }
+  });
+
   // Handling of custom visibility selector.
   $(document).on("change", "input[type=radio].visibility", function (e) {
     $(".custom-visibility")
@@ -436,18 +458,13 @@ jQuery(function ($) {
   /**
    * Messaging
    */
-  /*
-   *   History
-   */
   $("body").on("submit", ".message-form", function (e) {
     var $form = $(this);
     e.preventDefault();
-    $.post($form.attr("action"), $form.serialize())
-        .done(function (data) {
-          EhriJs.alertSuccess(data.ok);
-          $form.closest(".modal").modal("hide");
-        }).fail(function () {
-          // TODO: Figure out what to do here...
-        });
+    $.post($form.attr("action"), $form.serialize()).done(function (data) {
+      EhriJs.alertSuccess(data.ok);
+      $form.closest(".modal").modal("hide");
+      $form.find("#subject,#message").val("");
+    });
   });
 });

@@ -10,7 +10,7 @@ import play.api.i18n.Lang
 import play.api.data.Form
 import play.api.data.Forms._
 import play.api.libs.json.JsObject
-import backend.{BackendReadable, BackendWriteable}
+import backend.{Entity, BackendReadable, BackendWriteable}
 
 
 object AccessPointF {
@@ -115,7 +115,7 @@ object AccessPoint {
   val form = Form(mapping(
     ISA -> ignored(EntityType.AccessPoint),
     ID -> optional(nonEmptyText),
-    ETYPE -> models.forms.enum(AccessPointType),
+    ETYPE -> utils.forms.enum(AccessPointType),
     TARGET -> nonEmptyText, // TODO: Validate this server side
     DESCRIPTION -> optional(nonEmptyText)
   )(AccessPointF.apply)(AccessPointF.unapply))

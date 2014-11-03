@@ -13,14 +13,15 @@ import play.api.data.Form
 import play.api.data.Forms._
 import play.api.libs.json.JsObject
 import play.api.i18n.Lang
-import backend.{BackendContentType, BackendResource, BackendReadable, BackendWriteable}
+import backend._
+import play.api.libs.json.JsObject
 
 
 object VirtualUnitF {
 
   val INCLUDE_REF = "includeRef"
 
-  import models.Entity._
+  import Entity._
   import Ontology._
 
   implicit val virtualUnitWrites: Writes[VirtualUnitF] = new Writes[VirtualUnitF] {
@@ -66,7 +67,7 @@ case class VirtualUnitF(
 
 object VirtualUnit {
 
-  import models.Entity._
+  import Entity._
   import models.VirtualUnitF._
   import Ontology._
 

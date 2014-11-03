@@ -4,20 +4,24 @@ import play.api.libs.concurrent.Execution.Implicits._
 import controllers.base.{SessionPreferences, AuthController, ControllerHelpers}
 import models.{SystemEvent, UserProfile, AccountDAO}
 import views.html.p
-import utils.{Page, SessionPrefs, PageParams, SystemEventParams}
+import utils._
 import utils.search.{Resolver, SearchOrder, Dispatcher, SearchParams}
 import defines.{EventType, EntityType}
 import play.api.Play.current
 import solr.SolrConstants
-import backend.{ApiUser, Backend}
+import backend.Backend
 
 import com.google.inject._
-import play.api.mvc.{Result, RequestHeader}
+import play.api.mvc.RequestHeader
 import play.api.i18n.Messages
 import play.api.libs.json.Json
 import scala.concurrent.Future
 import models.base.AnyModel
 import backend.rest.Constants
+import scala.Some
+import play.api.mvc.Result
+import backend.ApiUser
+import com.typesafe.plugin.MailerAPI
 
 /**
  * @author Mike Bryant (http://github.com/mikesname)
@@ -26,7 +30,8 @@ import backend.rest.Constants
  * be greatly optimised by implementing caching for
  * just lists of IDs.
  */
-case class Social @Inject()(implicit globalConfig: global.GlobalConfig, searchDispatcher: Dispatcher, searchResolver: Resolver, backend: Backend, userDAO: AccountDAO)
+case class Social @Inject()(implicit globalConfig: global.GlobalConfig, searchDispatcher: Dispatcher, searchResolver: Resolver, backend: Backend, userDAO: AccountDAO,
+    mailer: MailerAPI)
   extends AuthController
   with ControllerHelpers
   with PortalAuthConfigImpl
@@ -60,19 +65,19 @@ case class Social @Inject()(implicit globalConfig: global.GlobalConfig, searchDi
 
   private val socialRoutes = controllers.portal.routes.Social
 
-  def personalisedActivity(page: Int = 1, count: Int = Constants.DEFAULT_LIST_LIMIT) = {
+  def personalisedActivity(offset: Int = 0, limit: Int = Constants.DEFAULT_LIST_LIMIT) = {
     withUserAction.async { implicit user => implicit request =>
     // NB: Increasing the limit by 1 over the default so we can
     // detect if there are additional items to display
-      val listParams = PageParams.fromRequest(request).copy(page = page)
-      val incParams = listParams.copy(count = listParams.count + 1)
+      val listParams = RangeParams.fromRequest(request).copy(offset = offset)
+      val incParams = listParams.copy(limit = listParams.limit + 1)
       val eventFilter = SystemEventParams.fromRequest(request)
         .copy(eventTypes = activityEventTypes)
         .copy(itemTypes = activityItemTypes)
-      backend.listEventsForUser(user.id, incParams, eventFilter).map { events =>
-        val more = events.size > listParams.count
+      backend.listEventsForUser[SystemEvent](user.id, incParams, eventFilter).map { events =>
+        val more = events.size > listParams.limit
 
-        val displayEvents = events.take(listParams.count)
+        val displayEvents = events.take(listParams.limit)
         if (isAjax) Ok(p.activity.eventItems(displayEvents))
           .withHeaders("activity-more" -> more.toString)
         else Ok(p.activity.activity(displayEvents, listParams, more))
@@ -91,8 +96,8 @@ case class Social @Inject()(implicit globalConfig: global.GlobalConfig, searchDi
       .getOrElse(defaultParams).setDefault(Some(defaultParams))
 
     for {
-      following <- backend.following(user.id, PageParams.empty)
-      blocked <- backend.blocked(user.id, PageParams.empty)
+      following <- backend.following[UserProfile](user.id, PageParams.empty)
+      blocked <- backend.blocked[UserProfile](user.id, PageParams.empty)
       srch <- searchDispatcher.search(searchParams, Nil, Nil, filters)
       users <- searchResolver.resolve[UserProfile](srch.items)
     } yield Ok(p.social.browseUsers(user, srch.copy(items = users), searchParams, following))
@@ -101,26 +106,49 @@ case class Social @Inject()(implicit globalConfig: global.GlobalConfig, searchDi
   def browseUser(userId: String) = withUserAction.async { implicit user => implicit request =>
     // Show the profile home page of a defined user.
     // Activity is the default page
-    val params = PageParams.fromRequest(request)
-    val eventParams = SystemEventParams.fromRequest(request).copy(users = List(userId))
+    val listParams = RangeParams.fromRequest(request)
+    val incParams = listParams.copy(limit = listParams.limit + 1)
+    val eventParams = SystemEventParams.fromRequest(request)
       .copy(eventTypes = activityEventTypes)
       .copy(itemTypes = activityItemTypes)
-    val events: Future[Seq[SystemEvent]] = backend.listEvents(params, eventParams)
+    val events: Future[(Boolean, Seq[SystemEvent])] = backend
+      .listEventsByUser[SystemEvent](userId, incParams, eventParams).map { events =>
+      val more = events.size > listParams.limit
+      (more, events.take(listParams.limit))
+    }
     val isFollowing: Future[Boolean] = backend.isFollowing(user.id, userId)
     val allowMessage: Future[Boolean] = canMessage(user.id, userId)
 
     for {
       them <- backend.get[UserProfile](userId)
-      theirActivity <- events
+      (more, theirActivity) <- events
       followed <- isFollowing
       canMessage <- allowMessage
-    } yield Ok(p.social.browseUser(them, theirActivity, followed, canMessage))
+    } yield Ok(p.social.browseUser(them, theirActivity, more, listParams, followed, canMessage))
+  }
+
+  def moreUserActivity(userId: String, offset: Int = 0, limit: Int = Constants.DEFAULT_LIST_LIMIT) = {
+    userProfileAction.async { implicit userOpt => implicit request =>
+    // NB: Increasing the limit by 1 over the default so we can
+    // detect if there are additional items to display
+      val listParams = RangeParams.fromRequest(request).copy(offset = offset)
+      val incParams = listParams.copy(limit = listParams.limit + 1)
+      val eventFilter = SystemEventParams.fromRequest(request)
+        .copy(eventTypes = activityEventTypes)
+        .copy(itemTypes = activityItemTypes)
+      backend.listEventsByUser[SystemEvent](userId, incParams, eventFilter).map { events =>
+        val more = events.size > listParams.limit
+        val displayEvents = events.take(listParams.limit)
+        Ok(p.activity.eventItems(displayEvents))
+          .withHeaders("activity-more" -> more.toString)
+      }
+    }
   }
 
   def watchedByUser(userId: String) = withUserAction.async { implicit user => implicit request =>
     // Show a list of watched item by a defined User
-    val watchParams = PageParams.fromRequest(request)
-    val watching: Future[Page[AnyModel]] = backend.watching(userId, watchParams)
+    val watchParams = PageParams.fromRequest(request, namespace = "w")
+    val watching: Future[Page[AnyModel]] = backend.watching[AnyModel](userId, watchParams)
     val isFollowing: Future[Boolean] = backend.isFollowing(user.id, userId)
     val allowMessage: Future[Boolean] = canMessage(user.id, userId)
 
@@ -199,8 +227,8 @@ case class Social @Inject()(implicit globalConfig: global.GlobalConfig, searchDi
     val params = PageParams.fromRequest(request)
     for {
       them <- backend.get[UserProfile](userId)
-      theirFollowers <- backend.followers(userId, params)
-      whoImFollowing <- backend.following(user.id)
+      theirFollowers <- backend.followers[UserProfile](userId, params)
+      whoImFollowing <- backend.following[UserProfile](user.id)
     } yield {
       if (isAjax)
         Ok(p.social.followerList(them, theirFollowers, params, whoImFollowing))
@@ -213,8 +241,8 @@ case class Social @Inject()(implicit globalConfig: global.GlobalConfig, searchDi
     val params = PageParams.fromRequest(request)
     for {
       them <- backend.get[UserProfile](userId)
-      theirFollowing <- backend.following(userId, params)
-      whoImFollowing <- backend.following(user.id)
+      theirFollowing <- backend.following[UserProfile](userId, params)
+      whoImFollowing <- backend.following[UserProfile](user.id)
     } yield {
       if (isAjax)
         Ok(p.social.followingList(them, theirFollowing, params, whoImFollowing))
@@ -255,8 +283,7 @@ case class Social @Inject()(implicit globalConfig: global.GlobalConfig, searchDi
       accFrom <- userDAO.findByProfileId(from.id)
       accTo <- userDAO.findByProfileId(to.id)
     } yield {
-      import com.typesafe.plugin._
-      use[MailerPlugin].email
+      mailer
         .setSubject(Messages("portal.mail.message.subject", from.toStringLang, subject))
         .setRecipient(accTo.email)
         .setReplyTo(accFrom.email)

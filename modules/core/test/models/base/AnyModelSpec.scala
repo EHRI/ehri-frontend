@@ -5,9 +5,10 @@ import models.Annotations.Relation
 import eu.ehri.project.definitions.Ontology
 import play.api.libs.json.{Json, JsObject}
 import defines.EntityType
-import models.{Entity, AccessPointF}
+import models.{AccessPointF}
 import play.api.i18n.Lang
 import Description._
+import backend.Entity
 
 case class TestDescriptionF(
   id: Option[String],

@@ -7,8 +7,8 @@
 	@if(!item.groups.isEmpty) {
 	  <strong>@Messages("accessor.currentGroups"): </strong>&nbsp;
 	  @item.groups.map { group =>
-	    <a href="@controllers.admin.routes.Groups.get(group.id)">@group.toStringLang</a>
-        (<a class="ajax-action" href="@controllers.admin.routes.Groups.removeMember(group.id, item.isA, item.id)" title="@Messages("accessor.groups.remove.item", item.toStringLang, group.toStringLang)">@Messages("accessor.groups.remove")</a>)
+	    <a href="@controllers.groups.routes.Groups.get(group.id)">@group.toStringLang</a>
+        (<a class="ajax-action" href="@controllers.groups.routes.Groups.removeMember(group.id, item.isA, item.id)" title="@Messages("accessor.groups.remove.item", item.toStringLang, group.toStringLang)">@Messages("accessor.groups.remove")</a>)
 	  }	  
 	}
     
@@ -21,7 +21,7 @@
 	  <ul>
 	  @groups.map { case (identifier, name) =>
 	  	<li>
-	    	<a class="ajax-action" href="@controllers.admin.routes.Groups.addMember(identifier, item.isA, item.id)" title="@Messages("accessor.groups.add.item", item.toStringLang, name)">@name</a>
+	    	<a class="ajax-action" href="@controllers.groups.routes.Groups.addMember(identifier, item.isA, item.id)" title="@Messages("accessor.groups.add.item", item.toStringLang, name)">@name</a>
 	  	</li>
 	  }	  
 	  </ul>

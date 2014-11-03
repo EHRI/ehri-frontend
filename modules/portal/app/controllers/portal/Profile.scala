@@ -27,12 +27,13 @@ import play.api.http.{HeaderNames, MimeTypes}
 import org.joda.time.format.ISODateTimeFormat
 import models.base.AnyModel
 import net.coobird.thumbnailator.Thumbnails
+import com.typesafe.plugin.MailerAPI
 
 /**
  * @author Mike Bryant (http://github.com/mikesname)
  */
 case class Profile @Inject()(implicit globalConfig: global.GlobalConfig, searchDispatcher: Dispatcher, searchResolver: Resolver, backend: Backend,
-                            userDAO: AccountDAO)
+                            userDAO: AccountDAO, mailer: MailerAPI)
     extends LoginLogout with AuthController with ControllerHelpers
     with PortalBase
     with PortalLogin
@@ -97,8 +98,8 @@ case class Profile @Inject()(implicit globalConfig: global.GlobalConfig, searchD
   }
 
   def watching(format: DataFormat.Value = DataFormat.Html) = withUserAction.async { implicit user => implicit request =>
-    val watchParams = PageParams.fromRequest(request)
-    backend.watching(user.id, watchParams).map { watchList =>
+    val watchParams = PageParams.fromRequest(request, namespace = "w")
+    backend.watching[AnyModel](user.id, watchParams).map { watchList =>
       format match {
         case DataFormat.Text => Ok(views.txt.p.profile.watchedItems(watchList))
             .as(MimeTypes.TEXT)
@@ -110,6 +111,7 @@ case class Profile @Inject()(implicit globalConfig: global.GlobalConfig, searchD
         case DataFormat.Json =>
           Ok(Json.toJson(watchList.items.map(ExportWatchItem.fromItem)))
             .as(MimeTypes.JSON)
+
         case _ => Ok(p.profile.watchedItems(watchList))
       }
     }
@@ -145,7 +147,7 @@ case class Profile @Inject()(implicit globalConfig: global.GlobalConfig, searchD
 
   def annotations(format: DataFormat.Value = DataFormat.Html) = withUserAction.async { implicit user => implicit request =>
     val params = PageParams.fromRequest(request)
-    backend.userAnnotations(user.id, params).map { page =>
+    backend.userAnnotations[Annotation](user.id, params).map { page =>
       format match {
         case DataFormat.Text =>
           Ok(views.txt.p.profile.annotations(page).body.trim)
@@ -194,7 +196,7 @@ case class Profile @Inject()(implicit globalConfig: global.GlobalConfig, searchD
 
   def profile = withUserAction.async { implicit user => implicit request =>
     val annParams = PageParams.fromRequest(request, namespace = "a")
-    val annotationsF = backend.userAnnotations(user.id, annParams)
+    val annotationsF = backend.userAnnotations[Annotation](user.id, annParams)
     for {
       anns <- annotationsF
     } yield Ok(p.profile.profile(anns))

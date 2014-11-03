@@ -22,6 +22,7 @@ import utils._
 import com.google.inject._
 import views.html.errors.pageNotFound
 import org.joda.time.DateTime
+import caching.FutureCache
 
 @Singleton
 case class Portal @Inject()(implicit globalConfig: global.GlobalConfig, searchDispatcher: Dispatcher, searchResolver: Resolver, backend: Backend,
@@ -188,7 +189,7 @@ case class Portal @Inject()(implicit globalConfig: global.GlobalConfig, searchDi
       filters = filters,
       entities = List(EntityType.DocumentaryUnit),
       facetBuilder = localDocFacets,
-      defaultParams = SearchParams(sort = Some(SearchOrder.Id))
+      defaultOrder = SearchOrder.Id
     ).map { case QueryResult(page, params, facets) =>
         if(isAjax) Ok(p.repository.childItemSearch(item, page, params, facets,
           portalRoutes.searchRepository(id), details.watched))
@@ -223,7 +224,7 @@ case class Portal @Inject()(implicit globalConfig: global.GlobalConfig, searchDi
       filters = Map(SolrConstants.PARENT_ID -> item.id),
       entities = List(EntityType.DocumentaryUnit),
       facetBuilder = localDocFacets,
-      defaultParams = SearchParams(sort = Some(SearchOrder.Id))
+      defaultOrder = SearchOrder.Id
     ).map { case QueryResult(page, params, facets) =>
       if (isAjax) Ok(p.documentaryUnit.childItemSearch(item, page, params, facets,
           portalRoutes.searchDocument(id), details.watched))
@@ -302,7 +303,7 @@ case class Portal @Inject()(implicit globalConfig: global.GlobalConfig, searchDi
   }
 
   def itemHistory(id: String) = userProfileAction.async { implicit userOpt => implicit request =>
-    backend.history(id, PageParams.fromRequest(request)).map { data =>
+    backend.history[SystemEvent](id, PageParams.fromRequest(request)).map { data =>
       if (isAjax) {
         Ok(p.activity.activityModal(data))
       } else {

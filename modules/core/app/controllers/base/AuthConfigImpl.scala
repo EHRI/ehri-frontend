@@ -20,9 +20,10 @@ trait AuthConfigImpl extends AuthConfig with Results {
   // Specific type of user-finder loaded via a plugin
   def userDAO: models.AccountDAO
 
-  def defaultLoginUrl: Call = globalConfig.routeRegistry.default
-  def defaultLogoutUrl: Call = globalConfig.routeRegistry.default
-  def defaultAuthFailedUrl: Call = globalConfig.routeRegistry.login
+  // Override these if necessary...
+  def defaultLoginUrl: Call = Call("GET", "/login")
+  def defaultLogoutUrl: Call = Call("GET", "/logout")
+  def defaultAuthFailedUrl: Call = Call("GET", "/login")
 
   protected val ACCESS_URI: String = "access_uri"
 

@@ -1,7 +1,7 @@
 package controllers.portal
 
 import play.api.mvc._
-import models.{SignupData, UserProfileF, AccountDAO, Account}
+import models._
 import play.api.libs.concurrent.Execution.Implicits._
 import scala.concurrent.Future.{successful => immediate}
 import jp.t2v.lab.play2.auth.LoginLogout
@@ -20,6 +20,7 @@ import controllers.core.auth.AccountHelpers
 import scala.concurrent.Future
 import backend.ApiUser
 import play.api.mvc.Result
+import com.typesafe.plugin.MailerAPI
 
 /**
  * @author Mike Bryant (http://github.com/mikesname)
@@ -29,6 +30,7 @@ trait PortalLogin extends OpenIDLoginHandler with Oauth2LoginHandler with UserPa
   self: Controller with AuthController with LoginLogout with SessionPreferences[SessionPrefs] =>
 
   val userDAO: AccountDAO
+  val mailer: MailerAPI
 
   private val portalRoutes = controllers.portal.routes.Portal
   private val profileRoutes = controllers.portal.routes.Profile
@@ -60,8 +62,7 @@ trait PortalLogin extends OpenIDLoginHandler with Oauth2LoginHandler with UserPa
   }
 
   def sendValidationEmail(email: String, uuid: UUID)(implicit request: RequestHeader) {
-    import com.typesafe.plugin._
-    use[MailerPlugin].email
+    mailer
       .setSubject("Please confirm your EHRI Account Email")
       .setRecipient(email)
       .setFrom("EHRI Email Validation <noreply@ehri-project.eu>")
@@ -90,7 +91,7 @@ trait PortalLogin extends OpenIDLoginHandler with Oauth2LoginHandler with UserPa
                 profileRoutes.signupPost(), recaptchaKey)))
             } getOrElse {
               implicit val apiUser = ApiUser()
-              backend.createNewUserProfile(
+              backend.createNewUserProfile[UserProfile](
                   data = Map(UserProfileF.NAME -> data.name), groups = defaultPortalGroups)
                   .flatMap { userProfile =>
                 val account = userDAO.createWithPassword(userProfile.id, data.email.toLowerCase,
@@ -244,8 +245,7 @@ trait PortalLogin extends OpenIDLoginHandler with Oauth2LoginHandler with UserPa
   }
 
   private def sendResetEmail(email: String, uuid: UUID)(implicit request: RequestHeader) {
-    import com.typesafe.plugin._
-    use[MailerPlugin].email
+    mailer
       .setSubject("EHRI Password Reset")
       .setRecipient(email)
       .setFrom("EHRI Password Reset <noreply@ehri-project.eu>")

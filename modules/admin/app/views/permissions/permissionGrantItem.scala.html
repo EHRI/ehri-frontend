@@ -8,12 +8,12 @@
                 @accessorOpt.map { accessor =>
                     @accessor match {
                         case u: UserProfile => {
-                            <a href="@controllers.admin.routes.UserProfiles.revokePermission(accessor.id, perm.id)">
+                            <a href="@controllers.users.routes.UserProfiles.revokePermission(accessor.id, perm.id)">
                                 <i title="@Messages("permissions.revoke")" class="glyphicon glyphicon-remove"></i>
                             </a>
                         }
                         case u: Group => {
-                            <a href="@controllers.admin.routes.Groups.revokePermission(accessor.id, perm.id)">
+                            <a href="@controllers.groups.routes.Groups.revokePermission(accessor.id, perm.id)">
                                 <i title="@Messages("permissions.revoke")" class="glyphicon glyphicon-remove"></i>
                             </a>
                         }
@@ -25,7 +25,7 @@
         @perm.accessor.map { accessor =>
         <li>
             @Messages("permissionGrant.accessor"):
-            <a href="@globalConfig.routeRegistry.urlFor(accessor)">@accessor.toStringLang</a>
+            <a href="@views.admin.Helpers.linkTo(accessor)">@accessor.toStringLang</a>
         </li>
         }
         @perm.targets.map { t =>
@@ -36,7 +36,7 @@
             <strong>@Messages("contentTypes." + c.id)</strong>
             }
             case t => {
-            <a href="@globalConfig.routeRegistry.urlFor(t)">@t.toStringLang</a>
+            <a href="@views.admin.Helpers.linkTo(t)">@t.toStringLang</a>
             }
             }
 
@@ -45,13 +45,13 @@
         @perm.scope.map { s =>
         <li>
             @Messages("permissionGrant.scope"):
-            <a href="@globalConfig.routeRegistry.urlFor(s)">@s.toStringLang</a>
+            <a href="@views.admin.Helpers.linkTo(s)">@s.toStringLang</a>
         </li>
         }
         @perm.grantee.map { s =>
         <li>
             @Messages("permissionGrant.grantedBy"):
-            <a href="@globalConfig.routeRegistry.urlFor(s)">@s.toStringLang</a>
+            <a href="@views.admin.Helpers.linkTo(s)">@s.toStringLang</a>
         </li>
         }
     </ul>

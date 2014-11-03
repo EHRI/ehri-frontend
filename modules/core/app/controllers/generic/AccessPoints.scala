@@ -3,7 +3,7 @@ package controllers.generic
 import play.api.libs.concurrent.Execution.Implicits._
 import models.base.{Described, MetaModel, Model, Description}
 import defines.{PermissionType, EntityType}
-import models.{UserProfile, LinkF, AccessPointF}
+import models.{Link, UserProfile, LinkF, AccessPointF}
 import play.api.libs.json.Json
 import play.api.mvc.{Result, Request, AnyContent}
 import backend.{BackendReadable, BackendContentType, BackendResource}
@@ -86,7 +86,7 @@ trait AccessPoints[D <: Description, T <: Model with Described[D], MT <: MetaMod
    */
   def getAccessPointsJson(id: String)(implicit rd: BackendReadable[MT], rs: BackendResource[MT]) = userProfileAction.async { implicit userOpt => implicit request =>
     getEntity.async(id, userOpt) { item =>
-      backend.getLinksForItem(id).map { links =>
+      backend.getLinksForItem[Link](id).map { links =>
         implicit val accessPointFormat = Json.format[AccessPointF]
         implicit val linkFormat = Json.format[LinkF]
         implicit val targetWrites = Json.format[Target]

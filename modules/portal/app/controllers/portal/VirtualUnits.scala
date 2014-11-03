@@ -92,8 +92,8 @@ case class VirtualUnits @Inject()(implicit globalConfig: global.GlobalConfig, se
     val pathIds = pathStr.split(",").toSeq
     val pathF: Future[Seq[AnyModel]] = Future.sequence(pathIds.map(pid => backend.getAny[AnyModel](pid)))
     val itemF: Future[AnyModel] = backend.getAny[AnyModel](id)
-    val linksF: Future[Seq[Link]] = backend.getLinksForItem(id)
-    val annsF: Future[Seq[Annotation]] = backend.getAnnotationsForItem(id)
+    val linksF: Future[Seq[Link]] = backend.getLinksForItem[Link](id)
+    val annsF: Future[Seq[Annotation]] = backend.getAnnotationsForItem[Annotation](id)
     val watchedF: Future[Seq[String]] = watchedItemIds(userIdOpt = userOpt.map(_.id))
     for {
       watched <- watchedF
@@ -126,8 +126,8 @@ case class VirtualUnits @Inject()(implicit globalConfig: global.GlobalConfig, se
 
     val pathF: Future[Seq[AnyModel]] = Future.sequence(pathIds.map(pid => backend.getAny[AnyModel](pid)))
     val itemF: Future[AnyModel] = backend.getAny[AnyModel](id)
-    val linksF: Future[Seq[Link]] = backend.getLinksForItem(id)
-    val annsF: Future[Seq[Annotation]] = backend.getAnnotationsForItem(id)
+    val linksF: Future[Seq[Link]] = backend.getLinksForItem[Link](id)
+    val annsF: Future[Seq[Annotation]] = backend.getAnnotationsForItem[Annotation](id)
     val watchedF: Future[Seq[String]] = watchedItemIds(userIdOpt = userOpt.map(_.id))
     for {
       watched <- watchedF

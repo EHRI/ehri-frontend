@@ -9,11 +9,14 @@ import models.AccountDAO
 import play.api.Play.current
 import com.google.inject._
 import utils.SessionPrefs
+import com.typesafe.plugin.MailerAPI
 
 /**
  * @author Mike Bryant (http://github.com/mikesname)
  */
-case class Feedback @Inject()(implicit globalConfig: global.GlobalConfig, feedbackDAO: FeedbackDAO, backend: Backend, userDAO: AccountDAO) extends Controller with ControllerHelpers with AuthController {
+case class Feedback @Inject()(implicit globalConfig: global.GlobalConfig, feedbackDAO: FeedbackDAO,
+    backend: Backend, userDAO: AccountDAO, mailer: MailerAPI)
+  extends Controller with ControllerHelpers with AuthController {
 
   // This is a publically-accessible site, but not just yet.
   override val staffOnly = current.configuration.getBoolean("ehri.portal.secured").getOrElse(true)
@@ -29,9 +32,8 @@ case class Feedback @Inject()(implicit globalConfig: global.GlobalConfig, feedba
     for {
       accTo <- current.configuration.getString("ehri.portal.feedback.copyTo")
     } yield {
-      import com.typesafe.plugin._
       val text = feedback.text.getOrElse("No message provided")
-      use[MailerPlugin].email
+      mailer
         .setSubject("EHRI Portal Feedback")
         .setRecipient(accTo)
         .setReplyTo(feedback.email.getOrElse("noreply@ehri-project.eu"))

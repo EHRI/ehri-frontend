@@ -6,8 +6,6 @@ import play.api.test.Helpers._
 
 import helpers.{UserFixtures, TestConfiguration}
 import play.api.i18n.Messages
-import mocks.MockBufferedMailer
-import models.MockAccountDAO
 import models.MockAccount
 import play.api.test.FakeApplication
 
@@ -61,7 +59,7 @@ class ApplicationSpec extends Specification with TestConfiguration with UserFixt
     "redirect 301 for trailing-slash URLs" in {
       running(FakeApplication(withGlobal = Some(getGlobal))) {
         val home = route(fakeLoggedInHtmlRequest(mocks.publicUser, GET,
-          controllers.adminutils.routes.Home.index().url + "/")).get
+          controllers.admin.routes.Home.index().url + "/")).get
         status(home) must equalTo(MOVED_PERMANENTLY)
       }
     }
@@ -69,7 +67,7 @@ class ApplicationSpec extends Specification with TestConfiguration with UserFixt
     "deny non-staff users access to admin areas" in {
       running(FakeApplication(withGlobal = Some(getGlobal), additionalPlugins = getPlugins)) {
         val home = route(fakeLoggedInHtmlRequest(mocks.publicUser, GET,
-          controllers.adminutils.routes.Home.index().url)).get
+          controllers.admin.routes.Home.index().url)).get
         status(home) must equalTo(UNAUTHORIZED)
       }
     }
@@ -80,7 +78,7 @@ class ApplicationSpec extends Specification with TestConfiguration with UserFixt
 
       running(FakeApplication(withGlobal = Some(getGlobal), additionalPlugins = getPlugins)) {
         val home = route(fakeLoggedInHtmlRequest(user, GET,
-          controllers.adminutils.routes.Home.index().url)).get
+          controllers.admin.routes.Home.index().url)).get
         status(home) must equalTo(UNAUTHORIZED)
       }
     }
@@ -97,7 +95,7 @@ class ApplicationSpec extends Specification with TestConfiguration with UserFixt
       running(FakeApplication(withGlobal = Some(getGlobal),
         additionalConfiguration = Map("ehri.secured" -> false))) {
         val home = route(FakeRequest(GET,
-          controllers.adminutils.routes.Home.index().url)).get
+          controllers.admin.routes.Home.index().url)).get
         status(home) must equalTo(OK)
       }
     }
@@ -147,7 +145,7 @@ class ApplicationSpec extends Specification with TestConfiguration with UserFixt
       running(FakeApplication(withGlobal = Some(getGlobal),
         additionalConfiguration = Map("recaptcha.skip" -> true),
         additionalPlugins = getPlugins)) {
-        val numSentMails = MockBufferedMailer.mailBuffer.size
+        val numSentMails = mailBuffer.size
         val data: Map[String,Seq[String]] = Map(
           "email" -> Seq(mocks.unprivilegedUser.email),
           CSRF_TOKEN_NAME -> Seq(fakeCsrfString)
@@ -156,8 +154,8 @@ class ApplicationSpec extends Specification with TestConfiguration with UserFixt
           controllers.portal.routes.Profile.forgotPasswordPost().url)
           .withSession(CSRF_TOKEN_NAME -> fakeCsrfString), data).get
         status(forgot) must equalTo(SEE_OTHER)
-        MockBufferedMailer.mailBuffer.size must beEqualTo(numSentMails + 1)
-        MockBufferedMailer.mailBuffer.last.to must contain(mocks.unprivilegedUser.email)
+        mailBuffer.size must beEqualTo(numSentMails + 1)
+        mailBuffer.last.to must contain(mocks.unprivilegedUser.email)
       }
     }
 
@@ -165,7 +163,7 @@ class ApplicationSpec extends Specification with TestConfiguration with UserFixt
       running(FakeApplication(withGlobal = Some(getGlobal),
         additionalConfiguration = Map("recaptcha.skip" -> true),
         additionalPlugins = getPlugins)) {
-        val numSentMails = MockBufferedMailer.mailBuffer.size
+        val numSentMails = mailBuffer.size
         val data: Map[String,Seq[String]] = Map(
           "email" -> Seq(mocks.unprivilegedUser.email),
           CSRF_TOKEN_NAME -> Seq(fakeCsrfString)
@@ -174,10 +172,10 @@ class ApplicationSpec extends Specification with TestConfiguration with UserFixt
           controllers.portal.routes.Profile.forgotPasswordPost().url)
           .withSession(CSRF_TOKEN_NAME -> fakeCsrfString), data).get
         status(forgot) must equalTo(SEE_OTHER)
-        MockBufferedMailer.mailBuffer.size must beEqualTo(numSentMails + 1)
-        MockBufferedMailer.mailBuffer.last.to must contain(mocks.unprivilegedUser.email)
+        mailBuffer.size must beEqualTo(numSentMails + 1)
+        mailBuffer.last.to must contain(mocks.unprivilegedUser.email)
 
-        val token = MockAccountDAO.tokens.last._1
+        val token = mocks.tokens.last._1
         val resetForm = route(FakeRequest(GET,
           controllers.portal.routes.Profile.resetPassword(token).url)
           .withSession(CSRF_TOKEN_NAME -> fakeCsrfString)).get
