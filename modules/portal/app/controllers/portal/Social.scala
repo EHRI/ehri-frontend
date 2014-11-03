@@ -90,7 +90,7 @@ case class Social @Inject()(implicit globalConfig: global.GlobalConfig, searchDi
     // of users and combine it with a list of existing followers so
     // we can mark who's following and who isn't
     val filters = Map(SolrConstants.ACTIVE -> true.toString)
-    val defaultParams = SearchParams(entities = List(EntityType.UserProfile), excludes = Some(List(user.id)),
+    val defaultParams = SearchParams(entities = List(EntityType.UserProfile),
           sort = Some(SearchOrder.Name), count = Some(40))
     val searchParams = SearchParams.form.bindFromRequest.value
       .getOrElse(defaultParams).setDefault(Some(defaultParams))

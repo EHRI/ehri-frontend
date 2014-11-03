@@ -1,14 +1,16 @@
 @(them: UserProfile, users: Iterable[UserProfile], following: Seq[UserProfile] = Nil)(implicit userOpt: Option[UserProfile], req: RequestHeader, lang: Lang)
 
+@isCurrentUser(user: UserProfile) = @{
+    userOpt.exists(_.id == user.id)
+}
+
 @users.map { other =>
-    <li class="user-list-item">
-        @userOpt.map { current =>
-            @if(other.id != current.id) {
-                @defining(following.exists(_.id == other.id)) { follows =>
-                    <div class="follow-controls">
-                    @p.common.followingButtons(other, follows)
-                    </div>
-                }
+    <li class="user-list-item @{if(isCurrentUser(other)) "current"}">
+        @if(!isCurrentUser(other)) {
+            @defining(following.exists(_.id == other.id)) { follows =>
+                <div class="follow-controls">
+                @p.common.followingButtons(other, follows)
+                </div>
             }
         }
         <a href="@controllers.portal.routes.Social.browseUser(other.id)" class="gravitar">
