@@ -183,6 +183,10 @@ facet.data=Structure
 facet.data.tooltip=Whether this item is a container for other records.
 facet.data.hasChildItems=Container (multi-level)
 facet.data.placeholder=Filter Structure
+facet.parent=Structure
+facet.parent.tooltip=Whether this item is a container for other records.
+facet.parent.true=Container Item
+facet.parent.false=Single Item
 facet.source=Description Source
 facet.source.tooltip=The source of the electronic description, e.g. whether it was\
   created by EHRI staff or imported from structured data provided by a partner institution.
@@ -315,6 +319,7 @@ portal.contribution.visibility.me=Only Me
 portal.contribution.visibility.groups=My Groups
 portal.contribution.visibility.custom=Custom
 portal.contribution.visibility.allowPublic=Allow Promotion
+portal.contribution.visibility.allowPublic.title=Allow EHRI moderators to promote this note so it is visible to all users.
 
 # Image upload
 portal.error.imageTooLarge=This image was too large. Please select one smaller than 5 metabytes in size.
