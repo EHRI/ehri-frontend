@@ -1,0 +1,5 @@
+# Event routes
+
+GET     /                                @controllers.events.SystemEvents.list
+GET     /:id                             @controllers.events.SystemEvents.get(id: String)
+

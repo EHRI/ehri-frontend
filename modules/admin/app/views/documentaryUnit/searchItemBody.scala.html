@@ -1,0 +1,46 @@
+@(item: DocumentaryUnit, desc: DocumentaryUnitDescriptionF)(implicit userOpt: Option[UserProfile], req: RequestHeader, globalConfig: global.GlobalConfig, lang: Lang)
+
+@import org.apache.commons.lang3.StringUtils
+
+@common.otherNameListSmall(desc.identity.parallelFormsOfName.toList.flatten)
+
+@if(!item.ancestors.isEmpty) {
+    <small>
+        <ul class="list-unstyled text-muted inline inline-separator">
+            @item.ancestors.reverse.map { parent =>
+                <li>
+                    <a href="@controllers.units.routes.DocumentaryUnits.get(parent.id)">@views.Helpers.ellipsize(parent.toStringLang,100)</a>
+                </li>
+            }
+        </ul>
+    </small>
+}
+<small>
+    <ul class="list-unstyled text-muted inline inline-separator">
+        @item.holder.map { holder =>
+            <li><a class="alt" href="@controllers.institutions.routes.Repositories.get(holder.id)">@holder.toStringAbbr</a></li>
+        }
+        <li><span class="text-muted">@views.Helpers.languageCodeToName(desc.languageCode)</span></li>
+
+        @desc.dates.headOption.filterNot(_.years.isEmpty).map { dp =>
+            <li>@dp.years</li>
+        }
+        @desc.identity.extentAndMedium.map { s =>
+            <li>@StringUtils.normalizeSpace(Html(StringUtils.abbreviate(s, 25)).body)</li>
+        }
+        @item.latestEvent.map { event =>
+            <li title="@common.eventTitle(event)">
+                <time datetime="@event.model.timestamp">@Messages("systemEvent.lastUpdated", views.Helpers.relativeDate(event.model.timestamp))</time>
+            </li>
+        }
+    </ul>
+    @views.html.common.childCount(item) { count =>
+        @if(count > 0) {
+            <a href="@controllers.units.routes.DocumentaryUnits.get(item.id)#search-items">@Messages("documentaryUnit.childCount", count)</a>
+        }
+    }
+</small>
+@desc.displayText.map(views.Helpers.ellipsize(_, 600)).map { sc =>
+    @Html(views.Helpers.renderMarkdown(sc))
+}
+

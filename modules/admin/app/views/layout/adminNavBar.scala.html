@@ -15,13 +15,13 @@
 	        <span class="icon-bar"></span>
 	      </button>
 		    @* Bit hacky - add home link *@
-	      <a class="navbar-brand" href="@globalConfig.routeRegistry.default.url">
-              <i class="glyphicon glyphicon-home @{if(request.path.equalsIgnoreCase(globalConfig.routeRegistry.default.url)) "white" else ""}"></i>
+	      <a class="navbar-brand" href="@controllers.admin.routes.Home.index">
+              <i class="glyphicon glyphicon-home @{if(request.path.equalsIgnoreCase(controllers.admin.routes.Home.index.url)) "white" else ""}"></i>
           </a>
 	    </aside>
 	    <nav class="collapse navbar-collapse" id="navbar-header">
 			<ul class="nav navbar-nav navbar-left" role="navigation">
-			    @globalConfig.menuConfig.mainSection.map { case (key, url) =>
+			    @views.admin.Helpers.mainMenu.map { case (key, url) =>
 			        @activeIfCurrent(url, Messages(key))
 			    }
 			    <li class="dropdown">
@@ -30,7 +30,7 @@
 			            <b class="caret"></b>
 			        </a>
 			        <ul class="dropdown-menu" role="menu" aria-labelledby="drop3">
-			            @globalConfig.menuConfig.adminSection.map { case (key, url) =>
+			            @views.admin.Helpers.moreMenu.map { case (key, url) =>
 			                @if(url == "-") {
 			                    <li role="presentation" class="divider"></li>
 			                } else {
@@ -51,12 +51,12 @@
 			            <b class="caret"></b>
 			        </a>
 			        <ul class="dropdown-menu" role="menu" aria-labelledby="drop3">
-			            @globalConfig.menuConfig.authSection.map { case (key, url) =>
+			            @views.admin.Helpers.accountMenu.map { case (key, url) =>
 			                <li role="presentation"><a role="menuitem" tabindex="-1" href="@url">@Messages(key)</a> </li>
 			            }
 			            <li role="presentation" class="divider"></li>
 			            <li>
-			                <a href="@globalConfig.routeRegistry.logout" id="signout">
+			                <a href="@controllers.portal.routes.Profile.logout" id="signout">
 			                    <span class="hidden-responsive">@Messages("banner.signout")</span>
 			                    <i class="glyphicon glyphicon-off"></i>
 			                </a>
@@ -64,7 +64,7 @@
 			        </ul>
 			    </li>
 			    }.getOrElse {
-			        <li><a href="@globalConfig.routeRegistry.login" id="signin">@Messages("banner.signin")</a></li>
+			        <li><a href="controllers.portal.routes.Profile.login" id="signin">@Messages("banner.signin")</a></li>
 			    }
 			</ul>
 		</nav>

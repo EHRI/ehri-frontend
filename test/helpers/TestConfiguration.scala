@@ -61,7 +61,7 @@ trait TestConfiguration {
     def handleDelete(id: String) = mockIndexer.clearId(id)
   }
 
-  object TestConfig extends globalConfig.BaseConfiguration
+  object TestConfig extends GlobalConfig
 
   // Dummy auth config for play-2-auth
   object AuthConfig extends AuthConfigImpl {

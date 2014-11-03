@@ -4,19 +4,10 @@ import scala.xml.{Node, Elem}
 import defines.EntityType
 import utils.search._
 import play.api.Logger
-import com.github.seratch.scalikesolr._
 import utils.search.QueryResponse
 import utils.search.SearchHit
 import solr.facet.FieldFacetClass
 import solr.facet.QueryFacetClass
-
-/**
- * User: michaelb
- */
-object SolrXmlQueryResponse extends ResponseParser {
-  def apply(responseString: String) = new SolrXmlQueryResponse(xml.XML.loadString(responseString))
-  def writerType = WriterType.Standard
-}
 
 /**
  * Helper class for parsing a Solr XML Response.

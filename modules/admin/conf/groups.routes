@@ -1,0 +1,22 @@
+# Group routes
+
+GET     /                                 @controllers.groups.Groups.list
+GET     /create                           @controllers.groups.Groups.create
+POST    /create                           @controllers.groups.Groups.createPost
+GET     /:id                              @controllers.groups.Groups.get(id: String)
+GET     /:id/history                      @controllers.groups.Groups.history(id: String)
+GET     /:id/delete                       @controllers.groups.Groups.delete(id: String)
+POST    /:id/delete                       @controllers.groups.Groups.deletePost(id: String)
+GET     /:id/update                       @controllers.groups.Groups.update(id: String)
+POST    /:id/update                       @controllers.groups.Groups.updatePost(id: String)
+GET     /:id/permissions                  @controllers.groups.Groups.permissions(id: String)
+POST    /:id/permissions                  @controllers.groups.Groups.permissionsPost(id: String)
+GET     /:id/permissions/list             @controllers.groups.Groups.grantList(id: String)
+GET     /:id/permissions/revoke/:perm     @controllers.groups.Groups.revokePermission(id: String, perm: String)
+POST    /:id/permissions/revoke/:perm     @controllers.groups.Groups.revokePermissionPost(id: String, perm: String)
+GET		/members/:userType/:userId	     @controllers.groups.Groups.membership(userType: defines.EntityType.Value, userId: String)
+GET		/:id/add/:userType/:userId	     @controllers.groups.Groups.addMember(id: String, userType: defines.EntityType.Value, userId: String)
+POST	/:id/add/:userType/:userId	     @controllers.groups.Groups.addMemberPost(id: String, userType: defines.EntityType.Value, userId: String)
+GET		/:id/remove/:userType/:userId	 @controllers.groups.Groups.removeMember(id: String, userType: defines.EntityType.Value, userId: String)
+POST	/:id/remove/:userType/:userId	 @controllers.groups.Groups.removeMemberPost(id: String, userType: defines.EntityType.Value, userId: String)
+

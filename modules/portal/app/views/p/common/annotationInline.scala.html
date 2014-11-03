@@ -7,7 +7,7 @@
             @p.helpers.linkTo(user)
             <a class="time-permalink" href="#@annotation.id">@views.Helpers.relativeDate(event.model.timestamp)</a>
 
-            @if(editable) {
+            @if(editable && !annotation.isPromoted) {
                 <a data-item="@annotation.id" title="@Messages("portal.annotation.update.title")" class="edit-annotation" href="@controllers.portal.routes.Annotations.editAnnotation(annotation.id)">
                     @Messages("portal.annotation.update")
                 </a>
@@ -17,9 +17,15 @@
             }
             @userOpt.map { user =>
                 @if(!annotation.isPromoted && user.hasPermission(defines.ContentTypes.Annotation, defines.PermissionType.Promote) && annotation.model.isPromotable) {
-                    <a data-item="@annotation.id" title="@Messages("portal.annotation.promote.title")" class="promote-annotation" href="@controllers.annotation.routes.Annotations.promote(annotation.id)">
+                    <a data-item="@annotation.id" title="@Messages("portal.annotation.promote.title")" class="promote-annotation" href="@controllers.portal.routes.Annotations.promoteAnnotation(annotation.id)">
                         @Messages("portal.annotation.promote")
                     </a>
+                } else {
+                    @if(annotation.isPromoted && user.hasPermission(defines.ContentTypes.Annotation, defines.PermissionType.Promote)) {
+                        <a data-item="@annotation.id" title="@Messages("portal.annotation.demote.title")" class="demote-annotation" href="@controllers.portal.routes.Annotations.demoteAnnotation(annotation.id)">
+                            @Messages("portal.annotation.demote")
+                        </a>
+                    }
                 }
             }
         </small>

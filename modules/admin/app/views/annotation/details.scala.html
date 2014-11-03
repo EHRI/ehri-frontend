@@ -1,0 +1,33 @@
+@(item: Annotation, annotations: Seq[Annotation])(implicit userOpt: Option[UserProfile], req: RequestHeader, globalConfig: global.GlobalConfig, lang: Lang, flash: Flash)
+
+@layout.rightSidebar(item.toStringLang, breadcrumbs = common.breadcrumbs(List(item))) {
+
+    @common.annotated(item, annotations) {
+
+        <div class="well well-small">
+            @item.model.body
+        </div>
+
+        @item.user.map { u =>
+            <h4>@Messages("annotation.createdBy")</h4>
+            <a href="@views.admin.Helpers.linkTo(u)">@u.toStringLang</a>
+        }
+
+        @item.target.map { t =>
+            <h4>@Messages("annotation.target")</h4>
+            <a href="@views.admin.Helpers.linkTo(t)">@t.toStringLang</a>
+        }
+    }
+} {
+    @if(item.model.isPromotable) {
+        @common.promotion(item, controllers.annotation.routes.Annotations.promote(item.id), controllers.annotation.routes.Annotations.demote(item.id), ContentTypes.Annotation)
+    }
+    @common.visibility(item, controllers.annotation.routes.Annotations.visibility(item.id), ContentTypes.Annotation)
+    @common.latestAction(item, controllers.annotation.routes.Annotations.history(item.id))
+
+    @common.sidebarActions { user =>
+        @common.sidebarAction(user.hasPermission(ContentTypes.Annotation, PermissionType.Delete)) {
+            <a href="@controllers.annotation.routes.Annotations.delete(item.id)">@Messages("annotation.delete")</a>
+        }
+    }
+}

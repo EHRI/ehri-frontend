@@ -1,10 +1,10 @@
 package controllers.portal
 
 import play.api.libs.concurrent.Execution.Implicits._
-import models.json.ClientWriteable
 import play.api.libs.json.Json
 import backend.{BackendReadable, BackendResource}
 import controllers.generic.Generic
+import client.json.ClientWriteable
 
 /**
  * @author Mike Bryant (http://github.com/mikesname)

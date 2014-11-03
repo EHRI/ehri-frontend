@@ -6,6 +6,7 @@ import play.api.libs.functional.syntax._
 import scala._
 import java.lang.RuntimeException
 import scala.RuntimeException
+import play.api.mvc.RequestHeader
 
 /**
  * @author Mike Bryant (http://github.com/mikesname)
@@ -58,6 +59,9 @@ package object rest {
       """.stripMargin
       case None => s"Parsing error (no context): $prettyError"
     }
+
+    def getMessageWithContext(request: RequestHeader): String =
+      s"Error at ${request.path}: $getMessage"
   }
 
   object ItemNotFound {

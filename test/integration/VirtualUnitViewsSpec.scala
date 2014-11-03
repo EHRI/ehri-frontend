@@ -12,7 +12,7 @@ class VirtualUnitViewsSpec extends IntegrationTestRunner {
     groups = List(Group(GroupF(id = Some("admin"), identifier = "admin", name="Administrators")))
   )
   
-  val vuRoutes = controllers.archdesc.routes.VirtualUnits
+  val vuRoutes = controllers.virtual.routes.VirtualUnits
 
   // Common headers/strings
   val multipleItemsHeader = "Displaying items"

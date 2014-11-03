@@ -8,7 +8,7 @@ import defines._
 class DocUnitLinkAnnotateSpec extends IntegrationTestRunner {
   import mocks.privilegedUser
   
-  private val docRoutes = controllers.archdesc.routes.DocumentaryUnits
+  private val docRoutes = controllers.units.routes.DocumentaryUnits
 
   val userProfile = UserProfile(
     model = UserProfileF(id = Some(privilegedUser.id), identifier = "test", name="test user"),

@@ -9,7 +9,7 @@
                     @if(lang.toString.toLowerCase.contains(changeLang)) {
                     @locale.getDisplayName(locale).toLowerCase
                     } else {
-                    <a href="@controllers.core.routes.Application.changeLocale(changeLang)">
+                    <a href="@controllers.portal.routes.PortalData.changeLocale(changeLang)">
                         @locale.getDisplayName(locale).toLowerCase
                     </a>
                     }

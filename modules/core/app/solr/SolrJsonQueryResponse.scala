@@ -1,12 +1,11 @@
 package solr
 
 import utils.search._
-import play.api.libs.json.{Json, JsValue}
+import play.api.libs.json.JsValue
 import defines.EntityType
 import utils.search.SearchHit
 import solr.facet.{SolrQueryFacet, QueryFacetClass, SolrFieldFacet, FieldFacetClass}
 import play.api.Logger
-import com.github.seratch.scalikesolr.WriterType
 
 /**
  * Extracts useful data from a Solr JSON response.
@@ -151,9 +150,4 @@ case class SolrJsonQueryResponse(response: JsValue) extends QueryResponse {
       }
     }
   }
-}
-
-object SolrJsonQueryResponse extends ResponseParser {
-  def apply(responseString: String) = new SolrJsonQueryResponse(Json.parse(responseString))
-  def writerType = WriterType.JSON
 }

@@ -11,7 +11,7 @@ import backend.rest.ItemNotFound
 class DocUnitViewsSpec extends IntegrationTestRunner {
   import mocks.{privilegedUser, unprivilegedUser}
 
-  private val docRoutes = controllers.archdesc.routes.DocumentaryUnits
+  private val docRoutes = controllers.units.routes.DocumentaryUnits
 
   val userProfile = UserProfile(
     model = UserProfileF(id = Some(privilegedUser.id), identifier = "test", name="test user"),
@@ -72,7 +72,7 @@ class DocUnitViewsSpec extends IntegrationTestRunner {
           docRoutes.get("c1").url)).get
       status(show) must equalTo(OK)
 
-      contentAsString(show) must contain(controllers.archdesc.routes.Repositories.get("r1").url)
+      contentAsString(show) must contain(controllers.institutions.routes.Repositories.get("r1").url)
     }
 
     "link to holder when a child item" in new ITestApp {
@@ -80,7 +80,7 @@ class DocUnitViewsSpec extends IntegrationTestRunner {
           docRoutes.get("c2").url)).get
       status(show) must equalTo(OK)
 
-      contentAsString(show) must contain(controllers.archdesc.routes.Repositories.get("r1").url)
+      contentAsString(show) must contain(controllers.institutions.routes.Repositories.get("r1").url)
     }
 
     "give access to c1 when logged in" in new ITestApp {
@@ -105,7 +105,7 @@ class DocUnitViewsSpec extends IntegrationTestRunner {
     "show correct default values in the form when creating new items" in new ITestApp(
       Map("documentaryUnit.rulesAndConventions" -> "SOME RANDOM VALUE")) {
       val form = route(fakeLoggedInHtmlRequest(privilegedUser, GET,
-        controllers.archdesc.routes.Repositories.createDoc("r1").url)).get
+        controllers.institutions.routes.Repositories.createDoc("r1").url)).get
       status(form) must equalTo(OK)
       contentAsString(form) must contain("SOME RANDOM VALUE")
     }
@@ -129,7 +129,7 @@ class DocUnitViewsSpec extends IntegrationTestRunner {
         "publicationStatus" -> Seq("Published")
       )
       val cr = route(fakeLoggedInHtmlRequest(privilegedUser, POST,
-        controllers.archdesc.routes.Repositories.createDocPost("r1").url)
+        controllers.institutions.routes.Repositories.createDocPost("r1").url)
         .withHeaders(formPostHeaders.toSeq: _*), testData).get
       status(cr) must equalTo(SEE_OTHER)
 
@@ -153,7 +153,7 @@ class DocUnitViewsSpec extends IntegrationTestRunner {
       // a form error should result from using the same identifier
       // twice within the given scope (in this case, r1)
       val call = fakeLoggedInHtmlRequest(privilegedUser, POST,
-        controllers.archdesc.routes.Repositories.createDocPost("r1").url)
+        controllers.institutions.routes.Repositories.createDocPost("r1").url)
         .withHeaders(formPostHeaders.toSeq: _*)
       val cr1 = route(call, testData).get
       status(cr1) must equalTo(SEE_OTHER)
@@ -188,7 +188,7 @@ class DocUnitViewsSpec extends IntegrationTestRunner {
       // a form error should result from using the same identifier
       // twice within the given scope (in this case, r1)
       val call = fakeLoggedInHtmlRequest(privilegedUser, POST,
-        controllers.archdesc.routes.Repositories.createDocPost("r1").url)
+        controllers.institutions.routes.Repositories.createDocPost("r1").url)
         .withHeaders(formPostHeaders.toSeq: _*)
       val cr = route(call, testData).get
       status(cr) must equalTo(BAD_REQUEST)

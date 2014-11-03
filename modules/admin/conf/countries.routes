@@ -1,0 +1,23 @@
+# Countries
+
+GET     /                                       @controllers.countries.Countries.search
+GET     /create                                 @controllers.countries.Countries.create
+POST    /create                                 @controllers.countries.Countries.createPost
+GET     /:id                                    @controllers.countries.Countries.get(id: String)
+GET     /:id/history                            @controllers.countries.Countries.history(id: String)
+GET     /:id/delete                             @controllers.countries.Countries.delete(id: String)
+POST    /:id/delete                             @controllers.countries.Countries.deletePost(id: String)
+GET     /:id/update                             @controllers.countries.Countries.update(id: String)
+POST    /:id/update                             @controllers.countries.Countries.updatePost(id: String)
+GET     /:id/create                             @controllers.countries.Countries.createRepository(id: String)
+POST    /:id/create                             @controllers.countries.Countries.createRepositoryPost(id: String)
+GET     /:id/visibility                         @controllers.countries.Countries.visibility(id: String)
+POST    /:id/visibility                         @controllers.countries.Countries.visibilityPost(id: String)
+GET     /:id/permissions/manage                 @controllers.countries.Countries.managePermissions(id: String)
+GET     /:id/permissions/add                    @controllers.countries.Countries.addItemPermissions(id: String)
+GET     /:id/permissions/:userType/:userId      @controllers.countries.Countries.setItemPermissions(id: String, userType: EntityType.Value, userId: String)
+POST    /:id/permissions/:userType/:userId      @controllers.countries.Countries.setItemPermissionsPost(id: String, userType: EntityType.Value, userId: String)
+GET     /:id/scope/add                          @controllers.countries.Countries.addScopedPermissions(id: String)
+GET     /:id/scope/:userType/:userId            @controllers.countries.Countries.setScopedPermissions(id: String, userType: EntityType.Value, userId: String)
+POST    /:id/scope/:userType/:userId            @controllers.countries.Countries.setScopedPermissionsPost(id: String, userType: EntityType.Value, userId: String)
+

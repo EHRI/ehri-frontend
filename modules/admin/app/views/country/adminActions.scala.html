@@ -1,0 +1,19 @@
+@(item: Country)(implicit userOpt: Option[UserProfile], request: RequestHeader, globalConfig: global.GlobalConfig, lang: Lang)
+
+@common.sidebarActions { user =>
+    @common.sidebarAction(user.hasPermission(ContentTypes.Repository, PermissionType.Create)) {
+        <a href="@controllers.countries.routes.Countries.createRepository(item.id)">@Messages("repository.create")</a>
+    }
+    @common.sidebarAction(user.hasPermission(ContentTypes.Country, PermissionType.Update)) {
+        <a href="@controllers.countries.routes.Countries.update(item.id)">@Messages("item.update")</a>
+    }
+    @common.sidebarAction(user.hasPermission(ContentTypes.Country, PermissionType.Delete)) {
+        <a href="@controllers.countries.routes.Countries.delete(item.id)">@Messages("item.delete")</a>
+    }
+    @common.sidebarAction(user.hasPermission(ContentTypes.Country, PermissionType.Grant)) {
+        <a href="@controllers.countries.routes.Countries.managePermissions(item.id)">@Messages("permissions.manage")</a>
+    }
+    @common.sidebarAction() {
+        <a href="@controllers.countries.routes.Countries.history(item.id)">@Messages("item.history")</a>
+    }
+}
