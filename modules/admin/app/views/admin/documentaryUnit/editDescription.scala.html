@@ -1,0 +1,18 @@
+@(item: DocumentaryUnit, f: Form[models.DocumentaryUnitDescriptionF], action: Call)(
+    implicit userOpt: Option[UserProfile], req: RequestHeader, globalConfig: global.GlobalConfig, lang: Lang, flash: Flash, token: play.filters.csrf.CSRF.Token)
+ 
+@implicitField = @{ views.html.helper.FieldConstructor(formHelpers.fieldTemplate.f) }
+
+@views.html.admin.layout.rightSidebar(Messages("describedEntity.updateDescription"), breadcrumbs = breadcrumbs(item), scripts = formHelpers.dateJs()) {
+
+    @defining(EntityType.DocumentaryUnit.toString) { implicit fieldPrefix =>
+        @helper.form(action = action, 'class -> "entity-form form-horizontal") {
+            @formHelpers.csrfToken()
+            @renderDescriptionForm(f(""))
+
+            @formHelpers.submitButtonWithLogMessageInput(Messages("describedEntity.updateDescription.submit"), cancel = views.admin.Helpers.linkToOpt(item))
+        }
+    }
+} {
+   @formNav()
+}

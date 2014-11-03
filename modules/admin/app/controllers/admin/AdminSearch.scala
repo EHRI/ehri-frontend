@@ -88,7 +88,7 @@ case class AdminSearch @Inject()(implicit globalConfig: global.GlobalConfig, sea
         ))
         )
       }
-      case _ => Ok(views.html.search.search(page, params, facets,
+      case _ => Ok(views.html.admin.search.search(page, params, facets,
         controllers.admin.routes.AdminSearch.search()))
     }
   }
@@ -106,7 +106,7 @@ case class AdminSearch @Inject()(implicit globalConfig: global.GlobalConfig, sea
   )
 
   def updateIndex() = adminAction { implicit userOpt => implicit request =>
-    Ok(views.html.search.updateIndex(form = updateIndexForm, types = indexTypes,
+    Ok(views.html.admin.search.updateIndex(form = updateIndexForm, types = indexTypes,
       action = controllers.admin.routes.AdminSearch.updateIndexPost()))
   }
 

@@ -89,15 +89,15 @@ case class Home @Inject()(implicit globalConfig: global.GlobalConfig, searchDisp
         .copy(eventTypes = activityEventTypes)
         .copy(itemTypes = activityItemTypes)
       backend.listEventsForUser[SystemEvent](user.id, listParams, eventFilter).map { events =>
-        Ok(views.html.index(Some(events)))
+        Ok(views.html.admin.index(Some(events)))
       }
     } getOrElse {
-      immediate(Ok(views.html.index(None)))
+      immediate(Ok(views.html.admin.index(None)))
     }
   }
 
   def metrics = userProfileAction { implicit userOpt => implicit request =>
-    Ok(views.html.metrics())
+    Ok(views.html.admin.metrics())
   }
 
   def loginRedirect() = Action {

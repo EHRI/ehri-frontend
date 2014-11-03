@@ -78,7 +78,7 @@ case class UserProfiles @Inject()(implicit globalConfig: global.GlobalConfig, se
   def createUser = withContentPermission.async(PermissionType.Create, ContentTypes.UserProfile) {
     implicit userOpt => implicit request =>
       getGroups { groups =>
-        Ok(views.html.userProfile.create(userPasswordForm, groupMembershipForm, groups,
+        Ok(views.html.admin.userProfile.create(userPasswordForm, groupMembershipForm, groups,
           userRoutes.createUserPost()))
       }
   }
@@ -111,7 +111,7 @@ case class UserProfiles @Inject()(implicit globalConfig: global.GlobalConfig, se
 
       userPasswordForm.bindFromRequest.fold(
       errorForm => {
-        immediate(Ok(views.html.userProfile.create(errorForm, groupMembershipForm.bindFromRequest,
+        immediate(Ok(views.html.admin.userProfile.create(errorForm, groupMembershipForm.bindFromRequest,
           allGroups, userRoutes.createUserPost())))
       },
       {
@@ -142,7 +142,7 @@ case class UserProfiles @Inject()(implicit globalConfig: global.GlobalConfig, se
     } recoverWith {
       case ValidationError(errorSet) => {
         val errForm = user.getFormErrors(errorSet, userPasswordForm.bindFromRequest)
-        immediate(BadRequest(views.html.userProfile.create(errForm, groupMembershipForm.bindFromRequest,
+        immediate(BadRequest(views.html.admin.userProfile.create(errForm, groupMembershipForm.bindFromRequest,
           allGroups, userRoutes.createUserPost())))
       }
     }
@@ -157,7 +157,7 @@ case class UserProfiles @Inject()(implicit globalConfig: global.GlobalConfig, se
     userDAO.findByEmail(email.toLowerCase).map { account =>
       val errForm = userPasswordForm.bindFromRequest
         .withError(FormError("email", Messages("error.userEmailAlreadyRegistered", account.id)))
-      immediate(BadRequest(views.html.userProfile.create(errForm, groupMembershipForm.bindFromRequest,
+      immediate(BadRequest(views.html.admin.userProfile.create(errForm, groupMembershipForm.bindFromRequest,
         allGroups, userRoutes.createUserPost())))
     } getOrElse {
       // It's not registered, so create the account...
@@ -177,7 +177,7 @@ case class UserProfiles @Inject()(implicit globalConfig: global.GlobalConfig, se
 
   def get(id: String) = getAction(id) {
       item => annotations => links => implicit userOpt => implicit request =>
-    Ok(views.html.userProfile.show(item, annotations))
+    Ok(views.html.admin.userProfile.show(item, annotations))
   }
 
   def search = userProfileAction.async { implicit userOpt => implicit request =>
@@ -190,22 +190,22 @@ case class UserProfiles @Inject()(implicit globalConfig: global.GlobalConfig, se
       val pageWithAccounts = page.copy(items = page.items.map { case(up, hit) =>
         (up.copy(account = userDAO.findByProfileId(up.id)), hit)
       })
-      Ok(views.html.userProfile.search(pageWithAccounts, params, facets, userRoutes.search()))
+      Ok(views.html.admin.userProfile.search(pageWithAccounts, params, facets, userRoutes.search()))
     }
   }
 
   def history(id: String) = historyAction(id) { item => page => params => implicit userOptOpt => implicit request =>
-    Ok(views.html.systemEvents.itemList(item, page, params))
+    Ok(views.html.admin.systemEvents.itemList(item, page, params))
   }
 
   def list = pageAction { page => params => implicit userOptOpt => implicit request =>
-    Ok(views.html.userProfile.list(page, params))
+    Ok(views.html.admin.userProfile.list(page, params))
   }
 
   def update(id: String) = withItemPermission[UserProfile](id, PermissionType.Update) {
       item => implicit userOpt => implicit request =>
     val userWithAccount = item.copy(account = userDAO.findByProfileId(id))
-    Ok(views.html.userProfile.edit(item, AdminUserData.form.fill(
+    Ok(views.html.admin.userProfile.edit(item, AdminUserData.form.fill(
       AdminUserData.fromUserProfile(userWithAccount)),
       userRoutes.updatePost(id)))
   }
@@ -214,7 +214,7 @@ case class UserProfiles @Inject()(implicit globalConfig: global.GlobalConfig, se
       item => implicit userOpt => implicit request =>
     val userWithAccount = item.copy(account = userDAO.findByProfileId(id))
     AdminUserData.form.bindFromRequest.fold(
-      errForm => immediate(BadRequest(views.html.userProfile.edit(userWithAccount, errForm,
+      errForm => immediate(BadRequest(views.html.admin.userProfile.edit(userWithAccount, errForm,
         userRoutes.updatePost(id)))),
       data => backend.patch[UserProfile](id, Json.toJson(data).as[JsObject]).map { updated =>
         userDAO.findByProfileId(id).map { acc =>
@@ -234,7 +234,7 @@ case class UserProfiles @Inject()(implicit globalConfig: global.GlobalConfig, se
 
   def delete(id: String) = deleteAction(id) {
       item => implicit userOpt => implicit request =>
-    Ok(views.html.userProfile.delete(item, deleteForm(item), userRoutes.deletePost(id),
+    Ok(views.html.admin.userProfile.delete(item, deleteForm(item), userRoutes.deletePost(id),
           userRoutes.get(id)))
   }
 
@@ -242,7 +242,7 @@ case class UserProfiles @Inject()(implicit globalConfig: global.GlobalConfig, se
       item => implicit userOpt => implicit request =>
     deleteForm(item).bindFromRequest.fold(
       errForm => {
-        immediate(BadRequest(views.html.userProfile.delete(item, deleteForm(item), userRoutes.deletePost(id),
+        immediate(BadRequest(views.html.admin.userProfile.delete(item, deleteForm(item), userRoutes.deletePost(id),
           userRoutes.get(id))))
       },
       ok => backend.delete[UserProfile](id, logMsg = getLogMessage).map { ok =>
@@ -256,12 +256,12 @@ case class UserProfiles @Inject()(implicit globalConfig: global.GlobalConfig, se
 
   def grantList(id: String) = grantListAction(id) {
       item => perms => implicit userOpt => implicit request =>
-    Ok(views.html.permissions.permissionGrantList(item, perms))
+    Ok(views.html.admin.permissions.permissionGrantList(item, perms))
   }
 
   def permissions(id: String) = setGlobalPermissionsAction(id) {
       item => perms => implicit userOpt => implicit request =>
-    Ok(views.html.permissions.editGlobalPermissions(item, perms,
+    Ok(views.html.admin.permissions.editGlobalPermissions(item, perms,
         userRoutes.permissionsPost(id)))
   }
 
@@ -273,7 +273,7 @@ case class UserProfiles @Inject()(implicit globalConfig: global.GlobalConfig, se
 
   def revokePermission(id: String, permId: String) = revokePermissionAction(id, permId) {
       item => perm => implicit userOpt => implicit request =>
-        Ok(views.html.permissions.revokePermission(item, perm,
+        Ok(views.html.admin.permissions.revokePermission(item, perm,
           userRoutes.revokePermissionPost(id, permId), userRoutes.grantList(id)))
   }
 

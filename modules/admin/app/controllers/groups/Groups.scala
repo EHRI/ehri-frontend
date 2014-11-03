@@ -27,20 +27,20 @@ case class Groups @Inject()(implicit globalConfig: global.GlobalConfig, searchDi
       case up: UserProfile => up.copy(account = userDAO.findByProfileId(up.id))
       case group => group
     })
-    Ok(views.html.group.show(item, pageWithAccounts, params, annotations))
+    Ok(views.html.admin.group.show(item, pageWithAccounts, params, annotations))
   }
 
   def history(id: String) = historyAction(id) {
       item => page => params => implicit userOptOpt => implicit request =>
-    Ok(views.html.systemEvents.itemList(item, page, params))
+    Ok(views.html.admin.systemEvents.itemList(item, page, params))
   }
 
   def list = pageAction { page => params => implicit maybeUser => implicit request =>
-    Ok(views.html.group.list(page, params))
+    Ok(views.html.admin.group.list(page, params))
   }
 
   def create = createAction { users => groups => implicit userOpt => implicit request =>
-    Ok(views.html.group.create(form, VisibilityForm.form,
+    Ok(views.html.admin.group.create(form, VisibilityForm.form,
         users, groups, groupRoutes.createPost()))
   }
 
@@ -58,7 +58,7 @@ case class Groups @Inject()(implicit globalConfig: global.GlobalConfig, searchDi
       formsOrItem => implicit userOpt => implicit request =>
     formsOrItem match {
       case Left((errorForm,accForm)) => getUsersAndGroups { users => groups =>
-        BadRequest(views.html.group.create(
+        BadRequest(views.html.admin.group.create(
           errorForm, accForm, users, groups, groupRoutes.createPost()))
       }
       case Right(item) => Future.successful(Redirect(groupRoutes.get(item.id))
@@ -68,7 +68,7 @@ case class Groups @Inject()(implicit globalConfig: global.GlobalConfig, searchDi
 
   def update(id: String) = updateAction(id) {
       item => implicit userOpt => implicit request =>
-    Ok(views.html.group.edit(
+    Ok(views.html.admin.group.edit(
         item, form.fill(item.model), groupRoutes.updatePost(id)))
   }
 
@@ -76,7 +76,7 @@ case class Groups @Inject()(implicit globalConfig: global.GlobalConfig, searchDi
       item => formOrItem => implicit userOpt => implicit request =>
     formOrItem match {
       case Left(errorForm) =>
-        BadRequest(views.html.group.edit(item, errorForm, groupRoutes.updatePost(id)))
+        BadRequest(views.html.admin.group.edit(item, errorForm, groupRoutes.updatePost(id)))
       case Right(updated) => Redirect(groupRoutes.get(updated.id))
         .flashing("success" -> "item.update.confirmation")
     }
@@ -84,7 +84,7 @@ case class Groups @Inject()(implicit globalConfig: global.GlobalConfig, searchDi
 
   def delete(id: String) = deleteAction(id) {
       item => implicit userOpt => implicit request =>
-    Ok(views.html.delete(
+    Ok(views.html.admin.delete(
         item, groupRoutes.deletePost(id), groupRoutes.get(id)))
   }
 
@@ -95,12 +95,12 @@ case class Groups @Inject()(implicit globalConfig: global.GlobalConfig, searchDi
 
   def grantList(id: String) = grantListAction(id) {
       item => perms => implicit userOpt => implicit request =>
-    Ok(views.html.permissions.permissionGrantList(item, perms))
+    Ok(views.html.admin.permissions.permissionGrantList(item, perms))
   }
 
   def permissions(id: String) = setGlobalPermissionsAction(id) {
       item => perms => implicit userOpt => implicit request =>
-    Ok(views.html.permissions.editGlobalPermissions(item, perms,
+    Ok(views.html.admin.permissions.editGlobalPermissions(item, perms,
           groupRoutes.permissionsPost(id)))
   }
 
@@ -113,7 +113,7 @@ case class Groups @Inject()(implicit globalConfig: global.GlobalConfig, searchDi
 
   def revokePermission(id: String, permId: String) = revokePermissionAction(id, permId) {
       item => perm => implicit userOpt => implicit request =>
-    Ok(views.html.permissions.revokePermission(item, perm,
+    Ok(views.html.admin.permissions.revokePermission(item, perm,
         groupRoutes.revokePermissionPost(id, permId), groupRoutes.grantList(id)))
   }
 
@@ -151,7 +151,7 @@ case class Groups @Inject()(implicit globalConfig: global.GlobalConfig, searchDi
                 userOpt.get.groups.map(_.id).contains(ident)
             }
         }
-        Ok(views.html.group.membership(item, filteredGroups))
+        Ok(views.html.admin.group.membership(item, filteredGroups))
       }
     }
   }
@@ -164,7 +164,7 @@ case class Groups @Inject()(implicit globalConfig: global.GlobalConfig, searchDi
     withItemPermission.async[Accessor](userId, PermissionType.Grant) {
         item => implicit userOpt => implicit request =>
       backend.get[Group](id).map { group =>
-        Ok(views.html.group.confirmMembership(group, item,
+        Ok(views.html.admin.group.confirmMembership(group, item,
           groupRoutes.addMemberPost(id, userType, userId)))
       }
     }
@@ -192,7 +192,7 @@ case class Groups @Inject()(implicit globalConfig: global.GlobalConfig, searchDi
     withItemPermission.async[Accessor](userId, PermissionType.Grant) {
         item => implicit userOpt => implicit request =>
       backend.get[Group](id).map { group =>
-        Ok(views.html.group.removeMembership(group, item,
+        Ok(views.html.admin.group.removeMembership(group, item,
           groupRoutes.removeMemberPost(id, userType, userId)))
       }
     }

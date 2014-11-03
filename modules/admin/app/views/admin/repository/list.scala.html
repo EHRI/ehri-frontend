@@ -1,0 +1,11 @@
+@(page: utils.Page[Repository], params: utils.PageParams)(implicit userOpt: Option[UserProfile], req: RequestHeader, globalConfig: global.GlobalConfig, lang: Lang, flash: Flash)
+
+@import controllers.institutions.Repositories
+
+@views.html.admin.layout.rightSidebar(Messages("repository.list")) {
+    @common.filterableList("pagination.displayingItems", page, params) {
+        @itemList(page)
+    }
+} {
+
+}

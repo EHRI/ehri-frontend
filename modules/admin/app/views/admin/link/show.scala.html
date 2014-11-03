@@ -1,0 +1,42 @@
+@(item: Link, annotations: Seq[Annotation], src: Option[String] = None)(implicit userOpt: Option[UserProfile], req: RequestHeader, globalConfig: global.GlobalConfig, lang: Lang, flash: Flash)
+
+@views.html.admin.layout.rightSidebar(Messages("link.itemLink"), breadcrumbs = views.html.admin.common.breadcrumbs(List(item))) {
+
+    @views.html.admin.common.annotated(item, annotations) {
+        @defining("link") { implicit fieldPrefix =>
+            @common.stringValue(item.model.description, LinkF.DESCRIPTION)
+            @common.renderDates(item.model, LinkF.DATES)
+            <span class="label label-default">@Messages("link." + item.model.linkType.toString)</span>
+
+            <h4>@Messages("link.items")</h4>
+            <ul>
+            @item.targets.map { item =>
+                <li>
+                    <a href="@views.admin.Helpers.linkTo(item)">@item.toStringLang</a>
+                </li>
+            }
+            </ul>
+
+            @item.user.map { u =>
+                <h4>@Messages("link.creator")</h4>
+                <a href="@views.admin.Helpers.linkTo(u)">@u.toStringLang</a>
+            }
+        }
+    }
+} {
+
+
+
+    @views.html.admin.common.promotion(item, controllers.linking.routes.Links.promote(item.id), controllers.linking.routes.Links.demote(item.id), ContentTypes.Link)
+    @views.html.admin.common.visibility(item, controllers.linking.routes.Links.visibility(item.id), ContentTypes.Link)
+    @views.html.admin.common.latestAction(item, controllers.linking.routes.Links.history(item.id))
+
+    @views.html.admin.common.sidebarActions { user =>
+        @views.html.admin.common.sidebarAction(user.hasPermission(ContentTypes.Link, PermissionType.Update)) {
+            <a href="@controllers.linking.routes.Links.update(item.id)">@Messages("item.update")</a>
+        }
+        @views.html.admin.common.sidebarAction(user.hasPermission(ContentTypes.Link, PermissionType.Delete)) {
+            <a href="@controllers.linking.routes.Links.delete(item.id, src)">@Messages("link.delete")</a>
+        }
+    }
+}
