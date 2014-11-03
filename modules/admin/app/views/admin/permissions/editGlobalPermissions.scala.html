@@ -1,0 +1,61 @@
+@(item: Accessor, perms: GlobalPermissionSet, action: Call)(
+implicit userOpt: Option[UserProfile], req: RequestHeader, globalConfig: global.GlobalConfig, lang: Lang, flash: Flash, token: play.filters.csrf.CSRF.Token)
+
+@implicitField = @{ views.html.helper.FieldConstructor(formHelpers.fieldTemplate.f) }
+
+@views.html.admin.layout.rightSidebar(Messages("permissions.global.update", item.toStringLang), breadcrumbs = views.html.admin.common.breadcrumbs(List(item))) {
+	
+	@if(!item.groups.isEmpty) {
+	  <strong>Parent Groups: </strong>&nbsp;
+	  @item.groups.map { group =>
+        @*
+	    <a href="@routes.Groups.get(group.id)">@group</a>
+        *@
+	  }	  
+	}
+
+	@helper.form(action = action, 'class -> "entity-form form-horizontal") {
+        @formHelpers.csrfToken()
+		<fieldset id="permissions-area">
+
+			<table class="table table-bordered permissions-matrix">
+				<tr>
+					<th></th>
+					@PermissionType.values.toList.map { perm =>
+                      @if(perm != PermissionType.Owner) {
+					    <th>@Messages("permissionTypes." + perm.toString)</th>
+                      }
+					}
+				</tr>
+				@ContentTypes.values.filterNot(_ == ContentTypes.SystemEvent).toList.sortBy(_.toString).map { entity =>
+				  	<tr>
+						<td>@Messages("contentTypes." + entity.toString)</td>
+						@PermissionType.values.toList.map { perm =>
+                            @if(perm != PermissionType.Owner) {
+                                <td>
+                                @defining(item.getPermission(perms, entity, perm)) { permOpt =>
+                                    <input type="checkbox" name="@entity" value="@perm"
+                                    @if(permOpt.isDefined && permOpt.flatMap(_.inheritedFrom).isEmpty) {
+                                        checked
+                                    } />
+                                    @permOpt.flatMap(_.inheritedFrom).map { user =>
+                                        @defining(Messages("permissions.inheritedFrom", user)) { inherit =>
+                                            <span alt="@inherit" title="@inherit">*</span>
+                                        }
+                                    }
+                                }
+                                </td>
+                            }
+						}
+					</tr>				  
+				}
+			</table>
+
+		</fieldset>
+	  			
+        @formHelpers.submitButtonWithLogMessageInput(Messages("permissions.global.update.submit"), cancel = views.admin.Helpers.linkToOpt(item))
+
+	}
+} {
+
+}

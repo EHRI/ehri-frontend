@@ -33,28 +33,28 @@ case class Vocabularies @Inject()(implicit globalConfig: global.GlobalConfig, se
       filters = Map(SolrConstants.HOLDER_ID -> item.id),
       entities = List(EntityType.Concept)
     ).map { result =>
-      Ok(views.html.vocabulary.show(
+      Ok(views.html.admin.vocabulary.show(
           item, result.page, result.params, result.facets,
         vocabRoutes.get(id), annotations, links))
     }
   }
 
   def history(id: String) = historyAction(id) { item => page => params => implicit userOpt => implicit request =>
-    Ok(views.html.systemEvents.itemList(item, page, params))
+    Ok(views.html.admin.systemEvents.itemList(item, page, params))
   }
 
   def list = pageAction { page => params => implicit userOpt => implicit request =>
-    Ok(views.html.vocabulary.list(page, params))
+    Ok(views.html.admin.vocabulary.list(page, params))
   }
 
   def create = createAction { users => groups => implicit userOpt => implicit request =>
-    Ok(views.html.vocabulary.create(form, VisibilityForm.form, users, groups, vocabRoutes.createPost()))
+    Ok(views.html.admin.vocabulary.create(form, VisibilityForm.form, users, groups, vocabRoutes.createPost()))
   }
 
   def createPost = createPostAction.async(form) { formsOrItem => implicit userOpt => implicit request =>
     formsOrItem match {
       case Left((errorForm,accForm)) => getUsersAndGroups { users => groups =>
-        BadRequest(views.html.vocabulary.create(errorForm, accForm, users, groups, vocabRoutes.createPost()))
+        BadRequest(views.html.admin.vocabulary.create(errorForm, accForm, users, groups, vocabRoutes.createPost()))
       }
       case Right(item) => immediate(Redirect(vocabRoutes.get(item.id))
         .flashing("success" -> "item.create.confirmation"))
@@ -62,14 +62,14 @@ case class Vocabularies @Inject()(implicit globalConfig: global.GlobalConfig, se
   }
 
   def update(id: String) = updateAction(id) { item => implicit userOpt => implicit request =>
-    Ok(views.html.vocabulary.edit(
+    Ok(views.html.admin.vocabulary.edit(
       item, form.fill(item.model),vocabRoutes.updatePost(id)))
   }
 
   def updatePost(id: String) = updatePostAction(id, form) {
       olditem => formOrItem => implicit userOpt => implicit request =>
     formOrItem match {
-      case Left(errorForm) => BadRequest(views.html.vocabulary.edit(
+      case Left(errorForm) => BadRequest(views.html.admin.vocabulary.edit(
           olditem, errorForm, vocabRoutes.updatePost(id)))
       case Right(item) => Redirect(vocabRoutes.get(item.id))
         .flashing("success" -> "item.update.confirmation")
@@ -78,7 +78,7 @@ case class Vocabularies @Inject()(implicit globalConfig: global.GlobalConfig, se
 
   def createConcept(id: String) = childCreateAction(id) {
       item => users => groups => implicit userOpt => implicit request =>
-    Ok(views.html.concept.create(
+    Ok(views.html.admin.concept.create(
       item, childForm, VisibilityForm.form.fill(item.accessors.map(_.id)),
       users, groups, vocabRoutes.createConceptPost(id)))
   }
@@ -87,7 +87,7 @@ case class Vocabularies @Inject()(implicit globalConfig: global.GlobalConfig, se
       item => formsOrItem => implicit userOpt => implicit request =>
     formsOrItem match {
       case Left((errorForm,accForm)) => getUsersAndGroups { users => groups =>
-        BadRequest(views.html.concept.create(item,
+        BadRequest(views.html.admin.concept.create(item,
           errorForm, accForm, users, groups, vocabRoutes.createConceptPost(id)))
       }
       case Right(citem) => immediate(Redirect(vocabRoutes.get(id))
@@ -96,7 +96,7 @@ case class Vocabularies @Inject()(implicit globalConfig: global.GlobalConfig, se
   }
 
   def delete(id: String) = deleteAction(id) { item => implicit userOpt => implicit request =>
-    Ok(views.html.delete(
+    Ok(views.html.admin.delete(
         item, vocabRoutes.deletePost(id),
         vocabRoutes.get(id)))
   }
@@ -107,7 +107,7 @@ case class Vocabularies @Inject()(implicit globalConfig: global.GlobalConfig, se
   }
 
   def visibility(id: String) = visibilityAction(id) { item => users => groups => implicit userOpt => implicit request =>
-    Ok(views.html.permissions.visibility(item,
+    Ok(views.html.admin.permissions.visibility(item,
         VisibilityForm.form.fill(item.accessors.map(_.id)),
         users, groups, vocabRoutes.visibilityPost(id)))
   }
@@ -119,25 +119,25 @@ case class Vocabularies @Inject()(implicit globalConfig: global.GlobalConfig, se
 
   def managePermissions(id: String) = manageScopedPermissionsAction(id) {
       item => perms => sperms => implicit userOpt => implicit request =>
-    Ok(views.html.permissions.manageScopedPermissions(item, perms, sperms,
+    Ok(views.html.admin.permissions.manageScopedPermissions(item, perms, sperms,
         vocabRoutes.addItemPermissions(id), vocabRoutes.addScopedPermissions(id)))
   }
 
   def addItemPermissions(id: String) = addItemPermissionsAction(id) {
       item => users => groups => implicit userOpt => implicit request =>
-    Ok(views.html.permissions.permissionItem(item, users, groups,
+    Ok(views.html.admin.permissions.permissionItem(item, users, groups,
         vocabRoutes.setItemPermissions))
   }
 
   def addScopedPermissions(id: String) = addItemPermissionsAction(id) {
       item => users => groups => implicit userOpt => implicit request =>
-    Ok(views.html.permissions.permissionScope(item, users, groups,
+    Ok(views.html.admin.permissions.permissionScope(item, users, groups,
         vocabRoutes.setScopedPermissions))
   }
 
   def setItemPermissions(id: String, userType: EntityType.Value, userId: String) = setItemPermissionsAction(id, userType, userId) {
       item => accessor => perms => implicit userOpt => implicit request =>
-    Ok(views.html.permissions.setPermissionItem(item, accessor, perms, Vocabulary.Resource.contentType,
+    Ok(views.html.admin.permissions.setPermissionItem(item, accessor, perms, Vocabulary.Resource.contentType,
         vocabRoutes.setItemPermissionsPost(id, userType, userId)))
   }
 
@@ -149,7 +149,7 @@ case class Vocabularies @Inject()(implicit globalConfig: global.GlobalConfig, se
 
   def setScopedPermissions(id: String, userType: EntityType.Value, userId: String) = setScopedPermissionsAction(id, userType, userId) {
       item => accessor => perms => implicit userOpt => implicit request =>
-    Ok(views.html.permissions.setPermissionScope(item, accessor, perms, targetContentTypes,
+    Ok(views.html.admin.permissions.setPermissionScope(item, accessor, perms, targetContentTypes,
         vocabRoutes.setScopedPermissionsPost(id, userType, userId)))
   }
 
@@ -161,7 +161,7 @@ case class Vocabularies @Inject()(implicit globalConfig: global.GlobalConfig, se
 
   def updateIndex(id: String) = adminAction.async { implicit userOpt => implicit request =>
     getEntity(id, userOpt) { item =>
-      Ok(views.html.search.updateItemIndex(item,
+      Ok(views.html.admin.search.updateItemIndex(item,
         action = vocabRoutes.updateIndexPost(id)))
     }
   }

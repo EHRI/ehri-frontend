@@ -97,7 +97,7 @@ case class Repositories @Inject()(implicit globalConfig: global.GlobalConfig, se
 
   def search = searchAction[Repository](entities = List(EntityType.Repository), entityFacets = repositoryFacets) {
       page => params => facets => implicit userOpt => implicit request =>
-    Ok(views.html.repository.search(page, params, facets, repositoryRoutes.search()))
+    Ok(views.html.admin.repository.search(page, params, facets, repositoryRoutes.search()))
   }
 
   /**
@@ -114,29 +114,29 @@ case class Repositories @Inject()(implicit globalConfig: global.GlobalConfig, se
       facetBuilder = repositoryFacets,
       defaultOrder = SearchOrder.Id
     ).map { result =>
-      Ok(views.html.repository.show(item, result.page, result.params, result.facets,
+      Ok(views.html.admin.repository.show(item, result.page, result.params, result.facets,
         repositoryRoutes.get(id), annotations, links))
     }
   }
 
   def history(id: String) = historyAction(id) { item => page => params => implicit userOpt => implicit request =>
-    Ok(views.html.systemEvents.itemList(item, page, params))
+    Ok(views.html.admin.systemEvents.itemList(item, page, params))
   }
 
   def list = pageAction { page => params => implicit userOpt => implicit request =>
-    Ok(views.html.repository.list(page, params))
+    Ok(views.html.admin.repository.list(page, params))
   }
 
   def update(id: String) = updateAction(id) {
       item => implicit userOpt => implicit request =>
-    Ok(views.html.repository.edit(item, form.fill(item.model), repositoryRoutes.updatePost(id)))
+    Ok(views.html.admin.repository.edit(item, form.fill(item.model), repositoryRoutes.updatePost(id)))
   }
 
   def updatePost(id: String) = updatePostAction(id, form) {
       item => formOrItem => implicit userOpt => implicit request =>
     formOrItem match {
       case Left(errorForm) =>
-        BadRequest(views.html.repository.edit(item, errorForm, repositoryRoutes.updatePost(id)))
+        BadRequest(views.html.admin.repository.edit(item, errorForm, repositoryRoutes.updatePost(id)))
       case Right(doc) => Redirect(repositoryRoutes.get(doc.id))
         .flashing("success" -> "item.update.confirmation")
     }
@@ -144,7 +144,7 @@ case class Repositories @Inject()(implicit globalConfig: global.GlobalConfig, se
 
   def createDoc(id: String) = childCreateAction(id) {
       item => users => groups => implicit userOpt => implicit request =>
-    Ok(views.html.documentaryUnit.create(item, childForm, childFormDefaults,
+    Ok(views.html.admin.documentaryUnit.create(item, childForm, childFormDefaults,
       VisibilityForm.form.fill(item.accessors.map(_.id)),
       users, groups, repositoryRoutes.createDocPost(id)))
   }
@@ -153,7 +153,7 @@ case class Repositories @Inject()(implicit globalConfig: global.GlobalConfig, se
       item => formsOrItem => implicit userOpt => implicit request =>
     formsOrItem match {
       case Left((errorForm,accForm)) => getUsersAndGroups { users => groups =>
-        BadRequest(views.html.documentaryUnit.create(item,
+        BadRequest(views.html.admin.documentaryUnit.create(item,
           errorForm, childFormDefaults, accForm, users, groups, repositoryRoutes.createDocPost(id)))
       }
       case Right(citem) => immediate(Redirect(controllers.units.routes.DocumentaryUnits.get(citem.id))
@@ -163,7 +163,7 @@ case class Repositories @Inject()(implicit globalConfig: global.GlobalConfig, se
 
   def delete(id: String) = deleteAction(id) {
       item => implicit userOpt => implicit request =>
-    Ok(views.html.delete(item, repositoryRoutes.deletePost(id),
+    Ok(views.html.admin.delete(item, repositoryRoutes.deletePost(id),
         repositoryRoutes.get(id)))
   }
 
@@ -173,7 +173,7 @@ case class Repositories @Inject()(implicit globalConfig: global.GlobalConfig, se
   }
 
   def visibility(id: String) = visibilityAction(id) { item => users => groups => implicit userOpt => implicit request =>
-    Ok(views.html.permissions.visibility(item,
+    Ok(views.html.admin.permissions.visibility(item,
       VisibilityForm.form.fill(item.accessors.map(_.id)),
       users, groups, repositoryRoutes.visibilityPost(id)))
   }
@@ -186,25 +186,25 @@ case class Repositories @Inject()(implicit globalConfig: global.GlobalConfig, se
 
   def managePermissions(id: String) = manageScopedPermissionsAction(id) {
       item => perms => sperms => implicit userOpt => implicit request =>
-    Ok(views.html.permissions.manageScopedPermissions(item, perms, sperms,
+    Ok(views.html.admin.permissions.manageScopedPermissions(item, perms, sperms,
         repositoryRoutes.addItemPermissions(id), repositoryRoutes.addScopedPermissions(id)))
   }
 
   def addItemPermissions(id: String) = addItemPermissionsAction(id) {
       item => users => groups => implicit userOpt => implicit request =>
-    Ok(views.html.permissions.permissionItem(item, users, groups,
+    Ok(views.html.admin.permissions.permissionItem(item, users, groups,
         repositoryRoutes.setItemPermissions))
   }
 
   def addScopedPermissions(id: String) = addItemPermissionsAction(id) {
       item => users => groups => implicit userOpt => implicit request =>
-    Ok(views.html.permissions.permissionScope(item, users, groups,
+    Ok(views.html.admin.permissions.permissionScope(item, users, groups,
         repositoryRoutes.setScopedPermissions))
   }
 
   def setItemPermissions(id: String, userType: EntityType.Value, userId: String) = setItemPermissionsAction(id, userType, userId) {
       item => accessor => perms => implicit userOpt => implicit request =>
-    Ok(views.html.permissions.setPermissionItem(item, accessor, perms, Repository.Resource.contentType,
+    Ok(views.html.admin.permissions.setPermissionItem(item, accessor, perms, Repository.Resource.contentType,
         repositoryRoutes.setItemPermissionsPost(id, userType, userId)))
   }
 
@@ -216,7 +216,7 @@ case class Repositories @Inject()(implicit globalConfig: global.GlobalConfig, se
 
   def setScopedPermissions(id: String, userType: EntityType.Value, userId: String) = setScopedPermissionsAction(id, userType, userId) {
       item => accessor => perms => implicit userOpt => implicit request =>
-    Ok(views.html.permissions.setPermissionScope(item, accessor, perms, targetContentTypes,
+    Ok(views.html.admin.permissions.setPermissionScope(item, accessor, perms, targetContentTypes,
         repositoryRoutes.setScopedPermissionsPost(id, userType, userId)))
   }
 
@@ -228,7 +228,7 @@ case class Repositories @Inject()(implicit globalConfig: global.GlobalConfig, se
 
   def updateIndex(id: String) = adminAction.async { implicit userOpt => implicit request =>
     getEntity(id, userOpt) { item =>
-      Ok(views.html.search.updateItemIndex(item,
+      Ok(views.html.admin.search.updateItemIndex(item,
         action = controllers.institutions.routes.Repositories.updateIndexPost(id)))
     }
   }

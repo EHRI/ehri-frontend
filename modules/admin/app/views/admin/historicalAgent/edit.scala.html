@@ -1,0 +1,20 @@
+@(item: HistoricalAgent, f: play.api.data.Form[HistoricalAgentF], action: Call)(
+implicit userOpt: Option[UserProfile], req: RequestHeader, globalConfig: global.GlobalConfig, lang: Lang, flash: Flash, token: play.filters.csrf.CSRF.Token)
+
+@implicitField = @{ views.html.helper.FieldConstructor(formHelpers.fieldTemplate.f) }
+
+@views.html.admin.layout.rightSidebar(Messages("historicalAgent.update"), breadcrumbs = views.html.admin.common.breadcrumbs(List(item)), scripts = formHelpers.dateJs()) {
+    @helper.form(action = action, 'class -> "entity-form form-horizontal") {
+        @formHelpers.csrfToken()
+        @renderForm(f)
+
+        <fieldset id="admin-area">
+        <legend>@Messages("Administration")</legend>
+        @formHelpers.enumChoiceInput(f("publicationStatus"), defines.PublicationStatus, "Publication Status")
+        </fieldset>
+
+        @formHelpers.submitButtonWithLogMessageInput(Messages("historicalAgent.update.submit"), cancel = views.admin.Helpers.linkToOpt(item))
+    }
+} {
+    @formNav()
+}

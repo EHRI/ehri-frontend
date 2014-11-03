@@ -1,0 +1,3 @@
+@(item: Repository)(implicit globalConfig: global.GlobalConfig)
+
+@views.html.admin.common.breadcrumbs(item.country.toList ::: List(item))
