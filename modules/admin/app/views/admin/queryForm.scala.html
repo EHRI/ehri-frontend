@@ -36,7 +36,7 @@
     </style>
 }
 
-@layout.noSidebar(name, scripts = extrascripts, styles = extrastyles) {
+@views.html.admin.layout.noSidebar(name, scripts = extrascripts, styles = extrastyles) {
 
     @helper.form(action = action, 'id -> "query-form") {
         @helper.textarea(form("q"))

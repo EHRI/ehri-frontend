@@ -3,7 +3,7 @@ implicit userOpt: Option[UserProfile], req: RequestHeader, globalConfig: global.
 
 @import models.GroupF
 
-@layout.rightSidebar(Messages("group.edit"), breadcrumbs = common.breadcrumbs(List(item))) {
+@views.html.admin.layout.rightSidebar(Messages("group.edit"), breadcrumbs = views.html.admin.common.breadcrumbs(List(item))) {
 	@helper.form(action = action, 'class -> "entity-form form-horizontal") {
         @formHelpers.csrfToken()
         @group.renderForm(Some(item), f)

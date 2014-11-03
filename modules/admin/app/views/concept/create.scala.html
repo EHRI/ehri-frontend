@@ -12,7 +12,7 @@ implicit userOpt: Option[UserProfile], req: RequestHeader, globalConfig: global.
         }
 
         case v: Vocabulary => {
-            @common.breadcrumbs(List(v))
+            @views.html.admin.common.breadcrumbs(List(v))
         }
 
         case _ => {
@@ -22,7 +22,7 @@ implicit userOpt: Option[UserProfile], req: RequestHeader, globalConfig: global.
 }
 
 
-@layout.rightSidebar(Messages("cvocConcept.create")) {
+@views.html.admin.layout.rightSidebar(Messages("cvocConcept.create")) {
 
 	@helper.form(action = action, 'class -> "entity-form form-horizontal") {
         @formHelpers.csrfToken()

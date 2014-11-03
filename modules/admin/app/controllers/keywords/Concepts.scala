@@ -103,7 +103,7 @@ case class Concepts @Inject()(implicit globalConfig: global.GlobalConfig, search
   }
 
   def delete(id: String) = deleteAction(id) { item => implicit userOpt => implicit request =>
-    Ok(views.html.delete(
+    Ok(views.html.admin.delete(
         item, conceptRoutes.deletePost(id), conceptRoutes.get(id)))
   }
 

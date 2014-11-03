@@ -3,7 +3,7 @@ implicit userOpt: Option[UserProfile], request: RequestHeader, globalConfig: glo
 
 @implicitField = @{ views.html.helper.FieldConstructor(formHelpers.fieldTemplate.f) }
 
-@layout.rightSidebar(Messages("userProfile.delete.item", item.toStringLang), breadcrumbs = common.breadcrumbs(List(item))) {
+@views.html.admin.layout.rightSidebar(Messages("userProfile.delete.item", item.toStringLang), breadcrumbs = views.html.admin.common.breadcrumbs(List(item))) {
     <p class="alert alert-danger">
         @Messages("userProfile.delete.confirm")
     </p>

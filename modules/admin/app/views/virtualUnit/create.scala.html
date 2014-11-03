@@ -11,7 +11,7 @@
     }
 }
 
-@layout.rightSidebar(Messages("virtualUnit.create"), breadcrumbs = breadcrumbs) {
+@views.html.admin.layout.rightSidebar(Messages("virtualUnit.create"), breadcrumbs = breadcrumbs) {
 
 	@helper.form(action = action, 'class -> "entity-form form-horizontal") {
         @formHelpers.csrfToken()

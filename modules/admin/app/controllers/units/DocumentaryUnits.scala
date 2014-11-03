@@ -243,7 +243,7 @@ case class DocumentaryUnits @Inject()(implicit globalConfig: global.GlobalConfig
 
   def deleteDescription(id: String, did: String) = deleteDescriptionAction(id, did) {
       item => description => implicit userOpt => implicit request =>
-    Ok(views.html.deleteDescription(item, description,
+    Ok(views.html.admin.deleteDescription(item, description,
         docRoutes.deleteDescriptionPost(id, did),
         docRoutes.get(id)))
   }
@@ -256,7 +256,7 @@ case class DocumentaryUnits @Inject()(implicit globalConfig: global.GlobalConfig
 
   def delete(id: String) = deleteAction(id) {
       item => implicit userOpt => implicit request =>
-    Ok(views.html.delete(
+    Ok(views.html.admin.delete(
         item, docRoutes.deletePost(id),
         docRoutes.get(id)))
   }

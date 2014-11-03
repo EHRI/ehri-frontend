@@ -54,7 +54,7 @@ case class Links @Inject()(implicit globalConfig: global.GlobalConfig, backend: 
   }  
 
   def delete(id: String, redirect: Option[String] = None) = deleteAction(id) { item => implicit userOpt => implicit request =>
-    Ok(views.html.delete(
+    Ok(views.html.admin.delete(
       item, linkRoutes.deletePost(id, redirect),
         controllers.admin.routes.Admin.get(id)))
   }

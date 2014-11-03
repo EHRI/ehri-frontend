@@ -1,7 +1,7 @@
 @(result: utils.search.ItemPage[(AnyModel, utils.search.SearchHit)], params: utils.search.SearchParams, facets: List[utils.search.AppliedFacet], action: Call)(
     implicit userOpt: Option[UserProfile], req: RequestHeader, globalConfig: global.GlobalConfig, lang: Lang, flash: Flash)
 
-@layout.adminSearchLayout(Messages("repository.search"), result, params, facets, action) {
+@views.html.admin.layout.adminSearchLayout(Messages("repository.search"), result, params, facets, action) {
     @repository.searchItemList(result)
 } {
     @common.search.facetList(result.facets, action)

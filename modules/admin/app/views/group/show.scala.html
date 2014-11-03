@@ -1,6 +1,6 @@
 @(item: Group, page: utils.Page[Accessor], params: utils.PageParams, annotations: Seq[Annotation])(implicit userOpt: Option[UserProfile], req: RequestHeader, globalConfig: global.GlobalConfig, lang: Lang, flash: Flash)
 
-@layout.rightSidebar(item.toStringLang, breadcrumbs = common.breadcrumbs(List(item))) {
+@views.html.admin.layout.rightSidebar(item.toStringLang, breadcrumbs = views.html.admin.common.breadcrumbs(List(item))) {
 
     @defining(EntityType.Group.toString) { implicit prefix =>
         @common.stringValue(item.model.description, models.GroupF.DESCRIPTION)
@@ -26,28 +26,28 @@
         </ul>
     }
 } {
-    @common.latestAction(item, controllers.groups.routes.Groups.history(item.id))
+    @views.html.admin.common.latestAction(item, controllers.groups.routes.Groups.history(item.id))
 
-    @common.sidebarActions { user =>
-        @common.sidebarAction(user.hasPermission(ContentTypes.Group, PermissionType.Create)) {
+    @views.html.admin.common.sidebarActions { user =>
+        @views.html.admin.common.sidebarAction(user.hasPermission(ContentTypes.Group, PermissionType.Create)) {
             <a href="@controllers.groups.routes.Groups.create">@Messages("group.create")</a></li>
         }
-        @common.sidebarAction(user.hasPermission(ContentTypes.Group, PermissionType.Update)) {
+        @views.html.admin.common.sidebarAction(user.hasPermission(ContentTypes.Group, PermissionType.Update)) {
             <a href="@controllers.groups.routes.Groups.update(item.id)">@Messages("group.edit")</a></li>
         }
-        @common.sidebarAction(user.hasPermission(ContentTypes.Group, PermissionType.Grant)) {
+        @views.html.admin.common.sidebarAction(user.hasPermission(ContentTypes.Group, PermissionType.Grant)) {
             <a href="@controllers.groups.routes.Groups.permissions(item.id)">@Messages("permissions.global.manage")</a>
         }
-        @common.sidebarAction(user.hasPermission(ContentTypes.Group, PermissionType.Grant)) {
+        @views.html.admin.common.sidebarAction(user.hasPermission(ContentTypes.Group, PermissionType.Grant)) {
             <a href="@controllers.groups.routes.Groups.grantList(item.id)">@Messages("permissions.itemLevel.show")</a>
         }
-        @common.sidebarAction(user.hasPermission(ContentTypes.Group, PermissionType.Grant)) {
+        @views.html.admin.common.sidebarAction(user.hasPermission(ContentTypes.Group, PermissionType.Grant)) {
             <a href="@controllers.groups.routes.Groups.membership(item.isA, item.id)">@Messages("accessor.groups.manage")</a>
         }
-        @common.sidebarAction(user.hasPermission(ContentTypes.Group, PermissionType.Delete)) {
+        @views.html.admin.common.sidebarAction(user.hasPermission(ContentTypes.Group, PermissionType.Delete)) {
             <a href="@controllers.groups.routes.Groups.delete(item.id)">@Messages("group.delete")</a>
         }
-        @common.sidebarAction() {
+        @views.html.admin.common.sidebarAction() {
             <a href="@controllers.groups.routes.Groups.history(item.id)">@Messages("item.history")</a>
         }
     }

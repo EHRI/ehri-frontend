@@ -1,19 +1,19 @@
 @(item: Concept)(implicit userOpt: Option[UserProfile], request: RequestHeader, globalConfig: global.GlobalConfig, lang: Lang)
 
-@common.sidebarActions { user =>
-    @common.sidebarAction(user.hasPermission(ContentTypes.Concept, PermissionType.Create)) {
+@views.html.admin.common.sidebarActions { user =>
+    @views.html.admin.common.sidebarAction(user.hasPermission(ContentTypes.Concept, PermissionType.Create)) {
         <a href="@controllers.keywords.routes.Concepts.createConcept(item.id)">@Messages("cvocConcept.narrower.create")</a>
     }
-    @common.sidebarAction(user.hasPermission(ContentTypes.Concept, PermissionType.Update)) {
+    @views.html.admin.common.sidebarAction(user.hasPermission(ContentTypes.Concept, PermissionType.Update)) {
         <a href="@controllers.keywords.routes.Concepts.update(item.id)">@Messages("item.update")</a>
     }
-    @common.sidebarAction(user.hasPermission(ContentTypes.Concept, PermissionType.Delete)) {
+    @views.html.admin.common.sidebarAction(user.hasPermission(ContentTypes.Concept, PermissionType.Delete)) {
         <a href="@controllers.keywords.routes.Concepts.delete(item.id)">@Messages("item.delete")</a>
     }
-    @common.sidebarAction(user.hasPermission(ContentTypes.Concept, PermissionType.Grant)) {
+    @views.html.admin.common.sidebarAction(user.hasPermission(ContentTypes.Concept, PermissionType.Grant)) {
         <a href="@controllers.keywords.routes.Concepts.managePermissions(item.id)">@Messages("permissions.manage")</a>
     }
-    @common.sidebarAction() {
+    @views.html.admin.common.sidebarAction() {
         <a href="@controllers.keywords.routes.Concepts.history(item.id)">@Messages("item.history")</a>
     }
 }

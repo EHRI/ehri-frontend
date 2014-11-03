@@ -163,7 +163,7 @@ case class Repositories @Inject()(implicit globalConfig: global.GlobalConfig, se
 
   def delete(id: String) = deleteAction(id) {
       item => implicit userOpt => implicit request =>
-    Ok(views.html.delete(item, repositoryRoutes.deletePost(id),
+    Ok(views.html.admin.delete(item, repositoryRoutes.deletePost(id),
         repositoryRoutes.get(id)))
   }
 

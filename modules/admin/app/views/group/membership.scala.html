@@ -2,7 +2,7 @@
 
 @implicitField = @{ views.html.helper.FieldConstructor(formHelpers.fieldTemplate.f) }
 
-@layout.rightSidebar(Messages("accessor.groups.manage"), breadcrumbs = common.breadcrumbs(List(item))) {
+@views.html.admin.layout.rightSidebar(Messages("accessor.groups.manage"), breadcrumbs = views.html.admin.common.breadcrumbs(List(item))) {
 	
 	@if(!item.groups.isEmpty) {
 	  <strong>@Messages("accessor.currentGroups"): </strong>&nbsp;

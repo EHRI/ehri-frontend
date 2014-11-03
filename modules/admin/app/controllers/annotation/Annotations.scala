@@ -32,7 +32,7 @@ case class Annotations @Inject()(implicit globalConfig: global.GlobalConfig, bac
   }
 
   def delete(id: String) = deleteAction(id) { item => implicit userOpt => implicit request =>
-    Ok(views.html.delete(
+    Ok(views.html.admin.delete(
       item, controllers.annotation.routes.Annotations.deletePost(id),
         controllers.annotation.routes.Annotations.get(id)))
   }

@@ -3,7 +3,7 @@
 
 @implicitField = @{ views.html.helper.FieldConstructor(formHelpers.fieldTemplate.f) }
 
-@layout.rightSidebar(Messages("permissions.accessor.scopeLevel.item", item.toStringLang), breadcrumbs = common.breadcrumbs(List(item))) {
+@views.html.admin.layout.rightSidebar(Messages("permissions.accessor.scopeLevel.item", item.toStringLang), breadcrumbs = views.html.admin.common.breadcrumbs(List(item))) {
     <div class="well well-small text-muted">
         <i class="glyphicon glyphicon-info-sign"></i>
         @Messages("permissions.scopeLevel.manage.info")

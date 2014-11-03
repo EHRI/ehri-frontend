@@ -2,7 +2,7 @@
 
 @import controllers.institutions.Repositories
 
-@layout.rightSidebar(Messages("repository.list")) {
+@views.html.admin.layout.rightSidebar(Messages("repository.list")) {
     @common.filterableList("pagination.displayingItems", page, params) {
         @repository.itemList(page)
     }

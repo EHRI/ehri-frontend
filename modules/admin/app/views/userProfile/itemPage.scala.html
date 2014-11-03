@@ -16,29 +16,29 @@
 
 
 
-@layout.rightSidebar(Html(item.toStringLang + activeBadge(item)), breadcrumbs = common.breadcrumbs(List(item))) {
+@views.html.admin.layout.rightSidebar(Html(item.toStringLang + activeBadge(item)), breadcrumbs = views.html.admin.common.breadcrumbs(List(item))) {
 
     @html
 } {
-    @common.latestAction(item, controllers.users.routes.UserProfiles.history(item.id))
+    @views.html.admin.common.latestAction(item, controllers.users.routes.UserProfiles.history(item.id))
 
-    @common.sidebarActions { user =>
-        @common.sidebarAction(user.hasPermission(ContentTypes.UserProfile, PermissionType.Update)) {
+    @views.html.admin.common.sidebarActions { user =>
+        @views.html.admin.common.sidebarAction(user.hasPermission(ContentTypes.UserProfile, PermissionType.Update)) {
             <a href="@controllers.users.routes.UserProfiles.update(item.id)">@Messages("userProfile.update")</a>
         }
-        @common.sidebarAction(user.hasPermission(ContentTypes.UserProfile, PermissionType.Grant)) {
+        @views.html.admin.common.sidebarAction(user.hasPermission(ContentTypes.UserProfile, PermissionType.Grant)) {
             <a href="@controllers.users.routes.UserProfiles.permissions(item.id)">@Messages("permissions.global.manage")</a>
         }
-        @common.sidebarAction(user.hasPermission(ContentTypes.UserProfile, PermissionType.Grant)) {
+        @views.html.admin.common.sidebarAction(user.hasPermission(ContentTypes.UserProfile, PermissionType.Grant)) {
             <a href="@controllers.users.routes.UserProfiles.grantList(item.id)">@Messages("permissions.itemLevel.show")</a>
         }
-        @common.sidebarAction(user.hasPermission(ContentTypes.UserProfile, PermissionType.Grant)) {
+        @views.html.admin.common.sidebarAction(user.hasPermission(ContentTypes.UserProfile, PermissionType.Grant)) {
             <a href="@controllers.groups.routes.Groups.membership(item.isA, item.id)">@Messages("accessor.groups.manage")</a>
         }
-        @common.sidebarAction(user.isAdmin, danger = true) {
+        @views.html.admin.common.sidebarAction(user.isAdmin, danger = true) {
             <a href="@controllers.users.routes.UserProfiles.delete(item.id)">@Messages("userProfile.delete")</a>
         }
-        @common.sidebarAction() {
+        @views.html.admin.common.sidebarAction() {
             <a href="@controllers.users.routes.UserProfiles.history(item.id)">@Messages("item.history")</a>
         }
     }

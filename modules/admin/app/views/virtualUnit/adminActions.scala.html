@@ -1,28 +1,28 @@
 @(item: VirtualUnit)(implicit userOpt: Option[UserProfile], request: RequestHeader, globalConfig: global.GlobalConfig, lang: Lang)
 
-@common.sidebarActions { user =>
-    @common.sidebarAction(user.hasPermission(ContentTypes.VirtualUnit, PermissionType.Create)) {
+@views.html.admin.common.sidebarActions { user =>
+    @views.html.admin.common.sidebarAction(user.hasPermission(ContentTypes.VirtualUnit, PermissionType.Create)) {
         <a href="@controllers.virtual.routes.VirtualUnits.createChild(item.id)">@Messages("virtualUnit.child.create")</a>
     }
-    @common.sidebarAction(user.hasPermission(ContentTypes.VirtualUnit, PermissionType.Create)) {
+    @views.html.admin.common.sidebarAction(user.hasPermission(ContentTypes.VirtualUnit, PermissionType.Create)) {
         <a href="@controllers.virtual.routes.VirtualUnits.createChildRef(item.id)">@Messages("virtualUnit.child.createRef")</a>
     }
-    @common.sidebarAction(user.hasPermission(ContentTypes.VirtualUnit, PermissionType.Annotate)) {
+    @views.html.admin.common.sidebarAction(user.hasPermission(ContentTypes.VirtualUnit, PermissionType.Annotate)) {
         <a href="@controllers.virtual.routes.VirtualUnits.linkAnnotateSelect(item.id, EntityType.VirtualUnit)">@Messages("link.create")</a>
     }
-    @common.sidebarAction(user.hasPermission(ContentTypes.VirtualUnit, PermissionType.Update)) {
+    @views.html.admin.common.sidebarAction(user.hasPermission(ContentTypes.VirtualUnit, PermissionType.Update)) {
         <a href="@controllers.virtual.routes.VirtualUnits.update(item.id)">@Messages("item.update")</a>
     }
-    @common.sidebarAction(user.hasPermission(ContentTypes.VirtualUnit, PermissionType.Update)) {
+    @views.html.admin.common.sidebarAction(user.hasPermission(ContentTypes.VirtualUnit, PermissionType.Update)) {
         <a href="@controllers.virtual.routes.VirtualUnits.visibility(item.id)">@Messages("visibility.update")</a>
         }
-    @common.sidebarAction(user.hasPermission(ContentTypes.VirtualUnit, PermissionType.Delete)) {
+    @views.html.admin.common.sidebarAction(user.hasPermission(ContentTypes.VirtualUnit, PermissionType.Delete)) {
         <a href="@controllers.virtual.routes.VirtualUnits.delete(item.id)">@Messages("item.delete")</a>
         }
-    @common.sidebarAction(user.hasPermission(ContentTypes.VirtualUnit, PermissionType.Grant)) {
+    @views.html.admin.common.sidebarAction(user.hasPermission(ContentTypes.VirtualUnit, PermissionType.Grant)) {
         <a href="@controllers.virtual.routes.VirtualUnits.managePermissions(item.id)">@Messages("permissions.manage")</a>
     }
-    @common.sidebarAction() {
+    @views.html.admin.common.sidebarAction() {
         <a href="@controllers.admin.routes.ApiController.getItem(item.isA, item.id)">@Messages("item.export.json")</a>
     }
 }

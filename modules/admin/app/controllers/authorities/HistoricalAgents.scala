@@ -78,7 +78,7 @@ case class HistoricalAgents @Inject()(implicit globalConfig: global.GlobalConfig
 
   def delete(id: String) = deleteAction(id) {
       item => implicit userOpt => implicit request =>
-    Ok(views.html.delete(item, histRoutes.deletePost(id),
+    Ok(views.html.admin.delete(item, histRoutes.deletePost(id),
         histRoutes.get(id)))
   }
 

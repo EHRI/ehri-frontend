@@ -1,6 +1,6 @@
 @(item: Concept, page: utils.Page[Concept], params: utils.PageParams, links: Seq[Link], annotations: Seq[Annotation])(implicit userOpt: Option[UserProfile], req: RequestHeader, globalConfig: global.GlobalConfig, lang: Lang, flash: Flash)
 
-@layout.adminLayout(item.toStringLang) {
+@views.html.admin.layout.adminLayout(item.toStringLang) {
     @breadcrumbs(item)
     @layout.mainContent {
         @layout.itemDetails {
@@ -40,8 +40,8 @@
                     }
 
                 } {
-                    @common.latestAction(item, controllers.keywords.routes.Concepts.history(item.id))
-                    @common.visibility(item, controllers.keywords.routes.Concepts.visibility(item.id), ContentTypes.Concept)
+                    @views.html.admin.common.latestAction(item, controllers.keywords.routes.Concepts.history(item.id))
+                    @views.html.admin.common.visibility(item, controllers.keywords.routes.Concepts.visibility(item.id), ContentTypes.Concept)
                     @adminActions(item)
                 }
             }

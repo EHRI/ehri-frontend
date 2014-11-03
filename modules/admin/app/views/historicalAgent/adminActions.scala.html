@@ -1,22 +1,22 @@
 @(item: HistoricalAgent)(implicit userOpt: Option[UserProfile], request: RequestHeader, globalConfig: global.GlobalConfig, lang: Lang)
 
-@common.sidebarActions { user =>
-    @common.sidebarAction(user.hasPermission(ContentTypes.HistoricalAgent, PermissionType.Update)) {
+@views.html.admin.common.sidebarActions { user =>
+    @views.html.admin.common.sidebarAction(user.hasPermission(ContentTypes.HistoricalAgent, PermissionType.Update)) {
         <a href="@controllers.authorities.routes.HistoricalAgents.update(item.id)">@Messages("item.update")</a>
     }
-    @common.sidebarAction(user.hasPermission(ContentTypes.HistoricalAgent, PermissionType.Annotate)) {
+    @views.html.admin.common.sidebarAction(user.hasPermission(ContentTypes.HistoricalAgent, PermissionType.Annotate)) {
         <a href="@controllers.authorities.routes.HistoricalAgents.linkAnnotateSelect(item.id, EntityType.HistoricalAgent)">@Messages("link.create")</a>
     }
-    @common.sidebarAction(user.hasPermission(ContentTypes.HistoricalAgent, PermissionType.Delete)) {
+    @views.html.admin.common.sidebarAction(user.hasPermission(ContentTypes.HistoricalAgent, PermissionType.Delete)) {
         <a href="@controllers.authorities.routes.HistoricalAgents.delete(item.id)">@Messages("item.delete")</a>
     }
-    @common.sidebarAction(user.hasPermission(ContentTypes.HistoricalAgent, PermissionType.Grant)) {
+    @views.html.admin.common.sidebarAction(user.hasPermission(ContentTypes.HistoricalAgent, PermissionType.Grant)) {
         <a href="@controllers.authorities.routes.HistoricalAgents.managePermissions(item.id)">@Messages("permissions.manage")</a>
     }
-    @common.sidebarAction() {
+    @views.html.admin.common.sidebarAction() {
         <a href="@controllers.authorities.routes.HistoricalAgents.history(item.id)">@Messages("item.history")</a>
     }
-    @common.sidebarAction() {
+    @views.html.admin.common.sidebarAction() {
         <a href="@controllers.admin.routes.ApiController.getItem(item.isA, item.id)">@Messages("item.export.json")</a>
     }
 }

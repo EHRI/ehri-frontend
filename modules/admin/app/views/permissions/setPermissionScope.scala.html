@@ -3,7 +3,7 @@
         )
 @import defines.PermissionType
 
-@layout.rightSidebar(Messages("permissions.scopeLevel.grant.item", item.toStringLang, accessor.toStringLang), breadcrumbs = common.breadcrumbs(List(item))) {
+@views.html.admin.layout.rightSidebar(Messages("permissions.scopeLevel.grant.item", item.toStringLang, accessor.toStringLang), breadcrumbs = views.html.admin.common.breadcrumbs(List(item))) {
 
     @helper.form(action = action, 'class -> "entity-form form-horizontal") {
         @formHelpers.csrfToken()

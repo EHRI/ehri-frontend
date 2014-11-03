@@ -116,7 +116,7 @@ case class Countries @Inject()(implicit globalConfig: global.GlobalConfig, searc
   }
 
   def delete(id: String) = deleteAction(id) { item => implicit userOpt => implicit request =>
-    Ok(views.html.delete(
+    Ok(views.html.admin.delete(
         item, countryRoutes.deletePost(id),
         countryRoutes.get(id)))
   }

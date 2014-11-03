@@ -1,9 +1,9 @@
 @(title: Any, scripts: Html = Html(""), styles: Html = Html(""), breadcrumbs: Html = Html(""))(content: Html)(sidebar1: Html)(sidebar2: Html)(implicit userOpt: Option[UserProfile], req: RequestHeader, globalConfig: global.GlobalConfig, flash: Flash, lang: Lang)
 
-@layout.adminLayout(title, scripts, styles) {
+@views.html.admin.layout.adminLayout(title, scripts, styles) {
 
     @if(breadcrumbs.body.trim.isEmpty) {
-        @common.breadcrumbs()
+        @views.html.admin.common.breadcrumbs()
     }
 
     <div class="container">

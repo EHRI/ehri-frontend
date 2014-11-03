@@ -223,7 +223,7 @@ case class VirtualUnits @Inject()(implicit globalConfig: global.GlobalConfig, se
 
   def delete(id: String) = deleteAction(id) {
       item => implicit userOpt => implicit request =>
-    Ok(views.html.delete(
+    Ok(views.html.admin.delete(
         item, vuRoutes.deletePost(id),
         vuRoutes.get(id)))
   }
@@ -283,7 +283,7 @@ case class VirtualUnits @Inject()(implicit globalConfig: global.GlobalConfig, se
 
   def deleteDescription(id: String, did: String) = deleteDescriptionAction(id, did) {
       item => description => implicit userOpt => implicit request =>
-    Ok(views.html.deleteDescription(item, description,
+    Ok(views.html.admin.deleteDescription(item, description,
       vuRoutes.deleteDescriptionPost(id, did),
       vuRoutes.get(id)))
   }

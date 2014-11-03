@@ -2,7 +2,7 @@
 
 @import views.Helpers
 
-@layout.noSidebar(Messages("item.history.item", item.toStringLang), breadcrumbs = common.breadcrumbs(List(item))) {
+@views.html.admin.layout.noSidebar(Messages("item.history.item", item.toStringLang), breadcrumbs = views.html.admin.common.breadcrumbs(List(item))) {
     <h3>@Messages("pagination.displayingItems", page.offset + 1, page.offset + page.items.size, page.total)</h3>
 
     @common.pagination(page)

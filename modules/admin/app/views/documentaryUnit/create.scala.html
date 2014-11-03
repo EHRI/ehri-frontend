@@ -10,7 +10,7 @@
         }
 
         case r: Repository => {
-            @common.breadcrumbs(List(r))
+            @views.html.admin.common.breadcrumbs(List(r))
         }
 
         case _ => {
@@ -19,7 +19,7 @@
     }
 }
 
-@layout.rightSidebar(Messages("documentaryUnit.create"), breadcrumbs = breadcrumbs, scripts = formHelpers.dateJs()) {
+@views.html.admin.layout.rightSidebar(Messages("documentaryUnit.create"), breadcrumbs = breadcrumbs, scripts = formHelpers.dateJs()) {
 
 	@helper.form(action = action, 'class -> "entity-form form-horizontal") {
         @formHelpers.csrfToken()

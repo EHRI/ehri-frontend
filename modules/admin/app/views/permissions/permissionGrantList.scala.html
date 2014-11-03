@@ -2,7 +2,7 @@
 
 @implicitField = @{ views.html.helper.FieldConstructor(formHelpers.fieldTemplate.f) }
 
-@layout.rightSidebar(Messages("permissionGrant.heading", item.toStringLang), breadcrumbs = common.breadcrumbs(List(item))) {
+@views.html.admin.layout.rightSidebar(Messages("permissionGrant.heading", item.toStringLang), breadcrumbs = views.html.admin.common.breadcrumbs(List(item))) {
     @permissions.permissionList(Some(item), page)
 } {
 

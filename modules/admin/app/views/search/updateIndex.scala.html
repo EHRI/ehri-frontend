@@ -26,7 +26,7 @@
 
 @implicitField = @{ views.html.helper.FieldConstructor(formHelpers.fieldTemplate.f) }
 
-@layout.rightSidebar(Messages("search.updateIndex"), scripts=extraScript, styles = extraStyle) {
+@views.html.admin.layout.rightSidebar(Messages("search.updateIndex"), scripts=extraScript, styles = extraStyle) {
     @helper.form(action = action, 'id -> "update-form", 'class -> "form-horizontal") {
         @formHelpers.csrfToken()
         

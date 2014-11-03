@@ -96,7 +96,7 @@ case class Vocabularies @Inject()(implicit globalConfig: global.GlobalConfig, se
   }
 
   def delete(id: String) = deleteAction(id) { item => implicit userOpt => implicit request =>
-    Ok(views.html.delete(
+    Ok(views.html.admin.delete(
         item, vocabRoutes.deletePost(id),
         vocabRoutes.get(id)))
   }
