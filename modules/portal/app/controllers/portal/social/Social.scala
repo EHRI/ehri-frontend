@@ -1,4 +1,4 @@
-package controllers.portal
+package controllers.portal.social
 
 import play.api.libs.concurrent.Execution.Implicits._
 import controllers.base.{SessionPreferences, AuthController, ControllerHelpers}
@@ -22,6 +22,7 @@ import scala.Some
 import play.api.mvc.Result
 import backend.ApiUser
 import com.typesafe.plugin.MailerAPI
+import controllers.portal.PortalAuthConfigImpl
 
 /**
  * @author Mike Bryant (http://github.com/mikesname)
@@ -63,7 +64,7 @@ case class Social @Inject()(implicit globalConfig: global.GlobalConfig, searchDi
     EntityType.Annotation
   )
 
-  private val socialRoutes = controllers.portal.routes.Social
+  private val socialRoutes = controllers.portal.social.routes.Social
 
   def personalisedActivity(offset: Int = 0, limit: Int = Constants.DEFAULT_LIST_LIMIT) = {
     withUserAction.async { implicit user => implicit request =>
@@ -170,7 +171,7 @@ case class Social @Inject()(implicit globalConfig: global.GlobalConfig, searchDi
       if (isAjax) {
         Ok("ok")
       } else {
-        Redirect(controllers.portal.routes.Social.browseUsers())
+        Redirect(socialRoutes.browseUsers())
       }
     }
   }
@@ -200,7 +201,7 @@ case class Social @Inject()(implicit globalConfig: global.GlobalConfig, searchDi
       if (isAjax) {
         Ok("ok")
       } else {
-        Redirect(controllers.portal.routes.Social.browseUsers())
+        Redirect(socialRoutes.browseUsers())
       }
     }
   }

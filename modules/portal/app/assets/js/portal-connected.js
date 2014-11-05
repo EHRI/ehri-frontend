@@ -125,9 +125,9 @@ jQuery(function ($) {
 	$(document).on("click", "a.follow, a.unfollow", function (e) {
 		e.preventDefault();
 
-		var followFunc = jsRoutes.controllers.portal.Social.followUserPost,
-		    unfollowFunc = jsRoutes.controllers.portal.Social.unfollowUserPost,
-		    followerListFunc = jsRoutes.controllers.portal.Social.followersForUser,
+		var followFunc = jsRoutes.controllers.portal.social.Social.followUserPost,
+		    unfollowFunc = jsRoutes.controllers.portal.social.Social.unfollowUserPost,
+		    followerListFunc = jsRoutes.controllers.portal.social.Social.followersForUser,
 		    $elem = $(this),
 		    id = $elem.data("item"),
 		    follow = $elem.hasClass("follow");

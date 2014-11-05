@@ -12,7 +12,7 @@
         <img src="@views.p.Helpers.gravitar(user.model.imageUrl)" alt="@user.model.name"/>
     </a>
     <h1><a 
-        @for(us <- userOpt if user.id != us.id) { href="@controllers.portal.routes.Social.browseUser(user.id)" }
+        @for(us <- userOpt if user.id != us.id) { href="@controllers.portal.social.routes.Social.browseUser(user.id)" }
         @for(us <- userOpt if user.id == us.id) { href="@controllers.portal.routes.Profile.profile" }>
         @if(!additionalTitle.isEmpty) {
             @additionalTitle

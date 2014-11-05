@@ -1,5 +1,9 @@
 # Routes for portal routes
 
+# Social stuff
+
+-> /people      social.Routes
+
 GET         /                               @controllers.portal.Portal.index
 
 # Routes for core functionality
@@ -84,26 +88,6 @@ GET         /annotate/:id/:did              @controllers.portal.Annotations.anno
 POST        /annotate/:id/:did              @controllers.portal.Annotations.annotatePost(id: String, did: String)
 GET         /annotate/:id/:did/:field       @controllers.portal.Annotations.annotateField(id: String, did: String, field: String)
 POST        /annotate/:id/:did/:field       @controllers.portal.Annotations.annotateFieldPost(id: String, did: String, field: String)
-
-# Social networking stuff...
-GET         /activity                       @controllers.portal.Social.personalisedActivity(offset: Int ?= 0, limit: Int ?= 20)
-GET         /actions/:userId                @controllers.portal.Social.moreUserActivity(userId: String, offset: Int ?= 0, limit: Int ?= 20)
-GET         /people                         @controllers.portal.Social.browseUsers
-GET         /people/:userId                 @controllers.portal.Social.browseUser(userId: String)
-GET         /follow/:userId                 @controllers.portal.Social.followUser(userId: String)
-POST        /follow/:userId                 @controllers.portal.Social.followUserPost(userId: String)
-GET         /unfollow/:userId               @controllers.portal.Social.unfollowUser(userId: String)
-POST        /unfollow/:userId               @controllers.portal.Social.unfollowUserPost(userId: String)
-GET         /people/:userId/watched       	@controllers.portal.Social.watchedByUser(userId: String)
-GET         /people/:userId/following       @controllers.portal.Social.followingForUser(userId: String)
-GET         /people/:userId/followers       @controllers.portal.Social.followersForUser(userId: String)
-GET         /block/:userId                  @controllers.portal.Social.blockUser(userId: String)
-POST        /block/:userId                  @controllers.portal.Social.blockUserPost(userId: String)
-GET         /unblock/:userId                @controllers.portal.Social.unblockUser(userId: String)
-POST        /unblock/:userId                @controllers.portal.Social.unblockUserPost(userId: String)
-GET         /message/:userId                @controllers.portal.Social.sendMessage(userId: String)
-POST        /message/:userId                @controllers.portal.Social.sendMessagePost(userId: String)
-
 
 GET         /watch/:id                      @controllers.portal.Profile.watchItem(id: String)
 POST        /watch/:id                      @controllers.portal.Profile.watchItemPost(id: String)

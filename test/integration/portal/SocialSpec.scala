@@ -1,14 +1,15 @@
 package integration.portal
 
 import helpers.IntegrationTestRunner
-import controllers.portal.{ReverseSocial, ReversePortal}
+import controllers.portal.ReversePortal
+import controllers.portal.social.ReverseSocial
 import mocks.MockBufferedMailer
 import backend.ApiUser
 
 class SocialSpec extends IntegrationTestRunner {
   import mocks.{privilegedUser, unprivilegedUser}
 
-  private val socialRoutes: ReverseSocial = controllers.portal.routes.Social
+  private val socialRoutes: ReverseSocial = controllers.portal.social.routes.Social
 
   override def getConfig = Map("recaptcha.skip" -> true)
 
