@@ -208,6 +208,16 @@ trait PortalLogin extends OpenIDLoginHandler with Oauth2LoginHandler with UserPa
     Ok(views.html.p.account.passwordReminderSent())
   }
 
+  def changePassword = withUserAction { implicit user => implicit request =>
+    user.account.map { account =>
+      Ok(views.html.p.account.changePassword(changePasswordForm,
+        profileRoutes.changePasswordPost()))
+    }.getOrElse {
+      Redirect(profileRoutes.changePassword())
+        .flashing("error" -> Messages("login.expiredOrInvalidResetToken"))
+    }
+  }
+
   def resetPassword(token: String) = Action { implicit request =>
     userDAO.findByResetToken(token).map { account =>
       Ok(views.html.p.account.resetPassword(resetPasswordForm,

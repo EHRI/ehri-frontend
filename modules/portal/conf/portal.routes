@@ -37,6 +37,7 @@ GET         /logout                         @controllers.portal.Profile.logout
 GET         /signup                         @controllers.portal.Profile.signup
 POST        /signup                         @controllers.portal.Profile.signupPost
 GET         /confirmEmail/:token            @controllers.portal.Profile.confirmEmail(token: String)
+GET         /changePassword                 @controllers.portal.Profile.changePassword
 POST        /changePassword                 @controllers.portal.Profile.changePasswordPost
 GET         /forgot                         @controllers.portal.Profile.forgotPassword
 POST        /forgot                         @controllers.portal.Profile.forgotPasswordPost
