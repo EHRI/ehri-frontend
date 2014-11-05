@@ -213,6 +213,10 @@ facet.active=Activity
 facet.active.tooltip=Active or disactive users.
 facet.group=Groups
 facet.group.tooltip=Groups to which users belong.
+facet.top=Top Level
+facet.top.tooltip=Show top-level (broadest) items only.
+facet.vocab=Vocabulary
+facet.vocab.tooltip=The vocabulary/set to which the keyword belongs.
 
 # Activity...
 portal.activity=Activity
