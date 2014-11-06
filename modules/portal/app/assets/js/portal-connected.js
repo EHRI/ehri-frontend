@@ -169,8 +169,8 @@ jQuery(function ($) {
 	$(document).on("click", "a.watch, a.unwatch", function (e) {
 		e.preventDefault();
 
-		var watchFunc = jsRoutes.controllers.portal.Profile.watchItemPost,
-		    unwatchFunc = jsRoutes.controllers.portal.Profile.unwatchItemPost,
+		var watchFunc = jsRoutes.controllers.portal.profile.Profile.watchItemPost,
+		    unwatchFunc = jsRoutes.controllers.portal.profile.Profile.unwatchItemPost,
 		    $elem = $(this),
 		    id = $elem.data("item"),
 		    watch = $elem.hasClass("watch");
@@ -284,7 +284,7 @@ jQuery(function ($) {
     var $elem = $(this),
         id = $elem.data("item"),
         did = $elem.data("did");
-    jsRoutes.controllers.portal.Annotations.annotate(id, did).ajax({
+    jsRoutes.controllers.portal.annotate.Annotations.annotate(id, did).ajax({
       success: function (data) {
         insertAnnotationForm($elem, data);
       }
@@ -300,7 +300,7 @@ jQuery(function ($) {
         did = $elem.data("did"),
         field = $elem.data("field");
     loaderContainer = insertAnnotationLoader($elem);
-    jsRoutes.controllers.portal.Annotations.annotateField(id, did, field).ajax({
+    jsRoutes.controllers.portal.annotate.Annotations.annotateField(id, did, field).ajax({
       success: function (data) {
         insertAnnotationForm($elem, data, loaderContainer);
       }
@@ -327,7 +327,7 @@ jQuery(function ($) {
     e.preventDefault();
     var $elem = $(this),
         id = $elem.data("item");
-    jsRoutes.controllers.portal.Annotations.editAnnotation(id).ajax({
+    jsRoutes.controllers.portal.annotate.Annotations.editAnnotation(id).ajax({
       success: function (data) {
         //$elem.closest(".annotation").hide().after(data)
         $(data)
@@ -385,7 +385,7 @@ jQuery(function ($) {
     if (confirm(check + "?")) {
       var $ann = $elem.closest(".annotation");
       $ann.hide();
-      jsRoutes.controllers.portal.Annotations.deleteAnnotationPost(id).ajax({
+      jsRoutes.controllers.portal.annotate.Annotations.deleteAnnotationPost(id).ajax({
         success: function () {
           $ann.remove();
         },
@@ -429,7 +429,7 @@ jQuery(function ($) {
     var $form = $(this).closest("form"),
         id = $form.prev(".annotation").attr("id"),
         data = $form.serialize();
-    jsRoutes.controllers.portal.Annotations.setAnnotationVisibilityPost(id).ajax({
+    jsRoutes.controllers.portal.annotate.Annotations.setAnnotationVisibilityPost(id).ajax({
       data: data,
       success: function (data) {
         console.log("Set visibility to ", data);

@@ -22,7 +22,7 @@ import scala.Some
 import play.api.mvc.Result
 import backend.ApiUser
 import com.typesafe.plugin.MailerAPI
-import controllers.portal.PortalAuthConfigImpl
+import controllers.portal.{Secured, PortalAuthConfigImpl}
 
 /**
  * @author Mike Bryant (http://github.com/mikesname)
@@ -36,11 +36,8 @@ case class Social @Inject()(implicit globalConfig: global.GlobalConfig, searchDi
   extends AuthController
   with ControllerHelpers
   with PortalAuthConfigImpl
-  with SessionPreferences[SessionPrefs] {
-
-  // This is a publically-accessible site, but not just yet.
-  override val staffOnly = current.configuration.getBoolean("ehri.portal.secured").getOrElse(true)
-  override val verifiedOnly = current.configuration.getBoolean("ehri.portal.secured").getOrElse(true)
+  with SessionPreferences[SessionPrefs]
+  with Secured {
 
   val defaultPreferences = new SessionPrefs
 

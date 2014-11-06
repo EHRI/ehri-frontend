@@ -1,4 +1,4 @@
-package integration.portal
+package integration.portal.social
 
 import helpers.IntegrationTestRunner
 import controllers.portal.ReversePortal

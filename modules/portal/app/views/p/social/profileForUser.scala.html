@@ -20,7 +20,7 @@
         <li class="@views.Helpers.maybeActive(controllers.portal.social.routes.Social.watchedByUser(user.id).url)"><a href="@controllers.portal.social.routes.Social.watchedByUser(user.id)"><span class="glyphicon glyphicon-star"></span> @Messages("portal.profile.watch.list")</a></li>
         @userOpt.map { currentUser =>
             @if(currentUser.id == user.id) {
-                <li class="@views.Helpers.maybeActive(controllers.portal.routes.Profile.profile.url)"><a href="@controllers.portal.routes.Profile.profile"><span class="glyphicon glyphicon-edit"></span> @Messages("portal.annotation.list")</a></li>
+                <li class="@views.Helpers.maybeActive(controllers.portal.profile.routes.Profile.profile.url)"><a href="@controllers.portal.profile.routes.Profile.profile"><span class="glyphicon glyphicon-edit"></span> @Messages("portal.annotation.list")</a></li>
             }
         }
     </ul>

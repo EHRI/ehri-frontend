@@ -2,6 +2,9 @@
 
 # Social stuff
 
+-> /            account.Routes
+-> /annotate    annotate.Routes
+-> /profile     profile.Routes
 -> /people      social.Routes
 
 GET         /                               @controllers.portal.Portal.index
@@ -25,31 +28,7 @@ GET         /feedback                       @controllers.portal.Feedback.feedbac
 POST        /feedback                       @controllers.portal.Feedback.feedbackPost
 GET         /feedback/list                  @controllers.portal.Feedback.list
 
-GET         /login                          @controllers.portal.Profile.login
-POST        /login                          @controllers.portal.Profile.passwordLoginPost
-POST        /openid                         @controllers.portal.Profile.openIDLoginPost
-GET         /authenticate/openid            @controllers.portal.Profile.openIDCallback
-GET         /authenticate/google            @controllers.portal.Profile.googleLogin
-GET         /authenticate/facebook          @controllers.portal.Profile.facebookLogin
-GET         /authenticate/linkedin          @controllers.portal.Profile.linkedInLogin
-GET         /logout                         @controllers.portal.Profile.logout
-
-GET         /signup                         @controllers.portal.Profile.signup
-POST        /signup                         @controllers.portal.Profile.signupPost
-GET         /confirmEmail/:token            @controllers.portal.Profile.confirmEmail(token: String)
-GET         /changePassword                 @controllers.portal.Profile.changePassword
-POST        /changePassword                 @controllers.portal.Profile.changePasswordPost
-GET         /forgot                         @controllers.portal.Profile.forgotPassword
-POST        /forgot                         @controllers.portal.Profile.forgotPasswordPost
-POST        /resendVerification             @controllers.portal.Profile.resendVerificationPost
-GET         /prs                            @controllers.portal.Profile.passwordReminderSent
-GET         /rstp/:token                    @controllers.portal.Profile.resetPassword(token: String)
-POST        /rstp/:token                    @controllers.portal.Profile.resetPasswordPost(token: String)
-POST        /account/prefs                  @controllers.portal.Profile.updateAccountPrefsPost()
-
-GET         /prefs                          @controllers.portal.Profile.prefs
-POST        /prefs                          @controllers.portal.Profile.updatePrefs
-
+# Data routes
 GET         /search                         @controllers.portal.Portal.search
 GET         /countries/institutions         @controllers.portal.Portal.browseRepositoriesByCountry
 GET         /countries                      @controllers.portal.Portal.browseCountries
@@ -72,38 +51,6 @@ GET         /vocabularies/:id               @controllers.portal.Portal.browseVoc
 GET         /vocabularies/:id/search        @controllers.portal.Portal.searchVocabulary(id: String)
 GET         /newsFeed                       @controllers.portal.Portal.newsFeed
 GET         /item/:entityType/:id           @controllers.portal.Portal.browseItem(entityType: EntityType.Value, id: String)
-
-# Annotations...
-GET         /annotations                    @controllers.portal.Profile.annotations(format: controllers.DataFormat.Value ?= controllers.DataFormat.Html)
-GET         /annotation/:id                 @controllers.portal.Annotations.annotation(id: String)
-GET         /annotate/:aid/delete           @controllers.portal.Annotations.deleteAnnotation(aid: String)
-POST        /annotate/:aid/delete           @controllers.portal.Annotations.deleteAnnotationPost(aid: String)
-GET         /annotate/:aid/edit             @controllers.portal.Annotations.editAnnotation(aid: String, isField: Boolean ?= true)
-POST        /annotate/:aid/edit             @controllers.portal.Annotations.editAnnotationPost(aid: String, isField: Boolean ?= true)
-POST        /annotate/:aid/visibility       @controllers.portal.Annotations.setAnnotationVisibilityPost(aid: String)
-GET         /annotate/:aid/promote          @controllers.portal.Annotations.promoteAnnotation(aid: String, isField: Boolean ?= true)
-POST        /annotate/:aid/promote          @controllers.portal.Annotations.promoteAnnotationPost(aid: String, isField: Boolean ?= true)
-GET         /annotate/:aid/demote           @controllers.portal.Annotations.demoteAnnotation(aid: String, isField: Boolean ?= true)
-POST        /annotate/:aid/demote           @controllers.portal.Annotations.demoteAnnotationPost(aid: String, isField: Boolean ?= true)
-GET         /annotate/:id/:did              @controllers.portal.Annotations.annotate(id: String, did: String)
-POST        /annotate/:id/:did              @controllers.portal.Annotations.annotatePost(id: String, did: String)
-GET         /annotate/:id/:did/:field       @controllers.portal.Annotations.annotateField(id: String, did: String, field: String)
-POST        /annotate/:id/:did/:field       @controllers.portal.Annotations.annotateFieldPost(id: String, did: String, field: String)
-
-GET         /watch/:id                      @controllers.portal.Profile.watchItem(id: String)
-POST        /watch/:id                      @controllers.portal.Profile.watchItemPost(id: String)
-GET         /unwatch/:id                    @controllers.portal.Profile.unwatchItem(id: String)
-POST        /unwatch/:id                    @controllers.portal.Profile.unwatchItemPost(id: String)
-GET         /watching                       @controllers.portal.Profile.watching(format: controllers.DataFormat.Value ?= controllers.DataFormat.Html)
-
-GET         /account                        @controllers.portal.Profile.account
-GET         /profile                        @controllers.portal.Profile.profile
-GET         /profile/edit                   @controllers.portal.Profile.updateProfile
-POST        /profile/edit                   @controllers.portal.Profile.updateProfilePost
-GET         /profile/delete                 @controllers.portal.Profile.deleteProfile
-POST        /profile/delete                 @controllers.portal.Profile.deleteProfilePost
-GET         /profile/editImage              @controllers.portal.Profile.updateProfileImage
-POST        /profile/editImage              @controllers.portal.Profile.updateProfileImagePost
 
 GET         /data-policy                    @controllers.portal.Portal.dataPolicy
 

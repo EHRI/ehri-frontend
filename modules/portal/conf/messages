@@ -23,6 +23,10 @@ portal.login.alreadyLoggedIn=You are already logged in as {0}
 portal.login.loginWith=Log in with {0}
 portal.login.openid.submit=Sign In With OpenID
 portal.login.openid=OpenID
+portal.login.password.noPassword=There is currently no password associated with your account. This means you\
+  have signed in via a third-party provider such as Google or Facebook.
+portal.login.password.change=Change Password
+portal.login.password.change.link=Click here to change your password
 portal.login.password.reset=Reset Password
 portal.login.password.reset.text=Forgotten your password? Enter the email you used to sign up below\
   and we''ll send you a link you can use to reset it.
@@ -31,7 +35,6 @@ portal.login.openid.urlPlaceholder=Enter your OpenID URL
 portal.login.disabled=Login is currently disabled. Please try again later.
 portal.login.oauth.info=If you already have an account on one of these sites you can click the logo to log in to EHRI:
 portal.login.password.info=If you''ve previously created an account with EHRI, enter your email and password here:
-portal.login.password.change=Change Password
 portal.login.password.submit=Sign In
 portal.login.recover=If you have lost your login details:
 portal.login.recover.link=Click here if you've forgotten or lost your password.
@@ -48,7 +51,7 @@ portal.signup.badTimestamp=The signup form was submitted too quickly. Please try
 portal.signup.badSignupInput=The signup form failed the spam check. Please try again.
 portal.signup.agreeTerms=You must agree to the terms.
 portal.signup.confirmation=Thanks for signing up! We''ve sent you an email which you can use to confirm \
-  you email address.
+  your email address.
 portal.signup.emailConfirmed=Your email is now confirmed and you have been signed in.
 portal.signup.invalidSignupToken=Confirmation URL is invalid or has expired.
 portal.signup.validation.confirmation=Your account has been validated.
@@ -61,7 +64,7 @@ portal.mail.unverifiedEmailWarning=Unverified Account
 portal.mail.unverifiedEmailWarningMessage=The email associated with your account has not yet been verified.
 portal.mail.unverifiedEmailResend=To re-send a verification email
 portal.mail.unverifiedEmailResendSubmit=click here
-portal.mail.emailConfirmationResent=We''ve sent you an email which you can use to confirm you email address.
+portal.mail.emailConfirmationResent=We''ve sent you an email which you can use to confirm your email address.
 
 portal.mail.message.subject=EHRI: Message from {0}: {1}
 portal.mail.message.heading=New message from {0}
@@ -74,12 +77,12 @@ portal.showDetails=Show Item Details
 portal.hideDetails=Hide Item Details
 portal.showItems={0,choice,0#{0} Items|1#1 Item|1<{0,number,integer} Items}
 portal.profile=Profile
+portal.profile.security=Security
 portal.profile.updateProfile=Edit Profile
 portal.profile.updateProfileImage=Set Profile Image
 portal.profile.deleteProfile=Delete Account
 portal.profile.deleteProfileLink=Click here to delete your profile
 portal.warning=Warning
-portal.profile.changePassword=Change Password
 portal.profile.deleteProfileConfirmation=Deleting your account will \
   will anonymise (but not remove) any publicly-visible annotations and links you may have \
   contributed to EHRI. To confirm, please type your name as displayed here, in the box below:

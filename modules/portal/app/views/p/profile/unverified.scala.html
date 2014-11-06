@@ -1,7 +1,7 @@
 @()(implicit lang: Lang, token: play.filters.csrf.CSRF.Token)
 
 <div class="alert alert-warning">
-    @helper.form(action = controllers.portal.routes.Profile.resendVerificationPost) {
+    @helper.form(action = controllers.portal.account.routes.Accounts.resendVerificationPost) {
         @formHelpers.csrfToken()
         @Messages("portal.mail.unverifiedEmailWarningMessage")
         @Messages("portal.mail.unverifiedEmailResend")
