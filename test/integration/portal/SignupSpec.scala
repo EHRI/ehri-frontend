@@ -1,15 +1,14 @@
 package integration.portal
 
-import helpers.Neo4jRunnerSpec
+import helpers.IntegrationTestRunner
 import models._
 import play.api.test.FakeRequest
-import mocks.MockBufferedMailer
 import play.api.i18n.Messages
 
 
-class SignupSpec extends Neo4jRunnerSpec(classOf[SignupSpec]) {
+class SignupSpec extends IntegrationTestRunner {
 
-  private val profileRoutes = controllers.portal.routes.Profile
+  private val accountRoutes = controllers.portal.account.routes.Accounts
 
   override def getConfig = Map(
     "recaptcha.skip" -> true,
@@ -31,10 +30,10 @@ class SignupSpec extends Neo4jRunnerSpec(classOf[SignupSpec]) {
       CSRF_TOKEN_NAME -> Seq(fakeCsrfString)
     )
 
-    "create a validation token and send a mail on signup" in new FakeApp {
+    "create a validation token and send a mail on signup" in new ITestApp {
       val numSentMails = mailBuffer.size
       val numAccounts = mocks.userFixtures.size
-      val signup = route(FakeRequest(POST, profileRoutes.signupPost().url)
+      val signup = route(FakeRequest(POST, accountRoutes.signupPost().url)
         .withSession(CSRF_TOKEN_NAME -> fakeCsrfString), data).get
       status(signup) must equalTo(SEE_OTHER)
       mailBuffer.size must beEqualTo(numSentMails + 1)
@@ -46,58 +45,58 @@ class SignupSpec extends Neo4jRunnerSpec(classOf[SignupSpec]) {
       }
     }
 
-//    "prevent signup with mismatched passwords" in new FakeApp {
-//      val badData = data
-//        .updated(SignupData.CONFIRM, Seq("blibblob"))
-//      val signup = route(FakeRequest(POST, profileRoutes.signupPost().url)
-//        .withSession(CSRF_TOKEN_NAME -> fakeCsrfString), badData).get
-//      status(signup) must equalTo(BAD_REQUEST)
-//      contentAsString(signup) must contain(Messages("portal.signup.badPasswords"))
-//    }
-//
-//    "prevent signup with invalid time diff" in new FakeApp(specificConfig = Map("ehri.signup.timeCheckSeconds" -> 5)) {
-//      val badData = data
-//        .updated(SignupData.TIMESTAMP, Seq(org.joda.time.DateTime.now.toString()))
-//      val signup = route(FakeRequest(POST, profileRoutes.signupPost().url)
-//        .withSession(CSRF_TOKEN_NAME -> fakeCsrfString), badData).get
-//      status(signup) must equalTo(BAD_REQUEST)
-//      contentAsString(signup) must contain(Messages("portal.signup.badTimestamp"))
-//
-//      val badData2 = data
-//        .updated(SignupData.TIMESTAMP, Seq("bad-date"))
-//      val signup2 = route(FakeRequest(POST, profileRoutes.signupPost().url)
-//        .withSession(CSRF_TOKEN_NAME -> fakeCsrfString), badData2).get
-//      status(signup2) must equalTo(BAD_REQUEST)
-//      contentAsString(signup2) must contain(Messages("portal.signup.badTimestamp"))
-//    }
-//
-//    "prevent signup with filled blank field" in new FakeApp {
-//      val badData = data.updated(SignupData.BLANK_CHECK, Seq("iAmARobot"))
-//      val signup = route(FakeRequest(POST, profileRoutes.signupPost().url)
-//        .withSession(CSRF_TOKEN_NAME -> fakeCsrfString), badData).get
-//      status(signup) must equalTo(BAD_REQUEST)
-//      contentAsString(signup) must contain(Messages("portal.signup.badSignupInput"))
-//    }
-//
-//    "prevent signup where terms are not agreed" in new FakeApp {
-//      val badData = data.updated(SignupData.AGREE_TERMS, Seq(false.toString))
-//      val signup = route(FakeRequest(POST, profileRoutes.signupPost().url)
-//        .withSession(CSRF_TOKEN_NAME -> fakeCsrfString), badData).get
-//      status(signup) must equalTo(BAD_REQUEST)
-//      contentAsString(signup) must contain(Messages("portal.signup.agreeTerms"))
-//    }
-//
-//    "allow unverified user to log in" in new FakeApp {
-//      val signup = route(FakeRequest(POST, profileRoutes.signupPost().url)
-//        .withSession(CSRF_TOKEN_NAME -> fakeCsrfString), data).get
-//      status(signup) must equalTo(SEE_OTHER)
-//      mocks.userFixtures.find(_._2.email == testEmail) must beSome.which { case(uid, u) =>
-//        // Ensure we can log in and view our profile
-//        val index = route(fakeLoggedInHtmlRequest(u, GET,
-//          profileRoutes.profile().url)).get
-//        status(index) must equalTo(OK)
-//        contentAsString(index) must contain(testName)
-//      }
-//    }
+    "prevent signup with mismatched passwords" in new ITestApp {
+      val badData = data
+        .updated(SignupData.CONFIRM, Seq("blibblob"))
+      val signup = route(FakeRequest(POST, accountRoutes.signupPost().url)
+        .withSession(CSRF_TOKEN_NAME -> fakeCsrfString), badData).get
+      status(signup) must equalTo(BAD_REQUEST)
+      contentAsString(signup) must contain(Messages("portal.signup.badPasswords"))
+    }
+
+    "prevent signup with invalid time diff" in new ITestApp(specificConfig = Map("ehri.signup.timeCheckSeconds" -> 5)) {
+      val badData = data
+        .updated(SignupData.TIMESTAMP, Seq(org.joda.time.DateTime.now.toString))
+      val signup = route(FakeRequest(POST, accountRoutes.signupPost().url)
+        .withSession(CSRF_TOKEN_NAME -> fakeCsrfString), badData).get
+      status(signup) must equalTo(BAD_REQUEST)
+      contentAsString(signup) must contain(Messages("portal.signup.badTimestamp"))
+
+      val badData2 = data
+        .updated(SignupData.TIMESTAMP, Seq("bad-date"))
+      val signup2 = route(FakeRequest(POST, accountRoutes.signupPost().url)
+        .withSession(CSRF_TOKEN_NAME -> fakeCsrfString), badData2).get
+      status(signup2) must equalTo(BAD_REQUEST)
+      contentAsString(signup2) must contain(Messages("portal.signup.badTimestamp"))
+    }
+
+    "prevent signup with filled blank field" in new ITestApp {
+      val badData = data.updated(SignupData.BLANK_CHECK, Seq("iAmARobot"))
+      val signup = route(FakeRequest(POST, accountRoutes.signupPost().url)
+        .withSession(CSRF_TOKEN_NAME -> fakeCsrfString), badData).get
+      status(signup) must equalTo(BAD_REQUEST)
+      contentAsString(signup) must contain(Messages("portal.signup.badSignupInput"))
+    }
+
+    "prevent signup where terms are not agreed" in new ITestApp {
+      val badData = data.updated(SignupData.AGREE_TERMS, Seq(false.toString))
+      val signup = route(FakeRequest(POST, accountRoutes.signupPost().url)
+        .withSession(CSRF_TOKEN_NAME -> fakeCsrfString), badData).get
+      status(signup) must equalTo(BAD_REQUEST)
+      contentAsString(signup) must contain(Messages("portal.signup.agreeTerms"))
+    }
+
+    "allow unverified user to log in" in new ITestApp {
+      val signup = route(FakeRequest(POST, accountRoutes.signupPost().url)
+        .withSession(CSRF_TOKEN_NAME -> fakeCsrfString), data).get
+      status(signup) must equalTo(SEE_OTHER)
+      mocks.userFixtures.find(_._2.email == testEmail) must beSome.which { case(uid, u) =>
+        // Ensure we can log in and view our profile
+        val index = route(fakeLoggedInHtmlRequest(u, GET,
+          controllers.portal.profile.routes.Profile.profile().url)).get
+        status(index) must equalTo(OK)
+        contentAsString(index) must contain(testName)
+      }
+    }
   }
 }

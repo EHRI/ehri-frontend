@@ -9,6 +9,6 @@
 
 @Messages("portal.mail.message.footer"):
 
-<a href="@controllers.portal.routes.Profile.updateProfile.absoluteURL(secure = globalConfig.https)">
+<a href="@controllers.portal.profile.routes.Profile.updateProfile.absoluteURL(secure = globalConfig.https)">
     @Messages("portal.profile.preferences.updatePreferences")
 </a>

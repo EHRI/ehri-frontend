@@ -13,7 +13,7 @@ object HelpdeskDAO {
 
   val QUERY = "query"
 
-  case class HelpdeskResponse(institutionId: String, rank: Double, email: Option[String] = None)
+  case class HelpdeskResponse(institutionId: String, score: Double, name: Option[String] = None)
 
   object HelpdeskResponse {
     import play.api.libs.json._
@@ -21,8 +21,8 @@ object HelpdeskDAO {
 
     implicit val format: Format[HelpdeskResponse] = (
       (__ \ "id").format[String] and
-      (__ \ "rank").format[Double] and
-      (__ \ "email").formatNullable[String]
+      (__ \ "score").format[Double] and
+      (__ \ "name").formatNullable[String]
     )(HelpdeskResponse.apply, unlift(HelpdeskResponse.unapply))
   }
 }

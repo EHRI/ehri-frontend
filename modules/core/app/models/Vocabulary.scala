@@ -12,7 +12,8 @@ import play.api.data.Form
 import play.api.data.Forms._
 import play.api.libs.json.JsObject
 import eu.ehri.project.definitions.Ontology
-import backend.{BackendReadable, BackendContentType, BackendResource, BackendWriteable}
+import backend._
+import play.api.libs.json.JsObject
 
 
 object VocabularyType extends Enumeration {

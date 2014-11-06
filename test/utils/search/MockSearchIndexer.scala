@@ -10,7 +10,7 @@ import scala.concurrent.Future
  * TODO: Integrate better with fixtures.
  *
  */
-case class MockSearchIndexer(eventBuffer: collection.mutable.ArrayBuffer[String]) extends Indexer {
+case class MockSearchIndexer(eventBuffer: collection.mutable.ListBuffer[String]) extends Indexer {
 
   def indexId(id: String) = {
     eventBuffer += id

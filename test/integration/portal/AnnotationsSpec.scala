@@ -1,26 +1,27 @@
 package integration.portal
 
 import scala.concurrent.ExecutionContext.Implicits.global
-import helpers.Neo4jRunnerSpec
+import helpers.IntegrationTestRunner
 import models._
 import utils.ContributionVisibility
-import controllers.portal.{ReverseAnnotations, ReversePortal}
+import controllers.portal.ReversePortal
+import controllers.portal.annotate.ReverseAnnotations
 import backend.ApiUser
 import com.google.common.net.HttpHeaders
 import defines.EntityType
 import backend.rest.PermissionDenied
 
 
-class AnnotationsSpec extends Neo4jRunnerSpec(classOf[AnnotationsSpec]) {
+class AnnotationsSpec extends IntegrationTestRunner {
   import mocks.{privilegedUser, unprivilegedUser}
 
-  private val annotationRoutes: ReverseAnnotations = controllers.portal.routes.Annotations
+  private val annotationRoutes: ReverseAnnotations = controllers.portal.annotate.routes.Annotations
   private val portalRoutes: ReversePortal = controllers.portal.routes.Portal
 
   override def getConfig = Map("recaptcha.skip" -> true)
 
   "Portal views" should {
-    "allow annotating items with correct visibility" in new FakeApp {
+    "allow annotating items with correct visibility" in new ITestApp {
       val testBody = "Test Annotation!!!"
       val testData = Map(
         AnnotationF.BODY -> Seq(testBody),
@@ -40,7 +41,7 @@ class AnnotationsSpec extends Neo4jRunnerSpec(classOf[AnnotationsSpec]) {
 
     }
 
-    "allow annotating fields with correct visibility" in new FakeApp {
+    "allow annotating fields with correct visibility" in new ITestApp {
       val testBody = "Test Annotation!!!"
       val testData = Map(
         AnnotationF.BODY -> Seq(testBody),
@@ -60,7 +61,7 @@ class AnnotationsSpec extends Neo4jRunnerSpec(classOf[AnnotationsSpec]) {
       contentAsString(doc) must not contain testBody
     }
 
-    "disallow creating annotations without permission" in new FakeApp {
+    "disallow creating annotations without permission" in new ITestApp {
       val testBody = "Test Annotation!!!"
       val testData = Map(
         AnnotationF.BODY -> Seq(testBody),
@@ -73,11 +74,11 @@ class AnnotationsSpec extends Neo4jRunnerSpec(classOf[AnnotationsSpec]) {
       status(post) must throwA[PermissionDenied]
     }
 
-    "allow updating and deleting annotations created by a given user" in new FakeApp {
+    "allow updating and deleting annotations created by a given user" in new ITestApp {
 
       // First we need to grant permission by adding the user to the portal group
       val addGroup = route(fakeLoggedInHtmlRequest(privilegedUser, POST,
-          controllers.admin.routes.Groups
+          controllers.groups.routes.Groups
             .addMemberPost("portal", EntityType.UserProfile, unprivilegedUser.id).url), "").get
       status(addGroup) must equalTo(SEE_OTHER)
 
@@ -109,7 +110,7 @@ class AnnotationsSpec extends Neo4jRunnerSpec(classOf[AnnotationsSpec]) {
       }
     }
 
-    "allow changing annotation visibility" in new FakeApp {
+    "allow changing annotation visibility" in new ITestApp {
       val testBody = "Test Annotation!!!"
       val testData = Map(
         AnnotationF.BODY -> Seq(testBody),
@@ -152,7 +153,7 @@ class AnnotationsSpec extends Neo4jRunnerSpec(classOf[AnnotationsSpec]) {
 
     }
 
-    "allow annotation promotion to increase visibility" in new FakeApp {
+    "allow annotation promotion to increase visibility" in new ITestApp {
       val testBody = "Test Annotation!!!"
       val testData = Map(
         AnnotationF.BODY -> Seq(testBody),
@@ -185,7 +186,7 @@ class AnnotationsSpec extends Neo4jRunnerSpec(classOf[AnnotationsSpec]) {
       }
     }
 
-    "allow deleting annotations" in new FakeApp {
+    "allow deleting annotations" in new ITestApp {
 
     }
   }

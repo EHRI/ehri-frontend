@@ -195,11 +195,13 @@ label.disabled {
 }
 
 .user-list-item {
+  padding: @medium-padding 0 @medium-padding 0;
   position: relative;
   .gravitar {
-    position: absolute;
-    left: 0px;
-    top: 0px;
+//    position: absolute;
+//    left: 0px;
+//    top: 0px;
+    float: left;
     width: 48px;
     height: 48px;
 
@@ -220,8 +222,12 @@ label.disabled {
     float: right;
   }
 
-  margin-bottom: @large-margin;
+  //margin: @small-margin 0 @small-margin 0;
   border-bottom: 1px solid @pale-gray;
+}
+
+.user-list-item.current {
+  background-color: @pale-gray;
 }
 
 .header-controls {

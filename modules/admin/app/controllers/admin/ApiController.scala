@@ -66,7 +66,7 @@ case class ApiController @Inject()(implicit globalConfig: global.GlobalConfig, b
     """.stripMargin
 
   def cypher = adminAction { implicit userOpt => implicit request =>
-    Ok(views.html.queryForm(queryForm.fill(defaultCypher),
+    Ok(views.html.admin.queryForm(queryForm.fill(defaultCypher),
       controllers.admin.routes.ApiController.cypherQuery(), "Cypher"))
   }
 
@@ -99,7 +99,7 @@ case class ApiController @Inject()(implicit globalConfig: global.GlobalConfig, b
     """.stripMargin
 
   def sparql = adminAction { implicit userOpt => implicit request =>
-    Ok(views.html.queryForm(queryForm.fill(defaultSparql),
+    Ok(views.html.admin.queryForm(queryForm.fill(defaultSparql),
         controllers.admin.routes.ApiController.sparqlQuery(), "SparQL"))
   }
 

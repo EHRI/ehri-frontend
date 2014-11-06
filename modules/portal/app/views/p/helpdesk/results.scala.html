@@ -14,19 +14,13 @@
             <table class="table table-striped">
                 <tr>
                     <th>@Messages("portal.helpdesk.institution")</th>
-                    <th>@Messages("portal.helpdesk.contactEmail")</th>
-                    <th>@Messages("portal.helpdesk.confidence")</th>
+                    <th>@Messages("portal.helpdesk.score")</th>
                 </tr>
                 @results.zip(institutions).map { case (result, repo) =>
                     <tr>
                         <td>@views.html.p.helpers.linkTo(repo)</td>
                         <td>
-                            @result.email.map { email =>
-                                <a href="mailto:@email">@email</a>
-                            }
-                        </td>
-                        <td>
-                            @result.rank
+                            @result.score
                         </td>
                     </tr>
                 }

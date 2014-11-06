@@ -1,7 +1,6 @@
 package integration.portal
 
-import scala.concurrent.ExecutionContext.Implicits.global
-import helpers.Neo4jRunnerSpec
+import helpers.IntegrationTestRunner
 import models._
 import backend.ApiUser
 import play.api.mvc.MultipartFormData.FilePart
@@ -10,14 +9,14 @@ import play.api.http.MimeTypes
 import play.api.libs.json.JsObject
 
 
-class ProfileSpec extends Neo4jRunnerSpec(classOf[ProfileSpec]) {
-  import mocks.{privilegedUser, unprivilegedUser}
+class ProfileSpec extends IntegrationTestRunner {
+  import mocks.privilegedUser
 
-  private val profileRoutes = controllers.portal.routes.Profile
+  private val profileRoutes = controllers.portal.profile.routes.Profile
   private val portalRoutes = controllers.portal.routes.Portal
 
   "Portal views" should {
-    "allow watching and unwatching items" in new FakeApp {
+    "allow watching and unwatching items" in new ITestApp {
       val watch = route(fakeLoggedInHtmlRequest(privilegedUser, POST,
         profileRoutes.watchItemPost("c1").url), "").get
       status(watch) must equalTo(SEE_OTHER)
@@ -41,7 +40,7 @@ class ProfileSpec extends Neo4jRunnerSpec(classOf[ProfileSpec]) {
 
     }
     
-    "allow fetching watched items as text, JSON, or CSV" in new FakeApp {
+    "allow fetching watched items as text, JSON, or CSV" in new ITestApp {
       import controllers.DataFormat
       val watch = route(fakeLoggedInHtmlRequest(privilegedUser, POST,
         profileRoutes.watchItemPost("c1").url), "").get
@@ -68,13 +67,13 @@ class ProfileSpec extends Neo4jRunnerSpec(classOf[ProfileSpec]) {
       }
     }
 
-    "allow viewing profile" in new FakeApp {
+    "allow viewing profile" in new ITestApp {
       val prof = route(fakeLoggedInHtmlRequest(privilegedUser, GET,
         profileRoutes.profile().url)).get
       status(prof) must equalTo(OK)
     }       
 
-    "allow editing profile" in new FakeApp {
+    "allow editing profile" in new ITestApp {
       val testName = "Inigo Montoya"
       val data = Map(
         "identifier" -> Seq("???"), // Overridden...
@@ -91,7 +90,7 @@ class ProfileSpec extends Neo4jRunnerSpec(classOf[ProfileSpec]) {
     }
 
 
-    "not allow uploading non-image files as profile image" in new FakeApp {
+    "not allow uploading non-image files as profile image" in new ITestApp {
       val tmpFile = java.io.File.createTempFile("notAnImage", ".txt")
       val data = new MultipartFormData(Map(), List(
         FilePart("image", "message", Some("Content-Type: multipart/form-data"),
@@ -105,7 +104,7 @@ class ProfileSpec extends Neo4jRunnerSpec(classOf[ProfileSpec]) {
       //contentAsString(result) must contain(Messages("portal.errors.badFileType"))
     }
 
-    "allow deleting profile with correct confirmation" in new FakeApp {
+    "allow deleting profile with correct confirmation" in new ITestApp {
       // Fetch the current name
       implicit val apiUser = ApiUser(Some(privilegedUser.id))
       val cname = await(testBackend.get[UserProfile](privilegedUser.id)).model.name
@@ -119,21 +118,11 @@ class ProfileSpec extends Neo4jRunnerSpec(classOf[ProfileSpec]) {
       cname must not equalTo cnameAfter
     }
 
-    "disallow deleting profile without correct confirmation" in new FakeApp {
+    "disallow deleting profile without correct confirmation" in new ITestApp {
       val data = Map("confirm" -> Seq("THE WRONG CONFIRMATION"))
       val delete = route(fakeLoggedInHtmlRequest(privilegedUser, POST,
         profileRoutes.deleteProfilePost().url), data).get
       status(delete) must equalTo(BAD_REQUEST)
-    }
-
-    "redirect to index page on log out" in new FakeApp {
-      val logout = route(fakeLoggedInHtmlRequest(privilegedUser, GET,
-        profileRoutes.logout().url)).get
-      status(logout) must equalTo(SEE_OTHER)
-      flash(logout).get("success") must beSome.which { fl =>
-        // NB: No i18n here...
-        fl must contain("portal.logout.confirmation")
-      }
     }
   }
 }

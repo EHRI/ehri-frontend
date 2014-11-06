@@ -1,0 +1,25 @@
+# Routes for vocabularies
+
+GET     /                                       @controllers.vocabularies.Vocabularies.list
+GET     /create                                 @controllers.vocabularies.Vocabularies.create
+POST    /create                                 @controllers.vocabularies.Vocabularies.createPost
+GET     /:id                                    @controllers.vocabularies.Vocabularies.get(id: String)
+GET     /:id/history                            @controllers.vocabularies.Vocabularies.history(id: String)
+GET     /:id/delete                             @controllers.vocabularies.Vocabularies.delete(id: String)
+POST    /:id/delete                             @controllers.vocabularies.Vocabularies.deletePost(id: String)
+GET     /:id/update                             @controllers.vocabularies.Vocabularies.update(id: String)
+POST    /:id/update                             @controllers.vocabularies.Vocabularies.updatePost(id: String)
+GET     /:id/create                             @controllers.vocabularies.Vocabularies.createConcept(id: String)
+POST    /:id/create                             @controllers.vocabularies.Vocabularies.createConceptPost(id: String)
+GET     /:id/visibility                         @controllers.vocabularies.Vocabularies.visibility(id: String)
+POST    /:id/visibility                         @controllers.vocabularies.Vocabularies.visibilityPost(id: String)
+GET     /:id/permissions/manage                 @controllers.vocabularies.Vocabularies.managePermissions(id: String)
+GET     /:id/permissions/add                    @controllers.vocabularies.Vocabularies.addItemPermissions(id: String)
+GET     /:id/permissions/:userType/:userId      @controllers.vocabularies.Vocabularies.setItemPermissions(id: String, userType: EntityType.Value, userId: String)
+POST    /:id/permissions/:userType/:userId      @controllers.vocabularies.Vocabularies.setItemPermissionsPost(id: String, userType: EntityType.Value, userId: String)
+GET     /:id/scope/add                          @controllers.vocabularies.Vocabularies.addScopedPermissions(id: String)
+GET     /:id/scope/:userType/:userId            @controllers.vocabularies.Vocabularies.setScopedPermissions(id: String, userType: EntityType.Value, userId: String)
+POST    /:id/scope/:userType/:userId            @controllers.vocabularies.Vocabularies.setScopedPermissionsPost(id: String, userType: EntityType.Value, userId: String)
+GET     /:id/reindex                            @controllers.vocabularies.Vocabularies.updateIndex(id: String)
+POST    /:id/reindex                            @controllers.vocabularies.Vocabularies.updateIndexPost(id: String)
+

@@ -7,11 +7,10 @@ import play.api.libs.functional.syntax._
 import play.api.libs.json._
 import play.api.data.Form
 import play.api.data.Forms._
-import models.forms._
-import backend.BackendWriteable
+import utils.forms._
+import backend.{Entity, BackendWriteable}
 
 import Description._
-import eu.ehri.project.definitions.Ontology._
 import models.base.Description.CREATION_PROCESS
 
 object ConceptDescriptionF {

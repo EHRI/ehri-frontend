@@ -1,11 +1,11 @@
 package integration.portal
 
-import helpers.Neo4jRunnerSpec
+import helpers.IntegrationTestRunner
 
-class HelpdeskSpec extends Neo4jRunnerSpec(classOf[HelpdeskSpec]) {
+class HelpdeskSpec extends IntegrationTestRunner {
 
   "Helpdesk views" should {
-    "not allow empty queries" in new FakeApp {
+    "not allow empty queries" in new ITestApp {
       val origCount = helpdeskBuffer.size
       val data = Map(
         "query" -> Seq(""),
@@ -19,7 +19,7 @@ class HelpdeskSpec extends Neo4jRunnerSpec(classOf[HelpdeskSpec]) {
       helpdeskBuffer.size must equalTo(origCount)
     }
 
-    "copy messages to the end-user" in new FakeApp {
+    "copy messages to the end-user" in new ITestApp {
       val testMailContent = "Blah"
       val mailsBefore = mailBuffer.size
       val data = Map(
@@ -35,7 +35,7 @@ class HelpdeskSpec extends Neo4jRunnerSpec(classOf[HelpdeskSpec]) {
       mailBuffer.last.text must contain(testMailContent)
     }
 
-    "give the right results" in new FakeApp {
+    "give the right results" in new ITestApp {
       val origCount = helpdeskBuffer.size
       val data1 = Map(
         "query" -> Seq("Stuff in the netherlands"),

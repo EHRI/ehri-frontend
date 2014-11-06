@@ -1,0 +1,22 @@
+# User routes
+
+GET     /                                   @controllers.users.UserProfiles.search
+GET     /list                               @controllers.users.UserProfiles.list
+GET     /create                             @controllers.users.UserProfiles.createUser
+POST    /create                             @controllers.users.UserProfiles.createUserPost
+GET     /:id                                @controllers.users.UserProfiles.get(id: String)
+GET     /:id/history                        @controllers.users.UserProfiles.history(id: String)
+GET     /:id/delete                         @controllers.users.UserProfiles.delete(id: String)
+POST    /:id/delete                         @controllers.users.UserProfiles.deletePost(id: String)
+GET     /:id/update                         @controllers.users.UserProfiles.update(id: String)
+POST    /:id/update                         @controllers.users.UserProfiles.updatePost(id: String)
+GET     /:id/permissions                    @controllers.users.UserProfiles.permissions(id: String)
+POST    /:id/permissions                    @controllers.users.UserProfiles.permissionsPost(id: String)
+GET     /:id/permissions/list               @controllers.users.UserProfiles.grantList(id: String)
+GET     /:id/permissions/revoke/:perm       @controllers.users.UserProfiles.revokePermission(id: String, perm: String)
+POST    /:id/permissions/revoke/:perm       @controllers.users.UserProfiles.revokePermissionPost(id: String, perm: String)
+GET     /:id/permissions/manage             @controllers.users.UserProfiles.managePermissions(id: String)
+GET     /:id/permissions/add                @controllers.users.UserProfiles.addItemPermissions(id: String)
+GET     /:id/permissions/:userType/:userId  @controllers.users.UserProfiles.setItemPermissions(id: String, userType: EntityType.Value, userId: String)
+POST    /:id/permissions/:userType/:userId  @controllers.users.UserProfiles.setItemPermissionsPost(id: String, userType: EntityType.Value, userId: String)
+

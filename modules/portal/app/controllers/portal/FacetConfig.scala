@@ -226,15 +226,13 @@ trait FacetConfig extends Search {
         display = FacetDisplay.Choice,
         sort = FacetSort.Name
       ),
-      QueryFacetClass(
-        key="childCount",
-        name=Messages("facet.data"),
-        param="data",
-        render=s => Messages("facet.data." + s),
-        facets=List(
-          SolrQueryFacet(value = "yes", solrValue = "[1 TO *]", name = Some("hasChildItems"))
-        ),
-        display = FacetDisplay.Boolean
+      FieldFacetClass(
+        key="isParent",
+        name=Messages("facet.parent"),
+        param="parent",
+        render=s => Messages("facet.parent." + s),
+        sort = FacetSort.Fixed,
+        display = FacetDisplay.List
       ),
       QueryFacetClass(
         key="charCount",

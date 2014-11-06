@@ -1,0 +1,58 @@
+@(accessorOpt: Option[Accessor], perm: PermissionGrant, showRevoke: Boolean = false)(implicit req: RequestHeader, globalConfig: global.GlobalConfig, lang: Lang)
+
+
+<li class="list-item list-unstyled">
+        <h4>
+            @perm.model.permission
+            @if(showRevoke) {
+                @accessorOpt.map { accessor =>
+                    @accessor match {
+                        case u: UserProfile => {
+                            <a href="@controllers.users.routes.UserProfiles.revokePermission(accessor.id, perm.id)">
+                                <i title="@Messages("permissions.revoke")" class="glyphicon glyphicon-remove"></i>
+                            </a>
+                        }
+                        case u: Group => {
+                            <a href="@controllers.groups.routes.Groups.revokePermission(accessor.id, perm.id)">
+                                <i title="@Messages("permissions.revoke")" class="glyphicon glyphicon-remove"></i>
+                            </a>
+                        }
+                    }
+                }
+            }
+        </h4>
+    <ul>
+        @perm.accessor.map { accessor =>
+        <li>
+            @Messages("permissionGrant.accessor"):
+            <a href="@views.admin.Helpers.linkTo(accessor)">@accessor.toStringLang</a>
+        </li>
+        }
+        @perm.targets.map { t =>
+        <li>
+            @Messages("permissionGrant.targets"):
+            @t match {
+            case c: ContentType => {
+            <strong>@Messages("contentTypes." + c.id)</strong>
+            }
+            case t => {
+            <a href="@views.admin.Helpers.linkTo(t)">@t.toStringLang</a>
+            }
+            }
+
+        </li>
+        }
+        @perm.scope.map { s =>
+        <li>
+            @Messages("permissionGrant.scope"):
+            <a href="@views.admin.Helpers.linkTo(s)">@s.toStringLang</a>
+        </li>
+        }
+        @perm.grantee.map { s =>
+        <li>
+            @Messages("permissionGrant.grantedBy"):
+            <a href="@views.admin.Helpers.linkTo(s)">@s.toStringLang</a>
+        </li>
+        }
+    </ul>
+</li>

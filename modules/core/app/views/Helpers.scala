@@ -8,6 +8,7 @@ import models.base.AnyModel
 import play.api.mvc.Call
 import scala.util.matching.Regex
 import play.api.mvc.RequestHeader
+import backend.Entity
 
 
 package object Helpers {
@@ -145,14 +146,6 @@ package object Helpers {
    */
   def fieldValues(field: play.api.data.Field): List[String] = {
     0.until(if (field.indexes.isEmpty) 0 else field.indexes.max + 1).flatMap(i => field("[" + i + "]").value).toList
-  }
-
-  def linkTo(item: AnyModel)(implicit globalConfig: global.GlobalConfig): Call = {
-    globalConfig.routeRegistry.urlFor(item)
-  }
-
-  def linkToOpt(item: AnyModel)(implicit globalConfig: global.GlobalConfig): Option[Call] = {
-    globalConfig.routeRegistry.optionalUrlFor(item)
   }
 
   def maybeActive(url: String)(implicit request: RequestHeader) = {

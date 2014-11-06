@@ -7,15 +7,15 @@
 	        <small class="text-muted">
 	            <a class="time-permalink" href="#@annotation.id"><span class="glyphicon glyphicon-time"></span> @views.Helpers.relativeDate(event.model.timestamp)</a>
 
-	            @if(editable) {
+	            @if(editable && !annotation.isPromoted) {
 	            	<ul class="list-inline">
 		                <li>
-                            <a data-item="@annotation.id" class="edit-annotation" href="@controllers.portal.routes.Annotations.editAnnotation(annotation.id)">
+                            <a data-item="@annotation.id" class="edit-annotation" href="@controllers.portal.annotate.routes.Annotations.editAnnotation(annotation.id)">
                                 @Messages("portal.annotation.update")
                             </a>
                         </li>
 		                <li>
-                            <a data-item="@annotation.id" title="@Messages("portal.annotation.delete.title")" class="delete-annotation" href="@controllers.portal.routes.Annotations.deleteAnnotation(annotation.id)">
+                            <a data-item="@annotation.id" title="@Messages("portal.annotation.delete.title")" class="delete-annotation" href="@controllers.portal.annotate.routes.Annotations.deleteAnnotation(annotation.id)">
                             @Messages("portal.annotation.delete")
                             </a>
                         </li>
@@ -25,11 +25,21 @@
                     @if(!annotation.isPromoted && user.hasPermission(defines.ContentTypes.Annotation, defines.PermissionType.Promote) && annotation.model.isPromotable) {
                         <ul class="list-inline">
                             <li>
-                                <a data-item="@annotation.id" title="@Messages("portal.annotation.promote.title")" class="promote-annotation" href="@controllers.annotation.routes.Annotations.promote(annotation.id)">
+                                <a data-item="@annotation.id" title="@Messages("portal.annotation.promote.title")" class="promote-annotation" href="@controllers.portal.annotate.routes.Annotations.promoteAnnotation(annotation.id, isField = false)">
                                     @Messages("portal.annotation.promote")
                                 </a>
                             </li>
                         </ul>
+                    } else {
+                        @if(annotation.isPromoted && user.hasPermission(defines.ContentTypes.Annotation, defines.PermissionType.Promote)) {
+                            <ul class="list-inline">
+                                <li>
+                                    <a data-item="@annotation.id" title="@Messages("portal.annotation.demote.title")" class="demote-annotation" href="@controllers.portal.annotate.routes.Annotations.demoteAnnotation(annotation.id, isField = false)">
+                                        @Messages("portal.annotation.demote")
+                                    </a>
+                                </li>
+                            </ul>
+                        }
                     }
                 }
 	        </small>

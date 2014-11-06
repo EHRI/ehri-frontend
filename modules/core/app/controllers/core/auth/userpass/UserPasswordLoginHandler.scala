@@ -112,29 +112,28 @@ trait UserPasswordLoginHandler {
    * @return
    */
   object changePasswordPostAction {
-    def async(f: Either[Form[(String,String,String)],Boolean] => Option[UserProfile] => Request[AnyContent] => Future[Result]): Action[AnyContent] = {
-      userProfileAction.async { implicit userOpt => implicit request =>
+    def async(f: Either[Form[(String,String,String)],Boolean] => UserProfile => Request[AnyContent] => Future[Result]): Action[AnyContent] = {
+      withUserAction.async { implicit user => implicit request =>
         changePasswordForm.bindFromRequest.fold(
-          errorForm => f(Left(errorForm))(userOpt)(request),
+          errorForm => f(Left(errorForm))(user)(request),
           data => {
             val (current, newPw, _) = data
 
             (for {
-              user <- userOpt
               account <- user.account
               hashedPw <- account.password if Account.checkPassword(current, hashedPw)
             } yield {
               account.setPassword(Account.hashPassword(newPw))
-              f(Right(true))(userOpt)(request)
+              f(Right(true))(user)(request)
             }) getOrElse {
-              f(Right(false))(userOpt)(request)
+              f(Right(false))(user)(request)
             }
           }
         )
       }
     }
 
-    def apply(f: Either[Form[(String,String,String)],Boolean] => Option[UserProfile] =>Request[AnyContent] => Result): Action[AnyContent] = {
+    def apply(f: Either[Form[(String,String,String)],Boolean] => UserProfile =>Request[AnyContent] => Result): Action[AnyContent] = {
       async(f.andThen(_.andThen(_.andThen(t => immediate(t)))))
     }
   }

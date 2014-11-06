@@ -12,7 +12,7 @@
         <div class="col-md-12">
             @annotationForm(f, visForm, accessorsForm, users, groups)
             <div class="form-group pull-right">
-                <div class="checkbox-inline">
+                <div class="checkbox-inline" data-toggle="tooltip" title="@Messages("portal.contribution.visibility.allowPublic.title")">
                     @helper.checkbox(f(ALLOW_PUBLIC), '_label -> Messages("portal.contribution.visibility.allowPublic"))
                 </div>
                 <button class="btn btn-primary" type="submit" class="submit-annotation">

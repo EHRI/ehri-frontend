@@ -1,29 +1,20 @@
-//
-// Global request object
-//
+/**
+ * The application global object.
+ */
 
 import backend._
 import backend.helpdesk.{TestHelpdesk, EhriHelpdesk}
 import backend.parse.ParseFeedbackDAO
+import backend.{IdGenerator, FeedbackDAO, EventHandler, Backend}
 import backend.rest._
-import backend.rest.BadJson
-import backend.rest.CypherIdGenerator
-import backend.rest.GidSearchResolver
-
-import backend.rest.RestBackend
+import com.github.seratch.scalikesolr.request.common.WriterType
 import com.typesafe.plugin.{CommonsMailerPlugin, MailerAPI}
-import defines.EntityType
-import java.util.concurrent.TimeUnit
 import models.AccountDAO
 import models.sql.SqlAccount
 import play.api._
-import play.api.libs.json.{Json, JsError}
-import play.api.mvc._
 
-import play.api.mvc.Result
-import play.api.Play.current
+import play.api.mvc.{RequestHeader, WithFilters, Result}
 import play.filters.csrf._
-import scala.concurrent.duration.Duration
 
 import com.tzavellas.sse.guice.ScalaModule
 import utils.search._
@@ -32,63 +23,17 @@ import scala.concurrent.Future
 import scala.concurrent.Future.{successful => immediate}
 
 
-package globalConfig {
-
-  import global.RouteRegistry
-  import global.MenuConfig
-
-  trait BaseConfiguration extends GlobalConfig {
-
-    implicit lazy val menuConfig: MenuConfig = new MenuConfig {
-      val mainSection: Iterable[(String, String)] = Seq(
-        ("pages.search",                  controllers.adminutils.routes.AdminSearch.search().url),
-        ("contentTypes.documentaryUnit",  controllers.archdesc.routes.DocumentaryUnits.search().url),
-        ("contentTypes.historicalAgent",  controllers.authorities.routes.HistoricalAgents.search().url),
-        ("contentTypes.repository",       controllers.archdesc.routes.Repositories.search().url),
-        ("contentTypes.cvocConcept",      controllers.vocabs.routes.Concepts.search().url)
-      )
-      val adminSection: Iterable[(String, String)] = Seq(
-        ("contentTypes.userProfile",      controllers.admin.routes.UserProfiles.search().url),
-        ("contentTypes.group",            controllers.admin.routes.Groups.list().url),
-        ("contentTypes.country",          controllers.archdesc.routes.Countries.search().url),
-        ("contentTypes.cvocVocabulary",   controllers.vocabs.routes.Vocabularies.list().url),
-        ("contentTypes.authoritativeSet", controllers.authorities.routes.AuthoritativeSets.list().url),
-        ("s1", "-"),
-        ("contentTypes.systemEvent",      controllers.admin.routes.SystemEvents.list().url),
-        ("s2", "-"),
-        ("search.updateIndex",            controllers.adminutils.routes.AdminSearch.updateIndex().url)
-      )
-      val authSection: Iterable[(String,String)] = Seq(
-        ("portal.home", controllers.portal.routes.Portal.index().url),
-        ("portal.profile", controllers.portal.routes.Profile.profile().url)
-      )
-    }
-
-    val routeRegistry = new RouteRegistry(Map(
-      EntityType.SystemEvent -> controllers.admin.routes.SystemEvents.get,
-      EntityType.DocumentaryUnit -> controllers.archdesc.routes.DocumentaryUnits.get,
-      EntityType.HistoricalAgent -> controllers.authorities.routes.HistoricalAgents.get,
-      EntityType.Repository -> controllers.archdesc.routes.Repositories.get,
-      EntityType.Group -> controllers.admin.routes.Groups.get,
-      EntityType.UserProfile -> controllers.admin.routes.UserProfiles.get,
-      EntityType.Annotation -> controllers.annotation.routes.Annotations.get,
-      EntityType.Link -> controllers.linking.routes.Links.get,
-      EntityType.Vocabulary -> controllers.vocabs.routes.Vocabularies.get,
-      EntityType.AuthoritativeSet -> controllers.authorities.routes.AuthoritativeSets.get,
-      EntityType.Concept -> controllers.vocabs.routes.Concepts.get,
-      EntityType.Country -> controllers.archdesc.routes.Countries.get,
-      EntityType.VirtualUnit -> controllers.archdesc.routes.VirtualUnits.get
-    ), default = controllers.adminutils.routes.Home.index(),
-      login = controllers.portal.routes.Profile.login(),
-      logout = controllers.portal.routes.Profile.logout())
-  }
-}
-
 object Global extends WithFilters(CSRFFilter()) with GlobalSettings {
 
-  private def responseParser: ResponseParser = solr.SolrJsonQueryResponse
-  private def queryBuilder: QueryBuilder = new solr.SolrQueryBuilder(responseParser.writerType, debugQuery = true)
-  private def searchDispatcher: Dispatcher = new solr.SolrDispatcher(queryBuilder, responseParser)
+  import play.api.Play.current
+
+  // This is where we tie together the various parts of the application
+  // in terms of the component implementations.
+  private def queryBuilder: QueryBuilder = new solr.SolrQueryBuilder(WriterType.JSON, debugQuery = true)
+  private def searchDispatcher: Dispatcher = new solr.SolrDispatcher(
+    queryBuilder,
+    handler = r => new solr.SolrJsonQueryResponse(r.json)
+  )
   private def searchIndexer: Indexer = new indexing.CmdlineIndexer
   private def searchResolver: Resolver = new GidSearchResolver
   private def feedbackDAO: FeedbackDAO = new ParseFeedbackDAO
@@ -103,6 +48,9 @@ object Global extends WithFilters(CSRFFilter()) with GlobalSettings {
     // to the SolrIndexer update/delete handlers. Do this
     // asyncronously and log any failures...
     import play.api.libs.concurrent.Execution.Implicits._
+    import java.util.concurrent.TimeUnit
+    import scala.concurrent.duration.Duration
+
     def logFailure(id: String, func: String => Future[Unit]): Unit = {
       func(id) onFailure {
         case t => Logger.logger.error("Indexing error: " + t.getMessage)
@@ -121,8 +69,7 @@ object Global extends WithFilters(CSRFFilter()) with GlobalSettings {
 
   private def backend: Backend = new RestBackend(eventHandler)
 
-  object RunConfiguration extends globalConfig.BaseConfiguration
-
+  object RunConfiguration extends GlobalConfig
 
   class ProdModule extends ScalaModule {
     def configure() {
@@ -154,28 +101,6 @@ object Global extends WithFilters(CSRFFilter()) with GlobalSettings {
   override def onError(request: RequestHeader, ex: Throwable) = {
     implicit def req = request
 
-    def jsonError(e: BadJson): String = {
-      for {
-        url <- e.url
-        data <- e.data
-      } yield {
-        """Unexpected JSON received from backend at %s (%s %s)
-          |
-          |Data:
-          |%s
-          |
-          |Error:
-          |%s""".stripMargin.format(
-          url, request.path, request.method, data, Json.prettyPrint(JsError.toFlatJson(e.error)))
-      }
-    }.getOrElse {
-      """Unexpected JSON received from backend at %s (%s)
-
-        |Error:
-        |%s""".format(
-        request.path, request.method, Json.prettyPrint(JsError.toFlatJson(e.error)))
-    }
-
     ex.getCause match {
       case e: PermissionDenied => immediate(Unauthorized(
         renderError("errors.permissionDenied", permissionDenied(Some(e)))))
@@ -183,12 +108,12 @@ object Global extends WithFilters(CSRFFilter()) with GlobalSettings {
         renderError("errors.itemNotFound", itemNotFound(e.value))))
       case e: java.net.ConnectException => immediate(InternalServerError(
           renderError("errors.databaseError", serverTimeout())))
-      case e: BadJson => sys.error(jsonError(e))
+      case e: BadJson => sys.error(e.getMessageWithContext(request))
 
       case e => current.mode match {
-        case Mode.Prod => immediate(InternalServerError(
+        case Mode.Dev => super.onError(request, ex)
+        case _ => immediate(InternalServerError(
           renderError("errors.genericProblem", fatalError())))
-        case _ => super.onError(request, ex)
       }
     }
   }

@@ -26,7 +26,7 @@ case class EhriHelpdesk(implicit app: play.api.Application) extends HelpdeskDAO 
     .getOrElse(sys.error("Configuration value: 'ehri.helpdesk.url' is not defined"))
 
   def askQuery(query: String)(implicit executionContext: ExecutionContext): Future[Seq[HelpdeskResponse]] = {
-    WS.url(helpdeskUrl).withQueryString(QUERY -> query).get().map { r =>
+    WS.url(helpdeskUrl).withQueryString("input" -> query).get().map { r =>
       r.json.as[Seq[HelpdeskResponse]]
     }
   }

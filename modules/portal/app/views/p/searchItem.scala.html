@@ -17,6 +17,8 @@
         @concept.searchItem(d, hit, watched)
     }
     case _ => {
-        @views.html.common.search.searchItem(item)
+        <p class="text-warning">
+            <a href="@views.p.Helpers.linkTo(item)">@item.toStringLang</a>
+        </p>
     }
 }

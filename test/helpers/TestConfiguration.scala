@@ -15,7 +15,6 @@ import controllers.base.AuthConfigImpl
 import scala.concurrent.Future
 import backend._
 import utils.search._
-import utils.search.MockSearchResolver
 import backend.rest.RestBackend
 import backend.rest.CypherIdGenerator
 import utils.search.MockSearchIndexer
@@ -41,8 +40,7 @@ trait TestConfiguration {
   val helpdeskBuffer = collection.mutable.HashMap.empty[Int, Seq[HelpdeskResponse]]
   val mailBuffer = collection.mutable.ListBuffer.empty[MockMail]
   val searchParamBuffer = collection.mutable.ListBuffer.empty[ParamLog]
-  val indexEventBuffer = collection.mutable.ArrayBuffer.empty[String]
-  val userDb = collection.mutable.HashMap.empty[String,Account]
+  val indexEventBuffer = collection.mutable.ListBuffer.empty[String]
 
   // Might want to mock the backend at at some point!
   def testBackend: Backend = new RestBackend(testEventHandler)
@@ -68,7 +66,7 @@ trait TestConfiguration {
     def handleDelete(id: String) = mockIndexer.clearId(id)
   }
 
-  object TestConfig extends globalConfig.BaseConfiguration
+  object TestConfig extends GlobalConfig
 
   // Dummy auth config for play-2-auth
   object AuthConfig extends AuthConfigImpl {

@@ -18,7 +18,7 @@ object SearchField extends Enumeration {
 
 object SearchOrder extends Enumeration {
   type Order = Value
-  val Id = Value("identifier.asc")
+  val Id = Value("isParent.desc,identifier.asc")
   val Score = Value("score.desc")
   val Name = Value("name_sort.asc")
   val DateNewest = Value("lastUpdated.desc")
@@ -119,9 +119,9 @@ object SearchParams {
       QUERY -> optional(nonEmptyText),
       PAGE_PARAM -> optional(number(min = 1)),
       LIMIT_PARAM -> optional(number(min = 0, max = MAX_LIST_LIMIT)),
-      SORT -> optional(models.forms.enum(SearchOrder)),
+      SORT -> optional(utils.forms.enum(SearchOrder)),
       REVERSE -> optional(boolean),
-      ENTITY -> list(models.forms.enum(EntityType)),
+      ENTITY -> list(utils.forms.enum(EntityType)),
       FIELD -> optional(list(nonEmptyText)),
       EXCLUDE -> optional(list(nonEmptyText)),
       FILTERS -> optional(list(nonEmptyText))

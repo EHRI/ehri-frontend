@@ -1,10 +1,10 @@
 package integration
 
-import helpers.{formPostHeaders,Neo4jRunnerSpec}
+import helpers.{formPostHeaders,IntegrationTestRunner}
 import models._
 
 
-class VirtualUnitViewsSpec extends Neo4jRunnerSpec(classOf[VirtualUnitViewsSpec]) {
+class VirtualUnitViewsSpec extends IntegrationTestRunner {
   import mocks.{privilegedUser, unprivilegedUser}
 
   val userProfile = UserProfile(
@@ -12,7 +12,7 @@ class VirtualUnitViewsSpec extends Neo4jRunnerSpec(classOf[VirtualUnitViewsSpec]
     groups = List(Group(GroupF(id = Some("admin"), identifier = "admin", name="Administrators")))
   )
   
-  val vuRoutes = controllers.archdesc.routes.VirtualUnits
+  val vuRoutes = controllers.virtual.routes.VirtualUnits
 
   // Common headers/strings
   val multipleItemsHeader = "Displaying items"
@@ -21,7 +21,7 @@ class VirtualUnitViewsSpec extends Neo4jRunnerSpec(classOf[VirtualUnitViewsSpec]
 
   "VirtualUnit views" should {
 
-    "search should find some items" in new FakeApp {
+    "search should find some items" in new ITestApp {
       val search = route(fakeLoggedInHtmlRequest(privilegedUser, GET,
           vuRoutes.search().url)).get
       status(search) must equalTo(OK)
@@ -29,7 +29,7 @@ class VirtualUnitViewsSpec extends Neo4jRunnerSpec(classOf[VirtualUnitViewsSpec]
       contentAsString(search) must contain("vu1")
     }
 
-    "link to other privileged actions when logged in" in new FakeApp {
+    "link to other privileged actions when logged in" in new ITestApp {
       val show = route(fakeLoggedInHtmlRequest(privilegedUser, GET,
           vuRoutes.get("vu1").url)).get
       status(show) must equalTo(OK)
@@ -41,7 +41,7 @@ class VirtualUnitViewsSpec extends Neo4jRunnerSpec(classOf[VirtualUnitViewsSpec]
       contentAsString(show) must contain(vuRoutes.search().url)
     }
 
-    "link to holder" in new FakeApp {
+    "link to holder" in new ITestApp {
       val show = route(fakeLoggedInHtmlRequest(privilegedUser, GET,
           vuRoutes.get("vu1").url)).get
       status(show) must equalTo(OK)
@@ -49,7 +49,7 @@ class VirtualUnitViewsSpec extends Neo4jRunnerSpec(classOf[VirtualUnitViewsSpec]
       contentAsString(show) must contain(vuRoutes.get("vc1").url)
     }
 
-    "link to holder when a child item" in new FakeApp {
+    "link to holder when a child item" in new ITestApp {
       val show = route(fakeLoggedInHtmlRequest(privilegedUser, GET,
           vuRoutes.get("vu2").url)).get
       status(show) must equalTo(OK)
@@ -57,7 +57,7 @@ class VirtualUnitViewsSpec extends Neo4jRunnerSpec(classOf[VirtualUnitViewsSpec]
       contentAsString(show) must contain(vuRoutes.get("vc1").url)
     }
 
-    "allow creating new items with owned descriptions" in new FakeApp {
+    "allow creating new items with owned descriptions" in new ITestApp {
       val testData: Map[String, Seq[String]] = Map(
         "identifier" -> Seq("hello-kitty"),
         "descriptions[0].languageCode" -> Seq("en"),
@@ -83,7 +83,7 @@ class VirtualUnitViewsSpec extends Neo4jRunnerSpec(classOf[VirtualUnitViewsSpec]
       indexEventBuffer.last must equalTo("hello-kitty")
     }
 
-    "allow creating new items with included units" in new FakeApp {
+    "allow creating new items with included units" in new ITestApp {
       val testData: Map[String, Seq[String]] = Map(
         "identifier" -> Seq("hello-kitty"),
         VirtualUnitF.INCLUDE_REF -> Seq("c1")

@@ -7,7 +7,7 @@ import models.json._
 import play.api.libs.json._
 import play.api.libs.json.JsObject
 import play.api.i18n.Lang
-import backend.{BackendReadable, BackendResource}
+import backend.{Entity, BackendReadable, BackendResource}
 
 
 object PermissionGrantF {

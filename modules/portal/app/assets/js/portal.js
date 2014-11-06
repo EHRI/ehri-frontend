@@ -130,7 +130,7 @@ $(".panel-history").each(function() {
                           },
                           queryTokenizer: Bloodhound.tokenizers.whitespace,
                           remote: {
-                            url : jsRoutes.controllers.core.SearchFilter.filter().url + "?limit=5&st[]=documentaryUnit&st[]=repository&st[]=historicalAgent&st[]=country&q=%QUERY",
+                            url : jsRoutes.controllers.portal.Portal.filter().url + "?limit=5&st[]=documentaryUnit&st[]=repository&st[]=historicalAgent&st[]=country&q=%QUERY",
                             filter : function(parsedResponse) {
                               var result = [];
                               var alreadyResult = [];
@@ -316,7 +316,7 @@ $loader = $( "<div></div>" ).addClass("text-center loader-container").append($("
     update: function(prefsObj) {
       var prefs = prefsObj || {};
       // Fire and forget!
-      jsRoutes.controllers.portal.Profile.updatePrefs()
+      jsRoutes.controllers.portal.profile.Profile.updatePrefs()
           .ajax({ data: prefsObj });
     },
 

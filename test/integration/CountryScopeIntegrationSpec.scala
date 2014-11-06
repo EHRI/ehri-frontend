@@ -21,12 +21,12 @@ import backend.ApiUser
  *  - create a doc in the repo
  *  - check that the user cannot write outside the country
  */
-class CountryScopeIntegrationSpec extends Neo4jRunnerSpec(classOf[CountryScopeIntegrationSpec]) {
+class CountryScopeIntegrationSpec extends IntegrationTestRunner {
   import mocks.privilegedUser
 
   implicit val apiUser: ApiUser = ApiUser(Some(privilegedUser.id))
 
-  private val repoRoutes = controllers.archdesc.routes.Repositories
+  private val repoRoutes = controllers.institutions.routes.Repositories
 
   /**
    * Get the id from an URL where the ID is the last component...
@@ -35,7 +35,7 @@ class CountryScopeIntegrationSpec extends Neo4jRunnerSpec(classOf[CountryScopeIn
 
   "The application" should {
 
-    "support read/write on Repositories and Doc Units with country scope" in new FakeApp {
+    "support read/write on Repositories and Doc Units with country scope" in new ITestApp {
       // Target country
       val countryId = "gb"
       // Country we should NOT be able to write in...
@@ -52,13 +52,13 @@ class CountryScopeIntegrationSpec extends Neo4jRunnerSpec(classOf[CountryScopeIn
         "description" -> Seq("Group for UK archivists")
       )
       val groupCreatePost = route(fakeLoggedInHtmlRequest(privilegedUser, POST,
-        controllers.admin.routes.Groups.create().url)
+        controllers.groups.routes.Groups.create().url)
         .withHeaders(formPostHeaders.toSeq: _*), groupData).get
       status(groupCreatePost) must equalTo(SEE_OTHER)
 
       // Check we can read the group
       val groupRead = route(fakeLoggedInHtmlRequest(privilegedUser, GET,
-        controllers.admin.routes.Groups.get(groupId).url)).get
+        controllers.groups.routes.Groups.get(groupId).url)).get
       status(groupRead) must equalTo(OK)
 
       // Grant scoped permissions for the group to create repos and docs in country gb
@@ -70,7 +70,7 @@ class CountryScopeIntegrationSpec extends Neo4jRunnerSpec(classOf[CountryScopeIn
         EntityType.DocumentaryUnit.toString -> permissionsToGrant.map(_.toString)
       )
       val permSetPost = route(fakeLoggedInHtmlRequest(privilegedUser, POST,
-          controllers.archdesc.routes.Countries.setScopedPermissionsPost(countryId, EntityType.Group, groupId).url)
+          controllers.countries.routes.Countries.setScopedPermissionsPost(countryId, EntityType.Group, groupId).url)
       .withHeaders(formPostHeaders.toSeq: _*), permData).get
       status(permSetPost) must equalTo(SEE_OTHER)
 
@@ -86,13 +86,13 @@ class CountryScopeIntegrationSpec extends Neo4jRunnerSpec(classOf[CountryScopeIn
         "group[]" -> Seq(groupId) // NB: Note brackets on param name!!!
       )
       val userCreatePost = route(fakeLoggedInHtmlRequest(privilegedUser, POST,
-        controllers.admin.routes.UserProfiles.createUserPost().url)
+        controllers.users.routes.UserProfiles.createUserPost().url)
         .withHeaders(formPostHeaders.toSeq: _*), newUserData).get
       status(userCreatePost) must equalTo(SEE_OTHER)
 
       // Check we can read the user's page
       val userRead =  route(fakeLoggedInHtmlRequest(privilegedUser, GET,
-        controllers.admin.routes.UserProfiles.get(userId).url)).get
+        controllers.users.routes.UserProfiles.get(userId).url)).get
       status(userRead) must equalTo(OK)
 
       // Fetch the user's profile to perform subsequent logins
@@ -107,7 +107,7 @@ class CountryScopeIntegrationSpec extends Neo4jRunnerSpec(classOf[CountryScopeIn
       // Check the user can read their profile as themselves...
       // Check we can read the user's page
       val userReadAsSelf =  route(fakeLoggedInHtmlRequest(fakeAccount, GET,
-        controllers.admin.routes.UserProfiles.get(userId).url)).get
+        controllers.users.routes.UserProfiles.get(userId).url)).get
       status(userReadAsSelf) must equalTo(OK)
 
       // Now we're going to create a repository as the new user
@@ -118,13 +118,13 @@ class CountryScopeIntegrationSpec extends Neo4jRunnerSpec(classOf[CountryScopeIn
         "descriptions[0].descriptionArea.history" -> Seq("A repository with a long history")
       )
       val repoCreatePost = route(fakeLoggedInHtmlRequest(fakeAccount, POST,
-        controllers.archdesc.routes.Countries.createRepositoryPost(countryId).url)
+        controllers.countries.routes.Countries.createRepositoryPost(countryId).url)
         .withHeaders(formPostHeaders.toSeq: _*), repoData).get
       status(repoCreatePost) must equalTo(SEE_OTHER)
 
       // Test we can NOT create a repository in the other country...
       val otherRepoCreatePost = route(fakeLoggedInHtmlRequest(fakeAccount, POST,
-        controllers.archdesc.routes.Countries.createRepositoryPost(otherCountryId).url)
+        controllers.countries.routes.Countries.createRepositoryPost(otherCountryId).url)
           .withHeaders(formPostHeaders.toSeq: _*), repoData).get
       status(otherRepoCreatePost) must equalTo(FORBIDDEN)
 
@@ -161,18 +161,18 @@ class CountryScopeIntegrationSpec extends Neo4jRunnerSpec(classOf[CountryScopeIn
       // Test we can read the new repository
       val docId = idFromUrl(redirectLocation(createDocPost).get)
       val docRead = route(fakeLoggedInHtmlRequest(fakeAccount, GET,
-          controllers.archdesc.routes.DocumentaryUnits.get(docId).url)).get
+          controllers.units.routes.DocumentaryUnits.get(docId).url)).get
       status(docRead) must equalTo(OK)
       contentAsString(docRead) must contain("A new document")
-      contentAsString(docRead) must contain(controllers.archdesc.routes.DocumentaryUnits.createDoc(docId).url)
+      contentAsString(docRead) must contain(controllers.units.routes.DocumentaryUnits.createDoc(docId).url)
 
       // Test we CAN'T create extra docs in an existing doc (c1)
       println("Checking cannot create in other doc...")
       val otherDocRead = route(fakeLoggedInHtmlRequest(fakeAccount, GET,
-          controllers.archdesc.routes.DocumentaryUnits.get(otherDocId).url)).get
+          controllers.units.routes.DocumentaryUnits.get(otherDocId).url)).get
       status(otherDocRead) must equalTo(OK)
       contentAsString(otherDocRead) must not contain
-          controllers.archdesc.routes.DocumentaryUnits.createDoc(otherDocId).url
+          controllers.units.routes.DocumentaryUnits.createDoc(otherDocId).url
 
     }
   }
