@@ -10,7 +10,7 @@ import backend.HelpdeskDAO.HelpdeskResponse
  */
 case class MockHelpdeskDAO(buffer: collection.mutable.HashMap[Int, Seq[HelpdeskResponse]]) extends HelpdeskDAO {
   private def returnResponse(instId: String*): Seq[HelpdeskResponse] = {
-    val r = instId.toSeq.map(id => HelpdeskResponse(id, 0.1))
+    val r = instId.toSeq.map(id => HelpdeskResponse(id, "0.1"))
     buffer += (buffer.size -> r)
     r
   }

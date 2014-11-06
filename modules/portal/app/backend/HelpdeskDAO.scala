@@ -2,6 +2,8 @@ package backend
 
 import scala.concurrent.{ExecutionContext, Future}
 
+case class BadHelpdeskResponse(msg: String, data: String) extends RuntimeException(msg)
+
 /**
  * @author Mike Bryant (http://github.com/mikesname)
  */
@@ -13,7 +15,7 @@ object HelpdeskDAO {
 
   val QUERY = "query"
 
-  case class HelpdeskResponse(institutionId: String, score: Double, name: Option[String] = None)
+  case class HelpdeskResponse(institutionId: String, score: String, name: Option[String] = None)
 
   object HelpdeskResponse {
     import play.api.libs.json._
@@ -21,7 +23,7 @@ object HelpdeskDAO {
 
     implicit val format: Format[HelpdeskResponse] = (
       (__ \ "id").format[String] and
-      (__ \ "score").format[Double] and
+      (__ \ "score").format[String] and
       (__ \ "name").formatNullable[String]
     )(HelpdeskResponse.apply, unlift(HelpdeskResponse.unapply))
   }
