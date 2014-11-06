@@ -45,15 +45,12 @@ case class Portal @Inject()(implicit globalConfig: global.GlobalConfig, searchDi
   with Search
   with FacetConfig
   with PortalBase
-  with SessionPreferences[SessionPrefs] {
+  with SessionPreferences[SessionPrefs]
+  with Secured {
 
   val defaultPreferences = new SessionPrefs
 
   private val portalRoutes = controllers.portal.routes.Portal
-
-  // This is a publically-accessible site, but not just yet.
-  override val staffOnly = current.configuration.getBoolean("ehri.portal.secured").getOrElse(true)
-  override val verifiedOnly = current.configuration.getBoolean("ehri.portal.secured").getOrElse(true)
 
   /**
    * Full text search action that returns a complete page of item data.

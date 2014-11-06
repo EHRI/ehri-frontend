@@ -316,7 +316,7 @@ $loader = $( "<div></div>" ).addClass("text-center loader-container").append($("
     update: function(prefsObj) {
       var prefs = prefsObj || {};
       // Fire and forget!
-      jsRoutes.controllers.portal.Profile.updatePrefs()
+      jsRoutes.controllers.portal.profile.Profile.updatePrefs()
           .ajax({ data: prefsObj });
     },
 

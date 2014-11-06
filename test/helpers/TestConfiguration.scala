@@ -4,6 +4,7 @@ import play.api.http.{MimeTypes, HeaderNames}
 import play.api.test.FakeRequest
 import play.api.GlobalSettings
 import play.filters.csrf.CSRFFilter
+import backend.HelpdeskDAO.HelpdeskResponse
 import models.{Feedback, MockAccountDAO, AccountDAO, Account}
 import mocks._
 import global.GlobalConfig
@@ -20,6 +21,8 @@ import utils.search.MockSearchIndexer
 import play.api.test.FakeApplication
 import utils.search.MockSearchDispatcher
 import com.typesafe.plugin.MailerAPI
+import backend.helpdesk.{MockHelpdeskDAO, MockFeedbackDAO}
+import mocks.MockBufferedMailer
 
 /**
  * Mixin trait that provides some handy methods to test actions that
@@ -34,6 +37,7 @@ trait TestConfiguration {
   // a very unclean way but are useful for determining the last-used
   // whatsit etc...
   val feedbackBuffer = collection.mutable.HashMap.empty[Int,Feedback]
+  val helpdeskBuffer = collection.mutable.HashMap.empty[Int, Seq[HelpdeskResponse]]
   val mailBuffer = collection.mutable.ListBuffer.empty[MockMail]
   val searchParamBuffer = collection.mutable.ListBuffer.empty[ParamLog]
   val indexEventBuffer = collection.mutable.ListBuffer.empty[String]
@@ -45,6 +49,7 @@ trait TestConfiguration {
   def idGenerator: IdGenerator = new CypherIdGenerator("%06d")
   def mockDispatcher: Dispatcher = new MockSearchDispatcher(testBackend, searchParamBuffer)
   def mockFeedback: FeedbackDAO = new MockFeedbackDAO(feedbackBuffer)
+  def mockHelpdesk: HelpdeskDAO = new MockHelpdeskDAO(helpdeskBuffer)
   def mockMailer: MailerAPI = new MockBufferedMailer(mailBuffer)
   def mockIndexer: Indexer = new MockSearchIndexer(indexEventBuffer)
   // NB: The mutable state for the user DAO is still stored globally
@@ -81,6 +86,7 @@ trait TestConfiguration {
         bind[Dispatcher].toInstance(mockDispatcher)
         bind[Resolver].toInstance(mockResolver)
         bind[FeedbackDAO].toInstance(mockFeedback)
+        bind[HelpdeskDAO].toInstance(mockHelpdesk)
         bind[IdGenerator].toInstance(idGenerator)
         bind[MailerAPI].toInstance(mockMailer)
         bind[AccountDAO].toInstance(mockUserDAO)

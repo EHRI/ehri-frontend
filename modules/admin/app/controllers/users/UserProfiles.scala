@@ -24,7 +24,9 @@ import solr.facet.QueryFacetClass
 
 
 @Singleton
-case class UserProfiles @Inject()(implicit globalConfig: global.GlobalConfig, searchIndexer: Indexer, searchDispatcher: Dispatcher, searchResolver: Resolver, backend: Backend, userDAO: AccountDAO) extends PermissionHolder[UserProfile]
+case class UserProfiles @Inject()(implicit globalConfig: global.GlobalConfig, searchIndexer: Indexer, searchDispatcher: Dispatcher, searchResolver: Resolver, backend: Backend, userDAO: AccountDAO)
+  extends PermissionHolder[UserProfile]
+  with ItemPermissions[UserProfile]
   with Read[UserProfile]
   with Update[UserProfileF,UserProfile]
   with Delete[UserProfile]
@@ -278,9 +280,33 @@ case class UserProfiles @Inject()(implicit globalConfig: global.GlobalConfig, se
   }
 
   def revokePermissionPost(id: String, permId: String) = revokePermissionActionPost(id, permId) {
-    item => implicit userOpt => implicit request =>
-      Redirect(userRoutes.grantList(id))
+      item => implicit userOpt => implicit request =>
+    Redirect(userRoutes.grantList(id))
         .flashing("success" -> Messages("item.delete.confirmation", id))
+  }
+
+  def managePermissions(id: String) = manageItemPermissionsAction(id) {
+      item => perms => implicit userOpt => implicit request =>
+    Ok(views.html.admin.permissions.managePermissions(item, perms,
+        userRoutes.addItemPermissions(id)))
+  }
+
+  def addItemPermissions(id: String) = addItemPermissionsAction(id) {
+      item => users => groups => implicit userOpt => implicit request =>
+    Ok(views.html.admin.permissions.permissionItem(item, users, groups,
+        userRoutes.setItemPermissions))
+  }
+
+  def setItemPermissions(id: String, userType: EntityType.Value, userId: String) = setItemPermissionsAction(id, userType, userId) {
+      item => accessor => perms => implicit userOpt => implicit request =>
+    Ok(views.html.admin.permissions.setPermissionItem(item, accessor, perms, UserProfile.Resource.contentType,
+        userRoutes.setItemPermissionsPost(id, userType, userId)))
+  }
+
+  def setItemPermissionsPost(id: String, userType: EntityType.Value, userId: String) = setItemPermissionsPostAction(id, userType, userId) {
+      bool => implicit userOpt => implicit request =>
+    Redirect(userRoutes.managePermissions(id))
+      .flashing("success" -> "item.update.confirmation")
   }
 }
 

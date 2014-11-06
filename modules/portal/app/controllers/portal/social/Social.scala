@@ -1,4 +1,4 @@
-package controllers.portal
+package controllers.portal.social
 
 import play.api.libs.concurrent.Execution.Implicits._
 import controllers.base.{SessionPreferences, AuthController, ControllerHelpers}
@@ -22,6 +22,7 @@ import scala.Some
 import play.api.mvc.Result
 import backend.ApiUser
 import com.typesafe.plugin.MailerAPI
+import controllers.portal.{Secured, PortalAuthConfigImpl}
 
 /**
  * @author Mike Bryant (http://github.com/mikesname)
@@ -35,11 +36,8 @@ case class Social @Inject()(implicit globalConfig: global.GlobalConfig, searchDi
   extends AuthController
   with ControllerHelpers
   with PortalAuthConfigImpl
-  with SessionPreferences[SessionPrefs] {
-
-  // This is a publically-accessible site, but not just yet.
-  override val staffOnly = current.configuration.getBoolean("ehri.portal.secured").getOrElse(true)
-  override val verifiedOnly = current.configuration.getBoolean("ehri.portal.secured").getOrElse(true)
+  with SessionPreferences[SessionPrefs]
+  with Secured {
 
   val defaultPreferences = new SessionPrefs
 
@@ -63,7 +61,7 @@ case class Social @Inject()(implicit globalConfig: global.GlobalConfig, searchDi
     EntityType.Annotation
   )
 
-  private val socialRoutes = controllers.portal.routes.Social
+  private val socialRoutes = controllers.portal.social.routes.Social
 
   def personalisedActivity(offset: Int = 0, limit: Int = Constants.DEFAULT_LIST_LIMIT) = {
     withUserAction.async { implicit user => implicit request =>
@@ -90,7 +88,7 @@ case class Social @Inject()(implicit globalConfig: global.GlobalConfig, searchDi
     // of users and combine it with a list of existing followers so
     // we can mark who's following and who isn't
     val filters = Map(SolrConstants.ACTIVE -> true.toString)
-    val defaultParams = SearchParams(entities = List(EntityType.UserProfile), excludes = Some(List(user.id)),
+    val defaultParams = SearchParams(entities = List(EntityType.UserProfile),
           sort = Some(SearchOrder.Name), count = Some(40))
     val searchParams = SearchParams.form.bindFromRequest.value
       .getOrElse(defaultParams).setDefault(Some(defaultParams))
@@ -170,7 +168,7 @@ case class Social @Inject()(implicit globalConfig: global.GlobalConfig, searchDi
       if (isAjax) {
         Ok("ok")
       } else {
-        Redirect(controllers.portal.routes.Social.browseUsers())
+        Redirect(socialRoutes.browseUsers())
       }
     }
   }
@@ -200,7 +198,7 @@ case class Social @Inject()(implicit globalConfig: global.GlobalConfig, searchDi
       if (isAjax) {
         Ok("ok")
       } else {
-        Redirect(controllers.portal.routes.Social.browseUsers())
+        Redirect(socialRoutes.browseUsers())
       }
     }
   }

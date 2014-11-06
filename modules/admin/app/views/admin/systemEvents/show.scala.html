@@ -45,7 +45,13 @@
                 @common.pagination(page)
                 <ul class="list-unstyled">
                     @page.items.map { item =>
-                    <li><a href="@views.admin.Helpers.linkTo(item)">@item.toStringLang</a></li>
+                        <li>
+                            @views.admin.Helpers.linkToOpt(item).map { url =>
+                                <a href="@url">@item.toStringLang</a>
+                            }.getOrElse {
+                                @item.toStringLang
+                            }
+                        </li>
                     }
                 </ul>
         }

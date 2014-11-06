@@ -1,0 +1,22 @@
+
+GET         /login                          @controllers.portal.account.Accounts.login
+POST        /login                          @controllers.portal.account.Accounts.passwordLoginPost
+POST        /openid                         @controllers.portal.account.Accounts.openIDLoginPost
+GET         /authenticate/openid            @controllers.portal.account.Accounts.openIDCallback
+GET         /authenticate/google            @controllers.portal.account.Accounts.googleLogin
+GET         /authenticate/facebook          @controllers.portal.account.Accounts.facebookLogin
+GET         /authenticate/linkedin          @controllers.portal.account.Accounts.linkedInLogin
+GET         /logout                         @controllers.portal.account.Accounts.logout
+GET         /account                        @controllers.portal.account.Accounts.account
+
+GET         /signup                         @controllers.portal.account.Accounts.signup
+POST        /signup                         @controllers.portal.account.Accounts.signupPost
+GET         /confirmEmail/:token            @controllers.portal.account.Accounts.confirmEmail(token: String)
+GET         /changePassword                 @controllers.portal.account.Accounts.changePassword
+POST        /changePassword                 @controllers.portal.account.Accounts.changePasswordPost
+GET         /forgot                         @controllers.portal.account.Accounts.forgotPassword
+POST        /forgot                         @controllers.portal.account.Accounts.forgotPasswordPost
+POST        /resendVerification             @controllers.portal.account.Accounts.resendVerificationPost
+GET         /prs                            @controllers.portal.account.Accounts.passwordReminderSent
+GET         /rstp/:token                    @controllers.portal.account.Accounts.resetPassword(token: String)
+POST        /rstp/:token                    @controllers.portal.account.Accounts.resetPasswordPost(token: String)

@@ -30,7 +30,7 @@ implicit userOpt: Option[UserProfile], req: RequestHeader, globalConfig: global.
                     <button type="submit" class=" btn  btn-danger ">
                         @Messages("portal.profile.deleteProfile")
                     </button>
-                    <a class=" btn  btn-cancel " href="@controllers.portal.routes.Profile.profile">@Messages("cancel")</a>
+                    <a class=" btn  btn-cancel " href="@controllers.portal.profile.routes.Profile.profile">@Messages("cancel")</a>
                 </div>
             </div>
         </div>

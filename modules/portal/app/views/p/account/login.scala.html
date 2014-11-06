@@ -27,7 +27,7 @@
 
         <section class="login">
             <div class="wrap">
-                @helper.form(action = controllers.portal.routes.Profile.openIDLoginPost, 'class -> "openid form validate-form", 'role -> "form") {
+                @helper.form(action = controllers.portal.account.routes.Accounts.openIDLoginPost, 'class -> "openid form validate-form", 'role -> "form") {
                     @formHelpers.csrfToken()
                     <p>
                         @Messages("portal.login.oauth.info")
@@ -88,7 +88,7 @@
                         <input type="submit" class="btn btn-post login-button openid" value="@Messages("portal.login.openid.submit")" />
                     </div>
                 }
-                @helper.form(action = controllers.portal.routes.Profile.passwordLoginPost, 'class -> "login-form form validate-form", 'role -> "form") {
+                @helper.form(action = controllers.portal.account.routes.Accounts.passwordLoginPost, 'class -> "login-form form validate-form", 'role -> "form") {
                     <p>@Messages("portal.login.password.info")</p>
 
                     @formHelpers.csrfToken()
@@ -100,7 +100,7 @@
                         @helper.inputPassword(pwForm("password"), 'class -> "form-control", 'placeholder -> Messages("login.password"), 'required -> "required")
 
                         <p>
-                            <a href="@controllers.portal.routes.Profile.forgotPassword">@Messages("portal.login.recover.link")</a>
+                            <a href="@controllers.portal.account.routes.Accounts.forgotPassword">@Messages("portal.login.recover.link")</a>
                         </p>
                     </div>
 
@@ -109,7 +109,7 @@
                         <em><strong>or</strong></em>
                     </p>
                     <p class="text-center">
-                        <a class=" btn  btn-post " href="@controllers.portal.routes.Profile.signup">@Messages("portal.signup")</a>
+                        <a class=" btn  btn-post " href="@controllers.portal.account.routes.Accounts.signup">@Messages("portal.signup")</a>
                     </p>
 
                 }

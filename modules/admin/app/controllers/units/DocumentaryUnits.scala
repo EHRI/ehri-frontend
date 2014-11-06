@@ -37,15 +37,13 @@ case class DocumentaryUnits @Inject()(implicit globalConfig: global.GlobalConfig
 
   private val entityFacets: FacetBuilder = { implicit request =>
     List(
-      QueryFacetClass(
-        key="childCount",
-        name=Messages("documentaryUnit.searchInside"),
-        param="items",
-        render=s => Messages("documentaryUnit." + s),
-        facets=List(
-          SolrQueryFacet(value = "false", solrValue = "0", name = Some("noChildItems")),
-          SolrQueryFacet(value = "true", solrValue = "[1 TO *]", name = Some("hasChildItems"))
-        )
+      FieldFacetClass(
+        key="isParent",
+        name=Messages("facet.parent"),
+        param="parent",
+        render=s => Messages("facet.parent." + s),
+        sort = FacetSort.Fixed,
+        display = FacetDisplay.List
       ),
       FieldFacetClass(
         key=Description.LANG_CODE,
@@ -56,9 +54,9 @@ case class DocumentaryUnits @Inject()(implicit globalConfig: global.GlobalConfig
       ),
       FieldFacetClass(
         key="creationProcess",
-        name=Messages("creationProcess"),
+        name=Messages("facet.source"),
         param="source",
-        render=s => Messages("creationProcess." + s),
+        render=s => Messages("facet.source." + s),
         sort = FacetSort.Name,
         display = FacetDisplay.List
       ),

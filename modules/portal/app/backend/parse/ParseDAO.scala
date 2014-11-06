@@ -1,10 +1,10 @@
 package backend.parse
 
-import scala.concurrent.{ExecutionContext, Future}
 import play.api.libs.ws.WS
 import play.api.libs.json.{Format, Json}
 import play.api.Logger
 import backend.rest.RestDAO
+import scala.concurrent.{Future, ExecutionContext}
 
 /**
  * DAO for interacting with the Parse REST service.

@@ -2,6 +2,8 @@
  * The application global object.
  */
 
+import backend._
+import backend.helpdesk.{TestHelpdesk, EhriHelpdesk}
 import backend.parse.ParseFeedbackDAO
 import backend.{IdGenerator, FeedbackDAO, EventHandler, Backend}
 import backend.rest._
@@ -35,6 +37,7 @@ object Global extends WithFilters(CSRFFilter()) with GlobalSettings {
   private def searchIndexer: Indexer = new indexing.CmdlineIndexer
   private def searchResolver: Resolver = new GidSearchResolver
   private def feedbackDAO: FeedbackDAO = new ParseFeedbackDAO
+  private def helpdeskDAO: HelpdeskDAO = new TestHelpdesk
   private def idGenerator: IdGenerator = new CypherIdGenerator(idFormat = "%06d")
   private def userDAO: AccountDAO = SqlAccount
   private def mailer: MailerAPI = new CommonsMailerPlugin(current).email
@@ -76,6 +79,7 @@ object Global extends WithFilters(CSRFFilter()) with GlobalSettings {
       bind[Resolver].toInstance(searchResolver)
       bind[Backend].toInstance(backend)
       bind[FeedbackDAO].toInstance(feedbackDAO)
+      bind[HelpdeskDAO].toInstance(helpdeskDAO)
       bind[IdGenerator].toInstance(idGenerator)
       bind[MailerAPI].toInstance(mailer)
       bind[AccountDAO].toInstance(userDAO)

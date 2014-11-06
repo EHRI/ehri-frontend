@@ -5,7 +5,7 @@
     @p.layout.portalLayout(user.model.name, EntityType.UserProfile.toString) {
 
         @p.social.profileBar(user) {
-            <a class="btn btn-get" href="@controllers.portal.routes.Profile.updateProfile">
+            <a class="btn btn-get" href="@controllers.portal.profile.routes.Profile.updateProfile">
                 @Messages("portal.profile.updateProfile")
             </a>
         }

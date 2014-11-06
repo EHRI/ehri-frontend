@@ -1,0 +1,31 @@
+@(query: String, results: Seq[backend.HelpdeskDAO.HelpdeskResponse], institutions: Seq[Repository])(implicit userOpt: Option[UserProfile], request: RequestHeader, lang: Lang, flash: Flash, globalConfig: global.GlobalConfig, prefs: utils.SessionPrefs)
+
+@p.layout.portalLayout(Messages("portal.helpdesk")) {
+
+    @views.html.layout.mainContent {
+
+        <h2>@Messages("portal.helpdesk.results")</h2>
+
+        <div class="well well-sm">
+            <strong>@Messages("portal.helpdesk.youAsked")</strong>: &quot;@query&quot;
+        </div>
+
+        <div class="panel panel-default">
+            <table class="table table-striped">
+                <tr>
+                    <th>@Messages("portal.helpdesk.institution")</th>
+                    <th>@Messages("portal.helpdesk.score")</th>
+                </tr>
+                @results.zip(institutions).map { case (result, repo) =>
+                    <tr>
+                        <td>@views.html.p.helpers.linkTo(repo)</td>
+                        <td>
+                            @result.score
+                        </td>
+                    </tr>
+                }
+            </table>
+        </div>
+
+    }
+}
