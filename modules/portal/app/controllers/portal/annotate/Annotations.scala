@@ -1,4 +1,4 @@
-package controllers.portal
+package controllers.portal.annotate
 
 import play.api.libs.concurrent.Execution.Implicits._
 import play.api.mvc._
@@ -22,6 +22,7 @@ import utils.search.{Resolver, Dispatcher}
 
 
 import com.google.inject._
+import controllers.portal.{Secured, PortalAuthConfigImpl}
 
 /**
  * @author Mike Bryant (http://github.com/mikesname)
@@ -31,15 +32,12 @@ case class Annotations @Inject()(implicit globalConfig: global.GlobalConfig, sea
   with ControllerHelpers
   with Visibility[Annotation]
   with PortalAuthConfigImpl
-  with SessionPreferences[SessionPrefs] {
-
-  // This is a publically-accessible site, but not just yet.
-  override val staffOnly = current.configuration.getBoolean("ehri.portal.secured").getOrElse(true)
-  override val verifiedOnly = current.configuration.getBoolean("ehri.portal.secured").getOrElse(true)
+  with SessionPreferences[SessionPrefs]
+  with Secured {
 
   val defaultPreferences = new SessionPrefs
 
-  private val annotationRoutes = controllers.portal.routes.Annotations
+  private val annotationRoutes = controllers.portal.annotate.routes.Annotations
 
   def annotation(id: String) = userProfileAction.async { implicit userProfile => implicit request =>
     backend.get[Annotation](id).map { ann =>

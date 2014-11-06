@@ -16,11 +16,7 @@ import com.typesafe.plugin.MailerAPI
  */
 case class Feedback @Inject()(implicit globalConfig: global.GlobalConfig, feedbackDAO: FeedbackDAO,
     backend: Backend, userDAO: AccountDAO, mailer: MailerAPI)
-  extends Controller with ControllerHelpers with AuthController {
-
-  // This is a publically-accessible site, but not just yet.
-  override val staffOnly = current.configuration.getBoolean("ehri.portal.secured").getOrElse(true)
-  override val verifiedOnly = current.configuration.getBoolean("ehri.portal.secured").getOrElse(true)
+  extends Controller with ControllerHelpers with AuthController with Secured {
 
   implicit def prefs = new SessionPrefs
 

@@ -1,4 +1,4 @@
-package controllers.portal
+package controllers.portal.profile
 
 import play.api.libs.concurrent.Execution.Implicits._
 import controllers.base.{SessionPreferences, AuthController, ControllerHelpers}
@@ -28,6 +28,7 @@ import org.joda.time.format.ISODateTimeFormat
 import models.base.AnyModel
 import net.coobird.thumbnailator.Thumbnails
 import com.typesafe.plugin.MailerAPI
+import controllers.portal.{Secured, PortalAuthConfigImpl, PortalBase}
 
 /**
  * @author Mike Bryant (http://github.com/mikesname)
@@ -36,25 +37,17 @@ case class Profile @Inject()(implicit globalConfig: global.GlobalConfig, searchD
                             userDAO: AccountDAO, mailer: MailerAPI)
     extends LoginLogout with AuthController with ControllerHelpers
     with PortalBase
-    with PortalLogin
     with PortalAuthConfigImpl
-    with SessionPreferences[SessionPrefs] {
+    with SessionPreferences[SessionPrefs]
+    with Secured {
 
   val defaultPreferences = new SessionPrefs
-
-  // This is a publically-accessible site, but not just yet.
-  override val staffOnly = current.configuration.getBoolean("ehri.portal.secured").getOrElse(true)
-  override val verifiedOnly = current.configuration.getBoolean("ehri.portal.secured").getOrElse(true)
 
   implicit val resource = UserProfile.Resource
   val entityType = EntityType.UserProfile
   val contentType = ContentTypes.UserProfile
 
-  private val profileRoutes = controllers.portal.routes.Profile
-
-  def account = userProfileAction { implicit userOpt => implicit request =>
-    Ok(Json.toJson(userOpt.flatMap(_.account)))
-  }
+  private val profileRoutes = controllers.portal.profile.routes.Profile
 
   def watchItem(id: String) = withUserAction { implicit user => implicit request =>
     Ok(p.helpers.simpleForm("portal.profile.watch",
@@ -233,28 +226,10 @@ case class Profile @Inject()(implicit globalConfig: global.GlobalConfig, searchD
     }
   }
 
-  /**
-   * Store a changed password.
-   */
-  def changePasswordPost = changePasswordPostAction { boolOrErr => implicit userOpt => implicit request =>
-    boolOrErr match {
-      case Right(true) =>
-        Redirect(defaultLoginUrl)
-          .flashing("success" -> Messages("login.passwordChanged"))
-      case Right(false) =>
-        BadRequest(p.profile.editProfile(
-          profileDataForm, imageForm, changePasswordForm
-            .withGlobalError("login.badUsernameOrPassword"), AccountPreferences.form))
-      case Left(errForm) =>
-        BadRequest(p.profile.editProfile(
-          profileDataForm, imageForm, errForm, accountPrefsForm))
-    }
-  }
-
   def updateAccountPrefsPost() = withUserAction { implicit user => implicit request =>
     AccountPreferences.form.bindFromRequest.fold(
       errForm => BadRequest(p.profile.editProfile(
-        ProfileData.form, imageForm, changePasswordForm, errForm)),
+        ProfileData.form, imageForm, errForm)),
       accountPrefs => {
         userDAO.findByProfileId(user.id).map { acc =>
           acc.setAllowMessaging(accountPrefs.allowMessaging)
@@ -266,21 +241,18 @@ case class Profile @Inject()(implicit globalConfig: global.GlobalConfig, searchD
   }
 
   def updateProfile() = withUserAction { implicit user => implicit request =>
-    Ok(p.profile.editProfile(
-      profileDataForm, imageForm, changePasswordForm, accountPrefsForm))
+    Ok(p.profile.editProfile(profileDataForm, imageForm, accountPrefsForm))
   }
 
   def updateProfilePost() = withUserAction.async { implicit user => implicit request =>
     ProfileData.form.bindFromRequest.fold(
-      errForm => immediate(BadRequest(p.profile.editProfile(
-        errForm, imageForm, changePasswordForm, accountPrefsForm))),
+      errForm => immediate(BadRequest(p.profile.editProfile(errForm, imageForm, accountPrefsForm))),
       profile => backend.patch[UserProfile](user.id, Json.toJson(profile).as[JsObject]).map { userProfile =>
         Redirect(profileRoutes.profile())
           .flashing("success" -> Messages("profile.update.confirmation"))
       }
     )
   }
-
 
   def deleteProfile() = withUserAction { implicit user => implicit request =>
     Ok(p.profile.deleteProfile(deleteForm(user),
@@ -319,8 +291,7 @@ case class Profile @Inject()(implicit globalConfig: global.GlobalConfig, searchD
 
     def onError(err: String) =
       BadRequest(p.profile.editProfile(profileDataForm,
-        imageForm.withGlobalError(s"portal.error.$err"),
-        changePasswordForm, accountPrefsForm))
+        imageForm.withGlobalError(s"portal.error.$err"), accountPrefsForm))
 
     request.body match {
       case Left(MaxSizeExceeded(length)) => immediate(onError("imageTooLarge"))

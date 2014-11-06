@@ -15,11 +15,11 @@
                         <img src="@controllers.portal.routes.Assets.versioned("img/logo-rect-bw.png")" rel="logo" />
                     </a>
                 </li>
-                <li class="@views.Helpers.maybeActive(controllers.portal.routes.Social.personalisedActivity().url)">
-                    <a href="@controllers.portal.routes.Social.personalisedActivity()">@Messages("portal.activity")</a>
+                <li class="@views.Helpers.maybeActive(controllers.portal.social.routes.Social.personalisedActivity().url)">
+                    <a href="@controllers.portal.social.routes.Social.personalisedActivity()">@Messages("portal.activity")</a>
                 </li>
-                <li class="@views.Helpers.maybeActivePath(controllers.portal.routes.Social.browseUsers.url)">
-                    <a href="@controllers.portal.routes.Social.browseUsers">@Messages("portal.social.users")</a>
+                <li class="@views.Helpers.maybeActivePath(controllers.portal.social.routes.Social.browseUsers.url)">
+                    <a href="@controllers.portal.social.routes.Social.browseUsers">@Messages("portal.social.users")</a>
                 </li>
             </ul>
         </nav>
