@@ -391,4 +391,3 @@ portal.helpdesk.contactEmail=Contact Email
 portal.helpdesk.score=Confidence Score
 portal.helpdesk.confidence.message=How confident we are that this ranking is correct.
 portal.helpdesk.query.submit=Ask the helpdesk
->>>>>>> helpdesk_integration
