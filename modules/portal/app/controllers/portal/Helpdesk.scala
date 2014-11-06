@@ -3,9 +3,8 @@ package controllers.portal
 import play.api.mvc.{RequestHeader, Controller}
 import controllers.base.{AuthController, ControllerHelpers}
 import scala.concurrent.Future.{successful => immediate}
-import backend.{HelpdeskDAO, Backend}
+import backend.{BadHelpdeskResponse, HelpdeskDAO, Backend}
 import models.{Repository, AccountDAO}
-import play.api.Play.current
 import com.google.inject._
 import utils.SessionPrefs
 import backend.rest.SearchDAO
@@ -16,11 +15,7 @@ import com.typesafe.plugin.MailerAPI
  */
 case class Helpdesk @Inject()(implicit helpdeskDAO: HelpdeskDAO, globalConfig: global.GlobalConfig, backend: Backend,
     userDAO: AccountDAO, mailer: MailerAPI)
-  extends Controller with ControllerHelpers with AuthController {
-
-  // This is a publically-accessible site, but not just yet.
-  override val staffOnly = current.configuration.getBoolean("ehri.portal.secured").getOrElse(true)
-  override val verifiedOnly = current.configuration.getBoolean("ehri.portal.secured").getOrElse(true)
+  extends Controller with ControllerHelpers with AuthController with Secured {
 
   implicit def prefs = new SessionPrefs
 
@@ -38,7 +33,7 @@ case class Helpdesk @Inject()(implicit helpdeskDAO: HelpdeskDAO, globalConfig: g
   def helpdesk = userProfileAction { implicit userOpt => implicit request =>
     val prefilledData: (String,String, Boolean)
         = (userOpt.flatMap(_.account).map(_.email).getOrElse(""), "", false)
-    val form = helpdeskForm.fill(prefilledData).bindFromRequest
+    val form = helpdeskForm.fill(prefilledData).discardingErrors
     Ok(views.html.p.helpdesk.helpdesk(form))
   }
 
@@ -60,11 +55,13 @@ case class Helpdesk @Inject()(implicit helpdeskDAO: HelpdeskDAO, globalConfig: g
           sendMessageEmail(email, query)
         }
 
-        for {
-          response <- helpdeskDAO.askQuery(query)
-          institutions <- SearchDAO.list[Repository](response.map(_.institutionId))
-        } yield {
-          Ok(views.html.p.helpdesk.results(query, response, institutions))
+        helpdeskDAO.askQuery(query).flatMap { responses =>
+          SearchDAO.list[Repository](responses.map(_.institutionId)).map { institutions =>
+            Ok(views.html.p.helpdesk.results(query, responses, institutions))
+          }
+        } recover {
+          case e: BadHelpdeskResponse =>
+            InternalServerError(views.html.p.helpdesk.error(e))
         }
       }
     )

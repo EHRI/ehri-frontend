@@ -37,7 +37,7 @@ object Global extends WithFilters(CSRFFilter()) with GlobalSettings {
   private def searchIndexer: Indexer = new indexing.CmdlineIndexer
   private def searchResolver: Resolver = new GidSearchResolver
   private def feedbackDAO: FeedbackDAO = new ParseFeedbackDAO
-  private def helpdeskDAO: HelpdeskDAO = new TestHelpdesk
+  private def helpdeskDAO: HelpdeskDAO = new EhriHelpdesk
   private def idGenerator: IdGenerator = new CypherIdGenerator(idFormat = "%06d")
   private def userDAO: AccountDAO = SqlAccount
   private def mailer: MailerAPI = new CommonsMailerPlugin(current).email

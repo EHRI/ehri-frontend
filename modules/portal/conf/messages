@@ -358,6 +358,7 @@ portal.helpdesk.message=The helpdesk will attempt to match your query to the EHR
 portal.helpdesk.thanks=Thanks!
 portal.helpdesk.thanks.message=Your query has been submitted.
 portal.helpdesk.query=Query
+portal.helpdesk.error=Oops! Something went wrong with the helpdesk. Here's what it said:
 portal.helpdesk.results=Helpdesk Contact Recommendations
 portal.helpdesk.query.placeholder=Enter your query here. Subject-specific terms are best.
 portal.helpdesk.copyMe=Email a copy of the query to your address
