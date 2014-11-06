@@ -4,6 +4,8 @@ import backend.{BadHelpdeskResponse, HelpdeskDAO}
 import scala.concurrent.{ExecutionContext, Future}
 import play.api.libs.ws.WS
 import com.fasterxml.jackson.core.JsonParseException
+import play.api.libs.json.Json
+import com.google.common.base.Charsets
 
 
 case class TestHelpdesk(implicit app: play.api.Application) extends HelpdeskDAO {
@@ -29,8 +31,9 @@ case class EhriHelpdesk(implicit app: play.api.Application) extends HelpdeskDAO 
 
   def askQuery(query: String)(implicit executionContext: ExecutionContext): Future[Seq[HelpdeskResponse]] = {
     WS.url(helpdeskUrl).withQueryString("input" -> query).get().map { r =>
+      val body = new String(r.body.getBytes(Charsets.ISO_8859_1))
       try {
-        (r.json \ "response").as[Seq[HelpdeskResponse]]
+        (Json.parse(body) \ "response").as[Seq[HelpdeskResponse]]
       } catch {
         case e: JsonParseException =>
           throw new BadHelpdeskResponse(e.getMessage, r.body)
