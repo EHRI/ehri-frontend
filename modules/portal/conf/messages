@@ -384,6 +384,7 @@ portal.helpdesk.thanks.message=Your query has been submitted.
 portal.helpdesk.query=Query
 portal.helpdesk.error=Oops! Something went wrong with the helpdesk. Here's what it said:
 portal.helpdesk.results=Helpdesk Contact Recommendations
+portal.helpdesk.results.empty=No relevant institutions found. Please reformulate your query and add more details.
 portal.helpdesk.query.placeholder=Enter your query here. Subject-specific terms are best.
 portal.helpdesk.copyMe=Email a copy of the query to your address
 portal.helpdesk.youAsked=You asked

@@ -1,4 +1,4 @@
-@(query: String, results: Seq[backend.HelpdeskDAO.HelpdeskResponse], institutions: Seq[Repository])(implicit userOpt: Option[UserProfile], request: RequestHeader, lang: Lang, flash: Flash, globalConfig: global.GlobalConfig, prefs: utils.SessionPrefs)
+@(replyTo: String, query: String, results: Seq[backend.HelpdeskDAO.HelpdeskResponse], institutions: Seq[Repository])(implicit userOpt: Option[UserProfile], request: RequestHeader, lang: Lang, flash: Flash, globalConfig: global.GlobalConfig, prefs: utils.SessionPrefs)
 
 @p.layout.portalLayout(Messages("portal.helpdesk")) {
 
@@ -11,10 +11,12 @@
         </div>
 
         <div class="panel panel-default">
+            @if(!results.isEmpty) {
             <table class="table table-striped">
                 <tr>
                     <th>@Messages("portal.helpdesk.institution")</th>
                     <th>@Messages("portal.helpdesk.score")</th>
+                    <th>@Messages("portal.helpdesk.contactEmail")</th>
                 </tr>
                 @results.zip(institutions).map { case (result, repo) =>
                     <tr>
@@ -22,10 +24,17 @@
                         <td>
                             @result.score
                         </td>
+                        <td>
+                            @Html(repo.emails.map(e => s"<a href='mailto:$e?subject=EHRI Helpdesk Query&amp;body=${helper.urlEncode(query).replace("+", "%20")}&amp;reply-to=$replyTo'>$e</a>").mkString(", "))
+                        </td>
                     </tr>
                 }
             </table>
+            } else {
+            <p class="alert alert-warning">
+                @Messages("portal.helpdesk.results.empty")
+            </p>
+            }
         </div>
-
     }
 }
