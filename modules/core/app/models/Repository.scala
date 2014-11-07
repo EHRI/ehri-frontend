@@ -112,6 +112,12 @@ case class Repository(
     address <- desc.addresses
     url <- address.url if utils.forms.isValidUrl(url)
   } yield url).headOption.map(new URL(_))
+
+  def emails: Seq[String] = for {
+    desc <- descriptions
+    address <- desc.addresses
+    email <- address.email // TODO: Validate email?
+  } yield email
 }
 
 object Repository {
