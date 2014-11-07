@@ -2,7 +2,6 @@ portal.welcome=Welcome to EHRI
 portal.home=Home
 portal.footerText=This is a development version of the EHRI portal interface.
 
-portal.feedback.list=Submitted Feedback
 portal.download=Download
 portal.download.format.txt=Download as plain text
 portal.download.format.csv=Download as CSV
@@ -23,6 +22,10 @@ portal.login.alreadyLoggedIn=You are already logged in as {0}
 portal.login.loginWith=Log in with {0}
 portal.login.openid.submit=Sign In With OpenID
 portal.login.openid=OpenID
+portal.login.password.noPassword=There is currently no password associated with your account. This means you\
+  have signed in via a third-party provider such as Google or Facebook.
+portal.login.password.change=Change Password
+portal.login.password.change.link=Click here to change your password
 portal.login.password.reset=Reset Password
 portal.login.password.reset.text=Forgotten your password? Enter the email you used to sign up below\
   and we''ll send you a link you can use to reset it.
@@ -31,7 +34,6 @@ portal.login.openid.urlPlaceholder=Enter your OpenID URL
 portal.login.disabled=Login is currently disabled. Please try again later.
 portal.login.oauth.info=If you already have an account on one of these sites you can click the logo to log in to EHRI:
 portal.login.password.info=If you''ve previously created an account with EHRI, enter your email and password here:
-portal.login.password.change=Change Password
 portal.login.password.submit=Sign In
 portal.login.recover=If you have lost your login details:
 portal.login.recover.link=Click here if you've forgotten or lost your password.
@@ -48,7 +50,7 @@ portal.signup.badTimestamp=The signup form was submitted too quickly. Please try
 portal.signup.badSignupInput=The signup form failed the spam check. Please try again.
 portal.signup.agreeTerms=You must agree to the terms.
 portal.signup.confirmation=Thanks for signing up! We''ve sent you an email which you can use to confirm \
-  you email address.
+  your email address.
 portal.signup.emailConfirmed=Your email is now confirmed and you have been signed in.
 portal.signup.invalidSignupToken=Confirmation URL is invalid or has expired.
 portal.signup.validation.confirmation=Your account has been validated.
@@ -61,7 +63,7 @@ portal.mail.unverifiedEmailWarning=Unverified Account
 portal.mail.unverifiedEmailWarningMessage=The email associated with your account has not yet been verified.
 portal.mail.unverifiedEmailResend=To re-send a verification email
 portal.mail.unverifiedEmailResendSubmit=click here
-portal.mail.emailConfirmationResent=We''ve sent you an email which you can use to confirm you email address.
+portal.mail.emailConfirmationResent=We''ve sent you an email which you can use to confirm your email address.
 
 portal.mail.message.subject=EHRI: Message from {0}: {1}
 portal.mail.message.heading=New message from {0}
@@ -75,12 +77,12 @@ portal.hideDetails=Hide Item Details
 portal.showItems={0,choice,0#{0} Items|1#1 Item|1<{0,number,integer} Items}
 portal.showChildItems=Child Items
 portal.profile=Profile
+portal.profile.security=Security
 portal.profile.updateProfile=Edit Profile
 portal.profile.updateProfileImage=Set Profile Image
 portal.profile.deleteProfile=Delete Account
 portal.profile.deleteProfileLink=Click here to delete your profile
 portal.warning=Warning
-portal.profile.changePassword=Change Password
 portal.profile.deleteProfileConfirmation=Deleting your account will \
   will anonymise (but not remove) any publicly-visible annotations and links you may have \
   contributed to EHRI. To confirm, please type your name as displayed here, in the box below:
@@ -183,6 +185,10 @@ facet.data=Structure
 facet.data.tooltip=Whether this item is a container for other records.
 facet.data.hasChildItems=Container (multi-level)
 facet.data.placeholder=Filter Structure
+facet.parent=Structure
+facet.parent.tooltip=Whether this item is a container for other records.
+facet.parent.true=Container Item
+facet.parent.false=Single Item
 facet.source=Description Source
 facet.source.tooltip=The source of the electronic description, e.g. whether it was\
   created by EHRI staff or imported from structured data provided by a partner institution.
@@ -209,6 +215,24 @@ facet.topLevel.true=Top Level
 facet.container.hasChildItems=Multi-level (container)
 facet.itemsHeldOnline=Viewable Items
 facet.itemsHeldOnline.yes=Catalogued Material Available
+portal.multipleDescriptions=This item has multiple descriptions. Alternate descriptions may source from different repositories or represent a (partial) translation.
+portal.noDetails=---
+facet.cpf=Authority Type
+facet.cpf.tooltip=The type of entity, e.g. person, family, or corporate body.
+facet.set=Authority Set
+facet.set.tooltip=The authority set to which each item belongs.
+facet.scope=Scope
+facet.scope.tooltip=The scope of the record with regard to EHRIs remit.
+facet.priority=Priority
+facet.priority.tooltip=The priority of the institution with regard to EHRIs data entry.
+facet.active=Activity
+facet.active.tooltip=Active or disactive users.
+facet.group=Groups
+facet.group.tooltip=Groups to which users belong.
+facet.top=Top Level
+facet.top.tooltip=Show top-level (broadest) items only.
+facet.vocab=Vocabulary
+facet.vocab.tooltip=The vocabulary/set to which the keyword belongs.
 
 # Activity...
 portal.activity=Activity
@@ -315,6 +339,7 @@ portal.contribution.visibility.me=Only Me
 portal.contribution.visibility.groups=My Groups
 portal.contribution.visibility.custom=Custom
 portal.contribution.visibility.allowPublic=Allow Promotion
+portal.contribution.visibility.allowPublic.title=Allow EHRI moderators to promote this note so it is visible to all users.
 
 # Image upload
 portal.error.imageTooLarge=This image was too large. Please select one smaller than 5 metabytes in size.
@@ -338,3 +363,23 @@ portal.feedback=Feedback
 portal.feedback.message=Let us know what you think...
 portal.feedback.thanks=Thanks!
 portal.feedback.thanks.message=Your feedback is greatly appreciated.
+portal.feedback.list=Submitted Feedback
+
+# Helpdesk
+portal.helpdesk=Helpdesk
+portal.helpdesk.message=The helpdesk will attempt to match your query to the EHRI partner institution \
+  best placed to answer it.
+portal.helpdesk.thanks=Thanks!
+portal.helpdesk.thanks.message=Your query has been submitted.
+portal.helpdesk.query=Query
+portal.helpdesk.error=Oops! Something went wrong with the helpdesk. Here's what it said:
+portal.helpdesk.results=Helpdesk Contact Recommendations
+portal.helpdesk.results.empty=No relevant institutions found. Please reformulate your query and add more details.
+portal.helpdesk.query.placeholder=Enter your query here. Subject-specific terms are best.
+portal.helpdesk.copyMe=Email a copy of the query to your address
+portal.helpdesk.youAsked=You asked
+portal.helpdesk.institution=Institution Name
+portal.helpdesk.contactEmail=Contact Email
+portal.helpdesk.score=Confidence Score
+portal.helpdesk.confidence.message=How confident we are that this ranking is correct.
+portal.helpdesk.query.submit=Ask the helpdesk

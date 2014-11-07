@@ -1,6 +1,5 @@
 package integration.portal
 
-import scala.concurrent.ExecutionContext.Implicits.global
 import helpers.IntegrationTestRunner
 import models._
 import backend.ApiUser
@@ -11,9 +10,9 @@ import play.api.libs.json.JsObject
 
 
 class ProfileSpec extends IntegrationTestRunner {
-  import mocks.{privilegedUser, unprivilegedUser}
+  import mocks.privilegedUser
 
-  private val profileRoutes = controllers.portal.routes.Profile
+  private val profileRoutes = controllers.portal.profile.routes.Profile
   private val portalRoutes = controllers.portal.routes.Portal
 
   "Portal views" should {
@@ -124,16 +123,6 @@ class ProfileSpec extends IntegrationTestRunner {
       val delete = route(fakeLoggedInHtmlRequest(privilegedUser, POST,
         profileRoutes.deleteProfilePost().url), data).get
       status(delete) must equalTo(BAD_REQUEST)
-    }
-
-    "redirect to index page on log out" in new ITestApp {
-      val logout = route(fakeLoggedInHtmlRequest(privilegedUser, GET,
-        profileRoutes.logout().url)).get
-      status(logout) must equalTo(SEE_OTHER)
-      flash(logout).get("success") must beSome.which { fl =>
-        // NB: No i18n here...
-        fl must contain("portal.logout.confirmation")
-      }
     }
   }
 }

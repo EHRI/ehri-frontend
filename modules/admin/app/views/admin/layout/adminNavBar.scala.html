@@ -56,7 +56,7 @@
 			            }
 			            <li role="presentation" class="divider"></li>
 			            <li>
-			                <a href="@controllers.portal.routes.Profile.logout" id="signout">
+			                <a href="@controllers.portal.account.routes.Accounts.logout" id="signout">
 			                    <span class="hidden-responsive">@Messages("banner.signout")</span>
 			                    <i class="glyphicon glyphicon-off"></i>
 			                </a>
@@ -64,7 +64,7 @@
 			        </ul>
 			    </li>
 			    }.getOrElse {
-			        <li><a href="controllers.portal.routes.Profile.login" id="signin">@Messages("banner.signin")</a></li>
+			        <li><a href="controllers.portal.account.routes.Accounts.login" id="signin">@Messages("banner.signin")</a></li>
 			    }
 			</ul>
 		</nav>

@@ -101,7 +101,7 @@ case class Home @Inject()(implicit globalConfig: global.GlobalConfig, searchDisp
   }
 
   def loginRedirect() = Action {
-    MovedPermanently(controllers.portal.routes.Profile.login().url)
+    MovedPermanently(controllers.portal.account.routes.Accounts.login().url)
   }
 
   /**

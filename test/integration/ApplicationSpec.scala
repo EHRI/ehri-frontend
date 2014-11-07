@@ -39,7 +39,7 @@ class ApplicationSpec extends Specification with TestConfiguration with UserFixt
         // here, only that it's a simple layout
         try {
           val pageReadOnly = route(FakeRequest(GET,
-            controllers.portal.routes.Profile.forgotPassword().url)).get
+            controllers.portal.account.routes.Accounts.forgotPassword().url)).get
           status(pageReadOnly) must equalTo(OK)
           contentAsString(pageReadOnly) must contain(Messages("portal.readonly"))
 
@@ -47,7 +47,7 @@ class ApplicationSpec extends Specification with TestConfiguration with UserFixt
           f.delete()
 
           val page = route(FakeRequest(GET,
-            controllers.portal.routes.Profile.forgotPassword().url)).get
+            controllers.portal.account.routes.Accounts.forgotPassword().url)).get
           status(page) must equalTo(OK)
           contentAsString(page) must not contain Messages("portal.readonly")
         } finally {
@@ -86,7 +86,7 @@ class ApplicationSpec extends Specification with TestConfiguration with UserFixt
     "redirect to default URL when accessing login page when logged in" in {
       running(FakeApplication(withGlobal = Some(getGlobal), additionalPlugins = getPlugins)) {
         val login = route(fakeLoggedInHtmlRequest(mocks.publicUser, GET,
-          controllers.portal.routes.Profile.login().url)).get
+          controllers.portal.account.routes.Accounts.login().url)).get
         status(login) must equalTo(SEE_OTHER)
       }
     }
@@ -103,7 +103,7 @@ class ApplicationSpec extends Specification with TestConfiguration with UserFixt
     "allow access to the openid callback url, and return a bad request" in {
       running(FakeApplication(withGlobal = Some(getGlobal))) {
         val home = route(FakeRequest(GET,
-          controllers.portal.routes.Profile.openIDCallback().url)
+          controllers.portal.account.routes.Accounts.openIDCallback().url)
           .withSession(CSRF_TOKEN_NAME -> fakeCsrfString)).get
         status(home) must equalTo(BAD_REQUEST)
       }
@@ -118,7 +118,7 @@ class ApplicationSpec extends Specification with TestConfiguration with UserFixt
           CSRF_TOKEN_NAME -> Seq(fakeCsrfString)
         )
         val forgot = route(FakeRequest(POST,
-          controllers.portal.routes.Profile.forgotPasswordPost().url)
+          controllers.portal.account.routes.Accounts.forgotPasswordPost().url)
           .withSession(CSRF_TOKEN_NAME -> fakeCsrfString), data).get
         status(forgot) must equalTo(BAD_REQUEST)
         contentAsString(forgot) must contain(Messages("error.badRecaptcha"))
@@ -134,7 +134,7 @@ class ApplicationSpec extends Specification with TestConfiguration with UserFixt
           CSRF_TOKEN_NAME -> Seq(fakeCsrfString)
         )
         val forgot = route(FakeRequest(POST,
-          controllers.portal.routes.Profile.forgotPasswordPost().url)
+          controllers.portal.account.routes.Accounts.forgotPasswordPost().url)
           .withSession(CSRF_TOKEN_NAME -> fakeCsrfString), data).get
         status(forgot) must equalTo(BAD_REQUEST)
         contentAsString(forgot) must contain(Messages("error.emailNotFound"))
@@ -151,7 +151,7 @@ class ApplicationSpec extends Specification with TestConfiguration with UserFixt
           CSRF_TOKEN_NAME -> Seq(fakeCsrfString)
         )
         val forgot = route(FakeRequest(POST,
-          controllers.portal.routes.Profile.forgotPasswordPost().url)
+          controllers.portal.account.routes.Accounts.forgotPasswordPost().url)
           .withSession(CSRF_TOKEN_NAME -> fakeCsrfString), data).get
         status(forgot) must equalTo(SEE_OTHER)
         mailBuffer.size must beEqualTo(numSentMails + 1)
@@ -169,7 +169,7 @@ class ApplicationSpec extends Specification with TestConfiguration with UserFixt
           CSRF_TOKEN_NAME -> Seq(fakeCsrfString)
         )
         val forgot = route(FakeRequest(POST,
-          controllers.portal.routes.Profile.forgotPasswordPost().url)
+          controllers.portal.account.routes.Accounts.forgotPasswordPost().url)
           .withSession(CSRF_TOKEN_NAME -> fakeCsrfString), data).get
         status(forgot) must equalTo(SEE_OTHER)
         mailBuffer.size must beEqualTo(numSentMails + 1)
@@ -177,7 +177,7 @@ class ApplicationSpec extends Specification with TestConfiguration with UserFixt
 
         val token = mocks.tokens.last._1
         val resetForm = route(FakeRequest(GET,
-          controllers.portal.routes.Profile.resetPassword(token).url)
+          controllers.portal.account.routes.Accounts.resetPassword(token).url)
           .withSession(CSRF_TOKEN_NAME -> fakeCsrfString)).get
         status(resetForm) must equalTo(OK)
 
@@ -187,12 +187,12 @@ class ApplicationSpec extends Specification with TestConfiguration with UserFixt
           CSRF_TOKEN_NAME -> Seq(fakeCsrfString)
         )
         val resetPost = route(FakeRequest(POST,
-          controllers.portal.routes.Profile.resetPassword(token).url)
+          controllers.portal.account.routes.Accounts.resetPassword(token).url)
           .withSession(CSRF_TOKEN_NAME -> fakeCsrfString), rstData).get
         status(resetPost) must equalTo(SEE_OTHER)
 
         val expired = route(FakeRequest(GET,
-          controllers.portal.routes.Profile.resetPassword(token).url)
+          controllers.portal.account.routes.Accounts.resetPassword(token).url)
           .withSession(CSRF_TOKEN_NAME -> fakeCsrfString)).get
         status(expired) must equalTo(SEE_OTHER)
         val err = flash(expired).get("error")

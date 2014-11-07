@@ -35,6 +35,9 @@
         @views.html.admin.common.sidebarAction(user.hasPermission(ContentTypes.UserProfile, PermissionType.Grant)) {
             <a href="@controllers.groups.routes.Groups.membership(item.isA, item.id)">@Messages("accessor.groups.manage")</a>
         }
+        @views.html.admin.common.sidebarAction(user.hasPermission(ContentTypes.UserProfile, PermissionType.Grant)) {
+            <a href="@controllers.users.routes.UserProfiles.managePermissions(item.id)">@Messages("permissions.manage")</a>
+        }
         @views.html.admin.common.sidebarAction(user.isAdmin, danger = true) {
             <a href="@controllers.users.routes.UserProfiles.delete(item.id)">@Messages("userProfile.delete")</a>
         }

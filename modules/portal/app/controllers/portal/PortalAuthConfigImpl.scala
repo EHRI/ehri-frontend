@@ -14,8 +14,8 @@ import play.api.mvc.Result
 trait PortalAuthConfigImpl extends AuthConfigImpl {
 
   override def defaultLogoutUrl: Call = controllers.portal.routes.Portal.index()
-  override def defaultLoginUrl = controllers.portal.routes.Profile.profile()
-  override def defaultAuthFailedUrl: Call = controllers.portal.routes.Profile.login()
+  override def defaultLoginUrl = controllers.portal.profile.routes.Profile.profile()
+  override def defaultAuthFailedUrl: Call = controllers.portal.account.routes.Accounts.login()
 
   /**
    * A redirect target after a successful user login.

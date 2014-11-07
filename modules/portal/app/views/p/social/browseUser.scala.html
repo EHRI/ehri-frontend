@@ -27,7 +27,7 @@
                 <button id="activity-stream-fetchmore"
                         data-offset="@(params.offset + params.limit)"
                         data-limit="@params.limit"
-                        data-href="@controllers.portal.routes.Social.moreUserActivity(them.id, params.offset + params.limit, params.limit)"
+                        data-href="@controllers.portal.social.routes.Social.moreUserActivity(them.id, params.offset + params.limit, params.limit)"
                         class="btn btn-default btn-block">
                     @Messages("portal.activity.fetchMore")
                 </button>

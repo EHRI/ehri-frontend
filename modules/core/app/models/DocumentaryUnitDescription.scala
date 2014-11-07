@@ -62,7 +62,7 @@ case class IsadGControl(
   sources: Option[List[String]] = None,
   rulesAndConventions: Option[String] = None,
   datesOfDescriptions: Option[String] = None,
-  processInfo: Option[String] = None
+  processInfo: Option[List[String]] = None
 )
 
 object DocumentaryUnitDescriptionF {
@@ -171,7 +171,7 @@ object DocumentaryUnitDescriptionF {
       (__ \ SOURCES).readListOrSingleNullable[String] and
       (__ \ RULES_CONVENTIONS).readNullable[String] and
       (__ \ DATES_DESCRIPTIONS).readNullable[String] and
-      (__ \ PROCESS_INFO).readNullable[String]
+      (__ \ PROCESS_INFO).readListOrSingleNullable[String]
     )(IsadGControl.apply _)) and
     (__ \ DATA \ CREATION_PROCESS).readWithDefault(CreationProcess.Manual) and
     (__ \ RELATIONSHIPS \ HAS_ACCESS_POINT).nullableListReads[AccessPointF] and
@@ -241,7 +241,7 @@ case class DocumentaryUnitDescriptionF(
     SOURCES -> control.sources.map(_.mkString("\n")),
     RULES_CONVENTIONS -> control.rulesAndConventions,
     DATES_DESCRIPTIONS -> control.datesOfDescriptions,
-    PROCESS_INFO -> control.processInfo
+    PROCESS_INFO -> control.processInfo.map(_.mkString("\n"))
   )
 }
 
@@ -297,7 +297,7 @@ object DocumentaryUnitDescription {
         SOURCES -> optional(list(nonEmptyText)),
         RULES_CONVENTIONS -> optional(text),
         DATES_DESCRIPTIONS -> optional(text),
-        PROCESS_INFO -> optional(text)
+        PROCESS_INFO -> optional(list(nonEmptyText))
       )(IsadGControl.apply)(IsadGControl.unapply),
       CREATION_PROCESS -> default(enum(CreationProcess), CreationProcess.Manual),
       ACCESS_POINTS -> list(AccessPoint.form.mapping),

@@ -35,7 +35,7 @@ object Feedback {
       "createdAt" -> ignored(Option.empty[DateTime]),
       "updatedAt" -> ignored(Option.empty[DateTime]),
       "mode" -> ignored(Option.apply(play.api.Play.current.mode))
-    )(Feedback.apply _)(Feedback.unapply _)
+    )(Feedback.apply)(Feedback.unapply)
   )
 }
 

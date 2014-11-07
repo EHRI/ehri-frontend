@@ -73,7 +73,7 @@ object Helpers {
       case EntityType.DocumentaryUnit => portalRoutes.browseDocument(item.id)
       case EntityType.Repository => portalRoutes.browseRepository(item.id)
       case EntityType.HistoricalAgent => portalRoutes.browseHistoricalAgent(item.id)
-      case EntityType.UserProfile => controllers.portal.routes.Social.browseUser(item.id)
+      case EntityType.UserProfile => controllers.portal.social.routes.Social.browseUser(item.id)
       case EntityType.Link => portalRoutes.browseLink(item.id)
       case EntityType.Annotation => portalRoutes.browseAnnotation(item.id)
       case EntityType.Vocabulary => portalRoutes.browseVocabulary(item.id)

@@ -4,7 +4,8 @@ import scala.concurrent.ExecutionContext.Implicits.global
 import helpers.IntegrationTestRunner
 import models._
 import utils.ContributionVisibility
-import controllers.portal.{ReverseAnnotations, ReversePortal}
+import controllers.portal.ReversePortal
+import controllers.portal.annotate.ReverseAnnotations
 import backend.ApiUser
 import com.google.common.net.HttpHeaders
 import defines.EntityType
@@ -14,7 +15,7 @@ import backend.rest.PermissionDenied
 class AnnotationsSpec extends IntegrationTestRunner {
   import mocks.{privilegedUser, unprivilegedUser}
 
-  private val annotationRoutes: ReverseAnnotations = controllers.portal.routes.Annotations
+  private val annotationRoutes: ReverseAnnotations = controllers.portal.annotate.routes.Annotations
   private val portalRoutes: ReversePortal = controllers.portal.routes.Portal
 
   override def getConfig = Map("recaptcha.skip" -> true)
