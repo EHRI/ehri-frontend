@@ -11,7 +11,7 @@
         <h1>@Messages("portal.social.browseUsers")</h1>
 
         @if(params.isFiltered || !users.items.isEmpty) {
-            @helper.form(action = controllers.portal.routes.Social.browseUsers, 'role -> "form", 'class -> "form-horizontal") {
+            @helper.form(action = controllers.portal.social.routes.Social.browseUsers, 'role -> "form", 'class -> "form-horizontal") {
                 <div class="row search-bar">
                     <div class="col-md-2">
                         <h4>@Messages("portal.search")</h4>

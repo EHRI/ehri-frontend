@@ -1,4 +1,4 @@
-@(profileForm: play.api.data.Form[ProfileData], imageForm: Form[String], pwForm: Form[(String,String,String)], accForm: Form[AccountPreferences])(implicit userOpt: Option[UserProfile], request: RequestHeader, prefs: utils.SessionPrefs, globalConfig: global.GlobalConfig, lang: Lang, flash: Flash, token: play.filters.csrf.CSRF.Token)
+@(profileForm: play.api.data.Form[ProfileData], imageForm: Form[String], accForm: Form[AccountPreferences])(implicit userOpt: Option[UserProfile], request: RequestHeader, prefs: utils.SessionPrefs, globalConfig: global.GlobalConfig, lang: Lang, flash: Flash, token: play.filters.csrf.CSRF.Token)
 
 @p.layout.portalLayout(Messages("portal.profile"), EntityType.UserProfile.toString) {
     @layout.infobar {
@@ -14,28 +14,30 @@
                     @unverified()
                 </fieldset>
             }
+
+            @if(account.password.isDefined) {
+                <h3>@Messages("portal.profile.security")</h3>
+                <div class="col-sm-offset-4 col-sm-8">
+                    <a href="@controllers.portal.account.routes.Accounts.changePassword">@Messages("portal.login.password.change.link")</a>
+                </div>
+            }
         }
 
         <h3>@Messages("portal.profile.updateProfile")</h3>
-        @editProfileForm(profileForm, controllers.portal.routes.Profile.updateProfilePost)
+        @editProfileForm(profileForm, controllers.portal.profile.routes.Profile.updateProfilePost)
 
         <h3>@Messages("portal.profile.updateProfileImage")</h3>
-        @imageUploadForm(imageForm, controllers.portal.routes.Profile.updateProfileImagePost)
-
-        @if(userOpt.flatMap(_.account).flatMap(_.password).isDefined) {
-            <h3>@Messages("portal.profile.changePassword")</h3>
-            @p.account.changePasswordForm(pwForm, controllers.portal.routes.Profile.changePasswordPost)
-        }
+        @imageUploadForm(imageForm, controllers.portal.profile.routes.Profile.updateProfileImagePost)
 
         @userOpt.flatMap(_.account).map { acc =>
             <h3>@Messages("portal.profile.preferences")</h3>
-            @p.account.accountPrefsForm(accForm, controllers.portal.routes.Profile.updateAccountPrefsPost)
+            @p.account.accountPrefsForm(accForm, controllers.portal.profile.routes.Profile.updateAccountPrefsPost)
         }
 
         <h3>@Messages("portal.profile.deleteProfile")</h3>
         <p>
         <div class="col-sm-offset-4 col-sm-8">
-            <a href="@controllers.portal.routes.Profile.deleteProfile" class=" btn  btn-danger ">@Messages("portal.profile.deleteProfileLink")</a>
+            <a href="@controllers.portal.profile.routes.Profile.deleteProfile" class=" btn  btn-danger ">@Messages("portal.profile.deleteProfileLink")</a>
         </div>
     }
 }
