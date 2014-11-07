@@ -17,6 +17,8 @@ object PortalData extends Controller {
     Action { implicit request =>
       Ok(
         Routes.javascriptRouter("jsRoutes")(
+          controllers.portal.routes.javascript.Bookmarks.moveBookmarksPost,
+          controllers.portal.routes.javascript.Bookmarks.contents,
           controllers.portal.routes.javascript.Bookmarks.bookmarkPost,
           controllers.portal.routes.javascript.Bookmarks.bookmarkInNewSetPost,
           controllers.portal.profile.routes.javascript.Profile.watchItemPost,

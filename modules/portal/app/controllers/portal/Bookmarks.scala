@@ -20,6 +20,8 @@ import backend.rest.{ItemNotFound, Constants}
 import play.api.i18n.Lang
 import play.api.http.HeaderNames
 import play.api.cache.Cache
+import models.base.AnyModel
+import solr.SolrConstants
 
 @Singleton
 case class Bookmarks @Inject()(implicit globalConfig: global.GlobalConfig, searchDispatcher: Dispatcher, searchResolver: Resolver, backend: Backend,
@@ -117,12 +119,13 @@ case class Bookmarks @Inject()(implicit globalConfig: global.GlobalConfig, searc
   }
 
   def listBookmarkSets = withUserAction.async { implicit user => implicit request =>
-    val pageF = backend.userBookmarks[VirtualUnit](user.id, PageParams.fromRequest(request))
+    val params: PageParams = PageParams.fromRequest(request)
+    val pageF = backend.userBookmarks[VirtualUnit](user.id, params)
     val watchedF = watchedItemIds(userIdOpt = Some(user.id))
     for {
       page <- pageF
       watched <- watchedF
-    } yield Ok(p.bookmarks.list(page, watched))
+    } yield Ok(p.bookmarks.list(page, SearchParams.empty, watched))
   }
 
   def createBookmarkSet(items: List[String] = Nil) = withUserAction { implicit user => implicit request =>
@@ -142,6 +145,73 @@ case class Bookmarks @Inject()(implicit globalConfig: global.GlobalConfig, searc
         else Redirect(bmRoutes.listBookmarkSets())
       }
     )
+  }
+
+  private def buildFilter(v: VirtualUnit): Map[String,Any] = {
+    val pq = v.includedUnits.map(_.id)
+    if (pq.isEmpty) Map(s"${SolrConstants.PARENT_ID}:${v.id}" -> Unit)
+    else {
+      val q = s"${SolrConstants.PARENT_ID}:${v.id} OR ${SolrConstants.ITEM_ID}:(${pq.mkString(" ")})"
+      Map(q -> Unit)
+    }
+  }
+
+  private def includedChildren(id: String, parent: AnyModel, page: Int = 1)(implicit userOpt: Option[UserProfile], req: RequestHeader): Future[QueryResult[AnyModel]] = {
+    val params: SearchParams = SearchParams.empty.copy(page = Some(page))
+    parent match {
+      case d: DocumentaryUnit =>
+        find[AnyModel](
+          filters = Map(SolrConstants.PARENT_ID -> d.id),
+          defaultParams = params,
+          entities = List(d.isA),
+          facetBuilder = docSearchFacets)
+      case d: VirtualUnit => d.includedUnits match {
+        case _ => find[AnyModel](
+          filters = buildFilter(d),
+          defaultParams = params,
+          entities = List(EntityType.VirtualUnit, EntityType.DocumentaryUnit),
+          facetBuilder = docSearchFacets)
+      }
+      case _ => Future.successful(QueryResult.empty)
+    }
+  }
+
+
+  def contents(id: String) = withUserAction.async { implicit user => implicit request =>
+    val itemF: Future[AnyModel] = backend.getAny[AnyModel](id)
+    val watchedF: Future[Seq[String]] = watchedItemIds(userIdOpt = userOpt.map(_.id))
+    for {
+      item <- itemF
+      children <- includedChildren(id, item)
+      watched <- watchedF
+    } yield {
+      Ok(p.bookmarks.itemList(
+        Some(item),
+        user,
+        children.page.copy(items = children.page.items.map(_._1)),
+        children.params,
+        children.page.hasMore,
+        watched
+      ))
+    }
+  }
+
+  def moreContents(id: String, page: Int) = withUserAction.async { implicit user => implicit request =>
+    val itemF: Future[AnyModel] = backend.getAny[AnyModel](id)
+    val watchedF: Future[Seq[String]] = watchedItemIds(userIdOpt = userOpt.map(_.id))
+    for {
+      item <- itemF
+      children <- includedChildren(id, item, page = page)
+      watched <- watchedF
+    } yield {
+      Ok(p.bookmarks.itemListItems(
+        Some(item),
+        children.page.copy(items = children.page.items.map(_._1)),
+        children.params,
+        children.page.hasMore,
+        watched
+      ))
+    }
   }
 }
 

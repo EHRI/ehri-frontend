@@ -47,10 +47,12 @@ case class VirtualUnits @Inject()(implicit globalConfig: global.GlobalConfig, se
     // - load the VU from the graph along with its included DUs
     // - query for anything that has the VUs parent ID *or* anything
     // with an itemId among its included DUs
-    val pairs: List[(String, String)] =
-      SolrConstants.PARENT_ID -> v.id :: v.includedUnits.map(inc => SolrConstants.ITEM_ID -> inc.id)
-    Map(s"(${pairs.map(t => t._1 + ":" + t._2).mkString(" OR ")})" -> Unit)
+    import SolrConstants._
+    val pq = v.includedUnits.map(_.id)
+    if (pq.isEmpty) Map(s"$PARENT_ID:${v.id}" -> Unit)
+    else Map(s"$PARENT_ID:${v.id} OR $ITEM_ID:(${pq.mkString(" ")})" -> Unit)
   }
+
 
   def browseVirtualCollection(id: String) = getAction[VirtualUnit](EntityType.VirtualUnit, id) {
     item => details => implicit userOpt => implicit request =>

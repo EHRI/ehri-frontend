@@ -1,23 +1,10 @@
-@(them: UserProfile, items: utils.AbstractPage[VirtualUnit], watched: Seq[String])(implicit req: RequestHeader, userOpt: Option[UserProfile], lang: Lang, globalConfig: global.GlobalConfig)
+@(parent: Option[AnyModel], them: UserProfile, items: Seq[AnyModel], params: utils.search.SearchParams, more: Boolean, watched: Seq[String])(implicit req: RequestHeader, userOpt: Option[UserProfile], lang: Lang, globalConfig: global.GlobalConfig)
 
 @defining(userOpt.exists(_.id == them.id)) { isCurrentUser =>
 
     @if(!items.isEmpty) {
-        <ul class="list-unstyled watched-items">
-            @items.map { item =>
-                <li>
-                    @p.virtualUnit.listItemVc(item, Seq.empty, watched = watched.contains(item.id), showContext = false)
-                </li>
-            }
+        <ul class="list-group bookmark-list">
+            @itemListItems(parent, items, params, more, watched)
         </ul>
-        @common.pagination(items, namespace = "w")
-    } else {
-        <p class="text-muted">
-            @if(isCurrentUser) {
-                @Messages("portal.bookmarkSet.noBookmarkSetsYet")
-            } else {
-                @Messages("portal.bookmarkSet.noUserBookmarkSetsYet", them.toStringLang)
-            }
-        </p>
     }
 }
