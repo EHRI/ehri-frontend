@@ -11,6 +11,7 @@
         </div>
 
         <div class="panel panel-default">
+            @if(!results.isEmpty) {
             <table class="table table-striped">
                 <tr>
                     <th>@Messages("portal.helpdesk.institution")</th>
@@ -25,7 +26,11 @@
                     </tr>
                 }
             </table>
+            } else {
+            <p class="alert alert-warning">
+                @Messages("portal.helpdesk.results.empty")
+            </p>
+            }
         </div>
-
     }
 }
