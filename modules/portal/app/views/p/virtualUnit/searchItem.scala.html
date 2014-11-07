@@ -21,7 +21,7 @@
             </a>
         </h3>
         <div class="search-item-body">
-            <ol class="collapsible">@wrapParent(item, path)</ol>
+            <ol class="breadcrumb">@wrapParent(item, path)</ol>
             @item match {
                 case d: DocumentaryUnit => {
                     @p.documentaryUnit.listItemBody(d, showRepository, highlighter = hit)

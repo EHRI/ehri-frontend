@@ -163,6 +163,8 @@ portal.historicalAgent.entityType.corporateBody=Corporate Body
 portal.historicalAgent.set=Historical Agent
 
 portal.virtualUnit.viewInArchivalContext=View in archival context
+portal.virtualUnit.viewInArchivalContext.explanation=This item is being displayed as part of a ''virtual collection'' \
+  that does not reflect the arrangement of material in the physical archive.
 
 portal.bookmarkSet.list=Bookmark Sets
 portal.bookmarkSet.create=Create Bookmark Set
