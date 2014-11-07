@@ -57,7 +57,7 @@ case class Helpdesk @Inject()(implicit helpdeskDAO: HelpdeskDAO, globalConfig: g
 
         helpdeskDAO.askQuery(query).flatMap { responses =>
           SearchDAO.list[Repository](responses.map(_.institutionId)).map { institutions =>
-            Ok(views.html.p.helpdesk.results(query, responses, institutions))
+            Ok(views.html.p.helpdesk.results(email, query, responses, institutions))
           }
         } recover {
           case e: BadHelpdeskResponse =>
