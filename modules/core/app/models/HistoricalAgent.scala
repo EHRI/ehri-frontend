@@ -4,7 +4,7 @@ package models
  * Classes representing an ISDIAH collection-holding institution
  */
 
-import defines.{ContentTypes, EntityType, PublicationStatus}
+import defines.{ContentTypes, EntityType}
 import base._
 
 import play.api.libs.json._
@@ -101,7 +101,7 @@ object HistoricalAgent {
       ISA -> ignored(EntityType.HistoricalAgent),
       ID -> optional(nonEmptyText),
       IDENTIFIER -> nonEmptyText(minLength=2), // TODO: Increase to > 2, not done yet 'cos of test fixtures,
-      PUBLICATION_STATUS -> optional(enum(defines.PublicationStatus)),
+      PUBLICATION_STATUS -> optional(enum(models.PublicationStatus)),
       "descriptions" -> list(HistoricalAgentDescription.form.mapping)
     )(HistoricalAgentF.apply)(HistoricalAgentF.unapply)
   )
