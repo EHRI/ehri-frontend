@@ -65,3 +65,4 @@ GET /filter                                     @controllers.admin.SearchFilter.
 
 
 GET /assets/*file                               controllers.admin.Assets.at(path="/public", file)
+GET /v/*file                                    controllers.admin.Assets.versioned(path="/public", file: Asset)
