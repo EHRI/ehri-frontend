@@ -6,8 +6,8 @@
             <li><strong><a class="alt" href="@controllers.portal.routes.Portal.browseCountry(ct.id)">@highlighter.highlight(ct.toStringLang)</a></strong></li>
         }
     }
-    @desc.addresses.headOption.map { address =>
-        @common.propertyList(address.streetAddress, address.city, address.region)(lang, highlighter)
+    @desc.addresses.headOption.map(_.concise).filterNot(_.isEmpty).map { conciseAddress =>
+        <li>@conciseAddress</li>
     }
     @item.latestEvent.map { event =>
         <li title="@common.eventTitle(event)">
