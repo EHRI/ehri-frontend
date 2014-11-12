@@ -3,7 +3,6 @@ package views
 import play.api.i18n.Lang
 import org.apache.commons.lang3.StringUtils
 import models._
-import org.pegdown.{Extensions, PegDownProcessor}
 import models.base.AnyModel
 import play.api.mvc.Call
 import scala.util.matching.Regex
@@ -27,8 +26,22 @@ package object Helpers {
   // Initialize Markdown processor for rendering markdown. NB: The
   // instance is apparently not thread safe, so using a threadlocal
   // here to be on the safe side.
+  import org.pegdown.{LinkRenderer, Extensions, PegDownProcessor}
+  import org.pegdown.ast.{AutoLinkNode, ExpLinkNode}
+
+  private val linkRenderer = new LinkRenderer() {
+    override def render(node: AutoLinkNode) = {
+      new LinkRenderer.Rendering(node.getText, node.getText).withAttribute("target", "_blank")
+    }
+    override def render(node: ExpLinkNode, text: String) = {
+      new LinkRenderer.Rendering(node.url, text)
+        .withAttribute("target", "_blank")
+        .withAttribute("title", node.title)
+    }
+  }
   private val markdownParser = new ThreadLocal[PegDownProcessor]
   def getMarkdownProcessor = {
+    import org.pegdown.ast.{AutoLinkNode,ExpLinkNode}
     // NB: Eventually we want auto-linking. However this seems
     // to crash pegdown at the moment.
     //import org.pegdown.{Extensions,Parser,PegDownProcessor}
@@ -41,7 +54,7 @@ package object Helpers {
     }
   }
 
-  def renderMarkdown(text: String): String = getMarkdownProcessor.markdownToHtml(text)
+  def renderMarkdown(text: String): String = getMarkdownProcessor.markdownToHtml(text, linkRenderer)
 
 
   /**
