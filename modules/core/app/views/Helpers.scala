@@ -31,11 +31,14 @@ package object Helpers {
 
   private val linkRenderer = new LinkRenderer() {
     override def render(node: AutoLinkNode) = {
-      new LinkRenderer.Rendering(node.getText, node.getText).withAttribute("target", "_blank")
+      new LinkRenderer.Rendering(node.getText, node.getText)
+        .withAttribute("target", "_blank")
+        .withAttribute("class", "external")
     }
     override def render(node: ExpLinkNode, text: String) = {
       new LinkRenderer.Rendering(node.url, text)
         .withAttribute("target", "_blank")
+        .withAttribute("class", "external")
         .withAttribute("title", node.title)
     }
   }
