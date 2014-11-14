@@ -18,13 +18,24 @@
         <script src="@controllers.core.routes.Assets.versioned("js/lib/handlebar.js")"></script>
         <script src="@controllers.core.routes.Assets.versioned("js/lib/typeahead.js")"></script>
         <script src="@controllers.core.routes.Assets.versioned("js/bootstrap.confirmation.js")"></script>
-        <script src="@controllers.core.routes.Assets.versioned("js/accessPoints.js")"></script>
+        <script src="@controllers.admin.routes.Assets.versioned("js/access-points.js")"></script>
         <style type="text/css">
             .modal-dialog { width: 80%;}
             .model { display:none; }
             .new-access-point { display: none; }
             .pages { display: none; }
             .submit-group { display : none; }
+
+            .modal-spinner {
+                width: 80%;
+                background-repeat: no-repeat;
+                background-image: url('@controllers.admin.routes.Assets.versioned("img/ajax-loader-large.gif")');
+                background-position: center;
+                min-height: 128px;
+                float: left;
+                margin-left: auto;
+                margin-right: auto;
+            }
         </style>
     }
 
@@ -124,4 +135,16 @@
         </li>
     }
     </ul>
+
+    <div class="modal fade waiting-modal" style="display:none">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    Please Wait
+                </div>
+                <div class="modal-spinner"></div>
+                <div class="clearfix"></div>
+            </div>
+        </div>
+    </div>
 }
