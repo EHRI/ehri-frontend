@@ -41,7 +41,8 @@
                 @Messages("systemEvent.deletion.noInfo")
             }
         } else {
-                <h4>@Messages("systemEvent.subjects"): @Messages("pagination.displayingItems", page.offset + 1, page.offset + page.items.size, page.total)</h4>
+                <h4>@Messages("systemEvent.subjects"): @Messages("pagination.displayingItems", page.start, page.end, page.total)</h4>
+                @println(s"PAGE: ${page.start}, ${page.end}, ${page.total}")
                 @common.pagination(page)
                 <ul class="list-unstyled">
                     @page.items.map { item =>
