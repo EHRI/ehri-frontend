@@ -157,10 +157,11 @@ case class Accounts @Inject()(implicit globalConfig: GlobalConfig, searchDispatc
     "google" -> accountRoutes.googleLogin
   )
 
-  def login = optionalUserAction { implicit accountOpt => implicit request =>
+  def login = OptionalAuthAction { implicit authRequest =>
     if (globalConfig.readOnly) {
       Redirect(portalRoutes.index()).flashing("warning" -> Messages("portal.login.disabled"))
     } else {
+      implicit val accountOpt = authRequest.user
       accountOpt match {
         case Some(user) => Redirect(portalRoutes.index())
           .flashing("warning" -> Messages("portal.login.alreadyLoggedIn", user.email))
@@ -185,8 +186,8 @@ case class Accounts @Inject()(implicit globalConfig: GlobalConfig, searchDispatc
     }
   }
 
-  def logout = optionalUserAction.async { implicit maybeUser => implicit request =>
-    Logger.logger.info("Portal User '{}' logged out", maybeUser.map(_.id).getOrElse("?"))
+  def logout = OptionalAuthAction.async { implicit authRequest =>
+    Logger.logger.info("Portal User '{}' logged out", authRequest.user.map(_.id).getOrElse("?"))
     gotoLogoutSucceeded
   }
 

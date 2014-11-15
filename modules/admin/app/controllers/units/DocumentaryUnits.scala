@@ -379,8 +379,8 @@ case class DocumentaryUnits @Inject()(implicit globalConfig: global.GlobalConfig
 
   import play.api.libs.concurrent.Execution.Implicits._
 
-  def exportEad(id: String) = optionalUserAction.async { implicit userOpt => implicit request =>
-    implicit val apiUser = ApiUser(userOpt.map(_.id))
+  def exportEad(id: String) = OptionalAuthAction.async { implicit authRequest =>
+    implicit val apiUser = ApiUser(authRequest.user.map(_.id))
     val eadId: String = docRoutes.exportEad(id).absoluteURL(globalConfig.https)
 
     EadExporter(backend).exportEad(id, eadId).map { xml =>
