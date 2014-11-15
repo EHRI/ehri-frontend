@@ -29,7 +29,7 @@ trait AuthConfigImpl extends AuthConfig with Results {
 
   type Id = String
 
-  override lazy val idContainer: IdContainer[Id] = new CookieIdContainer[Id]
+  override lazy val idContainer: AsyncIdContainer[Id] = AsyncIdContainer(new CookieIdContainer[Id])
 
   /**
    * Whether use the secure option or not use it in the cookie.

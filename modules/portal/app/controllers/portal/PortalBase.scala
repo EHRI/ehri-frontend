@@ -76,8 +76,8 @@ trait PortalBase {
    */
   object userBrowseAction {
     def async(f: UserDetails => Request[AnyContent] => Future[Result]): Action[AnyContent] = {
-      optionalUserAction.async { accountOpt => request =>
-        accountOpt.map { account =>
+      OptionalAuthAction.async { authRequest =>
+        authRequest.user.map { account =>
           implicit val apiUser: ApiUser = ApiUser(Some(account.id))
           val userF: Future[UserProfile] = backend.get[UserProfile](account.id)
           val watchedF: Future[Seq[String]] = watchedItemIds(userIdOpt = Some(account.id))
@@ -85,10 +85,10 @@ trait PortalBase {
             user <- userF
             userWithAccount = user.copy(account=Some(account))
             watched <- watchedF
-            r <- f(UserDetails(Some(userWithAccount), watched))(request)
+            r <- f(UserDetails(Some(userWithAccount), watched))(authRequest)
           } yield r
         } getOrElse {
-          f(new UserDetails)(request)
+          f(new UserDetails)(authRequest)
         }
       }
     }
