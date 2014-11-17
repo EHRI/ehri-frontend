@@ -13,6 +13,48 @@
   padding: @large-padding;
 }
 
+.jumbotron {
+  text-align: center;
+  color: #fff;
+  //min-height: 400px;
+  //padding: 100px 0;
+  padding-top: 100px;
+  padding-bottom: 100px;
+  background-position: top left;
+  background-repeat: no-repeat;
+  background-size: 100% auto;
+  background-image: url(/v/img/memorial_large.jpg);
+
+  @media screen and (max-width: @screen-sm-min) {
+    min-height: 40px;
+    background-size: auto;
+    padding-top: 50px;
+    padding-bottom: 50px;
+  }
+
+  // Make the search bar larger on the welcome page
+  .container {
+    form {
+      .search-bar {
+        .form-group {
+          .input-group {
+            input {
+              .input-lg();
+            }
+            .input-group-btn {
+              button {
+                .btn-lg();
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}
+
+
+
 .page-content h1 {
   margin-top:10px;
 }
@@ -52,17 +94,6 @@ img.repository-logo {
 img.repository-logo {
   max-width: 100%;
   margin-bottom: @large-margin;
-}
-
-.landing-header {
-  color: white;
-  border-bottom: 1px solid @pale-gray;
-  padding: @small-padding;
-  font-family: 'Lato', sans-serif;
-  
-  a {
-    color: white !important;
-  }
 }
 
 /** Heading which divides a set of search results */
