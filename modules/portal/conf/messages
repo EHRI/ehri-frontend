@@ -91,14 +91,22 @@ portal.profile.profileDeleted=Your profile has been deleted.
 
 portal.close=Close
 
-portal.browse.countries=Country Reports
+portal.browse.countries=National Reports
+portal.browse.countries.description=EHRI national reports provide an overview of \
+  the Second World War and Holocaust history as well as of the archival situation \
+  in the covered countries.
 portal.browse.repositoriesByCountry=Repositories By Country
 portal.browse.repositories=Repositories
+portal.browse.repositories.description=An inventory of archival institutions that \
+  hold Holocaust-related material.
 portal.browse.documents=Archival Descriptions
+portal.browse.documents.description=Electronic descriptions and finding aids of Holocaust-related archival material.
 portal.browse.historicalAgents=Historical Agents
 portal.browse.documentsByRepository=Archival Descriptions By Institution
 portal.browse.concepts=Keywords
 
+portal.landingBlurb.countries=Browse {0}.
+portal.landingBlurb.countryLink={0} countries
 portal.landingBlurb.repositories=Browse {0} in {1}.
 portal.landingBlurb.repositoryLink={0} repositories
 portal.landingBlurb.inCountryLink={0} countries
