@@ -1,4 +1,9 @@
 @(stats: utils.Stats)(implicit userOpt: Option[UserProfile], request: RequestHeader, prefs: utils.SessionPrefs, globalConfig: global.GlobalConfig, lang: Lang, flash: Flash)
+
+@countLink(url: String, key: String, params: Any*) = {
+<a href="@url">@Messages(key, params: _*)</a>
+}
+
 <!DOCTYPE html>
 
 <html lang="en">
@@ -26,11 +31,11 @@
 
     <style>
         body {
-
+            padding-top: 50px;
+            min-width: 320px;
         }
         .navbar-inverse {
-            opacity: 0.7;
-            color: #fff;
+
         }
     </style>
 </head>
@@ -64,22 +69,33 @@
                 <span class="icon-bar"></span>
               </button>
             </div>
-            <div id="navbar" class="navbar-collapse collapse nav-primary">
-                <ul class="list-inline">
-                    <li><a href="@controllers.portal.account.routes.Accounts.login">@Messages("portal.login")</a></li>
-                </ul>
-            </div><!--/.navbar-collapse -->
+
+            <div id="navbar" class="navbar-collapse collapse nav-secondary">
+                @userOpt.map { _ =>
+                    <ul class="nav navbar-nav">
+                        <li class="@views.Helpers.maybeActive(controllers.portal.social.routes.Social.personalisedActivity().url)">
+                            <a href="@controllers.portal.social.routes.Social.personalisedActivity()">@Messages("portal.activity")</a>
+                        </li>
+                        <li class="@views.Helpers.maybeActivePath(controllers.portal.social.routes.Social.browseUsers.url)">
+                            <a href="@controllers.portal.social.routes.Social.browseUsers">@Messages("portal.social.users")</a>
+                        </li>
+                    </ul>
+                }
+
+                @p.layout.headerAccountAdmin()
+            </div>
           </div>
         </nav>
 
         <div class="page-content">
-            <div class="jumbotron">
-                <div class="container">
-                    <h1>@Messages("portal.welcome")</h1>
-                    <sup class="text-muted">Beta</sup>
-                    @helper.form(action = controllers.portal.routes.Portal.search, 'role -> "form") {
+            <div class="jumbotron-container">
+                <div class="jumbotron">
+                    <div class="container">
+                        <h1>@Messages("portal.welcome") <sup class="text-muted">Beta</sup></h1>
+                        @helper.form(action = controllers.portal.routes.Portal.search, 'role -> "form") {
                         @views.html.common.search.searchBar()
-                    }
+                        }
+                    </div>
                 </div>
             </div>
 
@@ -87,20 +103,50 @@
               <!-- Example row of columns -->
               <div class="row">
                 <div class="col-md-4 welcome-section country">
-                  <h2>@Messages("portal.browse.countries")</h2>
-                  <p>Donec id elit non mi porta gravida at eget metus. Fusce dapibus, tellus ac cursus commodo, tortor mauris condimentum nibh, ut fermentum massa justo sit amet risus. Etiam porta sem malesuada magna mollis euismod. Donec sed odio dui. </p>
-                  <p><a class="btn btn-default" href="#" role="button">View details &raquo;</a></p>
+                  <h2><a href="@controllers.portal.routes.Portal.browseCountries">@Messages("portal.browse.countries")</a></h2>
+                  <p>@Messages("portal.browse.countries.description")</p>
                 </div>
                 <div class="col-md-4 welcome-section repository">
-                    <h2>@Messages("portal.browse.repositories")</h2>
-                  <p>Donec id elit non mi porta gravida at eget metus. Fusce dapibus, tellus ac cursus commodo, tortor mauris condimentum nibh, ut fermentum massa justo sit amet risus. Etiam porta sem malesuada magna mollis euismod. Donec sed odio dui. </p>
-                  <p><a class="btn btn-default" href="#" role="button">View details &raquo;</a></p>
+                    <h2><a href="@controllers.portal.routes.Portal.browseRepositories">@Messages("portal.browse.repositories")</a></h2>
+                    <p>@Messages("portal.browse.repositories.description")</p>
                </div>
                 <div class="col-md-4 welcome-section documentaryUnit">
-                    <h2>@Messages("portal.browse.documents")</h2>
-                  <p>Donec sed odio dui. Cras justo odio, dapibus ac facilisis in, egestas eget quam. Vestibulum id ligula porta felis euismod semper. Fusce dapibus, tellus ac cursus commodo, tortor mauris condimentum nibh, ut fermentum massa justo sit amet risus.</p>
-                  <p><a class="btn btn-default" href="#" role="button">View details &raquo;</a></p>
+                    <h2><a href="@controllers.portal.routes.Portal.browseDocuments">@Messages("portal.browse.documents")</a></h2>
+                    <p>@Messages("portal.browse.documents.description")</p>
                 </div>
+              </div>
+              <div class="row">
+                  <div class="col-md-4 welcome-section country">
+                      @{Html(Messages(
+                      "portal.landingBlurb.countries",
+                      countLink(controllers.portal.routes.Portal.browseCountries().url,
+                      "portal.landingBlurb.countryLink", stats.countryCount).body.trim
+                      ))}
+                  </div>
+                  <div class="col-md-4 welcome-section repository">
+                      @{Html(Messages(
+                      "portal.landingBlurb.repositories",
+                      countLink(controllers.portal.routes.Portal.browseRepositories().url,
+                      "portal.landingBlurb.repositoryLink", stats.repositoryCount).body.trim,
+                      countLink(controllers.portal.routes.Portal.browseCountries().url + "?data=yes", "portal.landingBlurb.inCountryLink",
+                      stats.inCountryCount).body.trim
+                      ))}
+                  </div>
+                  <div class="col-md-4 welcome-section documentaryUnit">
+                      @{Html(Messages(
+                      "portal.landingBlurb.documents",
+                      countLink(controllers.portal.routes.Portal.browseDocuments.url,
+                      "portal.landingBlurb.documentLink", stats.documentaryUnitCount).body.trim,
+                      countLink(controllers.portal.routes.Portal.browseRepositories().url + "?data=yes",
+                      "portal.landingBlurb.inRepositoryLink", stats.inRepositoryCount).body.trim
+                      ))}
+                  </div>
+              </div>
+              <div class="row">
+                  <div class="col-md-12">
+                      <hr/>
+                    <h3>@Messages("portal.newsFeed")</h3>
+                  </div>
               </div>
           </div>
           <div id="push"></div>

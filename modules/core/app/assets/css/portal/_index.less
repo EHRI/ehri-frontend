@@ -13,21 +13,30 @@
   padding: @large-padding;
 }
 
+.jumbotron-container {
+  background-position: top left;
+  background-repeat: no-repeat;
+  background-size: 100% auto;
+  //background-image: url(/v/img/memorial_large.jpg);
+  //background-image: url(/v/img/warsaw_ghetto_large.jpg);
+  background-image: url(/v/img/purses_large.jpg);
+
+  @media screen and (max-width: @screen-sm-min) {
+    background-size: auto;
+  }
+}
+
 .jumbotron {
   text-align: center;
   color: #fff;
   //min-height: 400px;
   //padding: 100px 0;
-  padding-top: 100px;
-  padding-bottom: 100px;
-  background-position: top left;
-  background-repeat: no-repeat;
-  background-size: 100% auto;
-  background-image: url(/v/img/memorial_large.jpg);
+  padding-top: 150px;
+  padding-bottom: 150px;
+  background: rgba(0, 0, 0, 0.5);
 
   @media screen and (max-width: @screen-sm-min) {
     min-height: 40px;
-    background-size: auto;
     padding-top: 50px;
     padding-bottom: 50px;
   }
@@ -53,6 +62,37 @@
   }
 }
 
+.welcome-section {
+  h2 {
+    padding-bottom: @small-padding;
+    border-bottom: 5px solid #999;
+  }
+
+  &.country {
+    h2 {
+      border-bottom-color: @country-color;
+    }
+    a {
+      color: @country-color;
+    }
+  }
+  &.repository {
+    h2 {
+      border-bottom-color: @repo-color;
+    }
+    a {
+      color: @repo-color;
+    }
+  }
+  &.documentaryUnit {
+    h2 {
+      border-bottom-color: @doc-color;
+    }
+    a {
+      color: @doc-color;
+    }
+  }
+}
 
 
 .page-content h1 {
