@@ -9,6 +9,10 @@
 }
 */
 
+body {
+  min-width: @page-min-width;
+}
+
 #welcome {
   padding: @large-padding;
 }
@@ -31,14 +35,14 @@
   color: #fff;
   //min-height: 400px;
   //padding: 100px 0;
-  padding-top: 150px;
-  padding-bottom: 150px;
+  padding-top: 15 * @medium-padding;
+  padding-bottom: 15 * @medium-padding;
   background: rgba(0, 0, 0, 0.5);
 
   @media screen and (max-width: @screen-sm-min) {
-    min-height: 40px;
-    padding-top: 50px;
-    padding-bottom: 50px;
+    min-height: 10 * @small-padding;
+    padding-top: 10 * @small-padding;
+    padding-bottom: 10 * @small-padding;
   }
 
   // Make the search bar larger on the welcome page
@@ -56,6 +60,15 @@
               }
             }
           }
+        }
+      }
+      #search-helper {
+        .form-group();
+        background-color: rgba(0,0,0,0.3);
+        border-color: rgba(0,0,0,0);
+
+        h1 {
+          color: #eee;
         }
       }
     }

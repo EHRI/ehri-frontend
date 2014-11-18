@@ -3,6 +3,21 @@ header#header {
   color: white;
   font-weight: 700;
 
+  background-position: center center;
+  background-image: url("/v/img/purses_large.jpg");
+  background-repeat: no-repeat;
+  background-size: 100% auto;
+
+  @media screen and (max-width: @screen-sm-min) {
+    background-size: auto;
+  }
+
+  #navbar-primary-container {
+    min-height: @primary-navbar-height;
+    padding-top: 3 * @small-padding;
+    background: rgba(0, 0, 0, 0.5);
+  }
+
   .account-admin {
     font-size: 12px;
   }
@@ -23,42 +38,28 @@ header#header {
     }
   }
   .global-search {
-    background-color:white;
-    input {
-      border: 0px;
-      color: @almost-black;
-    }
-    .search-icon {
-      color: @almost-black;
-    }
+//    background-color:white;
+//    input {
+//      border: 0px;
+//      color: @almost-black;
+//    }
+//    .search-icon {
+//      color: @almost-black;
+//    }
 
-    &.inactive {
-      background-color: inherit;
-      .search-icon {
-        color: white;
-      }
+//    &.inactive {
+//      background-color: inherit;
+//      .search-icon {
+//        color: white;
+//      }
+//
+//      input {
+//        color: white;
+//        background-color: inherit;
+//        cursor: default;
+//      }
+//    }
 
-      input {
-        color: white;
-        background-color: inherit;
-        cursor: default;
-      }
-    }
-
-  }
-
-  #loader-bar {
-    height: @small-padding;
-    position: relative;
-    background: #FFF;
-
-    span {
-      display: block;
-      height: 100%;
-      background-color: @primary-highlight;
-      position: relative;
-      overflow: hidden;
-    }
   }
 
   li {
