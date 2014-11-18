@@ -39,10 +39,15 @@ body {
   padding-bottom: 15 * @medium-padding;
   background: rgba(0, 0, 0, 0.5);
 
+  background-position: 50% 20px;
+  background-repeat: no-repeat;
+  background-image: url(/v/img/logo-trans-small.png);
+
   @media screen and (max-width: @screen-sm-min) {
     min-height: 10 * @small-padding;
     padding-top: 10 * @small-padding;
     padding-bottom: 10 * @small-padding;
+    background-image: none;
   }
 
   // Make the search bar larger on the welcome page
@@ -69,6 +74,7 @@ body {
 
         h1 {
           color: #eee;
+          font-family: serif;
         }
       }
     }
