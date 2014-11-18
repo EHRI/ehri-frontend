@@ -37,7 +37,9 @@
                 @textField(item, descId,   desc.control.maintenanceNotes, MAINTENANCE_NOTES)
             }        
         }
+    }
 
-        @p.common.accessPoints(item, desc, links)
+    @descriptionSection("accessPointLinks", Messages("portal.item.accessPointLinks")) {
+        @p.common.accessPointLinks(item, desc, links)
     }
 }

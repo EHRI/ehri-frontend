@@ -10,7 +10,7 @@
 
         <fieldset id="admin-area">
             <legend>@Messages("Administration")</legend>
-            @formHelpers.enumChoiceInput(f("publicationStatus"), defines.PublicationStatus, "Publication Status")
+            @formHelpers.enumChoiceInput(f("publicationStatus"), PublicationStatus, "Publication Status")
 
             @views.html.admin.permissions.renderVisibilityForm(vf, users, groups)
         </fieldset>

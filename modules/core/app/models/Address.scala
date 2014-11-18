@@ -88,8 +88,11 @@ case class AddressF(
     url.headOption
   ).flatten
 
-  override def toString
-      = List(name, contactPerson,streetAddress,city).filter(_.isDefined).mkString(", ")
+  def concise: String =
+    List(streetAddress, city, region).flatten.filterNot(_.trim.isEmpty).mkString(", ")
+
+  override def toString =
+    List(name, contactPerson, streetAddress, city).filter(_.isDefined).mkString(", ")
 }
 
 object Address {

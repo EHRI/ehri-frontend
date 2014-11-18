@@ -1,4 +1,4 @@
-package defines
+package models
 
 object PublicationStatus extends Enumeration {
 	type Status = Value
