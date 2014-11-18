@@ -1,6 +1,9 @@
 @(item: Concept, desc: ConceptDescriptionF, links: Seq[Link], annotations: Seq[Annotation])(implicit userOpt: Option[UserProfile], req: RequestHeader, prefs: utils.SessionPrefs, globalConfig: global.GlobalConfig, lang: Lang, fieldPrefix: String)
 
 @import ConceptF._
+@import views.html.p.common.descriptionSection
+@import views.html.p.common.textField
+@import views.html.p.common.listField
 
 @p.common.descriptionOutline(item, desc, annotations) {
     @defining(Annotation.fieldAnnotations(desc.id, annotations)) { implicit fieldAnnotations =>
@@ -12,8 +15,8 @@
                 @p.common.otherNameList(desc.altLabels)
             </div>
 
-            @p.common.listField(item, descId, desc.definition, DEFINITION)
-            @p.common.listField(item, descId, desc.scopeNote, SCOPENOTE)
+            @listField(item, descId, desc.definition, DEFINITION)
+            @listField(item, descId, desc.scopeNote, SCOPENOTE)
             @for(longitude <- desc.longitude ; latitude <- desc.latitude) {
                 <div class="map" data-longitude="@longitude" data-latitude="@latitude">
 
@@ -22,5 +25,7 @@
         }
     }
 
-    @p.common.accessPointLinks(item, desc, links)
+    @descriptionSection("accessPointLinks", Messages("portal.item.accessPointLinks")) {
+        @p.common.accessPointLinks(item, desc, links)
+    }
 }

@@ -30,6 +30,8 @@ object AccessPointF {
     val Other = Value("otherAccess")
 
     implicit val format = defines.EnumUtils.enumFormat(this)
+
+    def exceptCreator: ValueSet = values.filterNot(_ == CreatorAccess)
   }
 
   import Entity.{TYPE => ETYPE,_}

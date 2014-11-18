@@ -4,7 +4,7 @@ package models
  * Classes representing an ISDIAH collection-holding institution
  */
 
-import defines.{ContentTypes, EntityType, PublicationStatus}
+import defines.{ContentTypes, EntityType}
 
 import play.api.libs.json._
 import models.base._
@@ -158,7 +158,7 @@ object Repository {
       ISA -> ignored(EntityType.Repository),
       ID -> optional(nonEmptyText),
       IDENTIFIER -> nonEmptyText(minLength=2), // TODO: Increase to > 2, not done yet 'cos of test fixtures
-      PUBLICATION_STATUS -> optional(utils.forms.enum(defines.PublicationStatus)),
+      PUBLICATION_STATUS -> optional(utils.forms.enum(models.PublicationStatus)),
       "descriptions" -> list(RepositoryDescription.form.mapping),
       PRIORITY -> optional(number(min = -1, max = 5)),
       URL_PATTERN -> optional(nonEmptyText verifying("errors.badUrlPattern", fields => fields match {

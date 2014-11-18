@@ -14,11 +14,19 @@ class HelpersSpec extends PlaySpecification {
         """.stripMargin
       Helpers.renderMarkdown(md) must contain("<strong>")
     }
-    " shortens correctly a normal string " in {
+    "render auto links with _blank target" in {
+      Helpers.renderMarkdown(" an http://www.autolink.com link") must contain("_blank")
+    }
+    "render explicit links with _blank target" in {
+      val s: String = Helpers.renderMarkdown(" an [blah](http://www.autolink.com) link")
+      s must contain("_blank")
+      s must contain("blah")
+    }
+    "shortens correctly a normal string " in {
     	val nohtml = "This is a test and this is nice because it it not so long and funny"
     	Helpers.ellipsize(nohtml, 50) must have size(50)
     }
-    " shortens and remove html tags" in {
+    "shortens and remove html tags" in {
     	val html = "<a>This is a test and</a> this is nice because it it not so long and funny"
     	Helpers.ellipsize(html, 50) must not contain("<a>")
     }

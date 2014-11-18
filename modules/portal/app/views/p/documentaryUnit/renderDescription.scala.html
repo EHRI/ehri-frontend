@@ -25,6 +25,7 @@
             }
 
             @descriptionSection(CONTEXT_AREA) {
+                @p.common.accessPointLinks(item, desc, links, List(AccessPointF.AccessPointType.CreatorAccess))
                 @textField(item, descId, desc.context.biographicalHistory, ADMIN_BIOG)
                 @textField(item, descId, desc.context.archivalHistory, ARCH_HIST)
                 @textField(item, descId, desc.context.acquisition, ACQUISITION)
@@ -65,5 +66,7 @@
         }
     }
 
-    @p.common.accessPointLinks(item, desc, links)
+    @descriptionSection("accessPointLinks", Messages("portal.item.accessPointLinks")) {
+        @p.common.accessPointLinks(item, desc, links, AccessPointF.AccessPointType.exceptCreator.toList)
+    }
 }

@@ -30,13 +30,13 @@
             @address.email.map { t =>
                 <a class="email" href="mailto:@t">
                     <span class="glyphicon glyphicon-envelope" title="@t"></span>
-                    @t
+                    @views.Helpers.ellipsize(t, 30)
                 </a><br>
             }
             @address.url.map { t =>
-                <a class="url" href="@views.p.Helpers.normalizeUrl(t)" title="Website">
+                <a class="url" target="_blank" href="@views.p.Helpers.normalizeUrl(t)" title="Website">
                     <span class="glyphicon glyphicon-globe" title="@t"></span>
-                    @t
+                    @views.Helpers.ellipsize(t, 30)
                 </a><br>
             }
             </p>

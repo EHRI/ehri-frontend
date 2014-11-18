@@ -1,4 +1,3 @@
-import play.api.libs.json.JsResult
 import play.api.mvc.QueryStringBindable
 
 package object defines {

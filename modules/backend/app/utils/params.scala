@@ -17,7 +17,7 @@ trait Ranged {
   def offset: Int
   def limit: Int
 
-  def hasLimit = limit < 0
+  def hasLimit = limit >= 0
 
   def queryParams: Seq[(String,String)] =
     Seq(OFFSET_PARAM -> offset.toString,  LIMIT_PARAM -> limit.toString)
@@ -63,7 +63,7 @@ object PageParams {
 /**
  * Class for handling page parameter data
  */
-case class PageParams(page: Int = 1, limit: Int = DEFAULT_LIST_LIMIT) extends Ranged{
+case class PageParams(page: Int = 1, limit: Int = DEFAULT_LIST_LIMIT) extends Ranged {
   def withoutLimit = copy(limit = -1)
   def offset: Int = (page - 1) * limit.max(0)
 }

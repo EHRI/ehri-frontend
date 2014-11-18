@@ -143,7 +143,7 @@ object DocumentaryUnit {
       ID -> optional(nonEmptyText),
       IDENTIFIER -> nonEmptyText,
       OTHER_IDENTIFIERS -> optional(list(nonEmptyText)),
-      PUBLICATION_STATUS -> optional(utils.forms.enum(defines.PublicationStatus)),
+      PUBLICATION_STATUS -> optional(utils.forms.enum(models.PublicationStatus)),
       COPYRIGHT -> optional(utils.forms.enum(CopyrightStatus)),
       SCOPE -> optional(utils.forms.enum(Scope)),
       "descriptions" -> list(DocumentaryUnitDescription.form.mapping)
