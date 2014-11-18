@@ -13,24 +13,23 @@
                         </button>
                     </span>
         </div>
+        <div id="search-helper">
+            <a href="#" class="close" aria-hidden="true">&times;</a>
+
+            <h1>@Messages("portal.search.helper")</h1>
+            <dl class="dl-horizontal">
+                <dt>"@Messages("portal.search.helper.example")"</dt>
+                <dd>@Messages("portal.search.helper.quotes")</dd>
+                <dt>+@Messages("portal.search.helper.example")</dt>
+                <dd>@Messages("portal.search.helper.plus")</dd>
+                <dt>-@Messages("portal.search.helper.example")</dt>
+                <dd>@Messages("portal.search.helper.minus")</dd>
+            </dl>
+        </div>
     </div>
     <div class="search-helper-container">
         <a class="search-helper-toggle" data-toggle="helper" data-target="#search-helper" title="@Messages(" portal.search.helper.linkTitle")">
             @Messages("portal.search.helper.linkTitle")
         </a>
     </div>
-</div>
-
-<div id="search-helper">
-    <a href="#" class="close" aria-hidden="true">&times;</a>
-
-    <h1>@Messages("portal.search.helper")</h1>
-    <dl class="dl-horizontal">
-        <dt>"@Messages("portal.search.helper.example")"</dt>
-        <dd>@Messages("portal.search.helper.quotes")</dd>
-        <dt>+@Messages("portal.search.helper.example")</dt>
-        <dd>@Messages("portal.search.helper.plus")</dd>
-        <dt>-@Messages("portal.search.helper.example")</dt>
-        <dd>@Messages("portal.search.helper.minus")</dd>
-    </dl>
 </div>

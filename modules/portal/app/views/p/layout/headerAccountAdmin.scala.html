@@ -1,29 +1,2 @@
 @()(implicit userOpt: Option[UserProfile], globalConfig: global.GlobalConfig, lang: Lang)
 
-<ul class="account-admin nav navbar-nav navbar-right">
-    @userOpt.map { user =>
-    <li>
-        <a href="@controllers.portal.profile.routes.Profile.profile" class="gravitar">
-            <img height="24" width="24" class="user-img-icon" src="@views.p.Helpers.gravitar(user.model.imageUrl)" />
-            @user.model.name
-        </a>
-    </li>
-    @if(user.account.exists(_.staff)) {
-        <li>
-            <a href="/admin">@Messages("pages.admin")</a>
-        </li>
-    }
-    <li>
-        <a href="@controllers.portal.account.routes.Accounts.logout">
-            @Messages("portal.logout")
-
-        </a>
-    </li>
-    }.getOrElse {
-    <li>
-        <a href="@controllers.portal.account.routes.Accounts.login">
-            @Messages("portal.login")
-        </a>
-    </li>
-    }
-</ul>

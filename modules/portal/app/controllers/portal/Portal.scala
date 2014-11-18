@@ -323,12 +323,14 @@ case class Portal @Inject()(implicit globalConfig: global.GlobalConfig, searchDi
 
   case class NewsItem(title: String, link: String, description: Html, pubDate: Option[DateTime] = None)
 
+  final val NUM_NEWS_ITEMS = 2
+
   object NewsItem {
     import scala.util.control.Exception._
     import org.joda.time.format.DateTimeFormat
     def fromRss(feed: String): Seq[NewsItem] = {
       val pat = DateTimeFormat.forPattern("EEE, dd MMM yyyy H:m:s Z")
-      (xml.XML.loadString(feed) \\ "item").map { item =>
+      (xml.XML.loadString(feed) \\ "item").take(NUM_NEWS_ITEMS).map { item =>
         NewsItem(
           title = (item \ "title").text,
           link = (item \ "link").text,
