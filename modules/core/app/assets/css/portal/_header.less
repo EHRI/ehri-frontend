@@ -3,19 +3,101 @@ header#header {
   color: white;
   font-weight: 700;
 
-  background-position: center center;
-  background-image: url("/v/img/purses_large.jpg");
-  background-repeat: no-repeat;
-  background-size: 100% auto;
+//  background-position: center center;
+//  background-image: url("/v/img/itsarolsen_effects.jpg");
+//  background-repeat: no-repeat;
+//  background-size: 100% auto;
 
   @media screen and (max-width: @screen-sm-min) {
     background-size: auto;
   }
 
   #navbar-primary-container {
-    min-height: @primary-navbar-height;
-    padding-top: 3 * @small-padding;
-    background: rgba(0, 0, 0, 0.5);
+    padding-top: @medium-padding;
+    padding-bottom: @medium-padding;
+    //background: rgba(0, 0, 0, 0.5);
+    background-color:  @pale-gray;
+    font-family: serif;
+    border: none;
+    border-bottom: 1px solid darken(@pale-gray, 30%);
+
+    .navbar-default > .navbar-nav > .active {
+      background-color: transparent;
+    }
+
+    #navbar-primary {
+      ul {
+        li#navbar-logo {
+          img {
+            vertical-align: bottom;
+          }
+        }
+
+        li.active {
+          a {
+            background-color: @pale-gray;
+          }
+        }
+
+        li.country, li.repository, li.documentaryUnit, li.historicalAgent {
+          padding-top: @small-padding;
+          margin: @medium-margin @medium-margin;
+
+          a {
+            //background-color: rgba(255,255,255,0.5);
+            color: #fff;
+            font-size: 1.2em;
+            padding: @small-padding @small-padding;
+            border-bottom: @small-padding solid transparent;
+          }
+        }
+
+        li.country {
+          a {
+            color: @country-color;
+          }
+
+          &.active {
+            a {
+              border-bottom-color: @country-color;
+            }
+          }
+        }
+        li.repository {
+          a {
+            color: @repo-color;
+          }
+
+          &.active {
+            a {
+              border-bottom-color: @repo-color;
+            }
+          }
+        }
+        li.documentaryUnit {
+          a {
+            color: @doc-color;
+          }
+
+          &.active {
+            a {
+              border-bottom-color: @doc-color;
+            }
+          }
+        }
+        li.historicalAgent {
+          a {
+            color: @agent-color;
+          }
+
+          &.active {
+            a {
+              border-bottom-color: @agent-color;
+            }
+          }
+        }
+      }
+    }
   }
 
   .account-admin {
@@ -122,23 +204,23 @@ header#header {
 */
 //Color change ~ type of document
 
-body.documentaryUnit header#header .nav-secondary {
-  background-color: @doc-color;
-}
-
-body.country header#header .nav-secondary {
-  background-color: @country-color;
-}
-
-body.repository header#header .nav-secondary {
-  background-color: @repo-color;
-}
-
-body.historicalAgent header#header .nav-secondary {
-  background-color: @agent-color;
-}
-
-body.user header#header .nav-secondary {
-  background-color: @user-color;
-}
-
+//body.documentaryUnit header#header #navbar-primary-container {
+//  background-color: @doc-color;
+//}
+//
+//body.country header#header #navbar-primary-container {
+//  background-color: @country-color;
+//}
+//
+//body.repository header#header #navbar-primary-container {
+//  background-color: @repo-color;
+//}
+//
+//body.historicalAgent header#header #navbar-primary-container {
+//  background-color: @agent-color;
+//}
+//
+//body.user header#header #navbar-primary-container {
+//  background-color: @user-color;
+//}
+//

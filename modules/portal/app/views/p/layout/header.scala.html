@@ -109,19 +109,19 @@
                 <ul class="nav navbar-nav">
                     <li id="navbar-logo" >
                         <a href="@controllers.portal.routes.Portal.index">
-                            <img alt="EHRI" height="60px" src="@controllers.portal.routes.Assets.versioned("img/logo-trans-small.png")" rel="logo" />
+                            <img alt="EHRI" height="60px" width="99px" src="@controllers.portal.routes.Assets.versioned("img/logo-rect-bw-small.png")" rel="logo" />
                         </a>
                     </li>
-                    <li class="@views.Helpers.maybeActivePath(controllers.portal.routes.Portal.browseCountries.url)">
+                    <li class="country @views.Helpers.maybeActivePath(controllers.portal.routes.Portal.browseCountries.url)">
                         <a href="@controllers.portal.routes.Portal.browseCountries">@Messages("portal.browse.countries")</a>
                     </li>
-                    <li class="@views.Helpers.maybeActivePath(controllers.portal.routes.Portal.browseRepositories.url)">
+                    <li class="repository @views.Helpers.maybeActivePath(controllers.portal.routes.Portal.browseRepositories.url)">
                         <a href="@controllers.portal.routes.Portal.browseRepositories">@Messages("portal.browse.repositories")</a>
                     </li>
-                    <li class="@views.Helpers.maybeActivePath(controllers.portal.routes.Portal.browseDocuments.url)">
+                    <li class="documentaryUnit @views.Helpers.maybeActivePath(controllers.portal.routes.Portal.browseDocuments.url)">
                         <a href="@controllers.portal.routes.Portal.browseDocuments">@Messages("portal.browse.documents")</a>
                     </li>
-                    <li class="@views.Helpers.maybeActivePath(controllers.portal.routes.Portal.browseHistoricalAgents.url)">
+                    <li class="historicalAgent @views.Helpers.maybeActivePath(controllers.portal.routes.Portal.browseHistoricalAgents.url)">
                         <a href="@controllers.portal.routes.Portal.browseHistoricalAgents">@Messages("portal.browse.historicalAgents")</a>
                     </li>
                 </ul>
