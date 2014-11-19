@@ -33,3 +33,26 @@ body {
 #push, footer {
   height: @footer-height - 1;
 }
+
+footer {
+  background-color: @pale-gray;
+  border-left: 1px solid @dark-gray;
+  border-right: 1px solid @dark-gray;
+  padding-left: @large-padding;
+  padding-right: @large-padding;
+
+  padding-top: @large-padding;
+}
+
+article.double {
+  .make-row();
+
+  > aside.right-sidebar {
+    .make-md-column(3);
+    .make-md-column-push(9);
+  }
+  > section.main {
+    .make-md-column(9);
+    .make-md-column-pull(3);
+  }
+}

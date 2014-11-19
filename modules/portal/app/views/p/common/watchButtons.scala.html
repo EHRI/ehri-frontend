@@ -1,6 +1,6 @@
 @(item: AnyModel, watching: Boolean)(implicit lang: Lang)
 
-<div class="watch-controls pull-right btn-group">
+<div class="watch-controls list-group">
     <a data-item="@item.id"
        class=" btn  btn-danger unwatch"
        style="@(if(!watching) "display: none;")" title="@Messages("portal.profile.unwatch.tooltip")" href="@controllers.portal.profile.routes.Profile.unwatchItem(item.id)">
