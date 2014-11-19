@@ -15,11 +15,11 @@
             </label>
             <hr />
             <div class="inline-element-template form-template">
-                @renderDescriptionForm(f("descriptions[IDX]"))
+                @descriptionForm(f("descriptions[IDX]"))
             </div>
             <div class="inline-element-list">
                 @helper.repeat(f("descriptions"), min=math.max(f("descriptions").indexes.length, 1)) { desc =>
-                    @renderDescriptionForm(desc)
+                    @descriptionForm(desc)
                 }
             </div>
 

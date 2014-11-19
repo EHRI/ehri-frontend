@@ -5,7 +5,7 @@
     @views.html.admin.common.annotated(item, annotations) {
         @defining("link") { implicit fieldPrefix =>
             @common.stringValue(item.model.description, LinkF.DESCRIPTION)
-            @common.renderDates(item.model, LinkF.DATES)
+            @common.dateSet(item.model, LinkF.DATES)
             <span class="label label-default">@Messages("link." + item.model.linkType.toString)</span>
 
             <h4>@Messages("link.items")</h4>

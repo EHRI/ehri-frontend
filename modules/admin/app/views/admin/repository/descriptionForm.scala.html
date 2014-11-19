@@ -26,11 +26,11 @@
                 </a>
             </label>
             <script type="application/x-js-template" class="inline-element-template">
-                @renderAddressForm(desc(ADDRESS_AREA + "[IDX]"))
+                @addressForm(desc(ADDRESS_AREA + "[IDX]"))
             </script>
             <div class="inline-element-list">
                 @helper.repeat(desc(ADDRESS_AREA), min = 0) { desc =>
-                @renderAddressForm(desc)
+                @addressForm(desc)
                 }
             </div>
         </div>

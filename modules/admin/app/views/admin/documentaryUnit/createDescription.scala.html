@@ -9,7 +9,7 @@
         @helper.form(action = action, 'class -> "entity-form form-horizontal") {
             @formHelpers.csrfToken()
             @defining(defaults) { implicit defs =>
-                @renderDescriptionForm(f(""))
+                @descriptionForm(f(""))
             }
 
             @formHelpers.submitButtonWithLogMessageInput(Messages("describedEntity.createDescription.submit"), cancel = views.admin.Helpers.linkToOpt(item))

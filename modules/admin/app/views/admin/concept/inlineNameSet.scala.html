@@ -6,11 +6,11 @@
         <a href="#" class="add-inline-element"><i class="glyphicon glyphicon-plus-sign"></i></a>
     </label>
     <div class="form-template inline-element-template">
-        @renderInlineName(field(name + "[IDX]"))
+        @inlineName(field(name + "[IDX]"))
     </div>
     <div class="inline-element-list">
 	    @helper.repeat(field(name), min = 0) { field =>
-	        @renderInlineName(field)
+	        @inlineName(field)
 	    }
     </div>
 </div>

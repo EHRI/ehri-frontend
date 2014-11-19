@@ -3,7 +3,7 @@
 @defining(EntityType.Repository.toString) { implicit fieldPrefix =>
     @views.html.layout.descriptionContainer(item.model.descriptions) {
         @item.model.descriptions.map { desc =>
-            @renderDescription(item, desc, links, annotations)
+            @description(item, desc, links, annotations)
         }
     } {
         @item.model.logoUrl.map { logo =>

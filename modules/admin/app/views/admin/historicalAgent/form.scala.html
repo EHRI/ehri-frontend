@@ -10,7 +10,7 @@
 
     @helper.repeat(f("descriptions"), min=math.max(f("descriptions").indexes.length, 1)) { desc =>
         @defining(defaults) { implicit defs =>
-            @renderDescriptionForm(desc)
+            @descriptionForm(desc)
         }
     }
 }

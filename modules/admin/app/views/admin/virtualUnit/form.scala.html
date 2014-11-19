@@ -11,7 +11,7 @@
 
     @helper.repeat(f("descriptions"), min=math.max(f("descriptions").indexes.length, 1)) { desc =>
         @defining(EntityType.DocumentaryUnit.toString) { implicit fieldPrefix =>
-            @views.html.admin.documentaryUnit.renderDescriptionForm(desc)
+            @views.html.admin.documentaryUnit.descriptionForm(desc)
         }
     }
 }

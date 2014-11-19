@@ -5,7 +5,7 @@
 
 @common.descriptionOutline(item, desc) {
     <h2>@desc.name</h2>
-    @common.renderDates(desc, DATES_OF_EXISTENCE)
+    @common.dateSet(desc, DATES_OF_EXISTENCE)
 
     @descriptionSection(IDENTITY_AREA) {
         @common.stringValue(Some(desc.entityType.toString), ENTITY_TYPE)
