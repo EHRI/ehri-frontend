@@ -94,7 +94,7 @@ case class Profile @Inject()(implicit globalConfig: global.GlobalConfig, searchD
     val watchParams = PageParams.fromRequest(request, namespace = "w")
     backend.watching[AnyModel](user.id, watchParams).map { watchList =>
       format match {
-        case DataFormat.Text => Ok(views.txt.p.profile.watchedItems(watchList))
+        case DataFormat.Text => Ok(views.txt.p.userProfile.watchedItems(watchList))
             .as(MimeTypes.TEXT)
         case DataFormat.Csv => Ok(writeCsv(
           List("Item", "URL"),
@@ -105,7 +105,7 @@ case class Profile @Inject()(implicit globalConfig: global.GlobalConfig, searchD
           Ok(Json.toJson(watchList.items.map(ExportWatchItem.fromItem)))
             .as(MimeTypes.JSON)
 
-        case _ => Ok(p.profile.watchedItems(watchList))
+        case _ => Ok(p.userProfile.watchedItems(watchList))
       }
     }
   }
@@ -143,7 +143,7 @@ case class Profile @Inject()(implicit globalConfig: global.GlobalConfig, searchD
     backend.userAnnotations[Annotation](user.id, params).map { page =>
       format match {
         case DataFormat.Text =>
-          Ok(views.txt.p.profile.annotations(page).body.trim)
+          Ok(views.txt.p.userProfile.annotations(page).body.trim)
             .as(MimeTypes.TEXT)
         case DataFormat.Csv => Ok(writeCsv(
             List("Item", "Field", "Note", "Time", "URL"),
@@ -153,7 +153,7 @@ case class Profile @Inject()(implicit globalConfig: global.GlobalConfig, searchD
         case DataFormat.Json =>
           Ok(Json.toJson(page.items.map(ExportAnnotation.fromAnnotation)))
             .as(MimeTypes.JSON)
-        case _ => Ok(p.profile.annotations(page))
+        case _ => Ok(p.userProfile.annotations(page))
       }
     }
   }
@@ -192,7 +192,7 @@ case class Profile @Inject()(implicit globalConfig: global.GlobalConfig, searchD
     val annotationsF = backend.userAnnotations[Annotation](user.id, annParams)
     for {
       anns <- annotationsF
-    } yield Ok(p.profile.profile(anns))
+    } yield Ok(p.userProfile.notes(user, anns, followed = false, canMessage = false))
   }
 
   import play.api.data.Form
@@ -228,7 +228,7 @@ case class Profile @Inject()(implicit globalConfig: global.GlobalConfig, searchD
 
   def updateAccountPrefsPost() = withUserAction { implicit user => implicit request =>
     AccountPreferences.form.bindFromRequest.fold(
-      errForm => BadRequest(p.profile.editProfile(
+      errForm => BadRequest(p.userProfile.editProfile(
         ProfileData.form, imageForm, errForm)),
       accountPrefs => {
         userDAO.findByProfileId(user.id).map { acc =>
@@ -241,12 +241,12 @@ case class Profile @Inject()(implicit globalConfig: global.GlobalConfig, searchD
   }
 
   def updateProfile() = withUserAction { implicit user => implicit request =>
-    Ok(p.profile.editProfile(profileDataForm, imageForm, accountPrefsForm))
+    Ok(p.userProfile.editProfile(profileDataForm, imageForm, accountPrefsForm))
   }
 
   def updateProfilePost() = withUserAction.async { implicit user => implicit request =>
     ProfileData.form.bindFromRequest.fold(
-      errForm => immediate(BadRequest(p.profile.editProfile(errForm, imageForm, accountPrefsForm))),
+      errForm => immediate(BadRequest(p.userProfile.editProfile(errForm, imageForm, accountPrefsForm))),
       profile => backend.patch[UserProfile](user.id, Json.toJson(profile).as[JsObject]).map { userProfile =>
         Redirect(profileRoutes.profile())
           .flashing("success" -> Messages("profile.update.confirmation"))
@@ -255,13 +255,13 @@ case class Profile @Inject()(implicit globalConfig: global.GlobalConfig, searchD
   }
 
   def deleteProfile() = withUserAction { implicit user => implicit request =>
-    Ok(p.profile.deleteProfile(deleteForm(user),
+    Ok(p.userProfile.deleteProfile(deleteForm(user),
       profileRoutes.deleteProfilePost()))
   }
 
   def deleteProfilePost() = withUserAction.async { implicit user => implicit request =>
     deleteForm(user).bindFromRequest.fold(
-      errForm => immediate(BadRequest(p.profile.deleteProfile(
+      errForm => immediate(BadRequest(p.userProfile.deleteProfile(
         errForm.withGlobalError("portal.profile.deleteProfile.badConfirmation"),
         profileRoutes.deleteProfilePost()))),
       _ => {
@@ -290,7 +290,7 @@ case class Profile @Inject()(implicit globalConfig: global.GlobalConfig, searchD
   def updateProfileImagePost() = withUserAction.async(uploadParser) { implicit user => implicit request =>
 
     def onError(err: String) =
-      BadRequest(p.profile.editProfile(profileDataForm,
+      BadRequest(p.userProfile.editProfile(profileDataForm,
         imageForm.withGlobalError(s"portal.error.$err"), accountPrefsForm))
 
     request.body match {
