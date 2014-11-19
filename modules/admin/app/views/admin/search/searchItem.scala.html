@@ -1,6 +1,6 @@
 @(item: AnyModel)(implicit req: RequestHeader, globalConfig: global.GlobalConfig, lang: Lang)
 
-@common.search.searchItemOutline(item.id) {
+@common.search.searchItemOutline(item) {
     <a href="@views.admin.Helpers.linkTo(item)">@item</a>
 } {
     @* no body yet *@
