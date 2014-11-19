@@ -247,7 +247,7 @@ portal.activity.userLinkedItem={2,choice,0#{0} created a link for item {1}|1#{0}
 portal.activity.userAnnotatedItem={2,choice,0#{0} annotated item {1}|1#{0} annotated {1} and 1 more item|1<{0} annotated {1} and {2,number,integer} more items}
 portal.activity.fetchMore=More
 portal.activity.noActivityYet=Activity involving items you''re watching and users you follow will show up here.
-portal.activity.noUserActivityYet=No activity yet.
+portal.activity.noUserActivityYet=No public activity yet.
 portal.activity.modifiedProfile=Updated profile information.
 
 # 'Social' stuff...

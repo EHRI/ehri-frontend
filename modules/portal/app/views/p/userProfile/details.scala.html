@@ -1,0 +1,15 @@
+@(user: UserProfile, profilePage: Boolean = false)(implicit userOpt: Option[UserProfile], request: RequestHeader, prefs: utils.SessionPrefs, globalConfig: global.GlobalConfig, lang: Lang, flash: Flash)
+
+<ul class="user-profile-info">
+    @user.model.location.map { loc =>
+        <li>
+            <span class="glyphicon glyphicon-map-marker"></span>
+            @loc
+        </li>
+    }
+    @user.model.about.map { about =>
+        <li class="user-profile-description">
+            @about
+        </li>
+    }
+</ul>

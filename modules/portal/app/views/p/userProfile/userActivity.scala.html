@@ -1,0 +1,27 @@
+@(item: UserProfile, events: Seq[SystemEvent], moreEvents: Boolean, params: utils.RangeParams)(implicit userOpt: Option[UserProfile], request: RequestHeader, prefs: utils.SessionPrefs, globalConfig: global.GlobalConfig, lang: Lang)
+
+<div class="user-profile-content">
+    <h2 class="block-header userProfile">
+        @Messages("portal.activity")
+    </h2>
+    <div id="user-activity">
+        @if(!events.isEmpty) {
+        <div class="timeline-container">
+            <ul id="activity-stream" class="timeline">
+                @p.activity.eventItems(events)
+            </ul>
+        </div>
+        @if(moreEvents) {
+        <button id="activity-stream-fetchmore"
+                data-offset="@(params.offset + params.limit)"
+                data-limit="@params.limit"
+                data-href="@controllers.portal.social.routes.Social.moreUserActivity(item.id, params.offset + params.limit, params.limit)"
+                class="btn btn-default btn-block">
+            @Messages("portal.activity.fetchMore")
+        </button>
+        }
+        } else {
+            <p class="text-muted">@Messages("portal.activity.noUserActivityYet")</p>
+        }
+    </div>
+</div>
