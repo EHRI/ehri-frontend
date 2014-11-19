@@ -5,37 +5,37 @@
 
 @common.descriptionOutline(item, desc) {
     <h2>@desc.name</h2>
-    @common.dateSet(desc, DATES_OF_EXISTENCE)
+    @views.html.admin.common.dateSet(desc, DATES_OF_EXISTENCE)
 
     @descriptionSection(IDENTITY_AREA) {
-        @common.stringValue(Some(desc.entityType.toString), ENTITY_TYPE)
-        @common.stringValue(Some(desc.name), AUTHORIZED_FORM_OF_NAME)
-        @common.listValue(desc.parallelFormsOfName, PARALLEL_FORMS_OF_NAME)
-        @common.listValue(desc.otherFormsOfName, OTHER_FORMS_OF_NAME)
+        @views.html.admin.common.stringValue(Some(desc.entityType.toString), ENTITY_TYPE)
+        @views.html.admin.common.stringValue(Some(desc.name), AUTHORIZED_FORM_OF_NAME)
+        @views.html.admin.common.listValue(desc.parallelFormsOfName, PARALLEL_FORMS_OF_NAME)
+        @views.html.admin.common.listValue(desc.otherFormsOfName, OTHER_FORMS_OF_NAME)
     }
 
     @descriptionSection(DESCRIPTION_AREA) {
-        @common.stringValue(desc.details.datesOfExistence, DATES_OF_EXISTENCE)
-        @common.stringValue(desc.details.history, HISTORY)
-        @common.listValue(desc.details.places, PLACES)
-        @common.stringValue(desc.details.legalStatus, LEGAL_STATUS)
-        @common.stringValue(desc.details.functions, FUNCTIONS)
-        @common.stringValue(desc.details.mandates, MANDATES)
-        @common.stringValue(desc.details.internalStructure, INTERNAL_STRUCTURE)
-        @common.stringValue(desc.details.generalContext, GENERAL_CONTEXT)
+        @views.html.admin.common.stringValue(desc.details.datesOfExistence, DATES_OF_EXISTENCE)
+        @views.html.admin.common.stringValue(desc.details.history, HISTORY)
+        @views.html.admin.common.listValue(desc.details.places, PLACES)
+        @views.html.admin.common.stringValue(desc.details.legalStatus, LEGAL_STATUS)
+        @views.html.admin.common.stringValue(desc.details.functions, FUNCTIONS)
+        @views.html.admin.common.stringValue(desc.details.mandates, MANDATES)
+        @views.html.admin.common.stringValue(desc.details.internalStructure, INTERNAL_STRUCTURE)
+        @views.html.admin.common.stringValue(desc.details.generalContext, GENERAL_CONTEXT)
     }
 
     @descriptionSection(CONTROL_AREA) {
-        @common.stringValue(desc.control.descriptionIdentifier, DESCRIPTION_IDENTIFIER)
-        @common.stringValue(desc.control.institutionIdentifier, INSTITUTION_IDENTIFIER)
-        @common.stringValue(desc.control.rulesAndConventions, RULES_CONVENTIONS)
-        @common.stringValue(desc.control.status, STATUS)
-        @common.stringValue(desc.control.levelOfDetail, LEVEL_OF_DETAIL)
-        @common.stringValue(desc.control.datesCDR, DATES_CVD)
-        @common.listValue(desc.control.languages, LANGUAGES_USED, transformFunc = {s => views.Helpers.languageCodeToName(s)})
-        @common.listValue(desc.control.scripts, SCRIPTS_USED, transformFunc = {s => views.Helpers.scriptCodeToName(s)})
-        @common.listValue(desc.control.sources, SOURCES)
-        @common.stringValue(desc.control.maintenanceNotes, MAINTENANCE_NOTES)
+        @views.html.admin.common.stringValue(desc.control.descriptionIdentifier, DESCRIPTION_IDENTIFIER)
+        @views.html.admin.common.stringValue(desc.control.institutionIdentifier, INSTITUTION_IDENTIFIER)
+        @views.html.admin.common.stringValue(desc.control.rulesAndConventions, RULES_CONVENTIONS)
+        @views.html.admin.common.stringValue(desc.control.status, STATUS)
+        @views.html.admin.common.stringValue(desc.control.levelOfDetail, LEVEL_OF_DETAIL)
+        @views.html.admin.common.stringValue(desc.control.datesCDR, DATES_CVD)
+        @views.html.admin.common.listValue(desc.control.languages, LANGUAGES_USED, transformFunc = {s => views.Helpers.languageCodeToName(s)})
+        @views.html.admin.common.listValue(desc.control.scripts, SCRIPTS_USED, transformFunc = {s => views.Helpers.scriptCodeToName(s)})
+        @views.html.admin.common.listValue(desc.control.sources, SOURCES)
+        @views.html.admin.common.stringValue(desc.control.maintenanceNotes, MAINTENANCE_NOTES)
     }
 
     @views.html.admin.link.accessPointLinks(item, desc, links)
