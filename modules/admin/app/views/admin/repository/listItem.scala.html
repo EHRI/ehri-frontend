@@ -3,7 +3,7 @@
 @import Isdiah._
 @import org.apache.commons.lang3.StringUtils
 
-@common.search.searchItemOutline(item.id) {
+@common.search.searchItemOutline(item) {
     <a href="@controllers.institutions.routes.Repositories.get(item.id)">@item.toStringLang</a>
 } {
     @item.model.primaryDescription.map { desc =>
