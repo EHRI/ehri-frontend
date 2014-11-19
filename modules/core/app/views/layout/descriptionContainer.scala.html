@@ -1,7 +1,8 @@
-@(descriptions: List[models.base.Description])(html: Html)(sidebar: Html)(implicit userOpt: Option[UserProfile], req: RequestHeader, lang: Lang)
+@(descriptions: List[models.base.Description])(html: Html)(sidebarBefore: Html)(sidebarAfter: Html)(implicit userOpt: Option[UserProfile], req: RequestHeader, lang: Lang)
 
 <article class="double descriptions">
     <aside class="right-sidebar description-sidebar">
+        @sidebarBefore
         @if(descriptions.size > 1) {
         <div class="sidebar-section">
             <header>@Messages("portal.multipleDescriptions")</header>
@@ -17,7 +18,7 @@
         </div>
         }
 
-        @sidebar
+        @sidebarAfter
     </aside>
     <section class="main description-viewport">
         @html

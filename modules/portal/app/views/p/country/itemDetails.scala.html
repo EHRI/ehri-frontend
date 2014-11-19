@@ -2,10 +2,14 @@
 
 <div id="item-details">
     @p.layout.rightSidebar {
+        @p.common.itemHeader {
+            <h1>@item.toStringLang</h1>
+        }
         @item.model.report.map { report =>
             @Html(views.Helpers.renderMarkdown(report))
         }
     } {
+        @p.common.typeLabel(item, watched.contains(item.id))
         @p.common.latestAction(item, controllers.portal.routes.Portal.itemHistory(item.id))
     }
 </div>

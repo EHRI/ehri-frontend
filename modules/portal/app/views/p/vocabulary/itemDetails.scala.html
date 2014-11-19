@@ -6,6 +6,7 @@
             @Html(views.Helpers.renderMarkdown(desc))
         }
     } {
+        @p.common.typeLabel(item, watched.contains(item.id))
         @p.common.latestAction(item, controllers.portal.routes.Portal.itemHistory(item.id))
     }
 </div>

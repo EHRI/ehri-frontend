@@ -6,6 +6,8 @@
             @description(item, desc, links, annotations)
         }
     } {
+        @p.common.typeLabel(item, watched.contains(item.id))
+    } {
         @item.model.logoUrl.map { logo =>
             @* FIXME: Horrid hack here... *@
             @defining(item.url.getOrElse(new java.net.URL("http://" + req.host + req.uri))) { url =>

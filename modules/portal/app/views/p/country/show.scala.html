@@ -4,9 +4,6 @@
     @infobar(item, watched.contains(item.id))
 
     @views.html.layout.mainContent {
-        @p.common.itemHeader {
-            <h1>@item.toStringLang</h1>
-        }
         @itemDetails(item, annotations, links, watched)
 
         @p.common.childItemLink(item, controllers.portal.routes.Portal.searchCountry(item.id))
