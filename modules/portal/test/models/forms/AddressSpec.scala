@@ -8,13 +8,13 @@ import models.Address
  */
 class AddressSpec extends PlaySpecification {
   "address form" should {
-    "allow relaxed URLs" in {
-      import Address.isValidWebsite
-      isValidWebsite("www.blah.com") must beTrue
-      isValidWebsite("blah.com") must beTrue
-      isValidWebsite("http://blah.com") must beTrue
-      isValidWebsite("http://www.blah.com") must beTrue
-      isValidWebsite("/?helloworld") must beFalse
+    "NOT allow relaxed URLs" in {
+      import utils.forms.isValidUrl
+      isValidUrl("www.blah.com") must beFalse
+      isValidUrl("blah.com") must beFalse
+      isValidUrl("http://blah.com") must beTrue
+      isValidUrl("http://www.blah.com") must beTrue
+      isValidUrl("/?helloworld") must beFalse
     }
   }
 }

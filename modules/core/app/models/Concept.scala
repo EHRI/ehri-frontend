@@ -8,7 +8,6 @@ import play.api.libs.json._
 import eu.ehri.project.definitions.Ontology
 import play.api.data.Form
 import play.api.data.Forms._
-import play.api.libs.json.JsObject
 import backend.rest.Constants
 import backend._
 import play.api.libs.json.JsObject
