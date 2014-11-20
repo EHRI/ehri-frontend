@@ -1,7 +1,7 @@
 @(descriptionField: Field, cls: String = "description-form")(data: Html)(implicit fieldPrefix: String, defaults: Option[play.api.Configuration] = None, userOpt: Option[UserProfile], req: RequestHeader, globalConfig: global.GlobalConfig, lang: Lang)
 
 @import Description._
-@import formHelpers._
+@import views.html.formHelpers._
 
 <div class="@cls" id="@descriptionField("form").id">
     @*

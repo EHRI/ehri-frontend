@@ -4,7 +4,7 @@
 @views.html.admin.layout.rightSidebar(Messages("group.create")) {
 	@helper.form(action = action, 'class -> "entity-form form-horizontal") {
         @formHelpers.csrfToken()
-        @renderForm(None, f)
+        @form(None, f)
         @memberForm(users, groups)
 
         @formHelpers.submitButtonWithLogMessageInput(Messages("group.create.submit"))

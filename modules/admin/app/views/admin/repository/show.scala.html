@@ -22,7 +22,7 @@
                 }
                 @layout.descriptionContainer(item.model.descriptions) {
                     @item.model.descriptions.map { desc =>
-                        @renderDescription(item, desc, links, annotations)
+                        @description(item, desc, links, annotations)
                     }
 
                     @views.html.admin.link.annotationLinks(item, links)

@@ -8,7 +8,7 @@
     @defining(EntityType.DocumentaryUnit.toString) { implicit fieldPrefix =>
         @helper.form(action = action, 'class -> "entity-form form-horizontal") {
             @formHelpers.csrfToken()
-            @views.html.admin.documentaryUnit.renderDescriptionForm(f(""))
+            @views.html.admin.documentaryUnit.descriptionForm(f(""))
 
             @formHelpers.submitButtonWithLogMessageInput(Messages("describedEntity.updateDescription.submit"), cancel = views.admin.Helpers.linkToOpt(item))
         }

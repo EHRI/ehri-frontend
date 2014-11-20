@@ -6,7 +6,7 @@ implicit userOpt: Option[UserProfile], req: RequestHeader, globalConfig: global.
 @views.html.admin.layout.rightSidebar(Messages("group.edit"), breadcrumbs = views.html.admin.common.breadcrumbs(List(item))) {
 	@helper.form(action = action, 'class -> "entity-form form-horizontal") {
         @formHelpers.csrfToken()
-        @renderForm(Some(item), f)
+        @form(Some(item), f)
 
         @formHelpers.submitButtonWithLogMessageInput(Messages("group.edit.submit"), cancel = views.admin.Helpers.linkToOpt(item))
 	}

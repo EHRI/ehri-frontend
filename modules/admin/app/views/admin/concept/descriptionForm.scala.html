@@ -1,7 +1,7 @@
 @(desc: play.api.data.Field)(implicit userOpt: Option[UserProfile], req: RequestHeader, globalConfig: global.GlobalConfig, prefix: String, lang: Lang)
 
 @import ConceptF._
-@import formHelpers._
+@import views.html.formHelpers._
 @import Description._
 
 @implicitField = @{ views.html.helper.FieldConstructor(formHelpers.fieldTemplate.f) }

@@ -1,6 +1,6 @@
 @(user: UserProfile, form: Form[(String,String)], action: Call, recaptchaKey: String)(implicit userOpt: Option[UserProfile], globalConfig: global.GlobalConfig, request: RequestHeader, lang: Lang, token: play.filters.csrf.CSRF.Token)
 
-@implicitField = @{ views.html.helper.FieldConstructor(p.helpers.fieldTemplate.f) }
+@implicitField = @{ helper.FieldConstructor(p.helpers.fieldTemplate.f) }
 
 @helper.form(action = action, 'class -> "message-form", 'role -> "form") {
     @formHelpers.csrfToken()

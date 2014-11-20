@@ -1,13 +1,6 @@
 @(item: DocumentaryUnit, annotations: Seq[Annotation], links: Seq[Link], watched: Seq[String],template: (GuidePage, (Guide, List[GuidePage])))(implicit userOpt: Option[UserProfile], request: RequestHeader, prefs: utils.SessionPrefs, globalConfig: global.GlobalConfig, lang: Lang, flash: Flash)
 
 @import defines._
-@import models.IsadG._
-@import p.common.descriptionSection
-@import views.html.common.listValue
-@import views.html.common.stringValue
-@import views.html.common.renderDates
-
-
 
 @wrapParent(doc: DocumentaryUnit)(html: Html) = {
     @doc.parent.map { parent =>
@@ -66,67 +59,13 @@
 
 @p.layout.guideLayout(template, optionalContent = Some(side)) {
 
-  <article class="description-viewport">
-  @defining(EntityType.DocumentaryUnit.toString) { implicit fieldPrefix =>
-    @item.model.descriptions.map { desc =>
-    <div class="description-holder" id="desc-@desc.id">
-        <div data-lang="@desc.languageCode" class="description">
-            <header class="item-header">
-                <h1>@desc.name</h1>
-                @p.common.otherNameList(desc.identity.parallelFormsOfName)
-            </header>
-            <div id="item-details">
-                @p.documentaryUnit.details(item, desc)
-
-                @descriptionSection(IDENTITY_AREA) {
-                @stringValue(desc.identity.`abstract`, ABSTRACT)
-                @stringValue(desc.identity.extentAndMedium, EXTENT_MEDIUM)
+    <article class="description-viewport">
+        @defining(EntityType.DocumentaryUnit.toString) { implicit fieldPrefix =>
+            @defining(annotations) { implicit annotations =>
+                @item.model.descriptions.map { desc =>
+                    @p.documentaryUnit.description(item, desc, links, annotations)
                 }
-
-                @descriptionSection(CONTEXT_AREA) {
-                @stringValue(desc.context.biographicalHistory, ADMIN_BIOG)
-                @stringValue(desc.context.archivalHistory, ARCH_HIST)
-                @stringValue(desc.context.acquisition, ACQUISITION)
-                }
-
-                @descriptionSection(CONTENT_AREA) {
-                @stringValue(desc.content.scopeAndContent, SCOPE_CONTENT)
-                @stringValue(desc.content.appraisal, APPRAISAL)
-                @stringValue(desc.content.accruals, ACCRUALS)
-                @stringValue(desc.content.systemOfArrangement, SYS_ARR)
-                }
-
-                @descriptionSection(CONDITIONS_AREA) {
-                @stringValue(desc.conditions.conditionsOfAccess, ACCESS_COND)
-                @stringValue(desc.conditions.conditionsOfReproduction, REPROD_COND)
-                @stringValue(desc.conditions.physicalCharacteristics, PHYSICAL_CHARS)
-                @stringValue(desc.conditions.findingAids, FINDING_AIDS)
-                }
-
-                @descriptionSection(MATERIALS_AREA) {
-                @listValue(desc.materials.locationOfOriginals, LOCATION_ORIGINALS)
-                @listValue(desc.materials.locationOfCopies, LOCATION_COPIES)
-                @listValue(desc.materials.relatedUnitsOfDescription, RELATED_UNITS)
-                @stringValue(desc.materials.publicationNote, PUBLICATION_NOTE)
-                }
-
-                @descriptionSection(NOTES_AREA) {
-                @listValue(desc.notes, NOTES)
-                }
-
-                @descriptionSection(CONTROL_AREA) {
-                @stringValue(desc.control.archivistNote, ARCHIVIST_NOTE)
-                @listValue(desc.control.sources, SOURCES)
-                @stringValue(desc.control.rulesAndConventions, RULES_CONVENTIONS)
-                @stringValue(desc.control.datesOfDescriptions, DATES_DESCRIPTIONS)
-                }
-                @if(!desc.accessPoints.isEmpty) {
-                @doc.accesspoints(item, desc, links, template)
-                }
-            </div>
-        </div>
-    </div>
-    }
-  }
-  </article>
+            }
+        }
+    </article>
 }

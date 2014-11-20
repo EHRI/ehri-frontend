@@ -1,0 +1,68 @@
+@(item: WithDescriptions[Description], desc: DocumentaryUnitDescriptionF, links: Seq[Link], annotations: Seq[Annotation], actions: Html = Html(""))(implicit fieldPrefix: String, userOpt: Option[UserProfile], req: RequestHeader, globalConfig: global.GlobalConfig, lang: Lang)
+
+@import defines._
+@import models.IsadG._
+@import views.html.common.descriptionSection
+
+@common.descriptionOutline(item, desc, actions = actions) {
+    <h2>@desc.name</h2>
+
+    @descriptionSection(IDENTITY_AREA) {
+        @views.html.admin.common.listValue(desc.identity.parallelFormsOfName, PARALLEL_FORMS_OF_NAME)
+        @views.html.admin.common.stringValue(desc.identity.ref, REF)
+        @views.html.admin.common.stringValue(desc.identity.`abstract`, ABSTRACT)
+        @views.html.admin.common.dateSet(desc, DATES)
+        @views.html.admin.common.listValue(desc.identity.unitDates, UNIT_DATES)
+        @views.html.admin.common.stringValue(desc.identity.levelOfDescription, LEVEL_OF_DESCRIPTION)
+        @views.html.admin.common.listValue(desc.identity.physicalLocation, PHYSICAL_LOCATION)
+        @views.html.admin.common.stringValue(desc.identity.extentAndMedium, EXTENT_MEDIUM)
+    }
+
+    @descriptionSection(CONTEXT_AREA) {
+        @views.html.admin.common.stringValue(desc.context.biographicalHistory, ADMIN_BIOG)
+        @views.html.admin.common.stringValue(desc.context.archivalHistory, ARCH_HIST)
+        @views.html.admin.common.stringValue(desc.context.acquisition, ACQUISITION)
+    }
+
+    @descriptionSection(CONTENT_AREA) {
+        @views.html.admin.common.stringValue(desc.content.scopeAndContent, SCOPE_CONTENT)
+        @views.html.admin.common.stringValue(desc.content.appraisal, APPRAISAL)
+        @views.html.admin.common.stringValue(desc.content.accruals, ACCRUALS)
+        @views.html.admin.common.stringValue(desc.content.systemOfArrangement, SYS_ARR)
+    }
+
+    @descriptionSection(CONDITIONS_AREA) {
+        @views.html.admin.common.stringValue(desc.conditions.conditionsOfAccess, ACCESS_COND)
+        @views.html.admin.common.stringValue(desc.conditions.conditionsOfReproduction, REPROD_COND)
+
+        @views.html.admin.common.listValue(desc.conditions.languageOfMaterials, LANG_MATERIALS, transformFunc = {s => views.Helpers.languageCodeToName(s)})
+        @views.html.admin.common.listValue(desc.conditions.scriptOfMaterials, SCRIPT_MATERIALS, transformFunc = {s => views.Helpers.scriptCodeToName(s)})
+        @views.html.admin.common.stringValue(desc.conditions.physicalCharacteristics, PHYSICAL_CHARS)
+        @views.html.admin.common.stringValue(desc.conditions.findingAids, FINDING_AIDS)
+    }
+
+    @descriptionSection(MATERIALS_AREA) {
+        @views.html.admin.common.listValue(desc.materials.locationOfOriginals, LOCATION_ORIGINALS)
+        @views.html.admin.common.listValue(desc.materials.locationOfCopies, LOCATION_COPIES)
+        @views.html.admin.common.listValue(desc.materials.relatedUnitsOfDescription, RELATED_UNITS)
+        @views.html.admin.common.stringValue(desc.materials.publicationNote, PUBLICATION_NOTE)
+    }
+
+    @descriptionSection(NOTES_AREA) {
+        @views.html.admin.common.listValue(desc.notes, NOTES)
+    }
+
+    @descriptionSection(CONTROL_AREA) {
+        @views.html.admin.common.stringValue(desc.control.archivistNote, ARCHIVIST_NOTE)
+        @views.html.admin.common.listValue(desc.control.sources, SOURCES)
+        @views.html.admin.common.stringValue(desc.control.rulesAndConventions, RULES_CONVENTIONS)
+        @views.html.admin.common.stringValue(desc.control.datesOfDescriptions, DATES_DESCRIPTIONS)
+        @views.html.admin.common.listValue(desc.control.processInfo, PROCESS_INFO)
+    }
+
+    @views.html.admin.link.accessPointLinks(item, desc, links)
+
+    @desc.unknownProperties.map { e =>
+        @common.unknownData(e)
+    }
+}

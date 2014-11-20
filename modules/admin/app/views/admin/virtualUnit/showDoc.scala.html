@@ -31,7 +31,7 @@
             @defining("documentaryUnit") { implicit fieldPrefix =>
                 @layout.descriptionContainer(item.model.descriptions) {
                     @item.model.descriptions.map { desc =>
-                        @views.html.admin.documentaryUnit.renderDescription(item, desc, links, annotations, actions = descriptionActions(item, desc))
+                        @views.html.admin.documentaryUnit.description(item, desc, links, annotations, actions = descriptionActions(item, desc))
                     }
 
                     @views.html.admin.link.annotationLinks(item, links)

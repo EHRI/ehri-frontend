@@ -1,7 +1,7 @@
 @(item: Option[Concept], f: play.api.data.Form[models.ConceptF])(implicit userOpt: Option[UserProfile], req: RequestHeader, globalConfig: global.GlobalConfig, lang: Lang)
 
 @import models.ConceptF._
-@import formHelpers._
+@import views.html.formHelpers._
 
 @implicitField = @{ views.html.helper.FieldConstructor(formHelpers.fieldTemplate.f) }
 
@@ -15,11 +15,11 @@
             </label>
             <hr />
             <div class="inline-element-template form-template">
-                @renderDescriptionForm(f("descriptions[IDX]"))
+                @descriptionForm(f("descriptions[IDX]"))
             </div>
             <div class="inline-element-list">
                 @helper.repeat(f("descriptions"), min=math.max(f("descriptions").indexes.length, 1)) { desc =>
-                    @renderDescriptionForm(desc)
+                    @descriptionForm(desc)
                 }
             </div>
 

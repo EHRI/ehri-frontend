@@ -1,0 +1,11 @@
+@(item: Option[AuthoritativeSet], f: Form[models.AuthoritativeSetF])
+
+@import views.html.formHelpers._
+
+@implicitField = @{ helper.FieldConstructor(fieldTemplate.f) }
+
+@defining(EntityType.AuthoritativeSet.toString) { implicit fieldPrefix =>
+    @lineInput(f(""), Entity.IDENTIFIER)
+    @lineInput(f(""), AuthoritativeSetF.NAME)
+    @textInput(f(""), AuthoritativeSetF.DESCRIPTION)
+}

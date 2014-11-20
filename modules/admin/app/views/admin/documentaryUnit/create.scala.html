@@ -23,9 +23,9 @@
 
 	@helper.form(action = action, 'class -> "entity-form form-horizontal") {
         @formHelpers.csrfToken()
-		@renderForm(f, defaults)
+		@form(f, defaults)
 
-        @views.html.admin.permissions.renderVisibilityForm(vf, users, groups)
+        @views.html.admin.permissions.visibilityForm(vf, users, groups)
 		@formHelpers.submitButtonWithLogMessageInput(Messages("documentaryUnit.create.submit"), cancel = views.admin.Helpers.linkToOpt(item))
 	}
 } {

@@ -3,7 +3,7 @@
 @views.html.admin.layout.rightSidebar(item.toStringLang, breadcrumbs = views.html.admin.common.breadcrumbs(List(item))) {
 
     @defining(EntityType.Group.toString) { implicit prefix =>
-        @common.stringValue(item.model.description, models.GroupF.DESCRIPTION)
+        @views.html.admin.common.stringValue(item.model.description, models.GroupF.DESCRIPTION)
     }
 
     @if(!item.groups.isEmpty) {
