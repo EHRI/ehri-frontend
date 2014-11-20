@@ -12,7 +12,13 @@
             </tr>
             @feedback.map { f =>
                 <tr>
-                    <td>@f.name.getOrElse("anon")</td>
+                    <td>
+                        @f.name.map { id =>
+                            <a href="@controllers.portal.social.routes.Social.browseUser(id)">@id</a>
+                        }.getOrElse {
+                            Anonymous
+                        }
+                    </td>
                     <td>@f.createdAt.map(views.Helpers.relativeDate)</td>
                     <td>@f.mode.getOrElse("")</td>
                     <td>@f.text.getOrElse("")</td>
