@@ -1,0 +1,98 @@
+@(item: Repository, desc: RepositoryDescriptionF, links: Seq[Link], annotations: Seq[Annotation])(implicit userOpt: Option[UserProfile], req: RequestHeader, globalConfig: global.GlobalConfig, lang: Lang, fieldPrefix: String)
+
+@import Isdiah._
+@import common.descriptionSection
+
+@common.descriptionOutline(item, desc) {
+    <h2>@desc.name</h2>
+
+    @descriptionSection(IDENTITY_AREA) {
+        @views.html.admin.common.stringValue(Some(desc.name), AUTHORIZED_FORM_OF_NAME)
+        @views.html.admin.common.listValue(desc.parallelFormsOfName, PARALLEL_FORMS_OF_NAME)
+        @views.html.admin.common.listValue(desc.otherFormsOfName, OTHER_FORMS_OF_NAME)
+    }
+
+    @descriptionSection(ADDRESS_AREA) {
+        @if(!desc.addresses.isEmpty) {
+            <div class="inline-block well well-small" style="display: inline-block">
+            @desc.addresses.zipWithIndex.map { case (address, i) =>
+                <address title="@address.name">
+                    @address.name.map { an =>
+                        <strong>@an</strong><br/>
+                    }
+                    @address.contactPerson.map { an =>
+                        <i>@an</i><br/>
+                    }
+                    @address.streetAddress.map { an =>
+                        @an.split("\\n").map { addressLine =>
+                            @addressLine<br />
+                        }
+                    }
+                    @address.city.map { city =>
+                        @city<br/>
+                    }
+                    @address.region.map { region =>
+                        @region<br/>
+                    }
+                    @address.postalCode.map { post =>
+                        @post<br/>
+                    }
+                    @address.countryCode.map { cc =>
+                        @views.Helpers.countryCodeToName(cc)<br />
+                    }
+                    <dl class="dl-horizontal">
+                    @List(EMAIL, TELEPHONE, FAX, URL).zip(List(address.email, address.telephone, address.fax, address.url)).map { case (name, addressPart) =>
+                        @addressPart.map { addressPartValue =>
+                            <dt>@Messages(fieldPrefix + "." + name)</dt>
+                            <dd>@addressPartValue</dd>
+                        }
+                    }
+                    </dl>
+                </address>
+            }
+            </div>
+        }
+    }
+
+    @descriptionSection(DESCRIPTION_AREA) {
+        @views.html.admin.common.stringValue(desc.details.history, HISTORY)
+        @views.html.admin.common.stringValue(desc.details.generalContext, GEOCULTURAL_CONTEXT)
+        @views.html.admin.common.stringValue(desc.details.mandates, MANDATES)
+        @views.html.admin.common.stringValue(desc.details.administrativeStructure, ADMINISTRATIVE_STRUCTURE)
+        @views.html.admin.common.stringValue(desc.details.records, RECORDS)
+        @views.html.admin.common.stringValue(desc.details.buildings, BUILDINGS)
+        @views.html.admin.common.stringValue(desc.details.holdings, HOLDINGS)
+        @views.html.admin.common.stringValue(desc.details.findingAids, FINDING_AIDS)
+    }
+
+    @descriptionSection(ACCESS_AREA) {
+        @views.html.admin.common.stringValue(desc.access.openingTimes, OPENING_TIMES)
+        @views.html.admin.common.stringValue(desc.access.conditions, CONDITIONS)
+        @views.html.admin.common.stringValue(desc.access.accessibility, ACCESSIBILITY)
+    }
+
+    @descriptionSection(SERVICES_AREA) {
+        @views.html.admin.common.stringValue(desc.services.researchServices, RESEARCH_SERVICES)
+        @views.html.admin.common.stringValue(desc.services.reproductionServices, REPROD_SERVICES)
+        @views.html.admin.common.stringValue(desc.services.publicAreas, PUBLIC_AREAS)
+    }
+
+    @descriptionSection(CONTROL_AREA) {
+        @views.html.admin.common.stringValue(desc.control.descriptionIdentifier, DESCRIPTION_IDENTIFIER)
+        @views.html.admin.common.stringValue(desc.control.institutionIdentifier, INSTITUTION_IDENTIFIER)
+        @views.html.admin.common.stringValue(desc.control.rulesAndConventions, RULES_CONVENTIONS)
+        @views.html.admin.common.stringValue(desc.control.status, STATUS)
+        @views.html.admin.common.stringValue(desc.control.levelOfDetail, LEVEL_OF_DETAIL)
+        @views.html.admin.common.stringValue(desc.control.datesCDR, DATES_CVD)
+        @views.html.admin.common.listValue(desc.control.languages, LANGUAGES_USED, transformFunc = {s => views.Helpers.languageCodeToName(s)})
+        @views.html.admin.common.listValue(desc.control.scripts, SCRIPTS_USED, transformFunc = {s => views.Helpers.scriptCodeToName(s)})
+        @views.html.admin.common.listValue(desc.control.sources, SOURCES)
+        @views.html.admin.common.stringValue(desc.control.maintenanceNotes, MAINTENANCE_NOTES)
+    }
+
+    @views.html.admin.link.accessPointLinks(item, desc, links)
+
+    @desc.unknownProperties.map { e =>
+        @common.unknownData(e)
+    }
+}

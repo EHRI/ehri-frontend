@@ -1,0 +1,46 @@
+@(item: HistoricalAgent, desc: HistoricalAgentDescriptionF, links: Seq[Link], annotations: Seq[Annotation])(implicit userOpt: Option[UserProfile], request: RequestHeader, fieldPrefix: String, lang: Lang, globalConfig: global.GlobalConfig)
+
+@import Isaar._
+@import common.descriptionSection
+
+@common.descriptionOutline(item, desc) {
+    <h2>@desc.name</h2>
+    @views.html.admin.common.dateSet(desc, DATES_OF_EXISTENCE)
+
+    @descriptionSection(IDENTITY_AREA) {
+        @views.html.admin.common.stringValue(Some(desc.entityType.toString), ENTITY_TYPE)
+        @views.html.admin.common.stringValue(Some(desc.name), AUTHORIZED_FORM_OF_NAME)
+        @views.html.admin.common.listValue(desc.parallelFormsOfName, PARALLEL_FORMS_OF_NAME)
+        @views.html.admin.common.listValue(desc.otherFormsOfName, OTHER_FORMS_OF_NAME)
+    }
+
+    @descriptionSection(DESCRIPTION_AREA) {
+        @views.html.admin.common.stringValue(desc.details.datesOfExistence, DATES_OF_EXISTENCE)
+        @views.html.admin.common.stringValue(desc.details.history, HISTORY)
+        @views.html.admin.common.listValue(desc.details.places, PLACES)
+        @views.html.admin.common.stringValue(desc.details.legalStatus, LEGAL_STATUS)
+        @views.html.admin.common.stringValue(desc.details.functions, FUNCTIONS)
+        @views.html.admin.common.stringValue(desc.details.mandates, MANDATES)
+        @views.html.admin.common.stringValue(desc.details.internalStructure, INTERNAL_STRUCTURE)
+        @views.html.admin.common.stringValue(desc.details.generalContext, GENERAL_CONTEXT)
+    }
+
+    @descriptionSection(CONTROL_AREA) {
+        @views.html.admin.common.stringValue(desc.control.descriptionIdentifier, DESCRIPTION_IDENTIFIER)
+        @views.html.admin.common.stringValue(desc.control.institutionIdentifier, INSTITUTION_IDENTIFIER)
+        @views.html.admin.common.stringValue(desc.control.rulesAndConventions, RULES_CONVENTIONS)
+        @views.html.admin.common.stringValue(desc.control.status, STATUS)
+        @views.html.admin.common.stringValue(desc.control.levelOfDetail, LEVEL_OF_DETAIL)
+        @views.html.admin.common.stringValue(desc.control.datesCDR, DATES_CVD)
+        @views.html.admin.common.listValue(desc.control.languages, LANGUAGES_USED, transformFunc = {s => views.Helpers.languageCodeToName(s)})
+        @views.html.admin.common.listValue(desc.control.scripts, SCRIPTS_USED, transformFunc = {s => views.Helpers.scriptCodeToName(s)})
+        @views.html.admin.common.listValue(desc.control.sources, SOURCES)
+        @views.html.admin.common.stringValue(desc.control.maintenanceNotes, MAINTENANCE_NOTES)
+    }
+
+    @views.html.admin.link.accessPointLinks(item, desc, links)
+
+    @desc.unknownProperties.map { e =>
+        @common.unknownData(e)
+    }
+}

@@ -6,8 +6,8 @@
 @views.html.admin.layout.rightSidebar(Messages("repository.create"), breadcrumbs = views.html.admin.common.breadcrumbs(List(item))) {
 	@helper.form(action = action, 'class -> "entity-form form-horizontal") {
         @formHelpers.csrfToken()
-        @renderForm(f, defaults)
-        @views.html.admin.permissions.renderVisibilityForm(vf, users, groups)
+        @form(f, defaults)
+        @views.html.admin.permissions.visibilityForm(vf, users, groups)
         @formHelpers.submitButtonWithLogMessageInput(Messages("repository.create.submit"), cancel = views.admin.Helpers.linkToOpt(item))
 	}
 } {

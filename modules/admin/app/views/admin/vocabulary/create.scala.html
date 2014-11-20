@@ -4,8 +4,8 @@ implicit userOpt: Option[UserProfile], req: RequestHeader, globalConfig: global.
 @views.html.admin.layout.rightSidebar(Messages("cvocVocabulary.create")) {
 	@helper.form(action = action, 'class -> "entity-form form-horizontal") {
         @formHelpers.csrfToken()
-        @renderForm(None, f)
-        @views.html.admin.permissions.renderVisibilityForm(vf, users, groups)
+        @form(None, f)
+        @views.html.admin.permissions.visibilityForm(vf, users, groups)
 
         @formHelpers.submitButtonWithLogMessageInput(Messages("cvocVocabulary.create.submit"))
 	}

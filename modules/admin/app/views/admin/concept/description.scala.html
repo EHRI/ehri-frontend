@@ -8,7 +8,7 @@
     @if(list.isEmpty) {
         <i class="text-muted">@Messages("describedEntity.notGiven")</i>
     } else {
-        <ul>@common.propertyList(list.toList: _*)</ul>
+        <ul>@views.html.admin.common.propertyList(list.toList: _*)</ul>
     }
     </dd>
 }

@@ -6,13 +6,13 @@
 @views.html.admin.layout.rightSidebar(Messages("historicalAgent.create")) {
 	@helper.form(action = action, 'class -> "entity-form form-horizontal") {
         @formHelpers.csrfToken()
-        @renderForm(f, defaults)
+        @form(f, defaults)
 
         <fieldset id="admin-area">
             <legend>@Messages("Administration")</legend>
             @formHelpers.enumChoiceInput(f("publicationStatus"), PublicationStatus, "Publication Status")
 
-            @views.html.admin.permissions.renderVisibilityForm(vf, users, groups)
+            @views.html.admin.permissions.visibilityForm(vf, users, groups)
         </fieldset>
 
         @formHelpers.submitButtonWithLogMessageInput(Messages("historicalAgent.create.submit"), cancel = views.admin.Helpers.linkToOpt(item))

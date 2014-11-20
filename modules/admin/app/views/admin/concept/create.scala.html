@@ -26,9 +26,9 @@ implicit userOpt: Option[UserProfile], req: RequestHeader, globalConfig: global.
 
 	@helper.form(action = action, 'class -> "entity-form form-horizontal") {
         @formHelpers.csrfToken()
-        @renderForm(None, f)
+        @form(None, f)
 
-        @views.html.admin.permissions.renderVisibilityForm(vf, users, groups)
+        @views.html.admin.permissions.visibilityForm(vf, users, groups)
 
         @formHelpers.submitButtonWithLogMessageInput(Messages("cvocConcept.create.submit"), cancel = views.admin.Helpers.linkToOpt(item))
 	}

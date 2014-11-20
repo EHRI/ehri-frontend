@@ -1,4 +1,4 @@
-@(form: Form[BookmarkSet], action: Call)(implicit userOpt: Option[UserProfile], request: RequestHeader, lang: Lang, token: play.filters.csrf.CSRF.Token)
+@(f: Form[BookmarkSet], action: Call)(implicit userOpt: Option[UserProfile], request: RequestHeader, lang: Lang, token: play.filters.csrf.CSRF.Token)
 
 @import BookmarkSet._
 
@@ -6,8 +6,8 @@
 
 @helper.form(action = action, 'role -> "form", 'class -> "form-horizontal validate-form", 'id -> "bookmark-set-form") {
     @formHelpers.csrfToken()
-    @helper.inputText(form(NAME))
-    @formHelpers.textInput(form(""), DESCRIPTION)
+    @helper.inputText(f(NAME))
+    @helper.inputText(f(DESCRIPTION))
 
     <div class="form-group">
         <div class="col-sm-offset-4 col-sm-8">

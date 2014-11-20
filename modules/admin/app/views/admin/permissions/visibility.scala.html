@@ -25,7 +25,7 @@ implicit userOpt: Option[UserProfile], req: RequestHeader, globalConfig: global.
 	
 	@helper.form(action = action, 'class -> "entity-form form-horizontal") {
         @formHelpers.csrfToken()
-        @renderVisibilityForm(f, users, groups)
+        @visibilityForm(f, users, groups)
         @formHelpers.submitButtonWithLogMessageInput(Messages("visibility.update.submit"), cancel = views.admin.Helpers.linkToOpt(item))
 	}
 } {

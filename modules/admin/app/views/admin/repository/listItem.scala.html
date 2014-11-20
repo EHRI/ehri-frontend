@@ -15,7 +15,7 @@
                     <li><strong><a class="alt" href="@controllers.countries.routes.Countries.get(ct.id)">@ct.toStringLang</a></strong></li>
                 }
                 @desc.addresses.headOption.map { address =>
-                    @common.propertyList(address.streetAddress, address.city, address.region)
+                    @views.html.admin.common.propertyList(address.streetAddress, address.city, address.region)
                 }
                 @item.latestEvent.map { event =>
                     <li title="@common.eventTitle(event)">

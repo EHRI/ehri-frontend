@@ -25,10 +25,10 @@
                         </a>
                     } else {
                         @item.model.descriptions.map { desc =>
-                            @views.html.admin.documentaryUnit.renderDescription(item, desc, links, annotations, actions = descriptionActions(item, desc))
+                            @views.html.admin.documentaryUnit.description(item, desc, links, annotations, actions = descriptionActions(item, desc))
                         }
                         @item.includedUnits.flatMap(_.descriptions).map { desc =>
-                            @views.html.admin.documentaryUnit.renderDescription(item, desc, links, annotations)
+                            @views.html.admin.documentaryUnit.description(item, desc, links, annotations)
                         }
                     }
 
