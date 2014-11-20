@@ -1,5 +1,7 @@
 @(item: UserProfile, followed: Boolean, canMessage: Boolean)(content: Html)(implicit userOpt: Option[UserProfile], request: RequestHeader, prefs: utils.SessionPrefs, globalConfig: global.GlobalConfig, lang: Lang, flash: Flash)
 
+@isCurrentUser = @{userOpt.exists(_.id == item.id)}
+
 <div id="item-details">
     @p.layout.rightSidebar {
         @p.common.itemHeader {
@@ -10,28 +12,38 @@
         @content
     } {
 
-        @p.common.panel(Messages("portal.type." + item.isA)) {
-            @if(userOpt.exists(_.id == item.id)) {
-                <a class="btn btn-get" href="@controllers.portal.profile.routes.Profile.updateProfile">
-                    @Messages("portal.profile.updateProfile")
-                </a>
-            } else {
-                <div class="btn-group">
-                    @p.common.messageButtons(item, canMessage)
-                    @p.common.followingButtons(item, followed)
-                </div>
-            }
-
-            <hr />
-            <div class="user-profile-social">
-                <a class="followers" href="@controllers.portal.social.routes.Social.followersForUser(item.id)">
-                    @Messages("portal.social.followers"): <span class="user-follower-count">@item.followerCount</span>
-                </a>
-                <a class="following" href="@controllers.portal.social.routes.Social.followingForUser(item.id)">
-                    @Messages("portal.social.following"): <span class="user-following-count">@item.followingCount</span>
-                </a>
-            </div>
-        }
+        <div class="panel panel-default">
+            <div class="panel-heading">@Messages("portal.social.browseUsers")</div>
+            <ul class="list-group">
+                <li class="list-group-item">
+                    <a href="@{if(isCurrentUser) controllers.portal.profile.routes.Profile.profile else controllers.portal.social.routes.Social.browseUser(item.id)}" class="gravitar">
+                        <img class="user-img-full" src="@views.p.Helpers.gravitar(item.model.imageUrl)" alt="@item.model.name"/>
+                    </a>
+                </li>
+                @if(isCurrentUser) {
+                    <li class="list-group-item">
+                        <a class="btn btn-get" href="@controllers.portal.profile.routes.Profile.updateProfile">
+                            @Messages("portal.profile.updateProfile")
+                        </a>
+                    </li>
+                } else {
+                    <li class="list-group-item">
+                        <div class="btn-group">
+                            @p.common.messageButtons(item, canMessage)
+                            @p.common.followingButtons(item, followed)
+                        </div>
+                    </li>
+                }
+                <li class="list-group-item user-profile-social">
+                    <a class="followers" href="@controllers.portal.social.routes.Social.followersForUser(item.id)">
+                        @Messages("portal.social.followers"): <span class="user-follower-count">@item.followerCount</span>
+                    </a>
+                    <a class="following" href="@controllers.portal.social.routes.Social.followingForUser(item.id)">
+                        @Messages("portal.social.following"): <span class="user-following-count">@item.followingCount</span>
+                    </a>
+                </li>
+            </ul>
+        </div>
 
         <div class="panel panel-default">
             <div class="panel-body">
