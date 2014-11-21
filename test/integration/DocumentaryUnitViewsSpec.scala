@@ -6,9 +6,11 @@ import play.api.i18n.Messages
 import play.api.test.FakeRequest
 import play.api.http.{MimeTypes, HeaderNames}
 import backend.rest.ItemNotFound
+import defines.{ContentTypes, EntityType}
+import models.{Group, UserProfile}
 
 
-class DocUnitViewsSpec extends IntegrationTestRunner {
+class DocumentaryUnitViewsSpec extends IntegrationTestRunner {
   import mocks.{privilegedUser, unprivilegedUser}
 
   private val docRoutes = controllers.units.routes.DocumentaryUnits
@@ -83,6 +85,31 @@ class DocUnitViewsSpec extends IntegrationTestRunner {
       contentAsString(show) must contain(controllers.institutions.routes.Repositories.get("r1").url)
     }
 
+    "show history when logged in as privileged user" in new ITestApp {
+      val show = route(fakeLoggedInHtmlRequest(privilegedUser, GET,
+        docRoutes.history("c1").url)).get
+      status(show) must equalTo(OK)
+    }
+
+    "throw a 404 when fetching items with the wrong type" in new ITestApp {
+      // r1 is a repository, not a doc unit
+      val show = route(fakeLoggedInHtmlRequest(privilegedUser, GET,
+        docRoutes.get("r1").url)).get
+      status(show) must throwA[ItemNotFound]
+    }
+
+    "allow EAD export" in new ITestApp {
+      val ead = route(fakeLoggedInHtmlRequest(privilegedUser, GET,
+        docRoutes.exportEad("c1").url)).get
+      status(ead) must equalTo(OK)
+      contentType(ead) must beSome.which { ct =>
+        ct must equalTo(MimeTypes.XML)
+      }
+    }
+  }
+
+  "Documentary unit access functionality" should {
+
     "give access to c1 when logged in" in new ITestApp {
       val show = route(fakeLoggedInHtmlRequest(privilegedUser, GET,
           docRoutes.get("c1").url)).get
@@ -101,6 +128,9 @@ class DocUnitViewsSpec extends IntegrationTestRunner {
           docRoutes.deletePost("c4").url)).get
       status(del) must equalTo(SEE_OTHER)
     }
+  }
+
+  "Documentary unit CRUD functionality" should {
 
     "show correct default values in the form when creating new items" in new ITestApp(
       Map("documentaryUnit.rulesAndConventions" -> "SOME RANDOM VALUE")) {
@@ -261,32 +291,196 @@ class DocUnitViewsSpec extends IntegrationTestRunner {
       indexEventBuffer.last must not equalTo "c4"
     }
 
+    "allow adding extra descriptions" in new ITestApp {
+      val testItem = "c1"
+      val testData: Map[String, Seq[String]] = Map(
+        "languageCode" -> Seq("en"),
+        "identityArea.name" -> Seq("A Second Description"),
+        "contentArea.scopeAndContent" -> Seq("This is a second description")
+      )
+      // Now try again to update the item, which should succeed
+      // Check we can update the item
+      val cr = route(fakeLoggedInHtmlRequest(privilegedUser, POST,
+        docRoutes.createDescriptionPost(testItem).url)
+        .withHeaders(formPostHeaders.toSeq: _*), testData).get
+      status(cr) must equalTo(SEE_OTHER)
+      val getR = route(fakeLoggedInHtmlRequest(privilegedUser, GET, redirectLocation(cr).get)).get
+      status(getR) must equalTo(OK)
+      contentAsString(getR) must contain("This is a second description")
+      indexEventBuffer.last must equalTo("c1")
+    }
+
+    "allow updating individual descriptions" in new ITestApp {
+      val testItem = "c1"
+      val testItemDesc = "cd1"
+      val testData: Map[String, Seq[String]] = Map(
+        "languageCode" -> Seq("en"),
+        "id" -> Seq("cd1"),
+        "identityArea.name" -> Seq("An Updated Description"),
+        "contentArea.scopeAndContent" -> Seq("This is an updated description")
+      )
+      // Now try again to update the item, which should succeed
+      // Check we can update the item
+      val cr = route(fakeLoggedInHtmlRequest(privilegedUser, POST,
+        docRoutes.updateDescriptionPost(testItem, testItemDesc).url)
+        .withHeaders(formPostHeaders.toSeq: _*), testData).get
+      status(cr) must equalTo(SEE_OTHER)
+      val getR = route(fakeLoggedInHtmlRequest(privilegedUser, GET, redirectLocation(cr).get)).get
+      status(getR) must equalTo(OK)
+      contentAsString(getR) must contain("This is an updated description")
+      contentAsString(getR) must not contain "Some description text for c1"
+      indexEventBuffer.last must equalTo("c1")
+    }
+
+    "allow deleting individual descriptions" in new ITestApp {
+      val testItem = "c1"
+      val testItemDesc = "cd1-2"
+      // Now try again to update the item, which should succeed
+      // Check we can update the item
+      val cr = route(fakeLoggedInHtmlRequest(privilegedUser, POST,
+        docRoutes.deleteDescriptionPost(testItem, testItemDesc).url)
+        .withHeaders(formPostHeaders.toSeq: _*)).get
+      status(cr) must equalTo(SEE_OTHER)
+      val getR = route(fakeLoggedInHtmlRequest(privilegedUser, GET, redirectLocation(cr).get)).get
+      status(getR) must equalTo(OK)
+      contentAsString(getR) must not contain "Some alternate description text for c1"
+      indexEventBuffer.last must equalTo("cd1-2")
+    }
+  }
+  
+  "Documentary Unit link/annotate functionality" should {
+
+    "contain correct access point links" in new ITestApp {
+      val show = route(fakeLoggedInHtmlRequest(privilegedUser, GET, docRoutes.get("c1").url)).get
+      contentAsString(show) must contain("access-point-links")
+      contentAsString(show) must contain(
+        controllers.authorities.routes.HistoricalAgents.get("a1").url)
+    }
+
+    "contain correct annotation links" in new ITestApp {
+      val show = route(fakeLoggedInHtmlRequest(privilegedUser, GET, docRoutes.get("c1").url)).get
+      contentAsString(show) must contain("annotation-links")
+      contentAsString(show) must contain(
+        docRoutes.get("c4").url)
+    }
+
+    "allow linking to items via annotation" in new ITestApp {
+      val testItem = "c1"
+      val linkSrc = "cvocc1"
+      val body = "This is a link"
+      val testData: Map[String, Seq[String]] = Map(
+        LinkF.LINK_TYPE -> Seq(LinkF.LinkType.Associative.toString),
+        LinkF.DESCRIPTION -> Seq(body)
+      )
+      val cr = route(fakeLoggedInHtmlRequest(privilegedUser, POST,
+        docRoutes.linkAnnotatePost(testItem, EntityType.Concept, linkSrc).url)
+        .withHeaders(formPostHeaders.toSeq: _*), testData).get
+      status(cr) must equalTo(SEE_OTHER)
+      val getR = route(fakeLoggedInHtmlRequest(privilegedUser, GET, redirectLocation(cr).get)).get
+      status(getR) must equalTo(OK)
+      contentAsString(getR) must contain(linkSrc)
+      contentAsString(getR) must contain(body)
+    }
+
+    "allow linking to multiple items via a single form submission" in new ITestApp {
+      val testItem = "c1"
+      val body1 = "This is a link 1"
+      val body2 = "This is a link 2"
+      val testData: Map[String, Seq[String]] = Map(
+        "link[0].id" -> Seq("c2"),
+        "link[0].data." + LinkF.LINK_TYPE -> Seq(LinkF.LinkType.Associative.toString),
+        "link[0].data." + LinkF.DESCRIPTION -> Seq(body1),
+        "link[1].id" -> Seq("c3"),
+        "link[1].data." + LinkF.LINK_TYPE -> Seq(LinkF.LinkType.Associative.toString),
+        "link[1].data." + LinkF.DESCRIPTION -> Seq(body2)
+      )
+      val cr = route(fakeLoggedInHtmlRequest(privilegedUser, POST,
+        docRoutes.linkMultiAnnotatePost(testItem).url)
+        .withHeaders(formPostHeaders.toSeq: _*), testData).get
+      status(cr) must equalTo(SEE_OTHER)
+      val getR = route(fakeLoggedInHtmlRequest(privilegedUser, GET, redirectLocation(cr).get)).get
+      status(getR) must equalTo(OK)
+      contentAsString(getR) must contain("c2")
+      contentAsString(getR) must contain(body1)
+      contentAsString(getR) must contain("c3")
+      contentAsString(getR) must contain(body2)
+    }
+  }
+  
+  "Documentary unit permissions functionality" should {
+
     "should redirect to login page when permission denied when not logged in" in new ITestApp {
       val show = route(FakeRequest(GET, docRoutes.get("c1").url)
         .withHeaders(HeaderNames.ACCEPT -> MimeTypes.HTML)).get
       status(show) must equalTo(SEE_OTHER)
     }
 
-    "show history when logged in as privileged user" in new ITestApp {
-      val show = route(fakeLoggedInHtmlRequest(privilegedUser, GET,
-        docRoutes.history("c1").url)).get
-      status(show) must equalTo(OK)
+    "allow granting permissions to create a doc within the scope of r2" in new ITestApp {
+
+      val testRepo = "r2"
+      val testData: Map[String, Seq[String]] = Map(
+        "identifier" -> Seq("test"),
+        "descriptions[0].languageCode" -> Seq("en"),
+        "descriptions[0].identityArea.name" -> Seq("Test Item"),
+        "descriptions[0].contentArea.scopeAndContent" -> Seq("A test"),
+        "publicationStatus" -> Seq("Draft")
+      )
+
+      // Trying to create the item should fail initially.
+      // Check we cannot create an item...
+      val cr = route(fakeLoggedInHtmlRequest(unprivilegedUser, POST,
+        controllers.institutions.routes.Repositories.createDocPost("r2").url).withHeaders(formPostHeaders.toSeq: _*), testData).get
+      status(cr) must equalTo(FORBIDDEN)
+
+      // Grant permissions to create docs within the scope of r2
+      val permTestData: Map[String, List[String]] = Map(
+        ContentTypes.DocumentaryUnit.toString -> List("create", "update", "delete")
+      )
+      val permReq = route(fakeLoggedInHtmlRequest(privilegedUser, POST,
+        controllers.institutions.routes.Repositories.setScopedPermissionsPost(testRepo, EntityType.UserProfile, unprivilegedUser.id).url)
+        .withHeaders(formPostHeaders.toSeq: _*), permTestData).get
+      status(permReq) must equalTo(SEE_OTHER)
+      // Now try again and create the item... it should succeed.
+      // Check we cannot create an item...
+      val cr2 = route(fakeLoggedInHtmlRequest(unprivilegedUser, POST,
+        controllers.institutions.routes.Repositories.createDocPost(testRepo).url).withHeaders(formPostHeaders.toSeq: _*), testData).get
+      status(cr2) must equalTo(SEE_OTHER)
+      val getR = route(fakeLoggedInHtmlRequest(unprivilegedUser, GET, redirectLocation(cr2).get)).get
+      status(getR) must equalTo(OK)
     }
 
-    "throw a 404 when fetching items with the wrong type" in new ITestApp {
-      // r1 is a repository, not a doc unit
-      val show = route(fakeLoggedInHtmlRequest(privilegedUser, GET,
-        docRoutes.get("r1").url)).get
-      status(show) must throwA[ItemNotFound]
-    }
+    "allow granting permissions on a specific item" in new ITestApp {
 
-    "allow EAD export" in new ITestApp {
-      val ead = route(fakeLoggedInHtmlRequest(privilegedUser, GET,
-        docRoutes.exportEad("c1").url)).get
-      status(ead) must equalTo(OK)
-      contentType(ead) must beSome.which { ct =>
-        ct must equalTo(MimeTypes.XML)
-      }
-    }
+      val testItem = "c4"
+      val testData: Map[String, Seq[String]] = Map(
+        "identifier" -> Seq(testItem),
+        "descriptions[0].languageCode" -> Seq("en"),
+        "descriptions[0].identityArea.name" -> Seq("Changed Name"),
+        "descriptions[0].contentArea.scopeAndContent" -> Seq("A test"),
+        "publicationStatus" -> Seq("Draft")
+      )
+
+      // Trying to create the item should fail initially.
+      // Check we cannot create an item...
+      val cr = route(fakeLoggedInHtmlRequest(unprivilegedUser, POST,
+        docRoutes.updatePost(testItem).url).withHeaders(formPostHeaders.toSeq: _*), testData).get
+      status(cr) must equalTo(FORBIDDEN)
+
+      // Grant permissions to update item c1
+      val permTestData: Map[String, List[String]] = Map(
+        ContentTypes.DocumentaryUnit.toString -> List("update")
+      )
+      val permReq = route(fakeLoggedInHtmlRequest(privilegedUser, POST,
+        docRoutes.setItemPermissionsPost(testItem, EntityType.UserProfile, unprivilegedUser.id).url)
+        .withHeaders(formPostHeaders.toSeq: _*), permTestData).get
+      status(permReq) must equalTo(SEE_OTHER)
+      // Now try again to update the item, which should succeed
+      // Check we can update the item
+      val cr2 = route(fakeLoggedInHtmlRequest(unprivilegedUser, POST,
+        docRoutes.updatePost(testItem).url).withHeaders(formPostHeaders.toSeq: _*), testData).get
+      status(cr2) must equalTo(SEE_OTHER)
+      val getR = route(fakeLoggedInHtmlRequest(unprivilegedUser, GET, redirectLocation(cr2).get)).get
+      status(getR) must equalTo(OK)
+    }    
   }
 }
