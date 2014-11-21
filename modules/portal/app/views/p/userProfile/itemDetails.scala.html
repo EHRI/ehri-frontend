@@ -15,7 +15,7 @@
         <div class="panel panel-default">
             <div class="panel-heading">@Messages("portal.social.browseUsers")</div>
             <ul class="list-group">
-                <li class="list-group-item">
+                <li class="list-group-item user-img">
                     <a href="@{if(isCurrentUser) controllers.portal.profile.routes.Profile.profile else controllers.portal.social.routes.Social.browseUser(item.id)}" class="gravitar">
                         <img class="user-img-full" src="@views.p.Helpers.gravitar(item.model.imageUrl)" alt="@item.model.name"/>
                     </a>
@@ -27,11 +27,9 @@
                         </a>
                     </li>
                 } else {
-                    <li class="list-group-item">
-                        <div class="btn-group">
-                            @p.common.messageButtons(item, canMessage)
-                            @p.common.followingButtons(item, followed)
-                        </div>
+                    <li class="list-group-item btn-group-vertical" role="group">
+                        @p.common.messageButtons(item, canMessage)
+                        @p.common.followingButtons(item, followed)
                     </li>
                 }
                 <li class="list-group-item user-profile-social">
