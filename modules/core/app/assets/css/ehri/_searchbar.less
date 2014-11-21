@@ -1,9 +1,6 @@
 #search-helper {
 
-//  .make-md-column(8);
-//  .make-md-column-offset(2);
-  .well;
-  .well-sm;
+  &:extend(.well, .well-sm);
 
   display: none;
   font-size: 90%;
@@ -28,7 +25,7 @@
 }
 
 .search-helper-container {
-  padding: 0 15px;
+  padding: 0 @medium-padding;
   .make-md-column(2);
   .search-helper-toggle {
     display: inline-block;
@@ -48,8 +45,9 @@
 
 
 .search-bar {
-  /*border-bottom: solid 1px @pale-gray;*/
-  margin-bottom:10px;
+  &:extend(.clearfix);
+
+  margin-bottom: @medium-margin;
 
   .search-box {
     .make-md-column-offset(2);

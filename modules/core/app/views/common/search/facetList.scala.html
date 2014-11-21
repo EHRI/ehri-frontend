@@ -9,7 +9,7 @@
 @facetDropDown(fc: FacetClass[Facet]) = {
     @defining(fc.sorted.filter(_.count > 0).size > 0) { active =>
         @defining(fc.sorted.size <= 1) { disabled =>
-            <div class="facet-class">
+            <li class="facet-class">
                 @facetLabel(fc)
                 <div class="facet-options">
                     <select multiple style="width: 100%" name="@fc.param" data-placeholder="@Messages("facet." + fc.param + ".placeholder")" class="form-control select2 autosubmit">
@@ -19,7 +19,7 @@
                         }
                     </select>
                 </div>
-            </div>
+            </li>
         }
     }
 }
@@ -28,7 +28,7 @@
     @defining(fc.sorted.filter(_.count > 0).size > 0) { active =>
         @* Don't bother showing choices with only one choice! *@
         @if(fc.sorted.size > 1) {
-            <div class="facet-class">
+            <li class="facet-class">
                 @facetLabel(fc)
                 <div class="facet-options">
                 @fc.sorted.map { f =>
@@ -40,14 +40,14 @@
                     </div>
                 }
                 </div>
-            </div>
+            </li>
         }
     }
 }
 
 @facetBoolean(fc: FacetClass[Facet]) = {
     @defining(fc.sorted.filter(_.count > 0).size > 0) { active =>
-        <div class="facet-class">
+        <li class="facet-class">
             @facetLabel(fc)
             <div class="facet-options">
             @fc.sorted.map { f =>
@@ -59,14 +59,14 @@
                 </div>
             }
             </div>
-        </div>
+        </li>
     }
 }
 
 @facetList(fc: FacetClass[Facet]) = {
     @if(!fc.sorted.isEmpty) {
         @defining(fc.sorted.filter(_.count > 0)) { sortedActive =>
-            <div class="facet-class">
+            <li class="facet-class">
                 @facetLabel(fc)
                 <ul class="facet-options">
                     @sortedActive.map { f =>
@@ -88,14 +88,14 @@
                         }
                     }
                 </ul>
-            </div>
+            </li>
         }
     }
 }
 
 
 @facetDate(fc: FacetClass[Facet]) = {
-    <div class="facet-class facet-date">
+    <li class="facet-class facet-date">
         <h4 class="facet-label">
             @Messages(fc.name)
 
@@ -150,27 +150,29 @@
                 <br clear="both" />
             </div>
         }
-    </div>
+    </li>
 }
 
-@facets.map { fc =>
-    <div class="facet-list">
-    @fc.display match {
-        case FacetDisplay.DropDown => {
-            @facetDropDown(fc)
-        }
-        case FacetDisplay.Boolean => {
-            @facetBoolean(fc)
-        }
-        case FacetDisplay.Choice => {
-            @facetChoice(fc)
-        }
-        case FacetDisplay.Date => {
-            @facetDate(fc)
-        }
-        case _ => {
-            @facetList(fc)
+@if(!facets.isEmpty) {
+    <ul class="facet-classes">
+    @facets.map { fc =>
+        @fc.display match {
+            case FacetDisplay.DropDown => {
+                @facetDropDown(fc)
+            }
+            case FacetDisplay.Boolean => {
+                @facetBoolean(fc)
+            }
+            case FacetDisplay.Choice => {
+                @facetChoice(fc)
+            }
+            case FacetDisplay.Date => {
+                @facetDate(fc)
+            }
+            case _ => {
+                @facetList(fc)
+            }
         }
     }
-    </div>
+    </ul>
 }
