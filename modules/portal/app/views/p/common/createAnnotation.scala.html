@@ -7,14 +7,14 @@
 @implicitField = @{ views.html.helper.FieldConstructor(p.helpers.fieldTemplateCheckbox.f) }
 
 @helper.form(action = action, 'role -> "form", 'class -> "form validate-form", 'class -> "annotation-form annotate-item-form validate-form") {
-    <div class="row annotation-right">
-        <div class="col-md-12">
+    <div class="annotation-right">
+        <div class="annotation-form-controls">
             @annotationForm(f, visForm, accessorsForm, users, groups)
-            <div class="form-group pull-right">
+            <div class="annotation-submit-controls form-group">
                 <div class="checkbox-inline" data-toggle="tooltip" title="@Messages("portal.contribution.visibility.allowPublic.title")">
                     @helper.checkbox(f(ALLOW_PUBLIC), '_label -> Messages("portal.contribution.visibility.allowPublic"))
                 </div>
-                <button class="btn btn-primary" type="submit" class="submit-annotation">
+                <button type="submit" class="submit-annotation btn btn-primary">
                     @Messages("portal.annotation.create")
                 </button>
             </div>
