@@ -4,7 +4,7 @@
 
 @item.model.primaryDescription(descriptionId).map { desc =>
     @common.otherNameListSmall(desc.identity.parallelFormsOfName.toList.flatten)
-    <small>
+    <div class="search-item-details">
         <ul class="list-unstyled text-muted list-inline inline-separator">
             @if(showRepository) {
                 @item.holder.map { holder =>
@@ -33,7 +33,7 @@
                 <a href="@controllers.portal.routes.Portal.searchDocument(item.id)">@Messages("documentaryUnit.childCount", count)</a>
             }
         }
-    </small>
+    </div>
 
     @desc.displayText.map(views.Helpers.ellipsize(_, 600)).map { sc =>
         @highlighter.highlight(views.Helpers.renderMarkdown(sc))
