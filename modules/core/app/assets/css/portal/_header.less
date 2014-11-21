@@ -3,10 +3,10 @@ header#header {
   color: white;
   font-weight: 700;
 
-//  background-position: center center;
-//  background-image: url("/v/img/itsarolsen_effects.jpg");
-//  background-repeat: no-repeat;
-//  background-size: 100% auto;
+  background-position: center center;
+  background-image: url("/v/img/itsarolsen_effects.jpg");
+  background-repeat: no-repeat;
+  background-size: 100% auto;
 
   @media screen and (max-width: @screen-sm-min) {
     background-size: auto;
@@ -15,8 +15,8 @@ header#header {
   #navbar-primary-container {
     padding-top: @medium-padding;
     padding-bottom: @medium-padding;
-    //background: rgba(0, 0, 0, 0.5);
-    background-color:  @pale-gray;
+    background: rgba(0, 0, 0, 0.5);
+    //background-color:  @pale-gray;
     font-family: serif;
     border: none;
     border-bottom: 1px solid darken(@pale-gray, 30%);
@@ -26,76 +26,88 @@ header#header {
     }
 
     #navbar-primary {
+      #navbar-logo {
+        float: left;
+        img {
+          vertical-align: baseline;
+        }
+      }
       ul {
-        li#navbar-logo {
-          img {
-            vertical-align: bottom;
-          }
-        }
-
-        li.active {
+        margin-top: 8px; // line up with the logo image
+        margin-left: @large-margin;
+        li {
           a {
-            background-color: @pale-gray;
-          }
-        }
-
-        li.country, li.repository, li.documentaryUnit, li.historicalAgent {
-          padding-top: @small-padding;
-          margin: @medium-margin @medium-margin;
-
-          a {
-            //background-color: rgba(255,255,255,0.5);
             color: #fff;
             font-size: 1.2em;
             padding: @small-padding @small-padding;
             border-bottom: @small-padding solid transparent;
           }
-        }
-
-        li.country {
-          a {
-            color: @country-color;
-          }
 
           &.active {
             a {
-              border-bottom-color: @country-color;
+              border-bottom-color: #fff;
+              background-color: transparent;
             }
           }
         }
-        li.repository {
-          a {
-            color: @repo-color;
-          }
 
-          &.active {
-            a {
-              border-bottom-color: @repo-color;
-            }
-          }
-        }
-        li.documentaryUnit {
-          a {
-            color: @doc-color;
-          }
-
-          &.active {
-            a {
-              border-bottom-color: @doc-color;
-            }
-          }
-        }
-        li.historicalAgent {
-          a {
-            color: @agent-color;
-          }
-
-          &.active {
-            a {
-              border-bottom-color: @agent-color;
-            }
-          }
-        }
+//        li.country, li.repository, li.documentaryUnit, li.historicalAgent {
+//          padding-top: @small-padding;
+//          margin: @medium-margin @medium-margin;
+//
+//          a {
+//            //background-color: rgba(255,255,255,0.5);
+//            color: #fff;
+//            font-size: 1.2em;
+//            padding: @small-padding @small-padding;
+//            border-bottom: @small-padding solid transparent;
+//          }
+//        }
+//
+//        li.country {
+//          a {
+//            color: @country-color;
+//          }
+//
+//          &.active {
+//            a {
+//              border-bottom-color: @country-color;
+//            }
+//          }
+//        }
+//        li.repository {
+//          a {
+//            color: @repo-color;
+//          }
+//
+//          &.active {
+//            a {
+//              border-bottom-color: @repo-color;
+//            }
+//          }
+//        }
+//        li.documentaryUnit {
+//          a {
+//            color: @doc-color;
+//          }
+//
+//          &.active {
+//            a {
+//              border-bottom-color: @doc-color;
+//            }
+//          }
+//        }
+//        li.historicalAgent {
+//          a {
+//            color: @agent-color;
+//          }
+//
+//          &.active {
+//            a {
+//              border-bottom-color: @agent-color;
+//            }
+//          }
+//        }
       }
     }
   }

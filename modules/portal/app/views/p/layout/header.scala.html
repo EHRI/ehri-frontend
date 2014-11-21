@@ -106,12 +106,12 @@
             </div>
 
             <div id="navbar-primary" class="navbar-collapse collapse">
+                <div id="navbar-logo" >
+                    <a href="@controllers.portal.routes.Portal.index">
+                        <img height="45px" width="90px" src="@controllers.portal.routes.Assets.versioned("img/logo-trans-small.png")" rel="logo" />
+                    </a>
+                </div>
                 <ul class="nav navbar-nav">
-                    <li id="navbar-logo" >
-                        <a href="@controllers.portal.routes.Portal.index">
-                            <img alt="EHRI" height="60px" width="99px" src="@controllers.portal.routes.Assets.versioned("img/logo-rect-bw-small.png")" rel="logo" />
-                        </a>
-                    </li>
                     <li class="country @views.Helpers.maybeActivePath(controllers.portal.routes.Portal.browseCountries.url)">
                         <a href="@controllers.portal.routes.Portal.browseCountries">@Messages("portal.browse.countries")</a>
                     </li>
