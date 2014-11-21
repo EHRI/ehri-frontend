@@ -109,11 +109,17 @@ em.highlight {
   }
 }
 
-.search-result-list {
-  margin-top: @large-margin;
-  padding-right: @medium-padding;
+.search-results, .search-results-no-facets {
+  .search-result-errata {
+    .clearfix;
+    .search-summary {
+      float: left;
+    }
 
-  &:extend(.list-unstyled);
+    .search-sort {
+      float: right;
+    }
+  }
 }
 
 .search-results {
@@ -125,18 +131,16 @@ em.highlight {
   .search-results-body {
     .make-md-column(9);
 
-    .search-result-errata {
-      .clearfix;
-      .search-summary {
-        float: left;
-      }
-
-      .search-sort {
-        float: right;
-      }
-    }
   }
 }
+
+.search-results-no-facets {
+  .make-row();
+  .search-results-body {
+    .make-md-column(12);
+  }
+}
+
 
 .facet-classes {
   &:extend(.list-unstyled);
