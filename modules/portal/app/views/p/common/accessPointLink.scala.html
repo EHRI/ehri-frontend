@@ -7,15 +7,19 @@
 @accessPoint.target(item, links).map { case (link, other) =>
     <li class="resolved-access-point" id="@accessPoint.id">
         @p.helpers.linkTo(other)
-        @link.model.description.map { desc =>
-        <small><p class="text-muted">@desc</p></small>
+        @link.model.description.filterNot(_.trim.isEmpty).map { desc =>
+            <div class="access-point-description">
+                @Html(views.Helpers.renderMarkdown(desc))
+            </div>
         }
     </li>
 }.getOrElse {
     <li class="unresolved-access-point" id=" @accessPoint.id">
-        @Html(views.Helpers.renderMarkdown(accessPoint.name))
-        @accessPoint.description.filter(_.trim.isEmpty).map { desc =>
-        <small><p class="text-muted">@Html(views.Helpers.renderMarkdown(desc))</p></small>
+        @accessPoint.name
+        @accessPoint.description.filterNot(_.trim.isEmpty).map { desc =>
+            <div class="access-point-description">
+                @Html(views.Helpers.renderMarkdown(desc))
+            </div>
         }
     </li>
 }

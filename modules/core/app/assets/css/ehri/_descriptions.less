@@ -104,3 +104,9 @@
     margin-bottom: @small-margin;
   }
 }
+
+.resolved-access-point, .unresolved-access-point {
+  .access-point-description {
+    &:extend(.text-muted, .small);
+  }
+}
