@@ -1,7 +1,6 @@
 package models.forms
 
 import play.api.test.PlaySpecification
-import models.Address
 
 /**
  * @author Mike Bryant (http://github.com/mikesname)
