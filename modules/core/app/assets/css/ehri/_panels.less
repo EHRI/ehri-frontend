@@ -81,7 +81,7 @@
 .panel-details {
   &:extend(.panel);
   .panel-rework();
-  .panel-color();
+  .panel-color(@medium-gray, #000000);
 }
 
 .facet-class {
@@ -98,21 +98,21 @@
   }
 }
 
-body.documentaryUnit .panel-details {
+body.documentaryUnit .panel-type {
   .panel-color(@doc-color);
 }
 
-body.country .panel-details {
+body.country .panel-type {
   .panel-color(@country-color);
 }
 
-body.repository .panel-details, body .panel-details.repository {
+body.repository .panel-type {
   .panel-color(@repo-color);
 }
 
-body.historicalAgent .panel-details {
+body.historicalAgent .panel-type {
   .panel-color(@agent-color);
 }
-body.userProfile .panel-details {
+body.userProfile .panel-type {
   .panel-color(@user-color);
 }

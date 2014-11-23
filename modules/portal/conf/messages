@@ -147,6 +147,7 @@ portal.repository.url=Web
 portal.repository.searchItems=Search items held by {0}
 
 portal.documentaryUnit.identifier=Identifier
+portal.documentaryUnit.archivalContext=Archival Context
 portal.documentaryUnit.otherIdentifiers=Alt. Identifiers
 portal.documentaryUnit.extentAndMedium=Extent & Medium
 portal.documentaryUnit.dates=Dates

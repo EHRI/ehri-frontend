@@ -126,7 +126,7 @@ $(".panel-history").each(function() {
   var $quicksearch = $("#quicksearch");
   var $quicksearchBH = new Bloodhound({
                           datumTokenizer: function (d) {
-                                return Bloodhound.tokenizers.whitespace(d); 
+                                return Bloodhound.tokenizers.whitespace(d);
                           },
                           queryTokenizer: Bloodhound.tokenizers.whitespace,
                           remote: {

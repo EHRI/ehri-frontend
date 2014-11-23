@@ -4,7 +4,7 @@
     @doc.parent.map { parent =>
         @wrapParent(parent) {
             <div class="ancestor">
-                <h4>@p.helpers.linkTo(parent)</h4>
+                @p.helpers.linkTo(parent)
                 @html
             </div>
         }
@@ -14,21 +14,13 @@
 }
 
 
-<section class="archival-context panel-details repository">
+<div class="archival-context panel-details">
     @item.holder.map { holder =>
         <div class="panel-heading">
-            <h3>@p.helpers.linkTo(holder)</h3>
+            <h3 class="panel-title">@Messages("portal.documentaryUnit.archivalContext")</h3>
         </div>
         <div class="panel-body">
-            @if(!holder.model.primaryDescription.flatMap(_.parallelFormsOfName).isEmpty || !holder.model.logoUrl.isEmpty) {
-                <ul class="list-unstyled other-name-list">
-                    @holder.model.primaryDescription.map { d =>
-                    @d.parallelFormsOfName.map { pfn =>
-                    <li>@pfn</li>
-                    }
-                    }
-                </ul>
-            }
+            @p.helpers.linkTo(holder)
             @holder.model.logoUrl.map { logo =>
                 @defining(holder.url.map(_.toString).getOrElse(req.path)) { url =>
                 <a href="@url">
@@ -40,10 +32,10 @@
             @item.parent.map { parent =>
                 @wrapParent(parent) {
                     <div class="ancestor">
-                        <h4>@p.helpers.linkTo(parent)</h4>
+                        @p.helpers.linkTo(parent)
                     </div>
                 }
             }
         </div>
     }
-</section>
+</div>
