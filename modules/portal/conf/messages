@@ -13,13 +13,13 @@ portal.profile.preferences.allowMessaging=Allow other users to send you messages
 portal.profile.preferences.allowMessaging.description=Your email address will not be directly accessible.
 portal.profile.preferences.updatePreferences=Update Preferences
 
-portal.type.repository=Archival Institution
-portal.type.documentaryUnit=Archival Description
-portal.type.historicalAgent=Historical Agent
-portal.type.country=National Report
-portal.type.cvocConcept=Keyword
-portal.type.userProfile=User
-portal.type.group=Group
+portal.type.repository=Archival Institutions
+portal.type.documentaryUnit=Archival Descriptions
+portal.type.historicalAgent=Historical Agents
+portal.type.country=National Reports
+portal.type.cvocConcept=Keywords
+portal.type.userProfile=Users
+portal.type.group=Groups
 
 portal.readonly=The EHRI portal is currently in read-only mode while we conduct maintenance.\
   Normal service should be resumed in due course. Thanks for your patience.
