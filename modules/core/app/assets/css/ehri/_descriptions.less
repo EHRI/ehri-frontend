@@ -15,8 +15,9 @@
 }
 
 .item-header {
-  h2.other-names {
+  .other-name-list {
     font-size: 1.3em;
+    &:extend(.list-unstyled, .list-inline, .text-mute);
   }
 
   h1, h2 {
@@ -101,5 +102,11 @@
 
   .panel-details {
     margin-bottom: @small-margin;
+  }
+}
+
+.resolved-access-point, .unresolved-access-point {
+  .access-point-description {
+    &:extend(.text-muted, .small);
   }
 }

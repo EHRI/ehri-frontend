@@ -100,12 +100,6 @@ object Address {
   import play.api.data.Form
   import play.api.data.Forms._
 
-  def isValidWebsite(s: String): Boolean = {
-    import utils.forms.isValidUrl
-    if (!s.trim.startsWith("http://") && s.contains(".")) isValidUrl("http://" + s)
-    else isValidUrl(s)
-  }
-
   val form = Form(
     mapping(
       Entity.ISA -> ignored(EntityType.Address),
@@ -120,9 +114,9 @@ object Address {
       EMAIL -> list(email),
       TELEPHONE -> list(nonEmptyText),
       FAX -> list(nonEmptyText),
-      URL -> list(nonEmptyText verifying("error.badUrl", fields => fields match {
-        case url => isValidWebsite(url)
-      }))
+      URL -> list(nonEmptyText verifying("error.badUrl",
+        url => utils.forms.isValidUrl(url)
+      ))
     )(AddressF.apply)(AddressF.unapply)
   )
 }

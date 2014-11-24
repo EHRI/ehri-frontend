@@ -2,9 +2,9 @@
 
 @views.html.common.childCount(item) { count =>
     @if(count > 0) {
-        <small>
+        <div class="search-item-details">
             <a href="@controllers.portal.routes.Portal.searchCountry(item.id)">@Messages("country.childCount", count)</a>
-        </small>
+        </div>
     }
 }
 

@@ -8,6 +8,9 @@
             <span class="hidden-responsive">@user.model.name</span>
         </a>
     </li>
+    <li>
+        <a href="@controllers.portal.routes.Helpdesk.helpdesk">@Messages("portal.helpdesk")</a>
+    </li>
     @if(user.account.exists(_.staff)) {
         <li>
             <a href="/admin">@Messages("pages.admin")</a>

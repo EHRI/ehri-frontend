@@ -3,7 +3,6 @@ package utils.search
 import defines.EntityType
 import backend.rest.Constants._
 import play.api.libs.json.Json
-import utils.PageParams
 
 
 object SearchField extends Enumeration {
@@ -118,7 +117,12 @@ object SearchParams {
     mapping(
       QUERY -> optional(nonEmptyText),
       PAGE_PARAM -> optional(number(min = 1)),
-      LIMIT_PARAM -> optional(number(min = 0, max = MAX_LIST_LIMIT)),
+      // ensure the maximum list limit is respected, but as
+      // a limit, not as a constraint that causes binding failure.
+      LIMIT_PARAM -> optional(number(min = 0).transform(
+        i => i.min(MAX_LIST_LIMIT),
+        (i: Int) => i)
+      ),
       SORT -> optional(utils.forms.enum(SearchOrder)),
       REVERSE -> optional(boolean),
       ENTITY -> list(utils.forms.enum(EntityType)),
