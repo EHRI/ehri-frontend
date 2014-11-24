@@ -111,11 +111,6 @@ a.alt {
   display: none;
 }
 
-
-/** Search items */
-@import "../ehri/_searchItem.less";
-
-
 // Forms
 label.disabled {
   color: @dark-gray;
@@ -144,25 +139,16 @@ label.disabled {
   margin-bottom: @large-margin;
 }
 
-.search-result-list {
-  margin-top: @large-margin;
-  padding-right: @medium-padding;
-}
-
 .user-list {
-  padding: 0 @medium-padding 0 @medium-padding;
 }
 
 .user-list-item {
-  padding: @medium-padding 0 @medium-padding 0;
   position: relative;
   .gravitar {
-//    position: absolute;
-//    left: 0px;
-//    top: 0px;
     float: left;
     width: 48px;
     height: 48px;
+    margin-right: @small-margin;
 
     img {
       border-radius: 5px;
@@ -180,9 +166,6 @@ label.disabled {
   .follow-controls {
     float: right;
   }
-
-  //margin: @small-margin 0 @small-margin 0;
-  border-bottom: 1px solid @pale-gray;
 }
 
 .user-list-item.current {

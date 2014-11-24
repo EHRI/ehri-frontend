@@ -11,7 +11,6 @@ import eu.ehri.project.definitions.Ontology
 import backend.rest.Constants
 import play.api.data.Form
 import play.api.data.Forms._
-import play.api.libs.json.JsObject
 import play.api.i18n.Lang
 import backend._
 import play.api.libs.json.JsObject

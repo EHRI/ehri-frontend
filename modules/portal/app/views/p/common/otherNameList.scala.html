@@ -2,13 +2,11 @@
 
 @defining(list.toList.flatten) { pfn =>
     @if(!pfn.isEmpty) {
-    <h2 class="text-muted other-names">
-        <ul class="list-unstyled list-inline slash-sep other-name-list">
-            @pfn.map { p =>
-                <li>@p</li>
-            }
-        </ul>
-    </h2>
+    <ul class="slash-sep other-name-list">
+        @pfn.map { p =>
+            <li>@p</li>
+        }
+    </ul>
     }
 }
 

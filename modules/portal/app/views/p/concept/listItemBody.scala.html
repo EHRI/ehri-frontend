@@ -1,7 +1,7 @@
 @(item: Concept, highlighter: views.Highlighter = views.NoopHighlighter)(implicit req: RequestHeader, lang: Lang, descriptionId: Option[String] = None)
 
 @item.model.primaryDescription(descriptionId).map { desc =>
-    <small>
+    <div class="search-item-details">
         <ul class="list-unstyled text-muted inline inline-separator">
             @item.vocabulary.map { vocab =>
                 <li><a class="alt" href="@controllers.portal.routes.Portal.browseVocabulary(vocab.id)">@vocab.toStringLang</a></li>
@@ -23,7 +23,7 @@
                 }
             </ul>
         }
-    </small>
+    </div>
 
     @desc.displayText.map(views.Helpers.ellipsize(_, 600)).map { sc =>
         @highlighter.highlight(views.Helpers.renderMarkdown(sc))
