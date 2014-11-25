@@ -13,6 +13,16 @@ portal.profile.preferences.allowMessaging=Allow other users to send you messages
 portal.profile.preferences.allowMessaging.description=Your email address will not be directly accessible.
 portal.profile.preferences.updatePreferences=Update Preferences
 
+# Item types
+portal.type=Item type
+portal.type.repository=Archival Institutions
+portal.type.documentaryUnit=Archival Descriptions
+portal.type.historicalAgent=Historical Agents
+portal.type.country=National Reports
+portal.type.cvocConcept=Keywords
+portal.type.userProfile=Users
+portal.type.group=Groups
+
 portal.readonly=The EHRI portal is currently in read-only mode while we conduct maintenance.\
   Normal service should be resumed in due course. Thanks for your patience.
 
@@ -88,28 +98,18 @@ portal.profile.deleteProfileConfirmation=Deleting your account will \
 portal.profile.deleteProfileCheck=Type your name as displayed above.
 portal.profile.deleteProfile.badConfirmation=Profile deletion was not confirmed correctly.
 portal.profile.profileDeleted=Your profile has been deleted.
-
 portal.close=Close
 
-portal.browse.countries=Country Reports
-portal.browse.repositoriesByCountry=Repositories By Country
-portal.browse.repositories=Repositories
-portal.browse.documents=Archival Descriptions
-portal.browse.historicalAgents=Historical Agents
-portal.browse.documentsByRepository=Archival Descriptions By Institution
-portal.browse.concepts=Keywords
-
-portal.landingBlurb.repositories=Browse {0} in {1}.
-portal.landingBlurb.repositoryLink={0} repositories
-portal.landingBlurb.inCountryLink={0} countries
-portal.landingBlurb.documentLink={0} archival descriptions
-portal.landingBlurb.inRepositoryLink={0} repositories
-portal.landingBlurb.documents=Browse {0} in {1}.
-portal.landingBlurb.historicalAgents=Browse {0}, comprised of {1}, {2} and {3}.
-portal.landingBlurb.historicalAgentLink={0} historical agents
-portal.landingBlurb.corporateBodyLink={0,choice,0#{0} corporate bodies|1#1 corporate body|1<{0,number,integer} corporate bodies}
-portal.landingBlurb.personLink={0} Persons
-portal.landingBlurb.familyLink={0,choice,0#{0} families|1#1 family|1<{0,number,integer} families}
+portal.landingBlurb.repository=Browse {0} in {1}.
+portal.landingBlurb.repository.link={0} repositories
+portal.landingBlurb.country.link={0} countries
+portal.landingBlurb.documentaryUnit.link={0} archival descriptions
+portal.landingBlurb.documentaryUnit=Browse {0} in {1}.
+portal.landingBlurb.historicalAgent=Browse {0}, comprised of {1}, {2} and {3}.
+portal.landingBlurb.historicalAgent.link={0} historical agents
+portal.landingBlurb.corporateBody.link={0,choice,0#{0} corporate bodies|1#1 corporate body|1<{0,number,integer} corporate bodies}
+portal.landingBlurb.person.link={0} Persons
+portal.landingBlurb.family.link={0,choice,0#{0} families|1#1 family|1<{0,number,integer} families}
 
 portal.bookmarkedItems=Bookmarked Items
 portal.newsFeed=Latest News

@@ -65,9 +65,9 @@ trait FacetConfig extends Search {
       ),
       FieldFacetClass(
         key = "type",
-        name = Messages("search.type"),
+        name = Messages("portal.type"),
         param = "type",
-        render = s => Messages("contentTypes." + s),
+        render = s => Messages("portal.type." + s),
         display = FacetDisplay.Choice
       )
     )

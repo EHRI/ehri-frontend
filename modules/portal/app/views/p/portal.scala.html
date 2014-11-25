@@ -34,48 +34,48 @@
             @views.html.common.search.searchBar()
 
             <h3 class="landing-header @EntityType.DocumentaryUnit">
-                <a class="" href="@controllers.portal.routes.Portal.browseDocuments">@Messages("portal.browse.documents")</a>
+                <a class="" href="@controllers.portal.routes.Portal.browseDocuments">@Messages("portal.type.documentaryUnit")</a>
             </h3>
 
             <div class="landing-blurb">
                 @{Html(Messages(
-                "portal.landingBlurb.documents",
+                "portal.landingBlurb.documentaryUnit",
                 countLink(controllers.portal.routes.Portal.browseDocuments.url,
-                "portal.landingBlurb.documentLink", stats.documentaryUnitCount).body.trim,
+                "portal.landingBlurb.documentaryUnit.link", stats.documentaryUnitCount).body.trim,
                 countLink(controllers.portal.routes.Portal.browseRepositories().url + "?data=yes",
-                "portal.landingBlurb.inRepositoryLink", stats.inRepositoryCount).body.trim
+                "portal.landingBlurb.repository.link", stats.inRepositoryCount).body.trim
                 ))}
             </div>
 
             <h3 class="landing-header @EntityType.Repository">
-                <a class="" href="@controllers.portal.routes.Portal.browseRepositories">@Messages("portal.browse.repositories")</a>
+                <a class="" href="@controllers.portal.routes.Portal.browseRepositories">@Messages("portal.type.repository")</a>
             </h3>
 
             <div class="landing-blurb">
                 @{Html(Messages(
-                "portal.landingBlurb.repositories",
+                "portal.landingBlurb.repository",
                 countLink(controllers.portal.routes.Portal.browseRepositories().url,
-                "portal.landingBlurb.repositoryLink", stats.repositoryCount).body.trim,
-                countLink(controllers.portal.routes.Portal.browseCountries().url + "?data=yes", "portal.landingBlurb.inCountryLink",
+                "portal.landingBlurb.repository.link", stats.repositoryCount).body.trim,
+                countLink(controllers.portal.routes.Portal.browseCountries().url + "?data=yes", "portal.landingBlurb.country.link",
                 stats.inCountryCount).body.trim
                 ))}
             </div>
 
             <h3 class="landing-header @EntityType.HistoricalAgent">
-                <a class="" href="@controllers.portal.routes.Portal.browseHistoricalAgents">@Messages("portal.browse.historicalAgents")</a>
+                <a class="" href="@controllers.portal.routes.Portal.browseHistoricalAgents">@Messages("portal.type.historicalAgent")</a>
             </h3>
 
             <div class="landing-blurb">
                 @{Html(Messages(
-                "portal.landingBlurb.historicalAgents",
+                "portal.landingBlurb.historicalAgent",
                 countLink(controllers.portal.routes.Portal.browseHistoricalAgents().url,
-                "portal.landingBlurb.historicalAgentLink", stats.historicalAgentCount).body.trim,
+                "portal.landingBlurb.historicalAgent.link", stats.historicalAgentCount).body.trim,
                 countLink(controllers.portal.routes.Portal.browseHistoricalAgents().url + "?cpf=corporateBody",
-                "portal.landingBlurb.corporateBodyLink", stats.corpCount).body.trim,
+                "portal.landingBlurb.corporateBody.link", stats.corpCount).body.trim,
                 countLink(controllers.portal.routes.Portal.browseHistoricalAgents().url + "?cpf=person",
-                "portal.landingBlurb.personLink", stats.personCount).body.trim,
+                "portal.landingBlurb.person.link", stats.personCount).body.trim,
                 countLink(controllers.portal.routes.Portal.browseHistoricalAgents().url + "?cpf=family",
-                "portal.landingBlurb.familyLink", stats.familyCount).body.trim
+                "portal.landingBlurb.family.link", stats.familyCount).body.trim
                 ))}
             </div>
 
