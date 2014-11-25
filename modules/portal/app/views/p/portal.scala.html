@@ -98,42 +98,42 @@
               <!-- Example row of columns -->
               <div class="row">
                 <div class="col-md-4 welcome-section country">
-                  <h2><a href="@controllers.portal.routes.Portal.browseCountries">@Messages("portal.browse.countries")</a></h2>
-                  <p>@Messages("portal.browse.countries.description")</p>
+                  <h2><a href="@controllers.portal.routes.Portal.browseCountries">@Messages("portal.type.country")</a></h2>
+                  <p>@Messages("portal.type.country.description")</p>
                 </div>
                 <div class="col-md-4 welcome-section repository">
-                    <h2><a href="@controllers.portal.routes.Portal.browseRepositories">@Messages("portal.browse.repositories")</a></h2>
-                    <p>@Messages("portal.browse.repositories.description")</p>
+                    <h2><a href="@controllers.portal.routes.Portal.browseRepositories">@Messages("portal.type.repository")</a></h2>
+                    <p>@Messages("portal.type.repository.description")</p>
                </div>
                 <div class="col-md-4 welcome-section documentaryUnit">
-                    <h2><a href="@controllers.portal.routes.Portal.browseDocuments">@Messages("portal.browse.documents")</a></h2>
-                    <p>@Messages("portal.browse.documents.description")</p>
+                    <h2><a href="@controllers.portal.routes.Portal.browseDocuments">@Messages("portal.type.documentaryUnit")</a></h2>
+                    <p>@Messages("portal.type.documentaryUnit.description")</p>
                 </div>
               </div>
               <div class="row">
                   <div class="col-md-4 welcome-section country">
                       @{Html(Messages(
-                      "portal.landingBlurb.countries",
+                      "portal.landingBlurb.country",
                       countLink(controllers.portal.routes.Portal.browseCountries().url,
-                      "portal.landingBlurb.countryLink", stats.countryCount).body.trim
+                      "portal.landingBlurb.country.link", stats.countryCount).body.trim
                       ))}
                   </div>
                   <div class="col-md-4 welcome-section repository">
                       @{Html(Messages(
-                      "portal.landingBlurb.repositories",
+                      "portal.landingBlurb.repository",
                       countLink(controllers.portal.routes.Portal.browseRepositories().url,
-                      "portal.landingBlurb.repositoryLink", stats.repositoryCount).body.trim,
-                      countLink(controllers.portal.routes.Portal.browseCountries().url + "?data=yes", "portal.landingBlurb.inCountryLink",
-                      stats.inCountryCount).body.trim
+                      "portal.landingBlurb.repository.link", stats.repositoryCount).body.trim,
+                      countLink(controllers.portal.routes.Portal.browseCountries().url + "?data=yes",
+                      "portal.landingBlurb.repository.country.link", stats.inCountryCount).body.trim
                       ))}
                   </div>
                   <div class="col-md-4 welcome-section documentaryUnit">
                       @{Html(Messages(
-                      "portal.landingBlurb.documents",
+                      "portal.landingBlurb.documentaryUnit",
                       countLink(controllers.portal.routes.Portal.browseDocuments.url,
-                      "portal.landingBlurb.documentLink", stats.documentaryUnitCount).body.trim,
+                      "portal.landingBlurb.documentaryUnit.link", stats.documentaryUnitCount).body.trim,
                       countLink(controllers.portal.routes.Portal.browseRepositories().url + "?data=yes",
-                      "portal.landingBlurb.inRepositoryLink", stats.inRepositoryCount).body.trim
+                      "portal.landingBlurb.documentaryUnit.repository.link", stats.inRepositoryCount).body.trim
                       ))}
                   </div>
               </div>
@@ -151,10 +151,6 @@
         </div> <!-- /container -->
     </div>
     @p.layout.footer()
-
-
-    <!-- CONTENT HERE -->
-
 
     @if(userOpt.isEmpty) {
         @p.dataPolicyModal()
