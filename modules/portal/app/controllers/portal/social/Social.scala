@@ -22,7 +22,7 @@ import scala.Some
 import play.api.mvc.Result
 import backend.ApiUser
 import com.typesafe.plugin.MailerAPI
-import controllers.portal.{Secured, PortalAuthConfigImpl}
+import controllers.portal.{PortalBase, Secured, PortalAuthConfigImpl}
 
 /**
  * @author Mike Bryant (http://github.com/mikesname)
@@ -36,52 +36,13 @@ case class Social @Inject()(implicit globalConfig: global.GlobalConfig, searchDi
   extends AuthController
   with ControllerHelpers
   with PortalAuthConfigImpl
+  with PortalBase
   with SessionPreferences[SessionPrefs]
   with Secured {
 
   val defaultPreferences = new SessionPrefs
 
-  val activityEventTypes = List(
-    EventType.deletion,
-    EventType.creation,
-    EventType.modification,
-    EventType.modifyDependent,
-    EventType.createDependent,
-    EventType.deleteDependent,
-    EventType.link,
-    EventType.annotation
-  )
-
-  val activityItemTypes = List(
-    EntityType.DocumentaryUnit,
-    EntityType.Repository,
-    EntityType.Country,
-    EntityType.HistoricalAgent,
-    EntityType.Link,
-    EntityType.Annotation
-  )
-
   private val socialRoutes = controllers.portal.social.routes.Social
-
-  def personalisedActivity(offset: Int = 0, limit: Int = Constants.DEFAULT_LIST_LIMIT) = {
-    withUserAction.async { implicit user => implicit request =>
-    // NB: Increasing the limit by 1 over the default so we can
-    // detect if there are additional items to display
-      val listParams = RangeParams.fromRequest(request).copy(offset = offset)
-      val incParams = listParams.copy(limit = listParams.limit + 1)
-      val eventFilter = SystemEventParams.fromRequest(request)
-        .copy(eventTypes = activityEventTypes)
-        .copy(itemTypes = activityItemTypes)
-      backend.listEventsForUser[SystemEvent](user.id, incParams, eventFilter).map { events =>
-        val more = events.size > listParams.limit
-
-        val displayEvents = events.take(listParams.limit)
-        if (isAjax) Ok(p.activity.eventItems(displayEvents))
-          .withHeaders("activity-more" -> more.toString)
-        else Ok(p.activity.activity(displayEvents, listParams, more))
-      }
-    }
-  }
 
   def browseUsers = withUserAction.async { implicit user => implicit request =>
     // This is a bit gnarly because we want to get a searchable list

@@ -9,6 +9,8 @@
 
 GET         /                               @controllers.portal.Portal.index
 
+GET         /activity                       @controllers.portal.Portal.personalisedActivity(offset: Int ?= 0, limit: Int ?= 20)
+
 GET         /helpdesk                       @controllers.portal.Helpdesk.helpdesk
 POST        /helpdesk                       @controllers.portal.Helpdesk.helpdeskPost
 

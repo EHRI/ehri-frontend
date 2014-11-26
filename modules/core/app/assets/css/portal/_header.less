@@ -4,13 +4,12 @@ header#header {
   font-weight: 700;
 
   #navbar-admin {
-    font-size: 0.9em;
     ul > li > a {
-      padding-top: 3px;
-      padding-bottom: 3px;
+      padding-top: @small-padding;
+      padding-bottom: @small-padding;
     }
     img {
-      max-height: @navbar-height;
+      max-height: @navbar-height - @small-padding;
     }
   }
 
@@ -24,8 +23,8 @@ header#header {
   }
 
   .global-search {
-    margin-top: 3px;
-    margin-right: 3px;
+    margin-top: @small-margin;
+    margin-right: @small-margin;
     position: relative;
 
     input {

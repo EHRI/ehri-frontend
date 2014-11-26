@@ -1,7 +1,7 @@
 package controllers.portal
 
 import play.api.libs.concurrent.Execution.Implicits._
-import defines.EntityType
+import defines.{EventType, EntityType}
 import utils.{Page, PageParams}
 import models.{Link, Annotation, UserProfile}
 import play.api.mvc._
@@ -32,6 +32,32 @@ trait PortalBase {
   private def userWatchCacheKey(userId: String) = s"$userId-watchlist"
 
   protected def clearWatchedItemsCache(userId: String) = Cache.remove(userWatchCacheKey(userId))
+
+  /**
+   * Activity event types that we think the user would care about.
+   */
+  val activityEventTypes = List(
+    EventType.deletion,
+    EventType.creation,
+    EventType.modification,
+    EventType.modifyDependent,
+    EventType.createDependent,
+    EventType.deleteDependent,
+    EventType.link,
+    EventType.annotation
+  )
+
+  /**
+   * Activity item types tat we think the user might care about.
+   */
+  val activityItemTypes = List(
+    EntityType.DocumentaryUnit,
+    EntityType.Repository,
+    EntityType.Country,
+    EntityType.HistoricalAgent,
+    EntityType.Link,
+    EntityType.Annotation
+  )
 
   /**
    * Fetched watched items for an optional user.
