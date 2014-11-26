@@ -1,12 +1,12 @@
-@(desc: Field)(implicit fieldPrefix: String, lang: Lang, fieldConstructor: views.html.helper.FieldConstructor)
+@(desc: Field, rows: Int = 2)(implicit fieldPrefix: String, lang: Lang, fieldConstructor: views.html.helper.FieldConstructor)
 
 <div class="inline-element">
     <div class="form-group @{if(desc.hasErrors) "has-error"}">
-        <div class="col-sm-10">
-            <textarea class="form-control" name="@desc.name" id="@desc.id">@desc.value</textarea>
-            <span class="col-sm-10 errors">@desc.errors.map(e => Messages(e.message)).mkString(", ")</span>
+        <div class="inline-control">
+            <textarea class="form-control" rows="@rows" name="@desc.name" id="@desc.id">@desc.value</textarea>
+            <span class="help-block col-sm-10 errors">@desc.errors.map(e => Messages(e.message)).mkString(", ")</span>
         </div>
-        <div class="col-sm-2">
+        <div class="inline-remove">
             <a class="remove-inline-element" tabindex="-1" href="#">&times;</a>
         </div>
     </div>

@@ -2,18 +2,18 @@ jQuery(function($) {
   /*
   *   Quiet mode by Thibault Clérice GitHub@PonteIneptique
   */
-  $(".form-horizontal .form-group").each(function(e) {
-    var $textarea = $(this).find("textarea");
-    var $formgroup = $(this);
-    if($textarea.length !== "undefined" && $textarea.length === 1 && !$formgroup.hasClass("inline-formset")) {
-      $textarea.parent().append('<div><a href="#" class="quiet-toggle"><span class="glyphicon glyphicon-remove"></span><span class="glyphicon glyphicon-fullscreen"></span><span class="Press Esc or Tab to continue"></span></a></div>');
-    }
-  });
+//  $(".form-horizontal .form-group").each(function(e) {
+//    var $textarea = $(this).find("textarea");
+//    var $formgroup = $(this);
+//    if($textarea.length !== "undefined" && $textarea.length === 1 && !$formgroup.hasClass("inline-formset")) {
+//      $textarea.parent().append('<div><a href="#" class="quiet-toggle"><span class="glyphicon glyphicon-remove"></span><span class="glyphicon glyphicon-fullscreen"></span><span class="Press Esc or Tab to continue"></span></a></div>');
+//    }
+//  });
+
   $(".form-group").on("click", ".quiet-toggle", function(e) {
     $(this).trigger("quiet-toggle")
-  });
 
-  $(".form-group").on("quiet-toggle", ".quiet-toggle", function(e) {
+  }).on("quiet-toggle", ".quiet-toggle", function(e) {
     e.preventDefault();
     var $formgroup = $(this).parents(".form-group");
     var $blockhelp = $formgroup.find(".help-block");
@@ -24,9 +24,8 @@ jQuery(function($) {
     } else {
       $blockhelp.html($blockhelp.data("html"));
     }
-  });
 
-  $(".form-group").on("keydown", function(e) {
+  }).on("keydown", function(e) {
     var $formgroup = $(this);
     if($formgroup.hasClass("quiet")) {
       if (e.keyCode == 27) {
@@ -166,6 +165,7 @@ jQuery(function($) {
 
   $(".add-inline-element").on("click", function(event) {
     event.preventDefault();
+      console.log("called!")
     var container = $(event.target).closest(".inline-formset");
     var set = container.children(".inline-element-list");
     var prefix = container.data("prefix");

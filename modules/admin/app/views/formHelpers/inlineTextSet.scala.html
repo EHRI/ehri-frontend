@@ -1,17 +1,17 @@
-@(desc: Field, label: String)(implicit fieldPrefix: String, lang: Lang, fieldConstructor: views.html.helper.FieldConstructor)
+@(desc: Field, label: String, rows: Int = 2)(implicit fieldPrefix: String, lang: Lang, fieldConstructor: views.html.helper.FieldConstructor)
 
 <div class="inline-formset form-group clearfix" data-prefix="@label">
     <!-- Template for adding inline date forms via JS -->
-    <label class="col-sm-3 control-label">
+    <label class="inline-label control-label">
         @Messages(fieldPrefix + "." + label)
         <a href="#" class="add-inline-element"><i class="glyphicon glyphicon-plus-sign"></i></a>
     </label>
     <div class="inline-element-template form-template ">
-        @inlineText(desc(label + "[IDX]"))
+        @inlineText(desc(label + "[IDX]"), rows)
     </div>
-    <div class="inline-element-list col-sm-9">
+    <div class="inline-element-list">
         @helper.repeat(desc(label), min = 0) { field =>
-            @inlineText(field)
+            @inlineText(field, rows)
         }
     </div>
 </div>
