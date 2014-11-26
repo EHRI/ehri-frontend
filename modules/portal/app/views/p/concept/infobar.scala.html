@@ -7,9 +7,5 @@
     @item.broaderTerms.map { term =>
         <li>@p.helpers.linkTo(term, views.Helpers.ellipsize(term.toStringLang, 100))</li>
     }
-} {
-    @userOpt.map { user =>
-        @p.common.watchButtons(item, watched)
-    }
 }
 

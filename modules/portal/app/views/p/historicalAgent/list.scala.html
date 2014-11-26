@@ -5,6 +5,8 @@
         @views.html.common.search.searchForm(page, params, action, autofocus = false) {
             @p.searchItemList(page, watched)
         } {
+            @p.common.typeLabel(EntityType.HistoricalAgent) {
+            }
             @views.html.common.search.facetList(page.facets, action)
         }
     }

@@ -1,14 +1,8 @@
-@(item: AnyModel, watched: Boolean)(implicit userOpt: Option[UserProfile], req: RequestHeader, globalConfig: global.GlobalConfig, lang: Lang)
+@(itemType: EntityType.Value)(content: Html = Html(""))(implicit userOpt: Option[UserProfile], req: RequestHeader, globalConfig: global.GlobalConfig, lang: Lang)
 
 <div class="panel-type">
     <div class="panel-heading">
-        <h3 class="panel-title">@Messages("portal.type." + item.isA)</h3>
+        <h3 class="panel-title">@Messages("portal.type." + itemType)</h3>
     </div>
-    @if(userOpt.isDefined) {
-        <ul class="item-sidebar-actions list-group">
-            <li class="list-group-item btn-group-justified watch-controls" role="group">
-                @p.common.watchButtons(item, watched)
-            </li>
-        </ul>
-    }
+    @content
 </div>

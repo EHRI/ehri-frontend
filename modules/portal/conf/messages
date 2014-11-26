@@ -31,7 +31,7 @@ portal.type.country.description=EHRI national reports provide an overview of \
   the Second World War and Holocaust history as well as of the archival situation \
   in the covered countries.
 portal.type.cvocConcept=Keywords
-portal.type.userProfile=Users
+portal.type.userProfile=People on EHRI
 portal.type.group=Groups
 
 portal.readonly=The EHRI portal is currently in read-only mode while we conduct maintenance.\

@@ -6,7 +6,15 @@
             @description(item, desc, links, annotations)
         }
     } {
-        @p.common.typeLabel(item, watched.contains(item.id))
+        @p.common.typeLabel(item.isA)  {
+            @if(userOpt.isDefined) {
+                <ul class="item-sidebar-actions list-group">
+                    <li class="list-group-item btn-group-justified watch-controls" role="group">
+                        @p.common.watchButtons(item, watched.contains(item.id))
+                    </li>
+                </ul>
+            }
+        }
     } {
         @item.model.logoUrl.map { logo =>
             @* FIXME: Horrid hack here... *@

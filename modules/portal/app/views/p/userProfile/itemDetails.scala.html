@@ -12,8 +12,7 @@
         @content
     } {
 
-        <div class="panel panel-default">
-            <div class="panel-heading">@Messages("portal.social.browseUsers")</div>
+        @p.common.typeLabel(EntityType.UserProfile) {
             <ul class="list-group">
                 <li class="list-group-item user-img">
                     <a href="@{if(isCurrentUser) controllers.portal.profile.routes.Profile.profile else controllers.portal.social.routes.Social.browseUser(item.id)}" class="gravitar">
@@ -41,7 +40,7 @@
                     </a>
                 </li>
             </ul>
-        </div>
+        }
 
         <div class="panel panel-default">
             <div class="panel-body">

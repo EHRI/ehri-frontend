@@ -1,6 +1,6 @@
-@(breadcrumbs: Html)(controls: Html = Html(""))
+@(breadcrumbs: Html)
 
-@if(!breadcrumbs.body.trim.isEmpty || !controls.body.trim.isEmpty) {
+@if(!breadcrumbs.body.trim.isEmpty) {
     <nav class="info-bar" role="navigation">
         <div class="collapse navbar-collapse">
             <ol class="collapsible breadcrumb">
