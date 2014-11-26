@@ -30,7 +30,7 @@
 
 @textField("accessrestrict", desc.conditions.conditionsOfAccess)
 @textField("userestrict", desc.conditions.conditionsOfReproduction)
-@textField("otherfindaid", desc.conditions.findingAids)
+@textListField("otherfindaid", desc.conditions.findingAids)
 @textField("phystech", desc.conditions.physicalCharacteristics)
 
 @textField("processinfo", desc.control.archivistNote)

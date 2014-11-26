@@ -46,7 +46,7 @@ case class IsadGConditions(
   languageOfMaterials: Option[List[String]] = None,
   scriptOfMaterials: Option[List[String]] = None,
   physicalCharacteristics: Option[String] = None,
-  findingAids: Option[String] = None
+  findingAids: Option[List[String]] = None
 ) extends AttributeSet
 
 case class IsadGMaterials(
@@ -157,7 +157,7 @@ object DocumentaryUnitDescriptionF {
       (__ \ LANG_MATERIALS).readListOrSingleNullable[String] and
       (__ \ SCRIPT_MATERIALS).readListOrSingleNullable[String] and
       (__ \ PHYSICAL_CHARS).readNullable[String] and
-      (__ \ FINDING_AIDS).readNullable[String]
+      (__ \ FINDING_AIDS).readListOrSingleNullable[String]
     )(IsadGConditions.apply _)) and
     (__ \ DATA).read[IsadGMaterials]((
       (__ \ LOCATION_ORIGINALS).readListOrSingleNullable[String] and
@@ -232,7 +232,7 @@ case class DocumentaryUnitDescriptionF(
     ACCESS_COND -> conditions.conditionsOfAccess,
     REPROD_COND -> conditions.conditionsOfReproduction,
     PHYSICAL_CHARS -> conditions.physicalCharacteristics,
-    FINDING_AIDS -> conditions.findingAids,
+    FINDING_AIDS -> conditions.findingAids.map(_.mkString("\n")),
     LOCATION_ORIGINALS -> materials.locationOfOriginals.map(_.mkString("\n")),
     LOCATION_COPIES -> materials.locationOfCopies.map(_.mkString("\n")),
     RELATED_UNITS -> materials.relatedUnitsOfDescription.map(_.mkString("\n")),
@@ -283,7 +283,7 @@ object DocumentaryUnitDescription {
         LANG_MATERIALS -> optional(list(nonEmptyText)),
         SCRIPT_MATERIALS -> optional(list(nonEmptyText)),
         PHYSICAL_CHARS -> optional(text),
-        FINDING_AIDS -> optional(text)
+        FINDING_AIDS -> optional(list(nonEmptyText))
       )(IsadGConditions.apply)(IsadGConditions.unapply),
       MATERIALS_AREA -> mapping(
         LOCATION_ORIGINALS -> optional(list(nonEmptyText)),
