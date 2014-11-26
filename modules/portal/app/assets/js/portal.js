@@ -156,8 +156,9 @@ $(".panel-history").each(function() {
   /**
    * Initialize typeahead.js
    */
-  $('#quicksearch').typeahead(
-    null,
+  $('#quicksearch').typeahead({
+      hint: false
+    },
     {
       name: "quicksearch",
       source: $quicksearchBH.ttAdapter(),

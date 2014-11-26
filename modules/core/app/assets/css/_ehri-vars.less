@@ -1,15 +1,15 @@
-@primary-highlight: #333;
+@primary-highlight: #360f4f;
 
 @font-family-headers : 'Lato';
 @font-family-h123: @font-family-headers , sans-serif;
 
 //Border radius stuff
-@border-radius:0;
+@border-radius:1;
 @border-radius-base:@border-radius;
 @border-radius-large:@border-radius;
 @border-radius-small:@border-radius;
 
-@ehri-purple : #6C003B;
+@ehri-purple: #360f4f;
 @pale-gray: #F5F5F5;
 @muted-gray: #999999;
 @medium-gray: #dddddd;
@@ -30,9 +30,12 @@
 // Min width for mobile devices
 @page-min-width: 320px;
 
-// Top navbar height
-@navbar-height: 25px;
+// Top navbar
+@navbar-height: 20px;
 @navbar-margin-bottom: 0px;
+@navbar-inverse-link-color: #fff;
+@navbar-inverse-color: #000;
+@navbar-inverse-link-active-bg: #333;
 
 // Margins
 @small-margin: 5px;
@@ -44,6 +47,9 @@
 @medium-padding: 10px;
 @large-padding: 20px;
 
+// Fonts
+@font-size-base: 13px;
+
 // Icons
 @icon-font-path:          "../bootstrap/police/";
 @icon-font-name:          "glyphicons-halflings-regular";
@@ -51,7 +57,7 @@
 
 @input-color:@almost-black;
 
-@link-color:            @primary-highlight;
+@link-color:            @doc-color;
 @link-hover-color:      darken(@link-color, 15%);
 
 @btn-post-color:		#fff;
@@ -68,14 +74,8 @@
 
 @navbar-inverse-link-active-color: #fff;
 
-
 /* Zocial */
 @icon-zocial-name : "zocial";
-
-
-.downward-shadow (@height: @shadow-depth, @blur: @shadow-blur) {
-  box-shadow: 0px @height @height @blur @shadow-color;
-}
 
 .highlight-glow {
   text-shadow: rgba(82, 168, 236, 0.8) 0 0 10px;

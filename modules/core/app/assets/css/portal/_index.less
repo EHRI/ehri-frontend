@@ -1,7 +1,7 @@
 /*
   Variables for twitter typeahead
 */
-@input-height:18px;
+@input-height:15px;
 @padding-tt:10px;
 /*
 .facet-class {
@@ -23,7 +23,7 @@ body {
   background-size: 100% auto;
   //background-image: url(/v/img/memorial_large.jpg);
   //background-image: url(/v/img/warsaw_ghetto_large.jpg);
-  background-image: url(/v/img/itsarolsen_effects.jpg);
+  background-image: url(https://s3-eu-west-1.amazonaws.com/ehri-assets/itsarolsen_effects.jpg);
 
   @media screen and (max-width: @screen-sm-min) {
     background-size: auto;
@@ -84,11 +84,14 @@ body {
 .welcome-section {
   h2 {
     padding-bottom: @small-padding;
-    border-bottom: 5px solid #999;
+    border-bottom: 5px solid transparent;
+    a:hover {
+      text-decoration: none;
+    }
   }
 
   &.country {
-    h2 {
+    h2:hover {
       border-bottom-color: @country-color;
     }
     a {
@@ -96,7 +99,7 @@ body {
     }
   }
   &.repository {
-    h2 {
+    h2:hover {
       border-bottom-color: @repo-color;
     }
     a {
@@ -104,7 +107,7 @@ body {
     }
   }
   &.documentaryUnit {
-    h2 {
+    h2:hover {
       border-bottom-color: @doc-color;
     }
     a {

@@ -1,0 +1,37 @@
+@()(implicit userOpt: Option[UserProfile], request: RequestHeader, prefs: utils.SessionPrefs, lang: Lang)
+
+<nav class="navbar navbar-default" role="navigation" id="navbar-primary-container">
+    <div class="container">
+        <div class="navbar-header">
+            <button type="button" class="navbar-toggle collapsed" data-toggle="collapse"
+                    data-target="#navbar-primary" aria-expanded="false" aria-controls="navbar">
+                <span class="sr-only">Toggle navigation</span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+            </button>
+        </div>
+
+        <div id="navbar-primary" class="navbar-collapse collapse">
+            <ul class="nav navbar-nav">
+                <li id="navbar-logo" >
+                    <a href="@controllers.portal.routes.Portal.index">
+                        <img height="45px" width="90px" src="@controllers.portal.routes.Assets.versioned("img/logo-trans-small.png")" rel="logo" />
+                    </a>
+                </li>
+                <li class="country @views.Helpers.maybeActivePath(controllers.portal.routes.Portal.browseCountries.url)">
+                    <a href="@controllers.portal.routes.Portal.browseCountries">@Messages("portal.type.country")</a>
+                </li>
+                <li class="repository @views.Helpers.maybeActivePath(controllers.portal.routes.Portal.browseRepositories.url)">
+                    <a href="@controllers.portal.routes.Portal.browseRepositories">@Messages("portal.type.repository")</a>
+                </li>
+                <li class="documentaryUnit @views.Helpers.maybeActivePath(controllers.portal.routes.Portal.browseDocuments.url)">
+                    <a href="@controllers.portal.routes.Portal.browseDocuments">@Messages("portal.type.documentaryUnit")</a>
+                </li>
+                <li class="historicalAgent @views.Helpers.maybeActivePath(controllers.portal.routes.Portal.browseHistoricalAgents.url)">
+                    <a href="@controllers.portal.routes.Portal.browseHistoricalAgents">@Messages("portal.type.historicalAgent")</a>
+                </li>
+            </ul>
+        </div>
+    </div>
+</nav>

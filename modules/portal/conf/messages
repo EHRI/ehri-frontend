@@ -7,6 +7,11 @@ portal.download.format.txt=Download as plain text
 portal.download.format.csv=Download as CSV
 portal.download.format.json=Download as JSON
 
+portal.help=Help
+portal.help.accounts=Problems signing up?
+portal.help.archivists=Help for archivists
+portal.help.helpdesk=Helpdesk
+
 portal.profile.preferences=Preferences
 portal.profile.preferences.updated=Preferences Updated
 portal.profile.preferences.allowMessaging=Allow other users to send you messages.
@@ -33,6 +38,7 @@ portal.readonly=The EHRI portal is currently in read-only mode while we conduct 
   Normal service should be resumed in due course. Thanks for your patience.
 
 portal.login=Sign In
+portal.login.signup=Sign In / Sign Up
 portal.login.moreOptions=More login options
 portal.login.alreadyLoggedIn=You are already logged in as {0}
 portal.login.loginWith=Log in with {0}

@@ -3,13 +3,61 @@ header#header {
   color: white;
   font-weight: 700;
 
+  #navbar-admin {
+    font-size: 0.9em;
+    ul > li > a {
+      padding-top: 3px;
+      padding-bottom: 3px;
+    }
+    img {
+      max-height: @navbar-height;
+    }
+  }
+
   background-position: center center;
-  background-image: url("/v/img/itsarolsen_effects.jpg");
+  background-image: url(https://s3-eu-west-1.amazonaws.com/ehri-assets/itsarolsen_effects.jpg);
   background-repeat: no-repeat;
   background-size: 100% auto;
 
-  #quicksearch {
-    color: #333;
+  .search-icon {
+
+  }
+
+  .global-search {
+    margin-top: 3px;
+    margin-right: 3px;
+    position: relative;
+
+    input {
+      padding: 1px 25px 1px 3px;
+    }
+
+    .search-icon {
+      position: absolute;
+      right: 0px;
+      padding: 3px 7px;
+      pointer-events: none;
+      color: @almost-black;
+    }
+
+    background-color:white;
+    input {
+      border: 0px;
+      color: @almost-black;
+    }
+
+    &.inactive {
+      background-color: inherit;
+      .search-icon {
+        color: white;
+      }
+
+      input {
+        color: white;
+        background-color: inherit;
+        cursor: default;
+      }
+    }
   }
 
   @media screen and (max-width: @screen-sm-min) {
@@ -31,10 +79,8 @@ header#header {
 
     #navbar-primary {
       #navbar-logo {
-        float: left;
-        img {
-          vertical-align: baseline;
-        }
+        // pull the logo into line with the menu items
+        margin-top: -14px;
       }
       ul {
         margin-top: 8px; // line up with the logo image
@@ -42,7 +88,7 @@ header#header {
         li {
           a {
             color: #fff;
-            font-size: 1.2em;
+            font-size: 1.3em;
             padding: @small-padding @small-padding;
             border-bottom: @small-padding solid transparent;
           }
@@ -56,26 +102,6 @@ header#header {
         }
       }
     }
-  }
-
-  .right-inner-addon {
-    position: relative;
-
-    input {
-      padding: 1px 25px 1px 3px;
-    }
-
-    .search-icon {
-      position: absolute;
-      right: 0px;
-      padding: 3px 7px;
-      pointer-events: none;
-      color: @almost-black;
-    }
-  }
-
-  li {
-    padding: 0px;
   }
 }
 
