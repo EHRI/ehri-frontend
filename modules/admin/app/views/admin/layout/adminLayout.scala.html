@@ -1,4 +1,4 @@
-@(title: Any, scripts: Html = Html(""), styles: Html = Html(""))(content: Html)(implicit userOpt: Option[UserProfile], req: RequestHeader, globalConfig: global.GlobalConfig, lang: Lang)
+@(title: Any, scripts: Html = Html(""), styles: Html = Html(""))(content: Html)(implicit userOpt: Option[UserProfile], req: RequestHeader, globalConfig: global.GlobalConfig, flash: Flash, lang: Lang)
 
 <!DOCTYPE html>
 
@@ -27,7 +27,27 @@
         @scripts
 
         <div id="wrap">
-            @views.html.admin.layout.adminNavBar()
+            <header id="header" class="navigation">
+                @views.html.admin.layout.adminNavBar()
+            </header>
+            @if(globalConfig.isStageMode) {
+                <div class="testing-banner alert-info">
+                    <div class="container">
+                        STAGING <span class="info"><strong>Warning</strong>: Data is for staging purposes only.</span>
+                    </div>
+                </div>
+            } else {
+                @if(globalConfig.isTestMode) {
+                    <div class="testing-banner alert-danger">
+                        <div class="container">
+                            TESTING <span class="info"><strong>Warning</strong>: Data is for test purposes only.</span>
+                        </div>
+                    </div>
+                }
+            }
+
+
+            @views.html.common.flash(flash)
             <div class="page-content container">
                 @content
                 <div id="push"></div>

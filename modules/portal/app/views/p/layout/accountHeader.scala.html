@@ -1,0 +1,16 @@
+@(showSearch: Boolean = true, showFeedback: Boolean = true, showAdminLink: Boolean = false)(implicit userOpt: Option[UserProfile], request: RequestHeader, prefs: utils.SessionPrefs, lang: Lang)
+
+@topNavBar {
+    @if(userOpt.isDefined) {
+    <ul class="nav navbar-nav">
+        <li class="@views.Helpers.maybeActive(controllers.portal.social.routes.Social.personalisedActivity().url)">
+            <a href="@controllers.portal.social.routes.Social.personalisedActivity()">@Messages("portal.activity")</a>
+        </li>
+        <li class="@views.Helpers.maybeActivePath(controllers.portal.social.routes.Social.browseUsers.url)">
+            <a href="@controllers.portal.social.routes.Social.browseUsers">@Messages("portal.social.users")</a>
+        </li>
+    </ul>
+    }
+} {
+    @accountHeaderRightMenu(showSearch, showFeedback, showAdminLink)
+}
