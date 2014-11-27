@@ -16,7 +16,6 @@
 <div class="search-item" id="@item.id">
         <div class="search-item-actions">
             @p.common.watchButtonsSmall(item, watched)
-            @p.common.bookmarkButtonsSmall(item)
         </div>
         <h3 class="search-item-heading type-highlight @item.isA.toString">
             <a href="@controllers.portal.routes.Portal.browseDocument(item.id)">
