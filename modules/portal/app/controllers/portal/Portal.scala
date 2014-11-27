@@ -325,7 +325,7 @@ case class Portal @Inject()(implicit globalConfig: global.GlobalConfig, searchDi
       if (isAjax) {
         Ok(p.activity.activityModal(data))
       } else {
-        Ok(p.activity.activityModal(data))
+        ???
       }
     }
   }
