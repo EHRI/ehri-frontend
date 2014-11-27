@@ -303,6 +303,10 @@ portal.timeline.eventType.link={0} linked {1}
 portal.timeline.eventType.createDependent={0} updated {1}
 portal.timeline.eventType.modifyDependent={0} updated {1}
 portal.timeline.eventType.deleteDependent={0} updated {1}
+portal.timeline.eventType.setVisibility={0} updated {1}
+portal.timeline.eventType.setGlobalPermissions={0} updated {1}
+portal.timeline.eventType.setItemPermissions={0} updated {1}
+
 
 
 portal.timeline.target.group=a group
