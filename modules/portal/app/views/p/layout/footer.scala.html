@@ -1,20 +1,18 @@
 @()(implicit globalConfig: global.GlobalConfig, lang: Lang)
 
-<footer class="footer sticky text-center">
-        <p class="text-muted">@Messages("portal.footerText")</p>
-        <small>
-            <ul class="text-muted lang-switcher pull-right list-inline list-unstyled">
-                @globalConfig.languages.map(c => (c, new java.util.Locale(c))).map { case (changeLang, locale) =>
-                <li>
-                    @if(lang.toString.toLowerCase.contains(changeLang)) {
+<footer class="footer sticky">
+        <p>@Messages("portal.footerText")</p>
+        <ul class="lang-switcher">
+            @globalConfig.languages.map(c => (c, new java.util.Locale(c))).map { case (changeLang, locale) =>
+            <li>
+                @if(lang.toString.toLowerCase.contains(changeLang)) {
+                @locale.getDisplayName(locale).toLowerCase
+                } else {
+                <a href="@controllers.portal.routes.PortalData.changeLocale(changeLang)">
                     @locale.getDisplayName(locale).toLowerCase
-                    } else {
-                    <a href="@controllers.portal.routes.PortalData.changeLocale(changeLang)">
-                        @locale.getDisplayName(locale).toLowerCase
-                    </a>
-                    }
-                </li>
+                </a>
                 }
-            </ul>
-        </small>
+            </li>
+            }
+        </ul>
 </footer>

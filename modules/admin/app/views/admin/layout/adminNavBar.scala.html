@@ -3,70 +3,30 @@
 @activeIfCurrent(url: String, text: String) = {
     <li class="@{if(request.path.startsWith(url)) "active" else ""}"><a href="@url">@Html(text)</a></li>
 }
+@defining(utils.SessionPrefs()) { implicit prefs =>
+    @p.layout.topNavBar {
+        <ul class="nav navbar-nav navbar-left" role="navigation">
+            @views.admin.Helpers.mainMenu.map { case (key, url) =>
+                @activeIfCurrent(url, Messages(key))
+            }
+            <li class="dropdown">
+                <a href="#" class="dropdown-toggle" data-toggle="dropdown">
+                    @Messages("pages.more")
+                    <b class="caret"></b>
+                </a>
 
-
-<header role="navigation" class="navbar navbar-inverse navbar-fixed-top navbar-default">
-    <section>
-	    <aside class="navbar-header">
-	      <button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#navbar-header">
-	        <span class="sr-only">Toggle navigation</span>
-	        <span class="icon-bar"></span>
-	        <span class="icon-bar"></span>
-	        <span class="icon-bar"></span>
-	      </button>
-		    @* Bit hacky - add home link *@
-	      <a class="navbar-brand" href="@controllers.admin.routes.Home.index">
-              <i class="glyphicon glyphicon-home @{if(request.path.equalsIgnoreCase(controllers.admin.routes.Home.index.url)) "white" else ""}"></i>
-          </a>
-	    </aside>
-	    <nav class="collapse navbar-collapse" id="navbar-header">
-			<ul class="nav navbar-nav navbar-left" role="navigation">
-			    @views.admin.Helpers.mainMenu.map { case (key, url) =>
-			        @activeIfCurrent(url, Messages(key))
-			    }
-			    <li class="dropdown">
-			        <a href="#" class="dropdown-toggle" data-toggle="dropdown">
-			            @Messages("pages.more")
-			            <b class="caret"></b>
-			        </a>
-			        <ul class="dropdown-menu" role="menu" aria-labelledby="drop3">
-			            @views.admin.Helpers.moreMenu.map { case (key, url) =>
-			                @if(url == "-") {
-			                    <li role="presentation" class="divider"></li>
-			                } else {
-			                    @activeIfCurrent(url, Messages(key))
-			                }
-			            }
-			        </ul>
-			    </li>
-			</ul>
-			<ul class="nav navbar-nav navbar-right" role="navigation">
-			    @userOpt.flatMap(_.account).map { account =>
-			    <li class="dropdown">
-			        <a href="#" class="dropdown-toggle" data-toggle="dropdown">
-			                                @account.email
-			                                @if(userOpt.map(_.isAdmin).getOrElse(false)) {
-			                                    [@Messages("group.admin")]
-			                                }
-			            <b class="caret"></b>
-			        </a>
-			        <ul class="dropdown-menu" role="menu" aria-labelledby="drop3">
-			            @views.admin.Helpers.accountMenu.map { case (key, url) =>
-			                <li role="presentation"><a role="menuitem" tabindex="-1" href="@url">@Messages(key)</a> </li>
-			            }
-			            <li role="presentation" class="divider"></li>
-			            <li>
-			                <a href="@controllers.portal.account.routes.Accounts.logout" id="signout">
-			                    <span class="hidden-responsive">@Messages("banner.signout")</span>
-			                    <i class="glyphicon glyphicon-off"></i>
-			                </a>
-			            </li>
-			        </ul>
-			    </li>
-			    }.getOrElse {
-			        <li><a href="controllers.portal.account.routes.Accounts.login" id="signin">@Messages("banner.signin")</a></li>
-			    }
-			</ul>
-		</nav>
-    </section>
-</header>
+                <ul class="dropdown-menu" role="menu" aria-labelledby="drop3">
+                    @views.admin.Helpers.moreMenu.map { case (key, url) =>
+                        @if(url == "-") {
+                            <li role="presentation" class="divider"></li>
+                        } else {
+                            @activeIfCurrent(url, Messages(key))
+                        }
+                    }
+                </ul>
+            </li>
+        </ul>
+    } {
+        @p.layout.accountHeaderRightMenu(showSearch = false, showFeedback = false, showAdminLink = false)
+    }
+}

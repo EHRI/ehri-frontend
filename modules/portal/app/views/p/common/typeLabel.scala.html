@@ -1,0 +1,8 @@
+@(itemType: EntityType.Value)(content: Html = Html(""))(implicit userOpt: Option[UserProfile], req: RequestHeader, globalConfig: global.GlobalConfig, lang: Lang)
+
+<div class="panel-type">
+    <div class="panel-heading">
+        <h3 class="panel-title">@Messages("portal.type." + itemType)</h3>
+    </div>
+    @content
+</div>

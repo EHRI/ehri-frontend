@@ -7,7 +7,12 @@
     <body>
         @p.layout.readOnly()
         <div id="wrap">
-            @simpleHeader(itemClass)
+            @defining(utils.SessionPrefs()) { implicit prefs =>
+                <header id="header" class="navigation">
+                    @accountHeader(showSearch = false)
+                    @primaryHeader()
+                </header>
+            }
             @views.html.common.flash(flash)
             <div class="page-content">
                 @content

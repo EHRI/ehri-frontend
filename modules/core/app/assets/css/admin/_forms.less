@@ -1,0 +1,45 @@
+// Admin forms
+
+// Inline form controls
+.inline-control {
+  .make-sm-column(11);
+}
+
+.inline-remove {
+  .make-sm-column(1);
+}
+
+.inline-label {
+  .make-sm-column(3);
+}
+
+.inline-element-list {
+  .make-sm-column(9);
+}
+
+// standard form controls
+.form-group {
+  >.control-label {
+    .make-md-column(3);
+  }
+
+  >.control-elements {
+    .make-md-column(9);
+  }
+}
+
+.inline-element-block {
+  .make-md-column(12);
+
+  .inline-element-block-controls {
+    margin-bottom: @medium-margin;
+    .clearfix;
+    .remove-inline-element {
+      .pull-right;
+    }
+  }
+  .control-element {
+    .make-md-column(9);
+  }
+
+}

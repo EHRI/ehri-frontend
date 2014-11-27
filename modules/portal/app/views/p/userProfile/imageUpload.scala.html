@@ -1,10 +1,6 @@
 @(f: Form[String])(implicit userOpt: Option[UserProfile], request: RequestHeader, prefs: utils.SessionPrefs, globalConfig: global.GlobalConfig, lang: Lang, flash: Flash, token: play.filters.csrf.CSRF.Token)
 
 @p.layout.portalLayout(Messages("portal.profile"), EntityType.UserProfile.toString) {
-    @layout.infobar {
-    } {
-    }
-
     @views.html.layout.mainContent {
         <h1>@Messages("portal.profile")</h1>
         <h3>@Messages("portal.profile.updateProfileImage")</h3>

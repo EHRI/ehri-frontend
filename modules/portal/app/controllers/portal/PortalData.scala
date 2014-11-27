@@ -26,7 +26,6 @@ object PortalData extends Controller {
           controllers.portal.profile.routes.javascript.Profile.profile,
           controllers.portal.profile.routes.javascript.Profile.updateProfile,
           controllers.portal.profile.routes.javascript.Profile.updateProfilePost,
-          controllers.portal.social.routes.javascript.Social.personalisedActivity,
           controllers.portal.social.routes.javascript.Social.followUserPost,
           controllers.portal.social.routes.javascript.Social.unfollowUserPost,
           controllers.portal.social.routes.javascript.Social.followersForUser,
@@ -44,6 +43,7 @@ object PortalData extends Controller {
           controllers.portal.annotate.routes.javascript.Annotations.promoteAnnotationPost,
           controllers.portal.annotate.routes.javascript.Annotations.demoteAnnotationPost,
           controllers.portal.annotate.routes.javascript.Annotations.setAnnotationVisibilityPost,
+          controllers.portal.routes.javascript.Portal.personalisedActivity,
           controllers.portal.routes.javascript.Portal.filter,
           controllers.portal.routes.javascript.Portal.browseItem
         )

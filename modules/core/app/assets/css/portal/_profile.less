@@ -1,153 +1,51 @@
-.user-profile-bar {
-	img {
-		.img-thumbnail;
-		margin-top:20px; 
-		height:120px;
-		width:auto;
-		margin-left:50px;
-		margin-bottom:-60px;
-	}
-	h1 {
-		position:absolute;
-		padding:5px 0 0 200px;
-		margin:0;
-		font-size:20px;
-		color: @user-color;
-		a {
-			color:inherit;
-			text-decoration:none;
-		}
+// Profile-related less
+.user-list-item {
+  .clearfix;
+}
+
+.user-list-info {
+  .user-locations {
+    &:extend(.small, .list-unstyled);
+  }
+}
+
+.user-profile-info {
+  &:extend(.list-unstyled);
+}
+
+.user-img-icon, .user-img-full {
+  &:extend(.img-responsive);
+}
+
+.user-profile-social {
+  a {
+    color: @muted-gray;
+    font-size: @font-size-small;
+  }
+}
+
+.user-list-item {
+  position: relative;
+  .gravitar {
+    float: left;
+    width: 48px;
+    height: 48px;
+    margin-right: @small-margin;
+
+    img {
+      border-radius: 5px;
     }
-    margin-bottom:80px;
-    padding-right:20px;
-    background-color:@pale-gray;
+  }
 
+  .user-list-info {
+    margin-left: @gravitar-size + @small-margin;
+  }
+
+  .follow-controls {
+    float: right;
+  }
 }
-.user-profile-content, .user-profile-activity {
-	.make-md-column(10);
-}
-.user-profile-sidebar {
-	.make-md-column(2);
 
-	.user-profile-info {
-		.list-unstyled;
-
-		> li {
-			padding-top: @small-padding;
-		}
-	}
-	.nav {
-		margin:0;
-		padding:0;
-		> li {
-			list-style-type:none;
-			display:block;
-			margin:0;
-			padding:0;
-			> a {
-				&:hover,
-				&:focus {
-					background-color:inherit;
-				}
-			}
-			&.active > a {
-				.text-muted;
-			}
-		}
-	}
-	.user-profile-description {
-		margin-top:5px;
-		font-size:90%;
-		color:@almost-black;
-		font-style:italic;
-		&:before {
-			content: "\201C";
-			float: left;
-			font-family: @font-family-headers, @font-family-sans-serif;
-			font-size: 40px;
-			line-height: 5px;
-			margin-right: 10px;
-			margin-top: 10px;
-			font-style:normal;
-		}
-	}
-	.user-profile-social {
-		font-size:90%;
-		color: @dark-gray;
-
-		a {
-			text-decoration: none;
-			color: inherit;
-			display:block;
-		}
-	}
-}
-.user-profile-content .tab-header {
-	.block-header {
-		display:none;
-		&.active {
-			display:block;
-		}
-	}
-}
-.user-profile-content {
-	.annotation {
-		padding:3px 3px 0 3px;
-        border-bottom: 1px dashed @dark-gray;
-        margin-bottom: @search-item-spacing;
-
-		blockquote {
-			margin :2px;
-			font-size:95%;
-		}
-
-		.annotation-header {
-			small {
-				display:block;
-				text-align:right;
-				.text-muted;
-			}
-		}
-		.annotation-footer {
-			font-size:90%;
-			display:block;
-			text-align:right;
-			.text-muted;
-		}
-		&:hover {
-			background-color:@pale-gray;
-		}
-	}
-	.item-link {
-		padding:3px;
-		border-bottom:1px dashed @pale-gray;
-
-		.link-target-list {
-			.glyphicon-link;
-			&:before {
-				display: inline;
-				font-family: 'Glyphicons Halflings';
-				font-style: normal;
-				font-weight: normal;
-				line-height: 1;
-				position: relative;
-				top: 1px;
-			}
-			> li {
-				display:inline;
-				&:after {
-					content:", ";
-					display:inline;
-				}
-				&:last-child {
-					&:after {
-						content: " ";
-					}
-				}
-			}
-		}
-	}
-}
-body.user .main-content {
-	padding-top:0;
+.user-list-item.current {
+  background-color: @pale-gray;
 }

@@ -14,7 +14,6 @@ import eu.ehri.project.definitions.Ontology
 import java.net.URL
 import play.api.data.Form
 import play.api.data.Forms._
-import play.api.libs.json.JsObject
 import play.api.i18n.Lang
 import backend._
 import scala.Some
@@ -161,12 +160,12 @@ object Repository {
       PUBLICATION_STATUS -> optional(utils.forms.enum(models.PublicationStatus)),
       "descriptions" -> list(RepositoryDescription.form.mapping),
       PRIORITY -> optional(number(min = -1, max = 5)),
-      URL_PATTERN -> optional(nonEmptyText verifying("errors.badUrlPattern", fields => fields match {
-        case pattern => validateUrlPattern(pattern)
-      })),
-      LOGO_URL -> optional(nonEmptyText verifying("error.badUrl", fields => fields match {
-        case url => utils.forms.isValidUrl(url)
-      }))
+      URL_PATTERN -> optional(nonEmptyText verifying("errors.badUrlPattern",
+        pattern => validateUrlPattern(pattern)
+      )),
+      LOGO_URL -> optional(nonEmptyText verifying("error.badUrl",
+        url => utils.forms.isValidUrl(url)
+      ))
     )(RepositoryF.apply)(RepositoryF.unapply)
   )
 

@@ -2,7 +2,7 @@
 
 @item.model.descriptions.headOption.map { desc =>
     @common.otherNameListSmall((desc.parallelFormsOfName ++ desc.otherFormsOfName).flatten.toList, highlighter)
-    <small>
+    <div class="search-item-details">
         <ul class="list-unstyled text-muted list-inline inline-separator">
             <li>@Messages("historicalAgent." + desc.entityType.toString)</li>
                 @desc.dates.map { dp =>
@@ -16,7 +16,7 @@
             </li>
             }
         </ul>
-    </small>
+    </div>
     @desc.details.datesOfExistence.map { d =>
         @highlighter.highlight(views.Helpers.renderMarkdown(d))
     }

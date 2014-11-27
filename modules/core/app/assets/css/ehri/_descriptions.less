@@ -15,8 +15,9 @@
 }
 
 .item-header {
-  h2.other-names {
+  .other-name-list {
     font-size: 1.3em;
+    &:extend(.list-unstyled, .list-inline, .text-mute);
   }
 
   h1, h2 {
@@ -88,18 +89,20 @@
 }
 
 .archival-context {
-  .panel;
 
+  a {
+    font-size: 1.1em;
+  }
   .ancestor {
-    h4 {
-      font-size: 1.1em;
-    }
     padding-left: @medium-padding;
     margin-bottom: @medium-margin;
   }
-  margin-bottom: @large-margin;
 
-  .panel-details {
-    margin-bottom: @small-margin;
+  margin-bottom: @large-margin;
+}
+
+.resolved-access-point, .unresolved-access-point {
+  .access-point-description {
+    &:extend(.text-muted, .small);
   }
 }

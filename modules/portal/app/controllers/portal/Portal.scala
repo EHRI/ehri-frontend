@@ -10,7 +10,7 @@ import views.html.p
 import utils.search._
 import play.api.libs.json.Json
 import play.api.cache.Cached
-import defines.EntityType
+import defines.{EventType, EntityType}
 import play.api.libs.ws.WS
 import play.twirl.api.Html
 import solr.SolrConstants
@@ -23,6 +23,7 @@ import com.google.inject._
 import views.html.errors.pageNotFound
 import org.joda.time.DateTime
 import caching.FutureCache
+import backend.rest.Constants
 
 @Singleton
 case class Portal @Inject()(implicit globalConfig: global.GlobalConfig, searchDispatcher: Dispatcher, searchResolver: Resolver, backend: Backend,
@@ -51,6 +52,26 @@ case class Portal @Inject()(implicit globalConfig: global.GlobalConfig, searchDi
     EntityType.HistoricalAgent,
     EntityType.Country
   )
+
+  def personalisedActivity(offset: Int = 0, limit: Int = Constants.DEFAULT_LIST_LIMIT) = {
+    withUserAction.async { implicit user => implicit request =>
+    // NB: Increasing the limit by 1 over the default so we can
+    // detect if there are additional items to display
+      val listParams = RangeParams.fromRequest(request).copy(offset = offset)
+      val incParams = listParams.copy(limit = listParams.limit + 1)
+      val eventFilter = SystemEventParams.fromRequest(request)
+        .copy(eventTypes = activityEventTypes)
+        .copy(itemTypes = activityItemTypes)
+      backend.listEventsForUser[SystemEvent](user.id, incParams, eventFilter).map { events =>
+        val more = events.size > listParams.limit
+
+        val displayEvents = events.take(listParams.limit)
+        if (isAjax) Ok(p.activity.eventItems(displayEvents))
+          .withHeaders("activity-more" -> more.toString)
+        else Ok(p.activity.activity(displayEvents, listParams, more))
+      }
+    }
+  }
 
   def search = userBrowseAction.async { implicit userDetails => implicit request =>
     find[AnyModel](
@@ -304,7 +325,7 @@ case class Portal @Inject()(implicit globalConfig: global.GlobalConfig, searchDi
       if (isAjax) {
         Ok(p.activity.activityModal(data))
       } else {
-        Ok(p.activity.activityModal(data))
+        ???
       }
     }
   }
@@ -323,12 +344,14 @@ case class Portal @Inject()(implicit globalConfig: global.GlobalConfig, searchDi
 
   case class NewsItem(title: String, link: String, description: Html, pubDate: Option[DateTime] = None)
 
+  final val NUM_NEWS_ITEMS = 2
+
   object NewsItem {
     import scala.util.control.Exception._
     import org.joda.time.format.DateTimeFormat
     def fromRss(feed: String): Seq[NewsItem] = {
       val pat = DateTimeFormat.forPattern("EEE, dd MMM yyyy H:m:s Z")
-      (xml.XML.loadString(feed) \\ "item").map { item =>
+      (xml.XML.loadString(feed) \\ "item").take(NUM_NEWS_ITEMS).map { item =>
         NewsItem(
           title = (item \ "title").text,
           link = (item \ "link").text,

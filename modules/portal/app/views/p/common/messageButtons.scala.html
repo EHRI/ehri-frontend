@@ -4,6 +4,7 @@
     <a class="btn btn-sm btn-default message-user"
        data-toggle="modal"
        data-target="#message-modal"
+       role="button"
        href="@controllers.portal.social.routes.Social.sendMessage(user.id)">
         @Messages("portal.social.message.send", user.toStringLang)
     </a>

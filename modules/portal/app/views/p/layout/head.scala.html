@@ -1,13 +1,20 @@
-@(title: Any, styles: Html = Html(""))
+@(title: Any, styles: Html = Html(""))(implicit lang: Lang)
 
 <head>
     <title>EHRI - @title</title>
 
     <link rel="shortcut icon" type="image/png" href="@controllers.core.routes.Assets.versioned("images/favicon.png")">
-    <link href='//fonts.googleapis.com/css?family=Lato:400,700' rel='stylesheet' type='text/css'>
+    <link href="//fonts.googleapis.com/css?family=Lato:400,700" rel="stylesheet" type="text/css">
     <link rel="stylesheet" href="@controllers.core.routes.Assets.versioned("css/portal.css")">
+
+    @if(lang.code.startsWith("he")) {
+        <!-- experimental hebrew right-to-left support -->
+        <link rel="stylesheet" href="@controllers.portal.routes.Assets.versioned("css/lib/bootstrap-rtl.css")">
+    }
+
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="description" content="The European Holocaust Research Infrastructure Online Portal">
     <meta name="keywords" content="EHRI,Holocaust,Research,Shoah,Archives,History,Deportations,Camps,Ghettos">
 

@@ -126,7 +126,7 @@ $(".panel-history").each(function() {
   var $quicksearch = $("#quicksearch");
   var $quicksearchBH = new Bloodhound({
                           datumTokenizer: function (d) {
-                                return Bloodhound.tokenizers.whitespace(d); 
+                                return Bloodhound.tokenizers.whitespace(d);
                           },
                           queryTokenizer: Bloodhound.tokenizers.whitespace,
                           remote: {
@@ -156,8 +156,9 @@ $(".panel-history").each(function() {
   /**
    * Initialize typeahead.js
    */
-  $('#quicksearch').typeahead(
-    null,
+  $('#quicksearch').typeahead({
+      hint: false
+    },
     {
       name: "quicksearch",
       source: $quicksearchBH.ttAdapter(),
@@ -258,44 +259,6 @@ $loader = $( "<div></div>" ).addClass("text-center loader-container").append($("
     $(this).parents(".global-search").removeClass("inactive");
   }).focusout(function() {
     $(this).parents(".global-search").addClass("inactive");
-  });
-
-  // Make top menu adhere to top of screen...
-  var $pmenu = $(".nav-primary");
-  var $smenu = $(".nav-secondary");
-  var $marginTrick = $pmenu;
-  var menuHeight = $smenu.outerHeight();
-  var originalmarginTrick = $marginTrick.css("margin-bottom");
-  $(window).scroll(function(e) {
-    var menuHeight = $smenu.outerHeight();
-    //$("header#header").trigger("expander-remove");
-
-    if ($(window).scrollTop() > ($pmenu.offset().top + $pmenu.outerHeight() + menuHeight)) {
-      $smenu.addClass("float-nav").css({
-        width: $(window).width()
-      });
-      $marginTrick.css("margin-bottom", menuHeight);
-    } else {
-      $smenu.removeClass("float-nav").css("width", $pmenu.outerWidth());
-      $marginTrick.css("margin-bottom", originalmarginTrick);
-    }
-  });
-  $(window).resize(function(e) {
-    //$("header#header").trigger("expander-remove");
-    if($smenu.hasClass("float-nav")) {
-      $smenu.css({
-        width: $(window).width()
-      });
-    }
-  });
-  $("header#header").on("expander", function() {
-    $("header#header .more").parent().children("li").toggleClass("available");
-  });
-  /*$("header#header").on("expander-remove", function() {
-    $("header#header .more").parent().children("li").removeClass("available");
-  });*/
-  $("header#header").on("click", ".more", function() {
-    $("header#header").trigger("expander");
   });
 
   // jQuery history plugin... initialise

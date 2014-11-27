@@ -23,9 +23,13 @@
         }
         <script src="@controllers.core.routes.Assets.versioned("js/common.js")" type="text/javascript"></script>
         <div id="wrap">
-            @header()
+            <header id="header" class="navigation">
+                @accountHeader(showSearch = true, showFeedback = true, showAdminLink = true)
+                @primaryHeader()
+            </header>
+
             @views.html.common.flash(flash)
-            <div class="page-content">
+            <div class="page-content container">
                 @content
                 <div id="push"></div>
             </div>

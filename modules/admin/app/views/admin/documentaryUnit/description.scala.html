@@ -38,7 +38,7 @@
         @views.html.admin.common.listValue(desc.conditions.languageOfMaterials, LANG_MATERIALS, transformFunc = {s => views.Helpers.languageCodeToName(s)})
         @views.html.admin.common.listValue(desc.conditions.scriptOfMaterials, SCRIPT_MATERIALS, transformFunc = {s => views.Helpers.scriptCodeToName(s)})
         @views.html.admin.common.stringValue(desc.conditions.physicalCharacteristics, PHYSICAL_CHARS)
-        @views.html.admin.common.stringValue(desc.conditions.findingAids, FINDING_AIDS)
+        @views.html.admin.common.listValue(desc.conditions.findingAids, FINDING_AIDS)
     }
 
     @descriptionSection(MATERIALS_AREA) {

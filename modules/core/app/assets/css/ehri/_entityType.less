@@ -50,3 +50,8 @@
 a.text-muted, .text-muted a {
 	.text-muted!important;
 }
+
+// For other types, default to the doc colour
+.group, .cvocVocabulary, .cvocConcept, .authoritativeSet {
+  .make-entity-color(@doc-color);
+}

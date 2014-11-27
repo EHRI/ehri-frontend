@@ -9,6 +9,7 @@ import utils.search.{Facet, FacetClass}
  * Class for holding useful stats for the data in our system.
  */
 case class Stats(
+  countryCount: Int,
   repositoryCount: Int,
   inCountryCount: Int,
   documentaryUnitCount: Int,
@@ -37,6 +38,7 @@ object Stats {
    * Construct a Stats value from a list of facets.
    */
   def apply(facets: List[FacetClass[Facet]]): Stats = new Stats(
+    countryCount = typeCount(facets, SolrConstants.TYPE, EntityType.Country),
     repositoryCount = typeCount(facets, SolrConstants.TYPE, EntityType.Repository),
     inCountryCount = allCount(facets, SolrConstants.COUNTRY_CODE),
     documentaryUnitCount = typeCount(facets, SolrConstants.TYPE, EntityType.DocumentaryUnit),
