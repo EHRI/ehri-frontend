@@ -7,15 +7,7 @@
                 @description(item, desc, links, annotations)
             }
         } {
-            @p.common.typeLabel(item.isA) {
-                @if(userOpt.isDefined) {
-                    <ul class="item-sidebar-actions list-group">
-                        <li class="list-group-item btn-group-justified watch-controls" role="group">
-                            @p.common.watchButtons(item, watched.contains(item.id))
-                        </li>
-                    </ul>
-                }
-            }
+            @p.common.typeLabelWithWatchButton(item, watched.contains(item.id))
         } {
             @p.common.latestAction(item, controllers.portal.routes.Portal.itemHistory(item.id))
         }
