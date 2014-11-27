@@ -1,6 +1,6 @@
 @(item: Concept)(implicit req: RequestHeader, lang: Lang, descriptionId: Option[String] = None)
 
-@common.search.searchItemOutline(item.id) {
+@common.search.searchItemOutline(item) {
     <a href="@controllers.keywords.routes.Concepts.get(item.id)">@item.toStringLang</a>
 } {
     @item.model.primaryDescription(descriptionId).map { desc =>

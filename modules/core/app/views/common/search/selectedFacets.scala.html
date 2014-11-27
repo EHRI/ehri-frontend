@@ -2,19 +2,19 @@
 
 @import utils.search._
 
-<p class="selected-facets">
+<div class="selected-facets">
     @page.facets.map{ fclass =>
         @fclass.sorted.map{ facet =>
             @if(facet.applied) {
-                <span class="selected-facet">
+                <div class="selected-facet">
                     <span class="facet"><span class="facet-type">@fclass.name:</span> @fclass.pretty(facet)
                         <input type="hidden" name="@fclass.param" value="@facet.value" />
                     </span>
                     <a class="remove-filter" href="@pathWithoutFacet(fclass, facet, req.path, req.queryString.filterKeys(_!="page"))">
                         <span class="remove"></span>
                     </a>
-                </span>
+                </div>
             }
         }
     }
-</p>
+</div>

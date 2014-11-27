@@ -2,16 +2,10 @@
 
 
 @p.layout.portalLayout(Messages("portal.activity"), "user") {
-    @layout.infobar {
-    } {
-    }
-
     @views.html.layout.mainContent {
-        <h1>@Messages("portal.activity.latestActivity")</h1>
-        <div class="row">
-            <div class="col-md-12">
-                @activityStream(events, params, more)
-            </div>
+        <div class="item-header">
+            <h1>@Messages("portal.activity.latestActivity")</h1>
         </div>
+        @activityStream(events, params, more)
     }
 }

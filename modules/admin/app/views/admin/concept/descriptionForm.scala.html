@@ -7,45 +7,21 @@
 @implicitField = @{ views.html.helper.FieldConstructor(formHelpers.fieldTemplate.f) }
 
 @views.html.admin.common.descriptionForm(desc, cls = "concept-description-form inline-element well well-small") {
-    <div class="form-group">
-        <div class="col-sm-9 col-sm-offset-3 text-right">
-            <a class="remove-inline-element" tabindex="-1" href="#">
-                <i class="glyphicon glyphicon-remove"></i>
-            </a>
-        </div>
+    <div class="inline-element-block-controls">
+        <a class="remove-inline-element" tabindex="-1" href="#">
+            <i class="glyphicon glyphicon-remove"></i>
+        </a>
     </div>
 
 
     @choiceInput(desc(LANG_CODE), LANG_CODE, views.Helpers.languagePairList, blank=true)
 
     @formHelpers.lineInput(desc, PREFLABEL)
-
     @formHelpers.inlineNameSet(desc, ALTLABEL)
-
-    @* Fixme - not allowing more than one scopenote, definition for now... *@
-
-    @helper.repeat(desc(SCOPENOTE), min = 1) { desc =>
-        <div class="form-group ">
-            <label class="form-label col-sm-3" for="@desc.id">@Messages(prefix + ".scopeNote")</label>
-            <div class="col-sm-9">
-                <textarea id="@desc.id" name="@desc.name" rows="4" class="form-control">@desc.value</textarea>
-                <span class="help-block">@desc.errors.mkString(", ") </span>
-            </div>
-        </div>
-    }
-
-    @helper.repeat(desc(DEFINITION), min = 1) { desc =>
-        <div class="form-group ">
-            <label class="form-label col-sm-3" for="@desc.id">@Messages(prefix + ".definition")</label>
-            <div class="col-sm-9">
-                <textarea id="@desc.id" name="@desc.name" rows="4" class="form-control">@desc.value</textarea>
-                <span class="help-block">@desc.errors.mkString(", ") </span>
-            </div>
-        </div>
-    }
-
-    <hr />
+    @formHelpers.inlineTextSet(desc, SCOPENOTE, rows = 4)
+    @formHelpers.inlineTextSet(desc, DEFINITION, rows = 4)
 
     @hiddenInput(desc(LONGITUDE))
     @hiddenInput(desc(LATITUDE))
+    <hr />
 }

@@ -2,13 +2,13 @@
 
 <div class="form-group @if(elements.hasErrors) {has-error}">
 	@defining(Messages("constraint.required")) { required =>
-	    <label class="col-sm-3 control-label" for="@elements.id">
+	    <label class="control-label" for="@elements.id">
 	    	@elements.label
 	    	@if(elements.infos.exists(s => s == required)) {
 	    		<span class="required-input">@required</span>
 	    	}
 	    </label>
-	    <div class="col-sm-9">
+	    <div class="control-elements">
 	        @elements.input
 	        @if(elements.hasErrors) {
 	        	<span class="help-block">@elements.errors</span>

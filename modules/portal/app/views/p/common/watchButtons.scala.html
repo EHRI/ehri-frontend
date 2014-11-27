@@ -1,16 +1,20 @@
-@(item: AnyModel, watching: Boolean)(implicit lang: Lang)
+@(item: AnyModel, watching: Boolean)(implicit userOpt: Option[UserProfile], lang: Lang)
 
-<div class="watch-controls pull-right btn-group">
-    <a data-item="@item.id"
-       class=" btn  btn-danger unwatch"
-       style="@(if(!watching) "display: none;")" title="@Messages("portal.profile.unwatch.tooltip")" href="@controllers.portal.profile.routes.Profile.unwatchItem(item.id)">
-        <span class="glyphicon glyphicon-star"></span>
-        <span class="legend">@Messages("portal.profile.unwatch")</span>
-    </a>
-    <a data-item="@item.id"
-       class=" btn  btn-danger watch"
-       style="@(if(watching) "display: none")" title="@Messages("portal.profile.watch.tooltip")" href="@controllers.portal.profile.routes.Profile.watchItem(item.id)">
-        <span class="glyphicon glyphicon-star-empty"></span>
-        <span class="legend">@Messages("portal.profile.watch")</span>
-    </a>
-</div>
+@if(userOpt.isDefined) {
+    <div class="watch-controls @item.isA">
+        <a data-item="@item.id"
+           class=" btn btn-sm btn-danger unwatch"
+           role="button"
+           style="@(if(!watching) "display: none;")" title="@Messages("portal.profile.unwatch.tooltip")" href="@controllers.portal.profile.routes.Profile.unwatchItem(item.id)">
+            <span class="glyphicon glyphicon-star"></span>
+            <span class="legend">@Messages("portal.profile.unwatch")</span>
+        </a>
+        <a data-item="@item.id"
+           class=" btn btn-sm btn-danger watch"
+           role="button"
+           style="@(if(watching) "display: none")" title="@Messages("portal.profile.watch.tooltip")" href="@controllers.portal.profile.routes.Profile.watchItem(item.id)">
+            <span class="glyphicon glyphicon-star-empty"></span>
+            <span class="legend">@Messages("portal.profile.watch")</span>
+        </a>
+    </div>
+}

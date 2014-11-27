@@ -100,54 +100,56 @@
 
 @* NB: This will ignore events for which we don't have a type, user, subject, and subject count, which is
         probably how it should be anyway. *@
-@for(et <- event.model.eventType; user <- event.actioner; subject <- event.firstSubject; count <- event.childCount) {
-    @eventBody(event, user, et, subject) {
-        @et match {
-            case EventType.modification if user.id == subject.id => {
-                @* No text for this one... *@
-            }
-            case EventType.modification => {
-                @subject match {
-                    case m: Annotation => { 
-                        @annotationBody(m)
-                        @eventModification(m)
-                    }
-                    case _ => {
-                       @eventFooter(subject, p.helpers.linkTo(subject))
+@defining(Seq(EventType.setVisibility, EventType.setItemPermissions, EventType.setGlobalPermissions)) { ignoredEventTypes =>
+    @for(et <- event.model.eventType if !ignoredEventTypes.contains(et); user <- event.actioner; subject <- event.firstSubject; count <- event.childCount) {
+        @eventBody(event, user, et, subject) {
+            @et match {
+                case EventType.modification if user.id == subject.id => {
+                    @* No text for this one... *@
+                }
+                case EventType.modification => {
+                    @subject match {
+                        case m: Annotation => {
+                            @annotationBody(m)
+                            @eventModification(m)
+                        }
+                        case _ => {
+                           @eventFooter(subject, p.helpers.linkTo(subject))
+                        }
                     }
                 }
-            }
-            case EventType.link => {
-                @* Annotations and links are special cases. We could link directly to the item but it wouldn't be very useful for the user.
-                Instead we link to the scope item (if it's available), with the link/comment id as a fragment. *@
-                @event.scope.map { scope =>
-                    @if(scope.id == subject.id) {
-                        @eventFooter(subject, p.helpers.linkTo(subject))
-                    } else {
-                        @eventFooter(scope, p.helpers.linkToWithFragment(scope, "#" + subject.id))
+                case EventType.link => {
+                    @* Annotations and links are special cases. We could link directly to the item but it wouldn't be very useful for the user.
+                    Instead we link to the scope item (if it's available), with the link/comment id as a fragment. *@
+                    @event.scope.map { scope =>
+                        @if(scope.id == subject.id) {
+                            @eventFooter(subject, p.helpers.linkTo(subject))
+                        } else {
+                            @eventFooter(scope, p.helpers.linkToWithFragment(scope, "#" + subject.id))
+                        }
                     }
                 }
-            }
-            case EventType.annotation => {
-                @subject match {
-                    case m: Annotation => {
-                        @annotationBody(m)
+                case EventType.annotation => {
+                    @subject match {
+                        case m: Annotation => {
+                            @annotationBody(m)
+                        }
+                        case _ => {
+                            @* Nothing to do there *@
+                        }
                     }
-                    case _ => { 
-                        @* Nothing to do there *@
+                    @event.scope.map { scope =>
+                        @if(scope.id == subject.id) {
+                            @eventFooter(subject, p.helpers.linkTo(subject))
+                        } else {
+                            @eventFooter(scope, p.helpers.linkToWithFragment(scope, "#" + subject.id))
+                        }
                     }
                 }
-                @event.scope.map { scope =>
-                    @if(scope.id == subject.id) {
-                        @eventFooter(subject, p.helpers.linkTo(subject))
-                    } else {
-                        @eventFooter(scope, p.helpers.linkToWithFragment(scope, "#" + subject.id))
-                    }
+                case _ => {
+                    @* Not bothering with other events yet... *@
+                    @eventFooter(subject, p.helpers.linkTo(subject))
                 }
-            }
-            case _ => {
-                @* Not bothering with other events yet... *@
-                @eventFooter(subject, p.helpers.linkTo(subject))
             }
         }
     }

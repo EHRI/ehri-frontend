@@ -1,14 +1,12 @@
 #search-helper {
 
-  .make-md-column(8);
-  .make-md-column-offset(2);
-  .well;
-  .well-sm;
+  &:extend(.well, .well-sm);
 
   display: none;
   font-size: 90%;
   border-radius: 0;
-  padding-right: 20px;
+  padding-right: @large-margin;
+  margin-top: @medium-margin;
 
   a.close {
     float: right;
@@ -27,6 +25,7 @@
 }
 
 .search-helper-container {
+  padding: 0 @medium-padding;
   .make-md-column(2);
   .search-helper-toggle {
     display: inline-block;
@@ -46,8 +45,9 @@
 
 
 .search-bar {
-  /*border-bottom: solid 1px @pale-gray;*/
-  margin-bottom:10px;
+  &:extend(.clearfix);
+
+  margin-bottom: @medium-margin;
 
   .search-box {
     .make-md-column-offset(2);
@@ -63,6 +63,4 @@
     border-top-left-radius:0;
     border-left:none;
   }
-
-
 }

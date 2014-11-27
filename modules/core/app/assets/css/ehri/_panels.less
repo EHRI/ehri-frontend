@@ -66,10 +66,10 @@
   }
 
   .panel-body {
-    padding:5px 15px;
+    padding: @small-padding, 3 * @small-padding;
   }
   .panel-footer {
-    padding:0px 15px;
+    padding: 0, 3 * @small-padding;
   }
   &.inactive {
     .panel-body, .panel-footer {
@@ -81,7 +81,7 @@
 .panel-details {
   &:extend(.panel);
   .panel-rework();
-  .panel-color();
+  .panel-color(@medium-gray, #000000);
 }
 
 .facet-class {
@@ -94,26 +94,27 @@
   .panel-color(@medium-gray, #000000, facet-label, facet-options);
 
   .facet-label {
-    margin-bottom:5px;
+    margin-bottom: @small-margin;
   }
 }
 
-body.documentaryUnit .panel-details {
+body.documentaryUnit .panel-type {
   .panel-color(@doc-color);
 }
 
-body.country .panel-details {
+body.country .panel-type {
   .panel-color(@country-color);
 }
 
-body.repository .panel-details, body .panel-details.repository {
+body.repository .panel-type {
   .panel-color(@repo-color);
 }
 
-body.historicalAgent .panel-details {
+body.historicalAgent .panel-type {
   .panel-color(@agent-color);
 }
-body.userProfile .panel-details {
+
+body.userProfile .panel-type {
   .panel-color(@user-color);
 }
 

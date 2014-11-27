@@ -1,7 +1,7 @@
 /*
   Variables for twitter typeahead
 */
-@input-height:18px;
+@input-height:15px;
 @padding-tt:10px;
 /*
 .facet-class {
@@ -9,13 +9,113 @@
 }
 */
 
+body {
+  min-width: @page-min-width;
+}
+
 #welcome {
   padding: @large-padding;
 }
 
-.page-content h1 {
-  margin-top:10px;
+.jumbotron-container {
+  background-position: top left;
+  background-repeat: no-repeat;
+  background-size: 100% auto;
+  //background-image: url(/v/img/memorial_large.jpg);
+  //background-image: url(/v/img/warsaw_ghetto_large.jpg);
+  background-image: url(https://s3-eu-west-1.amazonaws.com/ehri-assets/itsarolsen_effects.jpg);
+
+  @media screen and (max-width: @screen-sm-min) {
+    background-size: auto;
+  }
 }
+
+.jumbotron {
+  text-align: center;
+  color: #fff;
+  //min-height: 400px;
+  //padding: 100px 0;
+  padding-top: 15 * @medium-padding;
+  padding-bottom: 15 * @medium-padding;
+  background: rgba(0, 0, 0, 0.5);
+
+  background-position: 50% 20px;
+  background-repeat: no-repeat;
+  background-image: url(/v/img/logo-trans-small.png);
+
+  @media screen and (max-width: @screen-sm-min) {
+    min-height: 10 * @small-padding;
+    padding-top: 10 * @small-padding;
+    padding-bottom: 10 * @small-padding;
+    background-image: none;
+  }
+
+  // Make the search bar larger on the welcome page
+  .container {
+    form {
+      .search-bar {
+        .form-group {
+          .input-group {
+            input {
+              &:extend(.input-lg);
+            }
+            .input-group-btn {
+              button {
+                &:extend(.btn-lg);
+              }
+            }
+          }
+        }
+      }
+      #search-helper {
+        .form-group();
+        background-color: rgba(0,0,0,0.3);
+        border-color: rgba(0,0,0,0);
+
+        h1 {
+          color: #eee;
+          font-family: serif;
+        }
+      }
+    }
+  }
+}
+
+.welcome-section {
+  h2 {
+    padding-bottom: @small-padding;
+    border-bottom: 5px solid transparent;
+    a:hover {
+      text-decoration: none;
+    }
+  }
+
+  &.country {
+    h2:hover {
+      border-bottom-color: @country-color;
+    }
+    a {
+      color: @country-color;
+    }
+  }
+  &.repository {
+    h2:hover {
+      border-bottom-color: @repo-color;
+    }
+    a {
+      color: @repo-color;
+    }
+  }
+  &.documentaryUnit {
+    h2:hover {
+      border-bottom-color: @doc-color;
+    }
+    a {
+      color: @doc-color;
+    }
+  }
+}
+
 h1, h2, h3 {
   font-family:@font-family-h123;
 }
@@ -54,17 +154,6 @@ img.repository-logo {
   margin-bottom: @large-margin;
 }
 
-.landing-header {
-  color: white;
-  border-bottom: 1px solid @pale-gray;
-  padding: @small-padding;
-  font-family: 'Lato', sans-serif;
-  
-  a {
-    color: white !important;
-  }
-}
-
 /** Heading which divides a set of search results */
 .search-group-heading {
   margin-bottom: 30px;
@@ -89,7 +178,7 @@ a.alt {
 }
 
 .tertiary-content {
-  margin-top: @menu-height;
+  margin-top: @navbar-height;
 }
 
 .front-page-panel-content {
@@ -137,39 +226,6 @@ label.disabled {
 
 #activity-stream {
   margin-bottom: @large-margin;
-}
-
-.user-list {
-}
-
-.user-list-item {
-  position: relative;
-  .gravitar {
-    float: left;
-    width: 48px;
-    height: 48px;
-    margin-right: @small-margin;
-
-    img {
-      border-radius: 5px;
-    }
-  }
-
-  .user-list-info {
-    margin-left: @gravitar-size + @small-margin;
-    a.name {
-      font-size: 1.2em;
-    }
-    height: @gravitar-size + @small-margin;
-  }
-
-  .follow-controls {
-    float: right;
-  }
-}
-
-.user-list-item.current {
-  background-color: @pale-gray;
 }
 
 .header-controls {

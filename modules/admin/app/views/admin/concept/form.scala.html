@@ -17,7 +17,7 @@
             <div class="inline-element-template form-template">
                 @descriptionForm(f("descriptions[IDX]"))
             </div>
-            <div class="inline-element-list">
+            <div class="inline-element-list inline-element-block">
                 @helper.repeat(f("descriptions"), min=math.max(f("descriptions").indexes.length, 1)) { desc =>
                     @descriptionForm(desc)
                 }

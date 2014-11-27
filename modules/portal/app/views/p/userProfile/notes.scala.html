@@ -1,0 +1,16 @@
+@(item: UserProfile, annotations: utils.AbstractPage[Annotation], followed: Boolean, canMessage: Boolean)(implicit userOpt: Option[UserProfile], request: RequestHeader, prefs: utils.SessionPrefs, globalConfig: global.GlobalConfig, lang: Lang, flash: Flash)
+
+@p.layout.portalLayout(item.toStringLang, EntityType.UserProfile.toString) {
+    @views.html.layout.mainContent {
+        @itemDetails(item, followed = followed, canMessage = canMessage) {
+            <div class="user-profile-content">
+                <h2 class="block-header user">
+                    @Messages("portal.annotation.list")
+                </h2>
+                <div id="user-annotations">
+                    @annotationList(annotations)
+                </div>
+            </div>
+        }
+    }
+}

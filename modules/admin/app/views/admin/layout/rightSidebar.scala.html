@@ -13,6 +13,9 @@
 
     @layout.mainContent {
         <article class="double">
+            <aside class="right-sidebar">
+                @sidebar
+            </aside>
             <section class="main">
                 <h2>@title</h2>
 
@@ -20,9 +23,6 @@
 
                 @content
             </section>
-            <aside class="right-sidebar">
-                @sidebar
-            </aside>
         </article>
     }
 }

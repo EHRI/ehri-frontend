@@ -1,7 +1,6 @@
 # Social networking stuff...
 
 GET         /                               @controllers.portal.social.Social.browseUsers
-GET         /activity                       @controllers.portal.social.Social.personalisedActivity(offset: Int ?= 0, limit: Int ?= 20)
 GET         /:userId                        @controllers.portal.social.Social.browseUser(userId: String)
 GET         /:userId/follow                 @controllers.portal.social.Social.followUser(userId: String)
 POST        /:userId/follow                 @controllers.portal.social.Social.followUserPost(userId: String)
