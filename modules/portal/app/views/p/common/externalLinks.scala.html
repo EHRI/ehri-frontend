@@ -3,18 +3,9 @@
 @defining(item.externalLinks(links)) { links =>
     @if(!links.isEmpty) {
     <h3>@Messages("portal.item.externalLinks")</h3>
-    <ul class="external-links list-unstyled item-links">
-        @for(link <- links) {
-        <li class="external-link">
-            @link.opposingTarget(item).map { t =>
-                @p.listItem(t, watched = watched.contains(t.id))
-            }
-            @link.model.description.map { desc =>
-            <small>
-                @desc
-            </small>
-            }
-        </li>
+    <ul class="item-links annotation-links">
+        @for(link <- links.distinct) {
+            @itemLink(link, item)
         }
     </ul>
     }
