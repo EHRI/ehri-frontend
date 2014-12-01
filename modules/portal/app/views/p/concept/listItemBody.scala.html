@@ -2,7 +2,7 @@
 
 @item.model.primaryDescription(descriptionId).map { desc =>
     <div class="search-item-details">
-        <ul class="list-unstyled text-muted inline inline-separator">
+        <ul class="concept-search-details">
             @item.vocabulary.map { vocab =>
                 <li><a class="alt" href="@controllers.portal.routes.Portal.browseVocabulary(vocab.id)">@vocab.toStringLang</a></li>
             }
@@ -12,7 +12,7 @@
             }
         </ul>
         @if(item.broaderTerms.size > 0) {
-            <ul class="list-unstyled inline inline-separator">
+            <ul class="concept-broader-terms">
                 <li>@Messages("cvocConcept.broaderTerms")</li>
                 @item.broaderTerms.map { bt =>
                 <li>

@@ -16,6 +16,9 @@
     case d: Concept => {
         @concept.searchItem(d, hit, watched)
     }
+    case d: Annotation => {
+        @annotation.searchItem(d, hit)
+    }
     case _ => {
         <p class="text-warning">
             <a href="@views.p.Helpers.linkTo(item)">@item.toStringLang</a>

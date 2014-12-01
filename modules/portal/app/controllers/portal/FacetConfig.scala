@@ -150,6 +150,10 @@ trait FacetConfig extends Search {
     )
   }
 
+  protected val annotationFacets: FacetBuilder = { implicit request =>
+    List.empty
+  }
+
   protected val countryFacets: FacetBuilder = { implicit request =>
     List(
       QueryFacetClass(

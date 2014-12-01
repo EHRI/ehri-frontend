@@ -1,0 +1,14 @@
+@(item: Annotation, highlighter: views.Highlighter = views.NoopHighlighter)(implicit userOpt: Option[UserProfile], req: RequestHeader, lang: Lang, globalConfig: global.GlobalConfig)
+
+<div class="search-item-details">
+    <ul class="annotation-search-details">
+        @for(field <- item.model.field; target <- item.target) {
+            <li><strong>@Messages(target.isA + "." + field)</strong></li>
+        }
+        @for(user <- item.user ; event <- item.latestEvent) {
+            <li>@Html(Messages("portal.annotation.createdBy", p.helpers.linkTo(user).body.trim, event.model.datetime))</li>
+        }
+    </ul>
+</div>
+
+<blockquote>@highlighter.highlight(item.model.body)</blockquote>
