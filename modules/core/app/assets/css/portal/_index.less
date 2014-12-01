@@ -82,6 +82,7 @@ body {
 }
 
 .welcome-section {
+  .make-md-column(4);
   h2 {
     padding-bottom: @small-padding;
     border-bottom: 5px solid transparent;
@@ -116,9 +117,10 @@ body {
   }
 }
 
-h1, h2, h3 {
-  font-family:@font-family-h123;
+.news-feed-container {
+  .make-md-column(12);
 }
+
 //Override of bootstrap defaults :
 blockquote {
   font-size:@font-size-base;
