@@ -107,9 +107,18 @@
   }
 }
 
-.annotation-link {
+.item-links {
+  &:extend(.list-unstyled);
+}
+
+.item-link {
+  .link-target {
+    font-size: 1.1;
+    padding: @small-padding 0;
+  }
   .link-description {
     &:extend(.small, .text-muted);
   }
+  margin-bottom: @small-margin;
   border-bottom: 1px dashed @dark-gray;
 }

@@ -1,0 +1,20 @@
+@(link: Link, item: DescribedMeta[_,_])(implicit userOpt: Option[UserProfile], req: RequestHeader, lang: Lang, globalConfig: global.GlobalConfig)
+
+@linkItemHtml(html: Html) = {
+    @if(!html.body.trim.isEmpty) {
+        <li class="item-link">
+            @html
+        </li>
+    }
+}
+
+@linkItemHtml {
+    @link.opposingTarget(item).map { t =>
+        <div class="link-target">@p.helpers.linkTo(t)</div>
+    }
+    @link.model.description.filterNot(_.trim.isEmpty).map { desc =>
+        <p class="link-description">
+            @desc
+        </p>
+    }
+}

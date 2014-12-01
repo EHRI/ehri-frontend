@@ -3,18 +3,9 @@
 @defining(item.annotationLinks(links)) { links =>
     @if(!links.isEmpty) {
     <h3>@Messages("portal.item.annotationLinks")</h3>
-    <ul class="annotation-links list-unstyled item-links">
-        @for(link <- links) {
-        <li class="annotation-link">
-            @link.opposingTarget(item).map { t =>
-                <h4>@p.helpers.linkTo(t)</h4>
-            }
-            @link.model.description.map { desc =>
-                <p class="link-description">
-                    @desc
-                </p>
-            }
-        </li>
+    <ul class="item-links external-links">
+        @for(link <- links.distinct) {
+            @itemLink(link, item)
         }
     </ul>
     }
