@@ -8,10 +8,10 @@
 @p.common.descriptionOutline(item, desc, annotations) {
     @defining(Annotation.fieldAnnotations(desc.id, annotations)) { implicit fieldAnnotations =>
         @desc.id.map { descId =>
-            <div class="item-header">
-                <h1>@desc.name</h1>
+
+            @p.common.itemHeader(desc.name) {
                 @p.common.otherNameList(desc.parallelFormsOfName)
-            </div>
+            }
 
             @details(item, desc)
 
@@ -37,11 +37,11 @@
                 @listField(item, descId,   desc.control.scripts, SCRIPTS_USED, transformFunc = s => views.Helpers.scriptCodeToName(s))
                 @listField(item, descId,   desc.control.sources, SOURCES)
                 @textField(item, descId,   desc.control.maintenanceNotes, MAINTENANCE_NOTES)
-            }        
-        }
-    }
+            }
 
-    @descriptionSection("accessPointLinks", Messages("portal.item.accessPointLinks")) {
-        @p.common.accessPointLinks(item, desc, links)
+            @descriptionSection(ACCESS_POINTS) {
+                @p.common.accessPointLinks(item, desc, links)
+            }
+        }
     }
 }

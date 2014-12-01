@@ -2,8 +2,7 @@
 
 <div id="item-details">
     @p.layout.rightSidebar {
-        @p.common.itemHeader {
-            <h1>@item.toStringLang</h1>
+        @p.common.itemHeader(item.toStringLang) {
         }
         @item.model.report.map { report =>
             @Html(views.Helpers.renderMarkdown(report))

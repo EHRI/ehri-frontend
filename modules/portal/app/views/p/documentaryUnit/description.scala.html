@@ -64,10 +64,10 @@
                 @textField(item, descId, desc.control.datesOfDescriptions, DATES_DESCRIPTIONS)
                 @listField(item, descId, desc.control.processInfo, PROCESS_INFO)
             }
-        }
-    }
 
-    @descriptionSection("accessPointLinks", Messages("portal.item.accessPointLinks")) {
-        @p.common.accessPointLinks(item, desc, links, AccessPointF.AccessPointType.exceptCreator.toList)
+            @descriptionSection(ACCESS_POINTS) {
+                @p.common.accessPointLinks(item, desc, links, AccessPointF.AccessPointType.exceptCreator.toList)
+            }
+        }
     }
 }
