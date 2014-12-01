@@ -25,7 +25,6 @@ case class SolrXmlQueryResponse(response: Elem) extends QueryResponse {
   lazy val items: Seq[SearchHit] = (response \ "lst" \ "lst" \ "result" \ "doc").map { doc =>
     val id = (doc \ "str").filter(hasAttr("name", ID)).text
     val itemId = (doc \ "str").filter(hasAttr("name", ITEM_ID)).text
-    val name = (doc \ "str").filter(hasAttr("name", NAME_EXACT)).text
     val entityType = EntityType.withName((doc \ "str").filter(hasAttr("name", TYPE)).text.trim)
     val gid = (doc \ "long").filter(hasAttr("name", DB_ID)).text.toLong
     val highlights: Map[String,Seq[String]] = highlightMap.getOrElse(id, Map.empty)
@@ -41,7 +40,6 @@ case class SolrXmlQueryResponse(response: Elem) extends QueryResponse {
     SearchHit(
       id = id,
       itemId = itemId,
-      name = name,
       `type` = entityType,
       gid = gid,
       fields = fields,

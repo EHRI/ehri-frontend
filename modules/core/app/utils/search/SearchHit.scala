@@ -12,7 +12,6 @@ import play.twirl.api.{HtmlFormat, Html}
 case class SearchHit(
   id: String,
   itemId: String,
-  name: String,
   `type`: EntityType.Value,
   gid: Long,
   fields: Map[String,String] = Map.empty,
