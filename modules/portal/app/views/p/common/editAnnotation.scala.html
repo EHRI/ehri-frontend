@@ -7,11 +7,11 @@
 
 
 @helper.form(action = action, 'role -> "form", 'class -> "form-horizontal validate-form", 'class -> "annotation-form edit-annotation-form validate-form") {
-    <div class="row annotation-right">
-        @formHelpers.hiddenInput(f(FIELD))
-        <div class="col-md-12">
+    <div class="annotation-right">
+        <div class="annotation-form-controls">
+            @formHelpers.hiddenInput(f(FIELD))
             @annotationForm(f, visForm, accessorsForm, users, groups)
-            <div class="form-group pull-right">
+            <div class="annotation-submit-controls form-group">
                 <div class="checkbox-inline" data-toggle="tooltip" title="@Messages("portal.contribution.visibility.allowPublic.title")">
                     @helper.checkbox(f(ALLOW_PUBLIC), '_label -> Messages("portal.contribution.visibility.allowPublic"))
                 </div>

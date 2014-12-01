@@ -81,6 +81,7 @@ select.custom-accessors {
 
   .item-text-field-annotations {
     .make-row();
+    clear: none;
     color: @muted-gray;
 
     .annotation {
@@ -100,6 +101,7 @@ select.custom-accessors {
 
     .annotate-item-header {
       .make-md-column(3);
+      float: left;
       opacity: 0;
       margin-top: 0;
       margin-bottom: 0;
@@ -108,7 +110,9 @@ select.custom-accessors {
     }
 
     .annotation-list {
-      margin: 0;
+      &:extend(.list-unstyled);
+      // apply a left-right margin to match the text content
+      margin: 0 @small-margin + @medium-margin;
 
       .promoted {
         background-color: @promoted-color;
@@ -155,6 +159,15 @@ select.custom-accessors {
         font-width: 12px;
       }
     }
+  }
+}
+
+.annotation-meta {
+  &:extend(.small, .clearfix, .text-muted);
+  display: inline-block;
+
+  a {
+    color: @muted-gray !important;
   }
 }
 

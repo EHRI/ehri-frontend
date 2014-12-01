@@ -2,9 +2,9 @@
 @userOpt.map { user =>
 	@item.contentType.map { ct =>
 	    @if(user.hasPermission(ct, PermissionType.Annotate)) {
-	        <div>
+	        <div class="add-field-annotation">
 		        	<a title="@Messages("portal.annotation.field.create")" data-item="@item.id" data-did="@nodeId" data-field="@key" data-target="@nodeId-@key" class="annotate-field inactive" href="@controllers.portal.annotate.routes.Annotations.annotateField(item.id, nodeId, key)">
-		        <span class="glyphicon glyphicon-edit"></span>
+		            <span class="glyphicon glyphicon-edit"></span>
 		        </a>
 		    </div>
 	    }
