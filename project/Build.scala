@@ -65,8 +65,7 @@ object ApplicationBuild extends Build {
     "com.google.guava" % "guava" % "17.0",
 
     // Injection guff
-    "com.google.inject" % "guice" % "3.0",
-    "com.tzavellas" % "sse-guice" % "0.7.1",
+    "com.google.inject" % "guice" % "4.0-beta",
 
     "jp.t2v" %% "play2-auth" % "0.12.0",
 
@@ -74,9 +73,11 @@ object ApplicationBuild extends Build {
 
     // Pegdown. Currently versions higher than 1.1 crash
     // Play at runtime with an IncompatibleClassChangeError.
-    "org.pegdown" % "pegdown" % "1.1.0",
+    "org.pegdown" % "pegdown" % "1.4.2",
+    //"org.ow2.asm" % "asm-all" % "4.1",
 
-    "org.mindrot" % "jbcrypt" % "0.3m",
+
+  "org.mindrot" % "jbcrypt" % "0.3m",
 
     // Mailer...
     "com.typesafe.play.plugins" %% "play-plugins-mailer" % "2.3.0",
