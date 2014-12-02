@@ -86,6 +86,7 @@ def browseDocument(id: String) = getAction[DocumentaryUnit](EntityType.Documenta
   if (isAjax) Ok(p.documentaryUnit.itemDetails(item, details.annotations, details.links, details.watched))
   else Ok(p.documentaryUnit.show(item, details.annotations, details.links, details.watched))
 }
+```
 
 When the app recompiles and we re-run the action, this text is printed out prior to the app hanging. Therefore, the hanging **must be something to do with the template rendering**.
 
