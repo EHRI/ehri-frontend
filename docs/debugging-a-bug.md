@@ -61,11 +61,13 @@ Now lets look at the frontend in dev mode. As usual, to run a Play app in dev mo
 
 The controller action that's hanging on the front-end is the one that renders the page for a documentary unit at `localhost:9000/units/<item-id>`. This points to a controller action called `browseDocument(id: String)`, with the following code:
 
-    def browseDocument(id: String) = getAction[DocumentaryUnit](EntityType.DocumentaryUnit, id) {
-        item => details => implicit userOpt => implicit request =>
-      if (isAjax) Ok(p.documentaryUnit.itemDetails(item, details.annotations, details.links, details.watched))
-      else Ok(p.documentaryUnit.show(item, details.annotations, details.links, details.watched))
-    }
+```scala
+def browseDocument(id: String) = getAction[DocumentaryUnit](EntityType.DocumentaryUnit, id) {
+    item => details => implicit userOpt => implicit request =>
+  if (isAjax) Ok(p.documentaryUnit.itemDetails(item, details.annotations, details.links, details.watched))
+  else Ok(p.documentaryUnit.show(item, details.annotations, details.links, details.watched))
+}
+```
 
 What's basically happening here is:
 
@@ -75,14 +77,15 @@ What's basically happening here is:
 
 Since the backend doesn't seem to have a problem, we can confirm this the old-fashioned way by shoving a quick `println` before the template rendering:
 
-    def browseDocument(id: String) = getAction[DocumentaryUnit](EntityType.DocumentaryUnit, id) {
-        item => details => implicit userOpt => implicit request =>
+```scala
+def browseDocument(id: String) = getAction[DocumentaryUnit](EntityType.DocumentaryUnit, id) {
+    item => details => implicit userOpt => implicit request =>
 
-      println("DATA WAS RECIEVED OKAY, must be a problem with the rendering...")
+  println("DATA WAS RECIEVED OKAY, must be a problem with the rendering...")
 
-      if (isAjax) Ok(p.documentaryUnit.itemDetails(item, details.annotations, details.links, details.watched))
-      else Ok(p.documentaryUnit.show(item, details.annotations, details.links, details.watched))
-    }
+  if (isAjax) Ok(p.documentaryUnit.itemDetails(item, details.annotations, details.links, details.watched))
+  else Ok(p.documentaryUnit.show(item, details.annotations, details.links, details.watched))
+}
 
 When the app recompiles and we re-run the action, this text is printed out prior to the app hanging. Therefore, the hanging **must be something to do with the template rendering**.
 
