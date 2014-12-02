@@ -48,12 +48,12 @@ object ApplicationBuild extends Build {
   )
 
   val backendTestDependencies = Seq(
-    "org.neo4j" % "neo4j-kernel" % "1.9.7" classifier "tests" classifier "",
-    "org.neo4j.app" % "neo4j-server" % "1.9.7" classifier "tests" classifier "",
+    "org.neo4j" % "neo4j-kernel" % "1.9.7" % "test" classifier "tests" classifier "",
+    "org.neo4j.app" % "neo4j-server" % "1.9.7" % "test" classifier "tests" classifier "",
 
     "com.sun.jersey" % "jersey-core" % "1.9" % "test",
-    "ehri-project" % "ehri-frames" % "0.1-SNAPSHOT" % "test" classifier "tests" classifier "",
-    "ehri-project" % "ehri-extension" % "0.0.1-SNAPSHOT" % "test" classifier "tests" classifier ""
+    "ehri-project" % "ehri-frames" % "0.1-SNAPSHOT" % "test" classifier "tests" classifier "" exclude("com.tinkerpop.gremlin", "gremlin-groovy"),
+    "ehri-project" % "ehri-extension" % "0.0.1-SNAPSHOT" % "test" classifier "tests" classifier "" exclude("com.tinkerpop.gremlin", "gremlin-groovy")
   )
 
   val coreDependencies = backendDependencies ++ Seq(
