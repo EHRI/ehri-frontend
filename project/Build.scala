@@ -102,16 +102,26 @@ object ApplicationBuild extends Build {
   )
 
   val commonSettings = Seq(
+    // don't execute tests in parallel
     parallelExecution := false,
+    // classes to auto-import into templates
     templateImports in Compile ++= Seq("models.base._", "utils.forms._", "acl._", "defines._", "backend.Entity"),
+    // auto-import EntityType enum into routes
     routesImport += "defines.EntityType",
 
+    // Test the unmanaged directory to test_lib to pick up
+    // the repackaged version of jersey-server that we need to avoid
+    // a conflict with Pegdown and asm-4.x
+    unmanagedBase in Test := baseDirectory.value / "test_lib",
+
+    // additional resolvers
     resolvers += "neo4j-public-repository" at "http://m2.neo4j.org/content/groups/public",
     resolvers += "Local Maven Repository" at "file:///" + Path.userHome.absolutePath + "/.m2/repository",
     resolvers += "Codahale" at "http://repo.codahale.com",
     resolvers += "Typesafe Repository" at "http://repo.typesafe.com/typesafe/releases/",
 
     // SBT magic: http://stackoverflow.com/a/12772739/285374
+    // pick up additional resources in test
     resourceDirectory in Test <<= baseDirectory apply {
       (baseDir: File) => baseDir / "test/resources"
     },
