@@ -1,6 +1,6 @@
 bin/indexer
 logs
-^lib
+lib/mysql*
 project/project
 project/target
 target
