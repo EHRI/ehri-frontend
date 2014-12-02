@@ -89,6 +89,15 @@ em.highlight {
 
 .search-item-details {
   &:extend(.small);
+
+  ul {
+    &:extend(.list-unstyled, .text-muted, .inline-separator);
+    .list-inline;
+
+    time {
+      display: inline;
+    }
+  }
 }
 
 .search-item-body {

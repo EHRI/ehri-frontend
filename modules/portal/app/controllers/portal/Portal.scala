@@ -271,6 +271,16 @@ case class Portal @Inject()(implicit globalConfig: global.GlobalConfig, searchDi
     Ok(p.link.show(link))
   }
 
+  def browseAnnotations = userBrowseAction.async { implicit userDetails => implicit request =>
+    find[Annotation](
+      entities = List(EntityType.Annotation),
+      facetBuilder = annotationFacets
+    ).map { case QueryResult(page, params, facets) =>
+      Ok(p.annotation.list(page, params, facets, portalRoutes.browseAnnotations(),
+        userDetails.watchedItems))
+    }
+  }
+
   def browseAnnotation(id: String) = getAction[Annotation](EntityType.Annotation, id) {
       ann => details => implicit userOpt => implicit request =>
     Ok(p.annotation.show(ann))

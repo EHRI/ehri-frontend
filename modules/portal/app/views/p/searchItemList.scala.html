@@ -1,5 +1,7 @@
 @(result: utils.search.ItemPage[(models.base.AnyModel,utils.search.SearchHit)], watched: Seq[String])(implicit userOpt: Option[UserProfile], req: RequestHeader, globalConfig: global.GlobalConfig, lang: Lang, context: Option[Holder[_]] = None)
 
+
+
 <ul class="search-result-list">
     @result.items.map { case(item, hit) =>
         @defining(Some(hit.id)) { implicit descriptionId =>

@@ -5,7 +5,7 @@
 @item.model.primaryDescription(descriptionId).map { desc =>
     @common.otherNameListSmall(desc.identity.parallelFormsOfName.toList.flatten)
     <div class="search-item-details">
-        <ul class="list-unstyled text-muted list-inline inline-separator">
+        <ul class="doc-search-details">
             @if(showRepository) {
                 @item.holder.map { holder =>
                     <li><a class="alt" href="@controllers.portal.routes.Portal.browseRepository(holder.id)">@holder.toStringAbbr</a></li>

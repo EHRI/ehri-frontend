@@ -1,0 +1,13 @@
+@(item: AnyModel)(heading: Html)(actions: Html)(body: Html = Html(""))(implicit userOpt: Option[UserProfile], lang: Lang)
+
+<div class="search-item" id="@item.id">
+    <div class="search-item-actions">
+        @actions
+    </div>
+    <h2 class="search-item-heading type-highlight @item.isA.toString">
+        @heading
+    </h2>
+    <div class="search-item-body">
+        @body
+    </div>
+</div>
