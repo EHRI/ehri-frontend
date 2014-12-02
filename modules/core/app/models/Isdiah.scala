@@ -67,5 +67,7 @@ case object Isdiah {
   val SCRIPTS_USED = "scripts"
   val SOURCES = "sources"
   val MAINTENANCE_NOTES = "maintenanceNotes"
+
+  val ACCESS_POINTS = "accessPoints"
 }
 

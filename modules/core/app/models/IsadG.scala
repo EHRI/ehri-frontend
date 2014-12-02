@@ -70,4 +70,6 @@ case object IsadG {
   val DATES_DESCRIPTIONS = "datesOfDescriptions"
   val PROCESS_INFO ="processInfo"
   val SOURCES ="sources"
+
+  val ACCESS_POINTS = "accessPoints"
 }

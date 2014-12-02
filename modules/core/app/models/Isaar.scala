@@ -51,5 +51,7 @@ case object Isaar {
   val SCRIPTS_USED = "scripts"
   val SOURCES = "source"
   val MAINTENANCE_NOTES = "maintenanceNotes"
+
+  val ACCESS_POINTS = "accessPoints"
 }
 

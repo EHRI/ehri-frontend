@@ -6,7 +6,7 @@
             @list.map { accessPoint =>
                 @accessPoint.target(item, links).map { case (link, other) =>
                     <li class="resolved-access-point" id="@accessPoint.id">
-                         @p.helpers.linkTo(other, accessPoint.name)
+                         @p.helpers.linkTo(other, Html(accessPoint.name))
                         @if(!link.model.dates.isEmpty) {
                             <small>@link.model.dateRange</small>
                         }

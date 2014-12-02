@@ -1,0 +1,11 @@
+@(item: Annotation, hit: utils.search.SearchHit)(implicit userOpt: Option[UserProfile], req: RequestHeader, lang: Lang, globalConfig: global.GlobalConfig)
+
+@item.target.map { src =>
+    @p.layout.searchItemOutlineWithActions(src) {
+        @p.helpers.linkToWithFragment(src, "#" + item.id)
+    } {
+        @* TODO: Custom actions *@
+    } {
+        @listItemBody(item, hit)
+    }
+}

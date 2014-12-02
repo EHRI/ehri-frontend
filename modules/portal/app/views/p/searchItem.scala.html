@@ -19,6 +19,9 @@
     case d: VirtualUnit => {
         @virtualUnit.searchItem(d, Seq.empty, hit, watched)
     }
+    case d: Annotation => {
+        @annotation.searchItem(d, hit)
+    }
     case _ => {
         <p class="text-warning">
             <a href="@views.p.Helpers.linkTo(item)">@item.toStringLang</a>

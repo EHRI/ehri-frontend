@@ -1,6 +1,6 @@
 @(item: Repository, desc: RepositoryDescriptionF, includeCountry: Boolean = true, highlighter: views.Highlighter = views.NoopHighlighter)(implicit userOpt: Option[UserProfile], request: RequestHeader, lang: Lang)
 
-<ul class="list-unstyled text-muted list-inline inline-separator">
+<ul class="concise-address">
     @if(includeCountry) {
         @item.country.map { ct =>
             <li><strong><a class="alt" href="@controllers.portal.routes.Portal.browseCountry(ct.id)">@highlighter.highlight(ct.toStringLang)</a></strong></li>

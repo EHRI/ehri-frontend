@@ -12,10 +12,9 @@
         @* Description *must* have an ID here or something bad has gone wrong! *@
         @desc.id.map { descId =>
 
-            <div class="item-header">
-                <h1>@desc.name</h1>
+            @p.common.itemHeader(desc.name) {
                 @p.common.otherNameList(desc.identity.parallelFormsOfName)
-            </div>
+            }
 
             @details(item, desc)
 
@@ -64,10 +63,10 @@
                 @textField(item, descId, desc.control.datesOfDescriptions, DATES_DESCRIPTIONS)
                 @listField(item, descId, desc.control.processInfo, PROCESS_INFO)
             }
-        }
-    }
 
-    @descriptionSection("accessPointLinks", Messages("portal.item.accessPointLinks")) {
-        @p.common.accessPointLinks(item, desc, links, AccessPointF.AccessPointType.exceptCreator.toList)
+            @descriptionSection(ACCESS_POINTS) {
+                @p.common.accessPointLinks(item, desc, links, AccessPointF.AccessPointType.exceptCreator.toList)
+            }
+        }
     }
 }

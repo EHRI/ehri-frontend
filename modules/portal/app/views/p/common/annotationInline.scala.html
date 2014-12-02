@@ -1,9 +1,9 @@
 @(annotation: Annotation, editable: Boolean)(implicit userOpt: Option[UserProfile], req: RequestHeader, lang: Lang, globalConfig: global.GlobalConfig)
 
-<div class="annotation clearfix @{if(annotation.isPromoted) "promoted"}" id="@annotation.id">
+<div class="annotation @{if(annotation.isPromoted) "promoted"}" id="@annotation.id">
     @Html(views.Helpers.renderMarkdown(annotation.model.body))
     @for(user <- annotation.user ; event <- annotation.latestEvent) {
-        - <small class="text-muted">
+        - <div class="annotation-meta">
             @p.helpers.linkTo(user)
             <a class="time-permalink" href="#@annotation.id">@views.Helpers.relativeDate(event.model.timestamp)</a>
 
@@ -28,6 +28,6 @@
                     }
                 }
             }
-        </small>
+        </div>
     }
 </div>

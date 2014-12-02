@@ -91,13 +91,12 @@ case class SolrJsonQueryResponse(response: JsValue) extends QueryResponse {
       )(SolrData.apply _)
   }
 
-  private def hitBuilder(id: String, itemId: String, name: String, entityType: EntityType.Value, gid: Long): SearchHit
-  = new SearchHit(id, itemId, name, entityType, gid)
+  private def hitBuilder(id: String, itemId: String, entityType: EntityType.Value, gid: Long): SearchHit
+  = new SearchHit(id, itemId, entityType, gid)
 
   private def hitReads: Reads[SearchHit] = (
     (__ \ ID).read[String] and
       (__ \ ITEM_ID).read[String] and
-      (__ \ NAME_EXACT).read[String] and
       (__ \ TYPE).read[EntityType.Value] and
       (__ \ DB_ID).read[Long]
     )(hitBuilder _)

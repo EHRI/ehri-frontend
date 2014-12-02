@@ -19,6 +19,9 @@
     case d: VirtualUnit => {
         @virtualUnit.listItemVc(d, Seq.empty, watched)
     }
+    case a: Annotation => {
+        @annotation.listItem(a)
+    }
     case _ => {
         @item.toStringLang
     }

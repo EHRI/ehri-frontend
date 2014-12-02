@@ -4,8 +4,7 @@
 
 <div id="item-details">
     @p.layout.rightSidebar {
-        @p.common.itemHeader {
-            <h1>@item.toStringLang</h1>
+        @p.common.itemHeader(item.toStringLang) {
         }
         @details(item)
 

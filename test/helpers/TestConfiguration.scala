@@ -8,7 +8,6 @@ import backend.HelpdeskDAO.HelpdeskResponse
 import models.{Feedback, MockAccountDAO, AccountDAO, Account}
 import mocks._
 import global.GlobalConfig
-import com.tzavellas.sse.guice.ScalaModule
 import play.api.mvc.{RequestHeader, WithFilters}
 import jp.t2v.lab.play2.auth.test.Helpers._
 import controllers.base.AuthConfigImpl
@@ -23,6 +22,7 @@ import utils.search.MockSearchDispatcher
 import com.typesafe.plugin.MailerAPI
 import backend.helpdesk.{MockHelpdeskDAO, MockFeedbackDAO}
 import mocks.MockBufferedMailer
+import com.google.inject.{Guice, AbstractModule}
 
 /**
  * Mixin trait that provides some handy methods to test actions that
@@ -78,24 +78,20 @@ trait TestConfiguration {
    * A Global object that loads fixtures on application start.
    */
   def getGlobal: GlobalSettings = new WithFilters(CSRFFilter()) with GlobalSettings {
-    class TestModule extends ScalaModule {
-      def configure() {
-        bind[GlobalConfig].toInstance(TestConfig)
-        bind[Indexer].toInstance(mockIndexer)
-        bind[Backend].toInstance(testBackend)
-        bind[Dispatcher].toInstance(mockDispatcher)
-        bind[Resolver].toInstance(mockResolver)
-        bind[FeedbackDAO].toInstance(mockFeedback)
-        bind[HelpdeskDAO].toInstance(mockHelpdesk)
-        bind[IdGenerator].toInstance(idGenerator)
-        bind[MailerAPI].toInstance(mockMailer)
-        bind[AccountDAO].toInstance(mockUserDAO)
+    lazy val injector = Guice.createInjector(new AbstractModule {
+      protected def configure() {
+        bind(classOf[GlobalConfig]).toInstance(TestConfig)
+        bind(classOf[Indexer]).toInstance(mockIndexer)
+        bind(classOf[Backend]).toInstance(testBackend)
+        bind(classOf[Dispatcher]).toInstance(mockDispatcher)
+        bind(classOf[Resolver]).toInstance(mockResolver)
+        bind(classOf[FeedbackDAO]).toInstance(mockFeedback)
+        bind(classOf[HelpdeskDAO]).toInstance(mockHelpdesk)
+        bind(classOf[IdGenerator]).toInstance(idGenerator)
+        bind(classOf[MailerAPI]).toInstance(mockMailer)
+        bind(classOf[AccountDAO]).toInstance(mockUserDAO)
       }
-    }
-
-    private lazy val injector = {
-      com.google.inject.Guice.createInjector(new TestModule)
-    }
+    })
 
     override def getControllerInstance[A](clazz: Class[A]) = {
       injector.getInstance(clazz)

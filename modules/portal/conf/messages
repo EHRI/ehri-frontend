@@ -34,6 +34,7 @@ portal.type.cvocConcept=Keywords
 portal.type.userProfile=People on EHRI
 portal.type.group=Groups
 portal.type.virtualUnit=Virtual Collections
+portal.type.annotation=Notes
 
 portal.readonly=The EHRI portal is currently in read-only mode while we conduct maintenance.\
   Normal service should be resumed in due course. Thanks for your patience.
