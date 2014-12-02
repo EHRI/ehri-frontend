@@ -2,6 +2,8 @@
 
 <div id="item-details">
     @p.layout.rightSidebar {
+        @p.common.itemHeader(item.toStringLang) {
+        }
         @item.model.description.map { desc =>
             @Html(views.Helpers.renderMarkdown(desc))
         }

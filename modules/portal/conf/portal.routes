@@ -31,6 +31,10 @@ GET         /feedback                       @controllers.portal.Feedback.feedbac
 POST        /feedback                       @controllers.portal.Feedback.feedbackPost
 GET         /feedback/list                  @controllers.portal.Feedback.list
 
+# Annotation list
+# TODO: Move to annotations controller?
+GET         /notes                          @controllers.portal.Portal.browseAnnotations
+
 # Data routes
 GET         /search                         @controllers.portal.Portal.search
 GET         /countries/institutions         @controllers.portal.Portal.browseRepositoriesByCountry

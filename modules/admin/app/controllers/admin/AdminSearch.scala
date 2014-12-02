@@ -66,7 +66,8 @@ case class AdminSearch @Inject()(implicit globalConfig: global.GlobalConfig, sea
     EntityType.AuthoritativeSet,
     EntityType.UserProfile,
     EntityType.Group,
-    EntityType.VirtualUnit
+    EntityType.VirtualUnit,
+    EntityType.Annotation
   )
 
   /**

@@ -1,7 +1,7 @@
 @(name:String, title: String = "")(html: Html)(implicit fieldPrefix: String, lang: Lang)
 
 @if(!html.body.trim.isEmpty) {
-    <div class="description-section @{name}-section">
+    <div class="description-section" id="@{name}-section">
         @if(!title.isEmpty) {
             <h3>@title</h3>
         }

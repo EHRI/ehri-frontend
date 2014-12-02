@@ -2,7 +2,6 @@ package utils.search
 
 import play.api.test.PlaySpecification
 import defines.EntityType
-import play.twirl.api.Html
 
 /**
  * @author Mike Bryant (http://github.com/mikesname)
@@ -12,7 +11,6 @@ class SearchHitSpec extends PlaySpecification {
   private val testHit = SearchHit(
     id = "lu-006007-lu-11-iv-3-286-fra",
     itemId = "lu-006007-lu-11-iv-3-286",
-    name = "Demandes en obtention d' une autorisation de batir",
     `type`= EntityType.DocumentaryUnit,
     gid = 87287L,
     fields = Map(

@@ -1,13 +1,3 @@
 @(item: AnyModel, watched: Boolean = false)(heading: Html)(body: Html = Html(""))(implicit userOpt: Option[UserProfile], lang: Lang)
 
-<div class="search-item" id="@item.id">
-    <div class="search-item-actions">
-        @p.common.watchButtonsSmall(item, watched)
-    </div>
-    <h2 class="search-item-heading type-highlight @item.isA.toString">
-        @heading
-    </h2>
-    <div class="search-item-body">
-        @body
-    </div>
-</div>
+@searchItemOutlineWithActions(item)(heading)(p.common.watchButtonsSmall(item, watched))(body)

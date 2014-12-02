@@ -55,7 +55,14 @@ case class SolrDispatcher(queryBuilder: QueryBuilder, handler: WSResponse => Que
     val queryRequest = queryBuilder.simpleFilter(params, filters, extra)
     dispatch(queryRequest).map { response =>
       val parser = handler(checkError(response))
-      val items = parser.items.map(i => FilterHit(i.itemId, i.id, i.name, i.`type`, i.fields.get(SolrConstants.HOLDER_NAME), i.gid))
+      val items = parser.items.map(i => FilterHit(
+        i.itemId,
+        i.id,
+        i.fields.get(SolrConstants.NAME_EXACT).getOrElse(i.itemId),
+        i.`type`,
+        i.fields.get(SolrConstants.HOLDER_NAME),
+        i.gid
+      ))
       ItemPage(items, params.offset, params.countOrDefault, parser.count, Nil)
     }
   }

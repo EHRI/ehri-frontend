@@ -92,7 +92,7 @@ public class ToEadSerializer implements Visitor {
         printTag(node, "entry");
     }
 
-    public void visit(EmphNode node) {
+    public void visit(StrongEmphSuperNode node) {
         printTag(node, "em");
     }
 
@@ -223,13 +223,13 @@ public class ToEadSerializer implements Visitor {
         }
     }
 
-    public void visit(StrongNode node) {
-        printTag(node, "strong");
-        printer.print(node.toString());
-    }
-
     public void visit(TableBodyNode node) {
         printIndentedTag(node, "tbody");
+    }
+
+    @Override
+    public void visit(TableCaptionNode tableCaptionNode) {
+        //To change body of implemented methods use File | Settings | File Templates.
     }
 
     public void visit(TableCellNode node) {
@@ -306,6 +306,11 @@ public class ToEadSerializer implements Visitor {
 
     public void visit(SpecialTextNode node) {
         printer.printEncoded(node.getText());
+    }
+
+    @Override
+    public void visit(StrikeNode node) {
+        printTag(node, "strike");
     }
 
     public void visit(SuperNode node) {

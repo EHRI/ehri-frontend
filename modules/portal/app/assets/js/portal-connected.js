@@ -280,8 +280,7 @@ jQuery(function ($) {
   }
 
   function insertAnnotationLoader($elem) {
-    loaderContainer = $loader.appendTo($elem.parent().parent());
-    return loaderContainer;
+    return $loader.appendTo($elem.parent().parent());
   }
 
   function showAnnotationControl($form) {

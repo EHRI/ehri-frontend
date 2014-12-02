@@ -16,11 +16,11 @@ import play.api._
 import play.api.mvc.{RequestHeader, WithFilters, Result}
 import play.filters.csrf._
 
-import com.tzavellas.sse.guice.ScalaModule
 import utils.search._
 import global.GlobalConfig
 import scala.concurrent.Future
 import scala.concurrent.Future.{successful => immediate}
+import com.google.inject.{Guice, AbstractModule}
 
 
 object Global extends WithFilters(CSRFFilter()) with GlobalSettings {
@@ -71,24 +71,20 @@ object Global extends WithFilters(CSRFFilter()) with GlobalSettings {
 
   object RunConfiguration extends GlobalConfig
 
-  class ProdModule extends ScalaModule {
-    def configure() {
-      bind[GlobalConfig].toInstance(RunConfiguration)
-      bind[Indexer].toInstance(searchIndexer)
-      bind[Dispatcher].toInstance(searchDispatcher)
-      bind[Resolver].toInstance(searchResolver)
-      bind[Backend].toInstance(backend)
-      bind[FeedbackDAO].toInstance(feedbackDAO)
-      bind[HelpdeskDAO].toInstance(helpdeskDAO)
-      bind[IdGenerator].toInstance(idGenerator)
-      bind[MailerAPI].toInstance(mailer)
-      bind[AccountDAO].toInstance(userDAO)
+  lazy val injector = Guice.createInjector(new AbstractModule {
+    protected def configure() {
+      bind(classOf[GlobalConfig]).toInstance(RunConfiguration)
+      bind(classOf[Indexer]).toInstance(searchIndexer)
+      bind(classOf[Dispatcher]).toInstance(searchDispatcher)
+      bind(classOf[Resolver]).toInstance(searchResolver)
+      bind(classOf[Backend]).toInstance(backend)
+      bind(classOf[FeedbackDAO]).toInstance(feedbackDAO)
+      bind(classOf[HelpdeskDAO]).toInstance(helpdeskDAO)
+      bind(classOf[IdGenerator]).toInstance(idGenerator)
+      bind(classOf[MailerAPI]).toInstance(mailer)
+      bind(classOf[AccountDAO]).toInstance(userDAO)
     }
-  }
-
-  private lazy val injector = {
-    com.google.inject.Guice.createInjector(new ProdModule)
-  }
+  })
 
   override def getControllerInstance[A](clazz: Class[A]) = {
     injector.getInstance(clazz)

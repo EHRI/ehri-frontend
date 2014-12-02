@@ -22,6 +22,7 @@ object ConceptF {
 
   val LONGITUDE = "longitude"
   val LATITUDE = "latitude"
+  val ACCESS_POINTS = "accessPoints"
 
   // NB: Type is currently unused...
   object ConceptType extends Enumeration {

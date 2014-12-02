@@ -13,6 +13,17 @@
     }
 }
 
+@wrapCountry(countryOpt: Option[Country])(html: Html) = {
+    @countryOpt.map { country =>
+        @p.helpers.linkTo(country)
+        <div class="ancestor">
+            @html
+        </div>
+    }.getOrElse {
+        @html
+    }
+}
+
 
 <div class="archival-context panel-details">
     @item.holder.map { holder =>
@@ -20,20 +31,22 @@
             <h3 class="panel-title">@Messages("portal.documentaryUnit.archivalContext")</h3>
         </div>
         <div class="panel-body">
-            @p.helpers.linkTo(holder)
-            @holder.model.logoUrl.map { logo =>
-                @defining(holder.url.map(_.toString).getOrElse(req.path)) { url =>
-                <a href="@url">
-                    <img class="repository-logo" src="@logo" alt="@item.toStringLang" />
-                </a>
+            @wrapCountry(holder.country) {
+                @p.helpers.linkTo(holder)
+                @holder.model.logoUrl.map { logo =>
+                    @defining(holder.url.map(_.toString).getOrElse(req.path)) { url =>
+                    <a href="@url">
+                        <img class="repository-logo" src="@logo" alt="@item.toStringLang" />
+                    </a>
+                    }
                 }
-            }
 
-            @item.parent.map { parent =>
-                @wrapParent(parent) {
-                    <div class="ancestor">
-                        @p.helpers.linkTo(parent)
-                    </div>
+                @item.parent.map { parent =>
+                    @wrapParent(parent) {
+                        <div class="ancestor">
+                            @p.helpers.linkTo(parent)
+                        </div>
+                    }
                 }
             }
         </div>

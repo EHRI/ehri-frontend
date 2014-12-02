@@ -3,7 +3,7 @@
 @import views.p.AnnotationViewType._
 
 @defining(views.p.Helpers.sortAnnotations(annotations)) { sortedMap =>
-    <ul class="list-unstyled annotation-list">
+    <ul class="annotation-list">
         @for(ann <- sortedMap.getOrElse(Mine, Seq.empty)) {
             <li class="personal">@p.common.annotationInline(ann, true)</li>
         }

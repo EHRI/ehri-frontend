@@ -48,12 +48,12 @@ object ApplicationBuild extends Build {
   )
 
   val backendTestDependencies = Seq(
-    "org.neo4j" % "neo4j-kernel" % "1.9.7" classifier "tests" classifier "",
-    "org.neo4j.app" % "neo4j-server" % "1.9.7" classifier "tests" classifier "",
+    "org.neo4j" % "neo4j-kernel" % "1.9.7" % "test" classifier "tests" classifier "",
+    "org.neo4j.app" % "neo4j-server" % "1.9.7" % "test" classifier "tests" classifier "",
 
     "com.sun.jersey" % "jersey-core" % "1.9" % "test",
-    "ehri-project" % "ehri-frames" % "0.1-SNAPSHOT" % "test" classifier "tests" classifier "",
-    "ehri-project" % "ehri-extension" % "0.0.1-SNAPSHOT" % "test" classifier "tests" classifier ""
+    "ehri-project" % "ehri-frames" % "0.1-SNAPSHOT" % "test" classifier "tests" classifier "" exclude("com.tinkerpop.gremlin", "gremlin-groovy"),
+    "ehri-project" % "ehri-extension" % "0.0.1-SNAPSHOT" % "test" classifier "tests" classifier "" exclude("com.tinkerpop.gremlin", "gremlin-groovy")
   )
 
   val coreDependencies = backendDependencies ++ Seq(
@@ -65,8 +65,7 @@ object ApplicationBuild extends Build {
     "com.google.guava" % "guava" % "17.0",
 
     // Injection guff
-    "com.google.inject" % "guice" % "3.0",
-    "com.tzavellas" % "sse-guice" % "0.7.1",
+    "com.google.inject" % "guice" % "4.0-beta",
 
     "jp.t2v" %% "play2-auth" % "0.12.0",
 
@@ -74,9 +73,11 @@ object ApplicationBuild extends Build {
 
     // Pegdown. Currently versions higher than 1.1 crash
     // Play at runtime with an IncompatibleClassChangeError.
-    "org.pegdown" % "pegdown" % "1.1.0",
+    "org.pegdown" % "pegdown" % "1.4.2",
+    //"org.ow2.asm" % "asm-all" % "4.1",
 
-    "org.mindrot" % "jbcrypt" % "0.3m",
+
+  "org.mindrot" % "jbcrypt" % "0.3m",
 
     // Mailer...
     "com.typesafe.play.plugins" %% "play-plugins-mailer" % "2.3.0",
@@ -101,16 +102,26 @@ object ApplicationBuild extends Build {
   )
 
   val commonSettings = Seq(
+    // don't execute tests in parallel
     parallelExecution := false,
+    // classes to auto-import into templates
     templateImports in Compile ++= Seq("models.base._", "utils.forms._", "acl._", "defines._", "backend.Entity"),
+    // auto-import EntityType enum into routes
     routesImport += "defines.EntityType",
 
+    // Test the unmanaged directory to test_lib to pick up
+    // the repackaged version of jersey-server that we need to avoid
+    // a conflict with Pegdown and asm-4.x
+    unmanagedBase in Test := baseDirectory.value / "test_lib",
+
+    // additional resolvers
     resolvers += "neo4j-public-repository" at "http://m2.neo4j.org/content/groups/public",
     resolvers += "Local Maven Repository" at "file:///" + Path.userHome.absolutePath + "/.m2/repository",
     resolvers += "Codahale" at "http://repo.codahale.com",
     resolvers += "Typesafe Repository" at "http://repo.typesafe.com/typesafe/releases/",
 
     // SBT magic: http://stackoverflow.com/a/12772739/285374
+    // pick up additional resources in test
     resourceDirectory in Test <<= baseDirectory apply {
       (baseDir: File) => baseDir / "test/resources"
     },

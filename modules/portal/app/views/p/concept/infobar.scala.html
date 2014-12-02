@@ -1,11 +1,11 @@
-@(item: Concept, watched: Boolean)(implicit userOpt: Option[UserProfile], req: RequestHeader, globalConfig: global.GlobalConfig, lang: Lang)
+@(item: Concept)(implicit userOpt: Option[UserProfile], req: RequestHeader, globalConfig: global.GlobalConfig, lang: Lang)
 
 @layout.infobar {
     @item.vocabulary.map { vocab =>
-        <li>@p.helpers.linkTo(vocab, views.Helpers.ellipsize(vocab.toStringLang, 100))</li>
+        <li>@p.helpers.linkTo(vocab, Html(views.Helpers.ellipsize(vocab.toStringLang, 100)))</li>
     }
     @item.broaderTerms.map { term =>
-        <li>@p.helpers.linkTo(term, views.Helpers.ellipsize(term.toStringLang, 100))</li>
+        <li>@p.helpers.linkTo(term, Html(views.Helpers.ellipsize(term.toStringLang, 100)))</li>
     }
 }
 
