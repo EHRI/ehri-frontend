@@ -90,10 +90,6 @@ portal.mail.unverifiedEmailResend=To re-send a verification email
 portal.mail.unverifiedEmailResendSubmit=click here
 portal.mail.emailConfirmationResent=We''ve sent you an email which you can use to confirm your email address.
 
-portal.mail.message.subject=EHRI: Message from {0}: {1}
-portal.mail.message.heading=New message from {0}
-portal.mail.message.footer=To respond, reply directly to this message. You can opt-out from receiving user messages by updating your preferences
-
 portal.preferences.showUserContent=Show User-Generated Comments and Links
 
 portal.browse=Browse
@@ -268,8 +264,15 @@ portal.social.message.send.submit=Send Message
 portal.social.message.send.confirmation=Your message has been sent
 portal.social.message.send.subject=Subject
 portal.social.message.send.message=Your message
+portal.social.message.send.copy=Send yourself a copy of this message
 portal.social.message.send.warning=Your message will be sent via email with your registered address in the reply-to field.
 portal.social.message.send.userNotAcceptingMessages=This user has messaging disabled.
+portal.mail.message.subject=EHRI: Message from {0}: {1}
+portal.mail.message.copy.subject=EHRI: Your message to {0}: {1}
+portal.mail.message.heading=New message from {0}
+portal.mail.message.copy.heading=Copy of your message to {0}
+portal.mail.message.replyFooter=To respond, reply directly to this message. You can opt-out from receiving user messages by updating your preferences
+
 
 portal.social.users=People
 portal.social.browseUsers=People on EHRI
