@@ -136,9 +136,10 @@ case class Link(
   latestEvent: Option[SystemEvent] = None,
   meta: JsObject = JsObject(Seq())
 ) extends AnyModel
-  with MetaModel[LinkF] with Accessible with Promotable {
+  with MetaModel[LinkF]
+  with Accessible
+  with Promotable {
+
   def opposingTarget(item: AnyModel): Option[AnyModel] = opposingTarget(item.id)
   def opposingTarget(itemId: String): Option[AnyModel] = targets.find(_.id != itemId)
-
-  override def toStringLang(implicit lang: Lang) = "Link: (" + id + ")"
 }

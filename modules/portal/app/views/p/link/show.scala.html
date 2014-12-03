@@ -1,6 +1,5 @@
-@(link: Link)(implicit userOpt: Option[UserProfile], request: RequestHeader, prefs: utils.SessionPrefs, globalConfig: global.GlobalConfig, lang: Lang, flash: Flash)
+@(item: Link)(implicit userOpt: Option[UserProfile], request: RequestHeader, prefs: utils.SessionPrefs, globalConfig: global.GlobalConfig, lang: Lang, flash: Flash)
 
-@* TODO *@
-@p.layout.portalLayout(link.toStringLang) {
-    @link.toStringLang
+@p.layout.showLayout(item) {
+
 }

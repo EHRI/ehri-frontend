@@ -1,55 +1,61 @@
 .make-entity-color(@color, @secondary-color:white) {
-	&.landing-header {
-		background-color: @color;
-		color:@secondary-color;
-		> a,
-		> a:hover,
-		> a:visited {
-			text-decoration:none;
-			color:white!important;
-		}
-	}
-    &.block-header {
-      color: @color;
-      > a,
-      > a:hover,
-      > a:visited {
-        text-decoration:none;
-        color: @color;
-      }
+  &.landing-header {
+    background-color: @color;
+    color: @secondary-color;
+    > a,
+    > a:hover,
+    > a:visited {
+      text-decoration: none;
+      color: white !important;
     }
-    // MB: Removing this, even though it
-    // was probably added for a very good reason...
-	//a:not([class]),
-	& > a {
-	 	color: @color;
-	}
-	&.type-highlight > a , &.type-highlight {
-	 	color: @color;
-	}
+  }
+  &.block-header {
+    color: @color;
+    > a,
+    > a:hover,
+    > a:visited {
+      text-decoration: none;
+      color: @color;
+    }
+  }
+  // MB: Removing this, even though it
+  // was probably added for a very good reason...
+  //a:not([class]),
+  & > a {
+    color: @color;
+  }
+  &.type-highlight > a, &.type-highlight {
+    color: @color;
+  }
 }
 
-.user , .userProfile {
-	.make-entity-color(@user-color);
+.user, .userProfile {
+  .make-entity-color(@user-color);
 }
+
 .documentaryUnit {
-	.make-entity-color(@doc-color);
+  .make-entity-color(@doc-color);
 }
+
 .repository {
-	.make-entity-color(@repo-color);
+  .make-entity-color(@repo-color);
 }
+
 .country {
-	.make-entity-color(@country-color);
+  .make-entity-color(@country-color);
 }
+
 .historicalAgent {
-	.make-entity-color(@agent-color);
+  .make-entity-color(@agent-color);
 }
-.annotation {
+
+.annotation, .link {
   .make-entity-color(@annotation-color);
 }
 
 a.text-muted, .text-muted a {
-	.text-muted!important;
+  .text-muted
+!important;
 }
 
 // For other types, default to the doc colour

@@ -267,8 +267,13 @@ case class Portal @Inject()(implicit globalConfig: global.GlobalConfig, searchDi
   }
 
   def browseLink(id: String) = getAction[Link](EntityType.Link, id) {
-      link => details => implicit userOpt => implicit request =>
-    Ok(p.link.show(link))
+      item => details => implicit userOpt => implicit request =>
+    Ok(p.link.show(item))
+  }
+
+  def browseGroup(id: String) = getAction[Group](EntityType.Group, id) {
+      item => details => implicit userOpt => implicit request =>
+    Ok(p.group.show(item))
   }
 
   def browseAnnotations = userBrowseAction.async { implicit userDetails => implicit request =>
