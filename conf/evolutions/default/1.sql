@@ -49,10 +49,17 @@ CREATE TABLE token (
 
 ALTER TABLE token ADD CONSTRAINT token_profile_id FOREIGN KEY (id) REFERENCES users (id) ON DELETE CASCADE;
 
+CREATE TABLE user_auth_token(
+  id          VARCHAR(50) NOT NULL,
+  token       VARCHAR(255) NOT NULL PRIMARY KEY,
+  expires     TIMESTAMP NOT NULL
+);
 
+ALTER TABLE user_auth_token ADD CONSTRAINT auth_auth_token_profile_id FOREIGN KEY (id) REFERENCES users (id) ON DELETE CASCADE;
 
 # --- !Downs
 
+DROP TABLE IF EXISTS user_auth_token;
 DROP TABLE IF EXISTS token;
 DROP TABLE IF EXISTS user_auth;
 DROP TABLE IF EXISTS openid_association;
