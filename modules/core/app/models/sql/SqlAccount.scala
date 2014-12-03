@@ -9,6 +9,9 @@ import play.api.Play.current
 import java.util.UUID
 import play.api.Logger
 import utils.PageParams
+import jp.t2v.lab.play2.auth._
+import anorm.~
+import java.sql.Connection
 
 /**
  * @author Mike Bryant (http://github.com/mikesname)
@@ -201,5 +204,42 @@ object SqlAccount extends AccountDAO {
           AND is_sign_up = {is_sign_up}
           AND t.expires > NOW()"""
     ).on('token -> token, 'is_sign_up -> isSignUp).as(SqlAccount.simple.singleOpt)
+  }
+
+  // Login auth functions
+  private def lookup(token: AuthenticityToken)(implicit conn: Connection): Option[String] = {
+    SQL"SELECT id FROM user_auth_token WHERE token = $token".as(str("id").singleOpt)
+  }
+
+  private def removeAuthTokens(userId: String)(implicit conn: Connection) {
+    SQL"DELETE FROM user_auth_token WHERE id = $userId".executeUpdate()
+  }
+
+  private def removeAuthToken(token: AuthenticityToken)(implicit conn: Connection) {
+    SQL"DELETE FROM user_auth_token WHERE token = $token".executeUpdate()
+  }
+
+  private def store(token: AuthenticityToken, userId: String, timeoutInSeconds: Int)(implicit conn: Connection) {
+    SQL"""
+      INSERT INTO user_auth_token (id, token, expires)
+      VALUES ($userId, $token, TIMESTAMPADD(SECOND, $timeoutInSeconds, NOW()))
+      ON DUPLICATE KEY UPDATE expires = TIMESTAMPADD(SECOND, $timeoutInSeconds, NOW())
+    """.executeInsert()
+  }
+
+  def storeLoginToken(token: AuthenticityToken, userId: String, timeoutInSeconds: Int): Unit = DB.withConnection { implicit conn =>
+    store(token, userId, timeoutInSeconds)
+  }
+
+  def removeLoginToken(token: AuthenticityToken): Unit = DB.withConnection { implicit conn =>
+    removeAuthToken(token)
+  }
+
+  def getByLoginToken(token: AuthenticityToken): Option[String] = DB.withConnection { implicit conn =>
+    lookup(token)
+  }
+
+  def removeLoginTokens(userId: String): Unit = DB.withConnection { implicit conn =>
+    removeAuthTokens(userId)
   }
 }

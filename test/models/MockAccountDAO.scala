@@ -2,6 +2,9 @@ package models
 
 import java.util.UUID
 import utils.PageParams
+import play.api.cache.Cache
+import jp.t2v.lab.play2.auth.AuthenticityToken
+import play.api.Play.current
 
 case class MockAccount(id: String, email: String, verified: Boolean = false, staff: Boolean = false, active: Boolean = true,
                         allowMessaging: Boolean = true) extends Account {
@@ -72,4 +75,34 @@ object MockAccountDAO extends AccountDAO {
   }
 
   def findAll(params: PageParams): Seq[Account] = mocks.userFixtures.values.toSeq
+
+  // Auth tokens
+  private val tokenSuffix = ":token"
+  private val userIdSuffix = ":userId"
+
+  private def unsetToken(token: AuthenticityToken) {
+    Cache.remove(token + tokenSuffix)
+  }
+  private def unsetUserId(userId: String) {
+    Cache.remove(userId.toString + userIdSuffix)
+  }
+
+  def storeLoginToken(token: AuthenticityToken, userId: String, timeoutInSeconds: Int): Unit = {
+    Cache.set(token + tokenSuffix, userId, timeoutInSeconds)
+    Cache.set(userId.toString + userIdSuffix, token, timeoutInSeconds)
+  }
+
+  def removeLoginToken(token: AuthenticityToken): Unit = {
+    getByLoginToken(token).foreach(unsetUserId)
+    unsetToken(token)
+  }
+
+  def getByLoginToken(token: AuthenticityToken): Option[String] = {
+    Cache.getAs[String](token + tokenSuffix)
+  }
+
+  def removeLoginTokens(userId: String): Unit = {
+    Cache.getAs[String](userId.toString + userIdSuffix) foreach unsetToken
+    unsetUserId(userId)
+  }
 }

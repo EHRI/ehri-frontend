@@ -7,6 +7,7 @@ import scala.reflect.classTag
 import scala.concurrent.{ExecutionContext,Future}
 import scala.concurrent.Future.{successful => immediate}
 import play.api.Logger
+import controllers.core.auth.DBIdContainer
 
 /*
  * Implementation of play2-auth
@@ -29,7 +30,7 @@ trait AuthConfigImpl extends AuthConfig with Results {
 
   type Id = String
 
-  override lazy val idContainer: AsyncIdContainer[Id] = AsyncIdContainer(new CookieIdContainer[Id])
+  override lazy val idContainer: AsyncIdContainer[Id] = AsyncIdContainer(new DBIdContainer(userDAO))
 
   /**
    * Whether use the secure option or not use it in the cookie.

@@ -5,6 +5,7 @@ import play.api.Plugin
 import java.util.UUID
 import org.mindrot.jbcrypt.BCrypt
 import utils.PageParams
+import jp.t2v.lab.play2.auth._
 
 
 private [models] object HashedPassword {
@@ -65,4 +66,9 @@ trait AccountDAO extends Plugin {
   def create(id: String, email: String, verified: Boolean, staff: Boolean, allowMessaging: Boolean): Account
   def createWithPassword(id: String, email: String, verified: Boolean, staff: Boolean, allowMessaging: Boolean, hashed: HashedPassword): Account
   def findByResetToken(token: String, isSignUp: Boolean = false): Option[Account]
+
+  def storeLoginToken(token: AuthenticityToken, userId: String, timeoutInSeconds: Int): Unit
+  def removeLoginToken(token: AuthenticityToken): Unit
+  def removeLoginTokens(userId: String): Unit
+  def getByLoginToken(token: AuthenticityToken): Option[String]
 }
