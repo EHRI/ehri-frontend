@@ -9,6 +9,11 @@
         }
     } {
         @p.common.typeLabelWithWatchButton(item, watched.contains(item.id))
+        @p.common.childItemSidebar(
+            item,
+            EntityType.Repository,
+            controllers.portal.routes.Portal.searchCountry(item.id)
+        )
         @p.common.latestAction(item, controllers.portal.routes.Portal.itemHistory(item.id))
     }
 </div>

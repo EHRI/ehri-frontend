@@ -35,6 +35,7 @@ portal.type.userProfile=People on EHRI
 portal.type.group=Groups
 portal.type.annotation=Notes
 portal.type.link=Connections
+portal.type.cvocVocabulary=Vocabularies
 
 portal.readonly=The EHRI portal is currently in read-only mode while we conduct maintenance.\
   Normal service should be resumed in due course. Thanks for your patience.
@@ -146,6 +147,8 @@ portal.repository.email=Email
 portal.repository.fax=Fax
 portal.repository.url=Web
 portal.repository.searchItems=Search items held by {0}
+portal.repository.childItems=Archival Descriptions
+portal.repository.childItems.search={0,choice,0#{0} lower level |1#1 item|1<{0,number,integer} items}
 
 portal.documentaryUnit.identifier=Identifier
 portal.documentaryUnit.archivalContext=Archival Context
@@ -168,6 +171,8 @@ portal.documentaryUnit.levelOfDescription.file=File
 portal.documentaryUnit.levelOfDescription.item=Item
 portal.documentaryUnit.levelOfDescription.otherLevel=Other
 portal.documentaryUnit.levelOfDescription.class=Class
+portal.documentaryUnit.childItems=Child Items
+portal.documentaryUnit.childItems.search={0,choice,0#{0} lower level |1#1 item|1<{0,number,integer} items}
 
 portal.historicalAgent.identifier=Identifier
 portal.historicalAgent.dates=Dates
@@ -177,6 +182,11 @@ portal.historicalAgent.entityType.family=Family
 portal.historicalAgent.entityType.corporateBody=Corporate Body
 portal.historicalAgent.set=Historical Agent
 
+portal.country.childItems=Archival Institutions
+portal.country.childItems.search={0,choice,0#{0} lower level |1#1 institution|1<{0,number,integer} institutions}
+
+portal.cvocVocabulary.childItems=Keywords
+portal.cvocVocabulary.childItems.search={0,choice,0#{0} |1#1 keyword|1<{0,number,integer} keywords}
 
 # Facets
 facet.type=Item Type
