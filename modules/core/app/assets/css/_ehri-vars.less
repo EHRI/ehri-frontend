@@ -63,9 +63,14 @@
 @link-color:            @doc-color;
 @link-hover-color:      darken(@link-color, 15%);
 
-@btn-post-color:		#fff;
-@btn-post-bg:			@ehri-purple;
-@btn-post-border:		darken(@ehri-purple, 15%);
+// Override primary button color
+@btn-primary-color: #fff;
+@btn-primary-bg: @doc-color;
+@btn-primary-border: darken(@btn-primary-bg, 10%);
+
+@btn-post-color:		@btn-primary-color;
+@btn-post-bg:			@btn-primary-bg; //@ehri-purple;
+@btn-post-border:		@btn-primary-border;
 
 @btn-get-color:			@btn-default-color;
 @btn-get-bg:			@btn-default-bg;

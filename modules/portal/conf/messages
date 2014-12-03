@@ -60,7 +60,7 @@ portal.login.oauth.info=If you already have an account on one of these sites you
 portal.login.password.info=If you''ve previously created an account with EHRI, enter your email and password here:
 portal.login.password.submit=Sign In
 portal.login.recover=If you have lost your login details:
-portal.login.recover.link=Click here if you've forgotten or lost your password.
+portal.login.recover.link=Click here if you''ve forgotten or lost your password.
 portal.login.error=There was a problem with your details
 
 portal.logout=Sign Out
