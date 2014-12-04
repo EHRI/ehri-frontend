@@ -19,13 +19,15 @@
 @country-color: #864300;
 @agent-color: #517C00;
 @user-color: #6C0F00;
-@virtual-color: #544F5F ; //#758689;
 @concept-color: #283E00;
 @annotation-color: @doc-color;
+@group-color: @user-color;
+@virtual-color: #544F5F ; //#758689;
 
 @promoted-color: #F6F6FF;
 
-  // Spacings
+
+// Spacings
 @search-item-spacing: 1.5em;
 
 // Min width for mobile devices
@@ -62,9 +64,14 @@
 @link-color:            @doc-color;
 @link-hover-color:      darken(@link-color, 15%);
 
-@btn-post-color:		#fff;
-@btn-post-bg:			@ehri-purple;
-@btn-post-border:		darken(@ehri-purple, 15%);
+// Override primary button color
+@btn-primary-color: #fff;
+@btn-primary-bg: @doc-color;
+@btn-primary-border: darken(@btn-primary-bg, 10%);
+
+@btn-post-color:		@btn-primary-color;
+@btn-post-bg:			@btn-primary-bg; //@ehri-purple;
+@btn-post-border:		@btn-primary-border;
 
 @btn-get-color:			@btn-default-color;
 @btn-get-bg:			@btn-default-bg;
@@ -94,7 +101,6 @@
   margin-bottom: 0;
 }
 
-.watch-controls > a, .watch-controls > a:hover,
-    .bookmark-controls > a, .bookmark-controls > a:hover{
+.watch-controls > a, .watch-controls > a:hover {
   text-decoration: none;
 }

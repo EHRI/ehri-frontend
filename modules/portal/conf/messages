@@ -1,6 +1,8 @@
 portal.welcome=Welcome to EHRI
 portal.home=Home
 portal.footerText=This is a development version of the EHRI portal interface.
+portal.close=Close
+portal.warning=Warning
 
 portal.download=Download
 portal.download.format.txt=Download as plain text
@@ -8,7 +10,7 @@ portal.download.format.csv=Download as CSV
 portal.download.format.json=Download as JSON
 
 portal.help=Help
-portal.help.accounts=Problems signing up?
+portal.help.general=General site help
 portal.help.archivists=Help for archivists
 portal.help.helpdesk=Helpdesk
 
@@ -17,6 +19,22 @@ portal.profile.preferences.updated=Preferences Updated
 portal.profile.preferences.allowMessaging=Allow other users to send you messages.
 portal.profile.preferences.allowMessaging.description=Your email address will not be directly accessible.
 portal.profile.preferences.updatePreferences=Update Preferences
+portal.profile.preferences.view=View Preferences
+portal.profile.preferences.view.showUserContent=Show promoted notes by other users
+
+portal.profile=Profile
+portal.profile.menu.link=Go to your profile
+portal.profile.security=Security
+portal.profile.edit=Edit Profile
+portal.profile.image.edit=Set Profile Image
+portal.profile.delete=Delete Account
+portal.profile.delete.link=Click here to delete your profile
+portal.profile.delete.check.text=Deleting your account will \
+  will anonymise (but not remove) any publicly-visible annotations and links you may have \
+  contributed to EHRI. To confirm, please type your name as displayed here, in the box below:
+portal.profile.delete.check=Type your name as displayed above.
+portal.profile.delete.badConfirmation=Profile deletion was not confirmed correctly.
+portal.profile.profile.delete.confirmation=Your profile has been deleted.
 
 # Item types
 portal.type=Item type
@@ -26,7 +44,7 @@ portal.type.repository.description=An inventory of archival institutions that \
 portal.type.documentaryUnit=Archival Descriptions
 portal.type.documentaryUnit.description=Electronic descriptions and finding aids of Holocaust-related archival material.
 portal.type.historicalAgent=Historical Agents
-portal.type.country=National Reports
+portal.type.country=Countries
 portal.type.country.description=EHRI national reports provide an overview of \
   the Second World War and Holocaust history as well as of the archival situation \
   in the covered countries.
@@ -35,6 +53,10 @@ portal.type.userProfile=People on EHRI
 portal.type.group=Groups
 portal.type.virtualUnit=Virtual Collections
 portal.type.annotation=Notes
+portal.type.link=Connections
+portal.type.cvocVocabulary=Vocabularies
+
+portal.showChildItems=Child Items
 
 portal.readonly=The EHRI portal is currently in read-only mode while we conduct maintenance.\
   Normal service should be resumed in due course. Thanks for your patience.
@@ -60,11 +82,12 @@ portal.login.oauth.info=If you already have an account on one of these sites you
 portal.login.password.info=If you''ve previously created an account with EHRI, enter your email and password here:
 portal.login.password.submit=Sign In
 portal.login.recover=If you have lost your login details:
-portal.login.recover.link=Click here if you've forgotten or lost your password.
+portal.login.recover.link=Click here if you''ve forgotten or lost your password.
 portal.login.error=There was a problem with your details
 
 portal.logout=Sign Out
 portal.logout.confirmation=You have been logged out
+portal.account=Account
 
 portal.signup=Create an Account
 portal.signup.submit=Submit
@@ -89,31 +112,10 @@ portal.mail.unverifiedEmailResend=To re-send a verification email
 portal.mail.unverifiedEmailResendSubmit=click here
 portal.mail.emailConfirmationResent=We''ve sent you an email which you can use to confirm your email address.
 
-portal.mail.message.subject=EHRI: Message from {0}: {1}
-portal.mail.message.heading=New message from {0}
-portal.mail.message.footer=To respond, reply directly to this message. You can opt-out from receiving user messages by updating your preferences
-
-portal.preferences.showUserContent=Show User-Generated Comments and Links
-
 portal.browse=Browse
-portal.showDetails=Show Item Details
-portal.hideDetails=Hide Item Details
+portal.details.show=Show Item Details
+portal.details.hide=Hide Item Details
 portal.showItems={0,choice,0#{0} Items|1#1 Item|1<{0,number,integer} Items}
-portal.showChildItems=Child Items
-portal.profile=Profile
-portal.profile.security=Security
-portal.profile.updateProfile=Edit Profile
-portal.profile.updateProfileImage=Set Profile Image
-portal.profile.deleteProfile=Delete Account
-portal.profile.deleteProfileLink=Click here to delete your profile
-portal.warning=Warning
-portal.profile.deleteProfileConfirmation=Deleting your account will \
-  will anonymise (but not remove) any publicly-visible annotations and links you may have \
-  contributed to EHRI. To confirm, please type your name as displayed here, in the box below:
-portal.profile.deleteProfileCheck=Type your name as displayed above.
-portal.profile.deleteProfile.badConfirmation=Profile deletion was not confirmed correctly.
-portal.profile.profileDeleted=Your profile has been deleted.
-portal.close=Close
 
 portal.landingBlurb.repository=Browse {0} in {1}.
 portal.landingBlurb.repository.link={0} archival institutions
@@ -148,6 +150,8 @@ portal.repository.email=Email
 portal.repository.fax=Fax
 portal.repository.url=Web
 portal.repository.searchItems=Search items held by {0}
+portal.repository.childItems=Archival Descriptions
+portal.repository.childItems.search={0,choice,0#{0} lower level |1#1 item|1<{0,number,integer} items}
 
 portal.documentaryUnit.identifier=Identifier
 portal.documentaryUnit.archivalContext=Archival Context
@@ -170,6 +174,8 @@ portal.documentaryUnit.levelOfDescription.file=File
 portal.documentaryUnit.levelOfDescription.item=Item
 portal.documentaryUnit.levelOfDescription.otherLevel=Other
 portal.documentaryUnit.levelOfDescription.class=Class
+portal.documentaryUnit.childItems=Child Items
+portal.documentaryUnit.childItems.search={0,choice,0#{0} lower level |1#1 item|1<{0,number,integer} items}
 
 portal.historicalAgent.identifier=Identifier
 portal.historicalAgent.dates=Dates
@@ -192,6 +198,12 @@ portal.bookmarkSet.delete=Delete Bookmark Set
 portal.bookmarkSet.delete.submit=Delete
 portal.bookmarkSet.noBookmarkSetsYet=You haven't made any bookmark sets yet.
 portal.bookmarkSet.noUserBookmarkSetsYet={0} has no public bookmark sets yet.
+
+portal.country.childItems=Archival Institutions
+portal.country.childItems.search={0,choice,0#{0} lower level |1#1 institution|1<{0,number,integer} institutions}
+
+portal.cvocVocabulary.childItems=Keywords
+portal.cvocVocabulary.childItems.search={0,choice,0#{0} |1#1 keyword|1<{0,number,integer} keywords}
 
 # Facets
 facet.type=Item Type
@@ -273,8 +285,15 @@ portal.social.message.send.submit=Send Message
 portal.social.message.send.confirmation=Your message has been sent
 portal.social.message.send.subject=Subject
 portal.social.message.send.message=Your message
+portal.social.message.send.copy=Send yourself a copy of this message
 portal.social.message.send.warning=Your message will be sent via email with your registered address in the reply-to field.
 portal.social.message.send.userNotAcceptingMessages=This user has messaging disabled.
+portal.mail.message.subject=EHRI: Message from {0}: {1}
+portal.mail.message.copy.subject=EHRI: Your message to {0}: {1}
+portal.mail.message.heading=New message from {0}
+portal.mail.message.copy.heading=Copy of your message to {0}
+portal.mail.message.replyFooter=To respond, reply directly to this message. You can opt-out from receiving user messages by updating your preferences
+
 
 portal.social.users=People
 portal.social.browseUsers=People on EHRI

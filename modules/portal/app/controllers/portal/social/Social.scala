@@ -6,7 +6,7 @@ import models.{SystemEvent, UserProfile, AccountDAO}
 import views.html.p
 import utils._
 import utils.search.{Resolver, SearchOrder, Dispatcher, SearchParams}
-import defines.{EventType, EntityType}
+import defines.EntityType
 import play.api.Play.current
 import solr.SolrConstants
 import backend.Backend
@@ -18,7 +18,6 @@ import play.api.libs.json.Json
 import scala.concurrent.Future
 import models.base.AnyModel
 import backend.rest.Constants
-import scala.Some
 import play.api.mvc.Result
 import backend.ApiUser
 import com.typesafe.plugin.MailerAPI
@@ -220,7 +219,8 @@ case class Social @Inject()(implicit globalConfig: global.GlobalConfig, searchDi
   private val messageForm = Form(
     tuple(
       "subject" -> nonEmptyText,
-      "message" -> nonEmptyText
+      "message" -> nonEmptyText,
+      "copySelf" -> default(boolean, false)
     )
   )
 
@@ -241,18 +241,29 @@ case class Social @Inject()(implicit globalConfig: global.GlobalConfig, searchDi
     }
   }
 
-  private def sendMessageEmail(from: UserProfile, to: UserProfile, subject: String, message: String)(implicit request: RequestHeader): Unit = {
+  private def sendMessageEmail(from: UserProfile, to: UserProfile, subject: String, message: String, copy: Boolean)(implicit request: RequestHeader): Unit = {
     for {
       accFrom <- userDAO.findByProfileId(from.id)
       accTo <- userDAO.findByProfileId(to.id)
     } yield {
+      val heading = Messages("portal.mail.message.heading", from.toStringLang)
       mailer
         .setSubject(Messages("portal.mail.message.subject", from.toStringLang, subject))
         .setRecipient(accTo.email)
         .setReplyTo(accFrom.email)
         .setFrom("EHRI User <noreply@ehri-project.eu>")
-        .send(views.txt.p.social.mail.messageEmail(from, subject, message).body,
-        views.html.p.social.mail.messageEmail(from, subject, message).body)
+        .send(views.txt.p.social.mail.messageEmail(heading, subject, message).body,
+        views.html.p.social.mail.messageEmail(heading, subject, message).body)
+
+      if (copy) {
+        val copyHeading = Messages("portal.mail.message.copy.heading", to.toStringLang)
+        mailer
+          .setSubject(Messages("portal.mail.message.copy.subject", to.toStringLang, subject))
+          .setRecipient(accFrom.email)
+          .setFrom("EHRI User <noreply@ehri-project.eu>")
+          .send(views.txt.p.social.mail.messageEmail(copyHeading, subject, message, isCopy = true).body,
+          views.html.p.social.mail.messageEmail(copyHeading, subject, message, isCopy = true).body)
+      }
     }
   }
 
@@ -279,7 +290,7 @@ case class Social @Inject()(implicit globalConfig: global.GlobalConfig, searchDi
       .getOrElse("fakekey")
     val boundForm = messageForm.bindFromRequest
 
-    def onError(userTo: UserProfile, form: Form[(String,String)]): Result = {
+    def onError(userTo: UserProfile, form: Form[(String,String,Boolean)]): Result = {
       if (isAjax) BadRequest(form.errorsAsJson)
       else BadRequest(p.userProfile.messageUser(userTo, form,
         socialRoutes.sendMessagePost(userId), recaptchaKey))
@@ -299,8 +310,8 @@ case class Social @Inject()(implicit globalConfig: global.GlobalConfig, searchDi
         boundForm.fold(
           errForm => onError(userTo, errForm),
           data => {
-            val (subject, message) = data
-            sendMessageEmail(user, userTo, subject, message)
+            val (subject, message, copyMe) = data
+            sendMessageEmail(user, userTo, subject, message, copyMe)
             val msg = Messages("portal.social.message.send.confirmation")
             if (isAjax) Ok(Json.obj("ok" -> msg))
             else Redirect(socialRoutes.browseUser(userId))

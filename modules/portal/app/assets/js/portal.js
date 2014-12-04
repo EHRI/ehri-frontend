@@ -314,6 +314,7 @@ $loader = $( "<div></div>" ).addClass("text-center loader-container").append($("
 
   $(document).on("click", ".toggle-boolean-preference", function(e) {
     e.preventDefault();
+    e.stopPropagation();
     var $item = $(this),
         name = $item.data("preference-name"),
         value = $item.data("preference-value");
