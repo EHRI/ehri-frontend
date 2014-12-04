@@ -28,8 +28,16 @@
             <span class="caret"></span>
         </a>
         <ul id="help-dropdown" class="dropdown-menu" role="menu">
-            <li><a href="#">@Messages("portal.help.general")</a></li>
-            <li><a href="#">@Messages("portal.help.archivists")</a></li>
+            <li>
+                <a target="_blank" href="https://docs.google.com/document/d/15lpPB2uwVcveWyIqkn8Jzse2iOFI3cOx5OqudduRAWw/edit?usp=sharing">
+                    @Messages("portal.help.general")
+                </a>
+            </li>
+            <li>
+                <a target="_blank" href="https://docs.google.com/document/d/13HE65QB_gjUp3Hcu1N7nnEsUNfj9qrDbC_ZkBoSmsPE/edit?usp=sharing">
+                    @Messages("portal.help.archivists")
+                </a>
+            </li>
             <li class="divider"></li>
             <li><a href="@controllers.portal.routes.Helpdesk.helpdesk">@Messages("portal.help.helpdesk")</a></li>
         </ul>
