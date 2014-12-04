@@ -3,7 +3,7 @@ package controllers.generic
 import play.api.libs.concurrent.Execution.Implicits._
 import play.api.mvc._
 import models._
-import utils.{Page, PageParams}
+import utils.{RangeParams, Page, PageParams}
 
 import scala.concurrent.Future
 import backend.{BackendReadable, BackendContentType, BackendResource}
@@ -95,9 +95,10 @@ trait Read[MT] extends Generic[MT] {
   }
 
   def historyAction(id: String)(
-      f: MT => Page[SystemEvent] => PageParams => Option[UserProfile] => Request[AnyContent] => Result)(implicit rd: BackendReadable[MT], rs: BackendResource[MT]) = {
+      f: MT => Page[SystemEvent] => RangeParams => Option[UserProfile] => Request[AnyContent] => Result)(implicit rd: BackendReadable[MT], rs: BackendResource[MT]) = {
     userProfileAction.async { implicit userOpt => implicit request =>
-      val params = PageParams.fromRequest(request)
+      // FIXME: The template doesn't support loading more items so fetch everything for now...
+      val params = RangeParams.fromRequest(request).withoutLimit
       val getF: Future[MT] = backend.get(id)
       val historyF: Future[Page[SystemEvent]] = backend.history[SystemEvent](id, params)
       for {

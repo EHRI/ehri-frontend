@@ -24,6 +24,7 @@ import views.html.errors.pageNotFound
 import org.joda.time.DateTime
 import caching.FutureCache
 import backend.rest.Constants
+import scala.concurrent.Future
 
 @Singleton
 case class Portal @Inject()(implicit globalConfig: global.GlobalConfig, searchDispatcher: Dispatcher, searchResolver: Resolver, backend: Backend,
@@ -334,12 +335,12 @@ case class Portal @Inject()(implicit globalConfig: global.GlobalConfig, searchDi
   }
 
   def itemHistory(id: String) = userProfileAction.async { implicit userOpt => implicit request =>
-    backend.history[SystemEvent](id, PageParams.fromRequest(request)).map { data =>
-      if (isAjax) {
-        Ok(p.activity.activityModal(data))
-      } else {
-        ???
-      }
+    // FIXME: The template doesn't support loading more items so fetch everything for now...
+    val params: RangeParams = RangeParams.fromRequest(request).withoutLimit
+    val filters = SystemEventParams.fromRequest(request)
+    backend.history[SystemEvent](id, params, filters).map { data =>
+      if (isAjax) Ok(p.activity.activityModal(data))
+      else Ok(p.activity.itemActivity(data, params))
     }
   }
 

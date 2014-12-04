@@ -15,7 +15,7 @@ trait Events {
 
   def listEventsForUser[A](userId: String, params: RangeParams, filters: SystemEventParams)(implicit apiUser: ApiUser, rd: BackendReadable[A], executionContext: ExecutionContext): Future[Page[A]]
 
-  def history[A](id: String, params: PageParams)(implicit apiUser: ApiUser, rd: BackendReadable[A], executionContext: ExecutionContext): Future[Page[A]]
+  def history[A](id: String, params: RangeParams, filters: SystemEventParams = SystemEventParams.empty)(implicit apiUser: ApiUser, rd: BackendReadable[A], executionContext: ExecutionContext): Future[Page[A]]
 
   def versions[V](id: String, params: PageParams)(implicit apiUser: ApiUser, rd: BackendReadable[V], executionContext: ExecutionContext): Future[Page[V]]
 }

@@ -3,9 +3,8 @@
 
 @p.layout.portalLayout(Messages("portal.activity"), "user") {
     @views.html.layout.mainContent {
-        <div class="item-header">
-            <h1>@Messages("portal.activity.latestActivity")</h1>
-        </div>
+        @p.common.itemHeader(Messages("portal.activity.latestActivity")) {
+        }
         @activityStream(events, params, more)
     }
 }

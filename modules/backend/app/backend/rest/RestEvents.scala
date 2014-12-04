@@ -13,7 +13,7 @@ trait RestEvents extends Events with RestDAO {
 
   private def requestUrl = s"$baseUrl/${EntityType.SystemEvent}"
 
-  def history[A](id: String, params: PageParams)(implicit apiUser: ApiUser, rd: BackendReadable[A], executionContext: ExecutionContext): Future[Page[A]] = {
+  def history[A](id: String, params: RangeParams, filters: SystemEventParams = SystemEventParams.empty)(implicit apiUser: ApiUser, rd: BackendReadable[A], executionContext: ExecutionContext): Future[Page[A]] = {
     val url: String = enc(requestUrl, "for", id)
     userCall(url).withQueryString(params.queryParams: _*).get().map { response =>
       parsePage(response, context = Some(url))(rd.restReads)
