@@ -52,6 +52,7 @@ GET         /authorities/:id                @controllers.portal.Portal.browseHis
 GET         /keywords                       @controllers.portal.Portal.browseConcepts
 GET         /keywords/:id                   @controllers.portal.Portal.browseConcept(id: String)
 GET         /links/:id                      @controllers.portal.Portal.browseLink(id: String)
+GET         /groups/:id                     @controllers.portal.Portal.browseGroup(id: String)
 GET         /annotations/:id                @controllers.portal.Portal.browseAnnotation(id: String)
 GET         /activity/:id                   @controllers.portal.Portal.itemHistory(id: String)
 GET         /vocabularies/:id               @controllers.portal.Portal.browseVocabulary(id: String)

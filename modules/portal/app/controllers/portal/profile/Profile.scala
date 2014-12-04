@@ -199,7 +199,7 @@ case class Profile @Inject()(implicit globalConfig: global.GlobalConfig, searchD
   import play.api.data.Forms._
   private def deleteForm(user: UserProfile): Form[String] = Form(
     single(
-      "confirm" -> nonEmptyText.verifying("portal.profile.deleteProfile.badConfirmation", f => f match {
+      "confirm" -> nonEmptyText.verifying("portal.profile.delete.badConfirmation", f => f match {
         case name =>
           user.model.name.toLowerCase.trim == name.toLowerCase.trim
       })
@@ -262,7 +262,7 @@ case class Profile @Inject()(implicit globalConfig: global.GlobalConfig, searchD
   def deleteProfilePost() = withUserAction.async { implicit user => implicit request =>
     deleteForm(user).bindFromRequest.fold(
       errForm => immediate(BadRequest(p.userProfile.deleteProfile(
-        errForm.withGlobalError("portal.profile.deleteProfile.badConfirmation"),
+        errForm.withGlobalError("portal.profile.delete.badConfirmation"),
         profileRoutes.deleteProfilePost()))),
       _ => {
         // Here we are not going to delete their whole profile, since
@@ -275,7 +275,7 @@ case class Profile @Inject()(implicit globalConfig: global.GlobalConfig, searchD
         backend.update(user.id, anonProfile).flatMap { bool =>
           user.account.get.delete()
           gotoLogoutSucceeded
-            .map(_.flashing("success" -> "portal.profile.profileDeleted"))
+            .map(_.flashing("success" -> "portal.profile.profile.delete.confirmation"))
         }
       }
     )

@@ -120,11 +120,7 @@ case class Portal @Inject()(implicit globalConfig: global.GlobalConfig, searchDi
         defaultParams = SearchParams(
           // we don't need results here because we're only using the facets
           count = Some(0),
-          entities = List(
-            EntityType.Repository,
-            EntityType.DocumentaryUnit,
-            EntityType.HistoricalAgent,
-            EntityType.Country)
+          entities = defaultSearchTypes
         ),
         facetBuilder = entityMetrics
       ).map(_.page.facets)
@@ -141,6 +137,8 @@ case class Portal @Inject()(implicit globalConfig: global.GlobalConfig, searchDi
       case EntityType.Link => Redirect(portalRoutes.browseLink(id))
       case EntityType.Annotation => Redirect(portalRoutes.browseAnnotation(id))
       case EntityType.Vocabulary => Redirect(portalRoutes.browseVocabulary(id))
+      case EntityType.UserProfile => Redirect(controllers.portal.social.routes.Social.browseUser(id))
+      case EntityType.Group => Redirect(portalRoutes.browseGroup(id))
       case _ => NotFound(renderError("errors.pageNotFound", pageNotFound()))
     }
   }
@@ -279,8 +277,13 @@ case class Portal @Inject()(implicit globalConfig: global.GlobalConfig, searchDi
   }
 
   def browseLink(id: String) = getAction[Link](EntityType.Link, id) {
-      link => details => implicit userOpt => implicit request =>
-    Ok(p.link.show(link))
+      item => details => implicit userOpt => implicit request =>
+    Ok(p.link.show(item))
+  }
+
+  def browseGroup(id: String) = getAction[Group](EntityType.Group, id) {
+      item => details => implicit userOpt => implicit request =>
+    Ok(p.group.show(item))
   }
 
   def browseAnnotations = userBrowseAction.async { implicit userDetails => implicit request =>

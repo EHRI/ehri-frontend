@@ -130,7 +130,23 @@ So we have a problem:
  - Pegdown 1.1.0 is buggy and we've just encountered pathalogical input which breaks it
  - we can't currently upgrade Pegdown till the `asm` dependency conflict is resolved
  
-**TBC**
+How it was resolved
+===================
+
+The only runtime dependency that used asm 3.1 was Guice 3.0 (used for dependency injection.) Guice 4.0-beta 
+uses the updated asm 4.x. Therefore in order to prevent the runtime crash Guice had to be updated to
+4.0-beta, which required some refactoring of the injector configuration, seen in 896ff3767a09e1bd2f26ac555541d7b87b77ca11.
+
+That just left the problem of tests crashing, which was trickier because the thing that relied on
+asm 3.1 was jersey-server 1.9, which could not be upgraded for compatibility with Neo4j etc.
+
+The solution eventually taken was to create repackaged versions of the asm 3.1 and jersey-server 1.9
+jars, with the conflicting classes renamed. This was done with the [jarjar](https://code.google.com/p/jarjar/)
+tool according to the instructions in [this blog post](http://nyatekniken.blogspot.co.uk/2012/10/making-jersey-work-with-google-app.html).
+
+The repackaged jars were then put in a `test_lib` directory in the project root and the
+`Build.scala` file updated to put this dir on the classpath during test execution (in
+5b3e0c46345dfd7e9aa1b65c4b9ecfff7e3d6dfb).
 
 
 

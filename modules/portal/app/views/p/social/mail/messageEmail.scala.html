@@ -1,6 +1,6 @@
-@(from: UserProfile, subject: String, message: String)(implicit req: RequestHeader, globalConfig: global.GlobalConfig, lang: Lang)
+@(heading: String, subject: String, message: String, isCopy: Boolean = false)(implicit req: RequestHeader, globalConfig: global.GlobalConfig, lang: Lang)
 
-@p.layout.mailLayout(Messages("portal.mail.message.heading", from.toStringLang)) {
+@p.layout.mailLayout(heading) {
 
     <blockquote>
         <h4>@subject</h4>
@@ -12,10 +12,12 @@
     <hr />
     <p>
         <small>
-            @Messages("portal.mail.message.footer"):
-            <a href="@controllers.portal.profile.routes.Profile.updateProfile.absoluteURL(secure = globalConfig.https)">
-                @Messages("portal.profile.preferences.updatePreferences")
-            </a>
+            @if(!isCopy) {
+                @Messages("portal.mail.message.replyFooter"):
+                <a href="@controllers.portal.profile.routes.Profile.updateProfile.absoluteURL(secure = globalConfig.https)">
+                    @Messages("portal.profile.preferences.updatePreferences")
+                </a>
+            }
         </small>
     </p>
 }
