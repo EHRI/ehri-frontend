@@ -16,6 +16,10 @@ POST        /helpdesk                       @controllers.portal.Helpdesk.helpdes
 
 GET         /robots.txt                     controllers.portal.Assets.at(path="/public", file="robots.txt")
 
+GET         /contact                        @controllers.portal.Portal.contact
+GET         /about                          @controllers.portal.Portal.about
+GET         /terms                          @controllers.portal.Portal.terms
+
 # Change locale
 GET         /locale/:lang                   controllers.portal.PortalData.changeLocale(lang: String)
 GET         /localeData                     controllers.portal.PortalData.localeData(lang: String ?= "en")

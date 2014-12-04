@@ -1,6 +1,11 @@
 portal.welcome=Welcome to EHRI
 portal.home=Home
+portal.about=About EHRI
+portal.contact=Contact
+portal.terms=Terms & Conditions
 portal.footerText=This is a development version of the EHRI portal interface.
+portal.footer.funding=The EHRI Project is supported by the European Commission
+portal.footer.copyright=2014 The European Holocaust Research Infrastructure Project
 portal.close=Close
 portal.warning=Warning
 

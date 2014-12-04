@@ -355,6 +355,18 @@ case class Portal @Inject()(implicit globalConfig: global.GlobalConfig, searchDi
     }
   }
 
+  def terms = userProfileAction { implicit userOpt => implicit request =>
+    Ok(p.terms())
+  }
+
+  def about = userProfileAction { implicit userOpt => implicit request =>
+    Ok(p.about())
+  }
+
+  def contact = userProfileAction { implicit userOpt => implicit request =>
+    Ok(p.contact())
+  }
+
   case class NewsItem(title: String, link: String, description: Html, pubDate: Option[DateTime] = None)
 
   final val NUM_NEWS_ITEMS = 2
