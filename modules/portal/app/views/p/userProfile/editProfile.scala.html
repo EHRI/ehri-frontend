@@ -20,11 +20,11 @@
             }
         }
 
-        <h3>@Messages("portal.profile.updateProfile")</h3>
+        <h3>@Messages("portal.profile.edit")</h3>
         @editProfileForm(profileForm, controllers.portal.profile.routes.Profile.updateProfilePost)
         <hr />
 
-        <h3>@Messages("portal.profile.updateProfileImage")</h3>
+        <h3>@Messages("portal.profile.image.edit")</h3>
         @imageUploadForm(imageForm, controllers.portal.profile.routes.Profile.updateProfileImagePost)
         <hr />
 
@@ -34,10 +34,10 @@
             <hr />
         }
 
-        <h3>@Messages("portal.profile.deleteProfile")</h3>
+        <h3>@Messages("portal.profile.delete")</h3>
         <p>
         <div class="col-sm-offset-4 col-sm-8">
-            <a href="@controllers.portal.profile.routes.Profile.deleteProfile" class=" btn  btn-danger ">@Messages("portal.profile.deleteProfileLink")</a>
+            <a href="@controllers.portal.profile.routes.Profile.deleteProfile" class=" btn  btn-danger ">@Messages("portal.profile.delete.link")</a>
         </div>
     }
 }

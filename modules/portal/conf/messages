@@ -1,6 +1,8 @@
 portal.welcome=Welcome to EHRI
 portal.home=Home
 portal.footerText=This is a development version of the EHRI portal interface.
+portal.close=Close
+portal.warning=Warning
 
 portal.download=Download
 portal.download.format.txt=Download as plain text
@@ -8,7 +10,7 @@ portal.download.format.csv=Download as CSV
 portal.download.format.json=Download as JSON
 
 portal.help=Help
-portal.help.accounts=Problems signing up?
+portal.help.general=General site help
 portal.help.archivists=Help for archivists
 portal.help.helpdesk=Helpdesk
 
@@ -17,6 +19,22 @@ portal.profile.preferences.updated=Preferences Updated
 portal.profile.preferences.allowMessaging=Allow other users to send you messages.
 portal.profile.preferences.allowMessaging.description=Your email address will not be directly accessible.
 portal.profile.preferences.updatePreferences=Update Preferences
+portal.profile.preferences.view=View Preferences
+portal.profile.preferences.view.showUserContent=Show promoted notes by other users
+
+portal.profile=Profile
+portal.profile.menu.link=Go to your profile
+portal.profile.security=Security
+portal.profile.edit=Edit Profile
+portal.profile.image.edit=Set Profile Image
+portal.profile.delete=Delete Account
+portal.profile.delete.link=Click here to delete your profile
+portal.profile.delete.check.text=Deleting your account will \
+  will anonymise (but not remove) any publicly-visible annotations and links you may have \
+  contributed to EHRI. To confirm, please type your name as displayed here, in the box below:
+portal.profile.delete.check=Type your name as displayed above.
+portal.profile.delete.badConfirmation=Profile deletion was not confirmed correctly.
+portal.profile.profile.delete.confirmation=Your profile has been deleted.
 
 # Item types
 portal.type=Item type
@@ -26,7 +44,7 @@ portal.type.repository.description=An inventory of archival institutions that \
 portal.type.documentaryUnit=Archival Descriptions
 portal.type.documentaryUnit.description=Electronic descriptions and finding aids of Holocaust-related archival material.
 portal.type.historicalAgent=Historical Agents
-portal.type.country=National Reports
+portal.type.country=Countries
 portal.type.country.description=EHRI national reports provide an overview of \
   the Second World War and Holocaust history as well as of the archival situation \
   in the covered countries.
@@ -66,6 +84,7 @@ portal.login.error=There was a problem with your details
 
 portal.logout=Sign Out
 portal.logout.confirmation=You have been logged out
+portal.account=Account
 
 portal.signup=Create an Account
 portal.signup.submit=Submit
@@ -90,26 +109,11 @@ portal.mail.unverifiedEmailResend=To re-send a verification email
 portal.mail.unverifiedEmailResendSubmit=click here
 portal.mail.emailConfirmationResent=We''ve sent you an email which you can use to confirm your email address.
 
-portal.preferences.showUserContent=Show User-Generated Comments and Links
-
 portal.browse=Browse
-portal.showDetails=Show Item Details
-portal.hideDetails=Hide Item Details
+portal.details.show=Show Item Details
+portal.details.hide=Hide Item Details
 portal.showItems={0,choice,0#{0} Items|1#1 Item|1<{0,number,integer} Items}
-portal.profile=Profile
-portal.profile.security=Security
-portal.profile.updateProfile=Edit Profile
-portal.profile.updateProfileImage=Set Profile Image
-portal.profile.deleteProfile=Delete Account
-portal.profile.deleteProfileLink=Click here to delete your profile
-portal.warning=Warning
-portal.profile.deleteProfileConfirmation=Deleting your account will \
-  will anonymise (but not remove) any publicly-visible annotations and links you may have \
-  contributed to EHRI. To confirm, please type your name as displayed here, in the box below:
-portal.profile.deleteProfileCheck=Type your name as displayed above.
-portal.profile.deleteProfile.badConfirmation=Profile deletion was not confirmed correctly.
-portal.profile.profileDeleted=Your profile has been deleted.
-portal.close=Close
+
 
 portal.landingBlurb.repository=Browse {0} in {1}.
 portal.landingBlurb.repository.link={0} archival institutions
