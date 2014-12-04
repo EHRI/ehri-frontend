@@ -15,6 +15,7 @@ GET         /helpdesk                       @controllers.portal.Helpdesk.helpdes
 POST        /helpdesk                       @controllers.portal.Helpdesk.helpdeskPost
 
 GET         /robots.txt                     controllers.portal.Assets.at(path="/public", file="robots.txt")
+GET         /sitemap.xml                    controllers.portal.Assets.at(path="/public", file="sitemap.xml")
 
 GET         /contact                        @controllers.portal.Portal.contact
 GET         /about                          @controllers.portal.Portal.about
