@@ -1,5 +1,0 @@
-@(events: Seq[SystemEvent])(implicit userOpt: Option[UserProfile], req: RequestHeader, globalConfig: global.GlobalConfig, lang: Lang)
-
-@for(event <- events) {
-    @eventItem(event)
-}

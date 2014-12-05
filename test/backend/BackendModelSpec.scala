@@ -2,7 +2,7 @@ package backend
 
 import play.api.Play.current
 import defines.{EntityType, ContentTypes, PermissionType}
-import utils.PageParams
+import utils.{RangeParams, RangePage, PageParams}
 import backend.rest.{RestBackend, CypherIdGenerator, ItemNotFound, ValidationError}
 import backend.rest.cypher.CypherDAO
 import play.api.libs.json.{JsString, Json}
@@ -11,6 +11,7 @@ import models._
 import play.api.test.PlaySpecification
 import utils.search.{MockSearchIndexer, Indexer}
 import helpers.RestBackendRunner
+import scala.concurrent.Future
 
 /**
  * Spec for testing individual data access components work as expected.
@@ -32,7 +33,7 @@ class BackendModelSpec extends RestBackendRunner with PlaySpecification {
     def handleDelete(id: String) = mockIndexer.clearId(id)
   }
 
-  "EntityDAO" should {
+  "Generic entity operations" should {
     "not cache invalid responses (as per bug #324)" in new TestApp {
       // Previously this would error the second time because the bad
       // response would be cached and error on JSON deserialization.
@@ -262,7 +263,38 @@ class BackendModelSpec extends RestBackendRunner with PlaySpecification {
     }
   }
 
-  "SocialDAO" should {
+  "Event operations" should {
+    "handle paging correctly" in new TestApp {
+      // Modify an item 3 times and check the events work properly
+      await(testBackend.patch[DocumentaryUnit]("c1", Json.obj("prop1" -> "foo")))
+      await(testBackend.patch[DocumentaryUnit]("c1", Json.obj("prop2" -> "foo")))
+      await(testBackend.patch[DocumentaryUnit]("c1", Json.obj("prop3" -> "foo")))
+
+      // Fetching all the items (limit = -1), implies there are never more
+      // items because we've got them all...
+      val pageNoLimit: RangePage[SystemEvent] =
+        await(testBackend.history[SystemEvent]("c1", RangeParams.empty.withoutLimit))
+      pageNoLimit.size must equalTo(3)
+      pageNoLimit.more must beFalse
+      pageNoLimit.limit must equalTo(-1)
+
+      val pageOne: RangePage[SystemEvent] =
+        await(testBackend.history[SystemEvent]("c1", RangeParams(limit = 2)))
+      pageOne.size must equalTo(2)
+      pageOne.more must beTrue
+      pageOne.offset must equalTo(0)
+      pageOne.limit must equalTo(2)
+
+      val pageOneThree: RangePage[SystemEvent] =
+        await(testBackend.history[SystemEvent]("c1", RangeParams(offset = 2, limit = 1)))
+      pageOneThree.size must equalTo(1)
+      pageOneThree.more must beFalse
+      pageOneThree.offset must equalTo(2)
+      pageOneThree.limit must equalTo(1)
+    }
+  }
+
+  "Social operations" should {
     "allow following and unfollowing" in new TestApp {
       await(testBackend.isFollowing(userProfile.id, "reto")) must beFalse
       await(testBackend.follow(userProfile.id, "reto"))
@@ -300,7 +332,7 @@ class BackendModelSpec extends RestBackendRunner with PlaySpecification {
     }
   }
 
-  "CypherDAO" should {
+  "Cypher operations" should {
     "get a JsValue for a graph item" in new TestApp {
       val dao = new CypherDAO
       val res = await(dao.cypher(

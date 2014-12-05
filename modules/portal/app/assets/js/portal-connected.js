@@ -69,11 +69,12 @@ jQuery(function ($) {
    */
 
     // Fetch more activity...
-  $("#activity-stream-fetchmore").click(function (event) {
+  $(document).on("click", "a#activity-stream-fetchmore", function (e) {
+    e.preventDefault();
     var $elem = $(event.target);
     var offset = parseInt($(event.target).attr("data-offset")) || 0;
     var limit = parseInt($(event.target).attr("data-limit")) || 20;
-    var href = $(event.target).attr("data-href");
+    var href = event.target.href;
     $.ajax({
       url: href,
       success: function (data, _, response) {
@@ -86,7 +87,7 @@ jQuery(function ($) {
           $elem
             .attr("data-offset", (offset + limit))
             .attr("data-limit", limit)
-            .attr("data-href",
+            .attr("href",
               href.replace(/offset=\d+/, "offset=" + (offset + limit))
                   .replace(/limit=\d+/, "limit=" + limit));
         }

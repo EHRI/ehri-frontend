@@ -5,7 +5,8 @@ import play.api.http.{Writeable, ContentTypeOf, HeaderNames, ContentTypes}
 import play.api.libs.json._
 import backend.{ErrorSet, ApiUser}
 import com.fasterxml.jackson.core.JsonParseException
-import utils.Page
+import utils.{RangePage, RangeParams, Page}
+import scala.concurrent.Future
 
 
 trait RestDAO {
@@ -168,6 +169,22 @@ trait RestDAO {
     BackendRequest(url).withHeaders(authHeaders.toSeq: _*)
       .withQueryString(params: _*)
       .withQueryString(includeProps.map(p => Constants.INCLUDE_PROPERTIES_PARAM -> p).toSeq: _*)
+  }
+
+  /**
+   * Fetch a range, working out if there are more items by going one-beyond-the-end.
+   */
+  def fetchRange[T](req: BackendRequest, params: RangeParams, context: Option[String])(
+      implicit reader: Reads[T]): Future[RangePage[T]] = {
+    val incParams = if(params.hasLimit) params.copy(limit = params.limit + 1) else params
+    req.withHeaders(STREAM_HEADER -> true.toString)
+      .withQueryString(incParams.queryParams: _*)
+        .get().map { r =>
+      val page = parsePage(r, context)(reader)
+      val more = if (params.hasLimit) page.size > params.limit else false
+      val pageItems = if (params.hasLimit) page.items.take(params.limit) else page.items
+      RangePage(params.offset, params.limit, more = more, items = pageItems)
+    }
   }
 
   /**

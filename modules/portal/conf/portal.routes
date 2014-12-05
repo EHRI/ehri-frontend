@@ -9,7 +9,7 @@
 
 GET         /                               @controllers.portal.Portal.index
 
-GET         /activity                       @controllers.portal.Portal.personalisedActivity(offset: Int ?= 0, limit: Int ?= 20)
+GET         /activity                       @controllers.portal.Portal.personalisedActivity
 
 GET         /helpdesk                       @controllers.portal.Helpdesk.helpdesk
 POST        /helpdesk                       @controllers.portal.Helpdesk.helpdeskPost
@@ -59,7 +59,7 @@ GET         /keywords/:id                   @controllers.portal.Portal.browseCon
 GET         /links/:id                      @controllers.portal.Portal.browseLink(id: String)
 GET         /groups/:id                     @controllers.portal.Portal.browseGroup(id: String)
 GET         /annotations/:id                @controllers.portal.Portal.browseAnnotation(id: String)
-GET         /activity/:id                   @controllers.portal.Portal.itemHistory(id: String)
+GET         /activity/:id                   @controllers.portal.Portal.itemHistory(id: String, modal: Boolean ?= false)
 GET         /vocabularies/:id               @controllers.portal.Portal.browseVocabulary(id: String)
 GET         /vocabularies/:id/search        @controllers.portal.Portal.searchVocabulary(id: String)
 GET         /newsFeed                       @controllers.portal.Portal.newsFeed

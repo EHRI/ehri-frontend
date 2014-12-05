@@ -15,7 +15,7 @@
             } {
                 @p.common.typeLabelWithWatchButton(item, watched.contains(item.id))
             } {
-                @p.common.latestAction(item, controllers.portal.routes.Portal.itemHistory(item.id))
+                @p.common.latestAction(item, controllers.portal.routes.Portal.itemHistory(item.id, modal = true))
             }
         }
     }

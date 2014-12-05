@@ -12,7 +12,6 @@ GET         /:userId/unblock                @controllers.portal.social.Social.un
 POST        /:userId/unblock                @controllers.portal.social.Social.unblockUserPost(userId: String)
 GET         /:userId/message                @controllers.portal.social.Social.sendMessage(userId: String)
 POST        /:userId/message                @controllers.portal.social.Social.sendMessagePost(userId: String)
-GET         /:userId/actions                @controllers.portal.social.Social.moreUserActivity(userId: String, offset: Int ?= 0, limit: Int ?= 20)
 GET         /:userId/watched       	        @controllers.portal.social.Social.watchedByUser(userId: String)
 GET         /:userId/following              @controllers.portal.social.Social.followingForUser(userId: String)
 GET         /:userId/followers              @controllers.portal.social.Social.followersForUser(userId: String)

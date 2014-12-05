@@ -54,22 +54,18 @@ case class Portal @Inject()(implicit globalConfig: global.GlobalConfig, searchDi
     EntityType.Country
   )
 
-  def personalisedActivity(offset: Int = 0, limit: Int = Constants.DEFAULT_LIST_LIMIT) = {
+  def personalisedActivity = {
     withUserAction.async { implicit user => implicit request =>
     // NB: Increasing the limit by 1 over the default so we can
     // detect if there are additional items to display
-      val listParams = RangeParams.fromRequest(request).copy(offset = offset)
-      val incParams = listParams.copy(limit = listParams.limit + 1)
+      val listParams = RangeParams.fromRequest(request)
       val eventFilter = SystemEventParams.fromRequest(request)
         .copy(eventTypes = activityEventTypes)
         .copy(itemTypes = activityItemTypes)
-      backend.listEventsForUser[SystemEvent](user.id, incParams, eventFilter).map { events =>
-        val more = events.size > listParams.limit
-
-        val displayEvents = events.take(listParams.limit)
-        if (isAjax) Ok(p.activity.eventItems(displayEvents))
-          .withHeaders("activity-more" -> more.toString)
-        else Ok(p.activity.activity(displayEvents, listParams, more))
+      backend.listEventsForUser[SystemEvent](user.id, listParams, eventFilter).map { events =>
+        if (isAjax) Ok(p.activity.eventItems(events))
+          .withHeaders("activity-more" -> events.more.toString)
+        else Ok(p.activity.activity(events, listParams))
       }
     }
   }
@@ -334,13 +330,14 @@ case class Portal @Inject()(implicit globalConfig: global.GlobalConfig, searchDi
     }
   }
 
-  def itemHistory(id: String) = userProfileAction.async { implicit userOpt => implicit request =>
-    // FIXME: The template doesn't support loading more items so fetch everything for now...
-    val params: RangeParams = RangeParams.fromRequest(request).withoutLimit
+  def itemHistory(id: String, modal: Boolean = false) = userProfileAction.async { implicit userOpt => implicit request =>
+    val params: RangeParams = RangeParams.fromRequest(request)
     val filters = SystemEventParams.fromRequest(request)
-    backend.history[SystemEvent](id, params, filters).map { data =>
-      if (isAjax) Ok(p.activity.activityModal(data))
-      else Ok(p.activity.itemActivity(data, params))
+    backend.history[SystemEvent](id, params, filters).map { events =>
+      if (isAjax && modal) Ok(p.activity.itemActivityModal(events))
+      else if (isAjax) Ok(p.activity.itemEventItems(events))
+        .withHeaders("activity-more" -> events.more.toString)
+      else Ok(p.activity.itemActivity(events, params))
     }
   }
 

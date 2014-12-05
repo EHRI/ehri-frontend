@@ -1,4 +1,4 @@
-@(activityOpt: Option[Seq[SystemEvent]])(implicit userOpt: Option[UserProfile] = None, req: RequestHeader, globalConfig: global.GlobalConfig, lang: Lang, flash: Flash)
+@(activityOpt: Option[Iterable[SystemEvent]])(implicit userOpt: Option[UserProfile] = None, req: RequestHeader, globalConfig: global.GlobalConfig, lang: Lang, flash: Flash)
 
 @views.html.admin.layout.rightSidebar(Messages("admin.home.title")) {
 
