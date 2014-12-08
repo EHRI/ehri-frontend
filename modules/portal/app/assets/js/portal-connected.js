@@ -69,8 +69,8 @@ jQuery(function ($) {
    */
 
     // Fetch more activity...
-  $(document).on("click", "a#activity-stream-fetchmore", function (e) {
-    e.preventDefault();
+  $(document).on("click", "a#activity-stream-fetchmore", function (event) {
+    event.preventDefault();
     var $elem = $(event.target);
     var offset = parseInt($(event.target).attr("data-offset")) || 0;
     var limit = parseInt($(event.target).attr("data-limit")) || 20;
