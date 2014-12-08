@@ -140,10 +140,8 @@ portal.latestUpdates=Recent Updates
 
 portal.item.details=Item Details
 portal.item.history=Online History
-# FIXME: Sort out the terminology here!
-portal.item.accessPointLinks=Related Items
-portal.item.annotationLinks=Other Related Items
-portal.item.externalLinks=Mentioned By
+portal.item.related=Related Items
+portal.item.linked=Other Connected Items
 
 portal.repository.address=Address
 portal.repository.contact=Contact

@@ -7,10 +7,8 @@
                 @description(item, desc, links, annotations)
             }
 
-            @p.common.relatedItemsContainer(item) {
-                @p.common.annotationLinks(item, links, watched)
-                @p.common.externalLinks(item, links, watched)
-            }
+            @p.common.externalLinks(item, links)
+            @p.common.annotationLinks(item, links)
         } {
             @p.common.typeLabelWithWatchButton(item, watched.contains(item.id))
         } {
