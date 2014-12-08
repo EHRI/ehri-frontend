@@ -32,6 +32,7 @@ trait RestVisibility extends Visibility with RestDAO {
     userCall(url).post("").map { response =>
       checkError(response)
       Cache.remove(id)
+      eventHandler.handleUpdate(id)
       response.status == Status.OK
     }
   }
@@ -41,6 +42,7 @@ trait RestVisibility extends Visibility with RestDAO {
     userCall(url).delete().map { response =>
       checkError(response)
       Cache.remove(id)
+      eventHandler.handleUpdate(id)
       response.status == Status.OK
     }
   }
