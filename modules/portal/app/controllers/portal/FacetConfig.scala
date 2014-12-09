@@ -154,9 +154,9 @@ trait FacetConfig extends Search {
     List(
       QueryFacetClass(
         key="isPromotable",
-        name=Messages("portal.annotation.isPromotable"),
+        name=Messages("portal.promotion.isPromotable"),
         param="promotable",
-        render=s => Messages("portal.annotation.isPromotable." + s),
+        render=s => Messages("portal.promotion.isPromotable." + s),
         facets=List(
           SolrQueryFacet(value = "true", solrValue = "true")
         ),
@@ -164,9 +164,9 @@ trait FacetConfig extends Search {
       ),
       FieldFacetClass(
         key = "isPromoted",
-        name = Messages("portal.annotation.isPromoted"),
+        name = Messages("portal.promotion.isPromoted"),
         param = "promoted",
-        render = (s: String) => Messages("portal.annotation.isPromoted." + s),
+        render = (s: String) => Messages("portal.promotion.isPromoted." + s),
         display = FacetDisplay.List,
         sort = FacetSort.Count
       )

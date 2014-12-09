@@ -161,7 +161,7 @@ case class Annotations @Inject()(implicit globalConfig: global.GlobalConfig, sea
 
   def promoteAnnotation(id: String, isField: Boolean, isList: Boolean) = promoteAction(id) {
       _ => implicit userOpt => implicit request =>
-    Ok(p.helpers.simpleForm("portal.annotation.promote.title",
+    Ok(p.helpers.simpleForm("portal.promotion.promote.title",
       annotationRoutes.promoteAnnotationPost(id, isField, isList)))
   }
 
@@ -174,7 +174,7 @@ case class Annotations @Inject()(implicit globalConfig: global.GlobalConfig, sea
 
   def removeAnnotationPromotion(id: String, isField: Boolean, isList: Boolean) = promoteAction(id) {
       _ => implicit userOpt => implicit request =>
-    Ok(p.helpers.simpleForm("portal.annotation.promote.remove.title",
+    Ok(p.helpers.simpleForm("portal.promotion.promote.remove.title",
       annotationRoutes.removeAnnotationPromotionPost(id, isField, isList)))
   }
 
@@ -187,7 +187,7 @@ case class Annotations @Inject()(implicit globalConfig: global.GlobalConfig, sea
 
   def demoteAnnotation(id: String, isField: Boolean, isList: Boolean) = promoteAction(id) {
       _ => implicit userOpt => implicit request =>
-    Ok(p.helpers.simpleForm("portal.annotation.demote.title",
+    Ok(p.helpers.simpleForm("portal.promotion.demote.title",
       annotationRoutes.demoteAnnotationPost(id, isField, isList)))
   }
 
@@ -200,7 +200,7 @@ case class Annotations @Inject()(implicit globalConfig: global.GlobalConfig, sea
 
   def removeAnnotationDemotion(id: String, isField: Boolean, isList: Boolean) = promoteAction(id) {
       _ => implicit userOpt => implicit request =>
-    Ok(p.helpers.simpleForm("portal.annotation.demote.remove.title",
+    Ok(p.helpers.simpleForm("portal.promotion.demote.remove.title",
       annotationRoutes.removeAnnotationDemotionPost(id, isField, isList)))
   }
 

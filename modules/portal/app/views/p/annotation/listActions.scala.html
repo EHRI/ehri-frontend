@@ -4,27 +4,27 @@
     @if(item.isPromotable) {
         @if(!item.isPromotedBy(user)) {
             <a class="promotion-action promote"
-               title="@Messages("portal.annotation.promote.title")"
+               title="@Messages("portal.promotion.promote.title")"
                href="@controllers.portal.annotate.routes.Annotations.promoteAnnotation(item.id, isList = true)">
                 <span class="fa fa-caret-up"></span>
             </a>
         } else {
             <a class="promotion-action promote undo"
-               title="@Messages("portal.annotation.promote.remove.title")"
+               title="@Messages("portal.promotion.promote.remove.title")"
                href="@controllers.portal.annotate.routes.Annotations.removeAnnotationPromotion(item.id, isList = true)">
                 <span class="fa fa-caret-up"></span>
             </a>
         }
-        <span class="promotion-score">@item.promotionScore</span>
+        <span title="@Messages("portal.promotion.score.detail", item.promoters.size, item.demoters.size)" class="promotion-score">@item.promotionScore</span>
         @if(!item.isDemotedBy(user)) {
             <a class="promotion-action demote"
-               title="@Messages("portal.annotation.demote.title")"
+               title="@Messages("portal.promotion.demote.title")"
                href="@controllers.portal.annotate.routes.Annotations.demoteAnnotation(item.id, isList = true)">
                 <span class="fa fa-caret-down"></span>
             </a>
         } else {
             <a class="promotion-action demote undo"
-               title="@Messages("portal.annotation.demote.remove.title")"
+               title="@Messages("portal.promotion.demote.remove.title")"
                href="@controllers.portal.annotate.routes.Annotations.removeAnnotationDemotion(item.id, isList = true)">
                 <span class="fa fa-caret-down"></span>
             </a>

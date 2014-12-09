@@ -25,8 +25,8 @@
                     @if(!annotation.isPromoted && user.hasPermission(defines.ContentTypes.Annotation, defines.PermissionType.Promote) && annotation.model.isPromotable) {
                         <ul class="list-inline">
                             <li>
-                                <a data-item="@annotation.id" title="@Messages("portal.annotation.promote.title")" class="promote-annotation" href="@controllers.portal.annotate.routes.Annotations.promoteAnnotation(annotation.id, isField = false)">
-                                    @Messages("portal.annotation.promote")
+                                <a data-item="@annotation.id" title="@Messages("portal.promotion.promote.title")" class="promote-annotation" href="@controllers.portal.annotate.routes.Annotations.promoteAnnotation(annotation.id, isField = false)">
+                                    @Messages("portal.promotion.promote")
                                 </a>
                             </li>
                         </ul>
@@ -34,8 +34,8 @@
                         @if(annotation.isPromoted && user.hasPermission(defines.ContentTypes.Annotation, defines.PermissionType.Promote)) {
                             <ul class="list-inline">
                                 <li>
-                                    <a data-item="@annotation.id" title="@Messages("portal.annotation.demote.title")" class="demote-annotation" href="@controllers.portal.annotate.routes.Annotations.demoteAnnotation(annotation.id, isField = false)">
-                                        @Messages("portal.annotation.demote")
+                                    <a data-item="@annotation.id" title="@Messages("portal.promotion.demote.title")" class="demote-annotation" href="@controllers.portal.annotate.routes.Annotations.demoteAnnotation(annotation.id, isField = false)">
+                                        @Messages("portal.promotion.demote")
                                     </a>
                                 </li>
                             </ul>

@@ -17,13 +17,13 @@
             }
             @userOpt.map { user =>
                 @if(!annotation.isPromoted && user.hasPermission(defines.ContentTypes.Annotation, defines.PermissionType.Promote) && annotation.model.isPromotable) {
-                    <a data-item="@annotation.id" title="@Messages("portal.annotation.promote.title")" class="promote-annotation" href="@controllers.portal.annotate.routes.Annotations.promoteAnnotation(annotation.id)">
-                        @Messages("portal.annotation.promote")
+                    <a data-item="@annotation.id" title="@Messages("portal.promotion.promote.title")" class="promote-annotation" href="@controllers.portal.annotate.routes.Annotations.promoteAnnotation(annotation.id)">
+                        @Messages("portal.promotion.promote")
                     </a>
                 } else {
                     @if(annotation.isPromoted && user.hasPermission(defines.ContentTypes.Annotation, defines.PermissionType.Promote)) {
-                        <a data-item="@annotation.id" title="@Messages("portal.annotation.demote.title")" class="demote-annotation" href="@controllers.portal.annotate.routes.Annotations.demoteAnnotation(annotation.id)">
-                            @Messages("portal.annotation.demote")
+                        <a data-item="@annotation.id" title="@Messages("portal.promotion.demote.title")" class="demote-annotation" href="@controllers.portal.annotate.routes.Annotations.demoteAnnotation(annotation.id)">
+                            @Messages("portal.promotion.demote")
                         </a>
                     }
                 }
