@@ -50,6 +50,7 @@ object ApplicationBuild extends Build {
   val backendTestDependencies = Seq(
     "org.neo4j" % "neo4j-kernel" % "1.9.7" % "test" classifier "tests" classifier "",
     "org.neo4j.app" % "neo4j-server" % "1.9.7" % "test" classifier "tests" classifier "",
+    "org.hamcrest" % "hamcrest-all" % "1.3" % "test",
 
     "com.sun.jersey" % "jersey-core" % "1.9" % "test",
     "ehri-project" % "ehri-frames" % "0.1-SNAPSHOT" % "test" classifier "tests" classifier "" exclude("com.tinkerpop.gremlin", "gremlin-groovy"),
