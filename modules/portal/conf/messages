@@ -254,6 +254,8 @@ facet.promotable=Promotable
 facet.promotable.tooltip=Items that can be promoted or demoted
 facet.promoted=Promoted
 facet.promoted.tooltip=Items that are currently promoted or demoted
+facet.score=Promotion Score
+facet.score.tooltip=The sum total of all promotions and demotions, if any
 
 # Activity...
 portal.activity=Activity
@@ -348,7 +350,11 @@ portal.promotion.demote.title.submit=Demote
 portal.promotion.demote.remove=Remove Demotion
 portal.promotion.demote.remove.title=Remove Note Demotion
 portal.promotion.demote.remove.title.submit=Remove
+portal.promotion.score=Promotion Score
 portal.promotion.score.detail=Promotions: {0}, Demotions: {1}
+portal.promotion.score.negative=Negative
+portal.promotion.score.neutral=Neutral
+portal.promotion.score.positive=Positive
 
 portal.link.list=Links
 portal.link.none=You haven''t made any links yet.

@@ -8,4 +8,12 @@
     } {
         @listItemBody(item, hit)
     }
+}.getOrElse {
+    @p.layout.searchItemOutlineWithActions(item) {
+        <strong>[No Target]</strong>@p.helpers.linkTo(item)
+    } {
+        @listActions(item)
+    } {
+        @listItemBody(item, hit)
+    }
 }

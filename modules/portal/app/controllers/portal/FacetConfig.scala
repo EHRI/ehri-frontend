@@ -162,13 +162,18 @@ trait FacetConfig extends Search {
         ),
         display = FacetDisplay.Boolean
       ),
-      FieldFacetClass(
-        key = "isPromoted",
-        name = Messages("portal.promotion.isPromoted"),
-        param = "promoted",
-        render = (s: String) => Messages("portal.promotion.isPromoted." + s),
+      QueryFacetClass(
+        key = "promotionScore",
+        name = Messages("portal.promotion.score"),
+        param = "score",
+        render = (s: String) => Messages("portal.promotion.score." + s),
+        facets=List(
+          SolrQueryFacet(value = "positive", solrValue = "[1 TO *]"),
+          SolrQueryFacet(value = "neutral", solrValue = "0"),
+          SolrQueryFacet(value = "negative", solrValue = "[* TO -1]")
+        ),
         display = FacetDisplay.List,
-        sort = FacetSort.Count
+        sort = FacetSort.Fixed
       )
     )
   }
