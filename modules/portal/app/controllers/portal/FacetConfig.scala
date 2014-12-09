@@ -151,7 +151,26 @@ trait FacetConfig extends Search {
   }
 
   protected val annotationFacets: FacetBuilder = { implicit request =>
-    List.empty
+    List(
+      QueryFacetClass(
+        key="isPromotable",
+        name=Messages("portal.annotation.isPromotable"),
+        param="promotable",
+        render=s => Messages("portal.annotation.isPromotable." + s),
+        facets=List(
+          SolrQueryFacet(value = "true", solrValue = "true")
+        ),
+        display = FacetDisplay.Boolean
+      ),
+      FieldFacetClass(
+        key = "isPromoted",
+        name = Messages("portal.annotation.isPromoted"),
+        param = "promoted",
+        render = (s: String) => Messages("portal.annotation.isPromoted." + s),
+        display = FacetDisplay.List,
+        sort = FacetSort.Count
+      )
+    )
   }
 
   protected val countryFacets: FacetBuilder = { implicit request =>

@@ -250,16 +250,18 @@ class BackendModelSpec extends RestBackendRunner with PlaySpecification {
 
     "promote and demote items" in new TestApp {
       val ann1: Annotation = await(testBackend.get[Annotation]("ann1"))
-      ann1.promotors must beEmpty
-      await(testBackend.promote("ann1")) must beTrue
-      val ann1_2: Annotation = await(testBackend.get[Annotation]("ann1"))
-      (ann1_2.promotors must not).beEmpty
-      private val pid: String = ann1_2.promotors.head.id
-      pid must equalTo(apiUser.id.get)
+      ann1.promoters must beEmpty
+      val promoted = await(testBackend.promote[Annotation]("ann1"))
+      promoted.demoters must beEmpty
+      promoted.promoters.headOption must beSome.which { promoter =>
+        promoter.id must equalTo(apiUser.id.get)
+      }
 
-      await(testBackend.demote("ann1")) must beTrue
-      val ann1_3: Annotation = await(testBackend.get[Annotation]("ann1"))
-      ann1_3.promotors must beEmpty
+      val demoted = await(testBackend.demote[Annotation]("ann1"))
+      demoted.promoters must beEmpty
+      demoted.demoters.headOption must beSome.which { demoter =>
+        demoter.id must equalTo(apiUser.id.get)
+      }
     }
   }
 

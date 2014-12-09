@@ -4,11 +4,9 @@ import models.base._
 import defines.{ContentTypes, EntityType}
 import play.api.libs.json._
 import models.json._
-import play.api.i18n.Lang
 import eu.ehri.project.definitions.Ontology
 import play.api.data.Form
 import play.api.data.Forms._
-import play.api.libs.json.JsObject
 import backend._
 import play.api.libs.json.JsObject
 
@@ -93,6 +91,7 @@ object Link {
     (__ \ RELATIONSHIPS \ LINK_HAS_BODY).nullableListReads[AccessPointF] and
     (__ \ RELATIONSHIPS \ IS_ACCESSIBLE_TO).lazyNullableListReads(Accessor.Converter.restReads) and
     (__ \ RELATIONSHIPS \ PROMOTED_BY).nullableListReads[UserProfile] and
+    (__ \ RELATIONSHIPS \ DEMOTED_BY).nullableListReads[UserProfile] and
     (__ \ RELATIONSHIPS \ ENTITY_HAS_LIFECYCLE_EVENT).nullableHeadReads[SystemEvent] and
     (__ \ META).readWithDefault(Json.obj())
   )(Link.apply _)
@@ -132,14 +131,15 @@ case class Link(
   user: Option[UserProfile] = None,
   bodies: List[AccessPointF] = Nil,
   accessors: List[Accessor] = Nil,
-  promotors: List[UserProfile] = Nil,
+  promoters: List[UserProfile] = Nil,
+  demoters: List[UserProfile] = Nil,
   latestEvent: Option[SystemEvent] = None,
   meta: JsObject = JsObject(Seq())
 ) extends AnyModel
   with MetaModel[LinkF]
   with Accessible
   with Promotable {
-
+  def isPromotable: Boolean = model.isPromotable
   def opposingTarget(item: AnyModel): Option[AnyModel] = opposingTarget(item.id)
   def opposingTarget(itemId: String): Option[AnyModel] = targets.find(_.id != itemId)
 }

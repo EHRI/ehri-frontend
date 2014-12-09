@@ -101,6 +101,7 @@ package object json {
         (__ \ "accessPoints").nullableListFormat(accessPointJson.clientFormat) and
         (__ \ "accessibleTo").nullableListFormat(accessorJson.clientFormat) and
         (__ \ "promotedBy").nullableListFormat(userProfileJson.clientFormat) and
+        (__ \ "demotedBy").nullableListFormat(userProfileJson.clientFormat) and
         (__ \ "event").formatNullable[SystemEvent](systemEventJson.clientFormat) and
         (__ \ "meta").format[JsObject]
       )(Link.apply _, unlift(Link.unapply))
@@ -184,6 +185,7 @@ package object json {
         (__ \ "targetPart").lazyFormatNullable[Entity](Entity.entityFormat) and
         (__ \ "accessibleTo").nullableListFormat(accessorJson.clientFormat) and
         (__ \ "promotedBy").nullableListFormat(userProfileJson.clientFormat) and
+        (__ \ "demotedBy").nullableListFormat(userProfileJson.clientFormat) and
         (__ \ "event").formatNullable[SystemEvent](systemEventJson.clientFormat) and
         (__ \ "meta").format[JsObject]
       )(Annotation.apply _, unlift(Annotation.unapply))

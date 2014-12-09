@@ -2,12 +2,13 @@ package controllers.annotation
 
 import models.{AccountDAO, Annotation}
 import com.google.inject._
-import controllers.generic.{Annotate, Delete, Read, Visibility}
+import controllers.generic._
 import backend.Backend
 
 
 case class Annotations @Inject()(implicit globalConfig: global.GlobalConfig, backend: Backend, userDAO: AccountDAO) extends Read[Annotation]
   with Visibility[Annotation]
+  with Promotion[Annotation]
   with Delete[Annotation]
   with Annotate[Annotation] {
 
@@ -48,17 +49,17 @@ case class Annotations @Inject()(implicit globalConfig: global.GlobalConfig, bac
     Ok(views.html.admin.permissions.promote(item, controllers.annotation.routes.Annotations.promotePost(id)))
   }
 
-  def promotePost(id: String) = promotePostAction(id) { item => bool => implicit userOpt => implicit request =>
+  def promotePost(id: String) = promotePostAction(id) { item => implicit userOpt => implicit request =>
     Redirect(controllers.annotation.routes.Annotations.get(id))
       .flashing("success" -> "item.promote.confirmation")
   }
 
-  def demote(id: String) = demoteAction(id) { item => implicit userOpt => implicit request =>
+  def demote(id: String) = promoteAction(id) { item => implicit userOpt => implicit request =>
     Ok(views.html.admin.permissions.demote(item,
       controllers.annotation.routes.Annotations.demotePost(id)))
   }
 
-  def demotePost(id: String) = demotePostAction(id) { item => bool => implicit userOpt => implicit request =>
+  def demotePost(id: String) = demotePostAction(id) { item => implicit userOpt => implicit request =>
     Redirect(controllers.annotation.routes.Annotations.get(id))
       .flashing("success" -> "item.demote.confirmation")
   }

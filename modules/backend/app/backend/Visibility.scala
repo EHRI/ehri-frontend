@@ -7,6 +7,4 @@ import scala.concurrent.{ExecutionContext, Future}
  */
 trait Visibility {
   def setVisibility[MT](id: String, data: List[String])(implicit apiUser: ApiUser, rd: BackendReadable[MT], executionContext: ExecutionContext): Future[MT]
-  def promote(id: String)(implicit apiUser: ApiUser, executionContext: ExecutionContext): Future[Boolean]
-  def demote(id: String)(implicit apiUser: ApiUser, executionContext: ExecutionContext): Future[Boolean]
 }

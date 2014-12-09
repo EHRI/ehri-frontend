@@ -9,9 +9,7 @@ import eu.ehri.project.definitions.Ontology
 import play.api.data.Form
 import play.api.data.Forms._
 import defines.EnumUtils._
-import play.api.libs.json.JsObject
 import backend._
-import scala.Some
 import play.api.libs.json.JsObject
 
 
@@ -30,7 +28,7 @@ object AnnotationF {
     implicit val format = defines.EnumUtils.enumFormat(this)
   }
 
-  import AnnotationF.{ANNOTATION_TYPE => ANNOTATION_TYPE_PROP, _}
+  import AnnotationF.{ANNOTATION_TYPE => ANNOTATION_TYPE_PROP}
   import Entity._
   import Ontology._
 
@@ -96,6 +94,7 @@ object Annotation {
     (__ \ RELATIONSHIPS \ ANNOTATES_PART).nullableHeadReads[Entity] and
     (__ \ RELATIONSHIPS \ IS_ACCESSIBLE_TO).nullableListReads[Accessor] and
     (__ \ RELATIONSHIPS \ PROMOTED_BY).nullableListReads[UserProfile] and
+    (__ \ RELATIONSHIPS \ DEMOTED_BY).nullableListReads[UserProfile] and
     (__ \ RELATIONSHIPS \ ENTITY_HAS_LIFECYCLE_EVENT).nullableHeadReads[SystemEvent] and
     (__ \ META).readWithDefault(Json.obj())
   )(Annotation.apply _)
@@ -155,11 +154,13 @@ case class Annotation(
   target: Option[AnyModel] = None,
   targetParts: Option[Entity] = None,
   accessors: List[Accessor] = Nil,
-  promotors: List[UserProfile] = Nil,
+  promoters: List[UserProfile] = Nil,
+  demoters: List[UserProfile] = Nil,
   latestEvent: Option[SystemEvent] = None,
   meta: JsObject = JsObject(Seq())
 ) extends MetaModel[AnnotationF] with Accessible with Promotable {
 
+  def isPromotable: Boolean = model.isPromotable
   def isOwnedBy(userOpt: Option[UserProfile]): Boolean = {
     (for {
       u <- userOpt
