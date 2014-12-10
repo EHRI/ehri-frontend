@@ -145,7 +145,7 @@ trait FacetConfig extends Search {
           SolrQueryFacet(value = "high", solrValue = "[1001 TO *]", name = Some("high"))
         ),
         sort = FacetSort.Fixed,
-        display = FacetDisplay.List
+        display = FacetDisplay.Choice
       )
     )
   }
@@ -172,7 +172,7 @@ trait FacetConfig extends Search {
           SolrQueryFacet(value = "neutral", solrValue = "0"),
           SolrQueryFacet(value = "negative", solrValue = "[* TO -1]")
         ),
-        display = FacetDisplay.List,
+        display = FacetDisplay.Choice,
         sort = FacetSort.Fixed
       )
     )
@@ -201,7 +201,7 @@ trait FacetConfig extends Search {
           SolrQueryFacet(value = "high", solrValue = "[5001 TO *]", name = Some("high"))
         ),
         sort = FacetSort.Fixed,
-        display = FacetDisplay.List
+        display = FacetDisplay.Choice
       )
     )
   }
@@ -229,7 +229,7 @@ trait FacetConfig extends Search {
             SolrQueryFacet(value = "high", solrValue = "[2001 TO *]", name = Some("high"))
         ),
         sort = FacetSort.Fixed,
-        display = FacetDisplay.List
+        display = FacetDisplay.Choice
       ),
       FieldFacetClass(
         key="countryCode",
@@ -273,7 +273,7 @@ trait FacetConfig extends Search {
           SolrQueryFacet(value = "high", solrValue = "[2001 TO *]", name = Some("high"))
         ),
         sort = FacetSort.Fixed,
-        display = FacetDisplay.List
+        display = FacetDisplay.Choice
       ),
       FieldFacetClass(
         key="creationProcess",
