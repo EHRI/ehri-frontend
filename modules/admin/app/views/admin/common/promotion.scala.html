@@ -1,21 +1,21 @@
 @(item: Promotable, promoteUrl: Call, demoteUrl: Call, contentType: ContentTypes.Value)(implicit userOpt: Option[UserProfile], globalConfig: global.GlobalConfig)
 
-@if(!item.promotors.isEmpty || (userOpt.isDefined && userOpt.get.hasPermission(contentType, PermissionType.Promote))) {
+@if(!item.promoters.isEmpty || (userOpt.isDefined && userOpt.get.hasPermission(contentType, PermissionType.Promote))) {
     <div class="well well-small">
-        @if(!item.promotors.isEmpty) {
+        @if(!item.promoters.isEmpty) {
             <h4>
                 <i class="glyphicon glyphicon-star"></i>
                 @Messages("visibility.promotedBy")
             </h4>
             <ul>
-                @item.promotors.map { acc =>
+                @item.promoters.map { acc =>
                     <li><a href="@views.admin.Helpers.linkTo(acc)">@acc.toStringLang</a></li>
                 }
             </ul>
         }
 
         @userOpt.map { user =>
-            @if(item.promotors.exists(p => p.id == user.id)) {
+            @if(item.promoters.exists(p => p.id == user.id)) {
                 <p><small><a href="@demoteUrl">@Messages("item.demote")</a></small></p>
             } else {
                 @if(user.hasPermission(contentType, PermissionType.Promote)) {

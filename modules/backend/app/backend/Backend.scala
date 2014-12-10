@@ -14,6 +14,7 @@ trait Backend
   with Links
   with Annotations
   with Visibility
+  with Promotion
   with Events
   with Social {
 

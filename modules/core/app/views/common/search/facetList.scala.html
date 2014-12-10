@@ -25,23 +25,21 @@
 }
 
 @facetChoice(fc: FacetClass[Facet]) = {
-    @defining(fc.sorted.filter(_.count > 0).size > 0) { active =>
-        @* Don't bother showing choices with only one choice! *@
-        @if(fc.sorted.size > 1) {
-            <li class="facet-class">
-                @facetLabel(fc)
-                <div class="facet-options">
-                @fc.sorted.map { f =>
-                    <div class="checkbox">
-                        <label class="@{if(!active) "disabled"}">
-                            <input class="facet-toggle autosubmit" type="checkbox" name="@fc.param" value="@f.value" id="id-@{fc.param}-@{f.value}" @{if(f.applied) "checked"}  @{if(!active) "disabled"} />
-                            @fc.pretty(f) (@f.count)
-                        </label>
-                    </div>
-                }
+    @* Don't bother showing choices with only one choice! *@
+    @if(fc.sorted.size > 1) {
+        <li class="facet-class">
+            @facetLabel(fc)
+            <div class="facet-options">
+            @fc.sorted.map { f =>
+                <div class="checkbox">
+                    <label class="@{if(f.count == 0) "disabled"}">
+                        <input class="facet-toggle autosubmit" type="checkbox" name="@fc.param" value="@f.value" id="id-@{fc.param}-@{f.value}" @{if(f.applied) "checked"}  @{if(f.count == 0) "disabled"} />
+                        @fc.pretty(f) (@f.count)
+                    </label>
                 </div>
-            </li>
-        }
+            }
+            </div>
+        </li>
     }
 }
 

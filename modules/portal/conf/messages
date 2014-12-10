@@ -1,6 +1,11 @@
 portal.welcome=Welcome to EHRI
 portal.home=Home
+portal.about=About EHRI
+portal.contact=Contact
+portal.terms=Terms & Conditions
 portal.footerText=This is a development version of the EHRI portal interface.
+portal.footer.funding=The EHRI Project is supported by the European Commission
+portal.footer.copyright=2014 The European Holocaust Research Infrastructure Project
 portal.close=Close
 portal.warning=Warning
 
@@ -138,10 +143,8 @@ portal.latestUpdates=Recent Updates
 
 portal.item.details=Item Details
 portal.item.history=Online History
-# FIXME: Sort out the terminology here!
-portal.item.accessPointLinks=Related Items
-portal.item.annotationLinks=Other Related Items
-portal.item.externalLinks=Mentioned By
+portal.item.related=Related Items
+portal.item.linked=Other Connected Items
 
 portal.repository.address=Address
 portal.repository.contact=Contact
@@ -264,6 +267,12 @@ facet.top=Top Level
 facet.top.tooltip=Show top-level (broadest) items only.
 facet.vocab=Vocabulary
 facet.vocab.tooltip=The vocabulary/set to which the keyword belongs.
+facet.promotable=Promotable
+facet.promotable.tooltip=Items that can be promoted or demoted
+facet.promoted=Promoted
+facet.promoted.tooltip=Items that are currently promoted or demoted
+facet.score=Promotion Score
+facet.score.tooltip=The sum total of all promotions and demotions, if any
 
 # Activity...
 portal.activity=Activity
@@ -337,13 +346,34 @@ portal.annotation.update.title=Edit Note
 portal.annotation.field.create=Add Note
 portal.annotation.delete=Delete
 portal.annotation.delete.title=Delete Note
-portal.annotation.promote=Promote
-portal.annotation.promote.title=Promote Note
-portal.annotation.demote=Demote
-portal.annotation.demote.title=Demote Note
 portal.annotation.createdBy=Created by {0} at {1}
 portal.annotation.showPublic={0,choice,1#Show 1 public note|1<Show {0} public notes}
 portal.annotation.placeholder=
+
+portal.promotion.isPromotable=Promotion
+portal.promotion.isPromotable.true=Promotable
+portal.promotion.isPromotable.false=Not Promotable
+portal.promotion.isPromoted.true=Promoted
+portal.promotion.isPromoted.false=Not Promoted
+portal.promotion.promotedBy=Promoted by {0}
+portal.promotion.promote=Promote
+portal.promotion.promote.title=Promote Note
+portal.promotion.promote.title.submit=Promote
+portal.promotion.promote.remove=Remove Promotion
+portal.promotion.promote.remove.title=Remove Note Promotion
+portal.promotion.promote.remove.title.submit=Remove
+portal.promotion.demote=Demote
+portal.promotion.demote.title=Demote Note
+portal.promotion.demote.title.submit=Demote
+portal.promotion.demote.remove=Remove Demotion
+portal.promotion.demote.remove.title=Remove Note Demotion
+portal.promotion.demote.remove.title.submit=Remove
+portal.promotion.score=Promotion Score
+portal.promotion.score.detail=Promotions: {0}, Demotions: {1}
+portal.promotion.score.negative=Negative
+portal.promotion.score.neutral=Neutral
+portal.promotion.score.positive=Positive
+
 portal.link.list=Links
 portal.link.none=You haven''t made any links yet.
 

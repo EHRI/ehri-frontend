@@ -35,16 +35,11 @@ class PortalSpec extends IntegrationTestRunner {
         portalRoutes.browseHistoricalAgent("a1").url)).get
       status(doc) must equalTo(OK)
     }
-    "allow linking items" in new ITestApp {
-
-    }
-
-    "allow deleting links" in new ITestApp {
-
-    }
-
-    "allow changing link visibility" in new ITestApp {
-
+    
+    "view item history" in new ITestApp {
+      val history = route(fakeLoggedInHtmlRequest(privilegedUser, GET,
+        portalRoutes.itemHistory("c1").url)).get
+      status(history) must equalTo(OK)
     }
   }
 }

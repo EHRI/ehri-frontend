@@ -1,0 +1,25 @@
+@(events: utils.RangePage[SystemEvent])(implicit userOpt: Option[UserProfile], req: RequestHeader, prefs: utils.SessionPrefs, globalConfig: global.GlobalConfig, lang: Lang)
+
+@import backend.rest.Constants.OFFSET_PARAM
+
+<div class="activity-stream-wrapper">
+    @if(!events.isEmpty) {
+        <ul id="activity-stream" class="item-timeline">
+            @for(event <- events) {
+                @itemEventItem(event)
+            }
+        </ul>
+        @if(events.more) {
+            <a id="activity-stream-fetchmore" class="btn btn-default btn-block"
+               data-limit="@events.limit" data-offset="@(events.offset + events.limit)"
+               href="@utils.joinPath(req.path, req.queryString.filterKeys(_ != "modal").updated(OFFSET_PARAM, Seq((events.offset + events.limit).toString)))">
+                @Messages("portal.activity.fetchMore")
+            </a>
+
+        }
+    } else {
+        <p class="text-muted">
+            @Messages("portal.activity.noActivityYet")
+        </p>
+    }
+</div>

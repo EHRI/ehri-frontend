@@ -6,6 +6,7 @@ import play.api.libs.json.Json
 import backend._
 import utils.{Page, PageParams}
 import backend.ApiUser
+import play.api.http.Status
 
 
 /**
@@ -35,11 +36,13 @@ trait RestLinks extends Links with RestDAO {
   /**
    * Create a single link.
    */
-  def linkItems[A,AF](id: String, src: String, link: AF, accessPoint: Option[String] = None)(implicit apiUser: ApiUser, rd: BackendReadable[A], wd: BackendWriteable[AF],  executionContext: ExecutionContext): Future[A] = {
+  def linkItems[A <: WithId, AF](id: String, src: String, link: AF, accessPoint: Option[String] = None)(implicit apiUser: ApiUser, rd: BackendReadable[A], wd: BackendWriteable[AF],  executionContext: ExecutionContext): Future[A] = {
     val url: String = enc(requestUrl, id, src)
     userCall(url).withQueryString(accessPoint.map(a => BODY_PARAM -> a).toSeq: _*)
       .post(Json.toJson(link)(wd.restFormat)).map { response =>
-      checkErrorAndParse(response, context = Some(url))(rd.restReads)
+      val link: A = checkErrorAndParse[A](response, context = Some(url))(rd.restReads)
+      eventHandler.handleCreate(link.id)
+      link
     }
   }
 
@@ -51,14 +54,14 @@ trait RestLinks extends Links with RestDAO {
     userCall(url).delete().map { response =>
       checkError(response)
       eventHandler.handleDelete(linkId)
-      true
+      response.status == Status.OK
     }
   }
 
   /**
    * Create multiple links. NB: This function is NOT transactional.
    */
-  def linkMultiple[A,AF](id: String, srcToLinks: Seq[(String,AF,Option[String])])(implicit apiUser: ApiUser, rd: BackendReadable[A], wd: BackendWriteable[AF], executionContext: ExecutionContext): Future[Seq[A]] = Future.sequence {
+  def linkMultiple[A <: WithId, AF](id: String, srcToLinks: Seq[(String,AF,Option[String])])(implicit apiUser: ApiUser, rd: BackendReadable[A], wd: BackendWriteable[AF], executionContext: ExecutionContext): Future[Seq[A]] = Future.sequence {
     srcToLinks.map {
       case (other, ann, accessPoint) => linkItems(id, other, ann, accessPoint)
     }

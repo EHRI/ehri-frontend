@@ -17,7 +17,8 @@ case class RestBackend(eventHandler: EventHandler)(implicit val app: play.api.Ap
   with RestLinks
   with RestEvents
   with RestSocial
-  with RestVisibility {
+  with RestVisibility
+  with RestPromotion {
 
   private val api = new ApiDAO
   private val admin = new AdminDAO(eventHandler)

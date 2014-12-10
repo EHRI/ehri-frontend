@@ -30,6 +30,6 @@
             EntityType.DocumentaryUnit,
             controllers.portal.routes.Portal.searchRepository(item.id)
         )
-        @p.common.latestAction(item, controllers.portal.routes.Portal.itemHistory(item.id))
+        @p.common.latestAction(item, controllers.portal.routes.Portal.itemHistory(item.id, modal = true))
     }
 }

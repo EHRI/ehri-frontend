@@ -1,3 +1,7 @@
-# Don't index while we're developing...
 User-agent: *
-Disallow: /
+Disallow: /people/
+Disallow: /profile/
+Disallow: /admin/
+Disallow: /annotate/
+Disallow: /login
+Disallow: /notes

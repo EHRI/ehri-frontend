@@ -34,45 +34,5 @@ trait Visibility[MT] extends Generic[MT] {
       async(id)(f.andThen(_.andThen(_.andThen(t => Future.successful(t)))))
     }
   }
-
-  def promoteAction(id: String)(f: MT => Option[UserProfile] => Request[AnyContent] => Result)(implicit rd: BackendReadable[MT], ct: BackendContentType[MT]) = {
-    withItemPermission[MT](id, PermissionType.Promote) { item => implicit userOpt => implicit request =>
-      f(item)(userOpt)(request)
-    }
-  }
-
-  object promotePostAction {
-    def async(id: String)(f: MT => Boolean => Option[UserProfile] => Request[AnyContent] => Future[Result])(implicit rd: BackendReadable[MT], ct: BackendContentType[MT]) = {
-      withItemPermission.async[MT](id, PermissionType.Promote) { item => implicit userOpt => implicit request =>
-        backend.promote(id).flatMap { bool =>
-          f(item)(bool)(userOpt)(request)
-        }
-      }
-    }
-
-    def apply(id: String)(f: MT => Boolean => Option[UserProfile] => Request[AnyContent] => Result)(implicit rd: BackendReadable[MT], ct: BackendContentType[MT]) = {
-      async(id)(f.andThen(_.andThen(_.andThen(_.andThen(t => Future.successful(t))))))
-    }
-  }
-
-  def demoteAction(id: String)(f: MT => Option[UserProfile] => Request[AnyContent] => Result)(implicit rd: BackendReadable[MT], ct: BackendContentType[MT]) = {
-    withItemPermission[MT](id, PermissionType.Promote) { item => implicit userOpt => implicit request =>
-      f(item)(userOpt)(request)
-    }
-  }
-
-  object demotePostAction {
-    def async(id: String)(f: MT => Boolean => Option[UserProfile] => Request[AnyContent] => Future[Result])(implicit rd: BackendReadable[MT], ct: BackendContentType[MT]) = {
-      withItemPermission.async[MT](id, PermissionType.Promote) { item => implicit userOpt => implicit request =>
-        backend.demote(id).flatMap { bool =>
-          f(item)(bool)(userOpt)(request)
-        }
-      }
-    }
-
-    def apply(id: String)(f: MT => Boolean => Option[UserProfile] => Request[AnyContent] => Result)(implicit rd: BackendReadable[MT], ct: BackendContentType[MT]) = {
-      async(id)(f.andThen(_.andThen(_.andThen(_.andThen(t => Future.successful(t))))))
-    }
-  }
 }
 

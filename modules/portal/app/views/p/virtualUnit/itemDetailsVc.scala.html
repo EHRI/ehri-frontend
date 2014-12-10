@@ -11,6 +11,9 @@
                         @vc.model.descriptions.map { desc =>
                             @views.html.p.documentaryUnit.description(vc.asDocumentaryUnit, desc, links, annotations)
                         }
+
+                        @p.common.externalLinks(item.asInstanceOf[VirtualUnit], links)
+                        @p.common.annotationLinks(item.asInstanceOf[VirtualUnit], links)
                     } {
                         @p.common.typeLabel(vc.isA)  {
                             @if(userOpt.isDefined) {
@@ -23,11 +26,6 @@
                         }
                     } {
                         @p.common.latestAction(vc, controllers.portal.routes.Portal.itemHistory(item.id))
-                    }
-
-                    @p.common.relatedItemsContainer(item) {
-                        @p.common.annotationLinks(vc, links, watched)
-                        @p.common.externalLinks(vc, links, watched)
                     }
                 }
             </div>

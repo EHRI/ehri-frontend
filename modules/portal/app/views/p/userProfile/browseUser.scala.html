@@ -1,4 +1,4 @@
-@(them: UserProfile, events: Seq[SystemEvent], moreEvents: Boolean, params: utils.RangeParams, followed: Boolean, canMessage: Boolean)(implicit userOpt: Option[UserProfile], request: RequestHeader, prefs: utils.SessionPrefs, globalConfig: global.GlobalConfig, lang: Lang, flash: Flash)
+@(them: UserProfile, events: utils.RangePage[SystemEvent], params: utils.RangeParams, followed: Boolean, canMessage: Boolean)(implicit userOpt: Option[UserProfile], request: RequestHeader, prefs: utils.SessionPrefs, globalConfig: global.GlobalConfig, lang: Lang, flash: Flash)
 
 @p.layout.portalLayout(Messages("portal.activity.by", them.toStringLang), "user") {
     @profileBar(them){
@@ -13,29 +13,10 @@
     @layout.mainContent {
         @details(them)
         <div class="user-profile-content">
-                <h3 class="block-header user">
-                    @Messages("portal.activity")
-                </h3>
-            <div id="user-activity">
-                @if(!events.isEmpty) {
-                <div class="timeline-container">
-                    <ul id="activity-stream" class="timeline">
-                        @p.activity.eventItems(events)
-                    </ul>
-                </div>
-                @if(moreEvents) {
-                <button id="activity-stream-fetchmore"
-                        data-offset="@(params.offset + params.limit)"
-                        data-limit="@params.limit"
-                        data-href="@controllers.portal.social.routes.Social.moreUserActivity(them.id, params.offset + params.limit, params.limit)"
-                        class="btn btn-default btn-block">
-                    @Messages("portal.activity.fetchMore")
-                </button>
-                }
-                } else {
-                    <p class="text-muted">@Messages("portal.activity.noUserActivityYet")</p>
-                }
-            </div>
+            <h3 class="block-header user">
+                @Messages("portal.activity")
+            </h3>
+            @p.activity.activityStream(events)
         </div>
     }
 }

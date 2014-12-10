@@ -85,9 +85,14 @@ trait Accessible extends AnyModel {
 }
 
 trait Promotable extends Accessible {
-  def promotors: Seq[UserProfile]
+  def isPromotable: Boolean
+  def promoters: Seq[UserProfile]
+  def demoters: Seq[UserProfile]
 
-  def isPromoted: Boolean = !promotors.isEmpty
+  def isPromoted: Boolean = promoters.size > demoters.size
+  def isPromotedBy(user: UserProfile): Boolean = promoters.exists(_.id == user.id)
+  def isDemotedBy(user: UserProfile): Boolean = demoters.exists(_.id == user.id)
+  def promotionScore = promoters.size - demoters.size
 }
 
 trait MetaModel[+T <: Model] extends AnyModel {
