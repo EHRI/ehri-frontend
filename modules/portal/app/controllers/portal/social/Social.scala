@@ -65,41 +65,24 @@ case class Social @Inject()(implicit globalConfig: global.GlobalConfig, searchDi
     // Show the profile home page of a defined user.
     // Activity is the default page
     val listParams = RangeParams.fromRequest(request)
-    val incParams = listParams.copy(limit = listParams.limit + 1)
     val eventParams = SystemEventParams.fromRequest(request)
       .copy(eventTypes = activityEventTypes)
       .copy(itemTypes = activityItemTypes)
-    val events: Future[(Boolean, Seq[SystemEvent])] = backend
-      .listEventsByUser[SystemEvent](userId, incParams, eventParams).map { events =>
-      val more = events.size > listParams.limit
-      (more, events.take(listParams.limit))
-    }
-    val isFollowing: Future[Boolean] = backend.isFollowing(user.id, userId)
-    val allowMessage: Future[Boolean] = canMessage(user.id, userId)
+    val events: Future[RangePage[SystemEvent]] = backend
+      .listEventsByUser[SystemEvent](userId, listParams, eventParams)
 
-    for {
-      them <- backend.get[UserProfile](userId)
-      (more, theirActivity) <- events
-      followed <- isFollowing
-      canMessage <- allowMessage
-    } yield Ok(p.userProfile.show(them, theirActivity, more, listParams, followed, canMessage))
-  }
-
-  def moreUserActivity(userId: String, offset: Int = 0, limit: Int = Constants.DEFAULT_LIST_LIMIT) = {
-    userProfileAction.async { implicit userOpt => implicit request =>
-    // NB: Increasing the limit by 1 over the default so we can
-    // detect if there are additional items to display
-      val listParams = RangeParams.fromRequest(request).copy(offset = offset)
-      val incParams = listParams.copy(limit = listParams.limit + 1)
-      val eventFilter = SystemEventParams.fromRequest(request)
-        .copy(eventTypes = activityEventTypes)
-        .copy(itemTypes = activityItemTypes)
-      backend.listEventsByUser[SystemEvent](userId, incParams, eventFilter).map { events =>
-        val more = events.size > listParams.limit
-        val displayEvents = events.take(listParams.limit)
-        Ok(p.activity.eventItems(displayEvents))
-          .withHeaders("activity-more" -> more.toString)
-      }
+    if (isAjax) events.map { theirActivity =>
+      Ok(p.activity.eventItems(theirActivity))
+        .withHeaders("activity-more" -> theirActivity.more.toString)
+    } else {
+      val isFollowing: Future[Boolean] = backend.isFollowing(user.id, userId)
+      val allowMessage: Future[Boolean] = canMessage(user.id, userId)
+      for {
+        them <- backend.get[UserProfile](userId)
+        theirActivity <- events
+        followed <- isFollowing
+        canMessage <- allowMessage
+      } yield Ok(p.userProfile.show(them, theirActivity, listParams, followed, canMessage))
     }
   }
 

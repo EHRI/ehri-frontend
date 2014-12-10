@@ -1,9 +1,0 @@
-@(item: Annotation)(implicit userOpt: Option[UserProfile], req: RequestHeader, lang: Lang, globalConfig: global.GlobalConfig)
-
-@p.layout.searchItemOutline(item) {
-    @item.target.map { src =>
-        @p.helpers.linkToWithFragment(src, "#" + item.id)
-    }
-} {
-    @listItemBody(item)
-}

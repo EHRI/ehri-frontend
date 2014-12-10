@@ -145,13 +145,37 @@ trait FacetConfig extends Search {
           SolrQueryFacet(value = "high", solrValue = "[1001 TO *]", name = Some("high"))
         ),
         sort = FacetSort.Fixed,
-        display = FacetDisplay.List
+        display = FacetDisplay.Choice
       )
     )
   }
 
   protected val annotationFacets: FacetBuilder = { implicit request =>
-    List.empty
+    List(
+      QueryFacetClass(
+        key="isPromotable",
+        name=Messages("portal.promotion.isPromotable"),
+        param="promotable",
+        render=s => Messages("portal.promotion.isPromotable." + s),
+        facets=List(
+          SolrQueryFacet(value = "true", solrValue = "true")
+        ),
+        display = FacetDisplay.Boolean
+      ),
+      QueryFacetClass(
+        key = "promotionScore",
+        name = Messages("portal.promotion.score"),
+        param = "score",
+        render = (s: String) => Messages("portal.promotion.score." + s),
+        facets=List(
+          SolrQueryFacet(value = "positive", solrValue = "[1 TO *]"),
+          SolrQueryFacet(value = "neutral", solrValue = "0"),
+          SolrQueryFacet(value = "negative", solrValue = "[* TO -1]")
+        ),
+        display = FacetDisplay.Choice,
+        sort = FacetSort.Fixed
+      )
+    )
   }
 
   protected val countryFacets: FacetBuilder = { implicit request =>
@@ -177,7 +201,7 @@ trait FacetConfig extends Search {
           SolrQueryFacet(value = "high", solrValue = "[5001 TO *]", name = Some("high"))
         ),
         sort = FacetSort.Fixed,
-        display = FacetDisplay.List
+        display = FacetDisplay.Choice
       )
     )
   }
@@ -205,7 +229,7 @@ trait FacetConfig extends Search {
             SolrQueryFacet(value = "high", solrValue = "[2001 TO *]", name = Some("high"))
         ),
         sort = FacetSort.Fixed,
-        display = FacetDisplay.List
+        display = FacetDisplay.Choice
       ),
       FieldFacetClass(
         key="countryCode",
@@ -249,7 +273,7 @@ trait FacetConfig extends Search {
           SolrQueryFacet(value = "high", solrValue = "[2001 TO *]", name = Some("high"))
         ),
         sort = FacetSort.Fixed,
-        display = FacetDisplay.List
+        display = FacetDisplay.Choice
       ),
       FieldFacetClass(
         key="creationProcess",

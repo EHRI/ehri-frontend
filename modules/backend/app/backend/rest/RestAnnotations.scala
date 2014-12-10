@@ -27,21 +27,25 @@ trait RestAnnotations extends Annotations with RestDAO {
     }
   }
 
-  def createAnnotation[A,AF](id: String, ann: AF, accessors: Seq[String] = Nil)(implicit apiUser: ApiUser, rs: BackendReadable[A], wr: BackendWriteable[AF], executionContext: ExecutionContext): Future[A] = {
+  def createAnnotation[A <: WithId, AF](id: String, ann: AF, accessors: Seq[String] = Nil)(implicit apiUser: ApiUser, rs: BackendReadable[A], wr: BackendWriteable[AF], executionContext: ExecutionContext): Future[A] = {
     val url: String = enc(requestUrl, id)
     userCall(url)
         .withQueryString(accessors.map(a => ACCESSOR_PARAM -> a): _*)
         .post(Json.toJson(ann)(wr.restFormat)).map { response =>
-      checkErrorAndParse(response, context = Some(url))(rs.restReads)
+      val annotation: A = checkErrorAndParse[A](response, context = Some(url))(rs.restReads)
+      eventHandler.handleCreate(annotation.id)
+      annotation
     }
   }
 
-  def createAnnotationForDependent[A,AF](id: String, did: String, ann: AF, accessors: Seq[String] = Nil)(implicit apiUser: ApiUser, rs: BackendReadable[A], wr: BackendWriteable[AF], executionContext: ExecutionContext): Future[A] = {
+  def createAnnotationForDependent[A <: WithId, AF](id: String, did: String, ann: AF, accessors: Seq[String] = Nil)(implicit apiUser: ApiUser, rs: BackendReadable[A], wr: BackendWriteable[AF], executionContext: ExecutionContext): Future[A] = {
     val url: String = enc(requestUrl, id, did)
     userCall(url)
       .withQueryString(accessors.map(a => ACCESSOR_PARAM -> a): _*)
       .post(Json.toJson(ann)(wr.restFormat)).map { response =>
-      checkErrorAndParse(response, context = Some(url))(rs.restReads)
+      val annotation: A = checkErrorAndParse[A](response, context = Some(url))(rs.restReads)
+      eventHandler.handleCreate(annotation.id)
+      annotation
     }
   }
 }

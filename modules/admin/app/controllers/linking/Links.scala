@@ -9,6 +9,7 @@ import backend.Backend
 
 case class Links @Inject()(implicit globalConfig: global.GlobalConfig, backend: Backend, userDAO: AccountDAO) extends Read[Link]
   with Visibility[Link]
+  with Promotion[Link]
   with Update[LinkF, Link]
   with Delete[Link]
   with Annotate[Link] {
@@ -71,17 +72,17 @@ case class Links @Inject()(implicit globalConfig: global.GlobalConfig, backend: 
     Ok(views.html.admin.permissions.promote(item, linkRoutes.promotePost(id)))
   }
 
-  def promotePost(id: String) = promotePostAction(id) { item => bool => implicit userOpt => implicit request =>
+  def promotePost(id: String) = promotePostAction(id) { item => implicit userOpt => implicit request =>
     Redirect(linkRoutes.get(id))
       .flashing("success" -> "item.promote.confirmation")
   }
 
-  def demote(id: String) = demoteAction(id) { item => implicit userOpt => implicit request =>
+  def demote(id: String) = promoteAction(id) { item => implicit userOpt => implicit request =>
     Ok(views.html.admin.permissions.demote(item,
       linkRoutes.demotePost(id)))
   }
 
-  def demotePost(id: String) = demotePostAction(id) { item => bool => implicit userOpt => implicit request =>
+  def demotePost(id: String) = demotePostAction(id) { item => implicit userOpt => implicit request =>
     Redirect(linkRoutes.get(id))
       .flashing("success" -> "item.demote.confirmation")
   }

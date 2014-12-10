@@ -1,13 +1,13 @@
-@(activity: utils.Page[SystemEvent])(implicit userOpt: Option[UserProfile], request: RequestHeader, lang: Lang, globalConfig: global.GlobalConfig)
+@(events: utils.RangePage[SystemEvent])(implicit userOpt: Option[UserProfile], request: RequestHeader, lang: Lang, globalConfig: global.GlobalConfig, prefs: utils.SessionPrefs)
 
 <!-- Modal -->
 <div class="modal-header">
     <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
     <h4 class="modal-title" id="history-modal-label">@Messages("portal.item.history")</h4>
 </div>
-<ul class="list-unstyled modal-body">
-    @p.common.eventItems(activity.items)
-</ul>
+<div class="modal-body">
+    @itemActivityStream(events)
+</div>
 <div class="modal-footer">
     <button type="button" class="btn btn-default" data-dismiss="modal">@Messages("portal.close")</button>
 </div>

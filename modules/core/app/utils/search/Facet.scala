@@ -60,6 +60,7 @@ trait FacetClass[+T <: Facet] {
     case FacetSort.Count => sortedByCount
     case _ => facets
   }
+  def isActive = facets.exists(_.count > 0)
   def render: String => String
 
   def pretty[U <: Facet](f: U): String = f.name.map(render).getOrElse(render(f.value))

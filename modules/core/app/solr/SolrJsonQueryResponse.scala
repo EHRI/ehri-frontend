@@ -131,7 +131,7 @@ case class SolrJsonQueryResponse(response: JsValue) extends QueryResponse {
 
   private def extractQueryFacet(fc: QueryFacetClass, applied: Seq[String]): FacetClass[Facet] = {
     val facetsWithCount: List[SolrQueryFacet] = fc.facets.flatMap { qf =>
-      val nameValue = s"${fc.key}:${qf.solrValue}"
+      val nameValue = s"${fc.fullKey}:${qf.solrValue}"
       rawQueryFacets.get(nameValue).map { v =>
         qf.copy(count = v.as[Int], applied = applied.contains(qf.value))
       }
