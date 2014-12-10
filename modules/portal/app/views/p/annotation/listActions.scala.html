@@ -29,5 +29,9 @@
                 <span class="fa fa-caret-down"></span>
             </a>
         }
+    } else {
+        @if(item.isPromoted) {
+            <span title="@Messages("portal.promotion.promotedBy", item.promoters.map(_.toStringLang).mkString(", "))" class="promoted fa fa-thumbs-o-up"></span>
+        }
     }
 }

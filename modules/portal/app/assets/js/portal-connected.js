@@ -231,7 +231,7 @@ jQuery(function ($) {
             : "fa-caret-down";
     changeGlyphToLoader($iconElem, icon, "fa");
     $.post(url, function(data) {
-      $item.parent().html(data);
+      $item.closest("li").html(data);
       changeGlyphToLoader($iconElem, icon);
     })
   });

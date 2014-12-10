@@ -338,6 +338,7 @@ portal.promotion.isPromotable.true=Promotable
 portal.promotion.isPromotable.false=Not Promotable
 portal.promotion.isPromoted.true=Promoted
 portal.promotion.isPromoted.false=Not Promoted
+portal.promotion.promotedBy=Promoted by {0}
 portal.promotion.promote=Promote
 portal.promotion.promote.title=Promote Note
 portal.promotion.promote.title.submit=Promote

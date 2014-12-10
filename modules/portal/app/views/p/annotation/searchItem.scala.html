@@ -1,4 +1,4 @@
-@(item: Annotation, hit: utils.search.SearchHit)(implicit userOpt: Option[UserProfile], req: RequestHeader, lang: Lang, globalConfig: global.GlobalConfig)
+@(item: Annotation, highlighter: views.Highlighter = views.NoopHighlighter)(implicit userOpt: Option[UserProfile], req: RequestHeader, lang: Lang, globalConfig: global.GlobalConfig)
 
 @item.target.map { src =>
     @p.layout.searchItemOutlineWithActions(src) {
@@ -6,7 +6,7 @@
     } {
         @listActions(item, ContentTypes.Annotation)
     } {
-        @listItemBody(item, hit)
+        @listItemBody(item, highlighter)
     }
 }.getOrElse {
     @p.layout.searchItemOutlineWithActions(item) {
@@ -14,6 +14,6 @@
     } {
         @listActions(item, ContentTypes.Annotation)
     } {
-        @listItemBody(item, hit)
+        @listItemBody(item, highlighter)
     }
 }

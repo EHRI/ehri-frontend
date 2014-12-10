@@ -163,7 +163,7 @@ case class Annotations @Inject()(implicit globalConfig: global.GlobalConfig, sea
     Ok {
       // if rendering with Ajax check which partial to return via the context param.
       if (isAjax) context match {
-        case AnnotationContext.List => p.annotation.listActions(item, ContentTypes.Annotation)
+        case AnnotationContext.List => p.annotation.searchItem(item)
         case AnnotationContext.Field => p.common.annotationInline(item, editable = item.isOwnedBy(userOpt))
         case AnnotationContext.Block => p.common.annotationBlock(item, editable = item.isOwnedBy(userOpt))
       } else p.annotation.show(item)
