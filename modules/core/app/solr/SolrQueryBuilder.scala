@@ -38,33 +38,34 @@ object SolrQueryBuilder {
 
     // filter the results by applied facets
     facetClasses.flatMap { fclass =>
-      appliedFacets.filter(_.name == fclass.key).map(_.values).map { paramVals =>
-        if (paramVals.isEmpty) Nil
+      appliedFacets.filter(_.name == fclass.key).map(_.values).flatMap { paramVals =>
+        if (paramVals.isEmpty) None
         else {
-          fclass match {
+          val query: Option[String] = fclass match {
             case fc: FieldFacetClass => {
               // Choice facets need a tag in front of the parameter so they can be
               // excluded from count-limiting filters
               // http://wiki.apache.org/solr/SimpleFacetParameters#Multi-Select_Faceting_and_LocalParams
-              val query = s"${fc.key}:(" + paramVals.map(v => "\"" + v + "\"").mkString(" ") + ")"
-              val tag = if (fc.multiSelect) "{!tag=" + fc.key + "}" else ""
-              List(s"$tag$query")
+              val filter = paramVals.map(v => "\"" + v + "\"").mkString(" ")
+              Some(s"${fc.key}:($filter)")
             }
-
-            case fc: QueryFacetClass => fc.facets.collect {
-              case f if paramVals.contains(f.value) =>
-                if (fc.multiSelect) s"{!tag=${fc.key}}${fc.key}:${f.solrValue}"
-                else s"${fc.key}:${f.solrValue}"
+            case fc: QueryFacetClass => {
+              val activeRanges = fc.facets.filter(f => paramVals.contains(f.value))
+              val filter = activeRanges.map(_.solrValue).mkString(" ")
+              Some(s"${fc.key}:($filter)")
             }
-
             case e => {
               Logger.logger.warn("Unknown facet class type: {}", e)
-              Nil
+              None
             }
+          }
+          query.map { q =>
+            val tag = if (fclass.multiSelect) "{!tag=" + fclass.key + "}" else ""
+            tag + q
           }
         }
       }
-    }.flatten
+    }
   }
 }
 
