@@ -338,12 +338,12 @@ jQuery(function ($) {
 
   // Fields are very similar but we have to use the field as part
   // of the form submission url...
-  $(document).on("click", ".edit-annotation", function (e) {
+  $(document).on("click", "a.edit-annotation", function (e) {
     e.preventDefault();
     var $elem = $(this),
+        url = this.href,
         id = $elem.data("item");
-    jsRoutes.controllers.portal.annotate.Annotations.editAnnotation(id).ajax({
-      success: function (data) {
+    $.get(url, function (data) {
         //$elem.closest(".annotation").hide().after(data)
         $(data)
             .insertAfter($elem.closest(".annotation").hide())
@@ -351,7 +351,6 @@ jQuery(function ($) {
               placeholder: "Select a set of groups or users",
               width: "copy"
             });
-      }
     });
   });
 
@@ -392,15 +391,17 @@ jQuery(function ($) {
 
   // Fields are very similar but we have to use the field as part
   // of the form submission url...
-  $(document).on("click", ".delete-annotation", function (e) {
+  $(document).on("click", "a.delete-annotation", function (e) {
     e.preventDefault();
     var $elem = $(this),
         id = $elem.data("item"),
-        check = $elem.attr("title");
+        check = $elem.attr("title"),
+        action = this.href;
     if (confirm(check + "?")) {
       var $ann = $elem.closest(".annotation");
       $ann.hide();
-      jsRoutes.controllers.portal.annotate.Annotations.deleteAnnotationPost(id).ajax({
+      $.post({
+        url: action,
         success: function () {
           $ann.remove();
         },

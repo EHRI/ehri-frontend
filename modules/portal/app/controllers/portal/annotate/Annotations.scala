@@ -9,7 +9,7 @@ import play.api.Play.current
 import views.html.p
 import utils.{SessionPrefs, ContributionVisibility}
 import scala.concurrent.Future.{successful => immediate}
-import defines.PermissionType
+import defines.{ContentTypes, PermissionType}
 import backend.rest.cypher.CypherDAO
 import play.api.libs.json.Json
 import eu.ehri.project.definitions.Ontology
@@ -19,6 +19,7 @@ import forms.VisibilityForm
 import com.google.common.net.HttpHeaders
 import backend.Backend
 import utils.search.{Resolver, Dispatcher}
+import models.view.AnnotationContext
 
 
 import com.google.inject._
@@ -77,19 +78,19 @@ case class Annotations @Inject()(implicit globalConfig: global.GlobalConfig, sea
   }
 
   // Ajax
-  def editAnnotation(aid: String, isField: Boolean) = withItemPermission.async[Annotation](aid, PermissionType.Update) {
+  def editAnnotation(aid: String, context: AnnotationContext.Value) = withItemPermission.async[Annotation](aid, PermissionType.Update) {
       item => implicit userOpt => implicit request =>
     val vis = getContributionVisibility(item, userOpt.get)
     getCanShareWith(userOpt.get) { users => groups =>
       Ok(p.common.editAnnotation(Annotation.form.fill(item.model),
         ContributionVisibility.form.fill(vis),
         VisibilityForm.form.fill(item.accessors.map(_.id)),
-        annotationRoutes.editAnnotationPost(aid, isField),
+        annotationRoutes.editAnnotationPost(aid, context),
         users, groups))
     }
   }
 
-  def editAnnotationPost(aid: String, isField: Boolean) = withItemPermission.async[Annotation](aid, PermissionType.Update) {
+  def editAnnotationPost(aid: String, context: AnnotationContext.Value) = withItemPermission.async[Annotation](aid, PermissionType.Update) {
       item => implicit userOpt => implicit request =>
     // save an override field, becuase it's not possible to change it.
     val field = item.model.field
@@ -97,7 +98,7 @@ case class Annotations @Inject()(implicit globalConfig: global.GlobalConfig, sea
       errForm => immediate(BadRequest(errForm.errorsAsJson)),
       edited => {
         backend.update[Annotation,AnnotationF](aid, edited.copy(field = field)).map { done =>
-          if (isField) Ok(p.common.annotationInline(done, editable = true))
+          if (context.equals(AnnotationContext.Field)) Ok(p.common.annotationInline(done, editable = true))
           else Ok(p.common.annotationBlock(done, editable = true))
         }
       }
@@ -157,58 +158,60 @@ case class Annotations @Inject()(implicit globalConfig: global.GlobalConfig, sea
     )
   }
 
+  private def annotationResponse(item: Annotation, context: AnnotationContext.Value)(
+      implicit userOpt: Option[UserProfile], request: RequestHeader): Result = {
+    Ok {
+      // if rendering with Ajax check which partial to return via the context param.
+      if (isAjax) context match {
+        case AnnotationContext.List => p.annotation.listActions(item, ContentTypes.Annotation)
+        case AnnotationContext.Field => p.common.annotationInline(item, editable = item.isOwnedBy(userOpt))
+        case AnnotationContext.Block => p.common.annotationBlock(item, editable = item.isOwnedBy(userOpt))
+      } else p.annotation.show(item)
+    }
+  }
 
-
-  def promoteAnnotation(id: String, isField: Boolean, isList: Boolean) = promoteAction(id) {
+  def promoteAnnotation(id: String, context: AnnotationContext.Value) = promoteAction(id) {
       _ => implicit userOpt => implicit request =>
     Ok(p.helpers.simpleForm("portal.promotion.promote.title",
-      annotationRoutes.promoteAnnotationPost(id, isField, isList)))
+      annotationRoutes.promoteAnnotationPost(id, context)))
   }
 
-  def promoteAnnotationPost(id: String, isField: Boolean, isList: Boolean) = promotePostAction(id) {
+  def promoteAnnotationPost(id: String, context: AnnotationContext.Value) = promotePostAction(id) {
       updated => implicit userOpt => implicit request =>
-    if (isList) Ok(p.annotation.listActions(updated))
-    else if (isField) Ok(p.common.annotationInline(updated, editable = updated.isOwnedBy(userOpt)))
-    else Ok(p.common.annotationBlock(updated, editable = updated.isOwnedBy(userOpt)))
+    annotationResponse(updated, context)
   }
 
-  def removeAnnotationPromotion(id: String, isField: Boolean, isList: Boolean) = promoteAction(id) {
+  def removeAnnotationPromotion(id: String, context: AnnotationContext.Value) = promoteAction(id) {
       _ => implicit userOpt => implicit request =>
     Ok(p.helpers.simpleForm("portal.promotion.promote.remove.title",
-      annotationRoutes.removeAnnotationPromotionPost(id, isField, isList)))
+      annotationRoutes.removeAnnotationPromotionPost(id, context)))
   }
 
-  def removeAnnotationPromotionPost(id: String, isField: Boolean, isList: Boolean) = removePromotionPostAction(id) {
+  def removeAnnotationPromotionPost(id: String, context: AnnotationContext.Value) = removePromotionPostAction(id) {
       updated => implicit userOpt => implicit request =>
-    if (isList) Ok(p.annotation.listActions(updated))
-    else if (isField) Ok(p.common.annotationInline(updated, editable = updated.isOwnedBy(userOpt)))
-    else Ok(p.common.annotationBlock(updated, editable = updated.isOwnedBy(userOpt)))
+    annotationResponse(updated, context)
   }
 
-  def demoteAnnotation(id: String, isField: Boolean, isList: Boolean) = promoteAction(id) {
+  def demoteAnnotation(id: String, context: AnnotationContext.Value) = promoteAction(id) {
       _ => implicit userOpt => implicit request =>
     Ok(p.helpers.simpleForm("portal.promotion.demote.title",
-      annotationRoutes.demoteAnnotationPost(id, isField, isList)))
+      annotationRoutes.demoteAnnotationPost(id, context)))
   }
 
-  def demoteAnnotationPost(id: String, isField: Boolean, isList: Boolean) = demotePostAction(id) {
+  def demoteAnnotationPost(id: String, context: AnnotationContext.Value) = demotePostAction(id) {
       updated => implicit userOpt => implicit request =>
-    if (isList) Ok(p.annotation.listActions(updated))
-    else if (isField) Ok(p.common.annotationInline(updated, editable = updated.isOwnedBy(userOpt)))
-    else Ok(p.common.annotationBlock(updated, editable = updated.isOwnedBy(userOpt)))
+    annotationResponse(updated, context)
   }
 
-  def removeAnnotationDemotion(id: String, isField: Boolean, isList: Boolean) = promoteAction(id) {
+  def removeAnnotationDemotion(id: String, context: AnnotationContext.Value) = promoteAction(id) {
       _ => implicit userOpt => implicit request =>
     Ok(p.helpers.simpleForm("portal.promotion.demote.remove.title",
-      annotationRoutes.removeAnnotationDemotionPost(id, isField, isList)))
+      annotationRoutes.removeAnnotationDemotionPost(id, context)))
   }
 
-  def removeAnnotationDemotionPost(id: String, isField: Boolean, isList: Boolean) = removeDemotionPostAction(id) {
+  def removeAnnotationDemotionPost(id: String, context: AnnotationContext.Value) = removeDemotionPostAction(id) {
       updated => implicit userOpt => implicit request =>
-    if (isList) Ok(p.annotation.listActions(updated))
-    else if (isField) Ok(p.common.annotationInline(updated, editable = updated.isOwnedBy(userOpt)))
-    else Ok(p.common.annotationBlock(updated, editable = updated.isOwnedBy(userOpt)))
+    annotationResponse(updated, context)
   }
 
   /**

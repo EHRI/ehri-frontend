@@ -155,6 +155,7 @@ object ApplicationBuild extends Build {
   lazy val portal = Project(appName + "-portal", file("modules/portal"))
     .enablePlugins(play.PlayScala).settings(
     version := appVersion,
+    routesImport += "models.view._",
     libraryDependencies ++= portalDependencies,
     pipelineStages := Seq(rjs, digest, gzip),
     RjsKeys.mainModule := "portal-main"

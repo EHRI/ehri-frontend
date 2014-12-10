@@ -4,7 +4,7 @@
     @p.layout.searchItemOutlineWithActions(src) {
         @p.helpers.linkToWithFragment(src, "#" + item.id)
     } {
-        @listActions(item)
+        @listActions(item, ContentTypes.Annotation)
     } {
         @listItemBody(item, hit)
     }
@@ -12,7 +12,7 @@
     @p.layout.searchItemOutlineWithActions(item) {
         <strong>[No Target]</strong>@p.helpers.linkTo(item)
     } {
-        @listActions(item)
+        @listActions(item, ContentTypes.Annotation)
     } {
         @listItemBody(item, hit)
     }
