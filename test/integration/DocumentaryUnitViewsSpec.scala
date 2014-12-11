@@ -31,9 +31,10 @@ class DocumentaryUnitViewsSpec extends IntegrationTestRunner {
       val list = route(fakeLoggedInHtmlRequest(unprivilegedUser, GET,
         docRoutes.list().url)).get
       status(list) must equalTo(OK)
-      contentAsString(list) must contain(oneItemHeader)
+      contentAsString(list) must contain(multipleItemsHeader)
       contentAsString(list) must not contain "c1"
       contentAsString(list) must contain("c4")
+      contentAsString(list) must contain("m19")
     }
 
     "list when logged in should get more items" in new ITestApp {
