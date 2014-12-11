@@ -378,11 +378,8 @@ jQuery(function ($) {
   // data.
   $(document).on("submit", ".edit-annotation-form", function (e) {
     e.preventDefault();
-    var $form = $(this);
-    var action = $form.closest("form").attr("action");
-    if ($form.parents(".description-annotations") !== "undefined" && $form.parents(".description-annotations").length >= 1) {
-      action += "?isField=false";
-    }
+    var $form = $(this),
+        action = $form.attr("action");
     $.post(action, $form.serialize(), function (data) {
       $form.next(".annotate-field").show();
       $form.replaceWith(data);
@@ -394,20 +391,15 @@ jQuery(function ($) {
   $(document).on("click", "a.delete-annotation", function (e) {
     e.preventDefault();
     var $elem = $(this),
-        id = $elem.data("item"),
         check = $elem.attr("title"),
         action = this.href;
     if (confirm(check + "?")) {
       var $ann = $elem.closest(".annotation");
       $ann.hide();
-      $.post({
-        url: action,
-        success: function () {
-          $ann.remove();
-        },
-        error: function () {
-          $ann.show();
-        }
+      $.post(action, function (data) {
+        $ann.remove();
+      }).fail(function () {
+        $ann.show();
       });
     }
   });
