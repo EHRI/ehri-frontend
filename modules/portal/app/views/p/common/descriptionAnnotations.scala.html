@@ -5,7 +5,7 @@
         @Messages("portal.annotation")
     </h3>
     @defining(Annotation.itemAnnotations(desc.id, annotations).filter(_.model.field.isEmpty)) { annotations =>
-        @p.common.annotationBlockList(annotations)
+        @p.annotation.annotationBlockList(annotations)
     }
     @userOpt.map { user =>
         @item.contentType.map { ct =>

@@ -12,64 +12,54 @@ import backend.rest.PermissionDenied
 
 
 class AnnotationsSpec extends IntegrationTestRunner {
-  import mocks.{privilegedUser, unprivilegedUser}
+  import mocks.{privilegedUser, unprivilegedUser, moderator}
 
   private val annotationRoutes: ReverseAnnotations = controllers.portal.annotate.routes.Annotations
   private val portalRoutes: ReversePortal = controllers.portal.routes.Portal
 
   override def getConfig = Map("recaptcha.skip" -> true)
 
-  "Portal views" should {
-    "allow annotating items with correct visibility" in new ITestApp {
-      val testBody = "Test Annotation!!!"
-      val testData = Map(
-        AnnotationF.BODY -> Seq(testBody),
-        ContributionVisibility.PARAM -> Seq(ContributionVisibility.Me.toString)
-      )
+  private val testAnnotationBody = "Test Annotation!!!"
+  private val testAnnotation: Map[String,Seq[String]] = Map(
+    AnnotationF.BODY -> Seq(testAnnotationBody),
+    ContributionVisibility.PARAM -> Seq(ContributionVisibility.Me.toString)
+  )
+  private def testPromotableAnnotation: Map[String,Seq[String]] =
+    testAnnotation.updated(AnnotationF.IS_PRIVATE, Seq(false.toString))
 
+  "Portal annotation views" should {
+    "allow annotating items with correct visibility" in new ITestApp {
       val post = route(fakeLoggedInHtmlRequest(privilegedUser, POST,
-        annotationRoutes.annotatePost("c4", "cd4").url), testData).get
+        annotationRoutes.annotatePost("c4", "cd4").url), testAnnotation).get
       status(post) must equalTo(CREATED)
-      contentAsString(post) must contain(testBody)
+      contentAsString(post) must contain(testAnnotationBody)
 
       // Ensure the unprivileged user can't see the annotation...
       val doc = route(fakeLoggedInHtmlRequest(unprivilegedUser, GET,
         portalRoutes.browseDocument("c4").url)).get
       status(doc) must equalTo(OK)
-      contentAsString(doc) must not contain testBody
+      contentAsString(doc) must not contain testAnnotationBody
 
     }
 
     "allow annotating fields with correct visibility" in new ITestApp {
-      val testBody = "Test Annotation!!!"
-      val testData = Map(
-        AnnotationF.BODY -> Seq(testBody),
-        ContributionVisibility.PARAM -> Seq(ContributionVisibility.Me.toString)
-      )
-
       val post = route(fakeLoggedInHtmlRequest(privilegedUser, POST,
         annotationRoutes.annotateFieldPost(
-          "c4", "cd4", IsadG.SCOPE_CONTENT).url), testData).get
+          "c4", "cd4", IsadG.SCOPE_CONTENT).url), testAnnotation).get
       status(post) must equalTo(CREATED)
-      contentAsString(post) must contain(testBody)
+      contentAsString(post) must contain(testAnnotationBody)
 
       // Ensure the unprivileged user can't see the annotation...
       val doc = route(fakeLoggedInHtmlRequest(unprivilegedUser, GET,
         portalRoutes.browseDocument("c4").url)).get
       status(doc) must equalTo(OK)
-      contentAsString(doc) must not contain testBody
+      contentAsString(doc) must not contain testAnnotationBody
     }
 
     "disallow creating annotations without permission" in new ITestApp {
-      val testBody = "Test Annotation!!!"
-      val testData = Map(
-        AnnotationF.BODY -> Seq(testBody),
-        ContributionVisibility.PARAM -> Seq(ContributionVisibility.Me.toString)
-      )
-
       val post = route(fakeLoggedInHtmlRequest(unprivilegedUser, POST,
         annotationRoutes.annotateFieldPost(
-          "c4", "cd4", IsadG.SCOPE_CONTENT).url), testData).get
+          "c4", "cd4", IsadG.SCOPE_CONTENT).url), testAnnotation).get
       status(post) must throwA[PermissionDenied]
     }
 
@@ -81,22 +71,16 @@ class AnnotationsSpec extends IntegrationTestRunner {
             .addMemberPost("portal", EntityType.UserProfile, unprivilegedUser.id).url), "").get
       status(addGroup) must equalTo(SEE_OTHER)
 
-      val testBody = "Test Annotation!!!"
-      val testData = Map(
-        AnnotationF.BODY -> Seq(testBody),
-        ContributionVisibility.PARAM -> Seq(ContributionVisibility.Me.toString)
-      )
-
       val post = route(fakeLoggedInHtmlRequest(unprivilegedUser, POST,
         annotationRoutes.annotateFieldPost(
-          "c4", "cd4", IsadG.SCOPE_CONTENT).url), testData).get
+          "c4", "cd4", IsadG.SCOPE_CONTENT).url), testAnnotation).get
       status(post) must equalTo(CREATED)
-      contentAsString(post) must contain(testBody)
+      contentAsString(post) must contain(testAnnotationBody)
 
       header(HttpHeaders.LOCATION, post) must beSome.which { loc =>
         val aid = loc.substring(loc.lastIndexOf("/") + 1)
         val updateBody = "UPDATED TEST ANNOTATION!!!"
-        val updateData = testData.updated(AnnotationF.BODY, Seq(updateBody))
+        val updateData = testAnnotation.updated(AnnotationF.BODY, Seq(updateBody))
         val udpost = route(fakeLoggedInHtmlRequest(unprivilegedUser, POST,
           annotationRoutes.editAnnotationPost(aid).url),
           updateData).get
@@ -110,23 +94,17 @@ class AnnotationsSpec extends IntegrationTestRunner {
     }
 
     "allow changing annotation visibility" in new ITestApp {
-      val testBody = "Test Annotation!!!"
-      val testData = Map(
-        AnnotationF.BODY -> Seq(testBody),
-        ContributionVisibility.PARAM -> Seq(ContributionVisibility.Me.toString)
-      )
-
       val post = route(fakeLoggedInHtmlRequest(privilegedUser, POST,
         annotationRoutes.annotateFieldPost(
-          "c4", "cd4", IsadG.SCOPE_CONTENT).url), testData).get
+          "c4", "cd4", IsadG.SCOPE_CONTENT).url), testAnnotation).get
       status(post) must equalTo(CREATED)
-      contentAsString(post) must contain(testBody)
+      contentAsString(post) must contain(testAnnotationBody)
 
       // Ensure the unprivileged user can't see the annotation...
       val doc = route(fakeLoggedInHtmlRequest(unprivilegedUser, GET,
         portalRoutes.browseDocument("c4").url)).get
       status(doc) must equalTo(OK)
-      contentAsString(doc) must not contain testBody
+      contentAsString(doc) must not contain testAnnotationBody
 
       // Mmmn, need to get the id - this is faffy... assume there is
       // only one annotation on the item and fetch it via the api...
@@ -146,7 +124,7 @@ class AnnotationsSpec extends IntegrationTestRunner {
         val doc2 = route(fakeLoggedInHtmlRequest(unprivilegedUser, GET,
           portalRoutes.browseDocument("c4").url)).get
         status(doc2) must equalTo(OK)
-        contentAsString(doc2) must contain(testBody)
+        contentAsString(doc2) must contain(testAnnotationBody)
 
       }
 
@@ -154,15 +132,9 @@ class AnnotationsSpec extends IntegrationTestRunner {
 
     "allow annotation promotion to increase visibility" in new ITestApp {
       val testBody = "Test Annotation!!!"
-      val testData = Map(
-        AnnotationF.BODY -> Seq(testBody),
-        AnnotationF.ALLOW_PUBLIC -> Seq("true"),
-        ContributionVisibility.PARAM -> Seq(ContributionVisibility.Me.toString)
-      )
-
       val post = route(fakeLoggedInHtmlRequest(privilegedUser, POST,
         annotationRoutes.annotateFieldPost(
-          "c4", "cd4", IsadG.SCOPE_CONTENT).url), testData).get
+          "c4", "cd4", IsadG.SCOPE_CONTENT).url), testPromotableAnnotation).get
       status(post) must equalTo(CREATED)
       contentAsString(post) must contain(testBody)
 
@@ -185,8 +157,30 @@ class AnnotationsSpec extends IntegrationTestRunner {
       }
     }
 
-    "allow deleting annotations" in new ITestApp {
+    "give moderator groups visibility to promotable items" in new ITestApp {
+      val post = route(fakeLoggedInHtmlRequest(privilegedUser, POST,
+        annotationRoutes.annotateFieldPost(
+          "c4", "cd4", IsadG.SCOPE_CONTENT).url), testPromotableAnnotation).get
+      status(post) must equalTo(CREATED)
+      contentAsString(post) must contain(testAnnotationBody)
 
+      // Ensure the unprivileged user can't see the annotation...
+      val doc1 = route(fakeLoggedInHtmlRequest(unprivilegedUser, GET,
+        portalRoutes.browseDocument("c4").url)).get
+      status(doc1) must equalTo(OK)
+      contentAsString(doc1) must not contain testAnnotationBody
+
+      // Moderators can see the annotation
+      val doc2 = route(fakeLoggedInHtmlRequest(moderator, GET,
+        portalRoutes.browseDocument("c4").url)).get
+      status(doc2) must equalTo(OK)
+      contentAsString(doc2) must contain(testAnnotationBody)
+    }
+
+    "allow deleting annotations" in new ITestApp {
+      val del = route(fakeLoggedInHtmlRequest(privilegedUser, POST,
+        annotationRoutes.deleteAnnotation("ann5").url)).get
+      status(del) must equalTo(OK)
     }
   }
 }

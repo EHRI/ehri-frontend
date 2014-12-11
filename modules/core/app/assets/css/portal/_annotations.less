@@ -68,6 +68,19 @@ select.custom-accessors {
 
   .annotation-form-controls {
     .make-md-column(12);
+
+    .visibility-controls {
+      .pull-left;
+      .preset-visibility, .custom-visibility {
+        display: inline-block;
+      }
+      .custom-visibility {
+        font-size: 0.8em;
+        .select2-container {
+
+        }
+      }
+    }
   }
 
   .annotation-submit-controls {
@@ -190,20 +203,22 @@ select.custom-accessors {
     padding: @small-padding;
   }
 
-  select {
-    font-size: 0.9em;
-    padding: @small-padding;
-  }
-
   .select2-container .select2-choice div {
-    font-size: inherit;
-    padding: @small-padding;
+    .select2-search-field {
+      font-size: 10px;
+    }
+    font-size: 10px;
+    padding: 0 2;
     display: block;
     width: 18px;
     height: 100%;
     position: absolute;
     right: 0;
     top: 0;
+
+    .select2-search-choice {
+      margin: 0 1;
+    }
   }
 
   input[type="radio"], input[type="checkbox"] {

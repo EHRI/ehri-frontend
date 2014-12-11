@@ -2,4 +2,8 @@
 
 @p.layout.showLayout(item) {
 
+        @for(target <- item.target; field <- item.model.field) {
+            [@Messages(s"${target.isA}.$field")]
+        }
+        @views.Helpers.renderMarkdown(item.model.body)
 }

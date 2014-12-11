@@ -9,7 +9,7 @@ import play.api.Play.current
 import views.html.p
 import utils.{SessionPrefs, ContributionVisibility}
 import scala.concurrent.Future.{successful => immediate}
-import defines.{ContentTypes, PermissionType}
+import defines.{EntityType, ContentTypes, PermissionType}
 import backend.rest.cypher.CypherDAO
 import play.api.libs.json.Json
 import eu.ehri.project.definitions.Ontology
@@ -41,6 +41,10 @@ case class Annotations @Inject()(implicit globalConfig: global.GlobalConfig, sea
 
   private val annotationRoutes = controllers.portal.annotate.routes.Annotations
 
+  private val annotationDefaults: Map[String,String] = Map(
+    AnnotationF.IS_PRIVATE -> true.toString
+  )
+
   def annotation(id: String) = userProfileAction.async { implicit userProfile => implicit request =>
     backend.get[Annotation](id).map { ann =>
       Ok(Json.toJson(ann)(client.json.annotationJson.clientFormat))
@@ -51,8 +55,8 @@ case class Annotations @Inject()(implicit globalConfig: global.GlobalConfig, sea
   def annotate(id: String, did: String) = withUserAction.async {  implicit user => implicit request =>
     getCanShareWith(user) { users => groups =>
       Ok(
-        p.common.createAnnotation(
-          Annotation.form.bindFromRequest,
+        p.annotation.create(
+          Annotation.form.bind(annotationDefaults),
           ContributionVisibility.form.bindFromRequest,
           VisibilityForm.form.bindFromRequest,
           annotationRoutes.annotatePost(id, did),
@@ -67,9 +71,9 @@ case class Annotations @Inject()(implicit globalConfig: global.GlobalConfig, sea
     Annotation.form.bindFromRequest.fold(
       errorForm => immediate(BadRequest(errorForm.errorsAsJson)),
       ann => {
-        val accessors: List[String] = getAccessors(user)
+        val accessors: List[String] = getAccessors(ann, user)
         backend.createAnnotationForDependent[Annotation,AnnotationF](id, did, ann, accessors).map { ann =>
-          Created(p.common.annotationBlock(ann, editable = true))
+          Created(p.annotation.annotationBlock(ann, editable = true))
             .withHeaders(
                 HttpHeaders.LOCATION -> annotationRoutes.annotation(ann.id).url)
         }
@@ -82,7 +86,7 @@ case class Annotations @Inject()(implicit globalConfig: global.GlobalConfig, sea
       item => implicit userOpt => implicit request =>
     val vis = getContributionVisibility(item, userOpt.get)
     getCanShareWith(userOpt.get) { users => groups =>
-      Ok(p.common.editAnnotation(Annotation.form.fill(item.model),
+      Ok(p.annotation.edit(Annotation.form.fill(item.model),
         ContributionVisibility.form.fill(vis),
         VisibilityForm.form.fill(item.accessors.map(_.id)),
         annotationRoutes.editAnnotationPost(aid, context),
@@ -96,18 +100,15 @@ case class Annotations @Inject()(implicit globalConfig: global.GlobalConfig, sea
     val field = item.model.field
     Annotation.form.bindFromRequest.fold(
       errForm => immediate(BadRequest(errForm.errorsAsJson)),
-      edited => {
-        backend.update[Annotation,AnnotationF](aid, edited.copy(field = field)).map { done =>
-          if (context.equals(AnnotationContext.Field)) Ok(p.common.annotationInline(done, editable = true))
-          else Ok(p.common.annotationBlock(done, editable = true))
-        }
+      edited => backend.update[Annotation,AnnotationF](aid, edited.copy(field = field)).map { done =>
+        annotationResponse(done, context)
       }
     )
   }
 
   def setAnnotationVisibilityPost(aid: String) = withItemPermission.async[Annotation](aid, PermissionType.Update) {
       item => implicit userOpt => implicit request =>
-    val accessors = getAccessors(userOpt.get)
+    val accessors = getAccessors(item.model, userOpt.get)
     backend.setVisibility[Annotation](aid, accessors).map { ann =>
       Ok(Json.toJson(ann.accessors.map(_.id)))
     }
@@ -130,8 +131,8 @@ case class Annotations @Inject()(implicit globalConfig: global.GlobalConfig, sea
   // Ajax
   def annotateField(id: String, did: String, field: String) = withUserAction.async { implicit user => implicit request =>
     getCanShareWith(user) { users => groups =>
-      Ok(p.common.createAnnotation(
-        Annotation.form.bindFromRequest,
+      Ok(p.annotation.create(
+        Annotation.form.bind(annotationDefaults),
         ContributionVisibility.form.bindFromRequest,
         VisibilityForm.form.bindFromRequest,
         annotationRoutes.annotateFieldPost(id, did, field),
@@ -148,9 +149,9 @@ case class Annotations @Inject()(implicit globalConfig: global.GlobalConfig, sea
       ann => {
         // Add the field to the model!
         val fieldAnn = ann.copy(field = Some(field))
-        val accessors: List[String] = getAccessors(user)
+        val accessors: List[String] = getAccessors(ann, user)
         backend.createAnnotationForDependent[Annotation,AnnotationF](id, did, fieldAnn, accessors).map { ann =>
-          Created(p.common.annotationInline(ann, editable = true))
+          Created(p.annotation.annotationInline(ann, editable = true))
             .withHeaders(
               HttpHeaders.LOCATION -> annotationRoutes.annotation(ann.id).url)
         }
@@ -164,8 +165,8 @@ case class Annotations @Inject()(implicit globalConfig: global.GlobalConfig, sea
       // if rendering with Ajax check which partial to return via the context param.
       if (isAjax) context match {
         case AnnotationContext.List => p.annotation.searchItem(item)
-        case AnnotationContext.Field => p.common.annotationInline(item, editable = item.isOwnedBy(userOpt))
-        case AnnotationContext.Block => p.common.annotationBlock(item, editable = item.isOwnedBy(userOpt))
+        case AnnotationContext.Field => p.annotation.annotationInline(item, editable = item.isOwnedBy(userOpt))
+        case AnnotationContext.Block => p.annotation.annotationBlock(item, editable = item.isOwnedBy(userOpt))
       } else p.annotation.show(item)
     }
   }
@@ -218,19 +219,33 @@ case class Annotations @Inject()(implicit globalConfig: global.GlobalConfig, sea
    * Convert a contribution visibility value to the correct
    * accessors for the backend
    */
-  private def getAccessors(user: UserProfile)(implicit request: Request[AnyContent]): List[String] = {
-    utils.ContributionVisibility.form.bindFromRequest.fold(
+  private def getAccessors(ann: AnnotationF, user: UserProfile)(implicit request: Request[AnyContent]): List[String] = {
+    val default: List[String] = utils.ContributionVisibility.form.bindFromRequest.fold(
       errForm => List(user.id), {
         case ContributionVisibility.Me => List(user.id)
         case ContributionVisibility.Groups => user.groups.map(_.id)
         case ContributionVisibility.Custom => {
           VisibilityForm.form.bindFromRequest.fold(
             err => List(user.id), // default to user visibility.
-            list => (list ::: List(user.id)).distinct
+            list => list ::: List(user.id)
           )
         }
       }
     )
+    val withMods = if (ann.isPromotable) default ::: getModerators else default
+    withMods.distinct
+  }
+
+  private def getModerators: List[String] = {
+    import scala.collection.JavaConverters._
+    val mods: Option[List[String]] = for {
+      all <- current.configuration.getStringList("portal.moderators.all")
+      typed <- current.configuration.getStringList(s"portal.moderators.${EntityType.Annotation}")
+    } yield {
+      all.addAll(typed)
+      all.asScala.toList
+    }
+    mods.getOrElse(List.empty)
   }
 
   /**

@@ -1,0 +1,14 @@
+@(f: Form[AnnotationF])(implicit userOpt: Option[UserProfile], req: RequestHeader, lang: Lang, globalConfig: global.GlobalConfig)
+
+@import AnnotationF._
+@import utils.ContributionVisibility.{Me,Groups,Custom,PARAM}
+
+@implicitField = @{ views.html.helper.FieldConstructor(p.helpers.fieldTemplateEmpty.f) }
+
+<div class="form-group markdown">
+    <textarea autofocus required class="form-control" name="@BODY"
+        placeholder="@Messages("portal.annotation.placeholder")">@f(BODY).value</textarea>
+
+    <div class="markdown-helper" title="@Messages("mdCheatsheet.title")">@Messages("mdCheatsheet.title")</div>
+    @common.markdownCheatsheet()
+</div>

@@ -5,13 +5,13 @@
 @defining(views.p.Helpers.sortAnnotations(annotations)) { sortedMap =>
     <ul class="annotation-list">
         @for(ann <- sortedMap.getOrElse(Mine, Seq.empty)) {
-            <li class="personal">@p.common.annotationInline(ann, true)</li>
+            <li class="personal">@p.annotation.annotationInline(ann, true)</li>
         }
         @for(ann <- sortedMap.getOrElse(Promoted, Seq.empty)) {
-            <li class="promoted user-content" style="@{if(!prefs.showUserContent) "display: none;"}">@p.common.annotationInline(ann, false)</li>
+            <li class="promoted user-content" style="@{if(!prefs.showUserContent) "display: none;"}">@p.annotation.annotationInline(ann, false)</li>
         }
         @for(ann <- sortedMap.getOrElse(Other, Seq.empty)) {
-            <li class="other user-content" style="@{if(!prefs.showUserContent) "display: none;"}">@p.common.annotationInline(ann, false)</li>
+            <li class="other user-content" style="@{if(!prefs.showUserContent) "display: none;"}">@p.annotation.annotationInline(ann, false)</li>
         }
     </ul>
 }

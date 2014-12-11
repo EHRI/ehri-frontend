@@ -9,10 +9,11 @@
 @helper.form(action = action, 'role -> "form", 'class -> "form validate-form", 'class -> "annotation-form annotate-item-form validate-form") {
     <div class="annotation-right">
         <div class="annotation-form-controls">
-            @annotationForm(f, visForm, accessorsForm, users, groups)
+            @form(f)
             <div class="annotation-submit-controls form-group">
-                <div class="checkbox-inline" data-toggle="tooltip" title="@Messages("portal.contribution.visibility.allowPublic.title")">
-                    @helper.checkbox(f(ALLOW_PUBLIC), '_label -> Messages("portal.contribution.visibility.allowPublic"))
+                @p.annotation.customVisibility(f, visForm, accessorsForm, users, groups)
+                <div class="checkbox-inline" data-toggle="tooltip" title="@Messages("portal.contribution.visibility.isPrivate.title")">
+                    @helper.checkbox(f(IS_PRIVATE), '_label -> Messages("portal.contribution.visibility.isPrivate"))
                 </div>
                 <button type="submit" class="submit-annotation btn btn-primary">
                     @Messages("portal.annotation.create")
