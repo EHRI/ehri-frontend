@@ -4,7 +4,7 @@ package object mocks {
 
   val privilegedUser = MockAccount("mike", "example1@example.com", verified = true, staff = true)
   val unprivilegedUser = MockAccount("reto", "example2@example.com", verified = true, staff = true)
-  val moderator = MockAccount("tim", "example3@example.com", verified = true, staff = true)
+  val moderator = MockAccount("linda", "example3@example.com", verified = true, staff = true)
   val publicUser = MockAccount("joeblogs", "example@aol.com", verified = true, staff = false)
   val unverifiedUser = MockAccount("bobjohn", "example@yahoo.com", verified = false, staff = false)
 
