@@ -100,8 +100,16 @@ case class Annotations @Inject()(implicit globalConfig: global.GlobalConfig, sea
     val field = item.model.field
     Annotation.form.bindFromRequest.fold(
       errForm => immediate(BadRequest(errForm.errorsAsJson)),
-      edited => backend.update[Annotation,AnnotationF](aid, edited.copy(field = field)).map { done =>
-        annotationResponse(done, context)
+      edited => backend.update[Annotation,AnnotationF](aid, edited.copy(field = field)).flatMap { updated =>
+        // Because the user might have marked this item
+        // private (removing the isPromotable flag) we need to
+        // recalculate who can access it.
+        val newAccessors = getAccessors(updated.model, userOpt.get)
+        if (newAccessors.sorted == updated.accessors.map(_.id).sorted)
+          immediate(annotationResponse(updated, context))
+        else backend.setVisibility[Annotation](aid, newAccessors).map { ann =>
+          annotationResponse(ann, context)
+        }
       }
     )
   }
@@ -236,16 +244,15 @@ case class Annotations @Inject()(implicit globalConfig: global.GlobalConfig, sea
     withMods.distinct
   }
 
-  private def getModerators: List[String] = {
+  private def optionalConfigList(key: String)(implicit app: play.api.Application): List[String] = {
     import scala.collection.JavaConverters._
-    val mods: Option[List[String]] = for {
-      all <- current.configuration.getStringList("portal.moderators.all")
-      typed <- current.configuration.getStringList(s"portal.moderators.${EntityType.Annotation}")
-    } yield {
-      all.addAll(typed)
-      all.asScala.toList
-    }
-    mods.getOrElse(List.empty)
+    app.configuration.getStringList(key).map(_.asScala.toList).getOrElse(Nil)
+  }
+
+  private def getModerators: List[String] = {
+    val all = optionalConfigList("ehri.portal.moderators.all")
+    val typed = optionalConfigList(s"ehri.portal.moderators.${EntityType.Annotation}")
+    all ++ typed
   }
 
   /**
