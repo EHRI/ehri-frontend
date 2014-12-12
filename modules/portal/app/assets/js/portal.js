@@ -130,7 +130,7 @@ $(".panel-history").each(function() {
                           },
                           queryTokenizer: Bloodhound.tokenizers.whitespace,
                           remote: {
-                            url : jsRoutes.controllers.portal.Portal.filter().url + "?limit=5&st[]=documentaryUnit&st[]=repository&st[]=historicalAgent&st[]=country&q=%QUERY",
+                            url : jsRoutes.controllers.portal.Portal.filter().url + "?limit=5&st[]=documentaryUnit&st[]=repository&st[]=country&q=%QUERY",
                             filter : function(parsedResponse) {
                               var result = [];
                               var alreadyResult = [];
@@ -314,25 +314,20 @@ $loader = $( "<div></div>" ).addClass("text-center loader-container").append($("
  */
 
   $(window.Preferences).bind("showUserContent", function(event, doShow) {
-    $(".user-content").toggle(doShow);
+    if (doShow) {
+      $(".user-content").removeClass("hidden");
+      $(".hidden-toggle").addClass("fa-comments").removeClass("fa-comments-o")
+    } else {
+      $(".user-content").addClass("hidden");
+      $(".hidden-toggle").addClass("fa-comments-o").removeClass("fa-comments")
+    }
   });
-
-//  $(".item-text-field-annotations").each(function(i) {
-//    var $item = $(this),
-//        $field = $item.closest(".item-text-field"),
-//        $header = $(".item-text-field-header", $field),
-//        hiddenCount = $(".annotation-list > .hideable.hidden", $item).length;
-//    if (hiddenCount > 0) {
-//      var $toggle = $("<a href='#' class='fa fa-comments-o hidden-toggle'>" + hiddenCount + "</a>");
-//      $header.find(".field-annotation-controls").prepend($toggle);
-//    }
-//  });
 
   $(document).on("click", ".hidden-toggle", function(e) {
     e.preventDefault();
     var $item = $(e.target);
     $item.closest(".item-text-field").find(".annotation-list > .user-content")
-        .toggleClass("hidden");
+        .toggle();
     $item.toggleClass("fa-comments fa-comments-o")
   });
 });

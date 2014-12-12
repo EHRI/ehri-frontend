@@ -65,6 +65,10 @@ select.custom-accessors {
   width: 200px;
 }
 
+.annotation-list {
+  &:extend(.list-unstyled);
+}
+
 .annotation-right {
   .make-row();
   position: relative;
@@ -137,7 +141,6 @@ select.custom-accessors {
     }
 
     .annotation-list {
-      &:extend(.list-unstyled);
       // apply a left-right margin to match the text content
       margin: 0 @small-margin + @medium-margin;
 

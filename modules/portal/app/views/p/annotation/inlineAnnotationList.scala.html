@@ -6,12 +6,12 @@
             <li class="personal">@p.annotation.annotationInline(ann, true)</li>
         }
         @for(ann <- promoted) {
-            <li class="promoted hideable user-content @{if(!prefs.showUserContent) "hidden"}">
+            <li class="promoted user-content @{if(!prefs.showUserContent) "hidden"}">
                 @p.annotation.annotationInline(ann, false)
             </li>
         }
         @for(ann <- others) {
-            <li class="other hideable user-content @{if(!prefs.showUserContent) "hidden"}">
+            <li class="other user-content @{if(!prefs.showUserContent) "hidden"}">
                 @p.annotation.annotationInline(ann, false)
             </li>
         }

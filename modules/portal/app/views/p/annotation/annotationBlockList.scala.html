@@ -6,10 +6,10 @@
             <li class="personal">@p.annotation.annotationBlock(ann, true)</li>
         }
         @for(ann <- promoted) {
-            <li class="promoted user-content hideable @{if(!prefs.showUserContent) "hidden"}">@p.annotation.annotationBlock(ann, false)</li>
+            <li class="promoted user-content @{if(!prefs.showUserContent) "hidden"}">@p.annotation.annotationBlock(ann, false)</li>
         }
         @for(ann <- others) {
-            <li class="other user-content hideable @{if(!prefs.showUserContent) "hidden"}">@p.annotation.annotationBlock(ann, false)</li>
+            <li class="other user-content @{if(!prefs.showUserContent) "hidden"}">@p.annotation.annotationBlock(ann, false)</li>
         }
     </ul>
 }
