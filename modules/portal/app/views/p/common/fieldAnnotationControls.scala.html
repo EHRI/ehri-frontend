@@ -5,18 +5,7 @@
         <h5 class="annotate-item-header">@Messages("portal.annotation.field.create")</h5>
         @p.annotation.inlineAnnotationList(annotations)
 
-        @userOpt.map { user =>
         <div class="annotate-item-controls" data-target="@nodeId-@key">
-
-            @defining(annotations.count(!_.isOwnedBy(userOpt))) { otherCount =>
-                @if(otherCount > 0) {
-                    <a title="@Messages("portal.annotation.showPublic", otherCount)" class="show-other-annotations" href="#">
-                        <span class="glyphicon glyphicon-chevron-down"></span>
-                        @otherCount
-                    </a>
-                }
-            }
         </div>
-        }
     </div>
 </div>

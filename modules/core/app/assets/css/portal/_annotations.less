@@ -2,6 +2,20 @@
   color: @almost-black;
 }
 
+.field-annotation-controls {
+  a {
+    text-decoration: none;
+    font-size: 11px;
+    color: darken(@muted-gray, 50%);
+    padding: 3px;
+    &:hover {
+      cursor: pointer;
+      background-color: @glow-color;
+      color: @almost-black;
+    }
+  }
+}
+
 a.annotate-field.inactive, .annotable a.annotate-field.inactive {
   opacity: 0;
   color: black;
@@ -165,11 +179,6 @@ select.custom-accessors {
           cursor: pointer;
         }
 
-      }
-      a.show-other-annotations {
-        color: @muted-gray;
-        width: auto;
-        font-width: 12px;
       }
     }
   }

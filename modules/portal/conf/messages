@@ -329,6 +329,7 @@ portal.annotation.update.submit=Save
 portal.annotation.update.title=Edit Note
 portal.annotation.field.create=Add Note
 portal.annotation.field.create.title=Create a note on this field
+portal.annotation.field.showHidden=Show/hide {0,choice,1#1 public note made by another person|1<{0} public notes made by other people}
 portal.annotation.delete=Delete
 portal.annotation.delete.title=Delete Note
 portal.annotation.createdBy=Created by {0} at {1}

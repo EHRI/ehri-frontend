@@ -316,4 +316,23 @@ $loader = $( "<div></div>" ).addClass("text-center loader-container").append($("
   $(window.Preferences).bind("showUserContent", function(event, doShow) {
     $(".user-content").toggle(doShow);
   });
+
+//  $(".item-text-field-annotations").each(function(i) {
+//    var $item = $(this),
+//        $field = $item.closest(".item-text-field"),
+//        $header = $(".item-text-field-header", $field),
+//        hiddenCount = $(".annotation-list > .hideable.hidden", $item).length;
+//    if (hiddenCount > 0) {
+//      var $toggle = $("<a href='#' class='fa fa-comments-o hidden-toggle'>" + hiddenCount + "</a>");
+//      $header.find(".field-annotation-controls").prepend($toggle);
+//    }
+//  });
+
+  $(document).on("click", ".hidden-toggle", function(e) {
+    e.preventDefault();
+    var $item = $(e.target);
+    $item.closest(".item-text-field").find(".annotation-list > .user-content")
+        .toggleClass("hidden");
+    $item.toggleClass("fa-comments fa-comments-o")
+  });
 });

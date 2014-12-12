@@ -1,13 +1,15 @@
-@(item: AnyModel, nodeId: String, key: String)(implicit userOpt: Option[UserProfile], request: RequestHeader, prefs: utils.SessionPrefs, globalConfig: global.GlobalConfig, lang: Lang)
-@userOpt.map { user =>
-	@item.contentType.map { ct =>
-	    @if(user.hasPermission(ct, PermissionType.Annotate)) {
-	        <div class="add-field-annotation">
-                <a title="@Messages("portal.annotation.field.create.title")" data-item="@item.id" data-did="@nodeId" data-field="@key" data-target="@nodeId-@key" class="annotate-field inactive" href="@controllers.portal.annotate.routes.Annotations.annotateField(item.id, nodeId, key)">
-		            <span class="fa fa-comment-o"></span>
-                    @Messages("portal.annotation.field.create")
-		        </a>
-		    </div>
-	    }
-	}
+@(item: AnyModel, nodeId: String, key: String, annotations: Seq[Annotation])(implicit userOpt: Option[UserProfile], request: RequestHeader, prefs: utils.SessionPrefs, globalConfig: global.GlobalConfig, lang: Lang)
+
+@for(user <- userOpt; ct <- item.contentType if user.hasPermission(ct, PermissionType.Annotate)) {
+    <div class="field-annotation-controls">
+        @defining(annotations.filterNot(_.isOwnedBy(userOpt)).size) { other =>
+            @if(other > 0) {
+                <a href="#" title="@Messages("portal.annotation.field.showHidden", other)" class="hidden-toggle fa fa-comments@{if(!prefs.showUserContent) "-o"}">@other</a>
+            }
+        }
+        <a class="annotate-field inactive" title="@Messages("portal.annotation.field.create.title")" data-item="@item.id" data-did="@nodeId" data-field="@key" data-target="@nodeId-@key" href="@controllers.portal.annotate.routes.Annotations.annotateField(item.id, nodeId, key)">
+            <span class="fa fa-comment-o"></span>
+            @Messages("portal.annotation.field.create")
+        </a>
+    </div>
 }

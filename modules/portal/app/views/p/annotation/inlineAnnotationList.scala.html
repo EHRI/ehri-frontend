@@ -1,17 +1,19 @@
 @(annotations: Seq[Annotation])(implicit userOpt: Option[UserProfile], req: RequestHeader, prefs: utils.SessionPrefs, lang: Lang, globalConfig: global.GlobalConfig)
 
-@import views.p.AnnotationViewType._
-
-@defining(views.p.Helpers.sortAnnotations(annotations)) { sortedMap =>
+@defining(views.p.Helpers.sortAnnotations(annotations)) { case (mine, promoted, others) =>
     <ul class="annotation-list">
-        @for(ann <- sortedMap.getOrElse(Mine, Seq.empty)) {
+        @for(ann <- mine) {
             <li class="personal">@p.annotation.annotationInline(ann, true)</li>
         }
-        @for(ann <- sortedMap.getOrElse(Promoted, Seq.empty)) {
-            <li class="promoted user-content" style="@{if(!prefs.showUserContent) "display: none;"}">@p.annotation.annotationInline(ann, false)</li>
+        @for(ann <- promoted) {
+            <li class="promoted hideable user-content @{if(!prefs.showUserContent) "hidden"}">
+                @p.annotation.annotationInline(ann, false)
+            </li>
         }
-        @for(ann <- sortedMap.getOrElse(Other, Seq.empty)) {
-            <li class="other user-content" style="@{if(!prefs.showUserContent) "display: none;"}">@p.annotation.annotationInline(ann, false)</li>
+        @for(ann <- others) {
+            <li class="other hideable user-content @{if(!prefs.showUserContent) "hidden"}">
+                @p.annotation.annotationInline(ann, false)
+            </li>
         }
     </ul>
 }
