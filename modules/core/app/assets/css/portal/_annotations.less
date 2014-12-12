@@ -12,17 +12,26 @@ a.annotate-field.inactive, .annotable a.annotate-field.inactive {
   background-color: @pale-gray !important;
 }
 
+@annotate-field-padding: 3px;
+@annotate-field-border: 1px;
+
 a.annotate-field {
-  &:extend(.btn)
-;
+  &:extend(.btn);
+  font-size: 11px;
+  font-family: @font-family-sans-serif;
   text-decoration: none;
   background-color: @pale-gray;
   opacity: 1;
-  color: black;
   display: inline-block;
   border-width: 0px;
   text-align: left;
-  padding: 3px 3px;
+  padding: @annotate-field-padding;
+
+  &:hover {
+    padding: @annotate-field-padding - @annotate-field-border;
+    border-width: @annotate-field-border;
+    background-color: @glow-color;
+  }
 }
 
 a.annotate-item:hover {
@@ -32,15 +41,6 @@ a.annotate-item:hover {
   color: black;
 }
 
-a.annotate-field:hover {
-  padding: 2px 2px;
-  border-width: 1px;
-  background-color: white;
-  &:after {
-    content: attr(title);
-    display: inline-block;
-  }
-}
 
 a.time-permalink {
   text-decoration: none;
@@ -263,9 +263,6 @@ select.custom-accessors {
 
 .description-annotations {
   .annotate-item {
-    &:extend(.button)
-  ;
-    &:extend(.btn-default)
-  ;
+    &:extend(.button);
   }
 }

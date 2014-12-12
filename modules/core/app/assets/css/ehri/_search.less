@@ -46,6 +46,12 @@
 
 .search-sort {
   margin-top: @medium-margin;
+  &:extend(.list-unstyled, .list-inline, .pull-right);
+
+  span.fa {
+    padding: @small-padding;
+    float: left;
+  }
 }
 
 .search-summary {
