@@ -9,6 +9,7 @@ import backend.ApiUser
 import com.google.common.net.HttpHeaders
 import defines.EntityType
 import backend.rest.PermissionDenied
+import play.api.test.FakeRequest
 
 
 class AnnotationsSpec extends IntegrationTestRunner {
@@ -162,19 +163,34 @@ class AnnotationsSpec extends IntegrationTestRunner {
         annotationRoutes.annotateFieldPost(
           "c4", "cd4", IsadG.SCOPE_CONTENT).url), testPromotableAnnotation).get
       status(post) must equalTo(CREATED)
-      contentAsString(post) must contain(testAnnotationBody)
+      header(HttpHeaders.LOCATION, post) must beSome.which { url =>
 
-      // Ensure the unprivileged user can't see the annotation...
-      val doc1 = route(fakeLoggedInHtmlRequest(unprivilegedUser, GET,
-        portalRoutes.browseDocument("c4").url)).get
-      status(doc1) must equalTo(OK)
-      contentAsString(doc1) must not contain testAnnotationBody
+        val id = url.substring(url.lastIndexOf("/") + 1)
+        contentAsString(post) must contain(testAnnotationBody)
 
-      // Moderators can see the annotation
-      val doc2 = route(fakeLoggedInHtmlRequest(moderator, GET,
-        portalRoutes.browseDocument("c4").url)).get
-      status(doc2) must equalTo(OK)
-      contentAsString(doc2) must contain(testAnnotationBody)
+        // Ensure the unprivileged user can't see the annotation...
+        val doc1 = route(fakeLoggedInHtmlRequest(unprivilegedUser, GET,
+          portalRoutes.browseDocument("c4").url)).get
+        status(doc1) must equalTo(OK)
+        contentAsString(doc1) must not contain testAnnotationBody
+
+        // Moderators can see the annotation
+        val doc2 = route(fakeLoggedInHtmlRequest(moderator, GET,
+          portalRoutes.browseDocument("c4").url)).get
+        status(doc2) must equalTo(OK)
+        contentAsString(doc2) must contain(testAnnotationBody)
+
+        val edit = route(fakeLoggedInHtmlRequest(privilegedUser, POST,
+          annotationRoutes.editAnnotationPost(id).url),
+          testAnnotation.updated(AnnotationF.IS_PRIVATE, Seq(true.toString))).get
+        status(edit) must equalTo(OK)
+
+        // Now the moderator cannot see the item...
+        val doc3 = route(fakeLoggedInHtmlRequest(moderator, GET,
+          portalRoutes.browseDocument("c4").url)).get
+        status(doc3) must equalTo(OK)
+        contentAsString(doc3) must not contain testAnnotationBody
+      }
     }
 
     "allow deleting annotations" in new ITestApp {
