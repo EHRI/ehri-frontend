@@ -23,11 +23,12 @@ Then finally:
 Here's some Cypher to test the
 
 ```
-START n = node:entities("__ISA__:annotation"),
-      mods = node:entities("__ID__:moderators")
-MATCH n-[r?:access]->mods
-WHERE HAS(n.isPromotable) AND n.isPromotable = true
-AND   r is null
+START   n = node:entities("__ISA__:annotation"),
+        mods = node:entities("__ID__:moderators")
+MATCH   n-[r?:access]->mods
+WHERE   HAS(n.isPromotable)
+    AND n.isPromotable = true
+    AND   r is null
 RETURN n., n.body
 ```
 
