@@ -1,19 +1,22 @@
 package controllers.annotation
 
-import models.{AccountDAO, Annotation}
+import models.{AnnotationF, AccountDAO, Annotation}
 import com.google.inject._
 import controllers.generic._
 import backend.Backend
 
-
 case class Annotations @Inject()(implicit globalConfig: global.GlobalConfig, backend: Backend, userDAO: AccountDAO) extends Read[Annotation]
   with Visibility[Annotation]
   with Promotion[Annotation]
+  with Update[AnnotationF,Annotation]
   with Delete[Annotation]
   with Annotate[Annotation] {
 
+  private val form = Annotation.form
+  private val annotationRoutes = controllers.annotation.routes.Annotations
+
   def get(id: String) = getAction(id) { item => annotations => links => implicit userOpt => implicit request =>
-    Ok(views.html.admin.annotation.details(item, annotations))
+    Ok(views.html.admin.annotation.show(item, annotations))
   }
 
   def history(id: String) = historyAction(id) {
@@ -24,12 +27,25 @@ case class Annotations @Inject()(implicit globalConfig: global.GlobalConfig, bac
   def visibility(id: String) = visibilityAction(id) { item => users => groups => implicit userOpt => implicit request =>
     Ok(views.html.admin.permissions.visibility(item,
       forms.VisibilityForm.form.fill(item.accessors.map(_.id)),
-      users, groups, controllers.annotation.routes.Annotations.visibilityPost(id)))
+      users, groups, annotationRoutes.visibilityPost(id)))
   }
 
   def visibilityPost(id: String) = visibilityPostAction(id) { ok => implicit userOpt => implicit request =>
     Redirect(controllers.annotation.routes.Annotations.get(id))
       .flashing("success" -> "item.update.confirmation")
+  }
+
+  def update(id: String) = updateAction(id) { item => implicit userOpt => implicit request =>
+    Ok(views.html.admin.annotation.edit(item, form.fill(item.model), annotationRoutes.updatePost(id)))
+  }
+
+  def updatePost(id: String) = updatePostAction(id, form) { olditem => formOrItem => implicit userOpt => implicit request =>
+    formOrItem match {
+      case Left(errorForm) => BadRequest(views.html.admin.annotation.edit(
+        olditem, errorForm, annotationRoutes.updatePost(id)))
+      case Right(item) => Redirect(annotationRoutes.get(id))
+        .flashing("success" -> "item.update.confirmation")
+    }
   }
 
   def delete(id: String) = deleteAction(id) { item => implicit userOpt => implicit request =>
