@@ -1,18 +1,21 @@
-@(events: Seq[SystemEvent], params: utils.RangeParams, more: Boolean)(implicit userOpt: Option[UserProfile], request: RequestHeader, prefs: utils.SessionPrefs, globalConfig: global.GlobalConfig, lang: Lang, flash: Flash)
+@(page: utils.RangePage[SystemEvent])(implicit userOpt: Option[UserProfile], req: RequestHeader, prefs: utils.SessionPrefs, globalConfig: global.GlobalConfig, lang: Lang)
+
+@import backend.rest.Constants.OFFSET_PARAM
 
 <div class="activity-stream-wrapper">
-    @if(!events.isEmpty) {
+    @if(!page.isEmpty) {
         <div class="timeline-container">
-            <ul id="activity-stream" class="timeline">
-                @eventItems(events)
+            <ul id="activity-stream" class="timeline timeline-user">
+                @eventItems(page)
             </ul>
         </div>
-        @if(more) {
-            <button data-limit="@params.limit" data-offset="@(params.offset + params.limit)"
-                    data-href="@controllers.portal.routes.Portal.personalisedActivity(params.offset + params.limit, params.limit)"
-                    id="activity-stream-fetchmore" class="btn btn-default btn-block">
+        @if(page.more) {
+            <a id="activity-stream-fetchmore" class="btn btn-default btn-block"
+               data-limit="@page.limit" data-offset="@(page.offset + page.limit)"
+               href="@utils.joinPath(req.path, req.queryString.updated(OFFSET_PARAM, Seq((page.offset + page.limit).toString)))">
                 @Messages("portal.activity.fetchMore")
-            </button>
+            </a>
+
         }
     } else {
         <p class="text-muted">

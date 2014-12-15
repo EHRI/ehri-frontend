@@ -69,11 +69,12 @@ jQuery(function ($) {
    */
 
     // Fetch more activity...
-  $("#activity-stream-fetchmore").click(function (event) {
+  $(document).on("click", "a#activity-stream-fetchmore", function (event) {
+    event.preventDefault();
     var $elem = $(event.target);
     var offset = parseInt($(event.target).attr("data-offset")) || 0;
     var limit = parseInt($(event.target).attr("data-limit")) || 20;
-    var href = $(event.target).attr("data-href");
+    var href = event.target.href;
     $.ajax({
       url: href,
       success: function (data, _, response) {
@@ -86,7 +87,7 @@ jQuery(function ($) {
           $elem
             .attr("data-offset", (offset + limit))
             .attr("data-limit", limit)
-            .attr("data-href",
+            .attr("href",
               href.replace(/offset=\d+/, "offset=" + (offset + limit))
                   .replace(/limit=\d+/, "limit=" + limit));
         }
@@ -94,118 +95,118 @@ jQuery(function ($) {
 		});
 	});
 
-    /**
-    *   Function for changing icon loading
-    *   It should be called twice : before the ajax call and inside the success() to revert to the original icon
-    *   $elem = DOM element in jQuery format $(elem) on which the user click. Eg : In $(document).on("click", ".btn"), this would be $(this)
-    *   formerIcon = class of the icon that should be removed. Eg. : For .glyphicon.glyphicon-star this would be "glyphicon-star"
-    * 
-    */
-    var changeGlyphToLoader = function ($elem, formerIcon) {
-      var loadingClass = "glyphicon-refresh",
-            spinningClass = " spin";
-        if($elem.hasClass("glyphicon")){
-            if($elem.hasClass(formerIcon)) {
-              $elem.removeClass(formerIcon).addClass(loadingClass + spinningClass);
-            } else {
-              $elem.removeClass(loadingClass + spinningClass).addClass(formerIcon);
-            }
-          } else {
-            if($elem.find("." + loadingClass).length == 1) {
-              $elem.find("." + loadingClass).remove();
-            } else {
-              $elem.prepend('<span class="glyphicon ' + loadingClass  + spinningClass + '"></span> ')
-            }
-          }
+  /**
+  * Function for changing icon loading
+  * It should be called twice : before the ajax call and inside the success() to revert to the original icon
+  * $elem = DOM element in jQuery format $(elem) on which the user click. Eg : In $(document).on("click", ".btn"), this would be $(this)
+  * formerIcon = class of the icon that should be removed. Eg. : For .glyphicon.glyphicon-star this would be "glyphicon-star"
+  */
+  var changeGlyphToLoader = function ($elem, formerIcon, iconClass) {
+    var loadingClass = "glyphicon-refresh",
+        spinningClass = " spin",
+        iconClass = iconClass || "glyphicon";
+    if ($elem.hasClass(iconClass)) {
+      if ($elem.hasClass(formerIcon)) {
+        $elem.removeClass(formerIcon).addClass(loadingClass + spinningClass);
+      } else {
+        $elem.removeClass(loadingClass + spinningClass).addClass(formerIcon);
+      }
+    } else {
+      if ($elem.find("." + loadingClass).length == 1) {
+        $elem.find("." + loadingClass).remove();
+      } else {
+        $elem.prepend('<span class="glyphicon ' + loadingClass + spinningClass + '"></span> ')
+      }
     }
+  };
 
-	/**
+  /**
 	* Handler following/unfollowing users via Ajax.
 	*/
-	$(document).on("click", "a.follow, a.unfollow", function (e) {
-		e.preventDefault();
+  $(document).on("click", "a.follow, a.unfollow", function (e) {
+    e.preventDefault();
 
-		var followFunc = jsRoutes.controllers.portal.social.Social.followUserPost,
-		    unfollowFunc = jsRoutes.controllers.portal.social.Social.unfollowUserPost,
-		    followerListFunc = jsRoutes.controllers.portal.social.Social.followersForUser,
-		    $elem = $(this),
-		    id = $elem.data("item"),
-		    follow = $elem.hasClass("follow");
+    var followFunc = jsRoutes.controllers.portal.social.Social.followUserPost,
+        unfollowFunc = jsRoutes.controllers.portal.social.Social.unfollowUserPost,
+        followerListFunc = jsRoutes.controllers.portal.social.Social.followersForUser,
+        $elem = $(this),
+        id = $elem.data("item"),
+        follow = $elem.hasClass("follow");
 
-		var call, $other;
-		if (follow) {
-		  var call = followFunc,
-		  $other = $elem.parent().find("a.unfollow");
+    var call, $other;
+    if (follow) {
+      call = followFunc;
+      $other = $elem.parent().find("a.unfollow");
+    } else {
+      call = unfollowFunc;
+      $other = $elem.parent().find("a.follow");
+    }
 
-		} else {
-		  call = unfollowFunc
-		  $other = $elem.parent().find("a.follow");
-		}
-
-            changeGlyphToLoader($elem);
-		call(id).ajax({
-		  success: function () {
-		    // Swap the buttons and, if necessary, reload
-		    // their followers list...
-		    $elem.hide();
-                changeGlyphToLoader($elem);
-		    $other.show();
-        if($elem.parents(".user-list-item").size() === 0) {
+    changeGlyphToLoader($elem);
+    call(id).ajax({
+      success: function () {
+        // Swap the buttons and, if necessary, reload
+        // their followers list...
+        $elem.hide();
+        changeGlyphToLoader($elem);
+        $other.show();
+        if ($elem.parents(".user-list-item").size() === 0) {
           $(".browse-users-followers").load(followerListFunc(id).url);
         }
-		    // If a follower count is shown, munge it...
-		    var fc = $(".user-follower-count");
-		    if (fc.size()) {
-		      var cnt = parseInt(fc.html(), 10);
-		      fc.html(follow ? (cnt + 1) : (cnt - 1));
-		    }
-		  }
-		});
-	});
+        // If a follower count is shown, munge it...
+        var fc = $(".user-follower-count");
+        if (fc.size()) {
+          var cnt = parseInt(fc.html(), 10);
+          fc.html(follow ? (cnt + 1) : (cnt - 1));
+        }
+      }
+    });
+  });
 
-	/**
-	* Handle watching/unwatching items using Ajax...
-	*/
-	$(document).on("click", "a.watch, a.unwatch", function (e) {
-		e.preventDefault();
+  /**
+   * Handle watching/unwatching items using Ajax...
+   */
+  $(document).on("click", "a.watch, a.unwatch", function (e) {
+    e.preventDefault();
 
-		var watchFunc = jsRoutes.controllers.portal.profile.Profile.watchItemPost,
-		    unwatchFunc = jsRoutes.controllers.portal.profile.Profile.unwatchItemPost,
-		    $elem = $(this),
-		    id = $elem.data("item"),
-		    watch = $elem.hasClass("watch");
-		var call, $other;
-		if (watch) {
-		  var call = watchFunc,
-		  $other = $elem.parent().find("a.unwatch"),
-              icon = "glyphicon-star-empty";
-		} else {
-		  var call = unwatchFunc,
-                   icon = "glyphicon-star",
-		  $other = $elem.parent().find("a.watch");
-		}
+    var watchFunc = jsRoutes.controllers.portal.profile.Profile.watchItemPost,
+        unwatchFunc = jsRoutes.controllers.portal.profile.Profile.unwatchItemPost,
+        $elem = $(this),
+        id = $elem.data("item"),
+        watch = $elem.hasClass("watch");
+    var call, $other, icon, $iconElem;
 
-            if($elem.hasClass("glyphicon")) {
-              var $iconElem = $elem;
-            } else {
-              var $iconElem = $elem.find(".glyphicon")
-            }
-            console.log($iconElem)
-            changeGlyphToLoader($iconElem, icon);
-		call(id).ajax({
-		  success: function () {
-		    // Swap the buttons and, if necessary, reload
-		    // their followers list...
-		    $elem.hide();
-                changeGlyphToLoader($iconElem, icon);
-		    $other.show();
+    if (watch) {
+          call = watchFunc,
+          $other = $elem.parent().find("a.unwatch"),
+          icon = "glyphicon-star-empty";
+    } else {
+          call = unwatchFunc,
+          icon = "glyphicon-star",
+          $other = $elem.parent().find("a.watch");
+    }
 
-		    // If a watch count is shown, munge it...
-		    var fc = $(".item-watch-count");
-		    if (fc.size()) {
-		      var cnt = parseInt(fc.html(), 10);
-		      fc.html(watch ? (cnt + 1) : (cnt - 1));
-		    }
+    if ($elem.hasClass("glyphicon")) {
+      $iconElem = $elem;
+    } else {
+      $iconElem = $elem.find(".glyphicon")
+    }
+
+    changeGlyphToLoader($iconElem, icon);
+    call(id).ajax({
+      success: function () {
+        // Swap the buttons and, if necessary, reload
+        // their followers list...
+        $elem.hide();
+        changeGlyphToLoader($iconElem, icon);
+        $other.show();
+
+        // If a watch count is shown, munge it...
+        var fc = $(".item-watch-count");
+        if (fc.size()) {
+          var cnt = parseInt(fc.html(), 10);
+          fc.html(watch ? (cnt + 1) : (cnt - 1));
+        }
 
         //If it is on profile page, remove the row
         if (watch === false) {
@@ -218,6 +219,21 @@ jQuery(function ($) {
         }
       }
     });
+  });
+
+  $(document).on("click", "a.promotion-action", function (e) {
+    e.preventDefault();
+    var $item = $(this),
+        url = this.href,
+        $iconElem = $item.find(".fa"),
+        icon = $item.hasClass("promote")
+            ? "fa-caret-up"
+            : "fa-caret-down";
+    changeGlyphToLoader($iconElem, icon, "fa");
+    $.post(url, function(data) {
+      $item.closest("li").html(data);
+      changeGlyphToLoader($iconElem, icon);
+    })
   });
 
   /**
@@ -322,12 +338,12 @@ jQuery(function ($) {
 
   // Fields are very similar but we have to use the field as part
   // of the form submission url...
-  $(document).on("click", ".edit-annotation", function (e) {
+  $(document).on("click", "a.edit-annotation", function (e) {
     e.preventDefault();
     var $elem = $(this),
+        url = this.href,
         id = $elem.data("item");
-    jsRoutes.controllers.portal.annotate.Annotations.editAnnotation(id).ajax({
-      success: function (data) {
+    $.get(url, function (data) {
         //$elem.closest(".annotation").hide().after(data)
         $(data)
             .insertAfter($elem.closest(".annotation").hide())
@@ -335,7 +351,6 @@ jQuery(function ($) {
               placeholder: "Select a set of groups or users",
               width: "copy"
             });
-      }
     });
   });
 
@@ -376,15 +391,17 @@ jQuery(function ($) {
 
   // Fields are very similar but we have to use the field as part
   // of the form submission url...
-  $(document).on("click", ".delete-annotation", function (e) {
+  $(document).on("click", "a.delete-annotation", function (e) {
     e.preventDefault();
     var $elem = $(this),
         id = $elem.data("item"),
-        check = $elem.attr("title");
+        check = $elem.attr("title"),
+        action = this.href;
     if (confirm(check + "?")) {
       var $ann = $elem.closest(".annotation");
       $ann.hide();
-      jsRoutes.controllers.portal.annotate.Annotations.deleteAnnotationPost(id).ajax({
+      $.post({
+        url: action,
         success: function () {
           $ann.remove();
         },

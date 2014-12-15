@@ -50,6 +50,21 @@ class SocialSpec extends IntegrationTestRunner {
       mailBuffer.last.text must contain("World")
     }
 
+    "allow messaging users with copy to self" in new ITestApp {
+      val numSentMails = mailBuffer.size
+      val msgData = Map(
+        "subject" -> Seq("Hello"),
+        "message" -> Seq("World"),
+        "copySelf" -> Seq("true")
+      )
+
+      val postMsg = route(fakeLoggedInHtmlRequest(privilegedUser, POST,
+        socialRoutes.sendMessagePost(unprivilegedUser.id).url), msgData).get
+      status(postMsg) must equalTo(SEE_OTHER)
+      mailBuffer.size must beEqualTo(numSentMails + 2)
+      mailBuffer.last.text must contain("World")
+    }
+
     "disallow messaging users with messaging disabled" in new ITestApp {
       val user = unprivilegedUser
       mocks.userFixtures += user.id -> user.copy(allowMessaging = false)

@@ -1,6 +1,5 @@
-@(annotation: Annotation)(implicit userOpt: Option[UserProfile], request: RequestHeader, prefs: utils.SessionPrefs, globalConfig: global.GlobalConfig, lang: Lang, flash: Flash)
+@(item: Annotation)(implicit userOpt: Option[UserProfile], request: RequestHeader, prefs: utils.SessionPrefs, globalConfig: global.GlobalConfig, lang: Lang, flash: Flash)
 
-@* TODO *@
-@p.layout.portalLayout(annotation.toStringLang) {
-    @annotation.toStringLang
+@p.layout.showLayout(item) {
+
 }

@@ -3,7 +3,7 @@
 @p.layout.portalLayout(Messages("portal.profile")) {
     @views.html.layout.mainContent {
         <h1>@Messages("portal.profile")</h1>
-        <h3>@Messages("portal.profile.updateProfileImage")</h3>
+        <h3>@Messages("portal.profile.image.edit")</h3>
         @imageUploadForm(f, controllers.portal.profile.routes.Profile.updateProfileImagePost)
     }
 }

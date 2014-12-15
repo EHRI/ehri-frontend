@@ -52,9 +52,8 @@ class SolrQueryBuilderSpec extends PlaySpecification {
       )
       val filters: List[String] = SolrQueryBuilder.getRequestFilters(
         List(testFieldFacetClass, testQueryFacetClass), queryFacets)
-      filters.size must equalTo(2)
-      filters must contain("charCount:[201 TO 5000]")
-      filters must contain("charCount:[5001 TO *]")
+      filters.size must equalTo(1)
+      filters must contain("charCount:([201 TO 5000] [5001 TO *])")
     }
 
     "generate facet parameters correctly" in {

@@ -110,6 +110,7 @@ package object facet {
     sort: FacetSort.Value = FacetSort.Name
   ) extends SolrFacetClass[SolrQueryFacet] {
     val fieldType: String = "facet.query"
+    override def isActive = true
 
     def asParams: List[FacetParam] = {
       facets.map(p =>

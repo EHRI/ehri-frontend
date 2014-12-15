@@ -24,6 +24,7 @@ import views.html.errors.pageNotFound
 import org.joda.time.DateTime
 import caching.FutureCache
 import backend.rest.Constants
+import scala.concurrent.Future
 
 @Singleton
 case class Portal @Inject()(implicit globalConfig: global.GlobalConfig, searchDispatcher: Dispatcher, searchResolver: Resolver, backend: Backend,
@@ -53,22 +54,18 @@ case class Portal @Inject()(implicit globalConfig: global.GlobalConfig, searchDi
     EntityType.Country
   )
 
-  def personalisedActivity(offset: Int = 0, limit: Int = Constants.DEFAULT_LIST_LIMIT) = {
+  def personalisedActivity = {
     withUserAction.async { implicit user => implicit request =>
     // NB: Increasing the limit by 1 over the default so we can
     // detect if there are additional items to display
-      val listParams = RangeParams.fromRequest(request).copy(offset = offset)
-      val incParams = listParams.copy(limit = listParams.limit + 1)
+      val listParams = RangeParams.fromRequest(request)
       val eventFilter = SystemEventParams.fromRequest(request)
         .copy(eventTypes = activityEventTypes)
         .copy(itemTypes = activityItemTypes)
-      backend.listEventsForUser[SystemEvent](user.id, incParams, eventFilter).map { events =>
-        val more = events.size > listParams.limit
-
-        val displayEvents = events.take(listParams.limit)
-        if (isAjax) Ok(p.activity.eventItems(displayEvents))
-          .withHeaders("activity-more" -> more.toString)
-        else Ok(p.activity.activity(displayEvents, listParams, more))
+      backend.listEventsForUser[SystemEvent](user.id, listParams, eventFilter).map { events =>
+        if (isAjax) Ok(p.activity.eventItems(events))
+          .withHeaders("activity-more" -> events.more.toString)
+        else Ok(p.activity.activity(events, listParams))
       }
     }
   }
@@ -108,11 +105,7 @@ case class Portal @Inject()(implicit globalConfig: global.GlobalConfig, searchDi
         defaultParams = SearchParams(
           // we don't need results here because we're only using the facets
           count = Some(0),
-          entities = List(
-            EntityType.Repository,
-            EntityType.DocumentaryUnit,
-            EntityType.HistoricalAgent,
-            EntityType.Country)
+          entities = defaultSearchTypes
         ),
         facetBuilder = entityMetrics
       ).map(_.page.facets)
@@ -129,6 +122,8 @@ case class Portal @Inject()(implicit globalConfig: global.GlobalConfig, searchDi
       case EntityType.Link => Redirect(portalRoutes.browseLink(id))
       case EntityType.Annotation => Redirect(portalRoutes.browseAnnotation(id))
       case EntityType.Vocabulary => Redirect(portalRoutes.browseVocabulary(id))
+      case EntityType.UserProfile => Redirect(controllers.portal.social.routes.Social.browseUser(id))
+      case EntityType.Group => Redirect(portalRoutes.browseGroup(id))
       case _ => NotFound(renderError("errors.pageNotFound", pageNotFound()))
     }
   }
@@ -267,17 +262,21 @@ case class Portal @Inject()(implicit globalConfig: global.GlobalConfig, searchDi
   }
 
   def browseLink(id: String) = getAction[Link](EntityType.Link, id) {
-      link => details => implicit userOpt => implicit request =>
-    Ok(p.link.show(link))
+      item => details => implicit userOpt => implicit request =>
+    Ok(p.link.show(item))
   }
 
-  def browseAnnotations = userBrowseAction.async { implicit userDetails => implicit request =>
+  def browseGroup(id: String) = getAction[Group](EntityType.Group, id) {
+      item => details => implicit userOpt => implicit request =>
+    Ok(p.group.show(item))
+  }
+
+  def browseAnnotations = userProfileAction.async { implicit userOpt => implicit request =>
     find[Annotation](
       entities = List(EntityType.Annotation),
       facetBuilder = annotationFacets
     ).map { case QueryResult(page, params, facets) =>
-      Ok(p.annotation.list(page, params, facets, portalRoutes.browseAnnotations(),
-        userDetails.watchedItems))
+      Ok(p.annotation.list(page, params, facets, portalRoutes.browseAnnotations()))
     }
   }
 
@@ -330,13 +329,14 @@ case class Portal @Inject()(implicit globalConfig: global.GlobalConfig, searchDi
     }
   }
 
-  def itemHistory(id: String) = userProfileAction.async { implicit userOpt => implicit request =>
-    backend.history[SystemEvent](id, PageParams.fromRequest(request)).map { data =>
-      if (isAjax) {
-        Ok(p.activity.activityModal(data))
-      } else {
-        ???
-      }
+  def itemHistory(id: String, modal: Boolean = false) = userProfileAction.async { implicit userOpt => implicit request =>
+    val params: RangeParams = RangeParams.fromRequest(request)
+    val filters = SystemEventParams.fromRequest(request)
+    backend.history[SystemEvent](id, params, filters).map { events =>
+      if (isAjax && modal) Ok(p.activity.itemActivityModal(events))
+      else if (isAjax) Ok(p.activity.itemEventItems(events))
+        .withHeaders("activity-more" -> events.more.toString)
+      else Ok(p.activity.itemActivity(events, params))
     }
   }
 
@@ -350,6 +350,18 @@ case class Portal @Inject()(implicit globalConfig: global.GlobalConfig, searchDi
     userProfileAction { implicit userOpt => implicit request =>
       Ok(p.dataPolicy())
     }
+  }
+
+  def terms = userProfileAction { implicit userOpt => implicit request =>
+    Ok(p.terms())
+  }
+
+  def about = userProfileAction { implicit userOpt => implicit request =>
+    Ok(p.about())
+  }
+
+  def contact = userProfileAction { implicit userOpt => implicit request =>
+    Ok(p.contact())
   }
 
   case class NewsItem(title: String, link: String, description: Html, pubDate: Option[DateTime] = None)

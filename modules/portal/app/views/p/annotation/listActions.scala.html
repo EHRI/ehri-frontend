@@ -1,0 +1,37 @@
+@(item: Promotable, contentType: ContentTypes.Value)(implicit userOpt: Option[UserProfile], req: RequestHeader, lang: Lang, globalConfig: global.GlobalConfig)
+
+@userOpt.map { user =>
+    @if(item.isPromotable && user.hasPermission(contentType, PermissionType.Promote)) {
+        @if(!item.isPromotedBy(user)) {
+            <a class="promotion-action promote"
+               title="@Messages("portal.promotion.promote.title")"
+               href="@controllers.portal.annotate.routes.Annotations.promoteAnnotation(item.id, context = models.view.AnnotationContext.List)">
+                <span class="fa fa-caret-up"></span>
+            </a>
+        } else {
+            <a class="promotion-action promote undo"
+               title="@Messages("portal.promotion.promote.remove.title")"
+               href="@controllers.portal.annotate.routes.Annotations.removeAnnotationPromotion(item.id, context = models.view.AnnotationContext.List)">
+                <span class="fa fa-caret-up"></span>
+            </a>
+        }
+        <span title="@Messages("portal.promotion.score.detail", item.promoters.size, item.demoters.size)" class="promotion-score">@item.promotionScore</span>
+        @if(!item.isDemotedBy(user)) {
+            <a class="promotion-action demote"
+               title="@Messages("portal.promotion.demote.title")"
+               href="@controllers.portal.annotate.routes.Annotations.demoteAnnotation(item.id, context = models.view.AnnotationContext.List)">
+                <span class="fa fa-caret-down"></span>
+            </a>
+        } else {
+            <a class="promotion-action demote undo"
+               title="@Messages("portal.promotion.demote.remove.title")"
+               href="@controllers.portal.annotate.routes.Annotations.removeAnnotationDemotion(item.id, context = models.view.AnnotationContext.List)">
+                <span class="fa fa-caret-down"></span>
+            </a>
+        }
+    } else {
+        @if(item.isPromoted) {
+            <span title="@Messages("portal.promotion.promotedBy", item.promoters.map(_.toStringLang).mkString(", "))" class="promoted fa fa-thumbs-o-up"></span>
+        }
+    }
+}

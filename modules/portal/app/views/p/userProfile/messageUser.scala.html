@@ -1,4 +1,4 @@
-@(them: UserProfile, form: Form[(String,String)], action: Call, recaptchaKey: String)(implicit req: RequestHeader, userOpt: Option[UserProfile], globalConfig: global.GlobalConfig, lang: Lang, flash: Flash, prefs: utils.SessionPrefs, token: play.filters.csrf.CSRF.Token)
+@(them: UserProfile, form: Form[(String,String,Boolean)], action: Call, recaptchaKey: String)(implicit req: RequestHeader, userOpt: Option[UserProfile], globalConfig: global.GlobalConfig, lang: Lang, flash: Flash, prefs: utils.SessionPrefs, token: play.filters.csrf.CSRF.Token)
 
 @p.layout.portalLayout(Messages("portal.social.message", them.toStringLang)) {
     @messageForm(them, form, action, recaptchaKey)

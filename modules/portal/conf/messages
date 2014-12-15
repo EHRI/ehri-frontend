@@ -1,6 +1,13 @@
 portal.welcome=Welcome to EHRI
 portal.home=Home
+portal.about=About EHRI
+portal.contact=Contact
+portal.terms=Terms & Conditions
 portal.footerText=This is a development version of the EHRI portal interface.
+portal.footer.funding=The EHRI Project is supported by the European Commission
+portal.footer.copyright=2014 The European Holocaust Research Infrastructure Project
+portal.close=Close
+portal.warning=Warning
 
 portal.download=Download
 portal.download.format.txt=Download as plain text
@@ -8,7 +15,7 @@ portal.download.format.csv=Download as CSV
 portal.download.format.json=Download as JSON
 
 portal.help=Help
-portal.help.accounts=Problems signing up?
+portal.help.general=General site help
 portal.help.archivists=Help for archivists
 portal.help.helpdesk=Helpdesk
 
@@ -17,6 +24,22 @@ portal.profile.preferences.updated=Preferences Updated
 portal.profile.preferences.allowMessaging=Allow other users to send you messages.
 portal.profile.preferences.allowMessaging.description=Your email address will not be directly accessible.
 portal.profile.preferences.updatePreferences=Update Preferences
+portal.profile.preferences.view=View Preferences
+portal.profile.preferences.view.showUserContent=Show promoted notes by other users
+
+portal.profile=Profile
+portal.profile.menu.link=Go to your profile
+portal.profile.security=Security
+portal.profile.edit=Edit Profile
+portal.profile.image.edit=Set Profile Image
+portal.profile.delete=Delete Account
+portal.profile.delete.link=Click here to delete your profile
+portal.profile.delete.check.text=Deleting your account will \
+  will anonymise (but not remove) any publicly-visible annotations and links you may have \
+  contributed to EHRI. To confirm, please type your name as displayed here, in the box below:
+portal.profile.delete.check=Type your name as displayed above.
+portal.profile.delete.badConfirmation=Profile deletion was not confirmed correctly.
+portal.profile.profile.delete.confirmation=Your profile has been deleted.
 
 # Item types
 portal.type=Item type
@@ -26,7 +49,7 @@ portal.type.repository.description=An inventory of archival institutions that \
 portal.type.documentaryUnit=Archival Descriptions
 portal.type.documentaryUnit.description=Electronic descriptions and finding aids of Holocaust-related archival material.
 portal.type.historicalAgent=Historical Agents
-portal.type.country=National Reports
+portal.type.country=Countries
 portal.type.country.description=EHRI national reports provide an overview of \
   the Second World War and Holocaust history as well as of the archival situation \
   in the covered countries.
@@ -34,6 +57,8 @@ portal.type.cvocConcept=Keywords
 portal.type.userProfile=People on EHRI
 portal.type.group=Groups
 portal.type.annotation=Notes
+portal.type.link=Connections
+portal.type.cvocVocabulary=Vocabularies
 
 portal.readonly=The EHRI portal is currently in read-only mode while we conduct maintenance.\
   Normal service should be resumed in due course. Thanks for your patience.
@@ -59,11 +84,12 @@ portal.login.oauth.info=If you already have an account on one of these sites you
 portal.login.password.info=If you''ve previously created an account with EHRI, enter your email and password here:
 portal.login.password.submit=Sign In
 portal.login.recover=If you have lost your login details:
-portal.login.recover.link=Click here if you've forgotten or lost your password.
+portal.login.recover.link=Click here if you''ve forgotten or lost your password.
 portal.login.error=There was a problem with your details
 
 portal.logout=Sign Out
 portal.logout.confirmation=You have been logged out
+portal.account=Account
 
 portal.signup=Create an Account
 portal.signup.submit=Submit
@@ -88,30 +114,11 @@ portal.mail.unverifiedEmailResend=To re-send a verification email
 portal.mail.unverifiedEmailResendSubmit=click here
 portal.mail.emailConfirmationResent=We''ve sent you an email which you can use to confirm your email address.
 
-portal.mail.message.subject=EHRI: Message from {0}: {1}
-portal.mail.message.heading=New message from {0}
-portal.mail.message.footer=To respond, reply directly to this message. You can opt-out from receiving user messages by updating your preferences
-
-portal.preferences.showUserContent=Show User-Generated Comments and Links
-
 portal.browse=Browse
-portal.showDetails=Show Item Details
-portal.hideDetails=Hide Item Details
+portal.details.show=Show Item Details
+portal.details.hide=Hide Item Details
 portal.showItems={0,choice,0#{0} Items|1#1 Item|1<{0,number,integer} Items}
-portal.profile=Profile
-portal.profile.security=Security
-portal.profile.updateProfile=Edit Profile
-portal.profile.updateProfileImage=Set Profile Image
-portal.profile.deleteProfile=Delete Account
-portal.profile.deleteProfileLink=Click here to delete your profile
-portal.warning=Warning
-portal.profile.deleteProfileConfirmation=Deleting your account will \
-  will anonymise (but not remove) any publicly-visible annotations and links you may have \
-  contributed to EHRI. To confirm, please type your name as displayed here, in the box below:
-portal.profile.deleteProfileCheck=Type your name as displayed above.
-portal.profile.deleteProfile.badConfirmation=Profile deletion was not confirmed correctly.
-portal.profile.profileDeleted=Your profile has been deleted.
-portal.close=Close
+
 
 portal.landingBlurb.repository=Browse {0} in {1}.
 portal.landingBlurb.repository.link={0} archival institutions
@@ -133,10 +140,8 @@ portal.latestUpdates=Recent Updates
 
 portal.item.details=Item Details
 portal.item.history=Online History
-# FIXME: Sort out the terminology here!
-portal.item.accessPointLinks=Related Items
-portal.item.annotationLinks=Other Related Items
-portal.item.externalLinks=Mentioned By
+portal.item.related=Related Items
+portal.item.linked=Other Connected Items
 
 portal.repository.address=Address
 portal.repository.contact=Contact
@@ -145,6 +150,8 @@ portal.repository.email=Email
 portal.repository.fax=Fax
 portal.repository.url=Web
 portal.repository.searchItems=Search items held by {0}
+portal.repository.childItems=Archival Descriptions
+portal.repository.childItems.search={0,choice,0#{0} lower level |1#1 item|1<{0,number,integer} items}
 
 portal.documentaryUnit.identifier=Identifier
 portal.documentaryUnit.archivalContext=Archival Context
@@ -167,6 +174,8 @@ portal.documentaryUnit.levelOfDescription.file=File
 portal.documentaryUnit.levelOfDescription.item=Item
 portal.documentaryUnit.levelOfDescription.otherLevel=Other
 portal.documentaryUnit.levelOfDescription.class=Class
+portal.documentaryUnit.childItems=Child Items
+portal.documentaryUnit.childItems.search={0,choice,0#{0} lower level |1#1 item|1<{0,number,integer} items}
 
 portal.historicalAgent.identifier=Identifier
 portal.historicalAgent.dates=Dates
@@ -176,6 +185,11 @@ portal.historicalAgent.entityType.family=Family
 portal.historicalAgent.entityType.corporateBody=Corporate Body
 portal.historicalAgent.set=Historical Agent
 
+portal.country.childItems=Archival Institutions
+portal.country.childItems.search={0,choice,0#{0} lower level |1#1 institution|1<{0,number,integer} institutions}
+
+portal.cvocVocabulary.childItems=Keywords
+portal.cvocVocabulary.childItems.search={0,choice,0#{0} |1#1 keyword|1<{0,number,integer} keywords}
 
 # Facets
 facet.type=Item Type
@@ -236,6 +250,12 @@ facet.top=Top Level
 facet.top.tooltip=Show top-level (broadest) items only.
 facet.vocab=Vocabulary
 facet.vocab.tooltip=The vocabulary/set to which the keyword belongs.
+facet.promotable=Promotable
+facet.promotable.tooltip=Items that can be promoted or demoted
+facet.promoted=Promoted
+facet.promoted.tooltip=Items that are currently promoted or demoted
+facet.score=Promotion Score
+facet.score.tooltip=The sum total of all promotions and demotions, if any
 
 # Activity...
 portal.activity=Activity
@@ -257,8 +277,15 @@ portal.social.message.send.submit=Send Message
 portal.social.message.send.confirmation=Your message has been sent
 portal.social.message.send.subject=Subject
 portal.social.message.send.message=Your message
+portal.social.message.send.copy=Send yourself a copy of this message
 portal.social.message.send.warning=Your message will be sent via email with your registered address in the reply-to field.
 portal.social.message.send.userNotAcceptingMessages=This user has messaging disabled.
+portal.mail.message.subject=EHRI: Message from {0}: {1}
+portal.mail.message.copy.subject=EHRI: Your message to {0}: {1}
+portal.mail.message.heading=New message from {0}
+portal.mail.message.copy.heading=Copy of your message to {0}
+portal.mail.message.replyFooter=To respond, reply directly to this message. You can opt-out from receiving user messages by updating your preferences
+
 
 portal.social.users=People
 portal.social.browseUsers=People on EHRI
@@ -302,13 +329,34 @@ portal.annotation.update.title=Edit Note
 portal.annotation.field.create=Add Note
 portal.annotation.delete=Delete
 portal.annotation.delete.title=Delete Note
-portal.annotation.promote=Promote
-portal.annotation.promote.title=Promote Note
-portal.annotation.demote=Demote
-portal.annotation.demote.title=Demote Note
 portal.annotation.createdBy=Created by {0} at {1}
 portal.annotation.showPublic={0,choice,1#Show 1 public note|1<Show {0} public notes}
 portal.annotation.placeholder=
+
+portal.promotion.isPromotable=Promotion
+portal.promotion.isPromotable.true=Promotable
+portal.promotion.isPromotable.false=Not Promotable
+portal.promotion.isPromoted.true=Promoted
+portal.promotion.isPromoted.false=Not Promoted
+portal.promotion.promotedBy=Promoted by {0}
+portal.promotion.promote=Promote
+portal.promotion.promote.title=Promote Note
+portal.promotion.promote.title.submit=Promote
+portal.promotion.promote.remove=Remove Promotion
+portal.promotion.promote.remove.title=Remove Note Promotion
+portal.promotion.promote.remove.title.submit=Remove
+portal.promotion.demote=Demote
+portal.promotion.demote.title=Demote Note
+portal.promotion.demote.title.submit=Demote
+portal.promotion.demote.remove=Remove Demotion
+portal.promotion.demote.remove.title=Remove Note Demotion
+portal.promotion.demote.remove.title.submit=Remove
+portal.promotion.score=Promotion Score
+portal.promotion.score.detail=Promotions: {0}, Demotions: {1}
+portal.promotion.score.negative=Negative
+portal.promotion.score.neutral=Neutral
+portal.promotion.score.positive=Positive
+
 portal.link.list=Links
 portal.link.none=You haven''t made any links yet.
 

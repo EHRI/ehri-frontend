@@ -186,8 +186,7 @@ case class Accounts @Inject()(implicit globalConfig: GlobalConfig, searchDispatc
     }
   }
 
-  def logout = OptionalAuthAction.async { implicit authRequest =>
-    Logger.logger.info("Portal User '{}' logged out", authRequest.user.map(_.id).getOrElse("?"))
+  def logout = Action.async { implicit authRequest =>
     gotoLogoutSucceeded
   }
 

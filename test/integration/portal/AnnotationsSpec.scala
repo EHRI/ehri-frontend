@@ -1,6 +1,5 @@
 package integration.portal
 
-import scala.concurrent.ExecutionContext.Implicits.global
 import helpers.IntegrationTestRunner
 import models._
 import utils.ContributionVisibility
@@ -176,7 +175,7 @@ class AnnotationsSpec extends IntegrationTestRunner {
       // Get a id via faff method and promote the item...
       implicit val apiUser = ApiUser(Some(privilegedUser.id))
       val aid = await(testBackend.getAnnotationsForItem[Annotation]("c4")).headOption must beSome.which { aid =>
-        await(testBackend.promote(aid.id))
+        await(testBackend.promote[Annotation](aid.id))
 
         // Ensure the unprivileged user CAN now see the annotation...
         val doc2 = route(fakeLoggedInHtmlRequest(unprivilegedUser, GET,

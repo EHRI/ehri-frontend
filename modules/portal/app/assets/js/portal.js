@@ -110,7 +110,7 @@ $(".panel-history").each(function() {
   //$(this).addClass("inactive");
   $(this).find(".panel-heading h3").append(
       $("<span />", {
-        "class" : "expander pull-right glyphicon glyphicon-minus"
+        "class" : "expander glyphicon glyphicon-plus"
       }).on("click", function(e) {
           $(this).parents(".panel-history").toggleClass("inactive");
           $(this).toggleClass("glyphicon-plus").toggleClass("glyphicon-minus");
@@ -298,6 +298,7 @@ $loader = $( "<div></div>" ).addClass("text-center loader-container").append($("
 
   $(document).on("click", ".toggle-boolean-preference", function(e) {
     e.preventDefault();
+    e.stopPropagation();
     var $item = $(this),
         name = $item.data("preference-name"),
         value = $item.data("preference-value");

@@ -17,7 +17,7 @@
         @concept.listItem(d, watched)
     }
     case a: Annotation => {
-        @annotation.listItem(a)
+        @annotation.searchItem(a)
     }
     case _ => {
         @item.toStringLang

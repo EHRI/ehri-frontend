@@ -6,7 +6,7 @@ import models.{SystemEvent, UserProfile, AccountDAO}
 import views.html.p
 import utils._
 import utils.search.{Resolver, SearchOrder, Dispatcher, SearchParams}
-import defines.{EventType, EntityType}
+import defines.EntityType
 import play.api.Play.current
 import solr.SolrConstants
 import backend.Backend
@@ -18,7 +18,6 @@ import play.api.libs.json.Json
 import scala.concurrent.Future
 import models.base.AnyModel
 import backend.rest.Constants
-import scala.Some
 import play.api.mvc.Result
 import backend.ApiUser
 import com.typesafe.plugin.MailerAPI
@@ -66,41 +65,24 @@ case class Social @Inject()(implicit globalConfig: global.GlobalConfig, searchDi
     // Show the profile home page of a defined user.
     // Activity is the default page
     val listParams = RangeParams.fromRequest(request)
-    val incParams = listParams.copy(limit = listParams.limit + 1)
     val eventParams = SystemEventParams.fromRequest(request)
       .copy(eventTypes = activityEventTypes)
       .copy(itemTypes = activityItemTypes)
-    val events: Future[(Boolean, Seq[SystemEvent])] = backend
-      .listEventsByUser[SystemEvent](userId, incParams, eventParams).map { events =>
-      val more = events.size > listParams.limit
-      (more, events.take(listParams.limit))
-    }
-    val isFollowing: Future[Boolean] = backend.isFollowing(user.id, userId)
-    val allowMessage: Future[Boolean] = canMessage(user.id, userId)
+    val events: Future[RangePage[SystemEvent]] = backend
+      .listEventsByUser[SystemEvent](userId, listParams, eventParams)
 
-    for {
-      them <- backend.get[UserProfile](userId)
-      (more, theirActivity) <- events
-      followed <- isFollowing
-      canMessage <- allowMessage
-    } yield Ok(p.userProfile.show(them, theirActivity, more, listParams, followed, canMessage))
-  }
-
-  def moreUserActivity(userId: String, offset: Int = 0, limit: Int = Constants.DEFAULT_LIST_LIMIT) = {
-    userProfileAction.async { implicit userOpt => implicit request =>
-    // NB: Increasing the limit by 1 over the default so we can
-    // detect if there are additional items to display
-      val listParams = RangeParams.fromRequest(request).copy(offset = offset)
-      val incParams = listParams.copy(limit = listParams.limit + 1)
-      val eventFilter = SystemEventParams.fromRequest(request)
-        .copy(eventTypes = activityEventTypes)
-        .copy(itemTypes = activityItemTypes)
-      backend.listEventsByUser[SystemEvent](userId, incParams, eventFilter).map { events =>
-        val more = events.size > listParams.limit
-        val displayEvents = events.take(listParams.limit)
-        Ok(p.activity.eventItems(displayEvents))
-          .withHeaders("activity-more" -> more.toString)
-      }
+    if (isAjax) events.map { theirActivity =>
+      Ok(p.activity.eventItems(theirActivity))
+        .withHeaders("activity-more" -> theirActivity.more.toString)
+    } else {
+      val isFollowing: Future[Boolean] = backend.isFollowing(user.id, userId)
+      val allowMessage: Future[Boolean] = canMessage(user.id, userId)
+      for {
+        them <- backend.get[UserProfile](userId)
+        theirActivity <- events
+        followed <- isFollowing
+        canMessage <- allowMessage
+      } yield Ok(p.userProfile.show(them, theirActivity, listParams, followed, canMessage))
     }
   }
 
@@ -220,7 +202,8 @@ case class Social @Inject()(implicit globalConfig: global.GlobalConfig, searchDi
   private val messageForm = Form(
     tuple(
       "subject" -> nonEmptyText,
-      "message" -> nonEmptyText
+      "message" -> nonEmptyText,
+      "copySelf" -> default(boolean, false)
     )
   )
 
@@ -241,18 +224,29 @@ case class Social @Inject()(implicit globalConfig: global.GlobalConfig, searchDi
     }
   }
 
-  private def sendMessageEmail(from: UserProfile, to: UserProfile, subject: String, message: String)(implicit request: RequestHeader): Unit = {
+  private def sendMessageEmail(from: UserProfile, to: UserProfile, subject: String, message: String, copy: Boolean)(implicit request: RequestHeader): Unit = {
     for {
       accFrom <- userDAO.findByProfileId(from.id)
       accTo <- userDAO.findByProfileId(to.id)
     } yield {
+      val heading = Messages("portal.mail.message.heading", from.toStringLang)
       mailer
         .setSubject(Messages("portal.mail.message.subject", from.toStringLang, subject))
         .setRecipient(accTo.email)
         .setReplyTo(accFrom.email)
         .setFrom("EHRI User <noreply@ehri-project.eu>")
-        .send(views.txt.p.social.mail.messageEmail(from, subject, message).body,
-        views.html.p.social.mail.messageEmail(from, subject, message).body)
+        .send(views.txt.p.social.mail.messageEmail(heading, subject, message).body,
+        views.html.p.social.mail.messageEmail(heading, subject, message).body)
+
+      if (copy) {
+        val copyHeading = Messages("portal.mail.message.copy.heading", to.toStringLang)
+        mailer
+          .setSubject(Messages("portal.mail.message.copy.subject", to.toStringLang, subject))
+          .setRecipient(accFrom.email)
+          .setFrom("EHRI User <noreply@ehri-project.eu>")
+          .send(views.txt.p.social.mail.messageEmail(copyHeading, subject, message, isCopy = true).body,
+          views.html.p.social.mail.messageEmail(copyHeading, subject, message, isCopy = true).body)
+      }
     }
   }
 
@@ -279,7 +273,7 @@ case class Social @Inject()(implicit globalConfig: global.GlobalConfig, searchDi
       .getOrElse("fakekey")
     val boundForm = messageForm.bindFromRequest
 
-    def onError(userTo: UserProfile, form: Form[(String,String)]): Result = {
+    def onError(userTo: UserProfile, form: Form[(String,String,Boolean)]): Result = {
       if (isAjax) BadRequest(form.errorsAsJson)
       else BadRequest(p.userProfile.messageUser(userTo, form,
         socialRoutes.sendMessagePost(userId), recaptchaKey))
@@ -299,8 +293,8 @@ case class Social @Inject()(implicit globalConfig: global.GlobalConfig, searchDi
         boundForm.fold(
           errForm => onError(userTo, errForm),
           data => {
-            val (subject, message) = data
-            sendMessageEmail(user, userTo, subject, message)
+            val (subject, message, copyMe) = data
+            sendMessageEmail(user, userTo, subject, message, copyMe)
             val msg = Messages("portal.social.message.send.confirmation")
             if (isAjax) Ok(Json.obj("ok" -> msg))
             else Redirect(socialRoutes.browseUser(userId))

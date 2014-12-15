@@ -2,7 +2,7 @@ package backend
 
 import play.api.Play.current
 import defines.{EntityType, ContentTypes, PermissionType}
-import utils.PageParams
+import utils.{RangeParams, RangePage, PageParams}
 import backend.rest.{RestBackend, CypherIdGenerator, ItemNotFound, ValidationError}
 import backend.rest.cypher.CypherDAO
 import play.api.libs.json.{JsString, Json}
@@ -11,6 +11,7 @@ import models._
 import play.api.test.PlaySpecification
 import utils.search.{MockSearchIndexer, Indexer}
 import helpers.RestBackendRunner
+import scala.concurrent.Future
 
 /**
  * Spec for testing individual data access components work as expected.
@@ -32,7 +33,7 @@ class BackendModelSpec extends RestBackendRunner with PlaySpecification {
     def handleDelete(id: String) = mockIndexer.clearId(id)
   }
 
-  "EntityDAO" should {
+  "Generic entity operations" should {
     "not cache invalid responses (as per bug #324)" in new TestApp {
       // Previously this would error the second time because the bad
       // response would be cached and error on JSON deserialization.
@@ -249,20 +250,53 @@ class BackendModelSpec extends RestBackendRunner with PlaySpecification {
 
     "promote and demote items" in new TestApp {
       val ann1: Annotation = await(testBackend.get[Annotation]("ann1"))
-      ann1.promotors must beEmpty
-      await(testBackend.promote("ann1")) must beTrue
-      val ann1_2: Annotation = await(testBackend.get[Annotation]("ann1"))
-      (ann1_2.promotors must not).beEmpty
-      private val pid: String = ann1_2.promotors.head.id
-      pid must equalTo(apiUser.id.get)
+      ann1.promoters must beEmpty
+      val promoted = await(testBackend.promote[Annotation]("ann1"))
+      promoted.demoters must beEmpty
+      promoted.promoters.headOption must beSome.which { promoter =>
+        promoter.id must equalTo(apiUser.id.get)
+      }
 
-      await(testBackend.demote("ann1")) must beTrue
-      val ann1_3: Annotation = await(testBackend.get[Annotation]("ann1"))
-      ann1_3.promotors must beEmpty
+      val demoted = await(testBackend.demote[Annotation]("ann1"))
+      demoted.promoters must beEmpty
+      demoted.demoters.headOption must beSome.which { demoter =>
+        demoter.id must equalTo(apiUser.id.get)
+      }
     }
   }
 
-  "SocialDAO" should {
+  "Event operations" should {
+    "handle paging correctly" in new TestApp {
+      // Modify an item 3 times and check the events work properly
+      await(testBackend.patch[DocumentaryUnit]("c1", Json.obj("prop1" -> "foo")))
+      await(testBackend.patch[DocumentaryUnit]("c1", Json.obj("prop2" -> "foo")))
+      await(testBackend.patch[DocumentaryUnit]("c1", Json.obj("prop3" -> "foo")))
+
+      // Fetching all the items (limit = -1), implies there are never more
+      // items because we've got them all...
+      val pageNoLimit: RangePage[SystemEvent] =
+        await(testBackend.history[SystemEvent]("c1", RangeParams.empty.withoutLimit))
+      pageNoLimit.size must equalTo(3)
+      pageNoLimit.more must beFalse
+      pageNoLimit.limit must equalTo(-1)
+
+      val pageOne: RangePage[SystemEvent] =
+        await(testBackend.history[SystemEvent]("c1", RangeParams(limit = 2)))
+      pageOne.size must equalTo(2)
+      pageOne.more must beTrue
+      pageOne.offset must equalTo(0)
+      pageOne.limit must equalTo(2)
+
+      val pageOneThree: RangePage[SystemEvent] =
+        await(testBackend.history[SystemEvent]("c1", RangeParams(offset = 2, limit = 1)))
+      pageOneThree.size must equalTo(1)
+      pageOneThree.more must beFalse
+      pageOneThree.offset must equalTo(2)
+      pageOneThree.limit must equalTo(1)
+    }
+  }
+
+  "Social operations" should {
     "allow following and unfollowing" in new TestApp {
       await(testBackend.isFollowing(userProfile.id, "reto")) must beFalse
       await(testBackend.follow(userProfile.id, "reto"))
@@ -300,7 +334,7 @@ class BackendModelSpec extends RestBackendRunner with PlaySpecification {
     }
   }
 
-  "CypherDAO" should {
+  "Cypher operations" should {
     "get a JsValue for a graph item" in new TestApp {
       val dao = new CypherDAO
       val res = await(dao.cypher(
@@ -321,8 +355,10 @@ class BackendModelSpec extends RestBackendRunner with PlaySpecification {
 
     "get the right next ID for collections in scope" in new TestApp {
       // There a 4 collections in the fixtures c1-c4
+      // Sigh... - now there's also a fixture named "m19", so the next
+      // numeric ID with be "20". I didn't plan this.
       val idGen = new CypherIdGenerator("c%01d")
-      await(idGen.getNextChildNumericIdentifier("r1", EntityType.DocumentaryUnit)) must equalTo("c5")
+      await(idGen.getNextChildNumericIdentifier("r1", EntityType.DocumentaryUnit)) must equalTo("c20")
     }
   }
 }

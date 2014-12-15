@@ -1,0 +1,16 @@
+@(item: Holder[_], childType: EntityType.Value, link: Call)(implicit userOpt: Option[UserProfile], request: RequestHeader, lang: Lang)
+
+@defining(item.childCount.getOrElse(0)) { childCount =>
+    @if(childCount > 0) {
+        <div class="child-items panel-details">
+            <div class="panel-heading">
+                <h3 class="panel-title">@Messages(s"portal.${item.isA}.childItems")</h3>
+            </div>
+            <div class="panel-body">
+                <a class="type-highlight @childType child-item-link" href="@link">
+                    @Messages(s"portal.${item.isA}.childItems.search", childCount)
+                </a>
+            </div>
+        </div>
+    }
+}

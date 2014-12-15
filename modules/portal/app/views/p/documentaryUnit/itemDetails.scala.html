@@ -7,15 +7,18 @@
                 @description(item, desc, links, annotations)
             }
 
-            @p.common.relatedItemsContainer(item) {
-                @p.common.annotationLinks(item, links, watched)
-                @p.common.externalLinks(item, links, watched)
-            }
+            @p.common.externalLinks(item, links)
+            @p.common.annotationLinks(item, links)
         } {
             @p.common.typeLabelWithWatchButton(item, watched.contains(item.id))
         } {
             @archivalContext(item)
-            @p.common.latestAction(item, controllers.portal.routes.Portal.itemHistory(item.id))
+            @p.common.childItemSidebar(
+                item,
+                EntityType.DocumentaryUnit,
+                controllers.portal.routes.Portal.searchDocument(item.id)
+            )
+            @p.common.latestAction(item, controllers.portal.routes.Portal.itemHistory(item.id, modal = true))
         }
     }
 </div>

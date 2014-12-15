@@ -1,4 +1,4 @@
-@(events: Seq[SystemEvent])(implicit userOpt: Option[UserProfile], req: RequestHeader, globalConfig: global.GlobalConfig, lang: Lang)
+@(events: Iterable[SystemEvent])(implicit userOpt: Option[UserProfile], req: RequestHeader, globalConfig: global.GlobalConfig, lang: Lang)
 
 @for(event <- events) {
     @eventItem(event)
