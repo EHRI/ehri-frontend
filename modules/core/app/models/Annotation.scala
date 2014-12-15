@@ -18,7 +18,7 @@ object AnnotationF {
   val FIELD = "field"
   val ANNOTATION_TYPE = "annotationType"
   val COMMENT = "comment"
-  val ALLOW_PUBLIC = Ontology.IS_PROMOTABLE
+  val IS_PRIVATE = "isPrivate"
 
   object AnnotationType extends Enumeration {
     type Type = Value
@@ -135,7 +135,10 @@ object Annotation {
     BODY -> nonEmptyText(maxLength = 600),
     FIELD -> optional(nonEmptyText),
     COMMENT -> optional(nonEmptyText),
-    Ontology.IS_PROMOTABLE -> default(boolean, false)
+    // NB: The object itself has an isPromotable flag, but the
+    // form uses reverse semantics, forcing the user to un-check
+    // the isPrivate (default: true) flag.
+    IS_PRIVATE -> default(boolean.transform[Boolean](f => !f, f => !f), true)
   )(AnnotationF.apply)(AnnotationF.unapply))
 
   val multiForm = Form(single(

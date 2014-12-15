@@ -7,27 +7,6 @@ import defines.PermissionType
 import play.api.mvc.Call
 import controllers.portal.ReversePortal
 
-object AnnotationViewType extends Enumeration {
-  type Type = Value
-  /**
-   * Annotations which a user made, and are thus
-   * most immediately interesting.
-   */
-  val Mine = Value("mine")
-
-  /**
-   * Annotations that have been promoted, and
-   * are this deemed slightly less interesting.
-   */
-  val Promoted = Value("promoted")
-
-  /**
-   * Annotations made by others and visible to
-   * a user, which may be less interesting.
-   */
-  val Other = Value("other")
-}
-
 /**
  * Portal view helpers.
  *
@@ -39,14 +18,13 @@ object Helpers {
    * Sort a set of annotations into three types.
    * @param annotations A list of annotations
    * @param userOpt An optional user context
-   * @return A map of AnnotationViewTypes to Annotations
+   * @return A tuple of annotation sequences: the current user's, promoted, and other
    */
   def sortAnnotations(annotations: Seq[models.Annotation])(
-      implicit userOpt: Option[UserProfile]): Map[AnnotationViewType.Value, Seq[Annotation]] = {
-    import AnnotationViewType._
+      implicit userOpt: Option[UserProfile]): (Seq[Annotation], Seq[Annotation], Seq[Annotation]) = {
     val (mine,others) = annotations.filterNot(_.isPromoted).partition(_.isOwnedBy(userOpt))
     val promoted = annotations.filter(_.isPromoted)
-    Map(Mine -> mine, Promoted -> promoted, Other -> others)
+    (mine, promoted, others)
   }
 
   def normalizeUrl(s: String): String = {

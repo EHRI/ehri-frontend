@@ -10,7 +10,7 @@
 	            @if(editable && !annotation.isPromoted) {
 	            	<ul class="list-inline">
 		                <li>
-                            <a data-item="@annotation.id" class="edit-annotation" href="@controllers.portal.annotate.routes.Annotations.editAnnotation(annotation.id)">
+                            <a data-item="@annotation.id" class="edit-annotation" href="@controllers.portal.annotate.routes.Annotations.editAnnotation(annotation.id, context = models.view.AnnotationContext.Block)">
                                 @Messages("portal.annotation.update")
                             </a>
                         </li>
