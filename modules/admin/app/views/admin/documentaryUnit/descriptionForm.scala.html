@@ -1,8 +1,9 @@
 @(desc: Field)(implicit fieldPrefix: String, defaults: Option[play.api.Configuration] = None, userOpt: Option[UserProfile], req: RequestHeader, globalConfig: global.GlobalConfig, lang: Lang)
 
-@import models.IsadG._
+@import IsadG._
+@import Entity._
 @import Description._
-@import models.DatePeriodF._
+@import DatePeriodF._
 @import views.html.formHelpers._
 
 
@@ -18,7 +19,9 @@
             @inlineNameSet(desc, PARALLEL_FORMS_OF_NAME)
 
             @lineInput(desc, REF)
-            @lineInput(desc, Entity.IDENTIFIER)
+            @defining("description") { implicit fieldPrefix =>
+                @lineInput(desc, IDENTIFIER)
+            }
 
             <div class="inline-formset form-group clearfix" data-prefix="@DATES">
                 <!-- Template for adding inline date forms via JS -->
