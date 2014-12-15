@@ -323,10 +323,13 @@ portal.annotation.list=Notes
 portal.annotation.list.by={0} - Notes
 portal.annotation.none=You haven''t made any notes yet.
 portal.annotation.create=Add Note
+portal.annotation.create.title=Create a note attached to this description
 portal.annotation.update=Edit
 portal.annotation.update.submit=Save
 portal.annotation.update.title=Edit Note
 portal.annotation.field.create=Add Note
+portal.annotation.field.create.title=Create a note on this field
+portal.annotation.field.showHidden=Show/hide {0,choice,1#1 public note made by another person|1<{0} public notes made by other people}
 portal.annotation.delete=Delete
 portal.annotation.delete.title=Delete Note
 portal.annotation.createdBy=Created by {0} at {1}
@@ -395,6 +398,9 @@ portal.contribution.visibility.groups=My Groups
 portal.contribution.visibility.custom=Custom
 portal.contribution.visibility.allowPublic=Allow Promotion
 portal.contribution.visibility.allowPublic.title=Allow EHRI moderators to promote this note so it is visible to all users.
+portal.contribution.visibility.isPrivate=Private Note
+portal.contribution.visibility.isPrivate.title=Only you can see this note. \
+  Deselecting this option will allow EHRI moderators to promote it so it is visible to all users.
 
 # Image upload
 portal.error.imageTooLarge=This image was too large. Please select one smaller than 5 metabytes in size.
@@ -402,6 +408,7 @@ portal.error.badFileType=The uploaded file was not a supported image type.
 portal.error.noFileGiven=No image file was selected.
 
 portal.search=Search
+portal.search.sort.title=Search result ordering
 portal.search.global=Search Everything
 portal.search.repository=Search Repositories
 portal.search.documentaryUnit=Search Archival Descriptions
