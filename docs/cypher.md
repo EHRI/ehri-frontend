@@ -28,8 +28,8 @@ START   n = node:entities("__ISA__:annotation"),
 MATCH   n-[r?:access]->mods
 WHERE   HAS(n.isPromotable)
     AND n.isPromotable = true
-    AND   r is null
-RETURN n., n.body
+    AND r is null
+RETURN  n, n.body
 ```
 
 Once happy that we're getting all the annotations that need fixing we can modify our query
@@ -42,8 +42,8 @@ MATCH   n-[r?:access]->mods
 WHERE   HAS(n.isPromotable)
     AND n.isPromotable = true
     AND r is null
-CREATE n-[:access]->mods
-RETURN n., n.body
+CREATE  n-[:access]->mods
+RETURN  n, n.body
 ```
 
 
