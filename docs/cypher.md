@@ -20,7 +20,7 @@ Then finally:
 
  - create the access relationship on these annotations
 
-Here's some Cypher to test the
+Here's some Cypher to do the query part and check we're getting what we expect (a few annotations):
 
 ```
 START   n = node:entities("__ISA__:annotation"),
@@ -46,4 +46,15 @@ CREATE  n-[:access]->mods
 RETURN  n, n.body
 ```
 
+To briefly run through this:
 
+ - `n = node:entities("__ISA__:annotation")`  The "entities" bit is the global id/type index. This is querying that index
+   for all items of type "annotation"
+ - `mods = node:entities("__ID__:moderators")` This looks up the moderators group from the `entities` index by ID
+ - `MATCH   n-[r?:access]->mods` This finds an _optional_ (the `?` bit) `access` relationship between the annotations and the moderators group
+ - `HAS(n.isPromotable)` Check the annotation has the `isPromotable` property...
+ - `AND n.isPromotable = true` ... and the `isPromotable` property is true...
+ - `r is null` ... and there is *no* current `access` relationship
+ - `n-[:access]->mods` Create the access relationship, not caring about the result
+ - `RETURN  n, n.body` Return something pretty arbitrary (the node and its body). Had we bound the new relationship
+   to a name in the previous step we could have returned that instead
