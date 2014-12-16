@@ -169,3 +169,14 @@ em.highlight {
   margin-top: @large-margin;
   padding-right: @medium-padding;
 }
+
+.search-item-footer {
+  text-align: right;
+}
+
+.list-item-actions, .list-item-meta {
+  &:extend(.small, .text-muted, .list-unstyled);
+  .list-inline;
+  display: inline-block;
+  margin-left: @small-margin;
+}

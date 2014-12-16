@@ -336,12 +336,17 @@ portal.annotation.createdBy=Created by {0} at {1}
 portal.annotation.showPublic={0,choice,1#Show 1 public note|1<Show {0} public notes}
 portal.annotation.placeholder=
 
+portal.access.all=Public
+portal.access.accessibleTo=Visible to {0}
+portal.access.accessibleTo.extended={0,choice,0#|1# and 1 other|1< and {0} others}
+
 portal.promotion.isPromotable=Promotion
 portal.promotion.isPromotable.true=Promotable
 portal.promotion.isPromotable.false=Not Promotable
 portal.promotion.isPromoted.true=Promoted
 portal.promotion.isPromoted.false=Not Promoted
 portal.promotion.promotedBy=Promoted by {0}
+portal.promotion.promotedBy.extended={0,choice,0#|1# and 1 other|1< and {0} others}
 portal.promotion.promote=Promote
 portal.promotion.promote.title=Promote Note
 portal.promotion.promote.title.submit=Promote
