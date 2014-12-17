@@ -95,8 +95,6 @@ portal.signup=Create an Account
 portal.signup.submit=Submit
 portal.signup.dataPolicyNag=By creating an account I agree to abide by the terms of the {0} EHRI data policy {1}.
 portal.signup.badPasswords=The password and confirmation did not match. Please try again.
-portal.signup.badTimestamp=The signup form was submitted too quickly. Please try again.
-portal.signup.badSignupInput=The signup form failed the spam check. Please try again.
 portal.signup.agreeTerms=You must agree to the terms.
 portal.signup.confirmation=Thanks for signing up! We''ve sent you an email which you can use to confirm \
   your email address.
@@ -431,6 +429,9 @@ portal.feedback.message=Let us know what you think...
 portal.feedback.thanks=Thanks!
 portal.feedback.thanks.message=Your feedback is greatly appreciated.
 portal.feedback.list=Submitted Feedback
+portal.feedback.type=This feedback is about
+portal.feedback.type.site=the site (functionality, design, etc)
+portal.feedback.type.data=the data content
 
 # Helpdesk
 portal.helpdesk=Helpdesk

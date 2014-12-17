@@ -5,6 +5,7 @@ import play.api.data.Form
 import play.api.data.Forms._
 import play.api.Mode.Mode
 import org.joda.time.DateTime
+import defines.BindableEnum
 
 /**
  * @author Mike Bryant (http://github.com/mikesname)
@@ -14,6 +15,8 @@ case class Feedback(
   name: Option[String],
   email: Option[String],
   text: Option[String],
+  `type`: Option[Feedback.Type.Value] = Some(Feedback.Type.Site),
+  copyMe: Option[Boolean] = None,
   context: Option[FeedbackContext],
   createdAt: Option[DateTime] = None,
   updatedAt: Option[DateTime] = None,
@@ -21,20 +24,36 @@ case class Feedback(
 )
 
 object Feedback {
+
+  val TEXT = "text"
+  val TYPE = "type"
+  val NAME = "name"
+  val EMAIL = "email"
+  val COPY_ME = "copyMe"
+
+  object Type extends BindableEnum {
+    val Site = Value("site")
+    val Data = Value("data")
+
+    implicit val _format = defines.EnumUtils.enumFormat(this)
+  }
+
   implicit val modeFormat = defines.EnumUtils.enumFormat(play.api.Mode)
   implicit val isoJodaDateReads = Reads.jodaDateReads("yyyy-MM-dd'T'HH:mm:ss.SSSZ")
-  implicit val format: Format[Feedback] = Json.format[Feedback]
+  implicit val _format: Format[Feedback] = Json.format[Feedback]
 
   implicit val form = Form(
     mapping(
       "objectId" -> ignored(Option.empty[String]),
-      "name" -> optional(text),
-      "email" -> optional(email),
-      "text" -> optional(nonEmptyText),
+      NAME -> optional(text),
+      EMAIL -> optional(email),
+      TEXT -> optional(nonEmptyText),
+      TYPE -> optional(utils.forms.enum(Type)),
+      COPY_ME -> optional(boolean),
       "context" -> ignored(Option.empty[FeedbackContext]),
       "createdAt" -> ignored(Option.empty[DateTime]),
       "updatedAt" -> ignored(Option.empty[DateTime]),
-      "mode" -> ignored(Option.apply(play.api.Play.current.mode))
+      "mode" -> ignored(Option.empty[play.api.Mode.Value])
     )(Feedback.apply)(Feedback.unapply)
   )
 }

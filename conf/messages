@@ -60,6 +60,11 @@ countryCode.xk=Kosovo
 #
 # Form constraints and formats
 constraint.required=*
+constraints.timeCheckSeconds=Timestamp
+constraints.timeCheckSeconds.failed=The form was submitted too quickly. Please try again.
+constraints.honeypot=Blank Check
+constraints.honeypot.failed=The form failed the spam check. Please try again.
+
 format.boolean=On/Off
 
 #
