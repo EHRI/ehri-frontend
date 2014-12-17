@@ -12,7 +12,8 @@ case class ProfileData(
   name: String,
   location: Option[String] = None,
   languages: List[String] = Nil,
-  about: Option[String] = None
+  about: Option[String] = None,
+  url: Option[String] = None
 )
 
 object ProfileData {
@@ -25,6 +26,7 @@ object ProfileData {
   import play.api.data.Forms._
   import play.api.data.Form
   import UserProfileF.{LOCATION => USERLOC, _}
+  import utils.forms.isValidUrl
 
   implicit val writes: Writes[ProfileData] = Json.format[ProfileData]
   val form: Form[ProfileData] = Form(
@@ -32,7 +34,8 @@ object ProfileData {
       NAME -> nonEmptyText,
       USERLOC -> optional(text),
       LANGUAGES -> list(nonEmptyText(minLength = 3, maxLength = 3)),
-      ABOUT -> optional(text)
+      ABOUT -> optional(text),
+      URL -> optional(nonEmptyText.verifying(s => isValidUrl(s)))
     )(ProfileData.apply)(ProfileData.unapply)
   )
 }
