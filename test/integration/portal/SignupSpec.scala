@@ -60,14 +60,14 @@ class SignupSpec extends IntegrationTestRunner {
       val signup = route(FakeRequest(POST, accountRoutes.signupPost().url)
         .withSession(CSRF_TOKEN_NAME -> fakeCsrfString), badData).get
       status(signup) must equalTo(BAD_REQUEST)
-      contentAsString(signup) must contain(Messages("portal.signup.badTimestamp"))
+      contentAsString(signup) must contain(Messages("constraits.timeCheckSeconds.failed"))
 
       val badData2 = data
         .updated(TIMESTAMP, Seq("bad-date"))
       val signup2 = route(FakeRequest(POST, accountRoutes.signupPost().url)
         .withSession(CSRF_TOKEN_NAME -> fakeCsrfString), badData2).get
       status(signup2) must equalTo(BAD_REQUEST)
-      contentAsString(signup2) must contain(Messages("portal.signup.badTimestamp"))
+      contentAsString(signup2) must contain(Messages("constraits.timeCheckSeconds.failed"))
     }
 
     "prevent signup with filled blank field" in new ITestApp {
@@ -75,7 +75,7 @@ class SignupSpec extends IntegrationTestRunner {
       val signup = route(FakeRequest(POST, accountRoutes.signupPost().url)
         .withSession(CSRF_TOKEN_NAME -> fakeCsrfString), badData).get
       status(signup) must equalTo(BAD_REQUEST)
-      contentAsString(signup) must contain(Messages("portal.signup.badSignupInput"))
+      contentAsString(signup) must contain(Messages("constraints.honeypot.failed"))
     }
 
     "prevent signup where terms are not agreed" in new ITestApp {

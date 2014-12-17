@@ -59,10 +59,10 @@ package object forms {
           if (timeDiff > delay) Valid
           else {
             Logger.logger.error(s"Bad timestamp on signup with delay $delay")
-            Invalid("portal.signup.badTimestamp")
+            Invalid("constraits.timeCheckSeconds.failed")
           }
         } catch {
-          case e: IllegalArgumentException => Invalid("portal.signup.badTimestamp")
+          case e: IllegalArgumentException => Invalid("constraits.timeCheckSeconds.failed")
         }
       }.getOrElse(Valid)
     }
@@ -74,7 +74,7 @@ package object forms {
    */
   def blankFieldIsBlank[T <: HoneyPotForm]: Constraint[T] = Constraint("constraints.honeypot") { data =>
     if (data.blankCheck.isEmpty) Valid
-    else Invalid("portal.signup.badSignupInput")
+    else Invalid("constraints.honeypot.failed")
   }
 
   /**
