@@ -51,6 +51,11 @@ object SolrConstants {
   final val PARALLEL_NAMES = "parallelFormsOfName"
 
   /**
+   * All alternate names of name
+   */
+  final val ALT_NAMES = "altName"
+
+  /**
    * Name field for word matches
    */
   final val NAME_MATCH = "title" // FIXME???
