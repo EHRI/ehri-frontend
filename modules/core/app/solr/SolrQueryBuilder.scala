@@ -98,7 +98,7 @@ case class SolrQueryBuilder(writerType: WriterType, debugQuery: Boolean = false)
    */
   private def constrainEntities(request: QueryRequest, entities: List[EntityType.Value]): Unit = {
     if (!entities.isEmpty) {
-      val filter = entities.map(_.toString).mkString(" ")
+      val filter = entities.map(_.toString).mkString(" OR ")
       request.setFilterQuery(
         FilterQuery(multiple = request.filterQuery.getMultiple ++ Seq(s"$TYPE:($filter)")))
     }
