@@ -13,10 +13,8 @@ import play.api.libs.functional.syntax._
 import play.api.data.Form
 import play.api.data.Forms._
 import utils.forms._
-import play.api.libs.json.JsObject
 import eu.ehri.project.definitions.Ontology
 import backend._
-import scala.Some
 import play.api.libs.json.JsObject
 
 
@@ -33,6 +31,7 @@ object UserProfileF {
   val IMAGE_URL = "imageUrl"
   val ACTIVE = "active"
   val STAFF = "staff"
+  val URL = "url"
 
   import Entity._
 
@@ -48,6 +47,7 @@ object UserProfileF {
           ABOUT -> d.about,
           LANGUAGES -> d.languages,
           IMAGE_URL -> d.imageUrl,
+          URL -> d.url,
           ACTIVE -> d.active
         )
       )
@@ -63,6 +63,7 @@ object UserProfileF {
       (__ \ DATA \ ABOUT).readNullable[String] and
       (__ \ DATA \ LANGUAGES).readListOrSingle[String] and
       (__ \ DATA \ IMAGE_URL).readNullable[String] and
+      (__ \ DATA \ URL).readNullable[String] and
       (__ \ DATA \ ACTIVE).readNullable[Boolean].map(_.getOrElse(true))
     )(UserProfileF.apply _)
 
@@ -82,6 +83,7 @@ case class UserProfileF(
   about: Option[String] = None,
   languages: List[String] = Nil,
   imageUrl: Option[String] = None,
+  url: Option[String] = None,
   active: Boolean = true
 ) extends Model with Persistable
 
@@ -131,6 +133,7 @@ object UserProfile {
       ABOUT -> optional(text),
       LANGUAGES -> list(nonEmptyText),
       IMAGE_URL -> optional(nonEmptyText.verifying(s => isValidUrl(s))),
+      URL -> optional(nonEmptyText.verifying(s => isValidUrl(s))),
       ACTIVE -> boolean
     )(UserProfileF.apply)(UserProfileF.unapply)
   )

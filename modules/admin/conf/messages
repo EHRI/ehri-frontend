@@ -153,8 +153,8 @@ documentaryUnit.child.create=Create New Child Item
 documentaryUnit.export.ead=Export EAD (Testing)
 
 
-documentDescription.identifier=Description ID (Optional)
-documentDescription.identifier.description=Optional field to distinguish a description from \
+description.identifier=Description ID (Optional)
+description.identifier.description=Optional field to distinguish a description from \
   others that might share the same language code.
 
 #

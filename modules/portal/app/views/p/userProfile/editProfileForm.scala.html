@@ -10,6 +10,9 @@ implicit userOpt: Option[UserProfile], req: RequestHeader, globalConfig: global.
     @defining(FIELD_PREFIX) { implicit fieldPrefix =>
         @helper.inputText(f(NAME), '_label -> Messages(fieldPrefix + "." + NAME))
         @helper.inputText(f(LOCATION), '_label -> Messages(fieldPrefix + "." + LOCATION))
+        @helper.input(f(URL), 'type -> "url", '_label -> Messages(fieldPrefix + "." + URL)) { (id, name, value, args) =>
+            <input name="@name" id="@id" @toHtmlArgs(args)>
+        }
         <div class="form-group">
            <label class="col-sm-4 control-label" for="@LANGUAGES">@Messages(FIELD_PREFIX + "." + LANGUAGES)</label>
             <div class="col-sm-8">

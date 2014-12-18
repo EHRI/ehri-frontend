@@ -7,6 +7,12 @@
             @loc
         </li>
     }
+    @user.model.url.map { url =>
+        <li>
+            <span class="glyphicon glyphicon-link"></span>
+            <a href="@url" target="_blank">@views.Helpers.ellipsize(url, 50)</a>
+        </li>
+    }
     @user.model.about.map { about =>
         <li class="user-profile-description">
             @about

@@ -412,8 +412,10 @@ class BackendModelSpec extends RestBackendRunner with PlaySpecification {
 
     "get the right next ID for collections in scope" in new TestApp {
       // There a 4 collections in the fixtures c1-c4
+      // Sigh... - now there's also a fixture named "m19", so the next
+      // numeric ID with be "20". I didn't plan this.
       val idGen = new CypherIdGenerator("c%01d")
-      await(idGen.getNextChildNumericIdentifier("r1", EntityType.DocumentaryUnit)) must equalTo("c5")
+      await(idGen.getNextChildNumericIdentifier("r1", EntityType.DocumentaryUnit)) must equalTo("c20")
     }
   }
 }
