@@ -1,7 +1,7 @@
 # Routes for linking functionality
 
 GET     /:id                          @controllers.linking.Links.get(id: String)
-GET     /:id/showrd                   @controllers.linking.Links.getAndRedirect(id: String, redirect: Option[String] ?= None)
+GET     /:id/rd                       @controllers.linking.Links.getAndRedirect(id: String, redirect: Option[String] ?= None)
 GET     /:id/history                  @controllers.linking.Links.history(id: String)
 GET     /:id/visibility               @controllers.linking.Links.visibility(id: String)
 POST    /:id/visibility               @controllers.linking.Links.visibilityPost(id: String)

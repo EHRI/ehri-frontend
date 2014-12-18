@@ -1,5 +1,8 @@
 @(item: Annotation)(implicit userOpt: Option[UserProfile], request: RequestHeader, prefs: utils.SessionPrefs, globalConfig: global.GlobalConfig, lang: Lang, flash: Flash)
 
 @p.layout.showLayout(item) {
-
+        @for(target <- item.target; field <- item.model.field) {
+            [@Messages(s"${target.isA}.$field")]
+        }
+        @Html(views.Helpers.renderMarkdown(item.model.body))
 }

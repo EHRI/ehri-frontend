@@ -1,5 +1,11 @@
 @(item: Annotation, highlighter: views.Highlighter = views.NoopHighlighter)(implicit userOpt: Option[UserProfile], req: RequestHeader, lang: Lang, globalConfig: global.GlobalConfig)
 
+@list(cls: String)(html: Html) = {
+    @if(!html.body.trim.isEmpty) {
+        <ul class="@cls">@html</ul>
+    }
+}
+
 <div class="search-item-details">
     <ul class="annotation-search-details">
         @for(field <- item.model.field; target <- item.target) {
@@ -12,3 +18,34 @@
 </div>
 
 <blockquote>@highlighter.highlight(item.model.body)</blockquote>
+
+<div class="search-item-footer">
+    @list("list-item-meta") {
+        @if(item.isPromoted) {
+            <li>
+                @defining(item.promoters.take(3), item.promoters.drop(3).size) { case (first, rest) =>
+                @Messages("portal.promotion.promotedBy", first.map(_.toStringLang).mkString(", "))
+                @Messages("portal.promotion.promotedBy.extended", rest)}
+                <span class="fa fa-eye"></span>
+            </li>
+        } else {
+            @if(!item.accessors.isEmpty) {
+                <li>
+                    @defining(item.accessors.take(3), item.accessors.drop(3).size) { case (first, rest) =>
+                    @Messages("portal.access.accessibleTo", first.map(_.toStringLang).mkString(", "))
+                    @Messages("portal.access.accessibleTo.extended", rest)}
+                    <span class="fa fa-eye-slash"></span>
+                </li>
+            } else {
+                <li>@Messages("portal.access.all")</li>
+            }
+        }
+    }
+    @list("list-item-actions") {
+        @if(userOpt.exists(_.hasPermission(ContentTypes.Annotation, PermissionType.Delete))) {
+            <li><a class="delete-annotation"
+               title="@Messages("portal.annotation.delete.title")"href="@controllers.portal.annotate.routes.Annotations.deleteAnnotation(item.id)">@Messages("portal.annotation.delete")</a>
+            </li>
+        }
+    }
+</div>

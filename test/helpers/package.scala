@@ -33,7 +33,7 @@ package object helpers {
       val acc = userDAO.create(account.id, account.email, verified = account.verified, staff = account.staff,
         allowMessaging = account.allowMessaging)
       OpenIDAssociation.addAssociation(acc, acc.id + "-openid-test-url")
-      OAuth2Association.addAssociation(acc, "1234", "google")
+      OAuth2Association.addAssociation(acc, acc.id + "1234", "google")
     }
   }
 

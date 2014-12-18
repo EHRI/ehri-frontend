@@ -101,7 +101,7 @@ jQuery(function ($) {
   * $elem = DOM element in jQuery format $(elem) on which the user click. Eg : In $(document).on("click", ".btn"), this would be $(this)
   * formerIcon = class of the icon that should be removed. Eg. : For .glyphicon.glyphicon-star this would be "glyphicon-star"
   */
-  var changeGlyphToLoader = function ($elem, formerIcon, iconClass) {
+  function changeGlyphToLoader($elem, formerIcon, iconClass) {
     var loadingClass = "glyphicon-refresh",
         spinningClass = " spin",
         iconClass = iconClass || "glyphicon";
@@ -118,7 +118,7 @@ jQuery(function ($) {
         $elem.prepend('<span class="glyphicon ' + loadingClass + spinningClass + '"></span> ')
       }
     }
-  };
+  }
 
   /**
 	* Handler following/unfollowing users via Ajax.
@@ -310,32 +310,15 @@ jQuery(function ($) {
     }
   }
 
-  // Load an annotation form...
-  $(document).on("click", ".annotate-item", function (e) {
-    e.preventDefault();
-    var $elem = $(this),
-        id = $elem.data("item"),
-        did = $elem.data("did");
-    jsRoutes.controllers.portal.annotate.Annotations.annotate(id, did).ajax({
-      success: function (data) {
-        insertAnnotationForm($elem, data);
-      }
-    });
-  });
-
   // Fields are very similar but we have to use the field as part
   // of the form submission url...
-  $(document).on("click", ".annotate-field", function (e) {
+  $(document).on("click", "a.annotate-field, a.annotate-item", function (e) {
     e.preventDefault();
     var $elem = $(this),
-        id = $elem.data("item"),
-        did = $elem.data("did"),
-        field = $elem.data("field");
+        action = this.href;
     loaderContainer = insertAnnotationLoader($elem);
-    jsRoutes.controllers.portal.annotate.Annotations.annotateField(id, did, field).ajax({
-      success: function (data) {
-        insertAnnotationForm($elem, data, loaderContainer);
-      }
+    $.get(action, function (data) {
+      insertAnnotationForm($elem, data, loaderContainer);
     });
   });
 
@@ -395,11 +378,8 @@ jQuery(function ($) {
   // data.
   $(document).on("submit", ".edit-annotation-form", function (e) {
     e.preventDefault();
-    var $form = $(this);
-    var action = $form.closest("form").attr("action");
-    if ($form.parents(".description-annotations") !== "undefined" && $form.parents(".description-annotations").length >= 1) {
-      action += "?isField=false";
-    }
+    var $form = $(this),
+        action = $form.attr("action");
     $.post(action, $form.serialize(), function (data) {
       $form.next(".annotate-field").show();
       $form.replaceWith(data);
@@ -411,20 +391,15 @@ jQuery(function ($) {
   $(document).on("click", "a.delete-annotation", function (e) {
     e.preventDefault();
     var $elem = $(this),
-        id = $elem.data("item"),
         check = $elem.attr("title"),
         action = this.href;
     if (confirm(check + "?")) {
       var $ann = $elem.closest(".annotation");
       $ann.hide();
-      $.post({
-        url: action,
-        success: function () {
-          $ann.remove();
-        },
-        error: function () {
-          $ann.show();
-        }
+      $.post(action, function (data) {
+        $ann.remove();
+      }).fail(function () {
+        $ann.show();
       });
     }
   });

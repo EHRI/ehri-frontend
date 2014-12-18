@@ -2,17 +2,20 @@
 
 @import utils.search.{SearchParams,SearchOrder}
 
-<div class="search-sort btn-group btn-group-xs pull-right">
+<div class="search-sort btn-group btn-group-xs">
+    <span class="fa fa-sort" title="@Messages("portal.search.sort.title")"></span>
     @List(SearchOrder.Score, SearchOrder.Id, SearchOrder.Name, SearchOrder.DateNewest, SearchOrder.Detail).map { sortKey =>
-        @defining(Messages("search.sort." + sortKey.replace(",", "-") + ".title")) { title =>
-            @if(params.sort.equals(Some(sortKey))) {
-                <a class="btn btn-xs btn-default btn-active current-search-sort" title="@title" href="@utils.joinPath(req.path, req.queryString.filterKeys(_ != SearchParams.SORT))">
-                @Messages("search.sort." + sortKey.replace(",", "-"))
-                </a>
-            } else {
-                <a class="btn btn-default btn-xs" title="@title" href="@utils.joinPath(req.path, req.queryString.updated(SearchParams.SORT, Seq(sortKey.toString)))">
-                @Messages("search.sort." + sortKey.replace(",", "-"))
-                </a>
+        @defining("search.sort." + sortKey.replace(",", "-")) { i18nKey =>
+            @defining((Messages(i18nKey), Messages(i18nKey + ".title"))) { case (name, title) =>
+                @if(params.sort.equals(Some(sortKey))) {
+                    <a class="current-search-sort btn btn-xs btn-default btn-active" title="@title" href="@utils.joinPath(req.path, req.queryString.filterKeys(_ != SearchParams.SORT))">
+                        @name
+                    </a>
+                } else {
+                    <a class="btn btn-xs btn-default" style="" title="@title" href="@utils.joinPath(req.path, req.queryString.updated(SearchParams.SORT, Seq(sortKey.toString)))">
+                        @name
+                    </a>
+                }
             }
         }
     }

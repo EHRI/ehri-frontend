@@ -46,6 +46,12 @@
 
 .search-sort {
   margin-top: @medium-margin;
+  &:extend(.list-unstyled, .list-inline, .pull-right);
+
+  span.fa {
+    padding: @small-padding;
+    float: left;
+  }
 }
 
 .search-summary {
@@ -170,4 +176,15 @@ em.highlight {
   .list-unstyled;
   margin-top: @large-margin;
   padding-right: @medium-padding;
+}
+
+.search-item-footer {
+  text-align: right;
+}
+
+.list-item-actions, .list-item-meta {
+  &:extend(.small, .text-muted, .list-unstyled);
+  .list-inline;
+  display: inline-block;
+  margin-left: @small-margin;
 }

@@ -20,7 +20,7 @@ class AccountSpec extends PlaySpecification {
   "account db" should {
     "load fixtures with the right number of accounts" in new WithSqlFixtures(new FakeApplication) {
       DB.withConnection { implicit connection =>
-        SQL("select count(*) from users").as(scalar[Long].single) must equalTo(4L)
+        SQL("select count(*) from users").as(scalar[Long].single) must equalTo(5L)
       }
     }
 
@@ -86,7 +86,8 @@ class AccountSpec extends PlaySpecification {
 
   "oauth2 assoc" should {
     "find accounts by oauth2 provider info and allow adding another" in new WithSqlFixtures(new FakeApplication) {
-      val assoc = OAuth2Association.findByProviderInfo("1234", "google")
+      val assoc = OAuth2Association.findByProviderInfo(mocks.privilegedUser.id + "1234", "google")
+      println("ASSOC: " + assoc)
       assoc must beSome
       assoc.get.user must beSome
       assoc.get.user.get.email must beEqualTo(mocks.privilegedUser.email)
