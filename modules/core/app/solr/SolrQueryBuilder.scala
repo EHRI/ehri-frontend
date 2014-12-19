@@ -88,7 +88,7 @@ case class SolrQueryBuilder(writerType: WriterType, debugQuery: Boolean = false)
 
   private lazy val spellcheckParams: Seq[(String,Option[String])] = Seq(
     "count", "onlyMorePopular", "extendedResults", "accuracy",
-    "collate", "maxCollations", "maxCollationTries"
+    "collate", "maxCollations", "maxCollationTries", "maxResultsForSuggest"
   ).map(f => f -> app.configuration.getString(s"ehri.search.spellcheck.$f"))
 
 
