@@ -180,11 +180,11 @@ trait AuthController extends Controller with ControllerHelpers with AsyncAuth wi
       implicit rd: BackendReadable[MT], ct: BackendContentType[MT]): Action[AnyContent] =
       async(BodyParsers.parse.anyContent, id)(f)
 
-    def apply[MT](contentType: ContentTypes.Value, id: String)(f: MT => Option[UserProfile] => Request[AnyContent] => Result)(
+    def apply[MT](id: String)(f: MT => Option[UserProfile] => Request[AnyContent] => Result)(
         implicit rd: BackendReadable[MT], ct: BackendContentType[MT]): Action[AnyContent] =
       async(id)(f.andThen(_.andThen(_.andThen(t => Future.successful(t)))))
 
-    def apply[A, MT](bodyParser: BodyParser[A], contentType: ContentTypes.Value, id: String)(f: MT => Option[UserProfile] => Request[AnyContent] => Result)(
+    def apply[A, MT](bodyParser: BodyParser[A], id: String)(f: MT => Option[UserProfile] => Request[AnyContent] => Result)(
       implicit rd: BackendReadable[MT], ct: BackendContentType[MT]): Action[AnyContent] =
       async(BodyParsers.parse.anyContent, id)(f.andThen(_.andThen(_.andThen(t => Future.successful(t)))))
   }
