@@ -1,4 +1,6 @@
 
+@search-glow: #508fd1;
+
 .facet-list li a {
   color: #666;
   font-size: 0.9em;
@@ -17,9 +19,13 @@
   margin-right: @small-margin;
   margin-bottom: @small-margin;
   display: inline-block;
+  color: #fff;
+  background-color: @search-glow;
 
-  & {
-    .make-btn-group(@btn-size: xs);
+  > .facet, .remove {
+    padding: 2px @small-padding;
+    border-color: @almost-black;
+    font-size: 0.9em;
   }
 
   > a.remove-filter {
@@ -27,7 +33,9 @@
     .remove {
       .glyphicon;
       .glyphicon-remove;
-      font-size:11px;
+      &:hover {
+        background-color: darken(@search-glow, 10%);
+      }
     }
     &:hover {
       text-decoration:none;
@@ -35,6 +43,43 @@
     }
   }
 }
+
+.facet-options {
+
+  a {
+    text-decoration: none;
+    color: @almost-black;
+    font-size: 0.9em;
+    font-weight: normal;
+    &:hover {
+      text-shadow: alpha(@search-glow, 0.8) 0 0 10px;
+    }
+    &.remove-filter {
+      &:after {
+        content: "\00D7";
+      }
+      font-weight: bold;
+    }
+  }
+
+  &.choice {
+    a.apply-filter:before {
+      content: "\2610";
+    }
+    a.remove-filter {
+      &:after {
+        content: "";
+      }
+      &:before {
+        content: "\2611";
+      }
+      &:hover:after {
+        content: "\00D7";
+      }
+    }
+  }
+}
+
 
 /** child items */
 .child-count a {
