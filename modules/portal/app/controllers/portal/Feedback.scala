@@ -1,7 +1,7 @@
 package controllers.portal
 
 import play.api.libs.concurrent.Execution.Implicits._
-import play.api.mvc.{RequestHeader, Controller}
+import play.api.mvc.{Result, RequestHeader, Controller}
 import controllers.base.{AuthController, ControllerHelpers}
 import scala.concurrent.Future.{successful => immediate}
 import backend.{Backend, FeedbackDAO}
@@ -63,32 +63,31 @@ case class Feedback @Inject()(implicit globalConfig: global.GlobalConfig, feedba
   }
 
   def feedbackPost = userProfileAction.async { implicit userOpt => implicit request =>
-    val boundForm = models.Feedback.form.bindFromRequest
+    val boundForm: Form[models.Feedback] = models.Feedback.form.bindFromRequest()
     import play.api.Play.current
 
-    checkFbForm.bindFromRequest.fold(
-      errorForm => immediate(BadRequest(errorForm.errorsAsJson)),
-      _ => boundForm.fold(
-        errorForm => {
-          if (isAjax) immediate(BadRequest(errorForm.errorsAsJson))
-          else immediate(BadRequest(views.html.p.feedback(errorForm)))
-        },
-        feedback => {
-          val moreFeedback = (for (user <- userOpt; account <- user.account) yield {
-            feedback
-              .copy(name = feedback.name.orElse(Some(account.id)))
-              .copy(email = feedback.email.orElse(Some(account.email)))
-          }).getOrElse(feedback)
-            .copy(context = Some(models.FeedbackContext.fromRequest),
-              mode = Some(play.api.Play.current.mode))
-          feedbackDAO.create(moreFeedback).map { id =>
-            sendMessageEmail(moreFeedback)
-            if (isAjax) Ok(id)
-            else Redirect(controllers.portal.routes.Portal.index())
-              .flashing("success" -> "Thanks for your feedback!")
-          }
+    def response(f: Form[models.Feedback]): Result =
+      if (isAjax) BadRequest(f.errorsAsJson) else BadRequest(views.html.p.feedback(f))
+
+    // check the anti-bot measures and immediately return the original
+    // form. No feedback needed since they're (hopefully) a bot.
+    if (checkFbForm.bindFromRequest.hasErrors) immediate(response(boundForm))
+    else boundForm.fold(
+      errorForm => immediate(response(errorForm)),
+      feedback => {
+        val moreFeedback = userOpt.map { user =>
+          feedback.copy(name = feedback.name.orElse(user.account.map(_.id)))
+            .copy(email = feedback.email.orElse(user.account.map(_.email)))
+        }.getOrElse(feedback)
+          .copy(context = Some(models.FeedbackContext.fromRequest),
+            mode = Some(play.api.Play.current.mode))
+        feedbackDAO.create(moreFeedback).map { id =>
+          sendMessageEmail(moreFeedback)
+          if (isAjax) Ok(id)
+          else Redirect(controllers.portal.routes.Portal.index())
+            .flashing("success" -> "portal.feedback.thanks.message")
         }
-      )
+      }
     )
   }
 
