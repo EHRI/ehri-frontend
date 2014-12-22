@@ -1,24 +1,22 @@
 package controllers.base
 
-import scala.concurrent.Future
+import scala.concurrent.{ExecutionContext, Future}
 import scala.concurrent.Future.{successful => immediate}
 import models.{UserProfileF, UserProfile}
 import play.api.mvc._
 import play.api.i18n.Lang
 import jp.t2v.lab.play2.auth.AsyncAuth
 import play.api.libs.concurrent.Execution.Implicits._
-import utils.renderError
 import defines.PermissionType
 import defines.ContentTypes
 import backend._
-import views.html.errors.itemNotFound
 import backend.ApiUser
 import play.api.mvc.Result
-import play.api.mvc.Cookie
 
 /**
  * Trait containing composable Action wrappers to handle different
  * types of request authentication.
+ * NB: None of the methods here actually reer
  */
 trait AuthController extends Controller with ControllerHelpers with AsyncAuth with AuthConfigImpl {
 
@@ -38,6 +36,34 @@ trait AuthController extends Controller with ControllerHelpers with AsyncAuth wi
 
   private val LANG = "lang"
 
+  /**
+   * Abstract response methods that should be implemented by inheritors.
+   *
+   * @param request the request heaader
+   * @param context the execution context
+   * @return an error response
+   */
+  def verifiedOnlyError(request: RequestHeader)(implicit context: ExecutionContext): Future[Result]
+
+  /**
+   * Abstract response methods that should be implemented by inheritors.
+   *
+   * @param request the request heaader
+   * @param context the execution context
+   * @return an error response
+   */
+  def staffOnlyError(request: RequestHeader)(implicit context: ExecutionContext): Future[Result]
+
+  /**
+   * Abstract response methods that should be implemented by inheritors.
+   *
+   * @param request the request heaader
+   * @param context the execution context
+   * @return an error response
+   */
+  def notFoundError(request: RequestHeader)(implicit context: ExecutionContext): Future[Result]
+
+
   override implicit def request2lang(implicit request: RequestHeader) = {
     request.cookies.get(LANG) match {
       case None => super.request2lang(request)
@@ -53,13 +79,9 @@ trait AuthController extends Controller with ControllerHelpers with AsyncAuth wi
     def async[A](bodyParser: BodyParser[A])(f: Option[UserProfile] => Request[A] => Future[Result]): Action[A] = {
       optionalUserAction.async[A](bodyParser) { implicit maybeAccount => implicit request =>
         maybeAccount.map { account =>
-          if (staffOnly && secured && !account.staff) {
-            immediate(Unauthorized(renderError("errors.staffOnly",
-              views.html.errors.staffOnly())))
-          } else if (verifiedOnly && secured && !account.verified) {
-            immediate(Unauthorized(renderError("errors.verifiedOnly",
-              views.html.errors.verifiedOnly())))
-          } else if (globalConfig.readOnly) {
+          if (staffOnly && secured && !account.staff) staffOnlyError(request)
+          else if (verifiedOnly && secured && !account.verified) verifiedOnlyError(request)
+          else if (globalConfig.readOnly) {
             // Return early if we're read-only...
             f(None)(request)
           } else {
@@ -268,20 +290,5 @@ trait AuthController extends Controller with ControllerHelpers with AsyncAuth wi
       if (maybeUser.isDefined) f(maybeUser)(request)
       else authenticationFailed(request)
     }
-  }
-
-  /**
-   * Wrap some code generating an optional result, falling back to a 404.
-   */
-  def itemOr404(f: => Option[Result])(implicit request: RequestHeader): Result = {
-    f.getOrElse(NotFound(renderError("errors.itemNotFound", itemNotFound())))
-  }
-
-  /**
-   * Given an optional item and a function to produce a
-   * result from it, run the function or fall back on a 404.
-   */
-  def itemOr404[T](item: Option[T])(f: => T => Result)(implicit request: RequestHeader): Result = {
-    item.map(f).getOrElse(NotFound(renderError("errors.itemNotFound", itemNotFound())))
   }
 }

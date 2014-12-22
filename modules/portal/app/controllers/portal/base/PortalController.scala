@@ -1,27 +1,30 @@
-package controllers.portal
+package controllers.portal.base
 
 import play.api.libs.concurrent.Execution.Implicits._
 import defines.{EventType, EntityType}
-import utils.{Page, PageParams}
+import utils._
+import controllers.renderError
 import models.{Link, Annotation, UserProfile}
 import play.api.mvc._
 import controllers.base.{ControllerHelpers, AuthController}
-import play.api.mvc.Result
-import backend.{BackendReadable, BackendContentType, ApiUser}
-import scala.concurrent.Future
-import models.view.{UserDetails, ItemDetails}
+import backend.{BackendReadable, BackendContentType}
+import scala.concurrent.{ExecutionContext, Future}
+import scala.concurrent.Future.{successful => immediate}
 import play.api.Play.current
 import play.api.cache.Cache
 import models.base.AnyModel
 import caching.FutureCache
+import models.view.ItemDetails
+import models.view.UserDetails
+import backend.ApiUser
+import play.api.mvc.Result
+import views.html.errors.itemNotFound
 
 
 /**
  * @author Mike Bryant (http://github.com/mikesname)
  */
-trait PortalBase {
-
-  self: AuthController with ControllerHelpers =>
+trait PortalController extends AuthController with ControllerHelpers with PortalAuthConfigImpl {
 
   /**
    * Ensure that functions requiring an optional user in scope
@@ -58,6 +61,36 @@ trait PortalBase {
     EntityType.Link,
     EntityType.Annotation
   )
+
+  def verifiedOnlyError(request: RequestHeader)(implicit context: ExecutionContext): Future[Result] = {
+    implicit val r  = request
+    immediate(Unauthorized(renderError("errors.verifiedOnly", views.html.errors.verifiedOnly())))
+  }
+
+  def staffOnlyError(request: RequestHeader)(implicit context: ExecutionContext): Future[Result] = {
+    implicit val r  = request
+    immediate(Unauthorized(renderError("errors.staffOnly", views.html.errors.staffOnly())))
+  }
+
+  def notFoundError(request: RequestHeader)(implicit context: ExecutionContext): Future[Result] = {
+    implicit val r  = request
+    immediate(NotFound(renderError("errors.itemNotFound", itemNotFound())))
+  }
+
+  /**
+   * Wrap some code generating an optional result, falling back to a 404.
+   */
+  def itemOr404(f: => Option[Result])(implicit request: RequestHeader): Result = {
+    f.getOrElse(NotFound(renderError("errors.itemNotFound", itemNotFound())))
+  }
+
+  /**
+   * Given an optional item and a function to produce a
+   * result from it, run the function or fall back on a 404.
+   */
+  def itemOr404[T](item: Option[T])(f: => T => Result)(implicit request: RequestHeader): Result = {
+    item.map(f).getOrElse(NotFound(renderError("errors.itemNotFound", itemNotFound())))
+  }
 
   /**
    * Fetched watched items for an optional user.

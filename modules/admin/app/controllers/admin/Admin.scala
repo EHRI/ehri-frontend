@@ -1,9 +1,8 @@
 package controllers.admin
 
 import play.api.libs.concurrent.Execution.Implicits._
-import controllers.base.AuthController
+import controllers.base.{AdminController, AuthController, ControllerHelpers}
 import play.api.mvc.Controller
-import controllers.base.ControllerHelpers
 
 import com.google.inject._
 import backend.{BackendReadable, Backend}
@@ -13,7 +12,7 @@ import models.base.AnyModel
 import backend.rest.SearchDAO
 
 
-case class Admin @Inject()(implicit globalConfig: global.GlobalConfig, backend: Backend, userDAO: AccountDAO) extends Controller with AuthController with ControllerHelpers {
+case class Admin @Inject()(implicit globalConfig: global.GlobalConfig, backend: Backend, userDAO: AccountDAO) extends AdminController {
 
   implicit val rd: BackendReadable[AnyModel] = AnyModel.Converter
 

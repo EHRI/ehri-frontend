@@ -27,6 +27,7 @@ import org.joda.time.DateTime
 import caching.FutureCache
 import backend.rest.Constants
 import scala.concurrent.Future
+import controllers.portal.base.PortalController
 
 /*
  *    "Linked" Data import
@@ -41,12 +42,9 @@ import play.api.libs.json.{Json, JsValue, JsString, JsArray}
 @Singleton
 case class Portal @Inject()(implicit globalConfig: global.GlobalConfig, searchDispatcher: Dispatcher, searchResolver: Resolver, backend: Backend,
     userDAO: AccountDAO)
-  extends Controller
-  with LoginLogout
-  with ControllerHelpers
+  extends PortalController
   with Search
   with FacetConfig
-  with PortalBase
   with SessionPreferences[SessionPrefs]
   with Secured {
 
@@ -136,7 +134,7 @@ case class Portal @Inject()(implicit globalConfig: global.GlobalConfig, searchDi
       case EntityType.Vocabulary => Redirect(portalRoutes.browseVocabulary(id))
       case EntityType.UserProfile => Redirect(controllers.portal.social.routes.Social.browseUser(id))
       case EntityType.Group => Redirect(portalRoutes.browseGroup(id))
-      case _ => NotFound(renderError("errors.pageNotFound", pageNotFound()))
+      case _ => NotFound(controllers.renderError("errors.pageNotFound", pageNotFound()))
     }
   }
 

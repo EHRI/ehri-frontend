@@ -24,11 +24,14 @@ import backend.rest.Constants
 import scala.concurrent.Future
 import models.base.AnyModel
 import models.base.Description
+import controllers.base.AdminController
 
 
 @Singleton
 case class VirtualUnits @Inject()(implicit globalConfig: global.GlobalConfig, searchDispatcher: Dispatcher, idGenerator: IdGenerator,
-                                  searchResolver: Resolver, backend: Backend, userDAO: AccountDAO) extends Read[VirtualUnit]
+                                  searchResolver: Resolver, backend: Backend, userDAO: AccountDAO)
+  extends AdminController
+  with Read[VirtualUnit]
   with Visibility[VirtualUnit]
   with Create[VirtualUnitF,VirtualUnit]
   with Creator[VirtualUnitF, VirtualUnit, VirtualUnit]

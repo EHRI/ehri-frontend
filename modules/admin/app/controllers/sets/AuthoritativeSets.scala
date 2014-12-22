@@ -12,11 +12,14 @@ import backend.{Entity, IdGenerator, Backend}
 import play.api.Configuration
 import play.api.Play.current
 import solr.SolrConstants
+import controllers.base.AdminController
 
 @Singleton
 case class
 AuthoritativeSets @Inject()(implicit globalConfig: global.GlobalConfig, searchDispatcher: Dispatcher, searchIndexer: Indexer,
-            searchResolver: Resolver, backend: Backend, idGenerator: IdGenerator, userDAO: AccountDAO) extends CRUD[AuthoritativeSetF,AuthoritativeSet]
+            searchResolver: Resolver, backend: Backend, idGenerator: IdGenerator, userDAO: AccountDAO)
+  extends AdminController
+  with CRUD[AuthoritativeSetF,AuthoritativeSet]
   with Creator[HistoricalAgentF, HistoricalAgent, AuthoritativeSet]
   with Visibility[AuthoritativeSet]
   with ScopePermissions[AuthoritativeSet]

@@ -22,16 +22,14 @@ import play.api.http.HeaderNames
 import play.api.cache.Cache
 import models.base.AnyModel
 import solr.SolrConstants
+import controllers.portal.base.PortalController
 
 @Singleton
 case class Bookmarks @Inject()(implicit globalConfig: global.GlobalConfig, searchDispatcher: Dispatcher, searchResolver: Resolver, backend: Backend,
     userDAO: AccountDAO, idGenerator: IdGenerator)
-  extends Controller
-  with LoginLogout
-  with ControllerHelpers
-  with Search
+  extends PortalController
   with FacetConfig
-  with PortalBase
+  with Search
   with SessionPreferences[SessionPrefs] {
 
   val defaultPreferences = new SessionPrefs

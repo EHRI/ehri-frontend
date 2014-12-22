@@ -30,13 +30,13 @@ import solr.SolrConstants
 
 import play.api.data._
 import play.api.data.Forms._
+import controllers.portal.base.PortalController
 
 case class Guides @Inject()(implicit globalConfig: global.GlobalConfig, searchDispatcher: Dispatcher, searchResolver: Resolver, backend: Backend,
                             userDAO: AccountDAO)
-  extends ControllerHelpers
+  extends PortalController
   with Search
   with FacetConfig
-  with PortalBase
   with SessionPreferences[SessionPrefs] {
 
   val defaultPreferences = new SessionPrefs

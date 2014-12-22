@@ -18,10 +18,13 @@ import scala.util.Failure
 import solr.facet.FieldFacetClass
 import scala.util.Success
 import defines.EntityType
+import controllers.base.AdminController
 
 
 @Singleton
-case class AdminSearch @Inject()(implicit globalConfig: global.GlobalConfig, searchDispatcher: Dispatcher, searchResolver: Resolver, searchIndexer: Indexer, backend: Backend, userDAO: AccountDAO) extends Search {
+case class AdminSearch @Inject()(implicit globalConfig: global.GlobalConfig, searchDispatcher: Dispatcher, searchResolver: Resolver, searchIndexer: Indexer, backend: Backend, userDAO: AccountDAO)
+  extends AdminController
+  with Search {
 
   // i.e. Everything
   private val entityFacets: FacetBuilder = { implicit request =>

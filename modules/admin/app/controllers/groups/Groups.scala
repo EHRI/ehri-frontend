@@ -13,8 +13,10 @@ import backend.Backend
 import backend.rest.{Constants, RestHelpers}
 import play.api.mvc.{Request, AnyContent}
 import play.api.data.{Forms, Form}
+import controllers.base.AdminController
 
-case class Groups @Inject()(implicit globalConfig: global.GlobalConfig, searchDispatcher: Dispatcher, searchResolver: Resolver, backend: Backend, userDAO: AccountDAO) extends PermissionHolder[Group]
+case class Groups @Inject()(implicit globalConfig: global.GlobalConfig, searchDispatcher: Dispatcher, searchResolver: Resolver, backend: Backend, userDAO: AccountDAO) extends AdminController
+  with PermissionHolder[Group]
   with Visibility[Group]
   with CRUD[GroupF, Group] {
 

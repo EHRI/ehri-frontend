@@ -17,17 +17,15 @@ import utils._
 
 import com.google.inject._
 import scala.concurrent.Future
+import controllers.portal.base.PortalController
 
 
 @Singleton
 case class VirtualUnits @Inject()(implicit globalConfig: global.GlobalConfig, searchDispatcher: Dispatcher, searchResolver: Resolver, backend: Backend,
     userDAO: AccountDAO, idGenerator: IdGenerator)
-  extends Controller
-  with LoginLogout
-  with ControllerHelpers
+  extends PortalController
   with Search
   with FacetConfig
-  with PortalBase
   with SessionPreferences[SessionPrefs] {
 
   val defaultPreferences = new SessionPrefs

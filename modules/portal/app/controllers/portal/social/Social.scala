@@ -21,7 +21,8 @@ import backend.rest.Constants
 import play.api.mvc.Result
 import backend.ApiUser
 import com.typesafe.plugin.MailerAPI
-import controllers.portal.{PortalBase, Secured, PortalAuthConfigImpl}
+import controllers.portal.{Secured}
+import controllers.portal.base.{PortalController, PortalAuthConfigImpl}
 
 /**
  * @author Mike Bryant (http://github.com/mikesname)
@@ -32,10 +33,7 @@ import controllers.portal.{PortalBase, Secured, PortalAuthConfigImpl}
  */
 case class Social @Inject()(implicit globalConfig: global.GlobalConfig, searchDispatcher: Dispatcher, searchResolver: Resolver, backend: Backend, userDAO: AccountDAO,
     mailer: MailerAPI)
-  extends AuthController
-  with ControllerHelpers
-  with PortalAuthConfigImpl
-  with PortalBase
+  extends PortalController
   with SessionPreferences[SessionPrefs]
   with Secured {
 

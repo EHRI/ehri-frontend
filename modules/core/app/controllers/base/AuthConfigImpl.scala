@@ -95,7 +95,7 @@ trait AuthConfigImpl extends AuthConfig with Results {
    */
   def authorizationFailed(request: RequestHeader)(implicit context: ExecutionContext): Future[Result] = {
     implicit val req = request
-    immediate(Forbidden(views.html.errors.permissionDenied()))
+    immediate(Forbidden("todo")) //views.html.errors.permissionDenied()))
   }
 
   /**

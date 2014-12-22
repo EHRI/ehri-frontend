@@ -1,4 +1,4 @@
-package controllers.portal
+package controllers.portal.base
 
 import controllers.base.AuthConfigImpl
 import play.api.mvc.{Result, RequestHeader, Call}

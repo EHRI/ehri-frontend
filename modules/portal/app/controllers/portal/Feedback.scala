@@ -9,13 +9,14 @@ import models.AccountDAO
 import com.google.inject._
 import utils.SessionPrefs
 import com.typesafe.plugin.MailerAPI
+import controllers.portal.base.PortalController
 
 /**
  * @author Mike Bryant (http://github.com/mikesname)
  */
 case class Feedback @Inject()(implicit globalConfig: global.GlobalConfig, feedbackDAO: FeedbackDAO,
                               backend: Backend, userDAO: AccountDAO, mailer: MailerAPI)
-  extends Controller with ControllerHelpers with AuthController with Secured {
+  extends PortalController with Secured {
 
   implicit def prefs = new SessionPrefs
 

@@ -4,8 +4,11 @@ import models.{AnnotationF, AccountDAO, Annotation}
 import com.google.inject._
 import controllers.generic._
 import backend.Backend
+import controllers.base.AdminController
 
-case class Annotations @Inject()(implicit globalConfig: global.GlobalConfig, backend: Backend, userDAO: AccountDAO) extends Read[Annotation]
+case class Annotations @Inject()(implicit globalConfig: global.GlobalConfig, backend: Backend, userDAO: AccountDAO)
+  extends AdminController
+  with Read[Annotation]
   with Visibility[Annotation]
   with Promotion[Annotation]
   with Update[AnnotationF,Annotation]

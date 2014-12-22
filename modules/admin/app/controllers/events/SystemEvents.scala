@@ -8,8 +8,11 @@ import controllers.generic.Read
 import backend.Backend
 import backend.rest.RestHelpers
 import models.base.AnyModel
+import controllers.base.AdminController
 
-case class SystemEvents @Inject()(implicit globalConfig: global.GlobalConfig, backend: Backend, userDAO: AccountDAO) extends Read[SystemEvent] {
+case class SystemEvents @Inject()(implicit globalConfig: global.GlobalConfig, backend: Backend, userDAO: AccountDAO)
+  extends AdminController
+  with Read[SystemEvent] {
 
   def get(id: String) = getAction.async(id) {
       item => annotations => links => implicit userOpt => implicit request =>

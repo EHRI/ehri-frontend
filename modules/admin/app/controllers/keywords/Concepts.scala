@@ -12,10 +12,13 @@ import scala.concurrent.Future.{successful => immediate}
 import solr.facet.FieldFacetClass
 import backend.Backend
 import models.base.Description
+import controllers.base.AdminController
 
 
 @Singleton
-case class Concepts @Inject()(implicit globalConfig: global.GlobalConfig, searchDispatcher: Dispatcher, searchResolver: Resolver, backend: Backend, userDAO: AccountDAO) extends Creator[ConceptF, Concept, Concept]
+case class Concepts @Inject()(implicit globalConfig: global.GlobalConfig, searchDispatcher: Dispatcher, searchResolver: Resolver, backend: Backend, userDAO: AccountDAO)
+  extends AdminController
+  with Creator[ConceptF, Concept, Concept]
   with Visibility[Concept]
   with Read[Concept]
   with Update[ConceptF, Concept]

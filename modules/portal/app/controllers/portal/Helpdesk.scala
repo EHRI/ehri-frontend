@@ -9,13 +9,14 @@ import com.google.inject._
 import utils.SessionPrefs
 import backend.rest.SearchDAO
 import com.typesafe.plugin.MailerAPI
+import controllers.portal.base.PortalController
 
 /**
  * @author Mike Bryant (http://github.com/mikesname)
  */
 case class Helpdesk @Inject()(implicit helpdeskDAO: HelpdeskDAO, globalConfig: global.GlobalConfig, backend: Backend,
     userDAO: AccountDAO, mailer: MailerAPI)
-  extends Controller with ControllerHelpers with AuthController with Secured {
+  extends PortalController with Secured {
 
   implicit def prefs = new SessionPrefs
 

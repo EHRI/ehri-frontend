@@ -6,9 +6,12 @@ import com.google.inject._
 import controllers.generic.Search
 import backend.Backend
 import models.AccountDAO
+import controllers.base.AdminController
 
 @Singleton
-case class SearchFilter @Inject()(implicit globalConfig: global.GlobalConfig, searchDispatcher: Dispatcher, searchResolver: Resolver, backend: Backend, userDAO: AccountDAO) extends Search {
+case class SearchFilter @Inject()(implicit globalConfig: global.GlobalConfig, searchDispatcher: Dispatcher, searchResolver: Resolver, backend: Backend, userDAO: AccountDAO)
+  extends AdminController
+  with Search {
 
   override val staffOnly = false
   override val verifiedOnly = false

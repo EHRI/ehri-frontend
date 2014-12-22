@@ -1,15 +1,13 @@
 package controllers.guides
 
-import controllers.base.AuthController
-import play.api.mvc.Controller
-import controllers.base.ControllerHelpers
+import controllers.base.AdminController
 
 import com.google.inject._
 import backend.Backend
-import models.{GuidePage, AccountDAO, Guide}
+import models.{AccountDAO, Guide}
 
 
-case class Guides @Inject()(implicit globalConfig: global.GlobalConfig, backend: Backend, userDAO: AccountDAO) extends Controller with AuthController with ControllerHelpers {
+case class Guides @Inject()(implicit globalConfig: global.GlobalConfig, backend: Backend, userDAO: AccountDAO) extends AdminController {
 
   private val formGuide = models.Guide.form
   private final val guidesRoutes = controllers.guides.routes.Guides

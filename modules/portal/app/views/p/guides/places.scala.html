@@ -10,7 +10,7 @@
 	<script src="//cdnjs.cloudflare.com/ajax/libs/leaflet/0.7.3/leaflet.js"></script>
 	<script type="text/javascript">
 		templateParams = "@template._1.params".replace("&amp;","&");
-		redIcon_URL = "@controllers.core.routes.Assets.at("images/marker-icon-red.png")";
+		redIcon_URL = "@controllers.portal.routes.Assets.at("img/marker-icon-red.png")";
 		MAP_URL = "@controllers.portal.routes.Guides.layoutRetrieval(template._2._1.path, template._1.path)";
 		$originalMarkers = @Html(Json.stringify(json));
 	</script>

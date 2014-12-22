@@ -21,11 +21,13 @@ import play.api.mvc.Result
 import solr.facet.SolrQueryFacet
 import play.api.libs.json.JsObject
 import solr.facet.QueryFacetClass
+import controllers.base.AdminController
 
 
 @Singleton
 case class UserProfiles @Inject()(implicit globalConfig: global.GlobalConfig, searchIndexer: Indexer, searchDispatcher: Dispatcher, searchResolver: Resolver, backend: Backend, userDAO: AccountDAO)
-  extends PermissionHolder[UserProfile]
+  extends AdminController
+  with PermissionHolder[UserProfile]
   with ItemPermissions[UserProfile]
   with Read[UserProfile]
   with Update[UserProfileF,UserProfile]

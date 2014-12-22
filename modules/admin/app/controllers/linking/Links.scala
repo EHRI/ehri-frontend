@@ -5,9 +5,12 @@ import models.{LinkF, AccountDAO, Link}
 import com.google.inject._
 import controllers.generic._
 import backend.Backend
+import controllers.base.AdminController
 
 
-case class Links @Inject()(implicit globalConfig: global.GlobalConfig, backend: Backend, userDAO: AccountDAO) extends Read[Link]
+case class Links @Inject()(implicit globalConfig: global.GlobalConfig, backend: Backend, userDAO: AccountDAO)
+  extends AdminController
+  with Read[Link]
   with Visibility[Link]
   with Promotion[Link]
   with Update[LinkF, Link]

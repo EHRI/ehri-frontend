@@ -5,7 +5,7 @@
 <html>
     <head>
         <title>@guide._2._1.name | @otherTitle.getOrElse(guide._1.name)</title>
-        <link rel="stylesheet" media="screen" href="@controllers.core.routes.Assets.versioned("css/guides.css")">
+        <link rel="stylesheet" media="screen" href="@controllers.portal.routes.Assets.versioned("css/guides.css")">
         @styles
         <style type="text/css">@Html(guide._2._1.css.getOrElse(""))</style>
     </head>
@@ -24,7 +24,7 @@
 		</div>
 	</div>
           <script src="//ajax.googleapis.com/ajax/libs/jquery/1.10.2/jquery.min.js"></script>
-          <script src="@controllers.core.routes.Assets.at("bootstrap/js/bootstrap.min.js")"></script>
+          <script src="@controllers.portal.routes.Assets.at("bootstrap/js/bootstrap.min.js")"></script>
 	<script src="@controllers.portal.routes.PortalData.jsRoutes"></script>
 	<script type="text/javascript">
 		VIRTUAL_UNIT = "@guide._2._1.virtualUnit";

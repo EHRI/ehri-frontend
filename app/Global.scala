@@ -92,7 +92,7 @@ object Global extends WithFilters(CSRFFilter()) with GlobalSettings {
 
   import play.api.mvc.Results._
   import views.html.errors._
-  import utils.renderError
+  import controllers.renderError
 
   override def onError(request: RequestHeader, ex: Throwable) = {
     implicit def req = request
