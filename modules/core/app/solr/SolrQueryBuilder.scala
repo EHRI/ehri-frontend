@@ -83,7 +83,7 @@ case class SolrQueryBuilder(writerType: WriterType, debugQuery: Boolean = false)
    * Look up boost values from configuration for default query fields.
    */
   private lazy val queryFieldsWithBoost: Seq[(String,Option[Double])] = Seq(
-    ITEM_ID, NAME_EXACT, NAME_MATCH, OTHER_NAMES, PARALLEL_NAMES, ALT_NAMES, NAME_SORT, TEXT
+    ITEM_ID, IDENTIFIER, NAME_EXACT, NAME_MATCH, OTHER_NAMES, PARALLEL_NAMES, ALT_NAMES, NAME_SORT, TEXT
   ).map(f => f -> app.configuration.getDouble(s"ehri.search.boost.$f"))
 
   private lazy val spellcheckParams: Seq[(String,Option[String])] = Seq(

@@ -36,6 +36,11 @@ object SolrConstants {
   final val CHILD_COUNT = "childCount"
 
   /**
+   * Local identifier
+   */
+  final val IDENTIFIER = "identifier"
+
+  /**
    * The canonical "item name"
    */
   final val NAME_EXACT = "name"

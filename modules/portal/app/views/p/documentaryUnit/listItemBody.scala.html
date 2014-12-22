@@ -11,7 +11,7 @@
                     <li><a class="alt" href="@controllers.portal.routes.Portal.browseRepository(holder.id)">@holder.toStringAbbr</a></li>
                 }
             }
-            <li title="@item.model.identifier">@StringUtils.abbreviate(item.model.identifier, 15)</li>
+            <li title="@item.model.identifier">@highlighter.highlight(StringUtils.abbreviate(item.model.identifier, 15))</li>
             <li><span class="text-muted">@views.Helpers.languageCodeToName(desc.languageCode)</span></li>
 
             @desc.dates.headOption.map { dp =>
