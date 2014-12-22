@@ -1,0 +1,70 @@
+guide.heading=Guides
+guide.list=Available Guides
+guide.objectId=Numeric Identifier
+guide.objectId.description=Automatic identifier
+guide.path=Path (url)
+guide.path.description=Will be available through /guides/path
+guide.name=Name
+guide.name.description=Name of the guide
+guide.description=Description
+guide.description.description=Description of the guide
+guide.picture=Picture
+guide.picture.description=Path to the picture of the guide
+guide.default=Default page
+guide.default.description=Page available at the root of the guide
+guide.css=CSS personnalization for the guide
+guide.css.description= Some CSS styling
+guide.active=Active
+guide.virtual_unit=Virtual Unit ID
+guide.unactive=Not Active
+guide.active.description=Set 1 if guide is publicly visible, else 0
+
+guide.update=Edit
+guide.update.item=Edit {0}
+guide.update.submit=Submit
+guide.create=Create New Guide
+guide.create.submit=Submit
+guide.delete=Delete this Guide
+guide.delete.item=Delete this Guide
+guide.delete.check=Delete this Guide?
+guide.delete.submit=Delete
+
+
+guidePage.list=Available Guide Pages
+guidePage.update=Edit page
+guidePage.update.item=Edit {0}
+guidePage.update.submit=Submit
+guidePage.create=Create a Page
+guidePage.create.submit=Create
+guidePage.delete=Delete this Page
+guidePage.delete.check=Delete this Page?
+guidePage.delete.item=Delete {0}
+guidePage.delete.submit=Delete
+
+guidePage.objectId=Numeric Identifier
+guidePage.name=Title
+guidePage.path=Path (url)
+guidePage.position=Menu Position
+guidePage.layout=Layout
+guidePage.content=Content
+guidePage.parent=Parent
+guidePage.description=Secondary Content
+guidePage.params=Default parameters
+
+guidePage.objectId.description=Automatic Identifier
+guidePage.name.description=Title of the page to be shown in menu
+guidePage.path.description=Will be available through /guides/nameOfTheGuide/path
+guidePage.position.description=Menu Position (top menu or right menu)
+guidePage.layout.description=Layout to render the data
+guidePage.content.description=Either markdown-formated text, identifier of a cVoc/AuthoritativeSet or Html
+guidePage.parent.description=Parent of the guide
+guidePage.params.description=An URL query string to be parsed. eg. : lat=80&lng=15
+guidePage.description.description=Secondary content. In normal case, the description of the page shown in the right part of the guide. In case of a free text page, you should write the javascript here
+
+guidePage.map=Map
+guidePage.person=Persons
+guidePage.md=Free text
+guidePage.organisation=Vertically Organized Concepts
+guidePage.side=Side menu
+guidePage.top=Top Menu
+guidePage.nowhere=Hidden

@@ -19,6 +19,7 @@ trait AbstractPage[+A] extends Seq[A] {
   def end: Int = offset + items.size
   def page: Int = (Math.ceil(offset.max(0).toDouble / limit.max(1).toDouble) + 1).toInt
   def range: String = s"$start-$end"
+  def hasMore: Boolean = page < numPages
 
   def isLimited = limit == -1
 }

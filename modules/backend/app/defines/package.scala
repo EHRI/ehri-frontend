@@ -1,4 +1,3 @@
-import play.api.mvc.QueryStringBindable
 
 package object defines {
 
@@ -8,6 +7,7 @@ package object defines {
   import play.api.libs.json._
 
   import play.api.mvc.PathBindable
+  import play.api.mvc.QueryStringBindable
 
   abstract class BindableEnum extends Enumeration {
     

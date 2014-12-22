@@ -56,9 +56,12 @@ portal.type.country.description=EHRI national reports provide an overview of \
 portal.type.cvocConcept=Keywords
 portal.type.userProfile=People on EHRI
 portal.type.group=Groups
+portal.type.virtualUnit=Virtual Collections
 portal.type.annotation=Notes
 portal.type.link=Connections
 portal.type.cvocVocabulary=Vocabularies
+
+portal.showChildItems=Child Items
 
 portal.readonly=The EHRI portal is currently in read-only mode while we conduct maintenance.\
   Normal service should be resumed in due course. Thanks for your patience.
@@ -117,7 +120,6 @@ portal.details.show=Show Item Details
 portal.details.hide=Hide Item Details
 portal.showItems={0,choice,0#{0} Items|1#1 Item|1<{0,number,integer} Items}
 
-
 portal.landingBlurb.repository=Browse {0} in {1}.
 portal.landingBlurb.repository.link={0} archival institutions
 portal.landingBlurb.repository.country.link={0} countries
@@ -132,6 +134,7 @@ portal.landingBlurb.corporateBody.link={0,choice,0#{0} corporate bodies|1#1 corp
 portal.landingBlurb.person.link={0} Persons
 portal.landingBlurb.family.link={0,choice,0#{0} families|1#1 family|1<{0,number,integer} families}
 
+portal.bookmark.tooltip=Save this item to your bookmarks.
 portal.bookmarkedItems=Bookmarked Items
 portal.newsFeed=Latest News
 portal.latestUpdates=Recent Updates
@@ -182,6 +185,20 @@ portal.historicalAgent.entityType.person=Person
 portal.historicalAgent.entityType.family=Family
 portal.historicalAgent.entityType.corporateBody=Corporate Body
 portal.historicalAgent.set=Historical Agent
+
+portal.virtualUnit.viewInArchivalContext=View in archival context
+portal.virtualUnit.viewInArchivalContext.explanation=This item is being displayed as part of a ''virtual collection'' \
+  that does not reflect the arrangement of material in the physical archive.
+
+portal.bookmarkSet.list=Bookmark Sets
+portal.bookmarkSet.create=Create Bookmark Set
+portal.bookmarkSet.create.submit=Submit
+portal.bookmarkSet.edit=Edit Bookmark Set
+portal.bookmarkSet.edit.submit=Submit
+portal.bookmarkSet.delete=Delete Bookmark Set
+portal.bookmarkSet.delete.submit=Delete
+portal.bookmarkSet.noBookmarkSetsYet=You haven't made any bookmark sets yet.
+portal.bookmarkSet.noUserBookmarkSetsYet={0} has no public bookmark sets yet.
 
 portal.country.childItems=Archival Institutions
 portal.country.childItems.search={0,choice,0#{0} lower level |1#1 institution|1<{0,number,integer} institutions}
@@ -428,6 +445,16 @@ portal.feedback=Feedback
 portal.feedback.message=Let us know what you think...
 portal.feedback.thanks=Thanks!
 portal.feedback.thanks.message=Your feedback is greatly appreciated.
+
+portal.guides.faceted=Browse
+portal.guides=Guides
+portal.guides.more=More
+portal.guides.loading=Loading
+portal.guides.facets.hierarchy=Search or browse through the available facets of the Guide.
+portal.guides.facets.available=The facets shown here are the one available connected to the same document.
+portal.guides.annotation=If you have anything to improve or comment on this record, you can annotate it in the standard EHRI portal interface.
+portal.guides.seeOnPortal=Portal interface
+
 portal.feedback.list=Submitted Feedback
 portal.feedback.type=This feedback is about
 portal.feedback.type.site=the site (functionality, design, etc)

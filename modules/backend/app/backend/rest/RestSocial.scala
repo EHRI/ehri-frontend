@@ -1,6 +1,6 @@
 package backend.rest
 
-import backend.{BackendReadable, EventHandler, Social, ApiUser}
+import backend.{ApiUser, BackendReadable, EventHandler, Social}
 import scala.concurrent.{ExecutionContext, Future}
 import utils.{Page, PageParams}
 import defines.EntityType
@@ -18,10 +18,15 @@ trait RestSocial extends Social with RestDAO {
   private def requestUrl = s"$baseUrl/${EntityType.UserProfile}"
 
   private def followingUrl(userId: String) = enc(requestUrl, userId, "following")
+
   private def watchingUrl(userId: String) = enc(requestUrl, userId, "watching")
+
   private def blockedUrl(userId: String) = enc(requestUrl, userId, "blocked")
+
   private def isFollowingUrl(userId: String, otherId: String) = enc(requestUrl, userId, "isFollowing", otherId)
+
   private def isWatchingUrl(userId: String, otherId: String) = enc(requestUrl, userId, "isWatching", otherId)
+
   private def isBlockingUrl(userId: String, otherId: String) = enc(requestUrl, userId, "isBlocking", otherId)
 
   def follow(userId: String, otherId: String)(implicit apiUser: ApiUser, executionContext: ExecutionContext): Future[Unit] = {
@@ -32,6 +37,7 @@ trait RestSocial extends Social with RestDAO {
       Cache.remove(userId)
     }
   }
+
   def unfollow(userId: String, otherId: String)(implicit apiUser: ApiUser, executionContext: ExecutionContext): Future[Unit] = {
     userCall(followingUrl(userId)).withQueryString(ID_PARAM -> otherId).delete().map { r =>
       checkError(r)
@@ -40,6 +46,7 @@ trait RestSocial extends Social with RestDAO {
       Cache.remove(userId)
     }
   }
+
   def isFollowing(userId: String, otherId: String)(implicit apiUser: ApiUser, executionContext: ExecutionContext): Future[Boolean] = {
     val url = isFollowingUrl(userId, otherId)
     FutureCache.getOrElse[Boolean](url) {
@@ -150,9 +157,38 @@ trait RestSocial extends Social with RestDAO {
   }
 
   def userBookmarks[A](userId: String, params: PageParams = PageParams.empty)(implicit apiUser: ApiUser, rd: BackendReadable[A],  executionContext: ExecutionContext): Future[Page[A]] = {
-    val url: String = enc(requestUrl, EntityType.VirtualUnit, "forUser", userId)
+    val url: String = enc(requestUrl, userId, EntityType.VirtualUnit)
     userCall(url).get().map { r =>
       parsePage(r, context = Some(url))(rd.restReads)
+    }
+  }
+
+  def addBookmark(setId: String, id: String)(implicit apiUser: ApiUser, executionContext: ExecutionContext): Future[Unit] = {
+    userCall(enc(baseUrl, EntityType.VirtualUnit, setId, "includes"))
+      .withQueryString(ID_PARAM -> id).post("").map { _ =>
+      eventHandler.handleUpdate(setId)
+      Cache.remove(setId)
+    }
+  }
+
+  def deleteBookmarks(set: String, ids: Seq[String])(implicit apiUser: ApiUser, executionContext: ExecutionContext): Future[Unit] = {
+    if (ids.isEmpty) Future.successful(())
+    else userCall(enc(baseUrl, EntityType.VirtualUnit, set, "includes"))
+      .withQueryString(ids.map ( id => ID_PARAM -> id): _*).delete().map { _ =>
+      eventHandler.handleUpdate(set)
+      Cache.remove(set)
+    }
+  }
+
+  def moveBookmarks(fromSet: String, toSet: String, ids: Seq[String])(implicit apiUser: ApiUser, executionContext: ExecutionContext): Future[Unit] = {
+    if (ids.isEmpty) Future.successful(())
+    else userCall(enc(baseUrl, EntityType.VirtualUnit, fromSet, "includes", toSet))
+      .withQueryString(ids.map(id => ID_PARAM -> id): _*).post("").map { _ =>
+      // Update both source and target sets in the index
+      Cache.remove(fromSet)
+      Cache.remove(toSet)
+      eventHandler.handleUpdate(fromSet)
+      eventHandler.handleUpdate(toSet)
     }
   }
 }

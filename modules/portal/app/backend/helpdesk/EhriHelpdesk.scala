@@ -7,7 +7,6 @@ import com.fasterxml.jackson.core.JsonParseException
 import play.api.libs.json.Json
 import com.google.common.base.Charsets
 
-
 case class TestHelpdesk(implicit app: play.api.Application) extends HelpdeskDAO {
   import HelpdeskDAO._
 

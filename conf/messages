@@ -171,6 +171,7 @@ contentTypes.country=Countries
 contentTypes.link=Links
 contentTypes.systemEvent=History
 contentTypes.virtualUnit=Virtual Collections
+contentTypes.guides=Guides
 
 #
 # Permission Types

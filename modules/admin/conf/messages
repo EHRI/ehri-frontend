@@ -114,6 +114,7 @@ logoUrl.description=A URL to a logo image for the repository.
 #
 # Virtual Units
 #
+virtualUnit.collection=Virtual Collection
 virtualUnit.search=Virtual Collections
 virtualUnit.searchInside=Structure
 virtualUnit.parentItem=Parent Virtual Item

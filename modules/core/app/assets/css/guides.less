@@ -1,10 +1,68 @@
 //
 // Load Dependencies
 // --------------------------------------------------
-@import "./_bootstrap.less";
-@import "./_font-awesome.less";
-@import "./guides/_jquery.ui.less";
-@import "./guides/_jquery.ui.theme.less";
+// <-- Bootstrap
+
+// Core variables and mixins
+@import "./bootstrap/_variables.less";
+@import "./_ehri-vars.less";
+@import "./ehri/_variables.less";
+@import "./bootstrap/_mixins.less";
+
+// Reset
+@import "./bootstrap/_normalize.less";
+@import "./bootstrap/_print.less";
+
+// Core CSS
+@import "./bootstrap/_scaffolding.less";
+@import "./bootstrap/_type.less";
+@import "./bootstrap/_code.less";
+@import "./bootstrap/_grid.less";
+@import "./bootstrap/_tables.less";
+@import "./bootstrap/_forms.less";
+@import "./bootstrap/_buttons.less";
+
+// Components
+@import "./bootstrap/_component-animations.less";
+@import "./bootstrap/_glyphicons.less";
+@import "./bootstrap/_dropdowns.less";
+@import "./bootstrap/_button-groups.less";
+@import "./bootstrap/_input-groups.less";
+@import "./bootstrap/_navs.less";
+@import "./bootstrap/_navbar.less";
+//@import "./bootstrap/_breadcrumbs.less";
+@import "./bootstrap/_pagination.less";
+//@import "./bootstrap/_pager.less";
+@import "./bootstrap/_labels.less";
+@import "./bootstrap/_badges.less";
+//@import "./bootstrap/_jumbotron.less";
+@import "./bootstrap/_thumbnails.less";
+@import "./bootstrap/_alerts.less";
+//@import "./bootstrap/_progress-bars.less";
+//@import "./bootstrap/_media.less";
+@import "./bootstrap/_list-group.less";
+@import "./bootstrap/_panels.less";
+@import "./bootstrap/_wells.less";
+@import "./bootstrap/_close.less";
+
+// Components w/ JavaScript
+@import "./bootstrap/_modals.less";
+@import "./bootstrap/_tooltip.less";
+@import "./bootstrap/_popovers.less";
+//@import "./bootstrap/_carousel.less";
+
+// Utility classes
+@import "./bootstrap/_utilities.less";
+@import "./bootstrap/_responsive-utilities.less";
+// --> Bootstrap
+
+
+@import "./ehri/_buttons.less";
+@import "./ehri/_breadcrumb.less";
+@import "./ehri/_entityType.less";
+
+@import "select2/_variables.less";
+@import "select2/_select2.less";
 
 //
 // Load core variables and mixins
@@ -12,7 +70,11 @@
 
 @import "./bootstrap/_variables.less";
 @import "./bootstrap/_mixins.less";
-
+@import "./ehri/_search.less";
+@import "ehri/_responsive.less";
+@import "ehri/_descriptions.less";
+@import "./ehri/_visibility.less";
+@import "./ehri/_panels.less";
 //
 // Guides Stuff
 // --------------------------------------------------
@@ -34,6 +96,48 @@ body > .container {
 //
 // Content
 // --------------------------------------------------
+#page-title { background-color:#360f4f; }
+h1.guide-title {
+	color:white; font-variant: small-caps;font-weight: bold; margin-bottom:20px; font-size:24px; line-height:30px;
+	text-align:right;
+	margin-right:19px;
+	& > a {
+		color:white;
+	}
+}
+#facets {
+	.btn-sm { cursor:pointer; }
+	.popover-accesspoints { display:none; }
+	.facet-type { display:none; }
+}
+.popover-accesspoints[data-count="0"] { display:none; }
+.facet-form {
+	> h1 > .btn-sm {
+		margin-top:-4px;
+	}
+	> ul.facet-search {
+		display:none;
+	}
+	> ul.facet-list {
+		display:none;
+		overflow-y:scroll;
+		max-height:200px;
+		position:relative;
+	}
+	.facet-scroll {
+		height:1px;
+		min-height:1px;
+		margin:0;
+		padding:0;
+		overflow:hidden;
+		visibility:hidden;
+		&.loading {
+			height:auto;
+			min-height:20px;
+			visibility:visible;
+		}
+	}
+}
 #main {
 	article {
 		background-color:@content-color;
@@ -42,6 +146,10 @@ body > .container {
 			margin-top:0;
 			padding-top:0;
 			margin: 0 -15px 10px -15px ;
+			h1, h3 {
+				padding:5px;
+				margin:0;
+			}
 			.breadcrumb {
 				li + li:before {
 					content:" › ";
@@ -150,13 +258,22 @@ body > .container {
 	.list-item {
 		margin:0;
 		padding:0;
+		list-style-type:none;
 		
 		.item-wrapper {
 			margin:0 0 1em 0;
 			padding:0;
 			display:block;
 			position:relative;
-			
+			a {
+				color:@ehri-darkest-grey;
+				&[href] {
+					color:@ehri-purple;
+				}
+				&:hover {
+					text-decoration:none;
+				}
+			}
 			.item-option {
 				cursor:pointer;
 				position:absolute;
@@ -251,10 +368,6 @@ body > .container {
 		&.hierarchy {
 			.list-item {
 				margin-left:20px;
-				border-left:2px solid @content-color;
-				&:hover {
-					border-left:2px dashed lighten(@ehri-dark-purple, 20%);
-				}
 				.item-wrapper {
 					> .item-title {
 						border-left:none!important;
@@ -291,7 +404,7 @@ body > .container {
 // Top Bar
 // --------------------------------------------------
 header#top {
-	padding-top:40px;
+	padding-top:0px;
 	background-color:@ehri-darkest-grey;
 	
 	li {
@@ -350,6 +463,7 @@ header#top {
 				color:@ehri-darkest-grey;
 				font-weight:bold;
 				font-variant:small-caps;
+				font-size:12px;
 				
 				&:hover {
 					background-color:@ehri-light-grey;

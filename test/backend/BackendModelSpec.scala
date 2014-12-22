@@ -332,6 +332,63 @@ class BackendModelSpec extends RestBackendRunner with PlaySpecification {
       await(testBackend.unblock(userProfile.id, "reto"))
       await(testBackend.isBlocking(userProfile.id, "reto")) must beFalse
     }
+
+    "handle virtual collections (and bookmarks)" in new TestApp {
+      val data = VirtualUnitF(
+        identifier = "vc-test",
+        descriptions = List(
+          DocumentaryUnitDescriptionF(
+            languageCode = "eng",
+            identity = IsadGIdentity(name = "VC Test")
+          )
+        )
+      )
+      // Create a new VC
+      val vc = await(testBackend.create[VirtualUnit,VirtualUnitF](data))
+      vc.id must equalTo("vc-test")
+      vc.author must beSome.which { author =>
+        author.id must equalTo(userProfile.id)
+      }
+
+      // Ensure we can load VCs for the user
+      val vcs = await(testBackend.userBookmarks[VirtualUnit](userProfile.id))
+      vcs.size must equalTo(1)
+      vcs.headOption must beSome.which { ovc =>
+        ovc.id must equalTo(vc.id)
+      }
+
+      vc.includedUnits.size must equalTo(0)
+
+      // Add an included unit to the VC (a bookmark)
+      await(testBackend.addBookmark(vc.id, "c4"))
+      await(testBackend.userBookmarks[VirtualUnit](userProfile.id)).headOption must beSome.which { ovc =>
+        ovc.includedUnits.size must equalTo(1)
+        ovc.includedUnits.headOption must beSome.which { iu =>
+          iu.id must equalTo("c4")
+        }
+      }
+
+      // Delete the included unit
+      await(testBackend.deleteBookmarks(vc.id, Seq("c4")))
+      await(testBackend.userBookmarks[VirtualUnit](userProfile.id)).headOption must beSome.which { ovc =>
+        ovc.includedUnits.size must equalTo(0)
+      }
+
+      // Moving included units...
+      val vc2 = await(testBackend.create[VirtualUnit,VirtualUnitF](
+        data.copy(identifier = "vc-test-2")))
+      await(testBackend.addBookmark(vc.id, "c1"))
+      await(testBackend.get[VirtualUnit](vc.id))
+        .includedUnits.map(_.id) must contain("c1")
+      await(testBackend.addBookmark(vc2.id, "c2"))
+      await(testBackend.get[VirtualUnit](vc2.id))
+        .includedUnits.map(_.id) must contain("c2")
+      await(testBackend.moveBookmarks(vc.id, vc2.id, List("c1")))
+      await(testBackend.get[VirtualUnit](vc.id))
+        .includedUnits.map(_.id) must not contain "c1"
+      await(testBackend.get[VirtualUnit](vc2.id))
+        .includedUnits.map(_.id) must contain("c1")
+    }
   }
 
   "Cypher operations" should {

@@ -136,7 +136,10 @@ jQuery(function($) {
 
   /**
    * Quick and dirty way of Ajax-ing a link which
-   * directs to an empty submit form.
+   * directs to an empty submit form. Note: this
+   * does not work well for deletes because it simply
+   * refreshes the page after success (and in that case
+   * the item will have been deleted, resulting in a 404).
    */
   $("a.ajax-action").click(function(e) {
     var $link = $(this),

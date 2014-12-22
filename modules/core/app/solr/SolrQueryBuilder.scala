@@ -83,12 +83,12 @@ case class SolrQueryBuilder(writerType: WriterType, debugQuery: Boolean = false)
    * Look up boost values from configuration for default query fields.
    */
   private lazy val queryFieldsWithBoost: Seq[(String,Option[Double])] = Seq(
-    ITEM_ID, NAME_EXACT, NAME_MATCH, OTHER_NAMES, PARALLEL_NAMES, NAME_SORT, TEXT
+    ITEM_ID, NAME_EXACT, NAME_MATCH, OTHER_NAMES, PARALLEL_NAMES, ALT_NAMES, NAME_SORT, TEXT
   ).map(f => f -> app.configuration.getDouble(s"ehri.search.boost.$f"))
 
   private lazy val spellcheckParams: Seq[(String,Option[String])] = Seq(
     "count", "onlyMorePopular", "extendedResults", "accuracy",
-    "collate", "maxCollations", "maxCollationTries"
+    "collate", "maxCollations", "maxCollationTries", "maxResultsForSuggest"
   ).map(f => f -> app.configuration.getString(s"ehri.search.spellcheck.$f"))
 
 
@@ -98,7 +98,7 @@ case class SolrQueryBuilder(writerType: WriterType, debugQuery: Boolean = false)
    */
   private def constrainEntities(request: QueryRequest, entities: List[EntityType.Value]): Unit = {
     if (!entities.isEmpty) {
-      val filter = entities.map(_.toString).mkString(" ")
+      val filter = entities.map(_.toString).mkString(" OR ")
       request.setFilterQuery(
         FilterQuery(multiple = request.filterQuery.getMultiple ++ Seq(s"$TYPE:($filter)")))
     }
@@ -280,8 +280,11 @@ case class SolrQueryBuilder(writerType: WriterType, debugQuery: Boolean = false)
     // Apply other arbitrary hard filters
     filters.map { case (key, value) =>
       val filter = value match {
-        case s: String => "%s:\"%s\"".format(key, s)
-        case _ => "%s:%s".format(key, value)
+        // Have to quote strings
+        case s: String => "%s:\"%s\"".format(key, value)
+        // not value means the key is a query!
+        case Unit => key
+        case _ => s"$key:$value"
       }
       req.setFilterQuery(FilterQuery(multiple = req.filterQuery.getMultiple ++ Seq(filter)))
     }

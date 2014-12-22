@@ -1,0 +1,37 @@
+@(guide: (GuidePage, (Guide, List[GuidePage])), scripts: Html = Html(""), styles: Html = Html(""), optionalContent: Option[Html] = None, otherTitle: Option[String] = None)(content: Html)(implicit globalConfig: global.GlobalConfig, request: RequestHeader, lang: Lang)
+
+<!DOCTYPE html>
+
+<html>
+    <head>
+        <title>@guide._2._1.name | @otherTitle.getOrElse(guide._1.name)</title>
+        <link rel="stylesheet" media="screen" href="@controllers.core.routes.Assets.versioned("css/guides.css")">
+        @styles
+        <style type="text/css">@Html(guide._2._1.css.getOrElse(""))</style>
+    </head>
+    <body>
+	<header id="top">
+		@guideHeader(guide._1.path, guide._2, guide._2._1.name)
+	</header>
+	<div class="container">
+		<div class="row">
+			<div class="col-md-8" id="main">
+				@content
+			</div>
+			<div class="col-md-4" id="right-bar">
+				@guideSidebar(guide._1.path, guide._2, optionalContent)
+			</div>
+		</div>
+	</div>
+          <script src="//ajax.googleapis.com/ajax/libs/jquery/1.10.2/jquery.min.js"></script>
+          <script src="@controllers.core.routes.Assets.at("bootstrap/js/bootstrap.min.js")"></script>
+	<script src="@controllers.portal.routes.PortalData.jsRoutes"></script>
+	<script type="text/javascript">
+		VIRTUAL_UNIT = "@guide._2._1.virtualUnit";
+		VIRTUAL_UNIT_ROUTE = "@controllers.portal.routes.Guides.guideFacets(guide._2._1.path)?kw[]=";
+		GUIDE_PATH = "@guide._2._1.path";
+	</script>
+    	<script type="text/javascript" src="@controllers.portal.routes.Assets.versioned("js/portal-guide.js")"></script>
+		@scripts
+    </body>
+</html>

@@ -7,6 +7,7 @@ import play.api.cache.Cached
 import play.api.Play.current
 
 
+
 /**
  * @author Mike Bryant (http://github.com/mikesname)
  */
@@ -16,6 +17,10 @@ object PortalData extends Controller {
     Action { implicit request =>
       Ok(
         Routes.javascriptRouter("jsRoutes")(
+          controllers.portal.routes.javascript.Bookmarks.moveBookmarksPost,
+          controllers.portal.routes.javascript.Bookmarks.contents,
+          controllers.portal.routes.javascript.Bookmarks.bookmarkPost,
+          controllers.portal.routes.javascript.Bookmarks.bookmarkInNewSetPost,
           controllers.portal.profile.routes.javascript.Profile.watchItemPost,
           controllers.portal.profile.routes.javascript.Profile.unwatchItemPost,
           controllers.portal.profile.routes.javascript.Profile.updatePrefs,
@@ -41,7 +46,10 @@ object PortalData extends Controller {
           controllers.portal.annotate.routes.javascript.Annotations.setAnnotationVisibilityPost,
           controllers.portal.routes.javascript.Portal.personalisedActivity,
           controllers.portal.routes.javascript.Portal.filter,
-          controllers.portal.routes.javascript.Portal.browseItem
+          controllers.portal.routes.javascript.Portal.browseItem,
+          controllers.portal.routes.javascript.Guides.browseDocument,
+          controllers.portal.routes.javascript.Portal.linkedData,
+          controllers.portal.routes.javascript.Portal.linkedDataInContext
         )
       ).as(MimeTypes.JAVASCRIPT)
     }

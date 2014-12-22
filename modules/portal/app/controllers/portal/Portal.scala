@@ -6,6 +6,8 @@ import models._
 import models.base.AnyModel
 import play.api.libs.concurrent.Execution.Implicits._
 import play.api.mvc._
+import play.api.data.Form
+import play.api.data.Forms._
 import views.html.p
 import utils.search._
 import play.api.libs.json.Json
@@ -25,6 +27,16 @@ import org.joda.time.DateTime
 import caching.FutureCache
 import backend.rest.Constants
 import scala.concurrent.Future
+
+/*
+ *    "Linked" Data import
+ */
+import scala.concurrent.Future
+import scala.concurrent.Future.{successful => immediate}
+
+import backend.rest.cypher.CypherDAO
+import backend.rest.{SearchDAO}
+import play.api.libs.json.{Json, JsValue, JsString, JsArray}
 
 @Singleton
 case class Portal @Inject()(implicit globalConfig: global.GlobalConfig, searchDispatcher: Dispatcher, searchResolver: Resolver, backend: Backend,
@@ -390,6 +402,88 @@ case class Portal @Inject()(implicit globalConfig: global.GlobalConfig, searchDi
         Ok(p.newsFeed(NewsItem.fromRss(r.body)))
       }
     }
+  }
+
+
+  val searchLinksForm = Form(
+    single(
+      "type" -> optional(text.verifying("NoTypeGiven", f => f match {
+          case c => EntityType.values.map( v => v.toString).contains(c)
+        }))
+    )
+  )
+
+
+  def searchLinks(target: String, documentType: String = EntityType.DocumentaryUnit.toString, context: Option[String] = None): Future[Seq[Long]] = {
+    
+    val cypher = new CypherDAO
+    context match {
+      case Some(str) => {
+        val query =  s"""
+        START 
+          virtualUnit = node:entities(__ID__= {inContext}), 
+          accessPoints = node:entities(__ID__= {accessPoint})
+        MATCH 
+             (link)-[:inContextOf]->virtualUnit,
+            (doc)<-[:hasLinkTarget]-(link)-[:hasLinkTarget]->accessPoints
+         WHERE doc <> accessPoints AND doc.__ISA__ = {type}
+         RETURN ID(doc) LIMIT 5
+        """.stripMargin
+        val params =  Map(
+          "inContext" -> JsString(str),
+          "accessPoint" -> JsString(target),
+          "type" -> JsString(documentType)
+        )
+        cypher.cypher(query, params).map { r =>
+          (r \ "data").as[Seq[Seq[Long]]].flatten
+        }
+      }
+      case _ => {
+        val query : String =  
+        s"""
+        START 
+          accessPoints = node:entities(__ID__= {accessPoint})
+        MATCH 
+             (doc)<-[:hasLinkTarget]-(link)-[:hasLinkTarget]->accessPoints
+         WHERE doc <> accessPoints AND doc.__ISA__ = {type}
+         RETURN ID(doc) LIMIT 5
+        """.stripMargin
+        val params =  Map(
+          "accessPoint" -> JsString(target),
+          "type" -> JsString(documentType)
+        )
+        cypher.cypher(query, params).map { r =>
+          (r \ "data").as[Seq[Seq[Long]]].flatten
+        }
+      }
+    }
+  }
+
+  def linkedData(id: String) = userBrowseAction.async { implicit userDetails => implicit request =>
+
+    for {
+      ids <- searchLinksForm.bindFromRequest(request.queryString).fold(
+        errs => searchLinks(id), {
+            case Some(t) => { searchLinks(id, t)}
+            case _ => { searchLinks(id) }
+        })
+      docs <- SearchDAO.listByGid[AnyModel](ids)
+    } yield Ok(Json.toJson(docs.zip(ids).map { case (doc, gid) =>
+      Json.toJson(FilterHit(doc.id, "", doc.toStringLang, doc.isA, None, gid))
+    }))
+  }
+
+  def linkedDataInContext(id: String, context: String) = userBrowseAction.async { implicit userDetails => implicit request =>
+    for {
+      ids <-  searchLinksForm.bindFromRequest(request.queryString).fold(
+        errs => searchLinks(id, context=Some(context)), {
+            case Some(t) => { searchLinks(id, t, Some(context))}
+            case _ => { searchLinks(id, context=Some(context)) }
+        })
+      docs <- SearchDAO.listByGid[AnyModel](ids)
+    } yield Ok(Json.toJson(docs.zip(ids).map { case (doc, gid) =>
+      Json.toJson(FilterHit(doc.id, "", doc.toStringLang, doc.isA, None, gid))
+    }))
   }
 }
 

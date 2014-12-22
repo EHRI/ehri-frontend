@@ -1,0 +1,10 @@
+@(parent: Option[AnyModel], them: UserProfile, items: Seq[AnyModel], params: utils.search.SearchParams, more: Boolean, watched: Seq[String])(implicit req: RequestHeader, userOpt: Option[UserProfile], lang: Lang, globalConfig: global.GlobalConfig)
+
+@defining(userOpt.exists(_.id == them.id)) { isCurrentUser =>
+
+    @if(!items.isEmpty) {
+        <ul class="list-group bookmark-list">
+            @itemListItems(parent, items, params, more, watched)
+        </ul>
+    }
+}
