@@ -17,12 +17,6 @@ EhriJs.alert = function(msg, type) {
   }
 };
 
-// Facet label tooltips
-$(".facet-label").tooltip({
-  placement: "top",
-  delay: 500
-});
-
 EhriJs.alertSuccess = function(msg) {
   EhriJs.alert(msg, "success");
 };
@@ -35,8 +29,24 @@ EhriJs.alertInfo = function(msg) {
   EhriJs.alert(msg, "info");
 };
 
+// Loader widget
+EhriJs.$loader = $("<div></div>" )
+    .addClass("text-center loader-container")
+    .append($("<span></span>")
+        .addClass("loader"));
+
+
+
 
 jQuery(function ($) {
+
+  "use strict";
+
+// Facet label tooltips
+  $(".facet-label").tooltip({
+    placement: "top",
+    delay: 500
+  });
 
   var $dataPolicyWidget = $("#data-policy"),
       COOKIE_NAME = "ehriDataPolicy";
@@ -55,7 +65,7 @@ jQuery(function ($) {
   }
 
   function isCrawler() {
-    return /bot|googlebot|crawler|spider|robot|crawling/i.test(navigator.userAgent);
+    return /bot|googlebot|crawler|spider|robot|crawling/i.test(window.navigator.userAgent);
   }
 
   function showDataPolicy() {
@@ -180,8 +190,6 @@ $(".panel-history").each(function() {
   /*
     Loadings
   */
-$loader = $( "<div></div>" ).addClass("text-center loader-container").append($("<span></span>").addClass("loader"));
-
   $(document).on("click", "a.child-drop-down.closed", function(e) {
     e.preventDefault();
     var $this = $(this);

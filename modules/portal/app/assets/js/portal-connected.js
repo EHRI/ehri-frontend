@@ -1,4 +1,7 @@
 jQuery(function ($) {
+
+  "use strict";
+
   /*
    Tooltip
    */
@@ -296,7 +299,7 @@ jQuery(function ($) {
   }
 
   function insertAnnotationLoader($elem) {
-    return $loader.appendTo($elem.parent().parent());
+    return EhriJs.$loader.appendTo($elem.parent().parent());
   }
 
   function showAnnotationControl($form) {
@@ -316,7 +319,7 @@ jQuery(function ($) {
     e.preventDefault();
     var $elem = $(this),
         action = this.href;
-    loaderContainer = insertAnnotationLoader($elem);
+    var loaderContainer = insertAnnotationLoader($elem);
     $.get(action, function (data) {
       insertAnnotationForm($elem, data, loaderContainer);
     });
