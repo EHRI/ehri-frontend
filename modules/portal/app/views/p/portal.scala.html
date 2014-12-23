@@ -6,7 +6,7 @@
 
 <!DOCTYPE html>
 
-<html lang="en">
+<html lang="@lang.code">
     @p.layout.head(Messages("portal.welcome"))
     <body>
         @p.layout.preambleScripts()
@@ -100,7 +100,5 @@
                         .load("@controllers.portal.routes.Portal.newsFeed.absoluteURL(secure = globalConfig.https)")
             });
         </script>
-
-        @p.layout.analytics()
     </body>
 </html>
