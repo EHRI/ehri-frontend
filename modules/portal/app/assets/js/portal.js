@@ -347,7 +347,7 @@ $loader = $( "<div></div>" ).addClass("text-center loader-container").append($("
     e.preventDefault();
     var $item = $(e.target);
     $item.closest(".item-text-field").find(".annotation-list > .user-content")
-        .toggle();
+        .toggleClass("hidden");
     $item.toggleClass("fa-comments fa-comments-o")
   });
 });
