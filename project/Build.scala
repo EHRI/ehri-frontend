@@ -127,6 +127,9 @@ object ApplicationBuild extends Build {
       (baseDir: File) => baseDir / "test/resources"
     },
 
+    // Always use nodejs to build the assets - Trireme is too slow...
+    JsEngineKeys.engineType := JsEngineKeys.EngineType.Node,
+
     // Less files with an underscore are excluded
     includeFilter in (Assets, LessKeys.less) := "*.less",
     excludeFilter in (Assets, LessKeys.less) := "_*.less"
