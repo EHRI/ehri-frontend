@@ -54,6 +54,10 @@ jQuery(function ($) {
     return $(window).height() - $dataPolicyWidget.outerHeight();
   }
 
+  function isCrawler() {
+    return /bot|googlebot|crawler|spider|robot|crawling/i.test(navigator.userAgent);
+  }
+
   function showDataPolicy() {
     // Show layout banner
     $dataPolicyWidget.modal({
@@ -70,7 +74,7 @@ jQuery(function ($) {
     });
   }
 
-  if ($dataPolicyWidget.length > 0 && !getDataPolicy()) {
+  if ($dataPolicyWidget.length > 0 && !getDataPolicy() && !isCrawler()) {
     showDataPolicy();
   }
 
