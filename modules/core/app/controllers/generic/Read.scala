@@ -7,6 +7,7 @@ import utils.{RangePage, RangeParams, Page, PageParams}
 
 import scala.concurrent.Future
 import backend.{BackendReadable, BackendContentType, BackendResource}
+import play.api.mvc.Result
 
 /**
  * Controller trait which handles the listing and showing of Entities that
@@ -15,6 +16,46 @@ import backend.{BackendReadable, BackendContentType, BackendResource}
  * @tparam MT Meta-model
  */
 trait Read[MT] extends Generic[MT] {
+
+  case class ItemRequest[A](
+    item: MT,
+    annotations: Page[Annotation],
+    links: Page[Link],
+    profileOpt: Option[UserProfile],
+    request: Request[A]
+  ) extends WrappedRequest[A](request)
+
+  def ItemAction(itemId: String)(implicit rd: BackendReadable[MT], ct: BackendContentType[MT], rs: BackendResource[MT]) = new ActionTransformer[OptionalProfileRequest, ItemRequest] {
+    def transform[A](input: OptionalProfileRequest[A]): Future[ItemRequest[A]] = {
+      implicit val opr = input
+      input.profileOpt.map { profile =>
+        val itemF = backend.get[MT](itemId)
+        val scopedPermsF = backend.getScopePermissions(profile.id, itemId)
+        val permsF = backend.getItemPermissions(profile.id, ct.contentType, itemId)
+        val annotationsF = backend.getAnnotationsForItem[Annotation](itemId)
+        val linksF = backend.getLinksForItem[Link](itemId)
+        for {
+          item <- itemF
+          scope <- scopedPermsF
+          perms <- permsF
+          anns <- annotationsF
+          links <- linksF
+          newProfile = profile.copy(itemPermissions = Some(perms), globalPermissions = Some(scope))
+        } yield ItemRequest[A](item, anns, links, Some(profile), input)
+
+      }.getOrElse {
+        val itemF = backend.get[MT](itemId)
+        val annotationsF = backend.getAnnotationsForItem[Annotation](itemId)
+        val linksF = backend.getLinksForItem[Link](itemId)
+        for {
+          item <- itemF
+          anns <- annotationsF
+          links <- linksF
+        } yield ItemRequest[A](item, anns, links, None, input)
+      }
+    }
+  }
+
 
   object getEntity {
     def async(id: String, user: Option[UserProfile])(f: MT => Future[Result])(
@@ -86,37 +127,37 @@ trait Read[MT] extends Generic[MT] {
 
   def pageAction(f: Page[MT] => PageParams => Option[UserProfile] => Request[AnyContent] => Result)(
       implicit rd: BackendReadable[MT], rs: BackendResource[MT]) = {
-    userProfileAction.async { implicit userOpt => implicit request =>
+    OptionalProfileAction.async { implicit request =>
       val params = PageParams.fromRequest(request)
       backend.list(params).map { page =>
-        f(page)(params)(userOpt)(request)
+        f(page)(params)(request.profileOpt)(request)
       }
     }
   }
 
   def historyAction(id: String)(
       f: MT => RangePage[SystemEvent] => RangeParams => Option[UserProfile] => Request[AnyContent] => Result)(implicit rd: BackendReadable[MT], rs: BackendResource[MT]) = {
-    userProfileAction.async { implicit userOpt => implicit request =>
+    OptionalProfileAction.async { implicit request =>
       val params = RangeParams.fromRequest(request)
       val getF: Future[MT] = backend.get(id)
       val historyF: Future[RangePage[SystemEvent]] = backend.history[SystemEvent](id, params)
       for {
         item <- getF
         events <- historyF
-      } yield f(item)(events)(params)(userOpt)(request)
+      } yield f(item)(events)(params)(request.profileOpt)(request)
     }
   }
 
   def versionsAction(id: String)(
     f: MT => Page[Version] => PageParams => Option[UserProfile] => Request[AnyContent] => Result)(implicit rd: BackendReadable[MT], rs: BackendResource[MT]) = {
-    userProfileAction.async { implicit userOpt => implicit request =>
+    OptionalProfileAction.async { implicit request =>
       val params = PageParams.fromRequest(request)
       val getF: Future[MT] = backend.get(id)
       val versionsF: Future[Page[Version]] = backend.versions[Version](id, params)
       for {
         item <- getF
         events <- versionsF
-      } yield f(item)(events)(params)(userOpt)(request)
+      } yield f(item)(events)(params)(request.profileOpt)(request)
     }
   }
 }

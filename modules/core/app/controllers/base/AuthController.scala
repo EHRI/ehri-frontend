@@ -39,8 +39,6 @@ trait AuthController extends Controller with ControllerHelpers with AsyncAuth wi
   // Turning secured off will override staffOnly
   lazy val secured = play.api.Play.current.configuration.getBoolean("ehri.secured").getOrElse(true)
 
-  implicit def apiUser(implicit userOpt: Option[UserProfile]): ApiUser = ApiUser(userOpt.map(_.id))
-
   private val LANG = "lang"
 
 
@@ -80,9 +78,131 @@ trait AuthController extends Controller with ControllerHelpers with AsyncAuth wi
   }
 
   /**
+   * A wrapped request that optionally contains a user's profile.
+   * @param profileOpt the optional profile
+   * @param request the underlying request
+   * @tparam A the type of underlying request
+   */
+  case class OptionalProfileRequest[A](profileOpt: Option[UserProfile], request: Request[A]) extends WrappedRequest[A](request)
+
+  /**
+   * A wrapped request that contains a user's profile.
+   * @param profile the profile
+   * @param request the underlying request
+   * @tparam A the type of underlying request
+   */
+  case class ProfileRequest[A](profile: UserProfile, request: Request[A]) extends WrappedRequest[A](request)
+
+  /**
+   * An implicit helper to convert an in-scope optional profile to an `ApiUser` instance.
+   * @param userOpt an optional profile
+   * @return an API user, which may be anonymous
+   */
+  protected implicit def userOpt2apiUser(implicit userOpt: Option[UserProfile]): ApiUser = ApiUser(userOpt.map(_.id))
+
+  /**
+   * This is an implicit helper to transform an in-scope `OptionalProfileRequest` (of any type)
+   * into an optional user profile. This is used by views that need an implicit user profile
+   * but are only given an `OptionalProfileRequest`.
+   * @param opr an optional profile request
+   * @return an optional user profile
+   */
+  protected implicit def optionalProfileRequest2profileOpt(implicit opr: OptionalProfileRequest[_]): Option[UserProfile] =
+    opr.profileOpt
+
+  /**
+   * This is an implicit helper to transform an in-scope `ProfileRequest` (of any type)
+   * into an optional (but full) user profile. Used by views that need a user profile but are only given
+   * a `ProfileRequest`
+   *
+   * @param pr the profile request
+   * @return an optional user profile
+   */
+  protected implicit def profileRequest2profileOpt(implicit pr: ProfileRequest[_]): Option[UserProfile] =
+    Some(pr.profile)
+
+  /**
+   * Transform an `OptionalAuthRequest` into an `OptionalProfileRequest` by
+   * fetching the profile associated with the account and the user's global
+   * permissions.
+   */
+  protected object FetchProfile extends ActionTransformer[OptionalAuthRequest, OptionalProfileRequest] {
+    def transform[A](request: OptionalAuthRequest[A]): Future[OptionalProfileRequest[A]] = request.user.fold(
+      immediate(new OptionalProfileRequest[A](None, request))
+    ) { account =>
+      implicit val apiUser = ApiUser(Some(account.id))
+      val userF = backend.get[UserProfile](UserProfile.Resource, account.id)
+      val globalPermsF = backend.getGlobalPermissions(account.id)
+      for {
+        user <- userF
+        globalPerms <- globalPermsF
+        profile = user.copy(account = Some(account), globalPermissions = Some(globalPerms))
+      } yield new OptionalProfileRequest[A](Some(profile), request)
+    }
+  }
+
+  /**
+   * If the global read-only flag is enabled, remove the account from
+   * the request, globally denying all secured actions.
+   */
+  protected object ReadOnlyTransformer extends ActionTransformer[OptionalAuthRequest,OptionalAuthRequest]{
+    protected def transform[A](request: OptionalAuthRequest[A]): Future[OptionalAuthRequest[A]] = immediate {
+      if (globalConfig.readOnly) new OptionalAuthRequest(None, request.underlying) else request
+    }
+  }
+
+  /**
+   * Check the user is allowed in this controller based on their account's
+   * `staff` and `verified` flags.
+   */
+  protected object AllowedFilter extends ActionFilter[OptionalAuthRequest] {
+    protected def filter[A](request: OptionalAuthRequest[A]): Future[Option[Result]] = {
+      request.user.fold(
+        if ((staffOnly || verifiedOnly) && secured) authenticationFailed(request).map(r => Some(r))
+        else immediate(None)
+      ) { account =>
+        if (staffOnly && secured && !account.staff) staffOnlyError(request).map(r => Some(r))
+        else if (verifiedOnly && secured && !account.verified) verifiedOnlyError(request).map(r => Some(r))
+        else immediate(None)
+      }
+    }
+  }
+
+  /**
+   * Check the user is allowed in this controller based on their account's
+   * `staff` and `verified` flags.
+   */
+  protected object AdminFilter extends ActionFilter[OptionalProfileRequest] {
+    protected def filter[A](request: OptionalProfileRequest[A]): Future[Option[Result]] = {
+      request.profileOpt.filter(!_.isAdmin)
+        .map(_ => authenticationFailed(request).map(r => Some(r))).getOrElse(immediate(None))
+    }
+  }
+
+  /**
+   * Given an optional profile request, convert to a concrete profile request if the
+   * profile is present, or return an authentication failed.
+   */
+  protected object WithUserRefiner extends ActionRefiner[OptionalProfileRequest, ProfileRequest] {
+    protected def refine[A](request: OptionalProfileRequest[A]) = {
+      request.profileOpt match {
+        case None => authenticationFailed(request).map(r => Left(r))
+        case Some(profile) => immediate(Right(ProfileRequest(profile, request)))
+      }
+    }
+  }
+
+  def OptionalProfileAction = OptionalAuthAction andThen ReadOnlyTransformer andThen AllowedFilter andThen FetchProfile
+
+  def WithUserAction = OptionalProfileAction andThen WithUserRefiner
+
+  def AdminAction = OptionalProfileAction andThen AdminFilter
+
+  /**
    * SystemEvent composition that adds extra context to regular requests. Namely,
    * the profile of the user requesting the page, and her permissions.
    */
+  @scala.deprecated("Use OptionalProfileAction instead")
   object userProfileAction {
     def async[A](bodyParser: BodyParser[A])(f: Option[UserProfile] => Request[A] => Future[Result]): Action[A] = {
 
@@ -140,9 +260,9 @@ trait AuthController extends Controller with ControllerHelpers with AsyncAuth wi
   object itemAction {
     def async[MT](resource: BackendResource[MT], id: String)(f: MT => Option[UserProfile] => Request[AnyContent] => Future[Result])(
         implicit rd: BackendReadable[MT]): Action[AnyContent] = {
-      userProfileAction.async { implicit userOpt => implicit request =>
+      OptionalProfileAction.async { implicit request =>
         backend.get(resource, id).flatMap { item =>
-          f(item)(userOpt)(request)
+          f(item)(request.profileOpt)(request)
         }
       }
     }
@@ -162,8 +282,8 @@ trait AuthController extends Controller with ControllerHelpers with AsyncAuth wi
   object itemPermissionAction {
     def async[A,MT](bodyParser: BodyParser[A], id: String)(f: MT => Option[UserProfile] => Request[A] => Future[Result])(
         implicit rd: BackendReadable[MT], ct: BackendContentType[MT]): Action[A] = {
-      userProfileAction.async(bodyParser = bodyParser) { implicit userOpt => implicit request =>
-        userOpt.map { user =>
+      OptionalProfileAction.async(bodyParser = bodyParser) { implicit request =>
+        request.profileOpt.map { user =>
 
           // NB: We have to re-fetch the global perms here because they need to be
           // within the scope of the particular item. This could be optimised, but
@@ -204,10 +324,11 @@ trait AuthController extends Controller with ControllerHelpers with AsyncAuth wi
    * Wrap userProfileAction to ensure we have a user, or
    * access is denied
    */
+  @scala.deprecated("Use WithUserAction instead")
   object withUserAction {
     def async[A](bodyParser: BodyParser[A])(f: UserProfile => Request[A] => Future[Result]): Action[A] = {
-      userProfileAction.async(bodyParser) { implicit  maybeUser => implicit request =>
-        maybeUser.map { user =>
+      OptionalProfileAction.async(bodyParser) { implicit request =>
+        request.profileOpt.map { user =>
           f(user)(request)
         } getOrElse {
           authenticationFailed(request)
@@ -229,11 +350,12 @@ trait AuthController extends Controller with ControllerHelpers with AsyncAuth wi
    * Wrap itemPermissionAction to ensure a given permission is present,
    * and return an action with the user in scope.
    */
+  @scala.deprecated("Use AdminAction instead")
   object adminAction {
     def async(f: Option[UserProfile] => Request[AnyContent] => Future[Result]): Action[AnyContent] = {
-      userProfileAction.async { implicit  maybeUser => implicit request =>
-        maybeUser.map { user =>
-          if (user.isAdmin) f(maybeUser)(request)
+      OptionalProfileAction.async { implicit  request =>
+        request.profileOpt.map { user =>
+          if (user.isAdmin) f(request.profileOpt)(request)
           else authorizationFailed(request)
         } getOrElse authenticationFailed(request)
       }
@@ -280,8 +402,8 @@ trait AuthController extends Controller with ControllerHelpers with AsyncAuth wi
   object withContentPermission {
     def async(perm: PermissionType.Value, contentType: ContentTypes.Value)(
         f: Option[UserProfile] => Request[AnyContent] => Future[Result]): Action[AnyContent] = {
-      withUserAction.async { implicit user => implicit request =>
-        if (user.hasPermission(contentType, perm)) f(Some(user))(request)
+      WithUserAction.async { implicit request =>
+        if (request.profile.hasPermission(contentType, perm)) f(Some(request.profile))(request)
         else authorizationFailed(request)
       }
     }
@@ -297,8 +419,8 @@ trait AuthController extends Controller with ControllerHelpers with AsyncAuth wi
    * access is denied, but don't change the incoming parameters.
    */
   def secured(f: Option[UserProfile] => Request[AnyContent] => Future[Result]): Action[AnyContent] = {
-    userProfileAction.async { implicit  maybeUser => implicit request =>
-      if (maybeUser.isDefined) f(maybeUser)(request)
+    OptionalProfileAction.async { implicit  request =>
+      if (request.profileOpt.isDefined) f(request.profileOpt)(request)
       else authenticationFailed(request)
     }
   }

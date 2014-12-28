@@ -166,9 +166,9 @@ trait Linking[MT <: AnyModel] extends Read[MT] with Search {
    * Fetch links for a given item.
    */
   def getLinksAction(id: String)(f: Seq[Link] => Option[UserProfile] => Request[AnyContent] => Result) = {
-    userProfileAction.async { implicit  userOpt => implicit request =>
+    OptionalProfileAction.async { implicit  request =>
       backend.getLinksForItem[Link](id).map { links =>
-        f(links)(userOpt)(request)
+        f(links)(request.profileOpt)(request)
       }
     }
   }
