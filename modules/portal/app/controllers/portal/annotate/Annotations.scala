@@ -2,14 +2,14 @@ package controllers.portal.annotate
 
 import play.api.libs.concurrent.Execution.Implicits._
 import play.api.mvc._
-import controllers.base.{SessionPreferences, AuthController, ControllerHelpers}
+import controllers.base.SessionPreferences
 import controllers.generic.{Promotion, Visibility}
 import models.{AnnotationF, Annotation, UserProfile}
 import play.api.Play.current
 import views.html.p
 import utils.{SessionPrefs, ContributionVisibility}
 import scala.concurrent.Future.{successful => immediate}
-import defines.{EntityType, ContentTypes, PermissionType}
+import defines.{EntityType, PermissionType}
 import backend.rest.cypher.CypherDAO
 import play.api.libs.json.Json
 import eu.ehri.project.definitions.Ontology
@@ -23,8 +23,8 @@ import models.view.AnnotationContext
 
 
 import com.google.inject._
-import controllers.portal.{Secured}
-import controllers.portal.base.{PortalController, PortalAuthConfigImpl}
+import controllers.portal.Secured
+import controllers.portal.base.PortalController
 
 /**
  * @author Mike Bryant (http://github.com/mikesname)
@@ -44,15 +44,15 @@ case class Annotations @Inject()(implicit globalConfig: global.GlobalConfig, sea
     AnnotationF.IS_PRIVATE -> true.toString
   )
 
-  def annotation(id: String) = userProfileAction.async { implicit userProfile => implicit request =>
+  def annotation(id: String) = OptionalProfileAction.async { implicit request =>
     backend.get[Annotation](id).map { ann =>
       Ok(Json.toJson(ann)(client.json.annotationJson.clientFormat))
     }
   }
 
   // Ajax
-  def annotate(id: String, did: String) = withUserAction.async {  implicit user => implicit request =>
-    getCanShareWith(user) { users => groups =>
+  def annotate(id: String, did: String) = WithUserAction.async {  implicit request =>
+    getCanShareWith(request.profile) { users => groups =>
       Ok(
         p.annotation.create(
           Annotation.form.bind(annotationDefaults),
@@ -66,11 +66,11 @@ case class Annotations @Inject()(implicit globalConfig: global.GlobalConfig, sea
   }
 
   // Ajax
-  def annotatePost(id: String, did: String) = withUserAction.async { implicit user => implicit request =>
+  def annotatePost(id: String, did: String) = WithUserAction.async { implicit request =>
     Annotation.form.bindFromRequest.fold(
       errorForm => immediate(BadRequest(errorForm.errorsAsJson)),
       ann => {
-        val accessors: List[String] = getAccessors(ann, user)
+        val accessors: List[String] = getAccessors(ann, request.profile)
         backend.createAnnotationForDependent[Annotation,AnnotationF](id, did, ann, accessors).map { ann =>
           Created(p.annotation.annotationBlock(ann, editable = true))
             .withHeaders(
@@ -136,8 +136,8 @@ case class Annotations @Inject()(implicit globalConfig: global.GlobalConfig, sea
   }
 
   // Ajax
-  def annotateField(id: String, did: String, field: String) = withUserAction.async { implicit user => implicit request =>
-    getCanShareWith(user) { users => groups =>
+  def annotateField(id: String, did: String, field: String) = WithUserAction.async { implicit request =>
+    getCanShareWith(request.profile) { users => groups =>
       Ok(p.annotation.create(
         Annotation.form.bind(annotationDefaults),
         ContributionVisibility.form.bindFromRequest,
@@ -150,13 +150,13 @@ case class Annotations @Inject()(implicit globalConfig: global.GlobalConfig, sea
   }
 
   // Ajax
-  def annotateFieldPost(id: String, did: String, field: String) = withUserAction.async { implicit user => implicit request =>
+  def annotateFieldPost(id: String, did: String, field: String) = WithUserAction.async { implicit request =>
     Annotation.form.bindFromRequest.fold(
       errorForm => immediate(BadRequest(errorForm.errorsAsJson)),
       ann => {
         // Add the field to the model!
         val fieldAnn = ann.copy(field = Some(field))
-        val accessors: List[String] = getAccessors(ann, user)
+        val accessors: List[String] = getAccessors(ann, request.profile)
         backend.createAnnotationForDependent[Annotation,AnnotationF](id, did, fieldAnn, accessors).map { ann =>
           Created(p.annotation.annotationInline(ann, editable = true))
             .withHeaders(

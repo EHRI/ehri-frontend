@@ -47,9 +47,9 @@ trait Annotate[MT] extends Read[MT] {
    */
   def getAnnotationsAction(id: String)(
       f: Seq[Annotation] => Option[UserProfile] => Request[AnyContent] => Result) = {
-    userProfileAction.async { implicit  userOpt => implicit request =>
+    OptionalProfileAction.async { implicit request =>
       backend.getAnnotationsForItem[Annotation](id).map { anns =>
-        f(anns)(userOpt)(request)
+        f(anns)(request.profileOpt)(request)
       }
     }
   }
@@ -66,7 +66,7 @@ trait Annotate[MT] extends Read[MT] {
       ap => {
         // NB: No checking of permissions here - we're going to depend
         // on the server for that
-        userProfileAction.async { implicit userOpt => implicit request =>
+        OptionalProfileAction.async { implicit request =>
           backend.createAnnotation[Annotation,AnnotationF](id, ap).map { ann =>
             Created(Json.toJson(ann.model)(clientAnnotationFormat))
           }

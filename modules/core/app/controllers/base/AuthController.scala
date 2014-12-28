@@ -94,14 +94,15 @@ trait AuthController extends Controller with ControllerHelpers with AsyncAuth wi
   case class ProfileRequest[A](profile: UserProfile, request: Request[A]) extends WrappedRequest[A](request)
 
   /**
-   * An implicit helper to convert an in-scope optional profile to an `ApiUser` instance.
+   * Implicit helper to convert an in-scope optional profile to an `ApiUser` instance.
+   *
    * @param userOpt an optional profile
    * @return an API user, which may be anonymous
    */
   protected implicit def userOpt2apiUser(implicit userOpt: Option[UserProfile]): ApiUser = ApiUser(userOpt.map(_.id))
 
   /**
-   * This is an implicit helper to transform an in-scope `OptionalProfileRequest` (of any type)
+   * Implicit helper to transform an in-scope `OptionalProfileRequest` (of any type)
    * into an optional user profile. This is used by views that need an implicit user profile
    * but are only given an `OptionalProfileRequest`.
    * @param opr an optional profile request
@@ -111,7 +112,7 @@ trait AuthController extends Controller with ControllerHelpers with AsyncAuth wi
     opr.profileOpt
 
   /**
-   * This is an implicit helper to transform an in-scope `ProfileRequest` (of any type)
+   * Implicit helper to transform an in-scope `ProfileRequest` (of any type)
    * into an optional (but full) user profile. Used by views that need a user profile but are only given
    * a `ProfileRequest`
    *

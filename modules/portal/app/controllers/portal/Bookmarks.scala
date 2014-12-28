@@ -9,8 +9,7 @@ import views.html.p
 import utils.search._
 import defines.EntityType
 import backend.{IdGenerator, Backend}
-import controllers.base.{SessionPreferences, ControllerHelpers}
-import jp.t2v.lab.play2.auth.LoginLogout
+import controllers.base.SessionPreferences
 import utils._
 
 import com.google.inject._
@@ -30,22 +29,30 @@ case class Bookmarks @Inject()(implicit globalConfig: global.GlobalConfig, searc
   extends PortalController
   with FacetConfig
   with Search
-  with SessionPreferences[SessionPrefs] {
+  with SessionPreferences[SessionPrefs]
+  with Secured {
 
   val defaultPreferences = new SessionPrefs
 
   private val bmRoutes = controllers.portal.routes.Bookmarks
   private val vuRoutes = controllers.portal.routes.VirtualUnits
 
-  // This is a publically-accessible site, but not just yet.
-  override val staffOnly = current.configuration.getBoolean("ehri.portal.secured").getOrElse(true)
-  override val verifiedOnly = current.configuration.getBoolean("ehri.portal.secured").getOrElse(true)
-
   private def defaultBookmarkSetId(implicit user: UserProfile): String =
     s"${user.id}-bookmarks"
 
   private def bookmarkLang(implicit lang: Lang): String =
     utils.i18n.lang2to3lookup.getOrElse(lang.language, utils.i18n.defaultLang)
+
+  /**
+   * Implicit helper to transform an in-scope `ProfileRequest` (of any type)
+   * into a user profile. Used by views that need a user profile but are only given
+   * a `ProfileRequest`
+   *
+   * @param pr the profile request
+   * @return an optional user profile
+   */
+  private implicit def profileRequest2profile(implicit pr: ProfileRequest[_]): UserProfile =
+    pr.profile
 
   private def bookmarkSetToVu(genId: String, bs: BookmarkSet): VirtualUnitF = {
     VirtualUnitF(
@@ -74,19 +81,17 @@ case class Bookmarks @Inject()(implicit globalConfig: global.GlobalConfig, searc
         params = Map(Constants.ID_PARAM -> items))
     } yield vu
 
-  def removeBookmarksPost(set: String, ids: Seq[String]) = withUserAction.async { implicit user => implicit request =>
+  def removeBookmarksPost(set: String, ids: Seq[String]) = WithUserAction.async { implicit request =>
     backend.deleteBookmarks(set, ids).map(_ => Ok("ok"))
   }
 
-  def moveBookmarksPost(fromSet: String, toSet: String, ids: Seq[String] = Seq.empty) = withUserAction.async {
-      implicit user => implicit request =>
+  def moveBookmarksPost(fromSet: String, toSet: String, ids: Seq[String] = Seq.empty) = WithUserAction.async { implicit request =>
     backend.moveBookmarks(fromSet, toSet, ids).map(_ => Ok("ok"))
   }
 
   def bookmarkInNewSetPost(id: String) = createBookmarkSetPost(List(id))
 
-  def bookmark(itemId: String, bsId: Option[String] = None) = withUserAction.async {
-      implicit user => implicit request =>
+  def bookmark(itemId: String, bsId: Option[String] = None) = WithUserAction.async { implicit request =>
     ???
   }
 
@@ -94,8 +99,7 @@ case class Bookmarks @Inject()(implicit globalConfig: global.GlobalConfig, searc
    * Bookmark an item, creating (if necessary) a default virtual
    * collection private to the user.
    */
-  def bookmarkPost(itemId: String, bsId: Option[String] = None) = withUserAction.async {
-      implicit user => implicit request =>
+  def bookmarkPost(itemId: String, bsId: Option[String] = None) = WithUserAction.async { implicit request =>
 
     def getOrCreateBS(idOpt: Option[String]): Future[VirtualUnit] = {
       backend.get[VirtualUnit](idOpt.getOrElse(defaultBookmarkSetId)).map { vu =>
@@ -104,7 +108,7 @@ case class Bookmarks @Inject()(implicit globalConfig: global.GlobalConfig, searc
       } recoverWith {
         case e: ItemNotFound => backend.create[VirtualUnit,VirtualUnitF](
           item = defaultBookmarkSet(bookmarkLang),
-          accessors = Seq(user.id),
+          accessors = Seq(request.profile.id),
           params = Map(Constants.ID_PARAM -> Seq(itemId))
         )
       }
@@ -118,22 +122,22 @@ case class Bookmarks @Inject()(implicit globalConfig: global.GlobalConfig, searc
     }
   }
 
-  def listBookmarkSets = withUserAction.async { implicit user => implicit request =>
+  def listBookmarkSets = WithUserAction.async { implicit request =>
     val params: PageParams = PageParams.fromRequest(request)
-    val pageF = backend.userBookmarks[VirtualUnit](user.id, params)
-    val watchedF = watchedItemIds(userIdOpt = Some(user.id))
+    val pageF = backend.userBookmarks[VirtualUnit](request.profile.id, params)
+    val watchedF = watchedItemIds(userIdOpt = Some(request.profile.id))
     for {
       page <- pageF
       watched <- watchedF
     } yield Ok(p.bookmarks.list(page, SearchParams.empty, watched))
   }
 
-  def createBookmarkSet(items: List[String] = Nil) = withUserAction { implicit user => implicit request =>
+  def createBookmarkSet(items: List[String] = Nil) = WithUserAction { implicit request =>
     if (isAjax) Ok(p.bookmarks.form(BookmarkSet.bookmarkForm, bmRoutes.createBookmarkSetPost(items)))
     else Ok(p.bookmarks.create(BookmarkSet.bookmarkForm, bmRoutes.createBookmarkSetPost(items)))
   }
 
-  def createBookmarkSetPost(items: List[String] = Nil) = withUserAction.async { implicit user => implicit request =>
+  def createBookmarkSetPost(items: List[String] = Nil) = WithUserAction.async { implicit request =>
     BookmarkSet.bookmarkForm.bindFromRequest.fold(
       errs => immediate {
         if (isAjax) Ok(p.bookmarks.form(errs, bmRoutes.createBookmarkSetPost(items)))
@@ -177,7 +181,7 @@ case class Bookmarks @Inject()(implicit globalConfig: global.GlobalConfig, searc
   }
 
 
-  def contents(id: String) = withUserAction.async { implicit user => implicit request =>
+  def contents(id: String) = WithUserAction.async { implicit request =>
     val itemF: Future[AnyModel] = backend.getAny[AnyModel](id)
     val watchedF: Future[Seq[String]] = watchedItemIds(userIdOpt = userOpt.map(_.id))
     for {
@@ -187,7 +191,7 @@ case class Bookmarks @Inject()(implicit globalConfig: global.GlobalConfig, searc
     } yield {
       Ok(p.bookmarks.itemList(
         Some(item),
-        user,
+        request.profile,
         children.page.copy(items = children.page.items.map(_._1)),
         children.params,
         children.page.hasMore,
@@ -196,7 +200,7 @@ case class Bookmarks @Inject()(implicit globalConfig: global.GlobalConfig, searc
     }
   }
 
-  def moreContents(id: String, page: Int) = withUserAction.async { implicit user => implicit request =>
+  def moreContents(id: String, page: Int) = WithUserAction.async { implicit request =>
     val itemF: Future[AnyModel] = backend.getAny[AnyModel](id)
     val watchedF: Future[Seq[String]] = watchedItemIds(userIdOpt = userOpt.map(_.id))
     for {

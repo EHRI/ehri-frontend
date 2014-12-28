@@ -6,7 +6,7 @@ import defines.{PermissionType, EntityType}
 import models.{Link, UserProfile, LinkF, AccessPointF}
 import play.api.libs.json.Json
 import play.api.mvc.{Result, Request, AnyContent}
-import backend.{BackendReadable, BackendContentType, BackendResource}
+import backend.{ApiUser, BackendReadable, BackendContentType, BackendResource}
 import scala.concurrent.Future.{successful => immediate}
 
 /**
@@ -85,8 +85,8 @@ trait AccessPoints[D <: Description, T <: Model with Described[D], MT <: MetaMod
    *   } ]
    *
    */
-  def getAccessPointsJson(id: String)(implicit rd: BackendReadable[MT], rs: BackendResource[MT]) = userProfileAction.async { implicit userOpt => implicit request =>
-    getEntity.async(id, userOpt) { item =>
+  def getAccessPointsJson(id: String)(implicit rd: BackendReadable[MT], rs: BackendResource[MT]) = OptionalProfileAction.async { implicit request =>
+    getEntity.async(id, request.profileOpt) { item =>
       backend.getLinksForItem[Link](id).map { links =>
         implicit val accessPointFormat = Json.format[AccessPointF]
         implicit val linkFormat = Json.format[LinkF]

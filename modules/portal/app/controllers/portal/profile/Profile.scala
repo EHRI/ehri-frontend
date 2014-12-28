@@ -1,7 +1,7 @@
 package controllers.portal.profile
 
 import play.api.libs.concurrent.Execution.Implicits._
-import controllers.base.{SessionPreferences, AuthController, ControllerHelpers}
+import controllers.base.SessionPreferences
 import models._
 import play.api.i18n.Messages
 import play.api.mvc._
@@ -28,7 +28,7 @@ import org.joda.time.format.ISODateTimeFormat
 import models.base.AnyModel
 import net.coobird.thumbnailator.Thumbnails
 import com.typesafe.plugin.MailerAPI
-import controllers.portal.{Secured}
+import controllers.portal.Secured
 import controllers.portal.base.{PortalController, PortalAuthConfigImpl}
 
 /**
@@ -50,27 +50,27 @@ case class Profile @Inject()(implicit globalConfig: global.GlobalConfig, searchD
 
   private val profileRoutes = controllers.portal.profile.routes.Profile
 
-  def watchItem(id: String) = withUserAction { implicit user => implicit request =>
+  def watchItem(id: String) = WithUserAction.apply { implicit request =>
     Ok(p.helpers.simpleForm("portal.profile.watch",
       profileRoutes.watchItemPost(id)))
   }
 
-  def watchItemPost(id: String) = withUserAction.async { implicit user => implicit request =>
-    backend.watch(user.id, id).map { _ =>
-      clearWatchedItemsCache(user.id)
+  def watchItemPost(id: String) = WithUserAction.async { implicit request =>
+    backend.watch(request.profile.id, id).map { _ =>
+      clearWatchedItemsCache(request.profile.id)
       if (isAjax) Ok("ok")
       else Redirect(profileRoutes.watching())
     }
   }
 
-  def unwatchItem(id: String) = withUserAction { implicit user => implicit request =>
+  def unwatchItem(id: String) = WithUserAction.apply { implicit request =>
     Ok(p.helpers.simpleForm("portal.profile.unwatch",
       profileRoutes.unwatchItemPost(id)))
   }
 
-  def unwatchItemPost(id: String) = withUserAction.async { implicit user => implicit request =>
-    backend.unwatch(user.id, id).map { _ =>
-      clearWatchedItemsCache(user.id)
+  def unwatchItemPost(id: String) = WithUserAction.async { implicit request =>
+    backend.unwatch(request.profile.id, id).map { _ =>
+      clearWatchedItemsCache(request.profile.id)
       if (isAjax) Ok("ok")
       else Redirect(profileRoutes.watching())
     }
@@ -91,9 +91,9 @@ case class Profile @Inject()(implicit globalConfig: global.GlobalConfig, searchD
     implicit val writes = Json.writes[ExportWatchItem]
   }
 
-  def watching(format: DataFormat.Value = DataFormat.Html) = withUserAction.async { implicit user => implicit request =>
+  def watching(format: DataFormat.Value = DataFormat.Html) = WithUserAction.async { implicit request =>
     val watchParams = PageParams.fromRequest(request, namespace = "w")
-    backend.watching[AnyModel](user.id, watchParams).map { watchList =>
+    backend.watching[AnyModel](request.profile.id, watchParams).map { watchList =>
       format match {
         case DataFormat.Text => Ok(views.txt.p.userProfile.watchedItems(watchList))
             .as(MimeTypes.TEXT)
@@ -101,7 +101,7 @@ case class Profile @Inject()(implicit globalConfig: global.GlobalConfig, searchD
           List("Item", "URL"),
           watchList.items.map(a => ExportWatchItem.fromItem(a).toCsv)))
           .as("text/csv")
-          .withHeaders(HeaderNames.CONTENT_DISPOSITION -> s"attachment; filename=${user.id}_watched.csv")
+          .withHeaders(HeaderNames.CONTENT_DISPOSITION -> s"attachment; filename=${request.profile.id}_watched.csv")
         case DataFormat.Json =>
           Ok(Json.toJson(watchList.items.map(ExportWatchItem.fromItem)))
             .as(MimeTypes.JSON)
@@ -139,9 +139,9 @@ case class Profile @Inject()(implicit globalConfig: global.GlobalConfig, searchD
     implicit val writes = Json.writes[ExportAnnotation]
   }
 
-  def annotations(format: DataFormat.Value = DataFormat.Html) = withUserAction.async { implicit user => implicit request =>
+  def annotations(format: DataFormat.Value = DataFormat.Html) = WithUserAction.async { implicit request =>
     val params = PageParams.fromRequest(request)
-    backend.userAnnotations[Annotation](user.id, params).map { page =>
+    backend.userAnnotations[Annotation](request.profile.id, params).map { page =>
       format match {
         case DataFormat.Text =>
           Ok(views.txt.p.userProfile.annotations(page).body.trim)
@@ -150,7 +150,7 @@ case class Profile @Inject()(implicit globalConfig: global.GlobalConfig, searchD
             List("Item", "Field", "Note", "Time", "URL"),
             page.items.map(a => ExportAnnotation.fromAnnotation(a).toCsv)))
           .as("text/csv")
-          .withHeaders(HeaderNames.CONTENT_DISPOSITION -> s"attachment; filename=${user.id}_notes.csv")
+          .withHeaders(HeaderNames.CONTENT_DISPOSITION -> s"attachment; filename=${request.profile.id}_notes.csv")
         case DataFormat.Json =>
           Ok(Json.toJson(page.items.map(ExportAnnotation.fromAnnotation)))
             .as(MimeTypes.JSON)
@@ -188,12 +188,12 @@ case class Profile @Inject()(implicit globalConfig: global.GlobalConfig, searchD
     )
   }
 
-  def profile = withUserAction.async { implicit user => implicit request =>
+  def profile = WithUserAction.async { implicit request =>
     val annParams = PageParams.fromRequest(request, namespace = "a")
-    val annotationsF = backend.userAnnotations[Annotation](user.id, annParams)
+    val annotationsF = backend.userAnnotations[Annotation](request.profile.id, annParams)
     for {
       anns <- annotationsF
-    } yield Ok(p.userProfile.notes(user, anns, followed = false, canMessage = false))
+    } yield Ok(p.userProfile.notes(request.profile, anns, followed = false, canMessage = false))
   }
 
   import play.api.data.Form
@@ -227,12 +227,12 @@ case class Profile @Inject()(implicit globalConfig: global.GlobalConfig, searchD
     }
   }
 
-  def updateAccountPrefsPost() = withUserAction { implicit user => implicit request =>
+  def updateAccountPrefsPost() = WithUserAction.apply { implicit request =>
     AccountPreferences.form.bindFromRequest.fold(
       errForm => BadRequest(p.userProfile.editProfile(
         ProfileData.form, imageForm, errForm)),
       accountPrefs => {
-        userDAO.findByProfileId(user.id).map { acc =>
+        userDAO.findByProfileId(request.profile.id).map { acc =>
           acc.setAllowMessaging(accountPrefs.allowMessaging)
         }
         Redirect(profileRoutes.updateProfile())
@@ -241,27 +241,27 @@ case class Profile @Inject()(implicit globalConfig: global.GlobalConfig, searchD
     )
   }
 
-  def updateProfile() = withUserAction { implicit user => implicit request =>
+  def updateProfile() = WithUserAction.apply { implicit request =>
     Ok(p.userProfile.editProfile(profileDataForm, imageForm, accountPrefsForm))
   }
 
-  def updateProfilePost() = withUserAction.async { implicit user => implicit request =>
+  def updateProfilePost() = WithUserAction.async { implicit request =>
     ProfileData.form.bindFromRequest.fold(
       errForm => immediate(BadRequest(p.userProfile.editProfile(errForm, imageForm, accountPrefsForm))),
-      profile => backend.patch[UserProfile](user.id, Json.toJson(profile).as[JsObject]).map { userProfile =>
+      profile => backend.patch[UserProfile](request.profile.id, Json.toJson(profile).as[JsObject]).map { userProfile =>
         Redirect(profileRoutes.profile())
           .flashing("success" -> Messages("profile.update.confirmation"))
       }
     )
   }
 
-  def deleteProfile() = withUserAction { implicit user => implicit request =>
-    Ok(p.userProfile.deleteProfile(deleteForm(user),
+  def deleteProfile() = WithUserAction.apply { implicit request =>
+    Ok(p.userProfile.deleteProfile(deleteForm(request.profile),
       profileRoutes.deleteProfilePost()))
   }
 
-  def deleteProfilePost() = withUserAction.async { implicit user => implicit request =>
-    deleteForm(user).bindFromRequest.fold(
+  def deleteProfilePost() = WithUserAction.async { implicit request =>
+    deleteForm(request.profile).bindFromRequest.fold(
       errForm => immediate(BadRequest(p.userProfile.deleteProfile(
         errForm.withGlobalError("portal.profile.delete.badConfirmation"),
         profileRoutes.deleteProfilePost()))),
@@ -270,11 +270,11 @@ case class Profile @Inject()(implicit globalConfig: global.GlobalConfig, searchD
         // that would destroy the record of the user's activities and
         // the provenance of the data. Instead we just anonymize it by
         // updating the record with minimal information
-        val anonProfile = UserProfileF(id = Some(user.id),
-          identifier = user.model.identifier, name = user.model.identifier,
+        val anonProfile = UserProfileF(id = Some(request.profile.id),
+          identifier = request.profile.model.identifier, name = request.profile.model.identifier,
           active = false)
-        backend.update(user.id, anonProfile).flatMap { bool =>
-          user.account.get.delete()
+        backend.update(request.profile.id, anonProfile).flatMap { bool =>
+          request.profile.account.get.delete()
           gotoLogoutSucceeded
             .map(_.flashing("success" -> "portal.profile.profile.delete.confirmation"))
         }
@@ -288,7 +288,7 @@ case class Profile @Inject()(implicit globalConfig: global.GlobalConfig, searchD
   // Body parser that'll refuse anything larger than 5MB
   private def uploadParser = parse.maxLength(5 * 1024 * 1024, parse.multipartFormData)
 
-  def updateProfileImagePost() = withUserAction.async(uploadParser) { implicit user => implicit request =>
+  def updateProfileImagePost() = WithUserAction.async(uploadParser) { implicit request =>
 
     def onError(err: String) =
       BadRequest(p.userProfile.editProfile(profileDataForm,
@@ -300,8 +300,8 @@ case class Profile @Inject()(implicit globalConfig: global.GlobalConfig, searchD
         if (isValidContentType(file)) {
           try {
             for {
-              url <- convertAndUploadFile(file, user, request)
-              _ <- backend.patch(user.id, Json.obj(UserProfileF.IMAGE_URL -> url))
+              url <- convertAndUploadFile(file, request.profile, request)
+              _ <- backend.patch(request.profile.id, Json.obj(UserProfileF.IMAGE_URL -> url))
             } yield Redirect(profileRoutes.profile())
                   .flashing("success" -> "profile.update.confirmation")
           } catch {

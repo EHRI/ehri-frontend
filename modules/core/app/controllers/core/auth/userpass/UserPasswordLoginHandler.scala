@@ -113,20 +113,20 @@ trait UserPasswordLoginHandler {
    */
   object changePasswordPostAction {
     def async(f: Either[Form[(String,String,String)],Boolean] => UserProfile => Request[AnyContent] => Future[Result]): Action[AnyContent] = {
-      withUserAction.async { implicit user => implicit request =>
+      WithUserAction.async { implicit request =>
         changePasswordForm.bindFromRequest.fold(
-          errorForm => f(Left(errorForm))(user)(request),
+          errorForm => f(Left(errorForm))(request.profile)(request),
           data => {
             val (current, newPw, _) = data
 
             (for {
-              account <- user.account
+              account <- request.profile.account
               hashedPw <- account.password if Account.checkPassword(current, hashedPw)
             } yield {
               account.setPassword(Account.hashPassword(newPw))
-              f(Right(true))(user)(request)
+              f(Right(true))(request.profile)(request)
             }) getOrElse {
-              f(Right(false))(user)(request)
+              f(Right(false))(request.profile)(request)
             }
           }
         )
