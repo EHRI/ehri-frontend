@@ -8,6 +8,7 @@ import play.api.i18n.Messages
 
 class SignupSpec extends IntegrationTestRunner {
 
+  import utils.forms._
   private val accountRoutes = controllers.portal.account.routes.Accounts
 
   override def getConfig = Map(
@@ -16,7 +17,6 @@ class SignupSpec extends IntegrationTestRunner {
   )
 
   "Signup process" should {
-
     val testEmail: String = "test@example.com"
     val testName: String = "Test Name"
     val data: Map[String,Seq[String]] = Map(
@@ -24,8 +24,8 @@ class SignupSpec extends IntegrationTestRunner {
       SignupData.EMAIL -> Seq(testEmail),
       SignupData.PASSWORD -> Seq("testpass"),
       SignupData.CONFIRM -> Seq("testpass"),
-      SignupData.TIMESTAMP -> Seq(org.joda.time.DateTime.now.toString),
-      SignupData.BLANK_CHECK -> Seq(""),
+      TIMESTAMP -> Seq(org.joda.time.DateTime.now.toString),
+      BLANK_CHECK -> Seq(""),
       SignupData.AGREE_TERMS -> Seq(true.toString),
       CSRF_TOKEN_NAME -> Seq(fakeCsrfString)
     )
@@ -56,26 +56,26 @@ class SignupSpec extends IntegrationTestRunner {
 
     "prevent signup with invalid time diff" in new ITestApp(specificConfig = Map("ehri.signup.timeCheckSeconds" -> 5)) {
       val badData = data
-        .updated(SignupData.TIMESTAMP, Seq(org.joda.time.DateTime.now.toString))
+        .updated(TIMESTAMP, Seq(org.joda.time.DateTime.now.toString))
       val signup = route(FakeRequest(POST, accountRoutes.signupPost().url)
         .withSession(CSRF_TOKEN_NAME -> fakeCsrfString), badData).get
       status(signup) must equalTo(BAD_REQUEST)
-      contentAsString(signup) must contain(Messages("portal.signup.badTimestamp"))
+      contentAsString(signup) must contain(Messages("constraits.timeCheckSeconds.failed"))
 
       val badData2 = data
-        .updated(SignupData.TIMESTAMP, Seq("bad-date"))
+        .updated(TIMESTAMP, Seq("bad-date"))
       val signup2 = route(FakeRequest(POST, accountRoutes.signupPost().url)
         .withSession(CSRF_TOKEN_NAME -> fakeCsrfString), badData2).get
       status(signup2) must equalTo(BAD_REQUEST)
-      contentAsString(signup2) must contain(Messages("portal.signup.badTimestamp"))
+      contentAsString(signup2) must contain(Messages("constraits.timeCheckSeconds.failed"))
     }
 
     "prevent signup with filled blank field" in new ITestApp {
-      val badData = data.updated(SignupData.BLANK_CHECK, Seq("iAmARobot"))
+      val badData = data.updated(BLANK_CHECK, Seq("iAmARobot"))
       val signup = route(FakeRequest(POST, accountRoutes.signupPost().url)
         .withSession(CSRF_TOKEN_NAME -> fakeCsrfString), badData).get
       status(signup) must equalTo(BAD_REQUEST)
-      contentAsString(signup) must contain(Messages("portal.signup.badSignupInput"))
+      contentAsString(signup) must contain(Messages("constraints.honeypot.failed"))
     }
 
     "prevent signup where terms are not agreed" in new ITestApp {

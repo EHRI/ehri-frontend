@@ -7,6 +7,7 @@ import models.{Link, UserProfile, LinkF, AccessPointF}
 import play.api.libs.json.Json
 import play.api.mvc.{Result, Request, AnyContent}
 import backend.{BackendReadable, BackendContentType, BackendResource}
+import scala.concurrent.Future.{successful => immediate}
 
 /**
  * @author Mike Bryant (http://github.com/mikesname)
@@ -19,11 +20,11 @@ trait AccessPoints[D <: Description, T <: Model with Described[D], MT <: MetaMod
   case class LinkItem(accessPoint: AccessPointF, link: Option[LinkF], target: Option[Target])
 
   def manageAccessPointsAction(id: String, descriptionId: String)(f: MT => D => Option[UserProfile] => Request[AnyContent] => Result)(implicit rd: BackendReadable[MT], ct: BackendContentType[MT]) = {
-    withItemPermission[MT](id, PermissionType.Annotate) { item => implicit userOpt => implicit request =>
+    withItemPermission.async[MT](id, PermissionType.Annotate) { item => implicit userOpt => implicit request =>
       item.model.description(descriptionId).map { desc =>
-        f(item)(desc)(userOpt)(request)
+        immediate(f(item)(desc)(userOpt)(request))
       }.getOrElse {
-        NotFound(views.html.errors.itemNotFound(Some(descriptionId)))
+        notFoundError(request)
       }
     }
   }

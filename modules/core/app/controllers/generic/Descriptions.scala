@@ -7,7 +7,7 @@ import play.api.data.Form
 import defines.{EntityType, PermissionType}
 import models.UserProfile
 import scala.concurrent.Future.{successful => immediate}
-import backend.rest.ValidationError
+import backend.rest.{ItemNotFound, ValidationError}
 import backend.{BackendReadable, BackendWriteable, BackendContentType}
 
 /**
@@ -68,7 +68,7 @@ trait Descriptions[D <: Description with Persistable, T <: Model with Described[
       item.model.description(did).map { desc =>
         f(item)(desc)(userOpt)(request)
       }.getOrElse {
-        NotFound(views.html.errors.itemNotFound(Some(did)))
+        throw new ItemNotFound(key = Some("id"), value = Some(did))
       }
     }
   }

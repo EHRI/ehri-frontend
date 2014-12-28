@@ -1,0 +1,67 @@
+.make-entity-color(@color, @secondary-color:white) {
+  &.landing-header {
+    background-color: @color;
+    color: @secondary-color;
+    > a,
+    > a:hover,
+    > a:visited {
+      text-decoration: none;
+      color: white !important;
+    }
+  }
+  &.block-header {
+    color: @color;
+    > a,
+    > a:hover,
+    > a:visited {
+      text-decoration: none;
+      color: @color;
+    }
+  }
+  // MB: Removing this, even though it
+  // was probably added for a very good reason...
+  //a:not([class]),
+  & > a {
+    color: @color;
+  }
+  &.type-highlight > a, &.type-highlight {
+    color: @color;
+  }
+}
+
+.user, .userProfile, .group {
+  .make-entity-color(@user-color);
+}
+
+.documentaryUnit {
+  .make-entity-color(@doc-color);
+}
+
+.repository {
+  .make-entity-color(@repo-color);
+}
+
+.country {
+  .make-entity-color(@country-color);
+}
+
+.historicalAgent, .authoritativeSet {
+  .make-entity-color(@agent-color);
+}
+
+.virtualUnit {
+    .make-entity-color(@virtual-color);
+}
+
+.annotation, .link {
+  .make-entity-color(@annotation-color);
+}
+
+a.text-muted, .text-muted a {
+  .text-muted
+!important;
+}
+
+.cvocConcept, .cvocVocabulary {
+  .make-entity-color(@concept-color);
+}

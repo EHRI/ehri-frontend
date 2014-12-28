@@ -25,8 +25,9 @@ import com.typesafe.plugin.MailerAPI
 import views.html.p
 import com.google.inject.Inject
 import utils.search.{Resolver, Dispatcher}
-import controllers.portal.{Secured, PortalAuthConfigImpl, PortalBase}
+import controllers.portal.{Secured}
 import play.api.libs.json.Json
+import controllers.portal.base.{PortalController, PortalAuthConfigImpl}
 
 /**
  * @author Mike Bryant (http://github.com/mikesname)
@@ -34,14 +35,11 @@ import play.api.libs.json.Json
 case class Accounts @Inject()(implicit globalConfig: GlobalConfig, searchDispatcher: Dispatcher, searchResolver: Resolver, backend: Backend,
                              userDAO: AccountDAO, mailer: MailerAPI)
   extends LoginLogout
-  with AuthController
-  with ControllerHelpers
+  with PortalController
   with OpenIDLoginHandler
   with Oauth2LoginHandler
   with UserPasswordLoginHandler
   with AccountHelpers
-  with PortalBase
-  with PortalAuthConfigImpl
   with SessionPreferences[SessionPrefs]
   with Secured {
 

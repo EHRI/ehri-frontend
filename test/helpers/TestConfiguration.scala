@@ -125,17 +125,23 @@ trait TestConfiguration {
   def getPlugins = Seq.empty[String]
 
   /**
-   * Get a FakeRequest with authorization cookies for the given user
-   * and HTML Accept.
+   * Get a FakeRequest with CSRF Headers
    */
-  def fakeLoggedInRequest(user: Account, rtype: String, path: String) = {
+  def fakeRequest(rtype: String, path: String) = {
     val fr = FakeRequest(rtype, path)
-
     // Since we use csrf in forms, even though it's disabled in
     // tests we still need to add a fake token to the session so
     // the token is there when the form tries to render it.
     fr.withSession(CSRF_TOKEN_NAME -> fakeCsrfString)
       .withHeaders(CSRF_HEADER_NAME -> CSRF_HEADER_NOCHECK)
+  }
+
+  /**
+   * Get a FakeRequest with authorization cookies for the given user
+   * and HTML Accept.
+   */
+  def fakeLoggedInRequest(user: Account, rtype: String, path: String) = {
+    fakeRequest(rtype, path)
       .withLoggedIn(AuthConfig)(user.id)
   }
 

@@ -60,6 +60,11 @@ countryCode.xk=Kosovo
 #
 # Form constraints and formats
 constraint.required=*
+constraints.timeCheckSeconds=Timestamp
+constraints.timeCheckSeconds.failed=The form was submitted too quickly. Please try again.
+constraints.honeypot=Blank Check
+constraints.honeypot.failed=The form failed the spam check. Please try again.
+
 format.boolean=On/Off
 
 #
@@ -166,6 +171,7 @@ contentTypes.country=Countries
 contentTypes.link=Links
 contentTypes.systemEvent=History
 contentTypes.virtualUnit=Virtual Collections
+contentTypes.guides=Guides
 
 #
 # Permission Types
@@ -236,6 +242,8 @@ annotation.bodyText=Text
 annotation.field=Field
 annotation.annotationType=Type
 annotation.emptyBodyText=[Missing Annotation Text]
+annotation.update=Update Annotation
+annotation.update.submit=Update Annotation
 annotation.delete=Delete Annotation
 annotation.delete.submit=Delete Annotation
 annotation.create.item=Annotate {0}
@@ -395,6 +403,8 @@ profile.about=About You
 profile.about.description=
 profile.languages=Languages
 profile.languages.description=Languages you speak.
+profile.url=URL
+profile.url.description=
 profile.location=Location
 profile.location.description=
 profile.noLocationGiven=No location given

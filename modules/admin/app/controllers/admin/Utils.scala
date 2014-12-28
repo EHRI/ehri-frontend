@@ -1,6 +1,6 @@
 package controllers.admin
 
-import controllers.base.{AuthController, ControllerHelpers}
+import controllers.base.{AdminController, AuthController, ControllerHelpers}
 import models.{Account, AccountDAO, Group}
 import play.api.libs.concurrent.Execution.Implicits._
 
@@ -17,7 +17,7 @@ import backend.rest.cypher.CypherDAO
  */
 @Singleton
 case class Utils @Inject()(implicit globalConfig: global.GlobalConfig, backend: Backend, userDAO: AccountDAO)
-    extends AuthController with ControllerHelpers with RestDAO {
+    extends AdminController with RestDAO {
 
   override val staffOnly = false
 

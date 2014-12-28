@@ -14,10 +14,13 @@ import scala.concurrent.Future.{successful => immediate}
 import backend.Backend
 import play.api.Configuration
 import play.api.Play.current
+import controllers.base.AdminController
 
 
 @Singleton
-case class Repositories @Inject()(implicit globalConfig: global.GlobalConfig, searchDispatcher: Dispatcher, searchIndexer: Indexer, searchResolver: Resolver, backend: Backend, userDAO: AccountDAO) extends Read[Repository]
+case class Repositories @Inject()(implicit globalConfig: global.GlobalConfig, searchDispatcher: Dispatcher, searchIndexer: Indexer, searchResolver: Resolver, backend: Backend, userDAO: AccountDAO)
+  extends AdminController
+  with Read[Repository]
   with Update[RepositoryF, Repository]
   with Delete[Repository]
   with Creator[DocumentaryUnitF,DocumentaryUnit, Repository]

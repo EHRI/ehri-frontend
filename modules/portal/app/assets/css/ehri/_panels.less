@@ -1,0 +1,134 @@
+.panel-color(@header-bg: @ehri-purple, @header-color: white, @headerSelector : panel-heading, @footerSelector : panel-footer, @opacity-ft : 1) {
+	.@{headerSelector} {
+		background-color:@header-bg;
+		color:@header-color;
+	}
+	.@{footerSelector} {
+		opacity:@opacity-ft;
+		color:@header-color;
+	}
+} 
+.panel-rework(@headerSelector : panel-heading, @bodySelector : panel-body, @footerSelector : panel-footer) {
+	
+	border:0;
+	border-radius:0;
+	.box-shadow(none);
+
+	.@{headerSelector} {
+		.panel-heading;
+		border-radius:0;
+		border:0;
+		box-shadow:0;
+	}
+	.@{bodySelector} {
+		border-radius:0;
+		border:0;
+	}
+	.@{footerSelector} {
+		border:0;
+	}
+}
+.panel-rework(@headerSelector : panel-heading, @bodySelector : panel-body, @footerSelector : panel-footer) when (@headerSelector = panel-heading) {
+
+	.@{headerSelector} {
+		h3 {
+			.panel-title;
+		}
+		.expander {
+			display:none;
+		}
+		&:hover {
+
+			.expander {
+				display:inline-block;
+			}
+		}
+	}
+}
+.panel-rework(@headerSelector : panel-heading, @bodySelector : panel-body, @footerSelector : panel-footer) when not(@headerSelector = panel-heading) {
+
+	.@{headerSelector} {
+		.panel-title;
+	}
+}
+
+
+.panel-history {
+  &:extend(.panel);
+  .panel-rework();
+  .panel-color(@medium-gray, #000000);
+  .hidden-one-col;
+
+  .glyphicon {
+    font-size:12px;
+    cursor:pointer;
+  }
+
+  .expander {
+    &:extend(.pull-right);
+  }
+
+  .panel-body {
+    padding: @small-padding, 3 * @small-padding;
+  }
+  .panel-footer {
+    padding: 0, 3 * @small-padding;
+  }
+  &.inactive {
+    .panel-body, .panel-footer {
+      display:none;
+    }
+  }
+}
+
+.panel-details {
+  &:extend(.panel);
+  .panel-rework();
+  .panel-color(@medium-gray, #000000);
+}
+
+.facet-class {
+  &:extend(.panel);
+  > ul {
+    .list-unstyled;
+  }
+
+  .panel-rework(facet-label, facet-options);
+  .panel-color(@medium-gray, #000000, facet-label, facet-options);
+
+  .facet-label {
+    margin-bottom: @small-margin;
+  }
+}
+
+body.documentaryUnit .panel-type {
+  .panel-color(@doc-color);
+}
+
+body.country .panel-type {
+  .panel-color(@country-color);
+}
+
+body.repository .panel-type {
+  .panel-color(@repo-color);
+}
+
+body.historicalAgent .panel-type {
+  .panel-color(@agent-color);
+}
+
+body.userProfile .panel-type, body.group .panel-type {
+  .panel-color(@user-color);
+}
+
+body.virtualUnit .panel-type {
+  .panel-color(@virtual-color);
+}
+
+body.cvocConcept .panel-type, body.cvocVocabulary .panel-type {
+  .panel-color(@concept-color);
+}
+
+body.annotation .panel-type, body.link .panel-type {
+  .panel-color(@annotation-color);
+}

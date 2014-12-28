@@ -6,7 +6,7 @@
 
 <!DOCTYPE html>
 
-<html lang="en">
+<html lang="@lang.code">
     @p.layout.head(Messages("portal.welcome"))
     <body>
         @p.layout.preambleScripts()
@@ -28,6 +28,11 @@
                 </div>
 
                 <div class="container">
+                    <div class="row">
+                        <div class="welcome-lead">
+                            @Html(views.Helpers.renderMarkdown(Messages("portal.welcome.blurb")))
+                        </div>
+                    </div>
                     <!-- Example row of columns -->
                     <div class="row">
                         <div class="welcome-section country">
@@ -100,7 +105,5 @@
                         .load("@controllers.portal.routes.Portal.newsFeed.absoluteURL(secure = globalConfig.https)")
             });
         </script>
-
-        @p.layout.analytics()
     </body>
 </html>

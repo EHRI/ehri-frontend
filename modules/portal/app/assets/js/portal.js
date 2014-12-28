@@ -17,12 +17,6 @@ EhriJs.alert = function(msg, type) {
   }
 };
 
-// Facet label tooltips
-$(".facet-label").tooltip({
-  placement: "top",
-  delay: 500
-});
-
 EhriJs.alertSuccess = function(msg) {
   EhriJs.alert(msg, "success");
 };
@@ -35,8 +29,24 @@ EhriJs.alertInfo = function(msg) {
   EhriJs.alert(msg, "info");
 };
 
+// Loader widget
+EhriJs.$loader = $("<div></div>" )
+    .addClass("text-center loader-container")
+    .append($("<span></span>")
+        .addClass("loader"));
+
+
+
 
 jQuery(function ($) {
+
+  "use strict";
+
+// Facet label tooltips
+  $(".facet-label").tooltip({
+    placement: "top",
+    delay: 500
+  });
 
   var $dataPolicyWidget = $("#data-policy"),
       COOKIE_NAME = "ehriDataPolicy";
@@ -52,6 +62,10 @@ jQuery(function ($) {
 
   function getWidgetPosition() {
     return $(window).height() - $dataPolicyWidget.outerHeight();
+  }
+
+  function isCrawler() {
+    return /bot|googlebot|crawler|spider|robot|crawling/i.test(window.navigator.userAgent);
   }
 
   function showDataPolicy() {
@@ -70,7 +84,7 @@ jQuery(function ($) {
     });
   }
 
-  if ($dataPolicyWidget.length > 0 && !getDataPolicy()) {
+  if ($dataPolicyWidget.length > 0 && !getDataPolicy() && !isCrawler()) {
     showDataPolicy();
   }
 
@@ -173,10 +187,24 @@ $(".panel-history").each(function() {
 });
   //Need to reenable enter for getSearch
 
-/* 
-  Loadings
-*/
-$loader = $( "<div></div>" ).addClass("text-center loader-container").append($("<span></span>").addClass("loader"));
+  /*
+    Loadings
+  */
+  $(document).on("click", "a.child-drop-down.closed", function(e) {
+    e.preventDefault();
+    var $this = $(this);
+    $this.removeClass("closed").addClass("expanded");
+    var $container = $("<div></div>");
+    $container.insertAfter($this);
+    $container.load(this.href);
+  });
+
+  $(document).on("click", "a.child-drop-down.expanded", function(e) {
+    e.preventDefault();
+    var $this = $(this);
+    $this.next("div").remove();
+    $this.removeClass("expanded").addClass("closed");
+  });
 
   $(".content-load a.toggle").click(function(e){
     e.preventDefault();
@@ -327,7 +355,7 @@ $loader = $( "<div></div>" ).addClass("text-center loader-container").append($("
     e.preventDefault();
     var $item = $(e.target);
     $item.closest(".item-text-field").find(".annotation-list > .user-content")
-        .toggle();
+        .toggleClass("hidden");
     $item.toggleClass("fa-comments fa-comments-o")
   });
 });

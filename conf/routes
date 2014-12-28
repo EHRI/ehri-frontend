@@ -3,11 +3,9 @@
 # ~~~~
 
 # Defer other routes to modules
--> /                    core.Routes
 -> /                    portal.Routes
 
 # Admin routes
 -> /admin               admin.Routes
--> /admin               admin.Routes
--> /guides              guides.Routes
+-> /admin               guides.Routes
 

@@ -1,0 +1,20 @@
+@(page: utils.search.ItemPage[_])(implicit req: RequestHeader, lang: Lang)
+
+@import utils.search._
+
+<div class="selected-facets">
+    @page.facets.map{ fclass =>
+        @fclass.sorted.map{ facet =>
+            @if(facet.applied) {
+                <div class="selected-facet">
+                    <span class="facet"><span class="facet-type">@fclass.name:</span> @fclass.pretty(facet)
+                        <input type="hidden" name="@fclass.param" value="@facet.value" />
+                    </span>
+                    <a class="remove-filter" href="@pathWithoutFacet(fclass, facet, req.path, req.queryString.filterKeys(_!="page"))">
+                        <span class="remove"></span>
+                    </a>
+                </div>
+            }
+        }
+    }
+</div>

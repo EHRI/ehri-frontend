@@ -2,7 +2,7 @@
 
 @views.html.admin.layout.rightSidebar(Messages("virtualUnit.list")) {
     @common.filterableList("pagination.displayingItems", page, params) {
-        @itemList(page)
+        @itemList(Nil, page)
     }
 } {
     @views.html.admin.common.sidebarActions { user =>

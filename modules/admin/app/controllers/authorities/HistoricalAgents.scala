@@ -9,10 +9,12 @@ import utils.search.{FacetDisplay, Resolver, Dispatcher, FacetSort}
 import com.google.inject._
 import solr.SolrConstants
 import backend.Backend
+import controllers.base.AdminController
 
 
 @Singleton
-case class HistoricalAgents @Inject()(implicit globalConfig: global.GlobalConfig, searchDispatcher: Dispatcher, searchResolver: Resolver, backend: Backend, userDAO: AccountDAO) extends CRUD[HistoricalAgentF,HistoricalAgent]
+case class HistoricalAgents @Inject()(implicit globalConfig: global.GlobalConfig, searchDispatcher: Dispatcher, searchResolver: Resolver, backend: Backend, userDAO: AccountDAO)
+  extends AdminController with CRUD[HistoricalAgentF,HistoricalAgent]
 	with Visibility[HistoricalAgent]
   with ItemPermissions[HistoricalAgent]
   with Linking[HistoricalAgent]

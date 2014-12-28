@@ -1,0 +1,13 @@
+@(item: AnyModel, guidePath: String)(implicit userOpt: Option[UserProfile], request: RequestHeader, prefs: utils.SessionPrefs, globalConfig: global.GlobalConfig, lang: Lang, flash: Flash)
+
+@item.isA match {
+	case EntityType.DocumentaryUnit => {
+		<a href="@controllers.portal.routes.Guides.browseDocument(guidePath, item.id)">@item.toStringLang</a>
+	}
+	case EntityType.Repository => {
+		<a href="@controllers.portal.routes.Guides.browseRepository(guidePath, item.id)">@item.toStringLang</a>
+	}
+	case _ => {
+		@item.toStringLang
+	}
+}

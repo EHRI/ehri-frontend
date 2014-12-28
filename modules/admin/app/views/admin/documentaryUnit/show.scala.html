@@ -32,14 +32,13 @@
                     @views.html.admin.common.visibility(item, controllers.units.routes.DocumentaryUnits.visibility(item.id), ContentTypes.DocumentaryUnit)
                     @adminActions(item)
                 }
+            }
+            @item.childCount.filter(_ > 0).map { count =>
+                @views.html.search.searchSection(Messages("documentaryUnit.searchInside", item.toStringAbbr(lang)), result) {
+                    @views.html.common.search.searchForm(result, params, action, autofocus = false) {
+                        @searchItemList(result)
+                    } {
 
-                @item.childCount.filter(_ > 0).map { count =>
-                    @views.html.search.searchSection(Messages("documentaryUnit.searchInside", item.toStringAbbr(lang)), result) {
-                        @views.html.common.search.searchForm(result, params, action, autofocus = false) {
-                            @searchItemList(result)
-                        } {
-
-                        }
                     }
                 }
             }

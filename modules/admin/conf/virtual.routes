@@ -40,4 +40,5 @@ POST    /:id/linkjs/:accessPoint                     @controllers.virtual.Virtua
 GET     /:id/linkjs/:accessPoint                     @controllers.virtual.VirtualUnits.getLink(id: String, accessPoint: String)
 POST    /:id/linkjs                                  @controllers.virtual.VirtualUnits.createMultipleLinks(id: String)
 POST    /:id/deleteLink/:link                        @controllers.virtual.VirtualUnits.deleteLink(id: String, link: String)
+GET     /in/:id                                      @controllers.virtual.VirtualUnits.getInVc(id: String, path: Option[String])
 

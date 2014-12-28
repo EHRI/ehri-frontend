@@ -28,15 +28,16 @@ import org.joda.time.format.ISODateTimeFormat
 import models.base.AnyModel
 import net.coobird.thumbnailator.Thumbnails
 import com.typesafe.plugin.MailerAPI
-import controllers.portal.{Secured, PortalAuthConfigImpl, PortalBase}
+import controllers.portal.{Secured}
+import controllers.portal.base.{PortalController, PortalAuthConfigImpl}
 
 /**
  * @author Mike Bryant (http://github.com/mikesname)
  */
 case class Profile @Inject()(implicit globalConfig: global.GlobalConfig, searchDispatcher: Dispatcher, searchResolver: Resolver, backend: Backend,
                             userDAO: AccountDAO, mailer: MailerAPI)
-    extends LoginLogout with AuthController with ControllerHelpers
-    with PortalBase
+    extends PortalController
+    with LoginLogout
     with PortalAuthConfigImpl
     with SessionPreferences[SessionPrefs]
     with Secured {

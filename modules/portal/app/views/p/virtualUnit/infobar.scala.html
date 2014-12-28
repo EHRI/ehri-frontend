@@ -1,0 +1,13 @@
+@(item: AnyModel, path: Seq[AnyModel], watched: Boolean)(implicit userOpt: Option[UserProfile], req: RequestHeader, globalConfig: global.GlobalConfig, lang: Lang)
+
+@linkVc(item: AnyModel, path: Seq[AnyModel]) = {
+    <li><a class="type-highlight @item.isA" href="@views.p.Helpers.virtualUnitUrl(path, item.id)">@item.toStringAbbr</a></li>
+}
+
+@layout.infobar {
+    @for((prev, i) <- path.zipWithIndex) {
+        @linkVc(prev, path.take(i))
+    }
+    @linkVc(item, path)
+}
+

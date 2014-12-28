@@ -16,6 +16,9 @@
     case d: Concept => {
         @concept.listItem(d, watched)
     }
+    case d: VirtualUnit => {
+        @virtualUnit.listItemVc(d, Seq.empty, watched)
+    }
     case a: Annotation => {
         @annotation.searchItem(a)
     }

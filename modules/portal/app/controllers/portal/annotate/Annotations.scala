@@ -23,17 +23,16 @@ import models.view.AnnotationContext
 
 
 import com.google.inject._
-import controllers.portal.{Secured, PortalAuthConfigImpl}
+import controllers.portal.{Secured}
+import controllers.portal.base.{PortalController, PortalAuthConfigImpl}
 
 /**
  * @author Mike Bryant (http://github.com/mikesname)
  */
 case class Annotations @Inject()(implicit globalConfig: global.GlobalConfig, searchDispatcher: Dispatcher, searchResolver: Resolver, backend: Backend, userDAO: models.AccountDAO)
-  extends AuthController
-  with ControllerHelpers
+  extends PortalController
   with Visibility[Annotation]
   with Promotion[Annotation]
-  with PortalAuthConfigImpl
   with SessionPreferences[SessionPrefs]
   with Secured {
 

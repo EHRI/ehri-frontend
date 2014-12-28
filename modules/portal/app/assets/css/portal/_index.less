@@ -1,0 +1,288 @@
+/*
+  Variables for twitter typeahead
+*/
+@input-height:15px;
+@padding-tt:10px;
+/*
+.facet-class {
+  border-bottom: 1px solid @pale-gray;
+}
+*/
+
+body {
+  min-width: @page-min-width;
+}
+
+#welcome {
+  padding: @large-padding;
+}
+
+.jumbotron-container {
+  background-position: top left;
+  background-repeat: no-repeat;
+  background-size: 100% auto;
+  //background-image: url(/v/img/memorial_large.jpg);
+  //background-image: url(/v/img/warsaw_ghetto_large.jpg);
+  background-image: url(https://s3-eu-west-1.amazonaws.com/ehri-assets/itsarolsen_effects.jpg);
+
+  @media screen and (max-width: @screen-sm-min) {
+    background-size: auto;
+  }
+}
+
+.jumbotron {
+  text-align: center;
+  color: #fff;
+  //min-height: 400px;
+  //padding: 100px 0;
+  padding-top: 15 * @medium-padding;
+  padding-bottom: 15 * @medium-padding;
+  background: rgba(0, 0, 0, 0.5);
+
+  background-position: 50% 20px;
+  background-repeat: no-repeat;
+  background-image: url(/v/img/logo-trans-small.png);
+
+  @media screen and (max-width: @screen-sm-min) {
+    min-height: 10 * @small-padding;
+    padding-top: 10 * @small-padding;
+    padding-bottom: 10 * @small-padding;
+    background-image: none;
+  }
+
+  // Make the search bar larger on the welcome page
+  .container {
+    form {
+      .search-bar {
+        .form-group {
+          .input-group {
+            input {
+              &:extend(.input-lg);
+            }
+            .input-group-btn {
+              button {
+                &:extend(.btn-lg);
+              }
+            }
+          }
+        }
+      }
+      #search-helper {
+        .form-group();
+        background-color: rgba(0,0,0,0.3);
+        border-color: rgba(0,0,0,0);
+
+        h1 {
+          color: #eee;
+          font-family: serif;
+        }
+      }
+    }
+  }
+}
+
+.welcome-lead {
+  .make-md-column(12);
+  > p {
+    .lead;
+  }
+}
+
+.welcome-section {
+  .make-md-column(4);
+  h2 {
+    padding-bottom: @small-padding;
+    border-bottom: 5px solid transparent;
+    a:hover {
+      text-decoration: none;
+    }
+  }
+
+  &.country {
+    h2:hover {
+      border-bottom-color: @country-color;
+    }
+    a {
+      color: @country-color;
+    }
+  }
+  &.repository {
+    h2:hover {
+      border-bottom-color: @repo-color;
+    }
+    a {
+      color: @repo-color;
+    }
+  }
+  &.documentaryUnit {
+    h2:hover {
+      border-bottom-color: @doc-color;
+    }
+    a {
+      color: @doc-color;
+    }
+  }
+}
+
+.news-feed-container {
+  .make-md-column(12);
+}
+
+//Override of bootstrap defaults :
+blockquote {
+  font-size:@font-size-base;
+  padding:0;
+  border-left:none;
+}
+.link-target-list {
+  .list-unstyled;
+}
+.facet-select-dropdown {
+  max-width: 400px;
+}
+
+img.repository-logo {
+  max-width: 100%;
+  margin-bottom: @large-margin;
+}
+
+.breadcrumb {
+  background-color: inherit;
+  //color: inherit;
+  font-size: inherit;
+  margin-bottom: 0px;
+}
+
+.breadcrumb a {
+  text-decoration: underline;
+  //color: @pale-gray;
+}
+
+img.repository-logo {
+  max-width: 100%;
+  margin-bottom: @large-margin;
+}
+
+/** Heading which divides a set of search results */
+.search-group-heading {
+  margin-bottom: 30px;
+}
+
+.search-hits em, .search-item em {
+  //background-color: @search-hit-highlight;
+  font-weight: bolder;
+}
+
+a.alt {
+  color: @almost-black;
+  font-weight: bolder;
+}
+
+.sidebar {
+  //padding: @large-padding;
+}
+
+.column-content {
+  padding: @medium-padding;
+}
+
+.tertiary-content {
+  margin-top: @navbar-height;
+}
+
+.front-page-panel-content {
+  padding: 10px;
+  font-size: 0.9em;
+  height: 300px;
+  overflow: auto;
+}
+
+// Remove margin on flash alert box
+.flash {
+  margin: 0;
+}
+
+#news-feed {
+}
+
+#news-feed img {
+  display: none;
+}
+
+// Forms
+label.disabled {
+  color: @dark-gray;
+}
+
+.load-in-view {
+  padding-right: 15px;
+}
+
+.load-in-view.loading {
+  //.loader;
+}
+
+.activity-stream-wrapper {
+  margin-bottom: @large-margin;
+}
+
+.activity-stream-event {
+  margin-top: @large-margin;
+  .log-message {
+    font-size: 0.9em;
+  }
+}
+
+#activity-stream {
+  margin-bottom: @large-margin;
+}
+
+.header-controls {
+}
+
+.follow-controls, .watch-controls {
+  .header-controls;
+  * {
+    text-decoration: none;
+  }
+}
+
+.watch-controls {
+  .watch {
+    opacity: 0.3;
+    &:hover {
+      opacity:1;
+    }
+  }
+}
+
+// Add an outline to tab panes
+.tab-content-panel {
+  border-left: 1px solid @medium-gray;
+  border-right: 1px solid @medium-gray;
+  border-bottom: 1px solid @medium-gray;
+  margin-bottom: @large-margin;
+}
+
+.invisible {
+  visibility: hidden;
+}
+
+
+// Wide buttons with loadable content
+.content-load a.toggle, a.load-in-view {
+  display: block;
+  text-align: center;
+  border: 1px solid @pale-gray;
+  padding: 5px;
+  color: @almost-black;
+  padding-right: 15px;
+  background-color: @pale-gray;
+  margin-bottom: @medium-margin;
+}
+
+.content-load a.toggle:hover, a.load-in-view:hover {
+  text-decoration: none;
+  background-color: darken(@pale-gray, 2);
+}
+

@@ -1,0 +1,28 @@
+@(item: DocumentaryUnit, guidePath: String)(implicit userOpt: Option[UserProfile], request: RequestHeader, prefs: utils.SessionPrefs, globalConfig: global.GlobalConfig, lang: Lang, flash: Flash)
+
+@wrapParent(doc: DocumentaryUnit, parent: Option[DocumentaryUnit]) = {
+    @parent.map { p =>
+        @wrapParent(doc, p.parent)
+        <li>
+            <a class="search-item-parent-name" href="@controllers.portal.routes.Guides.browseDocument(guidePath, p.id)">@p.toStringLang</a>
+        </li>
+    }
+}
+
+<div class="search-item" id="@item.id">
+        <h3 class="search-item-heading type-highlight @item.isA.toString">
+            <a href="@controllers.portal.routes.Guides.browseDocument(guidePath, item.id)">@item.toStringLang</a>
+        </h3>
+        <div class="search-item-body">
+            <ol class="collapsible">
+
+                @item.holder.map { holder =>
+                    <li>
+                        @p.guides.doc.linkTo(holder, guidePath)
+                    </li>
+                }
+                @wrapParent(item, item.parent)
+            </ol>
+            @p.guides.doc.listItemBody(item, guidePath)
+        </div>
+</div>

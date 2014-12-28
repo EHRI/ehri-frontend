@@ -1,10 +1,10 @@
-@(title: Any, styles: Html = Html(""))(implicit lang: Lang)
+@(title: Any, styles: Html = Html(""))(implicit globalConfig: global.GlobalConfig, lang: Lang)
 
 <head>
     <title>EHRI - @title</title>
 
-    <link rel="shortcut icon" type="image/png" href="@controllers.core.routes.Assets.versioned("images/favicon.png")">
-    <link rel="stylesheet" href="@controllers.core.routes.Assets.versioned("css/portal.css")">
+    <link rel="shortcut icon" type="image/png" href="@controllers.portal.routes.Assets.versioned("img/favicon.png")">
+    <link rel="stylesheet" href="@controllers.portal.routes.Assets.versioned("css/portal.css")">
 
     @if(lang.code.startsWith("he")) {
         <!-- experimental hebrew right-to-left support -->
@@ -14,8 +14,9 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="copyright" value="European Holocaust Research Infrastructure">
     <meta name="description" content="The European Holocaust Research Infrastructure Online Portal">
-    <meta name="keywords" content="EHRI,Holocaust,Research,Shoah,Archives,History,Deportations,Camps,Ghettos">
+    <meta name="keywords" content="EHRI,Portal,Holocaust,Research,Shoah,Archives,History,Deportations,Camps,Ghettos">
 
     <!-- HTML5 shim and Respond.js for IE8 support of HTML5 elements and media queries -->
     <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
@@ -25,4 +26,5 @@
     <![endif]-->
 
     @styles
+    @analytics()
 </head>

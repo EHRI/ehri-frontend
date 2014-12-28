@@ -1,8 +1,8 @@
-@(watchList: utils.AbstractPage[models.base.AnyModel])(implicit userOpt: Option[UserProfile], request: RequestHeader, prefs: utils.SessionPrefs, globalConfig: global.GlobalConfig, lang: Lang, flash: Flash)
+@(watchList: utils.AbstractPage[AnyModel])(implicit userOpt: Option[UserProfile], request: RequestHeader, prefs: utils.SessionPrefs, globalConfig: global.GlobalConfig, lang: Lang, flash: Flash)
 
 @* user should always be defined here *@
 @userOpt.map { user =>
-    @p.layout.portalLayout(Messages("portal.profile.watch.list")) {
+    @p.layout.portalLayout(Messages("portal.profile.watch.list"), EntityType.UserProfile.toString) {
         @views.html.layout.mainContent {
             <h1>@Messages("portal.profile.watch.list")</h1>
             @itemWatchList(user, watchList)

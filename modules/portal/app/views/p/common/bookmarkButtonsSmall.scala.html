@@ -1,0 +1,7 @@
+@(item: AnyModel)(implicit userOpt: Option[UserProfile], lang: Lang)
+
+<div class="bookmark-controls @item.isA">
+    <a data-item="@item.id"
+       class="bookmark-item glyphicon glyphicon-bookmark" title="@Messages("portal.bookmark.tooltip")"
+        href="@controllers.portal.routes.Bookmarks.bookmark(item.id)"></a>
+</div>

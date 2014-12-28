@@ -1,0 +1,36 @@
+@(item: models.base.AnyModel, hit: utils.search.SearchHit, action: Call, guidePath: Option[String] = None, conceptMode:String = "default")(implicit userOpt: Option[UserProfile], req: RequestHeader, globalConfig: global.GlobalConfig, lang: Lang)
+
+@filteredLink(id: String) = {
+    @guidePath match {
+        case Some(gPath) =>  { 
+            <a href="@controllers.portal.routes.Guides.guideFacets(gPath)?kw[]=@id "><span class="glyphicon glyphicon-search"></span></a>
+        }
+        case  _ =>  { # }
+    }
+}
+@item match {
+    case d: Concept => {
+        <span class="item-title keyword-title">
+            @d.broaderTerms.map { bt =>
+                <span class="item-parent">
+                    @bt.toStringLang
+                </span>
+            }
+            @conceptMode match { 
+                case "organisation" => {
+                    @if(d.childCount.getOrElse(0) > 0) {
+                        <a href="@action?parent=@d.id">@d.toStringLang</a>
+                    } else {
+                        @d.toStringLang
+                    }
+                } 
+                case _ => {
+                    @d.toStringLang
+                }
+            }
+        </span>
+    }
+    case _ => {
+        ""
+    }
+}

@@ -1,4 +1,7 @@
 jQuery(function ($) {
+
+  "use strict";
+
   /*
    Tooltip
    */
@@ -237,6 +240,23 @@ jQuery(function ($) {
   });
 
   /**
+   * Bookmark items.
+   */
+  $(document).on("click", "a.bookmark-item", function (e) {
+    e.preventDefault();
+
+    var call = jsRoutes.controllers.portal.Bookmarks.bookmarkPost,
+        $elem = $(this),
+        id = $elem.data("item");
+
+    call(id).ajax({
+      success: function () {
+        $elem.addClass("bookmarked");
+      }
+    });
+  });
+
+  /**
    * Annotation-related functions
    */
 
@@ -279,7 +299,7 @@ jQuery(function ($) {
   }
 
   function insertAnnotationLoader($elem) {
-    return $loader.appendTo($elem.parent().parent());
+    return EhriJs.$loader.appendTo($elem.parent().parent());
   }
 
   function showAnnotationControl($form) {
@@ -299,7 +319,7 @@ jQuery(function ($) {
     e.preventDefault();
     var $elem = $(this),
         action = this.href;
-    loaderContainer = insertAnnotationLoader($elem);
+    var loaderContainer = insertAnnotationLoader($elem);
     $.get(action, function (data) {
       insertAnnotationForm($elem, data, loaderContainer);
     });

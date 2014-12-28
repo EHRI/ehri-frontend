@@ -1,6 +1,6 @@
 @(form: Form[Feedback])(implicit userOpt: Option[UserProfile], request: RequestHeader, lang: Lang, token: play.filters.csrf.CSRF.Token)
 
-@implicitField = @{ views.html.helper.FieldConstructor(p.helpers.fieldTemplateEmpty.f) }
+@import models.Feedback.{NAME,EMAIL,TYPE}
 
 @helper.form(action = controllers.portal.routes.Feedback.feedbackPost, 'role -> "form", 'id -> "suggestion-form") {
     <fieldset>
@@ -8,14 +8,19 @@
             @formHelpers.csrfToken()
             @if(userOpt.isEmpty) {
                 <div class="form-group">
-                    <input type="text" class="form-control" name="name" placeholder="@Messages("name") (@Messages("optional"))" />
+                    <input type="text" class="form-control" name="@NAME" placeholder="@Messages(NAME) (@Messages("optional"))" />
                 </div>
                 <div class="form-group">
-                    <input type="email" class="form-control" name="email" placeholder="@Messages("email") (@Messages("optional"))" />
+                    <input type="email" class="form-control" name="@EMAIL" placeholder="@Messages(EMAIL) (@Messages("optional"))" />
                 </div>
             }
 
             <textarea rows="4" class="form-control" name="text" placeholder="@Messages("portal.feedback.message") " required=""></textarea>
+
+            <div class="blank-check">
+                <input type="hidden" name="@TIMESTAMP" value="@org.joda.time.DateTime.now().toString()" />
+                <input type="text" name="@BLANK_CHECK" title="[Leave this blank]" autocomplete="off" value="" />
+            </div>
         </div>
         <div class="form-actions modal-footer">
             <a tabindex="-1" class="btn btn-danger" href="@controllers.portal.routes.Portal.index" id="cancel">@Messages("cancel")</a>

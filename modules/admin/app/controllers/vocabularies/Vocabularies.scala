@@ -10,10 +10,13 @@ import com.google.inject._
 import scala.concurrent.Future.{successful => immediate}
 import backend.Backend
 import solr.SolrConstants
+import controllers.base.AdminController
 
 
 @Singleton
-case class Vocabularies @Inject()(implicit globalConfig: global.GlobalConfig, searchDispatcher: Dispatcher, searchIndexer: Indexer, searchResolver: Resolver, backend: Backend, userDAO: AccountDAO) extends CRUD[VocabularyF,Vocabulary]
+case class Vocabularies @Inject()(implicit globalConfig: global.GlobalConfig, searchDispatcher: Dispatcher, searchIndexer: Indexer, searchResolver: Resolver, backend: Backend, userDAO: AccountDAO)
+  extends AdminController
+  with CRUD[VocabularyF,Vocabulary]
   with Creator[ConceptF, Concept, Vocabulary]
   with Visibility[Vocabulary]
   with ScopePermissions[Vocabulary]

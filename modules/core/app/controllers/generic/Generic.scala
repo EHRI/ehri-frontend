@@ -1,11 +1,8 @@
 package controllers.generic
 
-import play.api.mvc.Controller
-import defines.ContentTypes
-import controllers.base.{ControllerHelpers, AuthController}
 import backend.Backend
+import controllers.base.AuthController
 
-trait Generic[MT] extends Controller with AuthController with ControllerHelpers {
-  //implicit val resource: RestResource[MT]
+trait Generic[MT] extends AuthController {
   val backend: Backend
 }

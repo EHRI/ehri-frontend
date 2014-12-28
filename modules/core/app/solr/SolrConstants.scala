@@ -36,6 +36,11 @@ object SolrConstants {
   final val CHILD_COUNT = "childCount"
 
   /**
+   * Local identifier
+   */
+  final val IDENTIFIER = "identifier"
+
+  /**
    * The canonical "item name"
    */
   final val NAME_EXACT = "name"
@@ -49,6 +54,11 @@ object SolrConstants {
    * Parallel forms of name
    */
   final val PARALLEL_NAMES = "parallelFormsOfName"
+
+  /**
+   * All alternate names of name
+   */
+  final val ALT_NAMES = "altName"
 
   /**
    * Name field for word matches

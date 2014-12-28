@@ -1,0 +1,27 @@
+@(title: Any)(content: Html)(implicit req: RequestHeader, lang: Lang)
+
+<!DOCTYPE html>
+
+<html lang="@lang.code">
+    <head>
+        <title>@title</title>
+
+        <link rel="shortcut icon" type="image/png" href="@controllers.portal.routes.Assets.at("img/favicon.png")">
+        <link href="@controllers.portal.routes.Assets.at("css/admin.css")" rel="stylesheet">
+    </head>
+    <body>
+        <div id="wrap" class="error-page page-container">
+            <div class="error-page-header">
+                <div class="container">
+                    <img src="@controllers.portal.routes.Assets.at("img/logo_small.png")" />
+                    <h1 id="error-title">@title</h1>
+                </div>
+            </div>
+            <div class="page-content container">
+                @content
+            </div>
+            <div id="push"></div>
+        </div>
+        @footer()
+    </body>
+</html>

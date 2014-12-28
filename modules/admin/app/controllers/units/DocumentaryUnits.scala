@@ -17,10 +17,13 @@ import play.api.Configuration
 import play.api.http.MimeTypes
 import utils.ead.EadExporter
 import models.base.Description
+import controllers.base.AdminController
 
 
 @Singleton
-case class DocumentaryUnits @Inject()(implicit globalConfig: global.GlobalConfig, searchDispatcher: Dispatcher, searchResolver: Resolver, backend: Backend, userDAO: AccountDAO) extends Read[DocumentaryUnit]
+case class DocumentaryUnits @Inject()(implicit globalConfig: global.GlobalConfig, searchDispatcher: Dispatcher, searchResolver: Resolver, backend: Backend, userDAO: AccountDAO)
+  extends AdminController
+  with Read[DocumentaryUnit]
   with Visibility[DocumentaryUnit]
   with Creator[DocumentaryUnitF, DocumentaryUnit, DocumentaryUnit]
   with Update[DocumentaryUnitF, DocumentaryUnit]

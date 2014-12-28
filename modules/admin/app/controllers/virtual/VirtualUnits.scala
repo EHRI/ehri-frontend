@@ -18,16 +18,20 @@ import play.api.mvc.AnyContent
 import play.api.data.Form
 import play.api.data.Forms._
 import solr.facet.FieldFacetClass
-import scala.Some
 import solr.facet.SolrQueryFacet
 import solr.facet.QueryFacetClass
 import backend.rest.Constants
+import scala.concurrent.Future
+import models.base.AnyModel
 import models.base.Description
+import controllers.base.AdminController
 
 
 @Singleton
 case class VirtualUnits @Inject()(implicit globalConfig: global.GlobalConfig, searchDispatcher: Dispatcher, idGenerator: IdGenerator,
-                                  searchResolver: Resolver, backend: Backend, userDAO: AccountDAO) extends Read[VirtualUnit]
+                                  searchResolver: Resolver, backend: Backend, userDAO: AccountDAO)
+  extends AdminController
+  with Read[VirtualUnit]
   with Visibility[VirtualUnit]
   with Create[VirtualUnitF,VirtualUnit]
   with Creator[VirtualUnitF, VirtualUnit, VirtualUnit]
@@ -118,9 +122,40 @@ case class VirtualUnits @Inject()(implicit globalConfig: global.GlobalConfig, se
       entities = List(EntityType.VirtualUnit),
       facetBuilder = entityFacets
     ).map { result =>
-      Ok(views.html.admin.virtualUnit.show(item, result.page, result.params, result.facets,
+      Ok(views.html.admin.virtualUnit.show(Nil, item, result.page, result.params, result.facets,
           vuRoutes.get(id), annotations, links))
     }
+  }
+
+  def getInVc(id: String, pathStr: Option[String]) = userProfileAction.async { implicit userOpt => implicit request =>
+    val pathIds = pathStr.map(_.split(",").toList).getOrElse(List.empty)
+    def includedChildren(parent: AnyModel): Future[QueryResult[AnyModel]] = parent match {
+      case d: DocumentaryUnit => find[AnyModel](
+          filters = Map(SolrConstants.PARENT_ID -> d.id),
+          entities = List(d.isA),
+          facetBuilder = entityFacets)
+      case d: VirtualUnit => d.includedUnits match {
+        case other :: _ => includedChildren(other)
+        case _ => find[AnyModel](
+          filters = Map(SolrConstants.PARENT_ID -> d.id),
+          entities = List(d.isA),
+          facetBuilder = entityFacets)
+      }
+      case _ => Future.successful(QueryResult.empty)
+    }
+
+    val pathF: Future[List[AnyModel]] = Future.sequence(pathIds.map(pid => backend.getAny[AnyModel](pid)))
+    val itemF: Future[AnyModel] = backend.getAny[AnyModel](id)
+    val linksF: Future[Seq[Link]] = backend.getLinksForItem[Link](id)
+    val annsF: Future[Seq[Annotation]] = backend.getAnnotationsForItem[Annotation](id)
+    for {
+      item <- itemF
+      links <- linksF
+      annotations <- annsF
+      path <- pathF
+      children <- includedChildren(item)
+    } yield Ok(views.html.admin.virtualUnit.showVc(path, item, children.page, children.params, children.facets,
+      vuRoutes.getInVc(id, pathStr), annotations, links))
   }
 
   def history(id: String) = historyAction(id) { item => page => params => implicit userOpt => implicit request =>

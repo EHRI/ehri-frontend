@@ -142,7 +142,7 @@ case class VirtualUnit(
     new DocumentaryUnitF(
       id = model.id,
       identifier = model.identifier,
-      descriptions = allDescriptions
+      descriptions = if(descriptions.isEmpty) allDescriptions else descriptions
     ),
     holder = holder,
     accessors = accessors,

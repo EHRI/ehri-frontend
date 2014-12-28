@@ -297,14 +297,6 @@ trait FacetConfig extends Search {
         render= (s: String) => Helpers.countryCodeToName(s),
         sort = FacetSort.Name,
         display = FacetDisplay.DropDown
-      ),
-      FieldFacetClass(
-        key="accessPoints",
-        name=Messages("facet.kw"),
-        param="kw",
-        render= s => s,
-        sort = FacetSort.Name,
-        display = FacetDisplay.DropDown
       )
     )
   }

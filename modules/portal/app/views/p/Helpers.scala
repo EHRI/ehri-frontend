@@ -56,6 +56,7 @@ object Helpers {
       case EntityType.Link => portalRoutes.browseLink(item.id)
       case EntityType.Annotation => portalRoutes.browseAnnotation(item.id)
       case EntityType.Vocabulary => portalRoutes.browseVocabulary(item.id)
+      case EntityType.VirtualUnit => controllers.portal.routes.VirtualUnits.browseVirtualCollection(item.id)
       case _ => {
         play.api.Logger.logger.error(s"Link to unexpected item: ${item.toStringLang} ${item.isA}")
         Call("GET", "#")
@@ -69,4 +70,14 @@ object Helpers {
   def gravitar(img: Option[String]): String =
     img.map(_.replaceFirst("https?://", "//"))
       .getOrElse(controllers.portal.routes.Assets.at("img/default-gravitar.png").url)
+
+  def virtualUnitUrl(path: Seq[AnyModel], id: String): Call = {
+    if (path.isEmpty) controllers.portal.routes.VirtualUnits.browseVirtualCollection(id)
+    else controllers.portal.routes.VirtualUnits.browseVirtualUnit(path.map(_.id).mkString(","), id)
+  }
+
+  def virtualUnitSearchUrl(path: Seq[AnyModel], id: String): Call = {
+    if (path.isEmpty) controllers.portal.routes.VirtualUnits.searchVirtualCollection(id)
+    else controllers.portal.routes.VirtualUnits.searchVirtualUnit(path.map(_.id).mkString(","), id)
+  }
 }
