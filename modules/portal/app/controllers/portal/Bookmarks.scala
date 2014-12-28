@@ -59,8 +59,10 @@ case class Bookmarks @Inject()(implicit globalConfig: global.GlobalConfig, searc
     )
   }
 
-  private def defaultBookmarkSet(lang: String)(implicit user: UserProfile): VirtualUnitF =
-    bookmarkSetToVu(defaultBookmarkSetId, BookmarkSet(s"Bookmarked Items", lang = lang, description = None))
+  private def defaultBookmarkSet(lang: String)(implicit user: UserProfile, request: RequestHeader): VirtualUnitF = {
+    import play.api.i18n.Messages
+    bookmarkSetToVu(defaultBookmarkSetId, BookmarkSet(Messages("portal.bookmarkSet.defaultSetName"), lang = lang, description = None))
+  }
 
   private def createVirtualCollection(bs: BookmarkSet, items: List[String] = Nil)(implicit user: UserProfile): Future[VirtualUnit] =
     for {

@@ -194,6 +194,7 @@ portal.virtualUnit.viewInArchivalContext.explanation=This item is being displaye
   that does not reflect the arrangement of material in the physical archive.
 
 portal.bookmarkSet.list=Bookmark Sets
+portal.bookmarkSet.defaultSetName=Bookmarked Items
 portal.bookmarkSet.create=Create Bookmark Set
 portal.bookmarkSet.create.submit=Submit
 portal.bookmarkSet.edit=Edit Bookmark Set
