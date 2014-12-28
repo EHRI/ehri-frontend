@@ -202,7 +202,7 @@ trait AuthController extends Controller with ControllerHelpers with AsyncAuth wi
    * SystemEvent composition that adds extra context to regular requests. Namely,
    * the profile of the user requesting the page, and her permissions.
    */
-  @scala.deprecated("Use OptionalProfileAction instead")
+  @scala.deprecated(message = "Use OptionalProfileAction instead", since = "1.0.2")
   object userProfileAction {
     def async[A](bodyParser: BodyParser[A])(f: Option[UserProfile] => Request[A] => Future[Result]): Action[A] = {
 
@@ -324,7 +324,7 @@ trait AuthController extends Controller with ControllerHelpers with AsyncAuth wi
    * Wrap userProfileAction to ensure we have a user, or
    * access is denied
    */
-  @scala.deprecated("Use WithUserAction instead")
+  @scala.deprecated(message = "Use WithUserAction instead", since = "1.0.2")
   object withUserAction {
     def async[A](bodyParser: BodyParser[A])(f: UserProfile => Request[A] => Future[Result]): Action[A] = {
       OptionalProfileAction.async(bodyParser) { implicit request =>
@@ -350,7 +350,7 @@ trait AuthController extends Controller with ControllerHelpers with AsyncAuth wi
    * Wrap itemPermissionAction to ensure a given permission is present,
    * and return an action with the user in scope.
    */
-  @scala.deprecated("Use AdminAction instead")
+  @scala.deprecated(message = "Use AdminAction instead", since = "1.0.2")
   object adminAction {
     def async(f: Option[UserProfile] => Request[AnyContent] => Future[Result]): Action[AnyContent] = {
       OptionalProfileAction.async { implicit  request =>

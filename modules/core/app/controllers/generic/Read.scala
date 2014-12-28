@@ -31,6 +31,14 @@ trait Read[MT] extends Generic[MT] {
     request: Request[A]
   ) extends WrappedRequest[A](request)
 
+  case class ItemPageRequest[A](
+    page: Page[MT],
+    params: PageParams,
+    profileOpt: Option[UserProfile],
+    request: Request[A]
+  )
+
+
   /**
    * Fetch an item of type `MT` along with its item-level and scoped permissions.
    *
@@ -76,11 +84,28 @@ trait Read[MT] extends Generic[MT] {
     }
   }
 
+  /**
+   * Fetch a page of items
+   *
+   * @return a request populated with item data (links, annotations) and permission info
+   */
+  protected def ItemPageTransformer(implicit rd: BackendReadable[MT], rs: BackendResource[MT]) = new ActionTransformer[OptionalProfileRequest, ItemPageRequest] {
+    def transform[A](input: OptionalProfileRequest[A]): Future[ItemPageRequest[A]] = {
+      implicit val userOpt = input.profileOpt
+      val params = PageParams.fromRequest(input)
+      for {
+        page <- backend.list[MT](params)
+      } yield ItemPageRequest[A](page, params, input.profileOpt, input)
+    }
+  }
+
   def ItemPermissionAction(itemId: String)(implicit rd: BackendReadable[MT], ct: BackendContentType[MT], rs: BackendResource[MT]) =
     OptionalProfileAction andThen ItemPermissionTransformer(itemId)
 
   def ItemMetaAction(itemId: String)(implicit rd: BackendReadable[MT], ct: BackendContentType[MT], rs: BackendResource[MT]) =
     ItemPermissionAction(itemId) andThen ItemMetaTransformer(itemId)
+
+  def ItemPageAction(implicit rd: BackendReadable[MT], rs: BackendResource[MT]) = OptionalProfileAction andThen ItemPageTransformer
 
 
   object getEntity {
@@ -110,6 +135,7 @@ trait Read[MT] extends Generic[MT] {
     }
   }
 
+  @deprecated(message = "Use ItemMetaAction instead", since = "1.0.2")
   object getAction {
     def async(id: String)(f: MT => Page[Annotation] => Page[Link] => Option[UserProfile] => Request[AnyContent] => Future[Result])(
         implicit rd: BackendReadable[MT], ct: BackendContentType[MT]) = {
@@ -150,6 +176,7 @@ trait Read[MT] extends Generic[MT] {
     }
   }
 
+  @deprecated(message = "Use ItemPageAction instead", since = "1.0.2")
   def pageAction(f: Page[MT] => PageParams => Option[UserProfile] => Request[AnyContent] => Result)(
       implicit rd: BackendReadable[MT], rs: BackendResource[MT]) = {
     OptionalProfileAction.async { implicit request =>

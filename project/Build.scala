@@ -25,7 +25,7 @@ object ApplicationBuild extends Build {
   logBuffered := false
 
   val appName = "docview"
-  val appVersion = "1.0-SNAPSHOT"
+  val appVersion = "1.0.2-SNAPSHOT"
 
   scalaVersion := "2.10.4"
 
