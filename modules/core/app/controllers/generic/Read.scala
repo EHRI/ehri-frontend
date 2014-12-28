@@ -17,7 +17,13 @@ import play.api.mvc.Result
  */
 trait Read[MT] extends Generic[MT] {
 
-  case class ItemRequest[A](
+  case class ItemPermissionRequest[A](
+    item: MT,
+    profileOpt: Option[UserProfile],
+    request: Request[A]
+  ) extends WrappedRequest[A](request)
+
+  case class ItemMetaRequest[A](
     item: MT,
     annotations: Page[Annotation],
     links: Page[Link],
@@ -25,36 +31,56 @@ trait Read[MT] extends Generic[MT] {
     request: Request[A]
   ) extends WrappedRequest[A](request)
 
-  def ItemAction(itemId: String)(implicit rd: BackendReadable[MT], ct: BackendContentType[MT], rs: BackendResource[MT]) = new ActionTransformer[OptionalProfileRequest, ItemRequest] {
-    def transform[A](input: OptionalProfileRequest[A]): Future[ItemRequest[A]] = {
-      implicit val opr = input
+  /**
+   * Fetch an item of type `MT` along with its item-level and scoped permissions.
+   *
+   * @param itemId The item's global ID
+   * @return a request populated with the item and the user profile with permissions for that item
+   */
+  protected def ItemPermissionTransformer(itemId: String)(implicit rd: BackendReadable[MT], ct: BackendContentType[MT], rs: BackendResource[MT]) = new ActionTransformer[OptionalProfileRequest, ItemPermissionRequest] {
+    def transform[A](input: OptionalProfileRequest[A]): Future[ItemPermissionRequest[A]] = {
+      implicit val userOpt = input.profileOpt
       input.profileOpt.map { profile =>
         val itemF = backend.get[MT](itemId)
         val scopedPermsF = backend.getScopePermissions(profile.id, itemId)
         val permsF = backend.getItemPermissions(profile.id, ct.contentType, itemId)
-        val annotationsF = backend.getAnnotationsForItem[Annotation](itemId)
-        val linksF = backend.getLinksForItem[Link](itemId)
         for {
           item <- itemF
-          scope <- scopedPermsF
+          scopedPerms <- scopedPermsF
           perms <- permsF
-          anns <- annotationsF
-          links <- linksF
-          newProfile = profile.copy(itemPermissions = Some(perms), globalPermissions = Some(scope))
-        } yield ItemRequest[A](item, anns, links, Some(profile), input)
-
+          newProfile = profile.copy(itemPermissions = Some(perms), globalPermissions = Some(scopedPerms))
+        } yield ItemPermissionRequest[A](item, Some(profile), input)
       }.getOrElse {
-        val itemF = backend.get[MT](itemId)
-        val annotationsF = backend.getAnnotationsForItem[Annotation](itemId)
-        val linksF = backend.getLinksForItem[Link](itemId)
         for {
-          item <- itemF
-          anns <- annotationsF
-          links <- linksF
-        } yield ItemRequest[A](item, anns, links, None, input)
+          item <- backend.get[MT](itemId)
+        } yield ItemPermissionRequest[A](item, None, input)
       }
     }
   }
+
+  /**
+   * Fetch annotations and links for an item.
+   *
+   * @param itemId the item ID
+   * @return a request populated with item data (links, annotations) and permission info
+   */
+  protected def ItemMetaTransformer(itemId: String)(implicit rd: BackendReadable[MT], ct: BackendContentType[MT], rs: BackendResource[MT]) = new ActionTransformer[ItemPermissionRequest, ItemMetaRequest] {
+    def transform[A](input: ItemPermissionRequest[A]): Future[ItemMetaRequest[A]] = {
+      implicit val userOpt = input.profileOpt
+      val annotationsF = backend.getAnnotationsForItem[Annotation](itemId)
+      val linksF = backend.getLinksForItem[Link](itemId)
+      for {
+        annotations <- annotationsF
+        links <- linksF
+      } yield ItemMetaRequest[A](input.item, annotations, links, input.profileOpt, input)
+    }
+  }
+
+  def ItemPermissionAction(itemId: String)(implicit rd: BackendReadable[MT], ct: BackendContentType[MT], rs: BackendResource[MT]) =
+    OptionalProfileAction andThen ItemPermissionTransformer(itemId)
+
+  def ItemMetaAction(itemId: String)(implicit rd: BackendReadable[MT], ct: BackendContentType[MT], rs: BackendResource[MT]) =
+    ItemPermissionAction(itemId) andThen ItemMetaTransformer(itemId)
 
 
   object getEntity {
@@ -108,13 +134,12 @@ trait Read[MT] extends Generic[MT] {
   object getWithChildrenAction {
     def async[CT](id: String)(f: MT => Page[CT] => PageParams =>  Page[Annotation] => Page[Link] => Option[UserProfile] => Request[AnyContent] => Future[Result])(
           implicit rd: BackendReadable[MT], ct: BackendContentType[MT], crd: BackendReadable[CT]) = {
-      itemPermissionAction.async[MT](id) { item => implicit userOpt => implicit request =>
+      ItemMetaAction(id).async { implicit request =>
+        implicit val userOpt = request.profileOpt
         val params = PageParams.fromRequest(request)
         for {
-          anns <- backend.getAnnotationsForItem[Annotation](id)
           children <- backend.listChildren[MT,CT](id, params)
-          links <- backend.getLinksForItem[Link](id)
-          r <- f(item)(children)(params)(anns)(links)(userOpt)(request)
+          r <- f(request.item)(children)(params)(request.annotations)(request.links)(request.profileOpt)(request)
         } yield r
       }
     }
