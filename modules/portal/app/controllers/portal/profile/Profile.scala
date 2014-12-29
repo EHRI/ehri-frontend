@@ -50,7 +50,7 @@ case class Profile @Inject()(implicit globalConfig: global.GlobalConfig, searchD
 
   private val profileRoutes = controllers.portal.profile.routes.Profile
 
-  def watchItem(id: String) = WithUserAction.apply { implicit request =>
+  def watchItem(id: String) = WithUserAction { implicit request =>
     Ok(p.helpers.simpleForm("portal.profile.watch",
       profileRoutes.watchItemPost(id)))
   }
@@ -63,7 +63,7 @@ case class Profile @Inject()(implicit globalConfig: global.GlobalConfig, searchD
     }
   }
 
-  def unwatchItem(id: String) = WithUserAction.apply { implicit request =>
+  def unwatchItem(id: String) = WithUserAction { implicit request =>
     Ok(p.helpers.simpleForm("portal.profile.unwatch",
       profileRoutes.unwatchItemPost(id)))
   }
@@ -117,11 +117,11 @@ case class Profile @Inject()(implicit globalConfig: global.GlobalConfig, searchD
     // NB: Using nulls here because the OpenCSV expects them in
     // the absence of a value (rather than, say, empty strings)
     def toCsv: Array[String] = Array(
-      target.getOrElse(null),
-      field.getOrElse(null),
+      target.orNull,
+      field.orNull,
       body,
-      time.getOrElse(null),
-      url.getOrElse(null)
+      time.orNull,
+      url.orNull
     )
   }
 
@@ -227,7 +227,7 @@ case class Profile @Inject()(implicit globalConfig: global.GlobalConfig, searchD
     }
   }
 
-  def updateAccountPrefsPost() = WithUserAction.apply { implicit request =>
+  def updateAccountPrefsPost() = WithUserAction { implicit request =>
     AccountPreferences.form.bindFromRequest.fold(
       errForm => BadRequest(p.userProfile.editProfile(
         ProfileData.form, imageForm, errForm)),
@@ -241,7 +241,7 @@ case class Profile @Inject()(implicit globalConfig: global.GlobalConfig, searchD
     )
   }
 
-  def updateProfile() = WithUserAction.apply { implicit request =>
+  def updateProfile() = WithUserAction { implicit request =>
     Ok(p.userProfile.editProfile(profileDataForm, imageForm, accountPrefsForm))
   }
 
@@ -255,7 +255,7 @@ case class Profile @Inject()(implicit globalConfig: global.GlobalConfig, searchD
     )
   }
 
-  def deleteProfile() = WithUserAction.apply { implicit request =>
+  def deleteProfile() = WithUserAction { implicit request =>
     Ok(p.userProfile.deleteProfile(deleteForm(request.profile),
       profileRoutes.deleteProfilePost()))
   }

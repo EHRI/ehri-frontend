@@ -51,7 +51,7 @@ trait Indexable[MT] extends Controller with AuthController with ControllerHelper
    * @param id The items id
    * @return An action returning a chunked progress response.
    */
-  def updateItemPost(id: String) = AdminAction.apply { implicit request =>
+  def updateItemPost(id: String) = AdminAction { implicit request =>
     val channel = Concurrent.unicast[String] { chan =>
       searchIndexer.withChannel(chan, wrapMsg).indexId(id).onComplete {
         case Success(()) => finishSuccess(chan)
@@ -69,7 +69,7 @@ trait Indexable[MT] extends Controller with AuthController with ControllerHelper
    * @param id The parent item id
    * @return An action returning a chunked progress response.
    */
-  def updateChildItemsPost(field: String, id: String)(implicit rs: BackendResource[MT]) = AdminAction.apply { implicit request =>
+  def updateChildItemsPost(field: String, id: String)(implicit rs: BackendResource[MT]) = AdminAction { implicit request =>
     println("INDEXING WITH: " + searchIndexer)
     val channel = Concurrent.unicast[String] { chan =>
 
