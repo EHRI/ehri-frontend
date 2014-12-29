@@ -5,14 +5,12 @@ import controllers.generic.Search
 import models._
 import models.base.AnyModel
 import play.api.libs.concurrent.Execution.Implicits._
-import play.api.mvc._
 import views.html.p
 import utils.search._
 import defines.EntityType
 import solr.SolrConstants
 import backend.{IdGenerator, Backend}
-import controllers.base.{SessionPreferences, ControllerHelpers}
-import jp.t2v.lab.play2.auth.LoginLogout
+import controllers.base.SessionPreferences
 import utils._
 
 import com.google.inject._
@@ -86,13 +84,13 @@ case class VirtualUnits @Inject()(implicit globalConfig: global.GlobalConfig, se
     }
   }
 
-  def browseVirtualUnit(pathStr: String, id: String) = userProfileAction.async { implicit userOpt => implicit request =>
+  def browseVirtualUnit(pathStr: String, id: String) = OptionalProfileAction.async { implicit request =>
     val pathIds = pathStr.split(",").toSeq
     val pathF: Future[Seq[AnyModel]] = Future.sequence(pathIds.map(pid => backend.getAny[AnyModel](pid)))
     val itemF: Future[AnyModel] = backend.getAny[AnyModel](id)
     val linksF: Future[Seq[Link]] = backend.getLinksForItem[Link](id)
     val annsF: Future[Seq[Annotation]] = backend.getAnnotationsForItem[Annotation](id)
-    val watchedF: Future[Seq[String]] = watchedItemIds(userIdOpt = userOpt.map(_.id))
+    val watchedF: Future[Seq[String]] = watchedItemIds(userIdOpt = request.profileOpt.map(_.id))
     for {
       watched <- watchedF
       item <- itemF
@@ -105,7 +103,7 @@ case class VirtualUnits @Inject()(implicit globalConfig: global.GlobalConfig, se
     }
   }
 
-  def searchVirtualUnit(pathStr: String, id: String) = userProfileAction.async { implicit userOpt => implicit request =>
+  def searchVirtualUnit(pathStr: String, id: String) = OptionalProfileAction.async { implicit request =>
     val pathIds = pathStr.split(",").toSeq
 
     def includedChildren(parent: AnyModel): Future[QueryResult[AnyModel]] = parent match {
@@ -126,7 +124,7 @@ case class VirtualUnits @Inject()(implicit globalConfig: global.GlobalConfig, se
     val itemF: Future[AnyModel] = backend.getAny[AnyModel](id)
     val linksF: Future[Seq[Link]] = backend.getLinksForItem[Link](id)
     val annsF: Future[Seq[Annotation]] = backend.getAnnotationsForItem[Annotation](id)
-    val watchedF: Future[Seq[String]] = watchedItemIds(userIdOpt = userOpt.map(_.id))
+    val watchedF: Future[Seq[String]] = watchedItemIds(userIdOpt = request.profileOpt.map(_.id))
     for {
       watched <- watchedF
       item <- itemF

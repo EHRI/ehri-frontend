@@ -29,6 +29,7 @@ import controllers.portal.base.PortalController
 /**
  * @author Mike Bryant (http://github.com/mikesname)
  */
+@Singleton
 case class Annotations @Inject()(implicit globalConfig: global.GlobalConfig, searchDispatcher: Dispatcher, searchResolver: Resolver, backend: Backend, userDAO: models.AccountDAO)
   extends PortalController
   with Visibility[Annotation]

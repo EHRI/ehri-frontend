@@ -1,21 +1,20 @@
 package controllers.guides
 
-import controllers.base.{AdminController, AuthController, ControllerHelpers}
-import play.api.mvc.Controller
+import controllers.base.AdminController
 
 import com.google.inject._
 import backend.Backend
 import models.AccountDAO
 import models.{Guide, GuidePage}
-import play.api.http.HeaderNames
 
 
+@Singleton
 case class GuidePages @Inject()(implicit globalConfig: global.GlobalConfig, backend: Backend, userDAO: AccountDAO) extends AdminController {
 
   private val formPage = models.GuidePage.form
   private final val guidePagesRoutes = controllers.guides.routes.GuidePages
 
-  def edit(gPath: String, path: String) = withUserAction { implicit user => implicit request =>
+  def edit(gPath: String, path: String) = WithUserAction { implicit request =>
     itemOr404 {
       for {
         guide <- Guide.find(gPath)
@@ -26,7 +25,7 @@ case class GuidePages @Inject()(implicit globalConfig: global.GlobalConfig, back
     }
   }
 
-  def editPost(gPath: String, path: String) = withUserAction { implicit user => implicit request =>
+  def editPost(gPath: String, path: String) = WithUserAction { implicit request =>
     itemOr404 {
       for {
         guide <- Guide.find(gPath)
@@ -48,7 +47,7 @@ case class GuidePages @Inject()(implicit globalConfig: global.GlobalConfig, back
     }
   }
 
-  def create(gPath: String) = withUserAction { implicit user => implicit request =>
+  def create(gPath: String) = WithUserAction { implicit request =>
     itemOr404 {
       Guide.find(gPath, activeOnly = false).map { guide =>
         Ok(views.html.guidePage.create(guide,
@@ -59,7 +58,7 @@ case class GuidePages @Inject()(implicit globalConfig: global.GlobalConfig, back
     }
   }
 
-  def createPost(gPath: String) = withUserAction { implicit user => implicit request =>
+  def createPost(gPath: String) = WithUserAction { implicit request =>
     itemOr404 {
       Guide.find(gPath, activeOnly = false).flatMap { guide =>
         formPage.bindFromRequest.fold(
@@ -79,7 +78,7 @@ case class GuidePages @Inject()(implicit globalConfig: global.GlobalConfig, back
     }
   }
 
-  def delete(gPath: String, path: String) = withUserAction { implicit user => implicit request =>
+  def delete(gPath: String, path: String) = WithUserAction { implicit request =>
     itemOr404 {
       for {
         guide <- Guide.find(gPath)
@@ -91,7 +90,7 @@ case class GuidePages @Inject()(implicit globalConfig: global.GlobalConfig, back
     }
   }
 
-  def deletePost(gPath: String, path: String) = withUserAction { implicit user => implicit request =>
+  def deletePost(gPath: String, path: String) = WithUserAction { implicit request =>
     itemOr404 {
       for {
         guide <- Guide.find(gPath)

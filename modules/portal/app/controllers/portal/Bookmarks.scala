@@ -183,7 +183,7 @@ case class Bookmarks @Inject()(implicit globalConfig: global.GlobalConfig, searc
 
   def contents(id: String) = WithUserAction.async { implicit request =>
     val itemF: Future[AnyModel] = backend.getAny[AnyModel](id)
-    val watchedF: Future[Seq[String]] = watchedItemIds(userIdOpt = userOpt.map(_.id))
+    val watchedF: Future[Seq[String]] = watchedItemIds(userIdOpt = Some(request.profile.id))
     for {
       item <- itemF
       children <- includedChildren(id, item)
@@ -202,7 +202,7 @@ case class Bookmarks @Inject()(implicit globalConfig: global.GlobalConfig, searc
 
   def moreContents(id: String, page: Int) = WithUserAction.async { implicit request =>
     val itemF: Future[AnyModel] = backend.getAny[AnyModel](id)
-    val watchedF: Future[Seq[String]] = watchedItemIds(userIdOpt = userOpt.map(_.id))
+    val watchedF: Future[Seq[String]] = watchedItemIds(userIdOpt = Some(request.profile.id))
     for {
       item <- itemF
       children <- includedChildren(id, item, page = page)

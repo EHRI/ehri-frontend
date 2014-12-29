@@ -22,7 +22,7 @@ import backend.{Backend, ApiUser}
 import play.api.mvc.Result
 import com.typesafe.plugin.MailerAPI
 import views.html.p
-import com.google.inject.Inject
+import com.google.inject.{Singleton, Inject}
 import utils.search.{Resolver, Dispatcher}
 import controllers.portal.Secured
 import play.api.libs.json.Json
@@ -31,6 +31,7 @@ import controllers.portal.base.PortalController
 /**
  * @author Mike Bryant (http://github.com/mikesname)
  */
+@Singleton
 case class Accounts @Inject()(implicit globalConfig: GlobalConfig, searchDispatcher: Dispatcher, searchResolver: Resolver, backend: Backend,
                              userDAO: AccountDAO, mailer: MailerAPI)
   extends LoginLogout
@@ -47,8 +48,8 @@ case class Accounts @Inject()(implicit globalConfig: GlobalConfig, searchDispatc
 
   val defaultPreferences = new SessionPrefs
 
-  def account = userProfileAction { implicit userOpt => implicit request =>
-    Ok(Json.toJson(userOpt.flatMap(_.account)))
+  def account = OptionalProfileAction { implicit request =>
+    Ok(Json.toJson(request.profileOpt.flatMap(_.account)))
   }
 
   /**

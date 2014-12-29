@@ -14,11 +14,12 @@ import controllers.portal.base.PortalController
 /**
  * @author Mike Bryant (http://github.com/mikesname)
  */
+@Singleton
 case class Feedback @Inject()(implicit globalConfig: global.GlobalConfig, feedbackDAO: FeedbackDAO,
                               backend: Backend, userDAO: AccountDAO, mailer: MailerAPI)
   extends PortalController with Secured {
 
-  implicit def prefs = new SessionPrefs
+  private implicit val prefs: SessionPrefs = new SessionPrefs
 
   import utils.forms._
   import play.api.data.Form
@@ -37,7 +38,7 @@ case class Feedback @Inject()(implicit globalConfig: global.GlobalConfig, feedba
       verifying blankFieldIsBlank verifying formSubmissionTime
   )
 
-  def feedback = userProfileAction { implicit userOpt => implicit request =>
+  def feedback = OptionalProfileAction { implicit request =>
     Ok(views.html.p.feedback(models.Feedback.form))
   }
 

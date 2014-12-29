@@ -34,6 +34,7 @@ import controllers.portal.base.{PortalController, PortalAuthConfigImpl}
 /**
  * @author Mike Bryant (http://github.com/mikesname)
  */
+@Singleton
 case class Profile @Inject()(implicit globalConfig: global.GlobalConfig, searchDispatcher: Dispatcher, searchResolver: Resolver, backend: Backend,
                             userDAO: AccountDAO, mailer: MailerAPI)
     extends PortalController

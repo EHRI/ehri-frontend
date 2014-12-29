@@ -30,6 +30,7 @@ import controllers.portal.base.PortalController
  * be greatly optimised by implementing caching for
  * just lists of IDs.
  */
+@Singleton
 case class Social @Inject()(implicit globalConfig: global.GlobalConfig, searchDispatcher: Dispatcher, searchResolver: Resolver, backend: Backend, userDAO: AccountDAO,
     mailer: MailerAPI)
   extends PortalController

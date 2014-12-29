@@ -14,6 +14,7 @@ import controllers.portal.base.PortalController
 /**
  * @author Mike Bryant (http://github.com/mikesname)
  */
+@Singleton
 case class Helpdesk @Inject()(implicit helpdeskDAO: HelpdeskDAO, globalConfig: global.GlobalConfig, backend: Backend,
     userDAO: AccountDAO, mailer: MailerAPI)
   extends PortalController with Secured {

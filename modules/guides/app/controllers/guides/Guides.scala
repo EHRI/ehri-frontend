@@ -7,16 +7,17 @@ import backend.Backend
 import models.{AccountDAO, Guide}
 
 
+@Singleton
 case class Guides @Inject()(implicit globalConfig: global.GlobalConfig, backend: Backend, userDAO: AccountDAO) extends AdminController {
 
   private val formGuide = models.Guide.form
   private final val guidesRoutes = controllers.guides.routes.Guides
 
-  def list() = userProfileAction { implicit userOpt => implicit request =>
+  def list() = OptionalProfileAction { implicit request =>
     Ok(views.html.guide.list(Guide.findAll()))
   }
 
-  def show(path: String) = withUserAction { implicit user => implicit request =>
+  def show(path: String) = WithUserAction { implicit request =>
     itemOr404 {
       Guide.find(path, activeOnly = false).map { guide =>
         Ok(views.html.guide.show(guide, guide.findPages(), Guide.findAll()))
@@ -24,7 +25,7 @@ case class Guides @Inject()(implicit globalConfig: global.GlobalConfig, backend:
     }
   }
 
-  def edit(path: String) = withUserAction { implicit user => implicit request =>
+  def edit(path: String) = WithUserAction { implicit request =>
     itemOr404 {
       Guide.find(path, activeOnly = false).map { guide =>
         Ok(views.html.guide.edit(guide, formGuide.fill(guide), Guide.findAll(),
@@ -33,7 +34,7 @@ case class Guides @Inject()(implicit globalConfig: global.GlobalConfig, backend:
     }
   }
 
-  def editPost(path: String) = withUserAction { implicit user => implicit request =>
+  def editPost(path: String) = WithUserAction { implicit request =>
     itemOr404 {
       Guide.find(path, activeOnly = false).map { guide =>
         formGuide.bindFromRequest.fold(
@@ -54,11 +55,11 @@ case class Guides @Inject()(implicit globalConfig: global.GlobalConfig, backend:
     }
   }
 
-  def create() = withUserAction { implicit user => implicit request =>
+  def create() = WithUserAction { implicit request =>
     Ok(views.html.guide.create(formGuide.fill(Guide.blueprint()), Guide.findAll(), guidesRoutes.createPost()))
   }
 
-  def createPost() = withUserAction { implicit user => implicit request =>
+  def createPost() = WithUserAction { implicit request =>
     formGuide.bindFromRequest.fold(
       errorForm => {
         BadRequest(views.html.guide.create(errorForm, Guide.findAll(), guidesRoutes.createPost()))
@@ -74,7 +75,7 @@ case class Guides @Inject()(implicit globalConfig: global.GlobalConfig, backend:
     )
   }
 
-  def delete(path: String) = withUserAction { implicit user => implicit request =>
+  def delete(path: String) = WithUserAction { implicit request =>
     itemOr404 {
       Guide.find(path).map { guide =>
         Ok(views.html.guide.delete(guide, Guide.findAll(), guidesRoutes.deletePost(path)))
@@ -82,7 +83,7 @@ case class Guides @Inject()(implicit globalConfig: global.GlobalConfig, backend:
     }
   }
 
-  def deletePost(path: String) = withUserAction { implicit user => implicit request =>
+  def deletePost(path: String) = WithUserAction { implicit request =>
     itemOr404 {
       Guide.find(path, activeOnly = false).map { guide =>
         guide.delete()
