@@ -1,12 +1,12 @@
 package controllers.base
 
-import play.api.libs.concurrent.Execution.Implicits._
-import scala.concurrent.Future
-import play.api.mvc._
-import models.UserProfile
-import global.GlobalConfig
-import scala.concurrent.Future.{successful => immediate}
 import backend.rest.RestHelpers
+import models.UserProfile
+import play.api.libs.concurrent.Execution.Implicits._
+import play.api.mvc._
+
+import scala.concurrent.Future
+import scala.concurrent.Future.{successful => immediate}
 
 
 trait ControllerHelpers {
@@ -20,7 +20,7 @@ trait ControllerHelpers {
    * to put an optional user in scope for template rendering
    * when there's definitely one defined.
    */
-  implicit def userOpt(implicit user: UserProfile): Option[UserProfile] = Some(user)
+  implicit def user2userOpt(implicit user: UserProfile): Option[UserProfile] = Some(user)
 
   /**
    * Issue a warning about database maintenance when a "dbmaintenance"
