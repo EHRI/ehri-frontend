@@ -19,6 +19,8 @@ import backend._
 import backend.ApiUser
 import play.api.mvc.Result
 
+import scala.language.implicitConversions
+
 
 /**
  * Trait containing composable Action wrappers to handle different
@@ -70,7 +72,7 @@ trait AuthController extends Controller with ControllerHelpers with AsyncAuth wi
   def notFoundError(request: RequestHeader)(implicit context: ExecutionContext): Future[Result]
 
 
-  override implicit def request2lang(implicit request: RequestHeader) = {
+  override implicit def request2lang(implicit request: RequestHeader): Lang = {
     request.cookies.get(LANG) match {
       case None => super.request2lang(request)
       case Some(cookie) => Lang(cookie.value)
