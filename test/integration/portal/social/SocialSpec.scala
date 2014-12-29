@@ -1,10 +1,7 @@
 package integration.portal.social
 
 import helpers.IntegrationTestRunner
-import controllers.portal.ReversePortal
 import controllers.portal.social.ReverseSocial
-import mocks.MockBufferedMailer
-import backend.ApiUser
 
 class SocialSpec extends IntegrationTestRunner {
   import mocks.{privilegedUser, unprivilegedUser}

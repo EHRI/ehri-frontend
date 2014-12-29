@@ -18,7 +18,7 @@ case class Helpdesk @Inject()(implicit helpdeskDAO: HelpdeskDAO, globalConfig: g
     userDAO: AccountDAO, mailer: MailerAPI)
   extends PortalController with Secured {
 
-  implicit def prefs = new SessionPrefs
+  private implicit val prefs: SessionPrefs = new SessionPrefs
 
   import play.api.data.Form
   import play.api.data.Forms._
@@ -31,9 +31,9 @@ case class Helpdesk @Inject()(implicit helpdeskDAO: HelpdeskDAO, globalConfig: g
     )
   )
 
-  def helpdesk = userProfileAction { implicit userOpt => implicit request =>
+  def helpdesk = OptionalProfileAction { implicit request =>
     val prefilledData: (String,String, Boolean)
-        = (userOpt.flatMap(_.account).map(_.email).getOrElse(""), "", false)
+        = (request.profileOpt.flatMap(_.account).map(_.email).getOrElse(""), "", false)
     val form = helpdeskForm.fill(prefilledData).discardingErrors
     Ok(views.html.p.helpdesk.helpdesk(form))
   }
@@ -46,7 +46,7 @@ case class Helpdesk @Inject()(implicit helpdeskDAO: HelpdeskDAO, globalConfig: g
       .send(query, query)
   }
 
-  def helpdeskPost = userProfileAction.async { implicit userOpt => implicit request =>
+  def helpdeskPost = OptionalProfileAction.async { implicit request =>
     import play.api.libs.concurrent.Execution.Implicits._
     helpdeskForm.bindFromRequest.fold(
       errorForm => immediate(BadRequest(views.html.p.helpdesk.helpdesk(errorForm))),

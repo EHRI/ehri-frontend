@@ -5,8 +5,7 @@ import models._
 import play.api.libs.concurrent.Execution.Implicits._
 import scala.concurrent.Future.{successful => immediate}
 import jp.t2v.lab.play2.auth.LoginLogout
-import controllers.base.{ControllerHelpers, SessionPreferences, AuthController}
-import play.api.Logger
+import controllers.base.SessionPreferences
 import controllers.core.auth.oauth2.{LinkedInOauth2Provider, FacebookOauth2Provider, GoogleOAuth2Provider, Oauth2LoginHandler}
 import controllers.core.auth.openid.OpenIDLoginHandler
 import controllers.core.auth.userpass.UserPasswordLoginHandler
@@ -25,9 +24,9 @@ import com.typesafe.plugin.MailerAPI
 import views.html.p
 import com.google.inject.Inject
 import utils.search.{Resolver, Dispatcher}
-import controllers.portal.{Secured}
+import controllers.portal.Secured
 import play.api.libs.json.Json
-import controllers.portal.base.{PortalController, PortalAuthConfigImpl}
+import controllers.portal.base.PortalController
 
 /**
  * @author Mike Bryant (http://github.com/mikesname)
@@ -225,8 +224,8 @@ case class Accounts @Inject()(implicit globalConfig: GlobalConfig, searchDispatc
     Ok(views.html.p.account.passwordReminderSent())
   }
 
-  def changePassword = withUserAction { implicit user => implicit request =>
-    user.account.map { account =>
+  def changePassword = WithUserAction { implicit request =>
+    request.profile.account.map { account =>
       Ok(views.html.p.account.changePassword(account, changePasswordForm,
         accountRoutes.changePasswordPost()))
     }.getOrElse {
@@ -265,8 +264,8 @@ case class Accounts @Inject()(implicit globalConfig: GlobalConfig, searchDispatc
     }
   }
 
-  def resendVerificationPost() = withUserAction { implicit user => implicit request =>
-    user.account.map { account =>
+  def resendVerificationPost() = WithUserAction { implicit request =>
+    request.profile.account.map { account =>
       val uuid = UUID.randomUUID()
       account.createValidationToken(uuid)
       sendValidationEmail(account.email, uuid)

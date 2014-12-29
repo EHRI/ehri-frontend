@@ -63,7 +63,7 @@ case class Feedback @Inject()(implicit globalConfig: global.GlobalConfig, feedba
     }
   }
 
-  def feedbackPost = userProfileAction.async { implicit userOpt => implicit request =>
+  def feedbackPost = OptionalProfileAction.async { implicit request =>
     val boundForm: Form[models.Feedback] = models.Feedback.form.bindFromRequest()
     import play.api.Play.current
 
@@ -76,7 +76,7 @@ case class Feedback @Inject()(implicit globalConfig: global.GlobalConfig, feedba
     else boundForm.fold(
       errorForm => immediate(response(errorForm)),
       feedback => {
-        val moreFeedback = userOpt.map { user =>
+        val moreFeedback = request.profileOpt.map { user =>
           feedback.copy(name = feedback.name.orElse(user.account.map(_.id)))
             .copy(email = feedback.email.orElse(user.account.map(_.email)))
         }.getOrElse(feedback)
@@ -92,7 +92,7 @@ case class Feedback @Inject()(implicit globalConfig: global.GlobalConfig, feedba
     )
   }
 
-  def list = adminAction.async { implicit userOpt => implicit request =>
+  def list = AdminAction.async { implicit request =>
     feedbackDAO.list("order" -> "-createdAt").map { flist =>
       Ok(views.html.p.feedbackList(flist.filter(_.text.isDefined)))
     }
