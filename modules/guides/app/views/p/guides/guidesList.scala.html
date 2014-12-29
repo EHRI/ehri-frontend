@@ -14,11 +14,11 @@
 					@guide match {
 						case g: Guide => {
 							<li class="media">
-								<a class="pull-left" href="@controllers.portal.routes.Guides.home(g.path)">
+								<a class="pull-left" href="@controllers.portal.guides.routes.Guides.home(g.path)">
 									<img class="media-object" src="@g.picture" alt="@g.name" style="width:128px; height:auto;">
 								</a>
 								<div class="media-body">
-									<h4 class="media-heading"><a href="@controllers.portal.routes.Guides.home(g.path)">@g.name</a></h4>
+									<h4 class="media-heading"><a href="@controllers.portal.guides.routes.Guides.home(g.path)">@g.name</a></h4>
 									@g.description match {
 										case Some(desc) => {
 											@Html(views.Helpers.renderMarkdown(desc))

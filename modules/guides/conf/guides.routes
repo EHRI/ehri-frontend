@@ -1,19 +1,12 @@
-# Home page
-GET     /guides                         @controllers.guides.Guides.list()
-GET     /guides/create                  @controllers.guides.Guides.create()
-POST    /guides/create                  @controllers.guides.Guides.createPost()
+# Guide routes
 
-#Guides
-GET     /guides/:path		            @controllers.guides.Guides.show(path: String)
-GET     /guides/:path/edit	            @controllers.guides.Guides.edit(path: String)
-POST    /guides/:path/edit	            @controllers.guides.Guides.editPost(path: String)
-GET     /guides/:path/delete            @controllers.guides.Guides.delete(path: String)
-POST    /guides/:path/delete            @controllers.guides.Guides.deletePost(path: String)
+GET        /jsRoutes                     @controllers.portal.guides.Guides.jsRoutes
 
-#Guide Pages
-GET     /guides/:gPath/create		    @controllers.guides.GuidePages.create(gPath: String)
-POST    /guides/:gPath/create		    @controllers.guides.GuidePages.createPost(gPath: String)
-GET     /guides/:gPath/:path		    @controllers.guides.GuidePages.edit(gPath: String, path: String)
-POST    /guides/:gPath/:path		    @controllers.guides.GuidePages.editPost(gPath: String, path: String)
-GET     /guides/:gPath/:path/delete	    @controllers.guides.GuidePages.delete(gPath: String, path: String)
-POST    /guides/:gPath/:path/delete	    @controllers.guides.GuidePages.deletePost(gPath: String, path: String)
+GET        /                             @controllers.portal.guides.Guides.listGuides()
+GET        /:guide                       @controllers.portal.guides.Guides.home(guide: String)
+GET        /:guide/browse                @controllers.portal.guides.Guides.guideFacets(guide: String)
+GET        /:guide/document/:id          @controllers.portal.guides.Guides.browseDocument(guide: String, id: String)
+GET        /:guide/repository/:id        @controllers.portal.guides.Guides.browseRepository(guide: String, id: String)
+GET        /:guide/:page                 @controllers.portal.guides.Guides.layoutRetrieval(guide: String, page: String)
+
+GET         /assets/*file                controllers.portal.guides.Assets.at(path="/public", file)

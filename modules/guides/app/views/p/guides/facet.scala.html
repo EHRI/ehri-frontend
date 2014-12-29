@@ -99,7 +99,7 @@
             <div class="facet-class">
                 <h4 class="facet-label">@page.name</h4>
                 <div class="facet-options">
-                    <input type="text" style="width: 100%;" name="kw[]" data-placeholder="@page.name" data-target="@controllers.portal.routes.Guides.layoutRetrieval(template._2._1.path, page.path)" class="form-control select2 facet-browse autosubmit" />
+                    <input type="text" style="width: 100%;" name="kw[]" data-placeholder="@page.name" data-target="@controllers.portal.guides.routes.Guides.layoutRetrieval(template._2._1.path, page.path)" class="form-control select2 facet-browse autosubmit" />
                 </div>
             </div>
             }
@@ -109,7 +109,7 @@
 
 @sidebar = {
 <div id="facets">
-    <form method="GET" action="@controllers.portal.routes.Guides.layoutRetrieval(template._2._1.path, template._1.path)">
+    <form method="GET" action="@controllers.portal.guides.routes.Guides.layoutRetrieval(template._2._1.path, template._1.path)">
         <ul class="nav nav-pills nav-ehri nav-ehri-black nav-justified">
             <li><button type="submit" class="nav-ehri nav-ehri-black nav-ehri-input"><span class="glyphicon glyphicon-search"></span><span class="text-hide">Search</span></button></li>
         </ul>

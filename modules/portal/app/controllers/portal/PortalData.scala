@@ -47,7 +47,6 @@ object PortalData extends Controller {
           controllers.portal.routes.javascript.Portal.personalisedActivity,
           controllers.portal.routes.javascript.Portal.filter,
           controllers.portal.routes.javascript.Portal.browseItem,
-          controllers.portal.routes.javascript.Guides.browseDocument,
           controllers.portal.routes.javascript.Portal.linkedData,
           controllers.portal.routes.javascript.Portal.linkedDataInContext
         )

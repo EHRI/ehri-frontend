@@ -69,7 +69,7 @@
 	<article>
 		<header>
 			<h1>@template._1.name</h1>
-			<form role="form" action="@controllers.portal.routes.Guides.layoutRetrieval(template._2._1.path, template._1.path)">
+			<form role="form" action="@controllers.portal.guides.routes.Guides.layoutRetrieval(template._2._1.path, template._1.path)">
 				<ul class="nav nav-pills nav-ehri nav-ehri-black nav-justified">
 					<li><input class="nav-ehri nav-ehri-black nav-ehri-input" name="q" placeholder="Quick Search" /></li>
 					<li><button type="submit" class="nav-ehri nav-ehri-black nav-ehri-input"><span class="glyphicon glyphicon-search"></span><span class="text-hide">Search</span></button></li>
@@ -85,7 +85,7 @@
 
 					    <div class="search-item" id="@item.id">
 					            <h3 class="search-item-heading type-highlight @item.isA.toString">
-					                @guideItem(item, hit, controllers.portal.routes.Guides.layoutRetrieval(template._2._1.path, template._1.path), Some(template._2._1.path), template._1.layout) <a class="popover-accesspoints" data-count="@links.get(item.id).getOrElse(0)" data-target="@item.id"><span class="glyphicon glyphicon-search"></span></a>
+					                @guideItem(item, hit, controllers.portal.guides.routes.Guides.layoutRetrieval(template._2._1.path, template._1.path), Some(template._2._1.path), template._1.layout) <a class="popover-accesspoints" data-count="@links.get(item.id).getOrElse(0)" data-target="@item.id"><span class="glyphicon glyphicon-search"></span></a>
 					            </h3>
 					            <div class="search-item-body">
 					            	@item match { 

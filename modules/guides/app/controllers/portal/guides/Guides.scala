@@ -1,5 +1,9 @@
-package controllers.portal
+package controllers.portal.guides
 
+import controllers.portal.{Secured, FacetConfig}
+import play.api.Routes
+import play.api.cache.Cached
+import play.api.http.MimeTypes
 import play.api.libs.concurrent.Execution.Implicits._
 import controllers.generic.Search
 import play.api.mvc._
@@ -46,6 +50,16 @@ case class Guides @Inject()(implicit globalConfig: global.GlobalConfig, searchDi
   val ajaxOrder = utils.search.SearchOrder.Name
   val htmlAgentOrder = utils.search.SearchOrder.Detail
   val htmlConceptOrder = utils.search.SearchOrder.ChildCount
+
+  def jsRoutes = Cached.status(_ => "pages:portalJsRoutes", OK, 3600) {
+    Action { implicit request =>
+      Ok(
+        Routes.javascriptRouter("jsRoutes")(
+          controllers.portal.guides.routes.javascript.Guides.browseDocument
+        )
+      ).as(MimeTypes.JAVASCRIPT)
+    }
+  }
 
 
   private def facetPage(page: Int, limit: Int, total: Int): (Int, Int) = ((page - 1) * limit, limit)

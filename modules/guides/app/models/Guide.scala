@@ -64,6 +64,8 @@ case class Guide(
     }
   }
 
+  // FIXME: This function seems dubious, and fails if `default` doesn't exist
+  // shouldn't it fall back to any page?
   def getDefaultPage: Option[GuidePage] = DB.withConnection { implicit connection =>
     id.flatMap { id =>
       SQL( """SELECT * FROM research_guide_page WHERE research_guide_id = {id} AND id = {gid}""")

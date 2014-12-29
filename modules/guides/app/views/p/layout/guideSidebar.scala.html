@@ -33,10 +33,10 @@
 
 		@for(page <- menu._2) {
 			@if(page.position == GuidePage.MenuPosition.Side) {
-				<li><a @if(location == page.path) { class="active" } href="@controllers.portal.routes.Guides.layoutRetrieval(menu._1.path, page.path)">@page.name</a></li>
+				<li><a @if(location == page.path) { class="active" } href="@controllers.portal.guides.routes.Guides.layoutRetrieval(menu._1.path, page.path)">@page.name</a></li>
 			}
 		}
-		<li><a href="@controllers.portal.routes.Guides.listGuides()">@Messages("guides")</a></li>
+		<li><a href="@controllers.portal.guides.routes.Guides.listGuides()">@Messages("guides")</a></li>
 	</ul>
 </div>
 

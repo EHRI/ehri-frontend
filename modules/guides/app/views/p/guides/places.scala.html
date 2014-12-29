@@ -11,7 +11,7 @@
 	<script type="text/javascript">
 		templateParams = "@template._1.params".replace("&amp;","&");
 		redIcon_URL = "@controllers.portal.routes.Assets.at("img/marker-icon-red.png")";
-		MAP_URL = "@controllers.portal.routes.Guides.layoutRetrieval(template._2._1.path, template._1.path)";
+		MAP_URL = "@controllers.portal.guides.routes.Guides.layoutRetrieval(template._2._1.path, template._1.path)";
 		$originalMarkers = @Html(Json.stringify(json));
 	</script>
     	<script type="text/javascript" src="@controllers.portal.routes.Assets.versioned("js/portal-guide-map.js")"></script>
@@ -44,7 +44,7 @@
 								<a class="zoom-to" href="#map" data-id="@item.id" data-longitude="@desc.longitude" data-latitude="@desc.latitude"><span class=" glyphicon glyphicon-map-marker"></span></a> 
 							}
 						}
-					                @guideItem(item, hit, controllers.portal.routes.Guides.layoutRetrieval(template._2._1.path, template._1.path), Some(template._2._1.path), template._1.layout)
+					                @guideItem(item, hit, controllers.portal.guides.routes.Guides.layoutRetrieval(template._2._1.path, template._1.path), Some(template._2._1.path), template._1.layout)
 					    </div>
 				            </li>
 				        }
@@ -64,7 +64,7 @@
 	<article>
 		<header>
 			<h1>@template._1.name</h1>
-			<form role="form" action="@controllers.portal.routes.Guides.layoutRetrieval(template._2._1.path, template._1.path)">
+			<form role="form" action="@controllers.portal.guides.routes.Guides.layoutRetrieval(template._2._1.path, template._1.path)">
 				<ul class="nav nav-pills nav-ehri nav-ehri-black nav-justified">
 					<li><input class="nav-ehri nav-ehri-black nav-ehri-input" name="q" placeholder="Quick Search" /></li>
 					<li><button type="submit" class="nav-ehri nav-ehri-black nav-ehri-input">Search</button></li>

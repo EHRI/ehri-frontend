@@ -24,7 +24,7 @@ trait ControllerHelpers {
 
   /**
    * Issue a warning about database maintenance when a "dbmaintenance"
-   * file is present in the app root and the DB is offline.
+   * file is present in the app root and the DB isr offline.
    * @return
    */
   def dbMaintenance: Boolean = new java.io.File("dbmaintenance").exists()

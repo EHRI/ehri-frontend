@@ -6,7 +6,7 @@
     <small>
         <ul class="list-unstyled text-muted list-inline inline-separator">
             @item.holder.map { holder =>
-                <li><a class="alt" href="@controllers.portal.routes.Guides.browseRepository(guidePath, holder.id)">@holder.toStringAbbr</a></li>
+                <li><a class="alt" href="@controllers.portal.guides.routes.Guides.browseRepository(guidePath, holder.id)">@holder.toStringAbbr</a></li>
             }
             <li><span class="text-muted">@views.Helpers.languageCodeToName(desc.languageCode)</span></li>
 
@@ -26,7 +26,7 @@
         </ul>
         @views.html.common.childCount(item) { count =>
             @if(count > 0) {
-                <a href="@controllers.portal.routes.Guides.browseDocument(guidePath, item.id)#search-items">@Messages("documentaryUnit.childCount", count)</a>
+                <a href="@controllers.portal.guides.routes.Guides.browseDocument(guidePath, item.id)#search-items">@Messages("documentaryUnit.childCount", count)</a>
             }
         }
     </small>

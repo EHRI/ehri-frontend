@@ -2,10 +2,10 @@
 
 @item.isA match {
 	case EntityType.DocumentaryUnit => {
-		<a href="@controllers.portal.routes.Guides.browseDocument(guidePath, item.id)">@item.toStringLang</a>
+		<a href="@controllers.portal.guides.routes.Guides.browseDocument(guidePath, item.id)">@item.toStringLang</a>
 	}
 	case EntityType.Repository => {
-		<a href="@controllers.portal.routes.Guides.browseRepository(guidePath, item.id)">@item.toStringLang</a>
+		<a href="@controllers.portal.guides.routes.Guides.browseRepository(guidePath, item.id)">@item.toStringLang</a>
 	}
 	case _ => {
 		@item.toStringLang

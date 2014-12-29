@@ -90,14 +90,6 @@ GET         /filter                         @controllers.portal.Portal.filter
 GET         /accesspoints/:id          @controllers.portal.Portal.linkedData(id:String)
 GET         /accesspoints/:id/:context          @controllers.portal.Portal.linkedDataInContext(id:String, context: String)
 
-# Guide
-GET          /guides                        @controllers.portal.Guides.listGuides()
-GET         /guides/:guide                  @controllers.portal.Guides.home(guide: String)
-GET 		/guides/:guide/browse			@controllers.portal.Guides.guideFacets(guide: String)
-GET 		/guides/:guide/document/:id			@controllers.portal.Guides.browseDocument(guide: String, id: String)
-GET 		/guides/:guide/repository/:id			@controllers.portal.Guides.browseRepository(guide: String, id: String)
-GET         /guides/:guide/:page          @controllers.portal.Guides.layoutRetrieval(guide: String, page: String)
-
 # Various JS data helpers
 GET         /routes                         controllers.portal.PortalData.jsRoutes
 GET         /globalData                     controllers.portal.PortalData.globalData

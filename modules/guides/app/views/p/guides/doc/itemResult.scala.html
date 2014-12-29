@@ -4,14 +4,14 @@
     @parent.map { p =>
         @wrapParent(doc, p.parent)
         <li>
-            <a class="search-item-parent-name" href="@controllers.portal.routes.Guides.browseDocument(guidePath, p.id)">@p.toStringLang</a>
+            <a class="search-item-parent-name" href="@controllers.portal.guides.routes.Guides.browseDocument(guidePath, p.id)">@p.toStringLang</a>
         </li>
     }
 }
 
 <div class="search-item" id="@item.id">
         <h3 class="search-item-heading type-highlight @item.isA.toString">
-            <a href="@controllers.portal.routes.Guides.browseDocument(guidePath, item.id)">@item.toStringLang</a>
+            <a href="@controllers.portal.guides.routes.Guides.browseDocument(guidePath, item.id)">@item.toStringLang</a>
         </h3>
         <div class="search-item-body">
             <ol class="collapsible">

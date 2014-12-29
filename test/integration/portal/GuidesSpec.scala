@@ -8,7 +8,7 @@ import models.{GuidePage, Guide}
 
 class GuidesSpec extends IntegrationTestRunner {
 
-  private val guideRoutes = controllers.portal.routes.Guides
+  private val guideRoutes = controllers.portal.guides.routes.Guides
   private val guideAdminRoutes = controllers.guides.routes.Guides
   private val guidePageAdminRoutes = controllers.guides.routes.GuidePages
 

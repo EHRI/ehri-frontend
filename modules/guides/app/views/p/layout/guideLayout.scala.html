@@ -25,13 +25,13 @@
 	</div>
           <script src="//ajax.googleapis.com/ajax/libs/jquery/1.10.2/jquery.min.js"></script>
           <script src="@controllers.portal.routes.Assets.at("bootstrap/js/bootstrap.min.js")"></script>
-	<script src="@controllers.portal.routes.PortalData.jsRoutes"></script>
+	<script src="@controllers.portal.guides.routes.Guides.jsRoutes()"></script>
 	<script type="text/javascript">
 		VIRTUAL_UNIT = "@guide._2._1.virtualUnit";
-		VIRTUAL_UNIT_ROUTE = "@controllers.portal.routes.Guides.guideFacets(guide._2._1.path)?kw[]=";
+		VIRTUAL_UNIT_ROUTE = "@controllers.portal.guides.routes.Guides.guideFacets(guide._2._1.path)?kw[]=";
 		GUIDE_PATH = "@guide._2._1.path";
 	</script>
-    	<script type="text/javascript" src="@controllers.portal.routes.Assets.versioned("js/portal-guide.js")"></script>
+    	<script type="text/javascript" src="@controllers.portal.guides.routes.Assets.at("js/portal-guide.js")"></script>
 		@scripts
     </body>
 </html>
