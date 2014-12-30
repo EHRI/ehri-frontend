@@ -9,7 +9,7 @@ import models.UserProfile
 import forms.VisibilityForm
 import scala.concurrent.Future.{successful => immediate}
 import scala.concurrent.Future
-import backend.rest.ValidationError
+import backend.rest.{RestHelpers, ValidationError}
 import backend.{BackendReadable, BackendWriteable, BackendContentType}
 
 /**
@@ -19,11 +19,66 @@ import backend.{BackendReadable, BackendWriteable, BackendContentType}
  */
 trait Creator[CF <: Model with Persistable, CMT <: MetaModel[CF], MT <: MetaModel[_]] extends Read[MT] {
 
+  case class NewChildRequest[A](
+    item: MT,
+    users: Seq[(String,String)],
+    groups: Seq[(String,String)],
+    profileOpt: Option[UserProfile],
+    request: Request[A]
+    ) extends WrappedRequest[A](request)
+  with WithOptionalProfile
+
+  protected def NewChildTransformer(implicit rd: BackendReadable[MT], ct: BackendContentType[MT]) = new ActionTransformer[ItemPermissionRequest, NewChildRequest] {
+    override protected def transform[A](request: ItemPermissionRequest[A]): Future[NewChildRequest[A]] = {
+      for {
+        users <- RestHelpers.getUserList
+        groups <- RestHelpers.getGroupList
+      } yield NewChildRequest(request.item, users, groups, request.profileOpt, request)
+    }
+  }
+
+  def NewChildAction(itemId: String)(implicit rd: BackendReadable[MT], ct: BackendContentType[MT], cct: BackendContentType[CMT]) =
+    WithParentPermissionAction(itemId, PermissionType.Create, cct.contentType) andThen NewChildTransformer
+
+  case class CreateChildRequest[A](
+     item: MT,
+     formOrItem: Either[(Form[CF],Form[List[String]]),CMT],
+     profileOpt: Option[UserProfile],
+     request: Request[A]
+     ) extends WrappedRequest[A](request)
+  with WithOptionalProfile
+
+  protected def CreateChildTransformer(id: String, form: Form[CF], extraParams: ExtraParams = defaultExtra)(implicit rd: BackendReadable[MT], ct: BackendContentType[MT], fmt: BackendWriteable[CF], crd: BackendReadable[CMT], cct: BackendContentType[CMT]) =
+    new ActionTransformer[ItemPermissionRequest, CreateChildRequest] {
+      def transform[A](request: ItemPermissionRequest[A]): Future[CreateChildRequest[A]] = {
+        implicit val req = request
+        val extra = extraParams.apply(request.request)
+        form.bindFromRequest.fold(
+          errorForm => immediate(CreateChildRequest(request.item, Left((errorForm,VisibilityForm.form)), request.profileOpt, request.request)),
+          citem => {
+            val accessors = VisibilityForm.form.bindFromRequest.value.getOrElse(Nil)
+            backend.createInContext[MT, CF, CMT](id, cct.contentType, citem, accessors, params = extra, logMsg = getLogMessage).map { citem =>
+              CreateChildRequest(request.item, Right(citem), request.profileOpt, request)
+            } recover {
+              case ValidationError(errorSet) =>
+                val filledForm = citem.getFormErrors(errorSet, form.fill(citem))
+                CreateChildRequest(request.item, Left((filledForm, VisibilityForm.form)), request.profileOpt, request)
+            }
+          }
+        )
+      }
+    }
+
+
+  def CreateChildAction(id: String, form: Form[CF], extraParams: ExtraParams = defaultExtra)(implicit fmt: BackendWriteable[CF], crd: BackendReadable[CMT], rd: BackendReadable[MT], ct: BackendContentType[MT], cct: BackendContentType[CMT]) =
+    WithParentPermissionAction(id, PermissionType.Create, cct.contentType) andThen CreateChildTransformer(id, form, extraParams)
+  
+  
   /**
    * Functor to extract arbitrary DAO params from a request...
    */
-  type ExtraParams[A] = Request[A] => Map[String,Seq[String]]
-  def defaultExtra[A]: ExtraParams[A] = (request: Request[A]) => Map.empty
+  type ExtraParams = Request[_] => Map[String,Seq[String]]
+  def defaultExtra: ExtraParams = (request: Request[_]) => Map.empty
 
   /**
    * Callback signature.
@@ -31,6 +86,7 @@ trait Creator[CF <: Model with Persistable, CMT <: MetaModel[CF], MT <: MetaMode
   type CreationContextCallback = MT => Either[(Form[CF],Form[List[String]]),CMT] => Option[UserProfile] => Request[AnyContent] => Result
   type AsyncCreationContextCallback = MT => Either[(Form[CF],Form[List[String]]),CMT] => Option[UserProfile] => Request[AnyContent] => Future[Result]
 
+  @deprecated(message = "Use NewChildAction instead", since = "1.0.2")
   object childCreateAction {
     def async(id: String)(f: MT => Seq[(String,String)] => Seq[(String,String)] => Option[UserProfile] => Request[AnyContent] => Future[Result])(implicit rd: BackendReadable[MT], ct: BackendContentType[MT], cct: BackendContentType[CMT]) = {
       withItemPermission.async[MT](id, PermissionType.Create, Some(cct.contentType)) { item => implicit userOpt => implicit request =>
@@ -44,21 +100,22 @@ trait Creator[CF <: Model with Persistable, CMT <: MetaModel[CF], MT <: MetaMode
     }
   }
 
+  @deprecated(message = "Use CreateChildAction instead", since = "1.0.2")
   object childCreatePostAction {
-    def async(id: String, form: Form[CF], extraParams: ExtraParams[AnyContent] = defaultExtra)(f: AsyncCreationContextCallback)(
+    def async(id: String, form: Form[CF], extraParams: ExtraParams = defaultExtra)(f: AsyncCreationContextCallback)(
                 implicit fmt: BackendWriteable[CF], crd: BackendReadable[CMT], rd: BackendReadable[MT], ct: BackendContentType[MT], cct: BackendContentType[CMT]) = {
       withItemPermission.async[MT](id, PermissionType.Create, Some(cct.contentType)) { item => implicit userOpt => implicit request =>
         createChildPostAction(item, form, extraParams)(f)
       }
     }
 
-    def apply(id: String, form: Form[CF], extraParams: ExtraParams[AnyContent] = defaultExtra)(f: CreationContextCallback)(
+    def apply(id: String, form: Form[CF], extraParams: ExtraParams = defaultExtra)(f: CreationContextCallback)(
       implicit fmt: BackendWriteable[CF], crd: BackendReadable[CMT], rd: BackendReadable[MT], ct: BackendContentType[MT], cct: BackendContentType[CMT]) = {
       async(id, form)(f.andThen(_.andThen(_.andThen(_.andThen(t => immediate(t))))))
     }
   }
 
-  def createChildPostAction(item: MT, form: Form[CF], extraParams: ExtraParams[AnyContent])(f: AsyncCreationContextCallback)(
+  private def createChildPostAction(item: MT, form: Form[CF], extraParams: ExtraParams)(f: AsyncCreationContextCallback)(
       implicit userOpt: Option[UserProfile], request: Request[AnyContent], fmt: BackendWriteable[CF], crd: BackendReadable[CMT], rd: BackendReadable[MT], ct: BackendContentType[MT], cct: BackendContentType[CMT]): Future[Result] = {
     val extra = extraParams.apply(request)
     form.bindFromRequest.fold(

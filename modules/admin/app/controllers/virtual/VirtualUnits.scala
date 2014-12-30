@@ -236,7 +236,7 @@ case class VirtualUnits @Inject()(implicit globalConfig: global.GlobalConfig, se
       }
   }
 
-  def descriptionRefs: ExtraParams[AnyContent] = { implicit request =>
+  def descriptionRefs: ExtraParams = { implicit request =>
     refForm.bindFromRequest.fold(
       _ => Map.empty,
       descRef => Map(Constants.ID_PARAM -> Seq(descRef))

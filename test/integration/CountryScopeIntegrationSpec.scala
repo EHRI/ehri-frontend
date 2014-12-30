@@ -1,7 +1,5 @@
 package integration
 
-import scala.concurrent.ExecutionContext.Implicits.global
-
 import helpers._
 import models.UserProfile
 import defines._
@@ -52,8 +50,7 @@ class CountryScopeIntegrationSpec extends IntegrationTestRunner {
         "description" -> Seq("Group for UK archivists")
       )
       val groupCreatePost = route(fakeLoggedInHtmlRequest(privilegedUser, POST,
-        controllers.groups.routes.Groups.create().url)
-        .withHeaders(formPostHeaders.toSeq: _*), groupData).get
+        controllers.groups.routes.Groups.create().url), groupData).get
       status(groupCreatePost) must equalTo(SEE_OTHER)
 
       // Check we can read the group
@@ -70,8 +67,8 @@ class CountryScopeIntegrationSpec extends IntegrationTestRunner {
         EntityType.DocumentaryUnit.toString -> permissionsToGrant.map(_.toString)
       )
       val permSetPost = route(fakeLoggedInHtmlRequest(privilegedUser, POST,
-          controllers.countries.routes.Countries.setScopedPermissionsPost(countryId, EntityType.Group, groupId).url)
-      .withHeaders(formPostHeaders.toSeq: _*), permData).get
+          controllers.countries.routes.Countries
+            .setScopedPermissionsPost(countryId, EntityType.Group, groupId).url), permData).get
       status(permSetPost) must equalTo(SEE_OTHER)
 
       // Okay, now create a new user and add them to the uk-archivists group. Do this
@@ -86,8 +83,7 @@ class CountryScopeIntegrationSpec extends IntegrationTestRunner {
         "group[]" -> Seq(groupId) // NB: Note brackets on param name!!!
       )
       val userCreatePost = route(fakeLoggedInHtmlRequest(privilegedUser, POST,
-        controllers.users.routes.UserProfiles.createUserPost().url)
-        .withHeaders(formPostHeaders.toSeq: _*), newUserData).get
+        controllers.users.routes.UserProfiles.createUserPost().url), newUserData).get
       status(userCreatePost) must equalTo(SEE_OTHER)
 
       // Check we can read the user's page
@@ -118,14 +114,12 @@ class CountryScopeIntegrationSpec extends IntegrationTestRunner {
         "descriptions[0].descriptionArea.history" -> Seq("A repository with a long history")
       )
       val repoCreatePost = route(fakeLoggedInHtmlRequest(fakeAccount, POST,
-        controllers.countries.routes.Countries.createRepositoryPost(countryId).url)
-        .withHeaders(formPostHeaders.toSeq: _*), repoData).get
+        controllers.countries.routes.Countries.createRepositoryPost(countryId).url), repoData).get
       status(repoCreatePost) must equalTo(SEE_OTHER)
 
       // Test we can NOT create a repository in the other country...
       val otherRepoCreatePost = route(fakeLoggedInHtmlRequest(fakeAccount, POST,
-        controllers.countries.routes.Countries.createRepositoryPost(otherCountryId).url)
-          .withHeaders(formPostHeaders.toSeq: _*), repoData).get
+        controllers.countries.routes.Countries.createRepositoryPost(otherCountryId).url), repoData).get
       status(otherRepoCreatePost) must equalTo(FORBIDDEN)
 
 
@@ -155,7 +149,7 @@ class CountryScopeIntegrationSpec extends IntegrationTestRunner {
       )
 
       val createDocPost = route(fakeLoggedInHtmlRequest(fakeAccount, POST,
-        repoRoutes.createDocPost(repoId).url).withHeaders(formPostHeaders.toSeq: _*), docData).get
+        repoRoutes.createDocPost(repoId).url), docData).get
       status(createDocPost) must equalTo(SEE_OTHER)
 
       // Test we can read the new repository

@@ -183,17 +183,16 @@ case class DocumentaryUnits @Inject()(implicit globalConfig: global.GlobalConfig
     }
   }
 
-  def createDoc(id: String) = childCreateAction(id) { item => users => groups => implicit userOpt => implicit request =>
+  def createDoc(id: String) = NewChildAction(id).apply { implicit request =>
     Ok(views.html.admin.documentaryUnit.create(
-      item, childForm, formDefaults, VisibilityForm.form.fill(item.accessors.map(_.id)),
-      users, groups, docRoutes.createDocPost(id)))
+      request.item, childForm, formDefaults, VisibilityForm.form.fill(request.item.accessors.map(_.id)),
+      request.users, request.groups, docRoutes.createDocPost(id)))
   }
 
-  def createDocPost(id: String) = childCreatePostAction.async(id, childForm) {
-      item => formsOrItem => implicit userOpt => implicit request =>
-    formsOrItem match {
+  def createDocPost(id: String) = CreateChildAction(id, childForm).async { implicit request =>
+    request.formOrItem match {
       case Left((errorForm,accForm)) => getUsersAndGroups { users => groups =>
-        BadRequest(views.html.admin.documentaryUnit.create(item,
+        BadRequest(views.html.admin.documentaryUnit.create(request.item,
           errorForm, formDefaults, accForm, users, groups,
           docRoutes.createDocPost(id)))
       }

@@ -92,8 +92,7 @@ case class Countries @Inject()(implicit globalConfig: global.GlobalConfig, searc
     }
   }
 
-  def createRepository(id: String) = childCreateAction.async(id) {
-      item => users => groups => implicit userOpt => implicit request =>
+  def createRepository(id: String) = NewChildAction(id).async { implicit request =>
 
     // Beware! This is dubious because there could easily be contention
     // if two repositories get created at the same time.
@@ -102,16 +101,15 @@ case class Countries @Inject()(implicit globalConfig: global.GlobalConfig, searc
     idGenerator.getNextNumericIdentifier(EntityType.Repository).map { newid =>
       val form = childForm.bind(Map(Entity.IDENTIFIER -> newid))
       Ok(views.html.admin.repository.create(
-        item, form, childFormDefaults, VisibilityForm.form.fill(item.accessors.map(_.id)),
-        users, groups, countryRoutes.createRepositoryPost(id)))
+        request.item, form, childFormDefaults, VisibilityForm.form.fill(request.item.accessors.map(_.id)),
+        request.users, request.groups, countryRoutes.createRepositoryPost(id)))
     }
   }
 
-  def createRepositoryPost(id: String) = childCreatePostAction.async(id, childForm) {
-      item => formsOrItem => implicit userOpt => implicit request =>
-    formsOrItem match {
+  def createRepositoryPost(id: String) = CreateChildAction(id, childForm).async { implicit request =>
+    request.formOrItem match {
       case Left((errorForm,accForm)) => getUsersAndGroups { users => groups =>
-        BadRequest(views.html.admin.repository.create(item,
+        BadRequest(views.html.admin.repository.create(request.item,
           errorForm, childFormDefaults, accForm, users, groups, countryRoutes.createRepositoryPost(id)))
       }
       case Right(citem) => immediate(Redirect(controllers.institutions.routes.Repositories.get(citem.id))

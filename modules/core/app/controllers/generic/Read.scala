@@ -1,7 +1,7 @@
 package controllers.generic
 
 import backend.{BackendContentType, BackendReadable, BackendResource}
-import defines.PermissionType
+import defines.{ContentTypes, PermissionType}
 import models._
 import play.api.libs.concurrent.Execution.Implicits._
 import play.api.mvc.{Result, _}
@@ -48,7 +48,7 @@ trait Read[MT] extends Generic[MT] {
    * @param itemId The item's global ID
    * @return a request populated with the item and the user profile with permissions for that item
    */
-  protected def ItemPermissionTransformer(itemId: String)(implicit rd: BackendReadable[MT], ct: BackendContentType[MT], rs: BackendResource[MT]) = new ActionTransformer[OptionalProfileRequest, ItemPermissionRequest] {
+  protected def ItemPermissionTransformer(itemId: String)(implicit rd: BackendReadable[MT], ct: BackendContentType[MT]) = new ActionTransformer[OptionalProfileRequest, ItemPermissionRequest] {
     def transform[A](input: OptionalProfileRequest[A]): Future[ItemPermissionRequest[A]] = {
       implicit val userOpt = input.profileOpt
       input.profileOpt.map { profile =>
@@ -75,7 +75,7 @@ trait Read[MT] extends Generic[MT] {
    * @param itemId the item ID
    * @return a request populated with item data (links, annotations) and permission info
    */
-  protected def ItemMetaTransformer(itemId: String)(implicit rd: BackendReadable[MT], ct: BackendContentType[MT], rs: BackendResource[MT]) = new ActionTransformer[ItemPermissionRequest, ItemMetaRequest] {
+  protected def ItemMetaTransformer(itemId: String)(implicit rd: BackendReadable[MT], ct: BackendContentType[MT]) = new ActionTransformer[ItemPermissionRequest, ItemMetaRequest] {
     def transform[A](input: ItemPermissionRequest[A]): Future[ItemMetaRequest[A]] = {
       implicit val userOpt = input.profileOpt
       val annotationsF = backend.getAnnotationsForItem[Annotation](itemId)
@@ -102,21 +102,26 @@ trait Read[MT] extends Generic[MT] {
     }
   }
 
-  protected def WithItemPermissionFilter(itemId: String, perm: PermissionType.Value)(implicit rd: BackendReadable[MT], rs: BackendResource[MT], ct: BackendContentType[MT])
-    = new ActionFilter[ItemPermissionRequest] {
+  protected def WithPermissionFilter(perm: PermissionType.Value, contentType: ContentTypes.Value) = new ActionFilter[ItemPermissionRequest] {
     override protected def filter[A](request: ItemPermissionRequest[A]): Future[Option[Result]] = {
-      if (request.profileOpt.exists(_.hasPermission(ct.contentType, perm)))  Future.successful(None)
-      else authenticationFailed(request).map(r => Some(r))
+      if (request.profileOpt.exists(_.hasPermission(contentType, perm)))  Future.successful(None)
+      else authorizationFailed(request).map(r => Some(r))
     }
   }
 
-  def ItemPermissionAction(itemId: String)(implicit rd: BackendReadable[MT], ct: BackendContentType[MT], rs: BackendResource[MT]) =
+  protected def WithItemPermissionFilter(perm: PermissionType.Value)(implicit ct: BackendContentType[MT]) =
+    WithPermissionFilter(perm, ct.contentType)
+
+  def ItemPermissionAction(itemId: String)(implicit rd: BackendReadable[MT], ct: BackendContentType[MT]) =
     OptionalProfileAction andThen ItemPermissionTransformer(itemId)
 
-  def WithItemPermissionAction(itemId: String, perm: PermissionType.Value)(implicit rd: BackendReadable[MT], ct: BackendContentType[MT], rs: BackendResource[MT]) =
-    ItemPermissionAction(itemId) andThen WithItemPermissionFilter(itemId, perm)
+  def WithItemPermissionAction(itemId: String, perm: PermissionType.Value)(implicit rd: BackendReadable[MT], ct: BackendContentType[MT]) =
+    ItemPermissionAction(itemId) andThen WithItemPermissionFilter(perm)
 
-  def ItemMetaAction(itemId: String)(implicit rd: BackendReadable[MT], ct: BackendContentType[MT], rs: BackendResource[MT]) =
+  def WithParentPermissionAction(itemId: String, perm: PermissionType.Value, contentType: ContentTypes.Value)(implicit rd: BackendReadable[MT], ct: BackendContentType[MT]) =
+    ItemPermissionAction(itemId) andThen WithPermissionFilter(perm, contentType)
+
+  def ItemMetaAction(itemId: String)(implicit rd: BackendReadable[MT], ct: BackendContentType[MT]) =
     ItemPermissionAction(itemId) andThen ItemMetaTransformer(itemId)
 
   def ItemPageAction(implicit rd: BackendReadable[MT], rs: BackendResource[MT]) =

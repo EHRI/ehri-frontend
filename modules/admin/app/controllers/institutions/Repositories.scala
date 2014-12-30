@@ -106,10 +106,10 @@ case class Repositories @Inject()(implicit globalConfig: global.GlobalConfig, se
   /**
    * Search documents inside repository.
    */
-  def get(id: String) = getAction.async(id) { item => annotations => links => implicit userOpt => implicit request =>
+  def get(id: String) = ItemMetaAction(id).async { implicit request =>
 
     val filters = (if (request.getQueryString(SearchParams.QUERY).filterNot(_.trim.isEmpty).isEmpty)
-      Map(SolrConstants.TOP_LEVEL -> true) else Map.empty[String,Any]) ++ Map(SolrConstants.HOLDER_ID -> item.id)
+      Map(SolrConstants.TOP_LEVEL -> true) else Map.empty[String,Any]) ++ Map(SolrConstants.HOLDER_ID -> request.item.id)
 
     find[DocumentaryUnit](
       filters = filters,
@@ -117,8 +117,8 @@ case class Repositories @Inject()(implicit globalConfig: global.GlobalConfig, se
       facetBuilder = repositoryFacets,
       defaultOrder = SearchOrder.Id
     ).map { result =>
-      Ok(views.html.admin.repository.show(item, result.page, result.params, result.facets,
-        repositoryRoutes.get(id), annotations, links))
+      Ok(views.html.admin.repository.show(request.item, result.page, result.params, result.facets,
+        repositoryRoutes.get(id), request.annotations, request.links))
     }
   }
 
@@ -126,8 +126,8 @@ case class Repositories @Inject()(implicit globalConfig: global.GlobalConfig, se
     Ok(views.html.admin.systemEvents.itemList(item, page, params))
   }
 
-  def list = pageAction { page => params => implicit userOpt => implicit request =>
-    Ok(views.html.admin.repository.list(page, params))
+  def list = ItemPageAction.apply { implicit request =>
+    Ok(views.html.admin.repository.list(request.page, request.params))
   }
 
   def update(id: String) = updateAction(id) {
@@ -145,19 +145,18 @@ case class Repositories @Inject()(implicit globalConfig: global.GlobalConfig, se
     }
   }
 
-  def createDoc(id: String) = childCreateAction(id) {
-      item => users => groups => implicit userOpt => implicit request =>
-    Ok(views.html.admin.documentaryUnit.create(item, childForm, childFormDefaults,
-      VisibilityForm.form.fill(item.accessors.map(_.id)),
-      users, groups, repositoryRoutes.createDocPost(id)))
+  def createDoc(id: String) = NewChildAction(id).apply { implicit request =>
+    Ok(views.html.admin.documentaryUnit.create(request.item, childForm, childFormDefaults,
+      VisibilityForm.form.fill(request.item.accessors.map(_.id)),
+      request.users, request.groups, repositoryRoutes.createDocPost(id)))
   }
 
-  def createDocPost(id: String) = childCreatePostAction.async(id, childForm) {
-      item => formsOrItem => implicit userOpt => implicit request =>
-    formsOrItem match {
+  def createDocPost(id: String) = CreateChildAction(id, childForm).async { implicit request =>
+    request.formOrItem match {
       case Left((errorForm,accForm)) => getUsersAndGroups { users => groups =>
-        BadRequest(views.html.admin.documentaryUnit.create(item,
-          errorForm, childFormDefaults, accForm, users, groups, repositoryRoutes.createDocPost(id)))
+        BadRequest(views.html.admin.documentaryUnit.create(request.item,
+          errorForm, childFormDefaults, accForm,
+          users, groups, repositoryRoutes.createDocPost(id)))
       }
       case Right(citem) => immediate(Redirect(controllers.units.routes.DocumentaryUnits.get(citem.id))
         .flashing("success" -> "item.create.confirmation"))
@@ -229,8 +228,8 @@ case class Repositories @Inject()(implicit globalConfig: global.GlobalConfig, se
         .flashing("success" -> "item.update.confirmation")
   }
 
-  def updateIndex(id: String) = adminAction.async { implicit userOpt => implicit request =>
-    getEntity(id, userOpt) { item =>
+  def updateIndex(id: String) = AdminAction.async { implicit request =>
+    getEntity(id, request.profileOpt) { item =>
       Ok(views.html.admin.search.updateItemIndex(item,
         action = controllers.institutions.routes.Repositories.updateIndexPost(id)))
     }
