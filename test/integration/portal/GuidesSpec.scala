@@ -1,6 +1,6 @@
 package integration.portal
 
-import helpers._
+import helpers.{WithSqlFile,IntegrationTestRunner}
 import play.api.test.FakeRequest
 import mocks._
 import models.{GuidePage, Guide}

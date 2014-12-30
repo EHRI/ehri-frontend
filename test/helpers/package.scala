@@ -48,7 +48,7 @@ package object helpers {
    * So here I've basically copy-pasted WithApplication and added
    * extra work before it returns.
    */
-  abstract class WithSqlFixtures(val app: FakeApplication) extends Around with Scope {
+  class WithSqlFixtures(val app: FakeApplication) extends Around with Scope {
     implicit def implicitApp = app
     override def around[T: AsResult](t: => T): Result = {
       running(app) {
@@ -72,7 +72,7 @@ package object helpers {
   /**
    * Run a spec after loading the given resource name as SQL fixtures.
    */
-  abstract class WithSqlFile(val resource: String, val app: FakeApplication = FakeApplication()) extends Around with Scope {
+  class WithSqlFile(val resource: String, val app: FakeApplication = FakeApplication()) extends Around with Scope {
     implicit def implicitApp = app
     override def around[T: AsResult](t: => T): Result = {
       running(app) {

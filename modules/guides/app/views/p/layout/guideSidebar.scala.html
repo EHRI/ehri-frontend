@@ -1,45 +1,40 @@
 @(location: String, menu: (Guide, List[GuidePage]), sidebar: Option[Html] = None)(implicit request: RequestHeader, lang: Lang)
 
 @articleHTML(optionalText: Option[Html]) = {
-	@optionalText match {
-		case Some(htm) => {
-			<div class="well well-sm">
-				<article>
-					@htm
-				</article>
-			</div>
-		}
-		case _ => { }
+	@optionalText.map  { html =>
+		<div class="well well-sm">
+			<article>
+				@html
+			</article>
+		</div>
 	}
 }
 
 @articleString(optionalText: Option[String]) = {
-	@optionalText match {
-		case Some(htm) => {
-			<div class="well well-sm">
-				<article>
-					@Html(views.Helpers.renderMarkdown(htm))
-				</article>
-			</div>
-		}
-		case _ => { }
+	@optionalText.map  { html =>
+		<div class="well well-sm">
+			<article>
+				@Html(views.Helpers.renderMarkdown(html))
+			</article>
+		</div>
 	}
 }
 
 @articleHTML(sidebar)
 
-<div class="well well-sm">
-	<ul class="nav nav-pills nav-stacked">
+@defining(menu) { case (guide, pages) =>
+	<div class="well well-sm">
+		<ul class="nav nav-pills nav-stacked">
+				@for(page <- pages.filter(_.position == GuidePage.MenuPosition.Side)) {
+					<li><a class="@{if(location == page.path)"active"}" href="@controllers.portal.guides.routes.Guides.layoutRetrieval(guide.path, page.path)">
+						@page.name
+					</a></li>
+				}
+			<li><a href="@controllers.portal.guides.routes.Guides.listGuides()">@Messages("guides")</a></li>
+		</ul>
+	</div>
 
-		@for(page <- menu._2) {
-			@if(page.position == GuidePage.MenuPosition.Side) {
-				<li><a @if(location == page.path) { class="active" } href="@controllers.portal.guides.routes.Guides.layoutRetrieval(menu._1.path, page.path)">@page.name</a></li>
-			}
-		}
-		<li><a href="@controllers.portal.guides.routes.Guides.listGuides()">@Messages("guides")</a></li>
-	</ul>
-</div>
+	@articleString(guide.description)
 
-@articleString(menu._1.description)
-
-<hr />
+	<hr />
+}

@@ -10,28 +10,18 @@
 
 	        <div class="landing-blurb">
 			<ul class="media-list">
-				@for(guide <- guides) {
-					@guide match {
-						case g: Guide => {
-							<li class="media">
-								<a class="pull-left" href="@controllers.portal.guides.routes.Guides.home(g.path)">
-									<img class="media-object" src="@g.picture" alt="@g.name" style="width:128px; height:auto;">
-								</a>
-								<div class="media-body">
-									<h4 class="media-heading"><a href="@controllers.portal.guides.routes.Guides.home(g.path)">@g.name</a></h4>
-									@g.description match {
-										case Some(desc) => {
-											@Html(views.Helpers.renderMarkdown(desc))
-										}
-										case _ => {
-											""
-										}
-									}
-								</div>
-							</li>
-
-						}
-					}
+				@for(guide <- guides.collect { case g: Guide => g}) {
+					<li class="media">
+						<a class="pull-left" href="@controllers.portal.guides.routes.Guides.home(guide.path)">
+							<img class="media-object" src="@guide.picture" alt="@guide.name" style="width:128px; height:auto;">
+						</a>
+						<div class="media-body">
+							<h4 class="media-heading"><a href="@controllers.portal.guides.routes.Guides.home(guide.path)">@guide.name</a></h4>
+							@guide.description.map { desc =>
+								@Html(views.Helpers.renderMarkdown(desc))
+							}
+						</div>
+					</li>
 				}
 			</ul>
 		</div>
