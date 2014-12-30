@@ -1,5 +1,6 @@
 package controllers.generic
 
+import backend.rest.RestHelpers
 import play.api.mvc._
 import play.api.libs.concurrent.Execution.Implicits._
 import defines.PermissionType
@@ -12,6 +13,44 @@ import scala.concurrent.Future
  */
 trait Visibility[MT] extends Generic[MT] {
 
+  self: Read[MT] =>
+
+  case class VisibilityRequest[A](
+    item: MT,
+    users: Seq[(String,String)],
+    groups: Seq[(String,String)],
+    profileOpt: Option[UserProfile],
+    request: Request[A]
+  ) extends WrappedRequest[A](request)
+    with WithOptionalProfile
+
+  private def VisibilityTransformer(implicit ct: BackendContentType[MT]) = new ActionTransformer[ItemPermissionRequest, VisibilityRequest] {
+    override protected def transform[A](request: ItemPermissionRequest[A]): Future[VisibilityRequest[A]] = {
+      for {
+        users <- RestHelpers.getUserList
+        groups <- RestHelpers.getGroupList
+      } yield VisibilityRequest(request.item, users, groups, request.profileOpt, request)
+    }
+  }
+
+  def EditVisibilityAction(id: String)(implicit rd: BackendReadable[MT], ct: BackendContentType[MT]) =
+    WithItemPermissionAction(id, PermissionType.Update) andThen VisibilityTransformer
+
+  private def UpdateVisibilityTransformer(id: String)(implicit rd: BackendReadable[MT], ct: BackendContentType[MT]) = new ActionTransformer[ItemPermissionRequest,ItemPermissionRequest] {
+    override protected def transform[A](request: ItemPermissionRequest[A]): Future[ItemPermissionRequest[A]] = {
+      implicit val req = request
+      val data = forms.VisibilityForm.form.bindFromRequest.value.getOrElse(Nil)
+      backend.setVisibility(id, data).map { newItem =>
+        ItemPermissionRequest(newItem, request.profileOpt, request)
+      }
+    }
+  }
+
+  def UpdateVisibilityAction(id: String)(implicit rd: BackendReadable[MT], ct: BackendContentType[MT]) =
+    WithItemPermissionAction(id, PermissionType.Update) andThen VisibilityTransformer
+
+
+  @deprecated(message = "Use EditVisibilityAction instead", since = "1.0.2")
   def visibilityAction(id: String)(f: MT => Seq[(String,String)] => Seq[(String,String)] => Option[UserProfile] => Request[AnyContent] => Result)(implicit rd: BackendReadable[MT], ct: BackendContentType[MT]) = {
     withItemPermission.async[MT](id, PermissionType.Update) { item => implicit userOpt => implicit request =>
       getUsersAndGroups { users => groups =>
@@ -20,6 +59,7 @@ trait Visibility[MT] extends Generic[MT] {
     }
   }
 
+  @deprecated(message = "Use UpdateVisibilityAction instead", since = "1.0.2")
   object visibilityPostAction {
     def async(id: String)(f: MT => Option[UserProfile] => Request[AnyContent] => Future[Result])(implicit rd: BackendReadable[MT], ct: BackendContentType[MT]) = {
       withItemPermission.async[MT](id, PermissionType.Update) { item => implicit userOpt => implicit request =>

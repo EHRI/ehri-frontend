@@ -30,7 +30,7 @@ trait Update[F <: Model with Persistable, MT <: MetaModel[F]] extends Generic[MT
   def EditAction(itemId: String)(implicit rd: BackendReadable[MT], ct: BackendContentType[MT]) =
     WithItemPermissionAction(itemId, PermissionType.Update)
 
-  protected def UpdateTransformer(id: String, form: Form[F], transformer: F => F = identity)(implicit rd: BackendReadable[MT], ct: BackendContentType[MT], wd: BackendWriteable[F]) =
+  private def UpdateTransformer(id: String, form: Form[F], transformer: F => F = identity)(implicit rd: BackendReadable[MT], ct: BackendContentType[MT], wd: BackendWriteable[F]) =
     new ActionTransformer[ItemPermissionRequest, UpdateRequest] {
       def transform[A](request: ItemPermissionRequest[A]): Future[UpdateRequest[A]] = {
         implicit val req = request

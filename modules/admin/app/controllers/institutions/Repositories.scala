@@ -174,14 +174,13 @@ case class Repositories @Inject()(implicit globalConfig: global.GlobalConfig, se
         .flashing("success" -> "item.delete.confirmation")
   }
 
-  def visibility(id: String) = visibilityAction(id) { item => users => groups => implicit userOpt => implicit request =>
-    Ok(views.html.admin.permissions.visibility(item,
-      VisibilityForm.form.fill(item.accessors.map(_.id)),
-      users, groups, repositoryRoutes.visibilityPost(id)))
+  def visibility(id: String) = EditVisibilityAction(id).apply { implicit request =>
+    Ok(views.html.admin.permissions.visibility(request.item,
+      VisibilityForm.form.fill(request.item.accessors.map(_.id)),
+      request.users, request.groups, repositoryRoutes.visibilityPost(id)))
   }
 
-  def visibilityPost(id: String) = visibilityPostAction(id) {
-      ok => implicit userOpt => implicit request =>
+  def visibilityPost(id: String) = UpdateVisibilityAction(id).apply { implicit request =>
     Redirect(repositoryRoutes.get(id))
         .flashing("success" -> "item.update.confirmation")
   }

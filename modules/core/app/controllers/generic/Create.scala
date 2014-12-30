@@ -20,7 +20,16 @@ trait Create[F <: Model with Persistable, MT <: MetaModel[F]] extends Generic[MT
 
   self: Read[MT] =>
 
-  case class NewRequest[A](
+  /**
+   * A request containing id->name tuples for available users
+   * and groups.
+   * @param users a seq of id -> name tuples for users on the system
+   * @param groups a seq of id -> name tuples for users on the system
+   * @param profileOpt an optional profile
+   * @param request the underlying request
+   * @tparam A the type of the underlying request
+   */
+  case class UserGroupsRequest[A](
     users: Seq[(String,String)],
     groups: Seq[(String,String)],
     profileOpt: Option[UserProfile],
@@ -28,17 +37,16 @@ trait Create[F <: Model with Persistable, MT <: MetaModel[F]] extends Generic[MT
   ) extends WrappedRequest[A](request)
     with WithOptionalProfile
 
-  protected def NewItemTransformer(implicit ct: BackendContentType[MT]) = new ActionTransformer[OptionalProfileRequest, NewRequest] {
-    override protected def transform[A](request: OptionalProfileRequest[A]): Future[NewRequest[A]] = {
+  private def UserGroupsTransformer(implicit ct: BackendContentType[MT]) = new ActionTransformer[OptionalProfileRequest, UserGroupsRequest] {
+    override protected def transform[A](request: OptionalProfileRequest[A]): Future[UserGroupsRequest[A]] = {
       for {
         users <- RestHelpers.getUserList
         groups <- RestHelpers.getGroupList
-      } yield NewRequest(users, groups, request.profileOpt, request)
+      } yield UserGroupsRequest(users, groups, request.profileOpt, request)
     }
   }
-
   def NewItemAction(implicit ct: BackendContentType[MT]) =
-    WithContentPermissionAction(PermissionType.Create, ct.contentType) andThen NewItemTransformer
+    WithContentPermissionAction(PermissionType.Create, ct.contentType) andThen UserGroupsTransformer
 
   case class CreateRequest[A](
     formOrItem: Either[(Form[F],Form[List[String]]),MT],
@@ -47,7 +55,7 @@ trait Create[F <: Model with Persistable, MT <: MetaModel[F]] extends Generic[MT
   ) extends WrappedRequest[A](request)
     with WithOptionalProfile
 
-  protected def CreatePostTransformer(form: Form[F], pf: Request[_] => Map[String,Seq[String]] = _ => Map.empty)(implicit fmt: BackendWriteable[F], rd: BackendReadable[MT], ct: BackendContentType[MT]) =
+  private def CreatePostTransformer(form: Form[F], pf: Request[_] => Map[String,Seq[String]] = _ => Map.empty)(implicit fmt: BackendWriteable[F], rd: BackendReadable[MT], ct: BackendContentType[MT]) =
     new ActionTransformer[OptionalProfileRequest, CreateRequest] {
       def transform[A](request: OptionalProfileRequest[A]): Future[CreateRequest[A]] = {
         implicit val req = request
@@ -111,10 +119,9 @@ trait Create[F <: Model with Persistable, MT <: MetaModel[F]] extends Generic[MT
               // If we have an error, check if it's a validation error.
               // If so, we need to merge those errors back into the form
               // and redisplay it...
-              case ValidationError(errorSet) => {
+              case ValidationError(errorSet) =>
                 val filledForm = doc.getFormErrors(errorSet, form.fill(doc))
                 f(Left((filledForm, VisibilityForm.form)))(userOpt)(request)
-              }
             }
           }
         )

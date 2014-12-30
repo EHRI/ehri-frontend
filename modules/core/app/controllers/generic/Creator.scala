@@ -28,7 +28,7 @@ trait Creator[CF <: Model with Persistable, CMT <: MetaModel[CF], MT <: MetaMode
     ) extends WrappedRequest[A](request)
   with WithOptionalProfile
 
-  protected def NewChildTransformer(implicit rd: BackendReadable[MT], ct: BackendContentType[MT]) = new ActionTransformer[ItemPermissionRequest, NewChildRequest] {
+  private def NewChildTransformer(implicit rd: BackendReadable[MT], ct: BackendContentType[MT]) = new ActionTransformer[ItemPermissionRequest, NewChildRequest] {
     override protected def transform[A](request: ItemPermissionRequest[A]): Future[NewChildRequest[A]] = {
       for {
         users <- RestHelpers.getUserList
@@ -48,7 +48,7 @@ trait Creator[CF <: Model with Persistable, CMT <: MetaModel[CF], MT <: MetaMode
      ) extends WrappedRequest[A](request)
   with WithOptionalProfile
 
-  protected def CreateChildTransformer(id: String, form: Form[CF], extraParams: ExtraParams = defaultExtra)(implicit rd: BackendReadable[MT], ct: BackendContentType[MT], fmt: BackendWriteable[CF], crd: BackendReadable[CMT], cct: BackendContentType[CMT]) =
+  private def CreateChildTransformer(id: String, form: Form[CF], extraParams: ExtraParams = defaultExtra)(implicit rd: BackendReadable[MT], ct: BackendContentType[MT], fmt: BackendWriteable[CF], crd: BackendReadable[CMT], cct: BackendContentType[CMT]) =
     new ActionTransformer[ItemPermissionRequest, CreateChildRequest] {
       def transform[A](request: ItemPermissionRequest[A]): Future[CreateChildRequest[A]] = {
         implicit val req = request

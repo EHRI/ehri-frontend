@@ -315,7 +315,7 @@ case class Guides @Inject()(implicit globalConfig: global.GlobalConfig, searchDi
   /*
   *  Layout named "document"
   */
-  def browseDocument(path: String, id: String) = getAction[DocumentaryUnit](EntityType.DocumentaryUnit, id) {
+  def browseDocument(path: String, id: String) = getItemAction[DocumentaryUnit](EntityType.DocumentaryUnit, id) {
       item => details => implicit userOpt => implicit request =>
     itemOr404(Guide.find(path, activeOnly = true)) { guide =>
       Ok(p.guides.documentaryUnit(
@@ -332,7 +332,7 @@ case class Guides @Inject()(implicit globalConfig: global.GlobalConfig, searchDi
    * Function for displaying repository
    */
 
-  def browseRepository(path: String, id: String) = getAction[Repository](EntityType.Repository, id) {
+  def browseRepository(path: String, id: String) = getItemAction[Repository](EntityType.Repository, id) {
       item => details => implicit userOpt => implicit request =>
     itemOr404(Guide.find(path, activeOnly = true)) { guide =>
       Ok(p.guides.repository(item, GuidePage.repository(Some(item.toStringLang)) -> (guide -> guide.findPages)))
