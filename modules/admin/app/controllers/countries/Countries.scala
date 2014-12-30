@@ -78,15 +78,15 @@ case class Countries @Inject()(implicit globalConfig: global.GlobalConfig, searc
     }
   }
 
-  def update(id: String) = updateAction(id) { item => implicit userOpt => implicit request =>
-    Ok(views.html.admin.country.edit(item, form.fill(item.model),countryRoutes.updatePost(id)))
+  def update(id: String) = EditAction(id).apply { implicit request =>
+    Ok(views.html.admin.country.edit(
+      request.item, form.fill(request.item.model),countryRoutes.updatePost(id)))
   }
 
-  def updatePost(id: String) = updatePostAction(id, form) {
-      olditem => formOrItem => implicit userOpt => implicit request =>
-    formOrItem match {
+  def updatePost(id: String) = UpdateAction(id, form).apply { implicit request =>
+    request.formOrItem match {
       case Left(errorForm) => BadRequest(views.html.admin.country.edit(
-          olditem, errorForm, countryRoutes.updatePost(id)))
+        request.item, errorForm, countryRoutes.updatePost(id)))
       case Right(item) => Redirect(countryRoutes.get(item.id))
         .flashing("success" -> "item.update.confirmation")
     }

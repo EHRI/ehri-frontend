@@ -31,14 +31,14 @@ case class Vocabularies @Inject()(implicit globalConfig: global.GlobalConfig, se
 
   private val vocabRoutes = controllers.vocabularies.routes.Vocabularies
 
-  def get(id: String) = getAction.async(id) { item => annotations => links => implicit userOpt => implicit request =>
+  def get(id: String) = ItemMetaAction(id).async { implicit request =>
     find[Concept](
-      filters = Map(SolrConstants.HOLDER_ID -> item.id),
+      filters = Map(SolrConstants.HOLDER_ID -> request.item.id),
       entities = List(EntityType.Concept)
     ).map { result =>
       Ok(views.html.admin.vocabulary.show(
-          item, result.page, result.params, result.facets,
-        vocabRoutes.get(id), annotations, links))
+        request.item, result.page, result.params, result.facets,
+        vocabRoutes.get(id), request.annotations, request.links))
     }
   }
 
@@ -46,54 +46,53 @@ case class Vocabularies @Inject()(implicit globalConfig: global.GlobalConfig, se
     Ok(views.html.admin.systemEvents.itemList(item, page, params))
   }
 
-  def list = pageAction { page => params => implicit userOpt => implicit request =>
-    Ok(views.html.admin.vocabulary.list(page, params))
+  def list = ItemPageAction.apply { implicit request =>
+    Ok(views.html.admin.vocabulary.list(request.page, request.params))
   }
 
-  def create = createAction { users => groups => implicit userOpt => implicit request =>
-    Ok(views.html.admin.vocabulary.create(form, VisibilityForm.form, users, groups, vocabRoutes.createPost()))
+  def create = NewItemAction.apply { implicit request =>
+    Ok(views.html.admin.vocabulary.create(form, VisibilityForm.form,
+      request.users, request.groups, vocabRoutes.createPost()))
   }
 
-  def createPost = createPostAction.async(form) { formsOrItem => implicit userOpt => implicit request =>
-    formsOrItem match {
+  def createPost = CreateItemAction(form).async { implicit request =>
+    request.formOrItem match {
       case Left((errorForm,accForm)) => getUsersAndGroups { users => groups =>
-        BadRequest(views.html.admin.vocabulary.create(errorForm, accForm, users, groups, vocabRoutes.createPost()))
+        BadRequest(views.html.admin.vocabulary.create(errorForm, accForm,
+          users, groups, vocabRoutes.createPost()))
       }
       case Right(item) => immediate(Redirect(vocabRoutes.get(item.id))
         .flashing("success" -> "item.create.confirmation"))
     }
   }
 
-  def update(id: String) = updateAction(id) { item => implicit userOpt => implicit request =>
+  def update(id: String) = EditAction(id).apply { implicit request =>
     Ok(views.html.admin.vocabulary.edit(
-      item, form.fill(item.model),vocabRoutes.updatePost(id)))
+      request.item, form.fill(request.item.model),vocabRoutes.updatePost(id)))
   }
 
-  def updatePost(id: String) = updatePostAction(id, form) {
-      olditem => formOrItem => implicit userOpt => implicit request =>
-    formOrItem match {
+  def updatePost(id: String) = UpdateAction(id, form).apply { implicit request =>
+    request.formOrItem match {
       case Left(errorForm) => BadRequest(views.html.admin.vocabulary.edit(
-          olditem, errorForm, vocabRoutes.updatePost(id)))
+          request.item, errorForm, vocabRoutes.updatePost(id)))
       case Right(item) => Redirect(vocabRoutes.get(item.id))
         .flashing("success" -> "item.update.confirmation")
     }
   }
 
-  def createConcept(id: String) = childCreateAction(id) {
-      item => users => groups => implicit userOpt => implicit request =>
+  def createConcept(id: String) = NewChildAction(id).apply { implicit request =>
     Ok(views.html.admin.concept.create(
-      item, childForm, VisibilityForm.form.fill(item.accessors.map(_.id)),
-      users, groups, vocabRoutes.createConceptPost(id)))
+      request.item, childForm, VisibilityForm.form.fill(request.item.accessors.map(_.id)),
+      request.users, request.groups, vocabRoutes.createConceptPost(id)))
   }
 
-  def createConceptPost(id: String) = childCreatePostAction.async(id, childForm) {
-      item => formsOrItem => implicit userOpt => implicit request =>
-    formsOrItem match {
+  def createConceptPost(id: String) = CreateChildAction(id, childForm).async { implicit request =>
+    request.formOrItem match {
       case Left((errorForm,accForm)) => getUsersAndGroups { users => groups =>
-        BadRequest(views.html.admin.concept.create(item,
+        BadRequest(views.html.admin.concept.create(request.item,
           errorForm, accForm, users, groups, vocabRoutes.createConceptPost(id)))
       }
-      case Right(citem) => immediate(Redirect(vocabRoutes.get(id))
+      case Right(_) => immediate(Redirect(vocabRoutes.get(id))
         .flashing("success" -> "item.create.confirmation"))
     }
   }
@@ -162,8 +161,8 @@ case class Vocabularies @Inject()(implicit globalConfig: global.GlobalConfig, se
         .flashing("success" -> "item.update.confirmation")
   }
 
-  def updateIndex(id: String) = adminAction.async { implicit userOpt => implicit request =>
-    getEntity(id, userOpt) { item =>
+  def updateIndex(id: String) = AdminAction.async { implicit request =>
+    getEntity(id, request.profileOpt) { item =>
       Ok(views.html.admin.search.updateItemIndex(item,
         action = vocabRoutes.updateIndexPost(id)))
     }

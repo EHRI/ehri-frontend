@@ -68,36 +68,34 @@ case class Concepts @Inject()(implicit globalConfig: global.GlobalConfig, search
     Ok(views.html.admin.systemEvents.itemList(item, page, params))
   }
 
-  def list = pageAction { page => params => implicit userOpt => implicit request =>
-    Ok(views.html.admin.concept.list(page, params))
+  def list = ItemPageAction.apply { implicit request =>
+    Ok(views.html.admin.concept.list(request.page, request.params))
   }
 
-  def update(id: String) = updateAction(id) {
-      item => implicit userOpt => implicit request =>
-    Ok(views.html.admin.concept.edit(item, form.fill(item.model),conceptRoutes.updatePost(id)))
+  def update(id: String) = EditAction(id).apply { implicit request =>
+    Ok(views.html.admin.concept.edit(
+      request.item, form.fill(request.item.model),conceptRoutes.updatePost(id)))
   }
 
-  def updatePost(id: String) = updatePostAction(id, form) {
-      oldItem => formOrItem => implicit userOpt => implicit request =>
-    formOrItem match {
+  def updatePost(id: String) = UpdateAction(id, form).apply { implicit request =>
+    request.formOrItem match {
       case Left(errorForm) => BadRequest(views.html.admin.concept.edit(
-          oldItem, errorForm, conceptRoutes.updatePost(id)))
+        request.item, errorForm, conceptRoutes.updatePost(id)))
       case Right(item) => Redirect(conceptRoutes.get(item.id))
         .flashing("success" -> "item.update.confirmation")
     }
   }
 
-  def createConcept(id: String) = childCreateAction(id) {
-      item => users => groups => implicit userOpt => implicit request =>
+  def createConcept(id: String) = NewChildAction(id).apply { implicit request =>
     Ok(views.html.admin.concept.create(
-        item, childForm, VisibilityForm.form, users, groups, conceptRoutes.createConceptPost(id)))
+      request.item, childForm, VisibilityForm.form,
+      request.users, request.groups, conceptRoutes.createConceptPost(id)))
   }
 
-  def createConceptPost(id: String) = childCreatePostAction.async(id, childForm) {
-      item => formsOrItem => implicit userOpt => implicit request =>
-    formsOrItem match {
+  def createConceptPost(id: String) = CreateChildAction(id, childForm).async { implicit request =>
+    request.formOrItem match {
       case Left((errorForm,accForm)) => getUsersAndGroups { users => groups =>
-        BadRequest(views.html.admin.concept.create(item,
+        BadRequest(views.html.admin.concept.create(request.item,
           errorForm, accForm, users, groups, conceptRoutes.createConceptPost(id)))
       }
       case Right(citem) => immediate(Redirect(conceptRoutes.get(id))
@@ -179,14 +177,12 @@ case class Concepts @Inject()(implicit globalConfig: global.GlobalConfig, search
   def linkAnnotatePost(id: String, toType: EntityType.Value, to: String) = linkPostAction(id, toType, to) {
       formOrAnnotation => implicit userOpt => implicit request =>
     formOrAnnotation match {
-      case Left((target,source,errorForm)) => {
-          BadRequest(views.html.admin.link.create(target, source,
-              errorForm, conceptRoutes.linkAnnotatePost(id, toType, to)))
-      }
-      case Right(annotation) => {
+      case Left((target,source,errorForm)) =>
+        BadRequest(views.html.admin.link.create(target, source,
+            errorForm, conceptRoutes.linkAnnotatePost(id, toType, to)))
+      case Right(annotation) =>
         Redirect(conceptRoutes.get(id))
           .flashing("success" -> "item.update.confirmation")
-      }
     }
   }
 }

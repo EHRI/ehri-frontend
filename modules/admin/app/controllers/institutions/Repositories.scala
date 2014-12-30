@@ -130,16 +130,16 @@ case class Repositories @Inject()(implicit globalConfig: global.GlobalConfig, se
     Ok(views.html.admin.repository.list(request.page, request.params))
   }
 
-  def update(id: String) = updateAction(id) {
-      item => implicit userOpt => implicit request =>
-    Ok(views.html.admin.repository.edit(item, form.fill(item.model), repositoryRoutes.updatePost(id)))
+  def update(id: String) = EditAction(id).apply { implicit request =>
+    Ok(views.html.admin.repository.edit(request.item,
+      form.fill(request.item.model), repositoryRoutes.updatePost(id)))
   }
 
-  def updatePost(id: String) = updatePostAction(id, form) {
-      item => formOrItem => implicit userOpt => implicit request =>
-    formOrItem match {
+  def updatePost(id: String) = UpdateAction(id, form).apply { implicit request =>
+    request.formOrItem match {
       case Left(errorForm) =>
-        BadRequest(views.html.admin.repository.edit(item, errorForm, repositoryRoutes.updatePost(id)))
+        BadRequest(views.html.admin.repository.edit(
+          request.item, errorForm, repositoryRoutes.updatePost(id)))
       case Right(doc) => Redirect(repositoryRoutes.get(doc.id))
         .flashing("success" -> "item.update.confirmation")
     }

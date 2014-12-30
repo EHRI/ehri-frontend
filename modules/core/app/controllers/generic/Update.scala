@@ -17,9 +17,46 @@ import backend.{BackendReadable, BackendWriteable, BackendContentType, BackendRe
  */
 trait Update[F <: Model with Persistable, MT <: MetaModel[F]] extends Generic[MT] {
 
+  self: Read[MT] =>
+
+  case class UpdateRequest[A](
+    item: MT,
+    formOrItem: Either[Form[F], MT],
+    profileOpt: Option[UserProfile],
+    request: Request[A]
+  ) extends WrappedRequest[A](request)
+  with WithOptionalProfile
+
+  def EditAction(itemId: String)(implicit rd: BackendReadable[MT], ct: BackendContentType[MT]) =
+    WithItemPermissionAction(itemId, PermissionType.Update)
+
+  protected def UpdateTransformer(id: String, form: Form[F], transformer: F => F = identity)(implicit rd: BackendReadable[MT], ct: BackendContentType[MT], wd: BackendWriteable[F]) =
+    new ActionTransformer[ItemPermissionRequest, UpdateRequest] {
+      def transform[A](request: ItemPermissionRequest[A]): Future[UpdateRequest[A]] = {
+        implicit val req = request
+        form.bindFromRequest.fold(
+          errorForm => immediate(UpdateRequest(request.item, Left(errorForm), request.profileOpt, request.request)),
+          mod => {
+            backend.update[MT,F](id, transformer(mod), logMsg = getLogMessage).map { citem =>
+              UpdateRequest(request.item, Right(citem), request.profileOpt, request)
+            } recover {
+              case ValidationError(errorSet) =>
+                val filledForm = mod.getFormErrors(errorSet, form.fill(mod))
+                UpdateRequest(request.item, Left(filledForm), request.profileOpt, request)
+            }
+          }
+        )
+      }
+    }
+
+
+  def UpdateAction(id: String, form: Form[F], transformer: F => F = identity)(implicit rd: BackendReadable[MT], ct: BackendContentType[MT], wd: BackendWriteable[F]) =
+    EditAction(id) andThen UpdateTransformer(id, form, transformer)
+
   type UpdateCallback = MT => Either[Form[F], MT] => Option[UserProfile] => Request[AnyContent] => Result
   type AsyncUpdateCallback = MT => Either[Form[F], MT] => Option[UserProfile] => Request[AnyContent] => Future[Result]
 
+  @deprecated(message = "Use EditAction instead", since = "1.0.2")
   def updateAction(id: String)(f: MT => Option[UserProfile] => Request[AnyContent] => Result)(
     implicit rd: BackendReadable[MT], ct: BackendContentType[MT]) = {
     withItemPermission[MT](id, PermissionType.Update) { item => implicit userOpt => implicit request =>
@@ -31,6 +68,7 @@ trait Update[F <: Model with Persistable, MT <: MetaModel[F]] extends Generic[MT
    * Loads the item with the given id and checks update permissions
    * exist. Then updates using the bound values of the given form.
    */
+  @deprecated(message = "Use UpdateAction instead", since = "1.0.2")
   object updatePostAction {
     def async(id: String, form: Form[F], transform: F => F = identity)(f: AsyncUpdateCallback)(
         implicit fmt: BackendWriteable[F], rd: BackendReadable[MT], ct: BackendContentType[MT]) = {

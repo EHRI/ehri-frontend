@@ -168,16 +168,15 @@ case class DocumentaryUnits @Inject()(implicit globalConfig: global.GlobalConfig
     Ok(views.html.admin.documentaryUnit.list(request.page, request.params))
   }
 
-  def update(id: String) = updateAction(id) { item => implicit userOpt => implicit request =>
+  def update(id: String) = EditAction(id).apply { implicit request =>
     Ok(views.html.admin.documentaryUnit.edit(
-      item, form.fill(item.model),
-      docRoutes.updatePost(id)))
+      request.item, form.fill(request.item.model), docRoutes.updatePost(id)))
   }
 
-  def updatePost(id: String) = updatePostAction(id, form) { olditem => formOrItem => implicit userOpt => implicit request =>
-    formOrItem match {
+  def updatePost(id: String) = UpdateAction(id, form).apply { implicit request =>
+    request.formOrItem match {
       case Left(errorForm) => BadRequest(views.html.admin.documentaryUnit.edit(
-          olditem, errorForm, docRoutes.updatePost(id)))
+          request.item, errorForm, docRoutes.updatePost(id)))
       case Right(item) => Redirect(docRoutes.get(item.id))
         .flashing("success" -> "item.update.confirmation")
     }

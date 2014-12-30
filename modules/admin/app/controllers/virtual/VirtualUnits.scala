@@ -14,7 +14,6 @@ import scala.concurrent.Future.{successful => immediate}
 import backend.{Entity, IdGenerator, Backend}
 import play.api.Play.current
 import play.api.Configuration
-import play.api.mvc.AnyContent
 import play.api.data.Form
 import play.api.data.Forms._
 import solr.facet.FieldFacetClass
@@ -90,7 +89,7 @@ case class VirtualUnits @Inject()(implicit globalConfig: global.GlobalConfig, se
 
   private val vuRoutes = controllers.virtual.routes.VirtualUnits
 
-  def search = userProfileAction.async { implicit userOpt => implicit request =>
+  def search = OptionalProfileAction.async { implicit request =>
   // What filters we gonna use? How about, only list stuff here that
   // has no parent items - UNLESS there's a query, in which case we're
   // going to peer INSIDE items... dodgy logic, maybe...
@@ -116,18 +115,18 @@ case class VirtualUnits @Inject()(implicit globalConfig: global.GlobalConfig, se
     }
   }
 
-  def get(id: String) = getAction.async(id) { item => annotations => links => implicit userOpt => implicit request =>
+  def get(id: String) = ItemMetaAction(id).async { implicit request =>
     find[VirtualUnit](
-      filters = Map(SolrConstants.PARENT_ID -> item.id),
+      filters = Map(SolrConstants.PARENT_ID -> request.item.id),
       entities = List(EntityType.VirtualUnit),
       facetBuilder = entityFacets
     ).map { result =>
-      Ok(views.html.admin.virtualUnit.show(Nil, item, result.page, result.params, result.facets,
-          vuRoutes.get(id), annotations, links))
+      Ok(views.html.admin.virtualUnit.show(Nil, request.item, result.page, result.params, result.facets,
+          vuRoutes.get(id), request.annotations, request.links))
     }
   }
 
-  def getInVc(id: String, pathStr: Option[String]) = userProfileAction.async { implicit userOpt => implicit request =>
+  def getInVc(id: String, pathStr: Option[String]) = OptionalProfileAction.async { implicit request =>
     val pathIds = pathStr.map(_.split(",").toList).getOrElse(List.empty)
     def includedChildren(parent: AnyModel): Future[QueryResult[AnyModel]] = parent match {
       case d: DocumentaryUnit => find[AnyModel](
@@ -154,43 +153,43 @@ case class VirtualUnits @Inject()(implicit globalConfig: global.GlobalConfig, se
       annotations <- annsF
       path <- pathF
       children <- includedChildren(item)
-    } yield Ok(views.html.admin.virtualUnit.showVc(path, item, children.page, children.params, children.facets,
-      vuRoutes.getInVc(id, pathStr), annotations, links))
+    } yield Ok(views.html.admin.virtualUnit.showVc(
+        path, item, children.page, children.params, children.facets,
+        vuRoutes.getInVc(id, pathStr), annotations, links))
   }
 
   def history(id: String) = historyAction(id) { item => page => params => implicit userOpt => implicit request =>
     Ok(views.html.admin.systemEvents.itemList(item, page, params))
   }
 
-  def list = pageAction { page => params => implicit userOpt => implicit request =>
-    Ok(views.html.admin.virtualUnit.list(page, params))
+  def list = ItemPageAction.apply { implicit request =>
+    Ok(views.html.admin.virtualUnit.list(request.page, request.params))
   }
 
-  def update(id: String) = updateAction(id) { item => implicit userOpt => implicit request =>
+  def update(id: String) = EditAction(id).apply { implicit request =>
     Ok(views.html.admin.virtualUnit.edit(
-      item, form.fill(item.model),
-      vuRoutes.updatePost(id)))
+      request.item, form.fill(request.item.model), vuRoutes.updatePost(id)))
   }
 
-  def updatePost(id: String) = updatePostAction(id, form) { olditem => formOrItem => implicit userOpt => implicit request =>
-    formOrItem match {
+  def updatePost(id: String) = UpdateAction(id, form).apply { implicit request =>
+    request.formOrItem match {
       case Left(errorForm) => BadRequest(views.html.admin.virtualUnit.edit(
-          olditem, errorForm, vuRoutes.updatePost(id)))
+          request.item, errorForm, vuRoutes.updatePost(id)))
       case Right(item) => Redirect(vuRoutes.get(item.id))
         .flashing("success" -> "item.update.confirmation")
     }
   }
 
-  def create = createAction.async { users => groups => implicit userOpt => implicit request =>
+  def create = NewItemAction.async { implicit request =>
     idGenerator.getNextNumericIdentifier(EntityType.VirtualUnit).map { newId =>
       Ok(views.html.admin.virtualUnit.create(None, form.bind(Map(Entity.IDENTIFIER -> makeId(newId))),
         VisibilityForm.form,
-        users, groups, vuRoutes.createPost()))
+        request.users, request.groups, vuRoutes.createPost()))
     }
   }
 
-  def createPost = createPostAction.async(form) { formsOrItem => implicit userOpt => implicit request =>
-    formsOrItem match {
+  def createPost = CreateItemAction(form).async { implicit request =>
+    request.formOrItem match {
       case Left((errorForm,accForm)) => getUsersAndGroups { users => groups =>
         BadRequest(views.html.admin.virtualUnit.create(None, errorForm, accForm,
           users, groups, vuRoutes.createPost()))
@@ -200,21 +199,19 @@ case class VirtualUnits @Inject()(implicit globalConfig: global.GlobalConfig, se
     }
   }
 
-  def createChild(id: String) = childCreateAction.async(id) {
-      item => users => groups => implicit userOpt => implicit request =>
+  def createChild(id: String) = NewChildAction(id).async { implicit request =>
     idGenerator.getNextNumericIdentifier(EntityType.VirtualUnit).map { newId =>
       Ok(views.html.admin.virtualUnit.create(
-        Some(item), childForm.bind(Map(Entity.IDENTIFIER -> makeId(newId))),
-        VisibilityForm.form.fill(item.accessors.map(_.id)),
-        users, groups, vuRoutes.createChildPost(id)))
+        Some(request.item), childForm.bind(Map(Entity.IDENTIFIER -> makeId(newId))),
+        VisibilityForm.form.fill(request.item.accessors.map(_.id)),
+        request.users, request.groups, vuRoutes.createChildPost(id)))
     }
   }
 
-  def createChildPost(id: String) = childCreatePostAction.async(id, childForm) {
-      item => formsOrItem => implicit userOpt => implicit request =>
-    formsOrItem match {
+  def createChildPost(id: String) = CreateChildAction(id, childForm).async { implicit request =>
+    request.formOrItem match {
       case Left((errorForm,accForm)) => getUsersAndGroups { users => groups =>
-        BadRequest(views.html.admin.virtualUnit.create(Some(item),
+        BadRequest(views.html.admin.virtualUnit.create(Some(request.item),
           errorForm, accForm, users, groups,
           vuRoutes.createChildPost(id)))
       }
@@ -225,14 +222,13 @@ case class VirtualUnits @Inject()(implicit globalConfig: global.GlobalConfig, se
 
   def refForm = Form(single(VirtualUnitF.INCLUDE_REF -> nonEmptyText))
 
-  def createChildRef(id: String) = childCreateAction.async(id) {
-    item => users => groups => implicit userOpt => implicit request =>
+  def createChildRef(id: String) = NewChildAction(id).async { implicit request =>
       idGenerator.getNextNumericIdentifier(EntityType.VirtualUnit).map { newId =>
         Ok(views.html.admin.virtualUnit.createRef(
-          Some(item), childForm.bind(Map(Entity.IDENTIFIER -> makeId(newId))),
+          Some(request.item), childForm.bind(Map(Entity.IDENTIFIER -> makeId(newId))),
           refForm,
-          VisibilityForm.form.fill(item.accessors.map(_.id)),
-          users, groups, vuRoutes.createChildRefPost(id)))
+          VisibilityForm.form.fill(request.item.accessors.map(_.id)),
+          request.users, request.groups, vuRoutes.createChildRefPost(id)))
       }
   }
 
@@ -243,11 +239,10 @@ case class VirtualUnits @Inject()(implicit globalConfig: global.GlobalConfig, se
     )
   }
 
-  def createChildRefPost(id: String) = childCreatePostAction.async(id, childForm, descriptionRefs) {
-    item => formsOrItem => implicit userOpt => implicit request =>
-      formsOrItem match {
+  def createChildRefPost(id: String) = CreateChildAction(id, childForm, descriptionRefs).async { implicit request =>
+      request.formOrItem match {
         case Left((errorForm,accForm)) => getUsersAndGroups { users => groups =>
-          BadRequest(views.html.admin.virtualUnit.createRef(Some(item),
+          BadRequest(views.html.admin.virtualUnit.createRef(Some(request.item),
             errorForm, refForm.bindFromRequest, accForm, users, groups,
             vuRoutes.createChildRefPost(id)))
         }
@@ -307,10 +302,9 @@ case class VirtualUnits @Inject()(implicit globalConfig: global.GlobalConfig, se
   def updateDescriptionPost(id: String, did: String) = updateDescriptionPostAction(id, EntityType.DocumentaryUnitDescription, did, descriptionForm) {
       item => formOrItem => implicit userOpt => implicit request =>
     formOrItem match {
-      case Left(errorForm) => {
+      case Left(errorForm) =>
         Ok(views.html.admin.virtualUnit.editDescription(item,
           errorForm, vuRoutes.updateDescriptionPost(id, did)))
-      }
       case Right(updated) => Redirect(vuRoutes.get(item.id))
         .flashing("success" -> "item.create.confirmation")
     }
