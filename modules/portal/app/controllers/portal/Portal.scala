@@ -147,13 +147,13 @@ case class Portal @Inject()(implicit globalConfig: global.GlobalConfig, searchDi
     }
   }
 
-  def browseCountry(id: String) = getAction[Country](EntityType.Country, id) {
+  def browseCountry(id: String) = getItemAction[Country](EntityType.Country, id) {
       item => details => implicit userOpt => implicit request =>
     if (isAjax) Ok(p.country.itemDetails(item, details.annotations, details.links, details.watched))
     else Ok(p.country.show(item, details.annotations, details.links, details.watched))
   }
 
-  def searchCountry(id: String) = getAction.async[Country](EntityType.Country, id) {
+  def searchCountry(id: String) = getItemAction.async[Country](EntityType.Country, id) {
       item => details => implicit userOpt => implicit request =>
     find[Repository](
       filters = Map("countryCode" -> item.id),
@@ -185,13 +185,13 @@ case class Portal @Inject()(implicit globalConfig: global.GlobalConfig, searchDi
     }
   }
 
-  def browseRepository(id: String) = getAction[Repository](EntityType.Repository, id) {
+  def browseRepository(id: String) = getItemAction[Repository](EntityType.Repository, id) {
       item => details => implicit userOpt => implicit request =>
     if (isAjax) Ok(p.repository.itemDetails(item, details.annotations, details.links, details.watched))
     else Ok(p.repository.show(item, details.annotations, details.links, details.watched))
   }
 
-  def searchRepository(id: String) = getAction.async[Repository](EntityType.Repository, id) {
+  def searchRepository(id: String) = getItemAction.async[Repository](EntityType.Repository, id) {
       item => details => implicit userOpt => implicit request =>
     val filters = (if (request.getQueryString(SearchParams.QUERY).filterNot(_.trim.isEmpty).isEmpty)
       Map(SolrConstants.TOP_LEVEL -> true) else Map.empty[String,Any]) ++ Map(SolrConstants.HOLDER_ID -> item.id)
@@ -223,13 +223,13 @@ case class Portal @Inject()(implicit globalConfig: global.GlobalConfig, searchDi
     }
   }
 
-  def browseDocument(id: String) = getAction[DocumentaryUnit](EntityType.DocumentaryUnit, id) {
+  def browseDocument(id: String) = getItemAction[DocumentaryUnit](EntityType.DocumentaryUnit, id) {
       item => details => implicit userOpt => implicit request =>
     if (isAjax) Ok(p.documentaryUnit.itemDetails(item, details.annotations, details.links, details.watched))
     else Ok(p.documentaryUnit.show(item, details.annotations, details.links, details.watched))
   }
 
-  def searchDocument(id: String) = getAction.async[DocumentaryUnit](EntityType.DocumentaryUnit, id) {
+  def searchDocument(id: String) = getItemAction.async[DocumentaryUnit](EntityType.DocumentaryUnit, id) {
       item => details => implicit userOpt => implicit request =>
     find[DocumentaryUnit](
       filters = Map(SolrConstants.PARENT_ID -> item.id),
@@ -254,17 +254,17 @@ case class Portal @Inject()(implicit globalConfig: global.GlobalConfig, searchDi
     }
   }
 
-  def browseHistoricalAgent(id: String) = getAction[HistoricalAgent](EntityType.HistoricalAgent, id) {
+  def browseHistoricalAgent(id: String) = getItemAction[HistoricalAgent](EntityType.HistoricalAgent, id) {
       doc => details => implicit userOpt => implicit request =>
     Ok(p.historicalAgent.show(doc, details.annotations, details.links, details.watched))
   }
 
-  def browseLink(id: String) = getAction[Link](EntityType.Link, id) {
+  def browseLink(id: String) = getItemAction[Link](EntityType.Link, id) {
       item => details => implicit userOpt => implicit request =>
     Ok(p.link.show(item))
   }
 
-  def browseGroup(id: String) = getAction[Group](EntityType.Group, id) {
+  def browseGroup(id: String) = getItemAction[Group](EntityType.Group, id) {
       item => details => implicit userOpt => implicit request =>
     Ok(p.group.show(item))
   }
@@ -278,18 +278,18 @@ case class Portal @Inject()(implicit globalConfig: global.GlobalConfig, searchDi
     }
   }
 
-  def browseAnnotation(id: String) = getAction[Annotation](EntityType.Annotation, id) {
+  def browseAnnotation(id: String) = getItemAction[Annotation](EntityType.Annotation, id) {
       ann => details => implicit userOpt => implicit request =>
     Ok(p.annotation.show(ann))
   }
 
-  def browseVocabulary(id: String) = getAction[Vocabulary](EntityType.Vocabulary, id) {
+  def browseVocabulary(id: String) = getItemAction[Vocabulary](EntityType.Vocabulary, id) {
     item => details => implicit userOpt => implicit request =>
       if (isAjax) Ok(p.vocabulary.itemDetails(item, details.annotations, details.links, details.watched))
       else Ok(p.vocabulary.show(item, details.annotations, details.links, details.watched))
   }
 
-  def searchVocabulary(id: String) = getAction.async[Vocabulary](EntityType.Vocabulary, id) {
+  def searchVocabulary(id: String) = getItemAction.async[Vocabulary](EntityType.Vocabulary, id) {
       item => details => implicit userOpt => implicit request =>
     val filters = Map(SolrConstants.HOLDER_ID -> item.id, SolrConstants.TOP_LEVEL -> true.toString)
     find[Concept](
@@ -305,7 +305,7 @@ case class Portal @Inject()(implicit globalConfig: global.GlobalConfig, searchDi
   }
 
 
-  def browseConcept(id: String) = getAction.async[Concept](EntityType.Concept, id) {
+  def browseConcept(id: String) = getItemAction.async[Concept](EntityType.Concept, id) {
       item => details => implicit userOpt => implicit request =>
     find[Concept](
       filters = Map("parentId" -> item.id),

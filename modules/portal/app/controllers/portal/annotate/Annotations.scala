@@ -3,7 +3,7 @@ package controllers.portal.annotate
 import play.api.libs.concurrent.Execution.Implicits._
 import play.api.mvc._
 import controllers.base.SessionPreferences
-import controllers.generic.{Promotion, Visibility}
+import controllers.generic.{Read, Promotion, Visibility}
 import models.{AnnotationF, Annotation, UserProfile}
 import play.api.Play.current
 import views.html.p
@@ -32,6 +32,7 @@ import controllers.portal.base.PortalController
 @Singleton
 case class Annotations @Inject()(implicit globalConfig: global.GlobalConfig, searchDispatcher: Dispatcher, searchResolver: Resolver, backend: Backend, userDAO: models.AccountDAO)
   extends PortalController
+  with Read[Annotation]
   with Visibility[Annotation]
   with Promotion[Annotation]
   with SessionPreferences[SessionPrefs]

@@ -50,13 +50,13 @@ case class VirtualUnits @Inject()(implicit globalConfig: global.GlobalConfig, se
   }
 
 
-  def browseVirtualCollection(id: String) = getAction[VirtualUnit](EntityType.VirtualUnit, id) {
+  def browseVirtualCollection(id: String) = getItemAction[VirtualUnit](EntityType.VirtualUnit, id) {
     item => details => implicit userOpt => implicit request =>
       if (isAjax) Ok(p.virtualUnit.itemDetailsVc(item, details.annotations, details.links, details.watched))
       else Ok(p.virtualUnit.show(item, details.annotations, details.links, details.watched))
   }
 
-  def searchVirtualCollection(id: String) = getAction.async[VirtualUnit](EntityType.VirtualUnit, id) {
+  def searchVirtualCollection(id: String) = getItemAction.async[VirtualUnit](EntityType.VirtualUnit, id) {
     item => details => implicit userOpt => implicit request =>
       find[AnyModel](
         filters = buildFilter(item),

@@ -134,7 +134,7 @@ trait PortalController extends AuthController with ControllerHelpers with Portal
   /**
    * Fetch a given item, along with its links and annotations.
    */
-  object getAction {
+  object getItemAction {
     def async[MT](entityType: EntityType.Value, id: String)(
       f: MT => ItemDetails => Option[UserProfile] => Request[AnyContent] => Future[Result])(
                    implicit rd: BackendReadable[MT], ct: BackendContentType[MT]): Action[AnyContent] = {
