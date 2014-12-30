@@ -117,7 +117,7 @@ case class DocumentaryUnits @Inject()(implicit globalConfig: global.GlobalConfig
   private val docRoutes = controllers.units.routes.DocumentaryUnits
 
 
-  def search = userProfileAction.async { implicit userOpt => implicit request =>
+  def search = OptionalProfileAction.async { implicit request =>
     // What filters we gonna use? How about, only list stuff here that
     // has no parent items - UNLESS there's a query, in which case we're
     // going to peer INSIDE items... dodgy logic, maybe...
@@ -136,10 +136,9 @@ case class DocumentaryUnits @Inject()(implicit globalConfig: global.GlobalConfig
     }
   }
 
-  def searchChildren(id: String) = itemPermissionAction.async[DocumentaryUnit](id) {
-      item => implicit userOpt => implicit request =>
+  def searchChildren(id: String) = ItemPermissionAction(id).async { implicit request =>
     find[DocumentaryUnit](
-      filters = Map(SolrConstants.PARENT_ID -> item.id),
+      filters = Map(SolrConstants.PARENT_ID -> request.item.id),
       facetBuilder = entityFacets,
       defaultOrder = SearchOrder.Id
     ).map { result =>
@@ -149,15 +148,15 @@ case class DocumentaryUnits @Inject()(implicit globalConfig: global.GlobalConfig
     }
   }
 
-  def get(id: String) = getAction.async(id) { item => annotations => links => implicit userOpt => implicit request =>
+  def get(id: String) = ItemMetaAction(id).async { implicit request =>
     find[DocumentaryUnit](
-      filters = Map(SolrConstants.PARENT_ID -> item.id),
+      filters = Map(SolrConstants.PARENT_ID -> request.item.id),
       entities = List(EntityType.DocumentaryUnit),
       facetBuilder = entityFacets,
       defaultOrder = SearchOrder.Id
     ).map { result =>
-      Ok(views.html.admin.documentaryUnit.show(item, result.page, result.params, result.facets,
-          docRoutes.get(id), annotations, links))
+      Ok(views.html.admin.documentaryUnit.show(request.item, result.page, result.params, result.facets,
+          docRoutes.get(id), request.annotations, request.links))
     }
   }
 
@@ -165,8 +164,8 @@ case class DocumentaryUnits @Inject()(implicit globalConfig: global.GlobalConfig
     Ok(views.html.admin.systemEvents.itemList(item, page, params))
   }
 
-  def list = pageAction { page => params => implicit userOpt => implicit request =>
-    Ok(views.html.admin.documentaryUnit.list(page, params))
+  def list = ItemPageAction.apply { implicit request =>
+    Ok(views.html.admin.documentaryUnit.list(request.page, request.params))
   }
 
   def update(id: String) = updateAction(id) { item => implicit userOpt => implicit request =>
@@ -203,28 +202,25 @@ case class DocumentaryUnits @Inject()(implicit globalConfig: global.GlobalConfig
     }
   }
 
-  def createDescription(id: String) = withItemPermission[DocumentaryUnit](id, PermissionType.Update) {
-      item => implicit userOpt => implicit request =>
-    Ok(views.html.admin.documentaryUnit.createDescription(item,
+  def createDescription(id: String) = WithItemPermissionAction(id, PermissionType.Update).apply { implicit request =>
+    Ok(views.html.admin.documentaryUnit.createDescription(request.item,
         descriptionForm, formDefaults, docRoutes.createDescriptionPost(id)))
   }
 
   def createDescriptionPost(id: String) = createDescriptionPostAction(id, EntityType.DocumentaryUnitDescription, descriptionForm) {
       item => formOrItem => implicit userOpt => implicit request =>
     formOrItem match {
-      case Left(errorForm) => {
+      case Left(errorForm) =>
         Ok(views.html.admin.documentaryUnit.createDescription(item,
           errorForm, formDefaults, docRoutes.createDescriptionPost(id)))
-      }
       case Right(_) => Redirect(docRoutes.get(item.id))
         .flashing("success" -> "item.create.confirmation")
     }
   }
 
-  def updateDescription(id: String, did: String) = withItemPermission[DocumentaryUnit](id, PermissionType.Update) {
-      item => implicit userOpt => implicit request =>
-    itemOr404(item.model.description(did)) { desc =>
-      Ok(views.html.admin.documentaryUnit.editDescription(item,
+  def updateDescription(id: String, did: String) = WithItemPermissionAction(id, PermissionType.Update).apply { implicit request =>
+    itemOr404(request.item.model.description(did)) { desc =>
+      Ok(views.html.admin.documentaryUnit.editDescription(request.item,
         descriptionForm.fill(desc),
         docRoutes.updateDescriptionPost(id, did)))
     }
@@ -233,10 +229,9 @@ case class DocumentaryUnits @Inject()(implicit globalConfig: global.GlobalConfig
   def updateDescriptionPost(id: String, did: String) = updateDescriptionPostAction(id, EntityType.DocumentaryUnitDescription, did, descriptionForm) {
       item => formOrItem => implicit userOpt => implicit request =>
     formOrItem match {
-      case Left(errorForm) => {
+      case Left(errorForm) =>
         Ok(views.html.admin.documentaryUnit.editDescription(item,
           errorForm, docRoutes.updateDescriptionPost(id, did)))
-      }
       case Right(_) => Redirect(docRoutes.get(item.id))
         .flashing("success" -> "item.update.confirmation")
     }
@@ -323,9 +318,8 @@ case class DocumentaryUnits @Inject()(implicit globalConfig: global.GlobalConfig
         .flashing("success" -> "item.update.confirmation")
   }
 
-  def linkTo(id: String) = withItemPermission[DocumentaryUnit](id, PermissionType.Annotate) {
-      item => implicit userOpt => implicit request =>
-    Ok(views.html.admin.documentaryUnit.linkTo(item))
+  def linkTo(id: String) = WithItemPermissionAction(id, PermissionType.Annotate).apply { implicit request =>
+    Ok(views.html.admin.documentaryUnit.linkTo(request.item))
   }
 
   def linkAnnotateSelect(id: String, toType: EntityType.Value) = linkSelectAction(id, toType) {
@@ -344,14 +338,12 @@ case class DocumentaryUnits @Inject()(implicit globalConfig: global.GlobalConfig
   def linkAnnotatePost(id: String, toType: EntityType.Value, to: String) = linkPostAction(id, toType, to) {
       formOrAnnotation => implicit userOpt => implicit request =>
     formOrAnnotation match {
-      case Left((target,source,errorForm)) => {
+      case Left((target,source,errorForm)) =>
         BadRequest(views.html.admin.link.create(target, source,
           errorForm, docRoutes.linkAnnotatePost(id, toType, to)))
-      }
-      case Right(annotation) => {
+      case Right(annotation) =>
         Redirect(docRoutes.get(id))
           .flashing("success" -> "item.update.confirmation")
-      }
     }
   }
 
@@ -364,14 +356,12 @@ case class DocumentaryUnits @Inject()(implicit globalConfig: global.GlobalConfig
   def linkMultiAnnotatePost(id: String) = linkPostMultiAction(id) {
       formOrAnnotations => implicit userOpt => implicit request =>
     formOrAnnotations match {
-      case Left((target,errorForms)) => {
+      case Left((target,errorForms)) =>
         BadRequest(views.html.admin.link.linkMulti(target,
           errorForms, docRoutes.linkMultiAnnotatePost(id)))
-      }
-      case Right(annotations) => {
+      case Right(annotations) =>
         Redirect(docRoutes.get(id))
           .flashing("success" -> "item.update.confirmation")
-      }
     }
   }
 

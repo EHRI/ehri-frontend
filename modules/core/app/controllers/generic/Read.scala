@@ -1,13 +1,13 @@
 package controllers.generic
 
-import play.api.libs.concurrent.Execution.Implicits._
-import play.api.mvc._
+import backend.{BackendContentType, BackendReadable, BackendResource}
+import defines.PermissionType
 import models._
-import utils.{RangePage, RangeParams, Page, PageParams}
+import play.api.libs.concurrent.Execution.Implicits._
+import play.api.mvc.{Result, _}
+import utils.{Page, PageParams, RangePage, RangeParams}
 
 import scala.concurrent.Future
-import backend.{BackendReadable, BackendContentType, BackendResource}
-import play.api.mvc.Result
 
 /**
  * Controller trait which handles the listing and showing of Entities that
@@ -22,6 +22,7 @@ trait Read[MT] extends Generic[MT] {
     profileOpt: Option[UserProfile],
     request: Request[A]
   ) extends WrappedRequest[A](request)
+  with WithOptionalProfile
 
   case class ItemMetaRequest[A](
     item: MT,
@@ -30,13 +31,15 @@ trait Read[MT] extends Generic[MT] {
     profileOpt: Option[UserProfile],
     request: Request[A]
   ) extends WrappedRequest[A](request)
+  with WithOptionalProfile
 
   case class ItemPageRequest[A](
     page: Page[MT],
     params: PageParams,
     profileOpt: Option[UserProfile],
     request: Request[A]
-  )
+  ) extends WrappedRequest[A](request)
+  with WithOptionalProfile
 
 
   /**
@@ -57,7 +60,7 @@ trait Read[MT] extends Generic[MT] {
           scopedPerms <- scopedPermsF
           perms <- permsF
           newProfile = profile.copy(itemPermissions = Some(perms), globalPermissions = Some(scopedPerms))
-        } yield ItemPermissionRequest[A](item, Some(profile), input)
+        } yield ItemPermissionRequest[A](item, Some(newProfile), input)
       }.getOrElse {
         for {
           item <- backend.get[MT](itemId)
@@ -99,13 +102,25 @@ trait Read[MT] extends Generic[MT] {
     }
   }
 
+  protected def WithItemPermissionFilter(itemId: String, perm: PermissionType.Value)(implicit rd: BackendReadable[MT], rs: BackendResource[MT], ct: BackendContentType[MT])
+    = new ActionFilter[ItemPermissionRequest] {
+    override protected def filter[A](request: ItemPermissionRequest[A]): Future[Option[Result]] = {
+      if (request.profileOpt.exists(_.hasPermission(ct.contentType, perm)))  Future.successful(None)
+      else authenticationFailed(request).map(r => Some(r))
+    }
+  }
+
   def ItemPermissionAction(itemId: String)(implicit rd: BackendReadable[MT], ct: BackendContentType[MT], rs: BackendResource[MT]) =
     OptionalProfileAction andThen ItemPermissionTransformer(itemId)
+
+  def WithItemPermissionAction(itemId: String, perm: PermissionType.Value)(implicit rd: BackendReadable[MT], ct: BackendContentType[MT], rs: BackendResource[MT]) =
+    ItemPermissionAction(itemId) andThen WithItemPermissionFilter(itemId, perm)
 
   def ItemMetaAction(itemId: String)(implicit rd: BackendReadable[MT], ct: BackendContentType[MT], rs: BackendResource[MT]) =
     ItemPermissionAction(itemId) andThen ItemMetaTransformer(itemId)
 
-  def ItemPageAction(implicit rd: BackendReadable[MT], rs: BackendResource[MT]) = OptionalProfileAction andThen ItemPageTransformer
+  def ItemPageAction(implicit rd: BackendReadable[MT], rs: BackendResource[MT]) =
+    OptionalProfileAction andThen ItemPageTransformer
 
 
   object getEntity {
@@ -161,7 +176,6 @@ trait Read[MT] extends Generic[MT] {
     def async[CT](id: String)(f: MT => Page[CT] => PageParams =>  Page[Annotation] => Page[Link] => Option[UserProfile] => Request[AnyContent] => Future[Result])(
           implicit rd: BackendReadable[MT], ct: BackendContentType[MT], crd: BackendReadable[CT]) = {
       ItemMetaAction(id).async { implicit request =>
-        implicit val userOpt = request.profileOpt
         val params = PageParams.fromRequest(request)
         for {
           children <- backend.listChildren[MT,CT](id, params)

@@ -79,13 +79,21 @@ trait AuthController extends Controller with ControllerHelpers with AsyncAuth wi
     }
   }
 
+  trait WithOptionalProfile {
+    self: WrappedRequest[_] =>
+
+    def profileOpt: Option[UserProfile]
+  }
+
   /**
    * A wrapped request that optionally contains a user's profile.
    * @param profileOpt the optional profile
    * @param request the underlying request
    * @tparam A the type of underlying request
    */
-  case class OptionalProfileRequest[A](profileOpt: Option[UserProfile], request: Request[A]) extends WrappedRequest[A](request)
+  case class OptionalProfileRequest[A](profileOpt: Option[UserProfile], request: Request[A])
+    extends WrappedRequest[A](request)
+    with WithOptionalProfile
 
   /**
    * A wrapped request that contains a user's profile.
@@ -110,7 +118,7 @@ trait AuthController extends Controller with ControllerHelpers with AsyncAuth wi
    * @param opr an optional profile request
    * @return an optional user profile
    */
-  protected implicit def optionalProfileRequest2profileOpt(implicit opr: OptionalProfileRequest[_]): Option[UserProfile] =
+  protected implicit def optionalProfileRequest2profileOpt(implicit opr: WithOptionalProfile): Option[UserProfile] =
     opr.profileOpt
 
   /**
@@ -181,6 +189,19 @@ trait AuthController extends Controller with ControllerHelpers with AsyncAuth wi
         .map(_ => authenticationFailed(request).map(r => Some(r))).getOrElse(immediate(None))
     }
   }
+
+  /**
+   * Check the user has permission to perform an action on a content type.
+   */
+  protected def WithContentPermissionFilter(perm: PermissionType.Value, contentType: ContentTypes.Value) = new ActionFilter[OptionalProfileRequest] {
+    override protected def filter[A](request: OptionalProfileRequest[A]): Future[Option[Result]] = {
+      if (request.profileOpt.exists(_.hasPermission(contentType, perm)))  Future.successful(None)
+      else authenticationFailed(request).map(r => Some(r))
+    }
+  }
+
+  def WithContentPermissionAction(perm: PermissionType.Value, contentType: ContentTypes.Value) =
+    OptionalProfileAction andThen WithContentPermissionFilter(perm, contentType)
 
   /**
    * Given an optional profile request, convert to a concrete profile request if the

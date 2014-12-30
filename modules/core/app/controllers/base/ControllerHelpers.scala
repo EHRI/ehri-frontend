@@ -34,7 +34,7 @@ trait ControllerHelpers {
    */
   final val LOG_MESSAGE_PARAM = "logMessage"
 
-  def getLogMessage(implicit request: Request[AnyContent]) = {
+  def getLogMessage(implicit request: Request[_]) = {
     import play.api.data.Form
     import play.api.data.Forms._
     Form(single(LOG_MESSAGE_PARAM -> optional(nonEmptyText)))

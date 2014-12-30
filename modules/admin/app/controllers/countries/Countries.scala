@@ -40,13 +40,13 @@ case class Countries @Inject()(implicit globalConfig: global.GlobalConfig, searc
   private final val countryRoutes = controllers.countries.routes.Countries
 
 
-  def get(id: String) = getAction.async(id) { item => annotations => links => implicit userOpt => implicit request =>
+  def get(id: String) = ItemMetaAction(id).async { implicit request =>
     find[Repository](
-      filters = Map(SolrConstants.COUNTRY_CODE -> item.id),
+      filters = Map(SolrConstants.COUNTRY_CODE -> request.item.id),
       entities = List(EntityType.Repository)
     ).map { result =>
-      Ok(views.html.admin.country.show(item, result.page, result.params, result.facets,
-        countryRoutes.get(id), annotations, links))
+      Ok(views.html.admin.country.show(request.item, result.page, result.params, result.facets,
+        countryRoutes.get(id), request.annotations, request.links))
     }
   }
 
@@ -54,8 +54,8 @@ case class Countries @Inject()(implicit globalConfig: global.GlobalConfig, searc
     Ok(views.html.admin.systemEvents.itemList(item, page, params))
   }
 
-  def list = pageAction { page => params => implicit userOpt => implicit request =>
-    Ok(views.html.admin.country.list(page, params))
+  def list = ItemPageAction.apply { implicit request =>
+    Ok(views.html.admin.country.list(request.page, request.params))
   }
 
   def search = searchAction[Country](entities = List(EntityType.Country)) {
@@ -63,12 +63,13 @@ case class Countries @Inject()(implicit globalConfig: global.GlobalConfig, searc
     Ok(views.html.admin.country.search(page, params, facets, countryRoutes.search()))
   }
 
-  def create = createAction { users => groups => implicit userOpt => implicit request =>
-    Ok(views.html.admin.country.create(form, VisibilityForm.form, users, groups, countryRoutes.createPost()))
+  def create = NewItemAction.apply { implicit request =>
+    Ok(views.html.admin.country.create(form, VisibilityForm.form,
+      request.users, request.groups, countryRoutes.createPost()))
   }
 
-  def createPost = createPostAction.async(form) { formsOrItem => implicit userOpt => implicit request =>
-    formsOrItem match {
+  def createPost = CreateItemAction(form).async { implicit request =>
+    request.formOrItem match {
       case Left((errorForm,accForm)) => getUsersAndGroups { users => groups =>
         BadRequest(views.html.admin.country.create(errorForm, accForm, users, groups, countryRoutes.createPost()))
       }
