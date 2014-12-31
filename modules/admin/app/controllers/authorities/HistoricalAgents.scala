@@ -50,53 +50,50 @@ case class HistoricalAgents @Inject()(implicit globalConfig: global.GlobalConfig
     Ok(views.html.admin.historicalAgent.search(page, params, facets, histRoutes.search()))
   }
 
-  def get(id: String) = getAction(id) {
-      item => annotations => links => implicit userOpt => implicit request =>
-    Ok(views.html.admin.historicalAgent.show(item, annotations, links))
+  def get(id: String) = ItemMetaAction(id).apply { implicit request =>
+    Ok(views.html.admin.historicalAgent.show(request.item, request.annotations, request.links))
   }
 
   def history(id: String) = historyAction(id) { item => page => params => implicit userOpt => implicit request =>
     Ok(views.html.admin.systemEvents.itemList(item, page, params))
   }
 
-  def list = pageAction { page => params => implicit userOpt => implicit request =>
-    Ok(views.html.admin.historicalAgent.list(page, params))
+  def list = ItemPageAction.apply { implicit request =>
+    Ok(views.html.admin.historicalAgent.list(request.page, request.params))
   }
 
-  def update(id: String) = updateAction(id) {
-      item => implicit userOpt => implicit request =>
-    Ok(views.html.admin.historicalAgent.edit(item, form.fill(item.model), histRoutes.updatePost(id)))
+  def update(id: String) = EditAction(id).apply { implicit request =>
+    Ok(views.html.admin.historicalAgent.edit(
+      request.item, form.fill(request.item.model), histRoutes.updatePost(id)))
   }
 
-  def updatePost(id: String) = updatePostAction(id, form) {
-      item => formOrItem => implicit userOpt => implicit request =>
-    formOrItem match {
+  def updatePost(id: String) = UpdateAction(id, form).apply { implicit request =>
+    request.formOrItem match {
       case Left(errorForm) =>
-        BadRequest(views.html.admin.historicalAgent.edit(item, errorForm, histRoutes.updatePost(id)))
+        BadRequest(views.html.admin.historicalAgent
+          .edit(request.item, errorForm, histRoutes.updatePost(id)))
       case Right(updated) => Redirect(histRoutes.get(updated.id))
         .flashing("success" -> "item.update.confirmation")
     }
   }
 
-  def delete(id: String) = deleteAction(id) {
-      item => implicit userOpt => implicit request =>
-    Ok(views.html.admin.delete(item, histRoutes.deletePost(id),
+  def delete(id: String) = CheckDeleteAction(id).apply { implicit request =>
+    Ok(views.html.admin.delete(request.item, histRoutes.deletePost(id),
         histRoutes.get(id)))
   }
 
-  def deletePost(id: String) = deletePostAction(id) { implicit userOpt => implicit request =>
+  def deletePost(id: String) = DeleteAction(id).apply { implicit request =>
     Redirect(histRoutes.search())
         .flashing("success" -> "item.delete.confirmation")
   }
 
-  def visibility(id: String) = visibilityAction(id) { item => users => groups => implicit userOpt => implicit request =>
-    Ok(views.html.admin.permissions.visibility(item,
-      VisibilityForm.form.fill(item.accessors.map(_.id)),
-      users, groups, histRoutes.visibilityPost(id)))
+  def visibility(id: String) = EditVisibilityAction(id).apply { implicit request =>
+    Ok(views.html.admin.permissions.visibility(request.item,
+      VisibilityForm.form.fill(request.item.accessors.map(_.id)),
+      request.users, request.groups, histRoutes.visibilityPost(id)))
   }
 
-  def visibilityPost(id: String) = visibilityPostAction(id) {
-      ok => implicit userOpt => implicit request =>
+  def visibilityPost(id: String) = UpdateVisibilityAction(id).apply { implicit request =>
     Redirect(histRoutes.get(id))
         .flashing("success" -> "item.update.confirmation")
   }
@@ -146,14 +143,12 @@ case class HistoricalAgents @Inject()(implicit globalConfig: global.GlobalConfig
   def linkAnnotatePost(id: String, toType: EntityType.Value, to: String) = linkPostAction(id, toType, to) {
     formOrAnnotation => implicit userOpt => implicit request =>
       formOrAnnotation match {
-        case Left((target,source,errorForm)) => {
+        case Left((target,source,errorForm)) =>
           BadRequest(views.html.admin.link.create(target, source,
             errorForm, histRoutes.linkAnnotatePost(id, toType, to)))
-        }
-        case Right(annotation) => {
+        case Right(annotation) =>
           Redirect(histRoutes.get(id))
             .flashing("success" -> "item.update.confirmation")
-        }
       }
   }
 }

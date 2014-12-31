@@ -248,14 +248,12 @@ case class DocumentaryUnits @Inject()(implicit globalConfig: global.GlobalConfig
         .flashing("success" -> "item.delete.confirmation")
   }
 
-  def delete(id: String) = deleteAction(id) {
-      item => implicit userOpt => implicit request =>
+  def delete(id: String) = CheckDeleteAction(id).apply { implicit request =>
     Ok(views.html.admin.delete(
-        item, docRoutes.deletePost(id),
-        docRoutes.get(id)))
+        request.item, docRoutes.deletePost(id), docRoutes.get(id)))
   }
 
-  def deletePost(id: String) = deletePostAction(id) { implicit userOpt => implicit request =>
+  def deletePost(id: String) = DeleteAction(id).apply { implicit request =>
     Redirect(docRoutes.search())
         .flashing("success" -> "item.delete.confirmation")
   }

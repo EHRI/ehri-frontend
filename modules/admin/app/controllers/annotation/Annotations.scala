@@ -52,14 +52,13 @@ case class Annotations @Inject()(implicit globalConfig: global.GlobalConfig, bac
     }
   }
 
-  def delete(id: String) = deleteAction(id) { item => implicit userOpt => implicit request =>
+  def delete(id: String) = CheckDeleteAction(id).apply { implicit request =>
     Ok(views.html.admin.delete(
-      item, controllers.annotation.routes.Annotations.deletePost(id),
+      request.item, controllers.annotation.routes.Annotations.deletePost(id),
         controllers.annotation.routes.Annotations.get(id)))
   }
 
-  def deletePost(id: String, redirect: Option[String] = None) = deletePostAction(id) {
-      implicit userOpt => implicit request =>
+  def deletePost(id: String, redirect: Option[String] = None) = DeleteAction(id).apply { implicit request =>
     Redirect(redirect.map(r => controllers.admin.routes.Admin.get(r))
         .getOrElse(controllers.admin.routes.Home.index()))
         .flashing("success" -> "item.delete.confirmation")

@@ -57,19 +57,17 @@ case class Links @Inject()(implicit globalConfig: global.GlobalConfig, backend: 
     }
   }  
 
-  def delete(id: String, redirect: Option[String] = None) = deleteAction(id) { item => implicit userOpt => implicit request =>
+  def delete(id: String, redirect: Option[String] = None) = CheckDeleteAction(id).apply { implicit request =>
     Ok(views.html.admin.delete(
-      item, linkRoutes.deletePost(id, redirect),
+      request.item, linkRoutes.deletePost(id, redirect),
         controllers.admin.routes.Admin.get(id)))
   }
 
-  def deletePost(id: String, redirect: Option[String] = None) = deletePostAction(id) {
-      implicit userOpt => implicit request =>
+  def deletePost(id: String, redirect: Option[String] = None) = DeleteAction(id).apply { implicit request =>
     Redirect(redirect.map(r => controllers.admin.routes.Admin.get(r))
         .getOrElse(controllers.admin.routes.Home.index()))
         .flashing("success" -> "item.delete.confirmation")
   }
-
 
   def promote(id: String) = EditPromotionAction(id).apply { implicit request =>
     Ok(views.html.admin.permissions.promote(request.item, linkRoutes.promotePost(id)))

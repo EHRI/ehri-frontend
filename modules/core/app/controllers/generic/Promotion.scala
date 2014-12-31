@@ -15,7 +15,8 @@ trait Promotion[MT] extends Generic[MT] {
 
   self: Read[MT] =>
 
-  protected def EditPromotionAction(id: String)(implicit rd: BackendReadable[MT], ct: BackendContentType[MT]) = WithItemPermissionAction(id, PermissionType.Promote)
+  protected def EditPromotionAction(id: String)(implicit rd: BackendReadable[MT], ct: BackendContentType[MT]) =
+    WithItemPermissionAction(id, PermissionType.Promote)
 
   private[generic] def PromoteItemTransformer(id: String)(implicit rd: BackendReadable[MT], ct: BackendContentType[MT]) = new ActionTransformer[ItemPermissionRequest,ItemPermissionRequest] {
     override protected def transform[A](request: ItemPermissionRequest[A]): Future[ItemPermissionRequest[A]] = {

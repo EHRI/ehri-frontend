@@ -163,13 +163,12 @@ case class Repositories @Inject()(implicit globalConfig: global.GlobalConfig, se
     }
   }
 
-  def delete(id: String) = deleteAction(id) {
-      item => implicit userOpt => implicit request =>
-    Ok(views.html.admin.delete(item, repositoryRoutes.deletePost(id),
+  def delete(id: String) = CheckDeleteAction(id).apply { implicit request =>
+    Ok(views.html.admin.delete(request.item, repositoryRoutes.deletePost(id),
         repositoryRoutes.get(id)))
   }
 
-  def deletePost(id: String) = deletePostAction(id) { implicit userOpt => implicit request =>
+  def deletePost(id: String) = DeleteAction(id).apply { implicit request =>
     Redirect(repositoryRoutes.search())
         .flashing("success" -> "item.delete.confirmation")
   }
