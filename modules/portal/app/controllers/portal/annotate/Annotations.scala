@@ -180,48 +180,40 @@ case class Annotations @Inject()(implicit globalConfig: global.GlobalConfig, sea
     }
   }
 
-  def promoteAnnotation(id: String, context: AnnotationContext.Value) = promoteAction(id) {
-      _ => implicit userOpt => implicit request =>
+  def promoteAnnotation(id: String, context: AnnotationContext.Value) = EditPromotionAction(id).apply { implicit request =>
     Ok(p.helpers.simpleForm("portal.promotion.promote.title",
       annotationRoutes.promoteAnnotationPost(id, context)))
   }
 
-  def promoteAnnotationPost(id: String, context: AnnotationContext.Value) = promotePostAction(id) {
-      updated => implicit userOpt => implicit request =>
-    annotationResponse(updated, context)
+  def promoteAnnotationPost(id: String, context: AnnotationContext.Value) = PromoteItemAction(id).apply { implicit request =>
+    annotationResponse(request.item, context)
   }
 
-  def removeAnnotationPromotion(id: String, context: AnnotationContext.Value) = promoteAction(id) {
-      _ => implicit userOpt => implicit request =>
+  def removeAnnotationPromotion(id: String, context: AnnotationContext.Value) = EditPromotionAction(id).apply { implicit request =>
     Ok(p.helpers.simpleForm("portal.promotion.promote.remove.title",
       annotationRoutes.removeAnnotationPromotionPost(id, context)))
   }
 
-  def removeAnnotationPromotionPost(id: String, context: AnnotationContext.Value) = removePromotionPostAction(id) {
-      updated => implicit userOpt => implicit request =>
-    annotationResponse(updated, context)
+  def removeAnnotationPromotionPost(id: String, context: AnnotationContext.Value) = RemovePromotionAction(id).apply { implicit request =>
+    annotationResponse(request.item, context)
   }
 
-  def demoteAnnotation(id: String, context: AnnotationContext.Value) = promoteAction(id) {
-      _ => implicit userOpt => implicit request =>
+  def demoteAnnotation(id: String, context: AnnotationContext.Value) = EditPromotionAction(id).apply { implicit request =>
     Ok(p.helpers.simpleForm("portal.promotion.demote.title",
       annotationRoutes.demoteAnnotationPost(id, context)))
   }
 
-  def demoteAnnotationPost(id: String, context: AnnotationContext.Value) = demotePostAction(id) {
-      updated => implicit userOpt => implicit request =>
-    annotationResponse(updated, context)
+  def demoteAnnotationPost(id: String, context: AnnotationContext.Value) = DemoteItemAction(id).apply { implicit request =>
+    annotationResponse(request.item, context)
   }
 
-  def removeAnnotationDemotion(id: String, context: AnnotationContext.Value) = promoteAction(id) {
-      _ => implicit userOpt => implicit request =>
+  def removeAnnotationDemotion(id: String, context: AnnotationContext.Value) = PromoteItemAction(id).apply { implicit request =>
     Ok(p.helpers.simpleForm("portal.promotion.demote.remove.title",
       annotationRoutes.removeAnnotationDemotionPost(id, context)))
   }
 
-  def removeAnnotationDemotionPost(id: String, context: AnnotationContext.Value) = removeDemotionPostAction(id) {
-      updated => implicit userOpt => implicit request =>
-    annotationResponse(updated, context)
+  def removeAnnotationDemotionPost(id: String, context: AnnotationContext.Value) = RemoveDemotionAction(id).apply { implicit request =>
+    annotationResponse(request.item, context)
   }
 
   /**
@@ -233,12 +225,11 @@ case class Annotations @Inject()(implicit globalConfig: global.GlobalConfig, sea
       errForm => List(user.id), {
         case ContributionVisibility.Me => List(user.id)
         case ContributionVisibility.Groups => user.groups.map(_.id)
-        case ContributionVisibility.Custom => {
+        case ContributionVisibility.Custom =>
           VisibilityForm.form.bindFromRequest.fold(
             err => List(user.id), // default to user visibility.
             list => list ::: List(user.id)
           )
-        }
       }
     )
     val withMods = if (ann.isPromotable) default ::: getModerators else default

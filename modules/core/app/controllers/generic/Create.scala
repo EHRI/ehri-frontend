@@ -37,7 +37,7 @@ trait Create[F <: Model with Persistable, MT <: MetaModel[F]] extends Generic[MT
   ) extends WrappedRequest[A](request)
     with WithOptionalProfile
 
-  private def UserGroupsTransformer(implicit ct: BackendContentType[MT]) = new ActionTransformer[OptionalProfileRequest, UserGroupsRequest] {
+  private[generic] def UserGroupsTransformer(implicit ct: BackendContentType[MT]) = new ActionTransformer[OptionalProfileRequest, UserGroupsRequest] {
     override protected def transform[A](request: OptionalProfileRequest[A]): Future[UserGroupsRequest[A]] = {
       for {
         users <- RestHelpers.getUserList
@@ -45,7 +45,8 @@ trait Create[F <: Model with Persistable, MT <: MetaModel[F]] extends Generic[MT
       } yield UserGroupsRequest(users, groups, request.profileOpt, request)
     }
   }
-  def NewItemAction(implicit ct: BackendContentType[MT]) =
+
+  protected def NewItemAction(implicit ct: BackendContentType[MT]) =
     WithContentPermissionAction(PermissionType.Create, ct.contentType) andThen UserGroupsTransformer
 
   case class CreateRequest[A](
@@ -55,7 +56,7 @@ trait Create[F <: Model with Persistable, MT <: MetaModel[F]] extends Generic[MT
   ) extends WrappedRequest[A](request)
     with WithOptionalProfile
 
-  private def CreatePostTransformer(form: Form[F], pf: Request[_] => Map[String,Seq[String]] = _ => Map.empty)(implicit fmt: BackendWriteable[F], rd: BackendReadable[MT], ct: BackendContentType[MT]) =
+  private[generic] def CreatePostTransformer(form: Form[F], pf: Request[_] => Map[String,Seq[String]] = _ => Map.empty)(implicit fmt: BackendWriteable[F], rd: BackendReadable[MT], ct: BackendContentType[MT]) =
     new ActionTransformer[OptionalProfileRequest, CreateRequest] {
       def transform[A](request: OptionalProfileRequest[A]): Future[CreateRequest[A]] = {
         implicit val req = request
@@ -79,7 +80,7 @@ trait Create[F <: Model with Persistable, MT <: MetaModel[F]] extends Generic[MT
     }
 
   
-  def CreateItemAction(form: Form[F], pf: Request[_] => Map[String,Seq[String]] = _ => Map.empty)(implicit fmt: BackendWriteable[F], rd: BackendReadable[MT], ct: BackendContentType[MT]) =
+  protected def CreateItemAction(form: Form[F], pf: Request[_] => Map[String,Seq[String]] = _ => Map.empty)(implicit fmt: BackendWriteable[F], rd: BackendReadable[MT], ct: BackendContentType[MT]) =
     WithContentPermissionAction(PermissionType.Create, ct.contentType) andThen CreatePostTransformer(form, pf)
 
 

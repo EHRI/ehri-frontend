@@ -28,7 +28,7 @@ trait Creator[CF <: Model with Persistable, CMT <: MetaModel[CF], MT <: MetaMode
     ) extends WrappedRequest[A](request)
   with WithOptionalProfile
 
-  private def NewChildTransformer(implicit rd: BackendReadable[MT], ct: BackendContentType[MT]) = new ActionTransformer[ItemPermissionRequest, NewChildRequest] {
+  private[generic] def NewChildTransformer(implicit rd: BackendReadable[MT], ct: BackendContentType[MT]) = new ActionTransformer[ItemPermissionRequest, NewChildRequest] {
     override protected def transform[A](request: ItemPermissionRequest[A]): Future[NewChildRequest[A]] = {
       for {
         users <- RestHelpers.getUserList
@@ -37,7 +37,7 @@ trait Creator[CF <: Model with Persistable, CMT <: MetaModel[CF], MT <: MetaMode
     }
   }
 
-  def NewChildAction(itemId: String)(implicit rd: BackendReadable[MT], ct: BackendContentType[MT], cct: BackendContentType[CMT]) =
+  protected def NewChildAction(itemId: String)(implicit rd: BackendReadable[MT], ct: BackendContentType[MT], cct: BackendContentType[CMT]) =
     WithParentPermissionAction(itemId, PermissionType.Create, cct.contentType) andThen NewChildTransformer
 
   case class CreateChildRequest[A](
@@ -48,7 +48,7 @@ trait Creator[CF <: Model with Persistable, CMT <: MetaModel[CF], MT <: MetaMode
      ) extends WrappedRequest[A](request)
   with WithOptionalProfile
 
-  private def CreateChildTransformer(id: String, form: Form[CF], extraParams: ExtraParams = defaultExtra)(implicit rd: BackendReadable[MT], ct: BackendContentType[MT], fmt: BackendWriteable[CF], crd: BackendReadable[CMT], cct: BackendContentType[CMT]) =
+  private[generic] def CreateChildTransformer(id: String, form: Form[CF], extraParams: ExtraParams = defaultExtra)(implicit rd: BackendReadable[MT], ct: BackendContentType[MT], fmt: BackendWriteable[CF], crd: BackendReadable[CMT], cct: BackendContentType[CMT]) =
     new ActionTransformer[ItemPermissionRequest, CreateChildRequest] {
       def transform[A](request: ItemPermissionRequest[A]): Future[CreateChildRequest[A]] = {
         implicit val req = request
@@ -70,7 +70,7 @@ trait Creator[CF <: Model with Persistable, CMT <: MetaModel[CF], MT <: MetaMode
     }
 
 
-  def CreateChildAction(id: String, form: Form[CF], extraParams: ExtraParams = defaultExtra)(implicit fmt: BackendWriteable[CF], crd: BackendReadable[CMT], rd: BackendReadable[MT], ct: BackendContentType[MT], cct: BackendContentType[CMT]) =
+  protected def CreateChildAction(id: String, form: Form[CF], extraParams: ExtraParams = defaultExtra)(implicit fmt: BackendWriteable[CF], crd: BackendReadable[CMT], rd: BackendReadable[MT], ct: BackendContentType[MT], cct: BackendContentType[CMT]) =
     WithParentPermissionAction(id, PermissionType.Create, cct.contentType) andThen CreateChildTransformer(id, form, extraParams)
   
   
