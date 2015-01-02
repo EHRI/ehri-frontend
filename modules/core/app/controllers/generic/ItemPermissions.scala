@@ -1,5 +1,6 @@
 package controllers.generic
 
+import acl.ItemPermissionSet
 import play.api.mvc._
 import play.api.libs.concurrent.Execution.Implicits._
 import models.base._
@@ -8,11 +9,81 @@ import models.{PermissionGrant, UserProfile}
 import utils.{Page, PageParams}
 import backend.{BackendReadable, BackendContentType}
 
+import scala.concurrent.Future
+
 /**
  * Trait for setting permissions on an individual item.
  */
-trait ItemPermissions[MT] extends Read[MT] {
+trait ItemPermissions[MT] extends Visibility[MT] {
 
+  case class PermissionGrantRequest[A](
+    item: MT,
+    permissionGrants: Page[PermissionGrant],
+    profileOpt: Option[UserProfile],
+    request: Request[A]
+  ) extends WrappedRequest[A](request)
+    with WithOptionalProfile
+  
+  case class SetItemPermissionRequest[A](
+    item: MT,
+    accessor: Accessor,
+    itemPermissions: ItemPermissionSet,                                      
+    profileOpt: Option[UserProfile],
+    request: Request[A]
+  ) extends WrappedRequest[A](request)
+  with WithOptionalProfile
+
+  protected def WithGrantPermission(id: String)(implicit rd: BackendReadable[MT], ct: BackendContentType[MT]) = 
+    WithItemPermissionAction(id, PermissionType.Grant)
+
+  protected def PermissionGrantAction(id: String)(implicit rd: BackendReadable[MT], ct: BackendContentType[MT]) =
+    WithGrantPermission(id) andThen new ActionTransformer[ItemPermissionRequest, PermissionGrantRequest] {
+      override protected def transform[A](request: ItemPermissionRequest[A]): Future[PermissionGrantRequest[A]] = {
+        implicit val req = request
+        val params = PageParams.fromRequest(request)
+        backend.listItemPermissionGrants[PermissionGrant](id, params).map { permGrants =>
+          PermissionGrantRequest(request.item, permGrants, request.profileOpt, request)
+        }
+      }
+    }
+  
+  protected def EditItemPermissionsAction(id: String)(implicit rd: BackendReadable[MT], ct: BackendContentType[MT]) =
+    WithGrantPermission(id) andThen EditVisibilityAction(id)
+  
+  protected def CheckUpdateItemPermissionsAction(id: String, userType: EntityType.Value, userId: String)(implicit rd: BackendReadable[MT], ct: BackendContentType[MT]) =
+    WithGrantPermission(id) andThen new ActionTransformer[ItemPermissionRequest, SetItemPermissionRequest] {
+      override protected def transform[A](request: ItemPermissionRequest[A]): Future[SetItemPermissionRequest[A]] = {
+        implicit val req = request
+        val accessorF = backend.get[Accessor](Accessor.resourceFor(userType), userId)
+        val permsF = backend.getItemPermissions(userId, ct.contentType, id)
+        for {
+          accessor <- accessorF
+          perms <- permsF
+        } yield SetItemPermissionRequest(request.item, accessor, perms, request.profileOpt, request)
+      }
+    }
+
+  private def getData[A](request: Request[A]): Option[Map[String,Seq[String]]] = request.body match {
+    case any: AnyContentAsFormUrlEncoded => Some(any.asFormUrlEncoded.getOrElse(Map.empty))
+    case json: AnyContentAsJson => Some(json.asJson.flatMap(_.asOpt[Map[String,Seq[String]]]).getOrElse(Map.empty))
+    case _ => None
+  }
+
+  protected def UpdateItemPermissionsAction(id: String, userType: EntityType.Value, userId: String)(implicit rd: BackendReadable[MT], ct: BackendContentType[MT]) =
+    WithGrantPermission(id) andThen new ActionTransformer[ItemPermissionRequest, SetItemPermissionRequest] {
+      override protected def transform[A](request: ItemPermissionRequest[A]): Future[SetItemPermissionRequest[A]] = {
+        implicit val req = request
+        val data = getData(request).getOrElse(Map.empty)
+        val perms: List[String] = data.get(ct.contentType.toString)
+          .map(_.toList).getOrElse(List.empty)
+        for {
+          accessor <- backend.get[Accessor](Accessor.resourceFor(userType), userId)
+          perms <- backend.setItemPermissions(userId, ct.contentType, id, perms)
+        } yield SetItemPermissionRequest(request.item, accessor, perms, request.profileOpt, request)
+      }
+    }
+
+  @deprecated(message = "Use PermissionGrantAction instead", since = "1.0.2")
   def manageItemPermissionsAction(id: String)(
       f: MT => Page[PermissionGrant] => Option[UserProfile] => Request[AnyContent] => Result)(
       implicit rd: BackendReadable[MT], ct: BackendContentType[MT]) = {
@@ -24,6 +95,7 @@ trait ItemPermissions[MT] extends Read[MT] {
     }
   }
 
+  @deprecated(message = "Use EditItemPermissionsAction instead", since = "1.0.2")
   def addItemPermissionsAction(id: String)(
       f: MT => Seq[(String,String)] => Seq[(String,String)] => Option[UserProfile] => Request[AnyContent] => Result)(
       implicit rd: BackendReadable[MT], ct: BackendContentType[MT]) = {
@@ -35,6 +107,7 @@ trait ItemPermissions[MT] extends Read[MT] {
   }
 
 
+  @deprecated(message = "Use CheckUpdateItemPermissionsAction instead", since = "1.0.2")
   def setItemPermissionsAction(id: String, userType: EntityType.Value, userId: String)(
       f: MT => Accessor => acl.ItemPermissionSet => Option[UserProfile] => Request[AnyContent] => Result)(
       implicit rd: BackendReadable[MT], ct: BackendContentType[MT]) = {
@@ -46,6 +119,7 @@ trait ItemPermissions[MT] extends Read[MT] {
     }
   }
 
+  @deprecated(message = "Use UpdateItemPermissionsAction instead", since = "1.0.2")
   def setItemPermissionsPostAction(id: String, userType: EntityType.Value, userId: String)(
       f: acl.ItemPermissionSet => Option[UserProfile] => Request[AnyContent] => Result)(
       implicit rd: BackendReadable[MT], ct: BackendContentType[MT]) = {

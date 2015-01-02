@@ -11,9 +11,7 @@ import scala.concurrent.Future
 /**
  * Trait for setting visibility on any item.
  */
-trait Visibility[MT] extends Generic[MT] {
-
-  self: Read[MT] =>
+trait Visibility[MT] extends Read[MT] {
 
   case class VisibilityRequest[A](
     item: MT,
