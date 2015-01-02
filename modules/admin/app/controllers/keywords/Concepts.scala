@@ -23,7 +23,6 @@ case class Concepts @Inject()(implicit globalConfig: global.GlobalConfig, search
   with Read[Concept]
   with Update[ConceptF, Concept]
   with Delete[Concept]
-  with ScopePermissions[Concept]
   with Linking[Concept]
   with Annotate[Concept]
   with Search {
@@ -121,48 +120,6 @@ case class Concepts @Inject()(implicit globalConfig: global.GlobalConfig, search
 
   def visibilityPost(id: String) = UpdateVisibilityAction(id).apply { implicit request =>
     Redirect(conceptRoutes.get(id))
-        .flashing("success" -> "item.update.confirmation")
-  }
-
-  def managePermissions(id: String) = manageScopedPermissionsAction(id) {
-      item => perms => sperms => implicit userOpt => implicit request =>
-    Ok(views.html.admin.permissions.manageScopedPermissions(item, perms, sperms,
-        conceptRoutes.addItemPermissions(id), conceptRoutes.addScopedPermissions(id)))
-  }
-
-  def addItemPermissions(id: String) = addItemPermissionsAction(id) {
-      item => users => groups => implicit userOpt => implicit request =>
-    Ok(views.html.admin.permissions.permissionItem(item, users, groups,
-        conceptRoutes.setItemPermissions))
-  }
-
-  def addScopedPermissions(id: String) = addItemPermissionsAction(id) {
-      item => users => groups => implicit userOpt => implicit request =>
-    Ok(views.html.admin.permissions.permissionScope(item, users, groups,
-        conceptRoutes.setScopedPermissions))
-  }
-
-  def setItemPermissions(id: String, userType: EntityType.Value, userId: String) = setItemPermissionsAction(id, userType, userId) {
-      item => accessor => perms => implicit userOpt => implicit request =>
-    Ok(views.html.admin.permissions.setPermissionItem(item, accessor, perms, Concept.Resource.contentType,
-        conceptRoutes.setItemPermissionsPost(id, userType, userId)))
-  }
-
-  def setItemPermissionsPost(id: String, userType: EntityType.Value, userId: String) = setItemPermissionsPostAction(id, userType, userId) {
-      bool => implicit userOpt => implicit request =>
-    Redirect(conceptRoutes.managePermissions(id))
-        .flashing("success" -> "item.update.confirmation")
-  }
-
-  def setScopedPermissions(id: String, userType: EntityType.Value, userId: String) = setScopedPermissionsAction(id, userType, userId) {
-      item => accessor => perms => implicit userOpt => implicit request =>
-    Ok(views.html.admin.permissions.setPermissionScope(item, accessor, perms, targetContentTypes,
-        conceptRoutes.setScopedPermissionsPost(id, userType, userId)))
-  }
-
-  def setScopedPermissionsPost(id: String, userType: EntityType.Value, userId: String) = setScopedPermissionsPostAction(id, userType, userId) {
-      perms => implicit userOpt => implicit request =>
-    Redirect(conceptRoutes.managePermissions(id))
         .flashing("success" -> "item.update.confirmation")
   }
 

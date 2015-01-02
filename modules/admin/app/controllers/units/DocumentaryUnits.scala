@@ -269,9 +269,9 @@ case class DocumentaryUnits @Inject()(implicit globalConfig: global.GlobalConfig
         .flashing("success" -> "item.update.confirmation")
   }
 
-  def managePermissions(id: String) = manageScopedPermissionsAction(id) {
-      item => perms => sperms => implicit userOpt => implicit request =>
-    Ok(views.html.admin.permissions.manageScopedPermissions(item, perms, sperms,
+  def managePermissions(id: String) = ScopePermissionGrantAction(id).apply { implicit request =>
+    Ok(views.html.admin.permissions.manageScopedPermissions(
+      request.item, request.permissionGrants, request.scopePermissionGrants,
         docRoutes.addItemPermissions(id),
         docRoutes.addScopedPermissions(id)))
   }
@@ -286,27 +286,34 @@ case class DocumentaryUnits @Inject()(implicit globalConfig: global.GlobalConfig
         docRoutes.setScopedPermissions))
   }
 
-  def setItemPermissions(id: String, userType: EntityType.Value, userId: String) = CheckUpdateItemPermissionsAction(id, userType, userId).apply { implicit request =>
-    Ok(views.html.admin.permissions.setPermissionItem(
-      request.item, request.accessor, request.itemPermissions,
-      DocumentaryUnit.Resource.contentType, docRoutes.setItemPermissionsPost(id, userType, userId)))
+  def setItemPermissions(id: String, userType: EntityType.Value, userId: String) = {
+    CheckUpdateItemPermissionsAction(id, userType, userId).apply { implicit request =>
+      Ok(views.html.admin.permissions.setPermissionItem(
+        request.item, request.accessor, request.itemPermissions,
+        DocumentaryUnit.Resource.contentType, docRoutes.setItemPermissionsPost(id, userType, userId)))
+    }
   }
 
-  def setItemPermissionsPost(id: String, userType: EntityType.Value, userId: String) = UpdateItemPermissionsAction(id, userType, userId).apply { implicit request =>
-    Redirect(docRoutes.managePermissions(id))
+  def setItemPermissionsPost(id: String, userType: EntityType.Value, userId: String) = {
+    UpdateItemPermissionsAction(id, userType, userId).apply { implicit request =>
+      Redirect(docRoutes.managePermissions(id))
         .flashing("success" -> "item.update.confirmation")
+    }
   }
 
-  def setScopedPermissions(id: String, userType: EntityType.Value, userId: String) = setScopedPermissionsAction(id, userType, userId) {
-      item => accessor => perms => implicit userOpt => implicit request =>
-    Ok(views.html.admin.permissions.setPermissionScope(item, accessor, perms, targetContentTypes,
+  def setScopedPermissions(id: String, userType: EntityType.Value, userId: String) = {
+    CheckUpdateScopePermissionsAction(id, userType, userId).apply { implicit request =>
+      Ok(views.html.admin.permissions.setPermissionScope(
+        request.item, request.accessor, request.scopePermissions, targetContentTypes,
         docRoutes.setScopedPermissionsPost(id, userType, userId)))
+    }
   }
 
-  def setScopedPermissionsPost(id: String, userType: EntityType.Value, userId: String) = setScopedPermissionsPostAction(id, userType, userId) {
-      perms => implicit userOpt => implicit request =>
-    Redirect(docRoutes.managePermissions(id))
+  def setScopedPermissionsPost(id: String, userType: EntityType.Value, userId: String) = {
+    UpdateScopePermissionsAction(id, userType, userId).apply { implicit request =>
+      Redirect(docRoutes.managePermissions(id))
         .flashing("success" -> "item.update.confirmation")
+    }
   }
 
   def linkTo(id: String) = WithItemPermissionAction(id, PermissionType.Annotate).apply { implicit request =>

@@ -184,46 +184,50 @@ case class Repositories @Inject()(implicit globalConfig: global.GlobalConfig, se
         .flashing("success" -> "item.update.confirmation")
   }
 
-  def managePermissions(id: String) = manageScopedPermissionsAction(id) {
-      item => perms => sperms => implicit userOpt => implicit request =>
-    Ok(views.html.admin.permissions.manageScopedPermissions(item, perms, sperms,
+  def managePermissions(id: String) = ScopePermissionGrantAction(id).apply { implicit request =>
+    Ok(views.html.admin.permissions.manageScopedPermissions(
+      request.item, request.permissionGrants, request.scopePermissionGrants,
         repositoryRoutes.addItemPermissions(id), repositoryRoutes.addScopedPermissions(id)))
   }
 
-  def addItemPermissions(id: String) = addItemPermissionsAction(id) {
-      item => users => groups => implicit userOpt => implicit request =>
-    Ok(views.html.admin.permissions.permissionItem(item, users, groups,
+  def addItemPermissions(id: String) = EditItemPermissionsAction(id).apply { implicit request =>
+    Ok(views.html.admin.permissions.permissionItem(request.item, request.users, request.groups,
         repositoryRoutes.setItemPermissions))
   }
 
-  def addScopedPermissions(id: String) = addItemPermissionsAction(id) {
-      item => users => groups => implicit userOpt => implicit request =>
-    Ok(views.html.admin.permissions.permissionScope(item, users, groups,
+  def addScopedPermissions(id: String) = EditItemPermissionsAction(id).apply { implicit request =>
+    Ok(views.html.admin.permissions.permissionScope(request.item, request.users, request.groups,
         repositoryRoutes.setScopedPermissions))
   }
 
-  def setItemPermissions(id: String, userType: EntityType.Value, userId: String) = setItemPermissionsAction(id, userType, userId) {
-      item => accessor => perms => implicit userOpt => implicit request =>
-    Ok(views.html.admin.permissions.setPermissionItem(item, accessor, perms, Repository.Resource.contentType,
+  def setItemPermissions(id: String, userType: EntityType.Value, userId: String) = {
+    CheckUpdateItemPermissionsAction(id, userType, userId).apply { implicit request =>
+      Ok(views.html.admin.permissions.setPermissionItem(
+        request.item, request.accessor, request.itemPermissions, Repository.Resource.contentType,
         repositoryRoutes.setItemPermissionsPost(id, userType, userId)))
+    }
   }
 
-  def setItemPermissionsPost(id: String, userType: EntityType.Value, userId: String) = setItemPermissionsPostAction(id, userType, userId) {
-      bool => implicit userOpt => implicit request =>
-    Redirect(repositoryRoutes.managePermissions(id))
+  def setItemPermissionsPost(id: String, userType: EntityType.Value, userId: String) = {
+    UpdateItemPermissionsAction(id, userType, userId).apply { implicit request =>
+      Redirect(repositoryRoutes.managePermissions(id))
         .flashing("success" -> "item.update.confirmation")
+    }
   }
 
-  def setScopedPermissions(id: String, userType: EntityType.Value, userId: String) = setScopedPermissionsAction(id, userType, userId) {
-      item => accessor => perms => implicit userOpt => implicit request =>
-    Ok(views.html.admin.permissions.setPermissionScope(item, accessor, perms, targetContentTypes,
+  def setScopedPermissions(id: String, userType: EntityType.Value, userId: String) = {
+    CheckUpdateScopePermissionsAction(id, userType, userId).apply { implicit request =>
+      Ok(views.html.admin.permissions.setPermissionScope(
+        request.item, request.accessor, request.scopePermissions, targetContentTypes,
         repositoryRoutes.setScopedPermissionsPost(id, userType, userId)))
+    }
   }
 
-  def setScopedPermissionsPost(id: String, userType: EntityType.Value, userId: String) = setScopedPermissionsPostAction(id, userType, userId) {
-      perms => implicit userOpt => implicit request =>
-    Redirect(repositoryRoutes.managePermissions(id))
+  def setScopedPermissionsPost(id: String, userType: EntityType.Value, userId: String) = {
+    UpdateScopePermissionsAction(id, userType, userId).apply { implicit request =>
+      Redirect(repositoryRoutes.managePermissions(id))
         .flashing("success" -> "item.update.confirmation")
+    }
   }
 
   def updateIndex(id: String) = AdminAction.async { implicit request =>

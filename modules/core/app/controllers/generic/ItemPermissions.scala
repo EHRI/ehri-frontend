@@ -16,7 +16,7 @@ import scala.concurrent.Future
  */
 trait ItemPermissions[MT] extends Visibility[MT] {
 
-  case class PermissionGrantRequest[A](
+  case class ItemPermissionGrantRequest[A](
     item: MT,
     permissionGrants: Page[PermissionGrant],
     profileOpt: Option[UserProfile],
@@ -37,12 +37,12 @@ trait ItemPermissions[MT] extends Visibility[MT] {
     WithItemPermissionAction(id, PermissionType.Grant)
 
   protected def PermissionGrantAction(id: String)(implicit rd: BackendReadable[MT], ct: BackendContentType[MT]) =
-    WithGrantPermission(id) andThen new ActionTransformer[ItemPermissionRequest, PermissionGrantRequest] {
-      override protected def transform[A](request: ItemPermissionRequest[A]): Future[PermissionGrantRequest[A]] = {
+    WithGrantPermission(id) andThen new ActionTransformer[ItemPermissionRequest, ItemPermissionGrantRequest] {
+      override protected def transform[A](request: ItemPermissionRequest[A]): Future[ItemPermissionGrantRequest[A]] = {
         implicit val req = request
         val params = PageParams.fromRequest(request)
         backend.listItemPermissionGrants[PermissionGrant](id, params).map { permGrants =>
-          PermissionGrantRequest(request.item, permGrants, request.profileOpt, request)
+          ItemPermissionGrantRequest(request.item, permGrants, request.profileOpt, request)
         }
       }
     }
@@ -63,7 +63,7 @@ trait ItemPermissions[MT] extends Visibility[MT] {
       }
     }
 
-  private def getData[A](request: Request[A]): Option[Map[String,Seq[String]]] = request.body match {
+  protected def getData[A](request: Request[A]): Option[Map[String,Seq[String]]] = request.body match {
     case any: AnyContentAsFormUrlEncoded => Some(any.asFormUrlEncoded.getOrElse(Map.empty))
     case json: AnyContentAsJson => Some(json.asJson.flatMap(_.asOpt[Map[String,Seq[String]]]).getOrElse(Map.empty))
     case _ => None
