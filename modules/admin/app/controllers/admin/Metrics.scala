@@ -75,7 +75,7 @@ case class Metrics @Inject()(implicit globalConfig: global.GlobalConfig, searchD
   }
 
   def languageOfMaterial = Cached.status(_ => "pages:langMetric", OK, metricCacheTime) {
-    userProfileAction.async { implicit userOpt => implicit request =>
+    OptionalProfileAction.async { implicit request =>
       find[AnyModel](
         defaultParams = defaultParams,
         entities = List(EntityType.DocumentaryUnit),
@@ -97,7 +97,7 @@ case class Metrics @Inject()(implicit globalConfig: global.GlobalConfig, searchD
   }
 
   def holdingRepository = Cached.status(_ => "pages:repoMetric", OK, metricCacheTime) {
-    userProfileAction.async { implicit userOpt => implicit request =>
+    OptionalProfileAction.async { implicit request =>
       find[AnyModel](
         defaultParams = defaultParams,
         entities = List(EntityType.DocumentaryUnit),
@@ -120,7 +120,7 @@ case class Metrics @Inject()(implicit globalConfig: global.GlobalConfig, searchD
   }
 
   def repositoryCountries = Cached.status(_ => "pages:repoCountryMetric", OK, metricCacheTime) {
-    userProfileAction.async { implicit userOpt => implicit request =>
+    OptionalProfileAction.async { implicit request =>
       find[AnyModel](
         defaultParams = defaultParams,
         entities = List(EntityType.Repository),
@@ -142,7 +142,7 @@ case class Metrics @Inject()(implicit globalConfig: global.GlobalConfig, searchD
   }
 
   def restricted = Cached.status(_ => "pages:restrictedMetric", OK, metricCacheTime) {
-    userProfileAction.async { implicit userOpt => implicit request =>
+    OptionalProfileAction.async { implicit request =>
       find[AnyModel](
         defaultParams = defaultParams,
         entities = List(EntityType.HistoricalAgent,
@@ -166,7 +166,7 @@ case class Metrics @Inject()(implicit globalConfig: global.GlobalConfig, searchD
   }
 
   def agentTypes = Cached.status(_ => "pages:agentTypeMetric", OK, metricCacheTime) {
-    userProfileAction.async { implicit userOpt => implicit request =>
+    OptionalProfileAction.async { implicit request =>
       find[AnyModel](
         entities = List(EntityType.HistoricalAgent),
         facetBuilder = agentTypeFacets
@@ -174,7 +174,7 @@ case class Metrics @Inject()(implicit globalConfig: global.GlobalConfig, searchD
     }
   }
 
-  def clearCached = adminAction { implicit  userOpt => implicit request =>
+  def clearCached = AdminAction { implicit request =>
     // Hack around lack of manual expiry
     Cache.remove("pages:agentTypeMetric")
     Cache.remove("pages:restrictedMetric")

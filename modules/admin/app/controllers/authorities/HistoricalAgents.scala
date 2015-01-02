@@ -98,28 +98,29 @@ case class HistoricalAgents @Inject()(implicit globalConfig: global.GlobalConfig
         .flashing("success" -> "item.update.confirmation")
   }
 
-  def managePermissions(id: String) = manageItemPermissionsAction(id) {
-      item => perms => implicit userOpt => implicit request =>
-    Ok(views.html.admin.permissions.managePermissions(item, perms,
+  def managePermissions(id: String) = PermissionGrantAction(id).apply { implicit request =>
+    Ok(views.html.admin.permissions.managePermissions(request.item, request.permissionGrants,
         histRoutes.addItemPermissions(id)))
   }
 
-  def addItemPermissions(id: String) = addItemPermissionsAction(id) {
-      item => users => groups => implicit userOpt => implicit request =>
-    Ok(views.html.admin.permissions.permissionItem(item, users, groups,
+  def addItemPermissions(id: String) = EditItemPermissionsAction(id).apply { implicit request =>
+    Ok(views.html.admin.permissions.permissionItem(request.item, request.users, request.groups,
         histRoutes.setItemPermissions))
   }
 
-  def setItemPermissions(id: String, userType: EntityType.Value, userId: String) = setItemPermissionsAction(id, userType, userId) {
-      item => accessor => perms => implicit userOpt => implicit request =>
-    Ok(views.html.admin.permissions.setPermissionItem(item, accessor, perms, HistoricalAgent.Resource.contentType,
+  def setItemPermissions(id: String, userType: EntityType.Value, userId: String) = {
+    CheckUpdateItemPermissionsAction(id, userType, userId).apply { implicit request =>
+      Ok(views.html.admin.permissions.setPermissionItem(
+        request.item, request.accessor, request.itemPermissions, HistoricalAgent.Resource.contentType,
         histRoutes.setItemPermissionsPost(id, userType, userId)))
+    }
   }
 
-  def setItemPermissionsPost(id: String, userType: EntityType.Value, userId: String) = setItemPermissionsPostAction(id, userType, userId) {
-      bool => implicit userOpt => implicit request =>
-    Redirect(histRoutes.managePermissions(id))
+  def setItemPermissionsPost(id: String, userType: EntityType.Value, userId: String) = {
+    UpdateItemPermissionsAction(id, userType, userId).apply { implicit request =>
+      Redirect(histRoutes.managePermissions(id))
         .flashing("success" -> "item.update.confirmation")
+    }
   }
 
   def linkTo(id: String) = withItemPermission[HistoricalAgent](id, PermissionType.Annotate) {

@@ -109,7 +109,7 @@ case class AdminSearch @Inject()(implicit globalConfig: global.GlobalConfig, sea
     )
   )
 
-  def updateIndex() = adminAction { implicit userOpt => implicit request =>
+  def updateIndex() = AdminAction { implicit request =>
     Ok(views.html.admin.search.updateIndex(form = updateIndexForm, types = indexTypes,
       action = controllers.admin.routes.AdminSearch.updateIndexPost()))
   }
@@ -118,7 +118,7 @@ case class AdminSearch @Inject()(implicit globalConfig: global.GlobalConfig, sea
    * Perform the actual update, piping progress through a channel
    * and returning a chunked result.
    */
-  def updateIndexPost() = adminAction { implicit userOpt => implicit request =>
+  def updateIndexPost() = AdminAction { implicit request =>
 
     val (deleteAll, entities) = updateIndexForm.bindFromRequest.value.get
 

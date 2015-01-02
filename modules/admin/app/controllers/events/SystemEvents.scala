@@ -14,17 +14,16 @@ case class SystemEvents @Inject()(implicit globalConfig: global.GlobalConfig, ba
   extends AdminController
   with Read[SystemEvent] {
 
-  def get(id: String) = getAction.async(id) {
-      item => annotations => links => implicit userOpt => implicit request =>
+  def get(id: String) = ItemMetaAction(id).async { implicit request =>
     // In addition to the item itself, we also want to fetch the subjects associated with it.
     val params = PageParams.fromRequest(request)
     val subjectParams = PageParams.fromRequest(request, namespace = "s")
     backend.subjectsForEvent[AnyModel](id, subjectParams).map { page =>
-      Ok(views.html.admin.systemEvents.show(item, page, params))
+      Ok(views.html.admin.systemEvents.show(request.item, page, params))
     }
   }
 
-  def list = userProfileAction.async { implicit userOpt => implicit request =>
+  def list = OptionalProfileAction.async { implicit request =>
     val listParams = RangeParams.fromRequest(request)
     val eventFilter = SystemEventParams.fromRequest(request)
     val filterForm = SystemEventParams.form.fill(eventFilter)

@@ -65,7 +65,7 @@ case class Home @Inject()(implicit globalConfig: global.GlobalConfig, searchDisp
   }
 
 
-  def index = userProfileAction.async { implicit userOpt => implicit request =>
+  def index = OptionalProfileAction.async { implicit request =>
     val activityEventTypes = List(
       EventType.deletion,
       EventType.creation,
@@ -84,7 +84,7 @@ case class Home @Inject()(implicit globalConfig: global.GlobalConfig, searchDisp
       EntityType.HistoricalAgent
     )
 
-    userOpt.map { user =>
+    request.profileOpt.map { user =>
       val listParams = RangeParams.fromRequest(request)
       val eventFilter = SystemEventParams.fromRequest(request)
         .copy(eventTypes = activityEventTypes)
@@ -97,7 +97,7 @@ case class Home @Inject()(implicit globalConfig: global.GlobalConfig, searchDisp
     }
   }
 
-  def metrics = userProfileAction { implicit userOpt => implicit request =>
+  def metrics = OptionalProfileAction { implicit request =>
     Ok(views.html.admin.metrics())
   }
 
@@ -116,12 +116,7 @@ case class Home @Inject()(implicit globalConfig: global.GlobalConfig, searchDisp
       entityFacets = entityFacets) {
       page => params => facets => implicit userOpt => implicit request =>
     render {
-      case Accepts.Json() => {
-        Ok(Json.toJson(Json.obj(
-          "facets" -> facets
-        ))
-        )
-      }
+      case Accepts.Json() => Ok(Json.toJson(Json.obj("facets" -> facets)))
       case _ => MovedPermanently(controllers.admin.routes.Home.metrics().url)
     }
   }

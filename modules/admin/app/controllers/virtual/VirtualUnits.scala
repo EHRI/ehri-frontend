@@ -105,10 +105,9 @@ case class VirtualUnits @Inject()(implicit globalConfig: global.GlobalConfig, se
     }
   }
 
-  def searchChildren(id: String) = itemPermissionAction.async[VirtualUnit](id) {
-      item => implicit userOpt => implicit request =>
+  def searchChildren(id: String) = ItemPermissionAction(id).async { implicit request =>
     find[VirtualUnit](
-      filters = Map(SolrConstants.PARENT_ID -> item.id),
+      filters = Map(SolrConstants.PARENT_ID -> request.item.id),
       facetBuilder = entityFacets
     ).map { result =>
       Ok(views.html.admin.virtualUnit.search(result.page, result.params, result.facets, vuRoutes.search()))
@@ -251,38 +250,34 @@ case class VirtualUnits @Inject()(implicit globalConfig: global.GlobalConfig, se
       }
   }
 
-  def delete(id: String) = deleteAction(id) {
-      item => implicit userOpt => implicit request =>
+  def delete(id: String) = CheckDeleteAction(id).apply { implicit request =>
     Ok(views.html.admin.delete(
-        item, vuRoutes.deletePost(id),
+        request.item, vuRoutes.deletePost(id),
         vuRoutes.get(id)))
   }
 
-  def deletePost(id: String) = deletePostAction(id) { implicit userOpt => implicit request =>
+  def deletePost(id: String) = DeleteAction(id).apply { implicit request =>
     Redirect(vuRoutes.search())
         .flashing("success" -> "item.delete.confirmation")
   }
 
-  def createDescription(id: String) = withItemPermission[VirtualUnit](id, PermissionType.Update) {
-      item => implicit userOpt => implicit request =>
-    Ok(views.html.admin.virtualUnit.createDescription(item,
+  def createDescription(id: String) = WithItemPermissionAction(id, PermissionType.Update).apply { implicit request =>
+    Ok(views.html.admin.virtualUnit.createDescription(request.item,
       descriptionForm, formDefaults, vuRoutes.createDescriptionPost(id)))
   }
 
   def createDescriptionPost(id: String) = createDescriptionPostAction(id, EntityType.DocumentaryUnitDescription, descriptionForm) {
       item => formOrItem => implicit userOpt => implicit request =>
     formOrItem match {
-      case Left(errorForm) => {
+      case Left(errorForm) =>
         Ok(views.html.admin.virtualUnit.createDescription(item,
           errorForm, formDefaults, vuRoutes.createDescriptionPost(id)))
-      }
       case Right(updated) => Redirect(vuRoutes.get(item.id))
         .flashing("success" -> "item.create.confirmation")
     }
   }
 
-  def createDescriptionRef(id: String, did: String) = withItemPermission[VirtualUnit](id, PermissionType.Update) {
-    item => implicit userOpt => implicit request =>
+  def createDescriptionRef(id: String, did: String) = WithItemPermissionAction(id, PermissionType.Update).apply { implicit request =>
     ???
   }
 
@@ -291,10 +286,9 @@ case class VirtualUnits @Inject()(implicit globalConfig: global.GlobalConfig, se
     ???
   }
 
-  def updateDescription(id: String, did: String) = withItemPermission[VirtualUnit](id, PermissionType.Update) {
-      item => implicit userOpt => implicit request =>
-    itemOr404(item.model.description(did)) { desc =>
-      Ok(views.html.admin.virtualUnit.editDescription(item,
+  def updateDescription(id: String, did: String) = WithItemPermissionAction(id, PermissionType.Update).apply { implicit request =>
+    itemOr404(request.item.model.description(did)) { desc =>
+      Ok(views.html.admin.virtualUnit.editDescription(request.item,
         descriptionForm.fill(desc), vuRoutes.updateDescriptionPost(id, did)))
     }
   }
@@ -334,52 +328,55 @@ case class VirtualUnits @Inject()(implicit globalConfig: global.GlobalConfig, se
         .flashing("success" -> "item.update.confirmation")
   }
 
-  def managePermissions(id: String) = manageScopedPermissionsAction(id) {
-      item => perms => sperms => implicit userOpt => implicit request =>
-    Ok(views.html.admin.permissions.manageScopedPermissions(item, perms, sperms,
+  def managePermissions(id: String) = ScopePermissionGrantAction(id).apply { implicit request =>
+    Ok(views.html.admin.permissions.manageScopedPermissions(
+      request.item, request.permissionGrants, request.scopePermissionGrants,
         vuRoutes.addItemPermissions(id),
         vuRoutes.addScopedPermissions(id)))
   }
 
-  def addItemPermissions(id: String) = addItemPermissionsAction(id) {
-      item => users => groups => implicit userOpt => implicit request =>
-    Ok(views.html.admin.permissions.permissionItem(item, users, groups,
+  def addItemPermissions(id: String) = EditItemPermissionsAction(id).apply { implicit request =>
+    Ok(views.html.admin.permissions.permissionItem(request.item, request.users, request.groups,
         vuRoutes.setItemPermissions))
   }
 
-  def addScopedPermissions(id: String) = addItemPermissionsAction(id) {
-      item => users => groups => implicit userOpt => implicit request =>
-    Ok(views.html.admin.permissions.permissionScope(item, users, groups,
+  def addScopedPermissions(id: String) = EditItemPermissionsAction(id).apply { implicit request =>
+    Ok(views.html.admin.permissions.permissionScope(request.item, request.users, request.groups,
         vuRoutes.setScopedPermissions))
   }
 
-  def setItemPermissions(id: String, userType: EntityType.Value, userId: String) = setItemPermissionsAction(id, userType, userId) {
-      item => accessor => perms => implicit userOpt => implicit request =>
-    Ok(views.html.admin.permissions.setPermissionItem(item, accessor, perms, VirtualUnit.Resource.contentType,
+  def setItemPermissions(id: String, userType: EntityType.Value, userId: String) = {
+    CheckUpdateItemPermissionsAction(id, userType, userId).apply { implicit request =>
+      Ok(views.html.admin.permissions.setPermissionItem(
+        request.item, request.accessor, request.itemPermissions, VirtualUnit.Resource.contentType,
         vuRoutes.setItemPermissionsPost(id, userType, userId)))
+    }
   }
 
-  def setItemPermissionsPost(id: String, userType: EntityType.Value, userId: String) = setItemPermissionsPostAction(id, userType, userId) {
-      bool => implicit userOpt => implicit request =>
-    Redirect(vuRoutes.managePermissions(id))
+  def setItemPermissionsPost(id: String, userType: EntityType.Value, userId: String) = {
+    UpdateItemPermissionsAction(id, userType, userId).apply { implicit request =>
+      Redirect(vuRoutes.managePermissions(id))
         .flashing("success" -> "item.update.confirmation")
+    }
   }
 
-  def setScopedPermissions(id: String, userType: EntityType.Value, userId: String) = setScopedPermissionsAction(id, userType, userId) {
-      item => accessor => perms => implicit userOpt => implicit request =>
-    Ok(views.html.admin.permissions.setPermissionScope(item, accessor, perms, targetContentTypes,
+  def setScopedPermissions(id: String, userType: EntityType.Value, userId: String) = {
+    CheckUpdateScopePermissionsAction(id, userType, userId).apply { implicit request =>
+      Ok(views.html.admin.permissions.setPermissionScope(
+        request.item, request.accessor, request.scopePermissions, targetContentTypes,
         vuRoutes.setScopedPermissionsPost(id, userType, userId)))
+    }
   }
 
-  def setScopedPermissionsPost(id: String, userType: EntityType.Value, userId: String) = setScopedPermissionsPostAction(id, userType, userId) {
-      perms => implicit userOpt => implicit request =>
-    Redirect(vuRoutes.managePermissions(id))
+  def setScopedPermissionsPost(id: String, userType: EntityType.Value, userId: String) = {
+    UpdateScopePermissionsAction(id, userType, userId).apply { implicit request =>
+      Redirect(vuRoutes.managePermissions(id))
         .flashing("success" -> "item.update.confirmation")
+    }
   }
 
-  def linkTo(id: String) = withItemPermission[VirtualUnit](id, PermissionType.Annotate) {
-      item => implicit userOpt => implicit request =>
-    Ok(views.html.admin.virtualUnit.linkTo(item))
+  def linkTo(id: String) = WithItemPermissionAction(id, PermissionType.Annotate).apply { implicit request =>
+    Ok(views.html.admin.virtualUnit.linkTo(request.item))
   }
 
   def linkAnnotateSelect(id: String, toType: EntityType.Value) = linkSelectAction(id, toType) {
@@ -397,14 +394,12 @@ case class VirtualUnits @Inject()(implicit globalConfig: global.GlobalConfig, se
   def linkAnnotatePost(id: String, toType: EntityType.Value, to: String) = linkPostAction(id, toType, to) {
       formOrAnnotation => implicit userOpt => implicit request =>
     formOrAnnotation match {
-      case Left((target,source,errorForm)) => {
+      case Left((target,source,errorForm)) =>
         BadRequest(views.html.admin.link.create(target, source,
           errorForm, vuRoutes.linkAnnotatePost(id, toType, to)))
-      }
-      case Right(annotation) => {
+      case Right(annotation) =>
         Redirect(vuRoutes.get(id))
           .flashing("success" -> "item.update.confirmation")
-      }
     }
   }
 
@@ -417,14 +412,12 @@ case class VirtualUnits @Inject()(implicit globalConfig: global.GlobalConfig, se
   def linkMultiAnnotatePost(id: String) = linkPostMultiAction(id) {
       formOrAnnotations => implicit userOpt => implicit request =>
     formOrAnnotations match {
-      case Left((target,errorForms)) => {
+      case Left((target,errorForms)) =>
         BadRequest(views.html.admin.link.linkMulti(target,
           errorForms, vuRoutes.linkMultiAnnotatePost(id)))
-      }
-      case Right(annotations) => {
+      case Right(annotations) =>
         Redirect(vuRoutes.get(id))
           .flashing("success" -> "item.update.confirmation")
-      }
     }
   }
 }

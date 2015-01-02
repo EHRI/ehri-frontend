@@ -28,8 +28,7 @@ case class ApiController @Inject()(implicit globalConfig: global.GlobalConfig, b
     get(s"entities?id=$id")(request)
   }
 
-  def get(urlpart: String) = userProfileAction.async { implicit maybeUser =>
-    implicit request =>
+  def get(urlpart: String) = OptionalProfileAction.async { implicit request =>
     val url = urlpart + (if(request.rawQueryString.trim.isEmpty) "" else "?" + request.rawQueryString)
     backend.query(url, request.headers).map { r =>
       val response: NingResponse = r.underlying[NingResponse]
@@ -64,12 +63,12 @@ case class ApiController @Inject()(implicit globalConfig: global.GlobalConfig, b
       |LIMIT 100
     """.stripMargin
 
-  def cypher = adminAction { implicit userOpt => implicit request =>
+  def cypher = AdminAction { implicit request =>
     Ok(views.html.admin.queryForm(queryForm.fill(defaultCypher),
       controllers.admin.routes.ApiController.cypherQuery(), "Cypher"))
   }
 
-  def cypherQuery = adminAction.async { implicit userOpt => implicit request =>
+  def cypherQuery = AdminAction.async { implicit request =>
     import play.api.Play.current
     CypherDAO().stream(queryForm.bindFromRequest.value.getOrElse(""), Map.empty).map { r =>
       val response: NingResponse = r.underlying[NingResponse]
@@ -97,12 +96,12 @@ case class ApiController @Inject()(implicit globalConfig: global.GlobalConfig, b
       |LIMIT 100
     """.stripMargin
 
-  def sparql = adminAction { implicit userOpt => implicit request =>
+  def sparql = AdminAction { implicit request =>
     Ok(views.html.admin.queryForm(queryForm.fill(defaultSparql),
         controllers.admin.routes.ApiController.sparqlQuery(), "SparQL"))
   }
 
-  def sparqlQuery = adminAction.async { implicit userOpt => implicit request =>
+  def sparqlQuery = AdminAction.async { implicit request =>
     backend.query("sparql", request.headers, request.queryString).map { r =>
       val response: NingResponse = r.underlying[NingResponse]
       Status(r.status)
