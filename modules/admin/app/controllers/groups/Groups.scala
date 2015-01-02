@@ -32,33 +32,31 @@ case class Groups @Inject()(implicit globalConfig: global.GlobalConfig, searchDi
     Ok(views.html.admin.group.show(item, pageWithAccounts, params, annotations))
   }
 
-  def history(id: String) = historyAction(id) {
-      item => page => params => implicit userOptOpt => implicit request =>
-    Ok(views.html.admin.systemEvents.itemList(item, page, params))
+  def history(id: String) = ItemHistoryAction(id).apply { implicit request =>
+    Ok(views.html.admin.systemEvents.itemList(request.item, request.page, request.params))
   }
 
-  def list = pageAction { page => params => implicit maybeUser => implicit request =>
-    Ok(views.html.admin.group.list(page, params))
+  def list = ItemPageAction.apply { implicit request =>
+    Ok(views.html.admin.group.list(request.page, request.params))
   }
 
-  def create = createAction { users => groups => implicit userOpt => implicit request =>
+  def create = NewItemAction.apply { implicit request =>
     Ok(views.html.admin.group.create(form, VisibilityForm.form,
-        users, groups, groupRoutes.createPost()))
+      request.users, request.groups, groupRoutes.createPost()))
   }
 
   /**
    * Extract a set of group members from the form POST data and
    * convert it into params for the backend call.
    */
-  private def memberExtractor: Request[AnyContent] => Map[String,Seq[String]] = { implicit r =>
+  private def memberExtractor: Request[_] => Map[String,Seq[String]] = { implicit r =>
     Map(Constants.MEMBER -> Form(Forms.single(
       Constants.MEMBER -> Forms.seq(Forms.nonEmptyText)
     )).bindFromRequest().value.getOrElse(Seq.empty))
   }
 
-  def createPost = createPostAction.async(form, memberExtractor) {
-      formsOrItem => implicit userOpt => implicit request =>
-    formsOrItem match {
+  def createPost = CreateItemAction(form, memberExtractor).async { implicit request =>
+    request.formOrItem match {
       case Left((errorForm,accForm)) => getUsersAndGroups { users => groups =>
         BadRequest(views.html.admin.group.create(
           errorForm, accForm, users, groups, groupRoutes.createPost()))
@@ -68,29 +66,27 @@ case class Groups @Inject()(implicit globalConfig: global.GlobalConfig, searchDi
     }
   }
 
-  def update(id: String) = updateAction(id) {
-      item => implicit userOpt => implicit request =>
+  def update(id: String) = EditAction(id).apply { implicit request =>
     Ok(views.html.admin.group.edit(
-        item, form.fill(item.model), groupRoutes.updatePost(id)))
+        request.item, form.fill(request.item.model), groupRoutes.updatePost(id)))
   }
 
-  def updatePost(id: String) = updatePostAction(id, form) {
-      item => formOrItem => implicit userOpt => implicit request =>
-    formOrItem match {
+  def updatePost(id: String) = UpdateAction(id, form).apply { implicit request =>
+    request.formOrItem match {
       case Left(errorForm) =>
-        BadRequest(views.html.admin.group.edit(item, errorForm, groupRoutes.updatePost(id)))
+        BadRequest(views.html.admin.group.edit(
+          request.item, errorForm, groupRoutes.updatePost(id)))
       case Right(updated) => Redirect(groupRoutes.get(updated.id))
         .flashing("success" -> "item.update.confirmation")
     }
   }
 
-  def delete(id: String) = deleteAction(id) {
-      item => implicit userOpt => implicit request =>
+  def delete(id: String) = CheckDeleteAction(id).apply { implicit request =>
     Ok(views.html.admin.delete(
-        item, groupRoutes.deletePost(id), groupRoutes.get(id)))
+      request.item, groupRoutes.deletePost(id), groupRoutes.get(id)))
   }
 
-  def deletePost(id: String) = deletePostAction(id) { implicit userOpt => implicit request =>
+  def deletePost(id: String) = DeleteAction(id).apply { implicit request =>
     Redirect(groupRoutes.list())
         .flashing("success" -> "item.delete.confirmation")
   }
@@ -143,14 +139,14 @@ case class Groups @Inject()(implicit globalConfig: global.GlobalConfig, searchDi
         val filteredGroups = groups.filter(t => t._1 != item.id).filter {
           case (ident, name) =>
             // if the user is admin, they can add the user to ANY group
-            if (userOpt.get.isAdmin) {
+            if (userOpt.exists(_.isAdmin)) {
               !item.groups.map(_.id).contains(ident)
             } else {
               // if not, they can add the user to groups they belong to
               // TODO: Enforce these policies with the permission system!
               // TODO: WRITE TESTS FOR THESE WEIRD BEHAVIOURS!!!
               (!item.groups.map(_.id).contains(ident)) &&
-                userOpt.get.groups.map(_.id).contains(ident)
+                userOpt.exists(_.groups.map(_.id).contains(ident))
             }
         }
         Ok(views.html.admin.group.membership(item, filteredGroups))

@@ -160,8 +160,8 @@ case class DocumentaryUnits @Inject()(implicit globalConfig: global.GlobalConfig
     }
   }
 
-  def history(id: String) = historyAction(id) { item => page => params => implicit userOpt => implicit request =>
-    Ok(views.html.admin.systemEvents.itemList(item, page, params))
+  def history(id: String) = ItemHistoryAction(id).apply { implicit request =>
+    Ok(views.html.admin.systemEvents.itemList(request.item, request.page, request.params))
   }
 
   def list = ItemPageAction.apply { implicit request =>

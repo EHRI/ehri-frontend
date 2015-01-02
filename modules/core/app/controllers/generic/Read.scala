@@ -41,66 +41,23 @@ trait Read[MT] extends Generic[MT] {
   ) extends WrappedRequest[A](request)
   with WithOptionalProfile
 
+  case class ItemHistoryRequest[A](
+    item: MT,
+    page: RangePage[SystemEvent],
+    params: RangeParams,
+    profileOpt: Option[UserProfile],
+    request: Request[A]
+  ) extends WrappedRequest[A](request)
+  with WithOptionalProfile
 
-  /**
-   * Fetch an item of type `MT` along with its item-level and scoped permissions.
-   *
-   * @param itemId The item's global ID
-   * @return a request populated with the item and the user profile with permissions for that item
-   */
-  private[generic] def ItemPermissionTransformer(itemId: String)(implicit rd: BackendReadable[MT], ct: BackendContentType[MT]) = new ActionTransformer[OptionalProfileRequest, ItemPermissionRequest] {
-    def transform[A](input: OptionalProfileRequest[A]): Future[ItemPermissionRequest[A]] = {
-      implicit val userOpt = input.profileOpt
-      input.profileOpt.map { profile =>
-        val itemF = backend.get[MT](itemId)
-        val scopedPermsF = backend.getScopePermissions(profile.id, itemId)
-        val permsF = backend.getItemPermissions(profile.id, ct.contentType, itemId)
-        for {
-          item <- itemF
-          scopedPerms <- scopedPermsF
-          perms <- permsF
-          newProfile = profile.copy(itemPermissions = Some(perms), globalPermissions = Some(scopedPerms))
-        } yield ItemPermissionRequest[A](item, Some(newProfile), input)
-      }.getOrElse {
-        for {
-          item <- backend.get[MT](itemId)
-        } yield ItemPermissionRequest[A](item, None, input)
-      }
-    }
-  }
-
-  /**
-   * Fetch annotations and links for an item.
-   *
-   * @param itemId the item ID
-   * @return a request populated with item data (links, annotations) and permission info
-   */
-  private[generic] def ItemMetaTransformer(itemId: String)(implicit rd: BackendReadable[MT], ct: BackendContentType[MT]) = new ActionTransformer[ItemPermissionRequest, ItemMetaRequest] {
-    def transform[A](input: ItemPermissionRequest[A]): Future[ItemMetaRequest[A]] = {
-      implicit val userOpt = input.profileOpt
-      val annotationsF = backend.getAnnotationsForItem[Annotation](itemId)
-      val linksF = backend.getLinksForItem[Link](itemId)
-      for {
-        annotations <- annotationsF
-        links <- linksF
-      } yield ItemMetaRequest[A](input.item, annotations, links, input.profileOpt, input)
-    }
-  }
-
-  /**
-   * Fetch a page of items
-   *
-   * @return a request populated with item data (links, annotations) and permission info
-   */
-  private[generic] def ItemPageTransformer(implicit rd: BackendReadable[MT], rs: BackendResource[MT]) = new ActionTransformer[OptionalProfileRequest, ItemPageRequest] {
-    def transform[A](input: OptionalProfileRequest[A]): Future[ItemPageRequest[A]] = {
-      implicit val userOpt = input.profileOpt
-      val params = PageParams.fromRequest(input)
-      for {
-        page <- backend.list[MT](params)
-      } yield ItemPageRequest[A](page, params, input.profileOpt, input)
-    }
-  }
+  case class ItemVersionsRequest[A](
+    item: MT,
+    page: Page[Version],
+    params: PageParams,
+    profileOpt: Option[UserProfile],
+    request: Request[A]
+  ) extends WrappedRequest[A](request)
+  with WithOptionalProfile
 
   private[generic] def WithPermissionFilter(perm: PermissionType.Value, contentType: ContentTypes.Value) = new ActionFilter[ItemPermissionRequest] {
     override protected def filter[A](request: ItemPermissionRequest[A]): Future[Option[Result]] = {
@@ -113,7 +70,26 @@ trait Read[MT] extends Generic[MT] {
     WithPermissionFilter(perm, ct.contentType)
 
   protected def ItemPermissionAction(itemId: String)(implicit rd: BackendReadable[MT], ct: BackendContentType[MT]) =
-    OptionalProfileAction andThen ItemPermissionTransformer(itemId)
+    OptionalProfileAction andThen new ActionTransformer[OptionalProfileRequest, ItemPermissionRequest] {
+      def transform[A](input: OptionalProfileRequest[A]): Future[ItemPermissionRequest[A]] = {
+        implicit val userOpt = input.profileOpt
+        input.profileOpt.map { profile =>
+          val itemF = backend.get[MT](itemId)
+          val scopedPermsF = backend.getScopePermissions(profile.id, itemId)
+          val permsF = backend.getItemPermissions(profile.id, ct.contentType, itemId)
+          for {
+            item <- itemF
+            scopedPerms <- scopedPermsF
+            perms <- permsF
+            newProfile = profile.copy(itemPermissions = Some(perms), globalPermissions = Some(scopedPerms))
+          } yield ItemPermissionRequest[A](item, Some(newProfile), input)
+        }.getOrElse {
+          for {
+            item <- backend.get[MT](itemId)
+          } yield ItemPermissionRequest[A](item, None, input)
+        }
+      }
+    }
 
   protected def WithItemPermissionAction(itemId: String, perm: PermissionType.Value)(implicit rd: BackendReadable[MT], ct: BackendContentType[MT]) =
     ItemPermissionAction(itemId) andThen WithItemPermissionFilter(perm)
@@ -122,10 +98,56 @@ trait Read[MT] extends Generic[MT] {
     ItemPermissionAction(itemId) andThen WithPermissionFilter(perm, contentType)
 
   protected def ItemMetaAction(itemId: String)(implicit rd: BackendReadable[MT], ct: BackendContentType[MT]) =
-    ItemPermissionAction(itemId) andThen ItemMetaTransformer(itemId)
+    ItemPermissionAction(itemId) andThen new ActionTransformer[ItemPermissionRequest, ItemMetaRequest] {
+      def transform[A](request: ItemPermissionRequest[A]): Future[ItemMetaRequest[A]] = {
+        implicit val userOpt = request.profileOpt
+        val annotationsF = backend.getAnnotationsForItem[Annotation](itemId)
+        val linksF = backend.getLinksForItem[Link](itemId)
+        for {
+          annotations <- annotationsF
+          links <- linksF
+        } yield ItemMetaRequest[A](request.item, annotations, links, request.profileOpt, request)
+      }
+    }
 
   protected def ItemPageAction(implicit rd: BackendReadable[MT], rs: BackendResource[MT]) =
-    OptionalProfileAction andThen ItemPageTransformer
+    OptionalProfileAction andThen new ActionTransformer[OptionalProfileRequest, ItemPageRequest] {
+      def transform[A](input: OptionalProfileRequest[A]): Future[ItemPageRequest[A]] = {
+        implicit val userOpt = input.profileOpt
+        val params = PageParams.fromRequest(input)
+        for {
+          page <- backend.list[MT](params)
+        } yield ItemPageRequest[A](page, params, input.profileOpt, input)
+      }
+    }
+
+  protected def ItemHistoryAction(itemId: String)(implicit rd: BackendReadable[MT], ct: BackendContentType[MT]) =
+    ItemPermissionAction(itemId) andThen new ActionTransformer[ItemPermissionRequest,ItemHistoryRequest] {
+      override protected def transform[A](request: ItemPermissionRequest[A]): Future[ItemHistoryRequest[A]] = {
+        implicit val req = request
+        val params = RangeParams.fromRequest(request)
+        val getF: Future[MT] = backend.get(itemId)
+        val historyF: Future[RangePage[SystemEvent]] = backend.history[SystemEvent](itemId, params)
+        for {
+          item <- getF
+          events <- historyF
+        } yield ItemHistoryRequest(request.item, events, params, request.profileOpt, request)
+      }
+    }
+
+  protected def ItemVersionsAction(itemId: String)(implicit rd: BackendReadable[MT], ct: BackendContentType[MT]) =
+    ItemPermissionAction(itemId) andThen new ActionTransformer[ItemPermissionRequest, ItemVersionsRequest] {
+      override protected def transform[A](request: ItemPermissionRequest[A]): Future[ItemVersionsRequest[A]] = {
+        implicit val req = request
+        val params = PageParams.fromRequest(request)
+        val getF: Future[MT] = backend.get(itemId)
+        val versionsF: Future[Page[Version]] = backend.versions[Version](itemId, params)
+        for {
+          item <- getF
+          versions <- versionsF
+        } yield ItemVersionsRequest(request.item, versions, params, request.profileOpt, request)
+      }
+    }
 
 
   object getEntity {
@@ -206,6 +228,7 @@ trait Read[MT] extends Generic[MT] {
     }
   }
 
+  @deprecated(message = "Use ItemHistoryAction instead", since = "1.0.2")
   def historyAction(id: String)(
       f: MT => RangePage[SystemEvent] => RangeParams => Option[UserProfile] => Request[AnyContent] => Result)(implicit rd: BackendReadable[MT], rs: BackendResource[MT]) = {
     OptionalProfileAction.async { implicit request =>
@@ -219,6 +242,7 @@ trait Read[MT] extends Generic[MT] {
     }
   }
 
+  @deprecated(message = "Use ItemVersionsAction instead", since = "1.0.2")
   def versionsAction(id: String)(
     f: MT => Page[Version] => PageParams => Option[UserProfile] => Request[AnyContent] => Result)(implicit rd: BackendReadable[MT], rs: BackendResource[MT]) = {
     OptionalProfileAction.async { implicit request =>

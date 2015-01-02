@@ -27,9 +27,8 @@ case class Links @Inject()(implicit globalConfig: global.GlobalConfig, backend: 
     Ok(views.html.admin.link.show(request.item, request.annotations, redirect))
   }
 
-  def history(id: String) = historyAction(id) {
-      item => page => params => implicit userOpt => implicit request =>
-    Ok(views.html.admin.systemEvents.itemList(item, page, params))
+  def history(id: String) = ItemHistoryAction(id).apply { implicit request =>
+    Ok(views.html.admin.systemEvents.itemList(request.item, request.page, request.params))
   }
 
   def visibility(id: String) = EditVisibilityAction(id).apply { implicit request =>
