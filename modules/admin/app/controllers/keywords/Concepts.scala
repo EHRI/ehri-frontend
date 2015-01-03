@@ -58,9 +58,14 @@ case class Concepts @Inject()(implicit globalConfig: global.GlobalConfig, search
     Ok(views.html.admin.concept.show(item, page, params, links, annotations))
   }
 
-  def search = searchAction[Concept](entities = List(EntityType.Concept), entityFacets = entityFacets) {
-      page => params => facets => implicit userOpt => implicit request =>
-    Ok(views.html.admin.concept.search(page, params, facets, conceptRoutes.search()))
+  def search = OptionalProfileAction.async { implicit request =>
+    import play.api.libs.concurrent.Execution.Implicits._
+    find[Concept](
+      entities = List(EntityType.Concept),
+      facetBuilder = entityFacets
+    ).map { case QueryResult(page, params, facets) =>
+      Ok(views.html.admin.concept.search(page, params, facets, conceptRoutes.search()))
+    }
   }
 
   def history(id: String) = ItemHistoryAction(id).apply { implicit request =>
@@ -123,19 +128,17 @@ case class Concepts @Inject()(implicit globalConfig: global.GlobalConfig, search
         .flashing("success" -> "item.update.confirmation")
   }
 
-  def linkAnnotate(id: String, toType: EntityType.Value, to: String) = linkAction(id, toType, to) {
-      target => source => implicit userOpt => implicit request =>
-    Ok(views.html.admin.link.create(target, source,
+  def linkAnnotate(id: String, toType: EntityType.Value, to: String) = LinkAction(id, toType, to).apply { implicit request =>
+    Ok(views.html.admin.link.create(request.from, request.to,
             Link.form, conceptRoutes.linkAnnotatePost(id, toType, to)))
   }
 
-  def linkAnnotatePost(id: String, toType: EntityType.Value, to: String) = linkPostAction(id, toType, to) {
-      formOrAnnotation => implicit userOpt => implicit request =>
-    formOrAnnotation match {
-      case Left((target,source,errorForm)) =>
-        BadRequest(views.html.admin.link.create(target, source,
+  def linkAnnotatePost(id: String, toType: EntityType.Value, to: String) = CreateLinkAction(id, toType, to).apply { implicit request =>
+    request.formOrLink match {
+      case Left((target,errorForm)) =>
+        BadRequest(views.html.admin.link.create(request.from, target,
             errorForm, conceptRoutes.linkAnnotatePost(id, toType, to)))
-      case Right(annotation) =>
+      case Right(_) =>
         Redirect(conceptRoutes.get(id))
           .flashing("success" -> "item.update.confirmation")
     }

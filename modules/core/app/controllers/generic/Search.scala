@@ -107,6 +107,7 @@ trait Search extends Controller with AuthController with ControllerHelpers {
    * Action that restricts the search to the inherited entity type
    * and applies.
    */
+  @deprecated(message = "Use find function instead", since = "1.0.2")
   def searchAction[MT](filters: Map[String, Any] = Map.empty,
                        extra: Map[String, Any] = Map.empty,
                        defaultParams: SearchParams = SearchParams.empty,

@@ -1,19 +1,19 @@
 package controllers.generic
 
-import play.api.mvc._
-import play.api.libs.concurrent.Execution.Implicits._
-import models.base._
+import backend.{BackendContentType, BackendReadable}
 import defines._
 import models._
-import play.api.data.Form
-import play.api.libs.json.{JsValue, Writes, JsError, Json}
-import utils.search._
+import models.base._
 import play.api.Play.current
 import play.api.cache.Cache
+import play.api.data.Form
+import play.api.libs.concurrent.Execution.Implicits._
+import play.api.libs.json.{JsError, JsValue, Json, Writes}
+import play.api.mvc.{Result, _}
+import utils.search.{SearchHit, _}
+
+import scala.concurrent.Future
 import scala.concurrent.Future.{successful => immediate}
-import utils.search.SearchHit
-import play.api.mvc.Result
-import backend.{BackendReadable, BackendContentType}
 
 /**
  * Class representing an access point link.
@@ -46,6 +46,29 @@ trait Linking[MT <: AnyModel] extends Read[MT] with Search {
   // This is used to send the link data back to JSON endpoints...
   private implicit val linkFormatForClient = Json.format[LinkF]
 
+  case class LinkSelectRequest[A](
+    item: MT,
+    page: ItemPage[(AnyModel, SearchHit)],
+    params: SearchParams,
+    facets: List[AppliedFacet],
+    entityType: EntityType.Value,
+    profileOpt: Option[UserProfile],
+    request: Request[A]
+  ) extends WrappedRequest[A](request)
+    with WithOptionalProfile
+
+  def LinkSelectAction(id: String, toType: EntityType.Value, facets: FacetBuilder = emptyFacets)(implicit rd: BackendReadable[MT], ct: BackendContentType[MT]) =
+    WithItemPermissionAction(id, PermissionType.Annotate) andThen new ActionTransformer[ItemPermissionRequest, LinkSelectRequest] {
+      override protected def transform[A](request: ItemPermissionRequest[A]): Future[LinkSelectRequest[A]] = {
+        implicit val req = request
+        find[AnyModel](facetBuilder = facets, defaultParams = SearchParams(entities = List(toType), excludes=Some(List(id)))).map { r =>
+          LinkSelectRequest(request.item, r.page, r.params,
+            r.facets, toType, request.profileOpt, request)
+        }
+      }
+    }
+
+  @deprecated(message = "Use LinkSelectAction instead", since = "1.0.2")
   def linkSelectAction(id: String, toType: EntityType.Value, facets: FacetBuilder = emptyFacets)(
       f: MT => ItemPage[(AnyModel,SearchHit)] => SearchParams => List[AppliedFacet] => EntityType.Value => Option[UserProfile] => Request[AnyContent] => Result)(implicit rd: BackendReadable[MT], ct: BackendContentType[MT]) = {
     withItemPermission.async[MT](id, PermissionType.Annotate) {
@@ -56,16 +79,61 @@ trait Linking[MT <: AnyModel] extends Read[MT] with Search {
     }
   }
 
+  case class LinkItemsRequest[A](
+    from: MT,
+    to: AnyModel,
+    profileOpt: Option[UserProfile],
+    request: Request[A]
+  ) extends WrappedRequest[A](request)
+    with WithOptionalProfile
+
+  def LinkAction(id: String, toType: EntityType.Value, to: String)(implicit rd: BackendReadable[MT], ct: BackendContentType[MT]) =
+    WithItemPermissionAction(id, PermissionType.Annotate) andThen new ActionTransformer[ItemPermissionRequest, LinkItemsRequest] {
+      override protected def transform[A](request: ItemPermissionRequest[A]): Future[LinkItemsRequest[A]] = {
+        implicit val req = request
+        backend.get[AnyModel](AnyModel.resourceFor(toType), to).map { toItem =>
+          LinkItemsRequest(request.item, toItem, request.profileOpt, request)
+        }
+      }
+    }
+
+  @deprecated(message = "Use LinkAction instead", since = "1.0.2")
   def linkAction(id: String, toType: EntityType.Value, to: String)(f: MT => AnyModel => Option[UserProfile] => Request[AnyContent] => Result)(implicit rd: BackendReadable[MT], ct: BackendContentType[MT]) = {
     withItemPermission.async[MT](id, PermissionType.Annotate) {
         item => implicit userOpt => implicit request =>
 
-      getEntityT[AnyModel](AnyModel.resourceFor(toType), to) { srcitem =>
-        f(item)(srcitem)(userOpt)(request)
+      getEntityT[AnyModel](AnyModel.resourceFor(toType), to) { srcItem =>
+        f(item)(srcItem)(userOpt)(request)
       }
     }
   }
 
+  case class CreateLinkRequest[A](
+    from: MT,
+    formOrLink: Either[(AnyModel, Form[LinkF]), Link],
+    profileOpt: Option[UserProfile],
+    request: Request[A]
+  ) extends WrappedRequest[A](request)
+    with WithOptionalProfile
+
+  def CreateLinkAction(id: String, toType: EntityType.Value, to: String)(implicit rd: BackendReadable[MT], ct: BackendContentType[MT]) =
+    WithItemPermissionAction(id, PermissionType.Annotate) andThen new ActionTransformer[ItemPermissionRequest, CreateLinkRequest] {
+      override protected def transform[A](request: ItemPermissionRequest[A]): Future[CreateLinkRequest[A]] = {
+        implicit val req = request
+        Link.form.bindFromRequest.fold(
+          errorForm => { // oh dear, we have an error...
+            backend.get[AnyModel](AnyModel.resourceFor(toType), to).map { toItem =>
+              CreateLinkRequest(request.item, Left((toItem, errorForm)), request.profileOpt, request)
+            }
+          },
+          ann => backend.linkItems[Link, LinkF](id, to, ann).map { link =>
+            CreateLinkRequest(request.item, Right(link), request.profileOpt, request)
+          }
+        )
+      }
+    }
+
+  @deprecated(message = "Use CreateLinkAction instead", since = "1.0.2")
   def linkPostAction(id: String, toType: EntityType.Value, to: String)(
       f: Either[(MT, AnyModel,Form[LinkF]),Link] => Option[UserProfile] => Request[AnyContent] => Result)(implicit rd: BackendReadable[MT], ct: BackendContentType[MT]) = {
 
@@ -86,21 +154,44 @@ trait Linking[MT <: AnyModel] extends Read[MT] with Search {
     }
   }
 
+  @deprecated(message = "Use WithItemPermission directly", since = "1.0.2")
   def linkMultiAction(id: String)(f: MT => Option[UserProfile] => Request[AnyContent] => Result)(implicit rd: BackendReadable[MT], ct: BackendContentType[MT]) = {
-    withItemPermission[MT](id, PermissionType.Annotate) {
-        item => implicit userOpt => implicit request =>
-      f(item)(userOpt)(request)
+    WithItemPermissionAction(id, PermissionType.Annotate).apply { implicit request =>
+      f(request.item)(request.profileOpt)(request)
     }
   }
 
+  case class MultiLinksRequest[A](
+    item: MT,
+    formOrLinks: Either[Form[List[(String,LinkF,Option[String])]], Seq[Link]],
+    profileOpt: Option[UserProfile],
+    request: Request[A]
+  ) extends WrappedRequest[A](request)
+    with WithOptionalProfile
+
+  def CreateMultipleLinksAction(id: String)(implicit rd: BackendReadable[MT], ct: BackendContentType[MT]) =
+    WithItemPermissionAction(id, PermissionType.Annotate) andThen new ActionTransformer[ItemPermissionRequest, MultiLinksRequest] {
+      override protected def transform[A](request: ItemPermissionRequest[A]): Future[MultiLinksRequest[A]] = {
+        implicit val req = request
+        val multiForm: Form[List[(String,LinkF,Option[String])]] = Link.multiForm
+        multiForm.bindFromRequest.fold(
+          errorForm => immediate(MultiLinksRequest(request.item, Left(errorForm), request.profileOpt, request)),
+          links => backend.linkMultiple[Link, LinkF](id, links).map { outLinks =>
+            MultiLinksRequest(request.item, Right(outLinks), request.profileOpt, request)
+          }
+        )
+      }
+    }
+
+  @deprecated(message = "Use CreateMultipleLinksAction instead", since = "1.0.2")
   def linkPostMultiAction(id: String)(
       f: Either[(MT,Form[List[(String,LinkF,Option[String])]]),Seq[Link]] => Option[UserProfile] => Request[AnyContent] => Result)(implicit rd: BackendReadable[MT], ct: BackendContentType[MT]): Action[AnyContent] = {
-    withItemPermission.async[MT](id, PermissionType.Update) { item => implicit userOpt => implicit request =>
+    WithItemPermissionAction(id, PermissionType.Update).async { implicit request =>
       val multiForm: Form[List[(String,LinkF,Option[String])]] = Link.multiForm
       multiForm.bindFromRequest.fold(
-        errorForm => immediate(f(Left((item,errorForm)))(userOpt)(request)),
+        errorForm => immediate(f(Left((request.item,errorForm)))(request.profileOpt)(request)),
         links => backend.linkMultiple[Link, LinkF](id, links).map { outLinks =>
-          f(Right(outLinks))(userOpt)(request)
+          f(Right(outLinks))(request.profileOpt)(request)
         }
       )
     }
@@ -110,8 +201,7 @@ trait Linking[MT <: AnyModel] extends Read[MT] with Search {
    * Create a link, via Json, for any arbitrary two objects, via an access point.
    */
   def createLink(id: String, apid: String)(implicit rd: BackendReadable[MT], ct: BackendContentType[MT]) = {
-    withItemPermission.async[JsValue,MT](parse.json, id, PermissionType.Annotate) {
-        item => implicit userOpt => implicit request =>
+    WithItemPermissionAction(id, PermissionType.Annotate).async(parse.json) { implicit request =>
       request.body.validate[AccessPointLink].fold(
         errors => immediate(BadRequest(JsError.toFlatJson(errors))),
         ann => {
@@ -130,8 +220,7 @@ trait Linking[MT <: AnyModel] extends Read[MT] with Search {
    * other objects.
    */
   def createMultipleLinks(id: String)(implicit rd: BackendReadable[MT], ct: BackendContentType[MT]) = {
-    withItemPermission.async[JsValue, MT](parse.json, id, PermissionType.Annotate) {
-        item => implicit userOpt => implicit request =>
+    WithItemPermissionAction(id, PermissionType.Annotate).async(parse.json) { implicit request =>
       request.body.validate[List[AccessPointLink]].fold(
         errors => immediate(BadRequest(JsError.toFlatJson(errors))),
         anns => {

@@ -98,9 +98,13 @@ case class Repositories @Inject()(implicit globalConfig: global.GlobalConfig, se
   private val repositoryRoutes = controllers.institutions.routes.Repositories
 
 
-  def search = searchAction[Repository](entities = List(EntityType.Repository), entityFacets = repositoryFacets) {
-      page => params => facets => implicit userOpt => implicit request =>
-    Ok(views.html.admin.repository.search(page, params, facets, repositoryRoutes.search()))
+  def search = OptionalProfileAction.async { implicit request =>
+    find[Repository](
+      entities = List(EntityType.Repository),
+      facetBuilder = repositoryFacets
+    ).map { case QueryResult(page, params, facets) =>
+      Ok(views.html.admin.repository.search(page, params, facets, repositoryRoutes.search()))
+    }
   }
 
   /**

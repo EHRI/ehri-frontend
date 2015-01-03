@@ -379,43 +379,39 @@ case class VirtualUnits @Inject()(implicit globalConfig: global.GlobalConfig, se
     Ok(views.html.admin.virtualUnit.linkTo(request.item))
   }
 
-  def linkAnnotateSelect(id: String, toType: EntityType.Value) = linkSelectAction(id, toType) {
-      item => page => params => facets => etype => implicit userOpt => implicit request =>
-    Ok(views.html.admin.link.linkSourceList(item, page, params, facets, etype,
+  def linkAnnotateSelect(id: String, toType: EntityType.Value) = LinkSelectAction(id, toType).apply { implicit request =>
+    Ok(views.html.admin.link.linkSourceList(
+      request.item, request.page, request.params, request.facets, request.entityType,
         vuRoutes.linkAnnotateSelect(id, toType), vuRoutes.linkAnnotate))
   }
 
-  def linkAnnotate(id: String, toType: EntityType.Value, to: String) = linkAction(id, toType, to) {
-      target => source => implicit userOpt => implicit request =>
-    Ok(views.html.admin.link.create(target, source,
+  def linkAnnotate(id: String, toType: EntityType.Value, to: String) = LinkAction(id, toType, to).apply { implicit request =>
+    Ok(views.html.admin.link.create(request.from, request.to,
         Link.form, vuRoutes.linkAnnotatePost(id, toType, to)))
   }
 
-  def linkAnnotatePost(id: String, toType: EntityType.Value, to: String) = linkPostAction(id, toType, to) {
-      formOrAnnotation => implicit userOpt => implicit request =>
-    formOrAnnotation match {
-      case Left((target,source,errorForm)) =>
-        BadRequest(views.html.admin.link.create(target, source,
+  def linkAnnotatePost(id: String, toType: EntityType.Value, to: String) = CreateLinkAction(id, toType, to).apply { implicit request =>
+    request.formOrLink match {
+      case Left((target,errorForm)) =>
+        BadRequest(views.html.admin.link.create(request.from, target,
           errorForm, vuRoutes.linkAnnotatePost(id, toType, to)))
-      case Right(annotation) =>
+      case Right(_) =>
         Redirect(vuRoutes.get(id))
           .flashing("success" -> "item.update.confirmation")
     }
   }
 
-  def linkMultiAnnotate(id: String) = linkMultiAction(id) {
-      target => implicit userOpt => implicit request =>
-    Ok(views.html.admin.link.linkMulti(target,
+  def linkMultiAnnotate(id: String) = WithItemPermissionAction(id, PermissionType.Annotate).apply { implicit request =>
+    Ok(views.html.admin.link.linkMulti(request.item,
         Link.multiForm, vuRoutes.linkMultiAnnotatePost(id)))
   }
 
-  def linkMultiAnnotatePost(id: String) = linkPostMultiAction(id) {
-      formOrAnnotations => implicit userOpt => implicit request =>
-    formOrAnnotations match {
-      case Left((target,errorForms)) =>
-        BadRequest(views.html.admin.link.linkMulti(target,
+  def linkMultiAnnotatePost(id: String) = CreateMultipleLinksAction(id).apply { implicit request =>
+    request.formOrLinks match {
+      case Left(errorForms) =>
+        BadRequest(views.html.admin.link.linkMulti(request.item,
           errorForms, vuRoutes.linkMultiAnnotatePost(id)))
-      case Right(annotations) =>
+      case Right(_) =>
         Redirect(vuRoutes.get(id))
           .flashing("success" -> "item.update.confirmation")
     }

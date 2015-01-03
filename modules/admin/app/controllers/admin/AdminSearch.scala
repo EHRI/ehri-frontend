@@ -79,21 +79,23 @@ case class AdminSearch @Inject()(implicit globalConfig: global.GlobalConfig, sea
    */
   private implicit val anyModelReads = AnyModel.Converter.restReads
 
-  def search = searchAction[AnyModel](
+  def search = OptionalProfileAction.async { implicit request =>
+    find[AnyModel](
       defaultParams = SearchParams(sort = Some(SearchOrder.Score)),
-      entityFacets = entityFacets) {
-        page => params => facets => implicit userOpt => implicit request =>
-    render {
-      case Accepts.Json() => {
-        Ok(Json.toJson(Json.obj(
-          "numPages" -> page.numPages,
-          "page" -> Json.toJson(page.items.map(_._1))(Writes.seq(client.json.anyModelJson.clientFormat)),
-          "facets" -> facets
-        ))
-        )
+      facetBuilder = entityFacets
+    ).map { case QueryResult(page, params, facets) =>
+      render {
+        case Accepts.Json() => {
+          Ok(Json.toJson(Json.obj(
+            "numPages" -> page.numPages,
+            "page" -> Json.toJson(page.items.map(_._1))(Writes.seq(client.json.anyModelJson.clientFormat)),
+            "facets" -> facets
+          ))
+          )
+        }
+        case _ => Ok(views.html.admin.search.search(page, params, facets,
+          controllers.admin.routes.AdminSearch.search()))
       }
-      case _ => Ok(views.html.admin.search.search(page, params, facets,
-        controllers.admin.routes.AdminSearch.search()))
     }
   }
 

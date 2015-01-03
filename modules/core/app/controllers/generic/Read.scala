@@ -150,6 +150,7 @@ trait Read[MT] extends Generic[MT] {
     }
 
 
+  @deprecated(message = "Use backend directly", since = "1.0.2")
   object getEntity {
     def async(id: String, user: Option[UserProfile])(f: MT => Future[Result])(
         implicit rd: BackendReadable[MT], rs: BackendResource[MT], userOpt: Option[UserProfile], request: RequestHeader): Future[Result] = {
@@ -164,6 +165,7 @@ trait Read[MT] extends Generic[MT] {
     }
   }
 
+  @deprecated(message = "Use backend directly", since = "1.0.2")
   object getEntityT {
     def async[T](resource: BackendResource[T], id: String)(f: T => Future[Result])(
         implicit userOpt: Option[UserProfile], request: RequestHeader, rd: BackendReadable[T], rs: BackendResource[MT]): Future[Result] = {

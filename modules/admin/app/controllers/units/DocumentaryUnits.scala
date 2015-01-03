@@ -323,44 +323,40 @@ case class DocumentaryUnits @Inject()(implicit globalConfig: global.GlobalConfig
     Ok(views.html.admin.documentaryUnit.linkTo(request.item))
   }
 
-  def linkAnnotateSelect(id: String, toType: EntityType.Value) = linkSelectAction(id, toType) {
-    item => page => params => facets => etype => implicit userOpt => implicit request =>
-      Ok(views.html.admin.link.linkSourceList(item, page, params, facets, etype,
+  def linkAnnotateSelect(id: String, toType: EntityType.Value) = LinkSelectAction(id, toType).apply { implicit request =>
+      Ok(views.html.admin.link.linkSourceList(
+        request.item, request.page, request.params, request.facets, request.entityType,
           docRoutes.linkAnnotateSelect(id, toType),
           docRoutes.linkAnnotate))
   }
 
-  def linkAnnotate(id: String, toType: EntityType.Value, to: String) = linkAction(id, toType, to) {
-      target => source => implicit userOpt => implicit request =>
-    Ok(views.html.admin.link.create(target, source,
+  def linkAnnotate(id: String, toType: EntityType.Value, to: String) = LinkAction(id, toType, to).apply { implicit request =>
+    Ok(views.html.admin.link.create(request.from, request.to,
         Link.form, docRoutes.linkAnnotatePost(id, toType, to)))
   }
 
-  def linkAnnotatePost(id: String, toType: EntityType.Value, to: String) = linkPostAction(id, toType, to) {
-      formOrAnnotation => implicit userOpt => implicit request =>
-    formOrAnnotation match {
-      case Left((target,source,errorForm)) =>
-        BadRequest(views.html.admin.link.create(target, source,
+  def linkAnnotatePost(id: String, toType: EntityType.Value, to: String) = CreateLinkAction(id, toType, to).apply { implicit request =>
+    request.formOrLink match {
+      case Left((target,errorForm)) =>
+        BadRequest(views.html.admin.link.create(request.from, target,
           errorForm, docRoutes.linkAnnotatePost(id, toType, to)))
-      case Right(annotation) =>
+      case Right(_) =>
         Redirect(docRoutes.get(id))
           .flashing("success" -> "item.update.confirmation")
     }
   }
 
-  def linkMultiAnnotate(id: String) = linkMultiAction(id) {
-      target => implicit userOpt => implicit request =>
-    Ok(views.html.admin.link.linkMulti(target,
+  def linkMultiAnnotate(id: String) = WithItemPermissionAction(id, PermissionType.Annotate).apply { implicit request =>
+    Ok(views.html.admin.link.linkMulti(request.item,
         Link.multiForm, docRoutes.linkMultiAnnotatePost(id)))
   }
 
-  def linkMultiAnnotatePost(id: String) = linkPostMultiAction(id) {
-      formOrAnnotations => implicit userOpt => implicit request =>
-    formOrAnnotations match {
-      case Left((target,errorForms)) =>
-        BadRequest(views.html.admin.link.linkMulti(target,
+  def linkMultiAnnotatePost(id: String) = CreateMultipleLinksAction(id).apply { implicit request =>
+    request.formOrLinks match {
+      case Left(errorForms) =>
+        BadRequest(views.html.admin.link.linkMulti(request.item,
           errorForms, docRoutes.linkMultiAnnotatePost(id)))
-      case Right(annotations) =>
+      case Right(_) =>
         Redirect(docRoutes.get(id))
           .flashing("success" -> "item.update.confirmation")
     }
@@ -371,8 +367,6 @@ case class DocumentaryUnits @Inject()(implicit globalConfig: global.GlobalConfig
       Ok(views.html.admin.documentaryUnit.editAccessPoints(request.item, request.description))
     }
   }
-
-  import play.api.libs.concurrent.Execution.Implicits._
 
   def exportEad(id: String) = OptionalAuthAction.async { implicit authRequest =>
     implicit val apiUser = ApiUser(authRequest.user.map(_.id))

@@ -31,6 +31,7 @@ trait Annotate[MT] extends Read[MT] {
     }
   }
 
+  @deprecated(message = "Use endpoints in Annotations controller instead", since = "1.0.2")
   def annotationPostAction(id: String)(f: Either[Form[AnnotationF],Annotation] => Option[UserProfile] => Request[AnyContent] => Result)(implicit rd: BackendReadable[MT], ct: BackendContentType[MT]) = {
     withItemPermission.async[MT](id, PermissionType.Annotate) { item => implicit userOpt => implicit request =>
       Annotation.form.bindFromRequest.fold(
@@ -45,6 +46,7 @@ trait Annotate[MT] extends Read[MT] {
   /**
    * Fetch annotations for a given item.
    */
+  @deprecated(message = "Use ItemMetaAction instead", since = "1.0.2")
   def getAnnotationsAction(id: String)(
       f: Seq[Annotation] => Option[UserProfile] => Request[AnyContent] => Result) = {
     OptionalProfileAction.async { implicit request =>
@@ -55,7 +57,8 @@ trait Annotate[MT] extends Read[MT] {
   }
 
   /**
-   * Create an annotation via Ajax...
+   * Create an annotation via Ajax... note that this is an action
+   * in itself and not a builder.
    *
    * @param id The item's id
    * @return

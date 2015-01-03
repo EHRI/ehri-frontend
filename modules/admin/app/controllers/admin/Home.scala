@@ -105,19 +105,17 @@ case class Home @Inject()(implicit globalConfig: global.GlobalConfig, searchDisp
     MovedPermanently(controllers.portal.account.routes.Accounts.login().url)
   }
 
-  /**
-   * Full text search action that returns a complete page of item data.
-   * @return
-   */
-  private implicit val anyModelReads = AnyModel.Converter.restReads
-
-  def overview = searchAction[AnyModel](
+  // NB: This page now just handles metrics and only provides facet
+  // data via JSON.
+  def overview = OptionalProfileAction.async { implicit request =>
+    find[AnyModel](
       defaultParams = SearchParams(count=Some(0)),
-      entityFacets = entityFacets) {
-      page => params => facets => implicit userOpt => implicit request =>
-    render {
-      case Accepts.Json() => Ok(Json.toJson(Json.obj("facets" -> facets)))
-      case _ => MovedPermanently(controllers.admin.routes.Home.metrics().url)
+      facetBuilder = entityFacets
+    ).map { case QueryResult(_, _, facets) =>
+        render {
+          case Accepts.Json() => Ok(Json.toJson(Json.obj("facets" -> facets)))
+          case _ => MovedPermanently(controllers.admin.routes.Home.metrics().url)
+        }
     }
   }
 

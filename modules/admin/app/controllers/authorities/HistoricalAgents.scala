@@ -45,9 +45,14 @@ case class HistoricalAgents @Inject()(implicit globalConfig: global.GlobalConfig
   }
 
 
-  def search = searchAction[HistoricalAgent](entities = List(EntityType.HistoricalAgent), entityFacets = entityFacets) {
-      page => params => facets => implicit userOpt => implicit request =>
-    Ok(views.html.admin.historicalAgent.search(page, params, facets, histRoutes.search()))
+  def search = OptionalProfileAction.async { implicit request =>
+    import play.api.libs.concurrent.Execution.Implicits._
+    find[HistoricalAgent](
+      entities = List(EntityType.HistoricalAgent),
+      facetBuilder = entityFacets
+    ).map { case QueryResult(page, params, facets) =>
+      Ok(views.html.admin.historicalAgent.search(page, params, facets, histRoutes.search()))
+    }
   }
 
   def get(id: String) = ItemMetaAction(id).apply { implicit request =>
@@ -128,26 +133,24 @@ case class HistoricalAgents @Inject()(implicit globalConfig: global.GlobalConfig
     Ok(views.html.admin.historicalAgent.linkTo(item))
   }
 
-  def linkAnnotateSelect(id: String, toType: EntityType.Value) = linkSelectAction(id, toType, facets = entityFacets) {
-      item => page => params => facets => etype => implicit userOpt => implicit request =>
-    Ok(views.html.admin.link.linkSourceList(item, page, params, facets, etype,
+  def linkAnnotateSelect(id: String, toType: EntityType.Value) = LinkSelectAction(id, toType, facets = entityFacets).apply { implicit request =>
+    Ok(views.html.admin.link.linkSourceList(
+      request.item, request.page, request.params, request.facets, request.entityType,
         histRoutes.linkAnnotateSelect(id, toType),
         histRoutes.linkAnnotate))
   }
 
-  def linkAnnotate(id: String, toType: EntityType.Value, to: String) = linkAction(id, toType, to) {
-      target => source => implicit userOpt => implicit request =>
-    Ok(views.html.admin.link.create(target, source,
+  def linkAnnotate(id: String, toType: EntityType.Value, to: String) = LinkAction(id, toType, to).apply { implicit request =>
+    Ok(views.html.admin.link.create(request.from, request.to,
         Link.form, histRoutes.linkAnnotatePost(id, toType, to)))
   }
 
-  def linkAnnotatePost(id: String, toType: EntityType.Value, to: String) = linkPostAction(id, toType, to) {
-    formOrAnnotation => implicit userOpt => implicit request =>
-      formOrAnnotation match {
-        case Left((target,source,errorForm)) =>
-          BadRequest(views.html.admin.link.create(target, source,
+  def linkAnnotatePost(id: String, toType: EntityType.Value, to: String) = CreateLinkAction(id, toType, to).apply { implicit request =>
+      request.formOrLink match {
+        case Left((target,errorForm)) =>
+          BadRequest(views.html.admin.link.create(request.from, target,
             errorForm, histRoutes.linkAnnotatePost(id, toType, to)))
-        case Right(annotation) =>
+        case Right(_) =>
           Redirect(histRoutes.get(id))
             .flashing("success" -> "item.update.confirmation")
       }
