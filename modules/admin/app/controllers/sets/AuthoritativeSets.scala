@@ -171,11 +171,9 @@ AuthoritativeSets @Inject()(implicit globalConfig: global.GlobalConfig, searchDi
   }
 
 
-  def updateIndex(id: String) = AdminAction.async { implicit request =>
-    getEntity(id, request.profileOpt) { item =>
-      Ok(views.html.admin.search.updateItemIndex(item,
-        action = setRoutes.updateIndexPost(id)))
-    }
+  def updateIndex(id: String) = (AdminAction andThen ItemPermissionAction(id)).apply { implicit request =>
+      Ok(views.html.admin.search.updateItemIndex(request.item,
+          action = setRoutes.updateIndexPost(id)))
   }
 
   def updateIndexPost(id: String) = updateChildItemsPost(SolrConstants.HOLDER_ID, id)

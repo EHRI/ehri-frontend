@@ -1,12 +1,13 @@
 package controllers.generic
 
+import backend.{BackendContentType, BackendReadable, BackendResource}
+import defines.{EntityType, PermissionType}
+import models.base.{Described, Description, MetaModel, Model}
+import models.{AccessPointF, Link, LinkF, UserProfile}
 import play.api.libs.concurrent.Execution.Implicits._
-import models.base.{Described, MetaModel, Model, Description}
-import defines.{PermissionType, EntityType}
-import models.{Link, UserProfile, LinkF, AccessPointF}
 import play.api.libs.json.Json
-import play.api.mvc.{Result, Request, AnyContent}
-import backend.{ApiUser, BackendReadable, BackendContentType, BackendResource}
+import play.api.mvc.{AnyContent, Request, Result}
+
 import scala.concurrent.Future.{successful => immediate}
 
 /**
@@ -86,9 +87,9 @@ trait AccessPoints[D <: Description, T <: Model with Described[D], MT <: MetaMod
    *   } ]
    *
    */
-  def getAccessPointsJson(id: String)(implicit rd: BackendReadable[MT], rs: BackendResource[MT]) = OptionalProfileAction.async { implicit request =>
-    getEntity.async(id, request.profileOpt) { item =>
-      backend.getLinksForItem[Link](id).map { links =>
+  def getAccessPointsJson(id: String)(implicit rd: BackendReadable[MT], rs: BackendResource[MT]) = {
+    OptionalProfileAction.async { implicit request =>
+      for (item <- backend.get(id); links <- backend.getLinksForItem[Link](id)) yield {
         implicit val accessPointFormat = Json.format[AccessPointF]
         implicit val linkFormat = Json.format[LinkF]
         implicit val targetWrites = Json.format[Target]

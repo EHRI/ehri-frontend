@@ -234,11 +234,9 @@ case class Repositories @Inject()(implicit globalConfig: global.GlobalConfig, se
     }
   }
 
-  def updateIndex(id: String) = AdminAction.async { implicit request =>
-    getEntity(id, request.profileOpt) { item =>
-      Ok(views.html.admin.search.updateItemIndex(item,
-        action = controllers.institutions.routes.Repositories.updateIndexPost(id)))
-    }
+  def updateIndex(id: String) = (AdminAction andThen ItemPermissionAction(id)).apply { implicit request =>
+    Ok(views.html.admin.search.updateItemIndex(request.item,
+      action = controllers.institutions.routes.Repositories.updateIndexPost(id)))
   }
 
   def updateIndexPost(id: String) = updateChildItemsPost(SolrConstants.HOLDER_ID, id)
