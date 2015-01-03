@@ -266,13 +266,12 @@ case class VirtualUnits @Inject()(implicit globalConfig: global.GlobalConfig, se
       descriptionForm, formDefaults, vuRoutes.createDescriptionPost(id)))
   }
 
-  def createDescriptionPost(id: String) = createDescriptionPostAction(id, EntityType.DocumentaryUnitDescription, descriptionForm) {
-      item => formOrItem => implicit userOpt => implicit request =>
-    formOrItem match {
+  def createDescriptionPost(id: String) = CreateDescriptionAction(id, descriptionForm).apply { implicit request =>
+    request.formOrDescription match {
       case Left(errorForm) =>
-        Ok(views.html.admin.virtualUnit.createDescription(item,
+        Ok(views.html.admin.virtualUnit.createDescription(request.item,
           errorForm, formDefaults, vuRoutes.createDescriptionPost(id)))
-      case Right(updated) => Redirect(vuRoutes.get(item.id))
+      case Right(updated) => Redirect(vuRoutes.get(id))
         .flashing("success" -> "item.create.confirmation")
     }
   }
@@ -281,40 +280,41 @@ case class VirtualUnits @Inject()(implicit globalConfig: global.GlobalConfig, se
     ???
   }
 
-  def createDescriptionRefPost(id: String, did: String) = createDescriptionPostAction(id, EntityType.DocumentaryUnitDescription, descriptionForm) {
-      item => formOrItem => implicit userOpt => implicit request =>
+  def createDescriptionRefPost(id: String, did: String) = CreateDescriptionAction(id, descriptionForm).apply { implicit request =>
     ???
   }
 
-  def updateDescription(id: String, did: String) = WithItemPermissionAction(id, PermissionType.Update).apply { implicit request =>
-    itemOr404(request.item.model.description(did)) { desc =>
+  def updateDescription(id: String, did: String) = {
+    WithDescriptionAction(id, did).apply { implicit request =>
       Ok(views.html.admin.virtualUnit.editDescription(request.item,
-        descriptionForm.fill(desc), vuRoutes.updateDescriptionPost(id, did)))
+        descriptionForm.fill(request.description), vuRoutes.updateDescriptionPost(id, did)))
     }
   }
 
-  def updateDescriptionPost(id: String, did: String) = updateDescriptionPostAction(id, EntityType.DocumentaryUnitDescription, did, descriptionForm) {
-      item => formOrItem => implicit userOpt => implicit request =>
-    formOrItem match {
-      case Left(errorForm) =>
-        Ok(views.html.admin.virtualUnit.editDescription(item,
-          errorForm, vuRoutes.updateDescriptionPost(id, did)))
-      case Right(updated) => Redirect(vuRoutes.get(item.id))
-        .flashing("success" -> "item.create.confirmation")
+  def updateDescriptionPost(id: String, did: String) = {
+    UpdateDescriptionAction(id, did, descriptionForm).apply { implicit request =>
+      request.formOrDescription match {
+        case Left(errorForm) =>
+          Ok(views.html.admin.virtualUnit.editDescription(request.item,
+            errorForm, vuRoutes.updateDescriptionPost(id, did)))
+        case Right(updated) => Redirect(vuRoutes.get(id))
+          .flashing("success" -> "item.create.confirmation")
+      }
     }
   }
 
-  def deleteDescription(id: String, did: String) = deleteDescriptionAction(id, did) {
-      item => description => implicit userOpt => implicit request =>
-    Ok(views.html.admin.deleteDescription(item, description,
-      vuRoutes.deleteDescriptionPost(id, did),
-      vuRoutes.get(id)))
+  def deleteDescription(id: String, did: String) = {
+    WithDescriptionAction(id, did).apply { implicit request =>
+      Ok(views.html.admin.deleteDescription(request.item, request.description,
+        vuRoutes.deleteDescriptionPost(id, did), vuRoutes.get(id)))
+    }
   }
 
-  def deleteDescriptionPost(id: String, did: String) = deleteDescriptionPostAction(id, EntityType.DocumentaryUnitDescription, did) {
-      implicit userOpt => implicit request =>
-    Redirect(vuRoutes.get(id))
-      .flashing("success" -> "item.delete.confirmation")
+  def deleteDescriptionPost(id: String, did: String) = {
+    DeleteDescriptionAction(id, did).apply { implicit request =>
+      Redirect(vuRoutes.get(id))
+        .flashing("success" -> "item.delete.confirmation")
+    }
   }
 
   def visibility(id: String) = EditVisibilityAction(id).apply { implicit request =>

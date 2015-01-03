@@ -205,47 +205,50 @@ case class DocumentaryUnits @Inject()(implicit globalConfig: global.GlobalConfig
         descriptionForm, formDefaults, docRoutes.createDescriptionPost(id)))
   }
 
-  def createDescriptionPost(id: String) = createDescriptionPostAction(id, EntityType.DocumentaryUnitDescription, descriptionForm) {
-      item => formOrItem => implicit userOpt => implicit request =>
-    formOrItem match {
-      case Left(errorForm) =>
-        Ok(views.html.admin.documentaryUnit.createDescription(item,
-          errorForm, formDefaults, docRoutes.createDescriptionPost(id)))
-      case Right(_) => Redirect(docRoutes.get(item.id))
-        .flashing("success" -> "item.create.confirmation")
+  def createDescriptionPost(id: String) = {
+    CreateDescriptionAction(id, descriptionForm).apply { implicit request =>
+      request.formOrDescription match {
+        case Left(errorForm) =>
+          Ok(views.html.admin.documentaryUnit.createDescription(request.item,
+            errorForm, formDefaults, docRoutes.createDescriptionPost(id)))
+        case Right(_) => Redirect(docRoutes.get(id))
+          .flashing("success" -> "item.create.confirmation")
+      }
     }
   }
 
-  def updateDescription(id: String, did: String) = WithItemPermissionAction(id, PermissionType.Update).apply { implicit request =>
-    itemOr404(request.item.model.description(did)) { desc =>
-      Ok(views.html.admin.documentaryUnit.editDescription(request.item,
-        descriptionForm.fill(desc),
-        docRoutes.updateDescriptionPost(id, did)))
+  def updateDescription(id: String, did: String) = {
+    WithDescriptionAction(id, did).apply { implicit request =>
+        Ok(views.html.admin.documentaryUnit.editDescription(request.item,
+          descriptionForm.fill(request.description),
+          docRoutes.updateDescriptionPost(id, did)))
     }
   }
 
-  def updateDescriptionPost(id: String, did: String) = updateDescriptionPostAction(id, EntityType.DocumentaryUnitDescription, did, descriptionForm) {
-      item => formOrItem => implicit userOpt => implicit request =>
-    formOrItem match {
-      case Left(errorForm) =>
-        Ok(views.html.admin.documentaryUnit.editDescription(item,
-          errorForm, docRoutes.updateDescriptionPost(id, did)))
-      case Right(_) => Redirect(docRoutes.get(item.id))
-        .flashing("success" -> "item.update.confirmation")
+  def updateDescriptionPost(id: String, did: String) = {
+    UpdateDescriptionAction(id, did, descriptionForm).apply { implicit request =>
+      request.formOrDescription match {
+        case Left(errorForm) =>
+          Ok(views.html.admin.documentaryUnit.editDescription(request.item,
+            errorForm, docRoutes.updateDescriptionPost(id, did)))
+        case Right(_) => Redirect(docRoutes.get(id))
+          .flashing("success" -> "item.update.confirmation")
+      }
     }
   }
 
-  def deleteDescription(id: String, did: String) = deleteDescriptionAction(id, did) {
-      item => description => implicit userOpt => implicit request =>
-    Ok(views.html.admin.deleteDescription(item, description,
-        docRoutes.deleteDescriptionPost(id, did),
-        docRoutes.get(id)))
+  def deleteDescription(id: String, did: String) = {
+    WithDescriptionAction(id, did).apply { implicit request =>
+      Ok(views.html.admin.deleteDescription(request.item, request.description,
+        docRoutes.deleteDescriptionPost(id, did), docRoutes.get(id)))
+    }
   }
 
-  def deleteDescriptionPost(id: String, did: String) = deleteDescriptionPostAction(id, EntityType.DocumentaryUnitDescription, did) {
-      implicit userOpt => implicit request =>
-    Redirect(docRoutes.get(id))
+  def deleteDescriptionPost(id: String, did: String) = {
+    DeleteDescriptionAction(id, did).apply { implicit request =>
+      Redirect(docRoutes.get(id))
         .flashing("success" -> "item.delete.confirmation")
+    }
   }
 
   def delete(id: String) = CheckDeleteAction(id).apply { implicit request =>
@@ -363,9 +366,10 @@ case class DocumentaryUnits @Inject()(implicit globalConfig: global.GlobalConfig
     }
   }
 
-  def manageAccessPoints(id: String, descriptionId: String) = manageAccessPointsAction(id, descriptionId) {
-      item => desc => implicit userOpt => implicit request =>
-    Ok(views.html.admin.documentaryUnit.editAccessPoints(item, desc))
+  def manageAccessPoints(id: String, descriptionId: String) = {
+    WithDescriptionAction(id, descriptionId).apply { implicit request =>
+      Ok(views.html.admin.documentaryUnit.editAccessPoints(request.item, request.description))
+    }
   }
 
   import play.api.libs.concurrent.Execution.Implicits._
