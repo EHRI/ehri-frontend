@@ -18,7 +18,7 @@ trait ScopePermissions[MT] extends ItemPermissions[MT] {
 
   val targetContentTypes: Seq[ContentTypes.Value]
 
-  case class PermissionGrantRequest[A](
+  case class ScopePermissionGrantRequest[A](
     item: MT,
     permissionGrants: Page[PermissionGrant],
     scopePermissionGrants: Page[PermissionGrant],
@@ -37,15 +37,15 @@ trait ScopePermissions[MT] extends ItemPermissions[MT] {
   with WithOptionalProfile
 
   protected def ScopePermissionGrantAction(id: String)(implicit rd: BackendReadable[MT], ct: BackendContentType[MT]) =
-    WithGrantPermission(id) andThen new ActionTransformer[ItemPermissionRequest, PermissionGrantRequest] {
-      override protected def transform[A](request: ItemPermissionRequest[A]): Future[PermissionGrantRequest[A]] = {
+    WithGrantPermission(id) andThen new ActionTransformer[ItemPermissionRequest, ScopePermissionGrantRequest] {
+      override protected def transform[A](request: ItemPermissionRequest[A]): Future[ScopePermissionGrantRequest[A]] = {
         implicit val req = request
         val itemParams = PageParams.fromRequest(request)
         val scopeParams = PageParams.fromRequest(request, namespace = "s")
         for {
           permGrants <- backend.listItemPermissionGrants[PermissionGrant](id, itemParams)
           scopeGrants <- backend.listScopePermissionGrants[PermissionGrant](id, scopeParams)
-        } yield PermissionGrantRequest(request.item, permGrants, scopeGrants, request.profileOpt, request)
+        } yield ScopePermissionGrantRequest(request.item, permGrants, scopeGrants, request.profileOpt, request)
       }
     }
 

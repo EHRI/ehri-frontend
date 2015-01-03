@@ -91,34 +91,34 @@ case class Groups @Inject()(implicit globalConfig: global.GlobalConfig, searchDi
         .flashing("success" -> "item.delete.confirmation")
   }
 
-  def grantList(id: String) = grantListAction(id) {
-      item => perms => implicit userOpt => implicit request =>
-    Ok(views.html.admin.permissions.permissionGrantList(item, perms))
+  def grantList(id: String) = GrantListAction(id).apply { implicit request =>
+    Ok(views.html.admin.permissions.permissionGrantList(request.item, request.permissionGrants))
   }
 
-  def permissions(id: String) = setGlobalPermissionsAction(id) {
-      item => perms => implicit userOpt => implicit request =>
-    Ok(views.html.admin.permissions.editGlobalPermissions(item, perms,
+  def permissions(id: String) = CheckGlobalPermissionsAction(id).apply { implicit request =>
+    Ok(views.html.admin.permissions.editGlobalPermissions(request.item, request.permissions,
           groupRoutes.permissionsPost(id)))
   }
 
-  def permissionsPost(id: String) = setGlobalPermissionsPostAction(id) {
-      item => perms => implicit userOpt => implicit request =>
+  def permissionsPost(id: String) = SetGlobalPermissionsAction(id).apply { implicit request =>
     Redirect(groupRoutes.get(id))
         .flashing("success" -> "item.update.confirmation")
   }
 
 
-  def revokePermission(id: String, permId: String) = revokePermissionAction(id, permId) {
-      item => perm => implicit userOpt => implicit request =>
-    Ok(views.html.admin.permissions.revokePermission(item, perm,
+  def revokePermission(id: String, permId: String) = {
+    CheckRevokePermissionAction(id, permId).apply { implicit request =>
+      Ok(views.html.admin.permissions.revokePermission(
+        request.item, request.permissionGrant,
         groupRoutes.revokePermissionPost(id, permId), groupRoutes.grantList(id)))
+    }
   }
 
-  def revokePermissionPost(id: String, permId: String) = revokePermissionActionPost(id, permId) {
-      item => implicit userOpt => implicit request =>
-    Redirect(groupRoutes.grantList(id))
-      .flashing("success" -> "item.delete.confirmation")
+  def revokePermissionPost(id: String, permId: String) = {
+    RevokePermissionAction(id, permId).apply { implicit request =>
+      Redirect(groupRoutes.grantList(id))
+        .flashing("success" -> "item.delete.confirmation")
+    }
   }
 
   /*
