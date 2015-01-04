@@ -10,7 +10,6 @@ import scala.concurrent.Future.{successful => immediate}
 
 
 trait ControllerHelpers {
-  this: Controller with AuthController =>
 
   implicit val globalConfig: global.GlobalConfig
 

@@ -81,22 +81,14 @@ trait AuthConfigImpl extends AuthConfig with Results {
   /**
    * A redirect target after a failed authentication.
    */
-  def authenticationFailed(request: RequestHeader)(implicit context: ExecutionContext): Future[Result] = {
-    if (utils.isAjax(request)) {
-      Logger.logger.warn("Auth failed for: {}", request.toString())
-      immediate(Unauthorized("authentication failed"))
-    } else {
-      immediate(Redirect(defaultAuthFailedUrl).withSession(ACCESS_URI -> request.uri))
-    }
-  }
+  def authenticationFailed(request: RequestHeader)(implicit context: ExecutionContext): Future[Result] =
+    immediate(Unauthorized("not authenticated"))
 
   /**
    * A redirect target after a failed authorization.
    */
-  def authorizationFailed(request: RequestHeader)(implicit context: ExecutionContext): Future[Result] = {
-    implicit val req = request
-    immediate(Forbidden("todo")) //views.html.errors.permissionDenied()))
-  }
+  def authorizationFailed(request: RequestHeader)(implicit context: ExecutionContext): Future[Result] =
+    immediate(Forbidden("no permission"))
 
   /**
    * A function that authorizes a user by `Authority`.

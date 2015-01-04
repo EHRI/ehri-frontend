@@ -1,5 +1,6 @@
 package controllers.base
 
+import play.api.Logger
 import play.api.mvc.{Result, RequestHeader}
 import scala.concurrent.{Future, ExecutionContext}
 import scala.concurrent.Future.{successful => immediate}
@@ -24,6 +25,24 @@ trait AdminController extends AuthController with ControllerHelpers with AuthCon
   def notFoundError(request: RequestHeader)(implicit context: ExecutionContext): Future[Result] = {
     implicit val r  = request
     immediate(NotFound(renderError("errors.itemNotFound", itemNotFound())))
+  }
+
+  /**
+   * A redirect target after a failed authentication.
+   */
+  override def authenticationFailed(request: RequestHeader)(implicit context: ExecutionContext): Future[Result] = {
+    if (utils.isAjax(request)) {
+      Logger.logger.warn("Auth failed for: {}", request.toString())
+      immediate(Unauthorized("authentication failed"))
+    } else {
+      immediate(Redirect(controllers.portal.account.routes.Accounts.login())
+        .withSession(ACCESS_URI -> request.uri))
+    }
+  }
+
+  override def authorizationFailed(request: RequestHeader)(implicit context: ExecutionContext): Future[Result] = {
+    implicit val r = request
+    immediate(Forbidden(renderError("errors.permissionDenied", views.html.errors.permissionDenied())))
   }
 
   /**

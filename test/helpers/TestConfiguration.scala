@@ -1,28 +1,24 @@
 package helpers
 
-import play.api.http.{MimeTypes, HeaderNames}
-import play.api.test.FakeRequest
-import play.api.GlobalSettings
-import play.filters.csrf.CSRFFilter
 import backend.HelpdeskDAO.HelpdeskResponse
-import models.{Feedback, MockAccountDAO, AccountDAO, Account}
-import mocks._
-import global.GlobalConfig
-import play.api.mvc.{RequestHeader, WithFilters}
-import jp.t2v.lab.play2.auth.test.Helpers._
-import controllers.base.AuthConfigImpl
-import scala.concurrent.Future
 import backend._
-import utils.search._
-import backend.rest.RestBackend
-import backend.rest.CypherIdGenerator
-import utils.search.MockSearchIndexer
-import play.api.test.FakeApplication
-import utils.search.MockSearchDispatcher
+import backend.helpdesk.{MockFeedbackDAO, MockHelpdeskDAO}
+import backend.rest.{CypherIdGenerator, RestBackend}
+import com.google.inject.{AbstractModule, Guice}
 import com.typesafe.plugin.MailerAPI
-import backend.helpdesk.{MockHelpdeskDAO, MockFeedbackDAO}
-import mocks.MockBufferedMailer
-import com.google.inject.{Guice, AbstractModule}
+import controllers.base.AuthConfigImpl
+import global.GlobalConfig
+import jp.t2v.lab.play2.auth.test.Helpers._
+import mocks.{MockBufferedMailer, _}
+import models.{Account, AccountDAO, Feedback, MockAccountDAO}
+import play.api.GlobalSettings
+import play.api.http.{HeaderNames, MimeTypes}
+import play.api.mvc.{RequestHeader, WithFilters}
+import play.api.test.{FakeApplication, FakeRequest}
+import play.filters.csrf.CSRFFilter
+import utils.search.{MockSearchDispatcher, MockSearchIndexer, _}
+
+import scala.concurrent.Future
 
 /**
  * Mixin trait that provides some handy methods to test actions that

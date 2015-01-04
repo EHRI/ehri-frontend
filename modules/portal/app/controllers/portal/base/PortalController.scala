@@ -1,5 +1,6 @@
 package controllers.portal.base
 
+import play.api.Logger
 import play.api.libs.concurrent.Execution.Implicits._
 import defines.{EventType, EntityType}
 import utils._
@@ -78,11 +79,31 @@ trait PortalController extends AuthController with ControllerHelpers with Portal
   }
 
   /**
+   * A redirect target after a failed authentication.
+   */
+  override def authenticationFailed(request: RequestHeader)(implicit context: ExecutionContext): Future[Result] = {
+    if (utils.isAjax(request)) {
+      Logger.logger.warn("Auth failed for: {}", request.toString())
+      immediate(Unauthorized("authentication failed"))
+    } else {
+      immediate(Redirect(controllers.portal.account.routes.Accounts.login())
+        .withSession(ACCESS_URI -> request.uri))
+    }
+  }
+
+  override def authorizationFailed(request: RequestHeader)(implicit context: ExecutionContext): Future[Result] = {
+    implicit val r = request
+    immediate(Forbidden(renderError("errors.permissionDenied", views.html.errors.permissionDenied())))
+  }
+
+  /**
    * Wrap some code generating an optional result, falling back to a 404.
    */
   def itemOr404(f: => Option[Result])(implicit request: RequestHeader): Result = {
     f.getOrElse(NotFound(renderError("errors.itemNotFound", itemNotFound())))
   }
+
+
 
   /**
    * Given an optional item and a function to produce a

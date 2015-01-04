@@ -1,24 +1,16 @@
 package controllers.base
 
 
-import jp.t2v.lab.play2.auth.{AsyncAuth, AuthActionBuilders}
-
-import scala.concurrent.ExecutionContext
-import models.{UserProfileF, UserProfile}
-
+import backend.{ApiUser, _}
+import defines.{ContentTypes, PermissionType}
+import jp.t2v.lab.play2.auth.AuthActionBuilders
+import models.{UserProfile, UserProfileF}
 import play.api.i18n.Lang
 import play.api.libs.concurrent.Execution.Implicits._
-import play.api.mvc._
+import play.api.mvc.{Result, _}
 
-import scala.concurrent.Future
+import scala.concurrent.{ExecutionContext, Future}
 import scala.concurrent.Future.{successful => immediate}
-
-import defines.PermissionType
-import defines.ContentTypes
-import backend._
-import backend.ApiUser
-import play.api.mvc.Result
-
 import scala.language.implicitConversions
 
 
@@ -27,51 +19,38 @@ import scala.language.implicitConversions
  * types of request authentication.
  * NB: None of the methods here actually reer
  */
-trait AuthController extends Controller with ControllerHelpers with AsyncAuth with AuthConfigImpl with AuthActionBuilders {
+trait AuthController extends Controller with ControllerHelpers with AuthActionBuilders with AuthConfigImpl {
 
+  // Inheriting controllers need to be injected with
+  // a backend implementation.
   val backend: Backend
 
+  // NB: Implicit so it can be used as an implicit parameter in views
+  // that are rendered from inheriting controllers.
   implicit val globalConfig: global.GlobalConfig
 
   // Override this to allow non-staff to view a page
   val staffOnly = true
+
   // Override this to allow non-verified users to view a page
   val verifiedOnly = true
 
   // Turning secured off will override staffOnly
   lazy val secured = play.api.Play.current.configuration.getBoolean("ehri.secured").getOrElse(true)
 
-  private val LANG = "lang"
-
-
   /**
    * Abstract response methods that should be implemented by inheritors.
-   *
-   * @param request the request heaader
-   * @param context the execution context
-   * @return an error response
    */
   def verifiedOnlyError(request: RequestHeader)(implicit context: ExecutionContext): Future[Result]
 
-  /**
-   * Abstract response methods that should be implemented by inheritors.
-   *
-   * @param request the request heaader
-   * @param context the execution context
-   * @return an error response
-   */
   def staffOnlyError(request: RequestHeader)(implicit context: ExecutionContext): Future[Result]
 
-  /**
-   * Abstract response methods that should be implemented by inheritors.
-   *
-   * @param request the request heaader
-   * @param context the execution context
-   * @return an error response
-   */
   def notFoundError(request: RequestHeader)(implicit context: ExecutionContext): Future[Result]
 
+  def authorizationFailed(request: RequestHeader)(implicit context: ExecutionContext): Future[Result]
 
+  // If a lang cookie is present, use it...
+  private val LANG = "lang"
   override implicit def request2lang(implicit request: RequestHeader): Lang = {
     request.cookies.get(LANG) match {
       case None => super.request2lang(request)
@@ -180,34 +159,29 @@ trait AuthController extends Controller with ControllerHelpers with AsyncAuth wi
   }
 
   /**
-   * Check the user is allowed in this controller based on their account's
-   * `staff` and `verified` flags.
+   * Fetch, if available, the user's profile, ensuring that:
+   *  - the site is not read-only
+   *  - they are allowed in this controller
    */
-  protected object AdminFilter extends ActionFilter[OptionalProfileRequest] {
-    protected def filter[A](request: OptionalProfileRequest[A]): Future[Option[Result]] = {
-      request.profileOpt.filter(!_.isAdmin)
-        .map(_ => authenticationFailed(request).map(r => Some(r))).getOrElse(immediate(None))
-    }
-  }
+  def OptionalProfileAction = OptionalAuthAction andThen ReadOnlyTransformer andThen AllowedFilter andThen FetchProfile
 
   /**
-   * Check the user has permission to perform an action on a content type.
+   * Ensure that a user a given permission on a given content type
+   * @param permissionType the permission type
+   * @param contentType the content type
    */
-  protected def WithContentPermissionFilter(perm: PermissionType.Value, contentType: ContentTypes.Value) = new ActionFilter[OptionalProfileRequest] {
-    override protected def filter[A](request: OptionalProfileRequest[A]): Future[Option[Result]] = {
-      if (request.profileOpt.exists(_.hasPermission(contentType, perm)))  Future.successful(None)
-      else authenticationFailed(request).map(r => Some(r))
+  def WithContentPermissionAction(permissionType: PermissionType.Value, contentType: ContentTypes.Value) =
+    OptionalProfileAction andThen new ActionFilter[OptionalProfileRequest] {
+      override protected def filter[A](request: OptionalProfileRequest[A]): Future[Option[Result]] = {
+        if (request.profileOpt.exists(_.hasPermission(contentType, permissionType)))  Future.successful(None)
+        else authenticationFailed(request).map(r => Some(r))
+      }
     }
-  }
-
-  def WithContentPermissionAction(perm: PermissionType.Value, contentType: ContentTypes.Value) =
-    OptionalProfileAction andThen WithContentPermissionFilter(perm, contentType)
 
   /**
-   * Given an optional profile request, convert to a concrete profile request if the
-   * profile is present, or return an authentication failed.
+   * Ensure that a user is present
    */
-  protected object WithUserRefiner extends ActionRefiner[OptionalProfileRequest, ProfileRequest] {
+  def WithUserAction = OptionalProfileAction andThen new ActionRefiner[OptionalProfileRequest, ProfileRequest] {
     protected def refine[A](request: OptionalProfileRequest[A]) = {
       request.profileOpt match {
         case None => authenticationFailed(request).map(r => Left(r))
@@ -216,11 +190,15 @@ trait AuthController extends Controller with ControllerHelpers with AsyncAuth wi
     }
   }
 
-  def OptionalProfileAction = OptionalAuthAction andThen ReadOnlyTransformer andThen AllowedFilter andThen FetchProfile
-
-  def WithUserAction = OptionalProfileAction andThen WithUserRefiner
-
-  def AdminAction = OptionalProfileAction andThen AdminFilter
+  /**
+   * Check the user is an administrator to access this request
+   */
+  def AdminAction = OptionalProfileAction andThen new ActionFilter[OptionalProfileRequest] {
+    protected def filter[A](request: OptionalProfileRequest[A]): Future[Option[Result]] = {
+      request.profileOpt.filter(!_.isAdmin)
+        .map(_ => authenticationFailed(request).map(r => Some(r))).getOrElse(immediate(None))
+    }
+  }
 
   /**
    * SystemEvent composition that adds extra context to regular requests. Namely,
@@ -442,6 +420,7 @@ trait AuthController extends Controller with ControllerHelpers with AsyncAuth wi
    * Wrap userProfileAction to ensure we have a user, or
    * access is denied, but don't change the incoming parameters.
    */
+  @deprecated(message = "Use WithUserAction instead", since = "1.0.2")
   def secured(f: Option[UserProfile] => Request[AnyContent] => Future[Result]): Action[AnyContent] = {
     OptionalProfileAction.async { implicit  request =>
       if (request.profileOpt.isDefined) f(request.profileOpt)(request)
