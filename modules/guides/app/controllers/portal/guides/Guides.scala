@@ -139,7 +139,7 @@ case class Guides @Inject()(implicit globalConfig: global.GlobalConfig, searchDi
   /*
   * Return a list of guides
   */
-  def listGuides() = OptionalProfileAction { implicit request =>
+  def listGuides() = OptionalUserAction { implicit request =>
     Ok(p.guides.guidesList(Guide.findAll(activeOnly = true)))
   }
 
@@ -307,7 +307,7 @@ case class Guides @Inject()(implicit globalConfig: global.GlobalConfig, searchDi
   /*
   *   Layout named "md" [Markdown]
   */
-  def guideMarkdown(template: GuidePage, content: String, guide: Guide) = OptionalProfileAction { implicit request =>
+  def guideMarkdown(template: GuidePage, content: String, guide: Guide) = OptionalUserAction { implicit request =>
     Ok(p.guides.markdown(template -> (guide -> guide.findPages), content))
   }
 
@@ -475,7 +475,7 @@ case class Guides @Inject()(implicit globalConfig: global.GlobalConfig, searchDi
   /*
   *   Faceted search
   */
-  def guideFacets(path: String) = OptionalProfileAction.async { implicit request =>
+  def guideFacets(path: String) = OptionalUserAction.async { implicit request =>
     Guide.find(path, activeOnly = true).map { guide =>
       /*
        *  If we have keyword, we make a query 

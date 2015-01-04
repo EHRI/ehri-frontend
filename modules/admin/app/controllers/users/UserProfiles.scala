@@ -181,7 +181,7 @@ case class UserProfiles @Inject()(implicit globalConfig: global.GlobalConfig, se
     Ok(views.html.admin.userProfile.show(request.item, request.annotations))
   }
 
-  def search = OptionalProfileAction.async { implicit request =>
+  def search = OptionalUserAction.async { implicit request =>
     find[UserProfile](
       entities = List(EntityType.UserProfile), facetBuilder = entityFacets
     ).map { case QueryResult(page, params, facets) =>

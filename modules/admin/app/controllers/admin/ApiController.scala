@@ -28,7 +28,7 @@ case class ApiController @Inject()(implicit globalConfig: global.GlobalConfig, b
     get(s"entities?id=$id")(request)
   }
 
-  def get(urlpart: String) = OptionalProfileAction.async { implicit request =>
+  def get(urlpart: String) = OptionalUserAction.async { implicit request =>
     val url = urlpart + (if(request.rawQueryString.trim.isEmpty) "" else "?" + request.rawQueryString)
     backend.query(url, request.headers).map { r =>
       val response: NingResponse = r.underlying[NingResponse]

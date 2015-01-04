@@ -46,7 +46,7 @@ case class Annotations @Inject()(implicit globalConfig: global.GlobalConfig, sea
     AnnotationF.IS_PRIVATE -> true.toString
   )
 
-  def annotation(id: String) = OptionalProfileAction.async { implicit request =>
+  def annotation(id: String) = OptionalUserAction.async { implicit request =>
     backend.get[Annotation](id).map { ann =>
       Ok(Json.toJson(ann)(client.json.annotationJson.clientFormat))
     }

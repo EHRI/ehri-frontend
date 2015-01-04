@@ -38,7 +38,7 @@ case class Feedback @Inject()(implicit globalConfig: global.GlobalConfig, feedba
       verifying blankFieldIsBlank verifying formSubmissionTime
   )
 
-  def feedback = OptionalProfileAction { implicit request =>
+  def feedback = OptionalUserAction { implicit request =>
     Ok(views.html.p.feedback(models.Feedback.form))
   }
 
@@ -64,7 +64,7 @@ case class Feedback @Inject()(implicit globalConfig: global.GlobalConfig, feedba
     }
   }
 
-  def feedbackPost = OptionalProfileAction.async { implicit request =>
+  def feedbackPost = OptionalUserAction.async { implicit request =>
     val boundForm: Form[models.Feedback] = models.Feedback.form.bindFromRequest()
     import play.api.Play.current
 
@@ -77,7 +77,7 @@ case class Feedback @Inject()(implicit globalConfig: global.GlobalConfig, feedba
     else boundForm.fold(
       errorForm => immediate(response(errorForm)),
       feedback => {
-        val moreFeedback = request.profileOpt.map { user =>
+        val moreFeedback = request.userOpt.map { user =>
           feedback.copy(name = feedback.name.orElse(user.account.map(_.id)))
             .copy(email = feedback.email.orElse(user.account.map(_.email)))
         }.getOrElse(feedback)

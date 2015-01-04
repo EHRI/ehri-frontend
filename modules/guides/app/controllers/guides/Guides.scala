@@ -13,7 +13,7 @@ case class Guides @Inject()(implicit globalConfig: global.GlobalConfig, backend:
   private val formGuide = models.Guide.form
   private final val guidesRoutes = controllers.guides.routes.Guides
 
-  def list() = OptionalProfileAction { implicit request =>
+  def list() = OptionalUserAction { implicit request =>
     Ok(views.html.guide.list(Guide.findAll()))
   }
 

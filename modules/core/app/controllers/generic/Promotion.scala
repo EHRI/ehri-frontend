@@ -21,9 +21,9 @@ trait Promotion[MT] extends Generic[MT] {
   protected def PromoteItemAction(id: String)(implicit rd: BackendReadable[MT], ct: BackendContentType[MT]) =
     EditPromotionAction(id) andThen new ActionTransformer[ItemPermissionRequest,ItemPermissionRequest] {
       override protected def transform[A](request: ItemPermissionRequest[A]): Future[ItemPermissionRequest[A]] = {
-        implicit val userOpt = request.profileOpt
+        implicit val userOpt = request.userOpt
         backend.promote(id).map { updated =>
-          ItemPermissionRequest(updated, request.profileOpt, request)
+          ItemPermissionRequest(updated, request.userOpt, request)
         }
       }
     }
@@ -31,9 +31,9 @@ trait Promotion[MT] extends Generic[MT] {
   protected def RemovePromotionAction(id: String)(implicit rd: BackendReadable[MT], ct: BackendContentType[MT]) =
     EditPromotionAction(id) andThen new ActionTransformer[ItemPermissionRequest,ItemPermissionRequest] {
       override protected def transform[A](request: ItemPermissionRequest[A]): Future[ItemPermissionRequest[A]] = {
-        implicit val userOpt = request.profileOpt
+        implicit val userOpt = request.userOpt
         backend.removePromotion(id).map { updated =>
-          ItemPermissionRequest(updated, request.profileOpt, request)
+          ItemPermissionRequest(updated, request.userOpt, request)
         }
       }
     }
@@ -41,9 +41,9 @@ trait Promotion[MT] extends Generic[MT] {
   protected def DemoteItemAction(id: String)(implicit rd: BackendReadable[MT], ct: BackendContentType[MT]) =
     EditPromotionAction(id) andThen new ActionTransformer[ItemPermissionRequest,ItemPermissionRequest] {
       override protected def transform[A](request: ItemPermissionRequest[A]): Future[ItemPermissionRequest[A]] = {
-        implicit val userOpt = request.profileOpt
+        implicit val userOpt = request.userOpt
         backend.demote(id).map { updated =>
-          ItemPermissionRequest(updated, request.profileOpt, request)
+          ItemPermissionRequest(updated, request.userOpt, request)
         }
       }
     }
@@ -51,9 +51,9 @@ trait Promotion[MT] extends Generic[MT] {
   protected def RemoveDemotionAction(id: String)(implicit rd: BackendReadable[MT], ct: BackendContentType[MT]) =
     EditPromotionAction(id) andThen new ActionTransformer[ItemPermissionRequest,ItemPermissionRequest] {
       override protected def transform[A](request: ItemPermissionRequest[A]): Future[ItemPermissionRequest[A]] = {
-        implicit val userOpt = request.profileOpt
+        implicit val userOpt = request.userOpt
         backend.removeDemotion(id).map { updated =>
-          ItemPermissionRequest(updated, request.profileOpt, request)
+          ItemPermissionRequest(updated, request.userOpt, request)
         }
       }
     }

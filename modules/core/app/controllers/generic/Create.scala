@@ -25,24 +25,24 @@ trait Create[F <: Model with Persistable, MT <: MetaModel[F]] extends Generic[MT
    * and groups.
    * @param users a seq of id -> name tuples for users on the system
    * @param groups a seq of id -> name tuples for users on the system
-   * @param profileOpt an optional profile
+   * @param userOpt an optional profile
    * @param request the underlying request
    * @tparam A the type of the underlying request
    */
   case class UserGroupsRequest[A](
     users: Seq[(String,String)],
     groups: Seq[(String,String)],
-    profileOpt: Option[UserProfile],
+    userOpt: Option[UserProfile],
     request: Request[A]
   ) extends WrappedRequest[A](request)
-    with WithOptionalProfile
+    with WithOptionalUser
 
   case class CreateRequest[A](
     formOrItem: Either[(Form[F],Form[List[String]]),MT],
-    profileOpt: Option[UserProfile],
+    userOpt: Option[UserProfile],
     request: Request[A]
   ) extends WrappedRequest[A](request)
-    with WithOptionalProfile
+    with WithOptionalUser
 
   protected def NewItemAction(implicit ct: BackendContentType[MT]) =
     WithContentPermissionAction(PermissionType.Create, ct.contentType) andThen new ActionTransformer[OptionalProfileRequest, UserGroupsRequest] {
@@ -50,7 +50,7 @@ trait Create[F <: Model with Persistable, MT <: MetaModel[F]] extends Generic[MT
         for {
           users <- RestHelpers.getUserList
           groups <- RestHelpers.getGroupList
-        } yield UserGroupsRequest(users, groups, request.profileOpt, request)
+        } yield UserGroupsRequest(users, groups, request.userOpt, request)
       }
     }
 
@@ -59,18 +59,18 @@ trait Create[F <: Model with Persistable, MT <: MetaModel[F]] extends Generic[MT
       def transform[A](request: OptionalProfileRequest[A]): Future[CreateRequest[A]] = {
         implicit val req = request
         form.bindFromRequest.fold(
-          errorForm => immediate(CreateRequest(Left((errorForm,VisibilityForm.form)), request.profileOpt, request.request)),
+          errorForm => immediate(CreateRequest(Left((errorForm,VisibilityForm.form)), request.userOpt, request.request)),
           doc => {
             val accessors = VisibilityForm.form.bindFromRequest.value.getOrElse(Nil)
             backend.create(doc, accessors, params = pf(request), logMsg = getLogMessage).map { item =>
-              CreateRequest(Right(item), request.profileOpt, request)
+              CreateRequest(Right(item), request.userOpt, request)
             } recover {
               // If we have an error, check if it's a validation error.
               // If so, we need to merge those errors back into the form
               // and redisplay it...
               case ValidationError(errorSet) =>
                 val filledForm = doc.getFormErrors(errorSet, form.fill(doc))
-                CreateRequest(Left((filledForm, VisibilityForm.form)), request.profileOpt, request)
+                CreateRequest(Left((filledForm, VisibilityForm.form)), request.userOpt, request)
             }
           }
         )

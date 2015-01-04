@@ -97,7 +97,7 @@ case class Portal @Inject()(implicit globalConfig: global.GlobalConfig, searchDi
    * extracted from the search engine facet counts for different
    * types.
    */
-  def index = OptionalProfileAction.async { implicit request =>
+  def index = OptionalUserAction.async { implicit request =>
     FutureCache.getOrElse("index:metrics", 60 * 5) {
       find[AnyModel](
         defaultParams = SearchParams(
@@ -269,7 +269,7 @@ case class Portal @Inject()(implicit globalConfig: global.GlobalConfig, searchDi
     Ok(p.group.show(item))
   }
 
-  def browseAnnotations = OptionalProfileAction.async { implicit request =>
+  def browseAnnotations = OptionalUserAction.async { implicit request =>
     find[Annotation](
       entities = List(EntityType.Annotation),
       facetBuilder = annotationFacets
@@ -327,7 +327,7 @@ case class Portal @Inject()(implicit globalConfig: global.GlobalConfig, searchDi
     }
   }
 
-  def itemHistory(id: String, modal: Boolean = false) = OptionalProfileAction.async { implicit request =>
+  def itemHistory(id: String, modal: Boolean = false) = OptionalUserAction.async { implicit request =>
     val params: RangeParams = RangeParams.fromRequest(request)
     val filters = SystemEventParams.fromRequest(request)
     backend.history[SystemEvent](id, params, filters).map { events =>
@@ -345,20 +345,20 @@ case class Portal @Inject()(implicit globalConfig: global.GlobalConfig, searchDi
   }
 
   def dataPolicy = Cached("pages:portalDataPolicy") {
-    OptionalProfileAction.apply { implicit request =>
+    OptionalUserAction.apply { implicit request =>
       Ok(p.dataPolicy())
     }
   }
 
-  def terms = OptionalProfileAction.apply { implicit request =>
+  def terms = OptionalUserAction.apply { implicit request =>
     Ok(p.terms())
   }
 
-  def about = OptionalProfileAction.apply { implicit request =>
+  def about = OptionalUserAction.apply { implicit request =>
     Ok(p.about())
   }
 
-  def contact = OptionalProfileAction.apply { implicit request =>
+  def contact = OptionalUserAction.apply { implicit request =>
     Ok(p.contact())
   }
 

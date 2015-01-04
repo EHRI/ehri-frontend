@@ -52,10 +52,10 @@ trait Linking[MT <: AnyModel] extends Read[MT] with Search {
     params: SearchParams,
     facets: List[AppliedFacet],
     entityType: EntityType.Value,
-    profileOpt: Option[UserProfile],
+    userOpt: Option[UserProfile],
     request: Request[A]
   ) extends WrappedRequest[A](request)
-    with WithOptionalProfile
+    with WithOptionalUser
 
   def LinkSelectAction(id: String, toType: EntityType.Value, facets: FacetBuilder = emptyFacets)(implicit rd: BackendReadable[MT], ct: BackendContentType[MT]) =
     WithItemPermissionAction(id, PermissionType.Annotate) andThen new ActionTransformer[ItemPermissionRequest, LinkSelectRequest] {
@@ -63,7 +63,7 @@ trait Linking[MT <: AnyModel] extends Read[MT] with Search {
         implicit val req = request
         find[AnyModel](facetBuilder = facets, defaultParams = SearchParams(entities = List(toType), excludes=Some(List(id)))).map { r =>
           LinkSelectRequest(request.item, r.page, r.params,
-            r.facets, toType, request.profileOpt, request)
+            r.facets, toType, request.userOpt, request)
         }
       }
     }
@@ -82,17 +82,17 @@ trait Linking[MT <: AnyModel] extends Read[MT] with Search {
   case class LinkItemsRequest[A](
     from: MT,
     to: AnyModel,
-    profileOpt: Option[UserProfile],
+    userOpt: Option[UserProfile],
     request: Request[A]
   ) extends WrappedRequest[A](request)
-    with WithOptionalProfile
+    with WithOptionalUser
 
   def LinkAction(id: String, toType: EntityType.Value, to: String)(implicit rd: BackendReadable[MT], ct: BackendContentType[MT]) =
     WithItemPermissionAction(id, PermissionType.Annotate) andThen new ActionTransformer[ItemPermissionRequest, LinkItemsRequest] {
       override protected def transform[A](request: ItemPermissionRequest[A]): Future[LinkItemsRequest[A]] = {
         implicit val req = request
         backend.get[AnyModel](AnyModel.resourceFor(toType), to).map { toItem =>
-          LinkItemsRequest(request.item, toItem, request.profileOpt, request)
+          LinkItemsRequest(request.item, toItem, request.userOpt, request)
         }
       }
     }
@@ -111,10 +111,10 @@ trait Linking[MT <: AnyModel] extends Read[MT] with Search {
   case class CreateLinkRequest[A](
     from: MT,
     formOrLink: Either[(AnyModel, Form[LinkF]), Link],
-    profileOpt: Option[UserProfile],
+    userOpt: Option[UserProfile],
     request: Request[A]
   ) extends WrappedRequest[A](request)
-    with WithOptionalProfile
+    with WithOptionalUser
 
   def CreateLinkAction(id: String, toType: EntityType.Value, to: String)(implicit rd: BackendReadable[MT], ct: BackendContentType[MT]) =
     WithItemPermissionAction(id, PermissionType.Annotate) andThen new ActionTransformer[ItemPermissionRequest, CreateLinkRequest] {
@@ -123,11 +123,11 @@ trait Linking[MT <: AnyModel] extends Read[MT] with Search {
         Link.form.bindFromRequest.fold(
           errorForm => { // oh dear, we have an error...
             backend.get[AnyModel](AnyModel.resourceFor(toType), to).map { toItem =>
-              CreateLinkRequest(request.item, Left((toItem, errorForm)), request.profileOpt, request)
+              CreateLinkRequest(request.item, Left((toItem, errorForm)), request.userOpt, request)
             }
           },
           ann => backend.linkItems[Link, LinkF](id, to, ann).map { link =>
-            CreateLinkRequest(request.item, Right(link), request.profileOpt, request)
+            CreateLinkRequest(request.item, Right(link), request.userOpt, request)
           }
         )
       }
@@ -157,17 +157,17 @@ trait Linking[MT <: AnyModel] extends Read[MT] with Search {
   @deprecated(message = "Use WithItemPermission directly", since = "1.0.2")
   def linkMultiAction(id: String)(f: MT => Option[UserProfile] => Request[AnyContent] => Result)(implicit rd: BackendReadable[MT], ct: BackendContentType[MT]) = {
     WithItemPermissionAction(id, PermissionType.Annotate).apply { implicit request =>
-      f(request.item)(request.profileOpt)(request)
+      f(request.item)(request.userOpt)(request)
     }
   }
 
   case class MultiLinksRequest[A](
     item: MT,
     formOrLinks: Either[Form[List[(String,LinkF,Option[String])]], Seq[Link]],
-    profileOpt: Option[UserProfile],
+    userOpt: Option[UserProfile],
     request: Request[A]
   ) extends WrappedRequest[A](request)
-    with WithOptionalProfile
+    with WithOptionalUser
 
   def CreateMultipleLinksAction(id: String)(implicit rd: BackendReadable[MT], ct: BackendContentType[MT]) =
     WithItemPermissionAction(id, PermissionType.Annotate) andThen new ActionTransformer[ItemPermissionRequest, MultiLinksRequest] {
@@ -175,9 +175,9 @@ trait Linking[MT <: AnyModel] extends Read[MT] with Search {
         implicit val req = request
         val multiForm: Form[List[(String,LinkF,Option[String])]] = Link.multiForm
         multiForm.bindFromRequest.fold(
-          errorForm => immediate(MultiLinksRequest(request.item, Left(errorForm), request.profileOpt, request)),
+          errorForm => immediate(MultiLinksRequest(request.item, Left(errorForm), request.userOpt, request)),
           links => backend.linkMultiple[Link, LinkF](id, links).map { outLinks =>
-            MultiLinksRequest(request.item, Right(outLinks), request.profileOpt, request)
+            MultiLinksRequest(request.item, Right(outLinks), request.userOpt, request)
           }
         )
       }
@@ -189,9 +189,9 @@ trait Linking[MT <: AnyModel] extends Read[MT] with Search {
     WithItemPermissionAction(id, PermissionType.Update).async { implicit request =>
       val multiForm: Form[List[(String,LinkF,Option[String])]] = Link.multiForm
       multiForm.bindFromRequest.fold(
-        errorForm => immediate(f(Left((request.item,errorForm)))(request.profileOpt)(request)),
+        errorForm => immediate(f(Left((request.item,errorForm)))(request.userOpt)(request)),
         links => backend.linkMultiple[Link, LinkF](id, links).map { outLinks =>
-          f(Right(outLinks))(request.profileOpt)(request)
+          f(Right(outLinks))(request.userOpt)(request)
         }
       )
     }
@@ -255,9 +255,9 @@ trait Linking[MT <: AnyModel] extends Read[MT] with Search {
    * Fetch links for a given item.
    */
   def getLinksAction(id: String)(f: Seq[Link] => Option[UserProfile] => Request[AnyContent] => Result) = {
-    OptionalProfileAction.async { implicit  request =>
+    OptionalUserAction.async { implicit  request =>
       backend.getLinksForItem[Link](id).map { links =>
-        f(links)(request.profileOpt)(request)
+        f(links)(request.userOpt)(request)
       }
     }
   }

@@ -79,7 +79,7 @@ case class AdminSearch @Inject()(implicit globalConfig: global.GlobalConfig, sea
    */
   private implicit val anyModelReads = AnyModel.Converter.restReads
 
-  def search = OptionalProfileAction.async { implicit request =>
+  def search = OptionalUserAction.async { implicit request =>
     find[AnyModel](
       defaultParams = SearchParams(sort = Some(SearchOrder.Score)),
       facetBuilder = entityFacets

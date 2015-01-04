@@ -117,7 +117,7 @@ case class DocumentaryUnits @Inject()(implicit globalConfig: global.GlobalConfig
   private val docRoutes = controllers.units.routes.DocumentaryUnits
 
 
-  def search = OptionalProfileAction.async { implicit request =>
+  def search = OptionalUserAction.async { implicit request =>
     // What filters we gonna use? How about, only list stuff here that
     // has no parent items - UNLESS there's a query, in which case we're
     // going to peer INSIDE items... dodgy logic, maybe...

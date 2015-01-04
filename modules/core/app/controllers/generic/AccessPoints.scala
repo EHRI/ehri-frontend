@@ -88,7 +88,7 @@ trait AccessPoints[D <: Description, T <: Model with Described[D], MT <: MetaMod
    *
    */
   def getAccessPointsJson(id: String)(implicit rd: BackendReadable[MT], rs: BackendResource[MT]) = {
-    OptionalProfileAction.async { implicit request =>
+    OptionalUserAction.async { implicit request =>
       for (item <- backend.get(id); links <- backend.getLinksForItem[Link](id)) yield {
         implicit val accessPointFormat = Json.format[AccessPointF]
         implicit val linkFormat = Json.format[LinkF]

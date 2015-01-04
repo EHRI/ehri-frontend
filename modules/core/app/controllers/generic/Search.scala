@@ -116,7 +116,7 @@ trait Search extends Controller with AuthController with ControllerHelpers {
                        entityFacets: FacetBuilder = emptyFacets,
                        mode: SearchMode.Value = SearchMode.DefaultAll)(
                         f: ItemPage[(MT, SearchHit)] => SearchParams => List[AppliedFacet] => Option[UserProfile] => Request[AnyContent] => Result)(implicit rd: BackendReadable[MT]): Action[AnyContent] = {
-    OptionalProfileAction.async { implicit request =>
+    OptionalUserAction.async { implicit request =>
       find[MT](
         filters,
         extra,
@@ -126,14 +126,14 @@ trait Search extends Controller with AuthController with ControllerHelpers {
         entityFacets,
         mode
       ).map { r =>
-        f(r.page)(r.params)(r.facets)(request.profileOpt)(request)
+        f(r.page)(r.params)(r.facets)(request.userOpt)(request)
       }
     }
   }
 
   def filterAction(filters: Map[String, Any] = Map.empty, defaultParams: Option[SearchParams] = None)(
     f: ItemPage[FilterHit] => Option[UserProfile] => Request[AnyContent] => Result): Action[AnyContent] = {
-    OptionalProfileAction.async { implicit request =>
+    OptionalUserAction.async { implicit request =>
       val params = defaultParams.map(p => p.copy(sort = defaultSortFunction(p, request)))
       // Override the entity type with the controller entity type
       val sp = SearchParams.form.bindFromRequest
@@ -141,7 +141,7 @@ trait Search extends Controller with AuthController with ControllerHelpers {
         .setDefault(params)
 
       searchDispatcher.filter(sp, filters).map { res =>
-        f(res)(request.profileOpt)(request)
+        f(res)(request.userOpt)(request)
       }
     }
   }

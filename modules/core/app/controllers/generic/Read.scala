@@ -19,49 +19,49 @@ trait Read[MT] extends Generic[MT] {
 
   case class ItemPermissionRequest[A](
     item: MT,
-    profileOpt: Option[UserProfile],
+    userOpt: Option[UserProfile],
     request: Request[A]
   ) extends WrappedRequest[A](request)
-  with WithOptionalProfile
+  with WithOptionalUser
 
   case class ItemMetaRequest[A](
     item: MT,
     annotations: Page[Annotation],
     links: Page[Link],
-    profileOpt: Option[UserProfile],
+    userOpt: Option[UserProfile],
     request: Request[A]
   ) extends WrappedRequest[A](request)
-  with WithOptionalProfile
+  with WithOptionalUser
 
   case class ItemPageRequest[A](
     page: Page[MT],
     params: PageParams,
-    profileOpt: Option[UserProfile],
+    userOpt: Option[UserProfile],
     request: Request[A]
   ) extends WrappedRequest[A](request)
-  with WithOptionalProfile
+  with WithOptionalUser
 
   case class ItemHistoryRequest[A](
     item: MT,
     page: RangePage[SystemEvent],
     params: RangeParams,
-    profileOpt: Option[UserProfile],
+    userOpt: Option[UserProfile],
     request: Request[A]
   ) extends WrappedRequest[A](request)
-  with WithOptionalProfile
+  with WithOptionalUser
 
   case class ItemVersionsRequest[A](
     item: MT,
     page: Page[Version],
     params: PageParams,
-    profileOpt: Option[UserProfile],
+    userOpt: Option[UserProfile],
     request: Request[A]
   ) extends WrappedRequest[A](request)
-  with WithOptionalProfile
+  with WithOptionalUser
 
   private def WithPermissionFilter(perm: PermissionType.Value, contentType: ContentTypes.Value) = new ActionFilter[ItemPermissionRequest] {
     override protected def filter[A](request: ItemPermissionRequest[A]): Future[Option[Result]] = {
-      if (request.profileOpt.exists(_.hasPermission(contentType, perm)))  Future.successful(None)
+      if (request.userOpt.exists(_.hasPermission(contentType, perm)))  Future.successful(None)
       else authorizationFailed(request).map(r => Some(r))
     }
   }
@@ -70,10 +70,10 @@ trait Read[MT] extends Generic[MT] {
     WithPermissionFilter(perm, ct.contentType)
 
   protected def ItemPermissionAction(itemId: String)(implicit rd: BackendReadable[MT], ct: BackendContentType[MT]) =
-    OptionalProfileAction andThen new ActionTransformer[OptionalProfileRequest, ItemPermissionRequest] {
+    OptionalUserAction andThen new ActionTransformer[OptionalProfileRequest, ItemPermissionRequest] {
       def transform[A](input: OptionalProfileRequest[A]): Future[ItemPermissionRequest[A]] = {
-        implicit val userOpt = input.profileOpt
-        input.profileOpt.map { profile =>
+        implicit val userOpt = input.userOpt
+        input.userOpt.map { profile =>
           val itemF = backend.get[MT](itemId)
           val scopedPermsF = backend.getScopePermissions(profile.id, itemId)
           val permsF = backend.getItemPermissions(profile.id, ct.contentType, itemId)
@@ -100,24 +100,24 @@ trait Read[MT] extends Generic[MT] {
   protected def ItemMetaAction(itemId: String)(implicit rd: BackendReadable[MT], ct: BackendContentType[MT]) =
     ItemPermissionAction(itemId) andThen new ActionTransformer[ItemPermissionRequest, ItemMetaRequest] {
       def transform[A](request: ItemPermissionRequest[A]): Future[ItemMetaRequest[A]] = {
-        implicit val userOpt = request.profileOpt
+        implicit val userOpt = request.userOpt
         val annotationsF = backend.getAnnotationsForItem[Annotation](itemId)
         val linksF = backend.getLinksForItem[Link](itemId)
         for {
           annotations <- annotationsF
           links <- linksF
-        } yield ItemMetaRequest[A](request.item, annotations, links, request.profileOpt, request)
+        } yield ItemMetaRequest[A](request.item, annotations, links, request.userOpt, request)
       }
     }
 
   protected def ItemPageAction(implicit rd: BackendReadable[MT], rs: BackendResource[MT]) =
-    OptionalProfileAction andThen new ActionTransformer[OptionalProfileRequest, ItemPageRequest] {
+    OptionalUserAction andThen new ActionTransformer[OptionalProfileRequest, ItemPageRequest] {
       def transform[A](input: OptionalProfileRequest[A]): Future[ItemPageRequest[A]] = {
-        implicit val userOpt = input.profileOpt
+        implicit val userOpt = input.userOpt
         val params = PageParams.fromRequest(input)
         for {
           page <- backend.list[MT](params)
-        } yield ItemPageRequest[A](page, params, input.profileOpt, input)
+        } yield ItemPageRequest[A](page, params, input.userOpt, input)
       }
     }
 
@@ -131,7 +131,7 @@ trait Read[MT] extends Generic[MT] {
         for {
           item <- getF
           events <- historyF
-        } yield ItemHistoryRequest(request.item, events, params, request.profileOpt, request)
+        } yield ItemHistoryRequest(request.item, events, params, request.userOpt, request)
       }
     }
 
@@ -145,7 +145,7 @@ trait Read[MT] extends Generic[MT] {
         for {
           item <- getF
           versions <- versionsF
-        } yield ItemVersionsRequest(request.item, versions, params, request.profileOpt, request)
+        } yield ItemVersionsRequest(request.item, versions, params, request.userOpt, request)
       }
     }
 
@@ -208,7 +208,7 @@ trait Read[MT] extends Generic[MT] {
         val params = PageParams.fromRequest(request)
         for {
           children <- backend.listChildren[MT,CT](id, params)
-          r <- f(request.item)(children)(params)(request.annotations)(request.links)(request.profileOpt)(request)
+          r <- f(request.item)(children)(params)(request.annotations)(request.links)(request.userOpt)(request)
         } yield r
       }
     }
@@ -222,10 +222,10 @@ trait Read[MT] extends Generic[MT] {
   @deprecated(message = "Use ItemPageAction instead", since = "1.0.2")
   def pageAction(f: Page[MT] => PageParams => Option[UserProfile] => Request[AnyContent] => Result)(
       implicit rd: BackendReadable[MT], rs: BackendResource[MT]) = {
-    OptionalProfileAction.async { implicit request =>
+    OptionalUserAction.async { implicit request =>
       val params = PageParams.fromRequest(request)
       backend.list(params).map { page =>
-        f(page)(params)(request.profileOpt)(request)
+        f(page)(params)(request.userOpt)(request)
       }
     }
   }
@@ -233,28 +233,28 @@ trait Read[MT] extends Generic[MT] {
   @deprecated(message = "Use ItemHistoryAction instead", since = "1.0.2")
   def historyAction(id: String)(
       f: MT => RangePage[SystemEvent] => RangeParams => Option[UserProfile] => Request[AnyContent] => Result)(implicit rd: BackendReadable[MT], rs: BackendResource[MT]) = {
-    OptionalProfileAction.async { implicit request =>
+    OptionalUserAction.async { implicit request =>
       val params = RangeParams.fromRequest(request)
       val getF: Future[MT] = backend.get(id)
       val historyF: Future[RangePage[SystemEvent]] = backend.history[SystemEvent](id, params)
       for {
         item <- getF
         events <- historyF
-      } yield f(item)(events)(params)(request.profileOpt)(request)
+      } yield f(item)(events)(params)(request.userOpt)(request)
     }
   }
 
   @deprecated(message = "Use ItemVersionsAction instead", since = "1.0.2")
   def versionsAction(id: String)(
     f: MT => Page[Version] => PageParams => Option[UserProfile] => Request[AnyContent] => Result)(implicit rd: BackendReadable[MT], rs: BackendResource[MT]) = {
-    OptionalProfileAction.async { implicit request =>
+    OptionalUserAction.async { implicit request =>
       val params = PageParams.fromRequest(request)
       val getF: Future[MT] = backend.get(id)
       val versionsF: Future[Page[Version]] = backend.versions[Version](id, params)
       for {
         item <- getF
         events <- versionsF
-      } yield f(item)(events)(params)(request.profileOpt)(request)
+      } yield f(item)(events)(params)(request.userOpt)(request)
     }
   }
 }

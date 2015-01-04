@@ -58,7 +58,7 @@ case class Concepts @Inject()(implicit globalConfig: global.GlobalConfig, search
     Ok(views.html.admin.concept.show(item, page, params, links, annotations))
   }
 
-  def search = OptionalProfileAction.async { implicit request =>
+  def search = OptionalUserAction.async { implicit request =>
     import play.api.libs.concurrent.Execution.Implicits._
     find[Concept](
       entities = List(EntityType.Concept),

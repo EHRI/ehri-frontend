@@ -45,7 +45,7 @@ case class HistoricalAgents @Inject()(implicit globalConfig: global.GlobalConfig
   }
 
 
-  def search = OptionalProfileAction.async { implicit request =>
+  def search = OptionalUserAction.async { implicit request =>
     import play.api.libs.concurrent.Execution.Implicits._
     find[HistoricalAgent](
       entities = List(EntityType.HistoricalAgent),

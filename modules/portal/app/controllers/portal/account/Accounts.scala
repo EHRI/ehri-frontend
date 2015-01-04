@@ -48,8 +48,8 @@ case class Accounts @Inject()(implicit globalConfig: GlobalConfig, searchDispatc
 
   val defaultPreferences = new SessionPrefs
 
-  def account = OptionalProfileAction { implicit request =>
-    Ok(Json.toJson(request.profileOpt.flatMap(_.account)))
+  def account = OptionalUserAction { implicit request =>
+    Ok(Json.toJson(request.userOpt.flatMap(_.account)))
   }
 
   /**

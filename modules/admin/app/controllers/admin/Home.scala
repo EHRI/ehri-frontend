@@ -65,7 +65,7 @@ case class Home @Inject()(implicit globalConfig: global.GlobalConfig, searchDisp
   }
 
 
-  def index = OptionalProfileAction.async { implicit request =>
+  def index = OptionalUserAction.async { implicit request =>
     val activityEventTypes = List(
       EventType.deletion,
       EventType.creation,
@@ -84,7 +84,7 @@ case class Home @Inject()(implicit globalConfig: global.GlobalConfig, searchDisp
       EntityType.HistoricalAgent
     )
 
-    request.profileOpt.map { user =>
+    request.userOpt.map { user =>
       val listParams = RangeParams.fromRequest(request)
       val eventFilter = SystemEventParams.fromRequest(request)
         .copy(eventTypes = activityEventTypes)
@@ -97,7 +97,7 @@ case class Home @Inject()(implicit globalConfig: global.GlobalConfig, searchDisp
     }
   }
 
-  def metrics = OptionalProfileAction { implicit request =>
+  def metrics = OptionalUserAction { implicit request =>
     Ok(views.html.admin.metrics())
   }
 
@@ -107,7 +107,7 @@ case class Home @Inject()(implicit globalConfig: global.GlobalConfig, searchDisp
 
   // NB: This page now just handles metrics and only provides facet
   // data via JSON.
-  def overview = OptionalProfileAction.async { implicit request =>
+  def overview = OptionalUserAction.async { implicit request =>
     find[AnyModel](
       defaultParams = SearchParams(count=Some(0)),
       facetBuilder = entityFacets

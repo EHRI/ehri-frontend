@@ -22,19 +22,19 @@ trait ScopePermissions[MT] extends ItemPermissions[MT] {
     item: MT,
     permissionGrants: Page[PermissionGrant],
     scopePermissionGrants: Page[PermissionGrant],
-    profileOpt: Option[UserProfile],
+    userOpt: Option[UserProfile],
     request: Request[A]
   ) extends WrappedRequest[A](request)
-  with WithOptionalProfile
+  with WithOptionalUser
 
   case class SetScopePermissionRequest[A](
     item: MT,
     accessor: Accessor,
     scopePermissions: GlobalPermissionSet,
-    profileOpt: Option[UserProfile],
+    userOpt: Option[UserProfile],
     request: Request[A]
   ) extends WrappedRequest[A](request)
-  with WithOptionalProfile
+  with WithOptionalUser
 
   protected def ScopePermissionGrantAction(id: String)(implicit rd: BackendReadable[MT], ct: BackendContentType[MT]) =
     WithGrantPermission(id) andThen new ActionTransformer[ItemPermissionRequest, ScopePermissionGrantRequest] {
@@ -45,7 +45,7 @@ trait ScopePermissions[MT] extends ItemPermissions[MT] {
         for {
           permGrants <- backend.listItemPermissionGrants[PermissionGrant](id, itemParams)
           scopeGrants <- backend.listScopePermissionGrants[PermissionGrant](id, scopeParams)
-        } yield ScopePermissionGrantRequest(request.item, permGrants, scopeGrants, request.profileOpt, request)
+        } yield ScopePermissionGrantRequest(request.item, permGrants, scopeGrants, request.userOpt, request)
       }
     }
 
@@ -58,7 +58,7 @@ trait ScopePermissions[MT] extends ItemPermissions[MT] {
         for {
           accessor <- accessorF
           perms <- permsF
-        } yield SetScopePermissionRequest(request.item, accessor, perms, request.profileOpt, request)
+        } yield SetScopePermissionRequest(request.item, accessor, perms, request.userOpt, request)
       }
     }
 
@@ -74,7 +74,7 @@ trait ScopePermissions[MT] extends ItemPermissions[MT] {
         for {
           accessor <- backend.get[Accessor](Accessor.resourceFor(userType), userId)
           perms <- backend.setScopePermissions(userId, id, perms)
-        } yield SetScopePermissionRequest(request.item, accessor, perms, request.profileOpt, request)
+        } yield SetScopePermissionRequest(request.item, accessor, perms, request.userOpt, request)
       }
     }
 

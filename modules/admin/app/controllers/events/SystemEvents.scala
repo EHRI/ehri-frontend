@@ -23,7 +23,7 @@ case class SystemEvents @Inject()(implicit globalConfig: global.GlobalConfig, ba
     }
   }
 
-  def list = OptionalProfileAction.async { implicit request =>
+  def list = OptionalUserAction.async { implicit request =>
     val listParams = RangeParams.fromRequest(request)
     val eventFilter = SystemEventParams.fromRequest(request)
     val filterForm = SystemEventParams.form.fill(eventFilter)

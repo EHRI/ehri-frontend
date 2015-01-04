@@ -58,21 +58,21 @@ trait AuthController extends Controller with ControllerHelpers with AuthActionBu
     }
   }
 
-  trait WithOptionalProfile {
+  trait WithOptionalUser {
     self: WrappedRequest[_] =>
 
-    def profileOpt: Option[UserProfile]
+    def userOpt: Option[UserProfile]
   }
 
   /**
    * A wrapped request that optionally contains a user's profile.
-   * @param profileOpt the optional profile
+   * @param userOpt the optional profile
    * @param request the underlying request
    * @tparam A the type of underlying request
    */
-  case class OptionalProfileRequest[A](profileOpt: Option[UserProfile], request: Request[A])
+  case class OptionalProfileRequest[A](userOpt: Option[UserProfile], request: Request[A])
     extends WrappedRequest[A](request)
-    with WithOptionalProfile
+    with WithOptionalUser
 
   /**
    * A wrapped request that contains a user's profile.
@@ -97,8 +97,8 @@ trait AuthController extends Controller with ControllerHelpers with AuthActionBu
    * @param opr an optional profile request
    * @return an optional user profile
    */
-  protected implicit def optionalProfileRequest2profileOpt(implicit opr: WithOptionalProfile): Option[UserProfile] =
-    opr.profileOpt
+  protected implicit def optionalProfileRequest2profileOpt(implicit opr: WithOptionalUser): Option[UserProfile] =
+    opr.userOpt
 
   /**
    * Implicit helper to transform an in-scope `ProfileRequest` (of any type)
@@ -163,7 +163,7 @@ trait AuthController extends Controller with ControllerHelpers with AuthActionBu
    *  - the site is not read-only
    *  - they are allowed in this controller
    */
-  def OptionalProfileAction = OptionalAuthAction andThen ReadOnlyTransformer andThen AllowedFilter andThen FetchProfile
+  def OptionalUserAction = OptionalAuthAction andThen ReadOnlyTransformer andThen AllowedFilter andThen FetchProfile
 
   /**
    * Ensure that a user a given permission on a given content type
@@ -171,9 +171,9 @@ trait AuthController extends Controller with ControllerHelpers with AuthActionBu
    * @param contentType the content type
    */
   def WithContentPermissionAction(permissionType: PermissionType.Value, contentType: ContentTypes.Value) =
-    OptionalProfileAction andThen new ActionFilter[OptionalProfileRequest] {
+    OptionalUserAction andThen new ActionFilter[OptionalProfileRequest] {
       override protected def filter[A](request: OptionalProfileRequest[A]): Future[Option[Result]] = {
-        if (request.profileOpt.exists(_.hasPermission(contentType, permissionType)))  Future.successful(None)
+        if (request.userOpt.exists(_.hasPermission(contentType, permissionType)))  Future.successful(None)
         else authenticationFailed(request).map(r => Some(r))
       }
     }
@@ -181,9 +181,9 @@ trait AuthController extends Controller with ControllerHelpers with AuthActionBu
   /**
    * Ensure that a user is present
    */
-  def WithUserAction = OptionalProfileAction andThen new ActionRefiner[OptionalProfileRequest, ProfileRequest] {
+  def WithUserAction = OptionalUserAction andThen new ActionRefiner[OptionalProfileRequest, ProfileRequest] {
     protected def refine[A](request: OptionalProfileRequest[A]) = {
-      request.profileOpt match {
+      request.userOpt match {
         case None => authenticationFailed(request).map(r => Left(r))
         case Some(profile) => immediate(Right(ProfileRequest(profile, request)))
       }
@@ -193,9 +193,9 @@ trait AuthController extends Controller with ControllerHelpers with AuthActionBu
   /**
    * Check the user is an administrator to access this request
    */
-  def AdminAction = OptionalProfileAction andThen new ActionFilter[OptionalProfileRequest] {
+  def AdminAction = OptionalUserAction andThen new ActionFilter[OptionalProfileRequest] {
     protected def filter[A](request: OptionalProfileRequest[A]): Future[Option[Result]] = {
-      request.profileOpt.filter(!_.isAdmin)
+      request.userOpt.filter(!_.isAdmin)
         .map(_ => authenticationFailed(request).map(r => Some(r))).getOrElse(immediate(None))
     }
   }
@@ -204,7 +204,7 @@ trait AuthController extends Controller with ControllerHelpers with AuthActionBu
    * SystemEvent composition that adds extra context to regular requests. Namely,
    * the profile of the user requesting the page, and her permissions.
    */
-  @scala.deprecated(message = "Use OptionalProfileAction instead", since = "1.0.2")
+  @scala.deprecated(message = "Use OptionalUserAction instead", since = "1.0.2")
   object userProfileAction {
     def async[A](bodyParser: BodyParser[A])(f: Option[UserProfile] => Request[A] => Future[Result]): Action[A] = {
 
@@ -262,9 +262,9 @@ trait AuthController extends Controller with ControllerHelpers with AuthActionBu
   object itemAction {
     def async[MT](resource: BackendResource[MT], id: String)(f: MT => Option[UserProfile] => Request[AnyContent] => Future[Result])(
         implicit rd: BackendReadable[MT]): Action[AnyContent] = {
-      OptionalProfileAction.async { implicit request =>
+      OptionalUserAction.async { implicit request =>
         backend.get(resource, id).flatMap { item =>
-          f(item)(request.profileOpt)(request)
+          f(item)(request.userOpt)(request)
         }
       }
     }
@@ -284,8 +284,8 @@ trait AuthController extends Controller with ControllerHelpers with AuthActionBu
   object itemPermissionAction {
     def async[A,MT](bodyParser: BodyParser[A], id: String)(f: MT => Option[UserProfile] => Request[A] => Future[Result])(
         implicit rd: BackendReadable[MT], ct: BackendContentType[MT]): Action[A] = {
-      OptionalProfileAction.async(bodyParser = bodyParser) { implicit request =>
-        request.profileOpt.map { user =>
+      OptionalUserAction.async(bodyParser = bodyParser) { implicit request =>
+        request.userOpt.map { user =>
 
           // NB: We have to re-fetch the global perms here because they need to be
           // within the scope of the particular item. This could be optimised, but
@@ -329,8 +329,8 @@ trait AuthController extends Controller with ControllerHelpers with AuthActionBu
   @scala.deprecated(message = "Use WithUserAction instead", since = "1.0.2")
   object withUserAction {
     def async[A](bodyParser: BodyParser[A])(f: UserProfile => Request[A] => Future[Result]): Action[A] = {
-      OptionalProfileAction.async(bodyParser) { implicit request =>
-        request.profileOpt.map { user =>
+      OptionalUserAction.async(bodyParser) { implicit request =>
+        request.userOpt.map { user =>
           f(user)(request)
         } getOrElse {
           authenticationFailed(request)
@@ -355,9 +355,9 @@ trait AuthController extends Controller with ControllerHelpers with AuthActionBu
   @scala.deprecated(message = "Use AdminAction instead", since = "1.0.2")
   object adminAction {
     def async(f: Option[UserProfile] => Request[AnyContent] => Future[Result]): Action[AnyContent] = {
-      OptionalProfileAction.async { implicit  request =>
-        request.profileOpt.map { user =>
-          if (user.isAdmin) f(request.profileOpt)(request)
+      OptionalUserAction.async { implicit  request =>
+        request.userOpt.map { user =>
+          if (user.isAdmin) f(request.userOpt)(request)
           else authorizationFailed(request)
         } getOrElse authenticationFailed(request)
       }
@@ -422,8 +422,8 @@ trait AuthController extends Controller with ControllerHelpers with AuthActionBu
    */
   @deprecated(message = "Use WithUserAction instead", since = "1.0.2")
   def secured(f: Option[UserProfile] => Request[AnyContent] => Future[Result]): Action[AnyContent] = {
-    OptionalProfileAction.async { implicit  request =>
-      if (request.profileOpt.isDefined) f(request.profileOpt)(request)
+    OptionalUserAction.async { implicit  request =>
+      if (request.userOpt.isDefined) f(request.userOpt)(request)
       else authenticationFailed(request)
     }
   }

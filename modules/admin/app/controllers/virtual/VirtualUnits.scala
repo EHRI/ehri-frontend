@@ -89,7 +89,7 @@ case class VirtualUnits @Inject()(implicit globalConfig: global.GlobalConfig, se
 
   private val vuRoutes = controllers.virtual.routes.VirtualUnits
 
-  def search = OptionalProfileAction.async { implicit request =>
+  def search = OptionalUserAction.async { implicit request =>
   // What filters we gonna use? How about, only list stuff here that
   // has no parent items - UNLESS there's a query, in which case we're
   // going to peer INSIDE items... dodgy logic, maybe...
@@ -125,7 +125,7 @@ case class VirtualUnits @Inject()(implicit globalConfig: global.GlobalConfig, se
     }
   }
 
-  def getInVc(id: String, pathStr: Option[String]) = OptionalProfileAction.async { implicit request =>
+  def getInVc(id: String, pathStr: Option[String]) = OptionalUserAction.async { implicit request =>
     val pathIds = pathStr.map(_.split(",").toList).getOrElse(List.empty)
     def includedChildren(parent: AnyModel): Future[QueryResult[AnyModel]] = parent match {
       case d: DocumentaryUnit => find[AnyModel](

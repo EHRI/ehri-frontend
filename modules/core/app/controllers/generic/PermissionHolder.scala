@@ -20,26 +20,26 @@ trait PermissionHolder[MT <: Accessor] extends Read[MT] {
   case class HolderPermissionGrantRequest[A](
     item: MT,
     permissionGrants: Page[PermissionGrant],
-    profileOpt: Option[UserProfile],
+    userOpt: Option[UserProfile],
     request: Request[A]
   ) extends WrappedRequest[A](request)
-    with WithOptionalProfile
+    with WithOptionalUser
 
   case class GlobalPermissionSetRequest[A](
     item: MT,
     permissions: GlobalPermissionSet,
-    profileOpt: Option[UserProfile],
+    userOpt: Option[UserProfile],
     request: Request[A]
   ) extends WrappedRequest[A](request)
-    with WithOptionalProfile
+    with WithOptionalUser
 
   case class PermissionGrantRequest[A](
     item: MT,
     permissionGrant: PermissionGrant,
-    profileOpt: Option[UserProfile],
+    userOpt: Option[UserProfile],
     request: Request[A]
   ) extends WrappedRequest[A](request)
-    with WithOptionalProfile
+    with WithOptionalUser
 
 
   def GrantListAction(id: String)(implicit rd: BackendReadable[MT], ct: BackendContentType[MT]) =
@@ -48,7 +48,7 @@ trait PermissionHolder[MT <: Accessor] extends Read[MT] {
         implicit val req = request
         val params = PageParams.fromRequest(request)
         backend.listPermissionGrants[PermissionGrant](id, params).map { perms =>
-          HolderPermissionGrantRequest(request.item, perms, request.profileOpt, request)
+          HolderPermissionGrantRequest(request.item, perms, request.userOpt, request)
         }
       }
     }
@@ -64,7 +64,7 @@ trait PermissionHolder[MT <: Accessor] extends Read[MT] {
       override protected def transform[A](request: ItemPermissionRequest[A]): Future[GlobalPermissionSetRequest[A]] = {
         implicit val req = request
         backend.getGlobalPermissions(id).map { perms =>
-          GlobalPermissionSetRequest(request.item, perms, request.profileOpt, request)
+          GlobalPermissionSetRequest(request.item, perms, request.userOpt, request)
         }
       }
     }
@@ -78,7 +78,7 @@ trait PermissionHolder[MT <: Accessor] extends Read[MT] {
           (ct.toString, data.get(ct.toString).map(_.toList).getOrElse(List.empty))
         }.toMap
         backend.setGlobalPermissions(id, perms).map { perms =>
-          GlobalPermissionSetRequest(request.item, perms, request.profileOpt, request)
+          GlobalPermissionSetRequest(request.item, perms, request.userOpt, request)
         }
       }
     }
@@ -88,7 +88,7 @@ trait PermissionHolder[MT <: Accessor] extends Read[MT] {
       override protected def transform[A](request: ItemPermissionRequest[A]): Future[PermissionGrantRequest[A]] = {
         implicit val req = request
         backend.get[PermissionGrant](permId).map { perm =>
-          PermissionGrantRequest(request.item, perm, request.profileOpt, request)
+          PermissionGrantRequest(request.item, perm, request.userOpt, request)
         }
       }
     }

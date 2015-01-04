@@ -19,19 +19,19 @@ trait ItemPermissions[MT] extends Visibility[MT] {
   case class ItemPermissionGrantRequest[A](
     item: MT,
     permissionGrants: Page[PermissionGrant],
-    profileOpt: Option[UserProfile],
+    userOpt: Option[UserProfile],
     request: Request[A]
   ) extends WrappedRequest[A](request)
-    with WithOptionalProfile
+    with WithOptionalUser
   
   case class SetItemPermissionRequest[A](
     item: MT,
     accessor: Accessor,
     itemPermissions: ItemPermissionSet,                                      
-    profileOpt: Option[UserProfile],
+    userOpt: Option[UserProfile],
     request: Request[A]
   ) extends WrappedRequest[A](request)
-  with WithOptionalProfile
+  with WithOptionalUser
 
   protected def WithGrantPermission(id: String)(implicit rd: BackendReadable[MT], ct: BackendContentType[MT]) = 
     WithItemPermissionAction(id, PermissionType.Grant)
@@ -42,7 +42,7 @@ trait ItemPermissions[MT] extends Visibility[MT] {
         implicit val req = request
         val params = PageParams.fromRequest(request)
         backend.listItemPermissionGrants[PermissionGrant](id, params).map { permGrants =>
-          ItemPermissionGrantRequest(request.item, permGrants, request.profileOpt, request)
+          ItemPermissionGrantRequest(request.item, permGrants, request.userOpt, request)
         }
       }
     }
@@ -59,7 +59,7 @@ trait ItemPermissions[MT] extends Visibility[MT] {
         for {
           accessor <- accessorF
           perms <- permsF
-        } yield SetItemPermissionRequest(request.item, accessor, perms, request.profileOpt, request)
+        } yield SetItemPermissionRequest(request.item, accessor, perms, request.userOpt, request)
       }
     }
 
@@ -79,7 +79,7 @@ trait ItemPermissions[MT] extends Visibility[MT] {
         for {
           accessor <- backend.get[Accessor](Accessor.resourceFor(userType), userId)
           perms <- backend.setItemPermissions(userId, ct.contentType, id, perms)
-        } yield SetItemPermissionRequest(request.item, accessor, perms, request.profileOpt, request)
+        } yield SetItemPermissionRequest(request.item, accessor, perms, request.userOpt, request)
       }
     }
 

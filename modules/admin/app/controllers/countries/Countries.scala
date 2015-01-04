@@ -58,7 +58,7 @@ case class Countries @Inject()(implicit globalConfig: global.GlobalConfig, searc
     Ok(views.html.admin.country.list(request.page, request.params))
   }
 
-  def search = OptionalProfileAction.async { implicit request =>
+  def search = OptionalUserAction.async { implicit request =>
     import play.api.libs.concurrent.Execution.Implicits._
     find[Country](entities = List(EntityType.Country)).map { case QueryResult(page, params, facets) =>
       Ok(views.html.admin.country.search(page, params, facets, countryRoutes.search()))

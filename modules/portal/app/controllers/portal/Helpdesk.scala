@@ -32,9 +32,9 @@ case class Helpdesk @Inject()(implicit helpdeskDAO: HelpdeskDAO, globalConfig: g
     )
   )
 
-  def helpdesk = OptionalProfileAction { implicit request =>
+  def helpdesk = OptionalUserAction { implicit request =>
     val prefilledData: (String,String, Boolean)
-        = (request.profileOpt.flatMap(_.account).map(_.email).getOrElse(""), "", false)
+        = (request.userOpt.flatMap(_.account).map(_.email).getOrElse(""), "", false)
     val form = helpdeskForm.fill(prefilledData).discardingErrors
     Ok(views.html.p.helpdesk.helpdesk(form))
   }
@@ -47,7 +47,7 @@ case class Helpdesk @Inject()(implicit helpdeskDAO: HelpdeskDAO, globalConfig: g
       .send(query, query)
   }
 
-  def helpdeskPost = OptionalProfileAction.async { implicit request =>
+  def helpdeskPost = OptionalUserAction.async { implicit request =>
     import play.api.libs.concurrent.Execution.Implicits._
     helpdeskForm.bindFromRequest.fold(
       errorForm => immediate(BadRequest(views.html.p.helpdesk.helpdesk(errorForm))),

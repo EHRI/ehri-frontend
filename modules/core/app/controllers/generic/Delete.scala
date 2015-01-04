@@ -22,7 +22,7 @@ trait Delete[MT] extends Generic[MT] {
     override protected def transform[A](request: ItemPermissionRequest[A]): Future[OptionalProfileRequest[A]] = {
       implicit val req = request
       backend.delete(id, logMsg = getLogMessage).map { _ =>
-        OptionalProfileRequest(request.profileOpt, request)
+        OptionalProfileRequest(request.userOpt, request)
       }
     }
   }

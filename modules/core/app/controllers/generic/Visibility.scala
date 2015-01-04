@@ -17,10 +17,10 @@ trait Visibility[MT] extends Read[MT] {
     item: MT,
     users: Seq[(String,String)],
     groups: Seq[(String,String)],
-    profileOpt: Option[UserProfile],
+    userOpt: Option[UserProfile],
     request: Request[A]
   ) extends WrappedRequest[A](request)
-    with WithOptionalProfile
+    with WithOptionalUser
 
   def EditVisibilityAction(id: String)(implicit rd: BackendReadable[MT], ct: BackendContentType[MT]) =
     WithItemPermissionAction(id, PermissionType.Update) andThen new ActionTransformer[ItemPermissionRequest, VisibilityRequest] {
@@ -28,7 +28,7 @@ trait Visibility[MT] extends Read[MT] {
         for {
           users <- RestHelpers.getUserList
           groups <- RestHelpers.getGroupList
-        } yield VisibilityRequest(request.item, users, groups, request.profileOpt, request)
+        } yield VisibilityRequest(request.item, users, groups, request.userOpt, request)
       }
     }
 
@@ -38,7 +38,7 @@ trait Visibility[MT] extends Read[MT] {
         implicit val req = request
         val data = forms.VisibilityForm.form.bindFromRequest.value.getOrElse(Nil)
         backend.setVisibility(id, data).map { newItem =>
-          ItemPermissionRequest(newItem, request.profileOpt, request)
+          ItemPermissionRequest(newItem, request.userOpt, request)
         }
       }
     }

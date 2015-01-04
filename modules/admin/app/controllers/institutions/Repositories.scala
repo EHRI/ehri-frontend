@@ -98,7 +98,7 @@ case class Repositories @Inject()(implicit globalConfig: global.GlobalConfig, se
   private val repositoryRoutes = controllers.institutions.routes.Repositories
 
 
-  def search = OptionalProfileAction.async { implicit request =>
+  def search = OptionalUserAction.async { implicit request =>
     find[Repository](
       entities = List(EntityType.Repository),
       facetBuilder = repositoryFacets

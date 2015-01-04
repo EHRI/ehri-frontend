@@ -22,10 +22,10 @@ trait Update[F <: Model with Persistable, MT <: MetaModel[F]] extends Generic[MT
   case class UpdateRequest[A](
     item: MT,
     formOrItem: Either[Form[F], MT],
-    profileOpt: Option[UserProfile],
+    userOpt: Option[UserProfile],
     request: Request[A]
   ) extends WrappedRequest[A](request)
-  with WithOptionalProfile
+  with WithOptionalUser
 
   def EditAction(itemId: String)(implicit rd: BackendReadable[MT], ct: BackendContentType[MT]) =
     WithItemPermissionAction(itemId, PermissionType.Update)
@@ -35,14 +35,14 @@ trait Update[F <: Model with Persistable, MT <: MetaModel[F]] extends Generic[MT
       def transform[A](request: ItemPermissionRequest[A]): Future[UpdateRequest[A]] = {
         implicit val req = request
         form.bindFromRequest.fold(
-          errorForm => immediate(UpdateRequest(request.item, Left(errorForm), request.profileOpt, request.request)),
+          errorForm => immediate(UpdateRequest(request.item, Left(errorForm), request.userOpt, request.request)),
           mod => {
             backend.update[MT,F](id, transformer(mod), logMsg = getLogMessage).map { citem =>
-              UpdateRequest(request.item, Right(citem), request.profileOpt, request)
+              UpdateRequest(request.item, Right(citem), request.userOpt, request)
             } recover {
               case ValidationError(errorSet) =>
                 val filledForm = mod.getFormErrors(errorSet, form.fill(mod))
-                UpdateRequest(request.item, Left(filledForm), request.profileOpt, request)
+                UpdateRequest(request.item, Left(filledForm), request.userOpt, request)
             }
           }
         )

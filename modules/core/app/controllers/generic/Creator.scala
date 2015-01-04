@@ -23,17 +23,17 @@ trait Creator[CF <: Model with Persistable, CMT <: MetaModel[CF], MT <: MetaMode
     item: MT,
     users: Seq[(String,String)],
     groups: Seq[(String,String)],
-    profileOpt: Option[UserProfile],
+    userOpt: Option[UserProfile],
     request: Request[A]
     ) extends WrappedRequest[A](request)
-  with WithOptionalProfile
+  with WithOptionalUser
 
   private[generic] def NewChildTransformer(implicit rd: BackendReadable[MT], ct: BackendContentType[MT]) = new ActionTransformer[ItemPermissionRequest, NewChildRequest] {
     override protected def transform[A](request: ItemPermissionRequest[A]): Future[NewChildRequest[A]] = {
       for {
         users <- RestHelpers.getUserList
         groups <- RestHelpers.getGroupList
-      } yield NewChildRequest(request.item, users, groups, request.profileOpt, request)
+      } yield NewChildRequest(request.item, users, groups, request.userOpt, request)
     }
   }
 
@@ -43,10 +43,10 @@ trait Creator[CF <: Model with Persistable, CMT <: MetaModel[CF], MT <: MetaMode
   case class CreateChildRequest[A](
      item: MT,
      formOrItem: Either[(Form[CF],Form[List[String]]),CMT],
-     profileOpt: Option[UserProfile],
+     userOpt: Option[UserProfile],
      request: Request[A]
      ) extends WrappedRequest[A](request)
-  with WithOptionalProfile
+  with WithOptionalUser
 
   private[generic] def CreateChildTransformer(id: String, form: Form[CF], extraParams: ExtraParams = defaultExtra)(implicit rd: BackendReadable[MT], ct: BackendContentType[MT], fmt: BackendWriteable[CF], crd: BackendReadable[CMT], cct: BackendContentType[CMT]) =
     new ActionTransformer[ItemPermissionRequest, CreateChildRequest] {
@@ -54,15 +54,15 @@ trait Creator[CF <: Model with Persistable, CMT <: MetaModel[CF], MT <: MetaMode
         implicit val req = request
         val extra = extraParams.apply(request.request)
         form.bindFromRequest.fold(
-          errorForm => immediate(CreateChildRequest(request.item, Left((errorForm,VisibilityForm.form)), request.profileOpt, request.request)),
+          errorForm => immediate(CreateChildRequest(request.item, Left((errorForm,VisibilityForm.form)), request.userOpt, request.request)),
           citem => {
             val accessors = VisibilityForm.form.bindFromRequest.value.getOrElse(Nil)
             backend.createInContext[MT, CF, CMT](id, cct.contentType, citem, accessors, params = extra, logMsg = getLogMessage).map { citem =>
-              CreateChildRequest(request.item, Right(citem), request.profileOpt, request)
+              CreateChildRequest(request.item, Right(citem), request.userOpt, request)
             } recover {
               case ValidationError(errorSet) =>
                 val filledForm = citem.getFormErrors(errorSet, form.fill(citem))
-                CreateChildRequest(request.item, Left((filledForm, VisibilityForm.form)), request.profileOpt, request)
+                CreateChildRequest(request.item, Left((filledForm, VisibilityForm.form)), request.userOpt, request)
             }
           }
         )

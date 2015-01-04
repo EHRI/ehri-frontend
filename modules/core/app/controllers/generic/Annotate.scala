@@ -49,9 +49,9 @@ trait Annotate[MT] extends Read[MT] {
   @deprecated(message = "Use ItemMetaAction instead", since = "1.0.2")
   def getAnnotationsAction(id: String)(
       f: Seq[Annotation] => Option[UserProfile] => Request[AnyContent] => Result) = {
-    OptionalProfileAction.async { implicit request =>
+    OptionalUserAction.async { implicit request =>
       backend.getAnnotationsForItem[Annotation](id).map { anns =>
-        f(anns)(request.profileOpt)(request)
+        f(anns)(request.userOpt)(request)
       }
     }
   }
@@ -69,7 +69,7 @@ trait Annotate[MT] extends Read[MT] {
       ap => {
         // NB: No checking of permissions here - we're going to depend
         // on the server for that
-        OptionalProfileAction.async { implicit request =>
+        OptionalUserAction.async { implicit request =>
           backend.createAnnotation[Annotation,AnnotationF](id, ap).map { ann =>
             Created(Json.toJson(ann.model)(clientAnnotationFormat))
           }
