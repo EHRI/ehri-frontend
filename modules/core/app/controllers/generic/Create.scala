@@ -18,7 +18,7 @@ import scala.concurrent.Future.{successful => immediate}
  */
 trait Create[F <: Model with Persistable, MT <: MetaModel[F]] extends Generic[MT] {
 
-  self: Read[MT] =>
+  this: Read[MT] =>
 
   /**
    * A request containing id->name tuples for available users
@@ -37,18 +37,6 @@ trait Create[F <: Model with Persistable, MT <: MetaModel[F]] extends Generic[MT
   ) extends WrappedRequest[A](request)
     with WithOptionalProfile
 
-  private[generic] def UserGroupsTransformer(implicit ct: BackendContentType[MT]) = new ActionTransformer[OptionalProfileRequest, UserGroupsRequest] {
-    override protected def transform[A](request: OptionalProfileRequest[A]): Future[UserGroupsRequest[A]] = {
-      for {
-        users <- RestHelpers.getUserList
-        groups <- RestHelpers.getGroupList
-      } yield UserGroupsRequest(users, groups, request.profileOpt, request)
-    }
-  }
-
-  protected def NewItemAction(implicit ct: BackendContentType[MT]) =
-    WithContentPermissionAction(PermissionType.Create, ct.contentType) andThen UserGroupsTransformer
-
   case class CreateRequest[A](
     formOrItem: Either[(Form[F],Form[List[String]]),MT],
     profileOpt: Option[UserProfile],
@@ -56,8 +44,18 @@ trait Create[F <: Model with Persistable, MT <: MetaModel[F]] extends Generic[MT
   ) extends WrappedRequest[A](request)
     with WithOptionalProfile
 
-  private[generic] def CreatePostTransformer(form: Form[F], pf: Request[_] => Map[String,Seq[String]] = _ => Map.empty)(implicit fmt: BackendWriteable[F], rd: BackendReadable[MT], ct: BackendContentType[MT]) =
-    new ActionTransformer[OptionalProfileRequest, CreateRequest] {
+  protected def NewItemAction(implicit ct: BackendContentType[MT]) =
+    WithContentPermissionAction(PermissionType.Create, ct.contentType) andThen new ActionTransformer[OptionalProfileRequest, UserGroupsRequest] {
+      override protected def transform[A](request: OptionalProfileRequest[A]): Future[UserGroupsRequest[A]] = {
+        for {
+          users <- RestHelpers.getUserList
+          groups <- RestHelpers.getGroupList
+        } yield UserGroupsRequest(users, groups, request.profileOpt, request)
+      }
+    }
+
+  protected def CreateItemAction(form: Form[F], pf: Request[_] => Map[String,Seq[String]] = _ => Map.empty)(implicit fmt: BackendWriteable[F], rd: BackendReadable[MT], ct: BackendContentType[MT]) =
+    WithContentPermissionAction(PermissionType.Create, ct.contentType) andThen new ActionTransformer[OptionalProfileRequest, CreateRequest] {
       def transform[A](request: OptionalProfileRequest[A]): Future[CreateRequest[A]] = {
         implicit val req = request
         form.bindFromRequest.fold(
@@ -78,10 +76,6 @@ trait Create[F <: Model with Persistable, MT <: MetaModel[F]] extends Generic[MT
         )
       }
     }
-
-  
-  protected def CreateItemAction(form: Form[F], pf: Request[_] => Map[String,Seq[String]] = _ => Map.empty)(implicit fmt: BackendWriteable[F], rd: BackendReadable[MT], ct: BackendContentType[MT]) =
-    WithContentPermissionAction(PermissionType.Create, ct.contentType) andThen CreatePostTransformer(form, pf)
 
 
   type CreateCallback = Either[(Form[F],Form[List[String]]),MT] => Option[UserProfile] => Request[AnyContent] => Result

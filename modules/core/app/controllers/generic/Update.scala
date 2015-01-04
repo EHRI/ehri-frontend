@@ -17,7 +17,7 @@ import backend.{BackendReadable, BackendWriteable, BackendContentType, BackendRe
  */
 trait Update[F <: Model with Persistable, MT <: MetaModel[F]] extends Generic[MT] {
 
-  self: Read[MT] =>
+  this: Read[MT] =>
 
   case class UpdateRequest[A](
     item: MT,
@@ -30,8 +30,8 @@ trait Update[F <: Model with Persistable, MT <: MetaModel[F]] extends Generic[MT
   def EditAction(itemId: String)(implicit rd: BackendReadable[MT], ct: BackendContentType[MT]) =
     WithItemPermissionAction(itemId, PermissionType.Update)
 
-  private def UpdateTransformer(id: String, form: Form[F], transformer: F => F = identity)(implicit rd: BackendReadable[MT], ct: BackendContentType[MT], wd: BackendWriteable[F]) =
-    new ActionTransformer[ItemPermissionRequest, UpdateRequest] {
+  def UpdateAction(id: String, form: Form[F], transformer: F => F = identity)(implicit rd: BackendReadable[MT], ct: BackendContentType[MT], wd: BackendWriteable[F]) =
+    EditAction(id) andThen new ActionTransformer[ItemPermissionRequest, UpdateRequest] {
       def transform[A](request: ItemPermissionRequest[A]): Future[UpdateRequest[A]] = {
         implicit val req = request
         form.bindFromRequest.fold(
@@ -48,10 +48,6 @@ trait Update[F <: Model with Persistable, MT <: MetaModel[F]] extends Generic[MT
         )
       }
     }
-
-
-  def UpdateAction(id: String, form: Form[F], transformer: F => F = identity)(implicit rd: BackendReadable[MT], ct: BackendContentType[MT], wd: BackendWriteable[F]) =
-    EditAction(id) andThen UpdateTransformer(id, form, transformer)
 
   type UpdateCallback = MT => Either[Form[F], MT] => Option[UserProfile] => Request[AnyContent] => Result
   type AsyncUpdateCallback = MT => Either[Form[F], MT] => Option[UserProfile] => Request[AnyContent] => Future[Result]

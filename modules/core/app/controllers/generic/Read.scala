@@ -59,7 +59,7 @@ trait Read[MT] extends Generic[MT] {
   ) extends WrappedRequest[A](request)
   with WithOptionalProfile
 
-  private[generic] def WithPermissionFilter(perm: PermissionType.Value, contentType: ContentTypes.Value) = new ActionFilter[ItemPermissionRequest] {
+  private def WithPermissionFilter(perm: PermissionType.Value, contentType: ContentTypes.Value) = new ActionFilter[ItemPermissionRequest] {
     override protected def filter[A](request: ItemPermissionRequest[A]): Future[Option[Result]] = {
       if (request.profileOpt.exists(_.hasPermission(contentType, perm)))  Future.successful(None)
       else authorizationFailed(request).map(r => Some(r))
