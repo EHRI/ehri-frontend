@@ -43,7 +43,7 @@ class EntityViewsSpec extends IntegrationTestRunner {
       )
       val cr = route(fakeLoggedInHtmlRequest(privilegedUser, POST,
         controllers.sets.routes.AuthoritativeSets
-          .createHistoricalAgent("auths").url).withHeaders(formPostHeaders.toSeq: _*), testData).get
+          .createHistoricalAgent("auths").url), testData).get
       status(cr) must equalTo(SEE_OTHER)
 
       val show = route(fakeLoggedInHtmlRequest(privilegedUser, GET,
@@ -58,7 +58,7 @@ class EntityViewsSpec extends IntegrationTestRunner {
       )
       val cr = route(fakeLoggedInHtmlRequest(privilegedUser, POST,
         controllers.sets.routes.AuthoritativeSets
-          .createHistoricalAgent("auths").url).withHeaders(formPostHeaders.toSeq: _*), testData).get
+          .createHistoricalAgent("auths").url), testData).get
       status(cr) must equalTo(BAD_REQUEST)
     }
 
@@ -71,11 +71,11 @@ class EntityViewsSpec extends IntegrationTestRunner {
       )
       val cr = route(fakeLoggedInHtmlRequest(privilegedUser, POST,
         controllers.sets.routes.AuthoritativeSets
-          .createHistoricalAgent("auths").url).withHeaders(formPostHeaders.toSeq: _*), testData).get
+          .createHistoricalAgent("auths").url), testData).get
       status(cr) must equalTo(SEE_OTHER)
       val cr2 = route(fakeLoggedInHtmlRequest(privilegedUser, POST,
         controllers.sets.routes.AuthoritativeSets
-          .createHistoricalAgent("auths").url).withHeaders(formPostHeaders.toSeq: _*), testData).get
+          .createHistoricalAgent("auths").url), testData).get
       status(cr2) must equalTo(BAD_REQUEST)
     }
 
@@ -102,7 +102,7 @@ class EntityViewsSpec extends IntegrationTestRunner {
         "publicationStatus" -> Seq("Draft")
       )
       val cr = route(fakeLoggedInHtmlRequest(privilegedUser, POST,
-        controllers.authorities.routes.HistoricalAgents.updatePost("a1").url).withHeaders(formPostHeaders.toSeq: _*), testData).get
+        controllers.authorities.routes.HistoricalAgents.updatePost("a1").url), testData).get
       status(cr) must equalTo(SEE_OTHER)
 
       val show = route(fakeLoggedInHtmlRequest(privilegedUser, GET, redirectLocation(cr).get)).get
@@ -115,7 +115,7 @@ class EntityViewsSpec extends IntegrationTestRunner {
         "identifier" -> Seq("a1")
       )
       val cr = route(fakeLoggedInHtmlRequest(unprivilegedUser, POST,
-        controllers.authorities.routes.HistoricalAgents.updatePost("a1").url).withHeaders(formPostHeaders.toSeq: _*), testData).get
+        controllers.authorities.routes.HistoricalAgents.updatePost("a1").url), testData).get
       status(cr) must equalTo(FORBIDDEN)
     }
 
@@ -147,8 +147,7 @@ class EntityViewsSpec extends IntegrationTestRunner {
         ContentTypes.DocumentaryUnit.toString -> List(PermissionType.Create.toString)
       )
       val cr = route(fakeLoggedInHtmlRequest(privilegedUser, POST,
-        controllers.users.routes.UserProfiles.permissionsPost(subjectUser.id).url)
-        .withHeaders(formPostHeaders.toSeq: _*), testData).get
+        controllers.users.routes.UserProfiles.permissionsPost(subjectUser.id).url), testData).get
       status(cr) must equalTo(SEE_OTHER)
 
       // Now check we can read back the same permissions.
@@ -167,13 +166,13 @@ class EntityViewsSpec extends IntegrationTestRunner {
       contentAsString(show) must contain(controllers.users.routes.UserProfiles.permissions(id).url)
       contentAsString(show) must contain(controllers.users.routes.UserProfiles.grantList(id).url)
       contentAsString(show) must contain(controllers.users.routes.UserProfiles.search().url)
-      contentAsString(show) must contain(controllers.groups.routes.Groups.membership(EntityType.UserProfile, id).url)
+      contentAsString(show) must contain(controllers.users.routes.UserProfiles.membership(id).url)
     }
 
     "allow adding users to groups" in new ITestApp {
       // Going to add user Reto to group Niod
       val add = route(fakeLoggedInHtmlRequest(privilegedUser, POST,
-        controllers.groups.routes.Groups.addMemberPost("niod", EntityType.UserProfile, id).url)
+        controllers.users.routes.UserProfiles.addToGroup(id, "niod").url)
           .withFormUrlEncodedBody()).get
       status(add) must equalTo(SEE_OTHER)
 
@@ -214,7 +213,7 @@ class EntityViewsSpec extends IntegrationTestRunner {
     "allow removing users from groups" in new ITestApp {
       // Going to add remove Reto from group KCL
       val rem = route(fakeLoggedInHtmlRequest(privilegedUser, POST,
-        controllers.groups.routes.Groups.removeMemberPost("kcl", EntityType.UserProfile, id).url)
+        controllers.users.routes.UserProfiles.removeFromGroup(id, "kcl").url)
           .withFormUrlEncodedBody()).get
       status(rem) must equalTo(SEE_OTHER)
 
@@ -234,14 +233,14 @@ class EntityViewsSpec extends IntegrationTestRunner {
       contentAsString(show) must contain(controllers.groups.routes.Groups.delete(id).url)
       contentAsString(show) must contain(controllers.groups.routes.Groups.permissions(id).url)
       contentAsString(show) must contain(controllers.groups.routes.Groups.grantList(id).url)
-      contentAsString(show) must contain(controllers.groups.routes.Groups.membership(EntityType.Group, id).url)
+      contentAsString(show) must contain(controllers.groups.routes.Groups.membership(id).url)
       contentAsString(show) must contain(controllers.groups.routes.Groups.list().url)
     }
 
     "allow adding groups to groups" in new ITestApp {
       // Add KCL to Admin
       val add = route(fakeLoggedInHtmlRequest(privilegedUser, POST,
-        controllers.groups.routes.Groups.addMemberPost("admin", EntityType.Group, id).url)
+        controllers.groups.routes.Groups.addToGroup(id, "admin").url)
           .withFormUrlEncodedBody()).get
       status(add) must equalTo(SEE_OTHER)
 
@@ -252,7 +251,7 @@ class EntityViewsSpec extends IntegrationTestRunner {
     "allow removing groups from groups" in new ITestApp {
       // Remove NIOD from Admin
       val rem = route(fakeLoggedInHtmlRequest(privilegedUser, POST,
-        controllers.groups.routes.Groups.removeMemberPost("admin", EntityType.Group, "niod").url)
+        controllers.groups.routes.Groups.removeFromGroup("niod", "admin").url)
           .withFormUrlEncodedBody()).get
       status(rem) must equalTo(SEE_OTHER)
 
@@ -286,7 +285,7 @@ class EntityViewsSpec extends IntegrationTestRunner {
       )
       val cr = route(fakeLoggedInHtmlRequest(privilegedUser, POST,
         controllers.sets.routes.AuthoritativeSets
-          .createHistoricalAgent("auths").url).withHeaders(formPostHeaders.toSeq: _*), testData).get
+          .createHistoricalAgent("auths").url), testData).get
       status(cr) must equalTo(SEE_OTHER)
 
       val show = route(fakeLoggedInHtmlRequest(privilegedUser, GET,
@@ -301,7 +300,7 @@ class EntityViewsSpec extends IntegrationTestRunner {
       )
       val cr = route(fakeLoggedInHtmlRequest(privilegedUser, POST,
         controllers.sets.routes.AuthoritativeSets
-          .createHistoricalAgent("auths").url).withHeaders(formPostHeaders.toSeq: _*), testData).get
+          .createHistoricalAgent("auths").url), testData).get
       status(cr) must equalTo(BAD_REQUEST)
     }
 
@@ -314,11 +313,11 @@ class EntityViewsSpec extends IntegrationTestRunner {
       )
       val cr = route(fakeLoggedInHtmlRequest(privilegedUser, POST,
         controllers.sets.routes.AuthoritativeSets
-          .createHistoricalAgent("auths").url).withHeaders(formPostHeaders.toSeq: _*), testData).get
+          .createHistoricalAgent("auths").url), testData).get
       status(cr) must equalTo(SEE_OTHER)
       val cr2 = route(fakeLoggedInHtmlRequest(privilegedUser, POST,
         controllers.sets.routes.AuthoritativeSets
-          .createHistoricalAgent("auths").url).withHeaders(formPostHeaders.toSeq: _*), testData).get
+          .createHistoricalAgent("auths").url), testData).get
       status(cr2) must equalTo(BAD_REQUEST)
     }
 
@@ -344,7 +343,7 @@ class EntityViewsSpec extends IntegrationTestRunner {
         "publicationStatus" -> Seq("Draft")
       )
       val cr = route(fakeLoggedInHtmlRequest(privilegedUser, POST,
-        controllers.authorities.routes.HistoricalAgents.updatePost("a1").url).withHeaders(formPostHeaders.toSeq: _*), testData).get
+        controllers.authorities.routes.HistoricalAgents.updatePost("a1").url), testData).get
       status(cr) must equalTo(SEE_OTHER)
 
       val show = route(fakeLoggedInHtmlRequest(privilegedUser, GET, redirectLocation(cr).get)).get
@@ -357,7 +356,7 @@ class EntityViewsSpec extends IntegrationTestRunner {
         "identifier" -> Seq("a1")
       )
       val cr = route(fakeLoggedInHtmlRequest(unprivilegedUser, POST,
-        controllers.authorities.routes.HistoricalAgents.updatePost("a1").url).withHeaders(formPostHeaders.toSeq: _*), testData).get
+        controllers.authorities.routes.HistoricalAgents.updatePost("a1").url), testData).get
       status(cr) must equalTo(FORBIDDEN)
     }
 
@@ -386,7 +385,7 @@ class EntityViewsSpec extends IntegrationTestRunner {
       )
       val cr = route(fakeLoggedInHtmlRequest(privilegedUser, POST,
         controllers.vocabularies.routes.Vocabularies
-          .create().url).withHeaders(formPostHeaders.toSeq: _*), testData).get
+          .create().url), testData).get
       status(cr) must equalTo(SEE_OTHER)
 
       val show = route(fakeLoggedInHtmlRequest(privilegedUser, GET,
@@ -401,7 +400,7 @@ class EntityViewsSpec extends IntegrationTestRunner {
       )
       val cr = route(fakeLoggedInHtmlRequest(privilegedUser, POST,
         controllers.vocabularies.routes.Vocabularies
-          .create().url).withHeaders(formPostHeaders.toSeq: _*), testData).get
+          .create().url), testData).get
       status(cr) must equalTo(BAD_REQUEST)
     }
 
@@ -411,8 +410,7 @@ class EntityViewsSpec extends IntegrationTestRunner {
         "name" -> Seq("Another Name")
       )
       val cr = route(fakeLoggedInHtmlRequest(privilegedUser, POST,
-        controllers.vocabularies.routes.Vocabularies.updatePost("cvoc1").url)
-        .withHeaders(formPostHeaders.toSeq: _*), testData).get
+        controllers.vocabularies.routes.Vocabularies.updatePost("cvoc1").url), testData).get
       status(cr) must equalTo(SEE_OTHER)
 
       val show = route(fakeLoggedInHtmlRequest(privilegedUser, GET, redirectLocation(cr).get)).get

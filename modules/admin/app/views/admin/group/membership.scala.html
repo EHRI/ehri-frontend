@@ -1,14 +1,29 @@
-@(item: Accessor, groups: List[(String,String)])(implicit userOpt: Option[UserProfile], req: RequestHeader, globalConfig: global.GlobalConfig, lang: Lang, flash: Flash)
+@(item: Accessor, groups: Seq[(String,String)])(implicit userOpt: Option[UserProfile], req: RequestHeader, globalConfig: global.GlobalConfig, lang: Lang, flash: Flash)
 
 @implicitField = @{ views.html.helper.FieldConstructor(formHelpers.fieldTemplate.f) }
+
+@removeLink(group: Group) = {
+	@if(item.isA == EntityType.Group) {
+		<a class="ajax-action" href="@controllers.groups.routes.Groups.checkRemoveFromGroup(item.id, group.id)" title="@Messages("accessor.groups.remove.item", item.toStringLang, group.toStringLang)">@Messages("accessor.groups.remove")</a>
+	} else {
+		<a class="ajax-action" href="@controllers.users.routes.UserProfiles.checkRemoveFromGroup(item.id, group.id)" title="@Messages("accessor.groups.remove.item", item.toStringLang, group.toStringLang)">@Messages("accessor.groups.remove")</a>
+	}
+}
+
+@addLink(groupId: String, groupName: String) = {
+	@if(item.isA == EntityType.Group) {
+		<a class="ajax-action" href="@controllers.groups.routes.Groups.checkAddToGroup(item.id, groupId)" title="@Messages("accessor.groups.add.item", item.toStringLang, groupName)">@groupName</a>
+	} else {
+		<a class="ajax-action" href="@controllers.users.routes.UserProfiles.checkAddToGroup(item.id, groupId)" title="@Messages("accessor.groups.add.item", item.toStringLang, groupName)">@groupName</a>
+	}
+}
 
 @views.html.admin.layout.rightSidebar(Messages("accessor.groups.manage"), breadcrumbs = views.html.admin.common.breadcrumbs(List(item))) {
 	
 	@if(item.groups.nonEmpty) {
 	  <strong>@Messages("accessor.currentGroups"): </strong>&nbsp;
 	  @item.groups.map { group =>
-	    <a href="@controllers.groups.routes.Groups.get(group.id)">@group.toStringLang</a>
-        (<a class="ajax-action" href="@controllers.groups.routes.Groups.removeMember(group.id, item.isA, item.id)" title="@Messages("accessor.groups.remove.item", item.toStringLang, group.toStringLang)">@Messages("accessor.groups.remove")</a>)
+	    <a href="@controllers.groups.routes.Groups.get(group.id)">@group.toStringLang</a> (@removeLink(group))
 	  }	  
 	}
     
@@ -19,9 +34,9 @@
 	} else {
 	  <strong>@Messages("accessor.addNewGroup"): </strong>&nbsp;
 	  <ul>
-	  @groups.map { case (identifier, name) =>
+	  @groups.map { case (id, name) =>
 	  	<li>
-	    	<a class="ajax-action" href="@controllers.groups.routes.Groups.addMember(identifier, item.isA, item.id)" title="@Messages("accessor.groups.add.item", item.toStringLang, name)">@name</a>
+	    	@addLink(id, name)
 	  	</li>
 	  }	  
 	  </ul>

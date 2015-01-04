@@ -19,4 +19,9 @@ GET     /:id/permissions/manage             @controllers.users.UserProfiles.mana
 GET     /:id/permissions/add                @controllers.users.UserProfiles.addItemPermissions(id: String)
 GET     /:id/permissions/:userType/:userId  @controllers.users.UserProfiles.setItemPermissions(id: String, userType: EntityType.Value, userId: String)
 POST    /:id/permissions/:userType/:userId  @controllers.users.UserProfiles.setItemPermissionsPost(id: String, userType: EntityType.Value, userId: String)
+GET     /:id/groups                         @controllers.users.UserProfiles.membership(id: String)
+GET     /:id/addTo/:groupId                 @controllers.users.UserProfiles.checkAddToGroup(id: String, groupId: String)
+POST	/:id/addTo/:groupId	                @controllers.users.UserProfiles.addToGroup(id: String, groupId: String)
+GET     /:id/removeFrom/:groupId            @controllers.users.UserProfiles.checkRemoveFromGroup(id: String, groupId: String)
+POST    /:id/removeFrom/:groupId            @controllers.users.UserProfiles.removeFromGroup(id: String, groupId: String)
 

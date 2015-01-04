@@ -32,6 +32,7 @@ case class UserProfiles @Inject()(implicit globalConfig: global.GlobalConfig, se
   with Read[UserProfile]
   with Update[UserProfileF,UserProfile]
   with Delete[UserProfile]
+  with Membership[UserProfile]
   with Search {
 
   private val entityFacets: FacetBuilder = { implicit request =>
@@ -307,6 +308,30 @@ case class UserProfiles @Inject()(implicit globalConfig: global.GlobalConfig, se
       Redirect(userRoutes.managePermissions(id))
         .flashing("success" -> "item.update.confirmation")
     }
+  }
+
+  def membership(id: String) = MembershipAction(id).apply { implicit request =>
+    Ok(views.html.admin.group.membership(request.item, request.groups))
+  }
+
+  def checkAddToGroup(id: String, groupId: String) = CheckManageGroupAction(id, groupId).apply { implicit request =>
+    Ok(views.html.admin.group.confirmMembership(request.group, request.item,
+      userRoutes.addToGroup(id, groupId)))
+  }
+
+  def addToGroup(id: String, groupId: String) = AddToGroupAction(id, groupId).apply { implicit request =>
+    Redirect(userRoutes.membership(id))
+      .flashing("success" -> "item.update.confirmation")
+  }
+
+  def checkRemoveFromGroup(id: String, groupId: String) = CheckManageGroupAction(id, groupId).apply { implicit request =>
+    Ok(views.html.admin.group.removeMembership(request.group, request.item,
+      userRoutes.removeFromGroup(id, groupId)))
+  }
+
+  def removeFromGroup(id: String, groupId: String) = RemoveFromGroupAction(id, groupId).apply { implicit request =>
+    Redirect(userRoutes.membership(id))
+      .flashing("success" -> "item.update.confirmation")
   }
 }
 

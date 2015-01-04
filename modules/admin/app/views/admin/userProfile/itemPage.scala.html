@@ -33,7 +33,7 @@
             <a href="@controllers.users.routes.UserProfiles.grantList(item.id)">@Messages("permissions.itemLevel.show")</a>
         }
         @views.html.admin.common.sidebarAction(user.hasPermission(ContentTypes.UserProfile, PermissionType.Grant)) {
-            <a href="@controllers.groups.routes.Groups.membership(item.isA, item.id)">@Messages("accessor.groups.manage")</a>
+            <a href="@controllers.users.routes.UserProfiles.membership(item.id)">@Messages("accessor.groups.manage")</a>
         }
         @views.html.admin.common.sidebarAction(user.hasPermission(ContentTypes.UserProfile, PermissionType.Grant)) {
             <a href="@controllers.users.routes.UserProfiles.managePermissions(item.id)">@Messages("permissions.manage")</a>
