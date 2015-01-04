@@ -183,14 +183,14 @@ trait Read[MT] extends Generic[MT] {
   object getAction {
     def async(id: String)(f: MT => Page[Annotation] => Page[Link] => Option[UserProfile] => Request[AnyContent] => Future[Result])(
         implicit rd: BackendReadable[MT], ct: BackendContentType[MT]) = {
-      itemPermissionAction.async[MT](id) { item => implicit maybeUser => implicit request =>
+      ItemPermissionAction(id).async { implicit request =>
           // NB: Effectively disable paging here by using a high limit
         val annsReq = backend.getAnnotationsForItem[Annotation](id)
         val linkReq = backend.getLinksForItem[Link](id)
         for {
           anns <- annsReq
           links <- linkReq
-          r <- f(item)(anns)(links)(maybeUser)(request)
+          r <- f(request.item)(anns)(links)(request.userOpt)(request)
         } yield r
       }
     }
