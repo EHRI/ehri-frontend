@@ -257,25 +257,6 @@ trait AuthController extends Controller with ControllerHelpers with AuthActionBu
   }
 
   /**
-   * Given an item ID fetch the item.
-   */
-  object itemAction {
-    def async[MT](resource: BackendResource[MT], id: String)(f: MT => Option[UserProfile] => Request[AnyContent] => Future[Result])(
-        implicit rd: BackendReadable[MT]): Action[AnyContent] = {
-      OptionalUserAction.async { implicit request =>
-        backend.get(resource, id).flatMap { item =>
-          f(item)(request.userOpt)(request)
-        }
-      }
-    }
-
-    def apply[MT](resource: BackendResource[MT], id: String)(f: MT => Option[UserProfile] => Request[AnyContent] => Result)(
-      implicit rd: BackendReadable[MT]): Action[AnyContent] = {
-      async(resource, id)(f.andThen(_.andThen(_.andThen(t => Future.successful(t)))))
-    }
-  }
-
-  /**
    * Given an item ID and a user, fetch:
    * 	- the user's profile
    *    - the user's global permissions within that item's scope
