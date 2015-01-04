@@ -23,13 +23,13 @@
 }
 
 
-@if(!links.isEmpty) {
+@if(links.nonEmpty) {
   @defining(EntityType.DocumentaryUnit.toString) { implicit fieldPrefix =>
     @p.common.descriptionSection("accessPointLinks", Messages("portal.item.accessPointLinks")) {
         @if(!desc.accessPoints.isEmpty) {
             @AccessPointF.AccessPointType.values.toList.map { accessPointType =>
                 @defining(desc.accessPoints.filter(_.accessPointType == accessPointType)) { apLinks =>
-                    @if(!apLinks.isEmpty) {
+                    @if(apLinks.nonEmpty) {
                         <div class="item-text-field">
                             <h4 class="item-text-field-header">@Messages("accessPoint.type." + accessPointType)</h4>
                             <div class="item-text-field-value">

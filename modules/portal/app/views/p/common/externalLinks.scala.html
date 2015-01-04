@@ -1,11 +1,11 @@
 @(item: DescribedMeta[_,_], links: Seq[Link], accessPointTypes: List[AccessPointF.AccessPointType.Value] = AccessPointF.AccessPointType.values.toList)(implicit userOpt: Option[UserProfile], req: RequestHeader, lang: Lang, globalConfig: global.GlobalConfig)
 
 @defining(item.externalLinks(links)) { links =>
-    @if(!links.isEmpty) {
+    @if(links.nonEmpty) {
         <h3>@Messages("portal.item.related")</h3>
         @accessPointTypes.map { accessPointType =>
             @defining(AccessPoint.linksOfType(links, accessPointType)) { apLinks =>
-                @if(!apLinks.isEmpty) {
+                @if(apLinks.nonEmpty) {
                     <div class="item-text-field">
                         <h4 class="item-text-field-header">@Messages("accessPoint.type." + accessPointType + ".reverse")</h4>
                         <div class="item-text-field-value">

@@ -1,6 +1,6 @@
 @(item: Temporal, fieldName: String)(implicit fieldPrefix: String, userOpt: Option[UserProfile], request: RequestHeader, lang: Lang)
 
-@if(!item.dates.isEmpty) {
+@if(item.dates.nonEmpty) {
     <div class="item-text-field" id="@fieldName">
         <h4 class="item-text-field-header">
             @Messages(if (fieldPrefix.isEmpty) fieldName else "%s.%s".format(fieldPrefix, fieldName))

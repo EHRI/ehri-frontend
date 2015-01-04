@@ -1,7 +1,7 @@
 @(value: Option[String], fieldName: String)(implicit fieldPrefix: String = "")
 
 @value.map { str =>
-    @if(!str.trim.isEmpty) {
+    @if(str.trim.nonEmpty) {
         <div class="item-text-field" id="@fieldName">
             <h4 class="item-text-field-header">
             	@Messages(if (fieldPrefix.isEmpty) fieldName else "%s.%s".format(fieldPrefix, fieldName))

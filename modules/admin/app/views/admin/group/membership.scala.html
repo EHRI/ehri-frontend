@@ -4,7 +4,7 @@
 
 @views.html.admin.layout.rightSidebar(Messages("accessor.groups.manage"), breadcrumbs = views.html.admin.common.breadcrumbs(List(item))) {
 	
-	@if(!item.groups.isEmpty) {
+	@if(item.groups.nonEmpty) {
 	  <strong>@Messages("accessor.currentGroups"): </strong>&nbsp;
 	  @item.groups.map { group =>
 	    <a href="@controllers.groups.routes.Groups.get(group.id)">@group.toStringLang</a>

@@ -5,7 +5,7 @@ implicit userOpt: Option[UserProfile], req: RequestHeader, globalConfig: global.
 
 @views.html.admin.layout.rightSidebar(Messages("permissions.global.update", item.toStringLang), breadcrumbs = views.html.admin.common.breadcrumbs(List(item))) {
 	
-	@if(!item.groups.isEmpty) {
+	@if(item.groups.nonEmpty) {
 	  <strong>Parent Groups: </strong>&nbsp;
 	  @item.groups.map { group =>
         @*

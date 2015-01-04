@@ -43,7 +43,7 @@ package object i18n {
    */
   def languageCode2ToNameOpt(code: String)(implicit lang: Lang): Option[String] = {
     new Locale(code, "").getDisplayLanguage(lang.toLocale) match {
-      case d if !d.isEmpty => Some(d)
+      case d if d.nonEmpty => Some(d)
       case _ => None
     }
   }
@@ -71,7 +71,7 @@ package object i18n {
    *
    * var tmploc = new Locale.Builder().setScript(code).build()
    *   tmploc.getDisplayScript(lang.toLocale) match {
-   *   case d if !d.isEmpty => d
+   *   case d if d.nonEmpty => d
    *   case _ => code
    * }
    */
@@ -93,12 +93,11 @@ package object i18n {
    */
   def countryCodeToName(code: String)(implicit lang: Lang): String = {
     new Locale("", code).getDisplayCountry(lang.toLocale) match {
-      case d if !d.isEmpty && !d.equalsIgnoreCase(code) => d
-      case c => {
+      case d if d.nonEmpty && !d.equalsIgnoreCase(code) => d
+      case c =>
         val key = "countryCode." + c.toLowerCase
         val i18n = Messages(key)
         if (i18n != key) i18n else c
-      }
     }
   }
 

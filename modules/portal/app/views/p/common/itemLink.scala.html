@@ -1,7 +1,7 @@
 @(link: Link, item: DescribedMeta[_,_])(implicit userOpt: Option[UserProfile], req: RequestHeader, lang: Lang, globalConfig: global.GlobalConfig)
 
 @linkItemHtml(html: Html) = {
-    @if(!html.body.trim.isEmpty) {
+    @if(html.body.trim.nonEmpty) {
         <li class="item-link">
             @html
         </li>

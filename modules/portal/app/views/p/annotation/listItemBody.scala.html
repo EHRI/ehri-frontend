@@ -1,7 +1,7 @@
 @(item: Annotation, highlighter: views.Highlighter = views.NoopHighlighter)(implicit userOpt: Option[UserProfile], req: RequestHeader, lang: Lang, globalConfig: global.GlobalConfig)
 
 @list(cls: String)(html: Html) = {
-    @if(!html.body.trim.isEmpty) {
+    @if(html.body.trim.nonEmpty) {
         <ul class="@cls">@html</ul>
     }
 }
@@ -29,7 +29,7 @@
                 <span class="fa fa-eye"></span>
             </li>
         } else {
-            @if(!item.accessors.isEmpty) {
+            @if(item.accessors.nonEmpty) {
                 <li>
                     @defining(item.accessors.take(3), item.accessors.drop(3).size) { case (first, rest) =>
                     @Messages("portal.access.accessibleTo", first.map(_.toStringLang).mkString(", "))

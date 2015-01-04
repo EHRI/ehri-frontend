@@ -9,7 +9,7 @@
         @Messages("permissions.scopeLevel.manage.info")
     </div>
 
-    @if(!groups.isEmpty) {
+    @if(groups.nonEmpty) {
         <strong>@Messages("contentTypes.group"): </strong>&nbsp;
         <ul>
         @groups.map { case (id, name) =>
@@ -21,7 +21,7 @@
         <hr />
     }
 
-    @if(!users.isEmpty) {
+    @if(users.nonEmpty) {
         <strong>@Messages("contentTypes.userProfile"): </strong>&nbsp;
         <ul>
         @users.map { case (id, name) =>

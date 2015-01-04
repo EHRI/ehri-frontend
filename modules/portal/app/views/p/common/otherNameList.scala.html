@@ -1,7 +1,7 @@
 @(list: Option[List[String]])(implicit lang: Lang)
 
 @defining(list.toList.flatten) { pfn =>
-    @if(!pfn.isEmpty) {
+    @if(pfn.nonEmpty) {
     <ul class="slash-sep other-name-list">
         @pfn.map { p =>
             <li>@p</li>

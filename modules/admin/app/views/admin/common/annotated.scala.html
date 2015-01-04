@@ -5,7 +5,7 @@
 @(item: AnyModel, annotations: Seq[Annotation])(body: Html)(implicit userOpt: Option[UserProfile], req: RequestHeader, globalConfig: global.GlobalConfig)
 
 @annotationList(notes: Seq[Annotation]) = {
-    @if(!notes.isEmpty) {
+    @if(notes.nonEmpty) {
         <ul>
         @notes.map { ann =>
             <li class="annotatable" id="@ann.id">
@@ -13,7 +13,7 @@
                     <a href="@views.admin.Helpers.linkTo(accessor)">@accessor.toStringLang</a> -
                 }
                 @ann.model.body
-                @if(!ann.annotations.isEmpty) {
+                @if(ann.annotations.nonEmpty) {
                     @annotationList(ann.annotations)
                 }
             </li>

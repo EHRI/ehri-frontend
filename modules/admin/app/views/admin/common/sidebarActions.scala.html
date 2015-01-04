@@ -2,7 +2,7 @@
 
 @userOpt.map { user =>
     @defining(f(user)) { html =>
-        @if(!html.body.trim.isEmpty) {
+        @if(html.body.trim.nonEmpty) {
             @common.sidebarSection(Some(Messages("actions"))) {
                 @views.html.admin.common.listGroup {
                     @html

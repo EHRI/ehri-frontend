@@ -2,7 +2,7 @@
 
 @value.map { list =>
 	@defining(fieldAnnotations.filter(_.model.field==Some(key))) { anns =>
-	    @if(!list.isEmpty) {
+	    @if(list.nonEmpty) {
 	        <div class="item-text-field @{if(views.p.Helpers.isAnnotatable(item, userOpt)) "annotable"}" id="@nodeId-@key">
 	            <h4 class="item-text-field-header">
 	            	@Messages(if (fieldPrefix.isEmpty) key else "%s.%s".format(fieldPrefix, key))

@@ -49,7 +49,7 @@
 }
 
 @facetList(fc: FacetClass[Facet]) = {
-    @if(!fc.sorted.isEmpty) {
+    @if(fc.sorted.nonEmpty) {
         @defining(fc.sorted.filter(_.count > 0)) { sortedActive =>
             <li class="facet-class">
                 @facetLabel(fc)
@@ -79,7 +79,7 @@
 }
 
 @facetChoiceList(fc: FacetClass[Facet]) = {
-    @if(!fc.sorted.isEmpty) {
+    @if(fc.sorted.nonEmpty) {
         @defining(fc.sorted.filter(_.count > 0)) { sortedActive =>
             <li class="facet-class">
                 @facetLabel(fc)
@@ -120,7 +120,7 @@
                 </a>
             }
         </h4>   
-        @if(!fc.sorted.isEmpty) {
+        @if(fc.sorted.nonEmpty) {
             <ul class="facet-options">     
                 @defining(fc.sorted.filter(_.count > 0)) { sortedActive =>
                     @sortedActive.map { f =>
@@ -168,7 +168,7 @@
     </li>
 }
 
-@if(!facets.isEmpty) {
+@if(facets.nonEmpty) {
     <ul class="facet-classes">
     @facets.map { fc =>
         @fc.display match {

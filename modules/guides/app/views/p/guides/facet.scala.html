@@ -93,7 +93,7 @@
     </small></p>
     @for(page <- template._2._2) {
         @if(page.layout != GuidePage.Layout.Markdown) {
-            @if(!available.isEmpty){
+            @if(available.nonEmpty){
                         @selectTwo(page.name, page.content)
             } else{
             <div class="facet-class">

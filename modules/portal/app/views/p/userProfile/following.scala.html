@@ -1,7 +1,7 @@
 @(user: UserProfile, follows: utils.Page[UserProfile])(implicit req: RequestHeader, lang: Lang)
 
 @p.common.footerPanel(Messages("portal.profile.following")) {
-    @if(!follows.isEmpty) {
+    @if(follows.nonEmpty) {
         <ul class="user-following">
 
         </ul>

@@ -1,7 +1,7 @@
 @(item: Accessible, url: Call, contentType: ContentTypes.Value)(implicit userOpt: Option[UserProfile], globalConfig: global.GlobalConfig)
 
 <div class="well well-small">
-    @if(!item.accessors.isEmpty) {
+    @if(item.accessors.nonEmpty) {
         <h4>
             <i class="glyphicon glyphicon-lock"></i>
             @Messages("visibility.visibilityRestrictedTo")

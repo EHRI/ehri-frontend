@@ -22,7 +22,7 @@ trait AttributeSet {
       f.setAccessible(true)
       f.get(this) match {
         case opt: Option[_] => if (opt.isDefined) return false
-        case s: String => if (!s.isEmpty) return false
+        case s: String => if (s.nonEmpty) return false
         case v => return false
       }
     }

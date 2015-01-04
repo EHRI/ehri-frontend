@@ -15,7 +15,7 @@
                 </ul>
             </dd>
         }
-        @if(!desc.dates.isEmpty) {
+        @if(desc.dates.nonEmpty) {
             <dt>@Messages("portal.documentaryUnit.dates")</dt>
             <dd>@desc.dates.map(_.years).mkString(", ")</dd>
         }
@@ -24,7 +24,7 @@
             <dd>@Messages("portal.documentaryUnit.levelOfDescription." + e)</dd>
         }
         @desc.conditions.languageOfMaterials.map { langs =>
-            @if(!langs.isEmpty) {
+            @if(langs.nonEmpty) {
                 <dt>@Messages("portal.documentaryUnit.languageOfMaterials")</dt>
                 <dd>
                     <ul class="list-unstyled list-inline comma-sep">
@@ -36,7 +36,7 @@
             }
         }
         @desc.conditions.scriptOfMaterials.map { scr =>
-            @if(!scr.isEmpty) {
+            @if(scr.nonEmpty) {
                 <dt>@Messages("portal.documentaryUnit.scriptOfMaterials")</dt>
                 <dd>
                     <ul class="list-unstyled list-inline comma-sep">

@@ -4,7 +4,7 @@
 
 @common.otherNameListSmall(desc.identity.parallelFormsOfName.toList.flatten)
 
-@if(!item.ancestors.isEmpty) {
+@if(item.ancestors.nonEmpty) {
     <small>
         <ul class="list-unstyled text-muted inline inline-separator">
             @item.ancestors.reverse.map { parent =>

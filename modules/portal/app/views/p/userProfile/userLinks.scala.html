@@ -1,7 +1,7 @@
 @(user: UserProfile, links: utils.Page[Link])(implicit userOpt: Option[UserProfile], req: RequestHeader, lang: Lang)
 
 @p.common.footerPanel(Messages("portal.profile.links")) {
-    @if(!links.isEmpty) {
+    @if(links.nonEmpty) {
         <ul class="user-links">
 
         </ul>

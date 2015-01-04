@@ -1,8 +1,8 @@
 @(item: Promotable, promoteUrl: Call, demoteUrl: Call, contentType: ContentTypes.Value)(implicit userOpt: Option[UserProfile], globalConfig: global.GlobalConfig)
 
-@if(!item.promoters.isEmpty || (userOpt.isDefined && userOpt.get.hasPermission(contentType, PermissionType.Promote))) {
+@if(item.promoters.nonEmpty || (userOpt.isDefined && userOpt.get.hasPermission(contentType, PermissionType.Promote))) {
     <div class="well well-small">
-        @if(!item.promoters.isEmpty) {
+        @if(item.promoters.nonEmpty) {
             <h4>
                 <i class="glyphicon glyphicon-star"></i>
                 @Messages("visibility.promotedBy")

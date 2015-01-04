@@ -5,7 +5,7 @@
     @AccessPointF.AccessPointType.values.toList.map { apt =>
         @defining(desc.accessPoints.filter(_.accessPointType == apt)) { linksOfType =>
             <h4>@Messages("accessPoint.type." + apt.toString)</h4>
-            @if(!linksOfType.isEmpty) {
+            @if(linksOfType.nonEmpty) {
                 <ul class="access-point-links">
                     @linksOfType.map { ap =>
                         @ap.target(item, links).map { case (link, other) =>

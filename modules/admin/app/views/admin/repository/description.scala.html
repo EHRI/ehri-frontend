@@ -13,7 +13,7 @@
     }
 
     @descriptionSection(ADDRESS_AREA) {
-        @if(!desc.addresses.isEmpty) {
+        @if(desc.addresses.nonEmpty) {
             <div class="inline-block well well-small" style="display: inline-block">
             @desc.addresses.zipWithIndex.map { case (address, i) =>
                 <address title="@address.name">

@@ -7,7 +7,7 @@
 <a href="@controllers.linking.routes.Links.getAndRedirect(link.id, Some(item.id))">
     <span class="glyphicon glyphicon-link"></span>
 </a>
-@if(!link.model.dates.isEmpty) {
+@if(link.model.dates.nonEmpty) {
     <small>@link.model.dateRange</small>
 }
 @link.model.description.map { desc =>

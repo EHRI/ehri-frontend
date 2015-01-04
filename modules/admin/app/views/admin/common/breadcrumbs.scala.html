@@ -1,8 +1,8 @@
 @(items: List[AnyModel] = Nil)(implicit lang: Lang, globalConfig: global.GlobalConfig)
 
 @layout.infobar {
-    @defining(if (!items.isEmpty) 200 / items.length else 300) { truncateLength =>
-        @if(!items.isEmpty) {
+    @defining(if (items.nonEmpty) 200 / items.length else 300) { truncateLength =>
+        @if(items.nonEmpty) {
             @items.init.map { i =>
                 <li>
                     <a title="@i.toStringLang" href="@views.admin.Helpers.linkTo(i)">

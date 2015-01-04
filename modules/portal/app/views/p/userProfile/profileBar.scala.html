@@ -2,7 +2,7 @@
 
 
 <nav class="info-bar user-profile-bar collapse navbar-collapse">
-    @if(!controls.body.isEmpty) {
+    @if(controls.body.nonEmpty) {
         <div class="nav navbar-nav navbar-right">
             @controls
         </div>
@@ -14,7 +14,7 @@
     <h1><a 
         @for(us <- userOpt if user.id != us.id) { href="@controllers.portal.social.routes.Social.browseUser(user.id)" }
         @for(us <- userOpt if user.id == us.id) { href="@controllers.portal.profile.routes.Profile.profile" }>
-        @if(!additionalTitle.isEmpty) {
+        @if(additionalTitle.nonEmpty) {
             @additionalTitle
         } else {
             @user.model.name

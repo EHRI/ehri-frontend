@@ -7,7 +7,7 @@
     <div class="panel-body">
         @body
     </div>
-    @if(!footer.body.trim.isEmpty) {
+    @if(footer.body.trim.nonEmpty) {
         <div class="panel-footer">
             @footer
         </div>

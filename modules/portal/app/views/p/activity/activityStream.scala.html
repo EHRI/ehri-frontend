@@ -3,7 +3,7 @@
 @import backend.rest.Constants.OFFSET_PARAM
 
 <div class="activity-stream-wrapper">
-    @if(!page.isEmpty) {
+    @if(page.nonEmpty) {
         <div class="timeline-container">
             <ul id="activity-stream" class="timeline timeline-user">
                 @eventItems(page)

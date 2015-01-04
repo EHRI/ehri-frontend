@@ -2,7 +2,7 @@
 
 @if(!form.globalErrors.isEmpty) {
     <div class="alert alert-danger alert-block">
-        <h4>@{if(!msg.isEmpty) msg else Messages("error.globalErrors")}</h4>
+        <h4>@{if(msg.nonEmpty) msg else Messages("error.globalErrors")}</h4>
         <ul>
         @form.globalErrors.map { error =>
             <li>@Messages(error.message)</li>

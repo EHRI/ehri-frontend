@@ -8,7 +8,7 @@
             <h1>@Messages("portal.social.browseUsers")</h1>
         </div>
 
-        @if(params.isFiltered || !users.items.isEmpty) {
+        @if(params.isFiltered || users.items.nonEmpty) {
             @helper.form(action = controllers.portal.social.routes.Social.browseUsers, 'role -> "form", 'class -> "form-horizontal") {
                 <div class="search-bar">
                     <div class="form-group form-inline search-box">

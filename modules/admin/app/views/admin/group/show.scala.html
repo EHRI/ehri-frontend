@@ -6,7 +6,7 @@
         @views.html.admin.common.stringValue(item.model.description, models.GroupF.DESCRIPTION)
     }
 
-    @if(!item.groups.isEmpty) {
+    @if(item.groups.nonEmpty) {
         <hr />
         <strong>@Messages("group.parentGroups"):</strong>&nbsp;
         @item.groups.map { group =>

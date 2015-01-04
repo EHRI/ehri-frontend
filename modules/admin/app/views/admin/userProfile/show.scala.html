@@ -10,7 +10,7 @@
             @loc
         }
 
-        @if(!item.model.languages.isEmpty) {
+        @if(item.model.languages.nonEmpty) {
             <div>
                 <strong>@Messages("profile.languages"):</strong>
                 <ul class="inline inline-separator">

@@ -2,7 +2,7 @@
 
 @defining(userOpt.exists(_.id == them.id)) { isCurrentUser =>
 
-    @if(!items.isEmpty) {
+    @if(items.nonEmpty) {
         <ul class="list-unstyled watched-items">
             @items.map { item =>
                 <li>

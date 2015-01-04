@@ -1,6 +1,6 @@
 @(links: utils.AbstractPage[Link])(implicit userOpt: Option[UserProfile], req: RequestHeader, lang: Lang, globalConfig: global.GlobalConfig)
 
-@if(!links.isEmpty) {
+@if(links.nonEmpty) {
     <ul class="list-unstyled user-link-list">
     @links.map { ann =>
         <li class="user-link">

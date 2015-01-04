@@ -1,6 +1,6 @@
 @(annotations: utils.AbstractPage[Annotation])(implicit userOpt: Option[UserProfile], req: RequestHeader, lang: Lang, globalConfig: global.GlobalConfig)
 
-@if(!annotations.isEmpty) {
+@if(annotations.nonEmpty) {
     <ul class="list-unstyled user-annotation-list">
     @annotations.map { ann =>
         <li class="user-annotation">

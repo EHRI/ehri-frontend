@@ -1,13 +1,13 @@
 @(item: DescribedMeta[Description, Described[Description]], desc: models.base.Description, links: Seq[Link])(implicit prefix: String, userOpt: Option[UserProfile], req: RequestHeader, globalConfig: global.GlobalConfig)
 
 @relatedLinks(list: List[AccessPointF], accessPointType: AccessPointF.AccessPointType.Value) = {
-    @if(!list.isEmpty) {
+    @if(list.nonEmpty) {
         <ul class="item-annotation-links list-unstyled">
             @list.map { accessPoint =>
                 @accessPoint.target(item, links).map { case (link, other) =>
                     <li class="resolved-access-point" id="@accessPoint.id">
                          @p.helpers.linkTo(other, Html(accessPoint.name))
-                        @if(!link.model.dates.isEmpty) {
+                        @if(link.model.dates.nonEmpty) {
                             <small>@link.model.dateRange</small>
                         }
                         @link.model.description.map { desc =>

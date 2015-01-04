@@ -131,7 +131,7 @@ case class VirtualUnit(
   with Accessible {
 
   override def toStringLang(implicit lang: Lang): String = {
-    if (!model.descriptions.isEmpty) super.toStringLang(lang)
+    if (model.descriptions.nonEmpty) super.toStringLang(lang)
     else includedUnits.headOption.map(_.toStringLang(lang)).getOrElse(id)
   }
 

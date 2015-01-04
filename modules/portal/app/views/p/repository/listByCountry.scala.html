@@ -24,7 +24,7 @@
             @searchItem(repo, hit, watched.contains(repo.id), showCountry=false)
         </div>
     }
-    @if(!repos.isEmpty) {
+    @if(repos.nonEmpty) {
         @itemByCountryList(repos.tail, repos.headOption)
     }
 }
