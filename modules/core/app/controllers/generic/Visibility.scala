@@ -22,30 +22,26 @@ trait Visibility[MT] extends Read[MT] {
   ) extends WrappedRequest[A](request)
     with WithOptionalProfile
 
-  private def VisibilityTransformer(implicit ct: BackendContentType[MT]) = new ActionTransformer[ItemPermissionRequest, VisibilityRequest] {
-    override protected def transform[A](request: ItemPermissionRequest[A]): Future[VisibilityRequest[A]] = {
-      for {
-        users <- RestHelpers.getUserList
-        groups <- RestHelpers.getGroupList
-      } yield VisibilityRequest(request.item, users, groups, request.profileOpt, request)
-    }
-  }
-
   def EditVisibilityAction(id: String)(implicit rd: BackendReadable[MT], ct: BackendContentType[MT]) =
-    WithItemPermissionAction(id, PermissionType.Update) andThen VisibilityTransformer
-
-  private def UpdateVisibilityTransformer(id: String)(implicit rd: BackendReadable[MT], ct: BackendContentType[MT]) = new ActionTransformer[ItemPermissionRequest,ItemPermissionRequest] {
-    override protected def transform[A](request: ItemPermissionRequest[A]): Future[ItemPermissionRequest[A]] = {
-      implicit val req = request
-      val data = forms.VisibilityForm.form.bindFromRequest.value.getOrElse(Nil)
-      backend.setVisibility(id, data).map { newItem =>
-        ItemPermissionRequest(newItem, request.profileOpt, request)
+    WithItemPermissionAction(id, PermissionType.Update) andThen new ActionTransformer[ItemPermissionRequest, VisibilityRequest] {
+      override protected def transform[A](request: ItemPermissionRequest[A]): Future[VisibilityRequest[A]] = {
+        for {
+          users <- RestHelpers.getUserList
+          groups <- RestHelpers.getGroupList
+        } yield VisibilityRequest(request.item, users, groups, request.profileOpt, request)
       }
     }
-  }
 
   def UpdateVisibilityAction(id: String)(implicit rd: BackendReadable[MT], ct: BackendContentType[MT]) =
-    WithItemPermissionAction(id, PermissionType.Update) andThen VisibilityTransformer
+    WithItemPermissionAction(id, PermissionType.Update) andThen new ActionTransformer[ItemPermissionRequest,ItemPermissionRequest] {
+      override protected def transform[A](request: ItemPermissionRequest[A]): Future[ItemPermissionRequest[A]] = {
+        implicit val req = request
+        val data = forms.VisibilityForm.form.bindFromRequest.value.getOrElse(Nil)
+        backend.setVisibility(id, data).map { newItem =>
+          ItemPermissionRequest(newItem, request.profileOpt, request)
+        }
+      }
+    }
 
 
   @deprecated(message = "Use EditVisibilityAction instead", since = "1.0.2")

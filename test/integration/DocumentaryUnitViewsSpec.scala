@@ -1,6 +1,6 @@
 package integration
 
-import helpers.{formPostHeaders,IntegrationTestRunner}
+import helpers.IntegrationTestRunner
 import models._
 import play.api.i18n.Messages
 import play.api.test.FakeRequest
@@ -338,6 +338,20 @@ class DocumentaryUnitViewsSpec extends IntegrationTestRunner {
       status(getR) must equalTo(OK)
       contentAsString(getR) must not contain "Some alternate description text for c1"
       indexEventBuffer.last must equalTo("cd1-2")
+    }
+
+    "allow updating visibility" in new ITestApp {
+      val test1 = route(fakeLoggedInHtmlRequest(unprivilegedUser, GET,
+        docRoutes.get("c1").url)).get
+      status(test1) must throwA[ItemNotFound]
+      // Make item visible to user
+      val data = Map(backend.rest.Constants.ACCESSOR_PARAM -> Seq(unprivilegedUser.id))
+      val cr = route(fakeLoggedInHtmlRequest(privilegedUser, POST,
+        docRoutes.visibilityPost("c1").url), data).get
+      status(cr) must equalTo(SEE_OTHER)
+      val test2 = route(fakeLoggedInHtmlRequest(unprivilegedUser, GET,
+        docRoutes.get("c1").url)).get
+      status(test2) must equalTo(OK)
     }
   }
   
