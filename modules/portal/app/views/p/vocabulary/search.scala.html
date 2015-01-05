@@ -2,7 +2,7 @@
 
 @p.layout.portalLayout(item.toStringLang, EntityType.Vocabulary.toString) {
     @views.html.layout.mainContent {
-        @p.common.itemDetailsLink(Messages("portal.details.show"), controllers.portal.routes.Portal.browseVocabulary(item.id)) {
+        @p.common.itemDetailsLink(Messages("portal.details.show"), controllers.portal.routes.Vocabularies.browse(item.id)) {
             @p.common.itemHeader(item.toStringLang) {
             }
         }

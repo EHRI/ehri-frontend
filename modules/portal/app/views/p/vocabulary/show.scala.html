@@ -4,6 +4,6 @@
     @views.html.layout.mainContent {
         @itemDetails(item, annotations, links, watched)
 
-        @p.common.childItemLink(item, controllers.portal.routes.Portal.searchVocabulary(item.id))
+        @p.common.childItemLink(item, controllers.portal.routes.Vocabularies.search(item.id))
     }
 }

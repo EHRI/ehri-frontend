@@ -53,10 +53,10 @@ object Helpers {
       case EntityType.Repository => controllers.portal.routes.Repositories.browse(id)
       case EntityType.HistoricalAgent => controllers.portal.routes.HistoricalAgents.browse(id)
       case EntityType.UserProfile => controllers.portal.social.routes.Social.browseUser(id)
-      case EntityType.Group => portalRoutes.browseGroup(id)
-      case EntityType.Link => portalRoutes.browseLink(id)
+      case EntityType.Group => controllers.portal.routes.Groups.browse(id)
+      case EntityType.Link => controllers.portal.routes.Links.browse(id)
       case EntityType.Annotation => controllers.portal.annotate.routes.Annotations.browse(id)
-      case EntityType.Vocabulary => portalRoutes.browseVocabulary(id)
+      case EntityType.Vocabulary => controllers.portal.routes.Vocabularies.browse(id)
       case EntityType.VirtualUnit => controllers.portal.routes.VirtualUnits.browseVirtualCollection(id)
       case _ =>
         play.api.Logger.logger.error(s"Link to unexpected item: $id -> $isA")

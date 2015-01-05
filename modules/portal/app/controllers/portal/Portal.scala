@@ -117,37 +117,6 @@ case class Portal @Inject()(implicit globalConfig: global.GlobalConfig, searchDi
     else Redirect(call)
   }
 
-  def browseLink(id: String) = getItemAction[Link](EntityType.Link, id) {
-      item => details => implicit userOpt => implicit request =>
-    Ok(p.link.show(item))
-  }
-
-  def browseGroup(id: String) = getItemAction[Group](EntityType.Group, id) {
-      item => details => implicit userOpt => implicit request =>
-    Ok(p.group.show(item))
-  }
-
-  def browseVocabulary(id: String) = getItemAction[Vocabulary](EntityType.Vocabulary, id) {
-    item => details => implicit userOpt => implicit request =>
-      if (isAjax) Ok(p.vocabulary.itemDetails(item, details.annotations, details.links, details.watched))
-      else Ok(p.vocabulary.show(item, details.annotations, details.links, details.watched))
-  }
-
-  def searchVocabulary(id: String) = getItemAction.async[Vocabulary](EntityType.Vocabulary, id) {
-      item => details => implicit userOpt => implicit request =>
-    val filters = Map(SolrConstants.HOLDER_ID -> item.id, SolrConstants.TOP_LEVEL -> true.toString)
-    find[Concept](
-      filters = filters,
-      entities = List(EntityType.Concept),
-      facetBuilder = conceptFacets
-    ).map { case QueryResult(page, params, facets) =>
-      if (isAjax) Ok(p.vocabulary.childItemSearch(item, page, params, facets,
-        portalRoutes.searchVocabulary(id), details.watched))
-      else Ok(p.vocabulary.search(item, page, params, facets,
-        portalRoutes.searchVocabulary(id), details.watched))
-    }
-  }
-
   def itemHistory(id: String, modal: Boolean = false) = OptionalUserAction.async { implicit request =>
     val params: RangeParams = RangeParams.fromRequest(request)
     val filters = SystemEventParams.fromRequest(request)

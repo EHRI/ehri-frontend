@@ -17,7 +17,7 @@ import views.html.p
  */
 @Singleton
 case class Concepts @Inject()(implicit globalConfig: global.GlobalConfig, searchDispatcher: Dispatcher, searchResolver: Resolver, backend: Backend,
-                                  userDAO: AccountDAO, idGenerator: IdGenerator)
+                                  userDAO: AccountDAO)
   extends PortalController
   with Generic[Concept]
   with Search

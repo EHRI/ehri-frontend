@@ -18,7 +18,7 @@ import views.html.p
  */
 @Singleton
 case class Repositories @Inject()(implicit globalConfig: global.GlobalConfig, searchDispatcher: Dispatcher, searchResolver: Resolver, backend: Backend,
-                                  userDAO: AccountDAO, idGenerator: IdGenerator)
+                                  userDAO: AccountDAO)
   extends PortalController
   with Generic[Repository]
   with Search

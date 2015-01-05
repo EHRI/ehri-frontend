@@ -4,7 +4,7 @@
     <div class="search-item-details">
         <ul class="concept-search-details">
             @item.vocabulary.map { vocab =>
-                <li><a class="alt" href="@controllers.portal.routes.Portal.browseVocabulary(vocab.id)">@vocab.toStringLang</a></li>
+                <li><a class="alt" href="@controllers.portal.routes.Vocabularies.browse(vocab.id)">@vocab.toStringLang</a></li>
             }
             <li><span class="text-muted">@views.Helpers.languageCodeToName(desc.languageCode)</span></li>
             @item.latestEvent.map { event =>

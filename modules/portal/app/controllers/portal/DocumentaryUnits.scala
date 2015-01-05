@@ -19,7 +19,7 @@ import views.html.p
  */
 @Singleton
 case class DocumentaryUnits @Inject()(implicit globalConfig: global.GlobalConfig, searchDispatcher: Dispatcher, searchResolver: Resolver, backend: Backend,
-                                  userDAO: AccountDAO, idGenerator: IdGenerator)
+                                  userDAO: AccountDAO)
   extends PortalController
   with Generic[DocumentaryUnit]
   with Search

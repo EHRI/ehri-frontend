@@ -52,11 +52,12 @@ GET         /authorities                    @controllers.portal.HistoricalAgents
 GET         /authorities/:id                @controllers.portal.HistoricalAgents.browse(id: String)
 GET         /keywords                       @controllers.portal.Concepts.searchAll
 GET         /keywords/:id                   @controllers.portal.Concepts.browse(id: String)
-GET         /links/:id                      @controllers.portal.Portal.browseLink(id: String)
-GET         /groups/:id                     @controllers.portal.Portal.browseGroup(id: String)
+GET         /links/:id                      @controllers.portal.Links.browse(id: String)
+GET         /groups/:id                     @controllers.portal.Groups.browse(id: String)
+GET         /vocabularies/:id               @controllers.portal.Vocabularies.browse(id: String)
+GET         /vocabularies/:id/search        @controllers.portal.Vocabularies.search(id: String)
+
 GET         /activity/:id                   @controllers.portal.Portal.itemHistory(id: String, modal: Boolean ?= false)
-GET         /vocabularies/:id               @controllers.portal.Portal.browseVocabulary(id: String)
-GET         /vocabularies/:id/search        @controllers.portal.Portal.searchVocabulary(id: String)
 GET         /newsFeed                       @controllers.portal.Portal.newsFeed
 GET         /item/:entityType/:id           @controllers.portal.Portal.browseItem(entityType: EntityType.Value, id: String)
 
