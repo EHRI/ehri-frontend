@@ -55,7 +55,7 @@ case class Guides @Inject()(implicit globalConfig: global.GlobalConfig, searchDi
     Action { implicit request =>
       Ok(
         Routes.javascriptRouter("jsRoutes")(
-          controllers.portal.guides.routes.javascript.Guides.browseDocument,
+          controllers.portal.guides.routes.javascript.DocumentaryUnits.browse,
           controllers.portal.guides.routes.javascript.Guides.linkedData,
           controllers.portal.guides.routes.javascript.Guides.linkedDataInContext
         )
@@ -310,34 +310,6 @@ case class Guides @Inject()(implicit globalConfig: global.GlobalConfig, searchDi
     Ok(p.guides.markdown(template -> (guide -> guide.findPages), content))
   }
 
-
-  /*
-  *  Layout named "document"
-  */
-  def browseDocument(path: String, id: String) = getItemAction[DocumentaryUnit](EntityType.DocumentaryUnit, id) {
-      item => details => implicit userOpt => implicit request =>
-    itemOr404(Guide.find(path, activeOnly = true)) { guide =>
-      Ok(p.guides.documentaryUnit(
-        item,
-        details.annotations,
-        details.links,
-        details.watched,
-        GuidePage.document(Some(item.toStringLang)) -> (guide -> guide.findPages))
-      )
-    }
-  }
-
-  /*
-   * Function for displaying repository
-   */
-
-  def browseRepository(path: String, id: String) = getItemAction[Repository](EntityType.Repository, id) {
-      item => details => implicit userOpt => implicit request =>
-    itemOr404(Guide.find(path, activeOnly = true)) { guide =>
-      Ok(p.guides.repository(item, GuidePage.repository(Some(item.toStringLang)) -> (guide -> guide.findPages)))
-    }
-  }
-
   /*
   *
   * Ajax functionnalities for guides
@@ -553,7 +525,6 @@ case class Guides @Inject()(implicit globalConfig: global.GlobalConfig, searchDi
     }
   }
 
-  // FIXME: Figure out what this is for!
   def linkedData(id: String) = UserBrowseAction.async { implicit request =>
     for {
       ids <- searchLinksForm.bindFromRequest(request.queryString).fold(
@@ -567,7 +538,6 @@ case class Guides @Inject()(implicit globalConfig: global.GlobalConfig, searchDi
     }))
   }
 
-  // FIXME: Figure out what this is for!
   def linkedDataInContext(id: String, context: String) = UserBrowseAction.async { implicit request =>
     for {
       ids <-  searchLinksForm.bindFromRequest(request.queryString).fold(

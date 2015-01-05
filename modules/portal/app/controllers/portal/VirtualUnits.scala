@@ -15,13 +15,14 @@ import utils._
 
 import com.google.inject._
 import scala.concurrent.Future
-import controllers.portal.base.PortalController
+import controllers.portal.base.{Generic, PortalController}
 
 
 @Singleton
 case class VirtualUnits @Inject()(implicit globalConfig: global.GlobalConfig, searchDispatcher: Dispatcher, searchResolver: Resolver, backend: Backend,
     userDAO: AccountDAO, idGenerator: IdGenerator)
   extends PortalController
+  with Generic[VirtualUnit]
   with Search
   with FacetConfig
   with SessionPreferences[SessionPrefs] {
@@ -50,23 +51,21 @@ case class VirtualUnits @Inject()(implicit globalConfig: global.GlobalConfig, se
   }
 
 
-  def browseVirtualCollection(id: String) = getItemAction[VirtualUnit](EntityType.VirtualUnit, id) {
-    item => details => implicit userOpt => implicit request =>
-      if (isAjax) Ok(p.virtualUnit.itemDetailsVc(item, details.annotations, details.links, details.watched))
-      else Ok(p.virtualUnit.show(item, details.annotations, details.links, details.watched))
+  def browseVirtualCollection(id: String) = GetItemAction(id).apply { implicit request =>
+      if (isAjax) Ok(p.virtualUnit.itemDetailsVc(request.item, request.annotations, request.links, request.watched))
+      else Ok(p.virtualUnit.show(request.item, request.annotations, request.links, request.watched))
   }
 
-  def searchVirtualCollection(id: String) = getItemAction.async[VirtualUnit](EntityType.VirtualUnit, id) {
-    item => details => implicit userOpt => implicit request =>
+  def searchVirtualCollection(id: String) = GetItemAction(id).async { implicit request =>
       find[AnyModel](
-        filters = buildFilter(item),
+        filters = buildFilter(request.item),
         entities = List(EntityType.VirtualUnit, EntityType.DocumentaryUnit),
         facetBuilder = docSearchFacets
       ).map { case QueryResult(page, params, facets) =>
-        if (isAjax) Ok(p.virtualUnit.childItemSearch(item, page, params, facets,
-          vuRoutes.searchVirtualCollection(id), details.watched))
-        else Ok(p.virtualUnit.search(item, page, params, facets,
-          vuRoutes.searchVirtualCollection(id), details.watched))
+        if (isAjax) Ok(p.virtualUnit.childItemSearch(request.item, page, params, facets,
+          vuRoutes.searchVirtualCollection(id), request.watched))
+        else Ok(p.virtualUnit.search(request.item, page, params, facets,
+          vuRoutes.searchVirtualCollection(id), request.watched))
       }
   }
 

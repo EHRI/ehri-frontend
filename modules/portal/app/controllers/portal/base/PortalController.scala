@@ -180,6 +180,7 @@ trait PortalController extends AuthController with ControllerHelpers with Portal
   /**
    * Fetch a given item, along with its links and annotations.
    */
+  @deprecated(message = "Use GetItemAction inside a Generic[T] controller instead", since = "1.0.2")
   object getItemAction {
     def async[MT](entityType: EntityType.Value, id: String)(
       f: MT => ItemDetails => Option[UserProfile] => Request[AnyContent] => Future[Result])(
