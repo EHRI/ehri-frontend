@@ -48,7 +48,7 @@ class HelpdeskSpec extends IntegrationTestRunner {
       status(try1) must equalTo(OK)
       helpdeskBuffer.size must equalTo(origCount + 1)
       contentAsString(try1) must contain(
-        controllers.portal.routes.Portal.browseRepository("r1").url)
+        controllers.portal.routes.Repositories.browse("r1").url)
 
       // if the query doesn't contain 'netherlands' we should get
       // 'r2' back as the recommended institution...
@@ -58,9 +58,9 @@ class HelpdeskSpec extends IntegrationTestRunner {
       status(try2) must equalTo(OK)
       helpdeskBuffer.size must equalTo(origCount + 2)
       contentAsString(try2) must not contain
-        controllers.portal.routes.Portal.browseRepository("r1").url
+        controllers.portal.routes.Repositories.browse("r1").url
       contentAsString(try2) must contain(
-        controllers.portal.routes.Portal.browseRepository("r2").url)
+        controllers.portal.routes.Repositories.browse("r2").url)
     }
   }
 }

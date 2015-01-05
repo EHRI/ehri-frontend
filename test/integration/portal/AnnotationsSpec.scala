@@ -37,7 +37,7 @@ class AnnotationsSpec extends IntegrationTestRunner {
 
       // Ensure the unprivileged user can't see the annotation...
       val doc = route(fakeLoggedInHtmlRequest(unprivilegedUser, GET,
-        portalRoutes.browseDocument("c4").url)).get
+        controllers.portal.routes.DocumentaryUnits.browse("c4").url)).get
       status(doc) must equalTo(OK)
       contentAsString(doc) must not contain testAnnotationBody
 
@@ -52,7 +52,7 @@ class AnnotationsSpec extends IntegrationTestRunner {
 
       // Ensure the unprivileged user can't see the annotation...
       val doc = route(fakeLoggedInHtmlRequest(unprivilegedUser, GET,
-        portalRoutes.browseDocument("c4").url)).get
+        controllers.portal.routes.DocumentaryUnits.browse("c4").url)).get
       status(doc) must equalTo(OK)
       contentAsString(doc) must not contain testAnnotationBody
     }
@@ -103,7 +103,7 @@ class AnnotationsSpec extends IntegrationTestRunner {
 
       // Ensure the unprivileged user can't see the annotation...
       val doc = route(fakeLoggedInHtmlRequest(unprivilegedUser, GET,
-        portalRoutes.browseDocument("c4").url)).get
+        controllers.portal.routes.DocumentaryUnits.browse("c4").url)).get
       status(doc) must equalTo(OK)
       contentAsString(doc) must not contain testAnnotationBody
 
@@ -123,7 +123,7 @@ class AnnotationsSpec extends IntegrationTestRunner {
 
         // Ensure the unprivileged user CAN now see the annotation...
         val doc2 = route(fakeLoggedInHtmlRequest(unprivilegedUser, GET,
-          portalRoutes.browseDocument("c4").url)).get
+          controllers.portal.routes.DocumentaryUnits.browse("c4").url)).get
         status(doc2) must equalTo(OK)
         contentAsString(doc2) must contain(testAnnotationBody)
 
@@ -141,7 +141,7 @@ class AnnotationsSpec extends IntegrationTestRunner {
 
       // Ensure the unprivileged user can't see the annotation...
       val doc = route(fakeLoggedInHtmlRequest(unprivilegedUser, GET,
-        portalRoutes.browseDocument("c4").url)).get
+        controllers.portal.routes.DocumentaryUnits.browse("c4").url)).get
       status(doc) must equalTo(OK)
       contentAsString(doc) must not contain testBody
 
@@ -152,7 +152,7 @@ class AnnotationsSpec extends IntegrationTestRunner {
 
         // Ensure the unprivileged user CAN now see the annotation...
         val doc2 = route(fakeLoggedInHtmlRequest(unprivilegedUser, GET,
-          portalRoutes.browseDocument("c4").url)).get
+          controllers.portal.routes.DocumentaryUnits.browse("c4").url)).get
         status(doc2) must equalTo(OK)
         contentAsString(doc2) must contain(testBody)
       }
@@ -170,13 +170,13 @@ class AnnotationsSpec extends IntegrationTestRunner {
 
         // Ensure the unprivileged user can't see the annotation...
         val check1 = route(fakeLoggedInHtmlRequest(unprivilegedUser, GET,
-          portalRoutes.browseDocument("c4").url)).get
+          controllers.portal.routes.DocumentaryUnits.browse("c4").url)).get
         status(check1) must equalTo(OK)
         contentAsString(check1) must not contain testAnnotationBody
 
         // Moderators can see the annotation
         val check2 = route(fakeLoggedInHtmlRequest(moderator, GET,
-          portalRoutes.browseDocument("c4").url)).get
+          controllers.portal.routes.DocumentaryUnits.browse("c4").url)).get
         status(check2) must equalTo(OK)
         contentAsString(check2) must contain(testAnnotationBody)
 
@@ -187,7 +187,7 @@ class AnnotationsSpec extends IntegrationTestRunner {
 
         // Now the moderator cannot see the item...
         val check3 = route(fakeLoggedInHtmlRequest(moderator, GET,
-          portalRoutes.browseDocument("c4").url)).get
+          controllers.portal.routes.DocumentaryUnits.browse("c4").url)).get
         status(check3) must equalTo(OK)
         contentAsString(check3) must not contain testAnnotationBody
       }

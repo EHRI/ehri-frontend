@@ -5,7 +5,7 @@
         @parent.map { p =>
             @wrapParent(doc, p.parent)
             <li>
-                <a class="search-item-parent-name" href="@controllers.portal.routes.Portal.browseDocument(p.id)">
+                <a class="search-item-parent-name" href="@controllers.portal.routes.DocumentaryUnits.browse(p.id)">
                     @hit.highlight(p.toStringLang)
                 </a>
             </li>
@@ -18,7 +18,7 @@
             @p.common.watchButtonsSmall(item, watched)
         </div>
         <h3 class="search-item-heading type-highlight @item.isA.toString">
-            <a href="@controllers.portal.routes.Portal.browseDocument(item.id)">
+            <a href="@controllers.portal.routes.DocumentaryUnits.browse(item.id)">
                 @hit.highlight(item.toStringLang)
             </a>
         </h3>

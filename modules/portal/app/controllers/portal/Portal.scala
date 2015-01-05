@@ -112,9 +112,9 @@ case class Portal @Inject()(implicit globalConfig: global.GlobalConfig, searchDi
 
   def browseItem(entityType: EntityType.Value, id: String) = Action { implicit request =>
     entityType match {
-      case EntityType.DocumentaryUnit => Redirect(portalRoutes.browseDocument(id))
-      case EntityType.Repository => Redirect(portalRoutes.browseRepository(id))
-      case EntityType.HistoricalAgent => Redirect(portalRoutes.browseHistoricalAgent(id))
+      case EntityType.DocumentaryUnit => Redirect(controllers.portal.routes.DocumentaryUnits.browse(id))
+      case EntityType.Repository => Redirect(controllers.portal.routes.Repositories.browse(id))
+      case EntityType.HistoricalAgent => Redirect(controllers.portal.routes.HistoricalAgents.browse(id))
       case EntityType.Concept => Redirect(portalRoutes.browseConcept(id))
       case EntityType.Country => Redirect(portalRoutes.browseCountry(id))
       case EntityType.Link => Redirect(portalRoutes.browseLink(id))
@@ -131,19 +131,6 @@ case class Portal @Inject()(implicit globalConfig: global.GlobalConfig, searchDi
       facetBuilder = countryFacets
     ).map { case QueryResult(page, params, facets) =>
       Ok(p.country.list(page, params, facets, portalRoutes.browseCountries(), request.watched))
-    }
-  }
-
-  def browseRepositoriesByCountry = UserBrowseAction.async { implicit request =>
-    find[Repository](
-      defaultParams = SearchParams(
-        sort = Some(SearchOrder.Country),
-        entities = List(EntityType.Repository)),
-      facetBuilder = repositorySearchFacets
-    ).map { case QueryResult(page, params, facets) =>
-        Ok(p.repository.listByCountry(page, params, facets,
-          portalRoutes.browseRepositoriesByCountry(),
-          request.watched))
     }
   }
 
@@ -165,98 +152,6 @@ case class Portal @Inject()(implicit globalConfig: global.GlobalConfig, searchDi
       else Ok(p.country.search(item, page, params, facets,
           portalRoutes.searchCountry(id), details.watched))
     }
-  }
-
-  // The facets for documents within a repository or another document shouldn't
-  // contain the holder or country (since they'll be implied)
-  private def localDocFacets: RequestHeader => List[FacetClass[Facet]] = {
-    docSearchFacets.andThen(fcl => fcl.filterNot { fc =>
-      Seq("holder", "country", "source").contains(fc.param)
-    })
-  }
-
-  def browseRepositories =  UserBrowseAction.async { implicit request =>
-    find[Repository](
-      entities = List(EntityType.Repository),
-      facetBuilder = repositorySearchFacets
-    ).map { case QueryResult(page, params, facets) =>
-      Ok(p.repository.list(page, params, facets, portalRoutes.browseRepositories(),
-        request.watched))
-    }
-  }
-
-  def browseRepository(id: String) = getItemAction[Repository](EntityType.Repository, id) {
-      item => details => implicit userOpt => implicit request =>
-    if (isAjax) Ok(p.repository.itemDetails(item, details.annotations, details.links, details.watched))
-    else Ok(p.repository.show(item, details.annotations, details.links, details.watched))
-  }
-
-  def searchRepository(id: String) = getItemAction.async[Repository](EntityType.Repository, id) {
-      item => details => implicit userOpt => implicit request =>
-    val filters = (if (request.getQueryString(SearchParams.QUERY).filterNot(_.trim.isEmpty).isEmpty)
-      Map(SolrConstants.TOP_LEVEL -> true) else Map.empty[String,Any]) ++ Map(SolrConstants.HOLDER_ID -> item.id)
-
-    find[DocumentaryUnit](
-      filters = filters,
-      entities = List(EntityType.DocumentaryUnit),
-      facetBuilder = localDocFacets,
-      defaultOrder = SearchOrder.Id
-    ).map { case QueryResult(page, params, facets) =>
-        if(isAjax) Ok(p.repository.childItemSearch(item, page, params, facets,
-          portalRoutes.searchRepository(id), details.watched))
-        else Ok(p.repository.search(item, page, params, facets,
-          portalRoutes.searchRepository(id), details.watched))
-    }
-  }
-
-  def browseDocuments = UserBrowseAction.async { implicit request =>
-    val filters = if (request.getQueryString(SearchParams.QUERY).filterNot(_.trim.isEmpty).isEmpty)
-      Map(SolrConstants.TOP_LEVEL -> true) else Map.empty[String,Any]
-
-    find[DocumentaryUnit](
-      filters = filters,
-      entities = List(EntityType.DocumentaryUnit),
-      facetBuilder = docSearchFacets
-    ).map { case QueryResult(page, params, facets) =>
-      Ok(p.documentaryUnit.list(page, params, facets, portalRoutes.browseDocuments(),
-        request.watched))
-    }
-  }
-
-  def browseDocument(id: String) = getItemAction[DocumentaryUnit](EntityType.DocumentaryUnit, id) {
-      item => details => implicit userOpt => implicit request =>
-    if (isAjax) Ok(p.documentaryUnit.itemDetails(item, details.annotations, details.links, details.watched))
-    else Ok(p.documentaryUnit.show(item, details.annotations, details.links, details.watched))
-  }
-
-  def searchDocument(id: String) = getItemAction.async[DocumentaryUnit](EntityType.DocumentaryUnit, id) {
-      item => details => implicit userOpt => implicit request =>
-    find[DocumentaryUnit](
-      filters = Map(SolrConstants.PARENT_ID -> item.id),
-      entities = List(EntityType.DocumentaryUnit),
-      facetBuilder = localDocFacets,
-      defaultOrder = SearchOrder.Id
-    ).map { case QueryResult(page, params, facets) =>
-      if (isAjax) Ok(p.documentaryUnit.childItemSearch(item, page, params, facets,
-          portalRoutes.searchDocument(id), details.watched))
-      else Ok(p.documentaryUnit.search(item, page, params, facets,
-        portalRoutes.searchDocument(id), details.watched))
-    }
-  }
-
-  def browseHistoricalAgents = UserBrowseAction.async { implicit request =>
-    find[HistoricalAgent](
-      entities = List(EntityType.HistoricalAgent),
-      facetBuilder = historicalAgentFacets
-    ).map { case QueryResult(page, params, facets) =>
-      Ok(p.historicalAgent.list(page, params, facets,
-        portalRoutes.browseHistoricalAgents(), request.watched))
-    }
-  }
-
-  def browseHistoricalAgent(id: String) = getItemAction[HistoricalAgent](EntityType.HistoricalAgent, id) {
-      doc => details => implicit userOpt => implicit request =>
-    Ok(p.historicalAgent.show(doc, details.annotations, details.links, details.watched))
   }
 
   def browseLink(id: String) = getItemAction[Link](EntityType.Link, id) {

@@ -20,19 +20,19 @@ class PortalSpec extends IntegrationTestRunner {
 
     "view docs" in new ITestApp {
       val doc = route(fakeLoggedInHtmlRequest(privilegedUser, GET,
-        portalRoutes.browseDocument("c1").url)).get
+        controllers.portal.routes.DocumentaryUnits.browse("c1").url)).get
       status(doc) must equalTo(OK)
     }
 
     "view repositories" in new ITestApp {
       val doc = route(fakeLoggedInHtmlRequest(privilegedUser, GET,
-        portalRoutes.browseRepository("r1").url)).get
+        controllers.portal.routes.Repositories.browse("r1").url)).get
       status(doc) must equalTo(OK)
     }
 
     "view historical agents" in new ITestApp {
       val doc = route(fakeLoggedInHtmlRequest(privilegedUser, GET,
-        portalRoutes.browseHistoricalAgent("a1").url)).get
+        controllers.portal.routes.HistoricalAgents.browse("a1").url)).get
       status(doc) must equalTo(OK)
     }
     

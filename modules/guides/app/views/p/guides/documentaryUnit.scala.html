@@ -19,7 +19,7 @@
   @common.descriptionChoice(item.model.descriptions)
   <p>
     <small class="text-muted">@Messages("portal.guides.annotation")</small><br />
-    <small><a href="@controllers.portal.routes.Portal.browseDocument(item.id)">@Messages("portal.guides.seeOnPortal")</a></small>
+    <small><a href="@controllers.portal.routes.DocumentaryUnits.browse(item.id)">@Messages("portal.guides.seeOnPortal")</a></small>
   </p>
   @defining(EntityType.DocumentaryUnit.toString) { implicit prefix =>
     <section class="archival-context panel-details repository">

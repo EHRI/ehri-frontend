@@ -48,9 +48,9 @@ object Helpers {
     item.isA match {
       case EntityType.Country => portalRoutes.browseCountry(item.id)
       case EntityType.Concept => portalRoutes.browseConcept(item.id)
-      case EntityType.DocumentaryUnit => portalRoutes.browseDocument(item.id)
-      case EntityType.Repository => portalRoutes.browseRepository(item.id)
-      case EntityType.HistoricalAgent => portalRoutes.browseHistoricalAgent(item.id)
+      case EntityType.DocumentaryUnit => controllers.portal.routes.DocumentaryUnits.browse(item.id)
+      case EntityType.Repository => controllers.portal.routes.Repositories.browse(item.id)
+      case EntityType.HistoricalAgent => controllers.portal.routes.HistoricalAgents.browse(item.id)
       case EntityType.UserProfile => controllers.portal.social.routes.Social.browseUser(item.id)
       case EntityType.Group => portalRoutes.browseGroup(item.id)
       case EntityType.Link => portalRoutes.browseLink(item.id)

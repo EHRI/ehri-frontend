@@ -7,7 +7,7 @@
         @conciseAddress(item, desc, includeCountry = showCountry, highlighter = highlighter)
         @views.html.common.childCount(item) { count =>
             @if(count > 0) {
-                <a href="@controllers.portal.routes.Portal.searchRepository(item.id)">
+                <a href="@controllers.portal.routes.Repositories.search(item.id)">
                     @Messages("repository.childCount", count)
                 </a>
             }

@@ -3,7 +3,7 @@
 @import Isdiah._
 
 @p.layout.searchItemOutline(item, watched) {
-    <a href="@controllers.portal.routes.Portal.browseRepository(item.id)">
+    <a href="@controllers.portal.routes.Repositories.browse(item.id)">
         @hit.highlight(item.toStringLang)
     </a>
 } {

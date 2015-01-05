@@ -42,13 +42,13 @@
                             <p>@Messages("portal.type.country.description")</p>
                         </div>
                         <div class="welcome-section repository">
-                            <h2><a href="@controllers.portal.routes.Portal.browseRepositories">@Messages("portal.type.repository")</a>
+                            <h2><a href="@controllers.portal.routes.Repositories.searchAll">@Messages("portal.type.repository")</a>
                             </h2>
 
                             <p>@Messages("portal.type.repository.description")</p>
                         </div>
                         <div class="welcome-section documentaryUnit">
-                            <h2><a href="@controllers.portal.routes.Portal.browseDocuments">@Messages("portal.type.documentaryUnit")</a>
+                            <h2><a href="@controllers.portal.routes.DocumentaryUnits.searchAll()">@Messages("portal.type.documentaryUnit")</a>
                             </h2>
 
                             <p>@Messages("portal.type.documentaryUnit.description")</p>
@@ -65,7 +65,7 @@
                         <div class="welcome-section repository">
                             @{Html(Messages(
                             "portal.landingBlurb.repository",
-                            countLink(controllers.portal.routes.Portal.browseRepositories().url,
+                            countLink(controllers.portal.routes.Repositories.searchAll().url,
                             "portal.landingBlurb.repository.link", stats.repositoryCount).body.trim,
                             countLink(controllers.portal.routes.Portal.browseCountries().url + "?data=yes",
                             "portal.landingBlurb.repository.country.link", stats.inCountryCount).body.trim
@@ -74,9 +74,9 @@
                         <div class="welcome-section documentaryUnit">
                             @{Html(Messages(
                             "portal.landingBlurb.documentaryUnit",
-                            countLink(controllers.portal.routes.Portal.browseDocuments.url,
+                            countLink(controllers.portal.routes.DocumentaryUnits.searchAll().url,
                             "portal.landingBlurb.documentaryUnit.link", stats.documentaryUnitCount).body.trim,
-                            countLink(controllers.portal.routes.Portal.browseRepositories().url + "?data=yes",
+                            countLink(controllers.portal.routes.Repositories.searchAll().url + "?data=yes",
                             "portal.landingBlurb.documentaryUnit.repository.link", stats.inRepositoryCount).body.trim
                             ))}
                         </div>

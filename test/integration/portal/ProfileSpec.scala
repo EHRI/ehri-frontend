@@ -26,7 +26,7 @@ class ProfileSpec extends IntegrationTestRunner {
         profileRoutes.watching().url)).get
       // Check the following page contains a link to the user we just followed
       contentAsString(watching) must contain(
-        portalRoutes.browseDocument("c1").url)
+        controllers.portal.routes.DocumentaryUnits.browse("c1").url)
 
       // Unwatch
       val unwatch = route(fakeLoggedInHtmlRequest(privilegedUser, POST,
@@ -36,7 +36,7 @@ class ProfileSpec extends IntegrationTestRunner {
       val watching2 = route(fakeLoggedInHtmlRequest(privilegedUser, GET,
         profileRoutes.watching().url)).get
       // Check the profile contains no links to the item we just unwatched
-      contentAsString(watching2) must not contain portalRoutes.browseDocument("c1").url
+      contentAsString(watching2) must not contain controllers.portal.routes.DocumentaryUnits.browse("c1").url
 
     }
     

@@ -3,7 +3,7 @@ package controllers.portal
 import models.Isaar
 import play.api.i18n.Messages
 import views.Helpers
-import utils.search.{FacetSort, FacetDisplay}
+import utils.search.{Facet, FacetClass, FacetSort, FacetDisplay}
 import solr.SolrConstants
 import controllers.generic.Search
 import play.api.mvc.{RequestHeader, Controller}
@@ -240,6 +240,14 @@ trait FacetConfig extends Search {
         display = FacetDisplay.DropDown
       )
     )
+  }
+
+  // The facets for documents within a repository or another document shouldn't
+  // contain the holder or country (since they'll be implied)
+  protected def localDocFacets: RequestHeader => List[FacetClass[Facet]] = {
+    docSearchFacets.andThen(fcl => fcl.filterNot { fc =>
+      Seq("holder", "country", "source").contains(fc.param)
+    })
   }
 
   protected val docSearchFacets: FacetBuilder = { implicit request =>

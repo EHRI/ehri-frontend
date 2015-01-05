@@ -6,6 +6,6 @@
     @views.html.layout.mainContent {
         @itemDetails(item, annotations, links, watched)
 
-        @p.common.childItemLink(item, controllers.portal.routes.Portal.searchRepository(item.id))
+        @p.common.childItemLink(item, controllers.portal.routes.Repositories.search(item.id))
     }
 }

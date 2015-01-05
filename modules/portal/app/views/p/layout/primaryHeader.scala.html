@@ -22,11 +22,11 @@
                 <li class="country @views.Helpers.maybeActivePath(controllers.portal.routes.Portal.browseCountries.url)">
                     <a href="@controllers.portal.routes.Portal.browseCountries">@Messages("portal.type.country")</a>
                 </li>
-                <li class="repository @views.Helpers.maybeActivePath(controllers.portal.routes.Portal.browseRepositories.url)">
-                    <a href="@controllers.portal.routes.Portal.browseRepositories">@Messages("portal.type.repository")</a>
+                <li class="repository @views.Helpers.maybeActivePath(controllers.portal.routes.Repositories.searchAll.url)">
+                    <a href="@controllers.portal.routes.Repositories.searchAll">@Messages("portal.type.repository")</a>
                 </li>
-                <li class="documentaryUnit @views.Helpers.maybeActivePath(controllers.portal.routes.Portal.browseDocuments.url)">
-                    <a href="@controllers.portal.routes.Portal.browseDocuments">@Messages("portal.type.documentaryUnit")</a>
+                <li class="documentaryUnit @views.Helpers.maybeActivePath(controllers.portal.routes.DocumentaryUnits.searchAll().url)">
+                    <a href="@controllers.portal.routes.DocumentaryUnits.searchAll()">@Messages("portal.type.documentaryUnit")</a>
                 </li>
             </ul>
         </div>

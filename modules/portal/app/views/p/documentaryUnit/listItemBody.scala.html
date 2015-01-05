@@ -8,7 +8,7 @@
         <ul class="doc-search-details">
             @if(showRepository) {
                 @item.holder.map { holder =>
-                    <li><a class="alt" href="@controllers.portal.routes.Portal.browseRepository(holder.id)">@holder.toStringAbbr</a></li>
+                    <li><a class="alt" href="@controllers.portal.routes.Repositories.browse(holder.id)">@holder.toStringAbbr</a></li>
                 }
             }
             <li title="@item.model.identifier">@highlighter.highlight(StringUtils.abbreviate(item.model.identifier, 15))</li>
@@ -30,7 +30,7 @@
         </ul>
         @views.html.common.childCount(item) { count =>
             @if(count > 0) {
-                <a href="@controllers.portal.routes.Portal.searchDocument(item.id)">@Messages("documentaryUnit.childCount", count)</a>
+                <a href="@controllers.portal.routes.DocumentaryUnits.search(item.id)">@Messages("documentaryUnit.childCount", count)</a>
             }
         }
     </div>
