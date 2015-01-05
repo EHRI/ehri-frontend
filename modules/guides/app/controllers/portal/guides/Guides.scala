@@ -55,7 +55,9 @@ case class Guides @Inject()(implicit globalConfig: global.GlobalConfig, searchDi
     Action { implicit request =>
       Ok(
         Routes.javascriptRouter("jsRoutes")(
-          controllers.portal.guides.routes.javascript.Guides.browseDocument
+          controllers.portal.guides.routes.javascript.Guides.browseDocument,
+          controllers.portal.guides.routes.javascript.Guides.linkedData,
+          controllers.portal.guides.routes.javascript.Guides.linkedDataInContext
         )
       ).as(MimeTypes.JAVASCRIPT)
     }
@@ -495,5 +497,87 @@ case class Guides @Inject()(implicit globalConfig: global.GlobalConfig, searchDi
     } getOrElse {
       immediate(NotFound(views.html.errors.pageNotFound()))
     }
+  }
+
+  val searchLinksForm = Form(
+    single(
+      "type" -> optional(text.verifying("NoTypeGiven", f => f match {
+        case c => EntityType.values.map( v => v.toString).contains(c)
+      }))
+    )
+  )
+
+
+  def searchLinks(target: String, documentType: String = EntityType.DocumentaryUnit.toString, context: Option[String] = None): Future[Seq[Long]] = {
+
+    val cypher = new CypherDAO
+    context match {
+      case Some(str) => {
+        val query =  s"""
+        START
+          virtualUnit = node:entities(__ID__= {inContext}),
+          accessPoints = node:entities(__ID__= {accessPoint})
+        MATCH
+             (link)-[:inContextOf]->virtualUnit,
+            (doc)<-[:hasLinkTarget]-(link)-[:hasLinkTarget]->accessPoints
+         WHERE doc <> accessPoints AND doc.__ISA__ = {type}
+         RETURN ID(doc) LIMIT 5
+        """.stripMargin
+        val params =  Map(
+          "inContext" -> JsString(str),
+          "accessPoint" -> JsString(target),
+          "type" -> JsString(documentType)
+        )
+        cypher.cypher(query, params).map { r =>
+          (r \ "data").as[Seq[Seq[Long]]].flatten
+        }
+      }
+      case _ => {
+        val query : String =
+          s"""
+        START
+          accessPoints = node:entities(__ID__= {accessPoint})
+        MATCH
+             (doc)<-[:hasLinkTarget]-(link)-[:hasLinkTarget]->accessPoints
+         WHERE doc <> accessPoints AND doc.__ISA__ = {type}
+         RETURN ID(doc) LIMIT 5
+        """.stripMargin
+        val params =  Map(
+          "accessPoint" -> JsString(target),
+          "type" -> JsString(documentType)
+        )
+        cypher.cypher(query, params).map { r =>
+          (r \ "data").as[Seq[Seq[Long]]].flatten
+        }
+      }
+    }
+  }
+
+  // FIXME: Figure out what this is for!
+  def linkedData(id: String) = UserBrowseAction.async { implicit request =>
+    for {
+      ids <- searchLinksForm.bindFromRequest(request.queryString).fold(
+      errs => searchLinks(id), {
+        case Some(t) => searchLinks(id, t)
+        case _ => searchLinks(id)
+      })
+      docs <- SearchDAO.listByGid[AnyModel](ids)
+    } yield Ok(Json.toJson(docs.zip(ids).map { case (doc, gid) =>
+      Json.toJson(FilterHit(doc.id, "", doc.toStringLang, doc.isA, None, gid))
+    }))
+  }
+
+  // FIXME: Figure out what this is for!
+  def linkedDataInContext(id: String, context: String) = UserBrowseAction.async { implicit request =>
+    for {
+      ids <-  searchLinksForm.bindFromRequest(request.queryString).fold(
+      errs => searchLinks(id, context=Some(context)), {
+        case Some(t) => searchLinks(id, t, Some(context))
+        case _ => searchLinks(id, context=Some(context))
+      })
+      docs <- SearchDAO.listByGid[AnyModel](ids)
+    } yield Ok(Json.toJson(docs.zip(ids).map { case (doc, gid) =>
+      Json.toJson(FilterHit(doc.id, "", doc.toStringLang, doc.isA, None, gid))
+    }))
   }
 }

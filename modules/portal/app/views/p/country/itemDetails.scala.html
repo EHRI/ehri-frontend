@@ -12,7 +12,7 @@
         @p.common.childItemSidebar(
             item,
             EntityType.Repository,
-            controllers.portal.routes.Portal.searchCountry(item.id)
+            controllers.portal.routes.Countries.search(item.id)
         )
         @p.common.latestAction(item, controllers.portal.routes.Portal.itemHistory(item.id, modal = true))
     }

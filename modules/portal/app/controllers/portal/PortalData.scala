@@ -21,12 +21,12 @@ object PortalData extends Controller {
           controllers.portal.routes.javascript.Bookmarks.contents,
           controllers.portal.routes.javascript.Bookmarks.bookmarkPost,
           controllers.portal.routes.javascript.Bookmarks.bookmarkInNewSetPost,
-          controllers.portal.profile.routes.javascript.Profile.watchItemPost,
-          controllers.portal.profile.routes.javascript.Profile.unwatchItemPost,
-          controllers.portal.profile.routes.javascript.Profile.updatePrefs,
-          controllers.portal.profile.routes.javascript.Profile.profile,
-          controllers.portal.profile.routes.javascript.Profile.updateProfile,
-          controllers.portal.profile.routes.javascript.Profile.updateProfilePost,
+          controllers.portal.users.routes.javascript.UserProfiles.watchItemPost,
+          controllers.portal.users.routes.javascript.UserProfiles.unwatchItemPost,
+          controllers.portal.users.routes.javascript.UserProfiles.updatePrefs,
+          controllers.portal.users.routes.javascript.UserProfiles.profile,
+          controllers.portal.users.routes.javascript.UserProfiles.updateProfile,
+          controllers.portal.users.routes.javascript.UserProfiles.updateProfilePost,
           controllers.portal.social.routes.javascript.Social.followUserPost,
           controllers.portal.social.routes.javascript.Social.unfollowUserPost,
           controllers.portal.social.routes.javascript.Social.followersForUser,
@@ -46,9 +46,7 @@ object PortalData extends Controller {
           controllers.portal.annotate.routes.javascript.Annotations.setAnnotationVisibilityPost,
           controllers.portal.routes.javascript.Portal.personalisedActivity,
           controllers.portal.routes.javascript.Portal.filter,
-          controllers.portal.routes.javascript.Portal.browseItem,
-          controllers.portal.routes.javascript.Portal.linkedData,
-          controllers.portal.routes.javascript.Portal.linkedDataInContext
+          controllers.portal.routes.javascript.Portal.browseItem
         )
       ).as(MimeTypes.JAVASCRIPT)
     }

@@ -5,10 +5,10 @@
         <a data-item="@item.id"
            role="button"
            class="unwatch glyphicon glyphicon-star" title="@Messages("portal.profile.unwatch.tooltip")"
-           style="@(if(!watching) "display: none")" href="@controllers.portal.profile.routes.Profile.unwatchItem(item.id)"></a>
+           style="@(if(!watching) "display: none")" href="@controllers.portal.users.routes.UserProfiles.unwatchItem(item.id)"></a>
         <a data-item="@item.id"
            role="button"
            class="watch glyphicon glyphicon-star-empty"  title="@Messages("portal.profile.watch.tooltip")"
-           style="@(if(watching) "display: none")" href="@controllers.portal.profile.routes.Profile.watchItem(item.id)"></a>
+           style="@(if(watching) "display: none")" href="@controllers.portal.users.routes.UserProfiles.watchItem(item.id)"></a>
     </div>
 }

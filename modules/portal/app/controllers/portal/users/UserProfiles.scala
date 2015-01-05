@@ -1,4 +1,4 @@
-package controllers.portal.profile
+package controllers.portal.users
 
 import play.api.libs.concurrent.Execution.Implicits._
 import controllers.base.SessionPreferences
@@ -35,7 +35,7 @@ import controllers.portal.base.{PortalController, PortalAuthConfigImpl}
  * @author Mike Bryant (http://github.com/mikesname)
  */
 @Singleton
-case class Profile @Inject()(implicit globalConfig: global.GlobalConfig, searchDispatcher: Dispatcher, searchResolver: Resolver, backend: Backend,
+case class UserProfiles @Inject()(implicit globalConfig: global.GlobalConfig, searchDispatcher: Dispatcher, searchResolver: Resolver, backend: Backend,
                             userDAO: AccountDAO, mailer: MailerAPI)
     extends PortalController
     with LoginLogout
@@ -49,7 +49,7 @@ case class Profile @Inject()(implicit globalConfig: global.GlobalConfig, searchD
   val entityType = EntityType.UserProfile
   val contentType = ContentTypes.UserProfile
 
-  private val profileRoutes = controllers.portal.profile.routes.Profile
+  private val profileRoutes = controllers.portal.users.routes.UserProfiles
 
   def watchItem(id: String) = WithUserAction { implicit request =>
     Ok(p.helpers.simpleForm("portal.profile.watch",

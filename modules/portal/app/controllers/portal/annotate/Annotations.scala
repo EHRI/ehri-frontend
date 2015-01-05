@@ -3,7 +3,7 @@ package controllers.portal.annotate
 import play.api.libs.concurrent.Execution.Implicits._
 import play.api.mvc._
 import controllers.base.SessionPreferences
-import controllers.generic.{Read, Promotion, Visibility}
+import controllers.generic.{Search, Read, Promotion, Visibility}
 import models.{AnnotationF, Annotation, UserProfile}
 import play.api.Play.current
 import views.html.p
@@ -23,7 +23,7 @@ import models.view.AnnotationContext
 
 
 import com.google.inject._
-import controllers.portal.Secured
+import controllers.portal.{FacetConfig, Secured}
 import controllers.portal.base.PortalController
 
 /**
@@ -36,6 +36,8 @@ case class Annotations @Inject()(implicit globalConfig: global.GlobalConfig, sea
   with Visibility[Annotation]
   with Promotion[Annotation]
   with SessionPreferences[SessionPrefs]
+  with Search
+  with FacetConfig
   with Secured {
 
   val defaultPreferences = new SessionPrefs
@@ -46,9 +48,19 @@ case class Annotations @Inject()(implicit globalConfig: global.GlobalConfig, sea
     AnnotationF.IS_PRIVATE -> true.toString
   )
 
-  def annotation(id: String) = OptionalUserAction.async { implicit request =>
+  def searchAll = OptionalUserAction.async { implicit request =>
+    find[Annotation](
+      entities = List(EntityType.Annotation),
+      facetBuilder = annotationFacets
+    ).map { case QueryResult(page, params, facets) =>
+      Ok(p.annotation.list(page, params, facets, annotationRoutes.searchAll()))
+    }
+  }
+
+  def browse(id: String) = OptionalUserAction.async { implicit request =>
     backend.get[Annotation](id).map { ann =>
-      Ok(Json.toJson(ann)(client.json.annotationJson.clientFormat))
+      if (isAjax) Ok(Json.toJson(ann)(client.json.annotationJson.clientFormat))
+      else Ok(p.annotation.show(ann))
     }
   }
 
@@ -76,7 +88,7 @@ case class Annotations @Inject()(implicit globalConfig: global.GlobalConfig, sea
         backend.createAnnotationForDependent[Annotation,AnnotationF](id, did, ann, accessors).map { ann =>
           Created(p.annotation.annotationBlock(ann, editable = true))
             .withHeaders(
-                HttpHeaders.LOCATION -> annotationRoutes.annotation(ann.id).url)
+                HttpHeaders.LOCATION -> annotationRoutes.browse(ann.id).url)
         }
       }
     )
@@ -162,7 +174,7 @@ case class Annotations @Inject()(implicit globalConfig: global.GlobalConfig, sea
         backend.createAnnotationForDependent[Annotation,AnnotationF](id, did, fieldAnn, accessors).map { ann =>
           Created(p.annotation.annotationInline(ann, editable = true))
             .withHeaders(
-              HttpHeaders.LOCATION -> annotationRoutes.annotation(ann.id).url)
+              HttpHeaders.LOCATION -> annotationRoutes.browse(ann.id).url)
         }
       }
     )

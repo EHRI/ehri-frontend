@@ -17,7 +17,7 @@ $(document).ready(function() {
 
 		e.unbind('click');
 		e.css("cursor", "wait");
-		$.get(jsRoutes.controllers.portal.Portal.linkedDataInContext(e.attr("data-target"), VIRTUAL_UNIT).url,function(d){
+		$.get(jsRoutes.controllers.portal.guides.Guides.linkedDataInContext(e.attr("data-target"), VIRTUAL_UNIT).url,function(d){
 			var links = []
 			if(d.length > 0) {
 				$.each(d, function(index, link) {

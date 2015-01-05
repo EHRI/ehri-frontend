@@ -3,6 +3,9 @@
 GET        /jsRoutes                     @controllers.portal.guides.Guides.jsRoutes
 
 GET        /                             @controllers.portal.guides.Guides.listGuides()
+GET        /accesspoints/:id             @controllers.portal.guides.Guides.linkedData(id:String)
+GET        /accesspoints/:id/:context    @controllers.portal.guides.Guides.linkedDataInContext(id:String, context: String)
+
 GET        /:guide                       @controllers.portal.guides.Guides.home(guide: String)
 GET        /:guide/browse                @controllers.portal.guides.Guides.guideFacets(guide: String)
 GET        /:guide/document/:id          @controllers.portal.guides.Guides.browseDocument(guide: String, id: String)

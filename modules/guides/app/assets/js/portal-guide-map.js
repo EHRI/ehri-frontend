@@ -95,7 +95,7 @@ bindMarker = function(marker, id, linkCount) {
 				panToPopup(elem);
 			} else {
 				if(linkCount > 0) {
-					$.get(jsRoutes.controllers.portal.Portal.linkedDataInContext(id , VIRTUAL_UNIT).url, function(data) {
+					$.get(jsRoutes.controllers.portal.guides.Guides.linkedDataInContext(id , VIRTUAL_UNIT).url, function(data) {
 						var links = [];
 						$.each(data, function(index, link) {
 							links.push('<li><a href="'+ jsRoutes.controllers.portal.Guides.browseDocument(GUIDE_PATH, link.id).url +'">'+ link.name+'</a></li>')

@@ -3,7 +3,7 @@ package views.p
 import models.{UserProfile, Annotation}
 import java.net.{MalformedURLException, URL}
 import models.base.AnyModel
-import defines.PermissionType
+import defines.{EntityType, PermissionType}
 import play.api.mvc.Call
 import controllers.portal.ReversePortal
 
@@ -42,25 +42,25 @@ object Helpers {
     }
   }
 
-  def linkTo(item: AnyModel): Call = {
-    import defines.EntityType
+  def linkTo(item: AnyModel): Call = linkTo(item.isA, item.id)
+
+  def linkTo(isA: EntityType.Value, id: String): Call = {
     val portalRoutes: ReversePortal = controllers.portal.routes.Portal
-    item.isA match {
-      case EntityType.Country => portalRoutes.browseCountry(item.id)
-      case EntityType.Concept => portalRoutes.browseConcept(item.id)
-      case EntityType.DocumentaryUnit => controllers.portal.routes.DocumentaryUnits.browse(item.id)
-      case EntityType.Repository => controllers.portal.routes.Repositories.browse(item.id)
-      case EntityType.HistoricalAgent => controllers.portal.routes.HistoricalAgents.browse(item.id)
-      case EntityType.UserProfile => controllers.portal.social.routes.Social.browseUser(item.id)
-      case EntityType.Group => portalRoutes.browseGroup(item.id)
-      case EntityType.Link => portalRoutes.browseLink(item.id)
-      case EntityType.Annotation => portalRoutes.browseAnnotation(item.id)
-      case EntityType.Vocabulary => portalRoutes.browseVocabulary(item.id)
-      case EntityType.VirtualUnit => controllers.portal.routes.VirtualUnits.browseVirtualCollection(item.id)
-      case _ => {
-        play.api.Logger.logger.error(s"Link to unexpected item: ${item.toStringLang} ${item.isA}")
+    isA match {
+      case EntityType.Country => controllers.portal.routes.Countries.browse(id)
+      case EntityType.Concept => controllers.portal.routes.Concepts.browse(id)
+      case EntityType.DocumentaryUnit => controllers.portal.routes.DocumentaryUnits.browse(id)
+      case EntityType.Repository => controllers.portal.routes.Repositories.browse(id)
+      case EntityType.HistoricalAgent => controllers.portal.routes.HistoricalAgents.browse(id)
+      case EntityType.UserProfile => controllers.portal.social.routes.Social.browseUser(id)
+      case EntityType.Group => portalRoutes.browseGroup(id)
+      case EntityType.Link => portalRoutes.browseLink(id)
+      case EntityType.Annotation => controllers.portal.annotate.routes.Annotations.browse(id)
+      case EntityType.Vocabulary => portalRoutes.browseVocabulary(id)
+      case EntityType.VirtualUnit => controllers.portal.routes.VirtualUnits.browseVirtualCollection(id)
+      case _ =>
+        play.api.Logger.logger.error(s"Link to unexpected item: $id -> $isA")
         Call("GET", "#")
-      }
     }
   }
 

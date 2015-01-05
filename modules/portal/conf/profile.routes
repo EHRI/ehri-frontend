@@ -1,21 +1,21 @@
 
-GET         /prefs                          @controllers.portal.profile.Profile.prefs
-POST        /prefs                          @controllers.portal.profile.Profile.updatePrefs
+GET         /prefs                  @controllers.portal.users.UserProfiles.prefs
+POST        /prefs                  @controllers.portal.users.UserProfiles.updatePrefs
 
-POST        /accountPrefs           @controllers.portal.profile.Profile.updateAccountPrefsPost()
+POST        /accountPrefs           @controllers.portal.users.UserProfiles.updateAccountPrefsPost()
 
-GET         /notes                          @controllers.portal.profile.Profile.annotations(format: controllers.DataFormat.Value ?= controllers.DataFormat.Html)
-GET         /watch/:id                      @controllers.portal.profile.Profile.watchItem(id: String)
-POST        /watch/:id                      @controllers.portal.profile.Profile.watchItemPost(id: String)
-GET         /unwatch/:id                    @controllers.portal.profile.Profile.unwatchItem(id: String)
-POST        /unwatch/:id                    @controllers.portal.profile.Profile.unwatchItemPost(id: String)
-GET         /watching                       @controllers.portal.profile.Profile.watching(format: controllers.DataFormat.Value ?= controllers.DataFormat.Html)
+GET         /notes                  @controllers.portal.users.UserProfiles.annotations(format: controllers.DataFormat.Value ?= controllers.DataFormat.Html)
+GET         /watch/:id              @controllers.portal.users.UserProfiles.watchItem(id: String)
+POST        /watch/:id              @controllers.portal.users.UserProfiles.watchItemPost(id: String)
+GET         /unwatch/:id            @controllers.portal.users.UserProfiles.unwatchItem(id: String)
+POST        /unwatch/:id            @controllers.portal.users.UserProfiles.unwatchItemPost(id: String)
+GET         /watching               @controllers.portal.users.UserProfiles.watching(format: controllers.DataFormat.Value ?= controllers.DataFormat.Html)
 
-GET         /                       @controllers.portal.profile.Profile.profile
-GET         /edit                   @controllers.portal.profile.Profile.updateProfile
-POST        /edit                   @controllers.portal.profile.Profile.updateProfilePost
-GET         /delete                 @controllers.portal.profile.Profile.deleteProfile
-POST        /delete                 @controllers.portal.profile.Profile.deleteProfilePost
-GET         /editImage              @controllers.portal.profile.Profile.updateProfileImage
-POST        /editImage              @controllers.portal.profile.Profile.updateProfileImagePost
+GET         /                       @controllers.portal.users.UserProfiles.profile
+GET         /edit                   @controllers.portal.users.UserProfiles.updateProfile
+POST        /edit                   @controllers.portal.users.UserProfiles.updateProfilePost
+GET         /delete                 @controllers.portal.users.UserProfiles.deleteProfile
+POST        /delete                 @controllers.portal.users.UserProfiles.deleteProfilePost
+GET         /editImage              @controllers.portal.users.UserProfiles.updateProfileImage
+POST        /editImage              @controllers.portal.users.UserProfiles.updateProfileImagePost
 

@@ -36,7 +36,7 @@
                     <!-- Example row of columns -->
                     <div class="row">
                         <div class="welcome-section country">
-                            <h2><a href="@controllers.portal.routes.Portal.browseCountries">@Messages("portal.type.country")</a>
+                            <h2><a href="@controllers.portal.routes.Countries.searchAll">@Messages("portal.type.country")</a>
                             </h2>
 
                             <p>@Messages("portal.type.country.description")</p>
@@ -58,7 +58,7 @@
                         <div class="welcome-section country">
                             @{Html(Messages(
                             "portal.landingBlurb.country",
-                            countLink(controllers.portal.routes.Portal.browseCountries().url,
+                            countLink(controllers.portal.routes.Countries.searchAll().url,
                             "portal.landingBlurb.country.link", stats.countryCount).body.trim
                             ))}
                         </div>
@@ -67,7 +67,7 @@
                             "portal.landingBlurb.repository",
                             countLink(controllers.portal.routes.Repositories.searchAll().url,
                             "portal.landingBlurb.repository.link", stats.repositoryCount).body.trim,
-                            countLink(controllers.portal.routes.Portal.browseCountries().url + "?data=yes",
+                            countLink(controllers.portal.routes.Countries.searchAll().url + "?data=yes",
                             "portal.landingBlurb.repository.country.link", stats.inCountryCount).body.trim
                             ))}
                         </div>

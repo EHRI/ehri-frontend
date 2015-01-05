@@ -3,7 +3,7 @@
 # Social stuff
 
 -> /            account.Routes
--> /annotate    annotate.Routes
+-> /notes       annotate.Routes
 -> /profile     profile.Routes
 -> /people      social.Routes
 
@@ -36,16 +36,12 @@ GET         /feedback                       @controllers.portal.Feedback.feedbac
 POST        /feedback                       @controllers.portal.Feedback.feedbackPost
 GET         /feedback/list                  @controllers.portal.Feedback.list
 
-# Annotation list
-# TODO: Move to annotations controller?
-GET         /notes                          @controllers.portal.Portal.browseAnnotations
-
 # Data routes
 GET         /search                         @controllers.portal.Portal.search
+GET         /countries                      @controllers.portal.Countries.searchAll
 GET         /countries/institutions         @controllers.portal.Repositories.searchAllByCountry
-GET         /countries                      @controllers.portal.Portal.browseCountries
-GET         /countries/:id                  @controllers.portal.Portal.browseCountry(id: String)
-GET         /countries/:id/search           @controllers.portal.Portal.searchCountry(id: String)
+GET         /countries/:id                  @controllers.portal.Countries.browse(id: String)
+GET         /countries/:id/search           @controllers.portal.Countries.search(id: String)
 GET         /institutions                   @controllers.portal.Repositories.searchAll
 GET         /institutions/:id               @controllers.portal.Repositories.browse(id: String)
 GET         /institutions/:id/search        @controllers.portal.Repositories.search(id: String)
@@ -54,11 +50,10 @@ GET         /units/:id                      @controllers.portal.DocumentaryUnits
 GET         /units/:id/search               @controllers.portal.DocumentaryUnits.search(id: String)
 GET         /authorities                    @controllers.portal.HistoricalAgents.searchAll
 GET         /authorities/:id                @controllers.portal.HistoricalAgents.browse(id: String)
-GET         /keywords                       @controllers.portal.Portal.browseConcepts
-GET         /keywords/:id                   @controllers.portal.Portal.browseConcept(id: String)
+GET         /keywords                       @controllers.portal.Concepts.searchAll
+GET         /keywords/:id                   @controllers.portal.Concepts.browse(id: String)
 GET         /links/:id                      @controllers.portal.Portal.browseLink(id: String)
 GET         /groups/:id                     @controllers.portal.Portal.browseGroup(id: String)
-GET         /annotations/:id                @controllers.portal.Portal.browseAnnotation(id: String)
 GET         /activity/:id                   @controllers.portal.Portal.itemHistory(id: String, modal: Boolean ?= false)
 GET         /vocabularies/:id               @controllers.portal.Portal.browseVocabulary(id: String)
 GET         /vocabularies/:id/search        @controllers.portal.Portal.searchVocabulary(id: String)
@@ -87,8 +82,6 @@ POST        /bookmarks/createSet            @controllers.portal.Bookmarks.create
 GET         /data-policy                    @controllers.portal.Portal.dataPolicy
 
 GET         /filter                         @controllers.portal.Portal.filter
-GET         /accesspoints/:id          @controllers.portal.Portal.linkedData(id:String)
-GET         /accesspoints/:id/:context          @controllers.portal.Portal.linkedDataInContext(id:String, context: String)
 
 # Various JS data helpers
 GET         /routes                         controllers.portal.PortalData.jsRoutes

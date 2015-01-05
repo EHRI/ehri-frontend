@@ -13,7 +13,7 @@ import scala.concurrent.{ExecutionContext, Future}
 trait PortalAuthConfigImpl extends AuthConfigImpl {
 
   override def defaultLogoutUrl: Call = controllers.portal.routes.Portal.index()
-  override def defaultLoginUrl = controllers.portal.profile.routes.Profile.profile()
+  override def defaultLoginUrl = controllers.portal.users.routes.UserProfiles.profile()
 
   /**
    * A redirect target after a successful user login.

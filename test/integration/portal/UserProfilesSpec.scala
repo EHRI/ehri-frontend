@@ -9,10 +9,10 @@ import play.api.http.MimeTypes
 import play.api.libs.json.JsObject
 
 
-class ProfileSpec extends IntegrationTestRunner {
+class UserProfilesSpec extends IntegrationTestRunner {
   import mocks.privilegedUser
 
-  private val profileRoutes = controllers.portal.profile.routes.Profile
+  private val profileRoutes = controllers.portal.users.routes.UserProfiles
   private val portalRoutes = controllers.portal.routes.Portal
 
   "Portal views" should {

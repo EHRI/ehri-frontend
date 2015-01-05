@@ -13,7 +13,7 @@
     </a>
     <h1><a 
         @for(us <- userOpt if user.id != us.id) { href="@controllers.portal.social.routes.Social.browseUser(user.id)" }
-        @for(us <- userOpt if user.id == us.id) { href="@controllers.portal.profile.routes.Profile.profile" }>
+        @for(us <- userOpt if user.id == us.id) { href="@controllers.portal.users.routes.UserProfiles.profile" }>
         @if(additionalTitle.nonEmpty) {
             @additionalTitle
         } else {

@@ -15,15 +15,15 @@
         <div id="navbar-primary" class="navbar-collapse collapse">
             <ul class="nav navbar-nav">
                 <li id="navbar-logo" >
-                    <a href="@controllers.portal.routes.Portal.index">
+                    <a href="@controllers.portal.routes.Portal.index()">
                         <img alt="European Holocaust Research Infrastructure" height="45" width="90" src="@controllers.portal.routes.Assets.versioned("img/logo-trans-small.png")" rel="logo" />
                     </a>
                 </li>
-                <li class="country @views.Helpers.maybeActivePath(controllers.portal.routes.Portal.browseCountries.url)">
-                    <a href="@controllers.portal.routes.Portal.browseCountries">@Messages("portal.type.country")</a>
+                <li class="country @views.Helpers.maybeActivePath(controllers.portal.routes.Countries.searchAll().url)">
+                    <a href="@controllers.portal.routes.Countries.searchAll()">@Messages("portal.type.country")</a>
                 </li>
-                <li class="repository @views.Helpers.maybeActivePath(controllers.portal.routes.Repositories.searchAll.url)">
-                    <a href="@controllers.portal.routes.Repositories.searchAll">@Messages("portal.type.repository")</a>
+                <li class="repository @views.Helpers.maybeActivePath(controllers.portal.routes.Repositories.searchAll().url)">
+                    <a href="@controllers.portal.routes.Repositories.searchAll()">@Messages("portal.type.repository")</a>
                 </li>
                 <li class="documentaryUnit @views.Helpers.maybeActivePath(controllers.portal.routes.DocumentaryUnits.searchAll().url)">
                     <a href="@controllers.portal.routes.DocumentaryUnits.searchAll()">@Messages("portal.type.documentaryUnit")</a>

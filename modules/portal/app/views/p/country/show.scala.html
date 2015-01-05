@@ -5,6 +5,6 @@
     @views.html.layout.mainContent {
         @itemDetails(item, annotations, links, watched)
 
-        @p.common.childItemLink(item, controllers.portal.routes.Portal.searchCountry(item.id))
+        @p.common.childItemLink(item, controllers.portal.routes.Countries.search(item.id))
     }
 }

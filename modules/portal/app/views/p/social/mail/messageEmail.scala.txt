@@ -9,7 +9,7 @@
 @if(!isCopy) {
 @Messages("portal.mail.message.replyFooter"):
 
-<a href="@controllers.portal.profile.routes.Profile.updateProfile.absoluteURL(secure = globalConfig.https)">
+<a href="@controllers.portal.users.routes.UserProfiles.updateProfile.absoluteURL(secure = globalConfig.https)">
     @Messages("portal.profile.preferences.updatePreferences")
 </a>
 }

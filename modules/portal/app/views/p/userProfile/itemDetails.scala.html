@@ -14,13 +14,13 @@
         @p.common.typeLabel(EntityType.UserProfile) {
             <ul class="list-group">
                 <li class="list-group-item user-img">
-                    <a href="@{if(isCurrentUser) controllers.portal.profile.routes.Profile.profile else controllers.portal.social.routes.Social.browseUser(item.id)}" class="gravitar">
+                    <a href="@{if(isCurrentUser) controllers.portal.users.routes.UserProfiles.profile else controllers.portal.social.routes.Social.browseUser(item.id)}" class="gravitar">
                         <img class="user-img-full" src="@views.p.Helpers.gravitar(item.model.imageUrl)" alt="@item.model.name"/>
                     </a>
                 </li>
                 @if(isCurrentUser) {
                     <li class="list-group-item">
-                        <a class="btn btn-get" href="@controllers.portal.profile.routes.Profile.updateProfile">
+                        <a class="btn btn-get" href="@controllers.portal.users.routes.UserProfiles.updateProfile">
                             @Messages("portal.profile.edit")
                         </a>
                     </li>
@@ -56,8 +56,8 @@
                         </a>
                     </li>
                     @if(userOpt.exists(_.id == item.id)) {
-                        <li class="@views.Helpers.maybeActive(controllers.portal.profile.routes.Profile.profile.url)">
-                            <a href="@controllers.portal.profile.routes.Profile.profile">
+                        <li class="@views.Helpers.maybeActive(controllers.portal.users.routes.UserProfiles.profile.url)">
+                            <a href="@controllers.portal.users.routes.UserProfiles.profile">
                                 <span class="glyphicon glyphicon-edit"></span>
                                 @Messages("portal.annotation.list")
                             </a>

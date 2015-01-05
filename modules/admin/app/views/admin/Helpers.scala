@@ -34,7 +34,7 @@ object Helpers {
 
   val accountMenu = Seq(
     ("portal.home", controllers.portal.routes.Portal.index().url),
-    ("portal.profile", controllers.portal.profile.routes.Profile.profile().url)
+    ("portal.profile", controllers.portal.users.routes.UserProfiles.profile().url)
   )
 
   def linkTo(isA: defines.EntityType.Value, id: String): Call = {

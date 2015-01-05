@@ -93,7 +93,7 @@ class SignupSpec extends IntegrationTestRunner {
       mocks.userFixtures.find(_._2.email == testEmail) must beSome.which { case(uid, u) =>
         // Ensure we can log in and view our profile
         val index = route(fakeLoggedInHtmlRequest(u, GET,
-          controllers.portal.profile.routes.Profile.profile().url)).get
+          controllers.portal.users.routes.UserProfiles.profile().url)).get
         status(index) must equalTo(OK)
         contentAsString(index) must contain(testName)
       }
