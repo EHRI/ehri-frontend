@@ -125,9 +125,34 @@ trait PortalController extends AuthController with ControllerHelpers with Portal
     }
   }.getOrElse(Future.successful(Seq.empty))
 
+  case class UserDetailsRequest[A](
+    watched: Seq[String],
+    userOpt: Option[UserProfile],
+    request: Request[A]
+  ) extends WrappedRequest[A](request)
+    with WithOptionalUser
+
   /**
    * Action which fetches a user's profile and list of watched items.
    */
+  protected def UserBrowseAction = OptionalAuthAction andThen new ActionTransformer[OptionalAuthRequest, UserDetailsRequest] {
+    override protected def transform[A](request: OptionalAuthRequest[A]): Future[UserDetailsRequest[A]] = {
+      request.user.map { account =>
+        implicit val apiUser: ApiUser = ApiUser(Some(account.id))
+        val userF: Future[UserProfile] = backend.get[UserProfile](account.id)
+        val watchedF: Future[Seq[String]] = watchedItemIds(userIdOpt = Some(account.id))
+        for {
+          user <- userF
+          userWithAccount = user.copy(account=Some(account))
+          watched <- watchedF
+        } yield UserDetailsRequest(watched, Some(userWithAccount), request)
+      } getOrElse {
+        immediate(UserDetailsRequest(Nil, None, request))
+      }
+    }
+  }
+
+  @deprecated(message = "Use UserBrowseAction instead", since = "1.0.2")
   object userBrowseAction {
     def async(f: UserDetails => Request[AnyContent] => Future[Result]): Action[AnyContent] = {
       OptionalAuthAction.async { authRequest =>

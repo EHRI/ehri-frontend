@@ -240,8 +240,7 @@ case class Guides @Inject()(implicit globalConfig: global.GlobalConfig, searchDi
   /*
   *   Layout named "person" [HistoricalAgent]
   */
-  def guideAuthority(template: GuidePage, params: Map[String, String], guide: Guide) = userBrowseAction.async {
-      implicit userDetails => implicit request =>
+  def guideAuthority(template: GuidePage, params: Map[String, String], guide: Guide) = UserBrowseAction.async { implicit request =>
     for {
       r <- find[HistoricalAgent](
         filters = params,
@@ -261,8 +260,7 @@ case class Guides @Inject()(implicit globalConfig: global.GlobalConfig, searchDi
   /*
   *   Layout named "map" [Concept]
   */
-  def guideMap(template: GuidePage, params: Map[String, String], guide: Guide) = userBrowseAction.async {
-      implicit userDetails => implicit request =>
+  def guideMap(template: GuidePage, params: Map[String, String], guide: Guide) = UserBrowseAction.async { implicit request =>
     mapParams(
       if (request.queryString.contains("lat") && request.queryString.contains("lng")) {
         request.queryString
@@ -286,8 +284,7 @@ case class Guides @Inject()(implicit globalConfig: global.GlobalConfig, searchDi
   /*
   *   Layout named "organisation" [Concept]
   */
-  def guideOrganization(template: GuidePage, params: Map[String, String], guide: Guide) = userBrowseAction.async {
-    implicit userDetails => implicit request =>
+  def guideOrganization(template: GuidePage, params: Map[String, String], guide: Guide) = UserBrowseAction.async { implicit request =>
     for {
       r <- find[Concept](
         params,

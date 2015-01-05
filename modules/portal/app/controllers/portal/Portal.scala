@@ -68,13 +68,13 @@ case class Portal @Inject()(implicit globalConfig: global.GlobalConfig, searchDi
     }
   }
 
-  def search = userBrowseAction.async { implicit userDetails => implicit request =>
+  def search = UserBrowseAction.async { implicit request =>
     find[AnyModel](
       defaultParams = SearchParams(
         entities = defaultSearchTypes, sort = Some(SearchOrder.Score)),
       facetBuilder = globalSearchFacets, mode = SearchMode.DefaultNone
     ).map { case QueryResult(page, params, facets) =>
-      Ok(p.search(page, params, facets, portalRoutes.search(), userDetails.watchedItems))
+      Ok(p.search(page, params, facets, portalRoutes.search(), request.watched))
     }
   }
 
@@ -126,15 +126,15 @@ case class Portal @Inject()(implicit globalConfig: global.GlobalConfig, searchDi
     }
   }
 
-  def browseCountries = userBrowseAction.async { implicit userDetails => implicit request =>
+  def browseCountries = UserBrowseAction.async { implicit request =>
     find[Country](entities = List(EntityType.Country),
       facetBuilder = countryFacets
     ).map { case QueryResult(page, params, facets) =>
-      Ok(p.country.list(page, params, facets, portalRoutes.browseCountries(), userDetails.watchedItems))
+      Ok(p.country.list(page, params, facets, portalRoutes.browseCountries(), request.watched))
     }
   }
 
-  def browseRepositoriesByCountry = userBrowseAction.async { implicit userDetails => implicit request =>
+  def browseRepositoriesByCountry = UserBrowseAction.async { implicit request =>
     find[Repository](
       defaultParams = SearchParams(
         sort = Some(SearchOrder.Country),
@@ -143,7 +143,7 @@ case class Portal @Inject()(implicit globalConfig: global.GlobalConfig, searchDi
     ).map { case QueryResult(page, params, facets) =>
         Ok(p.repository.listByCountry(page, params, facets,
           portalRoutes.browseRepositoriesByCountry(),
-          userDetails.watchedItems))
+          request.watched))
     }
   }
 
@@ -175,13 +175,13 @@ case class Portal @Inject()(implicit globalConfig: global.GlobalConfig, searchDi
     })
   }
 
-  def browseRepositories =  userBrowseAction.async { implicit userDetails => implicit request =>
+  def browseRepositories =  UserBrowseAction.async { implicit request =>
     find[Repository](
       entities = List(EntityType.Repository),
       facetBuilder = repositorySearchFacets
     ).map { case QueryResult(page, params, facets) =>
       Ok(p.repository.list(page, params, facets, portalRoutes.browseRepositories(),
-        userDetails.watchedItems))
+        request.watched))
     }
   }
 
@@ -209,7 +209,7 @@ case class Portal @Inject()(implicit globalConfig: global.GlobalConfig, searchDi
     }
   }
 
-  def browseDocuments = userBrowseAction.async { implicit userDetails => implicit request =>
+  def browseDocuments = UserBrowseAction.async { implicit request =>
     val filters = if (request.getQueryString(SearchParams.QUERY).filterNot(_.trim.isEmpty).isEmpty)
       Map(SolrConstants.TOP_LEVEL -> true) else Map.empty[String,Any]
 
@@ -219,7 +219,7 @@ case class Portal @Inject()(implicit globalConfig: global.GlobalConfig, searchDi
       facetBuilder = docSearchFacets
     ).map { case QueryResult(page, params, facets) =>
       Ok(p.documentaryUnit.list(page, params, facets, portalRoutes.browseDocuments(),
-        userDetails.watchedItems))
+        request.watched))
     }
   }
 
@@ -244,13 +244,13 @@ case class Portal @Inject()(implicit globalConfig: global.GlobalConfig, searchDi
     }
   }
 
-  def browseHistoricalAgents = userBrowseAction.async { implicit userDetails => implicit request =>
+  def browseHistoricalAgents = UserBrowseAction.async { implicit request =>
     find[HistoricalAgent](
       entities = List(EntityType.HistoricalAgent),
       facetBuilder = historicalAgentFacets
     ).map { case QueryResult(page, params, facets) =>
       Ok(p.historicalAgent.list(page, params, facets,
-        portalRoutes.browseHistoricalAgents(), userDetails.watchedItems))
+        portalRoutes.browseHistoricalAgents(), request.watched))
     }
   }
 
@@ -317,13 +317,13 @@ case class Portal @Inject()(implicit globalConfig: global.GlobalConfig, searchDi
     }
   }
 
-  def browseConcepts = userBrowseAction.async { implicit userDetails => implicit request =>
+  def browseConcepts = UserBrowseAction.async { implicit request =>
     find[Concept](
       entities = List(EntityType.Concept),
       facetBuilder = conceptFacets
     ).map { case QueryResult(page, params, facets) =>
       Ok(p.concept.list(page, params, facets, portalRoutes.browseConcepts(),
-        userDetails.watchedItems))
+        request.watched))
     }
   }
 
@@ -445,13 +445,13 @@ case class Portal @Inject()(implicit globalConfig: global.GlobalConfig, searchDi
     }
   }
 
-  def linkedData(id: String) = userBrowseAction.async { implicit userDetails => implicit request =>
-
+  // FIXME: Figure out what this is for!
+  def linkedData(id: String) = UserBrowseAction.async { implicit request =>
     for {
       ids <- searchLinksForm.bindFromRequest(request.queryString).fold(
         errs => searchLinks(id), {
-            case Some(t) => { searchLinks(id, t)}
-            case _ => { searchLinks(id) }
+            case Some(t) => searchLinks(id, t)
+            case _ => searchLinks(id)
         })
       docs <- SearchDAO.listByGid[AnyModel](ids)
     } yield Ok(Json.toJson(docs.zip(ids).map { case (doc, gid) =>
@@ -459,12 +459,13 @@ case class Portal @Inject()(implicit globalConfig: global.GlobalConfig, searchDi
     }))
   }
 
-  def linkedDataInContext(id: String, context: String) = userBrowseAction.async { implicit userDetails => implicit request =>
+  // FIXME: Figure out what this is for!
+  def linkedDataInContext(id: String, context: String) = UserBrowseAction.async { implicit request =>
     for {
       ids <-  searchLinksForm.bindFromRequest(request.queryString).fold(
         errs => searchLinks(id, context=Some(context)), {
-            case Some(t) => { searchLinks(id, t, Some(context))}
-            case _ => { searchLinks(id, context=Some(context)) }
+            case Some(t) => searchLinks(id, t, Some(context))
+            case _ => searchLinks(id, context=Some(context))
         })
       docs <- SearchDAO.listByGid[AnyModel](ids)
     } yield Ok(Json.toJson(docs.zip(ids).map { case (doc, gid) =>

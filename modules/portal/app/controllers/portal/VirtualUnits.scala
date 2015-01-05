@@ -70,7 +70,7 @@ case class VirtualUnits @Inject()(implicit globalConfig: global.GlobalConfig, se
       }
   }
 
-  def browseVirtualCollections = userBrowseAction.async { implicit userDetails => implicit request =>
+  def browseVirtualCollections = UserBrowseAction.async { implicit request =>
     val filters = if (request.getQueryString(SearchParams.QUERY).filterNot(_.trim.isEmpty).isEmpty)
       Map(SolrConstants.TOP_LEVEL -> true) else Map.empty[String,Any]
 
@@ -80,7 +80,7 @@ case class VirtualUnits @Inject()(implicit globalConfig: global.GlobalConfig, se
       facetBuilder = docSearchFacets
     ).map { case QueryResult(page, params, facets) =>
       Ok(p.virtualUnit.list(page, params, facets, vuRoutes.browseVirtualCollections(),
-        userDetails.watchedItems))
+        request.watched))
     }
   }
 
