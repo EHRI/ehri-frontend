@@ -128,9 +128,8 @@ case class HistoricalAgents @Inject()(implicit globalConfig: global.GlobalConfig
     }
   }
 
-  def linkTo(id: String) = withItemPermission[HistoricalAgent](id, PermissionType.Annotate) {
-      item => implicit userOpt => implicit request =>
-    Ok(views.html.admin.historicalAgent.linkTo(item))
+  def linkTo(id: String) = WithItemPermissionAction(id, PermissionType.Annotate).apply { implicit request =>
+    Ok(views.html.admin.historicalAgent.linkTo(request.item))
   }
 
   def linkAnnotateSelect(id: String, toType: EntityType.Value) = LinkSelectAction(id, toType, facets = entityFacets).apply { implicit request =>
