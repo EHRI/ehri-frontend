@@ -2,25 +2,22 @@
  * The application global object.
  */
 
-import backend._
-import backend.helpdesk.{TestHelpdesk, EhriHelpdesk}
+import backend.helpdesk.EhriHelpdesk
 import backend.parse.ParseFeedbackDAO
-import backend.{IdGenerator, FeedbackDAO, EventHandler, Backend}
 import backend.rest._
-import com.github.seratch.scalikesolr.request.common.WriterType
+import backend.{Backend, EventHandler, FeedbackDAO, IdGenerator, _}
+import com.google.inject.{AbstractModule, Guice}
 import com.typesafe.plugin.{CommonsMailerPlugin, MailerAPI}
+import global.GlobalConfig
 import models.AccountDAO
 import models.sql.SqlAccount
 import play.api._
-
-import play.api.mvc.{RequestHeader, WithFilters, Result}
+import play.api.mvc.{RequestHeader, Result, WithFilters}
 import play.filters.csrf._
-
 import utils.search._
-import global.GlobalConfig
+
 import scala.concurrent.Future
 import scala.concurrent.Future.{successful => immediate}
-import com.google.inject.{Guice, AbstractModule}
 
 
 object Global extends WithFilters(CSRFFilter()) with GlobalSettings {
@@ -29,7 +26,7 @@ object Global extends WithFilters(CSRFFilter()) with GlobalSettings {
 
   // This is where we tie together the various parts of the application
   // in terms of the component implementations.
-  private def queryBuilder: QueryBuilder = new solr.SolrQueryBuilder(WriterType.JSON, debugQuery = true)
+  private def queryBuilder: QueryBuilder = new solr.SolrQueryBuilder(solr.WriterType.Json, debugQuery = true)
   private def searchDispatcher: Dispatcher = new solr.SolrDispatcher(
     queryBuilder,
     handler = r => new solr.SolrJsonQueryResponse(r.json)
@@ -47,9 +44,9 @@ object Global extends WithFilters(CSRFFilter()) with GlobalSettings {
     // Bind the EntityDAO Create/Update/Delete actions
     // to the SolrIndexer update/delete handlers. Do this
     // asyncronously and log any failures...
-    import play.api.libs.concurrent.Execution.Implicits._
     import java.util.concurrent.TimeUnit
     import scala.concurrent.duration.Duration
+    import play.api.libs.concurrent.Execution.Implicits._
 
     def logFailure(id: String, func: String => Future[Unit]): Unit = {
       func(id) onFailure {
@@ -90,12 +87,12 @@ object Global extends WithFilters(CSRFFilter()) with GlobalSettings {
     injector.getInstance(clazz)
   }
 
+  import controllers.renderError
   import play.api.mvc.Results._
   import views.html.errors._
-  import controllers.renderError
 
   override def onError(request: RequestHeader, ex: Throwable) = {
-    implicit def req = request
+    implicit def req: RequestHeader = request
 
     ex.getCause match {
       case e: PermissionDenied => immediate(Unauthorized(
@@ -115,7 +112,7 @@ object Global extends WithFilters(CSRFFilter()) with GlobalSettings {
   }
 
   override def onHandlerNotFound(request: RequestHeader): Future[Result] = {
-    implicit def req = request
+    implicit def req: RequestHeader = request
     immediate(NotFound(renderError("errors.pageNotFound", pageNotFound())))
   }
 }

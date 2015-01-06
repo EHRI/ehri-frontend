@@ -5,7 +5,6 @@ import com.github.seratch.scalikesolr.request.query.highlighting.{
     IsPhraseHighlighterEnabled, HighlightingParams}
 import com.github.seratch.scalikesolr.request.query.facet.FacetParams
 import com.github.seratch.scalikesolr.request.query.group.{GroupParams,GroupField,GroupFormat,WithNumberOfGroups}
-import com.github.seratch.scalikesolr.WriterType
 
 import defines.EntityType
 import models.UserProfile
@@ -17,6 +16,7 @@ import com.github.seratch.scalikesolr.request.QueryRequest
 import com.github.seratch.scalikesolr.request.query.facet.Param
 import com.github.seratch.scalikesolr.request.query.facet.FacetParam
 import solr.facet.QueryFacetClass
+import com.github.seratch.scalikesolr.{WriterType => SWriterType}
 
 object SolrQueryBuilder {
   /**
@@ -42,22 +42,19 @@ object SolrQueryBuilder {
         if (paramVals.isEmpty) None
         else {
           val query: Option[String] = fclass match {
-            case fc: FieldFacetClass => {
+            case fc: FieldFacetClass =>
               // Choice facets need a tag in front of the parameter so they can be
               // excluded from count-limiting filters
               // http://wiki.apache.org/solr/SimpleFacetParameters#Multi-Select_Faceting_and_LocalParams
               val filter = paramVals.map(v => "\"" + v + "\"").mkString(" ")
               Some(s"${fc.key}:($filter)")
-            }
-            case fc: QueryFacetClass => {
+            case fc: QueryFacetClass =>
               val activeRanges = fc.facets.filter(f => paramVals.contains(f.value))
               val filter = activeRanges.map(_.solrValue).mkString(" ")
               Some(s"${fc.key}:($filter)")
-            }
-            case e => {
+            case e =>
               Logger.logger.warn("Unknown facet class type: {}", e)
               None
-            }
           }
           query.map { q =>
             val tag = if (fclass.multiSelect) "{!tag=" + fclass.key + "}" else ""
@@ -74,7 +71,7 @@ object SolrQueryBuilder {
  * Build a Solr query. This class uses the (mutable) scalikesolr
  * QueryRequest class.
  */
-case class SolrQueryBuilder(writerType: WriterType, debugQuery: Boolean = false)(implicit app: play.api.Application) extends QueryBuilder {
+case class SolrQueryBuilder(writerType: WriterType.Value, debugQuery: Boolean = false)(implicit app: play.api.Application) extends QueryBuilder {
 
   import SolrConstants._
   import SolrQueryBuilder._
@@ -140,7 +137,7 @@ case class SolrQueryBuilder(writerType: WriterType, debugQuery: Boolean = false)
 
     request.setFilterQuery(FilterQuery(multiple = getRequestFilters(allFacets, appliedFacets)))
     request.set("facet.mincount", 1)
-  }  
+  }
 
   /**
    * Group results by item id (as opposed to description id). Facet counts
@@ -182,7 +179,7 @@ case class SolrQueryBuilder(writerType: WriterType, debugQuery: Boolean = false)
     req.setStartRow(StartRow(params.offset))
 
     req.setMaximumRowsReturned(MaximumRowsReturned(params.countOrDefault))
-    req.setWriterType(writerType)
+    req.setWriterType(SWriterType.as(writerType.toString))
 
     extra.map { case (key, value) =>
       req.set(key, value)
@@ -303,7 +300,7 @@ case class SolrQueryBuilder(writerType: WriterType, debugQuery: Boolean = false)
     setGrouping(req)
 
     // Set JSON writer type!
-    req.setWriterType(writerType)
+    req.setWriterType(SWriterType.as(writerType.toString))
 
     extra.map { case (key, value) =>
       req.set(key, value)

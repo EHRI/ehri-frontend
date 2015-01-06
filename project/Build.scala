@@ -1,18 +1,16 @@
 
-import com.typesafe.sbt.jse.JsEngineImport.JsEngineKeys
-import sbt._
-import Keys._
-import play.Play.autoImport._
-import play.twirl.sbt.Import._
-import PlayKeys._
-import com.typesafe.sbt.rjs.Import.RjsKeys._
-import TwirlKeys.templateImports
-import com.typesafe.sbt.web._
-import com.typesafe.sbt.web.SbtWeb.autoImport._
-import com.typesafe.sbt.less.Import._
-import com.typesafe.sbt.rjs.Import._
 import com.typesafe.sbt.digest.Import._
 import com.typesafe.sbt.gzip.Import._
+import com.typesafe.sbt.jse.JsEngineImport.JsEngineKeys
+import com.typesafe.sbt.less.Import._
+import com.typesafe.sbt.rjs.Import._
+import com.typesafe.sbt.web.SbtWeb.autoImport._
+import com.typesafe.sbt.web._
+import play.Play.autoImport._
+import play.PlayImport.PlayKeys._
+import play.twirl.sbt.Import.TwirlKeys.templateImports
+import sbt.Keys._
+import sbt._
 
 object ApplicationBuild extends Build {
 
@@ -82,7 +80,7 @@ object ApplicationBuild extends Build {
     "com.typesafe.play.plugins" %% "play-plugins-mailer" % "2.3.0",
 
     // Solr stuff
-    "com.github.seratch" %% "scalikesolr" % "4.6.0",
+    "com.github.seratch" %% "scalikesolr" % "4.10.0",
 
     // Time formatting library
     "org.ocpsoft.prettytime" % "prettytime" % "1.0.8.Final"
