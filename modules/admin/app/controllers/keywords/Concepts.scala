@@ -1,10 +1,12 @@
 package controllers.keywords
 
-import forms.VisibilityForm
+import play.api.libs.concurrent.Execution.Implicits._
+import _root_.forms.VisibilityForm
 import controllers.generic._
-import models.{Link, AccountDAO, Concept, ConceptF}
+import models._
 import play.api.i18n.Messages
 import defines.{ContentTypes, EntityType}
+import utils.PageParams
 import views.Helpers
 import utils.search.{FacetDisplay, Resolver, FacetSort, Dispatcher}
 import com.google.inject._
@@ -53,13 +55,14 @@ case class Concepts @Inject()(implicit globalConfig: global.GlobalConfig, search
   }
 
 
-  def get(id: String) = getWithChildrenAction[Concept](id) {
-      item => page => params => annotations => links => implicit userOpt => implicit request =>
-    Ok(views.html.admin.concept.show(item, page, params, links, annotations))
+  def get(id: String) = ItemMetaAction(id).async { implicit request =>
+    val params = PageParams.fromRequest(request)
+    backend.listChildren[Concept, Concept](id, params).map { page =>
+      Ok(views.html.admin.concept.show(request.item, page, params, request.links, request.annotations))
+    }
   }
 
   def search = OptionalUserAction.async { implicit request =>
-    import play.api.libs.concurrent.Execution.Implicits._
     find[Concept](
       entities = List(EntityType.Concept),
       facetBuilder = entityFacets

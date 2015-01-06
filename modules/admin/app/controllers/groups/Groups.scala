@@ -7,6 +7,7 @@ import models.{UserProfile, AccountDAO, Group, GroupF}
 import models.base.Accessor
 import defines.{EntityType, PermissionType}
 import com.google.inject._
+import utils.PageParams
 import utils.search.{Resolver, Dispatcher}
 import scala.concurrent.Future
 import backend.Backend
@@ -24,13 +25,15 @@ case class Groups @Inject()(implicit globalConfig: global.GlobalConfig, searchDi
   private val form = models.Group.form
   private val groupRoutes = controllers.groups.routes.Groups
 
-  def get(id: String) = getWithChildrenAction[Accessor](id) {
-      item => page => params => annotations => links => implicit maybeUser => implicit request =>
-    val pageWithAccounts = page.copy(items = page.items.map {
-      case up: UserProfile => up.copy(account = userDAO.findByProfileId(up.id))
-      case group => group
-    })
-    Ok(views.html.admin.group.show(item, pageWithAccounts, params, annotations))
+  def get(id: String) = ItemMetaAction(id).async { implicit request =>
+    val params = PageParams.fromRequest(request)
+    backend.listChildren[Group,Accessor](id, params).map { page =>
+      val pageWithAccounts = page.copy(items = page.items.map {
+        case up: UserProfile => up.copy(account = userDAO.findByProfileId(up.id))
+        case group => group
+      })
+      Ok(views.html.admin.group.show(request.item, pageWithAccounts, params, request.annotations))
+    }
   }
 
   def history(id: String) = ItemHistoryAction(id).apply { implicit request =>

@@ -201,6 +201,7 @@ trait Read[MT] extends Generic[MT] {
     }
   }
 
+  @deprecated(message = "Use backend directly", since = "1.0.2")
   object getWithChildrenAction {
     def async[CT](id: String)(f: MT => Page[CT] => PageParams =>  Page[Annotation] => Page[Link] => Option[UserProfile] => Request[AnyContent] => Future[Result])(
           implicit rd: BackendReadable[MT], ct: BackendContentType[MT], crd: BackendReadable[CT]) = {
