@@ -70,7 +70,7 @@ trait AuthController extends Controller with ControllerHelpers with AuthActionBu
    * @param request the underlying request
    * @tparam A the type of underlying request
    */
-  case class OptionalProfileRequest[A](userOpt: Option[UserProfile], request: Request[A])
+  case class OptionalUserRequest[A](userOpt: Option[UserProfile], request: Request[A])
     extends WrappedRequest[A](request)
     with WithOptionalUser
 
@@ -80,7 +80,7 @@ trait AuthController extends Controller with ControllerHelpers with AuthActionBu
    * @param request the underlying request
    * @tparam A the type of underlying request
    */
-  case class ProfileRequest[A](profile: UserProfile, request: Request[A]) extends WrappedRequest[A](request)
+  case class WithUserRequest[A](profile: UserProfile, request: Request[A]) extends WrappedRequest[A](request)
 
   /**
    * Implicit helper to convert an in-scope optional profile to an `ApiUser` instance.
@@ -97,8 +97,17 @@ trait AuthController extends Controller with ControllerHelpers with AuthActionBu
    * @param opr an optional profile request
    * @return an optional user profile
    */
-  protected implicit def optionalProfileRequest2profileOpt(implicit opr: WithOptionalUser): Option[UserProfile] =
+  protected implicit def optionalUserRequest2UserOpt(implicit opr: WithOptionalUser): Option[UserProfile] =
     opr.userOpt
+
+  /**
+   * Implicit helper to transform an in-scope `OptionalAuthRequest` into an ApiUser.
+   *
+   * @param oar an optional auth request
+   * @return an ApiUser, possibly anonymous
+   */
+  protected implicit def optionalAuthRequest2apiUser(implicit oar: OptionalAuthRequest[_]): ApiUser =
+    ApiUser(oar.user.map(_.id))
 
   /**
    * Implicit helper to transform an in-scope `ProfileRequest` (of any type)
@@ -108,7 +117,7 @@ trait AuthController extends Controller with ControllerHelpers with AuthActionBu
    * @param pr the profile request
    * @return an optional user profile
    */
-  protected implicit def profileRequest2profileOpt(implicit pr: ProfileRequest[_]): Option[UserProfile] =
+  protected implicit def profileRequest2profileOpt(implicit pr: WithUserRequest[_]): Option[UserProfile] =
     Some(pr.profile)
 
   /**
@@ -116,9 +125,9 @@ trait AuthController extends Controller with ControllerHelpers with AuthActionBu
    * fetching the profile associated with the account and the user's global
    * permissions.
    */
-  protected object FetchProfile extends ActionTransformer[OptionalAuthRequest, OptionalProfileRequest] {
-    def transform[A](request: OptionalAuthRequest[A]): Future[OptionalProfileRequest[A]] = request.user.fold(
-      immediate(new OptionalProfileRequest[A](None, request))
+  protected object FetchProfile extends ActionTransformer[OptionalAuthRequest, OptionalUserRequest] {
+    def transform[A](request: OptionalAuthRequest[A]): Future[OptionalUserRequest[A]] = request.user.fold(
+      immediate(new OptionalUserRequest[A](None, request))
     ) { account =>
       implicit val apiUser = ApiUser(Some(account.id))
       val userF = backend.get[UserProfile](UserProfile.Resource, account.id)
@@ -127,7 +136,7 @@ trait AuthController extends Controller with ControllerHelpers with AuthActionBu
         user <- userF
         globalPerms <- globalPermsF
         profile = user.copy(account = Some(account), globalPermissions = Some(globalPerms))
-      } yield new OptionalProfileRequest[A](Some(profile), request)
+      } yield new OptionalUserRequest[A](Some(profile), request)
     }
   }
 
@@ -171,8 +180,8 @@ trait AuthController extends Controller with ControllerHelpers with AuthActionBu
    * @param contentType the content type
    */
   def WithContentPermissionAction(permissionType: PermissionType.Value, contentType: ContentTypes.Value) =
-    OptionalUserAction andThen new ActionFilter[OptionalProfileRequest] {
-      override protected def filter[A](request: OptionalProfileRequest[A]): Future[Option[Result]] = {
+    OptionalUserAction andThen new ActionFilter[OptionalUserRequest] {
+      override protected def filter[A](request: OptionalUserRequest[A]): Future[Option[Result]] = {
         if (request.userOpt.exists(_.hasPermission(contentType, permissionType)))  Future.successful(None)
         else authenticationFailed(request).map(r => Some(r))
       }
@@ -181,11 +190,11 @@ trait AuthController extends Controller with ControllerHelpers with AuthActionBu
   /**
    * Ensure that a user is present
    */
-  def WithUserAction = OptionalUserAction andThen new ActionRefiner[OptionalProfileRequest, ProfileRequest] {
-    protected def refine[A](request: OptionalProfileRequest[A]) = {
+  def WithUserAction = OptionalUserAction andThen new ActionRefiner[OptionalUserRequest, WithUserRequest] {
+    protected def refine[A](request: OptionalUserRequest[A]) = {
       request.userOpt match {
         case None => authenticationFailed(request).map(r => Left(r))
-        case Some(profile) => immediate(Right(ProfileRequest(profile, request)))
+        case Some(profile) => immediate(Right(WithUserRequest(profile, request)))
       }
     }
   }
@@ -193,8 +202,8 @@ trait AuthController extends Controller with ControllerHelpers with AuthActionBu
   /**
    * Check the user is an administrator to access this request
    */
-  def AdminAction = OptionalUserAction andThen new ActionFilter[OptionalProfileRequest] {
-    protected def filter[A](request: OptionalProfileRequest[A]): Future[Option[Result]] = {
+  def AdminAction = OptionalUserAction andThen new ActionFilter[OptionalUserRequest] {
+    protected def filter[A](request: OptionalUserRequest[A]): Future[Option[Result]] = {
       request.userOpt.filter(!_.isAdmin)
         .map(_ => authenticationFailed(request).map(r => Some(r))).getOrElse(immediate(None))
     }
@@ -208,7 +217,7 @@ trait AuthController extends Controller with ControllerHelpers with AuthActionBu
   object userProfileAction {
     def async[A](bodyParser: BodyParser[A])(f: Option[UserProfile] => Request[A] => Future[Result]): Action[A] = {
 
-      OptionalAuthAction.async[A](bodyParser) { implicit authRequest =>
+      OptionalAuthAction.async[A](bodyParser) { authRequest =>
 
         authRequest.user.map { account =>
           if (staffOnly && secured && !account.staff) staffOnlyError(authRequest)

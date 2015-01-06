@@ -82,7 +82,7 @@ POST        /bookmarks/createSet            @controllers.portal.Bookmarks.create
 
 GET         /data-policy                    @controllers.portal.Portal.dataPolicy
 
-GET         /filter                         @controllers.portal.Portal.filter
+GET         /filter                         @controllers.portal.Portal.filterItems
 
 # Various JS data helpers
 GET         /routes                         controllers.portal.PortalData.jsRoutes

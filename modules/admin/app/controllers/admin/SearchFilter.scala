@@ -1,5 +1,6 @@
 package controllers.admin
 
+import play.api.libs.concurrent.Execution.Implicits._
 import play.api.libs.json.Json
 import utils.search.{Resolver, Dispatcher}
 import com.google.inject._
@@ -20,11 +21,13 @@ case class SearchFilter @Inject()(implicit globalConfig: global.GlobalConfig, se
    * Quick filter action that searches applies a 'q' string filter to
    * only the name_ngram field and returns an id/name pair.
    */
-  def filter = filterAction() { page => implicit userOpt => implicit request =>
-    Ok(Json.obj(
-      "numPages" -> page.numPages,
-      "page" -> page.page,
-      "items" -> page.items
-    ))
+  def filterItems = OptionalUserAction.async { implicit request =>
+    filter().map { page =>
+      Ok(Json.obj(
+        "numPages" -> page.numPages,
+        "page" -> page.page,
+        "items" -> page.items
+      ))
+    }
   }
 }

@@ -45,7 +45,7 @@ object PortalData extends Controller {
           controllers.portal.annotate.routes.javascript.Annotations.demoteAnnotationPost,
           controllers.portal.annotate.routes.javascript.Annotations.setAnnotationVisibilityPost,
           controllers.portal.routes.javascript.Portal.personalisedActivity,
-          controllers.portal.routes.javascript.Portal.filter,
+          controllers.portal.routes.javascript.Portal.filterItems,
           controllers.portal.routes.javascript.Portal.browseItem
         )
       ).as(MimeTypes.JAVASCRIPT)

@@ -70,8 +70,8 @@ trait Read[MT] extends Generic[MT] {
     WithPermissionFilter(perm, ct.contentType)
 
   protected def ItemPermissionAction(itemId: String)(implicit rd: BackendReadable[MT], ct: BackendContentType[MT]) =
-    OptionalUserAction andThen new ActionTransformer[OptionalProfileRequest, ItemPermissionRequest] {
-      def transform[A](input: OptionalProfileRequest[A]): Future[ItemPermissionRequest[A]] = {
+    OptionalUserAction andThen new ActionTransformer[OptionalUserRequest, ItemPermissionRequest] {
+      def transform[A](input: OptionalUserRequest[A]): Future[ItemPermissionRequest[A]] = {
         implicit val userOpt = input.userOpt
         input.userOpt.map { profile =>
           val itemF = backend.get[MT](itemId)
@@ -111,8 +111,8 @@ trait Read[MT] extends Generic[MT] {
     }
 
   protected def ItemPageAction(implicit rd: BackendReadable[MT], rs: BackendResource[MT]) =
-    OptionalUserAction andThen new ActionTransformer[OptionalProfileRequest, ItemPageRequest] {
-      def transform[A](input: OptionalProfileRequest[A]): Future[ItemPageRequest[A]] = {
+    OptionalUserAction andThen new ActionTransformer[OptionalUserRequest, ItemPageRequest] {
+      def transform[A](input: OptionalUserRequest[A]): Future[ItemPageRequest[A]] = {
         implicit val userOpt = input.userOpt
         val params = PageParams.fromRequest(input)
         for {

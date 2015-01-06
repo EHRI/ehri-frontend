@@ -83,11 +83,11 @@ trait Descriptions[D <: Description with Persistable, T <: Model with Described[
     }
 
   def DeleteDescriptionAction(id: String, did: String)(implicit rd: BackendReadable[MT], ct: BackendContentType[MT]) =
-    WithItemPermissionAction(id, PermissionType.Update) andThen new ActionTransformer[ItemPermissionRequest, OptionalProfileRequest] {
-      override protected def transform[A](request: ItemPermissionRequest[A]): Future[OptionalProfileRequest[A]] = {
+    WithItemPermissionAction(id, PermissionType.Update) andThen new ActionTransformer[ItemPermissionRequest, OptionalUserRequest] {
+      override protected def transform[A](request: ItemPermissionRequest[A]): Future[OptionalUserRequest[A]] = {
         implicit val req = request
         backend.deleteDescription(id, did, logMsg = getLogMessage).map { _ =>
-          OptionalProfileRequest(request.userOpt, request)
+          OptionalUserRequest(request.userOpt, request)
         }
       }
     }

@@ -79,7 +79,7 @@ $(document).ready(function () {
   };
 
   var $service = {
-    filter: jsRoutes.controllers.admin.SearchFilter.filter,
+    filter: jsRoutes.controllers.admin.SearchFilter.filterItems,
     get: jsRoutes.controllers.admin.Admin.get,
     getItem: jsRoutes.controllers.admin.Admin.getType,
     createLink: jsRoutes.controllers.units.DocumentaryUnits.createLink,

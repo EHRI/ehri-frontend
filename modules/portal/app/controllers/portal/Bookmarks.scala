@@ -51,7 +51,7 @@ case class Bookmarks @Inject()(implicit globalConfig: global.GlobalConfig, searc
    * @param pr the profile request
    * @return an optional user profile
    */
-  private implicit def profileRequest2profile(implicit pr: ProfileRequest[_]): UserProfile =
+  private implicit def profileRequest2profile(implicit pr: WithUserRequest[_]): UserProfile =
     pr.profile
 
   private def bookmarkSetToVu(genId: String, bs: BookmarkSet): VirtualUnitF = {

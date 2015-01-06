@@ -84,12 +84,14 @@ case class Portal @Inject()(implicit globalConfig: global.GlobalConfig, searchDi
    * only the name_ngram field and returns an id/name pair.
    * @return
    */
-  def filter = filterAction() { page => implicit userOpt => implicit request =>
-    Ok(Json.obj(
-      "numPages" -> page.numPages,
-      "page" -> page.page,
-      "items" -> page.items
-    ))
+  def filterItems = OptionalUserAction.async { implicit request =>
+    filter().map { page =>
+      Ok(Json.obj(
+        "numPages" -> page.numPages,
+        "page" -> page.page,
+        "items" -> page.items
+      ))
+    }
   }
 
   /**

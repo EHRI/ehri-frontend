@@ -18,11 +18,11 @@ trait Delete[MT] extends Generic[MT] {
   protected def CheckDeleteAction(id: String)(implicit rd: BackendReadable[MT], ct: BackendContentType[MT]) =
     WithItemPermissionAction(id, PermissionType.Delete)
 
-  private[generic] def DeleteTransformer(id: String)(implicit rd: BackendReadable[MT], ct: BackendContentType[MT]) = new ActionTransformer[ItemPermissionRequest,OptionalProfileRequest] {
-    override protected def transform[A](request: ItemPermissionRequest[A]): Future[OptionalProfileRequest[A]] = {
+  private[generic] def DeleteTransformer(id: String)(implicit rd: BackendReadable[MT], ct: BackendContentType[MT]) = new ActionTransformer[ItemPermissionRequest,OptionalUserRequest] {
+    override protected def transform[A](request: ItemPermissionRequest[A]): Future[OptionalUserRequest[A]] = {
       implicit val req = request
       backend.delete(id, logMsg = getLogMessage).map { _ =>
-        OptionalProfileRequest(request.userOpt, request)
+        OptionalUserRequest(request.userOpt, request)
       }
     }
   }

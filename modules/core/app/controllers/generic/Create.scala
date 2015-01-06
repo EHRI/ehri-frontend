@@ -45,8 +45,8 @@ trait Create[F <: Model with Persistable, MT <: MetaModel[F]] extends Generic[MT
     with WithOptionalUser
 
   protected def NewItemAction(implicit ct: BackendContentType[MT]) =
-    WithContentPermissionAction(PermissionType.Create, ct.contentType) andThen new ActionTransformer[OptionalProfileRequest, UserGroupsRequest] {
-      override protected def transform[A](request: OptionalProfileRequest[A]): Future[UserGroupsRequest[A]] = {
+    WithContentPermissionAction(PermissionType.Create, ct.contentType) andThen new ActionTransformer[OptionalUserRequest, UserGroupsRequest] {
+      override protected def transform[A](request: OptionalUserRequest[A]): Future[UserGroupsRequest[A]] = {
         for {
           users <- RestHelpers.getUserList
           groups <- RestHelpers.getGroupList
@@ -55,8 +55,8 @@ trait Create[F <: Model with Persistable, MT <: MetaModel[F]] extends Generic[MT
     }
 
   protected def CreateItemAction(form: Form[F], pf: Request[_] => Map[String,Seq[String]] = _ => Map.empty)(implicit fmt: BackendWriteable[F], rd: BackendReadable[MT], ct: BackendContentType[MT]) =
-    WithContentPermissionAction(PermissionType.Create, ct.contentType) andThen new ActionTransformer[OptionalProfileRequest, CreateRequest] {
-      def transform[A](request: OptionalProfileRequest[A]): Future[CreateRequest[A]] = {
+    WithContentPermissionAction(PermissionType.Create, ct.contentType) andThen new ActionTransformer[OptionalUserRequest, CreateRequest] {
+      def transform[A](request: OptionalUserRequest[A]): Future[CreateRequest[A]] = {
         implicit val req = request
         form.bindFromRequest.fold(
           errorForm => immediate(CreateRequest(Left((errorForm,VisibilityForm.form)), request.userOpt, request.request)),

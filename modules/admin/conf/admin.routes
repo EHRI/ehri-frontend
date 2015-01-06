@@ -46,7 +46,7 @@ GET     /sparql                                 @controllers.admin.ApiController
 GET     /sparqlQuery                            @controllers.admin.ApiController.sparqlQuery
 
 # Simple filtering
-GET /filter                                     @controllers.admin.SearchFilter.filter
+GET /filter                                     @controllers.admin.SearchFilter.filterItems
 
 ->  /users      users.Routes
 ->  /groups     groups.Routes

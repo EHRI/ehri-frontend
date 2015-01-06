@@ -131,18 +131,21 @@ trait Search extends Controller with AuthController with ControllerHelpers {
     }
   }
 
+  def filter[A](filters: Map[String, Any] = Map.empty, defaultParams: Option[SearchParams] = None)(implicit userOpt: Option[UserProfile], request: Request[A]): Future[ItemPage[FilterHit]] = {
+    val params = defaultParams.map(p => p.copy(sort = defaultSortFunction(p, request)))
+    // Override the entity type with the controller entity type
+    val sp = SearchParams.form.bindFromRequest
+      .value.getOrElse(SearchParams.empty)
+      .setDefault(params)
+
+    searchDispatcher.filter(sp, filters)
+  }
+
+  @deprecated(message = "Use filter(...) instead", since = "1.0.2")
   def filterAction(filters: Map[String, Any] = Map.empty, defaultParams: Option[SearchParams] = None)(
     f: ItemPage[FilterHit] => Option[UserProfile] => Request[AnyContent] => Result): Action[AnyContent] = {
     OptionalUserAction.async { implicit request =>
-      val params = defaultParams.map(p => p.copy(sort = defaultSortFunction(p, request)))
-      // Override the entity type with the controller entity type
-      val sp = SearchParams.form.bindFromRequest
-        .value.getOrElse(SearchParams.empty)
-        .setDefault(params)
-
-      searchDispatcher.filter(sp, filters).map { res =>
-        f(res)(request.userOpt)(request)
-      }
+      filter().map(r => f(r)(request.userOpt)(request))
     }
   }
 }
