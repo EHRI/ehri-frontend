@@ -30,6 +30,7 @@ object PortalData extends Controller {
           controllers.portal.social.routes.javascript.Social.followUserPost,
           controllers.portal.social.routes.javascript.Social.unfollowUserPost,
           controllers.portal.social.routes.javascript.Social.followersForUser,
+          controllers.portal.social.routes.javascript.Social.followingForUser,
           controllers.portal.social.routes.javascript.Social.blockUserPost,
           controllers.portal.social.routes.javascript.Social.unblockUserPost,
           controllers.portal.social.routes.javascript.Social.sendMessage,

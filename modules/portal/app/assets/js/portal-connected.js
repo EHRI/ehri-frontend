@@ -32,9 +32,10 @@ jQuery(function ($) {
    */
 
   $(document).on("click", ".markdown textarea", function () {
-    $(this).parent().addClass("active").delay(2000).queue(function (next) {
+    var $item = $(this);
+    $item.parent().addClass("active").delay(2000).queue(function (next) {
       if ($(".popover .description-markdown-cheatsheet").length === 0) {
-        $(this).removeClass("active");
+        $item.removeClass("active");
       }
       next();
     });
@@ -48,21 +49,21 @@ jQuery(function ($) {
   });
 
   $(document).on("click", ".markdown .markdown-helper", function () {
-    that = $(this);
+    var $item = $(this);
 
-    if (typeof that.attr("data-popovered") === "undefined" || that.attr("data-popovered") !== "true") {
-      that.popover({
+    if (typeof $item.attr("data-popovered") === "undefined" || $item.attr("data-popovered") !== "true") {
+      $item.popover({
         html: true,
         placement: "bottom",
         content: function () {
           return $(".markdown-cheatsheet").html();
         }
       });
-      that.attr("data-popovered", "true");
-      that.popover("show");
+      $item.attr("data-popovered", "true");
+      $item.popover("show");
 
-      that.on('hidden.bs.popover', function () {
-        that.parents(".markdown").removeClass("active");
+      $item.on('hidden.bs.popover', function () {
+        $item.parents(".markdown").removeClass("active");
       });
     }
   });
@@ -129,40 +130,37 @@ jQuery(function ($) {
   $(document).on("click", "a.follow, a.unfollow", function (e) {
     e.preventDefault();
 
-    var followFunc = jsRoutes.controllers.portal.social.Social.followUserPost,
-        unfollowFunc = jsRoutes.controllers.portal.social.Social.unfollowUserPost,
+    var url = this.href,
         followerListFunc = jsRoutes.controllers.portal.social.Social.followersForUser,
+        followingListFunc = jsRoutes.controllers.portal.social.Social.followingForUser,
         $elem = $(this),
         id = $elem.data("item"),
         follow = $elem.hasClass("follow");
 
-    var call, $other;
-    if (follow) {
-      call = followFunc;
-      $other = $elem.parent().find("a.unfollow");
-    } else {
-      call = unfollowFunc;
-      $other = $elem.parent().find("a.follow");
-    }
+    var $other = follow
+      ? $elem.parent().find("a.unfollow")
+      : $elem.parent().find("a.follow");
 
     changeGlyphToLoader($elem);
-    call(id).ajax({
-      success: function () {
-        // Swap the buttons and, if necessary, reload
-        // their followers list...
-        $elem.hide();
-        changeGlyphToLoader($elem);
-        $other.show();
-        if ($elem.parents(".user-list-item").size() === 0) {
-          $(".browse-users-followers").load(followerListFunc(id).url);
-        }
-        // If a follower count is shown, munge it...
-        var fc = $(".user-follower-count");
-        if (fc.size()) {
-          var cnt = parseInt(fc.html(), 10);
-          fc.html(follow ? (cnt + 1) : (cnt - 1));
-        }
-      }
+    $.post(url, function() {
+      // Swap the buttons and, if necessary, reload
+      // their followers list...
+      $elem.hide();
+      changeGlyphToLoader($elem);
+      $other.show();
+
+      // Munge follower counts and lists
+      // FIXME: Disabled since it's broken, see #494
+      //if ($elem.parents(".user-list-item").size() === 0) {
+      //  $(".browse-users-followers").load(followerListFunc(id).url);
+      //  $(".browse-users-following").load(followingListFunc(id).url)
+      //}
+      //// If a follower count is shown, munge it...
+      //var fc = $(".user-follower-count");
+      //if (fc.size()) {
+      //  var cnt = parseInt(fc.html(), 10);
+      //  fc.html(follow ? (cnt + 1) : (cnt - 1));
+      //}
     });
   });
 
@@ -172,19 +170,16 @@ jQuery(function ($) {
   $(document).on("click", "a.watch, a.unwatch", function (e) {
     e.preventDefault();
 
-    var watchFunc = jsRoutes.controllers.portal.profile.Profile.watchItemPost,
-        unwatchFunc = jsRoutes.controllers.portal.profile.Profile.unwatchItemPost,
+    var url = this.href,
         $elem = $(this),
         id = $elem.data("item"),
         watch = $elem.hasClass("watch");
     var call, $other, icon, $iconElem;
 
     if (watch) {
-          call = watchFunc,
           $other = $elem.parent().find("a.unwatch"),
           icon = "glyphicon-star-empty";
     } else {
-          call = unwatchFunc,
           icon = "glyphicon-star",
           $other = $elem.parent().find("a.watch");
     }
@@ -196,29 +191,27 @@ jQuery(function ($) {
     }
 
     changeGlyphToLoader($iconElem, icon);
-    call(id).ajax({
-      success: function () {
-        // Swap the buttons and, if necessary, reload
-        // their followers list...
-        $elem.hide();
-        changeGlyphToLoader($iconElem, icon);
-        $other.show();
+    $.post(url, function () {
+      // Swap the buttons and, if necessary, reload
+      // their followers list...
+      $elem.hide();
+      changeGlyphToLoader($iconElem, icon);
+      $other.show();
 
-        // If a watch count is shown, munge it...
-        var fc = $(".item-watch-count");
-        if (fc.size()) {
-          var cnt = parseInt(fc.html(), 10);
-          fc.html(watch ? (cnt + 1) : (cnt - 1));
-        }
+      // If a watch count is shown, munge it...
+      var fc = $(".item-watch-count");
+      if (fc.size()) {
+        var cnt = parseInt(fc.html(), 10);
+        fc.html(watch ? (cnt + 1) : (cnt - 1));
+      }
 
-        //If it is on profile page, remove the row
-        if (watch === false) {
-          if ($("#user-watch-list").length == 1) {
-            var par = $("#" + id);
-            par.hide(300, function () {
-              par.remove();
-            });
-          }
+      //If it is on profile page, remove the row
+      if (watch === false) {
+        if ($("#user-watch-list").length == 1) {
+          var par = $("#" + id);
+          par.hide(300, function () {
+            par.remove();
+          });
         }
       }
     });
@@ -244,15 +237,12 @@ jQuery(function ($) {
    */
   $(document).on("click", "a.bookmark-item", function (e) {
     e.preventDefault();
-
-    var call = jsRoutes.controllers.portal.Bookmarks.bookmarkPost,
+    var url = this.href,
         $elem = $(this),
         id = $elem.data("item");
 
-    call(id).ajax({
-      success: function () {
-        $elem.addClass("bookmarked");
-      }
+    $.post(url, function () {
+      $elem.addClass("bookmarked");
     });
   });
 
