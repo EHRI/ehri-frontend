@@ -26,18 +26,18 @@ trait Annotate[MT] extends Read[MT] {
   import Annotate._
 
   def annotationAction(id: String)(f: MT => Form[AnnotationF] => Option[UserProfile] => Request[AnyContent] => Result)(implicit rd: BackendReadable[MT], ct: BackendContentType[MT]): Action[AnyContent] = {
-    withItemPermission[MT](id, PermissionType.Annotate) { item => implicit userOpt => implicit request =>
-      f(item)(Annotation.form.bindFromRequest)(userOpt)(request)
+    WithItemPermissionAction(id, PermissionType.Annotate).apply { implicit request =>
+      f(request.item)(Annotation.form.bindFromRequest)(request.userOpt)(request)
     }
   }
 
   @deprecated(message = "Use endpoints in Annotations controller instead", since = "1.0.2")
   def annotationPostAction(id: String)(f: Either[Form[AnnotationF],Annotation] => Option[UserProfile] => Request[AnyContent] => Result)(implicit rd: BackendReadable[MT], ct: BackendContentType[MT]) = {
-    withItemPermission.async[MT](id, PermissionType.Annotate) { item => implicit userOpt => implicit request =>
+    WithItemPermissionAction(id, PermissionType.Annotate).async { implicit request =>
       Annotation.form.bindFromRequest.fold(
-        errorForm => immediate(f(Left(errorForm))(userOpt)(request)),
+        errorForm => immediate(f(Left(errorForm))(request.userOpt)(request)),
         ann => backend.createAnnotation[Annotation,AnnotationF](id, ann).map { ann =>
-          f(Right(ann))(userOpt)(request)
+          f(Right(ann))(request.userOpt)(request)
         }
       )
     }

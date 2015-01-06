@@ -95,55 +95,56 @@ case class Annotations @Inject()(implicit globalConfig: global.GlobalConfig, sea
   }
 
   // Ajax
-  def editAnnotation(aid: String, context: AnnotationContext.Value) = withItemPermission.async[Annotation](aid, PermissionType.Update) {
-      item => implicit userOpt => implicit request =>
-    val vis = getContributionVisibility(item, userOpt.get)
-    getCanShareWith(userOpt.get) { users => groups =>
-      Ok(p.annotation.edit(Annotation.form.fill(item.model),
-        ContributionVisibility.form.fill(vis),
-        VisibilityForm.form.fill(item.accessors.map(_.id)),
-        annotationRoutes.editAnnotationPost(aid, context),
-        users, groups))
+  def editAnnotation(aid: String, context: AnnotationContext.Value) = {
+    WithItemPermissionAction(aid, PermissionType.Update).async { implicit request =>
+      val vis = getContributionVisibility(request.item, request.userOpt.get)
+      getCanShareWith(request.userOpt.get) { users => groups =>
+        Ok(p.annotation.edit(Annotation.form.fill(request.item.model),
+          ContributionVisibility.form.fill(vis),
+          VisibilityForm.form.fill(request.item.accessors.map(_.id)),
+          annotationRoutes.editAnnotationPost(aid, context),
+          users, groups))
+      }
     }
   }
 
-  def editAnnotationPost(aid: String, context: AnnotationContext.Value) = withItemPermission.async[Annotation](aid, PermissionType.Update) {
-      item => implicit userOpt => implicit request =>
-    // save an override field, becuase it's not possible to change it.
-    val field = item.model.field
-    Annotation.form.bindFromRequest.fold(
-      errForm => immediate(BadRequest(errForm.errorsAsJson)),
-      edited => backend.update[Annotation,AnnotationF](aid, edited.copy(field = field)).flatMap { updated =>
-        // Because the user might have marked this item
-        // private (removing the isPromotable flag) we need to
-        // recalculate who can access it.
-        val newAccessors = getAccessors(updated.model, userOpt.get)
-        if (newAccessors.sorted == updated.accessors.map(_.id).sorted)
-          immediate(annotationResponse(updated, context))
-        else backend.setVisibility[Annotation](aid, newAccessors).map { ann =>
-          annotationResponse(ann, context)
+  def editAnnotationPost(aid: String, context: AnnotationContext.Value) = {
+    WithItemPermissionAction(aid, PermissionType.Update).async { implicit request =>
+      // save an override field, becuase it's not possible to change it.
+      val field = request.item.model.field
+      Annotation.form.bindFromRequest.fold(
+        errForm => immediate(BadRequest(errForm.errorsAsJson)),
+        edited => backend.update[Annotation,AnnotationF](aid, edited.copy(field = field)).flatMap { updated =>
+          // Because the user might have marked this item
+          // private (removing the isPromotable flag) we need to
+          // recalculate who can access it.
+          val newAccessors = getAccessors(updated.model, request.userOpt.get)
+          if (newAccessors.sorted == updated.accessors.map(_.id).sorted)
+            immediate(annotationResponse(updated, context))
+          else backend.setVisibility[Annotation](aid, newAccessors).map { ann =>
+            annotationResponse(ann, context)
+          }
         }
-      }
-    )
+      )
+    }
   }
 
-  def setAnnotationVisibilityPost(aid: String) = withItemPermission.async[Annotation](aid, PermissionType.Update) {
-      item => implicit userOpt => implicit request =>
-    val accessors = getAccessors(item.model, userOpt.get)
-    backend.setVisibility[Annotation](aid, accessors).map { ann =>
-      Ok(Json.toJson(ann.accessors.map(_.id)))
+  def setAnnotationVisibilityPost(aid: String) = {
+    WithItemPermissionAction(aid, PermissionType.Update).async { implicit request =>
+      val accessors = getAccessors(request.item.model, request.userOpt.get)
+      backend.setVisibility[Annotation](aid, accessors).map { ann =>
+        Ok(Json.toJson(ann.accessors.map(_.id)))
+      }
     }
   }
 
   // Ajax
-  def deleteAnnotation(aid: String) = withItemPermission[Annotation](aid, PermissionType.Delete) {
-        item => implicit userOpt => implicit request =>
+  def deleteAnnotation(aid: String) = WithItemPermissionAction(aid, PermissionType.Delete).apply { implicit request =>
       Ok(p.helpers.simpleForm("portal.annotation.delete.title",
           annotationRoutes.deleteAnnotationPost(aid)))
   }
 
-  def deleteAnnotationPost(aid: String) = withItemPermission.async[Annotation](aid, PermissionType.Delete) {
-      item => implicit userOpt => implicit request =>
+  def deleteAnnotationPost(aid: String) = WithItemPermissionAction(aid, PermissionType.Delete).async { implicit request =>
     backend.delete[Annotation](aid).map { done =>
       Ok(true.toString)
     }

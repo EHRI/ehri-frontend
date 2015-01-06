@@ -272,6 +272,7 @@ trait AuthController extends Controller with ControllerHelpers with AuthActionBu
    *    - the user's global permissions within that item's scope
    *    - the item permissions for that user
    */
+  @deprecated(message = "Use ItemPermissionAction in a type-parameterized controller instead", since = "1.0.2")
   object itemPermissionAction {
     def async[A,MT](bodyParser: BodyParser[A], id: String)(f: MT => Option[UserProfile] => Request[A] => Future[Result])(
         implicit rd: BackendReadable[MT], ct: BackendContentType[MT]): Action[A] = {
@@ -363,6 +364,7 @@ trait AuthController extends Controller with ControllerHelpers with AuthActionBu
    * Wrap itemPermissionAction to ensure a given permission is present,
    * and return an action with the user in scope.
    */
+  @deprecated(message = "Use WithItemPermissionAction in a type-parameterized controller instead", since = "1.0.2")
   object withItemPermission {
     def async[A,MT](bodyParser: BodyParser[A], id: String, perm: PermissionType.Value, permContentType: Option[ContentTypes.Value] = None)(
         f: MT => Option[UserProfile] => Request[A] => Future[Result])(implicit rd: BackendReadable[MT], ct: BackendContentType[MT]): Action[A] = {
@@ -392,6 +394,7 @@ trait AuthController extends Controller with ControllerHelpers with AuthActionBu
    * Wrap userProfileAction to ensure a given *global* permission is present,
    * and return an action with the user in scope.
    */
+  @deprecated(message = "Use WithContentPermissionAction instead", since = "1.0.2")
   object withContentPermission {
     def async(perm: PermissionType.Value, contentType: ContentTypes.Value)(
         f: Option[UserProfile] => Request[AnyContent] => Future[Result]): Action[AnyContent] = {
