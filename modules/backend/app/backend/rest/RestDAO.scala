@@ -11,7 +11,7 @@ import scala.concurrent.Future
 
 trait RestDAO {
 
-  implicit def app: play.api.Application
+  protected implicit def app: play.api.Application
 
   import play.api.libs.concurrent.Execution.Implicits._
   import play.api.libs.ws.{EmptyBody, InMemoryBody, WSBody, WS, WSResponse}
@@ -126,13 +126,13 @@ trait RestDAO {
   /**
    * Header to add for log messages.
    */
-  def msgHeader(msg: Option[String]): Seq[(String,String)] =
+  protected def msgHeader(msg: Option[String]): Seq[(String,String)] =
     msg.map(m => Seq(LOG_MESSAGE_HEADER_NAME -> m)).getOrElse(Seq.empty)
 
   /**
    * Join params into a query string
    */
-  def joinQueryString(qs: Map[String, Seq[String]]): String = {
+  protected def joinQueryString(qs: Map[String, Seq[String]]): String = {
     import java.net.URLEncoder
     qs.map { case (key, vals) =>
       vals.map(v => "%s=%s".format(key, URLEncoder.encode(v, "UTF-8")))
@@ -142,7 +142,7 @@ trait RestDAO {
   /**
    * Standard headers we sent to every Neo4j/EHRI Server request.
    */
-  val headers = Map(
+  protected val headers = Map(
     HeaderNames.ACCEPT -> ContentTypes.JSON,
     HeaderNames.CONTENT_TYPE -> ContentTypes.JSON
   )
@@ -151,7 +151,7 @@ trait RestDAO {
    * Headers to add to outgoing request...
    * @return
    */
-  def authHeaders(implicit apiUser: ApiUser): Map[String, String] = apiUser match {
+  private[rest] def authHeaders(implicit apiUser: ApiUser): Map[String, String] = apiUser match {
     case AuthenticatedUser(id) => headers + (AUTH_HEADER_NAME -> id)
     case AnonymousUser => headers
   }
@@ -165,7 +165,7 @@ trait RestDAO {
         .getOrElse(List.empty[String])
 
 
-  def userCall(url: String, params: Seq[(String,String)] = Seq.empty)(implicit apiUser: ApiUser): BackendRequest = {
+  protected def userCall(url: String, params: Seq[(String,String)] = Seq.empty)(implicit apiUser: ApiUser): BackendRequest = {
     BackendRequest(url).withHeaders(authHeaders.toSeq: _*)
       .withQueryString(params: _*)
       .withQueryString(includeProps.map(p => Constants.INCLUDE_PROPERTIES_PARAM -> p).toSeq: _*)
@@ -174,7 +174,7 @@ trait RestDAO {
   /**
    * Fetch a range, working out if there are more items by going one-beyond-the-end.
    */
-  def fetchRange[T](req: BackendRequest, params: RangeParams, context: Option[String])(
+  protected def fetchRange[T](req: BackendRequest, params: RangeParams, context: Option[String])(
       implicit reader: Reads[T]): Future[RangePage[T]] = {
     val incParams = if(params.hasLimit) params.copy(limit = params.limit + 1) else params
     req.withHeaders(STREAM_HEADER -> true.toString)
@@ -190,24 +190,24 @@ trait RestDAO {
   /**
    * Encode a bunch of URL parts.
    */
-  def enc(s: Any*) = {
+  protected def enc(s: Any*) = {
     import java.net.URI
     val url = new java.net.URL(s.mkString("/"))
     val uri: URI = new URI(url.getProtocol, url.getUserInfo, url.getHost, url.getPort, url.getPath, url.getQuery, url.getRef)
     uri.toString
   }
 
-  private def getConfigString(key: String): String =
+  protected def getConfigString(key: String): String =
     app.configuration.getString(key).getOrElse(sys.error(s"Missing configuration value: '$key'"))
 
-  private def getConfigInt(key: String): Int =
+  protected def getConfigInt(key: String): Int =
     app.configuration.getInt(key).getOrElse(sys.error(s"Missing configuration value: '$key'"))
 
-  def host: String = getConfigString("neo4j.server.host")
-  def port: Int = getConfigInt("neo4j.server.port")
-  def mount: String = getConfigString("neo4j.server.endpoint")
+  protected def host: String = getConfigString("neo4j.server.host")
+  protected def port: Int = getConfigInt("neo4j.server.port")
+  protected def mount: String = getConfigString("neo4j.server.endpoint")
 
-  def baseUrl = s"http://$host:$port/$mount"
+  protected def baseUrl = s"http://$host:$port/$mount"
 
   protected def checkError(response: WSResponse): WSResponse = {
     Logger.logger.trace("Response body ! : {}", response.body)
