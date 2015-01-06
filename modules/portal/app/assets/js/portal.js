@@ -242,8 +242,8 @@ $(".panel-history").each(function() {
       $link.removeClass("loading").addClass("loaded");
       $data.find("select").each(function(i) {
         $(this).select2(select2Opts);
-        $link.hide();
       });
+      $link.hide();
     });
   });
 
