@@ -63,7 +63,8 @@ trait RestDAO {
         }
       }
 
-    private def fullUrl: String = s"$url?${joinQueryString(queryStringMap)}"
+    private def fullUrl: String =
+      if (queryStringMap.nonEmpty) s"$url?${joinQueryString(queryStringMap)}" else url
 
     private def runWs: Future[WSResponse] = {
       Logger.debug(s"WS: $apiUser $method $fullUrl")
