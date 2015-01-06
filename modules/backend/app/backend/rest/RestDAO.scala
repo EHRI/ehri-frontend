@@ -56,11 +56,7 @@ trait RestDAO {
 
     private def queryStringMap: Map[String,Seq[String]] =
       queryString.foldLeft(Map.empty[String,Seq[String]]) { case (m, (k, v)) =>
-        m.get(k).map { s =>
-          m.updated(k, s ++ Seq(v))
-        } getOrElse {
-          m.updated(k, Seq(v))
-        }
+        m.updated(k, v +: m.getOrElse(k, Seq.empty))
       }
 
     private def fullUrl: String =
