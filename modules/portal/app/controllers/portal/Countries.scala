@@ -21,10 +21,7 @@ case class Countries @Inject()(implicit globalConfig: global.GlobalConfig, searc
   extends PortalController
   with Generic[Country]
   with Search
-  with FacetConfig
-  with SessionPreferences[SessionPrefs] {
-
-  val defaultPreferences = new SessionPrefs
+  with FacetConfig {
 
   private val portalCountryRoutes = controllers.portal.routes.Countries
 

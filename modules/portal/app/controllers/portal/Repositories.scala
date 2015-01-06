@@ -22,10 +22,7 @@ case class Repositories @Inject()(implicit globalConfig: global.GlobalConfig, se
   extends PortalController
   with Generic[Repository]
   with Search
-  with FacetConfig
-  with SessionPreferences[SessionPrefs] {
-
-  val defaultPreferences = new SessionPrefs
+  with FacetConfig {
 
   private val portalRepoRoutes = controllers.portal.routes.Repositories
 

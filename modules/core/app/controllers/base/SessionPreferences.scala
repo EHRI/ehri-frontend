@@ -11,7 +11,7 @@ trait SessionPreferences[T] {
 
   import SessionPreferences._
 
-  val defaultPreferences: T
+  protected val defaultPreferences: T
   
   protected def storeKey = DEFAULT_STORE_KEY
 

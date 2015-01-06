@@ -19,10 +19,7 @@ case class Links @Inject()(implicit globalConfig: global.GlobalConfig, searchDis
   extends PortalController
   with Generic[Link]
   with Search
-  with FacetConfig
-  with SessionPreferences[SessionPrefs] {
-
-  val defaultPreferences = new SessionPrefs
+  with FacetConfig {
 
   private val portalGroupRoutes = controllers.portal.routes.Links
 

@@ -22,10 +22,7 @@ case class Vocabularies @Inject()(implicit globalConfig: global.GlobalConfig, se
   extends PortalController
   with Generic[Vocabulary]
   with Search
-  with FacetConfig
-  with SessionPreferences[SessionPrefs] {
-
-  val defaultPreferences = new SessionPrefs
+  with FacetConfig {
 
   private val portalVocabRoutes = controllers.portal.routes.Vocabularies
 

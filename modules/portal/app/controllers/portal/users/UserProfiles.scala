@@ -39,11 +39,7 @@ case class UserProfiles @Inject()(implicit globalConfig: global.GlobalConfig, se
                             userDAO: AccountDAO, mailer: MailerAPI)
     extends PortalController
     with LoginLogout
-    with PortalAuthConfigImpl
-    with SessionPreferences[SessionPrefs]
-    with Secured {
-
-  val defaultPreferences = new SessionPrefs
+    with PortalAuthConfigImpl {
 
   implicit val resource = UserProfile.Resource
   val entityType = EntityType.UserProfile

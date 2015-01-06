@@ -34,11 +34,7 @@ case class Portal @Inject()(implicit globalConfig: global.GlobalConfig, searchDi
     userDAO: AccountDAO)
   extends PortalController
   with Search
-  with FacetConfig
-  with SessionPreferences[SessionPrefs]
-  with Secured {
-
-  val defaultPreferences = new SessionPrefs
+  with FacetConfig {
 
   private val portalRoutes = controllers.portal.routes.Portal
 

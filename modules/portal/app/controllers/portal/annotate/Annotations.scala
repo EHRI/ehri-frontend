@@ -35,12 +35,8 @@ case class Annotations @Inject()(implicit globalConfig: global.GlobalConfig, sea
   with Read[Annotation]
   with Visibility[Annotation]
   with Promotion[Annotation]
-  with SessionPreferences[SessionPrefs]
   with Search
-  with FacetConfig
-  with Secured {
-
-  val defaultPreferences = new SessionPrefs
+  with FacetConfig {
 
   private val annotationRoutes = controllers.portal.annotate.routes.Annotations
 

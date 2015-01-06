@@ -28,11 +28,7 @@ case class Bookmarks @Inject()(implicit globalConfig: global.GlobalConfig, searc
     userDAO: AccountDAO, idGenerator: IdGenerator)
   extends PortalController
   with FacetConfig
-  with Search
-  with SessionPreferences[SessionPrefs]
-  with Secured {
-
-  val defaultPreferences = new SessionPrefs
+  with Search {
 
   private val bmRoutes = controllers.portal.routes.Bookmarks
   private val vuRoutes = controllers.portal.routes.VirtualUnits

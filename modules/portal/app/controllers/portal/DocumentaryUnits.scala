@@ -8,7 +8,6 @@ import controllers.generic.Search
 import controllers.portal.base.{Generic, PortalController}
 import defines.EntityType
 import models.{DocumentaryUnit, AccountDAO}
-import play.api.mvc.RequestHeader
 import solr.SolrConstants
 import utils.SessionPrefs
 import utils.search._
@@ -23,10 +22,7 @@ case class DocumentaryUnits @Inject()(implicit globalConfig: global.GlobalConfig
   extends PortalController
   with Generic[DocumentaryUnit]
   with Search
-  with FacetConfig
-  with SessionPreferences[SessionPrefs] {
-
-  val defaultPreferences = new SessionPrefs
+  with FacetConfig {
 
   private val portalDocRoutes = controllers.portal.routes.DocumentaryUnits
 

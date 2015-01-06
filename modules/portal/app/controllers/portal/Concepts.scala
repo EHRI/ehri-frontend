@@ -21,10 +21,7 @@ case class Concepts @Inject()(implicit globalConfig: global.GlobalConfig, search
   extends PortalController
   with Generic[Concept]
   with Search
-  with FacetConfig
-  with SessionPreferences[SessionPrefs] {
-
-  val defaultPreferences = new SessionPrefs
+  with FacetConfig {
 
   private val portalConceptRoutes = controllers.portal.routes.Concepts
 

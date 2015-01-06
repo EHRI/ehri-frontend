@@ -17,9 +17,7 @@ import controllers.portal.base.PortalController
 @Singleton
 case class Feedback @Inject()(implicit globalConfig: global.GlobalConfig, feedbackDAO: FeedbackDAO,
                               backend: Backend, userDAO: AccountDAO, mailer: MailerAPI)
-  extends PortalController with Secured {
-
-  private implicit val prefs: SessionPrefs = new SessionPrefs
+  extends PortalController {
 
   import utils.forms._
   import play.api.data.Form

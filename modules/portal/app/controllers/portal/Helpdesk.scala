@@ -17,9 +17,7 @@ import controllers.portal.base.PortalController
 @Singleton
 case class Helpdesk @Inject()(implicit helpdeskDAO: HelpdeskDAO, globalConfig: global.GlobalConfig, backend: Backend,
     userDAO: AccountDAO, mailer: MailerAPI)
-  extends PortalController with Secured {
-
-  private implicit val prefs: SessionPrefs = new SessionPrefs
+  extends PortalController {
 
   import play.api.data.Form
   import play.api.data.Forms._

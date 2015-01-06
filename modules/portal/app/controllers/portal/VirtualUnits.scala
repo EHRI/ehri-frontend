@@ -24,10 +24,7 @@ case class VirtualUnits @Inject()(implicit globalConfig: global.GlobalConfig, se
   extends PortalController
   with Generic[VirtualUnit]
   with Search
-  with FacetConfig
-  with SessionPreferences[SessionPrefs] {
-
-  val defaultPreferences = new SessionPrefs
+  with FacetConfig {
 
   private val vuRoutes = controllers.portal.routes.VirtualUnits
 

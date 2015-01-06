@@ -39,14 +39,10 @@ case class Accounts @Inject()(implicit globalConfig: GlobalConfig, searchDispatc
   with OpenIDLoginHandler
   with Oauth2LoginHandler
   with UserPasswordLoginHandler
-  with AccountHelpers
-  with SessionPreferences[SessionPrefs]
-  with Secured {
+  with AccountHelpers {
 
   private val portalRoutes = controllers.portal.routes.Portal
   private val accountRoutes = controllers.portal.account.routes.Accounts
-
-  val defaultPreferences = new SessionPrefs
 
   def account = OptionalUserAction { implicit request =>
     Ok(Json.toJson(request.userOpt.flatMap(_.account)))

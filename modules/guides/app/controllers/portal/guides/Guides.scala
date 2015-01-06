@@ -42,11 +42,8 @@ case class Guides @Inject()(implicit globalConfig: global.GlobalConfig, searchDi
                             userDAO: AccountDAO)
   extends PortalController
   with Search
-  with FacetConfig
-  with SessionPreferences[SessionPrefs]
-  with Secured {
+  with FacetConfig {
 
-  val defaultPreferences = new SessionPrefs
   val ajaxOrder = utils.search.SearchOrder.Name
   val htmlAgentOrder = utils.search.SearchOrder.Detail
   val htmlConceptOrder = utils.search.SearchOrder.ChildCount

@@ -1,5 +1,6 @@
 package controllers.portal.base
 
+import controllers.portal.Secured
 import play.api.Logger
 import play.api.libs.concurrent.Execution.Implicits._
 import defines.{EventType, EntityType}
@@ -7,7 +8,7 @@ import utils._
 import controllers.renderError
 import models.{Link, Annotation, UserProfile}
 import play.api.mvc._
-import controllers.base.{ControllerHelpers, AuthController}
+import controllers.base.{SessionPreferences, ControllerHelpers, AuthController}
 import backend.{BackendReadable, BackendContentType}
 import scala.concurrent.{ExecutionContext, Future}
 import scala.concurrent.Future.{successful => immediate}
@@ -25,7 +26,21 @@ import views.html.errors.itemNotFound
 /**
  * @author Mike Bryant (http://github.com/mikesname)
  */
-trait PortalController extends AuthController with ControllerHelpers with PortalAuthConfigImpl {
+trait PortalController
+  extends AuthController
+  with ControllerHelpers
+  with PortalAuthConfigImpl
+  with Secured
+  with SessionPreferences[SessionPrefs] {
+
+  /**
+   * The user's default preferences. The `SessionPreferences` trait generates
+   * a preferences object from a request object's cookie, falling back to this
+   * if the cookie is invalid or doesn't exist. It will then generate an
+   * **implicit** `preferences` object that can be picked up by views.
+   */
+  protected val defaultPreferences = new SessionPrefs
+
 
   /**
    * Ensure that functions requiring an optional user in scope

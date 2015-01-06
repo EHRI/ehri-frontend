@@ -33,11 +33,7 @@ import controllers.portal.base.PortalController
 @Singleton
 case class Social @Inject()(implicit globalConfig: global.GlobalConfig, searchDispatcher: Dispatcher, searchResolver: Resolver, backend: Backend, userDAO: AccountDAO,
     mailer: MailerAPI)
-  extends PortalController
-  with SessionPreferences[SessionPrefs]
-  with Secured {
-
-  val defaultPreferences = new SessionPrefs
+  extends PortalController {
 
   private val socialRoutes = controllers.portal.social.routes.Social
 

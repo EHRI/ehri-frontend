@@ -22,10 +22,7 @@ case class HistoricalAgents @Inject()(implicit globalConfig: global.GlobalConfig
   extends PortalController
   with Generic[HistoricalAgent]
   with Search
-  with FacetConfig
-  with SessionPreferences[SessionPrefs] {
-
-  val defaultPreferences = new SessionPrefs
+  with FacetConfig {
 
   private val portalAgentRoutes = controllers.portal.routes.HistoricalAgents
 

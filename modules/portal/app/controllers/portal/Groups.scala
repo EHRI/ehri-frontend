@@ -22,10 +22,7 @@ case class Groups @Inject()(implicit globalConfig: global.GlobalConfig, searchDi
   extends PortalController
   with Generic[Group]
   with Search
-  with FacetConfig
-  with SessionPreferences[SessionPrefs] {
-
-  val defaultPreferences = new SessionPrefs
+  with FacetConfig {
 
   private val portalGroupRoutes = controllers.portal.routes.Groups
 

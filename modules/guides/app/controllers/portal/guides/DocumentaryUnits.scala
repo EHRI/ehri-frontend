@@ -15,11 +15,7 @@ import views.html.p
 case class DocumentaryUnits @Inject()(implicit globalConfig: global.GlobalConfig, searchDispatcher: Dispatcher, searchResolver: Resolver, backend: Backend,
                             userDAO: AccountDAO)
   extends PortalController
-  with Generic[DocumentaryUnit]
-  with SessionPreferences[SessionPrefs]
-  with Secured {
-
-  val defaultPreferences = new SessionPrefs
+  with Generic[DocumentaryUnit] {
 
   def browse(path: String, id: String) = GetItemAction(id).apply { implicit request =>
     itemOr404(Guide.find(path, activeOnly = true)) { guide =>
