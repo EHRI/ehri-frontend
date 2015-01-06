@@ -25,15 +25,6 @@ object ApplicationBuild extends Build {
   val appName = "docview"
   val appVersion = "1.0.3-SNAPSHOT"
 
-  scalaVersion := "2.10.4"
-
-  javaOptions in Test ++= Seq(
-    "-Xmx8G",
-    "-XX:+CMSClassUnloadingEnabled",
-    "-XX:MaxPermSize=256M",
-    "-Dconfig.file=conf/test.conf"
-  )
-
   val backendDependencies = Seq(
     ws,
     cache,
@@ -99,8 +90,19 @@ object ApplicationBuild extends Build {
   )
 
   val commonSettings = Seq(
-    // don't execute tests in parallel
+
+    scalaVersion := "2.10.4",
+
+    javaOptions in Test ++= Seq(
+      "-Xmx8G",
+      "-XX:+CMSClassUnloadingEnabled",
+      "-XX:MaxPermSize=256M",
+      "-Dconfig.file=conf/test.conf"
+    ),
+
+      // don't execute tests in parallel
     parallelExecution := false,
+
     // classes to auto-import into templates
     templateImports in Compile ++= Seq("models.base._", "utils.forms._", "acl._", "defines._", "backend.Entity"),
     // auto-import EntityType enum into routes
