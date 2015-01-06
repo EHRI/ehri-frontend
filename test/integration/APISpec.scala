@@ -17,8 +17,7 @@ class APISpec extends IntegrationTestRunner {
     "allow creating and reading" in new ITestApp {
       val json = Json.toJson(new AccessPointLink("a1", Some(LinkType.Associative), Some("Test link")))
       val cr = route(fakeLoggedInHtmlRequest(privilegedUser, POST,
-        controllers.units.routes.DocumentaryUnits.createLink("c1", "ur2").url)
-        .withHeaders(jsonPostHeaders.toSeq: _*), json).get
+        controllers.units.routes.DocumentaryUnits.createLink("c1", "ur2").url), json).get
       status(cr) must equalTo(CREATED)
       val cr2 = route(fakeLoggedInHtmlRequest(privilegedUser, GET,
         controllers.units.routes.DocumentaryUnits.getLink("c1", "ur2").url)).get
@@ -45,14 +44,12 @@ class APISpec extends IntegrationTestRunner {
       val link = new AccessPointLink("a1", description = Some("Test link"))
       val json = Json.toJson(link)
       val cr = route(fakeLoggedInHtmlRequest(privilegedUser, POST,
-        controllers.units.routes.DocumentaryUnits.createLink("c1", "ur1").url)
-        .withHeaders(jsonPostHeaders.toSeq: _*), json).get
+        controllers.units.routes.DocumentaryUnits.createLink("c1", "ur1").url), json).get
       status(cr) must equalTo(CREATED)
       (contentAsJson(cr) \ "id").asOpt[String] must beSome.which { id =>
         val del = route(fakeLoggedInJsonRequest(privilegedUser, POST,
           controllers.units.routes.DocumentaryUnits
-            .deleteLinkAndAccessPoint("c1", "cd1", "ur1", id).url)
-          .withHeaders(jsonPostHeaders.toSeq: _*), "").get
+            .deleteLinkAndAccessPoint("c1", "cd1", "ur1", id).url), "").get
         status(del) must equalTo(OK)
         contentAsJson(del) must equalTo(JsBoolean(value = true))
       }
@@ -62,10 +59,9 @@ class APISpec extends IntegrationTestRunner {
   "Annotation JSON endpoints" should {
     "allow creating annotations" in new ITestApp {
       val json = Json.toJson(new AnnotationF(id = None, body = "Hello, world!"))(
-        Annotate.clientAnnotationFormat)
+        AnnotationF.Converter.clientFormat)
       val cr = route(fakeLoggedInHtmlRequest(privilegedUser, POST,
-        controllers.annotation.routes.Annotations.createAnnotationJsonPost("c1").url)
-        .withHeaders(jsonPostHeaders.toSeq: _*), json).get
+        controllers.annotation.routes.Annotations.createAnnotationJsonPost("c1").url), json).get
       status(cr) must equalTo(CREATED)
     }
   }

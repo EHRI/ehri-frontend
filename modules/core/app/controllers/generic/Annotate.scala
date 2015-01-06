@@ -1,29 +1,20 @@
 package controllers.generic
 
+import backend.{BackendReadable, BackendContentType}
+import defines.PermissionType
+import play.api.data.Form
 import play.api.mvc._
 import play.api.libs.concurrent.Execution.Implicits._
-import defines._
 import models._
-import play.api.data.Form
-import play.api.libs.json.{Format, Json, JsError}
+import play.api.libs.json.{Json, JsError}
 import scala.concurrent.Future.{successful => immediate}
-import backend.{BackendReadable, BackendContentType}
-
-
-object Annotate {
-  // Create a format for client read/writes
-  implicit val annotationTypeFormat = defines.EnumUtils.enumFormat(AnnotationF.AnnotationType)
-  implicit val clientAnnotationFormat: Format[AnnotationF] = Json.format[AnnotationF]
-}
 
 /**
- * Trait for setting visibility on any AccessibleEntity.
+ * Helper actions for controllers that can annotate item types.
  *
- * @tparam MT the entity's build class
+ * @tparam MT the entity's generic type
  */
 trait Annotate[MT] extends Read[MT] {
-
-  import Annotate._
 
   def annotationAction(id: String)(f: MT => Form[AnnotationF] => Option[UserProfile] => Request[AnyContent] => Result)(implicit rd: BackendReadable[MT], ct: BackendContentType[MT]): Action[AnyContent] = {
     WithItemPermissionAction(id, PermissionType.Annotate).apply { implicit request =>
@@ -56,6 +47,8 @@ trait Annotate[MT] extends Read[MT] {
     }
   }
 
+
+
   /**
    * Create an annotation via Ajax... note that this is an action
    * in itself and not a builder.
@@ -64,14 +57,14 @@ trait Annotate[MT] extends Read[MT] {
    * @return
    */
   def createAnnotationJsonPost(id: String) = Action.async(parse.json) { request =>
-    request.body.validate[AnnotationF](clientAnnotationFormat).fold(
+    request.body.validate[AnnotationF](AnnotationF.Converter.clientFormat).fold(
       errors => immediate(BadRequest(JsError.toFlatJson(errors))),
       ap => {
         // NB: No checking of permissions here - we're going to depend
         // on the server for that
         OptionalUserAction.async { implicit request =>
           backend.createAnnotation[Annotation,AnnotationF](id, ap).map { ann =>
-            Created(Json.toJson(ann.model)(clientAnnotationFormat))
+            Created(Json.toJson(ann.model)(AnnotationF.Converter.clientFormat))
           }
         }(request.map(js => AnyContentAsEmpty))
       }

@@ -25,7 +25,7 @@ object AnnotationF {
     val Comment = Value("comment")
     val Aggregation = Value("aggregation")
 
-    implicit val format = defines.EnumUtils.enumFormat(this)
+    implicit val _format = defines.EnumUtils.enumFormat(this)
   }
 
   import AnnotationF.{ANNOTATION_TYPE => ANNOTATION_TYPE_PROP}
@@ -62,6 +62,7 @@ object AnnotationF {
 
   implicit object Converter extends BackendWriteable[AnnotationF] {
     lazy val restFormat = Format(annotationReads,annotationWrites)
+    lazy val clientFormat = Json.format[AnnotationF]
   }
 }
 
