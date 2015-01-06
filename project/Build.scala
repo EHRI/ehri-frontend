@@ -14,11 +14,6 @@ import sbt._
 
 object ApplicationBuild extends Build {
 
-  ivyXML :=
-    <dependencies>
-      <exclude module="org.slf4j.slf4j-log4j12"/>
-    </dependencies>
-
   parallelExecution in ThisBuild := false
   logBuffered := false
 
@@ -31,15 +26,22 @@ object ApplicationBuild extends Build {
 
     // Ontology
     "ehri-project" % "ehri-definitions" % "1.0",
+
+    // The ever-vital Joda time
     "joda-time" % "joda-time" % "2.1"
   )
 
   val backendTestDependencies = Seq(
-    "org.neo4j" % "neo4j-kernel" % "1.9.7" % "test" classifier "tests" classifier "",
-    "org.neo4j.app" % "neo4j-server" % "1.9.7" % "test" classifier "tests" classifier "",
+    "org.neo4j" % "neo4j-kernel" % "1.9.9" % "test" classifier "tests" classifier "",
+    "org.neo4j.app" % "neo4j-server" % "1.9.9" % "test" classifier "tests" classifier "",
     "org.hamcrest" % "hamcrest-all" % "1.3" % "test",
 
+    // This is necessary to allow the Neo4j server to start
     "com.sun.jersey" % "jersey-core" % "1.9" % "test",
+
+    // We need the backend code to test against, but exclude any
+    // groovy stuff because a) it's not needed, and b) it has a
+    // ton of awkward transitive dependencies
     "ehri-project" % "ehri-frames" % "0.1-SNAPSHOT" % "test" classifier "tests" classifier "" exclude("com.tinkerpop.gremlin", "gremlin-groovy"),
     "ehri-project" % "ehri-extension" % "0.0.1-SNAPSHOT" % "test" classifier "tests" classifier "" exclude("com.tinkerpop.gremlin", "gremlin-groovy")
   )
@@ -49,23 +51,20 @@ object ApplicationBuild extends Build {
     anorm,
     filters,
 
-    // Solely to satisfy SBT: bit.ly/16bFa4O
-    "com.google.guava" % "guava" % "17.0",
-
-    // Injection guff
+    // Injection guff - yep, we're using a beta
     "com.google.inject" % "guice" % "4.0-beta",
 
+    // Authentication
     "jp.t2v" %% "play2-auth" % "0.13.0",
 
+    // Password hashing
+    "org.mindrot" % "jbcrypt" % "0.3m",
+
+    // Mysql driver
     "mysql" % "mysql-connector-java" % "5.1.25",
 
-    // Pegdown. Currently versions higher than 1.1 crash
-    // Play at runtime with an IncompatibleClassChangeError.
+    // Markdown rendering
     "org.pegdown" % "pegdown" % "1.4.2",
-    //"org.ow2.asm" % "asm-all" % "4.1",
-
-
-  "org.mindrot" % "jbcrypt" % "0.3m",
 
     // Mailer...
     "com.typesafe.play.plugins" %% "play-plugins-mailer" % "2.3.0",
@@ -104,7 +103,14 @@ object ApplicationBuild extends Build {
     parallelExecution := false,
 
     // classes to auto-import into templates
-    templateImports in Compile ++= Seq("models.base._", "utils.forms._", "acl._", "defines._", "backend.Entity"),
+    templateImports in Compile ++= Seq(
+      "models.base._",
+      "utils.forms._",
+      "acl._",
+      "defines._",
+      "backend.Entity"
+    ),
+
     // auto-import EntityType enum into routes
     routesImport += "defines.EntityType",
 
@@ -113,17 +119,17 @@ object ApplicationBuild extends Build {
     // a conflict with Pegdown and asm-4.x
     unmanagedBase in Test := baseDirectory.value / "test_lib",
 
-    // additional resolvers
-    resolvers += "neo4j-public-repository" at "http://m2.neo4j.org/content/groups/public",
-    resolvers += "Local Maven Repository" at "file:///" + Path.userHome.absolutePath + "/.m2/repository",
-    resolvers += "Codahale" at "http://repo.codahale.com",
-    resolvers += "Typesafe Repository" at "http://repo.typesafe.com/typesafe/releases/",
-
     // SBT magic: http://stackoverflow.com/a/12772739/285374
     // pick up additional resources in test
     resourceDirectory in Test <<= baseDirectory apply {
       (baseDir: File) => baseDir / "test/resources"
     },
+
+    // additional resolvers
+    resolvers += "neo4j-public-repository" at "http://m2.neo4j.org/content/groups/public",
+    resolvers += "Local Maven Repository" at "file:///" + Path.userHome.absolutePath + "/.m2/repository",
+    resolvers += "Codahale" at "http://repo.codahale.com",
+    resolvers += "Typesafe Repository" at "http://repo.typesafe.com/typesafe/releases/",
 
     // Always use nodejs to build the assets - Trireme is too slow...
     JsEngineKeys.engineType := JsEngineKeys.EngineType.Node,
@@ -147,17 +153,15 @@ object ApplicationBuild extends Build {
   ).settings(commonSettings: _*)
 
   lazy val core = Project(appName + "-core", file("modules/core"))
-    .enablePlugins(play.PlayScala)
-    .enablePlugins(SbtWeb).settings(
+    .enablePlugins(play.PlayScala).settings(
       version := appVersion,
       name := appName + "-core",
-      libraryDependencies ++= coreDependencies,
-      pipelineStages := Seq(rjs, digest, gzip),
-      RjsKeys.mainModule := "core-main"
+      libraryDependencies ++= coreDependencies
   ).settings(commonSettings: _*).dependsOn(backend % "test->test;compile->compile")
 
   lazy val portal = Project(appName + "-portal", file("modules/portal"))
-    .enablePlugins(play.PlayScala).settings(
+    .enablePlugins(play.PlayScala)
+    .enablePlugins(SbtWeb).settings(
     version := appVersion,
     routesImport += "models.view._",
     libraryDependencies ++= portalDependencies,
