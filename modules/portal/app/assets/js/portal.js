@@ -307,7 +307,7 @@ $(".panel-history").each(function() {
     update: function(prefsObj) {
       var prefs = prefsObj || {};
       // Fire and forget!
-      jsRoutes.controllers.portal.profile.Profile.updatePrefs()
+      jsRoutes.controllers.portal.users.UserProfiles.updatePrefs()
           .ajax({ data: prefsObj });
     },
 
