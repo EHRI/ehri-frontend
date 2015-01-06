@@ -2,7 +2,6 @@ package controllers.generic
 
 import backend.{BackendContentType, BackendReadable}
 import defines.PermissionType
-import models.UserProfile
 import play.api.libs.concurrent.Execution.Implicits._
 import play.api.mvc._
 
@@ -29,21 +28,4 @@ trait Delete[MT] extends Generic[MT] {
 
   protected def DeleteAction(id: String)(implicit rd: BackendReadable[MT], ct: BackendContentType[MT]) =
     WithItemPermissionAction(id, PermissionType.Delete) andThen DeleteTransformer(id)
-
-  @deprecated(message = "Use CheckDeleteAction instead", since = "1.0.2")
-  def deleteAction(id: String)(f: MT => Option[UserProfile] => Request[AnyContent] => Result)(
-      implicit rd: BackendReadable[MT], ct: BackendContentType[MT]) = {
-    withItemPermission[MT](id, PermissionType.Delete) { item => implicit userOpt => implicit request =>
-      f(item)(userOpt)(request)
-    }
-  }
-
-  @deprecated(message = "Use DeleteAction instead", since = "1.0.2")
-  def deletePostAction(id: String)(f: Option[UserProfile] => Request[AnyContent] => Result)(implicit rd: BackendReadable[MT], ct: BackendContentType[MT]) = {
-    withItemPermission.async[MT](id, PermissionType.Delete) { item => implicit userOpt => implicit request =>
-      backend.delete[MT](id, logMsg = getLogMessage).map { _ =>
-        f(userOpt)(request)
-      }
-    }
-  }
 }

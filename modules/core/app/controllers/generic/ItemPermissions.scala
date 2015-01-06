@@ -82,55 +82,5 @@ trait ItemPermissions[MT] extends Visibility[MT] {
         } yield SetItemPermissionRequest(request.item, accessor, perms, request.userOpt, request)
       }
     }
-
-  @deprecated(message = "Use PermissionGrantAction instead", since = "1.0.2")
-  def manageItemPermissionsAction(id: String)(
-      f: MT => Page[PermissionGrant] => Option[UserProfile] => Request[AnyContent] => Result)(
-      implicit rd: BackendReadable[MT], ct: BackendContentType[MT]) = {
-    withItemPermission.async[MT](id, PermissionType.Grant) { item => implicit userOpt => implicit request =>
-      val params = PageParams.fromRequest(request)
-      backend.listItemPermissionGrants[PermissionGrant](id, params).map { permGrants =>
-        f(item)(permGrants)(userOpt)(request)
-      }
-    }
-  }
-
-  @deprecated(message = "Use EditItemPermissionsAction instead", since = "1.0.2")
-  def addItemPermissionsAction(id: String)(
-      f: MT => Seq[(String,String)] => Seq[(String,String)] => Option[UserProfile] => Request[AnyContent] => Result)(
-      implicit rd: BackendReadable[MT], ct: BackendContentType[MT]) = {
-    withItemPermission.async[MT](id, PermissionType.Grant) { item => implicit userOpt => implicit request =>
-      getUsersAndGroups { users => groups =>
-        f(item)(users)(groups)(userOpt)(request)
-      }
-    }
-  }
-
-
-  @deprecated(message = "Use CheckUpdateItemPermissionsAction instead", since = "1.0.2")
-  def setItemPermissionsAction(id: String, userType: EntityType.Value, userId: String)(
-      f: MT => Accessor => acl.ItemPermissionSet => Option[UserProfile] => Request[AnyContent] => Result)(
-      implicit rd: BackendReadable[MT], ct: BackendContentType[MT]) = {
-    withItemPermission.async[MT](id, PermissionType.Grant) { item => implicit userOpt => implicit request =>
-      for {
-        accessor <- backend.get[Accessor](Accessor.resourceFor(userType), userId)
-        perms <- backend.getItemPermissions(userId, ct.contentType, id)
-      } yield f(item)(accessor)(perms)(userOpt)(request)
-    }
-  }
-
-  @deprecated(message = "Use UpdateItemPermissionsAction instead", since = "1.0.2")
-  def setItemPermissionsPostAction(id: String, userType: EntityType.Value, userId: String)(
-      f: acl.ItemPermissionSet => Option[UserProfile] => Request[AnyContent] => Result)(
-      implicit rd: BackendReadable[MT], ct: BackendContentType[MT]) = {
-    withItemPermission.async[MT](id, PermissionType.Grant) { item => implicit userOpt => implicit request =>
-      val data = request.body.asFormUrlEncoded.getOrElse(Map.empty)
-      val perms: List[String] = data.get(ct.contentType.toString).map(_.toList).getOrElse(List())
-      for {
-        accessor <- backend.get[Accessor](Accessor.resourceFor(userType), userId)
-        perms <- backend.setItemPermissions(userId, ct.contentType, id, perms)
-      } yield f(perms)(userOpt)(request)
-    }
-  }
 }
 

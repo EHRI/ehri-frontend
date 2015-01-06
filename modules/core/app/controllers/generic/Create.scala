@@ -76,56 +76,5 @@ trait Create[F <: Model with Persistable, MT <: MetaModel[F]] extends Generic[MT
         )
       }
     }
-
-
-  type CreateCallback = Either[(Form[F],Form[List[String]]),MT] => Option[UserProfile] => Request[AnyContent] => Result
-  type AsyncCreateCallback = Either[(Form[F],Form[List[String]]),MT] => Option[UserProfile] => Request[AnyContent] => Future[Result]
-
-  /**
-   * Create an item. Because the item must have an initial visibility we need
-   * to collect the users and group lists at the point of creation
-   */
-  @deprecated(message = "Use NewItemAction instead", since = "1.0.2")
-  object createAction {
-    def async(f: Seq[(String,String)] => Seq[(String,String)] => Option[UserProfile] => Request[AnyContent] => Future[Result])(implicit ct: BackendContentType[MT]) = {
-      withContentPermission.async(PermissionType.Create, ct.contentType) { implicit userOpt => implicit request =>
-        getUsersAndGroups.async { users => groups =>
-          f(users)(groups)(userOpt)(request)
-        }
-      }
-    }
-
-    def apply(f: Seq[(String,String)] => Seq[(String,String)] => Option[UserProfile] => Request[AnyContent] => Result)(implicit ct: BackendContentType[MT]) = {
-      async(f.andThen(_.andThen(_.andThen(_.andThen(t => immediate(t))))))
-    }
-  }
-
-  @deprecated(message = "Use CreatePostAction instead", since = "1.0.2")
-  object createPostAction {
-    def async(form: Form[F], pf: Request[AnyContent] => Map[String,Seq[String]] = _ => Map.empty)(f: AsyncCreateCallback)(implicit fmt: BackendWriteable[F], rd: BackendReadable[MT], ct: BackendContentType[MT]) = {
-      withContentPermission.async(PermissionType.Create, ct.contentType) { implicit userOpt => implicit request =>
-        form.bindFromRequest.fold(
-          errorForm => f(Left((errorForm,VisibilityForm.form)))(userOpt)(request),
-          doc => {
-            val accessors = VisibilityForm.form.bindFromRequest.value.getOrElse(Nil)
-            backend.create(doc, accessors, params = pf(request), logMsg = getLogMessage).flatMap { item =>
-              f(Right(item))(userOpt)(request)
-            } recoverWith {
-              // If we have an error, check if it's a validation error.
-              // If so, we need to merge those errors back into the form
-              // and redisplay it...
-              case ValidationError(errorSet) =>
-                val filledForm = doc.getFormErrors(errorSet, form.fill(doc))
-                f(Left((filledForm, VisibilityForm.form)))(userOpt)(request)
-            }
-          }
-        )
-      }
-    }
-
-    def apply(form: Form[F])(f: CreateCallback)(implicit fmt: BackendWriteable[F], rd: BackendReadable[MT], ct: BackendContentType[MT]) = {
-      async(form)(f.andThen(_.andThen(_.andThen(t => immediate(t)))))
-    }
-  }
 }
 

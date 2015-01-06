@@ -103,34 +103,6 @@ trait Search extends Controller with AuthController with ControllerHelpers {
     def empty[T]: QueryResult[T] = QueryResult(ItemPage.empty, SearchParams.empty, List.empty)
   }
 
-  /**
-   * Action that restricts the search to the inherited entity type
-   * and applies.
-   */
-  @deprecated(message = "Use find function instead", since = "1.0.2")
-  def searchAction[MT](filters: Map[String, Any] = Map.empty,
-                       extra: Map[String, Any] = Map.empty,
-                       defaultParams: SearchParams = SearchParams.empty,
-                       defaultOrder: SearchOrder.Value = SearchOrder.DateNewest,
-                       entities: Seq[EntityType.Value] = Nil,
-                       entityFacets: FacetBuilder = emptyFacets,
-                       mode: SearchMode.Value = SearchMode.DefaultAll)(
-                        f: ItemPage[(MT, SearchHit)] => SearchParams => List[AppliedFacet] => Option[UserProfile] => Request[AnyContent] => Result)(implicit rd: BackendReadable[MT]): Action[AnyContent] = {
-    OptionalUserAction.async { implicit request =>
-      find[MT](
-        filters,
-        extra,
-        defaultParams,
-        defaultOrder,
-        entities,
-        entityFacets,
-        mode
-      ).map { r =>
-        f(r.page)(r.params)(r.facets)(request.userOpt)(request)
-      }
-    }
-  }
-
   def filter[A](filters: Map[String, Any] = Map.empty, defaultParams: Option[SearchParams] = None)(implicit userOpt: Option[UserProfile], request: Request[A]): Future[ItemPage[FilterHit]] = {
     val params = defaultParams.map(p => p.copy(sort = defaultSortFunction(p, request)))
     // Override the entity type with the controller entity type
@@ -139,13 +111,5 @@ trait Search extends Controller with AuthController with ControllerHelpers {
       .setDefault(params)
 
     searchDispatcher.filter(sp, filters)
-  }
-
-  @deprecated(message = "Use filter(...) instead", since = "1.0.2")
-  def filterAction(filters: Map[String, Any] = Map.empty, defaultParams: Option[SearchParams] = None)(
-    f: ItemPage[FilterHit] => Option[UserProfile] => Request[AnyContent] => Result): Action[AnyContent] = {
-    OptionalUserAction.async { implicit request =>
-      filter().map(r => f(r)(request.userOpt)(request))
-    }
   }
 }

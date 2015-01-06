@@ -20,17 +20,6 @@ trait AccessPoints[D <: Description, T <: Model with Described[D], MT <: MetaMod
   case class Target(id: String, `type`: EntityType.Value)
   case class LinkItem(accessPoint: AccessPointF, link: Option[LinkF], target: Option[Target])
 
-  @deprecated(message = "Use Descriptions#WithDescriptionAction instead", since = "1.0.2")
-  def manageAccessPointsAction(id: String, descriptionId: String)(f: MT => D => Option[UserProfile] => Request[AnyContent] => Result)(implicit rd: BackendReadable[MT], ct: BackendContentType[MT]) = {
-    withItemPermission.async[MT](id, PermissionType.Annotate) { item => implicit userOpt => implicit request =>
-      item.model.description(descriptionId).map { desc =>
-        immediate(f(item)(desc)(userOpt)(request))
-      }.getOrElse {
-        notFoundError(request)
-      }
-    }
-  }
-
   /**
    * FIXME: Address this festering sore!
    *

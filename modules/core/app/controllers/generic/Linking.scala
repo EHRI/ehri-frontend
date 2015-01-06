@@ -8,8 +8,8 @@ import play.api.Play.current
 import play.api.cache.Cache
 import play.api.data.Form
 import play.api.libs.concurrent.Execution.Implicits._
-import play.api.libs.json.{JsError, JsValue, Json, Writes}
-import play.api.mvc.{Result, _}
+import play.api.libs.json.{JsError, Json}
+import play.api.mvc._
 import utils.search.{SearchHit, _}
 
 import scala.concurrent.Future
@@ -68,16 +68,6 @@ trait Linking[MT <: AnyModel] extends Read[MT] with Search {
       }
     }
 
-  @deprecated(message = "Use LinkSelectAction instead", since = "1.0.2")
-  def linkSelectAction(id: String, toType: EntityType.Value, facets: FacetBuilder = emptyFacets)(
-      f: MT => ItemPage[(AnyModel,SearchHit)] => SearchParams => List[AppliedFacet] => EntityType.Value => Option[UserProfile] => Request[AnyContent] => Result)(implicit rd: BackendReadable[MT], ct: BackendContentType[MT]) = {
-    WithItemPermissionAction(id, PermissionType.Annotate).async { implicit request =>
-      find[AnyModel](facetBuilder = facets, defaultParams = SearchParams(entities = List(toType), excludes=Some(List(id)))).map { r =>
-        f(request.item)(r.page)(r.params)(r.facets)(toType)(request.userOpt)(request)
-      }
-    }
-  }
-
   case class LinkItemsRequest[A](
     from: MT,
     to: AnyModel,
@@ -95,15 +85,6 @@ trait Linking[MT <: AnyModel] extends Read[MT] with Search {
         }
       }
     }
-
-  @deprecated(message = "Use LinkAction instead", since = "1.0.2")
-  def linkAction(id: String, toType: EntityType.Value, to: String)(f: MT => AnyModel => Option[UserProfile] => Request[AnyContent] => Result)(implicit rd: BackendReadable[MT], ct: BackendContentType[MT]) = {
-    WithItemPermissionAction(id, PermissionType.Annotate).async { implicit request =>
-      backend.get[AnyModel](AnyModel.resourceFor(toType), to).map { srcItem =>
-        f(request.item)(srcItem)(request.userOpt)(request)
-      }
-    }
-  }
 
   case class CreateLinkRequest[A](
     from: MT,
@@ -130,33 +111,6 @@ trait Linking[MT <: AnyModel] extends Read[MT] with Search {
       }
     }
 
-  @deprecated(message = "Use CreateLinkAction instead", since = "1.0.2")
-  def linkPostAction(id: String, toType: EntityType.Value, to: String)(
-      f: Either[(MT, AnyModel,Form[LinkF]),Link] => Option[UserProfile] => Request[AnyContent] => Result)(implicit rd: BackendReadable[MT], ct: BackendContentType[MT]) = {
-
-    implicit val linkWrites: Writes[LinkF] = models.LinkF.linkWrites
-
-    WithItemPermissionAction(id, PermissionType.Annotate).async { implicit request =>
-      Link.form.bindFromRequest.fold(
-        errorForm => { // oh dear, we have an error...
-          backend.get[AnyModel](AnyModel.resourceFor(toType), to).map { srcitem =>
-            f(Left((request.item,srcitem,errorForm)))(request.userOpt)(request)
-          }
-        },
-        ann => backend.linkItems[Link, LinkF](id, to, ann).map { ann =>
-          f(Right(ann))(request.userOpt)(request)
-        }
-      )
-    }
-  }
-
-  @deprecated(message = "Use WithItemPermission directly", since = "1.0.2")
-  def linkMultiAction(id: String)(f: MT => Option[UserProfile] => Request[AnyContent] => Result)(implicit rd: BackendReadable[MT], ct: BackendContentType[MT]) = {
-    WithItemPermissionAction(id, PermissionType.Annotate).apply { implicit request =>
-      f(request.item)(request.userOpt)(request)
-    }
-  }
-
   case class MultiLinksRequest[A](
     item: MT,
     formOrLinks: Either[Form[List[(String,LinkF,Option[String])]], Seq[Link]],
@@ -179,19 +133,6 @@ trait Linking[MT <: AnyModel] extends Read[MT] with Search {
       }
     }
 
-  @deprecated(message = "Use CreateMultipleLinksAction instead", since = "1.0.2")
-  def linkPostMultiAction(id: String)(
-      f: Either[(MT,Form[List[(String,LinkF,Option[String])]]),Seq[Link]] => Option[UserProfile] => Request[AnyContent] => Result)(implicit rd: BackendReadable[MT], ct: BackendContentType[MT]): Action[AnyContent] = {
-    WithItemPermissionAction(id, PermissionType.Update).async { implicit request =>
-      val multiForm: Form[List[(String,LinkF,Option[String])]] = Link.multiForm
-      multiForm.bindFromRequest.fold(
-        errorForm => immediate(f(Left((request.item,errorForm)))(request.userOpt)(request)),
-        links => backend.linkMultiple[Link, LinkF](id, links).map { outLinks =>
-          f(Right(outLinks))(request.userOpt)(request)
-        }
-      )
-    }
-  }
 
   /**
    * Create a link, via Json, for any arbitrary two objects, via an access point.
