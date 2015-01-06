@@ -11,7 +11,6 @@ import models._
 import play.api.test.PlaySpecification
 import utils.search.{MockSearchIndexer, Indexer}
 import helpers.RestBackendRunner
-import scala.concurrent.Future
 
 /**
  * Spec for testing individual data access components work as expected.
@@ -21,7 +20,7 @@ class BackendModelSpec extends RestBackendRunner with PlaySpecification {
 
   val userProfile = UserProfile(UserProfileF(id = Some("mike"), identifier = "mike", name = "Mike"))
   val entityType = EntityType.UserProfile
-  implicit val apiUser: ApiUser = ApiUser(Some(userProfile.id))
+  implicit val apiUser: ApiUser = AuthenticatedUser(userProfile.id)
 
   val indexEventBuffer = collection.mutable.ListBuffer.empty[String]
   def mockIndexer: Indexer = new MockSearchIndexer(indexEventBuffer)
@@ -254,13 +253,13 @@ class BackendModelSpec extends RestBackendRunner with PlaySpecification {
       val promoted = await(testBackend.promote[Annotation]("ann1"))
       promoted.demoters must beEmpty
       promoted.promoters.headOption must beSome.which { promoter =>
-        promoter.id must equalTo(apiUser.id.get)
+        promoter.id must equalTo(userProfile.id)
       }
 
       val demoted = await(testBackend.demote[Annotation]("ann1"))
       demoted.promoters must beEmpty
       demoted.demoters.headOption must beSome.which { demoter =>
-        demoter.id must equalTo(apiUser.id.get)
+        demoter.id must equalTo(userProfile.id)
       }
     }
   }

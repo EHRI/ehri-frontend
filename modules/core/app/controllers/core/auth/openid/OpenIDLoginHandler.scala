@@ -8,7 +8,7 @@ import play.api._
 import play.api.mvc._
 import concurrent.Future
 import scala.concurrent.Future.{successful => immediate}
-import backend.{ApiUser, Backend}
+import backend.{AnonymousUser, ApiUser, Backend}
 import play.api.data.Form
 import play.api.data.Forms._
 import play.api.mvc.Result
@@ -107,7 +107,7 @@ trait OpenIDLoginHandler extends AccountHelpers {
               Logger.logger.info("User '{}' created OpenID association", acc.id)
               f(Right(acc))(request)
             } getOrElse {
-              implicit val apiUser = ApiUser()
+              implicit val apiUser = AnonymousUser
               backend.createNewUserProfile[UserProfile](data, groups = defaultPortalGroups).flatMap { up =>
                 val account = userDAO.create(up.id, email.toLowerCase, verified = true,
                   staff = false, allowMessaging = canMessage)

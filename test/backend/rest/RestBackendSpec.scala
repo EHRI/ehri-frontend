@@ -3,7 +3,7 @@ package backend.rest
 import play.api.test.PlaySpecification
 import play.api.libs.json.JsObject
 import defines.EntityType
-import backend.{ApiUser, Entity}
+import backend.{AuthenticatedUser, ApiUser, Entity}
 import helpers.RestBackendRunner
 
 /**
@@ -31,7 +31,7 @@ class RestBackendSpec extends RestBackendRunner with PlaySpecification {
   sequential
 
   def backend = RestBackend.withNoopHandler(play.api.Play.current)
-  implicit def apiUser: ApiUser = new ApiUser(Some("mike"))
+  implicit def apiUser: ApiUser = AuthenticatedUser("mike")
 
   "RestBackend" should {
     "allow fetching objects" in new TestApp {

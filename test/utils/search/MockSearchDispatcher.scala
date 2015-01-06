@@ -73,7 +73,5 @@ case class MockSearchDispatcher(backend: Backend, paramBuffer: collection.mutabl
     Future.failed(new NotImplementedError())
   }
 
-  private implicit def apiUser(implicit userOpt: Option[UserProfile]): ApiUser = {
-    new ApiUser(userOpt.map(_.id))
-  }
+  private implicit def apiUser(implicit userOpt: Option[UserProfile]): ApiUser = ApiUser(userOpt.map(_.id))
 }

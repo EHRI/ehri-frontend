@@ -88,7 +88,8 @@ trait AuthController extends Controller with ControllerHelpers with AuthActionBu
    * @param userOpt an optional profile
    * @return an API user, which may be anonymous
    */
-  protected implicit def userOpt2apiUser(implicit userOpt: Option[UserProfile]): ApiUser = ApiUser(userOpt.map(_.id))
+  protected implicit def userOpt2apiUser(implicit userOpt: Option[UserProfile]): ApiUser =
+    ApiUser(userOpt.map(_.id))
 
   /**
    * Implicit helper to transform an in-scope `OptionalProfileRequest` (of any type)

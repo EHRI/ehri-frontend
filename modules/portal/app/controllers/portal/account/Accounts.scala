@@ -18,7 +18,7 @@ import utils.SessionPrefs
 import com.google.common.net.HttpHeaders
 import controllers.core.auth.AccountHelpers
 import scala.concurrent.Future
-import backend.{Backend, ApiUser}
+import backend.{AnonymousUser, Backend, ApiUser}
 import play.api.mvc.Result
 import com.typesafe.plugin.MailerAPI
 import views.html.p
@@ -107,7 +107,7 @@ case class Accounts @Inject()(implicit globalConfig: GlobalConfig, searchDispatc
               immediate(BadRequest(views.html.p.account.signup(form,
                 accountRoutes.signupPost(), recaptchaKey)))
             } getOrElse {
-              implicit val apiUser = ApiUser()
+              implicit val apiUser = AnonymousUser
               backend.createNewUserProfile[UserProfile](
                   data = Map(UserProfileF.NAME -> data.name), groups = defaultPortalGroups)
                   .flatMap { userProfile =>

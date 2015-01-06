@@ -7,7 +7,7 @@ import play.api.libs.concurrent.Execution.Implicits._
 import play.api.libs.json.JsString
 import com.google.inject._
 import scala.concurrent.Future.{successful => immediate}
-import backend.{ApiUser, Backend}
+import backend.{AnonymousUser, ApiUser, Backend}
 import scala.concurrent.Future
 import controllers.core.auth.AccountHelpers
 
@@ -44,21 +44,19 @@ trait PersonaLoginHandler extends AccountHelpers {
 
         WS.url(PERSONA_URL).post(validate).flatMap { response =>
           response.json \ "status" match {
-            case js @ JsString("okay") => {
+            case js @ JsString("okay") =>
               val email: String = (response.json \ "email").as[String]
 
               userDAO.findByEmail(email) match {
                 case Some(account) => f(Right(account))(request)
-                case None => {
-                  implicit val apiUser = ApiUser()
+                case None =>
+                  implicit val apiUser = AnonymousUser
                   backend.createNewUserProfile[UserProfile](groups = defaultPortalGroups).flatMap { up =>
                     val account = userDAO.create(up.id, email, verified = true, staff = false,
                       allowMessaging = canMessageUsers)
                     f(Right(account))(request)
                   }
-                }
               }
-            }
             case other => f(Left(other.toString()))(request)
           }
         }

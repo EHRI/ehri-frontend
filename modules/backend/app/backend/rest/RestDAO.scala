@@ -3,7 +3,7 @@ package backend.rest
 import play.api.Logger
 import play.api.http.{Writeable, ContentTypeOf, HeaderNames, ContentTypes}
 import play.api.libs.json._
-import backend.{ErrorSet, ApiUser}
+import backend.{AnonymousUser, AuthenticatedUser, ErrorSet, ApiUser}
 import com.fasterxml.jackson.core.JsonParseException
 import utils.{RangePage, RangeParams, Page}
 import scala.concurrent.Future
@@ -134,9 +134,9 @@ trait RestDAO {
    */
   def joinQueryString(qs: Map[String, Seq[String]]): String = {
     import java.net.URLEncoder
-    qs.map { case (key, vals) => {
+    qs.map { case (key, vals) =>
       vals.map(v => "%s=%s".format(key, URLEncoder.encode(v, "UTF-8")))
-    }}.flatten.mkString("&")
+    }.flatten.mkString("&")
   }
 
   /**
@@ -151,9 +151,9 @@ trait RestDAO {
    * Headers to add to outgoing request...
    * @return
    */
-  def authHeaders(implicit apiUser: ApiUser): Map[String, String] = apiUser.id match {
-    case Some(id) => headers + (AUTH_HEADER_NAME -> id)
-    case None => headers
+  def authHeaders(implicit apiUser: ApiUser): Map[String, String] = apiUser match {
+    case AuthenticatedUser(id) => headers + (AUTH_HEADER_NAME -> id)
+    case AnonymousUser => headers
   }
 
   /**
@@ -215,7 +215,7 @@ trait RestDAO {
       case OK | CREATED => response
       case e => e match {
 
-        case UNAUTHORIZED => {
+        case UNAUTHORIZED =>
           response.json.validate[PermissionDenied].fold(
             err => throw PermissionDenied(),
             perm => {
@@ -223,7 +223,6 @@ trait RestDAO {
               throw perm
             }
           )
-        }
         case BAD_REQUEST => try {
           response.json.validate[ErrorSet].fold(
             e => {
@@ -243,22 +242,19 @@ trait RestDAO {
             }
           )
         } catch {
-          case e: JsonParseException => {
+          case e: JsonParseException =>
             throw new BadRequest(response.body)
-          }
         }
-        case NOT_FOUND => {
+        case NOT_FOUND =>
           //Logger.logger.error("404: {} -> {}", Array(response.underlying[AHCRe].getUri, response.body))
           response.json.validate[ItemNotFound].fold(
             e => throw new ItemNotFound(),
             err => throw err
           )
-        }
-        case _ => {
+        case _ =>
           val err = s"Unexpected response: ${response.status}: '${response.body}'"
           Logger.logger.error(err)
           sys.error(err)
-        }
       }
     }
   }
