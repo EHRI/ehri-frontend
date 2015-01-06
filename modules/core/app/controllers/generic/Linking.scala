@@ -247,30 +247,21 @@ trait Linking[MT <: AnyModel] extends Read[MT] with Search {
   }
 
   /**
-   * Fetch links for a given item.
-   */
-  def getLinksAction(id: String)(f: Seq[Link] => Option[UserProfile] => Request[AnyContent] => Result) = {
-    OptionalUserAction.async { implicit  request =>
-      backend.getLinksForItem[Link](id).map { links =>
-        f(links)(request.userOpt)(request)
-      }
-    }
-  }
-
-  /**
    * Get the link, if any, for a document and an access point.
    */
-  def getLink(id: String, apid: String) = getLinksAction(id) { linkList => implicit userOpt => implicit request =>
-    val linkOpt = linkList.find(link => link.bodies.exists(b => b.id == Some(apid)))
-    val res = for {
-      link <- linkOpt
-      target <- link.opposingTarget(id)
-    } yield new AccessPointLink(
-      target = target.id,
-      `type` = Some(link.model.linkType),
-      description = link.model.description
-    )
-    Ok(Json.toJson(res))
+  def getLink(id: String, apid: String) = OptionalUserAction.async { implicit  request =>
+    backend.getLinksForItem[Link](id).map { links =>
+      val linkOpt = links.find(link => link.bodies.exists(b => b.id == Some(apid)))
+      val res = for {
+        link <- linkOpt
+        target <- link.opposingTarget(id)
+      } yield new AccessPointLink(
+          target = target.id,
+          `type` = Some(link.model.linkType),
+          description = link.model.description
+        )
+      Ok(Json.toJson(res))
+    }
   }
 
   /**
