@@ -36,8 +36,6 @@ object ApplicationBuild extends Build {
     "-Dconfig.file=conf/test.conf"
   )
 
-  scalacOptions in ThisBuild ++= Seq("-unchecked", "-deprecation")
-
   val backendDependencies = Seq(
     ws,
     cache,
@@ -129,6 +127,9 @@ object ApplicationBuild extends Build {
 
     // Always use nodejs to build the assets - Trireme is too slow...
     JsEngineKeys.engineType := JsEngineKeys.EngineType.Node,
+
+    // Show warnings and deprecations
+    scalacOptions in ThisBuild ++= Seq("-unchecked", "-deprecation"),
 
     // Less files with an underscore are excluded
     includeFilter in (Assets, LessKeys.less) := "*.less",
