@@ -53,16 +53,17 @@ trait Creator[CF <: Model with Persistable, CMT <: MetaModel[CF], MT <: MetaMode
       def transform[A](request: ItemPermissionRequest[A]): Future[CreateChildRequest[A]] = {
         implicit val req = request
         val extra = extraParams.apply(request.request)
+        val visForm = VisibilityForm.form.bindFromRequest
         form.bindFromRequest.fold(
-          errorForm => immediate(CreateChildRequest(request.item, Left((errorForm,VisibilityForm.form)), request.userOpt, request.request)),
+          errorForm => immediate(CreateChildRequest(request.item, Left((errorForm, visForm)), request.userOpt, request.request)),
           citem => {
-            val accessors = VisibilityForm.form.bindFromRequest.value.getOrElse(Nil)
+            val accessors = visForm.value.getOrElse(Nil)
             backend.createInContext[MT, CF, CMT](id, cct.contentType, citem, accessors, params = extra, logMsg = getLogMessage).map { citem =>
               CreateChildRequest(request.item, Right(citem), request.userOpt, request)
             } recover {
               case ValidationError(errorSet) =>
                 val filledForm = citem.getFormErrors(errorSet, form.fill(citem))
-                CreateChildRequest(request.item, Left((filledForm, VisibilityForm.form)), request.userOpt, request)
+                CreateChildRequest(request.item, Left((filledForm, visForm)), request.userOpt, request)
             }
           }
         )

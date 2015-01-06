@@ -58,10 +58,11 @@ trait Create[F <: Model with Persistable, MT <: MetaModel[F]] extends Generic[MT
     WithContentPermissionAction(PermissionType.Create, ct.contentType) andThen new ActionTransformer[OptionalUserRequest, CreateRequest] {
       def transform[A](request: OptionalUserRequest[A]): Future[CreateRequest[A]] = {
         implicit val req = request
+        val visForm = VisibilityForm.form.bindFromRequest
         form.bindFromRequest.fold(
-          errorForm => immediate(CreateRequest(Left((errorForm,VisibilityForm.form)), request.userOpt, request.request)),
+          errorForm => immediate(CreateRequest(Left((errorForm, visForm)), request.userOpt, request.request)),
           doc => {
-            val accessors = VisibilityForm.form.bindFromRequest.value.getOrElse(Nil)
+            val accessors = visForm.value.getOrElse(Nil)
             backend.create(doc, accessors, params = pf(request), logMsg = getLogMessage).map { item =>
               CreateRequest(Right(item), request.userOpt, request)
             } recover {
@@ -70,7 +71,7 @@ trait Create[F <: Model with Persistable, MT <: MetaModel[F]] extends Generic[MT
               // and redisplay it...
               case ValidationError(errorSet) =>
                 val filledForm = doc.getFormErrors(errorSet, form.fill(doc))
-                CreateRequest(Left((filledForm, VisibilityForm.form)), request.userOpt, request)
+                CreateRequest(Left((filledForm, visForm)), request.userOpt, request)
             }
           }
         )
