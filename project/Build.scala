@@ -92,17 +92,33 @@ object ApplicationBuild extends Build {
 
     scalaVersion := "2.10.4",
 
+    // Increase the JVM heap and permgen to avoid running
+    // out of space during the memory intensive integration
+    // tests. Additionally, set the path to the test config
+    // file as an env var.
     javaOptions in Test ++= Seq(
-      "-Xmx8G",
+      "-Xmx1G",
       "-XX:+CMSClassUnloadingEnabled",
       "-XX:MaxPermSize=256M",
       "-Dconfig.file=conf/test.conf"
     ),
 
-      // don't execute tests in parallel
+    // Show warnings and deprecations
+    scalacOptions in ThisBuild ++= Seq(
+      "-encoding", "UTF-8",
+      "-Xlint",
+      "-unchecked",
+      "-deprecation"
+    ),
+
+    // Allow SBT to tell Scaladoc where to find external
+    // api docs if dependencies provide that metadata
+    autoAPIMappings := true,
+
+      // Don't execute tests in parallel
     parallelExecution := false,
 
-    // classes to auto-import into templates
+    // Classes to auto-import into templates
     templateImports in Compile ++= Seq(
       "models.base._",
       "utils.forms._",
@@ -111,7 +127,7 @@ object ApplicationBuild extends Build {
       "backend.Entity"
     ),
 
-    // auto-import EntityType enum into routes
+    // Auto-import EntityType enum into routes
     routesImport += "defines.EntityType",
 
     // Test the unmanaged directory to test_lib to pick up
@@ -133,9 +149,6 @@ object ApplicationBuild extends Build {
 
     // Always use nodejs to build the assets - Trireme is too slow...
     JsEngineKeys.engineType := JsEngineKeys.EngineType.Node,
-
-    // Show warnings and deprecations
-    scalacOptions in ThisBuild ++= Seq("-unchecked", "-deprecation"),
 
     // Less files with an underscore are excluded
     includeFilter in (Assets, LessKeys.less) := "*.less",
