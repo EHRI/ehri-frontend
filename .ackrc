@@ -1,0 +1,8 @@
+# Stuff for ack to ignore/include
+--ignore-dir=target
+
+# Add a type for messages, messages.en etc files
+--type-set=messages:match:/messages(\.[a-z]{2})?/
+
+# Add a type for templates
+--type-set=template:match:/.scala.html$/
