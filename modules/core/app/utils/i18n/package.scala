@@ -33,7 +33,7 @@ package object i18n {
    */
   lazy val lang2to3lookup: Map[String,String] = Locale.getISOLanguages.flatMap { code =>
     new Locale(code, "").getISO3Language match {
-      case c3 if c3 != "" => Some(code, c3)
+      case c3 if c3 != "" => Some(code -> c3)
       case _ => Nil
     }
   }.toMap

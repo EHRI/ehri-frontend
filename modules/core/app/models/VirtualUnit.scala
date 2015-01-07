@@ -54,7 +54,7 @@ case class VirtualUnitF(
   isA: EntityType.Value = EntityType.VirtualUnit,
   id: Option[String] = None,
   identifier: String,
-  @Annotations.Relation(Ontology.DESCRIPTION_FOR_ENTITY)
+  @models.relation(Ontology.DESCRIPTION_FOR_ENTITY)
   descriptions: List[DocumentaryUnitDescriptionF] = Nil
 ) extends Model
   with Persistable

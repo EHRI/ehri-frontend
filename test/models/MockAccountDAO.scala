@@ -1,6 +1,7 @@
 package models
 
 import java.util.UUID
+import auth.HashedPassword
 import utils.PageParams
 import play.api.cache.Cache
 import jp.t2v.lab.play2.auth.AuthenticityToken

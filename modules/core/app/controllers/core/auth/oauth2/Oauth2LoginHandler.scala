@@ -2,7 +2,7 @@ package controllers.core.auth.oauth2
 
 import models._
 import play.api.mvc._
-import backend.{ApiUser, Backend}
+import backend.{AnonymousUser, ApiUser, Backend}
 import play.api.Logger
 import play.api.libs.ws.WS
 import play.api.libs.concurrent.Execution.Implicits._
@@ -77,7 +77,7 @@ trait Oauth2LoginHandler extends AccountHelpers {
       } getOrElse {
         Logger.info(s"Creating new account for $userData/${provider.name}")
         // Create a new account!
-        implicit val apiUser = ApiUser(Some("admin"))
+        implicit val apiUser = AnonymousUser
         val profileData = Map(
           UserProfileF.NAME -> userData.name,
           UserProfileF.IMAGE_URL -> userData.imageUrl
@@ -109,7 +109,7 @@ trait Oauth2LoginHandler extends AccountHelpers {
 
         request.getQueryString(OAuth2Constants.Code) match {
           // First stage of request...
-          case None => {
+          case None =>
             val state = UUID.randomUUID().toString
             Cache.set(sessionId, state)
 
@@ -117,10 +117,9 @@ trait Oauth2LoginHandler extends AccountHelpers {
             val url = provider.settings.authorizationUrl +
               params.map( p => p._1 + "=" + URLEncoder.encode(p._2, "UTF-8")).mkString("?", "&", "")
             Logger.debug(url)
-            immediate(Redirect(url).withSession(request.session + (SessionKey, sessionId)))
-          }
+            immediate(Redirect(url).withSession(request.session + SessionKey -> sessionId))
 
-          case Some(code) => {
+          case Some(code) =>
             val newStateOpt = request.getQueryString(OAuth2Constants.State)
             (for {
               // check if the state we sent is equal to the one we're receiving now before continuing the flow.
@@ -144,7 +143,6 @@ trait Oauth2LoginHandler extends AccountHelpers {
               Logger.debug("New state:  " + newStateOpt)
               throw new OAuth2Error("Invalid session keys")
             }
-          }
         }
       }
     }

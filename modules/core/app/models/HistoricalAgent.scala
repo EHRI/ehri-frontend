@@ -63,7 +63,7 @@ case class HistoricalAgentF(
   identifier: String,
   publicationStatus: Option[PublicationStatus.Value] = None,
 
-  @Annotations.Relation(Ontology.DESCRIPTION_FOR_ENTITY)
+  @models.relation(Ontology.DESCRIPTION_FOR_ENTITY)
   descriptions: List[HistoricalAgentDescriptionF] = Nil
 ) extends Model
   with Persistable

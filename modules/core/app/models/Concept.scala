@@ -67,7 +67,7 @@ case class ConceptF(
   isA: EntityType.Value = EntityType.Concept,
   id: Option[String],
   identifier: String,
-  @Annotations.Relation(Ontology.DESCRIPTION_FOR_ENTITY) descriptions: List[ConceptDescriptionF] = Nil
+  @models.relation(Ontology.DESCRIPTION_FOR_ENTITY) descriptions: List[ConceptDescriptionF] = Nil
 ) extends Model with Persistable with Described[ConceptDescriptionF]
 
 

@@ -19,7 +19,7 @@ case class IsadGIdentity(
   identifier: Option[String] = None,
   ref: Option[String] = None,
   `abstract`: Option[String] = None,
-  @Annotations.Relation(Ontology.ENTITY_HAS_DATE)
+  @models.relation(Ontology.ENTITY_HAS_DATE)
   dates: List[DatePeriodF] = Nil,
   unitDates: Option[List[String]] = None,
   levelOfDescription: Option[String] = None,

@@ -1,5 +1,6 @@
 package models
 
+import auth.HashedPassword
 import play.api.libs.json.{Json, JsValue, Writes}
 import play.api.Plugin
 import java.util.UUID
@@ -8,14 +9,6 @@ import utils.PageParams
 import jp.t2v.lab.play2.auth._
 
 
-private [models] object HashedPassword {
-  def fromPlain(plain: String) = new HashedPassword(BCrypt.hashpw(plain.toString, BCrypt.gensalt()))
-  def fromHashed(hashed: String) = new HashedPassword(hashed)
-}
-
-private[models] case class HashedPassword private(s: String) {
-  override def toString = s
-}
 
 /**
  * @author Mike Bryant (http://github.com/mikesname)

@@ -137,7 +137,7 @@ case class HistoricalAgentDescriptionF(
   otherFormsOfName: Option[List[String]] = None,
   parallelFormsOfName: Option[List[String]] = None,
 
-  @Annotations.Relation(Ontology.ENTITY_HAS_DATE)
+  @models.relation(Ontology.ENTITY_HAS_DATE)
   dates: List[DatePeriodF] = Nil,
   details: IsaarDetail,
   control: IsaarControl,

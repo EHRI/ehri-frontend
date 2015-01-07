@@ -1,4 +1,4 @@
-package controllers.core.auth
+package auth
 
 /**
  * @author Mike Bryant (http://github.com/mikesname)

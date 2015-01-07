@@ -1,6 +1,7 @@
 package models.sql
 
-import models.{HashedPassword, AccountDAO, Account}
+import auth.HashedPassword
+import models.{AccountDAO, Account}
 import play.api.db.DB
 import anorm._
 import anorm.SqlParser._

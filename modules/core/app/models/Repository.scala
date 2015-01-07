@@ -75,7 +75,7 @@ case class RepositoryF(
   identifier: String,
   publicationStatus: Option[PublicationStatus.Value] = None,
 
-  @Annotations.Relation(Ontology.DESCRIPTION_FOR_ENTITY)
+  @models.relation(Ontology.DESCRIPTION_FOR_ENTITY)
   descriptions: List[RepositoryDescriptionF] = Nil,
 
   priority: Option[Int] = None,

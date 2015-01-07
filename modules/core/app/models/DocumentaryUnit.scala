@@ -13,7 +13,6 @@ import java.net.URL
 import play.api.data.Form
 import play.api.data.Forms._
 import backend._
-import scala.Some
 import play.api.libs.json.JsObject
 
 
@@ -89,7 +88,7 @@ case class DocumentaryUnitF(
   copyrightStatus: Option[DocumentaryUnitF.CopyrightStatus.Value] = Some(DocumentaryUnitF.CopyrightStatus.Unknown),
   scope: Option[DocumentaryUnitF.Scope.Value] = Some(DocumentaryUnitF.Scope.Low),
 
-  @Annotations.Relation(Ontology.DESCRIPTION_FOR_ENTITY)
+  @models.relation(Ontology.DESCRIPTION_FOR_ENTITY)
   descriptions: List[DocumentaryUnitDescriptionF] = Nil
 ) extends Model
   with Persistable

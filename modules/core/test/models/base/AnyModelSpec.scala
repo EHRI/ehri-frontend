@@ -1,11 +1,11 @@
 package models.base
 
 import play.api.test.PlaySpecification
-import models.Annotations.Relation
+import models.relation
 import eu.ehri.project.definitions.Ontology
 import play.api.libs.json.{Json, JsObject}
 import defines.EntityType
-import models.{AccessPointF}
+import models.AccessPointF
 import play.api.i18n.Lang
 import Description._
 import backend.Entity
@@ -15,10 +15,10 @@ case class TestDescriptionF(
   isA: EntityType.Value = EntityType.DocumentaryUnitDescription,
   name: String,
   languageCode: String,
-  @Relation(Ontology.HAS_ACCESS_POINT)
+  @relation(Ontology.HAS_ACCESS_POINT)
   creationProcess: CreationProcess.Value = CreationProcess.Manual,
   accessPoints: List[AccessPointF] = Nil,
-  @Relation(Ontology.HAS_ACCESS_POINT)
+  @relation(Ontology.HAS_ACCESS_POINT)
   unknownProperties: List[Entity] = Nil
 ) extends Model
   with Description {
@@ -29,7 +29,7 @@ case class TestDescriptionF(
 case class TestModelF(
   id: Option[String] = None,
   isA: EntityType.Value = EntityType.DocumentaryUnit,
-  @Relation(Ontology.DESCRIPTION_FOR_ENTITY)
+  @relation(Ontology.DESCRIPTION_FOR_ENTITY)
   descriptions: List[TestDescriptionF] = Nil
 ) extends Model
   with Described[TestDescriptionF]

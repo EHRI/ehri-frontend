@@ -160,7 +160,7 @@ case class RepositoryDescriptionF(
   name: String,
   otherFormsOfName: Option[List[String]] = None,
   parallelFormsOfName: Option[List[String]] = None,
-  @Annotations.Relation(Ontology.ENTITY_HAS_ADDRESS) addresses: List[AddressF] = Nil,
+  @models.relation(Ontology.ENTITY_HAS_ADDRESS) addresses: List[AddressF] = Nil,
   details: IsdiahDetails,
   access: IsdiahAccess,
   services: IsdiahServices,

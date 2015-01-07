@@ -69,7 +69,7 @@ case class LinkF(
   linkType: LinkF.LinkType.Type,
   description: Option[String],
   isPromotable: Boolean = false,
-  @Annotations.Relation(Ontology.ENTITY_HAS_DATE)
+  @models.relation(Ontology.ENTITY_HAS_DATE)
   dates: List[DatePeriodF] = Nil
 ) extends Model with Persistable with Temporal
 

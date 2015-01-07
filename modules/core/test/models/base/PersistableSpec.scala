@@ -1,9 +1,9 @@
 package models.base
 
 import play.api.test.PlaySpecification
-import models.{DatePeriod, DatePeriodF, Annotations}
+import models.{DatePeriod, DatePeriodF}
 import backend.ErrorSet
-import play.api.data.FormError
+
 
 /**
  * @author Mike Bryant (http://github.com/mikesname)
@@ -16,7 +16,7 @@ class PersistableSpec extends PlaySpecification {
 
   case class SomeData(
     id: Option[String] = None,
-    @Annotations.Relation("dates")
+    @models.relation("dates")
     dates: List[DatePeriodF] = Nil
   ) extends Persistable
 

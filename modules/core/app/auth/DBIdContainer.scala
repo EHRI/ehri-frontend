@@ -1,13 +1,15 @@
-package controllers.core.auth
+package auth
+
+import java.security.SecureRandom
+import java.sql.Connection
 
 import jp.t2v.lab.play2.auth.{AuthenticityToken, IdContainer}
-import java.security.SecureRandom
-import scala.util.Random
-import scala.annotation.tailrec
+import models.AccountDAO
 import play.api.Play.current
 import play.api.db.DB
-import java.sql.Connection
-import models.AccountDAO
+
+import scala.annotation.tailrec
+import scala.util.Random
 
 /**
  * @author Mike Bryant (http://github.com/mikesname)
