@@ -85,7 +85,7 @@ case class Feedback @Inject()(implicit globalConfig: global.GlobalConfig, feedba
           sendMessageEmail(moreFeedback)
           if (isAjax) Ok(id)
           else Redirect(controllers.portal.routes.Portal.index())
-            .flashing("success" -> "portal.feedback.thanks.message")
+            .flashing("success" -> "pages.feedback.thanks.message")
         }
       }
     )

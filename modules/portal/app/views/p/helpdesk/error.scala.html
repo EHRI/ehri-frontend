@@ -1,10 +1,10 @@
 @(e: backend.BadHelpdeskResponse)(implicit userOpt: Option[UserProfile], request: RequestHeader, lang: Lang, flash: Flash, globalConfig: global.GlobalConfig, prefs: utils.SessionPrefs)
 
-@p.layout.portalLayout(Messages("portal.helpdesk")) {
+@p.layout.portalLayout(Messages("pages.helpdesk")) {
 
     @views.html.layout.mainContent {
 
-        <h2>@Messages("portal.helpdesk.error")</h2>
+        <h2>@Messages("pages.helpdesk.error")</h2>
 
         <pre>
 @e.data

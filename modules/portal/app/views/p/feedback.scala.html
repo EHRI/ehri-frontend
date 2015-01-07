@@ -1,7 +1,7 @@
 @(form: Form[Feedback])(implicit userOpt: Option[UserProfile], request: RequestHeader, lang: Lang, flash: Flash, globalConfig: global.GlobalConfig)
 
 
-@p.layout.portalLayoutSimple(Messages("portal.feedback")) {
+@p.layout.portalLayoutSimple(Messages("pages.feedback")) {
     <script src="//ajax.googleapis.com/ajax/libs/jquery/1.10.2/jquery.min.js"></script>
     <script src="@controllers.portal.routes.Assets.versioned("js/lib/jquery.validate.js")"></script>
 

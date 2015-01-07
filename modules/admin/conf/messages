@@ -8,6 +8,32 @@ admin.metrics.show=Data Overview Graphs
 facet.group=Group
 facet.admin=Administrators
 
+#
+# Additional Language codes
+#
+languageCode.mul=Multiple
+languageCode.lad=Ladino
+
+#
+# Additional/alternate country codes
+#
+countryCode.xk=Kosovo
+
+#
+# Metrics
+#
+metrics.languageOfMaterial=Archival Descriptions - Language of Material
+metrics.holdingRepository=Archival Descriptions - Holding Repository
+metrics.repositoryCountries=Repositories by Country
+metrics.agentTypes=Authority Files by Entity Type
+metrics.restrictedMaterial=Restricted Material
+
+# Admin search index
+search.index.update=Refresh Search Index
+search.index.update.for=Refresh searching index for {0}
+search.index.clear.all=Clear Entire Index First
+search.index.types=Types to Update
+search.index.types.selectAll=Select All
 
 # Users- and Group-related i18n messages
 
@@ -90,6 +116,76 @@ group.delete.item=Delete Group {0}
 group.delete.confirm=
 group.delete.submit=Delete Group
 group.parentGroups=Parent Groups
+
+#
+# Item visibility
+#
+visibility.update=Set Visibility
+visibility.update.submit=Submit
+visibility.visibleToEveryone=Unrestricted visibility
+visibility.visibleToEveryoneMessage=This item currently has no visibility restrictions and is therefore accessible to everyone.
+visibility.restrictedVisibility=Restricted Visibility
+visibility.restrictedVisibilityMessage=This item is currently visible to the following groups/users:
+visibility.visibilityRestrictedTo=Visibility restricted to:
+visibility.chooseUsers=Choose Users
+visibility.chooseGroups=Choose Groups
+visibility.notPromoted=Not Promoted
+visibility.promotedBy=Promoted By
+
+#
+# Admin-specific item fields
+#
+copyrightStatus.copyright=Copyright Status
+copyrightStatus.no=No
+copyrightStatus.yes=Copyrighted
+copyrightStatus.unknown=Unknown
+
+scope.scope=Scope
+scope.high=High
+scope.medium=Medium
+scope.low=Low
+
+#
+# Permission Grants
+#
+permissionGrant.heading=Permissions for {0}
+permissionGrant.accessor=User/Group
+permissionGrant.targets=Targets
+permissionGrant.scope=Scope
+permissionGrant.grantedBy=Granted By
+
+#
+# Permissions
+#
+permissions.manage.item=Manage Permissions for {0}
+permissions.manage=Manage Permissions
+permissions.global.update=Update Global Permissions
+permissions.global.update.submit=Update Global Permissions
+permissions.global.manage=Manage Global Permissions
+permissions.global.manage.submit=Update Permissions
+permissions.scopeLevel.manage=Scoped Permissions
+permissions.scopeLevel.manage.info=Scoped permissions allow you to grant permissions for users or groups to perform\
+  actions on all items ''within'' another item (the scope), i.e. all documentary units within a given repository.
+permissions.scopeLevel.manage.item=Scoped Permissions for {0}
+permissions.accessor.scopeLevel.item=Scoped Permissions for {0}
+permissions.itemLevel.show=Show Item-level Permissions
+permissions.itemLevel.manage=Item-level Permissions
+permissions.itemLevel.manage.item=Item-level Permissions for {0}
+permissions.itemLevel.manage.info=Item-level permissions allow you to grant permissions for users or groups to perform\
+  actions on a single item, i.e. updating a repository''s descriptive information.
+permissions.accessor.itemLevel.item=Item-level Permissions for {0}
+permissions.scopeLevel.grant.item=Manage Permissions in scope {0} for {1}
+permissions.grant.item=Manage Permissions on {0} for {1}
+permissions.grant.submit=Update Permissions
+permissions.update=Update Permissions
+permissions.update.submit=Update Permissions
+permissions.permissionGrants={2,choice,0#No permissions granted|1#One permission granted|1<Displaying grants {0,number,integer} to {1,number,integer} of {2,number,integer}}
+permissions.itemPermissionsForItem=Item-level Permissions for {0}
+permissions.scopedPermissionsForItem=Scoped Permissions for {0}
+permissions.inheritedFrom=Inherited From: {0}
+permissions.revoke=Revoke Permission?
+permissions.revoke.submit=Revoke
+
 
 # Annotation i18n
 
@@ -1004,6 +1100,87 @@ cvocConcept.update.submit=Update Term
 cvocConcept.topLevel.create=Create Top-level Term
 cvocConcept.topLevel.list={2,choice,0#No top-level terms found|1#One top-level term found|1<Top-level terms {0,number,integer} to {1,number,integer} of {2,number,integer}}
 cvocConcept.narrower.create=Create Narrower Term
+
+#
+# Access points
+#
+accessPoint.create=Add New
+accessPoints.newAccessPoint=New Access Point
+accessPoint.browse=Search
+accessPoint.name=Name of link target...
+accessPoint.description=Optional description...
+accessPoint.type.creatorAccess=Creator(s)
+accessPoint.type.creatorAccess.reverse=Creator of
+accessPoint.type.personAccess=People
+accessPoint.type.personAccess.reverse=Referenced by (as people)
+accessPoint.type.familyAccess=Families
+accessPoint.type.familyAccess.reverse=Referenced by (as family)
+accessPoint.type.corporateBodyAccess=Corporate Bodies
+accessPoint.type.corporateBodyAccess.reverse=Referenced by (as corporate body)
+accessPoint.type.placeAccess=Places
+accessPoint.type.placeAccess.reverse=Places
+accessPoint.type.subjectAccess=Subjects
+accessPoint.type.subjectAccess.reverse=Subject of
+accessPoint.type.otherAccess=Miscellaneous
+accessPoint.type.otherAccess.reverse=Miscellaneous
+# References not on this item, but from another item's access points
+accessPoint.externalReferences=External references to this item
+accessPoint.delete=Remove Access Point
+accessPoint.delete.submit=Remove
+
+#
+# Dates
+#
+dates.exact={0,number,#}
+dates.before=Before {0,number,#}
+dates.between=Between {0,number,#} and {1,number,#}
+dates.after=After {0,number,#}
+dates.all=All
+
+datePeriod.type.creation=Creation
+datePeriod.type.existence=Existence
+datePeriod.precision=Precision
+datePeriod.precision.year=Year
+datePeriod.precision.quarter=Quarter
+datePeriod.precision.month=Month
+datePeriod.precision.week=Week
+datePeriod.precision.day=Day
+
+
+#
+# System Events
+#
+systemEvent.itemAtTime=Action at {0}
+systemEvent.lastUpdated=Updated {0}
+systemEvent.creation=Item created
+systemEvent.createDependent=Description added
+systemEvent.modification=Item modified
+systemEvent.modifyDependent=Description modified
+systemEvent.deletion=Item deleted
+systemEvent.deletion.noInfo=No item info available
+systemEvent.deletion.itemInfo=Item type {0} with id ''{1}''
+systemEvent.deleteDependent=Description deleted
+systemEvent.link=Link created
+systemEvent.annotation=Annotation created
+systemEvent.setGlobalPermissions=Global permissions modified
+systemEvent.setItemPermissions=Item-level permissions modified
+systemEvent.setVisibility=Visibility modified
+systemEvent.addGroup=Member added to group
+systemEvent.removeGroup=Member removed from group
+systemEvent.ingest=Items imported
+systemEvent.promotion=Item Promoted
+systemEvent.demotion=Item Promotion Removed
+systemEvent.unknown=Unknown action
+systemEvent.scope=Scope
+systemEvent.subjects=Subjects
+systemEvent.subjects.list={1,choice,-1#No subjects|0#{0}|0<{0} and {1,number,integer} more...}
+systemEvent.newerEvents=More recent events
+systemEvent.olderEvents=Older events
+systemEvent.et=Event Type
+systemEvent.filter=Filter Events
+systemEvent.user=Users
+systemEvent.list=System Events
+
 
 
 

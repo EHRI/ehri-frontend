@@ -29,7 +29,7 @@ object Helpers {
     ("s1", "-"),
     ("contentTypes.systemEvent",      controllers.events.routes.SystemEvents.list().url),
     ("s2", "-"),
-    ("search.updateIndex",            controllers.admin.routes.AdminSearch.updateIndex().url)
+    ("search.index.update",            controllers.admin.routes.AdminSearch.updateIndex().url)
   )
 
   val accountMenu = Seq(

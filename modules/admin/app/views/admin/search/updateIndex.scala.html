@@ -26,16 +26,16 @@
 
 @implicitField = @{ views.html.helper.FieldConstructor(formHelpers.fieldTemplate.f) }
 
-@views.html.admin.layout.rightSidebar(Messages("search.updateIndex"), scripts=extraScript, styles = extraStyle) {
+@views.html.admin.layout.rightSidebar(Messages("search.index.update"), scripts=extraScript, styles = extraStyle) {
     @helper.form(action = action, 'id -> "update-form", 'class -> "form-horizontal") {
         @formHelpers.csrfToken()
         
-        @helper.checkbox(form("all"), '_label -> Messages("search.clearEntireIndex"))
+        @helper.checkbox(form("all"), '_label -> Messages("search.index.clear.all"))
 
         <div class="form-group">
-            <label class="col-sm-3 form-label">@Messages("search.typesToUpdate")</label>
+            <label class="col-sm-3 form-label">@Messages("search.index.types")</label>
             <div class="col-sm-9">
-                <label class="checkbox"><input type="checkbox" id="select-all" /> @Messages("search.selectAllTypes")</label>
+                <label class="checkbox"><input type="checkbox" id="select-all" /> @Messages("search.index.types.selectAll")</label>
                 <hr />
                 @types.map { et =>
                     <label class="checkbox">
@@ -46,7 +46,7 @@
             </div>
         </div>
         <div class="form-actions">
-            <input type="submit" id="submit-update" class="btn btn-danger" value="@Messages("search.updateIndex")" />
+            <input type="submit" id="submit-update" class="btn btn-danger" value="@Messages("search.index.update")" />
         </div>
 
         <div id="update-progress">

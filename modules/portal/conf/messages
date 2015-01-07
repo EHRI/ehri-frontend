@@ -11,16 +11,17 @@ portal.footer.funding=The EHRI Project is supported by the European Commission
 portal.footer.copyright=2014 The European Holocaust Research Infrastructure Project
 portal.close=Close
 portal.warning=Warning
+portal.admin.site=Admin Site
 
 portal.download=Download
 portal.download.format.txt=Download as plain text
 portal.download.format.csv=Download as CSV
 portal.download.format.json=Download as JSON
 
-portal.help=Help
-portal.help.general=General site help
-portal.help.archivists=Help for archivists
-portal.help.helpdesk=Helpdesk
+pages.help=Help
+pages.help.general=General site help
+pages.help.archivists=Help for archivists
+pages.help.helpdesk=Helpdesk
 
 portal.profile.preferences=Preferences
 portal.profile.preferences.updated=Preferences Updated
@@ -209,6 +210,36 @@ portal.country.childItems.search={0,choice,0#{0} lower level |1#1 institution|1<
 
 portal.cvocVocabulary.childItems=Keywords
 portal.cvocVocabulary.childItems.search={0,choice,0#{0} |1#1 keyword|1<{0,number,integer} keywords}
+
+#
+# Search
+#
+search.submit=Search
+search.sort=Order
+search.sort.identifier.asc=ID/Code
+search.sort.identifier.asc.title=Display results sorted by their institution-given identifier
+search.sort.isParent.desc-identifier.asc=ID/Code
+search.sort.isParent.desc-identifier.asc.title=Display results sorted by their institution-given identifier, with container items first
+search.sort.name_sort.asc=Name
+search.sort.name_sort.asc.title=Display results sorted by name
+search.sort.lastUpdated.desc=Recently Updated
+search.sort.lastUpdated.desc.title=Display most recently-changed results first
+search.sort.score.desc=Relevance
+search.sort.score.desc.title=Display results in order of search relevance
+search.sort.charCount.desc=Detail
+search.sort.charCount.desc.title=Display most detailed results first
+search.sort.repositoryName.asc=Repository
+search.sort.repositoryName.asc.title=Sort results by repository
+search.sort.countryName.asc=Country
+search.sort.countryName.asc.title=Sort results by country
+search.identifier=Identifier
+search.spellingSuggestion=Did you mean
+search.queryPlaceholder=Search...
+
+
+# Pagination display. Should say something like "Displaying items 1 to 20 of 25.
+# If there are 0 items, says "No items found", one item, "One item found" etc.
+pagination.displayingItems={2,choice,0#No items found|1#One item found|1<Displaying items {0,number,integer} to {1,number,integer} of {2,number,integer}}
 
 # Facets
 facet.type=Item Type
@@ -399,8 +430,6 @@ portal.timeline.eventType.setVisibility={0} updated {1}
 portal.timeline.eventType.setGlobalPermissions={0} updated {1}
 portal.timeline.eventType.setItemPermissions={0} updated {1}
 
-
-
 portal.timeline.target.group=a group
 portal.timeline.target.userProfile=an user
 portal.timeline.target.repository=a collection holding institution
@@ -445,40 +474,61 @@ portal.search.helper.plus=Given word has to be in the result, e.g. +Gestapo
 portal.search.helper.quotes=Search an exact match of your query, e.g. "Member lists"
 
 #Feedback module
-portal.feedback=Feedback
-portal.feedback.message=Let us know what you think...
-portal.feedback.thanks=Thanks!
-portal.feedback.thanks.message=Your feedback is greatly appreciated.
+pages.feedback=Feedback
+pages.feedback.message=Let us know what you think...
+pages.feedback.thanks=Thanks!
+pages.feedback.thanks.message=Your feedback is greatly appreciated.
 
-portal.guides.faceted=Browse
-portal.guides=Guides
-portal.guides.more=More
-portal.guides.loading=Loading
-portal.guides.facets.hierarchy=Search or browse through the available facets of the Guide.
-portal.guides.facets.available=The facets shown here are the one available connected to the same document.
-portal.guides.annotation=If you have anything to improve or comment on this record, you can annotate it in the standard EHRI portal interface.
-portal.guides.seeOnPortal=Portal interface
-
-portal.feedback.list=Submitted Feedback
-portal.feedback.type=This feedback is about
-portal.feedback.type.site=the site (functionality, design, etc)
-portal.feedback.type.data=the data content
+pages.feedback.list=Submitted Feedback
+pages.feedback.type=This feedback is about
+pages.feedback.type.site=the site (functionality, design, etc)
+pages.feedback.type.data=the data content
 
 # Helpdesk
-portal.helpdesk=Helpdesk
-portal.helpdesk.message=The helpdesk will attempt to match your query to the EHRI partner institution \
+pages.helpdesk=Helpdesk
+pages.helpdesk.message=The helpdesk will attempt to match your query to the EHRI partner institution \
   best placed to answer it.
-portal.helpdesk.thanks=Thanks!
-portal.helpdesk.thanks.message=Your query has been submitted.
-portal.helpdesk.query=Query
-portal.helpdesk.error=Oops! Something went wrong with the helpdesk. Here's what it said:
-portal.helpdesk.results=Helpdesk Contact Recommendations
-portal.helpdesk.results.empty=No relevant institutions found. Please reformulate your query and add more details.
-portal.helpdesk.query.placeholder=Enter your query here. Subject-specific terms are best.
-portal.helpdesk.copyMe=Email a copy of the query to your address
-portal.helpdesk.youAsked=You asked
-portal.helpdesk.institution=Institution Name
-portal.helpdesk.contactEmail=Contact Email
-portal.helpdesk.score=Confidence Score
-portal.helpdesk.confidence.message=How confident we are that this ranking is correct.
-portal.helpdesk.query.submit=Ask the helpdesk
+pages.helpdesk.thanks=Thanks!
+pages.helpdesk.thanks.message=Your query has been submitted.
+pages.helpdesk.query=Query
+pages.helpdesk.error=Oops! Something went wrong with the helpdesk. Here's what it said:
+pages.helpdesk.results=Helpdesk Contact Recommendations
+pages.helpdesk.results.empty=No relevant institutions found. Please reformulate your query and add more details.
+pages.helpdesk.query.placeholder=Enter your query here. Subject-specific terms are best.
+pages.helpdesk.copyMe=Email a copy of the query to your address
+pages.helpdesk.youAsked=You asked
+pages.helpdesk.institution=Institution Name
+pages.helpdesk.contactEmail=Contact Email
+pages.helpdesk.score=Confidence Score
+pages.helpdesk.confidence.message=How confident we are that this ranking is correct.
+pages.helpdesk.query.submit=Ask the helpdesk
+
+#
+# Miscellaneous UI
+#
+portal.portal.dataPolicy.header=EHRI Data Policy
+portal.portal.dataPolicy.notice1=This database might contain Sensitive Personal Data which according to Dutch privacy \
+law can be used for research purposes only (article 16 Dutch Data Protection Act ''Wet \
+bescherming Persoonsgegevens'').
+portal.portal.dataPolicy.notice2=Sensitive Personal Data is any data related to an identified or identifiable person related \
+to a person's religion or belief, race, political opinion, health, sexual life, trade union \
+membership and criminal record.
+portal.portal.dataPolicy.terms=I declare that I will use Sensitive Personal Data for research purposes only and in general \
+will use Sensitive Personal Data in accordance with applicable Dutch and international laws \
+and regulations. I am aware of punitive results following a breach of these laws and/or \
+regulations.
+portal.portal.dataPolicy.agree=I Agree
+
+#Markdown Cheatsheet
+markdown.cheatsheet.title=Formating tips
+markdown.cheatsheet.asterisks=asterisks
+markdown.cheatsheet.underscores=underscores
+markdown.cheatsheet.bold=Bold
+markdown.cheatsheet.italic=Italic
+markdown.cheatsheet.ordered=Ordered list
+markdown.cheatsheet.ordered.item1=First ordered list item
+markdown.cheatsheet.ordered.item2=Another item
+markdown.cheatsheet.unordered=Ordered list
+markdown.cheatsheet.unordered.item1=Item
+markdown.cheatsheet.unordered.item2=Another item
+markdown.cheatsheet.more=Source

@@ -1,11 +1,11 @@
 @(form: Form[(String,String,Boolean)])(implicit userOpt: Option[UserProfile], request: RequestHeader, lang: Lang, flash: Flash, globalConfig: global.GlobalConfig, prefs: utils.SessionPrefs)
 
-@p.layout.portalLayout(Messages("portal.helpdesk")) {
+@p.layout.portalLayout(Messages("pages.helpdesk")) {
     @views.html.layout.mainContent {
-        <h2>@Messages("portal.helpdesk")</h2>
+        <h2>@Messages("pages.helpdesk")</h2>
 
         <p class="text-info">
-            @Messages("portal.helpdesk.message")
+            @Messages("pages.helpdesk.message")
         </p>
         @helpdeskForm(form)
     }
