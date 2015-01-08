@@ -19,7 +19,7 @@
 @openIdStyles = {
 }
 
-@p.layout.portalLayoutSimple(Messages("login.login"), scripts=openIdJquery, styles=openIdStyles) {
+@p.layout.portalLayoutSimple(Messages("portal.login"), scripts=openIdJquery, styles=openIdStyles) {
 
     @views.html.layout.mainContent {
         <h3>@Messages("portal.login")</h3>
@@ -96,8 +96,8 @@
                     <div class="form-block">
                         @formHelpers.globalErrors(pwForm)
 
-                        @helper.inputText(pwForm("email"), 'class -> "form-control", 'autofocus -> "autofocus", 'placeholder -> Messages("login.email"), 'type -> "email", 'required -> "required")
-                        @helper.inputPassword(pwForm("password"), 'class -> "form-control", 'placeholder -> Messages("login.password"), 'required -> "required")
+                        @helper.inputText(pwForm("email"), 'class -> "form-control", 'autofocus -> "autofocus", 'placeholder -> Messages("portal.login.email"), 'type -> "email", 'required -> "required")
+                        @helper.inputPassword(pwForm("password"), 'class -> "form-control", 'placeholder -> Messages("portal.login.password"), 'required -> "required")
 
                         <p>
                             <a href="@controllers.portal.account.routes.Accounts.forgotPassword">@Messages("portal.login.recover.link")</a>

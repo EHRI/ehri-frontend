@@ -1,5 +1,11 @@
 # Admin messages
 
+# General main page parts
+pages.home=Home
+pages.search=Search
+pages.more=More
+pages.admin=Admin Site
+
 admin.recentActivity=Recent Activity
 admin.home.title=Welcome to the EHRI Administration interface
 admin.metrics=Data Metrics
@@ -18,6 +24,134 @@ languageCode.lad=Ladino
 # Additional/alternate country codes
 #
 countryCode.xk=Kosovo
+
+#
+# Friendly names for content types
+#
+contentTypes=Content types
+contentTypes.group=Groups
+contentTypes.userProfile=Users
+contentTypes.repository=Repositories
+contentTypes.historicalAgent=Authorities
+contentTypes.documentaryUnit=Collections
+contentTypes.action=User Events
+contentTypes.cvocVocabulary=Vocabularies
+contentTypes.authoritativeSet=Authority Sets
+contentTypes.cvocConcept=Terms
+contentTypes.annotation=Annotations
+contentTypes.country=Countries
+contentTypes.link=Links
+contentTypes.systemEvent=History
+contentTypes.virtualUnit=Virtual Collections
+contentTypes.guides=Guides
+
+#
+# Permission Types
+#
+permissionTypes.create=Create
+permissionTypes.update=Update
+permissionTypes.delete=Delete
+permissionTypes.grant=Grant
+permissionTypes.annotate=Annotate
+permissionTypes.owner=Owner
+permissionTypes.promote=Promote
+
+#
+# Annotations
+#
+annotation.bodyText=Text
+annotation.field=Field
+annotation.annotationType=Type
+annotation.emptyBodyText=[Missing Annotation Text]
+annotation.update=Update Annotation
+annotation.update.submit=Update Annotation
+annotation.delete=Delete Annotation
+annotation.delete.submit=Delete Annotation
+annotation.create.item=Annotate {0}
+annotation.create=Annotate Item
+
+#
+# Linking
+#
+link.linkTo=Links to Other Items
+link.linkTo.submit=Create Relationship
+link.items=Related Items
+link.itemLink=Relationship
+link.creator=Relationship Created By
+link.description=Description of Relationship
+link.description.description=Some text that describes how these items are related.
+link.create=Link to another item
+link.create.item=Link ''{0}'' to ''{1}''
+link.update=Update Relation
+link.update.submit=Submit
+link.create.to.documentaryUnit=Link to a documentary unit
+link.create.to.historicalAgent=Link to an authority file
+link.create.to.virtualUnit=Link to Virtual Item
+link.create.to.cvocConcept=Link to a vocabulary term
+link.delete=Delete Relationship
+link.dates=Dates of Relationship
+link.type=Type of Relationship
+link.associative=Associative
+link.hierarchical=Hierarchical
+link.family=Familial
+link.temporal=Temporal
+link.creation=Creation
+link.existence=Existence
+
+#
+# Generic actions
+#
+item.actions=Actions
+item.identifier=Identifier(s)
+item.history=Item History
+item.history.item=Change history for item: {0}
+item.annotate.submit=Annotate Item
+item.export.json=Export JSON
+item.delete=Delete Item
+item.delete.info=Are you sure you want to delete item: "{0}"?  This action cannot be undone.
+item.delete.submit=Delete Item
+item.delete.confirmation=Item successfully deleted
+item.create=Create Item
+item.create.submit=Create
+item.create.confirmation=Item successfully created
+item.update=Edit Item
+item.update.confirmation=Item successfully updated
+item.promote=Promote Item Publicly
+item.promote.submit=Promote Item
+item.promote.confirmation=Item promoted
+item.demote=Remove Item Promotion
+item.demote.submit=Remove Promotion
+item.demote.confirmation=Item promotion removed
+item.noItemsFound=No items found
+
+#
+# Form misc
+#
+priority=Priority
+priority.five=Five
+priority.four=Four
+priority.three=Three
+priority.two=Two
+priority.one=One
+priority.zero=Zero
+priority.reject=Reject
+priority.unknown=-
+
+# What we say when a logical item has no descriptions
+describedEntity.editDescription=Edit Description
+describedEntity.deleteDescription=Delete Description
+describedEntity.deleteDescription.info=Are you sure you want to delete item description: "{0}"?  This action cannot be undone.
+describedEntity.noData=No information given
+describedEntity.notGiven=Not Given
+describedEntity.createDescription=Add Description
+describedEntity.createDescription.item=Add Description to {0}
+describedEntity.createDescription.submit=Add Description
+describedEntity.updateDescription=Update Description
+describedEntity.updateDescription.submit=Update Description
+describedEntity.manageAccessPoints=Manage Access Points
+describedEntity.creationProcess.importWarning=Warning! This description is marked as being\
+  created via an import process. This means that changes to the data may be overwritten if\
+  the import data is subsequently updated.
 
 #
 # Metrics

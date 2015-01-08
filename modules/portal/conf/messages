@@ -74,9 +74,11 @@ portal.login=Sign In
 portal.login.signup=Sign In / Sign Up
 portal.login.moreOptions=More login options
 portal.login.alreadyLoggedIn=You are already logged in as {0}
-portal.login.loginWith=Log in with {0}
+portal.login.loginWith=Sign in with {0}
 portal.login.openid.submit=Sign In With OpenID
 portal.login.openid=OpenID
+portal.login.email=Email
+portal.login.password=Password
 portal.login.password.noPassword=There is currently no password associated with your account. This means you\
   have signed in via a third-party provider such as Google or Facebook.
 portal.login.password.change=Change Password
@@ -212,6 +214,37 @@ portal.cvocVocabulary.childItems=Keywords
 portal.cvocVocabulary.childItems.search={0,choice,0#{0} |1#1 keyword|1<{0,number,integer} keywords}
 
 #
+# Descriptions
+#
+description.additionalData=Additional Harvested Data (Click to display)
+description.additionalData.key=Key
+description.additionalData.value=Value
+description.noDescriptions=This item has not been provided with a description
+description.multiple.text=This item has multiple descriptions. Alternate descriptions may source from different repositories or represent a (partial) translation.
+portal.noDetails=---
+
+
+#
+# Miscellaneous errors
+#
+error.globalErrors=There were problems with that form:
+error.date=Date is incorrect or badly formatted
+error.badUrl=URL is incorrect or badly formatted. Note: for web addresses, a valid URL must be prefixed \
+  be the scheme, e.g. ''http://'' or ''https://''
+
+error.required=Required
+error.emailExists=Email is either invalid or is already registered
+error.unknownUser=Unknown user
+error.emailNotFound=That email was not found on our system.
+error.badRecaptcha=The Recaptcha check (intended to ensure you are a human and not an automated spamming machine) did not\
+    get the right response. Tip: you can keep refreshing the challenge text until you get something more readable.
+error.openId=There was a problem logging you in with OpenID.\
+  This may because your provider does not support attribute exchange. The error messages was: {0}
+error.openId.url=There was no response from the given openid provider: ''{0}''.\
+  Please ensure the provider URL is correct.
+error.userEmailAlreadyRegistered=A user with that email is already registered: {0}
+
+#
 # Search
 #
 search.submit=Search
@@ -282,8 +315,6 @@ facet.topLevel.true=Top Level
 facet.container.hasChildItems=Multi-level (container)
 facet.itemsHeldOnline=Viewable Items
 facet.itemsHeldOnline.yes=Catalogued Material Available
-portal.multipleDescriptions=This item has multiple descriptions. Alternate descriptions may source from different repositories or represent a (partial) translation.
-portal.noDetails=---
 facet.cpf=Authority Type
 facet.cpf.tooltip=The type of entity, e.g. person, family, or corporate body.
 facet.set=Authority Set

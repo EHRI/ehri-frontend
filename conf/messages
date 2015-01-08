@@ -5,27 +5,19 @@ cancel=Cancel
 save=Save
 send=Send
 
-# General main page parts
-banner.signin=Sign In
-banner.signout=Sign Out
-footer.footerText=This is a development version of the EHRI data entry interface.
-pages.home=Home
-pages.search=Search
-pages.more=More
-pages.admin=Admin Site
 
 #
 # General form-related strings
 #
 forms.logMessagePlaceholder=Tell people what you''re doing (optional)...
 
-#
-# Levels of detail...
-#
-lod=Level of Detail
-lod.low=Low
-lod.medium=Medium
-lod.high=High
+##
+## Levels of detail...
+##
+#lod=Level of Detail
+#lod.low=Low
+#lod.medium=Medium
+#lod.high=High
 
 
 #
@@ -41,12 +33,6 @@ format.boolean=On/Off
 #
 # Login-related
 #
-login.login=Sign In
-login.logout=Sign Out
-login.openid=With OpenID
-login.existingAccount=With an existing account
-login.withPassword=Using a password
-login.changePassword=Change Password
 login.email=Email
 login.password=Password
 login.badUsernameOrPassword=Incorrect username or password
@@ -55,7 +41,6 @@ login.existingPassword=Current Password
 login.confirmPassword=Confirm New Password
 login.passwordsDoNotMatch=Password and confirmation do not match!
 login.passwordChanged=Password Changed!
-login.notVerified=Email not verified
 login.expiredOrInvalidResetToken=URL given for password reset was invalid or expired. \
   Note: password reset links can only be used once.
 login.passwordReset=Password Reset
@@ -67,26 +52,6 @@ login.forgotPasswordLink=Click here if you have a password account but have forg
 login.passwordResetNowLogin=Your password has been reset. Now please log in using the new one.
 
 #
-# Miscellaneous errors
-#
-error.globalErrors=There were problems with that form:
-error.date=Date is incorrect or badly formatted
-error.badUrl=URL is incorrect or badly formatted. Note: for web addresses, a valid URL must be prefixed \
-  be the scheme, e.g. ''http://'' or ''https://''
-
-error.required=Required
-error.emailExists=Email is either invalid or is already registered
-error.unknownUser=Unknown user
-error.emailNotFound=That email was not found on our system.
-error.badRecaptcha=The Recaptcha check (intended to ensure you are a human and not an automated spamming machine) did not\
-    get the right response. Tip: you can keep refreshing the challenge text until you get something more readable.
-error.openId=There was a problem logging you in with OpenID.\
-  This may because your provider does not support attribute exchange. The error messages was: {0}
-error.openId.url=There was no response from the given openid provider: ''{0}''.\
-  Please ensure the provider URL is correct.
-error.userEmailAlreadyRegistered=A user with that email is already registered: {0}
-
-#
 # Mail stuff
 #
 mail.forgotPasswordMailHeading=EHRI Password Reset
@@ -94,36 +59,6 @@ mail.forgotPasswordMessage=To reset your password, please follow the link below.
   to reset your password once.
 mail.forgotPasswordFooter=
 
-#
-# Friendly names for content types
-#
-contentTypes=Content types
-contentTypes.group=Groups
-contentTypes.userProfile=Users
-contentTypes.repository=Repositories
-contentTypes.historicalAgent=Authorities
-contentTypes.documentaryUnit=Collections
-contentTypes.action=User Events
-contentTypes.cvocVocabulary=Vocabularies
-contentTypes.authoritativeSet=Authority Sets
-contentTypes.cvocConcept=Terms
-contentTypes.annotation=Annotations
-contentTypes.country=Countries
-contentTypes.link=Links
-contentTypes.systemEvent=History
-contentTypes.virtualUnit=Virtual Collections
-contentTypes.guides=Guides
-
-#
-# Permission Types
-#
-permissionTypes.create=Create
-permissionTypes.update=Update
-permissionTypes.delete=Delete
-permissionTypes.grant=Grant
-permissionTypes.annotate=Annotate
-permissionTypes.owner=Owner
-permissionTypes.promote=Promote
 
 #
 # Custom page error reporting
@@ -154,95 +89,6 @@ errors.noFurtherInfo=No additional information is available.
 # Pagination display. Should say something like "Displaying items 1 to 20 of 25.
 # If there are 0 items, says "No items found", one item, "One item found" etc.
 pagination.displayingItems={2,choice,0#No items found|1#One item found|1<Displaying items {0,number,integer} to {1,number,integer} of {2,number,integer}}
-
-# What we say when a logical item has no descriptions
-describedEntity.availableDescriptions=Available Descriptions
-describedEntity.editDescription=Edit Description
-describedEntity.deleteDescription=Delete Description
-describedEntity.deleteDescription.info=Are you sure you want to delete item description: "{0}"?  This action cannot be undone.
-describedEntity.noDescriptions=This item has not been provided with a description
-describedEntity.noData=No information given
-describedEntity.notGiven=Not Given
-describedEntity.additionalData=Additional Harvested Data (Click to display)
-describedEntity.additionalData.key=Key
-describedEntity.additionalData.value=Value
-describedEntity.createDescription=Add Description
-describedEntity.createDescription.item=Add Description to {0}
-describedEntity.createDescription.submit=Add Description
-describedEntity.updateDescription=Update Description
-describedEntity.updateDescription.submit=Update Description
-describedEntity.manageAccessPoints=Manage Access Points
-describedEntity.creationProcess.importWarning=Warning! This description is marked as being\
-  created via an import process. This means that changes to the data may be overwritten if\
-  the import data is subsequently updated.
-
-#
-# Annotations
-#
-annotation.bodyText=Text
-annotation.field=Field
-annotation.annotationType=Type
-annotation.emptyBodyText=[Missing Annotation Text]
-annotation.update=Update Annotation
-annotation.update.submit=Update Annotation
-annotation.delete=Delete Annotation
-annotation.delete.submit=Delete Annotation
-annotation.create.item=Annotate {0}
-annotation.create=Annotate Item
-
-#
-# Linking
-#
-link.linkTo=Links to Other Items
-link.linkTo.submit=Create Relationship
-link.items=Related Items
-link.itemLink=Relationship
-link.creator=Relationship Created By
-link.description=Description of Relationship
-link.description.description=Some text that describes how these items are related.
-link.create=Link to another item
-link.create.item=Link ''{0}'' to ''{1}''
-link.update=Update Relation
-link.update.submit=Submit
-link.create.to.documentaryUnit=Link to a documentary unit
-link.create.to.historicalAgent=Link to an authority file
-link.create.to.virtualUnit=Link to Virtual Item
-link.create.to.cvocConcept=Link to a vocabulary term
-link.delete=Delete Relationship
-link.dates=Dates of Relationship
-link.type=Type of Relationship
-link.associative=Associative
-link.hierarchical=Hierarchical
-link.family=Familial
-link.temporal=Temporal
-link.creation=Creation
-link.existence=Existence
-
-#
-# Generic actions
-#
-item.actions=Actions
-item.identifier=Identifier(s)
-item.history=Item History
-item.history.item=Change history for item: {0}
-item.annotate.submit=Annotate Item
-item.export.json=Export JSON
-item.delete=Delete Item
-item.delete.info=Are you sure you want to delete item: "{0}"?  This action cannot be undone.
-item.delete.submit=Delete Item
-item.delete.confirmation=Item successfully deleted
-item.create=Create Item
-item.create.submit=Create
-item.create.confirmation=Item successfully created
-item.update=Edit Item
-item.update.confirmation=Item successfully updated
-item.promote=Promote Item Publicly
-item.promote.submit=Promote Item
-item.promote.confirmation=Item promoted
-item.demote=Remove Item Promotion
-item.demote.submit=Remove Promotion
-item.demote.confirmation=Item promotion removed
-item.noItemsFound=No items found
 
 
 #
@@ -277,19 +123,6 @@ profile.update=Update Profile
 profile.update.submit=Update Profile
 profile.update.confirmation=Profile successfully updated
 
-
-#
-# Form misc
-#
-priority=Priority
-priority.five=Five
-priority.four=Four
-priority.three=Three
-priority.two=Two
-priority.one=One
-priority.zero=Zero
-priority.reject=Reject
-priority.unknown=-
 
 identifier=Identifier
 name=Name
