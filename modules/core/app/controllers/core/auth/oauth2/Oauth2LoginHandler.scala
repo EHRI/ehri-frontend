@@ -117,13 +117,14 @@ trait Oauth2LoginHandler extends AccountHelpers {
             val url = provider.settings.authorizationUrl +
               params.map( p => p._1 + "=" + URLEncoder.encode(p._2, "UTF-8")).mkString("?", "&", "")
             Logger.debug(url)
-            immediate(Redirect(url).withSession(request.session + SessionKey -> sessionId))
+            immediate(Redirect(url).withSession(request.session + (SessionKey -> sessionId)))
 
           case Some(code) =>
             val newStateOpt = request.getQueryString(OAuth2Constants.State)
+            val origStateOpt: Option[String] = Cache.getAs[String](sessionId)
             (for {
               // check if the state we sent is equal to the one we're receiving now before continuing the flow.
-              originalState <- Cache.getAs[String](sessionId)
+              originalState <- origStateOpt
               currentState <- newStateOpt if originalState == currentState
             } yield {
               Cache.remove(sessionId)
@@ -139,7 +140,7 @@ trait Oauth2LoginHandler extends AccountHelpers {
               // Session key or states didn't match - throw an error
               Logger.error("OAuth2 state mismatch!")
               Logger.debug("Session id: " + sessionId)
-              Logger.debug("Orig state: " + Cache.getAs[String](sessionId))
+              Logger.debug("Orig state: " + origStateOpt)
               Logger.debug("New state:  " + newStateOpt)
               throw new OAuth2Error("Invalid session keys")
             }
