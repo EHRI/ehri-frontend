@@ -1,9 +1,9 @@
 @(token: java.util.UUID)(implicit req: RequestHeader, globalConfig: global.GlobalConfig, lang: Lang)
 
-@p.layout.mailLayout(Messages("portal.mail.confirmEmailHeading")) {
+@p.layout.mailLayout(Messages("mail.confirmEmailHeading")) {
 
     <p>
-        @Messages("portal.mail.confirmEmailMessage")
+        @Messages("mail.confirmEmailMessage")
     </p>
 
     <p>
@@ -13,7 +13,7 @@
     </p>
 
     <p>
-        @Messages("portal.mail.confirmEmailFooter")
+        @Messages("mail.confirmEmailFooter")
     </p>
 }
 

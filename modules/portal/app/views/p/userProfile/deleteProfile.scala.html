@@ -1,8 +1,8 @@
 @(confirmForm: Form[String], action: Call)(implicit userOpt: Option[UserProfile], request: RequestHeader, prefs: utils.SessionPrefs, globalConfig: global.GlobalConfig, lang: Lang, flash: Flash, token: play.filters.csrf.CSRF.Token)
 
-@p.layout.portalLayout(Messages("portal.profile.delete"), EntityType.UserProfile.toString) {
+@p.layout.portalLayout(Messages("profile.delete"), EntityType.UserProfile.toString) {
     @views.html.layout.mainContent {
-        <h1>@Messages("portal.profile.delete")</h1>
+        <h1>@Messages("profile.delete")</h1>
         @deleteProfileForm(confirmForm, action)
 
     }

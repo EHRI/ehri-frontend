@@ -5,7 +5,7 @@
 @implicitField = @{ views.html.helper.FieldConstructor(p.helpers.fieldTemplateSignUp.f) }
 
 @helper.form(action = action, 'class -> "login-form signup-form", 'role -> "form") {
-    <h1 class="text-center">@Messages("portal.signup")</h1>
+    <h1 class="text-center">@Messages("signup")</h1>
     @formHelpers.csrfToken()
 
     @formHelpers.globalErrors(form)
@@ -15,7 +15,7 @@
     @helper.inputPassword(form(PASSWORD))
     @helper.inputPassword(form(CONFIRM))
     @helper.checkbox(form(AGREE_TERMS), '_label -> Html(Messages(
-        "portal.signup.dataPolicyNag",
+        "signup.dataPolicyNag",
         "<a target='_blank' href='" + controllers.portal.routes.Portal.dataPolicy() + "'>",
         "</a>")
     ))
@@ -27,7 +27,7 @@
     </div>
     <div class="form-group field">
         <div class="input">
-            <button type="submit" class=" btn  btn-post ">@Messages("portal.signup.submit")</button>
+            <button type="submit" class=" btn  btn-post ">@Messages("signup.submit")</button>
         </div>
     </div>
 }

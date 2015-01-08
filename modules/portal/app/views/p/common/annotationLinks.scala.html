@@ -2,7 +2,7 @@
 
 @defining(item.annotationLinks(links)) { links =>
     @if(links.nonEmpty) {
-    <h3>@Messages("portal.item.linked")</h3>
+    <h3>@Messages("item.linked")</h3>
     <ul class="item-links external-links">
         @for(link <- links.distinct) {
             @itemLink(link, item)

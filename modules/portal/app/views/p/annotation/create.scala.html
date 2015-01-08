@@ -12,11 +12,11 @@
             @form(f)
             <div class="annotation-submit-controls form-group">
                 @p.annotation.customVisibility(f, visForm, accessorsForm, users, groups)
-                <div class="checkbox-inline" data-toggle="tooltip" title="@Messages("portal.contribution.visibility.isPrivate.title")">
-                    @helper.checkbox(f(IS_PRIVATE), '_label -> Messages("portal.contribution.visibility.isPrivate"))
+                <div class="checkbox-inline" data-toggle="tooltip" title="@Messages("contribution.visibility.isPrivate.title")">
+                    @helper.checkbox(f(IS_PRIVATE), '_label -> Messages("contribution.visibility.isPrivate"))
                 </div>
                 <button type="submit" class="submit-annotation btn btn-primary">
-                    @Messages("portal.annotation.create")
+                    @Messages("annotation.create")
                 </button>
             </div>
         </div>

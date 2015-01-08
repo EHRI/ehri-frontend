@@ -55,7 +55,7 @@ case class Accounts @Inject()(implicit globalConfig: GlobalConfig, searchDispatc
     def apply(request: Request[A]): Future[Result] = {
       if (globalConfig.readOnly) {
         Future.successful(Redirect(portalRoutes.index())
-          .flashing("warning" -> Messages("portal.login.disabled")))
+          .flashing("warning" -> Messages("login.disabled")))
       } else action(request)
     }
     lazy val parser = action.parser
@@ -115,7 +115,7 @@ case class Accounts @Inject()(implicit globalConfig: GlobalConfig, searchDispatc
                 sendValidationEmail(data.email, uuid)
 
                 gotoLoginSucceeded(userProfile.id).map(r =>
-                  r.flashing("success" -> "portal.signup.confirmation"))
+                  r.flashing("success" -> "signup.confirmation"))
               }
             }
           }
@@ -128,10 +128,10 @@ case class Accounts @Inject()(implicit globalConfig: GlobalConfig, searchDispatc
     userDAO.findByResetToken(token, isSignUp = true).map { account =>
       account.verify(token)
       gotoLoginSucceeded(account.id)
-        .map(_.flashing("success" -> "portal.signup.validation.confirmation"))
+        .map(_.flashing("success" -> "signup.validation.confirmation"))
     } getOrElse {
       immediate(BadRequest(
-          views.html.errors.itemNotFound(Some(Messages("portal.signup.invalidSignupToken")))))
+          views.html.errors.itemNotFound(Some(Messages("signup.invalidSignupToken")))))
     }
   }
 
@@ -153,12 +153,12 @@ case class Accounts @Inject()(implicit globalConfig: GlobalConfig, searchDispatc
 
   def login = OptionalAuthAction { implicit authRequest =>
     if (globalConfig.readOnly) {
-      Redirect(portalRoutes.index()).flashing("warning" -> Messages("portal.login.disabled"))
+      Redirect(portalRoutes.index()).flashing("warning" -> Messages("login.disabled"))
     } else {
       implicit val accountOpt = authRequest.user
       accountOpt match {
         case Some(user) => Redirect(portalRoutes.index())
-          .flashing("warning" -> Messages("portal.login.alreadyLoggedIn", user.email))
+          .flashing("warning" -> Messages("login.alreadyLoggedIn", user.email))
         case None => Ok(views.html.p.account.login(openidForm, passwordLoginForm, oauthProviders))
       }
     }
@@ -269,7 +269,7 @@ case class Accounts @Inject()(implicit globalConfig: GlobalConfig, searchDispatc
       val redirect = request.headers.get(HttpHeaders.REFERER)
         .getOrElse(portalRoutes.index().url)
       Redirect(redirect)
-        .flashing("success" -> Messages("portal.mail.emailConfirmationResent"))
+        .flashing("success" -> Messages("mail.emailConfirmationResent"))
     }.getOrElse(Unauthorized)
   }
 

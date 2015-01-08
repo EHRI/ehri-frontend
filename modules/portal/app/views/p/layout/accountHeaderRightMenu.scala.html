@@ -45,7 +45,7 @@
     @userOpt.map { user =>
         @if(showAdminLink && user.account.exists(_.staff)) {
         <li>
-            <a href="/admin">@Messages("portal.admin.site")</a>
+            <a href="/admin">@Messages("admin.site")</a>
         </li>
         }
 
@@ -60,22 +60,22 @@
                 <li class="">
                     <a href="@controllers.portal.users.routes.UserProfiles.profile" class="gravitar">
                         <span class="glyphicon glyphicon-user"></span>
-                        @Messages("portal.profile.menu.link")
+                        @Messages("profile.menu.link")
                     </a>
                 </li>
-                <li role="presentation" class="dropdown-header">@Messages("portal.profile.preferences.view")</li>
+                <li role="presentation" class="dropdown-header">@Messages("profile.preferences.view")</li>
                 <li>
                     <a href="#" class="toggle-boolean-preference boolean-@prefs.showUserContent"
                        data-preference-name="showUserContent"
                        data-preference-value="@prefs.showUserContent">
-                        @Messages("portal.profile.preferences.view.showUserContent")
+                        @Messages("profile.preferences.view.showUserContent")
                     </a>
                 </li>
 
-                <li role="presentation" class="dropdown-header">@Messages("portal.account")</li>
+                <li role="presentation" class="dropdown-header">@Messages("account")</li>
                 <li>
                     <a href="@controllers.portal.account.routes.Accounts.logout">
-                        @Messages("portal.logout")
+                        @Messages("logout")
 
                     </a>
                 </li>
@@ -84,7 +84,7 @@
     }.getOrElse {
     <li>
         <a href="@controllers.portal.account.routes.Accounts.login">
-            @Messages("portal.login.signup")
+            @Messages("login.signup")
         </a>
     </li>
     }

@@ -29,7 +29,7 @@
     }
 }
 
-@p.layout.portalLayout(Messages("portal.type.repository"), EntityType.Repository.toString) {
+@p.layout.portalLayout(Messages("type.repository"), EntityType.Repository.toString) {
    <div class="main-content">
     @views.html.common.search.searchForm(page, params, action, autofocus = false) {
         @itemByCountryList(page.items, None)

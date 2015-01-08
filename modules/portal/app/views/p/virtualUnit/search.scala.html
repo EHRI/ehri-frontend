@@ -4,7 +4,7 @@
     @infobar(item, path, watched.contains(item.id))
 
     @views.html.layout.mainContent {
-        @p.common.itemDetailsLink(Messages("portal.showDetails"), views.p.Helpers.virtualUnitUrl(path, item.id)) {
+        @p.common.itemDetailsLink(Messages("showDetails"), views.p.Helpers.virtualUnitUrl(path, item.id)) {
             @p.common.itemHeader(item.toStringLang) {
             }
         }

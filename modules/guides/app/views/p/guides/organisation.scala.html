@@ -9,25 +9,21 @@
 			if(typeof append === "undefined") {
 				append = false;
 			}
-			$.get(
-	                $href,
-	                function(data) {
-	                	var $data = $("<ul />");
-	                	$data.html(data)
-	                	$data.find("li").removeClass("facet").addClass("item-wrapper")
-	                	if($data.find(".facet-scroll.item-wrapper").length == 1) {
-	                		var page = $data.find(".facet-scroll.item-wrapper").attr("data-target")
-	                		$data.find(".facet-scroll.item-wrapper").html("<a href='" + page + "'>@Messages("portal.guides.more")</a>");
+			$.get($href, function(data) {
+                var $data = $("<ul />");
+                $data.html(data)
+                $data.find("li").removeClass("facet").addClass("item-wrapper")
+                if($data.find(".facet-scroll.item-wrapper").length == 1) {
+                var page = $data.find(".facet-scroll.item-wrapper").attr("data-target")
+                $data.find(".facet-scroll.item-wrapper").html("<a href='" + page + "'>@Messages("guides.more")</a>");
 
-	                	}
-	                	if(append === false){
-				$ul.html($data.html());
-			} else {
-				$ul.append($data.html());
-			}
-	                },
-	                "html"
-	            );
+                }
+                if(append === false){
+				    $ul.html($data.html());
+			    } else {
+				    $ul.append($data.html());
+			    }
+            }, "html");
 		}
 		$(".content-results").on("click", "a[href]", function(e) {
            		 e.preventDefault();
@@ -88,7 +84,7 @@
 					                @guideItem(item, hit, controllers.portal.guides.routes.Guides.layoutRetrieval(template._2._1.path, template._1.path), Some(template._2._1.path), template._1.layout) <a class="popover-accesspoints" data-count="@links.get(item.id).getOrElse(0)" data-target="@item.id"><span class="glyphicon glyphicon-search"></span></a>
 					            </h3>
 					            <div class="search-item-body">
-					            	@item match { 
+					            	@item match {
 					            		 case d: HistoricalAgent => {
 					            		 	 @p.historicalAgent.listItemBody(d)
 					            		}

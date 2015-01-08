@@ -41,7 +41,7 @@ class ApplicationSpec extends Specification with TestConfiguration with UserFixt
           val pageReadOnly = route(FakeRequest(GET,
             controllers.portal.account.routes.Accounts.forgotPassword().url)).get
           status(pageReadOnly) must equalTo(OK)
-          contentAsString(pageReadOnly) must contain(Messages("portal.readonly"))
+          contentAsString(pageReadOnly) must contain(Messages("readonly"))
 
           // Deleting the file should make the message go away
           f.delete()
@@ -49,7 +49,7 @@ class ApplicationSpec extends Specification with TestConfiguration with UserFixt
           val page = route(FakeRequest(GET,
             controllers.portal.account.routes.Accounts.forgotPassword().url)).get
           status(page) must equalTo(OK)
-          contentAsString(page) must not contain Messages("portal.readonly")
+          contentAsString(page) must not contain Messages("readonly")
         } finally {
           f.deleteOnExit()
         }

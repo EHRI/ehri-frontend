@@ -2,7 +2,7 @@
 
 @defining(item.externalLinks(links)) { links =>
     @if(links.nonEmpty) {
-        <h3>@Messages("portal.item.related")</h3>
+        <h3>@Messages("item.related")</h3>
         @accessPointTypes.map { accessPointType =>
             @defining(AccessPoint.linksOfType(links, accessPointType)) { apLinks =>
                 @if(apLinks.nonEmpty) {

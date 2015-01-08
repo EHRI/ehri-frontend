@@ -48,7 +48,7 @@ case class UserProfiles @Inject()(implicit globalConfig: global.GlobalConfig, se
   private val profileRoutes = controllers.portal.users.routes.UserProfiles
 
   def watchItem(id: String) = WithUserAction { implicit request =>
-    Ok(p.helpers.simpleForm("portal.profile.watch",
+    Ok(p.helpers.simpleForm("profile.watch",
       profileRoutes.watchItemPost(id)))
   }
 
@@ -61,7 +61,7 @@ case class UserProfiles @Inject()(implicit globalConfig: global.GlobalConfig, se
   }
 
   def unwatchItem(id: String) = WithUserAction { implicit request =>
-    Ok(p.helpers.simpleForm("portal.profile.unwatch",
+    Ok(p.helpers.simpleForm("profile.unwatch",
       profileRoutes.unwatchItemPost(id)))
   }
 
@@ -197,7 +197,7 @@ case class UserProfiles @Inject()(implicit globalConfig: global.GlobalConfig, se
   import play.api.data.Forms._
   private def deleteForm(user: UserProfile): Form[String] = Form(
     single(
-      "confirm" -> nonEmptyText.verifying("portal.profile.delete.badConfirmation", f => f match {
+      "confirm" -> nonEmptyText.verifying("profile.delete.badConfirmation", f => f match {
         case name =>
           user.model.name.toLowerCase.trim == name.toLowerCase.trim
       })
@@ -233,7 +233,7 @@ case class UserProfiles @Inject()(implicit globalConfig: global.GlobalConfig, se
           acc.setAllowMessaging(accountPrefs.allowMessaging)
         }
         Redirect(profileRoutes.updateProfile())
-          .flashing("success" -> "portal.profile.preferences.updated")
+          .flashing("success" -> "profile.preferences.updated")
       }
     )
   }
@@ -260,7 +260,7 @@ case class UserProfiles @Inject()(implicit globalConfig: global.GlobalConfig, se
   def deleteProfilePost() = WithUserAction.async { implicit request =>
     deleteForm(request.profile).bindFromRequest.fold(
       errForm => immediate(BadRequest(p.userProfile.deleteProfile(
-        errForm.withGlobalError("portal.profile.delete.badConfirmation"),
+        errForm.withGlobalError("profile.delete.badConfirmation"),
         profileRoutes.deleteProfilePost()))),
       _ => {
         // Here we are not going to delete their whole profile, since
@@ -273,7 +273,7 @@ case class UserProfiles @Inject()(implicit globalConfig: global.GlobalConfig, se
         backend.update(request.profile.id, anonProfile).flatMap { bool =>
           request.profile.account.get.delete()
           gotoLogoutSucceeded
-            .map(_.flashing("success" -> "portal.profile.profile.delete.confirmation"))
+            .map(_.flashing("success" -> "profile.profile.delete.confirmation"))
         }
       }
     )
@@ -289,7 +289,7 @@ case class UserProfiles @Inject()(implicit globalConfig: global.GlobalConfig, se
 
     def onError(err: String) =
       BadRequest(p.userProfile.editProfile(profileDataForm,
-        imageForm.withGlobalError(s"portal.error.$err"), accountPrefsForm))
+        imageForm.withGlobalError(s"error.$err"), accountPrefsForm))
 
     request.body match {
       case Left(MaxSizeExceeded(length)) => immediate(onError("imageTooLarge"))

@@ -1,7 +1,7 @@
 @(token: java.util.UUID)(implicit req: RequestHeader, globalConfig: global.GlobalConfig, lang: Lang)
 
-@Messages("portal.mail.confirmEmailMessage")
+@Messages("mail.confirmEmailMessage")
 
 @controllers.portal.account.routes.Accounts.confirmEmail(token.toString).absoluteURL(globalConfig.https)
 
-@Messages("portal.mail.confirmEmailFooter")
+@Messages("mail.confirmEmailFooter")

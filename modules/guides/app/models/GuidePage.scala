@@ -154,7 +154,7 @@ object GuidePage {
     GuidePage(
       None,
       Layout.Markdown,
-      "portal.guides.faceted",
+      "guides.faceted",
       "browse",
       MenuPosition.Top,
       "",
