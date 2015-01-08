@@ -73,6 +73,19 @@ case class AdminSearch @Inject()(implicit globalConfig: global.GlobalConfig, sea
     EntityType.Annotation
   )
 
+  private val searchTypes = Seq(
+    EntityType.Country,
+    EntityType.DocumentaryUnit,
+    EntityType.HistoricalAgent,
+    EntityType.Repository,
+    EntityType.Concept,
+    EntityType.Vocabulary,
+    EntityType.AuthoritativeSet,
+    EntityType.UserProfile,
+    EntityType.Group,
+    EntityType.VirtualUnit
+  )
+
   /**
    * Full text search action that returns a complete page of item data.
    * @return
@@ -81,7 +94,10 @@ case class AdminSearch @Inject()(implicit globalConfig: global.GlobalConfig, sea
 
   def search = OptionalUserAction.async { implicit request =>
     find[AnyModel](
-      defaultParams = SearchParams(sort = Some(SearchOrder.Score)),
+      defaultParams = SearchParams(
+        sort = Some(SearchOrder.Score),
+        entities = searchTypes.toList
+      ),
       facetBuilder = entityFacets
     ).map { case QueryResult(page, params, facets) =>
       render {
