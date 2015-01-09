@@ -1,5 +1,7 @@
 package backend.rest
 
+import play.api.cache.Cache
+
 import scala.concurrent.{ExecutionContext, Future}
 import defines.EntityType
 import play.api.libs.json.Json
@@ -13,6 +15,8 @@ import play.api.http.Status
  * Data Access Object for fetching link data.
  */
 trait RestLinks extends Links with RestDAO {
+
+  this: RestGeneric =>
 
   val eventHandler: EventHandler
 
@@ -36,10 +40,11 @@ trait RestLinks extends Links with RestDAO {
   /**
    * Create a single link.
    */
-  def linkItems[A <: WithId, AF](id: String, src: String, link: AF, accessPoint: Option[String] = None)(implicit apiUser: ApiUser, rd: BackendReadable[A], wd: BackendWriteable[AF],  executionContext: ExecutionContext): Future[A] = {
+  def linkItems[MT, A <: WithId, AF](id: String, src: String, link: AF, accessPoint: Option[String] = None)(implicit apiUser: ApiUser, rs: BackendResource[MT], rd: BackendReadable[A], wd: BackendWriteable[AF],  executionContext: ExecutionContext): Future[A] = {
     val url: String = enc(requestUrl, id, src)
     userCall(url).withQueryString(accessPoint.map(a => BODY_PARAM -> a).toSeq: _*)
       .post(Json.toJson(link)(wd.restFormat)).map { response =>
+      Cache.remove(canonicalUrl(id))
       val link: A = checkErrorAndParse[A](response, context = Some(url))(rd.restReads)
       eventHandler.handleCreate(link.id)
       link
@@ -49,11 +54,12 @@ trait RestLinks extends Links with RestDAO {
   /**
    * Remove a link on an item.
    */
-  def deleteLink(id: String, linkId: String)(implicit apiUser: ApiUser, executionContext: ExecutionContext): Future[Boolean] = {
+  def deleteLink[MT](id: String, linkId: String)(implicit apiUser: ApiUser, rs: BackendResource[MT], executionContext: ExecutionContext): Future[Boolean] = {
     val url = enc(requestUrl, "for", id, linkId)
     userCall(url).delete().map { response =>
       checkError(response)
       eventHandler.handleDelete(linkId)
+      Cache.remove(canonicalUrl(id))
       response.status == Status.OK
     }
   }
@@ -61,9 +67,15 @@ trait RestLinks extends Links with RestDAO {
   /**
    * Create multiple links. NB: This function is NOT transactional.
    */
-  def linkMultiple[A <: WithId, AF](id: String, srcToLinks: Seq[(String,AF,Option[String])])(implicit apiUser: ApiUser, rd: BackendReadable[A], wd: BackendWriteable[AF], executionContext: ExecutionContext): Future[Seq[A]] = Future.sequence {
-    srcToLinks.map {
-      case (other, ann, accessPoint) => linkItems(id, other, ann, accessPoint)
+  def linkMultiple[MT, A <: WithId, AF](id: String, srcToLinks: Seq[(String,AF,Option[String])])(implicit apiUser: ApiUser, rs: BackendResource[MT], rd: BackendReadable[A], wd: BackendWriteable[AF], executionContext: ExecutionContext): Future[Seq[A]] = {
+    val done: Future[Seq[A]] = Future.sequence {
+      srcToLinks.map { case (other, ann, accessPoint) =>
+        linkItems(id, other, ann, accessPoint)
+      }
+    }
+    done.map { r =>
+      Cache.remove(canonicalUrl(id))
+      r
     }
   }
 }

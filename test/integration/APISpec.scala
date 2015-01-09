@@ -9,7 +9,7 @@ import models.LinkF.LinkType
 /**
  * Spec for testing various JSON endpoints used by Ajax components etc.
  */
-class APISpec extends IntegrationTestRunner {
+class AAPISpec extends IntegrationTestRunner {
 
   import mocks.privilegedUser
 

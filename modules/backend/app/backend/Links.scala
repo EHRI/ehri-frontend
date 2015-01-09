@@ -9,9 +9,9 @@ import utils.Page
 trait Links {
   def getLinksForItem[A](id: String)(implicit apiUser: ApiUser, rd: BackendReadable[A], executionContext: ExecutionContext): Future[Page[A]]
 
-  def linkItems[A <: WithId, AF](id: String, src: String, link: AF, accessPoint: Option[String] = None)(implicit apiUser: ApiUser, rd: BackendReadable[A], wd: BackendWriteable[AF], executionContext: ExecutionContext): Future[A]
+  def linkItems[MT, A <: WithId, AF](id: String, src: String, link: AF, accessPoint: Option[String] = None)(implicit apiUser: ApiUser, rs: BackendResource[MT], rd: BackendReadable[A], wd: BackendWriteable[AF], executionContext: ExecutionContext): Future[A]
 
-  def deleteLink(id: String, linkId: String)(implicit apiUser: ApiUser, executionContext: ExecutionContext): Future[Boolean]
+  def deleteLink[MT](id: String, linkId: String)(implicit apiUser: ApiUser, rs: BackendResource[MT], executionContext: ExecutionContext): Future[Boolean]
 
-  def linkMultiple[A <: WithId, AF](id: String, srcToLinks: Seq[(String, AF, Option[String])])(implicit apiUser: ApiUser, rd: BackendReadable[A], wd: BackendWriteable[AF], executionContext: ExecutionContext): Future[Seq[A]]
+  def linkMultiple[MT, A <: WithId, AF](id: String, srcToLinks: Seq[(String, AF, Option[String])])(implicit apiUser: ApiUser, rs: BackendResource[MT], rd: BackendReadable[A], wd: BackendWriteable[AF], executionContext: ExecutionContext): Future[Seq[A]]
 }

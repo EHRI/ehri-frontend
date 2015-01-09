@@ -40,6 +40,13 @@ class BackendModelSpec extends RestBackendRunner with PlaySpecification {
       await(testBackend.get[UserProfile]("invalid-id")) must throwA[ItemNotFound]
     }
 
+    "not error when retrieving existing items at the wrong path (as per bug #500)" in new TestApp {
+      // Load the item (populating the cache)
+      private val doc: DocumentaryUnit = await(testBackend.get[DocumentaryUnit]("c1"))
+      // Now try and fetch it under a different resource path...
+      await(testBackend.get[UserProfile]("c1")) must throwA[ItemNotFound]
+    }
+
     "get an item by id" in new TestApp {
       val profile: UserProfile = await(testBackend.get[UserProfile](userProfile.id))
       profile.id must equalTo(userProfile.id)
@@ -298,13 +305,13 @@ class BackendModelSpec extends RestBackendRunner with PlaySpecification {
   "Social operations" should {
     "allow following and unfollowing" in new TestApp {
       await(testBackend.isFollowing(userProfile.id, "reto")) must beFalse
-      await(testBackend.follow(userProfile.id, "reto"))
+      await(testBackend.follow[UserProfile](userProfile.id, "reto"))
       await(testBackend.isFollowing(userProfile.id, "reto")) must beTrue
       val following = await(testBackend.following[UserProfile](userProfile.id))
       following.exists(_.id == "reto") must beTrue
       val followingPage = await(testBackend.following[UserProfile](userProfile.id))
       followingPage.total must equalTo(1)
-      await(testBackend.unfollow(userProfile.id, "reto"))
+      await(testBackend.unfollow[UserProfile](userProfile.id, "reto"))
       await(testBackend.isFollowing(userProfile.id, "reto")) must beFalse
     }
 
@@ -359,7 +366,7 @@ class BackendModelSpec extends RestBackendRunner with PlaySpecification {
       vc.includedUnits.size must equalTo(0)
 
       // Add an included unit to the VC (a bookmark)
-      await(testBackend.addBookmark(vc.id, "c4"))
+      await(testBackend.addBookmark[VirtualUnit](vc.id, "c4"))
       await(testBackend.userBookmarks[VirtualUnit](userProfile.id)).headOption must beSome.which { ovc =>
         ovc.includedUnits.size must equalTo(1)
         ovc.includedUnits.headOption must beSome.which { iu =>
@@ -368,7 +375,7 @@ class BackendModelSpec extends RestBackendRunner with PlaySpecification {
       }
 
       // Delete the included unit
-      await(testBackend.deleteBookmarks(vc.id, Seq("c4")))
+      await(testBackend.deleteBookmarks[VirtualUnit](vc.id, Seq("c4")))
       await(testBackend.userBookmarks[VirtualUnit](userProfile.id)).headOption must beSome.which { ovc =>
         ovc.includedUnits.size must equalTo(0)
       }
@@ -376,13 +383,13 @@ class BackendModelSpec extends RestBackendRunner with PlaySpecification {
       // Moving included units...
       val vc2 = await(testBackend.create[VirtualUnit,VirtualUnitF](
         data.copy(identifier = "vc-test-2")))
-      await(testBackend.addBookmark(vc.id, "c1"))
+      await(testBackend.addBookmark[VirtualUnit](vc.id, "c1"))
       await(testBackend.get[VirtualUnit](vc.id))
         .includedUnits.map(_.id) must contain("c1")
-      await(testBackend.addBookmark(vc2.id, "c2"))
+      await(testBackend.addBookmark[VirtualUnit](vc2.id, "c2"))
       await(testBackend.get[VirtualUnit](vc2.id))
         .includedUnits.map(_.id) must contain("c2")
-      await(testBackend.moveBookmarks(vc.id, vc2.id, List("c1")))
+      await(testBackend.moveBookmarks[VirtualUnit](vc.id, vc2.id, List("c1")))
       await(testBackend.get[VirtualUnit](vc.id))
         .includedUnits.map(_.id) must not contain "c1"
       await(testBackend.get[VirtualUnit](vc2.id))

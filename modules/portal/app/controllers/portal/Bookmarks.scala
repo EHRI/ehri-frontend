@@ -78,11 +78,11 @@ case class Bookmarks @Inject()(implicit globalConfig: global.GlobalConfig, searc
     } yield vu
 
   def removeBookmarksPost(set: String, ids: Seq[String]) = WithUserAction.async { implicit request =>
-    backend.deleteBookmarks(set, ids).map(_ => Ok("ok"))
+    backend.deleteBookmarks[VirtualUnit](set, ids).map(_ => Ok("ok"))
   }
 
   def moveBookmarksPost(fromSet: String, toSet: String, ids: Seq[String] = Seq.empty) = WithUserAction.async { implicit request =>
-    backend.moveBookmarks(fromSet, toSet, ids).map(_ => Ok("ok"))
+    backend.moveBookmarks[VirtualUnit](fromSet, toSet, ids).map(_ => Ok("ok"))
   }
 
   def bookmarkInNewSetPost(id: String) = createBookmarkSetPost(List(id))
@@ -99,7 +99,7 @@ case class Bookmarks @Inject()(implicit globalConfig: global.GlobalConfig, searc
 
     def getOrCreateBS(idOpt: Option[String]): Future[VirtualUnit] = {
       backend.get[VirtualUnit](idOpt.getOrElse(defaultBookmarkSetId)).map { vu =>
-        backend.addBookmark(vu.id, itemId)
+        backend.addBookmark[VirtualUnit](vu.id, itemId)
         vu
       } recoverWith {
         case e: ItemNotFound => backend.create[VirtualUnit,VirtualUnitF](

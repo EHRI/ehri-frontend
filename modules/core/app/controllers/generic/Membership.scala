@@ -68,7 +68,7 @@ trait Membership[MT <: Accessor] extends Read[MT] {
     WithItemPermissionAction(id, PermissionType.Grant) andThen new ActionTransformer[ItemPermissionRequest, ItemPermissionRequest] {
       override protected def transform[A](request: ItemPermissionRequest[A]): Future[ItemPermissionRequest[A]] = {
         implicit val req = request
-        backend.addGroup(groupId, id).map(_ => request)
+        backend.addGroup[Group, MT](groupId, id).map(_ => request)
       }
     }
 
@@ -76,7 +76,7 @@ trait Membership[MT <: Accessor] extends Read[MT] {
     WithItemPermissionAction(id, PermissionType.Grant) andThen new ActionTransformer[ItemPermissionRequest, ItemPermissionRequest] {
       override protected def transform[A](request: ItemPermissionRequest[A]): Future[ItemPermissionRequest[A]] = {
         implicit val req = request
-        backend.removeGroup(groupId, id).map(_ => request)
+        backend.removeGroup[Group, MT](groupId, id).map(_ => request)
       }
     }
 }

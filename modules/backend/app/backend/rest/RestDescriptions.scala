@@ -13,6 +13,8 @@ import backend.ApiUser
  */
 trait RestDescriptions extends RestDAO with Descriptions {
 
+  this: RestGeneric =>
+
   val eventHandler: EventHandler
 
   private def requestUrl = s"$baseUrl/description"
@@ -24,7 +26,7 @@ trait RestDescriptions extends RestDAO with Descriptions {
         .post(Json.toJson(item)(fmt.restFormat)).map { response =>
       val desc: DT = checkErrorAndParse(response, context = Some(url))(rd.restReads)
       eventHandler.handleUpdate(id)
-      Cache.remove(id)
+      Cache.remove(canonicalUrl(id))
       desc
     }
   }
@@ -36,7 +38,7 @@ trait RestDescriptions extends RestDAO with Descriptions {
         .put(Json.toJson(item)(fmt.restFormat)).map { response =>
       val desc: DT = checkErrorAndParse(response, context = Some(url))(rd.restReads)
       eventHandler.handleUpdate(id)
-      Cache.remove(id)
+      Cache.remove(canonicalUrl(id))
       desc
     }
   }
@@ -47,18 +49,18 @@ trait RestDescriptions extends RestDAO with Descriptions {
           .delete().map { response =>
       checkError(response)
       eventHandler.handleDelete(did)
-      Cache.remove(id)
+      Cache.remove(canonicalUrl(id))
     }
   }
 
-  def createAccessPoint[DT](id: String, did: String, item: DT, logMsg: Option[String] = None)(
-        implicit apiUser: ApiUser, fmt: BackendWriteable[DT], executionContext: ExecutionContext): Future[DT] = {
+  def createAccessPoint[MT, DT](id: String, did: String, item: DT, logMsg: Option[String] = None)(
+        implicit apiUser: ApiUser, rs: BackendResource[MT], fmt: BackendWriteable[DT], executionContext: ExecutionContext): Future[DT] = {
     val url: String = enc(requestUrl, id, did, EntityType.AccessPoint)
     userCall(url)
         .withHeaders(msgHeader(logMsg): _*)
         .post(Json.toJson(item)(fmt.restFormat)).map { response =>
       eventHandler.handleUpdate(id)
-      Cache.remove(id)
+      Cache.remove(canonicalUrl(id))
       checkErrorAndParse(response, context = Some(url))(fmt.restFormat)
     }
   }

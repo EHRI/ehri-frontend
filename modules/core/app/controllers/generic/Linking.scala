@@ -4,8 +4,6 @@ import backend.{BackendContentType, BackendReadable}
 import defines._
 import models._
 import models.base._
-import play.api.Play.current
-import play.api.cache.Cache
 import play.api.data.Form
 import play.api.libs.concurrent.Execution.Implicits._
 import play.api.libs.json.{JsError, Json}
@@ -19,7 +17,7 @@ import scala.concurrent.Future.{successful => immediate}
  * Class representing an access point link.
  * @param target id of the destination item
  * @param `type`  type field, i.e. associative
- * @param description description of link
+ * @param description descrioption of link
  */
 case class AccessPointLink(
   target: String,
@@ -104,7 +102,7 @@ trait Linking[MT <: AnyModel] extends Read[MT] with Search {
               CreateLinkRequest(request.item, Left((toItem, errorForm)), request.userOpt, request)
             }
           },
-          ann => backend.linkItems[Link, LinkF](id, to, ann).map { link =>
+          ann => backend.linkItems[MT, Link, LinkF](id, to, ann).map { link =>
             CreateLinkRequest(request.item, Right(link), request.userOpt, request)
           }
         )
@@ -126,7 +124,7 @@ trait Linking[MT <: AnyModel] extends Read[MT] with Search {
         val multiForm: Form[List[(String,LinkF,Option[String])]] = Link.multiForm
         multiForm.bindFromRequest.fold(
           errorForm => immediate(MultiLinksRequest(request.item, Left(errorForm), request.userOpt, request)),
-          links => backend.linkMultiple[Link, LinkF](id, links).map { outLinks =>
+          links => backend.linkMultiple[MT, Link, LinkF](id, links).map { outLinks =>
             MultiLinksRequest(request.item, Right(outLinks), request.userOpt, request)
           }
         )
@@ -143,8 +141,7 @@ trait Linking[MT <: AnyModel] extends Read[MT] with Search {
         errors => immediate(BadRequest(JsError.toFlatJson(errors))),
         ann => {
           val link = new LinkF(id = None, linkType=LinkF.LinkType.Associative, description=ann.description)
-          backend.linkItems[Link, LinkF](id, ann.target, link, Some(apid)).map { ann =>
-            Cache.remove(id)
+          backend.linkItems[MT, Link, LinkF](id, ann.target, link, Some(apid)).map { ann =>
             Created(Json.toJson(ann.model))
           }
         }
@@ -164,8 +161,7 @@ trait Linking[MT <: AnyModel] extends Read[MT] with Search {
           val links = anns.map(ann =>
             (ann.target, new LinkF(id = None, linkType=ann.`type`.getOrElse(LinkF.LinkType.Associative), description=ann.description), None)
           )
-          backend.linkMultiple[Link, LinkF](id, links).map { newLinks =>
-            Cache.remove(id)
+          backend.linkMultiple[MT, Link, LinkF](id, links).map { newLinks =>
             Created(Json.toJson(newLinks.map(_.model)))
           }
         }
@@ -211,7 +207,6 @@ trait Linking[MT <: AnyModel] extends Read[MT] with Search {
   def deleteAccessPoint(id: String, did: String, accessPointId: String)(implicit rd: BackendReadable[MT], ct: BackendContentType[MT]) = {
     WithItemPermissionAction(id, PermissionType.Update).async { implicit request =>
       backend.deleteAccessPoint(id, did, accessPointId).map { ok =>
-        Cache.remove(id)
         Ok(Json.toJson(true))
       }
     }
@@ -223,7 +218,6 @@ trait Linking[MT <: AnyModel] extends Read[MT] with Search {
   def deleteLink(id: String, linkId: String)(implicit rd: BackendReadable[MT], ct: BackendContentType[MT]) = {
     WithItemPermissionAction(id, PermissionType.Annotate).async { implicit request =>
       backend.deleteLink(id, linkId).map { ok =>
-        Cache.remove(id)
         Ok(Json.toJson(ok))
       }
     }
@@ -237,10 +231,7 @@ trait Linking[MT <: AnyModel] extends Read[MT] with Search {
       for {
         oneOk <- backend.deleteLink(id, linkId)
         _ <- backend.deleteAccessPoint(id, did, accessPointId) if oneOk
-      } yield {
-        Cache.remove(id)
-        Ok(Json.toJson(true))
-      }
+      } yield Ok(Json.toJson(true))
     }
   }
 }

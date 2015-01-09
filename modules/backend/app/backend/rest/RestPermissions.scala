@@ -6,11 +6,13 @@ import defines._
 import play.api.libs.json.Json
 import play.api.cache.Cache
 import utils.{Page, PageParams}
-import backend.{BackendReadable, Permissions, EventHandler, ApiUser}
+import backend._
 import caching.FutureCache
 
 
 trait RestPermissions extends Permissions with RestDAO {
+
+  this: RestGeneric =>
 
   val eventHandler: EventHandler
 
@@ -83,21 +85,21 @@ trait RestPermissions extends Permissions with RestDAO {
     }
   }
 
-  def addGroup(groupId: String, userId: String)(implicit apiUser: ApiUser, executionContext: ExecutionContext): Future[Boolean] = {
+  def addGroup[GT,UT](groupId: String, userId: String)(implicit apiUser: ApiUser, gr: BackendResource[GT], ur: BackendResource[UT], executionContext: ExecutionContext): Future[Boolean] = {
     userCall(enc(baseUrl, EntityType.Group, groupId, userId)).post(Map[String, List[String]]()).map { response =>
       checkError(response)
-      Cache.remove(userId)
-      Cache.remove(groupId)
+      Cache.remove(canonicalUrl[UT](userId))
+      Cache.remove(canonicalUrl[GT](groupId))
       Cache.remove(enc(requestUrl, userId))
       true
     }
   }
 
-  def removeGroup(groupId: String, userId: String)(implicit apiUser: ApiUser, executionContext: ExecutionContext): Future[Boolean] = {
+  def removeGroup[GT,UT](groupId: String, userId: String)(implicit apiUser: ApiUser, gr: BackendResource[GT], ur: BackendResource[UT], executionContext: ExecutionContext): Future[Boolean] = {
     userCall(enc(baseUrl, EntityType.Group, groupId, userId)).delete().map { response =>
       checkError(response)
-      Cache.remove(userId)
-      Cache.remove(groupId)
+      Cache.remove(canonicalUrl[UT](userId))
+      Cache.remove(canonicalUrl[GT](groupId))
       Cache.remove(enc(requestUrl, userId))
       true
     }

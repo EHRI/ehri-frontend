@@ -101,7 +101,7 @@ case class Social @Inject()(implicit globalConfig: global.GlobalConfig, searchDi
   }
 
   def followUserPost(userId: String) = WithUserAction.async { implicit request =>
-    backend.follow(request.profile.id, userId).map { _ =>
+    backend.follow[UserProfile](request.profile.id, userId).map { _ =>
       if (isAjax) {
         Ok("ok")
       } else {
@@ -116,7 +116,7 @@ case class Social @Inject()(implicit globalConfig: global.GlobalConfig, searchDi
   }
 
   def unfollowUserPost(userId: String) = WithUserAction.async { implicit request =>
-    backend.unfollow(request.profile.id, userId).map { _ =>
+    backend.unfollow[UserProfile](request.profile.id, userId).map { _ =>
       if (isAjax) {
         Ok("ok")
       } else {

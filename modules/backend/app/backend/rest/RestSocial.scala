@@ -1,6 +1,6 @@
 package backend.rest
 
-import backend.{ApiUser, BackendReadable, EventHandler, Social}
+import backend._
 import scala.concurrent.{ExecutionContext, Future}
 import utils.{Page, PageParams}
 import defines.EntityType
@@ -11,6 +11,8 @@ import caching.FutureCache
  * @author Mike Bryant (http://github.com/mikesname)
  */
 trait RestSocial extends Social with RestDAO {
+
+  this: RestGeneric =>
 
   import backend.rest.Constants._
   val eventHandler: EventHandler
@@ -29,21 +31,21 @@ trait RestSocial extends Social with RestDAO {
 
   private def isBlockingUrl(userId: String, otherId: String) = enc(requestUrl, userId, "isBlocking", otherId)
 
-  def follow(userId: String, otherId: String)(implicit apiUser: ApiUser, executionContext: ExecutionContext): Future[Unit] = {
+  def follow[U](userId: String, otherId: String)(implicit apiUser: ApiUser, rs: BackendResource[U], executionContext: ExecutionContext): Future[Unit] = {
     userCall(followingUrl(userId)).withQueryString(ID_PARAM -> otherId).post("").map { r =>
       checkError(r)
       Cache.set(isFollowingUrl(userId, otherId), true, cacheTime)
       Cache.remove(followingUrl(userId))
-      Cache.remove(userId)
+      Cache.remove(canonicalUrl(userId))
     }
   }
 
-  def unfollow(userId: String, otherId: String)(implicit apiUser: ApiUser, executionContext: ExecutionContext): Future[Unit] = {
+  def unfollow[U](userId: String, otherId: String)(implicit apiUser: ApiUser, rs: BackendResource[U], executionContext: ExecutionContext): Future[Unit] = {
     userCall(followingUrl(userId)).withQueryString(ID_PARAM -> otherId).delete().map { r =>
       checkError(r)
       Cache.set(isFollowingUrl(userId, otherId), false, cacheTime)
       Cache.remove(followingUrl(userId))
-      Cache.remove(userId)
+      Cache.remove(canonicalUrl(userId))
     }
   }
 
@@ -163,30 +165,30 @@ trait RestSocial extends Social with RestDAO {
     }
   }
 
-  def addBookmark(setId: String, id: String)(implicit apiUser: ApiUser, executionContext: ExecutionContext): Future[Unit] = {
+  def addBookmark[MT](setId: String, id: String)(implicit apiUser: ApiUser, rs: BackendResource[MT], executionContext: ExecutionContext): Future[Unit] = {
     userCall(enc(baseUrl, EntityType.VirtualUnit, setId, "includes"))
       .withQueryString(ID_PARAM -> id).post("").map { _ =>
       eventHandler.handleUpdate(setId)
-      Cache.remove(setId)
+      Cache.remove(canonicalUrl(setId))
     }
   }
 
-  def deleteBookmarks(set: String, ids: Seq[String])(implicit apiUser: ApiUser, executionContext: ExecutionContext): Future[Unit] = {
+  def deleteBookmarks[MT](set: String, ids: Seq[String])(implicit apiUser: ApiUser, rs: BackendResource[MT], executionContext: ExecutionContext): Future[Unit] = {
     if (ids.isEmpty) Future.successful(())
     else userCall(enc(baseUrl, EntityType.VirtualUnit, set, "includes"))
       .withQueryString(ids.map ( id => ID_PARAM -> id): _*).delete().map { _ =>
       eventHandler.handleUpdate(set)
-      Cache.remove(set)
+      Cache.remove(canonicalUrl(set))
     }
   }
 
-  def moveBookmarks(fromSet: String, toSet: String, ids: Seq[String])(implicit apiUser: ApiUser, executionContext: ExecutionContext): Future[Unit] = {
+  def moveBookmarks[MT](fromSet: String, toSet: String, ids: Seq[String])(implicit apiUser: ApiUser, rs: BackendResource[MT], executionContext: ExecutionContext): Future[Unit] = {
     if (ids.isEmpty) Future.successful(())
     else userCall(enc(baseUrl, EntityType.VirtualUnit, fromSet, "includes", toSet))
       .withQueryString(ids.map(id => ID_PARAM -> id): _*).post("").map { _ =>
       // Update both source and target sets in the index
-      Cache.remove(fromSet)
-      Cache.remove(toSet)
+      Cache.remove(canonicalUrl(fromSet))
+      Cache.remove(canonicalUrl(toSet))
       eventHandler.handleUpdate(fromSet)
       eventHandler.handleUpdate(toSet)
     }

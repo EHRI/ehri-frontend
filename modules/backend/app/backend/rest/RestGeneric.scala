@@ -24,14 +24,17 @@ trait RestGeneric extends Generic with RestDAO {
   private def unpack(m: Map[String,Seq[String]]): Seq[(String,String)]
       = m.map(ks => ks._2.map(s => ks._1 -> s)).flatten.toSeq
 
+  protected def canonicalUrl[MT](id: String)(implicit rd: BackendResource[MT]): String =
+    enc(baseUrl, rd.entityType, id)
+
   def get[MT](resource: BackendResource[MT], id: String)(implicit apiUser: ApiUser, rd: backend.BackendReadable[MT], executionContext: ExecutionContext): Future[MT] = {
-    Cache.getAs[JsValue](id) match {
-      case Some(json) => Future.successful(jsonReadToRestError(json, rd.restReads))
-      case _ =>
-      val url = enc(baseUrl, resource.entityType, id)
+    val url = canonicalUrl(id)(resource)
+    Cache.getAs[JsValue](url).map { json =>
+      Future.successful(jsonReadToRestError(json, rd.restReads))
+    }.getOrElse {
       userCall(url, resource.defaultParams).get().map { response =>
         val item = checkErrorAndParse(response, context = Some(url))(rd.restReads)
-        Cache.set(id, response.json, cacheTime)
+        Cache.set(url, response.json, cacheTime)
         item
       }
     }
@@ -87,7 +90,7 @@ trait RestGeneric extends Generic with RestDAO {
         .put(Json.toJson(item)(wrt.restFormat)).map { response =>
       val item = checkErrorAndParse(response, context = Some(url))(rd.restReads)
       eventHandler.handleUpdate(id)
-      Cache.remove(id)
+      Cache.remove(canonicalUrl(id))
       item
     }
   }
@@ -100,7 +103,7 @@ trait RestGeneric extends Generic with RestDAO {
         .put(item).map { response =>
       val item = checkErrorAndParse(response, context = Some(url))(rd.restReads)
       eventHandler.handleUpdate(id)
-      Cache.remove(id)
+      Cache.remove(canonicalUrl(id))
       item
     }
   }
@@ -109,7 +112,7 @@ trait RestGeneric extends Generic with RestDAO {
     userCall(enc(baseUrl, rs.entityType, id)).delete().map { response =>
       checkError(response)
       eventHandler.handleDelete(id)
-      Cache.remove(id)
+      Cache.remove(canonicalUrl(id))
     }
   }
 
