@@ -10,19 +10,76 @@ footerText=This is a development version of the EHRI portal interface.
 footer.funding=The EHRI Project is supported by the European Commission
 footer.copyright=2014 The European Holocaust Research Infrastructure Project
 close=Close
+optional=Optional
+cancel=Cancel
 warning=Warning
 admin.site=Admin Site
 
+#
+# Form constraints, errors, and formats
+#
+constraint.required=*
+constraints.timeCheckSeconds=Timestamp
+constraints.timeCheckSeconds.failed=The form was submitted too quickly. Please try again.
+constraints.honeypot=Blank Check
+constraints.honeypot.failed=The form failed the spam check. Please try again.
+
+format.boolean=On/Off
+
+errors.staffOnly=Restricted
+errors.staffOnlyMessage=This page is currently restricted to EHRI staff only.
+errors.verifiedOnly=Restricted
+errors.verifiedOnlyMessage=This page is currently restricted to verified users only.
+errors.itemNotFound=Item Not Found
+errors.itemNotFound.explanation=That item couldn''t be found in the database.
+errors.pageNotFound=Page Not Found
+errors.pageNotFound.explanation=The page at this location either doesn''t exist or has moved.
+errors.genericProblem=An Error Occurred
+errors.genericProblem.explanation=We're very sorry, but there's a problem loading that page. We''ve been informed of \
+  this and will endeavour to fix the problem as soon as possible.
+errors.databaseError=Database Error
+errors.databaseError.explanation=I''m afraid it looks like our database server has gone down.     \
+  There's not much we can do without it, so please try again later.
+errors.databaseMaintenance=Database Temporarily Offline
+errors.databaseMaintenance.explanation=The EHRI database is currently offline for routine maintenance. \
+  It should be back soon so please try again shortly.
+errors.permissionDenied=Permission Denied
+errors.permissionDenied.explanation=It looks like you can''t do whatever it is you were attempted \
+  to do. This is probably an error on our part. We'll try and fix that ASAP.
+errors.errorDetails=Details
+errors.noFurtherInfo=No additional information is available.
+error.imageTooLarge=This image was too large. Please select one smaller than 5 metabytes in size.
+error.badFileType=The uploaded file was not a supported image type.
+error.noFileGiven=No image file was selected.
+
+#
+# Pagination etc
+#
+# Pagination display. Should say something like "Displaying items 1 to 20 of 25.
+# If there are 0 items, says "No items found", one item, "One item found" etc.
+pagination.displayingItems={2,choice,0#No items found|1#One item found|1<Displaying items {0,number,integer} to {1,number,integer} of {2,number,integer}}
+truncated=...
+truncated.items.remaining={0,choice,0#|1#and 1 more...|1<and {0,number,integer} more...}
+
+#
+# Downloading and formats
+#
 download=Download
 download.format.txt=Download as plain text
 download.format.csv=Download as CSV
 download.format.json=Download as JSON
 
-pages.help=Help
-pages.help.general=General site help
-pages.help.archivists=Help for archivists
-pages.help.helpdesk=Helpdesk
+#
+# Help
+#
+help=Help
+help.general=General site help
+help.archivists=Help for archivists
+help.helpdesk=Helpdesk
 
+#
+# Profile
+#
 profile.preferences=Preferences
 profile.preferences.updated=Preferences Updated
 profile.preferences.allowMessaging=Allow other users to send you messages.
@@ -32,6 +89,11 @@ profile.preferences.view=View Preferences
 profile.preferences.view.showUserContent=Show promoted notes by other users
 
 profile=Profile
+profile.name=Your name
+profile.location=Location
+profile.url=Website
+profile.languages=Languages
+profile.about=About you
 profile.menu.link=Go to your profile
 profile.security=Security
 profile.edit=Edit Profile
@@ -44,6 +106,22 @@ profile.delete.check.text=Deleting your account will \
 profile.delete.check=Type your name as displayed above.
 profile.delete.badConfirmation=Profile deletion was not confirmed correctly.
 profile.profile.delete.confirmation=Your profile has been deleted.
+profile.update=Update Profile
+profile.update.submit=Update Profile
+profile.update.confirmation=Profile successfully updated
+
+profile.watch.list=Watched Items
+profile.watch.by={0} - Watched Items
+profile.watch=Watch Item
+profile.watch.title=Add item to your watch list
+profile.watch.tooltip=Click to see updates to this item in your activity list.
+profile.watch.submit=Watch Item
+profile.unwatch=Unwatch Item
+profile.unwatch.tooltip=Click to stop getting updates to this item posted in your activity list.
+profile.unwatch.submit=Unwatch Item
+profile.unwatch.title=Remove item from your watch list
+
+
 
 # Item types
 type=Item type
@@ -70,6 +148,19 @@ showChildItems=Child Items
 readonly=The EHRI portal is currently in read-only mode while we conduct maintenance.\
   Normal service should be resumed in due course. Thanks for your patience.
 
+#
+# Dates
+#
+dates.exact={0,number,#}
+dates.before=Before {0,number,#}
+dates.between=Between {0,number,#} and {1,number,#}
+dates.after=After {0,number,#}
+dates.all=All
+
+
+#
+# Login-related
+#
 login=Sign In
 login.signup=Sign In / Sign Up
 login.moreOptions=More login options
@@ -83,6 +174,8 @@ login.password.noPassword=There is currently no password associated with your ac
   have signed in via a third-party provider such as Google or Facebook.
 login.password.change=Change Password
 login.password.change.link=Click here to change your password
+login.password.change.submit=Submit
+login.password.change.confirmation=Password Changed
 login.password.reset=Reset Password
 login.password.reset.text=Forgotten your password? Enter the email you used to sign up below\
   and we''ll send you a link you can use to reset it.
@@ -95,6 +188,20 @@ login.password.submit=Sign In
 login.recover=If you have lost your login details:
 login.recover.link=Click here if you''ve forgotten or lost your password.
 login.error=There was a problem with your details
+login.error.badUsernameOrPassword=Incorrect username or password
+login.error.passwordsDoNotMatch=Password and confirmation do not match!
+login.error.badResetToken=URL given for password reset was invalid or expired. \
+  Note: password reset links can only be used once.
+
+login.password.current=Current Password
+login.password.new=New Password
+login.password.new.confirm=Confirm New Password
+login.password.reset.sentLink=We''ve sent you an email containing a link that can be used to reset your password.\
+  This link can only be used once.
+login.sendPasswordResetLink=Submit
+login.submitPasswordReset=Submit
+login.forgotPasswordLink=Click here if you have a password account but have forgotten or lost your password.
+login.passwordResetNowLogin=Your password has been reset. Now please log in using the new one.
 
 logout=Sign Out
 logout.confirmation=You have been logged out
@@ -111,6 +218,13 @@ signup.emailConfirmed=Your email is now confirmed and you have been signed in.
 signup.invalidSignupToken=Confirmation URL is invalid or has expired.
 signup.validation.confirmation=Your account has been validated.
 
+#
+# Mail stuff
+#
+mail.forgotPasswordMailHeading=EHRI Password Reset
+mail.forgotPasswordMessage=To reset your password, please follow the link below. Note: this link can only be used \
+  to reset your password once.
+mail.forgotPasswordFooter=
 mail.confirmEmailHeading=Please confirm your email address
 mail.confirmEmailMessage=Please confirm your email address by visiting the following address:
 mail.confirmEmailFooter=This link will be valid for 1 week, after which your account will\
@@ -120,6 +234,12 @@ mail.unverifiedEmailWarningMessage=The email associated with your account has no
 mail.unverifiedEmailResend=To re-send a verification email
 mail.unverifiedEmailResendSubmit=click here
 mail.emailConfirmationResent=We''ve sent you an email which you can use to confirm your email address.
+mail.message.subject=EHRI: Message from {0}: {1}
+mail.message.copy.subject=EHRI: Your message to {0}: {1}
+mail.message.heading=New message from {0}
+mail.message.copy.heading=Copy of your message to {0}
+mail.message.replyFooter=To respond, reply directly to this message. You can opt-out from receiving user messages by updating your preferences
+
 
 browse=Browse
 details.show=Show Item Details
@@ -156,14 +276,77 @@ repository.phone=Phone
 repository.email=Email
 repository.fax=Fax
 repository.url=Web
+repository.contactPerson=Contact Person
+repository.street=Street Address
+repository.municipality=City
+repository.firstdem=Region
+repository.countryCode=Country Code
+repository.telephone=Telephone
+repository.postalcode=Post Code
+repository.webpage=Website Address
 repository.searchItems=Search items held by {0}
 repository.childItems=Archival Descriptions
 repository.childItems.search={0,choice,0#{0} lower level |1#1 item|1<{0,number,integer} items}
+repository.search=Search Repositories
+repository.searchInside=Search items held by {0}
+repository.itemsHeldOnline=Items on EHRI
+repository.hasChildItems=Yes
+repository.noChildItems=No
+repository.childCount={0,choice,0#No archival descriptions available|1#1 archival description available|1<{0,number,integer} archival descriptions available}
+repository.list=Repositories
+repository.create=Create Repository
+repository.create.submit=Create Repository
+repository.update=Update Repository
+repository.update.submit=Update Repository
 
+repository.identifier=Identifier
+repository.name=Authorized Form Of Name
+repository.parallelFormsOfName=Parallel Names
+repository.otherFormsOfName=Other Names
+repository.languageCode=Language of Description
+repository.scriptCode=Script of Description
+repository.institutionType=Type of Institution
+repository.history=History
+repository.geoculturalContext=Geographical and Cultural Context
+repository.mandates=Mandates/Sources of Authority
+repository.administrativeStructure=Administrative Structure
+repository.records=Records Management and Collecting Policies
+repository.buildings=Building(s)
+repository.holdings=Archival and Other Holdings
+repository.findingAids=Finding Aids, Guides, and Publication
+repository.openingTimes=Opening Times
+repository.conditions=Conditions of Access
+repository.accessibility=Accessibility
+repository.researchServices=Research Services
+repository.reproductionServices=Reproduction Services
+repository.publicAreas=Public Areas
+repository.descriptionIdentifier=Description Identifier
+repository.institutionIdentifier=Institution Identifier
+repository.rulesAndConventions=Rules and Conventions
+repository.status=Status
+repository.levelOfDetail=Level of Detail
+repository.datesCVD=Dates of Creation and Deletion
+repository.languages=Languages Used
+repository.scripts=Scripts Used
+repository.sources=Sources
+repository.maintenanceNotes=Maintenance Notes
+
+#
+# Documentary units
+#
 documentaryUnit.identifier=Identifier
+documentaryUnit.ref=Web Source
 documentaryUnit.archivalContext=Archival Context
 documentaryUnit.otherIdentifiers=Alt. Identifiers
-documentaryUnit.extentAndMedium=Extent & Medium
+documentaryUnit.extentAndMedium=Extent and Medium
+documentaryUnit.scopeAndContent=Scope and Content
+documentaryUnit.biographicalHistory=Biographical History
+documentaryUnit.archivalHistory=Archival History
+documentaryUnit.acquisition=Acquisition
+documentaryUnit.appraisal=Appraisal
+documentaryUnit.systemOfArrangement=System of Arrangement
+documentaryUnit.archivistNote=Archivist Note
+documentaryUnit.rulesAndConventions=Rules and Conventions
 documentaryUnit.dates=Dates
 documentaryUnit.levelOfDescription=Level of Description
 documentaryUnit.languageOfMaterials=Languages
@@ -183,7 +366,28 @@ documentaryUnit.levelOfDescription.otherLevel=Other
 documentaryUnit.levelOfDescription.class=Class
 documentaryUnit.childItems=Child Items
 documentaryUnit.childItems.search={0,choice,0#{0} lower level |1#1 item|1<{0,number,integer} items}
+documentaryUnit.physicalLocation=Physical Location
+documentaryUnit.languageCode=Language of Description
+documentaryUnit.abstract=Abstract
+documentaryUnit.accruals=Accruals
+documentaryUnit.conditionsOfAccess=Conditions Governing Access
+documentaryUnit.conditionsOfReproduction=Conditions Governing Reproduction
+documentaryUnit.languageOfMaterial=Language(s) of Materials
+documentaryUnit.scriptOfMaterial=Script(s) of Materials
+documentaryUnit.physicalCharacteristics=Physical Characteristics and Technical Requirements
+documentaryUnit.findingAids=Finding Aids
+documentaryUnit.locationOfOriginals=Existence and Location of Originals
+documentaryUnit.locationOfCopies=Existence and Location of Copies
+documentaryUnit.relatedUnitsOfDescription=Related Units of Description
+documentaryUnit.publicationNote=Publication Note
+documentaryUnit.notes=Note(s)
+documentaryUnit.sources=Sources
+documentaryUnit.datesOfDescriptions=Dates of Descriptions
+documentaryUnit.processInfo=Process Info
 
+#
+# Historical Agents
+#
 historicalAgent.identifier=Identifier
 historicalAgent.dates=Dates
 historicalAgent.entityType=Type of Entity
@@ -191,6 +395,46 @@ historicalAgent.entityType.person=Person
 historicalAgent.entityType.family=Family
 historicalAgent.entityType.corporateBody=Corporate Body
 historicalAgent.set=Historical Agent
+historicalAgent.descriptionArea=Description Area
+historicalAgent.identity=Identity Area
+historicalAgent.services=Services Area
+historicalAgent.administrationArea=Administration
+
+# Identity Section
+historicalAgent.identityArea=Identity Area
+
+historicalAgent.creation=Creation
+historicalAgent.name=Authorized Form Of Name
+historicalAgent.parallelFormsOfName=Parallel Names
+historicalAgent.standardisedFormsOfName=Standardized Names According to Other Rules
+historicalAgent.otherFormsOfName=Other Names
+historicalAgent.languageCode=Language of Description
+historicalAgent.typeOfEntity=Authority Type
+historicalAgent.corporateBody=Corporate Body
+historicalAgent.family=Family
+historicalAgent.person=Person
+historicalAgent.datesOfExistence=Dates of Existence
+historicalAgent.biographicalHistory=History
+historicalAgent.place=Places
+historicalAgent.legalStatus=Legal Status
+historicalAgent.functions=Functions
+historicalAgent.mandates=Mandates
+historicalAgent.structure=Internal Structure
+historicalAgent.generalContext=General Context
+historicalAgent.descriptionIdentifier=Description Identifier
+historicalAgent.institutionIdentifier=Institution Identifier
+historicalAgent.rulesAndConventions=Rules and Conventions
+historicalAgent.status=Status
+historicalAgent.levelOfDetail=Level of Detail
+historicalAgent.datesCVD=Dates of Creation and Deletion
+historicalAgent.languages=Languages
+historicalAgent.scripts=Scripts
+historicalAgent.source=Sources
+historicalAgent.maintenanceNotes=Maintenance Notes
+
+#
+# Virtual documentary units
+#
 
 virtualUnit.viewInArchivalContext=View in archival context
 virtualUnit.viewInArchivalContext.explanation=This item is being displayed as part of a ''virtual collection'' \
@@ -209,6 +453,22 @@ bookmarkSet.noUserBookmarkSetsYet={0} has no public bookmark sets yet.
 
 country.childItems=Archival Institutions
 country.childItems.search={0,choice,0#{0} lower level |1#1 institution|1<{0,number,integer} institutions}
+country.repositoriesPageHeader={2,choice,0#No repositories found|1#One repository found|1<Repositories {0,number,integer} to {1,number,integer} of {2,number,integer}}
+country.search=Search Countries
+country.searchInside=Search Repositories
+country.childCount={0,choice,0#No institutions listed|1#1 institution listed|1<{0,number,integer} institutions listed}
+country.items=Repositories
+country.identifier=Country Code
+country.identifier.description=The ISO-3166-1 2-letter code for this country
+country.abstract=Abstract
+country.abstract.description=An abstract of the report for this country
+country.report=Report
+country.report.description=The report describing this country''s archival situation
+country.list=Countries
+country.create=Add Country
+country.create.submit=Add Country
+country.update=Update Country
+country.update.submit=Update Country
 
 cvocVocabulary.childItems=Keywords
 cvocVocabulary.childItems.search={0,choice,0#{0} |1#1 keyword|1<{0,number,integer} keywords}
@@ -223,6 +483,49 @@ description.noDescriptions=This item has not been provided with a description
 description.multiple.text=This item has multiple descriptions. Alternate descriptions may source from different repositories or represent a (partial) translation.
 noDetails=---
 
+
+#
+# Access points
+#
+accessPoint.browse=Search
+accessPoint.type.creatorAccess=Creator(s)
+accessPoint.type.creatorAccess.reverse=Creator of
+accessPoint.type.personAccess=People
+accessPoint.type.personAccess.reverse=Referenced by (as people)
+accessPoint.type.familyAccess=Families
+accessPoint.type.familyAccess.reverse=Referenced by (as family)
+accessPoint.type.corporateBodyAccess=Corporate Bodies
+accessPoint.type.corporateBodyAccess.reverse=Referenced by (as corporate body)
+accessPoint.type.placeAccess=Places
+accessPoint.type.placeAccess.reverse=Places
+accessPoint.type.subjectAccess=Subjects
+accessPoint.type.subjectAccess.reverse=Subject of
+accessPoint.type.otherAccess=Miscellaneous
+accessPoint.type.otherAccess.reverse=Miscellaneous
+# References not on this item, but from another item's access points
+accessPoint.externalReferences=External references to this item
+
+#
+# System Events
+#
+systemEvent.itemAtTime=Action at {0}
+systemEvent.lastUpdated=Updated {0}
+systemEvent.creation=Item created
+systemEvent.createDependent=Description added
+systemEvent.modification=Item modified
+systemEvent.modifyDependent=Description modified
+systemEvent.deletion=Item deleted
+systemEvent.deleteDependent=Description deleted
+systemEvent.link=Link created
+systemEvent.annotation=Annotation created
+systemEvent.setGlobalPermissions=Global permissions modified
+systemEvent.setItemPermissions=Item-level permissions modified
+systemEvent.setVisibility=Visibility modified
+systemEvent.addGroup=Member added to group
+systemEvent.removeGroup=Member removed from group
+systemEvent.ingest=Items imported
+systemEvent.promotion=Item Promoted
+systemEvent.demotion=Item Promotion Removed
 
 #
 # Miscellaneous errors
@@ -269,10 +572,6 @@ search.identifier=Identifier
 search.spellingSuggestion=Did you mean
 search.queryPlaceholder=Search...
 
-
-# Pagination display. Should say something like "Displaying items 1 to 20 of 25.
-# If there are 0 items, says "No items found", one item, "One item found" etc.
-pagination.displayingItems={2,choice,0#No items found|1#One item found|1<Displaying items {0,number,integer} to {1,number,integer} of {2,number,integer}}
 
 # Facets
 facet.type=Item Type
@@ -381,23 +680,10 @@ social.block.submit=Block User
 social.unblock=Unblock User
 social.unblock.submit=Unblock User
 
-mail.message.subject=EHRI: Message from {0}: {1}
-mail.message.copy.subject=EHRI: Your message to {0}: {1}
-mail.message.heading=New message from {0}
-mail.message.copy.heading=Copy of your message to {0}
-mail.message.replyFooter=To respond, reply directly to this message. You can opt-out from receiving user messages by updating your preferences
 
-profile.watch.list=Watched Items
-profile.watch.by={0} - Watched Items
-profile.watch=Watch Item
-profile.watch.title=Add item to your watch list
-profile.watch.tooltip=Click to see updates to this item in your activity list.
-profile.watch.submit=Watch Item
-profile.unwatch=Unwatch Item
-profile.unwatch.tooltip=Click to stop getting updates to this item posted in your activity list.
-profile.unwatch.submit=Unwatch Item
-profile.unwatch.title=Remove item from your watch list
-
+#
+# Annotations
+#
 annotation=Notes
 annotation.list=Notes
 annotation.list.by={0} - Notes
@@ -416,10 +702,16 @@ annotation.createdBy=Created by {0} at {1}
 annotation.showPublic={0,choice,1#Show 1 public note|1<Show {0} public notes}
 annotation.placeholder=
 
+#
+# Visibility
+#
 access.all=Public
 access.accessibleTo=Visible to {0}
 access.accessibleTo.extended={0,choice,0#|1# and 1 other|1< and {0} others}
 
+#
+# Promotion
+#
 promotion.isPromotable=Promotion
 promotion.isPromotable.true=Promotable
 promotion.isPromotable.false=Not Promotable
@@ -445,6 +737,9 @@ promotion.score.negative=Negative
 promotion.score.neutral=Neutral
 promotion.score.positive=Positive
 
+#
+# Activity time line
+#
 timeline.eventType.ingest={0} imported {1}
 timeline.eventType.creation={0} created {1}
 timeline.eventType.annotation={0} annotated {1}
@@ -456,7 +751,6 @@ timeline.eventType.deleteDependent={0} updated {1}
 timeline.eventType.setVisibility={0} updated {1}
 timeline.eventType.setGlobalPermissions={0} updated {1}
 timeline.eventType.setItemPermissions={0} updated {1}
-
 timeline.target.group=a group
 timeline.target.userProfile=an user
 timeline.target.repository=a collection holding institution
@@ -471,7 +765,9 @@ timeline.target.country=a country
 timeline.target.link=a link
 timeline.target.systemEvent=an history
 
-
+#
+# Visibility of user-generated content
+#
 contribution.visibility=Choose who can see this
 contribution.visibility.me=Only Me
 contribution.visibility.groups=My Groups
@@ -482,11 +778,9 @@ contribution.visibility.isPrivate=Private Note
 contribution.visibility.isPrivate.title=Only you can see this note. \
   Deselecting this option will allow EHRI moderators to promote it so it is visible to all users.
 
-# Image upload
-error.imageTooLarge=This image was too large. Please select one smaller than 5 metabytes in size.
-error.badFileType=The uploaded file was not a supported image type.
-error.noFileGiven=No image file was selected.
-
+#
+# General search
+#
 search=Search
 search.sort.title=Search result ordering
 search.global=Search Everything
@@ -500,52 +794,60 @@ search.helper.minus=Exclude given word from search, e.g. -Gestapo
 search.helper.plus=Given word has to be in the result, e.g. +Gestapo
 search.helper.quotes=Search an exact match of your query, e.g. "Member lists"
 
-#Feedback module
-pages.feedback=Feedback
-pages.feedback.message=Let us know what you think...
-pages.feedback.thanks=Thanks!
-pages.feedback.thanks.message=Your feedback is greatly appreciated.
-pages.feedback.list=Submitted Feedback
-pages.feedback.type=This feedback is about
-pages.feedback.type.site=the site (functionality, design, etc)
-pages.feedback.type.data=the data content
+#
+# Feedback
+#
+feedback=Feedback
+feedback.submit=Send
+feedback.message=Let us know what you think...
+feedback.thanks=Thanks!
+feedback.thanks.message=Your feedback is greatly appreciated.
+feedback.list=Submitted Feedback
+feedback.type=This feedback is about
+feedback.type.site=the site (functionality, design, etc)
+feedback.type.data=the data content
 
+#
 # Helpdesk
-pages.helpdesk=Helpdesk
-pages.helpdesk.message=The helpdesk will attempt to match your query to the EHRI partner institution \
+#
+helpdesk=Helpdesk
+helpdesk.email=Your email
+helpdesk.message=The helpdesk will attempt to match your query to the EHRI partner institution \
   best placed to answer it.
-pages.helpdesk.thanks=Thanks!
-pages.helpdesk.thanks.message=Your query has been submitted.
-pages.helpdesk.query=Query
-pages.helpdesk.error=Oops! Something went wrong with the helpdesk. Here's what it said:
-pages.helpdesk.results=Helpdesk Contact Recommendations
-pages.helpdesk.results.empty=No relevant institutions found. Please reformulate your query and add more details.
-pages.helpdesk.query.placeholder=Enter your query here. Subject-specific terms are best.
-pages.helpdesk.copyMe=Email a copy of the query to your address
-pages.helpdesk.youAsked=You asked
-pages.helpdesk.institution=Institution Name
-pages.helpdesk.contactEmail=Contact Email
-pages.helpdesk.score=Confidence Score
-pages.helpdesk.confidence.message=How confident we are that this ranking is correct.
-pages.helpdesk.query.submit=Ask the helpdesk
+helpdesk.thanks=Thanks!
+helpdesk.thanks.message=Your query has been submitted.
+helpdesk.query=Query
+helpdesk.error=Oops! Something went wrong with the helpdesk. Here's what it said:
+helpdesk.results=Helpdesk Contact Recommendations
+helpdesk.results.empty=No relevant institutions found. Please reformulate your query and add more details.
+helpdesk.query.placeholder=Enter your query here. Subject-specific terms are best.
+helpdesk.copyMe=Email a copy of the query to your address
+helpdesk.youAsked=You asked
+helpdesk.institution=Institution Name
+helpdesk.contactEmail=Contact Email
+helpdesk.score=Confidence Score
+helpdesk.confidence.message=How confident we are that this ranking is correct.
+helpdesk.query.submit=Ask the helpdesk
 
 #
-# Miscellaneous UI
+# Data policy
 #
-portal.dataPolicy.header=EHRI Data Policy
-portal.dataPolicy.notice1=This database might contain Sensitive Personal Data which according to Dutch privacy \
+dataPolicy.header=EHRI Data Policy
+dataPolicy.notice1=This database might contain Sensitive Personal Data which according to Dutch privacy \
   law can be used for research purposes only (article 16 Dutch Data Protection Act ''Wet \
   bescherming Persoonsgegevens'').
-portal.dataPolicy.notice2=Sensitive Personal Data is any data related to an identified or identifiable person related \
+dataPolicy.notice2=Sensitive Personal Data is any data related to an identified or identifiable person related \
   to a person's religion or belief, race, political opinion, health, sexual life, trade union \
   membership and criminal record.
-portal.dataPolicy.terms=I declare that I will use Sensitive Personal Data for research purposes only and in general \
+dataPolicy.terms=I declare that I will use Sensitive Personal Data for research purposes only and in general \
   will use Sensitive Personal Data in accordance with applicable Dutch and international laws \
   and regulations. I am aware of punitive results following a breach of these laws and/or \
   regulations.
-portal.dataPolicy.agree=I Agree
+dataPolicy.agree=I Agree
 
-#Markdown Cheatsheet
+#
+# Markdown Cheatsheet
+#
 markdown.cheatsheet.title=Formating tips
 markdown.cheatsheet.asterisks=asterisks
 markdown.cheatsheet.underscores=underscores

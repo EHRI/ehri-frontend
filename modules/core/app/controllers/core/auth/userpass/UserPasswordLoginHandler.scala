@@ -35,7 +35,7 @@ trait UserPasswordLoginHandler {
       "current" -> nonEmptyText,
       "password" -> nonEmptyText(minLength = 6),
       "confirm" -> nonEmptyText(minLength = 6)
-    ) verifying("login.passwordsDoNotMatch", f => f match {
+    ) verifying("login.error.passwordsDoNotMatch", f => f match {
       case (_, pw, pwc) => pw == pwc
     })
   )
@@ -44,7 +44,7 @@ trait UserPasswordLoginHandler {
     tuple(
       "password" -> nonEmptyText(minLength = 6),
       "confirm" -> nonEmptyText(minLength = 6)
-    ) verifying("login.passwordsDoNotMatch", f => f match {
+    ) verifying("login.error.passwordsDoNotMatch", f => f match {
       case (pw, pwc) => pw == pwc
     })
   )
@@ -65,7 +65,7 @@ trait UserPasswordLoginHandler {
               Logger.logger.info("User '{}' logged in via password", account.id)
               f(Right(account))(request)
             } getOrElse {
-              f(Left(boundForm.withGlobalError("login.badUsernameOrPassword")))(request)
+              f(Left(boundForm.withGlobalError("login.error.badUsernameOrPassword")))(request)
             }
           }
         )

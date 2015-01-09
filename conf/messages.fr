@@ -1,2 +1,0 @@
-# General main page parts
-banner.heading=Je voudrais un kilo de pomme de terre

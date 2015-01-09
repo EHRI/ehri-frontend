@@ -1,22 +1,22 @@
 @(replyTo: String, query: String, results: Seq[backend.HelpdeskDAO.HelpdeskResponse], institutions: Seq[Repository])(implicit userOpt: Option[UserProfile], request: RequestHeader, lang: Lang, flash: Flash, globalConfig: global.GlobalConfig, prefs: utils.SessionPrefs)
 
-@p.layout.portalLayout(Messages("pages.helpdesk")) {
+@p.layout.portalLayout(Messages("helpdesk")) {
 
     @views.html.layout.mainContent {
 
-        <h2>@Messages("pages.helpdesk.results")</h2>
+        <h2>@Messages("helpdesk.results")</h2>
 
         <div class="well well-sm">
-            <strong>@Messages("pages.helpdesk.youAsked")</strong>: &quot;@query&quot;
+            <strong>@Messages("helpdesk.youAsked")</strong>: &quot;@query&quot;
         </div>
 
         <div class="panel panel-default">
             @if(results.nonEmpty) {
             <table class="table table-striped">
                 <tr>
-                    <th>@Messages("pages.helpdesk.institution")</th>
-                    <th>@Messages("pages.helpdesk.score")</th>
-                    <th>@Messages("pages.helpdesk.contactEmail")</th>
+                    <th>@Messages("helpdesk.institution")</th>
+                    <th>@Messages("helpdesk.score")</th>
+                    <th>@Messages("helpdesk.contactEmail")</th>
                 </tr>
                 @results.zip(institutions).map { case (result, repo) =>
                     <tr>
@@ -32,7 +32,7 @@
             </table>
             } else {
             <p class="alert alert-warning">
-                @Messages("pages.helpdesk.results.empty")
+                @Messages("helpdesk.results.empty")
             </p>
             }
         </div>

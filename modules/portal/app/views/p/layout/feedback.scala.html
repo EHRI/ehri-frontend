@@ -1,11 +1,11 @@
 @(form: Form[Feedback])(implicit userOpt: Option[UserProfile], request: RequestHeader, lang: Lang, token: play.filters.csrf.CSRF.Token)
 
 <div class="slide-out-div">
-    <a class="handle" href="@controllers.portal.routes.Feedback.feedback">@Messages("pages.feedback")</a>
+    <a class="handle" href="@controllers.portal.routes.Feedback.feedback">@Messages("feedback")</a>
     <div id="suggestions">
         <div id="suggestion-thanks" class="alert alert-success">
-            <h4>@Messages("pages.feedback.thanks")</h4>
-            @Messages("pages.feedback.thanks.message")
+            <h4>@Messages("feedback.thanks")</h4>
+            @Messages("feedback.thanks.message")
         </div>
 
         @feedbackForm(form)

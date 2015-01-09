@@ -4,10 +4,10 @@
 
 @helper.form(action = controllers.portal.routes.Helpdesk.helpdeskPost, 'role -> "form", 'id -> "helpdesk-form") {
     @formHelpers.csrfToken()
-    @helper.inputText(form("email"), 'placeholder -> Messages("email"), 'type -> "email")
-    @helper.textarea(form("query"), '_label -> Messages("pages.helpdesk.query"), 'placeholder -> Messages("pages.helpdesk.query.placeholder"), 'rows -> "8")
-    @helper.checkbox(form("copyMe"), '_label -> Messages("pages.helpdesk.copyMe"))
+    @helper.inputText(form("email"), 'placeholder -> Messages("helpdesk.email"), 'type -> "email")
+    @helper.textarea(form("query"), '_label -> Messages("helpdesk.query"), 'placeholder -> Messages("helpdesk.query.placeholder"), 'rows -> "8")
+    @helper.checkbox(form("copyMe"), '_label -> Messages("helpdesk.copyMe"))
     <div class="form-actions">
-        <button type="submit" class="submit btn btn-default">@Messages("pages.helpdesk.query.submit")</button>
+        <button type="submit" class="submit btn btn-default">@Messages("helpdesk.query.submit")</button>
     </div>
 }

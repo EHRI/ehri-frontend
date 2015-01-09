@@ -210,7 +210,7 @@ case class Accounts @Inject()(implicit globalConfig: GlobalConfig, searchDispatc
       case Right((account,uuid)) =>
         sendResetEmail(account.email, uuid)
         Redirect(portalRoutes.index())
-          .flashing("warning" -> "login.sentPasswordResetLink")
+          .flashing("warning" -> "login.password.reset.sentLink")
       case Left(errForm) =>
         BadRequest(views.html.p.account.forgotPassword(errForm,
           recaptchaKey, accountRoutes.forgotPasswordPost()))
@@ -227,7 +227,7 @@ case class Accounts @Inject()(implicit globalConfig: GlobalConfig, searchDispatc
         accountRoutes.changePasswordPost()))
     }.getOrElse {
       Redirect(accountRoutes.changePassword())
-        .flashing("error" -> Messages("login.expiredOrInvalidResetToken"))
+        .flashing("error" -> Messages("login.error.badResetToken"))
     }
   }
 
@@ -240,11 +240,11 @@ case class Accounts @Inject()(implicit globalConfig: GlobalConfig, searchDispatc
     boolOrErr match {
       case Right(true) =>
         Redirect(defaultLoginUrl)
-          .flashing("success" -> Messages("login.passwordChanged"))
+          .flashing("success" -> Messages("login.password.change.confirmation"))
       case Right(false) =>
         BadRequest(p.account.changePassword(
           account, changePasswordForm
-            .withGlobalError("login.badUsernameOrPassword"), accountRoutes.changePassword()))
+            .withGlobalError("login.error.badUsernameOrPassword"), accountRoutes.changePassword()))
       case Left(errForm) =>
         BadRequest(p.account.changePassword(
           account, errForm, accountRoutes.changePassword()))
@@ -257,7 +257,7 @@ case class Accounts @Inject()(implicit globalConfig: GlobalConfig, searchDispatc
         accountRoutes.resetPasswordPost(token)))
     }.getOrElse {
       Redirect(accountRoutes.forgotPassword())
-        .flashing("error" -> Messages("login.expiredOrInvalidResetToken"))
+        .flashing("error" -> Messages("login.error.badResetToken"))
     }
   }
 
@@ -283,7 +283,7 @@ case class Accounts @Inject()(implicit globalConfig: GlobalConfig, searchDispatc
           .flashing("warning" -> "login.passwordResetNowLogin")
       case Right(false) =>
         Redirect(accountRoutes.forgotPassword())
-          .flashing("error" -> Messages("login.expiredOrInvalidResetToken"))
+          .flashing("error" -> Messages("login.error.badResetToken"))
     }
   }
 
