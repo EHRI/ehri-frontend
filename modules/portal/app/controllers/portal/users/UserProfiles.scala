@@ -289,10 +289,10 @@ case class UserProfiles @Inject()(implicit globalConfig: global.GlobalConfig, se
 
     def onError(err: String) =
       BadRequest(p.userProfile.editProfile(profileDataForm,
-        imageForm.withGlobalError(s"error.$err"), accountPrefsForm))
+        imageForm.withGlobalError(err), accountPrefsForm))
 
     request.body match {
-      case Left(MaxSizeExceeded(length)) => immediate(onError("imageTooLarge"))
+      case Left(MaxSizeExceeded(length)) => immediate(onError("errors.imageTooLarge"))
       case Right(multipartForm) => multipartForm.file("image").map { file =>
         if (isValidContentType(file)) {
           try {
@@ -302,13 +302,13 @@ case class UserProfiles @Inject()(implicit globalConfig: global.GlobalConfig, se
             } yield Redirect(profileRoutes.profile())
                   .flashing("success" -> "profile.update.confirmation")
           } catch {
-            case e: UnsupportedFormatException => immediate(onError("badFileType"))
+            case e: UnsupportedFormatException => immediate(onError("errors.badFileType"))
           }
         } else {
-          immediate(onError("badFileType"))
+          immediate(onError("errors.badFileType"))
         }
       }.getOrElse {
-        immediate(onError("noFileGiven"))
+        immediate(onError("errors.noFileGiven"))
       }
     }
   }

@@ -14,6 +14,39 @@ optional=Optional
 cancel=Cancel
 warning=Warning
 admin.site=Admin Site
+readonly=The EHRI portal is currently in read-only mode while we conduct maintenance.\
+  Normal service should be resumed in due course. Thanks for your patience.
+newsFeed=Latest News
+latestUpdates=Recent Updates
+browse=Browse
+details.show=Show Item Details
+details.hide=Hide Item Details
+
+#
+# Help
+#
+help=Help
+help.general=General site help
+help.archivists=Help for archivists
+help.helpdesk=Helpdesk
+
+#
+# Landing page
+#
+landingBlurb.repository=Browse {0} in {1}.
+landingBlurb.repository.link={0} archival institutions
+landingBlurb.repository.country.link={0} countries
+landingBlurb.country=Browse {0}.
+landingBlurb.country.link={0} national reports
+landingBlurb.documentaryUnit=Browse {0} in {1}.
+landingBlurb.documentaryUnit.link={0} archival descriptions
+landingBlurb.documentaryUnit.repository.link={0} institutions
+landingBlurb.historicalAgent=Browse {0}, comprised of {1}, {2} and {3}.
+landingBlurb.historicalAgent.link={0} historical agents
+landingBlurb.corporateBody.link={0,choice,0#{0} corporate bodies|1#1 corporate body|1<{0,number,integer} corporate bodies}
+landingBlurb.person.link={0} Persons
+landingBlurb.family.link={0,choice,0#{0} families|1#1 family|1<{0,number,integer} families}
+
 
 #
 # Form constraints, errors, and formats
@@ -48,9 +81,9 @@ errors.permissionDenied.explanation=It looks like you can''t do whatever it is y
   to do. This is probably an error on our part. We'll try and fix that ASAP.
 errors.errorDetails=Details
 errors.noFurtherInfo=No additional information is available.
-error.imageTooLarge=This image was too large. Please select one smaller than 5 metabytes in size.
-error.badFileType=The uploaded file was not a supported image type.
-error.noFileGiven=No image file was selected.
+errors.imageTooLarge=This image was too large. Please select one smaller than 5 metabytes in size.
+errors.badFileType=The uploaded file was not a supported image type.
+errors.noFileGiven=No image file was selected.
 
 #
 # Pagination etc
@@ -68,14 +101,6 @@ download=Download
 download.format.txt=Download as plain text
 download.format.csv=Download as CSV
 download.format.json=Download as JSON
-
-#
-# Help
-#
-help=Help
-help.general=General site help
-help.archivists=Help for archivists
-help.helpdesk=Helpdesk
 
 #
 # Profile
@@ -121,9 +146,9 @@ profile.unwatch.tooltip=Click to stop getting updates to this item posted in you
 profile.unwatch.submit=Unwatch Item
 profile.unwatch.title=Remove item from your watch list
 
-
-
-# Item types
+#
+# Data types
+#
 type=Item type
 type.repository=Archival Institutions
 type.repository.description=An inventory of archival institutions that \
@@ -142,11 +167,6 @@ type.virtualUnit=Virtual Collections
 type.annotation=Notes
 type.link=Connections
 type.cvocVocabulary=Vocabularies
-
-showChildItems=Child Items
-
-readonly=The EHRI portal is currently in read-only mode while we conduct maintenance.\
-  Normal service should be resumed in due course. Thanks for your patience.
 
 #
 # Dates
@@ -239,221 +259,8 @@ mail.message.copy.subject=EHRI: Your message to {0}: {1}
 mail.message.heading=New message from {0}
 mail.message.copy.heading=Copy of your message to {0}
 mail.message.replyFooter=To respond, reply directly to this message. You can opt-out from receiving user messages by updating your preferences
-
-
-browse=Browse
-details.show=Show Item Details
-details.hide=Hide Item Details
-showItems={0,choice,0#{0} Items|1#1 Item|1<{0,number,integer} Items}
-
-landingBlurb.repository=Browse {0} in {1}.
-landingBlurb.repository.link={0} archival institutions
-landingBlurb.repository.country.link={0} countries
-landingBlurb.country=Browse {0}.
-landingBlurb.country.link={0} national reports
-landingBlurb.documentaryUnit=Browse {0} in {1}.
-landingBlurb.documentaryUnit.link={0} archival descriptions
-landingBlurb.documentaryUnit.repository.link={0} institutions
-landingBlurb.historicalAgent=Browse {0}, comprised of {1}, {2} and {3}.
-landingBlurb.historicalAgent.link={0} historical agents
-landingBlurb.corporateBody.link={0,choice,0#{0} corporate bodies|1#1 corporate body|1<{0,number,integer} corporate bodies}
-landingBlurb.person.link={0} Persons
-landingBlurb.family.link={0,choice,0#{0} families|1#1 family|1<{0,number,integer} families}
-
 bookmark.tooltip=Save this item to your bookmarks.
 bookmarkedItems=Bookmarked Items
-newsFeed=Latest News
-latestUpdates=Recent Updates
-
-item.details=Item Details
-item.history=Online History
-item.related=Related Items
-item.linked=Other Connected Items
-
-repository.address=Address
-repository.contact=Contact
-repository.phone=Phone
-repository.email=Email
-repository.fax=Fax
-repository.url=Web
-repository.contactPerson=Contact Person
-repository.street=Street Address
-repository.municipality=City
-repository.firstdem=Region
-repository.countryCode=Country Code
-repository.telephone=Telephone
-repository.postalcode=Post Code
-repository.webpage=Website
-repository.searchItems=Search items held by {0}
-repository.childItems=Archival Descriptions
-repository.childItems.search={0,choice,0#{0} lower level |1#1 item|1<{0,number,integer} items}
-repository.search=Search Repositories
-repository.searchInside=Search items held by {0}
-repository.itemsHeldOnline=Items on EHRI
-repository.hasChildItems=Yes
-repository.noChildItems=No
-repository.childCount={0,choice,0#No archival descriptions available|1#1 archival description available|1<{0,number,integer} archival descriptions available}
-repository.list=Repositories
-repository.create=Create Repository
-repository.create.submit=Create Repository
-repository.update=Update Repository
-repository.update.submit=Update Repository
-
-repository.identifier=Identifier
-repository.name=Authorized Form Of Name
-repository.parallelFormsOfName=Parallel Names
-repository.otherFormsOfName=Other Names
-repository.languageCode=Language of Description
-repository.scriptCode=Script of Description
-repository.institutionType=Type of Institution
-repository.history=History
-repository.geoculturalContext=Geographical and Cultural Context
-repository.mandates=Mandates/Sources of Authority
-repository.administrativeStructure=Administrative Structure
-repository.records=Records Management and Collecting Policies
-repository.buildings=Building(s)
-repository.holdings=Archival and Other Holdings
-repository.findingAids=Finding Aids, Guides, and Publication
-repository.openingTimes=Opening Times
-repository.conditions=Conditions of Access
-repository.accessibility=Accessibility
-repository.researchServices=Research Services
-repository.reproductionServices=Reproduction Services
-repository.publicAreas=Public Areas
-repository.descriptionIdentifier=Description Identifier
-repository.institutionIdentifier=Institution Identifier
-repository.rulesAndConventions=Rules and Conventions
-repository.status=Status
-repository.levelOfDetail=Level of Detail
-repository.datesCVD=Dates of Creation and Deletion
-repository.languages=Languages Used
-repository.scripts=Scripts Used
-repository.sources=Sources
-repository.maintenanceNotes=Maintenance Notes
-
-#
-# Documentary units
-#
-documentaryUnit.identifier=Identifier
-documentaryUnit.ref=Web Source
-documentaryUnit.archivalContext=Archival Context
-documentaryUnit.otherIdentifiers=Alt. Identifiers
-documentaryUnit.extentAndMedium=Extent and Medium
-documentaryUnit.scopeAndContent=Scope and Content
-documentaryUnit.biographicalHistory=Biographical History
-documentaryUnit.archivalHistory=Archival History
-documentaryUnit.acquisition=Acquisition
-documentaryUnit.appraisal=Appraisal
-documentaryUnit.systemOfArrangement=System of Arrangement
-documentaryUnit.archivistNote=Archivist Note
-documentaryUnit.rulesAndConventions=Rules and Conventions
-documentaryUnit.dates=Dates
-documentaryUnit.levelOfDescription=Level of Description
-documentaryUnit.languageOfMaterials=Languages
-documentaryUnit.scriptOfMaterials=Scripts
-documentaryUnit.searchItems=Search child items...
-documentaryUnit.levelOfDescription.fonds=Fonds
-documentaryUnit.levelOfDescription.subfonds=Sub-fonds
-documentaryUnit.levelOfDescription.collection=Collection
-documentaryUnit.levelOfDescription.subcollection=Sub-collection
-documentaryUnit.levelOfDescription.recordgrp=Record group
-documentaryUnit.levelOfDescription.subgrp=Sub-group
-documentaryUnit.levelOfDescription.series=Series
-documentaryUnit.levelOfDescription.subseries=Sub-series
-documentaryUnit.levelOfDescription.file=File
-documentaryUnit.levelOfDescription.item=Item
-documentaryUnit.levelOfDescription.otherLevel=Other
-documentaryUnit.levelOfDescription.class=Class
-documentaryUnit.childItems=Child Items
-documentaryUnit.childItems.search={0,choice,0#{0} lower level |1#1 item|1<{0,number,integer} items}
-documentaryUnit.physicalLocation=Physical Location
-documentaryUnit.languageCode=Language of Description
-documentaryUnit.abstract=Abstract
-documentaryUnit.accruals=Accruals
-documentaryUnit.conditionsOfAccess=Conditions Governing Access
-documentaryUnit.conditionsOfReproduction=Conditions Governing Reproduction
-documentaryUnit.languageOfMaterial=Language(s) of Materials
-documentaryUnit.scriptOfMaterial=Script(s) of Materials
-documentaryUnit.physicalCharacteristics=Physical Characteristics and Technical Requirements
-documentaryUnit.findingAids=Finding Aids
-documentaryUnit.locationOfOriginals=Existence and Location of Originals
-documentaryUnit.locationOfCopies=Existence and Location of Copies
-documentaryUnit.relatedUnitsOfDescription=Related Units of Description
-documentaryUnit.publicationNote=Publication Note
-documentaryUnit.notes=Note(s)
-documentaryUnit.sources=Sources
-documentaryUnit.datesOfDescriptions=Dates of Descriptions
-documentaryUnit.processInfo=Process Info
-
-#
-# Historical Agents
-#
-historicalAgent.identifier=Identifier
-historicalAgent.dates=Dates
-historicalAgent.entityType=Type of Entity
-historicalAgent.entityType.person=Person
-historicalAgent.entityType.family=Family
-historicalAgent.entityType.corporateBody=Corporate Body
-historicalAgent.set=Historical Agent
-historicalAgent.descriptionArea=Description Area
-historicalAgent.identity=Identity Area
-historicalAgent.services=Services Area
-historicalAgent.administrationArea=Administration
-
-# Identity Section
-historicalAgent.identityArea=Identity Area
-
-historicalAgent.creation=Creation
-historicalAgent.name=Authorized Form Of Name
-historicalAgent.parallelFormsOfName=Parallel Names
-historicalAgent.standardisedFormsOfName=Standardized Names According to Other Rules
-historicalAgent.otherFormsOfName=Other Names
-historicalAgent.languageCode=Language of Description
-historicalAgent.typeOfEntity=Authority Type
-historicalAgent.corporateBody=Corporate Body
-historicalAgent.family=Family
-historicalAgent.person=Person
-historicalAgent.datesOfExistence=Dates of Existence
-historicalAgent.biographicalHistory=History
-historicalAgent.place=Places
-historicalAgent.legalStatus=Legal Status
-historicalAgent.functions=Functions
-historicalAgent.mandates=Mandates
-historicalAgent.structure=Internal Structure
-historicalAgent.generalContext=General Context
-historicalAgent.descriptionIdentifier=Description Identifier
-historicalAgent.institutionIdentifier=Institution Identifier
-historicalAgent.rulesAndConventions=Rules and Conventions
-historicalAgent.status=Status
-historicalAgent.levelOfDetail=Level of Detail
-historicalAgent.datesCVD=Dates of Creation and Deletion
-historicalAgent.languages=Languages
-historicalAgent.scripts=Scripts
-historicalAgent.source=Sources
-historicalAgent.maintenanceNotes=Maintenance Notes
-
-#
-# Concepts
-#
-cvocConcept.descriptions=Descriptions
-cvocConcept.languageCode=Language
-cvocConcept.name=Preferred Label
-cvocConcept.altLabel=Alt. Label(s)
-cvocConcept.scopeNote=Scope Note
-cvocConcept.definition=Definition
-cvocConcept.inVocabulary=Vocabulary
-cvocConcept.search=Search Terms
-cvocConcept.broaderTerms=Broader Terms
-cvocConcept.narrowerTerms=Narrower Terms
-cvocConcept.narrowerTermsPageHeader={2,choice,0#No narrower terms found|1#One narrower term found|1<Narrower terms {0,number,integer} to {1,number,integer} of {2,number,integer}}
-
-#
-# Virtual documentary units
-#
-
-virtualUnit.viewInArchivalContext=View in archival context
-virtualUnit.viewInArchivalContext.explanation=This item is being displayed as part of a ''virtual collection'' \
-  that does not reflect the arrangement of material in the physical archive.
 
 bookmarkSet.list=Bookmark Sets
 bookmarkSet.defaultSetName=Bookmarked Items
@@ -465,28 +272,6 @@ bookmarkSet.delete=Delete Bookmark Set
 bookmarkSet.delete.submit=Delete
 bookmarkSet.noBookmarkSetsYet=You haven't made any bookmark sets yet.
 bookmarkSet.noUserBookmarkSetsYet={0} has no public bookmark sets yet.
-
-country.childItems=Archival Institutions
-country.childItems.search={0,choice,0#{0} lower level |1#1 institution|1<{0,number,integer} institutions}
-country.repositoriesPageHeader={2,choice,0#No repositories found|1#One repository found|1<Repositories {0,number,integer} to {1,number,integer} of {2,number,integer}}
-country.search=Search Countries
-country.searchInside=Search Repositories
-country.childCount={0,choice,0#No institutions listed|1#1 institution listed|1<{0,number,integer} institutions listed}
-country.items=Repositories
-country.identifier=Country Code
-country.identifier.description=The ISO-3166-1 2-letter code for this country
-country.abstract=Abstract
-country.abstract.description=An abstract of the report for this country
-country.report=Report
-country.report.description=The report describing this country''s archival situation
-country.list=Countries
-country.create=Add Country
-country.create.submit=Add Country
-country.update=Update Country
-country.update.submit=Update Country
-
-cvocVocabulary.childItems=Keywords
-cvocVocabulary.childItems.search={0,choice,0#{0} |1#1 keyword|1<{0,number,integer} keywords}
 
 #
 # Descriptions
@@ -875,3 +660,229 @@ markdown.cheatsheet.unordered=Ordered list
 markdown.cheatsheet.unordered.item1=Item
 markdown.cheatsheet.unordered.item2=Another item
 markdown.cheatsheet.more=Source
+
+
+#
+# Item-type specific fields
+#
+# Generic
+#
+item.details=Item Details
+item.history=Online History
+item.related=Related Items
+item.linked=Other Connected Items
+item.showChildItems=Child Items
+item.showItems={0,choice,0#{0} Items|1#1 Item|1<{0,number,integer} Items}
+
+#
+# Repositories
+#
+repository.address=Address
+repository.contact=Contact
+repository.phone=Phone
+repository.email=Email
+repository.fax=Fax
+repository.url=Web
+repository.contactPerson=Contact Person
+repository.street=Street Address
+repository.municipality=City
+repository.firstdem=Region
+repository.countryCode=Country Code
+repository.telephone=Telephone
+repository.postalcode=Post Code
+repository.webpage=Website
+repository.searchItems=Search items held by {0}
+repository.childItems=Archival Descriptions
+repository.childItems.search={0,choice,0#{0} lower level |1#1 item|1<{0,number,integer} items}
+repository.search=Search Repositories
+repository.searchInside=Search items held by {0}
+repository.itemsHeldOnline=Items on EHRI
+repository.hasChildItems=Yes
+repository.noChildItems=No
+repository.childCount={0,choice,0#No archival descriptions available|1#1 archival description available|1<{0,number,integer} archival descriptions available}
+repository.list=Repositories
+repository.create=Create Repository
+repository.create.submit=Create Repository
+repository.update=Update Repository
+repository.update.submit=Update Repository
+
+repository.identifier=Identifier
+repository.name=Authorized Form Of Name
+repository.parallelFormsOfName=Parallel Names
+repository.otherFormsOfName=Other Names
+repository.languageCode=Language of Description
+repository.scriptCode=Script of Description
+repository.institutionType=Type of Institution
+repository.history=History
+repository.geoculturalContext=Geographical and Cultural Context
+repository.mandates=Mandates/Sources of Authority
+repository.administrativeStructure=Administrative Structure
+repository.records=Records Management and Collecting Policies
+repository.buildings=Building(s)
+repository.holdings=Archival and Other Holdings
+repository.findingAids=Finding Aids, Guides, and Publication
+repository.openingTimes=Opening Times
+repository.conditions=Conditions of Access
+repository.accessibility=Accessibility
+repository.researchServices=Research Services
+repository.reproductionServices=Reproduction Services
+repository.publicAreas=Public Areas
+repository.descriptionIdentifier=Description Identifier
+repository.institutionIdentifier=Institution Identifier
+repository.rulesAndConventions=Rules and Conventions
+repository.status=Status
+repository.levelOfDetail=Level of Detail
+repository.datesCVD=Dates of Creation and Deletion
+repository.languages=Languages Used
+repository.scripts=Scripts Used
+repository.sources=Sources
+repository.maintenanceNotes=Maintenance Notes
+
+#
+# Documentary units
+#
+documentaryUnit.identifier=Identifier
+documentaryUnit.ref=Web Source
+documentaryUnit.archivalContext=Archival Context
+documentaryUnit.otherIdentifiers=Alt. Identifiers
+documentaryUnit.extentAndMedium=Extent and Medium
+documentaryUnit.scopeAndContent=Scope and Content
+documentaryUnit.biographicalHistory=Biographical History
+documentaryUnit.archivalHistory=Archival History
+documentaryUnit.acquisition=Acquisition
+documentaryUnit.appraisal=Appraisal
+documentaryUnit.systemOfArrangement=System of Arrangement
+documentaryUnit.archivistNote=Archivist Note
+documentaryUnit.rulesAndConventions=Rules and Conventions
+documentaryUnit.dates=Dates
+documentaryUnit.levelOfDescription=Level of Description
+documentaryUnit.languageOfMaterials=Languages
+documentaryUnit.scriptOfMaterials=Scripts
+documentaryUnit.searchItems=Search child items...
+documentaryUnit.levelOfDescription.fonds=Fonds
+documentaryUnit.levelOfDescription.subfonds=Sub-fonds
+documentaryUnit.levelOfDescription.collection=Collection
+documentaryUnit.levelOfDescription.subcollection=Sub-collection
+documentaryUnit.levelOfDescription.recordgrp=Record group
+documentaryUnit.levelOfDescription.subgrp=Sub-group
+documentaryUnit.levelOfDescription.series=Series
+documentaryUnit.levelOfDescription.subseries=Sub-series
+documentaryUnit.levelOfDescription.file=File
+documentaryUnit.levelOfDescription.item=Item
+documentaryUnit.levelOfDescription.otherLevel=Other
+documentaryUnit.levelOfDescription.class=Class
+documentaryUnit.childItems=Child Items
+documentaryUnit.childItems.search={0,choice,0#{0} lower level |1#1 item|1<{0,number,integer} items}
+documentaryUnit.physicalLocation=Physical Location
+documentaryUnit.languageCode=Language of Description
+documentaryUnit.abstract=Abstract
+documentaryUnit.accruals=Accruals
+documentaryUnit.conditionsOfAccess=Conditions Governing Access
+documentaryUnit.conditionsOfReproduction=Conditions Governing Reproduction
+documentaryUnit.languageOfMaterial=Language(s) of Materials
+documentaryUnit.scriptOfMaterial=Script(s) of Materials
+documentaryUnit.physicalCharacteristics=Physical Characteristics and Technical Requirements
+documentaryUnit.findingAids=Finding Aids
+documentaryUnit.locationOfOriginals=Existence and Location of Originals
+documentaryUnit.locationOfCopies=Existence and Location of Copies
+documentaryUnit.relatedUnitsOfDescription=Related Units of Description
+documentaryUnit.publicationNote=Publication Note
+documentaryUnit.notes=Note(s)
+documentaryUnit.sources=Sources
+documentaryUnit.datesOfDescriptions=Dates of Descriptions
+documentaryUnit.processInfo=Process Info
+
+#
+# Historical Agents
+#
+historicalAgent.identifier=Identifier
+historicalAgent.dates=Dates
+historicalAgent.entityType=Type of Entity
+historicalAgent.entityType.person=Person
+historicalAgent.entityType.family=Family
+historicalAgent.entityType.corporateBody=Corporate Body
+historicalAgent.set=Historical Agent
+historicalAgent.descriptionArea=Description Area
+historicalAgent.identity=Identity Area
+historicalAgent.services=Services Area
+historicalAgent.administrationArea=Administration
+mshistoricalAgent.creation=Creation
+historicalAgent.name=Authorized Form Of Name
+historicalAgent.parallelFormsOfName=Parallel Names
+historicalAgent.standardisedFormsOfName=Standardized Names According to Other Rules
+historicalAgent.otherFormsOfName=Other Names
+historicalAgent.languageCode=Language of Description
+historicalAgent.typeOfEntity=Authority Type
+historicalAgent.corporateBody=Corporate Body
+historicalAgent.family=Family
+historicalAgent.person=Person
+historicalAgent.datesOfExistence=Dates of Existence
+historicalAgent.biographicalHistory=History
+historicalAgent.place=Places
+historicalAgent.legalStatus=Legal Status
+historicalAgent.functions=Functions
+historicalAgent.mandates=Mandates
+historicalAgent.structure=Internal Structure
+historicalAgent.generalContext=General Context
+historicalAgent.descriptionIdentifier=Description Identifier
+historicalAgent.institutionIdentifier=Institution Identifier
+historicalAgent.rulesAndConventions=Rules and Conventions
+historicalAgent.status=Status
+historicalAgent.levelOfDetail=Level of Detail
+historicalAgent.datesCVD=Dates of Creation and Deletion
+historicalAgent.languages=Languages
+historicalAgent.scripts=Scripts
+historicalAgent.source=Sources
+historicalAgent.maintenanceNotes=Maintenance Notes
+
+#
+# Concepts
+#
+cvocConcept.descriptions=Descriptions
+cvocConcept.languageCode=Language
+cvocConcept.name=Preferred Label
+cvocConcept.altLabel=Alt. Label(s)
+cvocConcept.scopeNote=Scope Note
+cvocConcept.definition=Definition
+cvocConcept.inVocabulary=Vocabulary
+cvocConcept.search=Search Terms
+cvocConcept.broaderTerms=Broader Terms
+cvocConcept.narrowerTerms=Narrower Terms
+cvocConcept.narrowerTermsPageHeader={2,choice,0#No narrower terms found|1#One narrower term found|1<Narrower terms {0,number,integer} to {1,number,integer} of {2,number,integer}}
+
+#
+# Virtual documentary units
+#
+
+virtualUnit.viewInArchivalContext=View in archival context
+virtualUnit.viewInArchivalContext.explanation=This item is being displayed as part of a ''virtual collection'' \
+  that does not reflect the arrangement of material in the physical archive.
+
+#
+# Countries
+#
+country.childItems=Archival Institutions
+country.childItems.search={0,choice,0#{0} lower level |1#1 institution|1<{0,number,integer} institutions}
+country.repositoriesPageHeader={2,choice,0#No repositories found|1#One repository found|1<Repositories {0,number,integer} to {1,number,integer} of {2,number,integer}}
+country.search=Search Countries
+country.searchInside=Search Repositories
+country.childCount={0,choice,0#No institutions listed|1#1 institution listed|1<{0,number,integer} institutions listed}
+country.items=Repositories
+country.identifier=Country Code
+country.identifier.description=The ISO-3166-1 2-letter code for this country
+country.abstract=Abstract
+country.abstract.description=An abstract of the report for this country
+country.report=Report
+country.report.description=The report describing this country''s archival situation
+country.list=Countries
+country.create=Add Country
+country.create.submit=Add Country
+country.update=Update Country
+country.update.submit=Update Country
+
+#
+# Vocabularies
+#
+cvocVocabulary.childItems=Keywords
+cvocVocabulary.childItems.search={0,choice,0#{0} |1#1 keyword|1<{0,number,integer} keywords}
+
