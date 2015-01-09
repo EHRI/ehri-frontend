@@ -283,7 +283,7 @@ repository.firstdem=Region
 repository.countryCode=Country Code
 repository.telephone=Telephone
 repository.postalcode=Post Code
-repository.webpage=Website Address
+repository.webpage=Website
 repository.searchItems=Search items held by {0}
 repository.childItems=Archival Descriptions
 repository.childItems.search={0,choice,0#{0} lower level |1#1 item|1<{0,number,integer} items}
@@ -431,6 +431,21 @@ historicalAgent.languages=Languages
 historicalAgent.scripts=Scripts
 historicalAgent.source=Sources
 historicalAgent.maintenanceNotes=Maintenance Notes
+
+#
+# Concepts
+#
+cvocConcept.descriptions=Descriptions
+cvocConcept.languageCode=Language
+cvocConcept.name=Preferred Label
+cvocConcept.altLabel=Alt. Label(s)
+cvocConcept.scopeNote=Scope Note
+cvocConcept.definition=Definition
+cvocConcept.inVocabulary=Vocabulary
+cvocConcept.search=Search Terms
+cvocConcept.broaderTerms=Broader Terms
+cvocConcept.narrowerTerms=Narrower Terms
+cvocConcept.narrowerTermsPageHeader={2,choice,0#No narrower terms found|1#One narrower term found|1<Narrower terms {0,number,integer} to {1,number,integer} of {2,number,integer}}
 
 #
 # Virtual documentary units
