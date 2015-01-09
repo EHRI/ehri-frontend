@@ -1,4 +1,6 @@
 jQuery(function($) {
+
+  "use strict";
   /*
   *   Quiet mode by Thibault Clérice GitHub@PonteIneptique
   */
@@ -80,7 +82,7 @@ jQuery(function($) {
       var height = that.outerHeight();
       var innerHeight = that.height();
 
-      function shouldStick() {
+      var shouldStick = function() {
         var vpend = $(window).outerHeight() + $(window).scrollTop();
         var sticky = top > vpend + innerHeight - height;
 
@@ -102,14 +104,14 @@ jQuery(function($) {
             that.isSticky = null;
           }
         }
-      }
+      };
 
       $(window).scroll(shouldStick);
       $(window).on('resize', shouldStick);
 
       shouldStick();
     }
-  }
+  };
 
   $(".form-actions").stickyFormFooter();
 
@@ -147,7 +149,7 @@ jQuery(function($) {
         check = $link.attr("title");
     e.preventDefault();
     if (confirm(check)) {
-      $.post(href, function(d) {
+      $.post(href, function(data) {
         location.reload();
       })
     }
@@ -166,9 +168,9 @@ jQuery(function($) {
     $(this).parents(".inline-element").first().remove();
   });
 
-  $(".add-inline-element").on("click", function(event) {
+  $("form").on("click", ".add-inline-element", function(event) {
     event.preventDefault();
-      console.log("called!")
+
     var container = $(event.target).closest(".inline-formset");
     var set = container.children(".inline-element-list");
     var prefix = container.data("prefix");
@@ -187,8 +189,7 @@ jQuery(function($) {
     set.append(elem);
 
     // Add select2 support...
-    elem.find("div.select2-container").remove()
+    elem.find("div.select2-container").remove();
     elem.find("select.select2").removeClass(".select2-offscreen").select2();
   });
-
 });
