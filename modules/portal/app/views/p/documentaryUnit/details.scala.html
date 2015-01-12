@@ -2,11 +2,11 @@
 
 <div class="item-details panel panel-default">
     <dl class="dl-horizontal">
-        <dt>@Messages("portal.documentaryUnit.identifier")</dt>
+        <dt>@Messages("documentaryUnit.identifier")</dt>
         <dd>@item.model.identifier</dd>
 
         @item.model.otherIdentifiers.map { idents =>
-            <dt>@Messages("portal.documentaryUnit.otherIdentifiers")</dt>
+            <dt>@Messages("documentaryUnit.otherIdentifiers")</dt>
             <dd>
                 <ul class="list-inline">
                 @idents.map { ident =>
@@ -16,16 +16,16 @@
             </dd>
         }
         @if(desc.dates.nonEmpty) {
-            <dt>@Messages("portal.documentaryUnit.dates")</dt>
+            <dt>@Messages("documentaryUnit.dates")</dt>
             <dd>@desc.dates.map(_.years).mkString(", ")</dd>
         }
         @desc.identity.levelOfDescription.map { e =>
-            <dt>@Messages("portal.documentaryUnit.levelOfDescription")</dt>
-            <dd>@Messages("portal.documentaryUnit.levelOfDescription." + e)</dd>
+            <dt>@Messages("documentaryUnit.levelOfDescription")</dt>
+            <dd>@Messages("documentaryUnit.levelOfDescription." + e)</dd>
         }
         @desc.conditions.languageOfMaterials.map { langs =>
             @if(langs.nonEmpty) {
-                <dt>@Messages("portal.documentaryUnit.languageOfMaterials")</dt>
+                <dt>@Messages("documentaryUnit.languageOfMaterials")</dt>
                 <dd>
                     <ul class="list-unstyled list-inline comma-sep">
                         @langs.map { l =>
@@ -37,7 +37,7 @@
         }
         @desc.conditions.scriptOfMaterials.map { scr =>
             @if(scr.nonEmpty) {
-                <dt>@Messages("portal.documentaryUnit.scriptOfMaterials")</dt>
+                <dt>@Messages("documentaryUnit.scriptOfMaterials")</dt>
                 <dd>
                     <ul class="list-unstyled list-inline comma-sep">
                         @scr.map { s =>

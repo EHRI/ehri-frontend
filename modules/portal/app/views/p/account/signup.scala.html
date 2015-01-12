@@ -16,7 +16,7 @@
     </style>
 }
 
-@p.layout.portalLayoutSimple(Messages("portal.signup"), scripts=validationJs, styles = styles) {
+@p.layout.portalLayoutSimple(Messages("signup"), scripts=validationJs, styles = styles) {
 
     @views.html.layout.mainContent {
         @signupForm(form, action, recaptchaKey)

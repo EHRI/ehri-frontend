@@ -13,13 +13,13 @@
             <a id="activity-stream-fetchmore" class="btn btn-default btn-block"
                data-limit="@events.limit" data-offset="@(events.offset + events.limit)"
                href="@utils.joinPath(req.path, req.queryString.filterKeys(_ != "modal").updated(OFFSET_PARAM, Seq((events.offset + events.limit).toString)))">
-                @Messages("portal.activity.fetchMore")
+                @Messages("activity.fetchMore")
             </a>
 
         }
     } else {
         <p class="text-muted">
-            @Messages("portal.activity.noActivityYet")
+            @Messages("activity.noActivityYet")
         </p>
     }
 </div>

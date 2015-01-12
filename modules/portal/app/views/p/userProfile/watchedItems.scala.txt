@@ -1,5 +1,5 @@
 @(watchList: utils.AbstractPage[models.base.AnyModel])(implicit userOpt: Option[UserProfile], request: RequestHeader, globalConfig: global.GlobalConfig, lang: Lang, flash: Flash)
-@userOpt.map { user => @defining(user.toStringLang + " - " + Messages("portal.profile.watch.list")) { title =>
+@userOpt.map { user => @defining(user.toStringLang + " - " + Messages("profile.watch.list")) { title =>
 @title
 @{"=" * title.size}
 }}

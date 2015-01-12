@@ -1,15 +1,15 @@
 @(user: UserProfile, follows: utils.Page[UserProfile])(implicit req: RequestHeader, lang: Lang)
 
-@p.common.footerPanel(Messages("portal.profile.following")) {
+@p.common.footerPanel(Messages("profile.following")) {
     @if(follows.nonEmpty) {
         <ul class="user-following">
 
         </ul>
     } else {
-        @Messages("portal.profile.noFollowing")
+        @Messages("profile.noFollowing")
     }
 } {
     @if(follows.hasMultiplePages) {
-        <a class="pull-right" href="#">@Messages("portal.profile.more")</a>
+        <a class="pull-right" href="#">@Messages("profile.more")</a>
     }
 }

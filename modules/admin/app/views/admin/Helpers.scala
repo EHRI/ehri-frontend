@@ -29,12 +29,7 @@ object Helpers {
     ("s1", "-"),
     ("contentTypes.systemEvent",      controllers.events.routes.SystemEvents.list().url),
     ("s2", "-"),
-    ("search.updateIndex",            controllers.admin.routes.AdminSearch.updateIndex().url)
-  )
-
-  val accountMenu = Seq(
-    ("portal.home", controllers.portal.routes.Portal.index().url),
-    ("portal.profile", controllers.portal.users.routes.UserProfiles.profile().url)
+    ("search.index.update",            controllers.admin.routes.AdminSearch.updateIndex().url)
   )
 
   def linkTo(isA: defines.EntityType.Value, id: String): Call = {

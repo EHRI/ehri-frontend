@@ -7,20 +7,20 @@
 @implicitField = @{ views.html.helper.FieldConstructor(p.helpers.fieldTemplateEmpty.f) }
 
 <div class="visibility-controls" style="display: none">
-    <label class="control-label">@Messages("portal.contribution.visibility")</label>
+    <label class="control-label">@Messages("contribution.visibility")</label>
 
     <div class="preset-visibility">
         <label for="@(PARAM)_@(Me)" class="radio-inline">
             <input class="visibility" type="radio" id="@(PARAM)_@(Me)" name="@PARAM" value="@Me" @{if(visForm.value == Some(Me)) "checked"}>
-            @Messages("portal.contribution.visibility.me")
+            @Messages("contribution.visibility.me")
         </label>
         <label for="@(PARAM)_@(Groups)" class="radio-inline">
             <input class="visibility" type="radio" id="@(PARAM)_@(Groups)" name="@PARAM" value="@Groups" @{if(visForm.value == Some(Groups)) "checked"}>
-            @Messages("portal.contribution.visibility.groups")
+            @Messages("contribution.visibility.groups")
         </label>
         <label for="@(PARAM)_@(Custom)" class="radio-inline">
             <input class="visibility" type="radio" id="@(PARAM)_@(Custom)" name="@PARAM" value="@Custom" @{if(visForm.value == Some(Custom)) "checked"}>
-            @Messages("portal.contribution.visibility.custom")
+            @Messages("contribution.visibility.custom")
         </label>
     </div>
     <div class="custom-visibility" style="@{if(visForm.value != Some(Custom)) "display:none"}">

@@ -96,7 +96,7 @@ case class Social @Inject()(implicit globalConfig: global.GlobalConfig, searchDi
   }
 
   def followUser(userId: String) = WithUserAction { implicit request =>
-    Ok(p.helpers.simpleForm("portal.social.follow",
+    Ok(p.helpers.simpleForm("social.follow",
       socialRoutes.followUserPost(userId)))
   }
 
@@ -111,7 +111,7 @@ case class Social @Inject()(implicit globalConfig: global.GlobalConfig, searchDi
   }
 
   def unfollowUser(userId: String) = WithUserAction { implicit request =>
-    Ok(p.helpers.simpleForm("portal.social.unfollow",
+    Ok(p.helpers.simpleForm("social.unfollow",
       socialRoutes.unfollowUserPost(userId)))
   }
 
@@ -126,7 +126,7 @@ case class Social @Inject()(implicit globalConfig: global.GlobalConfig, searchDi
   }
 
   def blockUser(userId: String) = WithUserAction { implicit request =>
-    Ok(p.helpers.simpleForm("portal.social.block",
+    Ok(p.helpers.simpleForm("social.block",
       socialRoutes.blockUserPost(userId)))
   }
 
@@ -141,7 +141,7 @@ case class Social @Inject()(implicit globalConfig: global.GlobalConfig, searchDi
   }
 
   def unblockUser(userId: String) = WithUserAction { implicit request =>
-    Ok(p.helpers.simpleForm("portal.social.unblock",
+    Ok(p.helpers.simpleForm("social.unblock",
       socialRoutes.unblockUserPost(userId)))
   }
 
@@ -223,9 +223,9 @@ case class Social @Inject()(implicit globalConfig: global.GlobalConfig, searchDi
       accFrom <- userDAO.findByProfileId(from.id)
       accTo <- userDAO.findByProfileId(to.id)
     } yield {
-      val heading = Messages("portal.mail.message.heading", from.toStringLang)
+      val heading = Messages("mail.message.heading", from.toStringLang)
       mailer
-        .setSubject(Messages("portal.mail.message.subject", from.toStringLang, subject))
+        .setSubject(Messages("mail.message.subject", from.toStringLang, subject))
         .setRecipient(accTo.email)
         .setReplyTo(accFrom.email)
         .setFrom("EHRI User <noreply@ehri-project.eu>")
@@ -233,9 +233,9 @@ case class Social @Inject()(implicit globalConfig: global.GlobalConfig, searchDi
         views.html.p.social.mail.messageEmail(heading, subject, message).body)
 
       if (copy) {
-        val copyHeading = Messages("portal.mail.message.copy.heading", to.toStringLang)
+        val copyHeading = Messages("mail.message.copy.heading", to.toStringLang)
         mailer
-          .setSubject(Messages("portal.mail.message.copy.subject", to.toStringLang, subject))
+          .setSubject(Messages("mail.message.copy.subject", to.toStringLang, subject))
           .setRecipient(accFrom.email)
           .setFrom("EHRI User <noreply@ehri-project.eu>")
           .send(views.txt.p.social.mail.messageEmail(copyHeading, subject, message, isCopy = true).body,
@@ -257,7 +257,7 @@ case class Social @Inject()(implicit globalConfig: global.GlobalConfig, searchDi
         else Ok(p.userProfile.messageUser(userTo, messageForm,
           socialRoutes.sendMessagePost(userId), recaptchaKey))
       } else {
-        BadRequest(Messages("portal.social.message.send.userNotAcceptingMessages"))
+        BadRequest(Messages("social.message.send.userNotAcceptingMessages"))
       }
     }
   }
@@ -282,14 +282,14 @@ case class Social @Inject()(implicit globalConfig: global.GlobalConfig, searchDi
         onError(userTo, boundForm.withGlobalError("error.badRecaptcha"))
       } else if (!allowed) {
         onError(userTo, boundForm
-          .withGlobalError("portal.social.message.send.userNotAcceptingMessages"))
+          .withGlobalError("social.message.send.userNotAcceptingMessages"))
       } else {
         boundForm.fold(
           errForm => onError(userTo, errForm),
           data => {
             val (subject, message, copyMe) = data
             sendMessageEmail(request.profile, userTo, subject, message, copyMe)
-            val msg = Messages("portal.social.message.send.confirmation")
+            val msg = Messages("social.message.send.confirmation")
             if (isAjax) Ok(Json.obj("ok" -> msg))
             else Redirect(socialRoutes.browseUser(userId))
               .flashing("success" -> msg)

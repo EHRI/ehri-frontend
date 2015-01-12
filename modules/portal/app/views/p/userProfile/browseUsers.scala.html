@@ -2,10 +2,10 @@
 
 @import utils.search.SearchParams
 
-@p.layout.portalLayout(Messages("portal.social.browseUsers"), itemClass = "user") {
+@p.layout.portalLayout(Messages("social.browseUsers"), itemClass = "user") {
     @views.html.layout.mainContent {
         <div class="item-header">
-            <h1>@Messages("portal.social.browseUsers")</h1>
+            <h1>@Messages("social.browseUsers")</h1>
         </div>
 
         @if(params.isFiltered || users.items.nonEmpty) {
@@ -19,7 +19,7 @@
                                 <span class="input-group-btn">
                                     <button class="btn btn-default">
                                         <span class="glyphicon glyphicon-search"></span>
-                                        @Messages("forms.search")
+                                        @Messages("search.submit")
                                     </button>
                                 </span>
                         </div>

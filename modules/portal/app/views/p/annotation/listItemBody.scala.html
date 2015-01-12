@@ -12,7 +12,7 @@
             <li><strong>@Messages(target.isA + "." + field)</strong></li>
         }
         @for(user <- item.user ; event <- item.latestEvent) {
-            <li>@Html(Messages("portal.annotation.createdBy", p.helpers.linkTo(user).body.trim, event.model.datetime))</li>
+            <li>@Html(Messages("annotation.createdBy", p.helpers.linkTo(user).body.trim, event.model.datetime))</li>
         }
     </ul>
 </div>
@@ -24,27 +24,27 @@
         @if(item.isPromoted) {
             <li>
                 @defining(item.promoters.take(3), item.promoters.drop(3).size) { case (first, rest) =>
-                @Messages("portal.promotion.promotedBy", first.map(_.toStringLang).mkString(", "))
-                @Messages("portal.promotion.promotedBy.extended", rest)}
+                @Messages("promotion.promotedBy", first.map(_.toStringLang).mkString(", "))
+                @Messages("promotion.promotedBy.extended", rest)}
                 <span class="fa fa-eye"></span>
             </li>
         } else {
             @if(item.accessors.nonEmpty) {
                 <li>
                     @defining(item.accessors.take(3), item.accessors.drop(3).size) { case (first, rest) =>
-                    @Messages("portal.access.accessibleTo", first.map(_.toStringLang).mkString(", "))
-                    @Messages("portal.access.accessibleTo.extended", rest)}
+                    @Messages("access.accessibleTo", first.map(_.toStringLang).mkString(", "))
+                    @Messages("access.accessibleTo.extended", rest)}
                     <span class="fa fa-eye-slash"></span>
                 </li>
             } else {
-                <li>@Messages("portal.access.all")</li>
+                <li>@Messages("access.all")</li>
             }
         }
     }
     @list("list-item-actions") {
         @if(userOpt.exists(_.hasPermission(ContentTypes.Annotation, PermissionType.Delete))) {
             <li><a class="delete-annotation"
-               title="@Messages("portal.annotation.delete.title")"href="@controllers.portal.annotate.routes.Annotations.deleteAnnotation(item.id)">@Messages("portal.annotation.delete")</a>
+               title="@Messages("annotation.delete.title")"href="@controllers.portal.annotate.routes.Annotations.deleteAnnotation(item.id)">@Messages("annotation.delete")</a>
             </li>
         }
     }

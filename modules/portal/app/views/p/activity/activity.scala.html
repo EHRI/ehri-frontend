@@ -1,9 +1,9 @@
 @(events: utils.RangePage[SystemEvent], params: utils.RangeParams)(implicit userOpt: Option[UserProfile], request: RequestHeader, prefs: utils.SessionPrefs, globalConfig: global.GlobalConfig, lang: Lang, flash: Flash)
 
 
-@p.layout.portalLayout(Messages("portal.activity"), "user") {
+@p.layout.portalLayout(Messages("activity"), "user") {
     @views.html.layout.mainContent {
-        @p.common.itemHeader(Messages("portal.activity.latestActivity")) {
+        @p.common.itemHeader(Messages("activity.latestActivity")) {
         }
         @activityStream(events)
     }

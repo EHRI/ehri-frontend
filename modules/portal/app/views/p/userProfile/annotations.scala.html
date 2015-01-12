@@ -2,9 +2,9 @@
 
 @* user should always be defined here *@
 @userOpt.map { user =>
-    @p.layout.portalLayout(Messages("portal.annotation.list.by", user.toStringLang), EntityType.UserProfile.toString) {
+    @p.layout.portalLayout(Messages("annotation.list.by", user.toStringLang), EntityType.UserProfile.toString) {
         @views.html.layout.mainContent {
-            <h1>@Messages("portal.annotation.list")</h1>
+            <h1>@Messages("annotation.list")</h1>
             @annotationList(annotations)
         }
     }

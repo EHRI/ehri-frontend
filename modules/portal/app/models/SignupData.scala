@@ -37,7 +37,7 @@ object SignupData {
    */
   private val passwordsMatch: Constraint[SignupData] = Constraint("constraints.passwordMatch") { data =>
     if (data.password == data.confirm) Valid
-    else Invalid("portal.signup.badPasswords")
+    else Invalid("signup.badPasswords")
   }
 
   /**
@@ -56,7 +56,7 @@ object SignupData {
       ALLOW_MESSAGING -> ignored(true),
       TIMESTAMP -> text, // submission time check
       BLANK_CHECK -> text, // honeypot
-      AGREE_TERMS -> checked("portal.signup.agreeTerms")
+      AGREE_TERMS -> checked("signup.agreeTerms")
     )(SignupData.apply)(SignupData.unapply)
       verifying formSubmissionTime verifying blankFieldIsBlank verifying passwordsMatch
   )

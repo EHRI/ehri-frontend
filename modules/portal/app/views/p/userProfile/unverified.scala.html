@@ -3,8 +3,8 @@
 <div class="alert alert-warning">
     @helper.form(action = controllers.portal.account.routes.Accounts.resendVerificationPost) {
         @formHelpers.csrfToken()
-        @Messages("portal.mail.unverifiedEmailWarningMessage")
-        @Messages("portal.mail.unverifiedEmailResend")
-        <button class="btn btn-xs btn-warning">@Messages("portal.mail.unverifiedEmailResendSubmit")</button>
+        @Messages("mail.unverifiedEmailWarningMessage")
+        @Messages("mail.unverifiedEmailResend")
+        <button class="btn btn-xs btn-warning">@Messages("mail.unverifiedEmailResendSubmit")</button>
     }
 </div>

@@ -12,7 +12,7 @@
 
         @* FIXME: This will list addresses for multiple descriptions
         regardless of which one is being displayed *@
-        @p.common.panel(Messages("portal.repository.contact")) {
+        @p.common.panel(Messages("repository.contact")) {
             @item.model.descriptions.map { desc =>
                 @p.repository.address(item, desc)
             }

@@ -51,7 +51,7 @@ class SignupSpec extends IntegrationTestRunner {
       val signup = route(FakeRequest(POST, accountRoutes.signupPost().url)
         .withSession(CSRF_TOKEN_NAME -> fakeCsrfString), badData).get
       status(signup) must equalTo(BAD_REQUEST)
-      contentAsString(signup) must contain(Messages("portal.signup.badPasswords"))
+      contentAsString(signup) must contain(Messages("signup.badPasswords"))
     }
 
     "prevent signup with invalid time diff" in new ITestApp(specificConfig = Map("ehri.signup.timeCheckSeconds" -> 5)) {
@@ -83,7 +83,7 @@ class SignupSpec extends IntegrationTestRunner {
       val signup = route(FakeRequest(POST, accountRoutes.signupPost().url)
         .withSession(CSRF_TOKEN_NAME -> fakeCsrfString), badData).get
       status(signup) must equalTo(BAD_REQUEST)
-      contentAsString(signup) must contain(Messages("portal.signup.agreeTerms"))
+      contentAsString(signup) must contain(Messages("signup.agreeTerms"))
     }
 
     "allow unverified user to log in" in new ITestApp {

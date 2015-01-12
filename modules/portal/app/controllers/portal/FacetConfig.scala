@@ -65,9 +65,9 @@ trait FacetConfig extends Search {
       ),
       FieldFacetClass(
         key = "type",
-        name = Messages("portal.type"),
+        name = Messages("type"),
         param = "type",
-        render = s => Messages("portal.type." + s),
+        render = s => Messages("type." + s),
         display = FacetDisplay.Choice
       )
     )
@@ -79,7 +79,7 @@ trait FacetConfig extends Search {
     List(
       FieldFacetClass(
         key = SolrConstants.TYPE,
-        name = Messages("search.type"),
+        name = Messages("facet.type"),
         param = SolrConstants.TYPE,
         render = s => Messages("contentTypes." + s),
         display = FacetDisplay.Choice
@@ -154,9 +154,9 @@ trait FacetConfig extends Search {
     List(
       QueryFacetClass(
         key="isPromotable",
-        name=Messages("portal.promotion.isPromotable"),
+        name=Messages("facet.promotable"),
         param="promotable",
-        render=s => Messages("portal.promotion.isPromotable." + s),
+        render=s => Messages("promotion.isPromotable." + s),
         facets=List(
           SolrQueryFacet(value = "true", solrValue = "true")
         ),
@@ -164,9 +164,9 @@ trait FacetConfig extends Search {
       ),
       QueryFacetClass(
         key = "promotionScore",
-        name = Messages("portal.promotion.score"),
+        name = Messages("facet.score"),
         param = "score",
-        render = (s: String) => Messages("portal.promotion.score." + s),
+        render = (s: String) => Messages("promotion.score." + s),
         facets=List(
           SolrQueryFacet(value = "positive", solrValue = "[1 TO *]"),
           SolrQueryFacet(value = "neutral", solrValue = "0"),

@@ -43,7 +43,7 @@ object Global extends WithFilters(CSRFFilter()) with GlobalSettings {
 
     // Bind the EntityDAO Create/Update/Delete actions
     // to the SolrIndexer update/delete handlers. Do this
-    // asyncronously and log any failures...
+    // asynchronously and log any failures...
     import java.util.concurrent.TimeUnit
     import scala.concurrent.duration.Duration
     import play.api.libs.concurrent.Execution.Implicits._
@@ -58,7 +58,8 @@ object Global extends WithFilters(CSRFFilter()) with GlobalSettings {
     def handleUpdate(id: String) = logFailure(id, searchIndexer.indexId)
 
     // Special case - block when deleting because otherwise we get ItemNotFounds
-    // after redirects
+    // after redirects because the item is still in the search index but not in
+    // the database.
     def handleDelete(id: String) = logFailure(id, id => Future.successful[Unit] {
       concurrent.Await.result(searchIndexer.clearId(id), Duration(1, TimeUnit.MINUTES))
     })

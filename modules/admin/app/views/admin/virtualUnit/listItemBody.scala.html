@@ -8,7 +8,7 @@
             @d.includedUnits.flatMap(_.descriptions).headOption.map { desc =>
                 @views.html.admin.documentaryUnit.searchItemBody(d.asDocumentaryUnit, desc)
             }.getOrElse {
-                <small>@Messages("describedEntity.noDescriptions")</small>
+                <small>@Messages("description.noDescriptions")</small>
             }
         }
     }

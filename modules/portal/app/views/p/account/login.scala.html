@@ -19,10 +19,10 @@
 @openIdStyles = {
 }
 
-@p.layout.portalLayoutSimple(Messages("login.login"), scripts=openIdJquery, styles=openIdStyles) {
+@p.layout.portalLayoutSimple(Messages("login"), scripts=openIdJquery, styles=openIdStyles) {
 
     @views.html.layout.mainContent {
-        <h3>@Messages("portal.login")</h3>
+        <h3>@Messages("login")</h3>
         <hr />
 
         <section class="login">
@@ -30,14 +30,14 @@
                 @helper.form(action = controllers.portal.account.routes.Accounts.openIDLoginPost, 'class -> "openid form validate-form", 'role -> "form") {
                     @formHelpers.csrfToken()
                     <p>
-                        @Messages("portal.login.oauth.info")
+                        @Messages("login.oauth.info")
                     </p>
                     @oauthProviders.map { case (name, call) =>
                         <a href="@call" class="btn btn-@name" title="@name">
-                            @Html(Messages("portal.login.loginWith", Html("<i class='icon-social " + name + "'></i>")))
+                            @Html(Messages("login.loginWith", Html("<i class='icon-social " + name + "'></i>")))
                         </a>
                     }
-                    <a href="#" class="show-more">@Messages("portal.login.moreOptions")</a>
+                    <a href="#" class="show-more">@Messages("login.moreOptions")</a>
                     <div class="more-login-option @{if(openIdForm.hasErrors) "errors"}">
                         <div class="form-block">
                             @formHelpers.globalErrors(openIdForm)
@@ -78,18 +78,18 @@
                             <fieldset class="identifier openid">
                                 @helper.inputText(
                                     openIdForm("openid_identifier"),
-                                    'placeholder -> Messages("portal.login.openid.urlPlaceholder"),
+                                    'placeholder -> Messages("login.openid.urlPlaceholder"),
                                     'class -> "form-control",
                                     'type -> "url"
                                 )
                             </fieldset>
                         </div>
 
-                        <input type="submit" class="btn btn-post login-button openid" value="@Messages("portal.login.openid.submit")" />
+                        <input type="submit" class="btn btn-post login-button openid" value="@Messages("login.openid.submit")" />
                     </div>
                 }
                 @helper.form(action = controllers.portal.account.routes.Accounts.passwordLoginPost, 'class -> "login-form form validate-form", 'role -> "form") {
-                    <p>@Messages("portal.login.password.info")</p>
+                    <p>@Messages("login.password.info")</p>
 
                     @formHelpers.csrfToken()
 
@@ -100,16 +100,16 @@
                         @helper.inputPassword(pwForm("password"), 'class -> "form-control", 'placeholder -> Messages("login.password"), 'required -> "required")
 
                         <p>
-                            <a href="@controllers.portal.account.routes.Accounts.forgotPassword">@Messages("portal.login.recover.link")</a>
+                            <a href="@controllers.portal.account.routes.Accounts.forgotPassword">@Messages("login.recover.link")</a>
                         </p>
                     </div>
 
-                    <input type="submit" class="login-button btn btn-post" value="@Messages("portal.login.password.submit")" />
+                    <input type="submit" class="login-button btn btn-post" value="@Messages("login.password.submit")" />
                     <p class="text-center">
                         <em><strong>or</strong></em>
                     </p>
                     <p class="text-center">
-                        <a class=" btn  btn-post " href="@controllers.portal.account.routes.Accounts.signup">@Messages("portal.signup")</a>
+                        <a class=" btn  btn-post " href="@controllers.portal.account.routes.Accounts.signup">@Messages("signup")</a>
                     </p>
 
                 }

@@ -27,12 +27,12 @@
 
 @implicitField = @{ views.html.helper.FieldConstructor(formHelpers.fieldTemplate.f) }
 
-@views.html.admin.layout.rightSidebar(Messages("search.updateIndexFor", item.toStringLang), scripts=extraScript, styles = extraStyle, breadcrumbs = views.html.admin.common.breadcrumbs(List(item))) {
+@views.html.admin.layout.rightSidebar(Messages("search.index.update.for", item.toStringLang), scripts=extraScript, styles = extraStyle, breadcrumbs = views.html.admin.common.breadcrumbs(List(item))) {
     @helper.form(action = action, 'id -> "update-form", 'class -> "form-horizontal") {
         @formHelpers.csrfToken()
 
         <div class="form-actions">
-            <input type="submit" id="submit-update" class="btn btn-danger" value="@Messages("search.updateIndex")" />
+            <input type="submit" id="submit-update" class="btn btn-danger" value="@Messages("search.index.update")" />
         </div>
 
         <div id="update-progress">

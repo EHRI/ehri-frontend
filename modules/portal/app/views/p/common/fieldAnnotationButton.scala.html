@@ -4,12 +4,12 @@
     <div class="field-annotation-controls">
         @defining(annotations.filterNot(_.isOwnedBy(userOpt)).size) { other =>
             @if(other > 0) {
-                <a href="#" title="@Messages("portal.annotation.field.showHidden", other)" class="hidden-toggle fa fa-comments@{if(!prefs.showUserContent) "-o"}">@other</a>
+                <a href="#" title="@Messages("annotation.field.showHidden", other)" class="hidden-toggle fa fa-comments@{if(!prefs.showUserContent) "-o"}">@other</a>
             }
         }
-        <a class="annotate-field inactive" title="@Messages("portal.annotation.field.create.title")" data-item="@item.id" data-did="@nodeId" data-field="@key" data-target="@nodeId-@key" href="@controllers.portal.annotate.routes.Annotations.annotateField(item.id, nodeId, key)">
+        <a class="annotate-field inactive" title="@Messages("annotation.field.create.title")" data-item="@item.id" data-did="@nodeId" data-field="@key" data-target="@nodeId-@key" href="@controllers.portal.annotate.routes.Annotations.annotateField(item.id, nodeId, key)">
             <span class="fa fa-comment-o"></span>
-            @Messages("portal.annotation.field.create")
+            @Messages("annotation.field.create")
         </a>
     </div>
 }

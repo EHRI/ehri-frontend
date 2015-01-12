@@ -11,11 +11,11 @@
     }
     @if(showFeedback) {
         <li class="slide-out-div">
-            <a class="handle" role="button" aria-expanded="false" href="@controllers.portal.routes.Feedback.feedback">@Messages("portal.feedback")</a>
+            <a class="handle" role="button" aria-expanded="false" href="@controllers.portal.routes.Feedback.feedback">@Messages("feedback")</a>
             <div id="suggestions">
                 <div id="suggestion-thanks" class="alert alert-success">
-                    <h4>@Messages("portal.feedback.thanks")</h4>
-                    @Messages("portal.feedback.thanks.message")
+                    <h4>@Messages("feedback.thanks")</h4>
+                    @Messages("feedback.thanks.message")
                 </div>
 
                 @feedbackForm(models.Feedback.form)
@@ -24,28 +24,28 @@
     }
     <li class="dropdown">
         <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">
-            @Messages("portal.help")
+            @Messages("help")
             <span class="caret"></span>
         </a>
         <ul id="help-dropdown" class="dropdown-menu" role="menu">
             <li>
                 <a target="_blank" href="https://docs.google.com/document/d/15lpPB2uwVcveWyIqkn8Jzse2iOFI3cOx5OqudduRAWw/edit?usp=sharing">
-                    @Messages("portal.help.general")
+                    @Messages("help.general")
                 </a>
             </li>
             <li>
                 <a target="_blank" href="https://docs.google.com/document/d/13HE65QB_gjUp3Hcu1N7nnEsUNfj9qrDbC_ZkBoSmsPE/edit?usp=sharing">
-                    @Messages("portal.help.archivists")
+                    @Messages("help.archivists")
                 </a>
             </li>
             <li class="divider"></li>
-            <li><a href="@controllers.portal.routes.Helpdesk.helpdesk">@Messages("portal.help.helpdesk")</a></li>
+            <li><a href="@controllers.portal.routes.Helpdesk.helpdesk">@Messages("help.helpdesk")</a></li>
         </ul>
     </li>
     @userOpt.map { user =>
         @if(showAdminLink && user.account.exists(_.staff)) {
         <li>
-            <a href="/admin">@Messages("pages.admin")</a>
+            <a href="/admin">@Messages("admin.site")</a>
         </li>
         }
 
@@ -60,22 +60,22 @@
                 <li class="">
                     <a href="@controllers.portal.users.routes.UserProfiles.profile" class="gravitar">
                         <span class="glyphicon glyphicon-user"></span>
-                        @Messages("portal.profile.menu.link")
+                        @Messages("profile.menu.link")
                     </a>
                 </li>
-                <li role="presentation" class="dropdown-header">@Messages("portal.profile.preferences.view")</li>
+                <li role="presentation" class="dropdown-header">@Messages("profile.preferences.view")</li>
                 <li>
                     <a href="#" class="toggle-boolean-preference boolean-@prefs.showUserContent"
                        data-preference-name="showUserContent"
                        data-preference-value="@prefs.showUserContent">
-                        @Messages("portal.profile.preferences.view.showUserContent")
+                        @Messages("profile.preferences.view.showUserContent")
                     </a>
                 </li>
 
-                <li role="presentation" class="dropdown-header">@Messages("portal.account")</li>
+                <li role="presentation" class="dropdown-header">@Messages("account")</li>
                 <li>
                     <a href="@controllers.portal.account.routes.Accounts.logout">
-                        @Messages("portal.logout")
+                        @Messages("logout")
 
                     </a>
                 </li>
@@ -84,7 +84,7 @@
     }.getOrElse {
     <li>
         <a href="@controllers.portal.account.routes.Accounts.login">
-            @Messages("portal.login.signup")
+            @Messages("login.signup")
         </a>
     </li>
     }

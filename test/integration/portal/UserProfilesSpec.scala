@@ -101,7 +101,7 @@ class UserProfilesSpec extends IntegrationTestRunner {
         profileRoutes.updateProfileImagePost().url), data.asFormUrlEncoded).get
       status(result) must equalTo(BAD_REQUEST)
       // TODO: Verifty types of BAD_REQUEST
-      //contentAsString(result) must contain(Messages("portal.errors.badFileType"))
+      //contentAsString(result) must contain(Messages("errors.badFileType"))
     }
 
     "allow deleting profile with correct confirmation" in new ITestApp {

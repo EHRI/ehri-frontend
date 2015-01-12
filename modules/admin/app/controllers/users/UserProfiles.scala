@@ -71,7 +71,7 @@ case class UserProfiles @Inject()(implicit globalConfig: global.GlobalConfig, se
       "name" -> Forms.nonEmptyText,
       "password" -> Forms.nonEmptyText(minLength = 6),
       "confirm" -> Forms.nonEmptyText(minLength = 6)
-    ) verifying("login.passwordsDoNotMatch", f => f match {
+    ) verifying("login.error.passwordsDoNotMatch", f => f match {
       case (_, _, _, pw, pwc) => pw == pwc
     })
   )
