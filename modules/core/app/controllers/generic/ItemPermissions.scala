@@ -33,10 +33,10 @@ trait ItemPermissions[MT] extends Visibility[MT] {
   ) extends WrappedRequest[A](request)
   with WithOptionalUser
 
-  protected def WithGrantPermission(id: String)(implicit rd: BackendReadable[MT], ct: BackendContentType[MT]) = 
+  protected def WithGrantPermission(id: String)(implicit ct: BackendContentType[MT]) =
     WithItemPermissionAction(id, PermissionType.Grant)
 
-  protected def PermissionGrantAction(id: String)(implicit rd: BackendReadable[MT], ct: BackendContentType[MT]) =
+  protected def PermissionGrantAction(id: String)(implicit ct: BackendContentType[MT]) =
     WithGrantPermission(id) andThen new ActionTransformer[ItemPermissionRequest, ItemPermissionGrantRequest] {
       override protected def transform[A](request: ItemPermissionRequest[A]): Future[ItemPermissionGrantRequest[A]] = {
         implicit val req = request
@@ -47,10 +47,10 @@ trait ItemPermissions[MT] extends Visibility[MT] {
       }
     }
   
-  protected def EditItemPermissionsAction(id: String)(implicit rd: BackendReadable[MT], ct: BackendContentType[MT]) =
+  protected def EditItemPermissionsAction(id: String)(implicit ct: BackendContentType[MT]) =
     WithGrantPermission(id) andThen EditVisibilityAction(id)
   
-  protected def CheckUpdateItemPermissionsAction(id: String, userType: EntityType.Value, userId: String)(implicit rd: BackendReadable[MT], ct: BackendContentType[MT]) =
+  protected def CheckUpdateItemPermissionsAction(id: String, userType: EntityType.Value, userId: String)(implicit ct: BackendContentType[MT]) =
     WithGrantPermission(id) andThen new ActionTransformer[ItemPermissionRequest, SetItemPermissionRequest] {
       override protected def transform[A](request: ItemPermissionRequest[A]): Future[SetItemPermissionRequest[A]] = {
         implicit val req = request
@@ -69,7 +69,7 @@ trait ItemPermissions[MT] extends Visibility[MT] {
     case _ => None
   }
 
-  protected def UpdateItemPermissionsAction(id: String, userType: EntityType.Value, userId: String)(implicit rd: BackendReadable[MT], ct: BackendContentType[MT]) =
+  protected def UpdateItemPermissionsAction(id: String, userType: EntityType.Value, userId: String)(implicit ct: BackendContentType[MT]) =
     WithGrantPermission(id) andThen new ActionTransformer[ItemPermissionRequest, SetItemPermissionRequest] {
       override protected def transform[A](request: ItemPermissionRequest[A]): Future[SetItemPermissionRequest[A]] = {
         implicit val req = request

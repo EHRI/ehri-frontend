@@ -30,7 +30,7 @@ case class Utils @Inject()(implicit globalConfig: global.GlobalConfig, backend: 
     // Not using the EntityDAO directly here to avoid caching
     // and logging
     WS.url("http://%s:%d/%s/group/admin".format(host, port, mount)).get().map { r =>
-      r.json.validate[Group](Group.Converter.restReads).fold(
+      r.json.validate[Group](Group.Resource.restReads).fold(
         _ => ServiceUnavailable("ko\nbad json"),
         _ => Ok("ok")
       )

@@ -24,20 +24,20 @@ trait RestGeneric extends Generic with RestDAO {
   private def unpack(m: Map[String,Seq[String]]): Seq[(String,String)]
       = m.map(ks => ks._2.map(s => ks._1 -> s)).flatten.toSeq
 
-  def get[MT](resource: BackendResource[MT], id: String)(implicit apiUser: ApiUser, rd: backend.BackendReadable[MT], executionContext: ExecutionContext): Future[MT] = {
+  def get[MT](resource: BackendResource[MT], id: String)(implicit apiUser: ApiUser, executionContext: ExecutionContext): Future[MT] = {
     val url = canonicalUrl(id)(resource)
     Cache.getAs[JsValue](url).map { json =>
-      Future.successful(jsonReadToRestError(json, rd.restReads))
+      Future.successful(jsonReadToRestError(json, resource.restReads))
     }.getOrElse {
       userCall(url, resource.defaultParams).get().map { response =>
-        val item = checkErrorAndParse(response, context = Some(url))(rd.restReads)
+        val item = checkErrorAndParse(response, context = Some(url))(resource.restReads)
         Cache.set(url, response.json, cacheTime)
         item
       }
     }
   }
 
-  def get[MT](id: String)(implicit apiUser: ApiUser, rs: BackendResource[MT], rd: backend.BackendReadable[MT], executionContext: ExecutionContext): Future[MT] = {
+  def get[MT](id: String)(implicit apiUser: ApiUser, rs: BackendResource[MT], executionContext: ExecutionContext): Future[MT] = {
     get(rs, id)
   }
 
@@ -50,14 +50,14 @@ trait RestGeneric extends Generic with RestDAO {
 
   def create[MT <: WithId, T](item: T, accessors: Seq[String] = Nil,
       params: Map[String,Seq[String]] = Map.empty,
-      logMsg: Option[String] = None)(implicit apiUser: ApiUser, rs: BackendResource[MT], wrt: BackendWriteable[T], rd: backend.BackendReadable[MT], executionContext: ExecutionContext): Future[MT] = {
+      logMsg: Option[String] = None)(implicit apiUser: ApiUser, rs: BackendResource[MT], wrt: BackendWriteable[T], executionContext: ExecutionContext): Future[MT] = {
     val url = enc(baseUrl, rs.entityType)
     userCall(url)
         .withQueryString(accessors.map(a => ACCESSOR_PARAM -> a): _*)
         .withQueryString(unpack(params):_*)
         .withHeaders(msgHeader(logMsg): _*)
       .post(Json.toJson(item)(wrt.restFormat)).map { response =>
-      val created = checkErrorAndParse(response, context = Some(url))(rd.restReads)
+      val created = checkErrorAndParse(response, context = Some(url))(rs.restReads)
       eventHandler.handleCreate(created.id)
       created
     }
@@ -81,11 +81,11 @@ trait RestGeneric extends Generic with RestDAO {
   }
 
   def update[MT,T](id: String, item: T, logMsg: Option[String] = None)(
-      implicit apiUser: ApiUser, wrt: BackendWriteable[T], rs: BackendResource[MT], rd: backend.BackendReadable[MT], executionContext: ExecutionContext): Future[MT] = {
+      implicit apiUser: ApiUser, wrt: BackendWriteable[T], rs: BackendResource[MT], executionContext: ExecutionContext): Future[MT] = {
     val url = enc(baseUrl, rs.entityType, id)
     userCall(url).withHeaders(msgHeader(logMsg): _*)
         .put(Json.toJson(item)(wrt.restFormat)).map { response =>
-      val item = checkErrorAndParse(response, context = Some(url))(rd.restReads)
+      val item = checkErrorAndParse(response, context = Some(url))(rs.restReads)
       eventHandler.handleUpdate(id)
       Cache.remove(canonicalUrl(id))
       item
@@ -93,12 +93,12 @@ trait RestGeneric extends Generic with RestDAO {
   }
 
   def patch[MT](id: String, data: JsObject, logMsg: Option[String] = None)(
-      implicit apiUser: ApiUser, rs: BackendResource[MT], rd: backend.BackendReadable[MT], executionContext: ExecutionContext): Future[MT] = {
+      implicit apiUser: ApiUser, rs: BackendResource[MT], executionContext: ExecutionContext): Future[MT] = {
     val item = Json.obj(Entity.TYPE -> rs.entityType, Entity.DATA -> data)
     val url = enc(baseUrl, rs.entityType, id)
     userCall(url).withHeaders((PATCH_HEADER_NAME -> true.toString) +: msgHeader(logMsg): _*)
         .put(item).map { response =>
-      val item = checkErrorAndParse(response, context = Some(url))(rd.restReads)
+      val item = checkErrorAndParse(response, context = Some(url))(rs.restReads)
       eventHandler.handleUpdate(id)
       Cache.remove(canonicalUrl(id))
       item
@@ -120,10 +120,10 @@ trait RestGeneric extends Generic with RestDAO {
     }
   }
 
-  def list[MT](params: PageParams = PageParams.empty)(implicit apiUser: ApiUser, rs: BackendResource[MT], rd: backend.BackendReadable[MT], executionContext: ExecutionContext): Future[Page[MT]] = {
+  def list[MT](params: PageParams = PageParams.empty)(implicit apiUser: ApiUser, rs: BackendResource[MT], executionContext: ExecutionContext): Future[Page[MT]] = {
     val url = enc(baseUrl, rs.entityType, "list")
     userCall(url).withQueryString(params.queryParams: _*).get().map { response =>
-      parsePage(response, context = Some(url))(rd.restReads)
+      parsePage(response, context = Some(url))(rs.restReads)
     }
   }
 

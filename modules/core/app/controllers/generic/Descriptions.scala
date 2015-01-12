@@ -36,7 +36,7 @@ trait Descriptions[D <: Description with Persistable, T <: Model with Described[
 
 
   def CreateDescriptionAction(id: String, form: Form[D])(
-    implicit fmt: BackendWriteable[D], rd: BackendReadable[MT], drd: BackendReadable[D], ct: BackendContentType[MT]) =
+    implicit fmt: BackendWriteable[D], drd: BackendReadable[D], ct: BackendContentType[MT]) =
     WithItemPermissionAction(id, PermissionType.Update) andThen new ActionTransformer[ItemPermissionRequest, ManageDescriptionRequest] {
       override protected def transform[A](request: ItemPermissionRequest[A]): Future[ManageDescriptionRequest[A]] = {
         implicit val req = request
@@ -54,7 +54,7 @@ trait Descriptions[D <: Description with Persistable, T <: Model with Described[
     }
 
   def UpdateDescriptionAction(id: String, did: String, form: Form[D])(
-    implicit fmt: BackendWriteable[D], rd: BackendReadable[MT], drd: BackendReadable[D], ct: BackendContentType[MT]) =
+    implicit fmt: BackendWriteable[D], drd: BackendReadable[D], ct: BackendContentType[MT]) =
     WithItemPermissionAction(id, PermissionType.Update) andThen new ActionTransformer[ItemPermissionRequest, ManageDescriptionRequest] {
       override protected def transform[A](request: ItemPermissionRequest[A]): Future[ManageDescriptionRequest[A]] = {
         implicit val req = request
@@ -72,7 +72,7 @@ trait Descriptions[D <: Description with Persistable, T <: Model with Described[
     }
 
   def WithDescriptionAction(id: String, did: String)(
-    implicit fmt: BackendWriteable[D], rd: BackendReadable[MT], drd: BackendReadable[D], ct: BackendContentType[MT]) =
+    implicit fmt: BackendWriteable[D], drd: BackendReadable[D], ct: BackendContentType[MT]) =
     WithItemPermissionAction(id, PermissionType.Update) andThen new ActionRefiner[ItemPermissionRequest,DeleteDescriptionRequest] {
       override protected def refine[A](request: ItemPermissionRequest[A]): Future[Either[Result, DeleteDescriptionRequest[A]]] = {
         request.item.model.description(did) match {
@@ -82,7 +82,7 @@ trait Descriptions[D <: Description with Persistable, T <: Model with Described[
       }
     }
 
-  def DeleteDescriptionAction(id: String, did: String)(implicit rd: BackendReadable[MT], ct: BackendContentType[MT]) =
+  def DeleteDescriptionAction(id: String, did: String)(implicit ct: BackendContentType[MT]) =
     WithItemPermissionAction(id, PermissionType.Update) andThen new ActionTransformer[ItemPermissionRequest, OptionalUserRequest] {
       override protected def transform[A](request: ItemPermissionRequest[A]): Future[OptionalUserRequest[A]] = {
         implicit val req = request

@@ -13,8 +13,6 @@ case class TestResource(id: String, data: JsObject) extends backend.WithId
 object TestResource {
   implicit object Resource extends backend.BackendResource[TestResource] {
     def entityType: EntityType.Value = EntityType.DocumentaryUnit
-  }
-  implicit object Reader extends backend.BackendReadable[TestResource] {
     import play.api.libs.json._
     import play.api.libs.functional.syntax._
     val restReads: Reads[TestResource] = (

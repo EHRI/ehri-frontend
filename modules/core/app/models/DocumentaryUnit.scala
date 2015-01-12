@@ -113,13 +113,10 @@ object DocumentaryUnit {
   )(DocumentaryUnit.apply _)
 
 
-  implicit object Converter extends BackendReadable[DocumentaryUnit] {
-    implicit val restReads = metaReads
-  }
-
-  implicit object Resource extends BackendResource[DocumentaryUnit] with BackendContentType[DocumentaryUnit] {
+  implicit object Resource extends BackendContentType[DocumentaryUnit] {
     val entityType = EntityType.DocumentaryUnit
     val contentType = ContentTypes.DocumentaryUnit
+    implicit val restReads = metaReads
 
     /**
      * When displaying doc units we need the

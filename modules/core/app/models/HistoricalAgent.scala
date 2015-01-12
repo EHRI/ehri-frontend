@@ -76,8 +76,8 @@ object HistoricalAgent {
   import HistoricalAgentF._
   import Ontology._
 
-  private implicit val systemEventReads = SystemEvent.Converter.restReads
-  private implicit val authoritativeSetReads = AuthoritativeSet.Converter.restReads
+  private implicit val systemEventReads = SystemEvent.Resource.restReads
+  private implicit val authoritativeSetReads = AuthoritativeSet.Resource.restReads
 
   implicit val metaReads: Reads[HistoricalAgent] = (
     __.read[HistoricalAgentF] and
@@ -87,13 +87,10 @@ object HistoricalAgent {
     (__ \ META).readWithDefault(Json.obj())
   )(HistoricalAgent.apply _)
 
-  implicit object Converter extends BackendReadable[HistoricalAgent] {
-    val restReads = metaReads
-  }
-
-  implicit object Resource extends BackendResource[HistoricalAgent] with BackendContentType[HistoricalAgent] {
+  implicit object Resource extends BackendContentType[HistoricalAgent] {
     val entityType = EntityType.HistoricalAgent
     val contentType = ContentTypes.HistoricalAgent
+    val restReads = metaReads
   }
 
   val form = Form(

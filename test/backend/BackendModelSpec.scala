@@ -141,18 +141,20 @@ class BackendModelSpec extends RestBackendRunner with PlaySpecification {
         import play.api.libs.functional.syntax._
         import models.base.Accessor
         import models.json.JsPathExtensions
-        val badDeserializer = new BackendReadable[UserProfile] {
+        val badDeserializer = new BackendContentType[UserProfile] {
           val restReads: Reads[UserProfile] = (
             __.read[UserProfileF] and
-            __.lazyNullableListReads(Group.Converter.restReads) and
+            __.lazyNullableListReads(Group.Resource.restReads) and
             __.lazyNullableListReads(Accessor.Converter.restReads) and
             __.nullableHeadReads[SystemEvent] and
             __.read[JsObject]
           )(UserProfile.quickApply _)
+          val entityType = UserProfile.Resource.entityType
+          val contentType = UserProfile.Resource.contentType
         }
 
         await(testBackend.get[UserProfile]("mike")(
-          apiUser, UserProfile.Resource, badDeserializer, concurrentExecutionContext))
+          apiUser, badDeserializer, concurrentExecutionContext))
         failure("Expected BadJson error was not found!")
       } catch {
         case e: backend.rest.BadJson =>

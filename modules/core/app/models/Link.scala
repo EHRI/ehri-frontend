@@ -80,9 +80,9 @@ object Link {
   import play.api.libs.functional.syntax._
 
   private implicit val anyModelReads = AnyModel.Converter.restReads
-  private implicit val userProfileMetaReads = models.UserProfile.Converter.restReads
+  private implicit val userProfileMetaReads = models.UserProfile.Resource.restReads
   private implicit val accessPointReads = models.AccessPoint.Converter.restReads
-  private implicit val systemEventReads = SystemEvent.Converter.restReads
+  private implicit val systemEventReads = SystemEvent.Resource.restReads
 
   implicit val metaReads: Reads[Link] = (
     __.read[LinkF] and
@@ -96,13 +96,10 @@ object Link {
     (__ \ META).readWithDefault(Json.obj())
   )(Link.apply _)
 
-  implicit object Converter extends BackendReadable[Link] {
-    val restReads = metaReads
-  }
-
-  implicit object Resource extends BackendResource[Link] with BackendContentType[Link] {
+  implicit object Resource extends BackendContentType[Link] {
     val entityType = EntityType.Link
     val contentType = ContentTypes.Link
+    val restReads = metaReads
   }
 
   import LinkF._

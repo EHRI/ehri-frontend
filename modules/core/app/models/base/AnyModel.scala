@@ -71,6 +71,7 @@ object AnyModel {
    */
   def resourceFor(t: EntityType.Value): BackendResource[AnyModel] = new BackendResource[AnyModel] {
     def entityType: EntityType.Value = t
+    val restReads = Converter.restReads
   }
 }
 

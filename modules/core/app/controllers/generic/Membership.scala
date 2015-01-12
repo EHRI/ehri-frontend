@@ -31,7 +31,7 @@ trait Membership[MT <: Accessor] extends Read[MT] {
   ) extends WrappedRequest[A](request)
     with WithOptionalUser
 
-  def MembershipAction(id: String)(implicit rd: BackendReadable[MT], ct: BackendContentType[MT]) =
+  def MembershipAction(id: String)(implicit ct: BackendContentType[MT]) =
     WithItemPermissionAction(id, PermissionType.Grant) andThen new ActionTransformer[ItemPermissionRequest, MembershipRequest] {
       override protected def transform[A](request: ItemPermissionRequest[A]): Future[MembershipRequest[A]] = {
         RestHelpers.getGroupList.map { groups =>
@@ -54,7 +54,7 @@ trait Membership[MT <: Accessor] extends Read[MT] {
       }
     }
 
-  def CheckManageGroupAction(id: String, groupId: String)(implicit rd: BackendReadable[MT], ct: BackendContentType[MT]) =
+  def CheckManageGroupAction(id: String, groupId: String)(implicit ct: BackendContentType[MT]) =
     WithItemPermissionAction(id, PermissionType.Grant) andThen new ActionTransformer[ItemPermissionRequest,ManageGroupRequest] {
       override protected def transform[A](request: ItemPermissionRequest[A]): Future[ManageGroupRequest[A]] = {
         implicit val req = request
@@ -64,7 +64,7 @@ trait Membership[MT <: Accessor] extends Read[MT] {
       }
     }
 
-  def AddToGroupAction(id: String, groupId: String)(implicit rd: BackendReadable[MT], ct: BackendContentType[MT]) =
+  def AddToGroupAction(id: String, groupId: String)(implicit ct: BackendContentType[MT]) =
     WithItemPermissionAction(id, PermissionType.Grant) andThen new ActionTransformer[ItemPermissionRequest, ItemPermissionRequest] {
       override protected def transform[A](request: ItemPermissionRequest[A]): Future[ItemPermissionRequest[A]] = {
         implicit val req = request
@@ -72,7 +72,7 @@ trait Membership[MT <: Accessor] extends Read[MT] {
       }
     }
 
-  def RemoveFromGroupAction(id: String, groupId: String)(implicit rd: BackendReadable[MT], ct: BackendContentType[MT]) =
+  def RemoveFromGroupAction(id: String, groupId: String)(implicit ct: BackendContentType[MT]) =
     WithItemPermissionAction(id, PermissionType.Grant) andThen new ActionTransformer[ItemPermissionRequest, ItemPermissionRequest] {
       override protected def transform[A](request: ItemPermissionRequest[A]): Future[ItemPermissionRequest[A]] = {
         implicit val req = request

@@ -93,8 +93,8 @@ object UserProfile {
   import Entity._
   import Ontology._
 
-  private implicit val groupReads = Group.Converter.restReads
-  private implicit val systemEventReads = SystemEvent.Converter.restReads
+  private implicit val groupReads = Group.Resource.restReads
+  private implicit val systemEventReads = SystemEvent.Resource.restReads
 
   implicit val metaReads: Reads[UserProfile] = (
     __.read[UserProfileF] and
@@ -104,13 +104,10 @@ object UserProfile {
     (__ \ META).readWithDefault(Json.obj())
   )(UserProfile.quickApply _)
 
-  implicit object Converter extends BackendReadable[UserProfile] {
-    val restReads = metaReads
-  }
-
-  implicit object Resource extends BackendResource[UserProfile] with BackendContentType[UserProfile] {
+  implicit object Resource extends BackendContentType[UserProfile] {
     val entityType = EntityType.UserProfile
     val contentType = ContentTypes.UserProfile
+    val restReads = metaReads
   }
 
   // Constructor, sans account and perms

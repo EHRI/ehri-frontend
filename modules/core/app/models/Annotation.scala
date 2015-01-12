@@ -82,8 +82,8 @@ object Annotation {
   import Ontology._
 
   private implicit val anyModelReads = AnyModel.Converter.restReads
-  private implicit val userProfileMetaReads = UserProfile.Converter.restReads
-  private lazy implicit val systemEventReads = SystemEvent.Converter.restReads
+  private implicit val userProfileMetaReads = UserProfile.Resource.restReads
+  private lazy implicit val systemEventReads = SystemEvent.Resource.restReads
   private implicit val accessorReads = Accessor.Converter.restReads
 
   implicit val metaReads: Reads[Annotation] = (
@@ -100,13 +100,10 @@ object Annotation {
     (__ \ META).readWithDefault(Json.obj())
   )(Annotation.apply _)
 
-  implicit object Converter extends BackendReadable[Annotation] {
-    val restReads = metaReads
-  }
-
-  implicit object Resource extends BackendResource[Annotation] with BackendContentType[Annotation] {
+  implicit object Resource extends BackendContentType[Annotation] {
     val entityType = EntityType.Annotation
     val contentType = ContentTypes.Annotation
+    val restReads = metaReads
   }
 
   /**

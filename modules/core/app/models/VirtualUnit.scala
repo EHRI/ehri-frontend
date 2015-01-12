@@ -72,7 +72,7 @@ object VirtualUnit {
 
   implicit val metaReads: Reads[VirtualUnit] = (
     __.read[VirtualUnitF](virtualUnitReads) and
-    (__ \ RELATIONSHIPS \ VC_INCLUDES_UNIT).nullableListReads(DocumentaryUnit.Converter.restReads) and
+    (__ \ RELATIONSHIPS \ VC_INCLUDES_UNIT).nullableListReads(DocumentaryUnit.Resource.restReads) and
     (__ \ RELATIONSHIPS \ VC_HAS_AUTHOR).nullableHeadReads(Accessor.Converter.restReads) and
     (__ \ RELATIONSHIPS \ VC_IS_PART_OF).lazyNullableHeadReads(metaReads) and
     (__ \ RELATIONSHIPS \ DOC_IS_CHILD_OF).nullableHeadReads[Repository] and
@@ -82,13 +82,10 @@ object VirtualUnit {
   )(VirtualUnit.apply _)
 
 
-  implicit object Converter extends BackendReadable[VirtualUnit] {
-    implicit val restReads = metaReads
-  }
-
-  implicit object Resource extends BackendResource[VirtualUnit] with BackendContentType[VirtualUnit] {
+  implicit object Resource extends BackendContentType[VirtualUnit] {
     val entityType = EntityType.VirtualUnit
     val contentType = ContentTypes.VirtualUnit
+    implicit val restReads = metaReads
 
     /**
      * When displaying doc units we need the
