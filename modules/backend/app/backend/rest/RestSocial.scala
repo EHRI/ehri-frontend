@@ -12,8 +12,6 @@ import caching.FutureCache
  */
 trait RestSocial extends Social with RestDAO {
 
-  this: RestGeneric =>
-
   import backend.rest.Constants._
   val eventHandler: EventHandler
 

@@ -3,7 +3,7 @@ package backend.rest
 import play.api.Logger
 import play.api.http.{Writeable, ContentTypeOf, HeaderNames, ContentTypes}
 import play.api.libs.json._
-import backend.{AnonymousUser, AuthenticatedUser, ErrorSet, ApiUser}
+import backend._
 import com.fasterxml.jackson.core.JsonParseException
 import utils.{RangePage, RangeParams, Page}
 import scala.concurrent.Future
@@ -205,6 +205,9 @@ trait RestDAO {
   protected def mount: String = getConfigString("neo4j.server.endpoint")
 
   protected def baseUrl = s"http://$host:$port/$mount"
+
+  protected def canonicalUrl[MT](id: String)(implicit rd: BackendResource[MT]): String =
+    enc(baseUrl, rd.entityType, id)
 
   protected def checkError(response: WSResponse): WSResponse = {
     Logger.logger.trace("Response body ! : {}", response.body)

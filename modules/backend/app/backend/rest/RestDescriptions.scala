@@ -13,8 +13,6 @@ import backend.ApiUser
  */
 trait RestDescriptions extends RestDAO with Descriptions {
 
-  this: RestGeneric =>
-
   val eventHandler: EventHandler
 
   private def requestUrl = s"$baseUrl/description"

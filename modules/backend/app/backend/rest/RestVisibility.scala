@@ -10,8 +10,6 @@ import backend._
  */
 trait RestVisibility extends Visibility with RestDAO {
 
-  this: RestGeneric =>
-
   val eventHandler: EventHandler
 
   import Constants._

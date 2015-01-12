@@ -24,9 +24,6 @@ trait RestGeneric extends Generic with RestDAO {
   private def unpack(m: Map[String,Seq[String]]): Seq[(String,String)]
       = m.map(ks => ks._2.map(s => ks._1 -> s)).flatten.toSeq
 
-  protected def canonicalUrl[MT](id: String)(implicit rd: BackendResource[MT]): String =
-    enc(baseUrl, rd.entityType, id)
-
   def get[MT](resource: BackendResource[MT], id: String)(implicit apiUser: ApiUser, rd: backend.BackendReadable[MT], executionContext: ExecutionContext): Future[MT] = {
     val url = canonicalUrl(id)(resource)
     Cache.getAs[JsValue](url).map { json =>

@@ -12,8 +12,6 @@ import caching.FutureCache
 
 trait RestPermissions extends Permissions with RestDAO {
 
-  this: RestGeneric =>
-
   val eventHandler: EventHandler
 
   import Constants._

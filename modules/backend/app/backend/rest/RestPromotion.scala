@@ -12,8 +12,6 @@ import play.api.libs.ws.WSResponse
  */
 trait RestPromotion extends Promotion with RestDAO {
 
-  this: RestGeneric =>
-
   val eventHandler: EventHandler
 
   private def requestUrl = s"$baseUrl/promote"

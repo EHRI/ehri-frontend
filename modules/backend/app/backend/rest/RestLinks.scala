@@ -16,8 +16,6 @@ import play.api.http.Status
  */
 trait RestLinks extends Links with RestDAO {
 
-  this: RestGeneric =>
-
   val eventHandler: EventHandler
 
   final val BODY_PARAM = "body"
