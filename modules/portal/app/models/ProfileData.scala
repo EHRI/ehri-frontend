@@ -35,7 +35,7 @@ object ProfileData {
       USERLOC -> optional(text),
       LANGUAGES -> list(nonEmptyText(minLength = 3, maxLength = 3)),
       ABOUT -> optional(text),
-      URL -> optional(nonEmptyText.verifying(s => isValidUrl(s)))
+      URL -> optional(text.verifying(s => isValidUrl(s)))
     )(ProfileData.apply)(ProfileData.unapply)
   )
 }

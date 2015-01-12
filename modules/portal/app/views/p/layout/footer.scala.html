@@ -1,17 +1,17 @@
 @()(implicit req: RequestHeader, globalConfig: global.GlobalConfig, lang: Lang)
 
 <footer class="footer sticky">
-    <p>@Messages("portal.footerText")</p>
+    <p>@Messages("footerText")</p>
 
     <ul id="navbar-tertiary">
         <li class="@views.Helpers.maybeActive(controllers.portal.routes.Portal.about.url)">
-            <a href="@controllers.portal.routes.Portal.about">@Messages("portal.about")</a>
+            <a href="@controllers.portal.routes.Portal.about">@Messages("about")</a>
         </li>
         <li class="@views.Helpers.maybeActive(controllers.portal.routes.Portal.contact.url)">
-            <a href="@controllers.portal.routes.Portal.contact">@Messages("portal.contact")</a>
+            <a href="@controllers.portal.routes.Portal.contact">@Messages("contact")</a>
         </li>
         <li class="@views.Helpers.maybeActive(controllers.portal.routes.Portal.terms.url)">
-            <a href="@controllers.portal.routes.Portal.terms">@Messages("portal.terms")</a>
+            <a href="@controllers.portal.routes.Portal.terms">@Messages("terms")</a>
         </li>
     </ul>
 
@@ -31,7 +31,7 @@
 
     <div class="footer-blurb small clearfix" style="margin-top: 20px">
         <hr />
-        &copy; @Messages("portal.footer.copyright") &nbsp;&nbsp; @Messages("portal.footer.funding")
+        &copy; @Messages("footer.copyright") &nbsp;&nbsp; @Messages("footer.funding")
         <img class="eu-logo" alt="EU Logo" src="//s3-eu-west-1.amazonaws.com/ehri-assets/eu_logo.gif" />
     </div>
 </footer>

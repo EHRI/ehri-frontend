@@ -11,14 +11,14 @@
 
 @* user should always be defined here *@
 @userOpt.map { user =>
-    @p.layout.portalLayout(Messages("portal.bookmarkSet.list"), EntityType.UserProfile.toString, scripts = js, styles = css) {
+    @p.layout.portalLayout(Messages("bookmarkSet.list"), EntityType.UserProfile.toString, scripts = js, styles = css) {
         @layout.infobar {
         }
 
         @views.html.layout.mainContent {
-            <h1>@Messages("portal.bookmarkSet.list")</h1>
+            <h1>@Messages("bookmarkSet.list")</h1>
             @itemList(None, user, page, params, more = false, watched)
-            <a class="btn post" href="@controllers.portal.routes.Bookmarks.createBookmarkSet()">@Messages("portal.bookmarkSet.create")</a>
+            <a class="btn post" href="@controllers.portal.routes.Bookmarks.createBookmarkSet()">@Messages("bookmarkSet.create")</a>
         }
     }
 

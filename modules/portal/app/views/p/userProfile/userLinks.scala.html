@@ -1,15 +1,15 @@
 @(user: UserProfile, links: utils.Page[Link])(implicit userOpt: Option[UserProfile], req: RequestHeader, lang: Lang)
 
-@p.common.footerPanel(Messages("portal.profile.links")) {
+@p.common.footerPanel(Messages("profile.links")) {
     @if(links.nonEmpty) {
         <ul class="user-links">
 
         </ul>
     } else {
-        @Messages("portal.profile.noLinks")
+        @Messages("profile.noLinks")
     }
 } {
     @if(links.hasMultiplePages) {
-        <a class="pull-right" href="#">@Messages("portal.profile.more")</a>
+        <a class="pull-right" href="#">@Messages("profile.more")</a>
     }
 }

@@ -1,214 +1,377 @@
-portal.welcome=Welcome to EHRI
-portal.home=Home
-portal.about=About EHRI
-portal.contact=Contact
-portal.terms=Terms & Conditions
-portal.welcome.blurb=The EHRI portal offers access to information on Holocaust-related archival \
+welcome=Welcome to EHRI
+home=Home
+about=About EHRI
+contact=Contact
+terms=Terms & Conditions
+welcome.blurb=The EHRI portal offers access to information on Holocaust-related archival \
   material held in institutions across Europe and beyond. \
   For more information on the EHRI project visit http://ehri-project.eu.
-portal.footerText=This is a development version of the EHRI portal interface.
-portal.footer.funding=The EHRI Project is supported by the European Commission
-portal.footer.copyright=2014 The European Holocaust Research Infrastructure Project
-portal.close=Close
-portal.warning=Warning
+footerText=This is a development version of the EHRI portal interface.
+footer.funding=The EHRI Project is supported by the European Commission
+footer.copyright=2014 The European Holocaust Research Infrastructure Project
+close=Close
+optional=Optional
+cancel=Cancel
+warning=Warning
+admin.site=Admin Site
+readonly=The EHRI portal is currently in read-only mode while we conduct maintenance.\
+  Normal service should be resumed in due course. Thanks for your patience.
+newsFeed=Latest News
+latestUpdates=Recent Updates
+browse=Browse
+details.show=Show Item Details
+details.hide=Hide Item Details
 
-portal.download=Download
-portal.download.format.txt=Download as plain text
-portal.download.format.csv=Download as CSV
-portal.download.format.json=Download as JSON
+#
+# Help
+#
+help=Help
+help.general=General site help
+help.archivists=Help for archivists
+help.helpdesk=Helpdesk
 
-portal.help=Help
-portal.help.general=General site help
-portal.help.archivists=Help for archivists
-portal.help.helpdesk=Helpdesk
+#
+# Landing page
+#
+landingBlurb.repository=Browse {0} in {1}.
+landingBlurb.repository.link={0} archival institutions
+landingBlurb.repository.country.link={0} countries
+landingBlurb.country=Browse {0}.
+landingBlurb.country.link={0} national reports
+landingBlurb.documentaryUnit=Browse {0} in {1}.
+landingBlurb.documentaryUnit.link={0} archival descriptions
+landingBlurb.documentaryUnit.repository.link={0} institutions
+landingBlurb.historicalAgent=Browse {0}, comprised of {1}, {2} and {3}.
+landingBlurb.historicalAgent.link={0} historical agents
+landingBlurb.corporateBody.link={0,choice,0#{0} corporate bodies|1#1 corporate body|1<{0,number,integer} corporate bodies}
+landingBlurb.person.link={0} Persons
+landingBlurb.family.link={0,choice,0#{0} families|1#1 family|1<{0,number,integer} families}
 
-portal.profile.preferences=Preferences
-portal.profile.preferences.updated=Preferences Updated
-portal.profile.preferences.allowMessaging=Allow other users to send you messages.
-portal.profile.preferences.allowMessaging.description=Your email address will not be directly accessible.
-portal.profile.preferences.updatePreferences=Update Preferences
-portal.profile.preferences.view=View Preferences
-portal.profile.preferences.view.showUserContent=Show promoted notes by other users
 
-portal.profile=Profile
-portal.profile.menu.link=Go to your profile
-portal.profile.security=Security
-portal.profile.edit=Edit Profile
-portal.profile.image.edit=Set Profile Image
-portal.profile.delete=Delete Account
-portal.profile.delete.link=Click here to delete your profile
-portal.profile.delete.check.text=Deleting your account will \
+#
+# Form constraints, errors, and formats
+#
+constraint.required=*
+constraints.timeCheckSeconds=Timestamp
+constraints.timeCheckSeconds.failed=The form was submitted too quickly. Please try again.
+constraints.honeypot=Blank Check
+constraints.honeypot.failed=The form failed the spam check. Please try again.
+
+format.boolean=On/Off
+
+errors.staffOnly=Restricted
+errors.staffOnlyMessage=This page is currently restricted to EHRI staff only.
+errors.verifiedOnly=Restricted
+errors.verifiedOnlyMessage=This page is currently restricted to verified users only.
+errors.itemNotFound=Item Not Found
+errors.itemNotFound.explanation=That item couldn''t be found in the database.
+errors.pageNotFound=Page Not Found
+errors.pageNotFound.explanation=The page at this location either doesn''t exist or has moved.
+errors.genericProblem=An Error Occurred
+errors.genericProblem.explanation=We're very sorry, but there's a problem loading that page. We''ve been informed of \
+  this and will endeavour to fix the problem as soon as possible.
+errors.databaseError=Database Error
+errors.databaseError.explanation=I''m afraid it looks like our database server has gone down.     \
+  There's not much we can do without it, so please try again later.
+errors.databaseMaintenance=Database Temporarily Offline
+errors.databaseMaintenance.explanation=The EHRI database is currently offline for routine maintenance. \
+  It should be back soon so please try again shortly.
+errors.permissionDenied=Permission Denied
+errors.permissionDenied.explanation=It looks like you can''t do whatever it is you were attempted \
+  to do. This is probably an error on our part. We'll try and fix that ASAP.
+errors.errorDetails=Details
+errors.noFurtherInfo=No additional information is available.
+errors.imageTooLarge=This image was too large. Please select one smaller than 5 metabytes in size.
+errors.badFileType=The uploaded file was not a supported image type.
+errors.noFileGiven=No image file was selected.
+
+#
+# Pagination etc
+#
+# Pagination display. Should say something like "Displaying items 1 to 20 of 25.
+# If there are 0 items, says "No items found", one item, "One item found" etc.
+pagination.displayingItems={2,choice,0#No items found|1#One item found|1<Displaying items {0,number,integer} to {1,number,integer} of {2,number,integer}}
+truncated=...
+truncated.items.remaining={0,choice,0#|1#and 1 more...|1<and {0,number,integer} more...}
+
+#
+# Downloading and formats
+#
+download=Download
+download.format.txt=Download as plain text
+download.format.csv=Download as CSV
+download.format.json=Download as JSON
+
+#
+# Profile
+#
+profile.preferences=Preferences
+profile.preferences.updated=Preferences Updated
+profile.preferences.allowMessaging=Allow other users to send you messages.
+profile.preferences.allowMessaging.description=Your email address will not be directly accessible.
+profile.preferences.updatePreferences=Update Preferences
+profile.preferences.view=View Preferences
+profile.preferences.view.showUserContent=Show promoted notes by other users
+
+profile=Profile
+profile.name=Your name
+profile.location=Location
+profile.url=Website
+profile.languages=Languages
+profile.about=About you
+profile.menu.link=Go to your profile
+profile.security=Security
+profile.edit=Edit Profile
+profile.image.edit=Set Profile Image
+profile.delete=Delete Account
+profile.delete.link=Click here to delete your profile
+profile.delete.check.text=Deleting your account will \
   will anonymise (but not remove) any publicly-visible annotations and links you may have \
   contributed to EHRI. To confirm, please type your name as displayed here, in the box below:
-portal.profile.delete.check=Type your name as displayed above.
-portal.profile.delete.badConfirmation=Profile deletion was not confirmed correctly.
-portal.profile.profile.delete.confirmation=Your profile has been deleted.
+profile.delete.check=Type your name as displayed above.
+profile.delete.badConfirmation=Profile deletion was not confirmed correctly.
+profile.profile.delete.confirmation=Your profile has been deleted.
+profile.update=Update Profile
+profile.update.submit=Update Profile
+profile.update.confirmation=Profile successfully updated
 
-# Item types
-portal.type=Item type
-portal.type.repository=Archival Institutions
-portal.type.repository.description=An inventory of archival institutions that \
+profile.watch.list=Watched Items
+profile.watch.by={0} - Watched Items
+profile.watch=Watch Item
+profile.watch.title=Add item to your watch list
+profile.watch.tooltip=Click to see updates to this item in your activity list.
+profile.watch.submit=Watch Item
+profile.unwatch=Unwatch Item
+profile.unwatch.tooltip=Click to stop getting updates to this item posted in your activity list.
+profile.unwatch.submit=Unwatch Item
+profile.unwatch.title=Remove item from your watch list
+
+#
+# Data types
+#
+type=Item type
+type.repository=Archival Institutions
+type.repository.description=An inventory of archival institutions that \
   hold Holocaust-related material.
-portal.type.documentaryUnit=Archival Descriptions
-portal.type.documentaryUnit.description=Electronic descriptions and finding aids of Holocaust-related archival material.
-portal.type.historicalAgent=Historical Agents
-portal.type.country=Countries
-portal.type.country.description=EHRI national reports provide an overview of \
+type.documentaryUnit=Archival Descriptions
+type.documentaryUnit.description=Electronic descriptions and finding aids of Holocaust-related archival material.
+type.historicalAgent=Historical Agents
+type.country=Countries
+type.country.description=EHRI national reports provide an overview of \
   the Second World War and Holocaust history as well as of the archival situation \
   in the covered countries.
-portal.type.cvocConcept=Keywords
-portal.type.userProfile=People on EHRI
-portal.type.group=Groups
-portal.type.virtualUnit=Virtual Collections
-portal.type.annotation=Notes
-portal.type.link=Connections
-portal.type.cvocVocabulary=Vocabularies
+type.cvocConcept=Keywords
+type.userProfile=People on EHRI
+type.group=Groups
+type.virtualUnit=Virtual Collections
+type.annotation=Notes
+type.link=Connections
+type.cvocVocabulary=Vocabularies
 
-portal.showChildItems=Child Items
+#
+# Dates
+#
+dates.exact={0,number,#}
+dates.before=Before {0,number,#}
+dates.between=Between {0,number,#} and {1,number,#}
+dates.after=After {0,number,#}
+dates.all=All
 
-portal.readonly=The EHRI portal is currently in read-only mode while we conduct maintenance.\
-  Normal service should be resumed in due course. Thanks for your patience.
 
-portal.login=Sign In
-portal.login.signup=Sign In / Sign Up
-portal.login.moreOptions=More login options
-portal.login.alreadyLoggedIn=You are already logged in as {0}
-portal.login.loginWith=Log in with {0}
-portal.login.openid.submit=Sign In With OpenID
-portal.login.openid=OpenID
-portal.login.password.noPassword=There is currently no password associated with your account. This means you\
+#
+# Login-related
+#
+login=Sign In
+login.signup=Sign In / Sign Up
+login.moreOptions=More login options
+login.alreadyLoggedIn=You are already logged in as {0}
+login.loginWith=Sign in with {0}
+login.openid.submit=Sign In With OpenID
+login.openid=OpenID
+login.email=Email
+login.password=Password
+login.password.noPassword=There is currently no password associated with your account. This means you\
   have signed in via a third-party provider such as Google or Facebook.
-portal.login.password.change=Change Password
-portal.login.password.change.link=Click here to change your password
-portal.login.password.reset=Reset Password
-portal.login.password.reset.text=Forgotten your password? Enter the email you used to sign up below\
+login.password.change=Change Password
+login.password.change.link=Click here to change your password
+login.password.change.submit=Submit
+login.password.change.confirmation=Password Changed
+login.password.reset=Reset Password
+login.password.reset.text=Forgotten your password? Enter the email you used to sign up below\
   and we''ll send you a link you can use to reset it.
-portal.login.password.reset.submit=Send Reset Link
-portal.login.openid.urlPlaceholder=Enter your OpenID URL
-portal.login.disabled=Login is currently disabled. Please try again later.
-portal.login.oauth.info=If you already have an account on one of these sites you can click the logo to log in to EHRI:
-portal.login.password.info=If you''ve previously created an account with EHRI, enter your email and password here:
-portal.login.password.submit=Sign In
-portal.login.recover=If you have lost your login details:
-portal.login.recover.link=Click here if you''ve forgotten or lost your password.
-portal.login.error=There was a problem with your details
+login.password.reset.submit=Send Reset Link
+login.openid.urlPlaceholder=Enter your OpenID URL
+login.disabled=Login is currently disabled. Please try again later.
+login.oauth.info=If you already have an account on one of these sites you can click the logo to log in to EHRI:
+login.password.info=If you''ve previously created an account with EHRI, enter your email and password here:
+login.password.submit=Sign In
+login.recover=If you have lost your login details:
+login.recover.link=Click here if you''ve forgotten or lost your password.
+login.error=There was a problem with your details
+login.error.badUsernameOrPassword=Incorrect username or password
+login.error.passwordsDoNotMatch=Password and confirmation do not match!
+login.error.badResetToken=URL given for password reset was invalid or expired. \
+  Note: password reset links can only be used once.
 
-portal.logout=Sign Out
-portal.logout.confirmation=You have been logged out
-portal.account=Account
+login.password.current=Current Password
+login.password.new=New Password
+login.password.new.confirm=Confirm New Password
+login.password.reset.sentLink=We''ve sent you an email containing a link that can be used to reset your password.\
+  This link can only be used once.
+login.sendPasswordResetLink=Submit
+login.submitPasswordReset=Submit
+login.forgotPasswordLink=Click here if you have a password account but have forgotten or lost your password.
+login.passwordResetNowLogin=Your password has been reset. Now please log in using the new one.
 
-portal.signup=Create an Account
-portal.signup.submit=Submit
-portal.signup.dataPolicyNag=By creating an account I agree to abide by the terms of the {0} EHRI data policy {1}.
-portal.signup.badPasswords=The password and confirmation did not match. Please try again.
-portal.signup.agreeTerms=You must agree to the terms.
-portal.signup.confirmation=Thanks for signing up! We''ve sent you an email which you can use to confirm \
+logout=Sign Out
+logout.confirmation=You have been logged out
+account=Account
+
+signup=Create an Account
+signup.submit=Submit
+signup.dataPolicyNag=By creating an account I agree to abide by the terms of the {0} EHRI data policy {1}.
+signup.badPasswords=The password and confirmation did not match. Please try again.
+signup.agreeTerms=You must agree to the terms.
+signup.confirmation=Thanks for signing up! We''ve sent you an email which you can use to confirm \
   your email address.
-portal.signup.emailConfirmed=Your email is now confirmed and you have been signed in.
-portal.signup.invalidSignupToken=Confirmation URL is invalid or has expired.
-portal.signup.validation.confirmation=Your account has been validated.
+signup.emailConfirmed=Your email is now confirmed and you have been signed in.
+signup.invalidSignupToken=Confirmation URL is invalid or has expired.
+signup.validation.confirmation=Your account has been validated.
 
-portal.mail.confirmEmailHeading=Please confirm your email address
-portal.mail.confirmEmailMessage=Please confirm your email address by visiting the following address:
-portal.mail.confirmEmailFooter=This link will be valid for 1 week, after which your account will\
+#
+# Mail stuff
+#
+mail.forgotPasswordMailHeading=EHRI Password Reset
+mail.forgotPasswordMessage=To reset your password, please follow the link below. Note: this link can only be used \
+  to reset your password once.
+mail.forgotPasswordFooter=
+mail.confirmEmailHeading=Please confirm your email address
+mail.confirmEmailMessage=Please confirm your email address by visiting the following address:
+mail.confirmEmailFooter=This link will be valid for 1 week, after which your account will\
   be deactivated.
-portal.mail.unverifiedEmailWarning=Unverified Account
-portal.mail.unverifiedEmailWarningMessage=The email associated with your account has not yet been verified.
-portal.mail.unverifiedEmailResend=To re-send a verification email
-portal.mail.unverifiedEmailResendSubmit=click here
-portal.mail.emailConfirmationResent=We''ve sent you an email which you can use to confirm your email address.
+mail.unverifiedEmailWarning=Unverified Account
+mail.unverifiedEmailWarningMessage=The email associated with your account has not yet been verified.
+mail.unverifiedEmailResend=To re-send a verification email
+mail.unverifiedEmailResendSubmit=click here
+mail.emailConfirmationResent=We''ve sent you an email which you can use to confirm your email address.
+mail.message.subject=EHRI: Message from {0}: {1}
+mail.message.copy.subject=EHRI: Your message to {0}: {1}
+mail.message.heading=New message from {0}
+mail.message.copy.heading=Copy of your message to {0}
+mail.message.replyFooter=To respond, reply directly to this message. You can opt-out from receiving user messages by updating your preferences
+bookmark.tooltip=Save this item to your bookmarks.
+bookmarkedItems=Bookmarked Items
 
-portal.browse=Browse
-portal.details.show=Show Item Details
-portal.details.hide=Hide Item Details
-portal.showItems={0,choice,0#{0} Items|1#1 Item|1<{0,number,integer} Items}
+bookmarkSet.list=Bookmark Sets
+bookmarkSet.defaultSetName=Bookmarked Items
+bookmarkSet.create=Create Bookmark Set
+bookmarkSet.create.submit=Submit
+bookmarkSet.edit=Edit Bookmark Set
+bookmarkSet.edit.submit=Submit
+bookmarkSet.delete=Delete Bookmark Set
+bookmarkSet.delete.submit=Delete
+bookmarkSet.noBookmarkSetsYet=You haven't made any bookmark sets yet.
+bookmarkSet.noUserBookmarkSetsYet={0} has no public bookmark sets yet.
 
-portal.landingBlurb.repository=Browse {0} in {1}.
-portal.landingBlurb.repository.link={0} archival institutions
-portal.landingBlurb.repository.country.link={0} countries
-portal.landingBlurb.country=Browse {0}.
-portal.landingBlurb.country.link={0} national reports
-portal.landingBlurb.documentaryUnit=Browse {0} in {1}.
-portal.landingBlurb.documentaryUnit.link={0} archival descriptions
-portal.landingBlurb.documentaryUnit.repository.link={0} institutions
-portal.landingBlurb.historicalAgent=Browse {0}, comprised of {1}, {2} and {3}.
-portal.landingBlurb.historicalAgent.link={0} historical agents
-portal.landingBlurb.corporateBody.link={0,choice,0#{0} corporate bodies|1#1 corporate body|1<{0,number,integer} corporate bodies}
-portal.landingBlurb.person.link={0} Persons
-portal.landingBlurb.family.link={0,choice,0#{0} families|1#1 family|1<{0,number,integer} families}
+#
+# Descriptions
+#
+description.additionalData=Additional Harvested Data (Click to display)
+description.additionalData.key=Key
+description.additionalData.value=Value
+description.noDescriptions=This item has not been provided with a description
+description.multiple.text=This item has multiple descriptions. Alternate descriptions may source from different repositories or represent a (partial) translation.
+noDetails=---
 
-portal.bookmark.tooltip=Save this item to your bookmarks.
-portal.bookmarkedItems=Bookmarked Items
-portal.newsFeed=Latest News
-portal.latestUpdates=Recent Updates
 
-portal.item.details=Item Details
-portal.item.history=Online History
-portal.item.related=Related Items
-portal.item.linked=Other Connected Items
+#
+# Access points
+#
+accessPoint.browse=Search
+accessPoint.type.creatorAccess=Creator(s)
+accessPoint.type.creatorAccess.reverse=Creator of
+accessPoint.type.personAccess=People
+accessPoint.type.personAccess.reverse=Referenced by (as people)
+accessPoint.type.familyAccess=Families
+accessPoint.type.familyAccess.reverse=Referenced by (as family)
+accessPoint.type.corporateBodyAccess=Corporate Bodies
+accessPoint.type.corporateBodyAccess.reverse=Referenced by (as corporate body)
+accessPoint.type.placeAccess=Places
+accessPoint.type.placeAccess.reverse=Places
+accessPoint.type.subjectAccess=Subjects
+accessPoint.type.subjectAccess.reverse=Subject of
+accessPoint.type.otherAccess=Miscellaneous
+accessPoint.type.otherAccess.reverse=Miscellaneous
+# References not on this item, but from another item's access points
+accessPoint.externalReferences=External references to this item
 
-portal.repository.address=Address
-portal.repository.contact=Contact
-portal.repository.phone=Phone
-portal.repository.email=Email
-portal.repository.fax=Fax
-portal.repository.url=Web
-portal.repository.searchItems=Search items held by {0}
-portal.repository.childItems=Archival Descriptions
-portal.repository.childItems.search={0,choice,0#{0} lower level |1#1 item|1<{0,number,integer} items}
+#
+# System Events
+#
+systemEvent.itemAtTime=Action at {0}
+systemEvent.lastUpdated=Updated {0}
+systemEvent.creation=Item created
+systemEvent.createDependent=Description added
+systemEvent.modification=Item modified
+systemEvent.modifyDependent=Description modified
+systemEvent.deletion=Item deleted
+systemEvent.deleteDependent=Description deleted
+systemEvent.link=Link created
+systemEvent.annotation=Annotation created
+systemEvent.setGlobalPermissions=Global permissions modified
+systemEvent.setItemPermissions=Item-level permissions modified
+systemEvent.setVisibility=Visibility modified
+systemEvent.addGroup=Member added to group
+systemEvent.removeGroup=Member removed from group
+systemEvent.ingest=Items imported
+systemEvent.promotion=Item Promoted
+systemEvent.demotion=Item Promotion Removed
 
-portal.documentaryUnit.identifier=Identifier
-portal.documentaryUnit.archivalContext=Archival Context
-portal.documentaryUnit.otherIdentifiers=Alt. Identifiers
-portal.documentaryUnit.extentAndMedium=Extent & Medium
-portal.documentaryUnit.dates=Dates
-portal.documentaryUnit.levelOfDescription=Level of Description
-portal.documentaryUnit.languageOfMaterials=Languages
-portal.documentaryUnit.scriptOfMaterials=Scripts
-portal.documentaryUnit.searchItems=Search child items...
-portal.documentaryUnit.levelOfDescription.fonds=Fonds
-portal.documentaryUnit.levelOfDescription.subfonds=Sub-fonds
-portal.documentaryUnit.levelOfDescription.collection=Collection
-portal.documentaryUnit.levelOfDescription.subcollection=Sub-collection
-portal.documentaryUnit.levelOfDescription.recordgrp=Record group
-portal.documentaryUnit.levelOfDescription.subgrp=Sub-group
-portal.documentaryUnit.levelOfDescription.series=Series
-portal.documentaryUnit.levelOfDescription.subseries=Sub-series
-portal.documentaryUnit.levelOfDescription.file=File
-portal.documentaryUnit.levelOfDescription.item=Item
-portal.documentaryUnit.levelOfDescription.otherLevel=Other
-portal.documentaryUnit.levelOfDescription.class=Class
-portal.documentaryUnit.childItems=Child Items
-portal.documentaryUnit.childItems.search={0,choice,0#{0} lower level |1#1 item|1<{0,number,integer} items}
+#
+# Miscellaneous errors
+#
+error.globalErrors=There were problems with that form:
+error.date=Date is incorrect or badly formatted
+error.badUrl=URL is incorrect or badly formatted. Note: for web addresses, a valid URL must be prefixed \
+  be the scheme, e.g. ''http://'' or ''https://''
 
-portal.historicalAgent.identifier=Identifier
-portal.historicalAgent.dates=Dates
-portal.historicalAgent.entityType=Type of Entity
-portal.historicalAgent.entityType.person=Person
-portal.historicalAgent.entityType.family=Family
-portal.historicalAgent.entityType.corporateBody=Corporate Body
-portal.historicalAgent.set=Historical Agent
+error.required=Required
+error.emailExists=Email is either invalid or is already registered
+error.unknownUser=Unknown user
+error.emailNotFound=That email was not found on our system.
+error.badRecaptcha=The Recaptcha check (intended to ensure you are a human and not an automated spamming machine) did not\
+    get the right response. Tip: you can keep refreshing the challenge text until you get something more readable.
+error.openId=There was a problem logging you in with OpenID.\
+  This may because your provider does not support attribute exchange. The error messages was: {0}
+error.openId.url=There was no response from the given openid provider: ''{0}''.\
+  Please ensure the provider URL is correct.
+error.userEmailAlreadyRegistered=A user with that email is already registered: {0}
 
-portal.virtualUnit.viewInArchivalContext=View in archival context
-portal.virtualUnit.viewInArchivalContext.explanation=This item is being displayed as part of a ''virtual collection'' \
-  that does not reflect the arrangement of material in the physical archive.
+#
+# Search
+#
+search.submit=Search
+search.sort=Order
+search.sort.identifier.asc=ID/Code
+search.sort.identifier.asc.title=Display results sorted by their institution-given identifier
+search.sort.isParent.desc-identifier.asc=ID/Code
+search.sort.isParent.desc-identifier.asc.title=Display results sorted by their institution-given identifier, with container items first
+search.sort.name_sort.asc=Name
+search.sort.name_sort.asc.title=Display results sorted by name
+search.sort.lastUpdated.desc=Recently Updated
+search.sort.lastUpdated.desc.title=Display most recently-changed results first
+search.sort.score.desc=Relevance
+search.sort.score.desc.title=Display results in order of search relevance
+search.sort.charCount.desc=Detail
+search.sort.charCount.desc.title=Display most detailed results first
+search.sort.repositoryName.asc=Repository
+search.sort.repositoryName.asc.title=Sort results by repository
+search.sort.countryName.asc=Country
+search.sort.countryName.asc.title=Sort results by country
+search.identifier=Identifier
+search.spellingSuggestion=Did you mean
+search.queryPlaceholder=Search...
 
-portal.bookmarkSet.list=Bookmark Sets
-portal.bookmarkSet.defaultSetName=Bookmarked Items
-portal.bookmarkSet.create=Create Bookmark Set
-portal.bookmarkSet.create.submit=Submit
-portal.bookmarkSet.edit=Edit Bookmark Set
-portal.bookmarkSet.edit.submit=Submit
-portal.bookmarkSet.delete=Delete Bookmark Set
-portal.bookmarkSet.delete.submit=Delete
-portal.bookmarkSet.noBookmarkSetsYet=You haven't made any bookmark sets yet.
-portal.bookmarkSet.noUserBookmarkSetsYet={0} has no public bookmark sets yet.
-
-portal.country.childItems=Archival Institutions
-portal.country.childItems.search={0,choice,0#{0} lower level |1#1 institution|1<{0,number,integer} institutions}
-
-portal.cvocVocabulary.childItems=Keywords
-portal.cvocVocabulary.childItems.search={0,choice,0#{0} |1#1 keyword|1<{0,number,integer} keywords}
 
 # Facets
 facet.type=Item Type
@@ -251,8 +414,6 @@ facet.topLevel.true=Top Level
 facet.container.hasChildItems=Multi-level (container)
 facet.itemsHeldOnline=Viewable Items
 facet.itemsHeldOnline.yes=Catalogued Material Available
-portal.multipleDescriptions=This item has multiple descriptions. Alternate descriptions may source from different repositories or represent a (partial) translation.
-portal.noDetails=---
 facet.cpf=Authority Type
 facet.cpf.tooltip=The type of entity, e.g. person, family, or corporate body.
 facet.set=Authority Set
@@ -277,208 +438,451 @@ facet.score=Promotion Score
 facet.score.tooltip=The sum total of all promotions and demotions, if any
 
 # Activity...
-portal.activity=Activity
-portal.activity.by={0} - Activity
-portal.activity.latestActivity=Latest Activity
-portal.activity.userCreatedItem={2,choice,0#{0} created item {1}|1#{0} created {1} and 1 more item|1<{0} created {1} and {2,number,integer} more items}
-portal.activity.userUpdatedItem={2,choice,0#{0} updated item {1}|1#{0} updated {1} and 1 more item|1<{0} updated {1} and {2,number,integer} more items}
-portal.activity.userImportedItem={2,choice,0#{0} imported item {1}|1#{0} imported {1} and 1 more item|1<{0} imported {1} and {2,number,integer} more items}
-portal.activity.userLinkedItem={2,choice,0#{0} created a link for item {1}|1#{0} created a link for {1} and 1 more item|1<{0} created a link for {1} and {2,number,integer} more items}
-portal.activity.userAnnotatedItem={2,choice,0#{0} annotated item {1}|1#{0} annotated {1} and 1 more item|1<{0} annotated {1} and {2,number,integer} more items}
-portal.activity.fetchMore=More
-portal.activity.noActivityYet=Activity involving items you''re watching and users you follow will show up here.
-portal.activity.noUserActivityYet=No public activity yet.
-portal.activity.modifiedProfile=Updated profile information.
+activity=Activity
+activity.by={0} - Activity
+activity.latestActivity=Latest Activity
+activity.userCreatedItem={2,choice,0#{0} created item {1}|1#{0} created {1} and 1 more item|1<{0} created {1} and {2,number,integer} more items}
+activity.userUpdatedItem={2,choice,0#{0} updated item {1}|1#{0} updated {1} and 1 more item|1<{0} updated {1} and {2,number,integer} more items}
+activity.userImportedItem={2,choice,0#{0} imported item {1}|1#{0} imported {1} and 1 more item|1<{0} imported {1} and {2,number,integer} more items}
+activity.userLinkedItem={2,choice,0#{0} created a link for item {1}|1#{0} created a link for {1} and 1 more item|1<{0} created a link for {1} and {2,number,integer} more items}
+activity.userAnnotatedItem={2,choice,0#{0} annotated item {1}|1#{0} annotated {1} and 1 more item|1<{0} annotated {1} and {2,number,integer} more items}
+activity.fetchMore=More
+activity.noActivityYet=Activity involving items you''re watching and users you follow will show up here.
+activity.noUserActivityYet=No public activity yet.
+activity.modifiedProfile=Updated profile information.
 
 # 'Social' stuff...
-portal.social.message.send=Contact {0}
-portal.social.message.send.submit=Send Message
-portal.social.message.send.confirmation=Your message has been sent
-portal.social.message.send.subject=Subject
-portal.social.message.send.message=Your message
-portal.social.message.send.copy=Send yourself a copy of this message
-portal.social.message.send.warning=Your message will be sent via email with your registered address in the reply-to field.
-portal.social.message.send.userNotAcceptingMessages=This user has messaging disabled.
-portal.mail.message.subject=EHRI: Message from {0}: {1}
-portal.mail.message.copy.subject=EHRI: Your message to {0}: {1}
-portal.mail.message.heading=New message from {0}
-portal.mail.message.copy.heading=Copy of your message to {0}
-portal.mail.message.replyFooter=To respond, reply directly to this message. You can opt-out from receiving user messages by updating your preferences
+social.message.send=Contact {0}
+social.message.send.submit=Send Message
+social.message.send.confirmation=Your message has been sent
+social.message.send.subject=Subject
+social.message.send.message=Your message
+social.message.send.copy=Send yourself a copy of this message
+social.message.send.warning=Your message will be sent via email with your registered address in the reply-to field.
+social.message.send.userNotAcceptingMessages=This user has messaging disabled.
+social.users=People
+social.browseUsers=People on EHRI
+social.follow=Follow
+social.follow.submit=Follow User
+social.unfollow=Unfollow
+social.unfollow.submit=Unfollow User
+social.followers=Followers
+social.following=Following
+social.followedBy=Followed By
+social.noFollowersYet=No one''s following {0} yet.
+social.noFollowingYet={0} isn''t following anyone yet.
+social.noItemsWatchedYet=You''re not watching any items yet.
+social.noUserItemsWatchedYet={0} is not watching any items yet.
+social.userFollowing=Users Following {0}
+social.usersFollowedBy=Users Followed by {0}
+social.block=Block User
+social.block.submit=Block User
+social.unblock=Unblock User
+social.unblock.submit=Unblock User
 
 
-portal.social.users=People
-portal.social.browseUsers=People on EHRI
-portal.social.follow=Follow
-portal.social.follow.submit=Follow User
-portal.social.unfollow=Unfollow
-portal.social.unfollow.submit=Unfollow User
-portal.social.followers=Followers
-portal.social.following=Following
-portal.social.followedBy=Followed By
-portal.social.noFollowersYet=No one''s following {0} yet.
-portal.social.noFollowingYet={0} isn''t following anyone yet.
-portal.social.noItemsWatchedYet=You''re not watching any items yet.
-portal.social.noUserItemsWatchedYet={0} is not watching any items yet.
-portal.social.userFollowing=Users Following {0}
-portal.social.usersFollowedBy=Users Followed by {0}
-portal.social.block=Block User
-portal.social.block.submit=Block User
-portal.social.unblock=Unblock User
-portal.social.unblock.submit=Unblock User
+#
+# Annotations
+#
+annotation=Notes
+annotation.list=Notes
+annotation.list.by={0} - Notes
+annotation.none=You haven''t made any notes yet.
+annotation.create=Add Note
+annotation.create.title=Create a note attached to this description
+annotation.update=Edit
+annotation.update.submit=Save
+annotation.update.title=Edit Note
+annotation.field.create=Add Note
+annotation.field.create.title=Create a note on this field
+annotation.field.showHidden=Show/hide {0,choice,1#1 public note made by another person|1<{0} public notes made by other people}
+annotation.delete=Delete
+annotation.delete.title=Delete Note
+annotation.createdBy=Created by {0} at {1}
+annotation.showPublic={0,choice,1#Show 1 public note|1<Show {0} public notes}
+annotation.placeholder=
 
-portal.profile.watch.list=Watched Items
-portal.profile.watch.by={0} - Watched Items
-portal.profile.watch=Watch Item
-portal.profile.watch.title=Add item to your watch list
-portal.profile.watch.tooltip=Click to see updates to this item in your activity list.
-portal.profile.watch.submit=Watch Item
-portal.profile.unwatch=Unwatch Item
-portal.profile.unwatch.tooltip=Click to stop getting updates to this item posted in your activity list.
-portal.profile.unwatch.submit=Unwatch Item
-portal.profile.unwatch.title=Remove item from your watch list
+#
+# Visibility
+#
+access.all=Public
+access.accessibleTo=Visible to {0}
+access.accessibleTo.extended={0,choice,0#|1# and 1 other|1< and {0} others}
 
-portal.annotation=Notes
-portal.annotation.list=Notes
-portal.annotation.list.by={0} - Notes
-portal.annotation.none=You haven''t made any notes yet.
-portal.annotation.create=Add Note
-portal.annotation.create.title=Create a note attached to this description
-portal.annotation.update=Edit
-portal.annotation.update.submit=Save
-portal.annotation.update.title=Edit Note
-portal.annotation.field.create=Add Note
-portal.annotation.field.create.title=Create a note on this field
-portal.annotation.field.showHidden=Show/hide {0,choice,1#1 public note made by another person|1<{0} public notes made by other people}
-portal.annotation.delete=Delete
-portal.annotation.delete.title=Delete Note
-portal.annotation.createdBy=Created by {0} at {1}
-portal.annotation.showPublic={0,choice,1#Show 1 public note|1<Show {0} public notes}
-portal.annotation.placeholder=
+#
+# Promotion
+#
+promotion.isPromotable=Promotion
+promotion.isPromotable.true=Promotable
+promotion.isPromotable.false=Not Promotable
+promotion.isPromoted.true=Promoted
+promotion.isPromoted.false=Not Promoted
+promotion.promotedBy=Promoted by {0}
+promotion.promotedBy.extended={0,choice,0#|1# and 1 other|1< and {0} others}
+promotion.promote=Promote
+promotion.promote.title=Promote Note
+promotion.promote.title.submit=Promote
+promotion.promote.remove=Remove Promotion
+promotion.promote.remove.title=Remove Note Promotion
+promotion.promote.remove.title.submit=Remove
+promotion.demote=Demote
+promotion.demote.title=Demote Note
+promotion.demote.title.submit=Demote
+promotion.demote.remove=Remove Demotion
+promotion.demote.remove.title=Remove Note Demotion
+promotion.demote.remove.title.submit=Remove
+promotion.score=Promotion Score
+promotion.score.detail=Promotions: {0}, Demotions: {1}
+promotion.score.negative=Negative
+promotion.score.neutral=Neutral
+promotion.score.positive=Positive
 
-portal.access.all=Public
-portal.access.accessibleTo=Visible to {0}
-portal.access.accessibleTo.extended={0,choice,0#|1# and 1 other|1< and {0} others}
+#
+# Activity time line
+#
+timeline.eventType.ingest={0} imported {1}
+timeline.eventType.creation={0} created {1}
+timeline.eventType.annotation={0} annotated {1}
+timeline.eventType.modification={0} updated {1}
+timeline.eventType.link={0} linked {1}
+timeline.eventType.createDependent={0} updated {1}
+timeline.eventType.modifyDependent={0} updated {1}
+timeline.eventType.deleteDependent={0} updated {1}
+timeline.eventType.setVisibility={0} updated {1}
+timeline.eventType.setGlobalPermissions={0} updated {1}
+timeline.eventType.setItemPermissions={0} updated {1}
+timeline.target.group=a group
+timeline.target.userProfile=an user
+timeline.target.repository=a collection holding institution
+timeline.target.historicalAgent=a historical agent
+timeline.target.documentaryUnit=an archival description
+timeline.target.action=an user event
+timeline.target.cvocVocabulary=a vocabulariy
+timeline.target.authoritativeSet=an authority sets
+timeline.target.cvocConcept=a term
+timeline.target.annotation=an annotation
+timeline.target.country=a country
+timeline.target.link=a link
+timeline.target.systemEvent=an history
 
-portal.promotion.isPromotable=Promotion
-portal.promotion.isPromotable.true=Promotable
-portal.promotion.isPromotable.false=Not Promotable
-portal.promotion.isPromoted.true=Promoted
-portal.promotion.isPromoted.false=Not Promoted
-portal.promotion.promotedBy=Promoted by {0}
-portal.promotion.promotedBy.extended={0,choice,0#|1# and 1 other|1< and {0} others}
-portal.promotion.promote=Promote
-portal.promotion.promote.title=Promote Note
-portal.promotion.promote.title.submit=Promote
-portal.promotion.promote.remove=Remove Promotion
-portal.promotion.promote.remove.title=Remove Note Promotion
-portal.promotion.promote.remove.title.submit=Remove
-portal.promotion.demote=Demote
-portal.promotion.demote.title=Demote Note
-portal.promotion.demote.title.submit=Demote
-portal.promotion.demote.remove=Remove Demotion
-portal.promotion.demote.remove.title=Remove Note Demotion
-portal.promotion.demote.remove.title.submit=Remove
-portal.promotion.score=Promotion Score
-portal.promotion.score.detail=Promotions: {0}, Demotions: {1}
-portal.promotion.score.negative=Negative
-portal.promotion.score.neutral=Neutral
-portal.promotion.score.positive=Positive
-
-portal.link.list=Links
-portal.link.none=You haven''t made any links yet.
-
-portal.timeline.eventType.ingest={0} imported {1}
-portal.timeline.eventType.creation={0} created {1}
-portal.timeline.eventType.annotation={0} annotated {1}
-portal.timeline.eventType.modification={0} updated {1}
-portal.timeline.eventType.link={0} linked {1}
-portal.timeline.eventType.createDependent={0} updated {1}
-portal.timeline.eventType.modifyDependent={0} updated {1}
-portal.timeline.eventType.deleteDependent={0} updated {1}
-portal.timeline.eventType.setVisibility={0} updated {1}
-portal.timeline.eventType.setGlobalPermissions={0} updated {1}
-portal.timeline.eventType.setItemPermissions={0} updated {1}
-
-
-
-portal.timeline.target.group=a group
-portal.timeline.target.userProfile=an user
-portal.timeline.target.repository=a collection holding institution
-portal.timeline.target.historicalAgent=a historical agent
-portal.timeline.target.documentaryUnit=an archival description
-portal.timeline.target.action=an user event
-portal.timeline.target.cvocVocabulary=a vocabulariy
-portal.timeline.target.authoritativeSet=an authority sets
-portal.timeline.target.cvocConcept=a term
-portal.timeline.target.annotation=an annotation
-portal.timeline.target.country=a country
-portal.timeline.target.link=a link
-portal.timeline.target.systemEvent=an history
-
-
-portal.contribution.visibility=Choose who can see this
-portal.contribution.visibility.me=Only Me
-portal.contribution.visibility.groups=My Groups
-portal.contribution.visibility.custom=Custom
-portal.contribution.visibility.allowPublic=Allow Promotion
-portal.contribution.visibility.allowPublic.title=Allow EHRI moderators to promote this note so it is visible to all users.
-portal.contribution.visibility.isPrivate=Private Note
-portal.contribution.visibility.isPrivate.title=Only you can see this note. \
+#
+# Visibility of user-generated content
+#
+contribution.visibility=Choose who can see this
+contribution.visibility.me=Only Me
+contribution.visibility.groups=My Groups
+contribution.visibility.custom=Custom
+contribution.visibility.allowPublic=Allow Promotion
+contribution.visibility.allowPublic.title=Allow EHRI moderators to promote this note so it is visible to all users.
+contribution.visibility.isPrivate=Private Note
+contribution.visibility.isPrivate.title=Only you can see this note. \
   Deselecting this option will allow EHRI moderators to promote it so it is visible to all users.
 
-# Image upload
-portal.error.imageTooLarge=This image was too large. Please select one smaller than 5 metabytes in size.
-portal.error.badFileType=The uploaded file was not a supported image type.
-portal.error.noFileGiven=No image file was selected.
+#
+# General search
+#
+search=Search
+search.sort.title=Search result ordering
+search.global=Search Everything
+search.repository=Search Repositories
+search.documentaryUnit=Search Archival Descriptions
+search.historicalAgent=Search Historical Agents
+search.helper.example=Phrase
+search.helper.linkTitle=Advanced query tips
+search.helper=There are several ways to be more specific in your search query:
+search.helper.minus=Exclude given word from search, e.g. -Gestapo
+search.helper.plus=Given word has to be in the result, e.g. +Gestapo
+search.helper.quotes=Search an exact match of your query, e.g. "Member lists"
 
-portal.search=Search
-portal.search.sort.title=Search result ordering
-portal.search.global=Search Everything
-portal.search.repository=Search Repositories
-portal.search.documentaryUnit=Search Archival Descriptions
-portal.search.historicalAgent=Search Historical Agents
-portal.search.helper.example=Phrase
-portal.search.helper.linkTitle=Advanced query tips
-portal.search.helper=There are several ways to be more specific in your search query:
-portal.search.helper.minus=Exclude given word from search, e.g. -Gestapo
-portal.search.helper.plus=Given word has to be in the result, e.g. +Gestapo
-portal.search.helper.quotes=Search an exact match of your query, e.g. "Member lists"
+#
+# Feedback
+#
+feedback=Feedback
+feedback.submit=Send
+feedback.message=Let us know what you think...
+feedback.thanks=Thanks!
+feedback.thanks.message=Your feedback is greatly appreciated.
+feedback.list=Submitted Feedback
+feedback.type=This feedback is about
+feedback.type.site=the site (functionality, design, etc)
+feedback.type.data=the data content
 
-#Feedback module
-portal.feedback=Feedback
-portal.feedback.message=Let us know what you think...
-portal.feedback.thanks=Thanks!
-portal.feedback.thanks.message=Your feedback is greatly appreciated.
-
-portal.guides.faceted=Browse
-portal.guides=Guides
-portal.guides.more=More
-portal.guides.loading=Loading
-portal.guides.facets.hierarchy=Search or browse through the available facets of the Guide.
-portal.guides.facets.available=The facets shown here are the one available connected to the same document.
-portal.guides.annotation=If you have anything to improve or comment on this record, you can annotate it in the standard EHRI portal interface.
-portal.guides.seeOnPortal=Portal interface
-
-portal.feedback.list=Submitted Feedback
-portal.feedback.type=This feedback is about
-portal.feedback.type.site=the site (functionality, design, etc)
-portal.feedback.type.data=the data content
-
+#
 # Helpdesk
-portal.helpdesk=Helpdesk
-portal.helpdesk.message=The helpdesk will attempt to match your query to the EHRI partner institution \
+#
+helpdesk=Helpdesk
+helpdesk.email=Your email
+helpdesk.message=The helpdesk will attempt to match your query to the EHRI partner institution \
   best placed to answer it.
-portal.helpdesk.thanks=Thanks!
-portal.helpdesk.thanks.message=Your query has been submitted.
-portal.helpdesk.query=Query
-portal.helpdesk.error=Oops! Something went wrong with the helpdesk. Here's what it said:
-portal.helpdesk.results=Helpdesk Contact Recommendations
-portal.helpdesk.results.empty=No relevant institutions found. Please reformulate your query and add more details.
-portal.helpdesk.query.placeholder=Enter your query here. Subject-specific terms are best.
-portal.helpdesk.copyMe=Email a copy of the query to your address
-portal.helpdesk.youAsked=You asked
-portal.helpdesk.institution=Institution Name
-portal.helpdesk.contactEmail=Contact Email
-portal.helpdesk.score=Confidence Score
-portal.helpdesk.confidence.message=How confident we are that this ranking is correct.
-portal.helpdesk.query.submit=Ask the helpdesk
+helpdesk.thanks=Thanks!
+helpdesk.thanks.message=Your query has been submitted.
+helpdesk.query=Query
+helpdesk.error=Oops! Something went wrong with the helpdesk. Here's what it said:
+helpdesk.results=Helpdesk Contact Recommendations
+helpdesk.results.empty=No relevant institutions found. Please reformulate your query and add more details.
+helpdesk.query.placeholder=Enter your query here. Subject-specific terms are best.
+helpdesk.copyMe=Email a copy of the query to your address
+helpdesk.youAsked=You asked
+helpdesk.institution=Institution Name
+helpdesk.contactEmail=Contact Email
+helpdesk.score=Confidence Score
+helpdesk.confidence.message=How confident we are that this ranking is correct.
+helpdesk.query.submit=Ask the helpdesk
+
+#
+# Data policy
+#
+dataPolicy.header=EHRI Data Policy
+dataPolicy.notice1=This database might contain Sensitive Personal Data which according to Dutch privacy \
+  law can be used for research purposes only (article 16 Dutch Data Protection Act ''Wet \
+  bescherming Persoonsgegevens'').
+dataPolicy.notice2=Sensitive Personal Data is any data related to an identified or identifiable person related \
+  to a person's religion or belief, race, political opinion, health, sexual life, trade union \
+  membership and criminal record.
+dataPolicy.terms=I declare that I will use Sensitive Personal Data for research purposes only and in general \
+  will use Sensitive Personal Data in accordance with applicable Dutch and international laws \
+  and regulations. I am aware of punitive results following a breach of these laws and/or \
+  regulations.
+dataPolicy.agree=I Agree
+
+#
+# Markdown Cheatsheet
+#
+markdown.cheatsheet.title=Formating tips
+markdown.cheatsheet.asterisks=asterisks
+markdown.cheatsheet.underscores=underscores
+markdown.cheatsheet.bold=Bold
+markdown.cheatsheet.italic=Italic
+markdown.cheatsheet.ordered=Ordered list
+markdown.cheatsheet.ordered.item1=First ordered list item
+markdown.cheatsheet.ordered.item2=Another item
+markdown.cheatsheet.unordered=Ordered list
+markdown.cheatsheet.unordered.item1=Item
+markdown.cheatsheet.unordered.item2=Another item
+markdown.cheatsheet.more=Source
+
+
+#
+# Item-type specific fields
+#
+# Generic
+#
+item.details=Item Details
+item.history=Online History
+item.related=Related Items
+item.linked=Other Connected Items
+item.showChildItems=Child Items
+item.showItems={0,choice,0#{0} Items|1#1 Item|1<{0,number,integer} Items}
+
+#
+# Repositories
+#
+repository.address=Address
+repository.contact=Contact
+repository.phone=Phone
+repository.email=Email
+repository.fax=Fax
+repository.url=Web
+repository.contactPerson=Contact Person
+repository.street=Street Address
+repository.municipality=City
+repository.firstdem=Region
+repository.countryCode=Country Code
+repository.telephone=Telephone
+repository.postalcode=Post Code
+repository.webpage=Website
+repository.searchItems=Search items held by {0}
+repository.childItems=Archival Descriptions
+repository.childItems.search={0,choice,0#{0} lower level |1#1 item|1<{0,number,integer} items}
+repository.search=Search Repositories
+repository.searchInside=Search items held by {0}
+repository.itemsHeldOnline=Items on EHRI
+repository.hasChildItems=Yes
+repository.noChildItems=No
+repository.childCount={0,choice,0#No archival descriptions available|1#1 archival description available|1<{0,number,integer} archival descriptions available}
+repository.list=Repositories
+repository.create=Create Repository
+repository.create.submit=Create Repository
+repository.update=Update Repository
+repository.update.submit=Update Repository
+
+repository.identifier=Identifier
+repository.name=Authorized Form Of Name
+repository.parallelFormsOfName=Parallel Names
+repository.otherFormsOfName=Other Names
+repository.languageCode=Language of Description
+repository.scriptCode=Script of Description
+repository.institutionType=Type of Institution
+repository.history=History
+repository.geoculturalContext=Geographical and Cultural Context
+repository.mandates=Mandates/Sources of Authority
+repository.administrativeStructure=Administrative Structure
+repository.records=Records Management and Collecting Policies
+repository.buildings=Building(s)
+repository.holdings=Archival and Other Holdings
+repository.findingAids=Finding Aids, Guides, and Publication
+repository.openingTimes=Opening Times
+repository.conditions=Conditions of Access
+repository.accessibility=Accessibility
+repository.researchServices=Research Services
+repository.reproductionServices=Reproduction Services
+repository.publicAreas=Public Areas
+repository.descriptionIdentifier=Description Identifier
+repository.institutionIdentifier=Institution Identifier
+repository.rulesAndConventions=Rules and Conventions
+repository.status=Status
+repository.levelOfDetail=Level of Detail
+repository.datesCVD=Dates of Creation and Deletion
+repository.languages=Languages Used
+repository.scripts=Scripts Used
+repository.sources=Sources
+repository.maintenanceNotes=Maintenance Notes
+
+#
+# Documentary units
+#
+documentaryUnit.identifier=Identifier
+documentaryUnit.ref=Web Source
+documentaryUnit.archivalContext=Archival Context
+documentaryUnit.otherIdentifiers=Alt. Identifiers
+documentaryUnit.extentAndMedium=Extent and Medium
+documentaryUnit.scopeAndContent=Scope and Content
+documentaryUnit.biographicalHistory=Biographical History
+documentaryUnit.archivalHistory=Archival History
+documentaryUnit.acquisition=Acquisition
+documentaryUnit.appraisal=Appraisal
+documentaryUnit.systemOfArrangement=System of Arrangement
+documentaryUnit.archivistNote=Archivist Note
+documentaryUnit.rulesAndConventions=Rules and Conventions
+documentaryUnit.dates=Dates
+documentaryUnit.levelOfDescription=Level of Description
+documentaryUnit.languageOfMaterials=Languages
+documentaryUnit.scriptOfMaterials=Scripts
+documentaryUnit.searchItems=Search child items...
+documentaryUnit.levelOfDescription.fonds=Fonds
+documentaryUnit.levelOfDescription.subfonds=Sub-fonds
+documentaryUnit.levelOfDescription.collection=Collection
+documentaryUnit.levelOfDescription.subcollection=Sub-collection
+documentaryUnit.levelOfDescription.recordgrp=Record group
+documentaryUnit.levelOfDescription.subgrp=Sub-group
+documentaryUnit.levelOfDescription.series=Series
+documentaryUnit.levelOfDescription.subseries=Sub-series
+documentaryUnit.levelOfDescription.file=File
+documentaryUnit.levelOfDescription.item=Item
+documentaryUnit.levelOfDescription.otherLevel=Other
+documentaryUnit.levelOfDescription.class=Class
+documentaryUnit.childItems=Child Items
+documentaryUnit.childItems.search={0,choice,0#{0} lower level |1#1 item|1<{0,number,integer} items}
+documentaryUnit.physicalLocation=Physical Location
+documentaryUnit.languageCode=Language of Description
+documentaryUnit.abstract=Abstract
+documentaryUnit.accruals=Accruals
+documentaryUnit.conditionsOfAccess=Conditions Governing Access
+documentaryUnit.conditionsOfReproduction=Conditions Governing Reproduction
+documentaryUnit.languageOfMaterial=Language(s) of Materials
+documentaryUnit.scriptOfMaterial=Script(s) of Materials
+documentaryUnit.physicalCharacteristics=Physical Characteristics and Technical Requirements
+documentaryUnit.findingAids=Finding Aids
+documentaryUnit.locationOfOriginals=Existence and Location of Originals
+documentaryUnit.locationOfCopies=Existence and Location of Copies
+documentaryUnit.relatedUnitsOfDescription=Related Units of Description
+documentaryUnit.publicationNote=Publication Note
+documentaryUnit.notes=Note(s)
+documentaryUnit.sources=Sources
+documentaryUnit.datesOfDescriptions=Dates of Descriptions
+documentaryUnit.processInfo=Process Info
+
+#
+# Historical Agents
+#
+historicalAgent.identifier=Identifier
+historicalAgent.dates=Dates
+historicalAgent.entityType=Type of Entity
+historicalAgent.entityType.person=Person
+historicalAgent.entityType.family=Family
+historicalAgent.entityType.corporateBody=Corporate Body
+historicalAgent.set=Historical Agent
+historicalAgent.descriptionArea=Description Area
+historicalAgent.identity=Identity Area
+historicalAgent.services=Services Area
+historicalAgent.administrationArea=Administration
+mshistoricalAgent.creation=Creation
+historicalAgent.name=Authorized Form Of Name
+historicalAgent.parallelFormsOfName=Parallel Names
+historicalAgent.standardisedFormsOfName=Standardized Names According to Other Rules
+historicalAgent.otherFormsOfName=Other Names
+historicalAgent.languageCode=Language of Description
+historicalAgent.typeOfEntity=Authority Type
+historicalAgent.corporateBody=Corporate Body
+historicalAgent.family=Family
+historicalAgent.person=Person
+historicalAgent.datesOfExistence=Dates of Existence
+historicalAgent.biographicalHistory=History
+historicalAgent.place=Places
+historicalAgent.legalStatus=Legal Status
+historicalAgent.functions=Functions
+historicalAgent.mandates=Mandates
+historicalAgent.structure=Internal Structure
+historicalAgent.generalContext=General Context
+historicalAgent.descriptionIdentifier=Description Identifier
+historicalAgent.institutionIdentifier=Institution Identifier
+historicalAgent.rulesAndConventions=Rules and Conventions
+historicalAgent.status=Status
+historicalAgent.levelOfDetail=Level of Detail
+historicalAgent.datesCVD=Dates of Creation and Deletion
+historicalAgent.languages=Languages
+historicalAgent.scripts=Scripts
+historicalAgent.source=Sources
+historicalAgent.maintenanceNotes=Maintenance Notes
+
+#
+# Concepts
+#
+cvocConcept.descriptions=Descriptions
+cvocConcept.languageCode=Language
+cvocConcept.name=Preferred Label
+cvocConcept.altLabel=Alt. Label(s)
+cvocConcept.scopeNote=Scope Note
+cvocConcept.definition=Definition
+cvocConcept.inVocabulary=Vocabulary
+cvocConcept.search=Search Terms
+cvocConcept.broaderTerms=Broader Terms
+cvocConcept.narrowerTerms=Narrower Terms
+cvocConcept.narrowerTermsPageHeader={2,choice,0#No narrower terms found|1#One narrower term found|1<Narrower terms {0,number,integer} to {1,number,integer} of {2,number,integer}}
+
+#
+# Virtual documentary units
+#
+
+virtualUnit.viewInArchivalContext=View in archival context
+virtualUnit.viewInArchivalContext.explanation=This item is being displayed as part of a ''virtual collection'' \
+  that does not reflect the arrangement of material in the physical archive.
+
+#
+# Countries
+#
+country.childItems=Archival Institutions
+country.childItems.search={0,choice,0#{0} lower level |1#1 institution|1<{0,number,integer} institutions}
+country.repositoriesPageHeader={2,choice,0#No repositories found|1#One repository found|1<Repositories {0,number,integer} to {1,number,integer} of {2,number,integer}}
+country.search=Search Countries
+country.searchInside=Search Repositories
+country.childCount={0,choice,0#No institutions listed|1#1 institution listed|1<{0,number,integer} institutions listed}
+country.items=Repositories
+country.identifier=Country Code
+country.identifier.description=The ISO-3166-1 2-letter code for this country
+country.abstract=Abstract
+country.abstract.description=An abstract of the report for this country
+country.report=Report
+country.report.description=The report describing this country''s archival situation
+country.list=Countries
+country.create=Add Country
+country.create.submit=Add Country
+country.update=Update Country
+country.update.submit=Update Country
+
+#
+# Vocabularies
+#
+cvocVocabulary.childItems=Keywords
+cvocVocabulary.childItems.search={0,choice,0#{0} |1#1 keyword|1<{0,number,integer} keywords}
+

@@ -86,9 +86,9 @@
     @views.html.common.search.selectedFacets(items)
     <p><small>
         @if(available.isEmpty) {
-            @Messages("portal.guides.facets.hierarchy")
+            @Messages("guides.facets.hierarchy")
         } else {
-            @Messages("portal.guides.facets.available")
+            @Messages("guides.facets.available")
         }
     </small></p>
     @for(page <- template._2._2) {
@@ -119,10 +119,10 @@
 }
 
 
-@p.layout.guideLayout(template, scripts = js, optionalContent = Some(sidebar), otherTitle = Some(Messages("portal.guides.faceted"))) {
+@p.layout.guideLayout(template, scripts = js, optionalContent = Some(sidebar), otherTitle = Some(Messages("guides.faceted"))) {
     <article>
         <header>
-            <h1>@Messages("portal.guides.faceted")</h1>
+            <h1>@Messages("guides.faceted")</h1>
             <h3>@Messages("pagination.displayingItems", items.start, items.end, items.total)</h3>
         </header>
         <section>

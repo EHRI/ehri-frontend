@@ -1,15 +1,15 @@
 @(user: UserProfile, annotations: utils.Page[Annotation])(implicit userOpt: Option[UserProfile], req: RequestHeader, lang: Lang)
 
-@p.common.footerPanel(Messages("portal.profile.annotations")) {
+@p.common.footerPanel(Messages("profile.annotations")) {
     @if(annotations.nonEmpty) {
         <ul class="user-annotations">
 
         </ul>
     } else {
-        @Messages("portal.profile.noAnnotations")
+        @Messages("profile.noAnnotations")
     }
 } {
     @if(annotations.hasMultiplePages) {
-        <a class="pull-right" href="#">@Messages("portal.profile.more")</a>
+        <a class="pull-right" href="#">@Messages("profile.more")</a>
     }
 }

@@ -12,8 +12,8 @@ implicit userOpt: Option[UserProfile], req: RequestHeader, globalConfig: global.
         @formHelpers.csrfToken()
 
         <div class="alert alert-warning">
-            <strong>@Messages("portal.warning")</strong>
-            @Messages("portal.profile.delete.check.text")
+            <strong>@Messages("warning")</strong>
+            @Messages("profile.delete.check.text")
 
             <h3><strong><blockquote>@user.model.name</blockquote></strong></h3>
         </div>
@@ -24,11 +24,11 @@ implicit userOpt: Option[UserProfile], req: RequestHeader, globalConfig: global.
                 @formHelpers.globalErrors(f)
 
                 <div class="form-group">
-                    <input type="input" class="form-control" name="confirm" placeholder="@Messages("portal.profile.delete.check")" />
+                    <input type="input" class="form-control" name="confirm" placeholder="@Messages("profile.delete.check")" />
                 </div>
                 <div class="form-group">
                     <button type="submit" class=" btn  btn-danger ">
-                        @Messages("portal.profile.delete")
+                        @Messages("profile.delete")
                     </button>
                     <a class=" btn  btn-cancel " href="@controllers.portal.users.routes.UserProfiles.profile">@Messages("cancel")</a>
                 </div>

@@ -1,3 +1,12 @@
+guides.faceted=Browse
+guides=Guides
+guides.more=More
+guides.loading=Loading
+guides.facets.hierarchy=Search or browse through the available facets of the Guide.
+guides.facets.available=The facets shown here are the one available connected to the same document.
+guides.annotation=If you have anything to improve or comment on this record, you can annotate it in the standard EHRI portal interface.
+guides.seeOnPortal=Portal interface
+
 guide.heading=Guides
 guide.list=Available Guides
 guide.objectId=Numeric Identifier

@@ -11,6 +11,6 @@
     @item.model.primaryDescription(descriptionId).map { desc =>
         @searchItemBody(item, desc)
     }.getOrElse {
-        <small>@Messages("describedEntity.noDescriptions")</small>
+        <small>@Messages("description.noDescriptions")</small>
     }
 }

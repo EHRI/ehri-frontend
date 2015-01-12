@@ -5,16 +5,16 @@
         <a data-item="@item.id"
            class=" btn btn-sm btn-danger unwatch"
            role="button"
-           style="@(if(!watching) "display: none;")" title="@Messages("portal.profile.unwatch.tooltip")" href="@controllers.portal.users.routes.UserProfiles.unwatchItem(item.id)">
+           style="@(if(!watching) "display: none;")" title="@Messages("profile.unwatch.tooltip")" href="@controllers.portal.users.routes.UserProfiles.unwatchItem(item.id)">
             <span class="glyphicon glyphicon-star"></span>
-            <span class="legend">@Messages("portal.profile.unwatch")</span>
+            <span class="legend">@Messages("profile.unwatch")</span>
         </a>
         <a data-item="@item.id"
            class=" btn btn-sm btn-danger watch"
            role="button"
-           style="@(if(watching) "display: none")" title="@Messages("portal.profile.watch.tooltip")" href="@controllers.portal.users.routes.UserProfiles.watchItem(item.id)">
+           style="@(if(watching) "display: none")" title="@Messages("profile.watch.tooltip")" href="@controllers.portal.users.routes.UserProfiles.watchItem(item.id)">
             <span class="glyphicon glyphicon-star-empty"></span>
-            <span class="legend">@Messages("portal.profile.watch")</span>
+            <span class="legend">@Messages("profile.watch")</span>
         </a>
     </div>
 }

@@ -7,7 +7,7 @@
 <!DOCTYPE html>
 
 <html lang="@lang.code">
-    @p.layout.head(Messages("portal.welcome"))
+    @p.layout.head(Messages("welcome"))
     <body>
         @p.layout.preambleScripts()
         <div id="wrap">
@@ -19,7 +19,7 @@
                 <div class="jumbotron-container">
                     <div class="jumbotron">
                         <div class="container">
-                            <h1>@Messages("portal.welcome") <sup class="text-muted">Beta</sup></h1>
+                            <h1>@Messages("welcome") <sup class="text-muted">Beta</sup></h1>
                             @helper.form(action = controllers.portal.routes.Portal.search, 'role -> "form") {
                             @views.html.common.search.searchBar()
                             }
@@ -30,61 +30,61 @@
                 <div class="container">
                     <div class="row">
                         <div class="welcome-lead">
-                            @Html(views.Helpers.renderMarkdown(Messages("portal.welcome.blurb")))
+                            @Html(views.Helpers.renderMarkdown(Messages("welcome.blurb")))
                         </div>
                     </div>
                     <!-- Example row of columns -->
                     <div class="row">
                         <div class="welcome-section country">
-                            <h2><a href="@controllers.portal.routes.Countries.searchAll">@Messages("portal.type.country")</a>
+                            <h2><a href="@controllers.portal.routes.Countries.searchAll">@Messages("type.country")</a>
                             </h2>
 
-                            <p>@Messages("portal.type.country.description")</p>
+                            <p>@Messages("type.country.description")</p>
                         </div>
                         <div class="welcome-section repository">
-                            <h2><a href="@controllers.portal.routes.Repositories.searchAll">@Messages("portal.type.repository")</a>
+                            <h2><a href="@controllers.portal.routes.Repositories.searchAll">@Messages("type.repository")</a>
                             </h2>
 
-                            <p>@Messages("portal.type.repository.description")</p>
+                            <p>@Messages("type.repository.description")</p>
                         </div>
                         <div class="welcome-section documentaryUnit">
-                            <h2><a href="@controllers.portal.routes.DocumentaryUnits.searchAll()">@Messages("portal.type.documentaryUnit")</a>
+                            <h2><a href="@controllers.portal.routes.DocumentaryUnits.searchAll()">@Messages("type.documentaryUnit")</a>
                             </h2>
 
-                            <p>@Messages("portal.type.documentaryUnit.description")</p>
+                            <p>@Messages("type.documentaryUnit.description")</p>
                         </div>
                     </div>
                     <div class="row">
                         <div class="welcome-section country">
                             @{Html(Messages(
-                            "portal.landingBlurb.country",
+                            "landingBlurb.country",
                             countLink(controllers.portal.routes.Countries.searchAll().url,
-                            "portal.landingBlurb.country.link", stats.countryCount).body.trim
+                            "landingBlurb.country.link", stats.countryCount).body.trim
                             ))}
                         </div>
                         <div class="welcome-section repository">
                             @{Html(Messages(
-                            "portal.landingBlurb.repository",
+                            "landingBlurb.repository",
                             countLink(controllers.portal.routes.Repositories.searchAll().url,
-                            "portal.landingBlurb.repository.link", stats.repositoryCount).body.trim,
+                            "landingBlurb.repository.link", stats.repositoryCount).body.trim,
                             countLink(controllers.portal.routes.Countries.searchAll().url + "?data=yes",
-                            "portal.landingBlurb.repository.country.link", stats.inCountryCount).body.trim
+                            "landingBlurb.repository.country.link", stats.inCountryCount).body.trim
                             ))}
                         </div>
                         <div class="welcome-section documentaryUnit">
                             @{Html(Messages(
-                            "portal.landingBlurb.documentaryUnit",
+                            "landingBlurb.documentaryUnit",
                             countLink(controllers.portal.routes.DocumentaryUnits.searchAll().url,
-                            "portal.landingBlurb.documentaryUnit.link", stats.documentaryUnitCount).body.trim,
+                            "landingBlurb.documentaryUnit.link", stats.documentaryUnitCount).body.trim,
                             countLink(controllers.portal.routes.Repositories.searchAll().url + "?data=yes",
-                            "portal.landingBlurb.documentaryUnit.repository.link", stats.inRepositoryCount).body.trim
+                            "landingBlurb.documentaryUnit.repository.link", stats.inRepositoryCount).body.trim
                             ))}
                         </div>
                     </div>
                     <div class="row">
                         <div class="news-feed-container">
                             <hr/>
-                            <h3>@Messages("portal.newsFeed")</h3>
+                            <h3>@Messages("newsFeed")</h3>
                             <ul id="news-feed" class="list-unstyled panel-body front-page-panel-content">
 
                             </ul>

@@ -4,10 +4,10 @@
     @if(userOpt.isDefined) {
     <ul class="nav navbar-nav">
         <li class="@views.Helpers.maybeActive(controllers.portal.routes.Portal.personalisedActivity().url)">
-            <a href="@controllers.portal.routes.Portal.personalisedActivity()">@Messages("portal.activity")</a>
+            <a href="@controllers.portal.routes.Portal.personalisedActivity()">@Messages("activity")</a>
         </li>
         <li class="@views.Helpers.maybeActivePath(controllers.portal.social.routes.Social.browseUsers.url)">
-            <a href="@controllers.portal.social.routes.Social.browseUsers">@Messages("portal.social.users")</a>
+            <a href="@controllers.portal.social.routes.Social.browseUsers">@Messages("social.users")</a>
         </li>
     </ul>
     }

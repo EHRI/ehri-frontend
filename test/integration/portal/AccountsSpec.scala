@@ -14,7 +14,7 @@ class AccountsSpec extends IntegrationTestRunner {
       status(logout) must equalTo(SEE_OTHER)
       flash(logout).get("success") must beSome.which { fl =>
         // NB: No i18n here...
-        fl must contain("portal.logout.confirmation")
+        fl must contain("logout.confirmation")
       }
     }
   }

@@ -136,7 +136,7 @@ case class Annotations @Inject()(implicit globalConfig: global.GlobalConfig, sea
 
   // Ajax
   def deleteAnnotation(aid: String) = WithItemPermissionAction(aid, PermissionType.Delete).apply { implicit request =>
-      Ok(p.helpers.simpleForm("portal.annotation.delete.title",
+      Ok(p.helpers.simpleForm("annotation.delete.title",
           annotationRoutes.deleteAnnotationPost(aid)))
   }
 
@@ -190,7 +190,7 @@ case class Annotations @Inject()(implicit globalConfig: global.GlobalConfig, sea
   }
 
   def promoteAnnotation(id: String, context: AnnotationContext.Value) = EditPromotionAction(id).apply { implicit request =>
-    Ok(p.helpers.simpleForm("portal.promotion.promote.title",
+    Ok(p.helpers.simpleForm("promotion.promote.title",
       annotationRoutes.promoteAnnotationPost(id, context)))
   }
 
@@ -199,7 +199,7 @@ case class Annotations @Inject()(implicit globalConfig: global.GlobalConfig, sea
   }
 
   def removeAnnotationPromotion(id: String, context: AnnotationContext.Value) = EditPromotionAction(id).apply { implicit request =>
-    Ok(p.helpers.simpleForm("portal.promotion.promote.remove.title",
+    Ok(p.helpers.simpleForm("promotion.promote.remove.title",
       annotationRoutes.removeAnnotationPromotionPost(id, context)))
   }
 
@@ -208,7 +208,7 @@ case class Annotations @Inject()(implicit globalConfig: global.GlobalConfig, sea
   }
 
   def demoteAnnotation(id: String, context: AnnotationContext.Value) = EditPromotionAction(id).apply { implicit request =>
-    Ok(p.helpers.simpleForm("portal.promotion.demote.title",
+    Ok(p.helpers.simpleForm("promotion.demote.title",
       annotationRoutes.demoteAnnotationPost(id, context)))
   }
 
@@ -217,7 +217,7 @@ case class Annotations @Inject()(implicit globalConfig: global.GlobalConfig, sea
   }
 
   def removeAnnotationDemotion(id: String, context: AnnotationContext.Value) = PromoteItemAction(id).apply { implicit request =>
-    Ok(p.helpers.simpleForm("portal.promotion.demote.remove.title",
+    Ok(p.helpers.simpleForm("promotion.demote.remove.title",
       annotationRoutes.removeAnnotationDemotionPost(id, context)))
   }
 
