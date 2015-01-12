@@ -10,13 +10,12 @@ import defines.EntityType
 import models.UserProfile
 import utils.search._
 import play.api.Logger
-import solr.facet.FieldFacetClass
 import com.github.seratch.scalikesolr.request.query.facet.Value
 import com.github.seratch.scalikesolr.request.QueryRequest
 import com.github.seratch.scalikesolr.request.query.facet.Param
 import com.github.seratch.scalikesolr.request.query.facet.FacetParam
-import solr.facet.QueryFacetClass
 import com.github.seratch.scalikesolr.{WriterType => SWriterType}
+
 
 object SolrQueryBuilder {
   /**

@@ -1,7 +1,6 @@
 package solr
 
 import play.api.test.PlaySpecification
-import solr.facet.FieldFacetClass
 import play.api.i18n.Messages
 import views.Helpers
 import models.base.Description

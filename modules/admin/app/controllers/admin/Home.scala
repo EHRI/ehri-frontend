@@ -10,13 +10,12 @@ import play.api.i18n.Messages
 import views.Helpers
 import play.api.libs.json.Json
 import utils.search._
-import solr.facet.FieldFacetClass
 
 import com.google.inject._
 import play.api.http.MimeTypes
 import scala.concurrent.Future.{successful => immediate}
 import backend.Backend
-import utils.{RangeParams, SystemEventParams, PageParams}
+import utils.{RangeParams, SystemEventParams}
 import controllers.base.AdminController
 
 
@@ -29,6 +28,7 @@ case class Home @Inject()(implicit globalConfig: global.GlobalConfig, searchDisp
     EntityType.HistoricalAgent
   )
 
+  import solr.FieldFacetClass
   private val entityFacets: FacetBuilder = { implicit request =>
     List(
 

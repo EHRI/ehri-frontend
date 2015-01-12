@@ -16,9 +16,7 @@ import play.api.Play.current
 import play.api.Configuration
 import play.api.data.Form
 import play.api.data.Forms._
-import solr.facet.FieldFacetClass
-import solr.facet.SolrQueryFacet
-import solr.facet.QueryFacetClass
+import solr.{FieldFacetClass,SolrQueryFacet,QueryFacetClass}
 import backend.rest.Constants
 import scala.concurrent.Future
 import models.base.AnyModel

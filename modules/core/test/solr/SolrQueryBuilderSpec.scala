@@ -1,7 +1,6 @@
 package solr
 
 import play.api.test.PlaySpecification
-import solr.facet.{FieldFacetClass, SolrQueryFacet, QueryFacetClass}
 import play.api.i18n.Messages
 import utils.search.{AppliedFacet, FacetSort, FacetDisplay}
 import com.github.seratch.scalikesolr.request.query.facet.{Value, Param, FacetParam}

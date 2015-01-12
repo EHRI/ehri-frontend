@@ -25,7 +25,7 @@ case class HistoricalAgents @Inject()(implicit globalConfig: global.GlobalConfig
   private val histRoutes = controllers.authorities.routes.HistoricalAgents
 
   // Documentary unit facets
-  import solr.facet._
+  import solr.FieldFacetClass
   private val entityFacets: FacetBuilder = { implicit request =>
     List(
       FieldFacetClass(

@@ -9,9 +9,7 @@ import defines.EntityType
 import play.api.i18n.Messages
 import play.api.mvc.{AnyContent, Request, Result}
 import views.Helpers
-import client.json.ClientWriteable
 import utils.search._
-import solr.facet.FieldFacetClass
 
 import com.google.inject._
 import play.api.cache.{Cache, Cached}
@@ -63,6 +61,7 @@ case class Metrics @Inject()(implicit globalConfig: global.GlobalConfig, searchD
   // so set the result limit to be zero.
   private val defaultParams = SearchParams(count=Some(0))
 
+  import solr.FieldFacetClass
   private val langCountFacets: FacetBuilder = { implicit request =>
     List(
       FieldFacetClass(

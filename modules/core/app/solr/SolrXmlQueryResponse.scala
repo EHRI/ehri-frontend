@@ -3,11 +3,8 @@ package solr
 import scala.xml.{Node, Elem}
 import defines.EntityType
 import utils.search._
-import play.api.Logger
 import utils.search.QueryResponse
 import utils.search.SearchHit
-import solr.facet.FieldFacetClass
-import solr.facet.QueryFacetClass
 
 /**
  * Helper class for parsing a Solr XML Response.
@@ -110,10 +107,6 @@ case class SolrXmlQueryResponse(response: Elem) extends QueryResponse {
     allFacets.flatMap {
       case ffc: FieldFacetClass => List(extractFieldFacet(ffc, appliedFacets))
       case qfc: QueryFacetClass => List(extractQueryFacet(qfc, appliedFacets))
-      case e => {
-        Logger.logger.warn("Unknown facet class type: {}", e)
-        Nil
-      }
     }
   }
 
@@ -129,7 +122,7 @@ case class SolrXmlQueryResponse(response: Elem) extends QueryResponse {
    *       <int name="nl">1</int>
    *   ...
    */
-  private def extractFieldFacet(fc: solr.facet.FieldFacetClass, appliedFacets: List[AppliedFacet]): solr.facet.FieldFacetClass = {
+  private def extractFieldFacet(fc: FieldFacetClass, appliedFacets: List[AppliedFacet]): FieldFacetClass = {
     val applied: List[String] = appliedFacets.find(_.name == fc.key).map(_.values).getOrElse(List.empty[String])
     val nodeOpt = response.descendant.find(n => (n \ "@name").text == "facet_fields")
     val facets = nodeOpt.toList.flatMap { node =>
@@ -138,7 +131,7 @@ case class SolrXmlQueryResponse(response: Elem) extends QueryResponse {
         val nameNode = c \ "@name"
         if (nameNode.length == 0) Nil
         else
-           List(solr.facet.SolrFieldFacet(
+           List(SolrFieldFacet(
               nameNode.text, nameNode.text, None,
               c.text.toInt, applied.contains(nameNode.text)))
       }
@@ -150,10 +143,10 @@ case class SolrXmlQueryResponse(response: Elem) extends QueryResponse {
   /**
    * Extract query facets from Solr XML response.
    */
-  private def extractQueryFacet(fc: solr.facet.QueryFacetClass, appliedFacets: List[AppliedFacet], tags: List[String] = Nil): solr.facet.QueryFacetClass = {
+  private def extractQueryFacet(fc: QueryFacetClass, appliedFacets: List[AppliedFacet], tags: List[String] = Nil): QueryFacetClass = {
     val applied: List[String] = appliedFacets.find(_.name == fc.key).map(_.values).getOrElse(List.empty[String])
     val facets = fc.facets.flatMap{ f =>
-      var nameValue = s"${fc.fullKey}:${f.solrValue}"
+      val nameValue = s"${fc.fullKey}:${f.solrValue}"
       response.descendant.filter(n => (n \\ "@name").text == nameValue).text match {
         case "" => Nil
         case v => List(

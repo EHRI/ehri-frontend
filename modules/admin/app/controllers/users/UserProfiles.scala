@@ -16,11 +16,8 @@ import play.api.mvc.Request
 import java.util.concurrent.TimeUnit
 import backend.rest.{ValidationError, RestHelpers}
 import scala.concurrent.duration.Duration
-import solr.facet.FieldFacetClass
 import play.api.mvc.Result
-import solr.facet.SolrQueryFacet
 import play.api.libs.json.JsObject
-import solr.facet.QueryFacetClass
 import controllers.base.AdminController
 
 
@@ -35,6 +32,7 @@ case class UserProfiles @Inject()(implicit globalConfig: global.GlobalConfig, se
   with Membership[UserProfile]
   with Search {
 
+  import solr.{FieldFacetClass,SolrQueryFacet,QueryFacetClass}
   private val entityFacets: FacetBuilder = { implicit request =>
     List(
       QueryFacetClass(

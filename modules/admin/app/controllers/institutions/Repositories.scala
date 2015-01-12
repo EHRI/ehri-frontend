@@ -31,7 +31,7 @@ case class Repositories @Inject()(implicit globalConfig: global.GlobalConfig, se
   with Indexable[Repository] {
 
   // Documentary unit facets
-  import solr.facet._
+  import solr.{FieldFacetClass,SolrQueryFacet,QueryFacetClass}
 
   private val repositoryFacets: FacetBuilder = { implicit request =>
     val prefix = EntityType.Repository.toString

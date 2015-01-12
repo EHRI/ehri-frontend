@@ -15,7 +15,6 @@ import play.api.Logger
 import controllers.generic.{Indexable, Search}
 import backend.Backend
 import scala.util.Failure
-import solr.facet.FieldFacetClass
 import scala.util.Success
 import defines.EntityType
 import controllers.base.AdminController
@@ -27,6 +26,7 @@ case class AdminSearch @Inject()(implicit globalConfig: global.GlobalConfig, sea
   with Search {
 
   // i.e. Everything
+  import solr.FieldFacetClass
   private val entityFacets: FacetBuilder = { implicit request =>
     List(
       FieldFacetClass(

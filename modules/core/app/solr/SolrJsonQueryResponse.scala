@@ -4,7 +4,6 @@ import utils.search._
 import play.api.libs.json.JsValue
 import defines.EntityType
 import utils.search.SearchHit
-import solr.facet.{SolrQueryFacet, QueryFacetClass, SolrFieldFacet, FieldFacetClass}
 import play.api.Logger
 
 /**
@@ -103,8 +102,8 @@ case class SolrJsonQueryResponse(response: JsValue) extends QueryResponse {
 
 
   private lazy val raw: SolrData = response.as[SolrData]
-  private def rawFieldFacets: Map[String,JsValue] = raw.rawFacets.get("facet_fields").getOrElse(Map.empty)
-  private def rawQueryFacets: Map[String,JsValue] = raw.rawFacets.get("facet_queries").getOrElse(Map.empty)
+  private def rawFieldFacets: Map[String,JsValue] = raw.rawFacets.getOrElse("facet_fields", Map.empty)
+  private def rawQueryFacets: Map[String,JsValue] = raw.rawFacets.getOrElse("facet_queries", Map.empty)
 
   private val fieldFacetValueReader: Reads[Seq[(String,Int)]] = {
     JsPath.read[List[JsValue]].map { list =>
@@ -143,10 +142,6 @@ case class SolrJsonQueryResponse(response: JsValue) extends QueryResponse {
     allFacets.flatMap {
       case ffc: FieldFacetClass => Some(extractFieldFacet(ffc, appliedFacetValues(ffc, appliedFacets)))
       case qfc: QueryFacetClass => Some(extractQueryFacet(qfc, appliedFacetValues(qfc, appliedFacets)))
-      case e => {
-        Logger.logger.warn("Unknown facet class type: {}", e)
-        None
-      }
     }
   }
 }

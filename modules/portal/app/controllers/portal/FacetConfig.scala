@@ -9,9 +9,7 @@ import controllers.generic.Search
 import play.api.mvc.{RequestHeader, Controller}
 import utils.DateFacetUtils
 import DateFacetUtils._
-import solr.facet.SolrQueryFacet
-import solr.facet.FieldFacetClass
-import solr.facet.QueryFacetClass
+import solr.{SolrQueryFacet,FieldFacetClass,QueryFacetClass}
 import models.base.Description
 
 

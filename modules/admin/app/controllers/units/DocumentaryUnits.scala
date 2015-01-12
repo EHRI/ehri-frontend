@@ -36,7 +36,7 @@ case class DocumentaryUnits @Inject()(implicit globalConfig: global.GlobalConfig
   with Search {
 
   // Documentary unit facets
-  import solr.facet._
+  import solr.{FieldFacetClass,SolrQueryFacet,QueryFacetClass}
 
   private val entityFacets: FacetBuilder = { implicit request =>
     List(
