@@ -47,7 +47,7 @@ trait FacetClass[+T <: Facet] {
   val key: String
   val name: String
   val param: String
-  val facets: List[T]
+  val facets: Seq[T]
   val sort: FacetSort.Value
   val display: FacetDisplay.Value
   val fieldType: String
@@ -55,7 +55,7 @@ trait FacetClass[+T <: Facet] {
   def count: Int = facets.length
   def sortedByName = facets.sortWith((a, b) => a.sortName < b.sortName)
   def sortedByCount = facets.sortWith((a, b) => b.count < a.count)
-  def sorted: List[T] = sort match {
+  def sorted: Seq[T] = sort match {
     case FacetSort.Name => sortedByName
     case FacetSort.Count => sortedByCount
     case _ => facets

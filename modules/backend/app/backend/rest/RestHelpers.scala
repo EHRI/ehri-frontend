@@ -12,21 +12,21 @@ trait RestHelpers {
   import play.api.Play.current
   private val cypher = new CypherDAO()
 
-  def parseUsers(json: JsValue): List[(String, String)] = {
-    (json \ "data").as[List[List[String]]].flatMap {
+  def parseUsers(json: JsValue): Seq[(String, String)] = {
+    (json \ "data").as[Seq[Seq[String]]].flatMap {
       case x :: y :: _ => Some((x, y))
       case _ => None
     }
   }
 
-  def getGroupList: Future[List[(String,String)]] = {
+  def getGroupList: Future[Seq[(String,String)]] = {
     cypher.cypher("START n=node:entities(__ISA__ = {isA}) RETURN n.__ID__, n.name",
         Map("isA" -> JsString(EntityType.Group))).map { goe =>
       parseUsers(goe)
     }    
   }
   
-  def getUserList: Future[List[(String,String)]] = {
+  def getUserList: Future[Seq[(String,String)]] = {
     cypher.cypher("START n=node:entities(__ISA__ = {isA}) RETURN n.__ID__, n.name",
         Map("isA" -> JsString(EntityType.UserProfile))).map { goe =>
       parseUsers(goe)

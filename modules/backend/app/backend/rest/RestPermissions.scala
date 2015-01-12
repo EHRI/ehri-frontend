@@ -41,7 +41,7 @@ trait RestPermissions extends Permissions with RestDAO {
     }
   }
 
-  def setGlobalPermissions(userId: String, data: Map[String, List[String]])(implicit apiUser: ApiUser, executionContext: ExecutionContext): Future[GlobalPermissionSet] = {
+  def setGlobalPermissions(userId: String, data: Map[String, Seq[String]])(implicit apiUser: ApiUser, executionContext: ExecutionContext): Future[GlobalPermissionSet] = {
     val url = enc(requestUrl, userId)
     FutureCache.set(url, cacheTime) {
       userCall(url).post(Json.toJson(data))
@@ -58,7 +58,7 @@ trait RestPermissions extends Permissions with RestDAO {
     }
   }
 
-  def setItemPermissions(userId: String, contentType: ContentTypes.Value, id: String, data: List[String])(implicit apiUser: ApiUser, executionContext: ExecutionContext): Future[ItemPermissionSet] = {
+  def setItemPermissions(userId: String, contentType: ContentTypes.Value, id: String, data: Seq[String])(implicit apiUser: ApiUser, executionContext: ExecutionContext): Future[ItemPermissionSet] = {
     val url = enc(requestUrl, userId, id)
     FutureCache.set(url, cacheTime) {
       userCall(url).post(Json.toJson(data)).map { response =>
@@ -75,7 +75,7 @@ trait RestPermissions extends Permissions with RestDAO {
     }
   }
 
-  def setScopePermissions(userId: String, id: String, data: Map[String,List[String]])(implicit apiUser: ApiUser, executionContext: ExecutionContext): Future[GlobalPermissionSet] = {
+  def setScopePermissions(userId: String, id: String, data: Map[String,Seq[String]])(implicit apiUser: ApiUser, executionContext: ExecutionContext): Future[GlobalPermissionSet] = {
     val url = enc(requestUrl, userId, "scope", id)
     FutureCache.set(url, cacheTime) {
       userCall(url).post(Json.toJson(data))
@@ -84,7 +84,7 @@ trait RestPermissions extends Permissions with RestDAO {
   }
 
   def addGroup[GT,UT](groupId: String, userId: String)(implicit apiUser: ApiUser, gr: BackendResource[GT], ur: BackendResource[UT], executionContext: ExecutionContext): Future[Boolean] = {
-    userCall(enc(baseUrl, EntityType.Group, groupId, userId)).post(Map[String, List[String]]()).map { response =>
+    userCall(enc(baseUrl, EntityType.Group, groupId, userId)).post(Map[String, Seq[String]]()).map { response =>
       checkError(response)
       Cache.remove(canonicalUrl[UT](userId))
       Cache.remove(canonicalUrl[GT](groupId))

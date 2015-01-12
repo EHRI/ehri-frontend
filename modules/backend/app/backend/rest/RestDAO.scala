@@ -158,8 +158,8 @@ trait RestDAO {
    */
   import scala.collection.JavaConversions._
   private lazy val includeProps
-    = app.configuration.getStringList("ehri.backend.includedProperties").map(_.toList)
-        .getOrElse(List.empty[String])
+    = app.configuration.getStringList("ehri.backend.includedProperties").map(_.toSeq)
+        .getOrElse(Seq.empty[String])
 
 
   protected def userCall(url: String, params: Seq[(String,String)] = Seq.empty)(implicit apiUser: ApiUser): BackendRequest = {

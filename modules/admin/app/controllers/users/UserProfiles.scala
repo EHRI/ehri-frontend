@@ -107,7 +107,7 @@ case class UserProfiles @Inject()(implicit globalConfig: global.GlobalConfig, se
   def createUserPost = WithContentPermissionAction(PermissionType.Create, ContentTypes.UserProfile).async { implicit request =>
 
     // Blocking! This helps simplify the nest of callbacks.
-      val allGroups: List[(String, String)] = Await.result(
+      val allGroups: Seq[(String, String)] = Await.result(
         RestHelpers.getGroupList, Duration(1, TimeUnit.MINUTES))
 
       userPasswordForm.bindFromRequest.fold(
@@ -136,23 +136,22 @@ case class UserProfiles @Inject()(implicit globalConfig: global.GlobalConfig, se
   /**
    * Create a user's profile on the ReSt interface.
    */
-  private def createUserProfile[T](user: UserProfileF, groups: Seq[String], allGroups: List[(String,String)])(f: UserProfile => Future[Result])(
+  private def createUserProfile[T](user: UserProfileF, groups: Seq[String], allGroups: Seq[(String,String)])(f: UserProfile => Future[Result])(
     implicit request: Request[T], userOpt: Option[UserProfile]): Future[Result] = {
     backend.create[UserProfile,UserProfileF](user, params = Map("group" -> groups)).flatMap { item =>
       f(item)
     } recoverWith {
-      case ValidationError(errorSet) => {
+      case ValidationError(errorSet) =>
         val errForm = user.getFormErrors(errorSet, userPasswordForm.bindFromRequest)
         immediate(BadRequest(views.html.admin.userProfile.create(errForm, groupMembershipForm.bindFromRequest,
           allGroups, userRoutes.createUserPost())))
-      }
     }
   }
 
   /**
    * Save a user, creating both an account and a profile.
    */
-  private def saveUser[T](email: String, username: String, name: String, pw: String, allGroups: List[(String, String)])(
+  private def saveUser[T](email: String, username: String, name: String, pw: String, allGroups: Seq[(String, String)])(
     implicit request: Request[T], userOpt: Option[UserProfile]): Future[Result] = {
     // check if the email is already registered...
     userDAO.findByEmail(email.toLowerCase).map { account =>

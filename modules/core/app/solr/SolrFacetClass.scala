@@ -7,7 +7,7 @@ import utils.search.{FacetSort, FacetDisplay, FacetClass}
  * @author Mike Bryant (http://github.com/mikesname)
  */
 sealed trait SolrFacetClass[+T <: SolrFacet] extends FacetClass[T] {
-  def asParams: List[FacetParam]
+  def asParams: Seq[FacetParam]
 
   override def fullKey = if (multiSelect) s"{!ex=$key}$key" else key
 }
@@ -32,13 +32,13 @@ case class FieldFacetClass(
   name: String,
   param: String,
   render: (String) => String = s=>s,
-  facets: List[SolrFieldFacet] = Nil,
+  facets: Seq[SolrFieldFacet] = Nil,
   display: FacetDisplay.Value = FacetDisplay.List,
   sort: FacetSort.Value = FacetSort.Count
 ) extends SolrFacetClass[SolrFieldFacet] {
   val fieldType: String = "facet.field"
 
-  def asParams: List[FacetParam] = {
+  def asParams: Seq[FacetParam] = {
     List(new FacetParam(
       Param(fieldType),
       Value(fullKey)
@@ -66,14 +66,14 @@ case class QueryFacetClass(
   name: String,
   param: String,
   render: (String) => String = s=>s,
-  override val facets: List[SolrQueryFacet],
+  override val facets: Seq[SolrQueryFacet],
   display: FacetDisplay.Value = FacetDisplay.List,
   sort: FacetSort.Value = FacetSort.Name
 ) extends SolrFacetClass[SolrQueryFacet] {
   val fieldType: String = "facet.query"
   override def isActive = true
 
-  def asParams: List[FacetParam] = {
+  def asParams: Seq[FacetParam] = {
     facets.map(p =>
       new FacetParam(
         Param(fieldType),
