@@ -1,4 +1,4 @@
-@(pwForm: Form[(String,String)])(implicit userOpt: Option[Account], request: RequestHeader, globalConfig: global.GlobalConfig, flash: Flash, lang: Lang, token: play.filters.csrf.CSRF.Token, fieldConstructor: helper.FieldConstructor)
+@(pwForm: Form[(String,String)])(implicit request: RequestHeader, globalConfig: global.GlobalConfig, flash: Flash, lang: Lang, token: play.filters.csrf.CSRF.Token, fieldConstructor: helper.FieldConstructor)
 
 @helper.form(action = controllers.portal.account.routes.Accounts.passwordLoginPost, 'class -> "login-form form validate-form", 'role -> "form") {
     @formHelpers.csrfToken()

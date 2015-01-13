@@ -1,5 +1,6 @@
 package controllers.portal.account
 
+import play.api.data.Form
 import play.api.mvc._
 import models._
 import play.api.libs.concurrent.Execution.Implicits._
@@ -87,21 +88,30 @@ case class Accounts @Inject()(implicit globalConfig: GlobalConfig, searchDispatc
   }
 
   def signupPost = NotReadOnlyAction.async { implicit request =>
+
+    def badForm(form: Form[SignupData]): Future[Result] = immediate {
+      BadRequest(
+        views.html.p.account.login(
+          passwordLoginForm,
+          form,
+          accountRoutes.signupPost(),
+          recaptchaKey,
+          openidForm,
+          oauthProviders,
+          isLogin = false)
+      )
+    }
+
     checkRecapture.flatMap { ok =>
+      val boundForm: Form[SignupData] = SignupData.form.bindFromRequest
       if (!ok) {
-        val form = SignupData.form.bindFromRequest
-            .discardingErrors.withGlobalError("error.badRecaptcha")
-        immediate(BadRequest(views.html.p.account.signup(form,
-          accountRoutes.signupPost(), recaptchaKey)))
+        badForm(boundForm.withGlobalError("error.badRecaptcha"))
       } else {
-        SignupData.form.bindFromRequest.fold(
-          errForm => immediate(BadRequest(views.html.p.account.signup(errForm,
-            accountRoutes.signupPost(), recaptchaKey))),
+        boundForm.fold(
+          errForm => badForm(errForm),
           data => {
             userDAO.findByEmail(data.email).map { _ =>
-              val form = SignupData.form.withGlobalError("error.emailExists")
-              immediate(BadRequest(views.html.p.account.signup(form,
-                accountRoutes.signupPost(), recaptchaKey)))
+              badForm(boundForm.withError(SignupData.EMAIL, "error.emailExists"))
             } getOrElse {
               implicit val apiUser = AnonymousUser
               backend.createNewUserProfile[UserProfile](
@@ -114,8 +124,8 @@ case class Accounts @Inject()(implicit globalConfig: GlobalConfig, searchDispatc
                 account.createValidationToken(uuid)
                 sendValidationEmail(data.email, uuid)
 
-                gotoLoginSucceeded(userProfile.id).map(r =>
-                  r.flashing("success" -> "signup.confirmation"))
+                gotoLoginSucceeded(userProfile.id)
+                  .map(_.flashing("success" -> "signup.confirmation"))
               }
             }
           }
@@ -173,7 +183,8 @@ case class Accounts @Inject()(implicit globalConfig: GlobalConfig, searchDispatc
             accountRoutes.signupPost(),
             recaptchaKey,
             openidForm,
-            oauthProviders)
+            oauthProviders,
+            isLogin = true)
           )
       }
     }
@@ -188,7 +199,8 @@ case class Accounts @Inject()(implicit globalConfig: GlobalConfig, searchDispatc
         accountRoutes.signupPost(),
         recaptchaKey,
         request.errorForm,
-        oauthProviders
+        oauthProviders,
+        isLogin
       )
     )
   }
@@ -205,7 +217,8 @@ case class Accounts @Inject()(implicit globalConfig: GlobalConfig, searchDispatc
               accountRoutes.signupPost(),
               recaptchaKey,
               openidForm,
-              oauthProviders
+              oauthProviders,
+              isLogin = true
             )
           )
         )
