@@ -197,7 +197,7 @@ class ApplicationSpec extends Specification with TestConfiguration with UserFixt
         status(expired) must equalTo(SEE_OTHER)
         val err = flash(expired).get("error")
         err must beSome
-        err.get must equalTo(Messages("login.error.badResetToken"))
+        err.get must equalTo("login.error.badResetToken")
       }
     }
   }

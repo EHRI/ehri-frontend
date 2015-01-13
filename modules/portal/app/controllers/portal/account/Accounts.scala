@@ -265,19 +265,20 @@ case class Accounts @Inject()(implicit globalConfig: GlobalConfig, searchDispatc
     val account = request.user.account.get
     request.errForm.fold(
       Redirect(defaultLoginUrl)
-        .flashing("success" -> Messages("login.password.change.confirmation"))
+        .flashing("success" -> "login.password.change.confirmation")
     )(errForm => BadRequest(p.account.changePassword(
       account, errForm, accountRoutes.changePasswordPost())))
   }
 
   def resetPassword(token: String) = Action { implicit request =>
-    userDAO.findByResetToken(token).map { account =>
-      Ok(views.html.p.account.resetPassword(resetPasswordForm,
-        accountRoutes.resetPasswordPost(token)))
-    }.getOrElse {
-      Redirect(accountRoutes.forgotPassword())
-        .flashing("error" -> Messages("login.error.badResetToken"))
-    }
+    userDAO.findByResetToken(token).fold(
+      ifEmpty = Redirect(accountRoutes.forgotPassword())
+        .flashing("error" -> "login.error.badResetToken")
+    )(
+      account =>
+        Ok(views.html.p.account.resetPassword(resetPasswordForm,
+          accountRoutes.resetPasswordPost(token)))
+      )
   }
 
   def resendVerificationPost() = WithUserAction { implicit request =>
@@ -288,17 +289,17 @@ case class Accounts @Inject()(implicit globalConfig: GlobalConfig, searchDispatc
       val redirect = request.headers.get(HttpHeaders.REFERER)
         .getOrElse(portalRoutes.index().url)
       Redirect(redirect)
-        .flashing("success" -> Messages("mail.emailConfirmationResent"))
+        .flashing("success" -> "mail.emailConfirmationResent")
     }.getOrElse(Unauthorized)
   }
 
-  def resetPasswordPost(token: String) = ResetPasswordAction(token) { implicit request =>
-    request.formOpt.fold(
-      Redirect(accountRoutes.login())
-        .flashing("warning" -> "login.password.reset.confirmation")
-    )( errForm => BadRequest(views.html.p.account.resetPassword(errForm,
-        accountRoutes.resetPasswordPost(token)))
-    )
+  def resetPasswordPost(token: String) = ResetPasswordAction(token).async { implicit request =>
+    request.formOrAccount match {
+      case Left(errForm) => immediate(BadRequest(views.html.p.account.resetPassword(errForm,
+        accountRoutes.resetPasswordPost(token))))
+      case Right(account) => gotoLoginSucceeded(account.id)
+        .map(_.flashing("success" -> "login.password.reset.confirmation"))
+    }
   }
 
   private def sendResetEmail(email: String, uuid: UUID)(implicit request: RequestHeader) {

@@ -220,7 +220,7 @@ login.password.new=New Password
 login.password.new.confirm=Confirm New Password
 login.password.reset.sentLink=We''ve sent you an email containing a link that can be used to reset your password.\
   This link can only be used once.
-login.password.reset.confirmation=Your password has been reset. Now please log in using the new one.
+login.password.reset.confirmation=Your password has been reset.
 
 logout=Sign Out
 logout.confirmation=You have been logged out

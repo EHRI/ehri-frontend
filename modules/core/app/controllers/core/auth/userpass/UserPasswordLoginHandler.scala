@@ -138,7 +138,7 @@ trait UserPasswordLoginHandler {
   }
 
   case class ResetPasswordRequest[A](
-    formOpt: Option[Form[(String,String)]],
+    formOrAccount: Either[Form[(String,String)], Account],
     request: Request[A]
   ) extends WrappedRequest[A](request)
 
@@ -147,15 +147,15 @@ trait UserPasswordLoginHandler {
       implicit val r = request
       val form: Form[(String, String)] = resetPasswordForm.bindFromRequest
       form.fold(
-        errForm => block(ResetPasswordRequest(Some(errForm), request)),
+        errForm => block(ResetPasswordRequest(Left(errForm), request)),
         { case (pw, _) =>
         userDAO.findByResetToken(token).map { account =>
           account.setPassword(Account.hashPassword(pw))
           account.expireTokens()
-          block(ResetPasswordRequest(None, request))
+          block(ResetPasswordRequest(Right(account), request))
         }.getOrElse {
           block(ResetPasswordRequest(
-            Some(form.withGlobalError("login.error.badResetToken")), request))
+            Left(form.withGlobalError("login.error.badResetToken")), request))
         }
       })
     }
