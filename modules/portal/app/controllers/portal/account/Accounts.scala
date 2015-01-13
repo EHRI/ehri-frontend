@@ -58,7 +58,7 @@ case class Accounts @Inject()(implicit globalConfig: GlobalConfig, searchDispatc
     def apply(request: Request[A]): Future[Result] = {
       if (globalConfig.readOnly) {
         Future.successful(Redirect(portalRoutes.index())
-          .flashing("warning" -> Messages("login.disabled")))
+          .flashing("warning" -> "login.disabled"))
       } else action(request)
     }
     lazy val parser = action.parser
@@ -160,7 +160,7 @@ case class Accounts @Inject()(implicit globalConfig: GlobalConfig, searchDispatc
 
   def login = OptionalAuthAction { implicit authRequest =>
     if (globalConfig.readOnly) {
-      Redirect(portalRoutes.index()).flashing("warning" -> Messages("login.disabled"))
+      Redirect(portalRoutes.index()).flashing("warning" -> "login.disabled")
     } else {
       implicit val accountOpt = authRequest.user
       accountOpt match {
