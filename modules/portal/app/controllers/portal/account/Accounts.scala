@@ -131,7 +131,7 @@ case class Accounts @Inject()(implicit globalConfig: GlobalConfig, searchDispatc
         .map(_.flashing("success" -> "signup.validation.confirmation"))
     } getOrElse {
       immediate(BadRequest(
-          views.html.errors.itemNotFound(Some(Messages("signup.invalidSignupToken")))))
+          views.html.errors.itemNotFound(Some(Messages("signup.validation.badToken")))))
     }
   }
 
@@ -280,7 +280,7 @@ case class Accounts @Inject()(implicit globalConfig: GlobalConfig, searchDispatc
           accountRoutes.resetPasswordPost(token)))
       case Right(true) =>
         Redirect(accountRoutes.login())
-          .flashing("warning" -> "login.passwordResetNowLogin")
+          .flashing("warning" -> "login.password.reset.confirmation")
       case Right(false) =>
         Redirect(accountRoutes.forgotPassword())
           .flashing("error" -> Messages("login.error.badResetToken"))
