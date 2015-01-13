@@ -44,6 +44,9 @@ case class Accounts @Inject()(implicit globalConfig: GlobalConfig, searchDispatc
   private val portalRoutes = controllers.portal.routes.Portal
   private val accountRoutes = controllers.portal.account.routes.Accounts
 
+  private def recaptchaKey = current.configuration.getString("recaptcha.key.public")
+    .getOrElse("fakekey")
+
   def account = OptionalUserAction { implicit request =>
     Ok(Json.toJson(request.userOpt.flatMap(_.account)))
   }
@@ -84,9 +87,6 @@ case class Accounts @Inject()(implicit globalConfig: GlobalConfig, searchDispatc
   }
 
   def signupPost = NotReadOnlyAction.async { implicit request =>
-    val recaptchaKey = current.configuration.getString("recaptcha.key.public")
-      .getOrElse("fakekey")
-
     checkRecapture.flatMap { ok =>
       if (!ok) {
         val form = SignupData.form.bindFromRequest
@@ -135,14 +135,21 @@ case class Accounts @Inject()(implicit globalConfig: GlobalConfig, searchDispatc
     }
   }
 
-  def openIDCallback = openIDCallbackAction.async { formOrAccount => implicit request =>
+  def openIDCallback = OpenIdCallbackAction.async { implicit request =>
     implicit val accountOpt: Option[Account] = None
-    formOrAccount match {
+    request.formOrAccount match {
       case Right(account) => gotoLoginSucceeded(account.id)
-        .map(_.withSession("access_uri" -> portalRoutes.index().url))
-      case Left(formError) =>
-        immediate(BadRequest(
-          views.html.p.account.login(formError, passwordLoginForm, oauthProviders)))
+      case Left(formError) => immediate(
+        BadRequest(
+          views.html.p.account.login(
+            passwordLoginForm,
+            SignupData.form,
+            accountRoutes.signupPost(),
+            recaptchaKey,
+            formError,
+            oauthProviders)
+          )
+        )
     }
   }
 
@@ -159,23 +166,49 @@ case class Accounts @Inject()(implicit globalConfig: GlobalConfig, searchDispatc
       accountOpt match {
         case Some(user) => Redirect(portalRoutes.index())
           .flashing("warning" -> Messages("login.alreadyLoggedIn", user.email))
-        case None => Ok(views.html.p.account.login(openidForm, passwordLoginForm, oauthProviders))
+        case None =>
+          Ok(views.html.p.account.login(
+            passwordLoginForm,
+            SignupData.form,
+            accountRoutes.signupPost(),
+            recaptchaKey,
+            openidForm,
+            oauthProviders)
+          )
       }
     }
   }
 
-  def openIDLoginPost = openIDLoginPostAction(accountRoutes.openIDCallback()) { formError => implicit request =>
+  def openIDLoginPost(isLogin: Boolean = true) = OpenIdLoginAction(accountRoutes.openIDCallback) { implicit request =>
     implicit val accountOpt: Option[Account] = None
     BadRequest(
-      views.html.p.account.login(formError, passwordLoginForm, oauthProviders))
+      views.html.p.account.login(
+        passwordLoginForm,
+        SignupData.form,
+        accountRoutes.signupPost(),
+        recaptchaKey,
+        request.errorForm,
+        oauthProviders
+      )
+    )
   }
 
-  def passwordLoginPost = loginPostAction.async { accountOrErr => implicit request =>
-    accountOrErr match {
+  def passwordLoginPost = UserPasswordLoginAction.async { implicit request =>
+    request.formOrAccount match {
       case Left(errorForm) =>
         implicit val accountOpt: Option[Account] = None
-        immediate(BadRequest(views.html.p.account.login(
-            openidForm, errorForm, oauthProviders)))
+        immediate(
+          BadRequest(
+            views.html.p.account.login(
+              errorForm,
+              SignupData.form,
+              accountRoutes.signupPost(),
+              recaptchaKey,
+              openidForm,
+              oauthProviders
+            )
+          )
+        )
       case Right(account) => gotoLoginSucceeded(account.id)
     }
   }
@@ -184,16 +217,16 @@ case class Accounts @Inject()(implicit globalConfig: GlobalConfig, searchDispatc
     gotoLogoutSucceeded
   }
 
-  def googleLogin = oauth2LoginPostAction.async(GoogleOAuth2Provider, accountRoutes.googleLogin()) { account => implicit request =>
-    gotoLoginSucceeded(account.id)
+  def googleLogin = OAuth2LoginAction(GoogleOAuth2Provider, accountRoutes.googleLogin()).async { implicit request =>
+    gotoLoginSucceeded(request.user.id)
   }
 
-  def facebookLogin = oauth2LoginPostAction.async(FacebookOauth2Provider, accountRoutes.facebookLogin()) { account => implicit request =>
-    gotoLoginSucceeded(account.id)
+  def facebookLogin = OAuth2LoginAction(FacebookOauth2Provider, accountRoutes.facebookLogin()).async { implicit request =>
+    gotoLoginSucceeded(request.user.id)
   }
 
-  def linkedInLogin = oauth2LoginPostAction.async(LinkedInOauth2Provider, accountRoutes.linkedInLogin()) { account => implicit request =>
-    gotoLoginSucceeded(account.id)
+  def linkedInLogin = OAuth2LoginAction(LinkedInOauth2Provider, accountRoutes.linkedInLogin()).async {implicit request =>
+    gotoLoginSucceeded(request.user.id)
   }
 
   def forgotPassword = Action { implicit request =>
@@ -203,10 +236,8 @@ case class Accounts @Inject()(implicit globalConfig: GlobalConfig, searchDispatc
       recaptchaKey, accountRoutes.forgotPasswordPost()))
   }
 
-  def forgotPasswordPost = forgotPasswordPostAction { uuidOrErr => implicit request =>
-    val recaptchaKey = current.configuration.getString("recaptcha.key.public")
-      .getOrElse("fakekey")
-    uuidOrErr match {
+  def forgotPasswordPost = ForgotPasswordAction { implicit request =>
+    request.formOrAccount match {
       case Right((account,uuid)) =>
         sendResetEmail(account.email, uuid)
         Redirect(portalRoutes.index())
@@ -222,33 +253,21 @@ case class Accounts @Inject()(implicit globalConfig: GlobalConfig, searchDispatc
   }
 
   def changePassword = WithUserAction { implicit request =>
-    request.profile.account.map { account =>
-      Ok(views.html.p.account.changePassword(account, changePasswordForm,
-        accountRoutes.changePasswordPost()))
-    }.getOrElse {
-      Redirect(accountRoutes.changePassword())
-        .flashing("error" -> Messages("login.error.badResetToken"))
-    }
+    Ok(views.html.p.account.changePassword(request.user.account.get, changePasswordForm,
+      accountRoutes.changePasswordPost()))
   }
 
   /**
    * Store a changed password.
    */
-  def changePasswordPost = changePasswordPostAction { boolOrErr => implicit user => implicit request =>
-    assert(user.account.isDefined, "User account is not present!")
-    val account = user.account.get
-    boolOrErr match {
-      case Right(true) =>
-        Redirect(defaultLoginUrl)
-          .flashing("success" -> Messages("login.password.change.confirmation"))
-      case Right(false) =>
-        BadRequest(p.account.changePassword(
-          account, changePasswordForm
-            .withGlobalError("login.error.badUsernameOrPassword"), accountRoutes.changePassword()))
-      case Left(errForm) =>
-        BadRequest(p.account.changePassword(
-          account, errForm, accountRoutes.changePassword()))
-    }
+  def changePasswordPost = ChangePasswordAction { implicit request =>
+    implicit val userOpt = Some(request.user)
+    val account = request.user.account.get
+    request.errForm.fold(
+      Redirect(defaultLoginUrl)
+        .flashing("success" -> Messages("login.password.change.confirmation"))
+    )(errForm => BadRequest(p.account.changePassword(
+      account, errForm, accountRoutes.changePasswordPost())))
   }
 
   def resetPassword(token: String) = Action { implicit request =>
@@ -262,7 +281,7 @@ case class Accounts @Inject()(implicit globalConfig: GlobalConfig, searchDispatc
   }
 
   def resendVerificationPost() = WithUserAction { implicit request =>
-    request.profile.account.map { account =>
+    request.user.account.map { account =>
       val uuid = UUID.randomUUID()
       account.createValidationToken(uuid)
       sendValidationEmail(account.email, uuid)
@@ -273,18 +292,13 @@ case class Accounts @Inject()(implicit globalConfig: GlobalConfig, searchDispatc
     }.getOrElse(Unauthorized)
   }
 
-  def resetPasswordPost(token: String) = resetPasswordPostAction(token) { boolOrForm => implicit request =>
-    boolOrForm match {
-      case Left(errForm) =>
-        BadRequest(views.html.p.account.resetPassword(errForm,
-          accountRoutes.resetPasswordPost(token)))
-      case Right(true) =>
-        Redirect(accountRoutes.login())
-          .flashing("warning" -> "login.password.reset.confirmation")
-      case Right(false) =>
-        Redirect(accountRoutes.forgotPassword())
-          .flashing("error" -> Messages("login.error.badResetToken"))
-    }
+  def resetPasswordPost(token: String) = ResetPasswordAction(token) { implicit request =>
+    request.formOpt.fold(
+      Redirect(accountRoutes.login())
+        .flashing("warning" -> "login.password.reset.confirmation")
+    )( errForm => BadRequest(views.html.p.account.resetPassword(errForm,
+        accountRoutes.resetPasswordPost(token)))
+    )
   }
 
   private def sendResetEmail(email: String, uuid: UUID)(implicit request: RequestHeader) {

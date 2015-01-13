@@ -1,7 +1,7 @@
 
 GET         /login                          @controllers.portal.account.Accounts.login
 POST        /login                          @controllers.portal.account.Accounts.passwordLoginPost
-POST        /openid                         @controllers.portal.account.Accounts.openIDLoginPost
+POST        /openid                         @controllers.portal.account.Accounts.openIDLoginPost(isLogin: Boolean ?= true)
 GET         /authenticate/openid            @controllers.portal.account.Accounts.openIDCallback
 GET         /authenticate/google            @controllers.portal.account.Accounts.googleLogin
 GET         /authenticate/facebook          @controllers.portal.account.Accounts.facebookLogin

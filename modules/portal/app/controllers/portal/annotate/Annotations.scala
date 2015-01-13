@@ -62,7 +62,7 @@ case class Annotations @Inject()(implicit globalConfig: global.GlobalConfig, sea
 
   // Ajax
   def annotate(id: String, did: String) = WithUserAction.async {  implicit request =>
-    getCanShareWith(request.profile) { users => groups =>
+    getCanShareWith(request.user) { users => groups =>
       Ok(
         p.annotation.create(
           Annotation.form.bind(annotationDefaults),
@@ -80,7 +80,7 @@ case class Annotations @Inject()(implicit globalConfig: global.GlobalConfig, sea
     Annotation.form.bindFromRequest.fold(
       errorForm => immediate(BadRequest(errorForm.errorsAsJson)),
       ann => {
-        val accessors: List[String] = getAccessors(ann, request.profile)
+        val accessors: List[String] = getAccessors(ann, request.user)
         backend.createAnnotationForDependent[Annotation,AnnotationF](id, did, ann, accessors).map { ann =>
           Created(p.annotation.annotationBlock(ann, editable = true))
             .withHeaders(
@@ -148,7 +148,7 @@ case class Annotations @Inject()(implicit globalConfig: global.GlobalConfig, sea
 
   // Ajax
   def annotateField(id: String, did: String, field: String) = WithUserAction.async { implicit request =>
-    getCanShareWith(request.profile) { users => groups =>
+    getCanShareWith(request.user) { users => groups =>
       Ok(p.annotation.create(
         Annotation.form.bind(annotationDefaults),
         ContributionVisibility.form.bindFromRequest,
@@ -167,7 +167,7 @@ case class Annotations @Inject()(implicit globalConfig: global.GlobalConfig, sea
       ann => {
         // Add the field to the model!
         val fieldAnn = ann.copy(field = Some(field))
-        val accessors: List[String] = getAccessors(ann, request.profile)
+        val accessors: List[String] = getAccessors(ann, request.user)
         backend.createAnnotationForDependent[Annotation,AnnotationF](id, did, fieldAnn, accessors).map { ann =>
           Created(p.annotation.annotationInline(ann, editable = true))
             .withHeaders(

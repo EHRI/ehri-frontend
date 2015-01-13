@@ -80,7 +80,7 @@ package object forms {
   /**
    * Check a capture form.
    */
-  def checkRecapture(implicit request: Request[AnyContent], executionContext: ExecutionContext): Future[Boolean] = {
+  def checkRecapture[A](implicit request: Request[A], executionContext: ExecutionContext): Future[Boolean] = {
     // https://developers.google.com/recaptcha/docs/verify
     val recaptchaForm = Form(
       tuple(

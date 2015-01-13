@@ -181,14 +181,17 @@ dates.all=All
 # Login-related
 #
 login=Sign In
-login.signup=Sign In / Register
+login.signup=Register
 login.moreOptions=More options
 login.alreadyLoggedIn=You are already signed in as {0}
 login.loginWith=Sign in with {0}
+login.signupWith=Register with {0}
+login.signup.submit=Register
 login.openid.submit=Sign In With OpenID
 login.openid=OpenID
 login.email=Email
 login.password=Password
+login.password.confirm=Confirm Password
 login.password.noPassword=There is currently no password associated with your account. This means you\
   have signed in via a third-party provider such as Google or Facebook.
 login.password.change=Change Password
@@ -198,6 +201,7 @@ login.password.change.confirmation=Password Changed
 login.password.reset=Reset Password
 login.password.reset.text=Forgotten your password? Enter the email you used to sign up below\
   and we''ll send you a link you can use to reset it.
+login.password.reset.noPasswordMatching=No account matches {0}
 login.password.reset.submit=Send Reset Link
 login.openid.urlPlaceholder=Enter your OpenID URL
 login.disabled=Login is currently disabled. Please try again later.
@@ -207,7 +211,7 @@ login.password.submit=Sign In
 login.recover.link=Click here if you''ve forgotten or lost your password.
 login.error=There was a problem with your details
 login.error.badUsernameOrPassword=Incorrect username or password
-login.error.passwordsDoNotMatch=Password and confirmation do not match!
+login.error.passwordsDoNotMatch=Password and confirmation do not match
 login.error.badResetToken=URL given for password reset was invalid or expired. \
   Note: password reset links can only be used once.
 
@@ -223,7 +227,6 @@ logout.confirmation=You have been logged out
 account=Account
 
 signup=Create an Account
-signup.submit=Submit
 signup.dataPolicyNag=By creating an account I agree to abide by the terms of the {0} EHRI data policy {1}.
 signup.badPasswords=The password and confirmation did not match. Please try again.
 signup.agreeTerms=You must agree to the terms.
@@ -334,8 +337,8 @@ error.emailNotFound=That email was not found on our system.
 error.badRecaptcha=The Recaptcha check (intended to ensure you are a human and not an automated spamming machine) did not\
     get the right response. Tip: you can keep refreshing the challenge text until you get something more readable.
 error.openId=There was a problem logging you in with OpenID.\
-  This may because your provider does not support attribute exchange. The error messages was: {0}
-error.openId.url=There was no response from the given openid provider: ''{0}''.\
+  This may because your provider deoes not support attribute exchange.
+error.openId.url=There was no response from the given openid provider: {0}.\
   Please ensure the provider URL is correct.
 error.userEmailAlreadyRegistered=A user with that email is already registered: {0}
 

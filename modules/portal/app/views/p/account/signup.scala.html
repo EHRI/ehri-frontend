@@ -16,11 +16,16 @@
     </style>
 }
 
+@implicitField = @{ views.html.helper.FieldConstructor(p.helpers.fieldTemplateSignUp.f) }
+
 @p.layout.portalLayoutSimple(Messages("signup"), scripts=validationJs, styles = styles) {
 
     @views.html.layout.mainContent {
-        @signupForm(form, action, recaptchaKey)
-        <div class="clearfix"></div>
+        <div class="login-page">
+            <div class="login-or-signup">
+                @signupForm(form, action, recaptchaKey)
+            </div>
+        </div>
     }
 }(None, request, globalConfig, flash, lang)
 

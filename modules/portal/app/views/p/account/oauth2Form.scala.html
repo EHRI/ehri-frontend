@@ -1,0 +1,34 @@
+@(loginOrSignup: String, openIdForm: Form[String], oauthProviders: Map[String,Call] = Map.empty, isLogin: Boolean)(implicit userOpt: Option[Account], request: RequestHeader, globalConfig: global.GlobalConfig, flash: Flash, lang: Lang, token: play.filters.csrf.CSRF.Token, fieldConstructor: helper.FieldConstructor)
+
+
+@openIdStyles = {
+}
+
+@helper.form(action = controllers.portal.account.routes.Accounts.openIDLoginPost(isLogin), 'class -> "openid form validate-form", 'role -> "form") {
+    @formHelpers.csrfToken()
+    @formHelpers.globalErrors(openIdForm)
+
+    @oauthProviders.map { case (name, call) =>
+        <a href="@call" class="btn btn-@name" title="@name">
+           @Html(Messages(loginOrSignup, Html("<i class='icon-social " + name + "'></i>")))
+        </a>
+    }
+    <a href="#" class="btn btn-openid show-more">
+        @Html(Messages(loginOrSignup, Html("<i class='icon-social openid'></i>")))
+    </a>
+
+    <div class="more-login-options @{if(openIdForm.hasErrors) "errors"}">
+        <div class="form-block">
+
+            @helper.inputText(
+                openIdForm("openid_identifier"),
+                'placeholder -> Messages("login.openid.urlPlaceholder"),
+                'type -> "url"
+            )
+        </div>
+
+        <div class="form-group">
+            <input type="submit" class="btn btn-post login-button openid" value="@Messages(loginOrSignup, "OpenID")" />
+        </div>
+    </div>
+}
