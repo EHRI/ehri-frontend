@@ -244,10 +244,10 @@ case class Accounts @Inject()(implicit globalConfig: GlobalConfig, searchDispatc
       case Right(false) =>
         BadRequest(p.account.changePassword(
           account, changePasswordForm
-            .withGlobalError("login.error.badUsernameOrPassword"), accountRoutes.changePassword()))
+            .withGlobalError("login.error.badUsernameOrPassword"), accountRoutes.changePasswordPost()))
       case Left(errForm) =>
         BadRequest(p.account.changePassword(
-          account, errForm, accountRoutes.changePassword()))
+          account, errForm, accountRoutes.changePasswordPost()))
     }
   }
 
