@@ -92,7 +92,10 @@ package object forms {
     if (count < limit) {
       Cache.set(key, count + 1, timeoutSecs)
       true
-    } else false
+    } else {
+      Logger.warn(s"Rate limit refusal for IP $ip at ${request.path}")
+      false
+    }
   }
 
   /**
