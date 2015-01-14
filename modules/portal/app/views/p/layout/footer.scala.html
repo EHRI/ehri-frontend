@@ -1,18 +1,19 @@
 @()(implicit req: RequestHeader, globalConfig: global.GlobalConfig, lang: Lang)
 
+@footerLink(call: Call, code: String) = {
+    <li class="@views.Helpers.maybeActive(call.url)">
+        <a href="@call">@Messages(code)</a>
+    </li>
+}
+
 <footer class="footer sticky">
     <p>@Messages("footerText")</p>
 
     <ul id="navbar-tertiary">
-        <li class="@views.Helpers.maybeActive(controllers.portal.routes.Portal.about.url)">
-            <a href="@controllers.portal.routes.Portal.about">@Messages("about")</a>
-        </li>
-        <li class="@views.Helpers.maybeActive(controllers.portal.routes.Portal.contact.url)">
-            <a href="@controllers.portal.routes.Portal.contact">@Messages("contact")</a>
-        </li>
-        <li class="@views.Helpers.maybeActive(controllers.portal.routes.Portal.terms.url)">
-            <a href="@controllers.portal.routes.Portal.terms">@Messages("terms")</a>
-        </li>
+        @footerLink(controllers.portal.routes.Portal.about, "about")
+        @footerLink(controllers.portal.routes.Portal.contact, "contact")
+        @footerLink(controllers.portal.routes.Portal.terms, "termsAndConditions")
+        @footerLink(controllers.portal.routes.Portal.dataPolicy, "dataPolicy")
     </ul>
 
     <ul class="lang-switcher">

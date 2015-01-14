@@ -2,7 +2,6 @@ welcome=Welcome to EHRI
 home=Home
 about=About EHRI
 contact=Contact
-terms=Terms & Conditions
 welcome.blurb=The EHRI portal offers access to information on Holocaust-related archival \
   material held in institutions across Europe and beyond. \
   For more information on the EHRI project visit http://ehri-project.eu.
@@ -227,7 +226,7 @@ logout.confirmation=You have been logged out
 account=Account
 
 signup=Create an Account
-signup.dataPolicyNag=By creating an account I agree to abide by the terms of the {0} EHRI data policy {1}.
+signup.dataPolicyNag=By creating an account I agree to abide by the {0} and the {1}.
 signup.badPasswords=The password and confirmation did not match. Please try again.
 signup.agreeTerms=You must agree to the terms.
 signup.confirmation=Thanks for signing up! We''ve sent you an email which you can use to confirm \
@@ -627,6 +626,7 @@ helpdesk.query.submit=Ask the helpdesk
 #
 # Data policy
 #
+dataPolicy=Data Policy
 dataPolicy.header=EHRI Data Policy
 dataPolicy.notice1=This database might contain Sensitive Personal Data which according to Dutch privacy \
   law can be used for research purposes only (article 16 Dutch Data Protection Act ''Wet \
@@ -639,6 +639,27 @@ dataPolicy.terms=I declare that I will use Sensitive Personal Data for research 
   and regulations. I am aware of punitive results following a breach of these laws and/or \
   regulations.
 dataPolicy.agree=I Agree
+
+#
+# Terms and conditions
+#
+termsAndConditions=Terms & Conditions
+termsAndConditions.userGenerated.heading=User-generated content: terms of use
+termsAndConditions.userGenerated.p1=EHRI offers users the opportunity to contribute to the content provided by EHRI through enriching and \
+  annotating data. To participate in this process of producing user-generated content, users must agree to \
+  the Terms of Use listed below.
+termsAndConditions.userGenerated.p2=By clicking signing-in/creating an account you agree to our Terms of Use and acknowledge \
+  having read our Data Policy (including cookie use).
+termsAndConditions.userGenerated.terms.heading=Terms of Use:
+termsAndConditions.userGenerated.terms.1=Users producing content agree not to add comments which are inappropriate.
+termsAndConditions.userGenerated.terms.2=Users producing content agree not to infringe Dutch privacy law or the privacy law of the country \
+  in which they are located when adding content. This implies that users producing content will not \
+  disclose information in violation of personal data protection rights.
+termsAndConditions.userGenerated.terms.3=Users producing content agree that EHRI will review the user-generated content before \
+  publication.
+termsAndConditions.userGenerated.terms.4=The information is made available to users and can be reused, though acknowledgment of the \
+  author has to be given when the information is published elsewhere. For this purpose, the author \
+  of the user-generated content will be clearly stated.
 
 #
 # Markdown Cheatsheet

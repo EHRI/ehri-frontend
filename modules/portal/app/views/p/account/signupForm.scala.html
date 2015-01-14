@@ -13,8 +13,9 @@
 
     @helper.checkbox(form(AGREE_TERMS), 'required -> "required", '_label -> Html(Messages(
         "signup.dataPolicyNag",
-        "<a target='_blank' tabindex='-1' href='" + controllers.portal.routes.Portal.dataPolicy() + "'>",
-        "</a>")
+        Html(s"<a target='_blank' tabindex='-1' href='${controllers.portal.routes.Portal.terms()}'>${Messages("termsAndConditions")}</a>"),
+        Html(s"<a target='_blank' tabindex='-1' href='${controllers.portal.routes.Portal.dataPolicy()}'>${Messages("dataPolicy")}</a>")
+    )
     ))
 
     @common.recaptcha(recaptchaKey)
