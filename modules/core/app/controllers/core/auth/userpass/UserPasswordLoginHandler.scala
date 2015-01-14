@@ -44,119 +44,118 @@ trait UserPasswordLoginHandler {
     tuple(
       "password" -> nonEmptyText(minLength = 6),
       "confirm" -> nonEmptyText(minLength = 6)
-    ) verifying("login.error.passwordsDoNotMatch", f => f match {
-      case (pw, pwc) => pw == pwc
-    })
+    ) verifying("login.error.passwordsDoNotMatch", pc => pc._1 == pc._2)
   )
 
   protected val forgotPasswordForm = Form(Forms.single("email" -> email))
 
+  case class UserPasswordLoginRequest[A](
+    formOrAccount: Either[Form[(String,String)], Account],
+    request: Request[A]
+  ) extends WrappedRequest[A](request)
 
-  object loginPostAction {
-
-    def async(f: Either[Form[(String,String)], Account] => Request[AnyContent] => Future[Result]): Action[AnyContent] = {
-      Action.async { implicit request =>
-        val boundForm = passwordLoginForm.bindFromRequest
-        boundForm.fold(
-          errorForm => f(Left(errorForm))(request),
-          data => {
-            val (email, pw) = data
-            userDAO.authenticate(email, pw).map { account =>
-              Logger.logger.info("User '{}' logged in via password", account.id)
-              f(Right(account))(request)
-            } getOrElse {
-              f(Left(boundForm.withGlobalError("login.error.badUsernameOrPassword")))(request)
-            }
+  protected def UserPasswordLoginAction = new ActionBuilder[UserPasswordLoginRequest] {
+    override def invokeBlock[A](request: Request[A], block: (UserPasswordLoginRequest[A]) => Future[Result]): Future[Result] = {
+      implicit val r = request
+      val boundForm = passwordLoginForm.bindFromRequest
+      boundForm.fold(
+        errorForm => block(UserPasswordLoginRequest(Left(errorForm), request)),
+        data => {
+          val (email, pw) = data
+          userDAO.authenticate(email, pw).map { account =>
+            Logger.logger.info("User '{}' logged in via password", account.id)
+            block(UserPasswordLoginRequest(Right(account), request))
+          } getOrElse {
+            block(UserPasswordLoginRequest(Left(boundForm.withGlobalError("login.error.badUsernameOrPassword")), request))
           }
-        )
-      }
-    }
-
-    def apply(f: Either[Form[(String,String)], Account] => Request[AnyContent] => Result): Action[AnyContent] = {
-      async(f.andThen(_.andThen(t => immediate(t))))
+        }
+      )
     }
   }
 
-  object forgotPasswordPostAction {
-    def async(f: Either[Form[String],(Account,UUID)] => Request[AnyContent] => Future[Result]): Action[AnyContent] = {
-      Action.async { implicit request =>
-        checkRecapture.flatMap { ok =>
-          if (!ok) {
-            val form = forgotPasswordForm.withGlobalError("error.badRecaptcha")
-            f(Left(form))(request)
-          } else {
-            forgotPasswordForm.bindFromRequest.fold({ errForm =>
-              f(Left(errForm))(request)
-            }, { email =>
-              userDAO.findByEmail(email).map { account =>
-                val uuid = UUID.randomUUID()
-                account.createResetToken(uuid)
-                f(Right((account, uuid)))(request)
-              }.getOrElse {
-                val form = forgotPasswordForm.withError("email", "error.emailNotFound")
-                f(Left(form))(request)
-              }
-            })
-          }
+  case class ForgotPasswordRequest[A](
+    formOrAccount: Either[Form[String],(Account,UUID)],
+    request: Request[A]                                     
+  ) extends WrappedRequest[A](request)
+  
+  protected def ForgotPasswordAction = new ActionBuilder[ForgotPasswordRequest] {
+    override def invokeBlock[A](request: Request[A], block: (ForgotPasswordRequest[A]) => Future[Result]): Future[Result] = {
+      implicit val r = request
+      checkRecapture.flatMap { ok =>
+        if (!ok) {
+          val form = forgotPasswordForm.withGlobalError("error.badRecaptcha")
+          block(ForgotPasswordRequest(Left(form), request))
+        } else {
+          forgotPasswordForm.bindFromRequest.fold({ errForm =>
+            block(ForgotPasswordRequest(Left(errForm), request))
+          }, { email =>
+            userDAO.findByEmail(email).map { account =>
+              val uuid = UUID.randomUUID()
+              account.createResetToken(uuid)
+              block(ForgotPasswordRequest(Right((account, uuid)), request))
+            }.getOrElse {
+              val form = forgotPasswordForm.withError("email", "error.emailNotFound")
+              block(ForgotPasswordRequest(Left(form), request))
+            }
+          })
         }
       }
     }
+  }
 
-    def apply(f: Either[Form[String],(Account,UUID)] => Request[AnyContent] => Result): Action[AnyContent] = {
-      async(f.andThen(_.andThen(t => immediate(t))))
+  case class ChangePasswordRequest[A](
+    errForm: Option[Form[(String,String,String)]],
+    user: UserProfile,
+    request: Request[A]
+  ) extends WrappedRequest[A](request)
+  
+  protected def ChangePasswordAction = WithUserAction andThen new ActionTransformer[WithUserRequest, ChangePasswordRequest] {
+    override protected def transform[A](request: WithUserRequest[A]): Future[ChangePasswordRequest[A]] = immediate {
+      implicit val r = request
+      val form = changePasswordForm.bindFromRequest
+      form.fold(
+        errorForm => ChangePasswordRequest(Some(errorForm), request.user, request),
+        data => {
+          val (current, newPw, _) = data
+
+          (for {
+            account <- request.user.account
+            hashedPw <- account.password if userDAO.checkPassword(current, hashedPw)
+          } yield {
+            account.setPassword(userDAO.hashPassword(newPw))
+            println("OKAY!")
+            ChangePasswordRequest(None, request.user, request)
+          }) getOrElse {
+            ChangePasswordRequest(
+              Some(form.withGlobalError("login.error.badUsernameOrPassword")),
+              request.user, request)
+          }
+        }
+      )
     }
   }
 
-  /**
-   * Store a changed password.
-   * @return
-   */
-  object changePasswordPostAction {
-    def async(f: Either[Form[(String,String,String)],Boolean] => UserProfile => Request[AnyContent] => Future[Result]): Action[AnyContent] = {
-      WithUserAction.async { implicit request =>
-        changePasswordForm.bindFromRequest.fold(
-          errorForm => f(Left(errorForm))(request.profile)(request),
-          data => {
-            val (current, newPw, _) = data
+  case class ResetPasswordRequest[A](
+    formOrAccount: Either[Form[(String,String)], Account],
+    request: Request[A]
+  ) extends WrappedRequest[A](request)
 
-            (for {
-              account <- request.profile.account
-              hashedPw <- account.password if Account.checkPassword(current, hashedPw)
-            } yield {
-              account.setPassword(Account.hashPassword(newPw))
-              f(Right(true))(request.profile)(request)
-            }) getOrElse {
-              f(Right(false))(request.profile)(request)
-            }
-          }
-        )
-      }
-    }
-
-    def apply(f: Either[Form[(String,String,String)],Boolean] => UserProfile =>Request[AnyContent] => Result): Action[AnyContent] = {
-      async(f.andThen(_.andThen(_.andThen(t => immediate(t)))))
-    }
-  }
-
-  object resetPasswordPostAction {
-    def async(token: String)(f: Either[Form[(String,String)],Boolean] => Request[AnyContent] => Future[Result]): Action[AnyContent] = {
-      Action.async { implicit request =>
-        resetPasswordForm.bindFromRequest.fold({ errForm =>
-          f(Left(errForm))(request)
-        }, { case (pw, _) =>
-          userDAO.findByResetToken(token).map { account =>
-            account.setPassword(Account.hashPassword(pw))
-            account.expireTokens()
-            f(Right(true))(request)
-          }.getOrElse {
-            f(Right(false))(request)
-          }
-        })
-      }
-    }
-
-    def apply(token: String)(f: Either[Form[(String,String)],Boolean] => Request[AnyContent] => Result): Action[AnyContent] = {
-      async(token)(f.andThen(_.andThen(t => immediate(t))))
+  protected def ResetPasswordAction(token: String) = new ActionBuilder[ResetPasswordRequest] {
+    override def invokeBlock[A](request: Request[A], block: (ResetPasswordRequest[A]) => Future[Result]): Future[Result] = {
+      implicit val r = request
+      val form: Form[(String, String)] = resetPasswordForm.bindFromRequest
+      form.fold(
+        errForm => block(ResetPasswordRequest(Left(errForm), request)),
+        { case (pw, _) =>
+        userDAO.findByResetToken(token).map { account =>
+          account.setPassword(userDAO.hashPassword(pw))
+          account.expireTokens()
+          block(ResetPasswordRequest(Right(account), request))
+        }.getOrElse {
+          block(ResetPasswordRequest(
+            Left(form.withGlobalError("login.error.badResetToken")), request))
+        }
+      })
     }
   }
 }

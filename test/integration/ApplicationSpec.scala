@@ -6,7 +6,7 @@ import play.api.test.Helpers._
 
 import helpers.{UserFixtures, TestConfiguration}
 import play.api.i18n.Messages
-import models.MockAccount
+import models.{SignupData, MockAccount}
 import play.api.test.FakeApplication
 
 /**
@@ -86,7 +86,7 @@ class ApplicationSpec extends Specification with TestConfiguration with UserFixt
     "redirect to default URL when accessing login page when logged in" in {
       running(FakeApplication(withGlobal = Some(getGlobal), additionalPlugins = getPlugins)) {
         val login = route(fakeLoggedInHtmlRequest(mocks.publicUser, GET,
-          controllers.portal.account.routes.Accounts.login().url)).get
+          controllers.portal.account.routes.Accounts.loginOrSignup().url)).get
         status(login) must equalTo(SEE_OTHER)
       }
     }
@@ -111,8 +111,7 @@ class ApplicationSpec extends Specification with TestConfiguration with UserFixt
     
     "give a capture error submitting a forgot password form" in {
       running(FakeApplication(withGlobal = Some(getGlobal),
-        additionalConfiguration = Map("recaptcha.skip" -> false),
-        additionalPlugins = getPlugins)) {
+        additionalConfiguration = Map("recaptcha.skip" -> false))) {
         val data: Map[String,Seq[String]] = Map(
           "email" -> Seq("test@example.com"),
           CSRF_TOKEN_NAME -> Seq(fakeCsrfString)
@@ -127,8 +126,7 @@ class ApplicationSpec extends Specification with TestConfiguration with UserFixt
 
     "give an error submitting a forgot password form with the right capcha but the wrong email" in {
       running(FakeApplication(withGlobal = Some(getGlobal),
-          additionalConfiguration = Map("recaptcha.skip" -> true),
-          additionalPlugins = getPlugins)) {
+          additionalConfiguration = Map("recaptcha.skip" -> true))) {
         val data: Map[String,Seq[String]] = Map(
           "email" -> Seq("test@example.com"),
           CSRF_TOKEN_NAME -> Seq(fakeCsrfString)
@@ -143,8 +141,7 @@ class ApplicationSpec extends Specification with TestConfiguration with UserFixt
 
     "create a reset token on password reset with correct email" in {
       running(FakeApplication(withGlobal = Some(getGlobal),
-        additionalConfiguration = Map("recaptcha.skip" -> true),
-        additionalPlugins = getPlugins)) {
+        additionalConfiguration = Map("recaptcha.skip" -> true))) {
         val numSentMails = mailBuffer.size
         val data: Map[String,Seq[String]] = Map(
           "email" -> Seq(mocks.unprivilegedUser.email),
@@ -161,8 +158,7 @@ class ApplicationSpec extends Specification with TestConfiguration with UserFixt
 
     "check password reset token works (but only once)" in {
       running(FakeApplication(withGlobal = Some(getGlobal),
-        additionalConfiguration = Map("recaptcha.skip" -> true),
-        additionalPlugins = getPlugins)) {
+        additionalConfiguration = Map("recaptcha.skip" -> true))) {
         val numSentMails = mailBuffer.size
         val data: Map[String,Seq[String]] = Map(
           "email" -> Seq(mocks.unprivilegedUser.email),
@@ -197,7 +193,42 @@ class ApplicationSpec extends Specification with TestConfiguration with UserFixt
         status(expired) must equalTo(SEE_OTHER)
         val err = flash(expired).get("error")
         err must beSome
-        err.get must equalTo(Messages("login.error.badResetToken"))
+        err.get must equalTo("login.error.badResetToken")
+      }
+    }
+
+
+
+    "rate limit repeated requests with a timeout" in {
+      running(FakeApplication(withGlobal = Some(getGlobal),
+        additionalConfiguration = Map("ehri.ratelimit.limit" -> 2,
+          "ehri.ratelimit.timeout" -> 1))) {
+
+        val data = Map(
+          SignupData.EMAIL -> Seq("test@nothing.com"),
+          SignupData.PASSWORD -> Seq("blah"),
+          CSRF_TOKEN_NAME -> Seq(fakeCsrfString)
+        )
+
+        val attempt1 = route(FakeRequest(POST,
+          controllers.portal.account.routes.Accounts.passwordLoginPost().url)
+          .withSession(CSRF_TOKEN_NAME -> fakeCsrfString), data).get
+        status(attempt1) must equalTo(BAD_REQUEST)
+        val attempt2 = route(FakeRequest(POST,
+          controllers.portal.account.routes.Accounts.passwordLoginPost().url)
+          .withSession(CSRF_TOKEN_NAME -> fakeCsrfString), data).get
+        status(attempt2) must equalTo(BAD_REQUEST)
+        val attempt3 = route(FakeRequest(POST,
+          controllers.portal.account.routes.Accounts.passwordLoginPost().url)
+          .withSession(CSRF_TOKEN_NAME -> fakeCsrfString), data).get
+        status(attempt3) must equalTo(TOO_MANY_REQUEST)
+
+        // Wait for the timeout to expire and try again...
+        Thread.sleep(1500)
+        val attempt4 = route(FakeRequest(POST,
+          controllers.portal.account.routes.Accounts.passwordLoginPost().url)
+          .withSession(CSRF_TOKEN_NAME -> fakeCsrfString), data).get
+        status(attempt4) must equalTo(BAD_REQUEST)
       }
     }
   }

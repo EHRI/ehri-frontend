@@ -34,23 +34,16 @@ trait Account {
   def update(): Unit
 }
 
-object Account {
-  implicit val userWrites: Writes[Account] = new Writes[Account] {
-    def writes(user: Account): JsValue = Json.obj(
-      "email" -> user.email,
-      "profile_id" -> user.id
-    )
-  }
-
+trait AccountDAO extends Plugin {
   def checkPassword(p: String, h: HashedPassword) = BCrypt.checkpw(p, h.toString)
   def hashPassword(p: String): HashedPassword = HashedPassword.fromPlain(p)
-}
 
-trait AccountDAO extends Plugin {
-  def authenticate(email: String, pw: String, verified: Boolean = true): Option[Account] = for {
+  def authenticate(email: String, pw: String, verifiedOnly: Boolean = false): Option[Account] = {
+    for {
       acc <- findByEmail(email)
-      hashed <- acc.password if Account.checkPassword(pw, hashed) && acc.verified
-  } yield acc
+      hashed <- acc.password if checkPassword(pw, hashed) && (if(verifiedOnly) acc.verified else true)
+    } yield acc
+  }
   def findVerifiedByProfileId(id: String, verified: Boolean = true): Option[Account]
 	def findByProfileId(id: String): Option[Account]
   def findVerifiedByEmail(email: String, verified: Boolean = true): Option[Account]

@@ -1,11 +1,11 @@
 package controllers.portal.account
 
+import play.api.data.Form
 import play.api.mvc._
 import models._
 import play.api.libs.concurrent.Execution.Implicits._
 import scala.concurrent.Future.{successful => immediate}
 import jp.t2v.lab.play2.auth.LoginLogout
-import controllers.base.SessionPreferences
 import controllers.core.auth.oauth2.{LinkedInOauth2Provider, FacebookOauth2Provider, GoogleOAuth2Provider, Oauth2LoginHandler}
 import controllers.core.auth.openid.OpenIDLoginHandler
 import controllers.core.auth.userpass.UserPasswordLoginHandler
@@ -14,18 +14,15 @@ import play.api.Play._
 import utils.forms._
 import java.util.UUID
 import play.api.i18n.Messages
-import utils.SessionPrefs
 import com.google.common.net.HttpHeaders
 import controllers.core.auth.AccountHelpers
 import scala.concurrent.Future
-import backend.{AnonymousUser, Backend, ApiUser}
+import backend.{AnonymousUser, Backend}
 import play.api.mvc.Result
 import com.typesafe.plugin.MailerAPI
 import views.html.p
 import com.google.inject.{Singleton, Inject}
 import utils.search.{Resolver, Dispatcher}
-import controllers.portal.Secured
-import play.api.libs.json.Json
 import controllers.portal.base.PortalController
 
 /**
@@ -44,9 +41,15 @@ case class Accounts @Inject()(implicit globalConfig: GlobalConfig, searchDispatc
   private val portalRoutes = controllers.portal.routes.Portal
   private val accountRoutes = controllers.portal.account.routes.Accounts
 
-  def account = OptionalUserAction { implicit request =>
-    Ok(Json.toJson(request.userOpt.flatMap(_.account)))
-  }
+  private def recaptchaKey = current.configuration.getString("recaptcha.key.public")
+    .getOrElse("fakekey")
+
+  private def rateLimitTimeoutSecs = current.configuration.getInt("ehri.ratelimit.timeout")
+    .getOrElse(3600)
+
+  private def rateLimitError(implicit r: RequestHeader) =
+    Messages("error.rateLimit", rateLimitTimeoutSecs / 60)
+
 
   /**
    * Prevent people signin up, logging in etc when in read-only mode.
@@ -55,7 +58,7 @@ case class Accounts @Inject()(implicit globalConfig: GlobalConfig, searchDispatc
     def apply(request: Request[A]): Future[Result] = {
       if (globalConfig.readOnly) {
         Future.successful(Redirect(portalRoutes.index())
-          .flashing("warning" -> Messages("login.disabled")))
+          .flashing("warning" -> "login.disabled"))
       } else action(request)
     }
     lazy val parser = action.parser
@@ -68,12 +71,6 @@ case class Accounts @Inject()(implicit globalConfig: GlobalConfig, searchDispatc
     override def composeAction[A](action: Action[A]) = new NotReadOnly(action)
   }
 
-  def signup = NotReadOnlyAction { implicit request =>
-    val recaptchaKey = current.configuration.getString("recaptcha.key.public")
-      .getOrElse("fakekey")
-    Ok(views.html.p.account.signup(SignupData.form, accountRoutes.signupPost(), recaptchaKey))
-  }
-
   def sendValidationEmail(email: String, uuid: UUID)(implicit request: RequestHeader) {
     mailer
       .setSubject("Please confirm your EHRI Account Email")
@@ -83,25 +80,42 @@ case class Accounts @Inject()(implicit globalConfig: GlobalConfig, searchDispatc
       views.html.p.account.mail.confirmEmail(uuid).body)
   }
 
+  def RateLimit = new ActionBuilder[Request] {
+    override def invokeBlock[A](request: Request[A], block: (Request[A]) => Future[Result]): Future[Result] = {
+      if (request.method != "POST") block(request)
+      else {
+        if (checkRateLimit(request)) block(request)
+        else immediate(TooManyRequest(rateLimitError(request)))
+      }
+    }
+  }
+
   def signupPost = NotReadOnlyAction.async { implicit request =>
-    val recaptchaKey = current.configuration.getString("recaptcha.key.public")
-      .getOrElse("fakekey")
+    def badForm(form: Form[SignupData], status: Status = BadRequest): Future[Result] = immediate {
+      status(
+        views.html.p.account.login(
+          passwordLoginForm,
+          form,
+          accountRoutes.signupPost(),
+          recaptchaKey,
+          openidForm,
+          oauthProviders,
+          isLogin = false)
+      )
+    }
 
     checkRecapture.flatMap { ok =>
+      val boundForm: Form[SignupData] = SignupData.form.bindFromRequest
       if (!ok) {
-        val form = SignupData.form.bindFromRequest
-            .discardingErrors.withGlobalError("error.badRecaptcha")
-        immediate(BadRequest(views.html.p.account.signup(form,
-          accountRoutes.signupPost(), recaptchaKey)))
+        badForm(boundForm.withGlobalError("error.badRecaptcha"))
+      } else if (!checkRateLimit(request)) {
+        badForm(boundForm.withGlobalError(rateLimitError), TooManyRequest)
       } else {
-        SignupData.form.bindFromRequest.fold(
-          errForm => immediate(BadRequest(views.html.p.account.signup(errForm,
-            accountRoutes.signupPost(), recaptchaKey))),
+        boundForm.fold(
+          errForm => badForm(errForm),
           data => {
             userDAO.findByEmail(data.email).map { _ =>
-              val form = SignupData.form.withGlobalError("error.emailExists")
-              immediate(BadRequest(views.html.p.account.signup(form,
-                accountRoutes.signupPost(), recaptchaKey)))
+              badForm(boundForm.withError(SignupData.EMAIL, "error.emailExists"))
             } getOrElse {
               implicit val apiUser = AnonymousUser
               backend.createNewUserProfile[UserProfile](
@@ -109,13 +123,13 @@ case class Accounts @Inject()(implicit globalConfig: GlobalConfig, searchDispatc
                   .flatMap { userProfile =>
                 val account = userDAO.createWithPassword(userProfile.id, data.email.toLowerCase,
                     verified = false, staff = false, allowMessaging = data.allowMessaging,
-                  Account.hashPassword(data.password))
+                  userDAO.hashPassword(data.password))
                 val uuid = UUID.randomUUID()
                 account.createValidationToken(uuid)
                 sendValidationEmail(data.email, uuid)
 
-                gotoLoginSucceeded(userProfile.id).map(r =>
-                  r.flashing("success" -> "signup.confirmation"))
+                gotoLoginSucceeded(userProfile.id)
+                  .map(_.flashing("success" -> "signup.confirmation"))
               }
             }
           }
@@ -131,18 +145,25 @@ case class Accounts @Inject()(implicit globalConfig: GlobalConfig, searchDispatc
         .map(_.flashing("success" -> "signup.validation.confirmation"))
     } getOrElse {
       immediate(BadRequest(
-          views.html.errors.itemNotFound(Some(Messages("signup.invalidSignupToken")))))
+          views.html.errors.itemNotFound(Some(Messages("signup.validation.badToken")))))
     }
   }
 
-  def openIDCallback = openIDCallbackAction.async { formOrAccount => implicit request =>
+  def openIDCallback = OpenIdCallbackAction.async { implicit request =>
     implicit val accountOpt: Option[Account] = None
-    formOrAccount match {
+    request.formOrAccount match {
       case Right(account) => gotoLoginSucceeded(account.id)
-        .map(_.withSession("access_uri" -> portalRoutes.index().url))
-      case Left(formError) =>
-        immediate(BadRequest(
-          views.html.p.account.login(formError, passwordLoginForm, oauthProviders)))
+      case Left(formError) => immediate(
+        BadRequest(
+          views.html.p.account.login(
+            passwordLoginForm,
+            SignupData.form,
+            accountRoutes.signupPost(),
+            recaptchaKey,
+            formError,
+            oauthProviders)
+          )
+        )
     }
   }
 
@@ -151,31 +172,66 @@ case class Accounts @Inject()(implicit globalConfig: GlobalConfig, searchDispatc
     "google" -> accountRoutes.googleLogin
   )
 
-  def login = OptionalAuthAction { implicit authRequest =>
+  def signup = loginOrSignup(isLogin = false)
+
+  def loginOrSignup(isLogin: Boolean) = OptionalAuthAction { implicit authRequest =>
     if (globalConfig.readOnly) {
-      Redirect(portalRoutes.index()).flashing("warning" -> Messages("login.disabled"))
+      Redirect(portalRoutes.index()).flashing("warning" -> "login.disabled")
     } else {
       implicit val accountOpt = authRequest.user
       accountOpt match {
         case Some(user) => Redirect(portalRoutes.index())
           .flashing("warning" -> Messages("login.alreadyLoggedIn", user.email))
-        case None => Ok(views.html.p.account.login(openidForm, passwordLoginForm, oauthProviders))
+        case None =>
+          Ok(views.html.p.account.login(
+            passwordLoginForm,
+            SignupData.form,
+            accountRoutes.signupPost(),
+            recaptchaKey,
+            openidForm,
+            oauthProviders,
+            isLogin = isLogin)
+          )
       }
     }
   }
 
-  def openIDLoginPost = openIDLoginPostAction(accountRoutes.openIDCallback()) { formError => implicit request =>
+  def openIDLoginPost(isLogin: Boolean = true) = OpenIdLoginAction(accountRoutes.openIDCallback()) { implicit request =>
     implicit val accountOpt: Option[Account] = None
     BadRequest(
-      views.html.p.account.login(formError, passwordLoginForm, oauthProviders))
+      views.html.p.account.login(
+        passwordLoginForm,
+        SignupData.form,
+        accountRoutes.signupPost(),
+        recaptchaKey,
+        request.errorForm,
+        oauthProviders,
+        isLogin
+      )
+    )
   }
 
-  def passwordLoginPost = loginPostAction.async { accountOrErr => implicit request =>
-    accountOrErr match {
-      case Left(errorForm) =>
-        implicit val accountOpt: Option[Account] = None
-        immediate(BadRequest(views.html.p.account.login(
-            openidForm, errorForm, oauthProviders)))
+  def passwordLoginPost = (NotReadOnlyAction andThen UserPasswordLoginAction).async { implicit request =>
+
+    def badForm(f: Form[(String,String)], status: Status = BadRequest): Future[Result] = immediate {
+      status(
+        views.html.p.account.login(
+          f,
+          SignupData.form,
+          accountRoutes.signupPost(),
+          recaptchaKey,
+          openidForm,
+          oauthProviders,
+          isLogin = true
+        )
+      )
+    }
+
+    val boundForm: Form[(String, String)] = passwordLoginForm.bindFromRequest
+    if (!checkRateLimit(request)) {
+      badForm(boundForm.withGlobalError(rateLimitError), TooManyRequest)
+    } else request.formOrAccount match {
+      case Left(errorForm) => badForm(errorForm)
       case Right(account) => gotoLoginSucceeded(account.id)
     }
   }
@@ -184,29 +240,25 @@ case class Accounts @Inject()(implicit globalConfig: GlobalConfig, searchDispatc
     gotoLogoutSucceeded
   }
 
-  def googleLogin = oauth2LoginPostAction.async(GoogleOAuth2Provider, accountRoutes.googleLogin()) { account => implicit request =>
-    gotoLoginSucceeded(account.id)
+  def googleLogin = OAuth2LoginAction(GoogleOAuth2Provider, accountRoutes.googleLogin()).async { implicit request =>
+    gotoLoginSucceeded(request.user.id)
   }
 
-  def facebookLogin = oauth2LoginPostAction.async(FacebookOauth2Provider, accountRoutes.facebookLogin()) { account => implicit request =>
-    gotoLoginSucceeded(account.id)
+  def facebookLogin = OAuth2LoginAction(FacebookOauth2Provider, accountRoutes.facebookLogin()).async { implicit request =>
+    gotoLoginSucceeded(request.user.id)
   }
 
-  def linkedInLogin = oauth2LoginPostAction.async(LinkedInOauth2Provider, accountRoutes.linkedInLogin()) { account => implicit request =>
-    gotoLoginSucceeded(account.id)
+  def linkedInLogin = OAuth2LoginAction(LinkedInOauth2Provider, accountRoutes.linkedInLogin()).async {implicit request =>
+    gotoLoginSucceeded(request.user.id)
   }
 
   def forgotPassword = Action { implicit request =>
-    val recaptchaKey = current.configuration.getString("recaptcha.key.public")
-      .getOrElse("fakekey")
     Ok(views.html.p.account.forgotPassword(forgotPasswordForm,
       recaptchaKey, accountRoutes.forgotPasswordPost()))
   }
 
-  def forgotPasswordPost = forgotPasswordPostAction { uuidOrErr => implicit request =>
-    val recaptchaKey = current.configuration.getString("recaptcha.key.public")
-      .getOrElse("fakekey")
-    uuidOrErr match {
+  def forgotPasswordPost = ForgotPasswordAction { implicit request =>
+    request.formOrAccount match {
       case Right((account,uuid)) =>
         sendResetEmail(account.email, uuid)
         Redirect(portalRoutes.index())
@@ -222,68 +274,52 @@ case class Accounts @Inject()(implicit globalConfig: GlobalConfig, searchDispatc
   }
 
   def changePassword = WithUserAction { implicit request =>
-    request.profile.account.map { account =>
-      Ok(views.html.p.account.changePassword(account, changePasswordForm,
-        accountRoutes.changePasswordPost()))
-    }.getOrElse {
-      Redirect(accountRoutes.changePassword())
-        .flashing("error" -> Messages("login.error.badResetToken"))
-    }
+    Ok(views.html.p.account.changePassword(request.user.account.get, changePasswordForm,
+      accountRoutes.changePasswordPost()))
   }
 
   /**
    * Store a changed password.
    */
-  def changePasswordPost = changePasswordPostAction { boolOrErr => implicit user => implicit request =>
-    assert(user.account.isDefined, "User account is not present!")
-    val account = user.account.get
-    boolOrErr match {
-      case Right(true) =>
-        Redirect(defaultLoginUrl)
-          .flashing("success" -> Messages("login.password.change.confirmation"))
-      case Right(false) =>
-        BadRequest(p.account.changePassword(
-          account, changePasswordForm
-            .withGlobalError("login.error.badUsernameOrPassword"), accountRoutes.changePasswordPost()))
-      case Left(errForm) =>
-        BadRequest(p.account.changePassword(
-          account, errForm, accountRoutes.changePasswordPost()))
-    }
+  def changePasswordPost = ChangePasswordAction { implicit request =>
+    implicit val userOpt = Some(request.user)
+    val account = request.user.account.get
+    request.errForm.fold(
+      Redirect(defaultLoginUrl)
+        .flashing("success" -> "login.password.change.confirmation")
+    )(errForm => BadRequest(p.account.changePassword(
+      account, errForm, accountRoutes.changePasswordPost())))
   }
 
   def resetPassword(token: String) = Action { implicit request =>
-    userDAO.findByResetToken(token).map { account =>
-      Ok(views.html.p.account.resetPassword(resetPasswordForm,
-        accountRoutes.resetPasswordPost(token)))
-    }.getOrElse {
-      Redirect(accountRoutes.forgotPassword())
-        .flashing("error" -> Messages("login.error.badResetToken"))
-    }
+    userDAO.findByResetToken(token).fold(
+      ifEmpty = Redirect(accountRoutes.forgotPassword())
+        .flashing("error" -> "login.error.badResetToken")
+    )(
+      account =>
+        Ok(views.html.p.account.resetPassword(resetPasswordForm,
+          accountRoutes.resetPasswordPost(token)))
+      )
   }
 
   def resendVerificationPost() = WithUserAction { implicit request =>
-    request.profile.account.map { account =>
+    request.user.account.map { account =>
       val uuid = UUID.randomUUID()
       account.createValidationToken(uuid)
       sendValidationEmail(account.email, uuid)
       val redirect = request.headers.get(HttpHeaders.REFERER)
         .getOrElse(portalRoutes.index().url)
       Redirect(redirect)
-        .flashing("success" -> Messages("mail.emailConfirmationResent"))
+        .flashing("success" -> "mail.emailConfirmationResent")
     }.getOrElse(Unauthorized)
   }
 
-  def resetPasswordPost(token: String) = resetPasswordPostAction(token) { boolOrForm => implicit request =>
-    boolOrForm match {
-      case Left(errForm) =>
-        BadRequest(views.html.p.account.resetPassword(errForm,
-          accountRoutes.resetPasswordPost(token)))
-      case Right(true) =>
-        Redirect(accountRoutes.login())
-          .flashing("warning" -> "login.passwordResetNowLogin")
-      case Right(false) =>
-        Redirect(accountRoutes.forgotPassword())
-          .flashing("error" -> Messages("login.error.badResetToken"))
+  def resetPasswordPost(token: String) = ResetPasswordAction(token).async { implicit request =>
+    request.formOrAccount match {
+      case Left(errForm) => immediate(BadRequest(views.html.p.account.resetPassword(errForm,
+        accountRoutes.resetPasswordPost(token))))
+      case Right(account) => gotoLoginSucceeded(account.id)
+        .map(_.flashing("success" -> "login.password.reset.confirmation"))
     }
   }
 

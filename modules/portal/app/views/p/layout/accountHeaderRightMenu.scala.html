@@ -83,8 +83,8 @@
         </li>
     }.getOrElse {
     <li>
-        <a href="@controllers.portal.account.routes.Accounts.login">
-            @Messages("login.signup")
+        <a href="@controllers.portal.account.routes.Accounts.loginOrSignup()">
+            @Messages("login") / @Messages("login.signup")
         </a>
     </li>
     }

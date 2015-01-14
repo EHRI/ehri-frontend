@@ -1,5 +1,6 @@
 package controllers.core.auth.oauth2
 
+import controllers.base.AuthController
 import models._
 import play.api.mvc._
 import backend.{AnonymousUser, ApiUser, Backend}
@@ -26,7 +27,7 @@ import controllers.core.auth.AccountHelpers
  */
 trait Oauth2LoginHandler extends AccountHelpers {
 
-  self: Controller =>
+  self: Controller with AuthController =>
 
   val backend: Backend
 
@@ -102,54 +103,50 @@ trait Oauth2LoginHandler extends AccountHelpers {
     )
   }
 
-  object oauth2LoginPostAction {
-    def async(provider: OAuth2Provider, handler: Call)(f: Account => Request[AnyContent] => Future[Result]): Action[AnyContent] = {
-      Action.async { implicit request =>
-        val sessionId = request.session.get(SessionKey).getOrElse(UUID.randomUUID().toString)
+  def OAuth2LoginAction(provider: OAuth2Provider, handler: Call) = new ActionBuilder[AuthRequest] {
+    override def invokeBlock[A](request: Request[A], block: (AuthRequest[A]) => Future[Result]): Future[Result] = {
+      implicit val r = request
 
-        request.getQueryString(OAuth2Constants.Code) match {
-          // First stage of request...
-          case None =>
-            val state = UUID.randomUUID().toString
-            Cache.set(sessionId, state)
+      val sessionId = request.session.get(SessionKey).getOrElse(UUID.randomUUID().toString)
 
-            val params: Seq[(String, String)] = buildRequestParams(provider, handler, state)
-            val url = provider.settings.authorizationUrl +
-              params.map( p => p._1 + "=" + URLEncoder.encode(p._2, "UTF-8")).mkString("?", "&", "")
-            Logger.debug(url)
-            immediate(Redirect(url).withSession(request.session + (SessionKey -> sessionId)))
+      request.getQueryString(OAuth2Constants.Code) match {
+        // First stage of request...
+        case None =>
+          val state = UUID.randomUUID().toString
+          Cache.set(sessionId, state)
 
-          case Some(code) =>
-            val newStateOpt = request.getQueryString(OAuth2Constants.State)
-            val origStateOpt: Option[String] = Cache.getAs[String](sessionId)
-            (for {
-              // check if the state we sent is equal to the one we're receiving now before continuing the flow.
-              originalState <- origStateOpt
-              currentState <- newStateOpt if originalState == currentState
-            } yield {
-              Cache.remove(sessionId)
+          val params: Seq[(String, String)] = buildRequestParams(provider, handler, state)
+          val url = provider.settings.authorizationUrl +
+            params.map( p => p._1 + "=" + URLEncoder.encode(p._2, "UTF-8")).mkString("?", "&", "")
+          Logger.debug(url)
+          immediate(Redirect(url).withSession(request.session + (SessionKey -> sessionId)))
 
-              for {
-                info <- getAccessToken(provider, handler, code)
-                userData <- getUserData(provider, info)
-                account <- getOrCreateAccount(provider, userData)
-                result <- f(account)(request)
-              } yield result
+        case Some(code) =>
+          val newStateOpt = request.getQueryString(OAuth2Constants.State)
+          val origStateOpt: Option[String] = Cache.getAs[String](sessionId)
+          (for {
+          // check if the state we sent is equal to the one we're receiving now before continuing the flow.
+            originalState <- origStateOpt
+            currentState <- newStateOpt if originalState == currentState
+          } yield {
+            Cache.remove(sessionId)
 
-            }).getOrElse {
-              // Session key or states didn't match - throw an error
-              Logger.error("OAuth2 state mismatch!")
-              Logger.debug("Session id: " + sessionId)
-              Logger.debug("Orig state: " + origStateOpt)
-              Logger.debug("New state:  " + newStateOpt)
-              throw new OAuth2Error("Invalid session keys")
-            }
-        }
+            for {
+              info <- getAccessToken(provider, handler, code)
+              userData <- getUserData(provider, info)
+              account <- getOrCreateAccount(provider, userData)
+              result <- block(GenericAuthRequest(account, request))
+            } yield result
+
+          }).getOrElse {
+            // Session key or states didn't match - throw an error
+            Logger.error("OAuth2 state mismatch!")
+            Logger.debug("Session id: " + sessionId)
+            Logger.debug("Orig state: " + origStateOpt)
+            Logger.debug("New state:  " + newStateOpt)
+            throw new OAuth2Error("Invalid session keys")
+          }
       }
-    }
-
-    def apply(provider: OAuth2Provider, handler: Call)(f: Account => Request[AnyContent] => Result): Action[AnyContent] = {
-      async(provider, handler)(f.andThen(_.andThen(t => immediate(t))))
     }
   }
 }

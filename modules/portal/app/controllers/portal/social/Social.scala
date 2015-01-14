@@ -48,11 +48,11 @@ case class Social @Inject()(implicit globalConfig: global.GlobalConfig, searchDi
       .getOrElse(defaultParams).setDefault(Some(defaultParams))
 
     for {
-      following <- backend.following[UserProfile](request.profile.id, PageParams.empty)
-      blocked <- backend.blocked[UserProfile](request.profile.id, PageParams.empty)
+      following <- backend.following[UserProfile](request.user.id, PageParams.empty)
+      blocked <- backend.blocked[UserProfile](request.user.id, PageParams.empty)
       srch <- searchDispatcher.search(searchParams, Nil, Nil, filters)
       users <- searchResolver.resolve[UserProfile](srch.items)
-    } yield Ok(p.userProfile.browseUsers(request.profile, srch.copy(items = users), searchParams, following))
+    } yield Ok(p.userProfile.browseUsers(request.user, srch.copy(items = users), searchParams, following))
   }
 
   def browseUser(userId: String) = WithUserAction.async { implicit request =>
@@ -69,8 +69,8 @@ case class Social @Inject()(implicit globalConfig: global.GlobalConfig, searchDi
       Ok(p.activity.eventItems(theirActivity))
         .withHeaders("activity-more" -> theirActivity.more.toString)
     } else {
-      val isFollowing: Future[Boolean] = backend.isFollowing(request.profile.id, userId)
-      val allowMessage: Future[Boolean] = canMessage(request.profile.id, userId)
+      val isFollowing: Future[Boolean] = backend.isFollowing(request.user.id, userId)
+      val allowMessage: Future[Boolean] = canMessage(request.user.id, userId)
       for {
         them <- backend.get[UserProfile](userId)
         theirActivity <- events
@@ -84,8 +84,8 @@ case class Social @Inject()(implicit globalConfig: global.GlobalConfig, searchDi
     // Show a list of watched item by a defined User
     val watchParams = PageParams.fromRequest(request, namespace = "w")
     val watching: Future[Page[AnyModel]] = backend.watching[AnyModel](userId, watchParams)
-    val isFollowing: Future[Boolean] = backend.isFollowing(request.profile.id, userId)
-    val allowMessage: Future[Boolean] = canMessage(request.profile.id, userId)
+    val isFollowing: Future[Boolean] = backend.isFollowing(request.user.id, userId)
+    val allowMessage: Future[Boolean] = canMessage(request.user.id, userId)
 
     for {
       them <- backend.get[UserProfile](userId)
@@ -101,7 +101,7 @@ case class Social @Inject()(implicit globalConfig: global.GlobalConfig, searchDi
   }
 
   def followUserPost(userId: String) = WithUserAction.async { implicit request =>
-    backend.follow[UserProfile](request.profile.id, userId).map { _ =>
+    backend.follow[UserProfile](request.user.id, userId).map { _ =>
       if (isAjax) {
         Ok("ok")
       } else {
@@ -116,7 +116,7 @@ case class Social @Inject()(implicit globalConfig: global.GlobalConfig, searchDi
   }
 
   def unfollowUserPost(userId: String) = WithUserAction.async { implicit request =>
-    backend.unfollow[UserProfile](request.profile.id, userId).map { _ =>
+    backend.unfollow[UserProfile](request.user.id, userId).map { _ =>
       if (isAjax) {
         Ok("ok")
       } else {
@@ -131,7 +131,7 @@ case class Social @Inject()(implicit globalConfig: global.GlobalConfig, searchDi
   }
 
   def blockUserPost(userId: String) = WithUserAction.async { implicit request =>
-    backend.block(request.profile.id, userId).map { _ =>
+    backend.block(request.user.id, userId).map { _ =>
       if (isAjax) {
         Ok("ok")
       } else {
@@ -146,7 +146,7 @@ case class Social @Inject()(implicit globalConfig: global.GlobalConfig, searchDi
   }
 
   def unblockUserPost(userId: String) = WithUserAction.async { implicit request =>
-    backend.unblock(request.profile.id, userId).map { _ =>
+    backend.unblock(request.user.id, userId).map { _ =>
       if (isAjax) {
         Ok("ok")
       } else {
@@ -160,11 +160,11 @@ case class Social @Inject()(implicit globalConfig: global.GlobalConfig, searchDi
    */
   def followersForUser(userId: String) = WithUserAction.async { implicit request =>
     val params = PageParams.fromRequest(request)
-    val allowMessage: Future[Boolean] = canMessage(request.profile.id, userId)
+    val allowMessage: Future[Boolean] = canMessage(request.user.id, userId)
     for {
       them <- backend.get[UserProfile](userId)
       theirFollowers <- backend.followers[UserProfile](userId, params)
-      whoImFollowing <- backend.following[UserProfile](request.profile.id)
+      whoImFollowing <- backend.following[UserProfile](request.user.id)
       canMessage <- allowMessage
     } yield {
       if (isAjax)
@@ -176,11 +176,11 @@ case class Social @Inject()(implicit globalConfig: global.GlobalConfig, searchDi
 
   def followingForUser(userId: String) = WithUserAction.async { implicit request =>
     val params = PageParams.fromRequest(request)
-    val allowMessage: Future[Boolean] = canMessage(request.profile.id, userId)
+    val allowMessage: Future[Boolean] = canMessage(request.user.id, userId)
     for {
       them <- backend.get[UserProfile](userId)
       theirFollowing <- backend.following[UserProfile](userId, params)
-      whoImFollowing <- backend.following[UserProfile](request.profile.id)
+      whoImFollowing <- backend.following[UserProfile](request.user.id)
       canMessage <- allowMessage
     } yield {
       if (isAjax)
@@ -249,7 +249,7 @@ case class Social @Inject()(implicit globalConfig: global.GlobalConfig, searchDi
       .getOrElse("fakekey")
     for {
       userTo <- backend.get[UserProfile](userId)
-      allowed <- canMessage(request.profile.id, userId)
+      allowed <- canMessage(request.user.id, userId)
     } yield {
       if (allowed) {
         if (isAjax) Ok(p.userProfile.messageForm(userTo, messageForm, socialRoutes.sendMessagePost(userId),
@@ -275,7 +275,7 @@ case class Social @Inject()(implicit globalConfig: global.GlobalConfig, searchDi
 
     for {
       captcha <- checkRecapture
-      allowed <- canMessage(request.profile.id, userId)
+      allowed <- canMessage(request.user.id, userId)
       userTo <- backend.get[UserProfile](userId) if allowed
     } yield {
       if (!captcha) {
@@ -288,7 +288,7 @@ case class Social @Inject()(implicit globalConfig: global.GlobalConfig, searchDi
           errForm => onError(userTo, errForm),
           data => {
             val (subject, message, copyMe) = data
-            sendMessageEmail(request.profile, userTo, subject, message, copyMe)
+            sendMessageEmail(request.user, userTo, subject, message, copyMe)
             val msg = Messages("social.message.send.confirmation")
             if (isAjax) Ok(Json.obj("ok" -> msg))
             else Redirect(socialRoutes.browseUser(userId))

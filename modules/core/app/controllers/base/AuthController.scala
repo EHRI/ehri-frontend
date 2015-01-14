@@ -76,11 +76,11 @@ trait AuthController extends Controller with ControllerHelpers with AuthActionBu
 
   /**
    * A wrapped request that contains a user's profile.
-   * @param profile the profile
+   * @param user the profile
    * @param request the underlying request
    * @tparam A the type of underlying request
    */
-  case class WithUserRequest[A](profile: UserProfile, request: Request[A]) extends WrappedRequest[A](request)
+  case class WithUserRequest[A](user: UserProfile, request: Request[A]) extends WrappedRequest[A](request)
 
   /**
    * Implicit helper to convert an in-scope optional profile to an `ApiUser` instance.
@@ -119,7 +119,7 @@ trait AuthController extends Controller with ControllerHelpers with AuthActionBu
    * @return an optional user profile
    */
   protected implicit def profileRequest2profileOpt(implicit pr: WithUserRequest[_]): Option[UserProfile] =
-    Some(pr.profile)
+    Some(pr.user)
 
   /**
    * Transform an `OptionalAuthRequest` into an `OptionalProfileRequest` by

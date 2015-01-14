@@ -102,7 +102,7 @@ case class Home @Inject()(implicit globalConfig: global.GlobalConfig, searchDisp
   }
 
   def loginRedirect() = Action {
-    MovedPermanently(controllers.portal.account.routes.Accounts.login().url)
+    MovedPermanently(controllers.portal.account.routes.Accounts.loginOrSignup().url)
   }
 
   // NB: This page now just handles metrics and only provides facet

@@ -48,7 +48,7 @@ case class Bookmarks @Inject()(implicit globalConfig: global.GlobalConfig, searc
    * @return an optional user profile
    */
   private implicit def profileRequest2profile(implicit pr: WithUserRequest[_]): UserProfile =
-    pr.profile
+    pr.user
 
   private def bookmarkSetToVu(genId: String, bs: BookmarkSet): VirtualUnitF = {
     VirtualUnitF(
@@ -104,7 +104,7 @@ case class Bookmarks @Inject()(implicit globalConfig: global.GlobalConfig, searc
       } recoverWith {
         case e: ItemNotFound => backend.create[VirtualUnit,VirtualUnitF](
           item = defaultBookmarkSet(bookmarkLang),
-          accessors = Seq(request.profile.id),
+          accessors = Seq(request.user.id),
           params = Map(Constants.ID_PARAM -> Seq(itemId))
         )
       }
@@ -120,8 +120,8 @@ case class Bookmarks @Inject()(implicit globalConfig: global.GlobalConfig, searc
 
   def listBookmarkSets = WithUserAction.async { implicit request =>
     val params: PageParams = PageParams.fromRequest(request)
-    val pageF = backend.userBookmarks[VirtualUnit](request.profile.id, params)
-    val watchedF = watchedItemIds(userIdOpt = Some(request.profile.id))
+    val pageF = backend.userBookmarks[VirtualUnit](request.user.id, params)
+    val watchedF = watchedItemIds(userIdOpt = Some(request.user.id))
     for {
       page <- pageF
       watched <- watchedF
@@ -179,7 +179,7 @@ case class Bookmarks @Inject()(implicit globalConfig: global.GlobalConfig, searc
 
   def contents(id: String) = WithUserAction.async { implicit request =>
     val itemF: Future[AnyModel] = backend.getAny[AnyModel](id)
-    val watchedF: Future[Seq[String]] = watchedItemIds(userIdOpt = Some(request.profile.id))
+    val watchedF: Future[Seq[String]] = watchedItemIds(userIdOpt = Some(request.user.id))
     for {
       item <- itemF
       children <- includedChildren(id, item)
@@ -187,7 +187,7 @@ case class Bookmarks @Inject()(implicit globalConfig: global.GlobalConfig, searc
     } yield {
       Ok(p.bookmarks.itemList(
         Some(item),
-        request.profile,
+        request.user,
         children.page.copy(items = children.page.items.map(_._1)),
         children.params,
         children.page.hasMore,
@@ -198,7 +198,7 @@ case class Bookmarks @Inject()(implicit globalConfig: global.GlobalConfig, searc
 
   def moreContents(id: String, page: Int) = WithUserAction.async { implicit request =>
     val itemF: Future[AnyModel] = backend.getAny[AnyModel](id)
-    val watchedF: Future[Seq[String]] = watchedItemIds(userIdOpt = Some(request.profile.id))
+    val watchedF: Future[Seq[String]] = watchedItemIds(userIdOpt = Some(request.user.id))
     for {
       item <- itemF
       children <- includedChildren(id, item, page = page)

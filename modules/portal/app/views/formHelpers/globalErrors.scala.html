@@ -1,6 +1,6 @@
 @(form: Form[_], msg: String = "")(implicit lang: Lang)
 
-@if(!form.globalErrors.isEmpty) {
+@if(form.globalErrors.nonEmpty) {
     <div class="alert alert-danger alert-block">
         <h4>@{if(msg.nonEmpty) msg else Messages("error.globalErrors")}</h4>
         <ul>

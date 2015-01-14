@@ -11,6 +11,8 @@ class SignupSpec extends IntegrationTestRunner {
   import utils.forms._
   private val accountRoutes = controllers.portal.account.routes.Accounts
 
+  val COOKIE_NAME: String = "PLAY2AUTH_SESS_ID"
+
   override def getConfig = Map(
     "recaptcha.skip" -> true,
     "ehri.signup.timeCheckSeconds" -> -1
@@ -22,8 +24,8 @@ class SignupSpec extends IntegrationTestRunner {
     val data: Map[String,Seq[String]] = Map(
       SignupData.NAME -> Seq(testName),
       SignupData.EMAIL -> Seq(testEmail),
-      SignupData.PASSWORD -> Seq("testpass"),
-      SignupData.CONFIRM -> Seq("testpass"),
+      SignupData.PASSWORD -> Seq(testPassword),
+      SignupData.CONFIRM -> Seq(testPassword),
       TIMESTAMP -> Seq(org.joda.time.DateTime.now.toString),
       BLANK_CHECK -> Seq(""),
       SignupData.AGREE_TERMS -> Seq(true.toString),
@@ -96,6 +98,27 @@ class SignupSpec extends IntegrationTestRunner {
           controllers.portal.users.routes.UserProfiles.profile().url)).get
         status(index) must equalTo(OK)
         contentAsString(index) must contain(testName)
+      }
+    }
+
+    "allow log in after sign up" in new ITestApp {
+      val testEmail2 = "newuser@example.com"
+      val data2 = data.updated(SignupData.EMAIL, Seq(testEmail2))
+
+      val signup = route(FakeRequest(POST, accountRoutes.signupPost().url)
+        .withSession(CSRF_TOKEN_NAME -> fakeCsrfString), data2).get
+      status(signup) must equalTo(SEE_OTHER)
+      mocks.userFixtures.find(_._2.email == testEmail2) must beSome.which { case (uid, u) =>
+        val logout = route(fakeLoggedInHtmlRequest(u, GET, accountRoutes.logout().url)).get
+        status(logout) must equalTo(SEE_OTHER)
+
+        val login = route(FakeRequest(POST, accountRoutes.passwordLoginPost().url)
+          .withSession(CSRF_TOKEN_NAME -> fakeCsrfString), data2).get
+        //println(contentAsString(login))
+        status(login) must equalTo(SEE_OTHER)
+        redirectLocation(login) must beSome.which { loc =>
+          loc must equalTo(controllers.portal.users.routes.UserProfiles.profile().url)
+        }
       }
     }
   }

@@ -101,7 +101,7 @@ trait PortalController
       Logger.logger.warn("Auth failed for: {}", request.toString())
       immediate(Unauthorized("authentication failed"))
     } else {
-      immediate(Redirect(controllers.portal.account.routes.Accounts.login())
+      immediate(Redirect(controllers.portal.account.routes.Accounts.loginOrSignup())
         .withSession(ACCESS_URI -> request.uri))
     }
   }

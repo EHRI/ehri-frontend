@@ -22,8 +22,6 @@ trait PortalAuthConfigImpl extends AuthConfigImpl {
     val uri = request.session.get(ACCESS_URI).getOrElse(defaultLoginUrl.url)
     Logger.logger.debug("Redirecting logged-in user to: {}", uri)
     immediate(Redirect(uri).withSession(request.session - ACCESS_URI))
-
-
   }
 
   /**

@@ -57,7 +57,7 @@ case class Portal @Inject()(implicit globalConfig: global.GlobalConfig, searchDi
     val eventFilter = SystemEventParams.fromRequest(request)
       .copy(eventTypes = activityEventTypes)
       .copy(itemTypes = activityItemTypes)
-    backend.listEventsForUser[SystemEvent](request.profile.id, listParams, eventFilter).map { events =>
+    backend.listEventsForUser[SystemEvent](request.user.id, listParams, eventFilter).map { events =>
       if (isAjax) Ok(p.activity.eventItems(events))
         .withHeaders("activity-more" -> events.more.toString)
       else Ok(p.activity.activity(events, listParams))

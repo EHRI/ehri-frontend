@@ -2,7 +2,6 @@ welcome=Welcome to EHRI
 home=Home
 about=About EHRI
 contact=Contact
-terms=Terms & Conditions
 welcome.blurb=The EHRI portal offers access to information on Holocaust-related archival \
   material held in institutions across Europe and beyond. \
   For more information on the EHRI project visit http://ehri-project.eu.
@@ -17,7 +16,6 @@ admin.site=Admin Site
 readonly=The EHRI portal is currently in read-only mode while we conduct maintenance.\
   Normal service should be resumed in due course. Thanks for your patience.
 newsFeed=Latest News
-latestUpdates=Recent Updates
 browse=Browse
 details.show=Show Item Details
 details.hide=Hide Item Details
@@ -182,14 +180,21 @@ dates.all=All
 # Login-related
 #
 login=Sign In
-login.signup=Sign In / Sign Up
-login.moreOptions=More login options
-login.alreadyLoggedIn=You are already logged in as {0}
+login.benefits=An EHRI account allows you to:
+login.benefits.1=Contact other people on EHRI
+login.benefits.2=Follow activity and changes to material that interests you
+login.benefits.3=Make notes and help improve EHRI''s data
+login.signup=Register
+login.moreOptions=More options
+login.alreadyLoggedIn=You are already signed in as {0}
 login.loginWith=Sign in with {0}
+login.signupWith=Register with {0}
+login.signup.submit=Register
 login.openid.submit=Sign In With OpenID
 login.openid=OpenID
 login.email=Email
 login.password=Password
+login.password.confirm=Confirm Password
 login.password.noPassword=There is currently no password associated with your account. This means you\
   have signed in via a third-party provider such as Google or Facebook.
 login.password.change=Change Password
@@ -199,17 +204,17 @@ login.password.change.confirmation=Password Changed
 login.password.reset=Reset Password
 login.password.reset.text=Forgotten your password? Enter the email you used to sign up below\
   and we''ll send you a link you can use to reset it.
+login.password.reset.noPasswordMatching=No account matches {0}
 login.password.reset.submit=Send Reset Link
 login.openid.urlPlaceholder=Enter your OpenID URL
 login.disabled=Login is currently disabled. Please try again later.
 login.oauth.info=If you already have an account on one of these sites you can click the logo to log in to EHRI:
 login.password.info=If you''ve previously created an account with EHRI, enter your email and password here:
 login.password.submit=Sign In
-login.recover=If you have lost your login details:
 login.recover.link=Click here if you''ve forgotten or lost your password.
 login.error=There was a problem with your details
 login.error.badUsernameOrPassword=Incorrect username or password
-login.error.passwordsDoNotMatch=Password and confirmation do not match!
+login.error.passwordsDoNotMatch=Password and confirmation do not match
 login.error.badResetToken=URL given for password reset was invalid or expired. \
   Note: password reset links can only be used once.
 
@@ -218,24 +223,19 @@ login.password.new=New Password
 login.password.new.confirm=Confirm New Password
 login.password.reset.sentLink=We''ve sent you an email containing a link that can be used to reset your password.\
   This link can only be used once.
-login.sendPasswordResetLink=Submit
-login.submitPasswordReset=Submit
-login.forgotPasswordLink=Click here if you have a password account but have forgotten or lost your password.
-login.passwordResetNowLogin=Your password has been reset. Now please log in using the new one.
+login.password.reset.confirmation=Your password has been reset.
 
 logout=Sign Out
 logout.confirmation=You have been logged out
 account=Account
 
 signup=Create an Account
-signup.submit=Submit
-signup.dataPolicyNag=By creating an account I agree to abide by the terms of the {0} EHRI data policy {1}.
+signup.dataPolicyNag=By creating an account I agree to abide by the {0} and the {1}.
 signup.badPasswords=The password and confirmation did not match. Please try again.
 signup.agreeTerms=You must agree to the terms.
 signup.confirmation=Thanks for signing up! We''ve sent you an email which you can use to confirm \
   your email address.
-signup.emailConfirmed=Your email is now confirmed and you have been signed in.
-signup.invalidSignupToken=Confirmation URL is invalid or has expired.
+signup.validation.badToken=Confirmation URL is invalid or has expired.
 signup.validation.confirmation=Your account has been validated.
 
 #
@@ -260,7 +260,6 @@ mail.message.heading=New message from {0}
 mail.message.copy.heading=Copy of your message to {0}
 mail.message.replyFooter=To respond, reply directly to this message. You can opt-out from receiving user messages by updating your preferences
 bookmark.tooltip=Save this item to your bookmarks.
-bookmarkedItems=Bookmarked Items
 
 bookmarkSet.list=Bookmark Sets
 bookmarkSet.defaultSetName=Bookmarked Items
@@ -281,7 +280,6 @@ description.additionalData.key=Key
 description.additionalData.value=Value
 description.noDescriptions=This item has not been provided with a description
 description.multiple.text=This item has multiple descriptions. Alternate descriptions may source from different repositories or represent a (partial) translation.
-noDetails=---
 
 
 #
@@ -341,9 +339,10 @@ error.unknownUser=Unknown user
 error.emailNotFound=That email was not found on our system.
 error.badRecaptcha=The Recaptcha check (intended to ensure you are a human and not an automated spamming machine) did not\
     get the right response. Tip: you can keep refreshing the challenge text until you get something more readable.
+error.rateLimit=Maximum number of attempts exceeded. Please wait {0} minutes before trying again.
 error.openId=There was a problem logging you in with OpenID.\
-  This may because your provider does not support attribute exchange. The error messages was: {0}
-error.openId.url=There was no response from the given openid provider: ''{0}''.\
+  This may because your provider deoes not support attribute exchange.
+error.openId.url=There was no response from the given openid provider: {0}.\
   Please ensure the provider URL is correct.
 error.userEmailAlreadyRegistered=A user with that email is already registered: {0}
 
@@ -632,6 +631,7 @@ helpdesk.query.submit=Ask the helpdesk
 #
 # Data policy
 #
+dataPolicy=Data Policy
 dataPolicy.header=EHRI Data Policy
 dataPolicy.notice1=This database might contain Sensitive Personal Data which according to Dutch privacy \
   law can be used for research purposes only (article 16 Dutch Data Protection Act ''Wet \
@@ -644,6 +644,27 @@ dataPolicy.terms=I declare that I will use Sensitive Personal Data for research 
   and regulations. I am aware of punitive results following a breach of these laws and/or \
   regulations.
 dataPolicy.agree=I Agree
+
+#
+# Terms and conditions
+#
+termsAndConditions=Terms & Conditions
+termsAndConditions.userGenerated.heading=User-generated content: terms of use
+termsAndConditions.userGenerated.p1=EHRI offers users the opportunity to contribute to the content provided by EHRI through enriching and \
+  annotating data. To participate in this process of producing user-generated content, users must agree to \
+  the Terms of Use listed below.
+termsAndConditions.userGenerated.p2=By clicking signing-in/creating an account you agree to our Terms of Use and acknowledge \
+  having read our Data Policy (including cookie use).
+termsAndConditions.userGenerated.terms.heading=Terms of Use:
+termsAndConditions.userGenerated.terms.1=Users producing content agree not to add comments which are inappropriate.
+termsAndConditions.userGenerated.terms.2=Users producing content agree not to infringe Dutch privacy law or the privacy law of the country \
+  in which they are located when adding content. This implies that users producing content will not \
+  disclose information in violation of personal data protection rights.
+termsAndConditions.userGenerated.terms.3=Users producing content agree that EHRI will review the user-generated content before \
+  publication.
+termsAndConditions.userGenerated.terms.4=The information is made available to users and can be reused, though acknowledgment of the \
+  author has to be given when the information is published elsewhere. For this purpose, the author \
+  of the user-generated content will be clearly stated.
 
 #
 # Markdown Cheatsheet
