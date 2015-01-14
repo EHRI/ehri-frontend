@@ -6,7 +6,6 @@ import models._
 import play.api.libs.concurrent.Execution.Implicits._
 import scala.concurrent.Future.{successful => immediate}
 import jp.t2v.lab.play2.auth.LoginLogout
-import controllers.base.SessionPreferences
 import controllers.core.auth.oauth2.{LinkedInOauth2Provider, FacebookOauth2Provider, GoogleOAuth2Provider, Oauth2LoginHandler}
 import controllers.core.auth.openid.OpenIDLoginHandler
 import controllers.core.auth.userpass.UserPasswordLoginHandler
@@ -15,17 +14,15 @@ import play.api.Play._
 import utils.forms._
 import java.util.UUID
 import play.api.i18n.Messages
-import utils.SessionPrefs
 import com.google.common.net.HttpHeaders
 import controllers.core.auth.AccountHelpers
 import scala.concurrent.Future
-import backend.{AnonymousUser, Backend, ApiUser}
+import backend.{AnonymousUser, Backend}
 import play.api.mvc.Result
 import com.typesafe.plugin.MailerAPI
 import views.html.p
 import com.google.inject.{Singleton, Inject}
 import utils.search.{Resolver, Dispatcher}
-import controllers.portal.Secured
 import play.api.libs.json.Json
 import controllers.portal.base.PortalController
 
@@ -70,12 +67,6 @@ case class Accounts @Inject()(implicit globalConfig: GlobalConfig, searchDispatc
       block(request)
     }
     override def composeAction[A](action: Action[A]) = new NotReadOnly(action)
-  }
-
-  def signup = NotReadOnlyAction { implicit request =>
-    val recaptchaKey = current.configuration.getString("recaptcha.key.public")
-      .getOrElse("fakekey")
-    Ok(views.html.p.account.signup(SignupData.form, accountRoutes.signupPost(), recaptchaKey))
   }
 
   def sendValidationEmail(email: String, uuid: UUID)(implicit request: RequestHeader) {
@@ -168,7 +159,9 @@ case class Accounts @Inject()(implicit globalConfig: GlobalConfig, searchDispatc
     "google" -> accountRoutes.googleLogin
   )
 
-  def login = OptionalAuthAction { implicit authRequest =>
+  def signup = loginOrSignup(isLogin = false)
+
+  def loginOrSignup(isLogin: Boolean) = OptionalAuthAction { implicit authRequest =>
     if (globalConfig.readOnly) {
       Redirect(portalRoutes.index()).flashing("warning" -> "login.disabled")
     } else {
@@ -184,7 +177,7 @@ case class Accounts @Inject()(implicit globalConfig: GlobalConfig, searchDispatc
             recaptchaKey,
             openidForm,
             oauthProviders,
-            isLogin = true)
+            isLogin = isLogin)
           )
       }
     }

@@ -8,14 +8,16 @@
     @formHelpers.csrfToken()
     @formHelpers.globalErrors(openIdForm)
 
-    @oauthProviders.map { case (name, call) =>
-        <a href="@call" class="btn btn-@name" title="@name">
-           @Html(Messages(loginOrSignup, Html("<i class='icon-social " + name + "'></i>")))
+    <div class="oauth-providers">
+        @oauthProviders.map { case (name, call) =>
+            <a href="@call" class="btn btn-@name" title="@name">
+               @Html(Messages(loginOrSignup, Html("<i class='icon-social " + name + "'></i>")))
+            </a>
+        }
+        <a href="#" class="btn btn-openid show-more">
+            @Html(Messages(loginOrSignup, Html("<i class='icon-social openid'></i>")))
         </a>
-    }
-    <a href="#" class="btn btn-openid show-more">
-        @Html(Messages(loginOrSignup, Html("<i class='icon-social openid'></i>")))
-    </a>
+    </div>
 
     <div class="more-login-options @{if(openIdForm.hasErrors) "errors"}">
         <div class="form-block">

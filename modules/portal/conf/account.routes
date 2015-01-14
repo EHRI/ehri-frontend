@@ -1,5 +1,5 @@
 
-GET         /login                          @controllers.portal.account.Accounts.login
+GET         /login                          @controllers.portal.account.Accounts.loginOrSignup(isLogin: Boolean ?= true)
 POST        /login                          @controllers.portal.account.Accounts.passwordLoginPost
 POST        /openid                         @controllers.portal.account.Accounts.openIDLoginPost(isLogin: Boolean ?= true)
 GET         /authenticate/openid            @controllers.portal.account.Accounts.openIDCallback

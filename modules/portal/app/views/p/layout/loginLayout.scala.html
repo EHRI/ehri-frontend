@@ -1,0 +1,25 @@
+@(title: Any, itemClass: String = "", scripts: Html = Html(""), styles: Html = Html(""))(content: Html)(implicit request: RequestHeader, globalConfig: global.GlobalConfig, flash: Flash, lang: Lang)
+
+@loginStyles = {
+    @styles
+    <style>
+    .recaptchatable * {
+    border: 0 !important;
+    }
+
+    .recaptchatable * {
+    line-height: normal !important;
+    }
+    </style>
+}
+
+
+@views.html.p.layout.portalLayoutSimple(title, itemClass = itemClass, scripts = scripts, styles = loginStyles) {
+    @views.html.layout.mainContent {
+        <div class="login-page">
+            <div class="login-or-signup">
+                @content
+            </div>
+        </div>
+    }
+}(None, request, globalConfig, flash, lang)

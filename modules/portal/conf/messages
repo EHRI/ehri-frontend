@@ -180,6 +180,10 @@ dates.all=All
 # Login-related
 #
 login=Sign In
+login.benefits=An EHRI account allows you to:
+login.benefits.1=Contact other people on EHRI
+login.benefits.2=Follow activity and changes to material that interests you
+login.benefits.3=Make notes and help improve EHRI''s data
 login.signup=Register
 login.moreOptions=More options
 login.alreadyLoggedIn=You are already signed in as {0}

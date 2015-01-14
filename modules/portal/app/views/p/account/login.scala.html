@@ -14,28 +14,32 @@
     </script>
 }
 
-@p.layout.portalLayoutSimple(Messages("login"), scripts = extraScripts) {
-    @views.html.layout.mainContent {
-        <div class="login-page">
-            <div class="login-or-signup" role="tabpanel">
-                <ul class="nav nav-tabs" role="tablist">
-                    <li role="presentation" class="@{if(isLogin) "active"}"><a href="#login" aria-controls="login" role="tab" data-toggle="tab">@Messages("login")</a> </li>
-                    <li role="presentation" class="@{if(!isLogin) "active"}"><a href="#signup" aria-controls="signup" role="tab" data-toggle="tab">@Messages("login.signup")</a> </li>
-                </ul>
+@views.html.p.layout.loginLayout(Messages("login"), scripts = extraScripts) {
+    @views.html.p.common.itemHeader(Messages("login")) {
+        <p>@Messages("login.benefits")</p>
+        <ol>
+            <li>@Messages("login.benefits.1")</li>
+            <li>@Messages("login.benefits.2")</li>
+            <li>@Messages("login.benefits.3")</li>
+        </ol>
+    }
 
-                <div class="tab-content">
-                    <div role="tabpanel" class="tab-pane @{if(isLogin) "active"}" id="login">
-                        @oauth2Form("login.loginWith", openIdForm, oauthProviders, isLogin)
-                        @loginForm(pwForm)
-                    </div>
-                    <div role="tabpanel" class="tab-pane @{if(!isLogin) "active"}" id="signup">
-                        @oauth2Form("login.signupWith", openIdForm, oauthProviders, isLogin)
-                        @signupForm(registerForm, registerAction, recaptchaKey)
-                    </div>
-                </div>
+    <div role="tabpanel">
+        <ul class="nav nav-tabs" role="tablist">
+            <li role="presentation" class="@{if(isLogin) "active"}"><a href="#login" aria-controls="login" role="tab" data-toggle="tab">@Messages("login")</a> </li>
+            <li role="presentation" class="@{if(!isLogin) "active"}"><a href="#register" aria-controls="signup" role="tab" data-toggle="tab">@Messages("login.signup")</a> </li>
+        </ul>
+
+        <div class="tab-content">
+            <div role="tabpanel" class="tab-pane @{if(isLogin) "active"}" id="login">
+                @oauth2Form("login.loginWith", openIdForm, oauthProviders, isLogin)
+                @loginForm(pwForm)
+            </div>
+            <div role="tabpanel" class="tab-pane @{if(!isLogin) "active"}" id="register">
+                @oauth2Form("login.signupWith", openIdForm, oauthProviders, isLogin)
+                @signupForm(registerForm, registerAction, recaptchaKey)
             </div>
         </div>
-
-    }
-}(None, request, globalConfig, flash, lang)
+    </div>
+}
 
