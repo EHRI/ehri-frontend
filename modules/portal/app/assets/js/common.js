@@ -3,6 +3,18 @@ jQuery(function($) {
 
   var FB_REDIRECT_HASH = "#_=_";
 
+  // Switch to tab via hash
+  // Javascript to enable link to tab
+  var hash = document.location.hash;
+  if (hash.length) {
+    $('.nav-tabs a[href=#'+hash.split('#')[1]+']').tab('show') ;
+  }
+
+// Change hash for page-reload
+  $(".nav-tabs a").on("shown.bs.tab", function (e) {
+    window.location.hash = e.target.hash;
+  });
+
   /**
    * Description viewport code. This fixes a viewport to a list
    * of item descriptions so only the selected one is present
@@ -67,7 +79,9 @@ jQuery(function($) {
     }
   }
 
-  History.Adapter.bind(window, 'hashchange', collapseDescriptions);
+  if (History.Adapter !== undefined) {
+    History.Adapter.bind(window, 'hashchange', collapseDescriptions);
+  }
 
   // Trigger a change on initial load...
   collapseDescriptions();
@@ -85,60 +99,62 @@ jQuery(function($) {
 
   // Re-check select2s whenever there's an Ajax event that could
   // load a widget (e.g. the profile form)
-  $("select.select2").select2(select2Opts);
-  $(document).ajaxComplete(function () {
-    $("select.select2").select2(select2Opts);
-  });
+  var $select = $("select.select2");
+  if ($select.select2 !== undefined) {
+    $select.select2(select2Opts);
+    $(document).ajaxComplete(function () {
+      $("select.select2").select2(select2Opts);
+    });
+    var filterUrl = "/filter"; // FIXME: Use reverse routes
 
-  var filterUrl = "/filter"; // FIXME: Use reverse routes
-
-  $(".select2.item-filter").select2({
-    minimumInputLength: 2,
-    val: $(this).val(),
-    initSelection: function(element, cb) {
-      var value = $(element).val();
-      if (!value) {
-        cb(null);
-      } else {
-        $.getJSON(filterUrl + "?q=itemId:" + value, function(data) {
-          if(data.items.length == 0) {
-            cb({id: value, text: value});
-          } else {
-            cb({
-              id: data.items[0].id,
-              text: data.items[0].name
-            });
-          }
-        });
-      }
-    },
-    ajax: {
-      url: filterUrl,
-      dataType: "json",
-      data: function(term, page ) {
-        return {
-          q: term,
-          limit: 20,
-          page: page,
-          "st[]": $(this).data("entity-type")
+    $(".select2.item-filter").select2({
+      minimumInputLength: 2,
+      val: $(this).val(),
+      initSelection: function(element, cb) {
+        var value = $(element).val();
+        if (!value) {
+          cb(null);
+        } else {
+          $.getJSON(filterUrl + "?q=itemId:" + value, function(data) {
+            if(data.items.length == 0) {
+              cb({id: value, text: value});
+            } else {
+              cb({
+                id: data.items[0].id,
+                text: data.items[0].name
+              });
+            }
+          });
         }
       },
-      results: function(data, page) {
-        return {
-          results: data.items.map(function(value, idx) {
-            console.log(data)
-            return {
-              id: value.id,
-              text: value.name
-            }
-          })
-        };
+      ajax: {
+        url: filterUrl,
+        dataType: "json",
+        data: function(term, page ) {
+          return {
+            q: term,
+            limit: 20,
+            page: page,
+            "st[]": $(this).data("entity-type")
+          }
+        },
+        results: function(data, page) {
+          return {
+            results: data.items.map(function(value, idx) {
+              console.log(data)
+              return {
+                id: value.id,
+                text: value.name
+              }
+            })
+          };
+        }
+      },
+      formatResult: function(value) {
+        return $("<div>" + value.text + "<span class='label label-primary pull-right'>" + value.id + "</span></div>");
       }
-    },
-    formatResult: function(value) {
-      return $("<div>" + value.text + "<span class='label label-primary pull-right'>" + value.id + "</span></div>");
-    }
-  });
+    });
+  }
 
 
   // Handling form-submission via links, i.e. search form

@@ -42,6 +42,7 @@ jQuery(function ($) {
 
   "use strict";
 
+
 // Facet label tooltips
   $(".facet-label").tooltip({
     placement: "top",
