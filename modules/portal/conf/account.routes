@@ -4,6 +4,7 @@ POST        /login                          @controllers.portal.account.Accounts
 POST        /openid                         @controllers.portal.account.Accounts.openIDLoginPost(isLogin: Boolean ?= true)
 GET         /authenticate/openid            @controllers.portal.account.Accounts.openIDCallback
 GET         /authenticate/google            @controllers.portal.account.Accounts.googleLogin
+GET         /authenticate/yahoo             @controllers.portal.account.Accounts.yahooLogin
 GET         /authenticate/facebook          @controllers.portal.account.Accounts.facebookLogin
 GET         /authenticate/linkedin          @controllers.portal.account.Accounts.linkedInLogin
 GET         /logout                         @controllers.portal.account.Accounts.logout

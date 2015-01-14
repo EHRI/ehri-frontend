@@ -48,7 +48,8 @@ trait Oauth2LoginHandler extends AccountHelpers {
   }
 
   private def getUserData[A](provider: OAuth2Provider, info: OAuth2Info)(implicit request: Request[A]):Future[UserData] = {
-    WS.url(provider.settings.userInfoUrl + info.accessToken).get()
+    WS.url(provider.getUserInfoUrl(info))
+      .withHeaders(provider.getUserInfoHeader(info): _*).get()
       .map(provider.getUserData)
   }
 

@@ -6,7 +6,7 @@ import models._
 import play.api.libs.concurrent.Execution.Implicits._
 import scala.concurrent.Future.{successful => immediate}
 import jp.t2v.lab.play2.auth.LoginLogout
-import controllers.core.auth.oauth2.{LinkedInOauth2Provider, FacebookOauth2Provider, GoogleOAuth2Provider, Oauth2LoginHandler}
+import controllers.core.auth.oauth2._
 import controllers.core.auth.openid.OpenIDLoginHandler
 import controllers.core.auth.userpass.UserPasswordLoginHandler
 import global.GlobalConfig
@@ -50,6 +50,11 @@ case class Accounts @Inject()(implicit globalConfig: GlobalConfig, searchDispatc
   private def rateLimitError(implicit r: RequestHeader) =
     Messages("error.rateLimit", rateLimitTimeoutSecs / 60)
 
+  val oauthProviders = Map(
+    "facebook" -> accountRoutes.facebookLogin,
+    "google" -> accountRoutes.googleLogin,
+    "yahoo" -> accountRoutes.yahooLogin
+  )
 
   /**
    * Prevent people signin up, logging in etc when in read-only mode.
@@ -167,11 +172,6 @@ case class Accounts @Inject()(implicit globalConfig: GlobalConfig, searchDispatc
     }
   }
 
-  val oauthProviders = Map(
-    "facebook" -> accountRoutes.facebookLogin,
-    "google" -> accountRoutes.googleLogin
-  )
-
   def signup = loginOrSignup(isLogin = false)
 
   def loginOrSignup(isLogin: Boolean) = OptionalAuthAction { implicit authRequest =>
@@ -245,6 +245,10 @@ case class Accounts @Inject()(implicit globalConfig: GlobalConfig, searchDispatc
   }
 
   def facebookLogin = OAuth2LoginAction(FacebookOauth2Provider, accountRoutes.facebookLogin()).async { implicit request =>
+    gotoLoginSucceeded(request.user.id)
+  }
+
+  def yahooLogin = OAuth2LoginAction(YahooOAuth2Provider, accountRoutes.yahooLogin()).async { implicit request =>
     gotoLoginSucceeded(request.user.id)
   }
 

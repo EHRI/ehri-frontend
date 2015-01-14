@@ -9,9 +9,14 @@ import play.api.libs.json.Json
  */
 trait OAuth2Provider {
 
+
   val name: String
 
   def getUserData(response: WSResponse): UserData
+
+  def getUserInfoUrl(info: OAuth2Info): String = settings.userInfoUrl + info.accessToken
+
+  def getUserInfoHeader(info: OAuth2Info): Seq[(String, String)] = Seq.empty
 
   def buildOAuth2Info(response: WSResponse): OAuth2Info = {
     val json = response.json
