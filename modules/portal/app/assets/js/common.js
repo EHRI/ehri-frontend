@@ -79,8 +79,8 @@ jQuery(function($) {
     }
   }
 
-  if (History.Adapter !== undefined) {
-    History.Adapter.bind(window, 'hashchange', collapseDescriptions);
+  if (window.History && window.History.Adapter) {
+    window.History.Adapter.bind(window, 'hashchange', collapseDescriptions);
   }
 
   // Trigger a change on initial load...
