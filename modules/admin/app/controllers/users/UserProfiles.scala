@@ -167,7 +167,7 @@ case class UserProfiles @Inject()(implicit globalConfig: global.GlobalConfig, se
 
       createUserProfile(user, groups, allGroups) { profile =>
         userDAO.createWithPassword(profile.id, email.toLowerCase, verified = true,
-          staff = true, allowMessaging = true, Account.hashPassword(pw))
+          staff = true, allowMessaging = true, userDAO.hashPassword(pw))
         grantOwnerPerms(profile) {
           Redirect(controllers.users.routes.UserProfiles.search())
         }

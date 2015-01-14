@@ -44,9 +44,7 @@ trait UserPasswordLoginHandler {
     tuple(
       "password" -> nonEmptyText(minLength = 6),
       "confirm" -> nonEmptyText(minLength = 6)
-    ) verifying("login.error.passwordsDoNotMatch", f => f match {
-      case (pw, pwc) => pw == pwc
-    })
+    ) verifying("login.error.passwordsDoNotMatch", pc => pc._1 == pc._2)
   )
 
   protected val forgotPasswordForm = Form(Forms.single("email" -> email))
@@ -122,9 +120,9 @@ trait UserPasswordLoginHandler {
 
           (for {
             account <- request.user.account
-            hashedPw <- account.password if Account.checkPassword(current, hashedPw)
+            hashedPw <- account.password if userDAO.checkPassword(current, hashedPw)
           } yield {
-            account.setPassword(Account.hashPassword(newPw))
+            account.setPassword(userDAO.hashPassword(newPw))
             println("OKAY!")
             ChangePasswordRequest(None, request.user, request)
           }) getOrElse {
@@ -150,7 +148,7 @@ trait UserPasswordLoginHandler {
         errForm => block(ResetPasswordRequest(Left(errForm), request)),
         { case (pw, _) =>
         userDAO.findByResetToken(token).map { account =>
-          account.setPassword(Account.hashPassword(pw))
+          account.setPassword(userDAO.hashPassword(pw))
           account.expireTokens()
           block(ResetPasswordRequest(Right(account), request))
         }.getOrElse {

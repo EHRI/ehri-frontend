@@ -8,9 +8,9 @@ import jp.t2v.lab.play2.auth.AuthenticityToken
 import play.api.Play.current
 
 case class MockAccount(id: String, email: String, verified: Boolean = false, staff: Boolean = false, active: Boolean = true,
-                        allowMessaging: Boolean = true) extends Account {
-  def updatePassword(hashed: HashedPassword): Account = this
-  def setPassword(data: HashedPassword): Account = this
+                        allowMessaging: Boolean = true, override val password: Option[HashedPassword] = None) extends Account {
+  def updatePassword(hashed: HashedPassword): Account = updateWith(this.copy(password = Some(hashed)))
+  def setPassword(data: HashedPassword): Account = updateWith(this.copy(password = Some(data)))
   def setVerified(): Account = updateWith(this.copy(verified = true))
   def setActive(active: Boolean) = updateWith(this.copy(active = active))
   def setStaff(staff: Boolean) = updateWith(this.copy(staff = staff))
@@ -42,36 +42,33 @@ case class MockAccount(id: String, email: String, verified: Boolean = false, sta
  */
 object MockAccountDAO extends AccountDAO {
 
-  // Mock authentication
-  override def authenticate(email: String, pw: String, verified: Boolean = true)
-      = mocks.userFixtures.find(u => u._2.email == email && u._2.verified == verified).map(_._2)
+  def findVerifiedByProfileId(id: String, verified: Boolean = true): Option[Account] =
+    mocks.userFixtures.get(id).filter(p => p.verified == verified)
 
-  def findVerifiedByProfileId(id: String, verified: Boolean = true): Option[Account]
-      = mocks.userFixtures.get(id).filter(p => p.verified == verified)
+  def findByProfileId(id: String): Option[Account] =
+    mocks.userFixtures.get(id)
 
-  def findByProfileId(id: String): Option[Account]
-      = mocks.userFixtures.get(id)
+  def findVerifiedByEmail(email: String, verified: Boolean = true): Option[Account] =
+    mocks.userFixtures.values.find(u => u.email == email && u.verified == verified)
 
-  def findVerifiedByEmail(email: String, verified: Boolean = true): Option[Account]
-      = mocks.userFixtures.values.find(u => u.email == email && u.verified == verified)
-
-  def findByEmail(email: String): Option[Account]
-      = mocks.userFixtures.values.find(u => u.email == email)
+  def findByEmail(email: String): Option[Account] =
+    mocks.userFixtures.values.find(u => u.email == email)
 
   def create(id: String, email: String, verified: Boolean = false, staff: Boolean = false,
              allowMessaging: Boolean = true): Account = {
-    val user = MockAccount(id, email, staff)
+    val user = MockAccount(id, email, staff, allowMessaging)
     mocks.userFixtures += id -> user
     user
   }
 
   def createWithPassword(id: String, email: String, verified: Boolean = false, staff: Boolean = false,
                          allowMessaging: Boolean = true, hashed: HashedPassword): Account = {
-    create(id, email, verified, staff)
+    create(id, email, verified, staff, allowMessaging)
+      .setPassword(hashed)
   }
 
-  def findByResetToken(token: String, isSignUp: Boolean = false): Option[Account]
-      = mocks.tokens.find(t => t._1 == token && t._3 == isSignUp).flatMap { case (t, p, s) =>
+  def findByResetToken(token: String, isSignUp: Boolean = false): Option[Account] =
+    mocks.tokens.find(t => t._1 == token && t._3 == isSignUp).flatMap { case (t, p, s) =>
     findByProfileId(p)
   }
 

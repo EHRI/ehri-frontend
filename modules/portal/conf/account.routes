@@ -7,7 +7,6 @@ GET         /authenticate/google            @controllers.portal.account.Accounts
 GET         /authenticate/facebook          @controllers.portal.account.Accounts.facebookLogin
 GET         /authenticate/linkedin          @controllers.portal.account.Accounts.linkedInLogin
 GET         /logout                         @controllers.portal.account.Accounts.logout
-GET         /account                        @controllers.portal.account.Accounts.account
 
 GET         /signup                         @controllers.portal.account.Accounts.signup
 POST        /signup                         @controllers.portal.account.Accounts.signupPost

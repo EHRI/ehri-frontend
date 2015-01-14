@@ -339,6 +339,7 @@ error.unknownUser=Unknown user
 error.emailNotFound=That email was not found on our system.
 error.badRecaptcha=The Recaptcha check (intended to ensure you are a human and not an automated spamming machine) did not\
     get the right response. Tip: you can keep refreshing the challenge text until you get something more readable.
+error.rateLimit=Maximum number of attempts exceeded. Please wait {0} minutes before trying again.
 error.openId=There was a problem logging you in with OpenID.\
   This may because your provider deoes not support attribute exchange.
 error.openId.url=There was no response from the given openid provider: {0}.\

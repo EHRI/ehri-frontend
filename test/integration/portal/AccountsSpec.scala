@@ -17,5 +17,8 @@ class AccountsSpec extends IntegrationTestRunner {
         fl must contain("logout.confirmation")
       }
     }
+
+    "allow user to login with password" in new ITestApp {
+    }
   }
 }

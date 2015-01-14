@@ -1,6 +1,8 @@
 package utils
 
-import play.api.mvc.{AnyContent, Request}
+import play.api.cache.Cache
+import play.api.mvc.{Result, AnyContent, Request}
+import scala.concurrent.Future._
 import scala.concurrent.{ExecutionContext, Future}
 import play.api.data.Form
 import play.api.data.Forms._
@@ -75,6 +77,22 @@ package object forms {
   def blankFieldIsBlank[T <: HoneyPotForm]: Constraint[T] = Constraint("constraints.honeypot") { data =>
     if (data.blankCheck.isEmpty) Valid
     else Invalid("constraints.honeypot.failed")
+  }
+
+  private def getConfig(key: String)(implicit app: play.api.Application): Int =
+    app.configuration.getInt(key).getOrElse(sys.error(s"Missing config key: $key"))
+
+
+  def checkRateLimit[A](implicit request: Request[A]): Boolean = {
+    val limit: Int = getConfig("ehri.ratelimit.limit")
+    val timeoutSecs: Int = getConfig("ehri.ratelimit.timeout")
+    val ip = request.remoteAddress
+    val key = request.path + ip
+    val count = Cache.getOrElse(key, timeoutSecs)(0)
+    if (count < limit) {
+      Cache.set(key, count + 1, timeoutSecs)
+      true
+    } else false
   }
 
   /**

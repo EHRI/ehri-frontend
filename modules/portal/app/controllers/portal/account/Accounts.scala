@@ -23,7 +23,6 @@ import com.typesafe.plugin.MailerAPI
 import views.html.p
 import com.google.inject.{Singleton, Inject}
 import utils.search.{Resolver, Dispatcher}
-import play.api.libs.json.Json
 import controllers.portal.base.PortalController
 
 /**
@@ -45,9 +44,12 @@ case class Accounts @Inject()(implicit globalConfig: GlobalConfig, searchDispatc
   private def recaptchaKey = current.configuration.getString("recaptcha.key.public")
     .getOrElse("fakekey")
 
-  def account = OptionalUserAction { implicit request =>
-    Ok(Json.toJson(request.userOpt.flatMap(_.account)))
-  }
+  private def rateLimitTimeoutSecs = current.configuration.getInt("ehri.ratelimit.timeout")
+    .getOrElse(3600)
+
+  private def rateLimitError(implicit r: RequestHeader) =
+    Messages("error.rateLimit", rateLimitTimeoutSecs / 60)
+
 
   /**
    * Prevent people signin up, logging in etc when in read-only mode.
@@ -78,10 +80,19 @@ case class Accounts @Inject()(implicit globalConfig: GlobalConfig, searchDispatc
       views.html.p.account.mail.confirmEmail(uuid).body)
   }
 
-  def signupPost = NotReadOnlyAction.async { implicit request =>
+  def RateLimit = new ActionBuilder[Request] {
+    override def invokeBlock[A](request: Request[A], block: (Request[A]) => Future[Result]): Future[Result] = {
+      if (request.method != "POST") block(request)
+      else {
+        if (checkRateLimit(request)) block(request)
+        else immediate(TooManyRequest(rateLimitError(request)))
+      }
+    }
+  }
 
-    def badForm(form: Form[SignupData]): Future[Result] = immediate {
-      BadRequest(
+  def signupPost = NotReadOnlyAction.async { implicit request =>
+    def badForm(form: Form[SignupData], status: Status = BadRequest): Future[Result] = immediate {
+      status(
         views.html.p.account.login(
           passwordLoginForm,
           form,
@@ -97,6 +108,8 @@ case class Accounts @Inject()(implicit globalConfig: GlobalConfig, searchDispatc
       val boundForm: Form[SignupData] = SignupData.form.bindFromRequest
       if (!ok) {
         badForm(boundForm.withGlobalError("error.badRecaptcha"))
+      } else if (!checkRateLimit(request)) {
+        badForm(boundForm.withGlobalError(rateLimitError), TooManyRequest)
       } else {
         boundForm.fold(
           errForm => badForm(errForm),
@@ -110,7 +123,7 @@ case class Accounts @Inject()(implicit globalConfig: GlobalConfig, searchDispatc
                   .flatMap { userProfile =>
                 val account = userDAO.createWithPassword(userProfile.id, data.email.toLowerCase,
                     verified = false, staff = false, allowMessaging = data.allowMessaging,
-                  Account.hashPassword(data.password))
+                  userDAO.hashPassword(data.password))
                 val uuid = UUID.randomUUID()
                 account.createValidationToken(uuid)
                 sendValidationEmail(data.email, uuid)
@@ -183,7 +196,7 @@ case class Accounts @Inject()(implicit globalConfig: GlobalConfig, searchDispatc
     }
   }
 
-  def openIDLoginPost(isLogin: Boolean = true) = OpenIdLoginAction(accountRoutes.openIDCallback) { implicit request =>
+  def openIDLoginPost(isLogin: Boolean = true) = OpenIdLoginAction(accountRoutes.openIDCallback()) { implicit request =>
     implicit val accountOpt: Option[Account] = None
     BadRequest(
       views.html.p.account.login(
@@ -198,23 +211,27 @@ case class Accounts @Inject()(implicit globalConfig: GlobalConfig, searchDispatc
     )
   }
 
-  def passwordLoginPost = UserPasswordLoginAction.async { implicit request =>
-    request.formOrAccount match {
-      case Left(errorForm) =>
-        implicit val accountOpt: Option[Account] = None
-        immediate(
-          BadRequest(
-            views.html.p.account.login(
-              errorForm,
-              SignupData.form,
-              accountRoutes.signupPost(),
-              recaptchaKey,
-              openidForm,
-              oauthProviders,
-              isLogin = true
-            )
-          )
+  def passwordLoginPost = (NotReadOnlyAction andThen UserPasswordLoginAction).async { implicit request =>
+
+    def badForm(f: Form[(String,String)], status: Status = BadRequest): Future[Result] = immediate {
+      status(
+        views.html.p.account.login(
+          f,
+          SignupData.form,
+          accountRoutes.signupPost(),
+          recaptchaKey,
+          openidForm,
+          oauthProviders,
+          isLogin = true
         )
+      )
+    }
+
+    val boundForm: Form[(String, String)] = passwordLoginForm.bindFromRequest
+    if (!checkRateLimit(request)) {
+      badForm(boundForm.withGlobalError(rateLimitError), TooManyRequest)
+    } else request.formOrAccount match {
+      case Left(errorForm) => badForm(errorForm)
       case Right(account) => gotoLoginSucceeded(account.id)
     }
   }
@@ -236,8 +253,6 @@ case class Accounts @Inject()(implicit globalConfig: GlobalConfig, searchDispatc
   }
 
   def forgotPassword = Action { implicit request =>
-    val recaptchaKey = current.configuration.getString("recaptcha.key.public")
-      .getOrElse("fakekey")
     Ok(views.html.p.account.forgotPassword(forgotPasswordForm,
       recaptchaKey, accountRoutes.forgotPasswordPost()))
   }

@@ -55,11 +55,11 @@ class AccountSpec extends PlaySpecification {
     "allow setting and updating user's passwords" in new WithSqlFixtures(new FakeApplication) {
       val userOpt: Option[Account] = userDAO.findByEmail(mocks.privilegedUser.email)
       userOpt must beSome.which { user =>
-        val hashedPw = Account.hashPassword("foobar")
+        val hashedPw = userDAO.hashPassword("foobar")
         user.setPassword(hashedPw)
         userDAO.authenticate(mocks.privilegedUser.email, "foobar") must beSome
 
-        val hashedPw2 = Account.hashPassword("barfoo")
+        val hashedPw2 = userDAO.hashPassword("barfoo")
         user.setPassword(hashedPw2)
         userDAO.authenticate(mocks.privilegedUser.email, "barfoo") must beSome
       }
