@@ -5,5 +5,8 @@
 @defining(EntityType.Country.toString) { implicit fieldPrefix =>
     @formHelpers.lineInput(f(""), Entity.IDENTIFIER)
     @formHelpers.textInput(f(""), CountryF.ABSTRACT)
-    @formHelpers.textInput(f(""), CountryF.REPORT)
+    @formHelpers.textInput(f(""), CountryF.HISTORY)
+    @formHelpers.textInput(f(""), CountryF.SITUATION)
+    @formHelpers.textInput(f(""), CountryF.DATA_SUMMARY)
+    @formHelpers.textInput(f(""), CountryF.DATA_EXTENSIVE)
 }
