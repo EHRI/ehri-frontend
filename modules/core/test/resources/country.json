@@ -1,0 +1,81 @@
+{
+  "id" : "cz",
+  "data" : {
+    "report" : "The Bohemian Lands (Bohemia, Moravia and Czech Silesia) were part of the\r\nunitary Czechoslovak Republic between 1918 and 1938. After the Munich\r\nagreement in September 1938 territories along the German and Austrian\r\nfrontier were annexed to Germany; most of these areas were reorganised\r\nas the Reichsgau Sudetenland, while areas in the West and South were\r\nattached to neighbouring German Gaue. After these territorial losses,\r\nCzechoslovakia became a federal state (Czecho-Slovakia). In March 1939\r\nGermany occupied the rest of the Czech Lands, creating the Protectorate\r\nof Bohemia and Moravia, with its own government and administration under\r\nclose German supervision. The German-occupied protectorate functioned up\r\nto the end of the war in May 1945.\r\n\r\nAccording to Nazi criteria, the Jewish population in the Czech Lands in\r\n1939 amounted to 118,000 persons (out of a total population of\r\n10,674,386 according to the 1930 census). This Jewish community had\r\nmodernized and had largely assimilated with German-Bohemian or Czech\r\nsociety. The Germans as well as the semi-autonomous authorities of the\r\nProtectorate imposed laws and various ordinances to discriminate against\r\nJews and confiscate their property. Many Jews, mainly refugees from\r\nGermany, were also victims of political persecution. Up to 1941 the\r\nGerman authorities supported Jewish emigration, so that the number of\r\nJews diminished to 88,000. In 1941-1942 several thousand Jews were sent\r\nto the ghettos of Łódź, Riga and Minsk, where they shared the fate of\r\nthe local Jewish population. In November 1941 the Theresienstadt\r\n(Terezín) ghetto was created; over 80,000 persons from the Czech Lands,\r\nbut also others from Germany, Austria and other places were gradually\r\ntransferred there between 1942 and 1945. Theresienstadt became a kind of\r\ntransitory camp, because its population was systematically deported to\r\nAuschwitz and other death camps in Poland. About 33,000 Theresienstadt\r\ninmates perished in the ghetto due to the harsh conditions. At the end\r\nof the war there were 2,800 Jews living in the Czech lands, but the\r\nnumber of survivors was bigger (about 14,000 together with the surviving\r\ndeportees). Altogether, about 80,000 Czech Jews perished in the\r\nHolocaust.",
+    "identifier" : "cz",
+    "dataSummary" : "**For further reference:**\r\n\r\nTůma, Oldřich, Jitka Svobodová & Ulrich Mählert, *Vademecum Contemporary\r\nHistory Czech Republic. A Guide to Archives, Research Institutions,\r\nLibraries, Associations, Museums and Places of Memorial*(Prague:\r\nInstitute for Contemporary History, Academy of Sciences of the Czech\r\nRepublic, 2005).\r\n\r\nSee:\r\n[http://www.stiftung-aufarbeitung.de/downloads/pdf/vade-tschech.pdf](http://www.stiftung-aufarbeitung.de/downloads/pdf/vade-tschech.pdf);\r\n[http://www.usd.cas.cz/](http://www.usd.cas.cz/)\r\n\r\n**For information on the content and structure of the EHRI national\r\nreports, please consult the\r\n[introduction](http://www.ehri-project.eu/drupal/national-reports).**\r\n",
+    "situation" : "The state archival system in the Czech Republic consists of The National\r\nArchives in Prague and the local archives. The National Archives and 7\r\nregional archives are subordinate to the National Archival\r\nAdministration. 70 district archives are subordinated to the regional\r\narchives. Next to the state archives, there are collections in private\r\narchives and museums.\r\n\r\nApart of these state archives, other state archives holding collections\r\nrelating to the Second World War are the Archive of Military History,\r\nthe National Film Archive, the Archive of the Academy of Sciences of the\r\nCzech Republic and the Institute for the Study of Totalitarian Regimes\r\n(which holds the archives of the former communist security services).\r\nThe Terezín Memorial in the former Theresienstadt ghetto is a state\r\nmuseum and research institute. Non-state institutions doing research and\r\ncollecting documents on the Holocaust include the Jewish Museum in\r\nPrague and the Terezin Initiative Institute (an institution in Prague\r\ncreated by former inmates of the Theresienstadt Ghetto)."
+  },
+  "type" : "country",
+  "relationships" : {
+    "lifecycleEvent" : [ {
+      "id" : "af657a6a-9c99-11e4-b363-09bf296836aa",
+      "data" : {
+        "timestamp" : "2015-01-15T09:34:21.455Z",
+        "eventType" : "modification"
+      },
+      "type" : "systemEvent",
+      "relationships" : {
+        "hasActioner" : [ {
+          "id" : "mike",
+          "data" : {
+            "name" : "Mike",
+            "identifier" : "mike"
+          },
+          "type" : "userProfile",
+          "relationships" : {
+            "belongsTo" : [ {
+              "id" : "moderators",
+              "data" : {
+                "name" : "Moderators",
+                "identifier" : "moderators"
+              },
+              "type" : "group",
+              "relationships" : {
+              },
+              "meta" : {
+                "childCount" : 6
+              }
+            }, {
+              "id" : "portal",
+              "data" : {
+                "name" : "Portal",
+                "identifier" : "portal"
+              },
+              "type" : "group",
+              "relationships" : {
+              },
+              "meta" : {
+                "childCount" : 107
+              }
+            }, {
+              "id" : "admin",
+              "data" : {
+                "name" : "Administrators",
+                "identifier" : "admin"
+              },
+              "type" : "group",
+              "relationships" : {
+              },
+              "meta" : {
+                "childCount" : 4
+              }
+            } ]
+          },
+          "meta" : {
+            "followers" : 3,
+            "following" : 10,
+            "watching" : 7
+          }
+        } ]
+      },
+      "meta" : {
+        "childCount" : 1
+      }
+    } ]
+  },
+  "meta" : {
+    "childCount" : 94,
+    "gid" : 27984
+  }
+}

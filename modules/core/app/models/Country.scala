@@ -16,8 +16,11 @@ import play.api.libs.json.JsObject
 
 object CountryF {
 
-  val REPORT = "report"
   val ABSTRACT = "abstract"
+  val HISTORY = "report" // FIXME: Rename to "history"
+  val SITUATION = "situation"
+  val DATA_SUMMARY = "dataSummary"
+  val DATA_EXTENSIVE = "dataExtensive"
 
   import Entity._
 
@@ -29,7 +32,10 @@ object CountryF {
         DATA -> Json.obj(
           IDENTIFIER -> d.identifier,
           ABSTRACT -> d.abs,
-          REPORT -> d.report
+          HISTORY -> d.history,
+          SITUATION -> d.situation,
+          DATA_SUMMARY -> d.summary,
+          DATA_EXTENSIVE -> d.extensive
         )
       )
     }
@@ -40,7 +46,10 @@ object CountryF {
     (__ \ ID).readNullable[String] and
     (__ \ DATA \ IDENTIFIER).read[String] and
     (__ \ DATA \ ABSTRACT).readNullable[String] and
-    (__ \ DATA \ REPORT).readNullable[String]
+    (__ \ DATA \ HISTORY).readNullable[String] and
+    (__ \ DATA \ SITUATION).readNullable[String] and
+    (__ \ DATA \ DATA_SUMMARY).readNullable[String] and
+    (__ \ DATA \ DATA_EXTENSIVE).readNullable[String]
   )(CountryF.apply _)
 
   implicit object Converter extends BackendWriteable[CountryF] {
@@ -53,7 +62,10 @@ case class CountryF(
   id: Option[String],
   identifier: String,
   abs: Option[String],
-  report: Option[String]
+  history: Option[String],
+  situation: Option[String],                   
+  summary: Option[String],
+  extensive: Option[String]                   
 ) extends Model with Persistable
 
 
@@ -82,7 +94,10 @@ object Country {
       ID -> optional(nonEmptyText),
       IDENTIFIER -> nonEmptyText(minLength=2,maxLength=2), // ISO 2-letter field
       ABSTRACT -> optional(nonEmptyText),
-      REPORT -> optional(nonEmptyText)
+      HISTORY -> optional(nonEmptyText),
+      SITUATION -> optional(nonEmptyText),
+      DATA_SUMMARY -> optional(nonEmptyText),
+      DATA_EXTENSIVE -> optional(nonEmptyText)
     )(CountryF.apply)(CountryF.unapply)
   )
 }

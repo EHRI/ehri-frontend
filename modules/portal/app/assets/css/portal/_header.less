@@ -1,12 +1,15 @@
 header#header {
   position: relative;
   color: white;
-  font-weight: 700;
+  font-size: 0.9em;
+
+  .portal-actions {
+    font-weight: bold;
+  }
 
   #navbar-admin {
     ul > li > a {
-      padding-top: @small-padding;
-      padding-bottom: @small-padding;
+      padding: @small-padding @small-padding + 2;
     }
     img {
       max-height: @navbar-height - @small-padding;
@@ -17,10 +20,6 @@ header#header {
   background-image: url(https://s3-eu-west-1.amazonaws.com/ehri-assets/itsarolsen_effects.jpg);
   background-repeat: no-repeat;
   background-size: 100% auto;
-
-  .search-icon {
-
-  }
 
   .global-search {
     margin-top: @small-margin;
@@ -33,7 +32,7 @@ header#header {
 
     .search-icon {
       position: absolute;
-      right: 0px;
+      right: 0;
       padding: 3px 7px;
       pointer-events: none;
       color: @almost-black;
@@ -41,7 +40,7 @@ header#header {
 
     background-color:white;
     input {
-      border: 0px;
+      border: 0;
       color: @almost-black;
     }
 
@@ -55,6 +54,17 @@ header#header {
         color: white;
         background-color: inherit;
         cursor: default;
+      }
+    }
+  }
+
+  .lang-switcher {
+    color: @text-color;
+    padding-left: @large-padding;
+    .active {
+      padding-left: 0 !important;
+      &:before {
+        content: "\2713";
       }
     }
   }
@@ -87,7 +97,8 @@ header#header {
         li {
           a {
             color: #fff;
-            font-size: 1.2em;
+            font-weight: 700;
+            font-size: 18px;
             padding: @small-padding @small-padding;
             border-bottom: @small-padding solid transparent;
             margin-right: @medium-margin;

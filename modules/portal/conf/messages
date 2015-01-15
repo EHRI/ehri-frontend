@@ -1,6 +1,7 @@
 welcome=Welcome to EHRI
 home=Home
 about=About EHRI
+language=Language
 contact=Contact
 welcome.blurb=The EHRI portal offers access to information on Holocaust-related archival \
   material held in institutions across Europe and beyond. \
@@ -892,14 +893,11 @@ country.items=Repositories
 country.identifier=Country Code
 country.identifier.description=The ISO-3166-1 2-letter code for this country
 country.abstract=Abstract
-country.abstract.description=An abstract of the report for this country
-country.report=Report
-country.report.description=The report describing this country''s archival situation
+country.report=History
+country.situation=Archival Situation
+country.dataSummary=EHRI Data (Summary)
+country.dataExtensive=EHRI Data (Extensive)
 country.list=Countries
-country.create=Add Country
-country.create.submit=Add Country
-country.update=Update Country
-country.update.submit=Update Country
 
 #
 # Vocabularies
