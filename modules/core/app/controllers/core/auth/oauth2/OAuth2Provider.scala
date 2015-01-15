@@ -14,12 +14,10 @@ trait OAuth2Provider {
 
   val name: String
 
-  def redirectUri: Option[String] = current.configuration.getString(s"securesocial.$name.redirectUri")
-
   def buildRedirectUrl[A](handlerUrl: String, state: String): String = {
     val params = Seq(
       OAuth2Constants.ClientId -> settings.clientId,
-      OAuth2Constants.RedirectUri -> redirectUri.getOrElse(handlerUrl),
+      OAuth2Constants.RedirectUri -> handlerUrl,
       OAuth2Constants.ResponseType -> OAuth2Constants.Code,
       OAuth2Constants.State -> state,
       OAuth2Constants.Scope -> settings.scope
@@ -28,7 +26,7 @@ trait OAuth2Provider {
       params.map( p => p._1 + "=" + URLEncoder.encode(p._2, "UTF-8")).mkString("?", "&", "")
   }
 
-  def getUserData(response: WSResponse): UserData
+  def getUserData(response: WSResponse): Option[UserData]
 
   def getUserInfoUrl(info: OAuth2Info): String = settings.userInfoUrl + info.accessToken
 
@@ -43,7 +41,7 @@ trait OAuth2Provider {
     OAuth2Constants.ClientSecret -> Seq(settings.clientSecret),
     OAuth2Constants.GrantType -> Seq(OAuth2Constants.AuthorizationCode),
     OAuth2Constants.Code -> Seq(code),
-    OAuth2Constants.RedirectUri -> Seq(redirectUri.getOrElse(handlerUrl))
+    OAuth2Constants.RedirectUri -> Seq(handlerUrl)
   )
 
   def buildOAuth2Info(response: WSResponse): OAuth2Info = {

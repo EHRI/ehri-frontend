@@ -52,7 +52,8 @@ case class Accounts @Inject()(implicit globalConfig: GlobalConfig, searchDispatc
 
   val oauthProviders = Map(
     FacebookOauth2Provider.name -> accountRoutes.facebookLogin,
-    GoogleOAuth2Provider.name -> accountRoutes.googleLogin
+    GoogleOAuth2Provider.name -> accountRoutes.googleLogin,
+    YahooOAuth2Provider.name -> accountRoutes.yahooLogin
   )
 
   /**
@@ -239,20 +240,28 @@ case class Accounts @Inject()(implicit globalConfig: GlobalConfig, searchDispatc
     gotoLogoutSucceeded
   }
 
+  private def handleOAuth2Login[A](implicit request: OAuth2Request[A]): Future[Result] = {
+    request.accountOrErr match {
+      case Left(error) => immediate(Redirect(accountRoutes.loginOrSignup())
+        .flashing("danger" -> error))
+      case Right(account) => gotoLoginSucceeded(account.id)
+    }
+  }
+
   def googleLogin = OAuth2LoginAction(GoogleOAuth2Provider, accountRoutes.googleLogin()).async { implicit request =>
-    gotoLoginSucceeded(request.user.id)
+    handleOAuth2Login(request)
   }
 
   def facebookLogin = OAuth2LoginAction(FacebookOauth2Provider, accountRoutes.facebookLogin()).async { implicit request =>
-    gotoLoginSucceeded(request.user.id)
+    handleOAuth2Login(request)
   }
 
   def yahooLogin = OAuth2LoginAction(YahooOAuth2Provider, accountRoutes.yahooLogin()).async { implicit request =>
-    gotoLoginSucceeded(request.user.id)
+    handleOAuth2Login(request)
   }
 
   def linkedInLogin = OAuth2LoginAction(LinkedInOauth2Provider, accountRoutes.linkedInLogin()).async {implicit request =>
-    gotoLoginSucceeded(request.user.id)
+    handleOAuth2Login(request)
   }
 
   def forgotPassword = Action { implicit request =>

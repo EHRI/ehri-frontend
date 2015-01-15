@@ -12,23 +12,20 @@ object GoogleOAuth2Provider extends OAuth2Provider {
 
   val name = "google"
 
-  def getUserData(response: WSResponse): UserData = {
-    Logger.debug("User info: " + Json.prettyPrint(response.json))
-    response.json.as[UserData]((
-      (__ \ Id).read[String] and
-      (__ \ Email).read[String] and
-      (__ \ Name).read[String] and
-      (__ \ Picture).read[String]
-    )(UserData.apply _))
-  }
+  def getUserData(response: WSResponse): Option[UserData] = {
+    val json: JsValue = response.json
+    Logger.debug("User info: " + Json.prettyPrint(json))
 
-  val Error = "error"
-  val Message = "message"
-  val Type = "type"
-  val Id = "id"
-  val Name = "name"
-  val GivenName = "given_name"
-  val FamilyName = "family_name"
-  val Picture = "picture"
-  val Email = "email"
+    for {
+      guid <- (json \ "id").asOpt[String]
+      email <- (json \ "email").asOpt[String]
+      name <- (json \ "name").asOpt[String]
+      imageUrl <- (json \ "picture").asOpt[String]
+    } yield UserData(
+      providerId = guid,
+      email = email,
+      name = name,
+      imageUrl = imageUrl
+    )
+  }
 }

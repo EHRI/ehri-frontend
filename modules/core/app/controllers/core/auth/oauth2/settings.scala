@@ -65,5 +65,6 @@ case class OAuth2Info(
   accessToken: String,
   tokenType: Option[String] = None,
   expiresIn: Option[Int] = None,
-  refreshToken: Option[String] = None
+  refreshToken: Option[String] = None,
+  userGuid: Option[String] = None
 )

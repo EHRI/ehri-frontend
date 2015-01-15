@@ -1,7 +1,9 @@
 package controllers.core.auth.oauth2
 
+import auth.AuthenticationError
 import controllers.base.AuthController
 import models._
+import play.api.i18n.Messages
 import play.api.mvc._
 import backend.{AuthenticatedUser, AnonymousUser, Backend}
 import play.api.Logger
@@ -35,6 +37,11 @@ trait Oauth2LoginHandler extends AccountHelpers {
   private val SSLEnabled = current.configuration.getBoolean("securesocial.ssl").getOrElse(true)
   private val SessionKey = "sid"
 
+  case class OAuth2Request[A](
+    accountOrErr: Either[String, Account],
+    request: Request[A]
+  ) extends WrappedRequest[A](request)
+
   private def getAccessToken[A](provider: OAuth2Provider, handler: Call, code: String)(implicit request: Request[A]):Future[OAuth2Info] = {
     Logger.debug(s"Fetching access token at ${provider.settings.accessTokenUrl}")
     WS.url(provider.getAccessTokenUrl)
@@ -42,13 +49,18 @@ trait Oauth2LoginHandler extends AccountHelpers {
       .post(provider.getAccessTokenParams(code, handler.absoluteURL(SSLEnabled))).map(provider.buildOAuth2Info)
   }
 
-  private def getUserData[A](provider: OAuth2Provider, info: OAuth2Info)(implicit request: Request[A]):Future[UserData] = {
+  private def getUserData[A](provider: OAuth2Provider, info: OAuth2Info)(implicit request: Request[A]): Future[UserData] = {
     val url: String = provider.getUserInfoUrl(info)
     val headers: Seq[(String, String)] = provider.getUserInfoHeader(info)
     Logger.debug(s"Fetching info at $url with headers $headers")
     WS.url(url)
       .withHeaders(headers: _*).get()
-      .map(provider.getUserData)
+      .map { r =>
+      provider.getUserData(r).getOrElse{
+        throw new AuthenticationError(s"Unable to fetch user info for provider ${provider.name} " +
+          s" via response data: ${r.body}")
+      }
+    }
   }
 
   private def updateUserInfo(account: Account, userData: UserData): Future[UserProfile] = {
@@ -107,8 +119,8 @@ trait Oauth2LoginHandler extends AccountHelpers {
     }).getOrElse(false)
   }
 
-  def OAuth2LoginAction(provider: OAuth2Provider, handler: Call) = new ActionBuilder[AuthRequest] {
-    override def invokeBlock[A](request: Request[A], block: (AuthRequest[A]) => Future[Result]): Future[Result] = {
+  def OAuth2LoginAction(provider: OAuth2Provider, handler: Call) = new ActionBuilder[OAuth2Request] {
+    override def invokeBlock[A](request: Request[A], block: (OAuth2Request[A]) => Future[Result]): Future[Result] = {
       implicit val r = request
 
       // Create a random nonce to stamp this OAuth2 session
@@ -121,7 +133,7 @@ trait Oauth2LoginHandler extends AccountHelpers {
         // with a code parameter, initiating the second phase.
         case None =>
           val state = UUID.randomUUID().toString
-          Cache.set(sessionId, state)
+          Cache.set(sessionId, state, 30 * 60)
           val redirectUrl = provider.buildRedirectUrl(handler.absoluteURL(SSLEnabled), state)
           Logger.debug(s"OAuth2 redirect URL: $redirectUrl")
           immediate(Redirect(redirectUrl).withSession(request.session + (SessionKey -> sessionId)))
@@ -131,13 +143,18 @@ trait Oauth2LoginHandler extends AccountHelpers {
         // creation or updating.
         case Some(code) => if (checkSessionNonce(sessionId)) {
           Cache.remove(sessionId)
-          for {
+          (for {
             info <- getAccessToken(provider, handler, code)
             userData <- getUserData(provider, info)
             account <- getOrCreateAccount(provider, userData)
-            authRequest = GenericAuthRequest(account, request)
+            authRequest = OAuth2Request(Right(account), request)
             result <- block(authRequest)
-          } yield result
+          } yield result) recoverWith {
+            case e@AuthenticationError(msg) =>
+              Logger.error(msg)
+              block(OAuth2Request(Left(Messages("login.error.oauth2.info",
+                provider.name.toUpperCase)), request))
+          }
         } else immediate(BadRequest("Invalid session ID"))
       }
     }

@@ -218,6 +218,8 @@ login.error.badUsernameOrPassword=Incorrect username or password
 login.error.passwordsDoNotMatch=Password and confirmation do not match
 login.error.badResetToken=URL given for password reset was invalid or expired. \
   Note: password reset links can only be used once.
+login.error.oauth2.info=We apologise but there was a problem creating via {0}. Please try another \
+  method of registering.
 
 login.password.current=Current Password
 login.password.new=New Password
