@@ -51,9 +51,8 @@ case class Accounts @Inject()(implicit globalConfig: GlobalConfig, searchDispatc
     Messages("error.rateLimit", rateLimitTimeoutSecs / 60)
 
   val oauthProviders = Map(
-    "facebook" -> accountRoutes.facebookLogin,
-    "google" -> accountRoutes.googleLogin,
-    "yahoo" -> accountRoutes.yahooLogin
+    FacebookOauth2Provider.name -> accountRoutes.facebookLogin,
+    GoogleOAuth2Provider.name -> accountRoutes.googleLogin
   )
 
   /**
