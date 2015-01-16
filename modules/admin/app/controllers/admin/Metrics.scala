@@ -61,7 +61,6 @@ case class Metrics @Inject()(implicit globalConfig: global.GlobalConfig, searchD
   // so set the result limit to be zero.
   private val defaultParams = SearchParams(count=Some(0))
 
-  import solr.FieldFacetClass
   private val langCountFacets: FacetBuilder = { implicit request =>
     List(
       FieldFacetClass(

@@ -13,30 +13,23 @@ class FacetSpec extends PlaySpecification {
     "lang" -> Seq("en", "fr", "de")
   )
 
-  private case class TestFacet(value: String) extends FieldFacet {
-    val count = 1
-    val applied = false
-    val name = Some("Language")
-  }
-
-  private object TestFacetClass extends FacetClass[TestFacet] {
-    override val key: String = "lang"
-    override val name: String = "Language"
-    override val param: String = "lang"
-    override val facets: Seq[TestFacet] = Nil
-  }
+  private val testFacetClass = FieldFacetClass(
+    key = "lang",
+    name = "Language",
+    param = "lang"
+  )
 
   private val qs: Map[String,Seq[String]] = ListMap("lang" -> Seq("de", "fr"))
 
 
   "Facet query string ops" should {
     "allow adding facet to a query" in {
-      val withFacet: String = pathWithFacet(TestFacetClass, TestFacet("en"), "/foobar", qs)
+      val withFacet: String = pathWithFacet(testFacetClass, FieldFacet("en"), "/foobar", qs)
       withFacet must equalTo("/foobar?lang=de&lang=en&lang=fr")
     }
 
     "allow removing facets from a query" in {
-      val withoutFacet: String = pathWithoutFacet(TestFacetClass, TestFacet("fr"), "/foobar", qs)
+      val withoutFacet: String = pathWithoutFacet(testFacetClass, FieldFacet("fr"), "/foobar", qs)
       withoutFacet must equalTo("/foobar?lang=de")
     }
   }

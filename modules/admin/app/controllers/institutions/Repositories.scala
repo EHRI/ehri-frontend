@@ -31,8 +31,6 @@ case class Repositories @Inject()(implicit globalConfig: global.GlobalConfig, se
   with Indexable[Repository] {
 
   // Documentary unit facets
-  import solr.{FieldFacetClass,SolrQueryFacet,QueryFacetClass}
-
   private val repositoryFacets: FacetBuilder = { implicit request =>
     val prefix = EntityType.Repository.toString
     List(
@@ -42,8 +40,8 @@ case class Repositories @Inject()(implicit globalConfig: global.GlobalConfig, se
         param="data",
         render=s => Messages(prefix + "." + s),
         facets=List(
-          SolrQueryFacet(value = "false", range = Point("0"), name = Some("noChildItems")),
-          SolrQueryFacet(value = "true", range = Point("1"), name = Some("hasChildItems"))
+          QueryFacet(value = "false", range = Point("0"), name = Some("noChildItems")),
+          QueryFacet(value = "true", range = Point("1"), name = Some("hasChildItems"))
         )
       ),
       QueryFacetClass(
@@ -52,9 +50,9 @@ case class Repositories @Inject()(implicit globalConfig: global.GlobalConfig, se
         param="lod",
         render=s => Messages("facet.lod." + s),
         facets=List(
-          SolrQueryFacet(value = "low", range = QueryRange(Point("0"), Point("500"))),
-          SolrQueryFacet(value = "medium", range = QueryRange(Point("501"), Point("2000"))),
-          SolrQueryFacet(value = "high", range = QueryRange(Point("2001"), Glob))
+          QueryFacet(value = "low", range = QueryRange(Point("0"), Point("500"))),
+          QueryFacet(value = "medium", range = QueryRange(Point("501"), Point("2000"))),
+          QueryFacet(value = "high", range = QueryRange(Point("2001"), Glob))
         ),
         sort = FacetSort.Fixed,
         display = FacetDisplay.List

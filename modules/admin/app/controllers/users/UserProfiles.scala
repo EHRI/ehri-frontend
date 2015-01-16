@@ -32,7 +32,6 @@ case class UserProfiles @Inject()(implicit globalConfig: global.GlobalConfig, se
   with Membership[UserProfile]
   with Search {
 
-  import solr.{FieldFacetClass,SolrQueryFacet,QueryFacetClass}
   private val entityFacets: FacetBuilder = { implicit request =>
     List(
       QueryFacetClass(
@@ -41,8 +40,8 @@ case class UserProfiles @Inject()(implicit globalConfig: global.GlobalConfig, se
         param="active",
         render=s => Messages("userProfile.active." + s),
         facets=List(
-          SolrQueryFacet(value = "true", range = QueryRange(Point("1"))),
-          SolrQueryFacet(value = "false", range = QueryRange(Point("0")))
+          QueryFacet(value = "true", range = QueryRange(Point("1"))),
+          QueryFacet(value = "false", range = QueryRange(Point("0")))
         ),
         display = FacetDisplay.Boolean
       ),

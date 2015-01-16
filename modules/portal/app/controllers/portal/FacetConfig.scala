@@ -9,7 +9,6 @@ import controllers.generic.Search
 import play.api.mvc.{RequestHeader, Controller}
 import utils.DateFacetUtils
 import DateFacetUtils._
-import solr.{SolrQueryFacet,FieldFacetClass,QueryFacetClass}
 import models.base.Description
 
 
@@ -138,9 +137,9 @@ trait FacetConfig extends Search {
         param="lod",
         render=s => Messages("facet.lod." + s),
         facets=List(
-          SolrQueryFacet(value = "low", range = QueryRange(Glob, Point("250"))),
-          SolrQueryFacet(value = "medium", range = QueryRange(Point("251"), Point("1000"))),
-          SolrQueryFacet(value = "high", range = QueryRange(Point("1001"), Glob))
+          QueryFacet(value = "low", range = QueryRange(Glob, Point("250"))),
+          QueryFacet(value = "medium", range = QueryRange(Point("251"), Point("1000"))),
+          QueryFacet(value = "high", range = QueryRange(Point("1001"), Glob))
         ),
         sort = FacetSort.Fixed,
         display = FacetDisplay.Choice
@@ -156,7 +155,7 @@ trait FacetConfig extends Search {
         param="promotable",
         render=s => Messages("promotion.isPromotable." + s),
         facets=List(
-          SolrQueryFacet(value = "true", range = Point("true"))
+          QueryFacet(value = "true", range = Point("true"))
         ),
         display = FacetDisplay.Boolean
       ),
@@ -166,9 +165,9 @@ trait FacetConfig extends Search {
         param = "score",
         render = (s: String) => Messages("promotion.score." + s),
         facets=List(
-          SolrQueryFacet(value = "positive", range = QueryRange(Point("1"), Glob)),
-          SolrQueryFacet(value = "neutral", range = QueryRange(Point("0"))),
-          SolrQueryFacet(value = "negative", range = QueryRange(Glob, Point("-1")))
+          QueryFacet(value = "positive", range = QueryRange(Point("1"), Glob)),
+          QueryFacet(value = "neutral", range = QueryRange(Point("0"))),
+          QueryFacet(value = "negative", range = QueryRange(Glob, Point("-1")))
         ),
         display = FacetDisplay.Choice,
         sort = FacetSort.Fixed
@@ -184,7 +183,7 @@ trait FacetConfig extends Search {
         param="data",
         render=s => Messages("facet.itemsHeldOnline." + s),
         facets=List(
-          SolrQueryFacet(value = "yes", range = QueryRange(Point("1"), Glob))
+          QueryFacet(value = "yes", range = QueryRange(Point("1"), Glob))
         ),
         display = FacetDisplay.Boolean
       ),
@@ -194,9 +193,9 @@ trait FacetConfig extends Search {
         param="lod",
         render=s => Messages("facet.lod." + s),
         facets=List(
-          SolrQueryFacet(value = "low", range = QueryRange(Point("0"), Point("200"))),
-          SolrQueryFacet(value = "medium", range = QueryRange(Point("201"), Point("5000"))),
-          SolrQueryFacet(value = "high", range = QueryRange(Point("5001"), Glob))
+          QueryFacet(value = "low", range = QueryRange(Point("0"), Point("200"))),
+          QueryFacet(value = "medium", range = QueryRange(Point("201"), Point("5000"))),
+          QueryFacet(value = "high", range = QueryRange(Point("5001"), Glob))
         ),
         sort = FacetSort.Fixed,
         display = FacetDisplay.Choice
@@ -212,7 +211,7 @@ trait FacetConfig extends Search {
         param="data",
         render=s => Messages("facet.itemsHeldOnline." + s),
         facets=List(
-          SolrQueryFacet(value = "yes", range = QueryRange(Point("1"), Glob))
+          QueryFacet(value = "yes", range = QueryRange(Point("1"), Glob))
         ),
         display = FacetDisplay.Boolean
       ),
@@ -222,9 +221,9 @@ trait FacetConfig extends Search {
         param="lod",
         render=s => Messages("facet.lod." + s),
         facets=List(
-          SolrQueryFacet(value = "low", range = QueryRange(Point("0"), Point("500"))),
-          SolrQueryFacet(value = "medium", range = QueryRange(Point("501"), Point("2000"))),
-          SolrQueryFacet(value = "high", range = QueryRange(Point("2001"), Glob))
+          QueryFacet(value = "low", range = QueryRange(Point("0"), Point("500"))),
+          QueryFacet(value = "medium", range = QueryRange(Point("501"), Point("2000"))),
+          QueryFacet(value = "high", range = QueryRange(Point("2001"), Glob))
         ),
         sort = FacetSort.Fixed,
         display = FacetDisplay.Choice
@@ -274,9 +273,9 @@ trait FacetConfig extends Search {
         param="lod",
         render=s => Messages("facet.lod." + s),
         facets=List(
-          SolrQueryFacet(value = "low", range = QueryRange(Point("0"), Point("500"))),
-          SolrQueryFacet(value = "medium", range = QueryRange(Point("501"), Point("2000"))),
-          SolrQueryFacet(value = "high", range = QueryRange(Point("2001"), Glob))
+          QueryFacet(value = "low", range = QueryRange(Point("0"), Point("500"))),
+          QueryFacet(value = "medium", range = QueryRange(Point("501"), Point("2000"))),
+          QueryFacet(value = "high", range = QueryRange(Point("2001"), Glob))
         ),
         sort = FacetSort.Fixed,
         display = FacetDisplay.Choice
@@ -323,7 +322,7 @@ trait FacetConfig extends Search {
         param="top",
         render=s => Messages("facet.topLevel." + s),
         facets=List(
-          SolrQueryFacet(value = "true", range = Point("true"))
+          QueryFacet(value = "true", range = Point("true"))
         ),
         display = FacetDisplay.Boolean
       ),

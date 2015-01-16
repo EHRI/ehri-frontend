@@ -31,8 +31,20 @@ sealed trait Facet {
   def count: Int
 }
 
-trait FieldFacet extends Facet
-trait QueryFacet extends Facet
+case class FieldFacet(
+  value: String,
+  name: Option[String] = None,
+  count: Int = 0,
+  applied: Boolean = false
+) extends Facet
+
+case class QueryFacet(
+  value: String,
+  name: Option[String] = None,
+  count: Int = 0,
+  range: QueryPoint,
+  applied: Boolean = false
+) extends Facet
 
 object Facet {
   implicit def facetWrites: Writes[Facet] = new Writes[Facet] {

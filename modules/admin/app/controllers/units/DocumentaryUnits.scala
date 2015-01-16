@@ -36,8 +36,6 @@ case class DocumentaryUnits @Inject()(implicit globalConfig: global.GlobalConfig
   with Search {
 
   // Documentary unit facets
-  import solr.{FieldFacetClass,SolrQueryFacet,QueryFacetClass}
-
   private val entityFacets: FacetBuilder = { implicit request =>
     List(
       FieldFacetClass(
@@ -90,9 +88,9 @@ case class DocumentaryUnits @Inject()(implicit globalConfig: global.GlobalConfig
         param="lod",
         render=s => Messages("lod." + s),
         facets=List(
-          SolrQueryFacet(value = "low", range = QueryRange(Point("0"), Point("500"))),
-          SolrQueryFacet(value = "medium", range = QueryRange(Point("501"), Point("2000"))),
-          SolrQueryFacet(value = "high", range = QueryRange(Point("2001"), Glob))
+          QueryFacet(value = "low", range = QueryRange(Point("0"), Point("500"))),
+          QueryFacet(value = "medium", range = QueryRange(Point("501"), Point("2000"))),
+          QueryFacet(value = "high", range = QueryRange(Point("2001"), Glob))
         ),
         sort = FacetSort.Fixed,
         display = FacetDisplay.List

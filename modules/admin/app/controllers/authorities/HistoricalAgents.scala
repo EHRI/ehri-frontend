@@ -5,7 +5,7 @@ import forms.VisibilityForm
 import models._
 import play.api.i18n.Messages
 import defines.{EntityType, PermissionType}
-import utils.search.{FacetDisplay, Resolver, Dispatcher, FacetSort}
+import utils.search._
 import com.google.inject._
 import solr.SolrConstants
 import backend.Backend
@@ -25,7 +25,6 @@ case class HistoricalAgents @Inject()(implicit globalConfig: global.GlobalConfig
   private val histRoutes = controllers.authorities.routes.HistoricalAgents
 
   // Documentary unit facets
-  import solr.FieldFacetClass
   private val entityFacets: FacetBuilder = { implicit request =>
     List(
       FieldFacetClass(

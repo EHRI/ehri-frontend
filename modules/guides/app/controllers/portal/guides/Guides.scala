@@ -399,18 +399,6 @@ case class Guides @Inject()(implicit globalConfig: global.GlobalConfig, searchDi
     ids.slice(pages._1, pages._2)
   }
 
-  case class GuideFacet(value : String, name : Option[String], applied : Boolean, count : Int) extends FieldFacet
-  case class GuideFacetClass(
-    param: String = "kw[]",
-    name: String = "Keyword",
-    key: String = "kw",
-    override val display: FacetDisplay.Value = FacetDisplay.List,
-    override val sort:FacetSort.Value = FacetSort.Fixed,
-    fieldType: String = "neo4j",
-    facets: List[GuideFacet]
-  ) extends FacetClass[GuideFacet]
-
-
   def pagify(docsId : Seq[Long], docsItems: Seq[DocumentaryUnit], accessPoints: Seq[AnyModel], page: Int, limit: Int): ItemPage[DocumentaryUnit] = {
     facetPage(page, limit, docsId.size) match {
       case (start, end) => ItemPage(
@@ -419,10 +407,13 @@ case class Guides @Inject()(implicit globalConfig: global.GlobalConfig, searchDi
         limit = end - start,
         total = docsId.size,
         facets = List(
-          GuideFacetClass(
+          FieldFacetClass(
+            param = "kw[]",
+            name = "Keyword",
+            key = "kw",
             facets = accessPoints.map { ap =>
-              GuideFacet(value = ap.id, name = Some(ap.toStringLang), applied = true, count = 1)
-            }.toList
+              FieldFacet(value = ap.id, name = Some(ap.toStringLang), applied = true, count = 1)
+            }
           )
         )
       )
@@ -468,9 +459,12 @@ case class Guides @Inject()(implicit globalConfig: global.GlobalConfig, searchDi
 
   val searchLinksForm = Form(
     single(
-      "type" -> optional(text.verifying("NoTypeGiven", f => f match {
-        case c => EntityType.values.map( v => v.toString).contains(c)
-      }))
+      "type" -> optional(text
+        .verifying(
+          "NoTypeGiven",
+          c => EntityType.values.map( v => v.toString).contains(c)
+        )
+      )
     )
   )
 
@@ -479,7 +473,7 @@ case class Guides @Inject()(implicit globalConfig: global.GlobalConfig, searchDi
 
     val cypher = new CypherDAO
     context match {
-      case Some(str) => {
+      case Some(str) =>
         val query =  s"""
         START
           virtualUnit = node:entities(__ID__= {inContext}),
@@ -498,8 +492,7 @@ case class Guides @Inject()(implicit globalConfig: global.GlobalConfig, searchDi
         cypher.cypher(query, params).map { r =>
           (r \ "data").as[Seq[Seq[Long]]].flatten
         }
-      }
-      case _ => {
+      case _ =>
         val query : String =
           s"""
         START
@@ -516,7 +509,6 @@ case class Guides @Inject()(implicit globalConfig: global.GlobalConfig, searchDi
         cypher.cypher(query, params).map { r =>
           (r \ "data").as[Seq[Seq[Long]]].flatten
         }
-      }
     }
   }
 

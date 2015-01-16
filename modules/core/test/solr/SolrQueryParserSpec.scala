@@ -2,6 +2,7 @@ package solr
 
 import play.api.test.PlaySpecification
 import play.api.i18n.Messages
+import utils.search.FieldFacetClass
 import views.Helpers
 import models.base.Description
 import scala.xml.{Elem, XML}
