@@ -5,13 +5,12 @@ import _root_.forms.VisibilityForm
 import controllers.generic._
 import models._
 import defines.{ContentTypes, EntityType}
-import utils.search.{Resolver, Dispatcher}
+import utils.search.{SearchConstants, Resolver, Dispatcher}
 import com.google.inject._
 import scala.concurrent.Future.{successful => immediate}
 import backend.{Entity, IdGenerator, Backend}
 import play.api.Configuration
 import play.api.Play.current
-import solr.SolrConstants
 import controllers.base.AdminController
 
 
@@ -42,7 +41,7 @@ case class Countries @Inject()(implicit globalConfig: global.GlobalConfig, searc
 
   def get(id: String) = ItemMetaAction(id).async { implicit request =>
     find[Repository](
-      filters = Map(SolrConstants.COUNTRY_CODE -> request.item.id),
+      filters = Map(SearchConstants.COUNTRY_CODE -> request.item.id),
       entities = List(EntityType.Repository)
     ).map { result =>
       Ok(views.html.admin.country.show(request.item, result.page, result.params, result.facets,

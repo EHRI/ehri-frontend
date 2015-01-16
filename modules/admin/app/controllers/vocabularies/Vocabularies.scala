@@ -5,11 +5,10 @@ import forms.VisibilityForm
 import controllers.generic._
 import models._
 import defines.{ContentTypes, EntityType}
-import utils.search.{Indexer, Resolver, Dispatcher}
+import utils.search.{SearchConstants, Indexer, Resolver, Dispatcher}
 import com.google.inject._
 import scala.concurrent.Future.{successful => immediate}
 import backend.Backend
-import solr.SolrConstants
 import controllers.base.AdminController
 
 
@@ -33,7 +32,7 @@ case class Vocabularies @Inject()(implicit globalConfig: global.GlobalConfig, se
 
   def get(id: String) = ItemMetaAction(id).async { implicit request =>
     find[Concept](
-      filters = Map(SolrConstants.HOLDER_ID -> request.item.id),
+      filters = Map(SearchConstants.HOLDER_ID -> request.item.id),
       entities = List(EntityType.Concept)
     ).map { result =>
       Ok(views.html.admin.vocabulary.show(
@@ -169,7 +168,7 @@ case class Vocabularies @Inject()(implicit globalConfig: global.GlobalConfig, se
           action = vocabRoutes.updateIndexPost(id)))
   }
 
-  def updateIndexPost(id: String) = updateChildItemsPost(SolrConstants.HOLDER_ID, id)
+  def updateIndexPost(id: String) = updateChildItemsPost(SearchConstants.HOLDER_ID, id)
 }
 
 

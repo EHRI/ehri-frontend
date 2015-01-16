@@ -24,9 +24,9 @@ class SolrQueryBuilderSpec extends PlaySpecification {
     param="lod",
     render=s => Messages("facet.lod." + s),
     facets=List(
-      SolrQueryFacet(value = "low", range = QueryRange(Point("0"), Point("200"))),
-      SolrQueryFacet(value = "medium", range = QueryRange(Point("201"), Point("5000"))),
-      SolrQueryFacet(value = "high", range = QueryRange(Point("5001"), Glob))
+      QueryFacet(value = "low", range = QueryRange(Point("0"), Point("200"))),
+      QueryFacet(value = "medium", range = QueryRange(Point("201"), Point("5000"))),
+      QueryFacet(value = "high", range = QueryRange(Point("5001"), Glob))
     ),
     sort = FacetSort.Fixed,
     display = FacetDisplay.List

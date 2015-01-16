@@ -17,15 +17,13 @@ import com.github.seratch.scalikesolr.request.query.facet.FacetParam
 import com.github.seratch.scalikesolr.{WriterType => SWriterType}
 
 
-object SolrQueryBuilder {
+object SolrQueryBuilder extends {
+
   /**
    * Set a list of facets on a request.
    */
   def getRequestFacets(flist: FacetClassList): List[FacetParam] =
-    flist.collect {
-      case qf: QueryFacetClass => qf.asParams
-      case ff: FieldFacetClass => ff.asParams
-    }.flatten
+    flist.map(SolrFacetParser.facetAsParams).flatten
 
   /**
    * Apply filters to the request based on a set of applied facets.
@@ -49,7 +47,7 @@ object SolrQueryBuilder {
               Some(s"${fc.key}:($filter)")
             case fc: QueryFacetClass =>
               val activeRanges = fc.facets.filter(f => paramVals.contains(f.value))
-              val filter = activeRanges.map(_.solrValue).mkString(" ")
+              val filter = activeRanges.map(SolrFacetParser.facetValue).mkString(" ")
               Some(s"${fc.key}:($filter)")
             case e =>
               Logger.logger.warn("Unknown facet class type: {}", e)
@@ -70,9 +68,10 @@ object SolrQueryBuilder {
  * Build a Solr query. This class uses the (mutable) scalikesolr
  * QueryRequest class.
  */
-case class SolrQueryBuilder(writerType: WriterType.Value, debugQuery: Boolean = false)(implicit app: play.api.Application) extends QueryBuilder {
+case class SolrQueryBuilder(writerType: WriterType.Value, debugQuery: Boolean = false)(implicit app: play.api.Application)
+  extends QueryBuilder {
 
-  import SolrConstants._
+  import SearchConstants._
   import SolrQueryBuilder._
 
   /**
@@ -160,7 +159,7 @@ case class SolrQueryBuilder(writerType: WriterType.Value, debugQuery: Boolean = 
    * of a given type.
    */
   def simpleFilter(params: SearchParams, filters: Map[String,Any] = Map.empty, extra: Map[String,Any] = Map.empty, alphabetical: Boolean = false)(
-      implicit userOpt: Option[UserProfile]): QueryRequest = {
+      implicit userOpt: Option[UserProfile]): Map[String,Seq[String]] = {
 
     val excludeIds = params.excludes.toList.flatten.map(id => s" -$ITEM_ID:$id").mkString
     val queryString = params.query.getOrElse("*").trim + excludeIds
@@ -184,7 +183,7 @@ case class SolrQueryBuilder(writerType: WriterType.Value, debugQuery: Boolean = 
       req.set(key, value)
     }
 
-    req
+    utils.parseQueryString(req.queryString())
   }
 
 
@@ -195,7 +194,7 @@ case class SolrQueryBuilder(writerType: WriterType.Value, debugQuery: Boolean = 
              filters: Map[String,Any] = Map.empty,
              extra: Map[String,Any] = Map.empty,
              mode: SearchMode.Value = SearchMode.DefaultAll)(
-      implicit userOpt: Option[UserProfile]): QueryRequest = {
+      implicit userOpt: Option[UserProfile]): Map[String,Seq[String]] = {
 
     val excludeIds = params.excludes.toList.flatten.map(id => s" -$ITEM_ID:$id").mkString
 
@@ -305,6 +304,8 @@ case class SolrQueryBuilder(writerType: WriterType.Value, debugQuery: Boolean = 
       req.set(key, value)
     }
 
-    req
+    // FIXME: It's RUBBISH to parse the output of scalikesolr's query string
+    // TODO: Implement a light-weight request builder
+    utils.parseQueryString(req.queryString())
   }
 }

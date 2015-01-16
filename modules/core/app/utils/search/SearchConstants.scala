@@ -1,11 +1,11 @@
-package solr
+package utils.search
 
 /**
  * User: michaelb
  *
  * Various Solr-related constant values.
  */
-object SolrConstants {
+object SearchConstants {
 
   /**
    * ID field

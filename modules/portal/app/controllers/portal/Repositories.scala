@@ -8,7 +8,6 @@ import controllers.portal.base.{Generic, PortalController}
 import defines.EntityType
 import models.{Repository, AccountDAO, DocumentaryUnit}
 import play.api.libs.concurrent.Execution.Implicits._
-import solr.SolrConstants
 import utils.SessionPrefs
 import utils.search._
 import views.html.p
@@ -56,8 +55,8 @@ case class Repositories @Inject()(implicit globalConfig: global.GlobalConfig, se
 
   def search(id: String) = GetItemAction(id).async { implicit request =>
     val filters = (if (request.getQueryString(SearchParams.QUERY).filterNot(_.trim.isEmpty).isEmpty)
-      Map(SolrConstants.TOP_LEVEL -> true)
-      else Map.empty[String,Any]) ++ Map(SolrConstants.HOLDER_ID -> request.item.id)
+      Map(SearchConstants.TOP_LEVEL -> true)
+      else Map.empty[String,Any]) ++ Map(SearchConstants.HOLDER_ID -> request.item.id)
 
     find[DocumentaryUnit](
       filters = filters,

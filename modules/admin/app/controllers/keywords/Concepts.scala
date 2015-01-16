@@ -8,7 +8,7 @@ import play.api.i18n.Messages
 import defines.{ContentTypes, EntityType}
 import utils.PageParams
 import views.Helpers
-import utils.search.{FacetDisplay, Resolver, FacetSort, Dispatcher}
+import utils.search._
 import com.google.inject._
 import scala.concurrent.Future.{successful => immediate}
 import backend.Backend
@@ -34,7 +34,6 @@ case class Concepts @Inject()(implicit globalConfig: global.GlobalConfig, search
   private val childForm = models.Concept.form
   private val conceptRoutes = controllers.keywords.routes.Concepts
 
-  import solr.FieldFacetClass
   private def entityFacets: FacetBuilder = { implicit request =>
     List(
       FieldFacetClass(

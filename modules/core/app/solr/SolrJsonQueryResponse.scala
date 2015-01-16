@@ -13,7 +13,7 @@ import play.api.Logger
  */
 case class SolrJsonQueryResponse(response: JsValue) extends QueryResponse {
 
-  import SolrConstants._
+  import SearchConstants._
   import play.api.libs.json._
   import play.api.libs.functional.syntax._
 
@@ -116,21 +116,19 @@ case class SolrJsonQueryResponse(response: JsValue) extends QueryResponse {
   private def appliedFacetValues(fc: FacetClass[_], appliedFacets: Seq[AppliedFacet]): Seq[String]
     = appliedFacets.find(_.name == fc.key).map(_.values).getOrElse(Seq.empty)
 
-  private def extractFieldFacet(fc: FieldFacetClass, applied: Seq[String]): FacetClass[Facet] = {
+  private def extractFieldFacet(fc: FieldFacetClass, applied: Seq[String]): FieldFacetClass = {
     rawFieldFacets.get(fc.key).map(_.validate(fieldFacetValueReader)).collect {
       case JsSuccess(fields, path) =>
         val facets = fields.map { case (text, count) =>
-          SolrFieldFacet(
-            text, text, None,
-            count, applied.contains(text))
-        }.toList
+          FieldFacet(text, None, count, applied.contains(text))
+        }
         fc.copy(facets = facets)
     }.getOrElse(fc)
   }
 
-  private def extractQueryFacet(fc: QueryFacetClass, applied: Seq[String]): FacetClass[Facet] = {
-    val facetsWithCount: Seq[SolrQueryFacet] = fc.facets.flatMap { qf =>
-      val nameValue = s"${fc.fullKey}:${qf.solrValue}"
+  private def extractQueryFacet(fc: QueryFacetClass, applied: Seq[String]): QueryFacetClass = {
+    val facetsWithCount: Seq[QueryFacet] = fc.facets.flatMap { qf =>
+      val nameValue = s"${SolrFacetParser.fullKey(fc)}:${SolrFacetParser.facetValue(qf)}"
       rawQueryFacets.get(nameValue).map { v =>
         qf.copy(count = v.as[Int], applied = applied.contains(qf.value))
       }

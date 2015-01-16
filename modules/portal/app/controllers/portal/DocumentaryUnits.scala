@@ -8,7 +8,6 @@ import controllers.generic.Search
 import controllers.portal.base.{Generic, PortalController}
 import defines.EntityType
 import models.{DocumentaryUnit, AccountDAO}
-import solr.SolrConstants
 import utils.SessionPrefs
 import utils.search._
 import views.html.p
@@ -28,7 +27,7 @@ case class DocumentaryUnits @Inject()(implicit globalConfig: global.GlobalConfig
 
   def searchAll = UserBrowseAction.async { implicit request =>
     val filters = if (request.getQueryString(SearchParams.QUERY).filterNot(_.trim.isEmpty).isEmpty)
-      Map(SolrConstants.TOP_LEVEL -> true) else Map.empty[String,Any]
+      Map(SearchConstants.TOP_LEVEL -> true) else Map.empty[String,Any]
 
     find[DocumentaryUnit](
       filters = filters,
@@ -47,7 +46,7 @@ case class DocumentaryUnits @Inject()(implicit globalConfig: global.GlobalConfig
 
   def search(id: String) = GetItemAction(id).async { implicit request =>
       find[DocumentaryUnit](
-        filters = Map(SolrConstants.PARENT_ID -> request.item.id),
+        filters = Map(SearchConstants.PARENT_ID -> request.item.id),
         entities = List(EntityType.DocumentaryUnit),
         facetBuilder = localDocFacets,
         defaultOrder = SearchOrder.Id

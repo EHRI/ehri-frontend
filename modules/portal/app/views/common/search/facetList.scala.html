@@ -127,10 +127,11 @@
                         @if(f.applied) {
                         <input type="hidden" name="@fc.param" value="@f.value" />
                         <li title="@fc.pretty(f)" class="selected-filter">
-                            @fc.pretty(f)
-                            (@f.count)
                             <a class="remove-filter" href="@pathWithoutFacet(fc, f,
-                                                        call.url, req.queryString.filterKeys(_!="page"))"><span class="glyphicon glyphicon-remove"></span></a>
+                                                        call.url, req.queryString.filterKeys(_!="page"))">
+                                @fc.pretty(f)
+                                (@f.count)
+                            </a>
                         </li>
                         } else {
                         <li class="type-highlight @f.value" title="@fc.pretty(f)">
@@ -147,17 +148,13 @@
             <div class="facet-options">
                 <input type="hidden" class="target" name="@fc.param" value="" />
                 <div class="form-group">
-                    <label class="control-label col-sm-6">
-                        Start year
-                    </label>
+                    <label class="control-label col-sm-6">@Messages("dates.start.year")</label>
                     <div class="col-sm-6">
                         <input type="text" data-target="begin" class="form-control date input-sm" />
                     </div>
                 </div>
                 <div class="form-group">
-                    <label class="control-label col-sm-6">
-                        End year
-                    </label>
+                    <label class="control-label col-sm-6">@Messages("dates.start.year")</label>
                     <div class="col-sm-6">
                         <input type="text" data-target="end" class="form-control date input-sm" />
                     </div>

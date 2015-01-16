@@ -9,7 +9,6 @@ import defines.{EntityType,ContentTypes}
 import views.Helpers
 import utils.search._
 import com.google.inject._
-import solr.SolrConstants
 import scala.concurrent.Future.{successful => immediate}
 import backend.Backend
 import play.api.Configuration
@@ -31,8 +30,6 @@ case class Repositories @Inject()(implicit globalConfig: global.GlobalConfig, se
   with Indexable[Repository] {
 
   // Documentary unit facets
-  import solr.{FieldFacetClass,SolrQueryFacet,QueryFacetClass}
-
   private val repositoryFacets: FacetBuilder = { implicit request =>
     val prefix = EntityType.Repository.toString
     List(
@@ -42,8 +39,8 @@ case class Repositories @Inject()(implicit globalConfig: global.GlobalConfig, se
         param="data",
         render=s => Messages(prefix + "." + s),
         facets=List(
-          SolrQueryFacet(value = "false", range = Point("0"), name = Some("noChildItems")),
-          SolrQueryFacet(value = "true", range = Point("1"), name = Some("hasChildItems"))
+          QueryFacet(value = "false", range = Point("0"), name = Some("noChildItems")),
+          QueryFacet(value = "true", range = Point("1"), name = Some("hasChildItems"))
         )
       ),
       QueryFacetClass(
@@ -52,9 +49,9 @@ case class Repositories @Inject()(implicit globalConfig: global.GlobalConfig, se
         param="lod",
         render=s => Messages("facet.lod." + s),
         facets=List(
-          SolrQueryFacet(value = "low", range = QueryRange(Point("0"), Point("500"))),
-          SolrQueryFacet(value = "medium", range = QueryRange(Point("501"), Point("2000"))),
-          SolrQueryFacet(value = "high", range = QueryRange(Point("2001"), Glob))
+          QueryFacet(value = "low", range = QueryRange(Point("0"), Point("500"))),
+          QueryFacet(value = "medium", range = QueryRange(Point("501"), Point("2000"))),
+          QueryFacet(value = "high", range = QueryRange(Point("2001"), Glob))
         ),
         sort = FacetSort.Fixed,
         display = FacetDisplay.List
@@ -113,7 +110,7 @@ case class Repositories @Inject()(implicit globalConfig: global.GlobalConfig, se
   def get(id: String) = ItemMetaAction(id).async { implicit request =>
 
     val filters = (if (request.getQueryString(SearchParams.QUERY).filterNot(_.trim.isEmpty).isEmpty)
-      Map(SolrConstants.TOP_LEVEL -> true) else Map.empty[String,Any]) ++ Map(SolrConstants.HOLDER_ID -> request.item.id)
+      Map(SearchConstants.TOP_LEVEL -> true) else Map.empty[String,Any]) ++ Map(SearchConstants.HOLDER_ID -> request.item.id)
 
     find[DocumentaryUnit](
       filters = filters,
@@ -239,5 +236,5 @@ case class Repositories @Inject()(implicit globalConfig: global.GlobalConfig, se
       action = controllers.institutions.routes.Repositories.updateIndexPost(id)))
   }
 
-  def updateIndexPost(id: String) = updateChildItemsPost(SolrConstants.HOLDER_ID, id)
+  def updateIndexPost(id: String) = updateChildItemsPost(SearchConstants.HOLDER_ID, id)
 }

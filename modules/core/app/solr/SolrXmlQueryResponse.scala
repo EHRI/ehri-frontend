@@ -12,7 +12,7 @@ import utils.search.SearchHit
  */
 case class SolrXmlQueryResponse(response: Elem) extends QueryResponse {
 
-  import SolrConstants._
+  import SearchConstants._
 
   lazy val phrases: Seq[String] = (response \ "lst" \ "str").filter(hasAttr("name", "q")).map(_.text)
 
@@ -131,8 +131,8 @@ case class SolrXmlQueryResponse(response: Elem) extends QueryResponse {
         val nameNode = c \ "@name"
         if (nameNode.length == 0) Nil
         else
-           List(SolrFieldFacet(
-              nameNode.text, nameNode.text, None,
+           List(FieldFacet(
+              nameNode.text, None,
               c.text.toInt, applied.contains(nameNode.text)))
       }
     }
@@ -146,7 +146,7 @@ case class SolrXmlQueryResponse(response: Elem) extends QueryResponse {
   private def extractQueryFacet(fc: QueryFacetClass, appliedFacets: List[AppliedFacet], tags: List[String] = Nil): QueryFacetClass = {
     val applied: List[String] = appliedFacets.find(_.name == fc.key).map(_.values).getOrElse(List.empty[String])
     val facets = fc.facets.flatMap{ f =>
-      val nameValue = s"${fc.fullKey}:${f.solrValue}"
+      val nameValue = s"${SolrFacetParser.fullKey(fc)}:${SolrFacetParser.facetValue(f)}"
       response.descendant.filter(n => (n \\ "@name").text == nameValue).text match {
         case "" => Nil
         case v => List(

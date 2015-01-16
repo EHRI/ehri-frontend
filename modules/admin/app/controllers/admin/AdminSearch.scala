@@ -26,7 +26,7 @@ case class AdminSearch @Inject()(implicit globalConfig: global.GlobalConfig, sea
   with Search {
 
   // i.e. Everything
-  import solr.FieldFacetClass
+
   private val entityFacets: FacetBuilder = { implicit request =>
     List(
       FieldFacetClass(

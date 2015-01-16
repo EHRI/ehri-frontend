@@ -1,6 +1,6 @@
 package controllers.portal.guides
 
-import controllers.portal.{Secured, FacetConfig}
+import controllers.portal.FacetConfig
 import play.api.Routes
 import play.api.cache.Cached
 import play.api.http.MimeTypes
@@ -17,7 +17,6 @@ import backend.Backend
 import backend.rest.{Constants, SearchDAO}
 import backend.rest.cypher.CypherDAO
 
-import controllers.base.SessionPreferences
 import scala.concurrent.Future
 import scala.concurrent.Future.{successful => immediate}
 
@@ -25,12 +24,10 @@ import models._
 import models.{Guide, GuidePage, GeoCoordinates}
 import models.GuidePage.Layout
 import models.base.AnyModel
-import utils.search.{Facet, FacetClass}
 import play.api.libs.json.{Json, JsString, JsValue, JsNumber, JsNull}
 
 import com.google.inject._
 import play.api.Play.current
-import solr.SolrConstants
 
 import play.api.data._
 import play.api.data.Forms._
@@ -69,13 +66,13 @@ case class Guides @Inject()(implicit globalConfig: global.GlobalConfig, searchDi
   def getParams(request: Request[Any], eT: EntityType.Value, sort: Option[utils.search.SearchOrder.Value], isAjax: Boolean = false): SearchParams = { 
     request.getQueryString("parent").map { parent =>
       SearchParams(
-        query = Some(SolrConstants.PARENT_ID + ":" + parent),
+        query = Some(SearchConstants.PARENT_ID + ":" + parent),
         entities = List(eT),
         sort = sort
       )
     }.getOrElse {
       SearchParams(
-        query = if(!isAjax) Some(SolrConstants.TOP_LEVEL + ":" + true) else None,
+        query = if(!isAjax) Some(SearchConstants.TOP_LEVEL + ":" + true) else None,
         entities = List(eT),
         sort = sort
       )
@@ -220,9 +217,9 @@ case class Guides @Inject()(implicit globalConfig: global.GlobalConfig, searchDi
   def guideLayout(guide: Guide, temp: Option[GuidePage]) = itemOr404Action {
     temp.map { page =>
       page.layout match {
-        case Layout.Person => guideAuthority(page, Map(SolrConstants.HOLDER_ID -> page.content), guide)
-        case Layout.Map => guideMap(page, Map(SolrConstants.HOLDER_ID -> page.content), guide)
-        case Layout.Organisation => guideOrganization(page, Map(SolrConstants.HOLDER_ID -> page.content), guide)
+        case Layout.Person => guideAuthority(page, Map(SearchConstants.HOLDER_ID -> page.content), guide)
+        case Layout.Map => guideMap(page, Map(SearchConstants.HOLDER_ID -> page.content), guide)
+        case Layout.Organisation => guideOrganization(page, Map(SearchConstants.HOLDER_ID -> page.content), guide)
         case Layout.Markdown => guideMarkdown(page, page.content, guide)
         case _ => pageNotFound()
       }
@@ -399,18 +396,6 @@ case class Guides @Inject()(implicit globalConfig: global.GlobalConfig, searchDi
     ids.slice(pages._1, pages._2)
   }
 
-  case class GuideFacet(value : String, name : Option[String], applied : Boolean, count : Int) extends FieldFacet
-  case class GuideFacetClass(
-    param: String = "kw[]",
-    name: String = "Keyword",
-    key: String = "kw",
-    override val display: FacetDisplay.Value = FacetDisplay.List,
-    override val sort:FacetSort.Value = FacetSort.Fixed,
-    fieldType: String = "neo4j",
-    facets: List[GuideFacet]
-  ) extends FacetClass[GuideFacet]
-
-
   def pagify(docsId : Seq[Long], docsItems: Seq[DocumentaryUnit], accessPoints: Seq[AnyModel], page: Int, limit: Int): ItemPage[DocumentaryUnit] = {
     facetPage(page, limit, docsId.size) match {
       case (start, end) => ItemPage(
@@ -419,10 +404,13 @@ case class Guides @Inject()(implicit globalConfig: global.GlobalConfig, searchDi
         limit = end - start,
         total = docsId.size,
         facets = List(
-          GuideFacetClass(
+          FieldFacetClass(
+            param = "kw[]",
+            name = "Keyword",
+            key = "kw",
             facets = accessPoints.map { ap =>
-              GuideFacet(value = ap.id, name = Some(ap.toStringLang), applied = true, count = 1)
-            }.toList
+              FieldFacet(value = ap.id, name = Some(ap.toStringLang), applied = true, count = 1)
+            }
           )
         )
       )
@@ -468,9 +456,12 @@ case class Guides @Inject()(implicit globalConfig: global.GlobalConfig, searchDi
 
   val searchLinksForm = Form(
     single(
-      "type" -> optional(text.verifying("NoTypeGiven", f => f match {
-        case c => EntityType.values.map( v => v.toString).contains(c)
-      }))
+      "type" -> optional(text
+        .verifying(
+          "NoTypeGiven",
+          c => EntityType.values.map( v => v.toString).contains(c)
+        )
+      )
     )
   )
 
@@ -479,7 +470,7 @@ case class Guides @Inject()(implicit globalConfig: global.GlobalConfig, searchDi
 
     val cypher = new CypherDAO
     context match {
-      case Some(str) => {
+      case Some(str) =>
         val query =  s"""
         START
           virtualUnit = node:entities(__ID__= {inContext}),
@@ -498,8 +489,7 @@ case class Guides @Inject()(implicit globalConfig: global.GlobalConfig, searchDi
         cypher.cypher(query, params).map { r =>
           (r \ "data").as[Seq[Seq[Long]]].flatten
         }
-      }
-      case _ => {
+      case _ =>
         val query : String =
           s"""
         START
@@ -516,7 +506,6 @@ case class Guides @Inject()(implicit globalConfig: global.GlobalConfig, searchDi
         cypher.cypher(query, params).map { r =>
           (r \ "data").as[Seq[Seq[Long]]].flatten
         }
-      }
     }
   }
 

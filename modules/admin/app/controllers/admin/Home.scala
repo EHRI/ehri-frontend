@@ -28,7 +28,6 @@ case class Home @Inject()(implicit globalConfig: global.GlobalConfig, searchDisp
     EntityType.HistoricalAgent
   )
 
-  import solr.FieldFacetClass
   private val entityFacets: FacetBuilder = { implicit request =>
     List(
 

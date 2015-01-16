@@ -8,7 +8,6 @@ import play.api.libs.concurrent.Execution.Implicits._
 import views.html.p
 import utils.search._
 import defines.EntityType
-import solr.SolrConstants
 import backend.{IdGenerator, Backend}
 import controllers.base.SessionPreferences
 import utils._
@@ -41,7 +40,7 @@ case class VirtualUnits @Inject()(implicit globalConfig: global.GlobalConfig, se
     // - load the VU from the graph along with its included DUs
     // - query for anything that has the VUs parent ID *or* anything
     // with an itemId among its included DUs
-    import SolrConstants._
+    import SearchConstants._
     val pq = v.includedUnits.map(_.id)
     if (pq.isEmpty) Map(s"$PARENT_ID:${v.id}" -> Unit)
     else Map(s"$PARENT_ID:${v.id} OR $ITEM_ID:(${pq.mkString(" ")})" -> Unit)
@@ -68,7 +67,7 @@ case class VirtualUnits @Inject()(implicit globalConfig: global.GlobalConfig, se
 
   def browseVirtualCollections = UserBrowseAction.async { implicit request =>
     val filters = if (request.getQueryString(SearchParams.QUERY).filterNot(_.trim.isEmpty).isEmpty)
-      Map(SolrConstants.TOP_LEVEL -> true) else Map.empty[String,Any]
+      Map(SearchConstants.TOP_LEVEL -> true) else Map.empty[String,Any]
 
     find[VirtualUnit](
       filters = filters,
@@ -104,7 +103,7 @@ case class VirtualUnits @Inject()(implicit globalConfig: global.GlobalConfig, se
 
     def includedChildren(parent: AnyModel): Future[QueryResult[AnyModel]] = parent match {
       case d: DocumentaryUnit => find[AnyModel](
-        filters = Map(SolrConstants.PARENT_ID -> d.id),
+        filters = Map(SearchConstants.PARENT_ID -> d.id),
         entities = List(d.isA),
         facetBuilder = docSearchFacets)
       case d: VirtualUnit => d.includedUnits match {

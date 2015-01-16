@@ -5,10 +5,9 @@ import controllers.base.SessionPreferences
 import models.{SystemEvent, UserProfile, AccountDAO}
 import views.html.p
 import utils._
-import utils.search.{Resolver, SearchOrder, Dispatcher, SearchParams}
+import utils.search._
 import defines.EntityType
 import play.api.Play.current
-import solr.SolrConstants
 import backend.Backend
 
 import com.google.inject._
@@ -41,7 +40,7 @@ case class Social @Inject()(implicit globalConfig: global.GlobalConfig, searchDi
     // This is a bit gnarly because we want to get a searchable list
     // of users and combine it with a list of existing followers so
     // we can mark who's following and who isn't
-    val filters = Map(SolrConstants.ACTIVE -> true.toString)
+    val filters = Map(SearchConstants.ACTIVE -> true.toString)
     val defaultParams = SearchParams(entities = List(EntityType.UserProfile),
           sort = Some(SearchOrder.Name), count = Some(40))
     val searchParams = SearchParams.form.bindFromRequest.value
