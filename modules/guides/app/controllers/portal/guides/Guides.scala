@@ -399,7 +399,7 @@ case class Guides @Inject()(implicit globalConfig: global.GlobalConfig, searchDi
     ids.slice(pages._1, pages._2)
   }
 
-  case class GuideFacet(value : String, name : Option[String], applied : Boolean, count : Int) extends Facet
+  case class GuideFacet(value : String, name : Option[String], applied : Boolean, count : Int) extends FieldFacet
   case class GuideFacetClass(
     param: String = "kw[]",
     name: String = "Keyword",

@@ -23,7 +23,7 @@ case class SolrFieldFacet(
   name: Option[String] = None,
   count: Int = 0,
   applied: Boolean = false
-) extends Facet {
+) extends FieldFacet {
   def solrValue = solr
 }
 
@@ -33,7 +33,7 @@ case class SolrQueryFacet(
   name: Option[String] = None,
   value: String,
   range: QueryPoint
-) extends Facet {
+) extends QueryFacet {
   def solrValue: String = range match {
     case r: QueryRange => r.points.toList match {
       case Glob :: Point(p) :: Nil => s"[* TO $p]"

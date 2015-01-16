@@ -24,12 +24,15 @@ case object FacetDisplay extends Enumeration {
 }
 
 
-trait Facet {
+sealed trait Facet {
   def value: String
   def name: Option[String]
   def applied: Boolean
   def count: Int
 }
+
+trait FieldFacet extends Facet
+trait QueryFacet extends Facet
 
 object Facet {
   implicit def facetWrites: Writes[Facet] = new Writes[Facet] {

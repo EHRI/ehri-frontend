@@ -7,7 +7,7 @@
 }
 
 @facetDropDown(fc: FacetClass[Facet]) = {
-    @defining(fc.sorted.filter(_.count > 0).size > 0) { active =>
+    @defining(fc.sorted.count(_.count > 0) > 0) { active =>
         @defining(fc.sorted.size <= 1) { disabled =>
             <li class="facet-class">
                 @facetLabel(fc)
@@ -25,7 +25,7 @@
 }
 
 @facetBoolean(fc: FacetClass[Facet]) = {
-    @defining(fc.sorted.filter(_.count > 0).size > 0) { active =>
+    @defining(fc.sorted.count(_.count > 0) > 0) { active =>
         <li class="facet-class">
             @facetLabel(fc)
             <div class="facet-options choice">

@@ -13,7 +13,7 @@ class FacetSpec extends PlaySpecification {
     "lang" -> Seq("en", "fr", "de")
   )
 
-  private case class TestFacet(value: String) extends Facet {
+  private case class TestFacet(value: String) extends FieldFacet {
     val count = 1
     val applied = false
     val name = Some("Language")
