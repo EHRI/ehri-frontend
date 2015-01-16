@@ -404,13 +404,11 @@ case class Guides @Inject()(implicit globalConfig: global.GlobalConfig, searchDi
     param: String = "kw[]",
     name: String = "Keyword",
     key: String = "kw",
-    display: FacetDisplay.Value = FacetDisplay.List,
-    sort:FacetSort.Value = FacetSort.Fixed,
+    override val display: FacetDisplay.Value = FacetDisplay.List,
+    override val sort:FacetSort.Value = FacetSort.Fixed,
     fieldType: String = "neo4j",
     facets: List[GuideFacet]
-  ) extends FacetClass[GuideFacet] {
-    def render = (s : String) => s
-  }
+  ) extends FacetClass[GuideFacet]
 
 
   def pagify(docsId : Seq[Long], docsItems: Seq[DocumentaryUnit], accessPoints: Seq[AnyModel], page: Int, limit: Int): ItemPage[DocumentaryUnit] = {

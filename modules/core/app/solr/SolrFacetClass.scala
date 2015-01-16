@@ -31,10 +31,10 @@ case class FieldFacetClass(
   key: String,
   name: String,
   param: String,
-  render: (String) => String = s=>s,
+  override val render: (String) => String = s=>s,
   facets: Seq[SolrFieldFacet] = Nil,
-  display: FacetDisplay.Value = FacetDisplay.List,
-  sort: FacetSort.Value = FacetSort.Count
+  override val display: FacetDisplay.Value = FacetDisplay.List,
+  override val sort: FacetSort.Value = FacetSort.Count
 ) extends SolrFacetClass[SolrFieldFacet] {
   val fieldType: String = "facet.field"
 
@@ -65,10 +65,10 @@ case class QueryFacetClass(
   key: String,
   name: String,
   param: String,
-  render: (String) => String = s=>s,
+  override val render: (String) => String = s=>s,
   override val facets: Seq[SolrQueryFacet],
-  display: FacetDisplay.Value = FacetDisplay.List,
-  sort: FacetSort.Value = FacetSort.Name
+  override val display: FacetDisplay.Value = FacetDisplay.List,
+  override val sort: FacetSort.Value = FacetSort.Name
 ) extends SolrFacetClass[SolrQueryFacet] {
   val fieldType: String = "facet.query"
   override def isActive = true
