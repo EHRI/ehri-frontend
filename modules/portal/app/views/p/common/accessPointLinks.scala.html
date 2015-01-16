@@ -1,12 +1,12 @@
 @(item: DescribedMeta[Description, Described[Description]], desc: Description, links: Seq[Link], accessPointTypes: List[AccessPointF.AccessPointType.Value] = AccessPointF.AccessPointType.values.toList)(implicit prefix: String, userOpt: Option[UserProfile], req: RequestHeader, globalConfig: global.GlobalConfig, lang: Lang)
 
-@if(!desc.accessPoints.isEmpty) {
+@if(desc.accessPoints.nonEmpty) {
     @accessPointTypes.map { accessPointType =>
         @defining(desc.accessPoints.filter(_.accessPointType == accessPointType)) { apLinks =>
             @if(apLinks.nonEmpty) {
                 <div class="item-text-field">
                     <h4 class="item-text-field-header">@Messages("accessPoint.type." + accessPointType)</h4>
-                    <div class="item-text-field-value">
+                    <div class="item-text-field-value item-text-field-list">
                         <ul class="list-unstyled item-access-point-links">
                             @apLinks.map { accessPoint =>
                                 @p.common.accessPointLink(item, accessPoint, links)
