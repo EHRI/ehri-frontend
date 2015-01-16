@@ -24,7 +24,6 @@ class FacetSpec extends PlaySpecification {
     override val name: String = "Language"
     override val param: String = "lang"
     override val facets: Seq[TestFacet] = Nil
-    override val fieldType: String = "facet.field"
   }
 
   private val qs: Map[String,Seq[String]] = ListMap("lang" -> Seq("de", "fr"))

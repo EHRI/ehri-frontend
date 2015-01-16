@@ -3,7 +3,7 @@ package controllers.portal
 import models.Isaar
 import play.api.i18n.Messages
 import views.Helpers
-import utils.search.{Facet, FacetClass, FacetSort, FacetDisplay}
+import utils.search._
 import solr.SolrConstants
 import controllers.generic.Search
 import play.api.mvc.{RequestHeader, Controller}
@@ -25,30 +25,30 @@ trait FacetConfig extends Search {
 /**
    * Return a date query facet if valid start/end params have been given.
    */
-  private def dateList(implicit request: RequestHeader): Option[SolrQueryFacet] = {
-    for {
-      dateString <- dateQueryForm.bindFromRequest(request.queryString).value
-      solrQuery = formatAsSolrQuery(dateString)
-    } yield 
-    SolrQueryFacet(
-      value = dateString,
-      solrValue = solrQuery,
-      name = formatReadable(dateString)
-    )
-  }
-  /**
-   * Return a date query facet with an optional SolrQueryFacet if valid start/end have been given
-   */
-  private def dateQuery(implicit request: RequestHeader): QueryFacetClass = {
-    QueryFacetClass(
-      key = "dateRange",
-      name = Messages("documentaryUnit." + DATE_PARAM),
-      param = DATE_PARAM,
-      sort = FacetSort.Fixed,
-      display = FacetDisplay.Date,
-      facets= dateList(request).toList
-    )
-  }
+//  private def dateList(implicit request: RequestHeader): Option[SolrQueryFacet] = {
+//    for {
+//      dateString <- dateQueryForm.bindFromRequest(request.queryString).value
+//      solrQuery = formatAsSolrQuery(dateString)
+//    } yield
+//    SolrQueryFacet(
+//      value = dateString,
+//      solrValue = solrQuery,
+//      name = formatReadable(dateString)
+//    )
+//  }
+//  /**
+//   * Return a date query facet with an optional SolrQueryFacet if valid start/end have been given
+//   */
+//  private def dateQuery(implicit request: RequestHeader): QueryFacetClass = {
+//    QueryFacetClass(
+//      key = "dateRange",
+//      name = Messages("documentaryUnit." + DATE_PARAM),
+//      param = DATE_PARAM,
+//      sort = FacetSort.Fixed,
+//      display = FacetDisplay.Date,
+//      facets= dateList(request).toList
+//    )
+//  }
 
   // i.e. Everything
   protected val globalSearchFacets: FacetBuilder = { implicit request =>
@@ -138,9 +138,9 @@ trait FacetConfig extends Search {
         param="lod",
         render=s => Messages("facet.lod." + s),
         facets=List(
-          SolrQueryFacet(value = "low", solrValue = "[0 TO 250]", name = Some("low")),
-          SolrQueryFacet(value = "medium", solrValue = "[251 TO 1000]", name = Some("medium")),
-          SolrQueryFacet(value = "high", solrValue = "[1001 TO *]", name = Some("high"))
+          SolrQueryFacet(value = "low", range = QueryRange(Glob, Point("250"))),
+          SolrQueryFacet(value = "medium", range = QueryRange(Point("251"), Point("1000"))),
+          SolrQueryFacet(value = "high", range = QueryRange(Point("1001"), Glob))
         ),
         sort = FacetSort.Fixed,
         display = FacetDisplay.Choice
@@ -156,7 +156,7 @@ trait FacetConfig extends Search {
         param="promotable",
         render=s => Messages("promotion.isPromotable." + s),
         facets=List(
-          SolrQueryFacet(value = "true", solrValue = "true")
+          SolrQueryFacet(value = "true", range = Point("true"))
         ),
         display = FacetDisplay.Boolean
       ),
@@ -166,9 +166,9 @@ trait FacetConfig extends Search {
         param = "score",
         render = (s: String) => Messages("promotion.score." + s),
         facets=List(
-          SolrQueryFacet(value = "positive", solrValue = "[1 TO *]"),
-          SolrQueryFacet(value = "neutral", solrValue = "0"),
-          SolrQueryFacet(value = "negative", solrValue = "[* TO -1]")
+          SolrQueryFacet(value = "positive", range = QueryRange(Point("1"), Glob)),
+          SolrQueryFacet(value = "neutral", range = QueryRange(Point("0"))),
+          SolrQueryFacet(value = "negative", range = QueryRange(Glob, Point("-1")))
         ),
         display = FacetDisplay.Choice,
         sort = FacetSort.Fixed
@@ -184,7 +184,7 @@ trait FacetConfig extends Search {
         param="data",
         render=s => Messages("facet.itemsHeldOnline." + s),
         facets=List(
-          SolrQueryFacet(value = "yes", solrValue = "[1 TO *]", name = Some("yes"))
+          SolrQueryFacet(value = "yes", range = QueryRange(Point("1"), Glob))
         ),
         display = FacetDisplay.Boolean
       ),
@@ -194,9 +194,9 @@ trait FacetConfig extends Search {
         param="lod",
         render=s => Messages("facet.lod." + s),
         facets=List(
-          SolrQueryFacet(value = "low", solrValue = "[0 TO 200]", name = Some("low")),
-          SolrQueryFacet(value = "medium", solrValue = "[201 TO 5000]", name = Some("medium")),
-          SolrQueryFacet(value = "high", solrValue = "[5001 TO *]", name = Some("high"))
+          SolrQueryFacet(value = "low", range = QueryRange(Point("0"), Point("200"))),
+          SolrQueryFacet(value = "medium", range = QueryRange(Point("201"), Point("5000"))),
+          SolrQueryFacet(value = "high", range = QueryRange(Point("5001"), Glob))
         ),
         sort = FacetSort.Fixed,
         display = FacetDisplay.Choice
@@ -212,7 +212,7 @@ trait FacetConfig extends Search {
         param="data",
         render=s => Messages("facet.itemsHeldOnline." + s),
         facets=List(
-          SolrQueryFacet(value = "yes", solrValue = "[1 TO *]", name = Some("yes"))
+          SolrQueryFacet(value = "yes", range = QueryRange(Point("1"), Glob))
         ),
         display = FacetDisplay.Boolean
       ),
@@ -222,9 +222,9 @@ trait FacetConfig extends Search {
         param="lod",
         render=s => Messages("facet.lod." + s),
         facets=List(
-          SolrQueryFacet(value = "low", solrValue = "[0 TO 500]", name = Some("low")),
-            SolrQueryFacet(value = "medium", solrValue = "[501 TO 2000]", name = Some("medium")),
-            SolrQueryFacet(value = "high", solrValue = "[2001 TO *]", name = Some("high"))
+          SolrQueryFacet(value = "low", range = QueryRange(Point("0"), Point("500"))),
+          SolrQueryFacet(value = "medium", range = QueryRange(Point("501"), Point("2000"))),
+          SolrQueryFacet(value = "high", range = QueryRange(Point("2001"), Glob))
         ),
         sort = FacetSort.Fixed,
         display = FacetDisplay.Choice
@@ -274,9 +274,9 @@ trait FacetConfig extends Search {
         param="lod",
         render=s => Messages("facet.lod." + s),
         facets=List(
-          SolrQueryFacet(value = "low", solrValue = "[0 TO 500]", name = Some("low")),
-          SolrQueryFacet(value = "medium", solrValue = "[501 TO 2000]", name = Some("medium")),
-          SolrQueryFacet(value = "high", solrValue = "[2001 TO *]", name = Some("high"))
+          SolrQueryFacet(value = "low", range = QueryRange(Point("0"), Point("500"))),
+          SolrQueryFacet(value = "medium", range = QueryRange(Point("501"), Point("2000"))),
+          SolrQueryFacet(value = "high", range = QueryRange(Point("2001"), Glob))
         ),
         sort = FacetSort.Fixed,
         display = FacetDisplay.Choice
@@ -323,7 +323,7 @@ trait FacetConfig extends Search {
         param="top",
         render=s => Messages("facet.topLevel." + s),
         facets=List(
-          SolrQueryFacet(value = "true", solrValue = "true")
+          SolrQueryFacet(value = "true", range = Point("true"))
         ),
         display = FacetDisplay.Boolean
       ),

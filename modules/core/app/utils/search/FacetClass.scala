@@ -10,13 +10,12 @@ trait FacetClass[+T <: Facet] {
   def name: String
   def param: String
   def facets: Seq[T]
-  def fieldType: String
 
   def sort: FacetSort.Value = FacetSort.Count
   def display: FacetDisplay.Value = FacetDisplay.List
   def count: Int = facets.length
-  def sortedByName = facets.sortWith((a, b) => a.sortName < b.sortName)
-  def sortedByCount = facets.sortWith((a, b) => b.count < a.count)
+  def sortedByName = facets.sortBy(_.name)
+  def sortedByCount = facets.sortBy(_.count)
   def sorted: Seq[T] = sort match {
     case FacetSort.Name => sortedByName
     case FacetSort.Count => sortedByCount

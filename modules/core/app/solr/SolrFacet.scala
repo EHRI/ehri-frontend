@@ -3,13 +3,10 @@ package solr
 /**
  * @author Mike Bryant (http://github.com/mikesname)
  */
-import com.github.seratch.scalikesolr.request.query.facet.{FacetParam, Param, Value}
-import play.api.libs.json.Json
-import utils.search.{FacetDisplay, FacetClass, FacetSort}
 
-sealed trait SolrFacet extends utils.search.Facet {
-  def solrValue: String
-}
+import play.api.Logger
+import utils.search._
+
 
 /**
  * Encapsulates a single facet.
@@ -26,12 +23,8 @@ case class SolrFieldFacet(
   name: Option[String] = None,
   count: Int = 0,
   applied: Boolean = false
-) extends SolrFacet {
+) extends Facet {
   def solrValue = solr
-}
-
-object SolrFieldFacet {
-  implicit val facetWrites = Json.writes[SolrFieldFacet]
 }
 
 case class SolrQueryFacet(
@@ -39,7 +32,21 @@ case class SolrQueryFacet(
   applied: Boolean = false,
   name: Option[String] = None,
   value: String,
-  solrValue: String
-) extends SolrFacet
+  range: QueryPoint
+) extends Facet {
+  def solrValue: String = range match {
+    case r: QueryRange => r.points.toList match {
+      case Glob :: Point(p) :: Nil => s"[* TO $p]"
+      case Point(p1) :: Point(p2) :: Nil => s"[$p1 TO $p2]"
+      case Point(p) :: Glob :: Nil => s"[$p TO *]"
+      case Point(p) :: Nil => p.toString
+      case p =>
+        Logger.warn(s"Unsupported facet class points: $r -> $p")
+        "*"
+    }
+    case Glob => "*"
+    case Point(p) => p.toString
+  }
+}
 
 

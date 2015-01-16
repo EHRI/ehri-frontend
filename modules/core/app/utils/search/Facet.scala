@@ -29,7 +29,6 @@ trait Facet {
   def name: Option[String]
   def applied: Boolean
   def count: Int
-  def sortName: String = name.getOrElse(value)
 }
 
 object Facet {

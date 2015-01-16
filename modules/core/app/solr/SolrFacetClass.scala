@@ -1,14 +1,14 @@
 package solr
 
 import com.github.seratch.scalikesolr.request.query.facet.{Value, Param, FacetParam}
-import utils.search.{FacetSort, FacetDisplay, FacetClass}
+import utils.search.{Facet, FacetSort, FacetDisplay, FacetClass}
 
 /**
  * @author Mike Bryant (http://github.com/mikesname)
  */
-sealed trait SolrFacetClass[+T <: SolrFacet] extends FacetClass[T] {
+sealed trait SolrFacetClass[+T <: Facet] extends FacetClass[T] {
   def asParams: Seq[FacetParam]
-
+  def fieldType: String
   override def fullKey = if (multiSelect) s"{!ex=$key}$key" else key
 }
 

@@ -48,8 +48,8 @@ case class VirtualUnits @Inject()(implicit globalConfig: global.GlobalConfig, se
         param="items",
         render=s => Messages("documentaryUnit." + s),
         facets=List(
-          SolrQueryFacet(value = "false", solrValue = "0", name = Some("noChildItems")),
-          SolrQueryFacet(value = "true", solrValue = "[1 TO *]", name = Some("hasChildItems"))
+          SolrQueryFacet(value = "false", range = QueryRange(Point("0")), name = Some("noChildItems")),
+          SolrQueryFacet(value = "true", range = QueryRange(Point("1"), Glob), name = Some("hasChildItems"))
         )
       ),
       QueryFacetClass(
@@ -58,9 +58,9 @@ case class VirtualUnits @Inject()(implicit globalConfig: global.GlobalConfig, se
         param="lod",
         render=s => Messages("lod." + s),
         facets=List(
-          SolrQueryFacet(value = "low", solrValue = "[0 TO 500]", name = Some("low")),
-          SolrQueryFacet(value = "medium", solrValue = "[501 TO 2000]", name = Some("medium")),
-          SolrQueryFacet(value = "high", solrValue = "[2001 TO *]", name = Some("high"))
+          SolrQueryFacet(value = "low", range = QueryRange(Point("0"), Point("500"))),
+          SolrQueryFacet(value = "medium", range = QueryRange(Point("501"), Point("2000"))),
+          SolrQueryFacet(value = "high", range = QueryRange(Point("2001"), Glob))
         ),
         sort = FacetSort.Fixed,
         display = FacetDisplay.List

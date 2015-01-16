@@ -41,8 +41,8 @@ case class UserProfiles @Inject()(implicit globalConfig: global.GlobalConfig, se
         param="active",
         render=s => Messages("userProfile.active." + s),
         facets=List(
-          SolrQueryFacet(value = "true", solrValue = "1"),
-          SolrQueryFacet(value = "false", solrValue = "0")
+          SolrQueryFacet(value = "true", range = QueryRange(Point("1"))),
+          SolrQueryFacet(value = "false", range = QueryRange(Point("0")))
         ),
         display = FacetDisplay.Boolean
       ),

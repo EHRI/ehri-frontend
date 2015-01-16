@@ -16,19 +16,17 @@ package object search {
     implicit val format = EnumUtils.enumFormat(FacetQuerySort)
   }
 
-  def pathWithoutFacet[F <: Facet, FC <: FacetClass[F]](fc: FC, f: F, path: String, qs: Map[String, Seq[String]]): String = {
+  def pathWithoutFacet[F <: Facet, FC <: FacetClass[F]](fc: FC, f: F, path: String, qs: Map[String, Seq[String]]): String =
     joinPath(path, qs.collect {
         case (q, vals) if q == fc.param => q -> vals.filter(_ != f.value)
         case pair => pair
     })
-  }
 
-  def pathWithFacet[F <: Facet, FC <: FacetClass[F]](fc: FC, f: F, path: String, qs: Map[String, Seq[String]]): String = {
+  def pathWithFacet[F <: Facet, FC <: FacetClass[F]](fc: FC, f: F, path: String, qs: Map[String, Seq[String]]): String =
     joinPath(path, if (qs.contains(fc.param)) {
       qs.collect {
         case (q, vals) if q == fc.param => q -> vals.union(Seq(f.value)).distinct.sorted
         case pair => pair
       }
     } else qs.updated(fc.param, Seq(f.value)))
-  }
 }

@@ -2,7 +2,7 @@ package solr
 
 import play.api.test.PlaySpecification
 import play.api.i18n.Messages
-import utils.search.{AppliedFacet, FacetSort, FacetDisplay}
+import utils.search._
 import com.github.seratch.scalikesolr.request.query.facet.{Value, Param, FacetParam}
 
 /**
@@ -24,9 +24,9 @@ class SolrQueryBuilderSpec extends PlaySpecification {
     param="lod",
     render=s => Messages("facet.lod." + s),
     facets=List(
-      SolrQueryFacet(value = "low", solrValue = "[0 TO 200]", name = Some("low")),
-      SolrQueryFacet(value = "medium", solrValue = "[201 TO 5000]", name = Some("medium")),
-      SolrQueryFacet(value = "high", solrValue = "[5001 TO *]", name = Some("high"))
+      SolrQueryFacet(value = "low", range = QueryRange(Point("0"), Point("200"))),
+      SolrQueryFacet(value = "medium", range = QueryRange(Point("201"), Point("5000"))),
+      SolrQueryFacet(value = "high", range = QueryRange(Point("5001"), Glob))
     ),
     sort = FacetSort.Fixed,
     display = FacetDisplay.List
