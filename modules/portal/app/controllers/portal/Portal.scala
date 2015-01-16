@@ -14,7 +14,6 @@ import play.api.cache.Cached
 import defines.EntityType
 import play.api.libs.ws.WS
 import play.twirl.api.Html
-import solr.SolrConstants
 import backend.Backend
 import controllers.base.SessionPreferences
 import utils._

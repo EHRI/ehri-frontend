@@ -9,7 +9,6 @@ import defines.{ContentTypes,EntityType,PermissionType}
 import views.Helpers
 import utils.search._
 import com.google.inject._
-import solr.SolrConstants
 import scala.concurrent.Future.{successful => immediate}
 import backend.{Entity, IdGenerator, Backend}
 import play.api.Play.current
@@ -92,7 +91,7 @@ case class VirtualUnits @Inject()(implicit globalConfig: global.GlobalConfig, se
   // going to peer INSIDE items... dodgy logic, maybe...
 
     val filters = if (request.getQueryString(SearchParams.QUERY).filterNot(_.trim.isEmpty).isEmpty)
-      Map(SolrConstants.TOP_LEVEL -> true) else Map.empty[String,Any]
+      Map(SearchConstants.TOP_LEVEL -> true) else Map.empty[String,Any]
     find[VirtualUnit](
       filters = filters,
       entities = List(EntityType.VirtualUnit),
@@ -104,7 +103,7 @@ case class VirtualUnits @Inject()(implicit globalConfig: global.GlobalConfig, se
 
   def searchChildren(id: String) = ItemPermissionAction(id).async { implicit request =>
     find[VirtualUnit](
-      filters = Map(SolrConstants.PARENT_ID -> request.item.id),
+      filters = Map(SearchConstants.PARENT_ID -> request.item.id),
       facetBuilder = entityFacets
     ).map { result =>
       Ok(views.html.admin.virtualUnit.search(result.page, result.params, result.facets, vuRoutes.search()))
@@ -113,7 +112,7 @@ case class VirtualUnits @Inject()(implicit globalConfig: global.GlobalConfig, se
 
   def get(id: String) = ItemMetaAction(id).async { implicit request =>
     find[VirtualUnit](
-      filters = Map(SolrConstants.PARENT_ID -> request.item.id),
+      filters = Map(SearchConstants.PARENT_ID -> request.item.id),
       entities = List(EntityType.VirtualUnit),
       facetBuilder = entityFacets
     ).map { result =>
@@ -126,13 +125,13 @@ case class VirtualUnits @Inject()(implicit globalConfig: global.GlobalConfig, se
     val pathIds = pathStr.map(_.split(",").toList).getOrElse(List.empty)
     def includedChildren(parent: AnyModel): Future[QueryResult[AnyModel]] = parent match {
       case d: DocumentaryUnit => find[AnyModel](
-          filters = Map(SolrConstants.PARENT_ID -> d.id),
+          filters = Map(SearchConstants.PARENT_ID -> d.id),
           entities = List(d.isA),
           facetBuilder = entityFacets)
       case d: VirtualUnit => d.includedUnits match {
         case other :: _ => includedChildren(other)
         case _ => find[AnyModel](
-          filters = Map(SolrConstants.PARENT_ID -> d.id),
+          filters = Map(SearchConstants.PARENT_ID -> d.id),
           entities = List(d.isA),
           facetBuilder = entityFacets)
       }

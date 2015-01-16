@@ -1,6 +1,6 @@
 package controllers.portal.guides
 
-import controllers.portal.{Secured, FacetConfig}
+import controllers.portal.FacetConfig
 import play.api.Routes
 import play.api.cache.Cached
 import play.api.http.MimeTypes
@@ -17,7 +17,6 @@ import backend.Backend
 import backend.rest.{Constants, SearchDAO}
 import backend.rest.cypher.CypherDAO
 
-import controllers.base.SessionPreferences
 import scala.concurrent.Future
 import scala.concurrent.Future.{successful => immediate}
 
@@ -25,12 +24,10 @@ import models._
 import models.{Guide, GuidePage, GeoCoordinates}
 import models.GuidePage.Layout
 import models.base.AnyModel
-import utils.search.{Facet, FacetClass}
 import play.api.libs.json.{Json, JsString, JsValue, JsNumber, JsNull}
 
 import com.google.inject._
 import play.api.Play.current
-import solr.SolrConstants
 
 import play.api.data._
 import play.api.data.Forms._
@@ -69,13 +66,13 @@ case class Guides @Inject()(implicit globalConfig: global.GlobalConfig, searchDi
   def getParams(request: Request[Any], eT: EntityType.Value, sort: Option[utils.search.SearchOrder.Value], isAjax: Boolean = false): SearchParams = { 
     request.getQueryString("parent").map { parent =>
       SearchParams(
-        query = Some(SolrConstants.PARENT_ID + ":" + parent),
+        query = Some(SearchConstants.PARENT_ID + ":" + parent),
         entities = List(eT),
         sort = sort
       )
     }.getOrElse {
       SearchParams(
-        query = if(!isAjax) Some(SolrConstants.TOP_LEVEL + ":" + true) else None,
+        query = if(!isAjax) Some(SearchConstants.TOP_LEVEL + ":" + true) else None,
         entities = List(eT),
         sort = sort
       )
@@ -220,9 +217,9 @@ case class Guides @Inject()(implicit globalConfig: global.GlobalConfig, searchDi
   def guideLayout(guide: Guide, temp: Option[GuidePage]) = itemOr404Action {
     temp.map { page =>
       page.layout match {
-        case Layout.Person => guideAuthority(page, Map(SolrConstants.HOLDER_ID -> page.content), guide)
-        case Layout.Map => guideMap(page, Map(SolrConstants.HOLDER_ID -> page.content), guide)
-        case Layout.Organisation => guideOrganization(page, Map(SolrConstants.HOLDER_ID -> page.content), guide)
+        case Layout.Person => guideAuthority(page, Map(SearchConstants.HOLDER_ID -> page.content), guide)
+        case Layout.Map => guideMap(page, Map(SearchConstants.HOLDER_ID -> page.content), guide)
+        case Layout.Organisation => guideOrganization(page, Map(SearchConstants.HOLDER_ID -> page.content), guide)
         case Layout.Markdown => guideMarkdown(page, page.content, guide)
         case _ => pageNotFound()
       }

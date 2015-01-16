@@ -13,7 +13,7 @@ import play.api.Logger
  */
 case class SolrJsonQueryResponse(response: JsValue) extends QueryResponse {
 
-  import SolrConstants._
+  import SearchConstants._
   import play.api.libs.json._
   import play.api.libs.functional.syntax._
 

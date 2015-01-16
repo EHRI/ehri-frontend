@@ -9,7 +9,6 @@ import defines.{EntityType,ContentTypes}
 import views.Helpers
 import utils.search._
 import com.google.inject._
-import solr.SolrConstants
 import scala.concurrent.Future.{successful => immediate}
 import backend.Backend
 import play.api.Configuration
@@ -111,7 +110,7 @@ case class Repositories @Inject()(implicit globalConfig: global.GlobalConfig, se
   def get(id: String) = ItemMetaAction(id).async { implicit request =>
 
     val filters = (if (request.getQueryString(SearchParams.QUERY).filterNot(_.trim.isEmpty).isEmpty)
-      Map(SolrConstants.TOP_LEVEL -> true) else Map.empty[String,Any]) ++ Map(SolrConstants.HOLDER_ID -> request.item.id)
+      Map(SearchConstants.TOP_LEVEL -> true) else Map.empty[String,Any]) ++ Map(SearchConstants.HOLDER_ID -> request.item.id)
 
     find[DocumentaryUnit](
       filters = filters,
@@ -237,5 +236,5 @@ case class Repositories @Inject()(implicit globalConfig: global.GlobalConfig, se
       action = controllers.institutions.routes.Repositories.updateIndexPost(id)))
   }
 
-  def updateIndexPost(id: String) = updateChildItemsPost(SolrConstants.HOLDER_ID, id)
+  def updateIndexPost(id: String) = updateChildItemsPost(SearchConstants.HOLDER_ID, id)
 }

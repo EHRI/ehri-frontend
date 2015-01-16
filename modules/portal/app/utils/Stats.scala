@@ -2,8 +2,7 @@ package utils
 
 import defines.EntityType
 import models.Isaar
-import solr.SolrConstants
-import utils.search.{Facet, FacetClass}
+import utils.search.{SearchConstants, Facet, FacetClass}
 
 /**
  * Class for holding useful stats for the data in our system.
@@ -38,12 +37,12 @@ object Stats {
    * Construct a Stats value from a list of facets.
    */
   def apply(facets: List[FacetClass[Facet]]): Stats = new Stats(
-    countryCount = typeCount(facets, SolrConstants.TYPE, EntityType.Country),
-    repositoryCount = typeCount(facets, SolrConstants.TYPE, EntityType.Repository),
-    inCountryCount = allCount(facets, SolrConstants.COUNTRY_CODE),
-    documentaryUnitCount = typeCount(facets, SolrConstants.TYPE, EntityType.DocumentaryUnit),
-    inRepositoryCount = allCount(facets, SolrConstants.HOLDER_NAME),
-    historicalAgentCount = typeCount(facets, SolrConstants.TYPE, EntityType.HistoricalAgent),
+    countryCount = typeCount(facets, SearchConstants.TYPE, EntityType.Country),
+    repositoryCount = typeCount(facets, SearchConstants.TYPE, EntityType.Repository),
+    inCountryCount = allCount(facets, SearchConstants.COUNTRY_CODE),
+    documentaryUnitCount = typeCount(facets, SearchConstants.TYPE, EntityType.DocumentaryUnit),
+    inRepositoryCount = allCount(facets, SearchConstants.HOLDER_NAME),
+    historicalAgentCount = typeCount(facets, SearchConstants.TYPE, EntityType.HistoricalAgent),
     corpCount = typeCount(facets, Isaar.ENTITY_TYPE, Isaar.HistoricalAgentType.CorporateBody),
     personCount = typeCount(facets, Isaar.ENTITY_TYPE, Isaar.HistoricalAgentType.Person),
     familyCount = typeCount(facets, Isaar.ENTITY_TYPE, Isaar.HistoricalAgentType.Family)

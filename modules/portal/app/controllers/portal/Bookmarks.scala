@@ -9,7 +9,6 @@ import views.html.p
 import utils.search._
 import defines.EntityType
 import backend.{IdGenerator, Backend}
-import controllers.base.SessionPreferences
 import utils._
 
 import com.google.inject._
@@ -20,7 +19,6 @@ import play.api.i18n.Lang
 import play.api.http.HeaderNames
 import play.api.cache.Cache
 import models.base.AnyModel
-import solr.SolrConstants
 import controllers.portal.base.PortalController
 
 @Singleton
@@ -149,9 +147,9 @@ case class Bookmarks @Inject()(implicit globalConfig: global.GlobalConfig, searc
 
   private def buildFilter(v: VirtualUnit): Map[String,Any] = {
     val pq = v.includedUnits.map(_.id)
-    if (pq.isEmpty) Map(s"${SolrConstants.PARENT_ID}:${v.id}" -> Unit)
+    if (pq.isEmpty) Map(s"${SearchConstants.PARENT_ID}:${v.id}" -> Unit)
     else {
-      val q = s"${SolrConstants.PARENT_ID}:${v.id} OR ${SolrConstants.ITEM_ID}:(${pq.mkString(" ")})"
+      val q = s"${SearchConstants.PARENT_ID}:${v.id} OR ${SearchConstants.ITEM_ID}:(${pq.mkString(" ")})"
       Map(q -> Unit)
     }
   }
@@ -161,7 +159,7 @@ case class Bookmarks @Inject()(implicit globalConfig: global.GlobalConfig, searc
     parent match {
       case d: DocumentaryUnit =>
         find[AnyModel](
-          filters = Map(SolrConstants.PARENT_ID -> d.id),
+          filters = Map(SearchConstants.PARENT_ID -> d.id),
           defaultParams = params,
           entities = List(d.isA),
           facetBuilder = docSearchFacets)

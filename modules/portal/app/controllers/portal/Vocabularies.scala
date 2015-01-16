@@ -8,7 +8,6 @@ import controllers.portal.base.{Generic, PortalController}
 import defines.EntityType
 import models.{Vocabulary, AccountDAO, Concept}
 import play.api.libs.concurrent.Execution.Implicits._
-import solr.SolrConstants
 import utils.SessionPrefs
 import utils.search._
 import views.html.p
@@ -33,8 +32,8 @@ case class Vocabularies @Inject()(implicit globalConfig: global.GlobalConfig, se
 
   def search(id: String) = GetItemAction(id).async { implicit request =>
       val filters = Map(
-        SolrConstants.HOLDER_ID -> request.item.id,
-        SolrConstants.TOP_LEVEL -> true.toString
+        SearchConstants.HOLDER_ID -> request.item.id,
+        SearchConstants.TOP_LEVEL -> true.toString
       )
       find[Concept](
         filters = filters,

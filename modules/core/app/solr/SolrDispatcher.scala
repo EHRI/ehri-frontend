@@ -31,15 +31,13 @@ case class SolrDispatcher(queryBuilder: QueryBuilder, handler: WSResponse => Que
   /**
    * Get the Solr URL...
    */
-  def fullSearchUrl(query: QueryRequest) = solrSelectUrl + query.queryString
+  def fullSearchUrl(query: Map[String,Seq[String]]) = solrSelectUrl + "?" + joinQueryString(query)
 
-  def queryAsForm(query: QueryRequest) = query.queryString().substring(1)
-
-  def dispatch(query: QueryRequest): Future[WSResponse] = {
+  def dispatch(query: Map[String,Seq[String]]): Future[WSResponse] = {
     Logger.logger.debug("SOLR: {}", fullSearchUrl(query))
     WS.url(solrSelectUrl)
       .withHeaders(HeaderNames.CONTENT_TYPE -> MimeTypes.FORM)
-      .post(queryAsForm(query))
+      .post(query)
   }
 
   /**
@@ -58,9 +56,9 @@ case class SolrDispatcher(queryBuilder: QueryBuilder, handler: WSResponse => Que
       val items = parser.items.map(i => FilterHit(
         i.itemId,
         i.id,
-        i.fields.get(SolrConstants.NAME_EXACT).getOrElse(i.itemId),
+        i.fields.getOrElse(SearchConstants.NAME_EXACT, i.itemId),
         i.`type`,
-        i.fields.get(SolrConstants.HOLDER_NAME),
+        i.fields.get(SearchConstants.HOLDER_NAME),
         i.gid
       ))
       ItemPage(items, params.offset, params.countOrDefault, parser.count, Nil)

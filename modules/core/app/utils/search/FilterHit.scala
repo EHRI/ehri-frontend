@@ -3,7 +3,7 @@ package utils.search
 import defines.EntityType
 import scala.annotation.tailrec
 import scala._
-import solr.SolrConstants._
+import SearchConstants._
 import play.api.templates.{HtmlFormat, Html}
 import play.api.libs.json.Json
 

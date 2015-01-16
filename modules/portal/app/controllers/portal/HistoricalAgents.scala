@@ -8,7 +8,6 @@ import controllers.portal.base.{Generic, PortalController}
 import defines.EntityType
 import models.{HistoricalAgent, AccountDAO, DocumentaryUnit, Repository}
 import play.api.libs.concurrent.Execution.Implicits._
-import solr.SolrConstants
 import utils.SessionPrefs
 import utils.search._
 import views.html.p

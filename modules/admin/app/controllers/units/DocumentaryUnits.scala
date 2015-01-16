@@ -9,7 +9,6 @@ import defines.{ContentTypes,EntityType,PermissionType}
 import views.Helpers
 import utils.search._
 import com.google.inject._
-import solr.SolrConstants
 import scala.concurrent.Future.{successful => immediate}
 import backend.{ApiUser, Backend}
 import play.api.Play.current
@@ -121,7 +120,7 @@ case class DocumentaryUnits @Inject()(implicit globalConfig: global.GlobalConfig
     // going to peer INSIDE items... dodgy logic, maybe...
     
     val filters = if (request.getQueryString(SearchParams.QUERY).filterNot(_.trim.isEmpty).isEmpty)
-      Map(SolrConstants.TOP_LEVEL -> true) else Map.empty[String,Any]
+      Map(SearchConstants.TOP_LEVEL -> true) else Map.empty[String,Any]
 
     find[DocumentaryUnit](
       filters = filters,
@@ -136,7 +135,7 @@ case class DocumentaryUnits @Inject()(implicit globalConfig: global.GlobalConfig
 
   def searchChildren(id: String) = ItemPermissionAction(id).async { implicit request =>
     find[DocumentaryUnit](
-      filters = Map(SolrConstants.PARENT_ID -> request.item.id),
+      filters = Map(SearchConstants.PARENT_ID -> request.item.id),
       facetBuilder = entityFacets,
       defaultOrder = SearchOrder.Id
     ).map { result =>
@@ -148,7 +147,7 @@ case class DocumentaryUnits @Inject()(implicit globalConfig: global.GlobalConfig
 
   def get(id: String) = ItemMetaAction(id).async { implicit request =>
     find[DocumentaryUnit](
-      filters = Map(SolrConstants.PARENT_ID -> request.item.id),
+      filters = Map(SearchConstants.PARENT_ID -> request.item.id),
       entities = List(EntityType.DocumentaryUnit),
       facetBuilder = entityFacets,
       defaultOrder = SearchOrder.Id

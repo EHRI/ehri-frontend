@@ -8,6 +8,7 @@ import play.api.Play.current
 import defines.EntityType
 import play.api.i18n.Messages
 import play.api.mvc.{AnyContent, Request, Result}
+import utils.search
 import views.Helpers
 import utils.search._
 
@@ -131,7 +132,7 @@ case class Metrics @Inject()(implicit globalConfig: global.GlobalConfig, searchD
     List(
       // Historical agent type
       FieldFacetClass(
-        key=solr.SolrConstants.RESTRICTED_FIELD,
+        key=search.SearchConstants.RESTRICTED_FIELD,
         name=Messages("search.isRestricted"),
         param="restricted",
         render=s => Messages("restricted" + "." + s)

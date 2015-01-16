@@ -12,7 +12,7 @@ import utils.search.SearchHit
  */
 case class SolrXmlQueryResponse(response: Elem) extends QueryResponse {
 
-  import SolrConstants._
+  import SearchConstants._
 
   lazy val phrases: Seq[String] = (response \ "lst" \ "str").filter(hasAttr("name", "q")).map(_.text)
 

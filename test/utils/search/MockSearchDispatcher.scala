@@ -7,7 +7,6 @@ import backend.Backend
 import models.base.{DescribedMeta, Described, Description, AnyModel}
 import play.api.i18n.Lang
 import backend.ApiUser
-import solr.SolrConstants
 
 /*
  * Class to aid in debugging the last submitted request - gross...
@@ -51,7 +50,7 @@ case class MockSearchDispatcher(backend: Backend, paramBuffer: collection.mutabl
         `type` = m.isA,
         gid = m.meta.value.get("gid").flatMap(_.asOpt[Long]).getOrElse(-1L),
       fields = Map(
-        SolrConstants.NAME_EXACT -> m.toStringLang(Lang.defaultLang)
+        SearchConstants.NAME_EXACT -> m.toStringLang(Lang.defaultLang)
       )
     )
 

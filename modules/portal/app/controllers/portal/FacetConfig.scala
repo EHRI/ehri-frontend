@@ -4,7 +4,6 @@ import models.Isaar
 import play.api.i18n.Messages
 import views.Helpers
 import utils.search._
-import solr.SolrConstants
 import controllers.generic.Search
 import play.api.mvc.{RequestHeader, Controller}
 import utils.DateFacetUtils
@@ -75,9 +74,9 @@ trait FacetConfig extends Search {
   protected val entityMetrics: FacetBuilder = { implicit request =>
     List(
       FieldFacetClass(
-        key = SolrConstants.TYPE,
+        key = SearchConstants.TYPE,
         name = Messages("facet.type"),
-        param = SolrConstants.TYPE,
+        param = SearchConstants.TYPE,
         render = s => Messages("contentTypes." + s),
         display = FacetDisplay.Choice
       ),
