@@ -23,30 +23,30 @@ trait FacetConfig extends Search {
 /**
    * Return a date query facet if valid start/end params have been given.
    */
-//  private def dateList(implicit request: RequestHeader): Option[SolrQueryFacet] = {
-//    for {
-//      dateString <- dateQueryForm.bindFromRequest(request.queryString).value
-//      solrQuery = formatAsSolrQuery(dateString)
-//    } yield
-//    SolrQueryFacet(
-//      value = dateString,
-//      solrValue = solrQuery,
-//      name = formatReadable(dateString)
-//    )
-//  }
-//  /**
-//   * Return a date query facet with an optional SolrQueryFacet if valid start/end have been given
-//   */
-//  private def dateQuery(implicit request: RequestHeader): QueryFacetClass = {
-//    QueryFacetClass(
-//      key = "dateRange",
-//      name = Messages("documentaryUnit." + DATE_PARAM),
-//      param = DATE_PARAM,
-//      sort = FacetSort.Fixed,
-//      display = FacetDisplay.Date,
-//      facets= dateList(request).toList
-//    )
-//  }
+  private def dateList(implicit request: RequestHeader): Option[QueryFacet] = {
+    for {
+      dateString <- dateQueryForm.bindFromRequest(request.queryString).value
+      queryRange = formatAsQuery(dateString)
+    } yield
+    QueryFacet(
+      value = dateString,
+      range = queryRange,
+      name = formatReadable(dateString)
+    )
+  }
+  /**
+   * Return a date query facet with an optional SolrQueryFacet if valid start/end have been given
+   */
+  private def dateQuery(implicit request: RequestHeader): QueryFacetClass = {
+    QueryFacetClass(
+      key = "dateRange",
+      name = Messages("documentaryUnit." + DATE_PARAM),
+      param = DATE_PARAM,
+      sort = FacetSort.Fixed,
+      display = FacetDisplay.Date,
+      facets= dateList(request).toList
+    )
+  }
 
   // i.e. Everything
   protected val globalSearchFacets: FacetBuilder = { implicit request =>

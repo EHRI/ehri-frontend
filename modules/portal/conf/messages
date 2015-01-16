@@ -170,6 +170,8 @@ type.cvocVocabulary=Vocabularies
 #
 # Dates
 #
+dates.start.year=Start Year
+dates.end.year=End Year
 dates.exact={0,number,#}
 dates.before=Before {0,number,#}
 dates.between=Between {0,number,#} and {1,number,#}

@@ -4,6 +4,7 @@ import org.joda.time.DateTime
 import org.joda.time.format.{DateTimeFormatter, ISODateTimeFormat}
 import play.api.i18n.Messages
 import play.api.mvc.RequestHeader
+import utils.search.{Glob, Point, QueryRange, QueryPoint}
 
 /**
  * Utils for converting URL-friendly date facet params
@@ -30,19 +31,19 @@ object DateFacetUtils {
   /**
    * Convert the format to a Solr query.
    */
-  def formatAsSolrQuery(ds: String): String = {
+  def formatAsQuery(ds: String): QueryPoint = {
     dateParamValueMatcher.findFirstMatchIn(ds).map { m =>
       val start = Option(m.group("start")).map(_.toInt)
       val end = Option(m.group("end")).map(_.toInt)
       (start, end) match {
-        case (Some(s), Some(e)) if s == e => s"[${startDate(s)} TO ${endDate(e)}]"
-        case (Some(s), Some(e)) if s <= e => s"[${startDate(s)} TO ${endDate(e)}]"
-        case (Some(s), Some(e)) if s > e => s"[${startDate(e)} TO ${endDate(s)}]"
-        case (Some(s), None) => s"[${startDate(s)} TO *]"
-        case (None, Some(e)) => s"[* TO ${endDate(e)}]"
-        case _ => "*"
+        case (Some(s), Some(e)) if s == e => QueryRange(Point(startDate(s)), Point(endDate(e)))
+        case (Some(s), Some(e)) if s <= e => QueryRange(Point(startDate(s)), Point(endDate(e)))
+        case (Some(s), Some(e)) if s > e => QueryRange(Point(startDate(e)), Point(endDate(s)))
+        case (Some(s), None) => QueryRange(Point(startDate(s)), Glob)
+        case (None, Some(e)) => QueryRange(Glob, Point(endDate(e)))
+        case _ => Glob
       }
-    }.getOrElse ("*")
+    }.getOrElse(Glob)
   }
 
   /**
