@@ -4,7 +4,7 @@ import org.joda.time.DateTime
 import org.joda.time.format.{DateTimeFormatter, ISODateTimeFormat}
 import play.api.i18n.Messages
 import play.api.mvc.RequestHeader
-import utils.search.{Glob, Point, QueryRange, QueryPoint}
+import utils.search._
 
 /**
  * Utils for converting URL-friendly date facet params
@@ -36,14 +36,14 @@ object DateFacetUtils {
       val start = Option(m.group("start")).map(_.toInt)
       val end = Option(m.group("end")).map(_.toInt)
       (start, end) match {
-        case (Some(s), Some(e)) if s == e => QueryRange(Point(startDate(s)), Point(endDate(e)))
-        case (Some(s), Some(e)) if s <= e => QueryRange(Point(startDate(s)), Point(endDate(e)))
-        case (Some(s), Some(e)) if s > e => QueryRange(Point(startDate(e)), Point(endDate(s)))
-        case (Some(s), None) => QueryRange(Point(startDate(s)), Glob)
-        case (None, Some(e)) => QueryRange(Glob, Point(endDate(e)))
-        case _ => Glob
+        case (Some(s), Some(e)) if s == e => Val(startDate(s)) to Val(endDate(e))
+        case (Some(s), Some(e)) if s <= e => Val(startDate(s)) to Val(endDate(e))
+        case (Some(s), Some(e)) if s > e => Val(startDate(e)) to Val(endDate(s))
+        case (Some(s), None) => Val(startDate(s)) to End
+        case (None, Some(e)) => Start to Val(endDate(e))
+        case _ => Start
       }
-    }.getOrElse(Glob)
+    }.getOrElse(Start)
   }
 
   /**

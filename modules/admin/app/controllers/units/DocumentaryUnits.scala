@@ -87,9 +87,9 @@ case class DocumentaryUnits @Inject()(implicit globalConfig: global.GlobalConfig
         param="lod",
         render=s => Messages("lod." + s),
         facets=List(
-          QueryFacet(value = "low", range = QueryRange(Point("0"), Point("500"))),
-          QueryFacet(value = "medium", range = QueryRange(Point("501"), Point("2000"))),
-          QueryFacet(value = "high", range = QueryRange(Point("2001"), Glob))
+          QueryFacet(value = "low", range = Start to Val("500")),
+          QueryFacet(value = "medium", range = Val("501") to Val("2000")),
+          QueryFacet(value = "high", range = Val("2001") to End)
         ),
         sort = FacetSort.Fixed,
         display = FacetDisplay.List

@@ -40,8 +40,8 @@ case class UserProfiles @Inject()(implicit globalConfig: global.GlobalConfig, se
         param="active",
         render=s => Messages("userProfile.active." + s),
         facets=List(
-          QueryFacet(value = "true", range = QueryRange(Point("1"))),
-          QueryFacet(value = "false", range = QueryRange(Point("0")))
+          QueryFacet(value = "true", range = Val("1")),
+          QueryFacet(value = "false", range = Val("0"))
         ),
         display = FacetDisplay.Boolean
       ),

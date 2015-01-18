@@ -12,16 +12,17 @@ object SolrFacetParser {
     case FieldFacet(value, l_, _, _) => value
     case QueryFacet(value, _, _, range, _) => range match {
       case r: QueryRange => r.points.toList match {
-        case Glob :: Point(p) :: Nil => s"[* TO $p]"
-        case Point(p1) :: Point(p2) :: Nil => s"[$p1 TO $p2]"
-        case Point(p) :: Glob :: Nil => s"[$p TO *]"
-        case Point(p) :: Nil => p.toString
+        case Start :: Val(p) :: Nil => s"[* TO $p]"
+        case Val(p1) :: Val(p2) :: Nil => s"[$p1 TO $p2]"
+        case Val(p) :: End :: Nil => s"[$p TO *]"
+        case Val(p) :: Nil => p.toString
         case p =>
           Logger.warn(s"Unsupported facet class points: $r -> $p")
           "*"
       }
-      case Glob => "*"
-      case Point(p) => p.toString
+      case Start => "*"
+      case End => "*"
+      case Val(p) => p.toString
     }
   }
 

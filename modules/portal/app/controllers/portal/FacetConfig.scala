@@ -136,9 +136,9 @@ trait FacetConfig extends Search {
         param="lod",
         render=s => Messages("facet.lod." + s),
         facets=List(
-          QueryFacet(value = "low", range = QueryRange(Glob, Point("250"))),
-          QueryFacet(value = "medium", range = QueryRange(Point("251"), Point("1000"))),
-          QueryFacet(value = "high", range = QueryRange(Point("1001"), Glob))
+          QueryFacet(value = "low", range = Start to Val("250")),
+          QueryFacet(value = "medium", range = Val("251") to Val("1000")),
+          QueryFacet(value = "high", range = Val("1001") to End)
         ),
         sort = FacetSort.Fixed,
         display = FacetDisplay.Choice
@@ -154,7 +154,7 @@ trait FacetConfig extends Search {
         param="promotable",
         render=s => Messages("promotion.isPromotable." + s),
         facets=List(
-          QueryFacet(value = "true", range = Point("true"))
+          QueryFacet(value = "true", range = Val("true"))
         ),
         display = FacetDisplay.Boolean
       ),
@@ -164,9 +164,9 @@ trait FacetConfig extends Search {
         param = "score",
         render = (s: String) => Messages("promotion.score." + s),
         facets=List(
-          QueryFacet(value = "positive", range = QueryRange(Point("1"), Glob)),
-          QueryFacet(value = "neutral", range = QueryRange(Point("0"))),
-          QueryFacet(value = "negative", range = QueryRange(Glob, Point("-1")))
+          QueryFacet(value = "positive", range = Val("1") to End),
+          QueryFacet(value = "neutral", range = Val("0")),
+          QueryFacet(value = "negative", range = Start to Val("-1"))
         ),
         display = FacetDisplay.Choice,
         sort = FacetSort.Fixed
@@ -182,7 +182,7 @@ trait FacetConfig extends Search {
         param="data",
         render=s => Messages("facet.itemsHeldOnline." + s),
         facets=List(
-          QueryFacet(value = "yes", range = QueryRange(Point("1"), Glob))
+          QueryFacet(value = "yes", range = Val("1") to Start)
         ),
         display = FacetDisplay.Boolean
       ),
@@ -192,9 +192,9 @@ trait FacetConfig extends Search {
         param="lod",
         render=s => Messages("facet.lod." + s),
         facets=List(
-          QueryFacet(value = "low", range = QueryRange(Point("0"), Point("200"))),
-          QueryFacet(value = "medium", range = QueryRange(Point("201"), Point("5000"))),
-          QueryFacet(value = "high", range = QueryRange(Point("5001"), Glob))
+          QueryFacet(value = "low", range = Start to Val("200")),
+          QueryFacet(value = "medium", range = Val("201") to Val("5000")),
+          QueryFacet(value = "high", range = Val("5001") to End)
         ),
         sort = FacetSort.Fixed,
         display = FacetDisplay.Choice
@@ -210,7 +210,7 @@ trait FacetConfig extends Search {
         param="data",
         render=s => Messages("facet.itemsHeldOnline." + s),
         facets=List(
-          QueryFacet(value = "yes", range = QueryRange(Point("1"), Glob))
+          QueryFacet(value = "yes", range = Val("1") to End)
         ),
         display = FacetDisplay.Boolean
       ),
@@ -220,9 +220,9 @@ trait FacetConfig extends Search {
         param="lod",
         render=s => Messages("facet.lod." + s),
         facets=List(
-          QueryFacet(value = "low", range = QueryRange(Point("0"), Point("500"))),
-          QueryFacet(value = "medium", range = QueryRange(Point("501"), Point("2000"))),
-          QueryFacet(value = "high", range = QueryRange(Point("2001"), Glob))
+          QueryFacet(value = "low", range = Start to Val("500")),
+          QueryFacet(value = "medium", range = Val("501") to Val("2000")),
+          QueryFacet(value = "high", range = Val("2001") to End)
         ),
         sort = FacetSort.Fixed,
         display = FacetDisplay.Choice
@@ -272,9 +272,9 @@ trait FacetConfig extends Search {
         param="lod",
         render=s => Messages("facet.lod." + s),
         facets=List(
-          QueryFacet(value = "low", range = QueryRange(Point("0"), Point("500"))),
-          QueryFacet(value = "medium", range = QueryRange(Point("501"), Point("2000"))),
-          QueryFacet(value = "high", range = QueryRange(Point("2001"), Glob))
+          QueryFacet(value = "low", range = Start to Val("500")),
+          QueryFacet(value = "medium", range = Val("501") to Val("2000")),
+          QueryFacet(value = "high", range = Val("2001") to End)
         ),
         sort = FacetSort.Fixed,
         display = FacetDisplay.Choice
@@ -321,7 +321,7 @@ trait FacetConfig extends Search {
         param="top",
         render=s => Messages("facet.topLevel." + s),
         facets=List(
-          QueryFacet(value = "true", range = Point("true"))
+          QueryFacet(value = "true", range = Val("true"))
         ),
         display = FacetDisplay.Boolean
       ),
