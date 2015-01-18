@@ -74,32 +74,37 @@ trait Oauth2LoginHandler extends AccountHelpers {
     }
   }
 
+  private def createNewProfile(userData: UserData, provider: OAuth2Provider): Future[Account] = {
+    implicit val apiUser = AnonymousUser
+    val profileData = Map(
+      UserProfileF.NAME -> userData.name,
+      UserProfileF.IMAGE_URL -> userData.imageUrl
+    )
+    backend.createNewUserProfile[UserProfile](profileData, groups = defaultPortalGroups).map { userProfile =>
+      userDAO.create(userProfile.id, userData.email.toLowerCase, verified = true, staff = false,
+        allowMessaging = canMessage)
+    }
+  }
+
   private def getOrCreateAccount(provider: OAuth2Provider, userData: UserData): Future[Account] = {
     OAuth2Association.findByProviderInfo(userData.providerId, provider.name).flatMap(_.user).map { account =>
-      Logger.info(s"Found existing association for $userData/${provider.name}")
+      Logger.info(s"Found existing association for ${userData.name} -> ${provider.name}")
       account.setVerified()
       updateUserInfo(account, userData).map(_ => account)
-    } getOrElse{
-      // User has an account already, so try and find them by email. If so, add an association...
+    } getOrElse {
+      // User might have an account already so try and find them by email.
       userDAO.findByEmail(userData.email).map { account =>
-        Logger.info(s"Creating new association for $userData/${provider.name}")
+        Logger.info(s"Creating new association for ${userData.name} -> ${provider.name}")
         account.setVerified()
-        OAuth2Association.addAssociation(account, userData.providerId, provider.name)
         updateUserInfo(account, userData).map(_ => account)
       } getOrElse {
-        Logger.info(s"Creating new account for $userData/${provider.name}")
-        // Create a new account!
-        implicit val apiUser = AnonymousUser
-        val profileData = Map(
-          UserProfileF.NAME -> userData.name,
-          UserProfileF.IMAGE_URL -> userData.imageUrl
-        )
-        backend.createNewUserProfile[UserProfile](profileData, groups = defaultPortalGroups).map { userProfile =>
-          val account = userDAO.create(userProfile.id, userData.email.toLowerCase, verified = true, staff = false,
-            allowMessaging = canMessage)
-          OAuth2Association.addAssociation(account, userData.providerId, provider.name)
-          account
-        }
+        // We have no existing account, so create a new one...
+        Logger.info(s"Creating new account for ${userData.name} -> ${provider.name}")
+        createNewProfile(userData, provider)
+      } map { account =>
+        // Finally, add an association for this account and ensure it's verified
+        OAuth2Association.addAssociation(account, userData.providerId, provider.name)
+        account
       }
     }
   }
