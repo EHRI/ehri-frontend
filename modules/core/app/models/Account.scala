@@ -3,7 +3,6 @@ package models
 import auth.HashedPassword
 import play.api.Plugin
 import java.util.UUID
-import org.mindrot.jbcrypt.BCrypt
 import utils.PageParams
 import jp.t2v.lab.play2.auth._
 
@@ -36,13 +35,12 @@ trait Account {
 }
 
 trait AccountDAO extends Plugin {
-  def checkPassword(p: String, h: HashedPassword) = BCrypt.checkpw(p, h.toString)
   def hashPassword(p: String): HashedPassword = HashedPassword.fromPlain(p)
 
   def authenticate(email: String, pw: String, verifiedOnly: Boolean = false): Option[Account] = {
     for {
       acc <- findByEmail(email)
-      hashed <- acc.password if checkPassword(pw, hashed) && (if(verifiedOnly) acc.verified else true)
+      hashed <- acc.password if hashed.check(pw) && (if(verifiedOnly) acc.verified else true)
     } yield acc
   }
   def findVerifiedByProfileId(id: String, verified: Boolean = true): Option[Account]

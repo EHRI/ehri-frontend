@@ -1,37 +1,42 @@
-@(f: Form[ProfileData], action: Call)(
-implicit userOpt: Option[UserProfile], req: RequestHeader, globalConfig: global.GlobalConfig, lang: Lang, flash: Flash, token: play.filters.csrf.CSRF.Token)
+@(f: Form[ProfileData], action: Call)(implicit userOpt: Option[UserProfile], req: RequestHeader, globalConfig: global.GlobalConfig, lang: Lang, flash: Flash, token: play.filters.csrf.CSRF.Token, fieldConstructor: helper.FieldConstructor)
 
-@implicitField = @{ views.html.helper.FieldConstructor(p.helpers.fieldTemplateHorizontal.f) }
 @import UserProfileF._
 
-@helper.form(action = action, 'role -> "form", 'class -> "form-horizontal validate-form", 'id -> "update-profile-form") {
+@helper.form(action = action, 'role -> "form", 'class -> "form-horizontal validate-form") {
     @formHelpers.csrfToken()
+    @formHelpers.globalErrors(f)
 
     @defining(FIELD_PREFIX) { implicit fieldPrefix =>
         @helper.inputText(f(NAME), '_label -> Messages(fieldPrefix + "." + NAME))
+        @helper.inputText(f(TITLE), '_label -> Messages(fieldPrefix + "." + TITLE))
         @helper.inputText(f(LOCATION), '_label -> Messages(fieldPrefix + "." + LOCATION))
+        @helper.inputText(f(INSTITUTION), '_label -> Messages(fieldPrefix + "." + INSTITUTION))
+        @helper.inputText(f(ROLE), '_label -> Messages(fieldPrefix + "." + ROLE))
+        @helper.inputText(f(FIELD), '_label -> Messages(fieldPrefix + "." + FIELD))
         @helper.input(f(URL), 'type -> "url", '_label -> Messages(fieldPrefix + "." + URL)) { (id, name, value, args) =>
             <input name="@name" id="@id" @toHtmlArgs(args)>
         }
+        @helper.input(f(WORK_URL), 'type -> "url", '_label -> Messages(fieldPrefix + "." + WORK_URL)) { (id, name, value, args) =>
+            <input name="@name" id="@id" @toHtmlArgs(args)>
+        }
         <div class="form-group">
-           <label class="col-sm-4 control-label" for="@LANGUAGES">@Messages(FIELD_PREFIX + "." + LANGUAGES)</label>
-            <div class="col-sm-8">
-           @defining(views.Helpers.fieldValues(f(LANGUAGES))) { values =>
-                <select class="select2 form-control" multiple name="@{f(LANGUAGES).name}[]" id="@f(LANGUAGES).id">
-                    @views.Helpers.languagePairList.map { case (oid, oval) =>
-                    <option value="@oid" @{if(values.contains(oid)) "selected"}>@oval</option>
-                    }
-                </select>
-            }
+           <label class="control-label" for="@LANGUAGES">@Messages(FIELD_PREFIX + "." + LANGUAGES)</label>
+           <div class="control-elements">
+               @defining(views.Helpers.fieldValues(f(LANGUAGES))) { values =>
+                    <select class="select2 form-control" multiple name="@{f(LANGUAGES).name}[]" id="@f(LANGUAGES).id">
+                        @views.Helpers.languagePairList.map { case (oid, oval) =>
+                        <option value="@oid" @{if(values.contains(oid)) "selected"}>@oval</option>
+                        }
+                    </select>
+                }
             </div>
         </div>
-        @helper.textarea(f(ABOUT), '_label -> Messages(FIELD_PREFIX + "." + ABOUT), 'class -> "input-lg", 'rows -> 4)
+        @helper.inputText(f(INTERESTS), '_label -> Messages(fieldPrefix + "." + INTERESTS))
+        @helper.textarea(f(ABOUT), '_label -> Messages(fieldPrefix + "." + ABOUT), 'class -> "form-control", 'rows -> 4)
     }
     <div class="form-group">
-        <div class="col-sm-offset-4 col-sm-8">
-            <button type="submit" class=" btn  btn-post ">
-                @Messages("profile.update.submit")
-            </button>
+        <div class="form-submit">
+            <button type="submit" class="btn  btn-post">@Messages("profile.update.submit")</button>
         </div>
     </div>
 }

@@ -13,14 +13,22 @@ case class ProfileData(
   location: Option[String] = None,
   languages: List[String] = Nil,
   about: Option[String] = None,
-  url: Option[String] = None
+  url: Option[String] = None,
+  workUrl: Option[String] = None,
+  title: Option[String] = None,
+  institution: Option[String] = None,
+  role: Option[String] = None,
+  interests: Option[String] = None,
+  field: Option[String] = None
 )
 
 object ProfileData {
 
   def fromUser(user: UserProfile): ProfileData = new ProfileData(
     user.model.name, user.model.location, user.model.languages,
-    user.model.about
+    user.model.about, user.model.url, user.model.workUrl,
+    user.model.title, user.model.institution, user.model.role,
+    user.model.interests, user.model.field
   )
 
   import play.api.data.Forms._
@@ -35,7 +43,13 @@ object ProfileData {
       USERLOC -> optional(text),
       LANGUAGES -> list(nonEmptyText(minLength = 3, maxLength = 3)),
       ABOUT -> optional(text),
-      URL -> optional(text.verifying(s => isValidUrl(s)))
+      URL -> optional(text.verifying(s => isValidUrl(s))),
+      WORK_URL -> optional(text.verifying(s => isValidUrl(s))),
+      TITLE -> optional(text),
+      INSTITUTION -> optional(text),
+      ROLE -> optional(text),
+      INTERESTS -> optional(text),
+      FIELD -> optional(text)
     )(ProfileData.apply)(ProfileData.unapply)
   )
 }

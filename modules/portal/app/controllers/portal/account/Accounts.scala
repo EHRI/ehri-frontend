@@ -51,8 +51,8 @@ case class Accounts @Inject()(implicit globalConfig: GlobalConfig, searchDispatc
     Messages("error.rateLimit", rateLimitTimeoutSecs / 60)
 
   val oauthProviders = Map(
-    FacebookOauth2Provider.name -> accountRoutes.facebookLogin,
     GoogleOAuth2Provider.name -> accountRoutes.googleLogin,
+    FacebookOauth2Provider.name -> accountRoutes.facebookLogin,
     YahooOAuth2Provider.name -> accountRoutes.yahooLogin
   )
 
@@ -96,6 +96,7 @@ case class Accounts @Inject()(implicit globalConfig: GlobalConfig, searchDispatc
   }
 
   def signupPost = NotReadOnlyAction.async { implicit request =>
+    implicit val userOpt: Option[UserProfile] = None
     def badForm(form: Form[SignupData], status: Status = BadRequest): Future[Result] = immediate {
       status(
         views.html.p.account.login(
@@ -155,6 +156,7 @@ case class Accounts @Inject()(implicit globalConfig: GlobalConfig, searchDispatc
   }
 
   def openIDCallback = OpenIdCallbackAction.async { implicit request =>
+    implicit val userOpt: Option[UserProfile] = None
     implicit val accountOpt: Option[Account] = None
     request.formOrAccount match {
       case Right(account) => gotoLoginSucceeded(account.id)
@@ -178,6 +180,7 @@ case class Accounts @Inject()(implicit globalConfig: GlobalConfig, searchDispatc
     if (globalConfig.readOnly) {
       Redirect(portalRoutes.index()).flashing("warning" -> "login.disabled")
     } else {
+      implicit val userOpt: Option[UserProfile] = None
       implicit val accountOpt = authRequest.user
       accountOpt match {
         case Some(user) => Redirect(portalRoutes.index())
@@ -197,6 +200,7 @@ case class Accounts @Inject()(implicit globalConfig: GlobalConfig, searchDispatc
   }
 
   def openIDLoginPost(isLogin: Boolean = true) = OpenIdLoginAction(accountRoutes.openIDCallback()) { implicit request =>
+    implicit val userOpt: Option[UserProfile] = None
     implicit val accountOpt: Option[Account] = None
     BadRequest(
       views.html.p.account.login(
@@ -212,6 +216,7 @@ case class Accounts @Inject()(implicit globalConfig: GlobalConfig, searchDispatc
   }
 
   def passwordLoginPost = (NotReadOnlyAction andThen UserPasswordLoginAction).async { implicit request =>
+    implicit val userOpt: Option[UserProfile] = None
 
     def badForm(f: Form[(String,String)], status: Status = BadRequest): Future[Result] = immediate {
       status(
@@ -264,7 +269,7 @@ case class Accounts @Inject()(implicit globalConfig: GlobalConfig, searchDispatc
     handleOAuth2Login(request)
   }
 
-  def forgotPassword = Action { implicit request =>
+  def forgotPassword = OptionalUserAction { implicit request =>
     Ok(views.html.p.account.forgotPassword(forgotPasswordForm,
       recaptchaKey, accountRoutes.forgotPasswordPost()))
   }
@@ -303,7 +308,7 @@ case class Accounts @Inject()(implicit globalConfig: GlobalConfig, searchDispatc
       account, errForm, accountRoutes.changePasswordPost())))
   }
 
-  def resetPassword(token: String) = Action { implicit request =>
+  def resetPassword(token: String) = OptionalUserAction { implicit request =>
     userDAO.findByResetToken(token).fold(
       ifEmpty = Redirect(accountRoutes.forgotPassword())
         .flashing("error" -> "login.error.badResetToken")

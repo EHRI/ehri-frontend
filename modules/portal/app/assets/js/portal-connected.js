@@ -14,20 +14,6 @@ jQuery(function ($) {
   });
 
   /**
-   *  Profile page
-   */
-
-  $('.user-profile-sidebar a[data-toggle="tab"]').on('shown.bs.tab', function (e) {
-    // e.target // activated tab
-    // e.relatedTarget // previous tab
-    var t = $(e.target).data("tabidx"); // chop off #
-    $(".tab-header h3").removeClass("active");
-    $(".tab-header h3 a[data-tabidx='" + t + "']")
-        .parent()
-        .addClass("active");
-  });
-
-  /**
    * Markdown helper
    */
 

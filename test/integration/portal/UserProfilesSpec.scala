@@ -75,9 +75,11 @@ class UserProfilesSpec extends IntegrationTestRunner {
 
     "allow editing profile" in new ITestApp {
       val testName = "Inigo Montoya"
+      val testInterest = "swords"
       val data = Map(
         "identifier" -> Seq("???"), // Overridden...
-        UserProfileF.NAME -> Seq(testName)
+        UserProfileF.NAME -> Seq(testName),
+        UserProfileF.INTERESTS -> Seq(testInterest)
       )
       val update = route(fakeLoggedInHtmlRequest(privilegedUser, POST,
         profileRoutes.updateProfilePost().url), data).get
@@ -87,6 +89,7 @@ class UserProfilesSpec extends IntegrationTestRunner {
         profileRoutes.profile().url)).get
       status(prof) must equalTo(OK)
       contentAsString(prof) must contain(testName)
+      contentAsString(prof) must contain(testInterest)
     }
 
 

@@ -3,8 +3,15 @@
   "data" : {
     "languages" : [ "en" ],
     "location" : "London",
-    "name" : "Mike Bryant",
+    "name" : "Mike",
     "about" : "Testing the system",
+    "url" : "http://www.example.com",
+    "workUrl": "http://work.example.com",
+    "title": "Mr",
+    "institution" : "KCL",
+    "role" : "Developer",
+    "interests" : "History",
+    "field" : "Humanities",
     "identifier" : "mike"
   },
   "type" : "userProfile",
