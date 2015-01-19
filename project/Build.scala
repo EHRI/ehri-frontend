@@ -73,7 +73,10 @@ object ApplicationBuild extends Build {
     "com.github.seratch" %% "scalikesolr" % "4.10.0",
 
     // Time formatting library
-    "org.ocpsoft.prettytime" % "prettytime" % "1.0.8.Final"
+    "org.ocpsoft.prettytime" % "prettytime" % "1.0.8.Final",
+
+    // Logging: Janino is necessary for configuring LogBack's regex filter
+    "org.codehaus.janino" % "janino" % "2.7.7"
   )
   
   val portalDependencies = Seq(
