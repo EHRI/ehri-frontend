@@ -2,19 +2,30 @@ package models
 
 import java.util.UUID
 import auth.HashedPassword
+import org.joda.time.DateTime
 import utils.PageParams
 import play.api.cache.Cache
 import jp.t2v.lab.play2.auth.AuthenticityToken
 import play.api.Play.current
 
-case class MockAccount(id: String, email: String, verified: Boolean = false, staff: Boolean = false, active: Boolean = true,
-                        allowMessaging: Boolean = true, override val password: Option[HashedPassword] = None) extends Account {
+case class MockAccount(
+  id: String,
+  email: String,
+  verified: Boolean = false,
+  staff: Boolean = false,
+  active: Boolean = true,
+  allowMessaging: Boolean = true,
+  lastLogin: Option[DateTime] = None,
+  override val password: Option[HashedPassword] = None
+) extends Account {
+
   def updatePassword(hashed: HashedPassword): Account = updateWith(this.copy(password = Some(hashed)))
   def setPassword(data: HashedPassword): Account = updateWith(this.copy(password = Some(data)))
   def setVerified(): Account = updateWith(this.copy(verified = true))
   def setActive(active: Boolean) = updateWith(this.copy(active = active))
   def setStaff(staff: Boolean) = updateWith(this.copy(staff = staff))
   def setAllowMessaging(allowMessaging: Boolean) = updateWith(this.copy(allowMessaging = allowMessaging))
+  def setLoggedIn(): Account = updateWith(this.copy(lastLogin = Some(DateTime.now())))
   def verify(token: String): Account = updateWith(this.copy(verified = true))
   def delete(): Boolean = {
     mocks.userFixtures -= id
@@ -33,8 +44,6 @@ case class MockAccount(id: String, email: String, verified: Boolean = false, sta
     mocks.userFixtures += acc.id -> acc
     acc
   }
-
-  def update(): Unit = mocks.userFixtures += id -> this
 }
 
 /**

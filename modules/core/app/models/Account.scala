@@ -1,6 +1,7 @@
 package models
 
 import auth.HashedPassword
+import org.joda.time.DateTime
 import play.api.Plugin
 import java.util.UUID
 import utils.PageParams
@@ -12,16 +13,20 @@ import jp.t2v.lab.play2.auth._
  * @author Mike Bryant (http://github.com/mikesname)
  */
 trait Account {
-	def email: String
+
+  def email: String
 	def id: String
-  val verified: Boolean
-  val staff: Boolean
-  val active: Boolean
+  def verified: Boolean
+  def staff: Boolean
+  def active: Boolean
+  def lastLogin: Option[DateTime]
+
   def password: Option[HashedPassword]
   def setPassword(hashed: HashedPassword): Account
   def setVerified(): Account
   def setActive(active: Boolean): Account
   def setStaff(staff: Boolean): Account
+  def setLoggedIn(): Account
   def setAllowMessaging(allowMessaging: Boolean): Account
   def verify(token: String): Account
   def delete(): Boolean
@@ -29,7 +34,6 @@ trait Account {
   def createResetToken(uuid: UUID): Unit
   def createValidationToken(uuid: UUID): Unit
   def expireTokens(): Unit
-  def update(): Unit
 
   def hasPassword: Boolean = password.isDefined
 }
