@@ -58,3 +58,20 @@ To briefly run through this:
  - `n-[:access]->mods` Create the access relationship, not caring about the result
  - `RETURN  n, n.body` Return something pretty arbitrary (the node and its body). Had we bound the new relationship
    to a name in the previous step we could have returned that instead
+
+Example 2: Locating "orphan" documentary units
+----------------------------------------------
+
+It's a quirk of the database that documentary unit items can be "orphaned" of someone deletes their repository
+or parent item, since this does not trigger a delete cascade (or safety purposes). These orphans can be located
+by finding documentary unit items with _neither_ a `heldBy` or a `childOf` relationship, like so:
+
+```
+START n = node:entities("__ISA__:documentaryUnit")
+MATCH   n-[rr?:heldBy]->repo,
+        n-[pr?:childOf]->doc
+WHERE rr is null AND pr is null
+RETURN n.__ID__
+```    
+
+
