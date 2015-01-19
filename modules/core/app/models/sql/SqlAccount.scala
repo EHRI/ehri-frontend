@@ -32,15 +32,6 @@ case class SqlAccount(id: String, email: String, verified: Boolean = false, staf
     ).on('id -> id).as(str("data").singleOpt).map(HashedPassword.fromHashed)
   }
 
-  def hasPassword: Boolean = DB.withConnection { implicit  connection =>
-    try {
-    SQL("select count(data) from user_auth WHERE id = {id}")
-      .on('id -> id).as(scalar[Long].single) > 0
-    } catch {
-      case c: Throwable => Logger.error("Error checking password: {}", c); throw c
-    }
-  }
-
   def setPassword(data: HashedPassword): Account = DB.withTransaction { implicit connection =>
     if (hasPassword) updatePassword(data) else try {
       SQL("INSERT INTO user_auth (id, data) VALUES ({id},{data})")

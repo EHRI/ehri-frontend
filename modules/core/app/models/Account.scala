@@ -1,7 +1,6 @@
 package models
 
 import auth.HashedPassword
-import play.api.libs.json.{Json, JsValue, Writes}
 import play.api.Plugin
 import java.util.UUID
 import org.mindrot.jbcrypt.BCrypt
@@ -19,7 +18,7 @@ trait Account {
   val verified: Boolean
   val staff: Boolean
   val active: Boolean
-  def password: Option[HashedPassword] = None
+  def password: Option[HashedPassword]
   def setPassword(hashed: HashedPassword): Account
   def setVerified(): Account
   def setActive(active: Boolean): Account
@@ -32,6 +31,8 @@ trait Account {
   def createValidationToken(uuid: UUID): Unit
   def expireTokens(): Unit
   def update(): Unit
+
+  def hasPassword: Boolean = password.isDefined
 }
 
 trait AccountDAO extends Plugin {
