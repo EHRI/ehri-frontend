@@ -9,5 +9,5 @@ import scala.concurrent.ExecutionContext
  * @author Mike Bryant (http://github.com/mikesname)
  */
 object Contexts {
-  implicit val exportContext: ExecutionContext = Akka.system.dispatchers.lookup("export-context")
+  implicit val exportContext: ExecutionContext = Akka.system.dispatchers.lookup("contexts.ead-export")
 }
