@@ -57,20 +57,19 @@
 }
 
 .user-list-item {
+  padding: @small-padding 0;
+  .clearfix;
   position: relative;
   .gravitar {
     float: left;
-    width: 48px;
-    height: 48px;
+    width: @gravitar-size;
+    height: @gravitar-size;
     margin-right: @small-margin;
+    margin-bottom: @small-margin;
 
     img {
       border-radius: 5px;
     }
-  }
-
-  .user-list-info {
-    margin-left: @gravitar-size + @small-margin;
   }
 
   .follow-controls {

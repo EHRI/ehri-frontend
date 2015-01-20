@@ -18,8 +18,7 @@ case class ProfileData(
   title: Option[String] = None,
   institution: Option[String] = None,
   role: Option[String] = None,
-  interests: Option[String] = None,
-  field: Option[String] = None
+  interests: Option[String] = None
 )
 
 object ProfileData {
@@ -28,7 +27,7 @@ object ProfileData {
     user.model.name, user.model.location, user.model.languages,
     user.model.about, user.model.url, user.model.workUrl,
     user.model.title, user.model.institution, user.model.role,
-    user.model.interests, user.model.field
+    user.model.interests
   )
 
   import play.api.data.Forms._
@@ -48,8 +47,7 @@ object ProfileData {
       TITLE -> optional(text),
       INSTITUTION -> optional(text),
       ROLE -> optional(text),
-      INTERESTS -> optional(text),
-      FIELD -> optional(text)
+      INTERESTS -> optional(text)
     )(ProfileData.apply)(ProfileData.unapply)
   )
 }

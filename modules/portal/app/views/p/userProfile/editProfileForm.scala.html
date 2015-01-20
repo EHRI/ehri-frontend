@@ -12,7 +12,6 @@
         @helper.inputText(f(LOCATION), '_label -> Messages(fieldPrefix + "." + LOCATION))
         @helper.inputText(f(INSTITUTION), '_label -> Messages(fieldPrefix + "." + INSTITUTION))
         @helper.inputText(f(ROLE), '_label -> Messages(fieldPrefix + "." + ROLE))
-        @helper.inputText(f(FIELD), '_label -> Messages(fieldPrefix + "." + FIELD))
         @helper.input(f(URL), 'type -> "url", '_label -> Messages(fieldPrefix + "." + URL)) { (id, name, value, args) =>
             <input name="@name" id="@id" @toHtmlArgs(args)>
         }
@@ -31,8 +30,8 @@
                 }
             </div>
         </div>
-        @helper.inputText(f(INTERESTS), '_label -> Messages(fieldPrefix + "." + INTERESTS))
         @helper.textarea(f(ABOUT), '_label -> Messages(fieldPrefix + "." + ABOUT), 'class -> "form-control", 'rows -> 4)
+        @helper.textarea(f(INTERESTS), '_label -> Messages(fieldPrefix + "." + INTERESTS), 'class -> "form-control", 'rows -> 4)
     }
     <div class="form-group">
         <div class="form-submit">

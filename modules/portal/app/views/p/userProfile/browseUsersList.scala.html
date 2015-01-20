@@ -4,7 +4,21 @@
     userOpt.exists(_.id == user.id)
 }
 
-@users.map { other =>
+@userListInfo(data: Html) = {
+    @if(data.body.trim.nonEmpty) {
+        <ul class="user-list-info comma-sep">
+        @data
+        </ul>
+    }
+}
+
+@textSection(data: Option[String]) = {
+    @data.map { text =>
+        <li>@text</li>
+    }
+}
+
+    @users.map { other =>
     <li class="user-list-item search-item @{if(isCurrentUser(other)) "current"}">
         @if(!isCurrentUser(other)) {
             @defining(following.exists(_.id == other.id)) { follows =>
@@ -19,10 +33,14 @@
         <h3 class="search-item-heading type-highlight userProfile">
             <a class="name" href="@controllers.portal.social.routes.Social.browseUser(other.id)">@other.model.name</a>
         </h3>
-        <div class="user-list-info">
-            <ul class="user-locations comma-sep">
-                <li>@other.model.location</li>
-            </ul>
+        <div class="search-item-body">
+            <div class="search-item-details">
+            @userListInfo {
+                @textSection(other.model.role)
+                @textSection(other.model.institution)
+                @textSection(other.model.location)
+            }
+            </div>
         </div>
     </li>
 }

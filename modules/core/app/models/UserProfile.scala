@@ -37,7 +37,6 @@ object UserProfileF {
   val INSTITUTION = "institution"
   val ROLE = "role"
   val INTERESTS = "interests"
-  val FIELD = "field"
 
   import Entity._
 
@@ -59,7 +58,6 @@ object UserProfileF {
           INSTITUTION -> d.institution,
           ROLE -> d.role,
           INTERESTS -> d.interests,
-          FIELD -> d.field,
           ACTIVE -> d.active
         )
       )
@@ -81,7 +79,6 @@ object UserProfileF {
       (__ \ DATA \ INSTITUTION).readNullable[String] and
       (__ \ DATA \ ROLE).readNullable[String] and
       (__ \ DATA \ INTERESTS).readNullable[String] and
-      (__ \ DATA \ FIELD).readNullable[String] and
       (__ \ DATA \ ACTIVE).readWithDefault(true)
     )(UserProfileF.apply _)
 
@@ -107,7 +104,6 @@ case class UserProfileF(
   institution: Option[String] = None,
   role: Option[String] = None,
   interests: Option[String] = None,
-  field: Option[String] = None,
   active: Boolean = true
 ) extends Model with Persistable
 
@@ -160,7 +156,6 @@ object UserProfile {
       INSTITUTION -> optional(text),
       ROLE -> optional(text),
       INTERESTS -> optional(text),
-      FIELD -> optional(text),
       ACTIVE -> boolean
     )(UserProfileF.apply)(UserProfileF.unapply)
   )
