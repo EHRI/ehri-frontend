@@ -9,7 +9,7 @@ import org.joda.time.DateTime
 case class Account(
   id: String,
   email: String,
-  verified: Boolean,
+  verified: Boolean = false,
   staff: Boolean = false,
   active: Boolean = true,
   allowMessaging: Boolean = true,

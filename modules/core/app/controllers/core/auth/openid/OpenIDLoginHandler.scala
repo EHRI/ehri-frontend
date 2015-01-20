@@ -88,54 +88,56 @@ trait OpenIDLoginHandler extends AccountHelpers {
     override def invokeBlock[A](request: Request[A], block: (OpenIdCallbackRequest[A]) => Future[Result]): Future[Result] = {
       implicit val r = request
 
-      OpenID.verifiedId.flatMap { info =>
+      OpenID.verifiedId(request).flatMap { info =>
 
         // check if there's a user with the right id
-        userDAO.openid.findByUrl(info.id).flatMap { assocOpt =>
-          assocOpt.map { assoc =>
+        userDAO.openid.findByUrl(info.id).flatMap {
+          case Some(assoc) =>
             Logger.logger.info("User '{}' logged in via OpenId", assoc.user.get.id)
             block(OpenIdCallbackRequest(Right(assoc.user.get), request))
-          } getOrElse {
+          case None =>
             val email = extractEmail(info.attributes)
               .getOrElse(sys.error("Unable to retrieve email info via OpenID"))
 
             val data = Map("name" -> extractName(info.attributes)
               .getOrElse(sys.error("Unable to retrieve name info via OpenID")))
 
-            userDAO.findByEmail(email).flatMap { accountOpt =>
-              accountOpt.map { account =>
-                Logger.logger.info("User '{}' created OpenID association", account.id)
-                for {
-                  _ <- userDAO.openid.addAssociation(account, info.id)
-                  r <- block(OpenIdCallbackRequest(Right(account), request))
-                } yield r
-              } getOrElse {
-                implicit val apiUser = AnonymousUser
-                for {
-                  up <- backend.createNewUserProfile[UserProfile](data, groups = defaultPortalGroups)
-                  account <- userDAO.create(Account(
-                    id = up.id,
-                    email = email.toLowerCase,
-                    verified = true,
-                    staff = false,
-                    active = true,
-                    allowMessaging = canMessage
-                  ))
-                  _ <- userDAO.openid.addAssociation(account, info.id)
-                  r <- block(OpenIdCallbackRequest(Right(account), request))
-                } yield {
-                  Logger.logger.info("User '{}' created OpenID account", account.id)
-                  r
-                }
-              }
+            userDAO.findByEmail(email).flatMap {
+              case Some(account) => addAssociation(account, info, request).flatMap(block)
+              case None => createUserAccount(email, info, data, request).flatMap(block)
             }
-          }
-        } recoverWith {
-          case t => block(OpenIdCallbackRequest(
-            Left(openidForm.withGlobalError("error.openId", t.getMessage)), request))
-            .map(_.flashing("error" -> Messages("error.openId", t.getMessage)))
         }
+      } recoverWith {
+        case t => block(OpenIdCallbackRequest(
+          Left(openidForm.withGlobalError("error.openId", t.getMessage)), request))
+          .map(_.flashing("error" -> Messages("error.openId", t.getMessage)))
       }
+    }
+  }
+
+  private def addAssociation[A](account: Account, info: UserInfo, request: Request[A]): Future[OpenIdCallbackRequest[A]] = {
+    Logger.logger.info("User '{}' created OpenID association", account.id)
+    for {
+      _ <- userDAO.openid.addAssociation(account, info.id)
+    } yield OpenIdCallbackRequest(Right(account), request)
+  }
+
+  private def createUserAccount[A](email: String, info: UserInfo, data: Map[String, String], request: Request[A]): Future[OpenIdCallbackRequest[A]] = {
+    implicit val apiUser = AnonymousUser
+    for {
+      up <- backend.createNewUserProfile[UserProfile](data, groups = defaultPortalGroups)
+      account <- userDAO.create(Account(
+        id = up.id,
+        email = email.toLowerCase,
+        verified = true,
+        staff = false,
+        active = true,
+        allowMessaging = canMessage
+      ))
+      _ <- userDAO.openid.addAssociation(account, info.id)
+    } yield {
+      Logger.logger.info("User '{}' created OpenID account", account.id)
+      OpenIdCallbackRequest(Right(account), request)
     }
   }
 

@@ -15,6 +15,7 @@ import play.api.mvc.RequestHeader
 import play.api.i18n.Messages
 import play.api.libs.json.Json
 import scala.concurrent.Future
+import scala.concurrent.Future.{successful => immediate}
 import models.base.AnyModel
 import play.api.mvc.Result
 import backend.ApiUser
@@ -211,7 +212,7 @@ case class Social @Inject()(implicit globalConfig: global.GlobalConfig, searchDi
     userDAO.findById(recipientId).flatMap {
       case Some(account) if account.allowMessaging =>
         backend.isBlocking(recipientId, senderId).map(blocking => !blocking)
-      case _ => Future.successful(false)
+      case _ => immediate(false)
     }
   }
 
@@ -275,29 +276,33 @@ case class Social @Inject()(implicit globalConfig: global.GlobalConfig, searchDi
         socialRoutes.sendMessagePost(userId), recaptchaKey))
     }
 
-    for {
-      captcha <- checkRecapture
-      allowed <- canMessage(request.user.id, userId)
-      userTo <- backend.get[UserProfile](userId) if allowed
-    } yield {
+    def doIt(captcha: Boolean, allowed: Boolean, to: UserProfile): Future[Result] = {
       if (!captcha) {
-        onError(userTo, boundForm.withGlobalError("error.badRecaptcha"))
+        immediate(onError(to, boundForm.withGlobalError("error.badRecaptcha")))
       } else if (!allowed) {
-        onError(userTo, boundForm
-          .withGlobalError("social.message.send.userNotAcceptingMessages"))
+        immediate(onError(to, boundForm
+          .withGlobalError("social.message.send.userNotAcceptingMessages")))
       } else {
         boundForm.fold(
-          errForm => onError(userTo, errForm),
+          errForm => immediate(onError(to, errForm)),
           data => {
             val (subject, message, copyMe) = data
-            sendMessageEmail(request.user, userTo, subject, message, copyMe)
-            val msg = Messages("social.message.send.confirmation")
-            if (isAjax) Ok(Json.obj("ok" -> msg))
-            else Redirect(socialRoutes.browseUser(userId))
-              .flashing("success" -> msg)
+            sendMessageEmail(request.user, to, subject, message, copyMe).map { _ =>
+              val msg = Messages("social.message.send.confirmation")
+              if (isAjax) Ok(Json.obj("ok" -> msg))
+              else Redirect(socialRoutes.browseUser(userId))
+                .flashing("success" -> msg)
+            }
           }
         )
       }
     }
+
+    for {
+      captcha <- checkRecapture
+      allowed <- canMessage(request.user.id, userId)
+      userTo <- backend.get[UserProfile](userId)
+      r <- doIt(captcha, allowed, userTo)
+    } yield r
   }
 }
