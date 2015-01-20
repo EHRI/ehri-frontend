@@ -2,10 +2,9 @@ package integration
 
 import scala.concurrent.ExecutionContext.Implicits.global
 import helpers._
-import models.UserProfile
+import models.{Account, UserProfile}
 import defines._
 import backend.rest.ItemNotFound
-import models.MockAccount
 import backend.ApiUser
 
 /**
@@ -19,7 +18,7 @@ import backend.ApiUser
  *  - assign permissions to worker group to create/update/delete only their OWN items in a repo
  *  - check that these perms are respected
  */
-class SupervisorWorkerIntegrationSpec extends IntegrationTestRunner {
+class SupervisorWorkerIntegrationSpec extends IntegrationTestRunner with TestHelpers {
   import mocks.privilegedUser
 
   implicit val apiUser: ApiUser = ApiUser(Some(privilegedUser.id))
@@ -141,7 +140,7 @@ class SupervisorWorkerIntegrationSpec extends IntegrationTestRunner {
       val headArchivistProfile = await(testBackend.get[UserProfile](headArchivistUserId))
 
       // Add their account to the mocks
-      val haAccount = MockAccount(headArchivistUserId, "head-archivist@example.com",
+      val haAccount = Account(headArchivistUserId, "head-archivist@example.com",
           verified = true, staff = true)
       mocks.userFixtures += haAccount.id -> haAccount
 
@@ -171,7 +170,7 @@ class SupervisorWorkerIntegrationSpec extends IntegrationTestRunner {
       val archivistProfile = await(testBackend.get[UserProfile](archivistUserId))
 
       // Add the archivists group to the account mocks
-      val aAccount = MockAccount(archivistUserId, "archivist1@example.com",
+      val aAccount = Account(archivistUserId, "archivist1@example.com",
         verified = true, staff = true)
       mocks.userFixtures += aAccount.id -> aAccount
 

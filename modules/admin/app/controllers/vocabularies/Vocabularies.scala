@@ -1,5 +1,6 @@
 package controllers.vocabularies
 
+import auth.AccountManager
 import play.api.libs.concurrent.Execution.Implicits._
 import forms.VisibilityForm
 import controllers.generic._
@@ -13,7 +14,7 @@ import controllers.base.AdminController
 
 
 @Singleton
-case class Vocabularies @Inject()(implicit globalConfig: global.GlobalConfig, searchDispatcher: Dispatcher, searchIndexer: Indexer, searchResolver: Resolver, backend: Backend, userDAO: AccountDAO)
+case class Vocabularies @Inject()(implicit globalConfig: global.GlobalConfig, searchDispatcher: Dispatcher, searchIndexer: Indexer, searchResolver: Resolver, backend: Backend, userDAO: AccountManager)
   extends AdminController
   with CRUD[VocabularyF,Vocabulary]
   with Creator[ConceptF, Concept, Vocabulary]

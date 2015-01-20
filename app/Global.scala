@@ -2,6 +2,8 @@
  * The application global object.
  */
 
+import auth.AccountManager
+import auth.sql.SqlAccountManager
 import backend.helpdesk.EhriHelpdesk
 import backend.parse.ParseFeedbackDAO
 import backend.rest._
@@ -9,8 +11,6 @@ import backend.{Backend, EventHandler, FeedbackDAO, IdGenerator, _}
 import com.google.inject.{AbstractModule, Guice}
 import com.typesafe.plugin.{CommonsMailerPlugin, MailerAPI}
 import global.GlobalConfig
-import models.AccountDAO
-import models.sql.SqlAccount
 import play.api._
 import play.api.mvc.{RequestHeader, Result, WithFilters}
 import play.filters.csrf._
@@ -36,7 +36,7 @@ object Global extends WithFilters(CSRFFilter()) with GlobalSettings {
   private def feedbackDAO: FeedbackDAO = new ParseFeedbackDAO
   private def helpdeskDAO: HelpdeskDAO = new EhriHelpdesk
   private def idGenerator: IdGenerator = new CypherIdGenerator(idFormat = "%06d")
-  private def userDAO: AccountDAO = SqlAccount
+  private def userDAO: AccountManager = SqlAccountManager()
   private def mailer: MailerAPI = new CommonsMailerPlugin(current).email
 
   private val eventHandler = new EventHandler {
@@ -80,7 +80,7 @@ object Global extends WithFilters(CSRFFilter()) with GlobalSettings {
       bind(classOf[HelpdeskDAO]).toInstance(helpdeskDAO)
       bind(classOf[IdGenerator]).toInstance(idGenerator)
       bind(classOf[MailerAPI]).toInstance(mailer)
-      bind(classOf[AccountDAO]).toInstance(userDAO)
+      bind(classOf[AccountManager]).toInstance(userDAO)
     }
   })
 

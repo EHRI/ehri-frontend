@@ -1,14 +1,15 @@
 package controllers.linking
 
+import auth.AccountManager
 import forms.VisibilityForm
-import models.{LinkF, AccountDAO, Link}
+import models.{LinkF, Link}
 import com.google.inject._
 import controllers.generic._
 import backend.Backend
 import controllers.base.AdminController
 
 
-case class Links @Inject()(implicit globalConfig: global.GlobalConfig, backend: Backend, userDAO: AccountDAO)
+case class Links @Inject()(implicit globalConfig: global.GlobalConfig, backend: Backend, userDAO: AccountManager)
   extends AdminController
   with Read[Link]
   with Visibility[Link]

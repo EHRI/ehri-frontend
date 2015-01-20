@@ -1,9 +1,8 @@
 package integration
 
 import helpers._
-import models.UserProfile
+import models.{Account, UserProfile}
 import defines._
-import models.MockAccount
 import backend.ApiUser
 
 /**
@@ -19,7 +18,7 @@ import backend.ApiUser
  *  - create a doc in the repo
  *  - check that the user cannot write outside the country
  */
-class CountryScopeIntegrationSpec extends IntegrationTestRunner {
+class CountryScopeIntegrationSpec extends IntegrationTestRunner with TestHelpers {
   import mocks.privilegedUser
 
   implicit val apiUser: ApiUser = ApiUser(Some(privilegedUser.id))
@@ -97,7 +96,7 @@ class CountryScopeIntegrationSpec extends IntegrationTestRunner {
       // TESTING MAGIC!!! We have to create an account for subsequent logins...
       // Then we add the account to the user fixtures (instead of adding it to the database,
       // which we don't have while testing.)
-      val fakeAccount = MockAccount(userId, "test-user@example.com", verified = true, staff = true)
+      val fakeAccount = Account(userId, "test-user@example.com", verified = true, staff = true)
       mocks.userFixtures += fakeAccount.id -> fakeAccount
 
       // Check the user can read their profile as themselves...

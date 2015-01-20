@@ -1,15 +1,13 @@
 package controllers.core.auth.openid
 
 import controllers.base.AuthController
-import models.sql.OpenIDAssociation
-import models.{UserProfile, Account, AccountDAO}
+import models.{UserProfile, Account}
 import play.api.libs.openid._
 import play.api.libs.concurrent.Execution.Implicits._
 import play.api._
 import play.api.mvc._
 import concurrent.Future
-import scala.concurrent.Future.{successful => immediate}
-import backend.{AnonymousUser, ApiUser, Backend}
+import backend.{AnonymousUser, Backend}
 import play.api.data.Form
 import play.api.data.Forms._
 import play.api.mvc.Result
@@ -27,7 +25,7 @@ trait OpenIDLoginHandler extends AccountHelpers {
   val backend: Backend
   val globalConfig: global.GlobalConfig
 
-  val userDAO: AccountDAO
+  val userDAO: auth.AccountManager
 
   val attributes = Seq(
     "email" -> "http://schema.openid.net/contact/email",
@@ -93,40 +91,50 @@ trait OpenIDLoginHandler extends AccountHelpers {
       OpenID.verifiedId.flatMap { info =>
 
         // check if there's a user with the right id
-        OpenIDAssociation.findByUrl(info.id).map { assoc =>
-
-          // NOTE: If this user exists in the auth DB but not on the REST
-          // server we have a bit of a problem at present...
-          Logger.logger.info("User '{}' logged in via OpenId", assoc.user.get.id)
-          block(OpenIdCallbackRequest(Right(assoc.user.get), request))
-        } getOrElse {
-
-          val email = extractEmail(info.attributes)
-            .getOrElse(sys.error("Unable to retrieve email info via OpenID"))
-
-          val data = Map("name" -> extractName(info.attributes)
-            .getOrElse(sys.error("Unable to retrieve name info via OpenID")))
-
-          userDAO.findByEmail(email).map { acc =>
-            OpenIDAssociation.addAssociation(acc, info.id)
-            Logger.logger.info("User '{}' created OpenID association", acc.id)
-            block(OpenIdCallbackRequest(Right(acc), request))
-
+        userDAO.openid.findByUrl(info.id).flatMap { assocOpt =>
+          assocOpt.map { assoc =>
+            Logger.logger.info("User '{}' logged in via OpenId", assoc.user.get.id)
+            block(OpenIdCallbackRequest(Right(assoc.user.get), request))
           } getOrElse {
-            implicit val apiUser = AnonymousUser
-            backend.createNewUserProfile[UserProfile](data, groups = defaultPortalGroups).flatMap { up =>
-              val account = userDAO.create(up.id, email.toLowerCase, verified = true,
-                staff = false, allowMessaging = canMessage)
-              OpenIDAssociation.addAssociation(account, info.id)
-              Logger.logger.info("User '{}' created OpenID account", account.id)
-              block(OpenIdCallbackRequest(Right(account), request))
+            val email = extractEmail(info.attributes)
+              .getOrElse(sys.error("Unable to retrieve email info via OpenID"))
+
+            val data = Map("name" -> extractName(info.attributes)
+              .getOrElse(sys.error("Unable to retrieve name info via OpenID")))
+
+            userDAO.findByEmail(email).flatMap { accountOpt =>
+              accountOpt.map { account =>
+                Logger.logger.info("User '{}' created OpenID association", account.id)
+                for {
+                  _ <- userDAO.openid.addAssociation(account, info.id)
+                  r <- block(OpenIdCallbackRequest(Right(account), request))
+                } yield r
+              } getOrElse {
+                implicit val apiUser = AnonymousUser
+                for {
+                  up <- backend.createNewUserProfile[UserProfile](data, groups = defaultPortalGroups)
+                  account <- userDAO.create(Account(
+                    id = up.id,
+                    email = email.toLowerCase,
+                    verified = true,
+                    staff = false,
+                    active = true,
+                    allowMessaging = canMessage
+                  ))
+                  _ <- userDAO.openid.addAssociation(account, info.id)
+                  r <- block(OpenIdCallbackRequest(Right(account), request))
+                } yield {
+                  Logger.logger.info("User '{}' created OpenID account", account.id)
+                  r
+                }
+              }
             }
           }
+        } recoverWith {
+          case t => block(OpenIdCallbackRequest(
+            Left(openidForm.withGlobalError("error.openId", t.getMessage)), request))
+            .map(_.flashing("error" -> Messages("error.openId", t.getMessage)))
         }
-      } recoverWith {
-        case t => block(OpenIdCallbackRequest(
-          Left(openidForm.withGlobalError("error.openId", t.getMessage)), request))
-          .map(_.flashing("error" -> Messages("error.openId", t.getMessage)))
       }
     }
   }

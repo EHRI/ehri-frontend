@@ -1,5 +1,6 @@
 package controllers.portal
 
+import auth.AccountManager
 import play.api.Play.current
 import controllers.generic.Search
 import models._
@@ -9,9 +10,6 @@ import views.html.p
 import utils.search._
 import defines.EntityType
 import backend.{IdGenerator, Backend}
-import controllers.base.SessionPreferences
-import utils._
-
 import com.google.inject._
 import scala.concurrent.Future
 import controllers.portal.base.{Generic, PortalController}
@@ -19,7 +17,7 @@ import controllers.portal.base.{Generic, PortalController}
 
 @Singleton
 case class VirtualUnits @Inject()(implicit globalConfig: global.GlobalConfig, searchDispatcher: Dispatcher, searchResolver: Resolver, backend: Backend,
-    userDAO: AccountDAO, idGenerator: IdGenerator)
+    userDAO: AccountManager, idGenerator: IdGenerator)
   extends PortalController
   with Generic[VirtualUnit]
   with Search

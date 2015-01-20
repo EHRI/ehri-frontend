@@ -1,5 +1,6 @@
 package controllers.institutions
 
+import auth.AccountManager
 import play.api.libs.concurrent.Execution.Implicits._
 import forms.VisibilityForm
 import controllers.generic._
@@ -17,7 +18,7 @@ import controllers.base.AdminController
 
 
 @Singleton
-case class Repositories @Inject()(implicit globalConfig: global.GlobalConfig, searchDispatcher: Dispatcher, searchIndexer: Indexer, searchResolver: Resolver, backend: Backend, userDAO: AccountDAO)
+case class Repositories @Inject()(implicit globalConfig: global.GlobalConfig, searchDispatcher: Dispatcher, searchIndexer: Indexer, searchResolver: Resolver, backend: Backend, userDAO: AccountManager)
   extends AdminController
   with Read[Repository]
   with Update[RepositoryF, Repository]

@@ -18,7 +18,7 @@ import play.api.test.Helpers._
  * extra work before it returns.
  */
 class WithSqlFixtures(val app: FakeApplication) extends Around with Scope {
-  implicit def implicitApp = app
+  implicit def implicitApp: FakeApplication = app
   override def around[T: AsResult](t: => T): Result = {
     running(app) {
       loadSqlFixtures

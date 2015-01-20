@@ -1,5 +1,6 @@
 package helpers
 
+import auth.{MockAccountManager, AccountManager}
 import backend.HelpdeskDAO.HelpdeskResponse
 import backend._
 import backend.helpdesk.{MockFeedbackDAO, MockHelpdeskDAO}
@@ -10,7 +11,7 @@ import controllers.base.AuthConfigImpl
 import global.GlobalConfig
 import jp.t2v.lab.play2.auth.test.Helpers._
 import mocks.{MockBufferedMailer, _}
-import models.{Account, AccountDAO, Feedback, MockAccountDAO}
+import models.{Account, Feedback}
 import play.api.GlobalSettings
 import play.api.http.{HeaderNames, MimeTypes}
 import play.api.mvc.{RequestHeader, WithFilters}
@@ -50,7 +51,7 @@ trait TestConfiguration {
   def mockIndexer: Indexer = new MockSearchIndexer(indexEventBuffer)
   // NB: The mutable state for the user DAO is still stored globally
   // in the mocks package.
-  def mockUserDAO: AccountDAO = MockAccountDAO
+  def mockUserDAO: AccountManager = MockAccountManager()
 
   // More or less the same as run config but synchronous (so
   // we can validate the actions)
@@ -85,7 +86,7 @@ trait TestConfiguration {
         bind(classOf[HelpdeskDAO]).toInstance(mockHelpdesk)
         bind(classOf[IdGenerator]).toInstance(idGenerator)
         bind(classOf[MailerAPI]).toInstance(mockMailer)
-        bind(classOf[AccountDAO]).toInstance(mockUserDAO)
+        bind(classOf[AccountManager]).toInstance(mockUserDAO)
       }
     })
 

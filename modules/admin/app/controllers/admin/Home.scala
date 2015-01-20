@@ -1,7 +1,8 @@
 package controllers.admin
 
+import auth.AccountManager
 import play.api.libs.concurrent.Execution.Implicits._
-import models.{SystemEvent, AccountDAO, Isaar}
+import models.{SystemEvent, Isaar}
 import models.base.{Description, AnyModel}
 import controllers.generic.Search
 import play.api.mvc._
@@ -20,7 +21,7 @@ import controllers.base.AdminController
 
 
 @Singleton
-case class Home @Inject()(implicit globalConfig: global.GlobalConfig, searchDispatcher: Dispatcher, searchResolver: Resolver, backend: Backend, userDAO: AccountDAO) extends AdminController with Search {
+case class Home @Inject()(implicit globalConfig: global.GlobalConfig, searchDispatcher: Dispatcher, searchResolver: Resolver, backend: Backend, userDAO: AccountManager) extends AdminController with Search {
 
   val searchEntities = List(
     EntityType.DocumentaryUnit,

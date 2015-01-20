@@ -1,8 +1,8 @@
 package controllers.portal.social
 
+import auth.AccountManager
 import play.api.libs.concurrent.Execution.Implicits._
-import controllers.base.SessionPreferences
-import models.{SystemEvent, UserProfile, AccountDAO}
+import models.{SystemEvent, UserProfile}
 import views.html.p
 import utils._
 import utils.search._
@@ -19,7 +19,6 @@ import models.base.AnyModel
 import play.api.mvc.Result
 import backend.ApiUser
 import com.typesafe.plugin.MailerAPI
-import controllers.portal.Secured
 import controllers.portal.base.PortalController
 
 /**
@@ -30,7 +29,8 @@ import controllers.portal.base.PortalController
  * just lists of IDs.
  */
 @Singleton
-case class Social @Inject()(implicit globalConfig: global.GlobalConfig, searchDispatcher: Dispatcher, searchResolver: Resolver, backend: Backend, userDAO: AccountDAO,
+case class Social @Inject()(implicit globalConfig: global.GlobalConfig, searchDispatcher: Dispatcher,
+                            searchResolver: Resolver, backend: Backend, userDAO: AccountManager,
     mailer: MailerAPI)
   extends PortalController {
 
@@ -208,37 +208,40 @@ case class Social @Inject()(implicit globalConfig: global.GlobalConfig, searchDi
     // an account we don't have an email, so we can't
     // message them... Ignore accounts which have disabled
     // messaging.
-    userDAO.findByProfileId(recipientId).filter(_.allowMessaging).map { account =>
-      // If the recipient is blocking the sender they can't send
-      // a message.
-      backend.isBlocking(recipientId, senderId).map(blocking => !blocking)
-    } getOrElse {
-      Future.successful(false)
+    userDAO.findById(recipientId).flatMap {
+      case Some(account) if account.allowMessaging =>
+        backend.isBlocking(recipientId, senderId).map(blocking => !blocking)
+      case _ => Future.successful(false)
     }
   }
 
-  private def sendMessageEmail(from: UserProfile, to: UserProfile, subject: String, message: String, copy: Boolean)(implicit request: RequestHeader): Unit = {
+  private def sendMessageEmail(from: UserProfile, to: UserProfile, subject: String, message: String, copy: Boolean)(implicit request: RequestHeader): Future[Unit] = {
     for {
-      accFrom <- userDAO.findByProfileId(from.id)
-      accTo <- userDAO.findByProfileId(to.id)
+      accFromOpt <- userDAO.findById(from.id)
+      accToOpt <- userDAO.findById(to.id)
     } yield {
-      val heading = Messages("mail.message.heading", from.toStringLang)
-      mailer
-        .setSubject(Messages("mail.message.subject", from.toStringLang, subject))
-        .setRecipient(accTo.email)
-        .setReplyTo(accFrom.email)
-        .setFrom("EHRI User <noreply@ehri-project.eu>")
-        .send(views.txt.p.social.mail.messageEmail(heading, subject, message).body,
-        views.html.p.social.mail.messageEmail(heading, subject, message).body)
-
-      if (copy) {
-        val copyHeading = Messages("mail.message.copy.heading", to.toStringLang)
+      for {
+        accFrom <- accFromOpt
+        accTo <- accToOpt
+      } yield {
+        val heading = Messages("mail.message.heading", from.toStringLang)
         mailer
-          .setSubject(Messages("mail.message.copy.subject", to.toStringLang, subject))
-          .setRecipient(accFrom.email)
+          .setSubject(Messages("mail.message.subject", from.toStringLang, subject))
+          .setRecipient(accTo.email)
+          .setReplyTo(accFrom.email)
           .setFrom("EHRI User <noreply@ehri-project.eu>")
-          .send(views.txt.p.social.mail.messageEmail(copyHeading, subject, message, isCopy = true).body,
-          views.html.p.social.mail.messageEmail(copyHeading, subject, message, isCopy = true).body)
+          .send(views.txt.p.social.mail.messageEmail(heading, subject, message).body,
+            views.html.p.social.mail.messageEmail(heading, subject, message).body)
+
+        if (copy) {
+          val copyHeading = Messages("mail.message.copy.heading", to.toStringLang)
+          mailer
+            .setSubject(Messages("mail.message.copy.subject", to.toStringLang, subject))
+            .setRecipient(accFrom.email)
+            .setFrom("EHRI User <noreply@ehri-project.eu>")
+            .send(views.txt.p.social.mail.messageEmail(copyHeading, subject, message, isCopy = true).body,
+              views.html.p.social.mail.messageEmail(copyHeading, subject, message, isCopy = true).body)
+        }
       }
     }
   }

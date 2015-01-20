@@ -1,19 +1,17 @@
 package controllers.portal.guides
 
+import auth.AccountManager
 import backend.Backend
 import com.google.inject._
-import controllers.base.SessionPreferences
-import controllers.portal.Secured
 import controllers.portal.base.{Generic, PortalController}
 import models.{Guide, GuidePage, _}
-import utils._
 import utils.search.{Dispatcher, Resolver}
 import views.html.p
 
 
 @Singleton
 case class Repositories @Inject()(implicit globalConfig: global.GlobalConfig, searchDispatcher: Dispatcher, searchResolver: Resolver, backend: Backend,
-                            userDAO: AccountDAO)
+                            userDAO: AccountManager)
   extends PortalController
   with Generic[Repository] {
 

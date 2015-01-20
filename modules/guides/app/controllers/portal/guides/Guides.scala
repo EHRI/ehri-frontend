@@ -1,5 +1,6 @@
 package controllers.portal.guides
 
+import auth.AccountManager
 import controllers.portal.FacetConfig
 import play.api.Routes
 import play.api.cache.Cached
@@ -36,7 +37,7 @@ import controllers.portal.base.PortalController
 
 @Singleton
 case class Guides @Inject()(implicit globalConfig: global.GlobalConfig, searchDispatcher: Dispatcher, searchResolver: Resolver, backend: Backend,
-                            userDAO: AccountDAO)
+                            userDAO: AccountManager)
   extends PortalController
   with Search
   with FacetConfig {

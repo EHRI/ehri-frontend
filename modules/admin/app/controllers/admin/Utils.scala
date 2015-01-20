@@ -1,7 +1,8 @@
 package controllers.admin
 
-import controllers.base.{AdminController, AuthController, ControllerHelpers}
-import models.{Account, AccountDAO, Group}
+import auth.AccountManager
+import controllers.base.AdminController
+import models.{Account, Group}
 import play.api.libs.concurrent.Execution.Implicits._
 
 import com.google.inject._
@@ -16,7 +17,7 @@ import backend.rest.cypher.CypherDAO
  * Controller for various monitoring functions.
  */
 @Singleton
-case class Utils @Inject()(implicit globalConfig: global.GlobalConfig, backend: Backend, userDAO: AccountDAO)
+case class Utils @Inject()(implicit globalConfig: global.GlobalConfig, backend: Backend, userDAO: AccountManager)
     extends AdminController with RestDAO {
 
   override val staffOnly = false
@@ -44,8 +45,8 @@ case class Utils @Inject()(implicit globalConfig: global.GlobalConfig, backend: 
    * the graph DB, and vice versa.
    */
   val checkUserSync = Action.async { implicit request =>
-    val accounts: Seq[Account] = userDAO.findAll(PageParams.empty.withoutLimit)
     for {
+      accounts <- userDAO.findAll(PageParams.empty.withoutLimit)
       profileIds <- CypherDAO().get(
         """START n = node:entities("__ISA__:userProfile")
           |RETURN n.__ID__

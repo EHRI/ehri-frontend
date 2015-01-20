@@ -1,10 +1,10 @@
 package integration
 
-import helpers.{formPostHeaders,IntegrationTestRunner}
+import helpers.{TestHelpers, IntegrationTestRunner}
 import models._
 
 
-class VirtualUnitViewsSpec extends IntegrationTestRunner {
+class VirtualUnitViewsSpec extends IntegrationTestRunner with TestHelpers {
   import mocks.{privilegedUser, unprivilegedUser}
 
   val userProfile = UserProfile(

@@ -1,5 +1,6 @@
 package controllers.portal.account
 
+import auth.{HashedPassword, AccountManager}
 import play.api.data.Form
 import play.api.mvc._
 import models._
@@ -30,7 +31,7 @@ import controllers.portal.base.PortalController
  */
 @Singleton
 case class Accounts @Inject()(implicit globalConfig: GlobalConfig, searchDispatcher: Dispatcher, searchResolver: Resolver, backend: Backend,
-                             userDAO: AccountDAO, mailer: MailerAPI)
+                             userDAO: AccountManager, mailer: MailerAPI)
   extends LoginLogout
   with PortalController
   with OpenIDLoginHandler
@@ -69,10 +70,8 @@ case class Accounts @Inject()(implicit globalConfig: GlobalConfig, searchDispatc
     lazy val parser = action.parser
   }
 
-  private def doLogin(account: Account)(implicit request: RequestHeader): Future[Result] = {
-    account.setLoggedIn()
-    gotoLoginSucceeded(account.id)
-  }
+  private def doLogin(account: Account)(implicit request: RequestHeader): Future[Result] =
+    userDAO.setLoggedIn(account).flatMap(_ => gotoLoginSucceeded(account.id))
 
   object NotReadOnlyAction extends ActionBuilder[Request] {
     def invokeBlock[A](request: Request[A], block: (Request[A]) => Future[Result]) = {
@@ -115,46 +114,56 @@ case class Accounts @Inject()(implicit globalConfig: GlobalConfig, searchDispatc
       )
     }
 
-    checkRecapture.flatMap { ok =>
-      val boundForm: Form[SignupData] = SignupData.form.bindFromRequest
-      if (!ok) {
+    val boundForm: Form[SignupData] = SignupData.form.bindFromRequest
+
+    checkRecapture.flatMap {
+      case false =>
         badForm(boundForm.withGlobalError("error.badRecaptcha"))
-      } else if (!checkRateLimit(request)) {
+      case true if !checkRateLimit(request) =>
         badForm(boundForm.withGlobalError(rateLimitError), TooManyRequest)
-      } else {
+      case true =>
         boundForm.fold(
           errForm => badForm(errForm),
           data => {
-            userDAO.findByEmail(data.email).map { _ =>
-              badForm(boundForm.withError(SignupData.EMAIL, "error.emailExists"))
-            } getOrElse {
-              implicit val apiUser = AnonymousUser
-              backend.createNewUserProfile[UserProfile](
-                  data = Map(UserProfileF.NAME -> data.name), groups = defaultPortalGroups)
-                  .flatMap { userProfile =>
-                val account = userDAO.createWithPassword(userProfile.id, data.email.toLowerCase,
-                    verified = false, staff = false, allowMessaging = data.allowMessaging,
-                  userDAO.hashPassword(data.password))
+            userDAO.findByEmail(data.email).flatMap {
+              case Some(_) =>
+                badForm(boundForm.withError(SignupData.EMAIL, "error.emailExists"))
+              case None =>
+                implicit val apiUser = AnonymousUser
                 val uuid = UUID.randomUUID()
-                account.createValidationToken(uuid)
-                sendValidationEmail(data.email, uuid)
-
-                doLogin(account)
-                  .map(_.flashing("success" -> "signup.confirmation"))
-              }
+                for {
+                  up <- backend.createNewUserProfile[UserProfile](
+                    data = Map(UserProfileF.NAME -> data.name), groups = defaultPortalGroups)
+                  account <- userDAO.create(Account(
+                    id = up.id,
+                    email = data.email.toLowerCase,
+                    verified = false,
+                    active = true,
+                    staff = false,
+                    allowMessaging = data.allowMessaging,
+                    password = Some(HashedPassword.fromPlain(data.password))
+                  ))
+                  _ <- userDAO.createValidationToken(account, uuid)
+                  result <- doLogin(account)
+                    .map(_.flashing("success" -> "signup.confirmation"))
+                } yield {
+                  sendValidationEmail(data.email, uuid)
+                  result
+                }
             }
           }
         )
-      }
     }
   }
 
   def confirmEmail(token: String) = NotReadOnlyAction.async { implicit request =>
-    userDAO.findByResetToken(token, isSignUp = true).map { account =>
-      account.verify(token)
-      doLogin(account)
-        .map(_.flashing("success" -> "signup.validation.confirmation"))
-    } getOrElse {
+    userDAO.findByResetToken(token, isSignUp = true).flatMap {
+      case Some(account) => for {
+        _ <- userDAO.verify(account, token)
+        result <- doLogin(account)
+          .map(_.flashing("success" -> "signup.validation.confirmation"))
+      } yield result
+      case None =>
       immediate(BadRequest(
           views.html.errors.itemNotFound(Some(Messages("signup.validation.badToken")))))
     }
@@ -313,27 +322,28 @@ case class Accounts @Inject()(implicit globalConfig: GlobalConfig, searchDispatc
       account, errForm, accountRoutes.changePasswordPost())))
   }
 
-  def resetPassword(token: String) = OptionalUserAction { implicit request =>
-    userDAO.findByResetToken(token).fold(
-      ifEmpty = Redirect(accountRoutes.forgotPassword())
+  def resetPassword(token: String) = OptionalUserAction.async { implicit request =>
+    userDAO.findByResetToken(token).map {
+      case Some(account) => Ok(views.html.p.account.resetPassword(resetPasswordForm,
+        accountRoutes.resetPasswordPost(token)))
+      case _ => Redirect(accountRoutes.forgotPassword())
         .flashing("error" -> "login.error.badResetToken")
-    )(
-      account =>
-        Ok(views.html.p.account.resetPassword(resetPasswordForm,
-          accountRoutes.resetPasswordPost(token)))
-      )
+    }
   }
 
-  def resendVerificationPost() = WithUserAction { implicit request =>
-    request.user.account.map { account =>
-      val uuid = UUID.randomUUID()
-      account.createValidationToken(uuid)
-      sendValidationEmail(account.email, uuid)
-      val redirect = request.headers.get(HttpHeaders.REFERER)
-        .getOrElse(portalRoutes.index().url)
-      Redirect(redirect)
-        .flashing("success" -> "mail.emailConfirmationResent")
-    }.getOrElse(Unauthorized)
+  def resendVerificationPost() = WithUserAction.async { implicit request =>
+    request.user.account match {
+      case Some(account) =>
+        val uuid = UUID.randomUUID()
+        userDAO.createValidationToken(account, uuid).map { _ =>
+          sendValidationEmail(account.email, uuid)
+          val redirect = request.headers.get(HttpHeaders.REFERER)
+            .getOrElse(portalRoutes.index().url)
+          Redirect(redirect)
+            .flashing("success" -> "mail.emailConfirmationResent")
+        }
+      case _ => authorizationFailed(request)
+    }
   }
 
   def resetPasswordPost(token: String) = ResetPasswordAction(token).async { implicit request =>

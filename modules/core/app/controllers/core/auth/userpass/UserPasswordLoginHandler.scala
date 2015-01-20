@@ -1,7 +1,8 @@
 package controllers.core.auth.userpass
 
+import auth.HashedPassword
 import play.api.libs.concurrent.Execution.Implicits._
-import models.{UserProfile, Account, AccountDAO}
+import models.{UserProfile, Account}
 import play.api.mvc._
 import scala.concurrent.Future
 import scala.concurrent.Future.{successful => immediate}
@@ -21,7 +22,7 @@ trait UserPasswordLoginHandler {
 
   self: Controller with AuthController with LoginLogout =>
 
-  val userDAO: AccountDAO
+  val userDAO: auth.AccountManager
 
   val passwordLoginForm = Form(
     tuple(
@@ -60,11 +61,13 @@ trait UserPasswordLoginHandler {
         errorForm => block(UserPasswordLoginRequest(Left(errorForm), request)),
         data => {
           val (email, pw) = data
-          userDAO.authenticate(email, pw).map { account =>
-            Logger.logger.info("User '{}' logged in via password", account.id)
-            block(UserPasswordLoginRequest(Right(account), request))
-          } getOrElse {
-            block(UserPasswordLoginRequest(Left(boundForm.withGlobalError("login.error.badUsernameOrPassword")), request))
+          userDAO.authenticate(email, pw).flatMap {
+            case Some(account) =>
+              Logger.logger.info("User '{}' logged in via password", account.id)
+              block(UserPasswordLoginRequest(Right(account), request))
+            case None =>
+              block(UserPasswordLoginRequest(Left(boundForm
+                .withGlobalError("login.error.badUsernameOrPassword")), request))
           }
         }
       )
@@ -81,24 +84,25 @@ trait UserPasswordLoginHandler {
   protected def ForgotPasswordAction = OptionalUserAction andThen new ActionTransformer[OptionalUserRequest, ForgotPasswordRequest] {
     override protected def transform[A](request: OptionalUserRequest[A]): Future[ForgotPasswordRequest[A]] = {
       implicit val r = request
-      checkRecapture.map { ok =>
-        if (!ok) {
+      checkRecapture.flatMap {
+        case false =>
           val form = forgotPasswordForm.withGlobalError("error.badRecaptcha")
-          ForgotPasswordRequest(Left(form), request.userOpt, request)
-        } else {
+          immediate(ForgotPasswordRequest(Left(form), request.userOpt, request))
+        case true =>
           forgotPasswordForm.bindFromRequest.fold({ errForm =>
-            ForgotPasswordRequest(Left(errForm), request.userOpt, request)
+            immediate(ForgotPasswordRequest(Left(errForm), request.userOpt, request))
           }, { email =>
-            userDAO.findByEmail(email).map { account =>
-              val uuid = UUID.randomUUID()
-              account.createResetToken(uuid)
-              ForgotPasswordRequest(Right((account, uuid)), request.userOpt, request)
-            }.getOrElse {
-              val form = forgotPasswordForm.withError("email", "error.emailNotFound")
-              ForgotPasswordRequest(Left(form), request.userOpt, request)
+            userDAO.findByEmail(email).flatMap {
+              case Some(account) =>
+                val uuid = UUID.randomUUID()
+                for {
+                  _ <- userDAO.createResetToken(account, uuid)
+                } yield ForgotPasswordRequest(Right((account, uuid)), request.userOpt, request)
+              case None =>
+                val form = forgotPasswordForm.withError("email", "error.emailNotFound")
+                immediate(ForgotPasswordRequest(Left(form), request.userOpt, request))
             }
           })
-        }
       }
     }
   }
@@ -110,24 +114,23 @@ trait UserPasswordLoginHandler {
   ) extends WrappedRequest[A](request)
   
   protected def ChangePasswordAction = WithUserAction andThen new ActionTransformer[WithUserRequest, ChangePasswordRequest] {
-    override protected def transform[A](request: WithUserRequest[A]): Future[ChangePasswordRequest[A]] = immediate {
+    override protected def transform[A](request: WithUserRequest[A]): Future[ChangePasswordRequest[A]] = {
       implicit val r = request
       val form = changePasswordForm.bindFromRequest
       form.fold(
-        errorForm => ChangePasswordRequest(Some(errorForm), request.user, request),
+        errorForm => immediate(ChangePasswordRequest(Some(errorForm), request.user, request)),
         data => {
           val (current, newPw, _) = data
 
           (for {
             account <- request.user.account
             hashedPw <- account.password if hashedPw.check(current)
-          } yield {
-            account.setPassword(userDAO.hashPassword(newPw))
+          } yield userDAO.update(account.copy(password = Some(hashedPw))).map { updated =>
             ChangePasswordRequest(None, request.user, request)
           }) getOrElse {
-            ChangePasswordRequest(
+            immediate(ChangePasswordRequest(
               Some(form.withGlobalError("login.error.badUsernameOrPassword")),
-              request.user, request)
+              request.user, request))
           }
         }
       )
@@ -142,20 +145,21 @@ trait UserPasswordLoginHandler {
     with WithOptionalUser
 
   protected def ResetPasswordAction(token: String) = OptionalUserAction andThen new ActionTransformer[OptionalUserRequest, ResetPasswordRequest] {
-    override protected def transform[A](request: OptionalUserRequest[A]): Future[ResetPasswordRequest[A]] = immediate {
+    override protected def transform[A](request: OptionalUserRequest[A]): Future[ResetPasswordRequest[A]] = {
       implicit val r = request
       val form: Form[(String, String)] = resetPasswordForm.bindFromRequest
       form.fold(
-        errForm => ResetPasswordRequest(Left(errForm), request.userOpt, request),
+        errForm => immediate(ResetPasswordRequest(Left(errForm), request.userOpt, request)),
         { case (pw, _) =>
-        userDAO.findByResetToken(token).map { account =>
-          account.setPassword(userDAO.hashPassword(pw))
-          account.expireTokens()
-          ResetPasswordRequest(Right(account), request.userOpt, request)
-        }.getOrElse {
-          ResetPasswordRequest(
-            Left(form.withGlobalError("login.error.badResetToken")), request.userOpt, request)
-        }
+          userDAO.findByResetToken(token).flatMap {
+            case Some(account) =>
+              for {
+                _ <- userDAO.expireTokens(account)
+                updated <- userDAO.update(account.copy(password = Some(HashedPassword.fromPlain(pw))))
+              } yield ResetPasswordRequest(Right(updated), request.userOpt, request)
+            case None => immediate(ResetPasswordRequest(
+              Left(form.withGlobalError("login.error.badResetToken")), request.userOpt, request))
+          }
       })
     }
   }

@@ -1,13 +1,13 @@
 package controllers.portal.annotate
 
+import auth.AccountManager
 import play.api.libs.concurrent.Execution.Implicits._
 import play.api.mvc._
-import controllers.base.SessionPreferences
 import controllers.generic.{Search, Read, Promotion, Visibility}
 import models.{AnnotationF, Annotation, UserProfile}
 import play.api.Play.current
 import views.html.p
-import utils.{SessionPrefs, ContributionVisibility}
+import utils.ContributionVisibility
 import scala.concurrent.Future.{successful => immediate}
 import defines.{EntityType, PermissionType}
 import backend.rest.cypher.CypherDAO
@@ -30,7 +30,8 @@ import controllers.portal.base.PortalController
  * @author Mike Bryant (http://github.com/mikesname)
  */
 @Singleton
-case class Annotations @Inject()(implicit globalConfig: global.GlobalConfig, searchDispatcher: Dispatcher, searchResolver: Resolver, backend: Backend, userDAO: models.AccountDAO)
+case class Annotations @Inject()(implicit globalConfig: global.GlobalConfig, searchDispatcher: Dispatcher, searchResolver: Resolver,
+                                 backend: Backend, userDAO: AccountManager)
   extends PortalController
   with Read[Annotation]
   with Visibility[Annotation]

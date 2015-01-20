@@ -1,5 +1,6 @@
 package controllers.keywords
 
+import auth.AccountManager
 import play.api.libs.concurrent.Execution.Implicits._
 import _root_.forms.VisibilityForm
 import controllers.generic._
@@ -17,7 +18,7 @@ import controllers.base.AdminController
 
 
 @Singleton
-case class Concepts @Inject()(implicit globalConfig: global.GlobalConfig, searchDispatcher: Dispatcher, searchResolver: Resolver, backend: Backend, userDAO: AccountDAO)
+case class Concepts @Inject()(implicit globalConfig: global.GlobalConfig, searchDispatcher: Dispatcher, searchResolver: Resolver, backend: Backend, userDAO: AccountManager)
   extends AdminController
   with Creator[ConceptF, Concept, Concept]
   with Visibility[Concept]

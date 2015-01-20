@@ -1,5 +1,6 @@
 package controllers.sets
 
+import auth.AccountManager
 import play.api.libs.concurrent.Execution.Implicits._
 import _root_.forms.VisibilityForm
 import controllers.generic._
@@ -16,7 +17,7 @@ import controllers.base.AdminController
 @Singleton
 case class
 AuthoritativeSets @Inject()(implicit globalConfig: global.GlobalConfig, searchDispatcher: Dispatcher, searchIndexer: Indexer,
-            searchResolver: Resolver, backend: Backend, idGenerator: IdGenerator, userDAO: AccountDAO)
+            searchResolver: Resolver, backend: Backend, idGenerator: IdGenerator, userDAO: AccountManager)
   extends AdminController
   with CRUD[AuthoritativeSetF,AuthoritativeSet]
   with Creator[HistoricalAgentF, HistoricalAgent, AuthoritativeSet]

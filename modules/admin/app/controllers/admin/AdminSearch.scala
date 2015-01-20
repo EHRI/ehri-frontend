@@ -1,8 +1,8 @@
 package controllers.admin
 
+import auth.AccountManager
 import play.api.libs.concurrent.Execution.Implicits._
 import play.api.libs.iteratee.{Concurrent, Enumerator}
-import models.AccountDAO
 import concurrent.Future
 import play.api.i18n.Messages
 import views.Helpers
@@ -21,7 +21,7 @@ import controllers.base.AdminController
 
 
 @Singleton
-case class AdminSearch @Inject()(implicit globalConfig: global.GlobalConfig, searchDispatcher: Dispatcher, searchResolver: Resolver, searchIndexer: Indexer, backend: Backend, userDAO: AccountDAO)
+case class AdminSearch @Inject()(implicit globalConfig: global.GlobalConfig, searchDispatcher: Dispatcher, searchResolver: Resolver, searchIndexer: Indexer, backend: Backend, userDAO: AccountManager)
   extends AdminController
   with Search {
 

@@ -16,7 +16,6 @@ import java.util.UUID
 import play.api.Play._
 import play.api.mvc.Result
 import play.api.mvc.Call
-import models.sql.OAuth2Association
 import play.api.libs.json.{JsString, Json}
 import controllers.core.auth.AccountHelpers
 
@@ -32,7 +31,7 @@ trait Oauth2LoginHandler extends AccountHelpers {
 
   val backend: Backend
 
-  val userDAO: AccountDAO
+  val userDAO: auth.AccountManager
 
   private val SSLEnabled = current.configuration.getBoolean("securesocial.ssl").getOrElse(true)
   private val SessionKey = "sid"
@@ -80,31 +79,46 @@ trait Oauth2LoginHandler extends AccountHelpers {
       UserProfileF.NAME -> userData.name,
       UserProfileF.IMAGE_URL -> userData.imageUrl
     )
-    backend.createNewUserProfile[UserProfile](profileData, groups = defaultPortalGroups).map { userProfile =>
-      userDAO.create(userProfile.id, userData.email.toLowerCase, verified = true, staff = false,
-        allowMessaging = canMessage)
-    }
+    for {
+      profile <- backend.createNewUserProfile[UserProfile](profileData, groups = defaultPortalGroups)
+      account <- userDAO.create(Account(
+        id = profile.id,
+        email = userData.email.toLowerCase,
+        verified = true,
+        staff = false,
+        active = true,
+        allowMessaging = canMessage,
+        lastLogin = None,
+        password = None
+      ))
+    } yield account
   }
 
   private def getOrCreateAccount(provider: OAuth2Provider, userData: UserData): Future[Account] = {
-    OAuth2Association.findByProviderInfo(userData.providerId, provider.name).flatMap(_.user).map { account =>
-      Logger.info(s"Found existing association for ${userData.name} -> ${provider.name}")
-      account.setVerified()
-      updateUserInfo(account, userData).map(_ => account)
-    } getOrElse {
-      // User might have an account already so try and find them by email.
-      userDAO.findByEmail(userData.email).map { account =>
-        Logger.info(s"Creating new association for ${userData.name} -> ${provider.name}")
-        account.setVerified()
-        updateUserInfo(account, userData).map(_ => account)
+    userDAO.oauth2.findByProviderInfo(userData.providerId, provider.name).flatMap { assocOpt =>
+      assocOpt.flatMap(_.user).map { account =>
+        Logger.info(s"Found existing association for ${userData.name} -> ${provider.name}")
+        for {
+          updated <- userDAO.update(account.copy(verified = true))
+          _ <- updateUserInfo(updated, userData)
+        } yield updated
       } getOrElse {
-        // We have no existing account, so create a new one...
-        Logger.info(s"Creating new account for ${userData.name} -> ${provider.name}")
-        createNewProfile(userData, provider)
-      } map { account =>
-        // Finally, add an association for this account and ensure it's verified
-        OAuth2Association.addAssociation(account, userData.providerId, provider.name)
-        account
+        userDAO.findByEmail(userData.email).flatMap { accountOpt =>
+          accountOpt.map { account =>
+            Logger.info(s"Creating new association for ${userData.name} -> ${provider.name}")
+            for {
+              updated <- userDAO.update(account.copy(verified = true))
+              _ <- userDAO.oauth2.addAssociation(updated, userData.providerId, userData.name)
+              _ <- updateUserInfo(updated, userData)
+            } yield updated
+          } getOrElse {
+            Logger.info(s"Creating new account for ${userData.name} -> ${provider.name}")
+            for {
+              newAccount <- createNewProfile(userData, provider)
+              _ <- userDAO.oauth2.addAssociation(newAccount, userData.providerId, provider.name)
+            } yield newAccount
+          }
+        }
       }
     }
   }

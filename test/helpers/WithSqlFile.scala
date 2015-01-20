@@ -11,7 +11,7 @@ import play.api.test.Helpers._
  * Run a spec after loading the given resource name as SQL fixtures.
  */
 class WithSqlFile(val resource: String, val app: FakeApplication = FakeApplication()) extends Around with Scope {
-  implicit def implicitApp = app
+  implicit def implicitApp: FakeApplication = app
   override def around[T: AsResult](t: => T): Result = {
     running(app) {
       loadSqlResource(resource)

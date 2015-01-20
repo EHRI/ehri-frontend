@@ -1,5 +1,6 @@
 package controllers.virtual
 
+import auth.AccountManager
 import play.api.libs.concurrent.Execution.Implicits._
 import forms.VisibilityForm
 import models._
@@ -24,7 +25,7 @@ import controllers.base.AdminController
 
 @Singleton
 case class VirtualUnits @Inject()(implicit globalConfig: global.GlobalConfig, searchDispatcher: Dispatcher, idGenerator: IdGenerator,
-                                  searchResolver: Resolver, backend: Backend, userDAO: AccountDAO)
+                                  searchResolver: Resolver, backend: Backend, userDAO: AccountManager)
   extends AdminController
   with Read[VirtualUnit]
   with Visibility[VirtualUnit]

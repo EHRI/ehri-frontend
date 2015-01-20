@@ -1,14 +1,13 @@
 package controllers.portal
 
+import auth.AccountManager
 import play.api.libs.concurrent.Execution.Implicits._
-import backend.{IdGenerator, Backend}
+import backend.Backend
 import com.google.inject.{Inject, Singleton}
-import controllers.base.SessionPreferences
 import controllers.generic.Search
 import controllers.portal.base.{Generic, PortalController}
 import defines.EntityType
-import models.{DocumentaryUnit, AccountDAO}
-import utils.SessionPrefs
+import models.DocumentaryUnit
 import utils.search._
 import views.html.p
 
@@ -17,7 +16,7 @@ import views.html.p
  */
 @Singleton
 case class DocumentaryUnits @Inject()(implicit globalConfig: global.GlobalConfig, searchDispatcher: Dispatcher, searchResolver: Resolver, backend: Backend,
-                                  userDAO: AccountDAO)
+                                  userDAO: AccountManager)
   extends PortalController
   with Generic[DocumentaryUnit]
   with Search

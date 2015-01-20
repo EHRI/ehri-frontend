@@ -1,12 +1,12 @@
-import models.MockAccount
+import models.Account
 
 package object mocks {
 
-  val privilegedUser = MockAccount("mike", "example1@example.com", verified = true, staff = true)
-  val unprivilegedUser = MockAccount("reto", "example2@example.com", verified = true, staff = true)
-  val moderator = MockAccount("linda", "example3@example.com", verified = true, staff = true)
-  val publicUser = MockAccount("joeblogs", "example@aol.com", verified = true, staff = false)
-  val unverifiedUser = MockAccount("bobjohn", "example@yahoo.com", verified = false, staff = false)
+  val privilegedUser = Account("mike", "example1@example.com", verified = true, staff = true, active = true, allowMessaging = true)
+  val unprivilegedUser = Account("reto", "example2@example.com", verified = true, staff = true, active = true, allowMessaging = true)
+  val moderator = Account("linda", "example3@example.com", verified = true, staff = true, active = true, allowMessaging = true)
+  val publicUser = Account("joeblogs", "example@aol.com", verified = true, staff = false, active = true, allowMessaging = true)
+  val unverifiedUser = Account("bobjohn", "example@yahoo.com", verified = false, staff = false, active = true, allowMessaging = true)
 
   // Users...
   val users = Map(

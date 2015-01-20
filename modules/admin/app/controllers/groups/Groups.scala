@@ -1,22 +1,22 @@
 package controllers.groups
 
+import auth.AccountManager
 import play.api.libs.concurrent.Execution.Implicits._
 import controllers.generic._
 import forms.VisibilityForm
-import models.{UserProfile, AccountDAO, Group, GroupF}
+import models.{UserProfile, Group, GroupF}
 import models.base.Accessor
-import defines.{EntityType, PermissionType}
 import com.google.inject._
 import utils.PageParams
 import utils.search.{Resolver, Dispatcher}
 import scala.concurrent.Future
 import backend.Backend
-import backend.rest.{Constants, RestHelpers}
-import play.api.mvc.{Request, AnyContent}
+import backend.rest.Constants
+import play.api.mvc.Request
 import play.api.data.{Forms, Form}
 import controllers.base.AdminController
 
-case class Groups @Inject()(implicit globalConfig: global.GlobalConfig, searchDispatcher: Dispatcher, searchResolver: Resolver, backend: Backend, userDAO: AccountDAO) extends AdminController
+case class Groups @Inject()(implicit globalConfig: global.GlobalConfig, searchDispatcher: Dispatcher, searchResolver: Resolver, backend: Backend, userDAO: AccountManager) extends AdminController
   with PermissionHolder[Group]
   with Visibility[Group]
   with Membership[Group]
@@ -27,9 +27,12 @@ case class Groups @Inject()(implicit globalConfig: global.GlobalConfig, searchDi
 
   def get(id: String) = ItemMetaAction(id).async { implicit request =>
     val params = PageParams.fromRequest(request)
-    backend.listChildren[Group,Accessor](id, params).map { page =>
+    for {
+      page <- backend.listChildren[Group,Accessor](id, params)
+      accounts <- userDAO.findAllById(ids = page.items.collect { case up: UserProfile => up.id })
+    } yield {
       val pageWithAccounts = page.copy(items = page.items.map {
-        case up: UserProfile => up.copy(account = userDAO.findByProfileId(up.id))
+        case up: UserProfile => up.copy(account = accounts.find(_.id == up.id))
         case group => group
       })
       Ok(views.html.admin.group.show(request.item, pageWithAccounts, params, request.annotations))

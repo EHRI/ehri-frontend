@@ -1,7 +1,8 @@
 package controllers.admin
 
+import auth.AccountManager
 import play.api.libs.concurrent.Execution.Implicits._
-import models.{AccountDAO, Isaar}
+import models.Isaar
 import models.base.{Description, AnyModel}
 import controllers.generic.Search
 import play.api.Play.current
@@ -19,7 +20,7 @@ import controllers.base.AdminController
 
 
 @Singleton
-case class Metrics @Inject()(implicit globalConfig: global.GlobalConfig, searchDispatcher: Dispatcher, searchResolver: Resolver, backend: Backend, userDAO: AccountDAO) extends AdminController with Search {
+case class Metrics @Inject()(implicit globalConfig: global.GlobalConfig, searchDispatcher: Dispatcher, searchResolver: Resolver, backend: Backend, userDAO: AccountManager) extends AdminController with Search {
 
   private val metricCacheTime = 60 * 60 // 1 hour
 

@@ -1,7 +1,7 @@
 package controllers.portal.users
 
+import auth.AccountManager
 import play.api.libs.concurrent.Execution.Implicits._
-import controllers.base.SessionPreferences
 import models._
 import play.api.i18n.Messages
 import play.api.mvc._
@@ -28,7 +28,6 @@ import org.joda.time.format.ISODateTimeFormat
 import models.base.AnyModel
 import net.coobird.thumbnailator.Thumbnails
 import com.typesafe.plugin.MailerAPI
-import controllers.portal.Secured
 import controllers.portal.base.{PortalController, PortalAuthConfigImpl}
 
 /**
@@ -36,7 +35,7 @@ import controllers.portal.base.{PortalController, PortalAuthConfigImpl}
  */
 @Singleton
 case class UserProfiles @Inject()(implicit globalConfig: global.GlobalConfig, searchDispatcher: Dispatcher, searchResolver: Resolver, backend: Backend,
-                            userDAO: AccountDAO, mailer: MailerAPI)
+                            userDAO: AccountManager, mailer: MailerAPI)
     extends PortalController
     with LoginLogout
     with PortalAuthConfigImpl {
@@ -224,16 +223,17 @@ case class UserProfiles @Inject()(implicit globalConfig: global.GlobalConfig, se
     }
   }
 
-  def updateAccountPrefsPost() = WithUserAction { implicit request =>
+  def updateAccountPrefsPost() = WithUserAction.async { implicit request =>
     AccountPreferences.form.bindFromRequest.fold(
-      errForm => BadRequest(p.userProfile.editProfile(
-        ProfileData.form, imageForm, errForm)),
-      accountPrefs => {
-        userDAO.findByProfileId(request.user.id).map { acc =>
-          acc.setAllowMessaging(accountPrefs.allowMessaging)
-        }
-        Redirect(profileRoutes.updateProfile())
-          .flashing("success" -> "profile.preferences.updated")
+      errForm => immediate(BadRequest(p.userProfile.editProfile(
+        ProfileData.form, imageForm, errForm))),
+      accountPrefs => userDAO.findById(request.user.id).flatMap {
+        case Some(account) =>
+          userDAO.update(account.copy(allowMessaging = accountPrefs.allowMessaging)).map { _ =>
+            Redirect(profileRoutes.updateProfile())
+              .flashing("success" -> "profile.preferences.updated")
+          }
+        case _ => authenticationFailed(request)
       }
     )
   }
@@ -271,9 +271,10 @@ case class UserProfiles @Inject()(implicit globalConfig: global.GlobalConfig, se
           identifier = request.user.model.identifier, name = request.user.model.identifier,
           active = false)
         backend.update(request.user.id, anonProfile).flatMap { bool =>
-          request.user.account.get.delete()
-          gotoLogoutSucceeded
-            .map(_.flashing("success" -> "profile.profile.delete.confirmation"))
+          userDAO.delete(request.user.account.get).flatMap { _ =>
+            gotoLogoutSucceeded
+              .map(_.flashing("success" -> "profile.profile.delete.confirmation"))
+          }
         }
       }
     )

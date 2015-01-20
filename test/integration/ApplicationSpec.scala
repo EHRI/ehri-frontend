@@ -4,15 +4,15 @@ import org.specs2.mutable._
 import play.api.test._
 import play.api.test.Helpers._
 
-import helpers.{UserFixtures, TestConfiguration}
+import helpers.{TestHelpers, UserFixtures, TestConfiguration}
 import play.api.i18n.Messages
-import models.{SignupData, MockAccount}
+import models.{Account, SignupData}
 import play.api.test.FakeApplication
 
 /**
  * Basic app helpers which don't require a running DB.
  */
-class ApplicationSpec extends Specification with TestConfiguration with UserFixtures {
+class ApplicationSpec extends PlaySpecification with TestConfiguration with UserFixtures with TestHelpers {
   sequential
 
   // Settings specific to this spec...
@@ -73,7 +73,7 @@ class ApplicationSpec extends Specification with TestConfiguration with UserFixt
     }
 
     "deny non-verified users access to admin areas" in {
-      var user = MockAccount("pete", "unverified@example.com", verified = false, staff = true)
+      var user = Account("pete", "unverified@example.com", verified = false, staff = true)
       mocks.userFixtures += user.id -> user
 
       running(FakeApplication(withGlobal = Some(getGlobal), additionalPlugins = getPlugins)) {

@@ -2,12 +2,9 @@ package integration
 
 import helpers._
 import models.{GroupF, Group, UserProfileF, UserProfile}
-import play.api.http.MimeTypes
 
-/**
- * Created by mike on 05/06/13.
- */
-class RepositoryViewsSpec extends IntegrationTestRunner {
+
+class RepositoryViewsSpec extends IntegrationTestRunner with TestHelpers {
   import mocks.{privilegedUser,unprivilegedUser}
 
   private val repoRoutes = controllers.institutions.routes.Repositories
@@ -77,7 +74,7 @@ class RepositoryViewsSpec extends IntegrationTestRunner {
         "publicationStatus" -> Seq("Published")
       )
       val cr = route(fakeLoggedInHtmlRequest(privilegedUser, POST,
-        controllers.countries.routes.Countries.createRepositoryPost(COUNTRY).url).withHeaders(formPostHeaders.toSeq: _*), testData).get
+        controllers.countries.routes.Countries.createRepositoryPost(COUNTRY).url), testData).get
       status(cr) must equalTo(SEE_OTHER)
 
       val show = route(fakeLoggedInHtmlRequest(privilegedUser, GET,
@@ -94,7 +91,7 @@ class RepositoryViewsSpec extends IntegrationTestRunner {
       val testData: Map[String, Seq[String]] = Map(
       )
       val cr = route(fakeLoggedInHtmlRequest(privilegedUser, POST,
-        controllers.countries.routes.Countries.createRepositoryPost(COUNTRY).url).withHeaders(formPostHeaders.toSeq: _*), testData).get
+        controllers.countries.routes.Countries.createRepositoryPost(COUNTRY).url), testData).get
       status(cr) must equalTo(BAD_REQUEST)
     }
 
@@ -103,10 +100,10 @@ class RepositoryViewsSpec extends IntegrationTestRunner {
         "identifier" -> Seq("r1")
       )
       val cr = route(fakeLoggedInHtmlRequest(privilegedUser, POST,
-        controllers.countries.routes.Countries.createRepositoryPost(COUNTRY).url).withHeaders(formPostHeaders.toSeq: _*), testData).get
+        controllers.countries.routes.Countries.createRepositoryPost(COUNTRY).url), testData).get
       status(cr) must equalTo(SEE_OTHER)
       val cr2 = route(fakeLoggedInHtmlRequest(privilegedUser, POST,
-        controllers.countries.routes.Countries.createRepositoryPost(COUNTRY).url).withHeaders(formPostHeaders.toSeq: _*), testData).get
+        controllers.countries.routes.Countries.createRepositoryPost(COUNTRY).url), testData).get
       status(cr2) must equalTo(BAD_REQUEST)
     }
 
@@ -133,7 +130,7 @@ class RepositoryViewsSpec extends IntegrationTestRunner {
         "publicationStatus" -> Seq("Draft")
       )
       val cr = route(fakeLoggedInHtmlRequest(privilegedUser, POST,
-        repoRoutes.updatePost("r1").url).withHeaders(formPostHeaders.toSeq: _*), testData).get
+        repoRoutes.updatePost("r1").url), testData).get
       status(cr) must equalTo(SEE_OTHER)
 
       val show = route(fakeLoggedInHtmlRequest(privilegedUser, GET, redirectLocation(cr).get)).get
@@ -151,7 +148,7 @@ class RepositoryViewsSpec extends IntegrationTestRunner {
         "publicationStatus" -> Seq("Draft")
       )
       val cr = route(fakeLoggedInHtmlRequest(unprivilegedUser, POST,
-        repoRoutes.updatePost("r1").url).withHeaders(formPostHeaders.toSeq: _*), testData).get
+        repoRoutes.updatePost("r1").url), testData).get
       status(cr) must equalTo(FORBIDDEN)
 
       // We can view the item when not logged in...

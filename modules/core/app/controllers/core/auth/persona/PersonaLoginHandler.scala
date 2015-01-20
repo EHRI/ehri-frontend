@@ -1,6 +1,6 @@
 package controllers.core.auth.persona
 
-import models.{UserProfile, Account, AccountDAO}
+import models.{UserProfile, Account}
 import play.api.mvc._
 import play.api.libs.ws.WS
 import play.api.libs.concurrent.Execution.Implicits._
@@ -25,7 +25,7 @@ trait PersonaLoginHandler extends AccountHelpers {
 
   def globalConfig: global.GlobalConfig
   def backend: Backend
-  def userDAO: AccountDAO
+  def userDAO: auth.AccountManager
 
   val PERSONA_URL = "https://verifier.login.persona.org/verify"
   val EHRI_URL = "localhost"; //"http://ehritest.dans.knaw.nl"
@@ -47,15 +47,22 @@ trait PersonaLoginHandler extends AccountHelpers {
             case js @ JsString("okay") =>
               val email: String = (response.json \ "email").as[String]
 
-              userDAO.findByEmail(email) match {
+              userDAO.findByEmail(email.toLowerCase).flatMap {
                 case Some(account) => f(Right(account))(request)
                 case None =>
                   implicit val apiUser = AnonymousUser
-                  backend.createNewUserProfile[UserProfile](groups = defaultPortalGroups).flatMap { up =>
-                    val account = userDAO.create(up.id, email, verified = true, staff = false,
-                      allowMessaging = canMessageUsers)
-                    f(Right(account))(request)
-                  }
+                  for {
+                    up <- backend.createNewUserProfile[UserProfile](groups = defaultPortalGroups)
+                    account <- userDAO.create(Account(
+                      id = up.id,
+                      email = email.toLowerCase,
+                      verified = true,
+                      staff = false,
+                      active = true,
+                      allowMessaging = canMessageUsers
+                    ))
+                    r <- f(Right(account))(request)
+                  } yield r
               }
             case other => f(Left(other.toString()))(request)
           }

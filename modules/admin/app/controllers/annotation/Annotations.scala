@@ -1,12 +1,13 @@
 package controllers.annotation
 
-import models.{AnnotationF, AccountDAO, Annotation}
+import auth.AccountManager
+import models.{AnnotationF, Annotation}
 import com.google.inject._
 import controllers.generic._
 import backend.Backend
 import controllers.base.AdminController
 
-case class Annotations @Inject()(implicit globalConfig: global.GlobalConfig, backend: Backend, userDAO: AccountDAO)
+case class Annotations @Inject()(implicit globalConfig: global.GlobalConfig, backend: Backend, userDAO: AccountManager)
   extends AdminController
   with Read[Annotation]
   with Visibility[Annotation]

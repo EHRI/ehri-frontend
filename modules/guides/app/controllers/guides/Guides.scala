@@ -1,14 +1,15 @@
 package controllers.guides
 
+import auth.AccountManager
 import controllers.base.AdminController
 
 import com.google.inject._
 import backend.Backend
-import models.{AccountDAO, Guide}
+import models.Guide
 
 
 @Singleton
-case class Guides @Inject()(implicit globalConfig: global.GlobalConfig, backend: Backend, userDAO: AccountDAO) extends AdminController {
+case class Guides @Inject()(implicit globalConfig: global.GlobalConfig, backend: Backend, userDAO: AccountManager) extends AdminController {
 
   private val formGuide = models.Guide.form
   private final val guidesRoutes = controllers.guides.routes.Guides

@@ -1,5 +1,6 @@
 package controllers.authorities
 
+import auth.AccountManager
 import controllers.generic._
 import forms.VisibilityForm
 import models._
@@ -12,7 +13,7 @@ import controllers.base.AdminController
 
 
 @Singleton
-case class HistoricalAgents @Inject()(implicit globalConfig: global.GlobalConfig, searchDispatcher: Dispatcher, searchResolver: Resolver, backend: Backend, userDAO: AccountDAO)
+case class HistoricalAgents @Inject()(implicit globalConfig: global.GlobalConfig, searchDispatcher: Dispatcher, searchResolver: Resolver, backend: Backend, userDAO: AccountManager)
   extends AdminController with CRUD[HistoricalAgentF,HistoricalAgent]
 	with Visibility[HistoricalAgent]
   with ItemPermissions[HistoricalAgent]

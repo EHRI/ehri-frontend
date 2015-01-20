@@ -1,11 +1,11 @@
 package controllers.portal
 
+import auth.AccountManager
 import play.api.libs.concurrent.Execution.Implicits._
 import play.api.mvc.{Result, RequestHeader, Controller}
 import controllers.base.{AuthController, ControllerHelpers}
 import scala.concurrent.Future.{successful => immediate}
 import backend.{Backend, FeedbackDAO}
-import models.AccountDAO
 import com.google.inject._
 import utils.SessionPrefs
 import com.typesafe.plugin.MailerAPI
@@ -16,7 +16,7 @@ import controllers.portal.base.PortalController
  */
 @Singleton
 case class Feedback @Inject()(implicit globalConfig: global.GlobalConfig, feedbackDAO: FeedbackDAO,
-                              backend: Backend, userDAO: AccountDAO, mailer: MailerAPI)
+                              backend: Backend, userDAO: AccountManager, mailer: MailerAPI)
   extends PortalController {
 
   import utils.forms._

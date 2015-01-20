@@ -1,13 +1,12 @@
 package controllers.portal
 
+import auth.AccountManager
 import play.api.Play.current
 import controllers.generic.Search
 import models._
 import models.base.AnyModel
 import play.api.libs.concurrent.Execution.Implicits._
 import play.api.mvc._
-import play.api.data.Form
-import play.api.data.Forms._
 import views.html.p
 import utils.search._
 import play.api.cache.Cached
@@ -15,7 +14,6 @@ import defines.EntityType
 import play.api.libs.ws.WS
 import play.twirl.api.Html
 import backend.Backend
-import controllers.base.SessionPreferences
 import utils._
 
 import com.google.inject._
@@ -23,14 +21,11 @@ import views.html.errors.pageNotFound
 import org.joda.time.DateTime
 import caching.FutureCache
 import controllers.portal.base.PortalController
-import scala.concurrent.Future
-import backend.rest.cypher.CypherDAO
-import backend.rest.SearchDAO
-import play.api.libs.json.{Json, JsString}
+import play.api.libs.json.Json
 
 @Singleton
 case class Portal @Inject()(implicit globalConfig: global.GlobalConfig, searchDispatcher: Dispatcher, searchResolver: Resolver, backend: Backend,
-    userDAO: AccountDAO)
+    userDAO: AccountManager)
   extends PortalController
   with Search
   with FacetConfig {

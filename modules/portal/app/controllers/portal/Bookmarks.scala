@@ -1,5 +1,6 @@
 package controllers.portal
 
+import auth.AccountManager
 import play.api.Play.current
 import controllers.generic.Search
 import models._
@@ -10,7 +11,6 @@ import utils.search._
 import defines.EntityType
 import backend.{IdGenerator, Backend}
 import utils._
-
 import com.google.inject._
 import scala.concurrent.Future
 import scala.concurrent.Future.{successful => immediate}
@@ -23,7 +23,7 @@ import controllers.portal.base.PortalController
 
 @Singleton
 case class Bookmarks @Inject()(implicit globalConfig: global.GlobalConfig, searchDispatcher: Dispatcher, searchResolver: Resolver, backend: Backend,
-    userDAO: AccountDAO, idGenerator: IdGenerator)
+    userDAO: AccountManager, idGenerator: IdGenerator)
   extends PortalController
   with FacetConfig
   with Search {

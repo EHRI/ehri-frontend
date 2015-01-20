@@ -1,5 +1,7 @@
 package controllers.users
 
+import acl.ItemPermissionSet
+import auth.{HashedPassword, AccountManager}
 import play.api.libs.concurrent.Execution.Implicits._
 import controllers.generic._
 import models._
@@ -22,7 +24,7 @@ import controllers.base.AdminController
 
 
 @Singleton
-case class UserProfiles @Inject()(implicit globalConfig: global.GlobalConfig, searchIndexer: Indexer, searchDispatcher: Dispatcher, searchResolver: Resolver, backend: Backend, userDAO: AccountDAO)
+case class UserProfiles @Inject()(implicit globalConfig: global.GlobalConfig, searchIndexer: Indexer, searchDispatcher: Dispatcher, searchResolver: Resolver, backend: Backend, userDAO: AccountManager)
   extends AdminController
   with PermissionHolder[UserProfile]
   with ItemPermissions[UserProfile]
@@ -122,28 +124,14 @@ case class UserProfiles @Inject()(implicit globalConfig: global.GlobalConfig, se
   }
 
   /**
-   *  Grant a user permissions on their own account.
-   */
-  private def grantOwnerPerms[T](profile: UserProfile)(f: => Result)(
-    implicit request: Request[T], userOpt: Option[UserProfile]): Future[Result] = {
-    backend.setItemPermissions(profile.id, ContentTypes.UserProfile,
-      profile.id, List(PermissionType.Owner.toString)).map { perms =>
-      f
-    }
-  }
-
-  /**
    * Create a user's profile on the ReSt interface.
    */
-  private def createUserProfile[T](user: UserProfileF, groups: Seq[String], allGroups: Seq[(String,String)])(f: UserProfile => Future[Result])(
-    implicit request: Request[T], userOpt: Option[UserProfile]): Future[Result] = {
-    backend.create[UserProfile,UserProfileF](user, params = Map("group" -> groups)).flatMap { item =>
-      f(item)
-    } recoverWith {
-      case ValidationError(errorSet) =>
-        val errForm = user.getFormErrors(errorSet, userPasswordForm.bindFromRequest)
-        immediate(BadRequest(views.html.admin.userProfile.create(errForm, groupMembershipForm.bindFromRequest,
-          allGroups, userRoutes.createUserPost())))
+  private def createUserProfile[T](user: UserProfileF, groups: Seq[String], allGroups: Seq[(String,String)])(
+    implicit request: Request[T], userOpt: Option[UserProfile]): Future[Either[ValidationError,UserProfile]] = {
+    backend.create[UserProfile,UserProfileF](user, params = Map("group" -> groups)).map { item =>
+      Right(item)
+    } recover {
+      case e@ValidationError(errorSet) => Left(e)
     }
   }
 
@@ -153,24 +141,36 @@ case class UserProfiles @Inject()(implicit globalConfig: global.GlobalConfig, se
   private def saveUser[T](email: String, username: String, name: String, pw: String, allGroups: Seq[(String, String)])(
     implicit request: Request[T], userOpt: Option[UserProfile]): Future[Result] = {
     // check if the email is already registered...
-    userDAO.findByEmail(email.toLowerCase).map { account =>
-      val errForm = userPasswordForm.bindFromRequest
-        .withError(FormError("email", Messages("error.userEmailAlreadyRegistered", account.id)))
-      immediate(BadRequest(views.html.admin.userProfile.create(errForm, groupMembershipForm.bindFromRequest,
-        allGroups, userRoutes.createUserPost())))
-    } getOrElse {
-      // It's not registered, so create the account...
-      val user = UserProfileF(id = None, identifier = username, name = name,
-        location = None, about = None, languages = Nil)
-      val groups = groupMembershipForm.bindFromRequest.value.getOrElse(List())
-
-      createUserProfile(user, groups, allGroups) { profile =>
-        userDAO.createWithPassword(profile.id, email.toLowerCase, verified = true,
-          staff = true, allowMessaging = true, userDAO.hashPassword(pw))
-        grantOwnerPerms(profile) {
-          Redirect(controllers.users.routes.UserProfiles.search())
+    userDAO.findByEmail(email.toLowerCase).flatMap {
+      case Some(account) =>
+        val errForm = userPasswordForm.bindFromRequest
+          .withError(FormError("email", Messages("error.userEmailAlreadyRegistered", account.id)))
+        immediate(BadRequest(views.html.admin.userProfile.create(errForm, groupMembershipForm.bindFromRequest,
+          allGroups, userRoutes.createUserPost())))
+      case None =>
+        // It's not registered, so create the account...
+        val user = UserProfileF(id = None, identifier = username, name = name,
+          location = None, about = None, languages = Nil)
+        val groups = groupMembershipForm.bindFromRequest.value.getOrElse(List())
+        createUserProfile(user, groups, allGroups).flatMap {
+          case Left(ValidationError(errorSet)) =>
+            val errForm = user.getFormErrors(errorSet, userPasswordForm.bindFromRequest)
+            immediate(BadRequest(views.html.admin.userProfile.create(errForm, groupMembershipForm.bindFromRequest,
+              allGroups, userRoutes.createUserPost())))
+          case Right(profile) => for {
+            account <- userDAO.create(Account(
+              id = profile.id,
+              email = email.toLowerCase,
+              verified = true,
+              active = true,
+              staff = true,
+              allowMessaging = true,
+              password = Some(HashedPassword.fromPlain(pw))
+            ))
+            _ <- backend.setItemPermissions(profile.id, ContentTypes.UserProfile,
+              profile.id, List(PermissionType.Owner.toString))
+          } yield Redirect(controllers.users.routes.UserProfiles.search())
         }
-      }
     }
   }
 
@@ -179,14 +179,13 @@ case class UserProfiles @Inject()(implicit globalConfig: global.GlobalConfig, se
   }
 
   def search = OptionalUserAction.async { implicit request =>
-    find[UserProfile](
-      entities = List(EntityType.UserProfile), facetBuilder = entityFacets
-    ).map { case QueryResult(page, params, facets) =>
-      // Crap alert! Lookup accounts for users. This is undesirable 'cos it's
-      // one DB SELECT per user, but since it's just a management page it shouldn't
-      // matter too much.
+    for {
+      QueryResult(page, params, facets) <- find[UserProfile](
+        entities = List(EntityType.UserProfile), facetBuilder = entityFacets)
+      accounts <- userDAO.findAllById(ids = page.items.map(_._1.id))
+    } yield {
       val pageWithAccounts = page.copy(items = page.items.map { case(up, hit) =>
-        (up.copy(account = userDAO.findByProfileId(up.id)), hit)
+        up.copy(account = accounts.find(_.id == up.id)) -> hit
       })
       Ok(views.html.admin.userProfile.search(pageWithAccounts, params, facets, userRoutes.search()))
     }
@@ -200,32 +199,39 @@ case class UserProfiles @Inject()(implicit globalConfig: global.GlobalConfig, se
     Ok(views.html.admin.userProfile.list(request.page, request.params))
   }
 
-  def update(id: String) = WithItemPermissionAction(id, PermissionType.Update).apply { implicit request =>
-    val userWithAccount = request.item.copy(account = userDAO.findByProfileId(id))
-    Ok(views.html.admin.userProfile.edit(request.item, AdminUserData.form.fill(
-      AdminUserData.fromUserProfile(userWithAccount)),
-      userRoutes.updatePost(id)))
+  def update(id: String) = WithItemPermissionAction(id, PermissionType.Update).async { implicit request =>
+    userDAO.findById(request.item.id).map { accountOpt =>
+      val userWithAccount = request.item.copy(account = accountOpt)
+      Ok(views.html.admin.userProfile.edit(request.item, AdminUserData.form.fill(
+        AdminUserData.fromUserProfile(userWithAccount)),
+        userRoutes.updatePost(id)))
+    }
   }
 
   def updatePost(id: String) = WithItemPermissionAction(id, PermissionType.Update).async { implicit request =>
-    val userWithAccount = request.item.copy(account = userDAO.findByProfileId(id))
-    AdminUserData.form.bindFromRequest.fold(
-      errForm => immediate(BadRequest(views.html.admin.userProfile.edit(userWithAccount, errForm,
-        userRoutes.updatePost(id)))),
-      data => backend.patch[UserProfile](id, Json.toJson(data).as[JsObject]).map { updated =>
-        userDAO.findByProfileId(id).map { acc =>
-          acc.setActive(data.active).setStaff(data.staff)
+    userDAO.findById(request.item.id).flatMap { accountOpt =>
+      val userWithAccount = request.item.copy(account = accountOpt)
+      AdminUserData.form.bindFromRequest.fold(
+        errForm => immediate(BadRequest(views.html.admin.userProfile.edit(userWithAccount, errForm,
+          userRoutes.updatePost(id)))),
+        data => accountOpt match {
+          case Some(account) => for {
+            profile <- backend.patch[UserProfile](id, Json.toJson(data).as[JsObject])
+            newAccount <- userDAO.update(account.copy(active = data.active, staff = data.staff))
+          } yield Redirect(userRoutes.search())
+              .flashing("success" -> Messages("item.update.confirmation", request.item.toStringLang))
+          case None => for {
+            profile <- backend.patch[UserProfile](id, Json.toJson(data).as[JsObject])
+          } yield Redirect(userRoutes.search())
+              .flashing("success" -> Messages("item.update.confirmation", request.item.toStringLang))
         }
-        Redirect(userRoutes.search())
-          .flashing("success" -> Messages("item.update.confirmation", request.item.toStringLang))
-      }
-    )
+      )
+    }
   }
 
   private def deleteForm(user: UserProfile): Form[String] = Form(
-    Forms.single("deleteCheck" -> Forms.nonEmptyText.verifying("error.invalidName", f => f match {
-      case name => name == user.model.name
-    }))
+    Forms.single("deleteCheck" -> Forms.nonEmptyText
+      .verifying("error.invalidName", name => name == user.model.name))
   )
 
   def delete(id: String) = CheckDeleteAction(id).apply { implicit request =>
@@ -241,11 +247,18 @@ case class UserProfiles @Inject()(implicit globalConfig: global.GlobalConfig, se
           request.item, deleteForm(request.item), userRoutes.deletePost(id),
           userRoutes.get(id))))
       },
-      ok => backend.delete[UserProfile](id, logMsg = getLogMessage).map { ok =>
-        // For the users we need to clean up by deleting their profile id, if any...
-        userDAO.findByProfileId(id).map(_.delete())
-        Redirect(userRoutes.search())
-          .flashing("success" -> Messages("item.delete.confirmation", id))
+      _ => {
+        userDAO.findById(id).flatMap {
+          case Some(account) => for {
+            _ <- backend.delete[UserProfile](id, logMsg = getLogMessage)
+            _ <- userDAO.delete(account)
+          } yield Redirect(userRoutes.search())
+              .flashing("success" -> Messages("item.delete.confirmation", id))
+          case None => for {
+            _ <- backend.delete[UserProfile](id, logMsg = getLogMessage)
+          } yield Redirect(userRoutes.search())
+              .flashing("success" -> Messages("item.delete.confirmation", id))
+        }
       }
     )
   }
