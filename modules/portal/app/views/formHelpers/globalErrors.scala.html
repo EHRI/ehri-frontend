@@ -1,7 +1,7 @@
 @(form: Form[_], msg: String = "")(implicit lang: Lang)
 
 @if(form.globalErrors.nonEmpty) {
-    <div class="alert alert-danger alert-block">
+    <div class="alert alert-danger alert-block form-global-errors">
         <h4>@{if(msg.nonEmpty) msg else Messages("error.globalErrors")}</h4>
         <ul>
         @form.globalErrors.map { error =>

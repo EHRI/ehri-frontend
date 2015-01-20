@@ -35,9 +35,7 @@ trait UserPasswordLoginHandler {
       "current" -> nonEmptyText,
       "password" -> nonEmptyText(minLength = 6),
       "confirm" -> nonEmptyText(minLength = 6)
-    ) verifying("login.error.passwordsDoNotMatch", f => f match {
-      case (_, pw, pwc) => pw == pwc
-    })
+    ) verifying("login.error.passwordsDoNotMatch", passwords => passwords._2 == passwords._3)
   )
 
   val resetPasswordForm = Form(
@@ -75,27 +73,29 @@ trait UserPasswordLoginHandler {
 
   case class ForgotPasswordRequest[A](
     formOrAccount: Either[Form[String],(Account,UUID)],
+    userOpt: Option[UserProfile],
     request: Request[A]                                     
   ) extends WrappedRequest[A](request)
+    with WithOptionalUser
   
-  protected def ForgotPasswordAction = new ActionBuilder[ForgotPasswordRequest] {
-    override def invokeBlock[A](request: Request[A], block: (ForgotPasswordRequest[A]) => Future[Result]): Future[Result] = {
+  protected def ForgotPasswordAction = OptionalUserAction andThen new ActionTransformer[OptionalUserRequest, ForgotPasswordRequest] {
+    override protected def transform[A](request: OptionalUserRequest[A]): Future[ForgotPasswordRequest[A]] = {
       implicit val r = request
-      checkRecapture.flatMap { ok =>
+      checkRecapture.map { ok =>
         if (!ok) {
           val form = forgotPasswordForm.withGlobalError("error.badRecaptcha")
-          block(ForgotPasswordRequest(Left(form), request))
+          ForgotPasswordRequest(Left(form), request.userOpt, request)
         } else {
           forgotPasswordForm.bindFromRequest.fold({ errForm =>
-            block(ForgotPasswordRequest(Left(errForm), request))
+            ForgotPasswordRequest(Left(errForm), request.userOpt, request)
           }, { email =>
             userDAO.findByEmail(email).map { account =>
               val uuid = UUID.randomUUID()
               account.createResetToken(uuid)
-              block(ForgotPasswordRequest(Right((account, uuid)), request))
+              ForgotPasswordRequest(Right((account, uuid)), request.userOpt, request)
             }.getOrElse {
               val form = forgotPasswordForm.withError("email", "error.emailNotFound")
-              block(ForgotPasswordRequest(Left(form), request))
+              ForgotPasswordRequest(Left(form), request.userOpt, request)
             }
           })
         }
@@ -120,10 +120,9 @@ trait UserPasswordLoginHandler {
 
           (for {
             account <- request.user.account
-            hashedPw <- account.password if userDAO.checkPassword(current, hashedPw)
+            hashedPw <- account.password if hashedPw.check(current)
           } yield {
             account.setPassword(userDAO.hashPassword(newPw))
-            println("OKAY!")
             ChangePasswordRequest(None, request.user, request)
           }) getOrElse {
             ChangePasswordRequest(
@@ -137,23 +136,25 @@ trait UserPasswordLoginHandler {
 
   case class ResetPasswordRequest[A](
     formOrAccount: Either[Form[(String,String)], Account],
+    userOpt: Option[UserProfile],
     request: Request[A]
   ) extends WrappedRequest[A](request)
+    with WithOptionalUser
 
-  protected def ResetPasswordAction(token: String) = new ActionBuilder[ResetPasswordRequest] {
-    override def invokeBlock[A](request: Request[A], block: (ResetPasswordRequest[A]) => Future[Result]): Future[Result] = {
+  protected def ResetPasswordAction(token: String) = OptionalUserAction andThen new ActionTransformer[OptionalUserRequest, ResetPasswordRequest] {
+    override protected def transform[A](request: OptionalUserRequest[A]): Future[ResetPasswordRequest[A]] = immediate {
       implicit val r = request
       val form: Form[(String, String)] = resetPasswordForm.bindFromRequest
       form.fold(
-        errForm => block(ResetPasswordRequest(Left(errForm), request)),
+        errForm => ResetPasswordRequest(Left(errForm), request.userOpt, request),
         { case (pw, _) =>
         userDAO.findByResetToken(token).map { account =>
           account.setPassword(userDAO.hashPassword(pw))
           account.expireTokens()
-          block(ResetPasswordRequest(Right(account), request))
+          ResetPasswordRequest(Right(account), request.userOpt, request)
         }.getOrElse {
-          block(ResetPasswordRequest(
-            Left(form.withGlobalError("login.error.badResetToken")), request))
+          ResetPasswordRequest(
+            Left(form.withGlobalError("login.error.badResetToken")), request.userOpt, request)
         }
       })
     }

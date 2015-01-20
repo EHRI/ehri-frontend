@@ -1,10 +1,9 @@
 package models
 
 import auth.HashedPassword
-import play.api.libs.json.{Json, JsValue, Writes}
+import org.joda.time.DateTime
 import play.api.Plugin
 import java.util.UUID
-import org.mindrot.jbcrypt.BCrypt
 import utils.PageParams
 import jp.t2v.lab.play2.auth._
 
@@ -14,16 +13,20 @@ import jp.t2v.lab.play2.auth._
  * @author Mike Bryant (http://github.com/mikesname)
  */
 trait Account {
-	def email: String
+
+  def email: String
 	def id: String
-  val verified: Boolean
-  val staff: Boolean
-  val active: Boolean
-  def password: Option[HashedPassword] = None
+  def verified: Boolean
+  def staff: Boolean
+  def active: Boolean
+  def lastLogin: Option[DateTime]
+
+  def password: Option[HashedPassword]
   def setPassword(hashed: HashedPassword): Account
   def setVerified(): Account
   def setActive(active: Boolean): Account
   def setStaff(staff: Boolean): Account
+  def setLoggedIn(): Account
   def setAllowMessaging(allowMessaging: Boolean): Account
   def verify(token: String): Account
   def delete(): Boolean
@@ -31,17 +34,17 @@ trait Account {
   def createResetToken(uuid: UUID): Unit
   def createValidationToken(uuid: UUID): Unit
   def expireTokens(): Unit
-  def update(): Unit
+
+  def hasPassword: Boolean = password.isDefined
 }
 
 trait AccountDAO extends Plugin {
-  def checkPassword(p: String, h: HashedPassword) = BCrypt.checkpw(p, h.toString)
   def hashPassword(p: String): HashedPassword = HashedPassword.fromPlain(p)
 
   def authenticate(email: String, pw: String, verifiedOnly: Boolean = false): Option[Account] = {
     for {
       acc <- findByEmail(email)
-      hashed <- acc.password if checkPassword(pw, hashed) && (if(verifiedOnly) acc.verified else true)
+      hashed <- acc.password if hashed.check(pw) && (if(verifiedOnly) acc.verified else true)
     } yield acc
   }
   def findVerifiedByProfileId(id: String, verified: Boolean = true): Option[Account]

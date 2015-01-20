@@ -2,6 +2,7 @@ package integration.portal
 
 import helpers.IntegrationTestRunner
 import models._
+import org.joda.time.DateTime
 import play.api.test.FakeRequest
 import play.api.i18n.Messages
 
@@ -112,12 +113,20 @@ class SignupSpec extends IntegrationTestRunner {
         val logout = route(fakeLoggedInHtmlRequest(u, GET, accountRoutes.logout().url)).get
         status(logout) must equalTo(SEE_OTHER)
 
+        implicit val dateTimeOrdering: Ordering[DateTime] = Ordering.fromLessThan(_ isBefore _)
+        val time = DateTime.now()
         val login = route(FakeRequest(POST, accountRoutes.passwordLoginPost().url)
           .withSession(CSRF_TOKEN_NAME -> fakeCsrfString), data2).get
         //println(contentAsString(login))
         status(login) must equalTo(SEE_OTHER)
         redirectLocation(login) must beSome.which { loc =>
           loc must equalTo(controllers.portal.users.routes.UserProfiles.profile().url)
+          // Check login time has been updated...
+          mocks.userFixtures.get(uid) must beSome.which { u2 =>
+            u2.lastLogin must beSome.which { t2 =>
+              t2 must beGreaterThan(time)
+            }
+          }
         }
       }
     }

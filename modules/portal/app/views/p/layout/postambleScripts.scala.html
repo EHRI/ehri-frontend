@@ -1,8 +1,7 @@
-@()(implicit userOpt: Option[UserProfile], lang: Lang)
+@(extra: Html = Html(""))(implicit userOpt: Option[UserProfile], lang: Lang)
 
 <script src="@controllers.portal.routes.Assets.versioned("js/lib/jquery.hoverIntent.js")"></script>
 <script src="@controllers.portal.routes.Assets.versioned("js/lib/jquery.cookie.js")"></script>
-
 <script src="@controllers.portal.routes.Assets.versioned("bootstrap/js/bootstrap.js")"></script>
 
 <!-- core common js -->
@@ -14,3 +13,5 @@
 @if(userOpt.isDefined) {
     <script src="@controllers.portal.routes.Assets.versioned("js/portal-connected.js")"></script>
 }
+
+@extra

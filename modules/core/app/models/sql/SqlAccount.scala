@@ -2,6 +2,7 @@ package models.sql
 
 import auth.HashedPassword
 import models.{AccountDAO, Account}
+import org.joda.time.DateTime
 import play.api.db.DB
 import anorm._
 import anorm.SqlParser._
@@ -17,8 +18,15 @@ import java.sql.Connection
 /**
  * @author Mike Bryant (http://github.com/mikesname)
  */
-case class SqlAccount(id: String, email: String, verified: Boolean = false, staff: Boolean = false, active: Boolean = true,
-                       allowMessaging: Boolean = false) extends Account {
+case class SqlAccount(
+  id: String,
+  email: String,
+  verified: Boolean = false,
+  staff: Boolean = false,
+  active: Boolean = true,
+  allowMessaging: Boolean = false,
+  lastLogin: Option[DateTime] = None
+) extends Account {
 
   def delete(): Boolean = DB.withConnection { implicit connection =>
     val res: Int = SQL(
@@ -26,19 +34,10 @@ case class SqlAccount(id: String, email: String, verified: Boolean = false, staf
     res == 1
   }
 
-  override def password: Option[HashedPassword] = DB.withConnection { implicit connection =>
+  def password: Option[HashedPassword] = DB.withConnection { implicit connection =>
     SQL(
       """SELECT data FROM user_auth WHERE user_auth.id = {id} LIMIT 1"""
     ).on('id -> id).as(str("data").singleOpt).map(HashedPassword.fromHashed)
-  }
-
-  def hasPassword: Boolean = DB.withConnection { implicit  connection =>
-    try {
-    SQL("select count(data) from user_auth WHERE id = {id}")
-      .on('id -> id).as(scalar[Long].single) > 0
-    } catch {
-      case c: Throwable => Logger.error("Error checking password: {}", c); throw c
-    }
   }
 
   def setPassword(data: HashedPassword): Account = DB.withTransaction { implicit connection =>
@@ -113,17 +112,9 @@ case class SqlAccount(id: String, email: String, verified: Boolean = false, staf
       .on('id -> id, 'token -> token.toString).executeInsert()
   }
 
-  def update(): Unit = DB.withConnection { implicit connection =>
-    SQL(
-      """
-        UPDATE users
-        SET active = {active}, staff = {staff}, verified = {verifed}, email = {email},
-            allow_messaging = {allowMessaging}
-        WHERE id = {id}
-      """.stripMargin).on(
-      'id -> id, 'active -> active, 'verified -> verified, 'email -> email, 'staff -> staff,
-        'allowMessaging -> allowMessaging
-    ).executeUpdate()
+  def setLoggedIn(): Account = DB.withConnection { implicit connection =>
+    SQL("UPDATE users SET last_login = NOW()").executeUpdate()
+    this
   }
 }
 
@@ -135,9 +126,10 @@ object SqlAccount extends AccountDAO {
       get[Boolean]("users.verified") ~
       get[Boolean]("users.staff") ~
       get[Boolean]("users.active") ~
-      get[Boolean]("users.allow_messaging") map {
-      case id ~ email ~ verified ~ staff ~ active ~ allowMessaging =>
-        SqlAccount(id, email, verified, staff, active, allowMessaging)
+      get[Boolean]("users.allow_messaging") ~
+      get[Option[DateTime]]("users.last_login") map {
+      case id ~ email ~ verified ~ staff ~ active ~ allowMessaging ~ lastLogin =>
+        SqlAccount(id, email, verified, staff, active, allowMessaging, lastLogin)
     }
   }
 
@@ -192,7 +184,8 @@ object SqlAccount extends AccountDAO {
     SQL(
       """INSERT INTO users (id, email, verified, staff, allow_messaging)
         VALUES ({id}, {email}, {verified}, {staff}, {allowMessaging})"""
-    ).on('id -> id, 'email -> email, 'verified -> verified, 'staff -> staff, 'allowMessaging -> allowMessaging).executeUpdate
+    ).on('id -> id, 'email -> email, 'verified -> verified, 'staff -> staff, 'allowMessaging -> allowMessaging)
+      .executeInsert()
     SQL("INSERT INTO user_auth (id, data) VALUES ({id},{data})")
       .on('id -> id, 'data -> hashed.toString).executeInsert()
     SqlAccount(id, email, verified, staff)

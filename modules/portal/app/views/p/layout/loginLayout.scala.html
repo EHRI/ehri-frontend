@@ -1,4 +1,8 @@
-@(title: Any, itemClass: String = "", scripts: Html = Html(""), styles: Html = Html(""))(content: Html)(implicit request: RequestHeader, globalConfig: global.GlobalConfig, flash: Flash, lang: Lang)
+@import utils.SessionPrefs
+
+@import controllers.base.SessionPreferences
+
+@(title: Any, itemClass: String = "", scripts: Html = Html(""), styles: Html = Html(""))(content: Html)(implicit userOpt: Option[UserProfile], request: RequestHeader, globalConfig: global.GlobalConfig, flash: Flash, lang: Lang, prefs: utils.SessionPrefs)
 
 @loginStyles = {
     @styles
@@ -14,7 +18,7 @@
 }
 
 
-@views.html.p.layout.portalLayoutSimple(title, itemClass = itemClass, scripts = scripts, styles = loginStyles) {
+@views.html.p.layout.portalLayout(title, itemClass = itemClass, scripts = scripts, styles = loginStyles) {
     @views.html.layout.mainContent {
         <div class="login-page">
             <div class="login-or-signup">
@@ -22,4 +26,4 @@
             </div>
         </div>
     }
-}(None, request, globalConfig, flash, lang)
+}

@@ -9,7 +9,8 @@ CREATE TABLE users (
     staff BOOLEAN NOT NULL,
     active BOOLEAN NOT NULL DEFAULT TRUE,
     allow_messaging BOOLEAN NOT NULL DEFAULT TRUE,
-    created TIMESTAMP NOT NULL
+    created TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    last_login TIMESTAMP NULL
 );
 
 CREATE UNIQUE INDEX users_email ON users (email);

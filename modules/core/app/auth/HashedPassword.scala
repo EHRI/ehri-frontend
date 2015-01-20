@@ -13,5 +13,7 @@ object HashedPassword {
 }
 
 case class HashedPassword private(s: String) {
+  def check(pw: String) =  BCrypt.checkpw(pw, s)
+
   override def toString = s
 }

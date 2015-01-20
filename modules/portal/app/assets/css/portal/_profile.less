@@ -3,6 +3,28 @@
   .clearfix;
 }
 
+
+.profile-form-section {
+  .clearfix;
+  .control-label {
+    .make-md-column(4);
+  }
+
+  .control-elements {
+    .make-md-column(8);
+  }
+
+  // Labels which are also elements (e.g. checkboxes)
+  // should be pushed right...
+  label.control-elements {
+    .make-md-column-push(4);
+  }
+
+  .form-submit, .form-global-errors {
+    .make-md-column-push(4);
+    .make-md-column(8);
+  }
+}
 .user-list-info {
   .user-locations {
     &:extend(.small, .list-unstyled);
@@ -10,7 +32,17 @@
 }
 
 .user-profile-info {
-  &:extend(.list-unstyled);
+  dt {
+    float: left;
+    width: (@component-offset-horizontal - 20);
+    clear: left;
+    text-align: right;
+    .text-overflow();
+  }
+  dd {
+    margin-left: @component-offset-horizontal;
+    &:extend(.clearfix all); // Clear the floated `dt` if an empty `dd` is present
+  }
 }
 
 .user-img-icon, .user-img-full {
@@ -25,20 +57,19 @@
 }
 
 .user-list-item {
+  padding: @small-padding 0;
+  .clearfix;
   position: relative;
   .gravitar {
     float: left;
-    width: 48px;
-    height: 48px;
+    width: @gravitar-size;
+    height: @gravitar-size;
     margin-right: @small-margin;
+    margin-bottom: @small-margin;
 
     img {
       border-radius: 5px;
     }
-  }
-
-  .user-list-info {
-    margin-left: @gravitar-size + @small-margin;
   }
 
   .follow-controls {

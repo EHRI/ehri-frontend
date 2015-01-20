@@ -6,7 +6,8 @@ CREATE TABLE users (
     verified    BOOLEAN NOT NULL DEFAULT FALSE,
     staff       BOOLEAN NOT NULL DEFAULT FALSE,
     active      BOOLEAN NOT NULL DEFAULT TRUE,
-    created     TIMESTAMP NOT NULL
+    created     TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    last_login  TIMESTAMP NULL
 );
 
 CREATE UNIQUE INDEX users_email ON users (email);

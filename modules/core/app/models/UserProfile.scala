@@ -32,6 +32,11 @@ object UserProfileF {
   val ACTIVE = "active"
   val STAFF = "staff"
   val URL = "url"
+  val WORK_URL = "workUrl"
+  val TITLE = "title"
+  val INSTITUTION = "institution"
+  val ROLE = "role"
+  val INTERESTS = "interests"
 
   import Entity._
 
@@ -48,6 +53,11 @@ object UserProfileF {
           LANGUAGES -> d.languages,
           IMAGE_URL -> d.imageUrl,
           URL -> d.url,
+          WORK_URL -> d.workUrl,
+          TITLE -> d.title,
+          INSTITUTION -> d.institution,
+          ROLE -> d.role,
+          INTERESTS -> d.interests,
           ACTIVE -> d.active
         )
       )
@@ -64,7 +74,12 @@ object UserProfileF {
       (__ \ DATA \ LANGUAGES).readListOrSingle[String] and
       (__ \ DATA \ IMAGE_URL).readNullable[String] and
       (__ \ DATA \ URL).readNullable[String] and
-      (__ \ DATA \ ACTIVE).readNullable[Boolean].map(_.getOrElse(true))
+      (__ \ DATA \ WORK_URL).readNullable[String] and
+      (__ \ DATA \ TITLE).readNullable[String] and
+      (__ \ DATA \ INSTITUTION).readNullable[String] and
+      (__ \ DATA \ ROLE).readNullable[String] and
+      (__ \ DATA \ INTERESTS).readNullable[String] and
+      (__ \ DATA \ ACTIVE).readWithDefault(true)
     )(UserProfileF.apply _)
 
   implicit val userProfileFormat: Format[UserProfileF] = Format(userProfileReads,userProfileWrites)
@@ -84,6 +99,11 @@ case class UserProfileF(
   languages: List[String] = Nil,
   imageUrl: Option[String] = None,
   url: Option[String] = None,
+  workUrl: Option[String] = None,
+  title: Option[String] = None,
+  institution: Option[String] = None,
+  role: Option[String] = None,
+  interests: Option[String] = None,
   active: Boolean = true
 ) extends Model with Persistable
 
@@ -131,6 +151,11 @@ object UserProfile {
       LANGUAGES -> list(nonEmptyText),
       IMAGE_URL -> optional(nonEmptyText.verifying(s => isValidUrl(s))),
       URL -> optional(nonEmptyText.verifying(s => isValidUrl(s))),
+      WORK_URL -> optional(nonEmptyText.verifying(s => isValidUrl(s))),
+      TITLE -> optional(text),
+      INSTITUTION -> optional(text),
+      ROLE -> optional(text),
+      INTERESTS -> optional(text),
       ACTIVE -> boolean
     )(UserProfileF.apply)(UserProfileF.unapply)
   )
