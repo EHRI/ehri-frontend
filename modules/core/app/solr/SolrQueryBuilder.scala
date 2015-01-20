@@ -141,13 +141,18 @@ case class SolrQueryBuilder(writerType: WriterType.Value, debugQuery: Boolean = 
    * Group results by item id (as opposed to description id). Facet counts
    * are also set to reflect grouping as opposed to the number of individual
    * items.
+   *
+   * NOTE: Scalikesolr insists we must set the start and rows parameter
+   * here otherwise it will add default values to the query!
    */
-  private def setGrouping(request: QueryRequest): Unit = {
+  private def setGrouping(request: QueryRequest, params: SearchParams): Unit = {
     request.setGroup(GroupParams(
       enabled=true,
       field=GroupField(ITEM_ID),
       format=GroupFormat("simple"),
-      ngroups=WithNumberOfGroups(ngroups = true)
+      ngroups=WithNumberOfGroups(ngroups = true),
+      start = StartRow(params.offset),
+      rows = MaximumRowsReturned(params.countOrDefault)
     ))
 
     // Not yet supported by scalikesolr
@@ -164,20 +169,21 @@ case class SolrQueryBuilder(writerType: WriterType.Value, debugQuery: Boolean = 
     val excludeIds = params.excludes.toList.flatten.map(id => s" -$ITEM_ID:$id").mkString
     val queryString = params.query.getOrElse("*").trim + excludeIds
 
-    val req: QueryRequest = new QueryRequest(Query(queryString))
+    val req: QueryRequest = QueryRequest(
+      query = Query(queryString),
+      writerType = SWriterType.as(writerType.toString),
+      startRow = StartRow(params.offset),
+      maximumRowsReturned = MaximumRowsReturned(params.countOrDefault),
+      isDebugQueryEnabled = IsDebugQueryEnabled(debugQuery = debugQuery),
+      queryParserType = QueryParserType("edismax")
+    )
+
     constrainEntities(req, params.entities)
     applyAccessFilter(req, userOpt)
-    setGrouping(req)
+    setGrouping(req, params)
     req.set("qf", s"$NAME_MATCH^2.0 $NAME_NGRAM")
     req.setFieldsToReturn(FieldsToReturn(s"$ID $ITEM_ID $NAME_EXACT $TYPE $HOLDER_NAME $DB_ID"))
     if (alphabetical) req.setSort(Sort(s"$NAME_SORT asc"))
-    req.setQueryParserType(QueryParserType("edismax"))
-
-    // Setup start and number of objects returned
-    req.setStartRow(StartRow(params.offset))
-
-    req.setMaximumRowsReturned(MaximumRowsReturned(params.countOrDefault))
-    req.setWriterType(SWriterType.as(writerType.toString))
 
     extra.map { case (key, value) =>
       req.set(key, value)
@@ -211,16 +217,22 @@ case class SolrQueryBuilder(writerType: WriterType.Value, debugQuery: Boolean = 
         //s"{!boost b=$CHILD_COUNT}" +
         params.query.getOrElse(defaultQuery).trim + excludeIds + searchFilters
 
-    val req: QueryRequest = new QueryRequest(Query(queryString))
+    val req: QueryRequest = QueryRequest(
+      query = Query(queryString),
+      writerType = SWriterType.as(writerType.toString),
+      startRow = StartRow(params.offset),
+      maximumRowsReturned = MaximumRowsReturned(params.countOrDefault),
+      isDebugQueryEnabled = IsDebugQueryEnabled(debugQuery = debugQuery),
+      queryParserType = QueryParserType("edismax")
+    )
+
+    //println(s"REQUEST: $req, STRING: ${req.queryString()}")
 
     // Always facet on item type
     req.setFacet(new FacetParams(
       enabled=true,
       params=List(new FacetParam(Param("facet.field"), Value(TYPE)))
     ))
-
-    // Use edismax to parse the user query
-    req.setQueryParserType(QueryParserType("edismax"))
 
     // Highlight, but only if we have a query...
     if (params.query.isDefined) {
@@ -284,21 +296,12 @@ case class SolrQueryBuilder(writerType: WriterType.Value, debugQuery: Boolean = 
       req.setFilterQuery(FilterQuery(multiple = req.filterQuery.getMultiple ++ Seq(filter)))
     }
 
-
-    // Debug query for now
-    req.setIsDebugQueryEnabled(IsDebugQueryEnabled(debugQuery = debugQuery))
-
-    // Setup start and number of objects returned
-    req.setStartRow(StartRow(params.offset))
-    req.setMaximumRowsReturned(MaximumRowsReturned(params.countOrDefault))
-
     // Group results by item id, as opposed to the document-level
     // description (for non-multi-description entities this will
     // be the same)
-    setGrouping(req)
-
-    // Set JSON writer type!
-    req.setWriterType(SWriterType.as(writerType.toString))
+    // NB: Group params ALSO set (or override) start and row parameters, which
+    // is a major gotcha!
+    setGrouping(req, params)
 
     extra.map { case (key, value) =>
       req.set(key, value)
