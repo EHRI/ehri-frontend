@@ -95,7 +95,7 @@ trait Oauth2LoginHandler extends AccountHelpers {
   }
 
   private def getOrCreateAccount(provider: OAuth2Provider, userData: UserData): Future[Account] = {
-    userDAO.oauth2.findByProviderInfo(userData.providerId, provider.name).flatMap { assocOpt =>
+    userDAO.oAuth2.findByProviderInfo(userData.providerId, provider.name).flatMap { assocOpt =>
       assocOpt.flatMap(_.user).map { account =>
         Logger.info(s"Found existing association for ${userData.name} -> ${provider.name}")
         for {
@@ -108,14 +108,14 @@ trait Oauth2LoginHandler extends AccountHelpers {
             Logger.info(s"Creating new association for ${userData.name} -> ${provider.name}")
             for {
               updated <- userDAO.update(account.copy(verified = true))
-              _ <- userDAO.oauth2.addAssociation(updated, userData.providerId, userData.name)
+              _ <- userDAO.oAuth2.addAssociation(updated.id, userData.providerId, provider.name)
               _ <- updateUserInfo(updated, userData)
             } yield updated
           } getOrElse {
             Logger.info(s"Creating new account for ${userData.name} -> ${provider.name}")
             for {
               newAccount <- createNewProfile(userData, provider)
-              _ <- userDAO.oauth2.addAssociation(newAccount, userData.providerId, provider.name)
+              _ <- userDAO.oAuth2.addAssociation(newAccount.id, userData.providerId, provider.name)
             } yield newAccount
           }
         }

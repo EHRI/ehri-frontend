@@ -91,7 +91,7 @@ trait OpenIDLoginHandler extends AccountHelpers {
       OpenID.verifiedId(request).flatMap { info =>
 
         // check if there's a user with the right id
-        userDAO.openid.findByUrl(info.id).flatMap {
+        userDAO.openId.findByUrl(info.id).flatMap {
           case Some(assoc) =>
             Logger.logger.info("User '{}' logged in via OpenId", assoc.user.get.id)
             block(OpenIdCallbackRequest(Right(assoc.user.get), request))
@@ -118,7 +118,7 @@ trait OpenIDLoginHandler extends AccountHelpers {
   private def addAssociation[A](account: Account, info: UserInfo, request: Request[A]): Future[OpenIdCallbackRequest[A]] = {
     Logger.logger.info("User '{}' created OpenID association", account.id)
     for {
-      _ <- userDAO.openid.addAssociation(account, info.id)
+      _ <- userDAO.openId.addAssociation(account.id, info.id)
     } yield OpenIdCallbackRequest(Right(account), request)
   }
 
@@ -134,7 +134,7 @@ trait OpenIDLoginHandler extends AccountHelpers {
         active = true,
         allowMessaging = canMessage
       ))
-      _ <- userDAO.openid.addAssociation(account, info.id)
+      _ <- userDAO.openId.addAssociation(account.id, info.id)
     } yield {
       Logger.logger.info("User '{}' created OpenID account", account.id)
       OpenIdCallbackRequest(Right(account), request)

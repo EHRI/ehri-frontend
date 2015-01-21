@@ -12,39 +12,38 @@ import scala.concurrent.{ExecutionContext, Future}
  */
 trait AccountManager {
 
-  def oauth2: OAuth2AssociationManager
-  def openid: OpenIdAssociationManager
+  def oAuth2: OAuth2AssociationManager
+  def openId: OpenIdAssociationManager
 
-  def authenticate(email: String, pw: String, verifiedOnly: Boolean = false)(implicit executionContext: ExecutionContext): Future[Option[Account]] = {
-    for (accountOpt <- findByEmail(email)) yield for {
-      acc <- accountOpt
-      hashed <- acc.password if hashed.check(pw) && (if(verifiedOnly) acc.verified else true)
-    } yield acc
-  }
+  protected implicit def executionContext: ExecutionContext
+
+  def authenticate(email: String, pw: String, verifiedOnly: Boolean = false): Future[Option[Account]]
 
   def setLoggedIn(account: Account): Future[Account]
 
   def verify(account: Account, token: String): Future[Option[Account]]
 
-  def findById(id: String)(implicit executionContext: ExecutionContext): Future[Option[Account]]
+  def findById(id: String): Future[Option[Account]]
 
-  def findByEmail(email: String)(implicit executionContext: ExecutionContext): Future[Option[Account]]
+  def findByEmail(email: String): Future[Option[Account]]
 
-  def findByResetToken(token: String, isSignUp: Boolean = false)(implicit executionContext: ExecutionContext): Future[Option[Account]]
+  def findByResetToken(token: String, isSignUp: Boolean = false): Future[Option[Account]]
 
-  def findAll(params: PageParams = PageParams.empty)(implicit executionContext: ExecutionContext): Future[Seq[Account]]
+  def findAll(params: PageParams = PageParams.empty): Future[Seq[Account]]
 
-  def findAllById(ids: Seq[String])(implicit executionContext: ExecutionContext): Future[Seq[Account]]
+  def findAllById(ids: Seq[String]): Future[Seq[Account]]
 
-  def create(account: Account)(implicit executionContext: ExecutionContext): Future[Account]
+  def create(account: Account): Future[Account]
 
-  def update(account: Account)(implicit executionContext: ExecutionContext): Future[Account]
+  def update(account: Account): Future[Account]
 
-  def delete(account: Account)(implicit executionContext: ExecutionContext): Future[Account]
+  def delete(id: String): Future[Boolean]
 
-  def createResetToken(account: Account, uuid: UUID)(implicit executionContext: ExecutionContext): Future[Unit]
+  def createResetToken(id: String, uuid: UUID): Future[Unit]
 
-  def createValidationToken(account: Account, uuid: UUID)(implicit executionContext: ExecutionContext): Future[Unit]
+  def createValidationToken(id: String, uuid: UUID): Future[Unit]
 
-  def expireTokens(account: Account)(implicit executionContext: ExecutionContext): Future[Unit]
+  def expireTokens(id: String): Future[Unit]
+
+  def setPassword(id: String, hashed: HashedPassword): Future[Unit]
 }

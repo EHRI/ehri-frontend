@@ -1,17 +1,16 @@
 package auth
 
-import models.{OpenIDAssociation, Account}
-
-import scala.concurrent.{Future, ExecutionContext}
+import models.OpenIDAssociation
+import scala.concurrent.Future
 
 /**
  * @author Mike Bryant (http://github.com/mikesname)
  */
 trait OpenIdAssociationManager {
 
-  def findByUrl(url: String)(implicit executionContext: ExecutionContext): Future[Option[OpenIDAssociation]]
+  def findByUrl(url: String): Future[Option[OpenIDAssociation]]
 
-  def findAll(implicit executionContext: ExecutionContext): Future[Seq[OpenIDAssociation]]
+  def findAll: Future[Seq[OpenIDAssociation]]
 
-  def addAssociation(acc: Account, assoc: String)(implicit executionContext: ExecutionContext): Future[OpenIDAssociation]
+  def addAssociation(id: String, assoc: String): Future[Option[OpenIDAssociation]]
 }

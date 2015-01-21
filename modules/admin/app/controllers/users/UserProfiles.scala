@@ -251,7 +251,7 @@ case class UserProfiles @Inject()(implicit globalConfig: global.GlobalConfig, se
         userDAO.findById(id).flatMap {
           case Some(account) => for {
             _ <- backend.delete[UserProfile](id, logMsg = getLogMessage)
-            _ <- userDAO.delete(account)
+            _ <- userDAO.delete(id)
           } yield Redirect(userRoutes.search())
               .flashing("success" -> Messages("item.delete.confirmation", id))
           case None => for {

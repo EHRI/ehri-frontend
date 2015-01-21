@@ -97,7 +97,7 @@ class CountryScopeIntegrationSpec extends IntegrationTestRunner with TestHelpers
       // Then we add the account to the user fixtures (instead of adding it to the database,
       // which we don't have while testing.)
       val fakeAccount = Account(userId, "test-user@example.com", verified = true, staff = true)
-      mocks.userFixtures += fakeAccount.id -> fakeAccount
+      mocks.accountFixtures += fakeAccount.id -> fakeAccount
 
       // Check the user can read their profile as themselves...
       // Check we can read the user's page

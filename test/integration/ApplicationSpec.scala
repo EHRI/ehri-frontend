@@ -74,7 +74,7 @@ class ApplicationSpec extends PlaySpecification with TestConfiguration with User
 
     "deny non-verified users access to admin areas" in {
       var user = Account("pete", "unverified@example.com", verified = false, staff = true)
-      mocks.userFixtures += user.id -> user
+      mocks.accountFixtures += user.id -> user
 
       running(FakeApplication(withGlobal = Some(getGlobal), additionalPlugins = getPlugins)) {
         val home = route(fakeLoggedInHtmlRequest(user, GET,
@@ -171,7 +171,7 @@ class ApplicationSpec extends PlaySpecification with TestConfiguration with User
         mailBuffer.size must beEqualTo(numSentMails + 1)
         mailBuffer.last.to must contain(mocks.unprivilegedUser.email)
 
-        val token = mocks.tokens.last._1
+        val token = mocks.tokenFixtures.last._1
         val resetForm = route(FakeRequest(GET,
           controllers.portal.account.routes.Accounts.resetPassword(token).url)
           .withSession(CSRF_TOKEN_NAME -> fakeCsrfString)).get

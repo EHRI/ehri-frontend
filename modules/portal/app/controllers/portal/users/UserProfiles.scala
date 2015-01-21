@@ -271,7 +271,7 @@ case class UserProfiles @Inject()(implicit globalConfig: global.GlobalConfig, se
           identifier = request.user.model.identifier, name = request.user.model.identifier,
           active = false)
         backend.update(request.user.id, anonProfile).flatMap { bool =>
-          userDAO.delete(request.user.account.get).flatMap { _ =>
+          userDAO.delete(request.user.id).flatMap { _ =>
             gotoLogoutSucceeded
               .map(_.flashing("success" -> "profile.profile.delete.confirmation"))
           }

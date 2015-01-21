@@ -1,19 +1,72 @@
 package auth.sql
 
+import java.sql.Connection
+
 import auth.OpenIdAssociationManager
-import models.{OpenIDAssociation, Account}
+import models.OpenIDAssociation
+import play.api.db.DB
 
 import scala.concurrent.{Future, ExecutionContext}
+import anorm.SqlParser._
+import anorm._
+
+import scala.language.postfixOps
+
+object SqlOpenIdAssociationManager {
+  val openIdParser = {
+    get[String]("openid_association.id") ~
+      get[String]("openid_association.openid_url") map {
+      case id ~ url => OpenIDAssociation(id, url, None)
+    }
+  }
+
+  val openIdWithUser = {
+    openIdParser ~ SqlAccountManager.userParser map {
+      case association ~ user => association.copy(user = Some(user))
+    }
+  }
+}
 
 /**
  * @author Mike Bryant (http://github.com/mikesname)
  */
-case class SqlOpenIdAssociationManager() extends OpenIdAssociationManager{
-  def findByUrl(url: String)(implicit executionContext: ExecutionContext): Future[Option[OpenIDAssociation]] = ???
+case class SqlOpenIdAssociationManager()(implicit app: play.api.Application, executionContext: ExecutionContext)
+  extends OpenIdAssociationManager{
 
-  def findForAccount(account: Account)(implicit executionContext: ExecutionContext): Future[Seq[OpenIdAssociationManager]] = ???
+  import SqlOpenIdAssociationManager._
 
-  def addAssociation(acc: Account, assoc: String)(implicit executionContext: ExecutionContext): Future[OpenIDAssociation] = ???
+  def findByUrl(url: String): Future[Option[OpenIDAssociation]] = Future {
+    DB.withConnection { implicit connection =>
+      getByUrl(url)
+    }
+  }(executionContext)
 
-  def findAll(implicit executionContext: ExecutionContext): Future[Seq[OpenIDAssociation]] = ???
+  def addAssociation(id: String, assoc: String): Future[Option[OpenIDAssociation]] = Future {
+    DB.withConnection { implicit connection =>
+      SQL(
+        """
+        INSERT INTO openid_association (id, openid_url) VALUES ({id},{url})
+        """
+      ).on('id -> id, 'url -> assoc).executeInsert()
+      getByUrl(assoc)
+    }
+  }(executionContext)
+
+  def findAll: Future[Seq[OpenIDAssociation]] = Future {
+    DB.withConnection { implicit conn =>
+      SQL(
+        """
+        SELECT * FROM openid_association JOIN users ON openid_association.id =  users.id
+        """
+      ).as(openIdWithUser *)
+    }
+  }(executionContext)
+
+  private def getByUrl(url: String)(implicit conn: Connection) = SQL(
+    """
+        SELECT * FROM openid_association
+          JOIN users ON openid_association.id =  users.id WHERE
+        openid_association.openid_url = {url} LIMIT 1
+    """
+  ).on('url -> url).as(openIdWithUser.singleOpt)
 }

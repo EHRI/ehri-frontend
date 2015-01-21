@@ -96,7 +96,7 @@ trait UserPasswordLoginHandler {
               case Some(account) =>
                 val uuid = UUID.randomUUID()
                 for {
-                  _ <- userDAO.createResetToken(account, uuid)
+                  _ <- userDAO.createResetToken(account.id, uuid)
                 } yield ForgotPasswordRequest(Right((account, uuid)), request.userOpt, request)
               case None =>
                 val form = forgotPasswordForm.withError("email", "error.emailNotFound")
@@ -154,9 +154,9 @@ trait UserPasswordLoginHandler {
           userDAO.findByResetToken(token).flatMap {
             case Some(account) =>
               for {
-                _ <- userDAO.expireTokens(account)
-                updated <- userDAO.update(account.copy(password = Some(HashedPassword.fromPlain(pw))))
-              } yield ResetPasswordRequest(Right(updated), request.userOpt, request)
+                _ <- userDAO.expireTokens(account.id)
+                _ <- userDAO.setPassword(account.id, HashedPassword.fromPlain(pw))
+              } yield ResetPasswordRequest(Right(account), request.userOpt, request)
             case None => immediate(ResetPasswordRequest(
               Left(form.withGlobalError("login.error.badResetToken")), request.userOpt, request))
           }

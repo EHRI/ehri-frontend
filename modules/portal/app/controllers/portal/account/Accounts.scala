@@ -143,7 +143,7 @@ case class Accounts @Inject()(implicit globalConfig: GlobalConfig, searchDispatc
                     allowMessaging = data.allowMessaging,
                     password = Some(HashedPassword.fromPlain(data.password))
                   ))
-                  _ <- userDAO.createValidationToken(account, uuid)
+                  _ <- userDAO.createValidationToken(account.id, uuid)
                   result <- doLogin(account)
                     .map(_.flashing("success" -> "signup.confirmation"))
                 } yield {
@@ -335,7 +335,7 @@ case class Accounts @Inject()(implicit globalConfig: GlobalConfig, searchDispatc
     request.user.account match {
       case Some(account) =>
         val uuid = UUID.randomUUID()
-        userDAO.createValidationToken(account, uuid).map { _ =>
+        userDAO.createValidationToken(account.id, uuid).map { _ =>
           sendValidationEmail(account.email, uuid)
           val redirect = request.headers.get(HttpHeaders.REFERER)
             .getOrElse(portalRoutes.index().url)

@@ -1,20 +1,93 @@
 package auth.sql
 
+import java.sql.Connection
+
 import auth.OAuth2AssociationManager
-import models.{OAuth2Association, Account}
+import models.OAuth2Association
+import play.api.db.DB
 
 import scala.concurrent.{ExecutionContext, Future}
+import anorm.SqlParser._
+import anorm._
+
+import scala.language.postfixOps
+
+
+object SqlOAuth2AssociationManager {
+  val oAuthParser = {
+    get[String]("oauth2_association.id") ~
+      get[String]("oauth2_association.provider_id") ~
+      get[String]("oauth2_association.provider") map {
+      case id ~ providerId ~ provider => OAuth2Association(id, providerId, provider, None)
+    }
+  }
+
+  val oAuthWithUser = {
+    oAuthParser ~ SqlAccountManager.userParser map {
+      case association ~ user => association.copy(user = Some(user))
+    }
+  }
+}
 
 /**
  * @author Mike Bryant (http://github.com/mikesname)
  */
-case class SqlOAuth2AssociationManager() extends OAuth2AssociationManager{
-  def findByProviderInfo(providerUserId: String, provider: String)(implicit executionContext: ExecutionContext): Future[Option[OAuth2Association]] = ???
+case class SqlOAuth2AssociationManager()(implicit app: play.api.Application, executionContext: ExecutionContext)
+  extends OAuth2AssociationManager{
 
-  def findForAccount(account: Account)(implicit executionContext: ExecutionContext): Future[Seq[OAuth2Association]] = ???
+  import SqlOAuth2AssociationManager._
 
-  def findAll(implicit executionContext: ExecutionContext): Future[Seq[OAuth2Association]] = ???
+  def findByProviderInfo(providerUserId: String, provider: String): Future[Option[OAuth2Association]] = Future {
+    DB.withConnection { implicit connection =>
+      getByInfo(providerUserId, provider)
+    }
+  }(executionContext)
 
-  def addAssociation(acc: Account, providerId: String, provider: String)(implicit executionContext: ExecutionContext): Future[OAuth2Association] = ???
+  def findForAccount(id: String): Future[Seq[OAuth2Association]] = Future {
+    DB.withConnection { implicit conn =>
+      getForAccount(id)
+    }
+  }(executionContext)
 
+  def findAll: Future[Seq[OAuth2Association]] = Future {
+    DB.withConnection { implicit connection =>
+      SQL(
+        """
+        select * from oauth2_association join users on oauth2_association.id =  users.id
+        """
+      ).as(oAuthWithUser *)
+    }
+  }(executionContext)
+
+  def addAssociation(id: String, providerId: String, provider: String): Future[Option[OAuth2Association]] = Future {
+    DB.withConnection { implicit connection =>
+      SQL(
+        """
+        INSERT INTO oauth2_association (id, provider_id, provider) VALUES ({id},{provider_id},{provider})
+        """
+      ).on('id -> id, 'provider_id -> providerId, 'provider -> provider).executeInsert()
+      getByInfo(providerId, provider)
+    }
+  }(executionContext)
+
+
+  private def getForAccount(id: String)(implicit conn: Connection): Seq[OAuth2Association] = {
+    SQL(
+      """
+        SELECT * FROM oauth2_association JOIN users ON oauth2_association.id =  users.id
+        WHERE users.id = {id}
+      """
+    ).on('id -> id).as(oAuthWithUser *)
+  }
+
+  private def getByInfo(providerUserId: String, provider: String)(implicit conn: Connection): Option[OAuth2Association] = {
+    SQL(
+      """
+        SELECT * FROM oauth2_association
+          JOIN users ON oauth2_association.id =  users.id where
+        oauth2_association.provider_id = {provider_id}
+         AND oauth2_association.provider = {provider} LIMIT 1
+      """
+    ).on('provider_id -> providerUserId, 'provider -> provider).as(oAuthWithUser.singleOpt)
+  }
 }

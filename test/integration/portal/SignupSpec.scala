@@ -35,14 +35,14 @@ class SignupSpec extends IntegrationTestRunner {
 
     "create a validation token and send a mail on signup" in new ITestApp {
       val numSentMails = mailBuffer.size
-      val numAccounts = mocks.userFixtures.size
+      val numAccounts = mocks.accountFixtures.size
       val signup = route(FakeRequest(POST, accountRoutes.signupPost().url)
         .withSession(CSRF_TOKEN_NAME -> fakeCsrfString), data).get
       status(signup) must equalTo(SEE_OTHER)
       mailBuffer.size must beEqualTo(numSentMails + 1)
       mailBuffer.last.to must contain(testEmail)
-      mocks.userFixtures.size must equalTo(numAccounts + 1)
-      val userOpt = mocks.userFixtures.values.find(u => u.email == testEmail)
+      mocks.accountFixtures.size must equalTo(numAccounts + 1)
+      val userOpt = mocks.accountFixtures.values.find(u => u.email == testEmail)
       userOpt must beSome.which { user =>
         user.verified must beFalse
       }
@@ -93,7 +93,7 @@ class SignupSpec extends IntegrationTestRunner {
       val signup = route(FakeRequest(POST, accountRoutes.signupPost().url)
         .withSession(CSRF_TOKEN_NAME -> fakeCsrfString), data).get
       status(signup) must equalTo(SEE_OTHER)
-      mocks.userFixtures.find(_._2.email == testEmail) must beSome.which { case(uid, u) =>
+      mocks.accountFixtures.find(_._2.email == testEmail) must beSome.which { case(uid, u) =>
         // Ensure we can log in and view our profile
         val index = route(fakeLoggedInHtmlRequest(u, GET,
           controllers.portal.users.routes.UserProfiles.profile().url)).get
@@ -109,7 +109,7 @@ class SignupSpec extends IntegrationTestRunner {
       val signup = route(FakeRequest(POST, accountRoutes.signupPost().url)
         .withSession(CSRF_TOKEN_NAME -> fakeCsrfString), data2).get
       status(signup) must equalTo(SEE_OTHER)
-      mocks.userFixtures.find(_._2.email == testEmail2) must beSome.which { case (uid, u) =>
+      mocks.accountFixtures.find(_._2.email == testEmail2) must beSome.which { case (uid, u) =>
         val logout = route(fakeLoggedInHtmlRequest(u, GET, accountRoutes.logout().url)).get
         status(logout) must equalTo(SEE_OTHER)
 
@@ -122,7 +122,7 @@ class SignupSpec extends IntegrationTestRunner {
         redirectLocation(login) must beSome.which { loc =>
           loc must equalTo(controllers.portal.users.routes.UserProfiles.profile().url)
           // Check login time has been updated...
-          mocks.userFixtures.get(uid) must beSome.which { u2 =>
+          mocks.accountFixtures.get(uid) must beSome.which { u2 =>
             u2.lastLogin must beSome.which { t2 =>
               t2 must beGreaterThan(time)
             }

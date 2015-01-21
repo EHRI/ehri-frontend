@@ -16,7 +16,7 @@ import org.h2.jdbc.JdbcSQLException
  */
 class AccountSpec extends PlaySpecification {
 
-  def userDAO: AccountManager = SqlAccountManager()
+  def userDAO: AccountManager = SqlAccountManager()(play.api.Play.current)
 
   "account db" should {
     "load fixtures with the right number of accounts" in new WithSqlFixtures(new FakeApplication) {
@@ -32,6 +32,13 @@ class AccountSpec extends PlaySpecification {
           .on('email -> mocks.privilegedUser.email)
           .executeInsert() must throwA[JdbcSQLException]
       }
+    }
+
+    "find multiple accounts by id" in new WithSqlFixtures(new FakeApplication) {
+      val accounts: Seq[Account] = await(userDAO.findAllById(
+        Seq(mocks.privilegedUser.id, mocks.unprivilegedUser.id)))
+      accounts.find(_.id == mocks.privilegedUser.id) must beSome
+      accounts.find(_.id == mocks.unprivilegedUser.id) must beSome
     }
 
     "find accounts by id and email" in new WithSqlFixtures(new FakeApplication) {
@@ -56,12 +63,10 @@ class AccountSpec extends PlaySpecification {
     "allow setting and updating user's passwords" in new WithSqlFixtures(new FakeApplication) {
       val userOpt: Option[Account] = await(userDAO.findByEmail(mocks.privilegedUser.email))
       userOpt must beSome.which { user =>
-        val hashedPw = HashedPassword.fromPlain("foobar")
-        await(userDAO.update(user.copy(password = Some(hashedPw))))
+        await(userDAO.setPassword(user.id, HashedPassword.fromPlain("foobar")))
         await(userDAO.authenticate(mocks.privilegedUser.email, "foobar")) must beSome
 
-        val hashedPw2 = HashedPassword.fromPlain("barfoo")
-        await(userDAO.update(user.copy(password = Some(hashedPw2))))
+        await(userDAO.setPassword(user.id, HashedPassword.fromPlain("barfoo")))
         await(userDAO.authenticate(mocks.privilegedUser.email, "barfoo")) must beSome
       }
     }
@@ -70,14 +75,16 @@ class AccountSpec extends PlaySpecification {
 
   "openid assoc" should {
     "find accounts by openid_url and allow adding another" in new WithSqlFixtures(new FakeApplication) {
-      val assocOpt = await(userDAO.openid.findByUrl(mocks.privilegedUser.id + "-openid-test-url"))
+      val assocOpt = await(userDAO.openId.findByUrl(mocks.yahooOpenId.url))
       assocOpt must beSome.which { assoc =>
         assoc.user must beSome.which { user =>
-          user.email must beEqualTo(mocks.privilegedUser.email)
+          user.email must beEqualTo(mocks.moderator.email)
 
-          val assoc2 = await(userDAO.openid.addAssociation(user, "another-test-url"))
-          assoc2.user must beSome.which { u =>
-            u must equalTo(user)
+          val assoc2Opt = await(userDAO.openId.addAssociation(user.id, "another-test-url"))
+          assoc2Opt must beSome.which { assoc2 =>
+            assoc2.user must beSome.which { u =>
+              u must equalTo(user)
+            }
           }
         }
       }
@@ -86,14 +93,16 @@ class AccountSpec extends PlaySpecification {
 
   "oauth2 assoc" should {
     "find accounts by oauth2 provider info and allow adding another" in new WithSqlFixtures(new FakeApplication) {
-      val assocOpt = await(userDAO.oauth2.findByProviderInfo(mocks.privilegedUser.id + "1234", "google"))
+      val assocOpt = await(userDAO.oAuth2.findByProviderInfo(mocks.googleOAuthAssoc.providerId, mocks.googleOAuthAssoc.provider))
       assocOpt must beSome.which { assoc =>
         assoc.user must beSome.which { user =>
           user.email must beEqualTo(mocks.privilegedUser.email)
 
-          val assoc2 = await(userDAO.oauth2.addAssociation(user, "4321", "facebook"))
-          assoc2.user must beSome.which { u =>
-            u must equalTo(user)
+          val assoc2Opt = await(userDAO.oAuth2.addAssociation(user.id, "4321", "facebook"))
+          assoc2Opt must beSome.which { assoc2 =>
+            assoc2.user must beSome.which { u =>
+              u must equalTo(user)
+            }
           }
         }
       }
