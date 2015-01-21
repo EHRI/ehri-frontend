@@ -182,7 +182,7 @@ trait FacetConfig extends Search {
         param="data",
         render=s => Messages("facet.itemsHeldOnline." + s),
         facets=List(
-          QueryFacet(value = "yes", range = Val("1") to Start)
+          QueryFacet(value = "yes", range = Val("1") to End)
         ),
         display = FacetDisplay.Boolean
       ),
