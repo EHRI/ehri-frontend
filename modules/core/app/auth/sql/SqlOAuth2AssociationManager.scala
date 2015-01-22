@@ -51,43 +51,40 @@ case class SqlOAuth2AssociationManager()(implicit app: play.api.Application, exe
 
   def findAll: Future[Seq[OAuth2Association]] = Future {
     DB.withConnection { implicit connection =>
-      SQL(
-        """
-        select * from oauth2_association join users on oauth2_association.id =  users.id
-        """
-      ).as(oAuthWithUser *)
+      SQL"""
+        SELECT users.*, oauth2_association.*
+        FROM oauth2_association
+        JOIN users ON oauth2_association.id =  users.id
+      """.as(oAuthWithUser *)
     }
   }(executionContext)
 
   def addAssociation(id: String, providerId: String, provider: String): Future[Option[OAuth2Association]] = Future {
     DB.withConnection { implicit connection =>
-      SQL(
-        """
-        INSERT INTO oauth2_association (id, provider_id, provider) VALUES ({id},{provider_id},{provider})
-        """
-      ).on('id -> id, 'provider_id -> providerId, 'provider -> provider).executeInsert()
+      SQL"""
+        INSERT INTO oauth2_association (id, provider_id, provider) VALUES ($id, $providerId, $provider)
+        """.executeInsert()
       getByInfo(providerId, provider)
     }
   }(executionContext)
 
 
   private def getForAccount(id: String)(implicit conn: Connection): Seq[OAuth2Association] = {
-    SQL(
-      """
-        SELECT * FROM oauth2_association JOIN users ON oauth2_association.id =  users.id
-        WHERE users.id = {id}
-      """
-    ).on('id -> id).as(oAuthWithUser *)
+    SQL"""
+      SELECT users.*, oauth2_association.*
+      FROM oauth2_association
+      JOIN users ON oauth2_association.id =  users.id
+      WHERE users.id = $id
+    """.as(oAuthWithUser *)
   }
 
   private def getByInfo(providerUserId: String, provider: String)(implicit conn: Connection): Option[OAuth2Association] = {
-    SQL(
-      """
-        SELECT * FROM oauth2_association
-          JOIN users ON oauth2_association.id =  users.id where
-        oauth2_association.provider_id = {provider_id}
-         AND oauth2_association.provider = {provider} LIMIT 1
-      """
-    ).on('provider_id -> providerUserId, 'provider -> provider).as(oAuthWithUser.singleOpt)
+    SQL"""
+      SELECT users.*, oauth2_association.*
+      FROM oauth2_association
+      JOIN users ON oauth2_association.id =  users.id
+      WHERE oauth2_association.provider_id = $providerUserId
+      AND oauth2_association.provider = $provider LIMIT 1
+    """.as(oAuthWithUser.singleOpt)
   }
 }

@@ -110,6 +110,8 @@ class SignupSpec extends IntegrationTestRunner {
         .withSession(CSRF_TOKEN_NAME -> fakeCsrfString), data2).get
       status(signup) must equalTo(SEE_OTHER)
       mocks.accountFixtures.find(_._2.email == testEmail2) must beSome.which { case (uid, u) =>
+        u.hasPassword must beTrue
+
         val logout = route(fakeLoggedInHtmlRequest(u, GET, accountRoutes.logout().url)).get
         status(logout) must equalTo(SEE_OTHER)
 
@@ -117,12 +119,12 @@ class SignupSpec extends IntegrationTestRunner {
         val time = DateTime.now()
         val login = route(FakeRequest(POST, accountRoutes.passwordLoginPost().url)
           .withSession(CSRF_TOKEN_NAME -> fakeCsrfString), data2).get
-        //println(contentAsString(login))
         status(login) must equalTo(SEE_OTHER)
         redirectLocation(login) must beSome.which { loc =>
           loc must equalTo(controllers.portal.users.routes.UserProfiles.profile().url)
           // Check login time has been updated...
           mocks.accountFixtures.get(uid) must beSome.which { u2 =>
+            u2.hasPassword must beTrue
             u2.lastLogin must beSome.which { t2 =>
               t2 must beGreaterThan(time)
             }

@@ -14,7 +14,7 @@
                 </fieldset>
             }
 
-            @if(account.hasPassword) {
+            @if(userOpt.exists(_.account.exists(_.hasPassword))) {
                 <div class="profile-form-section">
                     <h3>@Messages("profile.section.security")</h3>
                     <div class="form-group">

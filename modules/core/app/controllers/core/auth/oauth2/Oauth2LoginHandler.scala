@@ -87,9 +87,7 @@ trait Oauth2LoginHandler extends AccountHelpers {
         verified = true,
         staff = false,
         active = true,
-        allowMessaging = canMessage,
-        lastLogin = None,
-        password = None
+        allowMessaging = canMessage
       ))
     } yield account
   }

@@ -56,7 +56,7 @@ case class Utils @Inject()(implicit globalConfig: global.GlobalConfig, backend: 
       val noProfile = accountIds.diff(profileIds)
       // Going nicely imperative here - sorry!
       var out = ""
-      if (!noProfile.isEmpty) {
+      if (noProfile.nonEmpty) {
         out += "Users have account but no profile\n"
         noProfile.foreach { u =>
           out += s"  $u\n"

@@ -16,5 +16,5 @@ case class Account(
   lastLogin: Option[DateTime] = None,
   password: Option[HashedPassword] = None
 ) {
-  def hasPassword: Boolean = password.isDefined
+  def hasPassword = password.isDefined
 }

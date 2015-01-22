@@ -226,7 +226,7 @@ case class UserProfiles @Inject()(implicit globalConfig: global.GlobalConfig, se
   def updateAccountPrefsPost() = WithUserAction.async { implicit request =>
     AccountPreferences.form.bindFromRequest.fold(
       errForm => immediate(BadRequest(p.userProfile.editProfile(
-        ProfileData.form, imageForm, errForm))),
+            ProfileData.form, imageForm, errForm))),
       accountPrefs => userDAO.findById(request.user.id).flatMap {
         case Some(account) =>
           userDAO.update(account.copy(allowMessaging = accountPrefs.allowMessaging)).map { _ =>
@@ -244,7 +244,9 @@ case class UserProfiles @Inject()(implicit globalConfig: global.GlobalConfig, se
 
   def updateProfilePost() = WithUserAction.async { implicit request =>
     ProfileData.form.bindFromRequest.fold(
-      errForm => immediate(BadRequest(p.userProfile.editProfile(errForm, imageForm, accountPrefsForm))),
+      errForm => immediate(
+        BadRequest(p.userProfile.editProfile(errForm, imageForm, accountPrefsForm))
+      ),
       profile => backend.patch[UserProfile](request.user.id, Json.toJson(profile).as[JsObject]).map { userProfile =>
         Redirect(profileRoutes.profile())
           .flashing("success" -> Messages("profile.update.confirmation"))
@@ -270,6 +272,7 @@ case class UserProfiles @Inject()(implicit globalConfig: global.GlobalConfig, se
         val anonProfile = UserProfileF(id = Some(request.user.id),
           identifier = request.user.model.identifier, name = request.user.model.identifier,
           active = false)
+
         backend.update(request.user.id, anonProfile).flatMap { bool =>
           userDAO.delete(request.user.id).flatMap { _ =>
             gotoLogoutSucceeded
@@ -288,12 +291,12 @@ case class UserProfiles @Inject()(implicit globalConfig: global.GlobalConfig, se
 
   def updateProfileImagePost() = WithUserAction.async(uploadParser) { implicit request =>
 
-    def onError(err: String) =
-      BadRequest(p.userProfile.editProfile(profileDataForm,
-        imageForm.withGlobalError(err), accountPrefsForm))
+    def onError(err: String): Future[Result] = immediate(
+        BadRequest(p.userProfile.editProfile(profileDataForm,
+          imageForm.withGlobalError(err), accountPrefsForm)))
 
     request.body match {
-      case Left(MaxSizeExceeded(length)) => immediate(onError("errors.imageTooLarge"))
+      case Left(MaxSizeExceeded(length)) => onError("errors.imageTooLarge")
       case Right(multipartForm) => multipartForm.file("image").map { file =>
         if (isValidContentType(file)) {
           try {
@@ -303,13 +306,13 @@ case class UserProfiles @Inject()(implicit globalConfig: global.GlobalConfig, se
             } yield Redirect(profileRoutes.profile())
                   .flashing("success" -> "profile.update.confirmation")
           } catch {
-            case e: UnsupportedFormatException => immediate(onError("errors.badFileType"))
+            case e: UnsupportedFormatException => onError("errors.badFileType")
           }
         } else {
-          immediate(onError("errors.badFileType"))
+          onError("errors.badFileType")
         }
       }.getOrElse {
-        immediate(onError("errors.noFileGiven"))
+        onError("errors.noFileGiven")
       }
     }
   }

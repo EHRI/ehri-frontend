@@ -1,6 +1,5 @@
 package controllers.users
 
-import acl.ItemPermissionSet
 import auth.{HashedPassword, AccountManager}
 import play.api.libs.concurrent.Execution.Implicits._
 import controllers.generic._
@@ -70,9 +69,7 @@ case class UserProfiles @Inject()(implicit globalConfig: global.GlobalConfig, se
       "name" -> Forms.nonEmptyText,
       "password" -> Forms.nonEmptyText(minLength = 6),
       "confirm" -> Forms.nonEmptyText(minLength = 6)
-    ) verifying("login.error.passwordsDoNotMatch", f => f match {
-      case (_, _, _, pw, pwc) => pw == pwc
-    })
+    ) verifying("login.error.passwordsDoNotMatch", d => d._4 == d._5)
   )
 
   /**

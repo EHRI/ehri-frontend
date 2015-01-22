@@ -1,3 +1,4 @@
+import auth.HashedPassword
 import models.{OpenIDAssociation, OAuth2Association, Account}
 
 package object mocks {

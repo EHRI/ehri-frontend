@@ -7,7 +7,9 @@ CREATE TABLE users (
     staff       BOOLEAN NOT NULL DEFAULT FALSE,
     active      BOOLEAN NOT NULL DEFAULT TRUE,
     created     TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    last_login  TIMESTAMP NULL
+    last_login  TIMESTAMP NULL,
+    password    VARCHAR(255) NULL,
+    is_legacy   BOOLEAN NOT NULL DEFAULT FALSE
 );
 
 CREATE UNIQUE INDEX users_email ON users (email);
@@ -25,11 +27,6 @@ CREATE TABLE oauth2_association (
     PRIMARY KEY(id, provider_id, provider)
 );
 
-CREATE TABLE user_auth (
-    id         VARCHAR(50) NOT NULL PRIMARY KEY REFERENCES users (id) ON DELETE CASCADE,
-    data       VARCHAR(255) NOT NULL
-);
-
 CREATE TABLE token (
   id          VARCHAR(50) NOT NULL REFERENCES users (id) ON DELETE CASCADE,
   token       VARCHAR(255) NOT NULL PRIMARY KEY,
@@ -43,4 +40,3 @@ CREATE TABLE token (
 DROP TABLE IF EXISTS token;
 DROP TABLE IF EXISTS users;
 DROP TABLE IF EXISTS openid_association;
-DROP TABLE IF EXISTS user_auth;

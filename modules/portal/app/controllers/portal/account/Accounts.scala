@@ -143,7 +143,7 @@ case class Accounts @Inject()(implicit globalConfig: GlobalConfig, searchDispatc
                     allowMessaging = data.allowMessaging,
                     password = Some(HashedPassword.fromPlain(data.password))
                   ))
-                  _ <- userDAO.createValidationToken(account.id, uuid)
+                  _ <- userDAO.createToken(account.id, uuid, isSignUp = true)
                   result <- doLogin(account)
                     .map(_.flashing("success" -> "signup.confirmation"))
                 } yield {
@@ -157,7 +157,7 @@ case class Accounts @Inject()(implicit globalConfig: GlobalConfig, searchDispatc
   }
 
   def confirmEmail(token: String) = NotReadOnlyAction.async { implicit request =>
-    userDAO.findByResetToken(token, isSignUp = true).flatMap {
+    userDAO.findByToken(token, isSignUp = true).flatMap {
       case Some(account) => for {
         _ <- userDAO.verify(account, token)
         result <- doLogin(account)
@@ -323,11 +323,11 @@ case class Accounts @Inject()(implicit globalConfig: GlobalConfig, searchDispatc
   }
 
   def resetPassword(token: String) = OptionalUserAction.async { implicit request =>
-    userDAO.findByResetToken(token).map {
+    userDAO.findByToken(token).map {
       case Some(account) => Ok(views.html.p.account.resetPassword(resetPasswordForm,
         accountRoutes.resetPasswordPost(token)))
       case _ => Redirect(accountRoutes.forgotPassword())
-        .flashing("error" -> "login.error.badResetToken")
+        .flashing("danger" -> "login.error.badResetToken")
     }
   }
 
@@ -335,7 +335,7 @@ case class Accounts @Inject()(implicit globalConfig: GlobalConfig, searchDispatc
     request.user.account match {
       case Some(account) =>
         val uuid = UUID.randomUUID()
-        userDAO.createValidationToken(account.id, uuid).map { _ =>
+        userDAO.createToken(account.id, uuid, isSignUp = true).map { _ =>
           sendValidationEmail(account.email, uuid)
           val redirect = request.headers.get(HttpHeaders.REFERER)
             .getOrElse(portalRoutes.index().url)

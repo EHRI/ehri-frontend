@@ -61,12 +61,11 @@ trait UserPasswordLoginHandler {
         errorForm => block(UserPasswordLoginRequest(Left(errorForm), request)),
         data => {
           val (email, pw) = data
-          userDAO.authenticate(email, pw).flatMap {
+          userDAO.authenticateByEmail(email, pw).flatMap {
             case Some(account) =>
               Logger.logger.info("User '{}' logged in via password", account.id)
               block(UserPasswordLoginRequest(Right(account), request))
-            case None =>
-              block(UserPasswordLoginRequest(Left(boundForm
+            case None => block(UserPasswordLoginRequest(Left(boundForm
                 .withGlobalError("login.error.badUsernameOrPassword")), request))
           }
         }
@@ -96,7 +95,7 @@ trait UserPasswordLoginHandler {
               case Some(account) =>
                 val uuid = UUID.randomUUID()
                 for {
-                  _ <- userDAO.createResetToken(account.id, uuid)
+                  _ <- userDAO.createToken(account.id, uuid, isSignUp = false)
                 } yield ForgotPasswordRequest(Right((account, uuid)), request.userOpt, request)
               case None =>
                 val form = forgotPasswordForm.withError("email", "error.emailNotFound")
@@ -121,16 +120,13 @@ trait UserPasswordLoginHandler {
         errorForm => immediate(ChangePasswordRequest(Some(errorForm), request.user, request)),
         data => {
           val (current, newPw, _) = data
-
-          (for {
-            account <- request.user.account
-            hashedPw <- account.password if hashedPw.check(current)
-          } yield userDAO.update(account.copy(password = Some(hashedPw))).map { updated =>
-            ChangePasswordRequest(None, request.user, request)
-          }) getOrElse {
-            immediate(ChangePasswordRequest(
-              Some(form.withGlobalError("login.error.badUsernameOrPassword")),
-              request.user, request))
+          userDAO.authenticateById(request.user.id, current).flatMap {
+            case Some(account) => userDAO.update(account.copy(password = Some(HashedPassword.fromPlain(newPw)))).map { _ =>
+              ChangePasswordRequest(None, request.user, request)
+            }
+            case None =>
+              immediate(ChangePasswordRequest(
+                Some(form.withGlobalError("login.error.badUsernameOrPassword")), request.user, request))
           }
         }
       )
@@ -151,11 +147,11 @@ trait UserPasswordLoginHandler {
       form.fold(
         errForm => immediate(ResetPasswordRequest(Left(errForm), request.userOpt, request)),
         { case (pw, _) =>
-          userDAO.findByResetToken(token).flatMap {
+          userDAO.findByToken(token).flatMap {
             case Some(account) =>
               for {
                 _ <- userDAO.expireTokens(account.id)
-                _ <- userDAO.setPassword(account.id, HashedPassword.fromPlain(pw))
+                _ <- userDAO.update(account.copy(password = Some(HashedPassword.fromPlain(pw))))
               } yield ResetPasswordRequest(Right(account), request.userOpt, request)
             case None => immediate(ResetPasswordRequest(
               Left(form.withGlobalError("login.error.badResetToken")), request.userOpt, request))

@@ -10,7 +10,9 @@ CREATE TABLE users (
     active BOOLEAN NOT NULL DEFAULT TRUE,
     allow_messaging BOOLEAN NOT NULL DEFAULT TRUE,
     created TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    last_login TIMESTAMP NULL
+    last_login TIMESTAMP NULL,
+    password VARCHAR(255) NULL,
+    is_legacy BOOLEAN NOT NULL DEFAULT FALSE
 );
 
 CREATE UNIQUE INDEX users_email ON users (email);
@@ -33,13 +35,6 @@ CREATE TABLE oauth2_association (
 );
 
 ALTER TABLE oauth2_association ADD CONSTRAINT oauth2_association_id FOREIGN KEY (id) REFERENCES users (id) ON DELETE CASCADE;
-
-CREATE TABLE user_auth (
-    id          VARCHAR(50) NOT NULL PRIMARY KEY,
-    `data`     VARCHAR(255) NOT NULL
-);
-
-ALTER TABLE user_auth ADD CONSTRAINT user_auth_id FOREIGN KEY (id) REFERENCES users (id) ON DELETE CASCADE;
 
 CREATE TABLE token (
   id          VARCHAR(50) NOT NULL,
@@ -94,7 +89,6 @@ ALTER TABLE research_guide_page ADD CONSTRAINT research_guide_page_id FOREIGN KE
 
 DROP TABLE IF EXISTS user_auth_token;
 DROP TABLE IF EXISTS token;
-DROP TABLE IF EXISTS user_auth;
 DROP TABLE IF EXISTS openid_association;
 DROP TABLE IF EXISTS oauth2_association;
 DROP TABLE IF EXISTS users;

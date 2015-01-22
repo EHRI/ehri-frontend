@@ -191,9 +191,9 @@ class ApplicationSpec extends PlaySpecification with TestConfiguration with User
           controllers.portal.account.routes.Accounts.resetPassword(token).url)
           .withSession(CSRF_TOKEN_NAME -> fakeCsrfString)).get
         status(expired) must equalTo(SEE_OTHER)
-        val err = flash(expired).get("error")
-        err must beSome
-        err.get must equalTo("login.error.badResetToken")
+        flash(expired).get("danger") must beSome.which{ msg =>
+          msg must equalTo("login.error.badResetToken")
+        }
       }
     }
 

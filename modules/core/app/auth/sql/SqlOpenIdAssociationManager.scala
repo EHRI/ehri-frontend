@@ -41,32 +41,28 @@ case class SqlOpenIdAssociationManager()(implicit app: play.api.Application, exe
     }
   }(executionContext)
 
-  def addAssociation(id: String, assoc: String): Future[Option[OpenIDAssociation]] = Future {
+  def addAssociation(id: String, url: String): Future[Option[OpenIDAssociation]] = Future {
     DB.withConnection { implicit connection =>
-      SQL(
-        """
-        INSERT INTO openid_association (id, openid_url) VALUES ({id},{url})
-        """
-      ).on('id -> id, 'url -> assoc).executeInsert()
-      getByUrl(assoc)
+      SQL"INSERT INTO openid_association (id, openid_url) VALUES ($id, $url)".executeInsert()
+      getByUrl(url)
     }
   }(executionContext)
 
   def findAll: Future[Seq[OpenIDAssociation]] = Future {
     DB.withConnection { implicit conn =>
-      SQL(
-        """
-        SELECT * FROM openid_association JOIN users ON openid_association.id =  users.id
-        """
-      ).as(openIdWithUser *)
+      SQL"""
+        SELECT users.*,  openid_association.*
+        FROM openid_association
+        JOIN users ON openid_association.id =  users.id
+      """.as(openIdWithUser *)
     }
   }(executionContext)
 
-  private def getByUrl(url: String)(implicit conn: Connection) = SQL(
-    """
-        SELECT * FROM openid_association
-          JOIN users ON openid_association.id =  users.id WHERE
-        openid_association.openid_url = {url} LIMIT 1
-    """
-  ).on('url -> url).as(openIdWithUser.singleOpt)
+  private def getByUrl(url: String)(implicit conn: Connection) =
+    SQL"""
+      SELECT users.*, openid_association.*
+      FROM openid_association
+      JOIN users ON openid_association.id =  users.id
+      WHERE openid_association.openid_url = $url LIMIT 1
+    """.as(openIdWithUser.singleOpt)
 }
