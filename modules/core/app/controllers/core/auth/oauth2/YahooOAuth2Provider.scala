@@ -66,10 +66,8 @@ object YahooOAuth2Provider extends OAuth2Provider {
     )
   }
 
-  override   def buildOAuth2Info(response: WSResponse): OAuth2Info = {
-    val info: OAuth2Info = super.buildOAuth2Info(response)
-    val yinfo: OAuth2Info = info.copy(userGuid = (response.json \ "xoauth_yahoo_guid").asOpt[String])
-    Logger.debug("Yahoo info: " + yinfo)
-    yinfo
+  override   def buildOAuth2Info(response: WSResponse): Option[OAuth2Info] = {
+    val info: Option[OAuth2Info] = super.buildOAuth2Info(response)
+    info.map(_.copy(userGuid = (response.json \ "xoauth_yahoo_guid").asOpt[String]))
   }
 }

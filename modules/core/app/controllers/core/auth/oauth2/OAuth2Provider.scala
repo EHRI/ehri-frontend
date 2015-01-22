@@ -2,9 +2,8 @@ package controllers.core.auth.oauth2
 
 import java.net.URLEncoder
 
-import play.api.Play._
-import play.api.libs.ws.WSResponse
 import play.api.Logger
+import play.api.libs.ws.WSResponse
 
 /**
  * @author Mike Bryant (http://github.com/mikesname)
@@ -44,11 +43,13 @@ trait OAuth2Provider {
     OAuth2Constants.RedirectUri -> Seq(handlerUrl)
   )
 
-  def buildOAuth2Info(response: WSResponse): OAuth2Info = {
+  def buildOAuth2Info(response: WSResponse): Option[OAuth2Info] = {
     Logger.debug("OAuth2 Info [" + response.body + "]")
     val json = response.json
-    OAuth2Info(
-      (json \ OAuth2Constants.AccessToken).as[String],
+    for {
+      accessToken <- (json \ OAuth2Constants.AccessToken).asOpt[String]
+    } yield OAuth2Info(
+      accessToken,
       (json \ OAuth2Constants.TokenType).asOpt[String],
       (json \ OAuth2Constants.ExpiresIn).asOpt[Int],
       (json \ OAuth2Constants.RefreshToken).asOpt[String]

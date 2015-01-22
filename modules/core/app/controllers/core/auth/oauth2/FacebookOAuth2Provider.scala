@@ -1,9 +1,8 @@
 package controllers.core.auth.oauth2
 
-import play.api.libs.json._
-import play.api.libs.functional.syntax._
-import play.api.libs.ws.WSResponse
 import play.api.Logger
+import play.api.libs.json._
+import play.api.libs.ws.WSResponse
 
 /**
  * @author Mike Bryant (http://github.com/mikesname)
@@ -12,13 +11,11 @@ object FacebookOAuth2Provider extends OAuth2Provider {
   val name = "facebook"
 
   // facebook does not follow the OAuth2 spec :-\
-  override def buildOAuth2Info(response: WSResponse): OAuth2Info = {
+  override def buildOAuth2Info(response: WSResponse): Option[OAuth2Info] = {
     response.body.split("&|=") match {
-      case Array(OAuth2Constants.AccessToken, token, "expires", expiresIn) => OAuth2Info(token, None, Some(expiresIn.toInt))
-      case Array(OAuth2Constants.AccessToken, token) => OAuth2Info(token)
-      case e =>
-        Logger.error("[securesocial] invalid response format for accessToken")
-        sys.error("Authentication error: " )
+      case Array(OAuth2Constants.AccessToken, token, "expires", expiresIn) => Some(OAuth2Info(token, None, Some(expiresIn.toInt)))
+      case Array(OAuth2Constants.AccessToken, token) => Some(OAuth2Info(token))
+      case e => None
     }
   }
 
