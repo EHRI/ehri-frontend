@@ -78,7 +78,7 @@ object Link {
   import Entity._
   import Ontology._
   import play.api.libs.functional.syntax._
-
+  import defines.EnumUtils.enumMapping
   private implicit val anyModelReads = AnyModel.Converter.restReads
   private implicit val userProfileMetaReads = models.UserProfile.Resource.restReads
   private implicit val accessPointReads = models.AccessPoint.Converter.restReads
@@ -107,7 +107,7 @@ object Link {
   val form = Form(mapping(
     Entity.ISA -> ignored(EntityType.Link),
     Entity.ID -> optional(nonEmptyText),
-    LINK_TYPE -> default(utils.forms.enum(LinkType), LinkType.Associative),
+    LINK_TYPE -> default(enumMapping(LinkType), LinkType.Associative),
     DESCRIPTION -> optional(nonEmptyText), // TODO: Validate this server side
     Ontology.IS_PROMOTABLE -> default(boolean, false),
     DATES -> list(DatePeriod.form.mapping)

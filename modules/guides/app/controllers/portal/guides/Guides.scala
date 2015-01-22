@@ -262,7 +262,7 @@ case class Guides @Inject()(implicit globalConfig: global.GlobalConfig, searchDi
       if (request.queryString.contains("lat") && request.queryString.contains("lng")) {
         request.queryString
       } else {
-        template.getParams()
+        template.getParams
       }
     ) match {
       case (sort, geoloc) => for {

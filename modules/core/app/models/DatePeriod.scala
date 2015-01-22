@@ -96,6 +96,7 @@ case class DatePeriodF(
 object DatePeriod {
   import DatePeriodF._
   import Entity.{TYPE => _, _}
+  import defines.EnumUtils.enumMapping
 
   private val dateValidator: (String) => Boolean = { dateString =>
     try {
@@ -112,9 +113,9 @@ object DatePeriod {
   val form = Form(mapping(
     ISA -> ignored(EntityType.DatePeriod),
     ID -> optional(nonEmptyText),
-    TYPE -> optional(utils.forms.enum(DatePeriodType)),
+    TYPE -> optional(enumMapping(DatePeriodType)),
     START_DATE -> optional(text verifying("error.date", dateValidator)),
     END_DATE -> optional(text verifying("error.date", dateValidator)),
-    PRECISION -> optional(utils.forms.enum(DatePeriodPrecision))
+    PRECISION -> optional(enumMapping(DatePeriodPrecision))
   )(DatePeriodF.apply)(DatePeriodF.unapply))
 }

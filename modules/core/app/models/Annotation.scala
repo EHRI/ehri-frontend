@@ -80,6 +80,7 @@ case class AnnotationF(
 object Annotation {
   import Entity._
   import Ontology._
+  import defines.EnumUtils.enumMapping
 
   private implicit val anyModelReads = AnyModel.Converter.restReads
   private implicit val userProfileMetaReads = UserProfile.Resource.restReads
@@ -129,7 +130,7 @@ object Annotation {
   val form = Form(mapping(
     ISA -> ignored(EntityType.Annotation),
     ID -> optional(nonEmptyText),
-    ANNOTATION_TYPE_PROP -> optional(utils.forms.enum(AnnotationType)),
+    ANNOTATION_TYPE_PROP -> optional(enumMapping(AnnotationType)),
     BODY -> nonEmptyText(maxLength = 600),
     FIELD -> optional(nonEmptyText),
     COMMENT -> optional(nonEmptyText),

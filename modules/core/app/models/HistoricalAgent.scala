@@ -75,6 +75,7 @@ object HistoricalAgent {
   import Entity._
   import HistoricalAgentF._
   import Ontology._
+  import defines.EnumUtils.enumMapping
 
   private implicit val systemEventReads = SystemEvent.Resource.restReads
   private implicit val authoritativeSetReads = AuthoritativeSet.Resource.restReads
@@ -98,7 +99,7 @@ object HistoricalAgent {
       ISA -> ignored(EntityType.HistoricalAgent),
       ID -> optional(nonEmptyText),
       IDENTIFIER -> nonEmptyText(minLength=2), // TODO: Increase to > 2, not done yet 'cos of test fixtures,
-      PUBLICATION_STATUS -> optional(enum(models.PublicationStatus)),
+      PUBLICATION_STATUS -> optional(enumMapping(models.PublicationStatus)),
       "descriptions" -> list(HistoricalAgentDescription.form.mapping)
     )(HistoricalAgentF.apply)(HistoricalAgentF.unapply)
   )

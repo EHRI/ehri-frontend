@@ -18,7 +18,7 @@ import scala.util.Failure
 import scala.util.Success
 import defines.EntityType
 import controllers.base.AdminController
-
+import defines.EnumUtils.enumMapping
 
 @Singleton
 case class AdminSearch @Inject()(implicit globalConfig: global.GlobalConfig, searchDispatcher: Dispatcher, searchResolver: Resolver, searchIndexer: Indexer, backend: Backend, accounts: AccountManager)
@@ -101,14 +101,13 @@ case class AdminSearch @Inject()(implicit globalConfig: global.GlobalConfig, sea
       facetBuilder = entityFacets
     ).map { case QueryResult(page, params, facets) =>
       render {
-        case Accepts.Json() => {
+        case Accepts.Json() =>
           Ok(Json.toJson(Json.obj(
             "numPages" -> page.numPages,
             "page" -> Json.toJson(page.items.map(_._1))(Writes.seq(client.json.anyModelJson.clientFormat)),
             "facets" -> facets
           ))
           )
-        }
         case _ => Ok(views.html.admin.search.search(page, params, facets,
           controllers.admin.routes.AdminSearch.search()))
       }
@@ -117,13 +116,12 @@ case class AdminSearch @Inject()(implicit globalConfig: global.GlobalConfig, sea
 
   import play.api.data.Form
   import play.api.data.Forms._
-  import utils.forms.enum
 
 
   private val updateIndexForm = Form(
     tuple(
       "all" -> default(boolean, false),
-      "type" -> list(enum(defines.EntityType))
+      "type" -> list(enumMapping(defines.EntityType))
     )
   )
 
@@ -161,16 +159,14 @@ case class AdminSearch @Inject()(implicit globalConfig: global.GlobalConfig, sea
       }
 
       job.onComplete {
-        case Success(()) => {
+        case Success(()) =>
           chan.push(wrapMsg(Indexable.DONE_MESSAGE))
           chan.eofAndEnd()
-        }
-        case Failure(t) => {
+        case Failure(t) =>
           Logger.logger.error(t.getMessage)
           chan.push(wrapMsg("Indexing operation failed: " + t.getMessage))
           chan.push(wrapMsg(Indexable.ERR_MESSAGE))
           chan.eofAndEnd()
-        }
       }
     }
 

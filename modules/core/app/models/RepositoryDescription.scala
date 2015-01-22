@@ -203,6 +203,7 @@ case class RepositoryDescriptionF(
 object RepositoryDescription {
   import Isdiah._
   import Entity._
+  import defines.EnumUtils.enumMapping
 
   val form = Form(
     mapping(
@@ -245,7 +246,7 @@ object RepositoryDescription {
         SOURCES -> optional(list(nonEmptyText)),
         MAINTENANCE_NOTES -> optional(text)
       )(IsdiahControl.apply)(IsdiahControl.unapply),
-      CREATION_PROCESS -> default(enum(CreationProcess), CreationProcess.Manual),
+      CREATION_PROCESS -> default(enumMapping(CreationProcess), CreationProcess.Manual),
       ACCESS_POINTS -> list(AccessPoint.form.mapping),
       MAINTENANCE_EVENTS -> list(entity),
       UNKNOWN_DATA -> list(entity)

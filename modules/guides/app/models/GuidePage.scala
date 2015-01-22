@@ -58,7 +58,7 @@ case class GuidePage(
         .on('i -> id).executeUpdate()
   }
 
-  def getParams(): Map[String,Seq[String]] = {
+  def getParams: Map[String,Seq[String]] = {
     params match {
       case Some(str) => FormUrlEncodedParser.parse(str)
       case _ => Map.empty
@@ -67,6 +67,7 @@ case class GuidePage(
 }
 
 object GuidePage {
+  import defines.EnumUtils.enumMapping
 
   val PREFIX = "guidePage"
   val OBJECTID = "id"
@@ -95,10 +96,10 @@ object GuidePage {
   implicit val form = Form(
     mapping(
       OBJECTID -> ignored(Option.empty[Long]),
-      LAYOUT -> utils.forms.enum(Layout),
+      LAYOUT -> enumMapping(Layout),
       NAME -> nonEmptyText,
       PATH -> nonEmptyText,
-      POSITION -> utils.forms.enum(MenuPosition),
+      POSITION -> enumMapping(MenuPosition),
       CONTENT -> nonEmptyText,
       PARENT -> optional(longNumber),
       DESCRIPTION -> optional(nonEmptyText),

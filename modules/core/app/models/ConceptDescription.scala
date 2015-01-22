@@ -90,6 +90,7 @@ object ConceptDescription {
 
   import ConceptF._
   import Entity._
+  import defines.EnumUtils.enumMapping
 
   val form = Form(mapping(
     ISA -> ignored(EntityType.ConceptDescription),
@@ -101,7 +102,7 @@ object ConceptDescription {
     SCOPENOTE -> optional(list(nonEmptyText)),
     LONGITUDE -> optional(bigDecimal),
     LATITUDE -> optional(bigDecimal),
-    CREATION_PROCESS -> default(enum(CreationProcess), CreationProcess.Manual),
+    CREATION_PROCESS -> default(enumMapping(CreationProcess), CreationProcess.Manual),
     ACCESS_POINTS -> list(AccessPoint.form.mapping),
     UNKNOWN_DATA -> list(entity)
   )(ConceptDescriptionF.apply)(ConceptDescriptionF.unapply))

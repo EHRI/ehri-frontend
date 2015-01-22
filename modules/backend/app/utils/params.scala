@@ -4,7 +4,7 @@ import play.api.mvc.RequestHeader
 import play.api.data.Form
 import play.api.data.Forms._
 import backend.rest.Constants._
-import defines.{EntityType, EventType}
+import defines.{EnumUtils, EntityType, EventType}
 import org.joda.time.DateTime
 import org.joda.time.format.ISODateTimeFormat
 import utils.SystemEventParams.ShowType
@@ -91,6 +91,8 @@ case class SystemEventParams(
 
 object SystemEventParams {
 
+  import EnumUtils.enumMapping
+
   def empty: SystemEventParams = new SystemEventParams()
 
   val SHOW = "show"
@@ -104,11 +106,11 @@ object SystemEventParams {
   def form: Form[SystemEventParams] = Form(
     mapping(
       USERS -> seq(text),
-      EVENT_TYPE -> seq(utils.forms.enum(EventType)),
-      ITEM_TYPE -> seq(utils.forms.enum(EntityType)),
+      EVENT_TYPE -> seq(enumMapping(EventType)),
+      ITEM_TYPE -> seq(enumMapping(EntityType)),
       FROM -> optional(jodaDate(pattern = DATE_PATTERN)),
       TO -> optional(jodaDate(pattern = DATE_PATTERN)),
-      SHOW -> optional(utils.forms.enum(ShowType))
+      SHOW -> optional(enumMapping(ShowType))
     )(SystemEventParams.apply)(SystemEventParams.unapply)
   )
 

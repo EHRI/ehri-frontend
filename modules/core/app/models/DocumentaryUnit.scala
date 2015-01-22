@@ -102,6 +102,7 @@ object DocumentaryUnit {
   import Entity._
   import models.DocumentaryUnitF._
   import eu.ehri.project.definitions.Ontology.{OTHER_IDENTIFIERS => _, _}
+  import defines.EnumUtils.enumMapping
 
   implicit val metaReads: Reads[DocumentaryUnit] = (
     __.read[DocumentaryUnitF](documentaryUnitReads) and
@@ -138,9 +139,9 @@ object DocumentaryUnit {
       ID -> optional(nonEmptyText),
       IDENTIFIER -> nonEmptyText,
       OTHER_IDENTIFIERS -> optional(list(nonEmptyText)),
-      PUBLICATION_STATUS -> optional(utils.forms.enum(models.PublicationStatus)),
-      COPYRIGHT -> optional(utils.forms.enum(CopyrightStatus)),
-      SCOPE -> optional(utils.forms.enum(Scope)),
+      PUBLICATION_STATUS -> optional(enumMapping(models.PublicationStatus)),
+      COPYRIGHT -> optional(enumMapping(CopyrightStatus)),
+      SCOPE -> optional(enumMapping(Scope)),
       "descriptions" -> list(DocumentaryUnitDescription.form.mapping)
     )(DocumentaryUnitF.apply)(DocumentaryUnitF.unapply)
   )

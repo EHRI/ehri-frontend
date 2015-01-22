@@ -1,3 +1,5 @@
+import play.api.data.{Mapping, Forms, FormError}
+import play.api.data.format.Formatter
 
 package object defines {
 
@@ -49,13 +51,12 @@ package object defines {
      */
     def enumReads[E <: Enumeration](enum: E): Reads[E#Value] = new Reads[E#Value] {
       def reads(json: JsValue): JsResult[E#Value] = json match {
-        case JsString(s) => {
+        case JsString(s) =>
           try {
             JsSuccess(enum.withName(s))
           } catch {
             case _: NoSuchElementException => JsError("Enumeration expected of type: '%s', but it does not appear to contain the value: '%s'".format(enum.getClass, s))
           }
-        }
         case _ => JsError("String value expected")
       }
     }
@@ -65,5 +66,32 @@ package object defines {
     }
 
     implicit def enumFormat[E <: Enumeration](enum: E): Format[E#Value] = Format(enumReads(enum), enumWrites)
+
+    /**
+     * Constructs a simple mapping for a text field (mapped as `scala.Enumeration`)
+     *
+     * For example:
+     * {{{
+     *   Form("status" -> enum(Status))
+     * }}}
+     *
+     * @param enum the Enumeration#Value
+     */
+    def enumMapping[E <: Enumeration](enum: E): Mapping[E#Value] = Forms.of(enumFormBinder(enum))
+
+    /**
+     * Default formatter for `scala.Enumeration`
+     *
+     */
+    private def enumFormBinder[E <: Enumeration](enum: E): Formatter[E#Value] = new Formatter[E#Value] {
+      def bind(key: String, data: Map[String, String]) = {
+        play.api.data.format.Formats.stringFormat.bind(key, data).right.flatMap { s =>
+          scala.util.control.Exception.allCatch[E#Value]
+            .either(enum.withName(s))
+            .left.map(e => Seq(FormError(key, "error.enum", Nil)))
+        }
+      }
+      def unbind(key: String, value: E#Value) = Map(key -> value.toString)
+    }
   }
 }

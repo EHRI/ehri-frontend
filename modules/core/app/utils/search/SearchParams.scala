@@ -109,6 +109,7 @@ object SearchParams {
   import play.api.data.Forms._
   import play.api.data.Form
   import utils.PageParams._
+  import defines.EnumUtils.enumMapping
 
   def empty: SearchParams = new SearchParams()
 
@@ -125,9 +126,9 @@ object SearchParams {
         i => i.min(MAX_LIST_LIMIT),
         (i: Int) => i)
       ),
-      SORT -> optional(utils.forms.enum(SearchOrder)),
+      SORT -> optional(enumMapping(SearchOrder)),
       REVERSE -> optional(boolean),
-      ENTITY -> list(utils.forms.enum(EntityType)),
+      ENTITY -> list(enumMapping(EntityType)),
       FIELD -> optional(list(nonEmptyText)),
       EXCLUDE -> optional(list(nonEmptyText)),
       FILTERS -> optional(list(nonEmptyText))

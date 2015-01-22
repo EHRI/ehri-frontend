@@ -6,6 +6,7 @@ import play.api.data.Forms._
 import play.api.Mode.Mode
 import org.joda.time.DateTime
 import defines.BindableEnum
+import defines.EnumUtils.enumMapping
 
 /**
  * @author Mike Bryant (http://github.com/mikesname)
@@ -48,7 +49,7 @@ object Feedback {
       NAME -> optional(text),
       EMAIL -> optional(email),
       TEXT -> optional(nonEmptyText),
-      TYPE -> optional(utils.forms.enum(Type)),
+      TYPE -> optional(enumMapping(Type)),
       COPY_ME -> optional(boolean),
       "context" -> ignored(Option.empty[FeedbackContext]),
       "createdAt" -> ignored(Option.empty[DateTime]),
