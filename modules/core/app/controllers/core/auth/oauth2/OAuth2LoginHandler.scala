@@ -2,6 +2,7 @@ package controllers.core.auth.oauth2
 
 import auth.AuthenticationError
 import controllers.base.AuthController
+import global.GlobalConfig
 import models._
 import play.api.i18n.Messages
 import play.api.mvc._
@@ -25,15 +26,14 @@ import controllers.core.auth.AccountHelpers
  *
  * @author Mike Bryant (http://github.com/mikesname)
  */
-trait Oauth2LoginHandler extends AccountHelpers {
+trait OAuth2LoginHandler extends AccountHelpers {
 
   self: Controller with AuthController =>
 
   val backend: Backend
+  val accounts: auth.AccountManager
+  val globalConfig: GlobalConfig
 
-  val userDAO: auth.AccountManager
-
-  private val SSLEnabled = current.configuration.getBoolean("securesocial.ssl").getOrElse(true)
   private val SessionKey = "sid"
 
   case class OAuth2Request[A](
@@ -45,7 +45,8 @@ trait Oauth2LoginHandler extends AccountHelpers {
     Logger.debug(s"Fetching access token at ${provider.settings.accessTokenUrl}")
     WS.url(provider.getAccessTokenUrl)
       .withHeaders(provider.getAccessTokenHeaders: _*)
-      .post(provider.getAccessTokenParams(code, handler.absoluteURL(SSLEnabled))).map(provider.buildOAuth2Info)
+      .post(provider.getAccessTokenParams(code, handler.absoluteURL(globalConfig.https)))
+      .map(provider.buildOAuth2Info)
   }
 
   private def getUserData[A](provider: OAuth2Provider, info: OAuth2Info)(implicit request: Request[A]): Future[UserData] = {
@@ -81,7 +82,7 @@ trait Oauth2LoginHandler extends AccountHelpers {
     )
     for {
       profile <- backend.createNewUserProfile[UserProfile](profileData, groups = defaultPortalGroups)
-      account <- userDAO.create(Account(
+      account <- accounts.create(Account(
         id = profile.id,
         email = userData.email.toLowerCase,
         verified = true,
@@ -93,27 +94,27 @@ trait Oauth2LoginHandler extends AccountHelpers {
   }
 
   private def getOrCreateAccount(provider: OAuth2Provider, userData: UserData): Future[Account] = {
-    userDAO.oAuth2.findByProviderInfo(userData.providerId, provider.name).flatMap { assocOpt =>
+    accounts.oAuth2.findByProviderInfo(userData.providerId, provider.name).flatMap { assocOpt =>
       assocOpt.flatMap(_.user).map { account =>
         Logger.info(s"Found existing association for ${userData.name} -> ${provider.name}")
         for {
-          updated <- userDAO.update(account.copy(verified = true))
+          updated <- accounts.update(account.copy(verified = true))
           _ <- updateUserInfo(updated, userData)
         } yield updated
       } getOrElse {
-        userDAO.findByEmail(userData.email).flatMap { accountOpt =>
+        accounts.findByEmail(userData.email).flatMap { accountOpt =>
           accountOpt.map { account =>
             Logger.info(s"Creating new association for ${userData.name} -> ${provider.name}")
             for {
-              updated <- userDAO.update(account.copy(verified = true))
-              _ <- userDAO.oAuth2.addAssociation(updated.id, userData.providerId, provider.name)
+              updated <- accounts.update(account.copy(verified = true))
+              _ <- accounts.oAuth2.addAssociation(updated.id, userData.providerId, provider.name)
               _ <- updateUserInfo(updated, userData)
             } yield updated
           } getOrElse {
             Logger.info(s"Creating new account for ${userData.name} -> ${provider.name}")
             for {
               newAccount <- createNewProfile(userData, provider)
-              _ <- userDAO.oAuth2.addAssociation(newAccount.id, userData.providerId, provider.name)
+              _ <- accounts.oAuth2.addAssociation(newAccount.id, userData.providerId, provider.name)
             } yield newAccount
           }
         }
@@ -151,7 +152,7 @@ trait Oauth2LoginHandler extends AccountHelpers {
         case None =>
           val state = UUID.randomUUID().toString
           Cache.set(sessionId, state, 30 * 60)
-          val redirectUrl = provider.buildRedirectUrl(handler.absoluteURL(SSLEnabled), state)
+          val redirectUrl = provider.buildRedirectUrl(handler.absoluteURL(globalConfig.https), state)
           Logger.debug(s"OAuth2 redirect URL: $redirectUrl")
           immediate(Redirect(redirectUrl).withSession(request.session + (SessionKey -> sessionId)))
 

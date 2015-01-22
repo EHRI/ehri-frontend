@@ -31,7 +31,7 @@ import controllers.portal.base.PortalController
  */
 @Singleton
 case class Social @Inject()(implicit globalConfig: global.GlobalConfig, searchDispatcher: Dispatcher,
-                            searchResolver: Resolver, backend: Backend, userDAO: AccountManager,
+                            searchResolver: Resolver, backend: Backend, accounts: AccountManager,
     mailer: MailerAPI)
   extends PortalController {
 
@@ -209,7 +209,7 @@ case class Social @Inject()(implicit globalConfig: global.GlobalConfig, searchDi
     // an account we don't have an email, so we can't
     // message them... Ignore accounts which have disabled
     // messaging.
-    userDAO.findById(recipientId).flatMap {
+    accounts.findById(recipientId).flatMap {
       case Some(account) if account.allowMessaging =>
         backend.isBlocking(recipientId, senderId).map(blocking => !blocking)
       case _ => immediate(false)
@@ -218,8 +218,8 @@ case class Social @Inject()(implicit globalConfig: global.GlobalConfig, searchDi
 
   private def sendMessageEmail(from: UserProfile, to: UserProfile, subject: String, message: String, copy: Boolean)(implicit request: RequestHeader): Future[Unit] = {
     for {
-      accFromOpt <- userDAO.findById(from.id)
-      accToOpt <- userDAO.findById(to.id)
+      accFromOpt <- accounts.findById(from.id)
+      accToOpt <- accounts.findById(to.id)
     } yield {
       for {
         accFrom <- accFromOpt

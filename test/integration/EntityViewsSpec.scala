@@ -181,7 +181,7 @@ class EntityViewsSpec extends IntegrationTestRunner {
     }
 
     "allow updating account values" in new ITestApp {
-      await(mockUserDAO.findById(unprivilegedUser.id)) must beSome.which { before =>
+      await(mockAccounts.findById(unprivilegedUser.id)) must beSome.which { before =>
         before.staff must beTrue
         before.active must beTrue
       }
@@ -189,7 +189,7 @@ class EntityViewsSpec extends IntegrationTestRunner {
       val update = route(fakeLoggedInHtmlRequest(privilegedUser, POST,
         controllers.users.routes.UserProfiles.updatePost(unprivilegedUser.id).url), data).get
       status(update) must equalTo(SEE_OTHER)
-      await(mockUserDAO.findById(unprivilegedUser.id)) must beSome.which { after =>
+      await(mockAccounts.findById(unprivilegedUser.id)) must beSome.which { after =>
         after.staff must beFalse
         after.active must beFalse
       }

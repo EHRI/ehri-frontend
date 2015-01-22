@@ -14,7 +14,7 @@ import views.html.p
  */
 @Singleton
 case class Links @Inject()(implicit globalConfig: global.GlobalConfig, searchDispatcher: Dispatcher, searchResolver: Resolver, backend: Backend,
-                                  userDAO: AccountManager)
+                                  accounts: AccountManager)
   extends PortalController
   with Generic[Link]
   with Search

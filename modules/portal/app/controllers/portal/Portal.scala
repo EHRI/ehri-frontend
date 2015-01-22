@@ -25,7 +25,7 @@ import play.api.libs.json.Json
 
 @Singleton
 case class Portal @Inject()(implicit globalConfig: global.GlobalConfig, searchDispatcher: Dispatcher, searchResolver: Resolver, backend: Backend,
-    userDAO: AccountManager)
+    accounts: AccountManager)
   extends PortalController
   with Search
   with FacetConfig {

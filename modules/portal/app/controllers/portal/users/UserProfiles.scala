@@ -35,7 +35,7 @@ import controllers.portal.base.{PortalController, PortalAuthConfigImpl}
  */
 @Singleton
 case class UserProfiles @Inject()(implicit globalConfig: global.GlobalConfig, searchDispatcher: Dispatcher, searchResolver: Resolver, backend: Backend,
-                            userDAO: AccountManager, mailer: MailerAPI)
+                            accounts: AccountManager, mailer: MailerAPI)
     extends PortalController
     with LoginLogout
     with PortalAuthConfigImpl {
@@ -227,9 +227,9 @@ case class UserProfiles @Inject()(implicit globalConfig: global.GlobalConfig, se
     AccountPreferences.form.bindFromRequest.fold(
       errForm => immediate(BadRequest(p.userProfile.editProfile(
             ProfileData.form, imageForm, errForm))),
-      accountPrefs => userDAO.findById(request.user.id).flatMap {
+      accountPrefs => accounts.findById(request.user.id).flatMap {
         case Some(account) =>
-          userDAO.update(account.copy(allowMessaging = accountPrefs.allowMessaging)).map { _ =>
+          accounts.update(account.copy(allowMessaging = accountPrefs.allowMessaging)).map { _ =>
             Redirect(profileRoutes.updateProfile())
               .flashing("success" -> "profile.preferences.updated")
           }
@@ -274,7 +274,7 @@ case class UserProfiles @Inject()(implicit globalConfig: global.GlobalConfig, se
           active = false)
 
         backend.update(request.user.id, anonProfile).flatMap { bool =>
-          userDAO.delete(request.user.id).flatMap { _ =>
+          accounts.delete(request.user.id).flatMap { _ =>
             gotoLogoutSucceeded
               .map(_.flashing("success" -> "profile.profile.delete.confirmation"))
           }

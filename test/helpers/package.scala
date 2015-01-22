@@ -20,15 +20,15 @@ package object helpers {
    * Load database fixtures.
    */
   def loadSqlFixtures(implicit app: play.api.Application) = {
-    val userDAO: AccountManager = SqlAccountManager()
+    val accounts: AccountManager = SqlAccountManager()
     mocks.users.map { case (profile, account) =>
-      val acc = Await.result(userDAO.create(account), 1.second)
+      val acc = Await.result(accounts.create(account), 1.second)
     }
     mocks.oAuth2Associations.map { assoc =>
-      Await.result(userDAO.oAuth2.addAssociation(assoc.id, assoc.providerId, assoc.provider), 1.second)
+      Await.result(accounts.oAuth2.addAssociation(assoc.id, assoc.providerId, assoc.provider), 1.second)
     }
     mocks.openIDAssociations.map { assoc =>
-      Await.result(userDAO.openId.addAssociation(assoc.id, assoc.url), 1.second)
+      Await.result(accounts.openId.addAssociation(assoc.id, assoc.url), 1.second)
     }
   }
 

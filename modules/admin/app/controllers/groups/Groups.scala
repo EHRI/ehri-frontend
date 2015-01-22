@@ -16,7 +16,7 @@ import play.api.mvc.Request
 import play.api.data.{Forms, Form}
 import controllers.base.AdminController
 
-case class Groups @Inject()(implicit globalConfig: global.GlobalConfig, searchDispatcher: Dispatcher, searchResolver: Resolver, backend: Backend, userDAO: AccountManager) extends AdminController
+case class Groups @Inject()(implicit globalConfig: global.GlobalConfig, searchDispatcher: Dispatcher, searchResolver: Resolver, backend: Backend, accounts: AccountManager) extends AdminController
   with PermissionHolder[Group]
   with Visibility[Group]
   with Membership[Group]
@@ -29,10 +29,10 @@ case class Groups @Inject()(implicit globalConfig: global.GlobalConfig, searchDi
     val params = PageParams.fromRequest(request)
     for {
       page <- backend.listChildren[Group,Accessor](id, params)
-      accounts <- userDAO.findAllById(ids = page.items.collect { case up: UserProfile => up.id })
+      accs <- accounts.findAllById(ids = page.items.collect { case up: UserProfile => up.id })
     } yield {
       val pageWithAccounts = page.copy(items = page.items.map {
-        case up: UserProfile => up.copy(account = accounts.find(_.id == up.id))
+        case up: UserProfile => up.copy(account = accs.find(_.id == up.id))
         case group => group
       })
       Ok(views.html.admin.group.show(request.item, pageWithAccounts, params, request.annotations))

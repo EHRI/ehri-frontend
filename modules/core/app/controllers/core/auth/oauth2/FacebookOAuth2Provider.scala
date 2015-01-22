@@ -8,7 +8,7 @@ import play.api.Logger
 /**
  * @author Mike Bryant (http://github.com/mikesname)
  */
-object FacebookOauth2Provider extends OAuth2Provider {
+object FacebookOAuth2Provider extends OAuth2Provider {
   val name = "facebook"
 
   // facebook does not follow the OAuth2 spec :-\

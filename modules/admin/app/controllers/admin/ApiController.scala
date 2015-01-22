@@ -14,7 +14,7 @@ import com.ning.http.client.{Response => NingResponse}
 import defines.EntityType
 import backend.rest.cypher.CypherDAO
 
-case class ApiController @Inject()(implicit globalConfig: global.GlobalConfig, backend: Backend, userDAO: AccountManager) extends AdminController {
+case class ApiController @Inject()(implicit globalConfig: global.GlobalConfig, backend: Backend, accounts: AccountManager) extends AdminController {
 
   def listItems(contentType: EntityType.Value) = Action.async { implicit request =>
     get(s"$contentType/list")(request)

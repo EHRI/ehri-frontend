@@ -9,7 +9,7 @@ import models.{Guide, GuidePage}
 
 
 @Singleton
-case class GuidePages @Inject()(implicit globalConfig: global.GlobalConfig, backend: Backend, userDAO: AccountManager) extends AdminController {
+case class GuidePages @Inject()(implicit globalConfig: global.GlobalConfig, backend: Backend, accounts: AccountManager) extends AdminController {
 
   private val formPage = models.GuidePage.form
   private final val guidePagesRoutes = controllers.guides.routes.GuidePages

@@ -15,7 +15,7 @@ import controllers.portal.base.PortalController
  */
 @Singleton
 case class Helpdesk @Inject()(implicit helpdeskDAO: HelpdeskDAO, globalConfig: global.GlobalConfig, backend: Backend,
-    userDAO: AccountManager, mailer: MailerAPI)
+    accounts: AccountManager, mailer: MailerAPI)
   extends PortalController {
 
   import play.api.data.Form

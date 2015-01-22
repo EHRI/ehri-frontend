@@ -51,7 +51,7 @@ trait TestConfiguration {
   def mockIndexer: Indexer = new MockSearchIndexer(indexEventBuffer)
   // NB: The mutable state for the user DAO is still stored globally
   // in the mocks package.
-  def mockUserDAO: AccountManager = MockAccountManager()
+  def mockAccounts: AccountManager = MockAccountManager()
 
   // More or less the same as run config but synchronous (so
   // we can validate the actions)
@@ -68,7 +68,7 @@ trait TestConfiguration {
   // Dummy auth config for play-2-auth
   object AuthConfig extends AuthConfigImpl {
     val globalConfig = TestConfig
-    val userDAO = mockUserDAO
+    val accounts = mockAccounts
   }
 
   /**
@@ -86,7 +86,7 @@ trait TestConfiguration {
         bind(classOf[HelpdeskDAO]).toInstance(mockHelpdesk)
         bind(classOf[IdGenerator]).toInstance(idGenerator)
         bind(classOf[MailerAPI]).toInstance(mockMailer)
-        bind(classOf[AccountManager]).toInstance(mockUserDAO)
+        bind(classOf[AccountManager]).toInstance(mockAccounts)
       }
     })
 

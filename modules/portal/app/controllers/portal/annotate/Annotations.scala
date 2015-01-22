@@ -31,7 +31,7 @@ import controllers.portal.base.PortalController
  */
 @Singleton
 case class Annotations @Inject()(implicit globalConfig: global.GlobalConfig, searchDispatcher: Dispatcher, searchResolver: Resolver,
-                                 backend: Backend, userDAO: AccountManager)
+                                 backend: Backend, accounts: AccountManager)
   extends PortalController
   with Read[Annotation]
   with Visibility[Annotation]

@@ -14,14 +14,14 @@ package auth
 ///**
 // * @author Mike Bryant (http://github.com/mikesname)
 // */
-//class DBIdContainer(userDAO: AccountDAO) extends IdContainer[String] {
+//class DBIdContainer(accounts: AccountDAO) extends IdContainer[String] {
 //
 //  private val random = new Random(new SecureRandom())
 //
 //  def startNewSession(userId: String, timeoutInSeconds: Int): AuthenticityToken = DB.withTransaction { implicit tx =>
-//    userDAO.removeLoginTokens(userId)
+//    accounts.removeLoginTokens(userId)
 //    val token = generate
-//    userDAO.storeLoginToken(token, userId, timeoutInSeconds)
+//    accounts.storeLoginToken(token, userId, timeoutInSeconds)
 //    token
 //  }
 //
@@ -29,14 +29,14 @@ package auth
 //  private final def generate(implicit conn: Connection): AuthenticityToken = {
 //    val table = "abcdefghijklmnopqrstuvwxyz1234567890_.!~*'()"
 //    val token = Stream.continually(random.nextInt(table.size)).map(table).take(64).mkString
-//    if (userDAO.getByLoginToken(token).isDefined) generate else token
+//    if (accounts.getByLoginToken(token).isDefined) generate else token
 //  }
 //
-//  def remove(token: AuthenticityToken): Unit = userDAO.removeLoginToken(token)
+//  def remove(token: AuthenticityToken): Unit = accounts.removeLoginToken(token)
 //
-//  def get(token: AuthenticityToken): Option[String] = userDAO.getByLoginToken(token)
+//  def get(token: AuthenticityToken): Option[String] = accounts.getByLoginToken(token)
 //
 //  def prolongTimeout(token: AuthenticityToken, timeoutInSeconds: Int): Unit = DB.withTransaction { implicit tx =>
-//    userDAO.getByLoginToken(token).foreach(userDAO.storeLoginToken(token, _, timeoutInSeconds))
+//    accounts.getByLoginToken(token).foreach(accounts.storeLoginToken(token, _, timeoutInSeconds))
 //  }
 //}

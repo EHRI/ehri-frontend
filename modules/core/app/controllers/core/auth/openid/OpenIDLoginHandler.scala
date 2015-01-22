@@ -23,9 +23,8 @@ trait OpenIDLoginHandler extends AccountHelpers {
   self: Controller with AuthController =>
 
   val backend: Backend
+  val accounts: auth.AccountManager
   val globalConfig: global.GlobalConfig
-
-  val userDAO: auth.AccountManager
 
   val attributes = Seq(
     "email" -> "http://schema.openid.net/contact/email",
@@ -91,7 +90,7 @@ trait OpenIDLoginHandler extends AccountHelpers {
       OpenID.verifiedId(request).flatMap { info =>
 
         // check if there's a user with the right id
-        userDAO.openId.findByUrl(info.id).flatMap {
+        accounts.openId.findByUrl(info.id).flatMap {
           case Some(assoc) =>
             Logger.logger.info("User '{}' logged in via OpenId", assoc.user.get.id)
             block(OpenIdCallbackRequest(Right(assoc.user.get), request))
@@ -102,7 +101,7 @@ trait OpenIDLoginHandler extends AccountHelpers {
             val data = Map("name" -> extractName(info.attributes)
               .getOrElse(sys.error("Unable to retrieve name info via OpenID")))
 
-            userDAO.findByEmail(email).flatMap {
+            accounts.findByEmail(email).flatMap {
               case Some(account) => addAssociation(account, info, request).flatMap(block)
               case None => createUserAccount(email, info, data, request).flatMap(block)
             }
@@ -118,7 +117,7 @@ trait OpenIDLoginHandler extends AccountHelpers {
   private def addAssociation[A](account: Account, info: UserInfo, request: Request[A]): Future[OpenIdCallbackRequest[A]] = {
     Logger.logger.info("User '{}' created OpenID association", account.id)
     for {
-      _ <- userDAO.openId.addAssociation(account.id, info.id)
+      _ <- accounts.openId.addAssociation(account.id, info.id)
     } yield OpenIdCallbackRequest(Right(account), request)
   }
 
@@ -126,7 +125,7 @@ trait OpenIDLoginHandler extends AccountHelpers {
     implicit val apiUser = AnonymousUser
     for {
       up <- backend.createNewUserProfile[UserProfile](data, groups = defaultPortalGroups)
-      account <- userDAO.create(Account(
+      account <- accounts.create(Account(
         id = up.id,
         email = email.toLowerCase,
         verified = true,
@@ -134,7 +133,7 @@ trait OpenIDLoginHandler extends AccountHelpers {
         active = true,
         allowMessaging = canMessage
       ))
-      _ <- userDAO.openId.addAssociation(account.id, info.id)
+      _ <- accounts.openId.addAssociation(account.id, info.id)
     } yield {
       Logger.logger.info("User '{}' created OpenID account", account.id)
       OpenIdCallbackRequest(Right(account), request)

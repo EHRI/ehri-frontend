@@ -31,11 +31,11 @@ import controllers.portal.base.PortalController
  */
 @Singleton
 case class Accounts @Inject()(implicit globalConfig: GlobalConfig, searchDispatcher: Dispatcher, searchResolver: Resolver, backend: Backend,
-                             userDAO: AccountManager, mailer: MailerAPI)
+                             accounts: AccountManager, mailer: MailerAPI)
   extends LoginLogout
   with PortalController
   with OpenIDLoginHandler
-  with Oauth2LoginHandler
+  with OAuth2LoginHandler
   with UserPasswordLoginHandler
   with AccountHelpers {
 
@@ -53,7 +53,7 @@ case class Accounts @Inject()(implicit globalConfig: GlobalConfig, searchDispatc
 
   val oauthProviders = Map(
     GoogleOAuth2Provider.name -> accountRoutes.googleLogin,
-    FacebookOauth2Provider.name -> accountRoutes.facebookLogin,
+    FacebookOAuth2Provider.name -> accountRoutes.facebookLogin,
     YahooOAuth2Provider.name -> accountRoutes.yahooLogin
   )
 
@@ -71,7 +71,7 @@ case class Accounts @Inject()(implicit globalConfig: GlobalConfig, searchDispatc
   }
 
   private def doLogin(account: Account)(implicit request: RequestHeader): Future[Result] =
-    userDAO.setLoggedIn(account).flatMap(_ => gotoLoginSucceeded(account.id))
+    accounts.setLoggedIn(account).flatMap(_ => gotoLoginSucceeded(account.id))
 
   object NotReadOnlyAction extends ActionBuilder[Request] {
     def invokeBlock[A](request: Request[A], block: (Request[A]) => Future[Result]) = {
@@ -125,17 +125,20 @@ case class Accounts @Inject()(implicit globalConfig: GlobalConfig, searchDispatc
         boundForm.fold(
           errForm => badForm(errForm),
           data => {
-            userDAO.findByEmail(data.email).flatMap {
+            accounts.findByEmail(data.email.toLowerCase).flatMap {
+              // that email already exists, problem!
               case Some(_) =>
                 badForm(boundForm.withError(SignupData.EMAIL, "error.emailExists"))
+              // we're okay to proceed...
               case None =>
                 implicit val apiUser = AnonymousUser
                 val uuid = UUID.randomUUID()
+                val profileData = Map(UserProfileF.NAME -> data.name)
                 for {
-                  up <- backend.createNewUserProfile[UserProfile](
-                    data = Map(UserProfileF.NAME -> data.name), groups = defaultPortalGroups)
-                  account <- userDAO.create(Account(
-                    id = up.id,
+                  profile <- backend.createNewUserProfile[UserProfile](
+                    data = profileData, groups = defaultPortalGroups)
+                  account <- accounts.create(Account(
+                    id = profile.id,
                     email = data.email.toLowerCase,
                     verified = false,
                     active = true,
@@ -143,7 +146,7 @@ case class Accounts @Inject()(implicit globalConfig: GlobalConfig, searchDispatc
                     allowMessaging = data.allowMessaging,
                     password = Some(HashedPassword.fromPlain(data.password))
                   ))
-                  _ <- userDAO.createToken(account.id, uuid, isSignUp = true)
+                  _ <- accounts.createToken(account.id, uuid, isSignUp = true)
                   result <- doLogin(account)
                     .map(_.flashing("success" -> "signup.confirmation"))
                 } yield {
@@ -157,9 +160,9 @@ case class Accounts @Inject()(implicit globalConfig: GlobalConfig, searchDispatc
   }
 
   def confirmEmail(token: String) = NotReadOnlyAction.async { implicit request =>
-    userDAO.findByToken(token, isSignUp = true).flatMap {
+    accounts.findByToken(token, isSignUp = true).flatMap {
       case Some(account) => for {
-        _ <- userDAO.verify(account, token)
+        _ <- accounts.verify(account, token)
         result <- doLogin(account)
           .map(_.flashing("success" -> "signup.validation.confirmation"))
       } yield result
@@ -271,7 +274,7 @@ case class Accounts @Inject()(implicit globalConfig: GlobalConfig, searchDispatc
     handleOAuth2Login(request)
   }
 
-  def facebookLogin = OAuth2LoginAction(FacebookOauth2Provider, accountRoutes.facebookLogin()).async { implicit request =>
+  def facebookLogin = OAuth2LoginAction(FacebookOAuth2Provider, accountRoutes.facebookLogin()).async { implicit request =>
     handleOAuth2Login(request)
   }
 
@@ -279,7 +282,7 @@ case class Accounts @Inject()(implicit globalConfig: GlobalConfig, searchDispatc
     handleOAuth2Login(request)
   }
 
-  def linkedInLogin = OAuth2LoginAction(LinkedInOauth2Provider, accountRoutes.linkedInLogin()).async {implicit request =>
+  def linkedInLogin = OAuth2LoginAction(LinkedInOAuth2Provider, accountRoutes.linkedInLogin()).async {implicit request =>
     handleOAuth2Login(request)
   }
 
@@ -323,7 +326,7 @@ case class Accounts @Inject()(implicit globalConfig: GlobalConfig, searchDispatc
   }
 
   def resetPassword(token: String) = OptionalUserAction.async { implicit request =>
-    userDAO.findByToken(token).map {
+    accounts.findByToken(token).map {
       case Some(account) => Ok(views.html.p.account.resetPassword(resetPasswordForm,
         accountRoutes.resetPasswordPost(token)))
       case _ => Redirect(accountRoutes.forgotPassword())
@@ -335,7 +338,7 @@ case class Accounts @Inject()(implicit globalConfig: GlobalConfig, searchDispatc
     request.user.account match {
       case Some(account) =>
         val uuid = UUID.randomUUID()
-        userDAO.createToken(account.id, uuid, isSignUp = true).map { _ =>
+        accounts.createToken(account.id, uuid, isSignUp = true).map { _ =>
           sendValidationEmail(account.email, uuid)
           val redirect = request.headers.get(HttpHeaders.REFERER)
             .getOrElse(portalRoutes.index().url)

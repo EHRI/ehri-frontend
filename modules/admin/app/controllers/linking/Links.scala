@@ -9,7 +9,7 @@ import backend.Backend
 import controllers.base.AdminController
 
 
-case class Links @Inject()(implicit globalConfig: global.GlobalConfig, backend: Backend, userDAO: AccountManager)
+case class Links @Inject()(implicit globalConfig: global.GlobalConfig, backend: Backend, accounts: AccountManager)
   extends AdminController
   with Read[Link]
   with Visibility[Link]

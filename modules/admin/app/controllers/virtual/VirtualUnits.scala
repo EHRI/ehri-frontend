@@ -25,7 +25,7 @@ import controllers.base.AdminController
 
 @Singleton
 case class VirtualUnits @Inject()(implicit globalConfig: global.GlobalConfig, searchDispatcher: Dispatcher, idGenerator: IdGenerator,
-                                  searchResolver: Resolver, backend: Backend, userDAO: AccountManager)
+                                  searchResolver: Resolver, backend: Backend, accounts: AccountManager)
   extends AdminController
   with Read[VirtualUnit]
   with Visibility[VirtualUnit]

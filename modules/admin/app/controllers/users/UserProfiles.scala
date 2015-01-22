@@ -23,7 +23,7 @@ import controllers.base.AdminController
 
 
 @Singleton
-case class UserProfiles @Inject()(implicit globalConfig: global.GlobalConfig, searchIndexer: Indexer, searchDispatcher: Dispatcher, searchResolver: Resolver, backend: Backend, userDAO: AccountManager)
+case class UserProfiles @Inject()(implicit globalConfig: global.GlobalConfig, searchIndexer: Indexer, searchDispatcher: Dispatcher, searchResolver: Resolver, backend: Backend, accounts: AccountManager)
   extends AdminController
   with PermissionHolder[UserProfile]
   with ItemPermissions[UserProfile]
@@ -138,7 +138,7 @@ case class UserProfiles @Inject()(implicit globalConfig: global.GlobalConfig, se
   private def saveUser[T](email: String, username: String, name: String, pw: String, allGroups: Seq[(String, String)])(
     implicit request: Request[T], userOpt: Option[UserProfile]): Future[Result] = {
     // check if the email is already registered...
-    userDAO.findByEmail(email.toLowerCase).flatMap {
+    accounts.findByEmail(email.toLowerCase).flatMap {
       case Some(account) =>
         val errForm = userPasswordForm.bindFromRequest
           .withError(FormError("email", Messages("error.userEmailAlreadyRegistered", account.id)))
@@ -155,7 +155,7 @@ case class UserProfiles @Inject()(implicit globalConfig: global.GlobalConfig, se
             immediate(BadRequest(views.html.admin.userProfile.create(errForm, groupMembershipForm.bindFromRequest,
               allGroups, userRoutes.createUserPost())))
           case Right(profile) => for {
-            account <- userDAO.create(Account(
+            account <- accounts.create(Account(
               id = profile.id,
               email = email.toLowerCase,
               verified = true,
@@ -179,7 +179,7 @@ case class UserProfiles @Inject()(implicit globalConfig: global.GlobalConfig, se
     for {
       QueryResult(page, params, facets) <- find[UserProfile](
         entities = List(EntityType.UserProfile), facetBuilder = entityFacets)
-      accounts <- userDAO.findAllById(ids = page.items.map(_._1.id))
+      accounts <- accounts.findAllById(ids = page.items.map(_._1.id))
     } yield {
       val pageWithAccounts = page.copy(items = page.items.map { case(up, hit) =>
         up.copy(account = accounts.find(_.id == up.id)) -> hit
@@ -197,7 +197,7 @@ case class UserProfiles @Inject()(implicit globalConfig: global.GlobalConfig, se
   }
 
   def update(id: String) = WithItemPermissionAction(id, PermissionType.Update).async { implicit request =>
-    userDAO.findById(request.item.id).map { accountOpt =>
+    accounts.findById(request.item.id).map { accountOpt =>
       val userWithAccount = request.item.copy(account = accountOpt)
       Ok(views.html.admin.userProfile.edit(request.item, AdminUserData.form.fill(
         AdminUserData.fromUserProfile(userWithAccount)),
@@ -206,7 +206,7 @@ case class UserProfiles @Inject()(implicit globalConfig: global.GlobalConfig, se
   }
 
   def updatePost(id: String) = WithItemPermissionAction(id, PermissionType.Update).async { implicit request =>
-    userDAO.findById(request.item.id).flatMap { accountOpt =>
+    accounts.findById(request.item.id).flatMap { accountOpt =>
       val userWithAccount = request.item.copy(account = accountOpt)
       AdminUserData.form.bindFromRequest.fold(
         errForm => immediate(BadRequest(views.html.admin.userProfile.edit(userWithAccount, errForm,
@@ -214,7 +214,7 @@ case class UserProfiles @Inject()(implicit globalConfig: global.GlobalConfig, se
         data => accountOpt match {
           case Some(account) => for {
             profile <- backend.patch[UserProfile](id, Json.toJson(data).as[JsObject])
-            newAccount <- userDAO.update(account.copy(active = data.active, staff = data.staff))
+            newAccount <- accounts.update(account.copy(active = data.active, staff = data.staff))
           } yield Redirect(userRoutes.search())
               .flashing("success" -> Messages("item.update.confirmation", request.item.toStringLang))
           case None => for {
@@ -245,10 +245,10 @@ case class UserProfiles @Inject()(implicit globalConfig: global.GlobalConfig, se
           userRoutes.get(id))))
       },
       _ => {
-        userDAO.findById(id).flatMap {
+        accounts.findById(id).flatMap {
           case Some(account) => for {
             _ <- backend.delete[UserProfile](id, logMsg = getLogMessage)
-            _ <- userDAO.delete(id)
+            _ <- accounts.delete(id)
           } yield Redirect(userRoutes.search())
               .flashing("success" -> Messages("item.delete.confirmation", id))
           case None => for {

@@ -8,7 +8,7 @@ import play.api.Logger
 /**
  * @author Mike Bryant (http://github.com/mikesname)
  */
-object LinkedInOauth2Provider extends OAuth2Provider {
+object LinkedInOAuth2Provider extends OAuth2Provider {
   val name = "linkedin"
 
   def getUserData(response: WSResponse): Option[UserData] = ???

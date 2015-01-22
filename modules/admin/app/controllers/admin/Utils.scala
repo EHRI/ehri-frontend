@@ -17,7 +17,7 @@ import backend.rest.cypher.CypherDAO
  * Controller for various monitoring functions.
  */
 @Singleton
-case class Utils @Inject()(implicit globalConfig: global.GlobalConfig, backend: Backend, userDAO: AccountManager)
+case class Utils @Inject()(implicit globalConfig: global.GlobalConfig, backend: Backend, accounts: AccountManager)
     extends AdminController with RestDAO {
 
   override val staffOnly = false
@@ -46,12 +46,12 @@ case class Utils @Inject()(implicit globalConfig: global.GlobalConfig, backend: 
    */
   val checkUserSync = Action.async { implicit request =>
     for {
-      accounts <- userDAO.findAll(PageParams.empty.withoutLimit)
+      allAccounts <- accounts.findAll(PageParams.empty.withoutLimit)
       profileIds <- CypherDAO().get(
         """START n = node:entities("__ISA__:userProfile")
           |RETURN n.__ID__
         """.stripMargin, Map.empty, CypherDAO.stringList)
-      accountIds = accounts.map(_.id)
+      accountIds = allAccounts.map(_.id)
     } yield {
       val noProfile = accountIds.diff(profileIds)
       // Going nicely imperative here - sorry!

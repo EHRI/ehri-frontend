@@ -25,7 +25,7 @@ trait PersonaLoginHandler extends AccountHelpers {
 
   def globalConfig: global.GlobalConfig
   def backend: Backend
-  def userDAO: auth.AccountManager
+  def accounts: auth.AccountManager
 
   val PERSONA_URL = "https://verifier.login.persona.org/verify"
   val EHRI_URL = "localhost"; //"http://ehritest.dans.knaw.nl"
@@ -47,13 +47,13 @@ trait PersonaLoginHandler extends AccountHelpers {
             case js @ JsString("okay") =>
               val email: String = (response.json \ "email").as[String]
 
-              userDAO.findByEmail(email.toLowerCase).flatMap {
+              accounts.findByEmail(email.toLowerCase).flatMap {
                 case Some(account) => f(Right(account))(request)
                 case None =>
                   implicit val apiUser = AnonymousUser
                   for {
                     up <- backend.createNewUserProfile[UserProfile](groups = defaultPortalGroups)
-                    account <- userDAO.create(Account(
+                    account <- accounts.create(Account(
                       id = up.id,
                       email = email.toLowerCase,
                       verified = true,

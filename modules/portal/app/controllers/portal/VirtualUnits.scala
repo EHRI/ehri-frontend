@@ -17,7 +17,7 @@ import controllers.portal.base.{Generic, PortalController}
 
 @Singleton
 case class VirtualUnits @Inject()(implicit globalConfig: global.GlobalConfig, searchDispatcher: Dispatcher, searchResolver: Resolver, backend: Backend,
-    userDAO: AccountManager, idGenerator: IdGenerator)
+    accounts: AccountManager, idGenerator: IdGenerator)
   extends PortalController
   with Generic[VirtualUnit]
   with Search

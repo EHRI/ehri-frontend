@@ -7,7 +7,7 @@ import controllers.generic._
 import backend.Backend
 import controllers.base.AdminController
 
-case class Annotations @Inject()(implicit globalConfig: global.GlobalConfig, backend: Backend, userDAO: AccountManager)
+case class Annotations @Inject()(implicit globalConfig: global.GlobalConfig, backend: Backend, accounts: AccountManager)
   extends AdminController
   with Read[Annotation]
   with Visibility[Annotation]

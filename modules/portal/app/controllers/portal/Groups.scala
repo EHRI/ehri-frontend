@@ -15,7 +15,7 @@ import views.html.p
  */
 @Singleton
 case class Groups @Inject()(implicit globalConfig: global.GlobalConfig, searchDispatcher: Dispatcher, searchResolver: Resolver, backend: Backend,
-                                  userDAO: AccountManager)
+                                  accounts: AccountManager)
   extends PortalController
   with Generic[Group]
   with Search

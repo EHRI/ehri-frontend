@@ -36,7 +36,7 @@ object Global extends WithFilters(CSRFFilter()) with GlobalSettings {
   private def feedbackDAO: FeedbackDAO = new ParseFeedbackDAO
   private def helpdeskDAO: HelpdeskDAO = new EhriHelpdesk
   private def idGenerator: IdGenerator = new CypherIdGenerator(idFormat = "%06d")
-  private def userDAO: AccountManager = SqlAccountManager()
+  private def accounts: AccountManager = SqlAccountManager()
   private def mailer: MailerAPI = new CommonsMailerPlugin(current).email
 
   private val eventHandler = new EventHandler {
@@ -80,7 +80,7 @@ object Global extends WithFilters(CSRFFilter()) with GlobalSettings {
       bind(classOf[HelpdeskDAO]).toInstance(helpdeskDAO)
       bind(classOf[IdGenerator]).toInstance(idGenerator)
       bind(classOf[MailerAPI]).toInstance(mailer)
-      bind(classOf[AccountManager]).toInstance(userDAO)
+      bind(classOf[AccountManager]).toInstance(accounts)
     }
   })
 
