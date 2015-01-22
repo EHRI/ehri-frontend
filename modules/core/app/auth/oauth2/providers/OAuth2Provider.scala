@@ -3,8 +3,9 @@ package auth.oauth2.providers
 import java.net.URLEncoder
 
 import auth.oauth2._
+import com.fasterxml.jackson.core.JsonParseException
 import play.api.Logger
-import play.api.libs.ws.WSResponse
+import play.api.libs.json.Json
 
 /**
  * @author Mike Bryant (http://github.com/mikesname)
@@ -26,7 +27,7 @@ trait OAuth2Provider {
       params.map( p => p._1 + "=" + URLEncoder.encode(p._2, "UTF-8")).mkString("?", "&", "")
   }
 
-  def getUserData(response: WSResponse): Option[UserData]
+  def getUserData(data: String): Option[UserData]
 
   def getUserInfoUrl(info: OAuth2Info): String = settings.userInfoUrl + info.accessToken
 
@@ -44,17 +45,21 @@ trait OAuth2Provider {
     OAuth2Constants.RedirectUri -> Seq(handlerUrl)
   )
 
-  def buildOAuth2Info(response: WSResponse): Option[OAuth2Info] = {
-    Logger.debug("OAuth2 Info [" + response.body + "]")
-    val json = response.json
-    for {
-      accessToken <- (json \ OAuth2Constants.AccessToken).asOpt[String]
-    } yield OAuth2Info(
-      accessToken,
-      (json \ OAuth2Constants.TokenType).asOpt[String],
-      (json \ OAuth2Constants.ExpiresIn).asOpt[Int],
-      (json \ OAuth2Constants.RefreshToken).asOpt[String]
-    )
+  def buildOAuth2Info(data: String): Option[OAuth2Info] = {
+    Logger.debug(s"OAuth2 Info for $name: $data")
+    try {
+      val json = Json.parse(data)
+      for {
+        accessToken <- (json \ OAuth2Constants.AccessToken).asOpt[String]
+      } yield OAuth2Info(
+        accessToken,
+        (json \ OAuth2Constants.TokenType).asOpt[String],
+        (json \ OAuth2Constants.ExpiresIn).asOpt[Int],
+        (json \ OAuth2Constants.RefreshToken).asOpt[String]
+      )
+    } catch {
+      case e: JsonParseException => None
+    }
   }
 
   protected def getSetting(key: String): String = {

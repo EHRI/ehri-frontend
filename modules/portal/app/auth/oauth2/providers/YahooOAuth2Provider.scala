@@ -1,11 +1,11 @@
 package auth.oauth2.providers
 
-import auth.oauth2.{UserData, OAuth2Info}
+import auth.oauth2.{OAuth2Info, UserData}
+import com.fasterxml.jackson.core.JsonParseException
 import org.apache.commons.codec.binary.Base64
 import play.api.Logger
 import play.api.http.ContentTypes
 import play.api.libs.json.Json
-import play.api.libs.ws.WSResponse
 
 /**
  * @author Mike Bryant (http://github.com/mikesname)
@@ -42,33 +42,41 @@ object YahooOAuth2Provider extends OAuth2Provider {
       "code" -> Seq(code)
     )
 
-  def getUserData(response: WSResponse): Option[UserData] = {
-    Logger.debug("Yahoo user info: " + response.body)
+  override def getUserData(data: String): Option[UserData] = {
+    try {
+      Logger.debug("Yahoo user info: " + data)
 
-    val json = response.json
-    val guid = (json \ "profile" \ "guid").asOpt[String]
-    val givenName = (json \ "profile" \ "givenName").asOpt[String]
-    val familyName = (json \ "profile" \ "familyName").asOpt[String]
-    val imageUrl = (json \ "profile" \ "image" \ "imageUrl").asOpt[String]
-    val emails: Option[Seq[YahooEmail]] = (json \ "profile" \ "emails").asOpt[Seq[YahooEmail]]
+      val json = Json.parse(data)
+      val guid = (json \ "profile" \ "guid").asOpt[String]
+      val givenName = (json \ "profile" \ "givenName").asOpt[String]
+      val familyName = (json \ "profile" \ "familyName").asOpt[String]
+      val imageUrl = (json \ "profile" \ "image" \ "imageUrl").asOpt[String]
+      val emails: Option[Seq[YahooEmail]] = (json \ "profile" \ "emails").asOpt[Seq[YahooEmail]]
 
-    for {
-      guid <- (json \ "profile" \ "guid").asOpt[String]
-      givenName <- (json \ "profile" \ "givenName").asOpt[String]
-      familyName <- (json \ "profile" \ "familyName").asOpt[String]
-      imageUrl <- (json \ "profile" \ "image" \ "imageUrl").asOpt[String]
-      emails <- (json \ "profile" \ "emails").asOpt[Seq[YahooEmail]]
-      mainEmail <- emails.sortBy(_.primary.isEmpty).headOption.map(_.handle)
-    } yield UserData(
-      providerId = guid,
-      email = mainEmail,
-      name = s"$givenName $familyName",
-      imageUrl = imageUrl
-    )
+      for {
+        guid <- (json \ "profile" \ "guid").asOpt[String]
+        givenName <- (json \ "profile" \ "givenName").asOpt[String]
+        familyName <- (json \ "profile" \ "familyName").asOpt[String]
+        imageUrl <- (json \ "profile" \ "image" \ "imageUrl").asOpt[String]
+        emails <- (json \ "profile" \ "emails").asOpt[Seq[YahooEmail]]
+        mainEmail <- emails.sortBy(_.primary.isEmpty).headOption.map(_.handle)
+      } yield UserData(
+        providerId = guid,
+        email = mainEmail,
+        name = s"$givenName $familyName",
+        imageUrl = imageUrl
+      )
+    } catch {
+      case e: JsonParseException => None
+    }
   }
 
-  override   def buildOAuth2Info(response: WSResponse): Option[OAuth2Info] = {
-    val info: Option[OAuth2Info] = super.buildOAuth2Info(response)
-    info.map(_.copy(userGuid = (response.json \ "xoauth_yahoo_guid").asOpt[String]))
+  override def buildOAuth2Info(data: String): Option[OAuth2Info] = {
+    val info: Option[OAuth2Info] = super.buildOAuth2Info(data)
+    try {
+      info.map(_.copy(userGuid = (Json.parse(data) \ "xoauth_yahoo_guid").asOpt[String]))
+    } catch {
+      case e: JsonParseException => None
+    }
   }
 }

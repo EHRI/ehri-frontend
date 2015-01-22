@@ -49,7 +49,8 @@ trait OAuth2LoginHandler extends AccountHelpers {
       .withHeaders(provider.getAccessTokenHeaders: _*)
       .post(provider.getAccessTokenParams(code, handler.absoluteURL(globalConfig.https)))
       .map { r =>
-      provider.buildOAuth2Info(r).getOrElse {
+      println(s"ACCESS DATA FOR PROVIDER: ${provider.name}----\n${r.body}\n------")
+      provider.buildOAuth2Info(r.body).getOrElse {
         throw new AuthenticationError(s"Unable to fetch access token and info for provider ${provider.name} " +
           s" via response data: ${r.body}")
       }
@@ -63,7 +64,8 @@ trait OAuth2LoginHandler extends AccountHelpers {
     WS.url(url)
       .withHeaders(headers: _*).get()
       .map { r =>
-      provider.getUserData(r).getOrElse{
+      println(s"USER DATA FOR PROVIDER: ${provider.name}----\n${r.body}\n------")
+      provider.getUserData(r.body).getOrElse{
         throw new AuthenticationError(s"Unable to fetch user info for provider ${provider.name} " +
           s" via response data: ${r.body}")
       }
