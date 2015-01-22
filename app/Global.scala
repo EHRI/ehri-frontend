@@ -3,6 +3,7 @@
  */
 
 import auth.AccountManager
+import auth.oauth2.{WebOAuth2Flow, OAuth2Flow}
 import auth.sql.SqlAccountManager
 import backend.helpdesk.EhriHelpdesk
 import backend.parse.ParseFeedbackDAO
@@ -38,6 +39,7 @@ object Global extends WithFilters(CSRFFilter()) with GlobalSettings {
   private def idGenerator: IdGenerator = new CypherIdGenerator(idFormat = "%06d")
   private def accounts: AccountManager = SqlAccountManager()
   private def mailer: MailerAPI = new CommonsMailerPlugin(current).email
+  private def oAuth2Flow: OAuth2Flow = new WebOAuth2Flow()
 
   private val eventHandler = new EventHandler {
 
@@ -81,6 +83,7 @@ object Global extends WithFilters(CSRFFilter()) with GlobalSettings {
       bind(classOf[IdGenerator]).toInstance(idGenerator)
       bind(classOf[MailerAPI]).toInstance(mailer)
       bind(classOf[AccountManager]).toInstance(accounts)
+      bind(classOf[OAuth2Flow]).toInstance(oAuth2Flow)
     }
   })
 

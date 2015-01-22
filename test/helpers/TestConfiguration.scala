@@ -1,5 +1,6 @@
 package helpers
 
+import auth.oauth2.{WebOAuth2Flow, OAuth2Flow}
 import auth.{MockAccountManager, AccountManager}
 import backend.HelpdeskDAO.HelpdeskResponse
 import backend._
@@ -52,6 +53,7 @@ trait TestConfiguration {
   // NB: The mutable state for the user DAO is still stored globally
   // in the mocks package.
   def mockAccounts: AccountManager = MockAccountManager()
+  def oAuth2Flow: OAuth2Flow = new WebOAuth2Flow()
 
   // More or less the same as run config but synchronous (so
   // we can validate the actions)
@@ -87,6 +89,7 @@ trait TestConfiguration {
         bind(classOf[IdGenerator]).toInstance(idGenerator)
         bind(classOf[MailerAPI]).toInstance(mockMailer)
         bind(classOf[AccountManager]).toInstance(mockAccounts)
+        bind(classOf[OAuth2Flow]).toInstance(oAuth2Flow)
       }
     })
 

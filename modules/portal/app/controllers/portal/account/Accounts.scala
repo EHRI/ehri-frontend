@@ -1,5 +1,6 @@
 package controllers.portal.account
 
+import auth.oauth2.OAuth2Flow
 import auth.oauth2.providers.{LinkedInOAuth2Provider, GoogleOAuth2Provider, YahooOAuth2Provider, FacebookOAuth2Provider}
 import auth.{HashedPassword, AccountManager}
 import play.api.data.Form
@@ -32,7 +33,7 @@ import controllers.portal.base.PortalController
  */
 @Singleton
 case class Accounts @Inject()(implicit globalConfig: GlobalConfig, searchDispatcher: Dispatcher, searchResolver: Resolver, backend: Backend,
-                             accounts: AccountManager, mailer: MailerAPI)
+                             accounts: AccountManager, mailer: MailerAPI, oAuth2Flow: OAuth2Flow)
   extends LoginLogout
   with PortalController
   with OpenIDLoginHandler
