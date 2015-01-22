@@ -1,10 +1,11 @@
-package controllers.core.auth.oauth2
+package auth.oauth2.providers
 
+import auth.oauth2.{UserData, OAuth2Info}
+import org.apache.commons.codec.binary.Base64
 import play.api.Logger
 import play.api.http.ContentTypes
 import play.api.libs.json.Json
 import play.api.libs.ws.WSResponse
-import org.apache.commons.codec.binary.Base64
 
 /**
  * @author Mike Bryant (http://github.com/mikesname)

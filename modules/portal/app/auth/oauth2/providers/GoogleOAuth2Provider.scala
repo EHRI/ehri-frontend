@@ -1,9 +1,9 @@
-package controllers.core.auth.oauth2
+package auth.oauth2.providers
 
-import play.api.libs.json._
-import play.api.libs.functional.syntax._
-import play.api.libs.ws.WSResponse
+import auth.oauth2.UserData
 import play.api.Logger
+import play.api.libs.json._
+import play.api.libs.ws.WSResponse
 
 /**
  * @author Mike Bryant (http://github.com/mikesname)

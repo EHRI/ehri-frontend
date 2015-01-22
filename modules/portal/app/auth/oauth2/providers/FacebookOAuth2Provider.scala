@@ -1,5 +1,6 @@
-package controllers.core.auth.oauth2
+package auth.oauth2.providers
 
+import auth.oauth2.{UserData, OAuth2Constants, OAuth2Info}
 import play.api.Logger
 import play.api.libs.json._
 import play.api.libs.ws.WSResponse

@@ -1,7 +1,8 @@
-package controllers.core.auth.oauth2
+package auth.oauth2.providers
 
 import java.net.URLEncoder
 
+import auth.oauth2._
 import play.api.Logger
 import play.api.libs.ws.WSResponse
 

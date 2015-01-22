@@ -1,4 +1,4 @@
-package controllers.core.auth.oauth2
+package auth.oauth2
 
 import auth.AuthenticationError
 

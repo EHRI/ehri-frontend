@@ -1,6 +1,8 @@
 package controllers.core.auth.oauth2
 
 import auth.AuthenticationError
+import auth.oauth2.providers.OAuth2Provider
+import auth.oauth2.{OAuth2Constants, UserData, OAuth2Info}
 import controllers.base.AuthController
 import global.GlobalConfig
 import models._
