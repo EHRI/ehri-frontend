@@ -1,17 +1,17 @@
 package utils
 
+import java.net.{MalformedURLException, URL}
+
+import backend.Entity
+import play.api.Logger
+import play.api.Play._
 import play.api.cache.Cache
-import play.api.mvc.{Result, AnyContent, Request}
-import scala.concurrent.Future._
-import scala.concurrent.{ExecutionContext, Future}
 import play.api.data.Form
 import play.api.data.Forms._
-import play.api.Play._
 import play.api.libs.ws.WS
-import play.api.Logger
-import java.net.{MalformedURLException, URL}
-import backend.Entity
-import play.api.data.validation.{Invalid, Valid, Constraint}
+import play.api.mvc.Request
+
+import scala.concurrent.{ExecutionContext, Future}
 
 /**
  * Form-related utilities
@@ -20,9 +20,6 @@ import play.api.data.validation.{Invalid, Valid, Constraint}
  */
 package object forms {
 
-
-  val BLANK_CHECK = "website" // honeypot
-  val TIMESTAMP = "timestamp"
 
   /**
    * Check if a string is a valid URL.
@@ -36,47 +33,6 @@ package object forms {
     } catch {
       case s: MalformedURLException => false
     }
-  }
-
-  trait HoneyPotForm {
-    val blankCheck: String
-  }
-
-  trait TimeCheckForm {
-    val timestamp: String
-  }
-
-  /**
-   * Check submitted form is bound at least 5 seconds after it was
-   * first rendered (the minimum amount of time it should take a
-   * human to fill a form.)
-   */
-  def formSubmissionTime[T <: TimeCheckForm](implicit app: play.api.Application): Constraint[T] = {
-    Constraint("constraints.timeCheckSeconds") { data =>
-      import org.joda.time.{Seconds, DateTime}
-      app.configuration.getInt("ehri.signup.timeCheckSeconds").map { delay =>
-        try {
-          val renderTime: DateTime = new DateTime(data.timestamp)
-          val timeDiff: Int = Seconds.secondsBetween(renderTime, DateTime.now()).getSeconds
-          if (timeDiff > delay) Valid
-          else {
-            Logger.logger.error(s"Bad timestamp on signup with delay $delay")
-            Invalid("constraits.timeCheckSeconds.failed")
-          }
-        } catch {
-          case e: IllegalArgumentException => Invalid("constraits.timeCheckSeconds.failed")
-        }
-      }.getOrElse(Valid)
-    }
-  }
-
-  /**
-   * Ensure the blank check field (hidden on the form) is both
-   * present and blank.
-   */
-  def blankFieldIsBlank[T <: HoneyPotForm]: Constraint[T] = Constraint("constraints.honeypot") { data =>
-    if (data.blankCheck.isEmpty) Valid
-    else Invalid("constraints.honeypot.failed")
   }
 
   private def getConfig(key: String)(implicit app: play.api.Application): Int =
@@ -133,9 +89,9 @@ package object forms {
     }
   }
 
-  import play.api.libs.json.Json
   import play.api.data.format.Formatter
-  import play.api.data.{ FormError, Forms, Mapping }
+  import play.api.data.{FormError, Forms, Mapping}
+  import play.api.libs.json.Json
 
   /**
    * Constructs a simple mapping for a text field (mapped as `JsObject`)

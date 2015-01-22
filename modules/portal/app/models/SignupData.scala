@@ -1,9 +1,6 @@
 package models
 
-import play.api.data.Form
-import play.api.data.Forms._
-import play.api.data.validation.{Invalid, Valid, Constraint}
-import utils.forms.{TimeCheckForm, HoneyPotForm}
+import utils.forms.{HoneyPotForm, TimeCheckForm}
 
 /**
  * Manage signup data.
@@ -23,7 +20,11 @@ case class SignupData(
 
 object SignupData {
 
-  import utils.forms._
+  import play.api.data.Form
+  import play.api.data.Forms._
+  import play.api.data.validation.{Constraint, Invalid, Valid}
+  import utils.forms.HoneyPotForm._
+  import utils.forms.TimeCheckForm._
 
   val NAME = "name"
   val EMAIL = "email"
