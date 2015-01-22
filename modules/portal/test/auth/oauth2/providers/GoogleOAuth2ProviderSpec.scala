@@ -16,7 +16,7 @@ class GoogleOAuth2ProviderSpec extends PlaySpecification {
   """
 
   val testUserData = """{
-      "id": "some-id",
+      "id": "123456789",
       "email": "email@example.com",
       "verified_email": true,
       "name": "Any Name",
@@ -33,6 +33,9 @@ class GoogleOAuth2ProviderSpec extends PlaySpecification {
     "parse access data" in {
       GoogleOAuth2Provider.buildOAuth2Info(testAccessData) must beSome.which { d =>
         d.accessToken must equalTo("some-access-token")
+        d.refreshToken must equalTo(None)
+        d.expiresIn must equalTo(Some(100))
+        d.tokenType must equalTo(Some("Bearer"))
       }
     }
 
@@ -40,6 +43,7 @@ class GoogleOAuth2ProviderSpec extends PlaySpecification {
       GoogleOAuth2Provider.getUserData(testUserData) must beSome.which { d =>
         d.name must equalTo("Any Name")
         d.email must equalTo("email@example.com")
+        d.providerId must equalTo("123456789")
       }
     }
   }
