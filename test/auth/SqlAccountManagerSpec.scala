@@ -20,16 +20,36 @@ class SqlAccountManagerSpec extends PlaySpecification {
   "account manager" should {
     "load fixtures with the right number of accounts" in new WithSqlFixtures(new FakeApplication) {
       DB.withConnection { implicit connection =>
-        SQL("select count(*) from users").as(scalar[Long].single) must equalTo(5L)
+        SQL"select count(*) from users".as(scalar[Long].single) must equalTo(5L)
       }
     }
 
     "enforce email uniqueness" in new WithSqlFixtures(new FakeApplication) {
       DB.withConnection { implicit connection =>
-        SQL(
-          """insert into users (id,email,verified,staff) values ('blah',{email},1,1)""")
-          .on('email -> mocks.privilegedUser.email)
+        SQL"insert into users (id,email,verified,staff) values ('blah', ${mocks.privilegedUser.email}},1,1)"
           .executeInsert() must throwA[JdbcSQLException]
+      }
+    }
+
+    "create accounts with correct properties" in new WithSqlFixtures(new FakeApplication) {
+      val testAcc = Account(
+        id = "test",
+        email = "blah@example.com",
+        verified = false,
+        active = true,
+        staff = false,
+        allowMessaging = true,
+        password = Some(HashedPassword.fromPlain("p4ssword"))
+      )
+      val acc = await(accounts.create(testAcc))
+      acc.id must equalTo(testAcc.id)
+      acc.email must equalTo(testAcc.email)
+      acc.verified must equalTo(testAcc.verified)
+      acc.active must equalTo(testAcc.active)
+      acc.staff must equalTo(testAcc.staff)
+      acc.allowMessaging must equalTo(testAcc.allowMessaging)
+      acc.password must beSome.which { ps =>
+        ps.check("p4ssword") must beTrue
       }
     }
 
@@ -40,11 +60,23 @@ class SqlAccountManagerSpec extends PlaySpecification {
       accountsById.find(_.id == mocks.unprivilegedUser.id) must beSome
     }
 
-    "find accounts by token" in new WithSqlFixtures(new FakeApplication) {
+    "find accounts by token and expire tokens" in new WithSqlFixtures(new FakeApplication) {
       val uuid = UUID.randomUUID()
       await(accounts.createToken(mocks.privilegedUser.id, uuid, isSignUp = true))
       await(accounts.findByToken(uuid.toString, isSignUp = true)) must beSome.which { acc =>
         acc.id must equalTo(mocks.privilegedUser.id)
+      }
+      await(accounts.expireTokens(mocks.privilegedUser.id))
+      await(accounts.findByToken(uuid.toString, isSignUp = true)) must beNone
+    }
+
+    "verify accounts via token" in new WithSqlFixtures(new FakeApplication) {
+      val uuid = UUID.randomUUID()
+      await(accounts.createToken(mocks.unverifiedUser.id, uuid, isSignUp = false))
+      mocks.unverifiedUser.verified must beFalse
+      await(accounts.verify(mocks.unverifiedUser, uuid.toString)) must beSome
+      await(accounts.findById(mocks.unprivilegedUser.id)) must beSome.which { check =>
+        check.verified must beTrue
       }
     }
 

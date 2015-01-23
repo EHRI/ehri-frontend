@@ -71,9 +71,9 @@ case class SqlAccountManager()(implicit app: play.api.Application) extends Accou
 
   override def verify(account: Account, token: String): Future[Option[Account]] = Future {
     DB.withTransaction { implicit conn =>
-      SQL"UPDATE users SET verified = true WHERE id = ${account.id}".executeUpdate()
+      SQL"UPDATE users SET verified = TRUE WHERE id = ${account.id}".executeUpdate()
       SQL"DELETE FROM token WHERE token = $token".execute()
-      Some(account)
+      Some(account.copy(verified = true))
     }
   }(executionContext)
 
@@ -106,7 +106,6 @@ case class SqlAccountManager()(implicit app: play.api.Application) extends Accou
         UPDATE users
         SET
           email = ${account.email},
-          verified = ${account.verified},
           staff = ${account.staff},
           active = ${account.active},
           allow_messaging = ${account.allowMessaging},
@@ -147,13 +146,7 @@ case class SqlAccountManager()(implicit app: play.api.Application) extends Accou
 
   override def createToken(id: String, uuid: UUID, isSignUp: Boolean): Future[Unit] = Future {
     DB.withConnection { implicit conn =>
-      // Bit gross this, not sure how to change expiry conditionally...
-      (if (isSignUp)
-        SQL"""INSERT INTO token (id, token, expires, is_sign_up)
-           VAlUES ($id, $uuid, TIMESTAMPADD(WEEK, 1, NOW()), 1)"""
-      else
-        SQL"""INSERT INTO token (id, token, expires, is_sign_up)
-           VAlUES ($id, $uuid, TIMESTAMPADD(HOUR, 1, NOW()), 0)""").executeInsert()
+      if (isSignUp) createSignupToken(id, uuid) else createResetToken(id, uuid)
     }
     ()
   }(executionContext)
@@ -174,11 +167,20 @@ case class SqlAccountManager()(implicit app: play.api.Application) extends Accou
     }
   }(executionContext)
 
+
   private def getByEmail(email: String)(implicit conn: Connection): Option[Account] =
     SQL"SELECT * FROM users WHERE users.email = $email".as(userParser.singleOpt)
 
   private def getById(id: String)(implicit conn: Connection): Option[Account] =
     SQL"SELECT * FROM users WHERE users.id = $id".as(userParser.singleOpt)
+
+  private def createSignupToken(id: String, uuid: UUID)(implicit conn: Connection): Unit =
+    SQL"""INSERT INTO token (id, token, expires, is_sign_up)
+           VAlUES ($id, $uuid, TIMESTAMPADD(WEEK, 1, NOW()), 1)""".executeInsert()
+
+  private def createResetToken(id: String, uuid: UUID)(implicit conn: Connection): Unit =
+    SQL"""INSERT INTO token (id, token, expires, is_sign_up)
+           VAlUES ($id, $uuid, TIMESTAMPADD(HOUR, 1, NOW()), 0)""".executeInsert()
 }
 
 object SqlAccountManager {
