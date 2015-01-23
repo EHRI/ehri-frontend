@@ -5,7 +5,7 @@ import auth.oauth2.providers.GoogleOAuth2Provider
 import helpers.IntegrationTestRunner
 import models.SignupData
 import play.api.cache.Cache
-import play.api.test.FakeRequest
+import play.api.test.{WithApplication, FakeApplication, FakeRequest}
 import utils.forms.HoneyPotForm._
 import utils.forms.TimeCheckForm._
 
@@ -26,12 +26,12 @@ class AccountsSpec extends IntegrationTestRunner {
     }
 
     "allow user to login with password" in new ITestApp(
-        specificConfig = Map(
-          "recaptcha.skip" -> true,
-          "ehri.signup.timeCheckSeconds" -> -1
-        )
-      ) {
-      val data: Map[String,Seq[String]] = Map(
+      specificConfig = Map(
+        "recaptcha.skip" -> true,
+        "ehri.signup.timeCheckSeconds" -> -1
+      )
+    ) {
+      val data: Map[String, Seq[String]] = Map(
         SignupData.EMAIL -> Seq(privilegedUser.email),
         SignupData.PASSWORD -> Seq(testPassword),
         TIMESTAMP -> Seq(org.joda.time.DateTime.now.toString),
@@ -46,8 +46,10 @@ class AccountsSpec extends IntegrationTestRunner {
         .withSession(CSRF_TOKEN_NAME -> fakeCsrfString), data).get
       status(login) must equalTo(SEE_OTHER)
     }
+  }
 
-    "allow user to login via OAuth2" in new ITestApp {
+  "OAuth2" should {
+    "allow user to log in" in new ITestApp {
       // Using the existing Google OAuth2 association
       // in the mock database. The key here is that
       // the data in the `googleUserData.txt` resource
@@ -63,6 +65,22 @@ class AccountsSpec extends IntegrationTestRunner {
       status(login) must equalTo(SEE_OTHER)
       // The handle should have deleted the single-use key
       Cache.getAs[String](singleUseKey) must beNone
+    }
+
+    "error with bad session state" in new WithApplication {
+      val singleUseKey = "useOnce"
+      Cache.set(singleUseKey, "jdjjjr")
+      val login = route(FakeRequest(GET,
+        accountRoutes.oauth2(GoogleOAuth2Provider.name,
+          code = Some("blah"), state=Some("dk3kdm34")).url)
+        .withSession("sid" -> singleUseKey)).get
+      status(login) must equalTo(BAD_REQUEST)
+    }
+
+    "error with bad provider" in new WithApplication {
+      val login = route(FakeRequest(GET,
+        accountRoutes.oauth2("no-provider").url)).get
+      status(login) must equalTo(NOT_FOUND)
     }
   }
 }
