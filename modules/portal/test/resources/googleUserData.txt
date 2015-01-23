@@ -1,0 +1,12 @@
+{
+  "id": "123456789",
+  "email": "example1@example.com",
+  "verified_email": true,
+  "name": "Any Name",
+  "given_name": "Any",
+  "family_name": "Name",
+  "link": "https://plus.google.com/123456789",
+  "picture": "https://lh6.googleusercontent.com/blah/photo.jpg",
+  "gender": "female",
+  "locale": "en-GB"
+}

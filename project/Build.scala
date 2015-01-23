@@ -183,7 +183,7 @@ object ApplicationBuild extends Build {
     libraryDependencies ++= portalDependencies,
     pipelineStages := Seq(rjs, digest, gzip),
     RjsKeys.mainModule := "portal-main"
-  ).settings(commonSettings: _*).dependsOn(core)
+  ).settings(commonSettings: _*).dependsOn(core % "test->test;compile->compile")
 
   lazy val admin = Project(appName + "-admin", file("modules/admin"))
     .enablePlugins(play.PlayScala).settings(
@@ -200,7 +200,7 @@ object ApplicationBuild extends Build {
     version := appVersion,
     libraryDependencies ++= coreDependencies ++ testDependencies
   ).settings(commonSettings ++ assetSettings: _*)
-    .dependsOn(portal, admin, guides)
+    .dependsOn(portal % "test->test;compile->compile", admin, guides)
     .aggregate(backend, core, admin, portal, guides)
 
   override def rootProject = Some(main)

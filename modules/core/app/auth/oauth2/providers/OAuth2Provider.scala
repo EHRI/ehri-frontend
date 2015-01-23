@@ -4,7 +4,6 @@ import java.net.URLEncoder
 
 import auth.oauth2._
 import com.fasterxml.jackson.core.JsonParseException
-import play.api.Logger
 import play.api.libs.json.Json
 
 /**
@@ -46,7 +45,6 @@ trait OAuth2Provider {
   )
 
   def buildOAuth2Info(data: String): Option[OAuth2Info] = {
-    Logger.debug(s"OAuth2 Info for $name: $data")
     try {
       val json = Json.parse(data)
       for {

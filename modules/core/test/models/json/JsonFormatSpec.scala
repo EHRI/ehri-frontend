@@ -1,14 +1,15 @@
 package models.json
 
+import helpers.ResourceUtils
 import play.api.libs.json.{JsValue, Json}
 import play.api.test.PlaySpecification
 import models._
 import defines.EntityType
 
-class JsonFormatSpec extends PlaySpecification {
+class JsonFormatSpec extends PlaySpecification with ResourceUtils {
 
   private def readResource(v: EntityType.Value): JsValue = readResource(v.toString + ".json")
-  private def readResource(name: String): JsValue = Json.parse(helpers.resourceAsString(name))
+  private def readResource(name: String): JsValue = Json.parse(resourceAsString(name))
 
   "Documentary Unit Format should read and write with no changes" in {
     val validation = readResource(EntityType.DocumentaryUnit).validate[DocumentaryUnitF]

@@ -2,7 +2,6 @@ package auth.oauth2.providers
 
 import auth.oauth2.UserData
 import com.fasterxml.jackson.core.JsonParseException
-import play.api.Logger
 import play.api.libs.json._
 
 /**
@@ -15,8 +14,6 @@ object GoogleOAuth2Provider extends OAuth2Provider {
   override def getUserData(data: String): Option[UserData] = {
     try {
       val json: JsValue = Json.parse(data)
-      Logger.debug("User info: " + Json.prettyPrint(json))
-
       for {
         guid <- (json \ "id").asOpt[String]
         email <- (json \ "email").asOpt[String]

@@ -115,7 +115,11 @@ trait OAuth2LoginHandler extends AccountHelpers {
       if (!check) Logger.error(s"OAuth2 state mismatch: sessionId: $sessionId, " +
         s"original token: $origStateOpt, new token: $newStateOpt")
       check
-    }).getOrElse(false)
+    }).getOrElse {
+      Logger.error(s"Missing OAuth2 data for query param ${OAuth2Constants.State} " +
+        s"and session key: $sessionId")
+      false
+    }
   }
 
   def OAuth2LoginAction(provider: OAuth2Provider, handler: Call) = new ActionBuilder[OAuth2Request] {

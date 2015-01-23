@@ -2,7 +2,6 @@ package auth.oauth2.providers
 
 import auth.oauth2.{OAuth2Constants, OAuth2Info, UserData}
 import com.fasterxml.jackson.core.JsonParseException
-import play.api.Logger
 import play.api.libs.json._
 
 /**
@@ -23,8 +22,6 @@ object FacebookOAuth2Provider extends OAuth2Provider {
   override def getUserData(data: String): Option[UserData] = {
     try {
       val json: JsValue = Json.parse(data)
-      Logger.debug("Facebook user info: " + Json.prettyPrint(json))
-
       for {
         guid <- (json \ "id").asOpt[String]
         email <- (json \ "email").asOpt[String]

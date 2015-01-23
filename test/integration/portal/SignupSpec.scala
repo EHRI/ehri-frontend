@@ -9,7 +9,6 @@ import play.api.i18n.Messages
 
 class SignupSpec extends IntegrationTestRunner {
 
-  import utils.forms._
   import utils.forms.HoneyPotForm._
   import utils.forms.TimeCheckForm._
   private val accountRoutes = controllers.portal.account.routes.Accounts

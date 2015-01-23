@@ -1,5 +1,6 @@
 package solr
 
+import helpers.ResourceUtils
 import play.api.test.PlaySpecification
 import play.api.i18n.Messages
 import utils.search.FieldFacetClass
@@ -12,13 +13,13 @@ import play.api.libs.json.{Json, JsValue}
 /**
  * @author Mike Bryant (http://github.com/mikesname)
  */
-class SolrQueryParserSpec extends PlaySpecification {
+class SolrQueryParserSpec extends PlaySpecification with ResourceUtils {
 
   private def xmlResponseString: Elem =
-    XML.loadString(helpers.resourceAsString("solrQueryResponse1.xml"))
+    XML.loadString(resourceAsString("solrQueryResponse1.xml"))
 
   private def jsonResponseString: JsValue =
-    Json.parse(helpers.resourceAsString("solrQueryResponse1.json"))
+    Json.parse(resourceAsString("solrQueryResponse1.json"))
 
   "Solr XML Query Parser" should {
     "parse the correct number of docs with the right IDs" in {

@@ -3,7 +3,6 @@ package auth.oauth2.providers
 import auth.oauth2.{OAuth2Info, UserData}
 import com.fasterxml.jackson.core.JsonParseException
 import org.apache.commons.codec.binary.Base64
-import play.api.Logger
 import play.api.http.ContentTypes
 import play.api.libs.json.Json
 
@@ -44,15 +43,7 @@ object YahooOAuth2Provider extends OAuth2Provider {
 
   override def getUserData(data: String): Option[UserData] = {
     try {
-      Logger.debug("Yahoo user info: " + data)
-
       val json = Json.parse(data)
-      val guid = (json \ "profile" \ "guid").asOpt[String]
-      val givenName = (json \ "profile" \ "givenName").asOpt[String]
-      val familyName = (json \ "profile" \ "familyName").asOpt[String]
-      val imageUrl = (json \ "profile" \ "image" \ "imageUrl").asOpt[String]
-      val emails: Option[Seq[YahooEmail]] = (json \ "profile" \ "emails").asOpt[Seq[YahooEmail]]
-
       for {
         guid <- (json \ "profile" \ "guid").asOpt[String]
         givenName <- (json \ "profile" \ "givenName").asOpt[String]

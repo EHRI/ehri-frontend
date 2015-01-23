@@ -65,7 +65,8 @@ trait UserPasswordLoginHandler {
             case Some(account) =>
               Logger.logger.info("User '{}' logged in via password", account.id)
               block(UserPasswordLoginRequest(Right(account), request))
-            case None => block(UserPasswordLoginRequest(Left(boundForm
+            case None =>
+              block(UserPasswordLoginRequest(Left(boundForm
                 .withGlobalError("login.error.badUsernameOrPassword")), request))
           }
         }
