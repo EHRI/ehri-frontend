@@ -1,9 +1,6 @@
 @(desc: play.api.data.Field)(implicit fieldPrefix: String, userOpt: Option[UserProfile], req: RequestHeader, globalConfig: global.GlobalConfig, lang: Lang)
 
-@import DatePeriodF._
-
-@*implicitField = @{ views.html.helper.FieldConstructor(common.dateFieldTemplate.f) }*@
-
+@import models.DatePeriodF._
 
 <table class="inline-element table-condensed" id="@desc.id">
     @formHelpers.hiddenInput(desc(Entity.ID))
@@ -29,12 +26,12 @@
             </select>
             }
         </td>
-        @List(START_DATE, END_DATE).map { fname =>
+        @Seq(START_DATE, END_DATE).map { fname =>
             @defining(desc(fname)) { field =>
                 <td class="@{if(field.hasErrors) "has-error"}">
                     <div class="input-group">
                         <span class="datepicker-activation input-group-addon" data-target="#@field.id"><span class="glyphicon glyphicon-calendar"></span></span>
-                        <input class="form-control datepicker"  data-date-format="mm-dd-yyyy" placeholder="yyyy-mm-dd" type="text" name="@field.name" value="@field.value" placeholder="@Messages(fieldPrefix + "." + fname)" id="@field.id" />
+                        <input class="form-control datepicker"  data-date-format="mm-dd-yyyy" type="text" name="@field.name" value="@field.value" placeholder="@Messages(fieldPrefix + "." + fname)" id="@field.id" />
                     </div>
                 </td>
             }
@@ -45,7 +42,7 @@
     </tr>
     <tr>
         <td colspan="2"></td>
-        @List(START_DATE, END_DATE).map { fname =>
+        @Seq(START_DATE, END_DATE).map { fname =>
             @defining(desc(fname)) { field =>
                 <td class="has-error">
                     @if(field.hasErrors) {
