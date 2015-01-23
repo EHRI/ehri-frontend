@@ -7,6 +7,7 @@
 
 <table class="inline-element table-condensed" id="@desc.id">
     @formHelpers.hiddenInput(desc(Entity.ID))
+    @formHelpers.hiddenInput(desc(DESCRIPTION))
     <tr>
         <td>
             @defining(desc(TYPE).value.toSet) { values =>
