@@ -13,6 +13,7 @@ case class Account(
   staff: Boolean = false,
   active: Boolean = true,
   allowMessaging: Boolean = true,
+  created: Option[DateTime] = None,
   lastLogin: Option[DateTime] = None,
   password: Option[HashedPassword] = None
 ) {

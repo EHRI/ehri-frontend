@@ -106,6 +106,9 @@ case class MockAccountManager()(implicit app: play.api.Application) extends Acco
     }
   }
 
+  override def create(account: Account): Future[Account] =
+    immediate(updateWith(account.copy(created = Some(DateTime.now()))))
+
   override def update(account: Account): Future[Account] =
     immediate(updateWith(account))
 
@@ -125,7 +128,4 @@ case class MockAccountManager()(implicit app: play.api.Application) extends Acco
     val all = mocks.accountFixtures.values.toSeq.sortBy(_.id).drop(params.offset)
     if (params.hasLimit) all.drop(params.limit) else all
   }
-
-  override def create(account: Account): Future[Account] =
-    immediate(updateWith(account))
 }

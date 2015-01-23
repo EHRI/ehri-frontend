@@ -8,6 +8,7 @@ import auth.sql.SqlAccountManager
 import helpers.WithSqlFixtures
 import models.Account
 import org.h2.jdbc.JdbcSQLException
+import org.joda.time.DateTime
 import play.api.db.DB
 import play.api.test.{FakeApplication, PlaySpecification}
 import utils.PageParams
@@ -15,6 +16,7 @@ import utils.PageParams
 
 class SqlAccountManagerSpec extends PlaySpecification {
 
+  implicit val dateTimeOrdering: Ordering[DateTime] = Ordering.fromLessThan(_ isBefore _)
   def accounts: AccountManager = SqlAccountManager()(play.api.Play.current)
 
   "account manager" should {
@@ -32,6 +34,7 @@ class SqlAccountManagerSpec extends PlaySpecification {
     }
 
     "create accounts with correct properties" in new WithSqlFixtures(new FakeApplication) {
+      val now = DateTime.now
       val testAcc = Account(
         id = "test",
         email = "blah@example.com",
@@ -48,9 +51,9 @@ class SqlAccountManagerSpec extends PlaySpecification {
       acc.active must equalTo(testAcc.active)
       acc.staff must equalTo(testAcc.staff)
       acc.allowMessaging must equalTo(testAcc.allowMessaging)
-      acc.password must beSome.which { ps =>
-        ps.check("p4ssword") must beTrue
-      }
+      acc.created must beSome.which(_ must beGreaterThan(now))
+      acc.lastLogin must beNone
+      acc.password must beSome.which(_.check("p4ssword") must beTrue)
     }
 
     "find multiple accounts by id" in new WithSqlFixtures(new FakeApplication) {

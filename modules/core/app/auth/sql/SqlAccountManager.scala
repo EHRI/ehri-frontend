@@ -100,6 +100,22 @@ case class SqlAccountManager()(implicit app: play.api.Application) extends Accou
     }
   }(executionContext)
 
+  override def create(account: Account): Future[Account] = Future {
+    DB.withConnection { implicit conn =>
+      SQL"""INSERT INTO users
+        (id, email, verified, staff, allow_messaging, password)
+        VALUES (
+          ${account.id},
+          ${account.email},
+          ${account.verified},
+          ${account.staff},
+          ${account.allowMessaging},
+          ${account.password}
+      )""".executeInsert()
+      getById(account.id).get
+    }
+  }(executionContext)
+
   override def update(account: Account): Future[Account] = Future {
     DB.withConnection { implicit connection =>
       SQL"""
@@ -112,7 +128,7 @@ case class SqlAccountManager()(implicit app: play.api.Application) extends Accou
           password = ${account.password}
         WHERE id = ${account.id}
         """.executeUpdate()
-      account
+      getById(account.id).get
     }
   }(executionContext)
 
@@ -149,22 +165,6 @@ case class SqlAccountManager()(implicit app: play.api.Application) extends Accou
       if (isSignUp) createSignupToken(id, uuid) else createResetToken(id, uuid)
     }
     ()
-  }(executionContext)
-
-  override def create(account: Account): Future[Account] = Future {
-    DB.withConnection { implicit conn =>
-      SQL"""INSERT INTO users
-        (id, email, verified, staff, allow_messaging, password)
-        VALUES (
-          ${account.id},
-          ${account.email},
-          ${account.verified},
-          ${account.staff},
-          ${account.allowMessaging},
-          ${account.password}
-      )""".executeInsert()
-      account
-    }
   }(executionContext)
 
 
@@ -212,10 +212,11 @@ object SqlAccountManager {
       bool("users.staff") ~
       bool("users.active") ~
       bool("users.allow_messaging") ~
+      get[Option[DateTime]]("users.created") ~
       get[Option[DateTime]]("users.last_login") ~
       get[Option[HashedPassword]]("users.password") map {
-      case id ~ email ~ verified ~ staff ~ active ~ allowMessaging ~ login ~ pw =>
-        Account(id, email, verified, staff, active, allowMessaging, login, pw)
+      case id ~ email ~ verified ~ staff ~ active ~ allowMessaging ~ created ~ login ~ pw =>
+        Account(id, email, verified, staff, active, allowMessaging, created, login, pw)
     }
   }
 }
