@@ -1,6 +1,7 @@
 package controllers.users
 
 import auth.{HashedPassword, AccountManager}
+import controllers.core.auth.AccountHelpers
 import play.api.libs.concurrent.Execution.Implicits._
 import controllers.generic._
 import models._
@@ -31,7 +32,10 @@ case class UserProfiles @Inject()(implicit globalConfig: global.GlobalConfig, se
   with Update[UserProfileF,UserProfile]
   with Delete[UserProfile]
   with Membership[UserProfile]
-  with Search {
+  with Search
+  with AccountHelpers {
+
+  import play.api.Play.current
 
   private val entityFacets: FacetBuilder = { implicit request =>
     List(
@@ -62,13 +66,13 @@ case class UserProfiles @Inject()(implicit globalConfig: global.GlobalConfig, se
 
   private val groupMembershipForm = Form(Forms.single("group" -> Forms.list(Forms.nonEmptyText)))
 
-  private val userPasswordForm = Form(
+  private def userPasswordForm = Form(
     Forms.tuple(
       "email" -> Forms.email,
       "identifier" -> Forms.nonEmptyText(minLength= 3, maxLength = 20),
       "name" -> Forms.nonEmptyText,
-      "password" -> Forms.nonEmptyText(minLength = 6),
-      "confirm" -> Forms.nonEmptyText(minLength = 6)
+      "password" -> Forms.nonEmptyText(minLength = minPasswordLength),
+      "confirm" -> Forms.nonEmptyText(minLength = minPasswordLength)
     ) verifying("login.error.passwordsDoNotMatch", d => d._4 == d._5)
   )
 
@@ -148,7 +152,7 @@ case class UserProfiles @Inject()(implicit globalConfig: global.GlobalConfig, se
         // It's not registered, so create the account...
         val user = UserProfileF(id = None, identifier = username, name = name,
           location = None, about = None, languages = Nil)
-        val groups = groupMembershipForm.bindFromRequest.value.getOrElse(List())
+        val groups = (groupMembershipForm.bindFromRequest.value.getOrElse(List.empty) ++ defaultPortalGroups).distinct
         createUserProfile(user, groups, allGroups).flatMap {
           case Left(ValidationError(errorSet)) =>
             val errForm = user.getFormErrors(errorSet, userPasswordForm.bindFromRequest)

@@ -49,6 +49,18 @@ class SignupSpec extends IntegrationTestRunner {
       }
     }
 
+    "prevent signup with too short a password" in new ITestApp {
+      val length = play.api.Play.current.configuration
+        .getInt("ehri.passwords.minLength").getOrElse(100)
+      val badData = data
+        .updated(SignupData.PASSWORD, Seq("short"))
+        .updated(SignupData.CONFIRM, Seq("short"))
+      val signup = route(FakeRequest(POST, accountRoutes.signupPost().url)
+        .withSession(CSRF_TOKEN_NAME -> fakeCsrfString), badData).get
+      status(signup) must equalTo(BAD_REQUEST)
+      contentAsString(signup) must contain(Messages("error.minLength", length))
+    }
+
     "prevent signup with mismatched passwords" in new ITestApp {
       val badData = data
         .updated(SignupData.CONFIRM, Seq("blibblob"))

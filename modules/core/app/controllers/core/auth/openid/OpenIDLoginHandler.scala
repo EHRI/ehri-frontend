@@ -85,6 +85,7 @@ trait OpenIDLoginHandler extends AccountHelpers {
 
   protected def OpenIdCallbackAction = new ActionBuilder[OpenIdCallbackRequest] {
     override def invokeBlock[A](request: Request[A], block: (OpenIdCallbackRequest[A]) => Future[Result]): Future[Result] = {
+      import play.api.Play.current
       implicit val r = request
 
       OpenID.verifiedId(request).flatMap { info =>
@@ -121,7 +122,7 @@ trait OpenIDLoginHandler extends AccountHelpers {
     } yield OpenIdCallbackRequest(Right(account), request)
   }
 
-  private def createUserAccount[A](email: String, info: UserInfo, data: Map[String, String], request: Request[A]): Future[OpenIdCallbackRequest[A]] = {
+  private def createUserAccount[A](email: String, info: UserInfo, data: Map[String, String], request: Request[A])(implicit app: play.api.Application): Future[OpenIdCallbackRequest[A]] = {
     implicit val apiUser = AnonymousUser
     for {
       up <- backend.createNewUserProfile[UserProfile](data, groups = defaultPortalGroups)
@@ -144,8 +145,8 @@ trait OpenIDLoginHandler extends AccountHelpers {
    * Pick up the email from OpenID info. This may be stored in different
    * attributes depending on the provider.
    */
-  private def extractEmail(attrs: Map[String, String]): Option[String]
-      = attrs.get("email").orElse(attrs.get("axemail"))
+  private def extractEmail(attrs: Map[String, String]): Option[String] =
+    attrs.get("email").orElse(attrs.get("axemail"))
 
   private def extractName(attrs: Map[String,String]): Option[String] = {
     val fullName = for {

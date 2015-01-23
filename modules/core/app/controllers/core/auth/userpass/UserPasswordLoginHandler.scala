@@ -1,6 +1,7 @@
 package controllers.core.auth.userpass
 
 import auth.HashedPassword
+import controllers.core.auth.AccountHelpers
 import play.api.libs.concurrent.Execution.Implicits._
 import models.{UserProfile, Account}
 import play.api.mvc._
@@ -20,7 +21,9 @@ import controllers.base.AuthController
  */
 trait UserPasswordLoginHandler {
 
-  self: Controller with AuthController with LoginLogout =>
+  self: Controller with AuthController with LoginLogout with AccountHelpers =>
+
+  import play.api.Play.current
 
   val accounts: auth.AccountManager
 
@@ -31,18 +34,18 @@ trait UserPasswordLoginHandler {
     )
   )
 
-  val changePasswordForm = Form(
+  def changePasswordForm = Form(
     tuple(
       "current" -> nonEmptyText,
-      "password" -> nonEmptyText(minLength = 6),
-      "confirm" -> nonEmptyText(minLength = 6)
+      "password" -> nonEmptyText(minLength = minPasswordLength),
+      "confirm" -> nonEmptyText(minLength = minPasswordLength)
     ) verifying("login.error.passwordsDoNotMatch", passwords => passwords._2 == passwords._3)
   )
 
-  val resetPasswordForm = Form(
+  def resetPasswordForm = Form(
     tuple(
-      "password" -> nonEmptyText(minLength = 6),
-      "confirm" -> nonEmptyText(minLength = 6)
+      "password" -> nonEmptyText(minLength = minPasswordLength),
+      "confirm" -> nonEmptyText(minLength = minPasswordLength)
     ) verifying("login.error.passwordsDoNotMatch", pc => pc._1 == pc._2)
   )
 
