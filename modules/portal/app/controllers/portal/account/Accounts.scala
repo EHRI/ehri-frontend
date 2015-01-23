@@ -53,11 +53,7 @@ case class Accounts @Inject()(implicit globalConfig: GlobalConfig, searchDispatc
   private def rateLimitError(implicit r: RequestHeader) =
     Messages("error.rateLimit", rateLimitTimeoutSecs / 60)
 
-  val oauthProviders = Map(
-    GoogleOAuth2Provider.name -> accountRoutes.googleLogin,
-    FacebookOAuth2Provider.name -> accountRoutes.facebookLogin,
-    YahooOAuth2Provider.name -> accountRoutes.yahooLogin
-  )
+  override val oauth2Providers = Seq(GoogleOAuth2Provider, FacebookOAuth2Provider, YahooOAuth2Provider)
 
   /**
    * Prevent people signin up, logging in etc when in read-only mode.
@@ -111,7 +107,7 @@ case class Accounts @Inject()(implicit globalConfig: GlobalConfig, searchDispatc
           accountRoutes.signupPost(),
           recaptchaKey,
           openidForm,
-          oauthProviders,
+          oauth2Providers,
           isLogin = false)
       )
     }
@@ -187,7 +183,7 @@ case class Accounts @Inject()(implicit globalConfig: GlobalConfig, searchDispatc
             accountRoutes.signupPost(),
             recaptchaKey,
             formError,
-            oauthProviders)
+            oauth2Providers)
           )
         )
     }
@@ -211,7 +207,7 @@ case class Accounts @Inject()(implicit globalConfig: GlobalConfig, searchDispatc
             accountRoutes.signupPost(),
             recaptchaKey,
             openidForm,
-            oauthProviders,
+            oauth2Providers,
             isLogin = isLogin)
           )
       }
@@ -228,7 +224,7 @@ case class Accounts @Inject()(implicit globalConfig: GlobalConfig, searchDispatc
         accountRoutes.signupPost(),
         recaptchaKey,
         request.errorForm,
-        oauthProviders,
+        oauth2Providers,
         isLogin
       )
     )
@@ -245,7 +241,7 @@ case class Accounts @Inject()(implicit globalConfig: GlobalConfig, searchDispatc
           accountRoutes.signupPost(),
           recaptchaKey,
           openidForm,
-          oauthProviders,
+          oauth2Providers,
           isLogin = true
         )
       )
@@ -264,29 +260,14 @@ case class Accounts @Inject()(implicit globalConfig: GlobalConfig, searchDispatc
     gotoLogoutSucceeded
   }
 
-  private def handleOAuth2Login[A](implicit request: OAuth2Request[A]): Future[Result] = {
-    request.accountOrErr match {
-      case Left(error) => immediate(Redirect(accountRoutes.loginOrSignup())
-        .flashing("danger" -> error))
-      case Right(account) => doLogin(account)
+  def oauth2(provider: String, code: Option[String], state: Option[String]) =
+    OAuth2LoginAction(provider, code, state, accountRoutes.oauth2(provider)).async { implicit request =>
+      request.accountOrErr match {
+        case Left(error) => immediate(Redirect(accountRoutes.loginOrSignup())
+          .flashing("danger" -> error))
+        case Right(account) => doLogin(account)
+      }
     }
-  }
-
-  def googleLogin = OAuth2LoginAction(GoogleOAuth2Provider, accountRoutes.googleLogin()).async { implicit request =>
-    handleOAuth2Login(request)
-  }
-
-  def facebookLogin = OAuth2LoginAction(FacebookOAuth2Provider, accountRoutes.facebookLogin()).async { implicit request =>
-    handleOAuth2Login(request)
-  }
-
-  def yahooLogin = OAuth2LoginAction(YahooOAuth2Provider, accountRoutes.yahooLogin()).async { implicit request =>
-    handleOAuth2Login(request)
-  }
-
-  def linkedInLogin = OAuth2LoginAction(LinkedInOAuth2Provider, accountRoutes.linkedInLogin()).async {implicit request =>
-    handleOAuth2Login(request)
-  }
 
   def forgotPassword = OptionalUserAction { implicit request =>
     Ok(views.html.p.account.forgotPassword(forgotPasswordForm,

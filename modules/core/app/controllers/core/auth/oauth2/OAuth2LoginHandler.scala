@@ -4,7 +4,7 @@ import java.util.UUID
 
 import auth.AuthenticationError
 import auth.oauth2.providers.OAuth2Provider
-import auth.oauth2.{OAuth2Constants, OAuth2Flow, UserData}
+import auth.oauth2.{OAuth2Flow, UserData}
 import backend.{AnonymousUser, AuthenticatedUser, Backend}
 import controllers.base.AuthController
 import controllers.core.auth.AccountHelpers
@@ -35,6 +35,8 @@ trait OAuth2LoginHandler extends AccountHelpers {
   def accounts: auth.AccountManager
   def globalConfig: GlobalConfig
   def oAuth2Flow: OAuth2Flow
+
+  def oauth2Providers: Seq[OAuth2Provider]
 
 
   private val SessionKey = "sid"
@@ -103,64 +105,78 @@ trait OAuth2LoginHandler extends AccountHelpers {
     }
   }
 
-  private def checkSessionNonce[A](sessionId: String)(implicit request: Request[A]): Boolean = {
-    val newStateOpt = request.getQueryString(OAuth2Constants.State)
+  private def checkSessionNonce[A](sessionId: String, state: Option[String])(implicit request: Request[A]): Boolean = {
     val origStateOpt: Option[String] = Cache.getAs[String](sessionId)
     (for {
     // check if the state we sent is equal to the one we're receiving now before continuing the flow.
       originalState <- origStateOpt
-      currentState <- newStateOpt
+      currentState <- state
     } yield {
       val check = originalState == currentState
       if (!check) Logger.error(s"OAuth2 state mismatch: sessionId: $sessionId, " +
-        s"original token: $origStateOpt, new token: $newStateOpt")
+        s"original token: $origStateOpt, new token: $state")
       check
     }).getOrElse {
-      Logger.error(s"Missing OAuth2 data for query param ${OAuth2Constants.State} " +
-        s"and session key: $sessionId")
+      Logger.error(s"Missing OAuth2 state data: session key -> $sessionId")
       false
     }
   }
 
-  def OAuth2LoginAction(provider: OAuth2Provider, handler: Call) = new ActionBuilder[OAuth2Request] {
+  /**
+   * Log a user in (or register them) via a third party OAuth2 service.
+   *
+   * @param providerName the provider name, matching one of the supported
+   *                     providers in `oauth2Providers`.
+   * @param code  the access code returned by the provider. This should be
+   *              absent in the first phase
+   * @param state the session track state we create, pass to the client, and
+   *              expect back again. This should also be empty in the first
+   *              phase.
+   * @param handler the call from which we are being invoked
+   */
+  def OAuth2LoginAction(providerName: String, code: Option[String], state: Option[String], handler: Call) = new ActionBuilder[OAuth2Request] {
     override def invokeBlock[A](request: Request[A], block: (OAuth2Request[A]) => Future[Result]): Future[Result] = {
-      implicit val r = request
+      oauth2Providers.find(_.name == providerName).map { provider =>
+        implicit val r = request
 
-      // Create a random nonce to stamp this OAuth2 session
-      val sessionId = request.session.get(SessionKey).getOrElse(UUID.randomUUID().toString)
-      val handlerUrl: String = handler.absoluteURL(globalConfig.https)
+        // Create a random nonce to stamp this OAuth2 session
+        val sessionId = request.session.get(SessionKey).getOrElse(UUID.randomUUID().toString)
+        val handlerUrl: String = handler.absoluteURL(globalConfig.https)
 
-      request.getQueryString(OAuth2Constants.Code) match {
+        code match {
 
-        // First stage of request. User is redirected to an external URL, where they
-        // authorize our app. The external provider then sends us back to this handler
-        // with a code parameter, initiating the second phase.
-        case None =>
-          val state = UUID.randomUUID().toString
-          Cache.set(sessionId, state, 30 * 60)
-          val redirectUrl = provider.buildRedirectUrl(handlerUrl, state)
-          Logger.debug(s"OAuth2 redirect URL: $redirectUrl")
-          immediate(Redirect(redirectUrl).withSession(request.session + (SessionKey -> sessionId)))
+          // First stage of request. User is redirected to an external URL, where they
+          // authorize our app. The external provider then sends us back to this handler
+          // with a code parameter, initiating the second phase.
+          case None =>
+            val state = UUID.randomUUID().toString
+            Cache.set(sessionId, state, 30 * 60)
+            val redirectUrl = provider.buildRedirectUrl(handlerUrl, state)
+            Logger.debug(s"OAuth2 redirect URL: $redirectUrl")
+            immediate(Redirect(redirectUrl).withSession(request.session + (SessionKey -> sessionId)))
 
-        // Second phase of request. Using our new code, and with the same random session
-        // nonce, proceed to get an access token, the user data, and handle the account
-        // creation or updating.
-        case Some(code) => if (checkSessionNonce(sessionId)) {
-          Cache.remove(sessionId)
-          (for {
-            info <- oAuth2Flow.getAccessToken(provider, handlerUrl, code)
-            userData <- oAuth2Flow.getUserData(provider, info)
-            account <- getOrCreateAccount(provider, userData)
-            authRequest = OAuth2Request(Right(account), request)
-            result <- block(authRequest)
-          } yield result) recoverWith {
-            case e@AuthenticationError(msg) =>
-              Logger.error(msg)
-              block(OAuth2Request(Left(Messages("login.error.oauth2.info",
-                provider.name.toUpperCase)), request))
-          }
-        } else immediate(BadRequest("Invalid session ID"))
+          // Second phase of request. Using our new code, and with the same random session
+          // nonce, proceed to get an access token, the user data, and handle the account
+          // creation or updating.
+          case Some(c) => if (checkSessionNonce(sessionId, state)) {
+            Cache.remove(sessionId)
+            (for {
+              info <- oAuth2Flow.getAccessToken(provider, handlerUrl, c)
+              userData <- oAuth2Flow.getUserData(provider, info)
+              account <- getOrCreateAccount(provider, userData)
+              authRequest = OAuth2Request(Right(account), request)
+              result <- block(authRequest)
+            } yield result) recoverWith {
+              case e@AuthenticationError(msg) =>
+                Logger.error(msg)
+                block(OAuth2Request(Left(Messages("login.error.oauth2.info",
+                  provider.name.toUpperCase)), request))
+            }
+          } else immediate(BadRequest("Invalid session ID"))
+        }
+      } getOrElse {
+        notFoundError(request)
       }
-    }
+   }
   }
 }

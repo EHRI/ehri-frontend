@@ -1,6 +1,7 @@
 package integration.portal
 
 import auth.HashedPassword
+import auth.oauth2.providers.GoogleOAuth2Provider
 import helpers.IntegrationTestRunner
 import models.SignupData
 import play.api.cache.Cache
@@ -56,10 +57,12 @@ class AccountsSpec extends IntegrationTestRunner {
       val randomState = "473284374"
       Cache.set(singleUseKey, randomState)
       val login = route(FakeRequest(GET,
-        s"${accountRoutes.googleLogin.url}?code=blah&state=$randomState")
+        accountRoutes.oauth2(GoogleOAuth2Provider.name,
+          code = Some("blah"), state=Some(randomState)).url)
         .withSession("sid" -> singleUseKey)).get
-      println(contentAsString(login))
       status(login) must equalTo(SEE_OTHER)
+      // The handle should have deleted the single-use key
+      Cache.getAs[String](singleUseKey) must beNone
     }
   }
 }
