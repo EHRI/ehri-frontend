@@ -260,7 +260,7 @@ case class SolrQueryBuilder(writerType: WriterType.Value, debugQuery: Boolean = 
       val qfFields: String = queryFieldsWithBoost.map { case (key, boostOpt) =>
         boostOpt.map(b => s"$key^$b").getOrElse(key)
       }.mkString(" ")
-      Logger.debug(s"Query fields: $qfFields")
+      Logger.trace(s"Query fields: $qfFields")
       req.set("qf", qfFields)
     }
 
