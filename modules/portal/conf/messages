@@ -164,11 +164,13 @@ type.repository.description=An inventory of archival institutions that \
 type.documentaryUnit=Archival Descriptions
 type.documentaryUnit.description=Electronic descriptions and finding aids of Holocaust-related archival material.
 type.historicalAgent=Historical Agents
+type.historicalAgent.description=People, families, and corporate bodies related to EHRI archival descriptions.
 type.country=Countries
 type.country.description=EHRI national reports provide an overview of \
   the Second World War and Holocaust history as well as of the archival situation \
   in the covered countries.
 type.cvocConcept=Keywords
+type.cvocConcept.description=Subject terms related to EHRI archival descriptions.
 type.userProfile=People on EHRI
 type.group=Groups
 type.virtualUnit=Virtual Collections

@@ -1,9 +1,9 @@
-@(title: Any, itemClass: String = "", scripts: Html = Html(""), styles: Html = Html(""))(content: Html)(implicit userOpt: Option[UserProfile], request: RequestHeader, prefs: utils.SessionPrefs, globalConfig: global.GlobalConfig, lang: Lang, flash: Flash)
+@(title: Any, itemClass: String = "", scripts: Html = Html(""), styles: Html = Html(""), meta: Map[String,String] = Map.empty)(content: Html)(implicit userOpt: Option[UserProfile], request: RequestHeader, prefs: utils.SessionPrefs, globalConfig: global.GlobalConfig, lang: Lang, flash: Flash)
 
 <!DOCTYPE html>
 
 <html lang="@lang.code">
-    @head(title, styles = styles)
+    @head(title, styles = styles, meta = meta)
     <body class="@itemClass">
         @preambleScripts()
         <div id="wrap">
