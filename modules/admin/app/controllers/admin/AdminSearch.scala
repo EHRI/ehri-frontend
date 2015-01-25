@@ -120,7 +120,8 @@ case class AdminSearch @Inject()(implicit globalConfig: global.GlobalConfig, sea
 
   private val updateIndexForm = Form(
     tuple(
-      "all" -> default(boolean, false),
+      "clearAll" -> default(boolean, false),
+      "clearTypes" -> default(boolean, false),
       "type" -> list(enumMapping(defines.EntityType))
     )
   )
@@ -136,7 +137,7 @@ case class AdminSearch @Inject()(implicit globalConfig: global.GlobalConfig, sea
    */
   def updateIndexPost() = AdminAction { implicit request =>
 
-    val (deleteAll, entities) = updateIndexForm.bindFromRequest.value.get
+    val (deleteAll, deleteTypes, entities) = updateIndexForm.bindFromRequest.value.get
 
     def wrapMsg(m: String) = s"<message>$m</message>"
 
@@ -154,9 +155,22 @@ case class AdminSearch @Inject()(implicit globalConfig: global.GlobalConfig, sea
         }
       }
 
-      val job = optionallyClearIndex.flatMap { _ =>
-        searchIndexer.withChannel(chan, wrapMsg).indexTypes(entityTypes = entities)
+      def optionallyClearType(entityTypes: Seq[EntityType.Value]): Future[Unit] = {
+        if (!deleteTypes || deleteAll) Future.successful(Unit)
+        else {
+          val f = searchIndexer.clearTypes(entityTypes = entityTypes)
+          f.onSuccess {
+            case () => chan.push(wrapMsg(s"... finished clearing index for types: $entityTypes"))
+          }
+          f
+        }
       }
+
+      val job = for {
+        _ <- optionallyClearIndex
+        _ <- optionallyClearType(entities)
+        task <- searchIndexer.withChannel(chan, wrapMsg).indexTypes(entityTypes = entities)
+      } yield task
 
       job.onComplete {
         case Success(()) =>

@@ -70,7 +70,7 @@ trait Indexable[MT] extends Controller with AuthController with ControllerHelper
    * @return An action returning a chunked progress response.
    */
   def updateChildItemsPost(field: String, id: String)(implicit rs: BackendResource[MT]) = AdminAction { implicit request =>
-    println("INDEXING WITH: " + searchIndexer)
+    Logger.debug(s"INDEXING WITH: $searchIndexer")
     val channel = Concurrent.unicast[String] { chan =>
 
       def clearIndex: Future[Unit] = {

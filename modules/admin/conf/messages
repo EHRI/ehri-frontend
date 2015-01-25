@@ -169,6 +169,7 @@ metrics.restrictedMaterial=Restricted Material
 search.index.update=Refresh Search Index
 search.index.update.for=Refresh searching index for {0}
 search.index.clear.all=Clear Entire Index First
+search.index.clear.types=Clear Each Type First
 search.index.types=Types to Update
 search.index.types.selectAll=Select All
 
