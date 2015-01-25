@@ -384,6 +384,8 @@ search.sort.countryName.asc.title=Sort results by country
 search.identifier=Identifier
 search.spellingSuggestion=Did you mean
 search.queryPlaceholder=Search...
+search.results.list={3,choice,0#{0}|1#{0} - One item|1<{0} - {1,number,integer} to {2,number,integer} of {3,number,integer}}
+search.item.results.list={3,choice,0#{0}|1#{0} - One item|1<{0} - Items {1,number,integer} to {2,number,integer} of {3,number,integer}}
 
 
 # Facets
@@ -498,19 +500,23 @@ social.unblock.submit=Unblock User
 # Annotations
 #
 annotation=Notes
+annotation.field=Field
 annotation.list=Notes
 annotation.list.by={0} - Notes
 annotation.none=You haven''t made any notes yet.
 annotation.create=Add Note
+annotation.create.submit=Add Note
 annotation.create.title=Create a note attached to this description
+annotation.field.create=Add Note
+annotation.field.create.submit=Add Note
+annotation.field.create.title=Create a note on this field
 annotation.update=Edit
 annotation.update.submit=Save
 annotation.update.title=Edit Note
-annotation.field.create=Add Note
-annotation.field.create.title=Create a note on this field
-annotation.field.showHidden=Show/hide {0,choice,1#1 public note made by another person|1<{0} public notes made by other people}
 annotation.delete=Delete
+annotation.delete.submit=Delete
 annotation.delete.title=Delete Note
+annotation.field.showHidden=Show/hide {0,choice,1#1 public note made by another person|1<{0} public notes made by other people}
 annotation.createdBy=Created by {0} at {1}
 annotation.showPublic={0,choice,1#Show 1 public note|1<Show {0} public notes}
 annotation.placeholder=

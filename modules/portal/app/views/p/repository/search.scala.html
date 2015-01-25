@@ -1,14 +1,12 @@
 @(item: Repository, result: utils.search.ItemPage[(DocumentaryUnit,utils.search.SearchHit)], params: utils.search.SearchParams, facets: List[utils.search.AppliedFacet], action: Call, watched: Seq[String])(implicit userOpt: Option[UserProfile], request: RequestHeader, prefs: utils.SessionPrefs, globalConfig: global.GlobalConfig, lang: Lang, flash: Flash)
 
-@p.layout.portalLayout(item.toStringLang, item.isA.toString) {
+@views.html.p.layout.itemSearchLayout(item.toStringLang, item.isA.toString, result, params) {
     @infobar(item)
-
-    @views.html.layout.mainContent {
-        @p.common.itemDetailsLink(Messages("details.show"), controllers.portal.routes.Repositories.browse(item.id)) {
-            @p.common.itemHeader(item.toStringLang) {
-            }
+} {
+    @views.html.p.common.itemDetailsLink(Messages("details.show"), controllers.portal.routes.Repositories.browse(item.id)) {
+        @views.html.p.common.itemHeader(item.toStringLang) {
         }
-
-        @childItemSearch(item, result, params, facets, action, watched)
     }
+
+    @childItemSearch(item, result, params, facets, action, watched)
 }

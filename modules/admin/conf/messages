@@ -60,15 +60,12 @@ permissionTypes.promote=Promote
 # Annotations
 #
 annotation.bodyText=Text
-annotation.field=Field
 annotation.annotationType=Type
 annotation.emptyBodyText=[Missing Annotation Text]
-annotation.update=Update Annotation
-annotation.update.submit=Update Annotation
-annotation.delete=Delete Annotation
-annotation.delete.submit=Delete Annotation
-annotation.create.item=Annotate {0}
-annotation.create=Annotate Item
+annotation.createdBy=Created By
+annotation.target=Target
+
+
 
 #
 # Linking
@@ -326,11 +323,6 @@ permissions.inheritedFrom=Inherited From: {0}
 permissions.revoke=Revoke Permission?
 permissions.revoke.submit=Revoke
 
-
-# Annotation i18n
-
-annotation.createdBy=Created By
-annotation.target=Target
 
 
 # Messages for archival descriptions (Isdiah & IsadG)
