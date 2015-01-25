@@ -14,8 +14,6 @@ optional=Optional
 cancel=Cancel
 warning=Warning
 admin.site=Admin Site
-readonly=The EHRI portal is currently in read-only mode while we conduct maintenance.\
-  Normal service should be resumed in due course. Thanks for your patience.
 newsFeed=Latest News
 browse=Browse
 details.show=Show Item Details
@@ -62,6 +60,8 @@ errors.staffOnly=Restricted
 errors.staffOnlyMessage=This page is currently restricted to EHRI staff only.
 errors.verifiedOnly=Restricted
 errors.verifiedOnlyMessage=This page is currently restricted to verified users only.
+errors.readonly=The EHRI portal is currently in read-only mode while we conduct maintenance.\
+         Normal service should be resumed in due course. Thanks for your patience.
 errors.itemNotFound=Item Not Found
 errors.itemNotFound.explanation=That item couldn''t be found in the database.
 errors.pageNotFound=Page Not Found
