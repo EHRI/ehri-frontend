@@ -1,6 +1,7 @@
 package controllers.portal.users
 
 import auth.AccountManager
+import controllers.generic.Search
 import play.api.libs.concurrent.Execution.Implicits._
 import models._
 import play.api.i18n.Messages
@@ -15,7 +16,7 @@ import play.api.Play.current
 import java.io.{StringWriter, File}
 import scala.concurrent.Future
 import views.html.p
-import utils.search.{Resolver, Dispatcher}
+import utils.search.{SearchConstants, SearchParams, Resolver, Dispatcher}
 import backend.Backend
 
 import com.google.inject._
@@ -38,7 +39,8 @@ case class UserProfiles @Inject()(implicit globalConfig: global.GlobalConfig, se
                             accounts: AccountManager, mailer: MailerAPI)
     extends PortalController
     with LoginLogout
-    with PortalAuthConfigImpl {
+    with PortalAuthConfigImpl
+    with Search {
 
   implicit val resource = UserProfile.Resource
   val entityType = EntityType.UserProfile
@@ -136,21 +138,24 @@ case class UserProfiles @Inject()(implicit globalConfig: global.GlobalConfig, se
   }
 
   def annotations(format: DataFormat.Value = DataFormat.Html) = WithUserAction.async { implicit request =>
-    val params = PageParams.fromRequest(request)
-    backend.userAnnotations[Annotation](request.user.id, params).map { page =>
+    find[Annotation](
+      filters = Map(SearchConstants.ANNOTATOR_ID -> request.user.id),
+      entities = Seq(EntityType.Annotation)
+    ).map { case QueryResult(page, params, facets) =>
+      val itemsOnly = page.copy(items = page.items.map(_._1))
       format match {
         case DataFormat.Text =>
-          Ok(views.txt.p.userProfile.annotations(page).body.trim)
+          Ok(views.txt.p.userProfile.annotations(itemsOnly).body.trim)
             .as(MimeTypes.TEXT)
         case DataFormat.Csv => Ok(writeCsv(
             List("Item", "Field", "Note", "Time", "URL"),
-            page.items.map(a => ExportAnnotation.fromAnnotation(a).toCsv)))
+            itemsOnly.items.map(a => ExportAnnotation.fromAnnotation(a).toCsv)))
           .as("text/csv")
           .withHeaders(HeaderNames.CONTENT_DISPOSITION -> s"attachment; filename=${request.user.id}_notes.csv")
         case DataFormat.Json =>
-          Ok(Json.toJson(page.items.map(ExportAnnotation.fromAnnotation)))
+          Ok(Json.toJson(itemsOnly.items.map(ExportAnnotation.fromAnnotation)))
             .as(MimeTypes.JSON)
-        case _ => Ok(p.userProfile.annotations(page))
+        case _ => Ok(p.userProfile.annotations(itemsOnly))
       }
     }
   }
@@ -185,11 +190,15 @@ case class UserProfiles @Inject()(implicit globalConfig: global.GlobalConfig, se
   }
 
   def profile = WithUserAction.async { implicit request =>
-    val annParams = PageParams.fromRequest(request, namespace = "a")
-    val annotationsF = backend.userAnnotations[Annotation](request.user.id, annParams)
-    for {
-      anns <- annotationsF
-    } yield Ok(p.userProfile.notes(request.user, anns, followed = false, canMessage = false))
+    //val annParams = PageParams.fromRequest(request, namespace = "a")
+    //val annotationsF = backend.userAnnotations[Annotation](request.user.id, annParams)
+    find[Annotation](
+      filters = Map(SearchConstants.ANNOTATOR_ID -> request.user.id),
+      entities = Seq(EntityType.Annotation)
+    ).map { case QueryResult(page, params, facets) =>
+      val itemsOnly = page.copy(items = page.items.map(_._1))
+      Ok(p.userProfile.notes(request.user, itemsOnly, followed = false, canMessage = false))
+    }
   }
 
   import play.api.data.Form

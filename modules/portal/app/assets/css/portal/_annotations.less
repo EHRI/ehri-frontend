@@ -16,10 +16,25 @@
   }
 }
 
+.user-annotation-list {
+  &:extend(.list-unstyled);
+  .annotation {
+    .annotation-body {
+      font-size: 1em;
+      font-style: italic;
+      margin: @small-margin 0;
+
+    }
+    .annotation-meta {
+      &:extend(.text-muted, .small, .pull-right);
+    }
+    .clearfix;
+  }
+}
+
 a.annotate-field.inactive, .annotable a.annotate-field.inactive {
   opacity: 0;
   color: black;
-  border-size: 0px;
 }
 
 .annotable:hover {

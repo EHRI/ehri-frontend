@@ -1,5 +1,6 @@
 package controllers.generic
 
+import play.api.data.Form
 import play.api.mvc._
 import play.api.libs.concurrent.Execution.Implicits._
 import models.UserProfile
@@ -74,7 +75,10 @@ trait Search extends Controller with AuthController with ControllerHelpers {
       .copy(sort = defaultSortFunction(defaultParams, request, fallback = defaultOrder))
       .copy(entities = if (entities.isEmpty) defaultParams.entities else entities.toList)
 
-    val sp = SearchParams.form.bindFromRequest(request.queryString)
+    val bound: Form[SearchParams] = SearchParams.form.bindFromRequest(request.queryString)
+    println(s"PARAMS: ${bound.value} -> ${bound.errorsAsJson}")
+
+    val sp = bound
         .value.getOrElse(SearchParams.empty)
         .setDefault(Some(params))
 

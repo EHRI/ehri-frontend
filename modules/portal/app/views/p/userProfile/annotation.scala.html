@@ -1,6 +1,6 @@
 @(annotation: Annotation)(implicit userOpt: Option[UserProfile], req: RequestHeader, lang: Lang, globalConfig: global.GlobalConfig)
 
-<div class="annotation clearfix" id="@annotation.id">
+<div class="annotation" id="@annotation.id">
     <div class="annotation-header">
         @annotation.target.map { src =>
             @p.helpers.linkToWithFragment(src, "#" + annotation.id)
@@ -9,10 +9,11 @@
             }
         }
     </div>
-    <blockquote>@annotation.model.body</blockquote>
-    <div class="annotation-footer">
+    <blockquote class="annotation-body">@annotation.model.body</blockquote>
+    <div class="annotation-meta">
         @for(user <- annotation.user ; event <- annotation.latestEvent) {
-            <small><span class="glyphicon glyphicon-time"></span> @views.Helpers.relativeDate(event.model.timestamp)s</small>
+            <span class="glyphicon glyphicon-time"></span>
+            @views.Helpers.relativeDate(event.model.timestamp)
         }
     </div>
 </div>
