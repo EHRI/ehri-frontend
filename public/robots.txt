@@ -4,3 +4,6 @@ Disallow: /profile/
 Disallow: /admin/
 Disallow: /login
 Disallow: /notes
+Disallow: /locale
+Disallow: /feedback
+Disallow: /helpdesk
