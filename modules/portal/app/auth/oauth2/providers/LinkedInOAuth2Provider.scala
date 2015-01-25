@@ -8,6 +8,6 @@ import auth.oauth2.UserData
 object LinkedInOAuth2Provider extends OAuth2Provider {
   val name = "linkedin"
 
-  def getUserData(data: String): Option[UserData] = ???
+  def parseUserInfo(data: String): Option[UserData] = ???
 
 }

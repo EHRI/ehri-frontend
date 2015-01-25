@@ -16,8 +16,8 @@ case class MockOAuth2Flow() extends OAuth2Flow {
     .getLines().mkString("\n")
 
   override def getAccessToken(provider: OAuth2Provider, handlerUrl: String, code: String): Future[OAuth2Info] =
-    immediate(provider.buildOAuth2Info(resourceAsString(provider.name + "AccessData.txt")).get)
+    immediate(provider.parseAccessInfo(resourceAsString(provider.name + "AccessData.txt")).get)
 
   override def getUserData(provider: OAuth2Provider, info: OAuth2Info): Future[UserData] =
-    immediate(provider.getUserData(resourceAsString(provider.name + "UserData.txt")).get)
+    immediate(provider.parseUserInfo(resourceAsString(provider.name + "UserData.txt")).get)
 }

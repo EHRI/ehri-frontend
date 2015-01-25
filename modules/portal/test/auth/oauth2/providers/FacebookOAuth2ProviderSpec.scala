@@ -13,7 +13,7 @@ class FacebookOAuth2ProviderSpec extends PlaySpecification with ResourceUtils {
 
    "Facebook OAuth2 provider" should {
      "parse access data" in {
-       FacebookOAuth2Provider.buildOAuth2Info(testAccessData) must beSome.which { d =>
+       FacebookOAuth2Provider.parseAccessInfo(testAccessData) must beSome.which { d =>
          d.accessToken must equalTo("some-access-token")
          d.refreshToken must equalTo(None)
          d.expiresIn must equalTo(Some(100))
@@ -21,7 +21,7 @@ class FacebookOAuth2ProviderSpec extends PlaySpecification with ResourceUtils {
      }
 
      "parse user data" in {
-       FacebookOAuth2Provider.getUserData(testUserData) must beSome.which { d =>
+       FacebookOAuth2Provider.parseUserInfo(testUserData) must beSome.which { d =>
          d.name must equalTo("Any Name")
          d.email must equalTo("example1@example.com")
          d.providerId must equalTo("123456789")

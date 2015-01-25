@@ -11,7 +11,7 @@ object FacebookOAuth2Provider extends OAuth2Provider {
   val name = "facebook"
 
   // facebook does not follow the OAuth2 spec :-\
-  override def buildOAuth2Info(data: String): Option[OAuth2Info] = {
+  override def parseAccessInfo(data: String): Option[OAuth2Info] = {
     data.split("&|=") match {
       case Array(OAuth2Constants.AccessToken, token, "expires", expiresIn) => Some(OAuth2Info(token, None, Some(expiresIn.toInt)))
       case Array(OAuth2Constants.AccessToken, token) => Some(OAuth2Info(token))
@@ -19,7 +19,7 @@ object FacebookOAuth2Provider extends OAuth2Provider {
     }
   }
 
-  override def getUserData(data: String): Option[UserData] = {
+  override def parseUserInfo(data: String): Option[UserData] = {
     try {
       val json: JsValue = Json.parse(data)
       for {

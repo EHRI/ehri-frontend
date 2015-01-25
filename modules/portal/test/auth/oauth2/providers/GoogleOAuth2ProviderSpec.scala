@@ -13,7 +13,7 @@ class GoogleOAuth2ProviderSpec extends PlaySpecification with ResourceUtils {
 
   "Google OAuth2 provider" should {
     "parse access data" in {
-      GoogleOAuth2Provider.buildOAuth2Info(testAccessData) must beSome.which { d =>
+      GoogleOAuth2Provider.parseAccessInfo(testAccessData) must beSome.which { d =>
         d.accessToken must equalTo("some-access-token")
         d.refreshToken must equalTo(None)
         d.expiresIn must equalTo(Some(100))
@@ -22,7 +22,7 @@ class GoogleOAuth2ProviderSpec extends PlaySpecification with ResourceUtils {
     }
 
     "parse user data" in {
-      GoogleOAuth2Provider.getUserData(testUserData) must beSome.which { d =>
+      GoogleOAuth2Provider.parseUserInfo(testUserData) must beSome.which { d =>
         d.name must equalTo("Any Name")
         d.email must equalTo("example1@example.com")
         d.providerId must equalTo("123456789")

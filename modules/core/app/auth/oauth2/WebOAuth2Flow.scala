@@ -14,13 +14,14 @@ import scala.concurrent.Future
 case class WebOAuth2Flow()(implicit app: play.api.Application) extends OAuth2Flow {
 
   override def getAccessToken(provider: OAuth2Provider, handlerUrl: String, code: String): Future[OAuth2Info] = {
-    Logger.debug(s"Fetching access token at ${provider.settings.accessTokenUrl}")
-    WS.url(provider.getAccessTokenUrl)
+    val accessTokenUrl: String = provider.getAccessTokenUrl
+    Logger.debug(s"Fetching access token for provider ${provider.name} at $accessTokenUrl")
+    WS.url(accessTokenUrl)
       .withHeaders(provider.getAccessTokenHeaders: _*)
       .post(provider.getAccessTokenParams(code, handlerUrl))
       .map { r =>
       Logger.trace(s"Access Data for OAuth2 ${provider.name}:-------\n${r.body}\n-----")
-      provider.buildOAuth2Info(r.body).getOrElse {
+      provider.parseAccessInfo(r.body).getOrElse {
         throw new AuthenticationError(s"Unable to fetch access token and info for provider ${provider.name} " +
           s" via response data: ${r.body}")
       }
@@ -35,7 +36,7 @@ case class WebOAuth2Flow()(implicit app: play.api.Application) extends OAuth2Flo
       .withHeaders(headers: _*).get()
       .map { r =>
       Logger.trace(s"User Info Data for OAuth2 ${provider.name}:-------\n${r.body}\n-----")
-      provider.getUserData(r.body).getOrElse{
+      provider.parseUserInfo(r.body).getOrElse{
         throw new AuthenticationError(s"Unable to fetch user info for provider ${provider.name} " +
           s" via response data: ${r.body}")
       }

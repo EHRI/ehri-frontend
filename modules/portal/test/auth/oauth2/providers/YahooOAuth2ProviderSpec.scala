@@ -13,7 +13,7 @@ class YahooOAuth2ProviderSpec extends PlaySpecification with ResourceUtils {
 
    "Yahoo OAuth2 provider" should {
      "parse access data" in {
-       YahooOAuth2Provider.buildOAuth2Info(testAccessData) must beSome.which { d =>
+       YahooOAuth2Provider.parseAccessInfo(testAccessData) must beSome.which { d =>
          d.accessToken must equalTo("some-access-token")
          d.userGuid must equalTo(Some("123456789"))
          d.refreshToken must equalTo(Some("blah"))
@@ -23,7 +23,7 @@ class YahooOAuth2ProviderSpec extends PlaySpecification with ResourceUtils {
      }
 
      "parse user data" in {
-       YahooOAuth2Provider.getUserData(testUserData) must beSome.which { d =>
+       YahooOAuth2Provider.parseUserInfo(testUserData) must beSome.which { d =>
          d.name must equalTo("Any Name")
          d.email must equalTo("example1@example.com")
          d.providerId must equalTo("123456789")

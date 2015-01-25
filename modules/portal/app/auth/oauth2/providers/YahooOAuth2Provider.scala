@@ -41,7 +41,7 @@ object YahooOAuth2Provider extends OAuth2Provider {
       "code" -> Seq(code)
     )
 
-  override def getUserData(data: String): Option[UserData] = {
+  override def parseUserInfo(data: String): Option[UserData] = {
     try {
       val json = Json.parse(data)
       for {
@@ -62,8 +62,8 @@ object YahooOAuth2Provider extends OAuth2Provider {
     }
   }
 
-  override def buildOAuth2Info(data: String): Option[OAuth2Info] = {
-    val info: Option[OAuth2Info] = super.buildOAuth2Info(data)
+  override def parseAccessInfo(data: String): Option[OAuth2Info] = {
+    val info: Option[OAuth2Info] = super.parseAccessInfo(data)
     try {
       info.map(_.copy(userGuid = (Json.parse(data) \ "xoauth_yahoo_guid").asOpt[String]))
     } catch {

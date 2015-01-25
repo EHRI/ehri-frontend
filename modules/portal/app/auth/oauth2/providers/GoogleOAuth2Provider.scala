@@ -11,7 +11,7 @@ object GoogleOAuth2Provider extends OAuth2Provider {
 
   val name = "google"
 
-  override def getUserData(data: String): Option[UserData] = {
+  override def parseUserInfo(data: String): Option[UserData] = {
     try {
       val json: JsValue = Json.parse(data)
       for {
