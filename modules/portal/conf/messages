@@ -67,17 +67,17 @@ errors.itemNotFound.explanation=That item couldn''t be found in the database.
 errors.pageNotFound=Page Not Found
 errors.pageNotFound.explanation=The page at this location either doesn''t exist or has moved.
 errors.genericProblem=An Error Occurred
-errors.genericProblem.explanation=We're very sorry, but there's a problem loading that page. We''ve been informed of \
+errors.genericProblem.explanation=We''re very sorry, but there''s a problem loading that page. We''ve been informed of \
   this and will endeavour to fix the problem as soon as possible.
 errors.databaseError=Database Error
 errors.databaseError.explanation=I''m afraid it looks like our database server has gone down.     \
-  There's not much we can do without it, so please try again later.
+  There''s not much we can do without it, so please try again later.
 errors.databaseMaintenance=Database Temporarily Offline
 errors.databaseMaintenance.explanation=The EHRI database is currently offline for routine maintenance. \
   It should be back soon so please try again shortly.
 errors.permissionDenied=Permission Denied
 errors.permissionDenied.explanation=It looks like you can''t do whatever it is you were attempted \
-  to do. This is probably an error on our part. We'll try and fix that ASAP.
+  to do. This is probably an error on our part. We''ll try and fix that ASAP.
 errors.errorDetails=Details
 errors.noFurtherInfo=No additional information is available.
 errors.imageTooLarge=This image was too large. Please select one smaller than 5 metabytes in size.
@@ -285,7 +285,7 @@ bookmarkSet.edit=Edit Bookmark Set
 bookmarkSet.edit.submit=Submit
 bookmarkSet.delete=Delete Bookmark Set
 bookmarkSet.delete.submit=Delete
-bookmarkSet.noBookmarkSetsYet=You haven't made any bookmark sets yet.
+bookmarkSet.noBookmarkSetsYet=You haven''t made any bookmark sets yet.
 bookmarkSet.noUserBookmarkSetsYet={0} has no public bookmark sets yet.
 
 #
@@ -316,7 +316,7 @@ accessPoint.type.subjectAccess=Subjects
 accessPoint.type.subjectAccess.reverse=Subject of
 accessPoint.type.otherAccess=Miscellaneous
 accessPoint.type.otherAccess.reverse=Miscellaneous
-# References not on this item, but from another item's access points
+# References not on this item, but from another ites access points
 accessPoint.externalReferences=External references to this item
 
 #
@@ -638,7 +638,7 @@ helpdesk.message=The helpdesk will attempt to match your query to the EHRI partn
 helpdesk.thanks=Thanks!
 helpdesk.thanks.message=Your query has been submitted.
 helpdesk.query=Query
-helpdesk.error=Oops! Something went wrong with the helpdesk. Here's what it said:
+helpdesk.error=Oops! Something went wrong with the helpdesk. Here''s what it said:
 helpdesk.results=Helpdesk Contact Recommendations
 helpdesk.results.empty=No relevant institutions found. Please reformulate your query and add more details.
 helpdesk.query.placeholder=Enter your query here. Subject-specific terms are best.
@@ -659,7 +659,7 @@ dataPolicy.notice1=This database might contain Sensitive Personal Data which acc
   law can be used for research purposes only (article 16 Dutch Data Protection Act ''Wet \
   bescherming Persoonsgegevens'').
 dataPolicy.notice2=Sensitive Personal Data is any data related to an identified or identifiable person related \
-  to a person's religion or belief, race, political opinion, health, sexual life, trade union \
+  to a person''s religion or belief, race, political opinion, health, sexual life, trade union \
   membership and criminal record.
 dataPolicy.terms=I declare that I will use Sensitive Personal Data for research purposes only and in general \
   will use Sensitive Personal Data in accordance with applicable Dutch and international laws \
