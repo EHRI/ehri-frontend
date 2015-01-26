@@ -42,7 +42,17 @@ trait OAuth2Provider {
    *
    * @param info the OAuth2 access info
    */
-  def getUserInfoUrl(info: OAuth2Info): String = settings.userInfoUrl + info.accessToken
+  def getUserInfoUrl(info: OAuth2Info): String = settings.userInfoUrl
+
+  /**
+   * The parameters used to get the user info. Defaults to
+   *  'access_token={token}'.
+   *
+   * @param info the OAuth2 access info
+   */
+  def getUserInfoParams(info: OAuth2Info): Seq[(String,String)] = Seq(
+    OAuth2Constants.AccessToken -> info.accessToken
+  )
 
   /**
    * The header data for fetching user info.
@@ -121,7 +131,7 @@ trait OAuth2Provider {
 
   private def getSetting(key: String): String = {
     import play.api.Play.current
-    val keyName = "securesocial." + name + "." + key
+    val keyName = "oauth2." + name + "." + key
     current.configuration.getString(keyName)
       .getOrElse(sys.error("Configuration key not found: " + keyName))
   }

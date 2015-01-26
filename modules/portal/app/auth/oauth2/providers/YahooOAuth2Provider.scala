@@ -19,7 +19,10 @@ object YahooOAuth2Provider extends OAuth2Provider {
   }
 
   override def getUserInfoUrl(info: OAuth2Info): String =
-    settings.userInfoUrl + info.userGuid.getOrElse("NO-ID") + "/profile?format=json"
+    settings.userInfoUrl + info.userGuid.getOrElse("NO-ID") + "/profile"
+
+  override def getUserInfoParams(info: OAuth2Info): Seq[(String,String)] =
+    Seq("format" -> "json")
 
   override def getUserInfoHeader(info: OAuth2Info): Seq[(String, String)] =
     Seq("Authorization" -> s"Bearer ${info.accessToken}")

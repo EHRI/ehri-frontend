@@ -33,6 +33,7 @@ case class WebOAuth2Flow()(implicit app: play.api.Application) extends OAuth2Flo
     val headers: Seq[(String, String)] = provider.getUserInfoHeader(info)
     Logger.debug(s"Fetching info at $url with headers $headers")
     WS.url(url)
+      .withQueryString(provider.getUserInfoParams(info): _*)
       .withHeaders(headers: _*).get()
       .map { r =>
       Logger.trace(s"User Info Data for OAuth2 ${provider.name}:-------\n${r.body}\n-----")

@@ -10,6 +10,12 @@ import play.api.libs.json._
 object FacebookOAuth2Provider extends OAuth2Provider {
   val name = "facebook"
 
+  override def getUserInfoParams(info: OAuth2Info): Seq[(String,String)] =
+    super.getUserInfoParams(info) ++ Seq(
+      "fields" -> "name,first_name,last_name,picture,email",
+      "return_ssl_resources" -> "1"
+    )
+
   // facebook does not follow the OAuth2 spec :-\
   override def parseAccessInfo(data: String): Option[OAuth2Info] = {
     data.split("&|=") match {

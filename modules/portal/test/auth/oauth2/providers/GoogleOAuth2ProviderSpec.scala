@@ -1,5 +1,6 @@
 package auth.oauth2.providers
 
+import auth.oauth2.{OAuth2Info, OAuth2Constants}
 import play.api.test.PlaySpecification
 import helpers.ResourceUtils
 
@@ -27,6 +28,11 @@ class GoogleOAuth2ProviderSpec extends PlaySpecification with ResourceUtils {
         d.email must equalTo("example1@example.com")
         d.providerId must equalTo("123456789")
       }
+    }
+
+    "generate the right user access params" in {
+      val expected = Seq(OAuth2Constants.AccessToken -> "MY-TOKEN")
+      GoogleOAuth2Provider.getUserInfoParams(OAuth2Info("MY-TOKEN")) must equalTo(expected)
     }
   }
 }

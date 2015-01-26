@@ -130,6 +130,7 @@ object ApplicationBuild extends Build {
       "backend.Entity"
     ),
 
+
     // Auto-import EntityType enum into routes
     routesImport += "defines.EntityType",
 
@@ -155,7 +156,12 @@ object ApplicationBuild extends Build {
 
     // Less files with an underscore are excluded
     includeFilter in (Assets, LessKeys.less) := "*.less",
-    excludeFilter in (Assets, LessKeys.less) := "_*.less"
+    excludeFilter in (Assets, LessKeys.less) := "_*.less",
+
+    // Exclude certain conf files (e.g. those containing secret keys)
+    // that we do not want packaged
+    excludeFilter in unmanagedResources := ("oauth2.conf"
+        || "parse.conf" || "aws.conf" || "test.conf")
   )
 
   val assetSettings = Seq(

@@ -28,6 +28,6 @@ fonts
 # stupid Mac stuff
 .DS_Store
 
-conf/securesocial.conf
-conf/parse-keys.conf
+conf/oauth2.conf
+conf/parse.conf
 conf/aws.conf

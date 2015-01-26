@@ -1,6 +1,6 @@
 package auth.oauth2.providers
 
-import auth.oauth2.UserData
+import auth.oauth2.{OAuth2Constants, UserData}
 import com.fasterxml.jackson.core.JsonParseException
 import play.api.libs.json._
 
