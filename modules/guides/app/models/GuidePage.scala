@@ -80,6 +80,7 @@ object GuidePage {
     val Organisation = Value("organisation")
     val Person = Value("person")
     val Map = Value("map")
+    val Timeline = Value("timeline")
   }
 
   object MenuPosition extends Enumeration with StorableEnum {

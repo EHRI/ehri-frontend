@@ -222,7 +222,7 @@ case class Guides @Inject()(implicit globalConfig: global.GlobalConfig, searchDi
         case Layout.Map => guideMap(page, Map(SearchConstants.HOLDER_ID -> page.content), guide)
         case Layout.Organisation => guideOrganization(page, Map(SearchConstants.HOLDER_ID -> page.content), guide)
         case Layout.Markdown => guideMarkdown(page, page.content, guide)
-        case _ => pageNotFound()
+        case Layout.Timeline => guideTimeline(page, page.content, guide)
       }
     }
   }
@@ -303,6 +303,10 @@ case class Guides @Inject()(implicit globalConfig: global.GlobalConfig, searchDi
   */
   def guideMarkdown(template: GuidePage, content: String, guide: Guide) = OptionalUserAction { implicit request =>
     Ok(p.guides.markdown(template -> (guide -> guide.findPages), content))
+  }
+
+  def guideTimeline(template: GuidePage, content: String, guide: Guide) = OptionalUserAction { implicit request =>
+    Ok(p.guides.timeline(template -> (guide -> guide.findPages), content))
   }
 
   /*
