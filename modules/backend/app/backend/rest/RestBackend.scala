@@ -23,6 +23,8 @@ case class RestBackend(eventHandler: EventHandler)(implicit val app: play.api.Ap
   private val api = new ApiDAO
   private val admin = new AdminDAO(eventHandler)
 
+  override def withEventHandler(eventHandler: EventHandler) = this.copy(eventHandler = eventHandler)
+
   // Direct API query
   def query(urlpart: String, headers: Headers, params: Map[String,Seq[String]] = Map.empty)(implicit apiUser: ApiUser, executionContext: ExecutionContext): Future[WSResponse]
       = api.get(urlpart, headers, params)
