@@ -88,11 +88,11 @@ trait RestDAO {
      */
     def withBody[T](body: T)(implicit wrt: Writeable[T], ct: ContentTypeOf[T]): BackendRequest = {
       val wsBody = InMemoryBody(wrt.transform(body))
-      if (headers.contains("Content-Type")) {
+      if (headers.contains(HeaderNames.CONTENT_TYPE)) {
         withBody(wsBody)
       } else {
         ct.mimeType.fold(withBody(wsBody)) { contentType =>
-          withBody(wsBody).withHeaders("Content-Type" -> contentType)
+          withBody(wsBody).withHeaders(HeaderNames.CONTENT_TYPE -> contentType)
         }
       }
     }
@@ -141,6 +141,7 @@ trait RestDAO {
    */
   protected val headers = Map(
     HeaderNames.ACCEPT -> ContentTypes.JSON,
+    HeaderNames.ACCEPT_CHARSET -> "UTF-8",
     HeaderNames.CONTENT_TYPE -> ContentTypes.JSON
   )
 
