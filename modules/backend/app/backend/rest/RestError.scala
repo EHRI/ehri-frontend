@@ -42,8 +42,8 @@ case class BadJson(
   data: Option[String] = None
 ) extends RestError {
   def prettyError = Json.prettyPrint(JsError.toFlatJson(error))
-  override def getMessage = url match {
-    case Some(path) => s"""Parsing error from data at $path
+  override def getMessage = s"""
+        |Parsing error ${url.getOrElse("(no context)")}
         |
         |Data:
         |
@@ -53,8 +53,6 @@ case class BadJson(
         |
         |$prettyError
       """.stripMargin
-    case None => s"Parsing error (no context): $prettyError"
-  }
 
   def getMessageWithContext(request: RequestHeader): String =
     s"Error at ${request.path}: $getMessage"
