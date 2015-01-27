@@ -9,7 +9,7 @@ import models.LinkF.LinkType
 /**
  * Spec for testing various JSON endpoints used by Ajax components etc.
  */
-class AAPISpec extends IntegrationTestRunner {
+class APISpec extends IntegrationTestRunner {
 
   import mocks.privilegedUser
 
@@ -53,6 +53,22 @@ class AAPISpec extends IntegrationTestRunner {
         status(del) must equalTo(OK)
         contentAsJson(del) must equalTo(JsBoolean(value = true))
       }
+    }
+
+    "allow creating lots of links in many concurrent requests" in new ITestApp {
+      import scala.concurrent.Future
+      import play.api.mvc.Result
+      val ops: Future[List[Result]] = Future.sequence {
+        1.to(100).toList.map { i =>
+          val link = new AccessPointLink("a1", description = Some(s"Test link $i"))
+          val json = Json.toJson(link)
+          route(fakeLoggedInHtmlRequest(privilegedUser, POST,
+            controllers.units.routes.DocumentaryUnits.createLink("c1", "ur1").url), json).get
+        }
+      }
+
+      val results: List[Result] = await(ops)
+      forall(results)(_.header.status must equalTo(201))
     }
   }
 
