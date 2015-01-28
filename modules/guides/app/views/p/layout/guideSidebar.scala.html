@@ -1,4 +1,4 @@
-@(location: String, menu: (Guide, List[GuidePage]), sidebar: Option[Html] = None)(implicit request: RequestHeader, lang: Lang)
+@(guide: Guide, page: GuidePage, pages: List[GuidePage], sidebar: Option[Html] = None)(implicit request: RequestHeader, lang: Lang)
 
 @articleHTML(optionalText: Option[Html]) = {
 	@optionalText.map  { html =>
@@ -22,19 +22,17 @@
 
 @articleHTML(sidebar)
 
-@defining(menu) { case (guide, pages) =>
-	<div class="well well-sm">
-		<ul class="nav nav-pills nav-stacked">
-				@for(page <- pages.filter(_.position == GuidePage.MenuPosition.Side)) {
-					<li><a class="@{if(location == page.path)"active"}" href="@controllers.portal.guides.routes.Guides.layoutRetrieval(guide.path, page.path)">
-						@page.name
-					</a></li>
-				}
-			<li><a href="@controllers.portal.guides.routes.Guides.listGuides()">@Messages("guides")</a></li>
-		</ul>
-	</div>
+<div class="well well-sm">
+    <ul class="nav nav-pills nav-stacked">
+            @for(otherPage <- pages.filter(_.position == GuidePage.MenuPosition.Side)) {
+                <li><a class="@{if(page.path == otherPage.path)"active"}" href="@controllers.portal.guides.routes.Guides.layoutRetrieval(guide.path, otherPage.path)">
+                    @otherPage.name
+                </a></li>
+            }
+        <li><a href="@controllers.portal.guides.routes.Guides.listGuides()">@Messages("guides")</a></li>
+    </ul>
+</div>
 
-	@articleString(guide.description)
+@articleString(guide.description)
 
-	<hr />
-}
+<hr />

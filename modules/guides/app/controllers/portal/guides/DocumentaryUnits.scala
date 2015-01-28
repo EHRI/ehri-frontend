@@ -18,12 +18,14 @@ case class DocumentaryUnits @Inject()(implicit globalConfig: global.GlobalConfig
   def browse(path: String, id: String) = GetItemAction(id).apply { implicit request =>
     itemOr404(Guide.find(path, activeOnly = true)) { guide =>
       Ok(p.guides.documentaryUnit(
+        guide,
+        GuidePage.document(Some(request.item.toStringLang)),
+        guide.findPages(),
         request.item,
         request.annotations,
         request.links,
-        request.watched,
-        GuidePage.document(Some(request.item.toStringLang)) -> (guide -> guide.findPages))
-      )
+        request.watched
+      ))
     }
   }
 }

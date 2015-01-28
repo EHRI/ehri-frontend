@@ -61,10 +61,6 @@ jQuery(function ($) {
     $dataPolicyWidget.modal("hide");
   }
 
-  function getWidgetPosition() {
-    return $(window).height() - $dataPolicyWidget.outerHeight();
-  }
-
   function isCrawler() {
     return /bot|googlebot|crawler|spider|robot|crawling/i.test(window.navigator.userAgent);
   }
@@ -89,104 +85,104 @@ jQuery(function ($) {
     showDataPolicy();
   }
 
-/*
-* Date search
-*/
-$(".facet-date .date-submit").on("click", function(e) {
-  $(e.target).closest("form").submit();
-})
-$(".facet-date .date").on("keyup", function(e) {
-  e.preventDefault();
-  var vals = {"begin" : "", "end" : ""},
-  $dat = $(this),
-  $parent = $dat.parents(".facet-date"),
-  getDate = function(date) {
-  if (date.length == 4 && !isNaN(parseInt(date))) {
-    return date;
-  }
-    return ""
-  },
-  val = vals["begin"] + "-" + vals["end"];
-
-  $(".date").each(function() {
-    vals[$(this).data("target")] = getDate($(this).val());
+  /*
+  * Date search
+  */
+  $(".facet-date .date-submit").on("click", function(e) {
+    $(e.target).closest("form").submit();
   });
-  
-  var val = vals["begin"] + "-" + vals["end"];
-  if(val != "-") {
-     $parent.find(".target").val(val)
-  }
-});
 
-/*
-*   History
-*/
-$(".panel-history").each(function() {
-  //$(this).addClass("inactive");
-  $(this).find(".panel-heading h3").append(
-      $("<span />", {
-        "class" : "expander glyphicon glyphicon-plus"
-      }).on("click", function(e) {
-          $(this).parents(".panel-history").toggleClass("inactive");
-          $(this).toggleClass("glyphicon-plus").toggleClass("glyphicon-minus");
-      })
-    );
-});
+  $(".facet-date .date").on("keyup", function(e) {
+    e.preventDefault();
+    var vals = {"begin" : "", "end" : ""},
+        $dat = $(this),
+        $parent = $dat.parents(".facet-date"),
+        getDate = function(date) {
+          if (date.length == 4 && !isNaN(parseInt(date))) {
+            return date;
+          }
+          return ""
+        },
+        val = vals["begin"] + "-" + vals["end"];
 
-/*
-* Quick search
-*/
+    $(".date").each(function() {
+      vals[$(this).data("target")] = getDate($(this).val());
+    });
 
+    if(val != "-") {
+       $parent.find(".target").val(val)
+    }
+  });
+
+  /*
+  *   History
+  */
+  $(".panel-history").each(function() {
+    //$(this).addClass("inactive");
+    $(this).find(".panel-heading h3").append(
+        $("<span />", {
+          "class" : "expander glyphicon glyphicon-plus"
+        }).on("click", function(e) {
+            $(this).parents(".panel-history").toggleClass("inactive");
+            $(this).toggleClass("glyphicon-plus").toggleClass("glyphicon-minus");
+        })
+      );
+  });
+
+  /*
+  * Quick search
+  */
 
   var $quicksearch = $("#quicksearch");
-  var $quicksearchBH = new Bloodhound({
-                          datumTokenizer: function (d) {
-                                return Bloodhound.tokenizers.whitespace(d);
-                          },
-                          queryTokenizer: Bloodhound.tokenizers.whitespace,
-                          remote: {
-                            url : jsRoutes.controllers.portal.Portal.filterItems().url + "?limit=5&st[]=documentaryUnit&st[]=repository&st[]=country&q=%QUERY",
-                            filter : function(parsedResponse) {
-                              var result = [];
-                              var alreadyResult = [];
+  if ($quicksearch.length) {
+    var $quicksearchBH = new Bloodhound({
+      datumTokenizer: function (d) {
+        return Bloodhound.tokenizers.whitespace(d);
+      },
+      queryTokenizer: Bloodhound.tokenizers.whitespace,
+      remote: {
+        url : jsRoutes.controllers.portal.Portal.filterItems().url + "?limit=5&st[]=documentaryUnit&st[]=repository&st[]=country&q=%QUERY",
+        filter : function(parsedResponse) {
+          var result = [];
+          var alreadyResult = [];
 
-                              for (var i=0; i<parsedResponse.items.length; i++) {
-                                //Need to check if item not already in the db
-                                if($.inArray( parsedResponse.items[i].name , alreadyResult) === -1) {
-                                  result.push({
-                                    name: parsedResponse.items[i].name,
-                                    value: parsedResponse.items[i].name,
-                                    href : jsRoutes.controllers.portal.Portal.browseItem(parsedResponse.items[i].type, parsedResponse.items[i].id).url
-                                  });
-                                  alreadyResult.push(parsedResponse.items[i][1]);
-                                }
-                              }
-                              return result;
-                            }
-                          }
-                        });
-  $quicksearchBH.initialize();
-  var $quicksearchTemplate = Handlebars.compile('<a href="{{href}}">{{name}}</a>');
-
-  /**
-   * Initialize typeahead.js
-   */
-  $('#quicksearch').typeahead({
-      hint: false
-    },
-    {
-      name: "quicksearch",
-      source: $quicksearchBH.ttAdapter(),
-      templates: {
-        suggestion : $quicksearchTemplate
+          for (var i=0; i<parsedResponse.items.length; i++) {
+            //Need to check if item not already in the db
+            if($.inArray( parsedResponse.items[i].name , alreadyResult) === -1) {
+              result.push({
+                name: parsedResponse.items[i].name,
+                value: parsedResponse.items[i].name,
+                href : jsRoutes.controllers.portal.Portal.browseItem(parsedResponse.items[i].type, parsedResponse.items[i].id).url
+              });
+              alreadyResult.push(parsedResponse.items[i][1]);
+            }
+          }
+          return result;
+        }
       }
-    }
-  ).keypress(function(e) {
-    if(e.which == 13) {
+    });
+
+    $quicksearchBH.initialize();
+    var $quicksearchTemplate = Handlebars.compile('<a href="{{href}}">{{name}}</a>');
+
+    /**
+     * Initialize typeahead.js
+     */
+    $quicksearch.typeahead({
+          hint: false
+        }, {
+          name: "quicksearch",
+          source: $quicksearchBH.ttAdapter(),
+          templates: {
+            suggestion : $quicksearchTemplate
+          }
+        }
+    ).keypress(function(e) {
+      if(e.which == 13) {
         $(this).parents("form").submit();
-    }
-});
-  //Need to reenable enter for getSearch
+      }
+    });
+  }
 
   /*
     Loadings
@@ -242,7 +238,9 @@ $(".panel-history").each(function() {
     $data.load(this.href, function() {
       $link.removeClass("loading").addClass("loaded");
       $data.find("select").each(function(i) {
-        $(this).select2(select2Opts);
+        if ($.fn.select2) {
+          $(this).select2(select2Opts);
+        }
       });
       $link.hide();
     });
@@ -276,25 +274,26 @@ $(".panel-history").each(function() {
 
   // jQuery history plugin... initialise
   // Bind to StateChange Event
-  History.Adapter.bind(window,'statechange',function(){ // Note: We are using statechange instead of popstate
-    var State = History.getState(); // Note: We are using History.getState() instead of event.state
+  if (History && History.Adapter) {
+    History.Adapter.bind(window,'statechange',function(){ // Note: We are using statechange instead of popstate
+      var State = History.getState(); // Note: We are using History.getState() instead of event.state
 
-    // TODO: Use...
-  });
+      // TODO: Use...
+    });
+  }
 
   // Validate any forms with 'validate-form' class...
-  $(".validate-form").validate();
-  $(document).ajaxComplete(function () {
+  if ($.fn.validate) {
     $(".validate-form").validate();
-    $("textarea.autosize").autosize();
-  });
+    $(document).ajaxComplete(function () {
+      $(".validate-form").validate();
+      $("textarea.autosize").autosize();
+    });
+  }
 
-
-
-
-/**
- * Handle cookie pref loading/saving
- */
+  /**
+   * Handle cookie pref loading/saving
+   */
   window.Preferences = {
     update: function(prefsObj) {
       var prefs = prefsObj || {};
@@ -311,11 +310,10 @@ $(".panel-history").each(function() {
     }
   };
 
-/**
- * Handle updating global preferences when certain
- * items are clicked.
- */
-
+  /**
+   * Handle updating global preferences when certain
+   * items are clicked.
+   */
   $(document).on("click", ".toggle-boolean-preference", function(e) {
     e.preventDefault();
     e.stopPropagation();
@@ -329,10 +327,9 @@ $(".panel-history").each(function() {
     $(window.Preferences).trigger(name, !value);
   });
 
-/**
- * Preference events
- */
-
+  /**
+   * Preference events
+   */
   $(window.Preferences).bind("showUserContent", function(event, doShow) {
     if (doShow) {
       $(".user-content").removeClass("hidden");

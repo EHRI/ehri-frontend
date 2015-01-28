@@ -17,10 +17,7 @@ case class Repositories @Inject()(implicit globalConfig: global.GlobalConfig, se
 
   def browse(path: String, id: String) = GetItemAction(id).apply { implicit request =>
     itemOr404(Guide.find(path, activeOnly = true)) { guide =>
-      Ok(p.guides.repository(
-        request.item,
-        GuidePage.repository(Some(request.item.toStringLang)) -> (guide -> guide.findPages))
-      )
+      Ok(p.guides.repository(guide, GuidePage.repository(Some(request.item.toStringLang)), guide.findPages(), request.item))
     }
   }
 }

@@ -74,6 +74,7 @@ guidePage.map=Map
 guidePage.person=Persons
 guidePage.md=Free text
 guidePage.organisation=Vertically Organized Concepts
+guidePage.timeline=Timeline
 guidePage.side=Side menu
 guidePage.top=Top Menu
 guidePage.nowhere=Hidden
