@@ -46,7 +46,7 @@ case class Guides @Inject()(implicit globalConfig: global.GlobalConfig, searchDi
   val htmlAgentOrder = utils.search.SearchOrder.Detail
   val htmlConceptOrder = utils.search.SearchOrder.ChildCount
 
-  def jsRoutes = Cached.status(_ => "pages:portalJsRoutes", OK, 3600) {
+  def jsRoutes = Cached.status(_ => "pages:guideJsRoutes", OK, 3600) {
     Action { implicit request =>
       Ok(
         Routes.javascriptRouter("jsRoutes")(
