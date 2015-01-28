@@ -259,11 +259,8 @@ case class Guides @Inject()(implicit globalConfig: global.GlobalConfig, searchDi
   */
   def guideMap(page: GuidePage, params: Map[String, String], guide: Guide) = UserBrowseAction.async { implicit request =>
     mapParams(
-      if (request.queryString.contains("lat") && request.queryString.contains("lng")) {
-        request.queryString
-      } else {
-        page.getParams
-      }
+      if (request.queryString.contains("lat") && request.queryString.contains("lng")) request.queryString
+      else page.getParams
     ) match {
       case (sort, geoloc) => for {
         r <- find[Concept](params, extra = geoloc, defaultParams = SearchParams(entities = List(EntityType.Concept), sort = Some(sort)), entities = List(EntityType.Concept), facetBuilder = conceptFacets)
