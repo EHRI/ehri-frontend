@@ -1,6 +1,4 @@
-@(items: utils.search.ItemPage[DocumentaryUnit], available: Map[String, List[AnyModel]], template: (GuidePage, (Guide, List[GuidePage])))(implicit userOpt: Option[UserProfile], request: RequestHeader, prefs: utils.SessionPrefs, globalConfig: global.GlobalConfig, lang: Lang, flash: Flash)
-
-@import models.{GuidePage, Guide}
+@(guide: Guide, page: GuidePage, pages: List[GuidePage], items: utils.search.ItemPage[DocumentaryUnit], available: Map[String, List[AnyModel]])(implicit userOpt: Option[UserProfile], request: RequestHeader, prefs: utils.SessionPrefs, globalConfig: global.GlobalConfig, lang: Lang, flash: Flash)
 
 @js = {
     <script type="text/javascript" src="@controllers.portal.routes.Assets.versioned("js/portal-guide.js")"></script>
@@ -91,15 +89,15 @@
             @Messages("guides.facets.available")
         }
     </small></p>
-    @for(page <- template._2._2) {
-        @if(page.layout != GuidePage.Layout.Markdown) {
+    @for(otherPage <- pages) {
+        @if(otherPage.layout != GuidePage.Layout.Markdown) {
             @if(available.nonEmpty){
-                        @selectTwo(page.name, page.content)
+                        @selectTwo(otherPage.name, otherPage.content)
             } else{
             <div class="facet-class">
-                <h4 class="facet-label">@page.name</h4>
+                <h4 class="facet-label">@otherPage.name</h4>
                 <div class="facet-options">
-                    <input type="text" style="width: 100%;" name="kw[]" data-placeholder="@page.name" data-target="@controllers.portal.guides.routes.Guides.layoutRetrieval(template._2._1.path, page.path)" class="form-control select2 facet-browse autosubmit" />
+                    <input type="text" style="width: 100%;" name="kw[]" data-placeholder="@otherPage.name" data-target="@controllers.portal.guides.routes.Guides.layoutRetrieval(guide.path, otherPage.path)" class="form-control select2 facet-browse autosubmit" />
                 </div>
             </div>
             }
@@ -108,18 +106,18 @@
 }
 
 @sidebar = {
-<div id="facets">
-    <form method="GET" action="@controllers.portal.guides.routes.Guides.layoutRetrieval(template._2._1.path, template._1.path)">
-        <ul class="nav nav-pills nav-ehri nav-ehri-black nav-justified">
-            <li><button type="submit" class="nav-ehri nav-ehri-black nav-ehri-input"><span class="glyphicon glyphicon-search"></span><span class="text-hide">Search</span></button></li>
-        </ul>
-        @facets
-    </form>
-</div>
+    <div id="facets">
+        <form method="GET" action="@controllers.portal.guides.routes.Guides.layoutRetrieval(guide.path, page.path)">
+            <ul class="nav nav-pills nav-ehri nav-ehri-black nav-justified">
+                <li><button type="submit" class="nav-ehri nav-ehri-black nav-ehri-input"><span class="glyphicon glyphicon-search"></span><span class="text-hide">Search</span></button></li>
+            </ul>
+            @facets
+        </form>
+    </div>
 }
 
 
-@p.layout.guideLayout(template, scripts = js, optionalContent = Some(sidebar), otherTitle = Some(Messages("guides.faceted"))) {
+@views.html.p.layout.guideLayout(guide, page, pages, scripts = js, optionalContent = Some(sidebar), otherTitle = Some(Messages("guides.faceted"))) {
     <article>
         <header>
             <h1>@Messages("guides.faceted")</h1>
@@ -128,7 +126,7 @@
         <section>
             <section class="content-results">
                     @items.items.map { doc =>
-                        @p.guides.doc.itemResult(doc, template._2._1.path)
+                        @views.html.p.guides.doc.itemResult(doc, guide.path)
                     }
             </section>
         </section>
@@ -136,5 +134,4 @@
                 @common.pagination(items)
         </footer>
     </article>
-
 }

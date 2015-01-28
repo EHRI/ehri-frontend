@@ -21,13 +21,15 @@
 	@layouts.map { case (guide, pages) =>
 		<h4>@Messages("guidePage.list")</h4>
 		<ul class="nav nav-pills nav-stacked">
-			@for(page <- pages) {
+			@for(otherPage <- pages) {
 				<li>
-					<a href="@controllers.guides.routes.GuidePages.edit(guide.path, page.path)">@page.name</a>
+					<a href="@controllers.guides.routes.GuidePages.edit(guide.path, otherPage.path)">@otherPage.name</a>
 				</li>
 			}
 			<li>
-				<a href="@controllers.guides.routes.GuidePages.create(guide.path)"><span class="glyphicon glyphicon-plus-sign"></span> @Messages("guidePage.create")</a>
+				<a href="@controllers.guides.routes.GuidePages.create(guide.path)">
+                    <span class="glyphicon glyphicon-plus-sign"></span> @Messages("guidePage.create")
+                </a>
 			</li>
 		</ul>
 	}

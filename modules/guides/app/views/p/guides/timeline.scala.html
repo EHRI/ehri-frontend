@@ -1,4 +1,4 @@
-@(template: (GuidePage, (Guide, List[GuidePage])), content: String)(implicit userOpt: Option[UserProfile], request: RequestHeader, prefs: utils.SessionPrefs, globalConfig: global.GlobalConfig, lang: Lang, flash: Flash)
+@(guide: Guide, page: GuidePage)(implicit userOpt: Option[UserProfile], request: RequestHeader, prefs: utils.SessionPrefs, globalConfig: global.GlobalConfig, lang: Lang, flash: Flash)
 
 @styles = {
 	<link rel="stylesheet" type="text/css" href="https://s3.amazonaws.com/cdn.knightlab.com/libs/timeline/latest/css/timeline.css">
@@ -12,17 +12,17 @@
 			type:       'timeline',
 			width:      '750',
 			height:     '600',
-			source:     '@content',
+			source:     '@page.content',
 			embed_id:   'my-timeline'
 		});
 	});
 	</script>
 	<!-- END TimelineJS -->
 }
-@p.layout.guideLayout(template, scripts = js) {
+@views.html.p.layout.guideLayout(guide, page, guide.findPages(), scripts = js) {
 	<article>
 		<header>
-			<h1>@template._1.name</h1>
+			<h1>@page.name</h1>
 		</header>
 		<div id="my-timeline"></div>
 	</article>

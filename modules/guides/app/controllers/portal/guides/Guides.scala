@@ -221,8 +221,8 @@ case class Guides @Inject()(implicit globalConfig: global.GlobalConfig, searchDi
         case Layout.Person => guideAuthority(page, Map(SearchConstants.HOLDER_ID -> page.content), guide)
         case Layout.Map => guideMap(page, Map(SearchConstants.HOLDER_ID -> page.content), guide)
         case Layout.Organisation => guideOrganization(page, Map(SearchConstants.HOLDER_ID -> page.content), guide)
-        case Layout.Markdown => guideMarkdown(page, page.content, guide)
-        case Layout.Timeline => guideTimeline(page, page.content, guide)
+        case Layout.Markdown => guideMarkdown(guide, page)
+        case Layout.Timeline => guideTimeline(guide, page)
       }
     }
   }
@@ -237,7 +237,7 @@ case class Guides @Inject()(implicit globalConfig: global.GlobalConfig, searchDi
   /*
   *   Layout named "person" [HistoricalAgent]
   */
-  def guideAuthority(template: GuidePage, params: Map[String, String], guide: Guide) = UserBrowseAction.async { implicit request =>
+  def guideAuthority(page: GuidePage, params: Map[String, String], guide: Guide) = UserBrowseAction.async { implicit request =>
     for {
       r <- find[HistoricalAgent](
         filters = params,
@@ -247,8 +247,8 @@ case class Guides @Inject()(implicit globalConfig: global.GlobalConfig, searchDi
       links <- countLinks(guide.virtualUnit, r.page.items.map { case (item, hit) => item.id}.toList)
     } yield render {
       case Accepts.Html() =>
-        if (isAjax) Ok(p.guides.ajax(template -> guide, r.page, r.params, links))
-        else Ok(p.guides.person(template -> (guide -> guide.findPages), r.page, r.params, links))
+        if (isAjax) Ok(p.guides.ajax(guide, page, r.page, r.params, links))
+        else Ok(p.guides.person(guide, page, guide.findPages(), r.page, r.params, links))
       case Accepts.Json() =>
         Ok(guideJson(r.page, request, links))
     }
@@ -257,12 +257,12 @@ case class Guides @Inject()(implicit globalConfig: global.GlobalConfig, searchDi
   /*
   *   Layout named "map" [Concept]
   */
-  def guideMap(template: GuidePage, params: Map[String, String], guide: Guide) = UserBrowseAction.async { implicit request =>
+  def guideMap(page: GuidePage, params: Map[String, String], guide: Guide) = UserBrowseAction.async { implicit request =>
     mapParams(
       if (request.queryString.contains("lat") && request.queryString.contains("lng")) {
         request.queryString
       } else {
-        template.getParams
+        page.getParams
       }
     ) match {
       case (sort, geoloc) => for {
@@ -270,8 +270,8 @@ case class Guides @Inject()(implicit globalConfig: global.GlobalConfig, searchDi
         links <- countLinks(guide.virtualUnit, r.page.items.map { case (item, hit) => item.id}.toList)
       } yield render {
         case Accepts.Html() =>
-          if (isAjax) Ok(p.guides.ajax(template -> guide, r.page, r.params, links))
-          else Ok(p.guides.places(template -> (guide -> guide.findPages), r.page, r.params, links, guideJson(r.page, request, links)))
+          if (isAjax) Ok(p.guides.ajax(guide, page, r.page, r.params, links))
+          else Ok(p.guides.places(guide, page, guide.findPages(), r.page, r.params, links, guideJson(r.page, request, links)))
         case Accepts.Json() =>
           Ok(guideJson(r.page, request, links))
       }
@@ -281,7 +281,7 @@ case class Guides @Inject()(implicit globalConfig: global.GlobalConfig, searchDi
   /*
   *   Layout named "organisation" [Concept]
   */
-  def guideOrganization(template: GuidePage, params: Map[String, String], guide: Guide) = UserBrowseAction.async { implicit request =>
+  def guideOrganization(page: GuidePage, params: Map[String, String], guide: Guide) = UserBrowseAction.async { implicit request =>
     for {
       r <- find[Concept](
         params,
@@ -291,8 +291,8 @@ case class Guides @Inject()(implicit globalConfig: global.GlobalConfig, searchDi
       links <- countLinks(guide.virtualUnit, r.page.items.map { case (item, hit) => item.id}.toList)
     } yield render {
       case Accepts.Html() =>
-        if (isAjax) Ok(p.guides.ajax(template -> guide, r.page, r.params, links))
-        else Ok(p.guides.organisation(template -> (guide -> guide.findPages), r.page, r.params, links))
+        if (isAjax) Ok(p.guides.ajax(guide, page, r.page, r.params, links))
+        else Ok(p.guides.organisation(guide, page, guide.findPages(), r.page, r.params, links))
       case Accepts.Json() =>
         Ok(guideJson(r.page, request, links))
     }
@@ -301,12 +301,12 @@ case class Guides @Inject()(implicit globalConfig: global.GlobalConfig, searchDi
   /*
   *   Layout named "md" [Markdown]
   */
-  def guideMarkdown(template: GuidePage, content: String, guide: Guide) = OptionalUserAction { implicit request =>
-    Ok(p.guides.markdown(template -> (guide -> guide.findPages), content))
+  def guideMarkdown(guide: Guide, page: GuidePage) = OptionalUserAction { implicit request =>
+    Ok(p.guides.markdown(guide, page))
   }
 
-  def guideTimeline(template: GuidePage, content: String, guide: Guide) = OptionalUserAction { implicit request =>
-    Ok(p.guides.timeline(template -> (guide -> guide.findPages), content))
+  def guideTimeline(guide: Guide, page: GuidePage) = OptionalUserAction { implicit request =>
+    Ok(p.guides.timeline(guide, page))
   }
 
   /*
@@ -439,7 +439,7 @@ case class Guides @Inject()(implicit globalConfig: global.GlobalConfig, searchDi
       /*
        *  If we have keyword, we make a query 
        */
-      val defaultResult = Ok(p.guides.facet(ItemPage(Seq(), 0, 0, 0, List()), Map().empty, GuidePage.faceted -> (guide -> guide.findPages)))
+      val defaultResult = Ok(p.guides.facet(guide, GuidePage.faceted, guide.findPages(), ItemPage(Seq(), 0, 0, 0, List()), Map().empty))
       facetsForm.bindFromRequest.fold(
         errs => immediate(defaultResult), {
           case (selectedFacets, page, limit) if selectedFacets.filterNot(_.isEmpty).nonEmpty => for {
@@ -449,7 +449,7 @@ case class Guides @Inject()(implicit globalConfig: global.GlobalConfig, searchDi
             availableFacets <- otherFacets(guide, ids)
             tempAccessPoints <- SearchDAO.listByGid[AnyModel](availableFacets)
           } yield {
-            Ok(p.guides.facet(pagify(ids, docs, selectedAccessPoints, page, limit), mapAccessPoints(guide, tempAccessPoints), GuidePage.faceted -> (guide -> guide.findPages)))
+            Ok(p.guides.facet(guide, GuidePage.faceted, guide.findPages(), pagify(ids, docs, selectedAccessPoints, page, limit), mapAccessPoints(guide, tempAccessPoints)))
           }
           case _ => immediate(defaultResult)
         }
