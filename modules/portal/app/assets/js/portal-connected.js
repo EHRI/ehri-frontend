@@ -268,10 +268,12 @@ jQuery(function ($) {
     $elem.hide();
     $container.after(data);
     $container.next().find("textarea").focus();
-    $(data).find("select.custom-accessors").select2({
-      placeholder: "Select a set of groups or users",
-      width: "copy"
-    });
+    if ($.fn.select2) {
+      $(data).find("select.custom-accessors").select2({
+        placeholder: "Select a set of groups or users",
+        width: "copy"
+      });
+    }
   }
 
   function insertAnnotationLoader($elem) {
@@ -324,12 +326,14 @@ jQuery(function ($) {
         id = $elem.data("item");
     $.get(url, function (data) {
         //$elem.closest(".annotation").hide().after(data)
-        $(data)
-            .insertAfter($elem.closest(".annotation").hide())
-            .find("select.custom-accessors").select2({
-              placeholder: "Select a set of groups or users",
-              width: "copy"
-            });
+        var $data = $(data)
+            .insertAfter($elem.closest(".annotation").hide());
+        if ($.fn.select2) {
+          $data.find("select.custom-accessors").select2({
+            placeholder: "Select a set of groups or users",
+            width: "copy"
+          });
+        }
     });
   });
 
@@ -399,12 +403,15 @@ jQuery(function ($) {
 
   // Handling of custom visibility selector.
   $(document).on("change", "input[type=radio].visibility", function (e) {
-    $(".custom-visibility")
-        .toggle(e.target.value === "custom")
-        .find("select.custom-accessors").select2({
-          placeholder: "Select a set of groups or users",
-          width: "copy"
-        });
+    var $customVis = $(".custom-visibility");
+    $customVis
+        .toggle(e.target.value === "custom");
+    if ($.fn.select2) {
+      $customVis.find("select.custom-accessors").select2({
+        placeholder: "Select a set of groups or users",
+        width: "copy"
+      });
+    }
   });
 
   // Set visibility of annotations

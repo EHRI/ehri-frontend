@@ -2,14 +2,18 @@
 
 <!DOCTYPE html>
 
+@extraStyles = {
+    <link rel="stylesheet" media="screen" href="@controllers.portal.routes.Assets.versioned("css/guides.css")">
+    <style type="text/css">@Html(guide.css.getOrElse(""))</style>
+    @styles
+}
 
 <html>
-    <head>
-        <title>@guide.name | @otherTitle.getOrElse(page.name)</title>
-        <link rel="stylesheet" media="screen" href="@controllers.portal.routes.Assets.versioned("css/guides.css")">
-        @styles
-        <style type="text/css">@Html(guide.css.getOrElse(""))</style>
-    </head>
+    @views.html.p.layout.head(
+        title = s"${guide.name} | ${otherTitle.getOrElse(page.name)}",
+        meta = page.description.map(s => "description" -> s).toMap,
+        styles = extraStyles
+    )
     <body>
     <header id="top">
         @views.html.p.layout.guideHeader(guide, page, guide.findPages())
@@ -24,15 +28,17 @@
             </div>
         </div>
     </div>
-          <script src="//ajax.googleapis.com/ajax/libs/jquery/1.10.2/jquery.min.js"></script>
-          <script src="@controllers.portal.routes.Assets.at("bootstrap/js/bootstrap.min.js")"></script>
-    <script src="@controllers.portal.guides.routes.Guides.jsRoutes()"></script>
-    <script type="text/javascript">
-        VIRTUAL_UNIT = "@guide.virtualUnit";
-        VIRTUAL_UNIT_ROUTE = "@controllers.portal.guides.routes.Guides.guideFacets(guide.path)?kw[]=";
-        GUIDE_PATH = "@guide.path";
-    </script>
-        <script type="text/javascript" src="@controllers.portal.guides.routes.Assets.at("js/portal-guide.js")"></script>
+        <script src="//ajax.googleapis.com/ajax/libs/jquery/1.10.2/jquery.min.js"></script>
+        <script src="@controllers.portal.routes.Assets.at("bootstrap/js/bootstrap.min.js")"></script>
+        <script src="@controllers.portal.guides.routes.Guides.jsRoutes()"></script>
+        <script type="text/javascript">
+            VIRTUAL_UNIT = "@guide.virtualUnit";
+            VIRTUAL_UNIT_ROUTE = "@controllers.portal.guides.routes.Guides.guideFacets(guide.path)?kw[]=";
+            GUIDE_PATH = "@guide.path";
+        </script>
+        <script src="@controllers.portal.routes.Assets.versioned("js/lib/jquery.hoverIntent.js")"></script>
+        <script type="text/javascript" src="@controllers.portal.guides.routes.Assets.versioned("js/common.js")"></script>
+        <script type="text/javascript" src="@controllers.portal.guides.routes.Assets.versioned("js/portal-guide.js")"></script>
         @scripts
     </body>
 </html>

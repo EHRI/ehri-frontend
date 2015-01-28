@@ -1,15 +1,16 @@
 # Guide routes
 
-GET        /jsRoutes                     @controllers.portal.guides.Guides.jsRoutes
+GET        /jsRoutes                         @controllers.portal.guides.Guides.jsRoutes
 
-GET        /                             @controllers.portal.guides.Guides.listGuides()
-GET        /accesspoints/:id             @controllers.portal.guides.Guides.linkedData(id:String)
-GET        /accesspoints/:id/:context    @controllers.portal.guides.Guides.linkedDataInContext(id:String, context: String)
+GET        /                                 @controllers.portal.guides.Guides.listGuides()
+GET        /accesspoints/:id                 @controllers.portal.guides.Guides.linkedData(id:String)
+GET        /accesspoints/:id/:context        @controllers.portal.guides.Guides.linkedDataInContext(id:String, context: String)
 
-GET        /:guide                       @controllers.portal.guides.Guides.home(guide: String)
-GET        /:guide/browse                @controllers.portal.guides.Guides.guideFacets(guide: String)
-GET        /:guide/document/:id          @controllers.portal.guides.DocumentaryUnits.browse(guide: String, id: String)
-GET        /:guide/repository/:id        @controllers.portal.guides.Repositories.browse(guide: String, id: String)
-GET        /:guide/:page                 @controllers.portal.guides.Guides.layoutRetrieval(guide: String, page: String)
+GET        /:guide                           @controllers.portal.guides.Guides.home(guide: String)
+GET        /:guide/browse                    @controllers.portal.guides.Guides.guideFacets(guide: String)
+GET        /:guide/document/:id              @controllers.portal.guides.DocumentaryUnits.browse(guide: String, id: String)
+GET        /:guide/repository/:id            @controllers.portal.guides.Repositories.browse(guide: String, id: String)
+GET        /:guide/:page                     @controllers.portal.guides.Guides.layoutRetrieval(guide: String, page: String)
 
-GET         /assets/*file                controllers.portal.guides.Assets.at(path="/public", file)
+GET        /assets/*file                     controllers.portal.guides.Assets.at(path="/public", file)
+GET        /v/*file                          controllers.portal.guides.Assets.versioned(path="/public", file: Asset)

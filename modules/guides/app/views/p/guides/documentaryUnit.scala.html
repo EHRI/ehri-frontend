@@ -15,6 +15,13 @@
     }
 }
 
+@scripts = {
+    <script src="@controllers.portal.routes.Assets.versioned("js/portal.js")"></script>
+    @if(userOpt.isDefined) {
+        <script src="@controllers.portal.routes.Assets.versioned("js/portal-connected.js")"></script>
+    }
+}
+
 @side = {
   @common.descriptionChoice(item.model.descriptions)
   <p>
@@ -57,7 +64,7 @@
  }
 }
 
-@views.html.p.layout.guideLayout(guide, page, pages, optionalContent = Some(side)) {
+@views.html.p.layout.guideLayout(guide, page, pages, scripts = scripts, optionalContent = Some(side)) {
 
     <article class="description-viewport">
         @defining(EntityType.DocumentaryUnit.toString) { implicit fieldPrefix =>
