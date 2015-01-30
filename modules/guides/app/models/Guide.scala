@@ -86,7 +86,7 @@ object Guide {
     mapping(
       OBJECTID -> ignored(Option.empty[Long]),
       NAME -> nonEmptyText,
-      PATH -> nonEmptyText,
+      PATH -> nonEmptyText.verifying("constraints.uniqueness", s => Guide.find(s).isEmpty),
       PICTURE -> optional(nonEmptyText),
       VIRTUALUNIT -> nonEmptyText,
       DESCRIPTION -> optional(text),
@@ -135,9 +135,9 @@ object Guide {
     ).as(rowExtractor *)
   }
 
-  def find(param: String, activeOnly: Boolean = false): Option[Guide] = DB.withConnection { implicit connection =>
-    (if (activeOnly) SQL"""SELECT * FROM research_guide WHERE path = $param AND active = 1 LIMIT 1"""
-      else SQL"""SELECT * FROM research_guide WHERE path = $param LIMIT 1"""
+  def find(path: String, activeOnly: Boolean = false): Option[Guide] = DB.withConnection { implicit connection =>
+    (if (activeOnly) SQL"""SELECT * FROM research_guide WHERE path = $path AND active = 1 LIMIT 1"""
+      else SQL"""SELECT * FROM research_guide WHERE path = $path LIMIT 1"""
     ).as(rowExtractor.singleOpt)
   }
 
