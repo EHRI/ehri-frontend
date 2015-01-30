@@ -10,19 +10,18 @@
 }
 
 <div class="search-item" id="@item.id">
-        <h3 class="search-item-heading type-highlight @item.isA.toString">
-            <a href="@controllers.portal.guides.routes.DocumentaryUnits.browse(guidePath, item.id)">@item.toStringLang</a>
-        </h3>
-        <div class="search-item-body">
-            <ol class="collapsible">
-
-                @item.holder.map { holder =>
-                    <li>
-                        @p.guides.doc.linkTo(holder, guidePath)
-                    </li>
-                }
-                @wrapParent(item, item.parent)
-            </ol>
-            @p.guides.doc.listItemBody(item, guidePath)
-        </div>
+    <h3 class="search-item-heading type-highlight @item.isA.toString">
+        <a href="@controllers.portal.guides.routes.DocumentaryUnits.browse(guidePath, item.id)">@item.toStringLang</a>
+    </h3>
+    <div class="search-item-body">
+        <ol class="breadcrumb">
+            @item.holder.map { holder =>
+                <li>
+                    @views.html.p.guides.doc.linkTo(holder, guidePath)
+                </li>
+            }
+            @wrapParent(item, item.parent)
+        </ol>
+        @views.html.p.guides.doc.listItemBody(item, guidePath)
+    </div>
 </div>
