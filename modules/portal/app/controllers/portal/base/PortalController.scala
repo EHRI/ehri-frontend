@@ -78,19 +78,19 @@ trait PortalController
     EntityType.Annotation
   )
 
-  def verifiedOnlyError(request: RequestHeader)(implicit context: ExecutionContext): Future[Result] = {
+  override def verifiedOnlyError(request: RequestHeader)(implicit context: ExecutionContext): Future[Result] = {
     implicit val r  = request
     immediate(Unauthorized(renderError("errors.verifiedOnly", views.html.errors.verifiedOnly())))
   }
 
-  def staffOnlyError(request: RequestHeader)(implicit context: ExecutionContext): Future[Result] = {
+  override def staffOnlyError(request: RequestHeader)(implicit context: ExecutionContext): Future[Result] = {
     implicit val r  = request
     immediate(Unauthorized(renderError("errors.staffOnly", views.html.errors.staffOnly())))
   }
 
-  def notFoundError(request: RequestHeader)(implicit context: ExecutionContext): Future[Result] = {
+  override def notFoundError(request: RequestHeader, msg: Option[String] = None)(implicit context: ExecutionContext): Future[Result] = {
     implicit val r  = request
-    immediate(NotFound(renderError("errors.itemNotFound", itemNotFound())))
+    immediate(NotFound(renderError("errors.itemNotFound", itemNotFound(msg))))
   }
 
   /**

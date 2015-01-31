@@ -1,8 +1,11 @@
 package controllers.generic
 
+import backend.rest.ItemNotFound
 import backend.{BackendContentType, BackendResource}
 import defines.{ContentTypes, PermissionType}
 import models._
+import play.api.Logger
+import play.api.http.HeaderNames
 import play.api.libs.concurrent.Execution.Implicits._
 import play.api.mvc.{Result, _}
 import utils.{Page, PageParams, RangePage, RangeParams}
@@ -70,8 +73,8 @@ trait Read[MT] extends Generic[MT] {
     WithPermissionFilter(perm, ct.contentType)
 
   protected def ItemPermissionAction(itemId: String)(implicit ct: BackendContentType[MT]) =
-    OptionalUserAction andThen new ActionTransformer[OptionalUserRequest, ItemPermissionRequest] {
-      def transform[A](input: OptionalUserRequest[A]): Future[ItemPermissionRequest[A]] = {
+    OptionalUserAction andThen new ActionRefiner[OptionalUserRequest, ItemPermissionRequest] {
+      private def transform[A](input: OptionalUserRequest[A]): Future[ItemPermissionRequest[A]] = {
         implicit val userOpt = input.userOpt
         input.userOpt.map { profile =>
           val itemF = backend.get[MT](itemId)
@@ -87,6 +90,14 @@ trait Read[MT] extends Generic[MT] {
           for {
             item <- backend.get[MT](itemId)
           } yield ItemPermissionRequest[A](item, None, input)
+        }
+      }
+
+      override protected def refine[A](request: OptionalUserRequest[A]): Future[Either[Result, ItemPermissionRequest[A]]] = {
+        transform(request).map(r => Right(r)).recoverWith {
+          case e: ItemNotFound =>
+            Logger.warn(s"404 via referer: ${request.headers.get(HeaderNames.REFERER)}", e)
+            notFoundError(request, msg = Some(itemId)).map(r => Left(r))
         }
       }
     }

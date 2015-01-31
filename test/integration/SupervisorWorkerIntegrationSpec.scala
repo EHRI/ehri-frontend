@@ -1,11 +1,9 @@
 package integration
 
-import scala.concurrent.ExecutionContext.Implicits.global
+import backend.ApiUser
+import defines._
 import helpers._
 import models.{Account, UserProfile}
-import defines._
-import backend.rest.ItemNotFound
-import backend.ApiUser
 
 /**
  * End-to-end test of the permissions system, implemented as one massive test.
@@ -228,7 +226,7 @@ class SupervisorWorkerIntegrationSpec extends IntegrationTestRunner with TestHel
       status(doc1DeleteRead) must equalTo(SEE_OTHER)
       val doc1CheckDeleteRead = route(fakeLoggedInHtmlRequest(haAccount, GET,
           controllers.units.routes.DocumentaryUnits.get(doc1Id).url)).get
-      status(doc1CheckDeleteRead) must throwA[ItemNotFound]
+      status(doc1CheckDeleteRead) must equalTo(NOT_FOUND)
 
       // ---------------------------------------------
       //
@@ -276,7 +274,7 @@ class SupervisorWorkerIntegrationSpec extends IntegrationTestRunner with TestHel
       status(doc2DeleteRead) must equalTo(SEE_OTHER)
       val doc2CheckDeleteRead = route(fakeLoggedInHtmlRequest(aAccount, GET,
           controllers.units.routes.DocumentaryUnits.get(doc2Id).url)).get
-      status(doc2CheckDeleteRead) must throwA[ItemNotFound]
+      status(doc2CheckDeleteRead) must equalTo(NOT_FOUND)
 
       // HOORAY! Basic stuff seems to work - now onto the difficult things...
       // Create a doc as the head archivist, then check it can't be deleted
