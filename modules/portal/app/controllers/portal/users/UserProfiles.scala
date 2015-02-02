@@ -8,7 +8,7 @@ import play.api.i18n.Messages
 import play.api.mvc._
 import defines.{ContentTypes, EntityType}
 import play.api.libs.json.{JsValue, Json, JsObject}
-import utils.{SessionPrefs, PageParams}
+import utils.{Page, SessionPrefs, PageParams}
 import scala.concurrent.Future.{successful => immediate}
 import jp.t2v.lab.play2.auth.LoginLogout
 import play.api.libs.Files.TemporaryFile
@@ -16,8 +16,8 @@ import play.api.Play.current
 import java.io.{StringWriter, File}
 import scala.concurrent.Future
 import views.html.p
-import utils.search.{SearchParams, SearchConstants, Resolver, Dispatcher}
-import backend.Backend
+import utils.search._
+import backend.{WithId, BackendReadable, ApiUser, Backend}
 
 import com.google.inject._
 import net.coobird.thumbnailator.tasks.UnsupportedFormatException
@@ -90,11 +90,31 @@ case class UserProfiles @Inject()(implicit globalConfig: global.GlobalConfig, se
   }
 
   def watching(format: DataFormat.Value = DataFormat.Html) = WithUserAction.async { implicit request =>
-    val watchParams = PageParams.fromRequest(request, namespace = "w")
-    backend.watching[AnyModel](request.user.id, watchParams).map { watchList =>
+    // This is a hack. To search a user's watched items we first have to
+    // look up *all* the item's they're watching in the DB, and then use
+    // that to constrain the search query. Normally, when we get the query
+    // result the standard search item resolver would fetch those items from
+    // DB a second time. To avoid this we use a resolver that looks up the search
+    // items from the list already fetched, which saves an unnecessary DB hit.
+    // We also do some casting, but this is okay since we're searching `AnyModel`
+    // and the input list is also `AnyModel`. Still it's not nice.
+    // FIXME: Casting.
+    def listResolver(items: Seq[AnyModel]): Resolver = new Resolver {
+      override def resolve[MT](results: Seq[SearchHit])(implicit apiUser: ApiUser, rd: BackendReadable[MT]): Future[Seq[MT]] =
+        immediate(results.flatMap(hit => items.find(_.id == hit.itemId)).map(_.asInstanceOf[MT]))
+    }
+
+    for {
+      watching <- backend.watching[AnyModel](request.user.id)
+      QueryResult(page, params, _) <- find[AnyModel](
+        filters = Map(watching.map(item => s"${SearchConstants.ITEM_ID}:${item.id}").mkString(" ") -> Unit),
+        resolverOpt = Some(listResolver(watching))
+      )
+    } yield {
+      val watchList = page.copy(items = page.items.map(_._1))
       format match {
         case DataFormat.Text => Ok(views.txt.p.userProfile.watchedItems(watchList))
-            .as(MimeTypes.TEXT)
+          .as(MimeTypes.TEXT)
         case DataFormat.Csv => Ok(writeCsv(
           List("Item", "URL"),
           watchList.items.map(a => ExportWatchItem.fromItem(a).toCsv)))
@@ -103,8 +123,14 @@ case class UserProfiles @Inject()(implicit globalConfig: global.GlobalConfig, se
         case DataFormat.Json =>
           Ok(Json.toJson(watchList.items.map(ExportWatchItem.fromItem)))
             .as(MimeTypes.JSON)
-
-        case _ => Ok(p.userProfile.watchedItems(watchList))
+        case DataFormat.Html => Ok(p.userProfile.watched(
+          request.user,
+          watchList,
+          params,
+          searchAction = profileRoutes.watching(format = DataFormat.Html),
+          followed = false,
+          canMessage = false
+        ))
       }
     }
   }

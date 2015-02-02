@@ -68,7 +68,8 @@ trait Search extends Controller with AuthController with ControllerHelpers {
                defaultOrder: SearchOrder.Value = SearchOrder.DateNewest,
                entities: Seq[EntityType.Value] = Nil,
                facetBuilder: FacetBuilder = emptyFacets,
-               mode: SearchMode.Value = SearchMode.DefaultAll)(
+               mode: SearchMode.Value = SearchMode.DefaultAll,
+               resolverOpt: Option[Resolver] = None)(
                 implicit request: RequestHeader, userOpt: Option[UserProfile], rd: BackendReadable[MT]): Future[QueryResult[MT]] = {
 
     val params = defaultParams
@@ -76,7 +77,6 @@ trait Search extends Controller with AuthController with ControllerHelpers {
       .copy(entities = if (entities.isEmpty) defaultParams.entities else entities.toList)
 
     val bound: Form[SearchParams] = SearchParams.form.bindFromRequest(request.queryString)
-    println(s"PARAMS: ${bound.value} -> ${bound.errorsAsJson}")
 
     val sp = bound
         .value.getOrElse(SearchParams.empty)
@@ -87,7 +87,7 @@ trait Search extends Controller with AuthController with ControllerHelpers {
 
     for {
       res <- searchDispatcher.search(sp, boundFacets, allFacets, filters, extra, mode)
-      list <- searchResolver.resolve[MT](res.items)
+      list <- resolverOpt.getOrElse(searchResolver).resolve(res.items)
     } yield {
       if (list.size != res.size) {
         Logger.logger.warn("Items returned by search were not found in database: {} -> {}",

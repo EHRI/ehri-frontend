@@ -3,15 +3,15 @@
 @defining(userOpt.exists(_.id == them.id)) { isCurrentUser =>
 
     @if(items.nonEmpty) {
-        <ul class="list-unstyled watched-items">
+        <ul class="watched-items">
             @items.map { item =>
                 <li>
-                    @p.listItem(item, true)
+                    @views.html.p.listItem(item, true)
                 </li>
             }
         </ul>
-        @common.pagination(items, namespace = "w")
-        <div class="pull-right small text-muted">
+        @common.pagination(items)
+        <div class="list-export-options">
             <span class="glyphicon glyphicon-download"></span>
             @for(fmt <- Seq(DataFormat.Text, DataFormat.Csv, DataFormat.Json)) {
                 <a class="alt" target="_blank" title="@Messages("download.format." + fmt.toString)" href="@controllers.portal.users.routes.UserProfiles.watching(format = fmt)&limit=-1">
@@ -21,7 +21,7 @@
 
         </div>
     } else {
-        <p class="text-muted">
+        <p class="no-content">
             @if(isCurrentUser) {
                 @Messages("social.noItemsWatchedYet")
             } else {

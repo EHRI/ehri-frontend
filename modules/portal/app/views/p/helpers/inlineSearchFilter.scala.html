@@ -1,0 +1,8 @@
+@(params: utils.search.SearchParams, id: String, label: String)
+
+@import utils.search.SearchParams.QUERY
+
+<div class="inline-search-filter">
+    <label for="@id" class="sr-only" aria-hidden="true">@label</label>
+    <input class="@{if(params.query.nonEmpty) "active"}" id="search-notes-q" type="text" name="@QUERY" value="@params.query" />
+</div>

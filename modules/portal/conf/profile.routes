@@ -9,7 +9,7 @@ GET         /watch/:id              @controllers.portal.users.UserProfiles.watch
 POST        /watch/:id              @controllers.portal.users.UserProfiles.watchItemPost(id: String)
 GET         /unwatch/:id            @controllers.portal.users.UserProfiles.unwatchItem(id: String)
 POST        /unwatch/:id            @controllers.portal.users.UserProfiles.unwatchItemPost(id: String)
-GET         /watching               @controllers.portal.users.UserProfiles.watching(format: controllers.DataFormat.Value ?= controllers.DataFormat.Html)
+GET         /watched                @controllers.portal.users.UserProfiles.watching(format: controllers.DataFormat.Value ?= controllers.DataFormat.Html)
 
 GET         /                       @controllers.portal.users.UserProfiles.profile
 GET         /edit                   @controllers.portal.users.UserProfiles.updateProfile

@@ -9,10 +9,7 @@
                 <div class="user-profile-content">
                     <h2 class="block-header user">
                         @Messages("annotation.list")
-                        <div class="inline-search-filter">
-                            <label for="search-notes-q" class="sr-only" aria-hidden="true">@Messages("annotation.search")</label>
-                            <input class="@{if(params.query.nonEmpty) "active"}" id="search-notes-q" type="text" name="@QUERY" value="@params.query" />
-                        </div>
+                        @views.html.p.helpers.inlineSearchFilter(params, id = "search-notes-q", label = Messages("annotation.search"))
                         <input type="hidden" name="@{FIELD}[]" value="targetNames_ngram" />
                     </h2>
                     <div id="user-annotations">
