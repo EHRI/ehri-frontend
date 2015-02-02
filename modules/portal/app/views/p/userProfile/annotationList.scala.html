@@ -1,25 +1,29 @@
-@(annotations: utils.AbstractPage[Annotation])(implicit userOpt: Option[UserProfile], req: RequestHeader, lang: Lang, globalConfig: global.GlobalConfig)
+@(annotations: utils.AbstractPage[(Annotation,utils.search.SearchHit)], params: utils.search.SearchParams)(implicit userOpt: Option[UserProfile], req: RequestHeader, lang: Lang, globalConfig: global.GlobalConfig)
 
 @if(annotations.nonEmpty) {
-    <ul class="list-unstyled user-annotation-list">
-    @annotations.map { ann =>
+    <ul class="user-annotation-list">
+    @annotations.map { case (ann, hit) =>
         <li class="user-annotation search-item">
-            @annotation(ann)
+            @annotation(ann, highlighter = hit)
         </li>
     }
     </ul>
-    @common.pagination(annotations, namespace = "a")
-    <div class="pull-right small text-muted">
+    @common.pagination(annotations)
+    <div class="list-export-options">
         <span class="glyphicon glyphicon-download"></span>
         @for(fmt <- Seq(DataFormat.Text, DataFormat.Csv, DataFormat.Json)) {
-            <a class="alt" target="_blank" title="@Messages("download.format." + fmt)"
+            <a class="download-link" target="_blank" title="@Messages("download.format." + fmt)"
                     href="@controllers.portal.users.routes.UserProfiles.annotations(format = fmt)&limit=1000">
                 @fmt
             </a>
         }
     </div>
 } else {
-     <p class="text-muted">
-         @Messages("annotation.none")
+     <p class="no-content">
+         @params.query.map { q =>
+             @Messages("annotation.search.noneFound", q)
+         }.getOrElse {
+             @Messages("annotation.none")
+         }
      </p>
 }

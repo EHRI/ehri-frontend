@@ -504,6 +504,8 @@ social.unblock.submit=Unblock User
 # Annotations
 #
 annotation=Notes
+annotation.search=Search Notes
+annotation.search.noneFound=No notes found matching ''{0}''.
 annotation.field=Field
 annotation.list=Notes
 annotation.list.by={0} - Notes

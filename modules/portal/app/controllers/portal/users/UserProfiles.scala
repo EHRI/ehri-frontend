@@ -16,7 +16,7 @@ import play.api.Play.current
 import java.io.{StringWriter, File}
 import scala.concurrent.Future
 import views.html.p
-import utils.search.{SearchConstants, SearchParams, Resolver, Dispatcher}
+import utils.search.{SearchParams, SearchConstants, Resolver, Dispatcher}
 import backend.Backend
 
 import com.google.inject._
@@ -155,7 +155,14 @@ case class UserProfiles @Inject()(implicit globalConfig: global.GlobalConfig, se
         case DataFormat.Json =>
           Ok(Json.toJson(itemsOnly.items.map(ExportAnnotation.fromAnnotation)))
             .as(MimeTypes.JSON)
-        case _ => Ok(p.userProfile.annotations(itemsOnly))
+        case _ => Ok(p.userProfile.annotations(
+          request.user,
+          annotations = page,
+          params = params,
+          searchAction = profileRoutes.profile(),
+          followed = false,
+          canMessage = false)
+        )
       }
     }
   }
@@ -189,17 +196,8 @@ case class UserProfiles @Inject()(implicit globalConfig: global.GlobalConfig, se
     )
   }
 
-  def profile = WithUserAction.async { implicit request =>
-    //val annParams = PageParams.fromRequest(request, namespace = "a")
-    //val annotationsF = backend.userAnnotations[Annotation](request.user.id, annParams)
-    find[Annotation](
-      filters = Map(SearchConstants.ANNOTATOR_ID -> request.user.id),
-      entities = Seq(EntityType.Annotation)
-    ).map { case QueryResult(page, params, facets) =>
-      val itemsOnly = page.copy(items = page.items.map(_._1))
-      Ok(p.userProfile.notes(request.user, itemsOnly, followed = false, canMessage = false))
-    }
-  }
+  // For now the user's profile main page is just their notes.
+  def profile = annotations(format = DataFormat.Html)
 
   import play.api.data.Form
   import play.api.data.Forms._
