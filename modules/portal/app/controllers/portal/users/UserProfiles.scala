@@ -205,10 +205,9 @@ case class UserProfiles @Inject()(implicit globalConfig: global.GlobalConfig, se
   import play.api.data.Forms._
   private def deleteForm(user: UserProfile): Form[String] = Form(
     single(
-      "confirm" -> nonEmptyText.verifying("profile.delete.badConfirmation", f => f match {
-        case name =>
-          user.model.name.toLowerCase.trim == name.toLowerCase.trim
-      })
+      "confirm" -> nonEmptyText.verifying("profile.delete.badConfirmation",
+        name => user.model.name.trim == name.trim
+      )
     )
   )
 
