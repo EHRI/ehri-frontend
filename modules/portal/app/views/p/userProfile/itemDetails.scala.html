@@ -3,15 +3,15 @@
 @isCurrentUser = @{userOpt.exists(_.id == item.id)}
 
 <div id="item-details">
-    @p.layout.rightSidebar {
-        @p.common.itemHeader(item.toStringLang) {
+    @views.html.p.layout.rightSidebar {
+        @views.html.p.common.itemHeader(item.toStringLang) {
         }
         @details(item)
 
         @content
     } {
 
-        @p.common.typeLabel(EntityType.UserProfile) {
+        @views.html.p.common.typeLabel(EntityType.UserProfile) {
             <ul class="list-group">
                 <li class="list-group-item user-img">
                     <a href="@{if(isCurrentUser) controllers.portal.users.routes.UserProfiles.profile else controllers.portal.social.routes.Social.browseUser(item.id)}" class="gravitar">
@@ -26,8 +26,8 @@
                     </li>
                 } else {
                     <li class="list-group-item btn-group-vertical" role="group">
-                        @p.common.messageButtons(item, canMessage)
-                        @p.common.followingButtons(item, followed)
+                        @views.html.p.common.messageButtons(item, canMessage)
+                        @views.html.p.common.followingButtons(item, followed)
                     </li>
                 }
                 <li class="list-group-item user-profile-social">
