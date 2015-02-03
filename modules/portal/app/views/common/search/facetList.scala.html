@@ -1,4 +1,4 @@
-@(facets: utils.search.FacetClassList, call: Call)(implicit req: RequestHeader, lang: Lang)
+@(facets: Seq[utils.search.FacetClass[utils.search.Facet]], call: Call)(implicit req: RequestHeader, lang: Lang)
 
 @import utils.search._
 

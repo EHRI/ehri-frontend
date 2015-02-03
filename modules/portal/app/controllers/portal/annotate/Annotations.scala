@@ -49,8 +49,8 @@ case class Annotations @Inject()(implicit globalConfig: global.GlobalConfig, sea
     find[Annotation](
       entities = List(EntityType.Annotation),
       facetBuilder = annotationFacets
-    ).map { case QueryResult(page, params, facets) =>
-      Ok(p.annotation.list(page, params, facets, annotationRoutes.searchAll()))
+    ).map { result =>
+      Ok(p.annotation.list(result, annotationRoutes.searchAll()))
     }
   }
 

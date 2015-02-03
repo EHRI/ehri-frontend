@@ -22,14 +22,14 @@ object SolrQueryBuilder extends {
   /**
    * Set a list of facets on a request.
    */
-  def getRequestFacets(flist: FacetClassList): List[FacetParam] =
+  def getRequestFacets(flist: Seq[FacetClass[Facet]]): Seq[FacetParam] =
     flist.map(SolrFacetParser.facetAsParams).flatten
 
   /**
    * Apply filters to the request based on a set of applied facets.
    */
-  def getRequestFilters(facetClasses: FacetClassList,
-                                appliedFacets: List[AppliedFacet]): List[String] = {
+  def getRequestFilters(facetClasses: Seq[FacetClass[Facet]],
+                                appliedFacets: Seq[AppliedFacet]): Seq[String] = {
     // See the spec for this to get some insight
     // into how this mess works...
 
@@ -68,8 +68,17 @@ object SolrQueryBuilder extends {
  * Build a Solr query. This class uses the (mutable) scalikesolr
  * QueryRequest class.
  */
-case class SolrQueryBuilder(writerType: WriterType.Value, debugQuery: Boolean = false)(implicit app: play.api.Application)
-  extends QueryBuilder {
+case class SolrQueryBuilder(
+  writerType: WriterType.Value,
+  debugQuery: Boolean = false,
+  params: SearchParams = SearchParams.empty,
+  facets: Seq[AppliedFacet] = Seq.empty,
+  facetClasses: Seq[FacetClass[Facet]] = Seq.empty,
+  filters: Map[String,Any] = Map.empty,
+  idFilters: Seq[String] = Seq.empty,
+  extraParams: Map[String,Any] = Map.empty,
+  mode: SearchMode.Value = SearchMode.DefaultAll
+)(implicit app: play.api.Application) extends QueryBuilder {
 
   import SearchConstants._
   import SolrQueryBuilder._
@@ -124,13 +133,14 @@ case class SolrQueryBuilder(writerType: WriterType.Value, debugQuery: Boolean = 
   }
 
 
+
   /**
    * Constrain a search request with the given facets.
    */
-  private def constrainToFacets(request: QueryRequest, appliedFacets: List[AppliedFacet], allFacets: FacetClassList): Unit = {
+  private def constrainToFacets(request: QueryRequest, appliedFacets: Seq[AppliedFacet], allFacets: Seq[FacetClass[Facet]]): Unit = {
     request.setFacet(new FacetParams(
       enabled=true,
-      params=getRequestFacets(allFacets)
+      params=getRequestFacets(allFacets).toList
     ))
 
     request.setFilterQuery(FilterQuery(multiple = getRequestFilters(allFacets, appliedFacets)))
@@ -159,12 +169,18 @@ case class SolrQueryBuilder(writerType: WriterType.Value, debugQuery: Boolean = 
     request.set("group.facet", true)
   }
 
+  private def applyIdFilters(request: QueryRequest, ids: Seq[String]): Unit = {
+    if (ids.nonEmpty) {
+      request
+        .setFilterQuery(FilterQuery(s"$ITEM_ID:(${ids.mkString(" ")})"))
+    }
+  }
+
   /**
    * Run a simple filter on the name_ngram field of all entities
    * of a given type.
    */
-  def simpleFilter(params: SearchParams, filters: Map[String,Any] = Map.empty, extra: Map[String,Any] = Map.empty, alphabetical: Boolean = false)(
-      implicit userOpt: Option[UserProfile]): Map[String,Seq[String]] = {
+  override def simpleFilter(alphabetical: Boolean = false)(implicit userOpt: Option[UserProfile]): Map[String,Seq[String]] = {
 
     val excludeIds = params.excludes.toList.flatten.map(id => s" -$ITEM_ID:$id").mkString
     val queryString = params.query.getOrElse("*").trim + excludeIds
@@ -180,12 +196,13 @@ case class SolrQueryBuilder(writerType: WriterType.Value, debugQuery: Boolean = 
 
     constrainEntities(req, params.entities)
     applyAccessFilter(req, userOpt)
+    applyIdFilters(req, idFilters)
     setGrouping(req, params)
     req.set("qf", s"$NAME_MATCH^2.0 $NAME_NGRAM")
     req.setFieldsToReturn(FieldsToReturn(s"$ID $ITEM_ID $NAME_EXACT $TYPE $HOLDER_NAME $DB_ID"))
     if (alphabetical) req.setSort(Sort(s"$NAME_SORT asc"))
 
-    extra.map { case (key, value) =>
+    extraParams.map { case (key, value) =>
       req.set(key, value)
     }
 
@@ -196,11 +213,7 @@ case class SolrQueryBuilder(writerType: WriterType.Value, debugQuery: Boolean = 
   /**
    * Build a query given a set of search parameters.
    */
-  def search(params: SearchParams, facets: List[AppliedFacet], allFacets: FacetClassList,
-             filters: Map[String,Any] = Map.empty,
-             extra: Map[String,Any] = Map.empty,
-             mode: SearchMode.Value = SearchMode.DefaultAll)(
-      implicit userOpt: Option[UserProfile]): Map[String,Seq[String]] = {
+  override def search()(implicit userOpt: Option[UserProfile]): Map[String,Seq[String]] = {
 
     val excludeIds = params.excludes.toList.flatten.map(id => s" -$ITEM_ID:$id").mkString
 
@@ -273,7 +286,7 @@ case class SolrQueryBuilder(writerType: WriterType.Value, debugQuery: Boolean = 
     }
 
     // Facet the request accordingly
-    constrainToFacets(req, facets, allFacets)
+    constrainToFacets(req, facets, facetClasses)
 
     // if we're using a specific index, constrain on that as well
     constrainEntities(req, params.entities)
@@ -283,6 +296,9 @@ case class SolrQueryBuilder(writerType: WriterType.Value, debugQuery: Boolean = 
 
     // Return only fields we care about...
     applyAccessFilter(req, userOpt)
+
+    // Constrain to specific ids
+    applyIdFilters(req, idFilters)
 
     // Apply other arbitrary hard filters
     filters.map { case (key, value) =>
@@ -303,7 +319,7 @@ case class SolrQueryBuilder(writerType: WriterType.Value, debugQuery: Boolean = 
     // is a major gotcha!
     setGrouping(req, params)
 
-    extra.map { case (key, value) =>
+    extraParams.map { case (key, value) =>
       req.set(key, value)
     }
 
@@ -311,4 +327,18 @@ case class SolrQueryBuilder(writerType: WriterType.Value, debugQuery: Boolean = 
     // TODO: Implement a light-weight request builder
     utils.parseQueryString(req.queryString())
   }
+
+  override def withIdFilters(ids: Seq[String]): QueryBuilder = copy(idFilters = idFilters ++ ids)
+
+  override def withFacets(f: Seq[AppliedFacet]): QueryBuilder = copy(facets = facets ++ f)
+
+  override def setMode(mode: SearchMode.Value): QueryBuilder = copy(mode = mode)
+
+  override def withFilters(f: Map[String, Any]): QueryBuilder = copy(filters = filters ++ f)
+
+  override def setParams(params: SearchParams): QueryBuilder = copy(params = params)
+
+  override def withFacetClasses(fc: Seq[FacetClass[Facet]]): QueryBuilder = copy(facetClasses = facetClasses ++ fc)
+
+  override def withExtraParams(extra: Map[String, Any]): QueryBuilder = copy(extraParams = extraParams ++ extra)
 }

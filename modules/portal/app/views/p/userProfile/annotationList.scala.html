@@ -1,14 +1,14 @@
-@(annotations: utils.AbstractPage[(Annotation,utils.search.SearchHit)], params: utils.search.SearchParams)(implicit userOpt: Option[UserProfile], req: RequestHeader, lang: Lang, globalConfig: global.GlobalConfig)
+@(annotations: utils.search.SearchResult[(Annotation,utils.search.SearchHit)])(implicit userOpt: Option[UserProfile], req: RequestHeader, lang: Lang, globalConfig: global.GlobalConfig)
 
 @if(annotations.nonEmpty) {
     <ul class="user-annotation-list">
-    @annotations.map { case (ann, hit) =>
+    @annotations.page.map { case (ann, hit) =>
         <li class="user-annotation search-item">
             @annotation(ann, highlighter = hit)
         </li>
     }
     </ul>
-    @common.pagination(annotations)
+    @common.pagination(annotations.page)
     <div class="list-export-options">
         <span class="glyphicon glyphicon-download"></span>
         @for(fmt <- Seq(DataFormat.Text, DataFormat.Csv, DataFormat.Json)) {
@@ -20,7 +20,7 @@
     </div>
 } else {
      <p class="no-content">
-         @params.query.map { q =>
+         @annotations.params.query.map { q =>
              @Messages("annotation.search.noneFound", q)
          }.getOrElse {
              @Messages("annotation.none")

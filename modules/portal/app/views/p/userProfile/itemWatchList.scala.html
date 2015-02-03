@@ -1,16 +1,16 @@
-@(them: UserProfile, items: utils.AbstractPage[AnyModel])(implicit userOpt: Option[UserProfile], req: RequestHeader, lang: Lang, globalConfig: global.GlobalConfig)
+@(them: UserProfile, result: utils.search.SearchResult[AnyModel])(implicit userOpt: Option[UserProfile], req: RequestHeader, lang: Lang, globalConfig: global.GlobalConfig)
 
 @defining(userOpt.exists(_.id == them.id)) { isCurrentUser =>
 
-    @if(items.nonEmpty) {
+    @if(result.nonEmpty) {
         <ul class="watched-items">
-            @items.map { item =>
+            @result.page.map { item =>
                 <li>
                     @views.html.p.listItem(item, true)
                 </li>
             }
         </ul>
-        @common.pagination(items)
+        @common.pagination(result.page)
         <div class="list-export-options">
             <span class="glyphicon glyphicon-download"></span>
             @for(fmt <- Seq(DataFormat.Text, DataFormat.Csv, DataFormat.Json)) {

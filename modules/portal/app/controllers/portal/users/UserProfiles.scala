@@ -106,12 +106,12 @@ case class UserProfiles @Inject()(implicit globalConfig: global.GlobalConfig, se
 
     for {
       watching <- backend.watching[AnyModel](request.user.id)
-      QueryResult(page, params, _) <- find[AnyModel](
+      result <- find[AnyModel](
         filters = Map(watching.map(item => s"${SearchConstants.ITEM_ID}:${item.id}").mkString(" ") -> Unit),
         resolverOpt = Some(listResolver(watching))
       )
     } yield {
-      val watchList = page.copy(items = page.items.map(_._1))
+      val watchList = result.mapItems(_._1).page
       format match {
         case DataFormat.Text => Ok(views.txt.p.userProfile.watchedItems(watchList))
           .as(MimeTypes.TEXT)
@@ -125,8 +125,7 @@ case class UserProfiles @Inject()(implicit globalConfig: global.GlobalConfig, se
             .as(MimeTypes.JSON)
         case DataFormat.Html => Ok(p.userProfile.watched(
           request.user,
-          watchList,
-          params,
+          result.mapItems(_._1),
           searchAction = profileRoutes.watching(format = DataFormat.Html),
           followed = false,
           canMessage = false
@@ -167,8 +166,8 @@ case class UserProfiles @Inject()(implicit globalConfig: global.GlobalConfig, se
     find[Annotation](
       filters = Map(SearchConstants.ANNOTATOR_ID -> request.user.id),
       entities = Seq(EntityType.Annotation)
-    ).map { case QueryResult(page, params, facets) =>
-      val itemsOnly = page.copy(items = page.items.map(_._1))
+    ).map { result =>
+      val itemsOnly = result.mapItems(_._1).page
       format match {
         case DataFormat.Text =>
           Ok(views.txt.p.userProfile.annotations(itemsOnly).body.trim)
@@ -183,8 +182,7 @@ case class UserProfiles @Inject()(implicit globalConfig: global.GlobalConfig, se
             .as(MimeTypes.JSON)
         case _ => Ok(p.userProfile.annotations(
           request.user,
-          annotations = page,
-          params = params,
+          annotations = result,
           searchAction = profileRoutes.profile(),
           followed = false,
           canMessage = false)

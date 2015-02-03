@@ -99,17 +99,19 @@ case class AdminSearch @Inject()(implicit globalConfig: global.GlobalConfig, sea
         entities = searchTypes.toList
       ),
       facetBuilder = entityFacets
-    ).map { case QueryResult(page, params, facets) =>
+    ).map { result =>
       render {
         case Accepts.Json() =>
           Ok(Json.toJson(Json.obj(
-            "numPages" -> page.numPages,
-            "page" -> Json.toJson(page.items.map(_._1))(Writes.seq(client.json.anyModelJson.clientFormat)),
-            "facets" -> facets
+            "numPages" -> result.page.numPages,
+            "page" -> Json.toJson(result.page.items.map(_._1))(Writes.seq(client.json.anyModelJson.clientFormat)),
+            "facets" -> result.facetClasses
           ))
           )
-        case _ => Ok(views.html.admin.search.search(page, params, facets,
-          controllers.admin.routes.AdminSearch.search()))
+        case _ => Ok(views.html.admin.search.search(
+          result,
+          controllers.admin.routes.AdminSearch.search())
+        )
       }
     }
   }

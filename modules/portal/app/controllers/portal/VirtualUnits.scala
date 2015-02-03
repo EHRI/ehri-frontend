@@ -55,10 +55,10 @@ case class VirtualUnits @Inject()(implicit globalConfig: global.GlobalConfig, se
         filters = buildFilter(request.item),
         entities = List(EntityType.VirtualUnit, EntityType.DocumentaryUnit),
         facetBuilder = docSearchFacets
-      ).map { case QueryResult(page, params, facets) =>
-        if (isAjax) Ok(p.virtualUnit.childItemSearch(request.item, page, params, facets,
+      ).map { result =>
+        if (isAjax) Ok(p.virtualUnit.childItemSearch(request.item, result,
           vuRoutes.searchVirtualCollection(id), request.watched))
-        else Ok(p.virtualUnit.search(request.item, page, params, facets,
+        else Ok(p.virtualUnit.search(request.item, result,
           vuRoutes.searchVirtualCollection(id), request.watched))
       }
   }
@@ -71,8 +71,8 @@ case class VirtualUnits @Inject()(implicit globalConfig: global.GlobalConfig, se
       filters = filters,
       entities = List(EntityType.VirtualUnit),
       facetBuilder = docSearchFacets
-    ).map { case QueryResult(page, params, facets) =>
-      Ok(p.virtualUnit.list(page, params, facets, vuRoutes.browseVirtualCollections(),
+    ).map { result =>
+      Ok(p.virtualUnit.list(result, vuRoutes.browseVirtualCollections(),
         request.watched))
     }
   }
@@ -99,7 +99,7 @@ case class VirtualUnits @Inject()(implicit globalConfig: global.GlobalConfig, se
   def searchVirtualUnit(pathStr: String, id: String) = OptionalUserAction.async { implicit request =>
     val pathIds = pathStr.split(",").toSeq
 
-    def includedChildren(parent: AnyModel): Future[QueryResult[AnyModel]] = parent match {
+    def includedChildren(parent: AnyModel): Future[SearchResult[(AnyModel,SearchHit)]] = parent match {
       case d: DocumentaryUnit => find[AnyModel](
         filters = Map(SearchConstants.PARENT_ID -> d.id),
         entities = List(d.isA),
@@ -110,7 +110,7 @@ case class VirtualUnits @Inject()(implicit globalConfig: global.GlobalConfig, se
           entities = List(EntityType.VirtualUnit, EntityType.DocumentaryUnit),
           facetBuilder = docSearchFacets)
       }
-      case _ => Future.successful(QueryResult.empty)
+      case _ => Future.successful(SearchResult.empty)
     }
 
     val pathF: Future[Seq[AnyModel]] = Future.sequence(pathIds.map(pid => backend.getAny[AnyModel](pid)))
@@ -127,9 +127,9 @@ case class VirtualUnits @Inject()(implicit globalConfig: global.GlobalConfig, se
       children <- includedChildren(item)
     } yield {
       if (isAjax)
-        Ok(p.virtualUnit.childItemSearch(item, children.page, children.params, children.facets,
+        Ok(p.virtualUnit.childItemSearch(item, children,
           vuRoutes.searchVirtualUnit(pathStr, id), watched, path))
-      else Ok(p.virtualUnit.search(item, children.page, children.params, children.facets,
+      else Ok(p.virtualUnit.search(item, children,
           vuRoutes.searchVirtualUnit(pathStr, id), watched, path))
     }
   }

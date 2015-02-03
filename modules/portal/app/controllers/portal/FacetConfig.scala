@@ -240,7 +240,7 @@ trait FacetConfig extends Search {
 
   // The facets for documents within a repository or another document shouldn't
   // contain the holder or country (since they'll be implied)
-  protected def localDocFacets: RequestHeader => List[FacetClass[Facet]] = {
+  protected def localDocFacets: RequestHeader => Seq[FacetClass[Facet]] = {
     docSearchFacets.andThen(fcl => fcl.filterNot { fc =>
       Seq("holder", "country", "source").contains(fc.param)
     })

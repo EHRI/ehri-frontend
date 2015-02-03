@@ -98,7 +98,7 @@ case class VirtualUnits @Inject()(implicit globalConfig: global.GlobalConfig, se
       entities = List(EntityType.VirtualUnit),
       facetBuilder = entityFacets
     ).map { result =>
-      Ok(views.html.admin.virtualUnit.search(result.page, result.params, result.facets, vuRoutes.search()))
+      Ok(views.html.admin.virtualUnit.search(result, vuRoutes.search()))
     }
   }
 
@@ -107,7 +107,7 @@ case class VirtualUnits @Inject()(implicit globalConfig: global.GlobalConfig, se
       filters = Map(SearchConstants.PARENT_ID -> request.item.id),
       facetBuilder = entityFacets
     ).map { result =>
-      Ok(views.html.admin.virtualUnit.search(result.page, result.params, result.facets, vuRoutes.search()))
+      Ok(views.html.admin.virtualUnit.search(result, vuRoutes.search()))
     }
   }
 
@@ -117,14 +117,14 @@ case class VirtualUnits @Inject()(implicit globalConfig: global.GlobalConfig, se
       entities = List(EntityType.VirtualUnit),
       facetBuilder = entityFacets
     ).map { result =>
-      Ok(views.html.admin.virtualUnit.show(Nil, request.item, result.page, result.params, result.facets,
+      Ok(views.html.admin.virtualUnit.show(Nil, request.item, result,
           vuRoutes.get(id), request.annotations, request.links))
     }
   }
 
   def getInVc(id: String, pathStr: Option[String]) = OptionalUserAction.async { implicit request =>
     val pathIds = pathStr.map(_.split(",").toList).getOrElse(List.empty)
-    def includedChildren(parent: AnyModel): Future[QueryResult[AnyModel]] = parent match {
+    def includedChildren(parent: AnyModel): Future[SearchResult[(AnyModel, SearchHit)]] = parent match {
       case d: DocumentaryUnit => find[AnyModel](
           filters = Map(SearchConstants.PARENT_ID -> d.id),
           entities = List(d.isA),
@@ -136,7 +136,7 @@ case class VirtualUnits @Inject()(implicit globalConfig: global.GlobalConfig, se
           entities = List(d.isA),
           facetBuilder = entityFacets)
       }
-      case _ => Future.successful(QueryResult.empty)
+      case _ => Future.successful(SearchResult.empty)
     }
 
     val pathF: Future[List[AnyModel]] = Future.sequence(pathIds.map(pid => backend.getAny[AnyModel](pid)))
@@ -150,7 +150,7 @@ case class VirtualUnits @Inject()(implicit globalConfig: global.GlobalConfig, se
       path <- pathF
       children <- includedChildren(item)
     } yield Ok(views.html.admin.virtualUnit.showVc(
-        path, item, children.page, children.params, children.facets,
+        path, item, children,
         vuRoutes.getInVc(id, pathStr), annotations, links))
   }
 
@@ -378,7 +378,7 @@ case class VirtualUnits @Inject()(implicit globalConfig: global.GlobalConfig, se
 
   def linkAnnotateSelect(id: String, toType: EntityType.Value) = LinkSelectAction(id, toType).apply { implicit request =>
     Ok(views.html.admin.link.linkSourceList(
-      request.item, request.page, request.params, request.facets, request.entityType,
+      request.item, request.searchResult, request.entityType,
         vuRoutes.linkAnnotateSelect(id, toType), vuRoutes.linkAnnotate))
   }
 
