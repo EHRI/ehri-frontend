@@ -16,7 +16,17 @@ import play.api.http.{MimeTypes, HeaderNames}
  * Implements the plugin implementation so other search
  * engines/mocks can be substituted.
  */
-case class SolrDispatcher(queryBuilder: QueryBuilder, handler: WSResponse => QueryResponse)(implicit val app: play.api.Application)
+case class SolrDispatcher(
+  queryBuilder: QueryBuilder,
+  handler: WSResponse => QueryResponse,
+  params: SearchParams = SearchParams.empty,
+  filters: Map[String, Any] = Map.empty,
+  idFilters: Seq[String] = Seq.empty,
+  facets: Seq[AppliedFacet] =  Seq.empty,
+  facetClasses: Seq[FacetClass[Facet]] = Seq.empty,
+  extraParams: Map[String, Any] = Map.empty,
+  mode: SearchMode.Value = SearchMode.DefaultAll
+)(implicit val app: play.api.Application)
   extends backend.rest.RestDAO with Dispatcher {
 
   // Dummy value to satisfy the RestDAO trait...
@@ -41,17 +51,16 @@ case class SolrDispatcher(queryBuilder: QueryBuilder, handler: WSResponse => Que
 
   /**
    * Filter items on name only, returning minimal data.
-   * @param params A set of search params
-   * @param filters A set of generic filters
    * @param userOpt An optional current user
    * @return a tuple of id, name, and type
    */
-  override def filter(params: SearchParams, filters: Map[String, Any] = Map.empty, extra: Map[String, Any] = Map.empty)(
-    implicit userOpt: Option[UserProfile]): Future[ItemPage[FilterHit]] = {
+  override def filter()(implicit userOpt: Option[UserProfile]): Future[ItemPage[FilterHit]] = {
 
     val queryRequest = queryBuilder
       .setParams(params)
-      .withFilters(filters).withExtraParams(extra)
+      .withIdFilters(idFilters)
+      .withFilters(filters)
+      .withExtraParams(extraParams)
       .simpleFilter()
 
     dispatch(queryRequest).map { response =>
@@ -70,30 +79,24 @@ case class SolrDispatcher(queryBuilder: QueryBuilder, handler: WSResponse => Que
 
   /**
    * Do a full search with the given parameters.
-   * @param params A set of search params
-   * @param facets The *applied* facets
-   * @param allFacets All enabled facets
-   * @param filters A set of generic filters
    * @param userOpt An optional current users
    * @return a set of SearchDescriptions for matching results.
    */
-  override def search(params: SearchParams, facets: Seq[AppliedFacet], allFacets: Seq[FacetClass[Facet]],
-             filters: Map[String, Any] = Map.empty, extra: Map[String, Any] = Map.empty,
-             mode: SearchMode.Value = SearchMode.DefaultAll)(
-              implicit userOpt: Option[UserProfile]): Future[ItemPage[SearchHit]] = {
+  override def search()(implicit userOpt: Option[UserProfile]): Future[ItemPage[SearchHit]] = {
 
     val queryRequest = queryBuilder
       .setParams(params)
       .withFacets(facets)
-      .withFacetClasses(allFacets)
+      .withFacetClasses(facetClasses)
       .withFilters(filters)
-      .withExtraParams(extra)
+      .withIdFilters(idFilters)
+      .withExtraParams(extraParams)
       .setMode(mode)
       .search()
 
     dispatch(queryRequest).map { response =>
       val parser = handler(checkError(response))
-      val facetClassList: Seq[FacetClass[Facet]] = parser.extractFacetData(facets, allFacets)
+      val facetClassList: Seq[FacetClass[Facet]] = parser.extractFacetData(facets, facetClasses)
       ItemPage(parser.items, params.offset, params.countOrDefault, parser.count,
         facetClassList, spellcheck = parser.spellcheckSuggestion)
     }
@@ -103,17 +106,10 @@ case class SolrDispatcher(queryBuilder: QueryBuilder, handler: WSResponse => Que
    * Return only facet counts for the given query, in pages.
    * @param facet The facet to fetch the count for.
    * @param sort How to sort the result, by name or count
-   * @param params A set of search params
-   * @param facets The applied facets
-   * @param allFacets All enabled facets
-   * @param filters   A set of generic filters
    * @param userOpt An optional user
    * @return paged Facets
    */
-  override def facet(facet: String, sort: FacetQuerySort.Value = FacetQuerySort.Name,
-            params: SearchParams,
-            facets: Seq[AppliedFacet], allFacets: Seq[FacetClass[Facet]],
-            filters: Map[String, Any] = Map.empty, extra: Map[String,Any] = Map.empty)(
+  override def facet(facet: String, sort: FacetQuerySort.Value = FacetQuerySort.Name)(
              implicit userOpt: Option[UserProfile]): Future[FacetPage[Facet]] = {
 
     // create a response returning 0 documents - we don't
@@ -123,14 +119,15 @@ case class SolrDispatcher(queryBuilder: QueryBuilder, handler: WSResponse => Que
     val queryRequest = queryBuilder
       .setParams(params)
       .withFacets(facets)
-      .withFacetClasses(allFacets)
+      .withFacetClasses(facetClasses)
+      .withIdFilters(idFilters)
       .withFilters(filters)
       .search()
 
     dispatch(queryRequest).map { response =>
-      val facetClasses = handler(checkError(response)).extractFacetData(facets, allFacets)
+      val fClasses = handler(checkError(response)).extractFacetData(facets, facetClasses)
 
-      val facetClass = facetClasses.find(_.param == facet).getOrElse(
+      val facetClass = fClasses.find(_.param == facet).getOrElse(
         throw new Exception("Unknown facet: " + facet))
       val facetLabels = sort match {
         case FacetQuerySort.Name => facetClass.sortedByName.slice(params.offset, params.offset + params.countOrDefault)
@@ -139,4 +136,18 @@ case class SolrDispatcher(queryBuilder: QueryBuilder, handler: WSResponse => Que
       FacetPage(facetClass, facetLabels, params.offset, params.countOrDefault, facetClass.count)
     }
   }
+
+  override def withIdFilters(ids: Seq[String]): Dispatcher = copy(idFilters = idFilters ++ ids)
+
+  override def withFacets(f: Seq[AppliedFacet]): Dispatcher = copy(facets = facets ++ f)
+
+  override def setMode(mode: SearchMode.Value): Dispatcher = copy(mode = mode)
+
+  override def withFilters(f: Map[String, Any]): Dispatcher = copy(filters = filters ++ f)
+
+  override def setParams(params: SearchParams): Dispatcher = copy(params = params)
+
+  override def withFacetClasses(fc: Seq[FacetClass[Facet]]): Dispatcher = copy(facetClasses = facetClasses ++ fc)
+
+  override def withExtraParams(extra: Map[String, Any]): Dispatcher = copy(extraParams = extraParams ++ extra)
 }

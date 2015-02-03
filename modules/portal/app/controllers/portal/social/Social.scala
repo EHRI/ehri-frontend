@@ -50,7 +50,7 @@ case class Social @Inject()(implicit globalConfig: global.GlobalConfig, searchDi
     for {
       following <- backend.following[UserProfile](request.user.id, PageParams.empty)
       blocked <- backend.blocked[UserProfile](request.user.id, PageParams.empty)
-      srch <- searchDispatcher.search(searchParams, Nil, Nil, filters)
+      srch <- searchDispatcher.setParams(searchParams).withFilters(filters).search()
       users <- searchResolver.resolve[UserProfile](srch.items)
     } yield Ok(p.userProfile.browseUsers(request.user, srch.copy(items = users), searchParams, following))
   }

@@ -67,7 +67,7 @@ trait QueryBuilder {
   /**
    * Add additional ID filters to this request.
    */
-  def withIdFilter(ids: Seq[String]): QueryBuilder
+  def withIdFilters(ids: Seq[String]): QueryBuilder
 
   /**
    * Add additional engine-specific key/value parameters

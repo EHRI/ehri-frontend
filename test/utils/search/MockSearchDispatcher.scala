@@ -18,11 +18,22 @@ case class ParamLog(params: SearchParams, facets: Seq[AppliedFacet],
  * This class mocks a search displatcher by simply returning
  * whatever's in the backend, wrapped as a search hit...
  */
-case class MockSearchDispatcher(backend: Backend, paramBuffer: collection.mutable.ListBuffer[ParamLog]) extends Dispatcher {
+case class MockSearchDispatcher(
+  backend: Backend,
+  paramBuffer: collection.mutable.ListBuffer[ParamLog],
+  params: SearchParams = SearchParams.empty,
+  filters: Map[String, Any] = Map.empty,
+  idFilters: Seq[String] = Seq.empty,
+  facets: Seq[AppliedFacet] =  Seq.empty,
+  facetClasses: Seq[FacetClass[Facet]] = Seq.empty,
+  extraParams: Map[String, Any] = Map.empty,
+  mode: SearchMode.Value = SearchMode.DefaultAll
+) extends Dispatcher {
+
+  private implicit def apiUser(implicit userOpt: Option[UserProfile]): ApiUser = ApiUser(userOpt.map(_.id))
 
 
-  override def filter(params: SearchParams, filters: Map[String,Any] = Map.empty, extra: Map[String,Any] = Map.empty)(
-      implicit userOpt: Option[UserProfile]): Future[ItemPage[FilterHit]] = {
+  override def filter()(implicit userOpt: Option[UserProfile]): Future[ItemPage[FilterHit]] = {
 
     def modelToHit(m: AnyModel): FilterHit =
       FilterHit(m.id, m.id, m.toStringLang(Lang.defaultLang), m.isA, None, 0L)
@@ -38,11 +49,8 @@ case class MockSearchDispatcher(backend: Backend, paramBuffer: collection.mutabl
         oftype, offset = params.offset, limit = params.countOrDefault, total = oftype.size, facets = Nil)
   }
 
-  override def search(params: SearchParams, facets: Seq[AppliedFacet], allFacets: Seq[FacetClass[Facet]],
-             filters: Map[String,Any] = Map.empty, extra: Map[String,Any] = Map.empty,
-             mode: SearchMode.Value = SearchMode.DefaultAll)(
-      implicit userOpt: Option[UserProfile]): Future[ItemPage[SearchHit]] = {
-    paramBuffer += ParamLog(params, facets, allFacets, filters)
+  override def search()(implicit userOpt: Option[UserProfile]): Future[ItemPage[SearchHit]] = {
+    paramBuffer += ParamLog(params, facets, facetClasses, filters)
 
     def descModelToHit[T <: DescribedMeta[Description,Described[Description]]](m: T): SearchHit = SearchHit(
         itemId = m.id,
@@ -65,12 +73,19 @@ case class MockSearchDispatcher(backend: Backend, paramBuffer: collection.mutabl
       oftype, offset = params.offset, limit = params.countOrDefault, total = oftype.size, facets = Nil)
   }
 
-  override def facet(facet: String, sort: FacetQuerySort.Value, params: SearchParams, facets: Seq[AppliedFacet], allFacets: Seq[FacetClass[Facet]], filters: Map[String,Any] = Map.empty, extra: Map[String,Any] = Map.empty)(
-      implicit userOpt: Option[UserProfile]): Future[FacetPage[Facet]] = {
+  override def facet(facet: String, sort: FacetQuerySort.Value)(implicit userOpt: Option[UserProfile]): Future[FacetPage[Facet]] = ???
 
-    // UNIMPLEMENTED
-    Future.failed(new NotImplementedError())
-  }
+  override def withIdFilters(ids: Seq[String]): Dispatcher = copy(idFilters = idFilters ++ ids)
 
-  private implicit def apiUser(implicit userOpt: Option[UserProfile]): ApiUser = ApiUser(userOpt.map(_.id))
+  override def withFacets(f: Seq[AppliedFacet]): Dispatcher = copy(facets = facets ++ f)
+
+  override def setMode(mode: SearchMode.Value): Dispatcher = copy(mode = mode)
+
+  override def withFilters(f: Map[String, Any]): Dispatcher = copy(filters = filters ++ f)
+
+  override def setParams(params: SearchParams): Dispatcher = copy(params = params)
+
+  override def withFacetClasses(fc: Seq[FacetClass[Facet]]): Dispatcher = copy(facetClasses = facetClasses ++ fc)
+
+  override def withExtraParams(extra: Map[String, Any]): Dispatcher = copy(extraParams = extraParams ++ extra)
 }

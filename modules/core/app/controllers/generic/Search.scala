@@ -81,8 +81,16 @@ trait Search extends Controller with AuthController with ControllerHelpers {
     val allFacets = facetBuilder(request)
     val boundFacets: Seq[AppliedFacet] = bindFacetsFromRequest(allFacets)
 
+    val dispatcher: Dispatcher = searchDispatcher
+      .setParams(sp)
+      .withFacets(boundFacets)
+      .withFacetClasses(allFacets)
+      .withFilters(filters)
+      .withExtraParams(extra)
+      .setMode(mode)
+
     for {
-      res <- searchDispatcher.search(sp, boundFacets, allFacets, filters, extra, mode)
+      res <- dispatcher.search()
       list <- searchResolver.resolve[MT](res.items)
     } yield {
       if (list.size != res.size) {
@@ -110,6 +118,6 @@ trait Search extends Controller with AuthController with ControllerHelpers {
       .value.getOrElse(SearchParams.empty)
       .setDefault(params)
 
-    searchDispatcher.filter(sp, filters)
+    searchDispatcher.setParams(sp).withFilters(filters).filter()
   }
 }

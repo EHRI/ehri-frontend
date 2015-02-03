@@ -133,6 +133,7 @@ case class SolrQueryBuilder(
   }
 
 
+
   /**
    * Constrain a search request with the given facets.
    */
@@ -168,6 +169,13 @@ case class SolrQueryBuilder(
     request.set("group.facet", true)
   }
 
+  private def applyIdFilters(request: QueryRequest, ids: Seq[String]): Unit = {
+    if (ids.nonEmpty) {
+      request
+        .setFilterQuery(FilterQuery(s"$ITEM_ID:(${ids.mkString(" ")})"))
+    }
+  }
+
   /**
    * Run a simple filter on the name_ngram field of all entities
    * of a given type.
@@ -188,6 +196,7 @@ case class SolrQueryBuilder(
 
     constrainEntities(req, params.entities)
     applyAccessFilter(req, userOpt)
+    applyIdFilters(req, idFilters)
     setGrouping(req, params)
     req.set("qf", s"$NAME_MATCH^2.0 $NAME_NGRAM")
     req.setFieldsToReturn(FieldsToReturn(s"$ID $ITEM_ID $NAME_EXACT $TYPE $HOLDER_NAME $DB_ID"))
@@ -288,6 +297,9 @@ case class SolrQueryBuilder(
     // Return only fields we care about...
     applyAccessFilter(req, userOpt)
 
+    // Constrain to specific ids
+    applyIdFilters(req, idFilters)
+
     // Apply other arbitrary hard filters
     filters.map { case (key, value) =>
       val filter = value match {
@@ -316,7 +328,7 @@ case class SolrQueryBuilder(
     utils.parseQueryString(req.queryString())
   }
 
-  override def withIdFilter(ids: Seq[String]): QueryBuilder = copy(idFilters = idFilters ++ ids)
+  override def withIdFilters(ids: Seq[String]): QueryBuilder = copy(idFilters = idFilters ++ ids)
 
   override def withFacets(f: Seq[AppliedFacet]): QueryBuilder = copy(facets = facets ++ f)
 

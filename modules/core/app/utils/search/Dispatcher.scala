@@ -1,21 +1,91 @@
 package utils.search
 
-import concurrent.Future
 import models.UserProfile
-import defines.EntityType
+
+import scala.concurrent.Future
 
 /**
  * User: mikebryant
  */
 trait Dispatcher {
-  def filter(params: SearchParams, filters: Map[String,Any] = Map.empty, extra: Map[String,Any] = Map.empty)(
-      implicit userOpt: Option[UserProfile]): Future[ItemPage[FilterHit]]
 
-  def search(params: SearchParams, facets: Seq[AppliedFacet], allFacets: Seq[FacetClass[Facet]],
-             filters: Map[String,Any] = Map.empty, extra: Map[String,Any] = Map.empty,
-             mode: SearchMode.Value = SearchMode.DefaultAll)(
-      implicit userOpt: Option[UserProfile]): Future[ItemPage[SearchHit]]
+  /**
+   * The general search parameters
+   */
+  def params: SearchParams
 
-  def facet(facet: String, sort: FacetQuerySort.Value, params: SearchParams, facets: Seq[AppliedFacet], allFacets: Seq[FacetClass[Facet]], filters: Map[String,Any] = Map.empty, extra: Map[String,Any] = Map.empty)(
-      implicit userOpt: Option[UserProfile]): Future[FacetPage[Facet]]
+  /**
+   * The set of applied facet filters.
+   */
+  def facets: Seq[AppliedFacet]
+
+  /**
+   * The set of active facet classes.
+   */
+  def facetClasses: Seq[FacetClass[Facet]]
+
+  /**
+   * Additional key/value filters.
+   */
+  def filters: Map[String,Any]
+
+  /**
+   * Item ID filters to constrain the search
+   * to a specific subset of items.
+   */
+  def idFilters: Seq[String]
+
+  /**
+   * Additional engine-specific parameters.
+   */
+  def extraParams: Map[String,Any]
+
+  /**
+   * The search mode, specifying whether
+   * to return all items by default, or none.
+   */
+  def mode: SearchMode.Value
+
+  /**
+   * Set the general search parameters.
+   */
+  def setParams(params: SearchParams): Dispatcher
+
+  /**
+   * Add additional applied facets to this request.
+   */
+  def withFacets(facets: Seq[AppliedFacet]): Dispatcher
+
+  /**
+   * Add additional facet classes to this request.
+   */
+  def withFacetClasses(fc: Seq[FacetClass[Facet]]): Dispatcher
+
+  /**
+   * Add additional key/value filters to this request.
+   */
+  def withFilters(filters: Map[String,Any]): Dispatcher
+
+  /**
+   * Add additional ID filters to this request.
+   */
+  def withIdFilters(ids: Seq[String]): Dispatcher
+
+  /**
+   * Add additional engine-specific key/value parameters
+   * to this request.
+   */
+  def withExtraParams(extra: Map[String,Any]): Dispatcher
+
+  /**
+   * Set the mode for this request.
+   */
+  def setMode(mode: SearchMode.Value): Dispatcher
+
+
+  def filter()(implicit userOpt: Option[UserProfile]): Future[ItemPage[FilterHit]]
+
+  def search()(implicit userOpt: Option[UserProfile]): Future[ItemPage[SearchHit]]
+
+  def facet(facet: String, sort: FacetQuerySort.Value)(implicit userOpt: Option[UserProfile]): Future[FacetPage[Facet]]
 }
