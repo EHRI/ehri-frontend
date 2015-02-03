@@ -368,6 +368,7 @@ error.userEmailAlreadyRegistered=A user with that email is already registered: {
 # Search
 #
 search.submit=Search
+search.clear=Clear Search
 search.sort=Order
 search.sort.identifier.asc=ID/Code
 search.sort.identifier.asc.title=Display results sorted by their institution-given identifier
