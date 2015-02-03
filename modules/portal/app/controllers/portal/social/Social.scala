@@ -51,8 +51,13 @@ case class Social @Inject()(implicit globalConfig: global.GlobalConfig, searchDi
       following <- backend.following[UserProfile](request.user.id, PageParams.empty)
       blocked <- backend.blocked[UserProfile](request.user.id, PageParams.empty)
       srch <- searchDispatcher.setParams(searchParams).withFilters(filters).search()
-      users <- searchResolver.resolve[UserProfile](srch.items)
-    } yield Ok(p.userProfile.browseUsers(request.user, srch.copy(items = users), searchParams, following))
+      users <- searchResolver.resolve[UserProfile](srch.page.items)
+    } yield Ok(p.userProfile.browseUsers(
+        request.user,
+        srch.withItems(users.zip(srch.page.items)),
+        controllers.portal.social.routes.Social.browseUsers(),
+        following
+    ))
   }
 
   def browseUser(userId: String) = WithUserAction.async { implicit request =>

@@ -5,6 +5,7 @@ import play.api.libs.concurrent.Execution.Implicits._
 import models.UserProfile
 import play.api.libs.ws.{WSResponse, WS}
 import play.api.{Play, Logger}
+import utils.Page
 import scala.concurrent.Future
 import utils.search._
 import utils.search.SearchHit
@@ -55,7 +56,7 @@ case class SolrDispatcher(
    * @param userOpt An optional current user
    * @return a tuple of id, name, and type
    */
-  override def filter()(implicit userOpt: Option[UserProfile]): Future[ItemPage[FilterHit]] = {
+  override def filter()(implicit userOpt: Option[UserProfile]): Future[SearchResult[FilterHit]] = {
 
     val queryRequest = queryBuilder
       .setParams(params)
@@ -74,7 +75,8 @@ case class SolrDispatcher(
         i.fields.get(SearchConstants.HOLDER_NAME),
         i.gid
       ))
-      ItemPage(items, params.offset, params.countOrDefault, parser.count, Nil)
+      val page = Page(params.offset, params.countOrDefault, parser.count, items)
+      SearchResult(page, params, Nil)
     }
   }
 
@@ -83,7 +85,7 @@ case class SolrDispatcher(
    * @param userOpt An optional current users
    * @return a set of SearchDescriptions for matching results.
    */
-  override def search()(implicit userOpt: Option[UserProfile]): Future[ItemPage[SearchHit]] = {
+  override def search()(implicit userOpt: Option[UserProfile]): Future[SearchResult[SearchHit]] = {
 
     val queryRequest = queryBuilder
       .setParams(params)
@@ -98,8 +100,8 @@ case class SolrDispatcher(
     dispatch(queryRequest).map { response =>
       val parser = handler(checkError(response))
       val facetClassList: Seq[FacetClass[Facet]] = parser.extractFacetData(facets, facetClasses)
-      ItemPage(parser.items, params.offset, params.countOrDefault, parser.count,
-        facetClassList, spellcheck = parser.spellcheckSuggestion)
+      val page = Page(params.offset, params.countOrDefault, parser.count, parser.items)
+      SearchResult(page, params, facets, facetClassList, spellcheck = parser.spellcheckSuggestion)
     }
   }
 

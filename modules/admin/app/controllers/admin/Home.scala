@@ -111,9 +111,9 @@ case class Home @Inject()(implicit globalConfig: global.GlobalConfig, searchDisp
     find[AnyModel](
       defaultParams = SearchParams(count=Some(0)),
       facetBuilder = entityFacets
-    ).map { case QueryResult(_, _, facets) =>
+    ).map { result =>
         render {
-          case Accepts.Json() => Ok(Json.toJson(Json.obj("facets" -> facets)))
+          case Accepts.Json() => Ok(Json.toJson(Json.obj("facets" -> result.facetClasses)))
           case _ => MovedPermanently(controllers.admin.routes.Home.metrics().url)
         }
     }

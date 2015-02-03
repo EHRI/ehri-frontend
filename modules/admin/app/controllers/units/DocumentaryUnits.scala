@@ -129,7 +129,7 @@ case class DocumentaryUnits @Inject()(implicit globalConfig: global.GlobalConfig
       facetBuilder = entityFacets
     ).map { result =>
       Ok(views.html.admin.documentaryUnit.search(
-        result.page, result.params, result.facets,
+        result,
         docRoutes.search()))
     }
   }
@@ -141,7 +141,7 @@ case class DocumentaryUnits @Inject()(implicit globalConfig: global.GlobalConfig
       defaultOrder = SearchOrder.Id
     ).map { result =>
       Ok(views.html.admin.documentaryUnit.search(
-        result.page, result.params, result.facets,
+        result,
         docRoutes.search()))
     }
   }
@@ -153,7 +153,7 @@ case class DocumentaryUnits @Inject()(implicit globalConfig: global.GlobalConfig
       facetBuilder = entityFacets,
       defaultOrder = SearchOrder.Id
     ).map { result =>
-      Ok(views.html.admin.documentaryUnit.show(request.item, result.page, result.params, result.facets,
+      Ok(views.html.admin.documentaryUnit.show(request.item, result,
           docRoutes.get(id), request.annotations, request.links))
     }
   }
@@ -323,7 +323,7 @@ case class DocumentaryUnits @Inject()(implicit globalConfig: global.GlobalConfig
 
   def linkAnnotateSelect(id: String, toType: EntityType.Value) = LinkSelectAction(id, toType).apply { implicit request =>
       Ok(views.html.admin.link.linkSourceList(
-        request.item, request.page, request.params, request.facets, request.entityType,
+        request.item, request.searchResult, request.entityType,
           docRoutes.linkAnnotateSelect(id, toType),
           docRoutes.linkAnnotate))
   }

@@ -1,4 +1,4 @@
-@(path: List[AnyModel], result: utils.search.ItemPage[(AnyModel, utils.search.SearchHit)])(implicit userOpt: Option[UserProfile], req: RequestHeader, globalConfig: global.GlobalConfig, lang: Lang)
+@(path: List[AnyModel], result: utils.Page[(AnyModel, utils.search.SearchHit)])(implicit userOpt: Option[UserProfile], req: RequestHeader, globalConfig: global.GlobalConfig, lang: Lang)
 
 <ul class="list-unstyled">
     @result.items.map { case(item, hit) =>

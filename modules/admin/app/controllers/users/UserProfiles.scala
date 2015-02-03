@@ -181,14 +181,14 @@ case class UserProfiles @Inject()(implicit globalConfig: global.GlobalConfig, se
 
   def search = OptionalUserAction.async { implicit request =>
     for {
-      QueryResult(page, params, facets) <- find[UserProfile](
+      result <- find[UserProfile](
         entities = List(EntityType.UserProfile), facetBuilder = entityFacets)
-      accounts <- accounts.findAllById(ids = page.items.map(_._1.id))
+      accounts <- accounts.findAllById(ids = result.page.items.map(_._1.id))
     } yield {
-      val pageWithAccounts = page.copy(items = page.items.map { case(up, hit) =>
+      val pageWithAccounts = result.mapItems { case(up, hit) =>
         up.copy(account = accounts.find(_.id == up.id)) -> hit
-      })
-      Ok(views.html.admin.userProfile.search(pageWithAccounts, params, facets, userRoutes.search()))
+      }
+      Ok(views.html.admin.userProfile.search(pageWithAccounts, userRoutes.search()))
     }
   }
 

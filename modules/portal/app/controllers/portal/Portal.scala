@@ -63,8 +63,8 @@ case class Portal @Inject()(implicit globalConfig: global.GlobalConfig, searchDi
       defaultParams = SearchParams(
         entities = defaultSearchTypes, sort = Some(SearchOrder.Score)),
       facetBuilder = globalSearchFacets, mode = SearchMode.DefaultNone
-    ).map { case QueryResult(page, params, facets) =>
-      Ok(p.search(page, params, facets, portalRoutes.search(), request.watched))
+    ).map { result =>
+      Ok(p.search(result, portalRoutes.search(), request.watched))
     }
   }
 
@@ -98,7 +98,7 @@ case class Portal @Inject()(implicit globalConfig: global.GlobalConfig, searchDi
           entities = defaultSearchTypes
         ),
         facetBuilder = entityMetrics
-      ).map(_.page.facets)
+      ).map(_.facetClasses)
     }.map(facets => Ok(p.portal(Stats(facets))))
   }
 

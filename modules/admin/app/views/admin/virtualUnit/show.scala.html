@@ -1,4 +1,4 @@
-@(path: List[AnyModel], item: VirtualUnit, result: utils.search.ItemPage[(AnyModel, utils.search.SearchHit)], params: utils.search.SearchParams, facets: Seq[utils.search.AppliedFacet], action: Call, annotations: Seq[Annotation], links: Seq[Link])(implicit userOpt: Option[UserProfile], req: RequestHeader, globalConfig: global.GlobalConfig, lang: Lang, flash: Flash)
+@(path: List[AnyModel], item: VirtualUnit, result: utils.search.SearchResult[(AnyModel, utils.search.SearchHit)], action: Call, annotations: Seq[Annotation], links: Seq[Link])(implicit userOpt: Option[UserProfile], req: RequestHeader, globalConfig: global.GlobalConfig, lang: Lang, flash: Flash)
 
 @views.html.admin.layout.adminLayout(item.toStringLang) {
     <div class="virtual-collection-header">
@@ -43,10 +43,10 @@
                 }
 
                 @views.html.search.searchSection(Messages("documentaryUnit.searchInside", item.toStringAbbr(lang)), result) {
-                    @views.html.common.search.searchForm(result, params, action, autofocus = false) {
-                        @searchItemList(path :+ item, result)
+                    @views.html.common.search.searchForm(result, action, autofocus = false) {
+                        @searchItemList(path :+ item, result.page)
                     } {
-                        @common.search.facetList(result.facets, action)
+                        @common.search.facetList(result.facetClasses, action)
                     }
                 }
             }

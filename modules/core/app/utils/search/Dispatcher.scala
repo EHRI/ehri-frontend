@@ -99,9 +99,9 @@ trait Dispatcher {
   def setMode(mode: SearchMode.Value): Dispatcher
 
 
-  def filter()(implicit userOpt: Option[UserProfile]): Future[ItemPage[FilterHit]]
+  def filter()(implicit userOpt: Option[UserProfile]): Future[SearchResult[FilterHit]]
 
-  def search()(implicit userOpt: Option[UserProfile]): Future[ItemPage[SearchHit]]
+  def search()(implicit userOpt: Option[UserProfile]): Future[SearchResult[SearchHit]]
 
   def facet(facet: String, sort: FacetQuerySort.Value)(implicit userOpt: Option[UserProfile]): Future[FacetPage[Facet]]
 }

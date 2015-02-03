@@ -4,6 +4,7 @@ import play.api.mvc._
 import play.api.libs.concurrent.Execution.Implicits._
 import models.UserProfile
 import defines.EntityType
+import utils.Page
 import utils.search._
 import play.api.Logger
 import controllers.base.{ControllerHelpers, AuthController}
@@ -68,7 +69,7 @@ trait Search extends Controller with AuthController with ControllerHelpers {
                entities: Seq[EntityType.Value] = Nil,
                facetBuilder: FacetBuilder = emptyFacets,
                mode: SearchMode.Value = SearchMode.DefaultAll)(
-                implicit request: RequestHeader, userOpt: Option[UserProfile], rd: BackendReadable[MT]): Future[QueryResult[MT]] = {
+                implicit request: RequestHeader, userOpt: Option[UserProfile], rd: BackendReadable[MT]): Future[SearchResult[(MT,SearchHit)]] = {
 
     val params = defaultParams
       .copy(sort = defaultSortFunction(defaultParams, request, fallback = defaultOrder))
@@ -91,33 +92,23 @@ trait Search extends Controller with AuthController with ControllerHelpers {
 
     for {
       res <- dispatcher.search()
-      list <- searchResolver.resolve[MT](res.items)
+      list <- searchResolver.resolve[MT](res.page)
     } yield {
-      if (list.size != res.size) {
+      if (list.size != res.page.size) {
         Logger.logger.warn("Items returned by search were not found in database: {} -> {}",
-          (res.items.map(_.id), list))
+          (res.page.items.map(_.id), list))
       }
-      QueryResult(res.copy(items = list.zip(res.items)), sp, boundFacets)
+      res.copy(page = res.page.copy(items = list.zip(res.page.items)))
     }
   }
 
-  case class QueryResult[MT](
-    page: ItemPage[(MT, SearchHit)] = ItemPage.empty,
-    params: SearchParams = SearchParams.empty,
-    facets: Seq[AppliedFacet] = Nil
-  )
-
-  object QueryResult {
-    def empty[T]: QueryResult[T] = QueryResult(ItemPage.empty, SearchParams.empty, List.empty)
-  }
-
-  def filter[A](filters: Map[String, Any] = Map.empty, defaultParams: Option[SearchParams] = None)(implicit userOpt: Option[UserProfile], request: Request[A]): Future[ItemPage[FilterHit]] = {
+  def filter[A](filters: Map[String, Any] = Map.empty, defaultParams: Option[SearchParams] = None)(implicit userOpt: Option[UserProfile], request: Request[A]): Future[Page[FilterHit]] = {
     val params = defaultParams.map(p => p.copy(sort = defaultSortFunction(p, request)))
     // Override the entity type with the controller entity type
     val sp = SearchParams.form.bindFromRequest
       .value.getOrElse(SearchParams.empty)
       .setDefault(params)
 
-    searchDispatcher.setParams(sp).withFilters(filters).filter()
+    searchDispatcher.setParams(sp).withFilters(filters).filter().map(_.page)
   }
 }
