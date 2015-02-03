@@ -67,6 +67,7 @@ trait Search extends Controller with AuthController with ControllerHelpers {
                extra: Map[String, Any] = Map.empty,
                defaultParams: SearchParams = SearchParams.empty,
                defaultOrder: SearchOrder.Value = SearchOrder.DateNewest,
+               idFilters: Seq[String] = Seq.empty,
                entities: Seq[EntityType.Value] = Nil,
                facetBuilder: FacetBuilder = emptyFacets,
                mode: SearchMode.Value = SearchMode.DefaultAll,
@@ -91,6 +92,7 @@ trait Search extends Controller with AuthController with ControllerHelpers {
       .withFacets(boundFacets)
       .withFacetClasses(allFacets)
       .withFilters(filters)
+      .withIdFilters(idFilters)
       .withExtraParams(extra)
       .setMode(mode)
 

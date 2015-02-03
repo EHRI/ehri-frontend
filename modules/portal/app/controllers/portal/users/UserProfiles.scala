@@ -107,7 +107,7 @@ case class UserProfiles @Inject()(implicit globalConfig: global.GlobalConfig, se
     for {
       watching <- backend.watching[AnyModel](request.user.id)
       result <- find[AnyModel](
-        filters = Map(watching.map(item => s"${SearchConstants.ITEM_ID}:${item.id}").mkString(" ") -> Unit),
+        idFilters = watching.map(_.id),
         resolverOpt = Some(listResolver(watching))
       )
     } yield {
