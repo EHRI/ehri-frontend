@@ -196,10 +196,9 @@ case class UserProfiles @Inject()(implicit globalConfig: global.GlobalConfig, se
   import play.api.data.Forms._
   private def deleteForm(user: UserProfile): Form[String] = Form(
     single(
-      "confirm" -> nonEmptyText.verifying("profile.delete.badConfirmation", f => f match {
-        case name =>
-          user.model.name.toLowerCase.trim == name.toLowerCase.trim
-      })
+      "confirm" -> nonEmptyText.verifying("profile.delete.badConfirmation",
+        name => user.model.name.trim == name.trim
+      )
     )
   )
 
@@ -317,34 +316,26 @@ case class UserProfiles @Inject()(implicit globalConfig: global.GlobalConfig, se
     }
   }
 
-  private def isValidContentType(file: FilePart[TemporaryFile]): Boolean
-    = file.contentType.exists(_.toLowerCase.startsWith("image/"))
+  private def isValidContentType(file: FilePart[TemporaryFile]): Boolean =
+    file.contentType.exists(_.toLowerCase.startsWith("image/"))
 
   private def convertAndUploadFile(file: FilePart[TemporaryFile], user: UserProfile, request: RequestHeader): Future[String] = {
     import awscala._
     import awscala.s3._
-    // Ugh, this API is ugly... or maybe it's just how I'm using it...?
-    val bucketName: String = current.configuration.getString("aws.bucket")
-      .getOrElse(sys.error("Invalid configuration: no aws.bucket key found"))
-    val region: String = current.configuration.getString("s3.region")
-      .getOrElse(sys.error("Invalid configuration: no aws.region key found"))
-    val instanceName: String = current.configuration.getString("aws.instance")
-      .getOrElse(request.host)
-    val accessKey =current.configuration.getString("aws.accessKeyId")
-      .getOrElse(sys.error("Invalid configuration: no aws.accessKeyId found"))
-    val secret =current.configuration.getString("aws.secretKey")
-      .getOrElse(sys.error("Invalid configuration: no aws.secretKey found"))
+    val config: AwsConfig = AwsConfig.fromConfig(fallback = Map("aws.instance" -> request.host))
+    implicit val s3 = S3(Credentials(config.accessKey, config.secret)).at(awscala.Region(config.region))
 
-    implicit val s3 = S3(Credentials(accessKey, secret)).at(awscala.Region(region))
-
+    val bucketName = current.configuration.getString("aws.userImages.bucketName")
+      .getOrElse(sys.error("Missing configuration value: aws.userImages.bucketName"))
     val bucket: Bucket = s3.bucket(bucketName)
       .getOrElse(sys.error(s"Bucket $bucketName not found"))
+
     val extension = file.filename.substring(file.filename.lastIndexOf("."))
-    val awsName = s"images/$instanceName/${user.id}$extension"
+    val awsName = s"images/${config.instance}/${user.id}$extension"
     val temp = File.createTempFile(user.id, extension)
     Thumbnails.of(file.ref.file).size(200, 200).toFile(temp)
 
     val read: PutObjectResult = bucket.putAsPublicRead(awsName, temp)
-    Future.successful(s"http://${read.bucket.name}.s3-$region.amazonaws.com/${read.key}")
+    Future.successful(s"http://${read.bucket.name}.s3-${config.region}.amazonaws.com/${read.key}")
   }
 }
