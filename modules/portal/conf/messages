@@ -918,8 +918,8 @@ country.identifier.description=The ISO-3166-1 2-letter code for this country
 country.abstract=Abstract
 country.report=History
 country.situation=Archival Situation
-country.dataSummary=EHRI Data (Summary)
-country.dataExtensive=EHRI Data (Extensive)
+country.dataSummary=EHRI Research (Summary)
+country.dataExtensive=EHRI Research (Extensive)
 country.list=Countries
 
 #
