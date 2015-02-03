@@ -11,11 +11,11 @@ trait Dispatcher {
   def filter(params: SearchParams, filters: Map[String,Any] = Map.empty, extra: Map[String,Any] = Map.empty)(
       implicit userOpt: Option[UserProfile]): Future[ItemPage[FilterHit]]
 
-  def search(params: SearchParams, facets: List[AppliedFacet], allFacets: FacetClassList,
+  def search(params: SearchParams, facets: Seq[AppliedFacet], allFacets: Seq[FacetClass[Facet]],
              filters: Map[String,Any] = Map.empty, extra: Map[String,Any] = Map.empty,
              mode: SearchMode.Value = SearchMode.DefaultAll)(
       implicit userOpt: Option[UserProfile]): Future[ItemPage[SearchHit]]
 
-  def facet(facet: String, sort: FacetQuerySort.Value, params: SearchParams, facets: List[AppliedFacet], allFacets: FacetClassList, filters: Map[String,Any] = Map.empty, extra: Map[String,Any] = Map.empty)(
+  def facet(facet: String, sort: FacetQuerySort.Value, params: SearchParams, facets: Seq[AppliedFacet], allFacets: Seq[FacetClass[Facet]], filters: Map[String,Any] = Map.empty, extra: Map[String,Any] = Map.empty)(
       implicit userOpt: Option[UserProfile]): Future[FacetPage[Facet]]
 }

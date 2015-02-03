@@ -11,8 +11,8 @@ import backend.ApiUser
 /*
  * Class to aid in debugging the last submitted request - gross...
  */
-case class ParamLog(params: SearchParams, facets: List[AppliedFacet],
-                    allFacets: FacetClassList, filters: Map[String,Any] = Map.empty)
+case class ParamLog(params: SearchParams, facets: Seq[AppliedFacet],
+                    allFacets: Seq[FacetClass[Facet]], filters: Map[String,Any] = Map.empty)
 
 /**
  * This class mocks a search displatcher by simply returning
@@ -21,7 +21,7 @@ case class ParamLog(params: SearchParams, facets: List[AppliedFacet],
 case class MockSearchDispatcher(backend: Backend, paramBuffer: collection.mutable.ListBuffer[ParamLog]) extends Dispatcher {
 
 
-  def filter(params: SearchParams, filters: Map[String,Any] = Map.empty, extra: Map[String,Any] = Map.empty)(
+  override def filter(params: SearchParams, filters: Map[String,Any] = Map.empty, extra: Map[String,Any] = Map.empty)(
       implicit userOpt: Option[UserProfile]): Future[ItemPage[FilterHit]] = {
 
     def modelToHit(m: AnyModel): FilterHit =
@@ -38,7 +38,7 @@ case class MockSearchDispatcher(backend: Backend, paramBuffer: collection.mutabl
         oftype, offset = params.offset, limit = params.countOrDefault, total = oftype.size, facets = Nil)
   }
 
-  def search(params: SearchParams, facets: List[AppliedFacet], allFacets: FacetClassList,
+  override def search(params: SearchParams, facets: Seq[AppliedFacet], allFacets: Seq[FacetClass[Facet]],
              filters: Map[String,Any] = Map.empty, extra: Map[String,Any] = Map.empty,
              mode: SearchMode.Value = SearchMode.DefaultAll)(
       implicit userOpt: Option[UserProfile]): Future[ItemPage[SearchHit]] = {
@@ -65,7 +65,7 @@ case class MockSearchDispatcher(backend: Backend, paramBuffer: collection.mutabl
       oftype, offset = params.offset, limit = params.countOrDefault, total = oftype.size, facets = Nil)
   }
 
-  def facet(facet: String, sort: FacetQuerySort.Value, params: SearchParams, facets: List[AppliedFacet], allFacets: FacetClassList, filters: Map[String,Any] = Map.empty, extra: Map[String,Any] = Map.empty)(
+  override def facet(facet: String, sort: FacetQuerySort.Value, params: SearchParams, facets: Seq[AppliedFacet], allFacets: Seq[FacetClass[Facet]], filters: Map[String,Any] = Map.empty, extra: Map[String,Any] = Map.empty)(
       implicit userOpt: Option[UserProfile]): Future[FacetPage[Facet]] = {
 
     // UNIMPLEMENTED

@@ -1,6 +1,6 @@
 package controllers.generic
 
-import backend.{BackendContentType, BackendReadable}
+import backend.BackendContentType
 import defines._
 import models._
 import models.base._
@@ -48,7 +48,7 @@ trait Linking[MT <: AnyModel] extends Read[MT] with Search {
     item: MT,
     page: ItemPage[(AnyModel, SearchHit)],
     params: SearchParams,
-    facets: List[AppliedFacet],
+    facets: Seq[AppliedFacet],
     entityType: EntityType.Value,
     userOpt: Option[UserProfile],
     request: Request[A]

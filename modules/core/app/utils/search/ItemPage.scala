@@ -10,7 +10,7 @@ case class ItemPage[+A](
   offset: Int = 0,
   limit:Int = 0,
   total: Int = 0,
-  facets: utils.search.FacetClassList = List.empty,
+  facets: Seq[FacetClass[Facet]] = Seq.empty,
   spellcheck: Option[(String,String)] = None
 ) extends utils.AbstractPage[A]
 

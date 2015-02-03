@@ -7,8 +7,6 @@ import defines.EnumUtils
  */
 package object search {
 
-  type FacetClassList = List[FacetClass[Facet]]
-
   object FacetQuerySort extends Enumeration {
     val Name = Value("name")
     val Count = Value("count")

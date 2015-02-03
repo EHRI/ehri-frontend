@@ -20,10 +20,10 @@ trait Search extends Controller with AuthController with ControllerHelpers {
   def searchDispatcher: utils.search.Dispatcher
   def searchResolver: utils.search.Resolver
 
-  type FacetBuilder = RequestHeader => FacetClassList
+  type FacetBuilder = RequestHeader => Seq[FacetClass[Facet]]
   protected val emptyFacets: FacetBuilder = { lang => List.empty[FacetClass[Facet]]}
 
-  def bindFacetsFromRequest(facetClasses: FacetClassList)(implicit request: RequestHeader): List[AppliedFacet] = {
+  def bindFacetsFromRequest(facetClasses: Seq[FacetClass[Facet]])(implicit request: RequestHeader): Seq[AppliedFacet] = {
     facetClasses.flatMap { fc =>
       request.queryString.get(fc.param).map(_.filterNot(_.trim.isEmpty)).map { values =>
         AppliedFacet(fc.key, values.toList)
@@ -79,7 +79,7 @@ trait Search extends Controller with AuthController with ControllerHelpers {
         .setDefault(Some(params))
 
     val allFacets = facetBuilder(request)
-    val boundFacets: List[AppliedFacet] = bindFacetsFromRequest(allFacets)
+    val boundFacets: Seq[AppliedFacet] = bindFacetsFromRequest(allFacets)
 
     for {
       res <- searchDispatcher.search(sp, boundFacets, allFacets, filters, extra, mode)
@@ -96,7 +96,7 @@ trait Search extends Controller with AuthController with ControllerHelpers {
   case class QueryResult[MT](
     page: ItemPage[(MT, SearchHit)] = ItemPage.empty,
     params: SearchParams = SearchParams.empty,
-    facets: List[AppliedFacet] = Nil
+    facets: Seq[AppliedFacet] = Nil
   )
 
   object QueryResult {
