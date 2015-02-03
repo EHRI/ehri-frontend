@@ -123,7 +123,8 @@ case class Bookmarks @Inject()(implicit globalConfig: global.GlobalConfig, searc
     for {
       page <- pageF
       watched <- watchedF
-    } yield Ok(p.bookmarks.list(page, SearchParams.empty, watched))
+      result = SearchResult(page, SearchParams.empty)
+    } yield Ok(p.bookmarks.list(result, watched))
   }
 
   def createBookmarkSet(items: List[String] = Nil) = WithUserAction { implicit request =>
@@ -154,7 +155,7 @@ case class Bookmarks @Inject()(implicit globalConfig: global.GlobalConfig, searc
     }
   }
 
-  private def includedChildren(id: String, parent: AnyModel, page: Int = 1)(implicit userOpt: Option[UserProfile], req: RequestHeader): Future[QueryResult[AnyModel]] = {
+  private def includedChildren(id: String, parent: AnyModel, page: Int = 1)(implicit userOpt: Option[UserProfile], req: RequestHeader): Future[SearchResult[(AnyModel,SearchHit)]] = {
     val params: SearchParams = SearchParams.empty.copy(page = Some(page))
     parent match {
       case d: DocumentaryUnit =>
@@ -170,7 +171,7 @@ case class Bookmarks @Inject()(implicit globalConfig: global.GlobalConfig, searc
           entities = List(EntityType.VirtualUnit, EntityType.DocumentaryUnit),
           facetBuilder = docSearchFacets)
       }
-      case _ => Future.successful(QueryResult.empty)
+      case _ => Future.successful(SearchResult.empty)
     }
   }
 
@@ -186,8 +187,7 @@ case class Bookmarks @Inject()(implicit globalConfig: global.GlobalConfig, searc
       Ok(p.bookmarks.itemList(
         Some(item),
         request.user,
-        children.page.copy(items = children.page.items.map(_._1)),
-        children.params,
+        children.mapItems(_._1),
         children.page.hasMore,
         watched
       ))

@@ -1,4 +1,4 @@
-@(title: String, result: utils.search.ItemPage[_])(html: Html)(implicit userOpt: Option[UserProfile], req: RequestHeader, globalConfig: global.GlobalConfig, lang: Lang)
+@(title: String, result: utils.search.SearchResult[_])(html: Html)(implicit userOpt: Option[UserProfile], req: RequestHeader, globalConfig: global.GlobalConfig, lang: Lang)
 
 @if(result.nonEmpty) {
     <div class="search-section" id="search-items">

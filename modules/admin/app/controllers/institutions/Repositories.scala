@@ -100,8 +100,8 @@ case class Repositories @Inject()(implicit globalConfig: global.GlobalConfig, se
     find[Repository](
       entities = List(EntityType.Repository),
       facetBuilder = repositoryFacets
-    ).map { case QueryResult(page, params, facets) =>
-      Ok(views.html.admin.repository.search(page, params, facets, repositoryRoutes.search()))
+    ).map { result =>
+      Ok(views.html.admin.repository.search(result, repositoryRoutes.search()))
     }
   }
 
@@ -119,7 +119,7 @@ case class Repositories @Inject()(implicit globalConfig: global.GlobalConfig, se
       facetBuilder = repositoryFacets,
       defaultOrder = SearchOrder.Id
     ).map { result =>
-      Ok(views.html.admin.repository.show(request.item, result.page, result.params, result.facets,
+      Ok(views.html.admin.repository.show(request.item, result,
         repositoryRoutes.get(id), request.annotations, request.links))
     }
   }

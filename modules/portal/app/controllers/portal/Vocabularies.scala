@@ -38,10 +38,10 @@ case class Vocabularies @Inject()(implicit globalConfig: global.GlobalConfig, se
         filters = filters,
         entities = List(EntityType.Concept),
         facetBuilder = conceptFacets
-      ).map { case QueryResult(page, params, facets) =>
-        if (isAjax) Ok(p.vocabulary.childItemSearch(request.item, page, params, facets,
+      ).map { result =>
+        if (isAjax) Ok(p.vocabulary.childItemSearch(request.item, result,
           portalVocabRoutes.search(id), request.watched))
-        else Ok(p.vocabulary.search(request.item, page, params, facets,
+        else Ok(p.vocabulary.search(request.item, result,
           portalVocabRoutes.search(id), request.watched))
       }
   }

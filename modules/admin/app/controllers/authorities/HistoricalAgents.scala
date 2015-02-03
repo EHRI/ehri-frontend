@@ -49,8 +49,8 @@ case class HistoricalAgents @Inject()(implicit globalConfig: global.GlobalConfig
     find[HistoricalAgent](
       entities = List(EntityType.HistoricalAgent),
       facetBuilder = entityFacets
-    ).map { case QueryResult(page, params, facets) =>
-      Ok(views.html.admin.historicalAgent.search(page, params, facets, histRoutes.search()))
+    ).map { result =>
+      Ok(views.html.admin.historicalAgent.search(result, histRoutes.search()))
     }
   }
 
@@ -133,7 +133,7 @@ case class HistoricalAgents @Inject()(implicit globalConfig: global.GlobalConfig
 
   def linkAnnotateSelect(id: String, toType: EntityType.Value) = LinkSelectAction(id, toType, facets = entityFacets).apply { implicit request =>
     Ok(views.html.admin.link.linkSourceList(
-      request.item, request.page, request.params, request.facets, request.entityType,
+      request.item, request.searchResult, request.entityType,
         histRoutes.linkAnnotateSelect(id, toType),
         histRoutes.linkAnnotate))
   }

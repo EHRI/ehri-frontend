@@ -14,12 +14,12 @@ case class SolrXmlQueryResponse(response: Elem) extends QueryResponse {
 
   import SearchConstants._
 
-  lazy val phrases: Seq[String] = (response \ "lst" \ "str").filter(hasAttr("name", "q")).map(_.text)
+  override lazy val phrases: Seq[String] = (response \ "lst" \ "str").filter(hasAttr("name", "q")).map(_.text)
 
   /**
    * Fetch the search description items returned in this response.
    */
-  lazy val items: Seq[SearchHit] = (response \ "lst" \ "lst" \ "result" \ "doc").map { doc =>
+  override lazy val items: Seq[SearchHit] = (response \ "lst" \ "lst" \ "result" \ "doc").map { doc =>
     val id = (doc \ "str").filter(hasAttr("name", ID)).text
     val itemId = (doc \ "str").filter(hasAttr("name", ITEM_ID)).text
     val entityType = EntityType.withName((doc \ "str").filter(hasAttr("name", TYPE)).text.trim)
@@ -49,7 +49,7 @@ case class SolrXmlQueryResponse(response: Elem) extends QueryResponse {
    * Get the *first* spellcheck suggestion offered. Ultimately, more might be useful,
    * but the first is okay for now...
    */
-  lazy val spellcheckSuggestion: Option[(String,String)] = rawSpellcheckSuggestions
+  override lazy val spellcheckSuggestion: Option[(String,String)] = rawSpellcheckSuggestions
     .sortBy(s => s._3).reverse.headOption.map(s => s._1 -> s._2)
 
   private def rawSpellcheckSuggestions: Seq[(String,String,Int)] = for {
@@ -103,7 +103,7 @@ case class SolrXmlQueryResponse(response: Elem) extends QueryResponse {
    * @param allFacets All relevant facets for the request
    * @return
    */
-  def extractFacetData(appliedFacets: List[AppliedFacet], allFacets: FacetClassList): FacetClassList = {
+  override def extractFacetData(appliedFacets: Seq[AppliedFacet], allFacets: Seq[FacetClass[Facet]]): Seq[FacetClass[Facet]] = {
     allFacets.flatMap {
       case ffc: FieldFacetClass => List(extractFieldFacet(ffc, appliedFacets))
       case qfc: QueryFacetClass => List(extractQueryFacet(qfc, appliedFacets))
@@ -122,7 +122,7 @@ case class SolrXmlQueryResponse(response: Elem) extends QueryResponse {
    *       <int name="nl">1</int>
    *   ...
    */
-  private def extractFieldFacet(fc: FieldFacetClass, appliedFacets: List[AppliedFacet]): FieldFacetClass = {
+  private def extractFieldFacet(fc: FieldFacetClass, appliedFacets: Seq[AppliedFacet]): FieldFacetClass = {
     val applied: List[String] = appliedFacets.find(_.name == fc.key).map(_.values).getOrElse(List.empty[String])
     val nodeOpt = response.descendant.find(n => (n \ "@name").text == "facet_fields")
     val facets = nodeOpt.toList.flatMap { node =>
@@ -143,7 +143,7 @@ case class SolrXmlQueryResponse(response: Elem) extends QueryResponse {
   /**
    * Extract query facets from Solr XML response.
    */
-  private def extractQueryFacet(fc: QueryFacetClass, appliedFacets: List[AppliedFacet], tags: List[String] = Nil): QueryFacetClass = {
+  private def extractQueryFacet(fc: QueryFacetClass, appliedFacets: Seq[AppliedFacet], tags: Seq[String] = Nil): QueryFacetClass = {
     val applied: List[String] = appliedFacets.find(_.name == fc.key).map(_.values).getOrElse(List.empty[String])
     val facets = fc.facets.flatMap{ f =>
       val nameValue = s"${SolrFacetParser.fullKey(fc)}:${SolrFacetParser.facetValue(f)}"
@@ -157,6 +157,7 @@ case class SolrXmlQueryResponse(response: Elem) extends QueryResponse {
 
     fc.copy(facets = facets)
   }
+
   private def hasAttr(name: String)(node: Node): Boolean = {
     node.attributes.exists(attr => attr.key == name)
   }

@@ -28,8 +28,8 @@ case class HistoricalAgents @Inject()(implicit globalConfig: global.GlobalConfig
     find[HistoricalAgent](
       entities = List(EntityType.HistoricalAgent),
       facetBuilder = historicalAgentFacets
-    ).map { case QueryResult(page, params, facets) =>
-      Ok(p.historicalAgent.list(page, params, facets,
+    ).map { result =>
+      Ok(p.historicalAgent.list(result,
         portalAgentRoutes.searchAll(), request.watched))
     }
   }

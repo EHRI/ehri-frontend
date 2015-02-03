@@ -192,7 +192,7 @@ case class Guides @Inject()(implicit globalConfig: global.GlobalConfig, searchDi
     }
   }
 
-  private def guideJson(page: utils.search.ItemPage[(AnyModel, utils.search.SearchHit)], request: RequestHeader, links: Map[String, Long], pageParam: String = "page"): JsValue = {
+  private def guideJson(page: utils.Page[(AnyModel, utils.search.SearchHit)], request: RequestHeader, links: Map[String, Long], pageParam: String = "page"): JsValue = {
     Json.obj(
       "items" -> Json.toJson(page.items.map { case (agent, hit) =>
         guideJsonItem(agent, links.getOrElse(agent.id, 0))
@@ -380,14 +380,17 @@ case class Guides @Inject()(implicit globalConfig: global.GlobalConfig, searchDi
     ids.slice(pages._1, pages._2)
   }
 
-  private def pagify(docsId: Seq[Long], docsItems: Seq[DocumentaryUnit], accessPoints: Seq[AnyModel], page: Int, limit: Int): ItemPage[DocumentaryUnit] = {
+  private def pagify(docsId: Seq[Long], docsItems: Seq[DocumentaryUnit], accessPoints: Seq[AnyModel], page: Int, limit: Int): SearchResult[DocumentaryUnit] = {
     facetPage(page, limit, docsId.size) match {
-      case (start, end) => ItemPage(
-        items = docsItems,
-        offset = start,
-        limit = end - start,
-        total = docsId.size,
-        facets = List(
+      case (start, end) => SearchResult(
+        Page(
+          items = docsItems,
+          offset = start,
+          limit = end - start,
+          total = docsId.size
+        ),
+        SearchParams.empty,
+        facetClasses = List(
           FieldFacetClass(
             param = "kw[]",
             name = "Keyword",
@@ -418,7 +421,7 @@ case class Guides @Inject()(implicit globalConfig: global.GlobalConfig, searchDi
       /*
        *  If we have keyword, we make a query 
        */
-      val defaultResult = Ok(p.guides.facet(guide, GuidePage.faceted, guide.findPages(), ItemPage(Seq(), 0, 0, 0, List()), Map().empty))
+      val defaultResult = Ok(p.guides.facet(guide, GuidePage.faceted, guide.findPages(), SearchResult.empty, Map().empty))
       facetsForm.bindFromRequest.fold(
       errs => immediate(defaultResult), {
         case (selectedFacets, page, limit) if selectedFacets.filterNot(_.isEmpty).nonEmpty => for {

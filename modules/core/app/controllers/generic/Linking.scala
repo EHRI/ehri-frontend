@@ -1,6 +1,6 @@
 package controllers.generic
 
-import backend.{BackendContentType, BackendReadable}
+import backend.BackendContentType
 import defines._
 import models._
 import models.base._
@@ -46,9 +46,7 @@ trait Linking[MT <: AnyModel] extends Read[MT] with Search {
 
   case class LinkSelectRequest[A](
     item: MT,
-    page: ItemPage[(AnyModel, SearchHit)],
-    params: SearchParams,
-    facets: List[AppliedFacet],
+    searchResult: SearchResult[(AnyModel, SearchHit)],
     entityType: EntityType.Value,
     userOpt: Option[UserProfile],
     request: Request[A]
@@ -60,8 +58,7 @@ trait Linking[MT <: AnyModel] extends Read[MT] with Search {
       override protected def transform[A](request: ItemPermissionRequest[A]): Future[LinkSelectRequest[A]] = {
         implicit val req = request
         find[AnyModel](facetBuilder = facets, defaultParams = SearchParams(entities = List(toType), excludes=Some(List(id)))).map { r =>
-          LinkSelectRequest(request.item, r.page, r.params,
-            r.facets, toType, request.userOpt, request)
+          LinkSelectRequest(request.item, r, toType, request.userOpt, request)
         }
       }
     }

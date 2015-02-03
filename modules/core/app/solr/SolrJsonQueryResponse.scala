@@ -4,7 +4,6 @@ import utils.search._
 import play.api.libs.json.JsValue
 import defines.EntityType
 import utils.search.SearchHit
-import play.api.Logger
 
 /**
  * Extracts useful data from a Solr JSON response.
@@ -136,7 +135,7 @@ case class SolrJsonQueryResponse(response: JsValue) extends QueryResponse {
     fc.copy(facets = facetsWithCount.toList)
   }
 
-  def extractFacetData(appliedFacets: List[AppliedFacet], allFacets: utils.search.FacetClassList): utils.search.FacetClassList = {
+  override def extractFacetData(appliedFacets: Seq[AppliedFacet], allFacets: Seq[FacetClass[Facet]]): Seq[FacetClass[Facet]] = {
     allFacets.flatMap {
       case ffc: FieldFacetClass => Some(extractFieldFacet(ffc, appliedFacetValues(ffc, appliedFacets)))
       case qfc: QueryFacetClass => Some(extractQueryFacet(qfc, appliedFacetValues(qfc, appliedFacets)))

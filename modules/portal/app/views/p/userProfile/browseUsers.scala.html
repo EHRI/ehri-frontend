@@ -1,21 +1,21 @@
-@(user: UserProfile, users: utils.search.ItemPage[UserProfile], params: utils.search.SearchParams, following: Seq[UserProfile])(implicit userOpt: Option[UserProfile], request: RequestHeader, prefs: utils.SessionPrefs, globalConfig: global.GlobalConfig, lang: Lang, flash: Flash)
+@(user: UserProfile, result: utils.search.SearchResult[(UserProfile,utils.search.SearchHit)], searchAction: Call, following: Seq[UserProfile])(implicit userOpt: Option[UserProfile], request: RequestHeader, prefs: utils.SessionPrefs, globalConfig: global.GlobalConfig, lang: Lang, flash: Flash)
 
 @import utils.search.SearchParams
 
-@p.layout.portalLayout(Messages("social.browseUsers"), itemClass = "user") {
+@views.html.p.layout.portalLayout(Messages("social.browseUsers"), itemClass = "user") {
     @views.html.layout.mainContent {
         <div class="item-header">
             <h1>@Messages("social.browseUsers")</h1>
         </div>
 
-        @if(params.isFiltered || users.items.nonEmpty) {
-            @helper.form(action = controllers.portal.social.routes.Social.browseUsers, 'role -> "form", 'class -> "form-horizontal") {
+        @if(result.params.isFiltered || result.nonEmpty) {
+            @helper.form(action = searchAction, 'role -> "form", 'class -> "form-horizontal") {
                 <div class="search-bar">
                     <div class="form-group form-inline search-box">
                         <div class="input-group">
                             <input type="search" class="form-control"
                                    placeholder="@Messages("search.queryPlaceholder")"
-                            name="@SearchParams.QUERY" value="@params.query" autofocus />
+                            name="@SearchParams.QUERY" value="@result.params.query" autofocus />
                                 <span class="input-group-btn">
                                     <button class="btn btn-default">
                                         <span class="glyphicon glyphicon-search"></span>
@@ -29,9 +29,9 @@
                 <div class="search-results-no-facets">
                     <div class="search-results-body">
                         <ul class="search-result-list user-list">
-                            @browseUsersList(user, users.items, following)
+                            @browseUsersList(user, result.mapItems(_._1).page, following)
                         </ul>
-                        @common.pagination(users)
+                        @common.pagination(result.page)
                     </div>
                 </div>
             }

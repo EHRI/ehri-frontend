@@ -141,8 +141,8 @@ case class UserProfiles @Inject()(implicit globalConfig: global.GlobalConfig, se
     find[Annotation](
       filters = Map(SearchConstants.ANNOTATOR_ID -> request.user.id),
       entities = Seq(EntityType.Annotation)
-    ).map { case QueryResult(page, params, facets) =>
-      val itemsOnly = page.copy(items = page.items.map(_._1))
+    ).map { result =>
+      val itemsOnly = result.mapItems(_._1).page
       format match {
         case DataFormat.Text =>
           Ok(views.txt.p.userProfile.annotations(itemsOnly).body.trim)
@@ -157,8 +157,7 @@ case class UserProfiles @Inject()(implicit globalConfig: global.GlobalConfig, se
             .as(MimeTypes.JSON)
         case _ => Ok(p.userProfile.annotations(
           request.user,
-          annotations = page,
-          params = params,
+          annotations = result,
           searchAction = profileRoutes.profile(),
           followed = false,
           canMessage = false)

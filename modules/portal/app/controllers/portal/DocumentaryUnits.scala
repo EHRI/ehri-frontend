@@ -32,8 +32,8 @@ case class DocumentaryUnits @Inject()(implicit globalConfig: global.GlobalConfig
       filters = filters,
       entities = List(EntityType.DocumentaryUnit),
       facetBuilder = docSearchFacets
-    ).map { case QueryResult(page, params, facets) =>
-      Ok(p.documentaryUnit.list(page, params, facets, portalDocRoutes.searchAll(),
+    ).map { result =>
+      Ok(p.documentaryUnit.list(result, portalDocRoutes.searchAll(),
         request.watched))
     }
   }
@@ -49,10 +49,10 @@ case class DocumentaryUnits @Inject()(implicit globalConfig: global.GlobalConfig
         entities = List(EntityType.DocumentaryUnit),
         facetBuilder = localDocFacets,
         defaultOrder = SearchOrder.Id
-      ).map { case QueryResult(page, params, facets) =>
-        if (isAjax) Ok(p.documentaryUnit.childItemSearch(request.item, page, params, facets,
+      ).map { result =>
+        if (isAjax) Ok(p.documentaryUnit.childItemSearch(request.item, result,
           portalDocRoutes.search(id), request.watched))
-        else Ok(p.documentaryUnit.search(request.item, page, params, facets,
+        else Ok(p.documentaryUnit.search(request.item, result,
           portalDocRoutes.search(id), request.watched))
       }
   }
