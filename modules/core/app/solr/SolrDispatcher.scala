@@ -63,7 +63,7 @@ case class SolrDispatcher(
       .withIdFilters(idFilters)
       .withFilters(filters)
       .withExtraParams(extraParams)
-      .simpleFilter()
+      .simpleFilterQuery()
 
     dispatch(queryRequest).map { response =>
       val parser = handler(checkError(response))
@@ -95,7 +95,7 @@ case class SolrDispatcher(
       .withIdFilters(idFilters)
       .withExtraParams(extraParams)
       .setMode(mode)
-      .search()
+      .searchQuery()
 
     dispatch(queryRequest).map { response =>
       val parser = handler(checkError(response))
@@ -125,7 +125,7 @@ case class SolrDispatcher(
       .withFacetClasses(facetClasses)
       .withIdFilters(idFilters)
       .withFilters(filters)
-      .search()
+      .searchQuery()
 
     dispatch(queryRequest).map { response =>
       val fClasses = handler(checkError(response)).extractFacetData(facets, facetClasses)
