@@ -1,5 +1,6 @@
 package solr
 
+import defines.EntityType
 import play.api.libs.concurrent.Execution.Implicits._
 import models.UserProfile
 import play.api.libs.ws.{WSResponse, WS}
@@ -150,4 +151,10 @@ case class SolrDispatcher(
   override def withFacetClasses(fc: Seq[FacetClass[Facet]]): Dispatcher = copy(facetClasses = facetClasses ++ fc)
 
   override def withExtraParams(extra: Map[String, Any]): Dispatcher = copy(extraParams = extraParams ++ extra)
+
+  override def withIdExcludes(ids: Seq[String]): Dispatcher = copy(params = params.copy(excludes = Some(ids.toList)))
+
+  override def withEntities(entities: Seq[EntityType.Value]): Dispatcher = copy(params = params.copy(entities = entities.toList))
+
+  override def setSort(sort: SearchOrder.Value): Dispatcher = copy(params = params.copy(sort = Some(sort)))
 }

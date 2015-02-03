@@ -1,5 +1,7 @@
 package utils.search
 
+import defines.EntityType
+
 import scala.concurrent.ExecutionContext.Implicits._
 import models._
 import scala.concurrent.Future
@@ -88,4 +90,10 @@ case class MockSearchDispatcher(
   override def withFacetClasses(fc: Seq[FacetClass[Facet]]): Dispatcher = copy(facetClasses = facetClasses ++ fc)
 
   override def withExtraParams(extra: Map[String, Any]): Dispatcher = copy(extraParams = extraParams ++ extra)
+
+  override def withIdExcludes(ids: Seq[String]): Dispatcher = copy(params = params.copy(excludes = Some(ids.toList)))
+
+  override def withEntities(entities: Seq[EntityType.Value]): Dispatcher = copy(params = params.copy(entities = entities.toList))
+
+  override def setSort(sort: SearchOrder.Value): Dispatcher = copy(params = params.copy(sort = Some(sort)))
 }

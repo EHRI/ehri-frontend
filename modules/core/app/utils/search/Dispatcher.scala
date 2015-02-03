@@ -1,5 +1,6 @@
 package utils.search
 
+import defines.EntityType
 import models.UserProfile
 
 import scala.concurrent.Future
@@ -70,6 +71,21 @@ trait Dispatcher {
    * Add additional ID filters to this request.
    */
   def withIdFilters(ids: Seq[String]): Dispatcher
+
+  /**
+   * Add additional IDs to exclude.
+   */
+  def withIdExcludes(ids: Seq[String]): Dispatcher
+
+  /**
+   * Add entity type constraints.
+   */
+  def withEntities(entities: Seq[EntityType.Value]): Dispatcher
+
+  /**
+   * Set the sort order.
+   */
+  def setSort(sort: SearchOrder.Value): Dispatcher
 
   /**
    * Add additional engine-specific key/value parameters
