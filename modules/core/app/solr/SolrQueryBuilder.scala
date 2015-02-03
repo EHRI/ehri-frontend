@@ -17,7 +17,7 @@ import com.github.seratch.scalikesolr.request.query.facet.FacetParam
 import com.github.seratch.scalikesolr.{WriterType => SWriterType}
 
 
-object SolrQueryBuilder extends {
+object SolrQueryBuilder {
 
   /**
    * Set a list of facets on a request.
@@ -180,7 +180,7 @@ case class SolrQueryBuilder(
    * Run a simple filter on the name_ngram field of all entities
    * of a given type.
    */
-  override def simpleFilter(alphabetical: Boolean = false)(implicit userOpt: Option[UserProfile]): Map[String,Seq[String]] = {
+  override def simpleFilterQuery(alphabetical: Boolean = false)(implicit userOpt: Option[UserProfile]): Map[String,Seq[String]] = {
 
     val excludeIds = params.excludes.toList.flatten.map(id => s" -$ITEM_ID:$id").mkString
     val queryString = params.query.getOrElse("*").trim + excludeIds
@@ -213,7 +213,7 @@ case class SolrQueryBuilder(
   /**
    * Build a query given a set of search parameters.
    */
-  override def search()(implicit userOpt: Option[UserProfile]): Map[String,Seq[String]] = {
+  override def searchQuery()(implicit userOpt: Option[UserProfile]): Map[String,Seq[String]] = {
 
     val excludeIds = params.excludes.toList.flatten.map(id => s" -$ITEM_ID:$id").mkString
 

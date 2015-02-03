@@ -15,6 +15,7 @@ import global.GlobalConfig
 import play.api._
 import play.api.mvc.{RequestHeader, Result, WithFilters}
 import play.filters.csrf._
+import solr.QueryBuilder
 import utils.search._
 
 import scala.concurrent.Future
