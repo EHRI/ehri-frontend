@@ -37,7 +37,7 @@ case class Vocabularies @Inject()(implicit globalConfig: global.GlobalConfig, se
       entities = List(EntityType.Concept)
     ).map { result =>
       Ok(views.html.admin.vocabulary.show(
-        request.item, result.page, result.params, result.facets,
+        request.item, result,
         vocabRoutes.get(id), request.annotations, request.links))
     }
   }

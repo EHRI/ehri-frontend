@@ -27,9 +27,8 @@ case class Countries @Inject()(implicit globalConfig: global.GlobalConfig, searc
   def searchAll = UserBrowseAction.async { implicit request =>
     find[Country](entities = List(EntityType.Country),
       facetBuilder = countryFacets
-    ).map { case QueryResult(page, params, facets) =>
-      Ok(p.country.list(page, params, facets,
-        portalCountryRoutes.searchAll(), request.watched))
+    ).map { result =>
+      Ok(p.country.list(result, portalCountryRoutes.searchAll(), request.watched))
     }
   }
 
@@ -43,10 +42,10 @@ case class Countries @Inject()(implicit globalConfig: global.GlobalConfig, searc
         filters = Map("countryCode" -> request.item.id),
         facetBuilder = repositorySearchFacets,
         entities = List(EntityType.Repository)
-      ).map { case QueryResult(page, params, facets) =>
-        if (isAjax) Ok(p.country.childItemSearch(request.item, page, params, facets,
+      ).map { result =>
+        if (isAjax) Ok(p.country.childItemSearch(request.item, result,
           portalCountryRoutes.search(id), request.watched))
-        else Ok(p.country.search(request.item, page, params, facets,
+        else Ok(p.country.search(request.item, result,
           portalCountryRoutes.search(id), request.watched))
       }
   }

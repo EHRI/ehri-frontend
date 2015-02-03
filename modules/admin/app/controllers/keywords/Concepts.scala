@@ -66,8 +66,8 @@ case class Concepts @Inject()(implicit globalConfig: global.GlobalConfig, search
     find[Concept](
       entities = List(EntityType.Concept),
       facetBuilder = entityFacets
-    ).map { case QueryResult(page, params, facets) =>
-      Ok(views.html.admin.concept.search(page, params, facets, conceptRoutes.search()))
+    ).map { result =>
+      Ok(views.html.admin.concept.search(result, conceptRoutes.search()))
     }
   }
 

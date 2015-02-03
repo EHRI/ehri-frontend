@@ -1,6 +1,7 @@
 package controllers.admin
 
 import auth.AccountManager
+import client.json.ClientWriteable
 import play.api.libs.concurrent.Execution.Implicits._
 import models.Isaar
 import models.base.{Description, AnyModel}
@@ -8,8 +9,9 @@ import controllers.generic.Search
 import play.api.Play.current
 import defines.EntityType
 import play.api.i18n.Messages
+import play.api.libs.json.{Writes, Json}
 import play.api.mvc.{AnyContent, Request, Result}
-import utils.search
+import utils.{Page, search}
 import views.Helpers
 import utils.search._
 
@@ -30,30 +32,13 @@ case class Metrics @Inject()(implicit globalConfig: global.GlobalConfig, searchD
     EntityType.HistoricalAgent
   )
 
-  import client.json._
-
-  import play.api.libs.functional.syntax._
-  import play.api.libs.json._
-  implicit def itemPageWrites[MT](implicit rd: ClientWriteable[MT]): Writes[ItemPage[MT]] = (
-    (__ \ "items").lazyWrite[Seq[MT]](Writes.seq(rd.clientFormat)) and
-    (__ \ "page").write[Int] and
-    (__ \ "count").write[Int] and
-    (__ \ "total").write[Int] and
-    (__ \ "facetClasses").lazyWrite(Writes.list[FacetClass[Facet]](FacetClass.facetClassWrites)) and
-    (__ \ "spellcheck").writeNullable(
-      (__ \ "given").write[String] and
-      (__ \ "correction").write[String]
-      tupled
-    )
-  )(unlift(ItemPage.unapply[MT]))
-
-
-  private def jsonResponse[T](result: QueryResult[T])(implicit request: Request[AnyContent], w: ClientWriteable[T]): Result = {
+  private def jsonResponse[T](result: SearchResult[(T, SearchHit)])(implicit request: Request[AnyContent], w: ClientWriteable[T]): Result = {
     render {
       case Accepts.Json() | Accepts.JavaScript() => Ok(Json.obj(
-        "page" -> Json.toJson(result.page.copy(items = result.page.items.map(_._1)))(itemPageWrites),
+        "page" -> Json.toJson(result.mapItems(_._1).page)(Page.pageWrites(w.clientFormat)),
         "params" -> Json.toJson(result.params),
-        "appliedFacets" -> Json.toJson(result.facets)
+        "appliedFacets" -> Json.toJson(result.facets),
+        "facetClasses" -> Json.toJson(result.facetClasses)
       )).as(play.api.http.ContentTypes.JSON)
       case _ => UnsupportedMediaType
     }

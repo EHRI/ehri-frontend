@@ -28,8 +28,8 @@ case class Repositories @Inject()(implicit globalConfig: global.GlobalConfig, se
     find[Repository](
       entities = List(EntityType.Repository),
       facetBuilder = repositorySearchFacets
-    ).map { case QueryResult(page, params, facets) =>
-      Ok(p.repository.list(page, params, facets, portalRepoRoutes.searchAll(),
+    ).map { result =>
+      Ok(p.repository.list(result, portalRepoRoutes.searchAll(),
         request.watched))
     }
   }
@@ -40,8 +40,8 @@ case class Repositories @Inject()(implicit globalConfig: global.GlobalConfig, se
         sort = Some(SearchOrder.Country),
         entities = List(EntityType.Repository)),
       facetBuilder = repositorySearchFacets
-    ).map { case QueryResult(page, params, facets) =>
-      Ok(p.repository.listByCountry(page, params, facets,
+    ).map { result =>
+      Ok(p.repository.listByCountry(result,
         portalRepoRoutes.searchAllByCountry(),
         request.watched))
     }
@@ -62,10 +62,10 @@ case class Repositories @Inject()(implicit globalConfig: global.GlobalConfig, se
       entities = List(EntityType.DocumentaryUnit),
       facetBuilder = localDocFacets,
       defaultOrder = SearchOrder.Id
-    ).map { case QueryResult(page, params, facets) =>
-        if (isAjax) Ok(p.repository.childItemSearch(request.item, page, params, facets,
+    ).map { result =>
+        if (isAjax) Ok(p.repository.childItemSearch(request.item, result,
           portalRepoRoutes.search(id), request.watched))
-        else Ok(p.repository.search(request.item, page, params, facets,
+        else Ok(p.repository.search(request.item, result,
           portalRepoRoutes.search(id), request.watched))
       }
   }

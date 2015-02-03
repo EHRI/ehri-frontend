@@ -28,8 +28,8 @@ case class Concepts @Inject()(implicit globalConfig: global.GlobalConfig, search
     find[Concept](
       entities = List(EntityType.Concept),
       facetBuilder = conceptFacets
-    ).map { case QueryResult(page, params, facets) =>
-      Ok(p.concept.list(page, params, facets,
+    ).map { result =>
+      Ok(p.concept.list(result,
         portalConceptRoutes.searchAll(), request.watched))
     }
   }
@@ -39,8 +39,8 @@ case class Concepts @Inject()(implicit globalConfig: global.GlobalConfig, search
       filters = Map("parentId" -> request.item.id),
       facetBuilder = conceptFacets,
       entities = List(EntityType.Concept)
-    ).map { case QueryResult(page, params, facets) =>
-      Ok(p.concept.show(request.item, page, params, facets,
+    ).map { result =>
+      Ok(p.concept.show(request.item, result,
         portalConceptRoutes.browse(id), request.annotations, request.links, request.watched))
     }
   }

@@ -1,13 +1,13 @@
-@(result: utils.search.ItemPage[(_,utils.search.SearchHit)], params: utils.search.SearchParams)(implicit req: RequestHeader)
+@(result: utils.search.SearchResult[_])(implicit req: RequestHeader)
 
 @import utils.search.SearchParams
 
 <div class="search-summary">
-    @Messages("pagination.displayingItems", result.start, result.end, result.total)
+    @Messages("pagination.displayingItems", result.page.start, result.page.end, result.page.total)
 
     @result.spellcheck.map { case (actual, corrected) =>
         @* Argh, lots of weirdness with spelling correction and multi-lingual expansion. *@
-        @params.query.map(_.trim.toLowerCase).map { query =>
+        @result.params.query.map(_.trim.toLowerCase).map { query =>
             @if(query != corrected.trim.toLowerCase && query.contains(actual.trim.toLowerCase)) {
                 (@Messages("search.spellingSuggestion") <i>
                     <strong>

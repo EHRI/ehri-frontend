@@ -45,7 +45,7 @@ trait AuthController extends Controller with ControllerHelpers with AuthActionBu
 
   def staffOnlyError(request: RequestHeader)(implicit context: ExecutionContext): Future[Result]
 
-  def notFoundError(request: RequestHeader)(implicit context: ExecutionContext): Future[Result]
+  def notFoundError(request: RequestHeader, msg: Option[String] = None)(implicit context: ExecutionContext): Future[Result]
 
   def authorizationFailed(request: RequestHeader)(implicit context: ExecutionContext): Future[Result]
 

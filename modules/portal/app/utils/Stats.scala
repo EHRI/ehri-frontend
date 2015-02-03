@@ -24,19 +24,19 @@ object Stats {
   /**
    * Extract the count of a particular facet within the given class.
    */
-  private def typeCount(facets: List[FacetClass[Facet]], key: String, facetName: Any)
+  private def typeCount(facets: Seq[FacetClass[Facet]], key: String, facetName: Any)
   = facets.find(_.key == key).flatMap(_.facets.find(_.value == facetName.toString).map(_.count)).getOrElse(0)
 
   /**
    * Extract the total number of facets for a given class.
    */
-  private def allCount(facets: List[FacetClass[Facet]], key: String)
+  private def allCount(facets: Seq[FacetClass[Facet]], key: String)
   = facets.find(_.key == key).map(_.count).getOrElse(0)
 
   /**
    * Construct a Stats value from a list of facets.
    */
-  def apply(facets: List[FacetClass[Facet]]): Stats = new Stats(
+  def apply(facets: Seq[FacetClass[Facet]]): Stats = new Stats(
     countryCount = typeCount(facets, SearchConstants.TYPE, EntityType.Country),
     repositoryCount = typeCount(facets, SearchConstants.TYPE, EntityType.Repository),
     inCountryCount = allCount(facets, SearchConstants.COUNTRY_CODE),

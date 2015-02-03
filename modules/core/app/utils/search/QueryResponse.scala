@@ -9,7 +9,7 @@ package utils.search
 trait QueryResponse {
   def phrases: Seq[String]
   def items: Seq[SearchHit]
-  def extractFacetData(appliedFacets: List[AppliedFacet], allFacets: FacetClassList): FacetClassList
+  def extractFacetData(appliedFacets: Seq[AppliedFacet], allFacets: Seq[FacetClass[Facet]]): Seq[FacetClass[Facet]]
   def count: Int
   def highlightMap: Map[String,Map[String,Seq[String]]]
   def spellcheckSuggestion: Option[(String,String)]

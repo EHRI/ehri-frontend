@@ -38,7 +38,7 @@ class SolrQueryBuilderSpec extends PlaySpecification {
         AppliedFacet("languageCode", List("eng", "deu"))
       )
 
-      val filters: List[String] = SolrQueryBuilder.getRequestFilters(
+      val filters: Seq[String] = SolrQueryBuilder.getRequestFilters(
         List(testFieldFacetClass, testQueryFacetClass), fieldFacets)
       filters.headOption must beSome.which { f =>
         f must equalTo("{!tag=languageCode}languageCode:(\"eng\" \"deu\")")
@@ -49,7 +49,7 @@ class SolrQueryBuilderSpec extends PlaySpecification {
       val queryFacets: List[AppliedFacet] = List(
         AppliedFacet("charCount", List("medium", "high"))
       )
-      val filters: List[String] = SolrQueryBuilder.getRequestFilters(
+      val filters: Seq[String] = SolrQueryBuilder.getRequestFilters(
         List(testFieldFacetClass, testQueryFacetClass), queryFacets)
       filters.size must equalTo(1)
       filters must contain("charCount:([201 TO 5000] [5001 TO *])")
@@ -63,7 +63,7 @@ class SolrQueryBuilderSpec extends PlaySpecification {
       val fq3 = new FacetParam(new Param("facet.query"), new Value("charCount:[201 TO 5000]"))
       val fq4 = new FacetParam(new Param("facet.query"), new Value("charCount:[5001 TO *]"))
 
-      val facets: List[FacetParam] = SolrQueryBuilder.getRequestFacets(
+      val facets: Seq[FacetParam] = SolrQueryBuilder.getRequestFacets(
         List(testFieldFacetClass, testQueryFacetClass))
       facets.size must equalTo(4)
       facets must contain(fq1)
