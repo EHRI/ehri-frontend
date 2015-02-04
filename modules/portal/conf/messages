@@ -71,6 +71,8 @@ errors.pageNotFound.explanation=The page at this location either doesn''t exist 
 errors.genericProblem=An Error Occurred
 errors.genericProblem.explanation=We''re very sorry, but there''s a problem loading that page. We''ve been informed of \
   this and will endeavour to fix the problem as soon as possible.
+errors.maintenance=Site temporarily offline
+errors.maintenance.explanation=The EHRI Portal is currently offline while we undertake maintenance. Please check back soon.
 errors.databaseError=Database Error
 errors.databaseError.explanation=I''m afraid it looks like our database server has gone down.     \
   There''s not much we can do without it, so please try again later.

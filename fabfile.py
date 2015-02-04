@@ -91,6 +91,28 @@ def stop():
     # for a password, even though we should have NOPASSWD in visudo.
     run('sudo service %(project_name)s stop' % env, pty=False, shell=False)
 
+def message(msg=None):
+    "Toggle the global message (with the given message), or remove it."
+    filename = os.path.join(env.path, "MESSAGE")
+    if msg is None:
+        if exists(filename):
+            run("rm " + filename)
+        else:
+            print("No message given, and no message file present. Nothing to do...")
+    else:
+        run("echo '" + msg + "' > " + filename)
+        print("MESSAGE is ON")
+
+def maintenance():
+    "Toggle maintenance mode."
+    filename = os.path.join(env.path, "MAINTENANCE")
+    if exists(filename):
+        run("rm " + filename)
+        print("MAINTENANCE mode is OFF")
+    else:
+        run("touch " + filename)
+        print("MAINTENANCE mode is ON")
+
 def readonly():
     "Toggle readonly mode."
     filename = os.path.join(env.path, "READONLY")
@@ -100,7 +122,6 @@ def readonly():
     else:
         run("touch " + filename)
         print("READONLY mode is ON")
-
 
 def restart():
     "Restart docview"
