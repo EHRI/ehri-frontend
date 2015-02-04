@@ -74,10 +74,11 @@ case class MockSearchDispatcher(
       agents <- backend.list[HistoricalAgent]()
       virtualUnits <- backend.list[VirtualUnit]()
       all = docs.map(descModelToHit) ++ repos.map(descModelToHit) ++ agents.map(descModelToHit) ++ virtualUnits.map(descModelToHit)
-      oftype = all.filter(h => params.entities.contains(h.`type`))
+      ofType = all.filter(h => params.entities.isEmpty || params.entities.contains(h.`type`))
+      withIds = ofType.filter(h => idFilters.isEmpty || idFilters.contains(h.itemId))
     } yield {
       val page = Page(
-        offset = params.offset, limit = params.countOrDefault, total = oftype.size, items = oftype)
+        offset = params.offset, limit = params.countOrDefault, total = withIds.size, items = withIds)
       SearchResult(page, params)
     }
   }
