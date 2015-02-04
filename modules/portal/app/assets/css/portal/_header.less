@@ -32,12 +32,11 @@ header#header {
 
     input {
       padding: 1px 25px 1px 3px;
-      width: 150px;
-    }
-
-    input {
       border: 0;
       color: @almost-black;
+      &:focus, &.active {
+        width: 150px;
+      }
     }
   }
 
