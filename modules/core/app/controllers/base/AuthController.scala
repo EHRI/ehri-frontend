@@ -152,6 +152,16 @@ trait AuthController extends Controller with ControllerHelpers with AuthActionBu
   }
 
   /**
+   * If the global read-only flag is enabled, remove the account from
+   * the request, globally denying all secured actions.
+   */
+  protected object MaintenanceFilter extends ActionFilter[OptionalAuthRequest]{
+    override protected def filter[A](request: OptionalAuthRequest[A]): Future[Option[Result]] = immediate {
+      if (globalConfig.maintenance) Some(ServiceUnavailable) else None
+    }
+  }
+
+  /**
    * Check the user is allowed in this controller based on their account's
    * `staff` and `verified` flags.
    */
@@ -173,7 +183,7 @@ trait AuthController extends Controller with ControllerHelpers with AuthActionBu
    *  - the site is not read-only
    *  - they are allowed in this controller
    */
-  def OptionalUserAction = OptionalAuthAction andThen ReadOnlyTransformer andThen AllowedFilter andThen FetchProfile
+  def OptionalUserAction = OptionalAuthAction andThen MaintenanceFilter andThen ReadOnlyTransformer andThen AllowedFilter andThen FetchProfile
 
   /**
    * Ensure that a user a given permission on a given content type

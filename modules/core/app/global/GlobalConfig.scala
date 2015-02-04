@@ -32,5 +32,11 @@ trait GlobalConfig {
   private lazy val readOnlyFile: Option[File] = current.configuration.getString("ehri.readonly.file")
       .map(new File(_))
 
-  def readOnly = readOnlyFile.exists(file => file.isFile && file.exists)
+  def readOnly: Boolean = readOnlyFile.exists(file => file.isFile && file.exists)
+
+  // Set maintenance mode...
+  private lazy val maintenanceFile: Option[File] = current.configuration.getString("ehri.maintenance.file")
+    .map(new File(_))
+
+  def maintenance: Boolean = maintenanceFile.exists(file => file.isFile && file.exists)
 }
