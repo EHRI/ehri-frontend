@@ -49,6 +49,8 @@ trait AuthController extends Controller with ControllerHelpers with AuthActionBu
 
   def authorizationFailed(request: RequestHeader)(implicit context: ExecutionContext): Future[Result]
 
+  def downForMaintenance(request: RequestHeader)(implicit context: ExecutionContext): Future[Result]
+
   // If a lang cookie is present, use it...
   private val LANG = "lang"
   override implicit def request2lang(implicit request: RequestHeader): Lang = {
@@ -156,8 +158,9 @@ trait AuthController extends Controller with ControllerHelpers with AuthActionBu
    * the request, globally denying all secured actions.
    */
   protected object MaintenanceFilter extends ActionFilter[OptionalAuthRequest]{
-    override protected def filter[A](request: OptionalAuthRequest[A]): Future[Option[Result]] = immediate {
-      if (globalConfig.maintenance) Some(ServiceUnavailable) else None
+    override protected def filter[A](request: OptionalAuthRequest[A]): Future[Option[Result]] = {
+      if (globalConfig.maintenance) downForMaintenance(request).map(r => Some(r))
+      else immediate(None)
     }
   }
 
@@ -181,6 +184,7 @@ trait AuthController extends Controller with ControllerHelpers with AuthActionBu
   /**
    * Fetch, if available, the user's profile, ensuring that:
    *  - the site is not read-only
+   *  - the site is not in maintenance mode
    *  - they are allowed in this controller
    */
   def OptionalUserAction = OptionalAuthAction andThen MaintenanceFilter andThen ReadOnlyTransformer andThen AllowedFilter andThen FetchProfile

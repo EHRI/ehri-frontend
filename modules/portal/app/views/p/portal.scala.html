@@ -7,13 +7,14 @@
 <!DOCTYPE html>
 
 <html lang="@lang.code">
-    @p.layout.head(Messages("welcome"))
+    @views.html.p.layout.head(Messages("welcome"))
     <body>
-        @p.layout.preambleScripts()
+        @views.html.p.layout.preambleScripts()
         <div id="wrap">
-            @p.layout.readOnly()
+            @views.html.p.layout.readOnly()
+            @views.html.p.layout.message()
             <header id="header" class="navigation">
-                @p.layout.accountHeader(showSearch = false, showAdminLink = true)
+                @views.html.p.layout.accountHeader(showSearch = false, showAdminLink = true)
             </header>
             <div class="page-content">
                 <div class="jumbotron-container">
@@ -97,9 +98,9 @@
             </div>
             <!-- /container -->
         </div>
-        @p.layout.footer()
-        @p.dataPolicyModal()
-        @p.layout.postambleScripts()
+        @views.html.p.layout.footer()
+        @views.html.p.dataPolicyModal()
+        @views.html.p.layout.postambleScripts()
 
         <script>
             jQuery(document).ready(function ($) {
