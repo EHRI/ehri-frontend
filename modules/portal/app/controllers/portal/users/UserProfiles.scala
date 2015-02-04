@@ -8,7 +8,7 @@ import play.api.i18n.Messages
 import play.api.mvc._
 import defines.{ContentTypes, EntityType}
 import play.api.libs.json.{JsValue, Json, JsObject}
-import utils.{Page, SessionPrefs, PageParams}
+import utils._
 import scala.concurrent.Future.{successful => immediate}
 import jp.t2v.lab.play2.auth.LoginLogout
 import play.api.libs.Files.TemporaryFile
@@ -88,6 +88,26 @@ case class UserProfiles @Inject()(implicit globalConfig: global.GlobalConfig, se
     )
     implicit val writes = Json.writes[ExportWatchItem]
   }
+
+  def activity = WithUserAction.async { implicit request =>
+    // Show the profile home page of a defined user.
+    // Activity is the default page
+    val listParams = RangeParams.fromRequest(request)
+    val eventParams = SystemEventParams.fromRequest(request)
+      .copy(eventTypes = activityEventTypes)
+      .copy(itemTypes = activityItemTypes)
+    val events: Future[RangePage[SystemEvent]] = backend
+      .listEventsByUser[SystemEvent](request.user.id, listParams, eventParams)
+
+    events.map { myActivity =>
+      if (isAjax) Ok(p.activity.eventItems(myActivity))
+        .withHeaders("activity-more" -> myActivity.more.toString)
+      else Ok(p.userProfile.show(request.user, myActivity,
+        listParams, followed = false, canMessage = false))
+    }
+  }
+
+
 
   def watching(format: DataFormat.Value = DataFormat.Html) = WithUserAction.async { implicit request =>
     // This is a hack. To search a user's watched items we first have to
