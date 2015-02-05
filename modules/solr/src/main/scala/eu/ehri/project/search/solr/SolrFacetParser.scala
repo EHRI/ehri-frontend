@@ -1,4 +1,4 @@
-package solr
+package eu.ehri.project.search.solr
 
 import com.github.seratch.scalikesolr.request.query.facet.{Param, Value, FacetParam}
 import play.api.Logger

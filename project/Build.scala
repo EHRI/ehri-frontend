@@ -51,6 +51,9 @@ object ApplicationBuild extends Build {
     anorm,
     filters,
 
+    // Commons IO
+    "commons-io" % "commons-io" % "2.4",
+
     // Injection guff - yep, we're using a beta
     "com.google.inject" % "guice" % "4.0-beta",
 
@@ -68,9 +71,6 @@ object ApplicationBuild extends Build {
 
     // Mailer...
     "com.typesafe.play.plugins" %% "play-plugins-mailer" % "2.3.0",
-
-    // Solr stuff
-    "com.github.seratch" %% "scalikesolr" % "4.10.0",
 
     // Time formatting library
     "org.ocpsoft.prettytime" % "prettytime" % "1.0.8.Final",
@@ -201,13 +201,22 @@ object ApplicationBuild extends Build {
     version := appVersion
   ).settings(commonSettings: _*).dependsOn(admin)
 
+  // Solr search engine implementation.
+  lazy val solr = Project(appName + "-solr", file("modules/solr")).settings(
+    libraryDependencies ++= Seq(
+      "com.github.seratch" %% "scalikesolr" % "4.10.0"
+    ),
+    resolvers += "Local Maven Repository" at "file:///" + Path.userHome.absolutePath + "/.m2/repository",
+    version := appVersion
+  ).dependsOn(core % "test->test;compile->compile")
+
   lazy val main = Project(appName, file("."))
     .enablePlugins(play.PlayScala).settings(
     version := appVersion,
     libraryDependencies ++= coreDependencies ++ testDependencies
   ).settings(commonSettings ++ assetSettings: _*)
-    .dependsOn(portal % "test->test;compile->compile", admin, guides)
-    .aggregate(backend, core, admin, portal, guides)
+    .dependsOn(portal % "test->test;compile->compile", admin, guides, solr)
+    .aggregate(backend, core, admin, portal, guides, solr)
 
   override def rootProject = Some(main)
 }

@@ -5,7 +5,7 @@ import play.api.mvc.{Result, RequestHeader}
 import scala.concurrent.{Future, ExecutionContext}
 import scala.concurrent.Future.{successful => immediate}
 import controllers.renderError
-import views.html.errors.itemNotFound
+import views.html.errors.{maintenance, itemNotFound}
 
 /**
  * @author Mike Bryant (http://github.com/mikesname)
@@ -25,6 +25,11 @@ trait AdminController extends AuthController with ControllerHelpers with AuthCon
   override def notFoundError(request: RequestHeader, msg: Option[String] = None)(implicit context: ExecutionContext): Future[Result] = {
     implicit val r  = request
     immediate(NotFound(renderError("errors.itemNotFound", itemNotFound(msg))))
+  }
+
+  override def downForMaintenance(request: RequestHeader)(implicit context: ExecutionContext): Future[Result] = {
+    implicit val r  = request
+    immediate(ServiceUnavailable(renderError("errors.maintenance", maintenance())))
   }
 
   /**

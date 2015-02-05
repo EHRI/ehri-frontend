@@ -25,14 +25,14 @@ import play.api.mvc.Result
 import com.typesafe.plugin.MailerAPI
 import views.html.p
 import com.google.inject.{Singleton, Inject}
-import utils.search.{Resolver, Dispatcher}
+import utils.search.{SearchItemResolver, SearchEngine}
 import controllers.portal.base.PortalController
 
 /**
  * @author Mike Bryant (http://github.com/mikesname)
  */
 @Singleton
-case class Accounts @Inject()(implicit globalConfig: GlobalConfig, searchDispatcher: Dispatcher, searchResolver: Resolver, backend: Backend,
+case class Accounts @Inject()(implicit globalConfig: GlobalConfig, searchDispatcher: SearchEngine, searchResolver: SearchItemResolver, backend: Backend,
                              accounts: AccountManager, mailer: MailerAPI, oAuth2Flow: OAuth2Flow)
   extends LoginLogout
   with PortalController

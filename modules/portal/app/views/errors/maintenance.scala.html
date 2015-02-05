@@ -1,0 +1,7 @@
+@()(implicit req: RequestHeader, globalConfig: global.GlobalConfig, lang: Lang)
+
+<p class="text-error">@Messages("errors.maintenance.explanation")</p>
+
+@globalConfig.message.map { msg =>
+    <p>@msg</p>
+}

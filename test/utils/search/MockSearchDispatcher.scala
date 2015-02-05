@@ -31,7 +31,7 @@ case class MockSearchDispatcher(
   facetClasses: Seq[FacetClass[Facet]] = Seq.empty,
   extraParams: Map[String, Any] = Map.empty,
   mode: SearchMode.Value = SearchMode.DefaultAll
-) extends Dispatcher {
+) extends SearchEngine {
 
   private implicit def apiUser(implicit userOpt: Option[UserProfile]): ApiUser = ApiUser(userOpt.map(_.id))
 
@@ -74,33 +74,34 @@ case class MockSearchDispatcher(
       agents <- backend.list[HistoricalAgent]()
       virtualUnits <- backend.list[VirtualUnit]()
       all = docs.map(descModelToHit) ++ repos.map(descModelToHit) ++ agents.map(descModelToHit) ++ virtualUnits.map(descModelToHit)
-      oftype = all.filter(h => params.entities.contains(h.`type`))
+      ofType = all.filter(h => params.entities.isEmpty || params.entities.contains(h.`type`))
+      withIds = ofType.filter(h => idFilters.isEmpty || idFilters.contains(h.itemId))
     } yield {
       val page = Page(
-        offset = params.offset, limit = params.countOrDefault, total = oftype.size, items = oftype)
+        offset = params.offset, limit = params.countOrDefault, total = withIds.size, items = withIds)
       SearchResult(page, params)
     }
   }
 
   override def facet(facet: String, sort: FacetQuerySort.Value)(implicit userOpt: Option[UserProfile]): Future[FacetPage[Facet]] = ???
 
-  override def withIdFilters(ids: Seq[String]): Dispatcher = copy(idFilters = idFilters ++ ids)
+  override def withIdFilters(ids: Seq[String]): SearchEngine = copy(idFilters = idFilters ++ ids)
 
-  override def withFacets(f: Seq[AppliedFacet]): Dispatcher = copy(facets = facets ++ f)
+  override def withFacets(f: Seq[AppliedFacet]): SearchEngine = copy(facets = facets ++ f)
 
-  override def setMode(mode: SearchMode.Value): Dispatcher = copy(mode = mode)
+  override def setMode(mode: SearchMode.Value): SearchEngine = copy(mode = mode)
 
-  override def withFilters(f: Map[String, Any]): Dispatcher = copy(filters = filters ++ f)
+  override def withFilters(f: Map[String, Any]): SearchEngine = copy(filters = filters ++ f)
 
-  override def setParams(params: SearchParams): Dispatcher = copy(params = params)
+  override def setParams(params: SearchParams): SearchEngine = copy(params = params)
 
-  override def withFacetClasses(fc: Seq[FacetClass[Facet]]): Dispatcher = copy(facetClasses = facetClasses ++ fc)
+  override def withFacetClasses(fc: Seq[FacetClass[Facet]]): SearchEngine = copy(facetClasses = facetClasses ++ fc)
 
-  override def withExtraParams(extra: Map[String, Any]): Dispatcher = copy(extraParams = extraParams ++ extra)
+  override def withExtraParams(extra: Map[String, Any]): SearchEngine = copy(extraParams = extraParams ++ extra)
 
-  override def withIdExcludes(ids: Seq[String]): Dispatcher = copy(params = params.copy(excludes = Some(ids.toList)))
+  override def withIdExcludes(ids: Seq[String]): SearchEngine = copy(params = params.copy(excludes = Some(ids.toList)))
 
-  override def withEntities(entities: Seq[EntityType.Value]): Dispatcher = copy(params = params.copy(entities = entities.toList))
+  override def withEntities(entities: Seq[EntityType.Value]): SearchEngine = copy(params = params.copy(entities = entities.toList))
 
-  override def setSort(sort: SearchOrder.Value): Dispatcher = copy(params = params.copy(sort = Some(sort)))
+  override def setSort(sort: SearchOrder.Value): SearchEngine = copy(params = params.copy(sort = Some(sort)))
 }

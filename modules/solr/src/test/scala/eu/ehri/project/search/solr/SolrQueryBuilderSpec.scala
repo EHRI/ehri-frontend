@@ -1,4 +1,4 @@
-package solr
+package eu.ehri.project.search.solr
 
 import play.api.test.PlaySpecification
 import play.api.i18n.Messages

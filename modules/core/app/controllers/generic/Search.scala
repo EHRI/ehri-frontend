@@ -1,5 +1,6 @@
 package controllers.generic
 
+import play.api.data.Form
 import play.api.mvc._
 import play.api.libs.concurrent.Execution.Implicits._
 import models.UserProfile
@@ -18,8 +19,8 @@ import backend.BackendReadable
  */
 trait Search extends Controller with AuthController with ControllerHelpers {
 
-  def searchDispatcher: utils.search.Dispatcher
-  def searchResolver: utils.search.Resolver
+  def searchDispatcher: utils.search.SearchEngine
+  def searchResolver: utils.search.SearchItemResolver
 
   type FacetBuilder = RequestHeader => Seq[FacetClass[Facet]]
   protected val emptyFacets: FacetBuilder = { lang => List.empty[FacetClass[Facet]]}
@@ -66,33 +67,38 @@ trait Search extends Controller with AuthController with ControllerHelpers {
                extra: Map[String, Any] = Map.empty,
                defaultParams: SearchParams = SearchParams.empty,
                defaultOrder: SearchOrder.Value = SearchOrder.DateNewest,
+               idFilters: Seq[String] = Seq.empty,
                entities: Seq[EntityType.Value] = Nil,
                facetBuilder: FacetBuilder = emptyFacets,
-               mode: SearchMode.Value = SearchMode.DefaultAll)(
+               mode: SearchMode.Value = SearchMode.DefaultAll,
+               resolverOpt: Option[SearchItemResolver] = None)(
                 implicit request: RequestHeader, userOpt: Option[UserProfile], rd: BackendReadable[MT]): Future[SearchResult[(MT,SearchHit)]] = {
 
     val params = defaultParams
       .copy(sort = defaultSortFunction(defaultParams, request, fallback = defaultOrder))
       .copy(entities = if (entities.isEmpty) defaultParams.entities else entities.toList)
 
-    val sp = SearchParams.form.bindFromRequest(request.queryString)
+    val bound: Form[SearchParams] = SearchParams.form.bindFromRequest(request.queryString)
+
+    val sp = bound
         .value.getOrElse(SearchParams.empty)
         .setDefault(Some(params))
 
     val allFacets = facetBuilder(request)
     val boundFacets: Seq[AppliedFacet] = bindFacetsFromRequest(allFacets)
 
-    val dispatcher: Dispatcher = searchDispatcher
+    val dispatcher: SearchEngine = searchDispatcher
       .setParams(sp)
       .withFacets(boundFacets)
       .withFacetClasses(allFacets)
       .withFilters(filters)
+      .withIdFilters(idFilters)
       .withExtraParams(extra)
       .setMode(mode)
 
     for {
       res <- dispatcher.search()
-      list <- searchResolver.resolve[MT](res.page)
+      list <- resolverOpt.getOrElse(searchResolver).resolve(res.page.items)
     } yield {
       if (list.size != res.page.size) {
         Logger.logger.warn("Items returned by search were not found in database: {} -> {}",

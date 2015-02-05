@@ -1,21 +1,22 @@
 
-GET         /prefs                  @controllers.portal.users.UserProfiles.prefs
-POST        /prefs                  @controllers.portal.users.UserProfiles.updatePrefs
+GET         /                    @controllers.portal.users.UserProfiles.profile
+GET         /activity            @controllers.portal.users.UserProfiles.activity
+GET         /prefs               @controllers.portal.users.UserProfiles.prefs
+POST        /prefs               @controllers.portal.users.UserProfiles.updatePrefs
 
-POST        /accountPrefs           @controllers.portal.users.UserProfiles.updateAccountPrefsPost()
+POST        /accountPrefs        @controllers.portal.users.UserProfiles.updateAccountPrefsPost
 
-GET         /notes                  @controllers.portal.users.UserProfiles.annotations(format: controllers.DataFormat.Value ?= controllers.DataFormat.Html)
-GET         /watch/:id              @controllers.portal.users.UserProfiles.watchItem(id: String)
-POST        /watch/:id              @controllers.portal.users.UserProfiles.watchItemPost(id: String)
-GET         /unwatch/:id            @controllers.portal.users.UserProfiles.unwatchItem(id: String)
-POST        /unwatch/:id            @controllers.portal.users.UserProfiles.unwatchItemPost(id: String)
-GET         /watching               @controllers.portal.users.UserProfiles.watching(format: controllers.DataFormat.Value ?= controllers.DataFormat.Html)
+GET         /notes               @controllers.portal.users.UserProfiles.annotations(format: controllers.DataFormat.Value ?= controllers.DataFormat.Html)
+GET         /watch/:id           @controllers.portal.users.UserProfiles.watchItem(id: String)
+POST        /watch/:id           @controllers.portal.users.UserProfiles.watchItemPost(id: String)
+GET         /unwatch/:id         @controllers.portal.users.UserProfiles.unwatchItem(id: String)
+POST        /unwatch/:id         @controllers.portal.users.UserProfiles.unwatchItemPost(id: String)
+GET         /watched             @controllers.portal.users.UserProfiles.watching(format: controllers.DataFormat.Value ?= controllers.DataFormat.Html)
 
-GET         /                       @controllers.portal.users.UserProfiles.profile
-GET         /edit                   @controllers.portal.users.UserProfiles.updateProfile
-POST        /edit                   @controllers.portal.users.UserProfiles.updateProfilePost
-GET         /delete                 @controllers.portal.users.UserProfiles.deleteProfile
-POST        /delete                 @controllers.portal.users.UserProfiles.deleteProfilePost
-GET         /editImage              @controllers.portal.users.UserProfiles.updateProfileImage
-POST        /editImage              @controllers.portal.users.UserProfiles.updateProfileImagePost
+GET         /edit                @controllers.portal.users.UserProfiles.updateProfile
+POST        /edit                @controllers.portal.users.UserProfiles.updateProfilePost
+GET         /delete              @controllers.portal.users.UserProfiles.deleteProfile
+POST        /delete              @controllers.portal.users.UserProfiles.deleteProfilePost
+GET         /editImage           @controllers.portal.users.UserProfiles.updateProfileImage
+POST        /editImage           @controllers.portal.users.UserProfiles.updateProfileImagePost
 

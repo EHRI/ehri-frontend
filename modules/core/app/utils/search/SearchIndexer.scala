@@ -11,9 +11,9 @@ case class IndexingError(msg: String) extends Exception(msg)
  * Interface to an indexer service.
  *
  */
-trait Indexer {
+trait SearchIndexer {
 
-  def withChannel(channel: Concurrent.Channel[String], formatter: String => String = identity[String]): Indexer = this
+  def withChannel(channel: Concurrent.Channel[String], formatter: String => String = identity[String]): SearchIndexer = this
 
   /**
    * Index a single item by id.

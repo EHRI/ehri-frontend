@@ -45,11 +45,11 @@ trait TestConfiguration {
 
   def mockResolver: MockSearchResolver = new MockSearchResolver
   def idGenerator: IdGenerator = new CypherIdGenerator("%06d")
-  def mockDispatcher: Dispatcher = new MockSearchDispatcher(testBackend, searchParamBuffer)
+  def mockDispatcher: SearchEngine = new MockSearchDispatcher(testBackend, searchParamBuffer)
   def mockFeedback: FeedbackDAO = new MockFeedbackDAO(feedbackBuffer)
   def mockHelpdesk: HelpdeskDAO = new MockHelpdeskDAO(helpdeskBuffer)
   def mockMailer: MailerAPI = new MockBufferedMailer(mailBuffer)
-  def mockIndexer: Indexer = new MockSearchIndexer(indexEventBuffer)
+  def mockIndexer: SearchIndexer = new MockSearchIndexer(indexEventBuffer)
   // NB: The mutable state for the user DAO is still stored globally
   // in the mocks package.
   def mockAccounts: AccountManager = MockAccountManager()
@@ -80,10 +80,10 @@ trait TestConfiguration {
     lazy val injector = Guice.createInjector(new AbstractModule {
       protected def configure() {
         bind(classOf[GlobalConfig]).toInstance(TestConfig)
-        bind(classOf[Indexer]).toInstance(mockIndexer)
+        bind(classOf[SearchIndexer]).toInstance(mockIndexer)
         bind(classOf[Backend]).toInstance(testBackend)
-        bind(classOf[Dispatcher]).toInstance(mockDispatcher)
-        bind(classOf[Resolver]).toInstance(mockResolver)
+        bind(classOf[SearchEngine]).toInstance(mockDispatcher)
+        bind(classOf[SearchItemResolver]).toInstance(mockResolver)
         bind(classOf[FeedbackDAO]).toInstance(mockFeedback)
         bind(classOf[HelpdeskDAO]).toInstance(mockHelpdesk)
         bind(classOf[IdGenerator]).toInstance(idGenerator)

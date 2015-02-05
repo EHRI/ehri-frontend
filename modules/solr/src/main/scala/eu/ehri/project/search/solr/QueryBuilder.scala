@@ -1,6 +1,7 @@
-package utils.search
+package eu.ehri.project.search.solr
 
 import models.UserProfile
+import utils.search._
 
 /**
  * @author Mike Bryant (http://github.com/mikesname)
@@ -83,10 +84,10 @@ trait QueryBuilder {
   /**
    * Build a simple filter query.
    */
-  def simpleFilter(alphabetical: Boolean = false)(implicit userOpt: Option[UserProfile]): Map[String,Seq[String]]
+  def simpleFilterQuery(alphabetical: Boolean = false)(implicit userOpt: Option[UserProfile]): Map[String,Seq[String]]
 
   /**
    * Build a full search query.
    */
-  def search()(implicit userOpt: Option[UserProfile]): Map[String,Seq[String]]
+  def searchQuery()(implicit userOpt: Option[UserProfile]): Map[String,Seq[String]]
 }

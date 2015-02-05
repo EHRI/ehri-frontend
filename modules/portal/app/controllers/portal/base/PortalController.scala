@@ -20,7 +20,7 @@ import models.view.ItemDetails
 import models.view.UserDetails
 import backend.ApiUser
 import play.api.mvc.Result
-import views.html.errors.itemNotFound
+import views.html.errors.{maintenance, itemNotFound}
 
 
 /**
@@ -91,6 +91,11 @@ trait PortalController
   override def notFoundError(request: RequestHeader, msg: Option[String] = None)(implicit context: ExecutionContext): Future[Result] = {
     implicit val r  = request
     immediate(NotFound(renderError("errors.itemNotFound", itemNotFound(msg))))
+  }
+
+  override def downForMaintenance(request: RequestHeader)(implicit context: ExecutionContext): Future[Result] = {
+    implicit val r  = request
+    immediate(ServiceUnavailable(renderError("errors.maintenance", maintenance())))
   }
 
   /**

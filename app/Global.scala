@@ -15,6 +15,7 @@ import global.GlobalConfig
 import play.api._
 import play.api.mvc.{RequestHeader, Result, WithFilters}
 import play.filters.csrf._
+import eu.ehri.project.search.solr.{SolrSearchEngine, SolrQueryBuilder,JsonResponseHandler,WriterType}
 import utils.search._
 
 import scala.concurrent.Future
@@ -27,13 +28,12 @@ object Global extends WithFilters(CSRFFilter()) with GlobalSettings {
 
   // This is where we tie together the various parts of the application
   // in terms of the component implementations.
-  private def queryBuilder: QueryBuilder = new solr.SolrQueryBuilder(solr.WriterType.Json, debugQuery = true)
-  private def searchDispatcher: Dispatcher = new solr.SolrDispatcher(
-    queryBuilder,
-    handler = r => new solr.SolrJsonQueryResponse(r.json)
+  private def searchEngine: SearchEngine = new SolrSearchEngine(
+    new SolrQueryBuilder(WriterType.Json, debugQuery = true),
+    JsonResponseHandler
   )
-  private def searchIndexer: Indexer = new indexing.CmdlineIndexer
-  private def searchResolver: Resolver = new GidSearchResolver
+  private def searchIndexer: SearchIndexer = new indexing.CmdlineIndexer
+  private def searchResolver: SearchItemResolver = new GidSearchResolver
   private def feedbackDAO: FeedbackDAO = new ParseFeedbackDAO
   private def helpdeskDAO: HelpdeskDAO = new EhriHelpdesk
   private def idGenerator: IdGenerator = new CypherIdGenerator(idFormat = "%06d")
@@ -74,9 +74,9 @@ object Global extends WithFilters(CSRFFilter()) with GlobalSettings {
   lazy val injector = Guice.createInjector(new AbstractModule {
     protected def configure() {
       bind(classOf[GlobalConfig]).toInstance(RunConfiguration)
-      bind(classOf[Indexer]).toInstance(searchIndexer)
-      bind(classOf[Dispatcher]).toInstance(searchDispatcher)
-      bind(classOf[Resolver]).toInstance(searchResolver)
+      bind(classOf[SearchIndexer]).toInstance(searchIndexer)
+      bind(classOf[SearchEngine]).toInstance(searchEngine)
+      bind(classOf[SearchItemResolver]).toInstance(searchResolver)
       bind(classOf[Backend]).toInstance(backend)
       bind(classOf[FeedbackDAO]).toInstance(feedbackDAO)
       bind(classOf[HelpdeskDAO]).toInstance(helpdeskDAO)

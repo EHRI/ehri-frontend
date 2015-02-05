@@ -24,7 +24,7 @@ import controllers.portal.base.PortalController
 import play.api.libs.json.Json
 
 @Singleton
-case class Portal @Inject()(implicit globalConfig: global.GlobalConfig, searchDispatcher: Dispatcher, searchResolver: Resolver, backend: Backend,
+case class Portal @Inject()(implicit globalConfig: global.GlobalConfig, searchDispatcher: SearchEngine, searchResolver: SearchItemResolver, backend: Backend,
     accounts: AccountManager)
   extends PortalController
   with Search
@@ -120,16 +120,8 @@ case class Portal @Inject()(implicit globalConfig: global.GlobalConfig, searchDi
     }
   }
 
-  def placeholder = Cached.status(_ => "pages:portalPlaceholder", OK, 60 * 60) {
-    Action { implicit request =>
-      Ok(views.html.placeholder())
-    }
-  }
-
-  def dataPolicy = Cached("pages:portalDataPolicy") {
-    OptionalUserAction.apply { implicit request =>
-      Ok(p.dataPolicy())
-    }
+  def dataPolicy = OptionalUserAction.apply { implicit request =>
+    Ok(p.dataPolicy())
   }
 
   def terms = OptionalUserAction.apply { implicit request =>

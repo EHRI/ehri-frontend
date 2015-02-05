@@ -30,8 +30,8 @@ import controllers.portal.base.PortalController
  * just lists of IDs.
  */
 @Singleton
-case class Social @Inject()(implicit globalConfig: global.GlobalConfig, searchDispatcher: Dispatcher,
-                            searchResolver: Resolver, backend: Backend, accounts: AccountManager,
+case class Social @Inject()(implicit globalConfig: global.GlobalConfig, searchDispatcher: SearchEngine,
+                            searchResolver: SearchItemResolver, backend: Backend, accounts: AccountManager,
     mailer: MailerAPI)
   extends PortalController {
 
@@ -97,7 +97,8 @@ case class Social @Inject()(implicit globalConfig: global.GlobalConfig, searchDi
       theirWatching <- watching
       followed <- isFollowing
       canMessage <- allowMessage
-    } yield Ok(p.userProfile.userWatched(them, theirWatching, followed, canMessage))
+    } yield Ok(p.userProfile.userWatched(them,
+      SearchResult(theirWatching, SearchParams.empty), followed, canMessage))
   }
 
   def followUser(userId: String) = WithUserAction { implicit request =>
