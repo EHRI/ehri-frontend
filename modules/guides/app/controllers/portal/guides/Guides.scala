@@ -30,7 +30,7 @@ import scala.concurrent.Future.{successful => immediate}
 
 
 @Singleton
-case class Guides @Inject()(implicit globalConfig: global.GlobalConfig, searchDispatcher: SearchEngine, searchResolver: SearchItemResolver, backend: Backend,
+case class Guides @Inject()(implicit globalConfig: global.GlobalConfig, searchEngine: SearchEngine, searchResolver: SearchItemResolver, backend: Backend,
                             accounts: AccountManager)
   extends PortalController
   with Search

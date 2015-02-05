@@ -24,7 +24,7 @@ import controllers.portal.base.PortalController
 import play.api.libs.json.Json
 
 @Singleton
-case class Portal @Inject()(implicit globalConfig: global.GlobalConfig, searchDispatcher: SearchEngine, searchResolver: SearchItemResolver, backend: Backend,
+case class Portal @Inject()(implicit globalConfig: global.GlobalConfig, searchEngine: SearchEngine, searchResolver: SearchItemResolver, backend: Backend,
     accounts: AccountManager)
   extends PortalController
   with Search

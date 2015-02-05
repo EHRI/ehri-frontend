@@ -1,15 +1,10 @@
-@(them: UserProfile, result: utils.search.SearchResult[AnyModel])(implicit userOpt: Option[UserProfile], req: RequestHeader, lang: Lang, globalConfig: global.GlobalConfig)
+@(them: UserProfile, result: utils.search.SearchResult[(AnyModel, utils.search.SearchHit)])(implicit userOpt: Option[UserProfile], req: RequestHeader, lang: Lang, globalConfig: global.GlobalConfig)
 
 @defining(userOpt.exists(_.id == them.id)) { isCurrentUser =>
 
     @if(result.nonEmpty) {
-        <ul class="watched-items">
-            @result.page.map { item =>
-                <li>
-                    @views.html.p.listItem(item, true)
-                </li>
-            }
-        </ul>
+        @views.html.p.searchItemList(result.page, watched = result.page.items.map(_._1.id))
+
         @common.pagination(result.page)
         <div class="list-export-options">
             <span class="glyphicon glyphicon-download"></span>

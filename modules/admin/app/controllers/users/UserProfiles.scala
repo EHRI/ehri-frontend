@@ -24,7 +24,7 @@ import controllers.base.AdminController
 
 
 @Singleton
-case class UserProfiles @Inject()(implicit globalConfig: global.GlobalConfig, searchIndexer: SearchIndexer, searchDispatcher: SearchEngine, searchResolver: SearchItemResolver, backend: Backend, accounts: AccountManager)
+case class UserProfiles @Inject()(implicit globalConfig: global.GlobalConfig, searchIndexer: SearchIndexer, searchEngine: SearchEngine, searchResolver: SearchItemResolver, backend: Backend, accounts: AccountManager)
   extends AdminController
   with PermissionHolder[UserProfile]
   with ItemPermissions[UserProfile]

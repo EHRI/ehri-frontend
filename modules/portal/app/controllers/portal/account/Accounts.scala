@@ -32,7 +32,7 @@ import controllers.portal.base.PortalController
  * @author Mike Bryant (http://github.com/mikesname)
  */
 @Singleton
-case class Accounts @Inject()(implicit globalConfig: GlobalConfig, searchDispatcher: SearchEngine, searchResolver: SearchItemResolver, backend: Backend,
+case class Accounts @Inject()(implicit globalConfig: GlobalConfig, searchEngine: SearchEngine, searchResolver: SearchItemResolver, backend: Backend,
                              accounts: AccountManager, mailer: MailerAPI, oAuth2Flow: OAuth2Flow)
   extends LoginLogout
   with PortalController

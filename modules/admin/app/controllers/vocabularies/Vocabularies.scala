@@ -14,7 +14,7 @@ import controllers.base.AdminController
 
 
 @Singleton
-case class Vocabularies @Inject()(implicit globalConfig: global.GlobalConfig, searchDispatcher: SearchEngine, searchIndexer: SearchIndexer, searchResolver: SearchItemResolver, backend: Backend, accounts: AccountManager)
+case class Vocabularies @Inject()(implicit globalConfig: global.GlobalConfig, searchEngine: SearchEngine, searchIndexer: SearchIndexer, searchResolver: SearchItemResolver, backend: Backend, accounts: AccountManager)
   extends AdminController
   with CRUD[VocabularyF,Vocabulary]
   with Creator[ConceptF, Concept, Vocabulary]

@@ -10,7 +10,7 @@ import views.html.p
 
 
 @Singleton
-case class Repositories @Inject()(implicit globalConfig: global.GlobalConfig, searchDispatcher: SearchEngine, searchResolver: SearchItemResolver, backend: Backend,
+case class Repositories @Inject()(implicit globalConfig: global.GlobalConfig, searchEngine: SearchEngine, searchResolver: SearchItemResolver, backend: Backend,
                             accounts: AccountManager)
   extends PortalController
   with Generic[Repository] {

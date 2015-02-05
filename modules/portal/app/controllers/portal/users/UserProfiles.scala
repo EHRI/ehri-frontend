@@ -35,7 +35,7 @@ import controllers.portal.base.{PortalController, PortalAuthConfigImpl}
  * @author Mike Bryant (http://github.com/mikesname)
  */
 @Singleton
-case class UserProfiles @Inject()(implicit globalConfig: global.GlobalConfig, searchDispatcher: SearchEngine, searchResolver: SearchItemResolver, backend: Backend,
+case class UserProfiles @Inject()(implicit globalConfig: global.GlobalConfig, searchEngine: SearchEngine, searchResolver: SearchItemResolver, backend: Backend,
                             accounts: AccountManager, mailer: MailerAPI)
     extends PortalController
     with LoginLogout
@@ -110,26 +110,9 @@ case class UserProfiles @Inject()(implicit globalConfig: global.GlobalConfig, se
 
 
   def watching(format: DataFormat.Value = DataFormat.Html) = WithUserAction.async { implicit request =>
-    // This is a hack. To search a user's watched items we first have to
-    // look up *all* the item's they're watching in the DB, and then use
-    // that to constrain the search query. Normally, when we get the query
-    // result the standard search item resolver would fetch those items from
-    // DB a second time. To avoid this we use a resolver that looks up the search
-    // items from the list already fetched, which saves an unnecessary DB hit.
-    // We also do some casting, but this is okay since we're searching `AnyModel`
-    // and the input list is also `AnyModel`. Still it's not nice.
-    // FIXME: Casting.
-    def listResolver(items: Seq[AnyModel]): SearchItemResolver = new SearchItemResolver {
-      override def resolve[MT](results: Seq[SearchHit])(implicit apiUser: ApiUser, rd: BackendReadable[MT]): Future[Seq[MT]] =
-        immediate(results.flatMap(hit => items.find(_.id == hit.itemId)).map(_.asInstanceOf[MT]))
-    }
-
     for {
       watching <- backend.watching[AnyModel](request.user.id)
-      result <- find[AnyModel](
-        idFilters = watching.map(_.id),
-        resolverOpt = Some(listResolver(watching))
-      )
+      result <- findIn[AnyModel](watching)
     } yield {
       val watchList = result.mapItems(_._1).page
       format match {
@@ -145,7 +128,7 @@ case class UserProfiles @Inject()(implicit globalConfig: global.GlobalConfig, se
             .as(MimeTypes.JSON)
         case DataFormat.Html => Ok(p.userProfile.watched(
           request.user,
-          result.mapItems(_._1),
+          result,
           searchAction = profileRoutes.watching(format = DataFormat.Html),
           followed = false,
           canMessage = false

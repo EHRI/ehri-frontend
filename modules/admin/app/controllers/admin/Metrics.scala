@@ -22,7 +22,7 @@ import controllers.base.AdminController
 
 
 @Singleton
-case class Metrics @Inject()(implicit globalConfig: global.GlobalConfig, searchDispatcher: SearchEngine, searchResolver: SearchItemResolver, backend: Backend, accounts: AccountManager) extends AdminController with Search {
+case class Metrics @Inject()(implicit globalConfig: global.GlobalConfig, searchEngine: SearchEngine, searchResolver: SearchItemResolver, backend: Backend, accounts: AccountManager) extends AdminController with Search {
 
   private val metricCacheTime = 60 * 60 // 1 hour
 
