@@ -22,7 +22,7 @@ import models.base.AnyModel
 import controllers.portal.base.PortalController
 
 @Singleton
-case class Bookmarks @Inject()(implicit globalConfig: global.GlobalConfig, searchDispatcher: SearchEngine, searchResolver: SearchItemResolver, backend: Backend,
+case class Bookmarks @Inject()(implicit globalConfig: global.GlobalConfig, searchEngine: SearchEngine, searchResolver: SearchItemResolver, backend: Backend,
     accounts: AccountManager, idGenerator: IdGenerator)
   extends PortalController
   with FacetConfig
