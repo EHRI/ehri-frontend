@@ -8,7 +8,7 @@ import scala.concurrent.Future
 /**
  * User: mikebryant
  */
-trait Dispatcher {
+trait SearchEngine {
 
   /**
    * The general search parameters
@@ -50,53 +50,53 @@ trait Dispatcher {
   /**
    * Set the general search parameters.
    */
-  def setParams(params: SearchParams): Dispatcher
+  def setParams(params: SearchParams): SearchEngine
 
   /**
    * Add additional applied facets to this request.
    */
-  def withFacets(facets: Seq[AppliedFacet]): Dispatcher
+  def withFacets(facets: Seq[AppliedFacet]): SearchEngine
 
   /**
    * Add additional facet classes to this request.
    */
-  def withFacetClasses(fc: Seq[FacetClass[Facet]]): Dispatcher
+  def withFacetClasses(fc: Seq[FacetClass[Facet]]): SearchEngine
 
   /**
    * Add additional key/value filters to this request.
    */
-  def withFilters(filters: Map[String,Any]): Dispatcher
+  def withFilters(filters: Map[String,Any]): SearchEngine
 
   /**
    * Add additional ID filters to this request.
    */
-  def withIdFilters(ids: Seq[String]): Dispatcher
+  def withIdFilters(ids: Seq[String]): SearchEngine
 
   /**
    * Add additional IDs to exclude.
    */
-  def withIdExcludes(ids: Seq[String]): Dispatcher
+  def withIdExcludes(ids: Seq[String]): SearchEngine
 
   /**
    * Add entity type constraints.
    */
-  def withEntities(entities: Seq[EntityType.Value]): Dispatcher
+  def withEntities(entities: Seq[EntityType.Value]): SearchEngine
 
   /**
    * Set the sort order.
    */
-  def setSort(sort: SearchOrder.Value): Dispatcher
+  def setSort(sort: SearchOrder.Value): SearchEngine
 
   /**
    * Add additional engine-specific key/value parameters
    * to this request.
    */
-  def withExtraParams(extra: Map[String,Any]): Dispatcher
+  def withExtraParams(extra: Map[String,Any]): SearchEngine
 
   /**
    * Set the mode for this request.
    */
-  def setMode(mode: SearchMode.Value): Dispatcher
+  def setMode(mode: SearchMode.Value): SearchEngine
 
 
   def filter()(implicit userOpt: Option[UserProfile]): Future[SearchResult[FilterHit]]

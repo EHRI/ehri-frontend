@@ -18,7 +18,7 @@ import controllers.base.AdminController
 
 
 @Singleton
-case class Repositories @Inject()(implicit globalConfig: global.GlobalConfig, searchDispatcher: Dispatcher, searchIndexer: Indexer, searchResolver: Resolver, backend: Backend, accounts: AccountManager)
+case class Repositories @Inject()(implicit globalConfig: global.GlobalConfig, searchDispatcher: SearchEngine, searchIndexer: SearchIndexer, searchResolver: SearchItemResolver, backend: Backend, accounts: AccountManager)
   extends AdminController
   with Read[Repository]
   with Update[RepositoryF, Repository]

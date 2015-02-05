@@ -18,7 +18,7 @@ import play.api.mvc.Result
 import forms.VisibilityForm
 import com.google.common.net.HttpHeaders
 import backend.Backend
-import utils.search.{Resolver, Dispatcher}
+import utils.search.{SearchItemResolver, SearchEngine}
 import models.view.AnnotationContext
 
 
@@ -30,7 +30,7 @@ import controllers.portal.base.PortalController
  * @author Mike Bryant (http://github.com/mikesname)
  */
 @Singleton
-case class Annotations @Inject()(implicit globalConfig: global.GlobalConfig, searchDispatcher: Dispatcher, searchResolver: Resolver,
+case class Annotations @Inject()(implicit globalConfig: global.GlobalConfig, searchDispatcher: SearchEngine, searchResolver: SearchItemResolver,
                                  backend: Backend, accounts: AccountManager)
   extends PortalController
   with Read[Annotation]

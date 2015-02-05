@@ -19,8 +19,8 @@ import backend.BackendReadable
  */
 trait Search extends Controller with AuthController with ControllerHelpers {
 
-  def searchDispatcher: utils.search.Dispatcher
-  def searchResolver: utils.search.Resolver
+  def searchDispatcher: utils.search.SearchEngine
+  def searchResolver: utils.search.SearchItemResolver
 
   type FacetBuilder = RequestHeader => Seq[FacetClass[Facet]]
   protected val emptyFacets: FacetBuilder = { lang => List.empty[FacetClass[Facet]]}
@@ -71,7 +71,7 @@ trait Search extends Controller with AuthController with ControllerHelpers {
                entities: Seq[EntityType.Value] = Nil,
                facetBuilder: FacetBuilder = emptyFacets,
                mode: SearchMode.Value = SearchMode.DefaultAll,
-               resolverOpt: Option[Resolver] = None)(
+               resolverOpt: Option[SearchItemResolver] = None)(
                 implicit request: RequestHeader, userOpt: Option[UserProfile], rd: BackendReadable[MT]): Future[SearchResult[(MT,SearchHit)]] = {
 
     val params = defaultParams
@@ -87,7 +87,7 @@ trait Search extends Controller with AuthController with ControllerHelpers {
     val allFacets = facetBuilder(request)
     val boundFacets: Seq[AppliedFacet] = bindFacetsFromRequest(allFacets)
 
-    val dispatcher: Dispatcher = searchDispatcher
+    val dispatcher: SearchEngine = searchDispatcher
       .setParams(sp)
       .withFacets(boundFacets)
       .withFacetClasses(allFacets)

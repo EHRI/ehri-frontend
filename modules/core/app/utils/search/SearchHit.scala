@@ -19,8 +19,8 @@ case class SearchHit(
   phrases: Seq[String] = Seq.empty
 ) extends views.Highlighter {
 
-  private def stripTags(value: String): String
-    = value.replaceAll("""<(?!\/?(?=>|\s.*>))\/?.*?>""", "")
+  private def stripTags(value: String): String =
+    value.replaceAll("""<(?!\/?(?=>|\s.*>))\/?.*?>""", "")
 
   private val skipFields = Set(
     ID, ITEM_ID, DB_ID, PARENT_ID, TYPE, LANGUAGE_CODE

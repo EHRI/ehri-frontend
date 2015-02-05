@@ -1,4 +1,4 @@
-package solr
+package eu.ehri.project.search.solr
 
 import com.github.seratch.scalikesolr.request.query._
 import com.github.seratch.scalikesolr.request.query.highlighting.{

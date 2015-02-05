@@ -1,4 +1,4 @@
-package solr
+package eu.ehri.project.search.solr
 
 import models.UserProfile
 import utils.search._

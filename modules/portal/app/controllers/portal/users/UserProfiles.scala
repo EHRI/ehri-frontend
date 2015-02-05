@@ -35,7 +35,7 @@ import controllers.portal.base.{PortalController, PortalAuthConfigImpl}
  * @author Mike Bryant (http://github.com/mikesname)
  */
 @Singleton
-case class UserProfiles @Inject()(implicit globalConfig: global.GlobalConfig, searchDispatcher: Dispatcher, searchResolver: Resolver, backend: Backend,
+case class UserProfiles @Inject()(implicit globalConfig: global.GlobalConfig, searchDispatcher: SearchEngine, searchResolver: SearchItemResolver, backend: Backend,
                             accounts: AccountManager, mailer: MailerAPI)
     extends PortalController
     with LoginLogout
@@ -119,7 +119,7 @@ case class UserProfiles @Inject()(implicit globalConfig: global.GlobalConfig, se
     // We also do some casting, but this is okay since we're searching `AnyModel`
     // and the input list is also `AnyModel`. Still it's not nice.
     // FIXME: Casting.
-    def listResolver(items: Seq[AnyModel]): Resolver = new Resolver {
+    def listResolver(items: Seq[AnyModel]): SearchItemResolver = new SearchItemResolver {
       override def resolve[MT](results: Seq[SearchHit])(implicit apiUser: ApiUser, rd: BackendReadable[MT]): Future[Seq[MT]] =
         immediate(results.flatMap(hit => items.find(_.id == hit.itemId)).map(_.asInstanceOf[MT]))
     }

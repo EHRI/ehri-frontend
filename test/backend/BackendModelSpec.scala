@@ -9,7 +9,7 @@ import play.api.libs.json.{JsString, Json}
 import models.base.AnyModel
 import models._
 import play.api.test.PlaySpecification
-import utils.search.{MockSearchIndexer, Indexer}
+import utils.search.{MockSearchIndexer, SearchIndexer}
 import helpers.RestBackendRunner
 
 /**
@@ -23,7 +23,7 @@ class BackendModelSpec extends RestBackendRunner with PlaySpecification {
   implicit val apiUser: ApiUser = AuthenticatedUser(userProfile.id)
 
   val indexEventBuffer = collection.mutable.ListBuffer.empty[String]
-  def mockIndexer: Indexer = new MockSearchIndexer(indexEventBuffer)
+  def mockIndexer: SearchIndexer = new MockSearchIndexer(indexEventBuffer)
 
   def testBackend: Backend = new RestBackend(testEventHandler)
   def testEventHandler = new EventHandler {

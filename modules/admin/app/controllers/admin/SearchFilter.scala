@@ -3,14 +3,14 @@ package controllers.admin
 import auth.AccountManager
 import play.api.libs.concurrent.Execution.Implicits._
 import play.api.libs.json.Json
-import utils.search.{Resolver, Dispatcher}
+import utils.search.{SearchItemResolver, SearchEngine}
 import com.google.inject._
 import controllers.generic.Search
 import backend.Backend
 import controllers.base.AdminController
 
 @Singleton
-case class SearchFilter @Inject()(implicit globalConfig: global.GlobalConfig, searchDispatcher: Dispatcher, searchResolver: Resolver, backend: Backend, accounts: AccountManager)
+case class SearchFilter @Inject()(implicit globalConfig: global.GlobalConfig, searchDispatcher: SearchEngine, searchResolver: SearchItemResolver, backend: Backend, accounts: AccountManager)
   extends AdminController
   with Search {
 

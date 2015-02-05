@@ -1,4 +1,6 @@
-package utils.search
+package eu.ehri.project.search.solr
+
+import utils.search.{AppliedFacet, Facet, FacetClass, SearchHit}
 
 /**
  * Trait that exposes all the relevant information
@@ -6,7 +8,7 @@ package utils.search
  *
  * @author Mike Bryant (http://github.com/mikesname)
  */
-trait QueryResponse {
+trait QueryResponseExtractor {
   def phrases: Seq[String]
   def items: Seq[SearchHit]
   def extractFacetData(appliedFacets: Seq[AppliedFacet], allFacets: Seq[FacetClass[Facet]]): Seq[FacetClass[Facet]]

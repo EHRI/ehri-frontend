@@ -12,6 +12,6 @@ import backend.{BackendReadable, ApiUser}
  *
  * @author Mike Bryant (http://github.com/mikesname)
  */
-trait Resolver {
+trait SearchItemResolver {
   def resolve[MT](results: Seq[SearchHit])(implicit apiUser: ApiUser, rd: BackendReadable[MT]): Future[Seq[MT]]
 }

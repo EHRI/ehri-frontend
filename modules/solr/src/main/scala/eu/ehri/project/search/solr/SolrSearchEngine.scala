@@ -1,4 +1,4 @@
-package solr
+package eu.ehri.project.search.solr
 
 import defines.EntityType
 import play.api.libs.concurrent.Execution.Implicits._
@@ -18,9 +18,9 @@ import play.api.http.{MimeTypes, HeaderNames}
  * Implements the plugin implementation so other search
  * engines/mocks can be substituted.
  */
-case class SolrDispatcher(
+case class SolrSearchEngine(
   queryBuilder: QueryBuilder,
-  handler: WSResponse => QueryResponse,
+  handler: ResponseHandler,
   params: SearchParams = SearchParams.empty,
   filters: Map[String, Any] = Map.empty,
   idFilters: Seq[String] = Seq.empty,
@@ -29,7 +29,7 @@ case class SolrDispatcher(
   extraParams: Map[String, Any] = Map.empty,
   mode: SearchMode.Value = SearchMode.DefaultAll
 )(implicit val app: play.api.Application)
-  extends backend.rest.RestDAO with Dispatcher {
+  extends SearchEngine {
 
   // Dummy value to satisfy the RestDAO trait...
   val userProfile: Option[UserProfile] = None
@@ -42,7 +42,7 @@ case class SolrDispatcher(
   /**
    * Get the Solr URL...
    */
-  def fullSearchUrl(query: Map[String,Seq[String]]) = solrSelectUrl + "?" + joinQueryString(query)
+  def fullSearchUrl(query: Map[String,Seq[String]]) = utils.joinPath(solrSelectUrl, query)
 
   def dispatch(query: Map[String,Seq[String]]): Future[WSResponse] = {
     Logger.logger.debug("SOLR: {}", fullSearchUrl(query))
@@ -66,7 +66,7 @@ case class SolrDispatcher(
       .simpleFilterQuery()
 
     dispatch(queryRequest).map { response =>
-      val parser = handler(checkError(response))
+      val parser = handler.getResponseParser(response.body)
       val items = parser.items.map(i => FilterHit(
         i.itemId,
         i.id,
@@ -98,7 +98,7 @@ case class SolrDispatcher(
       .searchQuery()
 
     dispatch(queryRequest).map { response =>
-      val parser = handler(checkError(response))
+      val parser = handler.getResponseParser(response.body)
       val facetClassList: Seq[FacetClass[Facet]] = parser.extractFacetData(facets, facetClasses)
       val page = Page(params.offset, params.countOrDefault, parser.count, parser.items)
       SearchResult(page, params, facets, facetClassList, spellcheck = parser.spellcheckSuggestion)
@@ -128,7 +128,7 @@ case class SolrDispatcher(
       .searchQuery()
 
     dispatch(queryRequest).map { response =>
-      val fClasses = handler(checkError(response)).extractFacetData(facets, facetClasses)
+      val fClasses = handler.getResponseParser(response.body).extractFacetData(facets, facetClasses)
 
       val facetClass = fClasses.find(_.param == facet).getOrElse(
         throw new Exception("Unknown facet: " + facet))
@@ -140,23 +140,23 @@ case class SolrDispatcher(
     }
   }
 
-  override def withIdFilters(ids: Seq[String]): Dispatcher = copy(idFilters = idFilters ++ ids)
+  override def withIdFilters(ids: Seq[String]): SearchEngine = copy(idFilters = idFilters ++ ids)
 
-  override def withFacets(f: Seq[AppliedFacet]): Dispatcher = copy(facets = facets ++ f)
+  override def withFacets(f: Seq[AppliedFacet]): SearchEngine = copy(facets = facets ++ f)
 
-  override def setMode(mode: SearchMode.Value): Dispatcher = copy(mode = mode)
+  override def setMode(mode: SearchMode.Value): SearchEngine = copy(mode = mode)
 
-  override def withFilters(f: Map[String, Any]): Dispatcher = copy(filters = filters ++ f)
+  override def withFilters(f: Map[String, Any]): SearchEngine = copy(filters = filters ++ f)
 
-  override def setParams(params: SearchParams): Dispatcher = copy(params = params)
+  override def setParams(params: SearchParams): SearchEngine = copy(params = params)
 
-  override def withFacetClasses(fc: Seq[FacetClass[Facet]]): Dispatcher = copy(facetClasses = facetClasses ++ fc)
+  override def withFacetClasses(fc: Seq[FacetClass[Facet]]): SearchEngine = copy(facetClasses = facetClasses ++ fc)
 
-  override def withExtraParams(extra: Map[String, Any]): Dispatcher = copy(extraParams = extraParams ++ extra)
+  override def withExtraParams(extra: Map[String, Any]): SearchEngine = copy(extraParams = extraParams ++ extra)
 
-  override def withIdExcludes(ids: Seq[String]): Dispatcher = copy(params = params.copy(excludes = Some(ids.toList)))
+  override def withIdExcludes(ids: Seq[String]): SearchEngine = copy(params = params.copy(excludes = Some(ids.toList)))
 
-  override def withEntities(entities: Seq[EntityType.Value]): Dispatcher = copy(params = params.copy(entities = entities.toList))
+  override def withEntities(entities: Seq[EntityType.Value]): SearchEngine = copy(params = params.copy(entities = entities.toList))
 
-  override def setSort(sort: SearchOrder.Value): Dispatcher = copy(params = params.copy(sort = Some(sort)))
+  override def setSort(sort: SearchOrder.Value): SearchEngine = copy(params = params.copy(sort = Some(sort)))
 }

@@ -30,8 +30,8 @@ import controllers.portal.base.PortalController
  * just lists of IDs.
  */
 @Singleton
-case class Social @Inject()(implicit globalConfig: global.GlobalConfig, searchDispatcher: Dispatcher,
-                            searchResolver: Resolver, backend: Backend, accounts: AccountManager,
+case class Social @Inject()(implicit globalConfig: global.GlobalConfig, searchDispatcher: SearchEngine,
+                            searchResolver: SearchItemResolver, backend: Backend, accounts: AccountManager,
     mailer: MailerAPI)
   extends PortalController {
 

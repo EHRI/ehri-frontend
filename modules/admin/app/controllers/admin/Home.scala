@@ -21,7 +21,7 @@ import controllers.base.AdminController
 
 
 @Singleton
-case class Home @Inject()(implicit globalConfig: global.GlobalConfig, searchDispatcher: Dispatcher, searchResolver: Resolver, backend: Backend, accounts: AccountManager) extends AdminController with Search {
+case class Home @Inject()(implicit globalConfig: global.GlobalConfig, searchDispatcher: SearchEngine, searchResolver: SearchItemResolver, backend: Backend, accounts: AccountManager) extends AdminController with Search {
 
   val searchEntities = List(
     EntityType.DocumentaryUnit,

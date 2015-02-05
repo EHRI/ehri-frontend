@@ -6,7 +6,7 @@ import _root_.forms.VisibilityForm
 import controllers.generic._
 import models._
 import defines.{ContentTypes, EntityType}
-import utils.search.{SearchConstants, Resolver, Dispatcher}
+import utils.search.{SearchConstants, SearchItemResolver, SearchEngine}
 import com.google.inject._
 import scala.concurrent.Future.{successful => immediate}
 import backend.{Entity, IdGenerator, Backend}
@@ -16,7 +16,7 @@ import controllers.base.AdminController
 
 
 @Singleton
-case class Countries @Inject()(implicit globalConfig: global.GlobalConfig, searchDispatcher: Dispatcher, searchResolver: Resolver, backend: Backend, idGenerator: IdGenerator, accounts: AccountManager)
+case class Countries @Inject()(implicit globalConfig: global.GlobalConfig, searchDispatcher: SearchEngine, searchResolver: SearchItemResolver, backend: Backend, idGenerator: IdGenerator, accounts: AccountManager)
   extends AdminController
   with CRUD[CountryF,Country]
   with Creator[RepositoryF, Repository, Country]
