@@ -37,8 +37,12 @@ class SolrQueryParserSpec extends PlaySpecification with ResourceUtils {
       )
       val facetData = qp.extractFacetData(List.empty, allFacets)
       facetData.size must equalTo(1)
-      facetData(0).count must equalTo(1)
+      facetData(0).count must equalTo(2)
       facetData(0).facets(0).value must equalTo("eng")
+      facetData(0).facets(1).value must equalTo("fre")
+      facetData(0).sortedByCount.headOption must beSome.which { top =>
+        top.value must equalTo("eng")
+      }
     }
 
     "parse highlighting correctly" in {
@@ -78,8 +82,12 @@ class SolrQueryParserSpec extends PlaySpecification with ResourceUtils {
       )
       val facetData = qp.extractFacetData(List.empty, allFacets)
       facetData.size must equalTo(1)
-      facetData(0).count must equalTo(1)
+      facetData(0).count must equalTo(2)
       facetData(0).facets(0).value must equalTo("eng")
+      facetData(0).facets(1).value must equalTo("fre")
+      facetData(0).sortedByCount.headOption must beSome.which { top =>
+        top.value must equalTo("eng")
+      }
     }
 
     "parse highlighting correctly" in {
