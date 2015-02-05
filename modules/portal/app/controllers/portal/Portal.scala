@@ -97,7 +97,8 @@ case class Portal @Inject()(implicit globalConfig: global.GlobalConfig, searchEn
           count = Some(0),
           entities = defaultSearchTypes
         ),
-        facetBuilder = entityMetrics
+        facetBuilder = entityMetrics,
+        extra = Map("facet.limit" -> "-1")
       ).map(_.facetClasses)
     }.map(facets => Ok(p.portal(Stats(facets))))
   }
