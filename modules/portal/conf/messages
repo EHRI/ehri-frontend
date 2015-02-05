@@ -1,4 +1,5 @@
 welcome=Welcome to EHRI
+welcome.title=Welcome to the European Holocaust Research Infrastructure online portal
 home=Home
 about=About EHRI
 language=Language
@@ -198,6 +199,7 @@ dates.all=All
 # Login-related
 #
 login=Sign In
+login.title=Sign in or register for an EHRI account
 login.benefits=An EHRI account allows you to:
 login.benefits.1=Contact other people on EHRI
 login.benefits.2=Follow activity and changes to material that interests you
