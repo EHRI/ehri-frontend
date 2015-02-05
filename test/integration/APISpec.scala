@@ -1,15 +1,15 @@
 package integration
 
-import models.{AnnotationF, AccessPointF}
+import controllers.generic.AccessPointLink
 import helpers._
-import play.api.libs.json.{JsBoolean, Json}
-import controllers.generic.{AccessPointLink, Annotate}
 import models.LinkF.LinkType
+import models.{AccessPointF, AnnotationF}
+import play.api.libs.json.{JsBoolean, Json}
 
 /**
  * Spec for testing various JSON endpoints used by Ajax components etc.
  */
-class AAPISpec extends IntegrationTestRunner {
+class APISpec extends IntegrationTestRunner {
 
   import mocks.privilegedUser
 
