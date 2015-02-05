@@ -83,6 +83,11 @@ trait SearchEngine {
   def withEntities(entities: Seq[EntityType.Value]): SearchEngine
 
   /**
+   * Set entity type(s), overriding anything already set.
+   */
+  def setEntity(entities: EntityType.Value*): SearchEngine
+
+  /**
    * Set the sort order.
    */
   def setSort(sort: SearchOrder.Value): SearchEngine

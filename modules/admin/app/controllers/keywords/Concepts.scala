@@ -27,7 +27,7 @@ case class Concepts @Inject()(implicit globalConfig: global.GlobalConfig, search
   with Delete[Concept]
   with Linking[Concept]
   with Annotate[Concept]
-  with Search {
+  with SearchType[Concept] {
 
   val targetContentTypes = Seq(ContentTypes.Concept)
 
@@ -62,13 +62,8 @@ case class Concepts @Inject()(implicit globalConfig: global.GlobalConfig, search
     }
   }
 
-  def search = OptionalUserAction.async { implicit request =>
-    find[Concept](
-      entities = List(EntityType.Concept),
-      facetBuilder = entityFacets
-    ).map { result =>
-      Ok(views.html.admin.concept.search(result, conceptRoutes.search()))
-    }
+  def search = SearchTypeAction(facetBuilder = entityFacets).apply { implicit request =>
+    Ok(views.html.admin.concept.search(request.result, conceptRoutes.search()))
   }
 
   def history(id: String) = ItemHistoryAction(id).apply { implicit request =>

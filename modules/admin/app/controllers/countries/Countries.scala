@@ -23,6 +23,7 @@ case class Countries @Inject()(implicit globalConfig: global.GlobalConfig, searc
   with Visibility[Country]
   with ScopePermissions[Country]
   with Annotate[Country]
+  with SearchType[Country]
   with Search {
 
   /**
@@ -58,11 +59,8 @@ case class Countries @Inject()(implicit globalConfig: global.GlobalConfig, searc
     Ok(views.html.admin.country.list(request.page, request.params))
   }
 
-  def search = OptionalUserAction.async { implicit request =>
-    import play.api.libs.concurrent.Execution.Implicits._
-    find[Country](entities = List(EntityType.Country)).map { result =>
-      Ok(views.html.admin.country.search(result, countryRoutes.search()))
-    }
+  def search = SearchTypeAction().apply { implicit request =>
+    Ok(views.html.admin.country.search(request.result, countryRoutes.search()))
   }
 
   def create = NewItemAction.apply { implicit request =>

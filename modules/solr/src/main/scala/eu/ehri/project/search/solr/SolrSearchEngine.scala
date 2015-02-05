@@ -158,5 +158,7 @@ case class SolrSearchEngine(
 
   override def withEntities(entities: Seq[EntityType.Value]): SearchEngine = copy(params = params.copy(entities = entities.toList))
 
+  override def setEntity(entities: EntityType.Value*): SearchEngine = copy(params = params.copy(entities = entities.toList))
+
   override def setSort(sort: SearchOrder.Value): SearchEngine = copy(params = params.copy(sort = Some(sort)))
 }

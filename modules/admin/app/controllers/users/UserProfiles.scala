@@ -32,6 +32,7 @@ case class UserProfiles @Inject()(implicit globalConfig: global.GlobalConfig, se
   with Update[UserProfileF,UserProfile]
   with Delete[UserProfile]
   with Membership[UserProfile]
+  with SearchType[UserProfile]
   with Search
   with AccountHelpers {
 
@@ -179,14 +180,10 @@ case class UserProfiles @Inject()(implicit globalConfig: global.GlobalConfig, se
     Ok(views.html.admin.userProfile.show(request.item, request.annotations))
   }
 
-  def search = OptionalUserAction.async { implicit request =>
-    for {
-      result <- find[UserProfile](
-        entities = List(EntityType.UserProfile), facetBuilder = entityFacets)
-      accounts <- accounts.findAllById(ids = result.page.items.map(_._1.id))
-    } yield {
-      val pageWithAccounts = result.mapItems { case(up, hit) =>
-        up.copy(account = accounts.find(_.id == up.id)) -> hit
+  def search = SearchTypeAction(facetBuilder = entityFacets).async { implicit request =>
+    accounts.findAllById(ids = request.result.page.items.map(_._1.id)).map { accs =>
+      val pageWithAccounts = request.result.mapItems { case(up, hit) =>
+        up.copy(account = accs.find(_.id == up.id)) -> hit
       }
       Ok(views.html.admin.userProfile.search(pageWithAccounts, userRoutes.search()))
     }

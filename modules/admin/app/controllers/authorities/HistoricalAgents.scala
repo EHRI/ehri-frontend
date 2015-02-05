@@ -19,7 +19,7 @@ case class HistoricalAgents @Inject()(implicit globalConfig: global.GlobalConfig
   with ItemPermissions[HistoricalAgent]
   with Linking[HistoricalAgent]
   with Annotate[HistoricalAgent]
-  with Search {
+  with SearchType[HistoricalAgent] {
 
   private val form = models.HistoricalAgent.form
   private val histRoutes = controllers.authorities.routes.HistoricalAgents
@@ -44,14 +44,8 @@ case class HistoricalAgents @Inject()(implicit globalConfig: global.GlobalConfig
   }
 
 
-  def search = OptionalUserAction.async { implicit request =>
-    import play.api.libs.concurrent.Execution.Implicits._
-    find[HistoricalAgent](
-      entities = List(EntityType.HistoricalAgent),
-      facetBuilder = entityFacets
-    ).map { result =>
-      Ok(views.html.admin.historicalAgent.search(result, histRoutes.search()))
-    }
+  def search = SearchTypeAction(facetBuilder = entityFacets).apply { implicit request =>
+    Ok(views.html.admin.historicalAgent.search(request.result, histRoutes.search()))
   }
 
   def get(id: String) = ItemMetaAction(id).apply { implicit request =>
