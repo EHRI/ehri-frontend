@@ -24,6 +24,7 @@ import play.api.mvc._
 import utils._
 import utils.search._
 import views.html.p
+import controllers.renderError
 
 import scala.concurrent.Future
 import scala.concurrent.Future.{successful => immediate}
@@ -128,12 +129,12 @@ case class Guides @Inject()(implicit globalConfig: global.GlobalConfig, searchEn
   *
   */
 
-  private def pageNotFound() = Action { implicit request =>
-    NotFound(views.html.errors.pageNotFound())
+  private def pageNotFound = Action { implicit request =>
+    NotFound(renderError("errors.pageNotFound", views.html.errors.pageNotFound()))
   }
 
   def itemOr404Action(f: => Option[Action[AnyContent]]): Action[AnyContent] = {
-    f.getOrElse(pageNotFound())
+    f.getOrElse(pageNotFound)
   }
 
   /*
@@ -450,7 +451,7 @@ case class Guides @Inject()(implicit globalConfig: global.GlobalConfig, searchEn
       }
       )
     } getOrElse {
-      immediate(NotFound(views.html.errors.pageNotFound()))
+      immediate(NotFound(renderError("errors.itemNotFound", views.html.errors.itemNotFound(Some(path)))))
     }
   }
 
