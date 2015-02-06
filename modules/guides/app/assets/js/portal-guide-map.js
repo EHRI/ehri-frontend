@@ -141,7 +141,7 @@ L.tileLayer('http://{s}.tile.osm.org/{z}/{x}/{y}.png', {
 }).addTo($map);
 
 function boundsToKm(bounds) {
-  return bounds._southWest.distanceTo(bounds._northEast) / 1000;
+  return (bounds._southWest.distanceTo(bounds._northEast) / 1000) / 2;
 }
 
 /*
@@ -182,6 +182,6 @@ $(document).ready(function () {
       $bounds.push([parseFloat(desc.latitude), parseFloat(desc.longitude)])
     }
   });
-  $map.fitBounds($bounds);
+  if (ORIGINAL) $map.fitBounds($bounds);
   ORIGINAL = false;
 });
