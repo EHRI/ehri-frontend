@@ -6,7 +6,7 @@ function isNumeric(n) {
 var mapParams = {
       lat: 50.508174054149,
       lng: 14.152353697237,
-      zoom: 13
+      zoom: 18
     },
     RedIcon = L.Icon.Default.extend({options: {iconUrl: redIcon_URL}}),
     redIcon = new RedIcon(),
@@ -33,16 +33,14 @@ var mapParams = {
   while (match = search.exec(templateParams))
     if (isNumeric(match[2])) {
       mapParams[decode(match[1])] = parseFloat(decode(match[2]));
-    }
-    else {
+    } else {
       mapParams[decode(match[1])] = decode(match[2]);
     }
 
   while (match = search.exec(query))
     if (isNumeric(match[2])) {
       mapParams[decode(match[1])] = parseFloat(decode(match[2]));
-    }
-    else {
+    } else {
       mapParams[decode(match[1])] = decode(match[2]);
     }
 })();
@@ -142,12 +140,19 @@ L.tileLayer('http://{s}.tile.osm.org/{z}/{x}/{y}.png', {
   attribution: '&copy; <a href="http://osm.org/copyright">OpenStreetMap</a> contributors'
 }).addTo($map);
 
+function boundsToKm(bounds) {
+  return bounds._southWest.distanceTo(bounds._northEast) / 1000;
+}
 
 /*
  Movement loading and Maps Triggers
  */
 $map.on('moveend', function (e) {
-  $.get(MAP_URL, {lat: $map.getCenter().lat, lng: $map.getCenter().lng},
+  $.get(MAP_URL, {
+        lat: $map.getCenter().lat,
+        lng: $map.getCenter().lng,
+        d: boundsToKm($map.getBounds())
+      },
       function (data) {
         addMarkerList(data.items);
       }, "json")
@@ -167,10 +172,8 @@ $(".zoom-to").on("click", function (e) {
 
 /* Initiate */
 $(document).ready(function () {
-  ORIGINAL = false;
-  if ("q" in mapParams && mapParams.q.length > 0 && mapParams.q != "undefined") {
-    ORIGINAL = true;
-  }
+  ORIGINAL = ("q" in mapParams && mapParams.q.length > 0 && mapParams.q != "undefined");
+
   $originalMarkers = $originalMarkers.items;
   addMarkerList($originalMarkers);
   $.each($originalMarkers, function (i, m) {
