@@ -6,7 +6,7 @@ function isNumeric(n) {
 var mapParams = {
       lat: 50.508174054149,
       lng: 14.152353697237,
-      zoom: 18
+      zoom: 16
     },
     RedIcon = L.Icon.Default.extend({options: {iconUrl: redIcon_URL}}),
     redIcon = new RedIcon(),
