@@ -4,6 +4,7 @@ import com.typesafe.sbt.gzip.Import._
 import com.typesafe.sbt.jse.JsEngineImport.JsEngineKeys
 import com.typesafe.sbt.less.Import._
 import com.typesafe.sbt.rjs.Import._
+import net.ground5hark.sbt.concat.Import._
 import com.typesafe.sbt.web.SbtWeb.autoImport._
 import com.typesafe.sbt.web._
 import play.Play.autoImport._
@@ -150,6 +151,7 @@ object ApplicationBuild extends Build {
     resolvers += "Local Maven Repository" at "file:///" + Path.userHome.absolutePath + "/.m2/repository",
     resolvers += "Codahale" at "http://repo.codahale.com",
     resolvers += "Typesafe Repository" at "http://repo.typesafe.com/typesafe/releases/",
+    resolvers += Resolver.sonatypeRepo("releases"),
 
     // Always use nodejs to build the assets - Trireme is too slow...
     JsEngineKeys.engineType := JsEngineKeys.EngineType.Node,
@@ -187,8 +189,22 @@ object ApplicationBuild extends Build {
     version := appVersion,
     routesImport += "models.view._",
     libraryDependencies ++= portalDependencies,
-    pipelineStages := Seq(rjs, digest, gzip),
-    RjsKeys.mainModule := "portal-main"
+    RjsKeys.mainModule := "portal-main",
+    pipelineStages := Seq(rjs, concat, digest, gzip),
+    pipelineStages in Assets := Seq(concat, digest, gzip),
+    Concat.groups := Seq(
+      "js/script-lib.js" -> group(Seq(
+        "js/lib/jquery-1.8.3.js",
+        "js/lib/jquery.autosize.js",
+        "js/lib/jquery.history.js",
+        "js/lib/jquery.validate.js",
+        "js/lib/typeahead.js",
+        "js/lib/handlebar.js",
+        "js/lib/jquery.cookie.js",
+        "js/lib/jquery.hoverIntent.js"
+      )
+      )
+    )
   ).settings(commonSettings: _*).dependsOn(core % "test->test;compile->compile")
 
   lazy val admin = Project(appName + "-admin", file("modules/admin"))
