@@ -3,12 +3,12 @@
 @js = {
     <script type="text/javascript" src="@controllers.portal.routes.Assets.versioned("js/portal-guide.js")"></script>
     <script type="text/javascript" src="@controllers.portal.routes.Assets.versioned("js/portal-guide-facet.js")"></script>
-    <script src="@controllers.portal.routes.Assets.versioned("select2/select2.js")"></script>
+    <script src="@controllers.portal.routes.Assets.versioned("js/select2/select2.js")"></script>
 
     @lang.language match {
             case "en" => {}
             case _ => {
-             <script src="@controllers.portal.routes.Assets.versioned("select2/select2_locale_" + lang.language +".js")"></script>
+             <script src="@controllers.portal.routes.Assets.versioned("js/select2/select2_locale_" + lang.language +".js")"></script>
         }
     }
     <script type="text/javascript">

@@ -193,16 +193,35 @@ object ApplicationBuild extends Build {
     pipelineStages := Seq(rjs, concat, digest, gzip),
     pipelineStages in Assets := Seq(concat, digest, gzip),
     Concat.groups := Seq(
-      "js/script-lib.js" -> group(Seq(
-        "js/lib/jquery-1.8.3.js",
-        "js/lib/jquery.autosize.js",
-        "js/lib/jquery.history.js",
-        "js/lib/jquery.validate.js",
-        "js/lib/typeahead.js",
-        "js/lib/handlebar.js",
-        "js/lib/jquery.cookie.js",
-        "js/lib/jquery.hoverIntent.js"
-      )
+      "js/script-pre.js" -> group(
+        Seq(
+          "js/lib/jquery-1.8.3.js",
+          "js/lib/jquery.autosize.js",
+          "js/lib/jquery.history.js",
+          "js/lib/jquery.validate.js",
+          "js/lib/typeahead.js",
+          "js/lib/handlebar.js",
+          "js/lib/jquery.cookie.js",
+          "js/lib/jquery.hoverIntent.js",
+          "js/select2/select2.js",
+          "js/feedback.js",
+          "js/common.js"
+        )
+      ),
+      "js/script-post.js" -> group(
+        Seq(
+          "js/lib/jquery.cookie.js",
+          "bootstrap/js/bootstrap.js",
+          "js/portal.js"
+        )
+      ),
+      "js/script-post-signedin.js" -> group(
+        Seq(
+          "js/lib/jquery.cookie.js",
+          "bootstrap/js/bootstrap.js",
+          "js/portal.js",
+          "js/portal-signedin.js"
+        )
       )
     )
   ).settings(commonSettings: _*).dependsOn(core % "test->test;compile->compile")
