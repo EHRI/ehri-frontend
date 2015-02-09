@@ -224,6 +224,8 @@ case class LegacyAccounts @Inject()(implicit globalConfig: global.GlobalConfig, 
         // NB: Hard coded AWS params - did I mention this was single-use?
         // Actual image to be uploaded separately...
         s"http://ehri-users.s3-eu-west-1.amazonaws.com/images/portal.ehri-project.eu/$id.png"),
+      firstNames = data.firstName,
+      lastName = data.lastName,
       title = data.title,
       institution = data.institution,
       role = data.role,
