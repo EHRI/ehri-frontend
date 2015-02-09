@@ -24,6 +24,7 @@ import play.api.mvc._
 import utils._
 import utils.search._
 import views.html.p
+import controllers.renderError
 
 import scala.concurrent.Future
 import scala.concurrent.Future.{successful => immediate}
@@ -80,19 +81,27 @@ case class Guides @Inject()(implicit globalConfig: global.GlobalConfig, searchEn
   private def mapParams(request: Map[String, Seq[String]]): (utils.search.SearchOrder.Value, Map[String, Any]) = {
     GeoCoordinates.form.bindFromRequest(request).fold(
       errorForm => SearchOrder.Name -> Map.empty,
-      latlng => SearchOrder.Location -> Map("pt" -> latlng.toString, "sfield" -> "location", "sort" -> "geodist() asc")
+      {
+        case GeoCoordinates(lat, lng, dist) => SearchOrder.Location -> Map(
+          "pt" -> s"$lat,$lng",
+          "sfield" -> "location",
+          "sort" -> "geodist() asc",
+          "d" -> dist.getOrElse(1.0),
+          "fq" -> "{!bbox}"
+        )
+      }
     )
   }
 
   /*
    *    Count Links by items
    */
-  private def countLinks(virtualUnit: String, target: List[String]): Future[Map[String, Long]] = {
+  private def countLinks(virtualUnit: String, target: Seq[String]): Future[Map[String, Long]] = {
     if (target.nonEmpty) {
       val cypher = new CypherDAO
       val query = s"""
           START 
-            virtualUnit = node:entities(__ID__= {inContext}), 
+            virtualUnit = node:entities(__ID__= {inContext}),
             accessPoints = node:entities({accessPoint})
           MATCH 
                (link)-[:inContextOf]->virtualUnit,
@@ -120,12 +129,12 @@ case class Guides @Inject()(implicit globalConfig: global.GlobalConfig, searchEn
   *
   */
 
-  private def pageNotFound() = Action { implicit request =>
-    NotFound(views.html.errors.pageNotFound())
+  private def pageNotFound = Action { implicit request =>
+    NotFound(renderError("errors.pageNotFound", views.html.errors.pageNotFound()))
   }
 
   def itemOr404Action(f: => Option[Action[AnyContent]]): Action[AnyContent] = {
-    f.getOrElse(pageNotFound())
+    f.getOrElse(pageNotFound)
   }
 
   /*
@@ -186,7 +195,7 @@ case class Guides @Inject()(implicit globalConfig: global.GlobalConfig, searchEn
               "longitude" -> Json.toJson(desc.longitude),
               "latitude" -> Json.toJson(desc.latitude)
             ))
-          }.toList)
+          })
         )
       case _ => JsNull
     }
@@ -239,7 +248,7 @@ case class Guides @Inject()(implicit globalConfig: global.GlobalConfig, searchEn
         defaultParams = SearchParams(sort = Some(if (isAjax) ajaxOrder else htmlAgentOrder)),
         entities = List(EntityType.HistoricalAgent)
       )
-      links <- countLinks(guide.virtualUnit, r.page.items.map { case (item, hit) => item.id}.toList)
+      links <- countLinks(guide.virtualUnit, r.page.items.map { case (item, hit) => item.id})
     } yield render {
       case Accepts.Html() =>
         if (isAjax) Ok(p.guides.ajax(guide, page, r.page, r.params, links))
@@ -258,8 +267,13 @@ case class Guides @Inject()(implicit globalConfig: global.GlobalConfig, searchEn
       else page.getParams
     ) match {
       case (sort, geoloc) => for {
-        r <- find[Concept](params, extra = geoloc, defaultParams = SearchParams(entities = List(EntityType.Concept), sort = Some(sort)), entities = List(EntityType.Concept), facetBuilder = conceptFacets)
-        links <- countLinks(guide.virtualUnit, r.page.items.map { case (item, hit) => item.id}.toList)
+        r <- find[Concept](
+          params,
+          extra = geoloc,
+          defaultParams = SearchParams(sort = Some(sort), count = Some(500)),
+          entities = List(EntityType.Concept),
+          facetBuilder = conceptFacets)
+        links <- countLinks(guide.virtualUnit, r.page.items.map { case (item, hit) => item.id})
       } yield render {
           case Accepts.Html() =>
             if (isAjax) Ok(p.guides.ajax(guide, page, r.page, r.params, links))
@@ -280,7 +294,7 @@ case class Guides @Inject()(implicit globalConfig: global.GlobalConfig, searchEn
         defaultParams = getParams(request, EntityType.Concept, Some(if (isAjax) ajaxOrder else htmlConceptOrder), isAjax = isAjax),
         facetBuilder = conceptFacets
       )
-      links <- countLinks(guide.virtualUnit, r.page.items.map { case (item, hit) => item.id}.toList)
+      links <- countLinks(guide.virtualUnit, r.page.items.map { case (item, hit) => item.id})
     } yield render {
       case Accepts.Html() =>
         if (isAjax) Ok(p.guides.ajax(guide, page, r.page, r.params, links))
@@ -315,7 +329,7 @@ case class Guides @Inject()(implicit globalConfig: global.GlobalConfig, searchEn
     )
   )
 
-  private def getFacetQuery(ids: List[String]): String = {
+  private def getFacetQuery(ids: Seq[String]): String = {
     ids.filterNot(_.isEmpty).map("__ID__:" + _).reduce((a, b) => a + " OR " + b)
   }
 
@@ -404,12 +418,12 @@ case class Guides @Inject()(implicit globalConfig: global.GlobalConfig, searchEn
     }
   }
 
-  private def mapAccessPoints(guide: Guide, facets: Seq[AnyModel]): Map[String, List[AnyModel]] = {
+  private def mapAccessPoints(guide: Guide, facets: Seq[AnyModel]): Map[String, Seq[AnyModel]] = {
     guide.findPages().map { page =>
       page.content -> facets.collect {
         case f: Concept if f.vocabulary.exists(_.id == page.content) => f
         case f: HistoricalAgent if f.set.exists(_.id == page.content) => f
-      }.toList
+      }
     }.toMap
   }
 
@@ -437,7 +451,7 @@ case class Guides @Inject()(implicit globalConfig: global.GlobalConfig, searchEn
       }
       )
     } getOrElse {
-      immediate(NotFound(views.html.errors.pageNotFound()))
+      immediate(NotFound(renderError("errors.itemNotFound", views.html.errors.itemNotFound(Some(path)))))
     }
   }
 
