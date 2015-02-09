@@ -148,7 +148,7 @@ case class LegacyAccounts @Inject()(implicit globalConfig: global.GlobalConfig, 
           updated <- updateProfile(existing.id, data)
         } yield (data.uid, existing, updated, true)
       case None =>
-        val id = "user%06d-l".format(num)
+        val id = f"user$num%06d"
         for {
           userProfile <- getProfile(id, data)
           account <- getAccount(id, data)
