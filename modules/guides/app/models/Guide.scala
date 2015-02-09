@@ -86,7 +86,7 @@ object Guide {
     mapping(
       OBJECTID -> ignored(Option.empty[Long]),
       NAME -> nonEmptyText,
-      PATH -> nonEmptyText.verifying("constraints.uniqueness", s => Guide.find(s).isEmpty),
+      PATH -> nonEmptyText,
       PICTURE -> optional(nonEmptyText),
       VIRTUALUNIT -> nonEmptyText,
       DESCRIPTION -> optional(text),
