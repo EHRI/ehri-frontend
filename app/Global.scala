@@ -16,6 +16,7 @@ import play.api._
 import play.api.mvc.{RequestHeader, Result, WithFilters}
 import play.filters.csrf._
 import eu.ehri.project.search.solr.{SolrSearchEngine, SolrQueryBuilder,JsonResponseHandler,WriterType}
+import utils.{DbMovedPageLookup, MovedPageLookup}
 import utils.search._
 
 import scala.concurrent.Future
@@ -40,6 +41,7 @@ object Global extends WithFilters(CSRFFilter()) with GlobalSettings {
   private def accounts: AccountManager = SqlAccountManager()
   private def mailer: MailerAPI = new CommonsMailerPlugin(current).email
   private def oAuth2Flow: OAuth2Flow = new WebOAuth2Flow()
+  private def relocator: MovedPageLookup = new DbMovedPageLookup()
 
   private val eventHandler = new EventHandler {
 
@@ -84,6 +86,7 @@ object Global extends WithFilters(CSRFFilter()) with GlobalSettings {
       bind(classOf[MailerAPI]).toInstance(mailer)
       bind(classOf[AccountManager]).toInstance(accounts)
       bind(classOf[OAuth2Flow]).toInstance(oAuth2Flow)
+      bind(classOf[MovedPageLookup]).toInstance(relocator)
     }
   })
 

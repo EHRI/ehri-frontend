@@ -16,7 +16,7 @@ import controllers.base.AdminController
 
 
 @Singleton
-case class Countries @Inject()(implicit globalConfig: global.GlobalConfig, searchEngine: SearchEngine, searchResolver: SearchItemResolver, backend: Backend, idGenerator: IdGenerator, accounts: AccountManager)
+case class Countries @Inject()(implicit globalConfig: global.GlobalConfig, searchEngine: SearchEngine, searchResolver: SearchItemResolver, backend: Backend, idGenerator: IdGenerator, accounts: AccountManager, pageRelocator: utils.MovedPageLookup)
   extends AdminController
   with CRUD[CountryF,Country]
   with Creator[RepositoryF, Repository, Country]

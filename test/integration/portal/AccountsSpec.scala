@@ -42,7 +42,7 @@ class AccountsSpec extends IntegrationTestRunner {
       await(mockAccounts.update(privilegedUser
         .copy(password = Some(HashedPassword.fromPlain(testPassword)))))
       val login = route(FakeRequest(POST,
-        accountRoutes.passwordLoginPost.url)
+        accountRoutes.passwordLoginPost().url)
         .withSession(CSRF_TOKEN_NAME -> fakeCsrfString), data).get
       status(login) must equalTo(SEE_OTHER)
     }
@@ -77,7 +77,7 @@ class AccountsSpec extends IntegrationTestRunner {
       status(login) must equalTo(BAD_REQUEST)
     }
 
-    "error with bad provider" in new WithApplication {
+    "error with bad provider" in new ITestApp {
       val login = route(FakeRequest(GET,
         accountRoutes.oauth2("no-provider").url)).get
       status(login) must equalTo(NOT_FOUND)

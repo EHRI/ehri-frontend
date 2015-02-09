@@ -1,4 +1,3 @@
-import auth.HashedPassword
 import models.{OpenIDAssociation, OAuth2Association, Account}
 
 package object mocks {
@@ -38,4 +37,7 @@ package object mocks {
 
   val openIdAssociationFixtures: collection.mutable.ListBuffer[OpenIDAssociation] =
     collection.mutable.ListBuffer.empty[OpenIDAssociation]
+
+  val movedPages: collection.mutable.ListBuffer[(String, String)] =
+    collection.mutable.ListBuffer.empty[(String, String)]
 }

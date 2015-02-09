@@ -32,7 +32,7 @@ import controllers.portal.base.PortalController
 @Singleton
 case class Social @Inject()(implicit globalConfig: global.GlobalConfig, searchEngine: SearchEngine,
                             searchResolver: SearchItemResolver, backend: Backend, accounts: AccountManager,
-    mailer: MailerAPI)
+    mailer: MailerAPI, pageRelocator: utils.MovedPageLookup)
   extends PortalController with Search {
 
   private val socialRoutes = controllers.portal.social.routes.Social

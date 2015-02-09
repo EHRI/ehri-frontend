@@ -12,7 +12,7 @@ import models.base.AnyModel
 import backend.rest.SearchDAO
 
 
-case class Admin @Inject()(implicit globalConfig: global.GlobalConfig, backend: Backend, accounts: AccountManager) extends AdminController {
+case class Admin @Inject()(implicit globalConfig: global.GlobalConfig, backend: Backend, accounts: AccountManager, pageRelocator: utils.MovedPageLookup) extends AdminController {
 
   implicit val rd: BackendReadable[AnyModel] = AnyModel.Converter
 

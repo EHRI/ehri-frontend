@@ -3,66 +3,70 @@
 # Routes for portal routes
 
 
-GET     /                                   @controllers.admin.Home.index
-GET     /metrics                            @controllers.admin.Home.metrics
-GET     /overview                           @controllers.admin.Home.overview
-GET     /login                              @controllers.admin.Home.loginRedirect
+GET         /                                   @controllers.admin.Home.index
+GET         /metrics                            @controllers.admin.Home.metrics
+GET         /overview                           @controllers.admin.Home.overview
+GET         /login                              @controllers.admin.Home.loginRedirect
 
 # Js Routes
-GET     /routes                             @controllers.admin.Home.jsRoutes
+GET         /routes                             @controllers.admin.Home.jsRoutes
 
-GET     /updateIndex                        @controllers.admin.AdminSearch.updateIndex
-POST    /updateIndex                        @controllers.admin.AdminSearch.updateIndexPost
+GET         /updateIndex                        @controllers.admin.AdminSearch.updateIndex
+POST        /updateIndex                        @controllers.admin.AdminSearch.updateIndexPost
 
 # Search testing
-GET     /search                             @controllers.admin.AdminSearch.search
+GET         /search                             @controllers.admin.AdminSearch.search
 
 # Metrics
-GET     /metrics/languageOfMaterial         @controllers.admin.Metrics.languageOfMaterial
-GET     /metrics/holdingRepository          @controllers.admin.Metrics.holdingRepository
-GET     /metrics/repositoryCountries        @controllers.admin.Metrics.repositoryCountries
-GET     /metrics/agentTypes                 @controllers.admin.Metrics.agentTypes
-GET     /metrics/restricted                 @controllers.admin.Metrics.restricted
-GET     /metrics/_clear                     @controllers.admin.Metrics.clearCached
+GET         /metrics/languageOfMaterial         @controllers.admin.Metrics.languageOfMaterial
+GET         /metrics/holdingRepository          @controllers.admin.Metrics.holdingRepository
+GET         /metrics/repositoryCountries        @controllers.admin.Metrics.repositoryCountries
+GET         /metrics/agentTypes                 @controllers.admin.Metrics.agentTypes
+GET         /metrics/restricted                 @controllers.admin.Metrics.restricted
+GET         /metrics/_clear                     @controllers.admin.Metrics.clearCached
 
 # Monitoring
-GET     /monitor/_check                     @controllers.admin.Utils.checkDb
-GET     /monitor/_checkUserSync             @controllers.admin.Utils.checkUserSync
+GET         /monitor/_check                     @controllers.admin.Utils.checkDb
+GET         /monitor/_checkUserSync             @controllers.admin.Utils.checkUserSync
 
 # Generic item redirection
-GET     /item/:id                               @controllers.admin.Admin.get(id: String)
-GET     /item/:type/:id                         @controllers.admin.Admin.getType(type: String, id: String)
+GET         /item/:id                           @controllers.admin.Admin.get(id: String)
+GET         /item/:type/:id                     @controllers.admin.Admin.getType(type: String, id: String)
 
 # API
-GET     /api/:id                                @controllers.admin.ApiController.getAny(id: String)
-GET     /api/:contentType/list                  @controllers.admin.ApiController.listItems(contentType: defines.EntityType.Value)
-GET     /api/:contentType/:id                   @controllers.admin.ApiController.getItem(contentType: defines.EntityType.Value, id: String)
-GET     /api/*path                              @controllers.admin.ApiController.get(path: String)
+GET         /api/:id                            @controllers.admin.ApiController.getAny(id: String)
+GET         /api/:contentType/list              @controllers.admin.ApiController.listItems(contentType: defines.EntityType.Value)
+GET         /api/:contentType/:id               @controllers.admin.ApiController.getItem(contentType: defines.EntityType.Value, id: String)
+GET         /api/*path                          @controllers.admin.ApiController.get(path: String)
 
 # API Sparql and Cypher queries - TESTING
-GET     /cypher                                 @controllers.admin.ApiController.cypher
-GET     /cypherQuery                            @controllers.admin.ApiController.cypherQuery
-GET     /sparql                                 @controllers.admin.ApiController.sparql
-GET     /sparqlQuery                            @controllers.admin.ApiController.sparqlQuery
+GET         /cypher                             @controllers.admin.ApiController.cypher
+GET         /cypherQuery                        @controllers.admin.ApiController.cypherQuery
+GET         /sparql                             @controllers.admin.ApiController.sparql
+GET         /sparqlQuery                        @controllers.admin.ApiController.sparqlQuery
+
+# Upload a CSV of moved items
+GET         /movedItems                         @controllers.admin.Utils.addMovedItems
+POST        /movedItems                         @controllers.admin.Utils.addMovedItemsPost
 
 # Simple filtering
-GET /filter                                     @controllers.admin.SearchFilter.filterItems
+GET         /filter                             @controllers.admin.SearchFilter.filterItems
 
-->  /users      users.Routes
-->  /groups     groups.Routes
-->  /events     events.Routes
-->  /annotation annotation.Routes
-->  /linking    linking.Routes
+->          /users                              users.Routes
+->          /groups                             groups.Routes
+->          /events                             events.Routes
+->          /annotation                         annotation.Routes
+->          /linking                            linking.Routes
 
-->  /units          units.Routes
-->  /institutions   institutions.Routes
-->  /virtual        virtual.Routes
-->  /countries      countries.Routes
-->  /sets           sets.Routes
-->  /authorities    authorities.Routes
-->  /vocabularies   vocabularies.Routes
-->  /keywords       keywords.Routes
+->          /units                              units.Routes
+->          /institutions                       institutions.Routes
+->          /virtual                            virtual.Routes
+->          /countries                          countries.Routes
+->          /sets                               sets.Routes
+->          /authorities                        authorities.Routes
+->          /vocabularies                       vocabularies.Routes
+->          /keywords                           keywords.Routes
 
 
-GET /assets/*file                               controllers.admin.Assets.at(path="/public", file)
-GET /v/*file                                    controllers.admin.Assets.versioned(path="/public", file: Asset)
+GET         /assets/*file                       controllers.admin.Assets.at(path="/public", file)
+GET         /v/*file                            controllers.admin.Assets.versioned(path="/public", file: Asset)

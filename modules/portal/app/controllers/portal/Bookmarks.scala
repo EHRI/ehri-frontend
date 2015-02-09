@@ -23,7 +23,7 @@ import controllers.portal.base.PortalController
 
 @Singleton
 case class Bookmarks @Inject()(implicit globalConfig: global.GlobalConfig, searchEngine: SearchEngine, searchResolver: SearchItemResolver, backend: Backend,
-    accounts: AccountManager, idGenerator: IdGenerator)
+    accounts: AccountManager, idGenerator: IdGenerator, pageRelocator: utils.MovedPageLookup)
   extends PortalController
   with FacetConfig
   with Search {

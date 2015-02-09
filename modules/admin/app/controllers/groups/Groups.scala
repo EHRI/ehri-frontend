@@ -16,7 +16,7 @@ import play.api.mvc.Request
 import play.api.data.{Forms, Form}
 import controllers.base.AdminController
 
-case class Groups @Inject()(implicit globalConfig: global.GlobalConfig, searchEngine: SearchEngine, searchResolver: SearchItemResolver, backend: Backend, accounts: AccountManager) extends AdminController
+case class Groups @Inject()(implicit globalConfig: global.GlobalConfig, searchEngine: SearchEngine, searchResolver: SearchItemResolver, backend: Backend, accounts: AccountManager, pageRelocator: utils.MovedPageLookup) extends AdminController
   with PermissionHolder[Group]
   with Visibility[Group]
   with Membership[Group]

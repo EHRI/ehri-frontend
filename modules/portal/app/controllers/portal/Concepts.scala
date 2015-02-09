@@ -16,7 +16,7 @@ import views.html.p
  */
 @Singleton
 case class Concepts @Inject()(implicit globalConfig: global.GlobalConfig, searchEngine: SearchEngine,
-    searchResolver: SearchItemResolver, backend: Backend, accounts: AccountManager)
+    searchResolver: SearchItemResolver, backend: Backend, accounts: AccountManager, pageRelocator: utils.MovedPageLookup)
   extends PortalController
   with Generic[Concept]
   with Search

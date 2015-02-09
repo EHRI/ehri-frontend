@@ -11,7 +11,7 @@ import backend.rest.RestHelpers
 import models.base.AnyModel
 import controllers.base.AdminController
 
-case class SystemEvents @Inject()(implicit globalConfig: global.GlobalConfig, backend: Backend, accounts: AccountManager)
+case class SystemEvents @Inject()(implicit globalConfig: global.GlobalConfig, backend: Backend, accounts: AccountManager, pageRelocator: utils.MovedPageLookup)
   extends AdminController
   with Read[SystemEvent] {
 

@@ -16,7 +16,7 @@ import views.html.p
  */
 @Singleton
 case class Countries @Inject()(implicit globalConfig: global.GlobalConfig, searchEngine: SearchEngine, searchResolver: SearchItemResolver, backend: Backend,
-                                  accounts: AccountManager)
+                                  accounts: AccountManager, pageRelocator: utils.MovedPageLookup)
   extends PortalController
   with Generic[Country]
   with Search

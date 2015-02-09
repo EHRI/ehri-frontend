@@ -162,6 +162,13 @@ metrics.repositoryCountries=Repositories by Country
 metrics.agentTypes=Authority Files by Entity Type
 metrics.restrictedMaterial=Restricted Material
 
+#
+# Moved pages
+#
+admin.utils.movedItems=Moved Item IDs
+admin.utils.movedItems.description=Upload a tab-delimited CSV of items that have had their IDs changed. \
+  These will be automatically redirected.
+
 # Admin search index
 search.index.update=Refresh Search Index
 search.index.update.for=Refresh searching index for {0}

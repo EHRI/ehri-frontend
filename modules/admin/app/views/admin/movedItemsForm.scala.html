@@ -1,0 +1,30 @@
+@(form: Form[String], action: Call)(
+        implicit userOpt: Option[UserProfile], request: RequestHeader, globalConfig: global.GlobalConfig, flash: Flash, token: play.filters.csrf.CSRF.Token)
+
+@views.html.admin.layout.rightSidebar(Messages("admin.utils.movedItems")) {
+
+    <p>@Messages("admin.utils.movedItems.description")</p>
+    @helper.form(action = action, 'class -> "entity-form form-horizontal", 'enctype -> "multipart/form-data") {
+        @formHelpers.csrfToken()
+
+        <div class="form-group">
+            <label class="control-label" for="id_path-prefix">Specify the path prefix before the item's id</label>
+            <div class="control-elements">
+                <input class="form-control" type="text" name="path-prefix" id="id_path-prefix" />
+            </div>
+        </div>
+
+        <div class="form-group">
+            <label class="control-label" for="id_csv">Select the user CSV file...</label>
+            <div class="control-elements">
+                <input class="form-control" type="file" name="csv" id="id_csv" />
+            </div>
+        </div>
+        <div class="form-group">
+            <input type="submit" class="btn btn-danger" value="Upload File" />
+        </div>
+    }
+} {
+
+}
+

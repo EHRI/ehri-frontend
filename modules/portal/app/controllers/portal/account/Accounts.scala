@@ -33,7 +33,7 @@ import controllers.portal.base.PortalController
  */
 @Singleton
 case class Accounts @Inject()(implicit globalConfig: GlobalConfig, searchEngine: SearchEngine, searchResolver: SearchItemResolver, backend: Backend,
-                             accounts: AccountManager, mailer: MailerAPI, oAuth2Flow: OAuth2Flow)
+                             accounts: AccountManager, mailer: MailerAPI, oAuth2Flow: OAuth2Flow, pageRelocator: utils.MovedPageLookup)
   extends LoginLogout
   with PortalController
   with OpenIDLoginHandler

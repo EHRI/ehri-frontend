@@ -7,7 +7,7 @@ import controllers.generic._
 import backend.Backend
 import controllers.base.AdminController
 
-case class Annotations @Inject()(implicit globalConfig: global.GlobalConfig, backend: Backend, accounts: AccountManager)
+case class Annotations @Inject()(implicit globalConfig: global.GlobalConfig, backend: Backend, accounts: AccountManager, pageRelocator: utils.MovedPageLookup)
   extends AdminController
   with Read[Annotation]
   with Visibility[Annotation]

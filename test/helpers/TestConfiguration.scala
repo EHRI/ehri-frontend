@@ -18,6 +18,7 @@ import play.api.http.{HeaderNames, MimeTypes}
 import play.api.mvc.{RequestHeader, WithFilters}
 import play.api.test.{FakeApplication, FakeRequest}
 import play.filters.csrf.CSRFFilter
+import utils.MovedPageLookup
 import utils.search.{MockSearchDispatcher, MockSearchIndexer, _}
 
 import scala.concurrent.Future
@@ -54,6 +55,7 @@ trait TestConfiguration {
   // in the mocks package.
   def mockAccounts: AccountManager = MockAccountManager()
   def oAuth2Flow: OAuth2Flow = MockOAuth2Flow()
+  def relocator: MovedPageLookup = MockMovedPageLookup()
 
   // More or less the same as run config but synchronous (so
   // we can validate the actions)
@@ -90,6 +92,7 @@ trait TestConfiguration {
         bind(classOf[MailerAPI]).toInstance(mockMailer)
         bind(classOf[AccountManager]).toInstance(mockAccounts)
         bind(classOf[OAuth2Flow]).toInstance(oAuth2Flow)
+        bind(classOf[MovedPageLookup]).toInstance(relocator)
       }
     })
 

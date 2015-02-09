@@ -25,7 +25,7 @@ import controllers.base.AdminController
 
 @Singleton
 case class VirtualUnits @Inject()(implicit globalConfig: global.GlobalConfig, searchEngine: SearchEngine, idGenerator: IdGenerator,
-                                  searchResolver: SearchItemResolver, backend: Backend, accounts: AccountManager)
+                                  searchResolver: SearchItemResolver, backend: Backend, accounts: AccountManager, pageRelocator: utils.MovedPageLookup)
   extends AdminController
   with Read[VirtualUnit]
   with Visibility[VirtualUnit]

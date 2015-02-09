@@ -36,7 +36,7 @@ import controllers.portal.base.{PortalController, PortalAuthConfigImpl}
  */
 @Singleton
 case class UserProfiles @Inject()(implicit globalConfig: global.GlobalConfig, searchEngine: SearchEngine, searchResolver: SearchItemResolver, backend: Backend,
-                            accounts: AccountManager, mailer: MailerAPI)
+                            accounts: AccountManager, mailer: MailerAPI, pageRelocator: utils.MovedPageLookup)
     extends PortalController
     with LoginLogout
     with PortalAuthConfigImpl

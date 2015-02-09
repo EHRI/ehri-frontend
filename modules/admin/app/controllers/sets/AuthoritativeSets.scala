@@ -17,7 +17,7 @@ import controllers.base.AdminController
 @Singleton
 case class
 AuthoritativeSets @Inject()(implicit globalConfig: global.GlobalConfig, searchEngine: SearchEngine, searchIndexer: SearchIndexer,
-            searchResolver: SearchItemResolver, backend: Backend, idGenerator: IdGenerator, accounts: AccountManager)
+            searchResolver: SearchItemResolver, backend: Backend, idGenerator: IdGenerator, accounts: AccountManager, pageRelocator: utils.MovedPageLookup)
   extends AdminController
   with CRUD[AuthoritativeSetF,AuthoritativeSet]
   with Creator[HistoricalAgentF, HistoricalAgent, AuthoritativeSet]

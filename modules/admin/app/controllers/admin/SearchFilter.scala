@@ -10,7 +10,7 @@ import backend.Backend
 import controllers.base.AdminController
 
 @Singleton
-case class SearchFilter @Inject()(implicit globalConfig: global.GlobalConfig, searchEngine: SearchEngine, searchResolver: SearchItemResolver, backend: Backend, accounts: AccountManager)
+case class SearchFilter @Inject()(implicit globalConfig: global.GlobalConfig, searchEngine: SearchEngine, searchResolver: SearchItemResolver, backend: Backend, accounts: AccountManager, pageRelocator: utils.MovedPageLookup)
   extends AdminController
   with Search {
 

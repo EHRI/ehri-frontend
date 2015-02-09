@@ -16,7 +16,7 @@ import controllers.portal.base.PortalController
  */
 @Singleton
 case class Feedback @Inject()(implicit globalConfig: global.GlobalConfig, feedbackDAO: FeedbackDAO,
-                              backend: Backend, accounts: AccountManager, mailer: MailerAPI)
+                              backend: Backend, accounts: AccountManager, mailer: MailerAPI, pageRelocator: utils.MovedPageLookup)
   extends PortalController {
 
   import utils.forms._

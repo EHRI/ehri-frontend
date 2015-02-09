@@ -1,6 +1,7 @@
 package controllers.base
 
 import play.api.Logger
+import play.api.Play._
 import play.api.mvc.{Result, RequestHeader}
 import scala.concurrent.{Future, ExecutionContext}
 import scala.concurrent.Future.{successful => immediate}
@@ -11,6 +12,8 @@ import views.html.errors.{maintenance, itemNotFound}
  * @author Mike Bryant (http://github.com/mikesname)
  */
 trait AdminController extends AuthController with ControllerHelpers with AuthConfigImpl {
+
+  def pageRelocator: utils.MovedPageLookup
 
   override def verifiedOnlyError(request: RequestHeader)(implicit context: ExecutionContext): Future[Result] = {
     implicit val r  = request
@@ -23,8 +26,16 @@ trait AdminController extends AuthController with ControllerHelpers with AuthCon
   }
 
   override def notFoundError(request: RequestHeader, msg: Option[String] = None)(implicit context: ExecutionContext): Future[Result] = {
+    val doMoveCheck: Boolean = current.configuration.getBoolean("ehri.handlePageMoved").getOrElse(false)
     implicit val r  = request
-    immediate(NotFound(renderError("errors.itemNotFound", itemNotFound(msg))))
+    val notFoundResponse = NotFound(renderError("errors.itemNotFound", itemNotFound(msg)))
+    if (!doMoveCheck) immediate(notFoundResponse)
+    else for {
+      maybeMoved <- pageRelocator.hasMovedTo(request.path)
+    } yield maybeMoved match {
+        case Some(path) => MovedPermanently(path)
+        case None => notFoundResponse
+      }
   }
 
   override def downForMaintenance(request: RequestHeader)(implicit context: ExecutionContext): Future[Result] = {

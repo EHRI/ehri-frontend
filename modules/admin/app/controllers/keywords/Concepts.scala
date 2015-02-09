@@ -18,7 +18,7 @@ import controllers.base.AdminController
 
 
 @Singleton
-case class Concepts @Inject()(implicit globalConfig: global.GlobalConfig, searchEngine: SearchEngine, searchResolver: SearchItemResolver, backend: Backend, accounts: AccountManager)
+case class Concepts @Inject()(implicit globalConfig: global.GlobalConfig, searchEngine: SearchEngine, searchResolver: SearchItemResolver, backend: Backend, accounts: AccountManager, pageRelocator: utils.MovedPageLookup)
   extends AdminController
   with Creator[ConceptF, Concept, Concept]
   with Visibility[Concept]

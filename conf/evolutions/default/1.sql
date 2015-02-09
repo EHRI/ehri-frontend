@@ -54,6 +54,12 @@ CREATE TABLE user_auth_token(
 
 ALTER TABLE user_auth_token ADD CONSTRAINT auth_auth_token_profile_id FOREIGN KEY (id) REFERENCES users (id) ON DELETE CASCADE;
 
+CREATE TABLE moved_pages(
+  original_path_sha1 CHAR(40) PRIMARY KEY,
+  original_path TEXT NOT NULL,
+  new_path      TEXT NOT NULL
+);
+
 CREATE TABLE research_guide (
   id INTEGER(11) NOT NULL AUTO_INCREMENT PRIMARY KEY,
   name TEXT NOT NULL,
@@ -91,5 +97,6 @@ DROP TABLE IF EXISTS token;
 DROP TABLE IF EXISTS openid_association;
 DROP TABLE IF EXISTS oauth2_association;
 DROP TABLE IF EXISTS users;
+DROP TABLE IF EXISTS moved_pages;
 DROP TABLE IF EXISTS research_guide_page;
 DROP TABLE IF EXISTS research_guide;

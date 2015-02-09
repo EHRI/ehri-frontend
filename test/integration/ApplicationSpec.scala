@@ -1,8 +1,6 @@
 package integration
 
-import org.specs2.mutable._
 import play.api.test._
-import play.api.test.Helpers._
 
 import helpers.{TestHelpers, UserFixtures, TestConfiguration}
 import play.api.i18n.Messages
