@@ -66,7 +66,7 @@ case class Utils @Inject()(implicit globalConfig: global.GlobalConfig, backend: 
             s"$prefix$from" -> s"$prefix$to"
           }
           pageRelocator.addMoved(data).map { inserted =>
-            Ok(s"Inserted: $inserted")
+            Ok(views.html.admin.movedItemsAdded(data))
           }
         }.getOrElse {
           immediate(Ok(views.html.admin.movedItemsForm(

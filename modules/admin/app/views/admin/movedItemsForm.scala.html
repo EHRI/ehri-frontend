@@ -2,7 +2,6 @@
         implicit userOpt: Option[UserProfile], request: RequestHeader, globalConfig: global.GlobalConfig, flash: Flash, token: play.filters.csrf.CSRF.Token)
 
 @views.html.admin.layout.rightSidebar(Messages("admin.utils.movedItems")) {
-
     <p>@Messages("admin.utils.movedItems.description")</p>
     @helper.form(action = action, 'class -> "entity-form form-horizontal", 'enctype -> "multipart/form-data") {
         @formHelpers.csrfToken()

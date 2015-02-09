@@ -168,6 +168,8 @@ metrics.restrictedMaterial=Restricted Material
 admin.utils.movedItems=Moved Item IDs
 admin.utils.movedItems.description=Upload a tab-delimited CSV of items that have had their IDs changed. \
   These will be automatically redirected.
+admin.utils.movedItems.added=The following URLs will be redirected:
+admin.utils.movedItems.added.none=No new redirects were created
 
 # Admin search index
 search.index.update=Refresh Search Index

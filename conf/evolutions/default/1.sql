@@ -57,7 +57,8 @@ ALTER TABLE user_auth_token ADD CONSTRAINT auth_auth_token_profile_id FOREIGN KE
 CREATE TABLE moved_pages(
   original_path_sha1 CHAR(40) PRIMARY KEY,
   original_path TEXT NOT NULL,
-  new_path      TEXT NOT NULL
+  new_path      TEXT NOT NULL,
+  created TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
 );
 
 CREATE TABLE research_guide (
