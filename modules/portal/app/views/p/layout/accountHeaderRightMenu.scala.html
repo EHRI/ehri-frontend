@@ -3,10 +3,9 @@
 <ul class="account-admin nav navbar-nav navbar-right">
     @if(showSearch) {
         <li>
-            @helper.form(action = controllers.portal.routes.Portal.search(), 'class -> "global-search inactive", 'role -> "search") {
+            @helper.form(action = controllers.portal.routes.Portal.search(), 'class -> "global-search inactive inline-search-filter", 'role -> "search") {
                 <label for="quicksearch" aria-hidden="true" class="sr-only">@Messages("search.global")</label>
                 <input type="text" name="q" id="quicksearch" />
-                <span class="glyphicon glyphicon-search search-icon"></span>
             }
         </li>
     }

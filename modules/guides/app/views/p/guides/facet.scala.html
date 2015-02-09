@@ -1,14 +1,14 @@
-@(guide: Guide, page: GuidePage, pages: List[GuidePage], result: utils.search.SearchResult[DocumentaryUnit], available: Map[String, List[models.base.AnyModel]])(implicit userOpt: Option[UserProfile], request: RequestHeader, prefs: utils.SessionPrefs, globalConfig: global.GlobalConfig, lang: Lang, flash: Flash)
+@(guide: Guide, page: GuidePage, pages: List[GuidePage], result: utils.search.SearchResult[DocumentaryUnit], available: Map[String, Seq[models.base.AnyModel]])(implicit userOpt: Option[UserProfile], request: RequestHeader, prefs: utils.SessionPrefs, globalConfig: global.GlobalConfig, lang: Lang, flash: Flash)
 
 @js = {
     <script type="text/javascript" src="@controllers.portal.routes.Assets.versioned("js/portal-guide.js")"></script>
     <script type="text/javascript" src="@controllers.portal.routes.Assets.versioned("js/portal-guide-facet.js")"></script>
-    <script src="@controllers.portal.routes.Assets.versioned("select2/select2.js")"></script>
+    <script src="@controllers.portal.routes.Assets.versioned("js/select2/select2.js")"></script>
 
     @lang.language match {
             case "en" => {}
             case _ => {
-             <script src="@controllers.portal.routes.Assets.versioned("select2/select2_locale_" + lang.language +".js")"></script>
+             <script src="@controllers.portal.routes.Assets.versioned("js/select2/select2_locale_" + lang.language +".js")"></script>
         }
     }
     <script type="text/javascript">

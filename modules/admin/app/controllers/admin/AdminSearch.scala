@@ -21,7 +21,7 @@ import controllers.base.AdminController
 import defines.EnumUtils.enumMapping
 
 @Singleton
-case class AdminSearch @Inject()(implicit globalConfig: global.GlobalConfig, searchDispatcher: Dispatcher, searchResolver: Resolver, searchIndexer: Indexer, backend: Backend, accounts: AccountManager)
+case class AdminSearch @Inject()(implicit globalConfig: global.GlobalConfig, searchEngine: SearchEngine, searchResolver: SearchItemResolver, searchIndexer: SearchIndexer, backend: Backend, accounts: AccountManager)
   extends AdminController
   with Search {
 

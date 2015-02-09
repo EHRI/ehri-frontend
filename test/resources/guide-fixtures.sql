@@ -9,7 +9,7 @@ description,
 active,
 `default`)
 VALUES
- (1,'Terezín Research Guide','terezin','http://localhost:9000/assets/images/Terezin.jpg','michal-frankl-ehri-terezin-research-guide','frrrrr.','.guide-title {\r\nbackground-color:black;\r\n}',1,3)
+ (1,'Terezín Research Guide','terezin','http://localhost:9000/assets/img/Terezin.jpg','michal-frankl-ehri-terezin-research-guide','frrrrr.','.guide-title {\r\nbackground-color:black;\r\n}',1,3)
  ,(2,'Jewish community','jewishcommunity','http://www.turismodigital.com/lala.jpg','michal-frankl-ehri-vienna-research-guide','Michal Frankl Ehri',NULL,1,9);
 
 INSERT INTO research_guide_page (

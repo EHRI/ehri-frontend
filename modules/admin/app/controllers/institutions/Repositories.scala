@@ -18,7 +18,7 @@ import controllers.base.AdminController
 
 
 @Singleton
-case class Repositories @Inject()(implicit globalConfig: global.GlobalConfig, searchDispatcher: Dispatcher, searchIndexer: Indexer, searchResolver: Resolver, backend: Backend, accounts: AccountManager)
+case class Repositories @Inject()(implicit globalConfig: global.GlobalConfig, searchEngine: SearchEngine, searchIndexer: SearchIndexer, searchResolver: SearchItemResolver, backend: Backend, accounts: AccountManager)
   extends AdminController
   with Read[Repository]
   with Update[RepositoryF, Repository]
@@ -27,6 +27,7 @@ case class Repositories @Inject()(implicit globalConfig: global.GlobalConfig, se
 	with Visibility[Repository]
   with ScopePermissions[Repository]
   with Annotate[Repository]
+  with SearchType[Repository]
   with Search
   with Indexable[Repository] {
 
@@ -96,13 +97,8 @@ case class Repositories @Inject()(implicit globalConfig: global.GlobalConfig, se
   private val repositoryRoutes = controllers.institutions.routes.Repositories
 
 
-  def search = OptionalUserAction.async { implicit request =>
-    find[Repository](
-      entities = List(EntityType.Repository),
-      facetBuilder = repositoryFacets
-    ).map { result =>
-      Ok(views.html.admin.repository.search(result, repositoryRoutes.search()))
-    }
+  def search = SearchTypeAction(facetBuilder = repositoryFacets).apply { implicit request =>
+    Ok(views.html.admin.repository.search(request.result, repositoryRoutes.search()))
   }
 
   /**

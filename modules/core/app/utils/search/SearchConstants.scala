@@ -128,6 +128,11 @@ object SearchConstants {
   final val HOLDER_ID = "holderId"
 
   /**
+   * Annotator id for notes and links
+   */
+  final val ANNOTATOR_ID = "annotatorId"
+
+  /**
    * Holder name for hierarchical items.
    */
   final val HOLDER_NAME = "holderName"

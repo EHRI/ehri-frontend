@@ -38,18 +38,63 @@ class ApplicationSpec extends PlaySpecification with TestConfiguration with User
         // nothing significant about using the /forgot endpoint
         // here, only that it's a simple layout
         try {
-          val pageReadOnly = route(FakeRequest(GET,
-            controllers.portal.account.routes.Accounts.forgotPassword().url)).get
+          val pageReadOnly = route(FakeRequest(
+            controllers.portal.account.routes.Accounts.forgotPassword())).get
           status(pageReadOnly) must equalTo(OK)
           contentAsString(pageReadOnly) must contain(Messages("errors.readonly"))
 
           // Deleting the file should make the message go away
           f.delete()
 
-          val page = route(FakeRequest(GET,
-            controllers.portal.account.routes.Accounts.forgotPassword().url)).get
+          val page = route(FakeRequest(
+            controllers.portal.account.routes.Accounts.forgotPassword())).get
           status(page) must equalTo(OK)
           contentAsString(page) must not contain Messages("errors.readonly")
+        } finally {
+          f.deleteOnExit()
+        }
+      }
+    }
+
+    "show a 503 in maintenance mode" in {
+      running(FakeApplication(withGlobal = Some(getGlobal))) {
+        val f = new java.io.File("MAINTENANCE")
+        f.createNewFile()
+        try {
+          val pageOffline = route(FakeRequest(controllers.portal.routes.Portal.dataPolicy())).get
+          status(pageOffline) must equalTo(SERVICE_UNAVAILABLE)
+          contentAsString(pageOffline) must contain(Messages("errors.maintenance"))
+
+          // Deleting the file should make the message go away
+          f.delete()
+
+          val pageOnline = route(FakeRequest(controllers.portal.routes.Portal.dataPolicy())).get
+          status(pageOnline) must equalTo(OK)
+          contentAsString(pageOnline) must not contain Messages("errors.maintenance")
+        } finally {
+          f.deleteOnExit()
+        }
+      }
+    }
+
+    "show a global message if the message file is present" in {
+      running(FakeApplication(withGlobal = Some(getGlobal))) {
+        import org.apache.commons.io.FileUtils
+        val f = new java.io.File("MESSAGE")
+        f.createNewFile()
+        val veryImportantMessage = "This is a very important message!"
+        FileUtils.write(f, veryImportantMessage, "UTF-8")
+        try {
+          val pageWithMessage = route(FakeRequest(controllers.portal.routes.Portal.dataPolicy())).get
+          status(pageWithMessage) must equalTo(OK)
+          contentAsString(pageWithMessage) must contain(veryImportantMessage)
+
+          // Deleting the file should make the message go away
+          f.delete()
+
+          val pageWithoutMessage = route(FakeRequest(controllers.portal.routes.Portal.dataPolicy())).get
+          status(pageWithoutMessage) must equalTo(OK)
+          contentAsString(pageWithoutMessage) must not contain veryImportantMessage
         } finally {
           f.deleteOnExit()
         }

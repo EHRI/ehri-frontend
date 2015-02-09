@@ -30,9 +30,9 @@ class DocumentaryUnitViewsSpec extends IntegrationTestRunner {
         docRoutes.list().url)).get
       status(list) must equalTo(OK)
       contentAsString(list) must contain(multipleItemsHeader)
-      contentAsString(list) must not contain "c1"
-      contentAsString(list) must contain("c4")
-      contentAsString(list) must contain("m19")
+      contentAsString(list) must not contain "Documentary Unit 1"
+      contentAsString(list) must contain("Documentary Unit 4")
+      contentAsString(list) must contain("Documentary Unit m19")
     }
 
     "list when logged in should get more items" in new ITestApp {
@@ -40,10 +40,10 @@ class DocumentaryUnitViewsSpec extends IntegrationTestRunner {
           docRoutes.list().url)).get
       status(list) must equalTo(OK)
       contentAsString(list) must contain(multipleItemsHeader)
-      contentAsString(list) must contain("c1")
-      contentAsString(list) must contain("c2")
-      contentAsString(list) must contain("c3")
-      contentAsString(list) must contain("c4")
+      contentAsString(list) must contain("Documentary Unit 1")
+      contentAsString(list) must contain("Documentary Unit 2")
+      contentAsString(list) must contain("Documentary Unit 3")
+      contentAsString(list) must contain("Documentary Unit 4")
     }
 
     "search should find some items" in new ITestApp {
@@ -51,10 +51,10 @@ class DocumentaryUnitViewsSpec extends IntegrationTestRunner {
           docRoutes.search().url)).get
       status(search) must equalTo(OK)
       contentAsString(search) must contain(multipleItemsHeader)
-      contentAsString(search) must contain("c1")
-      contentAsString(search) must contain("c2")
-      contentAsString(search) must contain("c3")
-      contentAsString(search) must contain("c4")
+      contentAsString(search) must contain("Documentary Unit 1")
+      contentAsString(search) must contain("Documentary Unit 2")
+      contentAsString(search) must contain("Documentary Unit 3")
+      contentAsString(search) must contain("Documentary Unit 4")
     }
 
     "link to other privileged actions when logged in" in new ITestApp {

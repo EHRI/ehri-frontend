@@ -6,7 +6,7 @@ import _root_.forms.VisibilityForm
 import controllers.generic._
 import models._
 import defines.{ContentTypes, EntityType}
-import utils.search.{SearchConstants, Resolver, Dispatcher}
+import utils.search.{SearchConstants, SearchItemResolver, SearchEngine}
 import com.google.inject._
 import scala.concurrent.Future.{successful => immediate}
 import backend.{Entity, IdGenerator, Backend}
@@ -16,13 +16,14 @@ import controllers.base.AdminController
 
 
 @Singleton
-case class Countries @Inject()(implicit globalConfig: global.GlobalConfig, searchDispatcher: Dispatcher, searchResolver: Resolver, backend: Backend, idGenerator: IdGenerator, accounts: AccountManager)
+case class Countries @Inject()(implicit globalConfig: global.GlobalConfig, searchEngine: SearchEngine, searchResolver: SearchItemResolver, backend: Backend, idGenerator: IdGenerator, accounts: AccountManager)
   extends AdminController
   with CRUD[CountryF,Country]
   with Creator[RepositoryF, Repository, Country]
   with Visibility[Country]
   with ScopePermissions[Country]
   with Annotate[Country]
+  with SearchType[Country]
   with Search {
 
   /**
@@ -58,11 +59,8 @@ case class Countries @Inject()(implicit globalConfig: global.GlobalConfig, searc
     Ok(views.html.admin.country.list(request.page, request.params))
   }
 
-  def search = OptionalUserAction.async { implicit request =>
-    import play.api.libs.concurrent.Execution.Implicits._
-    find[Country](entities = List(EntityType.Country)).map { result =>
-      Ok(views.html.admin.country.search(result, countryRoutes.search()))
-    }
+  def search = SearchTypeAction().apply { implicit request =>
+    Ok(views.html.admin.country.search(request.result, countryRoutes.search()))
   }
 
   def create = NewItemAction.apply { implicit request =>

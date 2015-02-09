@@ -1,13 +1,14 @@
 package controllers.portal.users
 
 import auth.AccountManager
+import controllers.generic.Search
 import play.api.libs.concurrent.Execution.Implicits._
 import models._
 import play.api.i18n.Messages
 import play.api.mvc._
 import defines.{ContentTypes, EntityType}
 import play.api.libs.json.{JsValue, Json, JsObject}
-import utils.{SessionPrefs, PageParams}
+import utils._
 import scala.concurrent.Future.{successful => immediate}
 import jp.t2v.lab.play2.auth.LoginLogout
 import play.api.libs.Files.TemporaryFile
@@ -15,8 +16,8 @@ import play.api.Play.current
 import java.io.{StringWriter, File}
 import scala.concurrent.Future
 import views.html.p
-import utils.search.{Resolver, Dispatcher}
-import backend.Backend
+import utils.search._
+import backend.{WithId, BackendReadable, ApiUser, Backend}
 
 import com.google.inject._
 import net.coobird.thumbnailator.tasks.UnsupportedFormatException
@@ -34,11 +35,12 @@ import controllers.portal.base.{PortalController, PortalAuthConfigImpl}
  * @author Mike Bryant (http://github.com/mikesname)
  */
 @Singleton
-case class UserProfiles @Inject()(implicit globalConfig: global.GlobalConfig, searchDispatcher: Dispatcher, searchResolver: Resolver, backend: Backend,
+case class UserProfiles @Inject()(implicit globalConfig: global.GlobalConfig, searchEngine: SearchEngine, searchResolver: SearchItemResolver, backend: Backend,
                             accounts: AccountManager, mailer: MailerAPI)
     extends PortalController
     with LoginLogout
-    with PortalAuthConfigImpl {
+    with PortalAuthConfigImpl
+    with Search {
 
   implicit val resource = UserProfile.Resource
   val entityType = EntityType.UserProfile
@@ -87,12 +89,35 @@ case class UserProfiles @Inject()(implicit globalConfig: global.GlobalConfig, se
     implicit val writes = Json.writes[ExportWatchItem]
   }
 
+  def activity = WithUserAction.async { implicit request =>
+    // Show the profile home page of a defined user.
+    // Activity is the default page
+    val listParams = RangeParams.fromRequest(request)
+    val eventParams = SystemEventParams.fromRequest(request)
+      .copy(eventTypes = activityEventTypes)
+      .copy(itemTypes = activityItemTypes)
+    val events: Future[RangePage[SystemEvent]] = backend
+      .listEventsByUser[SystemEvent](request.user.id, listParams, eventParams)
+
+    events.map { myActivity =>
+      if (isAjax) Ok(p.activity.eventItems(myActivity))
+        .withHeaders("activity-more" -> myActivity.more.toString)
+      else Ok(p.userProfile.show(request.user, myActivity,
+        listParams, followed = false, canMessage = false))
+    }
+  }
+
+
+
   def watching(format: DataFormat.Value = DataFormat.Html) = WithUserAction.async { implicit request =>
-    val watchParams = PageParams.fromRequest(request, namespace = "w")
-    backend.watching[AnyModel](request.user.id, watchParams).map { watchList =>
+    for {
+      watching <- backend.watching[AnyModel](request.user.id)
+      result <- findIn[AnyModel](watching)
+    } yield {
+      val watchList = result.mapItems(_._1).page
       format match {
         case DataFormat.Text => Ok(views.txt.p.userProfile.watchedItems(watchList))
-            .as(MimeTypes.TEXT)
+          .as(MimeTypes.TEXT)
         case DataFormat.Csv => Ok(writeCsv(
           List("Item", "URL"),
           watchList.items.map(a => ExportWatchItem.fromItem(a).toCsv)))
@@ -101,8 +126,13 @@ case class UserProfiles @Inject()(implicit globalConfig: global.GlobalConfig, se
         case DataFormat.Json =>
           Ok(Json.toJson(watchList.items.map(ExportWatchItem.fromItem)))
             .as(MimeTypes.JSON)
-
-        case _ => Ok(p.userProfile.watchedItems(watchList))
+        case DataFormat.Html => Ok(p.userProfile.watched(
+          request.user,
+          result,
+          searchAction = profileRoutes.watching(format = DataFormat.Html),
+          followed = false,
+          canMessage = false
+        ))
       }
     }
   }
@@ -136,21 +166,30 @@ case class UserProfiles @Inject()(implicit globalConfig: global.GlobalConfig, se
   }
 
   def annotations(format: DataFormat.Value = DataFormat.Html) = WithUserAction.async { implicit request =>
-    val params = PageParams.fromRequest(request)
-    backend.userAnnotations[Annotation](request.user.id, params).map { page =>
+    find[Annotation](
+      filters = Map(SearchConstants.ANNOTATOR_ID -> request.user.id),
+      entities = Seq(EntityType.Annotation)
+    ).map { result =>
+      val itemsOnly = result.mapItems(_._1).page
       format match {
         case DataFormat.Text =>
-          Ok(views.txt.p.userProfile.annotations(page).body.trim)
+          Ok(views.txt.p.userProfile.annotations(itemsOnly).body.trim)
             .as(MimeTypes.TEXT)
         case DataFormat.Csv => Ok(writeCsv(
             List("Item", "Field", "Note", "Time", "URL"),
-            page.items.map(a => ExportAnnotation.fromAnnotation(a).toCsv)))
+            itemsOnly.items.map(a => ExportAnnotation.fromAnnotation(a).toCsv)))
           .as("text/csv")
           .withHeaders(HeaderNames.CONTENT_DISPOSITION -> s"attachment; filename=${request.user.id}_notes.csv")
         case DataFormat.Json =>
-          Ok(Json.toJson(page.items.map(ExportAnnotation.fromAnnotation)))
+          Ok(Json.toJson(itemsOnly.items.map(ExportAnnotation.fromAnnotation)))
             .as(MimeTypes.JSON)
-        case _ => Ok(p.userProfile.annotations(page))
+        case _ => Ok(p.userProfile.annotations(
+          request.user,
+          annotations = result,
+          searchAction = profileRoutes.profile(),
+          followed = false,
+          canMessage = false)
+        )
       }
     }
   }
@@ -184,13 +223,8 @@ case class UserProfiles @Inject()(implicit globalConfig: global.GlobalConfig, se
     )
   }
 
-  def profile = WithUserAction.async { implicit request =>
-    val annParams = PageParams.fromRequest(request, namespace = "a")
-    val annotationsF = backend.userAnnotations[Annotation](request.user.id, annParams)
-    for {
-      anns <- annotationsF
-    } yield Ok(p.userProfile.notes(request.user, anns, followed = false, canMessage = false))
-  }
+  // For now the user's profile main page is just their notes.
+  def profile = annotations(format = DataFormat.Html)
 
   import play.api.data.Form
   import play.api.data.Forms._

@@ -6,7 +6,7 @@ import _root_.forms.VisibilityForm
 import controllers.generic._
 import models._
 import defines.{ContentTypes, EntityType}
-import utils.search.{SearchConstants, Indexer, Resolver, Dispatcher}
+import utils.search.{SearchConstants, SearchIndexer, SearchItemResolver, SearchEngine}
 import com.google.inject._
 import scala.concurrent.Future.{successful => immediate}
 import backend.{Entity, IdGenerator, Backend}
@@ -16,8 +16,8 @@ import controllers.base.AdminController
 
 @Singleton
 case class
-AuthoritativeSets @Inject()(implicit globalConfig: global.GlobalConfig, searchDispatcher: Dispatcher, searchIndexer: Indexer,
-            searchResolver: Resolver, backend: Backend, idGenerator: IdGenerator, accounts: AccountManager)
+AuthoritativeSets @Inject()(implicit globalConfig: global.GlobalConfig, searchEngine: SearchEngine, searchIndexer: SearchIndexer,
+            searchResolver: SearchItemResolver, backend: Backend, idGenerator: IdGenerator, accounts: AccountManager)
   extends AdminController
   with CRUD[AuthoritativeSetF,AuthoritativeSet]
   with Creator[HistoricalAgentF, HistoricalAgent, AuthoritativeSet]

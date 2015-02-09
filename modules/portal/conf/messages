@@ -1,4 +1,5 @@
 welcome=Welcome to EHRI
+welcome.title=Welcome to the European Holocaust Research Infrastructure online portal
 home=Home
 about=About EHRI
 language=Language
@@ -71,6 +72,8 @@ errors.pageNotFound.explanation=The page at this location either doesn''t exist 
 errors.genericProblem=An Error Occurred
 errors.genericProblem.explanation=We''re very sorry, but there''s a problem loading that page. We''ve been informed of \
   this and will endeavour to fix the problem as soon as possible.
+errors.maintenance=Site temporarily offline
+errors.maintenance.explanation=The EHRI Portal is currently offline while we undertake maintenance. Please check back soon.
 errors.databaseError=Database Error
 errors.databaseError.explanation=I''m afraid it looks like our database server has gone down.     \
   There''s not much we can do without it, so please try again later.
@@ -196,6 +199,7 @@ dates.all=All
 # Login-related
 #
 login=Sign In
+login.title=Sign in or register for an EHRI account
 login.benefits=An EHRI account allows you to:
 login.benefits.1=Contact other people on EHRI
 login.benefits.2=Follow activity and changes to material that interests you
@@ -368,6 +372,7 @@ error.userEmailAlreadyRegistered=A user with that email is already registered: {
 # Search
 #
 search.submit=Search
+search.clear=Clear Search
 search.sort=Order
 search.sort.identifier.asc=ID/Code
 search.sort.identifier.asc.title=Display results sorted by their institution-given identifier
@@ -504,6 +509,8 @@ social.unblock.submit=Unblock User
 # Annotations
 #
 annotation=Notes
+annotation.search=Search Notes
+annotation.search.noneFound=No notes found matching ''{0}''.
 annotation.field=Field
 annotation.list=Notes
 annotation.list.by={0} - Notes

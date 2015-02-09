@@ -15,7 +15,7 @@ sealed trait FacetClass[+T <: Facet] {
   def display: FacetDisplay.Value = FacetDisplay.List
   def count: Int = facets.length
   def sortedByName = facets.sortBy(_.name)
-  def sortedByCount = facets.sortBy(_.count)
+  def sortedByCount = facets.sortWith(_.count > _.count)
   def sorted: Seq[T] = sort match {
     case FacetSort.Name => sortedByName
     case FacetSort.Count => sortedByCount

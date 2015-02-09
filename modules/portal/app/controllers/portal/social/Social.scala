@@ -1,6 +1,7 @@
 package controllers.portal.social
 
 import auth.AccountManager
+import controllers.generic.Search
 import play.api.libs.concurrent.Execution.Implicits._
 import models.{SystemEvent, UserProfile}
 import views.html.p
@@ -8,7 +9,7 @@ import utils._
 import utils.search._
 import defines.EntityType
 import play.api.Play.current
-import backend.Backend
+import backend.{BackendReadable, Backend, ApiUser}
 
 import com.google.inject._
 import play.api.mvc.RequestHeader
@@ -18,7 +19,6 @@ import scala.concurrent.Future
 import scala.concurrent.Future.{successful => immediate}
 import models.base.AnyModel
 import play.api.mvc.Result
-import backend.ApiUser
 import com.typesafe.plugin.MailerAPI
 import controllers.portal.base.PortalController
 
@@ -30,10 +30,10 @@ import controllers.portal.base.PortalController
  * just lists of IDs.
  */
 @Singleton
-case class Social @Inject()(implicit globalConfig: global.GlobalConfig, searchDispatcher: Dispatcher,
-                            searchResolver: Resolver, backend: Backend, accounts: AccountManager,
+case class Social @Inject()(implicit globalConfig: global.GlobalConfig, searchEngine: SearchEngine,
+                            searchResolver: SearchItemResolver, backend: Backend, accounts: AccountManager,
     mailer: MailerAPI)
-  extends PortalController {
+  extends PortalController with Search {
 
   private val socialRoutes = controllers.portal.social.routes.Social
 
@@ -41,16 +41,11 @@ case class Social @Inject()(implicit globalConfig: global.GlobalConfig, searchDi
     // This is a bit gnarly because we want to get a searchable list
     // of users and combine it with a list of existing followers so
     // we can mark who's following and who isn't
-    val filters = Map(SearchConstants.ACTIVE -> true.toString)
-    val defaultParams = SearchParams(entities = List(EntityType.UserProfile),
-          sort = Some(SearchOrder.Name), count = Some(40))
-    val searchParams = SearchParams.form.bindFromRequest.value
-      .getOrElse(defaultParams).setDefault(Some(defaultParams))
-
     for {
       following <- backend.following[UserProfile](request.user.id, PageParams.empty)
       blocked <- backend.blocked[UserProfile](request.user.id, PageParams.empty)
-      srch <- searchDispatcher.setParams(searchParams).withFilters(filters).search()
+      srch <- searchEngineFromRequest().withEntities(Seq(EntityType.UserProfile))
+        .withFilters(Map(SearchConstants.ACTIVE -> true.toString)).search()
       users <- searchResolver.resolve[UserProfile](srch.page.items)
     } yield Ok(p.userProfile.browseUsers(
         request.user,
@@ -87,17 +82,23 @@ case class Social @Inject()(implicit globalConfig: global.GlobalConfig, searchDi
 
   def watchedByUser(userId: String) = WithUserAction.async { implicit request =>
     // Show a list of watched item by a defined User
-    val watchParams = PageParams.fromRequest(request, namespace = "w")
-    val watching: Future[Page[AnyModel]] = backend.watching[AnyModel](userId, watchParams)
+    val watching: Future[Page[AnyModel]] = backend.watching[AnyModel](userId)
     val isFollowing: Future[Boolean] = backend.isFollowing(request.user.id, userId)
     val allowMessage: Future[Boolean] = canMessage(request.user.id, userId)
 
     for {
       them <- backend.get[UserProfile](userId)
       theirWatching <- watching
+      result <- findIn[AnyModel](theirWatching)
       followed <- isFollowing
       canMessage <- allowMessage
-    } yield Ok(p.userProfile.userWatched(them, theirWatching, followed, canMessage))
+    } yield Ok(p.userProfile.watched(
+      them,
+      result,
+      socialRoutes.watchedByUser(userId),
+      followed,
+      canMessage
+    ))
   }
 
   def followUser(userId: String) = WithUserAction { implicit request =>

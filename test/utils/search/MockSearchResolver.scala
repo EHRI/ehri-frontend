@@ -10,7 +10,7 @@ import backend.rest.SearchDAO
  *
  * User: michaelb
  */
-case class MockSearchResolver()(implicit val app: play.api.Application) extends SearchDAO with Resolver {
+case class MockSearchResolver()(implicit val app: play.api.Application) extends SearchDAO with SearchItemResolver {
   def resolve[MT](results: Seq[SearchHit])(implicit apiUser: ApiUser, rd: BackendReadable[MT]): Future[Seq[MT]] = {
     list(results.map(_.itemId))
   }

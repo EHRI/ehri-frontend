@@ -1,0 +1,7 @@
+@()(implicit req: RequestHeader, globalConfig: global.GlobalConfig, lang: Lang)
+
+@globalConfig.message.map { msg =>
+    <div class="alert alert-info readonly-message">
+        <strong>@msg</strong>
+    </div>
+}

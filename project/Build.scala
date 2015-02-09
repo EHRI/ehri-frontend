@@ -4,6 +4,7 @@ import com.typesafe.sbt.gzip.Import._
 import com.typesafe.sbt.jse.JsEngineImport.JsEngineKeys
 import com.typesafe.sbt.less.Import._
 import com.typesafe.sbt.rjs.Import._
+import net.ground5hark.sbt.concat.Import._
 import com.typesafe.sbt.web.SbtWeb.autoImport._
 import com.typesafe.sbt.web._
 import play.Play.autoImport._
@@ -51,6 +52,9 @@ object ApplicationBuild extends Build {
     anorm,
     filters,
 
+    // Commons IO
+    "commons-io" % "commons-io" % "2.4",
+
     // Injection guff - yep, we're using a beta
     "com.google.inject" % "guice" % "4.0-beta",
 
@@ -68,9 +72,6 @@ object ApplicationBuild extends Build {
 
     // Mailer...
     "com.typesafe.play.plugins" %% "play-plugins-mailer" % "2.3.0",
-
-    // Solr stuff
-    "com.github.seratch" %% "scalikesolr" % "4.10.0",
 
     // Time formatting library
     "org.ocpsoft.prettytime" % "prettytime" % "1.0.8.Final",
@@ -150,6 +151,7 @@ object ApplicationBuild extends Build {
     resolvers += "Local Maven Repository" at "file:///" + Path.userHome.absolutePath + "/.m2/repository",
     resolvers += "Codahale" at "http://repo.codahale.com",
     resolvers += "Typesafe Repository" at "http://repo.typesafe.com/typesafe/releases/",
+    resolvers += Resolver.sonatypeRepo("releases"),
 
     // Always use nodejs to build the assets - Trireme is too slow...
     JsEngineKeys.engineType := JsEngineKeys.EngineType.Node,
@@ -187,8 +189,41 @@ object ApplicationBuild extends Build {
     version := appVersion,
     routesImport += "models.view._",
     libraryDependencies ++= portalDependencies,
-    pipelineStages := Seq(rjs, digest, gzip),
-    RjsKeys.mainModule := "portal-main"
+    RjsKeys.mainModule := "portal-main",
+    pipelineStages := Seq(rjs, concat, digest, gzip),
+    pipelineStages in Assets := Seq(concat, digest, gzip),
+    Concat.groups := Seq(
+      "js/script-pre.js" -> group(
+        Seq(
+          "js/lib/jquery-1.8.3.js",
+          "js/lib/jquery.autosize.js",
+          "js/lib/jquery.history.js",
+          "js/lib/jquery.validate.js",
+          "js/lib/typeahead.js",
+          "js/lib/handlebar.js",
+          "js/lib/jquery.cookie.js",
+          "js/lib/jquery.hoverIntent.js",
+          "js/select2/select2.js",
+          "js/feedback.js",
+          "js/common.js"
+        )
+      ),
+      "js/script-post.js" -> group(
+        Seq(
+          "js/lib/jquery.cookie.js",
+          "bootstrap/js/bootstrap.js",
+          "js/portal.js"
+        )
+      ),
+      "js/script-post-signedin.js" -> group(
+        Seq(
+          "js/lib/jquery.cookie.js",
+          "bootstrap/js/bootstrap.js",
+          "js/portal.js",
+          "js/portal-signedin.js"
+        )
+      )
+    )
   ).settings(commonSettings: _*).dependsOn(core % "test->test;compile->compile")
 
   lazy val admin = Project(appName + "-admin", file("modules/admin"))
@@ -201,13 +236,22 @@ object ApplicationBuild extends Build {
     version := appVersion
   ).settings(commonSettings: _*).dependsOn(admin)
 
+  // Solr search engine implementation.
+  lazy val solr = Project(appName + "-solr", file("modules/solr")).settings(
+    libraryDependencies ++= Seq(
+      "com.github.seratch" %% "scalikesolr" % "4.10.0"
+    ),
+    resolvers += "Local Maven Repository" at "file:///" + Path.userHome.absolutePath + "/.m2/repository",
+    version := appVersion
+  ).dependsOn(core % "test->test;compile->compile")
+
   lazy val main = Project(appName, file("."))
     .enablePlugins(play.PlayScala).settings(
     version := appVersion,
     libraryDependencies ++= coreDependencies ++ testDependencies
   ).settings(commonSettings ++ assetSettings: _*)
-    .dependsOn(portal % "test->test;compile->compile", admin, guides)
-    .aggregate(backend, core, admin, portal, guides)
+    .dependsOn(portal % "test->test;compile->compile", admin, guides, solr)
+    .aggregate(backend, core, admin, portal, guides, solr)
 
   override def rootProject = Some(main)
 }

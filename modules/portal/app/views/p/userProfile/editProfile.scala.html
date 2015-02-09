@@ -1,8 +1,8 @@
 @(profileForm: play.api.data.Form[ProfileData], imageForm: Form[String], accForm: Form[AccountPreferences])(implicit userOpt: Option[UserProfile], request: RequestHeader, prefs: utils.SessionPrefs, globalConfig: global.GlobalConfig, lang: Lang, flash: Flash, token: play.filters.csrf.CSRF.Token)
 
-@implicitField = @{ views.html.helper.FieldConstructor(p.helpers.fieldTemplateHorizontal.f) }
+@implicitField = @{ views.html.helper.FieldConstructor(views.html.p.helpers.fieldTemplateHorizontal.f) }
 
-@p.layout.portalLayout(Messages("profile"), EntityType.UserProfile.toString) {
+@views.html.p.layout.portalLayout(Messages("profile"), EntityType.UserProfile.toString) {
     @views.html.layout.mainContent {
         @views.html.p.common.itemHeader(Messages("profile.edit")) {
         }
@@ -19,7 +19,7 @@
                     <h3>@Messages("profile.section.security")</h3>
                     <div class="form-group">
                         <div class="form-submit">
-                            <a href="@controllers.portal.account.routes.Accounts.changePassword">@Messages("login.password.change.link")</a>
+                            <a href="@controllers.portal.account.routes.Accounts.changePassword()">@Messages("login.password.change.link")</a>
                         </div>
                     </div>
                 </div>
@@ -28,18 +28,18 @@
 
         <div class="profile-form-section">
             <h3>@Messages("profile.section.general")</h3>
-            @editProfileForm(profileForm, controllers.portal.users.routes.UserProfiles.updateProfilePost)
+            @editProfileForm(profileForm, controllers.portal.users.routes.UserProfiles.updateProfilePost())
         </div>
 
         <div class="profile-form-section">
             <h3>@Messages("profile.section.image")</h3>
-            @imageUploadForm(imageForm, controllers.portal.users.routes.UserProfiles.updateProfileImagePost)
+            @imageUploadForm(imageForm, controllers.portal.users.routes.UserProfiles.updateProfileImagePost())
         </div>
 
         <div class="profile-form-section">
             @userOpt.flatMap(_.account).map { acc =>
                 <h3>@Messages("profile.section.preferences")</h3>
-                @p.account.accountPrefsForm(accForm, controllers.portal.users.routes.UserProfiles.updateAccountPrefsPost)
+                @views.html.p.account.accountPrefsForm(accForm, controllers.portal.users.routes.UserProfiles.updateAccountPrefsPost())
             }
         </div>
 
@@ -47,7 +47,7 @@
             <h3>@Messages("profile.section.delete")</h3>
             <div class="form-group">
                 <div class="form-submit">
-                    <a href="@controllers.portal.users.routes.UserProfiles.deleteProfile" class="btn  btn-danger ">@Messages("profile.delete.link")</a>
+                    <a href="@controllers.portal.users.routes.UserProfiles.deleteProfile()" class="btn  btn-danger ">@Messages("profile.delete.link")</a>
                 </div>
             </div>
         </div>
