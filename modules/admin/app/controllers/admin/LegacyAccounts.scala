@@ -7,8 +7,9 @@ import auth.{HashedPassword, AccountManager}
 import backend.{EventHandler, Backend}
 import com.google.inject._
 import controllers.base.AdminController
+import controllers.core.auth.AccountHelpers
 import defines.{PermissionType, ContentTypes, EntityType}
-import models.{UserProfileF, UserProfile, Account}
+import models.{Group, UserProfileF, UserProfile, Account}
 import org.joda.time.DateTime
 import play.api.Logger
 import play.api.libs.concurrent.Execution.Implicits._
@@ -22,7 +23,7 @@ import scala.concurrent.Future.{successful => immediate}
  * All this code should be deleted after we're done with that.
  */
 @Singleton
-case class LegacyAccounts @Inject()(implicit globalConfig: global.GlobalConfig, backend: Backend, accounts: AccountManager, pageRelocator: utils.MovedPageLookup) extends AdminController {
+case class LegacyAccounts @Inject()(implicit globalConfig: global.GlobalConfig, backend: Backend, accounts: AccountManager, pageRelocator: utils.MovedPageLookup) extends AdminController with AccountHelpers {
 
   private def noEventsBackend: Backend = backend.withEventHandler(new EventHandler {
     def handleCreate(id: String) = ()
@@ -235,8 +236,10 @@ case class LegacyAccounts @Inject()(implicit globalConfig: global.GlobalConfig, 
       active = true
     )
 
+    import play.api.Play.current
     for {
       profile <- noEventsBackend.create[UserProfile,UserProfileF](profile, logMsg = Some("Migrating account from EHRI hub"))
+      _ <- Future.sequence(defaultPortalGroups.map(groupId => noEventsBackend.addGroup[Group, UserProfile](groupId, id)))
       _ <- noEventsBackend.setItemPermissions(id, ContentTypes.UserProfile, id, Seq(PermissionType.Owner.toString))
     } yield profile
   }
