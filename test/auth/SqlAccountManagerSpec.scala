@@ -63,6 +63,11 @@ class SqlAccountManagerSpec extends PlaySpecification {
       accountsById.find(_.id == mocks.unprivilegedUser.id) must beSome
     }
 
+    "handle empty id lists in multiple account queries" in new WithSqlFixtures(new FakeApplication) {
+      val accountsById: Seq[Account] = await(accounts.findAllById(Seq.empty))
+      accountsById must beEmpty
+    }
+
     "find accounts by token and expire tokens" in new WithSqlFixtures(new FakeApplication) {
       val uuid = UUID.randomUUID()
       await(accounts.createToken(mocks.privilegedUser.id, uuid, isSignUp = true))
