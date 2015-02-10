@@ -5,6 +5,7 @@ import backend.{ApiUser, _}
 import defines.{ContentTypes, PermissionType}
 import jp.t2v.lab.play2.auth.AuthActionBuilders
 import models.UserProfile
+import play.api.http.HeaderNames
 import play.api.i18n.Lang
 import play.api.libs.concurrent.Execution.Implicits._
 import play.api.mvc.{Result, _}
@@ -171,8 +172,13 @@ trait AuthController extends Controller with ControllerHelpers with AuthActionBu
   protected object IpFilter extends ActionFilter[OptionalAuthRequest]{
     override protected def filter[A](request: OptionalAuthRequest[A]): Future[Option[Result]] = {
       globalConfig.ipFilter.map { whitelist =>
-        if (!whitelist.contains(request.remoteAddress)) downForMaintenance(request).map(r => Some(r))
-        else immediate(None)
+        // Extract the client from the forwarded header, falling back
+        // on the remote address. This is dependent on the proxy situation.
+        val ip = request.headers.get(HeaderNames.X_FORWARDED_FOR)
+          .flatMap(_.split(",").map(_.trim).headOption)
+          .getOrElse(request.remoteAddress)
+        if (whitelist.contains(ip)) immediate(None)
+        else downForMaintenance(request).map(r => Some(r))
       }.getOrElse(immediate(None))
     }
   }
