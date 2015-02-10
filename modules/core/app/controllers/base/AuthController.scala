@@ -165,6 +165,19 @@ trait AuthController extends Controller with ControllerHelpers with AuthActionBu
   }
 
   /**
+   * If the IP WHITELIST file is present, check the incoming IP and show a 503 to
+   * everyone else.
+   */
+  protected object IpFilter extends ActionFilter[OptionalAuthRequest]{
+    override protected def filter[A](request: OptionalAuthRequest[A]): Future[Option[Result]] = {
+      globalConfig.ipFilter.map { whitelist =>
+        if (!whitelist.contains(request.remoteAddress)) downForMaintenance(request).map(r => Some(r))
+        else immediate(None)
+      }.getOrElse(immediate(None))
+    }
+  }
+
+  /**
    * Check the user is allowed in this controller based on their account's
    * `staff` and `verified` flags.
    */
@@ -187,7 +200,7 @@ trait AuthController extends Controller with ControllerHelpers with AuthActionBu
    *  - the site is not in maintenance mode
    *  - they are allowed in this controller
    */
-  def OptionalUserAction = OptionalAuthAction andThen MaintenanceFilter andThen ReadOnlyTransformer andThen AllowedFilter andThen FetchProfile
+  def OptionalUserAction = OptionalAuthAction andThen MaintenanceFilter andThen IpFilter andThen ReadOnlyTransformer andThen AllowedFilter andThen FetchProfile
 
   /**
    * Ensure that a user a given permission on a given content type

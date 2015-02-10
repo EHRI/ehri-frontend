@@ -99,6 +99,30 @@ class ApplicationSpec extends PlaySpecification with TestConfiguration with User
       }
     }
 
+    "handle IP filtering for maintenance" in {
+      running(FakeApplication(withGlobal = Some(getGlobal))) {
+        import org.apache.commons.io.FileUtils
+        val f = new java.io.File("IP_WHITELIST")
+        f.createNewFile()
+        val req = FakeRequest(controllers.portal.routes.Portal.dataPolicy())
+        FileUtils.write(f, req.remoteAddress, "UTF-8")
+        try {
+          val pageWithMessage = route(req).get
+          status(pageWithMessage) must equalTo(OK)
+          contentAsString(pageWithMessage) must contain(req.remoteAddress)
+
+          // Deleting the file should make the message go away
+          f.delete()
+
+          val pageWithoutMessage = route(FakeRequest(controllers.portal.routes.Portal.dataPolicy())).get
+          status(pageWithoutMessage) must equalTo(OK)
+          contentAsString(pageWithoutMessage) must not contain req.remoteAddress
+        } finally {
+          f.deleteOnExit()
+        }
+      }
+    }
+
     "redirect 301 for trailing-slash URLs" in {
       running(FakeApplication(withGlobal = Some(getGlobal))) {
         val home = route(fakeLoggedInHtmlRequest(mocks.publicUser, GET,

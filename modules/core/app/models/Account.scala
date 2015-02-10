@@ -15,7 +15,8 @@ case class Account(
   allowMessaging: Boolean = true,
   created: Option[DateTime] = None,
   lastLogin: Option[DateTime] = None,
-  password: Option[HashedPassword] = None
+  password: Option[HashedPassword] = None,
+  isLegacy: Boolean = false
 ) {
   def hasPassword = password.isDefined
 }

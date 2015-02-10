@@ -25,6 +25,14 @@ GET         /metrics/agentTypes                 @controllers.admin.Metrics.agent
 GET         /metrics/restricted                 @controllers.admin.Metrics.restricted
 GET         /metrics/_clear                     @controllers.admin.Metrics.clearCached
 
+# Legacy account imports
+GET         /importLegacy                       @controllers.admin.LegacyAccounts.importLegacyForm
+POST        /importLegacy                       @controllers.admin.LegacyAccounts.importLegacy
+
+# Upload a CSV of moved items
+GET         /movedItems                         @controllers.admin.Utils.addMovedItems
+POST        /movedItems                         @controllers.admin.Utils.addMovedItemsPost
+
 # Monitoring
 GET         /monitor/_check                     @controllers.admin.Utils.checkDb
 GET         /monitor/_checkUserSync             @controllers.admin.Utils.checkUserSync
@@ -44,10 +52,6 @@ GET         /cypher                             @controllers.admin.ApiController
 GET         /cypherQuery                        @controllers.admin.ApiController.cypherQuery
 GET         /sparql                             @controllers.admin.ApiController.sparql
 GET         /sparqlQuery                        @controllers.admin.ApiController.sparqlQuery
-
-# Upload a CSV of moved items
-GET         /movedItems                         @controllers.admin.Utils.addMovedItems
-POST        /movedItems                         @controllers.admin.Utils.addMovedItemsPost
 
 # Simple filtering
 GET         /filter                             @controllers.admin.SearchFilter.filterItems

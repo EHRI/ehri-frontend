@@ -38,24 +38,25 @@ case class SqlAccountManager()(implicit app: play.api.Application) extends Accou
     }
   }(executionContext)
 
+  private def passwordMatches(account: Account, pw: String): Boolean =
+    account.password.exists(hpw => if (!account.isLegacy) hpw.check(pw) else  hpw.checkLegacy(pw))
+
   override def authenticateById(id: String, pw: String, verifiedOnly: Boolean): Future[Option[Account]] = Future {
     DB.withTransaction { implicit conn =>
-      for {
-        account <- getById(id)
-        hashedPw <- account.password if hashedPw.check(pw) && (if (verifiedOnly) account.verified else true)
-      } yield {
-        account
+      getById(id).filter { account =>
+        passwordMatches(account, pw)
+      }.filter { account =>
+        if (verifiedOnly) account.verified else true
       }
     }
   }(executionContext)
 
   override def authenticateByEmail(email: String, pw: String, verifiedOnly: Boolean): Future[Option[Account]] = Future {
     DB.withTransaction { implicit conn =>
-      for {
-        account <- getByEmail(email)
-        hashedPw <- account.password if hashedPw.check(pw) && (if (verifiedOnly) account.verified else true)
-      } yield {
-        account
+      getByEmail(email).filter { account =>
+        passwordMatches(account, pw)
+      }.filter { account =>
+        if (verifiedOnly) account.verified else true
       }
     }
   }(executionContext)
@@ -83,11 +84,13 @@ case class SqlAccountManager()(implicit app: play.api.Application) extends Accou
     }
   }(executionContext)
 
-  override def findAllById(ids: Seq[String]): Future[Seq[Account]] = Future {
-    DB.withConnection { implicit conn =>
-      SQL"SELECT * FROM users WHERE users.id IN ($ids)".as(userParser *)
-    }
-  }(executionContext)
+  override def findAllById(ids: Seq[String]): Future[Seq[Account]] =
+    if (ids.isEmpty) Future.successful(Seq.empty)
+    else Future {
+      DB.withConnection { implicit conn =>
+        SQL"SELECT * FROM users WHERE users.id IN ($ids)".as(userParser *)
+      }
+    }(executionContext)
 
   override def findByToken(token: String, isSignUp: Boolean): Future[Option[Account]] = Future {
     DB.withConnection { implicit conn =>
@@ -103,14 +106,15 @@ case class SqlAccountManager()(implicit app: play.api.Application) extends Accou
   override def create(account: Account): Future[Account] = Future {
     DB.withConnection { implicit conn =>
       SQL"""INSERT INTO users
-        (id, email, verified, staff, allow_messaging, password)
+        (id, email, verified, staff, allow_messaging, password, is_legacy)
         VALUES (
           ${account.id},
           ${account.email},
           ${account.verified},
           ${account.staff},
           ${account.allowMessaging},
-          ${account.password}
+          ${account.password},
+          ${account.isLegacy}
       )""".executeInsert()
       getById(account.id).get
     }
@@ -125,7 +129,8 @@ case class SqlAccountManager()(implicit app: play.api.Application) extends Accou
           staff = ${account.staff},
           active = ${account.active},
           allow_messaging = ${account.allowMessaging},
-          password = ${account.password}
+          password = ${account.password},
+          is_legacy = ${account.isLegacy}
         WHERE id = ${account.id}
         """.executeUpdate()
       getById(account.id).get
@@ -214,9 +219,10 @@ object SqlAccountManager {
       bool("users.allow_messaging") ~
       get[Option[DateTime]]("users.created") ~
       get[Option[DateTime]]("users.last_login") ~
-      get[Option[HashedPassword]]("users.password") map {
-      case id ~ email ~ verified ~ staff ~ active ~ allowMessaging ~ created ~ login ~ pw =>
-        Account(id, email, verified, staff, active, allowMessaging, created, login, pw)
+      get[Option[HashedPassword]]("users.password") ~
+      get[Boolean]("users.is_legacy") map {
+      case id ~ email ~ verified ~ staff ~ active ~ allowMessaging ~ created ~ login ~ pw ~ legacy =>
+        Account(id, email, verified, staff, active, allowMessaging, created, login, pw, legacy)
     }
   }
 }

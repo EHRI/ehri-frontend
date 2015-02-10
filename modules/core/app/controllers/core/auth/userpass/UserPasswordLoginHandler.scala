@@ -66,8 +66,20 @@ trait UserPasswordLoginHandler {
           val (email, pw) = data
           accounts.authenticateByEmail(email, pw).flatMap {
             case Some(account) =>
-              Logger.logger.info("User '{}' logged in via password", account.id)
-              block(UserPasswordLoginRequest(Right(account), request))
+              // Legacy accounts have an MD5 password encoded via BCrypt, so
+              // we need to re-save this and untag them as legacy.
+              if (account.isLegacy) {
+                Logger.logger.info("Updating legacy account for user: {}", account.id)
+                accounts.update(account = account.copy(
+                  password = Some(HashedPassword.fromPlain(pw)),
+                  isLegacy = false
+                )).flatMap { updated =>
+                  block(UserPasswordLoginRequest(Right(account), request))
+                }
+              } else {
+                Logger.logger.info("User logged in via password: {}", account.id)
+                block(UserPasswordLoginRequest(Right(account), request))
+              }
             case None =>
               block(UserPasswordLoginRequest(Left(boundForm
                 .withGlobalError("login.error.badUsernameOrPassword")), request))
@@ -125,7 +137,10 @@ trait UserPasswordLoginHandler {
         data => {
           val (current, newPw, _) = data
           accounts.authenticateById(request.user.id, current).flatMap {
-            case Some(account) => accounts.update(account.copy(password = Some(HashedPassword.fromPlain(newPw)))).map { _ =>
+            case Some(account) => accounts.update(account.copy(
+              password = Some(HashedPassword.fromPlain(newPw)),
+              isLegacy = false
+            )).map { _ =>
               ChangePasswordRequest(None, request.user, request)
             }
             case None =>
@@ -155,7 +170,10 @@ trait UserPasswordLoginHandler {
             case Some(account) =>
               for {
                 _ <- accounts.expireTokens(account.id)
-                _ <- accounts.update(account.copy(password = Some(HashedPassword.fromPlain(pw))))
+                _ <- accounts.update(account.copy(
+                  password = Some(HashedPassword.fromPlain(pw)),
+                  isLegacy = false
+                ))
               } yield ResetPasswordRequest(Right(account), request.userOpt, request)
             case None => immediate(ResetPasswordRequest(
               Left(form.withGlobalError("login.error.badResetToken")), request.userOpt, request))

@@ -13,6 +13,7 @@
         <div id="wrap">
             @views.html.p.layout.readOnly()
             @views.html.p.layout.message()
+            @views.html.p.layout.ipFilter()
             <header id="header" class="navigation">
                 @views.html.p.layout.accountHeader(showSearch = false, showAdminLink = true)
             </header>
@@ -21,7 +22,7 @@
                     <div class="jumbotron">
                         <div class="container">
                             <h1>@Messages("welcome") <sup class="text-muted">Beta</sup></h1>
-                            @helper.form(action = controllers.portal.routes.Portal.search, 'role -> "form") {
+                            @helper.form(action = controllers.portal.routes.Portal.search(), 'role -> "form") {
                             @views.html.common.search.searchBar()
                             }
                         </div>
@@ -39,13 +40,13 @@
                     <!-- Example row of columns -->
                     <div class="row">
                         <div class="welcome-section country">
-                            <h2><a href="@controllers.portal.routes.Countries.searchAll">@Messages("type.country")</a>
+                            <h2><a href="@controllers.portal.routes.Countries.searchAll()">@Messages("type.country")</a>
                             </h2>
 
                             <p>@Messages("type.country.description")</p>
                         </div>
                         <div class="welcome-section repository">
-                            <h2><a href="@controllers.portal.routes.Repositories.searchAll">@Messages("type.repository")</a>
+                            <h2><a href="@controllers.portal.routes.Repositories.searchAll()">@Messages("type.repository")</a>
                             </h2>
 
                             <p>@Messages("type.repository.description")</p>
@@ -105,7 +106,7 @@
         <script>
             jQuery(document).ready(function ($) {
                 $("#news-feed")
-                        .load("@controllers.portal.routes.Portal.newsFeed.absoluteURL(secure = globalConfig.https)")
+                        .load("@controllers.portal.routes.Portal.newsFeed().absoluteURL(secure = globalConfig.https)")
             });
         </script>
     </body>

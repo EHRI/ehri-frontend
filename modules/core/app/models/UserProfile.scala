@@ -33,6 +33,8 @@ object UserProfileF {
   val STAFF = "staff"
   val URL = "url"
   val WORK_URL = "workUrl"
+  val FIRST_NAMES = "firstNames"
+  val LAST_NAME = "lastName"
   val TITLE = "title"
   val INSTITUTION = "institution"
   val ROLE = "role"
@@ -54,6 +56,8 @@ object UserProfileF {
           IMAGE_URL -> d.imageUrl,
           URL -> d.url,
           WORK_URL -> d.workUrl,
+          FIRST_NAMES -> d.firstNames,
+          LAST_NAME -> d.lastName,
           TITLE -> d.title,
           INSTITUTION -> d.institution,
           ROLE -> d.role,
@@ -75,6 +79,8 @@ object UserProfileF {
       (__ \ DATA \ IMAGE_URL).readNullable[String] and
       (__ \ DATA \ URL).readNullable[String] and
       (__ \ DATA \ WORK_URL).readNullable[String] and
+      (__ \ DATA \ FIRST_NAMES).readNullable[String] and
+      (__ \ DATA \ LAST_NAME).readNullable[String] and
       (__ \ DATA \ TITLE).readNullable[String] and
       (__ \ DATA \ INSTITUTION).readNullable[String] and
       (__ \ DATA \ ROLE).readNullable[String] and
@@ -100,6 +106,8 @@ case class UserProfileF(
   imageUrl: Option[String] = None,
   url: Option[String] = None,
   workUrl: Option[String] = None,
+  firstNames: Option[String] = None,
+  lastName: Option[String] = None,
   title: Option[String] = None,
   institution: Option[String] = None,
   role: Option[String] = None,
@@ -152,6 +160,8 @@ object UserProfile {
       IMAGE_URL -> optional(nonEmptyText.verifying(s => isValidUrl(s))),
       URL -> optional(nonEmptyText.verifying(s => isValidUrl(s))),
       WORK_URL -> optional(nonEmptyText.verifying(s => isValidUrl(s))),
+      FIRST_NAMES -> optional(text),
+      LAST_NAME -> optional(text),
       TITLE -> optional(text),
       INSTITUTION -> optional(text),
       ROLE -> optional(text),
