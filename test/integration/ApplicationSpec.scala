@@ -123,6 +123,19 @@ class ApplicationSpec extends PlaySpecification with TestConfiguration with User
       }
     }
 
+    "disallow the right stuff in robots.txt" in {
+      running(FakeApplication(withGlobal = Some(getGlobal))) {
+        val robots = contentAsString(route(FakeRequest(GET, "/robots.txt")).get)
+        robots must contain("Disallow: " + controllers.portal.routes.Portal.personalisedActivity().url)
+        robots must contain("Disallow: " + controllers.portal.account.routes.Accounts.loginOrSignup().url)
+        robots must contain("Disallow: " + controllers.portal.routes.Helpdesk.helpdesk().url)
+        robots must contain("Disallow: " + controllers.portal.routes.Feedback.feedback().url)
+        robots must contain("Disallow: " + controllers.portal.social.routes.Social.browseUsers().url)
+        robots must contain("Disallow: " + controllers.portal.annotate.routes.Annotations.searchAll())
+        robots must contain("Disallow: " + controllers.admin.routes.Home.index())
+      }
+    }
+
     "redirect 301 for trailing-slash URLs" in {
       running(FakeApplication(withGlobal = Some(getGlobal))) {
         val home = route(fakeLoggedInHtmlRequest(mocks.publicUser, GET,
