@@ -84,11 +84,13 @@ case class SqlAccountManager()(implicit app: play.api.Application) extends Accou
     }
   }(executionContext)
 
-  override def findAllById(ids: Seq[String]): Future[Seq[Account]] = Future {
-    DB.withConnection { implicit conn =>
-      SQL"SELECT * FROM users WHERE users.id IN ($ids)".as(userParser *)
-    }
-  }(executionContext)
+  override def findAllById(ids: Seq[String]): Future[Seq[Account]] =
+    if (ids.isEmpty) Future.successful(Seq.empty)
+    else Future {
+      DB.withConnection { implicit conn =>
+        SQL"SELECT * FROM users WHERE users.id IN ($ids)".as(userParser *)
+      }
+    }(executionContext)
 
   override def findByToken(token: String, isSignUp: Boolean): Future[Option[Account]] = Future {
     DB.withConnection { implicit conn =>
