@@ -40,6 +40,9 @@ trait GlobalConfig {
   private lazy val messageFile: Option[File] = current.configuration.getString("ehri.message.file")
     .map(new File(_))
 
+  private lazy val ipFilterFile: Option[File] = current.configuration.getString("ehri.ipfilter.file")
+    .map(new File(_))
+
   def readOnly: Boolean = readOnlyFile.exists(file => file.isFile && file.exists)
 
   def maintenance: Boolean = maintenanceFile.exists(file => file.isFile && file.exists)
@@ -49,6 +52,17 @@ trait GlobalConfig {
       if (f.isFile && f.exists()) {
         import org.apache.commons.io.FileUtils
         Some(FileUtils.readFileToString(f, "UTF-8"))
+      } else None
+    }
+  }
+
+  def ipFilter: Option[Seq[String]] = {
+    ipFilterFile.flatMap { f =>
+      if (f.isFile && f.exists()) {
+        import org.apache.commons.io.FileUtils
+        val ips: Seq[String] = FileUtils.readFileToString(f, "UTF-8").split('\n').toSeq
+        if (ips.isEmpty) None
+        else Some(ips)
       } else None
     }
   }

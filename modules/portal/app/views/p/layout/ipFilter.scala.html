@@ -1,0 +1,7 @@
+@()(implicit req: RequestHeader, globalConfig: global.GlobalConfig, lang: Lang)
+
+@globalConfig.ipFilter.map { whitelist =>
+    <div class="alert alert-warning readonly-message">
+        <strong>Blocked for IPs except: @whitelist.mkString(", ")</strong>
+    </div>
+}
