@@ -24,7 +24,7 @@ trait RestGeneric extends Generic with RestDAO {
   private def unpack(m: Map[String,Seq[String]]): Seq[(String,String)]
       = m.map(ks => ks._2.map(s => ks._1 -> s)).flatten.toSeq
 
-  def get[MT](resource: BackendResource[MT], id: String)(implicit apiUser: ApiUser, executionContext: ExecutionContext): Future[MT] = {
+  override def get[MT](resource: BackendResource[MT], id: String)(implicit apiUser: ApiUser, executionContext: ExecutionContext): Future[MT] = {
     val url = canonicalUrl(id)(resource)
     Cache.getAs[JsValue](url).map { json =>
       Future.successful(jsonReadToRestError(json, resource.restReads))
@@ -37,18 +37,18 @@ trait RestGeneric extends Generic with RestDAO {
     }
   }
 
-  def get[MT](id: String)(implicit apiUser: ApiUser, rs: BackendResource[MT], executionContext: ExecutionContext): Future[MT] = {
+  override def get[MT](id: String)(implicit apiUser: ApiUser, rs: BackendResource[MT], executionContext: ExecutionContext): Future[MT] = {
     get(rs, id)
   }
 
-  def getJson[MT](id: String)(implicit apiUser: ApiUser, rs: BackendResource[MT], executionContext: ExecutionContext): Future[JsObject] = {
+  override def getJson[MT](id: String)(implicit apiUser: ApiUser, rs: BackendResource[MT], executionContext: ExecutionContext): Future[JsObject] = {
     val url: String = enc(baseUrl, rs.entityType, id)
     userCall(url).get().map { response =>
       checkErrorAndParse[JsObject](response, context = Some(url))
     }
   }
 
-  def create[MT <: WithId, T](item: T, accessors: Seq[String] = Nil,
+  override def create[MT <: WithId, T](item: T, accessors: Seq[String] = Nil,
       params: Map[String,Seq[String]] = Map.empty,
       logMsg: Option[String] = None)(implicit apiUser: ApiUser, rs: BackendResource[MT], wrt: BackendWriteable[T], executionContext: ExecutionContext): Future[MT] = {
     val url = enc(baseUrl, rs.entityType)
@@ -63,7 +63,7 @@ trait RestGeneric extends Generic with RestDAO {
     }
   }
 
-  def createInContext[MT,T,TT <: WithId](id: String, contentType: ContentTypes.Value, item: T, accessors: Seq[String] = Nil, params: Map[String, Seq[String]] = Map.empty,
+  override def createInContext[MT,T,TT <: WithId](id: String, contentType: ContentTypes.Value, item: T, accessors: Seq[String] = Nil, params: Map[String, Seq[String]] = Map.empty,
       logMsg: Option[String] = None)(
         implicit apiUser: ApiUser, wrt: BackendWriteable[T], rs: BackendResource[MT], rd: backend.BackendReadable[TT], executionContext: ExecutionContext): Future[TT] = {
     val url = enc(baseUrl, rs.entityType, id, contentType)
@@ -80,7 +80,7 @@ trait RestGeneric extends Generic with RestDAO {
     }
   }
 
-  def update[MT,T](id: String, item: T, logMsg: Option[String] = None)(
+  override def update[MT,T](id: String, item: T, logMsg: Option[String] = None)(
       implicit apiUser: ApiUser, wrt: BackendWriteable[T], rs: BackendResource[MT], executionContext: ExecutionContext): Future[MT] = {
     val url = enc(baseUrl, rs.entityType, id)
     userCall(url).withHeaders(msgHeader(logMsg): _*)
@@ -92,7 +92,7 @@ trait RestGeneric extends Generic with RestDAO {
     }
   }
 
-  def patch[MT](id: String, data: JsObject, logMsg: Option[String] = None)(
+  override def patch[MT](id: String, data: JsObject, logMsg: Option[String] = None)(
       implicit apiUser: ApiUser, rs: BackendResource[MT], executionContext: ExecutionContext): Future[MT] = {
     val item = Json.obj(Entity.TYPE -> rs.entityType, Entity.DATA -> data)
     val url = enc(baseUrl, rs.entityType, id)
@@ -105,7 +105,7 @@ trait RestGeneric extends Generic with RestDAO {
     }
   }
 
-  def delete[MT](id: String, logMsg: Option[String] = None)(implicit apiUser: ApiUser, rs: BackendResource[MT], executionContext: ExecutionContext): Future[Unit] = {
+  override def delete[MT](id: String, logMsg: Option[String] = None)(implicit apiUser: ApiUser, rs: BackendResource[MT], executionContext: ExecutionContext): Future[Unit] = {
     userCall(enc(baseUrl, rs.entityType, id)).delete().map { response =>
       checkError(response)
       eventHandler.handleDelete(id)
@@ -113,34 +113,34 @@ trait RestGeneric extends Generic with RestDAO {
     }
   }
 
-  def listJson[MT](params: PageParams = PageParams.empty)(implicit apiUser: ApiUser, rs: BackendResource[MT], executionContext: ExecutionContext): Future[Page[JsObject]] = {
+  override def listJson[MT](params: PageParams = PageParams.empty)(implicit apiUser: ApiUser, rs: BackendResource[MT], executionContext: ExecutionContext): Future[Page[JsObject]] = {
     val url = enc(baseUrl, rs.entityType, "list")
     userCall(url).withQueryString(params.queryParams:_*).get().map { response =>
       parsePage[JsObject](response, context = Some(url))
     }
   }
 
-  def list[MT](params: PageParams = PageParams.empty)(implicit apiUser: ApiUser, rs: BackendResource[MT], executionContext: ExecutionContext): Future[Page[MT]] = {
+  override def list[MT](params: PageParams = PageParams.empty)(implicit apiUser: ApiUser, rs: BackendResource[MT], executionContext: ExecutionContext): Future[Page[MT]] = {
     val url = enc(baseUrl, rs.entityType, "list")
     userCall(url).withQueryString(params.queryParams: _*).get().map { response =>
       parsePage(response, context = Some(url))(rs.restReads)
     }
   }
 
-  def listChildren[MT,CMT](id: String, params: PageParams = PageParams.empty)(implicit apiUser: ApiUser, rs: BackendResource[MT], rd: backend.BackendReadable[CMT], executionContext: ExecutionContext): Future[Page[CMT]] = {
+  override def listChildren[MT,CMT](id: String, params: PageParams = PageParams.empty)(implicit apiUser: ApiUser, rs: BackendResource[MT], rd: backend.BackendReadable[CMT], executionContext: ExecutionContext): Future[Page[CMT]] = {
     val url: String = enc(baseUrl, rs.entityType, id, "list")
     userCall(url).withQueryString(params.queryParams: _*).get().map { response =>
       parsePage(response, context = Some(url))(rd.restReads)
     }
   }
 
-  def count[MT](params: PageParams = PageParams.empty)(implicit apiUser: ApiUser, rs: BackendResource[MT], executionContext: ExecutionContext): Future[Long] = {
+  override def count[MT](params: PageParams = PageParams.empty)(implicit apiUser: ApiUser, rs: BackendResource[MT], executionContext: ExecutionContext): Future[Long] = {
     userCall(enc(baseUrl, rs.entityType, "count")).withQueryString(params.queryParams: _*).get().map { response =>
       checkErrorAndParse[Long](response)
     }
   }
 
-  def countChildren[MT](id: String, params: PageParams = PageParams.empty)(implicit apiUser: ApiUser, rs: BackendResource[MT], executionContext: ExecutionContext): Future[Long] = {
+  override def countChildren[MT](id: String, params: PageParams = PageParams.empty)(implicit apiUser: ApiUser, rs: BackendResource[MT], executionContext: ExecutionContext): Future[Long] = {
     userCall(enc(baseUrl, rs.entityType, id, "count")).withQueryString(params.queryParams: _*).get().map { response =>
       checkErrorAndParse[Long](response)
     }

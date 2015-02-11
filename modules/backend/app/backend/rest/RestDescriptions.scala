@@ -17,7 +17,7 @@ trait RestDescriptions extends RestDAO with Descriptions {
 
   private def requestUrl = s"$baseUrl/description"
 
-  def createDescription[MT,DT](id: String, item: DT, logMsg: Option[String] = None)(
+  override def createDescription[MT,DT](id: String, item: DT, logMsg: Option[String] = None)(
         implicit apiUser: ApiUser, rs: BackendResource[MT], fmt: BackendWriteable[DT], rd: backend.BackendReadable[DT], executionContext: ExecutionContext): Future[DT] = {
     val url: String = enc(requestUrl, id)
     userCall(url).withHeaders(msgHeader(logMsg): _*)
@@ -29,7 +29,7 @@ trait RestDescriptions extends RestDAO with Descriptions {
     }
   }
 
-  def updateDescription[MT,DT](id: String, did: String, item: DT, logMsg: Option[String] = None)(
+  override def updateDescription[MT,DT](id: String, did: String, item: DT, logMsg: Option[String] = None)(
       implicit apiUser: ApiUser, rs: BackendResource[MT], fmt: BackendWriteable[DT], rd: backend.BackendReadable[DT], executionContext: ExecutionContext): Future[DT] = {
     val url: String = enc(requestUrl, id, did)
     userCall(url).withHeaders(msgHeader(logMsg): _*)
@@ -41,7 +41,7 @@ trait RestDescriptions extends RestDAO with Descriptions {
     }
   }
 
-  def deleteDescription[MT](id: String, did: String, logMsg: Option[String] = None)(
+  override def deleteDescription[MT](id: String, did: String, logMsg: Option[String] = None)(
       implicit apiUser: ApiUser, rs: BackendResource[MT], executionContext: ExecutionContext): Future[Unit] = {
     userCall(enc(requestUrl, id, did)).withHeaders(msgHeader(logMsg): _*)
           .delete().map { response =>
@@ -51,7 +51,7 @@ trait RestDescriptions extends RestDAO with Descriptions {
     }
   }
 
-  def createAccessPoint[MT, DT](id: String, did: String, item: DT, logMsg: Option[String] = None)(
+  override def createAccessPoint[MT, DT](id: String, did: String, item: DT, logMsg: Option[String] = None)(
         implicit apiUser: ApiUser, rs: BackendResource[MT], fmt: BackendWriteable[DT], executionContext: ExecutionContext): Future[DT] = {
     val url: String = enc(requestUrl, id, did, EntityType.AccessPoint)
     userCall(url)
@@ -63,7 +63,7 @@ trait RestDescriptions extends RestDAO with Descriptions {
     }
   }
 
-  def deleteAccessPoint(id: String, did: String, apid: String, logMsg: Option[String] = None)(implicit apiUser: ApiUser, executionContext: ExecutionContext): Future[Unit] = {
+  override def deleteAccessPoint(id: String, did: String, apid: String, logMsg: Option[String] = None)(implicit apiUser: ApiUser, executionContext: ExecutionContext): Future[Unit] = {
     val url = enc(requestUrl, id, did, EntityType.AccessPoint, apid)
     userCall(url).withHeaders(msgHeader(logMsg): _*).delete().map { response =>
       checkError(response)

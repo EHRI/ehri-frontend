@@ -22,15 +22,15 @@ trait RestPromotion extends Promotion with RestDAO {
     item
   }
 
-  def promote[MT](id: String)(implicit apiUser: ApiUser,  rs: BackendResource[MT], executionContext: ExecutionContext): Future[MT] =
+  override def promote[MT](id: String)(implicit apiUser: ApiUser,  rs: BackendResource[MT], executionContext: ExecutionContext): Future[MT] =
     userCall(enc(requestUrl, id, "up")).post("").map(handler(id, _))
 
-  def removePromotion[MT](id: String)(implicit apiUser: ApiUser, rs: BackendResource[MT], executionContext: ExecutionContext): Future[MT] =
+  override def removePromotion[MT](id: String)(implicit apiUser: ApiUser, rs: BackendResource[MT], executionContext: ExecutionContext): Future[MT] =
     userCall(enc(requestUrl, id, "up")).delete().map(handler(id, _))
 
-  def demote[MT](id: String)(implicit apiUser: ApiUser, rs: BackendResource[MT], executionContext: ExecutionContext): Future[MT] =
+  override def demote[MT](id: String)(implicit apiUser: ApiUser, rs: BackendResource[MT], executionContext: ExecutionContext): Future[MT] =
     userCall(enc(requestUrl, id, "down")).post("").map(handler(id, _))
 
-  def removeDemotion[MT](id: String)(implicit apiUser: ApiUser, rs: BackendResource[MT], executionContext: ExecutionContext): Future[MT] =
+  override def removeDemotion[MT](id: String)(implicit apiUser: ApiUser, rs: BackendResource[MT], executionContext: ExecutionContext): Future[MT] =
     userCall(enc(requestUrl, id, "down")).delete().map(handler(id, _))
 }
