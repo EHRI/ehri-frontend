@@ -14,6 +14,7 @@ case class RestBackend(eventHandler: EventHandler)(implicit val app: play.api.Ap
   with RestPermissions
   with RestDescriptions
   with RestAnnotations
+  with RestVirtualCollections
   with RestLinks
   with RestEvents
   with RestSocial

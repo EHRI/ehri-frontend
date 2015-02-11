@@ -162,33 +162,4 @@ trait RestSocial extends Social with RestDAO {
       parsePage(r, context = Some(url))(rd.restReads)
     }
   }
-
-  def addBookmark[MT](setId: String, id: String)(implicit apiUser: ApiUser, rs: BackendResource[MT], executionContext: ExecutionContext): Future[Unit] = {
-    userCall(enc(baseUrl, EntityType.VirtualUnit, setId, "includes"))
-      .withQueryString(ID_PARAM -> id).post("").map { _ =>
-      eventHandler.handleUpdate(setId)
-      Cache.remove(canonicalUrl(setId))
-    }
-  }
-
-  def deleteBookmarks[MT](set: String, ids: Seq[String])(implicit apiUser: ApiUser, rs: BackendResource[MT], executionContext: ExecutionContext): Future[Unit] = {
-    if (ids.isEmpty) Future.successful(())
-    else userCall(enc(baseUrl, EntityType.VirtualUnit, set, "includes"))
-      .withQueryString(ids.map ( id => ID_PARAM -> id): _*).delete().map { _ =>
-      eventHandler.handleUpdate(set)
-      Cache.remove(canonicalUrl(set))
-    }
-  }
-
-  def moveBookmarks[MT](fromSet: String, toSet: String, ids: Seq[String])(implicit apiUser: ApiUser, rs: BackendResource[MT], executionContext: ExecutionContext): Future[Unit] = {
-    if (ids.isEmpty) Future.successful(())
-    else userCall(enc(baseUrl, EntityType.VirtualUnit, fromSet, "includes", toSet))
-      .withQueryString(ids.map(id => ID_PARAM -> id): _*).post("").map { _ =>
-      // Update both source and target sets in the index
-      Cache.remove(canonicalUrl(fromSet))
-      Cache.remove(canonicalUrl(toSet))
-      eventHandler.handleUpdate(fromSet)
-      eventHandler.handleUpdate(toSet)
-    }
-  }
 }

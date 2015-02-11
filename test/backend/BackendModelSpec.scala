@@ -368,7 +368,7 @@ class BackendModelSpec extends RestBackendRunner with PlaySpecification {
       vc.includedUnits.size must equalTo(0)
 
       // Add an included unit to the VC (a bookmark)
-      await(testBackend.addBookmark[VirtualUnit](vc.id, "c4"))
+      await(testBackend.addReferences[VirtualUnit](vc.id, Seq("c4")))
       await(testBackend.userBookmarks[VirtualUnit](userProfile.id)).headOption must beSome.which { ovc =>
         ovc.includedUnits.size must equalTo(1)
         ovc.includedUnits.headOption must beSome.which { iu =>
@@ -377,7 +377,7 @@ class BackendModelSpec extends RestBackendRunner with PlaySpecification {
       }
 
       // Delete the included unit
-      await(testBackend.deleteBookmarks[VirtualUnit](vc.id, Seq("c4")))
+      await(testBackend.deleteReferences[VirtualUnit](vc.id, Seq("c4")))
       await(testBackend.userBookmarks[VirtualUnit](userProfile.id)).headOption must beSome.which { ovc =>
         ovc.includedUnits.size must equalTo(0)
       }
@@ -385,13 +385,13 @@ class BackendModelSpec extends RestBackendRunner with PlaySpecification {
       // Moving included units...
       val vc2 = await(testBackend.create[VirtualUnit,VirtualUnitF](
         data.copy(identifier = "vc-test-2")))
-      await(testBackend.addBookmark[VirtualUnit](vc.id, "c1"))
+      await(testBackend.addReferences[VirtualUnit](vc.id, Seq("c1")))
       await(testBackend.get[VirtualUnit](vc.id))
         .includedUnits.map(_.id) must contain("c1")
-      await(testBackend.addBookmark[VirtualUnit](vc2.id, "c2"))
+      await(testBackend.addReferences[VirtualUnit](vc2.id, Seq("c2")))
       await(testBackend.get[VirtualUnit](vc2.id))
         .includedUnits.map(_.id) must contain("c2")
-      await(testBackend.moveBookmarks[VirtualUnit](vc.id, vc2.id, List("c1")))
+      await(testBackend.moveReferences[VirtualUnit](vc.id, vc2.id, Seq("c1")))
       await(testBackend.get[VirtualUnit](vc.id))
         .includedUnits.map(_.id) must not contain "c1"
       await(testBackend.get[VirtualUnit](vc2.id))

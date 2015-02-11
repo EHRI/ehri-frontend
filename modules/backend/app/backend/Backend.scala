@@ -13,6 +13,7 @@ trait Backend
   with Descriptions
   with Links
   with Annotations
+  with VirtualCollections
   with Visibility
   with Promotion
   with Events
