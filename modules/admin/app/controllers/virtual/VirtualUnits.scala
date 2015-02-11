@@ -7,6 +7,7 @@ import models._
 import controllers.generic._
 import play.api.i18n.Messages
 import defines.{ContentTypes,EntityType,PermissionType}
+import play.api.mvc.RequestHeader
 import views.Helpers
 import utils.search._
 import com.google.inject._
@@ -86,6 +87,21 @@ case class VirtualUnits @Inject()(implicit globalConfig: global.GlobalConfig, se
 
   private val vuRoutes = controllers.virtual.routes.VirtualUnits
 
+  private def buildFilter(v: VirtualUnit): Map[String,Any] = {
+    // Nastiness. We want a Solr query that will allow searching
+    // both the child virtual collections of a VU as well as the
+    // physical documentary units it includes. Since there is no
+    // connection from the DU to VUs it belongs to (and creating
+    // one is not feasible) we need to do this badness:
+    // - load the VU from the graph along with its included DUs
+    // - query for anything that has the VUs parent ID *or* anything
+    // with an itemId among its included DUs
+    import SearchConstants._
+    val pq = v.includedUnits.map(_.id)
+    if (pq.isEmpty) Map(s"$PARENT_ID:${v.id}" -> Unit)
+    else Map(s"$PARENT_ID:${v.id} OR $ITEM_ID:(${pq.mkString(" ")})" -> Unit)
+  }
+
   def search = OptionalUserAction.async { implicit request =>
   // What filters we gonna use? How about, only list stuff here that
   // has no parent items - UNLESS there's a query, in which case we're
@@ -111,47 +127,47 @@ case class VirtualUnits @Inject()(implicit globalConfig: global.GlobalConfig, se
     }
   }
 
-  def get(id: String) = ItemMetaAction(id).async { implicit request =>
-    find[VirtualUnit](
-      filters = Map(SearchConstants.PARENT_ID -> request.item.id),
-      entities = List(EntityType.VirtualUnit),
-      facetBuilder = entityFacets
-    ).map { result =>
-      Ok(views.html.admin.virtualUnit.show(Nil, request.item, result,
-          vuRoutes.get(id), request.annotations, request.links))
-    }
-  }
-
-  def getInVc(id: String, pathStr: Option[String]) = OptionalUserAction.async { implicit request =>
-    val pathIds = pathStr.map(_.split(",").toList).getOrElse(List.empty)
-    def includedChildren(parent: AnyModel): Future[SearchResult[(AnyModel, SearchHit)]] = parent match {
+  private def includedChildren(parent: AnyModel)(implicit userOpt: Option[UserProfile], request: RequestHeader): Future[SearchResult[(AnyModel,SearchHit)]] = {
+    parent match {
       case d: DocumentaryUnit => find[AnyModel](
-          filters = Map(SearchConstants.PARENT_ID -> d.id),
-          entities = List(d.isA),
-          facetBuilder = entityFacets)
+        filters = Map(SearchConstants.PARENT_ID -> d.id),
+        entities = List(d.isA),
+        facetBuilder = entityFacets)
       case d: VirtualUnit => d.includedUnits match {
-        case other :: _ => includedChildren(other)
         case _ => find[AnyModel](
-          filters = Map(SearchConstants.PARENT_ID -> d.id),
-          entities = List(d.isA),
+          filters = buildFilter(d),
+          entities = List(EntityType.VirtualUnit, EntityType.DocumentaryUnit),
           facetBuilder = entityFacets)
       }
       case _ => Future.successful(SearchResult.empty)
     }
+  }
 
-    val pathF: Future[List[AnyModel]] = Future.sequence(pathIds.map(pid => backend.getAny[AnyModel](pid)))
+  def get(id: String) = ItemMetaAction(id).async { implicit request =>
+    for {
+      result <- includedChildren(request.item)
+    } yield {
+      Ok(views.html.admin.virtualUnit.show(request.item, result,
+        vuRoutes.get(id), request.annotations, request.links, Seq.empty))
+    }
+  }
+
+  def getInVc(pathStr: String, id: String) = OptionalUserAction.async { implicit request =>
+    val pathIds = pathStr.split(",").toSeq
+
+    val pathF: Future[Seq[AnyModel]] = Future.sequence(pathIds.map(pid => backend.getAny[AnyModel](pid)))
     val itemF: Future[AnyModel] = backend.getAny[AnyModel](id)
     val linksF: Future[Seq[Link]] = backend.getLinksForItem[Link](id)
     val annsF: Future[Seq[Annotation]] = backend.getAnnotationsForItem[Annotation](id)
     for {
       item <- itemF
+      path <- pathF
       links <- linksF
       annotations <- annsF
-      path <- pathF
       children <- includedChildren(item)
     } yield Ok(views.html.admin.virtualUnit.showVc(
-        path, item, children,
-        vuRoutes.getInVc(id, pathStr), annotations, links))
+        item, children,
+        vuRoutes.getInVc(id, pathStr), annotations, links, path))
   }
 
   def history(id: String) = ItemHistoryAction(id).apply { implicit request =>
@@ -211,7 +227,7 @@ case class VirtualUnits @Inject()(implicit globalConfig: global.GlobalConfig, se
           errorForm, accForm, users, groups,
           vuRoutes.createChildPost(id)))
       }
-      case Right(doc) => immediate(Redirect(vuRoutes.get(doc.id))
+      case Right(doc) => immediate(Redirect(vuRoutes.getInVc(id, doc.id))
         .flashing("success" -> "item.create.confirmation"))
     }
   }
@@ -242,7 +258,7 @@ case class VirtualUnits @Inject()(implicit globalConfig: global.GlobalConfig, se
             errorForm, refForm.bindFromRequest, accForm, users, groups,
             vuRoutes.createChildRefPost(id)))
         }
-        case Right(doc) => immediate(Redirect(vuRoutes.get(doc.id))
+        case Right(doc) => immediate(Redirect(vuRoutes.getInVc(id, doc.id))
           .flashing("success" -> "item.create.confirmation"))
       }
   }
