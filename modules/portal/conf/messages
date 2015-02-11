@@ -126,7 +126,7 @@ profile.image.edit=Set Profile Image
 profile.delete=Delete Account
 profile.delete.link=Click here to delete your profile
 profile.delete.check.text=Deleting your account will \
-  will anonymise (but not remove) any publicly-visible annotations and links you may have \
+   anonymise (but not remove) any publicly-visible annotations and links you may have \
   contributed to EHRI. To confirm, please type your name as displayed here, in the box below:
 profile.delete.check=Type your name as displayed above.
 profile.delete.badConfirmation=Profile deletion was not confirmed correctly.
