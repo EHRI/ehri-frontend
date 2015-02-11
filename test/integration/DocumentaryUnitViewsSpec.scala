@@ -1,13 +1,11 @@
 package integration
 
+import defines.{ContentTypes, EntityType}
 import helpers.IntegrationTestRunner
-import models._
+import models.{Group, UserProfile, _}
+import play.api.http.{HeaderNames, MimeTypes}
 import play.api.i18n.Messages
 import play.api.test.FakeRequest
-import play.api.http.{MimeTypes, HeaderNames}
-import backend.rest.ItemNotFound
-import defines.{ContentTypes, EntityType}
-import models.{Group, UserProfile}
 
 
 class DocumentaryUnitViewsSpec extends IntegrationTestRunner {
@@ -32,9 +30,9 @@ class DocumentaryUnitViewsSpec extends IntegrationTestRunner {
         docRoutes.list().url)).get
       status(list) must equalTo(OK)
       contentAsString(list) must contain(multipleItemsHeader)
-      contentAsString(list) must not contain "c1"
-      contentAsString(list) must contain("c4")
-      contentAsString(list) must contain("m19")
+      contentAsString(list) must not contain "Documentary Unit 1"
+      contentAsString(list) must contain("Documentary Unit 4")
+      contentAsString(list) must contain("Documentary Unit m19")
     }
 
     "list when logged in should get more items" in new ITestApp {
@@ -42,10 +40,10 @@ class DocumentaryUnitViewsSpec extends IntegrationTestRunner {
           docRoutes.list().url)).get
       status(list) must equalTo(OK)
       contentAsString(list) must contain(multipleItemsHeader)
-      contentAsString(list) must contain("c1")
-      contentAsString(list) must contain("c2")
-      contentAsString(list) must contain("c3")
-      contentAsString(list) must contain("c4")
+      contentAsString(list) must contain("Documentary Unit 1")
+      contentAsString(list) must contain("Documentary Unit 2")
+      contentAsString(list) must contain("Documentary Unit 3")
+      contentAsString(list) must contain("Documentary Unit 4")
     }
 
     "search should find some items" in new ITestApp {
@@ -53,10 +51,10 @@ class DocumentaryUnitViewsSpec extends IntegrationTestRunner {
           docRoutes.search().url)).get
       status(search) must equalTo(OK)
       contentAsString(search) must contain(multipleItemsHeader)
-      contentAsString(search) must contain("c1")
-      contentAsString(search) must contain("c2")
-      contentAsString(search) must contain("c3")
-      contentAsString(search) must contain("c4")
+      contentAsString(search) must contain("Documentary Unit 1")
+      contentAsString(search) must contain("Documentary Unit 2")
+      contentAsString(search) must contain("Documentary Unit 3")
+      contentAsString(search) must contain("Documentary Unit 4")
     }
 
     "link to other privileged actions when logged in" in new ITestApp {
@@ -96,7 +94,7 @@ class DocumentaryUnitViewsSpec extends IntegrationTestRunner {
       // r1 is a repository, not a doc unit
       val show = route(fakeLoggedInHtmlRequest(privilegedUser, GET,
         docRoutes.get("r1").url)).get
-      status(show) must throwA[ItemNotFound]
+      status(show) must equalTo(NOT_FOUND)
     }
 
     "allow EAD export" in new ITestApp {
@@ -121,7 +119,7 @@ class DocumentaryUnitViewsSpec extends IntegrationTestRunner {
     "deny access to c2 when logged in as an ordinary user" in new ITestApp {
       val show = route(fakeLoggedInHtmlRequest(unprivilegedUser, GET,
           docRoutes.get("c2").url)).get
-      status(show) must throwA[ItemNotFound]
+      status(show) must equalTo(NOT_FOUND)
     }
 
     "allow deleting c4 when logged in" in new ITestApp {
@@ -343,7 +341,7 @@ class DocumentaryUnitViewsSpec extends IntegrationTestRunner {
     "allow updating visibility" in new ITestApp {
       val test1 = route(fakeLoggedInHtmlRequest(unprivilegedUser, GET,
         docRoutes.get("c1").url)).get
-      status(test1) must throwA[ItemNotFound]
+      status(test1) must equalTo(NOT_FOUND)
       // Make item visible to user
       val data = Map(backend.rest.Constants.ACCESSOR_PARAM -> Seq(unprivilegedUser.id))
       val cr = route(fakeLoggedInHtmlRequest(privilegedUser, POST,

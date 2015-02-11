@@ -28,37 +28,32 @@ case class GuidePage(
   /*
   * Edit a page
   */
-  def update(): Unit = DB.withConnection {
-    implicit connection =>
-      SQL(
-        """
+  def update(): Unit = DB.withConnection { implicit connection =>
+    SQL"""
       UPDATE
         research_guide_page
       SET
-        layout = {l},
-        name = {n},
-        path = {p},
-        position = {m},
-        content = {c},
-        research_guide_id = {parent},
-        params = {params},
-        description = {desc}
-      WHERE id = {id}
+        layout = $layout,
+        name = $name,
+        path = $path,
+        position = $position,
+        content = $content,
+        research_guide_id = $parent,
+        params = $params,
+        description = $description
+      WHERE id = $id
       LIMIT 1
-        """
-      ).on('l -> layout, 'n -> name, 'p -> path, 'm -> position, 'c -> content, 'parent -> parent, 'id -> id, 'params -> params, 'desc -> description).executeUpdate()
+    """.executeUpdate()
   }
 
   /*
   * Delete a page
   */
-  def delete(): Unit = DB.withConnection {
-    implicit connection =>
-      SQL("""DELETE FROM research_guide_page WHERE id = {i} LIMIT 1""")
-        .on('i -> id).executeUpdate()
+  def delete(): Unit = DB.withConnection { implicit connection =>
+      SQL"""DELETE FROM research_guide_page WHERE id = $id LIMIT 1""".executeUpdate()
   }
 
-  def getParams(): Map[String,Seq[String]] = {
+  def getParams: Map[String,Seq[String]] = {
     params match {
       case Some(str) => FormUrlEncodedParser.parse(str)
       case _ => Map.empty
@@ -67,6 +62,7 @@ case class GuidePage(
 }
 
 object GuidePage {
+  import defines.EnumUtils.enumMapping
 
   val PREFIX = "guidePage"
   val OBJECTID = "id"
@@ -81,9 +77,11 @@ object GuidePage {
 
   object Layout extends Enumeration with StorableEnum {
     val Markdown = Value("md")
+    val Html = Value("html")
     val Organisation = Value("organisation")
     val Person = Value("person")
     val Map = Value("map")
+    val Timeline = Value("timeline")
   }
 
   object MenuPosition extends Enumeration with StorableEnum {
@@ -95,10 +93,10 @@ object GuidePage {
   implicit val form = Form(
     mapping(
       OBJECTID -> ignored(Option.empty[Long]),
-      LAYOUT -> utils.forms.enum(Layout),
+      LAYOUT -> enumMapping(Layout),
       NAME -> nonEmptyText,
       PATH -> nonEmptyText,
-      POSITION -> utils.forms.enum(MenuPosition),
+      POSITION -> enumMapping(MenuPosition),
       CONTENT -> nonEmptyText,
       PARENT -> optional(longNumber),
       DESCRIPTION -> optional(nonEmptyText),
@@ -131,23 +129,23 @@ object GuidePage {
   def create(layout: Layout.Value, name: String, path: String, menu: MenuPosition.Value = MenuPosition.Side,
              cypher: String, parent: Option[Long] = None, description: Option[String] = None, params: Option[String] = None): Option[Long] = DB.withConnection {
     implicit connection =>
-      SQL(
-        """INSERT INTO research_guide_page (layout, name, path, position, content, research_guide_id, description, params)
-           VALUES ({l}, {n}, {p}, {m}, {c}, {parent}, {desc}, {params})""")
-        .on('l -> layout, 'n -> name, 'p -> path, 'm -> menu, 'c -> cypher, 'parent -> parent, 'desc -> description, 'params -> params).executeInsert()
+      SQL"""
+        INSERT INTO research_guide_page
+          (layout, name, path, position, content, research_guide_id, description, params)
+        VALUES
+          ($layout, $name, $path, $menu, $cypher, $parent, $description, $params)
+      """.executeInsert()
   }
 
   /*
   * List or find data
   */
   def find(path: String): List[GuidePage] = DB.withConnection { implicit connection =>
-    SQL( """SELECT * FROM research_guide_page WHERE path = {path}""")
-      .on('path -> path).as(rowExtractor *)
+    SQL"""SELECT * FROM research_guide_page WHERE path = $path""".as(rowExtractor *)
   }
 
   def findAll(): List[GuidePage] = DB.withConnection { implicit connection =>
-    SQL( """SELECT * FROM research_guide_page""")
-      .as(rowExtractor *)
+    SQL"""SELECT * FROM research_guide_page""".as(rowExtractor *)
   }
 
   def faceted: GuidePage = {

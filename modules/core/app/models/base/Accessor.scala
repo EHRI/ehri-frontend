@@ -21,7 +21,8 @@ object Accessor {
    * This function allows getting a dynamic Resource for an Accessor given
    * the entity type.
    */
-  def resourceFor(t: EntityType.Value): BackendResource[Accessor] with BackendContentType[Accessor] = new BackendResource[Accessor] with backend.BackendContentType[Accessor] {
+  def resourceFor(t: EntityType.Value): BackendContentType[Accessor] = new backend.BackendContentType[Accessor] {
+    val restReads = Converter.restReads
     def entityType: EntityType.Value = t
     def contentType: ContentTypes.Value = ContentTypes.withName(t.toString)
   }

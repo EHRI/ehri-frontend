@@ -1,8 +1,8 @@
 package controllers.admin
 
+import auth.AccountManager
 import play.api.libs.concurrent.Execution.Implicits._
 import play.api.libs.iteratee.{Concurrent, Enumerator}
-import models.AccountDAO
 import concurrent.Future
 import play.api.i18n.Messages
 import views.Helpers
@@ -15,18 +15,18 @@ import play.api.Logger
 import controllers.generic.{Indexable, Search}
 import backend.Backend
 import scala.util.Failure
-import solr.facet.FieldFacetClass
 import scala.util.Success
 import defines.EntityType
 import controllers.base.AdminController
-
+import defines.EnumUtils.enumMapping
 
 @Singleton
-case class AdminSearch @Inject()(implicit globalConfig: global.GlobalConfig, searchDispatcher: Dispatcher, searchResolver: Resolver, searchIndexer: Indexer, backend: Backend, userDAO: AccountDAO)
+case class AdminSearch @Inject()(implicit globalConfig: global.GlobalConfig, searchEngine: SearchEngine, searchResolver: SearchItemResolver, searchIndexer: SearchIndexer, backend: Backend, accounts: AccountManager, pageRelocator: utils.MovedPageLookup)
   extends AdminController
   with Search {
 
   // i.e. Everything
+
   private val entityFacets: FacetBuilder = { implicit request =>
     List(
       FieldFacetClass(
@@ -99,31 +99,32 @@ case class AdminSearch @Inject()(implicit globalConfig: global.GlobalConfig, sea
         entities = searchTypes.toList
       ),
       facetBuilder = entityFacets
-    ).map { case QueryResult(page, params, facets) =>
+    ).map { result =>
       render {
-        case Accepts.Json() => {
+        case Accepts.Json() =>
           Ok(Json.toJson(Json.obj(
-            "numPages" -> page.numPages,
-            "page" -> Json.toJson(page.items.map(_._1))(Writes.seq(client.json.anyModelJson.clientFormat)),
-            "facets" -> facets
+            "numPages" -> result.page.numPages,
+            "page" -> Json.toJson(result.page.items.map(_._1))(Writes.seq(client.json.anyModelJson.clientFormat)),
+            "facets" -> result.facetClasses
           ))
           )
-        }
-        case _ => Ok(views.html.admin.search.search(page, params, facets,
-          controllers.admin.routes.AdminSearch.search()))
+        case _ => Ok(views.html.admin.search.search(
+          result,
+          controllers.admin.routes.AdminSearch.search())
+        )
       }
     }
   }
 
   import play.api.data.Form
   import play.api.data.Forms._
-  import utils.forms.enum
 
 
   private val updateIndexForm = Form(
     tuple(
-      "all" -> default(boolean, false),
-      "type" -> list(enum(defines.EntityType))
+      "clearAll" -> default(boolean, false),
+      "clearTypes" -> default(boolean, false),
+      "type" -> list(enumMapping(defines.EntityType))
     )
   )
 
@@ -138,7 +139,7 @@ case class AdminSearch @Inject()(implicit globalConfig: global.GlobalConfig, sea
    */
   def updateIndexPost() = AdminAction { implicit request =>
 
-    val (deleteAll, entities) = updateIndexForm.bindFromRequest.value.get
+    val (deleteAll, deleteTypes, entities) = updateIndexForm.bindFromRequest.value.get
 
     def wrapMsg(m: String) = s"<message>$m</message>"
 
@@ -156,21 +157,32 @@ case class AdminSearch @Inject()(implicit globalConfig: global.GlobalConfig, sea
         }
       }
 
-      val job = optionallyClearIndex.flatMap { _ =>
-        searchIndexer.withChannel(chan, wrapMsg).indexTypes(entityTypes = entities)
+      def optionallyClearType(entityTypes: Seq[EntityType.Value]): Future[Unit] = {
+        if (!deleteTypes || deleteAll) Future.successful(Unit)
+        else {
+          val f = searchIndexer.clearTypes(entityTypes = entityTypes)
+          f.onSuccess {
+            case () => chan.push(wrapMsg(s"... finished clearing index for types: $entityTypes"))
+          }
+          f
+        }
       }
 
+      val job = for {
+        _ <- optionallyClearIndex
+        _ <- optionallyClearType(entities)
+        task <- searchIndexer.withChannel(chan, wrapMsg).indexTypes(entityTypes = entities)
+      } yield task
+
       job.onComplete {
-        case Success(()) => {
+        case Success(()) =>
           chan.push(wrapMsg(Indexable.DONE_MESSAGE))
           chan.eofAndEnd()
-        }
-        case Failure(t) => {
+        case Failure(t) =>
           Logger.logger.error(t.getMessage)
           chan.push(wrapMsg("Indexing operation failed: " + t.getMessage))
           chan.push(wrapMsg(Indexable.ERR_MESSAGE))
           chan.eofAndEnd()
-        }
       }
     }
 

@@ -1,31 +1,30 @@
 package controllers.authorities
 
+import auth.AccountManager
 import controllers.generic._
 import forms.VisibilityForm
 import models._
 import play.api.i18n.Messages
 import defines.{EntityType, PermissionType}
-import utils.search.{FacetDisplay, Resolver, Dispatcher, FacetSort}
+import utils.search._
 import com.google.inject._
-import solr.SolrConstants
 import backend.Backend
 import controllers.base.AdminController
 
 
 @Singleton
-case class HistoricalAgents @Inject()(implicit globalConfig: global.GlobalConfig, searchDispatcher: Dispatcher, searchResolver: Resolver, backend: Backend, userDAO: AccountDAO)
+case class HistoricalAgents @Inject()(implicit globalConfig: global.GlobalConfig, searchEngine: SearchEngine, searchResolver: SearchItemResolver, backend: Backend, accounts: AccountManager, pageRelocator: utils.MovedPageLookup)
   extends AdminController with CRUD[HistoricalAgentF,HistoricalAgent]
 	with Visibility[HistoricalAgent]
   with ItemPermissions[HistoricalAgent]
   with Linking[HistoricalAgent]
   with Annotate[HistoricalAgent]
-  with Search {
+  with SearchType[HistoricalAgent] {
 
   private val form = models.HistoricalAgent.form
   private val histRoutes = controllers.authorities.routes.HistoricalAgents
 
   // Documentary unit facets
-  import solr.facet._
   private val entityFacets: FacetBuilder = { implicit request =>
     List(
       FieldFacetClass(
@@ -36,7 +35,7 @@ case class HistoricalAgents @Inject()(implicit globalConfig: global.GlobalConfig
         display = FacetDisplay.Choice
       ),
       FieldFacetClass(
-        key=SolrConstants.HOLDER_NAME,
+        key=SearchConstants.HOLDER_NAME,
         name=Messages("historicalAgent.authoritativeSet"),
         param="set",
         sort = FacetSort.Name
@@ -45,14 +44,8 @@ case class HistoricalAgents @Inject()(implicit globalConfig: global.GlobalConfig
   }
 
 
-  def search = OptionalUserAction.async { implicit request =>
-    import play.api.libs.concurrent.Execution.Implicits._
-    find[HistoricalAgent](
-      entities = List(EntityType.HistoricalAgent),
-      facetBuilder = entityFacets
-    ).map { case QueryResult(page, params, facets) =>
-      Ok(views.html.admin.historicalAgent.search(page, params, facets, histRoutes.search()))
-    }
+  def search = SearchTypeAction(facetBuilder = entityFacets).apply { implicit request =>
+    Ok(views.html.admin.historicalAgent.search(request.result, histRoutes.search()))
   }
 
   def get(id: String) = ItemMetaAction(id).apply { implicit request =>
@@ -134,7 +127,7 @@ case class HistoricalAgents @Inject()(implicit globalConfig: global.GlobalConfig
 
   def linkAnnotateSelect(id: String, toType: EntityType.Value) = LinkSelectAction(id, toType, facets = entityFacets).apply { implicit request =>
     Ok(views.html.admin.link.linkSourceList(
-      request.item, request.page, request.params, request.facets, request.entityType,
+      request.item, request.searchResult, request.entityType,
         histRoutes.linkAnnotateSelect(id, toType),
         histRoutes.linkAnnotate))
   }

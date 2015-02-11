@@ -1,15 +1,13 @@
 package controllers.portal
 
+import auth.AccountManager
 import play.api.libs.concurrent.Execution.Implicits._
-import backend.{IdGenerator, Backend}
+import backend.Backend
 import com.google.inject.{Inject, Singleton}
-import controllers.base.SessionPreferences
 import controllers.generic.Search
 import controllers.portal.base.{Generic, PortalController}
 import defines.EntityType
-import models.{DocumentaryUnit, AccountDAO}
-import solr.SolrConstants
-import utils.SessionPrefs
+import models.DocumentaryUnit
 import utils.search._
 import views.html.p
 
@@ -17,8 +15,8 @@ import views.html.p
  * @author Mike Bryant (http://github.com/mikesname)
  */
 @Singleton
-case class DocumentaryUnits @Inject()(implicit globalConfig: global.GlobalConfig, searchDispatcher: Dispatcher, searchResolver: Resolver, backend: Backend,
-                                  userDAO: AccountDAO)
+case class DocumentaryUnits @Inject()(implicit globalConfig: global.GlobalConfig, searchEngine: SearchEngine, searchResolver: SearchItemResolver, backend: Backend,
+                                  accounts: AccountManager, pageRelocator: utils.MovedPageLookup)
   extends PortalController
   with Generic[DocumentaryUnit]
   with Search
@@ -28,14 +26,14 @@ case class DocumentaryUnits @Inject()(implicit globalConfig: global.GlobalConfig
 
   def searchAll = UserBrowseAction.async { implicit request =>
     val filters = if (request.getQueryString(SearchParams.QUERY).filterNot(_.trim.isEmpty).isEmpty)
-      Map(SolrConstants.TOP_LEVEL -> true) else Map.empty[String,Any]
+      Map(SearchConstants.TOP_LEVEL -> true) else Map.empty[String,Any]
 
     find[DocumentaryUnit](
       filters = filters,
       entities = List(EntityType.DocumentaryUnit),
       facetBuilder = docSearchFacets
-    ).map { case QueryResult(page, params, facets) =>
-      Ok(p.documentaryUnit.list(page, params, facets, portalDocRoutes.searchAll(),
+    ).map { result =>
+      Ok(p.documentaryUnit.list(result, portalDocRoutes.searchAll(),
         request.watched))
     }
   }
@@ -47,14 +45,14 @@ case class DocumentaryUnits @Inject()(implicit globalConfig: global.GlobalConfig
 
   def search(id: String) = GetItemAction(id).async { implicit request =>
       find[DocumentaryUnit](
-        filters = Map(SolrConstants.PARENT_ID -> request.item.id),
+        filters = Map(SearchConstants.PARENT_ID -> request.item.id),
         entities = List(EntityType.DocumentaryUnit),
         facetBuilder = localDocFacets,
         defaultOrder = SearchOrder.Id
-      ).map { case QueryResult(page, params, facets) =>
-        if (isAjax) Ok(p.documentaryUnit.childItemSearch(request.item, page, params, facets,
+      ).map { result =>
+        if (isAjax) Ok(p.documentaryUnit.childItemSearch(request.item, result,
           portalDocRoutes.search(id), request.watched))
-        else Ok(p.documentaryUnit.search(request.item, page, params, facets,
+        else Ok(p.documentaryUnit.search(request.item, result,
           portalDocRoutes.search(id), request.watched))
       }
   }

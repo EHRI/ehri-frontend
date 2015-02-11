@@ -1,24 +1,22 @@
 package controllers.virtual
 
+import auth.AccountManager
 import play.api.libs.concurrent.Execution.Implicits._
 import forms.VisibilityForm
 import models._
 import controllers.generic._
 import play.api.i18n.Messages
 import defines.{ContentTypes,EntityType,PermissionType}
+import play.api.mvc.RequestHeader
 import views.Helpers
 import utils.search._
 import com.google.inject._
-import solr.SolrConstants
 import scala.concurrent.Future.{successful => immediate}
 import backend.{Entity, IdGenerator, Backend}
 import play.api.Play.current
 import play.api.Configuration
 import play.api.data.Form
 import play.api.data.Forms._
-import solr.facet.FieldFacetClass
-import solr.facet.SolrQueryFacet
-import solr.facet.QueryFacetClass
 import backend.rest.Constants
 import scala.concurrent.Future
 import models.base.AnyModel
@@ -27,8 +25,8 @@ import controllers.base.AdminController
 
 
 @Singleton
-case class VirtualUnits @Inject()(implicit globalConfig: global.GlobalConfig, searchDispatcher: Dispatcher, idGenerator: IdGenerator,
-                                  searchResolver: Resolver, backend: Backend, userDAO: AccountDAO)
+case class VirtualUnits @Inject()(implicit globalConfig: global.GlobalConfig, searchEngine: SearchEngine, idGenerator: IdGenerator,
+                                  searchResolver: SearchItemResolver, backend: Backend, accounts: AccountManager, pageRelocator: utils.MovedPageLookup)
   extends AdminController
   with Read[VirtualUnit]
   with Visibility[VirtualUnit]
@@ -50,8 +48,8 @@ case class VirtualUnits @Inject()(implicit globalConfig: global.GlobalConfig, se
         param="items",
         render=s => Messages("documentaryUnit." + s),
         facets=List(
-          SolrQueryFacet(value = "false", solrValue = "0", name = Some("noChildItems")),
-          SolrQueryFacet(value = "true", solrValue = "[1 TO *]", name = Some("hasChildItems"))
+          QueryFacet(value = "false", range = Val("0"), name = Some("noChildItems")),
+          QueryFacet(value = "true", range = Val("1") to End, name = Some("hasChildItems"))
         )
       ),
       QueryFacetClass(
@@ -60,9 +58,9 @@ case class VirtualUnits @Inject()(implicit globalConfig: global.GlobalConfig, se
         param="lod",
         render=s => Messages("lod." + s),
         facets=List(
-          SolrQueryFacet(value = "low", solrValue = "[0 TO 500]", name = Some("low")),
-          SolrQueryFacet(value = "medium", solrValue = "[501 TO 2000]", name = Some("medium")),
-          SolrQueryFacet(value = "high", solrValue = "[2001 TO *]", name = Some("high"))
+          QueryFacet(value = "low", range = Val("0") to Val("500")),
+          QueryFacet(value = "medium", range = Val("501") to Val("2000")),
+          QueryFacet(value = "high", range = Val("2001") to End)
         ),
         sort = FacetSort.Fixed,
         display = FacetDisplay.List
@@ -89,72 +87,87 @@ case class VirtualUnits @Inject()(implicit globalConfig: global.GlobalConfig, se
 
   private val vuRoutes = controllers.virtual.routes.VirtualUnits
 
+  private def buildFilter(v: VirtualUnit): Map[String,Any] = {
+    // Nastiness. We want a Solr query that will allow searching
+    // both the child virtual collections of a VU as well as the
+    // physical documentary units it includes. Since there is no
+    // connection from the DU to VUs it belongs to (and creating
+    // one is not feasible) we need to do this badness:
+    // - load the VU from the graph along with its included DUs
+    // - query for anything that has the VUs parent ID *or* anything
+    // with an itemId among its included DUs
+    import SearchConstants._
+    val pq = v.includedUnits.map(_.id)
+    if (pq.isEmpty) Map(s"$PARENT_ID:${v.id}" -> Unit)
+    else Map(s"$PARENT_ID:${v.id} OR $ITEM_ID:(${pq.mkString(" ")})" -> Unit)
+  }
+
   def search = OptionalUserAction.async { implicit request =>
   // What filters we gonna use? How about, only list stuff here that
   // has no parent items - UNLESS there's a query, in which case we're
   // going to peer INSIDE items... dodgy logic, maybe...
 
     val filters = if (request.getQueryString(SearchParams.QUERY).filterNot(_.trim.isEmpty).isEmpty)
-      Map(SolrConstants.TOP_LEVEL -> true) else Map.empty[String,Any]
+      Map(SearchConstants.TOP_LEVEL -> true) else Map.empty[String,Any]
     find[VirtualUnit](
       filters = filters,
       entities = List(EntityType.VirtualUnit),
       facetBuilder = entityFacets
     ).map { result =>
-      Ok(views.html.admin.virtualUnit.search(result.page, result.params, result.facets, vuRoutes.search()))
+      Ok(views.html.admin.virtualUnit.search(result, vuRoutes.search()))
     }
   }
 
   def searchChildren(id: String) = ItemPermissionAction(id).async { implicit request =>
     find[VirtualUnit](
-      filters = Map(SolrConstants.PARENT_ID -> request.item.id),
+      filters = Map(SearchConstants.PARENT_ID -> request.item.id),
       facetBuilder = entityFacets
     ).map { result =>
-      Ok(views.html.admin.virtualUnit.search(result.page, result.params, result.facets, vuRoutes.search()))
+      Ok(views.html.admin.virtualUnit.search(result, vuRoutes.search()))
+    }
+  }
+
+  private def includedChildren(parent: AnyModel)(implicit userOpt: Option[UserProfile], request: RequestHeader): Future[SearchResult[(AnyModel,SearchHit)]] = {
+    parent match {
+      case d: DocumentaryUnit => find[AnyModel](
+        filters = Map(SearchConstants.PARENT_ID -> d.id),
+        entities = List(d.isA),
+        facetBuilder = entityFacets)
+      case d: VirtualUnit => d.includedUnits match {
+        case _ => find[AnyModel](
+          filters = buildFilter(d),
+          entities = List(EntityType.VirtualUnit, EntityType.DocumentaryUnit),
+          facetBuilder = entityFacets)
+      }
+      case _ => Future.successful(SearchResult.empty)
     }
   }
 
   def get(id: String) = ItemMetaAction(id).async { implicit request =>
-    find[VirtualUnit](
-      filters = Map(SolrConstants.PARENT_ID -> request.item.id),
-      entities = List(EntityType.VirtualUnit),
-      facetBuilder = entityFacets
-    ).map { result =>
-      Ok(views.html.admin.virtualUnit.show(Nil, request.item, result.page, result.params, result.facets,
-          vuRoutes.get(id), request.annotations, request.links))
+    for {
+      result <- includedChildren(request.item)
+    } yield {
+      Ok(views.html.admin.virtualUnit.show(request.item, result,
+        vuRoutes.get(id), request.annotations, request.links, Seq.empty))
     }
   }
 
-  def getInVc(id: String, pathStr: Option[String]) = OptionalUserAction.async { implicit request =>
-    val pathIds = pathStr.map(_.split(",").toList).getOrElse(List.empty)
-    def includedChildren(parent: AnyModel): Future[QueryResult[AnyModel]] = parent match {
-      case d: DocumentaryUnit => find[AnyModel](
-          filters = Map(SolrConstants.PARENT_ID -> d.id),
-          entities = List(d.isA),
-          facetBuilder = entityFacets)
-      case d: VirtualUnit => d.includedUnits match {
-        case other :: _ => includedChildren(other)
-        case _ => find[AnyModel](
-          filters = Map(SolrConstants.PARENT_ID -> d.id),
-          entities = List(d.isA),
-          facetBuilder = entityFacets)
-      }
-      case _ => Future.successful(QueryResult.empty)
-    }
+  def getInVc(pathStr: String, id: String) = OptionalUserAction.async { implicit request =>
+    val pathIds = pathStr.split(",").toSeq
 
-    val pathF: Future[List[AnyModel]] = Future.sequence(pathIds.map(pid => backend.getAny[AnyModel](pid)))
+    val pathF: Future[Seq[AnyModel]] = Future.sequence(pathIds.map(pid => backend.getAny[AnyModel](pid)))
     val itemF: Future[AnyModel] = backend.getAny[AnyModel](id)
     val linksF: Future[Seq[Link]] = backend.getLinksForItem[Link](id)
     val annsF: Future[Seq[Annotation]] = backend.getAnnotationsForItem[Annotation](id)
     for {
       item <- itemF
+      path <- pathF
       links <- linksF
       annotations <- annsF
-      path <- pathF
       children <- includedChildren(item)
     } yield Ok(views.html.admin.virtualUnit.showVc(
-        path, item, children.page, children.params, children.facets,
-        vuRoutes.getInVc(id, pathStr), annotations, links))
+        item, children,
+        vuRoutes.getInVc(id, pathStr), annotations, links, path))
   }
 
   def history(id: String) = ItemHistoryAction(id).apply { implicit request =>
@@ -214,7 +227,7 @@ case class VirtualUnits @Inject()(implicit globalConfig: global.GlobalConfig, se
           errorForm, accForm, users, groups,
           vuRoutes.createChildPost(id)))
       }
-      case Right(doc) => immediate(Redirect(vuRoutes.get(doc.id))
+      case Right(doc) => immediate(Redirect(vuRoutes.getInVc(id, doc.id))
         .flashing("success" -> "item.create.confirmation"))
     }
   }
@@ -245,7 +258,7 @@ case class VirtualUnits @Inject()(implicit globalConfig: global.GlobalConfig, se
             errorForm, refForm.bindFromRequest, accForm, users, groups,
             vuRoutes.createChildRefPost(id)))
         }
-        case Right(doc) => immediate(Redirect(vuRoutes.get(doc.id))
+        case Right(doc) => immediate(Redirect(vuRoutes.getInVc(id, doc.id))
           .flashing("success" -> "item.create.confirmation"))
       }
   }
@@ -381,7 +394,7 @@ case class VirtualUnits @Inject()(implicit globalConfig: global.GlobalConfig, se
 
   def linkAnnotateSelect(id: String, toType: EntityType.Value) = LinkSelectAction(id, toType).apply { implicit request =>
     Ok(views.html.admin.link.linkSourceList(
-      request.item, request.page, request.params, request.facets, request.entityType,
+      request.item, request.searchResult, request.entityType,
         vuRoutes.linkAnnotateSelect(id, toType), vuRoutes.linkAnnotate))
   }
 

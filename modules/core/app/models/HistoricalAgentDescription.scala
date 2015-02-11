@@ -175,13 +175,14 @@ case class HistoricalAgentDescriptionF(
 object HistoricalAgentDescription {
   import Isaar._
   import Entity._
+  import defines.EnumUtils.enumMapping
 
   val form = Form(
     mapping(
       ISA -> ignored(EntityType.HistoricalAgentDescription),
       ID -> optional(nonEmptyText),
       LANG_CODE -> nonEmptyText,
-      ENTITY_TYPE -> enum(HistoricalAgentType),
+      ENTITY_TYPE -> enumMapping(HistoricalAgentType),
       AUTHORIZED_FORM_OF_NAME -> nonEmptyText,
       OTHER_FORMS_OF_NAME -> optional(list(nonEmptyText)),
       PARALLEL_FORMS_OF_NAME -> optional(list(nonEmptyText)),
@@ -208,7 +209,7 @@ object HistoricalAgentDescription {
         SOURCES -> optional(list(nonEmptyText)),
         MAINTENANCE_NOTES -> optional(text)
       )(IsaarControl.apply)(IsaarControl.unapply),
-      CREATION_PROCESS -> default(enum(CreationProcess), CreationProcess.Manual),
+      CREATION_PROCESS -> default(enumMapping(CreationProcess), CreationProcess.Manual),
       ACCESS_POINTS -> list(AccessPoint.form.mapping),
       UNKNOWN_DATA -> list(entity)
     )(HistoricalAgentDescriptionF.apply)(HistoricalAgentDescriptionF.unapply)

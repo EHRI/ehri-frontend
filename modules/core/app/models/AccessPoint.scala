@@ -100,6 +100,7 @@ case class AccessPointF(
 object AccessPoint {
   import Entity._
   import AccessPointF.{TYPE => ETYPE, _}
+  import defines.EnumUtils.enumMapping
 
   implicit val metaReads: Reads[AccessPoint] = (
     __.read[AccessPointF] and
@@ -117,7 +118,7 @@ object AccessPoint {
   val form = Form(mapping(
     ISA -> ignored(EntityType.AccessPoint),
     ID -> optional(nonEmptyText),
-    ETYPE -> utils.forms.enum(AccessPointType),
+    ETYPE -> enumMapping(AccessPointType),
     TARGET -> nonEmptyText, // TODO: Validate this server side
     DESCRIPTION -> optional(nonEmptyText)
   )(AccessPointF.apply)(AccessPointF.unapply))

@@ -4,6 +4,7 @@ GET     /                                            @controllers.virtual.Virtua
 GET     /create                                      @controllers.virtual.VirtualUnits.create
 POST    /create                                      @controllers.virtual.VirtualUnits.createPost
 GET     /:id                                         @controllers.virtual.VirtualUnits.get(id: String)
+GET     /:via/:id                                    @controllers.virtual.VirtualUnits.getInVc(via: String, id: String)
 GET     /:id/history                                 @controllers.virtual.VirtualUnits.history(id: String)
 GET     /:id/delete                                  @controllers.virtual.VirtualUnits.delete(id: String)
 POST    /:id/delete                                  @controllers.virtual.VirtualUnits.deletePost(id: String)
@@ -40,5 +41,4 @@ POST    /:id/linkjs/:accessPoint                     @controllers.virtual.Virtua
 GET     /:id/linkjs/:accessPoint                     @controllers.virtual.VirtualUnits.getLink(id: String, accessPoint: String)
 POST    /:id/linkjs                                  @controllers.virtual.VirtualUnits.createMultipleLinks(id: String)
 POST    /:id/deleteLink/:link                        @controllers.virtual.VirtualUnits.deleteLink(id: String, link: String)
-GET     /in/:id                                      @controllers.virtual.VirtualUnits.getInVc(id: String, path: Option[String])
 

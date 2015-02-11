@@ -1,15 +1,13 @@
 package controllers.portal
 
-import backend.{Backend, IdGenerator}
+import auth.AccountManager
+import backend.Backend
 import com.google.inject.{Inject, Singleton}
-import controllers.base.SessionPreferences
 import controllers.generic.Search
 import controllers.portal.base.{Generic, PortalController}
 import defines.EntityType
-import models.{Vocabulary, AccountDAO, Concept}
+import models.{Vocabulary, Concept}
 import play.api.libs.concurrent.Execution.Implicits._
-import solr.SolrConstants
-import utils.SessionPrefs
 import utils.search._
 import views.html.p
 
@@ -17,8 +15,8 @@ import views.html.p
  * @author Mike Bryant (http://github.com/mikesname)
  */
 @Singleton
-case class Vocabularies @Inject()(implicit globalConfig: global.GlobalConfig, searchDispatcher: Dispatcher, searchResolver: Resolver, backend: Backend,
-                                  userDAO: AccountDAO)
+case class Vocabularies @Inject()(implicit globalConfig: global.GlobalConfig, searchEngine: SearchEngine, searchResolver: SearchItemResolver, backend: Backend,
+                                  accounts: AccountManager, pageRelocator: utils.MovedPageLookup)
   extends PortalController
   with Generic[Vocabulary]
   with Search
@@ -33,17 +31,17 @@ case class Vocabularies @Inject()(implicit globalConfig: global.GlobalConfig, se
 
   def search(id: String) = GetItemAction(id).async { implicit request =>
       val filters = Map(
-        SolrConstants.HOLDER_ID -> request.item.id,
-        SolrConstants.TOP_LEVEL -> true.toString
+        SearchConstants.HOLDER_ID -> request.item.id,
+        SearchConstants.TOP_LEVEL -> true.toString
       )
       find[Concept](
         filters = filters,
         entities = List(EntityType.Concept),
         facetBuilder = conceptFacets
-      ).map { case QueryResult(page, params, facets) =>
-        if (isAjax) Ok(p.vocabulary.childItemSearch(request.item, page, params, facets,
+      ).map { result =>
+        if (isAjax) Ok(p.vocabulary.childItemSearch(request.item, result,
           portalVocabRoutes.search(id), request.watched))
-        else Ok(p.vocabulary.search(request.item, page, params, facets,
+        else Ok(p.vocabulary.search(request.item, result,
           portalVocabRoutes.search(id), request.watched))
       }
   }

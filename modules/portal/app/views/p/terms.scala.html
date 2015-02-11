@@ -1,9 +1,18 @@
 @()(implicit userOpt: Option[UserProfile], request: RequestHeader, globalConfig: global.GlobalConfig, sessionPrefs: utils.SessionPrefs, flash: Flash, lang: Lang)
 
-@layout.portalLayout(Messages("terms")) {
+@layout.portalLayout(Messages("termsAndConditions")) {
     @views.html.layout.mainContent {
-        <h1>@Messages("terms")</h1>
+        <h2>@Messages("termsAndConditions")</h2>
 
-        TODO
+        <h3>@Messages("termsAndConditions.userGenerated.heading")</h3>
+        <p>@Messages("termsAndConditions.userGenerated.p1")</p>
+        <p>@Messages("termsAndConditions.userGenerated.p2")</p>
+        <h4>@Messages("termsAndConditions.userGenerated.terms.heading")</h4>
+        <ol>
+            <li>@Messages("termsAndConditions.userGenerated.terms.1")</li>
+            <li>@Messages("termsAndConditions.userGenerated.terms.2")</li>
+            <li>@Messages("termsAndConditions.userGenerated.terms.3")</li>
+            <li>@Messages("termsAndConditions.userGenerated.terms.4")</li>
+        </ol>
     }
 }

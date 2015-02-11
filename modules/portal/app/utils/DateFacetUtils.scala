@@ -4,6 +4,7 @@ import org.joda.time.DateTime
 import org.joda.time.format.{DateTimeFormatter, ISODateTimeFormat}
 import play.api.i18n.Messages
 import play.api.mvc.RequestHeader
+import utils.search._
 
 /**
  * Utils for converting URL-friendly date facet params
@@ -30,19 +31,19 @@ object DateFacetUtils {
   /**
    * Convert the format to a Solr query.
    */
-  def formatAsSolrQuery(ds: String): String = {
+  def formatAsQuery(ds: String): QueryPoint = {
     dateParamValueMatcher.findFirstMatchIn(ds).map { m =>
       val start = Option(m.group("start")).map(_.toInt)
       val end = Option(m.group("end")).map(_.toInt)
       (start, end) match {
-        case (Some(s), Some(e)) if s == e => s"[${startDate(s)} TO ${endDate(e)}]"
-        case (Some(s), Some(e)) if s <= e => s"[${startDate(s)} TO ${endDate(e)}]"
-        case (Some(s), Some(e)) if s > e => s"[${startDate(e)} TO ${endDate(s)}]"
-        case (Some(s), None) => s"[${startDate(s)} TO *]"
-        case (None, Some(e)) => s"[* TO ${endDate(e)}]"
-        case _ => "*"
+        case (Some(s), Some(e)) if s == e => Val(startDate(s)) to Val(endDate(e))
+        case (Some(s), Some(e)) if s <= e => Val(startDate(s)) to Val(endDate(e))
+        case (Some(s), Some(e)) if s > e => Val(startDate(e)) to Val(endDate(s))
+        case (Some(s), None) => Val(startDate(s)) to End
+        case (None, Some(e)) => Start to Val(endDate(e))
+        case _ => Start
       }
-    }.getOrElse ("*")
+    }.getOrElse(Start)
   }
 
   /**

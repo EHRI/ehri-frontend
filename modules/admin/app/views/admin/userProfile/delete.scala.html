@@ -10,9 +10,11 @@ implicit userOpt: Option[UserProfile], request: RequestHeader, globalConfig: glo
     @helper.form(action = action, 'class -> "form-horizontal") {
         @formHelpers.csrfToken()
 
-        @defining(EntityType.UserProfile.toString) { implicit fieldPrefix =>
-            @formHelpers.lineInput(checkForm(""), "delete.check")
-        }
+        @helper.inputText(
+            checkForm("deleteCheck"),
+            '_label -> Messages("userProfile.deleteCheck.description"),
+            'class -> "form-control"
+        )
 
         @formHelpers.submitButtonWithLogMessageInput(Messages("userProfile.delete.submit"), cancel = Some(cancel))
     }

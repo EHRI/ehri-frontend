@@ -1,0 +1,29 @@
+@(guide: Guide, page: GuidePage)(implicit userOpt: Option[UserProfile], request: RequestHeader, prefs: utils.SessionPrefs, globalConfig: global.GlobalConfig, lang: Lang, flash: Flash)
+
+@styles = {
+	<link rel="stylesheet" type="text/css" href="https://s3.amazonaws.com/cdn.knightlab.com/libs/timeline/latest/css/timeline.css">
+}
+@js = {
+	<!-- BEGIN TimelineJS -->
+	<script type="text/javascript" src="https://s3.amazonaws.com/cdn.knightlab.com/libs/timeline/latest/js/storyjs-embed.js"></script>
+	<script>
+	$(document).ready(function() {
+		createStoryJS({
+			type:       'timeline',
+			width:      '750',
+			height:     '600',
+			source:     '@page.content.trim',
+			embed_id:   'my-timeline'
+		});
+	});
+	</script>
+	<!-- END TimelineJS -->
+}
+@views.html.p.layout.guideLayout(guide, page, guide.findPages(), scripts = js) {
+	<article>
+		<header>
+			<h1>@page.name</h1>
+		</header>
+		<div id="my-timeline"></div>
+	</article>
+}

@@ -23,7 +23,7 @@ object Entity {
     (__ \ Entity.ID).read[String] and
       (__ \ Entity.TYPE).read[EntityType.Type](defines.EnumUtils.enumReads(EntityType)) and
       (__ \ Entity.DATA).lazyRead(Reads.map[JsValue]) and
-      (__ \ Entity.RELATIONSHIPS).lazyRead(Reads.map[List[Entity]](Reads.list(entityReads)))
+      (__ \ Entity.RELATIONSHIPS).lazyRead(Reads.map[Seq[Entity]](Reads.seq(entityReads)))
     )(Entity.apply _)
 
   /**
@@ -33,7 +33,7 @@ object Entity {
     (__ \ Entity.ID).write[String] and
       (__ \ Entity.TYPE).write[EntityType.Type](defines.EnumUtils.enumWrites) and
       (__ \ Entity.DATA).lazyWrite(Writes.map[JsValue]) and
-      (__ \ Entity.RELATIONSHIPS).lazyWrite(Writes.map[List[Entity]])
+      (__ \ Entity.RELATIONSHIPS).lazyWrite(Writes.map[Seq[Entity]])
     )(unlift(Entity.unapply))
 
   /**
@@ -46,7 +46,7 @@ case class Entity(
   id: String,
   `type`: EntityType.Value,
   data: Map[String, JsValue] = Map(),
-  relationships: Map[String, List[Entity]] = Map()) {
+  relationships: Map[String, Seq[Entity]] = Map()) {
 
   lazy val isA: EntityType.Value = `type`
 }

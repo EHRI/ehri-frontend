@@ -6,7 +6,10 @@
     <div class="list-group description-switcher">
         @descriptions.map { desc =>
         @desc.id.map { id =>
-        <a class="list-group-item description-switch" href="#desc-@id" data-id="@id">
+        <a class="list-group-item description-switch"
+            title="@views.Helpers.languageCodeToName(desc.languageCode) - @desc.name"
+            href="#desc-@id"
+            data-id="@id">
             @views.Helpers.languageCodeToName(desc.languageCode) - @desc.name
         </a>
         }

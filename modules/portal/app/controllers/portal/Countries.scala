@@ -1,14 +1,13 @@
 package controllers.portal
 
-import backend.{Backend, IdGenerator}
+import auth.AccountManager
+import backend.Backend
 import com.google.inject.{Inject, Singleton}
-import controllers.base.SessionPreferences
 import controllers.generic.Search
 import controllers.portal.base.{Generic, PortalController}
 import defines.EntityType
-import models.{Repository, Country, AccountDAO, HistoricalAgent}
+import models.{Repository, Country}
 import play.api.libs.concurrent.Execution.Implicits._
-import utils.SessionPrefs
 import utils.search._
 import views.html.p
 
@@ -16,8 +15,8 @@ import views.html.p
  * @author Mike Bryant (http://github.com/mikesname)
  */
 @Singleton
-case class Countries @Inject()(implicit globalConfig: global.GlobalConfig, searchDispatcher: Dispatcher, searchResolver: Resolver, backend: Backend,
-                                  userDAO: AccountDAO)
+case class Countries @Inject()(implicit globalConfig: global.GlobalConfig, searchEngine: SearchEngine, searchResolver: SearchItemResolver, backend: Backend,
+                                  accounts: AccountManager, pageRelocator: utils.MovedPageLookup)
   extends PortalController
   with Generic[Country]
   with Search
@@ -28,9 +27,8 @@ case class Countries @Inject()(implicit globalConfig: global.GlobalConfig, searc
   def searchAll = UserBrowseAction.async { implicit request =>
     find[Country](entities = List(EntityType.Country),
       facetBuilder = countryFacets
-    ).map { case QueryResult(page, params, facets) =>
-      Ok(p.country.list(page, params, facets,
-        portalCountryRoutes.searchAll(), request.watched))
+    ).map { result =>
+      Ok(p.country.list(result, portalCountryRoutes.searchAll(), request.watched))
     }
   }
 
@@ -44,10 +42,10 @@ case class Countries @Inject()(implicit globalConfig: global.GlobalConfig, searc
         filters = Map("countryCode" -> request.item.id),
         facetBuilder = repositorySearchFacets,
         entities = List(EntityType.Repository)
-      ).map { case QueryResult(page, params, facets) =>
-        if (isAjax) Ok(p.country.childItemSearch(request.item, page, params, facets,
+      ).map { result =>
+        if (isAjax) Ok(p.country.childItemSearch(request.item, result,
           portalCountryRoutes.search(id), request.watched))
-        else Ok(p.country.search(request.item, page, params, facets,
+        else Ok(p.country.search(request.item, result,
           portalCountryRoutes.search(id), request.watched))
       }
   }

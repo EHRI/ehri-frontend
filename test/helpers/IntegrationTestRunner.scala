@@ -16,7 +16,7 @@ trait IntegrationTestRunner extends PlaySpecification with RestBackendRunner wit
    * will be merged.
    * @param specificConfig A map of config values for this test
    */
-  case class ITestApp(specificConfig: Map[String,Any] = Map.empty) extends WithApplication(
+  class ITestApp(val specificConfig: Map[String,Any] = Map.empty) extends WithApplication(
     fakeApplication(additionalConfiguration = backendConfig ++ getConfig ++ specificConfig, global = getGlobal))
 
   // NB: Because both UserFixtures and the RestBackendendRunner

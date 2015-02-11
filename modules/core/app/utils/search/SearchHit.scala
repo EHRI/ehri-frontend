@@ -3,7 +3,7 @@ package utils.search
 import defines.EntityType
 import scala.annotation.tailrec
 import scala._
-import solr.SolrConstants._
+import SearchConstants._
 import play.twirl.api.{HtmlFormat, Html}
 
 /**
@@ -19,8 +19,8 @@ case class SearchHit(
   phrases: Seq[String] = Seq.empty
 ) extends views.Highlighter {
 
-  private def stripTags(value: String): String
-    = value.replaceAll("""<(?!\/?(?=>|\s.*>))\/?.*?>""", "")
+  private def stripTags(value: String): String =
+    value.replaceAll("""<(?!\/?(?=>|\s.*>))\/?.*?>""", "")
 
   private val skipFields = Set(
     ID, ITEM_ID, DB_ID, PARENT_ID, TYPE, LANGUAGE_CODE

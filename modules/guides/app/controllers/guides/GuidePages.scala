@@ -1,15 +1,15 @@
 package controllers.guides
 
+import auth.AccountManager
 import controllers.base.AdminController
 
 import com.google.inject._
 import backend.Backend
-import models.AccountDAO
 import models.{Guide, GuidePage}
 
 
 @Singleton
-case class GuidePages @Inject()(implicit globalConfig: global.GlobalConfig, backend: Backend, userDAO: AccountDAO) extends AdminController {
+case class GuidePages @Inject()(implicit globalConfig: global.GlobalConfig, backend: Backend, accounts: AccountManager, pageRelocator: utils.MovedPageLookup) extends AdminController {
 
   private val formPage = models.GuidePage.form
   private final val guidePagesRoutes = controllers.guides.routes.GuidePages

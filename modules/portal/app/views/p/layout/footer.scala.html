@@ -1,32 +1,18 @@
 @()(implicit req: RequestHeader, globalConfig: global.GlobalConfig, lang: Lang)
 
-<footer class="footer sticky">
+@footerLink(call: Call, code: String) = {
+    <li class="@views.Helpers.maybeActive(call.url)">
+        <a href="@call">@Messages(code)</a>
+    </li>
+}
+
+<footer id="portal-footer" class="footer sticky">
     <p>@Messages("footerText")</p>
 
     <ul id="navbar-tertiary">
-        <li class="@views.Helpers.maybeActive(controllers.portal.routes.Portal.about.url)">
-            <a href="@controllers.portal.routes.Portal.about">@Messages("about")</a>
-        </li>
-        <li class="@views.Helpers.maybeActive(controllers.portal.routes.Portal.contact.url)">
-            <a href="@controllers.portal.routes.Portal.contact">@Messages("contact")</a>
-        </li>
-        <li class="@views.Helpers.maybeActive(controllers.portal.routes.Portal.terms.url)">
-            <a href="@controllers.portal.routes.Portal.terms">@Messages("terms")</a>
-        </li>
-    </ul>
-
-    <ul class="lang-switcher">
-        @globalConfig.languages.map(c => (c, new java.util.Locale(c))).map { case (changeLang, locale) =>
-        <li>
-            @if(lang.toString.toLowerCase.contains(changeLang)) {
-            @locale.getDisplayName(locale).toLowerCase
-            } else {
-            <a href="@controllers.portal.routes.PortalData.changeLocale(changeLang)">
-                @locale.getDisplayName(locale).toLowerCase
-            </a>
-            }
-        </li>
-        }
+        @footerLink(controllers.portal.routes.Portal.contact, "contact")
+        @footerLink(controllers.portal.routes.Portal.terms, "termsAndConditions")
+        @footerLink(controllers.portal.routes.Portal.dataPolicy, "dataPolicy")
     </ul>
 
     <div class="footer-blurb small clearfix" style="margin-top: 20px">

@@ -1,12 +1,15 @@
 header#header {
   position: relative;
   color: white;
-  font-weight: 700;
+  font-size: 0.9em;
+
+  .portal-actions {
+    font-weight: bold;
+  }
 
   #navbar-admin {
     ul > li > a {
-      padding-top: @small-padding;
-      padding-bottom: @small-padding;
+      padding: @small-padding @small-padding + 2;
     }
     img {
       max-height: @navbar-height - @small-padding;
@@ -18,43 +21,32 @@ header#header {
   background-repeat: no-repeat;
   background-size: 100% auto;
 
-  .search-icon {
-
-  }
-
   .global-search {
+    // Currently, don't show the global search in the
+    // collapsed header because it looks terrible, so
+    &:extend(.hidden-xs);
+
     margin-top: @small-margin;
     margin-right: @small-margin;
     position: relative;
 
     input {
       padding: 1px 25px 1px 3px;
-    }
-
-    .search-icon {
-      position: absolute;
-      right: 0px;
-      padding: 3px 7px;
-      pointer-events: none;
+      border: 0;
       color: @almost-black;
-    }
-
-    background-color:white;
-    input {
-      border: 0px;
-      color: @almost-black;
-    }
-
-    &.inactive {
-      background-color: inherit;
-      .search-icon {
-        color: white;
+      &:focus, &.active {
+        width: 150px;
       }
+    }
+  }
 
-      input {
-        color: white;
-        background-color: inherit;
-        cursor: default;
+  .lang-switcher {
+    color: @text-color;
+    padding-left: @large-padding;
+    .active {
+      padding-left: 0 !important;
+      &:before {
+        content: "\2713";
       }
     }
   }
@@ -87,7 +79,8 @@ header#header {
         li {
           a {
             color: #fff;
-            font-size: 1.2em;
+            font-weight: 700;
+            font-size: 18px;
             padding: @small-padding @small-padding;
             border-bottom: @small-padding solid transparent;
             margin-right: @medium-margin;

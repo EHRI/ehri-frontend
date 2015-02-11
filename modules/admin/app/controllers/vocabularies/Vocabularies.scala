@@ -1,20 +1,20 @@
 package controllers.vocabularies
 
+import auth.AccountManager
 import play.api.libs.concurrent.Execution.Implicits._
 import forms.VisibilityForm
 import controllers.generic._
 import models._
 import defines.{ContentTypes, EntityType}
-import utils.search.{Indexer, Resolver, Dispatcher}
+import utils.search.{SearchConstants, SearchIndexer, SearchItemResolver, SearchEngine}
 import com.google.inject._
 import scala.concurrent.Future.{successful => immediate}
 import backend.Backend
-import solr.SolrConstants
 import controllers.base.AdminController
 
 
 @Singleton
-case class Vocabularies @Inject()(implicit globalConfig: global.GlobalConfig, searchDispatcher: Dispatcher, searchIndexer: Indexer, searchResolver: Resolver, backend: Backend, userDAO: AccountDAO)
+case class Vocabularies @Inject()(implicit globalConfig: global.GlobalConfig, searchEngine: SearchEngine, searchIndexer: SearchIndexer, searchResolver: SearchItemResolver, backend: Backend, accounts: AccountManager, pageRelocator: utils.MovedPageLookup)
   extends AdminController
   with CRUD[VocabularyF,Vocabulary]
   with Creator[ConceptF, Concept, Vocabulary]
@@ -33,11 +33,11 @@ case class Vocabularies @Inject()(implicit globalConfig: global.GlobalConfig, se
 
   def get(id: String) = ItemMetaAction(id).async { implicit request =>
     find[Concept](
-      filters = Map(SolrConstants.HOLDER_ID -> request.item.id),
+      filters = Map(SearchConstants.HOLDER_ID -> request.item.id),
       entities = List(EntityType.Concept)
     ).map { result =>
       Ok(views.html.admin.vocabulary.show(
-        request.item, result.page, result.params, result.facets,
+        request.item, result,
         vocabRoutes.get(id), request.annotations, request.links))
     }
   }
@@ -169,7 +169,7 @@ case class Vocabularies @Inject()(implicit globalConfig: global.GlobalConfig, se
           action = vocabRoutes.updateIndexPost(id)))
   }
 
-  def updateIndexPost(id: String) = updateChildItemsPost(SolrConstants.HOLDER_ID, id)
+  def updateIndexPost(id: String) = updateChildItemsPost(SearchConstants.HOLDER_ID, id)
 }
 
 

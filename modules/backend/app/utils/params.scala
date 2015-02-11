@@ -4,7 +4,7 @@ import play.api.mvc.RequestHeader
 import play.api.data.Form
 import play.api.data.Forms._
 import backend.rest.Constants._
-import defines.{EntityType, EventType}
+import defines.{EnumUtils, EntityType, EventType}
 import org.joda.time.DateTime
 import org.joda.time.format.ISODateTimeFormat
 import utils.SystemEventParams.ShowType
@@ -70,9 +70,9 @@ case class PageParams(page: Int = 1, limit: Int = DEFAULT_LIST_LIMIT) extends Ra
 
 
 case class SystemEventParams(
-  users: List[String] = Nil,
-  eventTypes: List[EventType.Value] = Nil,
-  itemTypes: List[EntityType.Value] = Nil,
+  users: Seq[String] = Nil,
+  eventTypes: Seq[EventType.Value] = Nil,
+  itemTypes: Seq[EntityType.Value] = Nil,
   from: Option[DateTime] = None,
   to: Option[DateTime] = None,
   show: Option[ShowType.Value] = None) {
@@ -80,16 +80,18 @@ case class SystemEventParams(
   private val fmt = ISODateTimeFormat.dateTime.withZoneUTC
 
   def toSeq: Seq[(String,String)] = {
-    (users.filterNot(_.isEmpty).map(u => USERS -> u) :::
-      eventTypes.map(et => EVENT_TYPE -> et.toString) :::
-      itemTypes.map(et => ITEM_TYPE -> et.toString) :::
-      from.map(f => FROM -> fmt.print(f)).toList :::
-      to.map(t => TO -> fmt.print(t)).toList :::
-      show.map(f => SHOW -> f.toString).toList).toSeq
+    (users.filterNot(_.isEmpty).map(u => USERS -> u) ++
+      eventTypes.map(et => EVENT_TYPE -> et.toString) ++
+      itemTypes.map(et => ITEM_TYPE -> et.toString) ++
+      from.map(f => FROM -> fmt.print(f)).toSeq ++
+      to.map(t => TO -> fmt.print(t)).toSeq ++
+      show.map(f => SHOW -> f.toString).toSeq).toSeq
   }
 }
 
 object SystemEventParams {
+
+  import EnumUtils.enumMapping
 
   def empty: SystemEventParams = new SystemEventParams()
 
@@ -103,12 +105,12 @@ object SystemEventParams {
 
   def form: Form[SystemEventParams] = Form(
     mapping(
-      USERS -> list(text),
-      EVENT_TYPE -> list(utils.forms.enum(EventType)),
-      ITEM_TYPE -> list(utils.forms.enum(EntityType)),
+      USERS -> seq(text),
+      EVENT_TYPE -> seq(enumMapping(EventType)),
+      ITEM_TYPE -> seq(enumMapping(EntityType)),
       FROM -> optional(jodaDate(pattern = DATE_PATTERN)),
       TO -> optional(jodaDate(pattern = DATE_PATTERN)),
-      SHOW -> optional(utils.forms.enum(ShowType))
+      SHOW -> optional(enumMapping(ShowType))
     )(SystemEventParams.apply)(SystemEventParams.unapply)
   )
 

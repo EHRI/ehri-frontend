@@ -13,10 +13,14 @@ trait Backend
   with Descriptions
   with Links
   with Annotations
+  with VirtualCollections
   with Visibility
   with Promotion
   with Events
   with Social {
+
+  def eventHandler: EventHandler
+  def withEventHandler(eventHandler: EventHandler): Backend
 
   // Direct API queries
   def query(urlpart: String, headers: Headers, params: Map[String,Seq[String]] = Map.empty)(implicit apiUser: ApiUser, executionContext: ExecutionContext): Future[WSResponse]

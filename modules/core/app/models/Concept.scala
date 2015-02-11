@@ -76,8 +76,8 @@ object Concept {
   import play.api.libs.functional.syntax._
   import Entity._
 
-  private implicit val systemEventReads = SystemEvent.Converter.restReads
-  private implicit val vocabularyReads = Vocabulary.Converter.restReads
+  private implicit val systemEventReads = SystemEvent.Resource.restReads
+  private implicit val vocabularyReads = Vocabulary.Resource.restReads
 
   implicit val metaReads: Reads[Concept] = (
     __.read[ConceptF] and
@@ -89,13 +89,10 @@ object Concept {
     (__ \ META).readWithDefault(Json.obj())
   )(Concept.apply _)
 
-  implicit object Converter extends BackendReadable[Concept] {
-    val restReads = metaReads
-  }
-
-  implicit object Resource extends BackendResource[Concept] with BackendContentType[Concept] {
+  implicit object Resource extends BackendContentType[Concept] {
     val entityType = EntityType.Concept
     val contentType = ContentTypes.Concept
+    val restReads = metaReads
 
     override def defaultParams = Seq(
       Constants.INCLUDE_PROPERTIES_PARAM -> VocabularyF.NAME

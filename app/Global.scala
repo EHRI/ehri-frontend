@@ -2,6 +2,9 @@
  * The application global object.
  */
 
+import auth.AccountManager
+import auth.oauth2.{WebOAuth2Flow, OAuth2Flow}
+import auth.sql.SqlAccountManager
 import backend.helpdesk.EhriHelpdesk
 import backend.parse.ParseFeedbackDAO
 import backend.rest._
@@ -9,11 +12,11 @@ import backend.{Backend, EventHandler, FeedbackDAO, IdGenerator, _}
 import com.google.inject.{AbstractModule, Guice}
 import com.typesafe.plugin.{CommonsMailerPlugin, MailerAPI}
 import global.GlobalConfig
-import models.AccountDAO
-import models.sql.SqlAccount
 import play.api._
 import play.api.mvc.{RequestHeader, Result, WithFilters}
 import play.filters.csrf._
+import eu.ehri.project.search.solr.{SolrSearchEngine, SolrQueryBuilder,JsonResponseHandler,WriterType}
+import utils.{DbMovedPageLookup, MovedPageLookup}
 import utils.search._
 
 import scala.concurrent.Future
@@ -26,24 +29,25 @@ object Global extends WithFilters(CSRFFilter()) with GlobalSettings {
 
   // This is where we tie together the various parts of the application
   // in terms of the component implementations.
-  private def queryBuilder: QueryBuilder = new solr.SolrQueryBuilder(solr.WriterType.Json, debugQuery = true)
-  private def searchDispatcher: Dispatcher = new solr.SolrDispatcher(
-    queryBuilder,
-    handler = r => new solr.SolrJsonQueryResponse(r.json)
+  private def searchEngine: SearchEngine = new SolrSearchEngine(
+    new SolrQueryBuilder(WriterType.Json, debugQuery = true),
+    JsonResponseHandler
   )
-  private def searchIndexer: Indexer = new indexing.CmdlineIndexer
-  private def searchResolver: Resolver = new GidSearchResolver
+  private def searchIndexer: SearchIndexer = new indexing.CmdlineIndexer
+  private def searchResolver: SearchItemResolver = new GidSearchResolver
   private def feedbackDAO: FeedbackDAO = new ParseFeedbackDAO
   private def helpdeskDAO: HelpdeskDAO = new EhriHelpdesk
   private def idGenerator: IdGenerator = new CypherIdGenerator(idFormat = "%06d")
-  private def userDAO: AccountDAO = SqlAccount
+  private def accounts: AccountManager = SqlAccountManager()
   private def mailer: MailerAPI = new CommonsMailerPlugin(current).email
+  private def oAuth2Flow: OAuth2Flow = new WebOAuth2Flow()
+  private def relocator: MovedPageLookup = new DbMovedPageLookup()
 
   private val eventHandler = new EventHandler {
 
     // Bind the EntityDAO Create/Update/Delete actions
     // to the SolrIndexer update/delete handlers. Do this
-    // asyncronously and log any failures...
+    // asynchronously and log any failures...
     import java.util.concurrent.TimeUnit
     import scala.concurrent.duration.Duration
     import play.api.libs.concurrent.Execution.Implicits._
@@ -58,7 +62,8 @@ object Global extends WithFilters(CSRFFilter()) with GlobalSettings {
     def handleUpdate(id: String) = logFailure(id, searchIndexer.indexId)
 
     // Special case - block when deleting because otherwise we get ItemNotFounds
-    // after redirects
+    // after redirects because the item is still in the search index but not in
+    // the database.
     def handleDelete(id: String) = logFailure(id, id => Future.successful[Unit] {
       concurrent.Await.result(searchIndexer.clearId(id), Duration(1, TimeUnit.MINUTES))
     })
@@ -71,15 +76,17 @@ object Global extends WithFilters(CSRFFilter()) with GlobalSettings {
   lazy val injector = Guice.createInjector(new AbstractModule {
     protected def configure() {
       bind(classOf[GlobalConfig]).toInstance(RunConfiguration)
-      bind(classOf[Indexer]).toInstance(searchIndexer)
-      bind(classOf[Dispatcher]).toInstance(searchDispatcher)
-      bind(classOf[Resolver]).toInstance(searchResolver)
+      bind(classOf[SearchIndexer]).toInstance(searchIndexer)
+      bind(classOf[SearchEngine]).toInstance(searchEngine)
+      bind(classOf[SearchItemResolver]).toInstance(searchResolver)
       bind(classOf[Backend]).toInstance(backend)
       bind(classOf[FeedbackDAO]).toInstance(feedbackDAO)
       bind(classOf[HelpdeskDAO]).toInstance(helpdeskDAO)
       bind(classOf[IdGenerator]).toInstance(idGenerator)
       bind(classOf[MailerAPI]).toInstance(mailer)
-      bind(classOf[AccountDAO]).toInstance(userDAO)
+      bind(classOf[AccountManager]).toInstance(accounts)
+      bind(classOf[OAuth2Flow]).toInstance(oAuth2Flow)
+      bind(classOf[MovedPageLookup]).toInstance(relocator)
     }
   })
 

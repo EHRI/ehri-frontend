@@ -1,33 +1,33 @@
-@(form: Form[SignupData], action: Call, recaptchaKey: String)(implicit request: RequestHeader, globalConfig: global.GlobalConfig, flash: Flash, lang: Lang, token: play.filters.csrf.CSRF.Token)
+@(form: Form[SignupData], action: Call, recaptchaKey: String)(implicit request: RequestHeader, globalConfig: global.GlobalConfig, flash: Flash, lang: Lang, token: play.filters.csrf.CSRF.Token, fieldConstructor: helper.FieldConstructor)
 
 @import SignupData.{form => _, _}
-
-@implicitField = @{ views.html.helper.FieldConstructor(p.helpers.fieldTemplateSignUp.f) }
+@import utils.forms.HoneyPotForm.BLANK_CHECK
+@import utils.forms.TimeCheckForm.TIMESTAMP
 
 @helper.form(action = action, 'class -> "login-form signup-form", 'role -> "form") {
-    <h1 class="text-center">@Messages("signup")</h1>
     @formHelpers.csrfToken()
-
     @formHelpers.globalErrors(form)
 
-    @helper.inputText(form(NAME))
-    @helper.inputText(form(EMAIL))
-    @helper.inputPassword(form(PASSWORD))
-    @helper.inputPassword(form(CONFIRM))
-    @helper.checkbox(form(AGREE_TERMS), '_label -> Html(Messages(
+    @helper.inputText(form(NAME), 'class -> "form-control", 'required -> "required", 'placeholder -> Messages("profile.name"))
+    @helper.inputText(form(EMAIL), 'class -> "form-control", 'placeholder -> Messages("login.email"), 'type -> "email", 'required -> "required")
+    @helper.inputPassword(form(PASSWORD), 'class -> "form-control", 'placeholder -> Messages("login.password"))
+    @helper.inputPassword(form(CONFIRM), 'class -> "form-control", 'placeholder -> Messages("login.password.confirm"))
+
+    @helper.checkbox(form(AGREE_TERMS), 'required -> "required", '_label -> Html(Messages(
         "signup.dataPolicyNag",
-        "<a target='_blank' href='" + controllers.portal.routes.Portal.dataPolicy() + "'>",
-        "</a>")
+        Html(s"<a target='_blank' tabindex='-1' href='${controllers.portal.routes.Portal.terms()}'>${Messages("termsAndConditions")}</a>"),
+        Html(s"<a target='_blank' tabindex='-1' href='${controllers.portal.routes.Portal.dataPolicy()}'>${Messages("dataPolicy")}</a>")
+    )
     ))
 
     @common.recaptcha(recaptchaKey)
+
     <div class="signup-check">
-        <input type="hidden" name="@TIMESTAMP" value="@org.joda.time.DateTime.now().toString()" />
+        <input type="hidden" name="@TIMESTAMP" value="@org.joda.time.DateTime.now().toString" />
         <input type="text" name="@BLANK_CHECK" title="[Leave this blank]" autocomplete="off" value="" />
     </div>
-    <div class="form-group field">
-        <div class="input">
-            <button type="submit" class=" btn  btn-post ">@Messages("signup.submit")</button>
-        </div>
+
+    <div class="form-group">
+        <input type="submit" class="btn btn-post" value="@Messages("login.signup.submit")" />
     </div>
 }

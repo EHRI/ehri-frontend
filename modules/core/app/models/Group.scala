@@ -62,7 +62,7 @@ object Group {
   import Entity._
   import Ontology._
 
-  private lazy implicit val systemEventReads = SystemEvent.Converter.restReads
+  private lazy implicit val systemEventReads = SystemEvent.Resource.restReads
 
   implicit val metaReads: Reads[Group] = (
     __.read[GroupF] and
@@ -72,13 +72,10 @@ object Group {
     (__ \ META).readWithDefault(Json.obj())
   )(Group.apply _)
 
-  implicit object Converter extends BackendReadable[Group] {
-    val restReads = metaReads
-  }
-
-  implicit object Resource extends BackendResource[Group] with BackendContentType[Group] {
+  implicit object Resource extends BackendContentType[Group] {
     val entityType = EntityType.Group
     val contentType = ContentTypes.Group
+    val restReads = metaReads
   }
 
   val form = Form(

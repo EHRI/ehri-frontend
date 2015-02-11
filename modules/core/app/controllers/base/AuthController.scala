@@ -5,6 +5,7 @@ import backend.{ApiUser, _}
 import defines.{ContentTypes, PermissionType}
 import jp.t2v.lab.play2.auth.AuthActionBuilders
 import models.UserProfile
+import play.api.http.HeaderNames
 import play.api.i18n.Lang
 import play.api.libs.concurrent.Execution.Implicits._
 import play.api.mvc.{Result, _}
@@ -45,9 +46,11 @@ trait AuthController extends Controller with ControllerHelpers with AuthActionBu
 
   def staffOnlyError(request: RequestHeader)(implicit context: ExecutionContext): Future[Result]
 
-  def notFoundError(request: RequestHeader)(implicit context: ExecutionContext): Future[Result]
+  def notFoundError(request: RequestHeader, msg: Option[String] = None)(implicit context: ExecutionContext): Future[Result]
 
   def authorizationFailed(request: RequestHeader)(implicit context: ExecutionContext): Future[Result]
+
+  def downForMaintenance(request: RequestHeader)(implicit context: ExecutionContext): Future[Result]
 
   // If a lang cookie is present, use it...
   private val LANG = "lang"
@@ -76,11 +79,11 @@ trait AuthController extends Controller with ControllerHelpers with AuthActionBu
 
   /**
    * A wrapped request that contains a user's profile.
-   * @param profile the profile
+   * @param user the profile
    * @param request the underlying request
    * @tparam A the type of underlying request
    */
-  case class WithUserRequest[A](profile: UserProfile, request: Request[A]) extends WrappedRequest[A](request)
+  case class WithUserRequest[A](user: UserProfile, request: Request[A]) extends WrappedRequest[A](request)
 
   /**
    * Implicit helper to convert an in-scope optional profile to an `ApiUser` instance.
@@ -119,7 +122,7 @@ trait AuthController extends Controller with ControllerHelpers with AuthActionBu
    * @return an optional user profile
    */
   protected implicit def profileRequest2profileOpt(implicit pr: WithUserRequest[_]): Option[UserProfile] =
-    Some(pr.profile)
+    Some(pr.user)
 
   /**
    * Transform an `OptionalAuthRequest` into an `OptionalProfileRequest` by
@@ -152,6 +155,35 @@ trait AuthController extends Controller with ControllerHelpers with AuthActionBu
   }
 
   /**
+   * If the global read-only flag is enabled, remove the account from
+   * the request, globally denying all secured actions.
+   */
+  protected object MaintenanceFilter extends ActionFilter[OptionalAuthRequest]{
+    override protected def filter[A](request: OptionalAuthRequest[A]): Future[Option[Result]] = {
+      if (globalConfig.maintenance) downForMaintenance(request).map(r => Some(r))
+      else immediate(None)
+    }
+  }
+
+  /**
+   * If the IP WHITELIST file is present, check the incoming IP and show a 503 to
+   * everyone else.
+   */
+  protected object IpFilter extends ActionFilter[OptionalAuthRequest]{
+    override protected def filter[A](request: OptionalAuthRequest[A]): Future[Option[Result]] = {
+      globalConfig.ipFilter.map { whitelist =>
+        // Extract the client from the forwarded header, falling back
+        // on the remote address. This is dependent on the proxy situation.
+        val ip = request.headers.get(HeaderNames.X_FORWARDED_FOR)
+          .flatMap(_.split(",").map(_.trim).headOption)
+          .getOrElse(request.remoteAddress)
+        if (whitelist.contains(ip)) immediate(None)
+        else downForMaintenance(request).map(r => Some(r))
+      }.getOrElse(immediate(None))
+    }
+  }
+
+  /**
    * Check the user is allowed in this controller based on their account's
    * `staff` and `verified` flags.
    */
@@ -171,9 +203,10 @@ trait AuthController extends Controller with ControllerHelpers with AuthActionBu
   /**
    * Fetch, if available, the user's profile, ensuring that:
    *  - the site is not read-only
+   *  - the site is not in maintenance mode
    *  - they are allowed in this controller
    */
-  def OptionalUserAction = OptionalAuthAction andThen ReadOnlyTransformer andThen AllowedFilter andThen FetchProfile
+  def OptionalUserAction = OptionalAuthAction andThen MaintenanceFilter andThen IpFilter andThen ReadOnlyTransformer andThen AllowedFilter andThen FetchProfile
 
   /**
    * Ensure that a user a given permission on a given content type

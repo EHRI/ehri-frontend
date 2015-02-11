@@ -1,5 +1,7 @@
 package helpers
 
+import auth.oauth2.{MockOAuth2Flow, OAuth2Flow}
+import auth.{AccountManager, MockAccountManager}
 import backend.HelpdeskDAO.HelpdeskResponse
 import backend._
 import backend.helpdesk.{MockFeedbackDAO, MockHelpdeskDAO}
@@ -10,12 +12,13 @@ import controllers.base.AuthConfigImpl
 import global.GlobalConfig
 import jp.t2v.lab.play2.auth.test.Helpers._
 import mocks.{MockBufferedMailer, _}
-import models.{Account, AccountDAO, Feedback, MockAccountDAO}
+import models.{Account, Feedback}
 import play.api.GlobalSettings
 import play.api.http.{HeaderNames, MimeTypes}
 import play.api.mvc.{RequestHeader, WithFilters}
 import play.api.test.{FakeApplication, FakeRequest}
 import play.filters.csrf.CSRFFilter
+import utils.MovedPageLookup
 import utils.search.{MockSearchDispatcher, MockSearchIndexer, _}
 
 import scala.concurrent.Future
@@ -43,14 +46,16 @@ trait TestConfiguration {
 
   def mockResolver: MockSearchResolver = new MockSearchResolver
   def idGenerator: IdGenerator = new CypherIdGenerator("%06d")
-  def mockDispatcher: Dispatcher = new MockSearchDispatcher(testBackend, searchParamBuffer)
+  def mockDispatcher: SearchEngine = new MockSearchDispatcher(testBackend, searchParamBuffer)
   def mockFeedback: FeedbackDAO = new MockFeedbackDAO(feedbackBuffer)
   def mockHelpdesk: HelpdeskDAO = new MockHelpdeskDAO(helpdeskBuffer)
   def mockMailer: MailerAPI = new MockBufferedMailer(mailBuffer)
-  def mockIndexer: Indexer = new MockSearchIndexer(indexEventBuffer)
+  def mockIndexer: SearchIndexer = new MockSearchIndexer(indexEventBuffer)
   // NB: The mutable state for the user DAO is still stored globally
   // in the mocks package.
-  def mockUserDAO: AccountDAO = MockAccountDAO
+  def mockAccounts: AccountManager = MockAccountManager()
+  def oAuth2Flow: OAuth2Flow = MockOAuth2Flow()
+  def relocator: MovedPageLookup = MockMovedPageLookup()
 
   // More or less the same as run config but synchronous (so
   // we can validate the actions)
@@ -67,7 +72,7 @@ trait TestConfiguration {
   // Dummy auth config for play-2-auth
   object AuthConfig extends AuthConfigImpl {
     val globalConfig = TestConfig
-    val userDAO = mockUserDAO
+    val accounts = mockAccounts
   }
 
   /**
@@ -77,15 +82,17 @@ trait TestConfiguration {
     lazy val injector = Guice.createInjector(new AbstractModule {
       protected def configure() {
         bind(classOf[GlobalConfig]).toInstance(TestConfig)
-        bind(classOf[Indexer]).toInstance(mockIndexer)
+        bind(classOf[SearchIndexer]).toInstance(mockIndexer)
         bind(classOf[Backend]).toInstance(testBackend)
-        bind(classOf[Dispatcher]).toInstance(mockDispatcher)
-        bind(classOf[Resolver]).toInstance(mockResolver)
+        bind(classOf[SearchEngine]).toInstance(mockDispatcher)
+        bind(classOf[SearchItemResolver]).toInstance(mockResolver)
         bind(classOf[FeedbackDAO]).toInstance(mockFeedback)
         bind(classOf[HelpdeskDAO]).toInstance(mockHelpdesk)
         bind(classOf[IdGenerator]).toInstance(idGenerator)
         bind(classOf[MailerAPI]).toInstance(mockMailer)
-        bind(classOf[AccountDAO]).toInstance(mockUserDAO)
+        bind(classOf[AccountManager]).toInstance(mockAccounts)
+        bind(classOf[OAuth2Flow]).toInstance(oAuth2Flow)
+        bind(classOf[MovedPageLookup]).toInstance(relocator)
       }
     })
 

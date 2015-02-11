@@ -1,18 +1,18 @@
 package controllers.admin
 
+import auth.AccountManager
 import play.api.libs.concurrent.Execution.Implicits._
-import controllers.base.{AdminController, AuthController, ControllerHelpers}
+import controllers.base.AdminController
 import play.api.mvc.Controller
 
 import com.google.inject._
 import backend.{BackendReadable, Backend}
-import models.AccountDAO
 import defines.EntityType
 import models.base.AnyModel
 import backend.rest.SearchDAO
 
 
-case class Admin @Inject()(implicit globalConfig: global.GlobalConfig, backend: Backend, userDAO: AccountDAO) extends AdminController {
+case class Admin @Inject()(implicit globalConfig: global.GlobalConfig, backend: Backend, accounts: AccountManager, pageRelocator: utils.MovedPageLookup) extends AdminController {
 
   implicit val rd: BackendReadable[AnyModel] = AnyModel.Converter
 

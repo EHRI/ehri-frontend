@@ -3,8 +3,8 @@ package integration
 import helpers._
 import models.{GroupF, Group, UserProfileF, UserProfile}
 import defines.EntityType
-import solr.SolrConstants
 import play.api.test.FakeRequest
+import utils.search.SearchConstants
 
 /**
  * Spec to test various page views operate as expected.
@@ -26,7 +26,7 @@ class SearchSpec extends IntegrationTestRunner {
         controllers.units.routes.DocumentaryUnits.search().url)).get
       status(search) must equalTo(OK)
       searchParamBuffer
-        .last.filters.get(SolrConstants.TOP_LEVEL) must equalTo(Some(true))
+        .last.filters.get(SearchConstants.TOP_LEVEL) must equalTo(Some(true))
     }
 
     "search for hierarchical item with a query should not apply a top-level filter" in new ITestApp {
@@ -34,7 +34,7 @@ class SearchSpec extends IntegrationTestRunner {
         controllers.units.routes.DocumentaryUnits.search().url + "?q=foo")).get
       status(search) must equalTo(OK)
       searchParamBuffer
-        .last.filters.get(SolrConstants.TOP_LEVEL) must equalTo(None)
+        .last.filters.get(SearchConstants.TOP_LEVEL) must equalTo(None)
     }
 
     "allow search filtering for non-logged in users" in new ITestApp {

@@ -1,7 +1,8 @@
 package controllers.admin
 
-import controllers.base.{AdminController, AuthController, ControllerHelpers}
-import play.api.mvc.{Action, Controller}
+import auth.AccountManager
+import controllers.base.AdminController
+import play.api.mvc.Action
 import play.api.libs.iteratee.Enumerator
 import play.api.libs.concurrent.Execution.Implicits._
 
@@ -9,12 +10,11 @@ import com.google.inject._
 import backend.Backend
 import play.api.Routes
 import play.api.http.MimeTypes
-import models.AccountDAO
 import com.ning.http.client.{Response => NingResponse}
 import defines.EntityType
 import backend.rest.cypher.CypherDAO
 
-case class ApiController @Inject()(implicit globalConfig: global.GlobalConfig, backend: Backend, userDAO: AccountDAO) extends AdminController {
+case class ApiController @Inject()(implicit globalConfig: global.GlobalConfig, backend: Backend, accounts: AccountManager, pageRelocator: utils.MovedPageLookup) extends AdminController {
 
   def listItems(contentType: EntityType.Value) = Action.async { implicit request =>
     get(s"$contentType/list")(request)

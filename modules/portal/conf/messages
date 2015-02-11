@@ -1,8 +1,9 @@
 welcome=Welcome to EHRI
+welcome.title=Welcome to the European Holocaust Research Infrastructure online portal
 home=Home
 about=About EHRI
+language=Language
 contact=Contact
-terms=Terms & Conditions
 welcome.blurb=The EHRI portal offers access to information on Holocaust-related archival \
   material held in institutions across Europe and beyond. \
   For more information on the EHRI project visit http://ehri-project.eu.
@@ -14,10 +15,7 @@ optional=Optional
 cancel=Cancel
 warning=Warning
 admin.site=Admin Site
-readonly=The EHRI portal is currently in read-only mode while we conduct maintenance.\
-  Normal service should be resumed in due course. Thanks for your patience.
 newsFeed=Latest News
-latestUpdates=Recent Updates
 browse=Browse
 details.show=Show Item Details
 details.hide=Hide Item Details
@@ -56,6 +54,8 @@ constraints.timeCheckSeconds=Timestamp
 constraints.timeCheckSeconds.failed=The form was submitted too quickly. Please try again.
 constraints.honeypot=Blank Check
 constraints.honeypot.failed=The form failed the spam check. Please try again.
+constraints.uniqueness=Must be unique
+constraints.uniqueness.failed=An item with this value already exists
 
 format.boolean=On/Off
 
@@ -63,22 +63,26 @@ errors.staffOnly=Restricted
 errors.staffOnlyMessage=This page is currently restricted to EHRI staff only.
 errors.verifiedOnly=Restricted
 errors.verifiedOnlyMessage=This page is currently restricted to verified users only.
+errors.readonly=The EHRI portal is currently in read-only mode while we conduct maintenance.\
+         Normal service should be resumed in due course. Thanks for your patience.
 errors.itemNotFound=Item Not Found
 errors.itemNotFound.explanation=That item couldn''t be found in the database.
 errors.pageNotFound=Page Not Found
 errors.pageNotFound.explanation=The page at this location either doesn''t exist or has moved.
 errors.genericProblem=An Error Occurred
-errors.genericProblem.explanation=We're very sorry, but there's a problem loading that page. We''ve been informed of \
+errors.genericProblem.explanation=We''re very sorry, but there''s a problem loading that page. We''ve been informed of \
   this and will endeavour to fix the problem as soon as possible.
+errors.maintenance=Site temporarily offline
+errors.maintenance.explanation=The EHRI Portal is currently offline while we undertake maintenance. Please check back soon.
 errors.databaseError=Database Error
 errors.databaseError.explanation=I''m afraid it looks like our database server has gone down.     \
-  There's not much we can do without it, so please try again later.
+  There''s not much we can do without it, so please try again later.
 errors.databaseMaintenance=Database Temporarily Offline
 errors.databaseMaintenance.explanation=The EHRI database is currently offline for routine maintenance. \
   It should be back soon so please try again shortly.
 errors.permissionDenied=Permission Denied
 errors.permissionDenied.explanation=It looks like you can''t do whatever it is you were attempted \
-  to do. This is probably an error on our part. We'll try and fix that ASAP.
+  to do. This is probably an error on our part. We''ll try and fix that ASAP.
 errors.errorDetails=Details
 errors.noFurtherInfo=No additional information is available.
 errors.imageTooLarge=This image was too large. Please select one smaller than 5 metabytes in size.
@@ -114,13 +118,22 @@ profile.preferences.view=View Preferences
 profile.preferences.view.showUserContent=Show promoted notes by other users
 
 profile=Profile
+profile.section.general=About you
+profile.section.image=Profile image
+profile.section.preferences=Account Preferences
+profile.section.security=Security
+profile.section.delete=Delete
 profile.name=Your name
 profile.location=Location
-profile.url=Website
+profile.url=Personal Website
+profile.workUrl=Work Website
+profile.institution=Institution
+profile.interests=Area(s) of interests
+profile.title=Title
+profile.role=Role
 profile.languages=Languages
-profile.about=About you
+profile.about=About
 profile.menu.link=Go to your profile
-profile.security=Security
 profile.edit=Edit Profile
 profile.image.edit=Set Profile Image
 profile.delete=Delete Account
@@ -156,11 +169,13 @@ type.repository.description=An inventory of archival institutions that \
 type.documentaryUnit=Archival Descriptions
 type.documentaryUnit.description=Electronic descriptions and finding aids of Holocaust-related archival material.
 type.historicalAgent=Historical Agents
+type.historicalAgent.description=People, families, and corporate bodies related to EHRI archival descriptions.
 type.country=Countries
 type.country.description=EHRI national reports provide an overview of \
   the Second World War and Holocaust history as well as of the archival situation \
   in the covered countries.
 type.cvocConcept=Keywords
+type.cvocConcept.description=Subject terms related to EHRI archival descriptions.
 type.userProfile=People on EHRI
 type.group=Groups
 type.virtualUnit=Virtual Collections
@@ -171,6 +186,8 @@ type.cvocVocabulary=Vocabularies
 #
 # Dates
 #
+dates.start.year=Start Year
+dates.end.year=End Year
 dates.exact={0,number,#}
 dates.before=Before {0,number,#}
 dates.between=Between {0,number,#} and {1,number,#}
@@ -182,14 +199,22 @@ dates.all=All
 # Login-related
 #
 login=Sign In
-login.signup=Sign In / Sign Up
-login.moreOptions=More login options
-login.alreadyLoggedIn=You are already logged in as {0}
+login.title=Sign in or register for an EHRI account
+login.benefits=An EHRI account allows you to:
+login.benefits.1=Contact other people on EHRI
+login.benefits.2=Follow activity and changes to material that interests you
+login.benefits.3=Make notes and help improve EHRI''s data
+login.signup=Register
+login.moreOptions=More options
+login.alreadyLoggedIn=You are already signed in as {0}
 login.loginWith=Sign in with {0}
+login.signupWith=Register with {0}
+login.signup.submit=Register
 login.openid.submit=Sign In With OpenID
 login.openid=OpenID
 login.email=Email
 login.password=Password
+login.password.confirm=Confirm Password
 login.password.noPassword=There is currently no password associated with your account. This means you\
   have signed in via a third-party provider such as Google or Facebook.
 login.password.change=Change Password
@@ -199,43 +224,40 @@ login.password.change.confirmation=Password Changed
 login.password.reset=Reset Password
 login.password.reset.text=Forgotten your password? Enter the email you used to sign up below\
   and we''ll send you a link you can use to reset it.
+login.password.reset.noPasswordMatching=No account matches {0}
 login.password.reset.submit=Send Reset Link
 login.openid.urlPlaceholder=Enter your OpenID URL
 login.disabled=Login is currently disabled. Please try again later.
 login.oauth.info=If you already have an account on one of these sites you can click the logo to log in to EHRI:
 login.password.info=If you''ve previously created an account with EHRI, enter your email and password here:
 login.password.submit=Sign In
-login.recover=If you have lost your login details:
 login.recover.link=Click here if you''ve forgotten or lost your password.
 login.error=There was a problem with your details
 login.error.badUsernameOrPassword=Incorrect username or password
-login.error.passwordsDoNotMatch=Password and confirmation do not match!
+login.error.passwordsDoNotMatch=Password and confirmation do not match
 login.error.badResetToken=URL given for password reset was invalid or expired. \
   Note: password reset links can only be used once.
+login.error.oauth2.info=We apologise but there was a problem creating your account via {0}. Please try another \
+  method of registering.
 
 login.password.current=Current Password
 login.password.new=New Password
 login.password.new.confirm=Confirm New Password
 login.password.reset.sentLink=We''ve sent you an email containing a link that can be used to reset your password.\
   This link can only be used once.
-login.sendPasswordResetLink=Submit
-login.submitPasswordReset=Submit
-login.forgotPasswordLink=Click here if you have a password account but have forgotten or lost your password.
-login.passwordResetNowLogin=Your password has been reset. Now please log in using the new one.
+login.password.reset.confirmation=Your password has been reset.
 
 logout=Sign Out
 logout.confirmation=You have been logged out
 account=Account
 
 signup=Create an Account
-signup.submit=Submit
-signup.dataPolicyNag=By creating an account I agree to abide by the terms of the {0} EHRI data policy {1}.
+signup.dataPolicyNag=By creating an account I agree to abide by the {0} and the {1}.
 signup.badPasswords=The password and confirmation did not match. Please try again.
 signup.agreeTerms=You must agree to the terms.
 signup.confirmation=Thanks for signing up! We''ve sent you an email which you can use to confirm \
   your email address.
-signup.emailConfirmed=Your email is now confirmed and you have been signed in.
-signup.invalidSignupToken=Confirmation URL is invalid or has expired.
+signup.validation.badToken=Confirmation URL is invalid or has expired.
 signup.validation.confirmation=Your account has been validated.
 
 #
@@ -260,7 +282,6 @@ mail.message.heading=New message from {0}
 mail.message.copy.heading=Copy of your message to {0}
 mail.message.replyFooter=To respond, reply directly to this message. You can opt-out from receiving user messages by updating your preferences
 bookmark.tooltip=Save this item to your bookmarks.
-bookmarkedItems=Bookmarked Items
 
 bookmarkSet.list=Bookmark Sets
 bookmarkSet.defaultSetName=Bookmarked Items
@@ -270,7 +291,7 @@ bookmarkSet.edit=Edit Bookmark Set
 bookmarkSet.edit.submit=Submit
 bookmarkSet.delete=Delete Bookmark Set
 bookmarkSet.delete.submit=Delete
-bookmarkSet.noBookmarkSetsYet=You haven't made any bookmark sets yet.
+bookmarkSet.noBookmarkSetsYet=You haven''t made any bookmark sets yet.
 bookmarkSet.noUserBookmarkSetsYet={0} has no public bookmark sets yet.
 
 #
@@ -281,7 +302,6 @@ description.additionalData.key=Key
 description.additionalData.value=Value
 description.noDescriptions=This item has not been provided with a description
 description.multiple.text=This item has multiple descriptions. Alternate descriptions may source from different repositories or represent a (partial) translation.
-noDetails=---
 
 
 #
@@ -302,7 +322,7 @@ accessPoint.type.subjectAccess=Subjects
 accessPoint.type.subjectAccess.reverse=Subject of
 accessPoint.type.otherAccess=Miscellaneous
 accessPoint.type.otherAccess.reverse=Miscellaneous
-# References not on this item, but from another item's access points
+# References not on this item, but from another ites access points
 accessPoint.externalReferences=External references to this item
 
 #
@@ -341,9 +361,10 @@ error.unknownUser=Unknown user
 error.emailNotFound=That email was not found on our system.
 error.badRecaptcha=The Recaptcha check (intended to ensure you are a human and not an automated spamming machine) did not\
     get the right response. Tip: you can keep refreshing the challenge text until you get something more readable.
+error.rateLimit=Maximum number of attempts exceeded. Please wait {0} minutes before trying again.
 error.openId=There was a problem logging you in with OpenID.\
-  This may because your provider does not support attribute exchange. The error messages was: {0}
-error.openId.url=There was no response from the given openid provider: ''{0}''.\
+  This may because your provider deoes not support attribute exchange.
+error.openId.url=There was no response from the given openid provider: {0}.\
   Please ensure the provider URL is correct.
 error.userEmailAlreadyRegistered=A user with that email is already registered: {0}
 
@@ -351,6 +372,7 @@ error.userEmailAlreadyRegistered=A user with that email is already registered: {
 # Search
 #
 search.submit=Search
+search.clear=Clear Search
 search.sort=Order
 search.sort.identifier.asc=ID/Code
 search.sort.identifier.asc.title=Display results sorted by their institution-given identifier
@@ -371,6 +393,8 @@ search.sort.countryName.asc.title=Sort results by country
 search.identifier=Identifier
 search.spellingSuggestion=Did you mean
 search.queryPlaceholder=Search...
+search.results.list={3,choice,0#{0}|1#{0} - One item|1<{0} - {1,number,integer} to {2,number,integer} of {3,number,integer}}
+search.item.results.list={3,choice,0#{0}|1#{0} - One item|1<{0} - Items {1,number,integer} to {2,number,integer} of {3,number,integer}}
 
 
 # Facets
@@ -485,19 +509,25 @@ social.unblock.submit=Unblock User
 # Annotations
 #
 annotation=Notes
+annotation.search=Search Notes
+annotation.search.noneFound=No notes found matching ''{0}''.
+annotation.field=Field
 annotation.list=Notes
 annotation.list.by={0} - Notes
 annotation.none=You haven''t made any notes yet.
 annotation.create=Add Note
+annotation.create.submit=Add Note
 annotation.create.title=Create a note attached to this description
+annotation.field.create=Add Note
+annotation.field.create.submit=Add Note
+annotation.field.create.title=Create a note on this field
 annotation.update=Edit
 annotation.update.submit=Save
 annotation.update.title=Edit Note
-annotation.field.create=Add Note
-annotation.field.create.title=Create a note on this field
-annotation.field.showHidden=Show/hide {0,choice,1#1 public note made by another person|1<{0} public notes made by other people}
 annotation.delete=Delete
+annotation.delete.submit=Delete
 annotation.delete.title=Delete Note
+annotation.field.showHidden=Show/hide {0,choice,1#1 public note made by another person|1<{0} public notes made by other people}
 annotation.createdBy=Created by {0} at {1}
 annotation.showPublic={0,choice,1#Show 1 public note|1<Show {0} public notes}
 annotation.placeholder=
@@ -617,7 +647,7 @@ helpdesk.message=The helpdesk will attempt to match your query to the EHRI partn
 helpdesk.thanks=Thanks!
 helpdesk.thanks.message=Your query has been submitted.
 helpdesk.query=Query
-helpdesk.error=Oops! Something went wrong with the helpdesk. Here's what it said:
+helpdesk.error=Oops! Something went wrong with the helpdesk. Here''s what it said:
 helpdesk.results=Helpdesk Contact Recommendations
 helpdesk.results.empty=No relevant institutions found. Please reformulate your query and add more details.
 helpdesk.query.placeholder=Enter your query here. Subject-specific terms are best.
@@ -632,18 +662,40 @@ helpdesk.query.submit=Ask the helpdesk
 #
 # Data policy
 #
+dataPolicy=Data Policy
 dataPolicy.header=EHRI Data Policy
 dataPolicy.notice1=This database might contain Sensitive Personal Data which according to Dutch privacy \
   law can be used for research purposes only (article 16 Dutch Data Protection Act ''Wet \
   bescherming Persoonsgegevens'').
 dataPolicy.notice2=Sensitive Personal Data is any data related to an identified or identifiable person related \
-  to a person's religion or belief, race, political opinion, health, sexual life, trade union \
+  to a person''s religion or belief, race, political opinion, health, sexual life, trade union \
   membership and criminal record.
 dataPolicy.terms=I declare that I will use Sensitive Personal Data for research purposes only and in general \
   will use Sensitive Personal Data in accordance with applicable Dutch and international laws \
   and regulations. I am aware of punitive results following a breach of these laws and/or \
   regulations.
 dataPolicy.agree=I Agree
+
+#
+# Terms and conditions
+#
+termsAndConditions=Terms & Conditions
+termsAndConditions.userGenerated.heading=User-generated content: terms of use
+termsAndConditions.userGenerated.p1=EHRI offers users the opportunity to contribute to the content provided by EHRI through enriching and \
+  annotating data. To participate in this process of producing user-generated content, users must agree to \
+  the Terms of Use listed below.
+termsAndConditions.userGenerated.p2=By clicking signing-in/creating an account you agree to our Terms of Use and acknowledge \
+  having read our Data Policy (including cookie use).
+termsAndConditions.userGenerated.terms.heading=Terms of Use:
+termsAndConditions.userGenerated.terms.1=Users producing content agree not to add comments which are inappropriate.
+termsAndConditions.userGenerated.terms.2=Users producing content agree not to infringe Dutch privacy law or the privacy law of the country \
+  in which they are located when adding content. This implies that users producing content will not \
+  disclose information in violation of personal data protection rights.
+termsAndConditions.userGenerated.terms.3=Users producing content agree that EHRI will review the user-generated content before \
+  publication.
+termsAndConditions.userGenerated.terms.4=The information is made available to users and can be reused, though acknowledgment of the \
+  author has to be given when the information is published elsewhere. For this purpose, the author \
+  of the user-generated content will be clearly stated.
 
 #
 # Markdown Cheatsheet
@@ -871,14 +923,11 @@ country.items=Repositories
 country.identifier=Country Code
 country.identifier.description=The ISO-3166-1 2-letter code for this country
 country.abstract=Abstract
-country.abstract.description=An abstract of the report for this country
-country.report=Report
-country.report.description=The report describing this country''s archival situation
+country.report=History
+country.situation=Archival Situation
+country.dataSummary=EHRI Research (Summary)
+country.dataExtensive=EHRI Research (Extensive)
 country.list=Countries
-country.create=Add Country
-country.create.submit=Add Country
-country.update=Update Country
-country.update.submit=Update Country
 
 #
 # Vocabularies

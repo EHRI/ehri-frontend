@@ -75,9 +75,10 @@ object HistoricalAgent {
   import Entity._
   import HistoricalAgentF._
   import Ontology._
+  import defines.EnumUtils.enumMapping
 
-  private implicit val systemEventReads = SystemEvent.Converter.restReads
-  private implicit val authoritativeSetReads = AuthoritativeSet.Converter.restReads
+  private implicit val systemEventReads = SystemEvent.Resource.restReads
+  private implicit val authoritativeSetReads = AuthoritativeSet.Resource.restReads
 
   implicit val metaReads: Reads[HistoricalAgent] = (
     __.read[HistoricalAgentF] and
@@ -87,13 +88,10 @@ object HistoricalAgent {
     (__ \ META).readWithDefault(Json.obj())
   )(HistoricalAgent.apply _)
 
-  implicit object Converter extends BackendReadable[HistoricalAgent] {
-    val restReads = metaReads
-  }
-
-  implicit object Resource extends BackendResource[HistoricalAgent] with BackendContentType[HistoricalAgent] {
+  implicit object Resource extends BackendContentType[HistoricalAgent] {
     val entityType = EntityType.HistoricalAgent
     val contentType = ContentTypes.HistoricalAgent
+    val restReads = metaReads
   }
 
   val form = Form(
@@ -101,7 +99,7 @@ object HistoricalAgent {
       ISA -> ignored(EntityType.HistoricalAgent),
       ID -> optional(nonEmptyText),
       IDENTIFIER -> nonEmptyText(minLength=2), // TODO: Increase to > 2, not done yet 'cos of test fixtures,
-      PUBLICATION_STATUS -> optional(enum(models.PublicationStatus)),
+      PUBLICATION_STATUS -> optional(enumMapping(models.PublicationStatus)),
       "descriptions" -> list(HistoricalAgentDescription.form.mapping)
     )(HistoricalAgentF.apply)(HistoricalAgentF.unapply)
   )

@@ -1,0 +1,17 @@
+@(pwForm: Form[(String,String)])(implicit request: RequestHeader, globalConfig: global.GlobalConfig, flash: Flash, lang: Lang, token: play.filters.csrf.CSRF.Token, fieldConstructor: helper.FieldConstructor)
+
+@helper.form(action = controllers.portal.account.routes.Accounts.passwordLoginPost, 'class -> "login-form form validate-form", 'role -> "form") {
+    @formHelpers.csrfToken()
+    @formHelpers.globalErrors(pwForm)
+
+    @helper.inputText(pwForm("email"), 'class -> "form-control", 'autofocus -> "autofocus", 'placeholder -> Messages("login.email"), 'type -> "email", 'required -> "required")
+    @helper.inputPassword(pwForm("password"), 'class -> "form-control", 'placeholder -> Messages("login.password"), 'required -> "required")
+
+    <p>
+        <a href="@controllers.portal.account.routes.Accounts.forgotPassword">@Messages("login.recover.link")</a>
+    </p>
+
+    <div class="form-group">
+        <input type="submit" class="login-button btn btn-post" value="@Messages("login.password.submit")" />
+    </div>
+}

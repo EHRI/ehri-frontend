@@ -1,5 +1,6 @@
 package controllers.keywords
 
+import auth.AccountManager
 import play.api.libs.concurrent.Execution.Implicits._
 import _root_.forms.VisibilityForm
 import controllers.generic._
@@ -8,17 +9,16 @@ import play.api.i18n.Messages
 import defines.{ContentTypes, EntityType}
 import utils.PageParams
 import views.Helpers
-import utils.search.{FacetDisplay, Resolver, FacetSort, Dispatcher}
+import utils.search._
 import com.google.inject._
 import scala.concurrent.Future.{successful => immediate}
-import solr.facet.FieldFacetClass
 import backend.Backend
 import models.base.Description
 import controllers.base.AdminController
 
 
 @Singleton
-case class Concepts @Inject()(implicit globalConfig: global.GlobalConfig, searchDispatcher: Dispatcher, searchResolver: Resolver, backend: Backend, userDAO: AccountDAO)
+case class Concepts @Inject()(implicit globalConfig: global.GlobalConfig, searchEngine: SearchEngine, searchResolver: SearchItemResolver, backend: Backend, accounts: AccountManager, pageRelocator: utils.MovedPageLookup)
   extends AdminController
   with Creator[ConceptF, Concept, Concept]
   with Visibility[Concept]
@@ -27,7 +27,7 @@ case class Concepts @Inject()(implicit globalConfig: global.GlobalConfig, search
   with Delete[Concept]
   with Linking[Concept]
   with Annotate[Concept]
-  with Search {
+  with SearchType[Concept] {
 
   val targetContentTypes = Seq(ContentTypes.Concept)
 
@@ -62,13 +62,8 @@ case class Concepts @Inject()(implicit globalConfig: global.GlobalConfig, search
     }
   }
 
-  def search = OptionalUserAction.async { implicit request =>
-    find[Concept](
-      entities = List(EntityType.Concept),
-      facetBuilder = entityFacets
-    ).map { case QueryResult(page, params, facets) =>
-      Ok(views.html.admin.concept.search(page, params, facets, conceptRoutes.search()))
-    }
+  def search = SearchTypeAction(facetBuilder = entityFacets).apply { implicit request =>
+    Ok(views.html.admin.concept.search(request.result, conceptRoutes.search()))
   }
 
   def history(id: String) = ItemHistoryAction(id).apply { implicit request =>

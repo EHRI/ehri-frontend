@@ -1,12 +1,16 @@
-import models.MockAccount
+import models.{OpenIDAssociation, OAuth2Association, Account}
 
 package object mocks {
 
-  val privilegedUser = MockAccount("mike", "example1@example.com", verified = true, staff = true)
-  val unprivilegedUser = MockAccount("reto", "example2@example.com", verified = true, staff = true)
-  val moderator = MockAccount("linda", "example3@example.com", verified = true, staff = true)
-  val publicUser = MockAccount("joeblogs", "example@aol.com", verified = true, staff = false)
-  val unverifiedUser = MockAccount("bobjohn", "example@yahoo.com", verified = false, staff = false)
+  val privilegedUser = Account("mike", "example1@example.com", verified = true, staff = true)
+  val unprivilegedUser = Account("reto", "example2@example.com", verified = true, staff = true)
+  val moderator = Account("linda", "example3@example.com", verified = true, staff = true)
+  val publicUser = Account("joeblogs", "example@aol.com", verified = true, staff = false)
+  val unverifiedUser = Account("bobjohn", "example@yahoo.com", verified = false, staff = false)
+
+  val googleOAuthAssoc = OAuth2Association("mike", "123456789", "google", Some(privilegedUser))
+  val facebookOAuthAssoc = OAuth2Association("reto", "123456789", "facebook", Some(unprivilegedUser))
+  val yahooOpenId = OpenIDAssociation("linda", "https://yahoo.com/openid", Some(moderator))
 
   // Users...
   val users = Map(
@@ -17,7 +21,23 @@ package object mocks {
     unverifiedUser.id -> unverifiedUser
   )
 
-  // Mutable map that serves as a mock db...
-  var userFixtures = users
-  val tokens = collection.mutable.ListBuffer.empty[(String,String,Boolean)]
+  val oAuth2Associations = List(googleOAuthAssoc, facebookOAuthAssoc)
+
+  val openIDAssociations = List(yahooOpenId)
+
+
+  // Mutable vars that server as mock database tables
+  var accountFixtures = users
+
+  val tokenFixtures: collection.mutable.ListBuffer[(String,String,Boolean)] =
+    collection.mutable.ListBuffer.empty[(String,String,Boolean)]
+
+  val oauth2AssociationFixtures: collection.mutable.ListBuffer[OAuth2Association] =
+    collection.mutable.ListBuffer.empty[OAuth2Association]
+
+  val openIdAssociationFixtures: collection.mutable.ListBuffer[OpenIDAssociation] =
+    collection.mutable.ListBuffer.empty[OpenIDAssociation]
+
+  val movedPages: collection.mutable.ListBuffer[(String, String)] =
+    collection.mutable.ListBuffer.empty[(String, String)]
 }

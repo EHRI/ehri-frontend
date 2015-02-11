@@ -1,26 +1,25 @@
 package controllers.portal.social
 
+import auth.AccountManager
+import controllers.generic.Search
 import play.api.libs.concurrent.Execution.Implicits._
-import controllers.base.SessionPreferences
-import models.{SystemEvent, UserProfile, AccountDAO}
+import models.{SystemEvent, UserProfile}
 import views.html.p
 import utils._
-import utils.search.{Resolver, SearchOrder, Dispatcher, SearchParams}
+import utils.search._
 import defines.EntityType
 import play.api.Play.current
-import solr.SolrConstants
-import backend.Backend
+import backend.{BackendReadable, Backend, ApiUser}
 
 import com.google.inject._
 import play.api.mvc.RequestHeader
 import play.api.i18n.Messages
 import play.api.libs.json.Json
 import scala.concurrent.Future
+import scala.concurrent.Future.{successful => immediate}
 import models.base.AnyModel
 import play.api.mvc.Result
-import backend.ApiUser
 import com.typesafe.plugin.MailerAPI
-import controllers.portal.Secured
 import controllers.portal.base.PortalController
 
 /**
@@ -31,9 +30,10 @@ import controllers.portal.base.PortalController
  * just lists of IDs.
  */
 @Singleton
-case class Social @Inject()(implicit globalConfig: global.GlobalConfig, searchDispatcher: Dispatcher, searchResolver: Resolver, backend: Backend, userDAO: AccountDAO,
-    mailer: MailerAPI)
-  extends PortalController {
+case class Social @Inject()(implicit globalConfig: global.GlobalConfig, searchEngine: SearchEngine,
+                            searchResolver: SearchItemResolver, backend: Backend, accounts: AccountManager,
+    mailer: MailerAPI, pageRelocator: utils.MovedPageLookup)
+  extends PortalController with Search {
 
   private val socialRoutes = controllers.portal.social.routes.Social
 
@@ -41,18 +41,18 @@ case class Social @Inject()(implicit globalConfig: global.GlobalConfig, searchDi
     // This is a bit gnarly because we want to get a searchable list
     // of users and combine it with a list of existing followers so
     // we can mark who's following and who isn't
-    val filters = Map(SolrConstants.ACTIVE -> true.toString)
-    val defaultParams = SearchParams(entities = List(EntityType.UserProfile),
-          sort = Some(SearchOrder.Name), count = Some(40))
-    val searchParams = SearchParams.form.bindFromRequest.value
-      .getOrElse(defaultParams).setDefault(Some(defaultParams))
-
     for {
-      following <- backend.following[UserProfile](request.profile.id, PageParams.empty)
-      blocked <- backend.blocked[UserProfile](request.profile.id, PageParams.empty)
-      srch <- searchDispatcher.search(searchParams, Nil, Nil, filters)
-      users <- searchResolver.resolve[UserProfile](srch.items)
-    } yield Ok(p.userProfile.browseUsers(request.profile, srch.copy(items = users), searchParams, following))
+      following <- backend.following[UserProfile](request.user.id, PageParams.empty)
+      blocked <- backend.blocked[UserProfile](request.user.id, PageParams.empty)
+      srch <- searchEngineFromRequest().withEntities(Seq(EntityType.UserProfile))
+        .withFilters(Map(SearchConstants.ACTIVE -> true.toString)).search()
+      users <- searchResolver.resolve[UserProfile](srch.page.items)
+    } yield Ok(p.userProfile.browseUsers(
+        request.user,
+        srch.withItems(users.zip(srch.page.items)),
+        controllers.portal.social.routes.Social.browseUsers(),
+        following
+    ))
   }
 
   def browseUser(userId: String) = WithUserAction.async { implicit request =>
@@ -69,8 +69,8 @@ case class Social @Inject()(implicit globalConfig: global.GlobalConfig, searchDi
       Ok(p.activity.eventItems(theirActivity))
         .withHeaders("activity-more" -> theirActivity.more.toString)
     } else {
-      val isFollowing: Future[Boolean] = backend.isFollowing(request.profile.id, userId)
-      val allowMessage: Future[Boolean] = canMessage(request.profile.id, userId)
+      val isFollowing: Future[Boolean] = backend.isFollowing(request.user.id, userId)
+      val allowMessage: Future[Boolean] = canMessage(request.user.id, userId)
       for {
         them <- backend.get[UserProfile](userId)
         theirActivity <- events
@@ -82,17 +82,23 @@ case class Social @Inject()(implicit globalConfig: global.GlobalConfig, searchDi
 
   def watchedByUser(userId: String) = WithUserAction.async { implicit request =>
     // Show a list of watched item by a defined User
-    val watchParams = PageParams.fromRequest(request, namespace = "w")
-    val watching: Future[Page[AnyModel]] = backend.watching[AnyModel](userId, watchParams)
-    val isFollowing: Future[Boolean] = backend.isFollowing(request.profile.id, userId)
-    val allowMessage: Future[Boolean] = canMessage(request.profile.id, userId)
+    val watching: Future[Page[AnyModel]] = backend.watching[AnyModel](userId)
+    val isFollowing: Future[Boolean] = backend.isFollowing(request.user.id, userId)
+    val allowMessage: Future[Boolean] = canMessage(request.user.id, userId)
 
     for {
       them <- backend.get[UserProfile](userId)
       theirWatching <- watching
+      result <- findIn[AnyModel](theirWatching)
       followed <- isFollowing
       canMessage <- allowMessage
-    } yield Ok(p.userProfile.userWatched(them, theirWatching, followed, canMessage))
+    } yield Ok(p.userProfile.watched(
+      them,
+      result,
+      socialRoutes.watchedByUser(userId),
+      followed,
+      canMessage
+    ))
   }
 
   def followUser(userId: String) = WithUserAction { implicit request =>
@@ -101,7 +107,7 @@ case class Social @Inject()(implicit globalConfig: global.GlobalConfig, searchDi
   }
 
   def followUserPost(userId: String) = WithUserAction.async { implicit request =>
-    backend.follow(request.profile.id, userId).map { _ =>
+    backend.follow[UserProfile](request.user.id, userId).map { _ =>
       if (isAjax) {
         Ok("ok")
       } else {
@@ -116,7 +122,7 @@ case class Social @Inject()(implicit globalConfig: global.GlobalConfig, searchDi
   }
 
   def unfollowUserPost(userId: String) = WithUserAction.async { implicit request =>
-    backend.unfollow(request.profile.id, userId).map { _ =>
+    backend.unfollow[UserProfile](request.user.id, userId).map { _ =>
       if (isAjax) {
         Ok("ok")
       } else {
@@ -131,7 +137,7 @@ case class Social @Inject()(implicit globalConfig: global.GlobalConfig, searchDi
   }
 
   def blockUserPost(userId: String) = WithUserAction.async { implicit request =>
-    backend.block(request.profile.id, userId).map { _ =>
+    backend.block(request.user.id, userId).map { _ =>
       if (isAjax) {
         Ok("ok")
       } else {
@@ -146,7 +152,7 @@ case class Social @Inject()(implicit globalConfig: global.GlobalConfig, searchDi
   }
 
   def unblockUserPost(userId: String) = WithUserAction.async { implicit request =>
-    backend.unblock(request.profile.id, userId).map { _ =>
+    backend.unblock(request.user.id, userId).map { _ =>
       if (isAjax) {
         Ok("ok")
       } else {
@@ -160,11 +166,11 @@ case class Social @Inject()(implicit globalConfig: global.GlobalConfig, searchDi
    */
   def followersForUser(userId: String) = WithUserAction.async { implicit request =>
     val params = PageParams.fromRequest(request)
-    val allowMessage: Future[Boolean] = canMessage(request.profile.id, userId)
+    val allowMessage: Future[Boolean] = canMessage(request.user.id, userId)
     for {
       them <- backend.get[UserProfile](userId)
       theirFollowers <- backend.followers[UserProfile](userId, params)
-      whoImFollowing <- backend.following[UserProfile](request.profile.id)
+      whoImFollowing <- backend.following[UserProfile](request.user.id)
       canMessage <- allowMessage
     } yield {
       if (isAjax)
@@ -176,11 +182,11 @@ case class Social @Inject()(implicit globalConfig: global.GlobalConfig, searchDi
 
   def followingForUser(userId: String) = WithUserAction.async { implicit request =>
     val params = PageParams.fromRequest(request)
-    val allowMessage: Future[Boolean] = canMessage(request.profile.id, userId)
+    val allowMessage: Future[Boolean] = canMessage(request.user.id, userId)
     for {
       them <- backend.get[UserProfile](userId)
       theirFollowing <- backend.following[UserProfile](userId, params)
-      whoImFollowing <- backend.following[UserProfile](request.profile.id)
+      whoImFollowing <- backend.following[UserProfile](request.user.id)
       canMessage <- allowMessage
     } yield {
       if (isAjax)
@@ -209,37 +215,40 @@ case class Social @Inject()(implicit globalConfig: global.GlobalConfig, searchDi
     // an account we don't have an email, so we can't
     // message them... Ignore accounts which have disabled
     // messaging.
-    userDAO.findByProfileId(recipientId).filter(_.allowMessaging).map { account =>
-      // If the recipient is blocking the sender they can't send
-      // a message.
-      backend.isBlocking(recipientId, senderId).map(blocking => !blocking)
-    } getOrElse {
-      Future.successful(false)
+    accounts.findById(recipientId).flatMap {
+      case Some(account) if account.allowMessaging =>
+        backend.isBlocking(recipientId, senderId).map(blocking => !blocking)
+      case _ => immediate(false)
     }
   }
 
-  private def sendMessageEmail(from: UserProfile, to: UserProfile, subject: String, message: String, copy: Boolean)(implicit request: RequestHeader): Unit = {
+  private def sendMessageEmail(from: UserProfile, to: UserProfile, subject: String, message: String, copy: Boolean)(implicit request: RequestHeader): Future[Unit] = {
     for {
-      accFrom <- userDAO.findByProfileId(from.id)
-      accTo <- userDAO.findByProfileId(to.id)
+      accFromOpt <- accounts.findById(from.id)
+      accToOpt <- accounts.findById(to.id)
     } yield {
-      val heading = Messages("mail.message.heading", from.toStringLang)
-      mailer
-        .setSubject(Messages("mail.message.subject", from.toStringLang, subject))
-        .setRecipient(accTo.email)
-        .setReplyTo(accFrom.email)
-        .setFrom("EHRI User <noreply@ehri-project.eu>")
-        .send(views.txt.p.social.mail.messageEmail(heading, subject, message).body,
-        views.html.p.social.mail.messageEmail(heading, subject, message).body)
-
-      if (copy) {
-        val copyHeading = Messages("mail.message.copy.heading", to.toStringLang)
+      for {
+        accFrom <- accFromOpt
+        accTo <- accToOpt
+      } yield {
+        val heading = Messages("mail.message.heading", from.toStringLang)
         mailer
-          .setSubject(Messages("mail.message.copy.subject", to.toStringLang, subject))
-          .setRecipient(accFrom.email)
+          .setSubject(Messages("mail.message.subject", from.toStringLang, subject))
+          .setRecipient(accTo.email)
+          .setReplyTo(accFrom.email)
           .setFrom("EHRI User <noreply@ehri-project.eu>")
-          .send(views.txt.p.social.mail.messageEmail(copyHeading, subject, message, isCopy = true).body,
-          views.html.p.social.mail.messageEmail(copyHeading, subject, message, isCopy = true).body)
+          .send(views.txt.p.social.mail.messageEmail(heading, subject, message).body,
+            views.html.p.social.mail.messageEmail(heading, subject, message).body)
+
+        if (copy) {
+          val copyHeading = Messages("mail.message.copy.heading", to.toStringLang)
+          mailer
+            .setSubject(Messages("mail.message.copy.subject", to.toStringLang, subject))
+            .setRecipient(accFrom.email)
+            .setFrom("EHRI User <noreply@ehri-project.eu>")
+            .send(views.txt.p.social.mail.messageEmail(copyHeading, subject, message, isCopy = true).body,
+              views.html.p.social.mail.messageEmail(copyHeading, subject, message, isCopy = true).body)
+        }
       }
     }
   }
@@ -249,7 +258,7 @@ case class Social @Inject()(implicit globalConfig: global.GlobalConfig, searchDi
       .getOrElse("fakekey")
     for {
       userTo <- backend.get[UserProfile](userId)
-      allowed <- canMessage(request.profile.id, userId)
+      allowed <- canMessage(request.user.id, userId)
     } yield {
       if (allowed) {
         if (isAjax) Ok(p.userProfile.messageForm(userTo, messageForm, socialRoutes.sendMessagePost(userId),
@@ -273,29 +282,33 @@ case class Social @Inject()(implicit globalConfig: global.GlobalConfig, searchDi
         socialRoutes.sendMessagePost(userId), recaptchaKey))
     }
 
-    for {
-      captcha <- checkRecapture
-      allowed <- canMessage(request.profile.id, userId)
-      userTo <- backend.get[UserProfile](userId) if allowed
-    } yield {
+    def doIt(captcha: Boolean, allowed: Boolean, to: UserProfile): Future[Result] = {
       if (!captcha) {
-        onError(userTo, boundForm.withGlobalError("error.badRecaptcha"))
+        immediate(onError(to, boundForm.withGlobalError("error.badRecaptcha")))
       } else if (!allowed) {
-        onError(userTo, boundForm
-          .withGlobalError("social.message.send.userNotAcceptingMessages"))
+        immediate(onError(to, boundForm
+          .withGlobalError("social.message.send.userNotAcceptingMessages")))
       } else {
         boundForm.fold(
-          errForm => onError(userTo, errForm),
+          errForm => immediate(onError(to, errForm)),
           data => {
             val (subject, message, copyMe) = data
-            sendMessageEmail(request.profile, userTo, subject, message, copyMe)
-            val msg = Messages("social.message.send.confirmation")
-            if (isAjax) Ok(Json.obj("ok" -> msg))
-            else Redirect(socialRoutes.browseUser(userId))
-              .flashing("success" -> msg)
+            sendMessageEmail(request.user, to, subject, message, copyMe).map { _ =>
+              val msg = Messages("social.message.send.confirmation")
+              if (isAjax) Ok(Json.obj("ok" -> msg))
+              else Redirect(socialRoutes.browseUser(userId))
+                .flashing("success" -> msg)
+            }
           }
         )
       }
     }
+
+    for {
+      captcha <- checkRecapture
+      allowed <- canMessage(request.user.id, userId)
+      userTo <- backend.get[UserProfile](userId)
+      r <- doIt(captcha, allowed, userTo)
+    } yield r
   }
 }

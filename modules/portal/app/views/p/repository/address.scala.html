@@ -13,6 +13,9 @@
             @address.region.map { s =>
                 @s<br>
             }
+            @address.postalCode.map { s =>
+                @s<br>
+            }
             @item.country.map { c =>
                 @p.helpers.linkTo(c)
             }

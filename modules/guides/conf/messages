@@ -72,8 +72,10 @@ guidePage.description.description=Secondary content. In normal case, the descrip
 
 guidePage.map=Map
 guidePage.person=Persons
-guidePage.md=Free text
+guidePage.md=Markdown
+guidePage.html=HTML
 guidePage.organisation=Vertically Organized Concepts
+guidePage.timeline=Timeline
 guidePage.side=Side menu
 guidePage.top=Top Menu
 guidePage.nowhere=Hidden

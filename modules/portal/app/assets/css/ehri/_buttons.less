@@ -67,10 +67,9 @@ form[method="GET"], form:not([method="POST"]) {
 	&.btn-cancel {
   		.button-variant(@btn-cancel-color, @btn-cancel-bg, @btn-cancel-border);
 	}
-  &.btn-facebook, &.btn-google, &.btn-linkedin {
-    &:extend(.btn-block);
-    width:80%;
-    margin:10px auto;
+  &.btn-facebook, &.btn-google, &.btn-linkedin, &.btn-yahoo, &.btn-openid {
+    //&:extend(.btn-block);
+    margin: @medium-margin auto;
   }
   &.btn-facebook {
     .button-variant(#ffffff, #354E84, #354E84);
@@ -80,6 +79,12 @@ form[method="GET"], form:not([method="POST"]) {
   }
   &.btn-linkedin {
     .button-variant(#ffffff,#0083A8,#0083A8);
+  }
+  &.btn-yahoo {
+    .button-variant(#ffffff, #7B0099, #7B0099);
+  }
+  &.btn-openid {
+    .button-variant(#ffffff, #949494, #949494);
   }
 
   &.btn-danger {

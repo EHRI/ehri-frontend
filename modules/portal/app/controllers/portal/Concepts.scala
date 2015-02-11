@@ -1,14 +1,13 @@
 package controllers.portal
 
-import backend.{Backend, IdGenerator}
+import auth.AccountManager
+import backend.Backend
 import com.google.inject.{Inject, Singleton}
-import controllers.base.SessionPreferences
 import controllers.generic.Search
 import controllers.portal.base.{Generic, PortalController}
 import defines.EntityType
-import models.{Concept, AccountDAO, Country, Repository}
+import models.Concept
 import play.api.libs.concurrent.Execution.Implicits._
-import utils.SessionPrefs
 import utils.search._
 import views.html.p
 
@@ -16,8 +15,8 @@ import views.html.p
  * @author Mike Bryant (http://github.com/mikesname)
  */
 @Singleton
-case class Concepts @Inject()(implicit globalConfig: global.GlobalConfig, searchDispatcher: Dispatcher, searchResolver: Resolver, backend: Backend,
-                                  userDAO: AccountDAO)
+case class Concepts @Inject()(implicit globalConfig: global.GlobalConfig, searchEngine: SearchEngine,
+    searchResolver: SearchItemResolver, backend: Backend, accounts: AccountManager, pageRelocator: utils.MovedPageLookup)
   extends PortalController
   with Generic[Concept]
   with Search
@@ -29,8 +28,8 @@ case class Concepts @Inject()(implicit globalConfig: global.GlobalConfig, search
     find[Concept](
       entities = List(EntityType.Concept),
       facetBuilder = conceptFacets
-    ).map { case QueryResult(page, params, facets) =>
-      Ok(p.concept.list(page, params, facets,
+    ).map { result =>
+      Ok(p.concept.list(result,
         portalConceptRoutes.searchAll(), request.watched))
     }
   }
@@ -40,8 +39,8 @@ case class Concepts @Inject()(implicit globalConfig: global.GlobalConfig, search
       filters = Map("parentId" -> request.item.id),
       facetBuilder = conceptFacets,
       entities = List(EntityType.Concept)
-    ).map { case QueryResult(page, params, facets) =>
-      Ok(p.concept.show(request.item, page, params, facets,
+    ).map { result =>
+      Ok(p.concept.show(request.item, result,
         portalConceptRoutes.browse(id), request.annotations, request.links, request.watched))
     }
   }

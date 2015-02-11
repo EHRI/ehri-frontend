@@ -1,7 +1,8 @@
 package controllers.admin
 
+import auth.AccountManager
 import play.api.libs.concurrent.Execution.Implicits._
-import models.{SystemEvent, AccountDAO, Isaar}
+import models.{SystemEvent, Isaar}
 import models.base.{Description, AnyModel}
 import controllers.generic.Search
 import play.api.mvc._
@@ -10,18 +11,17 @@ import play.api.i18n.Messages
 import views.Helpers
 import play.api.libs.json.Json
 import utils.search._
-import solr.facet.FieldFacetClass
 
 import com.google.inject._
 import play.api.http.MimeTypes
 import scala.concurrent.Future.{successful => immediate}
 import backend.Backend
-import utils.{RangeParams, SystemEventParams, PageParams}
+import utils.{RangeParams, SystemEventParams}
 import controllers.base.AdminController
 
 
 @Singleton
-case class Home @Inject()(implicit globalConfig: global.GlobalConfig, searchDispatcher: Dispatcher, searchResolver: Resolver, backend: Backend, userDAO: AccountDAO) extends AdminController with Search {
+case class Home @Inject()(implicit globalConfig: global.GlobalConfig, searchEngine: SearchEngine, searchResolver: SearchItemResolver, backend: Backend, accounts: AccountManager, pageRelocator: utils.MovedPageLookup) extends AdminController with Search {
 
   val searchEntities = List(
     EntityType.DocumentaryUnit,
@@ -102,7 +102,7 @@ case class Home @Inject()(implicit globalConfig: global.GlobalConfig, searchDisp
   }
 
   def loginRedirect() = Action {
-    MovedPermanently(controllers.portal.account.routes.Accounts.login().url)
+    MovedPermanently(controllers.portal.account.routes.Accounts.loginOrSignup().url)
   }
 
   // NB: This page now just handles metrics and only provides facet
@@ -111,9 +111,9 @@ case class Home @Inject()(implicit globalConfig: global.GlobalConfig, searchDisp
     find[AnyModel](
       defaultParams = SearchParams(count=Some(0)),
       facetBuilder = entityFacets
-    ).map { case QueryResult(_, _, facets) =>
+    ).map { result =>
         render {
-          case Accepts.Json() => Ok(Json.toJson(Json.obj("facets" -> facets)))
+          case Accepts.Json() => Ok(Json.toJson(Json.obj("facets" -> result.facetClasses)))
           case _ => MovedPermanently(controllers.admin.routes.Home.metrics().url)
         }
     }

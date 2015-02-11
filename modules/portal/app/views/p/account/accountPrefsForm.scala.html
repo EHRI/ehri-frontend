@@ -1,23 +1,14 @@
-@(form: Form[AccountPreferences], action: Call)(implicit userOpt: Option[UserProfile], req: RequestHeader, globalConfig: global.GlobalConfig, flash: Flash, lang: Lang, token: play.filters.csrf.CSRF.Token)
-
-@implicitField = @{ views.html.helper.FieldConstructor(p.helpers.fieldTemplateHorizontal.f) }
+@(form: Form[AccountPreferences], action: Call)(implicit userOpt: Option[UserProfile], req: RequestHeader, globalConfig: global.GlobalConfig, flash: Flash, lang: Lang, token: play.filters.csrf.CSRF.Token, fieldConstructor: helper.FieldConstructor)
 
 @helper.form(action = action, 'class -> "form-horizontal", 'role -> "form") {
-@formHelpers.csrfToken()
-
-<div class="field">
+    @formHelpers.csrfToken()
     @formHelpers.globalErrors(form)
-</div>
 
-<div class="form-group">
     @helper.checkbox(form("allowMessaging"), 'type -> "checkbox", '_label -> Messages("profile.preferences.allowMessaging"), 'title -> Messages("profile.preferences.allowMessaging.description"), '_showConstraints -> false)
-</div>
 
 <div class="form-group">
-    <div class="col-sm-offset-4 col-sm-8">
-        <button type="submit" class="btn btn-warning">
-            @Messages("profile.preferences.updatePreferences")
-        </button>
+    <div class="form-submit">
+        <button type="submit" class="btn btn-warning">@Messages("profile.preferences.updatePreferences")</button>
     </div>
 </div>
 

@@ -1,123 +1,49 @@
-@(openIdForm: Form[String], pwForm: Form[(String,String)], oauthProviders: Map[String,Call] = Map.empty)(implicit userOpt: Option[Account], request: RequestHeader, globalConfig: global.GlobalConfig, flash: Flash, lang: Lang, token: play.filters.csrf.CSRF.Token)
+@(pwForm: Form[(String,String)], registerForm: Form[SignupData], registerAction: Call, recaptchaKey: String, openIdForm: Form[String], oauthProviders: Seq[auth.oauth2.providers.OAuth2Provider] = Seq.empty, isLogin: Boolean = true)(implicit userOpt: Option[UserProfile], request: RequestHeader, globalConfig: global.GlobalConfig, flash: Flash, lang: Lang, token: play.filters.csrf.CSRF.Token, prefs: utils.SessionPrefs)
 
-@implicitField = @{ views.html.helper.FieldConstructor(formHelpers.fieldTemplateEmpty.f) }
+@implicitField = @{ views.html.helper.FieldConstructor(p.helpers.fieldTemplateSignUp.f) }
 
-@openIdJquery = {
-    <script src="@controllers.portal.routes.Assets.at("jquery-openid/jquery.openid.js")"></script>
-    <script type="application/javascript">
+@extraScripts = {
+    <script>
         jQuery(function($) {
-        // Openid
-            $("form.openid").openid();
+            // Openid
             $(".show-more").on("click", function(e) {
                 e.preventDefault();
-                $(".more-login-option").slideToggle();
+                $(".more-login-options").slideToggle();
             })
         });
     </script>
 }
 
-@openIdStyles = {
-}
-
-@p.layout.portalLayoutSimple(Messages("login"), scripts=openIdJquery, styles=openIdStyles) {
-
-    @views.html.layout.mainContent {
-        <h3>@Messages("login")</h3>
-        <hr />
-
-        <section class="login">
-            <div class="wrap">
-                @helper.form(action = controllers.portal.account.routes.Accounts.openIDLoginPost, 'class -> "openid form validate-form", 'role -> "form") {
-                    @formHelpers.csrfToken()
-                    <p>
-                        @Messages("login.oauth.info")
-                    </p>
-                    @oauthProviders.map { case (name, call) =>
-                        <a href="@call" class="btn btn-@name" title="@name">
-                            @Html(Messages("login.loginWith", Html("<i class='icon-social " + name + "'></i>")))
-                        </a>
-                    }
-                    <a href="#" class="show-more">@Messages("login.moreOptions")</a>
-                    <div class="more-login-option @{if(openIdForm.hasErrors) "errors"}">
-                        <div class="form-block">
-                            @formHelpers.globalErrors(openIdForm)
-
-                            <ul class="providers nav nav-tabs nav-justified nav-tabs-xs text-center">
-                                <li class="openid active" title="OpenID">
-                                    <a><i class="icon-social openid"></i></a>
-                                    <span><strong>http://{your-openid-url}</strong></span>
-                                </li>
-                                <li class="direct" title="Yahoo">
-                                    <a><i class="icon-social yahoo"></i></a>
-                                    <span>http://me.yahoo.com/</span>
-                                </li>
-                                <li class="username" title="Flickr user name">
-                                    <a><i class="icon-social flickr"></i></a>
-                                    <span>http://flickr.com/<strong>username</strong>/</span>
-                                </li>
-                                <li class="username" title="Wordpress blog name">
-                                    <a><i class="icon-social wordpress"></i></a>
-                                    <span>http://<strong>username</strong>.wordpress.com</span>
-                                </li>
-                                <li class="username" title="Blogger blog name">
-                                    <a><i class="icon-social blogger"></i></a>
-                                    <span>http://<strong>username</strong>.blogspot.com/</span>
-                                </li>
-                            </ul>
-
-                            <fieldset style="display:none;">
-                                <label for="openid_username">Or manually enter your <span>Provider user name</span> URL:</label>
-                                <div class="input-group input-group-sm">
-                                    <span class="input-group-addon"></span>
-                                    <input type="text" class="form-control" name="openid_username" />
-                                    <span class="input-group-addon"></span>
-                                </div>
-                            </fieldset>
-                            <div class="clearfix"></div>
-
-                            <fieldset class="identifier openid">
-                                @helper.inputText(
-                                    openIdForm("openid_identifier"),
-                                    'placeholder -> Messages("login.openid.urlPlaceholder"),
-                                    'class -> "form-control",
-                                    'type -> "url"
-                                )
-                            </fieldset>
-                        </div>
-
-                        <input type="submit" class="btn btn-post login-button openid" value="@Messages("login.openid.submit")" />
-                    </div>
-                }
-                @helper.form(action = controllers.portal.account.routes.Accounts.passwordLoginPost, 'class -> "login-form form validate-form", 'role -> "form") {
-                    <p>@Messages("login.password.info")</p>
-
-                    @formHelpers.csrfToken()
-
-                    <div class="form-block">
-                        @formHelpers.globalErrors(pwForm)
-
-                        @helper.inputText(pwForm("email"), 'class -> "form-control", 'autofocus -> "autofocus", 'placeholder -> Messages("login.email"), 'type -> "email", 'required -> "required")
-                        @helper.inputPassword(pwForm("password"), 'class -> "form-control", 'placeholder -> Messages("login.password"), 'required -> "required")
-
-                        <p>
-                            <a href="@controllers.portal.account.routes.Accounts.forgotPassword">@Messages("login.recover.link")</a>
-                        </p>
-                    </div>
-
-                    <input type="submit" class="login-button btn btn-post" value="@Messages("login.password.submit")" />
-                    <p class="text-center">
-                        <em><strong>or</strong></em>
-                    </p>
-                    <p class="text-center">
-                        <a class=" btn  btn-post " href="@controllers.portal.account.routes.Accounts.signup">@Messages("signup")</a>
-                    </p>
-
-                }
-            </div>
-        </section>
-
-        <hr />
+@views.html.p.layout.loginLayout(Messages("login.title"), scripts = extraScripts) {
+    @views.html.p.common.itemHeader(Messages("login")) {
+        <p>@Messages("login.benefits")</p>
+        <ol>
+            <li>@Messages("login.benefits.1")</li>
+            <li>@Messages("login.benefits.2")</li>
+            <li>@Messages("login.benefits.3")</li>
+        </ol>
     }
 
-}(None, request, globalConfig, flash, lang)
+    <div role="tabpanel">
+        <ul class="nav nav-tabs" role="tablist">
+            <li role="presentation" class="@{if(isLogin) "active"}">
+                <a href="#login" aria-controls="login" role="tab" data-toggle="tab">@Messages("login")</a>
+            </li>
+            <li role="presentation" class="@{if(!isLogin) "active"}">
+                <a href="#register" aria-controls="signup" role="tab" data-toggle="tab">@Messages("login.signup")</a>
+            </li>
+        </ul>
+
+        <div class="tab-content">
+            <div role="tabpanel" class="tab-pane @{if(isLogin) "active"}" id="login">
+                @oauth2Form("login.loginWith", openIdForm, oauthProviders, isLogin)
+                @loginForm(pwForm)
+            </div>
+            <div role="tabpanel" class="tab-pane @{if(!isLogin) "active"}" id="register">
+                @oauth2Form("login.signupWith", openIdForm, oauthProviders, isLogin)
+                @signupForm(registerForm, registerAction, recaptchaKey)
+            </div>
+        </div>
+    </div>
+}
 

@@ -66,7 +66,8 @@
   <lst name="facet_queries"/>
   <lst name="facet_fields">
     <lst name="languageCode">
-      <int name="eng">1</int>
+      <int name="eng">2</int>
+        <int name="fre">1</int>
     </lst>
     <lst name="type">
       <int name="country">1</int>

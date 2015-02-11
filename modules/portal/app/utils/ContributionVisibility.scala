@@ -1,7 +1,7 @@
 package utils
 
 import play.api.data.{Forms, Form}
-import backend.rest.Constants
+import defines.EnumUtils.enumMapping
 
 /**
  * Enum defining modes of visibility for contributed
@@ -32,7 +32,7 @@ object ContributionVisibility extends Enumeration {
   /**
    * Binding/unbinding from a form.
    */
-  val form = Form(Forms.single(PARAM -> Forms.default(utils.forms.enum(this), ContributionVisibility.Me)))
+  val form = Form(Forms.single(PARAM -> Forms.default(enumMapping(this), ContributionVisibility.Me)))
 
   /**
    * Binding/unbinding from JSON.

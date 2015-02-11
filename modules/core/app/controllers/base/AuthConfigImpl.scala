@@ -18,7 +18,7 @@ trait AuthConfigImpl extends AuthConfig with Results {
   def globalConfig: global.GlobalConfig
 
   // Specific type of user-finder loaded via a plugin
-  def userDAO: models.AccountDAO
+  def accounts: auth.AccountManager
 
   // Override these if necessary...
   def defaultLoginUrl: Call = Call("GET", "/login")
@@ -61,7 +61,7 @@ trait AuthConfigImpl extends AuthConfig with Results {
    * Describe the procedure according to your application.
    */
   def resolveUser(id: Id)(implicit context: ExecutionContext): Future[Option[User]] =
-    immediate(userDAO.findByProfileId(id))
+    accounts.findById(id)
 
   /**
    * A redirect target after a successful user login.

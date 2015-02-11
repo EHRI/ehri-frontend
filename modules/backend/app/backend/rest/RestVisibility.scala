@@ -2,7 +2,7 @@ package backend.rest
 
 import scala.concurrent.{ExecutionContext, Future}
 import play.api.cache.Cache
-import backend.{BackendReadable, Visibility, EventHandler, ApiUser}
+import backend._
 
 
 /**
@@ -16,13 +16,13 @@ trait RestVisibility extends Visibility with RestDAO {
 
   private def requestUrl = s"$baseUrl/access"
 
-  def setVisibility[MT](id: String, data: List[String])(implicit apiUser: ApiUser, rd: BackendReadable[MT], executionContext: ExecutionContext): Future[MT] = {
+  override def setVisibility[MT](id: String, data: Seq[String])(implicit apiUser: ApiUser, rs: BackendResource[MT], executionContext: ExecutionContext): Future[MT] = {
     val url: String = enc(requestUrl, id)
     userCall(url)
         .withQueryString(data.map(a => ACCESSOR_PARAM -> a): _*)
         .post("").map { response =>
-      val r = checkErrorAndParse(response, context = Some(url))(rd.restReads)
-      Cache.remove(id)
+      val r = checkErrorAndParse(response, context = Some(url))(rs.restReads)
+      Cache.remove(canonicalUrl(id))
       eventHandler.handleUpdate(id)
       r
     }

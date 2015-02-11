@@ -2,16 +2,44 @@
 
 @isCurrentUser = @{userOpt.exists(_.id == item.id)}
 
+@activitySidebar(activity: Call, watched: Call, notes: Call) = {
+    <div class="panel panel-default">
+        <div class="panel-body">
+            <ul class="nav list-group">
+                <li class="@views.Helpers.maybeActive(activity.url)">
+                    <a href="@activity">
+                        <i class="glyphicon glyphicon-list"></i> @Messages("activity")
+                    </a>
+                </li>
+                <li class="@views.Helpers.maybeActive(watched.url)">
+                    <a href="@watched">
+                        <span class="glyphicon glyphicon-star"></span>
+                        @Messages("profile.watch.list")
+                    </a>
+                </li>
+                @if(isCurrentUser) {
+                    <li class="@views.Helpers.maybeActive(notes.url)">
+                        <a href="@notes">
+                            <span class="glyphicon glyphicon-edit"></span>
+                            @Messages("annotation.list")
+                        </a>
+                    </li>
+                }
+            </ul>
+        </div>
+    </div>
+}
+
 <div id="item-details">
-    @p.layout.rightSidebar {
-        @p.common.itemHeader(item.toStringLang) {
+    @views.html.p.layout.rightSidebar {
+        @views.html.p.common.itemHeader(item.toStringLang) {
         }
         @details(item)
 
         @content
     } {
 
-        @p.common.typeLabel(EntityType.UserProfile) {
+        @views.html.p.common.typeLabel(EntityType.UserProfile) {
             <ul class="list-group">
                 <li class="list-group-item user-img">
                     <a href="@{if(isCurrentUser) controllers.portal.users.routes.UserProfiles.profile else controllers.portal.social.routes.Social.browseUser(item.id)}" class="gravitar">
@@ -26,8 +54,8 @@
                     </li>
                 } else {
                     <li class="list-group-item btn-group-vertical" role="group">
-                        @p.common.messageButtons(item, canMessage)
-                        @p.common.followingButtons(item, followed)
+                        @views.html.p.common.messageButtons(item, canMessage)
+                        @views.html.p.common.followingButtons(item, followed)
                     </li>
                 }
                 <li class="list-group-item user-profile-social">
@@ -41,30 +69,18 @@
             </ul>
         }
 
-        <div class="panel panel-default">
-            <div class="panel-body">
-                <ul class="nav list-group">
-                    <li class="@views.Helpers.maybeActive(controllers.portal.social.routes.Social.browseUser(item.id).url)">
-                        <a href="@controllers.portal.social.routes.Social.browseUser(item.id)">
-                            <i class="glyphicon glyphicon-list"></i> @Messages("activity")
-                        </a>
-                    </li>
-                    <li class="@views.Helpers.maybeActive(controllers.portal.social.routes.Social.watchedByUser(item.id).url)">
-                        <a href="@controllers.portal.social.routes.Social.watchedByUser(item.id)">
-                            <span class="glyphicon glyphicon-star"></span>
-                            @Messages("profile.watch.list")
-                        </a>
-                    </li>
-                    @if(userOpt.exists(_.id == item.id)) {
-                        <li class="@views.Helpers.maybeActive(controllers.portal.users.routes.UserProfiles.profile.url)">
-                            <a href="@controllers.portal.users.routes.UserProfiles.profile">
-                                <span class="glyphicon glyphicon-edit"></span>
-                                @Messages("annotation.list")
-                            </a>
-                        </li>
-                    }
-                </ul>
-            </div>
-        </div>
+        @if(isCurrentUser) {
+            @activitySidebar(
+                controllers.portal.users.routes.UserProfiles.activity(),
+                controllers.portal.users.routes.UserProfiles.watching(),
+                controllers.portal.users.routes.UserProfiles.annotations()
+            )
+        } else  {
+            @activitySidebar(
+                controllers.portal.social.routes.Social.browseUser(item.id),
+                controllers.portal.social.routes.Social.watchedByUser(item.id),
+                controllers.portal.users.routes.UserProfiles.profile
+            )
+        }
     }
 </div>

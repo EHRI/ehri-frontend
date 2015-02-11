@@ -1,22 +1,19 @@
 package controllers.portal
 
+import auth.AccountManager
 import play.api.Play.current
 import controllers.generic.Search
 import models._
 import models.base.AnyModel
 import play.api.libs.concurrent.Execution.Implicits._
 import play.api.mvc._
-import play.api.data.Form
-import play.api.data.Forms._
 import views.html.p
 import utils.search._
 import play.api.cache.Cached
 import defines.EntityType
 import play.api.libs.ws.WS
 import play.twirl.api.Html
-import solr.SolrConstants
 import backend.Backend
-import controllers.base.SessionPreferences
 import utils._
 
 import com.google.inject._
@@ -24,14 +21,11 @@ import views.html.errors.pageNotFound
 import org.joda.time.DateTime
 import caching.FutureCache
 import controllers.portal.base.PortalController
-import scala.concurrent.Future
-import backend.rest.cypher.CypherDAO
-import backend.rest.SearchDAO
-import play.api.libs.json.{Json, JsString}
+import play.api.libs.json.Json
 
 @Singleton
-case class Portal @Inject()(implicit globalConfig: global.GlobalConfig, searchDispatcher: Dispatcher, searchResolver: Resolver, backend: Backend,
-    userDAO: AccountDAO)
+case class Portal @Inject()(implicit globalConfig: global.GlobalConfig, searchEngine: SearchEngine, searchResolver: SearchItemResolver, backend: Backend,
+    accounts: AccountManager, pageRelocator: utils.MovedPageLookup)
   extends PortalController
   with Search
   with FacetConfig {
@@ -57,7 +51,7 @@ case class Portal @Inject()(implicit globalConfig: global.GlobalConfig, searchDi
     val eventFilter = SystemEventParams.fromRequest(request)
       .copy(eventTypes = activityEventTypes)
       .copy(itemTypes = activityItemTypes)
-    backend.listEventsForUser[SystemEvent](request.profile.id, listParams, eventFilter).map { events =>
+    backend.listEventsForUser[SystemEvent](request.user.id, listParams, eventFilter).map { events =>
       if (isAjax) Ok(p.activity.eventItems(events))
         .withHeaders("activity-more" -> events.more.toString)
       else Ok(p.activity.activity(events, listParams))
@@ -69,8 +63,8 @@ case class Portal @Inject()(implicit globalConfig: global.GlobalConfig, searchDi
       defaultParams = SearchParams(
         entities = defaultSearchTypes, sort = Some(SearchOrder.Score)),
       facetBuilder = globalSearchFacets, mode = SearchMode.DefaultNone
-    ).map { case QueryResult(page, params, facets) =>
-      Ok(p.search(page, params, facets, portalRoutes.search(), request.watched))
+    ).map { result =>
+      Ok(p.search(result, portalRoutes.search(), request.watched))
     }
   }
 
@@ -103,8 +97,9 @@ case class Portal @Inject()(implicit globalConfig: global.GlobalConfig, searchDi
           count = Some(0),
           entities = defaultSearchTypes
         ),
-        facetBuilder = entityMetrics
-      ).map(_.page.facets)
+        facetBuilder = entityMetrics,
+        extra = Map("facet.limit" -> "-1")
+      ).map(_.facetClasses)
     }.map(facets => Ok(p.portal(Stats(facets))))
   }
 
@@ -126,16 +121,8 @@ case class Portal @Inject()(implicit globalConfig: global.GlobalConfig, searchDi
     }
   }
 
-  def placeholder = Cached.status(_ => "pages:portalPlaceholder", OK, 60 * 60) {
-    Action { implicit request =>
-      Ok(views.html.placeholder())
-    }
-  }
-
-  def dataPolicy = Cached("pages:portalDataPolicy") {
-    OptionalUserAction.apply { implicit request =>
-      Ok(p.dataPolicy())
-    }
+  def dataPolicy = OptionalUserAction.apply { implicit request =>
+    Ok(p.dataPolicy())
   }
 
   def terms = OptionalUserAction.apply { implicit request =>

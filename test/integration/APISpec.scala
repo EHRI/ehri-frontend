@@ -1,10 +1,12 @@
 package integration
 
-import models.{AnnotationF, AccessPointF}
+import controllers.generic.AccessPointLink
 import helpers._
-import play.api.libs.json.{JsBoolean, Json}
-import controllers.generic.{AccessPointLink, Annotate}
+import models.{AnnotationF, AccessPointF}
 import models.LinkF.LinkType
+import play.api.libs.json.{JsBoolean, Json}
+
+import scala.util.{Success, Failure, Try}
 
 /**
  * Spec for testing various JSON endpoints used by Ajax components etc.
@@ -53,6 +55,29 @@ class APISpec extends IntegrationTestRunner {
         status(del) must equalTo(OK)
         contentAsJson(del) must equalTo(JsBoolean(value = true))
       }
+    }
+
+    "allow creating lots of links in many concurrent requests" in new ITestApp {
+      import play.api.mvc.Result
+
+      import scala.concurrent.Future
+      val ops: Future[List[Try[Result]]] = Future.sequence {
+        1.to(100).toList.map { i =>
+          val link = new AccessPointLink("a1", description = Some(s"Test link $i"))
+          val json = Json.toJson(link)
+          route(fakeLoggedInHtmlRequest(privilegedUser, POST,
+            controllers.units.routes.DocumentaryUnits.createLink("c1", "ur1").url), json).get.map { r =>
+              Success(r)
+          } recover {
+            case e => Failure(e)
+          }
+        }
+      }
+
+      val results: List[Try[Result]] = await(ops)
+      forall(results)(_ must beSuccessfulTry.which { r =>
+        r.header.status must equalTo(CREATED)
+      })
     }
   }
 

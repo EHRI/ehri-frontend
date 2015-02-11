@@ -64,7 +64,7 @@ class SocialSpec extends IntegrationTestRunner {
 
     "disallow messaging users with messaging disabled" in new ITestApp {
       val user = unprivilegedUser
-      mocks.userFixtures += user.id -> user.copy(allowMessaging = false)
+      mocks.accountFixtures += user.id -> user.copy(allowMessaging = false)
 
       val msgData = Map("subject" -> Seq("Hello"), "message" -> Seq("World"))
 
@@ -72,7 +72,7 @@ class SocialSpec extends IntegrationTestRunner {
         socialRoutes.sendMessage(user.id).url)).get
       status(postMsg) must equalTo(BAD_REQUEST)
 
-      mocks.userFixtures += user.id -> user.copy(allowMessaging = true)
+      mocks.accountFixtures += user.id -> user.copy(allowMessaging = true)
       val postMsg2 = route(fakeLoggedInHtmlRequest(privilegedUser, GET,
         socialRoutes.sendMessage(user.id).url)).get
       status(postMsg2) must equalTo(OK)

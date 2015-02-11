@@ -6,7 +6,7 @@ import defines._
 import play.api.libs.json.Json
 import play.api.cache.Cache
 import utils.{Page, PageParams}
-import backend.{BackendReadable, Permissions, EventHandler, ApiUser}
+import backend._
 import caching.FutureCache
 
 
@@ -33,7 +33,7 @@ trait RestPermissions extends Permissions with RestDAO {
     }
   }
 
-  def getGlobalPermissions(userId: String)(implicit apiUser: ApiUser, executionContext: ExecutionContext): Future[GlobalPermissionSet] = {
+  override def getGlobalPermissions(userId: String)(implicit apiUser: ApiUser, executionContext: ExecutionContext): Future[GlobalPermissionSet] = {
     val url = enc(requestUrl, userId)
     FutureCache.getOrElse[GlobalPermissionSet](url, cacheTime) {
       userCall(url).get()
@@ -41,7 +41,7 @@ trait RestPermissions extends Permissions with RestDAO {
     }
   }
 
-  def setGlobalPermissions(userId: String, data: Map[String, List[String]])(implicit apiUser: ApiUser, executionContext: ExecutionContext): Future[GlobalPermissionSet] = {
+  override def setGlobalPermissions(userId: String, data: Map[String, Seq[String]])(implicit apiUser: ApiUser, executionContext: ExecutionContext): Future[GlobalPermissionSet] = {
     val url = enc(requestUrl, userId)
     FutureCache.set(url, cacheTime) {
       userCall(url).post(Json.toJson(data))
@@ -49,7 +49,7 @@ trait RestPermissions extends Permissions with RestDAO {
     }
   }
 
-  def getItemPermissions(userId: String, contentType: ContentTypes.Value, id: String)(implicit apiUser: ApiUser, executionContext: ExecutionContext): Future[ItemPermissionSet] = {
+  override def getItemPermissions(userId: String, contentType: ContentTypes.Value, id: String)(implicit apiUser: ApiUser, executionContext: ExecutionContext): Future[ItemPermissionSet] = {
     val url = enc(requestUrl, userId, id)
     FutureCache.getOrElse[ItemPermissionSet](url, cacheTime) {
       userCall(url).get().map { response =>
@@ -58,7 +58,7 @@ trait RestPermissions extends Permissions with RestDAO {
     }
   }
 
-  def setItemPermissions(userId: String, contentType: ContentTypes.Value, id: String, data: List[String])(implicit apiUser: ApiUser, executionContext: ExecutionContext): Future[ItemPermissionSet] = {
+  override def setItemPermissions(userId: String, contentType: ContentTypes.Value, id: String, data: Seq[String])(implicit apiUser: ApiUser, executionContext: ExecutionContext): Future[ItemPermissionSet] = {
     val url = enc(requestUrl, userId, id)
     FutureCache.set(url, cacheTime) {
       userCall(url).post(Json.toJson(data)).map { response =>
@@ -67,7 +67,7 @@ trait RestPermissions extends Permissions with RestDAO {
     }
   }
 
-  def getScopePermissions(userId: String, id: String)(implicit apiUser: ApiUser, executionContext: ExecutionContext): Future[GlobalPermissionSet] = {
+  override def getScopePermissions(userId: String, id: String)(implicit apiUser: ApiUser, executionContext: ExecutionContext): Future[GlobalPermissionSet] = {
     val url = enc(requestUrl, userId, "scope", id)
     FutureCache.getOrElse[GlobalPermissionSet](url, cacheTime) {
       userCall(url).get()
@@ -75,7 +75,7 @@ trait RestPermissions extends Permissions with RestDAO {
     }
   }
 
-  def setScopePermissions(userId: String, id: String, data: Map[String,List[String]])(implicit apiUser: ApiUser, executionContext: ExecutionContext): Future[GlobalPermissionSet] = {
+  override def setScopePermissions(userId: String, id: String, data: Map[String,Seq[String]])(implicit apiUser: ApiUser, executionContext: ExecutionContext): Future[GlobalPermissionSet] = {
     val url = enc(requestUrl, userId, "scope", id)
     FutureCache.set(url, cacheTime) {
       userCall(url).post(Json.toJson(data))
@@ -83,21 +83,21 @@ trait RestPermissions extends Permissions with RestDAO {
     }
   }
 
-  def addGroup(groupId: String, userId: String)(implicit apiUser: ApiUser, executionContext: ExecutionContext): Future[Boolean] = {
-    userCall(enc(baseUrl, EntityType.Group, groupId, userId)).post(Map[String, List[String]]()).map { response =>
+  override def addGroup[GT,UT](groupId: String, userId: String)(implicit apiUser: ApiUser, gr: BackendResource[GT], ur: BackendResource[UT], executionContext: ExecutionContext): Future[Boolean] = {
+    userCall(enc(baseUrl, EntityType.Group, groupId, userId)).post(Map[String, Seq[String]]()).map { response =>
       checkError(response)
-      Cache.remove(userId)
-      Cache.remove(groupId)
+      Cache.remove(canonicalUrl[UT](userId))
+      Cache.remove(canonicalUrl[GT](groupId))
       Cache.remove(enc(requestUrl, userId))
       true
     }
   }
 
-  def removeGroup(groupId: String, userId: String)(implicit apiUser: ApiUser, executionContext: ExecutionContext): Future[Boolean] = {
+  override def removeGroup[GT,UT](groupId: String, userId: String)(implicit apiUser: ApiUser, gr: BackendResource[GT], ur: BackendResource[UT], executionContext: ExecutionContext): Future[Boolean] = {
     userCall(enc(baseUrl, EntityType.Group, groupId, userId)).delete().map { response =>
       checkError(response)
-      Cache.remove(userId)
-      Cache.remove(groupId)
+      Cache.remove(canonicalUrl[UT](userId))
+      Cache.remove(canonicalUrl[GT](groupId))
       Cache.remove(enc(requestUrl, userId))
       true
     }

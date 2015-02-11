@@ -11,7 +11,7 @@ import play.api.libs.ws.WS
 import backend.rest.RestDAO
 
 case class CypherError(
-  message: String, exception: String, stacktrace: List[String]
+  message: String, exception: String, stacktrace: Seq[String]
 ) extends PlayException("Cypher Script Error: %s".format(exception), message)
 
 object CypherErrorReader {
@@ -28,8 +28,8 @@ object CypherErrorReader {
 
 object CypherDAO {
   import play.api.libs.json._
-  val stringList: Reads[List[String]] =
-    (__ \ "data").read[List[List[String]]].map(_.flatMap(_.headOption))
+  val stringList: Reads[Seq[String]] =
+    (__ \ "data").read[Seq[Seq[String]]].map(_.flatMap(_.headOption))
 }
 
 case class CypherDAO()(implicit val app: play.api.Application) extends RestDAO {
@@ -46,7 +46,7 @@ case class CypherDAO()(implicit val app: play.api.Application) extends RestDAO {
   def cypher(scriptBody: String, params: Map[String,JsValue] = Map()): Future[JsValue] = {
     val data = Json.obj("query" -> scriptBody, "params" -> params)
     Logger.logger.debug("Cypher: {}", Json.toJson(data))
-    WS.url(requestUrl).withHeaders(headers.toList: _*).post(data).map(checkCypherError)
+    WS.url(requestUrl).withHeaders(headers.toSeq: _*).post(data).map(checkCypherError)
   }
 
   def get[T](scriptBody: String, params: Map[String,JsValue], r: Reads[T]): Future[T] =
@@ -55,6 +55,6 @@ case class CypherDAO()(implicit val app: play.api.Application) extends RestDAO {
   def stream(scriptBody: String, params: Map[String,JsValue] = Map()): Future[WSResponse] = {
     val data = Json.obj("query" -> scriptBody, "params" -> params)
     Logger.logger.debug("Cypher: {}", Json.toJson(data))
-    WS.url(requestUrl).withHeaders((headers + ("X-Stream" -> "true")).toList: _*).post(data)
+    WS.url(requestUrl).withHeaders((headers + ("X-Stream" -> "true")).toSeq: _*).post(data)
   }
 }

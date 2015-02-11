@@ -7,25 +7,29 @@
 <!DOCTYPE html>
 
 <html lang="@lang.code">
-    @p.layout.head(Messages("welcome"))
+    @views.html.p.layout.head(Messages("welcome.title"))
     <body>
-        @p.layout.preambleScripts()
+        @views.html.p.layout.preambleScripts()
         <div id="wrap">
-            @p.layout.readOnly()
+            @views.html.p.layout.readOnly()
+            @views.html.p.layout.message()
+            @views.html.p.layout.ipFilter()
             <header id="header" class="navigation">
-                @p.layout.accountHeader(showSearch = false)
+                @views.html.p.layout.accountHeader(showSearch = false, showAdminLink = true)
             </header>
             <div class="page-content">
                 <div class="jumbotron-container">
                     <div class="jumbotron">
                         <div class="container">
                             <h1>@Messages("welcome") <sup class="text-muted">Beta</sup></h1>
-                            @helper.form(action = controllers.portal.routes.Portal.search, 'role -> "form") {
+                            @helper.form(action = controllers.portal.routes.Portal.search(), 'role -> "form") {
                             @views.html.common.search.searchBar()
                             }
                         </div>
                     </div>
                 </div>
+
+                @views.html.common.flash(flash)
 
                 <div class="container">
                     <div class="row">
@@ -36,13 +40,13 @@
                     <!-- Example row of columns -->
                     <div class="row">
                         <div class="welcome-section country">
-                            <h2><a href="@controllers.portal.routes.Countries.searchAll">@Messages("type.country")</a>
+                            <h2><a href="@controllers.portal.routes.Countries.searchAll()">@Messages("type.country")</a>
                             </h2>
 
                             <p>@Messages("type.country.description")</p>
                         </div>
                         <div class="welcome-section repository">
-                            <h2><a href="@controllers.portal.routes.Repositories.searchAll">@Messages("type.repository")</a>
+                            <h2><a href="@controllers.portal.routes.Repositories.searchAll()">@Messages("type.repository")</a>
                             </h2>
 
                             <p>@Messages("type.repository.description")</p>
@@ -95,14 +99,14 @@
             </div>
             <!-- /container -->
         </div>
-        @p.layout.footer()
-        @p.dataPolicyModal()
-        @p.layout.postambleScripts()
+        @views.html.p.layout.footer()
+        @views.html.p.dataPolicyModal()
+        @views.html.p.layout.postambleScripts()
 
         <script>
             jQuery(document).ready(function ($) {
                 $("#news-feed")
-                        .load("@controllers.portal.routes.Portal.newsFeed.absoluteURL(secure = globalConfig.https)")
+                        .load("@controllers.portal.routes.Portal.newsFeed().absoluteURL(secure = globalConfig.https)")
             });
         </script>
     </body>

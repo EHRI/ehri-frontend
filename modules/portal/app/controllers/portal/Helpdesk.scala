@@ -1,12 +1,11 @@
 package controllers.portal
 
-import play.api.mvc.{RequestHeader, Controller}
-import controllers.base.{AuthController, ControllerHelpers}
+import auth.AccountManager
+import play.api.mvc.RequestHeader
 import scala.concurrent.Future.{successful => immediate}
 import backend.{BadHelpdeskResponse, HelpdeskDAO, Backend}
-import models.{Repository, AccountDAO}
+import models.Repository
 import com.google.inject._
-import utils.SessionPrefs
 import backend.rest.SearchDAO
 import com.typesafe.plugin.MailerAPI
 import controllers.portal.base.PortalController
@@ -16,7 +15,7 @@ import controllers.portal.base.PortalController
  */
 @Singleton
 case class Helpdesk @Inject()(implicit helpdeskDAO: HelpdeskDAO, globalConfig: global.GlobalConfig, backend: Backend,
-    userDAO: AccountDAO, mailer: MailerAPI)
+    accounts: AccountManager, mailer: MailerAPI, pageRelocator: utils.MovedPageLookup)
   extends PortalController {
 
   import play.api.data.Form

@@ -2,7 +2,7 @@ package integration.portal
 
 import helpers.IntegrationTestRunner
 import models._
-import backend.ApiUser
+import backend.{AuthenticatedUser, ApiUser}
 import play.api.mvc.MultipartFormData.FilePart
 import play.api.mvc.MultipartFormData
 import play.api.http.MimeTypes
@@ -75,9 +75,11 @@ class UserProfilesSpec extends IntegrationTestRunner {
 
     "allow editing profile" in new ITestApp {
       val testName = "Inigo Montoya"
+      val testInterest = "swords"
       val data = Map(
         "identifier" -> Seq("???"), // Overridden...
-        UserProfileF.NAME -> Seq(testName)
+        UserProfileF.NAME -> Seq(testName),
+        UserProfileF.INTERESTS -> Seq(testInterest)
       )
       val update = route(fakeLoggedInHtmlRequest(privilegedUser, POST,
         profileRoutes.updateProfilePost().url), data).get
@@ -87,6 +89,7 @@ class UserProfilesSpec extends IntegrationTestRunner {
         profileRoutes.profile().url)).get
       status(prof) must equalTo(OK)
       contentAsString(prof) must contain(testName)
+      contentAsString(prof) must contain(testInterest)
     }
 
 
@@ -106,7 +109,7 @@ class UserProfilesSpec extends IntegrationTestRunner {
 
     "allow deleting profile with correct confirmation" in new ITestApp {
       // Fetch the current name
-      implicit val apiUser = ApiUser(Some(privilegedUser.id))
+      implicit val apiUser = AuthenticatedUser(privilegedUser.id)
       val cname = await(testBackend.get[UserProfile](privilegedUser.id)).model.name
       val data = Map("confirm" -> Seq(cname))
       val delete = route(fakeLoggedInHtmlRequest(privilegedUser, POST,
@@ -116,6 +119,8 @@ class UserProfilesSpec extends IntegrationTestRunner {
       // Check user has been anonymised...
       val cnameAfter = await(testBackend.get[UserProfile](privilegedUser.id)).model.name
       cname must not equalTo cnameAfter
+      // The account should be completely deleted...
+      await(mockAccounts.findById(privilegedUser.id)) must beNone
     }
 
     "disallow deleting profile without correct confirmation" in new ITestApp {

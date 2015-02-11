@@ -1,4 +1,4 @@
-@(facets: utils.search.FacetClassList, call: Call)(implicit req: RequestHeader, lang: Lang)
+@(facets: Seq[utils.search.FacetClass[utils.search.Facet]], call: Call)(implicit req: RequestHeader, lang: Lang)
 
 @import utils.search._
 
@@ -7,7 +7,7 @@
 }
 
 @facetDropDown(fc: FacetClass[Facet]) = {
-    @defining(fc.sorted.filter(_.count > 0).size > 0) { active =>
+    @defining(fc.sorted.count(_.count > 0) > 0) { active =>
         @defining(fc.sorted.size <= 1) { disabled =>
             <li class="facet-class">
                 @facetLabel(fc)
@@ -25,7 +25,7 @@
 }
 
 @facetBoolean(fc: FacetClass[Facet]) = {
-    @defining(fc.sorted.filter(_.count > 0).size > 0) { active =>
+    @defining(fc.sorted.count(_.count > 0) > 0) { active =>
         <li class="facet-class">
             @facetLabel(fc)
             <div class="facet-options choice">
@@ -127,10 +127,11 @@
                         @if(f.applied) {
                         <input type="hidden" name="@fc.param" value="@f.value" />
                         <li title="@fc.pretty(f)" class="selected-filter">
-                            @fc.pretty(f)
-                            (@f.count)
                             <a class="remove-filter" href="@pathWithoutFacet(fc, f,
-                                                        call.url, req.queryString.filterKeys(_!="page"))"><span class="glyphicon glyphicon-remove"></span></a>
+                                                        call.url, req.queryString.filterKeys(_!="page"))">
+                                @fc.pretty(f)
+                                (@f.count)
+                            </a>
                         </li>
                         } else {
                         <li class="type-highlight @f.value" title="@fc.pretty(f)">
@@ -147,17 +148,13 @@
             <div class="facet-options">
                 <input type="hidden" class="target" name="@fc.param" value="" />
                 <div class="form-group">
-                    <label class="control-label col-sm-6">
-                        Start year
-                    </label>
+                    <label class="control-label col-sm-6">@Messages("dates.start.year")</label>
                     <div class="col-sm-6">
                         <input type="text" data-target="begin" class="form-control date input-sm" />
                     </div>
                 </div>
                 <div class="form-group">
-                    <label class="control-label col-sm-6">
-                        End year
-                    </label>
+                    <label class="control-label col-sm-6">@Messages("dates.start.year")</label>
                     <div class="col-sm-6">
                         <input type="text" data-target="end" class="form-control date input-sm" />
                     </div>

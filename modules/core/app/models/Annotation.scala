@@ -80,10 +80,11 @@ case class AnnotationF(
 object Annotation {
   import Entity._
   import Ontology._
+  import defines.EnumUtils.enumMapping
 
   private implicit val anyModelReads = AnyModel.Converter.restReads
-  private implicit val userProfileMetaReads = UserProfile.Converter.restReads
-  private lazy implicit val systemEventReads = SystemEvent.Converter.restReads
+  private implicit val userProfileMetaReads = UserProfile.Resource.restReads
+  private lazy implicit val systemEventReads = SystemEvent.Resource.restReads
   private implicit val accessorReads = Accessor.Converter.restReads
 
   implicit val metaReads: Reads[Annotation] = (
@@ -100,13 +101,10 @@ object Annotation {
     (__ \ META).readWithDefault(Json.obj())
   )(Annotation.apply _)
 
-  implicit object Converter extends BackendReadable[Annotation] {
-    val restReads = metaReads
-  }
-
-  implicit object Resource extends BackendResource[Annotation] with BackendContentType[Annotation] {
+  implicit object Resource extends BackendContentType[Annotation] {
     val entityType = EntityType.Annotation
     val contentType = ContentTypes.Annotation
+    val restReads = metaReads
   }
 
   /**
@@ -132,7 +130,7 @@ object Annotation {
   val form = Form(mapping(
     ISA -> ignored(EntityType.Annotation),
     ID -> optional(nonEmptyText),
-    ANNOTATION_TYPE_PROP -> optional(utils.forms.enum(AnnotationType)),
+    ANNOTATION_TYPE_PROP -> optional(enumMapping(AnnotationType)),
     BODY -> nonEmptyText(maxLength = 600),
     FIELD -> optional(nonEmptyText),
     COMMENT -> optional(nonEmptyText),

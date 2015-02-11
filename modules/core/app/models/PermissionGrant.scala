@@ -48,7 +48,7 @@ object PermissionGrant {
 
   private implicit val accessorReads = Accessor.Converter.restReads
   private implicit val anyModelReads = AnyModel.Converter.restReads
-  private implicit val userProfileMetaReads = models.UserProfile.Converter.restReads
+  private implicit val userProfileMetaReads = models.UserProfile.Resource.restReads
 
   implicit val metaReads: Reads[PermissionGrant] = (
     __.read(permissionGrantReads) and
@@ -59,11 +59,8 @@ object PermissionGrant {
     (__ \ META).readWithDefault(Json.obj())
   )(PermissionGrant.apply _)
 
-  implicit object Converter extends BackendReadable[PermissionGrant] {
-    implicit val restReads = metaReads
-  }
-
   implicit object Resource extends BackendResource[PermissionGrant] {
+    implicit val restReads = metaReads
     val entityType = EntityType.PermissionGrant
   }
 }

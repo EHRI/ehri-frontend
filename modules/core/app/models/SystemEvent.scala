@@ -77,13 +77,10 @@ object SystemEvent {
     (__ \ META).readWithDefault(Json.obj())
   )(SystemEvent.apply _)
 
-  implicit object Converter extends BackendReadable[SystemEvent] {
-    val restReads = metaReads
-  }
-
-  implicit object Resource extends BackendResource[SystemEvent] with BackendContentType[SystemEvent] {
+  implicit object Resource extends BackendContentType[SystemEvent] {
     val entityType = EntityType.SystemEvent
     val contentType = ContentTypes.SystemEvent
+    val restReads = metaReads
   }
 }
 

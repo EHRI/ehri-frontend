@@ -1,0 +1,21 @@
+@(added: Seq[(String, String)])(
+        implicit userOpt: Option[UserProfile], request: RequestHeader, globalConfig: global.GlobalConfig, flash: Flash, token: play.filters.csrf.CSRF.Token)
+
+@views.html.admin.layout.rightSidebar(Messages("admin.utils.movedItems")) {
+    @if(added.nonEmpty) {
+        <p alert alert-info>@Messages("admin.utils.movedItems.added")</p>
+        <table class="table table-bordered table-condensed">
+            @added.map { case (from, to) =>
+                <tr>
+                    <td><a href="@from">@from</a></td>
+                    <td><a href="@to">@to</a></td>
+                </tr>
+            }
+        </table>
+    } else {
+        <p class="alert alert-warning">@Messages("admin.utils.movedItems.added.none")</p>
+    }
+} {
+
+}
+

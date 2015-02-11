@@ -2,12 +2,12 @@
 
 @views.html.admin.layout.rightSidebar(Messages("virtualUnit.list")) {
     @common.filterableList("pagination.displayingItems", page, params) {
-        @itemList(Nil, page)
+        @itemList(page, Seq.empty)
     }
 } {
     @views.html.admin.common.sidebarActions { user =>
         @views.html.admin.common.sidebarAction(user.hasPermission(ContentTypes.VirtualUnit, PermissionType.Create)) {
-            <a href="@controllers.virtual.routes.VirtualUnits.create">@Messages("virtualUnit.create")</a>
+            <a href="@controllers.virtual.routes.VirtualUnits.create()">@Messages("virtualUnit.create")</a>
         }
     }
 }

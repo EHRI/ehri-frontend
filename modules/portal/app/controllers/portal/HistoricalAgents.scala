@@ -1,15 +1,13 @@
 package controllers.portal
 
-import backend.{Backend, IdGenerator}
+import auth.AccountManager
+import backend.Backend
 import com.google.inject.{Inject, Singleton}
-import controllers.base.SessionPreferences
 import controllers.generic.Search
 import controllers.portal.base.{Generic, PortalController}
 import defines.EntityType
-import models.{HistoricalAgent, AccountDAO, DocumentaryUnit, Repository}
+import models.HistoricalAgent
 import play.api.libs.concurrent.Execution.Implicits._
-import solr.SolrConstants
-import utils.SessionPrefs
 import utils.search._
 import views.html.p
 
@@ -17,8 +15,8 @@ import views.html.p
  * @author Mike Bryant (http://github.com/mikesname)
  */
 @Singleton
-case class HistoricalAgents @Inject()(implicit globalConfig: global.GlobalConfig, searchDispatcher: Dispatcher, searchResolver: Resolver, backend: Backend,
-                                  userDAO: AccountDAO)
+case class HistoricalAgents @Inject()(implicit globalConfig: global.GlobalConfig, searchEngine: SearchEngine, searchResolver: SearchItemResolver, backend: Backend,
+                                  accounts: AccountManager, pageRelocator: utils.MovedPageLookup)
   extends PortalController
   with Generic[HistoricalAgent]
   with Search
@@ -30,8 +28,8 @@ case class HistoricalAgents @Inject()(implicit globalConfig: global.GlobalConfig
     find[HistoricalAgent](
       entities = List(EntityType.HistoricalAgent),
       facetBuilder = historicalAgentFacets
-    ).map { case QueryResult(page, params, facets) =>
-      Ok(p.historicalAgent.list(page, params, facets,
+    ).map { result =>
+      Ok(p.historicalAgent.list(result,
         portalAgentRoutes.searchAll(), request.watched))
     }
   }

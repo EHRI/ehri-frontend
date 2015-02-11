@@ -1,42 +1,12 @@
+import play.api.data.{Mapping, Forms, FormError}
+import play.api.data.format.Formatter
 
 package object defines {
 
   import language.implicitConversions
-  implicit def enumToString(e: Enumeration#Value) = e.toString
+  implicit def enumToString(e: Enumeration#Value): String = e.toString
 
   import play.api.libs.json._
-
-  import play.api.mvc.PathBindable
-  import play.api.mvc.QueryStringBindable
-
-  abstract class BindableEnum extends Enumeration {
-    
-    implicit def bindableEnum = new PathBindable[Value] {
-      def bind(key: String, value: String) =
-        values.find(_.toString.toLowerCase == value.toLowerCase) match {
-          case Some(v) => Right(v)
-          case None => Left("Unknown url path segment '" + value + "'")
-        }
-      def unbind(key: String, value: Value) = value.toString.toLowerCase
-    }
-
-    implicit def queryStringBinder(implicit stringBinder: QueryStringBindable[String]) = new QueryStringBindable[Value] {
-      override def bind(key: String, params: Map[String, Seq[String]]): Option[Either[String, Value]] = {
-        for {
-          v <- stringBinder.bind(key, params)
-        } yield {
-          v match {
-            case Right(p) if values.exists(_.toString.toLowerCase == p.toLowerCase) =>
-              Right(withName(p.toLowerCase))
-            case _ => Left("Unable to bind a valid value from alternatives: " + values)
-          }
-        }
-      }
-      override def unbind(key: String, value: Value): String = {
-        stringBinder.unbind(key, value)
-      }
-    }
-  }
 
   object EnumUtils {
 
@@ -49,13 +19,12 @@ package object defines {
      */
     def enumReads[E <: Enumeration](enum: E): Reads[E#Value] = new Reads[E#Value] {
       def reads(json: JsValue): JsResult[E#Value] = json match {
-        case JsString(s) => {
+        case JsString(s) =>
           try {
             JsSuccess(enum.withName(s))
           } catch {
             case _: NoSuchElementException => JsError("Enumeration expected of type: '%s', but it does not appear to contain the value: '%s'".format(enum.getClass, s))
           }
-        }
         case _ => JsError("String value expected")
       }
     }
@@ -65,5 +34,32 @@ package object defines {
     }
 
     implicit def enumFormat[E <: Enumeration](enum: E): Format[E#Value] = Format(enumReads(enum), enumWrites)
+
+    /**
+     * Constructs a simple mapping for a text field (mapped as `scala.Enumeration`)
+     *
+     * For example:
+     * {{{
+     *   Form("status" -> enum(Status))
+     * }}}
+     *
+     * @param enum the Enumeration#Value
+     */
+    def enumMapping[E <: Enumeration](enum: E): Mapping[E#Value] = Forms.of(enumFormBinder(enum))
+
+    /**
+     * Default formatter for `scala.Enumeration`
+     *
+     */
+    private def enumFormBinder[E <: Enumeration](enum: E): Formatter[E#Value] = new Formatter[E#Value] {
+      def bind(key: String, data: Map[String, String]) = {
+        play.api.data.format.Formats.stringFormat.bind(key, data).right.flatMap { s =>
+          scala.util.control.Exception.allCatch[E#Value]
+            .either(enum.withName(s))
+            .left.map(e => Seq(FormError(key, "error.enum", Nil)))
+        }
+      }
+      def unbind(key: String, value: E#Value) = Map(key -> value.toString)
+    }
   }
 }

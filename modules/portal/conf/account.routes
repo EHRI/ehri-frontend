@@ -1,13 +1,10 @@
 
-GET         /login                          @controllers.portal.account.Accounts.login
+GET         /login                          @controllers.portal.account.Accounts.loginOrSignup(isLogin: Boolean ?= true)
 POST        /login                          @controllers.portal.account.Accounts.passwordLoginPost
-POST        /openid                         @controllers.portal.account.Accounts.openIDLoginPost
-GET         /authenticate/openid            @controllers.portal.account.Accounts.openIDCallback
-GET         /authenticate/google            @controllers.portal.account.Accounts.googleLogin
-GET         /authenticate/facebook          @controllers.portal.account.Accounts.facebookLogin
-GET         /authenticate/linkedin          @controllers.portal.account.Accounts.linkedInLogin
+GET         /openid                         @controllers.portal.account.Accounts.openIDCallback
+POST        /openid                         @controllers.portal.account.Accounts.openIDLoginPost(isLogin: Boolean ?= true)
+GET         /authenticate/:provider         @controllers.portal.account.Accounts.oauth2(provider: String, code: Option[String] ?= None, state: Option[String] ?= None)
 GET         /logout                         @controllers.portal.account.Accounts.logout
-GET         /account                        @controllers.portal.account.Accounts.account
 
 GET         /signup                         @controllers.portal.account.Accounts.signup
 POST        /signup                         @controllers.portal.account.Accounts.signupPost

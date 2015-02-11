@@ -1,15 +1,13 @@
 package controllers.portal
 
-import backend.{Backend, IdGenerator}
+import auth.AccountManager
+import backend.Backend
 import com.google.inject.{Inject, Singleton}
-import controllers.base.SessionPreferences
 import controllers.generic.Search
 import controllers.portal.base.{Generic, PortalController}
 import defines.EntityType
-import models.{Repository, AccountDAO, DocumentaryUnit}
+import models.{Repository, DocumentaryUnit}
 import play.api.libs.concurrent.Execution.Implicits._
-import solr.SolrConstants
-import utils.SessionPrefs
 import utils.search._
 import views.html.p
 
@@ -17,8 +15,8 @@ import views.html.p
  * @author Mike Bryant (http://github.com/mikesname)
  */
 @Singleton
-case class Repositories @Inject()(implicit globalConfig: global.GlobalConfig, searchDispatcher: Dispatcher, searchResolver: Resolver, backend: Backend,
-                                  userDAO: AccountDAO)
+case class Repositories @Inject()(implicit globalConfig: global.GlobalConfig, searchEngine: SearchEngine, searchResolver: SearchItemResolver, backend: Backend,
+                                  accounts: AccountManager, pageRelocator: utils.MovedPageLookup)
   extends PortalController
   with Generic[Repository]
   with Search
@@ -30,8 +28,8 @@ case class Repositories @Inject()(implicit globalConfig: global.GlobalConfig, se
     find[Repository](
       entities = List(EntityType.Repository),
       facetBuilder = repositorySearchFacets
-    ).map { case QueryResult(page, params, facets) =>
-      Ok(p.repository.list(page, params, facets, portalRepoRoutes.searchAll(),
+    ).map { result =>
+      Ok(p.repository.list(result, portalRepoRoutes.searchAll(),
         request.watched))
     }
   }
@@ -42,8 +40,8 @@ case class Repositories @Inject()(implicit globalConfig: global.GlobalConfig, se
         sort = Some(SearchOrder.Country),
         entities = List(EntityType.Repository)),
       facetBuilder = repositorySearchFacets
-    ).map { case QueryResult(page, params, facets) =>
-      Ok(p.repository.listByCountry(page, params, facets,
+    ).map { result =>
+      Ok(p.repository.listByCountry(result,
         portalRepoRoutes.searchAllByCountry(),
         request.watched))
     }
@@ -56,18 +54,18 @@ case class Repositories @Inject()(implicit globalConfig: global.GlobalConfig, se
 
   def search(id: String) = GetItemAction(id).async { implicit request =>
     val filters = (if (request.getQueryString(SearchParams.QUERY).filterNot(_.trim.isEmpty).isEmpty)
-      Map(SolrConstants.TOP_LEVEL -> true)
-      else Map.empty[String,Any]) ++ Map(SolrConstants.HOLDER_ID -> request.item.id)
+      Map(SearchConstants.TOP_LEVEL -> true)
+      else Map.empty[String,Any]) ++ Map(SearchConstants.HOLDER_ID -> request.item.id)
 
     find[DocumentaryUnit](
       filters = filters,
       entities = List(EntityType.DocumentaryUnit),
       facetBuilder = localDocFacets,
       defaultOrder = SearchOrder.Id
-    ).map { case QueryResult(page, params, facets) =>
-        if (isAjax) Ok(p.repository.childItemSearch(request.item, page, params, facets,
+    ).map { result =>
+        if (isAjax) Ok(p.repository.childItemSearch(request.item, result,
           portalRepoRoutes.search(id), request.watched))
-        else Ok(p.repository.search(request.item, page, params, facets,
+        else Ok(p.repository.search(request.item, result,
           portalRepoRoutes.search(id), request.watched))
       }
   }

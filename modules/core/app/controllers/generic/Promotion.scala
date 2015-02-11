@@ -14,10 +14,10 @@ trait Promotion[MT] extends Generic[MT] {
 
   this: Read[MT] =>
 
-  protected def EditPromotionAction(id: String)(implicit rd: BackendReadable[MT], ct: BackendContentType[MT]) =
+  protected def EditPromotionAction(id: String)(implicit ct: BackendContentType[MT]) =
     WithItemPermissionAction(id, PermissionType.Promote)
 
-  protected def PromoteItemAction(id: String)(implicit rd: BackendReadable[MT], ct: BackendContentType[MT]) =
+  protected def PromoteItemAction(id: String)(implicit ct: BackendContentType[MT]) =
     EditPromotionAction(id) andThen new ActionTransformer[ItemPermissionRequest,ItemPermissionRequest] {
       override protected def transform[A](request: ItemPermissionRequest[A]): Future[ItemPermissionRequest[A]] = {
         implicit val userOpt = request.userOpt
@@ -27,7 +27,7 @@ trait Promotion[MT] extends Generic[MT] {
       }
     }
 
-  protected def RemovePromotionAction(id: String)(implicit rd: BackendReadable[MT], ct: BackendContentType[MT]) =
+  protected def RemovePromotionAction(id: String)(implicit ct: BackendContentType[MT]) =
     EditPromotionAction(id) andThen new ActionTransformer[ItemPermissionRequest,ItemPermissionRequest] {
       override protected def transform[A](request: ItemPermissionRequest[A]): Future[ItemPermissionRequest[A]] = {
         implicit val userOpt = request.userOpt
@@ -37,7 +37,7 @@ trait Promotion[MT] extends Generic[MT] {
       }
     }
 
-  protected def DemoteItemAction(id: String)(implicit rd: BackendReadable[MT], ct: BackendContentType[MT]) =
+  protected def DemoteItemAction(id: String)(implicit ct: BackendContentType[MT]) =
     EditPromotionAction(id) andThen new ActionTransformer[ItemPermissionRequest,ItemPermissionRequest] {
       override protected def transform[A](request: ItemPermissionRequest[A]): Future[ItemPermissionRequest[A]] = {
         implicit val userOpt = request.userOpt
@@ -47,7 +47,7 @@ trait Promotion[MT] extends Generic[MT] {
       }
     }
 
-  protected def RemoveDemotionAction(id: String)(implicit rd: BackendReadable[MT], ct: BackendContentType[MT]) =
+  protected def RemoveDemotionAction(id: String)(implicit ct: BackendContentType[MT]) =
     EditPromotionAction(id) andThen new ActionTransformer[ItemPermissionRequest,ItemPermissionRequest] {
       override protected def transform[A](request: ItemPermissionRequest[A]): Future[ItemPermissionRequest[A]] = {
         implicit val userOpt = request.userOpt

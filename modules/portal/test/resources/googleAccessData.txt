@@ -1,0 +1,6 @@
+{
+ "access_token" : "some-access-token",
+ "token_type" : "Bearer",
+ "expires_in" : 100,
+ "id_token" : "some-id-token"
+}

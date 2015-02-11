@@ -123,6 +123,7 @@ object Repository {
   import Entity._
   import RepositoryF._
   import Ontology._
+  import defines.EnumUtils.enumMapping
 
   implicit lazy val metaReads: Reads[Repository] = (
     __.read[RepositoryF](repositoryReads) and
@@ -132,13 +133,10 @@ object Repository {
     (__ \ META).readWithDefault(Json.obj())
   )(Repository.apply _)
 
-  implicit object Converter extends BackendReadable[Repository] {
-    val restReads = metaReads
-  }
-
-  implicit object Resource extends BackendResource[Repository] with BackendContentType[Repository] {
+  implicit object Resource extends BackendContentType[Repository] {
     val entityType = EntityType.Repository
     val contentType = ContentTypes.Repository
+    val restReads = metaReads
   }
 
   /**
@@ -157,7 +155,7 @@ object Repository {
       ISA -> ignored(EntityType.Repository),
       ID -> optional(nonEmptyText),
       IDENTIFIER -> nonEmptyText(minLength=2), // TODO: Increase to > 2, not done yet 'cos of test fixtures
-      PUBLICATION_STATUS -> optional(utils.forms.enum(models.PublicationStatus)),
+      PUBLICATION_STATUS -> optional(enumMapping(models.PublicationStatus)),
       "descriptions" -> list(RepositoryDescription.form.mapping),
       PRIORITY -> optional(number(min = -1, max = 5)),
       URL_PATTERN -> optional(nonEmptyText verifying("errors.badUrlPattern",

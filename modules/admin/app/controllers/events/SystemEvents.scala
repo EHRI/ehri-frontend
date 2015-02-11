@@ -1,6 +1,7 @@
 package controllers.events
 
-import models.{AccountDAO, SystemEvent}
+import auth.AccountManager
+import models.SystemEvent
 import play.api.libs.concurrent.Execution.Implicits._
 import com.google.inject._
 import utils.{RangeParams, SystemEventParams, PageParams}
@@ -10,7 +11,7 @@ import backend.rest.RestHelpers
 import models.base.AnyModel
 import controllers.base.AdminController
 
-case class SystemEvents @Inject()(implicit globalConfig: global.GlobalConfig, backend: Backend, userDAO: AccountDAO)
+case class SystemEvents @Inject()(implicit globalConfig: global.GlobalConfig, backend: Backend, accounts: AccountManager, pageRelocator: utils.MovedPageLookup)
   extends AdminController
   with Read[SystemEvent] {
 

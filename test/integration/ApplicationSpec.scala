@@ -1,18 +1,16 @@
 package integration
 
-import org.specs2.mutable._
 import play.api.test._
-import play.api.test.Helpers._
 
-import helpers.{UserFixtures, TestConfiguration}
+import helpers.{TestHelpers, UserFixtures, TestConfiguration}
 import play.api.i18n.Messages
-import models.MockAccount
+import models.{Account, SignupData}
 import play.api.test.FakeApplication
 
 /**
  * Basic app helpers which don't require a running DB.
  */
-class ApplicationSpec extends Specification with TestConfiguration with UserFixtures {
+class ApplicationSpec extends PlaySpecification with TestConfiguration with UserFixtures with TestHelpers {
   sequential
 
   // Settings specific to this spec...
@@ -38,21 +36,103 @@ class ApplicationSpec extends Specification with TestConfiguration with UserFixt
         // nothing significant about using the /forgot endpoint
         // here, only that it's a simple layout
         try {
-          val pageReadOnly = route(FakeRequest(GET,
-            controllers.portal.account.routes.Accounts.forgotPassword().url)).get
+          val pageReadOnly = route(FakeRequest(
+            controllers.portal.account.routes.Accounts.forgotPassword())).get
           status(pageReadOnly) must equalTo(OK)
           contentAsString(pageReadOnly) must contain(Messages("errors.readonly"))
 
           // Deleting the file should make the message go away
           f.delete()
 
-          val page = route(FakeRequest(GET,
-            controllers.portal.account.routes.Accounts.forgotPassword().url)).get
+          val page = route(FakeRequest(
+            controllers.portal.account.routes.Accounts.forgotPassword())).get
           status(page) must equalTo(OK)
           contentAsString(page) must not contain Messages("errors.readonly")
         } finally {
           f.deleteOnExit()
         }
+      }
+    }
+
+    "show a 503 in maintenance mode" in {
+      running(FakeApplication(withGlobal = Some(getGlobal))) {
+        val f = new java.io.File("MAINTENANCE")
+        f.createNewFile()
+        try {
+          val pageOffline = route(FakeRequest(controllers.portal.routes.Portal.dataPolicy())).get
+          status(pageOffline) must equalTo(SERVICE_UNAVAILABLE)
+          contentAsString(pageOffline) must contain(Messages("errors.maintenance"))
+
+          // Deleting the file should make the message go away
+          f.delete()
+
+          val pageOnline = route(FakeRequest(controllers.portal.routes.Portal.dataPolicy())).get
+          status(pageOnline) must equalTo(OK)
+          contentAsString(pageOnline) must not contain Messages("errors.maintenance")
+        } finally {
+          f.deleteOnExit()
+        }
+      }
+    }
+
+    "show a global message if the message file is present" in {
+      running(FakeApplication(withGlobal = Some(getGlobal))) {
+        import org.apache.commons.io.FileUtils
+        val f = new java.io.File("MESSAGE")
+        f.createNewFile()
+        val veryImportantMessage = "This is a very important message!"
+        FileUtils.write(f, veryImportantMessage, "UTF-8")
+        try {
+          val pageWithMessage = route(FakeRequest(controllers.portal.routes.Portal.dataPolicy())).get
+          status(pageWithMessage) must equalTo(OK)
+          contentAsString(pageWithMessage) must contain(veryImportantMessage)
+
+          // Deleting the file should make the message go away
+          f.delete()
+
+          val pageWithoutMessage = route(FakeRequest(controllers.portal.routes.Portal.dataPolicy())).get
+          status(pageWithoutMessage) must equalTo(OK)
+          contentAsString(pageWithoutMessage) must not contain veryImportantMessage
+        } finally {
+          f.deleteOnExit()
+        }
+      }
+    }
+
+    "handle IP filtering for maintenance" in {
+      running(FakeApplication(withGlobal = Some(getGlobal))) {
+        import org.apache.commons.io.FileUtils
+        val f = new java.io.File("IP_WHITELIST")
+        f.createNewFile()
+        val req = FakeRequest(controllers.portal.routes.Portal.dataPolicy())
+        FileUtils.write(f, req.remoteAddress, "UTF-8")
+        try {
+          val pageWithMessage = route(req).get
+          status(pageWithMessage) must equalTo(OK)
+          contentAsString(pageWithMessage) must contain(req.remoteAddress)
+
+          // Deleting the file should make the message go away
+          f.delete()
+
+          val pageWithoutMessage = route(FakeRequest(controllers.portal.routes.Portal.dataPolicy())).get
+          status(pageWithoutMessage) must equalTo(OK)
+          contentAsString(pageWithoutMessage) must not contain req.remoteAddress
+        } finally {
+          f.deleteOnExit()
+        }
+      }
+    }
+
+    "disallow the right stuff in robots.txt" in {
+      running(FakeApplication(withGlobal = Some(getGlobal))) {
+        val robots = contentAsString(route(FakeRequest(GET, "/robots.txt")).get)
+        robots must contain("Disallow: " + controllers.portal.routes.Portal.personalisedActivity().url)
+        robots must contain("Disallow: " + controllers.portal.account.routes.Accounts.loginOrSignup().url)
+        robots must contain("Disallow: " + controllers.portal.routes.Helpdesk.helpdesk().url)
+        robots must contain("Disallow: " + controllers.portal.routes.Feedback.feedback().url)
+        robots must contain("Disallow: " + controllers.portal.social.routes.Social.browseUsers().url)
+        robots must contain("Disallow: " + controllers.portal.annotate.routes.Annotations.searchAll())
+        robots must contain("Disallow: " + controllers.admin.routes.Home.index())
       }
     }
 
@@ -73,8 +153,8 @@ class ApplicationSpec extends Specification with TestConfiguration with UserFixt
     }
 
     "deny non-verified users access to admin areas" in {
-      var user = MockAccount("pete", "unverified@example.com", verified = false, staff = true)
-      mocks.userFixtures += user.id -> user
+      var user = Account("pete", "unverified@example.com", verified = false, staff = true)
+      mocks.accountFixtures += user.id -> user
 
       running(FakeApplication(withGlobal = Some(getGlobal), additionalPlugins = getPlugins)) {
         val home = route(fakeLoggedInHtmlRequest(user, GET,
@@ -86,7 +166,7 @@ class ApplicationSpec extends Specification with TestConfiguration with UserFixt
     "redirect to default URL when accessing login page when logged in" in {
       running(FakeApplication(withGlobal = Some(getGlobal), additionalPlugins = getPlugins)) {
         val login = route(fakeLoggedInHtmlRequest(mocks.publicUser, GET,
-          controllers.portal.account.routes.Accounts.login().url)).get
+          controllers.portal.account.routes.Accounts.loginOrSignup().url)).get
         status(login) must equalTo(SEE_OTHER)
       }
     }
@@ -111,8 +191,7 @@ class ApplicationSpec extends Specification with TestConfiguration with UserFixt
     
     "give a capture error submitting a forgot password form" in {
       running(FakeApplication(withGlobal = Some(getGlobal),
-        additionalConfiguration = Map("recaptcha.skip" -> false),
-        additionalPlugins = getPlugins)) {
+        additionalConfiguration = Map("recaptcha.skip" -> false))) {
         val data: Map[String,Seq[String]] = Map(
           "email" -> Seq("test@example.com"),
           CSRF_TOKEN_NAME -> Seq(fakeCsrfString)
@@ -127,8 +206,7 @@ class ApplicationSpec extends Specification with TestConfiguration with UserFixt
 
     "give an error submitting a forgot password form with the right capcha but the wrong email" in {
       running(FakeApplication(withGlobal = Some(getGlobal),
-          additionalConfiguration = Map("recaptcha.skip" -> true),
-          additionalPlugins = getPlugins)) {
+          additionalConfiguration = Map("recaptcha.skip" -> true))) {
         val data: Map[String,Seq[String]] = Map(
           "email" -> Seq("test@example.com"),
           CSRF_TOKEN_NAME -> Seq(fakeCsrfString)
@@ -143,8 +221,7 @@ class ApplicationSpec extends Specification with TestConfiguration with UserFixt
 
     "create a reset token on password reset with correct email" in {
       running(FakeApplication(withGlobal = Some(getGlobal),
-        additionalConfiguration = Map("recaptcha.skip" -> true),
-        additionalPlugins = getPlugins)) {
+        additionalConfiguration = Map("recaptcha.skip" -> true))) {
         val numSentMails = mailBuffer.size
         val data: Map[String,Seq[String]] = Map(
           "email" -> Seq(mocks.unprivilegedUser.email),
@@ -161,8 +238,7 @@ class ApplicationSpec extends Specification with TestConfiguration with UserFixt
 
     "check password reset token works (but only once)" in {
       running(FakeApplication(withGlobal = Some(getGlobal),
-        additionalConfiguration = Map("recaptcha.skip" -> true),
-        additionalPlugins = getPlugins)) {
+        additionalConfiguration = Map("recaptcha.skip" -> true))) {
         val numSentMails = mailBuffer.size
         val data: Map[String,Seq[String]] = Map(
           "email" -> Seq(mocks.unprivilegedUser.email),
@@ -175,7 +251,7 @@ class ApplicationSpec extends Specification with TestConfiguration with UserFixt
         mailBuffer.size must beEqualTo(numSentMails + 1)
         mailBuffer.last.to must contain(mocks.unprivilegedUser.email)
 
-        val token = mocks.tokens.last._1
+        val token = mocks.tokenFixtures.last._1
         val resetForm = route(FakeRequest(GET,
           controllers.portal.account.routes.Accounts.resetPassword(token).url)
           .withSession(CSRF_TOKEN_NAME -> fakeCsrfString)).get
@@ -195,9 +271,44 @@ class ApplicationSpec extends Specification with TestConfiguration with UserFixt
           controllers.portal.account.routes.Accounts.resetPassword(token).url)
           .withSession(CSRF_TOKEN_NAME -> fakeCsrfString)).get
         status(expired) must equalTo(SEE_OTHER)
-        val err = flash(expired).get("error")
-        err must beSome
-        err.get must equalTo(Messages("login.error.badResetToken"))
+        flash(expired).get("danger") must beSome.which{ msg =>
+          msg must equalTo("login.error.badResetToken")
+        }
+      }
+    }
+
+
+
+    "rate limit repeated requests with a timeout" in {
+      running(FakeApplication(withGlobal = Some(getGlobal),
+        additionalConfiguration = Map("ehri.ratelimit.limit" -> 2,
+          "ehri.ratelimit.timeout" -> 1))) {
+
+        val data = Map(
+          SignupData.EMAIL -> Seq("test@nothing.com"),
+          SignupData.PASSWORD -> Seq("blah"),
+          CSRF_TOKEN_NAME -> Seq(fakeCsrfString)
+        )
+
+        val attempt1 = route(FakeRequest(POST,
+          controllers.portal.account.routes.Accounts.passwordLoginPost().url)
+          .withSession(CSRF_TOKEN_NAME -> fakeCsrfString), data).get
+        status(attempt1) must equalTo(BAD_REQUEST)
+        val attempt2 = route(FakeRequest(POST,
+          controllers.portal.account.routes.Accounts.passwordLoginPost().url)
+          .withSession(CSRF_TOKEN_NAME -> fakeCsrfString), data).get
+        status(attempt2) must equalTo(BAD_REQUEST)
+        val attempt3 = route(FakeRequest(POST,
+          controllers.portal.account.routes.Accounts.passwordLoginPost().url)
+          .withSession(CSRF_TOKEN_NAME -> fakeCsrfString), data).get
+        status(attempt3) must equalTo(TOO_MANY_REQUEST)
+
+        // Wait for the timeout to expire and try again...
+        Thread.sleep(1500)
+        val attempt4 = route(FakeRequest(POST,
+          controllers.portal.account.routes.Accounts.passwordLoginPost().url)
+          .withSession(CSRF_TOKEN_NAME -> fakeCsrfString), data).get
+        status(attempt4) must equalTo(BAD_REQUEST)
       }
     }
   }

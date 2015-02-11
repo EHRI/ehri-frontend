@@ -9,7 +9,7 @@ import play.api.libs.json.{JsString, Json}
 import models.base.AnyModel
 import models._
 import play.api.test.PlaySpecification
-import utils.search.{MockSearchIndexer, Indexer}
+import utils.search.{MockSearchIndexer, SearchIndexer}
 import helpers.RestBackendRunner
 
 /**
@@ -23,7 +23,7 @@ class BackendModelSpec extends RestBackendRunner with PlaySpecification {
   implicit val apiUser: ApiUser = AuthenticatedUser(userProfile.id)
 
   val indexEventBuffer = collection.mutable.ListBuffer.empty[String]
-  def mockIndexer: Indexer = new MockSearchIndexer(indexEventBuffer)
+  def mockIndexer: SearchIndexer = new MockSearchIndexer(indexEventBuffer)
 
   def testBackend: Backend = new RestBackend(testEventHandler)
   def testEventHandler = new EventHandler {
@@ -38,6 +38,13 @@ class BackendModelSpec extends RestBackendRunner with PlaySpecification {
       // response would be cached and error on JSON deserialization.
       await(testBackend.get[UserProfile]("invalid-id")) must throwA[ItemNotFound]
       await(testBackend.get[UserProfile]("invalid-id")) must throwA[ItemNotFound]
+    }
+
+    "not error when retrieving existing items at the wrong path (as per bug #500)" in new TestApp {
+      // Load the item (populating the cache)
+      private val doc: DocumentaryUnit = await(testBackend.get[DocumentaryUnit]("c1"))
+      // Now try and fetch it under a different resource path...
+      await(testBackend.get[UserProfile]("c1")) must throwA[ItemNotFound]
     }
 
     "get an item by id" in new TestApp {
@@ -134,18 +141,20 @@ class BackendModelSpec extends RestBackendRunner with PlaySpecification {
         import play.api.libs.functional.syntax._
         import models.base.Accessor
         import models.json.JsPathExtensions
-        val badDeserializer = new BackendReadable[UserProfile] {
+        val badDeserializer = new BackendContentType[UserProfile] {
           val restReads: Reads[UserProfile] = (
             __.read[UserProfileF] and
-            __.lazyNullableListReads(Group.Converter.restReads) and
+            __.lazyNullableListReads(Group.Resource.restReads) and
             __.lazyNullableListReads(Accessor.Converter.restReads) and
             __.nullableHeadReads[SystemEvent] and
             __.read[JsObject]
           )(UserProfile.quickApply _)
+          val entityType = UserProfile.Resource.entityType
+          val contentType = UserProfile.Resource.contentType
         }
 
         await(testBackend.get[UserProfile]("mike")(
-          apiUser, UserProfile.Resource, badDeserializer, concurrentExecutionContext))
+          apiUser, badDeserializer, concurrentExecutionContext))
         failure("Expected BadJson error was not found!")
       } catch {
         case e: backend.rest.BadJson =>
@@ -298,13 +307,13 @@ class BackendModelSpec extends RestBackendRunner with PlaySpecification {
   "Social operations" should {
     "allow following and unfollowing" in new TestApp {
       await(testBackend.isFollowing(userProfile.id, "reto")) must beFalse
-      await(testBackend.follow(userProfile.id, "reto"))
+      await(testBackend.follow[UserProfile](userProfile.id, "reto"))
       await(testBackend.isFollowing(userProfile.id, "reto")) must beTrue
       val following = await(testBackend.following[UserProfile](userProfile.id))
       following.exists(_.id == "reto") must beTrue
       val followingPage = await(testBackend.following[UserProfile](userProfile.id))
       followingPage.total must equalTo(1)
-      await(testBackend.unfollow(userProfile.id, "reto"))
+      await(testBackend.unfollow[UserProfile](userProfile.id, "reto"))
       await(testBackend.isFollowing(userProfile.id, "reto")) must beFalse
     }
 
@@ -359,7 +368,7 @@ class BackendModelSpec extends RestBackendRunner with PlaySpecification {
       vc.includedUnits.size must equalTo(0)
 
       // Add an included unit to the VC (a bookmark)
-      await(testBackend.addBookmark(vc.id, "c4"))
+      await(testBackend.addReferences[VirtualUnit](vc.id, Seq("c4")))
       await(testBackend.userBookmarks[VirtualUnit](userProfile.id)).headOption must beSome.which { ovc =>
         ovc.includedUnits.size must equalTo(1)
         ovc.includedUnits.headOption must beSome.which { iu =>
@@ -368,7 +377,7 @@ class BackendModelSpec extends RestBackendRunner with PlaySpecification {
       }
 
       // Delete the included unit
-      await(testBackend.deleteBookmarks(vc.id, Seq("c4")))
+      await(testBackend.deleteReferences[VirtualUnit](vc.id, Seq("c4")))
       await(testBackend.userBookmarks[VirtualUnit](userProfile.id)).headOption must beSome.which { ovc =>
         ovc.includedUnits.size must equalTo(0)
       }
@@ -376,13 +385,13 @@ class BackendModelSpec extends RestBackendRunner with PlaySpecification {
       // Moving included units...
       val vc2 = await(testBackend.create[VirtualUnit,VirtualUnitF](
         data.copy(identifier = "vc-test-2")))
-      await(testBackend.addBookmark(vc.id, "c1"))
+      await(testBackend.addReferences[VirtualUnit](vc.id, Seq("c1")))
       await(testBackend.get[VirtualUnit](vc.id))
         .includedUnits.map(_.id) must contain("c1")
-      await(testBackend.addBookmark(vc2.id, "c2"))
+      await(testBackend.addReferences[VirtualUnit](vc2.id, Seq("c2")))
       await(testBackend.get[VirtualUnit](vc2.id))
         .includedUnits.map(_.id) must contain("c2")
-      await(testBackend.moveBookmarks(vc.id, vc2.id, List("c1")))
+      await(testBackend.moveReferences[VirtualUnit](vc.id, vc2.id, Seq("c1")))
       await(testBackend.get[VirtualUnit](vc.id))
         .includedUnits.map(_.id) must not contain "c1"
       await(testBackend.get[VirtualUnit](vc2.id))

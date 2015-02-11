@@ -12,3 +12,26 @@ export _JAVA_OPTIONS="-Xms64m -Xmx1024m -Xss2m -XX:+CMSClassUnloadingEnabled -XX
 ```
 
 It should be then possible to just run `play test`.
+
+## Running a single test
+
+In Play's default test framework (Spec2) a single test is called an example, e.g:
+
+```scala
+package mytests
+
+class SomeSpec extends Specification {
+    "something" should {
+        "do something" in {
+            // some text code
+            ...
+        }
+    }
+}
+```
+
+To run just the "do something" example here, it's best to load the Play shell with `play` (or `activator` as it's also known) and run:
+
+```
+play> testOnly mytests.SomeSpec -- ex "do something"
+```

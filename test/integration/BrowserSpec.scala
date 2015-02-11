@@ -12,9 +12,15 @@ class BrowserSpec extends PlaySpecification {
       browser.$("#error-title").getTexts.get(0) must equalTo(Messages("errors.pageNotFound"))
     }
 
+    "return 301 for moved pages" in new WithBrowser {
+      mocks.movedPages += "/foo" -> "/bar"
+      browser.goTo("/foo")
+      browser.$("#error-title").getTexts.get(0) must equalTo(Messages("errors.pageNotFound"))
+    }
+
     "deny access to admin routes" in new WithBrowser {
       browser.goTo(controllers.admin.routes.AdminSearch.search().url)
-      browser.$("title").getTexts.get(0) must contain(Messages("login"))
+      browser.$("title").getTexts.get(0) must contain(Messages("login.title"))
     }
   }
 }

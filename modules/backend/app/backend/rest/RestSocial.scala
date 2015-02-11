@@ -1,6 +1,6 @@
 package backend.rest
 
-import backend.{ApiUser, BackendReadable, EventHandler, Social}
+import backend._
 import scala.concurrent.{ExecutionContext, Future}
 import utils.{Page, PageParams}
 import defines.EntityType
@@ -29,25 +29,25 @@ trait RestSocial extends Social with RestDAO {
 
   private def isBlockingUrl(userId: String, otherId: String) = enc(requestUrl, userId, "isBlocking", otherId)
 
-  def follow(userId: String, otherId: String)(implicit apiUser: ApiUser, executionContext: ExecutionContext): Future[Unit] = {
+  override def follow[U](userId: String, otherId: String)(implicit apiUser: ApiUser, rs: BackendResource[U], executionContext: ExecutionContext): Future[Unit] = {
     userCall(followingUrl(userId)).withQueryString(ID_PARAM -> otherId).post("").map { r =>
       checkError(r)
       Cache.set(isFollowingUrl(userId, otherId), true, cacheTime)
       Cache.remove(followingUrl(userId))
-      Cache.remove(userId)
+      Cache.remove(canonicalUrl(userId))
     }
   }
 
-  def unfollow(userId: String, otherId: String)(implicit apiUser: ApiUser, executionContext: ExecutionContext): Future[Unit] = {
+  override def unfollow[U](userId: String, otherId: String)(implicit apiUser: ApiUser, rs: BackendResource[U], executionContext: ExecutionContext): Future[Unit] = {
     userCall(followingUrl(userId)).withQueryString(ID_PARAM -> otherId).delete().map { r =>
       checkError(r)
       Cache.set(isFollowingUrl(userId, otherId), false, cacheTime)
       Cache.remove(followingUrl(userId))
-      Cache.remove(userId)
+      Cache.remove(canonicalUrl(userId))
     }
   }
 
-  def isFollowing(userId: String, otherId: String)(implicit apiUser: ApiUser, executionContext: ExecutionContext): Future[Boolean] = {
+  override def isFollowing(userId: String, otherId: String)(implicit apiUser: ApiUser, executionContext: ExecutionContext): Future[Boolean] = {
     val url = isFollowingUrl(userId, otherId)
     FutureCache.getOrElse[Boolean](url) {
       userCall(url).get().map { r =>
@@ -56,34 +56,34 @@ trait RestSocial extends Social with RestDAO {
     }
   }
 
-  def isFollower(userId: String, otherId: String)(implicit apiUser: ApiUser, executionContext: ExecutionContext): Future[Boolean] = {
+  override def isFollower(userId: String, otherId: String)(implicit apiUser: ApiUser, executionContext: ExecutionContext): Future[Boolean] = {
     userCall(enc(requestUrl, userId, "isFollower", otherId)).get().map { r =>
       checkErrorAndParse[Boolean](r)
     }
   }
 
-  def followers[U](userId: String, params: PageParams = PageParams.empty)(implicit apiUser: ApiUser, rd: BackendReadable[U], executionContext: ExecutionContext): Future[Page[U]] = {
+  override def followers[U](userId: String, params: PageParams = PageParams.empty)(implicit apiUser: ApiUser, rd: BackendReadable[U], executionContext: ExecutionContext): Future[Page[U]] = {
     val url: String = enc(requestUrl, userId, "followers")
     userCall(url).withQueryString(params.queryParams: _*).get().map { r =>
       parsePage(r, context = Some(url))(rd.restReads)
     }
   }
 
-  def following[U](userId: String, params: PageParams = PageParams.empty)(implicit apiUser: ApiUser, rd: BackendReadable[U], executionContext: ExecutionContext): Future[Page[U]] = {
+  override def following[U](userId: String, params: PageParams = PageParams.empty)(implicit apiUser: ApiUser, rd: BackendReadable[U], executionContext: ExecutionContext): Future[Page[U]] = {
     val url: String = followingUrl(userId)
     userCall(url).withQueryString(params.queryParams: _*).get().map { r =>
       parsePage(r, context = Some(url))(rd.restReads)
     }
   }
 
-  def watching[A](userId: String, params: PageParams = PageParams.empty)(implicit apiUser: ApiUser, rd: BackendReadable[A], executionContext: ExecutionContext): Future[Page[A]] = {
+  override def watching[A](userId: String, params: PageParams = PageParams.empty)(implicit apiUser: ApiUser, rd: BackendReadable[A], executionContext: ExecutionContext): Future[Page[A]] = {
     val url: String = enc(requestUrl, userId, "watching")
     userCall(url).withQueryString(params.queryParams: _*).get().map { r =>
       parsePage(r, context = Some(url))(rd.restReads)
     }
   }
 
-  def watch(userId: String, otherId: String)(implicit apiUser: ApiUser, executionContext: ExecutionContext): Future[Unit] = {
+  override def watch(userId: String, otherId: String)(implicit apiUser: ApiUser, executionContext: ExecutionContext): Future[Unit] = {
     userCall(watchingUrl(userId)).withQueryString(ID_PARAM -> otherId).post("").map { r =>
       Cache.set(isWatchingUrl(userId, otherId), true, cacheTime)
       Cache.remove(watchingUrl(userId))
@@ -91,7 +91,7 @@ trait RestSocial extends Social with RestDAO {
     }
   }
 
-  def unwatch(userId: String, otherId: String)(implicit apiUser: ApiUser, executionContext: ExecutionContext): Future[Unit] = {
+  override def unwatch(userId: String, otherId: String)(implicit apiUser: ApiUser, executionContext: ExecutionContext): Future[Unit] = {
     userCall(watchingUrl(userId)).withQueryString(ID_PARAM -> otherId).delete().map { r =>
       Cache.set(isWatchingUrl(userId, otherId), false, cacheTime)
       Cache.remove(watchingUrl(userId))
@@ -99,7 +99,7 @@ trait RestSocial extends Social with RestDAO {
     }
   }
 
-  def isWatching(userId: String, otherId: String)(implicit apiUser: ApiUser, executionContext: ExecutionContext): Future[Boolean] = {
+  override def isWatching(userId: String, otherId: String)(implicit apiUser: ApiUser, executionContext: ExecutionContext): Future[Boolean] = {
     val url = isWatchingUrl(userId, otherId)
     FutureCache.getOrElse[Boolean](url) {
       userCall(url).get().map { r =>
@@ -108,14 +108,14 @@ trait RestSocial extends Social with RestDAO {
     }
   }
 
-  def blocked[A](userId: String, params: PageParams = PageParams.empty)(implicit apiUser: ApiUser, rd: BackendReadable[A], executionContext: ExecutionContext): Future[Page[A]] = {
+  override def blocked[A](userId: String, params: PageParams = PageParams.empty)(implicit apiUser: ApiUser, rd: BackendReadable[A], executionContext: ExecutionContext): Future[Page[A]] = {
     val url: String = blockedUrl(userId)
     userCall(url).withQueryString(params.queryParams: _*).get().map { r =>
       parsePage(r, context = Some(url))(rd.restReads)
     }
   }
 
-  def block(userId: String, otherId: String)(implicit apiUser: ApiUser, executionContext: ExecutionContext): Future[Unit] = {
+  override def block(userId: String, otherId: String)(implicit apiUser: ApiUser, executionContext: ExecutionContext): Future[Unit] = {
     userCall(blockedUrl(userId)).withQueryString(ID_PARAM -> otherId).post("").map { r =>
       Cache.set(isBlockingUrl(userId, otherId), true, cacheTime)
       Cache.remove(blockedUrl(userId))
@@ -123,7 +123,7 @@ trait RestSocial extends Social with RestDAO {
     }
   }
 
-  def unblock(userId: String, otherId: String)(implicit apiUser: ApiUser, executionContext: ExecutionContext): Future[Unit] = {
+  override def unblock(userId: String, otherId: String)(implicit apiUser: ApiUser, executionContext: ExecutionContext): Future[Unit] = {
     userCall(blockedUrl(userId)).withQueryString(ID_PARAM -> otherId).delete().map { r =>
       Cache.set(isBlockingUrl(userId, otherId), false, cacheTime)
       Cache.remove(blockedUrl(userId))
@@ -131,7 +131,7 @@ trait RestSocial extends Social with RestDAO {
     }
   }
 
-  def isBlocking(userId: String, otherId: String)(implicit apiUser: ApiUser, executionContext: ExecutionContext): Future[Boolean] = {
+  override def isBlocking(userId: String, otherId: String)(implicit apiUser: ApiUser, executionContext: ExecutionContext): Future[Boolean] = {
     val url = isBlockingUrl(userId, otherId)
     FutureCache.getOrElse[Boolean](url) {
       userCall(url).get().map { r =>
@@ -140,7 +140,7 @@ trait RestSocial extends Social with RestDAO {
     }
   }
 
-  def userAnnotations[A](userId: String, params: PageParams = PageParams.empty)(implicit apiUser: ApiUser, rd: BackendReadable[A], executionContext: ExecutionContext): Future[Page[A]] = {
+  override def userAnnotations[A](userId: String, params: PageParams = PageParams.empty)(implicit apiUser: ApiUser, rd: BackendReadable[A], executionContext: ExecutionContext): Future[Page[A]] = {
     val url: String = enc(requestUrl, userId, EntityType.Annotation)
     userCall(url)
         .withQueryString(params.queryParams: _*).get().map { r =>
@@ -148,7 +148,7 @@ trait RestSocial extends Social with RestDAO {
     }
   }
 
-  def userLinks[A](userId: String, params: PageParams = PageParams.empty)(implicit apiUser: ApiUser, rd: BackendReadable[A], executionContext: ExecutionContext): Future[Page[A]] = {
+  override def userLinks[A](userId: String, params: PageParams = PageParams.empty)(implicit apiUser: ApiUser, rd: BackendReadable[A], executionContext: ExecutionContext): Future[Page[A]] = {
     val url: String = enc(requestUrl, userId, EntityType.Link)
     userCall(url)
         .withQueryString(params.queryParams: _*).get().map { r =>
@@ -156,39 +156,10 @@ trait RestSocial extends Social with RestDAO {
     }
   }
 
-  def userBookmarks[A](userId: String, params: PageParams = PageParams.empty)(implicit apiUser: ApiUser, rd: BackendReadable[A],  executionContext: ExecutionContext): Future[Page[A]] = {
+  override def userBookmarks[A](userId: String, params: PageParams = PageParams.empty)(implicit apiUser: ApiUser, rd: BackendReadable[A],  executionContext: ExecutionContext): Future[Page[A]] = {
     val url: String = enc(requestUrl, userId, EntityType.VirtualUnit)
     userCall(url).get().map { r =>
       parsePage(r, context = Some(url))(rd.restReads)
-    }
-  }
-
-  def addBookmark(setId: String, id: String)(implicit apiUser: ApiUser, executionContext: ExecutionContext): Future[Unit] = {
-    userCall(enc(baseUrl, EntityType.VirtualUnit, setId, "includes"))
-      .withQueryString(ID_PARAM -> id).post("").map { _ =>
-      eventHandler.handleUpdate(setId)
-      Cache.remove(setId)
-    }
-  }
-
-  def deleteBookmarks(set: String, ids: Seq[String])(implicit apiUser: ApiUser, executionContext: ExecutionContext): Future[Unit] = {
-    if (ids.isEmpty) Future.successful(())
-    else userCall(enc(baseUrl, EntityType.VirtualUnit, set, "includes"))
-      .withQueryString(ids.map ( id => ID_PARAM -> id): _*).delete().map { _ =>
-      eventHandler.handleUpdate(set)
-      Cache.remove(set)
-    }
-  }
-
-  def moveBookmarks(fromSet: String, toSet: String, ids: Seq[String])(implicit apiUser: ApiUser, executionContext: ExecutionContext): Future[Unit] = {
-    if (ids.isEmpty) Future.successful(())
-    else userCall(enc(baseUrl, EntityType.VirtualUnit, fromSet, "includes", toSet))
-      .withQueryString(ids.map(id => ID_PARAM -> id): _*).post("").map { _ =>
-      // Update both source and target sets in the index
-      Cache.remove(fromSet)
-      Cache.remove(toSet)
-      eventHandler.handleUpdate(fromSet)
-      eventHandler.handleUpdate(toSet)
     }
   }
 }

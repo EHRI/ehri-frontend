@@ -3,7 +3,7 @@ package backend.rest
 import play.api.Logger
 import play.api.http.{Writeable, ContentTypeOf, HeaderNames, ContentTypes}
 import play.api.libs.json._
-import backend.{AnonymousUser, AuthenticatedUser, ErrorSet, ApiUser}
+import backend._
 import com.fasterxml.jackson.core.JsonParseException
 import utils.{RangePage, RangeParams, Page}
 import scala.concurrent.Future
@@ -88,11 +88,11 @@ trait RestDAO {
      */
     def withBody[T](body: T)(implicit wrt: Writeable[T], ct: ContentTypeOf[T]): BackendRequest = {
       val wsBody = InMemoryBody(wrt.transform(body))
-      if (headers.contains("Content-Type")) {
+      if (headers.contains(HeaderNames.CONTENT_TYPE)) {
         withBody(wsBody)
       } else {
         ct.mimeType.fold(withBody(wsBody)) { contentType =>
-          withBody(wsBody).withHeaders("Content-Type" -> contentType)
+          withBody(wsBody).withHeaders(HeaderNames.CONTENT_TYPE -> contentType)
         }
       }
     }
@@ -141,6 +141,7 @@ trait RestDAO {
    */
   protected val headers = Map(
     HeaderNames.ACCEPT -> ContentTypes.JSON,
+    HeaderNames.ACCEPT_CHARSET -> "UTF-8",
     HeaderNames.CONTENT_TYPE -> ContentTypes.JSON
   )
 
@@ -158,8 +159,8 @@ trait RestDAO {
    */
   import scala.collection.JavaConversions._
   private lazy val includeProps
-    = app.configuration.getStringList("ehri.backend.includedProperties").map(_.toList)
-        .getOrElse(List.empty[String])
+    = app.configuration.getStringList("ehri.backend.includedProperties").map(_.toSeq)
+        .getOrElse(Seq.empty[String])
 
 
   protected def userCall(url: String, params: Seq[(String,String)] = Seq.empty)(implicit apiUser: ApiUser): BackendRequest = {
@@ -205,6 +206,9 @@ trait RestDAO {
   protected def mount: String = getConfigString("neo4j.server.endpoint")
 
   protected def baseUrl = s"http://$host:$port/$mount"
+
+  protected def canonicalUrl[MT](id: String)(implicit rd: BackendResource[MT]): String =
+    enc(baseUrl, rd.entityType, id)
 
   protected def checkError(response: WSResponse): WSResponse = {
     Logger.logger.trace("Response body ! : {}", response.body)

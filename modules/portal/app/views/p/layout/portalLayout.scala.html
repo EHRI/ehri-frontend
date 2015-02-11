@@ -1,13 +1,15 @@
-@(title: Any, itemClass: String = "", scripts: Html = Html(""), styles: Html = Html(""))(content: Html)(implicit userOpt: Option[UserProfile], request: RequestHeader, prefs: utils.SessionPrefs, globalConfig: global.GlobalConfig, lang: Lang, flash: Flash)
+@(title: Any, itemClass: String = "", scripts: Html = Html(""), styles: Html = Html(""), meta: Map[String,String] = Map.empty)(content: Html)(implicit userOpt: Option[UserProfile], request: RequestHeader, prefs: utils.SessionPrefs, globalConfig: global.GlobalConfig, lang: Lang, flash: Flash)
 
 <!DOCTYPE html>
 
 <html lang="@lang.code">
-    @head(title, styles = styles)
+    @head(title, styles = styles, meta = meta)
     <body class="@itemClass">
         @preambleScripts()
         <div id="wrap">
-            @p.layout.readOnly()
+            @views.html.p.layout.readOnly()
+            @views.html.p.layout.message()
+            @views.html.p.layout.ipFilter()
             <header id="header" class="navigation">
                 @accountHeader(showSearch = true, showFeedback = true, showAdminLink = true)
                 @primaryHeader()
@@ -19,8 +21,8 @@
                 <div id="push"></div>
             </div>
         </div>
-        @p.layout.footer()
-        @p.dataPolicyModal()
-        @postambleScripts()
+        @views.html.p.layout.footer()
+        @views.html.p.dataPolicyModal()
+        @postambleScripts(extra = scripts)
     </body>
 </html>

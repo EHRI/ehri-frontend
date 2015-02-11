@@ -1,5 +1,6 @@
 package controllers.units
 
+import auth.AccountManager
 import play.api.libs.concurrent.Execution.Implicits._
 import forms.VisibilityForm
 import models._
@@ -9,7 +10,6 @@ import defines.{ContentTypes,EntityType,PermissionType}
 import views.Helpers
 import utils.search._
 import com.google.inject._
-import solr.SolrConstants
 import scala.concurrent.Future.{successful => immediate}
 import backend.{ApiUser, Backend}
 import play.api.Play.current
@@ -21,7 +21,7 @@ import controllers.base.AdminController
 
 
 @Singleton
-case class DocumentaryUnits @Inject()(implicit globalConfig: global.GlobalConfig, searchDispatcher: Dispatcher, searchResolver: Resolver, backend: Backend, userDAO: AccountDAO)
+case class DocumentaryUnits @Inject()(implicit globalConfig: global.GlobalConfig, searchEngine: SearchEngine, searchResolver: SearchItemResolver, backend: Backend, accounts: AccountManager, pageRelocator: utils.MovedPageLookup)
   extends AdminController
   with Read[DocumentaryUnit]
   with Visibility[DocumentaryUnit]
@@ -36,8 +36,6 @@ case class DocumentaryUnits @Inject()(implicit globalConfig: global.GlobalConfig
   with Search {
 
   // Documentary unit facets
-  import solr.facet._
-
   private val entityFacets: FacetBuilder = { implicit request =>
     List(
       FieldFacetClass(
@@ -90,9 +88,9 @@ case class DocumentaryUnits @Inject()(implicit globalConfig: global.GlobalConfig
         param="lod",
         render=s => Messages("lod." + s),
         facets=List(
-          SolrQueryFacet(value = "low", solrValue = "[0 TO 500]", name = Some("low")),
-          SolrQueryFacet(value = "medium", solrValue = "[501 TO 2000]", name = Some("medium")),
-          SolrQueryFacet(value = "high", solrValue = "[2001 TO *]", name = Some("high"))
+          QueryFacet(value = "low", range = Start to Val("500")),
+          QueryFacet(value = "medium", range = Val("501") to Val("2000")),
+          QueryFacet(value = "high", range = Val("2001") to End)
         ),
         sort = FacetSort.Fixed,
         display = FacetDisplay.List
@@ -123,7 +121,7 @@ case class DocumentaryUnits @Inject()(implicit globalConfig: global.GlobalConfig
     // going to peer INSIDE items... dodgy logic, maybe...
     
     val filters = if (request.getQueryString(SearchParams.QUERY).filterNot(_.trim.isEmpty).isEmpty)
-      Map(SolrConstants.TOP_LEVEL -> true) else Map.empty[String,Any]
+      Map(SearchConstants.TOP_LEVEL -> true) else Map.empty[String,Any]
 
     find[DocumentaryUnit](
       filters = filters,
@@ -131,31 +129,31 @@ case class DocumentaryUnits @Inject()(implicit globalConfig: global.GlobalConfig
       facetBuilder = entityFacets
     ).map { result =>
       Ok(views.html.admin.documentaryUnit.search(
-        result.page, result.params, result.facets,
+        result,
         docRoutes.search()))
     }
   }
 
   def searchChildren(id: String) = ItemPermissionAction(id).async { implicit request =>
     find[DocumentaryUnit](
-      filters = Map(SolrConstants.PARENT_ID -> request.item.id),
+      filters = Map(SearchConstants.PARENT_ID -> request.item.id),
       facetBuilder = entityFacets,
       defaultOrder = SearchOrder.Id
     ).map { result =>
       Ok(views.html.admin.documentaryUnit.search(
-        result.page, result.params, result.facets,
+        result,
         docRoutes.search()))
     }
   }
 
   def get(id: String) = ItemMetaAction(id).async { implicit request =>
     find[DocumentaryUnit](
-      filters = Map(SolrConstants.PARENT_ID -> request.item.id),
+      filters = Map(SearchConstants.PARENT_ID -> request.item.id),
       entities = List(EntityType.DocumentaryUnit),
       facetBuilder = entityFacets,
       defaultOrder = SearchOrder.Id
     ).map { result =>
-      Ok(views.html.admin.documentaryUnit.show(request.item, result.page, result.params, result.facets,
+      Ok(views.html.admin.documentaryUnit.show(request.item, result,
           docRoutes.get(id), request.annotations, request.links))
     }
   }
@@ -325,7 +323,7 @@ case class DocumentaryUnits @Inject()(implicit globalConfig: global.GlobalConfig
 
   def linkAnnotateSelect(id: String, toType: EntityType.Value) = LinkSelectAction(id, toType).apply { implicit request =>
       Ok(views.html.admin.link.linkSourceList(
-        request.item, request.page, request.params, request.facets, request.entityType,
+        request.item, request.searchResult, request.entityType,
           docRoutes.linkAnnotateSelect(id, toType),
           docRoutes.linkAnnotate))
   }

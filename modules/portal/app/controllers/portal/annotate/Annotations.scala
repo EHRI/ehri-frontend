@@ -1,13 +1,13 @@
 package controllers.portal.annotate
 
+import auth.AccountManager
 import play.api.libs.concurrent.Execution.Implicits._
 import play.api.mvc._
-import controllers.base.SessionPreferences
 import controllers.generic.{Search, Read, Promotion, Visibility}
 import models.{AnnotationF, Annotation, UserProfile}
 import play.api.Play.current
 import views.html.p
-import utils.{SessionPrefs, ContributionVisibility}
+import utils.ContributionVisibility
 import scala.concurrent.Future.{successful => immediate}
 import defines.{EntityType, PermissionType}
 import backend.rest.cypher.CypherDAO
@@ -18,7 +18,7 @@ import play.api.mvc.Result
 import forms.VisibilityForm
 import com.google.common.net.HttpHeaders
 import backend.Backend
-import utils.search.{Resolver, Dispatcher}
+import utils.search.{SearchItemResolver, SearchEngine}
 import models.view.AnnotationContext
 
 
@@ -30,7 +30,8 @@ import controllers.portal.base.PortalController
  * @author Mike Bryant (http://github.com/mikesname)
  */
 @Singleton
-case class Annotations @Inject()(implicit globalConfig: global.GlobalConfig, searchDispatcher: Dispatcher, searchResolver: Resolver, backend: Backend, userDAO: models.AccountDAO)
+case class Annotations @Inject()(implicit globalConfig: global.GlobalConfig, searchEngine: SearchEngine, searchResolver: SearchItemResolver,
+                                 backend: Backend, accounts: AccountManager, pageRelocator: utils.MovedPageLookup)
   extends PortalController
   with Read[Annotation]
   with Visibility[Annotation]
@@ -48,8 +49,8 @@ case class Annotations @Inject()(implicit globalConfig: global.GlobalConfig, sea
     find[Annotation](
       entities = List(EntityType.Annotation),
       facetBuilder = annotationFacets
-    ).map { case QueryResult(page, params, facets) =>
-      Ok(p.annotation.list(page, params, facets, annotationRoutes.searchAll()))
+    ).map { result =>
+      Ok(p.annotation.list(result, annotationRoutes.searchAll()))
     }
   }
 
@@ -62,7 +63,7 @@ case class Annotations @Inject()(implicit globalConfig: global.GlobalConfig, sea
 
   // Ajax
   def annotate(id: String, did: String) = WithUserAction.async {  implicit request =>
-    getCanShareWith(request.profile) { users => groups =>
+    getCanShareWith(request.user) { users => groups =>
       Ok(
         p.annotation.create(
           Annotation.form.bind(annotationDefaults),
@@ -80,7 +81,7 @@ case class Annotations @Inject()(implicit globalConfig: global.GlobalConfig, sea
     Annotation.form.bindFromRequest.fold(
       errorForm => immediate(BadRequest(errorForm.errorsAsJson)),
       ann => {
-        val accessors: List[String] = getAccessors(ann, request.profile)
+        val accessors: List[String] = getAccessors(ann, request.user)
         backend.createAnnotationForDependent[Annotation,AnnotationF](id, did, ann, accessors).map { ann =>
           Created(p.annotation.annotationBlock(ann, editable = true))
             .withHeaders(
@@ -148,7 +149,7 @@ case class Annotations @Inject()(implicit globalConfig: global.GlobalConfig, sea
 
   // Ajax
   def annotateField(id: String, did: String, field: String) = WithUserAction.async { implicit request =>
-    getCanShareWith(request.profile) { users => groups =>
+    getCanShareWith(request.user) { users => groups =>
       Ok(p.annotation.create(
         Annotation.form.bind(annotationDefaults),
         ContributionVisibility.form.bindFromRequest,
@@ -167,7 +168,7 @@ case class Annotations @Inject()(implicit globalConfig: global.GlobalConfig, sea
       ann => {
         // Add the field to the model!
         val fieldAnn = ann.copy(field = Some(field))
-        val accessors: List[String] = getAccessors(ann, request.profile)
+        val accessors: List[String] = getAccessors(ann, request.user)
         backend.createAnnotationForDependent[Annotation,AnnotationF](id, did, fieldAnn, accessors).map { ann =>
           Created(p.annotation.annotationInline(ann, editable = true))
             .withHeaders(

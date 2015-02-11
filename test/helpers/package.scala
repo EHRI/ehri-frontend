@@ -1,84 +1,45 @@
 
 import java.io.File
 import java.sql.CallableStatement
-import models.AccountDAO
-import models.sql.{SqlAccount, OAuth2Association, OpenIDAssociation}
-import org.specs2.execute.{Result, AsResult}
-import org.specs2.mutable.Around
-import org.specs2.specification.Scope
+import auth.AccountManager
+import auth.sql.SqlAccountManager
 import play.api.db.DB
-import play.api.http.{ContentTypes, HeaderNames}
 import play.api.test.FakeApplication
-import play.api.test.Helpers._
+
+import scala.concurrent.Await
+import scala.concurrent.duration._
+
 
 /**
  * User: mike
  */
 package object helpers {
 
-  val jsonPostHeaders: Map[String, String] = Map(
-    HeaderNames.CONTENT_TYPE -> ContentTypes.JSON
-  )
-
-  val formPostHeaders: Map[String,String] = Map(
-    HeaderNames.CONTENT_TYPE -> ContentTypes.FORM
-  )
-
+  import scala.concurrent.ExecutionContext.Implicits.global
   /**
    * Load database fixtures.
    */
-  private def loadSqlFixtures(implicit app: play.api.Application) = {
-    val userDAO: AccountDAO = SqlAccount
+  def loadSqlFixtures(implicit app: play.api.Application) = {
+    val accounts: AccountManager = SqlAccountManager()
     mocks.users.map { case (profile, account) =>
-      val acc = userDAO.create(account.id, account.email, verified = account.verified, staff = account.staff,
-        allowMessaging = account.allowMessaging)
-      OpenIDAssociation.addAssociation(acc, acc.id + "-openid-test-url")
-      OAuth2Association.addAssociation(acc, acc.id + "1234", "google")
+      val acc = Await.result(accounts.create(account), 1.second)
     }
-  }
-
-  /**
-   * Run inside an application with fixtures loaded.
-   *
-   * NB: The situation with extending WithApplication in specs2 seems
-   * to be... not so simple:
-   *
-   * https://github.com/etorreborre/specs2/issues/87
-   *
-   * So here I've basically copy-pasted WithApplication and added
-   * extra work before it returns.
-   */
-  class WithSqlFixtures(val app: FakeApplication) extends Around with Scope {
-    implicit def implicitApp = app
-    override def around[T: AsResult](t: => T): Result = {
-      running(app) {
-        loadSqlFixtures
-        AsResult.effectively(t)
-      }
+    mocks.oAuth2Associations.map { assoc =>
+      Await.result(accounts.oAuth2.addAssociation(assoc.id, assoc.providerId, assoc.provider), 1.second)
+    }
+    mocks.openIDAssociations.map { assoc =>
+      Await.result(accounts.openId.addAssociation(assoc.id, assoc.url), 1.second)
     }
   }
 
   /**
    * Load a file containing SQL statements into the DB.
    */
-  private def loadSqlResource(resource: String)(implicit app: FakeApplication) = DB.withConnection { conn =>
+  def loadSqlResource(resource: String)(implicit app: FakeApplication) = DB.withConnection { conn =>
     val file = new File(getClass.getClassLoader.getResource(resource).toURI)
     val path = file.getAbsolutePath
     val statement: CallableStatement = conn.prepareCall(s"RUNSCRIPT FROM '$path'")
     statement.execute()
     conn.commit()
-  }
-
-  /**
-   * Run a spec after loading the given resource name as SQL fixtures.
-   */
-  class WithSqlFile(val resource: String, val app: FakeApplication = FakeApplication()) extends Around with Scope {
-    implicit def implicitApp = app
-    override def around[T: AsResult](t: => T): Result = {
-      running(app) {
-        loadSqlResource(resource)
-        AsResult.effectively(t)
-      }
-    }
   }
 }

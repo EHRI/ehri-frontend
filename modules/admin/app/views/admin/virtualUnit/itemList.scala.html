@@ -1,9 +1,9 @@
-@(path: List[AnyModel], page: utils.Page[VirtualUnit])(implicit userOpt: Option[UserProfile], req: RequestHeader, globalConfig: global.GlobalConfig, lang: Lang)
+@(page: utils.Page[VirtualUnit], path: Seq[AnyModel])(implicit userOpt: Option[UserProfile], req: RequestHeader, globalConfig: global.GlobalConfig, lang: Lang)
 
 <ul class="list-unstyled">
 @page.items.map { item =>
     <li>
-        @listItem(path, item)
+        @listItem(item, path)
     </li>
 }
 </ul>

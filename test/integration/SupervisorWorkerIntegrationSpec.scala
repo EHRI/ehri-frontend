@@ -1,12 +1,9 @@
 package integration
 
-import scala.concurrent.ExecutionContext.Implicits.global
-import helpers._
-import models.UserProfile
-import defines._
-import backend.rest.ItemNotFound
-import models.MockAccount
 import backend.ApiUser
+import defines._
+import helpers._
+import models.{Account, UserProfile}
 
 /**
  * End-to-end test of the permissions system, implemented as one massive test.
@@ -19,7 +16,7 @@ import backend.ApiUser
  *  - assign permissions to worker group to create/update/delete only their OWN items in a repo
  *  - check that these perms are respected
  */
-class SupervisorWorkerIntegrationSpec extends IntegrationTestRunner {
+class SupervisorWorkerIntegrationSpec extends IntegrationTestRunner with TestHelpers {
   import mocks.privilegedUser
 
   implicit val apiUser: ApiUser = ApiUser(Some(privilegedUser.id))
@@ -141,9 +138,9 @@ class SupervisorWorkerIntegrationSpec extends IntegrationTestRunner {
       val headArchivistProfile = await(testBackend.get[UserProfile](headArchivistUserId))
 
       // Add their account to the mocks
-      val haAccount = MockAccount(headArchivistUserId, "head-archivist@example.com",
+      val haAccount = Account(headArchivistUserId, "head-archivist@example.com",
           verified = true, staff = true)
-      mocks.userFixtures += haAccount.id -> haAccount
+      mocks.accountFixtures += haAccount.id -> haAccount
 
 
       // Now create a new user and add them to the archivists group. Do this
@@ -171,9 +168,9 @@ class SupervisorWorkerIntegrationSpec extends IntegrationTestRunner {
       val archivistProfile = await(testBackend.get[UserProfile](archivistUserId))
 
       // Add the archivists group to the account mocks
-      val aAccount = MockAccount(archivistUserId, "archivist1@example.com",
+      val aAccount = Account(archivistUserId, "archivist1@example.com",
         verified = true, staff = true)
-      mocks.userFixtures += aAccount.id -> aAccount
+      mocks.accountFixtures += aAccount.id -> aAccount
 
 
       // Check each user can read their profile as themselves...
@@ -229,7 +226,7 @@ class SupervisorWorkerIntegrationSpec extends IntegrationTestRunner {
       status(doc1DeleteRead) must equalTo(SEE_OTHER)
       val doc1CheckDeleteRead = route(fakeLoggedInHtmlRequest(haAccount, GET,
           controllers.units.routes.DocumentaryUnits.get(doc1Id).url)).get
-      status(doc1CheckDeleteRead) must throwA[ItemNotFound]
+      status(doc1CheckDeleteRead) must equalTo(NOT_FOUND)
 
       // ---------------------------------------------
       //
@@ -277,7 +274,7 @@ class SupervisorWorkerIntegrationSpec extends IntegrationTestRunner {
       status(doc2DeleteRead) must equalTo(SEE_OTHER)
       val doc2CheckDeleteRead = route(fakeLoggedInHtmlRequest(aAccount, GET,
           controllers.units.routes.DocumentaryUnits.get(doc2Id).url)).get
-      status(doc2CheckDeleteRead) must throwA[ItemNotFound]
+      status(doc2CheckDeleteRead) must equalTo(NOT_FOUND)
 
       // HOORAY! Basic stuff seems to work - now onto the difficult things...
       // Create a doc as the head archivist, then check it can't be deleted

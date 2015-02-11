@@ -5,7 +5,8 @@
 <html lang="@lang.code">
     @head(title, styles = styles)
     <body>
-        @p.layout.readOnly()
+        @views.html.p.layout.readOnly()
+        @views.html.p.layout.message()
         <div id="wrap">
             @defining(utils.SessionPrefs()) { implicit prefs =>
                 <header id="header" class="navigation">
@@ -19,12 +20,13 @@
                 <div id="push"></div>
             </div>
         </div>
-        @p.layout.footer()
+        @views.html.p.layout.footer()
 
         <script src="//ajax.googleapis.com/ajax/libs/jquery/1.8.3/jquery.min.js"></script>
         <script src="@controllers.portal.routes.Assets.versioned("js/feedback.js")"></script>
         <script src="@controllers.portal.routes.Assets.versioned("js/lib/jquery.validate.js")"></script>
         <script src="@controllers.portal.routes.Assets.versioned("bootstrap/js/bootstrap.min.js")"></script>
+        <script src="@controllers.portal.routes.Assets.versioned("js/common.js")"></script>
 
         <script>
             // Validate any forms with 'validate-form' class...

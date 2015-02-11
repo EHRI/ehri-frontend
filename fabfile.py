@@ -91,6 +91,48 @@ def stop():
     # for a password, even though we should have NOPASSWD in visudo.
     run('sudo service %(project_name)s stop' % env, pty=False, shell=False)
 
+def message(msg=None):
+    "Toggle the global message (with the given message), or remove it."
+    filename = os.path.join(env.path, "MESSAGE")
+    if msg is None:
+        if exists(filename):
+            run("rm " + filename)
+            print("MESSAGE mode is OFF")
+        else:
+            print("No message given, and no message file present. Nothing to do...")
+    else:
+        run("echo '" + msg + "' > " + filename)
+        print("MESSAGE is ON")
+
+def whitelist(ip=None):
+    "Toggle the IP whitelist"
+    filename = os.path.join(env.path, "IP_WHITELIST")
+    if ip is None:
+        if exists(filename):
+            run("rm " + filename)
+            print("IP_WHITELIST mode is OFF")
+        else:
+            print("No IP given, and no whitelist file present. Nothing to do...")
+    else:
+        # check the format in a VERY crude and stupid way
+        import re
+        m = re.match(r"^(\d{1,3})\.(\d{1,3})\.(\d{1,3})\.(\d{1,3})$", ip)
+        if not m:
+            abort("This doesn't look like a single IP(?): " + ip)
+        else:
+            run("echo '" + ip + "' > " + filename)
+            print("IP_WHITELIST is ON for " + ip)
+
+def maintenance():
+    "Toggle maintenance mode."
+    filename = os.path.join(env.path, "MAINTENANCE")
+    if exists(filename):
+        run("rm " + filename)
+        print("MAINTENANCE mode is OFF")
+    else:
+        run("touch " + filename)
+        print("MAINTENANCE mode is ON")
+
 def readonly():
     "Toggle readonly mode."
     filename = os.path.join(env.path, "READONLY")
@@ -100,7 +142,6 @@ def readonly():
     else:
         run("touch " + filename)
         print("READONLY mode is ON")
-
 
 def restart():
     "Restart docview"

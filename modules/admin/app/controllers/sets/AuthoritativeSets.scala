@@ -1,23 +1,23 @@
 package controllers.sets
 
+import auth.AccountManager
 import play.api.libs.concurrent.Execution.Implicits._
 import _root_.forms.VisibilityForm
 import controllers.generic._
 import models._
 import defines.{ContentTypes, EntityType}
-import utils.search.{Indexer, Resolver, Dispatcher}
+import utils.search.{SearchConstants, SearchIndexer, SearchItemResolver, SearchEngine}
 import com.google.inject._
 import scala.concurrent.Future.{successful => immediate}
 import backend.{Entity, IdGenerator, Backend}
 import play.api.Configuration
 import play.api.Play.current
-import solr.SolrConstants
 import controllers.base.AdminController
 
 @Singleton
 case class
-AuthoritativeSets @Inject()(implicit globalConfig: global.GlobalConfig, searchDispatcher: Dispatcher, searchIndexer: Indexer,
-            searchResolver: Resolver, backend: Backend, idGenerator: IdGenerator, userDAO: AccountDAO)
+AuthoritativeSets @Inject()(implicit globalConfig: global.GlobalConfig, searchEngine: SearchEngine, searchIndexer: SearchIndexer,
+            searchResolver: SearchItemResolver, backend: Backend, idGenerator: IdGenerator, accounts: AccountManager, pageRelocator: utils.MovedPageLookup)
   extends AdminController
   with CRUD[AuthoritativeSetF,AuthoritativeSet]
   with Creator[HistoricalAgentF, HistoricalAgent, AuthoritativeSet]
@@ -37,10 +37,10 @@ AuthoritativeSets @Inject()(implicit globalConfig: global.GlobalConfig, searchDi
 
   def get(id: String) = ItemMetaAction(id).async { implicit request =>
     find[HistoricalAgent](
-      filters = Map(SolrConstants.HOLDER_ID -> request.item.id),
-      entities=List(EntityType.HistoricalAgent)).map { r =>
+      filters = Map(SearchConstants.HOLDER_ID -> request.item.id),
+      entities=List(EntityType.HistoricalAgent)).map { result =>
       Ok(views.html.admin.authoritativeSet.show(
-          request.item, r.page, r.params, r.facets, setRoutes.get(id), request.annotations, request.links))
+          request.item, result, setRoutes.get(id), request.annotations, request.links))
     }
   }
 
@@ -176,7 +176,7 @@ AuthoritativeSets @Inject()(implicit globalConfig: global.GlobalConfig, searchDi
           action = setRoutes.updateIndexPost(id)))
   }
 
-  def updateIndexPost(id: String) = updateChildItemsPost(SolrConstants.HOLDER_ID, id)
+  def updateIndexPost(id: String) = updateChildItemsPost(SearchConstants.HOLDER_ID, id)
 }
 
 
