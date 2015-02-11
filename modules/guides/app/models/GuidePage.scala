@@ -77,6 +77,7 @@ object GuidePage {
 
   object Layout extends Enumeration with StorableEnum {
     val Markdown = Value("md")
+    val Html = Value("html")
     val Organisation = Value("organisation")
     val Person = Value("person")
     val Map = Value("map")

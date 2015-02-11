@@ -225,6 +225,7 @@ case class Guides @Inject()(implicit globalConfig: global.GlobalConfig, searchEn
         case Layout.Person => guideAuthority(page, Map(SearchConstants.HOLDER_ID -> page.content), guide)
         case Layout.Map => guideMap(page, Map(SearchConstants.HOLDER_ID -> page.content), guide)
         case Layout.Organisation => guideOrganization(page, Map(SearchConstants.HOLDER_ID -> page.content), guide)
+        case Layout.Html => guideHtml(guide, page)
         case Layout.Markdown => guideMarkdown(guide, page)
         case Layout.Timeline => guideTimeline(guide, page)
       }
@@ -305,7 +306,14 @@ case class Guides @Inject()(implicit globalConfig: global.GlobalConfig, searchEn
   }
 
   /*
-   *   Layout named "md" [Markdown]
+   *   Layout named "html" (Html)
+   */
+  def guideHtml(guide: Guide, page: GuidePage) = OptionalUserAction { implicit request =>
+    Ok(p.guides.html(guide, page))
+  }
+
+  /*
+   *   Layout named "html" (Html)
    */
   def guideMarkdown(guide: Guide, page: GuidePage) = OptionalUserAction { implicit request =>
     Ok(p.guides.markdown(guide, page))
