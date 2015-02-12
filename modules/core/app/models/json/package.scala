@@ -21,15 +21,15 @@ package object json {
     def readListOrSingle[T](implicit r: Reads[T]): Reads[List[T]] =
       path.read[List[T]].orElse(path.readNullable[T].map(_.toList))
 
-    /** Lazy variant of [[readListOrSingle]]. */
+    /** Lazy variant of [[models.json.JsPathExtensions.readListOrSingle]]. */
     def lazyReadListOrSingle[T](r: => Reads[T]): Reads[List[T]] =
       Reads(js => readListOrSingle(r).reads(js))
 
-    /** Nullable variant of [[readListOrSingle]]. */
+    /** Nullable variant of [[models.json.JsPathExtensions.readListOrSingle]]. */
     def readListOrSingleNullable[T](implicit r: Reads[T]): Reads[Option[List[T]]] =
       path.readNullable[List[T]].orElse(path.readNullable[T].map(s => s.map(List(_))))
 
-    /** Lazy variant of [[readListOrSingleNullable]]. */
+    /** Lazy variant of [[models.json.JsPathExtensions.readListOrSingleNullable]]. */
     def lazyReadListOrSingleNullable[T](r: => Reads[T]): Reads[Option[List[T]]] =
       Reads(js => readListOrSingleNullable(r).reads(js))
 
@@ -79,7 +79,7 @@ package object json {
     def nullableHeadReads[T](implicit r: Reads[T]): Reads[Option[T]] =
       nullableListReads(r).map(_.headOption)
 
-    /** Lazy variant of [[nullableHeadReads]]. */
+    /** Lazy variant of [[models.json.JsPathExtensions.nullableHeadReads]]. */
     def lazyNullableHeadReads[T](r: => Reads[T]): Reads[Option[T]] =
       Reads(js => nullableHeadReads(r).reads(js))
   }
