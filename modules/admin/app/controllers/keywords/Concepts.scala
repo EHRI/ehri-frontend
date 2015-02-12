@@ -36,19 +36,20 @@ case class Concepts @Inject()(implicit globalConfig: global.GlobalConfig, search
   private val conceptRoutes = controllers.keywords.routes.Concepts
 
   private def entityFacets: FacetBuilder = { implicit request =>
+    import SearchConstants._
     List(
       FieldFacetClass(
-        key=Description.LANG_CODE,
-        name=Messages("cvocConcept." + Description.LANG_CODE),
-        param="lang",
-        render=(s: String) => Helpers.languageCodeToName(s),
+        key = LANGUAGE_CODE,
+        name = Messages("cvocConcept." + LANGUAGE_CODE),
+        param = "lang",
+        render = (s: String) => Helpers.languageCodeToName(s),
         display = FacetDisplay.DropDown,
         sort = FacetSort.Name
       ),
       FieldFacetClass(
-        key="holderName",
-        name=Messages("cvocConcept.inVocabulary"),
-        param="set",
+        key = HOLDER_NAME,
+        name = Messages("cvocConcept.inVocabulary"),
+        param = "set",
         sort = FacetSort.Name
       )
     )

@@ -25,9 +25,7 @@ case class Countries @Inject()(implicit globalConfig: global.GlobalConfig, searc
   private val portalCountryRoutes = controllers.portal.routes.Countries
 
   def searchAll = UserBrowseAction.async { implicit request =>
-    find[Country](entities = List(EntityType.Country),
-      facetBuilder = countryFacets
-    ).map { result =>
+    findType[Country](facetBuilder = countryFacets).map { result =>
       Ok(p.country.list(result, portalCountryRoutes.searchAll(), request.watched))
     }
   }
@@ -38,10 +36,9 @@ case class Countries @Inject()(implicit globalConfig: global.GlobalConfig, searc
   }
 
   def search(id: String) = GetItemAction(id).async {  implicit request =>
-      find[Repository](
-        filters = Map("countryCode" -> request.item.id),
-        facetBuilder = repositorySearchFacets,
-        entities = List(EntityType.Repository)
+      findType[Repository](
+        filters = Map(SearchConstants.COUNTRY_CODE -> request.item.id),
+        facetBuilder = localRepoFacets
       ).map { result =>
         if (isAjax) Ok(p.country.childItemSearch(request.item, result,
           portalCountryRoutes.search(id), request.watched))

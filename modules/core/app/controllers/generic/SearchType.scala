@@ -28,10 +28,9 @@ trait SearchType[MT] extends Read[MT] with Search {
     OptionalUserAction andThen new ActionTransformer[OptionalUserRequest, SearchTypeRequest] {
       override protected def transform[A](request: OptionalUserRequest[A]): Future[SearchTypeRequest[A]] = {
         implicit val r = request
-        find[MT](
+        findType[MT](
           filters,
           extra,
-          entities = Seq(ct.entityType),
           facetBuilder = facetBuilder).map { result =>
           SearchTypeRequest(result, request.userOpt, request)
         }

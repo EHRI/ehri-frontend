@@ -28,9 +28,8 @@ case class DocumentaryUnits @Inject()(implicit globalConfig: global.GlobalConfig
     val filters = if (request.getQueryString(SearchParams.QUERY).filterNot(_.trim.isEmpty).isEmpty)
       Map(SearchConstants.TOP_LEVEL -> true) else Map.empty[String,Any]
 
-    find[DocumentaryUnit](
+    findType[DocumentaryUnit](
       filters = filters,
-      entities = List(EntityType.DocumentaryUnit),
       facetBuilder = docSearchFacets
     ).map { result =>
       Ok(p.documentaryUnit.list(result, portalDocRoutes.searchAll(),
@@ -44,9 +43,8 @@ case class DocumentaryUnits @Inject()(implicit globalConfig: global.GlobalConfig
   }
 
   def search(id: String) = GetItemAction(id).async { implicit request =>
-      find[DocumentaryUnit](
+      findType[DocumentaryUnit](
         filters = Map(SearchConstants.PARENT_ID -> request.item.id),
-        entities = List(EntityType.DocumentaryUnit),
         facetBuilder = localDocFacets,
         defaultOrder = SearchOrder.Id
       ).map { result =>

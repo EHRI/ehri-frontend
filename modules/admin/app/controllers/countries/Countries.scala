@@ -42,9 +42,8 @@ case class Countries @Inject()(implicit globalConfig: global.GlobalConfig, searc
 
 
   def get(id: String) = ItemMetaAction(id).async { implicit request =>
-    find[Repository](
-      filters = Map(SearchConstants.COUNTRY_CODE -> request.item.id),
-      entities = List(EntityType.Repository)
+    findType[Repository](
+      filters = Map(SearchConstants.COUNTRY_CODE -> request.item.id)
     ).map { result =>
       Ok(views.html.admin.country.show(request.item, result,
         countryRoutes.get(id), request.annotations, request.links))

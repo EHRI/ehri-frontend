@@ -10,7 +10,7 @@ import utils.search._
 import play.api.Logger
 import controllers.base.CoreActionBuilders
 import scala.concurrent.Future
-import backend.{WithId, BackendReadable}
+import backend.{BackendContentType, WithId, BackendReadable}
 
 
 /**
@@ -180,6 +180,33 @@ trait Search extends CoreActionBuilders {
       }
       res.copy(page = res.page.copy(items = list.zip(res.page.items)))
     }
+  }
+
+  /**
+   * Dispatch a search for items of a single content type to the search engine.
+   *
+   * @param filters A map of key/value filter pairs
+   * @param extra An arbitrary set of key/value parameters
+   * @param defaultParams The default parameters
+   * @param idFilters Additional ID filters
+   * @param facetBuilder A function to create the set of facets
+   *                     from the incoming request
+   * @param mode The search mode, default all or default to none
+   * @return A query result containing the page of search data,
+   *         plus the resolved parameters and facets.
+   */
+  def findType[MT](
+    filters: Map[String, Any] = Map.empty,
+    extra: Map[String, Any] = Map.empty,
+    defaultParams: SearchParams = SearchParams.empty,
+    defaultOrder: SearchOrder.Value = SearchOrder.DateNewest,
+    idFilters: Seq[String] = Seq.empty,
+    facetBuilder: FacetBuilder = emptyFacets,
+    mode: SearchMode.Value = SearchMode.DefaultAll,
+    resolverOpt: Option[SearchItemResolver] = None)(
+      implicit request: RequestHeader, userOpt: Option[UserProfile], rd: BackendContentType[MT]): Future[SearchResult[(MT,SearchHit)]] = {
+
+    find[MT](filters, extra, defaultParams, defaultOrder, idFilters, Seq(rd.entityType), facetBuilder, mode, resolverOpt)
   }
 
   def filter[A](filters: Map[String, Any] = Map.empty, defaultParams: Option[SearchParams] = None)(implicit userOpt: Option[UserProfile], request: Request[A]): Future[Page[FilterHit]] = {

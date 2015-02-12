@@ -25,20 +25,16 @@ case class Concepts @Inject()(implicit globalConfig: global.GlobalConfig, search
   private val portalConceptRoutes = controllers.portal.routes.Concepts
 
   def searchAll = UserBrowseAction.async { implicit request =>
-    find[Concept](
-      entities = List(EntityType.Concept),
-      facetBuilder = conceptFacets
-    ).map { result =>
+    findType[Concept](facetBuilder = conceptFacets).map { result =>
       Ok(p.concept.list(result,
         portalConceptRoutes.searchAll(), request.watched))
     }
   }
 
   def browse(id: String) = GetItemAction(id).async { implicit request =>
-    find[Concept](
-      filters = Map("parentId" -> request.item.id),
-      facetBuilder = conceptFacets,
-      entities = List(EntityType.Concept)
+    findType[Concept](
+      filters = Map(SearchConstants.PARENT_ID -> request.item.id),
+      facetBuilder = conceptFacets
     ).map { result =>
       Ok(p.concept.show(request.item, result,
         portalConceptRoutes.browse(id), request.annotations, request.links, request.watched))

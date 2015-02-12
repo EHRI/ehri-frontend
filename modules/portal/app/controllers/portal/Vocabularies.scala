@@ -34,9 +34,8 @@ case class Vocabularies @Inject()(implicit globalConfig: global.GlobalConfig, se
         SearchConstants.HOLDER_ID -> request.item.id,
         SearchConstants.TOP_LEVEL -> true.toString
       )
-      find[Concept](
+      findType[Concept](
         filters = filters,
-        entities = List(EntityType.Concept),
         facetBuilder = conceptFacets
       ).map { result =>
         if (isAjax) Ok(p.vocabulary.childItemSearch(request.item, result,

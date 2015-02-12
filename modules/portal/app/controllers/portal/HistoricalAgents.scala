@@ -25,10 +25,7 @@ case class HistoricalAgents @Inject()(implicit globalConfig: global.GlobalConfig
   private val portalAgentRoutes = controllers.portal.routes.HistoricalAgents
 
   def searchAll = UserBrowseAction.async { implicit request =>
-    find[HistoricalAgent](
-      entities = List(EntityType.HistoricalAgent),
-      facetBuilder = historicalAgentFacets
-    ).map { result =>
+    findType[HistoricalAgent](facetBuilder = historicalAgentFacets).map { result =>
       Ok(p.historicalAgent.list(result,
         portalAgentRoutes.searchAll(), request.watched))
     }

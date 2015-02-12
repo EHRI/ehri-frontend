@@ -166,9 +166,8 @@ case class UserProfiles @Inject()(implicit globalConfig: global.GlobalConfig, se
   }
 
   def annotations(format: DataFormat.Value = DataFormat.Html) = WithUserAction.async { implicit request =>
-    find[Annotation](
-      filters = Map(SearchConstants.ANNOTATOR_ID -> request.user.id),
-      entities = Seq(EntityType.Annotation)
+    findType[Annotation](
+      filters = Map(SearchConstants.ANNOTATOR_ID -> request.user.id)
     ).map { result =>
       val itemsOnly = result.mapItems(_._1).page
       format match {

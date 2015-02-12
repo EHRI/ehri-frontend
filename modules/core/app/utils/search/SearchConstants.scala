@@ -36,6 +36,11 @@ object SearchConstants {
   final val CHILD_COUNT = "childCount"
 
   /**
+   * Approx number of characters in the item text
+   */
+  final val CHAR_COUNT = "charCount"
+
+  /**
    * Local identifier
    */
   final val IDENTIFIER = "identifier"
@@ -123,6 +128,11 @@ object SearchConstants {
   final val PARENT_ID = "parentId"
 
   /**
+   * Items that have children
+   */
+  final val IS_PARENT = "isParent"
+
+  /**
    * Holder id for hierarchical items.
    */
   final val HOLDER_ID = "holderId"
@@ -152,4 +162,8 @@ object SearchConstants {
    */
   final val ACTIVE = "active"
 
+  /**
+   * Created by EHRI or a partner
+   */
+  final val CREATION_PROCESS = "creationProcess"
 }

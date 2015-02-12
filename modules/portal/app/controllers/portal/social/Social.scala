@@ -44,12 +44,12 @@ case class Social @Inject()(implicit globalConfig: global.GlobalConfig, searchEn
     for {
       following <- backend.following[UserProfile](request.user.id, PageParams.empty)
       blocked <- backend.blocked[UserProfile](request.user.id, PageParams.empty)
-      srch <- searchEngineFromRequest().withEntities(Seq(EntityType.UserProfile))
-        .withFilters(Map(SearchConstants.ACTIVE -> true.toString)).search()
-      users <- searchResolver.resolve[UserProfile](srch.page.items)
+      result <- findType[UserProfile](
+        filters = Map(SearchConstants.ACTIVE -> true.toString)
+      )
     } yield Ok(p.userProfile.browseUsers(
         request.user,
-        srch.withItems(users.zip(srch.page.items)),
+        result,
         controllers.portal.social.routes.Social.browseUsers(),
         following
     ))

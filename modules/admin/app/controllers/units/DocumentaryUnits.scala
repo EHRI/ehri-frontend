@@ -36,58 +36,53 @@ case class DocumentaryUnits @Inject()(implicit globalConfig: global.GlobalConfig
   with Search {
 
   // Documentary unit facets
+  import SearchConstants._
   private val entityFacets: FacetBuilder = { implicit request =>
     List(
       FieldFacetClass(
-        key="isParent",
-        name=Messages("facet.parent"),
-        param="parent",
-        render=s => Messages("facet.parent." + s),
+        key = IS_PARENT,
+        name = Messages("facet.parent"),
+        param = "parent",
+        render = s => Messages("facet.parent." + s),
         sort = FacetSort.Fixed,
         display = FacetDisplay.List
       ),
       FieldFacetClass(
-        key=Description.LANG_CODE,
-        name=Messages("documentaryUnit." + Description.LANG_CODE),
-        param="lang",
-        render=Helpers.languageCodeToName,
+        key = LANGUAGE_CODE,
+        name = Messages("documentaryUnit." + LANGUAGE_CODE),
+        param = "lang",
+        render = Helpers.languageCodeToName,
         display = FacetDisplay.DropDown
       ),
       FieldFacetClass(
-        key="creationProcess",
-        name=Messages("facet.source"),
-        param="source",
-        render=s => Messages("facet.source." + s),
+        key = CREATION_PROCESS,
+        name = Messages("facet.source"),
+        param = "source",
+        render = s => Messages("facet.source." + s),
         sort = FacetSort.Name,
         display = FacetDisplay.List
       ),
       FieldFacetClass(
-        key="holderName",
-        name=Messages("documentaryUnit.heldBy"),
-        param="holder",
+        key = HOLDER_NAME,
+        name = Messages("documentaryUnit.heldBy"),
+        param = "holder",
         sort = FacetSort.Name,
         display = FacetDisplay.DropDown
       ),
       FieldFacetClass(
-        key="countryCode",
-        name=Messages("repository.countryCode"),
-        param="country",
-        render= (s: String) => Helpers.countryCodeToName(s),
+        key = COUNTRY_CODE,
+        name = Messages("repository." + COUNTRY_CODE),
+        param = "country",
+        render = (s: String) => Helpers.countryCodeToName(s),
         sort = FacetSort.Name,
         display = FacetDisplay.DropDown
-      ),
-      FieldFacetClass(
-        key="copyrightStatus",
-        name=Messages("copyrightStatus.copyright"),
-        param="copyright",
-        render=s => Messages("copyrightStatus." + s)
       ),
       QueryFacetClass(
-        key="charCount",
-        name=Messages("lod"),
-        param="lod",
-        render=s => Messages("lod." + s),
-        facets=List(
+        key = CHAR_COUNT,
+        name = Messages("lod"),
+        param = "lod",
+        render = s => Messages("lod." + s),
+        facets = List(
           QueryFacet(value = "low", range = Start to Val("500")),
           QueryFacet(value = "medium", range = Val("501") to Val("2000")),
           QueryFacet(value = "high", range = Val("2001") to End)
@@ -96,10 +91,10 @@ case class DocumentaryUnits @Inject()(implicit globalConfig: global.GlobalConfig
         display = FacetDisplay.List
       ),
       FieldFacetClass(
-        key="scope",
-        name=Messages("scope.scope"),
-        param="scope",
-        render=s => Messages("scope." + s)
+        key = "scope",
+        name = Messages("scope.scope"),
+        param = "scope",
+        render = s => Messages("scope." + s)
       )
     )
   }
@@ -123,9 +118,8 @@ case class DocumentaryUnits @Inject()(implicit globalConfig: global.GlobalConfig
     val filters = if (request.getQueryString(SearchParams.QUERY).filterNot(_.trim.isEmpty).isEmpty)
       Map(SearchConstants.TOP_LEVEL -> true) else Map.empty[String,Any]
 
-    find[DocumentaryUnit](
+    findType[DocumentaryUnit](
       filters = filters,
-      entities=List(EntityType.DocumentaryUnit),
       facetBuilder = entityFacets
     ).map { result =>
       Ok(views.html.admin.documentaryUnit.search(
@@ -135,7 +129,7 @@ case class DocumentaryUnits @Inject()(implicit globalConfig: global.GlobalConfig
   }
 
   def searchChildren(id: String) = ItemPermissionAction(id).async { implicit request =>
-    find[DocumentaryUnit](
+    findType[DocumentaryUnit](
       filters = Map(SearchConstants.PARENT_ID -> request.item.id),
       facetBuilder = entityFacets,
       defaultOrder = SearchOrder.Id
@@ -147,9 +141,8 @@ case class DocumentaryUnits @Inject()(implicit globalConfig: global.GlobalConfig
   }
 
   def get(id: String) = ItemMetaAction(id).async { implicit request =>
-    find[DocumentaryUnit](
+    findType[DocumentaryUnit](
       filters = Map(SearchConstants.PARENT_ID -> request.item.id),
-      entities = List(EntityType.DocumentaryUnit),
       facetBuilder = entityFacets,
       defaultOrder = SearchOrder.Id
     ).map { result =>

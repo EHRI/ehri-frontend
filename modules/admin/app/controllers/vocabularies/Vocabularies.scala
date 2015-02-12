@@ -32,9 +32,8 @@ case class Vocabularies @Inject()(implicit globalConfig: global.GlobalConfig, se
   private val vocabRoutes = controllers.vocabularies.routes.Vocabularies
 
   def get(id: String) = ItemMetaAction(id).async { implicit request =>
-    find[Concept](
-      filters = Map(SearchConstants.HOLDER_ID -> request.item.id),
-      entities = List(EntityType.Concept)
+    findType[Concept](
+      filters = Map(SearchConstants.HOLDER_ID -> request.item.id)
     ).map { result =>
       Ok(views.html.admin.vocabulary.show(
         request.item, result,

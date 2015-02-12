@@ -25,8 +25,7 @@ case class Repositories @Inject()(implicit globalConfig: global.GlobalConfig, se
   private val portalRepoRoutes = controllers.portal.routes.Repositories
 
   def searchAll = UserBrowseAction.async { implicit request =>
-    find[Repository](
-      entities = List(EntityType.Repository),
+    findType[Repository](
       facetBuilder = repositorySearchFacets
     ).map { result =>
       Ok(p.repository.list(result, portalRepoRoutes.searchAll(),
@@ -35,10 +34,8 @@ case class Repositories @Inject()(implicit globalConfig: global.GlobalConfig, se
   }
 
   def searchAllByCountry = UserBrowseAction.async { implicit request =>
-    find[Repository](
-      defaultParams = SearchParams(
-        sort = Some(SearchOrder.Country),
-        entities = List(EntityType.Repository)),
+    findType[Repository](
+      defaultParams = SearchParams(sort = Some(SearchOrder.Country)),
       facetBuilder = repositorySearchFacets
     ).map { result =>
       Ok(p.repository.listByCountry(result,
@@ -57,9 +54,8 @@ case class Repositories @Inject()(implicit globalConfig: global.GlobalConfig, se
       Map(SearchConstants.TOP_LEVEL -> true)
       else Map.empty[String,Any]) ++ Map(SearchConstants.HOLDER_ID -> request.item.id)
 
-    find[DocumentaryUnit](
+    findType[DocumentaryUnit](
       filters = filters,
-      entities = List(EntityType.DocumentaryUnit),
       facetBuilder = localDocFacets,
       defaultOrder = SearchOrder.Id
     ).map { result =>

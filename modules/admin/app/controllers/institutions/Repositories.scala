@@ -34,23 +34,24 @@ case class Repositories @Inject()(implicit globalConfig: global.GlobalConfig, se
   // Documentary unit facets
   private val repositoryFacets: FacetBuilder = { implicit request =>
     val prefix = EntityType.Repository.toString
+    import SearchConstants._
     List(
       QueryFacetClass(
-        key="childCount",
-        name=Messages(prefix + ".itemsHeldOnline"),
-        param="data",
-        render=s => Messages(prefix + "." + s),
-        facets=List(
+        key = CHILD_COUNT,
+        name = Messages(prefix + ".itemsHeldOnline"),
+        param = "data",
+        render = s => Messages(prefix + "." + s),
+        facets = List(
           QueryFacet(value = "false", range = Val("0"), name = Some("noChildItems")),
           QueryFacet(value = "true", range = Val("1"), name = Some("hasChildItems"))
         )
       ),
       QueryFacetClass(
-        key="charCount",
-        name=Messages("facet.lod"),
-        param="lod",
-        render=s => Messages("facet.lod." + s),
-        facets=List(
+        key = CHAR_COUNT,
+        name = Messages("facet.lod"),
+        param = "lod",
+        render = s => Messages("facet.lod." + s),
+        facets = List(
           QueryFacet(value = "low", range = Val("0") to Val("500")),
           QueryFacet(value = "medium", range = Val("501") to Val("2000")),
           QueryFacet(value = "high", range = Val("2001") to End)
@@ -59,20 +60,20 @@ case class Repositories @Inject()(implicit globalConfig: global.GlobalConfig, se
         display = FacetDisplay.List
       ),
       FieldFacetClass(
-        key="countryCode",
-        name=Messages("repository.countryCode"),
-        param="country",
-        render=Helpers.countryCodeToName,
+        key = COUNTRY_CODE,
+        name = Messages("repository.countryCode"),
+        param = "country",
+        render = Helpers.countryCodeToName,
         display = FacetDisplay.DropDown,
         sort = FacetSort.Name
       ),
       FieldFacetClass(
-        key="priority",
-        name=Messages("facet.priority"),
-        param="priority",
+        key = "priority",
+        name = Messages("facet.priority"),
+        param = "priority",
         sort = FacetSort.Name,
         display = FacetDisplay.Choice,
-        render= {
+        render = {
           case s if s == "0" => Messages("priority.zero")
           case s if s == "1" => Messages("priority.one")
           case s if s == "2" => Messages("priority.two")
@@ -109,9 +110,8 @@ case class Repositories @Inject()(implicit globalConfig: global.GlobalConfig, se
     val filters = (if (request.getQueryString(SearchParams.QUERY).filterNot(_.trim.isEmpty).isEmpty)
       Map(SearchConstants.TOP_LEVEL -> true) else Map.empty[String,Any]) ++ Map(SearchConstants.HOLDER_ID -> request.item.id)
 
-    find[DocumentaryUnit](
+    findType[DocumentaryUnit](
       filters = filters,
-      entities = List(EntityType.DocumentaryUnit),
       facetBuilder = repositoryFacets,
       defaultOrder = SearchOrder.Id
     ).map { result =>

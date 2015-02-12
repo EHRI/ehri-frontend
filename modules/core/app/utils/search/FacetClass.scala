@@ -21,7 +21,13 @@ sealed trait FacetClass[+T <: Facet] {
     case FacetSort.Count => sortedByCount
     case _ => facets
   }
-  def isActive = facets.exists(_.count > 0)
+
+  /**
+   * A facet class is deemed active if either it has applied facets
+   * or it contains facets which are worth applying, e.g. have a
+   * non-zero item count.
+   */
+  def isActive = facets.exists(_.applied) || facets.exists(_.count > 0)
   def render: String => String = identity
   def pretty[U <: Facet](f: U): String = f.name.map(render).getOrElse(render(f.value))
 
@@ -78,9 +84,7 @@ case class QueryFacetClass(
   override val facets: Seq[QueryFacet],
   override val display: FacetDisplay.Value = FacetDisplay.List,
   override val sort: FacetSort.Value = FacetSort.Name
-) extends FacetClass[QueryFacet] {
-  override def isActive = true
-}
+) extends FacetClass[QueryFacet]
 
 
 object FacetClass {

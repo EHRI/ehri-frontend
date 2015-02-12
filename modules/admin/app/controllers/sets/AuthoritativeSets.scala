@@ -36,9 +36,9 @@ AuthoritativeSets @Inject()(implicit globalConfig: global.GlobalConfig, searchEn
 
 
   def get(id: String) = ItemMetaAction(id).async { implicit request =>
-    find[HistoricalAgent](
-      filters = Map(SearchConstants.HOLDER_ID -> request.item.id),
-      entities=List(EntityType.HistoricalAgent)).map { result =>
+    findType[HistoricalAgent](
+      filters = Map(SearchConstants.HOLDER_ID -> request.item.id)
+    ).map { result =>
       Ok(views.html.admin.authoritativeSet.show(
           request.item, result, setRoutes.get(id), request.annotations, request.links))
     }
