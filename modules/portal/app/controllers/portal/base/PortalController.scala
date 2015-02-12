@@ -7,7 +7,7 @@ import utils._
 import controllers.renderError
 import models.UserProfile
 import play.api.mvc._
-import controllers.base.{SessionPreferences, ControllerHelpers, AuthController}
+import controllers.base.{SessionPreferences, ControllerHelpers, CoreActionBuilders}
 import scala.concurrent.{ExecutionContext, Future}
 import scala.concurrent.Future.{successful => immediate}
 import play.api.Play.current
@@ -24,7 +24,7 @@ import views.html.errors.{maintenance, itemNotFound}
  * @author Mike Bryant (http://github.com/mikesname)
  */
 trait PortalController
-  extends AuthController
+  extends CoreActionBuilders
   with ControllerHelpers
   with PortalAuthConfigImpl
   with Secured

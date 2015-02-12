@@ -20,7 +20,7 @@ import scala.language.implicitConversions
  * types of request authentication.
  * NB: None of the methods here actually reer
  */
-trait AuthController extends Controller with ControllerHelpers with AuthActionBuilders with AuthConfigImpl {
+trait CoreActionBuilders extends Controller with ControllerHelpers with AuthActionBuilders with AuthConfigImpl {
 
   // Inheriting controllers need to be injected with
   // a backend implementation.

@@ -2,7 +2,7 @@ package controllers.generic
 
 import play.api.libs.concurrent.Execution.Implicits._
 import play.api.mvc.Controller
-import controllers.base.{ControllerHelpers, AuthController}
+import controllers.base.{ControllerHelpers, CoreActionBuilders}
 import utils.search.SearchIndexer
 import play.api.libs.iteratee.{Enumerator, Concurrent}
 import scala.concurrent.Future
@@ -26,7 +26,7 @@ object Indexable {
  *
  * @author Mike Bryant (http://github.com/mikesname)
  */
-trait Indexable[MT] extends Controller with AuthController with ControllerHelpers {
+trait Indexable[MT] extends Controller with CoreActionBuilders with ControllerHelpers {
 
   def searchIndexer: SearchIndexer
 

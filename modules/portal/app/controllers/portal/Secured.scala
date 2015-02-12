@@ -1,6 +1,6 @@
 package controllers.portal
 
-import controllers.base.AuthController
+import controllers.base.CoreActionBuilders
 import play.api.Play._
 
 /**
@@ -8,7 +8,7 @@ import play.api.Play._
  */
 trait Secured {
 
-  self: AuthController =>
+  self: CoreActionBuilders =>
 
   // This is a publically-accessible site, but not just yet.
   override val staffOnly = current.configuration.getBoolean("ehri.portal.secured").getOrElse(true)

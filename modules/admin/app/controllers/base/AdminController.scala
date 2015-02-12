@@ -11,7 +11,7 @@ import views.html.errors.{maintenance, itemNotFound}
 /**
  * @author Mike Bryant (http://github.com/mikesname)
  */
-trait AdminController extends AuthController with ControllerHelpers with AuthConfigImpl {
+trait AdminController extends CoreActionBuilders with ControllerHelpers with AuthConfigImpl {
 
   def pageRelocator: utils.MovedPageLookup
 

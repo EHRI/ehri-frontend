@@ -1,6 +1,6 @@
 package controllers.core.auth.openid
 
-import controllers.base.AuthController
+import controllers.base.CoreActionBuilders
 import models.{UserProfile, Account}
 import play.api.libs.openid._
 import play.api.libs.concurrent.Execution.Implicits._
@@ -20,7 +20,7 @@ import controllers.core.auth.AccountHelpers
  */
 trait OpenIDLoginHandler extends AccountHelpers {
 
-  self: Controller with AuthController =>
+  self: Controller with CoreActionBuilders =>
 
   val backend: Backend
   val accounts: auth.AccountManager

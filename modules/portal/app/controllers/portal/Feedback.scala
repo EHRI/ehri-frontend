@@ -3,7 +3,7 @@ package controllers.portal
 import auth.AccountManager
 import play.api.libs.concurrent.Execution.Implicits._
 import play.api.mvc.{Result, RequestHeader, Controller}
-import controllers.base.{AuthController, ControllerHelpers}
+import controllers.base.{CoreActionBuilders, ControllerHelpers}
 import scala.concurrent.Future.{successful => immediate}
 import backend.{Backend, FeedbackDAO}
 import com.google.inject._

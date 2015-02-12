@@ -14,14 +14,14 @@ import play.api.data.Forms._
 import utils.forms._
 import play.api.mvc.Result
 import java.util.UUID
-import controllers.base.AuthController
+import controllers.base.CoreActionBuilders
 
 /**
  * @author Mike Bryant (http://github.com/mikesname)
  */
 trait UserPasswordLoginHandler {
 
-  self: Controller with AuthController with LoginLogout with AccountHelpers =>
+  self: Controller with CoreActionBuilders with LoginLogout with AccountHelpers =>
 
   import play.api.Play.current
 

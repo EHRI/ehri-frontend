@@ -8,7 +8,7 @@ import defines.EntityType
 import utils.Page
 import utils.search._
 import play.api.Logger
-import controllers.base.AuthController
+import controllers.base.CoreActionBuilders
 import scala.concurrent.Future
 import backend.{WithId, BackendReadable}
 
@@ -16,7 +16,7 @@ import backend.{WithId, BackendReadable}
 /**
  * Helpers for using the search engine from controllers.
  */
-trait Search extends AuthController {
+trait Search extends CoreActionBuilders {
 
   def searchEngine: utils.search.SearchEngine
   def searchResolver: utils.search.SearchItemResolver

@@ -1,8 +1,8 @@
 package controllers.generic
 
 import backend.Backend
-import controllers.base.AuthController
+import controllers.base.CoreActionBuilders
 
-trait Generic[MT] extends AuthController {
+trait Generic[MT] extends CoreActionBuilders {
   val backend: Backend
 }

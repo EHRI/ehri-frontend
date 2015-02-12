@@ -6,7 +6,7 @@ import auth.AuthenticationError
 import auth.oauth2.providers.OAuth2Provider
 import auth.oauth2.{OAuth2Flow, UserData}
 import backend.{AnonymousUser, AuthenticatedUser, Backend}
-import controllers.base.AuthController
+import controllers.base.CoreActionBuilders
 import controllers.core.auth.AccountHelpers
 import global.GlobalConfig
 import models._
@@ -29,7 +29,7 @@ import scala.concurrent.Future.{successful => immediate}
  */
 trait OAuth2LoginHandler extends AccountHelpers {
 
-  self: Controller with AuthController =>
+  self: Controller with CoreActionBuilders =>
 
   def backend: Backend
   def accounts: auth.AccountManager
