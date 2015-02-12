@@ -676,6 +676,67 @@ dataPolicy.terms=I declare that I will use Sensitive Personal Data for research 
   regulations.
 dataPolicy.agree=I Agree
 
+privacy=Privacy Policy
+privacy.header=EHRI Privacy Policy
+privacy.users.header=1. Data from users of this website and its services
+privacy.users.1=In order to use a number of the features of the EHRI websites, EHRI requires certain personal \
+  data from you such as your name, address, email and professional affiliation. \
+  These personal data will be treated with care.
+privacy.users.2=For certain categories of website users, a set of personal data is kept, including pages consulted, \
+  address data for mailing lists and contact databases. This is necessary to enable the website to operate properly. \
+  Certain of these data are required for statistical purposes and are anonymised. The use of individual personal data \
+  is restricted to the purpose for which they were collected and of which the provider thereof is aware (e.g. sending \
+  out a newsletter). Such data will not be communicated to third parties.
+privacy.users.3=Users who register on the EHRI Portal and create a profile agree that the personal information \
+  they provide about themselves can be made available to other registered portal users and that their name will \
+  be published on the portal if they author public content. Registered users are contactable by other registered \
+  users and they may receive communications from such users to the email address provided. However, the email address \
+  of the recipient of such a communication will not be disclosed to the initiator of the contact. Registered users may \
+  further opt-out from being contactable by updating their profile preferences.
+privacy.users.4=Except the cases listed above, EHRI will not pass on any data of registered users to third parties \
+  unless required to by law.
+privacy.data.header=2. Data on the research portal
+privacy.data.1=The research portal contains descriptions of Holocaust-related collections and sources kept in \
+  collection-holding institutions (archives, documentation centres...) in Western, Eastern and Northern Europe, \
+  the USA and Israel. These collection descriptions may concern personal data or sensitive personal data (e.g. \
+  data pertaining to religion or ethnic origin). Since the processing and publication of these data may have \
+  implications from the perspective of data protection, EHRI has conducted a risk assessment to determine whether \
+  these data can be accessed via the research portal and the internet. EHRI decided that, taking into account European \
+  and national personal data protection regulations, the nature of the collection descriptions, archival practice \
+  and the privacy policies of the collection-holding institutions, publishing these collection descriptions does not \
+  constitute a major data protection risk. As a consequence, access to the collection descriptions and all the other \
+  information on the research portal is open to users. Details of the risk assessment results can be found here.
+privacy.data.2=Under the Dutch Personal Data Protection act, sensitive personal data can only be used for research \
+  purposes. Responsibility for compliance with the Dutch Personal Data Protection act lies with the person ultimately \
+  publishing the data. Where research results are published in a country other than the Netherlands, the personal data \
+  protection act of that country must be complied with. Since the data on the research portal only involve descriptions \
+  of collections, a visit to the archive storing the records is necessary to actually access the documents. It is quite \
+  likely that this institution will have its own policy regarding access to the sources and privacy protection: this is \
+  explained in the detailed version of the country reports. Users have to comply with these specific procedures and \
+  cannot invoke the fact that they found a collection description on the EHRI research portal to gain access to the \
+  archived document itself.
+privacy.data.3=If you consider you have well-founded grounds - based on the Dutch Personal Data Protection Act - against \
+  the publication of a specific set of personal data on the research portal, you may send a letter or an email, indicating \
+  your interest and explaining your reasons for objecting to publication, to the party responsible for processing the \
+  personal data. This party will examine your complaint and provide you with an answer within a reasonable space of time.
+privacy.cookies.header=3. Cookies
+privacy.cookies.1=EHRI uses the following cookies:
+privacy.cookies.2=On the EHRI project website (http://ehri-project.eu) and EHRI training site (http://training.ehri-project.eu):
+privacy.cookies.3.a=The session cookie to prevent users having to login multiple times in one browser session.
+privacy.cookies.3.b=The JS Cookie enabling the website to understand Javascript.
+privacy.cookies.3.c=Google analytics cookies: four cookies used to collect information on how users use the site. \
+  These cookies are needed to compile reports on site usage.
+privacy.cookies.4=On the EHRI portal (http://portal.ehri-project.eu):
+privacy.cookies.5.a=The session cookie.
+privacy.cookies.5.b=User display preferences.
+privacy.cookies.5.c=Disclaimer cookie - reminds users that they said "yes" to the legal disclaimer banner.
+privacy.cookies.5.d=Browser check cookie - remembers a user''s browser capabilities.
+privacy.cookies.5.e=Google analytics cookies (see above).
+privacy.complaints.header=4. Complaints procedure
+privacy.complaints.1=The party responsible for processing the personal data in the sense of the Dutch Personal \
+  Data Protection act is NIOD. Duly justified complaints should be sent to privacy@ehri-project.eu or to NIOD?s \
+  postal address (addressed to its Director).
+
 #
 # Terms and conditions
 #
