@@ -15,7 +15,10 @@
         <p>@Messages("privacy.users.4")</p>
 
         <h3>@Messages("privacy.data.header")</h3>
-        <p>@Messages("privacy.data.1")</p>
+        <p>@Html(Messages(
+            "privacy.data.1",
+            s"<a class='external' target='_blank' href='http://www.ehri-project.eu'>${Messages("privacy.data.1.riskAssessmentLinkText")}</a>"
+        ))</p>
         <p>@Messages("privacy.data.2")</p>
         <p>@Messages("privacy.data.3")</p>
 
@@ -23,8 +26,8 @@
         <p>@Messages("privacy.cookies.1")</p>
         <p>@Html(Messages(
             "privacy.cookies.2",
-            "<a href='http://www.ehri-project.eu'>http://www.ehri-project.eu</a>",
-            "<a href='http://training.ehri-project.eu'>http://training.ehri-project.eu</a>"
+            "<a class='external' target='_blank' href='http://www.ehri-project.eu'>http://www.ehri-project.eu</a>",
+            "<a class='external' target='_blank' href='http://training.ehri-project.eu'>http://training.ehri-project.eu</a>"
         ))</p>
         <ol class="cookie-usage">
             <li>@Messages("privacy.cookies.3.a")</li>

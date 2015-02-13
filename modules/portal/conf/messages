@@ -693,6 +693,7 @@ privacy.users.3=Users who register on the EHRI Portal and create a profile agree
   further opt-out from being contactable by updating their profile preferences.
 privacy.users.4=Except the cases listed above, EHRI will not pass on any data of registered users to third parties \
   unless required to by law.
+
 privacy.data.header=2. Data on the research portal
 privacy.data.1=The research portal contains descriptions of Holocaust-related collections and sources kept in \
   collection-holding institutions (archives, documentation centres...) in Western, Eastern and Northern Europe, \
@@ -703,7 +704,8 @@ privacy.data.1=The research portal contains descriptions of Holocaust-related co
   and national personal data protection regulations, the nature of the collection descriptions, archival practice \
   and the privacy policies of the collection-holding institutions, publishing these collection descriptions does not \
   constitute a major data protection risk. As a consequence, access to the collection descriptions and all the other \
-  information on the research portal is open to users. Details of the risk assessment results can be found here.
+  information on the research portal is open to users. Details of the risk assessment results can be found {0}.
+privacy.data.1.riskAssessmentLinkText=on the EHRI project website
 privacy.data.2=Under the Dutch Personal Data Protection act, sensitive personal data can only be used for research \
   purposes. Responsibility for compliance with the Dutch Personal Data Protection act lies with the person ultimately \
   publishing the data. Where research results are published in a country other than the Netherlands, the personal data \
@@ -717,6 +719,7 @@ privacy.data.3=If you consider you have well-founded grounds - based on the Dutc
   the publication of a specific set of personal data on the research portal, you may send a letter or an email, indicating \
   your interest and explaining your reasons for objecting to publication, to the party responsible for processing the \
   personal data. This party will examine your complaint and provide you with an answer within a reasonable space of time.
+
 privacy.cookies.header=3. Cookies
 privacy.cookies.1=EHRI uses the following cookies:
 privacy.cookies.2=On the EHRI project website ({0}) and EHRI training site ({1}):
@@ -743,7 +746,7 @@ termsAndConditions.userGenerated.heading=User-generated content: terms of use
 termsAndConditions.userGenerated.p1=EHRI offers users the opportunity to contribute to the content provided by EHRI through enriching and \
   annotating data. To participate in this process of producing user-generated content, users must agree to \
   the Terms of Use listed below.
-termsAndConditions.userGenerated.p2=By clicking signing-in/creating an account you agree to our Terms of Use and acknowledge \
+termsAndConditions.userGenerated.p2=By signing-in/creating an account you agree to our Terms of Use and acknowledge \
   having read our Data Policy (including cookie use).
 termsAndConditions.userGenerated.terms.heading=Terms of Use:
 termsAndConditions.userGenerated.terms.1=Users producing content agree not to add comments which are inappropriate.
