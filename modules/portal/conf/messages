@@ -245,7 +245,7 @@ login.password.new.confirm=Confirm New Password
 login.password.reset.sentLink=We''ve sent you an email containing a link that can be used to reset your password.\
   This link can only be used once.
 login.password.reset.confirmation=Your password has been reset.
-
+login.dataPolicyNag=By signing in I acknowledge the {0} and agree to abide by the {1}.
 logout=Sign Out
 logout.confirmation=You have been logged out
 account=Account
@@ -760,7 +760,7 @@ copyright.heading=Copyright statement
 copyright.holder=Copyright EHRI Consortium 2015
 copyright.statement=The use, re-use and/or reproduction of the information published on this website is free, though \
   conditional on the copyright holder and the EHRI consortium being clearly acknowledged and reference being made to \
-  the source: EHRI http://www.ehri-project.eu. This does not apply to material for which the copyright is not held by \
+  the source: EHRI {0}. This does not apply to material for which the copyright is not held by \
   the EHRI consortium but by a third party. The user must respect any copyrights and/or database rights relating to \
   material published on the website or in datasets, in particular when distributing or publishing datasets. If necessary, \
   the user must contact the holder of the dataset rights.

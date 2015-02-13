@@ -2,11 +2,11 @@
 
 @layout.portalLayout(Messages("dataPolicy.header")) {
     @views.html.layout.mainContent {
-        <h2>@Messages("dataPolicy.header")</h2>
+        <h2 id="data-notice">@Messages("dataPolicy.header")</h2>
         <p>@Messages("dataPolicy.notice1")</p>
         <p>@Messages("dataPolicy.notice2")</p>
 
-        <h2>@Messages("privacy.header")</h2>
+        <h2 id="data-privacy">@Messages("privacy.header")</h2>
 
         <h3>@Messages("privacy.users.header")</h3>
         <p>@Messages("privacy.users.1")</p>

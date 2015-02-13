@@ -4,7 +4,7 @@
     @views.html.layout.mainContent {
         <h2>@Messages("termsAndConditions")</h2>
 
-        <h3>@Messages("termsAndConditions.userGenerated.heading")</h3>
+        <h3 id="terms-user-generated">@Messages("termsAndConditions.userGenerated.heading")</h3>
         <p>@Messages("termsAndConditions.userGenerated.p1")</p>
         <p>@Messages("termsAndConditions.userGenerated.p2")</p>
         <h4>@Messages("termsAndConditions.userGenerated.terms.heading")</h4>
@@ -15,8 +15,11 @@
             <li>@Messages("termsAndConditions.userGenerated.terms.4")</li>
         </ol>
 
-        <h3>@Messages("copyright.heading")</h3>
+        <h3 id="terms-copyright">@Messages("copyright.heading")</h3>
         <p>@Messages("copyright.holder")</p>
-        <p>@Messages("copyright.statement")</p>
+        <p>@Html(Messages(
+            "copyright.statement",
+            "<a href='http://www.ehri-project.eu'>http://www.ehri-project.eu</a>"
+        ))</p>
     }
 }
