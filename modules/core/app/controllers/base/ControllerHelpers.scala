@@ -11,15 +11,7 @@ import scala.concurrent.Future.{successful => immediate}
 
 trait ControllerHelpers {
 
-  implicit val globalConfig: global.GlobalConfig
-
-  /**
-   * Some actions **require** a user is logged in.
-   * However the main templates assume it is optional. This helper
-   * to put an optional user in scope for template rendering
-   * when there's definitely one defined.
-   */
-  implicit def user2userOpt(implicit user: UserProfile): Option[UserProfile] = Some(user)
+  implicit def globalConfig: global.GlobalConfig
 
   /**
    * Issue a warning about database maintenance when a "dbmaintenance"

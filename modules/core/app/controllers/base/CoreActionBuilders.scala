@@ -6,35 +6,33 @@ import defines.{ContentTypes, PermissionType}
 import jp.t2v.lab.play2.auth.AuthActionBuilders
 import models.UserProfile
 import play.api.http.HeaderNames
-import play.api.i18n.Lang
 import play.api.libs.concurrent.Execution.Implicits._
 import play.api.mvc.{Result, _}
 
-import scala.concurrent.{ExecutionContext, Future}
 import scala.concurrent.Future.{successful => immediate}
+import scala.concurrent.{ExecutionContext, Future}
 import scala.language.implicitConversions
 
 
 /**
- * Trait containing composable Action wrappers to handle different
- * types of request authentication.
- * NB: None of the methods here actually reer
+ * Trait containing Action wrappers to handle different
+ * types of site management and request authentication concerns
  */
 trait CoreActionBuilders extends Controller with ControllerHelpers with AuthActionBuilders with AuthConfigImpl {
 
   // Inheriting controllers need to be injected with
   // a backend implementation.
-  val backend: Backend
+  def backend: Backend
 
   // NB: Implicit so it can be used as an implicit parameter in views
   // that are rendered from inheriting controllers.
-  implicit val globalConfig: global.GlobalConfig
+  implicit def globalConfig: global.GlobalConfig
 
   // Override this to allow non-staff to view a page
-  val staffOnly = true
+  def staffOnly = true
 
   // Override this to allow non-verified users to view a page
-  val verifiedOnly = true
+  def verifiedOnly = true
 
   // Turning secured off will override staffOnly
   lazy val secured = play.api.Play.current.configuration.getBoolean("ehri.secured").getOrElse(true)
@@ -44,18 +42,36 @@ trait CoreActionBuilders extends Controller with ControllerHelpers with AuthActi
    */
   def verifiedOnlyError(request: RequestHeader)(implicit context: ExecutionContext): Future[Result]
 
+  /**
+   * This controller can only be accessed by staff
+   */
   def staffOnlyError(request: RequestHeader)(implicit context: ExecutionContext): Future[Result]
 
+  /**
+   * A backend resource was not found
+   */
   def notFoundError(request: RequestHeader, msg: Option[String] = None)(implicit context: ExecutionContext): Future[Result]
 
+  /**
+   * The attempted action is not allowed with the user's permission set
+   */
   def authorizationFailed(request: RequestHeader)(implicit context: ExecutionContext): Future[Result]
 
+  /**
+   * The site is down currently for maintenance
+   */
   def downForMaintenance(request: RequestHeader)(implicit context: ExecutionContext): Future[Result]
 
-  trait WithOptionalUser {
-    self: WrappedRequest[_] =>
-
+  /**
+   * Base trait for any type of request that contains
+   * an optional user profile (which is most of them.)
+   */
+  trait WithOptionalUser { self: WrappedRequest[_] =>
     def userOpt: Option[UserProfile]
+  }
+
+  trait WithUser { self: WrappedRequest[_] =>
+    def user: UserProfile
   }
 
   /**
@@ -74,7 +90,9 @@ trait CoreActionBuilders extends Controller with ControllerHelpers with AuthActi
    * @param request the underlying request
    * @tparam A the type of underlying request
    */
-  case class WithUserRequest[A](user: UserProfile, request: Request[A]) extends WrappedRequest[A](request)
+  case class WithUserRequest[A](user: UserProfile, request: Request[A])
+    extends WrappedRequest[A](request)
+    with WithUser
 
   /**
    * Implicit helper to convert an in-scope optional profile to an `ApiUser` instance.
@@ -86,14 +104,23 @@ trait CoreActionBuilders extends Controller with ControllerHelpers with AuthActi
     ApiUser(userOpt.map(_.id))
 
   /**
+   * Implicit helper to convert an in-scope profile to an `AuthenticatedUser` instance.
+   *
+   * @param user a user profile
+   * @return an authenticated API user
+   */
+  protected implicit def user2apiUser(implicit user: UserProfile): AuthenticatedUser =
+    AuthenticatedUser(user.id)
+
+  /**
    * Implicit helper to transform an in-scope `OptionalProfileRequest` (of any type)
    * into an optional user profile. This is used by views that need an implicit user profile
    * but are only given an `OptionalProfileRequest`.
-   * @param opr an optional profile request
+   * @param r an optional user request
    * @return an optional user profile
    */
-  protected implicit def optionalUserRequest2UserOpt(implicit opr: WithOptionalUser): Option[UserProfile] =
-    opr.userOpt
+  protected implicit def optionalUserRequest2UserOpt(implicit r: WithOptionalUser): Option[UserProfile] =
+    r.userOpt
 
   /**
    * Implicit helper to transform an in-scope `OptionalAuthRequest` into an ApiUser.
@@ -109,11 +136,11 @@ trait CoreActionBuilders extends Controller with ControllerHelpers with AuthActi
    * into an optional (but full) user profile. Used by views that need a user profile but are only given
    * a `ProfileRequest`
    *
-   * @param pr the profile request
+   * @param r the request with an authenticated user
    * @return an optional user profile
    */
-  protected implicit def profileRequest2profileOpt(implicit pr: WithUserRequest[_]): Option[UserProfile] =
-    Some(pr.user)
+  protected implicit def userRequest2userOpt(implicit r: WithUser): Option[UserProfile] =
+    Some(r.user)
 
   /**
    * Transform an `OptionalAuthRequest` into an `OptionalProfileRequest` by
@@ -122,16 +149,16 @@ trait CoreActionBuilders extends Controller with ControllerHelpers with AuthActi
    */
   protected object FetchProfile extends ActionTransformer[OptionalAuthRequest, OptionalUserRequest] {
     def transform[A](request: OptionalAuthRequest[A]): Future[OptionalUserRequest[A]] = request.user.fold(
-      immediate(new OptionalUserRequest[A](None, request))
+      ifEmpty = immediate(OptionalUserRequest[A](None, request))
     ) { account =>
-      implicit val apiUser = ApiUser(Some(account.id))
+      implicit val apiUser = AuthenticatedUser(account.id)
       val userF = backend.get[UserProfile](UserProfile.Resource, account.id)
       val globalPermsF = backend.getGlobalPermissions(account.id)
       for {
         user <- userF
         globalPerms <- globalPermsF
         profile = user.copy(account = Some(account), globalPermissions = Some(globalPerms))
-      } yield new OptionalUserRequest[A](Some(profile), request)
+      } yield OptionalUserRequest[A](Some(profile), request)
     }
   }
 
@@ -227,10 +254,10 @@ trait CoreActionBuilders extends Controller with ControllerHelpers with AuthActi
   /**
    * Check the user is an administrator to access this request
    */
-  def AdminAction = OptionalUserAction andThen new ActionFilter[OptionalUserRequest] {
-    protected def filter[A](request: OptionalUserRequest[A]): Future[Option[Result]] = {
-      request.userOpt.filter(!_.isAdmin)
-        .map(_ => authenticationFailed(request).map(r => Some(r))).getOrElse(immediate(None))
+  def AdminAction = WithUserAction andThen new ActionFilter[WithUserRequest] {
+    protected def filter[A](request: WithUserRequest[A]): Future[Option[Result]] = {
+      if (!request.user.isAdmin) authenticationFailed(request).map(r => Some(r))
+      else immediate(None)
     }
   }
 }

@@ -58,5 +58,11 @@ Since there are hundreds of calls to render templates functions in this app, spe
 
 Implicits are also used in the following places:
 
- - An `ApiUser` is required for all backend data calls, and is usually derived from an in-scope `UserProfile` via a method in `ControllerHelpers.scala`
+ - An `ApiUser` is required for all backend data calls. The `ApiUser` is a type which may either be an `AnonymousUser`
+   or an `AuthenticatedUser(id: String)`. Since the ID for the `ApiUser` instance corresponds to the current user's
+   `UserProfile` id, there is an implicit conversion between `Option[UserProfile]` and `ApiUser`.
+ - All templates expect an `Option[UserProfile]`, even those where the user must be logged in (this makes re-using
+   templates much easier, since all the implicit parameters are the same.) Some controllers, however, demand that the
+   user be authenticated (i.e. not optional) so there is an implicit conversion from a request which contains a
+   non-optional user to an optional user (e.g. just turning `user` to `Some(user)`.
  - Backend calls which fetch parametrised data types there's nearly always an implicit `Readable[T]` or `Writable[T]` in scope which handles serializing and deserializing the type from the backend's JSON data.
