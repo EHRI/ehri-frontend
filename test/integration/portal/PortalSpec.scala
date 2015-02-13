@@ -1,8 +1,11 @@
 package integration.portal
 
+import controllers.base.SessionPreferences
 import helpers.IntegrationTestRunner
 import controllers.portal.ReversePortal
+import play.api.libs.json.Json
 import play.api.test.{FakeApplication, FakeRequest}
+import utils.SessionPrefs
 
 
 class PortalSpec extends IntegrationTestRunner {
@@ -28,6 +31,33 @@ class PortalSpec extends IntegrationTestRunner {
       val rename = route(FakeRequest(oldRoute)).get
       status(rename) must equalTo(MOVED_PERMANENTLY)
       redirectLocation(rename) must equalTo(Some(newRoute.url))
+    }
+
+    "allow setting view preferences" in {
+      running(FakeApplication(withGlobal = Some(getGlobal))) {
+        val prefJson = route(FakeRequest(portalRoutes.prefs())).get
+        (contentAsJson(prefJson) \ SessionPrefs.SHOW_USER_CONTENT).as[Boolean] must beTrue
+        val setPrefs = route(fakeLoggedInRequest(privilegedUser, POST, portalRoutes.updatePrefs().url)
+          .withFormUrlEncodedBody(SessionPrefs.SHOW_USER_CONTENT -> "false")).get
+        status(setPrefs) must equalTo(SEE_OTHER)
+        session(setPrefs).get(SessionPreferences.DEFAULT_STORE_KEY) must beSome.which {jsStr =>
+          val json = Json.parse(jsStr)
+          (json \ SessionPrefs.SHOW_USER_CONTENT).as[Boolean] must beFalse
+        }
+      }
+    }
+
+    "allow setting the language" in {
+      running(FakeApplication(withGlobal = Some(getGlobal))) {
+        val about = route(FakeRequest(portalRoutes.about())).get
+        session(about).get(SessionPreferences.DEFAULT_STORE_KEY) must beNone
+        val setLang = route(FakeRequest(portalRoutes.changeLocale("de"))).get
+        status(setLang) must equalTo(SEE_OTHER)
+        session(setLang).get(SessionPreferences.DEFAULT_STORE_KEY) must beSome.which { jsStr =>
+          val json = Json.parse(jsStr)
+          (json \ SessionPrefs.LANG).asOpt[String] must equalTo(Some("de"))
+        }
+      }
     }
 
     "view docs" in new ITestApp {

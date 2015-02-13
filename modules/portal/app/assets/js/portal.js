@@ -297,13 +297,14 @@ jQuery(function ($) {
   window.Preferences = {
     update: function(prefsObj) {
       var prefs = prefsObj || {};
-      // Fire and forget!
-      jsRoutes.controllers.portal.users.UserProfiles.updatePrefs()
-          .ajax({ data: prefsObj });
+      jsRoutes.controllers.portal.Portal.updatePrefs().ajax({
+        data: prefsObj
+      }).error(function(err) {
+        console.error("Unable to update preferences: ", err);
+      });
     },
 
     updateValue: function(key, value) {
-      // fffff...
       var tmp = {};
       tmp[key] = value;
       return this.update(tmp);

@@ -1,9 +1,6 @@
 
 GET         /                    @controllers.portal.users.UserProfiles.profile
 GET         /activity            @controllers.portal.users.UserProfiles.activity
-GET         /prefs               @controllers.portal.users.UserProfiles.prefs
-POST        /prefs               @controllers.portal.users.UserProfiles.updatePrefs
-
 POST        /accountPrefs        @controllers.portal.users.UserProfiles.updateAccountPrefsPost
 
 GET         /notes               @controllers.portal.users.UserProfiles.annotations(format: controllers.DataFormat.Value ?= controllers.DataFormat.Html)

@@ -36,7 +36,8 @@
         <ul class="lang-switcher dropdown-menu" role="menu" id="lang-dropdown">
         @globalConfig.languages.map(c => (c, new java.util.Locale(c))).map { case (changeLang, locale) =>
         <li>
-            <a class="@{if(lang.toString.toLowerCase.contains(changeLang)) "active"}" href="@controllers.portal.routes.PortalData.changeLocale(changeLang)">
+            <a class="@{if(lang.toString.toLowerCase.contains(changeLang)) "active"}"
+                href="@controllers.portal.routes.Portal.changeLocale(changeLang)">
                 @locale.getDisplayName(locale).toLowerCase
             </a>
         </li>

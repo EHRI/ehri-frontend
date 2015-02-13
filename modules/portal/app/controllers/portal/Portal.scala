@@ -44,6 +44,27 @@ case class Portal @Inject()(implicit globalConfig: global.GlobalConfig, searchEn
     EntityType.Country
   )
 
+  def prefs = Action { implicit request =>
+    Ok(Json.toJson(preferences))
+  }
+
+  def updatePrefs() = Action { implicit request =>
+    val current = request.preferences
+    SessionPrefs.updateForm(current).bindFromRequest.fold(
+      errors => BadRequest(errors.errorsAsJson),
+      updated => {
+        (if (isAjax) Ok(Json.toJson(updated))
+        else Redirect(portalRoutes.prefs())).withPreferences(updated)
+      }
+    )
+  }
+
+  def changeLocale(lang: String) = Action { implicit request =>
+    val referrer = request.headers.get(REFERER).getOrElse("/")
+    Redirect(referrer)
+      .withPreferences(request.preferences.copy(language = Some(lang)))
+  }
+
   def personalisedActivity = WithUserAction.async{ implicit request =>
     // NB: Increasing the limit by 1 over the default so we can
     // detect if there are additional items to display

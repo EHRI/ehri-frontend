@@ -107,8 +107,6 @@ case class UserProfiles @Inject()(implicit globalConfig: global.GlobalConfig, se
     }
   }
 
-
-
   def watching(format: DataFormat.Value = DataFormat.Html) = WithUserAction.async { implicit request =>
     for {
       watching <- backend.watching[AnyModel](request.user.id)
@@ -207,20 +205,6 @@ case class UserProfiles @Inject()(implicit globalConfig: global.GlobalConfig, se
 
   def annotationListToJson(annotations: Seq[Annotation])(implicit request: RequestHeader): JsValue
     = Json.toJson(annotations.map(ExportAnnotation.fromAnnotation))
-
-  def prefs = Action { implicit request =>
-    Ok(Json.toJson(preferences))
-  }
-
-  def updatePrefs() = Action { implicit request =>
-    SessionPrefs.updateForm(request.preferences).bindFromRequest.fold(
-      errors => BadRequest(errors.errorsAsJson),
-      updated => {
-        (if (isAjax) Ok(Json.toJson(updated))
-        else Redirect(profileRoutes.prefs())).withPreferences(updated)
-      }
-    )
-  }
 
   // For now the user's profile main page is just their notes.
   def profile = annotations(format = DataFormat.Html)

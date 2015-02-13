@@ -3,6 +3,7 @@ package controllers.portal.base
 import controllers.portal.Secured
 import play.api.Logger
 import defines.{EventType, EntityType}
+import play.api.i18n.Lang
 import utils._
 import controllers.renderError
 import models.UserProfile
@@ -40,6 +41,16 @@ trait PortalController
    */
   protected val defaultPreferences = new SessionPrefs
 
+  /**
+   * Extract a language from the user's preferences and put it in
+   * the implicit scope.
+   */
+  override implicit def request2lang(implicit request: RequestHeader): Lang = {
+    request.preferences.language match {
+      case None => super.request2lang(request)
+      case Some(lang) => Lang(lang)
+    }
+  }
 
   /**
    * Ensure that functions requiring an optional user in scope

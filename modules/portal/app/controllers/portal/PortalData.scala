@@ -23,7 +23,6 @@ object PortalData extends Controller {
           controllers.portal.routes.javascript.Bookmarks.bookmarkInNewSetPost,
           controllers.portal.users.routes.javascript.UserProfiles.watchItemPost,
           controllers.portal.users.routes.javascript.UserProfiles.unwatchItemPost,
-          controllers.portal.users.routes.javascript.UserProfiles.updatePrefs,
           controllers.portal.users.routes.javascript.UserProfiles.profile,
           controllers.portal.users.routes.javascript.UserProfiles.updateProfile,
           controllers.portal.users.routes.javascript.UserProfiles.updateProfilePost,
@@ -45,6 +44,7 @@ object PortalData extends Controller {
           controllers.portal.annotate.routes.javascript.Annotations.promoteAnnotationPost,
           controllers.portal.annotate.routes.javascript.Annotations.demoteAnnotationPost,
           controllers.portal.annotate.routes.javascript.Annotations.setAnnotationVisibilityPost,
+          controllers.portal.routes.javascript.Portal.updatePrefs,
           controllers.portal.routes.javascript.Portal.personalisedActivity,
           controllers.portal.routes.javascript.Portal.filterItems,
           controllers.portal.routes.javascript.Portal.browseItem
@@ -69,19 +69,6 @@ object PortalData extends Controller {
           "\t" + EntityType.values.map(et => s"$et: '$et'").mkString(",\n\t"))
       ).as(MimeTypes.JAVASCRIPT)
     }
-  }
-
-  /**
-   * Provide functionality for changing the current locale.
-   *
-   * This is borrowed from:
-   * https://github.com/julienrf/chooze/blob/master/app/controllers/CookieLang.scala
-   */
-  private val LANG = "lang"
-
-  def changeLocale(lang: String) = Action { implicit request =>
-    val referrer = request.headers.get(REFERER).getOrElse("/")
-    Redirect(referrer).withCookies(Cookie(LANG, lang))
   }
 
   /**

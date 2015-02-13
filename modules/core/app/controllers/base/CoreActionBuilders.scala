@@ -52,15 +52,6 @@ trait CoreActionBuilders extends Controller with ControllerHelpers with AuthActi
 
   def downForMaintenance(request: RequestHeader)(implicit context: ExecutionContext): Future[Result]
 
-  // If a lang cookie is present, use it...
-  private val LANG = "lang"
-  override implicit def request2lang(implicit request: RequestHeader): Lang = {
-    request.cookies.get(LANG) match {
-      case None => super.request2lang(request)
-      case Some(cookie) => Lang(cookie.value)
-    }
-  }
-
   trait WithOptionalUser {
     self: WrappedRequest[_] =>
 

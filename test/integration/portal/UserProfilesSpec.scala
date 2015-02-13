@@ -2,7 +2,7 @@ package integration.portal
 
 import helpers.IntegrationTestRunner
 import models._
-import backend.{AuthenticatedUser, ApiUser}
+import backend.AuthenticatedUser
 import play.api.mvc.MultipartFormData.FilePart
 import play.api.mvc.MultipartFormData
 import play.api.http.MimeTypes
@@ -91,7 +91,6 @@ class UserProfilesSpec extends IntegrationTestRunner {
       contentAsString(prof) must contain(testName)
       contentAsString(prof) must contain(testInterest)
     }
-
 
     "not allow uploading non-image files as profile image" in new ITestApp {
       val tmpFile = java.io.File.createTempFile("notAnImage", ".txt")

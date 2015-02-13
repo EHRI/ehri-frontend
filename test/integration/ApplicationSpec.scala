@@ -1,11 +1,14 @@
 package integration
 
+import controllers.base.SessionPreferences
+import play.api.libs.json.Json
 import play.api.test._
 
 import helpers.{TestHelpers, UserFixtures, TestConfiguration}
 import play.api.i18n.Messages
 import models.{Account, SignupData}
 import play.api.test.FakeApplication
+import utils.SessionPrefs
 
 /**
  * Basic app helpers which don't require a running DB.
