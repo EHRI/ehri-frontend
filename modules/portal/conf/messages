@@ -660,7 +660,7 @@ helpdesk.confidence.message=How confident we are that this ranking is correct.
 helpdesk.query.submit=Ask the helpdesk
 
 #
-# Data policy
+# Data policy at https://portal.ehri-project.eu/data-policy
 #
 dataPolicy=Data Policy
 dataPolicy.header=EHRI Data Policy
@@ -676,7 +676,6 @@ dataPolicy.terms=I declare that I will use Sensitive Personal Data for research 
   regulations.
 dataPolicy.agree=I Agree
 
-privacy=Privacy Policy
 privacy.header=EHRI Privacy Policy
 privacy.users.header=1. Data from users of this website and its services
 privacy.users.1=In order to use a number of the features of the EHRI websites, EHRI requires certain personal \
@@ -721,20 +720,20 @@ privacy.data.3=If you consider you have well-founded grounds - based on the Dutc
   personal data. This party will examine your complaint and provide you with an answer within a reasonable space of time.
 privacy.cookies.header=3. Cookies
 privacy.cookies.1=EHRI uses the following cookies:
-privacy.cookies.2=On the EHRI project website (http://ehri-project.eu) and EHRI training site (http://training.ehri-project.eu):
-privacy.cookies.3.a=The session cookie to prevent users having to login multiple times in one browser session.
-privacy.cookies.3.b=The JS Cookie enabling the website to understand Javascript.
-privacy.cookies.3.c=Google analytics cookies: four cookies used to collect information on how users use the site. \
+privacy.cookies.2=On the EHRI project website ({0}) and EHRI training site ({1}):
+privacy.cookies.3.a=a) The session cookie to prevent users having to login multiple times in one browser session.
+privacy.cookies.3.b=b) The JS Cookie enabling the website to understand Javascript.
+privacy.cookies.3.c=c) Google analytics cookies: four cookies used to collect information on how users use the site. \
   These cookies are needed to compile reports on site usage.
-privacy.cookies.4=On the EHRI portal (http://portal.ehri-project.eu):
-privacy.cookies.5.a=The session cookie.
-privacy.cookies.5.b=User display preferences.
-privacy.cookies.5.c=Disclaimer cookie - reminds users that they said "yes" to the legal disclaimer banner.
-privacy.cookies.5.d=Browser check cookie - remembers a user''s browser capabilities.
-privacy.cookies.5.e=Google analytics cookies (see above).
+privacy.cookies.4=On the EHRI portal ({0}):
+privacy.cookies.5.a=a) The session cookie.
+privacy.cookies.5.b=b) User display preferences.
+privacy.cookies.5.c=c) Disclaimer cookie - reminds users that they said "yes" to the legal disclaimer banner.
+privacy.cookies.5.d=d) Browser check cookie - remembers a user''s browser capabilities.
+privacy.cookies.5.e=e) Google analytics cookies (see above).
 privacy.complaints.header=4. Complaints procedure
 privacy.complaints.1=The party responsible for processing the personal data in the sense of the Dutch Personal \
-  Data Protection act is NIOD. Duly justified complaints should be sent to privacy@ehri-project.eu or to NIOD?s \
+  Data Protection act is NIOD. Duly justified complaints should be sent to privacy@ehri-project.eu or to NIOD''s \
   postal address (addressed to its Director).
 
 #
