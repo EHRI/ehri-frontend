@@ -78,7 +78,7 @@ case class Feedback @Inject()(implicit globalConfig: global.GlobalConfig, feedba
       errorForm => immediate(response(errorForm)),
       feedback => {
         val moreFeedback = request.userOpt.map { user =>
-          feedback.copy(userId = Some(user.id), name = feedback.name.orElse(user.account.map(_.id)))
+          feedback.copy(userId = Some(user.id), name = Some(feedback.name.getOrElse(user.model.name)))
             .copy(email = feedback.email.orElse(user.account.map(_.email)))
         }.getOrElse(feedback)
           .copy(context = Some(models.FeedbackContext.fromRequest),
