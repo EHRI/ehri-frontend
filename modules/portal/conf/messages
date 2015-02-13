@@ -9,7 +9,6 @@ welcome.blurb=The EHRI portal offers access to information on Holocaust-related 
   For more information on the EHRI project visit http://ehri-project.eu.
 footerText=This is a development version of the EHRI portal interface.
 footer.funding=The EHRI Project is supported by the European Commission
-footer.copyright=2014 The European Holocaust Research Infrastructure Project
 close=Close
 optional=Optional
 cancel=Cancel
@@ -733,7 +732,7 @@ privacy.cookies.5.d=d) Browser check cookie - remembers a user''s browser capabi
 privacy.cookies.5.e=e) Google analytics cookies (see above).
 privacy.complaints.header=4. Complaints procedure
 privacy.complaints.1=The party responsible for processing the personal data in the sense of the Dutch Personal \
-  Data Protection act is NIOD. Duly justified complaints should be sent to privacy@ehri-project.eu or to NIOD''s \
+  Data Protection act is NIOD. Duly justified complaints should be sent to {0} or to NIOD''s \
   postal address (addressed to its Director).
 
 #
@@ -748,14 +747,23 @@ termsAndConditions.userGenerated.p2=By clicking signing-in/creating an account y
   having read our Data Policy (including cookie use).
 termsAndConditions.userGenerated.terms.heading=Terms of Use:
 termsAndConditions.userGenerated.terms.1=Users producing content agree not to add comments which are inappropriate.
-termsAndConditions.userGenerated.terms.2=Users producing content agree not to infringe Dutch privacy law or the privacy law of the country \
-  in which they are located when adding content. This implies that users producing content will not \
-  disclose information in violation of personal data protection rights.
-termsAndConditions.userGenerated.terms.3=Users producing content agree that EHRI will review the user-generated content before \
-  publication.
+termsAndConditions.userGenerated.terms.2=Users producing content agree not to infringe the Dutch personal data protection \
+  act or the personal data protection act of the country in which they are located when adding content. This implies that \
+  users producing content will not disclose information in violation of personal data protection rights.
+termsAndConditions.userGenerated.terms.3=Users producing content agree that EHRI will review the user-generated content \
+  before publication, implying that personal data needed for that purpose will be shared with the reviewer(s).
 termsAndConditions.userGenerated.terms.4=The information is made available to users and can be reused, though acknowledgment of the \
   author has to be given when the information is published elsewhere. For this purpose, the author \
   of the user-generated content will be clearly stated.
+
+copyright.heading=Copyright statement
+copyright.holder=Copyright EHRI Consortium 2015
+copyright.statement=The use, re-use and/or reproduction of the information published on this website is free, though \
+  conditional on the copyright holder and the EHRI consortium being clearly acknowledged and reference being made to \
+  the source: EHRI http://www.ehri-project.eu. This does not apply to material for which the copyright is not held by \
+  the EHRI consortium but by a third party. The user must respect any copyrights and/or database rights relating to \
+  material published on the website or in datasets, in particular when distributing or publishing datasets. If necessary, \
+  the user must contact the holder of the dataset rights.
 
 #
 # Markdown Cheatsheet

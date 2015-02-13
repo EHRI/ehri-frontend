@@ -10,14 +10,14 @@
     <p>@Messages("footerText")</p>
 
     <ul id="navbar-tertiary">
-        @footerLink(controllers.portal.routes.Portal.contact, "contact")
-        @footerLink(controllers.portal.routes.Portal.terms, "termsAndConditions")
-        @footerLink(controllers.portal.routes.Portal.dataPolicy, "dataPolicy")
+        @footerLink(controllers.portal.routes.Portal.contact(), "contact")
+        @footerLink(controllers.portal.routes.Portal.terms(), "termsAndConditions")
+        @footerLink(controllers.portal.routes.Portal.dataPolicy(), "dataPolicy")
     </ul>
 
-    <div class="footer-blurb small clearfix" style="margin-top: 20px">
+    <div class="footer-blurb">
         <hr />
-        &copy; @Messages("footer.copyright") &nbsp;&nbsp; @Messages("footer.funding")
+        &copy; @Messages("copyright.holder") &nbsp;&nbsp; @Messages("footer.funding")
         <img class="eu-logo" alt="EU Logo" src="//s3-eu-west-1.amazonaws.com/ehri-assets/eu_logo.gif" />
     </div>
 </footer>

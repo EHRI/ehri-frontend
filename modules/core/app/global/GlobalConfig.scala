@@ -47,6 +47,12 @@ trait GlobalConfig {
 
   def maintenance: Boolean = maintenanceFile.exists(file => file.isFile && file.exists)
 
+  /**
+   * Fetch a config string value.
+   */
+  def configString(key: String, orElse: String): String =
+    current.configuration.getString(key).getOrElse(orElse)
+
   def message: Option[String] = {
     messageFile.flatMap { f =>
       if (f.isFile && f.exists()) {

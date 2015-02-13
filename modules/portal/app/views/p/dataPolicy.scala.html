@@ -44,5 +44,13 @@
             <li>@Messages("privacy.cookies.5.d")</li>
             <li>@Messages("privacy.cookies.5.e")</li>
         </ol>
+
+        <h3>@Messages("privacy.complaints.header")</h3>
+        @defining(globalConfig.configString("ehri.portal.emails.privacy", "info@ehri-project.eu")) { email =>
+            <p>@Html(Messages(
+                "privacy.complaints.1",
+                s"<a href='mailto:$email'>$email</a>"
+            ))</p>
+        }
     }
 }g
