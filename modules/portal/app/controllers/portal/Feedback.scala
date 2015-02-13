@@ -56,7 +56,7 @@ case class Feedback @Inject()(implicit globalConfig: global.GlobalConfig, feedba
     } yield {
       val text = feedback.text.getOrElse("No message provided")
       mailer
-        .setSubject("EHRI Portal Feedback" + feedback.name.map(n => s" from $n"))
+        .setSubject("EHRI Portal Feedback" + feedback.name.map(n => s" from $n").getOrElse(""))
         .setRecipient(accTo)
         .setReplyTo(feedback.email.getOrElse("noreply@ehri-project.eu"))
         .setFrom("EHRI User <noreply@ehri-project.eu>")
