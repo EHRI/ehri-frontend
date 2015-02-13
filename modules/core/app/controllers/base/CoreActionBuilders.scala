@@ -5,7 +5,6 @@ import backend.{ApiUser, _}
 import defines.{ContentTypes, PermissionType}
 import jp.t2v.lab.play2.auth.AuthActionBuilders
 import models.UserProfile
-import play.api.http.HeaderNames
 import play.api.libs.concurrent.Execution.Implicits._
 import play.api.mvc.{Result, _}
 
@@ -22,55 +21,60 @@ trait CoreActionBuilders extends Controller with ControllerHelpers with AuthActi
 
   // Inheriting controllers need to be injected with
   // a backend implementation.
-  def backend: Backend
+  protected def backend: Backend
 
   // NB: Implicit so it can be used as an implicit parameter in views
   // that are rendered from inheriting controllers.
-  implicit def globalConfig: global.GlobalConfig
+  protected implicit def globalConfig: global.GlobalConfig
 
   // Override this to allow non-staff to view a page
-  def staffOnly = true
+  protected def staffOnly = true
 
   // Override this to allow non-verified users to view a page
-  def verifiedOnly = true
+  protected def verifiedOnly = true
 
   // Turning secured off will override staffOnly
-  lazy val secured = play.api.Play.current.configuration.getBoolean("ehri.secured").getOrElse(true)
+  protected lazy val secured = play.api.Play.current.configuration.getBoolean("ehri.secured").getOrElse(true)
 
   /**
    * Abstract response methods that should be implemented by inheritors.
    */
-  def verifiedOnlyError(request: RequestHeader)(implicit context: ExecutionContext): Future[Result]
+  protected def verifiedOnlyError(request: RequestHeader)(implicit context: ExecutionContext): Future[Result]
 
   /**
    * This controller can only be accessed by staff
    */
-  def staffOnlyError(request: RequestHeader)(implicit context: ExecutionContext): Future[Result]
+  protected def staffOnlyError(request: RequestHeader)(implicit context: ExecutionContext): Future[Result]
 
   /**
    * A backend resource was not found
    */
-  def notFoundError(request: RequestHeader, msg: Option[String] = None)(implicit context: ExecutionContext): Future[Result]
+  protected def notFoundError(request: RequestHeader, msg: Option[String] = None)(implicit context: ExecutionContext)
+  : Future[Result]
 
   /**
    * The attempted action is not allowed with the user's permission set
    */
-  def authorizationFailed(request: RequestHeader)(implicit context: ExecutionContext): Future[Result]
+  protected def authorizationFailed(request: RequestHeader)(implicit context: ExecutionContext): Future[Result]
 
   /**
    * The site is down currently for maintenance
    */
-  def downForMaintenance(request: RequestHeader)(implicit context: ExecutionContext): Future[Result]
+  protected def downForMaintenance(request: RequestHeader)(implicit context: ExecutionContext): Future[Result]
 
   /**
    * Base trait for any type of request that contains
    * an optional user profile (which is most of them.)
    */
-  trait WithOptionalUser { self: WrappedRequest[_] =>
+  protected trait WithOptionalUser { self: WrappedRequest[_] =>
     def userOpt: Option[UserProfile]
   }
 
-  trait WithUser { self: WrappedRequest[_] =>
+  /**
+   * Base trait for any type of request that contains
+   * an authenticated user profile.
+   */
+  protected trait WithUser { self: WrappedRequest[_] =>
     def user: UserProfile
   }
 
@@ -80,7 +84,7 @@ trait CoreActionBuilders extends Controller with ControllerHelpers with AuthActi
    * @param request the underlying request
    * @tparam A the type of underlying request
    */
-  case class OptionalUserRequest[A](userOpt: Option[UserProfile], request: Request[A])
+  protected case class OptionalUserRequest[A](userOpt: Option[UserProfile], request: Request[A])
     extends WrappedRequest[A](request)
     with WithOptionalUser
 
@@ -90,7 +94,7 @@ trait CoreActionBuilders extends Controller with ControllerHelpers with AuthActi
    * @param request the underlying request
    * @tparam A the type of underlying request
    */
-  case class WithUserRequest[A](user: UserProfile, request: Request[A])
+  protected case class WithUserRequest[A](user: UserProfile, request: Request[A])
     extends WrappedRequest[A](request)
     with WithUser
 
@@ -192,10 +196,7 @@ trait CoreActionBuilders extends Controller with ControllerHelpers with AuthActi
       globalConfig.ipFilter.map { whitelist =>
         // Extract the client from the forwarded header, falling back
         // on the remote address. This is dependent on the proxy situation.
-        val ip = request.headers.get(HeaderNames.X_FORWARDED_FOR)
-          .flatMap(_.split(",").map(_.trim).headOption)
-          .getOrElse(request.remoteAddress)
-        if (whitelist.contains(ip)) immediate(None)
+        if (whitelist.contains(remoteIp(request))) immediate(None)
         else downForMaintenance(request).map(r => Some(r))
       }.getOrElse(immediate(None))
     }
@@ -224,14 +225,20 @@ trait CoreActionBuilders extends Controller with ControllerHelpers with AuthActi
    *  - the site is not in maintenance mode
    *  - they are allowed in this controller
    */
-  def OptionalUserAction = OptionalAuthAction andThen MaintenanceFilter andThen IpFilter andThen ReadOnlyTransformer andThen AllowedFilter andThen FetchProfile
+  protected def OptionalUserAction =
+    OptionalAuthAction andThen
+    MaintenanceFilter andThen
+    IpFilter andThen
+    ReadOnlyTransformer andThen
+    AllowedFilter andThen
+    FetchProfile
 
   /**
    * Ensure that a user a given permission on a given content type
    * @param permissionType the permission type
    * @param contentType the content type
    */
-  def WithContentPermissionAction(permissionType: PermissionType.Value, contentType: ContentTypes.Value) =
+  protected def WithContentPermissionAction(permissionType: PermissionType.Value, contentType: ContentTypes.Value) =
     OptionalUserAction andThen new ActionFilter[OptionalUserRequest] {
       override protected def filter[A](request: OptionalUserRequest[A]): Future[Option[Result]] = {
         if (request.userOpt.exists(_.hasPermission(contentType, permissionType)))  Future.successful(None)
@@ -242,7 +249,7 @@ trait CoreActionBuilders extends Controller with ControllerHelpers with AuthActi
   /**
    * Ensure that a user is present
    */
-  def WithUserAction = OptionalUserAction andThen new ActionRefiner[OptionalUserRequest, WithUserRequest] {
+  protected def WithUserAction = OptionalUserAction andThen new ActionRefiner[OptionalUserRequest, WithUserRequest] {
     protected def refine[A](request: OptionalUserRequest[A]) = {
       request.userOpt match {
         case None => authenticationFailed(request).map(r => Left(r))
@@ -254,7 +261,7 @@ trait CoreActionBuilders extends Controller with ControllerHelpers with AuthActi
   /**
    * Check the user is an administrator to access this request
    */
-  def AdminAction = WithUserAction andThen new ActionFilter[WithUserRequest] {
+  protected def AdminAction = WithUserAction andThen new ActionFilter[WithUserRequest] {
     protected def filter[A](request: WithUserRequest[A]): Future[Option[Result]] = {
       if (!request.user.isAdmin) authenticationFailed(request).map(r => Some(r))
       else immediate(None)

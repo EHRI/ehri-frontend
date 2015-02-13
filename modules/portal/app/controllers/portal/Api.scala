@@ -9,7 +9,7 @@ import client.json.ClientWriteable
 /**
  * @author Mike Bryant (http://github.com/mikesname)
  */
-trait Api[MT] extends Generic[MT] {
+trait Api[MT] extends Generic {
   def getClientJson(id: String)(implicit rr: BackendReadable[MT], rs: BackendResource[MT], cw: ClientWriteable[MT]) = OptionalUserAction.async {
       implicit request =>
     backend.get[MT](id).map { tm =>

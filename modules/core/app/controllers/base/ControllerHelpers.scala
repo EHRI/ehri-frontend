@@ -1,74 +1,50 @@
 package controllers.base
 
-import backend.rest.RestHelpers
-import models.UserProfile
-import play.api.libs.concurrent.Execution.Implicits._
+import play.api.Logger
+import play.api.cache.Cache
+import play.api.http.HeaderNames
 import play.api.mvc._
-
-import scala.concurrent.Future
-import scala.concurrent.Future.{successful => immediate}
-
 
 trait ControllerHelpers {
 
-  implicit def globalConfig: global.GlobalConfig
+  import play.api.Play.current
 
   /**
-   * Issue a warning about database maintenance when a "dbmaintenance"
-   * file is present in the app root and the DB isr offline.
-   * @return
+   * Get the remote IP of a user, taking into account intermediate
+   * proxying. FIXME: there's got to be a better way to do this.
    */
-  def dbMaintenance: Boolean = new java.io.File("dbmaintenance").exists()
+  protected def remoteIp(implicit request: RequestHeader): String =
+    request.headers.get(HeaderNames.X_FORWARDED_FOR)
+      .flatMap(_.split(",").map(_.trim).headOption)
+      .getOrElse(request.remoteAddress)
 
   /**
-   * Extract a log message from an incoming request params
+   * Fetch a value from config or throw an error.
    */
-  final val LOG_MESSAGE_PARAM = "logMessage"
-
-  def getLogMessage(implicit request: Request[_]) = {
-    import play.api.data.Form
-    import play.api.data.Forms._
-    Form(single(LOG_MESSAGE_PARAM -> optional(nonEmptyText)))
-      .bindFromRequest.value.getOrElse(None)
-  }
-
+  protected def getConfig(key: String)(implicit app: play.api.Application): Int =
+    app.configuration.getInt(key).getOrElse(sys.error(s"Missing config key: $key"))
 
   /**
    * Check if a request is Ajax.
    */
-  def isAjax(implicit request: RequestHeader): Boolean = utils.isAjax
+  protected def isAjax(implicit request: RequestHeader): Boolean = utils.isAjax
 
   /**
-   * Get a complete list of possible groups
+   * Check a particular remote address doesn't exceed a rate limit for a
+   * given action. Whenever this function is called the user's
    */
-  object getGroups {
-    def async(f: Seq[(String,String)] => Future[Result])(implicit userOpt: Option[UserProfile], request: RequestHeader): Future[Result] = {
-      RestHelpers.getGroupList.flatMap { groups =>
-        f(groups)
-      }
-    }
-
-    def apply(f: Seq[(String,String)] => Result)(implicit userOpt: Option[UserProfile], request: RequestHeader): Future[Result] = {
-      async(f.andThen(t => immediate(t)))
-    }
-  }
-
-  /**
-   * Get a list of users and groups.
-   */
-  object getUsersAndGroups {
-    def async(f: Seq[(String,String)] => Seq[(String,String)] => Future[Result])(
-      implicit userOpt: Option[UserProfile], request: RequestHeader): Future[Result] = {
-      for {
-        users <- RestHelpers.getUserList
-        groups <- RestHelpers.getGroupList
-        r <- f(users)(groups)
-      } yield r
-    }
-
-    def apply(f: Seq[(String,String)] => Seq[(String,String)] => Result)(
-      implicit userOpt: Option[UserProfile], request: RequestHeader): Future[Result] = {
-      async(f.andThen(_.andThen(t => immediate(t))))
+  protected def checkRateLimit[A](implicit request: Request[A]): Boolean = {
+    val limit: Int = getConfig("ehri.ratelimit.limit")
+    val timeoutSecs: Int = getConfig("ehri.ratelimit.timeout")
+    val ip = remoteIp(request)
+    val key = request.path + ip
+    val count = Cache.getOrElse(key, timeoutSecs)(0)
+    if (count < limit) {
+      Cache.set(key, count + 1, timeoutSecs)
+      true
+    } else {
+      Logger.warn(s"Rate limit refusal for IP $ip at ${request.path}")
+      false
     }
   }
 }

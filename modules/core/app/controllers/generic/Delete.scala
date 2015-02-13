@@ -10,7 +10,7 @@ import scala.concurrent.Future
 /**
  * Controller trait for deleting AccessibleEntities.
  */
-trait Delete[MT] extends Generic[MT] {
+trait Delete[MT] extends Generic {
 
   self: Read[MT] =>
 

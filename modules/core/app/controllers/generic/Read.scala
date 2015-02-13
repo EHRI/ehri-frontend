@@ -18,7 +18,7 @@ import scala.concurrent.Future
  *
  * @tparam MT Meta-model
  */
-trait Read[MT] extends Generic[MT] {
+trait Read[MT] extends Generic {
 
   case class ItemPermissionRequest[A](
     item: MT,

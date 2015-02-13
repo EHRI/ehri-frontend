@@ -10,7 +10,7 @@ import scala.concurrent.Future
 /**
  * Trait for handling promotion/demotion on any item.
  */
-trait Promotion[MT] extends Generic[MT] {
+trait Promotion[MT] extends Generic {
 
   this: Read[MT] =>
 

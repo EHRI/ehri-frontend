@@ -15,10 +15,10 @@ import play.api.Logger
 
 trait AuthConfigImpl extends AuthConfig with Results {
 
-  def globalConfig: global.GlobalConfig
+  protected def globalConfig: global.GlobalConfig
 
   // Specific type of user-finder loaded via a plugin
-  def accounts: auth.AccountManager
+  protected def accounts: auth.AccountManager
 
   // Override these if necessary...
   def defaultLoginUrl: Call = Call("GET", "/login")

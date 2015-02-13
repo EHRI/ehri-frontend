@@ -14,7 +14,7 @@ import backend.{BackendWriteable, BackendContentType}
 /**
  * Controller trait which updates an AccessibleEntity.
  */
-trait Update[F <: Model with Persistable, MT <: MetaModel[F]] extends Generic[MT] {
+trait Update[F <: Model with Persistable, MT <: MetaModel[F]] extends Generic {
 
   this: Read[MT] =>
 

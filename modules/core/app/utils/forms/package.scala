@@ -5,7 +5,6 @@ import java.net.{MalformedURLException, URL}
 import backend.Entity
 import play.api.Logger
 import play.api.Play._
-import play.api.cache.Cache
 import play.api.data.Form
 import play.api.data.Forms._
 import play.api.libs.ws.WS
@@ -32,25 +31,6 @@ package object forms {
       true
     } catch {
       case s: MalformedURLException => false
-    }
-  }
-
-  private def getConfig(key: String)(implicit app: play.api.Application): Int =
-    app.configuration.getInt(key).getOrElse(sys.error(s"Missing config key: $key"))
-
-
-  def checkRateLimit[A](implicit request: Request[A]): Boolean = {
-    val limit: Int = getConfig("ehri.ratelimit.limit")
-    val timeoutSecs: Int = getConfig("ehri.ratelimit.timeout")
-    val ip = request.remoteAddress
-    val key = request.path + ip
-    val count = Cache.getOrElse(key, timeoutSecs)(0)
-    if (count < limit) {
-      Cache.set(key, count + 1, timeoutSecs)
-      true
-    } else {
-      Logger.warn(s"Rate limit refusal for IP $ip at ${request.path}")
-      false
     }
   }
 
