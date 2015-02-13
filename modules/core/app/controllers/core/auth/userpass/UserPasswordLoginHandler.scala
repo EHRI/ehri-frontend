@@ -74,7 +74,7 @@ trait UserPasswordLoginHandler {
                   password = Some(HashedPassword.fromPlain(pw)),
                   isLegacy = false
                 )).flatMap { updated =>
-                  block(UserPasswordLoginRequest(Right(account), request))
+                  block(UserPasswordLoginRequest(Right(updated), request))
                 }
               } else {
                 Logger.logger.info("User logged in via password: {}", account.id)
