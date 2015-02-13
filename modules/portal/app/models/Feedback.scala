@@ -13,6 +13,7 @@ import defines.EnumUtils.enumMapping
  */
 case class Feedback(
   objectId: Option[String] = None,
+  userId: Option[String],
   name: Option[String],
   email: Option[String],
   text: Option[String],
@@ -28,6 +29,7 @@ object Feedback {
 
   val TEXT = "text"
   val TYPE = "type"
+  val ID = "userId"
   val NAME = "name"
   val EMAIL = "email"
   val COPY_ME = "copyMe"
@@ -46,6 +48,7 @@ object Feedback {
   implicit val form = Form(
     mapping(
       "objectId" -> ignored(Option.empty[String]),
+      ID -> optional(text),
       NAME -> optional(text),
       EMAIL -> optional(email),
       TEXT -> optional(nonEmptyText),

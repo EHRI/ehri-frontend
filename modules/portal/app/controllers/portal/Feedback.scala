@@ -56,7 +56,7 @@ case class Feedback @Inject()(implicit globalConfig: global.GlobalConfig, feedba
     } yield {
       val text = feedback.text.getOrElse("No message provided")
       mailer
-        .setSubject("EHRI Portal Feedback")
+        .setSubject("EHRI Portal Feedback" + feedback.name.map(n => s" from $n"))
         .setRecipient(accTo)
         .setReplyTo(feedback.email.getOrElse("noreply@ehri-project.eu"))
         .setFrom("EHRI User <noreply@ehri-project.eu>")
@@ -78,7 +78,7 @@ case class Feedback @Inject()(implicit globalConfig: global.GlobalConfig, feedba
       errorForm => immediate(response(errorForm)),
       feedback => {
         val moreFeedback = request.userOpt.map { user =>
-          feedback.copy(name = feedback.name.orElse(user.account.map(_.id)))
+          feedback.copy(userId = Some(user.id), name = feedback.name.orElse(user.account.map(_.id)))
             .copy(email = feedback.email.orElse(user.account.map(_.email)))
         }.getOrElse(feedback)
           .copy(context = Some(models.FeedbackContext.fromRequest),
