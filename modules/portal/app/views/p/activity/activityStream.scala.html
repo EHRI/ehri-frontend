@@ -1,4 +1,4 @@
-@(page: utils.RangePage[SystemEvent])(implicit userOpt: Option[UserProfile], req: RequestHeader, prefs: utils.SessionPrefs, globalConfig: global.GlobalConfig, lang: Lang)
+@(user: UserProfile, page: utils.RangePage[SystemEvent])(implicit userOpt: Option[UserProfile], req: RequestHeader, prefs: utils.SessionPrefs, globalConfig: global.GlobalConfig, lang: Lang)
 
 @import backend.rest.Constants.OFFSET_PARAM
 
@@ -15,11 +15,14 @@
                href="@utils.joinPath(req.path, req.queryString.updated(OFFSET_PARAM, Seq((page.offset + page.limit).toString)))">
                 @Messages("activity.fetchMore")
             </a>
-
         }
     } else {
-        <p class="text-muted">
-            @Messages("activity.noActivityYet")
+        <p class="no-content">
+            @if(userOpt.exists(_.id != user.id)) {
+                @Messages("activity.noUserActivityYet", user.toStringLang)
+            } else {
+                @Messages("activity.noActivityYet")
+            }
         </p>
     }
 </div>
