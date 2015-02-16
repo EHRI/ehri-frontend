@@ -1,6 +1,7 @@
 package integration.portal
 
 import helpers.{WithSqlFile,IntegrationTestRunner}
+import play.api.i18n.Messages
 import play.api.test.FakeRequest
 import mocks._
 import models.{GuidePage, Guide}
@@ -46,6 +47,14 @@ class GuidesSpec extends IntegrationTestRunner {
       contentAsString(doc) must contain("Hello")
     }
 
+    "maintain path uniqueness"  in new WithSqlFile("guide-fixtures.sql", fakeApplication()) {
+      val data = guideData.updated(Guide.PATH, Seq("terezin"))
+      val create = route(fakeLoggedInHtmlRequest(privilegedUser, POST,
+        guideAdminRoutes.createPost().url), data).get
+      status(create) must equalTo(BAD_REQUEST)
+      contentAsString(create) must contain(Messages("constraints.uniqueness"))
+    }
+
     "be able to edit guides, including changing the URL"  in new WithSqlFile("guide-fixtures.sql", fakeApplication()) {
       val edit = route(fakeLoggedInHtmlRequest(privilegedUser, POST,
         guideAdminRoutes.editPost("jewishcommunity").url), guideData).get
@@ -55,6 +64,21 @@ class GuidesSpec extends IntegrationTestRunner {
         guideAdminRoutes.show("hello").url)).get
       status(doc) must equalTo(OK)
       contentAsString(doc) must contain("Hello")
+    }
+
+    "be able to edit guides, not changing the URL"  in new WithSqlFile("guide-fixtures.sql", fakeApplication()) {
+      val data = guideData.updated(Guide.PATH, Seq("jewishcommunity"))
+      val edit = route(fakeLoggedInHtmlRequest(privilegedUser, POST,
+        guideAdminRoutes.editPost("jewishcommunity").url), data).get
+      status(edit) must equalTo(SEE_OTHER)
+    }
+
+    "not be able to violate path uniqueness"  in new WithSqlFile("guide-fixtures.sql", fakeApplication()) {
+      val data = guideData.updated(Guide.PATH, Seq("jewishcommunity"))
+      val create = route(fakeLoggedInHtmlRequest(privilegedUser, POST,
+        guideAdminRoutes.createPost().url), data).get
+      status(create) must equalTo(BAD_REQUEST)
+      contentAsString(create) must contain(Messages("constraints.uniqueness"))
     }
 
     "redirect after deleting guides" in new WithSqlFile("guide-fixtures.sql", fakeApplication()) {
@@ -92,12 +116,19 @@ class GuidesSpec extends IntegrationTestRunner {
       contentAsString(doc) must contain("Blah")
     }
 
+    "not be able to violate path uniqueness"  in new WithSqlFile("guide-fixtures.sql", fakeApplication()) {
+      val data = pageData.updated(GuidePage.PATH, Seq("keywords"))
+      val edit = route(fakeLoggedInHtmlRequest(privilegedUser, POST,
+        guidePageAdminRoutes.editPost("terezin", "places").url), data).get
+      status(edit) must equalTo(BAD_REQUEST)
+      contentAsString(edit) must contain(Messages("constraints.uniqueness"))
+    }
+
     "redirect after deleting guide pages" in new WithSqlFile("guide-fixtures.sql", fakeApplication()) {
       val del = route(fakeLoggedInHtmlRequest(privilegedUser, POST,
         guidePageAdminRoutes.deletePost("terezin", "places").url)).get
       status(del) must equalTo(SEE_OTHER)
       redirectLocation(del).get must equalTo(guideAdminRoutes.show("terezin").url)
     }
-    
   }
 }

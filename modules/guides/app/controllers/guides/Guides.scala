@@ -5,7 +5,10 @@ import controllers.base.AdminController
 
 import com.google.inject._
 import backend.Backend
-import models.Guide
+import models.sql.IntegrityError
+import models.{GuidePage, Guide}
+
+import scala.util.{Failure, Success}
 
 
 @Singleton
@@ -38,7 +41,8 @@ case class Guides @Inject()(implicit globalConfig: global.GlobalConfig, backend:
   def editPost(path: String) = WithUserAction { implicit request =>
     itemOr404 {
       Guide.find(path, activeOnly = false).map { guide =>
-        formGuide.bindFromRequest.fold(
+        val boundForm = formGuide.bindFromRequest
+        boundForm.fold(
           errorForm => {
             BadRequest(views.html.guide.edit(guide, errorForm, Guide.findAll(),
               guide.findPages(), guidesRoutes.editPost(path)))
@@ -47,9 +51,15 @@ case class Guides @Inject()(implicit globalConfig: global.GlobalConfig, backend:
             // This ensures we don't depend on the objectId in the form,
             // which might differ from that in the form if someone
             // has somehow changed it...
-            updated.copy(id = guide.id).update()
-            Redirect(guidesRoutes.show(updated.path))
-              .flashing("success" -> "item.update.confirmation")
+            updated.copy(id = guide.id).update() match {
+              case Success(_) => Redirect(guidesRoutes.show(updated.path))
+                .flashing("success" -> "item.update.confirmation")
+              case Failure(IntegrityError(e)) =>
+                val errorForm = boundForm.withError(Guide.PATH, "constraints.uniqueness")
+                BadRequest(views.html.guide.edit(guide, errorForm, Guide.findAll(),
+                  guide.findPages(), guidesRoutes.editPost(path)))
+              case Failure(e) => throw e
+            }
           }
         )
       }
@@ -61,17 +71,23 @@ case class Guides @Inject()(implicit globalConfig: global.GlobalConfig, backend:
   }
 
   def createPost() = WithUserAction { implicit request =>
-    formGuide.bindFromRequest.fold(
+    val boundForm = formGuide.bindFromRequest
+    boundForm.fold(
       errorForm => {
         BadRequest(views.html.guide.create(errorForm, Guide.findAll(), guidesRoutes.createPost()))
       }, {
-        case Guide(_, name, path, picture, virtualUnit, description, css, active, default) => {
+        case Guide(_, name, path, picture, virtualUnit, description, css, active, default) =>
           itemOr404 {
-            Guide.create(name, path, picture, virtualUnit, description, css = css , active = active).map { guide =>
-              Redirect(guidesRoutes.show(guide.path))
+            Guide.create(name, path, picture, virtualUnit, description, css = css , active = active) match {
+              case Success(guideOpt) => guideOpt.map { guide =>
+                Redirect(guidesRoutes.show(guide.path))
+              }
+              case Failure(IntegrityError(e)) =>
+                val errorForm = boundForm.withError(Guide.PATH, "constraints.uniqueness")
+                Some(BadRequest(views.html.guide.create(errorForm, Guide.findAll(), guidesRoutes.createPost())))
+              case Failure(e) => throw e
             }
           }
-        }
       }
     )
   }

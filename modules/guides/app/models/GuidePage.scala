@@ -10,6 +10,9 @@ import play.api.db.DB
 import language.postfixOps
 import utils.db.StorableEnum
 import play.core.parsers.FormUrlEncodedParser
+import models.sql.withIntegrityCheck
+
+import scala.util.Try
 
 /**
  * @author Thibault Clérice (http://github.com/ponteineptique)
@@ -28,8 +31,8 @@ case class GuidePage(
   /*
   * Edit a page
   */
-  def update(): Unit = DB.withConnection { implicit connection =>
-    SQL"""
+  def update(): Try[Unit] = withIntegrityCheck { implicit connection =>
+      SQL"""
       UPDATE
         research_guide_page
       SET
@@ -127,14 +130,17 @@ object GuidePage {
   * Create a new page
   */
   def create(layout: Layout.Value, name: String, path: String, menu: MenuPosition.Value = MenuPosition.Side,
-             cypher: String, parent: Option[Long] = None, description: Option[String] = None, params: Option[String] = None): Option[Long] = DB.withConnection {
-    implicit connection =>
-      SQL"""
-        INSERT INTO research_guide_page
-          (layout, name, path, position, content, research_guide_id, description, params)
-        VALUES
-          ($layout, $name, $path, $menu, $cypher, $parent, $description, $params)
-      """.executeInsert()
+             cypher: String, parent: Option[Long] = None, description: Option[String] = None, params: Option[String] = None): Try[Option[GuidePage]] =
+      withIntegrityCheck { implicit connection =>
+    val id: Option[Long] = SQL"""
+      INSERT INTO research_guide_page
+        (layout, name, path, position, content, research_guide_id, description, params)
+      VALUES
+        ($layout, $name, $path, $menu, $cypher, $parent, $description, $params)
+    """.executeInsert()
+    id.flatMap { l =>
+      SQL"SELECT * FROM research_guide_page WHERE id = $l".as(rowExtractor.singleOpt)
+    }
   }
 
   /*

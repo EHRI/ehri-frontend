@@ -89,6 +89,7 @@ CREATE TABLE research_guide_page (
 
 
 ALTER TABLE research_guide_page ADD CONSTRAINT research_guide_page_id FOREIGN KEY (research_guide_id) REFERENCES research_guide (id) ON DELETE CASCADE;
+ALTER TABLE research_guide_page ADD UNIQUE research_guide_path_guide_id(research_guide_id, path);
 
 
 # --- !Downs

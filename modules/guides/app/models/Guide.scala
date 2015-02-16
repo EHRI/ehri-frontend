@@ -8,6 +8,8 @@ import anorm.SqlParser._
 import play.api.Play.current
 import play.api.db.DB
 import language.postfixOps
+import scala.util.Try
+import models.sql.withIntegrityCheck
 
 /**
  * @author Thibault Clérice (http://github.com/ponteineptique)
@@ -23,8 +25,8 @@ case class Guide(
   active: Int = 0,
   default: Long = 0
 ) {
-  def update(): Unit = DB.withConnection { implicit connection =>
-    SQL"""
+  def update(): Try[Unit] = withIntegrityCheck { implicit connection =>
+      SQL"""
       UPDATE
         research_guide
       SET
@@ -117,12 +119,12 @@ object Guide {
   /*
   *   Create function
   */
-  def create(name: String, path: String, picture: Option[String] = None, virtualUnit: String, description: Option[String] = None, css: Option[String] = None, active: Int): Option[Guide] = DB.withConnection { implicit connection =>
+  def create(name: String, path: String, picture: Option[String] = None, virtualUnit: String, description: Option[String] = None, css: Option[String] = None, active: Int): Try[Option[Guide]] = withIntegrityCheck { implicit connection =>
     val id: Option[Long] = SQL"""
-      INSERT INTO research_guide
-        (name, path, picture, virtual_unit, description, css, active)
-      VALUES ($name, $path, $picture, $virtualUnit, $description, $css, $active)
-      """.executeInsert()
+    INSERT INTO research_guide
+      (name, path, picture, virtual_unit, description, css, active)
+    VALUES ($name, $path, $picture, $virtualUnit, $description, $css, $active)
+    """.executeInsert()
     id.flatMap(findById)
   }
 
