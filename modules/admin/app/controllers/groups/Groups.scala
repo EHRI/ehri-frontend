@@ -1,6 +1,7 @@
 package controllers.groups
 
 import auth.AccountManager
+import defines.EntityType
 import play.api.libs.concurrent.Execution.Implicits._
 import controllers.generic._
 import forms.VisibilityForm
@@ -20,6 +21,7 @@ case class Groups @Inject()(implicit globalConfig: global.GlobalConfig, searchEn
   with PermissionHolder[Group]
   with Visibility[Group]
   with Membership[Group]
+  with ItemPermissions[Group]
   with CRUD[GroupF, Group] {
 
   private val form = models.Group.form
@@ -102,6 +104,31 @@ case class Groups @Inject()(implicit globalConfig: global.GlobalConfig, searchEn
     Ok(views.html.admin.permissions.permissionGrantList(request.item, request.permissionGrants))
   }
 
+  def managePermissions(id: String) = PermissionGrantAction(id).apply { implicit request =>
+    Ok(views.html.admin.permissions.managePermissions(request.item, request.permissionGrants,
+      groupRoutes.addItemPermissions(id)))
+  }
+
+  def addItemPermissions(id: String) = EditItemPermissionsAction(id).apply { implicit request =>
+    Ok(views.html.admin.permissions.permissionItem(request.item, request.users, request.groups,
+      groupRoutes.setItemPermissions))
+  }
+
+  def setItemPermissions(id: String, userType: EntityType.Value, userId: String) = {
+    CheckUpdateItemPermissionsAction(id, userType, userId).apply { implicit request =>
+      Ok(views.html.admin.permissions.setPermissionItem(
+        request.item, request.accessor, request.itemPermissions,
+          groupRoutes.setItemPermissionsPost(id, userType, userId)))
+    }
+  }
+
+  def setItemPermissionsPost(id: String, userType: EntityType.Value, userId: String) = {
+    UpdateItemPermissionsAction(id, userType, userId).apply { implicit request =>
+      Redirect(groupRoutes.managePermissions(id))
+        .flashing("success" -> "item.update.confirmation")
+    }
+  }
+
   def permissions(id: String) = CheckGlobalPermissionsAction(id).apply { implicit request =>
     Ok(views.html.admin.permissions.editGlobalPermissions(request.item, request.permissions,
           groupRoutes.permissionsPost(id)))
@@ -111,7 +138,6 @@ case class Groups @Inject()(implicit globalConfig: global.GlobalConfig, searchEn
     Redirect(groupRoutes.get(id))
         .flashing("success" -> "item.update.confirmation")
   }
-
 
   def revokePermission(id: String, permId: String) = {
     CheckRevokePermissionAction(id, permId).apply { implicit request =>

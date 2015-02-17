@@ -143,7 +143,7 @@ AuthoritativeSets @Inject()(implicit globalConfig: global.GlobalConfig, searchEn
   def setItemPermissions(id: String, userType: EntityType.Value, userId: String) = {
     CheckUpdateItemPermissionsAction(id, userType, userId).apply { implicit request =>
       Ok(views.html.admin.permissions.setPermissionItem(
-        request.item, request.accessor, request.itemPermissions, AuthoritativeSet.Resource.contentType,
+        request.item, request.accessor, request.itemPermissions,
         setRoutes.setItemPermissionsPost(id, userType, userId)))
     }
   }

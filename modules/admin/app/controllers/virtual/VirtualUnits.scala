@@ -361,7 +361,7 @@ case class VirtualUnits @Inject()(implicit globalConfig: global.GlobalConfig, se
   def setItemPermissions(id: String, userType: EntityType.Value, userId: String) = {
     CheckUpdateItemPermissionsAction(id, userType, userId).apply { implicit request =>
       Ok(views.html.admin.permissions.setPermissionItem(
-        request.item, request.accessor, request.itemPermissions, VirtualUnit.Resource.contentType,
+        request.item, request.accessor, request.itemPermissions,
         vuRoutes.setItemPermissionsPost(id, userType, userId)))
     }
   }

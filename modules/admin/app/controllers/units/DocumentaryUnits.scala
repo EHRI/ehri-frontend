@@ -284,7 +284,7 @@ case class DocumentaryUnits @Inject()(implicit globalConfig: global.GlobalConfig
     CheckUpdateItemPermissionsAction(id, userType, userId).apply { implicit request =>
       Ok(views.html.admin.permissions.setPermissionItem(
         request.item, request.accessor, request.itemPermissions,
-        DocumentaryUnit.Resource.contentType, docRoutes.setItemPermissionsPost(id, userType, userId)))
+        docRoutes.setItemPermissionsPost(id, userType, userId)))
     }
   }
 

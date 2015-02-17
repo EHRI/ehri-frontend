@@ -109,8 +109,8 @@ case class HistoricalAgents @Inject()(implicit globalConfig: global.GlobalConfig
   def setItemPermissions(id: String, userType: EntityType.Value, userId: String) = {
     CheckUpdateItemPermissionsAction(id, userType, userId).apply { implicit request =>
       Ok(views.html.admin.permissions.setPermissionItem(
-        request.item, request.accessor, request.itemPermissions, HistoricalAgent.Resource.contentType,
-        histRoutes.setItemPermissionsPost(id, userType, userId)))
+        request.item, request.accessor, request.itemPermissions,
+          histRoutes.setItemPermissionsPost(id, userType, userId)))
     }
   }
 

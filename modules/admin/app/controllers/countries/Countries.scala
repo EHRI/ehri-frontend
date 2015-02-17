@@ -157,7 +157,7 @@ case class Countries @Inject()(implicit globalConfig: global.GlobalConfig, searc
   def setItemPermissions(id: String, userType: EntityType.Value, userId: String) = {
     CheckUpdateItemPermissionsAction(id, userType, userId).apply { implicit request =>
       Ok(views.html.admin.permissions.setPermissionItem(
-        request.item, request.accessor, request.itemPermissions, Country.Resource.contentType,
+        request.item, request.accessor, request.itemPermissions,
         countryRoutes.setItemPermissionsPost(id, userType, userId)))
     }
   }
