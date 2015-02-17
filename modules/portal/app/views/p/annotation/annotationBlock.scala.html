@@ -1,48 +1,35 @@
 @(annotation: Annotation, editable: Boolean)(implicit userOpt: Option[UserProfile], req: RequestHeader, lang: Lang, globalConfig: global.GlobalConfig)
 
-<div class="annotation item-text-field clearfix @{if(annotation.isPromoted) "promoted"}" id="@annotation.id">
+@import defines.{ContentTypes,PermissionType}
+
+<div class="annotation item-text-field @{if(annotation.isPromoted) "promoted"}" id="@annotation.id">
 	<div class="item-text-field-header">
 	    @for(them <- annotation.user ; event <- annotation.latestEvent) {
-            <div>@p.helpers.linkTo(them)</div>
-	        <small class="text-muted">
+            @views.html.p.helpers.linkTo(them, attributes = Seq('rel -> "nofollow"))
+	        <div class="annotation-meta">
 	            <a class="time-permalink" href="#@annotation.id"><span class="glyphicon glyphicon-time"></span> @views.Helpers.relativeDate(event.model.timestamp)</a>
-
 	            @if(editable && !annotation.isPromoted) {
-	            	<ul class="list-inline">
-		                <li>
-                            <a data-item="@annotation.id" class="edit-annotation" href="@controllers.portal.annotate.routes.Annotations.editAnnotation(annotation.id, context = models.view.AnnotationContext.Block)">
-                                @Messages("annotation.update")
-                            </a>
-                        </li>
-		                <li>
-                            <a data-item="@annotation.id" title="@Messages("annotation.delete.title")" class="delete-annotation" href="@controllers.portal.annotate.routes.Annotations.deleteAnnotation(annotation.id)">
-                            @Messages("annotation.delete")
-                            </a>
-                        </li>
-		            </ul>
+                    <a data-item="@annotation.id" class="edit-annotation" href="@controllers.portal.annotate.routes.Annotations.editAnnotation(annotation.id, context = models.view.AnnotationContext.Block)">
+                        @Messages("annotation.update")
+                    </a>
+                    <a data-item="@annotation.id" title="@Messages("annotation.delete.title")" class="delete-annotation" href="@controllers.portal.annotate.routes.Annotations.deleteAnnotation(annotation.id)">
+                    @Messages("annotation.delete")
+                    </a>
 	            }
                 @userOpt.map { user =>
                     @if(!annotation.isPromoted && user.hasPermission(ContentTypes.Annotation, PermissionType.Promote) && annotation.model.isPromotable) {
-                        <ul class="list-inline">
-                            <li>
-                                <a data-item="@annotation.id" title="@Messages("promotion.promote.title")" class="promote-annotation" href="@controllers.portal.annotate.routes.Annotations.promoteAnnotation(annotation.id, context = models.view.AnnotationContext.Block)">
-                                    @Messages("promotion.promote")
-                                </a>
-                            </li>
-                        </ul>
+                        <a data-item="@annotation.id" title="@Messages("promotion.promote.title")" class="promote-annotation" href="@controllers.portal.annotate.routes.Annotations.promoteAnnotation(annotation.id, context = models.view.AnnotationContext.Block)">
+                            @Messages("promotion.promote")
+                        </a>
                     } else {
                         @if(annotation.isPromoted && user.hasPermission(ContentTypes.Annotation, PermissionType.Promote)) {
-                            <ul class="list-inline">
-                                <li>
-                                    <a data-item="@annotation.id" title="@Messages("promotion.demote.title")" class="demote-annotation" href="@controllers.portal.annotate.routes.Annotations.demoteAnnotation(annotation.id, context = models.view.AnnotationContext.Block)">
-                                        @Messages("promotion.demote")
-                                    </a>
-                                </li>
-                            </ul>
+                            <a data-item="@annotation.id" title="@Messages("promotion.demote.title")" class="demote-annotation" href="@controllers.portal.annotate.routes.Annotations.demoteAnnotation(annotation.id, context = models.view.AnnotationContext.Block)">
+                                @Messages("promotion.demote")
+                            </a>
                         }
                     }
                 }
-	        </small>
+	        </div>
 	    }
 	</div>
 	<div class="item-text-field-value">

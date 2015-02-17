@@ -1,22 +1,23 @@
 @(item: DocumentaryUnit, desc: DocumentaryUnitDescriptionF, links: Seq[Link], annotations: Seq[Annotation])(implicit fieldPrefix: String, userOpt: Option[UserProfile], req: RequestHeader, prefs: utils.SessionPrefs, globalConfig: global.GlobalConfig, lang: Lang)
+@import models.base.Description.CreationProcess
 
-@import defines._
 @import models.IsadG._
-@import p.common.descriptionSection
-@import p.common.textField
-@import p.common.listField
+@import views.html.p.common.descriptionSection
+@import views.html.p.common.textField
+@import views.html.p.common.listField
 
 
-@p.common.descriptionOutline(item, desc, annotations) {
+@views.html.p.common.descriptionOutline(item, desc, annotations) {
+
     @defining(Annotation.fieldAnnotations(desc.id, annotations)) { implicit fieldAnnotations =>
         @* Description *must* have an ID here or something bad has gone wrong! *@
         @desc.id.map { descId =>
 
-            @p.common.itemHeader(desc.name) {
-                @p.common.otherNameList(desc.identity.parallelFormsOfName)
+            @views.html.p.common.itemHeader(desc.name) {
+                @views.html.p.common.otherNameList(desc.identity.parallelFormsOfName)
             }
 
-            @details(item, desc)
+            @views.html.p.documentaryUnit.details(item, desc)
 
             @descriptionSection(IDENTITY_AREA) {
                 @textField(item, descId, desc.externalLink(item), REF)
@@ -25,7 +26,7 @@
             }
 
             @descriptionSection(CONTEXT_AREA) {
-                @p.common.accessPointLinks(item, desc, links, List(AccessPointF.AccessPointType.CreatorAccess))
+                @views.html.p.common.accessPointLinks(item, desc, links, List(AccessPointF.AccessPointType.CreatorAccess))
                 @textField(item, descId, desc.context.biographicalHistory, ADMIN_BIOG)
                 @textField(item, descId, desc.context.archivalHistory, ARCH_HIST)
                 @textField(item, descId, desc.context.acquisition, ACQUISITION)
@@ -65,7 +66,7 @@
             }
 
             @descriptionSection(ACCESS_POINTS) {
-                @p.common.accessPointLinks(item, desc, links, AccessPointF.AccessPointType.exceptCreator.toList)
+                @views.html.p.common.accessPointLinks(item, desc, links, AccessPointF.AccessPointType.exceptCreator.toList)
             }
         }
     }

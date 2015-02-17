@@ -1,25 +1,25 @@
-@(item: AnyModel, desc: Description, annotations: Seq[Annotation])(implicit userOpt: Option[UserProfile], req: RequestHeader, prefs: utils.SessionPrefs, lang: Lang, globalConfig: global.GlobalConfig)
+@(item: models.base.AnyModel, desc: models.base.Description, annotations: Seq[Annotation])(implicit userOpt: Option[UserProfile], req: RequestHeader, prefs: utils.SessionPrefs, lang: Lang, globalConfig: global.GlobalConfig)
 
-<div class="description-annotations annotation-set clearfix">
-    <h3 class="block-header small">
-        @Messages("annotation")
-    </h3>
+<div class="description-annotations annotation-set">
     @defining(Annotation.itemAnnotations(desc.id, annotations).filter(_.model.field.isEmpty)) { annotations =>
-        @p.annotation.annotationBlockList(annotations)
-    }
-    @userOpt.map { user =>
-        @item.contentType.map { ct =>
-            @if(user.hasPermission(ct, PermissionType.Annotate)) {
-                <div class="annotate-item-controls">
-                    @desc.id.map { did =>
-                        <a data-item="@item.id" data-did="@did" class="annotate-item"
-                            title="@Messages("annotation.create.title")"
-                           href="@controllers.portal.annotate.routes.Annotations.annotate(item.id, did)">
-                            <span class="fa fa-comment-o"></span>
-                            @Messages("annotation.create")
-                        </a>
-                    }
-                </div>
+        @if(userOpt.isDefined || annotations.nonEmpty) {
+            <h3 class="description-annotations-header block-header">@Messages("annotation.description")</h3>
+        }
+        @views.html.p.annotation.annotationBlockList(annotations)
+        @userOpt.map { user =>
+            @item.contentType.map { ct =>
+                @if(user.hasPermission(ct, defines.PermissionType.Annotate)) {
+                    <div class="annotate-item-controls">
+                        @desc.id.map { did =>
+                            <a data-item="@item.id" data-did="@did" class="annotate-item"
+                                title="@Messages("annotation.create.title")"
+                               href="@controllers.portal.annotate.routes.Annotations.annotate(item.id, did)">
+                                <span class="fa fa-comment-o"></span>
+                                @Messages("annotation.create")
+                            </a>
+                        }
+                    </div>
+                }
             }
         }
     }

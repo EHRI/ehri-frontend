@@ -3,13 +3,13 @@
 @defining(views.p.Helpers.sortAnnotations(annotations)) { case (mine, promoted, others) =>
     <ul class="annotation-list">
         @for(ann <- mine) {
-            <li class="personal">@p.annotation.annotationBlock(ann, true)</li>
+            <li class="personal">@views.html.p.annotation.annotationBlock(ann, editable = true)</li>
         }
         @for(ann <- promoted) {
-            <li class="promoted user-content @{if(!prefs.showUserContent) "hidden"}">@p.annotation.annotationBlock(ann, false)</li>
+            <li class="promoted user-content @{if(!prefs.showUserContent) "hidden"}">@views.html.p.annotation.annotationBlock(ann, editable = false)</li>
         }
         @for(ann <- others) {
-            <li class="other user-content @{if(!prefs.showUserContent) "hidden"}">@p.annotation.annotationBlock(ann, false)</li>
+            <li class="other user-content @{if(!prefs.showUserContent) "hidden"}">@views.html.p.annotation.annotationBlock(ann, editable = false)</li>
         }
     </ul>
 }

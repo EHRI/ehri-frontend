@@ -52,7 +52,7 @@ a.annotate-field {
   background-color: @pale-gray;
   opacity: 1;
   display: inline-block;
-  border-width: 0px;
+  border-width: 0;
   text-align: left;
   padding: @annotate-field-padding;
 
@@ -82,6 +82,10 @@ select.custom-accessors {
 
 .annotation-list {
   &:extend(.list-unstyled);
+
+  >li, >div {
+    padding-left: @medium-padding;
+  }
 }
 
 .annotation-right {
@@ -225,7 +229,7 @@ select.custom-accessors {
       font-size: 10px;
     }
     font-size: 10px;
-    padding: 0 2;
+    padding: 0 2px;
     display: block;
     width: 18px;
     height: 100%;
@@ -234,7 +238,7 @@ select.custom-accessors {
     top: 0;
 
     .select2-search-choice {
-      margin: 0 1;
+      margin: 0 1px;
     }
   }
 
@@ -279,7 +283,20 @@ select.custom-accessors {
 }
 
 .description-annotations {
+  .description-annotations-header {
+    margin-top: 0;
+  }
+  ul.annotation-list {
+    margin: 0;
+  }
   .annotate-item {
     &:extend(.button);
+  }
+
+  .annotate-item-controls {
+    padding-left: @medium-padding;
+    a {
+      margin-top: @medium-margin;
+    }
   }
 }

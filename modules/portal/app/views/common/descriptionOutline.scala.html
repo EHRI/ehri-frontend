@@ -1,4 +1,4 @@
-@(item: WithDescriptions[Description], desc: Description, actions: Html = Html(""))(html: Html)(implicit fieldPrefix: String, lang: Lang)
+@(item: models.base.WithDescriptions[models.base.Description], desc: models.base.Description, actions: Html = Html(""))(html: Html)(implicit fieldPrefix: String, lang: Lang)
 
 <div class="description-holder" id="desc-@desc.id">
     @actions

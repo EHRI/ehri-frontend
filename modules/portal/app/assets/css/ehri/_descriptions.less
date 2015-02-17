@@ -8,6 +8,20 @@
     .make-sm-column(3);
     .make-sm-column-push(9);
   }
+
+  .description-footer {
+    margin-top: @medium-margin;
+    border-bottom: 1px solid #dcdcdc;
+
+    .import-disclaimer {
+      .small;
+      background-color: #f3f3f3;
+      color: @almost-black;
+      font-style: italic;
+      padding: @medium-padding;
+    }
+  }
+
 }
 
 .date-period > td {
@@ -69,7 +83,24 @@
   }
 }
 
-.item-details {
+dl.item-details {
+  &:extend(.panel, .panel-default);
+  dd {
+    &:extend(.clearfix all); // Clear the floated `dt` if an empty `dd` is present
+  }
+
+  @media (min-width: @grid-float-breakpoint) {
+    dt {
+      float: left;
+      width: 200px;
+      clear: left;
+      text-align: right;
+      .text-overflow();
+    }
+    dd {
+      margin-left: 200px + @large-margin;
+    }
+  }
   //width:100%;
   //display:table;
   border-bottom: 1px solid @table-border-color;
@@ -113,7 +144,7 @@
 
 .item-link {
   .link-target {
-    font-size: 1.1;
+    font-size: 1.1em;
     padding: @small-padding 0;
   }
   .link-description {

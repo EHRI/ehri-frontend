@@ -508,6 +508,7 @@ social.unblock.submit=Unblock User
 # Annotations
 #
 annotation=Notes
+annotation.description=Notes on this description
 annotation.search=Search Notes
 annotation.search.noneFound=No notes found matching ''{0}''.
 annotation.field=Field
@@ -914,6 +915,13 @@ documentaryUnit.notes=Note(s)
 documentaryUnit.sources=Sources
 documentaryUnit.datesOfDescriptions=Dates of Descriptions
 documentaryUnit.processInfo=Process Info
+documentaryUnit.creationProcess=Source
+documentaryUnit.creationProcess.MANUAL=EHRI
+documentaryUnit.creationProcess.MANUAL.description=This description was created by EHRI.
+documentaryUnit.creationProcess.IMPORT=EHRI Partner
+documentaryUnit.creationProcess.IMPORT.disclaimer=This description is derived directly from structured data provided to EHRI by a \
+ partner institution. This collection holding institution considers this description as an accurate reflection of the archival holdings \
+  to which it refers at the moment of data transfer.
 
 #
 # Historical Agents
