@@ -119,8 +119,9 @@ case class VirtualUnits @Inject()(implicit globalConfig: global.GlobalConfig, se
   }
 
   def searchChildren(id: String) = ItemPermissionAction(id).async { implicit request =>
-    find[VirtualUnit](
-      filters = Map(SearchConstants.PARENT_ID -> request.item.id),
+    find[AnyModel](
+      filters = buildFilter(request.item),
+      entities = List(EntityType.VirtualUnit, EntityType.DocumentaryUnit),
       facetBuilder = entityFacets
     ).map { result =>
       Ok(views.html.admin.virtualUnit.search(result, vuRoutes.search()))
