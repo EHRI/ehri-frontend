@@ -13,11 +13,9 @@ import backend.Backend
 import play.api.data.{FormError, Forms, Form}
 import scala.concurrent.Future.{successful => immediate}
 import play.api.libs.json.Json
-import scala.concurrent.{Await, Future}
+import scala.concurrent.Future
 import play.api.mvc.Request
-import java.util.concurrent.TimeUnit
 import backend.rest.{ValidationError, RestHelpers}
-import scala.concurrent.duration.Duration
 import play.api.mvc.Result
 import play.api.libs.json.JsObject
 import controllers.base.AdminController
@@ -104,25 +102,21 @@ case class UserProfiles @Inject()(implicit globalConfig: global.GlobalConfig, se
    *    could be added to
    *  - we also need to tweak permissions on the user's own
    *    account so they can edit it... all in all not nice.
-   *
-   * @return
    */
   def createUserPost = WithContentPermissionAction(PermissionType.Create, ContentTypes.UserProfile).async { implicit request =>
-
-    // Blocking! This helps simplify the nest of callbacks.
-      val allGroups: Seq[(String, String)] = Await.result(
-        RestHelpers.getGroupList, Duration(1, TimeUnit.MINUTES))
-
+    RestHelpers.getGroupList.flatMap { allGroups =>
       userPasswordForm.bindFromRequest.fold(
-      errorForm => {
-        immediate(Ok(views.html.admin.userProfile.create(errorForm, groupMembershipForm.bindFromRequest,
-          allGroups, userRoutes.createUserPost())))
-      },
-      {
-        case (em, username, name, pw, _) =>
+        errorForm => immediate(BadRequest(views.html.admin.userProfile.create(
+            errorForm,
+            groupMembershipForm.bindFromRequest,
+            allGroups,
+            userRoutes.createUserPost())
+          )
+        ), { case (em, username, name, pw, _) =>
           saveUser(em, username, name, pw, allGroups)
-      }
+        }
       )
+    }
   }
 
   /**
@@ -171,7 +165,7 @@ case class UserProfiles @Inject()(implicit globalConfig: global.GlobalConfig, se
             ))
             _ <- backend.setItemPermissions(profile.id, ContentTypes.UserProfile,
               profile.id, List(PermissionType.Owner.toString))
-          } yield Redirect(controllers.users.routes.UserProfiles.search())
+          } yield Redirect(controllers.users.routes.UserProfiles.get(profile.id))
         }
     }
   }
