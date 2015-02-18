@@ -12,10 +12,10 @@ class VirtualUnitsSpec extends IntegrationTestRunner {
   "VirtualUnit views" should {
     "render virtual units" in new ITestApp {
       val show = route(fakeLoggedInHtmlRequest(privilegedUser,
-        GET, vuRoutes.browseVirtualCollection("vc1").url)).get
+        vuRoutes.browseVirtualCollection("vc1"))).get
       contentAsString(show) must contain("Virtual Collection 1")
       val search = route(fakeLoggedInHtmlRequest(privilegedUser,
-        GET, vuRoutes.searchVirtualCollection("vc1").url)).get
+        vuRoutes.searchVirtualCollection("vc1"))).get
       contentAsString(search) must contain(vuRoutes.browseVirtualUnit("vc1", "vu1").url)
     }
   }

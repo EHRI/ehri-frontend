@@ -17,24 +17,24 @@ class UserProfilesSpec extends IntegrationTestRunner {
 
   "Portal views" should {
     "allow watching and unwatching items" in new ITestApp {
-      val watch = route(fakeLoggedInHtmlRequest(privilegedUser, POST,
-        profileRoutes.watchItemPost("c1").url), "").get
+      val watch = route(fakeLoggedInHtmlRequest(privilegedUser,
+        profileRoutes.watchItemPost("c1")), "").get
       status(watch) must equalTo(SEE_OTHER)
 
       // Watched items show up on the profile - maybe change this?
-      val watching = route(fakeLoggedInHtmlRequest(privilegedUser, GET,
-        profileRoutes.watching().url)).get
+      val watching = route(fakeLoggedInHtmlRequest(privilegedUser,
+        profileRoutes.watching())).get
       // Check the following page contains a link to the user we just followed
       contentAsString(watching) must contain(
         controllers.portal.routes.DocumentaryUnits.browse("c1").url)
 
       // Unwatch
-      val unwatch = route(fakeLoggedInHtmlRequest(privilegedUser, POST,
-        profileRoutes.unwatchItemPost("c1").url), "").get
+      val unwatch = route(fakeLoggedInHtmlRequest(privilegedUser,
+        profileRoutes.unwatchItemPost("c1")), "").get
       status(unwatch) must equalTo(SEE_OTHER)
 
-      val watching2 = route(fakeLoggedInHtmlRequest(privilegedUser, GET,
-        profileRoutes.watching().url)).get
+      val watching2 = route(fakeLoggedInHtmlRequest(privilegedUser,
+        profileRoutes.watching())).get
       // Check the profile contains no links to the item we just unwatched
       contentAsString(watching2) must not contain controllers.portal.routes.DocumentaryUnits.browse("c1").url
 
@@ -42,25 +42,25 @@ class UserProfilesSpec extends IntegrationTestRunner {
     
     "allow fetching watched items as text, JSON, or CSV" in new ITestApp {
       import controllers.DataFormat
-      val watch = route(fakeLoggedInHtmlRequest(privilegedUser, POST,
-        profileRoutes.watchItemPost("c1").url), "").get
+      val watch = route(fakeLoggedInHtmlRequest(privilegedUser,
+        profileRoutes.watchItemPost("c1")), "").get
       status(watch) must equalTo(SEE_OTHER)
 
-      val watchingText = route(fakeLoggedInHtmlRequest(privilegedUser, GET,
-        profileRoutes.watching(format = DataFormat.Text).url)).get
+      val watchingText = route(fakeLoggedInHtmlRequest(privilegedUser,
+        profileRoutes.watching(format = DataFormat.Text))).get
       contentType(watchingText)  must beSome.which { ct =>
         ct must be equalTo MimeTypes.TEXT.toString
       }
       
-      val watchingJson = route(fakeLoggedInHtmlRequest(privilegedUser, GET,
-        profileRoutes.watching(format = DataFormat.Json).url)).get
+      val watchingJson = route(fakeLoggedInHtmlRequest(privilegedUser,
+        profileRoutes.watching(format = DataFormat.Json))).get
       contentType(watchingJson)  must beSome.which { ct =>
         ct must be equalTo MimeTypes.JSON.toString
       }
       contentAsJson(watchingJson).validate[Seq[JsObject]].asOpt must beSome
       
-      val watchingCsv = route(fakeLoggedInHtmlRequest(privilegedUser, GET,
-        profileRoutes.watching(format = DataFormat.Csv).url)).get
+      val watchingCsv = route(fakeLoggedInHtmlRequest(privilegedUser,
+        profileRoutes.watching(format = DataFormat.Csv))).get
       println(contentAsString(watchingCsv))
       contentType(watchingCsv)  must beSome.which { ct =>
         ct must be equalTo "text/csv"
@@ -68,8 +68,8 @@ class UserProfilesSpec extends IntegrationTestRunner {
     }
 
     "allow viewing profile" in new ITestApp {
-      val prof = route(fakeLoggedInHtmlRequest(privilegedUser, GET,
-        profileRoutes.profile().url)).get
+      val prof = route(fakeLoggedInHtmlRequest(privilegedUser,
+        profileRoutes.profile())).get
       status(prof) must equalTo(OK)
     }       
 
@@ -81,12 +81,12 @@ class UserProfilesSpec extends IntegrationTestRunner {
         UserProfileF.NAME -> Seq(testName),
         UserProfileF.INTERESTS -> Seq(testInterest)
       )
-      val update = route(fakeLoggedInHtmlRequest(privilegedUser, POST,
-        profileRoutes.updateProfilePost().url), data).get
+      val update = route(fakeLoggedInHtmlRequest(privilegedUser,
+        profileRoutes.updateProfilePost()), data).get
       status(update) must equalTo(SEE_OTHER)
 
-      val prof = route(fakeLoggedInHtmlRequest(privilegedUser, GET,
-        profileRoutes.profile().url)).get
+      val prof = route(fakeLoggedInHtmlRequest(privilegedUser,
+        profileRoutes.profile())).get
       status(prof) must equalTo(OK)
       contentAsString(prof) must contain(testName)
       contentAsString(prof) must contain(testInterest)
@@ -99,8 +99,8 @@ class UserProfilesSpec extends IntegrationTestRunner {
           play.api.libs.Files.TemporaryFile(tmpFile))
       ), List(), List())
 
-      val result = route(fakeLoggedInHtmlRequest(privilegedUser, POST,
-        profileRoutes.updateProfileImagePost().url), data.asFormUrlEncoded).get
+      val result = route(fakeLoggedInHtmlRequest(privilegedUser,
+        profileRoutes.updateProfileImagePost()), data.asFormUrlEncoded).get
       status(result) must equalTo(BAD_REQUEST)
       // TODO: Verifty types of BAD_REQUEST
       //contentAsString(result) must contain(Messages("errors.badFileType"))
@@ -111,8 +111,8 @@ class UserProfilesSpec extends IntegrationTestRunner {
       implicit val apiUser = AuthenticatedUser(privilegedUser.id)
       val cname = await(testBackend.get[UserProfile](privilegedUser.id)).model.name
       val data = Map("confirm" -> Seq(cname))
-      val delete = route(fakeLoggedInHtmlRequest(privilegedUser, POST,
-        profileRoutes.deleteProfilePost().url), data).get
+      val delete = route(fakeLoggedInHtmlRequest(privilegedUser,
+        profileRoutes.deleteProfilePost()), data).get
       status(delete) must equalTo(SEE_OTHER)
 
       // Check user has been anonymised...
@@ -124,8 +124,8 @@ class UserProfilesSpec extends IntegrationTestRunner {
 
     "disallow deleting profile without correct confirmation" in new ITestApp {
       val data = Map("confirm" -> Seq("THE WRONG CONFIRMATION"))
-      val delete = route(fakeLoggedInHtmlRequest(privilegedUser, POST,
-        profileRoutes.deleteProfilePost().url), data).get
+      val delete = route(fakeLoggedInHtmlRequest(privilegedUser,
+        profileRoutes.deleteProfilePost()), data).get
       status(delete) must equalTo(BAD_REQUEST)
     }
   }

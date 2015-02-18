@@ -25,8 +25,8 @@ class FeedbackSpec extends IntegrationTestRunner {
 
     "allow anon feedback" in new ITestApp {
       val fbCount = feedbackBuffer.size
-      val post = route(fakeRequest(POST,
-          controllers.portal.routes.Feedback.feedbackPost().url), fb).get
+      val post = route(fakeRequest(
+          controllers.portal.routes.Feedback.feedbackPost()), fb).get
       status(post) must equalTo(SEE_OTHER)
       val newCount = feedbackBuffer.size
       newCount must equalTo(fbCount + 1)
@@ -38,8 +38,8 @@ class FeedbackSpec extends IntegrationTestRunner {
 
     "allow logged-in feedback" in new ITestApp {
       val fbCount = feedbackBuffer.size
-      val post = route(fakeLoggedInHtmlRequest(mocks.privilegedUser, POST,
-        controllers.portal.routes.Feedback.feedbackPost().url), fb).get
+      val post = route(fakeLoggedInHtmlRequest(mocks.privilegedUser,
+        controllers.portal.routes.Feedback.feedbackPost()), fb).get
       status(post) must equalTo(SEE_OTHER)
       val newCount = feedbackBuffer.size
       newCount must equalTo(fbCount + 1)
@@ -56,8 +56,8 @@ class FeedbackSpec extends IntegrationTestRunner {
       "ehri.portal.feedback.data.copyTo" -> testDataMail
     )) {
       val dataFb = fb.updated(TYPE, Seq(models.Feedback.Type.Data.toString))
-      val post = route(fakeLoggedInHtmlRequest(mocks.privilegedUser, POST,
-          controllers.portal.routes.Feedback.feedbackPost().url), dataFb).get
+      val post = route(fakeLoggedInHtmlRequest(mocks.privilegedUser,
+          controllers.portal.routes.Feedback.feedbackPost()), dataFb).get
       status(post) must equalTo(SEE_OTHER)
       mailBuffer.lastOption must beSome.which { m =>
         m.to.headOption must equalTo(Some(testDataMail))
@@ -68,8 +68,8 @@ class FeedbackSpec extends IntegrationTestRunner {
       "ehri.portal.feedback.site.copyTo" -> testSiteMail
     )) {
       val dataFb = fb.updated(TYPE, Seq(models.Feedback.Type.Site.toString))
-      val post = route(fakeLoggedInHtmlRequest(mocks.privilegedUser, POST,
-        controllers.portal.routes.Feedback.feedbackPost().url), dataFb).get
+      val post = route(fakeLoggedInHtmlRequest(mocks.privilegedUser,
+        controllers.portal.routes.Feedback.feedbackPost()), dataFb).get
       status(post) must equalTo(SEE_OTHER)
       mailBuffer.lastOption must beSome.which { m =>
         m.to.headOption must equalTo(Some(testSiteMail))

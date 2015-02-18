@@ -22,8 +22,8 @@ class SearchSpec extends IntegrationTestRunner {
   "Search views" should {
 
     "search for hierarchical items with no query should apply a top-level filter" in new ITestApp {
-      val search = route(fakeLoggedInHtmlRequest(privilegedUser, GET,
-        controllers.units.routes.DocumentaryUnits.search().url)).get
+      val search = route(fakeLoggedInHtmlRequest(privilegedUser,
+        controllers.units.routes.DocumentaryUnits.search())).get
       status(search) must equalTo(OK)
       searchParamBuffer
         .last.filters.get(SearchConstants.TOP_LEVEL) must equalTo(Some(true))
@@ -54,8 +54,8 @@ class SearchSpec extends IntegrationTestRunner {
         "type[]" -> cmd
       )
 
-      val idx = route(fakeLoggedInHtmlRequest(privilegedUser, POST,
-          controllers.admin.routes.AdminSearch.updateIndexPost().url), data).get
+      val idx = route(fakeLoggedInHtmlRequest(privilegedUser,
+          controllers.admin.routes.AdminSearch.updateIndexPost()), data).get
       status(idx) must equalTo(OK)
       // NB: reading the content of the chunked response as a string is
       // necessary to exhaust the iteratee and fill the event buffer.
@@ -67,8 +67,8 @@ class SearchSpec extends IntegrationTestRunner {
 
     "perform hierarchy indexing correctly" in new ITestApp {
 
-      val idx = route(fakeLoggedInHtmlRequest(privilegedUser, POST,
-        controllers.institutions.routes.Repositories.updateIndexPost("r1").url), "").get
+      val idx = route(fakeLoggedInHtmlRequest(privilegedUser,
+        controllers.institutions.routes.Repositories.updateIndexPost("r1")), "").get
       status(idx) must equalTo(OK)
       // NB: reading the content of the chunked response as a string is
       // necessary to exhaust the iteratee and fill the event buffer.
@@ -81,8 +81,8 @@ class SearchSpec extends IntegrationTestRunner {
 
   "Search metrics" should {
     "response to JSON" in new ITestApp {
-      val repoMetrics = route(fakeLoggedInJsonRequest(privilegedUser, GET,
-        controllers.admin.routes.Metrics.repositoryCountries().url)).get
+      val repoMetrics = route(fakeLoggedInJsonRequest(privilegedUser,
+        controllers.admin.routes.Metrics.repositoryCountries())).get
       status(repoMetrics) must equalTo(OK)
     }
   }

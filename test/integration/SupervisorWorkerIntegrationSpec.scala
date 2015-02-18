@@ -21,6 +21,10 @@ class SupervisorWorkerIntegrationSpec extends IntegrationTestRunner with TestHel
 
   implicit val apiUser: ApiUser = ApiUser(Some(privilegedUser.id))
 
+  private val docRoutes = controllers.units.routes.DocumentaryUnits
+  private val repoRoutes = controllers.institutions.routes.Repositories
+  private val groupRoutes = controllers.groups.routes.Groups
+
   /**
    * Get the id from an URL where the ID is the last component...
    */
@@ -40,16 +44,16 @@ class SupervisorWorkerIntegrationSpec extends IntegrationTestRunner with TestHel
         "descriptions[0].name" -> Seq("A Test Repository"),
         "descriptions[0].descriptionArea.history" -> Seq("A repository with a long history")
       )
-      val repoCreatePost = route(fakeLoggedInHtmlRequest(privilegedUser, POST,
-        controllers.countries.routes.Countries.createRepositoryPost(countryId).url)
+      val repoCreatePost = route(fakeLoggedInHtmlRequest(privilegedUser,
+        controllers.countries.routes.Countries.createRepositoryPost(countryId))
         .withHeaders(formPostHeaders.toSeq: _*), repoData).get
       status(repoCreatePost) must equalTo(SEE_OTHER)
 
       // Test we can read the new repository
       val repoId = idFromUrl(redirectLocation(repoCreatePost).get)
 
-      val repoRead = route(fakeLoggedInHtmlRequest(privilegedUser, GET,
-          controllers.institutions.routes.Repositories.get(repoId).url)).get
+      val repoRead = route(fakeLoggedInHtmlRequest(privilegedUser,
+          controllers.institutions.routes.Repositories.get(repoId))).get
       status(repoRead) must equalTo(OK)
       contentAsString(repoRead) must contain("A Test Repository")
 
@@ -60,9 +64,8 @@ class SupervisorWorkerIntegrationSpec extends IntegrationTestRunner with TestHel
         "name" -> Seq("Test Repo Head Archivists"),
         "description" -> Seq("Group for the Head Archivists in Test Repo")
       )
-      val headArchivistsGroupCreatePost = route(fakeLoggedInHtmlRequest(privilegedUser, POST,
-        controllers.groups.routes.Groups.create().url)
-        .withHeaders(formPostHeaders.toSeq: _*), headArchivistsGroupData).get
+      val headArchivistsGroupCreatePost = route(fakeLoggedInHtmlRequest(privilegedUser,
+        groupRoutes.createPost()), headArchivistsGroupData).get
       status(headArchivistsGroupCreatePost) must equalTo(SEE_OTHER)
 
       val archivistsGroupId = "archivists"
@@ -71,18 +74,17 @@ class SupervisorWorkerIntegrationSpec extends IntegrationTestRunner with TestHel
         "name" -> Seq("Test Repo Archivists"),
         "description" -> Seq("Group for the Archivists in Test Repo")
       )
-      val archivistsGroupCreatePost = route(fakeLoggedInHtmlRequest(privilegedUser, POST,
-        controllers.groups.routes.Groups.create().url)
-        .withHeaders(formPostHeaders.toSeq: _*), archivistsGroupData).get
+      val archivistsGroupCreatePost = route(fakeLoggedInHtmlRequest(privilegedUser,
+        groupRoutes.createPost()), archivistsGroupData).get
       status(archivistsGroupCreatePost) must equalTo(SEE_OTHER)
 
       // Check we can read both groups
-      val groupRead1 = route(fakeLoggedInHtmlRequest(privilegedUser, GET,
-        controllers.groups.routes.Groups.get(headArchivistsGroupId).url)).get
+      val groupRead1 = route(fakeLoggedInHtmlRequest(privilegedUser,
+        groupRoutes.get(headArchivistsGroupId))).get
       status(groupRead1) must equalTo(OK)
 
-      val groupRead2 = route(fakeLoggedInHtmlRequest(privilegedUser, GET,
-        controllers.groups.routes.Groups.get(archivistsGroupId).url)).get
+      val groupRead2 = route(fakeLoggedInHtmlRequest(privilegedUser,
+        groupRoutes.get(archivistsGroupId))).get
       status(groupRead2) must equalTo(OK)
 
       // Grant scoped permissions for the head archivists to create, update, and delete
@@ -93,9 +95,8 @@ class SupervisorWorkerIntegrationSpec extends IntegrationTestRunner with TestHel
       val haPermData: Map[String, List[String]] = Map(
         EntityType.DocumentaryUnit.toString -> haPermissionsToGrant.map(_.toString)
       )
-      val haPermSetPost = route(fakeLoggedInHtmlRequest(privilegedUser, POST,
-          controllers.institutions.routes.Repositories.setScopedPermissionsPost(repoId, EntityType.Group, headArchivistsGroupId).url)
-      .withHeaders(formPostHeaders.toSeq: _*), haPermData).get
+      val haPermSetPost = route(fakeLoggedInHtmlRequest(privilegedUser,
+          repoRoutes .setScopedPermissionsPost(repoId, EntityType.Group, headArchivistsGroupId)), haPermData).get
       status(haPermSetPost) must equalTo(SEE_OTHER)
 
       // Grant scoped permissions for the archivists to create and delete
@@ -107,9 +108,9 @@ class SupervisorWorkerIntegrationSpec extends IntegrationTestRunner with TestHel
       val aPermData: Map[String, List[String]] = Map(
         EntityType.DocumentaryUnit.toString -> aPermissionsToGrant.map(_.toString)
       )
-      val aPermSetPost = route(fakeLoggedInHtmlRequest(privilegedUser, POST,
-          controllers.institutions.routes.Repositories.setScopedPermissionsPost(repoId, EntityType.Group, archivistsGroupId).url)
-      .withHeaders(formPostHeaders.toSeq: _*), aPermData).get
+      val aPermSetPost = route(fakeLoggedInHtmlRequest(privilegedUser,
+          controllers.institutions.routes.Repositories
+            .setScopedPermissionsPost(repoId, EntityType.Group, archivistsGroupId)), aPermData).get
       status(aPermSetPost) must equalTo(SEE_OTHER)
 
 
@@ -124,14 +125,14 @@ class SupervisorWorkerIntegrationSpec extends IntegrationTestRunner with TestHel
         "confirm" -> Seq("changeme"),
         "group[]" -> Seq(headArchivistsGroupId, archivistsGroupId) // NB: Note brackets on param name!!!
       )
-      val haUserCreatePost = route(fakeLoggedInHtmlRequest(privilegedUser, POST,
-        controllers.users.routes.UserProfiles.createUserPost().url)
+      val haUserCreatePost = route(fakeLoggedInHtmlRequest(privilegedUser,
+        controllers.users.routes.UserProfiles.createUserPost())
         .withHeaders(formPostHeaders.toSeq: _*), haUserData).get
       status(haUserCreatePost) must equalTo(SEE_OTHER)
 
       // Check we can read the user's page
-      val haUserRead =  route(fakeLoggedInHtmlRequest(privilegedUser, GET,
-        controllers.users.routes.UserProfiles.get(headArchivistUserId).url)).get
+      val haUserRead =  route(fakeLoggedInHtmlRequest(privilegedUser,
+        controllers.users.routes.UserProfiles.get(headArchivistUserId))).get
       status(haUserRead) must equalTo(OK)
 
       // Fetch the user's profile to perform subsequent logins
@@ -154,14 +155,14 @@ class SupervisorWorkerIntegrationSpec extends IntegrationTestRunner with TestHel
         "confirm" -> Seq("changeme"),
         "group[]" -> Seq(archivistsGroupId) // NB: Note brackets on param name!!!
       )
-      val aUserCreatePost = route(fakeLoggedInHtmlRequest(privilegedUser, POST,
-        controllers.users.routes.UserProfiles.createUserPost().url)
+      val aUserCreatePost = route(fakeLoggedInHtmlRequest(privilegedUser,
+        controllers.users.routes.UserProfiles.createUserPost())
         .withHeaders(formPostHeaders.toSeq: _*), aUserData).get
       status(aUserCreatePost) must equalTo(SEE_OTHER)
 
       // Check we can read the user's page
-      val aUserRead =  route(fakeLoggedInHtmlRequest(privilegedUser, GET,
-        controllers.users.routes.UserProfiles.get(archivistUserId).url)).get
+      val aUserRead =  route(fakeLoggedInHtmlRequest(privilegedUser,
+        controllers.users.routes.UserProfiles.get(archivistUserId))).get
       status(aUserRead) must equalTo(OK)
 
       // Fetch the user's profile to perform subsequent logins
@@ -174,12 +175,12 @@ class SupervisorWorkerIntegrationSpec extends IntegrationTestRunner with TestHel
 
 
       // Check each user can read their profile as themselves...
-      val haUserReadAsSelf =  route(fakeLoggedInHtmlRequest(haAccount, GET,
-        controllers.users.routes.UserProfiles.get(headArchivistUserId).url)).get
+      val haUserReadAsSelf =  route(fakeLoggedInHtmlRequest(haAccount,
+        controllers.users.routes.UserProfiles.get(headArchivistUserId))).get
       status(haUserReadAsSelf) must equalTo(OK)
 
-      val aUserReadAsSelf =  route(fakeLoggedInHtmlRequest(aAccount, GET,
-        controllers.users.routes.UserProfiles.get(archivistUserId).url)).get
+      val aUserReadAsSelf =  route(fakeLoggedInHtmlRequest(aAccount,
+        controllers.users.routes.UserProfiles.get(archivistUserId))).get
       status(aUserReadAsSelf) must equalTo(OK)
 
       // Test the Head Archivist can Create, Update, and Delete documentary units within repoId
@@ -191,17 +192,18 @@ class SupervisorWorkerIntegrationSpec extends IntegrationTestRunner with TestHel
         "descriptions[0].contentArea.scopeAndContent" -> Seq("Lots of stuff...")
       )
 
-      val createDoc1Post = route(fakeLoggedInHtmlRequest(haAccount, POST,
-        controllers.institutions.routes.Repositories.createDocPost(repoId).url).withHeaders(formPostHeaders.toSeq: _*), doc1Data).get
+      val createDoc1Post = route(fakeLoggedInHtmlRequest(haAccount,
+        controllers.institutions.routes.Repositories.createDocPost(repoId)), doc1Data).get
       status(createDoc1Post) must equalTo(SEE_OTHER)
 
       // Test we can read the new repository
       val doc1Id = idFromUrl(redirectLocation(createDoc1Post).get)
-      val doc1Read = route(fakeLoggedInHtmlRequest(haAccount, GET,
-          controllers.units.routes.DocumentaryUnits.get(doc1Id).url)).get
+      val doc1Read = route(fakeLoggedInHtmlRequest(haAccount,
+          docRoutes.get(doc1Id))).get
       status(doc1Read) must equalTo(OK)
       contentAsString(doc1Read) must contain("A new document")
-      contentAsString(doc1Read) must contain(controllers.units.routes.DocumentaryUnits.createDoc(doc1Id).url)
+      contentAsString(doc1Read) must contain(controllers.units
+        .routes.DocumentaryUnits.createDoc(doc1Id).url)
 
       val doc1UpdateData = Map(
         "identifier" -> Seq("testdoc1"),
@@ -210,22 +212,22 @@ class SupervisorWorkerIntegrationSpec extends IntegrationTestRunner with TestHel
         "descriptions[0].contentArea.scopeAndContent" -> Seq("Lots of stuff...")
       )
 
-      val updateDoc1Post = route(fakeLoggedInHtmlRequest(haAccount, POST,
-        controllers.units.routes.DocumentaryUnits.update(doc1Id).url).withHeaders(formPostHeaders.toSeq: _*), doc1UpdateData).get
+      val updateDoc1Post = route(fakeLoggedInHtmlRequest(haAccount,
+        docRoutes.updatePost(doc1Id)), doc1UpdateData).get
       status(updateDoc1Post) must equalTo(SEE_OTHER)
 
       // Test the update doc contains the new info...
-      val doc1UpdateRead = route(fakeLoggedInHtmlRequest(haAccount, GET,
-          controllers.units.routes.DocumentaryUnits.get(doc1Id).url)).get
+      val doc1UpdateRead = route(fakeLoggedInHtmlRequest(haAccount,
+          docRoutes.get(doc1Id))).get
       status(doc1UpdateRead) must equalTo(OK)
       contentAsString(doc1UpdateRead) must contain("A different name")
 
       // Test we can delete the new document...
-      val doc1DeleteRead = route(fakeLoggedInHtmlRequest(haAccount, POST,
-          controllers.units.routes.DocumentaryUnits.delete(doc1Id).url).withHeaders(formPostHeaders.toSeq: _*)).get
+      val doc1DeleteRead = route(fakeLoggedInHtmlRequest(haAccount,
+          docRoutes.deletePost(doc1Id))).get
       status(doc1DeleteRead) must equalTo(SEE_OTHER)
-      val doc1CheckDeleteRead = route(fakeLoggedInHtmlRequest(haAccount, GET,
-          controllers.units.routes.DocumentaryUnits.get(doc1Id).url)).get
+      val doc1CheckDeleteRead = route(fakeLoggedInHtmlRequest(haAccount,
+          docRoutes.get(doc1Id))).get
       status(doc1CheckDeleteRead) must equalTo(NOT_FOUND)
 
       // ---------------------------------------------
@@ -239,17 +241,17 @@ class SupervisorWorkerIntegrationSpec extends IntegrationTestRunner with TestHel
         "descriptions[0].contentArea.scopeAndContent" -> Seq("Lots of stuff...")
       )
 
-      val createDoc2Post = route(fakeLoggedInHtmlRequest(aAccount, POST,
-        controllers.institutions.routes.Repositories.createDocPost(repoId).url).withHeaders(formPostHeaders.toSeq: _*), doc2Data).get
+      val createDoc2Post = route(fakeLoggedInHtmlRequest(aAccount,
+        controllers.institutions.routes.Repositories.createDocPost(repoId)), doc2Data).get
       status(createDoc2Post) must equalTo(SEE_OTHER)
 
       // Test we can read the new repository
       val doc2Id = idFromUrl(redirectLocation(createDoc2Post).get)
-      val doc2Read = route(fakeLoggedInHtmlRequest(aAccount, GET,
-          controllers.units.routes.DocumentaryUnits.get(doc2Id).url)).get
+      val doc2Read = route(fakeLoggedInHtmlRequest(aAccount,
+          docRoutes.get(doc2Id))).get
       status(doc2Read) must equalTo(OK)
       contentAsString(doc2Read) must contain("A new document")
-      contentAsString(doc2Read) must contain(controllers.units.routes.DocumentaryUnits.createDoc(doc2Id).url)
+      contentAsString(doc2Read) must contain(docRoutes.createDoc(doc2Id).url)
 
       val doc2UpdateData = Map(
         "identifier" -> Seq("testdoc2"),
@@ -258,22 +260,22 @@ class SupervisorWorkerIntegrationSpec extends IntegrationTestRunner with TestHel
         "descriptions[0].contentArea.scopeAndContent" -> Seq("Lots of stuff...")
       )
 
-      val updateDoc2Post = route(fakeLoggedInHtmlRequest(aAccount, POST,
-        controllers.units.routes.DocumentaryUnits.update(doc2Id).url).withHeaders(formPostHeaders.toSeq: _*), doc2UpdateData).get
+      val updateDoc2Post = route(fakeLoggedInHtmlRequest(aAccount,
+        docRoutes.updatePost(doc2Id)), doc2UpdateData).get
       status(updateDoc2Post) must equalTo(SEE_OTHER)
 
       // Test the update doc contains the new info...
-      val doc2UpdateRead = route(fakeLoggedInHtmlRequest(aAccount, GET,
-          controllers.units.routes.DocumentaryUnits.get(doc2Id).url)).get
+      val doc2UpdateRead = route(fakeLoggedInHtmlRequest(aAccount,
+          docRoutes.get(doc2Id))).get
       status(doc2UpdateRead) must equalTo(OK)
       contentAsString(doc2UpdateRead) must contain("A different name")
 
       // Test we can delete the new document...
-      val doc2DeleteRead = route(fakeLoggedInHtmlRequest(aAccount, POST,
-          controllers.units.routes.DocumentaryUnits.delete(doc2Id).url).withHeaders(formPostHeaders.toSeq: _*)).get
+      val doc2DeleteRead = route(fakeLoggedInHtmlRequest(aAccount,
+          docRoutes.deletePost(doc2Id))).get
       status(doc2DeleteRead) must equalTo(SEE_OTHER)
-      val doc2CheckDeleteRead = route(fakeLoggedInHtmlRequest(aAccount, GET,
-          controllers.units.routes.DocumentaryUnits.get(doc2Id).url)).get
+      val doc2CheckDeleteRead = route(fakeLoggedInHtmlRequest(aAccount,
+          docRoutes.get(doc2Id))).get
       status(doc2CheckDeleteRead) must equalTo(NOT_FOUND)
 
       // HOORAY! Basic stuff seems to work - now onto the difficult things...
@@ -289,17 +291,18 @@ class SupervisorWorkerIntegrationSpec extends IntegrationTestRunner with TestHel
         "descriptions[0].contentArea.scopeAndContent" -> Seq("Lots of stuff...")
       )
 
-      val createDoc3Post = route(fakeLoggedInHtmlRequest(haAccount, POST,
-        controllers.institutions.routes.Repositories.createDocPost(repoId).url).withHeaders(formPostHeaders.toSeq: _*), doc3Data).get
+      val createDoc3Post = route(fakeLoggedInHtmlRequest(haAccount,
+        controllers.institutions.routes.Repositories.createDocPost(repoId)), doc3Data).get
       status(createDoc3Post) must equalTo(SEE_OTHER)
 
       // Test we can read the new doc...
       val doc3Id = idFromUrl(redirectLocation(createDoc3Post).get)
-      val doc3Read = route(fakeLoggedInHtmlRequest(haAccount, GET,
-          controllers.units.routes.DocumentaryUnits.get(doc3Id).url)).get
+      val doc3Read = route(fakeLoggedInHtmlRequest(haAccount,
+          docRoutes.get(doc3Id))).get
       status(doc3Read) must equalTo(OK)
       contentAsString(doc3Read) must contain("Another new document")
-      contentAsString(doc3Read) must contain(controllers.units.routes.DocumentaryUnits.createDoc(doc3Id).url)
+      contentAsString(doc3Read) must contain(controllers.units
+        .routes.DocumentaryUnits.createDoc(doc3Id).url)
 
       // Test for #131 - UI shows item can be edited 'cos it can't. This is a backend
       // bug but test we're not seeing it here.
@@ -307,19 +310,18 @@ class SupervisorWorkerIntegrationSpec extends IntegrationTestRunner with TestHel
       // NB: This was accompanied by a bug in the tests below, which were
       // throwing a PermissionError instead of returning a 401 Unauthorized!
       val doc3Read2 = route(fakeLoggedInHtmlRequest(aAccount, GET,
-        controllers.units.routes.DocumentaryUnits.get(doc3Id).url)).get
-      contentAsString(doc3Read2) must not contain controllers.units.routes.DocumentaryUnits.update(doc3Id).url
+        docRoutes.get(doc3Id).url)).get
+      contentAsString(doc3Read2) must not contain docRoutes.update(doc3Id).url
 
       // Now ensure the ordinary archivist cannot update it!
-      val doc3UpdateRead = route(fakeLoggedInHtmlRequest(aAccount, POST,
-          controllers.units.routes.DocumentaryUnits.update(doc3Id).url).withHeaders(formPostHeaders.toSeq: _*),
+      val doc3UpdateRead = route(fakeLoggedInHtmlRequest(aAccount,
+          docRoutes.updatePost(doc3Id)),
           doc3Data.updated("descriptions[0].identityArea.name", Seq("Foobar"))).get
-      println("STATUS: " + status(doc3UpdateRead))
       status(doc3UpdateRead) must equalTo(FORBIDDEN)
 
       // Now ensure the ordinary archivist cannot delete it!
-      val doc3DeleteRead = route(fakeLoggedInHtmlRequest(aAccount, POST,
-          controllers.units.routes.DocumentaryUnits.delete(doc3Id).url).withHeaders(formPostHeaders.toSeq: _*)).get
+      val doc3DeleteRead = route(fakeLoggedInHtmlRequest(aAccount,
+          docRoutes.deletePost(doc3Id))).get
       status(doc3UpdateRead) must equalTo(FORBIDDEN)
 
       // Test the ordinary archivist can Create a documentary units within repoId
@@ -331,29 +333,28 @@ class SupervisorWorkerIntegrationSpec extends IntegrationTestRunner with TestHel
         "descriptions[0].contentArea.scopeAndContent" -> Seq("Lots of stuff...")
       )
 
-      val createDoc4Post = route(fakeLoggedInHtmlRequest(aAccount, POST,
-      controllers.institutions.routes.Repositories.createDocPost(repoId).url).withHeaders(formPostHeaders.toSeq: _*), doc4Data).get
+      val createDoc4Post = route(fakeLoggedInHtmlRequest(aAccount,
+      controllers.institutions.routes.Repositories.createDocPost(repoId)), doc4Data).get
       status(createDoc4Post) must equalTo(SEE_OTHER)
 
       // Test we can read the new repository
       val doc4Id = idFromUrl(redirectLocation(createDoc4Post).get)
-      val doc4Read = route(fakeLoggedInHtmlRequest(aAccount, GET,
-          controllers.units.routes.DocumentaryUnits.get(doc4Id).url)).get
+      val doc4Read = route(fakeLoggedInHtmlRequest(aAccount,
+          docRoutes.get(doc4Id))).get
       status(doc4Read) must equalTo(OK)
       contentAsString(doc4Read) must contain("Another new document")
-      contentAsString(doc4Read) must contain(controllers.units.routes.DocumentaryUnits.createDoc(doc4Id).url)
+      contentAsString(doc4Read) must contain(docRoutes.createDoc(doc4Id).url)
 
       // Now ensure the head archivist CAN update it!
-      val doc4UpdateRead = route(fakeLoggedInHtmlRequest(haAccount, POST,
-          controllers.units.routes.DocumentaryUnits.update(doc4Id).url).withHeaders(formPostHeaders.toSeq: _*),
+      val doc4UpdateRead = route(fakeLoggedInHtmlRequest(haAccount,
+          docRoutes.updatePost(doc4Id)),
           doc4Data.updated("descriptions[0].identityArea.name", Seq("A different name"))).get
       status(doc4UpdateRead) must equalTo(SEE_OTHER)
 
      // Now ensure the head archivist CAN delete it!
-      val doc4DeleteRead = route(fakeLoggedInHtmlRequest(haAccount, POST,
-          controllers.units.routes.DocumentaryUnits.delete(doc4Id).url).withHeaders(formPostHeaders.toSeq: _*)).get
+      val doc4DeleteRead = route(fakeLoggedInHtmlRequest(haAccount,
+          docRoutes.deletePost(doc4Id))).get
       status(doc4DeleteRead) must equalTo(SEE_OTHER)
-
     }
   }
 }

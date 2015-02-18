@@ -13,8 +13,8 @@ class HelpdeskSpec extends IntegrationTestRunner {
         "copyMe" -> Seq("false")
       )
 
-      val post = route(fakeLoggedInHtmlRequest(mocks.privilegedUser, POST,
-        controllers.portal.routes.Helpdesk.helpdeskPost().url), data).get
+      val post = route(fakeLoggedInHtmlRequest(mocks.privilegedUser,
+        controllers.portal.routes.Helpdesk.helpdeskPost()), data).get
       status(post) must equalTo(BAD_REQUEST)
       helpdeskBuffer.size must equalTo(origCount)
     }
@@ -28,8 +28,8 @@ class HelpdeskSpec extends IntegrationTestRunner {
         "copyMe" -> Seq("true")
       )
 
-      val post = route(fakeLoggedInHtmlRequest(mocks.privilegedUser, POST,
-        controllers.portal.routes.Helpdesk.helpdeskPost().url), data).get
+      val post = route(fakeLoggedInHtmlRequest(mocks.privilegedUser,
+        controllers.portal.routes.Helpdesk.helpdeskPost()), data).get
       status(post) must equalTo(OK)
       mailBuffer.size must equalTo(mailsBefore + 1)
       mailBuffer.last.text must contain(testMailContent)
@@ -43,8 +43,8 @@ class HelpdeskSpec extends IntegrationTestRunner {
         "copyMe" -> Seq("false")
       )
 
-      val try1 = route(fakeLoggedInHtmlRequest(mocks.privilegedUser, POST,
-        controllers.portal.routes.Helpdesk.helpdeskPost().url), data1).get
+      val try1 = route(fakeLoggedInHtmlRequest(mocks.privilegedUser,
+        controllers.portal.routes.Helpdesk.helpdeskPost()), data1).get
       status(try1) must equalTo(OK)
       helpdeskBuffer.size must equalTo(origCount + 1)
       contentAsString(try1) must contain(
@@ -52,8 +52,8 @@ class HelpdeskSpec extends IntegrationTestRunner {
 
       // if the query doesn't contain 'netherlands' we should get
       // 'r2' back as the recommended institution...
-      val try2 = route(fakeLoggedInHtmlRequest(mocks.privilegedUser, POST,
-        controllers.portal.routes.Helpdesk.helpdeskPost().url),
+      val try2 = route(fakeLoggedInHtmlRequest(mocks.privilegedUser,
+        controllers.portal.routes.Helpdesk.helpdeskPost()),
         data1.updated("query", Seq("Stuff in the UK"))).get
       status(try2) must equalTo(OK)
       helpdeskBuffer.size must equalTo(origCount + 2)

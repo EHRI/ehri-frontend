@@ -37,7 +37,7 @@ class SignupSpec extends IntegrationTestRunner {
     "create a validation token and send a mail on signup" in new ITestApp {
       val numSentMails = mailBuffer.size
       val numAccounts = mocks.accountFixtures.size
-      val signup = route(FakeRequest(POST, accountRoutes.signupPost().url)
+      val signup = route(FakeRequest(accountRoutes.signupPost())
         .withSession(CSRF_TOKEN_NAME -> fakeCsrfString), data).get
       status(signup) must equalTo(SEE_OTHER)
       mailBuffer.size must beEqualTo(numSentMails + 1)
@@ -55,7 +55,7 @@ class SignupSpec extends IntegrationTestRunner {
       val badData = data
         .updated(SignupData.PASSWORD, Seq("short"))
         .updated(SignupData.CONFIRM, Seq("short"))
-      val signup = route(FakeRequest(POST, accountRoutes.signupPost().url)
+      val signup = route(FakeRequest(accountRoutes.signupPost())
         .withSession(CSRF_TOKEN_NAME -> fakeCsrfString), badData).get
       status(signup) must equalTo(BAD_REQUEST)
       contentAsString(signup) must contain(Messages("error.minLength", length))
@@ -64,7 +64,7 @@ class SignupSpec extends IntegrationTestRunner {
     "prevent signup with mismatched passwords" in new ITestApp {
       val badData = data
         .updated(SignupData.CONFIRM, Seq("blibblob"))
-      val signup = route(FakeRequest(POST, accountRoutes.signupPost().url)
+      val signup = route(FakeRequest(accountRoutes.signupPost())
         .withSession(CSRF_TOKEN_NAME -> fakeCsrfString), badData).get
       status(signup) must equalTo(BAD_REQUEST)
       contentAsString(signup) must contain(Messages("signup.badPasswords"))
@@ -73,14 +73,14 @@ class SignupSpec extends IntegrationTestRunner {
     "prevent signup with invalid time diff" in new ITestApp(specificConfig = Map("ehri.signup.timeCheckSeconds" -> 5)) {
       val badData = data
         .updated(TIMESTAMP, Seq(org.joda.time.DateTime.now.toString))
-      val signup = route(FakeRequest(POST, accountRoutes.signupPost().url)
+      val signup = route(FakeRequest(accountRoutes.signupPost())
         .withSession(CSRF_TOKEN_NAME -> fakeCsrfString), badData).get
       status(signup) must equalTo(BAD_REQUEST)
       contentAsString(signup) must contain(Messages("constraits.timeCheckSeconds.failed"))
 
       val badData2 = data
         .updated(TIMESTAMP, Seq("bad-date"))
-      val signup2 = route(FakeRequest(POST, accountRoutes.signupPost().url)
+      val signup2 = route(FakeRequest(accountRoutes.signupPost())
         .withSession(CSRF_TOKEN_NAME -> fakeCsrfString), badData2).get
       status(signup2) must equalTo(BAD_REQUEST)
       contentAsString(signup2) must contain(Messages("constraits.timeCheckSeconds.failed"))
@@ -88,7 +88,7 @@ class SignupSpec extends IntegrationTestRunner {
 
     "prevent signup with filled blank field" in new ITestApp {
       val badData = data.updated(BLANK_CHECK, Seq("iAmARobot"))
-      val signup = route(FakeRequest(POST, accountRoutes.signupPost().url)
+      val signup = route(FakeRequest(accountRoutes.signupPost())
         .withSession(CSRF_TOKEN_NAME -> fakeCsrfString), badData).get
       status(signup) must equalTo(BAD_REQUEST)
       contentAsString(signup) must contain(Messages("constraints.honeypot.failed"))
@@ -96,20 +96,20 @@ class SignupSpec extends IntegrationTestRunner {
 
     "prevent signup where terms are not agreed" in new ITestApp {
       val badData = data.updated(SignupData.AGREE_TERMS, Seq(false.toString))
-      val signup = route(FakeRequest(POST, accountRoutes.signupPost().url)
+      val signup = route(FakeRequest(accountRoutes.signupPost())
         .withSession(CSRF_TOKEN_NAME -> fakeCsrfString), badData).get
       status(signup) must equalTo(BAD_REQUEST)
       contentAsString(signup) must contain(Messages("signup.agreeTerms"))
     }
 
     "allow unverified user to log in" in new ITestApp {
-      val signup = route(FakeRequest(POST, accountRoutes.signupPost().url)
+      val signup = route(FakeRequest(accountRoutes.signupPost())
         .withSession(CSRF_TOKEN_NAME -> fakeCsrfString), data).get
       status(signup) must equalTo(SEE_OTHER)
       mocks.accountFixtures.find(_._2.email == testEmail) must beSome.which { case(uid, u) =>
         // Ensure we can log in and view our profile
-        val index = route(fakeLoggedInHtmlRequest(u, GET,
-          controllers.portal.users.routes.UserProfiles.profile().url)).get
+        val index = route(fakeLoggedInHtmlRequest(u,
+          controllers.portal.users.routes.UserProfiles.profile())).get
         status(index) must equalTo(OK)
         contentAsString(index) must contain(testName)
       }
@@ -125,12 +125,12 @@ class SignupSpec extends IntegrationTestRunner {
       mocks.accountFixtures.find(_._2.email == testEmail2) must beSome.which { case (uid, u) =>
         u.hasPassword must beTrue
 
-        val logout = route(fakeLoggedInHtmlRequest(u, GET, accountRoutes.logout().url)).get
+        val logout = route(fakeLoggedInHtmlRequest(u, accountRoutes.logout())).get
         status(logout) must equalTo(SEE_OTHER)
 
         implicit val dateTimeOrdering: Ordering[DateTime] = Ordering.fromLessThan(_ isBefore _)
         val time = DateTime.now()
-        val login = route(FakeRequest(POST, accountRoutes.passwordLoginPost().url)
+        val login = route(FakeRequest(accountRoutes.passwordLoginPost())
           .withSession(CSRF_TOKEN_NAME -> fakeCsrfString), data2).get
         status(login) must equalTo(SEE_OTHER)
         redirectLocation(login) must beSome.which { loc =>

@@ -61,26 +61,26 @@ class PortalSpec extends IntegrationTestRunner {
     }
 
     "view docs" in new ITestApp {
-      val doc = route(fakeLoggedInHtmlRequest(privilegedUser, GET,
-        controllers.portal.routes.DocumentaryUnits.browse("c1").url)).get
+      val doc = route(fakeLoggedInHtmlRequest(privilegedUser,
+        controllers.portal.routes.DocumentaryUnits.browse("c1"))).get
       status(doc) must equalTo(OK)
     }
 
     "view repositories" in new ITestApp {
-      val doc = route(fakeLoggedInHtmlRequest(privilegedUser, GET,
-        controllers.portal.routes.Repositories.browse("r1").url)).get
+      val doc = route(fakeLoggedInHtmlRequest(privilegedUser,
+        controllers.portal.routes.Repositories.browse("r1"))).get
       status(doc) must equalTo(OK)
     }
 
     "view historical agents" in new ITestApp {
-      val doc = route(fakeLoggedInHtmlRequest(privilegedUser, GET,
-        controllers.portal.routes.HistoricalAgents.browse("a1").url)).get
+      val doc = route(fakeLoggedInHtmlRequest(privilegedUser,
+        controllers.portal.routes.HistoricalAgents.browse("a1"))).get
       status(doc) must equalTo(OK)
     }
     
     "view item history" in new ITestApp {
-      val history = route(fakeLoggedInHtmlRequest(privilegedUser, GET,
-        portalRoutes.itemHistory("c1").url)).get
+      val history = route(fakeLoggedInHtmlRequest(privilegedUser,
+        portalRoutes.itemHistory("c1"))).get
       status(history) must equalTo(OK)
     }
   }

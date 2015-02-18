@@ -13,13 +13,13 @@ class SystemEventViewsSpec extends IntegrationTestRunner {
 
     "get details of deleted items from the last version" in new ITestApp {
 
-      val del = route(fakeLoggedInHtmlRequest(privilegedUser, POST,
-          controllers.authorities.routes.HistoricalAgents.deletePost("a1").url)).get
+      val del = route(fakeLoggedInHtmlRequest(privilegedUser,
+          controllers.authorities.routes.HistoricalAgents.deletePost("a1"))).get
       status(del) must equalTo(SEE_OTHER)
       // After deleting an item, the event should be top of our list and
       // include the item title extracted from the last version
-      val events = route(fakeLoggedInHtmlRequest(privilegedUser, GET,
-        controllers.events.routes.SystemEvents.list().url)).get
+      val events = route(fakeLoggedInHtmlRequest(privilegedUser,
+        controllers.events.routes.SystemEvents.list())).get
       contentAsString(events) must contain("An Authority 1")
     }
   }

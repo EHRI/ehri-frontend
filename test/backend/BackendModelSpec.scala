@@ -194,27 +194,51 @@ class BackendModelSpec extends RestBackendRunner with PlaySpecification {
       userProfile.getPermission(perms, ContentTypes.DocumentaryUnit, PermissionType.Create) must beSome
     }
 
-    "be able to set a user's permissions" in new TestApp {
+    "be able to add and revoke a user's global permissions" in new TestApp {
       val user = UserProfile(UserProfileF(id = Some("reto"), identifier = "reto", name = "Reto"))
-      val data = Map(
-        ContentTypes.Repository.toString -> List(PermissionType.Create.toString, PermissionType.Update.toString, PermissionType.Delete.toString),
-        ContentTypes.DocumentaryUnit.toString -> List(PermissionType.Create.toString, PermissionType.Update.toString, PermissionType.Delete.toString)
-      )
       val perms = await(testBackend.getGlobalPermissions(user.id))
       user.getPermission(perms, ContentTypes.DocumentaryUnit, PermissionType.Create) must beNone
       user.getPermission(perms, ContentTypes.DocumentaryUnit, PermissionType.Update) must beNone
       user.getPermission(perms, ContentTypes.Repository, PermissionType.Create) must beNone
       user.getPermission(perms, ContentTypes.Repository, PermissionType.Update) must beNone
-      val newPerms = await(testBackend.setGlobalPermissions(user.id, data))
-      user.getPermission(newPerms, ContentTypes.DocumentaryUnit, PermissionType.Create) must beSome
-      user.getPermission(newPerms, ContentTypes.DocumentaryUnit, PermissionType.Update) must beSome
-      user.getPermission(newPerms, ContentTypes.Repository, PermissionType.Create) must beSome
-      user.getPermission(newPerms, ContentTypes.Repository, PermissionType.Update) must beSome
+
+      val dataAdd = Map(
+        ContentTypes.Repository.toString -> List(
+          PermissionType.Create.toString,
+          PermissionType.Update.toString,
+          PermissionType.Delete.toString
+        ),
+        ContentTypes.DocumentaryUnit.toString -> List(
+          PermissionType.Create.toString,
+          PermissionType.Update.toString,
+          PermissionType.Delete.toString
+        )
+      )
+      val newPermsAdd = await(testBackend.setGlobalPermissions(user.id, dataAdd))
+      user.getPermission(newPermsAdd, ContentTypes.DocumentaryUnit, PermissionType.Create) must beSome
+      user.getPermission(newPermsAdd, ContentTypes.DocumentaryUnit, PermissionType.Update) must beSome
+      user.getPermission(newPermsAdd, ContentTypes.Repository, PermissionType.Create) must beSome
+      user.getPermission(newPermsAdd, ContentTypes.Repository, PermissionType.Update) must beSome
+
+      val dataRem = Map(
+        ContentTypes.Repository.toString -> List.empty,
+        ContentTypes.DocumentaryUnit.toString -> List.empty
+      )
+      val newPermsRem = await(testBackend.setGlobalPermissions(user.id, dataRem))
+      user.getPermission(newPermsRem, ContentTypes.DocumentaryUnit, PermissionType.Create) must beNone
+      user.getPermission(newPermsRem, ContentTypes.DocumentaryUnit, PermissionType.Update) must beNone
+      user.getPermission(newPermsRem, ContentTypes.DocumentaryUnit, PermissionType.Delete) must beNone
+      user.getPermission(newPermsRem, ContentTypes.Repository, PermissionType.Create) must beNone
+      user.getPermission(newPermsRem, ContentTypes.Repository, PermissionType.Update) must beNone
+      user.getPermission(newPermsRem, ContentTypes.Repository, PermissionType.Delete) must beNone
     }
 
     "be able to set a user's permissions within a scope" in new TestApp {
       val user = UserProfile(UserProfileF(id = Some("reto"), identifier = "reto", name = "Reto"))
-      val data = Map(ContentTypes.DocumentaryUnit.toString -> List("update", "delete"))
+      val data = Map(ContentTypes.DocumentaryUnit.toString -> List(
+        PermissionType.Update.toString,
+        PermissionType.Delete.toString)
+      )
       val perms = await(testBackend.getScopePermissions(user.id, "r1"))
       user.getPermission(perms, ContentTypes.DocumentaryUnit, PermissionType.Update) must beNone
       user.getPermission(perms, ContentTypes.DocumentaryUnit, PermissionType.Delete) must beNone
@@ -230,7 +254,7 @@ class BackendModelSpec extends RestBackendRunner with PlaySpecification {
     "be able to set a user's permissions for an item" in new TestApp {
       val user = UserProfile(UserProfileF(id = Some("reto"), identifier = "reto", name = "Reto"))
       // NB: Currently, there's already a test permission grant for Reto-create on c1...
-      val data = List("update", "delete")
+      val data = List(PermissionType.Update.toString, PermissionType.Delete.toString)
       val perms = await(testBackend.getItemPermissions(user.id, ContentTypes.DocumentaryUnit, "c1"))
       user.getPermission(perms, PermissionType.Update) must beNone
       user.getPermission(perms, PermissionType.Delete) must beNone

@@ -22,16 +22,14 @@ class VirtualUnitViewsSpec extends IntegrationTestRunner with TestHelpers {
   "VirtualUnit views" should {
 
     "search should find some items" in new ITestApp {
-      val search = route(fakeLoggedInHtmlRequest(privilegedUser, GET,
-          vuRoutes.search().url)).get
+      val search = route(fakeLoggedInHtmlRequest(privilegedUser, vuRoutes.search())).get
       status(search) must equalTo(OK)
       contentAsString(search) must contain(multipleItemsHeader)
       contentAsString(search) must contain("vu1")
     }
 
     "link to other privileged actions when logged in" in new ITestApp {
-      val show = route(fakeLoggedInHtmlRequest(privilegedUser, GET,
-          vuRoutes.get("vu1").url)).get
+      val show = route(fakeLoggedInHtmlRequest(privilegedUser, vuRoutes.get("vu1"))).get
       status(show) must equalTo(OK)
       contentAsString(show) must contain(vuRoutes.update("vu1").url)
       contentAsString(show) must contain(vuRoutes.delete("vu1").url)
@@ -42,8 +40,8 @@ class VirtualUnitViewsSpec extends IntegrationTestRunner with TestHelpers {
     }
 
     "link to holder when a child item" in new ITestApp {
-      val show = route(fakeLoggedInHtmlRequest(privilegedUser, GET,
-          vuRoutes.getInVc("vc1,vu1", "vu2").url)).get
+      val show = route(fakeLoggedInHtmlRequest(privilegedUser,
+          vuRoutes.getInVc("vc1,vu1", "vu2"))).get
       status(show) must equalTo(OK)
 
       contentAsString(show) must contain(vuRoutes.get("vc1").url)
@@ -59,14 +57,13 @@ class VirtualUnitViewsSpec extends IntegrationTestRunner with TestHelpers {
         "descriptions[0].identityArea.dates[0].endDate" -> Seq("1945-01-01"),
         "publicationStatus" -> Seq("Published")
       )
-      val cr = route(fakeLoggedInHtmlRequest(privilegedUser, POST,
-        vuRoutes.createChild("vc1").url)
-        .withHeaders(formPostHeaders.toSeq: _*), testData).get
+      val cr = route(fakeLoggedInHtmlRequest(privilegedUser,
+        vuRoutes.createChildPost("vc1")), testData).get
       status(cr) must equalTo(SEE_OTHER)
       redirectLocation(cr) must equalTo(Some(vuRoutes.getInVc("vc1", "hello-kitty").url))
 
-      val show = route(fakeLoggedInHtmlRequest(privilegedUser, GET,
-        vuRoutes.getInVc("vc1", "hello-kitty").url)).get
+      val show = route(fakeLoggedInHtmlRequest(privilegedUser,
+        vuRoutes.getInVc("vc1", "hello-kitty"))).get
       status(show) must equalTo(OK)
 
       contentAsString(show) must contain("Some content")
@@ -82,13 +79,11 @@ class VirtualUnitViewsSpec extends IntegrationTestRunner with TestHelpers {
         "identifier" -> Seq("hello-kitty"),
         VirtualUnitF.INCLUDE_REF -> Seq("c1")
       )
-      val cr = route(fakeLoggedInHtmlRequest(privilegedUser, POST,
-        vuRoutes.createChildRefPost("vc1").url)
-        .withHeaders(formPostHeaders.toSeq: _*), testData).get
+      val cr = route(fakeLoggedInHtmlRequest(privilegedUser,
+        vuRoutes.createChildRefPost("vc1")), testData).get
       status(cr) must equalTo(SEE_OTHER)
 
-      val show = route(fakeLoggedInHtmlRequest(privilegedUser, GET,
-        vuRoutes.getInVc("vc1", "c1").url)).get
+      val show = route(fakeLoggedInHtmlRequest(privilegedUser, vuRoutes.getInVc("vc1", "c1"))).get
       status(show) must equalTo(OK)
 
       contentAsString(show) must contain("Some description text for c1")

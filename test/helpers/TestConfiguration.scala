@@ -15,8 +15,8 @@ import mocks.{MockBufferedMailer, _}
 import models.{Account, Feedback}
 import play.api.GlobalSettings
 import play.api.http.{HeaderNames, MimeTypes}
-import play.api.mvc.{RequestHeader, WithFilters}
-import play.api.test.{FakeApplication, FakeRequest}
+import play.api.mvc._
+import play.api.test.{PlayRunners, FakeApplication, FakeRequest}
 import play.filters.csrf.CSRFFilter
 import utils.MovedPageLookup
 import utils.search.{MockSearchDispatcher, MockSearchIndexer, _}
@@ -28,6 +28,8 @@ import scala.concurrent.Future
  * have authorisation, such as fakeApplication and fakeLoggedInHtmlRequest.
  */
 trait TestConfiguration {
+
+  this: PlayRunners =>
 
   import play.api.Play.current
 
@@ -135,34 +137,42 @@ trait TestConfiguration {
     // Since we use csrf in forms, even though it's disabled in
     // tests we still need to add a fake token to the session so
     // the token is there when the form tries to render it.
-    fr.withSession(CSRF_TOKEN_NAME -> fakeCsrfString)
-      .withHeaders(CSRF_HEADER_NAME -> CSRF_HEADER_NOCHECK)
+    if (rtype == POST) fr
+      .withSession(CSRF_TOKEN_NAME -> fakeCsrfString)
+      .withHeaders(CSRF_HEADER_NAME -> CSRF_HEADER_NOCHECK) else fr
   }
+
+  def fakeRequest(call: Call): FakeRequest[AnyContentAsEmpty.type] =
+    fakeRequest(call.method, call.url)
 
   /**
    * Get a FakeRequest with authorization cookies for the given user
    * and HTML Accept.
    */
-  def fakeLoggedInRequest(user: Account, rtype: String, path: String) = {
-    fakeRequest(rtype, path)
-      .withLoggedIn(AuthConfig)(user.id)
-  }
+  def fakeLoggedInRequest(user: Account, rtype: String, path: String) =
+    fakeRequest(rtype, path).withLoggedIn(AuthConfig)(user.id)
+
+  def fakeLoggedInRequest(user: Account, call: Call): FakeRequest[AnyContentAsEmpty.type] =
+    fakeLoggedInRequest(user, call.method, call.url)
 
   /**
    * Get a FakeRequest with authorization cookies for the given user
    * and HTML Accept.
    */
-  def fakeLoggedInHtmlRequest(user: Account, rtype: String, path: String) = {
+  def fakeLoggedInHtmlRequest(user: Account, rtype: String, path: String) =
     fakeLoggedInRequest(user, rtype, path)
       .withHeaders(HeaderNames.ACCEPT -> MimeTypes.HTML, HeaderNames.CONTENT_TYPE -> MimeTypes.FORM)
-  }
+
+  def fakeLoggedInHtmlRequest(user: Account, call: Call): FakeRequest[AnyContentAsEmpty.type] =
+    fakeLoggedInHtmlRequest(user, call.method, call.url)
 
   /**
    * Get a FakeRequest with authorization cookies for the given user
    * and HTML Accept.
    */
-  def fakeLoggedInJsonRequest(user: Account, rtype: String, path: String) = {
-    fakeLoggedInRequest(user, rtype, path)
-      .withHeaders(HeaderNames.ACCEPT -> MimeTypes.JSON)
-  }
+  def fakeLoggedInJsonRequest(user: Account, rtype: String, path: String) =
+    fakeLoggedInRequest(user, rtype, path).withHeaders(HeaderNames.ACCEPT -> MimeTypes.JSON)
+
+  def fakeLoggedInJsonRequest(user: Account, call: Call): FakeRequest[AnyContentAsEmpty.type] =
+    fakeLoggedInJsonRequest(user, call.method, call.url)
 }

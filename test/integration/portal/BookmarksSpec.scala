@@ -17,20 +17,20 @@ class BookmarksSpec extends IntegrationTestRunner {
   
   "Bookmark views" should {
     "create a default bookmark set when bookmarking an item" in new ITestApp {
-      val bookmark1 = route(fakeLoggedInHtmlRequest(privilegedUser, POST, bmRoutes
-        .bookmarkPost("c1").url), "").get
+      val bookmark1 = route(fakeLoggedInHtmlRequest(privilegedUser, bmRoutes
+        .bookmarkPost("c1")), "").get
       status(bookmark1) must equalTo(SEE_OTHER)
       val defId: String = s"${privilegedUser.id}-bookmarks"
       redirectLocation(bookmark1) must equalTo(Some(bmRoutes.listBookmarkSets().url))
 
-      val bookmark2 = route(fakeLoggedInHtmlRequest(privilegedUser, POST, bmRoutes
-        .bookmark("c2", Some(defId)).url), "").get
+      val bookmark2 = route(fakeLoggedInHtmlRequest(privilegedUser, bmRoutes
+        .bookmark("c2", Some(defId))), "").get
       redirectLocation(bookmark1) must equalTo(Some(bmRoutes.listBookmarkSets().url))
     }
 
     "create a named bookmark set when bookmarking an item" in new ITestApp {
-      val bookmark1 = route(fakeLoggedInHtmlRequest(privilegedUser, POST, bmRoutes
-        .bookmarkInNewSetPost("c1").url), data).get
+      val bookmark1 = route(fakeLoggedInHtmlRequest(privilegedUser, bmRoutes
+        .bookmarkInNewSetPost("c1")), data).get
       status(bookmark1) must equalTo(SEE_OTHER)
 
       redirectLocation(bookmark1) must beSome.which { rl =>
@@ -40,8 +40,8 @@ class BookmarksSpec extends IntegrationTestRunner {
     }
 
     "allow users to create VUs (simplified as bookmark sets)" in new ITestApp {
-      val create = route(fakeLoggedInHtmlRequest(privilegedUser, POST, bmRoutes
-        .createBookmarkSetPost(item = List("c4")).url), data).get
+      val create = route(fakeLoggedInHtmlRequest(privilegedUser, bmRoutes
+        .createBookmarkSetPost(item = List("c4"))), data).get
       status(create) must equalTo(SEE_OTHER)
       val list = route(fakeLoggedInHtmlRequest(privilegedUser,
         GET, bmRoutes.listBookmarkSets().url)).get

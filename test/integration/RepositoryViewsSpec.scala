@@ -25,7 +25,7 @@ class RepositoryViewsSpec extends IntegrationTestRunner with TestHelpers {
     val COUNTRY = "nl"
 
     "list should get some items" in new ITestApp {
-      val list = route(fakeLoggedInHtmlRequest(unprivilegedUser, GET, repoRoutes.list().url)).get
+      val list = route(fakeLoggedInHtmlRequest(unprivilegedUser, repoRoutes.list())).get
       status(list) must equalTo(OK)
       contentAsString(list) must contain(multipleItemsHeader)
       contentAsString(list) must contain("r1")
@@ -33,7 +33,7 @@ class RepositoryViewsSpec extends IntegrationTestRunner with TestHelpers {
     }
 
     "search should get some items" in new ITestApp {
-      val list = route(fakeLoggedInHtmlRequest(unprivilegedUser, GET, repoRoutes.search().url)).get
+      val list = route(fakeLoggedInHtmlRequest(unprivilegedUser, repoRoutes.search())).get
       status(list) must equalTo(OK)
       contentAsString(list) must contain(multipleItemsHeader)
       contentAsString(list) must contain("r1")
@@ -42,16 +42,15 @@ class RepositoryViewsSpec extends IntegrationTestRunner with TestHelpers {
 
     "show correct default values in the form when creating new items" in new ITestApp(
       Map("repository.holdings" -> "SOME RANDOM VALUE")) {
-      val form = route(fakeLoggedInHtmlRequest(privilegedUser, GET,
-        controllers.countries.routes.Countries.createRepository(COUNTRY).url)).get
+      val form = route(fakeLoggedInHtmlRequest(privilegedUser,
+        controllers.countries.routes.Countries.createRepository(COUNTRY))).get
       status(form) must equalTo(OK)
       contentAsString(form) must contain("SOME RANDOM VALUE")
     }
 
     "NOT show default values in the form when editing items" in new ITestApp(
       Map("repository.holdings" -> "SOME RANDOM VALUE")) {
-      val form = route(fakeLoggedInHtmlRequest(privilegedUser, GET,
-        repoRoutes.update("r1").url)).get
+      val form = route(fakeLoggedInHtmlRequest(privilegedUser, repoRoutes.update("r1"))).get
       status(form) must equalTo(OK)
       contentAsString(form) must not contain "SOME RANDOM VALUE"
     }
@@ -73,8 +72,8 @@ class RepositoryViewsSpec extends IntegrationTestRunner with TestHelpers {
         "descriptions[0].controlArea[0].sources[1]" -> Seq("YV"),
         "publicationStatus" -> Seq("Published")
       )
-      val cr = route(fakeLoggedInHtmlRequest(privilegedUser, POST,
-        controllers.countries.routes.Countries.createRepositoryPost(COUNTRY).url), testData).get
+      val cr = route(fakeLoggedInHtmlRequest(privilegedUser,
+        controllers.countries.routes.Countries.createRepositoryPost(COUNTRY)), testData).get
       status(cr) must equalTo(SEE_OTHER)
 
       val show = route(fakeLoggedInHtmlRequest(privilegedUser, GET,
@@ -90,8 +89,8 @@ class RepositoryViewsSpec extends IntegrationTestRunner with TestHelpers {
     "error if missing mandatory values" in new ITestApp {
       val testData: Map[String, Seq[String]] = Map(
       )
-      val cr = route(fakeLoggedInHtmlRequest(privilegedUser, POST,
-        controllers.countries.routes.Countries.createRepositoryPost(COUNTRY).url), testData).get
+      val cr = route(fakeLoggedInHtmlRequest(privilegedUser,
+        controllers.countries.routes.Countries.createRepositoryPost(COUNTRY)), testData).get
       status(cr) must equalTo(BAD_REQUEST)
     }
 
@@ -99,17 +98,17 @@ class RepositoryViewsSpec extends IntegrationTestRunner with TestHelpers {
       val testData: Map[String, Seq[String]] = Map(
         "identifier" -> Seq("r1")
       )
-      val cr = route(fakeLoggedInHtmlRequest(privilegedUser, POST,
-        controllers.countries.routes.Countries.createRepositoryPost(COUNTRY).url), testData).get
+      val cr = route(fakeLoggedInHtmlRequest(privilegedUser,
+        controllers.countries.routes.Countries.createRepositoryPost(COUNTRY)), testData).get
       status(cr) must equalTo(SEE_OTHER)
-      val cr2 = route(fakeLoggedInHtmlRequest(privilegedUser, POST,
-        controllers.countries.routes.Countries.createRepositoryPost(COUNTRY).url), testData).get
+      val cr2 = route(fakeLoggedInHtmlRequest(privilegedUser,
+        controllers.countries.routes.Countries.createRepositoryPost(COUNTRY)), testData).get
       status(cr2) must equalTo(BAD_REQUEST)
     }
 
 
     "link to other privileged actions when logged in" in new ITestApp {
-      val show = route(fakeLoggedInHtmlRequest(privilegedUser, GET, repoRoutes.get("r1").url)).get
+      val show = route(fakeLoggedInHtmlRequest(privilegedUser, repoRoutes.get("r1"))).get
       status(show) must equalTo(OK)
       contentAsString(show) must contain(repoRoutes.update("r1").url)
       contentAsString(show) must contain(repoRoutes.delete("r1").url)
@@ -129,8 +128,7 @@ class RepositoryViewsSpec extends IntegrationTestRunner with TestHelpers {
         "descriptions[0].descriptionArea.geoculturalContext" -> Seq("New Content for r1"),
         "publicationStatus" -> Seq("Draft")
       )
-      val cr = route(fakeLoggedInHtmlRequest(privilegedUser, POST,
-        repoRoutes.updatePost("r1").url), testData).get
+      val cr = route(fakeLoggedInHtmlRequest(privilegedUser, repoRoutes.updatePost("r1")), testData).get
       status(cr) must equalTo(SEE_OTHER)
 
       val show = route(fakeLoggedInHtmlRequest(privilegedUser, GET, redirectLocation(cr).get)).get
@@ -147,12 +145,11 @@ class RepositoryViewsSpec extends IntegrationTestRunner with TestHelpers {
         "descriptions[0].descriptionArea.geoculturalContext" -> Seq("New Content for r1"),
         "publicationStatus" -> Seq("Draft")
       )
-      val cr = route(fakeLoggedInHtmlRequest(unprivilegedUser, POST,
-        repoRoutes.updatePost("r1").url), testData).get
+      val cr = route(fakeLoggedInHtmlRequest(unprivilegedUser, repoRoutes.updatePost("r1")), testData).get
       status(cr) must equalTo(FORBIDDEN)
 
       // We can view the item when not logged in...
-      val show = route(fakeLoggedInHtmlRequest(unprivilegedUser, GET, repoRoutes.get("r1").url)).get
+      val show = route(fakeLoggedInHtmlRequest(unprivilegedUser, repoRoutes.get("r1"))).get
       status(show) must equalTo(OK)
       contentAsString(show) must not contain "New Content for r1"
     }
