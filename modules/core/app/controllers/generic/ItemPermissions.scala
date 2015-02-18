@@ -74,8 +74,7 @@ trait ItemPermissions[MT] extends Visibility[MT] {
       override protected def transform[A](request: ItemPermissionRequest[A]): Future[SetItemPermissionRequest[A]] = {
         implicit val req = request
         val data = getData(request).getOrElse(Map.empty)
-        val perms: List[String] = data.get(ct.contentType.toString)
-          .map(_.toList).getOrElse(List.empty)
+        val perms: Seq[String] = data.getOrElse(ct.contentType.toString, Seq.empty)
         for {
           accessor <- backend.get[Accessor](Accessor.resourceFor(userType), userId)
           perms <- backend.setItemPermissions(userId, ct.contentType, id, perms)

@@ -68,8 +68,8 @@ trait ScopePermissions[MT] extends ItemPermissions[MT] {
       override protected def transform[A](request: ItemPermissionRequest[A]): Future[SetScopePermissionRequest[A]] = {
         implicit val req = request
         val data = getData(request).getOrElse(Map.empty)
-        val perms: Map[String, List[String]] = targetContentTypes.map { ct =>
-          (ct.toString, data.get(ct.toString).map(_.toList).getOrElse(List()))
+        val perms: Map[String, Seq[String]] = targetContentTypes.map { ct =>
+          ct.toString -> data.getOrElse(ct.toString, Seq.empty)
         }.toMap
         for {
           accessor <- backend.get[Accessor](Accessor.resourceFor(userType), userId)

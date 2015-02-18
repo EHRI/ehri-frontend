@@ -25,53 +25,53 @@ trait Create[F <: Model with Persistable, MT <: MetaModel[F]] extends Generic {
    * and groups.
    * @param users a seq of id -> name tuples for users on the system
    * @param groups a seq of id -> name tuples for users on the system
-   * @param userOpt an optional profile
+   * @param user a profile
    * @param request the underlying request
    * @tparam A the type of the underlying request
    */
   case class UserGroupsRequest[A](
     users: Seq[(String,String)],
     groups: Seq[(String,String)],
-    userOpt: Option[UserProfile],
+    user: UserProfile,
     request: Request[A]
   ) extends WrappedRequest[A](request)
-    with WithOptionalUser
+    with WithUser
 
   case class CreateRequest[A](
     formOrItem: Either[(Form[F],Form[List[String]]),MT],
-    userOpt: Option[UserProfile],
+    user: UserProfile,
     request: Request[A]
   ) extends WrappedRequest[A](request)
-    with WithOptionalUser
+    with WithUser
 
   protected def NewItemAction(implicit ct: BackendContentType[MT]) =
-    WithContentPermissionAction(PermissionType.Create, ct.contentType) andThen new ActionTransformer[OptionalUserRequest, UserGroupsRequest] {
-      override protected def transform[A](request: OptionalUserRequest[A]): Future[UserGroupsRequest[A]] = {
+    WithContentPermissionAction(PermissionType.Create, ct.contentType) andThen new ActionTransformer[WithUserRequest, UserGroupsRequest] {
+      override protected def transform[A](request: WithUserRequest[A]): Future[UserGroupsRequest[A]] = {
         for {
           users <- RestHelpers.getUserList
           groups <- RestHelpers.getGroupList
-        } yield UserGroupsRequest(users, groups, request.userOpt, request)
+        } yield UserGroupsRequest(users, groups, request.user, request)
       }
     }
 
   protected def CreateItemAction(form: Form[F], pf: Request[_] => Map[String,Seq[String]] = _ => Map.empty)(implicit fmt: BackendWriteable[F], rd: BackendReadable[MT], ct: BackendContentType[MT]) =
-    WithContentPermissionAction(PermissionType.Create, ct.contentType) andThen new ActionTransformer[OptionalUserRequest, CreateRequest] {
-      def transform[A](request: OptionalUserRequest[A]): Future[CreateRequest[A]] = {
+    WithContentPermissionAction(PermissionType.Create, ct.contentType) andThen new ActionTransformer[WithUserRequest, CreateRequest] {
+      def transform[A](request: WithUserRequest[A]): Future[CreateRequest[A]] = {
         implicit val req = request
         val visForm = VisibilityForm.form.bindFromRequest
         form.bindFromRequest.fold(
-          errorForm => immediate(CreateRequest(Left((errorForm, visForm)), request.userOpt, request.request)),
+          errorForm => immediate(CreateRequest(Left((errorForm, visForm)), request.user, request.request)),
           doc => {
             val accessors = visForm.value.getOrElse(Nil)
             backend.create(doc, accessors, params = pf(request), logMsg = getLogMessage).map { item =>
-              CreateRequest(Right(item), request.userOpt, request)
+              CreateRequest(Right(item), request.user, request)
             } recover {
               // If we have an error, check if it's a validation error.
               // If so, we need to merge those errors back into the form
               // and redisplay it...
               case ValidationError(errorSet) =>
                 val filledForm = doc.getFormErrors(errorSet, form.fill(doc))
-                CreateRequest(Left((filledForm, visForm)), request.userOpt, request)
+                CreateRequest(Left((filledForm, visForm)), request.user, request)
             }
           }
         )

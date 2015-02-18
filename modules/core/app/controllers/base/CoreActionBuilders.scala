@@ -234,19 +234,6 @@ trait CoreActionBuilders extends Controller with ControllerHelpers with AuthActi
     FetchProfile
 
   /**
-   * Ensure that a user a given permission on a given content type
-   * @param permissionType the permission type
-   * @param contentType the content type
-   */
-  protected def WithContentPermissionAction(permissionType: PermissionType.Value, contentType: ContentTypes.Value) =
-    OptionalUserAction andThen new ActionFilter[OptionalUserRequest] {
-      override protected def filter[A](request: OptionalUserRequest[A]): Future[Option[Result]] = {
-        if (request.userOpt.exists(_.hasPermission(contentType, permissionType)))  Future.successful(None)
-        else authenticationFailed(request).map(r => Some(r))
-      }
-    }
-
-  /**
    * Ensure that a user is present
    */
   protected def WithUserAction = OptionalUserAction andThen new ActionRefiner[OptionalUserRequest, WithUserRequest] {
@@ -259,11 +246,35 @@ trait CoreActionBuilders extends Controller with ControllerHelpers with AuthActi
   }
 
   /**
+   * Ensure that a user a given permission on a given content type
+   * @param permissionType the permission type
+   * @param contentType the content type
+   */
+  protected def WithContentPermissionAction(permissionType: PermissionType.Value, contentType: ContentTypes.Value) =
+    WithUserAction andThen new ActionFilter[WithUserRequest] {
+      override protected def filter[A](request: WithUserRequest[A]): Future[Option[Result]] = {
+        if (request.user.hasPermission(contentType, permissionType))  Future.successful(None)
+        else authorizationFailed(request).map(r => Some(r))
+      }
+    }
+
+  /**
+   * Check the user belongs to a given group.
+   */
+  protected def MustBelongTo(groupId: String) = WithUserAction andThen new ActionFilter[WithUserRequest] {
+    protected def filter[A](request: WithUserRequest[A]): Future[Option[Result]] = {
+      if (!request.user.isAdmin && !request.user.allGroups.exists(_.id == groupId))
+        authorizationFailed(request).map(r => Some(r))
+      else immediate(None)
+    }
+  }
+
+  /**
    * Check the user is an administrator to access this request
    */
   protected def AdminAction = WithUserAction andThen new ActionFilter[WithUserRequest] {
     protected def filter[A](request: WithUserRequest[A]): Future[Option[Result]] = {
-      if (!request.user.isAdmin) authenticationFailed(request).map(r => Some(r))
+      if (!request.user.isAdmin) authorizationFailed(request).map(r => Some(r))
       else immediate(None)
     }
   }

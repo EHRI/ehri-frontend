@@ -65,7 +65,7 @@ trait Membership[MT <: Accessor] extends Read[MT] {
     }
 
   def AddToGroupAction(id: String, groupId: String)(implicit ct: BackendContentType[MT]) =
-    WithItemPermissionAction(id, PermissionType.Grant) andThen new ActionTransformer[ItemPermissionRequest, ItemPermissionRequest] {
+    MustBelongTo(groupId) andThen WithItemPermissionAction(id, PermissionType.Grant) andThen new ActionTransformer[ItemPermissionRequest, ItemPermissionRequest] {
       override protected def transform[A](request: ItemPermissionRequest[A]): Future[ItemPermissionRequest[A]] = {
         implicit val req = request
         backend.addGroup[Group, MT](groupId, id).map(_ => request)
@@ -73,7 +73,7 @@ trait Membership[MT <: Accessor] extends Read[MT] {
     }
 
   def RemoveFromGroupAction(id: String, groupId: String)(implicit ct: BackendContentType[MT]) =
-    WithItemPermissionAction(id, PermissionType.Grant) andThen new ActionTransformer[ItemPermissionRequest, ItemPermissionRequest] {
+    MustBelongTo(groupId) andThen WithItemPermissionAction(id, PermissionType.Grant) andThen new ActionTransformer[ItemPermissionRequest, ItemPermissionRequest] {
       override protected def transform[A](request: ItemPermissionRequest[A]): Future[ItemPermissionRequest[A]] = {
         implicit val req = request
         backend.removeGroup[Group, MT](groupId, id).map(_ => request)

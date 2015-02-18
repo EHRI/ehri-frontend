@@ -74,8 +74,8 @@ trait PermissionHolder[MT <: Accessor] extends Read[MT] {
       override protected def transform[A](request: ItemPermissionRequest[A]): Future[GlobalPermissionSetRequest[A]] = {
         implicit val req = request
         val data = getData(request).getOrElse(Map.empty)
-        val perms: Map[String, List[String]] = ContentTypes.values.toList.map { ct =>
-          (ct.toString, data.get(ct.toString).map(_.toList).getOrElse(List.empty))
+        val perms: Map[String, Seq[String]] = ContentTypes.values.toSeq.map { ct =>
+          ct.toString -> data.getOrElse(ct.toString, Seq.empty)
         }.toMap
         backend.setGlobalPermissions(id, perms).map { perms =>
           GlobalPermissionSetRequest(request.item, perms, request.userOpt, request)
