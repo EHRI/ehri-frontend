@@ -102,7 +102,7 @@ case class Utils @Inject()(implicit globalConfig: global.GlobalConfig, backend: 
       profileIds <- CypherDAO().get(
         """START n = node:entities("__ISA__:userProfile")
           |RETURN n.__ID__
-        """.stripMargin, Map.empty, CypherDAO.stringList)
+        """.stripMargin, Map.empty)(CypherDAO.stringList)
       accountIds = allAccounts.map(_.id)
     } yield {
       val noProfile = accountIds.diff(profileIds)

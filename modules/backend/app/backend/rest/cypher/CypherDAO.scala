@@ -49,7 +49,7 @@ case class CypherDAO()(implicit val app: play.api.Application) extends RestDAO {
     WS.url(requestUrl).withHeaders(headers.toSeq: _*).post(data).map(checkCypherError)
   }
 
-  def get[T](scriptBody: String, params: Map[String,JsValue], r: Reads[T]): Future[T] =
+  def get[T](scriptBody: String, params: Map[String,JsValue])(implicit r: Reads[T]): Future[T] =
     cypher(scriptBody, params).map(_.as(r))
 
   def stream(scriptBody: String, params: Map[String,JsValue] = Map()): Future[WSResponse] = {

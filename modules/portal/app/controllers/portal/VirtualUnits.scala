@@ -1,17 +1,21 @@
 package controllers.portal
 
 import auth.AccountManager
+import backend.rest.cypher.CypherDAO
+import play.api.Logger
 import play.api.Play.current
 import controllers.generic.Search
 import models._
 import models.base.AnyModel
 import play.api.libs.concurrent.Execution.Implicits._
+import play.api.mvc.RequestHeader
 import views.html.p
 import utils.search._
 import defines.EntityType
 import backend.{IdGenerator, Backend}
 import com.google.inject._
 import scala.concurrent.Future
+import scala.concurrent.Future.{successful => immediate}
 import controllers.portal.base.{Generic, PortalController}
 
 
@@ -29,7 +33,7 @@ case class VirtualUnits @Inject()(implicit globalConfig: global.GlobalConfig, se
   override val staffOnly = current.configuration.getBoolean("ehri.portal.secured").getOrElse(true)
   override val verifiedOnly = current.configuration.getBoolean("ehri.portal.secured").getOrElse(true)
 
-  private def buildFilter(v: VirtualUnit): Map[String,Any] = {
+  private def buildFilter(item: AnyModel): Map[String,Any] = {
     // Nastiness. We want a Solr query that will allow searching
     // both the child virtual collections of a VU as well as the
     // physical documentary units it includes. Since there is no
@@ -39,28 +43,63 @@ case class VirtualUnits @Inject()(implicit globalConfig: global.GlobalConfig, se
     // - query for anything that has the VUs parent ID *or* anything
     // with an itemId among its included DUs
     import SearchConstants._
-    val pq = v.includedUnits.map(_.id)
-    if (pq.isEmpty) Map(s"$PARENT_ID:${v.id}" -> Unit)
-    else Map(s"$PARENT_ID:${v.id} OR $ITEM_ID:(${pq.mkString(" ")})" -> Unit)
+    item match {
+      case v: VirtualUnit =>
+        val pq = v.includedUnits.map(_.id)
+        if (pq.isEmpty) Map(s"$PARENT_ID:${v.id}" -> Unit)
+        else Map(s"$PARENT_ID:${v.id} OR $ITEM_ID:(${pq.mkString(" ")})" -> Unit)
+      case d => Map(s"$PARENT_ID:${d.id}" -> Unit)
+    }
   }
 
+  private def childIds(id: String): Future[Seq[String]] = {
+    import play.api.libs.json._
+    val dao = new CypherDAO()
+
+    val reader: Reads[Seq[String]] =
+      (__ \ "data").read[Seq[Seq[Seq[String]]]]
+        .map { r => r.flatten.flatten }
+
+    dao.get[Seq[String]](
+      """
+        |START vc = node:entities(__ID__ = {vcid})
+        |MATCH vc<-[?:isPartOf*]-child,
+        |      child-[?:includesUnit*]->doc,
+        |      cdoc-[?:childOf*]->doc
+        |RETURN DISTINCT collect(DISTINCT child.__ID__) + collect(DISTINCT doc.__ID__) + collect(DISTINCT cdoc.__ID__)
+      """.stripMargin, Map("vcid" -> play.api.libs.json.JsString(id)))(reader).map { seq =>
+        Logger.debug(s"Elements: ${seq.length}, distinct: ${seq.distinct.length}")
+        seq.distinct
+    }
+  }
 
   def browseVirtualCollection(id: String) = GetItemAction(id).apply { implicit request =>
       if (isAjax) Ok(p.virtualUnit.itemDetailsVc(request.item, request.annotations, request.links, request.watched))
       else Ok(p.virtualUnit.show(request.item, request.annotations, request.links, request.watched))
   }
 
+  def filtersOrIds(item: AnyModel)(implicit request: RequestHeader): Future[(Map[String,Any], Seq[String])] = {
+    request.getQueryString(SearchParams.QUERY).filter(_.trim.nonEmpty) match {
+      case Some(q) => childIds(item.id).map(seq => Map.empty[String,Any] -> seq)
+      case None => immediate(buildFilter(item) -> Seq.empty[String])
+    }
+  }
+
   def searchVirtualCollection(id: String) = GetItemAction(id).async { implicit request =>
-      find[AnyModel](
-        filters = buildFilter(request.item),
+    for {
+      (filters, ids) <- filtersOrIds(request.item)
+      result <- find[AnyModel](
+        filters = filters,
         entities = List(EntityType.VirtualUnit, EntityType.DocumentaryUnit),
-        facetBuilder = docSearchFacets
-      ).map { result =>
-        if (isAjax) Ok(p.virtualUnit.childItemSearch(request.item, result,
-          vuRoutes.searchVirtualCollection(id), request.watched))
-        else Ok(p.virtualUnit.search(request.item, result,
-          vuRoutes.searchVirtualCollection(id), request.watched))
-      }
+        facetBuilder = docSearchFacets,
+        idFilters = ids
+      )
+    } yield {
+      if (isAjax) Ok(p.virtualUnit.childItemSearch(request.item, result,
+        vuRoutes.searchVirtualCollection(id), request.watched))
+      else Ok(p.virtualUnit.search(request.item, result,
+        vuRoutes.searchVirtualCollection(id), request.watched))
+    }
   }
 
   def browseVirtualCollections = UserBrowseAction.async { implicit request =>
@@ -98,21 +137,6 @@ case class VirtualUnits @Inject()(implicit globalConfig: global.GlobalConfig, se
 
   def searchVirtualUnit(pathStr: String, id: String) = OptionalUserAction.async { implicit request =>
     val pathIds = pathStr.split(",").toSeq
-
-    def includedChildren(parent: AnyModel): Future[SearchResult[(AnyModel,SearchHit)]] = parent match {
-      case d: DocumentaryUnit => find[AnyModel](
-        filters = Map(SearchConstants.PARENT_ID -> d.id),
-        entities = List(d.isA),
-        facetBuilder = docSearchFacets)
-      case d: VirtualUnit => d.includedUnits match {
-        case _ => find[AnyModel](
-          filters = buildFilter(d),
-          entities = List(EntityType.VirtualUnit, EntityType.DocumentaryUnit),
-          facetBuilder = docSearchFacets)
-      }
-      case _ => Future.successful(SearchResult.empty)
-    }
-
     val pathF: Future[Seq[AnyModel]] = Future.sequence(pathIds.map(pid => backend.getAny[AnyModel](pid)))
     val itemF: Future[AnyModel] = backend.getAny[AnyModel](id)
     val watchedF: Future[Seq[String]] = watchedItemIds(userIdOpt = request.userOpt.map(_.id))
@@ -120,12 +144,18 @@ case class VirtualUnits @Inject()(implicit globalConfig: global.GlobalConfig, se
       watched <- watchedF
       item <- itemF
       path <- pathF
-      children <- includedChildren(item)
+      (filters, ids) <- filtersOrIds(item)
+      result <- find[AnyModel](
+        filters = filters,
+        entities = List(EntityType.VirtualUnit, EntityType.DocumentaryUnit),
+        facetBuilder = docSearchFacets,
+        idFilters = ids
+      )
     } yield {
       if (isAjax)
-        Ok(p.virtualUnit.childItemSearch(item, children,
+        Ok(p.virtualUnit.childItemSearch(item, result,
           vuRoutes.searchVirtualUnit(pathStr, id), watched, path))
-      else Ok(p.virtualUnit.search(item, children,
+      else Ok(p.virtualUnit.search(item, result,
           vuRoutes.searchVirtualUnit(pathStr, id), watched, path))
     }
   }
