@@ -107,8 +107,9 @@ case class Repositories @Inject()(implicit globalConfig: global.GlobalConfig, se
    */
   def get(id: String) = ItemMetaAction(id).async { implicit request =>
 
-    val filters = (if (request.getQueryString(SearchParams.QUERY).filterNot(_.trim.isEmpty).isEmpty)
-      Map(SearchConstants.TOP_LEVEL -> true) else Map.empty[String,Any]) ++ Map(SearchConstants.HOLDER_ID -> request.item.id)
+    val filters = (if (!hasActiveQuery(request))
+      Map(SearchConstants.TOP_LEVEL -> true)
+      else Map.empty[String,Any]) ++ Map(SearchConstants.HOLDER_ID -> request.item.id)
 
     findType[DocumentaryUnit](
       filters = filters,
