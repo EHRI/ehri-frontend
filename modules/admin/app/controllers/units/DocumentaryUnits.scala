@@ -115,7 +115,7 @@ case class DocumentaryUnits @Inject()(implicit globalConfig: global.GlobalConfig
     // has no parent items - UNLESS there's a query, in which case we're
     // going to peer INSIDE items... dodgy logic, maybe...
     
-    val filters = if (request.getQueryString(SearchParams.QUERY).filterNot(_.trim.isEmpty).isEmpty)
+    val filters = if (!hasActiveQuery(request))
       Map(SearchConstants.TOP_LEVEL -> true) else Map.empty[String,Any]
 
     findType[DocumentaryUnit](
@@ -129,8 +129,11 @@ case class DocumentaryUnits @Inject()(implicit globalConfig: global.GlobalConfig
   }
 
   def searchChildren(id: String) = ItemPermissionAction(id).async { implicit request =>
+    val filterKey = if (!hasActiveQuery(request)) SearchConstants.PARENT_ID
+      else SearchConstants.ANCESTOR_IDS
+
     findType[DocumentaryUnit](
-      filters = Map(SearchConstants.PARENT_ID -> request.item.id),
+      filters = Map(filterKey -> request.item.id),
       facetBuilder = entityFacets,
       defaultOrder = SearchOrder.Id
     ).map { result =>

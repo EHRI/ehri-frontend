@@ -33,6 +33,13 @@ trait Search extends CoreActionBuilders {
    */
   protected val emptyFacets: FacetBuilder = { lang => List.empty[FacetClass[Facet]]}
 
+  /**
+   * Ascertain if the user is making a textual query on this
+   * request, as opposed to facet filtering a full list.
+   */
+  protected def hasActiveQuery(request: RequestHeader): Boolean =
+    request.getQueryString(SearchParams.QUERY).filter(_.nonEmpty).isDefined
+
   private def bindFacetsFromRequest(facetClasses: Seq[FacetClass[Facet]])(implicit request: RequestHeader): Seq[AppliedFacet] =
     facetClasses.flatMap { fc =>
       request.queryString.get(fc.param).map(_.filterNot(_.trim.isEmpty)).map { values =>

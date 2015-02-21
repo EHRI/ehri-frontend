@@ -25,7 +25,7 @@ case class DocumentaryUnits @Inject()(implicit globalConfig: global.GlobalConfig
   private val portalDocRoutes = controllers.portal.routes.DocumentaryUnits
 
   def searchAll = UserBrowseAction.async { implicit request =>
-    val filters = if (request.getQueryString(SearchParams.QUERY).filterNot(_.trim.isEmpty).isEmpty)
+    val filters = if (!hasActiveQuery(request))
       Map(SearchConstants.TOP_LEVEL -> true) else Map.empty[String,Any]
 
     findType[DocumentaryUnit](
@@ -43,15 +43,18 @@ case class DocumentaryUnits @Inject()(implicit globalConfig: global.GlobalConfig
   }
 
   def search(id: String) = GetItemAction(id).async { implicit request =>
-      findType[DocumentaryUnit](
-        filters = Map(SearchConstants.PARENT_ID -> request.item.id),
-        facetBuilder = localDocFacets,
-        defaultOrder = SearchOrder.Id
-      ).map { result =>
-        if (isAjax) Ok(p.documentaryUnit.childItemSearch(request.item, result,
-          portalDocRoutes.search(id), request.watched))
-        else Ok(p.documentaryUnit.search(request.item, result,
-          portalDocRoutes.search(id), request.watched))
-      }
+    val filterKey = if (!hasActiveQuery(request)) SearchConstants.PARENT_ID
+      else SearchConstants.ANCESTOR_IDS
+
+    findType[DocumentaryUnit](
+      filters = Map(filterKey -> request.item.id),
+      facetBuilder = localDocFacets,
+      defaultOrder = SearchOrder.Id
+    ).map { result =>
+      if (isAjax) Ok(p.documentaryUnit.childItemSearch(request.item, result,
+        portalDocRoutes.search(id), request.watched))
+      else Ok(p.documentaryUnit.search(request.item, result,
+        portalDocRoutes.search(id), request.watched))
+    }
   }
 }
