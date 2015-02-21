@@ -100,9 +100,8 @@ case class VirtualUnits @Inject()(implicit globalConfig: global.GlobalConfig, se
       """
         |START vc = node:entities(__ID__ = {vcid})
         |MATCH vc<-[:isPartOf*]-child,
-        |      child-[?:includesUnit*]->doc,
-        |      cdoc-[?:childOf*]->doc
-        |RETURN DISTINCT collect(DISTINCT child.__ID__) + collect(DISTINCT doc.__ID__) + collect(DISTINCT cdoc.__ID__)
+        |      child-[?:includesUnit*]->doc
+        |RETURN DISTINCT collect(DISTINCT child.__ID__) + collect(DISTINCT doc.__ID__)
       """.stripMargin, Map("vcid" -> play.api.libs.json.JsString(id)))(reader)
   }
 

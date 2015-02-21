@@ -64,9 +64,9 @@ case class VirtualUnits @Inject()(implicit globalConfig: global.GlobalConfig, se
       """
         |START vc = node:entities(__ID__ = {vcid})
         |MATCH vc<-[?:isPartOf*]-child,
-        |      child-[?:includesUnit*]->doc,
-        |      cdoc-[?:childOf*]->doc
-        |RETURN DISTINCT collect(DISTINCT child.__ID__) + collect(DISTINCT doc.__ID__) + collect(DISTINCT cdoc.__ID__)
+        |      ddoc<-[?:includesUnit]-vc,
+        |      doc<-[?:includesUnit]-child
+        |RETURN DISTINCT collect(DISTINCT child.__ID__) + collect(DISTINCT doc.__ID__) + collect(DISTINCT ddoc.__ID__)
       """.stripMargin, Map("vcid" -> play.api.libs.json.JsString(id)))(reader).map { seq =>
         Logger.debug(s"Elements: ${seq.length}, distinct: ${seq.distinct.length}")
         seq.distinct
@@ -78,21 +78,20 @@ case class VirtualUnits @Inject()(implicit globalConfig: global.GlobalConfig, se
       else Ok(p.virtualUnit.show(request.item, request.annotations, request.links, request.watched))
   }
 
-  def filtersOrIds(item: AnyModel)(implicit request: RequestHeader): Future[(Map[String,Any], Seq[String])] = {
-    request.getQueryString(SearchParams.QUERY).filter(_.trim.nonEmpty) match {
-      case Some(q) => childIds(item.id).map(seq => Map.empty[String,Any] -> seq)
-      case None => immediate(buildFilter(item) -> Seq.empty[String])
+  def filtersOrIds(item: AnyModel)(implicit request: RequestHeader): Future[Map[String,Any]] = {
+    if (!hasActiveQuery(request)) immediate(buildFilter(item))
+    else childIds(item.id).map { seq =>
+      Map(s"${SearchConstants.ANCESTOR_IDS}:(${seq.mkString(" ")})" -> Unit)
     }
   }
 
   def searchVirtualCollection(id: String) = GetItemAction(id).async { implicit request =>
     for {
-      (filters, ids) <- filtersOrIds(request.item)
+      filters <- filtersOrIds(request.item)
       result <- find[AnyModel](
         filters = filters,
         entities = List(EntityType.VirtualUnit, EntityType.DocumentaryUnit),
-        facetBuilder = docSearchFacets,
-        idFilters = ids
+        facetBuilder = docSearchFacets
       )
     } yield {
       if (isAjax) Ok(p.virtualUnit.childItemSearch(request.item, result,
@@ -144,12 +143,11 @@ case class VirtualUnits @Inject()(implicit globalConfig: global.GlobalConfig, se
       watched <- watchedF
       item <- itemF
       path <- pathF
-      (filters, ids) <- filtersOrIds(item)
+      filters <- filtersOrIds(item)
       result <- find[AnyModel](
         filters = filters,
         entities = List(EntityType.VirtualUnit, EntityType.DocumentaryUnit),
-        facetBuilder = docSearchFacets,
-        idFilters = ids
+        facetBuilder = docSearchFacets
       )
     } yield {
       if (isAjax)
