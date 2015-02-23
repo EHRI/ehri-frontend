@@ -97,8 +97,8 @@ trait Promotable extends Accessible {
 }
 
 trait MetaModel[+T <: Model] extends AnyModel {
-  val model: T
-  val meta: JsObject
+  def model: T
+  def meta: JsObject
 
   // Convenience helpers
   def id = model.id.getOrElse(sys.error(s"Meta-model with no id. This shouldn't happen!: $this"))
@@ -159,8 +159,8 @@ trait Holder[+T] extends AnyModel {
    * Convenience cache of items 'below' this one. Not to
    * be relied on since it's just a volatile cache value.
    */
-  def childCount: Option[Int]
-  = meta.value.get(Entity.CHILD_COUNT).flatMap(_.asOpt[Int])
+  def childCount: Option[Int] =
+    meta.value.get(Entity.CHILD_COUNT).flatMap(_.asOpt[Int])
 }
 
 trait Hierarchical[+T <: Hierarchical[T]] extends AnyModel {

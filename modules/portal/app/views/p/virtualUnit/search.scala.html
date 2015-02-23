@@ -1,9 +1,9 @@
-@(item: AnyModel, result: utils.search.SearchResult[(AnyModel,utils.search.SearchHit)], action: Call, watched: Seq[String], path: Seq[AnyModel] = Seq.empty)(implicit userOpt: Option[UserProfile], request: RequestHeader, prefs: utils.SessionPrefs, globalConfig: global.GlobalConfig, lang: Lang, flash: Flash)
+@(item: models.base.AnyModel, result: utils.search.SearchResult[(models.base.AnyModel,utils.search.SearchHit)], action: Call, watched: Seq[String], path: Seq[models.base.AnyModel] = Seq.empty)(implicit userOpt: Option[UserProfile], request: RequestHeader, prefs: utils.SessionPrefs, globalConfig: global.GlobalConfig, lang: Lang, flash: Flash)
 
-@views.html.p.layout.itemSearchLayout(item.toStringLang, EntityType.VirtualUnit.toString, result) {
+@views.html.p.layout.itemSearchLayout(item.toStringLang, defines.EntityType.VirtualUnit.toString, result) {
     @infobar(item, path, watched.contains(item.id))
 } {
-    @views.html.p.common.itemDetailsLink(Messages("showDetails"), views.p.Helpers.virtualUnitUrl(path, item.id)) {
+    @views.html.p.common.itemDetailsLink(Messages("details.show"), views.p.Helpers.virtualUnitUrl(path, item.id)) {
         @views.html.p.common.itemHeader(item.toStringLang) {
         }
     }
