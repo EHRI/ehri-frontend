@@ -81,9 +81,9 @@ case class Portal @Inject()(implicit globalConfig: global.GlobalConfig, searchEn
 
   def search = UserBrowseAction.async { implicit request =>
     find[AnyModel](
-      defaultParams = SearchParams(
-        entities = defaultSearchTypes, sort = Some(SearchOrder.Score)),
-      facetBuilder = globalSearchFacets, mode = SearchMode.DefaultNone
+      defaultParams = SearchParams(sort = Some(SearchOrder.Score)),
+      facetBuilder = globalSearchFacets, mode = SearchMode.DefaultNone,
+      entities = defaultSearchTypes
     ).map { result =>
       Ok(p.search(result, portalRoutes.search(), request.watched))
     }
