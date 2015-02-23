@@ -132,7 +132,7 @@ trait Search extends CoreActionBuilders {
 
     val dispatcher = searchEngineFromRequest(defaultParams, defaultOrder, facetBuilder)
       .withFilters(filters)
-      .withEntities(entities)
+      .withEntities(if (entities.isEmpty) defaultParams.entities else entities)
       .withIdFilters(idFilters)
       .withIdFilters(items.map(_.id))
       .withExtraParams(extra)
