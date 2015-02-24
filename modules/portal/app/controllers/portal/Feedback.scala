@@ -42,12 +42,13 @@ case class Feedback @Inject()(implicit globalConfig: global.GlobalConfig, feedba
     Ok(views.html.p.feedback(models.Feedback.form))
   }
 
-  private def getCopyMail(feedbackType: Option[models.Feedback.Type.Value])(implicit app: play.api.Application): Option[String] = {
-    val defaultOpt = app.configuration.getString("ehri.portal.feedback.copyTo")
-    (for {
+  private def getCopyMail(feedbackType: Option[models.Feedback.Type.Value])(implicit app: play.api.Application): Seq[String] = {
+    import scala.collection.JavaConverters._
+    val defaultOpt = app.configuration.getStringList("ehri.portal.feedback.copyTo").map(_.asScala)
+    ((for {
       ft <- feedbackType
-      ct <- app.configuration.getString(s"ehri.portal.feedback.$ft.copyTo")
-    } yield ct) orElse defaultOpt
+      ct <- app.configuration.getStringList(s"ehri.portal.feedback.$ft.copyTo").map(_.asScala)
+    } yield ct) orElse defaultOpt).getOrElse(Seq.empty)
   }
 
   private def sendMessageEmail(feedback: models.Feedback)(implicit app: play.api.Application, request: RequestHeader): Unit = {
