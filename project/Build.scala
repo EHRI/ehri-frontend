@@ -26,7 +26,7 @@ object ApplicationBuild extends Build {
     cache,
 
     // Ontology
-    "ehri-project" % "ehri-definitions" % "1.0-SNAPSHOT",
+    "ehri-project" % "ehri-definitions" % "0.1-SNAPSHOT",
 
     // The ever-vital Joda time
     "joda-time" % "joda-time" % "2.1"
@@ -44,7 +44,7 @@ object ApplicationBuild extends Build {
     // groovy stuff because a) it's not needed, and b) it has a
     // ton of awkward transitive dependencies
     "ehri-project" % "ehri-frames" % "0.1-SNAPSHOT" % "test" classifier "tests" classifier "" exclude("com.tinkerpop.gremlin", "gremlin-groovy"),
-    "ehri-project" % "ehri-extension" % "0.0.1-SNAPSHOT" % "test" classifier "tests" classifier "" exclude("com.tinkerpop.gremlin", "gremlin-groovy")
+    "ehri-project" % "ehri-extension" % "0.1-SNAPSHOT" % "test" classifier "tests" classifier "" exclude("com.tinkerpop.gremlin", "gremlin-groovy")
   )
 
   val coreDependencies = backendDependencies ++ Seq(
