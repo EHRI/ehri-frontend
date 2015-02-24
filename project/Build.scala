@@ -26,7 +26,7 @@ object ApplicationBuild extends Build {
     cache,
 
     // Ontology
-    "ehri-project" % "ehri-definitions" % "1.0",
+    "ehri-project" % "ehri-definitions" % "1.0-SNAPSHOT",
 
     // The ever-vital Joda time
     "joda-time" % "joda-time" % "2.1"
@@ -152,6 +152,7 @@ object ApplicationBuild extends Build {
     resolvers += "Codahale" at "http://repo.codahale.com",
     resolvers += "Typesafe Repository" at "http://repo.typesafe.com/typesafe/releases/",
     resolvers += Resolver.sonatypeRepo("releases"),
+    resolvers += "EHRI Snapshots" at "http://ehridev.dans.knaw.nl/artifactory/libs-snapshot/",
 
     // Always use nodejs to build the assets - Trireme is too slow...
     JsEngineKeys.engineType := JsEngineKeys.EngineType.Node,
