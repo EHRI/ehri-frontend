@@ -92,6 +92,16 @@ object ApplicationBuild extends Build {
     "jp.t2v" %% "play2-auth-test" % "0.13.0" % "test"
   )
 
+  val additionalResolvers = Seq(
+    "neo4j-public-repository" at "http://m2.neo4j.org/content/groups/public",
+    "Local Maven Repository" at "file:///" + Path.userHome.absolutePath + "/.m2/repository",
+    "Codahale" at "http://repo.codahale.com",
+    "Typesafe Repository" at "http://repo.typesafe.com/typesafe/releases/",
+    Resolver.sonatypeRepo("releases"),
+    "EHRI Snapshots" at "http://ehridev.dans.knaw.nl/artifactory/libs-snapshot/"
+  )
+
+
   val commonSettings = Seq(
 
     scalaVersion := "2.10.4",
@@ -131,6 +141,7 @@ object ApplicationBuild extends Build {
       "backend.Entity"
     ),
 
+    resolvers ++= additionalResolvers,
 
     // Auto-import EntityType enum into routes
     routesImport += "defines.EntityType",
@@ -145,14 +156,6 @@ object ApplicationBuild extends Build {
     resourceDirectory in Test <<= baseDirectory apply {
       (baseDir: File) => baseDir / "test/resources"
     },
-
-    // additional resolvers
-    resolvers += "neo4j-public-repository" at "http://m2.neo4j.org/content/groups/public",
-    resolvers += "Local Maven Repository" at "file:///" + Path.userHome.absolutePath + "/.m2/repository",
-    resolvers += "Codahale" at "http://repo.codahale.com",
-    resolvers += "Typesafe Repository" at "http://repo.typesafe.com/typesafe/releases/",
-    resolvers += Resolver.sonatypeRepo("releases"),
-    resolvers += "EHRI Snapshots" at "http://ehridev.dans.knaw.nl/artifactory/libs-snapshot/",
 
     // Always use nodejs to build the assets - Trireme is too slow...
     JsEngineKeys.engineType := JsEngineKeys.EngineType.Node,
@@ -242,7 +245,7 @@ object ApplicationBuild extends Build {
     libraryDependencies ++= Seq(
       "com.github.seratch" %% "scalikesolr" % "4.10.0"
     ),
-    resolvers += "Local Maven Repository" at "file:///" + Path.userHome.absolutePath + "/.m2/repository",
+    resolvers ++= additionalResolvers,
     version := appVersion
   ).dependsOn(core % "test->test;compile->compile")
 
