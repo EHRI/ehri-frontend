@@ -85,6 +85,8 @@ object GuidePage {
     val Person = Value("person")
     val Map = Value("map")
     val Timeline = Value("timeline")
+
+    def isFreeText(v: Value) = Set(Markdown, Html, Timeline) contains v
   }
 
   object MenuPosition extends Enumeration with StorableEnum {

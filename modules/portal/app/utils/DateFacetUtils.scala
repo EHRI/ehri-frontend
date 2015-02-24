@@ -24,8 +24,8 @@ object DateFacetUtils {
   val formatter: DateTimeFormatter
       = ISODateTimeFormat.dateTime().withZoneUTC()
 
-  private def startDate(year: Int): String = formatter.print(new DateTime(year, 1, 1, 0, 0))
-  private def endDate(year: Int): String = formatter.print(new DateTime(year, 12, 12, 23, 59))
+  def startDate(year: Int): String = formatter.print(new DateTime(year, 1, 1, 0, 0))
+  def endDate(year: Int): String = formatter.print(new DateTime(year, 12, 12, 23, 59))
   private val dateParamValueMatcher = new scala.util.matching.Regex("""^(\d{4})?-(\d{4})?$""", "start", "end")
 
   /**
