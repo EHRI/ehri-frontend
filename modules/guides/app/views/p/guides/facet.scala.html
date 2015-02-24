@@ -1,4 +1,4 @@
-@(guide: Guide, page: GuidePage, pages: List[GuidePage], result: utils.search.SearchResult[DocumentaryUnit], available: Map[String, Seq[models.base.AnyModel]])(implicit userOpt: Option[UserProfile], request: RequestHeader, prefs: utils.SessionPrefs, globalConfig: global.GlobalConfig, lang: Lang, flash: Flash)
+@(guide: Guide, page: GuidePage, pages: List[GuidePage], result: utils.search.SearchResult[(DocumentaryUnit,utils.search.SearchHit)], available: Map[String, Seq[models.base.AnyModel]], action: Call)(implicit userOpt: Option[UserProfile], request: RequestHeader, prefs: utils.SessionPrefs, globalConfig: global.GlobalConfig, lang: Lang, flash: Flash)
 
 @js = {
     <script type="text/javascript" src="@controllers.portal.routes.Assets.versioned("js/portal-guide.js")"></script>
@@ -111,19 +111,23 @@
 
 @views.html.p.layout.guideLayout(guide, page, pages, scripts = js, optionalContent = Some(sidebar), otherTitle = Some(Messages("guides.faceted"))) {
     <article>
-        <header>
-            <h1>@Messages("guides.faceted")</h1>
-            <h3>@Messages("pagination.displayingItems", result.page.start, result.page.end, result.page.total)</h3>
-        </header>
-        <section>
-            <section class="content-results">
-                @result.page.items.map { doc =>
+        @helper.form(action = action) {
+            <header>
+                <h1>@Messages("guides.faceted")</h1>
+                <h3>@Messages("pagination.displayingItems", result.page.start, result.page.end, result.page.total)</h3>
+                <input type="text" name="q" value="@result.params.query" class="form-control" />
+                @println("PARAMS: " + result.params)
+            </header>
+            <section>
+                <section class="content-results">
+                @result.page.items.map { case (doc, hit) =>
                     @views.html.p.guides.doc.itemResult(doc, guide.path)
                 }
+                </section>
             </section>
-        </section>
-        <footer>
+            <footer>
             @common.pagination(result.page)
-        </footer>
+            </footer>
+        }
     </article>
 }
