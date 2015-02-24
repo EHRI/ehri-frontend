@@ -11,13 +11,13 @@ class DateFacetUtilsSpec extends PlaySpecification {
 
   "date utils" should {
     "format correctly as Solr" in {
-      formatAsQuery("1940-1980") must equalTo(Val("1940-01-01T00:00:00.000Z") to Val("1980-12-12T23:59:00.000Z"))
-      formatAsQuery("1940-") must equalTo(Val("1940-01-01T00:00:00.000Z") to End)
-      formatAsQuery("1940-1940") must equalTo(Val("1940-01-01T00:00:00.000Z") to Val("1940-12-12T22:59:00.000Z"))
-      formatAsQuery("-1980") must equalTo(Start to Val("1980-12-12T23:59:00.000Z"))
+      formatAsQuery("1940-1980") must equalTo(Val(startDate(1940)) to Val(endDate(1980)))
+      formatAsQuery("1940-") must equalTo(Val(startDate(1940)) to End)
+      formatAsQuery("1940-1940") must equalTo(Val(startDate(1940)) to Val(endDate(1940)))
+      formatAsQuery("-1980") must equalTo(Start to Val(endDate(1980)))
       // Parse invalid ranges sensibly - ranges with
       // end less than start should be swapped.
-      formatAsQuery("1980-1940") must equalTo(Val("1940-01-01T00:00:00.000Z") to Val("1980-12-12T23:59:00.000Z"))
+      formatAsQuery("1980-1940") must equalTo(Val(startDate(1940)) to Val(endDate(1980)))
     }
 
     "correctly convert to readable form" in {
