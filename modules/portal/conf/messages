@@ -399,7 +399,7 @@ search.item.results.list={3,choice,0#{0}|1#{0} - One item|1<{0} - Items {1,numbe
 # Facets
 facet.type=Item Type
 facet.type.tooltip=The type of item, e.g. institutions, archival descriptions,\
-  or authority files.
+  or country reports.
 facet.lang=Language of Description
 facet.lang.placeholder=Filter Language
 facet.lang.tooltip=The language of the electronic description.
