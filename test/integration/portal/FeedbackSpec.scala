@@ -53,7 +53,7 @@ class FeedbackSpec extends IntegrationTestRunner {
     val testSiteMail = "site@broken-site.com"
 
     "copy data feedback to the right address" in new ITestApp(specificConfig = Map(
-      "ehri.portal.feedback.data.copyTo" -> testDataMail
+      "ehri.portal.feedback.data.copyTo" -> Seq(testDataMail)
     )) {
       val dataFb = fb.updated(TYPE, Seq(models.Feedback.Type.Data.toString))
       val post = route(fakeLoggedInHtmlRequest(mocks.privilegedUser,
@@ -65,7 +65,7 @@ class FeedbackSpec extends IntegrationTestRunner {
     }
 
     "copy site feedback to the right address" in new ITestApp(specificConfig = Map(
-      "ehri.portal.feedback.site.copyTo" -> testSiteMail
+      "ehri.portal.feedback.site.copyTo" -> Seq(testSiteMail)
     )) {
       val dataFb = fb.updated(TYPE, Seq(models.Feedback.Type.Site.toString))
       val post = route(fakeLoggedInHtmlRequest(mocks.privilegedUser,
