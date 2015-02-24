@@ -83,7 +83,7 @@
     <p class="small">
         @Messages(if(available.nonEmpty) "guides.facets.available" else "guides.facets.hierarchy")
     </p>
-    @for(otherPage <- pages.filter(p => p.layout != GuidePage.Layout.Markdown && p.layout != GuidePage.Layout.Timeline)) {
+    @for(otherPage <- pages.filterNot(p => GuidePage.Layout.isFreeText(p.layout))) {
         @if(available.nonEmpty){
             @selectTwo(otherPage)
         } else {
