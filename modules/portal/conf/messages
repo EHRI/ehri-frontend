@@ -20,7 +20,7 @@ details.show=Show Item Details
 details.hide=Hide Item Details
 
 #
-# Help
+# Help https://portal.ehri-project.eu (Help menu)
 #
 help=Help
 help.general=General site help
@@ -28,7 +28,7 @@ help.archivists=Help for archivists
 help.helpdesk=Helpdesk
 
 #
-# Landing page
+# Landing page: https://portal.ehri-project.eu
 #
 landingBlurb.repository=Browse {0} in {1}.
 landingBlurb.repository.link={0} archival institutions
@@ -106,7 +106,7 @@ download.format.csv=Download as CSV
 download.format.json=Download as JSON
 
 #
-# Profile
+# Profile https://portal.ehri-project.eu/profile (and related pages)
 #
 profile.preferences=Preferences
 profile.preferences.updated=Preferences Updated
@@ -395,8 +395,10 @@ search.queryPlaceholder=Search...
 search.results.list={3,choice,0#{0}|1#{0} - One item|1<{0} - {1,number,integer} to {2,number,integer} of {3,number,integer}}
 search.item.results.list={3,choice,0#{0}|1#{0} - One item|1<{0} - Items {1,number,integer} to {2,number,integer} of {3,number,integer}}
 
-
-# Facets
+#
+# Facets - these are ways of filtering search results
+# and their associated tool-tips
+#
 facet.type=Item Type
 facet.type.tooltip=The type of item, e.g. institutions, archival descriptions,\
   or country reports.
@@ -460,7 +462,9 @@ facet.promoted.tooltip=Items that are currently promoted or demoted
 facet.score=Promotion Score
 facet.score.tooltip=The sum total of all promotions and demotions, if any
 
-# Activity...
+#
+# Activity: https://portal.ehri-project.eu/activity
+#
 activity=Activity
 activity.by={0} - Activity
 activity.latestActivity=Latest Activity
@@ -474,7 +478,9 @@ activity.noActivityYet=Activity involving items you''re watching and users you f
 activity.noUserActivityYet={0} has no public activity yet.
 activity.modifiedProfile=Updated profile information.
 
+#
 # 'Social' stuff...
+#
 social.message.send=Contact {0}
 social.message.send.submit=Send Message
 social.message.send.confirmation=Your message has been sent
@@ -638,7 +644,7 @@ feedback.type.site=the site (functionality, design, etc)
 feedback.type.data=the data content
 
 #
-# Helpdesk
+# Helpdesk: https://portal.ehri-project.eu/helpdesk
 #
 helpdesk=Helpdesk
 helpdesk.email=Your email
@@ -652,8 +658,10 @@ helpdesk.results=Helpdesk Contact Recommendations
 helpdesk.results.empty=No relevant institutions found. Please reformulate your query and add more details.
 helpdesk.query.placeholder=Enter your query here. Subject-specific terms are best.
 helpdesk.copyMe=Email a copy of the query to your address
-helpdesk.youAsked=You asked
+helpdesk.youAsked=You asked "{0}".
+helpdesk.askAgain=Try another query...
 helpdesk.institution=Institution Name
+helpdesk.institutions=Contact recommendations will be drawn from the following institutions:
 helpdesk.contactEmail=Contact Email
 helpdesk.score=Confidence Score
 helpdesk.confidence.message=How confident we are that this ranking is correct.

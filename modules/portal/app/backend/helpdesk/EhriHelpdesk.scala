@@ -1,19 +1,22 @@
 package backend.helpdesk
 
-import backend.{BadHelpdeskResponse, HelpdeskDAO}
+import backend.HelpdeskDAO
 import scala.concurrent.{ExecutionContext, Future}
 import play.api.libs.ws.WS
-import com.fasterxml.jackson.core.JsonParseException
-import play.api.libs.json.Json
-import com.google.common.base.Charsets
+
 
 case class TestHelpdesk(implicit app: play.api.Application) extends HelpdeskDAO {
-  import HelpdeskDAO._
-
-  def askQuery(query: String)(implicit executionContext: ExecutionContext): Future[Seq[HelpdeskResponse]] = Future.successful {
+  def askQuery(query: String)(implicit executionContext: ExecutionContext): Future[Seq[(String, Double)]] = Future.successful {
     Seq (
-      HelpdeskResponse("us-005578", "0.0193", Some("USHMM")),
-      HelpdeskResponse("it-002863", "0.0091", Some("Italian Repository"))
+      "us-005578" -> 0.0193,
+      "it-002863" -> 0.0091
+    )
+  }
+
+  def available(implicit executionContext: ExecutionContext): Future[Seq[(String, String)]] = Future.successful {
+    Seq (
+      "us-005578" -> "USHMM",
+      "it-002863" -> "Ministero degli Affari Esteri"
     )
   }
 }
@@ -23,20 +26,21 @@ case class TestHelpdesk(implicit app: play.api.Application) extends HelpdeskDAO 
  * @author Mike Bryant (http://github.com/mikesname)
  */
 case class EhriHelpdesk(implicit app: play.api.Application) extends HelpdeskDAO {
-  import HelpdeskDAO._
-
   def helpdeskUrl: String = app.configuration.getString("ehri.helpdesk.url")
     .getOrElse(sys.error("Configuration value: 'ehri.helpdesk.url' is not defined"))
 
-  def askQuery(query: String)(implicit executionContext: ExecutionContext): Future[Seq[HelpdeskResponse]] = {
-    WS.url(helpdeskUrl).withQueryString("input" -> query).get().map { r =>
-      val body = new String(r.body.getBytes(Charsets.ISO_8859_1))
-      try {
-        (Json.parse(body) \ "response").as[Seq[HelpdeskResponse]]
-      } catch {
-        case e: JsonParseException =>
-          throw new BadHelpdeskResponse(e.getMessage, r.body)
+  def askQuery(query: String)(implicit executionContext: ExecutionContext): Future[Seq[(String,Double)]] = {
+    // NB: Order is significant here, we want highest score first
+    WS.url(helpdeskUrl).withQueryString(HelpdeskDAO.QUERY -> query).get().map { r =>
+      r.json.as[Map[String,Double]].toSeq.sortWith { case (a, b) =>
+        a._2 > b._2
       }
+    }
+  }
+
+  def available(implicit executionContext: ExecutionContext): Future[Seq[(String,String)]] = {
+    WS.url(helpdeskUrl).get().map { r =>
+      r.json.as[Map[String,String]].toSeq
     }
   }
 }

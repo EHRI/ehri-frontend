@@ -2,7 +2,6 @@ package helpers
 
 import auth.oauth2.{MockOAuth2Flow, OAuth2Flow}
 import auth.{AccountManager, MockAccountManager}
-import backend.HelpdeskDAO.HelpdeskResponse
 import backend._
 import backend.helpdesk.{MockFeedbackDAO, MockHelpdeskDAO}
 import backend.rest.{CypherIdGenerator, RestBackend}
@@ -38,7 +37,7 @@ trait TestConfiguration {
   // a very unclean way but are useful for determining the last-used
   // whatsit etc...
   val feedbackBuffer = collection.mutable.HashMap.empty[Int,Feedback]
-  val helpdeskBuffer = collection.mutable.HashMap.empty[Int, Seq[HelpdeskResponse]]
+  val helpdeskBuffer = collection.mutable.HashMap.empty[Int, Seq[(String, Double)]]
   val mailBuffer = collection.mutable.ListBuffer.empty[MockMail]
   val searchParamBuffer = collection.mutable.ListBuffer.empty[ParamLog]
   val indexEventBuffer = collection.mutable.ListBuffer.empty[String]
