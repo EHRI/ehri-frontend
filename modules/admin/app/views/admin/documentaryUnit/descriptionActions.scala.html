@@ -1,7 +1,7 @@
-@(item: WithDescriptions[Description], desc: DocumentaryUnitDescriptionF)(implicit fieldPrefix: String, userOpt: Option[UserProfile], req: RequestHeader, globalConfig: global.GlobalConfig, lang: Lang)
+@(item: models.base.WithDescriptions[models.base.Description], desc: DocumentaryUnitDescriptionF)(implicit fieldPrefix: String, userOpt: Option[UserProfile], req: RequestHeader, globalConfig: global.GlobalConfig, lang: Lang)
 
 @userOpt.map { user =>
-    @if(user.hasPermission(ContentTypes.DocumentaryUnit, PermissionType.Update)) {
+    @if(user.hasPermission(defines.ContentTypes.DocumentaryUnit, defines.PermissionType.Update)) {
         @desc.id.map { did =>
             <div class="btn-group pull-right">
                 <a class="btn btn-default dropdown-toggle" data-toggle="dropdown" href="#">

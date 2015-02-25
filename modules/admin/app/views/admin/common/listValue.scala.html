@@ -4,7 +4,7 @@
     @if(list.nonEmpty) {
     	<div class="item-text-field" id="@fieldName">
             <h4 class="item-text-field-header">@Messages(if (fieldPrefix.isEmpty) fieldName else "%s.%s".format(fieldPrefix, fieldName))</h4>
-            <div class="item-text-field-value">
+            <div class="item-text-field-value" dir="auto">
 		        <ul class="list-unstyled">
 	            @list.map { item =>
 	                <li>@Html(views.Helpers.renderMarkdown(transformFunc(item)))</li>
