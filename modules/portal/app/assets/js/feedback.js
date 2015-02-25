@@ -42,7 +42,7 @@ jQuery(function($) {
     showErrors: function(em, el) {}
   });
 
-  
+
   $form.on("keyup", function(event) {
     $submit.prop("disabled", !$form.valid());
   });
@@ -68,7 +68,7 @@ jQuery(function($) {
         $thanks.slideDown(500, function() {
           setTimeout(function() {
             $text.val("");
-      
+
             $thanks.slideUp(500, function() {
               $(".slide-out-div > .handle").trigger("click").queue(function(next) {
                 $formContainer.find("form").show();
@@ -81,7 +81,7 @@ jQuery(function($) {
       });
 
       /* --> UI for Thanks */
-    
+
     });
   });
 });

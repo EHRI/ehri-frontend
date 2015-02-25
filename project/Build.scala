@@ -122,7 +122,8 @@ object ApplicationBuild extends Build {
       "-encoding", "UTF-8",
       "-Xlint",
       "-unchecked",
-      "-deprecation"
+      "-deprecation",
+      "-target:jvm-1.6"
     ),
 
     // Allow SBT to tell Scaladoc where to find external
@@ -197,6 +198,12 @@ object ApplicationBuild extends Build {
     pipelineStages := Seq(rjs, concat, digest, gzip),
     pipelineStages in Assets := Seq(concat, digest, gzip),
     Concat.groups := Seq(
+     "css/portal-all.css" -> group(
+        Seq(
+          "css/font-awesome.css",
+          "css/portal.css"
+        )
+       ),
       "js/script-pre.js" -> group(
         Seq(
           "js/lib/jquery-1.8.3.js",
@@ -215,6 +222,7 @@ object ApplicationBuild extends Build {
       "js/script-post.js" -> group(
         Seq(
           "js/lib/jquery.cookie.js",
+          "js/lib/jquery.placeholder.js",
           "bootstrap/js/bootstrap.js",
           "js/portal.js"
         )
@@ -222,6 +230,7 @@ object ApplicationBuild extends Build {
       "js/script-post-signedin.js" -> group(
         Seq(
           "js/lib/jquery.cookie.js",
+          "js/lib/jquery.placeholder.js",
           "bootstrap/js/bootstrap.js",
           "js/portal.js",
           "js/portal-signedin.js"

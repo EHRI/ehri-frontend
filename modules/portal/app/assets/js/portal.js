@@ -42,6 +42,9 @@ jQuery(function ($) {
 
   "use strict";
 
+  // Use jquery.placeholder to handle browsers that
+  // don't support this natively
+  $('input, textarea').placeholder();
 
 // Facet label tooltips
   $(".facet-label").tooltip({
