@@ -17,33 +17,33 @@
             </div>
         </div>
 
-        <div class="panel panel-default">
-            @if(results.nonEmpty) {
-            <table class="table table-striped">
-                <tr>
-                    <th>@Messages("helpdesk.institution")</th>
-                    <th>@Messages("helpdesk.score")</th>
-                    <th>@Messages("helpdesk.contactEmail")</th>
-                </tr>
-                @results.zip(institutions).map { case ((id, score), repo) =>
+        @if(results.nonEmpty) {
+            <p class="text-info">@Messages("helpdesk.recommendations")</p>
+
+            <div class="panel panel-default">
+                <table class="table table-striped">
+                    <tr>
+                        <th>@Messages("helpdesk.institution")</th>
+                        <th>@Messages("helpdesk.score")</th>
+                        <th>@Messages("helpdesk.contactEmail")</th>
+                    </tr>
+                    @results.zip(institutions).map { case ((id, score), repo) =>
                     <tr>
                         <td>
-                            <span  style="font-size: @{Math.min(Math.round(100 + (1000 * score)), 150)}%;">
-                                @views.html.p.helpers.linkTo(repo)
+                            <span style="font-size: @{Math.min(Math.round(100 + (1000 * score)), 150)}%;">
+                            @views.html.p.helpers.linkTo(repo)
                             </span>
                         </td>
                         <td>@{f"$score%2.3f"}</td>
                         <td>
-                            @Html(repo.emails.map(e => s"<a href='mailto:$e?subject=EHRI Helpdesk Query&amp;body=${helper.urlEncode(query).replace("+", "%20")}&amp;reply-to=$replyTo'>$e</a>").mkString(", "))
+                        @Html(repo.emails.map(e => s"<a href='mailto:$e?subject=EHRI Helpdesk Query&amp;body=${helper.urlEncode(query).replace("+", "%20")}&amp;reply-to=$replyTo'>$e</a>").mkString(", "))
                         </td>
                     </tr>
-                }
-            </table>
-            } else {
-            <p class="alert alert-warning">
-                @Messages("helpdesk.results.empty")
-            </p>
-            }
-        </div>
+                    }
+                </table>
+            </div>
+        } else {
+            <p class="alert alert-warning">@Messages("helpdesk.results.empty")</p>
+        }
     }
 }
