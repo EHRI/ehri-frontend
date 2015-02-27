@@ -44,7 +44,7 @@ case class VirtualUnits @Inject()(implicit globalConfig: global.GlobalConfig, se
       case v: VirtualUnit =>
         val pq = v.includedUnits.map(_.id)
         if (pq.isEmpty) Map(s"$PARENT_ID:${v.id}" -> Unit)
-        else Map(s"$PARENT_ID:${v.id}" -> Unit)
+        else Map(s"$PARENT_ID:${v.id} OR $ITEM_ID:(${pq.mkString(" ")})" -> Unit)
       case d => Map(s"$PARENT_ID:${d.id}" -> Unit)
     }
   }
