@@ -279,8 +279,6 @@ case class SolrQueryBuilder(
 
     // Mmmn, speckcheck
     req.set("spellcheck", "true")
-    req.set("spellcheck.q", queryString)
-
     spellcheckParams.collect { case (key, Some(value)) =>
       req.set(s"spellcheck.$key", value)
     }
