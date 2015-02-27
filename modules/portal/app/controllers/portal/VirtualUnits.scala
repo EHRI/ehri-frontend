@@ -30,10 +30,6 @@ case class VirtualUnits @Inject()(implicit globalConfig: global.GlobalConfig, se
 
   private val vuRoutes = controllers.portal.routes.VirtualUnits
 
-  // This is a publically-accessible site, but not just yet.
-  override val staffOnly = current.configuration.getBoolean("ehri.portal.secured").getOrElse(true)
-  override val verifiedOnly = current.configuration.getBoolean("ehri.portal.secured").getOrElse(true)
-
   private def buildFilter(item: AnyModel): Map[String,Any] = {
     // Nastiness. We want a Solr query that will allow searching
     // both the child virtual collections of a VU as well as the
@@ -48,7 +44,7 @@ case class VirtualUnits @Inject()(implicit globalConfig: global.GlobalConfig, se
       case v: VirtualUnit =>
         val pq = v.includedUnits.map(_.id)
         if (pq.isEmpty) Map(s"$PARENT_ID:${v.id}" -> Unit)
-        else Map(s"$PARENT_ID:${v.id} OR $ITEM_ID:(${pq.mkString(" ")})" -> Unit)
+        else Map(s"$PARENT_ID:${v.id}" -> Unit)
       case d => Map(s"$PARENT_ID:${d.id}" -> Unit)
     }
   }
@@ -110,7 +106,8 @@ case class VirtualUnits @Inject()(implicit globalConfig: global.GlobalConfig, se
     import SearchConstants._
     if (!hasActiveQuery(request)) immediate(buildFilter(item))
     else childIds(item.id).map { seq =>
-      Map(s"$ITEM_ID:(${seq.mkString(" ")}) OR $ANCESTOR_IDS:(${seq.mkString(" ")})" -> Unit)
+      if (seq.isEmpty) Map.empty
+      else Map(s"$ITEM_ID:(${seq.mkString(" ")}) OR $ANCESTOR_IDS:(${seq.mkString(" ")})" -> Unit)
     }
   }
 

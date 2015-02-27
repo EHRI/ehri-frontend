@@ -384,9 +384,11 @@ case class Guides @Inject()(implicit globalConfig: global.GlobalConfig, searchEn
   def filtersOrIds(item: String)(implicit request: RequestHeader): Future[Map[String,Any]] = {
     import SearchConstants._
     if (!hasActiveQuery(request)) topLevelIds(item).map { seq =>
-      Map(s"$ITEM_ID:(${seq.mkString(" ")})" -> Unit)
+      if (seq.isEmpty) Map.empty
+      else Map(s"$ITEM_ID:(${seq.mkString(" ")})" -> Unit)
     } else childIds(item).map { seq =>
-      Map(s"$ITEM_ID:(${seq.mkString(" ")}) OR $ANCESTOR_IDS:(${seq.mkString(" ")})" -> Unit)
+      if (seq.isEmpty) Map.empty
+      else Map(s"$ITEM_ID:(${seq.mkString(" ")}) OR $ANCESTOR_IDS:(${seq.mkString(" ")})" -> Unit)
     }
   }
 
