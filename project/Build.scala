@@ -68,7 +68,7 @@ object ApplicationBuild extends Build {
     "mysql" % "mysql-connector-java" % "5.1.25",
 
     // Markdown rendering
-    "org.pegdown" % "pegdown" % "1.4.2",
+    "org.pegdown" % "pegdown" % "1.5.0",
 
     // Mailer...
     "com.typesafe.play.plugins" %% "play-plugins-mailer" % "2.3.0",

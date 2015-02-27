@@ -60,6 +60,10 @@ public class ToEadSerializer implements Visitor {
     public void visit(AbbreviationNode node) {
     }
 
+    public void visit(AnchorLinkNode node) {
+        printLink(linkRenderer.render(node));
+    }
+
     public void visit(AutoLinkNode node) {
         printLink(linkRenderer.render(node));
     }
@@ -284,7 +288,7 @@ public class ToEadSerializer implements Visitor {
         printer.println().print("<pre><code>");
         String text = node.getText();
         // print HTML breaks for all initial newlines
-        while(text.charAt(0) == '\n') {
+        while (text.charAt(0) == '\n') {
             printer.print("<br/>");
             text = text.substring(1);
         }
@@ -379,7 +383,7 @@ public class ToEadSerializer implements Visitor {
         StringBuilder sb = new StringBuilder();
         for (int i = 0; i < string.length(); i++) {
             char c = string.charAt(i);
-            switch(c) {
+            switch (c) {
                 case ' ':
                 case '\n':
                 case '\t':
