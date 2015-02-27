@@ -62,7 +62,7 @@ class APISpec extends IntegrationTestRunner {
 
       import scala.concurrent.Future
       val ops: Future[List[Try[Result]]] = Future.sequence {
-        1.to(100).toList.map { i =>
+        1.to(50).toList.map { i =>
           val link = new AccessPointLink("a1", description = Some(s"Test link $i"))
           val json = Json.toJson(link)
           route(fakeLoggedInHtmlRequest(privilegedUser,

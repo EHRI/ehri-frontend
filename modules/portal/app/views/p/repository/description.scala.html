@@ -5,13 +5,13 @@
 @import views.html.p.common.textField
 @import views.html.p.common.listField
 
-@p.common.descriptionOutline(item, desc, annotations) {
+@views.html.p.common.descriptionOutline(item, desc, annotations) {
     @defining(Annotation.fieldAnnotations(desc.id, annotations)) { implicit fieldAnnotations =>
         @desc.id.map { descId =>
 
-            @p.common.itemHeader(desc.name) {
-                @p.common.otherNameList(desc.otherFormsOfName)
-                @p.common.otherNameList(desc.parallelFormsOfName)
+            @views.html.p.common.itemHeader(desc.name) {
+                @views.html.p.common.otherNameList(desc.otherFormsOfName)
+                @views.html.p.common.otherNameList(desc.parallelFormsOfName)
             }
 
             @descriptionSection(DESCRIPTION_AREA) {
@@ -50,7 +50,7 @@
             }
 
             @descriptionSection(ACCESS_POINTS) {
-                @p.common.accessPointLinks(item, desc, links)
+                @views.html.p.common.accessPointLinks(item, desc, links)
             }
         }
     }

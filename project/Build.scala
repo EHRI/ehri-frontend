@@ -26,7 +26,7 @@ object ApplicationBuild extends Build {
     cache,
 
     // Ontology
-    "ehri-project" % "ehri-definitions" % "0.1-SNAPSHOT",
+    "ehri-project" % "ehri-definitions" % "0.9-SNAPSHOT",
 
     // The ever-vital Joda time
     "joda-time" % "joda-time" % "2.1"
@@ -43,8 +43,8 @@ object ApplicationBuild extends Build {
     // We need the backend code to test against, but exclude any
     // groovy stuff because a) it's not needed, and b) it has a
     // ton of awkward transitive dependencies
-    "ehri-project" % "ehri-frames" % "0.1-SNAPSHOT" % "test" classifier "tests" classifier "" exclude("com.tinkerpop.gremlin", "gremlin-groovy"),
-    "ehri-project" % "ehri-extension" % "0.1-SNAPSHOT" % "test" classifier "tests" classifier "" exclude("com.tinkerpop.gremlin", "gremlin-groovy")
+    "ehri-project" % "ehri-frames" % "0.9-SNAPSHOT" % "test" classifier "tests" classifier "" exclude("com.tinkerpop.gremlin", "gremlin-groovy"),
+    "ehri-project" % "ehri-extension" % "0.9-SNAPSHOT" % "test" classifier "tests" classifier "" exclude("com.tinkerpop.gremlin", "gremlin-groovy")
   )
 
   val coreDependencies = backendDependencies ++ Seq(
@@ -122,7 +122,8 @@ object ApplicationBuild extends Build {
       "-encoding", "UTF-8",
       "-Xlint",
       "-unchecked",
-      "-deprecation"
+      "-deprecation",
+      "-target:jvm-1.6"
     ),
 
     // Allow SBT to tell Scaladoc where to find external
@@ -197,6 +198,12 @@ object ApplicationBuild extends Build {
     pipelineStages := Seq(rjs, concat, digest, gzip),
     pipelineStages in Assets := Seq(concat, digest, gzip),
     Concat.groups := Seq(
+     "css/portal-all.css" -> group(
+        Seq(
+          "css/font-awesome.css",
+          "css/portal.css"
+        )
+       ),
       "js/script-pre.js" -> group(
         Seq(
           "js/lib/jquery-1.8.3.js",
@@ -215,6 +222,7 @@ object ApplicationBuild extends Build {
       "js/script-post.js" -> group(
         Seq(
           "js/lib/jquery.cookie.js",
+          "js/lib/jquery.placeholder.js",
           "bootstrap/js/bootstrap.js",
           "js/portal.js"
         )
@@ -222,6 +230,7 @@ object ApplicationBuild extends Build {
       "js/script-post-signedin.js" -> group(
         Seq(
           "js/lib/jquery.cookie.js",
+          "js/lib/jquery.placeholder.js",
           "bootstrap/js/bootstrap.js",
           "js/portal.js",
           "js/portal-signedin.js"

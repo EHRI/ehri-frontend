@@ -4,7 +4,7 @@
     @import utils.forms.HoneyPotForm.BLANK_CHECK
     @import utils.forms.TimeCheckForm.TIMESTAMP
 
-@helper.form(action = controllers.portal.routes.Feedback.feedbackPost, 'role -> "form", 'id -> "suggestion-form") {
+@helper.form(action = controllers.portal.routes.Feedback.feedbackPost(), 'role -> "form", 'id -> "suggestion-form") {
     <fieldset>
         <div class="modal-body">
             @formHelpers.csrfToken()
@@ -19,13 +19,13 @@
 
             <textarea rows="4" class="form-control" name="text" placeholder="@Messages("feedback.message") " required=""></textarea>
 
-            <div class="blank-check">
-                <input type="hidden" name="@TIMESTAMP" value="@org.joda.time.DateTime.now().toString" />
-                <input type="text" name="@BLANK_CHECK" title="[Leave this blank]" autocomplete="off" value="" />
+            <div class="blank-check" style="display: none">
+                <input tabindex="-1" type="hidden" name="@TIMESTAMP" value="@org.joda.time.DateTime.now().toString" />
+                <input tabindex="-1" type="text" name="@BLANK_CHECK" title="[Leave this blank]" autocomplete="off" value="" />
             </div>
         </div>
         <div class="form-actions modal-footer">
-            <a tabindex="-1" class="btn btn-danger" href="@controllers.portal.routes.Portal.index" id="cancel">@Messages("cancel")</a>
+            <a tabindex="-1" class="btn btn-danger" href="@controllers.portal.routes.Portal.index()" id="cancel">@Messages("cancel")</a>
             <button type="submit" class="submit btn btn-default">@Messages("feedback.submit")</button>
         </div>
     </fieldset>

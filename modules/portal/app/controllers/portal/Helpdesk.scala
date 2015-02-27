@@ -1,10 +1,13 @@
 package controllers.portal
 
 import auth.AccountManager
+import controllers.portal.users.UserProfiles
+import play.api.libs.concurrent.Execution.Implicits._
 import play.api.mvc.RequestHeader
+import scala.concurrent.Future
 import scala.concurrent.Future.{successful => immediate}
 import backend.{BadHelpdeskResponse, HelpdeskDAO, Backend}
-import models.Repository
+import models.{UserProfile, Repository}
 import com.google.inject._
 import backend.rest.SearchDAO
 import com.typesafe.plugin.MailerAPI
@@ -29,11 +32,16 @@ case class Helpdesk @Inject()(implicit helpdeskDAO: HelpdeskDAO, globalConfig: g
     )
   )
 
-  def helpdesk = OptionalUserAction { implicit request =>
-    val prefilledData: (String,String, Boolean)
-        = (request.userOpt.flatMap(_.account).map(_.email).getOrElse(""), "", false)
-    val form = helpdeskForm.fill(prefilledData).discardingErrors
-    Ok(views.html.p.helpdesk.helpdesk(form))
+  def prefilledForm(implicit userOpt: Option[UserProfile]): Form[(String,String,Boolean)] =
+    helpdeskForm.fill(
+      (userOpt.flatMap(_.account).map(_.email).getOrElse(""), "", false)).discardingErrors
+
+  def helpdesk = OptionalUserAction.async { implicit request =>
+    helpdeskDAO.available.flatMap { repos =>
+      SearchDAO.list[Repository](repos.map(_._1)).map { institutions =>
+        Ok(views.html.p.helpdesk.helpdesk(prefilledForm, institutions))
+      }
+    }
   }
 
   private def sendMessageEmail(email: String, query: String)(implicit request: RequestHeader): Unit = {
@@ -45,9 +53,12 @@ case class Helpdesk @Inject()(implicit helpdeskDAO: HelpdeskDAO, globalConfig: g
   }
 
   def helpdeskPost = OptionalUserAction.async { implicit request =>
-    import play.api.libs.concurrent.Execution.Implicits._
     helpdeskForm.bindFromRequest.fold(
-      errorForm => immediate(BadRequest(views.html.p.helpdesk.helpdesk(errorForm))),
+      errorForm =>helpdeskDAO.available.flatMap { repos =>
+        SearchDAO.list[Repository](repos.map(_._1)).map { institutions =>
+          BadRequest(views.html.p.helpdesk.helpdesk(errorForm, institutions))
+        }
+      },
       data => {
         val (email, query, copyMe) = data
         if (copyMe) {
@@ -55,8 +66,8 @@ case class Helpdesk @Inject()(implicit helpdeskDAO: HelpdeskDAO, globalConfig: g
         }
 
         helpdeskDAO.askQuery(query).flatMap { responses =>
-          SearchDAO.list[Repository](responses.map(_.institutionId)).map { institutions =>
-            Ok(views.html.p.helpdesk.results(email, query, responses, institutions))
+          SearchDAO.list[Repository](responses.map(_._1)).map { institutions =>
+            Ok(views.html.p.helpdesk.results(prefilledForm.fill(data), email, query, responses, institutions))
           }
         } recover {
           case e: BadHelpdeskResponse =>
