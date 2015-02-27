@@ -46,6 +46,7 @@ case class Guides @Inject()(implicit globalConfig: global.GlobalConfig, searchEn
       Ok(
         Routes.javascriptRouter("jsRoutes")(
           controllers.portal.guides.routes.javascript.DocumentaryUnits.browse,
+          controllers.portal.routes.javascript.DocumentaryUnits.browse,
           controllers.portal.guides.routes.javascript.Guides.linkedData,
           controllers.portal.guides.routes.javascript.Guides.linkedDataInContext
         )
@@ -381,12 +382,9 @@ case class Guides @Inject()(implicit globalConfig: global.GlobalConfig, searchEn
     }
   }
 
-  def filtersOrIds(item: String)(implicit request: RequestHeader): Future[Map[String,Any]] = {
+  def childItemIds(item: String)(implicit request: RequestHeader): Future[Map[String,Any]] = {
     import SearchConstants._
-    if (!hasActiveQuery(request)) topLevelIds(item).map { seq =>
-      if (seq.isEmpty) Map.empty
-      else Map(s"$ITEM_ID:(${seq.mkString(" ")})" -> Unit)
-    } else childIds(item).map { seq =>
+    childIds(item).map { seq =>
       if (seq.isEmpty) Map.empty
       else Map(s"$ITEM_ID:(${seq.mkString(" ")}) OR $ANCESTOR_IDS:(${seq.mkString(" ")})" -> Unit)
     }
@@ -486,14 +484,17 @@ case class Guides @Inject()(implicit globalConfig: global.GlobalConfig, searchEn
        *  If we have keyword, we make a query 
        */
       val defaultResult: Future[Result] = for {
-        filters <- filtersOrIds(guide.virtualUnit)
-        result <- findType[DocumentaryUnit](filters = filters)
+        filters <- childItemIds(guide.virtualUnit)
+        result <- findType[DocumentaryUnit](
+          filters = filters,
+          defaultOrder = SearchOrder.Name
+        )
       } yield Ok(p.guides.facet(
         guide,
         GuidePage.faceted,
         guide.findPages(),
         result,
-        Map().empty,
+        Map.empty,
         controllers.portal.guides.routes.Guides.guideFacets(path)
       ))
 
@@ -501,7 +502,10 @@ case class Guides @Inject()(implicit globalConfig: global.GlobalConfig, searchEn
         errs => defaultResult, {
         case (selectedFacets, page, limit) if selectedFacets.filterNot(_.isEmpty).nonEmpty => for {
           ids <- searchFacets(guide, selectedFacets.filterNot(_.isEmpty))
-          result <- findType[DocumentaryUnit](filters = Map(s"gid:(${ids.mkString(" ")})" -> Unit))
+          result <- findType[DocumentaryUnit](
+            filters = Map(s"gid:(${ids.mkString(" ")})" -> Unit),
+            defaultOrder = SearchOrder.Name
+          )
           selectedAccessPoints <- SearchDAO.list[AnyModel](selectedFacets.filterNot(_.isEmpty))
           availableFacets <- otherFacets(guide, ids)
           tempAccessPoints <- SearchDAO.listByGid[AnyModel](availableFacets)

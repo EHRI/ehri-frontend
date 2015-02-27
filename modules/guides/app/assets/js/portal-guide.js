@@ -21,7 +21,7 @@ $(document).ready(function() {
 			var links = []
 			if(d.length > 0) {
 				$.each(d, function(index, link) {
-					links.push('<li><a href="'+ jsRoutes.controllers.portal.DocumentaryUnits.browse(GUIDE_PATH, link.id).url +'">'+ link.name+'</a></li>')
+					links.push('<li><a href="'+ jsRoutes.controllers.portal.guides.DocumentaryUnits.browse(GUIDE_PATH, link.id).url +'">'+ link.name+'</a></li>')
 				})
 
 				var html = '<small><ul class="list-unstyled">' + links.join(" ") + '<li>';

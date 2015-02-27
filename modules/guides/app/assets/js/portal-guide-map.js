@@ -106,7 +106,7 @@ function bindMarker(marker, id, linkCount) {
           $.get(jsRoutes.controllers.portal.guides.Guides.linkedDataInContext(id, VIRTUAL_UNIT).url, function (data) {
             var links = [];
             $.each(data, function (index, link) {
-              links.push('<li><a href="' + jsRoutes.controllers.portal.DocumentaryUnits.browse(GUIDE_PATH, link.id).url + '">' + link.name + '</a></li>')
+              links.push('<li><a href="' + jsRoutes.controllers.portal.guides.DocumentaryUnits.browse(GUIDE_PATH, link.id).url + '">' + link.name + '</a></li>')
             });
             html = $(elem.popup._contentNode).html();
             if (links.length) {

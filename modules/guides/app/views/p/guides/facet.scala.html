@@ -1,5 +1,7 @@
 @(guide: Guide, page: GuidePage, pages: List[GuidePage], result: utils.search.SearchResult[(DocumentaryUnit,utils.search.SearchHit)], available: Map[String, Seq[models.base.AnyModel]], action: Call)(implicit userOpt: Option[UserProfile], request: RequestHeader, prefs: utils.SessionPrefs, globalConfig: global.GlobalConfig, lang: Lang, flash: Flash)
 
+@println("Available: " + available)
+
 @js = {
     <script type="text/javascript" src="@controllers.portal.routes.Assets.versioned("js/portal-guide.js")"></script>
     <script type="text/javascript" src="@controllers.portal.routes.Assets.versioned("js/portal-guide-facet.js")"></script>
@@ -99,24 +101,26 @@
 
 @sidebar = {
     <div id="facets">
-        <form method="GET" action="@controllers.portal.guides.routes.Guides.layoutRetrieval(guide.path, page.path)">
+        @helper.form(action = action) {
+            <div class="form-group">
+                <label for="id_q" class="sr-only">@Messages("search")</label>
+                <input type="text" id="id_q" name="q" value="@result.params.query" class="form-control" placeholder="@Messages("search")" />
+            </div>
             <ul class="nav nav-pills nav-ehri nav-ehri-black nav-justified">
-                <li><button type="submit" class="nav-ehri nav-ehri-black nav-ehri-input"><span class="glyphicon glyphicon-search"></span><span class="text-hide">Search</span></button></li>
+                <li><button type="submit" class="nav-ehri nav-ehri-black nav-ehri-input"><span class="glyphicon glyphicon-search"></span><span class="text-hide">
+                    Search</span></button></li>
             </ul>
             @facets
-        </form>
+        }
     </div>
 }
 
 
 @views.html.p.layout.guideLayout(guide, page, pages, scripts = js, optionalContent = Some(sidebar), otherTitle = Some(Messages("guides.faceted"))) {
     <article>
-        @helper.form(action = action) {
             <header>
                 <h1>@Messages("guides.faceted")</h1>
                 <h3>@Messages("pagination.displayingItems", result.page.start, result.page.end, result.page.total)</h3>
-                <input type="text" name="q" value="@result.params.query" class="form-control" />
-                @println("PARAMS: " + result.params)
             </header>
             <section>
                 <section class="content-results">
@@ -128,6 +132,5 @@
             <footer>
             @common.pagination(result.page)
             </footer>
-        }
     </article>
 }
