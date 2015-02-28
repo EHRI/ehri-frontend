@@ -45,7 +45,6 @@ case class SolrSearchEngine(
   def fullSearchUrl(query: Map[String,Seq[String]]) = utils.joinPath(solrSelectUrl, query)
 
   def dispatch(query: Map[String,Seq[String]]): Future[WSResponse] = {
-    Logger.logger.debug("SOLR: {}", fullSearchUrl(query))
     WS.url(solrSelectUrl)
       .withHeaders(HeaderNames.CONTENT_TYPE -> MimeTypes.FORM)
       .post(query)
@@ -97,6 +96,7 @@ case class SolrSearchEngine(
       .setMode(mode)
       .searchQuery()
 
+    Logger.logger.debug("SOLR: {}", fullSearchUrl(queryRequest))
     dispatch(queryRequest).map { response =>
       val parser = handler.getResponseParser(response.body)
       val facetClassList: Seq[FacetClass[Facet]] = parser.extractFacetData(facets, facetClasses)

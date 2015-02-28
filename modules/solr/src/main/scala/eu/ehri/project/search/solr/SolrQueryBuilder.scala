@@ -88,12 +88,12 @@ case class SolrQueryBuilder(
    */
   private lazy val queryFieldsWithBoost: Seq[(String,Option[Double])] = Seq(
     ITEM_ID, IDENTIFIER, NAME_EXACT, NAME_MATCH, OTHER_NAMES, PARALLEL_NAMES, ALT_NAMES, NAME_SORT, TEXT
-  ).map(f => f -> app.configuration.getDouble(s"ehri.search.boost.$f"))
+  ).map(f => f -> app.configuration.getDouble(s"search.boost.$f"))
 
   private lazy val spellcheckParams: Seq[(String,Option[String])] = Seq(
     "count", "onlyMorePopular", "extendedResults", "accuracy",
     "collate", "maxCollations", "maxCollationTries", "maxResultsForSuggest"
-  ).map(f => f -> app.configuration.getString(s"ehri.search.spellcheck.$f"))
+  ).map(f => f -> app.configuration.getString(s"search.spellcheck.$f"))
 
 
   /**
@@ -275,6 +275,15 @@ case class SolrQueryBuilder(
       }.mkString(" ")
       Logger.trace(s"Query fields: $qfFields")
       req.set("qf", qfFields)
+    }
+
+    // Set field aliases
+    app.configuration.getConfig("search.fieldAliases").map{ config =>
+      config.keys.map { alias =>
+        config.getString(alias).map { fieldName =>
+          req.set(s"f.$alias.qf", fieldName)
+        }
+      }
     }
 
     // Mmmn, speckcheck
