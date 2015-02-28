@@ -141,7 +141,12 @@ trait PortalController
     f.getOrElse(NotFound(renderError("errors.itemNotFound", itemNotFound())))
   }
 
-
+  /**
+   * Wrap some code generating an optional result, falling back to a 404.
+   */
+  def futureItemOr404(f: => Option[Future[Result]])(implicit request: RequestHeader): Future[Result] = {
+    f.getOrElse(immediate(NotFound(renderError("errors.itemNotFound", itemNotFound()))))
+  }
 
   /**
    * Given an optional item and a function to produce a

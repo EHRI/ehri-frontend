@@ -1,91 +1,91 @@
 # Routes for portal routes
 
-# Social stuff
+->          /                                     account.Routes
+->          /notes                                annotate.Routes
+->          /profile                              profile.Routes
+->          /people                               social.Routes
 
--> /            account.Routes
--> /notes       annotate.Routes
--> /profile     profile.Routes
--> /people      social.Routes
+GET         /                                     @controllers.portal.Portal.index
 
-GET         /                               @controllers.portal.Portal.index
+GET         /activity                             @controllers.portal.Portal.personalisedActivity
 
-GET         /activity                       @controllers.portal.Portal.personalisedActivity
+GET         /helpdesk                             @controllers.portal.Helpdesk.helpdesk
+POST        /helpdesk                             @controllers.portal.Helpdesk.helpdeskPost
 
-GET         /helpdesk                       @controllers.portal.Helpdesk.helpdesk
-POST        /helpdesk                       @controllers.portal.Helpdesk.helpdeskPost
+GET         /robots.txt                           controllers.portal.Assets.at(path="/public", file="robots.txt")
+GET         /sitemap.xml                          controllers.portal.Assets.at(path="/public", file="sitemap.xml")
 
-GET         /robots.txt                     controllers.portal.Assets.at(path="/public", file="robots.txt")
-GET         /sitemap.xml                    controllers.portal.Assets.at(path="/public", file="sitemap.xml")
+GET         /contact                              @controllers.portal.Portal.contact
+GET         /about                                @controllers.portal.Portal.about
+GET         /terms                                @controllers.portal.Portal.terms
 
-GET         /contact                        @controllers.portal.Portal.contact
-GET         /about                          @controllers.portal.Portal.about
-GET         /terms                          @controllers.portal.Portal.terms
+GET         /help/:page                           @controllers.portal.Portal.docPage(page: String)
 
 # Change locale
-GET         /prefs                          @controllers.portal.Portal.prefs
-POST        /prefs                          @controllers.portal.Portal.updatePrefs
-GET         /locale/:lang                   @controllers.portal.Portal.changeLocale(lang: String)
-GET         /localeData                     controllers.portal.PortalData.localeData(lang: String ?= "en")
+GET         /prefs                                @controllers.portal.Portal.prefs
+POST        /prefs                                @controllers.portal.Portal.updatePrefs
+GET         /locale/:lang                         @controllers.portal.Portal.changeLocale(lang: String)
+GET         /localeData                           controllers.portal.PortalData.localeData(lang: String ?= "en")
 
 # Remove trailing slash from all URL and redirect to slashless path
-GET         /*path/                         controllers.portal.PortalData.untrail(path)
+GET         /*path/                               controllers.portal.PortalData.untrail(path)
 
-GET         /feedback                       @controllers.portal.Feedback.feedback
-POST        /feedback                       @controllers.portal.Feedback.feedbackPost
-GET         /feedback/list                  @controllers.portal.Feedback.list
+GET         /feedback                             @controllers.portal.Feedback.feedback
+POST        /feedback                             @controllers.portal.Feedback.feedbackPost
+GET         /feedback/list                        @controllers.portal.Feedback.list
 
 # Data routes
-GET         /search                         @controllers.portal.Portal.search
-GET         /countries                      @controllers.portal.Countries.searchAll
-GET         /countries/institutions         @controllers.portal.Repositories.searchAllByCountry
-GET         /countries/:id                  @controllers.portal.Countries.browse(id: String)
-GET         /countries/:id/search           @controllers.portal.Countries.search(id: String)
-GET         /institutions                   @controllers.portal.Repositories.searchAll
-GET         /institutions/:id               @controllers.portal.Repositories.browse(id: String)
-GET         /institutions/:id/search        @controllers.portal.Repositories.search(id: String)
-GET         /units                          @controllers.portal.DocumentaryUnits.searchAll
-GET         /units/:id                      @controllers.portal.DocumentaryUnits.browse(id: String)
-GET         /units/:id/search               @controllers.portal.DocumentaryUnits.search(id: String)
-GET         /authorities                    @controllers.portal.HistoricalAgents.searchAll
-GET         /authorities/:id                @controllers.portal.HistoricalAgents.browse(id: String)
-GET         /keywords                       @controllers.portal.Concepts.searchAll
-GET         /keywords/:id                   @controllers.portal.Concepts.browse(id: String)
-GET         /links/:id                      @controllers.portal.Links.browse(id: String)
-GET         /groups/:id                     @controllers.portal.Groups.browse(id: String)
-GET         /vocabularies/:id               @controllers.portal.Vocabularies.browse(id: String)
-GET         /vocabularies/:id/search        @controllers.portal.Vocabularies.search(id: String)
+GET         /search                               @controllers.portal.Portal.search
+GET         /countries                            @controllers.portal.Countries.searchAll
+GET         /countries/institutions               @controllers.portal.Repositories.searchAllByCountry
+GET         /countries/:id                        @controllers.portal.Countries.browse(id: String)
+GET         /countries/:id/search                 @controllers.portal.Countries.search(id: String)
+GET         /institutions                         @controllers.portal.Repositories.searchAll
+GET         /institutions/:id                     @controllers.portal.Repositories.browse(id: String)
+GET         /institutions/:id/search              @controllers.portal.Repositories.search(id: String)
+GET         /units                                @controllers.portal.DocumentaryUnits.searchAll
+GET         /units/:id                            @controllers.portal.DocumentaryUnits.browse(id: String)
+GET         /units/:id/search                     @controllers.portal.DocumentaryUnits.search(id: String)
+GET         /authorities                          @controllers.portal.HistoricalAgents.searchAll
+GET         /authorities/:id                      @controllers.portal.HistoricalAgents.browse(id: String)
+GET         /keywords                             @controllers.portal.Concepts.searchAll
+GET         /keywords/:id                         @controllers.portal.Concepts.browse(id: String)
+GET         /links/:id                            @controllers.portal.Links.browse(id: String)
+GET         /groups/:id                           @controllers.portal.Groups.browse(id: String)
+GET         /vocabularies/:id                     @controllers.portal.Vocabularies.browse(id: String)
+GET         /vocabularies/:id/search              @controllers.portal.Vocabularies.search(id: String)
 
-GET         /activity/:id                   @controllers.portal.Portal.itemHistory(id: String, modal: Boolean ?= false)
-GET         /newsFeed                       @controllers.portal.Portal.newsFeed
-GET         /item/:entityType/:id           @controllers.portal.Portal.browseItem(entityType: EntityType.Value, id: String)
+GET         /activity/:id                         @controllers.portal.Portal.itemHistory(id: String, modal: Boolean ?= false)
+GET         /newsFeed                             @controllers.portal.Portal.newsFeed
+GET         /item/:entityType/:id                 @controllers.portal.Portal.browseItem(entityType: EntityType.Value, id: String)
 
 # Virtual Units
-GET         /virtual                        @controllers.portal.VirtualUnits.browseVirtualCollections
-GET         /virtual/:id                    @controllers.portal.VirtualUnits.browseVirtualCollection(id: String)
-GET         /virtual/:id/search             @controllers.portal.VirtualUnits.searchVirtualCollection(id: String)
-GET         /virtual/:via/:id/search        @controllers.portal.VirtualUnits.searchVirtualUnit(via: String, id: String)
-GET         /virtual/:via/:id               @controllers.portal.VirtualUnits.browseVirtualUnit(via: String, id: String)
+GET         /virtual                              @controllers.portal.VirtualUnits.browseVirtualCollections
+GET         /virtual/:id                          @controllers.portal.VirtualUnits.browseVirtualCollection(id: String)
+GET         /virtual/:id/search                   @controllers.portal.VirtualUnits.searchVirtualCollection(id: String)
+GET         /virtual/:via/:id/search              @controllers.portal.VirtualUnits.searchVirtualUnit(via: String, id: String)
+GET         /virtual/:via/:id                     @controllers.portal.VirtualUnits.browseVirtualUnit(via: String, id: String)
 
 # Bookmark Sets (user-friendly virtual units)
-GET         /bookmark/:id                   @controllers.portal.Bookmarks.bookmark(id: String, bsId: Option[String] ?= None)
-POST        /bookmark/:id                   @controllers.portal.Bookmarks.bookmarkPost(id: String, bsId: Option[String] ?= None)
-GET         /bookmark/:id/contents          @controllers.portal.Bookmarks.contents(id: String)
-GET         /bookmark/:id/contents/:page    @controllers.portal.Bookmarks.moreContents(id: String, page: Int)
-POST        /bookmarkInNewSet/:id           @controllers.portal.Bookmarks.bookmarkInNewSetPost(id: String)
-POST        /removeBookmarks/:set           @controllers.portal.Bookmarks.removeBookmarksPost(set: String, ids: List[String] ?= Nil)
-POST        /moveBookmarks/:fromSet/:toSet  @controllers.portal.Bookmarks.moveBookmarksPost(fromSet: String, toSet: String, ids: List[String] ?= Nil)
-GET         /bookmarks                      @controllers.portal.Bookmarks.listBookmarkSets
-GET         /bookmarks/createSet            @controllers.portal.Bookmarks.createBookmarkSet(item: List[String] ?= Nil)
-POST        /bookmarks/createSet            @controllers.portal.Bookmarks.createBookmarkSetPost(item: List[String] ?= Nil)
+GET         /bookmark/:id                         @controllers.portal.Bookmarks.bookmark(id: String, bsId: Option[String] ?= None)
+POST        /bookmark/:id                         @controllers.portal.Bookmarks.bookmarkPost(id: String, bsId: Option[String] ?= None)
+GET         /bookmark/:id/contents                @controllers.portal.Bookmarks.contents(id: String)
+GET         /bookmark/:id/contents/:page          @controllers.portal.Bookmarks.moreContents(id: String, page: Int)
+POST        /bookmarkInNewSet/:id                 @controllers.portal.Bookmarks.bookmarkInNewSetPost(id: String)
+POST        /removeBookmarks/:set                 @controllers.portal.Bookmarks.removeBookmarksPost(set: String, ids: List[String] ?= Nil)
+POST        /moveBookmarks/:fromSet/:toSet        @controllers.portal.Bookmarks.moveBookmarksPost(fromSet: String, toSet: String, ids: List[String] ?= Nil)
+GET         /bookmarks                            @controllers.portal.Bookmarks.listBookmarkSets
+GET         /bookmarks/createSet                  @controllers.portal.Bookmarks.createBookmarkSet(item: List[String] ?= Nil)
+POST        /bookmarks/createSet                  @controllers.portal.Bookmarks.createBookmarkSetPost(item: List[String] ?= Nil)
 
-GET         /data-policy                    @controllers.portal.Portal.dataPolicy
+GET         /data-policy                          @controllers.portal.Portal.dataPolicy
 
-GET         /filter                         @controllers.portal.Portal.filterItems
+GET         /filter                               @controllers.portal.Portal.filterItems
 
 # Various JS data helpers
-GET         /routes                         controllers.portal.PortalData.jsRoutes
-GET         /globalData                     controllers.portal.PortalData.globalData
+GET         /routes                               controllers.portal.PortalData.jsRoutes
+GET         /globalData                           controllers.portal.PortalData.globalData
 
 # Map static resources from the /public folder to the /assets URL path
-GET         /assets/*file                   controllers.portal.Assets.at(path="/public", file)
-GET         /v/*file                        controllers.portal.Assets.versioned(path="/public", file: Asset)
+GET         /assets/*file                         controllers.portal.Assets.at(path="/public", file)
+GET         /v/*file                              controllers.portal.Assets.versioned(path="/public", file: Asset)

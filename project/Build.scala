@@ -83,6 +83,8 @@ object ApplicationBuild extends Build {
   val portalDependencies = Seq(
     "net.coobird" % "thumbnailator" % "[0.4, 0.5)",
     "net.sf.opencsv" % "opencsv" % "2.3",
+    "org.jsoup" % "jsoup" % "1.8.1",
+    "net.sourceforge.cssparser" % "cssparser" % "0.9.14",
 
     // S3 Upload plugin
     "com.github.seratch" %% "awscala" % "0.3.+"
@@ -208,7 +210,7 @@ object ApplicationBuild extends Build {
         Seq(
           "js/lib/jquery-1.8.3.js",
           "js/lib/jquery.autosize.js",
-          "js/lib/jquery.history.js",
+          //"js/lib/jquery.history.js",
           "js/lib/jquery.validate.js",
           "js/lib/typeahead.js",
           "js/lib/handlebar.js",

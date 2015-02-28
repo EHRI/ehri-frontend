@@ -779,6 +779,11 @@ copyright.statement=The use, re-use and/or reproduction of the information publi
   the user must contact the holder of the dataset rights.
 
 #
+# Externally-hosted documents
+#
+pages.external.faq.title=Frequently Asked Questions
+pages.external.faq.description=Frequently asked questions about the EHRI portal site.
+
 # Markdown Cheatsheet
 #
 markdown.cheatsheet.title=Formating tips
