@@ -1,9 +1,8 @@
 package controllers.portal
 
-import java.io.{StringReader, BufferedReader}
-
 import auth.AccountManager
-import org.w3c.dom.css.{CSSRule, CSSRuleList}
+import backend.rest.ItemNotFound
+import play.api.Logger
 import play.api.Play.current
 import controllers.generic.Search
 import models._
@@ -17,7 +16,7 @@ import play.api.cache.{Cache, Cached}
 import defines.EntityType
 import play.api.libs.ws.WS
 import play.twirl.api.Html
-import backend.Backend
+import backend.{HtmlPages, Backend}
 import utils._
 
 import com.google.inject._
@@ -31,7 +30,7 @@ import scala.concurrent.Future
 
 @Singleton
 case class Portal @Inject()(implicit globalConfig: global.GlobalConfig, searchEngine: SearchEngine, searchResolver: SearchItemResolver, backend: Backend,
-    accounts: AccountManager, pageRelocator: utils.MovedPageLookup)
+    accounts: AccountManager, pageRelocator: utils.MovedPageLookup, htmlPages: HtmlPages)
   extends PortalController
   with Search
   with FacetConfig {
@@ -183,56 +182,13 @@ case class Portal @Inject()(implicit globalConfig: global.GlobalConfig, searchEn
     }
   }
 
-  def docPage(key: String) = OptionalUserAction.async { implicit request =>
-
-    def scopedCss(scope: String, css: String): String = {
-      import org.w3c.dom.css.CSSStyleSheet
-      import com.steadystate.css.parser.CSSOMParser
-      import org.w3c.css.sac.InputSource
-
-      val cssParser = new CSSOMParser()
-      val stylesheet: CSSStyleSheet = cssParser
-        .parseStyleSheet(new InputSource(new StringReader(css)), null, null)
-      val buf = new StringBuilder
-      val rules: CSSRuleList = stylesheet.getCssRules
-      for {i <- 0 until rules.getLength} {
-        buf.append(scope)
-        buf.append(" ")
-        buf.append(rules.item(i).getCssText)
-      }
-      buf.append("h1 h2 h3 h4 h5 h6 {font-family: serif;}")
-      buf.toString()
-    }
-
-    def googleDocBody(url: String): Future[Html] = {
-      WS.url(url).withQueryString(
-        "e" -> "download",
-        "exportFormat" -> "html",
-        "format" -> "html"
-      ).get().map { r =>
-        import org.jsoup.Jsoup
-
-        val doc = Jsoup.parse(r.body)
-        val styleTags = doc.getElementsByTag("style")
-        val cssScope = "g-doc"
-        val newCssData = scopedCss(s".$cssScope", styleTags.html())
-        val newCss = styleTags.html(newCssData)
-        val body = doc
-          .body()
-          .addClass(cssScope)
-          .prepend(newCss.outerHtml())
-          .tagName("div")
-        Html(body.outerHtml())
-      }
-    }
-
+  def externalPage(key: String) = OptionalUserAction.async { implicit request =>
     futureItemOr404 {
-      current.configuration.getString(s"pages.external.google.$key").map { url =>
-        val pageId: String = s"googledoc:$url"
-        FutureCache.getOrElse(pageId, 60 * 10)(googleDocBody(url)).map { data =>
+      htmlPages.get(key, noCache = request.getQueryString("noCache").isDefined).map { futureData =>
+        futureData.map { case (css, html) =>
           val title = Messages(s"pages.external.$key.title")
           val meta = Map("description" -> Messages(s"pages.external.$key.description"))
-          Ok(views.html.p.layout.portalLayout(title, meta = meta)(data))
+          Ok(views.html.p.layout.portalLayout(title, meta = meta, styles = css)(html))
         }
       }
     }

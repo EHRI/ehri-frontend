@@ -6,6 +6,7 @@ import auth.AccountManager
 import auth.oauth2.{WebOAuth2Flow, OAuth2Flow}
 import auth.sql.SqlAccountManager
 import backend.aws.S3FileStorage
+import backend.googledocs.GoogleDocsHtmlPages
 import backend.helpdesk.EhriHelpdesk
 import backend.parse.ParseFeedbackDAO
 import backend.rest._
@@ -44,6 +45,7 @@ object Global extends WithFilters(CSRFFilter()) with GlobalSettings {
   private def oAuth2Flow: OAuth2Flow = new WebOAuth2Flow()
   private def relocator: MovedPageLookup = new DbMovedPageLookup()
   private def fileStorage: FileStorage = new S3FileStorage()
+  private def htmlPages: HtmlPages = new GoogleDocsHtmlPages()
 
   private val eventHandler = new EventHandler {
 
@@ -90,6 +92,7 @@ object Global extends WithFilters(CSRFFilter()) with GlobalSettings {
       bind(classOf[OAuth2Flow]).toInstance(oAuth2Flow)
       bind(classOf[MovedPageLookup]).toInstance(relocator)
       bind(classOf[FileStorage]).toInstance(fileStorage)
+      bind(classOf[HtmlPages]).toInstance(htmlPages)
     }
   })
 

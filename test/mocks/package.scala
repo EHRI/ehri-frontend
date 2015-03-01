@@ -1,4 +1,5 @@
 import models.{OpenIDAssociation, OAuth2Association, Account}
+import play.twirl.api.Html
 
 package object mocks {
 
@@ -11,6 +12,10 @@ package object mocks {
   val googleOAuthAssoc = OAuth2Association("mike", "123456789", "google", Some(privilegedUser))
   val facebookOAuthAssoc = OAuth2Association("reto", "123456789", "facebook", Some(unprivilegedUser))
   val yahooOpenId = OpenIDAssociation("linda", "https://yahoo.com/openid", Some(moderator))
+
+  val externalPages = Map(
+    "faq" -> Html("<h1>FAQ</h1>")
+  )
 
   // Users...
   val users = Map(

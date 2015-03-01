@@ -783,6 +783,7 @@ copyright.statement=The use, re-use and/or reproduction of the information publi
 #
 pages.external.faq.title=Frequently Asked Questions
 pages.external.faq.description=Frequently asked questions about the EHRI portal site.
+pages.external.notFound=We apologise but there was a problem fetching the data for that page.
 
 # Markdown Cheatsheet
 #

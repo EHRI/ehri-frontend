@@ -1,15 +1,15 @@
 package integration.portal
 
 import controllers.base.SessionPreferences
-import helpers.IntegrationTestRunner
 import controllers.portal.ReversePortal
+import helpers.IntegrationTestRunner
 import play.api.libs.json.Json
 import play.api.test.{FakeApplication, FakeRequest}
 import utils.SessionPrefs
 
 
 class PortalSpec extends IntegrationTestRunner {
-  import mocks.{privilegedUser, unprivilegedUser}
+  import mocks.privilegedUser
 
   private val portalRoutes: ReversePortal = controllers.portal.routes.Portal
 
@@ -82,6 +82,12 @@ class PortalSpec extends IntegrationTestRunner {
       val history = route(fakeLoggedInHtmlRequest(privilegedUser,
         portalRoutes.itemHistory("c1"))).get
       status(history) must equalTo(OK)
+    }
+
+    "fetch external pages" in new ITestApp {
+      val faq = route(FakeRequest(portalRoutes.externalPage("faq"))).get
+      status(faq) must equalTo(OK)
+      contentAsString(faq) must contain(mocks.externalPages.get("faq").get.toString)
     }
   }
 }

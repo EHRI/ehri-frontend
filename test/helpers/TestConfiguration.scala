@@ -60,6 +60,7 @@ trait TestConfiguration {
   private def mockOAuth2Flow: OAuth2Flow = MockOAuth2Flow()
   private def mockRelocator: MovedPageLookup = MockMovedPageLookup()
   private def mockFileStorage: FileStorage = MockFileStorage(storedFileBuffer)
+  private def mockHtmlPages: HtmlPages = MockHtmlPages()
 
   // More or less the same as run config but synchronous (so
   // we can validate the actions)
@@ -98,6 +99,7 @@ trait TestConfiguration {
         bind(classOf[OAuth2Flow]).toInstance(mockOAuth2Flow)
         bind(classOf[MovedPageLookup]).toInstance(mockRelocator)
         bind(classOf[FileStorage]).toInstance(mockFileStorage)
+        bind(classOf[HtmlPages]).toInstance(mockHtmlPages)
       }
     })
 
