@@ -312,7 +312,6 @@ case class UserProfiles @Inject()(implicit globalConfig: global.GlobalConfig, se
     def onError(err: String): Future[Result] = immediate(
         BadRequest(p.userProfile.editProfile(profileDataForm,
           imageForm.withGlobalError(err), accountPrefsForm)))
-
     request.body match {
       case Left(MaxSizeExceeded(length)) => onError("errors.imageTooLarge")
       case Right(multipartForm) => multipartForm.file("image").map { file =>
@@ -339,14 +338,15 @@ case class UserProfiles @Inject()(implicit globalConfig: global.GlobalConfig, se
     file.contentType.exists(_.toLowerCase.startsWith("image/"))
 
   private def convertAndUploadFile(file: FilePart[TemporaryFile], user: UserProfile, request: RequestHeader): Future[String] = {
-    val bucketName = current.configuration.getString("aws.userImages.bucketName")
-      .getOrElse(sys.error("Missing configuration value: aws.userImages.bucketName"))
-
+    val instance = getConfigString("storage.instance", request.host)
+    val classifier = getConfigString("storage.profiles.classifier")
     val extension = file.filename.substring(file.filename.lastIndexOf("."))
-    val storeName = s"images/${request.host}/${user.id}$extension"
+    val storeName = s"images/$instance/${user.id}$extension"
     val temp = File.createTempFile(user.id, extension)
     Thumbnails.of(file.ref.file).size(200, 200).toFile(temp)
 
-    fileStorage.putFile(request.host, bucketName, storeName, temp).map(_.toString)
+    val url: Future[String] = fileStorage.putFile(instance, classifier, storeName, temp).map(_.toString)
+    url.onComplete { _ => temp.delete() }
+    url
   }
 }

@@ -1,15 +1,17 @@
 package integration.portal
 
-import helpers.IntegrationTestRunner
-import models._
+import java.io.File
+
 import backend.AuthenticatedUser
-import play.api.mvc.MultipartFormData.FilePart
-import play.api.mvc.MultipartFormData
+import helpers.{FakeMultipartUpload, IntegrationTestRunner}
+import models._
+import org.apache.commons.io.FileUtils
 import play.api.http.MimeTypes
+import play.api.i18n.Messages
 import play.api.libs.json.JsObject
 
 
-class UserProfilesSpec extends IntegrationTestRunner {
+class UserProfilesSpec extends IntegrationTestRunner with FakeMultipartUpload {
   import mocks.privilegedUser
 
   private val profileRoutes = controllers.portal.users.routes.UserProfiles
@@ -94,16 +96,26 @@ class UserProfilesSpec extends IntegrationTestRunner {
 
     "not allow uploading non-image files as profile image" in new ITestApp {
       val tmpFile = java.io.File.createTempFile("notAnImage", ".txt")
-      val data = new MultipartFormData(Map(), List(
-        FilePart("image", "message", Some("Content-Type: multipart/form-data"),
-          play.api.libs.Files.TemporaryFile(tmpFile))
-      ), List(), List())
-
+      tmpFile.deleteOnExit()
       val result = route(fakeLoggedInHtmlRequest(privilegedUser,
-        profileRoutes.updateProfileImagePost()), data.asFormUrlEncoded).get
+        profileRoutes.updateProfileImagePost())
+          .withFileUpload("image", tmpFile, "image/png")).get
       status(result) must equalTo(BAD_REQUEST)
-      // TODO: Verifty types of BAD_REQUEST
-      //contentAsString(result) must contain(Messages("errors.badFileType"))
+      contentAsString(result) must contain(Messages("errors.badFileType"))
+    }
+
+    "allow uploading image files as profile image" in new ITestApp {
+      // Bit dodgy here, upload the project logo as our profile image
+      val tmpFile = java.io.File.createTempFile("anImage", ".png")
+      FileUtils.copyFile(new File("modules/portal/public/img/logo.png"), tmpFile)
+      val result = route(fakeLoggedInHtmlRequest(privilegedUser,
+        profileRoutes.updateProfileImagePost())
+        .withFileUpload("image", tmpFile, "image/png")).get
+      println(contentAsString(result))
+      status(result) must equalTo(SEE_OTHER)
+      storedFileBuffer.lastOption must beSome.which { f =>
+        f.toString must endingWith(s"${privilegedUser.id}.png")
+      }
     }
 
     "allow deleting profile with correct confirmation" in new ITestApp {

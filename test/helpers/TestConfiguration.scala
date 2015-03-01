@@ -3,6 +3,7 @@ package helpers
 import auth.oauth2.{MockOAuth2Flow, OAuth2Flow}
 import auth.{AccountManager, MockAccountManager}
 import backend._
+import backend.aws.MockFileStorage
 import backend.helpdesk.{MockFeedbackDAO, MockHelpdeskDAO}
 import backend.rest.{CypherIdGenerator, RestBackend}
 import com.google.inject.{AbstractModule, Guice}
@@ -39,6 +40,7 @@ trait TestConfiguration {
   val feedbackBuffer = collection.mutable.HashMap.empty[Int,Feedback]
   val helpdeskBuffer = collection.mutable.HashMap.empty[Int, Seq[(String, Double)]]
   val mailBuffer = collection.mutable.ListBuffer.empty[MockMail]
+  val storedFileBuffer = collection.mutable.ListBuffer.empty[java.net.URI]
   val searchParamBuffer = collection.mutable.ListBuffer.empty[ParamLog]
   val indexEventBuffer = collection.mutable.ListBuffer.empty[String]
 
@@ -57,7 +59,7 @@ trait TestConfiguration {
   def mockAccounts: AccountManager = MockAccountManager()
   private def mockOAuth2Flow: OAuth2Flow = MockOAuth2Flow()
   private def mockRelocator: MovedPageLookup = MockMovedPageLookup()
-  private def mockFileStorage: FileStorage = MockFileStorage()
+  private def mockFileStorage: FileStorage = MockFileStorage(storedFileBuffer)
 
   // More or less the same as run config but synchronous (so
   // we can validate the actions)
