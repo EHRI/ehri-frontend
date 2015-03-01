@@ -1,6 +1,7 @@
 package controllers.portal.users
 
 import auth.AccountManager
+import backend.aws.AwsConfig
 import controllers.generic.Search
 import play.api.libs.concurrent.Execution.Implicits._
 import models._
@@ -17,7 +18,7 @@ import java.io.{StringWriter, File}
 import scala.concurrent.Future
 import views.html.p
 import utils.search._
-import backend.{WithId, BackendReadable, ApiUser, Backend}
+import backend._
 
 import com.google.inject._
 import net.coobird.thumbnailator.tasks.UnsupportedFormatException
@@ -36,7 +37,8 @@ import controllers.portal.base.{PortalController, PortalAuthConfigImpl}
  */
 @Singleton
 case class UserProfiles @Inject()(implicit globalConfig: global.GlobalConfig, searchEngine: SearchEngine, searchResolver: SearchItemResolver, backend: Backend,
-                            accounts: AccountManager, mailer: MailerAPI, pageRelocator: utils.MovedPageLookup)
+                            accounts: AccountManager, mailer: MailerAPI, pageRelocator: utils.MovedPageLookup,
+                                  fileStorage: FileStorage)
     extends PortalController
     with LoginLogout
     with PortalAuthConfigImpl
@@ -337,22 +339,14 @@ case class UserProfiles @Inject()(implicit globalConfig: global.GlobalConfig, se
     file.contentType.exists(_.toLowerCase.startsWith("image/"))
 
   private def convertAndUploadFile(file: FilePart[TemporaryFile], user: UserProfile, request: RequestHeader): Future[String] = {
-    import awscala._
-    import awscala.s3._
-    val config: AwsConfig = AwsConfig.fromConfig(fallback = Map("aws.instance" -> request.host))
-    implicit val s3 = S3(Credentials(config.accessKey, config.secret)).at(awscala.Region(config.region))
-
     val bucketName = current.configuration.getString("aws.userImages.bucketName")
       .getOrElse(sys.error("Missing configuration value: aws.userImages.bucketName"))
-    val bucket: Bucket = s3.bucket(bucketName)
-      .getOrElse(sys.error(s"Bucket $bucketName not found"))
 
     val extension = file.filename.substring(file.filename.lastIndexOf("."))
-    val awsName = s"images/${config.instance}/${user.id}$extension"
+    val storeName = s"images/${request.host}/${user.id}$extension"
     val temp = File.createTempFile(user.id, extension)
     Thumbnails.of(file.ref.file).size(200, 200).toFile(temp)
 
-    val read: PutObjectResult = bucket.putAsPublicRead(awsName, temp)
-    Future.successful(s"http://${read.bucket.name}.s3-${config.region}.amazonaws.com/${read.key}")
+    fileStorage.putFile(request.host, bucketName, storeName, temp).map(_.toString)
   }
 }

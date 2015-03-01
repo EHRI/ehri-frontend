@@ -1,4 +1,4 @@
-package models
+package backend.aws
 
 /**
  * @author Mike Bryant (http://github.com/mikesname)

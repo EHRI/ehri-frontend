@@ -45,18 +45,19 @@ trait TestConfiguration {
   // Might want to mock the backend at at some point!
   def testBackend: Backend = new RestBackend(testEventHandler)
 
-  def mockResolver: MockSearchResolver = new MockSearchResolver
-  def idGenerator: IdGenerator = new CypherIdGenerator("%06d")
-  def mockDispatcher: SearchEngine = new MockSearchDispatcher(testBackend, searchParamBuffer)
-  def mockFeedback: FeedbackDAO = new MockFeedbackDAO(feedbackBuffer)
-  def mockHelpdesk: HelpdeskDAO = new MockHelpdeskDAO(helpdeskBuffer)
-  def mockMailer: MailerAPI = new MockBufferedMailer(mailBuffer)
-  def mockIndexer: SearchIndexer = new MockSearchIndexer(indexEventBuffer)
+  private def mockResolver: MockSearchResolver = new MockSearchResolver
+  private def idGenerator: IdGenerator = new CypherIdGenerator("%06d")
+  private def mockDispatcher: SearchEngine = new MockSearchDispatcher(testBackend, searchParamBuffer)
+  private def mockFeedback: FeedbackDAO = new MockFeedbackDAO(feedbackBuffer)
+  private def mockHelpdesk: HelpdeskDAO = new MockHelpdeskDAO(helpdeskBuffer)
+  private def mockMailer: MailerAPI = new MockBufferedMailer(mailBuffer)
+  private def mockIndexer: SearchIndexer = new MockSearchIndexer(indexEventBuffer)
   // NB: The mutable state for the user DAO is still stored globally
   // in the mocks package.
   def mockAccounts: AccountManager = MockAccountManager()
-  def oAuth2Flow: OAuth2Flow = MockOAuth2Flow()
-  def relocator: MovedPageLookup = MockMovedPageLookup()
+  private def mockOAuth2Flow: OAuth2Flow = MockOAuth2Flow()
+  private def mockRelocator: MovedPageLookup = MockMovedPageLookup()
+  private def mockFileStorage: FileStorage = MockFileStorage()
 
   // More or less the same as run config but synchronous (so
   // we can validate the actions)
@@ -92,8 +93,9 @@ trait TestConfiguration {
         bind(classOf[IdGenerator]).toInstance(idGenerator)
         bind(classOf[MailerAPI]).toInstance(mockMailer)
         bind(classOf[AccountManager]).toInstance(mockAccounts)
-        bind(classOf[OAuth2Flow]).toInstance(oAuth2Flow)
-        bind(classOf[MovedPageLookup]).toInstance(relocator)
+        bind(classOf[OAuth2Flow]).toInstance(mockOAuth2Flow)
+        bind(classOf[MovedPageLookup]).toInstance(mockRelocator)
+        bind(classOf[FileStorage]).toInstance(mockFileStorage)
       }
     })
 
