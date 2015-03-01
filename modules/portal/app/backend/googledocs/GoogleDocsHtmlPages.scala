@@ -71,7 +71,7 @@ case class GoogleDocsHtmlPages()(implicit app: play.api.Application) extends Htm
       val css = Html(
         """<style>
           |.g-doc h1 h2 h3 h4 h5 h6 {font-family: serif;}
-          |.g-doc a { color: #6c003b !important;}
+          |.g-doc a { color: #6c003b !important; text-decoration: underline !important;}
           |</style>
         """.stripMargin)
       css -> Html(body.outerHtml())
