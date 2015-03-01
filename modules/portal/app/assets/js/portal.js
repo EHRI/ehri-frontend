@@ -275,16 +275,6 @@ jQuery(function ($) {
     $(this).parents(".global-search").addClass("inactive");
   });
 
-  // jQuery history plugin... initialise
-  // Bind to StateChange Event
-  if (History && History.Adapter) {
-    History.Adapter.bind(window,'statechange',function(){ // Note: We are using statechange instead of popstate
-      var State = History.getState(); // Note: We are using History.getState() instead of event.state
-
-      // TODO: Use...
-    });
-  }
-
   // Validate any forms with 'validate-form' class...
   if ($.fn.validate) {
     $(".validate-form").validate();
