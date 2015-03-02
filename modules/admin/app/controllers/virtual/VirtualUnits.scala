@@ -263,7 +263,7 @@ case class VirtualUnits @Inject()(implicit globalConfig: global.GlobalConfig, se
 
   private val refForm = Form(single(VirtualUnitF.INCLUDE_REF -> nonEmptyText))
 
-  def createChildRef(id: String) = NewChildAction(id).apply { implicit request =>
+  def createChildRef(id: String) = EditAction(id).apply { implicit request =>
       Ok(views.html.admin.virtualUnit.createRef(
         request.item,
         refForm,
@@ -271,7 +271,7 @@ case class VirtualUnits @Inject()(implicit globalConfig: global.GlobalConfig, se
       ))
   }
 
-  def createChildRefPost(id: String) = NewChildAction(id).async { implicit request =>
+  def createChildRefPost(id: String) = EditAction(id).async { implicit request =>
     refForm.bindFromRequest().fold(
       errForm => immediate(Ok(views.html.admin.virtualUnit.createRef(
         request.item,
@@ -285,7 +285,7 @@ case class VirtualUnits @Inject()(implicit globalConfig: global.GlobalConfig, se
     )
   }
 
-  def deleteChildRef(id: String) = NewChildAction(id).apply { implicit request =>
+  def deleteChildRef(id: String) = EditAction(id).apply { implicit request =>
     Ok(views.html.admin.virtualUnit.deleteRef(
       request.item,
       refForm,
@@ -294,7 +294,7 @@ case class VirtualUnits @Inject()(implicit globalConfig: global.GlobalConfig, se
     ))
   }
 
-  def deleteChildRefPost(id: String) = NewChildAction(id).async { implicit request =>
+  def deleteChildRefPost(id: String) = EditAction(id).async { implicit request =>
     refForm.bindFromRequest().fold(
       errForm => immediate(Ok(views.html.admin.virtualUnit.deleteRef(
         request.item,
