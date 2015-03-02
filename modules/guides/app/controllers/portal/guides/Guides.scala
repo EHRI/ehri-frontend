@@ -45,6 +45,7 @@ case class Guides @Inject()(implicit globalConfig: global.GlobalConfig, searchEn
     Action { implicit request =>
       Ok(
         Routes.javascriptRouter("jsRoutes")(
+          controllers.portal.routes.javascript.Portal.filterItems,
           controllers.portal.guides.routes.javascript.DocumentaryUnits.browse,
           controllers.portal.routes.javascript.DocumentaryUnits.browse,
           controllers.portal.guides.routes.javascript.Guides.linkedData,
