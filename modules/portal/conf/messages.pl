@@ -63,7 +63,7 @@ errors.databaseError.explanation=Wygląda na to, że nasz serwer bazy danych prz
     Niewiele możemy zrobić bez serwera, więc spróbuj ponownie później.
 errors.databaseMaintenance=Baza danych tymczasowo niedostępna
 errors.databaseMaintenance.explanation=Baza danych EHRI jest aktualnie niedostępna ze względu na rutynowe prace konserwacyjne. \
-  It should be back soon so please try again shortly.=
+  
 errors.permissionDenied=Odmowa dostępu
 errors.permissionDenied.explanation=Wygląda na to, że nie możesz wykonać planowanego \
     działania. Jest to prawdopodobnie spowodowane błędem po naszej stronie. Postaramy się jak najszybciej to naprawić.

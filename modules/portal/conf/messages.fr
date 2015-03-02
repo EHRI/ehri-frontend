@@ -63,7 +63,7 @@ errors.databaseError.explanation=J"ai bien peur que notre serveur de base de don
      Nous ne pouvons continuer sans qu'il soit réparé, veuillez réessayer plus tard.
 errors.databaseMaintenance=Base de données provisoirement hors ligne
 errors.databaseMaintenance.explanation=La base de données d l"EHRI est actuellement hors ligne pour cause d"entretien de routine.  \
-  It should be back soon so please try again shortly.=
+  
 errors.permissionDenied=Autorisation refusée
 errors.permissionDenied.explanation=Il semblerait que vous ne puissiez accéder à ce que vous demandiez. \
   Il s''agit probablement d"une erreur de notre part. Nous allons essayer de la réparer dès que possible.

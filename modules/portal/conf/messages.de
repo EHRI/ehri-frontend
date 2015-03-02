@@ -63,7 +63,7 @@ errors.databaseError.explanation=Leider scheint unser Datenbank-Server abgestür
     Bitte versuchen Sie es in Kürze erneut.
 errors.databaseMaintenance=Datenbank vorübergehend offline
 errors.databaseMaintenance.explanation=Die EHRI-Datenbank ist wegen Wartungsarbeiten momentan offline. \
-  It should be back soon so please try again shortly.=  Bitte versuchen Sie es in Kürze erneut.
+    Bitte versuchen Sie es in Kürze erneut.
 errors.permissionDenied=Zugriff verweigert
 errors.permissionDenied.explanation=Anscheinend ist die von Ihnen gewünschte Aktion nicht möglich. \
     Womöglich ist ein Fehler auf der Seite aufgetreten. Wir werden dieses Problem schnellstmöglich beheben.
