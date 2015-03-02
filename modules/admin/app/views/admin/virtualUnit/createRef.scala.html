@@ -1,5 +1,4 @@
-@(item: Option[AnyModel], f: Form[VirtualUnitF], rf: Form[String], vf: Form[List[String]], users: Seq[(String,String)], groups: Seq[(String,String)], action: Call)(
-    implicit userOpt: Option[UserProfile], req: RequestHeader, globalConfig: global.GlobalConfig, lang: Lang, flash: Flash, token: play.filters.csrf.CSRF.Token)
+@(item: VirtualUnit, rf: Form[String], action: Call)(implicit userOpt: Option[UserProfile], req: RequestHeader, globalConfig: global.GlobalConfig, lang: Lang, flash: Flash, token: play.filters.csrf.CSRF.Token)
 
 @import models.VirtualUnitF._
 
@@ -13,23 +12,20 @@
     }
 }
 
-@views.html.admin.layout.rightSidebar(Messages("virtualUnit.create"), breadcrumbs = breadcrumbs) {
+@views.html.admin.layout.rightSidebar(Messages("virtualUnit.createRef"), breadcrumbs = breadcrumbs) {
 
 	@helper.form(action = action, 'class -> "entity-form form-horizontal") {
         @formHelpers.csrfToken()
-        @defining(EntityType.VirtualUnit.toString) { implicit fieldPrefix =>
-            @formHelpers.lineInput(f(""), Entity.IDENTIFIER)
+        @defining("virtualUnit") { implicit fieldPrefix =>
             @formHelpers.lineInput(
                 rf(""),
                 INCLUDE_REF,
-                'type -> "hidden",
                 'class -> "select2 item-filter",
                 Symbol("data-entity-type") -> EntityType.DocumentaryUnit
             )
         }
 
-        @views.html.admin.permissions.visibilityForm(vf, users, groups)
-        @formHelpers.submitButtonWithLogMessageInput(Messages("virtualUnit.create.submit"), cancel = item.map(i => views.admin.Helpers.linkTo(i)))
+        @formHelpers.submitButtonWithLogMessageInput(Messages("virtualUnit.createRef.submit"), cancel = Some(views.admin.Helpers.linkTo(item)))
     }
 } {
 

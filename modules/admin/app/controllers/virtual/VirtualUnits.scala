@@ -261,35 +261,52 @@ case class VirtualUnits @Inject()(implicit globalConfig: global.GlobalConfig, se
     }
   }
 
-  def refForm = Form(single(VirtualUnitF.INCLUDE_REF -> nonEmptyText))
+  private val refForm = Form(single(VirtualUnitF.INCLUDE_REF -> nonEmptyText))
 
-  def createChildRef(id: String) = NewChildAction(id).async { implicit request =>
-      idGenerator.getNextNumericIdentifier(EntityType.VirtualUnit).map { newId =>
-        Ok(views.html.admin.virtualUnit.createRef(
-          Some(request.item), childForm.bind(Map(Entity.IDENTIFIER -> makeId(newId))),
-          refForm,
-          VisibilityForm.form.fill(request.item.accessors.map(_.id)),
-          request.users, request.groups, vuRoutes.createChildRefPost(id)))
-      }
+  def createChildRef(id: String) = NewChildAction(id).apply { implicit request =>
+      Ok(views.html.admin.virtualUnit.createRef(
+        request.item,
+        refForm,
+        vuRoutes.createChildRefPost(id)
+      ))
   }
 
-  def descriptionRefs: ExtraParams = { implicit request =>
-    refForm.bindFromRequest.fold(
-      _ => Map.empty,
-      descRef => Map(Constants.ID_PARAM -> Seq(descRef))
+  def createChildRefPost(id: String) = NewChildAction(id).async { implicit request =>
+    refForm.bindFromRequest().fold(
+      errForm => immediate(Ok(views.html.admin.virtualUnit.createRef(
+        request.item,
+        errForm,
+        vuRoutes.createChildRefPost(id)
+      ))),
+      include => backend.addReferences[VirtualUnit](id, Seq(include)).map { _ =>
+        Redirect(vuRoutes.get(id))
+          .flashing("success" -> "item.update.confirmation")
+      }
     )
   }
 
-  def createChildRefPost(id: String) = CreateChildAction(id, childForm, descriptionRefs).async { implicit request =>
-      request.formOrItem match {
-        case Left((errorForm,accForm)) => getUsersAndGroups { users => groups =>
-          BadRequest(views.html.admin.virtualUnit.createRef(Some(request.item),
-            errorForm, refForm.bindFromRequest, accForm, users, groups,
-            vuRoutes.createChildRefPost(id)))
-        }
-        case Right(doc) => immediate(Redirect(vuRoutes.getInVc(id, doc.id))
-          .flashing("success" -> "item.create.confirmation"))
+  def deleteChildRef(id: String) = NewChildAction(id).apply { implicit request =>
+    Ok(views.html.admin.virtualUnit.deleteRef(
+      request.item,
+      refForm,
+      request.item.includedUnits.map(include => include.id -> include.toStringLang),
+      vuRoutes.deleteChildRefPost(id)
+    ))
+  }
+
+  def deleteChildRefPost(id: String) = NewChildAction(id).async { implicit request =>
+    refForm.bindFromRequest().fold(
+      errForm => immediate(Ok(views.html.admin.virtualUnit.deleteRef(
+        request.item,
+        errForm,
+        request.item.includedUnits.map(include => include.id -> include.toStringLang),
+        vuRoutes.deleteChildRefPost(id)
+      ))),
+      include => backend.deleteReferences[VirtualUnit](id, Seq(include)).map { _ =>
+        Redirect(vuRoutes.get(id))
+          .flashing("success" -> "item.update.confirmation")
       }
+    )
   }
 
   def delete(id: String) = CheckDeleteAction(id).apply { implicit request =>
@@ -316,14 +333,6 @@ case class VirtualUnits @Inject()(implicit globalConfig: global.GlobalConfig, se
       case Right(updated) => Redirect(vuRoutes.get(id))
         .flashing("success" -> "item.create.confirmation")
     }
-  }
-
-  def createDescriptionRef(id: String, did: String) = WithItemPermissionAction(id, PermissionType.Update).apply { implicit request =>
-    ???
-  }
-
-  def createDescriptionRefPost(id: String, did: String) = CreateDescriptionAction(id, descriptionForm).apply { implicit request =>
-    ???
   }
 
   def updateDescription(id: String, did: String) = {
