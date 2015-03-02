@@ -18,7 +18,7 @@ import play.api.Play.current
 import play.api.Configuration
 import play.api.data.Form
 import play.api.data.Forms._
-import backend.rest.Constants
+import backend.rest.{ItemNotFound, Constants}
 import scala.concurrent.Future
 import models.base.AnyModel
 import models.base.Description
@@ -272,15 +272,24 @@ case class VirtualUnits @Inject()(implicit globalConfig: global.GlobalConfig, se
   }
 
   def createChildRefPost(id: String) = EditAction(id).async { implicit request =>
-    refForm.bindFromRequest().fold(
+    val boundForm = refForm.bindFromRequest()
+    boundForm.fold(
       errForm => immediate(Ok(views.html.admin.virtualUnit.createRef(
         request.item,
         errForm,
         vuRoutes.createChildRefPost(id)
       ))),
-      include => backend.addReferences[VirtualUnit](id, Seq(include)).map { _ =>
+      includes => backend.addReferences[VirtualUnit](id, includes.split("[ ,]+").map(_.trim).toSeq).map { _ =>
         Redirect(vuRoutes.get(id))
           .flashing("success" -> "item.update.confirmation")
+      } recover {
+        case e: ItemNotFound =>
+          val errs = boundForm.withError(VirtualUnitF.INCLUDE_REF, e.message.getOrElse(""))
+          BadRequest(views.html.admin.virtualUnit.createRef(
+            request.item,
+            errs,
+            vuRoutes.createChildRefPost(id)
+          ))
       }
     )
   }
@@ -289,22 +298,35 @@ case class VirtualUnits @Inject()(implicit globalConfig: global.GlobalConfig, se
     Ok(views.html.admin.virtualUnit.deleteRef(
       request.item,
       refForm,
-      request.item.includedUnits.map(include => include.id -> include.toStringLang),
+      request.item.includedUnits.map(include => include.id -> s"${include.toStringLang} [${include.id}}]"),
       vuRoutes.deleteChildRefPost(id)
     ))
   }
 
   def deleteChildRefPost(id: String) = EditAction(id).async { implicit request =>
-    refForm.bindFromRequest().fold(
+    val includes = request.item.includedUnits.map(include =>
+      include.id -> include.toStringLang)
+    val boundForm = refForm.bindFromRequest()
+
+    boundForm.fold(
       errForm => immediate(Ok(views.html.admin.virtualUnit.deleteRef(
         request.item,
         errForm,
-        request.item.includedUnits.map(include => include.id -> include.toStringLang),
+        includes,
         vuRoutes.deleteChildRefPost(id)
       ))),
-      include => backend.deleteReferences[VirtualUnit](id, Seq(include)).map { _ =>
+      delete => backend.deleteReferences[VirtualUnit](id, delete.split("[ ,]+").toSeq).map { _ =>
         Redirect(vuRoutes.get(id))
           .flashing("success" -> "item.update.confirmation")
+      } recover {
+        case e: ItemNotFound =>
+          val errs = boundForm.withError(VirtualUnitF.INCLUDE_REF, e.message.getOrElse(""))
+          BadRequest(views.html.admin.virtualUnit.deleteRef(
+            request.item,
+            errs,
+            includes,
+            vuRoutes.deleteChildRefPost(id)
+          ))
       }
     )
   }

@@ -374,7 +374,7 @@ virtualUnit.identifier=Identifier
 virtualUnit.identifier.description=The unique identifier for this virtual unit
 virtualUnit.includeRef=Ext. Unit ID
 virtualUnit.includeRef.description=The ID of the non-virtual documentary unit referenced\
-  by this virtual item.
+  by this virtual item. Multiple item IDs can be entered separated by commas.
 
 #
 # Documentary Units

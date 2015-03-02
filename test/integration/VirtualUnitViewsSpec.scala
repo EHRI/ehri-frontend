@@ -77,22 +77,29 @@ class VirtualUnitViewsSpec extends IntegrationTestRunner with TestHelpers {
 
     "allow creating and deleting item references" in new ITestApp {
       implicit val apiUser: ApiUser = AuthenticatedUser(privilegedUser.id)
-      await(testBackend.get[VirtualUnit]("vc1")).includedUnits.map(_.id) must not contain "c1"
+      val origIncludes = await(testBackend.get[VirtualUnit]("vc1")).includedUnits.map(_.id)
+      origIncludes must not contain "c1"
+      origIncludes must not contain "c4"
 
       val testData: Map[String, Seq[String]] = Map(
-        VirtualUnitF.INCLUDE_REF -> Seq("c1")
+        VirtualUnitF.INCLUDE_REF -> Seq("c1 c4")
       )
       val cr = route(fakeLoggedInHtmlRequest(privilegedUser,
         vuRoutes.createChildRefPost("vc1")), testData).get
       status(cr) must equalTo(SEE_OTHER)
 
-      await(testBackend.get[VirtualUnit]("vc1")).includedUnits.map(_.id) must contain("c1")
+      val included = await(testBackend.get[VirtualUnit]("vc1")).includedUnits.map(_.id)
+      included must contain("c1")
+      included must contain("c4")
 
       val del = route(fakeLoggedInHtmlRequest(privilegedUser,
-        vuRoutes.deleteChildRefPost("vc1")), testData).get
+        vuRoutes.deleteChildRefPost("vc1")), Map(
+          VirtualUnitF.INCLUDE_REF -> Seq("c1"))).get
       status(del) must equalTo(SEE_OTHER)
 
-      await(testBackend.get[VirtualUnit]("vc1")).includedUnits.map(_.id) must not contain "c1"
+      val newIncludes = await(testBackend.get[VirtualUnit]("vc1")).includedUnits.map(_.id)
+      newIncludes must not contain "c1"
+      newIncludes must contain("c4")
     }
   }
 }

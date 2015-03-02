@@ -17,12 +17,7 @@
 	@helper.form(action = action, 'class -> "entity-form form-horizontal") {
         @formHelpers.csrfToken()
         @defining("virtualUnit") { implicit fieldPrefix =>
-            @formHelpers.lineInput(
-                rf(""),
-                INCLUDE_REF,
-                'class -> "select2 item-filter",
-                Symbol("data-entity-type") -> EntityType.DocumentaryUnit
-            )
+            @formHelpers.lineInput(rf(""), INCLUDE_REF)
         }
 
         @formHelpers.submitButtonWithLogMessageInput(Messages("virtualUnit.createRef.submit"), cancel = Some(views.admin.Helpers.linkTo(item)))
