@@ -1,7 +1,7 @@
 @(annotation: Annotation, editable: Boolean)(implicit userOpt: Option[UserProfile], req: RequestHeader, lang: Lang, globalConfig: global.GlobalConfig)
 
 <div class="annotation @{if(annotation.isPromoted) "promoted"}" id="@annotation.id">
-    @Html(views.Helpers.renderTrustedMarkdown(annotation.model.body))
+    @Html(views.Helpers.renderUntrustedMarkdown(annotation.model.body))
     @for(user <- annotation.user ; event <- annotation.latestEvent) {
         - <div class="annotation-meta">
             @p.helpers.linkTo(user, attributes = Seq('rel -> "nofollow"))
