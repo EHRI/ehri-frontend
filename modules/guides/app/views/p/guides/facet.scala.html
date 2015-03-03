@@ -97,7 +97,7 @@
     }
 }
 
-@sidebar = {
+@sidebar(page: GuidePage) = {
     <div id="facets">
         @helper.form(action = action) {
             <div class="form-group">
@@ -111,10 +111,11 @@
             @facets
         }
     </div>
+    @page.description.map(d => Html(views.Helpers.renderTrustedMarkdown(d)))
 }
 
 
-@views.html.p.layout.guideLayout(guide, page, pages, scripts = js, optionalContent = Some(sidebar), otherTitle = Some(Messages("guides.faceted"))) {
+@views.html.p.layout.guideLayout(guide, page, pages, scripts = js, optionalContent = Some(sidebar(page)), otherTitle = Some(Messages("guides.faceted"))) {
     <article>
             <header>
                 <h1>@Messages("guides.faceted")</h1>

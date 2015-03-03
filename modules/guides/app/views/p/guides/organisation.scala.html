@@ -54,11 +54,11 @@
 	</script>
 }
 
-@sidebar = {
-	@Html(views.Helpers.renderMarkdown(page.description.getOrElse("")))
+@sidebar(page: GuidePage) = {
+    @page.description.map(d => Html(views.Helpers.renderTrustedMarkdown(d)))
 }
 
-@views.html.p.layout.guideLayout(guide, page, pages, scripts = js, optionalContent = Some(sidebar)) {
+@views.html.p.layout.guideLayout(guide, page, pages, scripts = js, optionalContent = Some(sidebar(page))) {
 	<article>
 		<header>
 			<h1>@page.name</h1>
