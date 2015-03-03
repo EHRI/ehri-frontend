@@ -386,7 +386,7 @@ case class Guides @Inject()(implicit globalConfig: global.GlobalConfig, searchEn
   def childItemIds(item: String)(implicit request: RequestHeader): Future[Map[String,Any]] = {
     import SearchConstants._
     childIds(item).map { seq =>
-      if (seq.isEmpty) Map.empty
+      if (seq.isEmpty) Map(ITEM_ID -> "NO_VALID_ID")
       else Map(s"$ITEM_ID:(${seq.mkString(" ")}) OR $ANCESTOR_IDS:(${seq.mkString(" ")})" -> Unit)
     }
   }
