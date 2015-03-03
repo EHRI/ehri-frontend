@@ -70,6 +70,9 @@ object ApplicationBuild extends Build {
     // Markdown rendering
     "org.pegdown" % "pegdown" % "1.5.0",
 
+    // HTML sanitising...
+    "org.jsoup" % "jsoup" % "1.7.3",
+
     // Mailer...
     "com.typesafe.play.plugins" %% "play-plugins-mailer" % "2.3.0",
 

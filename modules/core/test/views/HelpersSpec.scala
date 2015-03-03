@@ -14,6 +14,22 @@ class HelpersSpec extends PlaySpecification {
         """.stripMargin
       Helpers.renderMarkdown(md) must contain("<strong>")
     }
+    "sanitise markdown by default" in {
+      val md =
+        """
+          |<script>alert("hello, world")</script>
+          |This is some text with a **bold** bit.
+        """.stripMargin
+      Helpers.renderMarkdown(md) must not contain "<script>"
+    }
+    "not sanitise trusted markdown" in {
+      val md =
+        """
+          |<script>alert("hello, world")</script>
+          |This is some text with a **bold** bit.
+        """.stripMargin
+      Helpers.renderTrustedMarkdown(md) must contain("""<script>alert("hello, world")</script>""")
+    }
     "render auto links with _blank target" in {
       Helpers.renderMarkdown(" an http://www.autolink.com link") must contain("_blank")
     }

@@ -28,6 +28,8 @@ package object Helpers {
   // here to be on the safe side.
   import org.pegdown.{LinkRenderer, Extensions, PegDownProcessor}
   import org.pegdown.ast.{AutoLinkNode, ExpLinkNode}
+  import org.jsoup.Jsoup
+  import org.jsoup.safety.Whitelist
 
   private val linkRenderer = new LinkRenderer() {
     override def render(node: AutoLinkNode) = {
@@ -43,21 +45,22 @@ package object Helpers {
     }
   }
   private val markdownParser = new ThreadLocal[PegDownProcessor]
-  def getMarkdownProcessor = {
-    import org.pegdown.ast.{AutoLinkNode,ExpLinkNode}
-    // NB: Eventually we want auto-linking. However this seems
-    // to crash pegdown at the moment.
-    //import org.pegdown.{Extensions,Parser,PegDownProcessor}
-    //val pegdownParser = new Parser(Extensions.AUTOLINKS)
-    //new PegDownProcessor//(pegdownParser)
-    Option(markdownParser.get).getOrElse {
-      val parser = new PegDownProcessor(Extensions.AUTOLINKS)
-      markdownParser.set(parser)
-      parser
-    }
+  private val whiteListStrict: Whitelist = Whitelist.basic()
+  private val whiteListStandard: Whitelist = whiteListStrict.addAttributes("a", "target", "_blank")
+  def getMarkdownProcessor = Option(markdownParser.get).getOrElse {
+    val parser = new PegDownProcessor(Extensions.AUTOLINKS)
+    markdownParser.set(parser)
+    parser
   }
 
-  def renderMarkdown(text: String): String = getMarkdownProcessor.markdownToHtml(text, linkRenderer)
+  def renderUntrustedMarkdown(text: String): String =
+    Jsoup.clean(getMarkdownProcessor.markdownToHtml(text, linkRenderer), whiteListStrict)
+
+  def renderMarkdown(text: String): String =
+    Jsoup.clean(getMarkdownProcessor.markdownToHtml(text, linkRenderer), whiteListStandard)
+
+  def renderTrustedMarkdown(text: String): String =
+    getMarkdownProcessor.markdownToHtml(text, linkRenderer)
 
 
   /**
