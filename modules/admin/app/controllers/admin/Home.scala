@@ -119,9 +119,9 @@ case class Home @Inject()(implicit globalConfig: global.GlobalConfig, searchEngi
     }
   }
 
-  def jsRoutes = Action { implicit request =>
+  def metricsJsRoutes = Action { implicit request =>
     Ok(
-      play.api.Routes.javascriptRouter("jsRoutes")(
+      play.api.Routes.javascriptRouter("metricsJsRoutes")(
         controllers.admin.routes.javascript.Metrics.languageOfMaterial,
         controllers.admin.routes.javascript.Metrics.holdingRepository,
         controllers.admin.routes.javascript.Metrics.repositoryCountries,

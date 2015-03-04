@@ -5,7 +5,7 @@
     <script type="text/javascript" src="@controllers.portal.routes.PortalData.localeData(lang.code)"></script>
     <script type="text/javascript" src="@controllers.admin.routes.Assets.versioned("js/lib/jquery.flot.js")"></script>
     <script type="text/javascript" src="@controllers.admin.routes.Assets.versioned("js/lib/jquery.flot.pie.js")"></script>
-    <script type="text/javascript" src="@controllers.admin.routes.Home.jsRoutes()"></script>
+    <script type="text/javascript" src="@controllers.admin.routes.Home.metricsJsRoutes()"></script>
     <script type="text/javascript">
 
         var colors = [
@@ -83,16 +83,16 @@
 
 
         $(function() {
-            $.getJSON(adminJsRoutes.controllers.admin.Metrics.languageOfMaterial().url, function(data) {
+            $.getJSON(metricsJsRoutes.controllers.admin.Metrics.languageOfMaterial().url, function(data) {
                 plotData(plotPie, data, "languageCode", "document-languages", 5, LocaleData.languageCodeToName);
             });
-            $.getJSON(adminJsRoutes.controllers.admin.Metrics.holdingRepository().url, function(data) {
+            $.getJSON(metricsJsRoutes.controllers.admin.Metrics.holdingRepository().url, function(data) {
                 plotData(plotPie, data, "repositoryName", "document-holders", 5);
             });
-            $.getJSON(adminJsRoutes.controllers.admin.Metrics.repositoryCountries().url, function(data) {
+            $.getJSON(metricsJsRoutes.controllers.admin.Metrics.repositoryCountries().url, function(data) {
                 plotData(plotPie, data, "countryCode", "repository-countries", 10, LocaleData.countryCodeToName);
             });
-            $.getJSON(adminJsRoutes.controllers.admin.Metrics.agentTypes().url, function(data) {
+            $.getJSON(metricsJsRoutes.controllers.admin.Metrics.agentTypes().url, function(data) {
                 plotData(plotPie, data, "typeOfEntity", "agent-types", 5, function(code) {
                     if (code == "corporateBody") return "Corporate Body";
                     else if (code == "family") return "Family";
@@ -100,7 +100,7 @@
                     return code;
                 });
             });
-            $.getJSON(adminJsRoutes.controllers.admin.Metrics.restricted().url, function(data) {
+            $.getJSON(metricsJsRoutes.controllers.admin.Metrics.restricted().url, function(data) {
                 plotData(plotPie, data, "restricted", "restricted-data", 5, function(code) {
                     if (code == "true") return "Restricted";
                     else return "Not Restricted"
