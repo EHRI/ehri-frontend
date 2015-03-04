@@ -67,7 +67,7 @@ CREATE TABLE research_guide (
   path VARCHAR(255) DEFAULT NULL,
   picture VARCHAR(255) DEFAULT NULL,
   virtual_unit VARCHAR(255) DEFAULT NULL,
-  description TEXT,
+  description LONGTEXT,
   css TEXT,
   active INT(1) NULL DEFAULT 0,
   `default` INT(1) DEFAULT 0
@@ -80,10 +80,10 @@ CREATE TABLE research_guide_page (
   research_guide_id INTEGER(11) DEFAULT NULL,
   name TEXT NOT NULL,
   layout VARCHAR(45) DEFAULT NULL,
-  content TEXT,
+  content LONGTEXT,
   path VARCHAR(45) DEFAULT NULL,
   position VARCHAR(45) DEFAULT NULL,
-  description TEXT,
+  description LONGTEXT,
   params VARCHAR(255) DEFAULT NULL
 );
 
