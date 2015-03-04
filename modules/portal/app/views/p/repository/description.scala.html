@@ -10,8 +10,8 @@
         @desc.id.map { descId =>
 
             @views.html.p.common.itemHeader(desc.name) {
-                @views.html.p.common.otherNameList(desc.otherFormsOfName)
                 @views.html.p.common.otherNameList(desc.parallelFormsOfName)
+                @views.html.p.common.otherNameList(desc.otherFormsOfName)
             }
 
             @descriptionSection(DESCRIPTION_AREA) {
