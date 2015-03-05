@@ -46,6 +46,29 @@ jQuery(function ($) {
   // don't support this natively
   $('input, textarea').placeholder();
 
+  // Affix side-scrolling sidebars. This is really
+  // dodgy and difficult, and has lots of bugs.
+  $(".sidepanel-toc").each(function() {
+    var $target = $(this),
+        $prev = $(".panel-type"),
+        $parent = $target.closest("#item-details");
+
+    $target.affix({
+      offset: {
+        top: function() {
+          return $prev.offset().top + $prev.outerHeight(true);
+        },
+        bottom: function() {
+          // the distance of the bottom of the target from the bottom
+          // of the document. In this case we want
+          return $(document).height() -
+              ($parent.offset().top + $parent.outerHeight(true));
+        }
+      }
+    });
+  });
+
+
 // Facet label tooltips
   $(".facet-label").tooltip({
     placement: "top",

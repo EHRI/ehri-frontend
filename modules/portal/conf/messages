@@ -1001,6 +1001,7 @@ virtualUnit.viewInArchivalContext.explanation=This item is being displayed as pa
 #
 # Countries
 #
+country.report.toc=Contents
 country.childItems=Archival Institutions
 country.childItems.search={0,choice,0#{0} lower level |1#1 institution|1<{0,number,integer} institutions}
 country.repositoriesPageHeader={2,choice,0#No repositories found|1#One repository found|1<Repositories {0,number,integer} to {1,number,integer} of {2,number,integer}}

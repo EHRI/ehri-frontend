@@ -2,7 +2,7 @@
 
 @defining(item.childCount.getOrElse(0)) { childCount =>
     @if(childCount > 0) {
-        <div class="content-load">
+        <div class="content-load" id="@{item.id}-child-items">
             <div class="content-load-data">
 
             </div>

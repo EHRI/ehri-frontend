@@ -4,8 +4,8 @@
 @import views.html.p.common.textField
 
 <div id="item-details">
-    @p.layout.rightSidebar {
-        @p.common.itemHeader(item.toStringLang) {
+    @views.html.p.layout.rightSidebar {
+        @views.html.p.common.itemHeader(item.toStringLang) {
         }
         @defining(Annotation.fieldAnnotations(Some(item.id), annotations)) { implicit fieldAnnotations =>
             @defining("country") { implicit fieldPrefix =>
@@ -17,12 +17,40 @@
             }
         }
     } {
-        @p.common.typeLabelWithWatchButton(item, watched.contains(item.id))
-        @p.common.childItemSidebar(
-            item,
-            EntityType.Repository,
-            controllers.portal.routes.Countries.search(item.id)
-        )
-        @p.common.latestAction(item, controllers.portal.routes.Portal.itemHistory(item.id, modal = true))
+        @views.html.p.common.typeLabelWithWatchButton(item, watched.contains(item.id))
+
+        <div class="sidepanel-toc">
+            <div class="child-items panel-details">
+                <div class="panel-heading">
+                    <h3 class="panel-title">@Messages("country.report.toc")</h3>
+                </div>
+                <div class="panel-body">
+                    <ul class="nav">
+                        @if(item.model.history.isDefined) {
+                            <li role="presentation" class="active"><a href="#@{item.id}-@HISTORY">@Messages("country." + HISTORY)</a></li>
+                        }
+                        @if(item.model.situation.isDefined) {
+                            <li role="presentation" class="active"><a href="#@{item.id}-@SITUATION">@Messages("country." + SITUATION)</a></li>
+                        }
+                        @if(item.model.summary.isDefined) {
+                            <li role="presentation" class="active"><a href="#@{item.id}-@DATA_SUMMARY">@Messages("country." + DATA_SUMMARY)</a></li>
+                        }
+                        @if(item.model.extensive.isDefined) {
+                            <li role="presentation" class="active">
+                                <a href="#@{item.id}-@DATA_EXTENSIVE">@Messages("country." + DATA_EXTENSIVE)</a>
+                            </li>
+                        }
+                        <li role="presentation" class="active">
+                            <a class="type-highlight @defines.EntityType.Repository child-item-link" href="#@{item.id}-child-item-search">
+                                @Messages(s"${item.isA}.childItems.search", item.childCount.getOrElse(0))
+                            </a>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+
+            @views.html.p.common.latestAction(item, controllers.portal.routes.Portal.itemHistory(item.id, modal = true))
+        </div>
+
     }
 </div>

@@ -21,7 +21,6 @@
       padding: @medium-padding;
     }
   }
-
 }
 
 .date-period > td {
@@ -153,5 +152,20 @@ dl.item-details {
   }
   margin-bottom: @small-margin;
   border-bottom: 1px dashed @dark-gray;
+}
+
+.sidepanel-toc {
+  background-color: #ffffff;
+
+  &:extend(.hidden-xs, .hidden-sm);
+}
+
+.affix-bottom {
+  position: absolute;
+}
+
+.affix {
+  z-index: 1000;
+  top: 10px;
 }
 
