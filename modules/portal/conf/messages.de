@@ -4,8 +4,8 @@ home=Startseite
 about=Über EHRI
 language=Sprache
 contact=Kontakt
-welcome.blurb=Das EHRI-Portal ermöglicht den Zugang zu Daten über Archivmaterial\
-  zum Holocaust, das in Institutionen in und außerhalb von Europa verwahrt wird.\
+welcome.blurb=Das EHRI-Portal ermöglicht den Zugang zu Daten über Archivmaterial \
+  zum Holocaust, das in Institutionen in und außerhalb von Europa verwahrt wird. \
   Weitere Informationen zum EHRI-Projekt erhalten Sie auf http://ehri-project.eu.
 footerText=Dies ist eine Entwicklungsversion des EHRI-Portal-Interface.
 footer.funding=Das EHRI-Projekt wird von der Europäischen Kommission gefördert
@@ -23,10 +23,10 @@ help.general=Allgemeine Hilfeseite
 help.archivists=Hilfe für Archivare
 help.helpdesk=Helpdesk
 landingBlurb.repository={0} in {1} durchsuchen.
-landingBlurb.repository.link={0} Archiv-Institutionen
+landingBlurb.repository.link={0} Archive
 landingBlurb.repository.country.link={0} Länder
 landingBlurb.country={0} durchsuchen.
-landingBlurb.country.link={0} nationale Berichte
+landingBlurb.country.link={0} Länderberichte
 landingBlurb.documentaryUnit={0} in {1} durchsuchen.
 landingBlurb.documentaryUnit.link={0} Bestandsübersichten
 landingBlurb.documentaryUnit.repository.link={0} Institutionen
@@ -47,8 +47,8 @@ errors.staffOnly=Eingeschränkt
 errors.staffOnlyMessage=Der Zugriff auf diese Seite ist momentan auf EHRI-Mitarbeiter eingeschränkt.
 errors.verifiedOnly=Eingeschränkt
 errors.verifiedOnlyMessage=Der Zugriff auf diese Seite ist momentan auf verifizierte Nutzer eingeschränkt.
-errors.readonly=Das EHRI-Portal befindet sich wegen Wartungsarbeiten momentan im Read-Only-Modus.\
-           Die normale Nutzung sollte in Kürze wieder möglich sein. Vielen Dank für Ihre Geduld.
+errors.readonly=Das EHRI-Portal befindet sich wegen Wartungsarbeiten momentan im Read-Only-Modus. \
+  Die normale Nutzung sollte in Kürze wieder möglich sein. Vielen Dank für Ihre Geduld.
 errors.itemNotFound=Element nicht gefunden
 errors.itemNotFound.explanation=Das Element konnte nicht in der Datenbank gefunden werden.
 errors.pageNotFound=Seite nicht gefunden
@@ -116,20 +116,20 @@ profile.profile.delete.confirmation=Ihr Profil wurde gelöscht
 profile.update=Profil aktualisieren
 profile.update.submit=Profil aktualisieren
 profile.update.confirmation=Profil erfolgreich aktualisiert
-profile.watch.list=Angesehene Elemente
-profile.watch.by={0} - Angesehene Elemente
+profile.watch.list=Beobachtete Elemente
+profile.watch.by={0} - Beobachtete Elemente
 profile.watch=Element ansehen
-profile.watch.title=Element zu Ihrer Watchlist hinzufügen
-profile.watch.tooltip=Klicken Sie, um in Ihrer Aktivitätenliste Aktualisierungen dieses Elements zu sehen
-profile.watch.submit=Element ansehen
-profile.unwatch=Element als nicht angesehen markieren
-profile.unwatch.tooltip=Klicken Sie, um den Erhalt von Aktualisierungen dieses Elements in Ihrer Aktivitätenliste zu stoppen.
-profile.unwatch.submit=Element als nicht angesehen markieren
-profile.unwatch.title=Element aus Ihrer Watchlist entfernen
+profile.watch.title=Element zu Ihrer Beobachtungsliste hinzufügen
+profile.watch.tooltip=Klicken Sie, um in Ihrer Aktivitätenliste Aktualisierungen dieses Elements zu sehen.
+profile.watch.submit=Element beobachten
+profile.unwatch=Element nicht mehr beobachten
+profile.unwatch.tooltip=Klicken Sie, um in Ihrer Aktivitätenliste keine Aktualisierungen dieses Elements mehr zu sehen.
+profile.unwatch.submit=Element nicht mehr beobachten
+profile.unwatch.title=Element aus Ihrer Beobachtungsliste entfernen
 type=Element-Typ
-type.repository=Archiv-Institutionen
-type.repository.description=Ein Verzeichnis von Archiv-Institutionen, die \
-  Holocaust-bezogenes Material verwahren.
+type.repository=Archive
+type.repository.description=Ein Verzeichnis von Archiven, in denen \
+  Holocaust-bezogenes Material verwahrt wird.
 type.documentaryUnit=Bestandsübersichten
 type.documentaryUnit.description=Elektronische Beschreibungen und Findmittel zu Holocaust-bezogenem Archivmaterial.
 type.historicalAgent=Historische Akteure
@@ -170,15 +170,15 @@ login.openid=OpenID
 login.email=E-Mail-Adresse
 login.password=Passwort
 login.password.confirm=Passwort bestätigen
-login.password.noPassword=Zur Zeit ist kein Passwort mit Ihrem Konto verknüpft. Das bedeutet, dass Sie\
-    sich über einen Drittanbieter wie Google oder Facebook angemeldet haben.
+login.password.noPassword=Zur Zeit ist kein Passwort mit Ihrem Konto verknüpft. Das bedeutet, dass Sie \
+  sich über einen Drittanbieter wie Google oder Facebook angemeldet haben.
 login.password.change=Passwort ändern
 login.password.change.link=Klicken Sie hier, um Ihr Passwort zu ändern
 login.password.change.submit=Absenden
 login.password.change.confirmation=Passwort geändert
 login.password.reset=Passwort wiederherstellen
-login.password.reset.text=Passwort vergessen? Geben Sie unten die E-Mail-Adresse ein, mit der Sie sich registriert haben,\
-    und wir schicken Ihnen einen Link zur Passwort-Wiederherstellung.
+login.password.reset.text=Passwort vergessen? Geben Sie unten die E-Mail-Adresse ein, mit der Sie sich registriert haben, \
+  und wir schicken Ihnen einen Link zur Passwort-Wiederherstellung.
 login.password.reset.noPasswordMatching=Kein Konto stimmt mit {0} überein
 login.password.reset.submit=Wiederherstellungslink schicken
 login.openid.urlPlaceholder=Geben Sie Ihre OpenID-URL ein
@@ -246,8 +246,8 @@ description.additionalData.value=Value
 description.noDescriptions=Zu diesem Element liegt keine Beschreibung vor
 description.multiple.text=Dieses Element hat mehrere Beschreibungen. Bei mehreren Beschreibungen können diese aus verschiedenen Archiven stammen oder (Teil-)Übersetzungen sein.
 accessPoint.browse=Suchen
-accessPoint.type.creatorAccess=Ersteller
-accessPoint.type.creatorAccess.reverse=Ersteller von
+accessPoint.type.creatorAccess=Provenienzstelle(n)
+accessPoint.type.creatorAccess.reverse=Provenienzstelle von
 accessPoint.type.personAccess=Personen
 accessPoint.type.personAccess.reverse=Verweis von (als Personen)
 accessPoint.type.familyAccess=Familien
@@ -301,7 +301,7 @@ search.sort=Reihenfolge
 search.sort.identifier.asc=ID/Code
 search.sort.identifier.asc.title=Ergebnisse ordnen nach von Institutionen zugewiesenen Identifikatoren
 search.sort.isParent.desc-identifier.asc=ID/Code
-search.sort.isParent.desc-identifier.asc.title=Ergebnisse ordnen nach von Institutionen zugewiesenen Identifikatoren, beginnend mit Container-Elementen
+search.sort.isParent.desc-identifier.asc.title=Ergebnisse ordnen nach von Institutionen zugewiesenen Identifikatoren, beginnend mit Behälter-Elementen
 search.sort.name_sort.asc=Name
 search.sort.name_sort.asc.title=Ergebnisse nach Namen ordnen
 search.sort.lastUpdated.desc=Vor kurzem aktualisiert
@@ -326,24 +326,24 @@ facet.lang=Sprache der Beschreibung
 facet.lang.placeholder=Nach Sprache filtern
 facet.lang.tooltip=Die Sprache der elektronischen Beschreibung.
 facet.data=Struktur
-facet.data.tooltip=Ob es sich beim Element um einen Container weiterer Unterlagen handelt.
-facet.data.hasChildItems=Container (mehrere Ebenen)
+facet.data.tooltip=Ob es sich beim Element um einen Behälter weiterer Unterlagen handelt.
+facet.data.hasChildItems=Behälter (mehrstufig)
 facet.data.placeholder=Nach Struktur filtern
 facet.parent=Struktur
-facet.parent.tooltip=Ob dieses Element ein Container für weitere Unterlagen ist.
-facet.parent.true=Container-Element
+facet.parent.tooltip=Ob dieses Element ein Behälter weiterer Unterlagen ist.
+facet.parent.true=Behälter-Element
 facet.parent.false=Einzelnes Element
 facet.source=Quelle der Beschreibung
 facet.source.tooltip=Die Quelle der elektronischen Beschreibung, d. h. ob sie \
     von EHRI-Mitarbeitern erstellt wurde oder aus strukturierten Daten einer Partnerinstitution importiert wurde.
 facet.source.MANUAL=EHRI
 facet.source.IMPORT=EHRI-Partner
-facet.lod=Detailebene
-facet.lod.tooltip=Eine ungefähre Angabe der Detailebene der Unterlage, basierend auf der Zeichenzahl.
+facet.lod=Detailumfang
+facet.lod.tooltip=Eine ungefähre Angabe des Detailumfangs, basierend auf der Zeichenzahl.
 facet.lod.low=Niedrig
 facet.lod.medium=Mittel
 facet.lod.high=Hoch
-facet.lod.placeholder=Detailebene auswählen
+facet.lod.placeholder=Detailumfang auswählen
 facet.kw=Stichwort
 facet.kw.tooltip=Mit jeder Unterlage assoziierte Stichwörter.
 facet.kw.placeholder=Filtern nach Stichwörter
@@ -351,28 +351,28 @@ facet.country=Land
 facet.country.tooltip=Das Land, in dem das Quellmaterial archiviert ist.
 facet.country.placeholder=Nach Land filtern
 facet.location=Standort
-facet.holder=Bestand verwahrende Institution
+facet.holder=Archivierende Institution
 facet.holder.tooltip=Das Archiv, in dem das Quellmaterial verwahrt wird.
 facet.holder.placeholder=Filtern nach Institutionen
 facet.container=Element-Struktur
-facet.topLevel.true=Oberste Ebene
-facet.container.hasChildItems=Mehrere Ebenen (Container)
+facet.topLevel.true=Oberste Stufe
+facet.container.hasChildItems=Mehrstufig (Container)
 facet.itemsHeldOnline=Anzeigbare Elemente
 facet.itemsHeldOnline.yes=Katalogisiertes Material vorhanden
 facet.cpf=Art der Stelle
 facet.cpf.tooltip=Die Art der Stelle, z. B. Person, Familie oder Körperschaft.
 facet.set=Stellen-Set
 facet.set.tooltip=Das Stellen-Set, zu dem jedes Element gehört.
-facet.scope=Gebiet
-facet.scope.tooltip=Gebiet der Unterlage im Rahmen des Auftrags von EHRI.
+facet.scope=Form
+facet.scope.tooltip=Die Form der Unterlage im Rahmen des Auftrags von EHRI.
 facet.priority=Priorität
 facet.priority.tooltip=Priorität der Institution im Rahmen des Auftrags von EHRI.
 facet.active=Aktivität
 facet.active.tooltip=Aktive oder inaktive Benutzer.
 facet.group=Gruppen
 facet.group.tooltip=Gruppen, zu denen Benutzer gehören.
-facet.top=Oberste Ebene
-facet.top.tooltip=Nur Elemente auf der obersten (weitesten) Ebene anzeigen.
+facet.top=Oberste Stufe
+facet.top.tooltip=Nur Elemente auf der obersten (weitesten) Stufe anzeigen.
 facet.vocab=Vokabular
 facet.vocab.tooltip=Das Vokabular/Set, zu dem das Stichwort gehört.
 facet.promotable=Einstufbar
@@ -483,7 +483,7 @@ timeline.eventType.setGlobalPermissions={0} aktualisierte {1}
 timeline.eventType.setItemPermissions={0} aktualisierte {1}
 timeline.target.group=eine Gruppe
 timeline.target.userProfile=einen Benutzer
-timeline.target.repository=eine Archiv verwahrende Institution
+timeline.target.repository=eine archivierende Institution
 timeline.target.historicalAgent=einen historischen Akteur
 timeline.target.documentaryUnit=eine Bestandsübersicht
 timeline.target.action=ein Benutzerereignis
@@ -531,7 +531,7 @@ helpdesk.message=Das Helpdesk wird versuchen, Ihre Anfrage an die EHRI-Partnerin
 helpdesk.thanks=Vielen Dank!
 helpdesk.thanks.message=Ihre Anfrage wurde gesendet.
 helpdesk.query=Anfrage
-helpdesk.error=Oops! Es ist ein Fehler beim Helpdesk aufgetreten. Die Fehlermeldung lautet:
+helpdesk.error=Es ist ein Fehler beim Helpdesk aufgetreten. Die Fehlermeldung lautet:
 helpdesk.results=Helpdesk-Kontaktempfehlungen
 helpdesk.results.empty=Keine relevanten Institutionen gefunden. Bitte formulieren Sie Ihre Anfrage neu und fügen Sie weitere Details hinzu.
 helpdesk.query.placeholder=Geben Sie Ihre Anfrage hier ein. Die Verwendung von Fachbegriffen ist zu empfehlen.
@@ -552,8 +552,8 @@ dataPolicy.notice2=Sensible personenbezogene Daten sind alle Daten im Zusammenha
     Mitgliedschaft in Gewerkschaften und Einträgen im Strafregister.
 dataPolicy.terms=Hiermit erkläre ich mich damit einverstanden, dass ich sensible personenbezogene Daten ausschließlich für wissenschaftliche Zwecke nutze \
     und sensible personenbezogene Daten in Übereinstimmung mit den geltenden niederländischen und internationalen Gesetzen und Bestimmungen nutze. \
-    Mir ist bewusst, dass ein Verstoß gegen diese Gesetze und/oder Bestimmugnen strafrechtliche Konsequenzen nach sich \
-    ziehen kann.
+    Mir ist bewusst, dass ein Verstoß gegen diese Gesetze und/oder Bestimmungen strafrechtliche Konsequenzen nach sich ziehen kann. \
+  
 dataPolicy.agree=Ich stimme zu
 privacy.header=EHRI-Datenschutzrichtlinie
 privacy.users.header=1. Daten von Benutzern dieser Webseite und ihrer Dienstleistungen
@@ -573,29 +573,29 @@ privacy.users.3=Nutzer, die sich auf dem EHRI-Portal registrieren und ein Profil
     darüber hinaus per Aktualisierung ihrer Profileinstellungen deaktivieren, dass andere Nutzer mit ihnen Kontakt aufnehmen können.
 privacy.users.4=Abgesehen von den zuvor genannten Ausnahmen gibt EHRI keine Daten von registrierten Nutzern an Dritte weiter, \
     wenn keine gesetzliche Verpflichtung hierzu besteht.
-privacy.data.header=2. Daten auf dem Forschungsportal
-privacy.data.1=Das Forschungsportal enthält Beschreibungen von Holocaust-bezogenen Sammlungen und Quellen, die in \
-    Sammlungen verwahrenden Institutionen (Archive, Dokumentationszentren...) in West-, Ost- und Nordeuropa, \
+privacy.data.header=2. Daten auf dem Rechercheportal
+privacy.data.1=Das Rechercheportal enthält Beschreibungen von Holocaust-bezogenen Sammlungen und Quellen, die in \
+    archivierenden Institutionen (Archive, Dokumentationszentren...) in West-, Ost- und Nordeuropa, \
     den USA und in Israel verwahrt werden. Diese Sammlungsbeschreibungen können personenbezogene Daten oder sensible persönliche Daten enthalten (z. B. \
     Daten zu Religionszugehörigkeit oder ethnischer Herkunft). Da die Verarbeitung und Veröffentlichung dieser Daten \
     aus datenschutzrechtlicher Sicht Auswirkungen haben können, hat EHRI eine Risikobewertung durchgeführt, um zu bestimmen, ob \
-    auf diese Daten über das Forschungsportal und das Internet zugegriffen werden kann. EHRI hat unter Berücksichtigung europäischer \
+    auf diese Daten über das Rechercheportal und das Internet zugegriffen werden kann. EHRI hat unter Berücksichtigung europäischer \
     und nationaler Datenschutzgesetze, des Wesens der Sammlungsbeschreibungen, der Archivpraxis \
-    und der Datenschutzrichtlinien der Sammlungen verwahrenden Institutionen entschieden, dass die Veröffentlichung dieser Sammlungsbeschreibungen \
+    und der Datenschutzrichtlinien der archivierenden Institutionen entschieden, dass die Veröffentlichung dieser Sammlungsbeschreibungen \
     kein schwerwiegendes Risiko für den Datenschutz darstellt. Infolgedessen ist der Zugang zu Sammlungsbeschreibungen und allen anderen \
-    Informationen auf dem Forschungsportal für alle Nutzer offen. Details zu den Ergebnissen der Risikobewertung sind abrufbar auf der {0}.
+    Informationen auf dem Rechercheportal für alle Nutzer offen. Details zu den Ergebnissen der Risikobewertung sind abrufbar auf der {0}.
 privacy.data.1.riskAssessmentLinkText=EHRI-Projektwebseite.
 privacy.data.2=Nach dem niederländischen Datenschutzgesetz können sensible personenbezogene Daten nur für Forschungszwecke verwendet werden. \
     Die Verantwortung für die Einhaltung des niederländischen Datenschutzgesetzes obliegt der Person, die die Daten \
     letztendlich veröffentlicht. Werden Ergebnisse in einem anderen Land als in den Niederlanden veröffentlicht, muss das Datenschutzgesetz \
-    des jeweiligen Landes eingehalten werden. Da es sich bei den Daten auf dem Forschungsportal um Beschreibungen von \
+    des jeweiligen Landes eingehalten werden. Da es sich bei den Daten auf dem Rechercheportal um Beschreibungen von \
     Sammlungen handelt, ist ein Besuch des Archivs, das die Archivalien verwahrt, erforderlich, um tatsächlich auf die Dokumente zugreifen zu können. Es ist wahrscheinlich, \
     diese Institution ihre eigene Datenschutzrichtlinie bezüglich des Zugangs zu den Quellen und des Datenschutzes hat: Dies wird \
     in der detaillierten Version der Länderberichte erläutert. Die Nutzer müssen diese spezifischen Verfahren beachten und \
-    können sich nicht auf die Tatsache berufen, dass sie eine Sammlungsbeschreibung auf dem EHRI-Forschungsportal gefunden haben, um \
+    können sich nicht auf die Tatsache berufen, dass sie eine Sammlungsbeschreibung auf dem EHRI-Rechercheportal gefunden haben, um \
     auf das archivierte Dokument zugreifen zu können.
 privacy.data.3=Wenn Sie der Ansicht sind, berechtigte Gründe - auf Basis des niederländischen Datenschutzgesetzes - gegen die Veröffentlichung \
-    bestimmter personenbezogener Daten auf dem Forschungsportal zu haben, können Sie per Schriftform oder per E-Mail \
+    bestimmter personenbezogener Daten auf dem Rechercheportal zu haben, können Sie per Schriftform oder per E-Mail \
     an die Partei, die für die Verarbeitung der personenbezogenen Daten verantwortlich ist, Ihr Anliegen vortragen und die Gründe für eine Ablehnung der Veröffentlichung erläutern. \
     Diese Partei wird Ihre Beschwerde untersuchen und Ihnen innerhalb eines angemessenen Zeitraumes eine Rückmeldung geben.
 privacy.cookies.header=3. Cookies
@@ -641,7 +641,7 @@ copyright.statement=Die Verwendung, Wiederverwendung und/oder Reproduktion der a
     auf dieser Webseite oder in Datensätzen veröffentlichtem Material zu respektieren, insbesondere hinsichtlich der Weitergabe oder Veröffentlichung von Datensätzen. Falls erforderlich, \
     hat der Nutzer den Inhaber der Datensatzrechte zu kontaktieren.
 markdown.cheatsheet.title=Tipps zur Formatierung
-markdown.cheatsheet.asterisks=Asterisken
+markdown.cheatsheet.asterisks=Asteriske
 markdown.cheatsheet.underscores=Unterstriche
 markdown.cheatsheet.bold=Fett
 markdown.cheatsheet.italic=Kursiv
@@ -674,7 +674,7 @@ repository.postalcode=PLZ
 repository.webpage=Webseite
 repository.searchItems=Elemente suchen, die von {0} verwahrt werden
 repository.childItems=Bestandsübersichten
-repository.childItems.search={0,choice,0#{0} niedrigere Ebene |1#1 Element|1<{0,number,integer} Elemente}
+repository.childItems.search={0,choice,0#{0} niedrigere Stufe |1#1 Element|1<{0,number,integer} Elemente}
 repository.search=Archive durchsuchen
 repository.searchInside=Elemente suchen, die von {0} verwahrt werden
 repository.itemsHeldOnline=Elemente auf EHRI
@@ -695,7 +695,7 @@ repository.scriptCode=Schrift der Beschreibung
 repository.institutionType=Art der Institution
 repository.history=Geschichte
 repository.geoculturalContext=Geografischer und kultureller Kontext
-repository.mandates=Auftrag/Rechtliche Grundlagen
+repository.mandates=Auftrag/Verantwortliche Stelle
 repository.administrativeStructure=Verwaltungsstruktur
 repository.records=Bestandsbildungs- und Sammlungsstrategie
 repository.buildings=Gebäude
@@ -704,14 +704,14 @@ repository.findingAids=Findmittel, Übersichten und Veröffentlichung
 repository.openingTimes=Öffnungszeiten
 repository.conditions=Zugangs- und Nutzungsbestimmungen
 repository.accessibility=Erreichbarkeit
-repository.researchServices=Dienstleistungen für die Forschung
+repository.researchServices=Recherchemöglichkeiten
 repository.reproductionServices=Reproduktionsmöglichkeiten
 repository.publicAreas=Öffentliche Bereiche
 repository.descriptionIdentifier=Identifikator der Beschreibung
 repository.institutionIdentifier=Identifikator der Institution
-repository.rulesAndConventions=Beschreibungsstandard
+repository.rulesAndConventions=Verzeichnungsgrundsätze
 repository.status=Stand der Beschreibung
-repository.levelOfDetail=Detailebene
+repository.levelOfDetail=Detailumfang
 repository.datesCVD=Daten der Erstellung, Überarbeitung oder Löschung
 repository.languages=Verwende Sprache
 repository.scripts=Verwendete Schrift
@@ -721,58 +721,58 @@ documentaryUnit.identifier=Identifikator
 documentaryUnit.ref=Online-Quelle
 documentaryUnit.archivalContext=Archivkontext
 documentaryUnit.otherIdentifiers=Alternative Identifikatoren
-documentaryUnit.extentAndMedium=Größe und Medium
-documentaryUnit.scopeAndContent=Gebiet und Inhalt
-documentaryUnit.biographicalHistory=Biografische Geschichte
-documentaryUnit.archivalHistory=Archivgeschichte
-documentaryUnit.acquisition=Anschaffung
+documentaryUnit.extentAndMedium=Umfang und Medium
+documentaryUnit.scopeAndContent=Form und Inhalt
+documentaryUnit.biographicalHistory=Biografische Angaben
+documentaryUnit.archivalHistory=Bestandsgeschichte
+documentaryUnit.acquisition=Abgebende Stelle
 documentaryUnit.appraisal=Bewertung
-documentaryUnit.systemOfArrangement=Erschließungssystem
-documentaryUnit.archivistNote=Anmerkung des Archivars
-documentaryUnit.rulesAndConventions=Beschreibungsstandard
-documentaryUnit.dates=Daten
-documentaryUnit.levelOfDescription=Beschreibungsebene
+documentaryUnit.systemOfArrangement=Ordnung und Klassifikation
+documentaryUnit.archivistNote=Informationen des Bearbeiters
+documentaryUnit.rulesAndConventions=Verzeichnungsgrundsätze
+documentaryUnit.dates=Datum oder Zeitraum
+documentaryUnit.levelOfDescription=Verzeichnungsstufe
 documentaryUnit.languageOfMaterials=Sprachen
 documentaryUnit.scriptOfMaterials=Schriften
 documentaryUnit.searchItems=Unterelemente durchsuchen…
 documentaryUnit.levelOfDescription.fonds=Bestand
-documentaryUnit.levelOfDescription.subfonds=Sub-Bestand
+documentaryUnit.levelOfDescription.subfonds=Teilbestand
 documentaryUnit.levelOfDescription.collection=Sammlung
-documentaryUnit.levelOfDescription.subcollection=Sub-Sammlung
+documentaryUnit.levelOfDescription.subcollection=Teilsammlung
 documentaryUnit.levelOfDescription.recordgrp=Unterlagengruppe
-documentaryUnit.levelOfDescription.subgrp=Sub-Gruppe
+documentaryUnit.levelOfDescription.subgrp=Teilgruppe
 documentaryUnit.levelOfDescription.series=Serie
-documentaryUnit.levelOfDescription.subseries=Sub-Serie
+documentaryUnit.levelOfDescription.subseries=Teilserie
 documentaryUnit.levelOfDescription.file=Akte
 documentaryUnit.levelOfDescription.item=Element
 documentaryUnit.levelOfDescription.otherlevel=Sonstiges
 documentaryUnit.levelOfDescription.class=Klasse
 documentaryUnit.childItems=Unterelemente
-documentaryUnit.childItems.search={0,choice,0#{0} niedrigere Ebene |1#1 Element|1<{0,number,integer} Elemente}
-documentaryUnit.physicalLocation=Physischer Standort
+documentaryUnit.childItems.search={0,choice,0#{0} niedrigere Stufe |1#1 Element|1<{0,number,integer} Elemente}
+documentaryUnit.physicalLocation=Physischer Aufbewahrungsort
 documentaryUnit.languageCode=Sprache der Beschreibung
 documentaryUnit.abstract=Kurzzusammenfassung
-documentaryUnit.accruals=Zugänge
+documentaryUnit.accruals=Neuzugänge
 documentaryUnit.conditionsOfAccess=Zugangsbestimmungen
 documentaryUnit.conditionsOfReproduction=Reproduktionsbestimmungen
 documentaryUnit.languageOfMaterial=Sprache(n) des Materials
 documentaryUnit.scriptOfMaterial=Schrift(en) des Materials
-documentaryUnit.physicalCharacteristics=Physische Eigenschaften und technische Anforderungen
-documentaryUnit.findingAids=Findmittel
-documentaryUnit.locationOfOriginals=Existenz und Standort von Originalen
-documentaryUnit.locationOfCopies=Existenz und Standort von Kopien
-documentaryUnit.relatedUnitsOfDescription=Verwandte Einheiten der Beschreibung
-documentaryUnit.publicationNote=Veröffentlichungsvermerk
-documentaryUnit.notes=Vermerk/e
+documentaryUnit.physicalCharacteristics=Physische Beschaffenheit und technische Anforderungen
+documentaryUnit.findingAids=Findhilfsmittel
+documentaryUnit.locationOfOriginals=Aufbewahrungsort der Originale
+documentaryUnit.locationOfCopies=Aufbewahrungsort von Kopien
+documentaryUnit.relatedUnitsOfDescription=Verwandte Verzeichnungseinheiten
+documentaryUnit.publicationNote=Veröffentlichung
+documentaryUnit.notes=Anmerkung(en)
 documentaryUnit.sources=Quellen
-documentaryUnit.datesOfDescriptions=Daten von Beschreibungen
-documentaryUnit.processInfo=Prozess-Informationen
+documentaryUnit.datesOfDescriptions=Erstellungsdaten von Verzeichnungseinheiten
+documentaryUnit.processInfo=Informationen zur Bearbeitung
 documentaryUnit.creationProcess=Quelle
 documentaryUnit.creationProcess.MANUAL=EHRI
 documentaryUnit.creationProcess.MANUAL.description=Diese Beschreibung wurde von EHRI erstellt.
 documentaryUnit.creationProcess.IMPORT=EHRI-Partner
 documentaryUnit.creationProcess.IMPORT.disclaimer=Diese Beschreibung wurde direkt aus strukturierten Daten entnommen, die EHRI \
-   von einer Partner-Institution zur Verfügung gestellt wurde. Diese Beschreibung stellt nach Angaben der Archiv-Insitution eine korrekte Darstellung der Archivbestände dar, \
+   von einer Partner-Institution zur Verfügung gestellt wurde. Diese Beschreibung stellt nach Angaben der archivierenden Institution eine korrekte Darstellung der Archivbestände dar, \
     auf die sich zum Zeitpunkt des Datentransfers bezieht.
 historicalAgent.identifier=Identifikator
 historicalAgent.dates=Daten
@@ -781,9 +781,9 @@ historicalAgent.entityType.person=Person
 historicalAgent.entityType.family=Familie
 historicalAgent.entityType.corporateBody=Körperschaft
 historicalAgent.set=Historischer Akteur
-historicalAgent.descriptionArea=Beschreibungsbereich
-historicalAgent.identity=Identitätsbereich
-historicalAgent.services=Services-Bereich
+historicalAgent.descriptionArea=Verzeichnung
+historicalAgent.identity=Identifikation
+historicalAgent.services=Services
 historicalAgent.administrationArea=Verwaltung
 mshistoricalAgent.creation=Erstellung
 historicalAgent.name=Autorisierte Namensform
@@ -791,23 +791,23 @@ historicalAgent.parallelFormsOfName=Parallele Namensformen
 historicalAgent.standardisedFormsOfName=Standardisierte Namensformen gemäß anderer Normen
 historicalAgent.otherFormsOfName=Andere Namensformen
 historicalAgent.languageCode=Sprache der Beschreibung
-historicalAgent.typeOfEntity=Art der Stelle
+historicalAgent.typeOfEntity=Art der verantwortlichen Stelle
 historicalAgent.corporateBody=Körperschaft
 historicalAgent.family=Familie
 historicalAgent.person=Person
-historicalAgent.datesOfExistence=Laufzeit
-historicalAgent.biographicalHistory=Geschichte
+historicalAgent.datesOfExistence=Entstehungszeitraum/Laufzeit
+historicalAgent.biographicalHistory=Biografische Angaben
 historicalAgent.place=Orte
 historicalAgent.legalStatus=Rechtlicher Status
 historicalAgent.functions=Funktionen
-historicalAgent.mandates=Auftrag
+historicalAgent.mandates=Verantwortliche Stellen
 historicalAgent.structure=Interne Struktur
 historicalAgent.generalContext=Allgemeiner Kontext
 historicalAgent.descriptionIdentifier=Identifikator der Beschreibung
 historicalAgent.institutionIdentifier=Identifikator der Institution
-historicalAgent.rulesAndConventions=Standard
+historicalAgent.rulesAndConventions=Verzeichnungsgrundsätze
 historicalAgent.status=Stand
-historicalAgent.levelOfDetail=Detailebene
+historicalAgent.levelOfDetail=Detailumfang
 historicalAgent.datesCVD=Daten der Erstellung, Überarbeitung oder Löschung
 historicalAgent.languages=Sprachen
 historicalAgent.scripts=Schriften
@@ -817,7 +817,7 @@ cvocConcept.descriptions=Beschreibungen
 cvocConcept.languageCode=Sprache
 cvocConcept.name=Bevorzugtes Label
 cvocConcept.altLabel=Alt. Label(s)
-cvocConcept.scopeNote=Vermerk zum Umfang
+cvocConcept.scopeNote=Form
 cvocConcept.definition=Definition
 cvocConcept.inVocabulary=Vokabular
 cvocConcept.search=Suchbegriffe
@@ -827,8 +827,8 @@ cvocConcept.narrowerTermsPageHeader={2,choice,0#Keine engeren Begriffe gefunden|
 virtualUnit.viewInArchivalContext=Anzeigen in Archivkontext
 virtualUnit.viewInArchivalContext.explanation=Dieses Element wird als Teil einer ''virtuellen Sammlung'' angezeigt, \
     die nicht der Erschließung von Material im physischen Archiv entspricht.
-country.childItems=Archiv-Institutionen
-country.childItems.search={0,choice,0#{0} niedrigere Ebene |1#1 Institution|1<{0,number,integer} Institutionen}
+country.childItems=Archive
+country.childItems.search={0,choice,0#{0} niedrigere Stufe |1#1 Institution|1<{0,number,integer} Institutionen}
 country.repositoriesPageHeader={2,choice,0#Keine Archive gefunden|1#Ein Archiv gefunden|1<Archiv {0,number,integer} bis {1,number,integer} von {2,number,integer}}
 country.search=Länder durchsuchen
 country.searchInside=Archive durchsuchen
@@ -836,7 +836,7 @@ country.childCount={0,choice,0#Keine Institutionen gelistet|1#1 Institution geli
 country.items=Archive
 country.identifier=Ländercode
 country.identifier.description=Der aus 2 Buchstaben bestehende ISO-3166-1-Code für dieses Land
-country.abstract=Abstract
+country.abstract=Kurzzusammenfassung
 country.report=Geschichte
 country.situation=Archivsituation
 country.dataSummary=EHRI-Recherche (Zusammenfassung)
