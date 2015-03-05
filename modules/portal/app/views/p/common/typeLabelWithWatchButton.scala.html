@@ -1,10 +1,11 @@
-@(item: AnyModel, watched: Boolean)(implicit userOpt: Option[UserProfile], lang: Lang)
+@(item: models.base.AnyModel, watched: Boolean, priorContent: Html = Html(""))(implicit userOpt: Option[UserProfile], lang: Lang)
 
-@p.common.typeLabel(item.isA)  {
-    @if(userOpt.isDefined) {
+@views.html.p.common.typeLabel(item.isA)  {
+    @priorContent
+    @if(userOpt.isDefined || priorContent.body.trim.nonEmpty) {
         <ul class="item-sidebar-actions list-group">
-            <li class="list-group-item btn-group-justified watch-controls" role="group">
-                @p.common.watchButtons(item, watched)
+            <li class="list-group-item btn-group-justified watch-controls" role="listitem">
+                @views.html.p.common.watchButtons(item, watched)
             </li>
         </ul>
     }

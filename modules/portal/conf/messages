@@ -18,7 +18,7 @@ newsFeed=Latest News
 browse=Browse
 details.show=Show Item Details
 details.hide=Hide Item Details
-
+project.site=EHRI project website
 #
 # Help https://portal.ehri-project.eu (Help menu)
 #
@@ -1001,6 +1001,8 @@ virtualUnit.viewInArchivalContext.explanation=This item is being displayed as pa
 #
 # Countries
 #
+# NB: This is a link to the EHRI Project site
+country.report.intro=A general introduction to the EHRI country reports can be found on the {0}.
 country.report.toc=Contents
 country.childItems=Archival Institutions
 country.childItems.search={0,choice,0#{0} lower level |1#1 institution|1<{0,number,integer} institutions}

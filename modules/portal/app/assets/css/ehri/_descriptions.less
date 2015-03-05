@@ -1,3 +1,11 @@
+.description-notice-text {
+  .small;
+  background-color: #f3f3f3;
+  color: @almost-black;
+  font-style: italic;
+  padding: @medium-padding;
+}
+
 .descriptions {
   .make-row();
   .description-viewport {
@@ -14,11 +22,7 @@
     border-bottom: 1px solid #dcdcdc;
 
     .import-disclaimer {
-      .small;
-      background-color: #f3f3f3;
-      color: @almost-black;
-      font-style: italic;
-      padding: @medium-padding;
+      &:extend(.description-notice-text);
     }
   }
 }
