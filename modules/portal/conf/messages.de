@@ -1,11 +1,11 @@
 welcome=Willkommen bei EHRI
-welcome.title=Willkommen beim Online-Portal der European Holocaust Research Infrastructure
+welcome.title=Willkommen auf dem Online-Portal der European Holocaust Research Infrastructure
 home=Startseite
 about=Über EHRI
 language=Sprache
 contact=Kontakt
-welcome.blurb=Das EHRI-Portal ermöglicht den Zugang zu Daten über Archivmaterial \
-  zum Holocaust, das in Institutionen in und außerhalb von Europa verwahrt wird. \
+welcome.blurb=Das EHRI-Portal ermöglicht den Zugang zu Daten über Archivmaterial\
+  zum Holocaust, das in Institutionen in und außerhalb von Europa verwahrt wird.\
   Weitere Informationen zum EHRI-Projekt erhalten Sie auf http://ehri-project.eu.
 footerText=Dies ist eine Entwicklungsversion des EHRI-Portal-Interface.
 footer.funding=Das EHRI-Projekt wird von der Europäischen Kommission gefördert
@@ -39,7 +39,7 @@ constraint.required=*
 constraints.timeCheckSeconds=Timestamp
 constraints.timeCheckSeconds.failed=Das Formular wurde zu schnell übermittelt. Bitte versuchen Sie es erneut.
 constraints.honeypot=Blank Check
-constraints.honeypot.failed=Das Formular hat den Spam-Check nicht bestanden. Bitte versuchen Sie es erneut.
+constraints.honeypot.failed=Das Formular hat den Spamcheck nicht bestanden. Bitte versuchen Sie es erneut.
 constraints.uniqueness=Muss einzigartig sein
 constraints.uniqueness.failed=Es existiert bereits ein Element mit diesem Wert
 format.boolean=Ein/Aus
@@ -47,8 +47,8 @@ errors.staffOnly=Eingeschränkt
 errors.staffOnlyMessage=Der Zugriff auf diese Seite ist momentan auf EHRI-Mitarbeiter eingeschränkt.
 errors.verifiedOnly=Eingeschränkt
 errors.verifiedOnlyMessage=Der Zugriff auf diese Seite ist momentan auf verifizierte Nutzer eingeschränkt.
-errors.readonly=Das EHRI-Portal befindet sich wegen Wartungsarbeiten momentan im Read-Only-Modus. \
-  Die normale Nutzung sollte in Kürze wieder möglich sein. Vielen Dank für Ihre Geduld.
+errors.readonly=Das EHRI-Portal befindet sich wegen Wartungsarbeiten momentan im Read-Only-Modus.\
+           Die normale Nutzung sollte in Kürze wieder möglich sein. Vielen Dank für Ihre Geduld.
 errors.itemNotFound=Element nicht gefunden
 errors.itemNotFound.explanation=Das Element konnte nicht in der Datenbank gefunden werden.
 errors.pageNotFound=Seite nicht gefunden
@@ -58,8 +58,8 @@ errors.genericProblem.explanation=Leider ist beim Laden dieser Seite ein Fehler 
     und bemühen uns, das Problem schnellstmöglich zu beheben.
 errors.maintenance=Seite vorübergehend offline
 errors.maintenance.explanation=Das EHRI-Portal ist momentan wegen Wartungsarbeiten offline. Bitte versuchen Sie es in Kürze erneut.
-errors.databaseError=Datenbank-Fehler
-errors.databaseError.explanation=Leider scheint unser Datenbank-Server abgestürzt zu sein     \
+errors.databaseError=Datenbankfehler
+errors.databaseError.explanation=Leider scheint unser Datenbankserver abgestürzt zu sein     \
     Bitte versuchen Sie es in Kürze erneut.
 errors.databaseMaintenance=Datenbank vorübergehend offline
 errors.databaseMaintenance.explanation=Die EHRI-Datenbank ist wegen Wartungsarbeiten momentan offline. \
@@ -126,10 +126,10 @@ profile.unwatch=Element nicht mehr beobachten
 profile.unwatch.tooltip=Klicken Sie, um in Ihrer Aktivitätenliste keine Aktualisierungen dieses Elements mehr zu sehen.
 profile.unwatch.submit=Element nicht mehr beobachten
 profile.unwatch.title=Element aus Ihrer Beobachtungsliste entfernen
-type=Element-Typ
+type=Art von Element
 type.repository=Archive
 type.repository.description=Ein Verzeichnis von Archiven, in denen \
-  Holocaust-bezogenes Material verwahrt wird.
+  Material zum Holocaust verwahrt wird.
 type.documentaryUnit=Bestandsbeschreibungen
 type.documentaryUnit.description=Elektronische Beschreibungen und Findmittel zu Holocaust-bezogenem Archivmaterial.
 type.historicalAgent=Historische Akteure
@@ -170,15 +170,15 @@ login.openid=OpenID
 login.email=E-Mail-Adresse
 login.password=Passwort
 login.password.confirm=Passwort bestätigen
-login.password.noPassword=Zur Zeit ist kein Passwort mit Ihrem Konto verknüpft. Das bedeutet, dass Sie \
-  sich über einen Drittanbieter wie Google oder Facebook angemeldet haben.
+login.password.noPassword=Zur Zeit ist kein Passwort mit Ihrem Konto verknüpft. Das bedeutet, dass Sie\
+    sich über einen Drittanbieter wie Google oder Facebook angemeldet haben.
 login.password.change=Passwort ändern
 login.password.change.link=Klicken Sie hier, um Ihr Passwort zu ändern
 login.password.change.submit=Absenden
 login.password.change.confirmation=Passwort geändert
 login.password.reset=Passwort wiederherstellen
-login.password.reset.text=Passwort vergessen? Geben Sie unten die E-Mail-Adresse ein, mit der Sie sich registriert haben, \
-  und wir schicken Ihnen einen Link zur Passwort-Wiederherstellung.
+login.password.reset.text=Passwort vergessen? Geben Sie unten die E-Mail-Adresse ein, mit der Sie sich registriert haben,\
+    und wir schicken Ihnen einen Link zur Passwortwiederherstellung.
 login.password.reset.noPasswordMatching=Kein Konto stimmt mit {0} überein
 login.password.reset.submit=Wiederherstellungslink schicken
 login.openid.urlPlaceholder=Geben Sie Ihre OpenID-URL ein
@@ -190,8 +190,8 @@ login.recover.link=Klicken Sie hier, wenn Sie Ihr Passwort vergessen oder verlor
 login.error=Fehler bei den eingegeben Daten
 login.error.badUsernameOrPassword=Ungültiger Benutzername oder Passwort
 login.error.passwordsDoNotMatch=Passwort und Bestätigung stimmen nicht überein
-login.error.badResetToken=Die URL zur Passwort-Wiederherstellung war ungültig oder ist abgelaufen. \
-    Hinweis: Passwort-Wiederherstellungslinks können nur einmal benutzt werden.
+login.error.badResetToken=Die URL zur Passwortwiederherstellung war ungültig oder ist abgelaufen. \
+    Hinweis: Links zur Passwortwiederherstellung können nur einmal benutzt werden.
 login.error.oauth2.info=Leider ist ein Problem beim Erstellen Ihres Kontos über {0} aufgetreten. Bitte versuchen Sie, \
     sich auf andere Weise zu registrieren.
 login.password.current=Aktuelles Passwort
@@ -230,16 +230,16 @@ mail.message.heading=Neue Nachricht von {0}
 mail.message.copy.heading=Kopie Ihrer Nachricht an {0}
 mail.message.replyFooter=Um zu antworten, können Sie direkt auf diese Nachricht antworten. Sie können den Erhalt von Nachrichten anderer Nutzer deaktivieren, indem Sie Ihre Einstellungen aktualisieren.
 bookmark.tooltip=Dieses Element zu Ihren Lesezeichen hinzufügen.
-bookmarkSet.list=Lesezeichen-Sammlung
+bookmarkSet.list=Lesezeichensammlung
 bookmarkSet.defaultSetName=Als Lesezeichen gespeicherte Elemente
-bookmarkSet.create=Lesezeichen-Sammlung erstellen
+bookmarkSet.create=Lesezeichensammlung erstellen
 bookmarkSet.create.submit=Absenden
-bookmarkSet.edit=Lesezeichen-Sammlung bearbeiten
+bookmarkSet.edit=Lesezeichensammlung bearbeiten
 bookmarkSet.edit.submit=Absenden
-bookmarkSet.delete=Lesezeichen-Sammlung löschen
+bookmarkSet.delete=Lesezeichensammlung löschen
 bookmarkSet.delete.submit=Löschen
-bookmarkSet.noBookmarkSetsYet=Sie haben noch keine Lesezeichen-Sammlungen erstellt.
-bookmarkSet.noUserBookmarkSetsYet={0} hat noch keine öffentlichen Lesezeichen-Sammlungen.
+bookmarkSet.noBookmarkSetsYet=Sie haben noch keine Lesezeichensammlungen erstellt.
+bookmarkSet.noUserBookmarkSetsYet={0} hat noch keine öffentlichen Lesezeichensammlungen.
 description.additionalData=Zusätzliche gewonnene Daten (Klicken, um anzuzeigen)
 description.additionalData.key=Key
 description.additionalData.value=Value
@@ -287,7 +287,7 @@ error.required=Erforderlich
 error.emailExists=Die E-Mail-Adresse ist entweder ungültig oder bereits registriert
 error.unknownUser=Unbekannter Benutzer
 error.emailNotFound=Diese E-Mail-Adresse wurde in unserem System nicht gefunden.
-error.badRecaptcha=Die Antwort auf die Recaptcha-Prüfung (um sicherzustellen, dass es sich um keine automatische Spamming-Maschine handelt) \
+error.badRecaptcha=Die Antwort auf die Recaptcha-Prüfung (um sicherzustellen, dass es sich um keine automatische Spammingmaschine handelt) \
       war falsch. Tipp: Sie können den Prüftext aktualisieren, bis Sie einen besser lesbaren Text erhalten.
 error.rateLimit=Maximale Anzahl von Versuchen erreicht. Bitte warten Sie {0} Minuten und versuchen Sie es erneut.
 error.openId=Beim Anmelden mit OpenID ist ein Fehler aufgetreten.\
@@ -301,7 +301,7 @@ search.sort=Reihenfolge
 search.sort.identifier.asc=ID/Code
 search.sort.identifier.asc.title=Ergebnisse ordnen nach von Institutionen zugewiesenen Identifikatoren
 search.sort.isParent.desc-identifier.asc=ID/Code
-search.sort.isParent.desc-identifier.asc.title=Ergebnisse ordnen nach von Institutionen zugewiesenen Identifikatoren, beginnend mit Behälter-Elementen
+search.sort.isParent.desc-identifier.asc.title=Ergebnisse ordnen nach von Institutionen zugewiesenen Identifikatoren, beginnend mit Behälterelementen
 search.sort.name_sort.asc=Name
 search.sort.name_sort.asc.title=Ergebnisse nach Namen ordnen
 search.sort.lastUpdated.desc=Vor kurzem aktualisiert
@@ -326,12 +326,12 @@ facet.lang=Sprache der Beschreibung
 facet.lang.placeholder=Nach Sprache filtern
 facet.lang.tooltip=Die Sprache der elektronischen Beschreibung.
 facet.data=Struktur
-facet.data.tooltip=Ob es sich beim Element um einen Behälter weiterer Unterlagen handelt.
+facet.data.tooltip=Gibt an, ob dieses Element ein Behälter weiterer Unterlagen ist.
 facet.data.hasChildItems=Behälter (mehrstufig)
 facet.data.placeholder=Nach Struktur filtern
 facet.parent=Struktur
-facet.parent.tooltip=Ob dieses Element ein Behälter weiterer Unterlagen ist.
-facet.parent.true=Behälter-Element
+facet.parent.tooltip=Gibt an, ob dieses Element ein Behälter weiterer Unterlagen ist.
+facet.parent.true=Behälterelement
 facet.parent.false=Einzelnes Element
 facet.source=Quelle der Beschreibung
 facet.source.tooltip=Die Quelle der elektronischen Beschreibung, d. h. ob sie \
@@ -354,9 +354,9 @@ facet.location=Standort
 facet.holder=Archivierende Institution
 facet.holder.tooltip=Das Archiv, in dem das Quellmaterial verwahrt wird.
 facet.holder.placeholder=Filtern nach Institutionen
-facet.container=Element-Struktur
+facet.container=Elementstruktur
 facet.topLevel.true=Oberste Stufe
-facet.container.hasChildItems=Mehrstufig (Container)
+facet.container.hasChildItems=Mehrstufig (Behälter)
 facet.itemsHeldOnline=Anzeigbare Elemente
 facet.itemsHeldOnline.yes=Katalogisiertes Material vorhanden
 facet.cpf=Art der Stelle
@@ -399,7 +399,7 @@ social.message.send.confirmation=Ihre Nachricht wurde gesendet
 social.message.send.subject=Betreff
 social.message.send.message=Ihre Nachricht
 social.message.send.copy=Senden Sie eine Kopie Ihrer Nachricht an sich selbst
-social.message.send.warning=Ihre Nachricht wird per E-Mail mit Ihrer registrierten E-Mail-Adresse im "Antworten-an"-Feld gesendet.
+social.message.send.warning=Ihre Nachricht wird per E-Mail mit Ihrer registrierten E-Mail-Adresse im "Antworten an"-Feld gesendet.
 social.message.send.userNotAcceptingMessages=Dieser Benutzer hat Nachrichten deaktiviert.
 social.users=Menschen
 social.browseUsers=Menschen auf EHRI
@@ -574,7 +574,7 @@ privacy.users.3=Nutzer, die sich auf dem EHRI-Portal registrieren und ein Profil
 privacy.users.4=Abgesehen von den zuvor genannten Ausnahmen gibt EHRI keine Daten von registrierten Nutzern an Dritte weiter, \
     wenn keine gesetzliche Verpflichtung hierzu besteht.
 privacy.data.header=2. Daten auf dem Rechercheportal
-privacy.data.1=Das Rechercheportal enthält Beschreibungen von Holocaust-bezogenen Sammlungen und Quellen, die in \
+privacy.data.1=Das Rechercheportal enthält Beschreibungen von auf den Holocaust bezogenen Sammlungen und Quellen, die in \
     archivierenden Institutionen (Archive, Dokumentationszentren...) in West-, Ost- und Nordeuropa, \
     den USA und in Israel verwahrt werden. Diese Sammlungsbeschreibungen können personenbezogene Daten oder sensible persönliche Daten enthalten (z. B. \
     Daten zu Religionszugehörigkeit oder ethnischer Herkunft). Da die Verarbeitung und Veröffentlichung dieser Daten \
@@ -609,7 +609,7 @@ privacy.cookies.4=Auf dem EHRI-Portal ({0}):
 privacy.cookies.5.a=a) Der Sitzungscookie.
 privacy.cookies.5.b=b) Anzeigeeinstellungen der Nutzer.
 privacy.cookies.5.c=c) Haftungsausschluss-Cookie - erinnert Nutzer daran, dass sie die Haftungsausschlussklausel mit "Ja" bestätigt haben.
-privacy.cookies.5.d=d) Cookie für die Browser-Überprüfung - erinnert Nutzer an die Kapazitäten des Browsers.
+privacy.cookies.5.d=d) Cookie für die Browserüberprüfung - erinnert Nutzer an die Kapazitäten des Browsers.
 privacy.cookies.5.e=e) Google-Analytics-Cookies (siehe oben).
 privacy.complaints.header=4. Beschwerdeverfahren
 privacy.complaints.1=Die für die Verarbeitung personenbezogener Daten verantwortliche Partei im Sinne des niederländischen \
@@ -652,8 +652,8 @@ markdown.cheatsheet.unordered=Sortierte Liste
 markdown.cheatsheet.unordered.item1=Element
 markdown.cheatsheet.unordered.item2=Weiteres Element
 markdown.cheatsheet.more=Quelle
-item.details=Element-Details
-item.history=Online-Verlauf
+item.details=Elementdetails
+item.history=Onlineverlauf
 item.related=Verwandte Elemente
 item.linked=Andere verknüpfte Elemente
 item.showChildItems=Unterelemente
@@ -772,7 +772,7 @@ documentaryUnit.creationProcess.MANUAL=EHRI
 documentaryUnit.creationProcess.MANUAL.description=Diese Beschreibung wurde von EHRI erstellt.
 documentaryUnit.creationProcess.IMPORT=EHRI-Partner
 documentaryUnit.creationProcess.IMPORT.disclaimer=Diese Beschreibung wurde direkt aus strukturierten Daten entnommen, die EHRI \
-   von einer Partner-Institution zur Verfügung gestellt wurde. Diese Beschreibung stellt nach Angaben der archivierenden Institution eine korrekte Darstellung der Archivbestände dar, \
+   von einer Partnerinstitution zur Verfügung gestellt wurde. Diese Beschreibung stellt nach Angaben der archivierenden Institution eine korrekte Darstellung der Archivbestände dar, \
     auf die sich zum Zeitpunkt des Datentransfers bezieht.
 historicalAgent.identifier=Identifikator
 historicalAgent.dates=Daten
