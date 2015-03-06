@@ -1,6 +1,7 @@
 package controllers.portal
 
 import auth.AccountManager
+import models.base.AnyModel
 import play.api.libs.concurrent.Execution.Implicits._
 import backend.Backend
 import com.google.inject.{Inject, Singleton}
@@ -28,9 +29,10 @@ case class DocumentaryUnits @Inject()(implicit globalConfig: global.GlobalConfig
     val filters = if (!hasActiveQuery(request))
       Map(SearchConstants.TOP_LEVEL -> true) else Map.empty[String,Any]
 
-    findType[DocumentaryUnit](
+    find[AnyModel](
       filters = filters,
-      facetBuilder = docSearchFacets
+      facetBuilder = docSearchFacets,
+      entities = Seq(EntityType.DocumentaryUnit, EntityType.VirtualUnit)
     ).map { result =>
       Ok(p.documentaryUnit.list(result, portalDocRoutes.searchAll(),
         request.watched))

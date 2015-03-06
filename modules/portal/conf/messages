@@ -427,6 +427,12 @@ facet.lod.placeholder=Select Level of Detail
 facet.kw=Keyword
 facet.kw.tooltip=Keywords associated with each record.
 facet.kw.placeholder=Filter Keyword
+facet.manifestation=Manifestation
+facet.manifestation.tooltip=Items described in accordance to physical \
+  organisation, or ''virtual'' items aggregating descriptions of material from different \
+  sources and potentially held by different institutions.
+facet.manifestation.documentaryUnit=Actual/Physical
+facet.manifestation.virtualUnit=Virtual Collection
 facet.country=Country
 facet.country.tooltip=The country in which the source material resides.
 facet.country.placeholder=Filter Country
@@ -1008,7 +1014,7 @@ country.childItems=Archival Institutions
 country.childItems.search={0,choice,0#{0} lower level |1#1 institution|1<{0,number,integer} institutions}
 country.repositoriesPageHeader={2,choice,0#No repositories found|1#One repository found|1<Repositories {0,number,integer} to {1,number,integer} of {2,number,integer}}
 country.search=Search Countries
-country.searchInside=Search Repositories
+country.searchInside=Search Institutions
 country.childCount={0,choice,0#No institutions listed|1#1 institution listed|1<{0,number,integer} institutions listed}
 country.items=Repositories
 country.identifier=Country Code

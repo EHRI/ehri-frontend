@@ -1,19 +1,32 @@
-@(item: AnyModel, path: Seq[AnyModel], hit: utils.search.SearchHit, watched: Boolean, showRepository: Boolean = true)(implicit userOpt: Option[UserProfile], req: RequestHeader, globalConfig: global.GlobalConfig, lang: Lang, descriptionId: Option[String] = None, context: Option[Holder[_]] = None)
+@(item: models.base.AnyModel, path: Seq[models.base.AnyModel], hit: utils.search.SearchHit, watched: Boolean, showRepository: Boolean = true)(implicit userOpt: Option[UserProfile], req: RequestHeader, globalConfig: global.GlobalConfig, lang: Lang, descriptionId: Option[String] = None, context: Option[models.base.Holder[_]] = None)
 
-@wrapParent(doc: AnyModel, path: Seq[AnyModel]) = {
+@wrapParent(doc: models.base.AnyModel, path: Seq[models.base.AnyModel]) = {
     @if(path.lastOption.map(_.id) != context.map(_.id)) {
         @path.lastOption.map { p =>
             @wrapParent(doc, path.dropRight(1))
             <li>
-                <a class="search-item-parent-name type-highlight @p.isA" href="@views.p.Helpers.virtualUnitUrl(path, item.id)">@p.toStringLang</a>
+                <a class="search-item-parent-name type-highlight @p.isA" href="@views.p.Helpers.virtualUnitUrl(path, item.id)">@hit.highlight(p.toStringLang)</a>
             </li>
         }
     }
 }
 
+@wrapParent2(doc: VirtualUnit, parent: Option[VirtualUnit]) = {
+    @if(parent.map(_.id) != context.map(_.id)) {
+        @parent.map { p =>
+            @wrapParent2(doc, p.parent)
+        <li>
+            <a class="search-item-parent-name type-highlight @p.isA" href="@views.p.Helpers.virtualUnitUrl(path, item.id)">@hit.highlight(p.toStringLang)</a>
+        </li>
+        }
+    }
+}
+
+
+
 <div class="search-item" id="@item.id">
         <div class="search-item-actions">
-            @p.common.watchButtonsSmall(item, watched)
+            @views.html.p.common.watchButtonsSmall(item, watched)
         </div>
         <h3 class="search-item-heading type-highlight @item.isA.toString">
             <a class="@item.isA" href="@views.p.Helpers.virtualUnitUrl(path, item.id)">
@@ -21,16 +34,16 @@
             </a>
         </h3>
         <div class="search-item-body">
-            <ol class="breadcrumb">@wrapParent(item, path)</ol>
             @item match {
                 case d: DocumentaryUnit => {
-                    @p.documentaryUnit.listItemBody(d, showRepository, highlighter = hit)
+                    <ol class="breadcrumb">@wrapParent(d, path)</ol>
+                    @views.html.p.documentaryUnit.listItemBody(d, showRepository, highlighter = hit)
                 }
                 case v: VirtualUnit => {
+                    <ol class="breadcrumb">@wrapParent2(v, v.parent)</ol>
                     @listItemBody(v, path, highlighter = hit)
                 }
-                case _ => {
-                }
+                case _ => {}
             }
         </div>
 </div>
