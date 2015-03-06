@@ -79,7 +79,7 @@
 }
 
 @facets = {
-    @views.html.common.search.selectedFacets(result.facetClasses)
+    @views.html.common.search.selectedFacets(result.facetClasses, result.facets)
     <p class="small">
         @Messages(if(available.nonEmpty) "guides.facets.available" else "guides.facets.hierarchy")
     </p>

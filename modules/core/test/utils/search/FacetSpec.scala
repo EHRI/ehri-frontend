@@ -24,12 +24,12 @@ class FacetSpec extends PlaySpecification {
 
   "Facet query string ops" should {
     "allow adding facet to a query" in {
-      val withFacet: String = pathWithFacet(testFacetClass, FieldFacet("en"), "/foobar", qs)
+      val withFacet: String = pathWithFacet(testFacetClass, "en", "/foobar", qs)
       withFacet must equalTo("/foobar?lang=de&lang=en&lang=fr")
     }
 
     "allow removing facets from a query" in {
-      val withoutFacet: String = pathWithoutFacet(testFacetClass, FieldFacet("fr"), "/foobar", qs)
+      val withoutFacet: String = pathWithoutFacet(testFacetClass, "fr", "/foobar", qs)
       withoutFacet must equalTo("/foobar?lang=de")
     }
   }

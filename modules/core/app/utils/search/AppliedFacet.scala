@@ -7,7 +7,7 @@ import play.api.libs.json.Json
  * and the set of values that should be used to constrain
  * a particular search.
  */
-case class AppliedFacet(name: String, values: List[String])
+case class AppliedFacet(name: String, values: Seq[String])
 
 object AppliedFacet {
   implicit val _format = Json.format[AppliedFacet]

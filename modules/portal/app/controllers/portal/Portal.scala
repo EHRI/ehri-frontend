@@ -40,6 +40,7 @@ case class Portal @Inject()(implicit globalConfig: global.GlobalConfig, searchEn
   private val defaultSearchTypes = List(
     EntityType.Repository,
     EntityType.DocumentaryUnit,
+    EntityType.VirtualUnit,
     EntityType.Country
   )
 

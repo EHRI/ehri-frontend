@@ -126,7 +126,7 @@ object XmlResponseHandler extends ResponseHandler{
      *   ...
      */
     private def extractFieldFacet(fc: FieldFacetClass, appliedFacets: Seq[AppliedFacet]): FieldFacetClass = {
-      val applied: List[String] = appliedFacets.find(_.name == fc.key).map(_.values).getOrElse(List.empty[String])
+      val applied: Seq[String] = appliedFacets.find(_.name == fc.key).map(_.values).getOrElse(Seq.empty[String])
       val nodeOpt = response.descendant.find(n => (n \ "@name").text == "facet_fields")
       val facets = nodeOpt.toList.flatMap { node =>
         val children = node.descendant.filter(n => (n \ "@name").text == fc.key)
@@ -147,7 +147,7 @@ object XmlResponseHandler extends ResponseHandler{
      * Extract query facets from Solr XML response.
      */
     private def extractQueryFacet(fc: QueryFacetClass, appliedFacets: Seq[AppliedFacet], tags: Seq[String] = Nil): QueryFacetClass = {
-      val applied: List[String] = appliedFacets.find(_.name == fc.key).map(_.values).getOrElse(List.empty[String])
+      val applied: Seq[String] = appliedFacets.find(_.name == fc.key).map(_.values).getOrElse(Seq.empty[String])
       val facets = fc.facets.flatMap{ f =>
         val nameValue = s"${SolrFacetParser.fullKey(fc)}:${SolrFacetParser.facetValue(f)}"
         response.descendant.filter(n => (n \\ "@name").text == nameValue).text match {
