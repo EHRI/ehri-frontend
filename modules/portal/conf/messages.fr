@@ -59,10 +59,11 @@ errors.genericProblem.explanation=Nous sommes désolés, mais cette page ne peut
 errors.maintenance=Site provisoirement hors ligne
 errors.maintenance.explanation=Le portail de l''EHRI est actuellement hors ligne pendant que nous effectuons une opération de maintenance. Veuillez revenir sous peu.
 errors.databaseError=Erreur de base de données
-errors.databaseError.explanation=J"ai bien peur que notre serveur de base de données ne soit en panne.    \
+errors.databaseError.explanation=J"ai bien peur que notre serveur de base de données ne soit en panne.  \
      Nous ne pouvons continuer sans qu'il soit réparé, veuillez réessayer plus tard.
 errors.databaseMaintenance=Base de données provisoirement hors ligne
-errors.databaseMaintenance.explanation=La base de données d l"EHRI est actuellement hors ligne pour cause d"entretien de routine.  \
+errors.databaseMaintenance.explanation=La base de données d l"EHRI est actuellement hors ligne pour cause d"entretien de routine. \
+  Elle devrait être à nouveau disponible sous peu alors réessayez bientôt.
 errors.permissionDenied=Autorisation refusée
 errors.permissionDenied.explanation=Il semblerait que vous ne puissiez accéder à ce que vous demandiez \
   Il s''agit probablement d"une erreur de notre part. Nous allons essayer de la réparer dès que possible.
@@ -127,7 +128,7 @@ profile.unwatch.title=Supprimer ce sujet de votre liste de surveillance
 type=Type de pièce
 type.repository=Institutions d''archives
 type.repository.description=Un répertoire des institutions d''archives qui \
-  contiennent du matériel connexe Holocauste.
+  conserve des archives liées à l''Holocauste.
 type.documentaryUnit=Descriptions archivistiques
 type.documentaryUnit.description=Descriptions électroniques et instruments de recherche de documents d''archives liés à l''Holocauste.
 type.historicalAgent=Agents historiques
