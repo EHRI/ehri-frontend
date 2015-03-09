@@ -3,18 +3,6 @@ jQuery(function($) {
 
   var FB_REDIRECT_HASH = "#_=_";
 
-  // Switch to tab via hash
-  // Javascript to enable link to tab
-  var hash = document.location.hash;
-  if (hash.length) {
-    $('.nav-tabs a[href=#'+hash.split('#')[1]+']').tab('show') ;
-  }
-
-// Change hash for page-reload
-  $(".nav-tabs a").on("shown.bs.tab", function (e) {
-    window.location.hash = e.target.hash;
-  });
-
   /**
    * Description viewport code. This fixes a viewport to a list
    * of item descriptions so only the selected one is present
