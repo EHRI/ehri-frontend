@@ -1,5 +1,7 @@
 @(guide: Guide, page: GuidePage, pages: List[GuidePage], result: utils.search.SearchResult[(DocumentaryUnit,utils.search.SearchHit)], available: Map[String, Seq[models.base.AnyModel]], action: Call)(implicit userOpt: Option[UserProfile], request: RequestHeader, prefs: utils.SessionPrefs, globalConfig: global.GlobalConfig, lang: Lang, flash: Flash)
 
+@import utils.search.SearchOrder
+
 @js = {
     <script type="text/javascript" src="@controllers.portal.routes.Assets.versioned("js/portal-guide.js")"></script>
     <script type="text/javascript" src="@controllers.portal.routes.Assets.versioned("js/portal-guide-facet.js")"></script>
@@ -100,14 +102,18 @@
 @sidebar(page: GuidePage) = {
     <div id="facets">
         @helper.form(action = action) {
-            <div class="form-group">
-                <label for="id_q" class="sr-only">@Messages("search")</label>
-                <input type="text" id="id_q" name="q" value="@result.params.query" class="form-control" placeholder="@Messages("search")" />
+            <div class="form-group search-box">
+                <div class="input-group">
+                    <label for="id_q" class="sr-only">@Messages("search")</label>
+                    <input type="text" id="id_q" name="q" value="@result.params.query" class="form-control" placeholder="@Messages("search")" />
+                    <span class="input-group-btn">
+                        <button type="submit" class="form-control"><span class="glyphicon glyphicon-search">
+                        </span>@Messages("search")
+                        </button>
+                    </span>
+                </div>
             </div>
-            <ul class="nav nav-pills nav-ehri nav-ehri-black nav-justified">
-                <li><button type="submit" class="nav-ehri nav-ehri-black nav-ehri-input"><span class="glyphicon glyphicon-search"></span><span class="text-hide">
-                    Search</span></button></li>
-            </ul>
+            @common.search.searchSort(result.params, Seq(SearchOrder.Score, SearchOrder.Name, SearchOrder.Detail))
             @facets
         }
     </div>

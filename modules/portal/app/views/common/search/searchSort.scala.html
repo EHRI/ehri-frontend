@@ -1,10 +1,12 @@
-@(params: utils.search.SearchParams)(implicit req: RequestHeader, lang: Lang)
+@(params: utils.search.SearchParams, values: Seq[utils.search.SearchOrder.Value] = Seq.empty)(implicit req: RequestHeader, lang: Lang)
 
 @import utils.search.{SearchParams,SearchOrder}
 
+@defaultValues = @{if(values.nonEmpty) values else Seq(SearchOrder.Score, SearchOrder.Id, SearchOrder.Name, SearchOrder.DateNewest, SearchOrder.Detail)}
+
 <div class="search-sort btn-group btn-group-xs">
     <span class="fa fa-sort" title="@Messages("search.sort.title")"></span>
-    @List(SearchOrder.Score, SearchOrder.Id, SearchOrder.Name, SearchOrder.DateNewest, SearchOrder.Detail).map { sortKey =>
+    @defaultValues.map { sortKey =>
         @defining("search.sort." + sortKey.replace(",", "-")) { i18nKey =>
             @defining((Messages(i18nKey), Messages(i18nKey + ".title"))) { case (name, title) =>
                 @if(params.sort.equals(Some(sortKey))) {
