@@ -1,8 +1,5 @@
 @(facetClasses: Seq[utils.search.FacetClass[utils.search.Facet]], applied: Seq[utils.search.AppliedFacet])(implicit req: RequestHeader, lang: Lang)
 
-@import utils.search._
-
-
 <div class="selected-facets">
     @applied.collect { case utils.search.AppliedFacet(key, values) =>
         @facetClasses.find(_.key == key).map { fclass =>
@@ -11,7 +8,7 @@
                     <span class="facet"><span class="facet-type">@fclass.name:</span> @fclass.render(value)
                         <input type="hidden" name="@fclass.param" value="@value" />
                     </span>
-                    <a class="remove-filter" href="@pathWithoutFacet(fclass, value, req.path, req.queryString.filterKeys(_!="page"))">
+                    <a class="remove-filter" href="@utils.search.pathWithoutFacet(fclass, value, req.path, req.queryString.filterKeys(_!="page"))">
                         <span class="remove"></span>
                     </a>
                 </div>

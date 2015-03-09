@@ -3,7 +3,7 @@
 @filteredLink(id: String) = {
     @guidePath match {
         case Some(gPath) =>  { 
-            <a href="@controllers.portal.guides.routes.Guides.guideFacets(gPath)?kw[]=@id "><span class="glyphicon glyphicon-search"></span></a>
+            <a href="@controllers.portal.guides.routes.Guides.guideFacets(gPath)?kw=@id "><span class="glyphicon glyphicon-search"></span></a>
         }
         case  _ =>  { # }
     }

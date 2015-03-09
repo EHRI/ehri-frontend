@@ -6,8 +6,8 @@
     <script src="@controllers.portal.routes.Assets.versioned("js/select2/select2.js")"></script>
 
     @lang.language match {
-            case "en" => {}
-            case _ => {
+        case "en" => {}
+        case _ => {
              <script src="@controllers.portal.routes.Assets.versioned("js/select2/select2_locale_" + lang.language +".js")"></script>
         }
     }
@@ -68,7 +68,7 @@
     <div class="facet-class">
         <h4 class="facet-label">@page.name</h4>
         <div class="facet-options">
-            <select multiple style="width: 100%" name="kw[]" data-placeholder="@page.name" class="form-control facet-selected select2 autosubmit">
+            <select multiple style="width: 100%" name="kw" data-placeholder="@page.name" class="form-control facet-selected select2 autosubmit">
                 <option></option>
                 @available.getOrElse(page.content, List.empty).map { f =>
                     <option value="@f.id">@f.toStringLang</option>
@@ -80,9 +80,9 @@
 
 @facets = {
     @views.html.common.search.selectedFacets(result.facetClasses, result.facets)
-    <p class="small">
-        @Messages(if(available.nonEmpty) "guides.facets.available" else "guides.facets.hierarchy")
-    </p>
+    @if(available.isEmpty) {
+        <p class="small">@Messages("guides.facets.hierarchy")</p>
+    }
     @for(otherPage <- pages.filterNot(p => GuidePage.Layout.isFreeText(p.layout))) {
         @if(available.nonEmpty){
             @selectTwo(otherPage)
@@ -90,7 +90,7 @@
             <div class="facet-class">
                 <h4 class="facet-label">@otherPage.name</h4>
                 <div class="facet-options">
-                    <input type="text" style="width: 100%;" name="kw[]" data-placeholder="@otherPage.name" data-target="@controllers.portal.guides.routes.Guides.layoutRetrieval(guide.path, otherPage.path)" class="form-control select2 facet-browse autosubmit" />
+                    <input type="text" style="width: 100%;" name="kw" data-placeholder="@otherPage.name" data-target="@controllers.portal.guides.routes.Guides.layoutRetrieval(guide.path, otherPage.path)" class="form-control select2 facet-browse autosubmit" />
                 </div>
             </div>
         }
