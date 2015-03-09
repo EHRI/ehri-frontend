@@ -665,7 +665,8 @@ helpdesk.results.empty=No relevant institutions found. Please reformulate your q
 helpdesk.query.placeholder=Enter your query here. Subject-specific terms are best.
 helpdesk.copyMe=Email a copy of the query to your address
 helpdesk.youAsked=You asked "{0}".
-helpdesk.recommendations=Recommended contacts ordered by relevance for your query:
+helpdesk.recommendations=Recommended institutions ordered by relevance for your question. \
+  Please use the email address provided to contact one or several relevant institution(s).
 helpdesk.askAgain=Try another query...
 helpdesk.institution=Institution Name
 helpdesk.institutions=Contact recommendations will be drawn from the following institutions:
