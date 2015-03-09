@@ -18,7 +18,7 @@ newsFeed=Latest News
 browse=Browse
 details.show=Show Item Details
 details.hide=Hide Item Details
-
+project.site=EHRI project website
 #
 # Help https://portal.ehri-project.eu (Help menu)
 #
@@ -427,6 +427,12 @@ facet.lod.placeholder=Select Level of Detail
 facet.kw=Keyword
 facet.kw.tooltip=Keywords associated with each record.
 facet.kw.placeholder=Filter Keyword
+facet.manifestation=Manifestation
+facet.manifestation.tooltip=Items described in accordance to physical \
+  organisation, or ''virtual'' items aggregating descriptions of material from different \
+  sources and potentially held by different institutions.
+facet.manifestation.documentaryUnit=Actual/Physical
+facet.manifestation.virtualUnit=Virtual Collection
 facet.country=Country
 facet.country.tooltip=The country in which the source material resides.
 facet.country.placeholder=Filter Country
@@ -659,7 +665,8 @@ helpdesk.results.empty=No relevant institutions found. Please reformulate your q
 helpdesk.query.placeholder=Enter your query here. Subject-specific terms are best.
 helpdesk.copyMe=Email a copy of the query to your address
 helpdesk.youAsked=You asked "{0}".
-helpdesk.recommendations=Recommended contacts ordered by relevance for your query:
+helpdesk.recommendations=Recommended institutions ordered by relevance for your question. \
+  Please use the email address provided to contact one or several relevant institution(s).
 helpdesk.askAgain=Try another query...
 helpdesk.institution=Institution Name
 helpdesk.institutions=Contact recommendations will be drawn from the following institutions:
@@ -908,7 +915,7 @@ documentaryUnit.levelOfDescription.series=Series
 documentaryUnit.levelOfDescription.subseries=Sub-series
 documentaryUnit.levelOfDescription.file=File
 documentaryUnit.levelOfDescription.item=Item
-documentaryUnit.levelOfDescription.otherLevel=Other
+documentaryUnit.levelOfDescription.otherlevel=Other
 documentaryUnit.levelOfDescription.class=Class
 documentaryUnit.childItems=Child Items
 documentaryUnit.childItems.search={0,choice,0#{0} lower level |1#1 item|1<{0,number,integer} items}
@@ -1007,11 +1014,14 @@ virtualUnit.viewInArchivalContext.explanation=This item is being displayed as pa
 #
 # Countries
 #
+# NB: This is a link to the EHRI Project site
+country.report.intro=A general introduction to the EHRI country reports can be found on the {0}.
+country.report.toc=Contents
 country.childItems=Archival Institutions
 country.childItems.search={0,choice,0#{0} lower level |1#1 institution|1<{0,number,integer} institutions}
 country.repositoriesPageHeader={2,choice,0#No repositories found|1#One repository found|1<Repositories {0,number,integer} to {1,number,integer} of {2,number,integer}}
 country.search=Search Countries
-country.searchInside=Search Repositories
+country.searchInside=Search Institutions
 country.childCount={0,choice,0#No institutions listed|1#1 institution listed|1<{0,number,integer} institutions listed}
 country.items=Repositories
 country.identifier=Country Code

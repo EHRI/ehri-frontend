@@ -1,0 +1,10 @@
+@()(implicit lang: Lang)
+
+<div class="description-notice-text">
+    @defining("http://www.ehri-project.eu/national-reports") { url =>
+        @Html(Messages(
+            "country.report.intro",
+            s"<a href='$url'>${Messages("project.site")}</a>")
+        )
+    }
+</div>

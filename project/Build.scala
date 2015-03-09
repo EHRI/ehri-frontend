@@ -70,6 +70,9 @@ object ApplicationBuild extends Build {
     // Markdown rendering
     "org.pegdown" % "pegdown" % "1.5.0",
 
+    // HTML sanitising...
+    "org.jsoup" % "jsoup" % "1.8.1",
+
     // Mailer...
     "com.typesafe.play.plugins" %% "play-plugins-mailer" % "2.3.0",
 
@@ -103,6 +106,7 @@ object ApplicationBuild extends Build {
     "EHRI Snapshots" at "http://ehridev.dans.knaw.nl/artifactory/libs-snapshot/"
   )
 
+  val validateMessages = TaskKey[Unit]("validate-messages", "Validate messages")
 
   val commonSettings = Seq(
 
@@ -134,6 +138,51 @@ object ApplicationBuild extends Build {
 
       // Don't execute tests in parallel
     parallelExecution := false,
+
+    // Check messages files contain valid format strings
+    // TODO: Figure out how to run this on specific triggers
+    validateMessages := {
+      def messagesFiles(base: File): Seq[File] = {
+        val finder: PathFinder = (base / "conf") * "messages*"
+        finder.get
+      }
+
+      def validate(messageFile: File): Unit = {
+        import java.util.Properties
+        import java.text.MessageFormat
+        import scala.collection.JavaConverters._
+        import java.io.FileInputStream
+
+        val properties: Properties = new Properties()
+        val fis = new FileInputStream(messageFile)
+        try {
+          properties.load(fis)
+          properties.stringPropertyNames().asScala.foreach { key =>
+            val text = properties.getProperty(key)
+            if (text != null) {
+              try {
+                MessageFormat.format(text)
+              } catch {
+                case e: IllegalArgumentException =>
+                  val err =
+                    s"""
+                       |Invalid message text as key: $key in:
+                       |  ${messageFile.getAbsoluteFile}
+                       |
+                       |  ${e.getLocalizedMessage}
+                     """.stripMargin
+                  sys.error(err)
+              }
+            }
+          }
+        } finally {
+          fis.close()
+        }
+      }
+      val allMessages = messagesFiles(baseDirectory.value)
+      streams.value.log.info(s"Validating ${allMessages.size} messages file(s)")
+      allMessages.foreach(validate)
+    },
 
     // Classes to auto-import into templates
     templateImports in Compile ++= Seq(

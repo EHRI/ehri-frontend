@@ -1,5 +1,6 @@
 package integration
 
+import backend.{ApiUser, AuthenticatedUser}
 import helpers.{TestHelpers, IntegrationTestRunner}
 import models._
 
@@ -74,20 +75,31 @@ class VirtualUnitViewsSpec extends IntegrationTestRunner with TestHelpers {
       indexEventBuffer.last must equalTo("hello-kitty")
     }
 
-    "allow creating new items with included units" in new ITestApp {
+    "allow creating and deleting item references" in new ITestApp {
+      implicit val apiUser: ApiUser = AuthenticatedUser(privilegedUser.id)
+      val origIncludes = await(testBackend.get[VirtualUnit]("vc1")).includedUnits.map(_.id)
+      origIncludes must not contain "c1"
+      origIncludes must not contain "c4"
+
       val testData: Map[String, Seq[String]] = Map(
-        "identifier" -> Seq("hello-kitty"),
-        VirtualUnitF.INCLUDE_REF -> Seq("c1")
+        VirtualUnitF.INCLUDE_REF -> Seq("c1 c4")
       )
       val cr = route(fakeLoggedInHtmlRequest(privilegedUser,
         vuRoutes.createChildRefPost("vc1")), testData).get
       status(cr) must equalTo(SEE_OTHER)
 
-      val show = route(fakeLoggedInHtmlRequest(privilegedUser, vuRoutes.getInVc("vc1", "c1"))).get
-      status(show) must equalTo(OK)
+      val included = await(testBackend.get[VirtualUnit]("vc1")).includedUnits.map(_.id)
+      included must contain("c1")
+      included must contain("c4")
 
-      contentAsString(show) must contain("Some description text for c1")
-      contentAsString(show) must contain("Virtual Collection 1")
+      val del = route(fakeLoggedInHtmlRequest(privilegedUser,
+        vuRoutes.deleteChildRefPost("vc1")), Map(
+          VirtualUnitF.INCLUDE_REF -> Seq("c1"))).get
+      status(del) must equalTo(SEE_OTHER)
+
+      val newIncludes = await(testBackend.get[VirtualUnit]("vc1")).includedUnits.map(_.id)
+      newIncludes must not contain "c1"
+      newIncludes must contain("c4")
     }
   }
 }

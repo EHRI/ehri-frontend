@@ -31,9 +31,9 @@ countryCode.xk=Kosovo
 contentTypes=Content types
 contentTypes.group=Groups
 contentTypes.userProfile=Users
-contentTypes.repository=Repositories
-contentTypes.historicalAgent=Authorities
-contentTypes.documentaryUnit=Collections
+contentTypes.repository=Institutions
+contentTypes.historicalAgent=Historical Agents
+contentTypes.documentaryUnit=Documentary Units
 contentTypes.action=User Events
 contentTypes.cvocVocabulary=Vocabularies
 contentTypes.authoritativeSet=Authority Sets
@@ -366,12 +366,15 @@ virtualUnit.create.submit=Create Virtual Item
 virtualUnit.update=Update Virtual Item
 virtualUnit.update.submit=Update
 virtualUnit.child.create=Create Child Virtual Item
-virtualUnit.child.createRef=Create Child Item Reference
+virtualUnit.createRef=Create Item Reference
+virtualUnit.createRef.submit=Create Reference
+virtualUnit.deleteRef=Remove Item Reference
+virtualUnit.deleteRef.submit=Remove Reference
 virtualUnit.identifier=Identifier
 virtualUnit.identifier.description=The unique identifier for this virtual unit
 virtualUnit.includeRef=Ext. Unit ID
 virtualUnit.includeRef.description=The ID of the non-virtual documentary unit referenced\
-  by this virtual item.
+  by this virtual item. Multiple item IDs can be entered separated by commas.
 
 #
 # Documentary Units

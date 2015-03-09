@@ -33,6 +33,6 @@
 	    }
 	</div>
 	<div class="item-text-field-value">
-	    @Html(views.Helpers.renderMarkdown(annotation.model.body))
+	    @Html(views.Helpers.renderUntrustedMarkdown(annotation.model.body))
    </div>
 </div>

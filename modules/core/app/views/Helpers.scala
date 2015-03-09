@@ -28,37 +28,49 @@ package object Helpers {
   // here to be on the safe side.
   import org.pegdown.{LinkRenderer, Extensions, PegDownProcessor}
   import org.pegdown.ast.{AutoLinkNode, ExpLinkNode}
+  import org.jsoup.Jsoup
+  import org.jsoup.safety.Whitelist
 
   private val linkRenderer = new LinkRenderer() {
     override def render(node: AutoLinkNode) = {
       new LinkRenderer.Rendering(node.getText, node.getText)
+        .withAttribute("rel", "nofollow")
         .withAttribute("target", "_blank")
         .withAttribute("class", "external")
     }
     override def render(node: ExpLinkNode, text: String) = {
       new LinkRenderer.Rendering(node.url, text)
+        .withAttribute("rel", "nofollow")
         .withAttribute("target", "_blank")
         .withAttribute("class", "external")
         .withAttribute("title", node.title)
     }
   }
   private val markdownParser = new ThreadLocal[PegDownProcessor]
-  def getMarkdownProcessor = {
-    import org.pegdown.ast.{AutoLinkNode,ExpLinkNode}
-    // NB: Eventually we want auto-linking. However this seems
-    // to crash pegdown at the moment.
-    //import org.pegdown.{Extensions,Parser,PegDownProcessor}
-    //val pegdownParser = new Parser(Extensions.AUTOLINKS)
-    //new PegDownProcessor//(pegdownParser)
-    Option(markdownParser.get).getOrElse {
-      val parser = new PegDownProcessor(Extensions.AUTOLINKS)
-      markdownParser.set(parser)
-      parser
-    }
+  private val whiteListStandard: Whitelist = Whitelist.basic()
+    .addAttributes("a", "target", "_blank")
+    .addAttributes("a", "class", "external")
+    .addAttributes("a", "rel", "nofollow")
+  private val whiteListStrict: Whitelist = Whitelist.simpleText().addTags("p", "a")
+    .addAttributes("a", "target", "_blank")
+    .addAttributes("a", "class", "external")
+    .addAttributes("a", "rel", "nofollow")
+  def getMarkdownProcessor = Option(markdownParser.get).getOrElse {
+    val parser = new PegDownProcessor(Extensions.AUTOLINKS)
+    markdownParser.set(parser)
+    parser
   }
 
-  def renderMarkdown(text: String): String = getMarkdownProcessor.markdownToHtml(text, linkRenderer)
+  def renderUntrustedMarkdown(text: String): String =
+    Jsoup.clean(getMarkdownProcessor.markdownToHtml(text, linkRenderer), whiteListStrict)
 
+  def renderMarkdown(text: String): String =
+    Jsoup.clean(getMarkdownProcessor.markdownToHtml(text, linkRenderer), whiteListStandard)
+
+  def renderTrustedMarkdown(text: String): String =
+    getMarkdownProcessor.markdownToHtml(text, linkRenderer)
+
+  def stripTags(htmlText: String): String = Jsoup.clean(htmlText, Whitelist.none())
 
   /**
    * Condense multiple descriptions that are next to each other in a list.
@@ -105,15 +117,7 @@ package object Helpers {
   /**
    * Function to truncate and add ellipses to long strings
    */
-  def ellipsize(text: String, max: Int): String = {
-    val tags = new Regex("/<.*?>/")
-    // First check an element has a size below the max
-    if(tags.replaceAllIn(text, "").length() <= max) {
-      text
-    } else {
-      StringUtils.abbreviate(text.replaceAll("<[^>]*>", ""), max)
-    }
-  }
+  def ellipsize(text: String, max: Int): String = StringUtils.abbreviate(stripTags(text), max)
 
   /**
    * Get a list of code->name pairs for the given language.

@@ -1,0 +1,846 @@
+welcome=Bienvenue sur l''EHRI
+welcome.title=Bienvenue sur le portail en ligne européen de l''infrastructure de recherche sur l''Holocauste
+home=Accueil
+about=À propos de l''EHRI
+language=Langue
+contact=Contact
+welcome.blurb=Le portail de l''EHRI permet d''accéder à des informations sur des documents d''archives concernant l''Holocauste \
+  conservés dans des institutions à travers l''Europe et au-delà. \
+  Pour obtenir plus d''informations sur le projet EHRI, veuillez vous rendre sur le site : http://ehri-project.eu.
+footerText=Il s''agit d''une version en cours de dévelopement de l''interface du portail de l''EHRI
+footer.funding=Le projet EHRI est soutenu par la Commission européenne
+close=Fermer
+optional=En option
+cancel=Annuler
+warning=Avertissement
+admin.site=Admin du site
+newsFeed=Les dernières nouvelles
+browse=Naviguer
+details.show=Montrer les informations sur l''article
+details.hide=Cacher les informations sur l''article
+help=Aide
+help.general=Aide générale
+help.archivists=Aide pour les archivistes
+help.helpdesk=Service d''assistance
+landingBlurb.repository=Parcourir {0} dans {1}.
+landingBlurb.repository.link={0} institutions chargées des archives
+landingBlurb.repository.country.link={0} pays
+landingBlurb.country=Parcourir {0}.
+landingBlurb.country.link={0} rapports nationaux
+landingBlurb.documentaryUnit=Parcourir {0} dans {1}.
+landingBlurb.documentaryUnit.link={0} descriptions d''archives
+landingBlurb.documentaryUnit.repository.link={0} institutions
+landingBlurb.historicalAgent=Parcourir {0}, composé de {1}, {2} et de {3}.
+landingBlurb.historicalAgent.link={0} agents historiques
+landingBlurb.corporateBody.link={0,choice,0#{0} entités juridiques|1#1 entité juridique|1<{0,number,integer} entités juridiques}
+landingBlurb.person.link={0} Personnes
+landingBlurb.family.link={0,choice,0#{0} familles|1#1 famille|1<{0,number,integer} familles}
+constraint.required=*
+constraints.timeCheckSeconds=Horodatage
+constraints.timeCheckSeconds.failed=le formulaire a été soumis trop rapidement. Veuillez réessayer.
+constraints.honeypot=Carte blanche
+constraints.honeypot.failed=Le formulaire de vérification des spams a échoué. Veuillez réessayer.
+constraints.uniqueness=Doit être unique
+constraints.uniqueness.failed=Un article avec cette valeur existe déjà
+format.boolean=Activé/désactivé
+errors.staffOnly=Restreint
+errors.staffOnlyMessage=L''accès à cette page est actuellement limité au personnel de l''EHRI.
+errors.verifiedOnly=Restreint
+errors.verifiedOnlyMessage=L''accès à cette page est actuellement limité à des utilisateurs vérifiés.
+errors.readonly=Le portail de l''EHRI est actuellement en mode lecture seulement, pendant que nous effectuons une opération de maintenance.\
+              Un service normal reprendra sous peu. Merci pour votre patience.
+errors.itemNotFound=Article non trouvé
+errors.itemNotFound.explanation=Cet article n''a pas pu être trouvé dans la base de données.
+errors.pageNotFound=La page n''a pas été trouvée
+errors.pageNotFound.explanation=La page n''existe pas sur cet emplacement, ou elle a été déplacée.
+errors.genericProblem=Une erreur est survenue
+errors.genericProblem.explanation=Nous sommes désolés, mais cette page ne peut être chargée. Nous en avons été informés \
+  et nous mettons tout en œuvre pour réparer le problème dans les meilleurs délais.
+errors.maintenance=Site provisoirement hors ligne
+errors.maintenance.explanation=Le portail de l''EHRI est actuellement hors ligne, pendant que nous effectuons une opération de maintenance.Veuillez revenir sous peu.
+errors.databaseError=Erreur de base de données
+errors.databaseError.explanation=J"ai bien peur que notre serveur de base de données ne soit en panne.    \
+     Nous ne pouvons continuer sans qu''il soit réparé, veuillez réessayer plus tard.
+errors.databaseMaintenance=Base de données provisoirement hors ligne
+errors.databaseMaintenance.explanation=La base de données d l"EHRI est actuellement hors ligne pour cause d"entretien de routine.  \
+  Elle devrait être à nouveau disponible sous peu alors réessayez bientôt.
+errors.permissionDenied=Autorisation refusée
+errors.permissionDenied.explanation=Il semblerait que vous ne puissiez accéder à ce que vous demandiez. \
+  Il s''agit probablement d"une erreur de notre part. Nous allons essayer de la réparer dès que possible.
+errors.errorDetails=Précisions
+errors.noFurtherInfo=Aucune information supplémentaire n''est disponible.
+errors.imageTooLarge=Cette image était trop grande. Veuillez en sélectionner une qui fasse moins de 5 Mo.
+errors.badFileType=Le fichier téléchargé n''était pas un type d''image pris en charge.
+errors.noFileGiven=Aucun fichier image n"a été sélectionné.
+pagination.displayingItems={2,choice,0#Aucun article trouvé|1#Un article trouvé|1<Affichage des articles {0,number,integer} to {1,number,integer} sur {2,number,integer}}
+truncated=
+truncated.items.remaining={0,choice,0#|1#et 1 de plus...|1<et {0,number,integer} de plus...}
+download=Télécharger
+download.format.txt=Télécharger sous forme de texte
+download.format.csv=Télécharger sous format CSV
+download.format.json=Télécharger sous format JSON
+profile.preferences=Préférences
+profile.preferences.updated=Préférences mises à jour
+profile.preferences.allowMessaging=Autoriser d"autres utilisateurs à vous envoyer des messages. 
+profile.preferences.allowMessaging.description=Votre adresse e-mail ne sera pas directement accessible.
+profile.preferences.updatePreferences=Mise à jour des préférences
+profile.preferences.view=Afficher les préférences
+profile.preferences.view.showUserContent=Afficher les notes encouragées par les autres utilisateurs
+profile=Profil
+profile.section.general=À propos de vous
+profile.section.image=Image de profil
+profile.section.preferences=Préférences de compte
+profile.section.security=Sécurité
+profile.section.delete=Supprimer
+profile.name=Votre nom
+profile.location=Lieu
+profile.url=Site Web personnel
+profile.workUrl=Site Web professionnel
+profile.institution=Institution
+profile.interests=Centre(s) d"intérêt
+profile.title=Titre
+profile.role=Rôle
+profile.languages=Langues
+profile.about=À propos de 
+profile.menu.link=Allez sur votre profil
+profile.edit=Éditer le profil
+profile.image.edit=Définir l''image de profil
+profile.delete=Supprimer le compte
+profile.delete.link=Cliquez ici pour supprimer votre compte
+profile.delete.check.text=Le fait de supprimer votre profil \
+  rendra anonyme (mais ne supprimera pas) toute annotation visible publiquement et les liens que vous pouriez avoir \
+  ajoutés à l''EHRI. Pour confirmer, veuillez taper votre nom comme il apparaît ici, dans le champ ci-dessous :
+profile.delete.check=Tapez votre nom tel qu"il apparaît ci-dessus.
+profile.delete.badConfirmation=La suppression du profil n''a pas été confirmée correctement.
+profile.profile.delete.confirmation=Votre profil a été supprimé.
+profile.update=Mise à jour du profil 
+profile.update.submit=Mise à jour du profil 
+profile.update.confirmation=Mise à jour du profil réussie
+profile.watch.list=Sujets surveillés
+profile.watch.by={0} - Sujet(s) surveillé(s)
+profile.watch=Surveiller un sujet
+profile.watch.title=Ajoutez un sujet à votre liste de surveillance
+profile.watch.tooltip=Cliquez pour voir les mises à jour de ce sujet dans votre liste d''activité.
+profile.watch.submit=Surveiller le sujet
+profile.unwatch=Arrêter de surveiller ce sujet
+profile.unwatch.tooltip=Cliquez pour ne plus recevoir les mises à jour de ce sujet dans votre liste d''activité.
+profile.unwatch.submit=Arrêter de surveiller ce sujet
+profile.unwatch.title=Supprimer ce sujet de votre liste de surveillance
+type=Type d''élément
+type.repository=Institutions d''archives
+type.repository.description=Un répertoire des institutions d''archives qui \
+  conserve des archives liées à l''Holocauste.
+type.documentaryUnit=Descriptions archivistiques
+type.documentaryUnit.description=Descriptions électroniques et aides à la recherche de documents d''archives liés à l''Holocauste.
+type.historicalAgent=Agents historiques
+type.historicalAgent.description=Les personnes, les familles, et les personnes morales liées aux descriptions archivistiques de l''EHRI.
+type.country=Pays
+type.country.description=Les rapports nationaux de l''EHRI fournissent un aperçu de \
+    l''histoire de la Seconde Guerre mondiale et de l''Holocauste ainsi que de la situation archivistique \
+    dans les pays couverts.
+type.cvocConcept=Mots clés
+type.cvocConcept.description=Termes relatifs aux sujets liés aux descriptions archivistiques de l''EHRI.
+type.userProfile=Personnes dans l''EHRI
+type.group=Groupes
+type.virtualUnit=Collections virtuelles
+type.annotation=Notes
+type.link=Connexions
+type.cvocVocabulary=Vocabulaires
+dates.start.year=Année de début
+dates.end.year=Année de fin
+dates.exact={0,number,#}
+dates.before=Avant {0,number,#}
+dates.between=Entre {0,number,#} et {1,number,#}
+dates.after=Après {0,number,#}
+dates.all=Toutes
+login=Connexion
+login.title=Connectez-vous ou créez un compte EHRI
+login.benefits=Un compte EHRI vous permet de :
+login.benefits.1=Contacter d''autres personnes sur EHRI
+login.benefits.2=Suivi les activités et les changements relatifs aux documents qui vous intéressent
+login.benefits.3=Prendre des notes et contribuer à améliorer les données d''EHRI
+login.signup=S''inscrire
+login.moreOptions=Plus d''options
+login.alreadyLoggedIn=Vous êtes déjà connecté(e) en tant que {0}
+login.loginWith=Vous connecter avec {0}
+login.signupWith=Vous inscrire avec {0}
+login.signup.submit=S''inscrire
+login.openid.submit=Vous connecter avec OpenID
+login.openid=OpenID
+login.email=E-mail
+login.password=Mot de passe
+login.password.confirm=Confirmer le mot de passe
+login.password.noPassword=Il n''existe actuellement aucun mot de passe associé à votre compte. Cela signifie que vous\
+    avez procédé à votre connexion via un fournisseur tiers tels que Google ou Facebook.
+login.password.change=Changer le mot de passe
+login.password.change.link=Cliquez ici pour changer votre mot de passe.
+login.password.change.submit=Envoyer
+login.password.change.confirmation=Le mot de passe a été modifié
+login.password.reset=Réinitialiser le Mot de passe
+login.password.reset.text=Mot de passe oublié ? Saisissez l''adresse e-mail que vous avez utilisée pour vous inscrire ci-dessous\
+    et nous vous enverrons un lien pour le réinitialiser.
+login.password.reset.noPasswordMatching=Aucun compte ne correspond à {0}
+login.password.reset.submit=Envoyer le lien de réinitialisation
+login.openid.urlPlaceholder=Indiquez l''URL de votre OpenID
+login.disabled=La fonction de connexion est actuellement désactivée. Veuillez réessayer plus tard.
+login.oauth.info=Si vous avez déjà un compte sur l''un de ces sites, vous pouvez cliquer sur le logo pour vous connecter à EHRI :
+login.password.info=Si vous avez déjà créé un compte auprès d''EHRI, saisissez votre adresse e-mail et votre mot de passe ici :
+login.password.submit=Connexion
+login.recover.link=Cliquez ici si vous avez oublié ou perdu votre mot de passe.
+login.error=Il y a eu un problème avec vos informations
+login.error.badUsernameOrPassword=Nom d''utilisateur ou mot de passe incorrect
+login.error.passwordsDoNotMatch=Le mot de passe et celui de vérification ne correspondent pas
+login.error.badResetToken=L''URL indiquée pour la réinitialisation du mot de passe n''est pas valide ou a expiré. \
+    Remarque : les liens de réinitialisation du mot de passe ne peuvent être utilisés qu''une seule fois.
+login.error.oauth2.info=Nous vous prions de nous excuser, mais il y a eu un problème lors de la création de votre compte via {0}. Veuillez essayer une autre \
+    méthode d''inscription.
+login.password.current=Mot de passe actuel
+login.password.new=Nouveau mot de passe
+login.password.new.confirm=Confirmez le nouveau mot de passe
+login.password.reset.sentLink=Nous vous avons un e-mail contenant un lien qui peut être utilisé pour réinitialiser votre mot de passe.\
+    Ce lien ne peut être utilisé qu''une seule fois.
+login.password.reset.confirmation=Votre mot de passe a été réinitialisé.
+login.dataPolicyNag=En m''inscrivant, je déclare avoir pris connaissance de(s) {0} et accepte de me conformer aux {1}.
+logout=Déconnexion
+logout.confirmation=Déconnexion effectuée
+account=Compte
+signup=Créer un compte
+signup.dataPolicyNag=En créant un compte, j''accepte de me conformer à la/aux {0} et aux {1}.
+signup.badPasswords=Le mot de passe et celui de vérification ne correspondent pas. Veuillez réessayer !
+signup.agreeTerms=Vous devez accepter les conditions générales.
+signup.confirmation=Merci pour votre inscription. Nous vous avons envoyé un e-mail que vous pouvez utiliser pour confirmer\
+    votre adresse e-mail.
+signup.validation.badToken=L''URL de confirmation n''est pas valide ou a expiré.
+signup.validation.confirmation=Votre compte a été validé.
+mail.forgotPasswordMailHeading=Réinitialisation du mot de passe EHRI
+mail.forgotPasswordMessage=Pour réinitialiser votre mot de passe, veuillez suivre le lien ci-dessous. Remarque : ce lien ne peut être utilisé qu''une seule fois\
+    pour réinitialiser votre mot de passe.
+mail.confirmEmailHeading=Veuillez confirmer votre adresse e-mail
+mail.confirmEmailMessage=Veuillez confirmer votre adresse e-mail en visitant l''adresse suivante :
+mail.confirmEmailFooter=Ce lien sera valide pendant 1 semaine, après quoi votre compte sera\
+    désactivé.
+mail.unverifiedEmailWarning=Compte non vérifié
+mail.unverifiedEmailWarningMessage=L''adresse e-mail associée à votre compte n''a pas encore été vérifiée.
+mail.unverifiedEmailResend=Pour renvoyer un e-mail de vérification,
+mail.unverifiedEmailResendSubmit=cliquez ici
+mail.emailConfirmationResent=Nous vous avons envoyé un e-mail que vous pouvez utiliser pour confirmer votre adresse e-mail.
+mail.message.subject=EHRI : Message de {0} : {1}
+mail.message.copy.subject=EHRI : Votre message à {0} : {1}
+mail.message.heading=Nouveau message de {0}
+mail.message.copy.heading=Copie de votre message à {0}
+mail.message.replyFooter=Vous pouvez répondre directement à ce message. Vous pouvez choisir de ne plus recevoir les messages utilisateur en mettant à jour vos préférences
+bookmark.tooltip=Enregistrer cet élément parmi vos signets.
+bookmarkSet.list=Ensembles de signets
+bookmarkSet.defaultSetName=Éléments mis en signet
+bookmarkSet.create=Créer un ensemble de signets
+bookmarkSet.create.submit=Envoyer
+bookmarkSet.edit=Modifier un ensemble de signets
+bookmarkSet.edit.submit=Envoyer
+bookmarkSet.delete=Supprimer un ensemble de signets
+bookmarkSet.delete.submit=Supprimer
+bookmarkSet.noBookmarkSetsYet=Vous n''avez créé aucun ensemble de signets jusqu''à maintenant.
+bookmarkSet.noUserBookmarkSetsYet={0} n''a par encore d''ensemble de signets public.
+description.additionalData=Autres données récoltées (Cliquez pour afficher)
+description.additionalData.key=Clé
+description.additionalData.value=Valeur
+description.noDescriptions=Cet élément n''a pas été fourni avec une description
+description.multiple.text=Cet élément a plusieurs descriptions. Des descriptions alternatives peuvent avoir pour origine différents référentiels ou représenter une traduction (partielle).
+accessPoint.browse=Chercher
+accessPoint.type.creatorAccess=Créateur(s)
+accessPoint.type.creatorAccess.reverse=Créateur de
+accessPoint.type.personAccess=Personnes
+accessPoint.type.personAccess.reverse=Référencé par (en tant que personne)
+accessPoint.type.familyAccess=Familles
+accessPoint.type.familyAccess.reverse=Référencé par (en tant que famille)
+accessPoint.type.corporateBodyAccess=Sociétés
+accessPoint.type.corporateBodyAccess.reverse=Référencé par (en tant que société)
+accessPoint.type.placeAccess=Lieux
+accessPoint.type.placeAccess.reverse=Lieux
+accessPoint.type.subjectAccess=Sujets
+accessPoint.type.subjectAccess.reverse=Sujets de
+accessPoint.type.otherAccess=Divers
+accessPoint.type.otherAccess.reverse=Divers
+accessPoint.externalReferences=Références externes à cet élément
+systemEvent.itemAtTime=Action à {0}
+systemEvent.lastUpdated=Mise à jour {0}
+systemEvent.creation=Élément créé
+systemEvent.createDependent=Description ajoutée
+systemEvent.modification=Élément modifié
+systemEvent.modifyDependent=Description modifiée
+systemEvent.deletion=Élément supprimé
+systemEvent.deleteDependent=Description supprimée
+systemEvent.link=Lien créé
+systemEvent.annotation=Annotation créée
+systemEvent.setGlobalPermissions=Autorisations globales modifiées
+systemEvent.setItemPermissions=Autorisations au niveau des éléments modifiées
+systemEvent.setVisibility=Visibilité modifiée
+systemEvent.addGroup=Membre ajouté au groupe
+systemEvent.removeGroup=Membre supprimé du groupe
+systemEvent.ingest=Éléments importés
+systemEvent.promotion=Élément promu
+systemEvent.demotion=Promotion de l''élément supprimée
+error.globalErrors=Il y a eu des problèmes avec ce formulaire :
+error.date=La date est incorrecte ou mal formatée
+error.badUrl=L''URL est incorrecte ou mal formatée Remarque : pour les adresses Web, une URL valide doit être préfixée \
+    selon le schéma, par exemple "http://" ou "https://"
+error.required=Requis
+error.emailExists=L''adresse e-mail n''est pas valide ou est déjà enregistrée
+error.unknownUser=Utilisateur inconnu
+error.emailNotFound=Cette adresse e-mail est introuvable dans notre système.
+error.badRecaptcha=Le code de vérification Recaptcha (destiné à s''assurer que vous êtes une personne et non une machine automatisée) ne\
+      correspond pas. Astuce : vous pouvez changer le code de vérification jusqu''à ce que vous obteniez quelque chose de plus lisible.
+error.rateLimit=Nombre maximum de tentatives dépassé. Veuillez patienter {0} minutes avant d''essayer à nouveau.
+error.openId=Il y a eu un problème pour vous connecter avec OpenID.\
+    Cela peut s''expliquer par le fait que votre fournisseur ne prend pas en charge les échanges d''attribut.
+error.openId.url=Il n''y a pas eu de réponse du fournisseur openid indiqué : {0}.\
+    Veuillez vous assurer que l''adresse URL du fournisseur est correcte.
+error.userEmailAlreadyRegistered=Un utilisateur ayant cette adresse e-mail est déjà inscrit : {0}
+search.submit=Chercher
+search.clear=Effacer la recherche
+search.sort=Ordre
+search.sort.identifier.asc=ID/Code
+search.sort.identifier.asc.title=Affiche les résultats triés en fonction de l''identifiant de l''institution en question
+search.sort.isParent.desc-identifier.asc=ID/Code
+search.sort.isParent.desc-identifier.asc.title=Affiche les résultats triés en fonction de l''identifiant de l''institution en question, avec les éléments conteneurs en premier
+search.sort.name_sort.asc=Nom
+search.sort.name_sort.asc.title=Affiche les résultats triés par nom
+search.sort.lastUpdated.desc=Récemment mis à jour
+search.sort.lastUpdated.desc.title=Affiche les résultats modifiés le plus récemment en premier
+search.sort.score.desc=Pertinence
+search.sort.score.desc.title=Affiche les résultats par ordre de pertinence
+search.sort.charCount.desc=Détails
+search.sort.charCount.desc.title=Affiche les résultats les plus détaillés en premier
+search.sort.repositoryName.asc=Référentiel
+search.sort.repositoryName.asc.title=Trie les résultats par référentiel
+search.sort.countryName.asc=Pays
+search.sort.countryName.asc.title=Trie les résultats par pays
+search.identifier=Identifiant
+search.spellingSuggestion=Vouliez-vous dire
+search.queryPlaceholder=Recherche...
+search.results.list={3,choice,0#{0}|1#{0} - un élément|1<{0} - {1,number,integer} à {2,number,integer} sur {3,number,integer}}
+search.item.results.list={3,choice,0#{0}|1#{0} - un élément|1<{0} - Éléments {1,number,integer} à {2,number,integer} sur {3,number,integer}}
+facet.type=Type d''élément
+facet.type.tooltip=Le type d''élément, par ex. institutions, descriptions de documents d''archives\
+    ou rapports par pays.
+facet.lang=Langue de la description
+facet.lang.placeholder=Filtrer par langue
+facet.lang.tooltip=La langue de la description électronique.
+facet.data=Structure
+facet.data.tooltip=Si cet élément est un conteneur pour d''autres enregistrements.
+facet.data.hasChildItems=Conteneur (multiniveau)
+facet.data.placeholder=Filtrer par structure
+facet.parent=Structure
+facet.parent.tooltip=Si cet élément est un conteneur pour d''autres enregistrements.
+facet.parent.true=Élément conteneur
+facet.parent.false=Élément unique
+facet.source=Source de description
+facet.source.tooltip=La source de la description électronique, par exemple, si elle a été\
+    créée par l''équipe EHRI ou importée à partir de données structurées fournies par une institution partenaire.
+facet.source.MANUAL=EHRI
+facet.source.IMPORT=Partenaire EHRI
+facet.lod=Niveau de détails
+facet.lod.tooltip=Une approximation du niveau de détails de l''enregistrement en fonction du nombre de caractères.
+facet.lod.low=Faible
+facet.lod.medium=Moyen
+facet.lod.high=Élevé
+facet.lod.placeholder=Sélectionnez le niveau de détails
+facet.kw=Mot-clé
+facet.kw.tooltip=Mots-clés associés à chaque enregistrement.
+facet.kw.placeholder=Filtrer par mot-clé
+facet.country=Pays
+facet.country.tooltip=Le pays dans lequel se situe le matériel source.
+facet.country.placeholder=Filtrer par pays
+facet.location=Emplacement
+facet.holder=Institution détentrice
+facet.holder.tooltip=Le référentiel où se situe le matériel source.
+facet.holder.placeholder=Filtrer par institution
+facet.container=Structure d''élément
+facet.topLevel.true=Niveau supérieur
+facet.container.hasChildItems=Multiniveau (conteneur)
+facet.itemsHeldOnline=Éléments affichables
+facet.itemsHeldOnline.yes=Matériel catalogué disponible
+facet.cpf=Type d''autorité
+facet.cpf.tooltip=Le type d''entité, par ex. personne, famille ou société.
+facet.set=Ensemble d''autorité
+facet.set.tooltip=L''ensemble d''autorité auquel chaque élément appartient.
+facet.scope=Portée
+facet.scope.tooltip=La portée de l''enregistrement en ce qui concerne l''intégration dans EHRI.
+facet.priority=Priorité
+facet.priority.tooltip=La priorité de l''enregistrement en ce qui concerne l''entrée de données EHRI.
+facet.active=Activité
+facet.active.tooltip=Utilisateurs actifs ou non actifs.
+facet.group=Groupes
+facet.group.tooltip=Groupes auxquels les utilisateurs appartiennent.
+facet.top=Niveau supérieur
+facet.top.tooltip=Affiche les éléments de niveau supérieur (les plus généraux) uniquement.
+facet.vocab=Vocabulaire
+facet.vocab.tooltip=Le vocabulaire/ensemble auquel le mot-clé appartient.
+facet.promotable=Promouvable
+facet.promotable.tooltip=Les éléments qui peuvent être promus ou rétrogradés
+facet.promoted=Promus
+facet.promoted.tooltip=Les éléments qui sont actuellement promus ou rétrogradés
+facet.score=Score de promotion
+facet.score.tooltip=La somme totale de toutes les promotions et rétrogradations, le cas échéant
+activity=Activité
+activity.by={0} - Activité
+activity.latestActivity=Activité la plus récente
+activity.userCreatedItem={2,choice,0#{0} élément créé {1}|1#{0} créé {1} et 1 élément de plus|1<{0} créés {1} et {2,number,integer} éléments de plus}
+activity.userUpdatedItem={2,choice,0#{0} élément mis à jour {1}|1#{0} mis à jour {1} et 1 élément de plus|1<{0} mis à jour {1} et {2,number,integer} éléments de plus}
+activity.userImportedItem={2,choice,0#{0} élément importé {1}|1#{0} importé {1} et 1 élément de plus|1<{0} importés {1} et {2,number,integer} éléments de plus}
+activity.userLinkedItem={2,choice,0#{0} a créé un lien pour l''élément {1}|1#{0} a créé un lien pour {1} et 1 élément de plus|1<{0} a créé un lien pour {1} et {2,number,integer} éléments de plus}
+activity.userAnnotatedItem={2,choice,0#{0} élément annoté {1}|1#{0} annoté {1} et 1 élément de plus|1<{0} annotés {1} et {2,number,integer} éléments de plus}
+activity.fetchMore=Plus
+activity.noActivityYet=L''activité impliquant des éléments que vous consultez et des utilisateurs que vous suivez s''affichera ici.
+activity.noUserActivityYet={0} n''a pas encore d''activité publique.
+activity.modifiedProfile=Informations de profil mises à jour.
+social.message.send=Contacter {0}
+social.message.send.submit=Envoyer le message
+social.message.send.confirmation=Votre message a été envoyé
+social.message.send.subject=Objet
+social.message.send.message=Votre message
+social.message.send.copy=Vous envoyer une copie de ce message
+social.message.send.warning=Votre message sera envoyé par e-mail à votre adresse enregistrée dans le champ Répondre à.
+social.message.send.userNotAcceptingMessages=Cet utilisateur a désactivé sa messagerie.
+social.users=Personnes
+social.browseUsers=Personnes dans l''EHRI
+social.follow=Suivre
+social.follow.submit=Suivre l''utilisateur
+social.unfollow=Ne plus suivre
+social.unfollow.submit=Ne plus suivre l''utilisateur
+social.followers=Suiveurs
+social.following=En train de suivre
+social.followedBy=Suivi par
+social.noFollowersYet=Personne ne suit {0} pour l''instant.
+social.noFollowingYet={0} ne suit personne pour l''instant.
+social.noItemsWatchedYet=Vous ne consultez aucun élément jusqu''à maintenant.
+social.noUserItemsWatchedYet={0} ne consulte aucun élément jusqu''à maintenant.
+social.userFollowing=Utilisateurs suivant {0}
+social.usersFollowedBy=Utilisateurs suivis par {0}
+social.block=Bloquer l''utilisateur
+social.block.submit=Bloquer l''utilisateur
+social.unblock=Débloquer l''utilisateur
+social.unblock.submit=Débloquer l''utilisateur
+annotation=Notes
+annotation.description=Notes sur cette description
+annotation.search=Notes de recherche
+annotation.search.noneFound=Aucune note trouvée correspondant à ''''{0}''''.
+annotation.field=Champ
+annotation.list=Notes
+annotation.list.by={0} - Notes
+annotation.none=Vous n''avez créé aucune note jusqu''à maintenant.
+annotation.create=Ajouter une note
+annotation.create.submit=Ajouter une note
+annotation.create.title=Créer une note rattachée à cette description
+annotation.field.create=Ajouter une note
+annotation.field.create.submit=Ajouter une note
+annotation.field.create.title=Créer une note sur ce champ
+annotation.update=Modifier
+annotation.update.submit=Enregistrer
+annotation.update.title=Modifier la note
+annotation.delete=Supprimer
+annotation.delete.submit=Supprimer
+annotation.delete.title=Supprimer la note
+annotation.field.showHidden=Afficher/masquer {0,choice,1#1 note publique créée par une autre personne|1<{0} notes publiques créées par une autre personne}
+annotation.createdBy=Créée par {0} à {1}
+annotation.showPublic={0,choice,1#Afficher 1 note publique|1<Afficher {0} notes publiques}
+access.all=Publique
+access.accessibleTo=Visible par {0}
+access.accessibleTo.extended={0,choice,0#|1# et 1 autre|1< et {0} autres}
+promotion.isPromotable=Promotion
+promotion.isPromotable.true=Promouvable
+promotion.isPromotable.false=Non promouvable
+promotion.isPromoted.true=Promue
+promotion.isPromoted.false=Non promue
+promotion.promotedBy=Promue par {0}
+promotion.promotedBy.extended={0,choice,0#|1# et 1 autre|1< et {0} autres}
+promotion.promote=Promouvoir
+promotion.promote.title=Promouvoir la note
+promotion.promote.title.submit=Promouvoir
+promotion.promote.remove=Supprimer la promotion
+promotion.promote.remove.title=Supprimer la promotion de la note
+promotion.promote.remove.title.submit=Supprimer
+promotion.demote=Rétrograder
+promotion.demote.title=Rétrograder la note
+promotion.demote.title.submit=Rétrograder
+promotion.demote.remove=Supprimer la rétrogradation
+promotion.demote.remove.title=Supprimer la rétrogradation de la note
+promotion.demote.remove.title.submit=Supprimer
+promotion.score=Score de promotion
+promotion.score.detail=Promotions : {0}, rétrogradations : {1}
+promotion.score.negative=Négative
+promotion.score.neutral=Neutre
+promotion.score.positive=Positive
+timeline.eventType.ingest={0} a importé {1}
+timeline.eventType.creation={0} a créé {1}
+timeline.eventType.annotation={0} a annoté {1}
+timeline.eventType.modification={0} a mis à jour {1}
+timeline.eventType.link={0} a établie un lien avec {1}
+timeline.eventType.createDependent={0} a mis à jour {1}
+timeline.eventType.modifyDependent={0} a mis à jour {1}
+timeline.eventType.deleteDependent={0} a mis à jour {1}
+timeline.eventType.setVisibility={0} a mis à jour {1}
+timeline.eventType.setGlobalPermissions={0} a mis à jour {1}
+timeline.eventType.setItemPermissions={0} a mis à jour {1}
+timeline.target.group=un groupe
+timeline.target.userProfile=un utilisateur
+timeline.target.repository=une institution détentrice de collection
+timeline.target.historicalAgent=un agent historique
+timeline.target.documentaryUnit=une description de documents d''archives
+timeline.target.action=un événement utilisateur
+timeline.target.cvocVocabulary=un vocabulaire
+timeline.target.authoritativeSet=un ensemble d''autorité
+timeline.target.cvocConcept=un terme
+timeline.target.annotation=une annotation
+timeline.target.country=un pays
+timeline.target.link=un lien
+timeline.target.systemEvent=une histoire
+contribution.visibility=choisissez qui peut voir ceci
+contribution.visibility.me=Seulement moi
+contribution.visibility.groups=Mes groupes
+contribution.visibility.custom=Personnalisé
+contribution.visibility.allowPublic=Autoriser la promotion
+contribution.visibility.allowPublic.title=Autoriser les modérateurs EHRI à promouvoir cette note pour qu''elle soit visible de tous les utilisateurs.
+contribution.visibility.isPrivate=Note privée
+contribution.visibility.isPrivate.title=Vous seul pouvez voir cette note. \
+    La désélection de cette option permettra aux modérateurs EHRI de la promouvoir pour qu''elle soit visible de tous les utilisateurs.
+search=Chercher
+search.sort.title=Ordre des résultats de recherche
+search.global=Rechercher dans tout
+search.repository=Rechercher dans les référentiels
+search.documentaryUnit=Rechercher dans les descriptions archivistiques
+search.historicalAgent=Rechercher dans les agents historiques
+search.helper.example=Expression
+search.helper.linkTitle=Conseils pour la requête avancée
+search.helper=Il y a plusieurs façons d''être plus précis dans votre requête de recherche :
+search.helper.minus=Exclure un mot donné de la recherche, par ex. -Gestapo
+search.helper.plus=Le mot donné doit figurer parmi les résultats, par exemple +Gestapo
+search.helper.quotes=Rechercher une correspondance exacte de votre requête, par exemple "listes des membres"
+feedback=Commentaire
+feedback.submit=Envoyer
+feedback.message=Faites-nous savoir ce que vous pensez...
+feedback.thanks=Merci !
+feedback.thanks.message=Votre avis sera grandement apprécié.
+feedback.list=Commentaire envoyé
+feedback.type=Ce commentaire concerne
+feedback.type.site=le site (fonctionnalités, design, etc.)
+feedback.type.data=le contenu des données
+helpdesk=Service d''assistance
+helpdesk.email=Votre adresse e-mail
+helpdesk.message=Le service d''assistance va tenter de transmettre votre demande à l''institution partenaire d''EHRI \
+    la plus à même d''y répondre.
+helpdesk.thanks=Merci !
+helpdesk.thanks.message=Votre demande a été envoyée.
+helpdesk.query=Demande
+helpdesk.error=Oups ! Quelque chose s''est mal passé avec le service d''assistance. Voici ce qui est indiqué :
+helpdesk.results=Recommandations de contact du service d''assistance
+helpdesk.results.empty=Aucune institution pertinente trouvée. Veuillez reformuler votre demande et ajouter plus de détails.
+helpdesk.query.placeholder=Saisissez votre demande ici. Les termes spécifiques à des sujets sont préférables.
+helpdesk.copyMe=Envoyer par e-mail une copie de la demande à votre adresse
+helpdesk.youAsked=Vous avez demandé
+helpdesk.institution=Nom de l''institution
+helpdesk.contactEmail=E-mail de contact
+helpdesk.score=Score de confiance
+helpdesk.confidence.message=Notre niveau de confiance dans l''exactitude de ce classement.
+helpdesk.query.submit=Demander au service d''assistance
+dataPolicy=Politique en matière de données
+dataPolicy.header=Politique EHRI en matière de données
+dataPolicy.notice1=Cette base de données peut contenir des données personnelles qui, selon la législation néerlandaise \
+    en matière de protection des données à caractère privé, peuvent être utilisées uniquement à des fins de recherche (article 16 de la loi néerlandaise sur la protection des données "Wet \
+    bescherming Persoonsgegevens'''').
+dataPolicy.notice2=Les données personnelles sensibles se rapportent à toutes les données relatives à une personne identifiée ou identifiable qui sont liées \
+    à la religion, aux convictions, à l''ethnie, à l''opinion politique, à la santé, aux préférences sexuelles, à l''appartenance \
+    à un syndicat et au casier judiciaire d''une personne.
+dataPolicy.terms=Je m''engage à utiliser les données personnelles sensibles uniquement à des fins de recherche et, plus généralement, \
+    conformément aux lois et règlements en vigueur aux Pays-Bas et dans \
+    les autres pays. Je suis conscient des sanctions résultant d''une violation de ces lois et/ou \
+   règlements.
+dataPolicy.agree=J''accepte
+privacy.header=La politique de confidentialité EHRI
+privacy.users.header=1. Données des utilisateurs de ce site Web et de ses services
+privacy.users.1=Afin d''utiliser un certain nombre de fonctions des sites Web EHRI, EHRI nécessite certaines données personnelles \
+    vous concernant, comme votre nom, votre adresse, votre adresse e-mail et votre appartenance à des associations professionnelles. \
+    Ces données personnelles seront traitées avec soin.
+privacy.users.2=Pour certaines catégories d''utilisateurs du site Web, un ensemble de données personnelles est conservé, y compris les pages consultées, \
+    les données d''adresse pour les listes de diffusion et les bases de données de contacts. Ceci est nécessaire pour permettre au site de fonctionner correctement. \
+    Certaines de ces données sont nécessaires à des fins statistiques et sont dans ce cas rendues anonymes. L''utilisation des données personnelles \
+    est limitée à l''objectif pour lequel elles ont été collectées et dont le fournisseur est conscient (par ex. envoi \
+    d''un bulletin d''information). Ces données ne seront pas communiquées à des tiers.
+privacy.users.3=Les utilisateurs qui s''inscrivent sur le portail EHRI et créent un profil conviennent que les informations personnelles \
+    qu''ils fournissent les concernant peuvent être mis à la disposition des autres utilisateurs de portail et que leur nom sera \
+    publié sur le portail si elles créent des contenus publics. Les utilisateurs inscrits sont joignables par les autres utilisateurs inscrits \
+    et ils peuvent recevoir des messages de leur part à l''adresse e-mail fournie. Toutefois, l''adresse e-mail \
+    du destinataire d''un tel message ne sera pas divulguée à l''expéditeur. Les utilisateurs inscrits peuvent \
+    ultérieurement choisir de ne plus être joignables en mettant à jour les préférences de leur profil.
+privacy.users.4=Sauf dans les cas énumérés ci-dessus, EHRI ne communiquera pas les données d''utilisateurs inscrits à des tiers \
+    sauf si cela est requis par la loi.
+privacy.data.header=2. Données sur le portail de la recherche
+privacy.data.1=Le portail de recherche contient des descriptions de collections et de sources liées à l''Holocauste conservées dans \
+    des institutions détentrices (archives, centres de documentation ...) en Europe de l''Ouest, de l''Est et du Nord, \
+    ainsi qu''aux États-Unis et en Israël. Ces descriptions de collections peuvent concerner des données personnelles ou des données personnelles sensibles (par ex. \
+    des données relatives à la religion ou à l''origine ethnique). Étant donné que le traitement et la publication de ces données peuvent avoir \
+    des conséquences du point de vue de la protection des données, EHRI a procédé à une évaluation des risques pour déterminer si \
+    ces données sont accessibles via le portail de la recherche et Internet. EHRI a décidé que, compte tenu des réglementations \
+    européennes et nationales de protection des données à caractère personnel, de la nature des descriptions de collections, des pratiques d''archivage \
+    et des politiques de confidentialité des institutions détentrices, la publication de ces descriptions de collections ne \
+    constituent par un risque important en matière de protection des données. En conséquence, l''accès aux descriptions de collections et à toutes les autres \
+    informations du portail de la recherche est permis aux utilisateurs. Les détails des résultats de l''évaluation des risques sont consultables {0}.
+privacy.data.1.riskAssessmentLinkText=sur le site Web du projet EHRI
+privacy.data.2=En vertu de la loi néerlandaise de protection des données personnelles, les données personnelles sensibles ne peuvent être utilisées qu''à des fins de \
+    recherche. Le respect de la loi néerlandaise de protection des données personnelles incombe à la personne qui \
+    effectue la publication des données. Si des résultats de recherche sont publiés dans un pays autre que les Pays-Bas, la loi de protection des données personnelles \
+    du pays en question devra être respectée. Puisque les données sur le portail de la recherche concernent seulement des descriptions \
+    des collections, une visite des archives disposant des enregistrements est nécessaire pour accéder aux documents. Il est fort \
+    probable que cette institution aura sa propre politique en ce qui concerne l''accès aux sources et la protection de la vie privée : ceci est \
+    expliqué dans la version détaillée des rapports sur les pays. Les utilisateurs doivent se conformer à ces procédures spécifiques et \
+    ne peuvent invoquer le fait qu''ils ont trouvé une description de collection sur le portail de recherche EHRI pour accéder au \
+    document archivé lui-même.
+privacy.data.3=Si vous considérez que vous avez des motifs bien fondés - en vertu de la loi néerlandaise de protection des données personnelles - de contester \
+    la publication d''un ensemble spécifique de données personnelles sur le portail de recherche, vous pouvez envoyer une lettre ou un e-mail indiquant \
+    votre demande et expliquant vos raisons d''opposition à la publication à la partie responsable du traitement des \
+    données personnelles. Cette partie examinera votre réclamation et vous répondra dans un laps de temps raisonnable.
+privacy.cookies.header=3. Cookies
+privacy.cookies.1=EHRI utilise les cookies suivants :
+privacy.cookies.2=Sur le site Web du projet EHRI ({0}) et sur le site de formation EHRI ({1}) :
+privacy.cookies.3.a=a) le cookie de session pour éviter que les utilisateurs n''aient à se connecter plusieurs fois lors d''une session de navigation.
+privacy.cookies.3.b=b) le cookie JS permettant au site Web de comprendre Javascript.
+privacy.cookies.3.c=c) Les cookies de Google Analytics : quatre cookies utilisés pour recueillir des informations sur la manière dont les utilisateurs parcourent le site. \
+    Ces cookies sont nécessaires pour établir des rapports sur l''utilisation du site.
+privacy.cookies.4=Sur le portail EHRI ({0}) :
+privacy.cookies.5.a=a) le cookie de session.
+privacy.cookies.5.b=b) les préférences d''affichage de l''utilisateur.
+privacy.cookies.5.c=c) le cookie d''avertissement - rappelle aux utilisateurs qu''ils ont dit "oui" à la bannière contenant la clause de non-responsabilité.
+privacy.cookies.5.d=d) le cookie de vérification du navigateur - se souvient des caractéristiques du navigateur de l''utilisateur.
+privacy.cookies.5.e=e) les cookies de Google Analytics (voir ci-dessus).
+privacy.complaints.header=4. Procédure de traitement des réclamations
+privacy.complaints.1=La partie responsable du traitement des données à caractère personnel au sens de la loi néerlandaise de protection \
+    des données personnelles est le NIOD. Les réclamations dûment justifiées doivent être envoyées à {0} ou à l''adresse \
+    postale de NIOD (adressées à son directeur).
+termsAndConditions=Conditions générales
+termsAndConditions.userGenerated.heading=Contenus générés par les utilisateurs : conditions d''utilisation
+termsAndConditions.userGenerated.p1=EHRI offre aux utilisateurs la possibilité de contribuer aux contenus fournis par EHRI en les enrichissant et \
+    en les annotant. Pour participer à ce processus de création de contenus générés par les utilisateurs, ces derniers doivent accepter les \
+    conditions d''utilisation énumérées ci-dessous.
+termsAndConditions.userGenerated.p2=En créant/vous connectant à un compte, vous acceptez nos conditions d''utilisation et reconnaissez \
+    avoir lu notre politique en matière de données (y compris s''agissant de l''utilisation de cookies).
+termsAndConditions.userGenerated.terms.heading=Conditions d''utilisation :
+termsAndConditions.userGenerated.terms.1=Les utilisateurs créant des contenus conviennent de ne pas ajouter de commentaires inappropriés.
+termsAndConditions.userGenerated.terms.2=Les utilisateurs créant des contenus conviennent de ne pas enfreindre la loi néerlandaise de protection des données personnelles \
+    ou celle du pays dans lequel ils se trouvent lors de l''ajout des contenus. Cela implique que \
+    les utilisateurs créant des contenus ne divulguent pas de renseignements en violation des droits à la protection des données à caractère personnel.
+termsAndConditions.userGenerated.terms.3=Les utilisateurs créant des contenus acceptent qu''EHRI examine les contenus qu''ils créent \
+    avant leur publication, ce qui implique que les données personnelles nécessaires à cet effet seront partagées avec le ou les examinateurs.
+termsAndConditions.userGenerated.terms.4=Les informations sont mises à la disposition des utilisateurs et peuvent être réutilisées, bien que la reconnaissance de \
+    l''auteur doit être effectuée lorsqu''elles sont publiées ailleurs. À cette fin, l''auteur \
+    du contenu généré par les utilisateurs sera clairement indiqué.
+copyright.heading=Déclaration de copyright
+copyright.holder=Copyright EHRI Consortium 2015
+copyright.statement=L''utilisation, la réutilisation et/ou la reproduction des informations publiées sur ce site sont libres mais \
+    à condition que le détenteur du copyright et le consortium EHRI soient clairement reconnus et qu''une référence à la source \
+    soit fournie : EHRI {0}. Cela ne s''applique pas aux matériels pour lesquels le copyright n''est pas détenu par \
+    le consortium EHRI mais par un tiers. L''utilisateur doit respecter les copyrights et/ou les droits d''accès à la base de données s''agissant des \
+    matériels publiés sur le site Web ou dans les ensembles de données, en particulier lors de la distribution ou de la publication d''ensembles de données. Si nécessaire, \
+    l''utilisateur doit contacter le détenteur des droits de l''ensemble de données.
+markdown.cheatsheet.title=Conseils de formatage
+markdown.cheatsheet.asterisks=astérisques
+markdown.cheatsheet.underscores=soulignements
+markdown.cheatsheet.bold=Gras
+markdown.cheatsheet.italic=Italique
+markdown.cheatsheet.ordered=Liste ordonnée
+markdown.cheatsheet.ordered.item1=Premier élément de la liste ordonnée
+markdown.cheatsheet.ordered.item2=Autre élément
+markdown.cheatsheet.unordered=Liste ordonnée
+markdown.cheatsheet.unordered.item1=Élément
+markdown.cheatsheet.unordered.item2=Autre élément
+markdown.cheatsheet.more=Source
+item.details=Détails de l''élément
+item.history=Historique en ligne
+item.related=Éléments connexes
+item.linked=Autres éléments liés
+item.showChildItems=Éléments enfants
+item.showItems={0,choice,0#{0} élément|1#1 élément|1<{0,number,integer} éléments}
+repository.address=Adresse
+repository.contact=Contact
+repository.phone=Téléphone
+repository.email=E-mail
+repository.fax=Télécopie
+repository.url=Web
+repository.contactPerson=Personne à contacter
+repository.street=Rue
+repository.municipality=Ville
+repository.firstdem=Région
+repository.countryCode=Code pays
+repository.telephone=Téléphone
+repository.postalcode=Code postal
+repository.webpage=Site Web
+repository.searchItems=Rechercher des éléments détenus par {0}
+repository.childItems=Descriptions d''archives
+repository.childItems.search={0,choice,0#{0} niveau inférieur |1#1 élément|1<{0,number,integer} éléments}
+repository.search=Rechercher dans les référentiels
+repository.searchInside=Rechercher des éléments détenus par {0}
+repository.itemsHeldOnline=Éléments dans EHRI
+repository.hasChildItems=Oui
+repository.noChildItems=Non
+repository.childCount={0,choice,0#Aucune description archivistique disponible|1#1 description archivistique disponible|1<{0,number,integer} descriptions archivistiques disponibles}
+repository.list=Référentiels
+repository.create=Créer un référentiel
+repository.create.submit=Créer un référentiel
+repository.update=Mettre à jour un référentiel
+repository.update.submit=Mettre à jour un référentiel
+repository.identifier=Identifiant
+repository.name=Forme de nom autorisée
+repository.parallelFormsOfName=Noms parallèles
+repository.otherFormsOfName=Autres noms
+repository.languageCode=Langue de la description
+repository.scriptCode=Script de la description
+repository.institutionType=Type d''institution
+repository.history=Histoire
+repository.geoculturalContext=Contexte géographique et culturel
+repository.mandates=Mandats/Sources d''autorité
+repository.administrativeStructure=Structure administrative
+repository.records=Politiques de gestion des dossiers et de collecte
+repository.buildings=Bâtiment(s)
+repository.holdings=Archivage et autres matériels détenus
+repository.findingAids=Aides à la recherche, guides et publications
+repository.openingTimes=Horaires d''ouverture
+repository.conditions=Conditions d''accès
+repository.accessibility=Accessibilité
+repository.researchServices=Services de recherche
+repository.reproductionServices=Services de reproduction
+repository.publicAreas=Espaces publics
+repository.descriptionIdentifier=Identifiant de description
+repository.institutionIdentifier=Identifiant d''institution
+repository.rulesAndConventions=Règles et conventions
+repository.status=État
+repository.levelOfDetail=Niveau de détails
+repository.datesCVD=Dates de création et de suppression
+repository.languages=Langues utilisées
+repository.scripts=Scripts utilisés
+repository.sources=Sources
+repository.maintenanceNotes=Notes de maintenance
+documentaryUnit.identifier=Identifiant
+documentaryUnit.ref=Source Web
+documentaryUnit.archivalContext=Contexte d''archivage
+documentaryUnit.otherIdentifiers=Alt. Identifiants
+documentaryUnit.extentAndMedium=Portée et nature
+documentaryUnit.scopeAndContent=Champ d''application et contenu
+documentaryUnit.biographicalHistory=Histoire biographique
+documentaryUnit.archivalHistory=Histoire archivistique
+documentaryUnit.acquisition=Acquisition
+documentaryUnit.appraisal=Évaluation
+documentaryUnit.systemOfArrangement=Système d''organisation
+documentaryUnit.archivistNote=Note de l''archiviste
+documentaryUnit.rulesAndConventions=Règles et conventions
+documentaryUnit.dates=Dates
+documentaryUnit.levelOfDescription=Niveau de description
+documentaryUnit.languageOfMaterials=Langues
+documentaryUnit.scriptOfMaterials=Scripts
+documentaryUnit.searchItems=Recherche d''éléments enfants...
+documentaryUnit.levelOfDescription.fonds=Fonds
+documentaryUnit.levelOfDescription.subfonds=Sous-fonds
+documentaryUnit.levelOfDescription.collection=Collection
+documentaryUnit.levelOfDescription.subcollection=Sous-collection
+documentaryUnit.levelOfDescription.recordgrp=Groupe d''enregistrement
+documentaryUnit.levelOfDescription.subgrp=Sous-groupe
+documentaryUnit.levelOfDescription.series=Séries
+documentaryUnit.levelOfDescription.subseries=Sous-série
+documentaryUnit.levelOfDescription.file=Fichier
+documentaryUnit.levelOfDescription.item=Élément
+documentaryUnit.levelOfDescription.otherlevel=Autre
+documentaryUnit.levelOfDescription.class=Classe
+documentaryUnit.childItems=Éléments enfants
+documentaryUnit.childItems.search={0,choice,0#{0} niveau inférieur |1#1 élément|1<{0,number,integer} éléments}
+documentaryUnit.physicalLocation=Emplacement physique
+documentaryUnit.languageCode=Langue de la description
+documentaryUnit.abstract=Résumé
+documentaryUnit.accruals=Accumulation
+documentaryUnit.conditionsOfAccess=Conditions régissant l''accès
+documentaryUnit.conditionsOfReproduction=Conditions régissant la reproduction
+documentaryUnit.languageOfMaterial=Langue(s) des matériels
+documentaryUnit.scriptOfMaterial=Script(s) des matériels
+documentaryUnit.physicalCharacteristics=Caractéristiques physiques et exigences techniques
+documentaryUnit.findingAids=Aides à la recherche
+documentaryUnit.locationOfOriginals=Existence et emplacement des originaux
+documentaryUnit.locationOfCopies=Existence et emplacement des copies
+documentaryUnit.relatedUnitsOfDescription=Unités de description liées
+documentaryUnit.publicationNote=Note de publication
+documentaryUnit.notes=Note(s)
+documentaryUnit.sources=Sources
+documentaryUnit.datesOfDescriptions=Dates des descriptions
+documentaryUnit.processInfo=Infos sur le processus
+documentaryUnit.creationProcess=Source
+documentaryUnit.creationProcess.MANUAL=EHRI
+documentaryUnit.creationProcess.MANUAL.description=Cette description a été créée par EHRI.
+documentaryUnit.creationProcess.IMPORT=Partenaire EHRI
+documentaryUnit.creationProcess.IMPORT.disclaimer=Cette description est directement dérivée des données structurées fournies à EHRI par une \
+   institution partenaire. Cette institution détentrice de collection considère cette description comme le reflet exact du fonds d''archives \
+    auquel elle se réfère au moment du transfert des données.
+historicalAgent.identifier=Identifiant
+historicalAgent.dates=Dates
+historicalAgent.entityType=Type d''entité
+historicalAgent.entityType.person=Personne
+historicalAgent.entityType.family=Famille
+historicalAgent.entityType.corporateBody=Société
+historicalAgent.set=Agent historique
+historicalAgent.descriptionArea=Zone de description
+historicalAgent.identity=Zone d''identité
+historicalAgent.services=Zone de services
+historicalAgent.administrationArea=Administration
+mshistoricalAgent.creation=Création
+historicalAgent.name=Forme de nom autorisée
+historicalAgent.parallelFormsOfName=Noms parallèles
+historicalAgent.standardisedFormsOfName=Noms standardisés selon d''autres règles
+historicalAgent.otherFormsOfName=Autres noms
+historicalAgent.languageCode=Langue de la description
+historicalAgent.typeOfEntity=Type d''autorité
+historicalAgent.corporateBody=Société
+historicalAgent.family=Famille
+historicalAgent.person=Personne
+historicalAgent.datesOfExistence=Dates d''existence
+historicalAgent.biographicalHistory=Histoire
+historicalAgent.place=Lieux
+historicalAgent.legalStatus=Statut juridique
+historicalAgent.functions=Fonctions
+historicalAgent.mandates=Mandats
+historicalAgent.structure=Structure interne
+historicalAgent.generalContext=Contexte général
+historicalAgent.descriptionIdentifier=Identifiant de description
+historicalAgent.institutionIdentifier=Identifiant d''institution
+historicalAgent.rulesAndConventions=Règles et conventions
+historicalAgent.status=État
+historicalAgent.levelOfDetail=Niveau de détails
+historicalAgent.datesCVD=Dates de création et de suppression
+historicalAgent.languages=Langues
+historicalAgent.scripts=Scripts
+historicalAgent.source=Sources
+historicalAgent.maintenanceNotes=Notes de maintenance
+cvocConcept.descriptions=Descriptions
+cvocConcept.languageCode=Langue
+cvocConcept.name=Étiquette privilégiée
+cvocConcept.altLabel=Alt. Étiquette(s)
+cvocConcept.scopeNote=Note sur le champ d''application
+cvocConcept.definition=Définition
+cvocConcept.inVocabulary=Vocabulaire
+cvocConcept.search=Termes de recherche
+cvocConcept.broaderTerms=Termes plus généraux
+cvocConcept.narrowerTerms=Termes plus précis
+cvocConcept.narrowerTermsPageHeader={2,choice,0#Aucun terme plus précis trouvé|1#Un terme plus précis trouvé|1<Termes plus précis {0,number,integer} à {1,number,integer} sur {2,number,integer}}
+virtualUnit.viewInArchivalContext=Afficher dans le contexte d''archivage
+virtualUnit.viewInArchivalContext.explanation=Cet élément est affiché en tant que partie d''une "collection virtuelle" \
+    qui ne reflète pas la disposition du matériel au sein des archives physiques.
+country.childItems=Institutions d''archives
+country.childItems.search={0,choice,0#{0} niveau inférieur |1#1 institution|1<{0,number,integer} institutions}
+country.repositoriesPageHeader={2,choice,0#Aucun référentiel trouvé|1#Un référentiel trouvé|1<Référentiels {0,number,integer} à {1,number,integer} sur {2,number,integer}}
+country.search=Recherche de pays
+country.searchInside=Rechercher de référentiels
+country.childCount={0,choice,0#Aucune institution énumérée|1#1 institution énumérée|1<{0,number,integer} institutions énumérées}
+country.items=Référentiels
+country.identifier=Code pays
+country.identifier.description=Le code ISO-3166-1 2-lettre pour ce pays
+country.abstract=Résumé
+country.report=Histoire
+country.situation=Situation d''archivage
+country.dataSummary=Recherche EHRI (récapitulatif)
+country.dataExtensive=Recherche EHRI (extensif)
+country.list=Pays
+cvocVocabulary.childItems=Mots clés
+cvocVocabulary.childItems.search={0,choice,0#{0} |1#1 mot-clé|1<{0,number,integer} mots-clés}

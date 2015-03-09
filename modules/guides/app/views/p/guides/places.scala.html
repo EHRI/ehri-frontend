@@ -18,7 +18,7 @@
 }
 
 
-@optionalContent = {
+@optionalContent(page: GuidePage) = {
     @params.query.map { text =>
         <section class="archival-context panel-details repository">
             <div class="panel-heading">
@@ -44,11 +44,11 @@
                 @common.pagination(concepts)
             </div>
         </section>
-    }.getOrElse {
-        @Html(views.Helpers.renderMarkdown(page.description.getOrElse("")))
     }
+
+    @page.description.map(d => Html(views.Helpers.renderTrustedMarkdown(d)))
 }
-@views.html.p.layout.guideLayout(guide, page, pages, js, css, optionalContent = Some(optionalContent)) {
+@views.html.p.layout.guideLayout(guide, page, pages, js, css, optionalContent = Some(optionalContent(page))) {
     <article>
         <header>
             <h1>@page.name</h1>

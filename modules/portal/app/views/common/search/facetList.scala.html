@@ -32,12 +32,12 @@
             @fc.sorted.map { f =>
                 @if(f.applied) {
                     <input type="hidden" name="@fc.param" value="@f.value" />
-                    <a class="remove-filter" href="@pathWithoutFacet(fc, f, call.url, req.queryString.filterKeys(_!="page"))">
+                    <a class="remove-filter" href="@pathWithoutFacet(fc, f.value, call.url, req.queryString.filterKeys(_!="page"))">
                     @fc.pretty(f)
                     (@f.count)
                     </a>
                 } else {
-                    <a class="apply-filter" href="@pathWithFacet(fc, f, call.url, req.queryString.filterKeys(_!="page"))">
+                    <a class="apply-filter" href="@pathWithFacet(fc, f.value, call.url, req.queryString.filterKeys(_!="page"))">
                     @fc.pretty(f)
                     (@f.count)
                     </a>
@@ -58,14 +58,14 @@
                         @if(f.applied) {
                         <li title="@fc.pretty(f)" class="selected-filter">
                             <input type="hidden" name="@fc.param" value="@f.value" />
-                            <a class="remove-filter" href="@pathWithoutFacet(fc, f, call.url, req.queryString.filterKeys(_!="page"))">
+                            <a class="remove-filter" href="@pathWithoutFacet(fc, f.value, call.url, req.queryString.filterKeys(_!="page"))">
                                 @fc.pretty(f)
                                 (@f.count)
                             </a>
                         </li>
                         } else {
                         <li class="type-highlight @f.value" title="@fc.pretty(f)">
-                            <a href="@pathWithFacet(fc, f, call.url, req.queryString.filterKeys(_!="page"))">
+                            <a href="@pathWithFacet(fc, f.value, call.url, req.queryString.filterKeys(_!="page"))">
                             @fc.pretty(f)
                             (@f.count)
                             </a>
@@ -88,14 +88,14 @@
                         @if(f.applied) {
                         <li title="@fc.pretty(f)" class="selected-filter">
                             <input type="hidden" name="@fc.param" value="@f.value" />
-                            <a class="remove-filter" href="@pathWithoutFacet(fc, f, call.url, req.queryString.filterKeys(_!="page"))">
+                            <a class="remove-filter" href="@pathWithoutFacet(fc, f.value, call.url, req.queryString.filterKeys(_!="page"))">
                             @fc.pretty(f)
                             (@f.count)
                             </a>
                         </li>
                         } else {
                         <li class="type-highlight @f.value" title="@fc.pretty(f)">
-                            <a class="apply-filter" href="@pathWithFacet(fc, f, call.url, req.queryString.filterKeys(_!="page"))">
+                            <a class="apply-filter" href="@pathWithFacet(fc, f.value, call.url, req.queryString.filterKeys(_!="page"))">
                             @fc.pretty(f)
                             (@f.count)
                             </a>
@@ -127,7 +127,7 @@
                         @if(f.applied) {
                         <input type="hidden" name="@fc.param" value="@f.value" />
                         <li title="@fc.pretty(f)" class="selected-filter">
-                            <a class="remove-filter" href="@pathWithoutFacet(fc, f,
+                            <a class="remove-filter" href="@pathWithoutFacet(fc, f.value,
                                                         call.url, req.queryString.filterKeys(_!="page"))">
                                 @fc.pretty(f)
                                 (@f.count)
@@ -135,7 +135,7 @@
                         </li>
                         } else {
                         <li class="type-highlight @f.value" title="@fc.pretty(f)">
-                            <a href="@pathWithFacet(fc, f, call.url, req.queryString.filterKeys(_!="page"))">
+                            <a href="@pathWithFacet(fc, f.value, call.url, req.queryString.filterKeys(_!="page"))">
                             @fc.pretty(f)
                             (@f.count)
                             </a>

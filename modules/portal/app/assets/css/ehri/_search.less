@@ -116,9 +116,8 @@
 }
 
 .search-sort {
-  margin-top: @medium-margin;
-  &:extend(.list-unstyled, .list-inline, .pull-right);
-
+  &:extend(.list-unstyled, .list-inline);
+  float: right;
   span.fa {
     padding: @small-padding;
     float: left;
@@ -126,7 +125,6 @@
 }
 
 .search-summary {
-  margin-top: @medium-margin;
   font-size: 1.3em;
   line-height: 1.1;
   font-weight: 500;
@@ -258,4 +256,10 @@ em.highlight {
   .list-inline;
   display: inline-block;
   margin-left: @small-margin;
+}
+
+.child-item-search {
+  margin-top: @large-margin;
+  padding-top: @large-padding;
+  border-top: 1px solid @gray-lighter;
 }

@@ -1,16 +1,14 @@
-@(facets: Seq[utils.search.FacetClass[utils.search.Facet]])(implicit req: RequestHeader, lang: Lang)
-
-@import utils.search._
+@(facetClasses: Seq[utils.search.FacetClass[utils.search.Facet]], applied: Seq[utils.search.AppliedFacet])(implicit req: RequestHeader, lang: Lang)
 
 <div class="selected-facets">
-    @facets.map{ fclass =>
-        @fclass.sorted.map{ facet =>
-            @if(facet.applied) {
+    @applied.collect { case utils.search.AppliedFacet(key, values) =>
+        @facetClasses.find(_.key == key).map { fclass =>
+            @values.map { value =>
                 <div class="selected-facet">
-                    <span class="facet"><span class="facet-type">@fclass.name:</span> @fclass.pretty(facet)
-                        <input type="hidden" name="@fclass.param" value="@facet.value" />
+                    <span class="facet"><span class="facet-type">@fclass.name:</span> @fclass.render(value)
+                        <input type="hidden" name="@fclass.param" value="@value" />
                     </span>
-                    <a class="remove-filter" href="@pathWithoutFacet(fclass, facet, req.path, req.queryString.filterKeys(_!="page"))">
+                    <a class="remove-filter" href="@utils.search.pathWithoutFacet(fclass, value, req.path, req.queryString.filterKeys(_!="page"))">
                         <span class="remove"></span>
                     </a>
                 </div>

@@ -45,6 +45,7 @@ case class Guides @Inject()(implicit globalConfig: global.GlobalConfig, searchEn
     Action { implicit request =>
       Ok(
         Routes.javascriptRouter("jsRoutes")(
+          controllers.portal.routes.javascript.Portal.filterItems,
           controllers.portal.guides.routes.javascript.DocumentaryUnits.browse,
           controllers.portal.routes.javascript.DocumentaryUnits.browse,
           controllers.portal.guides.routes.javascript.Guides.linkedData,
@@ -327,17 +328,6 @@ case class Guides @Inject()(implicit globalConfig: global.GlobalConfig, searchEn
     Ok(p.guides.timeline(guide, page))
   }
 
-  /*
-   * Form for browse
-   */
-  private val facetsForm = Form(
-    tuple(
-      "kw" -> list(text),
-      PageParams.PAGE_PARAM -> default(number, 1),
-      Constants.LIMIT_PARAM -> default(number, 10)
-    )
-  )
-
   private def getFacetQuery(ids: Seq[String]): String = {
     ids.filterNot(_.isEmpty).map("__ID__:" + _).reduce((a, b) => a + " OR " + b)
   }
@@ -385,7 +375,7 @@ case class Guides @Inject()(implicit globalConfig: global.GlobalConfig, searchEn
   def childItemIds(item: String)(implicit request: RequestHeader): Future[Map[String,Any]] = {
     import SearchConstants._
     childIds(item).map { seq =>
-      if (seq.isEmpty) Map.empty
+      if (seq.isEmpty) Map(ITEM_ID -> "NO_VALID_ID")
       else Map(s"$ITEM_ID:(${seq.mkString(" ")}) OR $ANCESTOR_IDS:(${seq.mkString(" ")})" -> Unit)
     }
   }
@@ -393,7 +383,7 @@ case class Guides @Inject()(implicit globalConfig: global.GlobalConfig, searchEn
   /*
    *   Faceted request
    */
-  private def searchFacets(guide: Guide, ids: List[String]): Future[Seq[Long]] = {
+  private def searchFacets(guide: Guide, ids: Seq[String]): Future[Seq[Long]] = {
     val cypher = new CypherDAO
     val query =
       s"""
@@ -453,11 +443,15 @@ case class Guides @Inject()(implicit globalConfig: global.GlobalConfig, searchEn
 
   private def pagify[T](docs: SearchResult[T], accessPoints: Seq[AnyModel]): SearchResult[T] = {
     docs.copy(
-      facetClasses = List(
+      facets = docs.facets ++ (if (accessPoints.nonEmpty)
+        Seq(AppliedFacet("kw", accessPoints.map(_.id)))
+      else Seq.empty),
+      facetClasses = docs.facetClasses ++ Seq(
         FieldFacetClass(
-          param = "kw[]",
+          param = "kw",
           name = "Keyword",
           key = "kw",
+          render = id => accessPoints.find(_.id == id).map(_.toStringLang).getOrElse(id),
           facets = accessPoints.map { ap =>
             FieldFacet(value = ap.id, name = Some(ap.toStringLang), applied = true, count = 1)
           }
@@ -498,15 +492,15 @@ case class Guides @Inject()(implicit globalConfig: global.GlobalConfig, searchEn
         controllers.portal.guides.routes.Guides.guideFacets(path)
       ))
 
-      facetsForm.bindFromRequest.fold(
-        errs => defaultResult, {
-        case (selectedFacets, page, limit) if selectedFacets.filterNot(_.isEmpty).nonEmpty => for {
-          ids <- searchFacets(guide, selectedFacets.filterNot(_.isEmpty))
+      val facets = request.queryString.getOrElse("kw", Seq.empty).filter(_.nonEmpty)
+      if (facets.isEmpty) defaultResult
+      else for {
+          ids <- searchFacets(guide, facets)
           result <- findType[DocumentaryUnit](
             filters = Map(s"gid:(${ids.mkString(" ")})" -> Unit),
             defaultOrder = SearchOrder.Name
           )
-          selectedAccessPoints <- SearchDAO.list[AnyModel](selectedFacets.filterNot(_.isEmpty))
+          selectedAccessPoints <- SearchDAO.list[AnyModel](facets)
           availableFacets <- otherFacets(guide, ids)
           tempAccessPoints <- SearchDAO.listByGid[AnyModel](availableFacets)
         } yield {
@@ -519,9 +513,6 @@ case class Guides @Inject()(implicit globalConfig: global.GlobalConfig, searchEn
             controllers.portal.guides.routes.Guides.guideFacets(path)
           ))
         }
-        case _ => defaultResult
-      }
-      )
     } getOrElse {
       immediate(NotFound(renderError("errors.itemNotFound", views.html.errors.itemNotFound(Some(path)))))
     }

@@ -1,3 +1,11 @@
+.description-notice-text {
+  .small;
+  background-color: #f3f3f3;
+  color: @almost-black;
+  font-style: italic;
+  padding: @medium-padding;
+}
+
 .descriptions {
   .make-row();
   .description-viewport {
@@ -14,14 +22,9 @@
     border-bottom: 1px solid #dcdcdc;
 
     .import-disclaimer {
-      .small;
-      background-color: #f3f3f3;
-      color: @almost-black;
-      font-style: italic;
-      padding: @medium-padding;
+      &:extend(.description-notice-text);
     }
   }
-
 }
 
 .date-period > td {
@@ -32,6 +35,7 @@
   .other-name-list {
     font-size: 1.3em;
     &:extend(.list-unstyled, .list-inline, .text-mute);
+    display: block;
   }
 
   h1, h2 {
@@ -58,12 +62,13 @@
 .item-text-field {
   position: relative;
   .make-row();
-  margin-bottom: 5px;
+  //margin-bottom: @small-margin;
+  padding-top: @small-padding;
 
   .item-text-field-header {
     .make-md-column(3);
 
-    font-size: 16px;
+    font-size: @font-size-base * 1.1; // 1.1em?
     margin-top: 0;
     margin-bottom: 0;
     font-weight: bold;
@@ -152,5 +157,20 @@ dl.item-details {
   }
   margin-bottom: @small-margin;
   border-bottom: 1px dashed @dark-gray;
+}
+
+.sidepanel-toc {
+  background-color: #ffffff;
+
+  &:extend(.hidden-xs, .hidden-sm);
+}
+
+.affix-bottom {
+  position: absolute;
+}
+
+.affix {
+  z-index: 1000;
+  top: 10px;
 }
 

@@ -10,7 +10,7 @@
         }
     </div>
     <blockquote class="annotation-body">
-        @highlighter.highlight(views.Helpers.renderMarkdown(annotation.model.body))
+        @highlighter.highlight(views.Helpers.renderUntrustedMarkdown(annotation.model.body))
     </blockquote>
     <div class="annotation-meta">
         @for(user <- annotation.user ; event <- annotation.latestEvent) {

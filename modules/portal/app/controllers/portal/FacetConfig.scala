@@ -247,7 +247,6 @@ trait FacetConfig extends Search {
   protected val docSearchFacets: FacetBuilder = { implicit request =>
     List(
       //dateQuery(request),
-
       FieldFacetClass(
         key = LANGUAGE_CODE,
         name = Messages("documentaryUnit." + LANGUAGE_CODE),
@@ -286,6 +285,13 @@ trait FacetConfig extends Search {
         display = FacetDisplay.List
       ),
       FieldFacetClass(
+        key = TYPE,
+        name = Messages("facet.manifestation"),
+        param = "manifestation",
+        render = s => Messages("facet.manifestation." + s),
+        display = FacetDisplay.Choice
+      ),
+      FieldFacetClass(
         key = HOLDER_NAME,
         name = Messages("facet.holder"),
         param = "holder",
@@ -306,7 +312,7 @@ trait FacetConfig extends Search {
   // The facets for documents within a repository or another document shouldn't
   // contain the holder or country (since they'll be implied)
   protected def localDocFacets = docSearchFacets.andThen(_.filterNot { fc =>
-      Seq(HOLDER_NAME, COUNTRY_CODE, CREATION_PROCESS).contains(fc.key)
+      Seq(TYPE, HOLDER_NAME, COUNTRY_CODE, CREATION_PROCESS).contains(fc.key)
     })
 
   protected val conceptFacets: FacetBuilder = { implicit request =>

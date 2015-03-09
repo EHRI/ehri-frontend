@@ -17,62 +17,63 @@
 
 @scripts = {
     <script src="@controllers.portal.routes.Assets.versioned("js/portal.js")"></script>
-    @if(userOpt.isDefined) {
-        <script src="@controllers.portal.routes.Assets.versioned("js/portal-signedin.js")"></script>
-    }
+@if(userOpt.isDefined) {
+    <script src="@controllers.portal.routes.Assets.versioned("js/portal-signedin.js")"></script>
+}
 }
 
-@side = {
-  @common.descriptionChoice(item.model.descriptions)
-  <p>
-    <small class="text-muted">@Messages("guides.annotation")</small><br />
-    <small><a href="@controllers.portal.routes.DocumentaryUnits.browse(item.id)">@Messages("guides.seeOnPortal")</a></small>
-  </p>
-  @defining(EntityType.DocumentaryUnit.toString) { implicit prefix =>
-    <section class="archival-context panel-details repository">
-        @item.holder.map { holder =>
-            <div class="panel-heading">
-                <h3>@views.html.p.guides.doc.linkTo(holder, guide.path)</h3>
-            </div>
-            <div class="panel-body">
-                @if(holder.model.primaryDescription.flatMap(_.parallelFormsOfName).nonEmpty || holder.model.logoUrl.nonEmpty) {
-                    <ul class="list-unstyled other-name-list">
+@sidebar(page: GuidePage) = {
+    @common.descriptionChoice(item.model.descriptions)
+    <p>
+        <small class="text-muted">@Messages("guides.annotation")</small><br />
+        <small><a href="@controllers.portal.routes.DocumentaryUnits.browse(item.id)">@Messages("guides.seeOnPortal")</a></small>
+    </p>
+    @defining(EntityType.DocumentaryUnit.toString) { implicit prefix =>
+        <section class="archival-context panel-details repository">
+            @item.holder.map { holder =>
+                <div class="panel-heading">
+                    <h3>@views.html.p.guides.doc.linkTo(holder, guide.path)</h3>
+                </div>
+                <div class="panel-body">
+                    @if(holder.model.primaryDescription.flatMap(_.parallelFormsOfName).nonEmpty || holder.model.logoUrl.nonEmpty) {
+                        <ul class="list-unstyled other-name-list">
                         @holder.model.primaryDescription.map { d =>
-                          @d.parallelFormsOfName.map { pfn =>
-                            <li>@pfn</li>
-                          }
+                            @d.parallelFormsOfName.map { pfn =>
+                                <li>@pfn</li>
+                            }
                         }
-                    </ul>
-                }
-                @holder.model.logoUrl.map { logo =>
-                    @defining(holder.url.map(_.toString).getOrElse(request.path)) { url =>
-                    <a href="@url">
-                        <img class="repository-logo" src="@logo" alt="@item.toStringLang" />
-                    </a>
+                        </ul>
                     }
-                }
-	            @item.parent.map { parent =>
-	                @wrapParent(parent) {
-	                    <div class="ancestor">
-	                        <h4>@views.html.p.guides.doc.linkTo(parent, guide.path)</h4>
-	                    </div>
-	                }
-	            }
-	        </div>
-	    }
-	</section>
- }
+                    @holder.model.logoUrl.map { logo =>
+                        @defining(holder.url.map(_.toString).getOrElse(request.path)) { url =>
+                            <a href="@url">
+                                <img class="repository-logo" src="@logo" alt="@item.toStringLang" />
+                            </a>
+                        }
+                    }
+                    @item.parent.map { parent =>
+                        @wrapParent(parent) {
+                            <div class="ancestor">
+                                <h4>@views.html.p.guides.doc.linkTo(parent, guide.path)</h4>
+                            </div>
+                        }
+                    }
+                </div>
+            }
+        </section>
+    }
+
+    @page.description.map(d => Html(views.Helpers.renderTrustedMarkdown(d)))
 }
 
-@views.html.p.layout.guideLayout(guide, page, pages, scripts = scripts, optionalContent = Some(side)) {
-
+@views.html.p.layout.guideLayout(guide, page, pages, scripts = scripts, optionalContent = Some(sidebar(page))) {
     <article class="description-viewport">
-        @defining(EntityType.DocumentaryUnit.toString) { implicit fieldPrefix =>
-            @defining(annotations) { implicit annotations =>
-                @item.model.descriptions.map { desc =>
-                    @views.html.p.documentaryUnit.description(item, desc, links, annotations)
-                }
+    @defining(EntityType.DocumentaryUnit.toString) { implicit fieldPrefix =>
+        @defining(annotations) { implicit annotations =>
+            @item.model.descriptions.map { desc =>
+                @views.html.p.documentaryUnit.description(item, desc, links, annotations)
             }
         }
+    }
     </article>
 }

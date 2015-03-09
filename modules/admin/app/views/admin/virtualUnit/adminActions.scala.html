@@ -4,8 +4,11 @@
     @views.html.admin.common.sidebarAction(user.hasPermission(ContentTypes.VirtualUnit, PermissionType.Create)) {
         <a href="@controllers.virtual.routes.VirtualUnits.createChild(item.id)">@Messages("virtualUnit.child.create")</a>
     }
-    @views.html.admin.common.sidebarAction(user.hasPermission(ContentTypes.VirtualUnit, PermissionType.Create)) {
-        <a href="@controllers.virtual.routes.VirtualUnits.createChildRef(item.id)">@Messages("virtualUnit.child.createRef")</a>
+    @views.html.admin.common.sidebarAction(user.hasPermission(ContentTypes.VirtualUnit, PermissionType.Update)) {
+        <a href="@controllers.virtual.routes.VirtualUnits.createChildRef(item.id)">@Messages("virtualUnit.createRef")</a>
+    }
+    @views.html.admin.common.sidebarAction(user.hasPermission(ContentTypes.VirtualUnit, PermissionType.Update)) {
+        <a href="@controllers.virtual.routes.VirtualUnits.deleteChildRef(item.id)">@Messages("virtualUnit.deleteRef")</a>
     }
     @views.html.admin.common.sidebarAction(user.hasPermission(ContentTypes.VirtualUnit, PermissionType.Annotate)) {
         <a href="@controllers.virtual.routes.VirtualUnits.linkAnnotateSelect(item.id, EntityType.VirtualUnit)">@Messages("link.create")</a>

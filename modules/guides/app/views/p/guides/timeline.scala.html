@@ -19,7 +19,7 @@
 	</script>
 	<!-- END TimelineJS -->
 }
-@views.html.p.layout.guideLayout(guide, page, guide.findPages(), scripts = js) {
+@views.html.p.layout.guideLayout(guide, page, guide.findPages(), scripts = js, optionalContent = page.description.map(d => Html(views.Helpers.renderTrustedMarkdown(d)))) {
 	<article>
 		<header>
 			<h1>@page.name</h1>

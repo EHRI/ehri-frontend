@@ -10,7 +10,7 @@
                 @common.search.searchSort(result.params)
             </div>
 
-            @common.search.selectedFacets(result.facetClasses)
+            @common.search.selectedFacets(result.facetClasses, result.facets)
 
             @html
             @views.html.common.pagination(result.page)

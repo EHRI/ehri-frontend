@@ -95,7 +95,7 @@
 }
 
 @annotationBody(ann: Annotation) = {
-    <blockquote>@Html(views.Helpers.renderMarkdown(ann.model.body))</blockquote>
+    <blockquote>@Html(views.Helpers.renderUntrustedMarkdown(ann.model.body))</blockquote>
 }
 
 @* NB: This will ignore events for which we don't have a type, user, subject, and subject count, which is

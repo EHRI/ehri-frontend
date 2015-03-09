@@ -1,4 +1,4 @@
-@(item: VirtualUnit, path: Seq[AnyModel], showAuthor: Boolean = true, highlighter: views.Highlighter = views.NoopHighlighter)(implicit userOpt: Option[UserProfile], req: RequestHeader, globalConfig: global.GlobalConfig, lang: Lang, descriptionId: Option[String] = None)
+@(item: VirtualUnit, path: Seq[models.base.AnyModel], showAuthor: Boolean = true, highlighter: views.Highlighter = views.NoopHighlighter)(implicit userOpt: Option[UserProfile], req: RequestHeader, globalConfig: global.GlobalConfig, lang: Lang, descriptionId: Option[String] = None)
 
 @import org.apache.commons.lang3.StringUtils
 
@@ -7,7 +7,7 @@
         <ul class="list-unstyled text-muted list-inline inline-separator">
             @if(showAuthor) {
                 @item.author.map { author =>
-                    <li>@p.helpers.linkTo(author)</li>
+                    <li>@views.html.p.helpers.linkTo(author)</li>
                 }
             }
             <li><span class="text-muted">@views.Helpers.languageCodeToName(desc.languageCode)</span></li>
@@ -28,7 +28,7 @@
         </ul>
         @views.html.common.childCount(item) { count =>
             @if(count > 0) {
-                <a href="@views.p.Helpers.virtualUnitUrl(path, item.id)#search-items">@Messages("documentaryUnit.childCount", count)</a>
+                <a href="@views.p.Helpers.virtualUnitSearchUrl(path, item.id)">@Messages("documentaryUnit.childCount", count)</a>
             }
         }
     </small>

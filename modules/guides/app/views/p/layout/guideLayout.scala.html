@@ -33,10 +33,11 @@
         <script src="@controllers.portal.guides.routes.Guides.jsRoutes()"></script>
         <script type="text/javascript">
             VIRTUAL_UNIT = "@guide.virtualUnit";
-            VIRTUAL_UNIT_ROUTE = "@controllers.portal.guides.routes.Guides.guideFacets(guide.path)?kw[]=";
+            VIRTUAL_UNIT_ROUTE = "@controllers.portal.guides.routes.Guides.guideFacets(guide.path)?kw=";
             GUIDE_PATH = "@guide.path";
         </script>
         <script src="@controllers.portal.routes.Assets.versioned("js/lib/jquery.hoverIntent.js")"></script>
+        <script src="@controllers.portal.routes.Assets.versioned("js/lib/jquery.placeholder.js")"></script>
         <script type="text/javascript" src="@controllers.portal.guides.routes.Assets.versioned("js/common.js")"></script>
         <script type="text/javascript" src="@controllers.portal.guides.routes.Assets.versioned("js/portal-guide.js")"></script>
         @scripts
