@@ -552,8 +552,8 @@ dataPolicy.notice2=Sensible personenbezogene Daten sind alle Daten im Zusammenha
     Mitgliedschaft in Gewerkschaften und Einträgen im Strafregister.
 dataPolicy.terms=Hiermit erkläre ich mich damit einverstanden, dass ich sensible personenbezogene Daten ausschließlich für wissenschaftliche Zwecke nutze \
     und sensible personenbezogene Daten in Übereinstimmung mit den geltenden niederländischen und internationalen Gesetzen und Bestimmungen nutze. \
-    Mir ist bewusst, dass ein Verstoß gegen diese Gesetze und/oder Bestimmungen strafrechtliche Konsequenzen nach sich ziehen kann. \
-  
+    Mir ist bewusst, dass ein Verstoß gegen diese Gesetze und/oder Bestimmungen strafrechtliche Konsequenzen nach \
+   sich ziehen kann.
 dataPolicy.agree=Ich stimme zu
 privacy.header=EHRI-Datenschutzrichtlinie
 privacy.users.header=1. Daten von Benutzern dieser Webseite und ihrer Dienstleistungen

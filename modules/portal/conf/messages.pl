@@ -47,8 +47,8 @@ errors.staffOnly=Dostęp ograniczony
 errors.staffOnlyMessage=Dostęp do tej strony jest obecnie ograniczony do pracowników EHRI.
 errors.verifiedOnly=Dostęp ograniczony
 errors.verifiedOnlyMessage=Dostęp do tej strony jest obecnie ograniczony do zweryfikowanych użytkowników.
-errors.readonly=Portal EHRI jest obecnie dostępny w trybie tylko do odczytu ze względu na prowadzone prace konserwacyjne. \
-  Wkrótce powinno zostać wznowione normalne działanie. Dziękujemy za cierpliwość.
+errors.readonly=Portal EHRI jest obecnie dostępny w trybie tylko do odczytu ze względu na prowadzone prace konserwacyjne.\
+           Wkrótce powinno zostać wznowione normalne działanie. Dziękujemy za cierpliwość.
 errors.itemNotFound=Nie znaleziono pozycji
 errors.itemNotFound.explanation=Nie udało się odnaleźć tej pozycji w bazie danych.
 errors.pageNotFound=Nie znaleziono strony
@@ -108,7 +108,7 @@ profile.image.edit=Ustaw zdjęcie profilowe
 profile.delete=Usuń konto
 profile.delete.link=Kliknij tutaj, aby usunąć swój profil
 profile.delete.check.text=Usunięcie konta spowoduje \
-     zanonimizowanie (ale nie usunięcie) wszystkich publicznie widocznych komentarzy i linków dodanych \
+     zanonimizowanie (ale nie usunięcie) wszystkich publicznie widocznych komentarzy i linków dodanych\
     przez Ciebie w portalu EHRI. Aby potwierdzić, wpisz w poniższym polu swoją nazwę użytkownika, jak pokazano tutaj:
 profile.delete.check=Wpisz nazwę użytkownika, jak została wyświetlona powyżej.
 profile.delete.badConfirmation=Usunięcie profilu nie zostało poprawnie potwierdzone.
@@ -170,15 +170,15 @@ login.openid=OpenID
 login.email=E-mail
 login.password=Hasło
 login.password.confirm=Potwierdź hasło
-login.password.noPassword=Aktualnie nie ma żadnego hasła powiązanego z Twoim kontem. Oznacza to, że \
-  zalogowałeś się za pośrednictwem innego dostawcy, np. przez konto Google lub Facebooka.
+login.password.noPassword=Aktualnie nie ma żadnego hasła powiązanego z Twoim kontem. Oznacza to, że\
+    zalogowałeś się za pośrednictwem innego dostawcy, np. przez konto Google lub Facebooka.
 login.password.change=Zmień hasło
 login.password.change.link=Kliknij tutaj, aby zmienić hasło
 login.password.change.submit=Prześlij
 login.password.change.confirmation=Hasło zostało zmienione
 login.password.reset=Resetowanie hasła
-login.password.reset.text=Nie pamiętasz hasła? Wpisz poniżej adres e-mail użyty podczas rejestracji, \
-  a my wyślemy Ci link, który pozwoli Ci zresetować hasło.
+login.password.reset.text=Nie pamiętasz hasła? Wpisz poniżej adres e-mail użyty podczas rejestracji,\
+    a my wyślemy Ci link, który pozwoli Ci zresetować hasło.
 login.password.reset.noPasswordMatching=Nie znaleziono konta pasującego do danych {0}
 login.password.reset.submit=Wyślij link do resetowania hasła
 login.openid.urlPlaceholder=Wpisz swój adres URL OpenID
