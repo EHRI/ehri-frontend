@@ -1,17 +1,32 @@
-@(params: utils.search.SearchParams = utils.search.SearchParams.empty, autofocus: Boolean = false, placeholder: String = "search.queryPlaceholder")(implicit userOpt: Option[UserProfile], request: RequestHeader, globalConfig: global.GlobalConfig, lang: Lang, flash: Flash)
+@(params: utils.search.SearchParams, fields: Seq[utils.search.SearchField.Value] = Seq.empty, autofocus: Boolean = false, fielded: Boolean = false, placeholder: String = "search.queryPlaceholder")(implicit userOpt: Option[UserProfile], request: RequestHeader, globalConfig: global.GlobalConfig, lang: Lang, flash: Flash)
 
-@import utils.search.SearchParams
+@import utils.search.{SearchParams,SearchField}
+
+@defaultFields = @{if(fields.isEmpty) SearchField.values.toSeq else fields}
+
 <div class="search-bar">
     <div class="form-group search-box">
         <div class="input-group">
+            <label for="id_q" class="sr-only">@Messages(placeholder)</label>
             <input type="search"
-                   placeholder="@Messages(placeholder)" class="form-control" name="@SearchParams.QUERY" value="@params.query" @{if(autofocus) "autofocus"} />
-                    <span class="input-group-btn">
-                        <button class="btn btn-default">
-                            <span class="glyphicon glyphicon-search"></span>
-                            @Messages("search.submit")
-                        </button>
-                    </span>
+                placeholder="@Messages(placeholder)" class="form-control" name="@SearchParams.QUERY" value="@params.query" @{if(autofocus) "autofocus"} />
+            @if(fielded) {
+                <span class="input-group-addon field-selector">
+                    <label for="id_field" class="sr-only">@Messages("search.field")</label>
+                    <select name="@{SearchParams.FIELD}[]" id="id_field">
+                        <option value=>@Messages("search.field.all")</option>
+                        @defaultFields.map { f =>
+                            <option value="@f.toString" @{if(params.fields.contains(f)) "selected"}>@Messages("search.field." + f)</option>
+                        }
+                    </select>
+                </span>
+            }
+            <span class="input-group-btn">
+                <button class="btn btn-default">
+                    <span class="glyphicon glyphicon-search"></span>
+                    @Messages("search.submit")
+                </button>
+            </span>
         </div>
         <div id="search-helper">
             <a href="#" class="close" aria-hidden="true">&times;</a>
@@ -24,6 +39,13 @@
                 <dd>@Messages("search.helper.plus")</dd>
                 <dt>-@Messages("search.helper.example")</dt>
                 <dd>@Messages("search.helper.minus")</dd>
+            </dl>
+            <h1>@Messages("search.helper.field")</h1>
+            <dl class="dl-horizontal">
+                <dt>@Messages("search.helper.field.title")</dt>
+                <dd>@Messages("search.helper.field.title.description")</dd>
+                <dt>@Messages("search.helper.field.identifier")</dt>
+                <dd>@Messages("search.helper.field.identifier.description")</dd>
             </dl>
         </div>
     </div>

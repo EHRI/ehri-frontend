@@ -263,11 +263,11 @@ jQuery(function ($) {
     $link.addClass("loading");
     $data.load(this.href, function() {
       $link.removeClass("loading").addClass("loaded");
-      $data.find("select").each(function(i) {
-        if ($.fn.select2) {
-          $(this).select2(select2Opts);
-        }
-      });
+      if ($.fn.select2) {
+        $data.find(".select2").each(function(i) {
+            $(this).select2(select2Opts);
+        });
+      }
       $link.hide();
     });
   });

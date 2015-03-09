@@ -23,7 +23,7 @@
                         <div class="container">
                             <h1>@Messages("welcome") <sup class="text-muted">Beta</sup></h1>
                             @helper.form(action = controllers.portal.routes.Portal.search(), 'role -> "form") {
-                            @views.html.common.search.searchBar()
+                                @views.html.common.search.searchBar(utils.search.SearchParams.empty)
                             }
                         </div>
                     </div>

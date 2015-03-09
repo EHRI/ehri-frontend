@@ -7,10 +7,13 @@ import play.api.libs.json.Json
 
 object SearchField extends Enumeration {
   type Field = Value
-  val All = Value("all")
+  val Identifier = Value("identifier")
   val Title = Value("title")
+  val Content = Value("scopeAndContent")
   val Creator = Value("creator")
-  val StartDate = Value("start_date")
+  val Person = Value("person")
+  val Place = Value("place")
+  val Subject = Value("subject")
 
   implicit val format = defines.EnumUtils.enumFormat(SearchField)
 }
@@ -60,8 +63,8 @@ case class SearchParams(
   count: Option[Int] = None,
   sort: Option[SearchOrder.Value] = None,
   reverse: Option[Boolean] = Some(false),
-  entities: List[EntityType.Value] = Nil,
-  fields: Option[List[String]] = None,
+  entities: Seq[EntityType.Value] = Nil,
+  fields: Seq[SearchField.Value] = Nil,
   excludes: Option[List[String]] = None,
   filters: Option[List[String]] = None
 ) {
@@ -89,7 +92,7 @@ case class SearchParams(
       sort = sort orElse d.sort,
       reverse = reverse orElse d.reverse,
       entities = if (entities.isEmpty) d.entities else entities,
-      fields = fields orElse d.fields,
+      fields = if (fields.isEmpty) d.fields else fields,
       excludes = excludes orElse d.excludes,
       filters = filters orElse d.filters
     )
@@ -128,8 +131,8 @@ object SearchParams {
       ),
       SORT -> optional(enumMapping(SearchOrder)),
       REVERSE -> optional(boolean),
-      ENTITY -> list(enumMapping(EntityType)),
-      FIELD -> optional(list(nonEmptyText)),
+      ENTITY -> seq(enumMapping(EntityType)),
+      FIELD -> default(seq(enumMapping(SearchField)), Seq.empty),
       EXCLUDE -> optional(list(nonEmptyText)),
       FILTERS -> optional(list(nonEmptyText))
     )(SearchParams.apply)(SearchParams.unapply)

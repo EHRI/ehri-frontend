@@ -100,7 +100,7 @@ case class SolrQueryBuilder(
    * Constrain the search to entities of a given type, applying an fq
    * parameter to the "type" field.
    */
-  private def constrainEntities(request: QueryRequest, entities: List[EntityType.Value]): Unit = {
+  private def constrainEntities(request: QueryRequest, entities: Seq[EntityType.Value]): Unit = {
     if (entities.nonEmpty) {
       val filter = entities.map(_.toString).mkString(" OR ")
       request.setFilterQuery(
@@ -267,9 +267,9 @@ case class SolrQueryBuilder(
     // Apply search to specific fields. Can't find a way to do this using
     // Scalikesolr's built-in classes so we have to use it's extension-param
     // facility
-    params.fields.filterNot(_.isEmpty).map { fieldList =>
-      req.set("qf", fieldList.mkString(" "))
-    } getOrElse {
+    if(params.fields.nonEmpty) {
+      req.set("qf", params.fields.mkString(" "))
+    } else {
       val qfFields: String = queryFieldsWithBoost.map { case (key, boostOpt) =>
         boostOpt.map(b => s"$key^$b").getOrElse(key)
       }.mkString(" ")
