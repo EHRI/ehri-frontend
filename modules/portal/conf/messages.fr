@@ -583,7 +583,7 @@ privacy.data.1=Le portail de recherche contient des descriptions de collections 
     européennes et nationales de protection des données à caractère personnel, de la nature des descriptions de collections, des pratiques d''archivage \
     et des politiques de confidentialité des institutions détentrices, la publication de ces descriptions de collections ne \
     constituent par un risque important en matière de protection des données. En conséquence, l''accès aux descriptions de collections et à toutes les autres \
-    informations du portail de la recherche est permis aux utilisateurs. Les détails des résultats de l''évaluation des risques sont consultables {0}.
+    informations du portail de la recherche est permis aux utilisateurs.
 privacy.data.1.riskAssessmentLinkText=sur le site Web du projet EHRI
 privacy.data.2=En vertu de la loi néerlandaise de protection des données personnelles, les données personnelles sensibles ne peuvent être utilisées qu''à des fins de \
     recherche. Le respect de la loi néerlandaise de protection des données personnelles incombe à la personne qui \

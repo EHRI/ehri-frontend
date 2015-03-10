@@ -583,7 +583,7 @@ privacy.data.1=Portal zawiera opisy badań związanych ze zbiorami i materiałam
     i krajowe przepisy o ochronie danych osobowych, charakter opisów zbiorów, praktyki archiwalne \
     oraz politykę prywatności instytucji przechowujących zbiory, publikacja opisów tych zbiorów nie \
     stanowi poważnego zagrożenia dla ochrony danych. W związku z tym dostęp do opisów zbiorów i wszystkich innych \
-    informacji w portalu badawczym jest otwarty dla użytkowników. Szczegółowe wyniki oceny ryzyka można znaleźć {0} 
+    informacji w portalu badawczym jest otwarty dla użytkowników.
 privacy.data.1.riskAssessmentLinkText=na stronie internetowej projektu EHRI.
 privacy.data.2=Zgodnie z holenderską ustawą o ochronie danych osobowych wrażliwe dane osobowe mogą być wykorzystywane wyłącznie do celów \
     badawczych. Odpowiedzialność za zgodność z holenderską ustawą o ochronie danych osobowych ostatecznie ponosi osoba \
