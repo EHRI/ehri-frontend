@@ -1,5 +1,24 @@
 @()(implicit userOpt: Option[UserProfile], request: RequestHeader, globalConfig: global.GlobalConfig, sessionPrefs: utils.SessionPrefs, flash: Flash, lang: Lang)
 
 @views.html.p.layout.textLayout(Messages("contact")) {
-    <h2>@Messages("contact")</h2>
+    <h2>@Messages("contact.header")</h2>
+
+    <p>@Messages("contact.p1")</p>
+    <address>
+        @globalConfig.configStringList("ehri.portal.contact.address").map { line =>
+            @line<br/>
+        }
+    </address>
+
+    <p>@Messages("contact.p2")</p>
+    @defining((
+            globalConfig.configString("ehri.portal.emails.privacy", "privacy@example.com"),
+            globalConfig.configString("ehri.portal.emails.feedback", "feedback@example.com"))) { case (privacyMail, feedbackMail) =>
+    <ul>
+        <li>@Html(Messages("contact.p2.1", s"<a href='mailto:$privacyMail'>$privacyMail</a>"))</li>
+        <li>@Messages("contact.p2.2")</li>
+        <li>@Html(Messages("contact.p2.3", s"<a href='${controllers.portal.routes.Helpdesk.helpdesk()}'>${Messages("helpdesk")}</a>"))</li>
+        <li>@Html(Messages("contact.p2.4", s"<a href='mailto:$feedbackMail'>$feedbackMail</a>"))</li>
+    </ul>
+    }
 }

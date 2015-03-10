@@ -53,6 +53,15 @@ trait GlobalConfig {
   def configString(key: String, orElse: String): String =
     current.configuration.getString(key).getOrElse(orElse)
 
+  /**
+   * Fetch a config string list value.
+   */
+  def configStringList(key: String, orElse: List[String] = Nil): List[String] = {
+    import scala.collection.JavaConverters._
+    current.configuration.getStringList(key).map(_.asScala.toList).getOrElse(orElse)
+  }
+
+
   def message: Option[String] = {
     messageFile.flatMap { f =>
       if (f.isFile && f.exists()) {

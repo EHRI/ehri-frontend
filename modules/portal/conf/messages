@@ -751,6 +751,22 @@ privacy.data.3=If you consider you have well-founded grounds - based on the Dutc
   your interest and explaining your reasons for objecting to publication, to the party responsible for processing the \
   personal data. This party will examine your complaint and provide you with an answer within a reasonable space of time.
 
+#
+# Contact page
+#
+contact.header=Contacting EHRI
+contact.p1=The coordinator of the EHRI project is NIOD Institute for War, Holocaust and Genocide Studies. \
+  You can write to NIOD using the following address:
+contact.p2=There are a variety of other ways by which you can get further help or get in touch with us:
+contact.p2.1=for all question in relation to our data/privacy policies, please contact {0}.
+contact.p2.2=if you have any questions about the holdings and access policies of any of the archives that \
+  contribute data to the EHRI portal, please contact the appropriate archive directly, using the contact information \
+  provided in its institutional description.
+contact.p2.3=if you have a general question about Holocaust-related archival sources, but are not sure which \
+  contributing archive could answer your question, use the {0}.
+contact.p2.4=for all other questions or if you?d like to make a comment, compliment or complaint about the EHRI portal, \
+  you can either use the "Feedback" menu item on the top-menu bar of the portal, or send us an email at {0}.
+
 privacy.cookies.header=3. Cookies
 privacy.cookies.1=EHRI uses the following cookies:
 privacy.cookies.2=On the EHRI project website ({0}) and EHRI training site ({1}):
