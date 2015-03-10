@@ -9,7 +9,6 @@ object SearchField extends Enumeration {
   type Field = Value
   val Identifier = Value("identifier")
   val Title = Value("title")
-  val Content = Value("scopeAndContent")
   val Creator = Value("creator")
   val Person = Value("person")
   val Place = Value("place")

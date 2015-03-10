@@ -641,15 +641,11 @@ search.historicalAgent=Search Historical Agents
 search.helper.example=Phrase
 search.helper.linkTitle=Advanced query tips
 search.helper=There are several ways to be more specific in your search query:
-search.helper.field=Use the following syntax to exclusively search through the titles or identifiers of descriptions:
-search.helper.field.title=title:"phrase"
-search.helper.field.title.description=For instance, you can find all descriptions that have the phrase \
+search.helper.field=Use the following syntax to restrict the search to specific fields:
+search.helper.field.example=field:"phrase"
+search.helper.field.example.description=For instance, you can find all descriptions that have the phrase \
   "Auschwitz Birkenau" in their titles by searching for title:"Auschwitz Birkenau".
-search.helper.field.identifier=identifier:identifier
-search.helper.field.identifier.description=This is useful if you already know the local identifier of a \
-  description. For instance, the query identifier:irn502192 will return the description of the collection \
-  "KL Auschwitz-Birkenau" of the United States Holocaust Memorial Museum (USHMM) \
-  that is identified at the USHMM by "irn502192".
+search.helper.field.available=The following fields are currently available:
 search.helper.minus=Exclude given word from search, e.g. -Gestapo
 search.helper.plus=Given word has to be in the result, e.g. +Gestapo
 search.helper.quotes=Search an exact match of your query, e.g. "Member lists"

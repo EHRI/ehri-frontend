@@ -1,0 +1,27 @@
+@()(implicit lang: Lang)
+
+<div id="search-helper">
+    <a href="#" class="close" aria-hidden="true">&times;</a>
+
+    <p>@Messages("search.helper")</p>
+    <dl class="dl-horizontal">
+        <dt>"@Messages("search.helper.example")"</dt>
+        <dd>@Messages("search.helper.quotes")</dd>
+        <dt>+@Messages("search.helper.example")</dt>
+        <dd>@Messages("search.helper.plus")</dd>
+        <dt>-@Messages("search.helper.example")</dt>
+        <dd>@Messages("search.helper.minus")</dd>
+    </dl>
+    <p>@Messages("search.helper.field")</p>
+    <dl class="dl-horizontal">
+        <dt>@Messages("search.helper.field.example")</dt>
+        <dd>@Messages("search.helper.field.example.description")</dd>
+    </dl>
+    <p>
+    @Messages("search.helper.field.available")
+    <ul class="available-fields comma-sep">
+    @utils.search.SearchField.values.toSeq.map { v =>
+        <li>@v</li>
+    }
+    </ul>
+</div>

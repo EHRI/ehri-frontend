@@ -28,26 +28,7 @@
                 </button>
             </span>
         </div>
-        <div id="search-helper">
-            <a href="#" class="close" aria-hidden="true">&times;</a>
-
-            <h1>@Messages("search.helper")</h1>
-            <dl class="dl-horizontal">
-                <dt>"@Messages("search.helper.example")"</dt>
-                <dd>@Messages("search.helper.quotes")</dd>
-                <dt>+@Messages("search.helper.example")</dt>
-                <dd>@Messages("search.helper.plus")</dd>
-                <dt>-@Messages("search.helper.example")</dt>
-                <dd>@Messages("search.helper.minus")</dd>
-            </dl>
-            <h1>@Messages("search.helper.field")</h1>
-            <dl class="dl-horizontal">
-                <dt>@Messages("search.helper.field.title")</dt>
-                <dd>@Messages("search.helper.field.title.description")</dd>
-                <dt>@Messages("search.helper.field.identifier")</dt>
-                <dd>@Messages("search.helper.field.identifier.description")</dd>
-            </dl>
-        </div>
+        @views.html.p.helpers.searchTips()
     </div>
     <div class="search-helper-container">
         <a class="search-helper-toggle" data-toggle="helper" data-target="#search-helper">

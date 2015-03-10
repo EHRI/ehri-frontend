@@ -2,8 +2,19 @@
 
   &:extend(.well, .well-sm);
 
+  .form-group();
+  text-align: left;
+
   display: none;
-  font-size: 90%;
+
+  * {
+    font-size: 0.9em;
+  }
+
+  .available-fields {
+    margin-left: @large-margin;
+  }
+
   border-radius: 0;
   padding-right: @large-margin;
   margin-top: @medium-margin;
@@ -12,12 +23,6 @@
     float: right;
   }
 
-  h1 {
-    font-size: 100%;
-    margin: 0 0 @small-margin 0;
-    padding: 0;
-    color: #666666;
-  }
   .example {
     color: #666666;
     font-size: 85%;
