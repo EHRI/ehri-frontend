@@ -1,7 +1,3 @@
-@import utils.SessionPrefs
-
-@import controllers.base.SessionPreferences
-
 @(title: Any, itemClass: String = "", scripts: Html = Html(""), styles: Html = Html(""))(content: Html)(implicit userOpt: Option[UserProfile], request: RequestHeader, globalConfig: global.GlobalConfig, flash: Flash, lang: Lang, prefs: utils.SessionPrefs)
 
 @loginStyles = {

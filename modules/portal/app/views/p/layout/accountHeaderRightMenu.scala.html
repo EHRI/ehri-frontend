@@ -9,9 +9,6 @@
             }
         </li>
     }
-    <li>
-        <a href="@controllers.portal.routes.Portal.about()">@Messages("about")</a>
-    </li>
     @if(showFeedback) {
         <li class="slide-out-div">
             <a class="handle" role="button" aria-expanded="false" href="@controllers.portal.routes.Feedback.feedback()">
@@ -30,35 +27,19 @@
     }
     <li class="dropdown">
         <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">
-            @Messages("language")
-            <span class="caret"></span>
-        </a>
-        <ul class="lang-switcher dropdown-menu" role="menu" id="lang-dropdown">
-        @globalConfig.languages.map(c => (c, new java.util.Locale(c))).map { case (changeLang, locale) =>
-        <li>
-            <a class="@{if(lang.toString.toLowerCase.contains(changeLang)) "active"}"
-                href="@controllers.portal.routes.Portal.changeLocale(changeLang)">
-                @locale.getDisplayName(locale).toLowerCase
-            </a>
-        </li>
-        }
-        </ul>
-    </li>
-    <li class="dropdown">
-        <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">
             @Messages("help")
             <span class="caret"></span>
         </a>
         <ul id="help-dropdown" class="dropdown-menu" role="menu">
             <li>
-                <a target="_blank" href="https://docs.google.com/document/d/15lpPB2uwVcveWyIqkn8Jzse2iOFI3cOx5OqudduRAWw/edit?usp=sharing">
-                    @Messages("help.general")
-                </a>
+                <a href="@controllers.portal.routes.Portal.externalPage("faq")">@Messages("help.faq")</a>
+            </li>
+            <li class="divider"></li>
+            <li>
+                <a href="@controllers.portal.routes.Portal.about()">@Messages("about")</a>
             </li>
             <li>
-                <a target="_blank" href="https://docs.google.com/document/d/13HE65QB_gjUp3Hcu1N7nnEsUNfj9qrDbC_ZkBoSmsPE/edit?usp=sharing">
-                    @Messages("help.archivists")
-                </a>
+                <a href="@controllers.portal.routes.Portal.contact()">@Messages("help.contact")</a>
             </li>
             <li class="divider"></li>
             <li><a href="@controllers.portal.routes.Helpdesk.helpdesk()">@Messages("help.helpdesk")</a></li>

@@ -189,7 +189,7 @@ case class Portal @Inject()(implicit globalConfig: global.GlobalConfig, searchEn
         futureData.map { case (css, html) =>
           val title = Messages(s"pages.external.$key.title")
           val meta = Map("description" -> Messages(s"pages.external.$key.description"))
-          Ok(views.html.p.layout.portalLayout(title, meta = meta, styles = css)(html))
+          Ok(views.html.p.layout.textLayout(title, meta = meta, styles = css)(html))
         }
       }
     }

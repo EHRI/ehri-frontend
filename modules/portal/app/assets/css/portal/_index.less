@@ -315,3 +315,28 @@ ol.cookie-usage {
   list-style: none;
 }
 
+// About page
+.about-image {
+  float: right;
+  // FIXME: Hard-coded width...
+  width: 320px;
+//  display: table;
+  padding: @medium-padding;
+
+  img {
+    &:extend(.img-responsive);
+  }
+
+  .caption {
+    &:extend(.small, .text-muted);
+  }
+}
+
+main.block-text {
+  .make-row();
+
+  article {
+    .make-md-column-push(2);
+    .make-md-column(8);
+  }
+}

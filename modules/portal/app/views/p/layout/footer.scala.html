@@ -10,9 +10,22 @@
     <p>@Messages("footerText")</p>
 
     <ul id="navbar-tertiary">
-        @footerLink(controllers.portal.routes.Portal.contact(), "contact")
         @footerLink(controllers.portal.routes.Portal.terms(), "termsAndConditions")
         @footerLink(controllers.portal.routes.Portal.dataPolicy(), "dataPolicy")
+    </ul>
+
+    <ul id="lang-switcher">
+        @globalConfig.languages.map(c => (c, new java.util.Locale(c))).map { case (changeLang, locale) =>
+        <li>
+            @if(lang.toString.toLowerCase.contains(changeLang)) {
+            @locale.getDisplayName(locale).toLowerCase
+            } else {
+            <a href="@controllers.portal.routes.Portal.changeLocale(changeLang)">
+                @locale.getDisplayName(locale).toLowerCase
+            </a>
+            }
+        </li>
+        }
     </ul>
 
     <div class="footer-blurb">

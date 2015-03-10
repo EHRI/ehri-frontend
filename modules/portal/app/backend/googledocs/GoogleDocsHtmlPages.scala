@@ -45,6 +45,14 @@ case class GoogleDocsHtmlPages()(implicit app: play.api.Application) extends Htm
         .body()
         .tagName("div")
         .addClass("external-page")
+
+      // Published Google docs have style embedded in the body
+      // a header div with the document name, and a footer
+      // - remove these.
+      body.select("style").remove()
+      body.select("div#header").remove()
+      body.select("div#footer").remove()
+
       Html("") -> Html(body.outerHtml())
     }
   }

@@ -1,4 +1,5 @@
 footer#portal-footer {
+  &:extend(.text-muted, .text-center);
   a {
     color: @almost-black;
   }
@@ -11,23 +12,22 @@ footer#portal-footer {
 
   padding-top: @large-padding;
 
-  #navbar-tertiary {
+  #navbar-tertiary, #lang-switcher {
+    &:extend(.list-unstyled, .small);
     .list-inline;
-    .list-unstyled;
     .pull-left;
-    .small;
+  }
+
+  #lang-switcher {
+    .pull-right;
   }
 
   .footer-blurb {
-    .small;
-    .clearfix;
+    &:extend(.clearfix, .small);
     margin-top: @large-margin;
     img.eu-logo {
       width: 20px;
       height: 20px;
     }
   }
-
-  .text-muted;
-  .text-center;
 }

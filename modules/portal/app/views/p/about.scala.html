@@ -1,9 +1,23 @@
 @()(implicit userOpt: Option[UserProfile], request: RequestHeader, globalConfig: global.GlobalConfig, sessionPrefs: utils.SessionPrefs, flash: Flash, lang: Lang)
 
-@layout.portalLayout(Messages("about")) {
-    @views.html.layout.mainContent {
-        <h1>@Messages("about")</h1>
+@views.html.p.layout.textLayout(Messages("about")) {
+    <h2>@Messages("about.heading")</h2>
 
-        TODO
-    }
+    <p>@Messages("about.p1")</p>
+    <figure class="about-image">
+        <img src="@controllers.portal.routes.Assets.at("img/denkmal_flickr_tomasz_przechlewski_sm.jpg")"
+        alt="Memorial to the Murdered Jews of Europe">
+        <figcaption class="caption">
+            Image of the Memorial to the Murdered Jews of Europe, Berlin by
+            Flickr user Tomasz Przechlewski under the
+                <a class="external" target="_blank" href="https://creativecommons.org/">Creative Commons</a> license.
+        </figcaption>
+    </figure>
+    <p>@Messages("about.p2")</p>
+    <p>@Messages("about.p3")</p>
+    <p>@Html(Messages(
+        "about.p4",
+        s"<a href='http://training.ehri-project.eu'>${Messages("about.p4.a1")}</a>",
+        s"<a href='http://ehri-project.eu'>${Messages("about.p4.a2")}</a>"
+    ))</p>
 }

@@ -23,8 +23,8 @@ project.site=EHRI project website
 # Help https://portal.ehri-project.eu (Help menu)
 #
 help=Help
-help.general=General site help
-help.archivists=Help for archivists
+help.faq=Frequently Asked Questions
+help.contact=Contact EHRI
 help.helpdesk=Helpdesk
 
 #
@@ -798,6 +798,32 @@ copyright.statement=The use, re-use and/or reproduction of the information publi
   the EHRI consortium but by a third party. The user must respect any copyrights and/or database rights relating to \
   material published on the website or in datasets, in particular when distributing or publishing datasets. If necessary, \
   the user must contact the holder of the dataset rights.
+
+#
+# About page
+#
+about.heading=About EHRI
+about.p1=The EHRI online portal provides access to information about Holocaust-related \
+  archival materials held in institutions across Europe and beyond. \
+  The EHRI portal can be accessed by anyone free of charge.
+about.p2=The EHRI portal seeks to overcome one of the hallmark challenges of Holocaust research: \
+  the fragmentation and wide geographic dispersal of archival sources documenting the event. \
+  By integrating and interconnecting information on tens of thousands of archival sources physically \
+  held in hundreds of institutions, the EHRI portal is an invaluable resource for anybody interested \
+  in the Holocaust, and enables new transnational and comparative approaches to research.
+about.p3=The EHRI portal is one of the main outcomes of the European Holocaust Research Infrastructure \
+  (EHRI) project, a consortium bringing together Holocaust researchers, archivists and digital humanists \
+  from more than 20 institutions. \
+  The EHRI project has received funding from the European Union?s FP7 programme (2010-2015) and \
+  Horizon 2020 programme (2015-2019). \
+  The EHRI portal is an expanding resource and new information and features are continuously added.
+about.p4=EHRI is both a digital infrastructure and a human network. In addition to creating the portal, \
+  the EHRI project has also developed a free-to-use {0}, and hosts a \
+  varied programme of activities and events including a Fellowship programme, Summer Schools, \
+  expert workshops and conferences. More information on the project?s background, contributing \
+  institutions and activities is available on the {1}.
+about.p4.a1=Online Course on Holocaust Studies
+about.p4.a2=project website
 
 #
 # Externally-hosted documents
