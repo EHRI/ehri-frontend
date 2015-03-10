@@ -112,7 +112,7 @@ object SearchParams {
   import play.api.data.Forms._
   import play.api.data.Form
   import utils.PageParams._
-  import defines.EnumUtils.enumMapping
+  import defines.EnumUtils._
 
   def empty: SearchParams = new SearchParams()
 
@@ -131,8 +131,8 @@ object SearchParams {
       ),
       SORT -> optional(enumMapping(SearchOrder)),
       REVERSE -> optional(boolean),
-      ENTITY -> seq(enumMapping(EntityType)),
-      FIELD -> default(seq(enumMapping(SearchField)), Seq.empty),
+      ENTITY -> tolerantSeq(EntityType),
+      FIELD -> tolerantSeq(SearchField),
       EXCLUDE -> optional(list(nonEmptyText)),
       FILTERS -> optional(list(nonEmptyText))
     )(SearchParams.apply)(SearchParams.unapply)
