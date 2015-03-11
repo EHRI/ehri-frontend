@@ -497,7 +497,7 @@ case class Guides @Inject()(implicit globalConfig: global.GlobalConfig, searchEn
       else for {
           ids <- searchFacets(guide, facets)
           result <- findType[DocumentaryUnit](
-            filters = Map(s"gid:(${ids.mkString(" ")})" -> Unit),
+            filters = Map(s"gid:(${ids.take(1024).mkString(" ")})" -> Unit),
             defaultOrder = SearchOrder.Name
           )
           selectedAccessPoints <- SearchDAO.list[AnyModel](facets)
