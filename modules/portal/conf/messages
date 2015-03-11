@@ -114,7 +114,7 @@ profile.preferences.allowMessaging=Allow other users to send you messages.
 profile.preferences.allowMessaging.description=Your email address will not be directly accessible.
 profile.preferences.updatePreferences=Update Preferences
 profile.preferences.view=View Preferences
-profile.preferences.view.showUserContent=Show promoted notes by other users
+profile.preferences.view.showUserContent=Show public notes by other users
 
 profile=Profile
 profile.section.general=About you
@@ -668,15 +668,17 @@ feedback.type.data=the data content
 #
 helpdesk=Helpdesk
 helpdesk.email=Your email
-helpdesk.message=The helpdesk will attempt to match your query to the EHRI partner institution \
-  best placed to answer it.
+helpdesk.message=The helpdesk will attempt to match your question to the EHRI partner institution best \
+  placed to answer it. Please note that the helpdesk will not provide you with an answer to your question, \
+  nor will it directly send your question to an EHRI partner institution.
 helpdesk.thanks=Thanks!
 helpdesk.thanks.message=Your query has been submitted.
 helpdesk.query=Query
 helpdesk.error=Oops! Something went wrong with the helpdesk. Here''s what it said:
 helpdesk.results=Helpdesk Contact Recommendations
 helpdesk.results.empty=No relevant institutions found. Please reformulate your query and add more details.
-helpdesk.query.placeholder=Enter your query here. Subject-specific terms are best.
+helpdesk.query.placeholder=Enter your question in English here. Provide details about the area of archival \
+  research that your question relates to, for instance, place names, personal names, institutions or subject terms.
 helpdesk.copyMe=Email a copy of the query to your address
 helpdesk.youAsked=You asked "{0}".
 helpdesk.recommendations=Recommended institutions ordered by relevance for your question. \
@@ -765,7 +767,7 @@ contact.p2.2=if you have any questions about the holdings and access policies of
 contact.p2.3=if you have a general question about Holocaust-related archival sources, but are not sure which \
   contributing archive could answer your question, use the {0}.
 contact.p2.4=for all other questions or if you?d like to make a comment, compliment or complaint about the EHRI portal, \
-  you can either use the "Feedback" menu item on the top-menu bar of the portal, or send us an email at {0}.
+  you can either use the ''Feedback'' menu item on the top-menu bar of the portal, or send us an email at {0}.
 
 privacy.cookies.header=3. Cookies
 privacy.cookies.1=EHRI uses the following cookies:
@@ -836,7 +838,7 @@ about.p3=The EHRI portal is one of the main outcomes of the European Holocaust R
 about.p4=EHRI is both a digital infrastructure and a human network. In addition to creating the portal, \
   the EHRI project has also developed a free-to-use {0}, and hosts a \
   varied programme of activities and events including a Fellowship programme, Summer Schools, \
-  expert workshops and conferences. More information on the project?s background, contributing \
+  expert workshops and conferences. More information on the project''s background, contributing \
   institutions and activities is available on the {1}.
 about.p4.a1=Online Course on Holocaust Studies
 about.p4.a2=project website
