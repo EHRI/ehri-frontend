@@ -70,7 +70,7 @@ object AuthoritativeSet {
 
   implicit val metaReads: Reads[AuthoritativeSet] = (
     __.read[AuthoritativeSetF] and
-    (__ \ RELATIONSHIPS \ IS_ACCESSIBLE_TO).nullableListReads[Accessor] and
+    (__ \ RELATIONSHIPS \ IS_ACCESSIBLE_TO).nullableSeqReads[Accessor] and
     (__ \ RELATIONSHIPS \ ENTITY_HAS_LIFECYCLE_EVENT).nullableHeadReads[SystemEvent] and
     (__ \ META).readWithDefault(Json.obj())
   )(AuthoritativeSet.apply _)
@@ -95,7 +95,7 @@ object AuthoritativeSet {
 
 case class AuthoritativeSet(
   model: AuthoritativeSetF,
-  accessors: List[Accessor] = Nil,
+  accessors: Seq[Accessor] = Nil,
   latestEvent: Option[SystemEvent],
   meta: JsObject = JsObject(Seq())
 ) extends AnyModel

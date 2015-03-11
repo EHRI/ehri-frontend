@@ -66,8 +66,8 @@ object Group {
 
   implicit val metaReads: Reads[Group] = (
     __.read[GroupF] and
-    (__ \ RELATIONSHIPS \ ACCESSOR_BELONGS_TO_GROUP).lazyNullableListReads(metaReads) and
-    (__ \ RELATIONSHIPS \ IS_ACCESSIBLE_TO).lazyNullableListReads(Accessor.Converter.restReads) and
+    (__ \ RELATIONSHIPS \ ACCESSOR_BELONGS_TO_GROUP).lazyNullableSeqReads(metaReads) and
+    (__ \ RELATIONSHIPS \ IS_ACCESSIBLE_TO).lazyNullableSeqReads(Accessor.Converter.restReads) and
     (__ \ RELATIONSHIPS \ ENTITY_HAS_LIFECYCLE_EVENT).nullableHeadReads[SystemEvent] and
     (__ \ META).readWithDefault(Json.obj())
   )(Group.apply _)
@@ -92,8 +92,8 @@ object Group {
 
 case class Group(
   model: GroupF,
-  groups: List[Group] = Nil,
-  accessors: List[Accessor] = Nil,
+  groups: Seq[Group] = Nil,
+  accessors: Seq[Accessor] = Nil,
   latestEvent: Option[SystemEvent] = None,
   meta: JsObject = JsObject(Seq())
 ) extends MetaModel[GroupF]

@@ -55,7 +55,7 @@ object LinkF {
     (__ \ DATA \ LINK_TYPE).readWithDefault(LinkType.Associative) and
     (__ \ DATA \ DESCRIPTION).readNullable[String] and
     (__ \ DATA \ IS_PROMOTABLE).readWithDefault(false) and
-    (__ \ RELATIONSHIPS \ ENTITY_HAS_DATE).nullableListReads[DatePeriodF]
+    (__ \ RELATIONSHIPS \ ENTITY_HAS_DATE).nullableSeqReads[DatePeriodF]
   )(LinkF.apply _)
 
   implicit object Converter extends BackendWriteable[LinkF] {
@@ -70,7 +70,7 @@ case class LinkF(
   description: Option[String],
   isPromotable: Boolean = false,
   @models.relation(Ontology.ENTITY_HAS_DATE)
-  dates: List[DatePeriodF] = Nil
+  dates: Seq[DatePeriodF] = Nil
 ) extends Model with Persistable with Temporal
 
 
@@ -86,12 +86,12 @@ object Link {
 
   implicit val metaReads: Reads[Link] = (
     __.read[LinkF] and
-    (__ \ RELATIONSHIPS \ LINK_HAS_TARGET).lazyNullableListReads(AnyModel.Converter.restReads) and
+    (__ \ RELATIONSHIPS \ LINK_HAS_TARGET).lazyNullableSeqReads(AnyModel.Converter.restReads) and
     (__ \ RELATIONSHIPS \ LINK_HAS_LINKER).nullableHeadReads[UserProfile] and
-    (__ \ RELATIONSHIPS \ LINK_HAS_BODY).nullableListReads[AccessPointF] and
-    (__ \ RELATIONSHIPS \ IS_ACCESSIBLE_TO).lazyNullableListReads(Accessor.Converter.restReads) and
-    (__ \ RELATIONSHIPS \ PROMOTED_BY).nullableListReads[UserProfile] and
-    (__ \ RELATIONSHIPS \ DEMOTED_BY).nullableListReads[UserProfile] and
+    (__ \ RELATIONSHIPS \ LINK_HAS_BODY).nullableSeqReads[AccessPointF] and
+    (__ \ RELATIONSHIPS \ IS_ACCESSIBLE_TO).lazyNullableSeqReads(Accessor.Converter.restReads) and
+    (__ \ RELATIONSHIPS \ PROMOTED_BY).nullableSeqReads[UserProfile] and
+    (__ \ RELATIONSHIPS \ DEMOTED_BY).nullableSeqReads[UserProfile] and
     (__ \ RELATIONSHIPS \ ENTITY_HAS_LIFECYCLE_EVENT).nullableHeadReads[SystemEvent] and
     (__ \ META).readWithDefault(Json.obj())
   )(Link.apply _)
@@ -110,7 +110,7 @@ object Link {
     LINK_TYPE -> default(enumMapping(LinkType), LinkType.Associative),
     DESCRIPTION -> optional(nonEmptyText), // TODO: Validate this server side
     Ontology.IS_PROMOTABLE -> default(boolean, false),
-    DATES -> list(DatePeriod.form.mapping)
+    DATES -> seq(DatePeriod.form.mapping)
   )(LinkF.apply)(LinkF.unapply))
 
   val multiForm = Form(    single(
@@ -124,12 +124,12 @@ object Link {
 
 case class Link(
   model: LinkF,
-  targets: List[AnyModel] = Nil,
+  targets: Seq[AnyModel] = Nil,
   user: Option[UserProfile] = None,
-  bodies: List[AccessPointF] = Nil,
-  accessors: List[Accessor] = Nil,
-  promoters: List[UserProfile] = Nil,
-  demoters: List[UserProfile] = Nil,
+  bodies: Seq[AccessPointF] = Nil,
+  accessors: Seq[Accessor] = Nil,
+  promoters: Seq[UserProfile] = Nil,
+  demoters: Seq[UserProfile] = Nil,
   latestEvent: Option[SystemEvent] = None,
   meta: JsObject = JsObject(Seq())
 ) extends AnyModel

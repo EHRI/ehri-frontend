@@ -1,4 +1,4 @@
-@(f: Form[AnnotationF], visForm: Form[utils.ContributionVisibility.Value], accessorsForm: Form[List[String]], action: Call, users: Seq[(String,String)], groups: Seq[(String,String)])(implicit userOpt: Option[UserProfile], req: RequestHeader, lang: Lang, globalConfig: global.GlobalConfig)
+@(f: Form[AnnotationF], visForm: Form[utils.ContributionVisibility.Value], accessorsForm: Form[Seq[String]], action: Call, users: Seq[(String,String)], groups: Seq[(String,String)])(implicit userOpt: Option[UserProfile], req: RequestHeader, lang: Lang, globalConfig: global.GlobalConfig)
 
 @import AnnotationF._
 @import utils.ContributionVisibility.{Me,Groups}

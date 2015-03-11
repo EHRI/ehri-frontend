@@ -47,7 +47,7 @@ object HistoricalAgentF {
     (__ \ ID).readNullable[String] and
     (__ \ DATA \ IDENTIFIER).read[String] and
     (__ \ DATA \ PUBLICATION_STATUS).readNullable[PublicationStatus.Value] and
-    (__ \ RELATIONSHIPS \ DESCRIPTION_FOR_ENTITY).nullableListReads[HistoricalAgentDescriptionF]
+    (__ \ RELATIONSHIPS \ DESCRIPTION_FOR_ENTITY).nullableSeqReads[HistoricalAgentDescriptionF]
   )(HistoricalAgentF.apply _)
 
   implicit val historicalAgentFormat: Format[HistoricalAgentF] = Format(historicalAgentReads,historicalAgentWrites)
@@ -64,7 +64,7 @@ case class HistoricalAgentF(
   publicationStatus: Option[PublicationStatus.Value] = None,
 
   @models.relation(Ontology.DESCRIPTION_FOR_ENTITY)
-  descriptions: List[HistoricalAgentDescriptionF] = Nil
+  descriptions: Seq[HistoricalAgentDescriptionF] = Nil
 ) extends Model
   with Persistable
   with Described[HistoricalAgentDescriptionF]
@@ -83,7 +83,7 @@ object HistoricalAgent {
   implicit val metaReads: Reads[HistoricalAgent] = (
     __.read[HistoricalAgentF] and
     (__ \ RELATIONSHIPS \ ITEM_IN_AUTHORITATIVE_SET).nullableHeadReads[AuthoritativeSet] and
-    (__ \ RELATIONSHIPS \ IS_ACCESSIBLE_TO).nullableListReads(Accessor.Converter.restReads) and
+    (__ \ RELATIONSHIPS \ IS_ACCESSIBLE_TO).nullableSeqReads(Accessor.Converter.restReads) and
     (__ \ RELATIONSHIPS \ ENTITY_HAS_LIFECYCLE_EVENT).nullableHeadReads[SystemEvent] and
     (__ \ META).readWithDefault(Json.obj())
   )(HistoricalAgent.apply _)
@@ -100,7 +100,7 @@ object HistoricalAgent {
       ID -> optional(nonEmptyText),
       IDENTIFIER -> nonEmptyText(minLength=2), // TODO: Increase to > 2, not done yet 'cos of test fixtures,
       PUBLICATION_STATUS -> optional(enumMapping(models.PublicationStatus)),
-      "descriptions" -> list(HistoricalAgentDescription.form.mapping)
+      "descriptions" -> seq(HistoricalAgentDescription.form.mapping)
     )(HistoricalAgentF.apply)(HistoricalAgentF.unapply)
   )
 }
@@ -109,7 +109,7 @@ object HistoricalAgent {
 case class HistoricalAgent(
   model: HistoricalAgentF,
   set: Option[AuthoritativeSet],
-  accessors: List[Accessor] = Nil,
+  accessors: Seq[Accessor] = Nil,
   latestEvent: Option[SystemEvent],
   meta: JsObject = JsObject(Seq())
 ) extends AnyModel

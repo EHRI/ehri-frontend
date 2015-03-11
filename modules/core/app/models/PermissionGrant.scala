@@ -53,7 +53,7 @@ object PermissionGrant {
   implicit val metaReads: Reads[PermissionGrant] = (
     __.read(permissionGrantReads) and
     (__ \ RELATIONSHIPS \ PERMISSION_GRANT_HAS_SUBJECT).lazyNullableHeadReads(Accessor.Converter.restReads) and
-    (__ \ RELATIONSHIPS \ PERMISSION_GRANT_HAS_TARGET).lazyNullableListReads(AnyModel.Converter.restReads) and
+    (__ \ RELATIONSHIPS \ PERMISSION_GRANT_HAS_TARGET).lazyNullableSeqReads(AnyModel.Converter.restReads) and
     (__ \ RELATIONSHIPS \ PERMISSION_GRANT_HAS_SCOPE).lazyNullableHeadReads(AnyModel.Converter.restReads) and
     (__ \ RELATIONSHIPS \ PERMISSION_GRANT_HAS_GRANTEE).nullableHeadReads[UserProfile] and
     (__ \ META).readWithDefault(Json.obj())
@@ -68,7 +68,7 @@ object PermissionGrant {
 case class PermissionGrant(
   model: PermissionGrantF,
   accessor: Option[Accessor] = None,
-  targets: List[AnyModel] = Nil,
+  targets: Seq[AnyModel] = Nil,
   scope: Option[AnyModel] = None,
   grantee: Option[UserProfile] = None,
   meta: JsObject = JsObject(Seq())

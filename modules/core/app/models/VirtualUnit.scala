@@ -42,7 +42,7 @@ object VirtualUnitF {
     (__ \ TYPE).readIfEquals(EntityType.VirtualUnit) and
     (__ \ ID).readNullable[String] and
     (__ \ DATA \ IDENTIFIER).read[String] and
-    (__ \ RELATIONSHIPS \ DESCRIPTION_FOR_ENTITY).nullableListReads[DocumentaryUnitDescriptionF]
+    (__ \ RELATIONSHIPS \ DESCRIPTION_FOR_ENTITY).nullableSeqReads[DocumentaryUnitDescriptionF]
   )(VirtualUnitF.apply _)
 
   implicit object Converter extends BackendWriteable[VirtualUnitF] {
@@ -55,7 +55,7 @@ case class VirtualUnitF(
   id: Option[String] = None,
   identifier: String,
   @models.relation(Ontology.DESCRIPTION_FOR_ENTITY)
-  descriptions: List[DocumentaryUnitDescriptionF] = Nil
+  descriptions: Seq[DocumentaryUnitDescriptionF] = Nil
 ) extends Model
   with Persistable
   with Described[DocumentaryUnitDescriptionF] {
@@ -72,11 +72,11 @@ object VirtualUnit {
 
   implicit val metaReads: Reads[VirtualUnit] = (
     __.read[VirtualUnitF](virtualUnitReads) and
-    (__ \ RELATIONSHIPS \ VC_INCLUDES_UNIT).nullableListReads(DocumentaryUnit.Resource.restReads) and
+    (__ \ RELATIONSHIPS \ VC_INCLUDES_UNIT).nullableSeqReads(DocumentaryUnit.Resource.restReads) and
     (__ \ RELATIONSHIPS \ VC_HAS_AUTHOR).nullableHeadReads(Accessor.Converter.restReads) and
     (__ \ RELATIONSHIPS \ VC_IS_PART_OF).lazyNullableHeadReads(metaReads) and
     (__ \ RELATIONSHIPS \ DOC_IS_CHILD_OF).nullableHeadReads[Repository] and
-    (__ \ RELATIONSHIPS \ IS_ACCESSIBLE_TO).lazyNullableListReads(Accessor.Converter.restReads) and
+    (__ \ RELATIONSHIPS \ IS_ACCESSIBLE_TO).lazyNullableSeqReads(Accessor.Converter.restReads) and
     (__ \ RELATIONSHIPS \ ENTITY_HAS_LIFECYCLE_EVENT).nullableHeadReads[SystemEvent] and
     (__ \ META).readWithDefault(Json.obj())
   )(VirtualUnit.apply _)
@@ -106,18 +106,18 @@ object VirtualUnit {
       ISA -> ignored(EntityType.VirtualUnit),
       ID -> optional(nonEmptyText),
       IDENTIFIER -> nonEmptyText,
-      "descriptions" -> list(DocumentaryUnitDescription.form.mapping)
+      "descriptions" -> seq(DocumentaryUnitDescription.form.mapping)
     )(VirtualUnitF.apply)(VirtualUnitF.unapply)
   )
 }
 
 case class VirtualUnit(
   model: VirtualUnitF,
-  includedUnits: List[DocumentaryUnit] = List.empty,
+  includedUnits: Seq[DocumentaryUnit] = List.empty,
   author: Option[Accessor] = None,
   parent: Option[VirtualUnit] = None,
   holder: Option[Repository] = None,
-  accessors: List[Accessor] = Nil,
+  accessors: Seq[Accessor] = Nil,
   latestEvent: Option[SystemEvent] = None,
   meta: JsObject = JsObject(Seq())
 ) extends AnyModel
@@ -132,7 +132,7 @@ case class VirtualUnit(
     else includedUnits.headOption.map(_.toStringLang(lang)).getOrElse(id)
   }
 
-  def allDescriptions: List[DocumentaryUnitDescriptionF]
+  def allDescriptions: Seq[DocumentaryUnitDescriptionF]
     = includedUnits.flatMap(_.descriptions) ++ model.descriptions
 
   def asDocumentaryUnit: DocumentaryUnit = new DocumentaryUnit(

@@ -81,7 +81,7 @@ case class Annotations @Inject()(implicit globalConfig: global.GlobalConfig, sea
     Annotation.form.bindFromRequest.fold(
       errorForm => immediate(BadRequest(errorForm.errorsAsJson)),
       ann => {
-        val accessors: List[String] = getAccessors(ann, request.user)
+        val accessors: Seq[String] = getAccessors(ann, request.user)
         backend.createAnnotationForDependent[Annotation,AnnotationF](id, did, ann, accessors).map { ann =>
           Created(p.annotation.annotationBlock(ann, editable = true))
             .withHeaders(
@@ -168,7 +168,7 @@ case class Annotations @Inject()(implicit globalConfig: global.GlobalConfig, sea
       ann => {
         // Add the field to the model!
         val fieldAnn = ann.copy(field = Some(field))
-        val accessors: List[String] = getAccessors(ann, request.user)
+        val accessors: Seq[String] = getAccessors(ann, request.user)
         backend.createAnnotationForDependent[Annotation,AnnotationF](id, did, fieldAnn, accessors).map { ann =>
           Created(p.annotation.annotationInline(ann, editable = true))
             .withHeaders(
@@ -230,19 +230,19 @@ case class Annotations @Inject()(implicit globalConfig: global.GlobalConfig, sea
    * Convert a contribution visibility value to the correct
    * accessors for the backend
    */
-  private def getAccessors(ann: AnnotationF, user: UserProfile)(implicit request: Request[AnyContent]): List[String] = {
-    val default: List[String] = utils.ContributionVisibility.form.bindFromRequest.fold(
-      errForm => List(user.id), {
-        case ContributionVisibility.Me => List(user.id)
+  private def getAccessors(ann: AnnotationF, user: UserProfile)(implicit request: Request[AnyContent]): Seq[String] = {
+    val default: Seq[String] = utils.ContributionVisibility.form.bindFromRequest.fold(
+      errForm => Seq(user.id), {
+        case ContributionVisibility.Me => Seq(user.id)
         case ContributionVisibility.Groups => user.groups.map(_.id)
         case ContributionVisibility.Custom =>
           VisibilityForm.form.bindFromRequest.fold(
             err => List(user.id), // default to user visibility.
-            list => list ::: List(user.id)
+            list => list :+ user.id
           )
       }
     )
-    val withMods = if (ann.isPromotable) default ::: getModerators else default
+    val withMods = if (ann.isPromotable) default ++ getModerators else default
     withMods.distinct
   }
 
@@ -261,7 +261,7 @@ case class Annotations @Inject()(implicit globalConfig: global.GlobalConfig, sea
    * Convert accessors to contribution visibility enum var...
    */
   private def getContributionVisibility(annotation: Annotation, user: UserProfile): ContributionVisibility.Value = {
-    annotation.accessors.map(_.id).sorted match {
+    annotation.accessors.map(_.id).sorted.toList match {
       case id :: Nil if id == user.id => ContributionVisibility.Me
       case g if g.sorted == user.groups.map(_.id).sorted => ContributionVisibility.Groups
       case _ => ContributionVisibility.Custom

@@ -46,10 +46,10 @@ object AddressF {
     (__ \ DATA \ REGION).readNullable[String] and
     (__ \ DATA \ POSTAL_CODE).readNullable[String] and
     (__ \ DATA \ COUNTRY_CODE).readNullable[String] and
-    (__ \ DATA \ EMAIL).readListOrSingle[String] and
-    (__ \ DATA \ TELEPHONE).readListOrSingle[String] and
-    (__ \ DATA \ FAX).readListOrSingle[String] and
-    (__ \ DATA \ URL).readListOrSingle[String]
+    (__ \ DATA \ EMAIL).readSeqOrSingle[String] and
+    (__ \ DATA \ TELEPHONE).readSeqOrSingle[String] and
+    (__ \ DATA \ FAX).readSeqOrSingle[String] and
+    (__ \ DATA \ URL).readSeqOrSingle[String]
   )(AddressF.apply _)
 
   implicit val addressFormat: Format[AddressF] = Format(addressReads,addressWrites)
@@ -70,10 +70,10 @@ case class AddressF(
   region: Option[String] = None,
   postalCode: Option[String] = None,
   countryCode: Option[String] = None,
-  email: List[String] = Nil,
-  telephone: List[String] = Nil,
-  fax: List[String] = Nil,
-  url: List[String] = Nil
+  email: Seq[String] = Nil,
+  telephone: Seq[String] = Nil,
+  fax: Seq[String] = Nil,
+  url: Seq[String] = Nil
   ) extends Model {
 
   def toSeq: Seq[String] = Seq(
@@ -89,10 +89,10 @@ case class AddressF(
   ).flatten
 
   def concise: String =
-    List(streetAddress, city, region).flatten.filterNot(_.trim.isEmpty).mkString(", ")
+    Seq(streetAddress, city, region).flatten.filterNot(_.trim.isEmpty).mkString(", ")
 
   override def toString =
-    List(name, contactPerson, streetAddress, city).filter(_.isDefined).mkString(", ")
+    Seq(name, contactPerson, streetAddress, city).filter(_.isDefined).mkString(", ")
 }
 
 object Address {
@@ -111,10 +111,10 @@ object Address {
       REGION -> optional(nonEmptyText),
       POSTAL_CODE -> optional(nonEmptyText),
       COUNTRY_CODE -> optional(nonEmptyText),
-      EMAIL -> list(email),
-      TELEPHONE -> list(nonEmptyText),
-      FAX -> list(nonEmptyText),
-      URL -> list(nonEmptyText verifying("error.badUrl",
+      EMAIL -> seq(email),
+      TELEPHONE -> seq(nonEmptyText),
+      FAX -> seq(nonEmptyText),
+      URL -> seq(nonEmptyText verifying("error.badUrl",
         url => utils.forms.isValidUrl(url)
       ))
     )(AddressF.apply)(AddressF.unapply)

@@ -75,7 +75,7 @@ object UserProfileF {
       (__ \ DATA \ NAME).read[String] and
       (__ \ DATA \ LOCATION).readNullable[String] and
       (__ \ DATA \ ABOUT).readNullable[String] and
-      (__ \ DATA \ LANGUAGES).readListOrSingle[String] and
+      (__ \ DATA \ LANGUAGES).readSeqOrSingle[String] and
       (__ \ DATA \ IMAGE_URL).readNullable[String] and
       (__ \ DATA \ URL).readNullable[String] and
       (__ \ DATA \ WORK_URL).readNullable[String] and
@@ -102,7 +102,7 @@ case class UserProfileF(
   name: String,
   location: Option[String] = None,
   about: Option[String] = None,
-  languages: List[String] = Nil,
+  languages: Seq[String] = Nil,
   imageUrl: Option[String] = None,
   url: Option[String] = None,
   workUrl: Option[String] = None,
@@ -126,8 +126,8 @@ object UserProfile {
 
   implicit val metaReads: Reads[UserProfile] = (
     __.read[UserProfileF] and
-    (__ \ RELATIONSHIPS \ ACCESSOR_BELONGS_TO_GROUP).lazyNullableListReads(groupReads) and
-    (__ \ RELATIONSHIPS \ IS_ACCESSIBLE_TO).lazyNullableListReads(Accessor.Converter.restReads) and
+    (__ \ RELATIONSHIPS \ ACCESSOR_BELONGS_TO_GROUP).lazyNullableSeqReads(groupReads) and
+    (__ \ RELATIONSHIPS \ IS_ACCESSIBLE_TO).lazyNullableSeqReads(Accessor.Converter.restReads) and
     (__ \ RELATIONSHIPS \ ENTITY_HAS_LIFECYCLE_EVENT).nullableHeadReads[SystemEvent] and
     (__ \ META).readWithDefault(Json.obj())
   )(UserProfile.quickApply _)
@@ -141,8 +141,8 @@ object UserProfile {
   // Constructor, sans account and perms
   def quickApply(
      model: UserProfileF,
-     groups: List[Group] = Nil,
-     accessors: List[Accessor] = Nil,
+     groups: Seq[Group] = Nil,
+     accessors: Seq[Accessor] = Nil,
      latestEvent: Option[SystemEvent],
      meta: JsObject) = new UserProfile(model, groups, accessors, latestEvent, meta)
 
@@ -156,7 +156,7 @@ object UserProfile {
       NAME -> nonEmptyText,
       LOCATION -> optional(text),
       ABOUT -> optional(text),
-      LANGUAGES -> list(nonEmptyText),
+      LANGUAGES -> seq(nonEmptyText),
       IMAGE_URL -> optional(nonEmptyText.verifying(s => isValidUrl(s))),
       URL -> optional(nonEmptyText.verifying(s => isValidUrl(s))),
       WORK_URL -> optional(nonEmptyText.verifying(s => isValidUrl(s))),
@@ -174,10 +174,10 @@ object UserProfile {
 
 case class UserProfile(
   model: UserProfileF,
-  groups: List[Group] = Nil,
-  accessors: List[Accessor] = Nil,
+  groups: Seq[Group] = Nil,
+  accessors: Seq[Accessor] = Nil,
   latestEvent: Option[SystemEvent] = None,
-  meta: JsObject = JsObject(Seq()),
+  meta: JsObject = JsObject(Seq.empty),
   account: Option[Account] = None,
   globalPermissions: Option[GlobalPermissionSet] = None,
   itemPermissions: Option[ItemPermissionSet] = None

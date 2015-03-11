@@ -15,15 +15,15 @@ import Description._
 
 case class IsadGIdentity(
   name: String,
-  parallelFormsOfName: Option[List[String]] = None,
+  parallelFormsOfName: Option[Seq[String]] = None,
   identifier: Option[String] = None,
   ref: Option[String] = None,
   `abstract`: Option[String] = None,
   @models.relation(Ontology.ENTITY_HAS_DATE)
-  dates: List[DatePeriodF] = Nil,
-  unitDates: Option[List[String]] = None,
+  dates: Seq[DatePeriodF] = Nil,
+  unitDates: Option[Seq[String]] = None,
   levelOfDescription: Option[String] = None,
-  physicalLocation: Option[List[String]] = None,
+  physicalLocation: Option[Seq[String]] = None,
   extentAndMedium: Option[String] = None
 ) extends AttributeSet
 
@@ -43,26 +43,26 @@ case class IsadGContent(
 case class IsadGConditions(
   conditionsOfAccess: Option[String] = None,
   conditionsOfReproduction: Option[String] = None,
-  languageOfMaterials: Option[List[String]] = None,
-  scriptOfMaterials: Option[List[String]] = None,
+  languageOfMaterials: Option[Seq[String]] = None,
+  scriptOfMaterials: Option[Seq[String]] = None,
   physicalCharacteristics: Option[String] = None,
-  findingAids: Option[List[String]] = None
+  findingAids: Option[Seq[String]] = None
 ) extends AttributeSet
 
 case class IsadGMaterials(
-  locationOfOriginals: Option[List[String]] = None,
-  locationOfCopies: Option[List[String]] = None,
-  relatedUnitsOfDescription: Option[List[String]] = None,
+  locationOfOriginals: Option[Seq[String]] = None,
+  locationOfCopies: Option[Seq[String]] = None,
+  relatedUnitsOfDescription: Option[Seq[String]] = None,
   publicationNote: Option[String] = None
 ) extends AttributeSet
 
 
 case class IsadGControl(
   archivistNote: Option[String] = None,
-  sources: Option[List[String]] = None,
+  sources: Option[Seq[String]] = None,
   rulesAndConventions: Option[String] = None,
   datesOfDescriptions: Option[String] = None,
-  processInfo: Option[List[String]] = None
+  processInfo: Option[Seq[String]] = None
 )
 
 object DocumentaryUnitDescriptionF {
@@ -130,14 +130,14 @@ object DocumentaryUnitDescriptionF {
     (__ \ DATA \ LANG_CODE).read[String] and
     __.read[IsadGIdentity]((
       (__ \ DATA \ TITLE).read[String] and
-      (__ \ DATA \ PARALLEL_FORMS_OF_NAME).readListOrSingleNullable[String] and
+      (__ \ DATA \ PARALLEL_FORMS_OF_NAME).readSeqOrSingleNullable[String] and
       (__ \ DATA \ IDENTIFIER).readNullable[String] and
       (__ \ DATA \ REF).readNullable[String] and
       (__ \ DATA \ ABSTRACT).readNullable[String] and
-      (__ \ RELATIONSHIPS \ ENTITY_HAS_DATE).nullableListReads[DatePeriodF] and
-      (__ \ DATA \ UNIT_DATES).readListOrSingleNullable[String] and
+      (__ \ RELATIONSHIPS \ ENTITY_HAS_DATE).nullableSeqReads[DatePeriodF] and
+      (__ \ DATA \ UNIT_DATES).readSeqOrSingleNullable[String] and
       (__ \ DATA \ LEVEL_OF_DESCRIPTION).readNullable[String] and
-      (__ \ DATA \ PHYSICAL_LOCATION).readListOrSingleNullable[String] and
+      (__ \ DATA \ PHYSICAL_LOCATION).readSeqOrSingleNullable[String] and
       (__ \ DATA \ EXTENT_MEDIUM).readNullable[String]
     )(IsadGIdentity.apply _)) and
     (__ \ DATA).read[IsadGContext]((
@@ -154,29 +154,29 @@ object DocumentaryUnitDescriptionF {
     (__ \ DATA).read[IsadGConditions]((
       (__ \ ACCESS_COND).readNullable[String] and
       (__ \ REPROD_COND).readNullable[String] and
-      (__ \ LANG_MATERIALS).readListOrSingleNullable[String] and
-      (__ \ SCRIPT_MATERIALS).readListOrSingleNullable[String] and
+      (__ \ LANG_MATERIALS).readSeqOrSingleNullable[String] and
+      (__ \ SCRIPT_MATERIALS).readSeqOrSingleNullable[String] and
       (__ \ PHYSICAL_CHARS).readNullable[String] and
-      (__ \ FINDING_AIDS).readListOrSingleNullable[String]
+      (__ \ FINDING_AIDS).readSeqOrSingleNullable[String]
     )(IsadGConditions.apply _)) and
     (__ \ DATA).read[IsadGMaterials]((
-      (__ \ LOCATION_ORIGINALS).readListOrSingleNullable[String] and
-      (__ \ LOCATION_COPIES).readListOrSingleNullable[String] and
-      (__ \ RELATED_UNITS).readListOrSingleNullable[String] and
+      (__ \ LOCATION_ORIGINALS).readSeqOrSingleNullable[String] and
+      (__ \ LOCATION_COPIES).readSeqOrSingleNullable[String] and
+      (__ \ RELATED_UNITS).readSeqOrSingleNullable[String] and
       (__ \ PUBLICATION_NOTE).readNullable[String]
     )(IsadGMaterials.apply _)) and
-    (__ \ DATA \ NOTES).readListOrSingleNullable[String] and
+    (__ \ DATA \ NOTES).readSeqOrSingleNullable[String] and
     (__ \ DATA).read[IsadGControl]((
       (__ \ ARCHIVIST_NOTE).readNullable[String] and
-      (__ \ SOURCES).readListOrSingleNullable[String] and
+      (__ \ SOURCES).readSeqOrSingleNullable[String] and
       (__ \ RULES_CONVENTIONS).readNullable[String] and
       (__ \ DATES_DESCRIPTIONS).readNullable[String] and
-      (__ \ PROCESS_INFO).readListOrSingleNullable[String]
+      (__ \ PROCESS_INFO).readSeqOrSingleNullable[String]
     )(IsadGControl.apply _)) and
     (__ \ DATA \ CREATION_PROCESS).readWithDefault(CreationProcess.Manual) and
-    (__ \ RELATIONSHIPS \ HAS_ACCESS_POINT).nullableListReads[AccessPointF] and
-    (__ \ RELATIONSHIPS \ HAS_MAINTENANCE_EVENT).nullableListReads[Entity] and
-    (__ \ RELATIONSHIPS \ HAS_UNKNOWN_PROPERTY).nullableListReads[Entity]
+    (__ \ RELATIONSHIPS \ HAS_ACCESS_POINT).nullableSeqReads[AccessPointF] and
+    (__ \ RELATIONSHIPS \ HAS_MAINTENANCE_EVENT).nullableSeqReads[Entity] and
+    (__ \ RELATIONSHIPS \ HAS_UNKNOWN_PROPERTY).nullableSeqReads[Entity]
   )(DocumentaryUnitDescriptionF.apply _)
 
   implicit object Converter
@@ -196,12 +196,12 @@ case class DocumentaryUnitDescriptionF(
   content: IsadGContent = IsadGContent(),
   conditions: IsadGConditions = IsadGConditions(),
   materials: IsadGMaterials = IsadGMaterials(),
-  notes: Option[List[String]] = None,
+  notes: Option[Seq[String]] = None,
   control: IsadGControl = IsadGControl(),
   creationProcess: CreationProcess.Value = CreationProcess.Manual,
-  accessPoints: List[AccessPointF] = Nil,
-  maintenanceEvents: List[Entity] = Nil,
-  unknownProperties: List[Entity] = Nil
+  accessPoints: Seq[AccessPointF] = Nil,
+  maintenanceEvents: Seq[Entity] = Nil,
+  unknownProperties: Seq[Entity] = Nil
 ) extends Model with Persistable with Description with Temporal {
   import IsadG._
 
@@ -257,14 +257,14 @@ object DocumentaryUnitDescription {
       LANG_CODE -> nonEmptyText,
       IDENTITY_AREA -> mapping(
         TITLE -> nonEmptyText,
-        PARALLEL_FORMS_OF_NAME -> optional(list(nonEmptyText)),
+        PARALLEL_FORMS_OF_NAME -> optional(seq(nonEmptyText)),
         Entity.IDENTIFIER -> optional(nonEmptyText),
         REF -> optional(text),
         ABSTRACT -> optional(nonEmptyText),
-        DATES -> list(DatePeriod.form.mapping),
-        UNIT_DATES -> optional(list(nonEmptyText)),
+        DATES -> seq(DatePeriod.form.mapping),
+        UNIT_DATES -> optional(seq(nonEmptyText)),
         LEVEL_OF_DESCRIPTION -> optional(text),
-        PHYSICAL_LOCATION -> optional(list(nonEmptyText)),
+        PHYSICAL_LOCATION -> optional(seq(nonEmptyText)),
         EXTENT_MEDIUM -> optional(nonEmptyText)
       )(IsadGIdentity.apply)(IsadGIdentity.unapply),
       CONTEXT_AREA -> mapping(
@@ -281,29 +281,29 @@ object DocumentaryUnitDescription {
       CONDITIONS_AREA -> mapping(
         ACCESS_COND -> optional(text),
         REPROD_COND -> optional(text),
-        LANG_MATERIALS -> optional(list(nonEmptyText)),
-        SCRIPT_MATERIALS -> optional(list(nonEmptyText)),
+        LANG_MATERIALS -> optional(seq(nonEmptyText)),
+        SCRIPT_MATERIALS -> optional(seq(nonEmptyText)),
         PHYSICAL_CHARS -> optional(text),
-        FINDING_AIDS -> optional(list(nonEmptyText))
+        FINDING_AIDS -> optional(seq(nonEmptyText))
       )(IsadGConditions.apply)(IsadGConditions.unapply),
       MATERIALS_AREA -> mapping(
-        LOCATION_ORIGINALS -> optional(list(nonEmptyText)),
-        LOCATION_COPIES -> optional(list(nonEmptyText)),
-        RELATED_UNITS -> optional(list(nonEmptyText)),
+        LOCATION_ORIGINALS -> optional(seq(nonEmptyText)),
+        LOCATION_COPIES -> optional(seq(nonEmptyText)),
+        RELATED_UNITS -> optional(seq(nonEmptyText)),
         PUBLICATION_NOTE -> optional(text)
       )(IsadGMaterials.apply)(IsadGMaterials.unapply),
-      NOTES -> optional(list(nonEmptyText)),
+      NOTES -> optional(seq(nonEmptyText)),
       CONTROL_AREA -> mapping(
         ARCHIVIST_NOTE -> optional(text),
-        SOURCES -> optional(list(nonEmptyText)),
+        SOURCES -> optional(seq(nonEmptyText)),
         RULES_CONVENTIONS -> optional(text),
         DATES_DESCRIPTIONS -> optional(text),
-        PROCESS_INFO -> optional(list(nonEmptyText))
+        PROCESS_INFO -> optional(seq(nonEmptyText))
       )(IsadGControl.apply)(IsadGControl.unapply),
       CREATION_PROCESS -> default(enumMapping(CreationProcess), CreationProcess.Manual),
-      ACCESS_POINTS -> list(AccessPoint.form.mapping),
-      MAINTENANCE_EVENTS -> list(entity),
-      UNKNOWN_DATA -> list(entity)
+      ACCESS_POINTS -> seq(AccessPoint.form.mapping),
+      MAINTENANCE_EVENTS -> seq(entity),
+      UNKNOWN_DATA -> seq(entity)
     )(DocumentaryUnitDescriptionF.apply)(DocumentaryUnitDescriptionF.unapply)
   )
 }

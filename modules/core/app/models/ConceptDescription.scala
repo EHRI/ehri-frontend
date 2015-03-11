@@ -47,14 +47,14 @@ object ConceptDescriptionF {
     (__ \ ID).readNullable[String] and
     (__ \ DATA \ LANG_CODE).read[String] and
     (__ \ DATA \ PREFLABEL).read[String] and
-    (__ \ DATA \ ALTLABEL).readListOrSingleNullable[String] and
-    (__ \ DATA \ DEFINITION).readListOrSingleNullable[String] and
-    (__ \ DATA \ SCOPENOTE).readListOrSingleNullable[String] and
+    (__ \ DATA \ ALTLABEL).readSeqOrSingleNullable[String] and
+    (__ \ DATA \ DEFINITION).readSeqOrSingleNullable[String] and
+    (__ \ DATA \ SCOPENOTE).readSeqOrSingleNullable[String] and
     (__ \ DATA \ LONGITUDE).readNullable[BigDecimal] and
     (__ \ DATA \ LATITUDE).readNullable[BigDecimal] and
     (__ \ DATA \ CREATION_PROCESS).readWithDefault(CreationProcess.Manual) and
-    (__ \ RELATIONSHIPS \ Ontology.HAS_ACCESS_POINT).nullableListReads[AccessPointF] and
-    (__ \ RELATIONSHIPS \ Ontology.HAS_UNKNOWN_PROPERTY).nullableListReads[Entity]
+    (__ \ RELATIONSHIPS \ Ontology.HAS_ACCESS_POINT).nullableSeqReads[AccessPointF] and
+    (__ \ RELATIONSHIPS \ Ontology.HAS_UNKNOWN_PROPERTY).nullableSeqReads[Entity]
   )(ConceptDescriptionF.apply _)
 
   implicit val conceptDescriptionFormat: Format[ConceptDescriptionF] = Format(conceptDescriptionReads,conceptDescriptionWrites)
@@ -69,14 +69,14 @@ case class ConceptDescriptionF(
   id: Option[String],
   languageCode: String,
   name: String,
-  altLabels: Option[List[String]] = None,
-  definition: Option[List[String]] = None,
-  scopeNote: Option[List[String]] = None,
+  altLabels: Option[Seq[String]] = None,
+  definition: Option[Seq[String]] = None,
+  scopeNote: Option[Seq[String]] = None,
   longitude: Option[BigDecimal] = None,
   latitude: Option[BigDecimal] = None,
   creationProcess: Description.CreationProcess.Value = Description.CreationProcess.Manual,
-  accessPoints: List[AccessPointF] = Nil,
-  unknownProperties: List[Entity] = Nil
+  accessPoints: Seq[AccessPointF] = Nil,
+  unknownProperties: Seq[Entity] = Nil
 ) extends Model with Persistable with Description {
 
   def displayText = scopeNote.flatMap(_.headOption) orElse definition.flatMap(_.headOption)
@@ -97,13 +97,13 @@ object ConceptDescription {
     ID -> optional(nonEmptyText),
     LANG_CODE -> nonEmptyText,
     PREFLABEL -> nonEmptyText,
-    ALTLABEL -> optional(list(nonEmptyText)),
-    DEFINITION -> optional(list(nonEmptyText)),
-    SCOPENOTE -> optional(list(nonEmptyText)),
+    ALTLABEL -> optional(seq(nonEmptyText)),
+    DEFINITION -> optional(seq(nonEmptyText)),
+    SCOPENOTE -> optional(seq(nonEmptyText)),
     LONGITUDE -> optional(bigDecimal),
     LATITUDE -> optional(bigDecimal),
     CREATION_PROCESS -> default(enumMapping(CreationProcess), CreationProcess.Manual),
-    ACCESS_POINTS -> list(AccessPoint.form.mapping),
-    UNKNOWN_DATA -> list(entity)
+    ACCESS_POINTS -> seq(AccessPoint.form.mapping),
+    UNKNOWN_DATA -> seq(entity)
   )(ConceptDescriptionF.apply)(ConceptDescriptionF.unapply))
 }

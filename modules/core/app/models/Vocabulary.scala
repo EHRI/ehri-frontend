@@ -73,7 +73,7 @@ object Vocabulary {
 
   implicit val metaReads: Reads[Vocabulary] = (
     __.read[VocabularyF] and
-    (__ \ RELATIONSHIPS \ IS_ACCESSIBLE_TO).lazyNullableListReads(Accessor.Converter.restReads) and
+    (__ \ RELATIONSHIPS \ IS_ACCESSIBLE_TO).lazyNullableSeqReads(Accessor.Converter.restReads) and
     (__ \ RELATIONSHIPS \ ENTITY_HAS_LIFECYCLE_EVENT).nullableHeadReads[SystemEvent] and
     (__ \ META).readWithDefault(Json.obj())
   )(Vocabulary.apply _)
@@ -98,7 +98,7 @@ object Vocabulary {
 
 case class Vocabulary(
   model: VocabularyF,
-  accessors: List[Accessor] = Nil,
+  accessors: Seq[Accessor] = Nil,
   latestEvent: Option[SystemEvent],
   meta: JsObject = JsObject(Seq())
 ) extends AnyModel

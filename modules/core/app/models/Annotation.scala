@@ -89,14 +89,14 @@ object Annotation {
 
   implicit val metaReads: Reads[Annotation] = (
     __.read[AnnotationF] and
-    (__ \ RELATIONSHIPS \ ANNOTATION_ANNOTATES).lazyNullableListReads[Annotation](metaReads) and
+    (__ \ RELATIONSHIPS \ ANNOTATION_ANNOTATES).lazyNullableSeqReads[Annotation](metaReads) and
     (__ \ RELATIONSHIPS \ ANNOTATOR_HAS_ANNOTATION).nullableHeadReads[UserProfile] and
     (__ \ RELATIONSHIPS \ ANNOTATION_HAS_SOURCE).lazyNullableHeadReads[AnyModel](anyModelReads) and
     (__ \ RELATIONSHIPS \ ANNOTATES).lazyNullableHeadReads[AnyModel](anyModelReads) and
     (__ \ RELATIONSHIPS \ ANNOTATES_PART).nullableHeadReads[Entity] and
-    (__ \ RELATIONSHIPS \ IS_ACCESSIBLE_TO).nullableListReads[Accessor] and
-    (__ \ RELATIONSHIPS \ PROMOTED_BY).nullableListReads[UserProfile] and
-    (__ \ RELATIONSHIPS \ DEMOTED_BY).nullableListReads[UserProfile] and
+    (__ \ RELATIONSHIPS \ IS_ACCESSIBLE_TO).nullableSeqReads[Accessor] and
+    (__ \ RELATIONSHIPS \ PROMOTED_BY).nullableSeqReads[UserProfile] and
+    (__ \ RELATIONSHIPS \ DEMOTED_BY).nullableSeqReads[UserProfile] and
     (__ \ RELATIONSHIPS \ ENTITY_HAS_LIFECYCLE_EVENT).nullableHeadReads[SystemEvent] and
     (__ \ META).readWithDefault(Json.obj())
   )(Annotation.apply _)
@@ -141,7 +141,7 @@ object Annotation {
   )(AnnotationF.apply)(AnnotationF.unapply))
 
   val multiForm = Form(single(
-    "annotation" -> list(tuple(
+    "annotation" -> seq(tuple(
       "id" -> nonEmptyText,
       "data" -> form.mapping
     ))
@@ -150,14 +150,14 @@ object Annotation {
 
 case class Annotation(
   model: AnnotationF,
-  annotations: List[Annotation] = Nil,
+  annotations: Seq[Annotation] = Nil,
   user: Option[UserProfile] = None,
   source: Option[AnyModel] = None,
   target: Option[AnyModel] = None,
   targetParts: Option[Entity] = None,
-  accessors: List[Accessor] = Nil,
-  promoters: List[UserProfile] = Nil,
-  demoters: List[UserProfile] = Nil,
+  accessors: Seq[Accessor] = Nil,
+  promoters: Seq[UserProfile] = Nil,
+  demoters: Seq[UserProfile] = Nil,
   latestEvent: Option[SystemEvent] = None,
   meta: JsObject = JsObject(Seq())
 ) extends MetaModel[AnnotationF] with Accessible with Promotable {

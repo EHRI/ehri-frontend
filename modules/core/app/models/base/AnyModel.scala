@@ -80,7 +80,7 @@ trait Named {
 }
 
 trait Accessible extends AnyModel {
-  def accessors: List[Accessor]
+  def accessors: Seq[Accessor]
 
   def latestEvent: Option[SystemEvent]
 }
@@ -115,7 +115,7 @@ trait MetaModel[+T <: Model] extends AnyModel {
 }
 
 trait WithDescriptions[+T <: Description] extends AnyModel {
-  def descriptions: List[T]
+  def descriptions: Seq[T]
 
   private lazy val allAccessPoints = descriptions.flatMap(_.accessPoints)
 
@@ -149,7 +149,7 @@ trait WithDescriptions[+T <: Description] extends AnyModel {
 }
 
 trait DescribedMeta[+TD <: Description, +T <: Described[TD]] extends MetaModel[T] with WithDescriptions[TD] {
-  def descriptions: List[TD] = model.descriptions
+  def descriptions: Seq[TD] = model.descriptions
 }
 
 trait Holder[+T] extends AnyModel {
@@ -174,8 +174,8 @@ trait Hierarchical[+T <: Hierarchical[T]] extends AnyModel {
   /**
    * List of ancestor items 'above' this one, including the parent.
    */
-  def ancestors: List[T] =
-    (parent.map(p => p :: p.ancestors) getOrElse List.empty).distinct
+  def ancestors: Seq[T] =
+    (parent.map(p => p +: p.ancestors) getOrElse Seq.empty).distinct
 
   /**
    * Get the top level of the hierarchy, which may or may
@@ -194,11 +194,11 @@ trait Description extends Model {
 
   def languageCode: String
 
-  def accessPoints: List[AccessPointF]
+  def accessPoints: Seq[AccessPointF]
 
   def creationProcess: Description.CreationProcess.Value
 
-  def unknownProperties: List[Entity]
+  def unknownProperties: Seq[Entity]
 
   def displayText: Option[String]
 
@@ -258,7 +258,7 @@ object Description {
 }
 
 trait Described[+T <: Description] extends Model {
-  def descriptions: List[T]
+  def descriptions: Seq[T]
 
   /**
    * Get a description by ID
@@ -298,11 +298,11 @@ trait Described[+T <: Description] extends Model {
   def primaryDescription(id: String)(implicit lang: Lang): Option[T] =
     description(id).orElse(primaryDescription(lang))
 
-  def accessPoints: List[AccessPointF] =
+  def accessPoints: Seq[AccessPointF] =
     descriptions.flatMap(_.accessPoints)
 }
 
 trait Temporal {
-  def dates: List[DatePeriodF]
+  def dates: Seq[DatePeriodF]
   def dateRange: String = dates.map(_.years).mkString(", ")
 }

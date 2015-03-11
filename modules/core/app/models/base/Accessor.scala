@@ -29,30 +29,29 @@ object Accessor {
 }
 
 trait Accessor extends AnyModel {
-  def groups: List[Group]
+  def groups: Seq[Group]
   def id: String
   def isA: EntityType.Value
 
-  lazy val allGroups: List[Group] = getGroups(this)
+  lazy val allGroups: Seq[Group] = getGroups(this)
 
   def isAdmin = getAccessor(groups, "admin").isDefined
 
 	// Search up the tree(?) if parent groups, looking
 	// for one with the desired id.
-	def getAccessor(groups: List[Accessor], id: String): Option[Accessor] = {
-	  groups match {
-	    case lst @ head :: rest => {
-	      if (head.id == id) Some(head)	        
-	      else getAccessor(head.groups, id) match {
-	          case s @ Some(g) => s
-	          case None => getAccessor(rest, id)
-	      }
-	    }
-	    case Nil => None
+	def getAccessor(groups: Seq[Accessor], id: String): Option[Accessor] = {
+	  groups.toList match {
+	    case lst @ head :: rest =>
+        if (head.id == id) Some(head)
+        else getAccessor(head.groups, id) match {
+            case s @ Some(g) => s
+            case None => getAccessor(rest, id)
+        }
+      case Nil => None
 	  }
 	}
 
-  private def getGroups(acc: Accessor): List[Group] = {
+  private def getGroups(acc: Accessor): Seq[Group] = {
     acc.groups.foldLeft(acc.groups) { case (all, g) =>
       all ++ getGroups(g)
     }.distinct

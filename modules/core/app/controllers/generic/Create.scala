@@ -38,7 +38,7 @@ trait Create[F <: Model with Persistable, MT <: MetaModel[F]] extends Generic {
     with WithUser
 
   case class CreateRequest[A](
-    formOrItem: Either[(Form[F],Form[List[String]]),MT],
+    formOrItem: Either[(Form[F],Form[Seq[String]]),MT],
     user: UserProfile,
     request: Request[A]
   ) extends WrappedRequest[A](request)

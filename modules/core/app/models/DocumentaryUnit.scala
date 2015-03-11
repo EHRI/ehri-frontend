@@ -65,11 +65,11 @@ object DocumentaryUnitF {
     (__ \ TYPE).readIfEquals(EntityType.DocumentaryUnit) and
     (__ \ ID).readNullable[String] and
     (__ \ DATA \ IDENTIFIER).read[String] and
-    (__ \ DATA \ OTHER_IDENTIFIERS).readListOrSingleNullable[String] and
+    (__ \ DATA \ OTHER_IDENTIFIERS).readSeqOrSingleNullable[String] and
     (__ \ DATA \ PUBLICATION_STATUS).readNullable[PublicationStatus.Value] and
     (__ \ DATA \ COPYRIGHT).readWithDefault(Option(CopyrightStatus.Unknown)) and
     (__ \ DATA \ SCOPE).readNullable[Scope.Value] and
-    (__ \ RELATIONSHIPS \ DESCRIPTION_FOR_ENTITY).nullableListReads[DocumentaryUnitDescriptionF]
+    (__ \ RELATIONSHIPS \ DESCRIPTION_FOR_ENTITY).nullableSeqReads[DocumentaryUnitDescriptionF]
   )(DocumentaryUnitF.apply _)
 
   implicit val documentaryUnitFormat: Format[DocumentaryUnitF] = Format(documentaryUnitReads,documentaryUnitWrites)
@@ -83,13 +83,13 @@ case class DocumentaryUnitF(
   isA: EntityType.Value = EntityType.DocumentaryUnit,
   id: Option[String] = None,
   identifier: String,
-  otherIdentifiers: Option[List[String]] = None,
+  otherIdentifiers: Option[Seq[String]] = None,
   publicationStatus: Option[PublicationStatus.Value] = None,
   copyrightStatus: Option[DocumentaryUnitF.CopyrightStatus.Value] = Some(DocumentaryUnitF.CopyrightStatus.Unknown),
   scope: Option[DocumentaryUnitF.Scope.Value] = Some(DocumentaryUnitF.Scope.Low),
 
   @models.relation(Ontology.DESCRIPTION_FOR_ENTITY)
-  descriptions: List[DocumentaryUnitDescriptionF] = Nil
+  descriptions: Seq[DocumentaryUnitDescriptionF] = Nil
 ) extends Model
   with Persistable
   with Described[DocumentaryUnitDescriptionF] {
@@ -108,7 +108,7 @@ object DocumentaryUnit {
     __.read[DocumentaryUnitF](documentaryUnitReads) and
     (__ \ RELATIONSHIPS \ DOC_HELD_BY_REPOSITORY).nullableHeadReads[Repository] and
     (__ \ RELATIONSHIPS \ DOC_IS_CHILD_OF).lazyNullableHeadReads(metaReads) and
-    (__ \ RELATIONSHIPS \ IS_ACCESSIBLE_TO).nullableListReads(Accessor.Converter.restReads) and
+    (__ \ RELATIONSHIPS \ IS_ACCESSIBLE_TO).nullableSeqReads(Accessor.Converter.restReads) and
     (__ \ RELATIONSHIPS \ ENTITY_HAS_LIFECYCLE_EVENT).nullableHeadReads[SystemEvent] and
     (__ \ META).readWithDefault(Json.obj())
   )(DocumentaryUnit.apply _)
@@ -138,11 +138,11 @@ object DocumentaryUnit {
       ISA -> ignored(EntityType.DocumentaryUnit),
       ID -> optional(nonEmptyText),
       IDENTIFIER -> nonEmptyText,
-      OTHER_IDENTIFIERS -> optional(list(nonEmptyText)),
+      OTHER_IDENTIFIERS -> optional(seq(nonEmptyText)),
       PUBLICATION_STATUS -> optional(enumMapping(models.PublicationStatus)),
       COPYRIGHT -> optional(enumMapping(CopyrightStatus)),
       SCOPE -> optional(enumMapping(Scope)),
-      "descriptions" -> list(DocumentaryUnitDescription.form.mapping)
+      "descriptions" -> seq(DocumentaryUnitDescription.form.mapping)
     )(DocumentaryUnitF.apply)(DocumentaryUnitF.unapply)
   )
 }
@@ -151,7 +151,7 @@ case class DocumentaryUnit(
   model: DocumentaryUnitF,
   holder: Option[Repository] = None,
   parent: Option[DocumentaryUnit] = None,
-  accessors: List[Accessor] = Nil,
+  accessors: Seq[Accessor] = Nil,
   latestEvent: Option[SystemEvent] = None,
   meta: JsObject = JsObject(Seq())
 ) extends AnyModel

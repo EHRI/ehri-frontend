@@ -77,7 +77,7 @@ object Country {
   implicit val metaReads: Reads[Country] = (
     __.read[CountryF](countryReads) and
     // Latest event
-    (__ \ RELATIONSHIPS \ IS_ACCESSIBLE_TO).nullableListReads(Accessor.Converter.restReads) and
+    (__ \ RELATIONSHIPS \ IS_ACCESSIBLE_TO).nullableSeqReads(Accessor.Converter.restReads) and
     (__ \ RELATIONSHIPS \ ENTITY_HAS_LIFECYCLE_EVENT).nullableHeadReads[SystemEvent] and
     (__ \ META).readWithDefault(Json.obj())
   )(Country.apply _)
@@ -106,7 +106,7 @@ object Country {
 // Stub
 case class Country(
   model: CountryF,
-  accessors: List[Accessor] = Nil,
+  accessors: Seq[Accessor] = Nil,
   latestEvent: Option[SystemEvent] = None,
   meta: JsObject = JsObject(Seq())
 ) extends AnyModel

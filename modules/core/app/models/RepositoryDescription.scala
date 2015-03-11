@@ -42,9 +42,9 @@ case class IsdiahControl(
   status: Option[String] = None,
   levelOfDetail: Option[String] = None,
   datesCDR: Option[String] = None,
-  languages: Option[List[String]] = None,
-  scripts: Option[List[String]] = None,
-  sources: Option[List[String]] = None,
+  languages: Option[Seq[String]] = None,
+  scripts: Option[Seq[String]] = None,
+  sources: Option[Seq[String]] = None,
   maintenanceNotes: Option[String] = None
 ) extends AttributeSet
 
@@ -105,9 +105,9 @@ object RepositoryDescriptionF {
     (__ \ ID).readNullable[String] and
     (__ \ DATA \ LANG_CODE).read[String] and
     (__ \ DATA \ AUTHORIZED_FORM_OF_NAME).read[String] and
-    (__ \ DATA \ OTHER_FORMS_OF_NAME).readListOrSingleNullable[String] and
-    (__ \ DATA \ PARALLEL_FORMS_OF_NAME).readListOrSingleNullable[String] and
-    (__ \ RELATIONSHIPS \ ENTITY_HAS_ADDRESS).nullableListReads[AddressF] and
+    (__ \ DATA \ OTHER_FORMS_OF_NAME).readSeqOrSingleNullable[String] and
+    (__ \ DATA \ PARALLEL_FORMS_OF_NAME).readSeqOrSingleNullable[String] and
+    (__ \ RELATIONSHIPS \ ENTITY_HAS_ADDRESS).nullableSeqReads[AddressF] and
     (__ \ DATA).read[IsdiahDetails]((
       (__ \ HISTORY).readNullable[String] and
       (__ \ GEOCULTURAL_CONTEXT).readNullable[String] and
@@ -135,15 +135,15 @@ object RepositoryDescriptionF {
       (__ \ STATUS).readNullable[String] and
       (__ \ LEVEL_OF_DETAIL).readNullable[String] and
       (__ \ DATES_CVD).readNullable[String] and
-      (__ \ LANGUAGES_USED).readNullable[List[String]] and
-      (__ \ SCRIPTS_USED).readListOrSingleNullable[String] and
-      (__ \ SOURCES).readListOrSingleNullable[String] and
+      (__ \ LANGUAGES_USED).readNullable[Seq[String]] and
+      (__ \ SCRIPTS_USED).readSeqOrSingleNullable[String] and
+      (__ \ SOURCES).readSeqOrSingleNullable[String] and
       (__ \ MAINTENANCE_NOTES).readNullable[String]
     )(IsdiahControl.apply _)) and
     (__ \ DATA \ CREATION_PROCESS).readWithDefault(CreationProcess.Manual) and
-    (__ \ RELATIONSHIPS \ HAS_ACCESS_POINT).nullableListReads[AccessPointF] and
-    (__ \ RELATIONSHIPS \ HAS_MAINTENANCE_EVENT).nullableListReads[Entity] and
-    (__ \ RELATIONSHIPS \ HAS_UNKNOWN_PROPERTY).nullableListReads[Entity]
+    (__ \ RELATIONSHIPS \ HAS_ACCESS_POINT).nullableSeqReads[AccessPointF] and
+    (__ \ RELATIONSHIPS \ HAS_MAINTENANCE_EVENT).nullableSeqReads[Entity] and
+    (__ \ RELATIONSHIPS \ HAS_UNKNOWN_PROPERTY).nullableSeqReads[Entity]
   )(RepositoryDescriptionF.apply _)
 
   implicit object Converter extends BackendReadable[RepositoryDescriptionF] with BackendWriteable[RepositoryDescriptionF] {
@@ -158,17 +158,17 @@ case class RepositoryDescriptionF(
   id: Option[String],
   languageCode: String,
   name: String,
-  otherFormsOfName: Option[List[String]] = None,
-  parallelFormsOfName: Option[List[String]] = None,
-  @models.relation(Ontology.ENTITY_HAS_ADDRESS) addresses: List[AddressF] = Nil,
+  otherFormsOfName: Option[Seq[String]] = None,
+  parallelFormsOfName: Option[Seq[String]] = None,
+  @models.relation(Ontology.ENTITY_HAS_ADDRESS) addresses: Seq[AddressF] = Nil,
   details: IsdiahDetails,
   access: IsdiahAccess,
   services: IsdiahServices,
   control: IsdiahControl,
   creationProcess: CreationProcess.Value = CreationProcess.Manual,
-  accessPoints: List[AccessPointF] = Nil,
-  maintenanceEvents: List[Entity] = Nil,
-  unknownProperties: List[Entity] = Nil
+  accessPoints: Seq[AccessPointF] = Nil,
+  maintenanceEvents: Seq[Entity] = Nil,
+  unknownProperties: Seq[Entity] = Nil
 ) extends Model with Persistable with Description {
 
   import Isdiah._
@@ -211,9 +211,9 @@ object RepositoryDescription {
       ID -> optional(nonEmptyText),
       LANG_CODE -> nonEmptyText,
       AUTHORIZED_FORM_OF_NAME -> text,
-      OTHER_FORMS_OF_NAME -> optional(list(nonEmptyText)),
-      PARALLEL_FORMS_OF_NAME -> optional(list(nonEmptyText)),
-      ADDRESS_AREA -> list(Address.form.mapping),
+      OTHER_FORMS_OF_NAME -> optional(seq(nonEmptyText)),
+      PARALLEL_FORMS_OF_NAME -> optional(seq(nonEmptyText)),
+      ADDRESS_AREA -> seq(Address.form.mapping),
       DESCRIPTION_AREA -> mapping(
         HISTORY -> optional(nonEmptyText),
         GEOCULTURAL_CONTEXT -> optional(nonEmptyText),
@@ -241,15 +241,15 @@ object RepositoryDescription {
         STATUS -> optional(text),
         LEVEL_OF_DETAIL -> optional(text),
         DATES_CVD -> optional(text),
-        LANGUAGES_USED -> optional(list(nonEmptyText)),
-        SCRIPTS_USED -> optional(list(nonEmptyText)),
-        SOURCES -> optional(list(nonEmptyText)),
+        LANGUAGES_USED -> optional(seq(nonEmptyText)),
+        SCRIPTS_USED -> optional(seq(nonEmptyText)),
+        SOURCES -> optional(seq(nonEmptyText)),
         MAINTENANCE_NOTES -> optional(text)
       )(IsdiahControl.apply)(IsdiahControl.unapply),
       CREATION_PROCESS -> default(enumMapping(CreationProcess), CreationProcess.Manual),
-      ACCESS_POINTS -> list(AccessPoint.form.mapping),
-      MAINTENANCE_EVENTS -> list(entity),
-      UNKNOWN_DATA -> list(entity)
+      ACCESS_POINTS -> seq(AccessPoint.form.mapping),
+      MAINTENANCE_EVENTS -> seq(entity),
+      UNKNOWN_DATA -> seq(entity)
     )(RepositoryDescriptionF.apply)(RepositoryDescriptionF.unapply)
   )
 }

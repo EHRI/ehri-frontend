@@ -42,7 +42,7 @@ trait Creator[CF <: Model with Persistable, CMT <: MetaModel[CF], MT <: MetaMode
 
   case class CreateChildRequest[A](
      item: MT,
-     formOrItem: Either[(Form[CF],Form[List[String]]),CMT],
+     formOrItem: Either[(Form[CF],Form[Seq[String]]),CMT],
      userOpt: Option[UserProfile],
      request: Request[A]
      ) extends WrappedRequest[A](request)

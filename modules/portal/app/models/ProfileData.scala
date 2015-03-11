@@ -11,7 +11,7 @@ import play.api.libs.json.{Json, Writes}
 case class ProfileData(
   name: String,
   location: Option[String] = None,
-  languages: List[String] = Nil,
+  languages: Seq[String] = Nil,
   about: Option[String] = None,
   url: Option[String] = None,
   workUrl: Option[String] = None,
@@ -40,7 +40,7 @@ object ProfileData {
     mapping(
       NAME -> nonEmptyText,
       USERLOC -> optional(text),
-      LANGUAGES -> list(nonEmptyText(minLength = 3, maxLength = 3)),
+      LANGUAGES -> seq(nonEmptyText(minLength = 3, maxLength = 3)),
       ABOUT -> optional(text),
       URL -> optional(text.verifying(s => isValidUrl(s))),
       WORK_URL -> optional(text.verifying(s => isValidUrl(s))),

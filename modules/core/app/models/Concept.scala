@@ -52,7 +52,7 @@ object ConceptF {
     (__ \ TYPE).readIfEquals(EntityType.Concept) and
     (__ \ ID).readNullable[String] and
     (__ \ DATA \ IDENTIFIER).read[String] and
-    (__ \ RELATIONSHIPS \ DESCRIPTION_FOR_ENTITY).nullableListReads[ConceptDescriptionF]
+    (__ \ RELATIONSHIPS \ DESCRIPTION_FOR_ENTITY).nullableSeqReads[ConceptDescriptionF]
   )(ConceptF.apply _)
 
   implicit val conceptFormat: Format[ConceptF] = Format(conceptReads,conceptWrites)
@@ -67,7 +67,7 @@ case class ConceptF(
   isA: EntityType.Value = EntityType.Concept,
   id: Option[String],
   identifier: String,
-  @models.relation(Ontology.DESCRIPTION_FOR_ENTITY) descriptions: List[ConceptDescriptionF] = Nil
+  @models.relation(Ontology.DESCRIPTION_FOR_ENTITY) descriptions: Seq[ConceptDescriptionF] = Nil
 ) extends Model with Persistable with Described[ConceptDescriptionF]
 
 
@@ -83,8 +83,8 @@ object Concept {
     __.read[ConceptF] and
     (__ \ RELATIONSHIPS \ ITEM_IN_AUTHORITATIVE_SET).nullableHeadReads[Vocabulary] and
     (__ \ RELATIONSHIPS \ CONCEPT_HAS_BROADER).lazyNullableHeadReads[Concept](metaReads) and
-    (__ \ RELATIONSHIPS \ CONCEPT_HAS_BROADER).lazyNullableListReads[Concept](metaReads) and
-    (__ \ RELATIONSHIPS \ IS_ACCESSIBLE_TO).nullableListReads[Accessor](Accessor.Converter.restReads) and
+    (__ \ RELATIONSHIPS \ CONCEPT_HAS_BROADER).lazyNullableSeqReads[Concept](metaReads) and
+    (__ \ RELATIONSHIPS \ IS_ACCESSIBLE_TO).nullableSeqReads[Accessor](Accessor.Converter.restReads) and
     (__ \ RELATIONSHIPS \ ENTITY_HAS_LIFECYCLE_EVENT).nullableHeadReads[SystemEvent] and
     (__ \ META).readWithDefault(Json.obj())
   )(Concept.apply _)
@@ -104,7 +104,7 @@ object Concept {
       Entity.ISA -> ignored(EntityType.Concept),
       Entity.ID -> optional(nonEmptyText),
       Entity.IDENTIFIER -> nonEmptyText,
-      "descriptions" -> list(ConceptDescription.form.mapping)
+      "descriptions" -> seq(ConceptDescription.form.mapping)
     )(ConceptF.apply)(ConceptF.unapply)
   )
 }
@@ -114,8 +114,8 @@ case class Concept(
   model: ConceptF,
   vocabulary: Option[Vocabulary],
   parent: Option[Concept] = None,
-  broaderTerms: List[Concept] = Nil,
-  accessors: List[Accessor] = Nil,
+  broaderTerms: Seq[Concept] = Nil,
+  accessors: Seq[Accessor] = Nil,
   latestEvent: Option[SystemEvent],
   meta: JsObject = JsObject(Seq())
 ) extends AnyModel

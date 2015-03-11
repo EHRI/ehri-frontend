@@ -1,4 +1,4 @@
-@(list: List[String], highlighter: views.Highlighter = views.NoopHighlighter)(implicit lang: Lang)
+@(list: Seq[String], highlighter: views.Highlighter = views.NoopHighlighter)(implicit lang: Lang)
 
 @defining(list.splitAt(3)) { case (ofn, rest) =>
     @if(ofn.nonEmpty) {

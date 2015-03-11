@@ -16,7 +16,7 @@ import Description._
 case class IsaarDetail(
   datesOfExistence: Option[String] = None,
   history: Option[String] = None,
-  places: Option[List[String]] = None,
+  places: Option[Seq[String]] = None,
   legalStatus: Option[String] = None,
   functions: Option[String] = None,
   mandates: Option[String] = None,
@@ -31,9 +31,9 @@ case class IsaarControl(
   status: Option[String] = None,
   levelOfDetail: Option[String] = None,
   datesCDR: Option[String] = None,
-  languages: Option[List[String]] = None,
-  scripts: Option[List[String]] = None,
-  sources: Option[List[String]] = None,
+  languages: Option[Seq[String]] = None,
+  scripts: Option[Seq[String]] = None,
+  sources: Option[Seq[String]] = None,
   maintenanceNotes: Option[String] = None
 ) extends AttributeSet
 
@@ -92,13 +92,13 @@ object HistoricalAgentDescriptionF {
     (__ \ DATA \ LANG_CODE).read[String] and
     (__ \ DATA \ ENTITY_TYPE).readWithDefault(HistoricalAgentType.CorporateBody) and
     (__ \ DATA \ AUTHORIZED_FORM_OF_NAME).readWithDefault(UNNAMED_PLACEHOLDER) and
-    (__ \ DATA \ OTHER_FORMS_OF_NAME).readListOrSingleNullable[String] and
-    (__ \ DATA \ PARALLEL_FORMS_OF_NAME).readListOrSingleNullable[String] and
-    (__ \ RELATIONSHIPS \ ENTITY_HAS_DATE).nullableListReads[DatePeriodF] and
+    (__ \ DATA \ OTHER_FORMS_OF_NAME).readSeqOrSingleNullable[String] and
+    (__ \ DATA \ PARALLEL_FORMS_OF_NAME).readSeqOrSingleNullable[String] and
+    (__ \ RELATIONSHIPS \ ENTITY_HAS_DATE).nullableSeqReads[DatePeriodF] and
     (__ \ DATA).read[IsaarDetail]((
       (__ \ DATES_OF_EXISTENCE).readNullable[String] and
       (__ \ HISTORY).readNullable[String] and
-      (__ \ PLACES).readListOrSingleNullable[String] and
+      (__ \ PLACES).readSeqOrSingleNullable[String] and
       (__ \ LEGAL_STATUS).readNullable[String] and
       (__ \ FUNCTIONS).readNullable[String] and
       (__ \ MANDATES).readNullable[String] and
@@ -112,14 +112,14 @@ object HistoricalAgentDescriptionF {
       (__ \ STATUS).readNullable[String] and
       (__ \ LEVEL_OF_DETAIL).readNullable[String] and
       (__ \ DATES_CVD).readNullable[String] and
-      (__ \ LANGUAGES_USED).readNullable[List[String]] and
-      (__ \ SCRIPTS_USED).readNullable[List[String]] and
-      (__ \ SOURCES).readListOrSingleNullable[String] and
+      (__ \ LANGUAGES_USED).readNullable[Seq[String]] and
+      (__ \ SCRIPTS_USED).readNullable[Seq[String]] and
+      (__ \ SOURCES).readSeqOrSingleNullable[String] and
       (__ \ MAINTENANCE_NOTES).readNullable[String]
     )(IsaarControl.apply _)) and
     (__ \ DATA \ CREATION_PROCESS).readWithDefault(CreationProcess.Manual) and
-    (__ \ RELATIONSHIPS \ HAS_ACCESS_POINT).nullableListReads[AccessPointF] and
-    (__ \ RELATIONSHIPS \ HAS_UNKNOWN_PROPERTY).nullableListReads[Entity]
+    (__ \ RELATIONSHIPS \ HAS_ACCESS_POINT).nullableSeqReads[AccessPointF] and
+    (__ \ RELATIONSHIPS \ HAS_UNKNOWN_PROPERTY).nullableSeqReads[Entity]
   )(HistoricalAgentDescriptionF.apply _)
 
   implicit object Converter extends BackendReadable[HistoricalAgentDescriptionF] with BackendWriteable[HistoricalAgentDescriptionF]  {
@@ -134,16 +134,16 @@ case class HistoricalAgentDescriptionF(
   languageCode: String,
   entityType: Isaar.HistoricalAgentType.Value,
   name: String,
-  otherFormsOfName: Option[List[String]] = None,
-  parallelFormsOfName: Option[List[String]] = None,
+  otherFormsOfName: Option[Seq[String]] = None,
+  parallelFormsOfName: Option[Seq[String]] = None,
 
   @models.relation(Ontology.ENTITY_HAS_DATE)
-  dates: List[DatePeriodF] = Nil,
+  dates: Seq[DatePeriodF] = Nil,
   details: IsaarDetail,
   control: IsaarControl,
   creationProcess: CreationProcess.Value = CreationProcess.Manual,
-  accessPoints: List[AccessPointF],
-  unknownProperties: List[Entity] = Nil
+  accessPoints: Seq[AccessPointF],
+  unknownProperties: Seq[Entity] = Nil
 ) extends Model
   with Persistable
   with Description
@@ -184,13 +184,13 @@ object HistoricalAgentDescription {
       LANG_CODE -> nonEmptyText,
       ENTITY_TYPE -> enumMapping(HistoricalAgentType),
       AUTHORIZED_FORM_OF_NAME -> nonEmptyText,
-      OTHER_FORMS_OF_NAME -> optional(list(nonEmptyText)),
-      PARALLEL_FORMS_OF_NAME -> optional(list(nonEmptyText)),
-      DATES -> list(DatePeriod.form.mapping),
+      OTHER_FORMS_OF_NAME -> optional(seq(nonEmptyText)),
+      PARALLEL_FORMS_OF_NAME -> optional(seq(nonEmptyText)),
+      DATES -> seq(DatePeriod.form.mapping),
       DESCRIPTION_AREA -> mapping(
         DATES_OF_EXISTENCE -> optional(text),
         HISTORY -> optional(text),
-        PLACES -> optional(list(text)),
+        PLACES -> optional(seq(text)),
         LEGAL_STATUS -> optional(text),
         FUNCTIONS -> optional(text),
         MANDATES -> optional(text),
@@ -204,14 +204,14 @@ object HistoricalAgentDescription {
         STATUS -> optional(text),
         LEVEL_OF_DETAIL -> optional(text),
         DATES_CVD -> optional(text),
-        LANGUAGES_USED -> optional(list(nonEmptyText)),
-        SCRIPTS_USED -> optional(list(nonEmptyText)),
-        SOURCES -> optional(list(nonEmptyText)),
+        LANGUAGES_USED -> optional(seq(nonEmptyText)),
+        SCRIPTS_USED -> optional(seq(nonEmptyText)),
+        SOURCES -> optional(seq(nonEmptyText)),
         MAINTENANCE_NOTES -> optional(text)
       )(IsaarControl.apply)(IsaarControl.unapply),
       CREATION_PROCESS -> default(enumMapping(CreationProcess), CreationProcess.Manual),
-      ACCESS_POINTS -> list(AccessPoint.form.mapping),
-      UNKNOWN_DATA -> list(entity)
+      ACCESS_POINTS -> seq(AccessPoint.form.mapping),
+      UNKNOWN_DATA -> seq(entity)
     )(HistoricalAgentDescriptionF.apply)(HistoricalAgentDescriptionF.unapply)
   )
 }

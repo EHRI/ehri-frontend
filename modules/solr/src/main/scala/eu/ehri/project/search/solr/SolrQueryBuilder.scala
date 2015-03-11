@@ -123,8 +123,8 @@ case class SolrQueryBuilder(
       // Create a boolean or query starting with the ALL placeholder, which
       // includes all the groups the user belongs to, included inherited ones,
       // i.e. accessibleTo:(ALLUSERS OR mike OR admin)
-      val accessors = ACCESSOR_ALL_PLACEHOLDER :: userOpt.map(
-          u => (u.id :: u.allGroups.map(_.id)).distinct).getOrElse(Nil)
+      val accessors = ACCESSOR_ALL_PLACEHOLDER +: userOpt.map(
+          u => (u.id +: u.allGroups.map(_.id)).distinct).getOrElse(Nil)
 
       request.setFilterQuery(
         FilterQuery(multiple = request.filterQuery.getMultiple ++

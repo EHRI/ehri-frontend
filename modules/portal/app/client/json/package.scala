@@ -76,7 +76,7 @@ package object json {
     implicit val clientFormat: Format[PermissionGrant] = (
       JsPath.format(permissionGrantFormat) and
         (__ \ "accessor").lazyFormatNullable[Accessor](accessorJson.clientFormat) and
-        (__ \ "targets").nullableListFormat(anyModelJson.clientFormat) and
+        (__ \ "targets").nullableSeqFormat(anyModelJson.clientFormat) and
         (__ \ "scope").lazyFormatNullable[AnyModel](anyModelJson.clientFormat) and
         (__ \ "grantedBy").lazyFormatNullable[UserProfile](userProfileJson.clientFormat) and
         (__ \ "meta").format[JsObject]
@@ -96,12 +96,12 @@ package object json {
     private implicit val linkFormat = Json.format[LinkF]
     val clientFormat: Format[Link] = (
       JsPath.format[LinkF](linkFormat) and
-        (__ \ "targets").nullableListFormat(anyModelJson.clientFormat) and
+        (__ \ "targets").nullableSeqFormat(anyModelJson.clientFormat) and
         (__ \ "user").lazyFormatNullable[UserProfile](userProfileJson.clientFormat) and
-        (__ \ "accessPoints").nullableListFormat(accessPointJson.clientFormat) and
-        (__ \ "accessibleTo").nullableListFormat(accessorJson.clientFormat) and
-        (__ \ "promotedBy").nullableListFormat(userProfileJson.clientFormat) and
-        (__ \ "demotedBy").nullableListFormat(userProfileJson.clientFormat) and
+        (__ \ "accessPoints").nullableSeqFormat(accessPointJson.clientFormat) and
+        (__ \ "accessibleTo").nullableSeqFormat(accessorJson.clientFormat) and
+        (__ \ "promotedBy").nullableSeqFormat(userProfileJson.clientFormat) and
+        (__ \ "demotedBy").nullableSeqFormat(userProfileJson.clientFormat) and
         (__ \ "event").formatNullable[SystemEvent](systemEventJson.clientFormat) and
         (__ \ "meta").format[JsObject]
       )(Link.apply _, unlift(Link.unapply))
@@ -112,7 +112,7 @@ package object json {
     private val fFormat = Json.format[CountryF]
     val clientFormat: Format[Country] = (
       JsPath.format[CountryF](fFormat) and
-        (__ \ "accessibleTo").nullableListFormat(accessorJson.clientFormat) and
+        (__ \ "accessibleTo").nullableSeqFormat(accessorJson.clientFormat) and
         (__ \ "event").formatNullable[SystemEvent](systemEventJson.clientFormat) and
         (__ \ "meta").format[JsObject]
       )(Country.apply _, unlift(Country.unapply))
@@ -156,8 +156,8 @@ package object json {
     private lazy val fFormat = Json.format[GroupF]
     lazy val clientFormat: Format[Group] = (
       JsPath.format[GroupF](fFormat) and
-        (__ \ "groups").lazyNullableListFormat(clientFormat) and
-        (__ \ "accessibleTo").lazyNullableListFormat(accessorJson.clientFormat) and
+        (__ \ "groups").lazyNullableSeqFormat(clientFormat) and
+        (__ \ "accessibleTo").lazyNullableSeqFormat(accessorJson.clientFormat) and
         (__ \ "event").formatNullable[SystemEvent](systemEventJson.clientFormat) and
         (__ \ "meta").format[JsObject]
       )(Group.apply _, unlift(Group.unapply))
@@ -167,8 +167,8 @@ package object json {
     private lazy val fFormat = Json.format[UserProfileF]
     val clientFormat: Format[UserProfile] = (
       JsPath.format[UserProfileF](fFormat) and
-        (__ \ "groups").nullableListFormat(groupJson.clientFormat) and
-        (__ \ "accessibleTo").lazyNullableListFormat(accessorJson.clientFormat) and
+        (__ \ "groups").nullableSeqFormat(groupJson.clientFormat) and
+        (__ \ "accessibleTo").lazyNullableSeqFormat(accessorJson.clientFormat) and
         (__ \ "event").formatNullable[SystemEvent](systemEventJson.clientFormat) and
         (__ \ "meta").format[JsObject]
       )(UserProfile.quickApply _, unlift(UserProfile.quickUnapply))
@@ -178,14 +178,14 @@ package object json {
     private val fFormat = Json.format[AnnotationF]
     val clientFormat: Format[Annotation] = (
       JsPath.format[AnnotationF](fFormat) and
-        (__ \ "annotations").lazyNullableListFormat(clientFormat) and
+        (__ \ "annotations").lazyNullableSeqFormat(clientFormat) and
         (__ \ "user").lazyFormatNullable[UserProfile](userProfileJson.clientFormat) and
         (__ \ "source").lazyFormatNullable[AnyModel](anyModelJson.clientFormat) and
         (__ \ "target").lazyFormatNullable[AnyModel](anyModelJson.clientFormat) and
         (__ \ "targetPart").lazyFormatNullable[Entity](Entity.entityFormat) and
-        (__ \ "accessibleTo").nullableListFormat(accessorJson.clientFormat) and
-        (__ \ "promotedBy").nullableListFormat(userProfileJson.clientFormat) and
-        (__ \ "demotedBy").nullableListFormat(userProfileJson.clientFormat) and
+        (__ \ "accessibleTo").nullableSeqFormat(accessorJson.clientFormat) and
+        (__ \ "promotedBy").nullableSeqFormat(userProfileJson.clientFormat) and
+        (__ \ "demotedBy").nullableSeqFormat(userProfileJson.clientFormat) and
         (__ \ "event").formatNullable[SystemEvent](systemEventJson.clientFormat) and
         (__ \ "meta").format[JsObject]
       )(Annotation.apply _, unlift(Annotation.unapply))
@@ -233,7 +233,7 @@ package object json {
     val clientFormat: Format[HistoricalAgent] = (
       JsPath.format(fFormat) and
         (__ \ "set").formatNullable[AuthoritativeSet](authoritativeSetJson.clientFormat) and
-        (__ \ "accessibleTo").nullableListFormat(accessorJson.clientFormat) and
+        (__ \ "accessibleTo").nullableSeqFormat(accessorJson.clientFormat) and
         (__ \ "event").formatNullable[SystemEvent](systemEventJson.clientFormat) and
         (__ \ "meta").format[JsObject]
       )(HistoricalAgent.apply _, unlift(HistoricalAgent.unapply))
@@ -246,7 +246,7 @@ package object json {
     val clientFormat: Format[Repository] = (
       JsPath.format(fFormat) and
         (__ \ "country").formatNullable[Country](countryJson.clientFormat) and
-        (__ \ "accessibleTo").nullableListFormat(accessorJson.clientFormat) and
+        (__ \ "accessibleTo").nullableSeqFormat(accessorJson.clientFormat) and
         (__ \ "event").formatNullable[SystemEvent](systemEventJson.clientFormat) and
         (__ \ "meta").format[JsObject]
       )(Repository.apply _, unlift(Repository.unapply))
@@ -259,7 +259,7 @@ package object json {
       JsPath.format(fFormat) and
         (__ \ "holder").formatNullable[Repository](repositoryJson.clientFormat) and
         (__ \ "parent").lazyFormatNullable[DocumentaryUnit](clientFormat) and
-        (__ \ "accessibleTo").nullableListFormat(accessorJson.clientFormat) and
+        (__ \ "accessibleTo").nullableSeqFormat(accessorJson.clientFormat) and
         (__ \ "event").formatNullable[SystemEvent](systemEventJson.clientFormat) and
         (__ \ "meta").format[JsObject]
       )(DocumentaryUnit.apply _, unlift(DocumentaryUnit.unapply))
@@ -271,11 +271,11 @@ package object json {
 
     lazy val clientFormat: Format[VirtualUnit] = (
       JsPath.format[VirtualUnitF](fFormat) and
-        (__ \ "descriptions").nullableListFormat(documentaryUnitJson.clientFormat) and
+        (__ \ "descriptions").nullableSeqFormat(documentaryUnitJson.clientFormat) and
         (__ \ "author").formatNullable[Accessor](accessorJson.clientFormat) and
         (__ \ "parent").lazyFormatNullable[VirtualUnit](clientFormat) and
         (__ \ "holder").formatNullable[Repository](repositoryJson.clientFormat) and
-        (__ \ "accessibleTo").nullableListFormat(accessorJson.clientFormat) and
+        (__ \ "accessibleTo").nullableSeqFormat(accessorJson.clientFormat) and
         (__ \ "event").formatNullable[SystemEvent](systemEventJson.clientFormat) and
         (__ \ "meta").format[JsObject]
       )(VirtualUnit.apply _, unlift(VirtualUnit.unapply))
@@ -285,7 +285,7 @@ package object json {
     private val fFormat = Json.format[AuthoritativeSetF]
     val clientFormat: Format[AuthoritativeSet] = (
       JsPath.format[AuthoritativeSetF](fFormat) and
-        (__ \ "accessibleTo").nullableListFormat(accessorJson.clientFormat) and
+        (__ \ "accessibleTo").nullableSeqFormat(accessorJson.clientFormat) and
         (__ \ "event").formatNullable[SystemEvent](systemEventJson.clientFormat) and
         (__ \ "meta").format[JsObject]
       )(AuthoritativeSet.apply _, unlift(AuthoritativeSet.unapply))
@@ -295,7 +295,7 @@ package object json {
     private val fFormat = Json.format[VocabularyF]
     val clientFormat: Format[Vocabulary] = (
       JsPath.format[VocabularyF](fFormat) and
-        (__ \ "accessibleTo").nullableListFormat(accessorJson.clientFormat) and
+        (__ \ "accessibleTo").nullableSeqFormat(accessorJson.clientFormat) and
         (__ \ "event").formatNullable[SystemEvent](systemEventJson.clientFormat) and
         (__ \ "meta").format[JsObject]
       )(Vocabulary.apply _, unlift(Vocabulary.unapply))
@@ -308,8 +308,8 @@ package object json {
       JsPath.format[ConceptF](fFormat) and
         (__ \ "vocabulary").formatNullable[Vocabulary](vocabularyJson.clientFormat) and
         (__ \ "parent").lazyFormatNullable[Concept](clientFormat) and
-        (__ \ "broaderTerms").lazyNullableListFormat(clientFormat) and
-        (__ \ "accessibleTo").nullableListFormat(accessorJson.clientFormat) and
+        (__ \ "broaderTerms").lazyNullableSeqFormat(clientFormat) and
+        (__ \ "accessibleTo").nullableSeqFormat(accessorJson.clientFormat) and
         (__ \ "event").formatNullable[SystemEvent](systemEventJson.clientFormat) and
         (__ \ "meta").format[JsObject]
       )(Concept.apply _, unlift(Concept.unapply))

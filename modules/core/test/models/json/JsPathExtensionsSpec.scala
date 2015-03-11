@@ -31,7 +31,7 @@ class JsPathExtensionsSpec extends PlaySpecification {
     }
 
     "allow reading nullable lists" in {
-      case class TestData(field1: String, field2: List[String])
+      case class TestData(field1: String, field2: Seq[String])
       // valid
       val testJson1: JsValue = Json.obj(
         "field1" -> "val",
@@ -50,7 +50,7 @@ class JsPathExtensionsSpec extends PlaySpecification {
       )
       val testJsonReads: Reads[TestData] = (
         (__ \ "field1").read[String] and
-        (__ \ "field2").nullableListReads[String]
+        (__ \ "field2").nullableSeqReads[String]
       )(TestData.apply _)
 
       testJson1.validate(testJsonReads).asOpt must beSome.which { data =>
@@ -65,13 +65,13 @@ class JsPathExtensionsSpec extends PlaySpecification {
     }
 
     "allow writing nullable lists" in {
-      case class TestData(field1: String, field2: List[String])
-      val item1 = TestData("foo", List("bar"))
-      val item2 = TestData("foo", List.empty)
+      case class TestData(field1: String, field2: Seq[String])
+      val item1 = TestData("foo", Seq("bar"))
+      val item2 = TestData("foo", Seq.empty)
 
       val testJsonWrites: Writes[TestData] = (
         (__ \ "field1").write[String] and
-        (__ \ "field2").nullableListWrites[String]
+        (__ \ "field2").nullableSeqWrites[String]
       )(unlift(TestData.unapply))
 
       Json.toJson(item1)(testJsonWrites) must equalTo(Json.obj(
@@ -119,7 +119,7 @@ class JsPathExtensionsSpec extends PlaySpecification {
     }
 
     "allow reading lists with single-item fallback" in {
-      case class TestData(field1: String, field2: List[String])
+      case class TestData(field1: String, field2: Seq[String])
       // valid
       val testJson1: JsValue = Json.obj(
         "field1" -> "val",
@@ -139,7 +139,7 @@ class JsPathExtensionsSpec extends PlaySpecification {
       )
       val testJsonReads: Reads[TestData] = (
         (__ \ "field1").read[String] and
-        (__ \ "field2").readListOrSingle[String]
+        (__ \ "field2").readSeqOrSingle[String]
       )(TestData.apply _)
 
       testJson1.validate(testJsonReads).asOpt must beSome.which { data =>
@@ -156,7 +156,7 @@ class JsPathExtensionsSpec extends PlaySpecification {
     }
 
     "allow reading nullable lists with single-item fallback" in {
-      case class TestData(field1: String, field2: Option[List[String]])
+      case class TestData(field1: String, field2: Option[Seq[String]])
       // valid
       val testJson1: JsValue = Json.obj(
         "field1" -> "val",
@@ -176,7 +176,7 @@ class JsPathExtensionsSpec extends PlaySpecification {
       )
       val testJsonReads: Reads[TestData] = (
         (__ \ "field1").read[String] and
-          (__ \ "field2").readListOrSingleNullable[String]
+          (__ \ "field2").readSeqOrSingleNullable[String]
         )(TestData.apply _)
 
       testJson1.validate(testJsonReads).asOpt must beSome.which { data =>

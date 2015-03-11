@@ -54,7 +54,7 @@ object RepositoryF {
     (__ \ ID).readNullable[String] and
     (__ \ DATA \ IDENTIFIER).read[String] and
     (__ \ DATA \ PUBLICATION_STATUS).readNullable[PublicationStatus.Value] and
-    (__ \ RELATIONSHIPS \ DESCRIPTION_FOR_ENTITY).nullableListReads[RepositoryDescriptionF] and
+    (__ \ RELATIONSHIPS \ DESCRIPTION_FOR_ENTITY).nullableSeqReads[RepositoryDescriptionF] and
     (__ \ DATA \ PRIORITY).readNullable[Int] and
     (__ \ DATA \ URL_PATTERN).readNullable[String] and
     (__ \ DATA \ LOGO_URL).readNullable[String]
@@ -76,7 +76,7 @@ case class RepositoryF(
   publicationStatus: Option[PublicationStatus.Value] = None,
 
   @models.relation(Ontology.DESCRIPTION_FOR_ENTITY)
-  descriptions: List[RepositoryDescriptionF] = Nil,
+  descriptions: Seq[RepositoryDescriptionF] = Nil,
 
   priority: Option[Int] = None,
   urlPattern: Option[String] = None,
@@ -88,7 +88,7 @@ case class RepositoryF(
 case class Repository(
   model: RepositoryF,
   country: Option[Country] = None,
-  accessors: List[Accessor] = Nil,
+  accessors: Seq[Accessor] = Nil,
   latestEvent: Option[SystemEvent] = None,
   meta: JsObject = JsObject(Seq())
 ) extends AnyModel
@@ -99,7 +99,7 @@ case class Repository(
   with Holder[DocumentaryUnit] {
 
   override def allNames(implicit lang: Lang) = model.primaryDescription(lang) match {
-    case Some(desc) => desc.name :: (desc.otherFormsOfName.toList.flatten ++ desc.parallelFormsOfName.toList.flatten)
+    case Some(desc) => desc.name +: (desc.otherFormsOfName.toSeq.flatten ++ desc.parallelFormsOfName.toSeq.flatten)
     case None => Seq(toStringLang(lang))
   }
 
@@ -128,7 +128,7 @@ object Repository {
   implicit lazy val metaReads: Reads[Repository] = (
     __.read[RepositoryF](repositoryReads) and
     (__ \ RELATIONSHIPS \ REPOSITORY_HAS_COUNTRY).nullableHeadReads[Country] and
-    (__ \ RELATIONSHIPS \ IS_ACCESSIBLE_TO).lazyNullableListReads(Accessor.Converter.restReads) and
+    (__ \ RELATIONSHIPS \ IS_ACCESSIBLE_TO).lazyNullableSeqReads(Accessor.Converter.restReads) and
     (__ \ RELATIONSHIPS \ ENTITY_HAS_LIFECYCLE_EVENT).nullableHeadReads[SystemEvent] and
     (__ \ META).readWithDefault(Json.obj())
   )(Repository.apply _)
@@ -156,7 +156,7 @@ object Repository {
       ID -> optional(nonEmptyText),
       IDENTIFIER -> nonEmptyText(minLength=2), // TODO: Increase to > 2, not done yet 'cos of test fixtures
       PUBLICATION_STATUS -> optional(enumMapping(models.PublicationStatus)),
-      "descriptions" -> list(RepositoryDescription.form.mapping),
+      "descriptions" -> seq(RepositoryDescription.form.mapping),
       PRIORITY -> optional(number(min = -1, max = 5)),
       URL_PATTERN -> optional(nonEmptyText verifying("errors.badUrlPattern",
         pattern => validateUrlPattern(pattern)
