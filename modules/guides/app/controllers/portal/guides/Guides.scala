@@ -496,10 +496,10 @@ case class Guides @Inject()(implicit globalConfig: global.GlobalConfig, searchEn
       if (facets.isEmpty) defaultResult
       else for {
           ids <- searchFacets(guide, facets)
-          result <- findType[DocumentaryUnit](
+          result <- if(ids.nonEmpty) findType[DocumentaryUnit](
             filters = Map(s"gid:(${ids.take(1024).mkString(" ")})" -> Unit),
             defaultOrder = SearchOrder.Name
-          )
+          ) else immediate(SearchResult.empty)
           selectedAccessPoints <- SearchDAO.list[AnyModel](facets)
           availableFacets <- otherFacets(guide, ids)
           tempAccessPoints <- SearchDAO.listByGid[AnyModel](availableFacets)
