@@ -1,16 +1,16 @@
-@(item: Accessible)(content: Html)(implicit userOpt: Option[UserProfile], request: RequestHeader, prefs: utils.SessionPrefs, globalConfig: global.GlobalConfig, lang: Lang, flash: Flash)
+@(item: models.base.Accessible)(content: Html)(implicit userOpt: Option[UserProfile], request: RequestHeader, prefs: utils.SessionPrefs, globalConfig: global.GlobalConfig, lang: Lang, flash: Flash)
 
-@p.layout.portalLayout(item.toStringLang, itemClass = item.isA.toString) {
+@views.html.p.layout.portalLayout(item.toStringLang, itemClass = item.isA.toString) {
     @layout.mainContent {
         <div id="item-details">
-            @p.layout.rightSidebar {
-                @p.common.itemHeader(item.toStringLang) {
+            @views.html.p.layout.rightSidebar {
+                @views.html.p.common.itemHeader(item.toStringLang) {
                 }
                 @content
             } {
-                @p.common.typeLabel(item.isA) {
+                @views.html.p.common.typeLabel(item.isA) {
                 }
-                @p.common.latestAction(item, controllers.portal.routes.Portal.itemHistory(item.id, modal = true))
+                @views.html.p.common.latestAction(item, controllers.portal.routes.Portal.itemHistory(item.id, modal = true))
             }
         </div>
     }
