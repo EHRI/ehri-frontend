@@ -24,11 +24,6 @@
                 </li>
             }
         </ul>
-        @views.html.common.childCount(item) { count =>
-            @if(count > 0) {
-                <a href="@controllers.portal.guides.routes.DocumentaryUnits.browse(guidePath, item.id)#search-items">@Messages("documentaryUnit.childCount", count)</a>
-            }
-        }
     </small>
 
     @desc.displayText.map(views.Helpers.ellipsize(_, 600)).map { sc =>
