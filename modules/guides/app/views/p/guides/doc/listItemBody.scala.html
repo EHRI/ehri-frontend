@@ -1,12 +1,12 @@
-@(item: DocumentaryUnit, guidePath:String)(implicit userOpt: Option[UserProfile], req: RequestHeader, globalConfig: global.GlobalConfig, lang: Lang, descriptionId: Option[String] = None)
-
+@(guide: Guide, item: DocumentaryUnit)(implicit userOpt: Option[UserProfile], req: RequestHeader, globalConfig: global.GlobalConfig, lang: Lang, descriptionId: Option[String] = None)
 
 @import org.apache.commons.lang3.StringUtils
+
 @item.model.primaryDescription(descriptionId).map { desc =>
     <small>
         <ul class="list-unstyled text-muted list-inline inline-separator">
             @item.holder.map { holder =>
-                <li><a class="alt" href="@controllers.portal.guides.routes.Repositories.browse(guidePath, holder.id)">@holder.toStringAbbr</a></li>
+                <li><a class="alt" href="@controllers.portal.guides.routes.Repositories.browse(guide.path, holder.id)">@holder.toStringAbbr</a></li>
             }
             <li><span class="text-muted">@views.Helpers.languageCodeToName(desc.languageCode)</span></li>
 
@@ -24,6 +24,11 @@
                 </li>
             }
         </ul>
+        @views.html.common.childCount(item) { count =>
+            @if(count > 0) {
+                <a href="@controllers.portal.guides.routes.DocumentaryUnits.browse(guide.path, item.id)#search-items">@Messages("documentaryUnit.childCount", count)</a>
+            }
+        }
     </small>
 
     @desc.displayText.map(views.Helpers.ellipsize(_, 600)).map { sc =>

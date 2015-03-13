@@ -1,0 +1,15 @@
+@(guide: Guide, item: DocumentaryUnit, result: utils.search.SearchResult[(DocumentaryUnit,utils.search.SearchHit)], action: Call, watched: Seq[String])(implicit userOpt: Option[UserProfile], req: RequestHeader, globalConfig: global.GlobalConfig, lang: Lang, flash: Flash, context: Option[Holder[_]] = None)
+
+@if(result.nonEmpty) {
+    <ul id="search-items" class="search-result-list">
+        @result.page.map { case (doc, hit) =>
+            <li>
+                @views.html.p.layout.searchItemOutline(doc, watched.contains(doc.id)) {
+                    <a href="@controllers.portal.guides.routes.DocumentaryUnits.browse(guide.path, doc.id)">@doc.toStringLang</a>
+                } {
+                    @views.html.p.guides.doc.listItemBody(guide, doc)
+                }
+            </li>
+        }
+    </ul>
+}

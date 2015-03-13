@@ -1,4 +1,4 @@
-@(guide: Guide, page: GuidePage, pages: List[GuidePage], scripts: Html = Html(""), styles: Html = Html(""), optionalContent: Option[Html] = None, otherTitle: Option[String] = None)(content: Html)(implicit globalConfig: global.GlobalConfig, request: RequestHeader, lang: Lang)
+@(guide: Guide, page: GuidePage, pages: List[GuidePage], scripts: Html = Html(""), styles: Html = Html(""), optionalContent: Option[Html] = None, otherTitle: Option[String] = None)(content: Html)(implicit userOpt: Option[UserProfile], globalConfig: global.GlobalConfig, request: RequestHeader, lang: Lang)
 
 <!DOCTYPE html>
 
@@ -8,6 +8,17 @@
     @styles
 }
 
+@extraScripts = {
+    <script src="@controllers.portal.guides.routes.Guides.jsRoutes()"></script>
+    <script>
+        VIRTUAL_UNIT = "@guide.virtualUnit";
+        VIRTUAL_UNIT_ROUTE = "@controllers.portal.guides.routes.Guides.guideFacets(guide.path)?kw=";
+        GUIDE_PATH = "@guide.path";
+    </script>
+    <script src="@controllers.portal.guides.routes.Assets.versioned("js/portal-guide.js")"></script>
+    @scripts
+}
+
 <html>
     @views.html.p.layout.head(
         title = s"${guide.name} | ${otherTitle.getOrElse(page.name)}",
@@ -15,31 +26,20 @@
         styles = extraStyles
     )
     <body>
-    <header id="top">
-        @views.html.p.layout.guideHeader(guide, page, guide.findPages())
-    </header>
-    <div class="container">
-        <div class="row">
-            <div class="col-md-8" id="main">
-                @content
-            </div>
-            <div class="col-md-4" id="right-bar">
-                @views.html.p.layout.guideSidebar(guide, page, guide.findPages(), optionalContent)
+        @views.html.p.layout.preambleScripts()
+        <header id="top">
+            @views.html.p.layout.guideHeader(guide, page, guide.findPages())
+        </header>
+        <div class="container">
+            <div class="row">
+                <div class="col-md-8" id="main">
+                    @content
+                </div>
+                <div class="col-md-4" id="right-bar">
+                    @views.html.p.layout.guideSidebar(guide, page, guide.findPages(), optionalContent)
+                </div>
             </div>
         </div>
-    </div>
-        <script src="//ajax.googleapis.com/ajax/libs/jquery/1.10.2/jquery.min.js"></script>
-        <script src="@controllers.portal.routes.Assets.at("bootstrap/js/bootstrap.min.js")"></script>
-        <script src="@controllers.portal.guides.routes.Guides.jsRoutes()"></script>
-        <script type="text/javascript">
-            VIRTUAL_UNIT = "@guide.virtualUnit";
-            VIRTUAL_UNIT_ROUTE = "@controllers.portal.guides.routes.Guides.guideFacets(guide.path)?kw=";
-            GUIDE_PATH = "@guide.path";
-        </script>
-        <script src="@controllers.portal.routes.Assets.versioned("js/lib/jquery.hoverIntent.js")"></script>
-        <script src="@controllers.portal.routes.Assets.versioned("js/lib/jquery.placeholder.js")"></script>
-        <script type="text/javascript" src="@controllers.portal.guides.routes.Assets.versioned("js/common.js")"></script>
-        <script type="text/javascript" src="@controllers.portal.guides.routes.Assets.versioned("js/portal-guide.js")"></script>
-        @scripts
+        @views.html.p.layout.postambleScripts(extra = extraScripts)
     </body>
 </html>

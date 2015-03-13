@@ -123,19 +123,19 @@
 
 @views.html.p.layout.guideLayout(guide, page, pages, scripts = js, optionalContent = Some(sidebar(page)), otherTitle = Some(Messages("guides.faceted"))) {
     <article>
-            <header>
-                <h1>@Messages("guides.faceted")</h1>
-                <h3>@Messages("pagination.displayingItems", result.page.start, result.page.end, result.page.total)</h3>
-            </header>
-            <section>
-                <section class="content-results">
-                @result.page.items.map { case (doc, hit) =>
-                    @views.html.p.guides.doc.itemResult(doc, guide.path)
-                }
-                </section>
+        <header>
+            <h1>@Messages("guides.faceted")</h1>
+            <h3>@Messages("pagination.displayingItems", result.page.start, result.page.end, result.page.total)</h3>
+        </header>
+        <section>
+            <section class="content-results">
+            @result.page.items.map { case (doc, hit) =>
+                @views.html.p.guides.doc.itemResult(guide, doc)
+            }
             </section>
-            <footer>
+        </section>
+        <footer>
             @common.pagination(result.page)
-            </footer>
+        </footer>
     </article>
 }

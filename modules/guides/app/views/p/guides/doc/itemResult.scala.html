@@ -1,27 +1,27 @@
-@(item: DocumentaryUnit, guidePath: String)(implicit userOpt: Option[UserProfile], request: RequestHeader, prefs: utils.SessionPrefs, globalConfig: global.GlobalConfig, lang: Lang, flash: Flash)
+@(guide: Guide, item: DocumentaryUnit)(implicit userOpt: Option[UserProfile], request: RequestHeader, prefs: utils.SessionPrefs, globalConfig: global.GlobalConfig, lang: Lang, flash: Flash)
 
 @wrapParent(doc: DocumentaryUnit, parent: Option[DocumentaryUnit]) = {
     @parent.map { p =>
         @wrapParent(doc, p.parent)
         <li>
-            <a class="search-item-parent-name" href="@controllers.portal.guides.routes.DocumentaryUnits.browse(guidePath, p.id)">@p.toStringLang</a>
+            <a class="search-item-parent-name" href="@controllers.portal.guides.routes.DocumentaryUnits.browse(guide.path, p.id)">@p.toStringLang</a>
         </li>
     }
 }
 
 <div class="search-item" id="@item.id">
     <h3 class="search-item-heading type-highlight @item.isA.toString">
-        <a href="@controllers.portal.guides.routes.DocumentaryUnits.browse(guidePath, item.id)">@item.toStringLang</a>
+        <a href="@controllers.portal.guides.routes.DocumentaryUnits.browse(guide.path, item.id)">@item.toStringLang</a>
     </h3>
     <div class="search-item-body">
         <ol class="breadcrumb">
             @item.holder.map { holder =>
                 <li>
-                    @views.html.p.guides.doc.linkTo(holder, guidePath)
+                    @views.html.p.guides.doc.linkTo(guide, holder)
                 </li>
             }
             @wrapParent(item, item.parent)
         </ol>
-        @views.html.p.guides.doc.listItemBody(item, guidePath)
+        @views.html.p.guides.doc.listItemBody(guide, item)
     </div>
 </div>
