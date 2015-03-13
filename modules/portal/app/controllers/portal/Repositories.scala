@@ -5,11 +5,13 @@ import backend.Backend
 import com.google.inject.{Inject, Singleton}
 import controllers.generic.Search
 import controllers.portal.base.{Generic, PortalController}
-import defines.EntityType
 import models.{Repository, DocumentaryUnit}
 import play.api.libs.concurrent.Execution.Implicits._
+import play.api.mvc.RequestHeader
 import utils.search._
 import views.html.p
+
+import scala.concurrent.Future.{successful => immediate}
 
 /**
  * @author Mike Bryant (http://github.com/mikesname)
@@ -23,6 +25,11 @@ case class Repositories @Inject()(implicit globalConfig: global.GlobalConfig, se
   with FacetConfig {
 
   private val portalRepoRoutes = controllers.portal.routes.Repositories
+
+  private def filters(id: String)(implicit request: RequestHeader): Map[String,Any] =
+    (if (!hasActiveQuery(request)) Map(SearchConstants.TOP_LEVEL -> true)
+      else Map.empty[String,Any]) ++ Map(SearchConstants.HOLDER_ID -> id)
+
 
   def searchAll = UserBrowseAction.async { implicit request =>
     findType[Repository](
@@ -44,25 +51,28 @@ case class Repositories @Inject()(implicit globalConfig: global.GlobalConfig, se
     }
   }
 
-  def browse(id: String) = GetItemAction(id).apply { implicit request =>
-      if (isAjax) Ok(p.repository.itemDetails(request.item, request.annotations, request.links, request.watched))
-      else Ok(p.repository.show(request.item, request.annotations, request.links, request.watched))
-  }
-
-  def search(id: String) = GetItemAction(id).async { implicit request =>
-    val filters = (if (!hasActiveQuery(request))
-      Map(SearchConstants.TOP_LEVEL -> true)
-      else Map.empty[String,Any]) ++ Map(SearchConstants.HOLDER_ID -> request.item.id)
-
-    findType[DocumentaryUnit](
-      filters = filters,
+  def browse(id: String) = GetItemAction(id).async { implicit request =>
+    if (isAjax) immediate(Ok(p.repository.itemDetails(request.item, request.annotations, request.links, request.watched)))
+    else findType[DocumentaryUnit](
+      filters = filters(request.item.id),
       facetBuilder = localDocFacets,
       defaultOrder = SearchOrder.Id
     ).map { result =>
-        if (isAjax) Ok(p.repository.childItemSearch(request.item, result,
-          portalRepoRoutes.search(id), request.watched))
-        else Ok(p.repository.search(request.item, result,
-          portalRepoRoutes.search(id), request.watched))
-      }
+      Ok(p.repository.show(request.item, result, request.annotations,
+        request.links, portalRepoRoutes.search(id), request.watched))
+    }
+  }
+
+  def search(id: String) = GetItemAction(id).async { implicit request =>
+    findType[DocumentaryUnit](
+      filters = filters(request.item.id),
+      facetBuilder = localDocFacets,
+      defaultOrder = SearchOrder.Id
+    ).map { result =>
+      if (isAjax) Ok(p.repository.childItemSearch(request.item, result,
+        portalRepoRoutes.search(id), request.watched))
+      else Ok(p.repository.search(request.item, result,
+        portalRepoRoutes.search(id), request.watched))
+    }
   }
 }

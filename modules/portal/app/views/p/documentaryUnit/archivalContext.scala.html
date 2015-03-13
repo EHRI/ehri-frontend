@@ -32,7 +32,7 @@
         </div>
         <div class="panel-body">
             @wrapCountry(holder.country) {
-                @p.helpers.linkTo(holder)
+                @views.html.p.helpers.linkTo(holder)
                 @holder.model.logoUrl.map { logo =>
                     @defining(holder.url.map(_.toString).getOrElse(req.path)) { url =>
                     <a href="@url">
@@ -44,7 +44,7 @@
                 @item.parent.map { parent =>
                     @wrapParent(parent) {
                         <div class="ancestor">
-                            @p.helpers.linkTo(parent)
+                            @views.html.p.helpers.linkTo(parent)
                         </div>
                     }
                 }

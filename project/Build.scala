@@ -256,7 +256,7 @@ object ApplicationBuild extends Build {
        ),
       "js/script-pre.js" -> group(
         Seq(
-          "js/lib/jquery-1.8.3.js",
+          "js/lib/jquery-1.11.2.js",
           "js/lib/jquery.autosize.js",
           //"js/lib/jquery.history.js",
           "js/lib/jquery.validate.js",

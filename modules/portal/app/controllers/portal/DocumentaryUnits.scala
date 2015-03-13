@@ -9,8 +9,11 @@ import controllers.generic.Search
 import controllers.portal.base.{Generic, PortalController}
 import defines.EntityType
 import models.DocumentaryUnit
+import play.api.mvc.RequestHeader
 import utils.search._
 import views.html.p
+
+import scala.concurrent.Future.{successful => immediate}
 
 /**
  * @author Mike Bryant (http://github.com/mikesname)
@@ -24,6 +27,9 @@ case class DocumentaryUnits @Inject()(implicit globalConfig: global.GlobalConfig
   with FacetConfig {
 
   private val portalDocRoutes = controllers.portal.routes.DocumentaryUnits
+
+  private def filterKey(implicit request: RequestHeader): String =
+    if (!hasActiveQuery(request)) SearchConstants.PARENT_ID else SearchConstants.ANCESTOR_IDS
 
   def searchAll = UserBrowseAction.async { implicit request =>
     val filters = if (!hasActiveQuery(request))
@@ -39,15 +45,19 @@ case class DocumentaryUnits @Inject()(implicit globalConfig: global.GlobalConfig
     }
   }
 
-  def browse(id: String) = GetItemAction(id).apply { implicit request =>
-      if (isAjax) Ok(p.documentaryUnit.itemDetails(request.item, request.annotations, request.links, request.watched))
-      else Ok(p.documentaryUnit.show(request.item, request.annotations, request.links, request.watched))
+  def browse(id: String) = GetItemAction(id).async { implicit request =>
+    if (isAjax) immediate(Ok(p.documentaryUnit.itemDetails(request.item, request.annotations, request.links, request.watched)))
+    else findType[DocumentaryUnit](
+      filters = Map(filterKey -> request.item.id),
+      facetBuilder = localDocFacets,
+      defaultOrder = SearchOrder.Id
+    ).map { result =>
+      Ok(p.documentaryUnit.show(request.item, result,  request.annotations,
+        request.links, portalDocRoutes.search(id), request.watched))
+    }
   }
 
   def search(id: String) = GetItemAction(id).async { implicit request =>
-    val filterKey = if (!hasActiveQuery(request)) SearchConstants.PARENT_ID
-      else SearchConstants.ANCESTOR_IDS
-
     findType[DocumentaryUnit](
       filters = Map(filterKey -> request.item.id),
       facetBuilder = localDocFacets,

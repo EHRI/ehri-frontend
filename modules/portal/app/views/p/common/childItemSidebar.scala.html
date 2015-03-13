@@ -1,4 +1,4 @@
-@(item: Holder[_], childType: EntityType.Value, link: Call)(implicit userOpt: Option[UserProfile], request: RequestHeader, lang: Lang)
+@(item: models.base.Holder[_], childType: defines.EntityType.Value)(implicit userOpt: Option[UserProfile], request: RequestHeader, lang: Lang)
 
 @defining(item.childCount.getOrElse(0)) { childCount =>
     @if(childCount > 0) {
@@ -7,7 +7,7 @@
                 <h3 class="panel-title">@Messages(s"${item.isA}.childItems")</h3>
             </div>
             <div class="panel-body">
-                <a class="type-highlight @childType child-item-link" href="@link">
+                <a class="type-highlight @childType child-item-link" href="#@{item.id}-child-item-search">
                     @Messages(s"${item.isA}.childItems.search", childCount)
                 </a>
             </div>

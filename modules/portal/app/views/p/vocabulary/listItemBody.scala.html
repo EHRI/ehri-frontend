@@ -3,7 +3,7 @@
 @views.html.common.childCount(item) { count =>
     @if(count > 0) {
         <div class="search-item-details">
-            <a href="@controllers.portal.routes.Vocabularies.browse(item.id)#search-items">@Messages("country.childCount", count)</a>
+            <a href="@controllers.portal.routes.Vocabularies.search(item.id)">@Messages("cvocVocabulary.childItems.search", count)</a>
         </div>
     }
 }

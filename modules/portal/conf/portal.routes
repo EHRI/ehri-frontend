@@ -52,6 +52,7 @@ GET         /keywords                             @controllers.portal.Concepts.s
 GET         /keywords/:id                         @controllers.portal.Concepts.browse(id: String)
 GET         /links/:id                            @controllers.portal.Links.browse(id: String)
 GET         /groups/:id                           @controllers.portal.Groups.browse(id: String)
+GET         /vocabularies                         @controllers.portal.Vocabularies.searchAll
 GET         /vocabularies/:id                     @controllers.portal.Vocabularies.browse(id: String)
 GET         /vocabularies/:id/search              @controllers.portal.Vocabularies.search(id: String)
 

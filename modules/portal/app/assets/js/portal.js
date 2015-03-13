@@ -50,19 +50,22 @@ jQuery(function ($) {
   // dodgy and difficult, and has lots of bugs.
   $(".sidepanel-toc").each(function() {
     var $target = $(this),
-        $prev = $(".panel-type"),
+        $prev = $target.prev("div"),
         $parent = $target.closest("#item-details");
 
     $target.affix({
       offset: {
         top: function() {
-          return $prev.offset().top + $prev.outerHeight(true);
+          var top = $prev.offset().top + $prev.outerHeight(true);
+          console.log("AFFIX TOP: ", top)
+          return top;
         },
         bottom: function() {
           // the distance of the bottom of the target from the bottom
           // of the document. In this case we want
-          return $(document).height() -
-              ($parent.offset().top + $parent.outerHeight(true));
+          //return (this.bottom = $(document).height() -
+          //    ($parent.offset().top + $parent.outerHeight(true)));
+          return (this.bottom = 10);
         }
       }
     });

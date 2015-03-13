@@ -1,11 +1,11 @@
-@(item: DocumentaryUnit, annotations: Seq[Annotation], links: Seq[Link], watched: Seq[String])(implicit userOpt: Option[UserProfile], request: RequestHeader, prefs: utils.SessionPrefs, globalConfig: global.GlobalConfig, lang: Lang, flash: Flash)
+@(item: DocumentaryUnit, result: utils.search.SearchResult[(DocumentaryUnit, utils.search.SearchHit)], annotations: Seq[Annotation], links: Seq[Link], action: Call, watched: Seq[String])(implicit userOpt: Option[UserProfile], request: RequestHeader, prefs: utils.SessionPrefs, globalConfig: global.GlobalConfig, lang: Lang, flash: Flash)
 
-@p.layout.portalLayout(item.toStringLang, EntityType.DocumentaryUnit.toString) {
+@views.html.p.layout.portalLayout(item.toStringLang, EntityType.DocumentaryUnit.toString) {
     @infobar(item)
 
     @views.html.layout.mainContent {
         @itemDetails(item, annotations, links, watched)
 
-        @p.common.childItemLink(item, controllers.portal.routes.DocumentaryUnits.search(item.id))
+        @childItemSearch(item, result, action, watched)
     }
 }

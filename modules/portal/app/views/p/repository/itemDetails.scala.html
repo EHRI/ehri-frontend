@@ -23,12 +23,7 @@
                 @address(item, desc)
             }
         }
-
-        @views.html.p.common.childItemSidebar(
-            item,
-            EntityType.DocumentaryUnit,
-            controllers.portal.routes.Repositories.search(item.id)
-        )
+        @views.html.p.common.childItemSidebar(item, EntityType.DocumentaryUnit)
         @views.html.p.common.latestAction(item, controllers.portal.routes.Portal.itemHistory(item.id, modal = true))
     }
 }
