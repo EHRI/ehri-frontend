@@ -56,19 +56,24 @@ jQuery(function ($) {
     $target.affix({
       offset: {
         top: function() {
-          var top = $prev.offset().top + $prev.outerHeight(true);
-          console.log("AFFIX TOP: ", top)
-          return top;
+          return $prev.offset().top + $prev.outerHeight(true);
         },
         bottom: function() {
           // the distance of the bottom of the target from the bottom
           // of the document. In this case we want
-          //return (this.bottom = $(document).height() -
-          //    ($parent.offset().top + $parent.outerHeight(true)));
-          return (this.bottom = 10);
+          return (this.bottom = $("body").outerHeight(true) -
+              ($parent.offset().top + $parent.outerHeight(true)));
         }
       }
     });
+  });
+
+  // Hack to fix affix on pressing home button:
+  // https://github.com/twbs/bootstrap/issues/9609#issuecomment-22840954
+  $(window).on('keyup', function (e){
+    // key code taken from http://www.quirksmode.org/js/keys.html
+    // safari fires 63273 instead of 36
+    (e.keyCode == 36 || e.keyCode == 63273) && $(window).trigger('scroll')
   });
 
 
