@@ -29,7 +29,7 @@ object ApplicationBuild extends Build {
     "ehri-project" % "ehri-definitions" % "0.9.1-SNAPSHOT",
 
     // The ever-vital Joda time
-    "joda-time" % "joda-time" % "2.1"
+    "joda-time" % "joda-time" % "2.7"
   )
 
   val backendTestDependencies = Seq(
@@ -118,7 +118,8 @@ object ApplicationBuild extends Build {
       "-Xmx1G",
       "-XX:+CMSClassUnloadingEnabled",
       "-XX:MaxPermSize=256M",
-      "-Dconfig.file=conf/test.conf"
+      "-Dconfig.file=conf/test.conf",
+      "-Dlogback.configurationFile=conf/logger.xml"
     ),
 
     // Show warnings and deprecations
