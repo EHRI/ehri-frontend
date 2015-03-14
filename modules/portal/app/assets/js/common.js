@@ -28,7 +28,7 @@ jQuery(function($) {
     }
   }, 0);
 
-  $(".description-switch").click(function(e) {
+  $(document).on("click", ".description-switch", function(e) {
     e.preventDefault();
     var descId = "#desc-" + $(this).data("id");
     location.hash = descId;
@@ -73,6 +73,8 @@ jQuery(function($) {
 
   // Trigger a change on initial load...
   collapseDescriptions();
+
+  $(document).on("description.change", collapseDescriptions);
 
   /**
    * Select2 handling

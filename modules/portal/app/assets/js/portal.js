@@ -254,6 +254,7 @@ jQuery(function ($) {
       $link.addClass("loading");
       $.get(this.href, function(data) {
         $data.append(data).show(300);
+        $(document).trigger("description.change");
         $place.hide(300);
         $container.addClass("loaded");
         $link.removeClass("loading");
