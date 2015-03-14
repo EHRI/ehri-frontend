@@ -81,7 +81,7 @@ case class DocumentaryUnits @Inject()(implicit globalConfig: global.GlobalConfig
         key = CHAR_COUNT,
         name = Messages("lod"),
         param = "lod",
-        render = s => Messages("lod." + s),
+        render = s => Messages("facet.lod." + s),
         facets = List(
           QueryFacet(value = "low", range = Start to Val("500")),
           QueryFacet(value = "medium", range = Val("501") to Val("2000")),

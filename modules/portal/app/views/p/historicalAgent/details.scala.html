@@ -1,6 +1,6 @@
 @(item: HistoricalAgent, desc: HistoricalAgentDescriptionF)(implicit userOpt: Option[UserProfile], request: RequestHeader, lang: Lang, globalConfig: global.GlobalConfig)
 
-<div class="item-details panel panel-default">
+<div class="item-meta panel panel-default">
     <dl class="dl-horizontal">
         <dt>@Messages("historicalAgent.identifier")</dt>
         <dd>@item.model.identifier</dd>

@@ -1,6 +1,6 @@
 @(item: Vocabulary, annotations: Seq[Annotation], links: Seq[Link], watched: Seq[String])(implicit userOpt: Option[UserProfile], request: RequestHeader, prefs: utils.SessionPrefs, globalConfig: global.GlobalConfig, lang: Lang, flash: Flash)
 
-<div id="item-details">
+@views.html.layout.itemDetails {
     @views.html.p.layout.rightSidebar {
         @views.html.p.common.itemHeader(item.toStringLang) {
         }
@@ -8,8 +8,8 @@
             @Html(views.Helpers.renderMarkdown(desc))
         }
     } {
-        @views.html.p.common.typeLabelWithWatchButton(item, watched.contains(item.id))
+        @views.html.p.common.typeLabelWithWatchButton(item, watched.contains(item.id))e
         @views.html.p.common.childItemSidebar(item, EntityType.Concept)
         @views.html.p.common.latestAction(item, controllers.portal.routes.Portal.itemHistory(item.id, modal = true))
     }
-</div>
+}

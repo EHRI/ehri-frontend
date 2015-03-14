@@ -1,6 +1,6 @@
 @(item: Repository, desc: RepositoryDescriptionF)(implicit userOpt: Option[UserProfile], request: RequestHeader, lang: Lang, globalConfig: global.GlobalConfig)
 
-<div class="item-details">
+<div class="item-meta">
     @desc.addresses.headOption.map { address =>
         <address>
             <p>

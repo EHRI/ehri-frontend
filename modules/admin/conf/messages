@@ -1,6 +1,7 @@
 # Admin messages
 
 # General main page parts
+pages.portal=Portal
 pages.home=Home
 pages.search=Search
 pages.more=More

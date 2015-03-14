@@ -51,7 +51,7 @@ jQuery(function ($) {
   $(".sidepanel-toc").each(function() {
     var $target = $(this),
         $prev = $target.prev("div"),
-        $parent = $target.closest("#item-details");
+        $parent = $target.closest(".item-details");
 
     $target.affix({
       offset: {

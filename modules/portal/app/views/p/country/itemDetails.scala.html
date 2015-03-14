@@ -3,7 +3,7 @@
 @import CountryF._
 @import views.html.p.common.textField
 
-<div id="item-details">
+@views.html.layout.itemDetails {
     @views.html.p.layout.rightSidebar {
         @views.html.p.common.itemHeader(item.toStringLang) {
         }
@@ -19,7 +19,7 @@
     } {
         @views.html.p.common.typeLabelWithWatchButton(item, watched.contains(item.id), introNotice())
 
-        <div class="sidepanel-toc">
+        @views.html.p.layout.sidepanelToc {
             <div class="child-items panel-details">
                 <div class="panel-heading">
                     <h3 class="panel-title">@Messages("country.report.toc")</h3>
@@ -50,7 +50,6 @@
             </div>
 
             @views.html.p.common.latestAction(item, controllers.portal.routes.Portal.itemHistory(item.id, modal = true))
-        </div>
-
+        }
     }
-</div>
+}

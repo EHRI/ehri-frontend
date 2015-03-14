@@ -30,7 +30,7 @@
     </div>
 }
 
-<div id="item-details">
+@views.html.layout.itemDetails {
     @views.html.p.layout.rightSidebar {
         @views.html.p.common.itemHeader(item.toStringLang) {
         }
@@ -42,13 +42,13 @@
         @views.html.p.common.typeLabel(EntityType.UserProfile) {
             <ul class="list-group">
                 <li class="list-group-item user-img">
-                    <a href="@{if(isCurrentUser) controllers.portal.users.routes.UserProfiles.profile else controllers.portal.social.routes.Social.browseUser(item.id)}" class="gravitar">
+                    <a href="@{if(isCurrentUser) controllers.portal.users.routes.UserProfiles.profile() else controllers.portal.social.routes.Social.browseUser(item.id)}" class="gravitar">
                         <img class="user-img-full" src="@views.p.Helpers.gravitar(item.model.imageUrl)" alt="@item.model.name"/>
                     </a>
                 </li>
                 @if(isCurrentUser) {
                     <li class="list-group-item">
-                        <a class="btn btn-get" href="@controllers.portal.users.routes.UserProfiles.updateProfile">
+                        <a class="btn btn-get" href="@controllers.portal.users.routes.UserProfiles.updateProfile()">
                             @Messages("profile.edit")
                         </a>
                     </li>
@@ -79,8 +79,8 @@
             @activitySidebar(
                 controllers.portal.social.routes.Social.browseUser(item.id),
                 controllers.portal.social.routes.Social.watchedByUser(item.id),
-                controllers.portal.users.routes.UserProfiles.profile
+                controllers.portal.users.routes.UserProfiles.profile()
             )
         }
     }
-</div>
+}
