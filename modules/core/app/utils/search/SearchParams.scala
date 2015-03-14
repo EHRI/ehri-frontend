@@ -13,6 +13,7 @@ object SearchField extends Enumeration {
   val Person = Value("person")
   val Place = Value("place")
   val Subject = Value("subject")
+  val Address = Value("address")
 
   implicit val format = defines.EnumUtils.enumFormat(SearchField)
 }

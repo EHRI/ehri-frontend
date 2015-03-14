@@ -7,7 +7,7 @@
         }
     }
     @desc.addresses.headOption.map(_.concise).filterNot(_.isEmpty).map { conciseAddress =>
-        <li>@conciseAddress</li>
+        <li>@highlighter.highlight(conciseAddress)</li>
     }
     @item.latestEvent.map { event =>
         <li title="@common.eventTitle(event)">
