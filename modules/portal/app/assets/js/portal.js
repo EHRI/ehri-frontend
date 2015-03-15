@@ -102,7 +102,7 @@ jQuery(function ($) {
   function showDataPolicy() {
     // Show layout banner
     $dataPolicyWidget.modal({
-      backdrop: "static",
+      backdrop: false,
       keyboard: false,
       show: true
     });
