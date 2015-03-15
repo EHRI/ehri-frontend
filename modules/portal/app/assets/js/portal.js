@@ -48,24 +48,40 @@ jQuery(function ($) {
 
   // Affix side-scrolling sidebars. This is really
   // dodgy and difficult, and has lots of bugs.
+  // Notably, if the sidebar is the deepest element in
+  // it's container then the page tends to jump up and
+  // down on scroll. To try and prevent this we only affix
+  // the sidebar TOC if there's some minumum padding between
+  // the bottom of the sidebar and the bottom of the container,
+  // suggesting other content is enlarging the container.
+  // NB: Note that this system depends on multiple descriptions
+  // being collapsed, though that should be the case since the
+  // JS is loaded before the page, not after it. Still, I'd be
+  // very surprised if there were not more gremlins here.
   $(".sidepanel-toc").each(function() {
     var $target = $(this),
         $prev = $target.prev("div"),
-        $parent = $target.closest(".item-details");
+        $parent = $target.closest(".item-details"),
+        $minPad = 100;
 
-    $target.affix({
-      offset: {
-        top: function() {
-          return $prev.offset().top + $prev.outerHeight(true);
-        },
-        bottom: function() {
-          // the distance of the bottom of the target from the bottom
-          // of the document. In this case we want
-          return (this.bottom = $("body").outerHeight(true) -
-              ($parent.offset().top + $parent.outerHeight(true)));
+    var $parentHeight = $parent.offset().top + $parent.outerHeight(true),
+        $targetHeight = $target.offset().top + $target.outerHeight(true);
+
+    if ($parentHeight > $targetHeight + $minPad) {
+      $target.affix({
+        offset: {
+          top: function() {
+            return $prev.offset().top + $prev.outerHeight(true);
+          },
+          bottom: function() {
+            // the distance of the bottom of the target from the bottom
+            // of the document. In this case we want
+            return (this.bottom = $("body").outerHeight(true) -
+            ($parent.offset().top + $parent.outerHeight(true)));
+          }
         }
-      }
-    });
+      });
+    }
   });
 
   // Hack to fix affix on pressing home button:
