@@ -46,6 +46,11 @@ jQuery(function ($) {
   // don't support this natively
   $('input, textarea').placeholder();
 
+  function isSafari() {
+    return navigator.userAgent.indexOf("Chrome") == -1 &&
+            navigator.userAgent.indexOf("Safari") != -1;
+  }
+
   // Affix side-scrolling sidebars. This is really
   // dodgy and difficult, and has lots of bugs.
   // Notably, if the sidebar is the deepest element in
@@ -58,6 +63,9 @@ jQuery(function ($) {
   // being collapsed, though that should be the case since the
   // JS is loaded before the page, not after it. Still, I'd be
   // very surprised if there were not more gremlins here.
+  //
+  // Additionally, due to bug http://github.com/twbs/bootstrap/issues/12126
+  // we can't use affix in Safari
   $(".sidepanel-toc").each(function() {
     var $target = $(this),
         $prev = $target.prev("div"),
@@ -67,7 +75,7 @@ jQuery(function ($) {
     var $parentHeight = $parent.offset().top + $parent.outerHeight(true),
         $targetHeight = $target.offset().top + $target.outerHeight(true);
 
-    if ($parentHeight > $targetHeight + $minPad) {
+    if ($parentHeight > $targetHeight + $minPad && !isSafari()) {
       $target.affix({
         offset: {
           top: function() {
