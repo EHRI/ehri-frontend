@@ -210,7 +210,8 @@ trait Description extends Model {
 
   def isRightToLeft = languageCode == "heb" || languageCode == "ara"
 
-  def localId: Option[String] = id.map(did => did.substring(did.indexOf(";") + 1))
+  def localId: Option[String] =
+    id.map(did => did.substring(did.indexOf(Description.DESCRIPTION_DELIMITER) + 1))
 }
 
 object Description {
@@ -220,6 +221,8 @@ object Description {
   val ACCESS_POINTS = "accessPoints"
   val UNKNOWN_DATA = "unknownData"
   val MAINTENANCE_EVENTS = "maintenanceEvents"
+
+  val DESCRIPTION_DELIMITER = "."
 
   object CreationProcess extends Enumeration {
     type Type = Value
