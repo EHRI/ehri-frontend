@@ -59,7 +59,7 @@ class RepositoryViewsSpec extends IntegrationTestRunner with TestHelpers {
     "allow creating new items when logged in as privileged user" in new ITestApp {
       val testData: Map[String, Seq[String]] = Map(
         "identifier" -> Seq("wiener-library"),
-        "descriptions[0].languageCode" -> Seq("en"),
+        "descriptions[0].languageCode" -> Seq("eng"),
         "descriptions[0].name" -> Seq("Wiener Library"),
         "descriptions[0].otherFormsOfName[0]" -> Seq("Wiener Library (Alt)"),
         "descriptions[0].parallelFormsOfName[0]" -> Seq("Wiener Library (Alt)"),
@@ -83,7 +83,7 @@ class RepositoryViewsSpec extends IntegrationTestRunner with TestHelpers {
       contentAsString(show) must contain("Some content")
       contentAsString(show) must contain("An Address")
       contentAsString(show) must contain("12345 546395")
-      indexEventBuffer.last must equalTo("nl-wiener-library")
+      indexEventBuffer.last must equalTo("nl-wiener_library")
     }
 
     "error if missing mandatory values" in new ITestApp {
@@ -120,7 +120,7 @@ class RepositoryViewsSpec extends IntegrationTestRunner with TestHelpers {
     "allow updating items when logged in as privileged user" in new ITestApp {
       val testData: Map[String, Seq[String]] = Map(
         "identifier" -> Seq("r1"),
-        "descriptions[0].languageCode" -> Seq("en"),
+        "descriptions[0].languageCode" -> Seq("eng"),
         "descriptions[0].name" -> Seq("Repository 1"),
         "descriptions[0].otherFormsOfName[0]" -> Seq("Repository 1 (Alt)"),
         "descriptions[0].parallelFormsOfName[0]" -> Seq("Repository 1 (Alt)"),
@@ -140,7 +140,7 @@ class RepositoryViewsSpec extends IntegrationTestRunner with TestHelpers {
     "disallow updating items when logged in as unprivileged user" in new ITestApp {
       val testData: Map[String, Seq[String]] = Map(
         "identifier" -> Seq("r1"),
-        "descriptions[0].languageCode" -> Seq("en"),
+        "descriptions[0].languageCode" -> Seq("eng"),
         "descriptions[0].name" -> Seq("Repository 1"),
         "descriptions[0].descriptionArea.geoculturalContext" -> Seq("New Content for r1"),
         "publicationStatus" -> Seq("Draft")

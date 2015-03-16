@@ -40,7 +40,7 @@ class SupervisorWorkerIntegrationSpec extends IntegrationTestRunner with TestHel
       // Create a new subject repository as the admin user
       val repoData = Map(
         "identifier" -> Seq("testrepo"),
-        "descriptions[0].languageCode" -> Seq("en"),
+        "descriptions[0].languageCode" -> Seq("eng"),
         "descriptions[0].name" -> Seq("A Test Repository"),
         "descriptions[0].descriptionArea.history" -> Seq("A repository with a long history")
       )
@@ -58,7 +58,7 @@ class SupervisorWorkerIntegrationSpec extends IntegrationTestRunner with TestHel
       contentAsString(repoRead) must contain("A Test Repository")
 
       // Create a new group to represent the *head archivist role*
-      val headArchivistsGroupId = "head-archivists"
+      val headArchivistsGroupId = "headarchivists"
       val headArchivistsGroupData = Map(
         "identifier" -> Seq(headArchivistsGroupId),
         "name" -> Seq("Test Repo Head Archivists"),
@@ -116,7 +116,7 @@ class SupervisorWorkerIntegrationSpec extends IntegrationTestRunner with TestHel
 
       // Okay, now create a new user and add them to the head-archivists group. Do this
       // in one go using the groups parameter
-      val headArchivistUserId = "head-archivist-user"
+      val headArchivistUserId = "headarchivistuser"
       val haUserData = Map(
         "identifier" -> Seq(headArchivistUserId),
         "name" -> Seq("Bob Important"),
@@ -146,7 +146,7 @@ class SupervisorWorkerIntegrationSpec extends IntegrationTestRunner with TestHel
 
       // Now create a new user and add them to the archivists group. Do this
       // in one go using the groups parameter
-      val archivistUserId = "archivist-user1"
+      val archivistUserId = "archivistuser1"
       val aUserData = Map(
         "identifier" -> Seq(archivistUserId),
         "name" -> Seq("Jim Nobody"),
@@ -187,7 +187,7 @@ class SupervisorWorkerIntegrationSpec extends IntegrationTestRunner with TestHel
       // Now create a documentary unit...
       val doc1Data = Map(
         "identifier" -> Seq("testdoc1"),
-        "descriptions[0].languageCode" -> Seq("en"),
+        "descriptions[0].languageCode" -> Seq("eng"),
         "descriptions[0].identityArea.name" -> Seq("A new document, made by the head archivist"),
         "descriptions[0].contentArea.scopeAndContent" -> Seq("Lots of stuff...")
       )
@@ -207,7 +207,7 @@ class SupervisorWorkerIntegrationSpec extends IntegrationTestRunner with TestHel
 
       val doc1UpdateData = Map(
         "identifier" -> Seq("testdoc1"),
-        "descriptions[0].languageCode" -> Seq("en"),
+        "descriptions[0].languageCode" -> Seq("eng"),
         "descriptions[0].identityArea.name" -> Seq("A different name"),
         "descriptions[0].contentArea.scopeAndContent" -> Seq("Lots of stuff...")
       )
@@ -236,7 +236,7 @@ class SupervisorWorkerIntegrationSpec extends IntegrationTestRunner with TestHel
       // She should be able to Update them because she owns them...
       val doc2Data = Map(
         "identifier" -> Seq("testdoc2"),
-        "descriptions[0].languageCode" -> Seq("en"),
+        "descriptions[0].languageCode" -> Seq("eng"),
         "descriptions[0].identityArea.name" -> Seq("A new document, made by an ordinary schmo archivist"),
         "descriptions[0].contentArea.scopeAndContent" -> Seq("Lots of stuff...")
       )
@@ -255,7 +255,7 @@ class SupervisorWorkerIntegrationSpec extends IntegrationTestRunner with TestHel
 
       val doc2UpdateData = Map(
         "identifier" -> Seq("testdoc2"),
-        "descriptions[0].languageCode" -> Seq("en"),
+        "descriptions[0].languageCode" -> Seq("eng"),
         "descriptions[0].identityArea.name" -> Seq("A different name"),
         "descriptions[0].contentArea.scopeAndContent" -> Seq("Lots of stuff...")
       )
@@ -286,7 +286,7 @@ class SupervisorWorkerIntegrationSpec extends IntegrationTestRunner with TestHel
       // and the ordinary archivist can't delete it...
       val doc3Data = Map(
         "identifier" -> Seq("testdoc3"),
-        "descriptions[0].languageCode" -> Seq("en"),
+        "descriptions[0].languageCode" -> Seq("eng"),
         "descriptions[0].identityArea.name" -> Seq("Another new document, made by the head archivist"),
         "descriptions[0].contentArea.scopeAndContent" -> Seq("Lots of stuff...")
       )
@@ -328,7 +328,7 @@ class SupervisorWorkerIntegrationSpec extends IntegrationTestRunner with TestHel
       // and the head archivist CAN delete it...
       val doc4Data = Map(
         "identifier" -> Seq("testdoc4"),
-        "descriptions[0].languageCode" -> Seq("en"),
+        "descriptions[0].languageCode" -> Seq("eng"),
         "descriptions[0].identityArea.name" -> Seq("Another new document, made by the head archivist"),
         "descriptions[0].contentArea.scopeAndContent" -> Seq("Lots of stuff...")
       )

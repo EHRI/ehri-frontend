@@ -32,7 +32,7 @@ class EntityViewsSpec extends IntegrationTestRunner {
     "allow creating new items when logged in as privileged user" in new ITestApp {
       val testData: Map[String, Seq[String]] = Map(
         "identifier" -> Seq("wiener-library"),
-        "descriptions[0].languageCode" -> Seq("en"),
+        "descriptions[0].languageCode" -> Seq("eng"),
         "descriptions[0].typeOfEntity" -> Seq("corporateBody"),
         "descriptions[0].name" -> Seq("Wiener Library"),
         "descriptions[0].otherFormsOfName[0]" -> Seq("Wiener Library (Alt)"),
@@ -67,7 +67,7 @@ class EntityViewsSpec extends IntegrationTestRunner {
         "identifier" -> Seq("a1"),
         "descriptions[0].name" -> Seq("A test"),
         "descriptions[0].typeOfEntity" -> Seq("corporateBody"),
-        "descriptions[0].languageCode" -> Seq("en")
+        "descriptions[0].languageCode" -> Seq("eng")
       )
       val cr = route(fakeLoggedInHtmlRequest(privilegedUser,
         controllers.sets.routes.AuthoritativeSets
@@ -94,7 +94,7 @@ class EntityViewsSpec extends IntegrationTestRunner {
       val testData: Map[String, Seq[String]] = Map(
         "identifier" -> Seq("a1"),
         "descriptions[0].typeOfEntity" -> Seq("corporateBody"),
-        "descriptions[0].languageCode" -> Seq("en"),
+        "descriptions[0].languageCode" -> Seq("eng"),
         "descriptions[0].name" -> Seq("An Authority"),
         "descriptions[0].otherFormsOfName[0]" -> Seq("An Authority (Alt)"),
         "descriptions[0].parallelFormsOfName[0]" -> Seq("An Authority 2 (Alt)"),
@@ -275,7 +275,7 @@ class EntityViewsSpec extends IntegrationTestRunner {
     "allow creating new items when logged in as privileged user" in new ITestApp {
       val testData: Map[String, Seq[String]] = Map(
         "identifier" -> Seq("wiener-library"),
-        "descriptions[0].languageCode" -> Seq("en"),
+        "descriptions[0].languageCode" -> Seq("eng"),
         "descriptions[0].typeOfEntity" -> Seq("corporateBody"),
         "descriptions[0].name" -> Seq("Wiener Library"),
         "descriptions[0].otherFormsOfName[0]" -> Seq("Wiener Library (Alt)"),
@@ -310,7 +310,7 @@ class EntityViewsSpec extends IntegrationTestRunner {
         "identifier" -> Seq("a1"),
         "descriptions[0].name" -> Seq("A test"),
         "descriptions[0].typeOfEntity" -> Seq("corporateBody"),
-        "descriptions[0].languageCode" -> Seq("en")
+        "descriptions[0].languageCode" -> Seq("eng")
       )
       val cr = route(fakeLoggedInHtmlRequest(privilegedUser,
         controllers.sets.routes.AuthoritativeSets
@@ -335,7 +335,7 @@ class EntityViewsSpec extends IntegrationTestRunner {
       val testData: Map[String, Seq[String]] = Map(
         "identifier" -> Seq("a1"),
         "descriptions[0].typeOfEntity" -> Seq("corporateBody"),
-        "descriptions[0].languageCode" -> Seq("en"),
+        "descriptions[0].languageCode" -> Seq("eng"),
         "descriptions[0].name" -> Seq("An Authority"),
         "descriptions[0].otherFormsOfName[0]" -> Seq("An Authority (Alt)"),
         "descriptions[0].parallelFormsOfName[0]" -> Seq("An Authority 2 (Alt)"),

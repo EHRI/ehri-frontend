@@ -66,7 +66,7 @@ class UserGroupPermissionSpec extends IntegrationTestRunner with TestHelpers {
     "respect group/permission semantics" in new ITestApp {
 
       val management = createGroup("management", Map("name" -> "User Management"))
-      val noteApprovers = createGroup("note-approvers", Map("name" -> "Note Approvers"))
+      val noteApprovers = createGroup("noteapprovers", Map("name" -> "Note Approvers"))
       val (acc1, user1) = createUser("user1", Map("name" -> "User 1"), Seq("management"))
       val (acc2, user2) = createUser("user2", Map("name" -> "User 2"))
 

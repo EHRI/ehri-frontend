@@ -42,7 +42,7 @@ class CountryScopeIntegrationSpec extends IntegrationTestRunner with TestHelpers
 
 
       // Create a new group, as our initial (admin) user
-      val groupId = "uk-archivists"
+      val groupId = "ukarchivists"
       val groupData = Map(
         "identifier" -> Seq(groupId),
         "name" -> Seq("UK Archivists"),
@@ -70,13 +70,13 @@ class CountryScopeIntegrationSpec extends IntegrationTestRunner with TestHelpers
             .setScopedPermissionsPost(countryId, EntityType.Group, groupId)), permData).get
       status(permSetPost) must equalTo(SEE_OTHER)
 
-      // Okay, now create a new user and add them to the uk-archivists group. Do this
+      // Okay, now create a new user and add them to the ukarchivists group. Do this
       // in one go using the groups parameter
-      val userId = "test-user"
+      val userId = "testuser"
       val newUserData = Map(
         "identifier" -> Seq(userId),
         "name" -> Seq("Test User"),
-        "email" -> Seq("test-user@example.com"),
+        "email" -> Seq("testuser@example.com"),
         "password" -> Seq("changeme"),
         "confirm" -> Seq("changeme"),
         "group[]" -> Seq(groupId) // NB: Note brackets on param name!!!
@@ -96,7 +96,7 @@ class CountryScopeIntegrationSpec extends IntegrationTestRunner with TestHelpers
       // TESTING MAGIC!!! We have to create an account for subsequent logins...
       // Then we add the account to the user fixtures (instead of adding it to the database,
       // which we don't have while testing.)
-      val fakeAccount = Account(userId, "test-user@example.com", verified = true, staff = true)
+      val fakeAccount = Account(userId, "testuser@example.com", verified = true, staff = true)
       mocks.accountFixtures += fakeAccount.id -> fakeAccount
 
       // Check the user can read their profile as themselves...
@@ -108,7 +108,7 @@ class CountryScopeIntegrationSpec extends IntegrationTestRunner with TestHelpers
       // Now we're going to create a repository as the new user
       val repoData = Map(
         "identifier" -> Seq("testrepo"),
-        "descriptions[0].languageCode" -> Seq("en"),
+        "descriptions[0].languageCode" -> Seq("eng"),
         "descriptions[0].name" -> Seq("A Test Repository"),
         "descriptions[0].descriptionArea.history" -> Seq("A repository with a long history")
       )
@@ -142,7 +142,7 @@ class CountryScopeIntegrationSpec extends IntegrationTestRunner with TestHelpers
       // Now create a documentary unit...
       val docData = Map(
         "identifier" -> Seq("testdoc"),
-        "descriptions[0].languageCode" -> Seq("en"),
+        "descriptions[0].languageCode" -> Seq("eng"),
         "descriptions[0].identityArea.name" -> Seq("A new document"),
         "descriptions[0].contentArea.scopeAndContent" -> Seq("Lots...")
       )

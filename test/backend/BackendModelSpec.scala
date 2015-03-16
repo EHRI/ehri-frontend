@@ -367,7 +367,7 @@ class BackendModelSpec extends RestBackendRunner with PlaySpecification {
 
     "handle virtual collections (and bookmarks)" in new TestApp {
       val data = VirtualUnitF(
-        identifier = "vc-test",
+        identifier = "vctest",
         descriptions = List(
           DocumentaryUnitDescriptionF(
             languageCode = "eng",
@@ -377,7 +377,7 @@ class BackendModelSpec extends RestBackendRunner with PlaySpecification {
       )
       // Create a new VC
       val vc = await(testBackend.create[VirtualUnit,VirtualUnitF](data))
-      vc.id must equalTo("vc-test")
+      vc.id must equalTo("vctest")
       vc.author must beSome.which { author =>
         author.id must equalTo(userProfile.id)
       }
@@ -408,7 +408,7 @@ class BackendModelSpec extends RestBackendRunner with PlaySpecification {
 
       // Moving included units...
       val vc2 = await(testBackend.create[VirtualUnit,VirtualUnitF](
-        data.copy(identifier = "vc-test-2")))
+        data.copy(identifier = "vctest2")))
       await(testBackend.addReferences[VirtualUnit](vc.id, Seq("c1")))
       await(testBackend.get[VirtualUnit](vc.id))
         .includedUnits.map(_.id) must contain("c1")

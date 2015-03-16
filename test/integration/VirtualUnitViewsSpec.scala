@@ -50,8 +50,8 @@ class VirtualUnitViewsSpec extends IntegrationTestRunner with TestHelpers {
 
     "allow creating new items with owned descriptions" in new ITestApp {
       val testData: Map[String, Seq[String]] = Map(
-        "identifier" -> Seq("hello-kitty"),
-        "descriptions[0].languageCode" -> Seq("en"),
+        "identifier" -> Seq("hellokitty"),
+        "descriptions[0].languageCode" -> Seq("eng"),
         "descriptions[0].identityArea.name" -> Seq("Hello Kitty"),
         "descriptions[0].contentArea.scopeAndContent" -> Seq("Some content"),
         "descriptions[0].identityArea.dates[0].startDate" -> Seq("1939-01-01"),
@@ -61,18 +61,18 @@ class VirtualUnitViewsSpec extends IntegrationTestRunner with TestHelpers {
       val cr = route(fakeLoggedInHtmlRequest(privilegedUser,
         vuRoutes.createChildPost("vc1")), testData).get
       status(cr) must equalTo(SEE_OTHER)
-      redirectLocation(cr) must equalTo(Some(vuRoutes.getInVc("vc1", "hello-kitty").url))
+      redirectLocation(cr) must equalTo(Some(vuRoutes.getInVc("vc1", "hellokitty").url))
 
       val show = route(fakeLoggedInHtmlRequest(privilegedUser,
-        vuRoutes.getInVc("vc1", "hello-kitty"))).get
+        vuRoutes.getInVc("vc1", "hellokitty"))).get
       status(show) must equalTo(OK)
 
       contentAsString(show) must contain("Some content")
       contentAsString(show) must contain("Virtual Collection 1")
       // After having created an item it should contain a 'history' pane
       // on the show page
-      contentAsString(show) must contain(vuRoutes.history("hello-kitty").url)
-      indexEventBuffer.last must equalTo("hello-kitty")
+      contentAsString(show) must contain(vuRoutes.history("hellokitty").url)
+      indexEventBuffer.last must equalTo("hellokitty")
     }
 
     "allow creating and deleting item references" in new ITestApp {

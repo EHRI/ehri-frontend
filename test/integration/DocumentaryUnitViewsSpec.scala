@@ -137,7 +137,7 @@ class DocumentaryUnitViewsSpec extends IntegrationTestRunner {
     "allow creating new items when logged in as privileged user" in new ITestApp {
       val testData: Map[String, Seq[String]] = Map(
         "identifier" -> Seq("hello-kitty"),
-        "descriptions[0].languageCode" -> Seq("en"),
+        "descriptions[0].languageCode" -> Seq("eng"),
         "descriptions[0].identityArea.name" -> Seq("Hello Kitty"),
         "descriptions[0].contentArea.scopeAndContent" -> Seq("Some content"),
         "descriptions[0].identityArea.dates[0].startDate" -> Seq("1939-01-01"),
@@ -155,8 +155,25 @@ class DocumentaryUnitViewsSpec extends IntegrationTestRunner {
       contentAsString(show) must contain("Held By")
       // After having created an item it should contain a 'history' pane
       // on the show page
-      contentAsString(show) must contain(docRoutes.history("nl-r1-hello-kitty").url)
-      indexEventBuffer.last must equalTo("nl-r1-hello-kitty")
+      contentAsString(show) must contain(docRoutes.history("nl-r1-hello_kitty").url)
+      indexEventBuffer.last must equalTo("nl-r1-hello_kitty")
+    }
+
+    "allow creating new items with non-ASCII identifiers" in new ITestApp {
+      val testData: Map[String, Seq[String]] = Map(
+        "identifier" -> Seq("זהמזהה"),
+        "descriptions[0].languageCode" -> Seq("heb"),
+        "descriptions[0].identityArea.name" -> Seq("Hebrew Item")
+      )
+      val cr = route(fakeLoggedInHtmlRequest(privilegedUser,
+        controllers.institutions.routes.Repositories.createDocPost("r1")), testData).get
+      status(cr) must equalTo(SEE_OTHER)
+
+      val show = route(fakeLoggedInHtmlRequest(privilegedUser, GET, redirectLocation(cr).get)).get
+      status(show) must equalTo(OK)
+
+      contentAsString(show) must contain(docRoutes.history("nl-r1-זהמזהה").url)
+      indexEventBuffer.last must equalTo("nl-r1-זהמזהה")
     }
 
     "give a form error when creating items with the same id as existing ones" in new ITestApp {
@@ -180,7 +197,7 @@ class DocumentaryUnitViewsSpec extends IntegrationTestRunner {
 
       // Submit a third time with extra @Relation data, as a test for issue #124
       val testData2 = testData ++ Map(
-        "descriptions[0].languageCode" -> Seq("en"),
+        "descriptions[0].languageCode" -> Seq("eng"),
         "descriptions[0].identityArea.name" -> Seq("Hello Kitty"),
         "descriptions[0].identityArea.dates[0].startDate" -> Seq("1939-01-01"),
         "descriptions[0].identityArea.dates[0].endDate" -> Seq("1945-01-01")
@@ -211,7 +228,7 @@ class DocumentaryUnitViewsSpec extends IntegrationTestRunner {
     "allow updating items when logged in as privileged user" in new ITestApp {
       val testData: Map[String, Seq[String]] = Map(
         "identifier" -> Seq("c1"),
-        "descriptions[0].languageCode" -> Seq("en"),
+        "descriptions[0].languageCode" -> Seq("eng"),
         "descriptions[0].identityArea.name" -> Seq("Collection 1"),
         "descriptions[0].identityArea.parallelFormsOfName[0]" -> Seq("Collection 1 Parallel Name"),
         "descriptions[0].contentArea.scopeAndContent" -> Seq("New Content for c1"),
@@ -234,7 +251,7 @@ class DocumentaryUnitViewsSpec extends IntegrationTestRunner {
       val msg = "Imma updating this item!"
       val testData: Map[String, Seq[String]] = Map(
         "identifier" -> Seq("c1"),
-        "descriptions[0].languageCode" -> Seq("en"),
+        "descriptions[0].languageCode" -> Seq("eng"),
         "descriptions[0].identityArea.name" -> Seq("Collection 1 - Updated"),
         "logMessage" -> Seq(msg)
       )
@@ -252,7 +269,7 @@ class DocumentaryUnitViewsSpec extends IntegrationTestRunner {
     "disallow updating items when logged in as unprivileged user" in new ITestApp {
       val testData: Map[String, Seq[String]] = Map(
         "identifier" -> Seq("c4"),
-        "descriptions[0].languageCode" -> Seq("en"),
+        "descriptions[0].languageCode" -> Seq("eng"),
         "descriptions[0].identityArea.name" -> Seq("Collection 4"),
         "descriptions[0].contentArea.scopeAndContent" -> Seq("New Content for c4"),
         "publicationStatus" -> Seq("Draft")
@@ -271,7 +288,7 @@ class DocumentaryUnitViewsSpec extends IntegrationTestRunner {
     "allow adding extra descriptions" in new ITestApp {
       val testItem = "c1"
       val testData: Map[String, Seq[String]] = Map(
-        "languageCode" -> Seq("en"),
+        "languageCode" -> Seq("eng"),
         "identityArea.name" -> Seq("A Second Description"),
         "contentArea.scopeAndContent" -> Seq("This is a second description")
       )
@@ -290,7 +307,7 @@ class DocumentaryUnitViewsSpec extends IntegrationTestRunner {
       val testItem = "c1"
       val testItemDesc = "cd1"
       val testData: Map[String, Seq[String]] = Map(
-        "languageCode" -> Seq("en"),
+        "languageCode" -> Seq("eng"),
         "id" -> Seq("cd1"),
         "identityArea.name" -> Seq("An Updated Description"),
         "contentArea.scopeAndContent" -> Seq("This is an updated description")
@@ -403,7 +420,7 @@ class DocumentaryUnitViewsSpec extends IntegrationTestRunner {
       val testRepo = "r2"
       val testData: Map[String, Seq[String]] = Map(
         "identifier" -> Seq("test"),
-        "descriptions[0].languageCode" -> Seq("en"),
+        "descriptions[0].languageCode" -> Seq("eng"),
         "descriptions[0].identityArea.name" -> Seq("Test Item"),
         "descriptions[0].contentArea.scopeAndContent" -> Seq("A test"),
         "publicationStatus" -> Seq("Draft")
@@ -437,7 +454,7 @@ class DocumentaryUnitViewsSpec extends IntegrationTestRunner {
       val testItem = "c4"
       val testData: Map[String, Seq[String]] = Map(
         "identifier" -> Seq(testItem),
-        "descriptions[0].languageCode" -> Seq("en"),
+        "descriptions[0].languageCode" -> Seq("eng"),
         "descriptions[0].identityArea.name" -> Seq("Changed Name"),
         "descriptions[0].contentArea.scopeAndContent" -> Seq("A test"),
         "publicationStatus" -> Seq("Draft")
