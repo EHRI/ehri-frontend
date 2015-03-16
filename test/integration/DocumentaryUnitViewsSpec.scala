@@ -176,6 +176,23 @@ class DocumentaryUnitViewsSpec extends IntegrationTestRunner {
       indexEventBuffer.last must equalTo("nl-r1-זהמזהה")
     }
 
+    "allow creating new lower-level items" in new ITestApp {
+      val testData: Map[String, Seq[String]] = Map(
+        "identifier" -> Seq("childitem"),
+        "descriptions[0].languageCode" -> Seq("eng"),
+        "descriptions[0].identityArea.name" -> Seq("Child Item")
+      )
+      val cr = route(fakeLoggedInHtmlRequest(privilegedUser,
+        controllers.units.routes.DocumentaryUnits.createDocPost("c1")), testData).get
+      status(cr) must equalTo(SEE_OTHER)
+
+      val show = route(fakeLoggedInHtmlRequest(privilegedUser, GET, redirectLocation(cr).get)).get
+      status(show) must equalTo(OK)
+
+      contentAsString(show) must contain(docRoutes.history("nl-r1-c1-childitem").url)
+      indexEventBuffer.last must equalTo("nl-r1-c1-childitem")
+    }
+
     "give a form error when creating items with the same id as existing ones" in new ITestApp {
       val testData: Map[String, Seq[String]] = Map(
         "identifier" -> Seq("c1"),
