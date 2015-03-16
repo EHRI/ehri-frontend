@@ -209,6 +209,8 @@ trait Description extends Model {
     scala.collection.immutable.TreeMap(toSeq: _*)
 
   def isRightToLeft = languageCode == "heb" || languageCode == "ara"
+
+  def localId: Option[String] = id.map(did => did.substring(did.indexOf(";") + 1))
 }
 
 object Description {
