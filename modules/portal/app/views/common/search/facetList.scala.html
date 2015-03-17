@@ -57,7 +57,6 @@
                     @sortedActive.map { f =>
                         @if(f.applied) {
                         <li title="@fc.pretty(f)" class="selected-filter">
-                            <input type="hidden" name="@fc.param" value="@f.value" />
                             <a class="remove-filter" href="@pathWithoutFacet(fc, f.value, call.url, req.queryString.filterKeys(_!="page"))">
                                 @fc.pretty(f)
                                 (@f.count)
@@ -87,7 +86,6 @@
                     @sortedActive.map { f =>
                         @if(f.applied) {
                         <li title="@fc.pretty(f)" class="selected-filter">
-                            <input type="hidden" name="@fc.param" value="@f.value" />
                             <a class="remove-filter" href="@pathWithoutFacet(fc, f.value, call.url, req.queryString.filterKeys(_!="page"))">
                             @fc.pretty(f)
                             (@f.count)
@@ -125,7 +123,6 @@
                 @defining(fc.sorted.filter(_.count > 0)) { sortedActive =>
                     @sortedActive.map { f =>
                         @if(f.applied) {
-                        <input type="hidden" name="@fc.param" value="@f.value" />
                         <li title="@fc.pretty(f)" class="selected-filter">
                             <a class="remove-filter" href="@pathWithoutFacet(fc, f.value,
                                                         call.url, req.queryString.filterKeys(_!="page"))">
