@@ -2,7 +2,7 @@
 
 @views.html.p.layout.searchLayout(Messages("type.repository"), EntityType.Repository.toString, result, meta = Map("description" -> Messages("type.repository.description")(Lang.defaultLang))) {
     @views.html.common.search.searchForm(result, action, autofocus = false) {
-        @views.html.p.searchItemList(result.page, watched)
+        @views.html.p.searchItemList(result, watched)
     } {
         @views.html.p.common.typeLabel(EntityType.Repository) {
         }

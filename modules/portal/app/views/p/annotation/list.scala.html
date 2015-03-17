@@ -3,7 +3,7 @@
 @views.html.p.layout.portalLayout(Messages("type.annotation"), EntityType.Annotation.toString) {
     @views.html.layout.mainContent {
         @views.html.common.search.searchForm(result, action, autofocus = false) {
-            @views.html.p.searchItemList(result.page, Seq.empty, itemClass="annotation")
+            @views.html.p.searchItemList(result, Seq.empty, itemClass="annotation")
         } {
             @views.html.p.common.typeLabel(EntityType.Annotation) {
             }

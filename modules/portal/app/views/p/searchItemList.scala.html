@@ -1,13 +1,41 @@
-@(result: utils.Page[(models.base.AnyModel,utils.search.SearchHit)], watched: Seq[String], itemClass: String = "")(implicit userOpt: Option[UserProfile], req: RequestHeader, globalConfig: global.GlobalConfig, lang: Lang, context: Option[Holder[_]] = None)
-
-
+@(result: utils.search.SearchResult[(models.base.AnyModel,utils.search.SearchHit)], watched: Seq[String], itemClass: String = "")(implicit userOpt: Option[UserProfile], req: RequestHeader, globalConfig: global.GlobalConfig, lang: Lang, context: Option[models.base.Holder[_]] = None)
 
 <ul class="search-result-list">
-    @result.items.map { case(item, hit) =>
+    @result.page.map { case(item, hit) =>
         @defining(Some(hit.id)) { implicit descriptionId =>
             @defining(watched.contains(item.id)) { watched =>
             <li class="@itemClass">
-                @searchItem(item, hit, watched)
+                @item match {
+                    case d: DocumentaryUnit => {
+                        @views.html.p.documentaryUnit.searchItem(d, hit, watched)
+                    }
+                    case d: HistoricalAgent => {
+                        @views.html.p.historicalAgent.searchItem(d, hit, watched)
+                    }
+                    case d: Repository => {
+                        @views.html.p.repository.searchItem(d, hit, watched)
+                    }
+                    case d: Country => {
+                        @views.html.p.country.searchItem(d, hit, watched)
+                    }
+                    case d: Concept => {
+                        @views.html.p.concept.searchItem(d, hit, watched)
+                    }
+                    case d: Vocabulary => {
+                        @views.html.p.vocabulary.searchItem(d, hit, watched)
+                    }
+                    case d: VirtualUnit => {
+                        @views.html.p.virtualUnit.searchItem(d, Seq.empty, hit, watched)
+                    }
+                    case d: Annotation => {
+                        @views.html.p.annotation.searchItem(d, hit)
+                    }
+                    case _ => {
+                        <p class="text-warning">
+                            <a href="@views.p.Helpers.linkTo(item)">@item.toStringLang</a>
+                        </p>
+                    }
+                }
             </li>
             }
         }

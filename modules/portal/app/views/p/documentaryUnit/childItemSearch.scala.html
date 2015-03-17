@@ -4,7 +4,7 @@
     <div id="@item.id-child-item-search" class="child-item-search">
     @views.html.common.search.searchForm(result, action, key = Messages("documentaryUnit.searchItems", item.toStringLang), autofocus = false) {
         @defining(Some(item)) { implicit context =>
-            @views.html.p.searchItemList(result.page, watched)
+            @views.html.p.searchItemList(result, watched)
         }
     } {
         @views.html.common.search.facetList(result.facetClasses, action)

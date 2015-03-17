@@ -41,7 +41,7 @@
 
                 @views.html.search.searchSection(Messages("documentaryUnit.searchInside", item.toStringAbbr(lang)), result) {
                     @views.html.common.search.searchForm(result, action, autofocus = false) {
-                        @searchItemList(result.page, path :+ item)
+                        @searchItemList(result, path :+ item)
                     } {
                         @common.search.facetList(result.facetClasses, action)
                     }

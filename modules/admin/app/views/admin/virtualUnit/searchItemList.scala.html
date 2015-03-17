@@ -1,7 +1,7 @@
-@(result: utils.Page[(AnyModel, utils.search.SearchHit)], path: Seq[AnyModel])(implicit userOpt: Option[UserProfile], req: RequestHeader, globalConfig: global.GlobalConfig, lang: Lang)
+@(result: utils.search.SearchResult[(models.base.AnyModel, utils.search.SearchHit)], path: Seq[models.base.AnyModel])(implicit userOpt: Option[UserProfile], req: RequestHeader, globalConfig: global.GlobalConfig, lang: Lang)
 
 <ul class="list-unstyled">
-    @result.items.map { case(item, hit) =>
+    @result.page.map { case(item, hit) =>
         @defining(Some(hit.id)) { implicit descriptionId =>
             <li>
                 @item match {

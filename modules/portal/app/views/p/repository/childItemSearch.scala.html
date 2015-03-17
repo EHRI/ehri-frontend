@@ -3,7 +3,7 @@
 @if(item.childCount.getOrElse(0) > 0) {
     <div id="@item.id-child-item-search" class="child-item-search">
         @views.html.common.search.searchForm(result, action, key = Messages("repository.searchItems", item.toStringLang), autofocus = false) {
-            @views.html.p.searchItemList(result.page, watched)
+            @views.html.p.searchItemList(result, watched)
         } {
             @views.html.common.search.facetList(result.facetClasses, action)
         }

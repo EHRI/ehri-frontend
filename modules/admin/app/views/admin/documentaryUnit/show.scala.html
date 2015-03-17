@@ -1,4 +1,4 @@
-@(item: DocumentaryUnit, result: utils.search.SearchResult[(AnyModel, utils.search.SearchHit)], action: Call, annotations: Seq[Annotation], links: Seq[Link])(implicit userOpt: Option[UserProfile], req: RequestHeader, globalConfig: global.GlobalConfig, lang: Lang, flash: Flash)
+@(item: DocumentaryUnit, result: utils.search.SearchResult[(models.base.AnyModel, utils.search.SearchHit)], action: Call, annotations: Seq[Annotation], links: Seq[Link])(implicit userOpt: Option[UserProfile], req: RequestHeader, globalConfig: global.GlobalConfig, lang: Lang, flash: Flash)
 
 @views.html.admin.layout.adminLayout(item.toStringLang) {
     @breadcrumbs(item)
@@ -36,7 +36,7 @@
             @item.childCount.filter(_ > 0).map { count =>
                 @views.html.search.searchSection(Messages("documentaryUnit.searchInside", item.toStringAbbr(lang)), result) {
                     @views.html.common.search.searchForm(result, action, autofocus = false) {
-                        @searchItemList(result.page)
+                        @views.html.admin.search.searchItemList(result)
                     } {
 
                     }

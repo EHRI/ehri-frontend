@@ -167,6 +167,7 @@ case class SolrQueryBuilder(
 
     // Not yet supported by scalikesolr
     request.set("group.facet", true)
+    request.set("group.sort", s"${SearchConstants.LANGUAGE_CODE} desc")
   }
 
   private def applyIdFilters(request: QueryRequest, ids: Seq[String]): Unit = {
