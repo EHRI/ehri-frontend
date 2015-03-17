@@ -1,6 +1,5 @@
 @(item: DocumentaryUnit, showRepository: Boolean = true, highlighter: views.Highlighter = views.NoopHighlighter)(implicit userOpt: Option[UserProfile], req: RequestHeader, globalConfig: global.GlobalConfig, lang: Lang, descriptionId: Option[String] = None)
 
-
 @item.model.primaryDescription(descriptionId).map { desc =>
     @common.otherNameListSmall(desc.identity.parallelFormsOfName.toList.flatten)
     <div class="search-item-details">
@@ -10,6 +9,7 @@
                     <li><a class="alt" href="@controllers.portal.routes.Repositories.browse(holder.id)">@holder.toStringAbbr</a></li>
                 }
             }
+            @views.html.p.documentaryUnit.listItemMeta(item, desc, highlighter)
         </ul>
         @views.html.common.childCount(item) { count =>
             @if(count > 0) {

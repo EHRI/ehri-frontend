@@ -1,4 +1,4 @@
-@(item: DocumentaryUnit, hit: utils.search.SearchHit, watched: Boolean, showRepository: Boolean = true)(implicit userOpt: Option[UserProfile], req: RequestHeader, globalConfig: global.GlobalConfig, lang: Lang, descriptionId: Option[String] = None, context: Option[Holder[_]] = None)
+@(item: DocumentaryUnit, hit: utils.search.SearchHit, watched: Boolean, showRepository: Boolean = true)(implicit userOpt: Option[UserProfile], req: RequestHeader, globalConfig: global.GlobalConfig, lang: Lang, descriptionId: Option[String] = None, context: Option[models.base.Holder[_]] = None)
 
 @wrapParent(doc: DocumentaryUnit, parent: Option[DocumentaryUnit]) = {
     @if(parent.map(_.id) != context.map(_.id)) {
@@ -13,17 +13,21 @@
     }
 }
 
-<div class="search-item" id="@item.id">
+@anchor = @{if(item.model.descriptions.size > 1) s"#desc-${hit.id.substring(hit.id.indexOf(".") + 1)}" else "" }
+
+@defining(Some(hit.id)) { implicit descriptionId =>
+    <div class="search-item" id="@item.id">
         <div class="search-item-actions">
-            @p.common.watchButtonsSmall(item, watched)
+        @views.html.p.common.watchButtonsSmall(item, watched)
         </div>
         <h3 class="search-item-heading type-highlight @item.isA.toString">
-            <a href="@controllers.portal.routes.DocumentaryUnits.browse(item.id)">
-                @hit.highlight(item.toStringLang)
+            <a href="@controllers.portal.routes.DocumentaryUnits.browse(item.id)@anchor">
+            @hit.highlight(item.toStringLang)
             </a>
         </h3>
         <div class="search-item-body">
             <ol class="breadcrumb">@wrapParent(item, item.parent)</ol>
-            @listItemBody(item, showRepository, highlighter = hit)
+            @views.html.p.documentaryUnit.listItemBody(item, showRepository, highlighter = hit)
         </div>
-</div>
+    </div>
+}

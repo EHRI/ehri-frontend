@@ -1,7 +1,5 @@
 @(item: VirtualUnit, path: Seq[models.base.AnyModel], showAuthor: Boolean = true, highlighter: views.Highlighter = views.NoopHighlighter)(implicit userOpt: Option[UserProfile], req: RequestHeader, globalConfig: global.GlobalConfig, lang: Lang, descriptionId: Option[String] = None)
 
-@import org.apache.commons.lang3.StringUtils
-
 @item.model.primaryDescription(descriptionId).map { desc =>
     <div class="search-item-details">
         <ul class="doc-search-details">
