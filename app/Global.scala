@@ -77,7 +77,7 @@ object Global extends WithFilters(CSRFFilter()) with GlobalSettings with Session
 
   private def backend: Backend = new RestBackend(eventHandler)
 
-  object RunConfiguration extends GlobalConfig
+  implicit object RunConfiguration extends GlobalConfig
 
   lazy val injector = Guice.createInjector(new AbstractModule {
     protected def configure() {

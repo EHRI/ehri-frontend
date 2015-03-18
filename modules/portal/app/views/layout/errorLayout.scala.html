@@ -1,4 +1,4 @@
-@(title: Any)(content: Html)(implicit req: RequestHeader, lang: Lang)
+@(title: Any)(content: Html)(implicit req: RequestHeader, globalConfig: global.GlobalConfig, lang: Lang)
 
 <!DOCTYPE html>
 
@@ -7,7 +7,7 @@
         <title>@title</title>
 
         <link rel="shortcut icon" type="image/png" href="@controllers.portal.routes.Assets.at("img/favicon.png")">
-        <link href="@controllers.portal.routes.Assets.at("css/admin.css")" rel="stylesheet">
+        <link rel="stylesheet" href="@controllers.portal.routes.Assets.versioned("css/portal.css")">
     </head>
     <body>
         <div id="wrap" class="error-page page-container">
@@ -22,6 +22,6 @@
             </div>
             <div id="push"></div>
         </div>
-        @footer()
+        @views.html.p.layout.footer()
     </body>
 </html>
