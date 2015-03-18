@@ -1,5 +1,6 @@
 welcome=Bienvenue sur l''EHRI
-welcome.title=Bienvenue sur le portail en ligne de l''European Holocaust Research Infrastructure home=Accueil
+welcome.title=Bienvenue sur le portail en ligne de l''European Holocaust Research Infrastructure
+home=Accueil
 about=À propos de l''EHRI
 language=Langue
 contact=Contact
@@ -15,8 +16,8 @@ warning=Avertissement
 admin.site=Admin du site
 newsFeed=Les dernières nouvelles
 browse=Naviguer
-details.show=Montrer les informations concernant l''article
-details.hide=Cacher les informations concernant l''article
+details.show=Montrer les informations concernant l''objet
+details.hide=Cacher les informations concernant l''objet
 help=Aide
 help.general=Aide générale
 help.archivists=Aide pour les archivistes
@@ -30,7 +31,7 @@ landingBlurb.documentaryUnit=Naviguer {0} dans {1}.
 landingBlurb.documentaryUnit.link={0} descriptions d''archives
 landingBlurb.documentaryUnit.repository.link={0} institutions
 landingBlurb.historicalAgent=Naviguer {0}, composé de {1}, {2} et de {3}.
-landingBlurb.historicalAgent.link={0} acteurs historiques
+landingBlurb.historicalAgent.link={0} acteurs historiques)
 landingBlurb.corporateBody.link={0,choice,0#{0} entités juridiques|1#1 entité juridique|1<{0,number,integer} entités juridiques}
 landingBlurb.person.link={0} Personnes
 landingBlurb.family.link={0,choice,0#{0} familles|1#1 famille|1<{0,number,integer} familles}
@@ -49,14 +50,14 @@ errors.verifiedOnlyMessage=L''accès à cette page est actuellement limité à d
 errors.readonly=Le portail de l''EHRI est pour l''instant uniquement en mode lecture, pendant que nous effectuons une opération de maintenance.\
               Un service normal reprendra en temps voulu. Merci pour votre patience.
 errors.itemNotFound=Objet non trouvé
-errors.itemNotFound.explanation=Cet objet n''a pas été trouvédans la base de données.
+errors.itemNotFound.explanation=Cet objet n''a pas été trouvé dans la base de données.
 errors.pageNotFound=La page n''a pas été trouvée
 errors.pageNotFound.explanation=La page n''existe pas sur cet emplacement, ou elle a été déplacée.
 errors.genericProblem=Une erreur est survenue
 errors.genericProblem.explanation=Nous sommes désolés, mais cette page ne peut être chargée. Nous en avons été informés \
   et nous mettons tout en œuvre pour réparer le problème dans le plus bref délais.
 errors.maintenance=Site provisoirement hors ligne
-errors.maintenance.explanation=Le portail de l''EHRI est actuellement hors ligne pendant que nous effectuons une opération d''entretien.Veuillez revenir sous peu.
+errors.maintenance.explanation=Le portail de l''EHRI est actuellement hors ligne pendant que nous effectuons une opération d''entretien. Veuillez revenir sous peu.
 errors.databaseError=Erreur de base de données
 errors.databaseError.explanation=J"ai bien peur que notre serveur de base de données ne soit en panne.    \
      Veuillez réessayer plus tard.
@@ -118,16 +119,16 @@ profile.update.confirmation=Mise à jour du profil réussie
 profile.watch.list=Objets suivis
 profile.watch.by={0} - objet(s) suivi(s)
 profile.watch=Suivre objet
-profile.watch.title=Ajoutez objet à la liste
-profile.watch.tooltip=Cliquez pour voir les mises à jour de l''objet dans votre liste.
+profile.watch.title=Ajoutez objet à votre liste d''objets suivis
+profile.watch.tooltip=Cliquez pour voir les mises à jour de l''objet dans votre liste d''activité.
 profile.watch.submit=Suivre objet
-profile.unwatch=Supprimer l''objet de la liste
-profile.unwatch.tooltip=Cliquez pour ne plus recevoir les mises à jour de l''objet dans votre liste.
-profile.unwatch.submit=Supprimer objet
-profile.unwatch.title=Supprimer objet de la listetype=Type d''élément
+profile.unwatch=Arrêter de suivre cet objet sujet
+profile.unwatch.tooltip=Cliquez pour ne plus recevoir les mises à jour de l''objet dans votre liste d''activité.
+profile.unwatch.submit=Arrêter de suivre ce objet
+profile.unwatch.title=Supprimer cet objet de votre liste d''objets suivis.type=Type d''élément
 type.repository=Institutions archivistiques
 type.repository.description=Un répertoire des institutions archivistiques qui \
-  conservent des archives liées à l''Holocauste.
+ conservent des archives liées à l''Holocauste.
 type.documentaryUnit=Descriptions archivistiques
 type.documentaryUnit.description=Descriptions électroniques et aides à la recherche de documents d''archives liés à l''Holocauste.
 type.historicalAgent=Acteurs historiques
@@ -396,7 +397,7 @@ social.message.send.submit=Envoyer le message
 social.message.send.confirmation=Votre message a été envoyé
 social.message.send.subject=Objet
 social.message.send.message=Votre message
-social.message.send.copy=Envoyez-vous une copie de ce message
+social.message.send.copy= Envoyez-vous une copie de ce message
 social.message.send.warning=Votre message sera envoyé par e-mail à votre adresse enregistrée dans le champ Répondre à.
 social.message.send.userNotAcceptingMessages=Cet utilisateur a désactivé sa messagerie.
 social.users=Personnes
@@ -444,27 +445,27 @@ annotation.showPublic={0,choice,1#Afficher 1 note publique|1<Afficher {0} notes 
 access.all=Publique
 access.accessibleTo=Visible par {0}
 access.accessibleTo.extended={0,choice,0#|1# et 1 autre|1< et {0} autres}
-promotion.isPromotable=Publier
-promotion.isPromotable.true=Peut être publié
-promotion.isPromotable.false=Ne peut pas être publié
-promotion.isPromoted.true=Publiée
-promotion.isPromoted.false=Non publiée
-promotion.promotedBy=Publiée par {0}
+promotion.isPromotable=Promotion
+promotion.isPromotable.true=Promouvable
+promotion.isPromotable.false=Non promouvable
+promotion.isPromoted.true=Promue
+promotion.isPromoted.false=Non promue
+promotion.promotedBy=Promue par {0}
 promotion.promotedBy.extended={0,choice,0#|1# et 1 autre|1< et {0} autres}
-promotion.promote=Publier
-promotion.promote.title=Publier la note
-promotion.promote.title.submit=Publier
-promotion.promote.remove=Supprimer la publication
-promotion.promote.remove.title=Supprimer la publication de la note
+promotion.promote=Promouvoir
+promotion.promote.title=Promouvoir la note
+promotion.promote.title.submit=Promouvoir
+promotion.promote.remove=Supprimer la promotion
+promotion.promote.remove.title=Supprimer la promotion de la note
 promotion.promote.remove.title.submit=Supprimer
-promotion.demote=Dépublier
-promotion.demote.title=Dépublier la note
-promotion.demote.title.submit=Dépublier
-promotion.demote.remove=Supprimer la dépublication
-promotion.demote.remove.title=Supprimer la dépublication de la note
+promotion.demote=Rétrograder
+promotion.demote.title=Rétrograder la note
+promotion.demote.title.submit=Rétrograder
+promotion.demote.remove=Supprimer la rétrogradation
+promotion.demote.remove.title=Supprimer la rétrogradation de la note
 promotion.demote.remove.title.submit=Supprimer
-promotion.score=Score de publication
-promotion.score.detail=Publications : {0}, dépublications : {1}
+promotion.score=Score de promotion
+promotion.score.detail=Promotions : {0}, rétrogradations : {1}
 promotion.score.negative=Négative
 promotion.score.neutral=Neutre
 promotion.score.positive=Positive
@@ -496,11 +497,11 @@ contribution.visibility=choisissez qui peut voir ceci
 contribution.visibility.me=Seulement moi
 contribution.visibility.groups=Mes groupes
 contribution.visibility.custom=Personnalisé
-contribution.visibility.allowPublic=Autoriser la publication
-contribution.visibility.allowPublic.title=Autoriser les modérateurs EHRI à publier cette note pour qu''elle soit visible de tous les utilisateurs.
+contribution.visibility.allowPublic=Autoriser la promotion
+contribution.visibility.allowPublic.title=Autoriser les modérateurs EHRI à promouvoir cette note pour qu''elle soit visible de tous les utilisateurs.
 contribution.visibility.isPrivate=Note privée
 contribution.visibility.isPrivate.title=Vous seul pouvez voir cette note. \
-    La désélection de cette option permettra aux modérateurs EHRI de la publier pour qu''elle soit visible de tous les utilisateurs.
+    La désélection de cette option permettra aux modérateurs EHRI de la promouvoir pour qu''elle soit visible de tous les utilisateurs.
 search=Chercher
 search.sort.title=Ordre des résultats de recherche
 search.global=Rechercher dans tout
@@ -572,8 +573,8 @@ privacy.users.3=Les utilisateurs qui s''inscrivent sur le portail EHRI et créen
 privacy.users.4=Sauf dans les cas énumérés ci-dessus, EHRI ne communiquera pas les données d''utilisateurs inscrits à des tiers \
     sauf si cela est requis par la loi.
 privacy.data.header=2. Données sur le portail de la recherche
-privacy.data.1=Le portail de recherche contient des descriptions de collections et de sources liées à l''Holocauste, conservées dans \
-    des institutions détentrices (archives, centres de documentation ...) en Europe, \
+privacy.data.1=Le portail de recherche contient des descriptions de collections et de sources liées à l''Holocauste conservées dans \
+    des institutions détentrices (archives, centres de documentation ...) en Europe de l''Ouest, de l''Est et du Nord, \
     ainsi qu''aux États-Unis et en Israël. Ces descriptions de collections peuvent concerner des données personnelles ou des données personnelles sensibles (par ex. \
     des données relatives à la religion ou à l''origine ethnique). Étant donné que le traitement et la publication de ces données peuvent avoir \
     des conséquences du point de vue de la protection des données, EHRI a procédé à une évaluation des risques pour déterminer si \
@@ -752,13 +753,13 @@ documentaryUnit.languageCode=Langue de la description
 documentaryUnit.abstract=Résumé
 documentaryUnit.accruals=Accroissements
 documentaryUnit.conditionsOfAccess=Conditions d''accès
-documentaryUnit.conditionsOfReproduction=Conditions dereproduction
+documentaryUnit.conditionsOfReproduction=Conditions de reproduction
 documentaryUnit.languageOfMaterial=Langue(s) des documents
 documentaryUnit.scriptOfMaterial=Ecriture(s) des documents
 documentaryUnit.physicalCharacteristics=Caractéristiques matérielles et contraintes techniques
 documentaryUnit.findingAids=Instruments de recherche
-documentaryUnit.locationOfOriginals=Existence et lieudes originaux
-documentaryUnit.locationOfCopies=Existence et lieude copies
+documentaryUnit.locationOfOriginals=Existence et lieu des originaux
+documentaryUnit.locationOfCopies=Existence et lieu de copies
 documentaryUnit.relatedUnitsOfDescription=Sources complémentaires
 documentaryUnit.publicationNote=Bibliographie
 documentaryUnit.notes=Note(s)
@@ -771,7 +772,7 @@ documentaryUnit.creationProcess.MANUAL.description=Cette description a été cr�
 documentaryUnit.creationProcess.IMPORT=Partenaire EHRI
 documentaryUnit.creationProcess.IMPORT.disclaimer=Cette description est directement dérivée des données structurées fournies à EHRI par une \
    institution partenaire. Cette institution détentrice de collection considère cette description comme le reflet exact du fonds d''archives \
-   auquel elle se réfère au moment du transfert des données.
+    auquel elle se réfère au moment du transfert des données.
 historicalAgent.identifier=Identifiant
 historicalAgent.dates=Dates
 historicalAgent.entityType=Type d''entité
