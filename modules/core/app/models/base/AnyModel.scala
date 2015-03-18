@@ -207,6 +207,8 @@ trait Description extends Model {
 
   def toMap: SortedMap[String, Option[String]] =
     scala.collection.immutable.TreeMap(toSeq: _*)
+
+  def isRightToLeft = languageCode == "heb" || languageCode == "ara"
 }
 
 object Description {
