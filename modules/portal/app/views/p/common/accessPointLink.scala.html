@@ -1,12 +1,12 @@
-@(item: AnyModel, accessPoint: AccessPointF, links: Seq[Link])(implicit userOpt: Option[UserProfile], lang: Lang, req: RequestHeader, globalConfig: global.GlobalConfig)
+@(item: models.base.AnyModel, accessPoint: AccessPointF, links: Seq[Link])(implicit userOpt: Option[UserProfile], lang: Lang, req: RequestHeader, globalConfig: global.GlobalConfig)
 
 @*
  * Render an access point which may or may not have a corresponding
  * link target.
  *@
 @accessPoint.target(item, links).map { case (link, other) =>
-    <li class="resolved-access-point" id="@accessPoint.id">
-        @p.helpers.linkTo(other)
+    <li class="resolved-access-point" id="@accessPoint.id" dir="auto">
+        @views.html.p.helpers.linkTo(other)
         @link.model.description.filterNot(_.trim.isEmpty).map { desc =>
             <div class="access-point-description">
                 @Html(views.Helpers.renderMarkdown(desc))
@@ -14,7 +14,7 @@
         }
     </li>
 }.getOrElse {
-    <li class="unresolved-access-point" id=" @accessPoint.id">
+    <li class="unresolved-access-point" id="@accessPoint.id" dir="auto">
         @accessPoint.name
         @accessPoint.description.filterNot(_.trim.isEmpty).map { desc =>
             <div class="access-point-description">

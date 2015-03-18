@@ -1,4 +1,4 @@
-@(item: models.base.AnyModel, nodeId: String, value: Option[Seq[String]], key: String, transformFunc: (String => String) = { s => s})(implicit fieldPrefix: String, userOpt: Option[UserProfile], req: RequestHeader, prefs: utils.SessionPrefs, globalConfig: global.GlobalConfig, lang: Lang, fieldAnnotations: Seq[Annotation])
+@(item: models.base.AnyModel, nodeId: String, value: Option[Seq[String]], key: String, transformFunc: (String => String) = s => s)(implicit fieldPrefix: String, userOpt: Option[UserProfile], req: RequestHeader, prefs: utils.SessionPrefs, globalConfig: global.GlobalConfig, lang: Lang, fieldAnnotations: Seq[Annotation])
 
 @value.map { list =>
 	@defining(fieldAnnotations.filter(_.model.field==Some(key))) { anns =>
@@ -8,13 +8,11 @@
 	            	@Messages(if (fieldPrefix.isEmpty) key else s"$fieldPrefix.$key")
                 	@fieldAnnotationButton(item, nodeId, key, anns)
 	            </h4>
-	            <div class="item-text-field-value item-text-field-list">
-			        <ul>
-			            @list.map { item =>
-			                <li>@Html(views.Helpers.renderMarkdown(transformFunc(item)))</li>
-			            }
-			        </ul>
-	            </div>
+	            <ul class="item-text-field-value item-text-field-list" dir="auto">
+                    @list.map { item =>
+                        <li>@Html(views.Helpers.renderMarkdown(transformFunc(item)))</li>
+                    }
+	            </ul>
                 @fieldAnnotationControls(item, nodeId, key, anns)
 	        </div>
 	    }

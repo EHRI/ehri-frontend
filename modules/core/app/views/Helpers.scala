@@ -19,8 +19,8 @@ package object Helpers {
     p.format(d)
   }
   def relativeDate(d: org.joda.time.DateTime)(implicit lang: Lang): String = relativeDate(d.toDate)
-  def relativeDate(d: Option[org.joda.time.DateTime])(implicit lang: Lang): String
-      = d.fold("")(dt => relativeDate(dt.toDate))
+  def relativeDate(d: Option[org.joda.time.DateTime])(implicit lang: Lang): String =
+    d.fold("")(dt => relativeDate(dt.toDate))
 
 
   // Initialize Markdown processor for rendering markdown. NB: The
@@ -175,4 +175,6 @@ package object Helpers {
   def maybeActivePath(url: String)(implicit request: RequestHeader) = {
     if(request.path.startsWith(url)) "active" else ""
   }
+
+  def textDirection(d: models.base.Description) = if (d.isRightToLeft) "rtl" else "auto"
 }

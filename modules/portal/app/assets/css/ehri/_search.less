@@ -242,7 +242,12 @@ em.highlight {
 }
 
 .search-result-list {
-  .list-unstyled;
+  &:extend(.list-unstyled);
+  // Allows both left-to-right and right-to-left elements
+  // in the same list
+  li {
+    text-align: unset;
+  }
   margin-top: @large-margin;
   padding-right: @medium-padding;
 }

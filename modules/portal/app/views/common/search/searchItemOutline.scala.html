@@ -1,6 +1,6 @@
-@(item: AnyModel)(heading: Html)(body: Html = Html(""))(implicit lang: Lang)
+@(item: models.base.AnyModel)(heading: Html)(body: Html = Html(""))(implicit lang: Lang)
 
-<div class="search-item" id="@item.id">
+<div class="search-item" id="@item.id" dir="auto">
     <h2 class="search-item-heading type-highlight @item.isA">@heading</h2>
     <div class="search-item-body">@body</div>
 </div>

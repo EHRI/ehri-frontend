@@ -81,9 +81,23 @@
       text-indent: 1em;
     }
 
-    &.item-text-field-list > ul {
-      list-style: none;
-      padding-left: 0;
+    // Reset code formatting, since code blocks are probably
+    // an artifact of dodgy markdown formatting :|
+    code {
+      color: inherit;
+      white-space: inherit;
+      font-size: inherit;
+      padding: inherit;
+      background-color: inherit;
+    }
+
+    &.item-text-field-list {
+      &:extend(.list-unstyled);
+      // Allows both left-to-right and right-to-left elements
+      // in the same list
+      li {
+        text-align: unset;
+      }
     }
   }
 }
