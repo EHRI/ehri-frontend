@@ -176,5 +176,5 @@ package object Helpers {
     if(request.path.startsWith(url)) "active" else ""
   }
 
-  def textDirection(d: models.base.Description) = if (d.isRightToLeft) "rtl" else "auto"
+  def textDirection(d: models.base.Description) = if (d.isRightToLeft) "rtl" else "ltr"
 }
