@@ -1,13 +1,12 @@
 welcome=Bienvenue sur l''EHRI
-welcome.title=Bienvenue sur le portail en ligne de l''European Holocaust Research Infrastructure
-home=Accueil
+welcome.title=Bienvenue sur le portail en ligne de l''European Holocaust Research Infrastructure home=Accueil
 about=À propos de l''EHRI
 language=Langue
 contact=Contact
 welcome.blurb=Le portail de l''EHRI permet d''accéder à des informations sur des documents d''archives concernant l''Holocauste \
   conservés dans des institutions à travers l''Europe et au-delà. \
-  Pour obtenir plus d''informations sur le projet EHRI, veuillez vous rendre sur le site : http://ehri-project.eu.
-footerText=Il s''agit d''une version en cours de dévelopement de l''interface du portail de l''EHRI
+  Pour obtenir plus d''informations sur le projet EHRI, veuillez-vous rendre sur le site : http://ehri-project.eu.
+footerText=Il s''agit d''une version en cours du développement de l''interface du portail de l''EHRI
 footer.funding=Le projet EHRI est soutenu par la Commission européenne
 close=Fermer
 optional=En option
@@ -31,7 +30,7 @@ landingBlurb.documentaryUnit=Naviguer {0} dans {1}.
 landingBlurb.documentaryUnit.link={0} descriptions d''archives
 landingBlurb.documentaryUnit.repository.link={0} institutions
 landingBlurb.historicalAgent=Naviguer {0}, composé de {1}, {2} et de {3}.
-landingBlurb.historicalAgent.link={0} notices d''autorités (acteurs historiques)
+landingBlurb.historicalAgent.link={0} acteurs historiques
 landingBlurb.corporateBody.link={0,choice,0#{0} entités juridiques|1#1 entité juridique|1<{0,number,integer} entités juridiques}
 landingBlurb.person.link={0} Personnes
 landingBlurb.family.link={0,choice,0#{0} familles|1#1 famille|1<{0,number,integer} familles}
@@ -49,15 +48,15 @@ errors.verifiedOnly=Restreint
 errors.verifiedOnlyMessage=L''accès à cette page est actuellement limité à des utilisateurs autorisés.
 errors.readonly=Le portail de l''EHRI est pour l''instant uniquement en mode lecture, pendant que nous effectuons une opération de maintenance.\
               Un service normal reprendra en temps voulu. Merci pour votre patience.
-errors.itemNotFound=Article non trouvé
-errors.itemNotFound.explanation=Cet article n''a pas pu être trouvé dans la base de données.
+errors.itemNotFound=Objet non trouvé
+errors.itemNotFound.explanation=Cet objet n''a pas été trouvédans la base de données.
 errors.pageNotFound=La page n''a pas été trouvée
 errors.pageNotFound.explanation=La page n''existe pas sur cet emplacement, ou elle a été déplacée.
 errors.genericProblem=Une erreur est survenue
 errors.genericProblem.explanation=Nous sommes désolés, mais cette page ne peut être chargée. Nous en avons été informés \
-  et nous mettons tout en œuvre pour réparer le problème dans les meilleurs délais.
+  et nous mettons tout en œuvre pour réparer le problème dans le plus bref délais.
 errors.maintenance=Site provisoirement hors ligne
-errors.maintenance.explanation=Le portail de l''EHRI est actuellement hors ligne, pendant que nous effectuons une opération d''entretien. Veuillez revenir sous peu.
+errors.maintenance.explanation=Le portail de l''EHRI est actuellement hors ligne pendant que nous effectuons une opération d''entretien.Veuillez revenir sous peu.
 errors.databaseError=Erreur de base de données
 errors.databaseError.explanation=J"ai bien peur que notre serveur de base de données ne soit en panne.    \
      Veuillez réessayer plus tard.
@@ -72,7 +71,7 @@ errors.noFurtherInfo=Aucune information supplémentaire n''est disponible.
 errors.imageTooLarge=Cette image était trop grande. Veuillez en sélectionner une qui fasse moins de 5 Mo.
 errors.badFileType=Le fichier téléchargé n''était pas un type d''image pris en charge.
 errors.noFileGiven=Aucun fichier image n"a été sélectionné.
-pagination.displayingItems={2,choice,0#Aucun article trouvé|1#Un article trouvé|1<Affichage des articles {0,number,integer} to {1,number,integer} sur {2,number,integer}}
+pagination.displayingItems={2,choice,0#Aucun objet trouvé|1#Un objet trouvé|1<Affichage des objets de {0,number,integer} à {1,number,integer} sur {2,number,integer}}
 truncated=
 truncated.items.remaining={0,choice,0#|1#et 1 de plus...|1<et {0,number,integer} de plus...}
 download=Télécharger
@@ -85,10 +84,11 @@ profile.preferences.allowMessaging=Autoriser d"autres utilisateurs à vous envoy
 profile.preferences.allowMessaging.description=Votre adresse e-mail ne sera pas directement accessible.
 profile.preferences.updatePreferences=Mise à jour des préférences
 profile.preferences.view=Afficher les préférences
+profile.preferences.view.showUserContent=Afficher les notes communiquées par les autres utilisateurs
 profile=Profil
 profile.section.general=À propos de vous
 profile.section.image=Image de profil
-profile.section.preferences=Préférences votre profil
+profile.section.preferences=Préférences de compte
 profile.section.security=Sécurité
 profile.section.delete=Supprimer
 profile.name=Votre nom
@@ -104,7 +104,7 @@ profile.about=À propos de
 profile.menu.link=Allez sur votre profil
 profile.edit=Éditer le profil
 profile.image.edit=Définir l''image de profil
-profile.delete=Supprimer le profil
+profile.delete=Supprimer le compte
 profile.delete.link=Cliquez ici pour supprimer votre compte
 profile.delete.check.text=Le fait de supprimer votre profil \
   rendra anonyme (mais ne supprimera pas) toute annotation visible publiquement et les liens que vous auriez \
@@ -115,20 +115,19 @@ profile.profile.delete.confirmation=Votre profil a été supprimé.
 profile.update=Mise à jour du profil
 profile.update.submit=Mise à jour du profil
 profile.update.confirmation=Mise à jour du profil réussie
-profile.watch.list=Sujets surveillés
-profile.watch.by={0} - Sujet(s) surveillé(s)
-profile.watch=Surveiller un sujet
-profile.watch.title=Ajoutez un sujet à votre liste de surveillance
-profile.watch.tooltip=Cliquez pour voir les mises à jour de ce sujet dans votre liste d''activité.
-profile.watch.submit=Surveiller le sujet
-profile.unwatch=Arrêter de surveiller ce sujet
-profile.unwatch.tooltip=Cliquez pour ne plus recevoir les mises à jour de ce sujet dans votre liste d''activité.
-profile.unwatch.submit=Arrêter de surveiller ce sujet
-profile.unwatch.title=Supprimer ce sujet de votre liste de surveillance
-type=Type d''élément
+profile.watch.list=Objets suivis
+profile.watch.by={0} - objet(s) suivi(s)
+profile.watch=Suivre objet
+profile.watch.title=Ajoutez objet à la liste
+profile.watch.tooltip=Cliquez pour voir les mises à jour de l''objet dans votre liste.
+profile.watch.submit=Suivre objet
+profile.unwatch=Supprimer l''objet de la liste
+profile.unwatch.tooltip=Cliquez pour ne plus recevoir les mises à jour de l''objet dans votre liste.
+profile.unwatch.submit=Supprimer objet
+profile.unwatch.title=Supprimer objet de la listetype=Type d''élément
 type.repository=Institutions archivistiques
-type.repository.description=Un répertoire des institutions d''archives qui \
-  conserve des archives liées à l''Holocauste.
+type.repository.description=Un répertoire des institutions archivistiques qui \
+  conservent des archives liées à l''Holocauste.
 type.documentaryUnit=Descriptions archivistiques
 type.documentaryUnit.description=Descriptions électroniques et aides à la recherche de documents d''archives liés à l''Holocauste.
 type.historicalAgent=Acteurs historiques
@@ -156,7 +155,7 @@ login=Connexion
 login.title=Connectez-vous ou créez un compte EHRI
 login.benefits=Un compte EHRI vous permet de :
 login.benefits.1=Contacter d''autres personnes sur EHRI
-login.benefits.2=Suivi les activités et les changements relatifs aux documents qui vous intéressent
+login.benefits.2=Suivre les activités et les changements relatifs aux documents qui vous intéressent
 login.benefits.3=Prendre des notes et contribuer à améliorer les données d''EHRI
 login.signup=S''inscrire
 login.moreOptions=Plus d''options
@@ -169,14 +168,14 @@ login.openid=OpenID
 login.email=E-mail
 login.password=Mot de passe
 login.password.confirm=Confirmer le mot de passe
-login.password.noPassword=Il n''existe actuellement aucun mot de passe associé à votre compte. Cela signifie que vous\
+login.password.noPassword=Il n''existe actuellement aucun mot de passe associé à votre compte. Cela signifie que vous \
     avez procédé à votre connexion via un fournisseur tiers tels que Google ou Facebook.
 login.password.change=Changer le mot de passe
 login.password.change.link=Cliquez ici pour changer votre mot de passe.
 login.password.change.submit=Envoyer
 login.password.change.confirmation=Le mot de passe a été modifié
-login.password.reset=Réinitialiser le Mot de passe
-login.password.reset.text=Mot de passe oublié ? Saisissez l''adresse e-mail que vous avez utilisée pour vous inscrire ci-dessous\
+login.password.reset=Réinitialiser le mot de passe
+login.password.reset.text=Mot de passe oublié ? Saisissez l''adresse e-mail que vous avez utilisée pour vous inscrire ci-dessous \
     et nous vous enverrons un lien pour le réinitialiser.
 login.password.reset.noPasswordMatching=Aucun compte ne correspond à {0}
 login.password.reset.submit=Envoyer le lien de réinitialisation
@@ -207,23 +206,23 @@ signup=Créer un compte
 signup.dataPolicyNag=En créant un compte, j''accepte de me conformer à la/aux {0} et aux {1}.
 signup.badPasswords=Le mot de passe et celui de vérification ne correspondent pas. Veuillez réessayer !
 signup.agreeTerms=Vous devez accepter les conditions générales.
-signup.confirmation=Merci pour votre inscription. Nous vous avons envoyé un e-mail que vous pouvez utiliser pour confirmer\
+signup.confirmation=Merci pour votre inscription. Nous vous avons envoyé un e-mail que vous pouvez utiliser pour confirmer \
     votre adresse e-mail.
 signup.validation.badToken=L''URL de confirmation n''est pas valide ou a expiré.
 signup.validation.confirmation=Votre compte a été validé.
 mail.forgotPasswordMailHeading=Réinitialisation du mot de passe EHRI
-mail.forgotPasswordMessage=Pour réinitialiser votre mot de passe, veuillez suivre le lien ci-dessous. Remarque : ce lien ne peut être utilisé qu''une seule fois\
+mail.forgotPasswordMessage=Pour réinitialiser votre mot de passe, veuillez suivre le lien ci-dessous. Remarque : ce lien ne peut être utilisé qu''une seule fois \
     pour réinitialiser votre mot de passe.
 mail.confirmEmailHeading=Veuillez confirmer votre adresse e-mail
 mail.confirmEmailMessage=Veuillez confirmer votre adresse e-mail en visitant l''adresse suivante :
-mail.confirmEmailFooter=Ce lien sera valide pendant 1 semaine, après quoi votre compte sera\
+mail.confirmEmailFooter=Ce lien sera valide pendant 1 semaine, après quoi votre compte sera \
     désactivé.
 mail.unverifiedEmailWarning=Compte non vérifié
 mail.unverifiedEmailWarningMessage=L''adresse e-mail associée à votre compte n''a pas encore été vérifiée.
 mail.unverifiedEmailResend=Pour renvoyer un e-mail de vérification,
 mail.unverifiedEmailResendSubmit=cliquez ici
 mail.emailConfirmationResent=Nous vous avons envoyé un e-mail que vous pouvez utiliser pour confirmer votre adresse e-mail.
-mail.message.subject=EHRI : Message de {0} : {1}
+mail.message.subject=EHRI : Message de {0} : {1}
 mail.message.copy.subject=EHRI : Votre message à {0} : {1}
 mail.message.heading=Nouveau message de {0}
 mail.message.copy.heading=Copie de votre message à {0}
@@ -238,7 +237,7 @@ bookmarkSet.edit.submit=Envoyer
 bookmarkSet.delete=Supprimer un ensemble de signets
 bookmarkSet.delete.submit=Supprimer
 bookmarkSet.noBookmarkSetsYet=Vous n''avez créé aucun ensemble de signets jusqu''à maintenant.
-bookmarkSet.noUserBookmarkSetsYet={0} n''a par encore d''ensemble de signets public.
+bookmarkSet.noUserBookmarkSetsYet={0} n''a pas encore d''ensemble de signets public.
 description.additionalData=Autres données recueillies (Cliquez pour afficher)
 description.additionalData.key=Clé
 description.additionalData.value=Valeur
@@ -280,19 +279,19 @@ systemEvent.promotion=Élément promu
 systemEvent.demotion=Promotion de l''élément supprimée
 error.globalErrors=Il y a eu des problèmes avec ce formulaire :
 error.date=La date est incorrecte ou mal formatée
-error.badUrl=L''URL est incorrecte ou mal formatée Remarque : pour les adresses Web, une URL valide doit être préfixée \
+error.badUrl=L''URL est incorrecte ou mal formatée. Remarque : pour les adresses Web, une URL valide doit être préfixée \
     selon le schéma, par exemple "http://" ou "https://"
 error.required=Requis
 error.emailExists=L''adresse e-mail n''est pas valide ou est déjà enregistrée
 error.unknownUser=Utilisateur inconnu
 error.emailNotFound=Cette adresse e-mail est introuvable dans notre système.
-error.badRecaptcha=Le code de vérification Recaptcha (destiné à s''assurer que vous êtes une personne et non une machine automatisée) ne\
-      correspond pas. Astuce : vous pouvez changer le code de vérification jusqu''à ce que vous obteniez quelque chose de plus lisible.
+error.badRecaptcha=Le code de vérification Recaptcha (destiné à s''assurer que vous êtes une personne et non une machine automatisée) ne \
+    correspond pas. Astuce : vous pouvez changer le code de vérification jusqu''à ce que vous obteniez quelque chose de plus lisible.
 error.rateLimit=Nombre maximum de tentatives dépassé. Veuillez patienter {0} minutes avant d''essayer à nouveau.
 error.openId=Il y a eu un problème pour vous connecter avec OpenID.\
     Cela peut s''expliquer par le fait que votre fournisseur ne prend pas en charge les échanges d''attribut.
 error.openId.url=Il n''y a pas eu de réponse du fournisseur OpenID indiqué : {0}.\
-    Veuillez vous assurer que l''adresse URL du fournisseur est correcte.
+    Veuillez-vous assurer que l''adresse URL du fournisseur est correcte.
 error.userEmailAlreadyRegistered=Un utilisateur ayant cette adresse e-mail est déjà inscrit : {0}
 search.submit=Chercher
 search.clear=Effacer la recherche
@@ -300,7 +299,7 @@ search.sort=Ordre
 search.sort.identifier.asc=ID/Code
 search.sort.identifier.asc.title=Affiche les résultats triés en fonction de l''identifiant de l''institution en question
 search.sort.isParent.desc-identifier.asc=ID/Code
-search.sort.isParent.desc-identifier.asc.title=Affiche les résultats triés en fonction de l''identifiant de l''institution en question, avec les éléments conteneurs en premier
+search.sort.isParent.desc-identifier.asc.title=Affiche les résultats triés en fonction de l''identifiant de l''institution en question, avec les éléments « conteneurs » en premier
 search.sort.name_sort.asc=Nom
 search.sort.name_sort.asc.title=Affiche les résultats triés par nom
 search.sort.lastUpdated.desc=Récemment mis à jour
@@ -316,10 +315,10 @@ search.sort.countryName.asc.title=Trie les résultats par pays
 search.identifier=Identifiant
 search.spellingSuggestion=Vouliez-vous dire
 search.queryPlaceholder=Recherche...
-search.results.list={3,choice,0#{0}|1#{0} - un élément|1<{0} - {1,number,integer} à {2,number,integer} sur {3,number,integer}}
-search.item.results.list={3,choice,0#{0}|1#{0} - un élément|1<{0} - Éléments {1,number,integer} à {2,number,integer} sur {3,number,integer}}
+search.results.list={3,choice,0#{0}|1#{0} - un élément|1<{0} – de {1,number,integer} à {2,number,integer} sur {3,number,integer}}
+search.item.results.list={3,choice,0#{0}|1#{0} - un élément|1<{0} - Éléments de {1,number,integer} à {2,number,integer} sur {3,number,integer}}
 facet.type=Type d''élément
-facet.type.tooltip=Le type d''élément, par ex. institutions, descriptions de documents d''archives\
+facet.type.tooltip=Le type d''élément, par ex. institutions, descriptions de documents d''archives \
     ou rapports par pays.
 facet.lang=Langue de la description
 facet.lang.placeholder=Filtrer par langue
@@ -333,7 +332,7 @@ facet.parent.tooltip=Si cet élément est un conteneur pour d''autres enregistre
 facet.parent.true=Élément conteneur
 facet.parent.false=Élément unique
 facet.source=Source de description
-facet.source.tooltip=La source de la description électronique, par exemple, si elle a été\
+facet.source.tooltip=La source de la description électronique, par exemple, si elle a été \
     créée par l''équipe EHRI ou importée à partir de données structurées fournies par une institution partenaire.
 facet.source.MANUAL=EHRI
 facet.source.IMPORT=Partenaire EHRI
@@ -473,7 +472,7 @@ timeline.eventType.ingest={0} a importé {1}
 timeline.eventType.creation={0} a créé {1}
 timeline.eventType.annotation={0} a annoté {1}
 timeline.eventType.modification={0} a mis à jour {1}
-timeline.eventType.link={0} a établie un lien avec {1}
+timeline.eventType.link={0} a établi un lien avec {1}
 timeline.eventType.createDependent={0} a mis à jour {1}
 timeline.eventType.modifyDependent={0} a mis à jour {1}
 timeline.eventType.deleteDependent={0} a mis à jour {1}
@@ -517,7 +516,7 @@ search.helper.quotes=Rechercher une correspondance exacte de votre recherche, pa
 feedback=Commentaire
 feedback.submit=Envoyer
 feedback.message=Faites-nous savoir ce que vous pensez...
-feedback.thanks=Merci !
+feedback.thanks=Merci !
 feedback.thanks.message=Votre avis sera grandement apprécié.
 feedback.list=Commentaire envoyé
 feedback.type=Ce commentaire concerne
@@ -525,12 +524,15 @@ feedback.type.site=le site (fonctionnalités, design, etc.)
 feedback.type.data=le contenu des données
 helpdesk=Service d''assistance
 helpdesk.email=Votre adresse e-mail
-helpdesk.thanks=Merci !
+helpdesk.message=Le service d''assistance va tenter de transmettre votre demande à l''institution partenaire d''EHRI \
+    la plus à même d''y répondre.
+helpdesk.thanks=Merci !
 helpdesk.thanks.message=Votre demande a été envoyée.
 helpdesk.query=Demande
 helpdesk.error=Oups ! Quelque chose s''est mal passé avec le service d''assistance. Voici ce qui est indiqué :
 helpdesk.results=Recommandations de contact du service d''assistance
 helpdesk.results.empty=Aucune institution pertinente trouvée. Veuillez reformuler votre demande et ajouter plus de détails.
+helpdesk.query.placeholder=Saisissez votre demande ici. Les termes spécifiques à des sujets sont préférables.
 helpdesk.copyMe=Envoyer par e-mail une copie de la demande à votre adresse
 helpdesk.youAsked=Vous avez demandé
 helpdesk.institution=Nom de l''institution
@@ -570,7 +572,7 @@ privacy.users.3=Les utilisateurs qui s''inscrivent sur le portail EHRI et créen
 privacy.users.4=Sauf dans les cas énumérés ci-dessus, EHRI ne communiquera pas les données d''utilisateurs inscrits à des tiers \
     sauf si cela est requis par la loi.
 privacy.data.header=2. Données sur le portail de la recherche
-privacy.data.1=Le portail de recherche contient des descriptions de collections et de sources liées à l''Holocauste conservées dans \
+privacy.data.1=Le portail de recherche contient des descriptions de collections et de sources liées à l''Holocauste, conservées dans \
     des institutions détentrices (archives, centres de documentation ...) en Europe, \
     ainsi qu''aux États-Unis et en Israël. Ces descriptions de collections peuvent concerner des données personnelles ou des données personnelles sensibles (par ex. \
     des données relatives à la religion ou à l''origine ethnique). Étant donné que le traitement et la publication de ces données peuvent avoir \
@@ -730,7 +732,7 @@ documentaryUnit.dates=Dates
 documentaryUnit.levelOfDescription=Niveau de description
 documentaryUnit.languageOfMaterials=Langues
 documentaryUnit.scriptOfMaterials=Ecritures
-documentaryUnit.searchItems=Recherche des sous-éléments
+documentaryUnit.searchItems=Recherchedes sous-éléments...
 documentaryUnit.levelOfDescription.fonds=Fonds
 documentaryUnit.levelOfDescription.subfonds=Sous-fonds
 documentaryUnit.levelOfDescription.collection=Collection
@@ -750,13 +752,13 @@ documentaryUnit.languageCode=Langue de la description
 documentaryUnit.abstract=Résumé
 documentaryUnit.accruals=Accroissements
 documentaryUnit.conditionsOfAccess=Conditions d''accès
-documentaryUnit.conditionsOfReproduction=Conditions de reproduction
+documentaryUnit.conditionsOfReproduction=Conditions dereproduction
 documentaryUnit.languageOfMaterial=Langue(s) des documents
 documentaryUnit.scriptOfMaterial=Ecriture(s) des documents
-documentaryUnit.physicalCharacteristics=Caractéristiques matérielles et contraintes technique
+documentaryUnit.physicalCharacteristics=Caractéristiques matérielles et contraintes techniques
 documentaryUnit.findingAids=Instruments de recherche
-documentaryUnit.locationOfOriginals=Existence et lieu
-documentaryUnit.locationOfCopies=Existence et lieu de copies
+documentaryUnit.locationOfOriginals=Existence et lieudes originaux
+documentaryUnit.locationOfCopies=Existence et lieude copies
 documentaryUnit.relatedUnitsOfDescription=Sources complémentaires
 documentaryUnit.publicationNote=Bibliographie
 documentaryUnit.notes=Note(s)
@@ -769,7 +771,7 @@ documentaryUnit.creationProcess.MANUAL.description=Cette description a été cr�
 documentaryUnit.creationProcess.IMPORT=Partenaire EHRI
 documentaryUnit.creationProcess.IMPORT.disclaimer=Cette description est directement dérivée des données structurées fournies à EHRI par une \
    institution partenaire. Cette institution détentrice de collection considère cette description comme le reflet exact du fonds d''archives \
-    auquel elle se réfère au moment du transfert des données.
+   auquel elle se réfère au moment du transfert des données.
 historicalAgent.identifier=Identifiant
 historicalAgent.dates=Dates
 historicalAgent.entityType=Type d''entité
@@ -803,31 +805,31 @@ historicalAgent.descriptionIdentifier=Identifiant de description
 historicalAgent.institutionIdentifier=Identifiant d''institution
 historicalAgent.rulesAndConventions=Règles et conventions
 historicalAgent.status=Statut
-historicalAgent.levelOfDetail=Niveau de détails
+historicalAgent.levelOfDetail=Niveau de détail
 historicalAgent.datesCVD=Dates de création et de destruction
 historicalAgent.languages=Langues
 historicalAgent.scripts=Ecritures
 historicalAgent.source=Sources
-historicalAgent.maintenanceNotes=Notes relatives à la mise à jour de la description
+historicalAgent.maintenanceNotes= Notes relatives à la mise à jour de la description
 cvocConcept.descriptions=Descriptions
 cvocConcept.languageCode=Langue
 cvocConcept.name=Étiquette privilégiée
 cvocConcept.altLabel=Alt. Étiquette(s)
-cvocConcept.scopeNote=Note sur le champ de conservation
+cvocConcept.scopeNote=Note sur le champ d''application
 cvocConcept.definition=Définition
 cvocConcept.inVocabulary=Vocabulaire
 cvocConcept.search=Termes de recherche
 cvocConcept.broaderTerms=Termes plus généraux
 cvocConcept.narrowerTerms=Termes plus précis
 cvocConcept.narrowerTermsPageHeader={2,choice,0#Aucun terme plus précis trouvé|1#Un terme plus précis trouvé|1<Termes plus précis {0,number,integer} à {1,number,integer} sur {2,number,integer}}
-virtualUnit.viewInArchivalContext=Afficher dans le contexte d''archivage
+virtualUnit.viewInArchivalContext=Afficher dans le contexte de conservation
 virtualUnit.viewInArchivalContext.explanation=Cet élément est affiché en tant que partie d''une "collection virtuelle" \
     qui ne reflète pas la disposition du matériel au sein des archives physiques.
 country.childItems=Institutions d''archives
-country.childItems.search={0,choice,0#{0} institutions |1#1 institution|1<{0,number,integer} institutions}
+country.childItems.search={0,choice,0#{0} niveau inférieur |1#1 institution|1<{0,number,integer} institutions}
 country.repositoriesPageHeader={2,choice,0#Aucun référentiel trouvé|1#Un référentiel trouvé|1<Référentiels de {0,number,integer} à {1,number,integer} sur {2,number,integer}}
 country.search=Recherche de pays
-country.searchInside=Rechercher de référentiels
+country.searchInside=Recherche de référentiels
 country.childCount={0,choice,0#Aucune institution énumérée|1#1 institution énumérée|1<{0,number,integer} institutions énumérées}
 country.items=Référentiels
 country.identifier=Code pays
@@ -840,3 +842,5 @@ country.dataExtensive=Recherche EHRI (extensif)
 country.list=Pays
 cvocVocabulary.childItems=Mots clés
 cvocVocabulary.childItems.search={0,choice,0#{0} |1#1 mot-clé|1<{0,number,integer} mots-clés}
+
+
