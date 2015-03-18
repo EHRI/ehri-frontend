@@ -74,6 +74,15 @@
     font-weight: bold;
   }
 
+  .item-text-field-list {
+    &:extend(.list-unstyled);
+    // Allows both left-to-right and right-to-left elements
+    // in the same list
+    li {
+      text-align: unset;
+    }
+  }
+
   .item-text-field-value {
     .make-md-column(9);
 
@@ -89,15 +98,6 @@
       font-size: inherit;
       padding: inherit;
       background-color: inherit;
-    }
-
-    &.item-text-field-list {
-      &:extend(.list-unstyled);
-      // Allows both left-to-right and right-to-left elements
-      // in the same list
-      li {
-        text-align: unset;
-      }
     }
   }
 }
