@@ -13,19 +13,21 @@ import backend.rest._
 import backend.{Backend, EventHandler, FeedbackDAO, IdGenerator, _}
 import com.google.inject.{AbstractModule, Guice}
 import com.typesafe.plugin.{CommonsMailerPlugin, MailerAPI}
+import controllers.base.SessionPreferences
 import global.GlobalConfig
 import play.api._
+import play.api.i18n.Lang
 import play.api.mvc.{RequestHeader, Result, WithFilters}
 import play.filters.csrf._
 import eu.ehri.project.search.solr.{SolrSearchEngine, SolrQueryBuilder,JsonResponseHandler,WriterType}
-import utils.{DbMovedPageLookup, MovedPageLookup}
+import utils.{SessionPrefs, DbMovedPageLookup, MovedPageLookup}
 import utils.search._
 
 import scala.concurrent.Future
 import scala.concurrent.Future.{successful => immediate}
 
 
-object Global extends WithFilters(CSRFFilter()) with GlobalSettings {
+object Global extends WithFilters(CSRFFilter()) with GlobalSettings with SessionPreferences[SessionPrefs] {
 
   import play.api.Play.current
 
@@ -103,6 +105,23 @@ object Global extends WithFilters(CSRFFilter()) with GlobalSettings {
   import controllers.renderError
   import play.api.mvc.Results._
   import views.html.errors._
+
+  /**
+   * Annoyingly, to render multilingual error pages from the
+   * global object we have to mix in all the request, session,
+   * and language-changing mechanisms.
+   */
+  protected val defaultPreferences = new SessionPrefs
+
+  /**
+   * Extract a language from the user's preferences and put it in
+   * the implicit scope.
+   */
+  implicit def request2lang(implicit request: RequestHeader): Lang =
+    request.preferences.language match {
+      case None => Lang.defaultLang
+      case Some(lang) => Lang(lang)
+    }
 
   override def onError(request: RequestHeader, ex: Throwable) = {
     implicit def req: RequestHeader = request
