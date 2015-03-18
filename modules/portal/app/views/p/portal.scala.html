@@ -21,7 +21,7 @@
                 <div class="jumbotron-container">
                     <div class="jumbotron">
                         <div class="container">
-                            <h1>@Messages("welcome") <sup class="text-muted">Beta</sup></h1>
+                            <h1>@Messages("welcome")</h1>
                             @helper.form(action = controllers.portal.routes.Portal.search(), 'role -> "form") {
                                 @views.html.common.search.searchBar(utils.search.SearchParams.empty)
                             }
