@@ -1,6 +1,6 @@
 @()(implicit userOpt: Option[UserProfile], request: RequestHeader, globalConfig: global.GlobalConfig, sessionPrefs: utils.SessionPrefs, flash: Flash, lang: Lang)
 
-@views.html.p.layout.portalLayout(Messages("termsAndConditions")) {
+@views.html.p.layout.textLayout(Messages("termsAndConditions")) {
     @views.html.layout.mainContent {
         <h2>@Messages("termsAndConditions")</h2>
 
