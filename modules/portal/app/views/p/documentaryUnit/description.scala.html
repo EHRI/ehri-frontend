@@ -2,19 +2,19 @@
 @import models.base.Description.CreationProcess
 
 @import models.IsadG._
-@import views.html.p.common.descriptionSection
-@import views.html.p.common.textField
-@import views.html.p.common.listField
+@import views.html.common.descriptionSection
+@import views.html.common.textField
+@import views.html.common.listField
 
 
-@views.html.p.common.descriptionOutline(item, desc, annotations) {
+@views.html.common.descriptionOutline(item, desc, annotations) {
 
     @defining(Annotation.fieldAnnotations(desc.id, annotations)) { implicit fieldAnnotations =>
         @* Description *must* have an ID here or something bad has gone wrong! *@
         @desc.id.map { descId =>
 
-            @views.html.p.common.itemHeader(desc.name) {
-                @views.html.p.common.otherNameList(desc.identity.parallelFormsOfName)
+            @views.html.common.itemHeader(desc.name) {
+                @views.html.common.otherNameList(desc.identity.parallelFormsOfName)
             }
 
             @views.html.p.documentaryUnit.details(item, desc)
@@ -26,7 +26,7 @@
             }
 
             @descriptionSection(CONTEXT_AREA) {
-                @views.html.p.common.accessPointLinks(item, desc, links, List(AccessPointF.AccessPointType.CreatorAccess))
+                @views.html.common.accessPointLinks(item, desc, links, List(AccessPointF.AccessPointType.CreatorAccess))
                 @textField(item, descId, desc.context.biographicalHistory, ADMIN_BIOG)
                 @textField(item, descId, desc.context.archivalHistory, ARCH_HIST)
                 @textField(item, descId, desc.context.acquisition, ACQUISITION)
@@ -66,7 +66,7 @@
             }
 
             @descriptionSection(ACCESS_POINTS) {
-                @views.html.p.common.accessPointLinks(item, desc, links, AccessPointF.AccessPointType.exceptCreator.toList)
+                @views.html.common.accessPointLinks(item, desc, links, AccessPointF.AccessPointType.exceptCreator.toList)
             }
         }
     }

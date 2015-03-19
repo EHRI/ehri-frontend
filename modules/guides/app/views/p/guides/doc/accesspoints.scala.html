@@ -23,7 +23,7 @@
 
 @if(links.nonEmpty) {
   @defining(EntityType.DocumentaryUnit.toString) { implicit fieldPrefix =>
-    @views.html.p.common.descriptionSection("accessPointLinks", Messages("item.accessPointLinks")) {
+    @views.html.common.descriptionSection("accessPointLinks", Messages("item.accessPointLinks")) {
         @if(desc.accessPoints.nonEmpty) {
             @AccessPointF.AccessPointType.values.toList.map { accessPointType =>
                 @defining(desc.accessPoints.filter(_.accessPointType == accessPointType)) { apLinks =>

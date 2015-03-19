@@ -1,7 +1,7 @@
 @(item: models.base.Accessible, historyUrl: Call)(implicit request: RequestHeader, lang: Lang)
 
 @item.latestEvent.map { ev =>
-    @views.html.p.common.footerPanel(Messages("item.history"), cls = "history inactive") {
+    @views.html.common.footerPanel(Messages("item.history"), cls = "history inactive") {
         <strong title="@common.eventTitle(ev)">@views.Helpers.relativeDate(ev.model.timestamp)</strong>
         <p class="text-muted">
             <em>@ev.toStringLang</em>

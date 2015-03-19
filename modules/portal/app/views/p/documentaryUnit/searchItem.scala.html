@@ -19,7 +19,7 @@
     @defining(views.Helpers.textDirection(desc)) { dir =>
         <div class="search-item" id="@item.id" dir="@dir">
             <div class="search-item-actions">
-            @views.html.p.common.watchButtonsSmall(item, watched)
+            @views.html.common.watchButtonsSmall(item, watched)
             </div>
             <h3 class="search-item-heading type-highlight @item.isA.toString" dir="@dir">
                 <a href="@controllers.portal.routes.DocumentaryUnits.browse(item.id) @anchor">@hit.highlight(desc.name)</a>

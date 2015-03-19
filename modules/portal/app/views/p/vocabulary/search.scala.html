@@ -2,8 +2,8 @@
 
 @views.html.p.layout.itemSearchLayout(item.toStringLang, EntityType.Vocabulary.toString, result) {
 } {
-    @views.html.p.common.itemDetailsLink(Messages("details.show"), controllers.portal.routes.Vocabularies.browse(item.id)) {
-        @views.html.p.common.itemHeader(item.toStringLang) {
+    @views.html.common.itemDetailsLink(Messages("details.show"), controllers.portal.routes.Vocabularies.browse(item.id)) {
+        @views.html.common.itemHeader(item.toStringLang) {
         }
     }
 

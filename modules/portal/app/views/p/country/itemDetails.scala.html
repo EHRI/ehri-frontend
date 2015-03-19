@@ -1,11 +1,11 @@
 @(item: Country, annotations: Seq[Annotation], links: Seq[Link], watched: Seq[String])(implicit userOpt: Option[UserProfile], request: RequestHeader, prefs: utils.SessionPrefs, globalConfig: global.GlobalConfig, lang: Lang, flash: Flash)
 
 @import CountryF._
-@import views.html.p.common.textField
+@import views.html.common.textField
 
 @views.html.layout.itemDetails {
     @views.html.p.layout.rightSidebar {
-        @views.html.p.common.itemHeader(item.toStringLang) {
+        @views.html.common.itemHeader(item.toStringLang) {
         }
         @defining(Annotation.fieldAnnotations(Some(item.id), annotations)) { implicit fieldAnnotations =>
             @defining("country") { implicit fieldPrefix =>
@@ -17,7 +17,7 @@
             }
         }
     } {
-        @views.html.p.common.typeLabelWithWatchButton(item, watched.contains(item.id), introNotice())
+        @views.html.common.typeLabelWithWatchButton(item, watched.contains(item.id), introNotice())
 
         @views.html.p.layout.sidepanelToc {
             <div class="child-items panel-details">
@@ -49,7 +49,7 @@
                 </div>
             </div>
 
-            @views.html.p.common.latestAction(item, controllers.portal.routes.Portal.itemHistory(item.id, modal = true))
+            @views.html.common.latestAction(item, controllers.portal.routes.Portal.itemHistory(item.id, modal = true))
         }
     }
 }

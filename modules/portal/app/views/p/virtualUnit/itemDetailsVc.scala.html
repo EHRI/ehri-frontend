@@ -12,20 +12,20 @@
                             @views.html.p.documentaryUnit.description(vc.asDocumentaryUnit, desc, links, annotations)
                         }
 
-                        @views.html.p.common.externalLinks(item.asInstanceOf[VirtualUnit], links)
-                        @views.html.p.common.annotationLinks(item.asInstanceOf[VirtualUnit], links)
+                        @views.html.common.externalLinks(item.asInstanceOf[VirtualUnit], links)
+                        @views.html.common.annotationLinks(item.asInstanceOf[VirtualUnit], links)
                     } {
-                        @views.html.p.common.typeLabel(vc.isA) {
+                        @views.html.common.typeLabel(vc.isA) {
                             @if(userOpt.isDefined) {
                                 <ul class="item-sidebar-actions list-group">
                                     <li class="list-group-item btn-group-justified watch-controls" role="group">
-                                    @views.html.p.common.watchButtons(item, watched.contains(item.id))
+                                    @views.html.common.watchButtons(item, watched.contains(item.id))
                                     </li>
                                 </ul>
                             }
                         }
                     } {
-                        @views.html.p.common.latestAction(vc, controllers.portal.routes.Portal.itemHistory(item.id))
+                        @views.html.common.latestAction(vc, controllers.portal.routes.Portal.itemHistory(item.id))
                     }
                 }
             }

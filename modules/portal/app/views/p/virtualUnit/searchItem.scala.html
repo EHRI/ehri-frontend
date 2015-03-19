@@ -26,7 +26,7 @@
 
 <div class="search-item" id="@item.id">
         <div class="search-item-actions">
-            @views.html.p.common.watchButtonsSmall(item, watched)
+            @views.html.common.watchButtonsSmall(item, watched)
         </div>
         <h3 class="search-item-heading type-highlight @item.isA.toString">
             <a class="@item.isA" href="@views.p.Helpers.virtualUnitUrl(path, item.id)">

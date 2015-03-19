@@ -1,17 +1,17 @@
 @(item: Repository, desc: RepositoryDescriptionF, links: Seq[Link], annotations: Seq[Annotation])(implicit userOpt: Option[UserProfile], req: RequestHeader, prefs: utils.SessionPrefs, globalConfig: global.GlobalConfig, lang: Lang, fieldPrefix: String)
 
 @import Isdiah._
-@import views.html.p.common.descriptionSection
-@import views.html.p.common.textField
-@import views.html.p.common.listField
+@import views.html.common.descriptionSection
+@import views.html.common.textField
+@import views.html.common.listField
 
-@views.html.p.common.descriptionOutline(item, desc, annotations) {
+@views.html.common.descriptionOutline(item, desc, annotations) {
     @defining(Annotation.fieldAnnotations(desc.id, annotations)) { implicit fieldAnnotations =>
         @desc.id.map { descId =>
 
-            @views.html.p.common.itemHeader(desc.name) {
-                @views.html.p.common.otherNameList(desc.parallelFormsOfName)
-                @views.html.p.common.otherNameList(desc.otherFormsOfName)
+            @views.html.common.itemHeader(desc.name) {
+                @views.html.common.otherNameList(desc.parallelFormsOfName)
+                @views.html.common.otherNameList(desc.otherFormsOfName)
             }
 
             @descriptionSection(DESCRIPTION_AREA) {
@@ -50,7 +50,7 @@
             }
 
             @descriptionSection(ACCESS_POINTS) {
-                @views.html.p.common.accessPointLinks(item, desc, links)
+                @views.html.common.accessPointLinks(item, desc, links)
             }
         }
     }

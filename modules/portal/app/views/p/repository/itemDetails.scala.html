@@ -7,7 +7,7 @@
                 @description(item, desc, links, annotations)
             }
         } {
-            @views.html.p.common.typeLabelWithWatchButton(item, watched.contains(item.id))
+            @views.html.common.typeLabelWithWatchButton(item, watched.contains(item.id))
         } {
             @item.model.logoUrl.map { logo =>
                 @defining(item.url.getOrElse(controllers.portal.routes.Repositories.browse(item.id).absoluteURL(req.secure))) { url =>
@@ -18,14 +18,14 @@
             }
             @* FIXME: This will list addresses for multiple descriptions
             regardless of which one is being displayed *@
-            @views.html.p.common.panel(Messages("contact")) {
+            @views.html.common.panel(Messages("contact")) {
                 @item.model.descriptions.map { desc =>
                     @address(item, desc)
                 }
             }
             @views.html.p.layout.sidepanelToc {
-                @views.html.p.common.childItemSidebar(item, EntityType.DocumentaryUnit)
-                @views.html.p.common.latestAction(item, controllers.portal.routes.Portal.itemHistory(item.id, modal = true))
+                @views.html.common.childItemSidebar(item, EntityType.DocumentaryUnit)
+                @views.html.common.latestAction(item, controllers.portal.routes.Portal.itemHistory(item.id, modal = true))
             }
         }
     }

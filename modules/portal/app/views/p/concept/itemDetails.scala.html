@@ -7,12 +7,12 @@
                 @description(item, desc, links, annotations)
             }
 
-            @views.html.p.common.externalLinks(item, links)
-            @views.html.p.common.annotationLinks(item, links)
+            @views.html.common.externalLinks(item, links)
+            @views.html.common.annotationLinks(item, links)
         } {
-            @views.html.p.common.typeLabelWithWatchButton(item, watched.contains(item.id))
+            @views.html.common.typeLabelWithWatchButton(item, watched.contains(item.id))
         } {
-            @views.html.p.common.latestAction(item, controllers.portal.routes.Portal.itemHistory(item.id, modal = true))
+            @views.html.common.latestAction(item, controllers.portal.routes.Portal.itemHistory(item.id, modal = true))
         }
     }
 }

@@ -3,8 +3,8 @@
 @views.html.p.layout.itemSearchLayout(item.toStringLang, item.isA.toString, result) {
     @infobar(item)
 } {
-    @views.html.p.common.itemDetailsLink(Messages("details.show"), controllers.portal.routes.Repositories.browse(item.id)) {
-        @views.html.p.common.itemHeader(item.toStringLang) {
+    @views.html.common.itemDetailsLink(Messages("details.show"), controllers.portal.routes.Repositories.browse(item.id)) {
+        @views.html.common.itemHeader(item.toStringLang) {
         }
     }
 

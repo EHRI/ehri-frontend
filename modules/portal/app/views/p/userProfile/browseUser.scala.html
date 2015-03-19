@@ -4,8 +4,8 @@
     @profileBar(them){
         @for(user <- userOpt if user.id != them.id) {
         <div class="btn-group">
-            @views.html.p.common.messageButtons(them, canMessage)
-            @views.html.p.common.followingButtons(them, followed)
+            @views.html.common.messageButtons(them, canMessage)
+            @views.html.common.followingButtons(them, followed)
         </div>
         }
     }

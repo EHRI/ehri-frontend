@@ -8,7 +8,7 @@
                     <h4 class="item-text-field-header">@Messages("accessPoint.type." + accessPointType)</h4>
                     <ul class="item-text-field-value item-text-field-list item-access-point-links" dir="auto">
                         @apLinks.map { accessPoint =>
-                            @views.html.p.common.accessPointLink(item, accessPoint, links)
+                            @views.html.common.accessPointLink(item, accessPoint, links)
                         }
                     </ul>
                 </div>

@@ -4,13 +4,13 @@
     @layout.mainContent {
         @views.html.layout.itemDetails {
             @views.html.p.layout.rightSidebar {
-                @views.html.p.common.itemHeader(item.toStringLang) {
+                @views.html.common.itemHeader(item.toStringLang) {
                 }
                 @content
             } {
-                @views.html.p.common.typeLabel(item.isA) {
+                @views.html.common.typeLabel(item.isA) {
                 }
-                @views.html.p.common.latestAction(item, controllers.portal.routes.Portal.itemHistory(item.id, modal = true))
+                @views.html.common.latestAction(item, controllers.portal.routes.Portal.itemHistory(item.id, modal = true))
             }
         }
     }
