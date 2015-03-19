@@ -2,7 +2,7 @@
 
 @views.html.layout.searchLayout(Messages("type.historicalAgent"), EntityType.HistoricalAgent.toString, result, meta = Map("description" -> Messages("type.historicalAgent.description")(Lang.defaultLang))) {
     @views.html.common.search.searchForm(result, action, autofocus = false) {
-        @views.html.searchItemList(result, watched)
+        @views.html.common.search.searchItemList(result, watched)
     } {
         @views.html.common.typeLabel(EntityType.HistoricalAgent) {
         }

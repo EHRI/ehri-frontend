@@ -2,7 +2,7 @@
 
 @views.html.layout.searchLayout(Messages("browse.vocabularies"), EntityType.Vocabulary.toString, result) {
     @views.html.common.search.searchForm(result, action, autofocus = false) {
-        @views.html.searchItemList(result, watched)
+        @views.html.common.search.searchItemList(result, watched)
     } {
         @views.html.common.typeLabel(EntityType.Vocabulary) {
         }

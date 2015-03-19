@@ -1,8 +1,8 @@
-@(item: AnyModel, result: utils.search.SearchResult[(AnyModel,utils.search.SearchHit)], entityType: EntityType.Value, action: Call, linkAction: (String,EntityType.Value,String) => Call)(
+@(item: models.base.AnyModel, result: utils.search.SearchResult[(models.base.AnyModel,utils.search.SearchHit)], entityType: EntityType.Value, action: Call, linkAction: (String,EntityType.Value,String) => Call)(
 implicit userOpt: Option[UserProfile], req: RequestHeader, globalConfig: global.GlobalConfig, lang: Lang, flash: Flash)
 
 @views.html.admin.layout.adminSearchLayout(Messages("link.create"), result, action, breadcrumbs = views.html.admin.common.breadcrumbs(List(item))) {
-    @search.searchSection(Messages("contentTypes." + entityType.toString), result) {
+    @views.html.common.search.searchSection(Messages("contentTypes." + entityType.toString), result) {
         <ul>
             @result.page.items.map { case (otherItem, descId) =>
 
