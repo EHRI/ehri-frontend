@@ -3,14 +3,13 @@
   .make-row();
 
   .login-or-signup {
-	.make-md-column-push(3);
-	.make-md-column(6);
+	.make-md-column-push(2);
+	.make-md-column(8);
   }
 }
 
 .login-disclaimer {
-  .small;
-  .text-muted;
+  &:extend(.small, .text-muted);
   a {
     color: inherit;
     text-decoration: none;

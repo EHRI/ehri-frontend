@@ -2,7 +2,7 @@
 
 <nav class="navbar navbar-inverse navbar-static-top" role="navigation">
     <div class="container">
-        <div class="navbar-header">
+        <div class="navbar-header pull-right" id="navbar-admin-toggle">
             <button type="button" class="navbar-toggle collapsed" data-toggle="collapse"
                     data-target="#navbar-admin" aria-expanded="false" aria-controls="navbar-admin">
                 <span class="sr-only">Toggle navigation</span>
@@ -12,8 +12,8 @@
             </button>
         </div>
 
+        @leftMenu
         <div id="navbar-admin" class="navbar-collapse collapse">
-            @leftMenu
             @rightMenu
         </div>
     </div>
