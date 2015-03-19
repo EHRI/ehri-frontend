@@ -12,7 +12,7 @@
             @formHelpers.hiddenInput(f(FIELD))
             @form(f)
             <div class="annotation-submit-controls form-group">
-                @p.annotation.customVisibility(f, visForm, accessorsForm, users, groups)
+                @views.html.p.annotation.customVisibility(f, visForm, accessorsForm, users, groups)
                 <div class="checkbox-inline" data-toggle="tooltip" title="@Messages("contribution.visibility.isPrivate.title")">
                     @helper.checkbox(
                         f(IS_PRIVATE),

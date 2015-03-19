@@ -1,6 +1,6 @@
 @(user: UserProfile, links: utils.Page[Link])(implicit userOpt: Option[UserProfile], req: RequestHeader, lang: Lang)
 
-@p.common.footerPanel(Messages("profile.links")) {
+@views.html.p.common.footerPanel(Messages("profile.links")) {
     @if(links.nonEmpty) {
         <ul class="user-links">
 

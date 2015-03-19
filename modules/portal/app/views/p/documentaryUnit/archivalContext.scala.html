@@ -4,7 +4,7 @@
     @doc.parent.map { parent =>
         @wrapParent(parent) {
             <div class="ancestor">
-                @p.helpers.linkTo(parent)
+                @views.html.p.helpers.linkTo(parent)
                 @html
             </div>
         }
@@ -15,7 +15,7 @@
 
 @wrapCountry(countryOpt: Option[Country])(html: Html) = {
     @countryOpt.map { country =>
-        @p.helpers.linkTo(country)
+        @views.html.p.helpers.linkTo(country)
         <div class="ancestor">
             @html
         </div>

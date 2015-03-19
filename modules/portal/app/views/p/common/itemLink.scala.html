@@ -10,7 +10,7 @@
 
 @linkItemHtml {
     @link.opposingTarget(item).map { t =>
-        <div class="link-target">@p.helpers.linkTo(t)</div>
+        <div class="link-target">@views.html.p.helpers.linkTo(t)</div>
     }
     @link.model.description.filterNot(_.trim.isEmpty).map { desc =>
         <p class="link-description">

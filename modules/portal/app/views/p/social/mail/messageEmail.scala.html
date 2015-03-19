@@ -1,6 +1,6 @@
 @(heading: String, subject: String, message: String, isCopy: Boolean = false)(implicit req: RequestHeader, globalConfig: global.GlobalConfig, lang: Lang)
 
-@p.layout.mailLayout(heading) {
+@views.html.p.layout.mailLayout(heading) {
 
     <blockquote>
         <h4>@subject</h4>

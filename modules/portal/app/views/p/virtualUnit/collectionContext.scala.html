@@ -4,7 +4,7 @@
     @if(items.nonEmpty) {
     <div class="item" style="padding-left: 5px">
         @items.headOption.map { item =>
-            <h4>@p.helpers.linkTo(item)</h4>
+            <h4>@views.html.p.helpers.linkTo(item)</h4>
             @wrapParent(items.tail)(html)
         }
     </div>
@@ -18,11 +18,11 @@
     <p class="alert alert-info">
         @Messages("virtualUnit.viewInArchivalContext.explanation")
         <br />
-        @p.helpers.linkTo(item.asInstanceOf[DocumentaryUnit], Html(Messages("virtualUnit.viewInArchivalContext")))
+        @views.html.p.helpers.linkTo(item.asInstanceOf[DocumentaryUnit], Html(Messages("virtualUnit.viewInArchivalContext")))
     </p>
     @path.headOption.map { vc =>
         <div class="panel-heading">
-            <h3>@p.helpers.linkTo(vc)</h3>
+            <h3>@views.html.p.helpers.linkTo(vc)</h3>
         </div>
         @if(item.isInstanceOf[DocumentaryUnit]) {
             <div class="panel-body">

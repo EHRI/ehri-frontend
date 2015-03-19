@@ -3,16 +3,16 @@
 @defining(views.p.Helpers.sortAnnotations(annotations)) { case (mine, promoted, others) =>
     <ul class="annotation-list">
         @for(ann <- mine) {
-            <li class="personal">@p.annotation.annotationInline(ann, true)</li>
+            <li class="personal">@views.html.p.annotation.annotationInline(ann, true)</li>
         }
         @for(ann <- promoted) {
             <li class="promoted user-content @{if(!prefs.showUserContent) "hidden"}">
-                @p.annotation.annotationInline(ann, false)
+                @views.html.p.annotation.annotationInline(ann, false)
             </li>
         }
         @for(ann <- others) {
             <li class="other user-content @{if(!prefs.showUserContent) "hidden"}">
-                @p.annotation.annotationInline(ann, false)
+                @views.html.p.annotation.annotationInline(ann, false)
             </li>
         }
     </ul>
