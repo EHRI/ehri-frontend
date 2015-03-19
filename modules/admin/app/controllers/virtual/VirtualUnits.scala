@@ -1,7 +1,6 @@
 package controllers.virtual
 
 import auth.AccountManager
-import backend.rest.cypher.CypherDAO
 import play.api.libs.concurrent.Execution.Implicits._
 import forms.VisibilityForm
 import models._
@@ -18,11 +17,11 @@ import play.api.Play.current
 import play.api.Configuration
 import play.api.data.Form
 import play.api.data.Forms._
-import backend.rest.{ItemNotFound, Constants}
+import backend.rest.{ItemNotFound}
 import scala.concurrent.Future
 import models.base.AnyModel
 import models.base.Description
-import controllers.base.AdminController
+import controllers.base.{SearchVC, AdminController}
 
 
 @Singleton
@@ -39,7 +38,8 @@ case class VirtualUnits @Inject()(implicit globalConfig: global.GlobalConfig, se
   with Annotate[VirtualUnit]
   with Linking[VirtualUnit]
   with Descriptions[DocumentaryUnitDescriptionF, VirtualUnitF, VirtualUnit]
-  with Search {
+  with Search
+  with SearchVC {
 
   private val entityFacets: FacetBuilder = { implicit request =>
     List(
@@ -88,23 +88,6 @@ case class VirtualUnits @Inject()(implicit globalConfig: global.GlobalConfig, se
 
   private val vuRoutes = controllers.virtual.routes.VirtualUnits
 
-  private def childIds(id: String): Future[Seq[String]] = {
-    import play.api.libs.json._
-    val dao = new CypherDAO()
-
-    val reader: Reads[Seq[String]] =
-      (__ \ "data").read[Seq[Seq[Seq[String]]]]
-      .map { r => r.flatten.flatten }
-
-    dao.get[Seq[String]](
-      """
-        |START vc = node:entities(__ID__ = {vcid})
-        |MATCH vc<-[:isPartOf*]-child,
-        |      child-[?:includesUnit*]->doc
-        |RETURN DISTINCT collect(DISTINCT child.__ID__) + collect(DISTINCT doc.__ID__)
-      """.stripMargin, Map("vcid" -> play.api.libs.json.JsString(id)))(reader)
-  }
-
   private def buildFilter(v: VirtualUnit): Map[String,Any] = {
     // Nastiness. We want a Solr query that will allow searching
     // both the child virtual collections of a VU as well as the
@@ -121,7 +104,7 @@ case class VirtualUnits @Inject()(implicit globalConfig: global.GlobalConfig, se
   }
 
   def contentsOf(id: String) = Action.async { implicit request =>
-    childIds(id).map { seq =>
+    descendantIds(id).map { seq =>
       Ok(play.api.libs.json.Json.toJson(seq))
     }
   }
@@ -144,7 +127,7 @@ case class VirtualUnits @Inject()(implicit globalConfig: global.GlobalConfig, se
 
   def searchChildren(id: String) = ItemPermissionAction(id).async { implicit request =>
     for {
-      ids <- childIds(id)
+      ids <- descendantIds(id)
       result <- find[AnyModel](
         filters = buildFilter(request.item),
         entities = List(EntityType.VirtualUnit, EntityType.DocumentaryUnit),

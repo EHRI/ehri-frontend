@@ -2,7 +2,7 @@ package controllers.portal
 
 import auth.AccountManager
 import backend.rest.cypher.CypherDAO
-import play.api.Logger
+import controllers.base.SearchVC
 import play.api.Play.current
 import controllers.generic.Search
 import models._
@@ -25,6 +25,7 @@ case class VirtualUnits @Inject()(implicit globalConfig: global.GlobalConfig, se
   extends PortalController
   with Generic[VirtualUnit]
   with Search
+  with SearchVC
   with FacetConfig {
 
   private val vuRoutes = controllers.portal.routes.VirtualUnits
@@ -45,31 +46,6 @@ case class VirtualUnits @Inject()(implicit globalConfig: global.GlobalConfig, se
         if (pq.isEmpty) Map(s"$PARENT_ID:${v.id}" -> Unit)
         else Map(s"$PARENT_ID:${v.id} OR $ITEM_ID:(${pq.mkString(" ")})" -> Unit)
       case d => Map(s"$PARENT_ID:${d.id}" -> Unit)
-    }
-  }
-
-  private def childIds(id: String): Future[Seq[String]] = {
-    import play.api.libs.json._
-    val dao = new CypherDAO()
-
-    val reader: Reads[Seq[String]] =
-      (__ \ "data").read[Seq[Seq[Seq[String]]]]
-        .map { r => r.flatten.flatten }
-
-    dao.get[Seq[String]](
-      """
-        |START vc = node:entities(__ID__ = {vcid})
-        |MATCH vc<-[?:isPartOf*]-child,
-        |      ddoc<-[?:includesUnit]-vc,
-        |      doc<-[?:includesUnit]-child
-        |RETURN DISTINCT collect(DISTINCT child.__ID__) + collect(DISTINCT doc.__ID__) + collect(DISTINCT ddoc.__ID__)
-      """.stripMargin, Map("vcid" -> play.api.libs.json.JsString(id)))(reader).map { seq =>
-        Logger.debug(s"Elements: ${seq.length}, distinct: ${seq.distinct.length}")
-        if (seq.length > 1024) {
-          Logger.error(s"Truncating clauses on child item search for $id: items ${seq.length}")
-          seq.distinct.take(1024)
-        } else seq
-
     }
   }
 
@@ -108,7 +84,7 @@ case class VirtualUnits @Inject()(implicit globalConfig: global.GlobalConfig, se
   def filtersOrIds(item: AnyModel)(implicit request: RequestHeader): Future[Map[String,Any]] = {
     import SearchConstants._
     if (!hasActiveQuery(request)) immediate(buildFilter(item))
-    else childIds(item.id).map { seq =>
+    else descendantIds(item.id).map { seq =>
       if (seq.isEmpty) Map.empty
       else Map(s"$ITEM_ID:(${seq.mkString(" ")}) OR $ANCESTOR_IDS:(${seq.mkString(" ")})" -> Unit)
     }

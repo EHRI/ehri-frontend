@@ -3,8 +3,9 @@ package controllers.portal.guides
 import auth.AccountManager
 import backend.Backend
 import backend.rest.cypher.CypherDAO
-import backend.rest.{Constants, SearchDAO}
+import backend.rest.SearchDAO
 import com.google.inject._
+import controllers.base.SearchVC
 import controllers.generic.Search
 import controllers.portal.FacetConfig
 import controllers.portal.base.PortalController
@@ -13,7 +14,7 @@ import models.GuidePage.Layout
 import models.base.AnyModel
 import models.{GeoCoordinates, Guide, GuidePage, _}
 import play.api.Play.current
-import play.api.{Logger, Routes}
+import play.api.Routes
 import play.api.cache.Cached
 import play.api.data.Forms._
 import play.api.data._
@@ -21,7 +22,6 @@ import play.api.http.MimeTypes
 import play.api.libs.concurrent.Execution.Implicits._
 import play.api.libs.json._
 import play.api.mvc._
-import utils._
 import utils.search._
 import controllers.renderError
 
@@ -34,6 +34,7 @@ case class Guides @Inject()(implicit globalConfig: global.GlobalConfig, searchEn
                             accounts: AccountManager, pageRelocator: utils.MovedPageLookup)
   extends PortalController
   with Search
+  with SearchVC
   with FacetConfig {
 
   val ajaxOrder = utils.search.SearchOrder.Name
@@ -350,30 +351,9 @@ case class Guides @Inject()(implicit globalConfig: global.GlobalConfig, searchEn
     }
   }
 
-  private def childIds(id: String): Future[Seq[String]] = {
-    import play.api.libs.json._
-    val dao = new CypherDAO()
-
-    val reader: Reads[Seq[String]] =
-      (__ \ "data").read[Seq[Seq[Seq[String]]]]
-        .map { r => r.flatten.flatten }
-
-    dao.get[Seq[String]](
-      """
-        |START vc = node:entities(__ID__ = {vcid})
-        |MATCH vc<-[?:isPartOf*]-child,
-        |      ddoc<-[?:includesUnit]-vc,
-        |      doc<-[?:includesUnit]-child
-        |RETURN DISTINCT collect(DISTINCT child.__ID__) + collect(DISTINCT doc.__ID__) + collect(DISTINCT ddoc.__ID__)
-      """.stripMargin, Map("vcid" -> play.api.libs.json.JsString(id)))(reader).map { seq =>
-      Logger.debug(s"Elements: ${seq.length}, distinct: ${seq.distinct.length}")
-      seq.distinct //.take(1024)
-    }
-  }
-
   def childItemIds(item: String)(implicit request: RequestHeader): Future[Map[String,Any]] = {
     import SearchConstants._
-    childIds(item).map { seq =>
+    descendantIds(item).map { seq =>
       if (seq.isEmpty) Map(ITEM_ID -> "NO_VALID_ID")
       else Map(s"$ITEM_ID:(${seq.mkString(" ")}) OR $ANCESTOR_IDS:(${seq.mkString(" ")})" -> Unit)
     }
