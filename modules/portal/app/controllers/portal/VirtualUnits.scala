@@ -49,36 +49,9 @@ case class VirtualUnits @Inject()(implicit globalConfig: global.GlobalConfig, se
     }
   }
 
-  private def childCount(id: String): Future[Int] = {
-    import play.api.libs.json._
-    val dao = new CypherDAO()
-    val reader: Reads[Int] =
-      (__ \ "data").read[Seq[Seq[Int]]].map { r => r.flatten.headOption.getOrElse(0) }
-
-    dao.get[Int](
-      """
-        |START vc = node:entities(__ID__ = {vcid})
-        |MATCH vc<-[?:isPartOf]-child,
-        |      idoc<-[?:includesUnit]-vc
-        |RETURN COUNT(DISTINCT child) + COUNT(DISTINCT idoc)
-      """.stripMargin, Map("vcid" -> play.api.libs.json.JsString(id)))(reader).map { count =>
-      count
-    }
-  }
-
-  private def updateCount(m: AnyModel, c: Int): AnyModel = m match {
-    case vc: VirtualUnit => vc.copy(meta = vc.meta.deepMerge(JsObject(Seq(Entity.CHILD_COUNT -> JsNumber(c)))))
-    case d: DocumentaryUnit => d.copy(meta = d.meta.deepMerge(JsObject(Seq(Entity.CHILD_COUNT -> JsNumber(c)))))
-    case o => o
-  }
-
-  def browseVirtualCollection(id: String) = GetItemAction(id).async { implicit request =>
-    for {
-      count <- childCount(id)
-    } yield {
-      if (isAjax) Ok(views.html.virtualUnit.itemDetailsVc(updateCount(request.item, count), request.annotations, request.links, request.watched))
-      else Ok(views.html.virtualUnit.show(updateCount(request.item, count), request.annotations, request.links, request.watched))
-    }
+  def browseVirtualCollection(id: String) = GetItemAction(id).apply { implicit request =>
+    if (isAjax) Ok(views.html.virtualUnit.itemDetailsVc(request.item, request.annotations, request.links, request.watched))
+    else Ok(views.html.virtualUnit.show(request.item, request.annotations, request.links, request.watched))
   }
 
   def filtersOrIds(item: AnyModel)(implicit request: RequestHeader): Future[Map[String,Any]] = {
@@ -124,19 +97,17 @@ case class VirtualUnits @Inject()(implicit globalConfig: global.GlobalConfig, se
     val pathIds = pathStr.split(",").toSeq
     val pathF: Future[Seq[AnyModel]] = Future.sequence(pathIds.map(pid => backend.getAny[AnyModel](pid)))
     val itemF: Future[AnyModel] = backend.getAny[AnyModel](id)
-    val countF: Future[Int] = childCount(id)
     val linksF: Future[Seq[Link]] = backend.getLinksForItem[Link](id)
     val annsF: Future[Seq[Annotation]] = backend.getAnnotationsForItem[Annotation](id)
     val watchedF: Future[Seq[String]] = watchedItemIds(userIdOpt = request.userOpt.map(_.id))
     for {
       watched <- watchedF
       item <- itemF
-      count <- countF
       links <- linksF
       annotations <- annsF
       path <- pathF
     } yield {
-      if (isAjax) Ok(views.html.virtualUnit.itemDetailsVc(updateCount(item, count), annotations, links, watched, path))
+      if (isAjax) Ok(views.html.virtualUnit.itemDetailsVc(item, annotations, links, watched, path))
       else Ok(views.html.virtualUnit.show(item, annotations, links, watched, path))
     }
   }
