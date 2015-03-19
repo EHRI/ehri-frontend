@@ -1,6 +1,6 @@
 @(result: utils.search.SearchResult[(Annotation,utils.search.SearchHit)], action: Call)(implicit userOpt: Option[UserProfile], request: RequestHeader, prefs: utils.SessionPrefs, globalConfig: global.GlobalConfig, lang: Lang, flash: Flash)
 
-@views.html.p.layout.portalLayout(Messages("type.annotation"), EntityType.Annotation.toString) {
+@views.html.layout.portalLayout(Messages("type.annotation"), EntityType.Annotation.toString) {
     @views.html.layout.mainContent {
         @views.html.common.search.searchForm(result, action, autofocus = false) {
             @views.html.p.searchItemList(result, Seq.empty, itemClass="annotation")

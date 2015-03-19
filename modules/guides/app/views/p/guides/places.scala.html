@@ -48,7 +48,7 @@
 
     @page.description.map(d => Html(views.Helpers.renderTrustedMarkdown(d)))
 }
-@views.html.p.layout.guideLayout(guide, page, pages, js, css, optionalContent = Some(optionalContent(page))) {
+@views.html.layout.guideLayout(guide, page, pages, js, css, optionalContent = Some(optionalContent(page))) {
     <article>
         <header>
             <h1>@page.name</h1>

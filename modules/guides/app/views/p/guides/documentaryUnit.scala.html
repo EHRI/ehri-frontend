@@ -43,7 +43,7 @@
     @page.description.map(d => Html(views.Helpers.renderTrustedMarkdown(d)))
 }
 
-@views.html.p.layout.guideLayout(guide, page, pages, optionalContent = Some(sidebar(page))) {
+@views.html.layout.guideLayout(guide, page, pages, optionalContent = Some(sidebar(page))) {
     <article class="description-viewport">
     @defining(EntityType.DocumentaryUnit.toString) { implicit fieldPrefix =>
         @defining(annotations) { implicit annotations =>

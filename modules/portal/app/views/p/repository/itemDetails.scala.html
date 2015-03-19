@@ -23,7 +23,7 @@
                     @address(item, desc)
                 }
             }
-            @views.html.p.layout.sidepanelToc {
+            @views.html.layout.sidepanelToc {
                 @views.html.common.childItemSidebar(item, EntityType.DocumentaryUnit)
                 @views.html.common.latestAction(item, controllers.portal.routes.Portal.itemHistory(item.id, modal = true))
             }

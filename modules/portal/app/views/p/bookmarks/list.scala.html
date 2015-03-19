@@ -11,7 +11,7 @@
 
 @* user should always be defined here *@
 @userOpt.map { user =>
-    @views.html.p.layout.searchLayout(Messages("bookmarkSet.list"), EntityType.UserProfile.toString, result, scripts = js, styles = css) {
+    @views.html.layout.searchLayout(Messages("bookmarkSet.list"), EntityType.UserProfile.toString, result, scripts = js, styles = css) {
         @views.html.common.itemHeader(Messages("bookmarkSet.list")) {
         }
         @itemList(None, user, result, more = false, watched)

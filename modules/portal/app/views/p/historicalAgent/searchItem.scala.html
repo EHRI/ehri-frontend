@@ -2,7 +2,7 @@
 
 @import Isaar._
 
-@views.html.p.layout.searchItemOutline(item, watched) {
+@views.html.layout.searchItemOutline(item, watched) {
     <a href="@controllers.portal.routes.HistoricalAgents.browse(item.id)">@hit.highlight(item.toStringLang)</a>
 } {
     @listItemBody(item, highlighter = hit)

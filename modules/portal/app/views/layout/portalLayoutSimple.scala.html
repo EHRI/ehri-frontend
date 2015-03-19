@@ -5,8 +5,8 @@
 <html lang="@lang.code">
     @head(title, styles = styles)
     <body>
-        @views.html.p.layout.readOnly()
-        @views.html.p.layout.message()
+        @views.html.layout.readOnly()
+        @views.html.layout.message()
         <div id="wrap">
             @defining(utils.SessionPrefs()) { implicit prefs =>
                 <header id="header" class="navigation">
@@ -20,7 +20,7 @@
                 <div id="push"></div>
             </div>
         </div>
-        @views.html.p.layout.footer()
+        @views.html.layout.footer()
 
         <script src="//ajax.googleapis.com/ajax/libs/jquery/1.8.3/jquery.min.js"></script>
         <script src="@controllers.portal.routes.Assets.versioned("js/feedback.js")"></script>

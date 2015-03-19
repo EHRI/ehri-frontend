@@ -4,7 +4,7 @@
     <li class="@{if(request.path.startsWith(url)) "active" else ""}"><a href="@url">@Html(text)</a></li>
 }
 @defining(utils.SessionPrefs()) { implicit prefs =>
-    @views.html.p.layout.topNavBar {
+    @views.html.layout.topNavBar {
         <ul class="nav navbar-nav navbar-left" role="navigation">
             <li><a href="@controllers.portal.routes.Portal.index()">@Messages("pages.portal")</a></li>
             @views.admin.Helpers.mainMenu.map { case (key, url) =>
@@ -28,6 +28,6 @@
             </li>
         </ul>
     } {
-        @views.html.p.layout.accountHeaderRightMenu(showSearch = false, showFeedback = false, showAdminLink = false)
+        @views.html.layout.accountHeaderRightMenu(showSearch = false, showFeedback = false, showAdminLink = false)
     }
 }

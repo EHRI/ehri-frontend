@@ -7,15 +7,15 @@
 <!DOCTYPE html>
 
 <html lang="@lang.code">
-    @views.html.p.layout.head(Messages("welcome.title"))
+    @views.html.layout.head(Messages("welcome.title"))
     <body>
-        @views.html.p.layout.preambleScripts()
+        @views.html.layout.preambleScripts()
         <div id="wrap">
-            @views.html.p.layout.readOnly()
-            @views.html.p.layout.message()
-            @views.html.p.layout.ipFilter()
+            @views.html.layout.readOnly()
+            @views.html.layout.message()
+            @views.html.layout.ipFilter()
             <header id="header" class="navigation">
-                @views.html.p.layout.accountHeader(showSearch = false, showAdminLink = true)
+                @views.html.layout.accountHeader(showSearch = false, showAdminLink = true)
             </header>
             <div class="page-content">
                 <div class="jumbotron-container">
@@ -99,9 +99,9 @@
             </div>
             <!-- /container -->
         </div>
-        @views.html.p.layout.footer()
+        @views.html.layout.footer()
         @views.html.p.dataPolicyModal()
-        @views.html.p.layout.postambleScripts()
+        @views.html.layout.postambleScripts()
 
         <script>
             jQuery(document).ready(function ($) {

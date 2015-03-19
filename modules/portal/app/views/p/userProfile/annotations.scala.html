@@ -2,7 +2,7 @@
 
 @import utils.search.SearchParams._
 
-@views.html.p.layout.portalLayout(item.toStringLang, EntityType.UserProfile.toString) {
+@views.html.layout.portalLayout(item.toStringLang, EntityType.UserProfile.toString) {
     @views.html.layout.mainContent {
         @helper.form(action = searchAction) {
             @itemDetails(item, followed = followed, canMessage = canMessage) {

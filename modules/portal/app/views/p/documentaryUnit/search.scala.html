@@ -1,6 +1,6 @@
 @(item: DocumentaryUnit, result: utils.search.SearchResult[(DocumentaryUnit,utils.search.SearchHit)], action: Call, watched: Seq[String])(implicit userOpt: Option[UserProfile], request: RequestHeader, prefs: utils.SessionPrefs, globalConfig: global.GlobalConfig, lang: Lang, flash: Flash)
 
-@views.html.p.layout.itemSearchLayout(item.toStringLang, EntityType.DocumentaryUnit.toString, result) {
+@views.html.layout.itemSearchLayout(item.toStringLang, EntityType.DocumentaryUnit.toString, result) {
     @infobar(item)
 } {
     @views.html.common.itemDetailsLink(Messages("details.show"), controllers.portal.routes.DocumentaryUnits.browse(item.id)) {

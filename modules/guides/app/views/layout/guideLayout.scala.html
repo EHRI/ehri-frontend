@@ -20,15 +20,15 @@
 }
 
 <html>
-    @views.html.p.layout.head(
+    @views.html.layout.head(
         title = s"${guide.name} | ${otherTitle.getOrElse(page.name)}",
         meta = page.description.map(s => "description" -> s).toMap,
         styles = extraStyles
     )
     <body>
-        @views.html.p.layout.preambleScripts()
+        @views.html.layout.preambleScripts()
         <header id="top">
-            @views.html.p.layout.guideHeader(guide, page, guide.findPages())
+            @views.html.layout.guideHeader(guide, page, guide.findPages())
         </header>
         <div class="container">
             <div class="row">
@@ -36,10 +36,10 @@
                     @content
                 </div>
                 <div class="col-md-4" id="right-bar">
-                    @views.html.p.layout.guideSidebar(guide, page, guide.findPages(), optionalContent)
+                    @views.html.layout.guideSidebar(guide, page, guide.findPages(), optionalContent)
                 </div>
             </div>
         </div>
-        @views.html.p.layout.postambleScripts(extra = extraScripts)
+        @views.html.layout.postambleScripts(extra = extraScripts)
     </body>
 </html>

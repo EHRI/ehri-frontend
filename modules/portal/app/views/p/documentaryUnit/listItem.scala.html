@@ -1,7 +1,7 @@
 @(item: DocumentaryUnit, watched: Boolean, showRepository: Boolean = true)(implicit userOpt: Option[UserProfile], req: RequestHeader, globalConfig: global.GlobalConfig, lang: Lang, descriptionId: Option[String] = None, context: Option[models.base.Holder[_]] = None)
 
 
-@views.html.p.layout.searchItemOutline(item, watched) {
+@views.html.layout.searchItemOutline(item, watched) {
     <a href="@controllers.portal.routes.DocumentaryUnits.browse(item.id)">@item.model.primaryDescription(descriptionId).map(_.name).getOrElse(item.toStringLang)</a>
 } {
     @listItemBody(item, showRepository)

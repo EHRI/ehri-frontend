@@ -1,6 +1,6 @@
 @(item: Link)(implicit userOpt: Option[UserProfile], request: RequestHeader, prefs: utils.SessionPrefs, globalConfig: global.GlobalConfig, lang: Lang, flash: Flash)
 
-@views.html.p.layout.showLayout(item) {
+@views.html.layout.showLayout(item) {
 
     <ul class="link-target-list">
     @item.targets.map { target =>

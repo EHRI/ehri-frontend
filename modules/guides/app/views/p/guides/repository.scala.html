@@ -19,7 +19,7 @@
 
     @page.description.map(d => Html(views.Helpers.renderTrustedMarkdown(d)))
 }
-@views.html.p.layout.guideLayout(guide, page, pages, optionalContent = Some(optionalContent(page))) {
+@views.html.layout.guideLayout(guide, page, pages, optionalContent = Some(optionalContent(page))) {
     @defining(EntityType.Repository.toString) { implicit prefix =>
         @item.model.descriptions.map { desc =>
             @views.html.p.repository.description(item, desc, Seq.empty, Seq.empty)

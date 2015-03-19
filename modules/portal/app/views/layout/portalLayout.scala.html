@@ -7,9 +7,9 @@
     <body class="@itemClass">
         @preambleScripts()
         <div id="wrap">
-            @views.html.p.layout.readOnly()
-            @views.html.p.layout.message()
-            @views.html.p.layout.ipFilter()
+            @views.html.layout.readOnly()
+            @views.html.layout.message()
+            @views.html.layout.ipFilter()
             <header id="header" class="navigation">
                 @accountHeader(showSearch = true, showFeedback = true, showAdminLink = true)
                 @primaryHeader()
@@ -21,7 +21,7 @@
                 <div id="push"></div>
             </div>
         </div>
-        @views.html.p.layout.footer()
+        @views.html.layout.footer()
         @views.html.p.dataPolicyModal()
         @postambleScripts(extra = scripts)
     </body>

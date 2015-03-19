@@ -4,7 +4,7 @@
 @import views.html.common.textField
 
 @views.html.layout.itemDetails {
-    @views.html.p.layout.rightSidebar {
+    @views.html.layout.rightSidebar {
         @views.html.common.itemHeader(item.toStringLang) {
         }
         @defining(Annotation.fieldAnnotations(Some(item.id), annotations)) { implicit fieldAnnotations =>
@@ -19,7 +19,7 @@
     } {
         @views.html.common.typeLabelWithWatchButton(item, watched.contains(item.id), introNotice())
 
-        @views.html.p.layout.sidepanelToc {
+        @views.html.layout.sidepanelToc {
             <div class="child-items panel-details">
                 <div class="panel-heading">
                     <h3 class="panel-title">@Messages("country.report.toc")</h3>

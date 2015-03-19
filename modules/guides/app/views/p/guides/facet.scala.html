@@ -121,7 +121,7 @@
 }
 
 
-@views.html.p.layout.guideLayout(guide, page, pages, scripts = js, optionalContent = Some(sidebar(page)), otherTitle = Some(Messages("guides.faceted"))) {
+@views.html.layout.guideLayout(guide, page, pages, scripts = js, optionalContent = Some(sidebar(page)), otherTitle = Some(Messages("guides.faceted"))) {
     <article>
         <header>
             <h1>@Messages("guides.faceted")</h1>

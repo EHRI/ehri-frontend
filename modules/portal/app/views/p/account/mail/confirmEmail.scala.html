@@ -1,6 +1,6 @@
 @(token: java.util.UUID)(implicit req: RequestHeader, globalConfig: global.GlobalConfig, lang: Lang)
 
-@views.html.p.layout.mailLayout(Messages("mail.confirmEmailHeading")) {
+@views.html.layout.mailLayout(Messages("mail.confirmEmailHeading")) {
 
     <p>
         @Messages("mail.confirmEmailMessage")

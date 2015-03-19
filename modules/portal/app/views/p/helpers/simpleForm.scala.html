@@ -1,6 +1,6 @@
 @(title: String, action: Call)(implicit userOpt: Option[UserProfile], request: RequestHeader, prefs: utils.SessionPrefs, globalConfig: global.GlobalConfig, lang: Lang, flash: Flash, token: play.filters.csrf.CSRF.Token)
 
-@views.html.p.layout.portalLayout(Messages(title)) {
+@views.html.layout.portalLayout(Messages(title)) {
     @views.html.layout.mainContent {
         <h1>@Messages(title)</h1>
         @helper.form(action = action, 'role -> "role") {

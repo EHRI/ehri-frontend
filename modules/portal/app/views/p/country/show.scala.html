@@ -1,6 +1,6 @@
 @(item: Country, result: utils.search.SearchResult[(Repository, utils.search.SearchHit)], annotations: Seq[Annotation], links: Seq[Link], action: Call, watched: Seq[String])(implicit userOpt: Option[UserProfile], request: RequestHeader, prefs: utils.SessionPrefs, globalConfig: global.GlobalConfig, lang: Lang, flash: Flash)
 
-@views.html.p.layout.portalLayout(item.toStringLang, defines.EntityType.Country.toString) {
+@views.html.layout.portalLayout(item.toStringLang, defines.EntityType.Country.toString) {
 
     @views.html.layout.mainContent {
         @itemDetails(item, annotations, links, watched)

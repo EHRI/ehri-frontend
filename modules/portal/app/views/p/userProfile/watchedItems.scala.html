@@ -2,7 +2,7 @@
 
 @* user should always be defined here *@
 @userOpt.map { user =>
-    @views.html.p.layout.portalLayout(Messages("profile.watch.list"), EntityType.UserProfile.toString) {
+    @views.html.layout.portalLayout(Messages("profile.watch.list"), EntityType.UserProfile.toString) {
         @views.html.layout.mainContent {
             <h1>@Messages("profile.watch.list")</h1>
             @itemWatchList(user, watchList)
