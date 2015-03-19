@@ -65,7 +65,11 @@ case class VirtualUnits @Inject()(implicit globalConfig: global.GlobalConfig, se
         |RETURN DISTINCT collect(DISTINCT child.__ID__) + collect(DISTINCT doc.__ID__) + collect(DISTINCT ddoc.__ID__)
       """.stripMargin, Map("vcid" -> play.api.libs.json.JsString(id)))(reader).map { seq =>
         Logger.debug(s"Elements: ${seq.length}, distinct: ${seq.distinct.length}")
-        seq.distinct //.take(1024)
+        if (seq.length > 1024) {
+          Logger.error(s"Truncating clauses on child item search for $id: items ${seq.length}")
+          seq.distinct.take(1024)
+        } else seq
+
     }
   }
 
