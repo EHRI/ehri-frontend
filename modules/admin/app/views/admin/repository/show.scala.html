@@ -35,13 +35,11 @@
                     @adminActions(item)
                 }
 
-                @item.childCount.filter(_ > 0).map { count =>
-                    @views.html.common.search.searchSection(Messages("repository.searchInside", item.toStringAbbr(lang)), result) {
-                        @views.html.common.search.searchForm(result, action, autofocus = false) {
-                            @views.html.admin.search.searchItemList(result)
-                        } {
+                @views.html.common.search.searchSection(item, Messages("repository.searchInside", item.toStringAbbr(lang)), result) {
+                    @views.html.common.search.searchForm(result, action, autofocus = false) {
+                        @views.html.admin.search.searchItemList(result)
+                    } {
 
-                        }
                     }
                 }
             }

@@ -13,13 +13,13 @@
                             }
                         </div>
                         <div class="col-md-4">
-                            @if(!item.broaderTerms.isEmpty || item.vocabulary.isDefined) {
+                            @if(item.broaderTerms.nonEmpty || item.vocabulary.isDefined) {
                                 <div class="well well-small">
                                 @item.vocabulary.map { v =>
                                     <h5>@Messages("cvocConcept.inVocabulary")</h5>
                                     <p class="text-muted"><a href="@controllers.vocabularies.routes.Vocabularies.get(v.id)">@v.toStringLang</a></p>
                                 }
-                                @if(!item.broaderTerms.isEmpty) {
+                                @if(item.broaderTerms.nonEmpty) {
                                     <hr />
                                     <h5>@Messages("cvocConcept.broaderTerms")</h5>
                                     <ul>

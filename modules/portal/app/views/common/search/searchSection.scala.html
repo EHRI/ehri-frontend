@@ -1,6 +1,6 @@
-@(title: String, result: utils.search.SearchResult[_])(html: Html)(implicit userOpt: Option[UserProfile], req: RequestHeader, globalConfig: global.GlobalConfig, lang: Lang)
+@(item: models.base.Holder[_], title: String, result: utils.search.SearchResult[_])(html: Html)(implicit userOpt: Option[UserProfile], req: RequestHeader, globalConfig: global.GlobalConfig, lang: Lang)
 
-@if(result.nonEmpty) {
+@if(item.childCount.getOrElse(0) > 0) {
     <div class="search-section" id="search-items">
         <hr />
         <h4>@title</h4>

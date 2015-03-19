@@ -1,5 +1,4 @@
-@(item: Country, result: utils.search.SearchResult[(models.base.AnyModel, utils.search.SearchHit)], action: Call, annotations: Seq[Annotation], links: Seq[Link])(
-        implicit userOpt: Option[UserProfile], req: RequestHeader, globalConfig: global.GlobalConfig, lang: Lang, flash: Flash)
+@(item: Country, result: utils.search.SearchResult[(models.base.AnyModel, utils.search.SearchHit)], action: Call, annotations: Seq[Annotation], links: Seq[Link])(implicit userOpt: Option[UserProfile], req: RequestHeader, globalConfig: global.GlobalConfig, lang: Lang, flash: Flash)
 
 @import CountryF._
 
@@ -15,7 +14,7 @@
         }
     }
 
-    @views.html.common.search.searchSection(Messages("country.searchInside", item.toStringAbbr), result) {
+    @views.html.common.search.searchSection(item, Messages("country.searchInside", item.toStringAbbr), result) {
         @views.html.common.search.searchForm(result, action, autofocus = false) {
             @views.html.admin.search.searchItemList(result)
         } {

@@ -1,8 +1,12 @@
 package controllers.base
 
 import backend.rest.cypher.CypherDAO
+import models.VirtualUnit
+import models.base.AnyModel
 import play.api.Logger
 import play.api.mvc.Controller
+import utils.search.SearchConstants
+import utils.search.SearchConstants._
 
 import scala.concurrent.Future
 import play.api.libs.concurrent.Execution.Implicits._
@@ -50,6 +54,25 @@ trait SearchVC {
           seq.distinct.take(vcLimit)
         } else seq
       }.getOrElse(seq)
+    }
+  }
+
+  protected def buildChildSearchFilter(item: AnyModel): Map[String,Any] = {
+    // Nastiness. We want a Solr query that will allow searching
+    // both the child virtual collections of a VU as well as the
+    // physical documentary units it includes. Since there is no
+    // connection from the DU to VUs it belongs to (and creating
+    // one is not feasible) we need to do this badness:
+    // - load the VU from the graph along with its included DUs
+    // - query for anything that has the VUs parent ID *or* anything
+    // with an itemId among its included DUs
+    import SearchConstants._
+    item match {
+      case v: VirtualUnit =>
+        val pq = v.includedUnits.map(_.id)
+        if (pq.isEmpty) Map(s"$PARENT_ID:${v.id}" -> Unit)
+        else Map(s"$PARENT_ID:${v.id} OR $ITEM_ID:(${pq.mkString(" ")})" -> Unit)
+      case d => Map(s"$PARENT_ID:${d.id}" -> Unit)
     }
   }
 }

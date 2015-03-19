@@ -332,29 +332,10 @@ case class Guides @Inject()(implicit globalConfig: global.GlobalConfig, searchEn
     ids.filterNot(_.isEmpty).map("__ID__:" + _).reduce((a, b) => a + " OR " + b)
   }
 
-  private def topLevelIds(id: String): Future[Seq[String]] = {
-    import play.api.libs.json._
-    val dao = new CypherDAO()
-
-    val reader: Reads[Seq[String]] =
-      (__ \ "data").read[Seq[Seq[Seq[String]]]]
-        .map { r => r.flatten.flatten }
-
-    dao.get[Seq[String]](
-      """
-        |START vc = node:entities(__ID__ = {vcid})
-        |MATCH vc<-[?:isPartOf]-child,
-        |      ddoc<-[?:includesUnit]-vc
-        |RETURN DISTINCT collect(DISTINCT child.__ID__) + collect(DISTINCT ddoc.__ID__)
-      """.stripMargin, Map("vcid" -> play.api.libs.json.JsString(id)))(reader).map { seq =>
-      seq.distinct
-    }
-  }
-
   def childItemIds(item: String)(implicit request: RequestHeader): Future[Map[String,Any]] = {
     import SearchConstants._
     descendantIds(item).map { seq =>
-      if (seq.isEmpty) Map(ITEM_ID -> "NO_VALID_ID")
+      if (seq.isEmpty) Map(ITEM_ID -> "__NO_VALID_ID__")
       else Map(s"$ITEM_ID:(${seq.mkString(" ")}) OR $ANCESTOR_IDS:(${seq.mkString(" ")})" -> Unit)
     }
   }

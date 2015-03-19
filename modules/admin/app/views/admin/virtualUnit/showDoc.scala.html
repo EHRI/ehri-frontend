@@ -1,4 +1,4 @@
-@(item: DocumentaryUnit, result: utils.search.SearchResult[(AnyModel, utils.search.SearchHit)], action: Call, annotations: Seq[Annotation], links: Seq[Link], path: Seq[AnyModel])(implicit userOpt: Option[UserProfile], req: RequestHeader, globalConfig: global.GlobalConfig, lang: Lang, flash: Flash)
+@(item: DocumentaryUnit, result: utils.search.SearchResult[(models.base.AnyModel, utils.search.SearchHit)], action: Call, annotations: Seq[Annotation], links: Seq[Link], path: Seq[models.base.AnyModel])(implicit userOpt: Option[UserProfile], req: RequestHeader, globalConfig: global.GlobalConfig, lang: Lang, flash: Flash)
 
 @views.html.admin.layout.adminLayout(item.toStringLang) {
     <div class="virtual-collection-header">
@@ -44,13 +44,12 @@
                     @views.html.admin.common.latestAction(item, controllers.units.routes.DocumentaryUnits.history(item.id))
                 }
             }
-            @item.childCount.filter(_ > 0).map { count =>
-                @views.html.common.search.searchSection(Messages("documentaryUnit.searchInside", item.toStringAbbr(lang)), result) {
-                    @views.html.common.search.searchForm(result, action, autofocus = false) {
-                        @searchItemList(result, path :+ item)
-                    } {
 
-                    }
+            @views.html.common.search.searchSection(item, Messages("documentaryUnit.childItems", item.toStringAbbr(lang)), result) {
+                @views.html.common.search.searchForm(result, action, autofocus = false) {
+                    @searchItemList(result, path :+ item)
+                } {
+
                 }
             }
         }

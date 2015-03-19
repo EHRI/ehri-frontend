@@ -1,6 +1,6 @@
-@(item: Group, page: utils.Page[Accessor], params: utils.PageParams, annotations: Seq[Annotation])(implicit userOpt: Option[UserProfile], req: RequestHeader, globalConfig: global.GlobalConfig, lang: Lang, flash: Flash)
+@(item: Group, page: utils.Page[models.base.Accessor], params: utils.PageParams, annotations: Seq[Annotation])(implicit userOpt: Option[UserProfile], req: RequestHeader, globalConfig: global.GlobalConfig, lang: Lang, flash: Flash)
 
-@removeLink(acc: Accessor) = {
+@removeLink(acc: models.base.Accessor) = {
     @if(acc.isA == EntityType.Group) {
         <a class="ajax-action" href="@controllers.groups.routes.Groups.checkRemoveFromGroup(acc.id, item.id)" title="@Messages("accessor.groups.remove.item", acc.toStringLang, item.toStringLang)">
             @Messages("accessor.groups.remove")

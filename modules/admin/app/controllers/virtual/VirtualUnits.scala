@@ -17,7 +17,7 @@ import play.api.Play.current
 import play.api.Configuration
 import play.api.data.Form
 import play.api.data.Forms._
-import backend.rest.{ItemNotFound}
+import backend.rest.ItemNotFound
 import scala.concurrent.Future
 import models.base.AnyModel
 import models.base.Description
@@ -46,7 +46,7 @@ case class VirtualUnits @Inject()(implicit globalConfig: global.GlobalConfig, se
       QueryFacetClass(
         key="childCount",
         name=Messages("virtualUnit.searchInside"),
-        param="items",
+        param="data",
         render=s => Messages("documentaryUnit." + s),
         facets=List(
           QueryFacet(value = "false", range = Val("0"), name = Some("noChildItems")),
@@ -55,9 +55,9 @@ case class VirtualUnits @Inject()(implicit globalConfig: global.GlobalConfig, se
       ),
       QueryFacetClass(
         key="charCount",
-        name=Messages("lod"),
+        name=Messages("facet.lod"),
         param="lod",
-        render=s => Messages("lod." + s),
+        render=s => Messages("facet.lod." + s),
         facets=List(
           QueryFacet(value = "low", range = Val("0") to Val("500")),
           QueryFacet(value = "medium", range = Val("501") to Val("2000")),
@@ -88,21 +88,6 @@ case class VirtualUnits @Inject()(implicit globalConfig: global.GlobalConfig, se
 
   private val vuRoutes = controllers.virtual.routes.VirtualUnits
 
-  private def buildFilter(v: VirtualUnit): Map[String,Any] = {
-    // Nastiness. We want a Solr query that will allow searching
-    // both the child virtual collections of a VU as well as the
-    // physical documentary units it includes. Since there is no
-    // connection from the DU to VUs it belongs to (and creating
-    // one is not feasible) we need to do this badness:
-    // - load the VU from the graph along with its included DUs
-    // - query for anything that has the VUs parent ID *or* anything
-    // with an itemId among its included DUs
-    import SearchConstants._
-    val pq = v.includedUnits.map(_.id)
-    if (pq.isEmpty) Map(s"$PARENT_ID:${v.id}" -> Unit)
-    else Map(s"$PARENT_ID:${v.id} OR $ITEM_ID:(${pq.mkString(" ")})" -> Unit)
-  }
-
   def contentsOf(id: String) = Action.async { implicit request =>
     descendantIds(id).map { seq =>
       Ok(play.api.libs.json.Json.toJson(seq))
@@ -129,7 +114,7 @@ case class VirtualUnits @Inject()(implicit globalConfig: global.GlobalConfig, se
     for {
       ids <- descendantIds(id)
       result <- find[AnyModel](
-        filters = buildFilter(request.item),
+        filters = buildChildSearchFilter(request.item),
         entities = List(EntityType.VirtualUnit, EntityType.DocumentaryUnit),
         facetBuilder = entityFacets,
         idFilters = ids
@@ -139,25 +124,12 @@ case class VirtualUnits @Inject()(implicit globalConfig: global.GlobalConfig, se
     }
   }
 
-  private def includedChildren(parent: AnyModel)(implicit userOpt: Option[UserProfile], request: RequestHeader): Future[SearchResult[(AnyModel,SearchHit)]] = {
-    parent match {
-      case d: DocumentaryUnit => find[AnyModel](
-        filters = Map(SearchConstants.PARENT_ID -> d.id),
-        entities = List(d.isA),
-        facetBuilder = entityFacets)
-      case d: VirtualUnit => d.includedUnits match {
-        case _ => find[AnyModel](
-          filters = buildFilter(d),
-          entities = List(EntityType.VirtualUnit, EntityType.DocumentaryUnit),
-          facetBuilder = entityFacets)
-      }
-      case _ => Future.successful(SearchResult.empty)
-    }
-  }
-
   def get(id: String) = ItemMetaAction(id).async { implicit request =>
     for {
-      result <- includedChildren(request.item)
+      result <- find[AnyModel](
+        filters = buildChildSearchFilter(request.item),
+        entities = List(EntityType.VirtualUnit, EntityType.DocumentaryUnit),
+        facetBuilder = entityFacets)
     } yield {
       Ok(views.html.admin.virtualUnit.show(request.item, result,
         vuRoutes.get(id), request.annotations, request.links, Seq.empty))
@@ -176,7 +148,10 @@ case class VirtualUnits @Inject()(implicit globalConfig: global.GlobalConfig, se
       path <- pathF
       links <- linksF
       annotations <- annsF
-      children <- includedChildren(item)
+      children <- find[AnyModel](
+        filters = buildChildSearchFilter(item),
+        entities = List(EntityType.VirtualUnit, EntityType.DocumentaryUnit),
+        facetBuilder = entityFacets)
     } yield Ok(views.html.admin.virtualUnit.showVc(
         item, children,
         vuRoutes.getInVc(id, pathStr), annotations, links, path))

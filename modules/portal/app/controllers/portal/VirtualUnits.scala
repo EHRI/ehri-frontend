@@ -30,33 +30,16 @@ case class VirtualUnits @Inject()(implicit globalConfig: global.GlobalConfig, se
 
   private val vuRoutes = controllers.portal.routes.VirtualUnits
 
-  private def buildFilter(item: AnyModel): Map[String,Any] = {
-    // Nastiness. We want a Solr query that will allow searching
-    // both the child virtual collections of a VU as well as the
-    // physical documentary units it includes. Since there is no
-    // connection from the DU to VUs it belongs to (and creating
-    // one is not feasible) we need to do this badness:
-    // - load the VU from the graph along with its included DUs
-    // - query for anything that has the VUs parent ID *or* anything
-    // with an itemId among its included DUs
-    import SearchConstants._
-    item match {
-      case v: VirtualUnit =>
-        val pq = v.includedUnits.map(_.id)
-        if (pq.isEmpty) Map(s"$PARENT_ID:${v.id}" -> Unit)
-        else Map(s"$PARENT_ID:${v.id} OR $ITEM_ID:(${pq.mkString(" ")})" -> Unit)
-      case d => Map(s"$PARENT_ID:${d.id}" -> Unit)
-    }
-  }
-
   def browseVirtualCollection(id: String) = GetItemAction(id).apply { implicit request =>
-    if (isAjax) Ok(views.html.virtualUnit.itemDetailsVc(request.item, request.annotations, request.links, request.watched))
-    else Ok(views.html.virtualUnit.show(request.item, request.annotations, request.links, request.watched))
+    if (isAjax) Ok(views.html.virtualUnit.itemDetailsVc(
+      request.item, request.annotations, request.links, request.watched))
+    else Ok(views.html.virtualUnit.show(
+      request.item, request.annotations, request.links, request.watched))
   }
 
   def filtersOrIds(item: AnyModel)(implicit request: RequestHeader): Future[Map[String,Any]] = {
     import SearchConstants._
-    if (!hasActiveQuery(request)) immediate(buildFilter(item))
+    if (!hasActiveQuery(request)) immediate(buildChildSearchFilter(item))
     else descendantIds(item.id).map { seq =>
       if (seq.isEmpty) Map.empty
       else Map(s"$ITEM_ID:(${seq.mkString(" ")}) OR $ANCESTOR_IDS:(${seq.mkString(" ")})" -> Unit)
