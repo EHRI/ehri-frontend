@@ -9,3 +9,4 @@ Disallow: /locale
 Disallow: /feedback
 Disallow: /helpdesk
 Disallow: /activity
+Disallow: /guides
