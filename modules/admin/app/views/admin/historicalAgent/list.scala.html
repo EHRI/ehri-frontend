@@ -3,7 +3,7 @@
 @import controllers.authorities.HistoricalAgents
 
 @views.html.admin.layout.rightSidebar(Messages("historicalAgent.list")) {
-    @common.filterableList("pagination.displayingItems", page, params) {
+    @views.html.admin.common.filterableList("pagination.displayingItems", page, params) {
         @itemList(page)
     }
 } {

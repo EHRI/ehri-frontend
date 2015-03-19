@@ -1,10 +1,10 @@
 @(item: Repository, desc: RepositoryDescriptionF, links: Seq[Link], annotations: Seq[Annotation])(implicit userOpt: Option[UserProfile], req: RequestHeader, globalConfig: global.GlobalConfig, lang: Lang, fieldPrefix: String)
 
 @import Isdiah._
-@import common.descriptionSection
+@import views.html.admin.common.descriptionSection
 
-@common.descriptionOutline(item, desc) {
-    @common.descriptionHeader(desc.name)
+@views.html.admin.layout.descriptionOutline(item, desc) {
+    @views.html.admin.common.descriptionHeader(desc.name)
 
     @descriptionSection(IDENTITY_AREA) {
         @views.html.admin.common.stringValue(Some(desc.name), AUTHORIZED_FORM_OF_NAME)
@@ -93,6 +93,6 @@
     @views.html.admin.link.accessPointLinks(item, desc, links)
 
     @desc.unknownProperties.map { e =>
-        @common.unknownData(e)
+        @views.html.admin.common.unknownData(e)
     }
 }

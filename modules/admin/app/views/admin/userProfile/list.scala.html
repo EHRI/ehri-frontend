@@ -2,7 +2,7 @@
 
 @views.html.admin.layout.rightSidebar(Messages("userProfile.list")) {
 
-    @common.filterableList("pagination.displayingItems", items, params) {
+    @views.html.admin.common.filterableList("pagination.displayingItems", items, params) {
         <ul class="list-unstyled">
         @items.items.map { item =>
             <li>

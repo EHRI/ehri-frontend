@@ -13,8 +13,8 @@
     </dd>
 }
 
-@common.descriptionOutline(item, desc) {
-    @common.descriptionHeader(desc.name)
+@views.html.admin.layout.descriptionOutline(item, desc) {
+    @views.html.admin.common.descriptionHeader(desc.name)
     <dl class="dl-horizontal">
         <dt>@Messages(prefix + "." + PREFLABEL)</dt>
         <dd>

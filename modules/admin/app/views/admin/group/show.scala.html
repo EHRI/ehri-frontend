@@ -26,7 +26,7 @@
         }
     }
 
-    @common.filterableList("group.membersPageHeader", page, params) {
+    @views.html.admin.common.filterableList("group.membersPageHeader", page, params) {
         <ul>
             @page.items.map { member =>
                 <h4><a href="@views.admin.Helpers.linkTo(member)">@member.toStringLang</a></h4>

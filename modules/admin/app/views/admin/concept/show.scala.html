@@ -33,7 +33,7 @@
                         </div>
                     </div>
 
-                    @common.filterableList("cvocConcept.narrowerTermsPageHeader", page, params) {
+                    @views.html.admin.common.filterableList("cvocConcept.narrowerTermsPageHeader", page, params) {
                         <ul>
                             @page.items.map(c => views.html.admin.concept.listItem(c))
                         </ul>

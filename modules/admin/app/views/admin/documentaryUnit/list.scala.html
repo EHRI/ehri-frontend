@@ -1,7 +1,7 @@
 @(page: utils.Page[DocumentaryUnit], params: utils.PageParams)(implicit userOpt: Option[UserProfile], req: RequestHeader, globalConfig: global.GlobalConfig, lang: Lang, flash: Flash)
 
 @views.html.admin.layout.noSidebar(Messages("documentaryUnit.list")) {
-    @common.filterableList("pagination.displayingItems", page, params) {
+    @views.html.admin.common.filterableList("pagination.displayingItems", page, params) {
         @itemList(page)
     }
 }

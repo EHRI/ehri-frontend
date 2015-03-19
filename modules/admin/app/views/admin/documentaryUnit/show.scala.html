@@ -27,7 +27,7 @@
                 } {
 
                 } {
-                    @common.identifiers(item.model.identifier, item.model.otherIdentifiers)
+                    @views.html.admin.common.identifiers(item.model.identifier, item.model.otherIdentifiers)
                     @views.html.admin.common.latestAction(item, controllers.units.routes.DocumentaryUnits.history(item.id))
                     @views.html.admin.common.visibility(item, controllers.units.routes.DocumentaryUnits.visibility(item.id), ContentTypes.DocumentaryUnit)
                     @adminActions(item)

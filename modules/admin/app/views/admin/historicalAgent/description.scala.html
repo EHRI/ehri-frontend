@@ -1,11 +1,11 @@
 @(item: HistoricalAgent, desc: HistoricalAgentDescriptionF, links: Seq[Link], annotations: Seq[Annotation])(implicit userOpt: Option[UserProfile], request: RequestHeader, fieldPrefix: String, lang: Lang, globalConfig: global.GlobalConfig)
 
 @import Isaar._
-@import common.descriptionSection
+@import views.html.admin.common.descriptionSection
 
 
-@common.descriptionOutline(item, desc) {
-    @common.descriptionHeader(desc.name)
+@views.html.admin.layout.descriptionOutline(item, desc) {
+    @views.html.admin.common.descriptionHeader(desc.name)
     @views.html.admin.common.dateSet(desc, DATES_OF_EXISTENCE)
 
     @descriptionSection(IDENTITY_AREA) {
@@ -42,6 +42,6 @@
     @views.html.admin.link.accessPointLinks(item, desc, links)
 
     @desc.unknownProperties.map { e =>
-        @common.unknownData(e)
+        @views.html.admin.common.unknownData(e)
     }
 }

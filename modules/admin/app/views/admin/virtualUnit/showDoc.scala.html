@@ -40,7 +40,7 @@
                     @views.html.p.common.typeLabel(item.isA)  {
                     }
                 } {
-                    @common.identifiers(item.model.identifier, item.model.otherIdentifiers)
+                    @views.html.admin.common.identifiers(item.model.identifier, item.model.otherIdentifiers)
                     @views.html.admin.common.latestAction(item, controllers.units.routes.DocumentaryUnits.history(item.id))
                 }
             }
