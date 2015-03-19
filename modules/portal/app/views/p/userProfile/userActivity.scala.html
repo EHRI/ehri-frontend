@@ -1,8 +1,0 @@
-@(item: UserProfile, events: utils.RangePage[SystemEvent], params: utils.RangeParams)(implicit userOpt: Option[UserProfile], request: RequestHeader, prefs: utils.SessionPrefs, globalConfig: global.GlobalConfig, lang: Lang)
-
-<div class="user-profile-content">
-    <h2 class="block-header userProfile">
-        @Messages("activity")
-    </h2>
-    @views.html.p.activity.activityStream(item, events)
-</div>

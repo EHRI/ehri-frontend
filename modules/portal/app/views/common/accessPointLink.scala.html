@@ -6,7 +6,7 @@
  *@
 @accessPoint.target(item, links).map { case (link, other) =>
     <li class="resolved-access-point" id="@accessPoint.id" dir="auto">
-        @views.html.p.helpers.linkTo(other)
+        @views.html.helpers.linkTo(other)
         @link.model.description.filterNot(_.trim.isEmpty).map { desc =>
             <div class="access-point-description">
                 @Html(views.Helpers.renderMarkdown(desc))

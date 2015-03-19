@@ -10,7 +10,6 @@ import models.{Repository, Vocabulary, Concept}
 import play.api.libs.concurrent.Execution.Implicits._
 import play.api.mvc.RequestHeader
 import utils.search._
-import views.html.p
 
 import scala.concurrent.Future.{successful => immediate}
 
@@ -35,17 +34,17 @@ case class Vocabularies @Inject()(implicit globalConfig: global.GlobalConfig, se
     findType[Vocabulary](
       facetBuilder = repositorySearchFacets
     ).map { result =>
-      Ok(p.vocabulary.list(result, portalVocabRoutes.searchAll(), request.watched))
+      Ok(views.html.vocabulary.list(result, portalVocabRoutes.searchAll(), request.watched))
     }
   }
 
   def browse(id: String) = GetItemAction(id).async { implicit request =>
-    if (isAjax) immediate(Ok(p.vocabulary.itemDetails(request.item, request.annotations, request.links, request.watched)))
+    if (isAjax) immediate(Ok(views.html.vocabulary.itemDetails(request.item, request.annotations, request.links, request.watched)))
     else findType[Concept](
       filters = filters(request.item.id),
       facetBuilder = conceptFacets
     ).map { result =>
-      Ok(p.vocabulary.show(request.item, result, request.annotations,
+      Ok(views.html.vocabulary.show(request.item, result, request.annotations,
         request.links, portalVocabRoutes.search(id), request.watched))
     }
   }
@@ -55,9 +54,9 @@ case class Vocabularies @Inject()(implicit globalConfig: global.GlobalConfig, se
         filters = filters(request.item.id),
         facetBuilder = conceptFacets
       ).map { result =>
-        if (isAjax) Ok(p.vocabulary.childItemSearch(request.item, result,
+        if (isAjax) Ok(views.html.vocabulary.childItemSearch(request.item, result,
           portalVocabRoutes.search(id), request.watched))
-        else Ok(p.vocabulary.search(request.item, result,
+        else Ok(views.html.vocabulary.search(request.item, result,
           portalVocabRoutes.search(id), request.watched))
       }
   }

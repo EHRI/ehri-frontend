@@ -1,0 +1,40 @@
+@(form: Form[(String,String,Boolean)], available: Seq[Repository])(implicit userOpt: Option[UserProfile], request: RequestHeader, lang: Lang, flash: Flash, globalConfig: global.GlobalConfig, prefs: utils.SessionPrefs)
+
+@views.html.layout.portalLayout(Messages("helpdesk")) {
+    @views.html.layout.mainContent {
+        @views.html.common.itemHeader(Messages("helpdesk")) {
+        }
+
+        <p class="text-info">
+            @Messages("helpdesk.message")
+        </p>
+        @helpdeskForm(form)
+
+        @if(available.nonEmpty) {
+            <hr/>
+            <p class="text-info">
+                @Messages("helpdesk.institutions")
+            </p>
+            <div class="panel panel-default">
+                <table class="table table-striped">
+                    <tr>
+                        <th>@Messages("helpdesk.institution")</th>
+                        <th>@Messages("helpdesk.contactEmail")</th>
+                    </tr>
+                    @available.map { repo =>
+                    <tr>
+                        <td>@views.html.helpers.linkTo(repo)</td>
+                        <td>
+                        @Html(repo.emails.map(e => s"<a href='mailto:$e?subject=EHRI Helpdesk Query'>$e</a>").mkString(", "))
+                    </td>
+                    </tr>
+                    }
+                </table>
+            </div>
+        } else {
+            <p class="alert alert-warning">
+            @Messages("helpdesk.results.empty")
+            </p>
+        }
+    }
+}

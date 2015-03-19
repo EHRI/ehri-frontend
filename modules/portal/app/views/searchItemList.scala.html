@@ -1,0 +1,43 @@
+@(result: utils.search.SearchResult[(models.base.AnyModel,utils.search.SearchHit)], watched: Seq[String], itemClass: String = "")(implicit userOpt: Option[UserProfile], req: RequestHeader, globalConfig: global.GlobalConfig, lang: Lang, context: Option[models.base.Holder[_]] = None)
+
+<ol class="search-result-list">
+    @result.page.map { case(item, hit) =>
+        @defining(Some(hit.id)) { implicit descriptionId =>
+            @defining(watched.contains(item.id)) { watched =>
+            <li class="@itemClass">
+                @item match {
+                    case d: DocumentaryUnit => {
+                        @views.html.documentaryUnit.searchItem(d, hit, watched)
+                    }
+                    case d: HistoricalAgent => {
+                        @views.html.historicalAgent.searchItem(d, hit, watched)
+                    }
+                    case d: Repository => {
+                        @views.html.repository.searchItem(d, hit, watched)
+                    }
+                    case d: Country => {
+                        @views.html.country.searchItem(d, hit, watched)
+                    }
+                    case d: Concept => {
+                        @views.html.concept.searchItem(d, hit, watched)
+                    }
+                    case d: Vocabulary => {
+                        @views.html.vocabulary.searchItem(d, hit, watched)
+                    }
+                    case d: VirtualUnit => {
+                        @views.html.virtualUnit.searchItem(d, Seq.empty, hit, watched)
+                    }
+                    case d: Annotation => {
+                        @views.html.annotation.searchItem(d, hit)
+                    }
+                    case _ => {
+                        <p class="text-warning">
+                            <a href="@views.p.Helpers.linkTo(item)">@item.toStringLang</a>
+                        </p>
+                    }
+                }
+            </li>
+            }
+        }
+    }
+</ol>

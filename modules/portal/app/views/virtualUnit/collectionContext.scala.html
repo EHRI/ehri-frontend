@@ -1,0 +1,34 @@
+@(item: AnyModel, path: Seq[AnyModel])(implicit userOpt: Option[UserProfile], req: RequestHeader, globalConfig: global.GlobalConfig, lang: Lang)
+
+@wrapParent(items: Seq[AnyModel])(html: Html) = {
+    @if(items.nonEmpty) {
+    <div class="item" style="padding-left: 5px">
+        @items.headOption.map { item =>
+            <h4>@views.html.helpers.linkTo(item)</h4>
+            @wrapParent(items.tail)(html)
+        }
+    </div>
+    } else {
+        @html
+    }
+}
+
+
+<section class="collection-context panel-details virtualUnit">
+    <p class="alert alert-info">
+        @Messages("virtualUnit.viewInArchivalContext.explanation")
+        <br />
+        @views.html.helpers.linkTo(item.asInstanceOf[DocumentaryUnit], Html(Messages("virtualUnit.viewInArchivalContext")))
+    </p>
+    @path.headOption.map { vc =>
+        <div class="panel-heading">
+            <h3>@views.html.helpers.linkTo(vc)</h3>
+        </div>
+        @if(item.isInstanceOf[DocumentaryUnit]) {
+            <div class="panel-body">
+                @wrapParent(path.tail) {
+                }
+            </div>
+        }
+    }
+</section>

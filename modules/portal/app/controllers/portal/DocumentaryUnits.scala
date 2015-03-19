@@ -11,7 +11,6 @@ import defines.EntityType
 import models.DocumentaryUnit
 import play.api.mvc.RequestHeader
 import utils.search._
-import views.html.p
 
 import scala.concurrent.Future.{successful => immediate}
 
@@ -40,19 +39,19 @@ case class DocumentaryUnits @Inject()(implicit globalConfig: global.GlobalConfig
       facetBuilder = docSearchFacets,
       entities = Seq(EntityType.DocumentaryUnit, EntityType.VirtualUnit)
     ).map { result =>
-      Ok(p.documentaryUnit.list(result, portalDocRoutes.searchAll(),
+      Ok(views.html.documentaryUnit.list(result, portalDocRoutes.searchAll(),
         request.watched))
     }
   }
 
   def browse(id: String) = GetItemAction(id).async { implicit request =>
-    if (isAjax) immediate(Ok(p.documentaryUnit.itemDetails(request.item, request.annotations, request.links, request.watched)))
+    if (isAjax) immediate(Ok(views.html.documentaryUnit.itemDetails(request.item, request.annotations, request.links, request.watched)))
     else findType[DocumentaryUnit](
       filters = Map(filterKey -> request.item.id),
       facetBuilder = localDocFacets,
       defaultOrder = SearchOrder.Id
     ).map { result =>
-      Ok(p.documentaryUnit.show(request.item, result,  request.annotations,
+      Ok(views.html.documentaryUnit.show(request.item, result,  request.annotations,
         request.links, portalDocRoutes.search(id), request.watched))
     }
   }
@@ -63,9 +62,9 @@ case class DocumentaryUnits @Inject()(implicit globalConfig: global.GlobalConfig
       facetBuilder = localDocFacets,
       defaultOrder = SearchOrder.Id
     ).map { result =>
-      if (isAjax) Ok(p.documentaryUnit.childItemSearch(request.item, result,
+      if (isAjax) Ok(views.html.documentaryUnit.childItemSearch(request.item, result,
         portalDocRoutes.search(id), request.watched))
-      else Ok(p.documentaryUnit.search(request.item, result,
+      else Ok(views.html.documentaryUnit.search(request.item, result,
         portalDocRoutes.search(id), request.watched))
     }
   }

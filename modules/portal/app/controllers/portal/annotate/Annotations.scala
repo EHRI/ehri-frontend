@@ -6,7 +6,6 @@ import play.api.mvc._
 import controllers.generic.{Search, Read, Promotion, Visibility}
 import models.{AnnotationF, Annotation, UserProfile}
 import play.api.Play.current
-import views.html.p
 import utils.ContributionVisibility
 import scala.concurrent.Future.{successful => immediate}
 import defines.{EntityType, PermissionType}
@@ -50,22 +49,21 @@ case class Annotations @Inject()(implicit globalConfig: global.GlobalConfig, sea
       entities = List(EntityType.Annotation),
       facetBuilder = annotationFacets
     ).map { result =>
-      Ok(p.annotation.list(result, annotationRoutes.searchAll()))
+      Ok(views.html.annotation.list(result, annotationRoutes.searchAll()))
     }
   }
 
   def browse(id: String) = OptionalUserAction.async { implicit request =>
     backend.get[Annotation](id).map { ann =>
       if (isAjax) Ok(Json.toJson(ann)(client.json.annotationJson.clientFormat))
-      else Ok(p.annotation.show(ann))
+      else Ok(views.html.annotation.show(ann))
     }
   }
 
   // Ajax
   def annotate(id: String, did: String) = WithUserAction.async {  implicit request =>
     getCanShareWith(request.user) { users => groups =>
-      Ok(
-        p.annotation.create(
+      Ok(views.html.annotation.create(
           Annotation.form.bind(annotationDefaults),
           ContributionVisibility.form.bindFromRequest,
           VisibilityForm.form.bindFromRequest,
@@ -83,7 +81,7 @@ case class Annotations @Inject()(implicit globalConfig: global.GlobalConfig, sea
       ann => {
         val accessors: Seq[String] = getAccessors(ann, request.user)
         backend.createAnnotationForDependent[Annotation,AnnotationF](id, did, ann, accessors).map { ann =>
-          Created(p.annotation.annotationBlock(ann, editable = true))
+          Created(views.html.annotation.annotationBlock(ann, editable = true))
             .withHeaders(
                 HttpHeaders.LOCATION -> annotationRoutes.browse(ann.id).url)
         }
@@ -96,7 +94,7 @@ case class Annotations @Inject()(implicit globalConfig: global.GlobalConfig, sea
     WithItemPermissionAction(aid, PermissionType.Update).async { implicit request =>
       val vis = getContributionVisibility(request.item, request.userOpt.get)
       getCanShareWith(request.userOpt.get) { users => groups =>
-        Ok(p.annotation.edit(Annotation.form.fill(request.item.model),
+        Ok(views.html.annotation.edit(Annotation.form.fill(request.item.model),
           ContributionVisibility.form.fill(vis),
           VisibilityForm.form.fill(request.item.accessors.map(_.id)),
           annotationRoutes.editAnnotationPost(aid, context),
@@ -137,7 +135,7 @@ case class Annotations @Inject()(implicit globalConfig: global.GlobalConfig, sea
 
   // Ajax
   def deleteAnnotation(aid: String) = WithItemPermissionAction(aid, PermissionType.Delete).apply { implicit request =>
-      Ok(p.helpers.simpleForm("annotation.delete.title",
+      Ok(views.html.helpers.simpleForm("annotation.delete.title",
           annotationRoutes.deleteAnnotationPost(aid)))
   }
 
@@ -150,7 +148,7 @@ case class Annotations @Inject()(implicit globalConfig: global.GlobalConfig, sea
   // Ajax
   def annotateField(id: String, did: String, field: String) = WithUserAction.async { implicit request =>
     getCanShareWith(request.user) { users => groups =>
-      Ok(p.annotation.create(
+      Ok(views.html.annotation.create(
         Annotation.form.bind(annotationDefaults),
         ContributionVisibility.form.bindFromRequest,
         VisibilityForm.form.bindFromRequest,
@@ -170,7 +168,7 @@ case class Annotations @Inject()(implicit globalConfig: global.GlobalConfig, sea
         val fieldAnn = ann.copy(field = Some(field))
         val accessors: Seq[String] = getAccessors(ann, request.user)
         backend.createAnnotationForDependent[Annotation,AnnotationF](id, did, fieldAnn, accessors).map { ann =>
-          Created(p.annotation.annotationInline(ann, editable = true))
+          Created(views.html.annotation.annotationInline(ann, editable = true))
             .withHeaders(
               HttpHeaders.LOCATION -> annotationRoutes.browse(ann.id).url)
         }
@@ -183,15 +181,15 @@ case class Annotations @Inject()(implicit globalConfig: global.GlobalConfig, sea
     Ok {
       // if rendering with Ajax check which partial to return via the context param.
       if (isAjax) context match {
-        case AnnotationContext.List => p.annotation.searchItem(item)
-        case AnnotationContext.Field => p.annotation.annotationInline(item, editable = item.isOwnedBy(userOpt))
-        case AnnotationContext.Block => p.annotation.annotationBlock(item, editable = item.isOwnedBy(userOpt))
-      } else p.annotation.show(item)
+        case AnnotationContext.List => views.html.annotation.searchItem(item)
+        case AnnotationContext.Field => views.html.annotation.annotationInline(item, editable = item.isOwnedBy(userOpt))
+        case AnnotationContext.Block => views.html.annotation.annotationBlock(item, editable = item.isOwnedBy(userOpt))
+      } else views.html.annotation.show(item)
     }
   }
 
   def promoteAnnotation(id: String, context: AnnotationContext.Value) = EditPromotionAction(id).apply { implicit request =>
-    Ok(p.helpers.simpleForm("promotion.promote.title",
+    Ok(views.html.helpers.simpleForm("promotion.promote.title",
       annotationRoutes.promoteAnnotationPost(id, context)))
   }
 
@@ -200,7 +198,7 @@ case class Annotations @Inject()(implicit globalConfig: global.GlobalConfig, sea
   }
 
   def removeAnnotationPromotion(id: String, context: AnnotationContext.Value) = EditPromotionAction(id).apply { implicit request =>
-    Ok(p.helpers.simpleForm("promotion.promote.remove.title",
+    Ok(views.html.helpers.simpleForm("promotion.promote.remove.title",
       annotationRoutes.removeAnnotationPromotionPost(id, context)))
   }
 
@@ -209,7 +207,7 @@ case class Annotations @Inject()(implicit globalConfig: global.GlobalConfig, sea
   }
 
   def demoteAnnotation(id: String, context: AnnotationContext.Value) = EditPromotionAction(id).apply { implicit request =>
-    Ok(p.helpers.simpleForm("promotion.demote.title",
+    Ok(views.html.helpers.simpleForm("promotion.demote.title",
       annotationRoutes.demoteAnnotationPost(id, context)))
   }
 
@@ -218,7 +216,7 @@ case class Annotations @Inject()(implicit globalConfig: global.GlobalConfig, sea
   }
 
   def removeAnnotationDemotion(id: String, context: AnnotationContext.Value) = PromoteItemAction(id).apply { implicit request =>
-    Ok(p.helpers.simpleForm("promotion.demote.remove.title",
+    Ok(views.html.helpers.simpleForm("promotion.demote.remove.title",
       annotationRoutes.removeAnnotationDemotionPost(id, context)))
   }
 

@@ -39,7 +39,7 @@ case class Helpdesk @Inject()(implicit helpdeskDAO: HelpdeskDAO, globalConfig: g
   def helpdesk = OptionalUserAction.async { implicit request =>
     helpdeskDAO.available.flatMap { repos =>
       SearchDAO.list[Repository](repos.map(_._1)).map { institutions =>
-        Ok(views.html.p.helpdesk.helpdesk(prefilledForm, institutions))
+        Ok(views.html.helpdesk.helpdesk(prefilledForm, institutions))
       }
     }
   }
@@ -56,7 +56,7 @@ case class Helpdesk @Inject()(implicit helpdeskDAO: HelpdeskDAO, globalConfig: g
     helpdeskForm.bindFromRequest.fold(
       errorForm =>helpdeskDAO.available.flatMap { repos =>
         SearchDAO.list[Repository](repos.map(_._1)).map { institutions =>
-          BadRequest(views.html.p.helpdesk.helpdesk(errorForm, institutions))
+          BadRequest(views.html.helpdesk.helpdesk(errorForm, institutions))
         }
       },
       data => {
@@ -67,11 +67,11 @@ case class Helpdesk @Inject()(implicit helpdeskDAO: HelpdeskDAO, globalConfig: g
 
         helpdeskDAO.askQuery(query).flatMap { responses =>
           SearchDAO.list[Repository](responses.map(_._1)).map { institutions =>
-            Ok(views.html.p.helpdesk.results(prefilledForm.fill(data), email, query, responses, institutions))
+            Ok(views.html.helpdesk.results(prefilledForm.fill(data), email, query, responses, institutions))
           }
         } recover {
           case e: BadHelpdeskResponse =>
-            InternalServerError(views.html.p.helpdesk.error(e))
+            InternalServerError(views.html.helpdesk.error(e))
         }
       }
     )

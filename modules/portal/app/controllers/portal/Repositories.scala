@@ -9,7 +9,6 @@ import models.{Repository, DocumentaryUnit}
 import play.api.libs.concurrent.Execution.Implicits._
 import play.api.mvc.RequestHeader
 import utils.search._
-import views.html.p
 
 import scala.concurrent.Future.{successful => immediate}
 
@@ -35,7 +34,7 @@ case class Repositories @Inject()(implicit globalConfig: global.GlobalConfig, se
     findType[Repository](
       facetBuilder = repositorySearchFacets
     ).map { result =>
-      Ok(p.repository.list(result, portalRepoRoutes.searchAll(),
+      Ok(views.html.repository.list(result, portalRepoRoutes.searchAll(),
         request.watched))
     }
   }
@@ -45,20 +44,20 @@ case class Repositories @Inject()(implicit globalConfig: global.GlobalConfig, se
       defaultParams = SearchParams(sort = Some(SearchOrder.Country)),
       facetBuilder = repositorySearchFacets
     ).map { result =>
-      Ok(p.repository.listByCountry(result,
+      Ok(views.html.repository.listByCountry(result,
         portalRepoRoutes.searchAllByCountry(),
         request.watched))
     }
   }
 
   def browse(id: String) = GetItemAction(id).async { implicit request =>
-    if (isAjax) immediate(Ok(p.repository.itemDetails(request.item, request.annotations, request.links, request.watched)))
+    if (isAjax) immediate(Ok(views.html.repository.itemDetails(request.item, request.annotations, request.links, request.watched)))
     else findType[DocumentaryUnit](
       filters = filters(request.item.id),
       facetBuilder = localDocFacets,
       defaultOrder = SearchOrder.Id
     ).map { result =>
-      Ok(p.repository.show(request.item, result, request.annotations,
+      Ok(views.html.repository.show(request.item, result, request.annotations,
         request.links, portalRepoRoutes.search(id), request.watched))
     }
   }
@@ -69,9 +68,9 @@ case class Repositories @Inject()(implicit globalConfig: global.GlobalConfig, se
       facetBuilder = localDocFacets,
       defaultOrder = SearchOrder.Id
     ).map { result =>
-      if (isAjax) Ok(p.repository.childItemSearch(request.item, result,
+      if (isAjax) Ok(views.html.repository.childItemSearch(request.item, result,
         portalRepoRoutes.search(id), request.watched))
-      else Ok(p.repository.search(request.item, result,
+      else Ok(views.html.repository.search(request.item, result,
         portalRepoRoutes.search(id), request.watched))
     }
   }

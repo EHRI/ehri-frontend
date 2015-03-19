@@ -1,0 +1,11 @@
+@(result: utils.search.SearchResult[(models.base.AnyModel, utils.search.SearchHit)], action: Call, watched: Seq[String])(implicit userOpt: Option[UserProfile], request: RequestHeader, prefs: utils.SessionPrefs, globalConfig: global.GlobalConfig, lang: Lang, flash: Flash, context: Option[models.base.Holder[_]] = None)
+
+@views.html.layout.searchLayout(Messages("type.documentaryUnit"), EntityType.DocumentaryUnit.toString, result, meta = Map("description" -> Messages("type.documentaryUnit.description")(Lang.defaultLang))) {
+    @views.html.common.search.searchForm(result, action, autofocus = false) {
+        @views.html.searchItemList(result, watched)
+    } {
+        @views.html.common.typeLabel(EntityType.DocumentaryUnit) {
+        }
+        @views.html.common.search.facetList(result.facetClasses, action)
+    }
+}

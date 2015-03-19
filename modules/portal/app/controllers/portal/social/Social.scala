@@ -4,7 +4,6 @@ import auth.AccountManager
 import controllers.generic.Search
 import play.api.libs.concurrent.Execution.Implicits._
 import models.{SystemEvent, UserProfile}
-import views.html.p
 import utils._
 import utils.search._
 import defines.EntityType
@@ -47,7 +46,7 @@ case class Social @Inject()(implicit globalConfig: global.GlobalConfig, searchEn
       result <- findType[UserProfile](
         filters = Map(SearchConstants.ACTIVE -> true.toString)
       )
-    } yield Ok(p.userProfile.browseUsers(
+    } yield Ok(views.html.userProfile.browseUsers(
         request.user,
         result,
         controllers.portal.social.routes.Social.browseUsers(),
@@ -66,7 +65,7 @@ case class Social @Inject()(implicit globalConfig: global.GlobalConfig, searchEn
       .listEventsByUser[SystemEvent](userId, listParams, eventParams)
 
     if (isAjax) events.map { theirActivity =>
-      Ok(p.activity.eventItems(theirActivity))
+      Ok(views.html.activity.eventItems(theirActivity))
         .withHeaders("activity-more" -> theirActivity.more.toString)
     } else {
       val isFollowing: Future[Boolean] = backend.isFollowing(request.user.id, userId)
@@ -76,7 +75,7 @@ case class Social @Inject()(implicit globalConfig: global.GlobalConfig, searchEn
         theirActivity <- events
         followed <- isFollowing
         canMessage <- allowMessage
-      } yield Ok(p.userProfile.show(them, theirActivity, listParams, followed, canMessage))
+      } yield Ok(views.html.userProfile.show(them, theirActivity, listParams, followed, canMessage))
     }
   }
 
@@ -92,7 +91,7 @@ case class Social @Inject()(implicit globalConfig: global.GlobalConfig, searchEn
       result <- findIn[AnyModel](theirWatching)
       followed <- isFollowing
       canMessage <- allowMessage
-    } yield Ok(p.userProfile.watched(
+    } yield Ok(views.html.userProfile.watched(
       them,
       result,
       socialRoutes.watchedByUser(userId),
@@ -102,7 +101,7 @@ case class Social @Inject()(implicit globalConfig: global.GlobalConfig, searchEn
   }
 
   def followUser(userId: String) = WithUserAction { implicit request =>
-    Ok(p.helpers.simpleForm("social.follow",
+    Ok(views.html.helpers.simpleForm("social.follow",
       socialRoutes.followUserPost(userId)))
   }
 
@@ -117,7 +116,7 @@ case class Social @Inject()(implicit globalConfig: global.GlobalConfig, searchEn
   }
 
   def unfollowUser(userId: String) = WithUserAction { implicit request =>
-    Ok(p.helpers.simpleForm("social.unfollow",
+    Ok(views.html.helpers.simpleForm("social.unfollow",
       socialRoutes.unfollowUserPost(userId)))
   }
 
@@ -132,7 +131,7 @@ case class Social @Inject()(implicit globalConfig: global.GlobalConfig, searchEn
   }
 
   def blockUser(userId: String) = WithUserAction { implicit request =>
-    Ok(p.helpers.simpleForm("social.block",
+    Ok(views.html.helpers.simpleForm("social.block",
       socialRoutes.blockUserPost(userId)))
   }
 
@@ -147,7 +146,7 @@ case class Social @Inject()(implicit globalConfig: global.GlobalConfig, searchEn
   }
 
   def unblockUser(userId: String) = WithUserAction { implicit request =>
-    Ok(p.helpers.simpleForm("social.unblock",
+    Ok(views.html.helpers.simpleForm("social.unblock",
       socialRoutes.unblockUserPost(userId)))
   }
 
@@ -174,9 +173,9 @@ case class Social @Inject()(implicit globalConfig: global.GlobalConfig, searchEn
       canMessage <- allowMessage
     } yield {
       if (isAjax)
-        Ok(p.userProfile.followerList(them, theirFollowers, params, whoImFollowing))
+        Ok(views.html.userProfile.followerList(them, theirFollowers, params, whoImFollowing))
       else
-        Ok(p.userProfile.listFollowers(them, theirFollowers, params, whoImFollowing, canMessage))
+        Ok(views.html.userProfile.listFollowers(them, theirFollowers, params, whoImFollowing, canMessage))
     }
   }
 
@@ -190,9 +189,9 @@ case class Social @Inject()(implicit globalConfig: global.GlobalConfig, searchEn
       canMessage <- allowMessage
     } yield {
       if (isAjax)
-        Ok(p.userProfile.followingList(them, theirFollowing, params, whoImFollowing))
+        Ok(views.html.userProfile.followingList(them, theirFollowing, params, whoImFollowing))
       else
-        Ok(p.userProfile.listFollowing(them, theirFollowing, params, whoImFollowing, canMessage))
+        Ok(views.html.userProfile.listFollowing(them, theirFollowing, params, whoImFollowing, canMessage))
     }
   }
 
@@ -237,8 +236,8 @@ case class Social @Inject()(implicit globalConfig: global.GlobalConfig, searchEn
           .setRecipient(accTo.email)
           .setReplyTo(accFrom.email)
           .setFrom("EHRI User <noreply@ehri-project.eu>")
-          .send(views.txt.p.social.mail.messageEmail(heading, subject, message).body,
-            views.html.p.social.mail.messageEmail(heading, subject, message).body)
+          .send(views.txt.social.mail.messageEmail(heading, subject, message).body,
+            views.html.social.mail.messageEmail(heading, subject, message).body)
 
         if (copy) {
           val copyHeading = Messages("mail.message.copy.heading", to.toStringLang)
@@ -246,8 +245,8 @@ case class Social @Inject()(implicit globalConfig: global.GlobalConfig, searchEn
             .setSubject(Messages("mail.message.copy.subject", to.toStringLang, subject))
             .setRecipient(accFrom.email)
             .setFrom("EHRI User <noreply@ehri-project.eu>")
-            .send(views.txt.p.social.mail.messageEmail(copyHeading, subject, message, isCopy = true).body,
-              views.html.p.social.mail.messageEmail(copyHeading, subject, message, isCopy = true).body)
+            .send(views.txt.social.mail.messageEmail(copyHeading, subject, message, isCopy = true).body,
+              views.html.social.mail.messageEmail(copyHeading, subject, message, isCopy = true).body)
         }
       }
     }
@@ -261,9 +260,9 @@ case class Social @Inject()(implicit globalConfig: global.GlobalConfig, searchEn
       allowed <- canMessage(request.user.id, userId)
     } yield {
       if (allowed) {
-        if (isAjax) Ok(p.userProfile.messageForm(userTo, messageForm, socialRoutes.sendMessagePost(userId),
+        if (isAjax) Ok(views.html.userProfile.messageForm(userTo, messageForm, socialRoutes.sendMessagePost(userId),
           recaptchaKey))
-        else Ok(p.userProfile.messageUser(userTo, messageForm,
+        else Ok(views.html.userProfile.messageUser(userTo, messageForm,
           socialRoutes.sendMessagePost(userId), recaptchaKey))
       } else {
         BadRequest(Messages("social.message.send.userNotAcceptingMessages"))
@@ -278,7 +277,7 @@ case class Social @Inject()(implicit globalConfig: global.GlobalConfig, searchEn
 
     def onError(userTo: UserProfile, form: Form[(String,String,Boolean)]): Result = {
       if (isAjax) BadRequest(form.errorsAsJson)
-      else BadRequest(p.userProfile.messageUser(userTo, form,
+      else BadRequest(views.html.userProfile.messageUser(userTo, form,
         socialRoutes.sendMessagePost(userId), recaptchaKey))
     }
 

@@ -39,7 +39,7 @@ case class Feedback @Inject()(implicit globalConfig: global.GlobalConfig, feedba
   )
 
   def feedback = OptionalUserAction { implicit request =>
-    Ok(views.html.p.feedback(models.Feedback.form))
+    Ok(views.html.feedback(models.Feedback.form))
   }
 
   private def getCopyMail(feedbackType: Option[models.Feedback.Type.Value])(implicit app: play.api.Application): Seq[String] = {
@@ -70,7 +70,7 @@ case class Feedback @Inject()(implicit globalConfig: global.GlobalConfig, feedba
     import play.api.Play.current
 
     def response(f: Form[models.Feedback]): Result =
-      if (isAjax) BadRequest(f.errorsAsJson) else BadRequest(views.html.p.feedback(f))
+      if (isAjax) BadRequest(f.errorsAsJson) else BadRequest(views.html.feedback(f))
 
     // check the anti-bot measures and immediately return the original
     // form. No feedback needed since they're (hopefully) a bot.
@@ -96,7 +96,7 @@ case class Feedback @Inject()(implicit globalConfig: global.GlobalConfig, feedba
 
   def list = AdminAction.async { implicit request =>
     feedbackDAO.list("order" -> "-createdAt").map { flist =>
-      Ok(views.html.p.feedbackList(flist.filter(_.text.isDefined)))
+      Ok(views.html.feedbackList(flist.filter(_.text.isDefined)))
     }
   }
 }

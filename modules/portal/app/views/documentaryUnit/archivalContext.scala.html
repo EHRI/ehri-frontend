@@ -1,0 +1,54 @@
+@(item: DocumentaryUnit)(implicit userOpt: Option[UserProfile], req: RequestHeader, globalConfig: global.GlobalConfig, lang: Lang)
+
+@wrapParent(doc: DocumentaryUnit)(html: Html) = {
+    @doc.parent.map { parent =>
+        @wrapParent(parent) {
+            <div class="ancestor">
+                @views.html.helpers.linkTo(parent)
+                @html
+            </div>
+        }
+    }.getOrElse {
+        @html
+    }
+}
+
+@wrapCountry(countryOpt: Option[Country])(html: Html) = {
+    @countryOpt.map { country =>
+        @views.html.helpers.linkTo(country)
+        <div class="ancestor">
+            @html
+        </div>
+    }.getOrElse {
+        @html
+    }
+}
+
+
+<div class="archival-context panel-details">
+    @item.holder.map { holder =>
+        <div class="panel-heading">
+            <h3 class="panel-title">@Messages("documentaryUnit.archivalContext")</h3>
+        </div>
+        <div class="panel-body">
+            @wrapCountry(holder.country) {
+                @views.html.helpers.linkTo(holder)
+                @holder.model.logoUrl.map { logo =>
+                    @defining(holder.url.map(_.toString).getOrElse(req.path)) { url =>
+                    <a href="@url">
+                        <img class="repository-logo" src="@logo" alt="@item.toStringLang" />
+                    </a>
+                    }
+                }
+
+                @item.parent.map { parent =>
+                    @wrapParent(parent) {
+                        <div class="ancestor">
+                            @views.html.helpers.linkTo(parent)
+                        </div>
+                    }
+                }
+            }
+        </div>
+    }
+</div>

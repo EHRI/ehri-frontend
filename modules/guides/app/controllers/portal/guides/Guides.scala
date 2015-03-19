@@ -23,7 +23,6 @@ import play.api.libs.json._
 import play.api.mvc._
 import utils._
 import utils.search._
-import views.html.p
 import controllers.renderError
 
 import scala.concurrent.Future
@@ -143,7 +142,7 @@ case class Guides @Inject()(implicit globalConfig: global.GlobalConfig, searchEn
   * Return a list of guides
   */
   def listGuides() = OptionalUserAction { implicit request =>
-    Ok(p.guides.guidesList(Guide.findAll(activeOnly = true)))
+    Ok(views.html.guides.guidesList(Guide.findAll(activeOnly = true)))
   }
 
   /*
@@ -254,8 +253,8 @@ case class Guides @Inject()(implicit globalConfig: global.GlobalConfig, searchEn
       links <- countLinks(guide.virtualUnit, r.page.items.map { case (item, hit) => item.id})
     } yield render {
       case Accepts.Html() =>
-        if (isAjax) Ok(p.guides.ajax(guide, page, r.page, r.params, links))
-        else Ok(p.guides.person(guide, page, guide.findPages(), r.page, r.params, links))
+        if (isAjax) Ok(views.html.guides.ajax(guide, page, r.page, r.params, links))
+        else Ok(views.html.guides.person(guide, page, guide.findPages(), r.page, r.params, links))
       case Accepts.Json() =>
         Ok(guideJson(r.page, request, links))
     }
@@ -279,8 +278,8 @@ case class Guides @Inject()(implicit globalConfig: global.GlobalConfig, searchEn
         links <- countLinks(guide.virtualUnit, r.page.items.map { case (item, hit) => item.id})
       } yield render {
           case Accepts.Html() =>
-            if (isAjax) Ok(p.guides.ajax(guide, page, r.page, r.params, links))
-            else Ok(p.guides.places(guide, page, guide.findPages(), r.page, r.params, links, guideJson(r.page, request, links)))
+            if (isAjax) Ok(views.html.guides.ajax(guide, page, r.page, r.params, links))
+            else Ok(views.html.guides.places(guide, page, guide.findPages(), r.page, r.params, links, guideJson(r.page, request, links)))
           case Accepts.Json() =>
             Ok(guideJson(r.page, request, links))
         }
@@ -300,8 +299,8 @@ case class Guides @Inject()(implicit globalConfig: global.GlobalConfig, searchEn
       links <- countLinks(guide.virtualUnit, r.page.items.map { case (item, hit) => item.id})
     } yield render {
       case Accepts.Html() =>
-        if (isAjax) Ok(p.guides.ajax(guide, page, r.page, r.params, links))
-        else Ok(p.guides.organisation(guide, page, guide.findPages(), r.page, r.params, links))
+        if (isAjax) Ok(views.html.guides.ajax(guide, page, r.page, r.params, links))
+        else Ok(views.html.guides.organisation(guide, page, guide.findPages(), r.page, r.params, links))
       case Accepts.Json() =>
         Ok(guideJson(r.page, request, links))
     }
@@ -311,21 +310,21 @@ case class Guides @Inject()(implicit globalConfig: global.GlobalConfig, searchEn
    *   Layout named "html" (Html)
    */
   def guideHtml(guide: Guide, page: GuidePage) = OptionalUserAction { implicit request =>
-    Ok(p.guides.html(guide, page))
+    Ok(views.html.guides.html(guide, page))
   }
 
   /*
    *   Layout named "html" (Html)
    */
   def guideMarkdown(guide: Guide, page: GuidePage) = OptionalUserAction { implicit request =>
-    Ok(p.guides.markdown(guide, page))
+    Ok(views.html.guides.markdown(guide, page))
   }
 
   /**
    * Layout named "timeline"
    */
   def guideTimeline(guide: Guide, page: GuidePage) = OptionalUserAction { implicit request =>
-    Ok(p.guides.timeline(guide, page))
+    Ok(views.html.guides.timeline(guide, page))
   }
 
   private def getFacetQuery(ids: Seq[String]): String = {
@@ -483,7 +482,7 @@ case class Guides @Inject()(implicit globalConfig: global.GlobalConfig, searchEn
           filters = filters,
           defaultOrder = SearchOrder.Name
         )
-      } yield Ok(p.guides.facet(
+      } yield Ok(views.html.guides.facet(
         guide,
         GuidePage.faceted,
         guide.findPages(),
@@ -504,7 +503,7 @@ case class Guides @Inject()(implicit globalConfig: global.GlobalConfig, searchEn
           availableFacets <- otherFacets(guide, ids)
           tempAccessPoints <- SearchDAO.listByGid[AnyModel](availableFacets)
         } yield {
-          Ok(p.guides.facet(
+          Ok(views.html.guides.facet(
             guide,
             GuidePage.faceted,
             guide.findPages(),

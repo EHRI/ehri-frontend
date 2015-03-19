@@ -8,7 +8,6 @@ import controllers.portal.base.{Generic, PortalController}
 import models.{Repository, Country}
 import play.api.libs.concurrent.Execution.Implicits._
 import utils.search._
-import views.html.p
 
 import scala.concurrent.Future.{successful => immediate}
 
@@ -27,18 +26,18 @@ case class Countries @Inject()(implicit globalConfig: global.GlobalConfig, searc
 
   def searchAll = UserBrowseAction.async { implicit request =>
     findType[Country](facetBuilder = countryFacets).map { result =>
-      Ok(p.country.list(result, portalCountryRoutes.searchAll(), request.watched))
+      Ok(views.html.country.list(result, portalCountryRoutes.searchAll(), request.watched))
     }
   }
 
   def browse(id: String) = GetItemAction(id).async { implicit request =>
-    if (isAjax) immediate(Ok(p.country.itemDetails(request.item, request.annotations, request.links, request.watched)))
+    if (isAjax) immediate(Ok(views.html.country.itemDetails(request.item, request.annotations, request.links, request.watched)))
     else {
       findType[Repository](
         filters = Map(SearchConstants.COUNTRY_CODE -> request.item.id),
         facetBuilder = localRepoFacets
       ).map { result =>
-        Ok(p.country.show(request.item, result, request.annotations,
+        Ok(views.html.country.show(request.item, result, request.annotations,
           request.links, portalCountryRoutes.search(id), request.watched))
       }
     }
@@ -49,9 +48,9 @@ case class Countries @Inject()(implicit globalConfig: global.GlobalConfig, searc
         filters = Map(SearchConstants.COUNTRY_CODE -> request.item.id),
         facetBuilder = localRepoFacets
       ).map { result =>
-        if (isAjax) Ok(p.country.childItemSearch(request.item, result,
+        if (isAjax) Ok(views.html.country.childItemSearch(request.item, result,
           portalCountryRoutes.search(id), request.watched))
-        else Ok(p.country.search(request.item, result,
+        else Ok(views.html.country.search(request.item, result,
           portalCountryRoutes.search(id), request.watched))
       }
   }

@@ -10,7 +10,6 @@ import models.base.AnyModel
 import play.api.i18n.Messages
 import play.api.libs.concurrent.Execution.Implicits._
 import play.api.mvc._
-import views.html.p
 import utils.search._
 import play.api.cache.{Cache, Cached}
 import defines.EntityType
@@ -78,9 +77,9 @@ case class Portal @Inject()(implicit globalConfig: global.GlobalConfig, searchEn
       .copy(eventTypes = activityEventTypes)
       .copy(itemTypes = activityItemTypes)
     backend.listEventsForUser[SystemEvent](request.user.id, listParams, eventFilter).map { events =>
-      if (isAjax) Ok(p.activity.eventItems(events))
+      if (isAjax) Ok(views.html.activity.eventItems(events))
         .withHeaders("activity-more" -> events.more.toString)
-      else Ok(p.activity.activity(events, listParams))
+      else Ok(views.html.activity.activity(events, listParams))
     }
   }
 
@@ -90,7 +89,7 @@ case class Portal @Inject()(implicit globalConfig: global.GlobalConfig, searchEn
       facetBuilder = globalSearchFacets, mode = SearchMode.DefaultNone,
       entities = defaultSearchTypes
     ).map { result =>
-      Ok(p.search(result, portalRoutes.search(), request.watched))
+      Ok(views.html.search.globalSearch(result, portalRoutes.search(), request.watched))
     }
   }
 
@@ -126,7 +125,7 @@ case class Portal @Inject()(implicit globalConfig: global.GlobalConfig, searchEn
         facetBuilder = entityMetrics,
         extra = Map("facet.limit" -> "-1")
       ).map(_.facetClasses)
-    }.map(facets => Ok(p.portal(Stats(facets))))
+    }.map(facets => Ok(views.html.portal(Stats(facets))))
   }
 
   def browseItem(entityType: EntityType.Value, id: String) = Action { implicit request =>
@@ -140,27 +139,27 @@ case class Portal @Inject()(implicit globalConfig: global.GlobalConfig, searchEn
     val params: RangeParams = RangeParams.fromRequest(request)
     val filters = SystemEventParams.fromRequest(request)
     backend.history[SystemEvent](id, params, filters).map { events =>
-      if (isAjax && modal) Ok(p.activity.itemActivityModal(events))
-      else if (isAjax) Ok(p.activity.itemEventItems(events))
+      if (isAjax && modal) Ok(views.html.activity.itemActivityModal(events))
+      else if (isAjax) Ok(views.html.activity.itemEventItems(events))
         .withHeaders("activity-more" -> events.more.toString)
-      else Ok(p.activity.itemActivity(events, params))
+      else Ok(views.html.activity.itemActivity(events, params))
     }
   }
 
   def dataPolicy = OptionalUserAction.apply { implicit request =>
-    Ok(p.dataPolicy())
+    Ok(views.html.dataPolicy())
   }
 
   def terms = OptionalUserAction.apply { implicit request =>
-    Ok(p.terms())
+    Ok(views.html.terms())
   }
 
   def about = OptionalUserAction.apply { implicit request =>
-    Ok(p.about())
+    Ok(views.html.about())
   }
 
   def contact = OptionalUserAction.apply { implicit request =>
-    Ok(p.contact())
+    Ok(views.html.contact())
   }
 
   case class NewsItem(title: String, link: String, description: Html, pubDate: Option[DateTime] = None)
@@ -198,7 +197,7 @@ case class Portal @Inject()(implicit globalConfig: global.GlobalConfig, searchEn
   def newsFeed = Cached.status(_ => "pages.newsFeed", OK, 60 * 60) {
     Action.async { request =>
       WS.url("http://www.ehri-project.eu/rss.xml").get().map { r =>
-        Ok(p.newsFeed(NewsItem.fromRss(r.body)))
+        Ok(views.html.newsFeed(NewsItem.fromRss(r.body)))
       }
     }
   }

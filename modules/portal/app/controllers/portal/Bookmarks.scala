@@ -6,7 +6,6 @@ import controllers.generic.Search
 import models._
 import play.api.libs.concurrent.Execution.Implicits._
 import play.api.mvc._
-import views.html.p
 import utils.search._
 import defines.EntityType
 import backend.{IdGenerator, Backend}
@@ -124,19 +123,19 @@ case class Bookmarks @Inject()(implicit globalConfig: global.GlobalConfig, searc
       page <- pageF
       watched <- watchedF
       result = SearchResult(page, SearchParams.empty)
-    } yield Ok(p.bookmarks.list(result, watched))
+    } yield Ok(views.html.bookmarks.list(result, watched))
   }
 
   def createBookmarkSet(items: List[String] = Nil) = WithUserAction { implicit request =>
-    if (isAjax) Ok(p.bookmarks.form(BookmarkSet.bookmarkForm, bmRoutes.createBookmarkSetPost(items)))
-    else Ok(p.bookmarks.create(BookmarkSet.bookmarkForm, bmRoutes.createBookmarkSetPost(items)))
+    if (isAjax) Ok(views.html.bookmarks.form(BookmarkSet.bookmarkForm, bmRoutes.createBookmarkSetPost(items)))
+    else Ok(views.html.bookmarks.create(BookmarkSet.bookmarkForm, bmRoutes.createBookmarkSetPost(items)))
   }
 
   def createBookmarkSetPost(items: List[String] = Nil) = WithUserAction.async { implicit request =>
     BookmarkSet.bookmarkForm.bindFromRequest.fold(
       errs => immediate {
-        if (isAjax) Ok(p.bookmarks.form(errs, bmRoutes.createBookmarkSetPost(items)))
-        else Ok(p.bookmarks.create(errs, bmRoutes.createBookmarkSetPost(items)))
+        if (isAjax) Ok(views.html.bookmarks.form(errs, bmRoutes.createBookmarkSetPost(items)))
+        else Ok(views.html.bookmarks.create(errs, bmRoutes.createBookmarkSetPost(items)))
       },
       bs => createVirtualCollection(bs, items).map { vu =>
         if (isAjax) Ok("ok")
@@ -184,7 +183,7 @@ case class Bookmarks @Inject()(implicit globalConfig: global.GlobalConfig, searc
       children <- includedChildren(id, item)
       watched <- watchedF
     } yield {
-      Ok(p.bookmarks.itemList(
+      Ok(views.html.bookmarks.itemList(
         Some(item),
         request.user,
         children.mapItems(_._1),
@@ -202,7 +201,7 @@ case class Bookmarks @Inject()(implicit globalConfig: global.GlobalConfig, searc
       children <- includedChildren(id, item, page = page)
       watched <- watchedF
     } yield {
-      Ok(p.bookmarks.itemListItems(
+      Ok(views.html.bookmarks.itemListItems(
         Some(item),
         children.page.copy(items = children.page.items.map(_._1)),
         children.params,

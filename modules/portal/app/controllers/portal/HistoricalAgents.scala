@@ -9,7 +9,6 @@ import defines.EntityType
 import models.HistoricalAgent
 import play.api.libs.concurrent.Execution.Implicits._
 import utils.search._
-import views.html.p
 
 /**
  * @author Mike Bryant (http://github.com/mikesname)
@@ -26,12 +25,12 @@ case class HistoricalAgents @Inject()(implicit globalConfig: global.GlobalConfig
 
   def searchAll = UserBrowseAction.async { implicit request =>
     findType[HistoricalAgent](facetBuilder = historicalAgentFacets).map { result =>
-      Ok(p.historicalAgent.list(result,
+      Ok(views.html.historicalAgent.list(result,
         portalAgentRoutes.searchAll(), request.watched))
     }
   }
 
   def browse(id: String) = GetItemAction(id).apply { implicit request =>
-    Ok(p.historicalAgent.show(request.item, request.annotations, request.links, request.watched))
+    Ok(views.html.historicalAgent.show(request.item, request.annotations, request.links, request.watched))
   }
 }

@@ -9,7 +9,6 @@ import defines.EntityType
 import models.Concept
 import play.api.libs.concurrent.Execution.Implicits._
 import utils.search._
-import views.html.p
 
 /**
  * @author Mike Bryant (http://github.com/mikesname)
@@ -26,7 +25,7 @@ case class Concepts @Inject()(implicit globalConfig: global.GlobalConfig, search
 
   def searchAll = UserBrowseAction.async { implicit request =>
     findType[Concept](facetBuilder = conceptFacets).map { result =>
-      Ok(p.concept.list(result,
+      Ok(views.html.concept.list(result,
         portalConceptRoutes.searchAll(), request.watched))
     }
   }
@@ -36,7 +35,7 @@ case class Concepts @Inject()(implicit globalConfig: global.GlobalConfig, search
       filters = Map(SearchConstants.PARENT_ID -> request.item.id),
       facetBuilder = conceptFacets
     ).map { result =>
-      Ok(p.concept.show(request.item, result,
+      Ok(views.html.concept.show(request.item, result,
         portalConceptRoutes.browse(id), request.annotations, request.links, request.watched))
     }
   }

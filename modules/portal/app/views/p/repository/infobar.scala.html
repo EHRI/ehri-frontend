@@ -1,7 +1,0 @@
-@(item: Repository)(implicit userOpt: Option[UserProfile], req: RequestHeader, globalConfig: global.GlobalConfig, lang: Lang)
-
-@layout.infobar {
-    @item.country.map { country =>
-        <li>@views.html.p.helpers.linkTo(country)</li>
-    }
-}

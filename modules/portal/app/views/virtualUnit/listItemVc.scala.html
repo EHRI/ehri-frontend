@@ -1,0 +1,17 @@
+@(item: AnyModel, path: Seq[AnyModel], watched: Boolean, showContext: Boolean = true)(implicit userOpt: Option[UserProfile], req: RequestHeader, globalConfig: global.GlobalConfig, lang: Lang, descriptionId: Option[String] = None, context: Option[Holder[_]] = None)
+
+@views.html.layout.searchItemOutline(item, watched) {
+    <a href="@views.p.Helpers.virtualUnitUrl(path, item.id)">@item.toStringLang</a>
+} {
+    @item match {
+        case d: DocumentaryUnit => {
+            @views.html.documentaryUnit.listItemBody(d, showContext)
+        }
+        case v: VirtualUnit => {
+            @listItemBody(v, path, showContext)
+        }
+        case _ => {
+        }
+    }
+}
+

@@ -1,0 +1,27 @@
+@(them: UserProfile, result: utils.search.SearchResult[(models.base.AnyModel, utils.search.SearchHit)])(implicit userOpt: Option[UserProfile], req: RequestHeader, lang: Lang, globalConfig: global.GlobalConfig)
+
+@defining(userOpt.exists(_.id == them.id)) { isCurrentUser =>
+
+    @if(result.nonEmpty) {
+        @views.html.searchItemList(result, watched = result.page.items.map(_._1.id))
+
+        @common.pagination(result.page)
+        <div class="list-export-options">
+            <span class="glyphicon glyphicon-download"></span>
+            @for(fmt <- Seq(DataFormat.Text, DataFormat.Csv, DataFormat.Json)) {
+                <a class="alt" target="_blank" title="@Messages("download.format." + fmt.toString)" href="@controllers.portal.users.routes.UserProfiles.watching(format = fmt)&limit=-1">
+                @fmt
+                </a>
+            }
+
+        </div>
+    } else {
+        <p class="no-content">
+            @if(isCurrentUser) {
+                @Messages("social.noItemsWatchedYet")
+            } else {
+                @Messages("social.noUserItemsWatchedYet", them.toStringLang)
+            }
+        </p>
+    }
+}

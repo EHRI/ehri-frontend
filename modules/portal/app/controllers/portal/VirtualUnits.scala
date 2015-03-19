@@ -10,7 +10,6 @@ import models.base.AnyModel
 import play.api.libs.concurrent.Execution.Implicits._
 import play.api.libs.json.{JsNumber, JsObject}
 import play.api.mvc.RequestHeader
-import views.html.p
 import utils.search._
 import defines.EntityType
 import backend.{Entity, IdGenerator, Backend}
@@ -97,8 +96,8 @@ case class VirtualUnits @Inject()(implicit globalConfig: global.GlobalConfig, se
     for {
       count <- childCount(id)
     } yield {
-      if (isAjax) Ok(p.virtualUnit.itemDetailsVc(updateCount(request.item, count), request.annotations, request.links, request.watched))
-      else Ok(p.virtualUnit.show(updateCount(request.item, count), request.annotations, request.links, request.watched))
+      if (isAjax) Ok(views.html.virtualUnit.itemDetailsVc(updateCount(request.item, count), request.annotations, request.links, request.watched))
+      else Ok(views.html.virtualUnit.show(updateCount(request.item, count), request.annotations, request.links, request.watched))
     }
   }
 
@@ -120,9 +119,9 @@ case class VirtualUnits @Inject()(implicit globalConfig: global.GlobalConfig, se
         facetBuilder = docSearchFacets
       )
     } yield {
-      if (isAjax) Ok(p.virtualUnit.childItemSearch(request.item, result,
+      if (isAjax) Ok(views.html.virtualUnit.childItemSearch(request.item, result,
         vuRoutes.searchVirtualCollection(id), request.watched))
-      else Ok(p.virtualUnit.search(request.item, result,
+      else Ok(views.html.virtualUnit.search(request.item, result,
         vuRoutes.searchVirtualCollection(id), request.watched))
     }
   }
@@ -136,7 +135,7 @@ case class VirtualUnits @Inject()(implicit globalConfig: global.GlobalConfig, se
       entities = List(EntityType.VirtualUnit),
       facetBuilder = docSearchFacets
     ).map { result =>
-      Ok(p.virtualUnit.list(result, vuRoutes.browseVirtualCollections(),
+      Ok(views.html.virtualUnit.list(result, vuRoutes.browseVirtualCollections(),
         request.watched))
     }
   }
@@ -157,8 +156,8 @@ case class VirtualUnits @Inject()(implicit globalConfig: global.GlobalConfig, se
       annotations <- annsF
       path <- pathF
     } yield {
-      if (isAjax) Ok(p.virtualUnit.itemDetailsVc(updateCount(item, count), annotations, links, watched, path))
-      else Ok(p.virtualUnit.show(item, annotations, links, watched, path))
+      if (isAjax) Ok(views.html.virtualUnit.itemDetailsVc(updateCount(item, count), annotations, links, watched, path))
+      else Ok(views.html.virtualUnit.show(item, annotations, links, watched, path))
     }
   }
 
@@ -179,9 +178,9 @@ case class VirtualUnits @Inject()(implicit globalConfig: global.GlobalConfig, se
       )
     } yield {
       if (isAjax)
-        Ok(p.virtualUnit.childItemSearch(item, result,
+        Ok(views.html.virtualUnit.childItemSearch(item, result,
           vuRoutes.searchVirtualUnit(pathStr, id), watched, path))
-      else Ok(p.virtualUnit.search(item, result,
+      else Ok(views.html.virtualUnit.search(item, result,
           vuRoutes.searchVirtualUnit(pathStr, id), watched, path))
     }
   }

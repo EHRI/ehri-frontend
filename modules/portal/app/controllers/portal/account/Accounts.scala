@@ -23,7 +23,6 @@ import scala.concurrent.Future
 import backend.{AnonymousUser, Backend}
 import play.api.mvc.Result
 import com.typesafe.plugin.MailerAPI
-import views.html.p
 import com.google.inject.{Singleton, Inject}
 import utils.search.{SearchItemResolver, SearchEngine}
 import controllers.portal.base.PortalController
@@ -83,8 +82,8 @@ case class Accounts @Inject()(implicit globalConfig: GlobalConfig, searchEngine:
       .setSubject("Please confirm your EHRI Account Email")
       .setRecipient(email)
       .setFrom("EHRI Email Validation <noreply@ehri-project.eu>")
-      .send(views.txt.p.account.mail.confirmEmail(uuid).body,
-      views.html.p.account.mail.confirmEmail(uuid).body)
+      .send(views.txt.account.mail.confirmEmail(uuid).body,
+      views.html.account.mail.confirmEmail(uuid).body)
   }
 
   def RateLimit = new ActionBuilder[Request] {
@@ -101,7 +100,7 @@ case class Accounts @Inject()(implicit globalConfig: GlobalConfig, searchEngine:
     implicit val userOpt: Option[UserProfile] = None
     def badForm(form: Form[SignupData], status: Status = BadRequest): Future[Result] = immediate {
       status(
-        views.html.p.account.login(
+        views.html.account.login(
           passwordLoginForm,
           form,
           accountRoutes.signupPost(),
@@ -177,7 +176,7 @@ case class Accounts @Inject()(implicit globalConfig: GlobalConfig, searchEngine:
       case Right(account) => doLogin(account)
       case Left(formError) => immediate(
         BadRequest(
-          views.html.p.account.login(
+          views.html.account.login(
             passwordLoginForm,
             SignupData.form,
             accountRoutes.signupPost(),
@@ -201,7 +200,7 @@ case class Accounts @Inject()(implicit globalConfig: GlobalConfig, searchEngine:
         case Some(user) => Redirect(portalRoutes.index())
           .flashing("warning" -> Messages("login.alreadyLoggedIn", user.email))
         case None =>
-          Ok(views.html.p.account.login(
+          Ok(views.html.account.login(
             passwordLoginForm,
             SignupData.form,
             accountRoutes.signupPost(),
@@ -218,7 +217,7 @@ case class Accounts @Inject()(implicit globalConfig: GlobalConfig, searchEngine:
     implicit val userOpt: Option[UserProfile] = None
     implicit val accountOpt: Option[Account] = None
     BadRequest(
-      views.html.p.account.login(
+      views.html.account.login(
         passwordLoginForm,
         SignupData.form,
         accountRoutes.signupPost(),
@@ -235,7 +234,7 @@ case class Accounts @Inject()(implicit globalConfig: GlobalConfig, searchEngine:
 
     def badForm(f: Form[(String,String)], status: Status = BadRequest): Future[Result] = immediate {
       status(
-        views.html.p.account.login(
+        views.html.account.login(
           f,
           SignupData.form,
           accountRoutes.signupPost(),
@@ -270,7 +269,7 @@ case class Accounts @Inject()(implicit globalConfig: GlobalConfig, searchEngine:
     }
 
   def forgotPassword = OptionalUserAction { implicit request =>
-    Ok(views.html.p.account.forgotPassword(forgotPasswordForm,
+    Ok(views.html.account.forgotPassword(forgotPasswordForm,
       recaptchaKey, accountRoutes.forgotPasswordPost()))
   }
 
@@ -281,17 +280,17 @@ case class Accounts @Inject()(implicit globalConfig: GlobalConfig, searchEngine:
         Redirect(portalRoutes.index())
           .flashing("warning" -> "login.password.reset.sentLink")
       case Left(errForm) =>
-        BadRequest(views.html.p.account.forgotPassword(errForm,
+        BadRequest(views.html.account.forgotPassword(errForm,
           recaptchaKey, accountRoutes.forgotPasswordPost()))
     }
   }
 
   def passwordReminderSent = Action { implicit request =>
-    Ok(views.html.p.account.passwordReminderSent())
+    Ok(views.html.account.passwordReminderSent())
   }
 
   def changePassword = WithUserAction { implicit request =>
-    Ok(views.html.p.account.changePassword(request.user.account.get, changePasswordForm,
+    Ok(views.html.account.changePassword(request.user.account.get, changePasswordForm,
       accountRoutes.changePasswordPost()))
   }
 
@@ -304,13 +303,13 @@ case class Accounts @Inject()(implicit globalConfig: GlobalConfig, searchEngine:
     request.errForm.fold(
       Redirect(defaultLoginUrl)
         .flashing("success" -> "login.password.change.confirmation")
-    )(errForm => BadRequest(p.account.changePassword(
+    )(errForm => BadRequest(views.html.account.changePassword(
       account, errForm, accountRoutes.changePasswordPost())))
   }
 
   def resetPassword(token: String) = OptionalUserAction.async { implicit request =>
     accounts.findByToken(token).map {
-      case Some(account) => Ok(views.html.p.account.resetPassword(resetPasswordForm,
+      case Some(account) => Ok(views.html.account.resetPassword(resetPasswordForm,
         accountRoutes.resetPasswordPost(token)))
       case _ => Redirect(accountRoutes.forgotPassword())
         .flashing("danger" -> "login.error.badResetToken")
@@ -334,7 +333,7 @@ case class Accounts @Inject()(implicit globalConfig: GlobalConfig, searchEngine:
 
   def resetPasswordPost(token: String) = ResetPasswordAction(token).async { implicit request =>
     request.formOrAccount match {
-      case Left(errForm) => immediate(BadRequest(views.html.p.account.resetPassword(errForm,
+      case Left(errForm) => immediate(BadRequest(views.html.account.resetPassword(errForm,
         accountRoutes.resetPasswordPost(token))))
       case Right(account) => doLogin(account)
         .map(_.flashing("success" -> "login.password.reset.confirmation"))
@@ -346,7 +345,7 @@ case class Accounts @Inject()(implicit globalConfig: GlobalConfig, searchEngine:
       .setSubject("EHRI Password Reset")
       .setRecipient(email)
       .setFrom("EHRI Password Reset <noreply@ehri-project.eu>")
-      .send(views.txt.p.account.mail.forgotPassword(uuid).body,
-      views.html.p.account.mail.forgotPassword(uuid).body)
+      .send(views.txt.account.mail.forgotPassword(uuid).body,
+      views.html.account.mail.forgotPassword(uuid).body)
   }
 }

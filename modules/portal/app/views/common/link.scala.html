@@ -3,7 +3,7 @@
 <div class="item-link" id="@link.id">
     <ul class="link-target-list">
         @link.targets.map { target =>
-            <li>@views.html.p.helpers.linkTo(target)</li>
+            <li>@views.html.helpers.linkTo(target)</li>
         }
     </ul>
     @link.model.description.filter(_.nonEmpty).map { desc =>

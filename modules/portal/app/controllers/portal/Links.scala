@@ -7,7 +7,6 @@ import controllers.generic.Search
 import controllers.portal.base.{Generic, PortalController}
 import models.Link
 import utils.search._
-import views.html.p
 
 /**
  * @author Mike Bryant (http://github.com/mikesname)
@@ -23,6 +22,6 @@ case class Links @Inject()(implicit globalConfig: global.GlobalConfig, searchEng
   private val portalGroupRoutes = controllers.portal.routes.Links
 
   def browse(id: String) = GetItemAction(id).apply { implicit request =>
-    Ok(p.link.show(request.item))
+    Ok(views.html.link.show(request.item))
   }
 }

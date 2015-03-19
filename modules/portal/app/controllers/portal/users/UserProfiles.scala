@@ -16,7 +16,6 @@ import play.api.libs.Files.TemporaryFile
 import play.api.Play.current
 import java.io.{StringWriter, File}
 import scala.concurrent.Future
-import views.html.p
 import utils.search._
 import backend._
 
@@ -51,7 +50,7 @@ case class UserProfiles @Inject()(implicit globalConfig: global.GlobalConfig, se
   private val profileRoutes = controllers.portal.users.routes.UserProfiles
 
   def watchItem(id: String) = WithUserAction { implicit request =>
-    Ok(p.helpers.simpleForm("profile.watch",
+    Ok(views.html.helpers.simpleForm("profile.watch",
       profileRoutes.watchItemPost(id)))
   }
 
@@ -64,7 +63,7 @@ case class UserProfiles @Inject()(implicit globalConfig: global.GlobalConfig, se
   }
 
   def unwatchItem(id: String) = WithUserAction { implicit request =>
-    Ok(p.helpers.simpleForm("profile.unwatch",
+    Ok(views.html.helpers.simpleForm("profile.unwatch",
       profileRoutes.unwatchItemPost(id)))
   }
 
@@ -102,9 +101,9 @@ case class UserProfiles @Inject()(implicit globalConfig: global.GlobalConfig, se
       .listEventsByUser[SystemEvent](request.user.id, listParams, eventParams)
 
     events.map { myActivity =>
-      if (isAjax) Ok(p.activity.eventItems(myActivity))
+      if (isAjax) Ok(views.html.activity.eventItems(myActivity))
         .withHeaders("activity-more" -> myActivity.more.toString)
-      else Ok(p.userProfile.show(request.user, myActivity,
+      else Ok(views.html.userProfile.show(request.user, myActivity,
         listParams, followed = false, canMessage = false))
     }
   }
@@ -116,7 +115,7 @@ case class UserProfiles @Inject()(implicit globalConfig: global.GlobalConfig, se
     } yield {
       val watchList = result.mapItems(_._1).page
       format match {
-        case DataFormat.Text => Ok(views.txt.p.userProfile.watchedItems(watchList))
+        case DataFormat.Text => Ok(views.txt.userProfile.watchedItems(watchList))
           .as(MimeTypes.TEXT)
         case DataFormat.Csv => Ok(writeCsv(
           List("Item", "URL"),
@@ -126,7 +125,7 @@ case class UserProfiles @Inject()(implicit globalConfig: global.GlobalConfig, se
         case DataFormat.Json =>
           Ok(Json.toJson(watchList.items.map(ExportWatchItem.fromItem)))
             .as(MimeTypes.JSON)
-        case DataFormat.Html => Ok(p.userProfile.watched(
+        case DataFormat.Html => Ok(views.html.userProfile.watched(
           request.user,
           result,
           searchAction = profileRoutes.watching(format = DataFormat.Html),
@@ -172,7 +171,7 @@ case class UserProfiles @Inject()(implicit globalConfig: global.GlobalConfig, se
       val itemsOnly = result.mapItems(_._1).page
       format match {
         case DataFormat.Text =>
-          Ok(views.txt.p.userProfile.annotations(itemsOnly).body.trim)
+          Ok(views.txt.userProfile.annotations(itemsOnly).body.trim)
             .as(MimeTypes.TEXT)
         case DataFormat.Csv => Ok(writeCsv(
             List("Item", "Field", "Note", "Time", "URL"),
@@ -182,7 +181,7 @@ case class UserProfiles @Inject()(implicit globalConfig: global.GlobalConfig, se
         case DataFormat.Json =>
           Ok(Json.toJson(itemsOnly.items.map(ExportAnnotation.fromAnnotation)))
             .as(MimeTypes.JSON)
-        case _ => Ok(p.userProfile.annotations(
+        case _ => Ok(views.html.userProfile.annotations(
           request.user,
           annotations = result,
           searchAction = profileRoutes.profile(),
@@ -243,7 +242,7 @@ case class UserProfiles @Inject()(implicit globalConfig: global.GlobalConfig, se
 
   def updateAccountPrefsPost() = WithUserAction.async { implicit request =>
     AccountPreferences.form.bindFromRequest.fold(
-      errForm => immediate(BadRequest(p.userProfile.editProfile(
+      errForm => immediate(BadRequest(views.html.userProfile.editProfile(
             ProfileData.form, imageForm, errForm))),
       accountPrefs => accounts.findById(request.user.id).flatMap {
         case Some(account) =>
@@ -257,13 +256,13 @@ case class UserProfiles @Inject()(implicit globalConfig: global.GlobalConfig, se
   }
 
   def updateProfile() = WithUserAction { implicit request =>
-    Ok(p.userProfile.editProfile(profileDataForm, imageForm, accountPrefsForm))
+    Ok(views.html.userProfile.editProfile(profileDataForm, imageForm, accountPrefsForm))
   }
 
   def updateProfilePost() = WithUserAction.async { implicit request =>
     ProfileData.form.bindFromRequest.fold(
       errForm => immediate(
-        BadRequest(p.userProfile.editProfile(errForm, imageForm, accountPrefsForm))
+        BadRequest(views.html.userProfile.editProfile(errForm, imageForm, accountPrefsForm))
       ),
       profile => backend.patch[UserProfile](request.user.id, Json.toJson(profile).as[JsObject]).map { userProfile =>
         Redirect(profileRoutes.profile())
@@ -273,13 +272,13 @@ case class UserProfiles @Inject()(implicit globalConfig: global.GlobalConfig, se
   }
 
   def deleteProfile() = WithUserAction { implicit request =>
-    Ok(p.userProfile.deleteProfile(deleteForm(request.user),
+    Ok(views.html.userProfile.deleteProfile(deleteForm(request.user),
       profileRoutes.deleteProfilePost()))
   }
 
   def deleteProfilePost() = WithUserAction.async { implicit request =>
     deleteForm(request.user).bindFromRequest.fold(
-      errForm => immediate(BadRequest(p.userProfile.deleteProfile(
+      errForm => immediate(BadRequest(views.html.userProfile.deleteProfile(
         errForm.withGlobalError("profile.delete.badConfirmation"),
         profileRoutes.deleteProfilePost()))),
       _ => {
@@ -310,7 +309,7 @@ case class UserProfiles @Inject()(implicit globalConfig: global.GlobalConfig, se
   def updateProfileImagePost() = WithUserAction.async(uploadParser) { implicit request =>
 
     def onError(err: String): Future[Result] = immediate(
-        BadRequest(p.userProfile.editProfile(profileDataForm,
+        BadRequest(views.html.userProfile.editProfile(profileDataForm,
           imageForm.withGlobalError(err), accountPrefsForm)))
     request.body match {
       case Left(MaxSizeExceeded(length)) => onError("errors.imageTooLarge")

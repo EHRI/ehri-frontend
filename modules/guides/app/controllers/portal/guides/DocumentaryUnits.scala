@@ -8,7 +8,6 @@ import controllers.portal.FacetConfig
 import controllers.portal.base.{Generic, PortalController}
 import models.{Guide, GuidePage, _}
 import utils.search.{SearchConstants, SearchItemResolver, SearchEngine}
-import views.html.p
 
 import play.api.libs.concurrent.Execution.Implicits._
 
@@ -30,7 +29,7 @@ case class DocumentaryUnits @Inject()(implicit globalConfig: global.GlobalConfig
           filters = Map(filterKey -> request.item.id),
           facetBuilder = docSearchFacets
         ).map { result =>
-          Ok(p.guides.documentaryUnit(
+          Ok(views.html.guides.documentaryUnit(
             guide,
             GuidePage.document(Some(request.item.toStringLang)),
             guide.findPages(),

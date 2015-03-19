@@ -8,7 +8,6 @@ import controllers.portal.base.{Generic, PortalController}
 import models.Group
 import play.api.libs.concurrent.Execution.Implicits._
 import utils.search._
-import views.html.p
 
 /**
  * @author Mike Bryant (http://github.com/mikesname)
@@ -24,6 +23,6 @@ case class Groups @Inject()(implicit globalConfig: global.GlobalConfig, searchEn
   private val portalGroupRoutes = controllers.portal.routes.Groups
 
   def browse(id: String) = GetItemAction(id).apply { implicit request =>
-    Ok(p.group.show(request.item))
+    Ok(views.html.group.show(request.item))
   }
 }
