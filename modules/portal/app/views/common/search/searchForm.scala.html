@@ -2,9 +2,12 @@
 
 @helper.form(action = action, 'role -> "form") {
 
-    @common.search.searchBar(result.params, autofocus = autofocus, placeholder = key)
     <div class="search-results">
-        <div class="search-results-body">
+        <aside class="search-facets sidebar">
+            @facets
+        </aside>
+        <section class="search-results-body">
+            @common.search.searchBar(result.params, autofocus = autofocus, placeholder = key)
             <div class="search-result-errata">
                 @common.search.searchSummary(result)
                 @common.search.searchSort(result.params)
@@ -14,9 +17,6 @@
 
             @html
             @views.html.common.pagination(result.page)
-        </div>
-        <div class="search-facets sidebar">
-            @facets
-        </div>
+        </section>
     </div>
 }
