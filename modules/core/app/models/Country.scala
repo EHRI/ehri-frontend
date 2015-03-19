@@ -66,7 +66,10 @@ case class CountryF(
   situation: Option[String],                   
   summary: Option[String],
   extensive: Option[String]                   
-) extends Model with Persistable
+) extends Model with Persistable {
+
+  def displayText = abs orElse situation
+}
 
 
 object Country {

@@ -8,8 +8,8 @@
     }
 }
 
-@item.model.abs.map { abs =>
+@item.model.displayText.map(views.Helpers.ellipsize(_, 600)).map { sc =>
     <div class="national-report">
-        @Html(views.Helpers.renderMarkdown(abs))
+        @highlighter.highlight(views.Helpers.renderMarkdown(sc))
     </div>
 }
