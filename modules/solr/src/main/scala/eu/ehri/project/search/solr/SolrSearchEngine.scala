@@ -12,7 +12,6 @@ import utils.search.SearchHit
 import play.api.http.{MimeTypes, HeaderNames}
 
 
-
 /**
  * Class for fetching query results from a Solr instance.
  * Implements the plugin implementation so other search

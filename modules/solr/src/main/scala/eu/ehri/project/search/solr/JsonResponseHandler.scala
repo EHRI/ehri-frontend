@@ -1,7 +1,6 @@
 package eu.ehri.project.search.solr
 
 import utils.search._
-import play.api.libs.json.{Json, JsValue}
 import defines.EntityType
 import utils.search.SearchHit
 
@@ -16,7 +15,6 @@ object JsonResponseHandler extends ResponseHandler{
   import play.api.libs.functional.syntax._
 
   // Intermediate structures...
-
   private case class SolrData(
     count: Int,
     rawDocs: Seq[JsObject],
@@ -46,6 +44,7 @@ object JsonResponseHandler extends ResponseHandler{
 
 
   override def getResponseParser(responseBody: String): QueryResponseExtractor = new QueryResponseExtractor {
+
     private lazy val response: JsValue = Json.parse(responseBody)
 
     /**
@@ -66,8 +65,7 @@ object JsonResponseHandler extends ResponseHandler{
     /**
      * Extract query phrases from the 'q' parameter.
      */
-    lazy val phrases: Seq[String]
-    = (response \ "responseHeader" \ "params" \ "q").asOpt[String].toSeq
+    lazy val phrases: Seq[String] = (response \ "responseHeader" \ "params" \ "q").asOpt[String].toSeq
 
     /**
      * Extract items, along with their highlighting snippets.
@@ -103,7 +101,11 @@ object JsonResponseHandler extends ResponseHandler{
       implicit val suggestionReads: Reads[Suggestion] = Json.reads[Suggestion]
     }
 
-    private lazy val raw: SolrData = response.as[SolrData]
+    private lazy val raw: SolrData = response.validate[SolrData].fold(
+      err => throw response.as[SolrServerError],
+      data => data
+    )
+
     private def rawFieldFacets: Map[String,JsValue] = raw.rawFacets.getOrElse("facet_fields", Map.empty)
     private def rawQueryFacets: Map[String,JsValue] = raw.rawFacets.getOrElse("facet_queries", Map.empty)
 
