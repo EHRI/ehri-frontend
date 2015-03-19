@@ -346,7 +346,7 @@ urlPattern.description=The URL pattern is used to provide automatic linking from
   other institution''s site. The given URL must be a valid except for the substitution of '''{'identifier'}''' \
   where the item''s identifier should go.
 
-logoUrl=Logo URLM
+logoUrl=Logo URL
 logoUrl.description=A URL to a logo image for the repository.
 
 # Admin Misc
