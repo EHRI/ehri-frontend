@@ -16,7 +16,7 @@
 }
 
 @sidebar(page: GuidePage) = {
-    @common.descriptionChoice(item.model.descriptions)
+    @layout.guideDescriptionChoice(item.model.descriptions)
     <p>
         <small class="text-muted">@Messages("guides.annotation")</small><br />
         <small><a href="@controllers.portal.routes.DocumentaryUnits.browse(item.id)">@Messages("guides.seeOnPortal")</a></small>
