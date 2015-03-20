@@ -10,7 +10,7 @@ var mapParams = {
     },
     RedIcon = L.Icon.Default.extend({options: {iconUrl: redIcon_URL}}),
     redIcon = new RedIcon(),
-    $map = L.map('map').setView([mapParams.lat, mapParams.lng], mapParams.zoom),
+    $map = L.map('map'),
     $items = {},
     $bounds = [],
     $markers = {};
@@ -30,19 +30,23 @@ var mapParams = {
       },
       query = window.location.search.substring(1);
 
-  while (match = search.exec(templateParams))
+  while (match = search.exec(templateParams)) {
+    console.log("Using template parameter: ", match[1], match[2])
     if (isNumeric(match[2])) {
       mapParams[decode(match[1])] = parseFloat(decode(match[2]));
     } else {
       mapParams[decode(match[1])] = decode(match[2]);
     }
+  }
 
-  while (match = search.exec(query))
+  while (match = search.exec(query)) {
+    console.log("Using query parameter: ", match[1], match[2])
     if (isNumeric(match[2])) {
       mapParams[decode(match[1])] = parseFloat(decode(match[2]));
     } else {
       mapParams[decode(match[1])] = decode(match[2]);
     }
+  }
 })();
 
 
@@ -182,6 +186,7 @@ $(document).ready(function () {
       $bounds.push([parseFloat(desc.latitude), parseFloat(desc.longitude)])
     }
   });
+  $map.setView([mapParams.lat, mapParams.lng], mapParams.zoom);
   if (ORIGINAL) $map.fitBounds($bounds);
   ORIGINAL = false;
 });
