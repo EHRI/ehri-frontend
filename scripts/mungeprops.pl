@@ -16,14 +16,6 @@ use Carp::Assert;
 
 binmode(STDOUT, ":utf8");
 
-my $csv = shift(@ARGV);
-my $en = shift(@ARGV);
-
-if (not defined $csv or not defined $en) {
-    print "Usage: mungeprops <tsv-file> <english-msg>\n";
-    exit(1);
-}
-
 # Get command-line options
 Getopt::Long::config(qw( permute bundling ));
 my $OPT = {};
@@ -31,6 +23,7 @@ my $OPT_OK = Getopt::Long::GetOptions($OPT, qw(
     --french|f=s
     --german|d=s
     --polish|p=s
+    --append|a
     --help|h
 ));
 
@@ -43,6 +36,14 @@ my $LANG_ORDER = {
 if (!$OPT_OK) {
 	print STDERR "Command line parameters were not properly specified.\n\n";
 	$OPT->{help} = 1;
+}
+
+my $csv = shift(@ARGV);
+my $en = shift(@ARGV);
+
+if (not defined $csv or not defined $en) {
+    print "Usage: mungeprops <tsv-file> <english-msg>\n";
+    exit(1);
 }
 
 my $ENGLISH = parse_english($en);
@@ -62,9 +63,11 @@ exit(0);
 sub write_lang {
     my $idx = shift;
     my $outfile = shift;
-
-    open(my $OH, ">:encoding(utf8)", $outfile) or die "Unable to open file for writing $outfile!: $!\n";
-    
+    my $mode = $OPT->{append} ? ">>" : ">";
+    open(my $OH, "$mode:encoding(utf8)", $outfile) or die "Unable to open file for writing $outfile!: $!\n";
+    if ($OPT->{append}) {
+        print $OH "\n";
+    }
     foreach my $key ($DATA->keys) {
         my $value = $DATA->get($key)->[$idx];
         print $OH "$key=$value\n";
