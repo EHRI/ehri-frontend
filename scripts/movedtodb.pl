@@ -9,13 +9,13 @@ if (scalar(@ARGV) < 1) {
     die "Original path given!\n";
 }
 
+my $out = shift(@ARGV);
+
 while (<>) {
     chomp;
     my ($from_id, $to_id) = split /\t/, $_;
-    for my $path (@ARGV) {
-        my $from = $path . $from_id;
-        my $to = $path . $to_id;
-        my $hash = sha1_hex($from);
-        print "$hash\t$from\t$to\t\\N\n";
-    }
+    my $from = $out . $from_id;
+    my $to = $out . $to_id;
+    my $hash = sha1_hex($from);
+    print "$hash\t$from\t$to\t\\N\n";
 }
