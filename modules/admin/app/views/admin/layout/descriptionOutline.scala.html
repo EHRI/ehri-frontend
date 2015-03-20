@@ -1,6 +1,6 @@
 @(item: models.base.WithDescriptions[models.base.Description], desc: models.base.Description, actions: Html = Html(""))(html: Html)(implicit fieldPrefix: String, lang: Lang)
 
-<div class="description-holder" id="desc-@desc.id">
+<div class="description-holder" id="desc-@desc.localId">
     @actions
     <div data-lang="@desc.languageCode" class="description">
         @html
