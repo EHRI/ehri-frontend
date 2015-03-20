@@ -840,3 +840,97 @@ country.dataExtensive=Badania EHRI (szeroko zakrojone)
 country.list=Kraje
 cvocVocabulary.childItems=Słowa kluczowe
 cvocVocabulary.childItems.search={0,choice,0#{0} |1#1 słowo kluczowe|1<{0,number,integer} słów kluczowych}
+
+
+project.site=Witryna projektu EHRI
+help.faq=Często zadawane pytania
+help.contact=Kontakt z EHRI
+profile.preferences.view.showUserContent=Pokaż notatki udostępnione publicznie przez innych użytkowników
+search.field.all=Wszystkie pola
+search.field.identifier=Identyfikator
+search.field.title=Tytuł
+search.field.creator=Twórca
+search.field.scopeAndContent=Zawartość
+search.field.person=Osoby
+search.field.subject=Tematy
+search.field.place=Miejsca
+facet.manifestation=Forma
+facet.manifestation.tooltip=Pozycje opisane według fizycznego \
+    uporządkowania lub „wirtualne” pozycje łączące opisy materiałów \
+    pochodzących z różnych źródeł i potencjalnie przechowywanych przez różne instytucje.
+facet.manifestation.documentaryUnit=Rzeczywista/fizyczna
+facet.manifestation.virtualUnit=Wirtualna kolekcja
+search.helper.field=Użyj następującej składni, aby ograniczyć wyszukiwanie do \
+    konkretnego pola:
+search.helper.field.example=pole:"fraza"
+search.helper.field.example.description=Można na przykład wyszukać wszystkie \
+    opisy, które w tytule zawierają frazę "Auschwitz Birkenau", \
+    wpisując tytuł:"Auschwitz Birkenau".
+search.helper.field.available=Obecnie dostępne są następujące pola:
+helpdesk.message=Dział pomocy postara się dopasować Twoje zapytanie do \
+    instytucji partnerskiej EHRI, która będzie mogła na nie najlepiej odpowiedzieć.  Należy pamiętać, że \
+    Dział pomocy nie udzieli odpowiedzi na Twoje pytanie ani nie \
+    prześle bezpośrednio Twojego pytania do instytucji partnerskiej EHRI.
+helpdesk.query.placeholder=Tutaj wpisz swoje pytanie w języku angielskim. Przedstaw \
+    szczegółowe informacje dotyczące obszaru badań archiwalnych, którego dotyczy pytanie, \
+    na przykład nazwy miejsc, nazwiska, instytucje lub hasła \
+    tematyczne.
+helpdesk.recommendations=Zalecane instytucje posortowane według trafności \
+    w odniesieniu do pytania. Skorzystaj z podanego adresu e-mail, aby skontaktować się z jedną lub \
+    większą liczbą stosownych instytucji.
+helpdesk.askAgain=Wypróbuj inne pytanie...
+helpdesk.institutions=Dane kontaktowe instytucji, z którymi zalecamy się skontaktować, pochodzą z \
+    następujących źródeł:
+contact.header=Kontakt z EHRI
+contact.p1=Koordynatorem projektu EHRI jest Instytut Badań nad Wojną, \
+    Zagładą Żydów i Ludobójstwem NIOD. Z Instytutem NIOD można skontaktować się pisemnie \
+    pod następującym adresem:
+contact.p2=Istnieje wiele innych sposobów, by uzyskać dalszą \
+    pomoc bądź skontaktować się z nami:
+contact.p2.1=w sprawie wszelkich pytań dotyczących zasad ochrony danych osobowych/prywatności, \
+    prosimy skontaktować się, pisząc na adres: {0}.
+contact.p2.2=W przypadku wszelkich pytań dotyczących zbiorów i zasad \
+    ich udostępniania w archiwach, które przekazują dane na portal EHRI, \
+    należy skontaktować się bezpośrednio z danym archiwum, korzystając \
+    z informacji kontaktowych podanych w opisie danej instytucji.
+contact.p2.3=W przypadku pytań ogólnych związanych ze źródłami archiwalnymi \
+    dotyczącymi Zagłady Żydów, kiedy nie ma pewności, która ze współpracujących instytucji mogłaby \
+    udzielić odpowiedzi na pytanie, przydatny będzie {0}.
+contact.p2.4=W przypadku wszelkich pozostałych pytań lub w sprawie uwag, \
+    podziękowań lub skarg na temat portalu EHRI można skorzystać z \
+    pozycji „Opinie” na górnym pasku menu w portalu lub wysłać \
+    e-mail na adres {0}.
+about.heading=EHRI – informacje
+about.p1=Portal internetowy EHRI zapewnia dostęp do informacji na temat \
+    materiałów archiwalnych związanych z Zagładą Żydów, które przechowywane są w instytucjach w całej Europie \
+    I w krajach pozaeuropejskich. Portal EHRI jest dostępny dla wszystkich bezpłatnie.
+about.p2=Celem portalu EHRI jest próba przezwyciężenia jednego z największych wyzwań \
+    badań nad zagładą Żydów: rozdrobnienia i rozproszenia geograficznego \
+    źródeł archiwalnych dokumentujących to zdarzenie. Dzięki integracji i \
+    powiązaniu informacji na temat kilkudziesięciu tysięcy źródeł archiwalnych \
+    przechowywanych w kilkuset instytucjach, portal EHRI stanowi \
+    nieocenione źródło informacji dla wszystkich osób zainteresowanych tematyką Zagłady Żydów i \
+    umożliwia nowe badania o charakterze ponadnarodowym i porównawczym.
+about.p3=Portal EHRI jest jednym z głównych wyników projektu o nazwie Europejska \
+    Infrastruktura Badań nad Zagładą Żydów (EHRI), konsorcjum skupiającego \
+    badaczy Holokaustu, archiwistów i humanistów cyfrowych z \
+    ponad 20 instytucji. Projekt EHRI otrzymał wsparcie finansowe z \
+    7. programu ramowego Unii Europejskiej (2010-2015) oraz programu Horyzont 2020 \
+    (2015-2019). Portal EHRI ma charakter rozwojowy, a nowe \
+    informacje i funkcje są w nim dodawane na bieżąco.
+about.p4=EHRI jest zarówno infrastrukturą cyfrową, jak i siecią społeczną. Poza \
+    utworzeniem portalu projekt EHRI zaowocował również opracowaniem \
+    bezpłatnego materiału {0} i obejmuje rozmaite programy i wydarzenia, \
+    w tym program stypendialny, szkoły letnie, warsztaty eksperckie oraz \
+    konferencje. Więcej informacji na temat założeń projektu, \
+    uczestniczących instytucji oraz działań w ramach projektu można znaleźć pod linkiem: {1}.
+about.p4.a1=Kurs online na temat zagłady Żydów.
+about.p4.a2=witryna projektu
+pages.external.faq.title=Często zadawane pytania
+pages.external.faq.description=Często zadawane pytania dotyczące portalu \
+    EHRI.
+pages.external.notFound=Przepraszamy, ale wystąpił problem podczas przesyłania \
+    danych na tę stronę.
+country.report.intro=Ogólne wprowadzenie do raportów krajowych EHRI można \
+    znaleźć pod linkiem: {0}.
+country.report.toc=Spis treści
