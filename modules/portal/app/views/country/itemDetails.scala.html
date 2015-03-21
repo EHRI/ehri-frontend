@@ -7,7 +7,7 @@
     @views.html.layout.rightSidebar {
         @views.html.common.itemHeader(item.toStringLang) {
         }
-        @defining(Annotation.fieldAnnotations(Some(item.id), annotations)) { implicit fieldAnnotations =>
+        @defining(Annotation.itemAnnotations(annotations)) { implicit fieldAnnotations =>
             @defining("country") { implicit fieldPrefix =>
                 @textField(item, item.id, item.model.abs, ABSTRACT)
                 @textField(item, item.id, item.model.history, HISTORY)
