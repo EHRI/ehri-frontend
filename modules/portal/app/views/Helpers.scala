@@ -4,6 +4,7 @@ import models.{UserProfile, Annotation}
 import java.net.{MalformedURLException, URL}
 import models.base.AnyModel
 import defines.{EntityType, PermissionType}
+import org.apache.commons.codec.digest.{DigestUtils, Md5Crypt}
 import play.api.mvc.Call
 import controllers.portal.ReversePortal
 
@@ -70,6 +71,12 @@ object Helpers {
   def gravitar(img: Option[String]): String =
     img.map(_.replaceFirst("https?://", "//"))
       .getOrElse(controllers.portal.routes.Assets.at("img/default-gravitar.png").url)
+
+  def remoteGravitar(userId: String): String = {
+    val hash = DigestUtils.md5Hex(s"$userId@ehri-project.eu")
+    s"https://secure.gravatar.com/avatar/$hash?d=identicon"
+  }
+
 
   def virtualUnitUrl(path: Seq[AnyModel], id: String): Call = {
     if (path.isEmpty) controllers.portal.routes.VirtualUnits.browseVirtualCollection(id)

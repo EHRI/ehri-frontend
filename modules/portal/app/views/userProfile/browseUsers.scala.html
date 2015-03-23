@@ -1,12 +1,17 @@
-@(user: UserProfile, result: utils.search.SearchResult[(UserProfile,utils.search.SearchHit)], searchAction: Call, following: Seq[UserProfile])(implicit userOpt: Option[UserProfile], request: RequestHeader, prefs: utils.SessionPrefs, globalConfig: global.GlobalConfig, lang: Lang, flash: Flash)
+@(them: UserProfile, result: utils.search.SearchResult[(UserProfile,utils.search.SearchHit)], searchAction: Call, following: Seq[UserProfile])(implicit userOpt: Option[UserProfile], request: RequestHeader, prefs: utils.SessionPrefs, globalConfig: global.GlobalConfig, lang: Lang, flash: Flash)
 
 @import utils.search.SearchParams
 
-@views.html.layout.portalLayout(Messages("social.browseUsers"), itemClass = "user") {
+@userInfo(html: Html) = {
+    @if(html.body.trim.nonEmpty) {
+        <ul class="user-info">@html</ul>
+    }
+}
+
+@views.html.layout.portalLayout(Messages("social.browseUsers"), itemClass = "userProfile") {
     @views.html.layout.mainContent {
-        <div class="item-header">
-            <h1>@Messages("social.browseUsers")</h1>
-        </div>
+        @views.html.common.itemHeader(Messages("social.browseUsers")) {
+        }
 
         @if(result.params.isFiltered || result.nonEmpty) {
             @helper.form(action = searchAction, 'role -> "form", 'class -> "form-horizontal") {
@@ -26,14 +31,28 @@
                     </div>
                 </div>
 
-                <div class="search-results-no-facets">
-                    <div class="search-results-body">
-                        <ul class="search-result-list user-list">
-                            @browseUsersList(user, result.mapItems(_._1).page, following)
-                        </ul>
-                        @common.pagination(result.page)
-                    </div>
-                </div>
+                <ul class="user-grid clearfix">
+                    @result.page.map { case (user, hit) =>
+                        <li class="user-grid-item user-info">
+                            <a href="@controllers.portal.social.routes.Social.browseUser(user.id)" class="gravitar img-container">
+                                <span class="helper"></span>
+                                <img src="@views.p.Helpers.gravitar(user.model.imageUrl)" />
+                            </a>
+                            <div class="user-info-details">
+                                <h3><a class="name" href="@controllers.portal.social.routes.Social.browseUser(user.id)">@user.toStringLang</a></h3>
+                                @userInfo {
+                                    @user.model.institution.map { inst =>
+                                        <li>@hit.highlight(inst)</li>
+                                    }
+                                    @user.model.location.map { loc =>
+                                        <li>@hit.highlight(loc)</li>
+                                    }
+                                }
+                            </div>
+                        </li>
+                    }
+                </ul>
+                @common.pagination(result.page)
             }
         }
     }

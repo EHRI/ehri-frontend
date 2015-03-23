@@ -1,3 +1,60 @@
+
+.user-grid {
+  &:extend(.list-unstyled);
+  .make-row();
+
+  .user-grid-item {
+    .make-md-column(3);
+    .make-lg-column(3);
+    .make-sm-column(4);
+    .make-xs-column(8);
+
+    margin-bottom: @large-margin;
+  }
+
+  .user-info-details {
+    h3 {
+      font-size: 1.2em;
+      margin: @small-margin 0;
+
+    }
+
+    .user-info {
+      &:extend(.list-unstyled, .small, .text-muted);
+    }
+  }
+  .img-container {
+    float: left;
+    height: 100px;
+    width: 100px;
+    text-align: center;
+    background-color: #f5f5f5 ;
+    margin-right: @medium-margin;
+    display: inline-block;
+    vertical-align: middle;
+    white-space: nowrap;
+
+    // The helper makes the image vertically centered,
+    // as described: http://stackoverflow.com/a/7310398/285374
+    .helper {
+      display: inline-block;
+      vertical-align: middle;
+      height: 100%;
+    }
+
+    img {
+      zoom: 2;
+      max-height: 100%;
+      height: auto;
+      max-width: 100%;
+      width: auto;
+      margin: auto;
+      margin-left: -4px;
+      vertical-align: middle;
+    }
+  }
+}
+
 // Profile-related less
 .user-list-item {
   .clearfix;
@@ -25,6 +82,7 @@
     .make-md-column(8);
   }
 }
+
 .user-list-info {
   .user-locations {
     &:extend(.small, .list-unstyled);
