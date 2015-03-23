@@ -1,4 +1,7 @@
 $(document).ready(function () {
+
+  "use strict";
+
   var ajaxHeaders = {
     "ajax-ignore-csrf": true,
     "Content-Type": "application/json",
@@ -41,7 +44,7 @@ $(document).ready(function () {
       if ($types === "undefined" || $types.length == 0) {
         return []
       } else {
-        data = [];
+        var data = [];
         $types.each(function () {
           data.push($(this).data("value"))
         });
@@ -147,7 +150,8 @@ $(document).ready(function () {
                 $element.find(".access-saved-description").html("<p>" + a.accessPoint.description + "</p>")
               }
               /* Remove confirmation */
-              $element.find(".access-saved-delete").confirmation({
+              var $deleteButton = $element.find(".access-saved-delete");
+              $deleteButton.confirmation({
                 title: 'Delete link for this access point ?',
                 singleton: true,
                 popout: true,
@@ -162,12 +166,14 @@ $(document).ready(function () {
                     keyboard: false
                   });
                   $modal.modal("show");
+                  $deleteButton.attr("disabled", true);
                   $route.ajax({
                     success: function (data) {
                       getAccessPointList();
                     },
                     complete: function() {
                       $modal.modal("hide");
+                      $deleteButton.attr("disabled", false);
                     }
                   });
                 },
@@ -244,32 +250,30 @@ $(document).ready(function () {
       }),
       headers: ajaxHeaders
     }).done(function (data) {
-          if ($scope.link.targetType == null) {
-            nextNewAccesspoint($scope, $accesspoints)
-          } else {
-            $service.createLink($scope.id, data.id).ajax({
-              data: JSON.stringify({
-                target: $scope.link.target,
-                type: $scope.link.type,
-                description: $scope.description
-              }),
-              headers: ajaxHeaders
-            }).done(function (data) {
-                  nextNewAccesspoint($scope, $accesspoints)
-                })
-          }
-        })
+      if ($scope.link.targetType == null) {
+        nextNewAccesspoint($scope, $accesspoints);
+      } else {
+        $service.createLink($scope.id, data.id).ajax({
+          data: JSON.stringify({
+            target: $scope.link.target,
+            type: $scope.link.type,
+            description: $scope.description
+          }),
+          headers: ajaxHeaders
+        }).done(function (data) {
+          nextNewAccesspoint($scope, $accesspoints);
+        });
+      }
+    });
   };
 
   /* MODEL APPEND */
-  var appends = function (elem, name, id, did, type) {
-    if (!elem.hasClass("accessPointList")) {
-      $accesslist = elem.parents(".accessPointList");
-    } else {
-      $accesslist = elem;
-    }
+  var appends = function ($elem, name, id, did, type) {
+    var $accesslist = $elem.hasClass("accessPointList")
+        ? $elem
+        : $elem.parents(".accessPointList");
     $accesslist.find(".form-control.quicksearch.tt-input").typeahead('val', "");
-    $target = $accesslist.find(".append-in");
+    var $target = $accesslist.find(".append-in");
     var $model = $accesslist.find(".element.model");
     var $element = $model.data("target", id).clone().removeClass("model").addClass("element");
     $element.find(".element-name").text(name).val(id).data("did", did).data("type", type);
@@ -315,8 +319,8 @@ $(document).ready(function () {
   $(".add-access-text").on("click", function (e) {
     e.preventDefault();
     var $accesslist = $(this).parents(".accessPointList"),
-        $input = $accesslist.find(".form-control.quicksearch.tt-input");
-    $name = $input.val();
+        $input = $accesslist.find(".form-control.quicksearch.tt-input"),
+        $name = $input.val();
 
     appends($accesslist, $name, null, null, null)
   });
@@ -325,9 +329,7 @@ $(document).ready(function () {
   $(".new-access-point .element-save").on("click", function (e) {
     e.preventDefault();
     var $form = $(this).parents(".new-access-point").first(),
-        $accesspoints = $form.find(".append-in > .element:not(.model)"),
-        $requests = [],
-        $requests2 = [];
+        $accesspoints = $form.find(".append-in > .element:not(.model)");
 
     if ($accesspoints.length > 0) {
       var $scope = makeScope($accesspoints.first()),
@@ -338,7 +340,7 @@ $(document).ready(function () {
 
   /* Search input */
   $(".quicksearch").each(function () {
-    $quicksearch = $(this);
+    var $quicksearch = $(this);
 
     var $quicksearchBH = new Bloodhound({
       datumTokenizer: function (d) {
@@ -353,8 +355,8 @@ $(document).ready(function () {
         },
         filter: function (parsedResponse) {
           var result = [],
-              alreadyResult = [];
-          $container = this.elem.parents(".input-group").first(),
+              alreadyResult = [],
+              $container = this.elem.parents(".input-group").first(),
               $pages = $container.find(".pages"),
               $page = $container.find(".pages:not(.change-page)");
 
@@ -395,13 +397,10 @@ $(document).ready(function () {
           }
         }
     ).keypress(function (e) {
-          console.log("got keypress: ", e.which)
           if (e.which == 13) {
             e.preventDefault();
-            console.log("got keypress!")
           }
         }).on("typeahead:selected", function(event, selection) {
-          console.log("Selection", event)
           addAccessPointFromExisting(
               $(event.target),
               selection.name,
