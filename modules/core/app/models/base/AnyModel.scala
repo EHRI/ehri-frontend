@@ -145,7 +145,7 @@ trait WithDescriptions[+T <: Description] extends AnyModel {
    * Links that don't relate to access points.
    */
   def annotationLinks(links: Seq[Link]): Seq[Link] =
-    links.filter(link => link.bodies.isEmpty)
+    links.filter(link => link.bodies.isEmpty && link.opposingTarget(this).isDefined)
 }
 
 trait DescribedMeta[+TD <: Description, +T <: Described[TD]] extends MetaModel[T] with WithDescriptions[TD] {
