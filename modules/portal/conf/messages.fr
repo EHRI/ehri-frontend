@@ -85,7 +85,7 @@ profile.preferences.allowMessaging=Autoriser d"autres utilisateurs à vous envoy
 profile.preferences.allowMessaging.description=Votre adresse e-mail ne sera pas directement accessible.
 profile.preferences.updatePreferences=Mise à jour des préférences
 profile.preferences.view=Afficher les préférences
-profile.preferences.view.showUserContent=Afficher les notes communiquées par les autres utilisateurs
+profile.preferences.view.showUserContent=Afficher les notes publiques des autres utilisateurs
 profile=Profil
 profile.section.general=À propos de vous
 profile.section.image=Image de profil
@@ -527,14 +527,19 @@ feedback.type.data=le contenu des données
 helpdesk=Service d''assistance
 helpdesk.email=Votre adresse e-mail
 helpdesk.message=Le service d''assistance va tenter de transmettre votre demande à l''institution partenaire d''EHRI \
-    la plus à même d''y répondre.
+  qui est la mieux placée pour y répondre. Veuillez noter que \
+  le service d''assistance ne vous fournira pas de réponse à votre question \
+  et il ne l''enverra pas directement à une institution partenaire d''EHRI.
 helpdesk.thanks=Merci !
 helpdesk.thanks.message=Votre demande a été envoyée.
 helpdesk.query=Demande
 helpdesk.error=Oups ! Quelque chose s''est mal passé avec le service d''assistance. Voici ce qui est indiqué :
 helpdesk.results=Recommandations de contact du service d''assistance
 helpdesk.results.empty=Aucune institution pertinente trouvée. Veuillez reformuler votre demande et ajouter plus de détails.
-helpdesk.query.placeholder=Saisissez votre demande ici. Les termes spécifiques à des sujets sont préférables.
+helpdesk.query.placeholder=Saisissez votre question en anglais ici. Indiquez \
+  des détails sur le domaine de la recherche archivistique à laquelle votre question se réfère, \
+  sur les lieux, les noms, les institutions, les institutions ou les termes du \
+  sujet.
 helpdesk.copyMe=Envoyer par e-mail une copie de la demande à votre adresse
 helpdesk.youAsked=Vous avez demandé
 helpdesk.institution=Nom de l''institution
@@ -845,4 +850,86 @@ country.list=Pays
 cvocVocabulary.childItems=Mots clés
 cvocVocabulary.childItems.search={0,choice,0#{0} |1#1 mot-clé|1<{0,number,integer} mots-clés}
 
-
+project.site=Site Web du projet EHRI
+help.faq=Foire Aux Questions
+help.contact=Contacter l''EHRI
+search.field.all=Tous les champs
+search.field.identifier=Identifiant
+search.field.title=Titre
+search.field.creator=Créateur
+search.field.scopeAndContent=Contenu
+search.field.person=Personnes
+search.field.subject=Sujets
+search.field.place=Lieux
+facet.manifestation=Manifestation
+facet.manifestation.tooltip=Pièces décrites en fonction de leur organisation \
+  physique, ou pièces « virtuelles » agrégeant des descriptions de documents \
+  provenant de différentes sources et potentiellement détenues par diverses institutions.
+facet.manifestation.documentaryUnit=Actuel/physique
+facet.manifestation.virtualUnit=Collection virtuelle
+search.helper.field=Utilisez la syntaxe suivante pour restreindre la recherche à \
+  des champs spécifiques :
+search.helper.field.example=champ:"phrase"
+search.helper.field.example.description=Par exemple, vous pouvez trouver \
+  toutes les descriptions qui ont la phrase « Auschwitz Birkenau » dans leur titre \
+  en cherchant title:"Auschwitz Birkenau".
+search.helper.field.available=Les champs suivants sont actuellement disponibles :
+helpdesk.recommendations=Institutions recommandées triées par pertinence pour \
+  votre question. Veuillez utiliser l''adresse e-mail indiquée pour contacter une ou \
+  plusieurs institutions pertinentes.
+helpdesk.askAgain=Essayez une autre requête...
+helpdesk.institutions=Les recommandations de contact seront issues des \
+  institutions suivantes :
+contact.header=Contacter l''EHRI
+contact.p1=Le coordinateur du projet EHRI est le NIOD Institute for War, \
+  Holocaust and Genocide Studies. Vous pouvez écrire au NIOD à \
+  l''adresse suivante :
+contact.p2=Il existe une variété d''autres moyens par lesquels vous pouvez obtenir \
+  plus d'aide ou nous contacter :
+contact.p2.1=pour toutes les questions relatives à nos politiques en matière de données/confidentialité, \
+  veuillez contacter {0}.
+contact.p2.2=si vous avez des questions à propos des collections et des règles d''accès \
+  aux archives qui procurent des données au portail EHRI, \
+   veuillez contacter directement les archives concernées en utilisant \
+  les coordonnées figurant dans leur description institutionnelle.
+contact.p2.3=si vous avez une question générale à propos de sources archivistiques liées \
+  à l''Holocauste, mais que vous ne savez pas quelle institution \
+  peut répondre à votre question, utilisez le {0}.
+contact.p2.4=pour toutes les autres questions ou si vous souhaitez formuler un commentaire, \
+  un compliment ou une réclamation à propos du portail EHRI, vous pouvez \
+  utiliser l'élément de menu « commentaire » dans la barre de menus supérieure du portail, \
+  ou nous écrire à {0}.
+about.heading=À propos de l''EHRI
+about.p1=Le portail en ligne de l''EHRI fournit un accès aux informations à propos \
+  des documents d''archives liés à l''Holocauste qui sont détenus par des institutions en Europe \
+  et au-delà. Le portail EHRI peut être librement utilisé par toute personne.
+about.p2=Le portail EHRI vise à relever l''un des défis majeurs en matière de \
+  recherche sur l''Holocauste : la fragmentation et la dispersion géographique \
+  des sources archivistiques documentant cet événement historique. En intégrant et \
+  en interconnectant des informations sur des dizaines de milliers de sources d''archives \
+  détenues physiquement par des centaines d''institutions, le portail EHRI constitue une \
+  ressource incomparable pour toute personne intéressée par l''Holocauste et permet \
+  de nouvelles approches transnationales et comparatives pour la recherche.
+about.p3=Le portail en ligne EHRI en perpétuelle évolution est l''un des principaux résultats du projet EHRI  \
+  (European Holocaust Research Infrastructure), un consortium rassemblant \
+  des chercheurs, des archivistes et des humanistes spécialisés dans le numérique \
+  provenant de plus de 20 institutions. Le projet EHRI a reçu un financement des \
+  programmes FP7 (2010-2015) et Horizon 2020 de l''Union européenne \
+  (2015-2019). Le portail EHRI est une ressource en perpétuelle croissance et de \
+  nouvelles informations et fonctionnalités seront ajoutées.
+about.p4=EHRI est à la fois une infrastructure numérique et un réseau humain. En \
+  plus de créer le portail, le projet EHRI a également permis le développement d''un \
+  {0} gratuit d''utilisation, et organise une grande diversité d''activités et d'événements \
+  y compris un programme de bourses, des écoles d'été, des ateliers d''experts et \
+  des conférences. Des informations supplémentaires à propos du contexte lié au projet, \
+  des institutions contributrices et des activités sont disponibles sur {1}.
+about.p4.a1=Cours en ligne à propos des études sur l''Holocauste
+about.p4.a2=Site Web du projet
+pages.external.faq.title=Foire Aux Questions
+pages.external.faq.description=Questions fréquemment posées à propos du site \
+  du portail EHRI.
+pages.external.notFound=Désolés, un problème s''est produit lors de la récupération des \
+  données pour cette page.
+country.report.intro=Une introduction générale aux rapports EHRI par pays est \
+  consultable sur {0}.
+country.report.toc=Table des matières
