@@ -142,9 +142,12 @@ blockquote {
   max-width: 400px;
 }
 
-img.repository-logo {
-  max-width: 100%;
-  margin-bottom: @large-margin;
+.repository-logo {
+  &:extend(.hidden-xs, .hidden-sm);
+  img {
+    max-width: 100%;
+    margin: @medium-margin 0;
+  }
 }
 
 .breadcrumb {

@@ -9,13 +9,7 @@
         } {
             @views.html.common.typeLabelWithWatchButton(item, watched.contains(item.id))
         } {
-            @item.model.logoUrl.map { logo =>
-                @defining(item.url.getOrElse(controllers.portal.routes.Repositories.browse(item.id).absoluteURL(req.secure))) { url =>
-                    <a href="@url">
-                        <img class="repository-logo" src="@logo" alt="@item.toStringLang" />
-                    </a>
-                }
-            }
+            @views.html.repository.logo(item)
             @* FIXME: This will list addresses for multiple descriptions
             regardless of which one is being displayed *@
             @views.html.common.panel(Messages("contact")) {

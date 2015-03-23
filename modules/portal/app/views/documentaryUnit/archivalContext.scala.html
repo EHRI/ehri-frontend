@@ -33,13 +33,6 @@
         <div class="panel-body">
             @wrapCountry(holder.country) {
                 @views.html.helpers.linkTo(holder)
-                @holder.model.logoUrl.map { logo =>
-                    @defining(holder.url.map(_.toString).getOrElse(req.path)) { url =>
-                    <a href="@url">
-                        <img class="repository-logo" src="@logo" alt="@item.toStringLang" />
-                    </a>
-                    }
-                }
 
                 @item.parent.map { parent =>
                     @wrapParent(parent) {

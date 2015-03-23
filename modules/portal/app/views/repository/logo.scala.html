@@ -1,0 +1,8 @@
+@(item: Repository)(implicit req: RequestHeader, lang: Lang)
+
+@item.model.logoUrl.map { logo =>
+    <a class="repository-logo" href="@controllers.portal.routes.Repositories.browse(item.id)">
+        <img src="@logo" alt="@item.toStringLang" />
+    </a>
+}
+

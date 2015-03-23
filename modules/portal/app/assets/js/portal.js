@@ -68,7 +68,7 @@ jQuery(function ($) {
   // we can't use affix in Safari
   $(".sidepanel-toc").each(function() {
     var $target = $(this),
-        $prev = $target.prev("div"),
+        $prev = $target.prev(),
         $parent = $target.closest(".item-details"),
         $minPad = 100;
 
