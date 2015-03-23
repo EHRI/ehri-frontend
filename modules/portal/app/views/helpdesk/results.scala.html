@@ -1,4 +1,4 @@
-@(form: Form[(String, String, Boolean)], replyTo: String, query: String, results: Seq[(String, Double)], institutions: Seq[Repository])(implicit userOpt: Option[UserProfile], request: RequestHeader, lang: Lang, flash: Flash, globalConfig: global.GlobalConfig, prefs: utils.SessionPrefs)
+@(form: Form[(Option[String], String, Boolean)], query: String, results: Seq[(String, Double)], institutions: Seq[Repository])(implicit userOpt: Option[UserProfile], request: RequestHeader, lang: Lang, flash: Flash, globalConfig: global.GlobalConfig, prefs: utils.SessionPrefs)
 
 @views.html.layout.portalLayout(Messages("helpdesk")) {
 
@@ -36,7 +36,7 @@
                         </td>
                         <td>@{f"$score%2.3f"}</td>
                         <td>
-                        @Html(repo.emails.map(e => s"<a href='mailto:$e?subject=EHRI Helpdesk Query&amp;body=${helper.urlEncode(query).replace("+", "%20")}&amp;reply-to=$replyTo'>$e</a>").mkString(", "))
+                        @Html(repo.emails.map(e => s"<a href='mailto:$e?subject=EHRI Helpdesk Query&amp;body=${helper.urlEncode(query).replaceAll("\\+", "%20")}'>$e</a>").mkString(", "))
                         </td>
                     </tr>
                     }

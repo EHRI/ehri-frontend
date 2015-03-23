@@ -1,12 +1,13 @@
-@(form: Form[(String,String,Boolean)])(implicit userOpt: Option[UserProfile], request: RequestHeader, lang: Lang, token: play.filters.csrf.CSRF.Token)
+@(form: Form[(Option[String],String,Boolean)])(implicit userOpt: Option[UserProfile], request: RequestHeader, lang: Lang, token: play.filters.csrf.CSRF.Token)
 
 @implicitField = @{ views.html.helper.FieldConstructor(views.html.helpers.fieldTemplateSignUp.f) }
 
 @helper.form(action = controllers.portal.routes.Helpdesk.helpdeskPost(), 'role -> "form", 'id -> "helpdesk-form") {
     @formHelpers.csrfToken()
-    @helper.inputText(form("email"), 'placeholder -> Messages("helpdesk.email"), 'type -> "helpdesk.email")
+    @formHelpers.globalErrors(form)
     @helper.textarea(form("query"), '_label -> Messages("helpdesk.query"), 'placeholder -> Messages("helpdesk.query.placeholder"), 'rows -> "8")
     @helper.checkbox(form("copyMe"), '_label -> Messages("helpdesk.copyMe"))
+    @helper.inputText(form("email"), 'placeholder -> Messages("helpdesk.email"), 'type -> "helpdesk.email")
     <div class="form-actions">
         <button type="submit" class="submit btn btn-default">@Messages("helpdesk.query.submit")</button>
     </div>

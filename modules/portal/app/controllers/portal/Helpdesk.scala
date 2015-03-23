@@ -26,15 +26,15 @@ case class Helpdesk @Inject()(implicit helpdeskDAO: HelpdeskDAO, globalConfig: g
 
   private val helpdeskForm = Form(
     tuple(
-      "email" -> email,
+      "email" -> optional(email),
       "query" -> nonEmptyText,
       "copyMe" -> default(boolean, false)
     )
   )
 
-  def prefilledForm(implicit userOpt: Option[UserProfile]): Form[(String,String,Boolean)] =
+  def prefilledForm(implicit userOpt: Option[UserProfile]): Form[(Option[String],String,Boolean)] =
     helpdeskForm.fill(
-      (userOpt.flatMap(_.account).map(_.email).getOrElse(""), "", false)).discardingErrors
+      (userOpt.flatMap(_.account).map(_.email), "", false)).discardingErrors
 
   def helpdesk = OptionalUserAction.async { implicit request =>
     helpdeskDAO.available.flatMap { repos =>
@@ -53,7 +53,8 @@ case class Helpdesk @Inject()(implicit helpdeskDAO: HelpdeskDAO, globalConfig: g
   }
 
   def helpdeskPost = OptionalUserAction.async { implicit request =>
-    helpdeskForm.bindFromRequest.fold(
+    val boundForm = helpdeskForm.bindFromRequest
+    boundForm.fold(
       errorForm =>helpdeskDAO.available.flatMap { repos =>
         SearchDAO.list[Repository](repos.map(_._1)).map { institutions =>
           BadRequest(views.html.helpdesk.helpdesk(errorForm, institutions))
@@ -61,17 +62,27 @@ case class Helpdesk @Inject()(implicit helpdeskDAO: HelpdeskDAO, globalConfig: g
       },
       data => {
         val (email, query, copyMe) = data
-        if (copyMe) {
-          sendMessageEmail(email, query)
-        }
-
-        helpdeskDAO.askQuery(query).flatMap { responses =>
-          SearchDAO.list[Repository](responses.map(_._1)).map { institutions =>
-            Ok(views.html.helpdesk.results(prefilledForm.fill(data), email, query, responses, institutions))
+        if (email.isEmpty && copyMe) {
+          helpdeskDAO.available.flatMap { repos =>
+            SearchDAO.list[Repository](repos.map(_._1)).map { institutions =>
+              BadRequest(views.html.helpdesk.helpdesk(
+                boundForm
+                  .withError("email", "error.required"), institutions))
+            }
           }
-        } recover {
-          case e: BadHelpdeskResponse =>
-            InternalServerError(views.html.helpdesk.error(e))
+        } else {
+          if (copyMe && email.isDefined) {
+            sendMessageEmail(email.get, query)
+          }
+
+          helpdeskDAO.askQuery(query).flatMap { responses =>
+            SearchDAO.list[Repository](responses.map(_._1)).map { institutions =>
+              Ok(views.html.helpdesk.results(prefilledForm.fill(data), query, responses, institutions))
+            }
+          } recover {
+            case e: BadHelpdeskResponse =>
+              InternalServerError(views.html.helpdesk.error(e))
+          }
         }
       }
     )
