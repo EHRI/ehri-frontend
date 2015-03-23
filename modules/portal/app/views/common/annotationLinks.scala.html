@@ -1,12 +1,12 @@
 @(item: models.base.DescribedMeta[_,_], links: Seq[Link])(implicit userOpt: Option[UserProfile], req: RequestHeader, lang: Lang, globalConfig: global.GlobalConfig)
 
-@defining(item.annotationLinks(links)) { links =>
+@defining(item.annotationLinks(links).distinct) { links =>
     @if(links.nonEmpty) {
-    <h3>@Messages("item.linked")</h3>
-    <ul class="item-links external-links">
-        @for(link <- links.distinct) {
-            @itemLink(link, item)
-        }
-    </ul>
+        <h3>@Messages("item.linked")</h3>
+        <ul class="item-links external-links">
+            @links.map { link =>
+                @itemLink(link, item)
+            }
+        </ul>
     }
 }

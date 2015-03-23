@@ -4,13 +4,13 @@
     @if(links.nonEmpty) {
         <h3>@Messages("item.related")</h3>
         @accessPointTypes.map { accessPointType =>
-            @defining(AccessPoint.linksOfType(links, accessPointType)) { apLinks =>
+            @defining(AccessPoint.linksOfType(links, accessPointType).distinct) { apLinks =>
                 @if(apLinks.nonEmpty) {
                     <div class="item-text-field">
                         <h4 class="item-text-field-header">@Messages("accessPoint.type." + accessPointType + ".reverse")</h4>
                         <div class="item-text-field-value item-text-field-list">
                             <ul class="item-external-links">
-                                @for(link <- apLinks.distinct) {
+                                @apLinks.map { link =>
                                     @itemLink(link, item)
                                 }
                             </ul>

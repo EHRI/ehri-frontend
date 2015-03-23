@@ -1,4 +1,4 @@
-@(link: Link, item: DescribedMeta[_,_])(implicit userOpt: Option[UserProfile], req: RequestHeader, lang: Lang, globalConfig: global.GlobalConfig)
+@(link: Link, item: models.base.DescribedMeta[_,_])(implicit userOpt: Option[UserProfile], req: RequestHeader, lang: Lang, globalConfig: global.GlobalConfig)
 
 @linkItemHtml(html: Html) = {
     @if(html.body.trim.nonEmpty) {
