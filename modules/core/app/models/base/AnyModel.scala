@@ -137,7 +137,7 @@ trait WithDescriptions[+T <: Description] extends AnyModel {
    * Links that point to this item from other item's access points.
    */
   def externalLinks(links: Seq[Link]): Seq[Link] = for {
-    link <- links.filterNot(_.bodies.isEmpty)
+    link <- links.filter(_.bodies.nonEmpty)
       if link.bodies.map(_.id).intersect(allAccessPoints.map(_.id)).isEmpty
   } yield link
 

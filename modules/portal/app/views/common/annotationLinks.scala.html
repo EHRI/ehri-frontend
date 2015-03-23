@@ -1,4 +1,4 @@
-@(item: DescribedMeta[_,_], links: Seq[Link])(implicit userOpt: Option[UserProfile], req: RequestHeader, lang: Lang, globalConfig: global.GlobalConfig)
+@(item: models.base.DescribedMeta[_,_], links: Seq[Link])(implicit userOpt: Option[UserProfile], req: RequestHeader, lang: Lang, globalConfig: global.GlobalConfig)
 
 @defining(item.annotationLinks(links)) { links =>
     @if(links.nonEmpty) {
