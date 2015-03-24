@@ -27,11 +27,7 @@ my $OPT_OK = Getopt::Long::GetOptions($OPT, qw(
     --help|h
 ));
 
-my $LANG_ORDER = {
-    "german" => 0,
-    "french" => 1,
-    "polish" => 2
-};
+my @LANGS = qw(german french polish);
 
 if (!$OPT_OK) {
 	print STDERR "Command line parameters were not properly specified.\n\n";
@@ -49,16 +45,21 @@ if (not defined $csv or not defined $en) {
 my $ENGLISH = parse_english($en);
 my $DATA = parse_csv($csv);
 
-for my $lang (keys %{$LANG_ORDER}) {
+my $col = 0;
+for my $lang (@LANGS) {
     if ($OPT->{$lang}) {
-        my $idx = $LANG_ORDER->{$lang};
         my $file = $OPT->{$lang};
-        write_lang($idx, $file);
+        write_lang($col, $file);
+        $col++;
     }
 }
 
 
 exit(0);
+
+sub num_cols {
+    scalar(grep { exists $OPT->{$_} } @LANGS);
+}
 
 sub write_lang {
     my $idx = shift;
@@ -106,7 +107,7 @@ sub empty_data {
 
 sub valid_row {
     my $row = shift;
-    $row && scalar(@{$row}) == 5;
+    $row && scalar(@{$row}) == 2 + num_cols();
 }
 
 sub parse_csv {
