@@ -44,8 +44,8 @@
                 @textField(item, descId, desc.control.status, STATUS)
                 @textField(item, descId, desc.control.levelOfDetail, LEVEL_OF_DETAIL)
                 @textField(item, descId, desc.control.datesCDR, DATES_CVD)
-                @listField(item, descId, desc.control.languages, LANGUAGES_USED, transformFunc = {s => views.Helpers.languageCodeToName(s)})
-                @listField(item, descId, desc.control.scripts, SCRIPTS_USED, transformFunc = {s => views.Helpers.scriptCodeToName(s)})
+                @listField(item, descId, desc.control.languages, LANGUAGES_USED, transformFunc = s => views.Helpers.languageCodeToName(s))
+                @listField(item, descId, desc.control.scripts, SCRIPTS_USED, transformFunc = s => views.Helpers.scriptCodeToName(s))
                 @listField(item, descId, desc.control.sources, SOURCES)
             }
 
