@@ -8,13 +8,11 @@
                 @if(apLinks.nonEmpty) {
                     <div class="item-text-field">
                         <h4 class="item-text-field-header">@Messages("accessPoint.type." + accessPointType + ".reverse")</h4>
-                        <div class="item-text-field-value item-text-field-list">
-                            <ul class="item-external-links">
-                                @apLinks.map { link =>
-                                    @itemLink(link, item)
-                                }
-                            </ul>
-                        </div>
+                        <ul class="item-text-field-value item-text-field-list item-external-links" dir="auto">
+                            @apLinks.map { link =>
+                                @itemLink(link, item)
+                            }
+                        </ul>
                     </div>
                 }
             }
