@@ -16,7 +16,7 @@
             @common.search.selectedFacets(result.facetClasses, result.facets)
 
             @html
-            @views.html.common.pagination(result.page)
+            @views.html.common.pagination(result.page, call = Some(action))
         </section>
     </div>
 }
