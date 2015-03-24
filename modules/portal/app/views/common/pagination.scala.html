@@ -1,4 +1,4 @@
-@(page: utils.AbstractPage[_], namespace: String = "")(implicit req: RequestHeader)
+@(page: utils.AbstractPage[_], call: Option[Call] = None, namespace: String = "")(implicit req: RequestHeader)
 
 @import utils.PageParams._
 
@@ -10,7 +10,11 @@
                     <li class="disabled"><a>@cp</a></li>
                 } else {
                     @defining(namespace + PAGE_PARAM) { pageParam =>
-                    <li><a href="@utils.joinPath(req.path, req.queryString.updated(pageParam, Seq(cp.toString)))">@cp</a></li>
+                        <li><a href="@utils.joinPath(
+                            call.map(_.url).getOrElse(req.path),
+                            req.queryString.updated(pageParam, Seq(cp.toString))
+                        )">@cp</a>
+                        </li>
                     }
                 }
             }
