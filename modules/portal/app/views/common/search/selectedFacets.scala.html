@@ -3,7 +3,7 @@
 <div class="selected-facets">
     @applied.collect { case utils.search.AppliedFacet(key, values) =>
         @facetClasses.find(_.key == key).map { fclass =>
-            @values.distinct.map { value =>
+            @values.distinct.filter(v => fclass.isValidValue(v)).map { value =>
                 <div class="selected-facet">
                     <span class="facet"><span class="facet-type">@fclass.name:</span> @fclass.render(value)
                         <input type="hidden" name="@fclass.param" value="@value" />

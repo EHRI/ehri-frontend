@@ -23,6 +23,12 @@ sealed trait FacetClass[+T <: Facet] {
   }
 
   /**
+   * This key is a valid facet value. By default any values
+   * are accepted, except for query facets.
+   */
+  def isValidValue(s: String) = true
+
+  /**
    * A facet class is deemed active if either it has applied facets
    * or it contains facets which are worth applying, e.g. have a
    * non-zero item count.
@@ -84,7 +90,9 @@ case class QueryFacetClass(
   override val facets: Seq[QueryFacet],
   override val display: FacetDisplay.Value = FacetDisplay.List,
   override val sort: FacetSort.Value = FacetSort.Name
-) extends FacetClass[QueryFacet]
+) extends FacetClass[QueryFacet] {
+  override def isValidValue(s: String) = facets.exists(_.value == s)
+}
 
 
 object FacetClass {
