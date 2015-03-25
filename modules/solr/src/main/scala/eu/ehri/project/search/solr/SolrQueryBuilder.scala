@@ -47,8 +47,10 @@ object SolrQueryBuilder {
               Some(s"${fc.key}:($filter)")
             case fc: QueryFacetClass =>
               val activeRanges = fc.facets.filter(f => paramVals.contains(f.value))
-              val filter = activeRanges.map(SolrFacetParser.facetValue).mkString(" ")
-              Some(s"${fc.key}:($filter)")
+              if (activeRanges.nonEmpty) {
+                val filter = activeRanges.map(SolrFacetParser.facetValue).mkString(" ")
+                Some(s"${fc.key}:($filter)")
+              } else None
             case e =>
               Logger.logger.warn("Unknown facet class type: {}", e)
               None
