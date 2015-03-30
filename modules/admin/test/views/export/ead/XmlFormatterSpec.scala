@@ -1,6 +1,7 @@
 package views.export.ead
 
 import play.api.test.PlaySpecification
+import utils.ead.XmlFormatter
 
 /**
  * Formatter should add a doctype and clean-up

@@ -4,6 +4,7 @@ import javax.xml.transform.{OutputKeys, TransformerFactory}
 import javax.xml.transform.stream.{StreamSource, StreamResult}
 import java.io.{StringReader, StringWriter}
 import org.pegdown.{LinkRenderer, Extensions, PegDownProcessor}
+import utils.ead.{XmlFormatter, ToEadSerializer}
 
 /**
  * @author Mike Bryant (http://github.com/mikesname)

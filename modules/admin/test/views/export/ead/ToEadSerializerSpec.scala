@@ -3,6 +3,7 @@ package views.export.ead
 import play.api.test.PlaySpecification
 import org.pegdown.{LinkRenderer, PegDownProcessor}
 import org.pegdown.ast.RootNode
+import utils.ead.ToEadSerializer
 
 /**
  * @author Mike Bryant (http://github.com/mikesname)
