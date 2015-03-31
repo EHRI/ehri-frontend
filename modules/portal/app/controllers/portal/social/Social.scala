@@ -36,6 +36,8 @@ case class Social @Inject()(implicit globalConfig: global.GlobalConfig, searchEn
 
   private val socialRoutes = controllers.portal.social.routes.Social
 
+  private val usersPerPage = 18
+
   def browseUsers = WithUserAction.async { implicit request =>
     // This is a bit gnarly because we want to get a searchable list
     // of users and combine it with a list of existing followers so
@@ -44,6 +46,7 @@ case class Social @Inject()(implicit globalConfig: global.GlobalConfig, searchEn
       following <- backend.following[UserProfile](request.user.id, PageParams.empty)
       blocked <- backend.blocked[UserProfile](request.user.id, PageParams.empty)
       result <- findType[UserProfile](
+        defaultParams = SearchParams(count = Some(usersPerPage)),
         filters = Map(SearchConstants.ACTIVE -> true.toString)
       )
     } yield Ok(views.html.userProfile.browseUsers(
