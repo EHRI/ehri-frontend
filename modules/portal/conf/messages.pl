@@ -619,8 +619,8 @@ termsAndConditions.userGenerated.p1=EHRI oferuje użytkownikom możliwość twor
 termsAndConditions.userGenerated.p2=Logując się/zakładając konto w portalu, użytkownik wyraża zgodę na nasze Warunki korzystania z serwisu oraz potwierdza, \
     że przeczytał nasze Zasady zarządzania danymi (w tym stosowanie plików cookie).
 termsAndConditions.userGenerated.terms.heading=Warunki korzystania z serwisu
-termsAndConditions.userGenerated.terms.1=Użytkownicy tworzący treści wyrażają zgodę nie dodawać komentarzy, których charakter jest niestosowny.
-termsAndConditions.userGenerated.terms.2=Użytkownicy tworzący treści wyrażają zgodę nie naruszać przepisów holenderskiej ustawy o ochronie danych osobowych \
+termsAndConditions.userGenerated.terms.1=Użytkownicy tworzący treści zgadzają się nie dodawać komentarzy, których charakter jest niestosowny.
+termsAndConditions.userGenerated.terms.2=Użytkownicy tworzący treści zgadzają się nie naruszać przepisów holenderskiej ustawy o ochronie danych osobowych \
     oraz ustawy o ochronie danych osobowych obowiązującej w kraju, w którym się znajdują w momencie dodawania treści. Oznacza to, że \
     użytkownicy tworzący treści nie będą ujawniać informacji z naruszeniem prawa o ochronie danych osobowych.
 termsAndConditions.userGenerated.terms.3=Użytkownicy tworzący treści wyrażają zgodę na to, że przed publikacją EHRI będzie weryfikować treści generowane przez użytkowników, \
