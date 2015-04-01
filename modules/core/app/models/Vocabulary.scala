@@ -49,7 +49,7 @@ object VocabularyF {
 
   implicit val vocabularyFormat: Format[VocabularyF] = Format(vocabularyReads,vocabularyWrites)
 
-  implicit object Converter extends BackendWriteable[VocabularyF] {
+  implicit object Converter extends Writable[VocabularyF] {
     lazy val restFormat = vocabularyFormat
   }
 }

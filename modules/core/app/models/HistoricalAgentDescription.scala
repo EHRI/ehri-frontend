@@ -9,7 +9,7 @@ import eu.ehri.project.definitions.Ontology
 import play.api.data.Form
 import play.api.data.Forms._
 import utils.forms._
-import backend.{Entity, Readable, BackendWriteable}
+import backend.{Entity, Readable, Writable}
 import Description._
 
 
@@ -122,7 +122,7 @@ object HistoricalAgentDescriptionF {
     (__ \ RELATIONSHIPS \ HAS_UNKNOWN_PROPERTY).nullableSeqReads[Entity]
   )(HistoricalAgentDescriptionF.apply _)
 
-  implicit object Converter extends Readable[HistoricalAgentDescriptionF] with BackendWriteable[HistoricalAgentDescriptionF]  {
+  implicit object Converter extends Readable[HistoricalAgentDescriptionF] with Writable[HistoricalAgentDescriptionF]  {
     val restReads = historicalAgentDescriptionReads
     val restFormat = Format(historicalAgentDescriptionReads,historicalAgentDescriptionWrites)
   }

@@ -45,7 +45,7 @@ object VirtualUnitF {
     (__ \ RELATIONSHIPS \ DESCRIPTION_FOR_ENTITY).nullableSeqReads[DocumentaryUnitDescriptionF]
   )(VirtualUnitF.apply _)
 
-  implicit object Converter extends BackendWriteable[VirtualUnitF] {
+  implicit object Converter extends Writable[VirtualUnitF] {
     val restFormat = Format(virtualUnitReads,virtualUnitWrites)
   }
 }

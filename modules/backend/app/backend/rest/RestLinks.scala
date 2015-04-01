@@ -35,7 +35,7 @@ trait RestLinks extends Links with RestDAO with RestContext {
   /**
    * Create a single link.
    */
-  override def linkItems[MT, A <: WithId, AF](id: String, src: String, link: AF, accessPoint: Option[String] = None)(implicit rs: Resource[MT], rd: Readable[A], wd: BackendWriteable[AF]): Future[A] = {
+  override def linkItems[MT, A <: WithId, AF](id: String, src: String, link: AF, accessPoint: Option[String] = None)(implicit rs: Resource[MT], rd: Readable[A], wd: Writable[AF]): Future[A] = {
     val url: String = enc(requestUrl, id, src)
     userCall(url).withQueryString(accessPoint.map(a => BODY_PARAM -> a).toSeq: _*)
       .post(Json.toJson(link)(wd.restFormat)).map { response =>
@@ -62,7 +62,7 @@ trait RestLinks extends Links with RestDAO with RestContext {
   /**
    * Create multiple links. NB: This function is NOT transactional.
    */
-  override def linkMultiple[MT, A <: WithId, AF](id: String, srcToLinks: Seq[(String,AF,Option[String])])(implicit rs: Resource[MT], rd: Readable[A], wd: BackendWriteable[AF]): Future[Seq[A]] = {
+  override def linkMultiple[MT, A <: WithId, AF](id: String, srcToLinks: Seq[(String,AF,Option[String])])(implicit rs: Resource[MT], rd: Readable[A], wd: Writable[AF]): Future[Seq[A]] = {
     val done: Future[Seq[A]] = Future.sequence {
       srcToLinks.map { case (other, ann, accessPoint) =>
         linkItems(id, other, ann, accessPoint)

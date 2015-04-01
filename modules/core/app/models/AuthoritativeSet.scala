@@ -46,7 +46,7 @@ object AuthoritativeSetF {
   implicit val authoritativeSetFormat: Format[AuthoritativeSetF]
   = Format(authoritativeSetReads,authoritativeSetWrites)
 
-  implicit object Converter extends BackendWriteable[AuthoritativeSetF] {
+  implicit object Converter extends Writable[AuthoritativeSetF] {
     lazy val restFormat = authoritativeSetFormat
   }
 }

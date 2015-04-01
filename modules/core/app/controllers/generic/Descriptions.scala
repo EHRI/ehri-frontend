@@ -9,7 +9,7 @@ import models.UserProfile
 import scala.concurrent.Future
 import scala.concurrent.Future.{successful => immediate}
 import backend.rest.ValidationError
-import backend.{Readable, BackendWriteable, ContentType}
+import backend.{Readable, Writable, ContentType}
 
 /**
  * Controller trait for creating, updating, and deleting auxiliary descriptions
@@ -36,7 +36,7 @@ trait Descriptions[D <: Description with Persistable, T <: Model with Described[
 
 
   def CreateDescriptionAction(id: String, form: Form[D])(
-    implicit fmt: BackendWriteable[D], drd: Readable[D], ct: ContentType[MT]) =
+    implicit fmt: Writable[D], drd: Readable[D], ct: ContentType[MT]) =
     WithItemPermissionAction(id, PermissionType.Update) andThen new ActionTransformer[ItemPermissionRequest, ManageDescriptionRequest] {
       override protected def transform[A](request: ItemPermissionRequest[A]): Future[ManageDescriptionRequest[A]] = {
         implicit val req = request
@@ -54,7 +54,7 @@ trait Descriptions[D <: Description with Persistable, T <: Model with Described[
     }
 
   def UpdateDescriptionAction(id: String, did: String, form: Form[D])(
-    implicit fmt: BackendWriteable[D], drd: Readable[D], ct: ContentType[MT]) =
+    implicit fmt: Writable[D], drd: Readable[D], ct: ContentType[MT]) =
     WithItemPermissionAction(id, PermissionType.Update) andThen new ActionTransformer[ItemPermissionRequest, ManageDescriptionRequest] {
       override protected def transform[A](request: ItemPermissionRequest[A]): Future[ManageDescriptionRequest[A]] = {
         implicit val req = request
@@ -72,7 +72,7 @@ trait Descriptions[D <: Description with Persistable, T <: Model with Described[
     }
 
   def WithDescriptionAction(id: String, did: String)(
-    implicit fmt: BackendWriteable[D], drd: Readable[D], ct: ContentType[MT]) =
+    implicit fmt: Writable[D], drd: Readable[D], ct: ContentType[MT]) =
     WithItemPermissionAction(id, PermissionType.Update) andThen new ActionRefiner[ItemPermissionRequest,DeleteDescriptionRequest] {
       override protected def refine[A](request: ItemPermissionRequest[A]): Future[Either[Result, DeleteDescriptionRequest[A]]] = {
         request.item.model.description(did) match {

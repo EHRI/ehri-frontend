@@ -74,7 +74,7 @@ object DocumentaryUnitF {
 
   implicit val documentaryUnitFormat: Format[DocumentaryUnitF] = Format(documentaryUnitReads,documentaryUnitWrites)
 
-  implicit object Converter extends BackendWriteable[DocumentaryUnitF] {
+  implicit object Converter extends Writable[DocumentaryUnitF] {
     val restFormat = documentaryUnitFormat
   }
 }

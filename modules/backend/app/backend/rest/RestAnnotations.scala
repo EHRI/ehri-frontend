@@ -30,7 +30,7 @@ trait RestAnnotations extends Annotations with RestDAO {
     }
   }
 
-  override def createAnnotation[A <: WithId, AF](id: String, ann: AF, accessors: Seq[String] = Nil)(implicit rs: Readable[A], wr: BackendWriteable[AF]): Future[A] = {
+  override def createAnnotation[A <: WithId, AF](id: String, ann: AF, accessors: Seq[String] = Nil)(implicit rs: Readable[A], wr: Writable[AF]): Future[A] = {
     val url: String = enc(requestUrl, id)
     userCall(url)
         .withQueryString(accessors.map(a => ACCESSOR_PARAM -> a): _*)
@@ -41,7 +41,7 @@ trait RestAnnotations extends Annotations with RestDAO {
     }
   }
 
-  override def createAnnotationForDependent[A <: WithId, AF](id: String, did: String, ann: AF, accessors: Seq[String] = Nil)(implicit rs: Readable[A], wr: BackendWriteable[AF]): Future[A] = {
+  override def createAnnotationForDependent[A <: WithId, AF](id: String, did: String, ann: AF, accessors: Seq[String] = Nil)(implicit rs: Readable[A], wr: Writable[AF]): Future[A] = {
     val url: String = enc(requestUrl, id, did)
     userCall(url)
       .withQueryString(accessors.map(a => ACCESSOR_PARAM -> a): _*)

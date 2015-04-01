@@ -52,7 +52,7 @@ object HistoricalAgentF {
 
   implicit val historicalAgentFormat: Format[HistoricalAgentF] = Format(historicalAgentReads,historicalAgentWrites)
 
-  implicit object Converter extends BackendWriteable[HistoricalAgentF] {
+  implicit object Converter extends Writable[HistoricalAgentF] {
     lazy val restFormat = historicalAgentFormat
   }
 }

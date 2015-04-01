@@ -52,7 +52,7 @@ object CountryF {
     (__ \ DATA \ DATA_EXTENSIVE).readNullable[String]
   )(CountryF.apply _)
 
-  implicit object Converter extends BackendWriteable[CountryF] {
+  implicit object Converter extends Writable[CountryF] {
     lazy val restFormat = Format(countryReads,countryWrites)
   }
 }

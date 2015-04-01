@@ -58,7 +58,7 @@ object ConceptF {
   implicit val conceptFormat: Format[ConceptF] = Format(conceptReads,conceptWrites)
 
 
-  implicit object Converter extends BackendWriteable[ConceptF] {
+  implicit object Converter extends Writable[ConceptF] {
     val restFormat = conceptFormat
   }
 }

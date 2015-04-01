@@ -9,7 +9,7 @@ import eu.ehri.project.definitions.Ontology
 import utils.forms._
 import play.api.data.Form
 import play.api.data.Forms._
-import backend.{Entity, Readable, BackendWriteable}
+import backend.{Entity, Readable, Writable}
 import Description._
 
 case class IsdiahDetails(
@@ -146,7 +146,7 @@ object RepositoryDescriptionF {
     (__ \ RELATIONSHIPS \ HAS_UNKNOWN_PROPERTY).nullableSeqReads[Entity]
   )(RepositoryDescriptionF.apply _)
 
-  implicit object Converter extends Readable[RepositoryDescriptionF] with BackendWriteable[RepositoryDescriptionF] {
+  implicit object Converter extends Readable[RepositoryDescriptionF] with Writable[RepositoryDescriptionF] {
     val restReads = repositoryDescriptionReads
     val restFormat = Format(repositoryDescriptionReads, repositoryDescriptionWrites)
   }

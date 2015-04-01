@@ -60,7 +60,7 @@ object AnnotationF {
     (__ \ DATA \ IS_PROMOTABLE).readNullable[Boolean].map(_.getOrElse(false))
   )(AnnotationF.apply _)
 
-  implicit object Converter extends BackendWriteable[AnnotationF] {
+  implicit object Converter extends Writable[AnnotationF] {
     lazy val restFormat = Format(annotationReads,annotationWrites)
     lazy val clientFormat = Json.format[AnnotationF]
   }

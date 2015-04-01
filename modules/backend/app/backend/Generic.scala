@@ -15,11 +15,11 @@ trait Generic {
 
   def getJson[MT](id: String)(implicit rs: Resource[MT]): Future[JsObject]
 
-  def create[MT <: WithId, T](item: T, accessors: Seq[String] = Nil, params: Map[String, Seq[String]] = Map.empty, logMsg: Option[String] = None)(implicit rs: Resource[MT], wrt: BackendWriteable[T]): Future[MT]
+  def create[MT <: WithId, T](item: T, accessors: Seq[String] = Nil, params: Map[String, Seq[String]] = Map.empty, logMsg: Option[String] = None)(implicit rs: Resource[MT], wrt: Writable[T]): Future[MT]
 
-  def createInContext[MT, T, TT <: WithId](id: String, contentType: ContentTypes.Value, item: T, accessors: Seq[String] = Nil, params: Map[String, Seq[String]] = Map(), logMsg: Option[String] = None)(implicit wrt: BackendWriteable[T], rs: Resource[MT], rd: Readable[TT]): Future[TT]
+  def createInContext[MT, T, TT <: WithId](id: String, contentType: ContentTypes.Value, item: T, accessors: Seq[String] = Nil, params: Map[String, Seq[String]] = Map(), logMsg: Option[String] = None)(implicit wrt: Writable[T], rs: Resource[MT], rd: Readable[TT]): Future[TT]
 
-  def update[MT, T](id: String, item: T, logMsg: Option[String] = None)(implicit wrt: BackendWriteable[T], rs: Resource[MT]): Future[MT]
+  def update[MT, T](id: String, item: T, logMsg: Option[String] = None)(implicit wrt: Writable[T], rs: Resource[MT]): Future[MT]
 
   def patch[MT](id: String, data: JsObject, logMsg: Option[String] = None)(implicit rs: Resource[MT]): Future[MT]
 

@@ -8,7 +8,7 @@ import play.api.libs.json._
 import play.api.data.Form
 import play.api.data.Forms._
 import utils.forms._
-import backend.{Entity, BackendWriteable}
+import backend.{Entity, Writable}
 
 import Description._
 import models.base.Description.CREATION_PROCESS
@@ -59,7 +59,7 @@ object ConceptDescriptionF {
 
   implicit val conceptDescriptionFormat: Format[ConceptDescriptionF] = Format(conceptDescriptionReads,conceptDescriptionWrites)
 
-  implicit object Converter extends BackendWriteable[ConceptDescriptionF] {
+  implicit object Converter extends Writable[ConceptDescriptionF] {
     lazy val restFormat = conceptDescriptionFormat
   }
 }

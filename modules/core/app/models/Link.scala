@@ -58,7 +58,7 @@ object LinkF {
     (__ \ RELATIONSHIPS \ ENTITY_HAS_DATE).nullableSeqReads[DatePeriodF]
   )(LinkF.apply _)
 
-  implicit object Converter extends BackendWriteable[LinkF] {
+  implicit object Converter extends Writable[LinkF] {
     lazy val restFormat = Format(linkReads,linkWrites)
   }
 }

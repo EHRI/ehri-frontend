@@ -62,7 +62,7 @@ object RepositoryF {
 
   implicit val repositoryFormat: Format[RepositoryF] = Format(repositoryReads,repositoryWrites)
 
-  implicit object Converter extends BackendWriteable[RepositoryF] {
+  implicit object Converter extends Writable[RepositoryF] {
     val restFormat = repositoryFormat
   }
 }

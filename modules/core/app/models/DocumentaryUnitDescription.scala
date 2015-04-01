@@ -10,7 +10,7 @@ import utils.forms._
 import play.api.data.Form
 import play.api.data.Forms._
 import defines.EnumUtils._
-import backend.{Entity, Readable, BackendWriteable}
+import backend.{Entity, Readable, Writable}
 import Description._
 
 case class IsadGIdentity(
@@ -181,7 +181,7 @@ object DocumentaryUnitDescriptionF {
 
   implicit object Converter
       extends Readable[DocumentaryUnitDescriptionF]
-      with BackendWriteable[DocumentaryUnitDescriptionF] {
+      with Writable[DocumentaryUnitDescriptionF] {
     val restReads = documentaryUnitDescriptionReads
     val restFormat = Format(documentaryUnitDescriptionReads, documentaryUnitDescriptionWrites)
   }

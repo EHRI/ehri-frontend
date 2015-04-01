@@ -1,7 +1,7 @@
 package controllers.generic
 
 import backend.rest.{RestHelpers, ValidationError}
-import backend.{ContentType, Readable, BackendWriteable}
+import backend.{ContentType, Readable, Writable}
 import defines.PermissionType
 import forms.VisibilityForm
 import models.UserProfile
@@ -54,7 +54,7 @@ trait Create[F <: Model with Persistable, MT <: MetaModel[F]] extends Generic {
       }
     }
 
-  protected def CreateItemAction(form: Form[F], pf: Request[_] => Map[String,Seq[String]] = _ => Map.empty)(implicit fmt: BackendWriteable[F], rd: Readable[MT], ct: ContentType[MT]) =
+  protected def CreateItemAction(form: Form[F], pf: Request[_] => Map[String,Seq[String]] = _ => Map.empty)(implicit fmt: Writable[F], rd: Readable[MT], ct: ContentType[MT]) =
     WithContentPermissionAction(PermissionType.Create, ct.contentType) andThen new ActionTransformer[WithUserRequest, CreateRequest] {
       def transform[A](request: WithUserRequest[A]): Future[CreateRequest[A]] = {
         implicit val req = request

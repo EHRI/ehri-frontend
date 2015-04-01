@@ -44,7 +44,7 @@ object GroupF {
 
   implicit val groupFormat: Format[GroupF] = Format(groupReads,groupWrites)
 
-  implicit object Converter extends BackendWriteable[GroupF] {
+  implicit object Converter extends Writable[GroupF] {
     lazy val restFormat = groupFormat
   }
 }

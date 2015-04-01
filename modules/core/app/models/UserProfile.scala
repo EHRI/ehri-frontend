@@ -90,7 +90,7 @@ object UserProfileF {
 
   implicit val userProfileFormat: Format[UserProfileF] = Format(userProfileReads,userProfileWrites)
 
-  implicit object Converter extends BackendWriteable[UserProfileF] {
+  implicit object Converter extends Writable[UserProfileF] {
     lazy val restFormat = userProfileFormat
   }
 }

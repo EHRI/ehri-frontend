@@ -46,7 +46,7 @@ trait RestGeneric extends Generic with RestDAO with RestContext {
 
   override def create[MT <: WithId, T](item: T, accessors: Seq[String] = Nil,
       params: Map[String,Seq[String]] = Map.empty,
-      logMsg: Option[String] = None)(implicit rs: Resource[MT], wrt: BackendWriteable[T]): Future[MT] = {
+      logMsg: Option[String] = None)(implicit rs: Resource[MT], wrt: Writable[T]): Future[MT] = {
     val url = enc(baseUrl, rs.entityType)
     userCall(url)
         .withQueryString(accessors.map(a => ACCESSOR_PARAM -> a): _*)
@@ -61,7 +61,7 @@ trait RestGeneric extends Generic with RestDAO with RestContext {
 
   override def createInContext[MT,T,TT <: WithId](id: String, contentType: ContentTypes.Value, item: T, accessors: Seq[String] = Nil, params: Map[String, Seq[String]] = Map.empty,
       logMsg: Option[String] = None)(
-        implicit wrt: BackendWriteable[T], rs: Resource[MT], rd: backend.Readable[TT]): Future[TT] = {
+        implicit wrt: Writable[T], rs: Resource[MT], rd: backend.Readable[TT]): Future[TT] = {
     val url = enc(baseUrl, rs.entityType, id, contentType)
     userCall(url)
         .withQueryString(accessors.map(a => ACCESSOR_PARAM -> a): _*)
@@ -77,7 +77,7 @@ trait RestGeneric extends Generic with RestDAO with RestContext {
   }
 
   override def update[MT,T](id: String, item: T, logMsg: Option[String] = None)(
-      implicit wrt: BackendWriteable[T], rs: Resource[MT]): Future[MT] = {
+      implicit wrt: Writable[T], rs: Resource[MT]): Future[MT] = {
     val url = enc(baseUrl, rs.entityType, id)
     userCall(url).withHeaders(msgHeader(logMsg): _*)
         .put(Json.toJson(item)(wrt.restFormat)).map { response =>

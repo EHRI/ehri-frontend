@@ -10,7 +10,7 @@ import play.api.i18n.Lang
 import play.api.data.Form
 import play.api.data.Forms._
 import play.api.libs.json.JsObject
-import backend.{Entity, Readable, BackendWriteable}
+import backend.{Entity, Readable, Writable}
 
 
 object AccessPointF {
@@ -61,7 +61,7 @@ object AccessPointF {
     }
   }
 
-  implicit object Converter extends BackendWriteable[AccessPointF] {
+  implicit object Converter extends Writable[AccessPointF] {
     lazy val restFormat = Format(accessPointReads,accessPointWrites)
   }
 }

@@ -10,7 +10,7 @@ import forms.VisibilityForm
 import scala.concurrent.Future.{successful => immediate}
 import scala.concurrent.Future
 import backend.rest.{RestHelpers, ValidationError}
-import backend.{Readable, BackendWriteable, ContentType}
+import backend.{Readable, Writable, ContentType}
 
 /**
  * Controller trait for extending Entity classes which server as
@@ -48,7 +48,7 @@ trait Creator[CF <: Model with Persistable, CMT <: MetaModel[CF], MT <: MetaMode
      ) extends WrappedRequest[A](request)
   with WithOptionalUser
 
-  private[generic] def CreateChildTransformer(id: String, form: Form[CF], extraParams: ExtraParams = defaultExtra)(implicit ct: ContentType[MT], fmt: BackendWriteable[CF], crd: Readable[CMT], cct: ContentType[CMT]) =
+  private[generic] def CreateChildTransformer(id: String, form: Form[CF], extraParams: ExtraParams = defaultExtra)(implicit ct: ContentType[MT], fmt: Writable[CF], crd: Readable[CMT], cct: ContentType[CMT]) =
     new ActionTransformer[ItemPermissionRequest, CreateChildRequest] {
       def transform[A](request: ItemPermissionRequest[A]): Future[CreateChildRequest[A]] = {
         implicit val req = request
@@ -71,7 +71,7 @@ trait Creator[CF <: Model with Persistable, CMT <: MetaModel[CF], MT <: MetaMode
     }
 
 
-  protected def CreateChildAction(id: String, form: Form[CF], extraParams: ExtraParams = defaultExtra)(implicit fmt: BackendWriteable[CF], crd: Readable[CMT], rd: Readable[MT], ct: ContentType[MT], cct: ContentType[CMT]) =
+  protected def CreateChildAction(id: String, form: Form[CF], extraParams: ExtraParams = defaultExtra)(implicit fmt: Writable[CF], crd: Readable[CMT], rd: Readable[MT], ct: ContentType[MT], cct: ContentType[CMT]) =
     WithParentPermissionAction(id, PermissionType.Create, cct.contentType) andThen CreateChildTransformer(id, form, extraParams)
   
   
