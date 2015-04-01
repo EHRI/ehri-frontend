@@ -7,7 +7,7 @@ import models.base._
 import defines._
 import models.{PermissionGrant, UserProfile}
 import utils.{Page, PageParams}
-import backend.BackendContentType
+import backend.ContentType
 
 import scala.concurrent.Future
 
@@ -36,7 +36,7 @@ trait ScopePermissions[MT] extends ItemPermissions[MT] {
   ) extends WrappedRequest[A](request)
   with WithOptionalUser
 
-  protected def ScopePermissionGrantAction(id: String)(implicit ct: BackendContentType[MT]) =
+  protected def ScopePermissionGrantAction(id: String)(implicit ct: ContentType[MT]) =
     WithGrantPermission(id) andThen new ActionTransformer[ItemPermissionRequest, ScopePermissionGrantRequest] {
       override protected def transform[A](request: ItemPermissionRequest[A]): Future[ScopePermissionGrantRequest[A]] = {
         implicit val req = request
@@ -49,7 +49,7 @@ trait ScopePermissions[MT] extends ItemPermissions[MT] {
       }
     }
 
-  protected def CheckUpdateScopePermissionsAction(id: String, userType: EntityType.Value, userId: String)(implicit ct: BackendContentType[MT]) =
+  protected def CheckUpdateScopePermissionsAction(id: String, userType: EntityType.Value, userId: String)(implicit ct: ContentType[MT]) =
     WithGrantPermission(id) andThen new ActionTransformer[ItemPermissionRequest, SetScopePermissionRequest] {
       override protected def transform[A](request: ItemPermissionRequest[A]): Future[SetScopePermissionRequest[A]] = {
         implicit val req = request
@@ -63,7 +63,7 @@ trait ScopePermissions[MT] extends ItemPermissions[MT] {
     }
 
 
-  protected def UpdateScopePermissionsAction(id: String, userType: EntityType.Value, userId: String)(implicit ct: BackendContentType[MT]) =
+  protected def UpdateScopePermissionsAction(id: String, userType: EntityType.Value, userId: String)(implicit ct: ContentType[MT]) =
     WithGrantPermission(id) andThen new ActionTransformer[ItemPermissionRequest, SetScopePermissionRequest] {
       override protected def transform[A](request: ItemPermissionRequest[A]): Future[SetScopePermissionRequest[A]] = {
         implicit val req = request

@@ -9,7 +9,7 @@ import models.UserProfile
 import scala.concurrent.Future.{successful => immediate}
 import scala.concurrent.Future
 import backend.rest.ValidationError
-import backend.{BackendWriteable, BackendContentType}
+import backend.{BackendWriteable, ContentType}
 
 /**
  * Controller trait which updates an AccessibleEntity.
@@ -26,10 +26,10 @@ trait Update[F <: Model with Persistable, MT <: MetaModel[F]] extends Generic {
   ) extends WrappedRequest[A](request)
   with WithOptionalUser
 
-  def EditAction(itemId: String)(implicit ct: BackendContentType[MT]) =
+  def EditAction(itemId: String)(implicit ct: ContentType[MT]) =
     WithItemPermissionAction(itemId, PermissionType.Update)
 
-  def UpdateAction(id: String, form: Form[F], transformer: F => F = identity)(implicit ct: BackendContentType[MT], wd: BackendWriteable[F]) =
+  def UpdateAction(id: String, form: Form[F], transformer: F => F = identity)(implicit ct: ContentType[MT], wd: BackendWriteable[F]) =
     EditAction(id) andThen new ActionTransformer[ItemPermissionRequest, UpdateRequest] {
       def transform[A](request: ItemPermissionRequest[A]): Future[UpdateRequest[A]] = {
         implicit val req = request

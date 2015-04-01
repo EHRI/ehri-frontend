@@ -132,7 +132,7 @@ object UserProfile {
     (__ \ META).readWithDefault(Json.obj())
   )(UserProfile.quickApply _)
 
-  implicit object UserProfileResource extends BackendContentType[UserProfile]  {
+  implicit object UserProfileResource extends backend.ContentType[UserProfile]  {
     val entityType = EntityType.UserProfile
     val contentType = ContentTypes.UserProfile
     val restReads = metaReads

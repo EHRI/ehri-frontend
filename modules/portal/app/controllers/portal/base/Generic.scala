@@ -1,7 +1,7 @@
 package controllers.portal.base
 
 import play.api.libs.concurrent.Execution.Implicits._
-import backend.BackendContentType
+import backend.ContentType
 import controllers.generic.Read
 import models.{UserProfile, Link, Annotation}
 import play.api.mvc.{ActionTransformer, Request, WrappedRequest}
@@ -25,7 +25,7 @@ trait Generic[MT] extends Read[MT] {
   ) extends WrappedRequest[A](request)
     with WithOptionalUser
   
-  def GetItemAction(id: String)(implicit ct: BackendContentType[MT]) =
+  def GetItemAction(id: String)(implicit ct: ContentType[MT]) =
     ItemPermissionAction(id) andThen new ActionTransformer[ItemPermissionRequest, ItemBrowseRequest] {
       override protected def transform[A](request: ItemPermissionRequest[A]): Future[ItemBrowseRequest[A]] = {
         implicit val req = request

@@ -88,7 +88,7 @@ object HistoricalAgent {
     (__ \ META).readWithDefault(Json.obj())
   )(HistoricalAgent.apply _)
 
-  implicit object HistoricalAgentResource extends BackendContentType[HistoricalAgent]  {
+  implicit object HistoricalAgentResource extends backend.ContentType[HistoricalAgent]  {
     val entityType = EntityType.HistoricalAgent
     val contentType = ContentTypes.HistoricalAgent
     val restReads = metaReads

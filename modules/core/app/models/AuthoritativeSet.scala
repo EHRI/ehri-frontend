@@ -75,7 +75,7 @@ object AuthoritativeSet {
     (__ \ META).readWithDefault(Json.obj())
   )(AuthoritativeSet.apply _)
 
-  implicit object AuthoritativeSetResource extends BackendContentType[AuthoritativeSet]  {
+  implicit object AuthoritativeSetResource extends backend.ContentType[AuthoritativeSet]  {
     val entityType = EntityType.AuthoritativeSet
     val contentType = ContentTypes.AuthoritativeSet
     val restReads = metaReads

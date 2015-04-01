@@ -1,7 +1,7 @@
 package controllers.generic
 
 import play.api.libs.concurrent.Execution.Implicits._
-import backend.BackendContentType
+import backend.ContentType
 import models.UserProfile
 import play.api.mvc.{ActionTransformer, Request, WrappedRequest}
 import utils.search._
@@ -24,7 +24,7 @@ trait SearchType[MT] extends Read[MT] with Search {
   protected def SearchTypeAction(
       filters: Map[String, Any] = Map.empty,
       extra: Map[String, Any] = Map.empty,
-      facetBuilder: FacetBuilder = emptyFacets)(implicit ct: BackendContentType[MT]) =
+      facetBuilder: FacetBuilder = emptyFacets)(implicit ct: ContentType[MT]) =
     OptionalUserAction andThen new ActionTransformer[OptionalUserRequest, SearchTypeRequest] {
       override protected def transform[A](request: OptionalUserRequest[A]): Future[SearchTypeRequest[A]] = {
         implicit val r = request

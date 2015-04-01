@@ -96,7 +96,7 @@ object Link {
     (__ \ META).readWithDefault(Json.obj())
   )(Link.apply _)
 
-  implicit object LinkResource extends BackendContentType[Link]  {
+  implicit object LinkResource extends backend.ContentType[Link]  {
     val entityType = EntityType.Link
     val contentType = ContentTypes.Link
     val restReads = metaReads

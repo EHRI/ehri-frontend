@@ -89,7 +89,7 @@ object Concept {
     (__ \ META).readWithDefault(Json.obj())
   )(Concept.apply _)
 
-  implicit object ConceptResource extends BackendContentType[Concept]  {
+  implicit object ConceptResource extends backend.ContentType[Concept]  {
     val entityType = EntityType.Concept
     val contentType = ContentTypes.Concept
     val restReads = metaReads

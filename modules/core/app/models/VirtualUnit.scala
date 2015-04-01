@@ -82,7 +82,7 @@ object VirtualUnit {
   )(VirtualUnit.apply _)
 
 
-  implicit object VirtualUnitResource extends BackendContentType[VirtualUnit]  {
+  implicit object VirtualUnitResource extends backend.ContentType[VirtualUnit]  {
     val entityType = EntityType.VirtualUnit
     val contentType = ContentTypes.VirtualUnit
     implicit val restReads = metaReads

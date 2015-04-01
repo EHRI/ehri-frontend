@@ -10,7 +10,7 @@ import utils.search._
 import play.api.Logger
 import controllers.base.CoreActionBuilders
 import scala.concurrent.Future
-import backend.{BackendContentType, WithId, Readable}
+import backend.{ContentType, WithId, Readable}
 
 
 /**
@@ -211,7 +211,7 @@ trait Search extends CoreActionBuilders {
     facetBuilder: FacetBuilder = emptyFacets,
     mode: SearchMode.Value = SearchMode.DefaultAll,
     resolverOpt: Option[SearchItemResolver] = None)(
-      implicit request: RequestHeader, userOpt: Option[UserProfile], rd: BackendContentType[MT]): Future[SearchResult[(MT,SearchHit)]] = {
+      implicit request: RequestHeader, userOpt: Option[UserProfile], rd: ContentType[MT]): Future[SearchResult[(MT,SearchHit)]] = {
 
     find[MT](filters, extra, defaultParams, defaultOrder, idFilters, Seq(rd.entityType), facetBuilder, mode, resolverOpt)
   }

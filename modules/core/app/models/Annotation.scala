@@ -101,7 +101,7 @@ object Annotation {
     (__ \ META).readWithDefault(Json.obj())
   )(Annotation.apply _)
 
-  implicit object AnnotationResource extends BackendContentType[Annotation]  {
+  implicit object AnnotationResource extends backend.ContentType[Annotation]  {
     val entityType = EntityType.Annotation
     val contentType = ContentTypes.Annotation
     val restReads = metaReads

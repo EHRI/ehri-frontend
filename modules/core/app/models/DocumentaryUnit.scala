@@ -114,7 +114,7 @@ object DocumentaryUnit {
   )(DocumentaryUnit.apply _)
 
 
-  implicit object DocumentaryUnitResource extends BackendContentType[DocumentaryUnit]  {
+  implicit object DocumentaryUnitResource extends backend.ContentType[DocumentaryUnit]  {
     val entityType = EntityType.DocumentaryUnit
     val contentType = ContentTypes.DocumentaryUnit
     implicit val restReads = metaReads

@@ -78,7 +78,7 @@ object Vocabulary {
     (__ \ META).readWithDefault(Json.obj())
   )(Vocabulary.apply _)
 
-  implicit object VocabularyResource extends BackendContentType[Vocabulary]  {
+  implicit object VocabularyResource extends backend.ContentType[Vocabulary]  {
     val entityType = EntityType.Vocabulary
     val contentType = ContentTypes.Vocabulary
     val restReads = metaReads

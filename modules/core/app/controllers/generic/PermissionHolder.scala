@@ -8,7 +8,7 @@ import models._
 
 import play.api.libs.concurrent.Execution.Implicits._
 import utils.{Page, PageParams}
-import backend.{Readable, BackendContentType}
+import backend.{Readable, ContentType}
 
 import scala.concurrent.Future
 
@@ -42,7 +42,7 @@ trait PermissionHolder[MT <: Accessor] extends Read[MT] {
     with WithOptionalUser
 
 
-  def GrantListAction(id: String)(implicit ct: BackendContentType[MT]) =
+  def GrantListAction(id: String)(implicit ct: ContentType[MT]) =
     WithItemPermissionAction(id, PermissionType.Grant) andThen new ActionTransformer[ItemPermissionRequest, HolderPermissionGrantRequest] {
       override protected def transform[A](request: ItemPermissionRequest[A]): Future[HolderPermissionGrantRequest[A]] = {
         implicit val req = request
@@ -59,7 +59,7 @@ trait PermissionHolder[MT <: Accessor] extends Read[MT] {
     case _ => None
   }
 
-  def CheckGlobalPermissionsAction(id: String)(implicit ct: BackendContentType[MT]) =
+  def CheckGlobalPermissionsAction(id: String)(implicit ct: ContentType[MT]) =
     WithItemPermissionAction(id, PermissionType.Grant) andThen new ActionTransformer[ItemPermissionRequest, GlobalPermissionSetRequest] {
       override protected def transform[A](request: ItemPermissionRequest[A]): Future[GlobalPermissionSetRequest[A]] = {
         implicit val req = request
@@ -69,7 +69,7 @@ trait PermissionHolder[MT <: Accessor] extends Read[MT] {
       }
     }
 
-  def SetGlobalPermissionsAction(id: String)(implicit ct: BackendContentType[MT]) =
+  def SetGlobalPermissionsAction(id: String)(implicit ct: ContentType[MT]) =
     WithItemPermissionAction(id, PermissionType.Grant) andThen new ActionTransformer[ItemPermissionRequest, GlobalPermissionSetRequest] {
       override protected def transform[A](request: ItemPermissionRequest[A]): Future[GlobalPermissionSetRequest[A]] = {
         implicit val req = request
@@ -83,7 +83,7 @@ trait PermissionHolder[MT <: Accessor] extends Read[MT] {
       }
     }
 
-  def CheckRevokePermissionAction(id: String, permId: String)(implicit ct: BackendContentType[MT]) =
+  def CheckRevokePermissionAction(id: String, permId: String)(implicit ct: ContentType[MT]) =
     WithItemPermissionAction(id, PermissionType.Grant) andThen new ActionTransformer[ItemPermissionRequest, PermissionGrantRequest] {
       override protected def transform[A](request: ItemPermissionRequest[A]): Future[PermissionGrantRequest[A]] = {
         implicit val req = request
@@ -93,7 +93,7 @@ trait PermissionHolder[MT <: Accessor] extends Read[MT] {
       }
     }
 
-  def RevokePermissionAction(id: String, permId: String)(implicit ct: BackendContentType[MT]) =
+  def RevokePermissionAction(id: String, permId: String)(implicit ct: ContentType[MT]) =
     WithItemPermissionAction(id, PermissionType.Grant) andThen new ActionTransformer[ItemPermissionRequest, ItemPermissionRequest] {
       override protected def transform[A](request: ItemPermissionRequest[A]): Future[ItemPermissionRequest[A]] = {
         implicit val req = request

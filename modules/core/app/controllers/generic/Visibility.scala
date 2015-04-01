@@ -5,7 +5,7 @@ import play.api.mvc._
 import play.api.libs.concurrent.Execution.Implicits._
 import defines.PermissionType
 import models.UserProfile
-import backend.BackendContentType
+import backend.ContentType
 import scala.concurrent.Future
 
 /**
@@ -22,7 +22,7 @@ trait Visibility[MT] extends Read[MT] {
   ) extends WrappedRequest[A](request)
     with WithOptionalUser
 
-  def EditVisibilityAction(id: String)(implicit ct: BackendContentType[MT]) =
+  def EditVisibilityAction(id: String)(implicit ct: ContentType[MT]) =
     WithItemPermissionAction(id, PermissionType.Update) andThen new ActionTransformer[ItemPermissionRequest, VisibilityRequest] {
       override protected def transform[A](request: ItemPermissionRequest[A]): Future[VisibilityRequest[A]] = {
         for {
@@ -32,7 +32,7 @@ trait Visibility[MT] extends Read[MT] {
       }
     }
 
-  def UpdateVisibilityAction(id: String)(implicit ct: BackendContentType[MT]) =
+  def UpdateVisibilityAction(id: String)(implicit ct: ContentType[MT]) =
     WithItemPermissionAction(id, PermissionType.Update) andThen new ActionTransformer[ItemPermissionRequest,ItemPermissionRequest] {
       override protected def transform[A](request: ItemPermissionRequest[A]): Future[ItemPermissionRequest[A]] = {
         implicit val req = request

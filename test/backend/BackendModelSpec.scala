@@ -144,7 +144,7 @@ class BackendModelSpec extends RestBackendRunner with PlaySpecification {
         import play.api.libs.functional.syntax._
         import models.base.Accessor
         import models.json.JsPathExtensions
-        val badDeserializer = new BackendContentType[UserProfile] {
+        val badDeserializer = new ContentType[UserProfile] {
           val restReads: Reads[UserProfile] = (
             __.read[UserProfileF] and
             __.lazyNullableSeqReads(Group.GroupResource.restReads) and

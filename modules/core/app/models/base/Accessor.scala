@@ -3,7 +3,7 @@ package models.base
 import defines.{PermissionType, ContentTypes, EntityType}
 import models._
 import play.api.libs.json._
-import backend.{BackendContentType, Resource}
+import backend.{ContentType, Resource}
 import acl.{ItemPermissionSet, GlobalPermissionSet, Permission}
 
 object Accessor {
@@ -21,7 +21,7 @@ object Accessor {
    * This function allows getting a dynamic Resource for an Accessor given
    * the entity type.
    */
-  def resourceFor(t: EntityType.Value): BackendContentType[Accessor] = new backend.BackendContentType[Accessor] {
+  def resourceFor(t: EntityType.Value): ContentType[Accessor] = new backend.ContentType[Accessor] {
     val restReads = Converter.restReads
     def entityType: EntityType.Value = t
     def contentType: ContentTypes.Value = ContentTypes.withName(t.toString)

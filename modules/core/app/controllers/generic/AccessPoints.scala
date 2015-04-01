@@ -1,6 +1,6 @@
 package controllers.generic
 
-import backend.{BackendContentType, Readable, Resource}
+import backend.{ContentType, Readable, Resource}
 import defines.{EntityType, PermissionType}
 import models.base.{Described, Description, MetaModel, Model}
 import models.{AccessPointF, Link, LinkF, UserProfile}

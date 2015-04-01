@@ -9,7 +9,7 @@ import play.api.libs.json._
 import play.api.libs.functional.syntax._
 import play.api.i18n.Messages
 import play.api.libs.json.JsObject
-import backend.{Entity, BackendContentType, Resource, Readable}
+import backend.Entity
 
 object SystemEventF {
 
@@ -77,7 +77,7 @@ object SystemEvent {
     (__ \ META).readWithDefault(Json.obj())
   )(SystemEvent.apply _)
 
-  implicit object SystemEventResource extends BackendContentType[SystemEvent]  {
+  implicit object SystemEventResource extends backend.ContentType[SystemEvent]  {
     val entityType = EntityType.SystemEvent
     val contentType = ContentTypes.SystemEvent
     val restReads = metaReads

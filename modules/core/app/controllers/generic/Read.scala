@@ -1,7 +1,7 @@
 package controllers.generic
 
 import backend.rest.ItemNotFound
-import backend.{BackendContentType, Resource}
+import backend.{ContentType, Resource}
 import defines.{ContentTypes, PermissionType}
 import models._
 import play.api.Logger
@@ -69,10 +69,10 @@ trait Read[MT] extends Generic {
     }
   }
 
-  private def WithItemPermissionFilter(perm: PermissionType.Value)(implicit ct: BackendContentType[MT]) =
+  private def WithItemPermissionFilter(perm: PermissionType.Value)(implicit ct: ContentType[MT]) =
     WithPermissionFilter(perm, ct.contentType)
 
-  protected def ItemPermissionAction(itemId: String)(implicit ct: BackendContentType[MT]) =
+  protected def ItemPermissionAction(itemId: String)(implicit ct: ContentType[MT]) =
     OptionalUserAction andThen new ActionRefiner[OptionalUserRequest, ItemPermissionRequest] {
       private def transform[A](input: OptionalUserRequest[A]): Future[ItemPermissionRequest[A]] = {
         implicit val userOpt = input.userOpt
@@ -102,13 +102,13 @@ trait Read[MT] extends Generic {
       }
     }
 
-  protected def WithItemPermissionAction(itemId: String, perm: PermissionType.Value)(implicit ct: BackendContentType[MT]) =
+  protected def WithItemPermissionAction(itemId: String, perm: PermissionType.Value)(implicit ct: ContentType[MT]) =
     ItemPermissionAction(itemId) andThen WithItemPermissionFilter(perm)
 
-  protected def WithParentPermissionAction(itemId: String, perm: PermissionType.Value, contentType: ContentTypes.Value)(implicit ct: BackendContentType[MT]) =
+  protected def WithParentPermissionAction(itemId: String, perm: PermissionType.Value, contentType: ContentTypes.Value)(implicit ct: ContentType[MT]) =
     ItemPermissionAction(itemId) andThen WithPermissionFilter(perm, contentType)
 
-  protected def ItemMetaAction(itemId: String)(implicit ct: BackendContentType[MT]) =
+  protected def ItemMetaAction(itemId: String)(implicit ct: ContentType[MT]) =
     ItemPermissionAction(itemId) andThen new ActionTransformer[ItemPermissionRequest, ItemMetaRequest] {
       def transform[A](request: ItemPermissionRequest[A]): Future[ItemMetaRequest[A]] = {
         implicit val userOpt = request.userOpt
@@ -132,7 +132,7 @@ trait Read[MT] extends Generic {
       }
     }
 
-  protected def ItemHistoryAction(itemId: String)(implicit ct: BackendContentType[MT]) =
+  protected def ItemHistoryAction(itemId: String)(implicit ct: ContentType[MT]) =
     ItemPermissionAction(itemId) andThen new ActionTransformer[ItemPermissionRequest,ItemHistoryRequest] {
       override protected def transform[A](request: ItemPermissionRequest[A]): Future[ItemHistoryRequest[A]] = {
         implicit val req = request
@@ -146,7 +146,7 @@ trait Read[MT] extends Generic {
       }
     }
 
-  protected def ItemVersionsAction(itemId: String)(implicit ct: BackendContentType[MT]) =
+  protected def ItemVersionsAction(itemId: String)(implicit ct: ContentType[MT]) =
     ItemPermissionAction(itemId) andThen new ActionTransformer[ItemPermissionRequest, ItemVersionsRequest] {
       override protected def transform[A](request: ItemPermissionRequest[A]): Future[ItemVersionsRequest[A]] = {
         implicit val req = request

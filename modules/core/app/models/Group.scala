@@ -72,7 +72,7 @@ object Group {
     (__ \ META).readWithDefault(Json.obj())
   )(Group.apply _)
 
-  implicit object GroupResource extends BackendContentType[Group]  {
+  implicit object GroupResource extends backend.ContentType[Group]  {
     val entityType = EntityType.Group
     val contentType = ContentTypes.Group
     val restReads = metaReads
