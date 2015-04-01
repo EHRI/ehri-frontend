@@ -37,7 +37,7 @@ trait Visibility[MT] extends Read[MT] {
       override protected def transform[A](request: ItemPermissionRequest[A]): Future[ItemPermissionRequest[A]] = {
         implicit val req = request
         val data = forms.VisibilityForm.form.bindFromRequest.value.getOrElse(Nil)
-        backendHandle.setVisibility(id, data).map { newItem =>
+        userBackend.setVisibility(id, data).map { newItem =>
           ItemPermissionRequest(newItem, request.userOpt, request)
         }
       }

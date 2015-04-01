@@ -30,7 +30,7 @@ case class ApiController @Inject()(implicit globalConfig: global.GlobalConfig, b
 
   def get(urlpart: String) = OptionalUserAction.async { implicit request =>
     val url = urlpart + (if(request.rawQueryString.trim.isEmpty) "" else "?" + request.rawQueryString)
-    backendHandle.query(url, request.headers).map { r =>
+    userBackend.query(url, request.headers).map { r =>
       val response: NingResponse = r.underlying[NingResponse]
       Status(r.status)
         .chunked(Enumerator.fromStream(response.getResponseBodyAsStream))
@@ -102,7 +102,7 @@ case class ApiController @Inject()(implicit globalConfig: global.GlobalConfig, b
   }
 
   def sparqlQuery = AdminAction.async { implicit request =>
-    backendHandle.query("sparql", request.headers, request.queryString).map { r =>
+    userBackend.query("sparql", request.headers, request.queryString).map { r =>
       val response: NingResponse = r.underlying[NingResponse]
       Status(r.status)
         .chunked(Enumerator.fromStream(response.getResponseBodyAsStream))

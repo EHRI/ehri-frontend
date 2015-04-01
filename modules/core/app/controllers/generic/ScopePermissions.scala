@@ -43,8 +43,8 @@ trait ScopePermissions[MT] extends ItemPermissions[MT] {
         val itemParams = PageParams.fromRequest(request)
         val scopeParams = PageParams.fromRequest(request, namespace = "s")
         for {
-          permGrants <- backendHandle.listItemPermissionGrants[PermissionGrant](id, itemParams)
-          scopeGrants <- backendHandle.listScopePermissionGrants[PermissionGrant](id, scopeParams)
+          permGrants <- userBackend.listItemPermissionGrants[PermissionGrant](id, itemParams)
+          scopeGrants <- userBackend.listScopePermissionGrants[PermissionGrant](id, scopeParams)
         } yield ScopePermissionGrantRequest(request.item, permGrants, scopeGrants, request.userOpt, request)
       }
     }
@@ -53,8 +53,8 @@ trait ScopePermissions[MT] extends ItemPermissions[MT] {
     WithGrantPermission(id) andThen new ActionTransformer[ItemPermissionRequest, SetScopePermissionRequest] {
       override protected def transform[A](request: ItemPermissionRequest[A]): Future[SetScopePermissionRequest[A]] = {
         implicit val req = request
-        val accessorF = backendHandle.get[Accessor](Accessor.resourceFor(userType), userId)
-        val permsF = backendHandle.getScopePermissions(userId, id)
+        val accessorF = userBackend.get[Accessor](Accessor.resourceFor(userType), userId)
+        val permsF = userBackend.getScopePermissions(userId, id)
         for {
           accessor <- accessorF
           perms <- permsF
@@ -72,8 +72,8 @@ trait ScopePermissions[MT] extends ItemPermissions[MT] {
           ct.toString -> data.getOrElse(ct.toString, Seq.empty)
         }.toMap
         for {
-          accessor <- backendHandle.get[Accessor](Accessor.resourceFor(userType), userId)
-          perms <- backendHandle.setScopePermissions(userId, id, perms)
+          accessor <- userBackend.get[Accessor](Accessor.resourceFor(userType), userId)
+          perms <- userBackend.setScopePermissions(userId, id, perms)
         } yield SetScopePermissionRequest(request.item, accessor, perms, request.userOpt, request)
       }
     }

@@ -25,7 +25,7 @@ import scala.concurrent.Future.{successful => immediate}
 @Singleton
 case class LegacyAccounts @Inject()(implicit globalConfig: global.GlobalConfig, backend: Backend, accounts: AccountManager, pageRelocator: utils.MovedPageLookup) extends AdminController with AccountHelpers {
 
-  private def noEventsBackend(implicit apiUser: ApiUser): BackendHandle = backendHandle.withEventHandler(new EventHandler {
+  private def noEventsBackend(implicit apiUser: ApiUser): BackendHandle = userBackend.withEventHandler(new EventHandler {
     def handleCreate(id: String) = ()
     def handleUpdate(id: String) = ()
     def handleDelete(id: String) = ()

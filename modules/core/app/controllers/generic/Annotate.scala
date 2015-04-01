@@ -27,7 +27,7 @@ trait Annotate[MT] extends Read[MT] {
         // NB: No checking of permissions here - we're going to depend
         // on the server for that
         OptionalUserAction.async { implicit request =>
-          backendHandle.createAnnotation[Annotation,AnnotationF](id, ap).map { ann =>
+          userBackend.createAnnotation[Annotation,AnnotationF](id, ap).map { ann =>
             Created(Json.toJson(ann.model)(AnnotationF.Converter.clientFormat))
           }
         }(request.map(js => AnyContentAsEmpty))

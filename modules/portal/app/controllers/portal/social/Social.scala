@@ -42,8 +42,8 @@ case class Social @Inject()(implicit globalConfig: global.GlobalConfig, searchEn
     // of users and combine it with a list of existing followers so
     // we can mark who's following and who isn't
     for {
-      following <- backendHandle.following[UserProfile](request.user.id, PageParams.empty)
-      blocked <- backendHandle.blocked[UserProfile](request.user.id, PageParams.empty)
+      following <- userBackend.following[UserProfile](request.user.id, PageParams.empty)
+      blocked <- userBackend.blocked[UserProfile](request.user.id, PageParams.empty)
       result <- findType[UserProfile](
         defaultParams = SearchParams(count = Some(usersPerPage)),
         filters = Map(SearchConstants.ACTIVE -> true.toString)
@@ -64,16 +64,16 @@ case class Social @Inject()(implicit globalConfig: global.GlobalConfig, searchEn
       .copy(eventTypes = activityEventTypes)
       .copy(itemTypes = activityItemTypes)
     val events: Future[RangePage[SystemEvent]] =
-      backendHandle.listEventsByUser[SystemEvent](userId, listParams, eventParams)
+      userBackend.listEventsByUser[SystemEvent](userId, listParams, eventParams)
 
     if (isAjax) events.map { theirActivity =>
       Ok(views.html.activity.eventItems(theirActivity))
         .withHeaders("activity-more" -> theirActivity.more.toString)
     } else {
-      val isFollowing: Future[Boolean] = backendHandle.isFollowing(request.user.id, userId)
+      val isFollowing: Future[Boolean] = userBackend.isFollowing(request.user.id, userId)
       val allowMessage: Future[Boolean] = canMessage(request.user.id, userId)
       for {
-        them <- backendHandle.get[UserProfile](userId)
+        them <- userBackend.get[UserProfile](userId)
         theirActivity <- events
         followed <- isFollowing
         canMessage <- allowMessage
@@ -83,12 +83,12 @@ case class Social @Inject()(implicit globalConfig: global.GlobalConfig, searchEn
 
   def watchedByUser(userId: String) = WithUserAction.async { implicit request =>
     // Show a list of watched item by a defined User
-    val watching: Future[Page[AnyModel]] = backendHandle.watching[AnyModel](userId)
-    val isFollowing: Future[Boolean] = backendHandle.isFollowing(request.user.id, userId)
+    val watching: Future[Page[AnyModel]] = userBackend.watching[AnyModel](userId)
+    val isFollowing: Future[Boolean] = userBackend.isFollowing(request.user.id, userId)
     val allowMessage: Future[Boolean] = canMessage(request.user.id, userId)
 
     for {
-      them <- backendHandle.get[UserProfile](userId)
+      them <- userBackend.get[UserProfile](userId)
       theirWatching <- watching
       result <- findIn[AnyModel](theirWatching)
       followed <- isFollowing
@@ -108,7 +108,7 @@ case class Social @Inject()(implicit globalConfig: global.GlobalConfig, searchEn
   }
 
   def followUserPost(userId: String) = WithUserAction.async { implicit request =>
-    backendHandle.follow[UserProfile](request.user.id, userId).map { _ =>
+    userBackend.follow[UserProfile](request.user.id, userId).map { _ =>
       if (isAjax) {
         Ok("ok")
       } else {
@@ -123,7 +123,7 @@ case class Social @Inject()(implicit globalConfig: global.GlobalConfig, searchEn
   }
 
   def unfollowUserPost(userId: String) = WithUserAction.async { implicit request =>
-    backendHandle.unfollow[UserProfile](request.user.id, userId).map { _ =>
+    userBackend.unfollow[UserProfile](request.user.id, userId).map { _ =>
       if (isAjax) {
         Ok("ok")
       } else {
@@ -138,7 +138,7 @@ case class Social @Inject()(implicit globalConfig: global.GlobalConfig, searchEn
   }
 
   def blockUserPost(userId: String) = WithUserAction.async { implicit request =>
-    backendHandle.block(request.user.id, userId).map { _ =>
+    userBackend.block(request.user.id, userId).map { _ =>
       if (isAjax) {
         Ok("ok")
       } else {
@@ -153,7 +153,7 @@ case class Social @Inject()(implicit globalConfig: global.GlobalConfig, searchEn
   }
 
   def unblockUserPost(userId: String) = WithUserAction.async { implicit request =>
-    backendHandle.unblock(request.user.id, userId).map { _ =>
+    userBackend.unblock(request.user.id, userId).map { _ =>
       if (isAjax) {
         Ok("ok")
       } else {
@@ -169,9 +169,9 @@ case class Social @Inject()(implicit globalConfig: global.GlobalConfig, searchEn
     val params = PageParams.fromRequest(request)
     val allowMessage: Future[Boolean] = canMessage(request.user.id, userId)
     for {
-      them <- backendHandle.get[UserProfile](userId)
-      theirFollowers <- backendHandle.followers[UserProfile](userId, params)
-      whoImFollowing <- backendHandle.following[UserProfile](request.user.id)
+      them <- userBackend.get[UserProfile](userId)
+      theirFollowers <- userBackend.followers[UserProfile](userId, params)
+      whoImFollowing <- userBackend.following[UserProfile](request.user.id)
       canMessage <- allowMessage
     } yield {
       if (isAjax)
@@ -185,9 +185,9 @@ case class Social @Inject()(implicit globalConfig: global.GlobalConfig, searchEn
     val params = PageParams.fromRequest(request)
     val allowMessage: Future[Boolean] = canMessage(request.user.id, userId)
     for {
-      them <- backendHandle.get[UserProfile](userId)
-      theirFollowing <- backendHandle.following[UserProfile](userId, params)
-      whoImFollowing <- backendHandle.following[UserProfile](request.user.id)
+      them <- userBackend.get[UserProfile](userId)
+      theirFollowing <- userBackend.following[UserProfile](userId, params)
+      whoImFollowing <- userBackend.following[UserProfile](request.user.id)
       canMessage <- allowMessage
     } yield {
       if (isAjax)
@@ -218,7 +218,7 @@ case class Social @Inject()(implicit globalConfig: global.GlobalConfig, searchEn
     // messaging.
     accounts.findById(recipientId).flatMap {
       case Some(account) if account.allowMessaging =>
-        backendHandle.isBlocking(recipientId, senderId).map(blocking => !blocking)
+        userBackend.isBlocking(recipientId, senderId).map(blocking => !blocking)
       case _ => immediate(false)
     }
   }
@@ -258,7 +258,7 @@ case class Social @Inject()(implicit globalConfig: global.GlobalConfig, searchEn
     val recaptchaKey = current.configuration.getString("recaptcha.key.public")
       .getOrElse("fakekey")
     for {
-      userTo <- backendHandle.get[UserProfile](userId)
+      userTo <- userBackend.get[UserProfile](userId)
       allowed <- canMessage(request.user.id, userId)
     } yield {
       if (allowed) {
@@ -308,7 +308,7 @@ case class Social @Inject()(implicit globalConfig: global.GlobalConfig, searchEn
     for {
       captcha <- checkRecapture
       allowed <- canMessage(request.user.id, userId)
-      userTo <- backendHandle.get[UserProfile](userId)
+      userTo <- userBackend.get[UserProfile](userId)
       r <- doIt(captcha, allowed, userTo)
     } yield r
   }

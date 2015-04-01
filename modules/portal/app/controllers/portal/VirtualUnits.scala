@@ -78,10 +78,10 @@ case class VirtualUnits @Inject()(implicit globalConfig: global.GlobalConfig, se
 
   def browseVirtualUnit(pathStr: String, id: String) = OptionalUserAction.async { implicit request =>
     val pathIds = pathStr.split(",").toSeq
-    val pathF: Future[Seq[AnyModel]] = Future.sequence(pathIds.map(pid => backendHandle.getAny[AnyModel](pid)))
-    val itemF: Future[AnyModel] = backendHandle.getAny[AnyModel](id)
-    val linksF: Future[Seq[Link]] = backendHandle.getLinksForItem[Link](id)
-    val annsF: Future[Seq[Annotation]] = backendHandle.getAnnotationsForItem[Annotation](id)
+    val pathF: Future[Seq[AnyModel]] = Future.sequence(pathIds.map(pid => userBackend.getAny[AnyModel](pid)))
+    val itemF: Future[AnyModel] = userBackend.getAny[AnyModel](id)
+    val linksF: Future[Seq[Link]] = userBackend.getLinksForItem[Link](id)
+    val annsF: Future[Seq[Annotation]] = userBackend.getAnnotationsForItem[Annotation](id)
     val watchedF: Future[Seq[String]] = watchedItemIds(userIdOpt = request.userOpt.map(_.id))
     for {
       watched <- watchedF
@@ -97,8 +97,8 @@ case class VirtualUnits @Inject()(implicit globalConfig: global.GlobalConfig, se
 
   def searchVirtualUnit(pathStr: String, id: String) = OptionalUserAction.async { implicit request =>
     val pathIds = pathStr.split(",").toSeq
-    val pathF: Future[Seq[AnyModel]] = Future.sequence(pathIds.map(pid => backendHandle.getAny[AnyModel](pid)))
-    val itemF: Future[AnyModel] = backendHandle.getAny[AnyModel](id)
+    val pathF: Future[Seq[AnyModel]] = Future.sequence(pathIds.map(pid => userBackend.getAny[AnyModel](pid)))
+    val itemF: Future[AnyModel] = userBackend.getAny[AnyModel](id)
     val watchedF: Future[Seq[String]] = watchedItemIds(userIdOpt = request.userOpt.map(_.id))
     for {
       watched <- watchedF

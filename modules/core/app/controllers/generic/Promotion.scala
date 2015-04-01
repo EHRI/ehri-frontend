@@ -21,7 +21,7 @@ trait Promotion[MT] extends Generic {
     EditPromotionAction(id) andThen new ActionTransformer[ItemPermissionRequest,ItemPermissionRequest] {
       override protected def transform[A](request: ItemPermissionRequest[A]): Future[ItemPermissionRequest[A]] = {
         implicit val userOpt = request.userOpt
-        backendHandle.promote(id).map { updated =>
+        userBackend.promote(id).map { updated =>
           ItemPermissionRequest(updated, request.userOpt, request)
         }
       }
@@ -31,7 +31,7 @@ trait Promotion[MT] extends Generic {
     EditPromotionAction(id) andThen new ActionTransformer[ItemPermissionRequest,ItemPermissionRequest] {
       override protected def transform[A](request: ItemPermissionRequest[A]): Future[ItemPermissionRequest[A]] = {
         implicit val userOpt = request.userOpt
-        backendHandle.removePromotion(id).map { updated =>
+        userBackend.removePromotion(id).map { updated =>
           ItemPermissionRequest(updated, request.userOpt, request)
         }
       }
@@ -41,7 +41,7 @@ trait Promotion[MT] extends Generic {
     EditPromotionAction(id) andThen new ActionTransformer[ItemPermissionRequest,ItemPermissionRequest] {
       override protected def transform[A](request: ItemPermissionRequest[A]): Future[ItemPermissionRequest[A]] = {
         implicit val userOpt = request.userOpt
-        backendHandle.demote(id).map { updated =>
+        userBackend.demote(id).map { updated =>
           ItemPermissionRequest(updated, request.userOpt, request)
         }
       }
@@ -51,7 +51,7 @@ trait Promotion[MT] extends Generic {
     EditPromotionAction(id) andThen new ActionTransformer[ItemPermissionRequest,ItemPermissionRequest] {
       override protected def transform[A](request: ItemPermissionRequest[A]): Future[ItemPermissionRequest[A]] = {
         implicit val userOpt = request.userOpt
-        backendHandle.removeDemotion(id).map { updated =>
+        userBackend.removeDemotion(id).map { updated =>
           ItemPermissionRequest(updated, request.userOpt, request)
         }
       }

@@ -68,18 +68,18 @@ case class Bookmarks @Inject()(implicit globalConfig: global.GlobalConfig, searc
     for {
       nextid <- idGenerator.getNextNumericIdentifier(EntityType.VirtualUnit)
       vuForm = bookmarkSetToVu(s"${user.id}-vu$nextid", bs)
-      vu <- backendHandle.create[VirtualUnit,VirtualUnitF](
+      vu <- userBackend.create[VirtualUnit,VirtualUnitF](
         vuForm,
         accessors = Seq(user.id),
         params = Map(Constants.ID_PARAM -> items))
     } yield vu
 
   def removeBookmarksPost(set: String, ids: Seq[String]) = WithUserAction.async { implicit request =>
-    backendHandle.deleteReferences[VirtualUnit](set, ids).map(_ => Ok("ok"))
+    userBackend.deleteReferences[VirtualUnit](set, ids).map(_ => Ok("ok"))
   }
 
   def moveBookmarksPost(fromSet: String, toSet: String, ids: Seq[String] = Seq.empty) = WithUserAction.async { implicit request =>
-    backendHandle.moveReferences[VirtualUnit](fromSet, toSet, ids).map(_ => Ok("ok"))
+    userBackend.moveReferences[VirtualUnit](fromSet, toSet, ids).map(_ => Ok("ok"))
   }
 
   def bookmarkInNewSetPost(id: String) = createBookmarkSetPost(List(id))
@@ -95,11 +95,11 @@ case class Bookmarks @Inject()(implicit globalConfig: global.GlobalConfig, searc
   def bookmarkPost(itemId: String, bsId: Option[String] = None) = WithUserAction.async { implicit request =>
 
     def getOrCreateBS(idOpt: Option[String]): Future[VirtualUnit] = {
-      backendHandle.get[VirtualUnit](idOpt.getOrElse(defaultBookmarkSetId)).map { vu =>
-        backendHandle.addReferences[VirtualUnit](vu.id, Seq(itemId))
+      userBackend.get[VirtualUnit](idOpt.getOrElse(defaultBookmarkSetId)).map { vu =>
+        userBackend.addReferences[VirtualUnit](vu.id, Seq(itemId))
         vu
       } recoverWith {
-        case e: ItemNotFound => backendHandle.create[VirtualUnit,VirtualUnitF](
+        case e: ItemNotFound => userBackend.create[VirtualUnit,VirtualUnitF](
           item = defaultBookmarkSet(bookmarkLang),
           accessors = Seq(request.user.id),
           params = Map(Constants.ID_PARAM -> Seq(itemId))
@@ -117,7 +117,7 @@ case class Bookmarks @Inject()(implicit globalConfig: global.GlobalConfig, searc
 
   def listBookmarkSets = WithUserAction.async { implicit request =>
     val params: PageParams = PageParams.fromRequest(request)
-    val pageF = backendHandle.userBookmarks[VirtualUnit](request.user.id, params)
+    val pageF = userBackend.userBookmarks[VirtualUnit](request.user.id, params)
     val watchedF = watchedItemIds(userIdOpt = Some(request.user.id))
     for {
       page <- pageF
@@ -176,7 +176,7 @@ case class Bookmarks @Inject()(implicit globalConfig: global.GlobalConfig, searc
 
 
   def contents(id: String) = WithUserAction.async { implicit request =>
-    val itemF: Future[AnyModel] = backendHandle.getAny[AnyModel](id)
+    val itemF: Future[AnyModel] = userBackend.getAny[AnyModel](id)
     val watchedF: Future[Seq[String]] = watchedItemIds(userIdOpt = Some(request.user.id))
     for {
       item <- itemF
@@ -194,7 +194,7 @@ case class Bookmarks @Inject()(implicit globalConfig: global.GlobalConfig, searc
   }
 
   def moreContents(id: String, page: Int) = WithUserAction.async { implicit request =>
-    val itemF: Future[AnyModel] = backendHandle.getAny[AnyModel](id)
+    val itemF: Future[AnyModel] = userBackend.getAny[AnyModel](id)
     val watchedF: Future[Seq[String]] = watchedItemIds(userIdOpt = Some(request.user.id))
     for {
       item <- itemF

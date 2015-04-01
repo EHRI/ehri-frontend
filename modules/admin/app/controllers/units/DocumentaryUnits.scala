@@ -365,7 +365,7 @@ case class DocumentaryUnits @Inject()(implicit globalConfig: global.GlobalConfig
   def exportEad(id: String) = OptionalAuthAction.async { implicit authRequest =>
     val eadId: String = docRoutes.exportEad(id).absoluteURL(globalConfig.https)
 
-    EadExporter(backendHandle).exportEad(id, eadId).map { xml =>
+    EadExporter(userBackend).exportEad(id, eadId).map { xml =>
       Ok(xml).as(MimeTypes.XML)
     }
   }

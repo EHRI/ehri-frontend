@@ -132,7 +132,7 @@ case class Accounts @Inject()(implicit globalConfig: GlobalConfig, searchEngine:
                 val uuid = UUID.randomUUID()
                 val profileData = Map(UserProfileF.NAME -> data.name)
                 for {
-                  profile <- backendHandle.createNewUserProfile[UserProfile](
+                  profile <- userBackend.createNewUserProfile[UserProfile](
                     data = profileData, groups = defaultPortalGroups)
                   account <- accounts.create(Account(
                     id = profile.id,
