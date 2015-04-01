@@ -1,6 +1,6 @@
 package backend.rest
 
-import scala.concurrent.{ExecutionContext, Future}
+import scala.concurrent.Future
 import acl._
 import defines._
 import play.api.libs.json.Json
@@ -10,11 +10,7 @@ import backend._
 import caching.FutureCache
 
 
-trait RestPermissions extends Permissions with RestDAO {
-
-  val eventHandler: EventHandler
-  implicit def apiUser: ApiUser
-  implicit def executionContext: ExecutionContext
+trait RestPermissions extends Permissions with RestDAO with RestContext {
 
   import Constants._
 

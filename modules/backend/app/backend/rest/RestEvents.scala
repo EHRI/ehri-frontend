@@ -1,18 +1,15 @@
 package backend.rest
 
-import scala.concurrent.{ExecutionContext, Future}
+import scala.concurrent.Future
 import utils._
-import backend.{BackendReadable, Events, ApiUser}
+import backend.{BackendReadable, Events}
 import defines.EntityType
 
 
 /**
  * Data Access Object for Action-related requests.
  */
-trait RestEvents extends Events with RestDAO {
-
-  implicit def apiUser: ApiUser
-  implicit def executionContext: ExecutionContext
+trait RestEvents extends Events with RestDAO with RestContext {
 
   private def requestUrl = s"$baseUrl/${EntityType.SystemEvent}"
 

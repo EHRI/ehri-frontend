@@ -1,7 +1,7 @@
 package backend.rest
 
 import backend._
-import scala.concurrent.{ExecutionContext, Future}
+import scala.concurrent.Future
 import utils.{Page, PageParams}
 import defines.EntityType
 import play.api.cache.Cache
@@ -10,12 +10,9 @@ import caching.FutureCache
 /**
  * @author Mike Bryant (http://github.com/mikesname)
  */
-trait RestSocial extends Social with RestDAO {
+trait RestSocial extends Social with RestDAO with RestContext {
 
   import backend.rest.Constants._
-  val eventHandler: EventHandler
-  implicit def apiUser: ApiUser
-  implicit def executionContext: ExecutionContext
 
   private def requestUrl = s"$baseUrl/${EntityType.UserProfile}"
 

@@ -1,6 +1,6 @@
 package backend.rest
 
-import scala.concurrent.{ExecutionContext, Future}
+import scala.concurrent.Future
 import play.api.cache.Cache
 import backend._
 
@@ -8,11 +8,7 @@ import backend._
 /**
  * Set visibility on items.
  */
-trait RestVisibility extends Visibility with RestDAO {
-
-  val eventHandler: EventHandler
-  implicit def apiUser: ApiUser
-  implicit def executionContext: ExecutionContext
+trait RestVisibility extends Visibility with RestDAO with RestContext {
 
   import Constants._
 

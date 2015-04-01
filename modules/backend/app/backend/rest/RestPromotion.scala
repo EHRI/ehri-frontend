@@ -9,11 +9,7 @@ import play.api.libs.ws.WSResponse
 /**
  * Manage promotion
  */
-trait RestPromotion extends Promotion with RestDAO {
-
-  val eventHandler: EventHandler
-  implicit def apiUser: ApiUser
-  implicit def executionContext: ExecutionContext
+trait RestPromotion extends Promotion with RestDAO with RestContext {
 
   private def requestUrl = s"$baseUrl/promote"
 

@@ -1,21 +1,16 @@
 package backend.rest
 
-import scala.concurrent.{ExecutionContext, Future}
+import scala.concurrent.Future
 import play.api.libs.json._
 import defines.EntityType
 import play.api.cache.Cache
 import backend._
-import backend.ApiUser
 
 
 /**
  * Data Access Object for managing descriptions on entities.
  */
-trait RestDescriptions extends RestDAO with Descriptions {
-
-  val eventHandler: EventHandler
-  implicit def apiUser: ApiUser
-  implicit def executionContext: ExecutionContext
+trait RestDescriptions extends RestDAO with RestContext with Descriptions {
 
   private def requestUrl = s"$baseUrl/description"
 

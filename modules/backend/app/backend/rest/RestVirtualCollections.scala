@@ -4,17 +4,14 @@ import backend._
 import defines.EntityType
 import play.api.cache.Cache
 
-import scala.concurrent.{ExecutionContext, Future}
+import scala.concurrent.Future
 
 /**
  * @author Mike Bryant (http://github.com/mikesname)
  */
-trait RestVirtualCollections extends VirtualCollections with RestDAO {
+trait RestVirtualCollections extends VirtualCollections with RestDAO with RestContext {
 
   import backend.rest.Constants._
-  val eventHandler: EventHandler
-  implicit def apiUser: ApiUser
-  implicit def executionContext: ExecutionContext
 
   override def addReferences[MT](vcId: String, ids: Seq[String])(implicit rs: BackendResource[MT]): Future[Unit] =
     userCall(enc(baseUrl, EntityType.VirtualUnit, vcId, "includes"))

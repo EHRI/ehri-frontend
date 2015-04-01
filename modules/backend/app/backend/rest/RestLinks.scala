@@ -2,23 +2,18 @@ package backend.rest
 
 import play.api.cache.Cache
 
-import scala.concurrent.{ExecutionContext, Future}
+import scala.concurrent.Future
 import defines.EntityType
 import play.api.libs.json.Json
 import backend._
 import utils.{Page, PageParams}
-import backend.ApiUser
 import play.api.http.Status
 
 
 /**
  * Data Access Object for fetching link data.
  */
-trait RestLinks extends Links with RestDAO {
-
-  val eventHandler: EventHandler
-  implicit def apiUser: ApiUser
-  implicit def executionContext: ExecutionContext
+trait RestLinks extends Links with RestDAO with RestContext {
 
   final val BODY_PARAM = "body"
   final val BODY_TYPE = "bodyType"

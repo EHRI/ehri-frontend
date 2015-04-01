@@ -13,11 +13,7 @@ import play.api.libs.json.JsObject
 /**
  * Data Access Object for fetching data about generic entity types.
  */
-trait RestGeneric extends Generic with RestDAO {
-
-  def eventHandler: EventHandler
-  implicit def apiUser: ApiUser
-  implicit def executionContext: ExecutionContext
+trait RestGeneric extends Generic with RestDAO with RestContext {
 
   import Constants._
 
