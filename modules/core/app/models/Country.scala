@@ -85,7 +85,7 @@ object Country {
     (__ \ META).readWithDefault(Json.obj())
   )(Country.apply _)
 
-  implicit object Resource extends BackendContentType[Country] {
+  implicit object CountryResource extends BackendContentType[Country]  {
     val entityType = EntityType.Country
     val contentType = ContentTypes.Country
     val restReads = metaReads

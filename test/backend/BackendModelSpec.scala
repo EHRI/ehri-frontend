@@ -147,13 +147,13 @@ class BackendModelSpec extends RestBackendRunner with PlaySpecification {
         val badDeserializer = new BackendContentType[UserProfile] {
           val restReads: Reads[UserProfile] = (
             __.read[UserProfileF] and
-            __.lazyNullableSeqReads(Group.Resource.restReads) and
+            __.lazyNullableSeqReads(Group.GroupResource.restReads) and
             __.lazyNullableSeqReads(Accessor.Converter.restReads) and
             __.nullableHeadReads[SystemEvent] and
             __.read[JsObject]
           )(UserProfile.quickApply _)
-          val entityType = UserProfile.Resource.entityType
-          val contentType = UserProfile.Resource.contentType
+          val entityType = UserProfile.UserProfileResource.entityType
+          val contentType = UserProfile.UserProfileResource.contentType
         }
 
         await(testBackend.get[UserProfile]("mike")(badDeserializer))
@@ -161,7 +161,7 @@ class BackendModelSpec extends RestBackendRunner with PlaySpecification {
       } catch {
         case e: backend.rest.BadJson =>
           e.url must beSome.which { url =>
-            url must endWith(s"/${UserProfile.Resource.entityType}/mike")
+            url must endWith(s"/${UserProfile.UserProfileResource.entityType}/mike")
           }
         case _: Throwable => failure("Expected a json error!")
       }

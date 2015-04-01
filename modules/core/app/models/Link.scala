@@ -80,9 +80,9 @@ object Link {
   import play.api.libs.functional.syntax._
   import defines.EnumUtils.enumMapping
   private implicit val anyModelReads = AnyModel.Converter.restReads
-  private implicit val userProfileMetaReads = models.UserProfile.Resource.restReads
+  private implicit val userProfileMetaReads = models.UserProfile.UserProfileResource.restReads
   private implicit val accessPointReads = models.AccessPoint.Converter.restReads
-  private implicit val systemEventReads = SystemEvent.Resource.restReads
+  private implicit val systemEventReads = SystemEvent.SystemEventResource.restReads
 
   implicit val metaReads: Reads[Link] = (
     __.read[LinkF] and
@@ -96,7 +96,7 @@ object Link {
     (__ \ META).readWithDefault(Json.obj())
   )(Link.apply _)
 
-  implicit object Resource extends BackendContentType[Link] {
+  implicit object LinkResource extends BackendContentType[Link]  {
     val entityType = EntityType.Link
     val contentType = ContentTypes.Link
     val restReads = metaReads

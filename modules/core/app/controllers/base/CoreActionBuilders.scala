@@ -158,7 +158,7 @@ trait CoreActionBuilders extends Controller with ControllerHelpers with AuthActi
       ifEmpty = immediate(OptionalUserRequest[A](None, request))
     ) { account =>
       implicit val apiUser = AuthenticatedUser(account.id)
-      val userF = userBackend.get[UserProfile](UserProfile.Resource, account.id)
+      val userF = userBackend.get[UserProfile](UserProfile.UserProfileResource, account.id)
       val globalPermsF = userBackend.getGlobalPermissions(account.id)
       for {
         user <- userF

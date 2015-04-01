@@ -77,8 +77,8 @@ object HistoricalAgent {
   import Ontology._
   import defines.EnumUtils.enumMapping
 
-  private implicit val systemEventReads = SystemEvent.Resource.restReads
-  private implicit val authoritativeSetReads = AuthoritativeSet.Resource.restReads
+  private implicit val systemEventReads = SystemEvent.SystemEventResource.restReads
+  private implicit val authoritativeSetReads = AuthoritativeSet.AuthoritativeSetResource.restReads
 
   implicit val metaReads: Reads[HistoricalAgent] = (
     __.read[HistoricalAgentF] and
@@ -88,7 +88,7 @@ object HistoricalAgent {
     (__ \ META).readWithDefault(Json.obj())
   )(HistoricalAgent.apply _)
 
-  implicit object Resource extends BackendContentType[HistoricalAgent] {
+  implicit object HistoricalAgentResource extends BackendContentType[HistoricalAgent]  {
     val entityType = EntityType.HistoricalAgent
     val contentType = ContentTypes.HistoricalAgent
     val restReads = metaReads

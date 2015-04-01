@@ -69,7 +69,7 @@ object Vocabulary {
   import Entity._
   import Ontology._
 
-  private implicit val systemEventReads = SystemEvent.Resource.restReads
+  private implicit val systemEventReads = SystemEvent.SystemEventResource.restReads
 
   implicit val metaReads: Reads[Vocabulary] = (
     __.read[VocabularyF] and
@@ -78,7 +78,7 @@ object Vocabulary {
     (__ \ META).readWithDefault(Json.obj())
   )(Vocabulary.apply _)
 
-  implicit object Resource extends BackendContentType[Vocabulary] {
+  implicit object VocabularyResource extends BackendContentType[Vocabulary]  {
     val entityType = EntityType.Vocabulary
     val contentType = ContentTypes.Vocabulary
     val restReads = metaReads

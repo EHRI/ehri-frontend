@@ -133,7 +133,7 @@ object Repository {
     (__ \ META).readWithDefault(Json.obj())
   )(Repository.apply _)
 
-  implicit object Resource extends BackendContentType[Repository] {
+  implicit object RepositoryResource extends BackendContentType[Repository]  {
     val entityType = EntityType.Repository
     val contentType = ContentTypes.Repository
     val restReads = metaReads

@@ -43,7 +43,6 @@ case class UserProfiles @Inject()(implicit globalConfig: global.GlobalConfig, se
     with PortalAuthConfigImpl
     with Search {
 
-  implicit val resource = UserProfile.Resource
   val entityType = EntityType.UserProfile
   val contentType = ContentTypes.UserProfile
 
@@ -290,7 +289,7 @@ case class UserProfiles @Inject()(implicit globalConfig: global.GlobalConfig, se
           identifier = request.user.model.identifier, name = request.user.model.identifier,
           active = false)
 
-        userBackend.update(request.user.id, anonProfile).flatMap { bool =>
+        userBackend.update[UserProfile,UserProfileF](request.user.id, anonProfile).flatMap { bool =>
           accounts.delete(request.user.id).flatMap { _ =>
             gotoLogoutSucceeded
               .map(_.flashing("success" -> "profile.profile.delete.confirmation"))
@@ -318,7 +317,7 @@ case class UserProfiles @Inject()(implicit globalConfig: global.GlobalConfig, se
           try {
             for {
               url <- convertAndUploadFile(file, request.user, request)
-              _ <- userBackend.patch(request.user.id, Json.obj(UserProfileF.IMAGE_URL -> url))
+              _ <- userBackend.patch[UserProfile](request.user.id, Json.obj(UserProfileF.IMAGE_URL -> url))
             } yield Redirect(profileRoutes.profile())
                   .flashing("success" -> "profile.update.confirmation")
           } catch {

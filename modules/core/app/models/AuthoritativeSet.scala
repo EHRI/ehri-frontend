@@ -65,7 +65,7 @@ object AuthoritativeSet {
   import Entity._
   import eu.ehri.project.definitions.Ontology._
 
-  private implicit val systemEventReads = SystemEvent.Resource.restReads
+  private implicit val systemEventReads = SystemEvent.SystemEventResource.restReads
   private implicit val accessorReads = Accessor.Converter.restReads
 
   implicit val metaReads: Reads[AuthoritativeSet] = (
@@ -75,7 +75,7 @@ object AuthoritativeSet {
     (__ \ META).readWithDefault(Json.obj())
   )(AuthoritativeSet.apply _)
 
-  implicit object Resource extends BackendContentType[AuthoritativeSet] {
+  implicit object AuthoritativeSetResource extends BackendContentType[AuthoritativeSet]  {
     val entityType = EntityType.AuthoritativeSet
     val contentType = ContentTypes.AuthoritativeSet
     val restReads = metaReads
