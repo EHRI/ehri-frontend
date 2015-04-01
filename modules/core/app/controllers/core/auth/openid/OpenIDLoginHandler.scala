@@ -125,7 +125,7 @@ trait OpenIDLoginHandler extends AccountHelpers {
   private def createUserAccount[A](email: String, info: UserInfo, data: Map[String, String], request: Request[A])(implicit app: play.api.Application): Future[OpenIdCallbackRequest[A]] = {
     implicit val apiUser = AnonymousUser
     for {
-      up <- backend.createNewUserProfile[UserProfile](data, groups = defaultPortalGroups)
+      up <- backendHandle.createNewUserProfile[UserProfile](data, groups = defaultPortalGroups)
       account <- accounts.create(Account(
         id = up.id,
         email = email.toLowerCase,

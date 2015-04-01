@@ -33,7 +33,7 @@ class RestBackendSpec extends RestBackendRunner with PlaySpecification {
 
   "RestBackend" should {
     "allow fetching objects" in new TestApp {
-      val test: TestResource = await(backend.get[TestResource]("c1"))
+      val test: TestResource = await(backend.forUser(apiUser).get[TestResource]("c1"))
       test.id must equalTo("c1")
     }
   }

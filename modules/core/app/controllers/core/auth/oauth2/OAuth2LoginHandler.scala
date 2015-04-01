@@ -48,8 +48,8 @@ trait OAuth2LoginHandler extends AccountHelpers {
 
   private def updateUserInfo(account: Account, userData: UserData): Future[UserProfile] = {
     implicit val apiUser = AuthenticatedUser(account.id)
-    backend.get[UserProfile](account.id).flatMap { up =>
-      backend.patch[UserProfile](account.id, Json.obj(
+    backendHandle.get[UserProfile](account.id).flatMap { up =>
+      backendHandle.patch[UserProfile](account.id, Json.obj(
         UserProfileF.NAME -> JsString(userData.name),
         // Only update the user image if it hasn't already been set
         UserProfileF.IMAGE_URL -> JsString(up.model.imageUrl.getOrElse(userData.imageUrl))
@@ -64,7 +64,7 @@ trait OAuth2LoginHandler extends AccountHelpers {
       UserProfileF.IMAGE_URL -> userData.imageUrl
     )
     for {
-      profile <- backend.createNewUserProfile[UserProfile](profileData, groups = defaultPortalGroups)
+      profile <- backendHandle.createNewUserProfile[UserProfile](profileData, groups = defaultPortalGroups)
       account <- accounts.create(Account(
         id = profile.id,
         email = userData.email.toLowerCase,

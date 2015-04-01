@@ -89,7 +89,7 @@ case class Home @Inject()(implicit globalConfig: global.GlobalConfig, searchEngi
       val eventFilter = SystemEventParams.fromRequest(request)
         .copy(eventTypes = activityEventTypes)
         .copy(itemTypes = activityItemTypes)
-      backend.listEventsForUser[SystemEvent](user.id, listParams, eventFilter).map { events =>
+      backendHandle.listEventsForUser[SystemEvent](user.id, listParams, eventFilter).map { events =>
         Ok(views.html.admin.index(Some(events)))
       }
     } getOrElse {

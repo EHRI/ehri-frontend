@@ -6,10 +6,9 @@ import utils.Page
 import scala.concurrent.ExecutionContext.Implicits._
 import models._
 import scala.concurrent.Future
-import backend.Backend
+import backend.{BackendHandle, Backend, ApiUser}
 import models.base.{DescribedMeta, Described, Description, AnyModel}
 import play.api.i18n.Lang
-import backend.ApiUser
 
 /*
  * Class to aid in debugging the last submitted request - gross...
@@ -33,8 +32,10 @@ case class MockSearchDispatcher(
   mode: SearchMode.Value = SearchMode.DefaultAll
 ) extends SearchEngine {
 
-  private implicit def apiUser(implicit userOpt: Option[UserProfile]): ApiUser = ApiUser(userOpt.map(_.id))
+  private implicit def handle(implicit userOpt: Option[UserProfile]): BackendHandle =
+    backend.forUser(ApiUser(userOpt.map(_.id)))
 
+  private implicit def apiUser(implicit userOpt: Option[UserProfile]): ApiUser = ApiUser(userOpt.map(_.id))
 
   override def filter()(implicit userOpt: Option[UserProfile]): Future[SearchResult[FilterHit]] = {
 
@@ -42,10 +43,10 @@ case class MockSearchDispatcher(
       FilterHit(m.id, m.id, m.toStringLang(Lang.defaultLang), m.isA, None, 0L)
 
     for {
-      docs <- backend.list[DocumentaryUnit]()
-      repos <- backend.list[Repository]()
-      agents <- backend.list[HistoricalAgent]()
-      virtualUnits <- backend.list[VirtualUnit]()
+      docs <- handle.list[DocumentaryUnit]()
+      repos <- handle.list[Repository]()
+      agents <- handle.list[HistoricalAgent]()
+      virtualUnits <- handle.list[VirtualUnit]()
       all = docs.map(modelToHit) ++ repos.map(modelToHit) ++ agents.map(modelToHit) ++ virtualUnits.map(modelToHit)
       oftype = all.filter(h => params.entities.contains(h.`type`))
     } yield {
@@ -69,10 +70,10 @@ case class MockSearchDispatcher(
     )
 
     for {
-      docs <- backend.list[DocumentaryUnit]()
-      repos <- backend.list[Repository]()
-      agents <- backend.list[HistoricalAgent]()
-      virtualUnits <- backend.list[VirtualUnit]()
+      docs <- handle.list[DocumentaryUnit]()
+      repos <- handle.list[Repository]()
+      agents <- handle.list[HistoricalAgent]()
+      virtualUnits <- handle.list[VirtualUnit]()
       all = docs.map(descModelToHit) ++ repos.map(descModelToHit) ++ agents.map(descModelToHit) ++ virtualUnits.map(descModelToHit)
       ofType = all.filter(h => params.entities.isEmpty || params.entities.contains(h.`type`))
       withIds = ofType.filter(h => idFilters.isEmpty || idFilters.contains(h.itemId))

@@ -30,7 +30,7 @@ case class Groups @Inject()(implicit globalConfig: global.GlobalConfig, searchEn
   def get(id: String) = ItemMetaAction(id).async { implicit request =>
     val params = PageParams.fromRequest(request)
     for {
-      page <- backend.listChildren[Group,Accessor](id, params)
+      page <- backendHandle.listChildren[Group,Accessor](id, params)
       accs <- accounts.findAllById(ids = page.items.collect { case up: UserProfile => up.id })
     } yield {
       val pageWithAccounts = page.copy(items = page.items.map {

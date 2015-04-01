@@ -45,11 +45,12 @@ trait TestConfiguration {
   val indexEventBuffer = collection.mutable.ListBuffer.empty[String]
 
   // Might want to mock the backend at at some point!
-  def testBackend: Backend = new RestBackend(testEventHandler)
+  def testBackendFactory: Backend = new RestBackend(testEventHandler)
+  def testBackend(implicit apiUser: ApiUser): BackendHandle = testBackendFactory.forUser(apiUser)
 
   private def mockResolver: MockSearchResolver = new MockSearchResolver
   private def idGenerator: IdGenerator = new CypherIdGenerator("%06d")
-  private def mockDispatcher: SearchEngine = new MockSearchDispatcher(testBackend, searchParamBuffer)
+  private def mockDispatcher: SearchEngine = new MockSearchDispatcher(testBackendFactory, searchParamBuffer)
   private def mockFeedback: FeedbackDAO = new MockFeedbackDAO(feedbackBuffer)
   private def mockHelpdesk: HelpdeskDAO = new MockHelpdeskDAO(helpdeskBuffer)
   private def mockMailer: MailerAPI = new MockBufferedMailer(mailBuffer)
@@ -88,7 +89,7 @@ trait TestConfiguration {
       protected def configure() {
         bind(classOf[GlobalConfig]).toInstance(TestConfig)
         bind(classOf[SearchIndexer]).toInstance(mockIndexer)
-        bind(classOf[Backend]).toInstance(testBackend)
+        bind(classOf[Backend]).toInstance(testBackendFactory)
         bind(classOf[SearchEngine]).toInstance(mockDispatcher)
         bind(classOf[SearchItemResolver]).toInstance(mockResolver)
         bind(classOf[FeedbackDAO]).toInstance(mockFeedback)

@@ -20,7 +20,7 @@ trait Delete[MT] extends Generic {
   private[generic] def DeleteTransformer(id: String)(implicit ct: BackendContentType[MT]) = new ActionTransformer[ItemPermissionRequest,OptionalUserRequest] {
     override protected def transform[A](request: ItemPermissionRequest[A]): Future[OptionalUserRequest[A]] = {
       implicit val req = request
-      backend.delete(id, logMsg = getLogMessage).map { _ =>
+      backendHandle.delete(id, logMsg = getLogMessage).map { _ =>
         OptionalUserRequest(request.userOpt, request)
       }
     }

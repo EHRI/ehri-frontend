@@ -52,7 +52,7 @@ trait PersonaLoginHandler extends AccountHelpers {
                 case None =>
                   implicit val apiUser = AnonymousUser
                   for {
-                    up <- backend.createNewUserProfile[UserProfile](groups = defaultPortalGroups)
+                    up <- backend.forUser(AnonymousUser).createNewUserProfile[UserProfile](groups = defaultPortalGroups)
                     account <- accounts.create(Account(
                       id = up.id,
                       email = email.toLowerCase,

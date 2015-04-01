@@ -4,7 +4,7 @@ import java.io.{StringWriter, File, FileInputStream, InputStreamReader}
 
 import au.com.bytecode.opencsv.{CSVWriter, CSVReader}
 import auth.{HashedPassword, AccountManager}
-import backend.{EventHandler, Backend}
+import backend.{ApiUser, BackendHandle, EventHandler, Backend}
 import com.google.inject._
 import controllers.base.AdminController
 import controllers.core.auth.AccountHelpers
@@ -25,7 +25,7 @@ import scala.concurrent.Future.{successful => immediate}
 @Singleton
 case class LegacyAccounts @Inject()(implicit globalConfig: global.GlobalConfig, backend: Backend, accounts: AccountManager, pageRelocator: utils.MovedPageLookup) extends AdminController with AccountHelpers {
 
-  private def noEventsBackend: Backend = backend.withEventHandler(new EventHandler {
+  private def noEventsBackend(implicit apiUser: ApiUser): BackendHandle = backendHandle.withEventHandler(new EventHandler {
     def handleCreate(id: String) = ()
     def handleUpdate(id: String) = ()
     def handleDelete(id: String) = ()

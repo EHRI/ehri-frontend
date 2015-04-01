@@ -77,9 +77,9 @@ trait Read[MT] extends Generic {
       private def transform[A](input: OptionalUserRequest[A]): Future[ItemPermissionRequest[A]] = {
         implicit val userOpt = input.userOpt
         input.userOpt.map { profile =>
-          val itemF = backend.get[MT](itemId)
-          val scopedPermsF = backend.getScopePermissions(profile.id, itemId)
-          val permsF = backend.getItemPermissions(profile.id, ct.contentType, itemId)
+          val itemF = backendHandle.get[MT](itemId)
+          val scopedPermsF = backendHandle.getScopePermissions(profile.id, itemId)
+          val permsF = backendHandle.getItemPermissions(profile.id, ct.contentType, itemId)
           for {
             item <- itemF
             scopedPerms <- scopedPermsF
@@ -88,7 +88,7 @@ trait Read[MT] extends Generic {
           } yield ItemPermissionRequest[A](item, Some(newProfile), input)
         }.getOrElse {
           for {
-            item <- backend.get[MT](itemId)
+            item <- backendHandle.get[MT](itemId)
           } yield ItemPermissionRequest[A](item, None, input)
         }
       }
@@ -112,8 +112,8 @@ trait Read[MT] extends Generic {
     ItemPermissionAction(itemId) andThen new ActionTransformer[ItemPermissionRequest, ItemMetaRequest] {
       def transform[A](request: ItemPermissionRequest[A]): Future[ItemMetaRequest[A]] = {
         implicit val userOpt = request.userOpt
-        val annotationsF = backend.getAnnotationsForItem[Annotation](itemId)
-        val linksF = backend.getLinksForItem[Link](itemId)
+        val annotationsF = backendHandle.getAnnotationsForItem[Annotation](itemId)
+        val linksF = backendHandle.getLinksForItem[Link](itemId)
         for {
           annotations <- annotationsF
           links <- linksF
@@ -127,7 +127,7 @@ trait Read[MT] extends Generic {
         implicit val userOpt = input.userOpt
         val params = PageParams.fromRequest(input)
         for {
-          page <- backend.list[MT](params)
+          page <- backendHandle.list[MT](params)
         } yield ItemPageRequest[A](page, params, input.userOpt, input)
       }
     }
@@ -137,8 +137,8 @@ trait Read[MT] extends Generic {
       override protected def transform[A](request: ItemPermissionRequest[A]): Future[ItemHistoryRequest[A]] = {
         implicit val req = request
         val params = RangeParams.fromRequest(request)
-        val getF: Future[MT] = backend.get(itemId)
-        val historyF: Future[RangePage[SystemEvent]] = backend.history[SystemEvent](itemId, params)
+        val getF: Future[MT] = backendHandle.get(itemId)
+        val historyF: Future[RangePage[SystemEvent]] = backendHandle.history[SystemEvent](itemId, params)
         for {
           item <- getF
           events <- historyF
@@ -151,8 +151,8 @@ trait Read[MT] extends Generic {
       override protected def transform[A](request: ItemPermissionRequest[A]): Future[ItemVersionsRequest[A]] = {
         implicit val req = request
         val params = PageParams.fromRequest(request)
-        val getF: Future[MT] = backend.get(itemId)
-        val versionsF: Future[Page[Version]] = backend.versions[Version](itemId, params)
+        val getF: Future[MT] = backendHandle.get(itemId)
+        val versionsF: Future[Page[Version]] = backendHandle.versions[Version](itemId, params)
         for {
           item <- getF
           versions <- versionsF

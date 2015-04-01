@@ -124,7 +124,7 @@ case class UserProfiles @Inject()(implicit globalConfig: global.GlobalConfig, se
    */
   private def createUserProfile[T](user: UserProfileF, groups: Seq[String], allGroups: Seq[(String,String)])(
     implicit request: Request[T], userOpt: Option[UserProfile]): Future[Either[ValidationError,UserProfile]] = {
-    backend.create[UserProfile,UserProfileF](user, params = Map("group" -> groups)).map { item =>
+    backendHandle.create[UserProfile,UserProfileF](user, params = Map("group" -> groups)).map { item =>
       Right(item)
     } recover {
       case e@ValidationError(errorSet) => Left(e)
@@ -163,7 +163,7 @@ case class UserProfiles @Inject()(implicit globalConfig: global.GlobalConfig, se
               allowMessaging = true,
               password = Some(HashedPassword.fromPlain(pw))
             ))
-            _ <- backend.setItemPermissions(profile.id, ContentTypes.UserProfile,
+            _ <- backendHandle.setItemPermissions(profile.id, ContentTypes.UserProfile,
               profile.id, List(PermissionType.Owner.toString))
           } yield Redirect(controllers.users.routes.UserProfiles.get(profile.id))
         }
@@ -208,12 +208,12 @@ case class UserProfiles @Inject()(implicit globalConfig: global.GlobalConfig, se
           userRoutes.updatePost(id)))),
         data => accountOpt match {
           case Some(account) => for {
-            profile <- backend.patch[UserProfile](id, Json.toJson(data).as[JsObject])
+            profile <- backendHandle.patch[UserProfile](id, Json.toJson(data).as[JsObject])
             newAccount <- accounts.update(account.copy(active = data.active, staff = data.staff))
           } yield Redirect(userRoutes.search())
               .flashing("success" -> Messages("item.update.confirmation", request.item.toStringLang))
           case None => for {
-            profile <- backend.patch[UserProfile](id, Json.toJson(data).as[JsObject])
+            profile <- backendHandle.patch[UserProfile](id, Json.toJson(data).as[JsObject])
           } yield Redirect(userRoutes.search())
               .flashing("success" -> Messages("item.update.confirmation", request.item.toStringLang))
         }
@@ -242,12 +242,12 @@ case class UserProfiles @Inject()(implicit globalConfig: global.GlobalConfig, se
       _ => {
         accounts.findById(id).flatMap {
           case Some(account) => for {
-            _ <- backend.delete[UserProfile](id, logMsg = getLogMessage)
+            _ <- backendHandle.delete[UserProfile](id, logMsg = getLogMessage)
             _ <- accounts.delete(id)
           } yield Redirect(userRoutes.search())
               .flashing("success" -> Messages("item.delete.confirmation", id))
           case None => for {
-            _ <- backend.delete[UserProfile](id, logMsg = getLogMessage)
+            _ <- backendHandle.delete[UserProfile](id, logMsg = getLogMessage)
           } yield Redirect(userRoutes.search())
               .flashing("success" -> Messages("item.delete.confirmation", id))
         }

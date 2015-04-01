@@ -19,7 +19,7 @@ case class SystemEvents @Inject()(implicit globalConfig: global.GlobalConfig, ba
     // In addition to the item itself, we also want to fetch the subjects associated with it.
     val params = PageParams.fromRequest(request)
     val subjectParams = PageParams.fromRequest(request, namespace = "s")
-    backend.subjectsForEvent[AnyModel](id, subjectParams).map { page =>
+    backendHandle.subjectsForEvent[AnyModel](id, subjectParams).map { page =>
       Ok(views.html.admin.systemEvents.show(request.item, page, params))
     }
   }
@@ -31,7 +31,7 @@ case class SystemEvents @Inject()(implicit globalConfig: global.GlobalConfig, ba
 
     for {
       users <- RestHelpers.getUserList
-      events <- backend.listEvents[SystemEvent](listParams, eventFilter)
+      events <- backendHandle.listEvents[SystemEvent](listParams, eventFilter)
     } yield Ok(views.html.admin.systemEvents.list(events, listParams, filterForm, users))
   }
 }

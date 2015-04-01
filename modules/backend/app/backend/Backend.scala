@@ -7,7 +7,12 @@ import play.api.libs.ws.WSResponse
 /**
  * @author Mike Bryant (http://github.com/mikesname)
  */
-trait Backend
+
+trait Backend {
+  def forUser(apiUser: ApiUser): BackendHandle
+}
+
+trait BackendHandle
   extends Generic
   with Permissions
   with Descriptions
@@ -20,7 +25,7 @@ trait Backend
   with Social {
 
   def eventHandler: EventHandler
-  def withEventHandler(eventHandler: EventHandler): Backend
+  def withEventHandler(eventHandler: EventHandler): BackendHandle
 
   // Direct API queries
   def query(urlpart: String, headers: Headers, params: Map[String,Seq[String]] = Map.empty)(implicit apiUser: ApiUser, executionContext: ExecutionContext): Future[WSResponse]

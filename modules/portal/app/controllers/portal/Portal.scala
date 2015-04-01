@@ -76,7 +76,7 @@ case class Portal @Inject()(implicit globalConfig: global.GlobalConfig, searchEn
     val eventFilter = SystemEventParams.fromRequest(request)
       .copy(eventTypes = activityEventTypes)
       .copy(itemTypes = activityItemTypes)
-    backend.listEventsForUser[SystemEvent](request.user.id, listParams, eventFilter).map { events =>
+    backendHandle.listEventsForUser[SystemEvent](request.user.id, listParams, eventFilter).map { events =>
       if (isAjax) Ok(views.html.activity.eventItems(events))
         .withHeaders("activity-more" -> events.more.toString)
       else Ok(views.html.activity.activity(events, listParams))
@@ -138,7 +138,7 @@ case class Portal @Inject()(implicit globalConfig: global.GlobalConfig, searchEn
   def itemHistory(id: String, modal: Boolean = false) = OptionalUserAction.async { implicit request =>
     val params: RangeParams = RangeParams.fromRequest(request)
     val filters = SystemEventParams.fromRequest(request)
-    backend.history[SystemEvent](id, params, filters).map { events =>
+    backendHandle.history[SystemEvent](id, params, filters).map { events =>
       if (isAjax && modal) Ok(views.html.activity.itemActivityModal(events))
       else if (isAjax) Ok(views.html.activity.itemEventItems(events))
         .withHeaders("activity-more" -> events.more.toString)

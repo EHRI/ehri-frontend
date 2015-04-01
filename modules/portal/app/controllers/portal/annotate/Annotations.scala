@@ -54,7 +54,7 @@ case class Annotations @Inject()(implicit globalConfig: global.GlobalConfig, sea
   }
 
   def browse(id: String) = OptionalUserAction.async { implicit request =>
-    backend.get[Annotation](id).map { ann =>
+    backendHandle.get[Annotation](id).map { ann =>
       if (isAjax) Ok(Json.toJson(ann)(client.json.annotationJson.clientFormat))
       else Ok(views.html.annotation.show(ann))
     }
@@ -80,7 +80,7 @@ case class Annotations @Inject()(implicit globalConfig: global.GlobalConfig, sea
       errorForm => immediate(BadRequest(errorForm.errorsAsJson)),
       ann => {
         val accessors: Seq[String] = getAccessors(ann, request.user)
-        backend.createAnnotationForDependent[Annotation,AnnotationF](id, did, ann, accessors).map { ann =>
+        backendHandle.createAnnotationForDependent[Annotation,AnnotationF](id, did, ann, accessors).map { ann =>
           Created(views.html.annotation.annotationBlock(ann, editable = true))
             .withHeaders(
                 HttpHeaders.LOCATION -> annotationRoutes.browse(ann.id).url)
@@ -109,14 +109,14 @@ case class Annotations @Inject()(implicit globalConfig: global.GlobalConfig, sea
       val field = request.item.model.field
       Annotation.form.bindFromRequest.fold(
         errForm => immediate(BadRequest(errForm.errorsAsJson)),
-        edited => backend.update[Annotation,AnnotationF](aid, edited.copy(field = field)).flatMap { updated =>
+        edited => backendHandle.update[Annotation,AnnotationF](aid, edited.copy(field = field)).flatMap { updated =>
           // Because the user might have marked this item
           // private (removing the isPromotable flag) we need to
           // recalculate who can access it.
           val newAccessors = getAccessors(updated.model, request.userOpt.get)
           if (newAccessors.sorted == updated.accessors.map(_.id).sorted)
             immediate(annotationResponse(updated, context))
-          else backend.setVisibility[Annotation](aid, newAccessors).map { ann =>
+          else backendHandle.setVisibility[Annotation](aid, newAccessors).map { ann =>
             annotationResponse(ann, context)
           }
         }
@@ -127,7 +127,7 @@ case class Annotations @Inject()(implicit globalConfig: global.GlobalConfig, sea
   def setAnnotationVisibilityPost(aid: String) = {
     WithItemPermissionAction(aid, PermissionType.Update).async { implicit request =>
       val accessors = getAccessors(request.item.model, request.userOpt.get)
-      backend.setVisibility[Annotation](aid, accessors).map { ann =>
+      backendHandle.setVisibility[Annotation](aid, accessors).map { ann =>
         Ok(Json.toJson(ann.accessors.map(_.id)))
       }
     }
@@ -140,7 +140,7 @@ case class Annotations @Inject()(implicit globalConfig: global.GlobalConfig, sea
   }
 
   def deleteAnnotationPost(aid: String) = WithItemPermissionAction(aid, PermissionType.Delete).async { implicit request =>
-    backend.delete[Annotation](aid).map { done =>
+    backendHandle.delete[Annotation](aid).map { done =>
       Ok(true.toString)
     }
   }
@@ -167,7 +167,7 @@ case class Annotations @Inject()(implicit globalConfig: global.GlobalConfig, sea
         // Add the field to the model!
         val fieldAnn = ann.copy(field = Some(field))
         val accessors: Seq[String] = getAccessors(ann, request.user)
-        backend.createAnnotationForDependent[Annotation,AnnotationF](id, did, fieldAnn, accessors).map { ann =>
+        backendHandle.createAnnotationForDependent[Annotation,AnnotationF](id, did, fieldAnn, accessors).map { ann =>
           Created(views.html.annotation.annotationInline(ann, editable = true))
             .withHeaders(
               HttpHeaders.LOCATION -> annotationRoutes.browse(ann.id).url)

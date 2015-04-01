@@ -63,7 +63,7 @@ trait Create[F <: Model with Persistable, MT <: MetaModel[F]] extends Generic {
           errorForm => immediate(CreateRequest(Left((errorForm, visForm)), request.user, request.request)),
           doc => {
             val accessors = visForm.value.getOrElse(Nil)
-            backend.create(doc, accessors, params = pf(request), logMsg = getLogMessage).map { item =>
+            backendHandle.create(doc, accessors, params = pf(request), logMsg = getLogMessage).map { item =>
               CreateRequest(Right(item), request.user, request)
             } recover {
               // If we have an error, check if it's a validation error.

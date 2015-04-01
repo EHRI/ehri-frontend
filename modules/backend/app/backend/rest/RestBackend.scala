@@ -9,7 +9,12 @@ import backend._
   * @author Mike Bryant (http://github.com/mikesname)
   */
 case class RestBackend(eventHandler: EventHandler)(implicit val app: play.api.Application)
-  extends Backend
+  extends Backend {
+  def forUser(apiUser: ApiUser) = new RestBackendHandle(eventHandler, apiUser)
+}
+
+case class RestBackendHandle(eventHandler: EventHandler, apiUser: ApiUser)(implicit val app: play.api.Application)
+  extends BackendHandle
   with RestGeneric
   with RestPermissions
   with RestDescriptions

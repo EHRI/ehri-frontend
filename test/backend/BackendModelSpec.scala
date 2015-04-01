@@ -25,7 +25,8 @@ class BackendModelSpec extends RestBackendRunner with PlaySpecification {
   val indexEventBuffer = collection.mutable.ListBuffer.empty[String]
   def mockIndexer: SearchIndexer = new MockSearchIndexer(indexEventBuffer)
 
-  def testBackend: Backend = new RestBackend(testEventHandler)
+  def testBackendFactory: Backend = new RestBackend(testEventHandler)
+  def testBackend(implicit apiUser: ApiUser): BackendHandle = testBackendFactory.forUser(apiUser)
   def testEventHandler = new EventHandler {
     def handleCreate(id: String) = mockIndexer.indexId(id)
     def handleUpdate(id: String) = mockIndexer.indexId(id)

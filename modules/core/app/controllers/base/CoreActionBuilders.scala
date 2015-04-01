@@ -23,6 +23,8 @@ trait CoreActionBuilders extends Controller with ControllerHelpers with AuthActi
   // a backend implementation.
   protected def backend: Backend
 
+  protected def backendHandle(implicit apiUser: ApiUser): BackendHandle = backend.forUser(apiUser)
+
   // NB: Implicit so it can be used as an implicit parameter in views
   // that are rendered from inheriting controllers.
   protected implicit def globalConfig: global.GlobalConfig
@@ -156,8 +158,8 @@ trait CoreActionBuilders extends Controller with ControllerHelpers with AuthActi
       ifEmpty = immediate(OptionalUserRequest[A](None, request))
     ) { account =>
       implicit val apiUser = AuthenticatedUser(account.id)
-      val userF = backend.get[UserProfile](UserProfile.Resource, account.id)
-      val globalPermsF = backend.getGlobalPermissions(account.id)
+      val userF = backendHandle.get[UserProfile](UserProfile.Resource, account.id)
+      val globalPermsF = backendHandle.getGlobalPermissions(account.id)
       for {
         user <- userF
         globalPerms <- globalPermsF
