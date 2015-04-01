@@ -28,11 +28,11 @@ trait BackendHandle
   def withEventHandler(eventHandler: EventHandler): BackendHandle
 
   // Direct API queries
-  def query(urlpart: String, headers: Headers, params: Map[String,Seq[String]] = Map.empty)(implicit apiUser: ApiUser, executionContext: ExecutionContext): Future[WSResponse]
+  def query(urlpart: String, headers: Headers, params: Map[String,Seq[String]] = Map.empty)(implicit executionContext: ExecutionContext): Future[WSResponse]
 
   // Helpers
-  def createNewUserProfile[T <: WithId](data: Map[String,String] = Map.empty, groups: Seq[String] = Seq.empty)(implicit apiUser: ApiUser, rd: BackendReadable[T], executionContext: ExecutionContext): Future[T]
+  def createNewUserProfile[T <: WithId](data: Map[String,String] = Map.empty, groups: Seq[String] = Seq.empty)(implicit rd: BackendReadable[T], executionContext: ExecutionContext): Future[T]
 
   // Fetch any type of object
-  def getAny[MT](id: String)(implicit apiUser: ApiUser,  rd: BackendReadable[MT], executionContext: ExecutionContext): Future[MT]
+  def getAny[MT](id: String)(implicit rd: BackendReadable[MT], executionContext: ExecutionContext): Future[MT]
 }

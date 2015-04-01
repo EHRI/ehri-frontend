@@ -8,12 +8,12 @@ import backend._
 /**
   * @author Mike Bryant (http://github.com/mikesname)
   */
-case class RestBackend(eventHandler: EventHandler)(implicit val app: play.api.Application)
+case class RestBackend(eventHandler: EventHandler)(implicit app: play.api.Application)
   extends Backend {
-  def forUser(apiUser: ApiUser) = new RestBackendHandle(eventHandler, apiUser)
+  def forUser(apiUser: ApiUser) = new RestBackendHandle(eventHandler)(app, apiUser)
 }
 
-case class RestBackendHandle(eventHandler: EventHandler, apiUser: ApiUser)(implicit val app: play.api.Application)
+case class RestBackendHandle(eventHandler: EventHandler)(implicit val app: play.api.Application, val apiUser: ApiUser)
   extends BackendHandle
   with RestGeneric
   with RestPermissions
@@ -32,15 +32,15 @@ case class RestBackendHandle(eventHandler: EventHandler, apiUser: ApiUser)(impli
   override def withEventHandler(eventHandler: EventHandler) = this.copy(eventHandler = eventHandler)
 
   // Direct API query
-  override def query(urlpart: String, headers: Headers, params: Map[String,Seq[String]] = Map.empty)(implicit apiUser: ApiUser, executionContext: ExecutionContext): Future[WSResponse]
+  override def query(urlpart: String, headers: Headers, params: Map[String,Seq[String]] = Map.empty)(implicit executionContext: ExecutionContext): Future[WSResponse]
       = api.get(urlpart, headers, params)
 
   // Helpers
-  override def createNewUserProfile[T <: WithId](data: Map[String,String] = Map.empty, groups: Seq[String] = Seq.empty)(implicit apiUser: ApiUser, rd: BackendReadable[T], executionContext: ExecutionContext): Future[T] =
+  override def createNewUserProfile[T <: WithId](data: Map[String,String] = Map.empty, groups: Seq[String] = Seq.empty)(implicit rd: BackendReadable[T], executionContext: ExecutionContext): Future[T] =
     admin.createNewUserProfile[T](data, groups)
 
   // Fetch any type of object. This doesn't really belong here...
-  override def getAny[MT](id: String)(implicit apiUser: ApiUser,  rd: BackendReadable[MT], executionContext: ExecutionContext): Future[MT] = {
+  override def getAny[MT](id: String)(implicit rd: BackendReadable[MT], executionContext: ExecutionContext): Future[MT] = {
     val url: String = enc(baseUrl, "entities", id)
     BackendRequest(url).withHeaders(authHeaders.toSeq: _*).get().map { response =>
       checkErrorAndParse(response, context = Some(url))(rd.restReads)

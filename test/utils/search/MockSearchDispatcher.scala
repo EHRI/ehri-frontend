@@ -35,8 +35,6 @@ case class MockSearchDispatcher(
   private implicit def handle(implicit userOpt: Option[UserProfile]): BackendHandle =
     backend.forUser(ApiUser(userOpt.map(_.id)))
 
-  private implicit def apiUser(implicit userOpt: Option[UserProfile]): ApiUser = ApiUser(userOpt.map(_.id))
-
   override def filter()(implicit userOpt: Option[UserProfile]): Future[SearchResult[FilterHit]] = {
 
     def modelToHit(m: AnyModel): FilterHit =

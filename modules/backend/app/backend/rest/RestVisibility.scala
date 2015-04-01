@@ -11,12 +11,13 @@ import backend._
 trait RestVisibility extends Visibility with RestDAO {
 
   val eventHandler: EventHandler
+  implicit def apiUser: ApiUser
 
   import Constants._
 
   private def requestUrl = s"$baseUrl/access"
 
-  override def setVisibility[MT](id: String, data: Seq[String])(implicit apiUser: ApiUser, rs: BackendResource[MT], executionContext: ExecutionContext): Future[MT] = {
+  override def setVisibility[MT](id: String, data: Seq[String])(implicit rs: BackendResource[MT], executionContext: ExecutionContext): Future[MT] = {
     val url: String = enc(requestUrl, id)
     userCall(url)
         .withQueryString(data.map(a => ACCESSOR_PARAM -> a): _*)

@@ -11,14 +11,16 @@ import defines.EntityType
  */
 trait RestEvents extends Events with RestDAO {
 
+  implicit def apiUser: ApiUser
+
   private def requestUrl = s"$baseUrl/${EntityType.SystemEvent}"
 
-  override def history[A](id: String, params: RangeParams, filters: SystemEventParams = SystemEventParams.empty)(implicit apiUser: ApiUser, rd: BackendReadable[A], executionContext: ExecutionContext): Future[RangePage[A]] = {
+  override def history[A](id: String, params: RangeParams, filters: SystemEventParams = SystemEventParams.empty)(implicit rd: BackendReadable[A], executionContext: ExecutionContext): Future[RangePage[A]] = {
     val url: String = enc(requestUrl, "for", id)
     fetchRange(userCall(url, filters.toSeq), params, Some(url))(rd.restReads)
   }
 
-  override def versions[A](id: String, params: PageParams)(implicit apiUser: ApiUser, rd: BackendReadable[A], executionContext: ExecutionContext): Future[Page[A]] = {
+  override def versions[A](id: String, params: PageParams)(implicit rd: BackendReadable[A], executionContext: ExecutionContext): Future[Page[A]] = {
     val url: String = enc(requestUrl, "versions", id)
     userCall(url)
       .withQueryString(params.queryParams: _*)
@@ -28,22 +30,22 @@ trait RestEvents extends Events with RestDAO {
     }
   }
 
-  override def listEvents[A](params: RangeParams, filters: SystemEventParams)(implicit apiUser: ApiUser, rd: BackendReadable[A], executionContext: ExecutionContext): Future[RangePage[A]] = {
+  override def listEvents[A](params: RangeParams, filters: SystemEventParams)(implicit rd: BackendReadable[A], executionContext: ExecutionContext): Future[RangePage[A]] = {
     val url = enc(requestUrl, "list")
     fetchRange(userCall(url, filters.toSeq), params, Some(url))(rd.restReads)
   }
 
-  override def listEventsByUser[A](userId: String, params: RangeParams, filters: SystemEventParams)(implicit apiUser: ApiUser, rd: BackendReadable[A], executionContext: ExecutionContext): Future[RangePage[A]] = {
+  override def listEventsByUser[A](userId: String, params: RangeParams, filters: SystemEventParams)(implicit rd: BackendReadable[A], executionContext: ExecutionContext): Future[RangePage[A]] = {
     val url: String = enc(requestUrl, "byUser", userId)
     fetchRange(userCall(url, filters.toSeq), params, Some(url))(rd.restReads)
   }
 
-  override def listEventsForUser[A](userId: String, params: RangeParams, filters: SystemEventParams)(implicit apiUser: ApiUser, rd: BackendReadable[A], executionContext: ExecutionContext): Future[RangePage[A]] = {
+  override def listEventsForUser[A](userId: String, params: RangeParams, filters: SystemEventParams)(implicit rd: BackendReadable[A], executionContext: ExecutionContext): Future[RangePage[A]] = {
     val url: String = enc(requestUrl, "forUser", userId)
     fetchRange(userCall(url, filters.toSeq), params, Some(url))(rd.restReads)
   }
 
-  override def subjectsForEvent[A](id: String, params: PageParams)(implicit apiUser: ApiUser, rd: BackendReadable[A], executionContext: ExecutionContext): Future[Page[A]] = {
+  override def subjectsForEvent[A](id: String, params: PageParams)(implicit rd: BackendReadable[A], executionContext: ExecutionContext): Future[Page[A]] = {
     val url: String = enc(requestUrl, id, "subjects")
     userCall(url)
       .withQueryString(params.queryParams: _*)

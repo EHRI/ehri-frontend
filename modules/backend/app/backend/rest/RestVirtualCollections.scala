@@ -13,15 +13,16 @@ trait RestVirtualCollections extends VirtualCollections with RestDAO {
 
   import backend.rest.Constants._
   val eventHandler: EventHandler
+  implicit def apiUser: ApiUser
 
-  override def addReferences[MT](vcId: String, ids: Seq[String])(implicit apiUser: ApiUser, rs: BackendResource[MT], executionContext: ExecutionContext): Future[Unit] =
+  override def addReferences[MT](vcId: String, ids: Seq[String])(implicit rs: BackendResource[MT], executionContext: ExecutionContext): Future[Unit] =
     userCall(enc(baseUrl, EntityType.VirtualUnit, vcId, "includes"))
       .withQueryString(ids.map ( id => ID_PARAM -> id): _*).post("").map { _ =>
       eventHandler.handleUpdate(vcId)
       Cache.remove(canonicalUrl(vcId))
     }
 
-  override def deleteReferences[MT](vcId: String, ids: Seq[String])(implicit apiUser: ApiUser, rs: BackendResource[MT], executionContext: ExecutionContext): Future[Unit] =
+  override def deleteReferences[MT](vcId: String, ids: Seq[String])(implicit rs: BackendResource[MT], executionContext: ExecutionContext): Future[Unit] =
     if (ids.isEmpty) Future.successful(())
     else userCall(enc(baseUrl, EntityType.VirtualUnit, vcId, "includes"))
       .withQueryString(ids.map ( id => ID_PARAM -> id): _*).delete().map { _ =>
@@ -29,7 +30,7 @@ trait RestVirtualCollections extends VirtualCollections with RestDAO {
       Cache.remove(canonicalUrl(vcId))
     }
 
-  override def moveReferences[MT](fromVc: String, toVc: String, ids: Seq[String])(implicit apiUser: ApiUser, rs: BackendResource[MT], executionContext: ExecutionContext): Future[Unit] =
+  override def moveReferences[MT](fromVc: String, toVc: String, ids: Seq[String])(implicit rs: BackendResource[MT], executionContext: ExecutionContext): Future[Unit] =
     if (ids.isEmpty) Future.successful(())
     else userCall(enc(baseUrl, EntityType.VirtualUnit, fromVc, "includes", toVc))
       .withQueryString(ids.map(id => ID_PARAM -> id): _*).post("").map { _ =>

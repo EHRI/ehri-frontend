@@ -12,6 +12,7 @@ import play.api.libs.ws.WSResponse
 trait RestPromotion extends Promotion with RestDAO {
 
   val eventHandler: EventHandler
+  implicit def apiUser: ApiUser
 
   private def requestUrl = s"$baseUrl/promote"
 
@@ -22,15 +23,15 @@ trait RestPromotion extends Promotion with RestDAO {
     item
   }
 
-  override def promote[MT](id: String)(implicit apiUser: ApiUser,  rs: BackendResource[MT], executionContext: ExecutionContext): Future[MT] =
+  override def promote[MT](id: String)(implicit  rs: BackendResource[MT], executionContext: ExecutionContext): Future[MT] =
     userCall(enc(requestUrl, id, "up")).post("").map(handler(id, _))
 
-  override def removePromotion[MT](id: String)(implicit apiUser: ApiUser, rs: BackendResource[MT], executionContext: ExecutionContext): Future[MT] =
+  override def removePromotion[MT](id: String)(implicit rs: BackendResource[MT], executionContext: ExecutionContext): Future[MT] =
     userCall(enc(requestUrl, id, "up")).delete().map(handler(id, _))
 
-  override def demote[MT](id: String)(implicit apiUser: ApiUser, rs: BackendResource[MT], executionContext: ExecutionContext): Future[MT] =
+  override def demote[MT](id: String)(implicit rs: BackendResource[MT], executionContext: ExecutionContext): Future[MT] =
     userCall(enc(requestUrl, id, "down")).post("").map(handler(id, _))
 
-  override def removeDemotion[MT](id: String)(implicit apiUser: ApiUser, rs: BackendResource[MT], executionContext: ExecutionContext): Future[MT] =
+  override def removeDemotion[MT](id: String)(implicit rs: BackendResource[MT], executionContext: ExecutionContext): Future[MT] =
     userCall(enc(requestUrl, id, "down")).delete().map(handler(id, _))
 }

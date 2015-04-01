@@ -154,8 +154,7 @@ class BackendModelSpec extends RestBackendRunner with PlaySpecification {
           val contentType = UserProfile.Resource.contentType
         }
 
-        await(testBackend.get[UserProfile]("mike")(
-          apiUser, badDeserializer, concurrentExecutionContext))
+        await(testBackend(apiUser).get[UserProfile]("mike")(badDeserializer, concurrentExecutionContext))
         failure("Expected BadJson error was not found!")
       } catch {
         case e: backend.rest.BadJson =>

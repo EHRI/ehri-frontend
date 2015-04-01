@@ -7,7 +7,7 @@ import play.api.libs.concurrent.Execution.Implicits._
 import play.api.libs.json.JsString
 import com.google.inject._
 import scala.concurrent.Future.{successful => immediate}
-import backend.{AnonymousUser, ApiUser, Backend}
+import backend.{AnonymousUser, Backend}
 import scala.concurrent.Future
 import controllers.core.auth.AccountHelpers
 
@@ -50,7 +50,6 @@ trait PersonaLoginHandler extends AccountHelpers {
               accounts.findByEmail(email.toLowerCase).flatMap {
                 case Some(account) => f(Right(account))(request)
                 case None =>
-                  implicit val apiUser = AnonymousUser
                   for {
                     up <- backend.forUser(AnonymousUser).createNewUserProfile[UserProfile](groups = defaultPortalGroups)
                     account <- accounts.create(Account(
