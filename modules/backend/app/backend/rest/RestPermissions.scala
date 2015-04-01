@@ -81,7 +81,7 @@ trait RestPermissions extends Permissions with RestDAO with RestContext {
     }
   }
 
-  override def addGroup[GT,UT](groupId: String, userId: String)(implicit gr: BackendResource[GT], ur: BackendResource[UT]): Future[Boolean] = {
+  override def addGroup[GT,UT](groupId: String, userId: String)(implicit gr: Resource[GT], ur: Resource[UT]): Future[Boolean] = {
     userCall(enc(baseUrl, EntityType.Group, groupId, userId)).post(Map[String, Seq[String]]()).map { response =>
       checkError(response)
       Cache.remove(canonicalUrl[UT](userId))
@@ -91,7 +91,7 @@ trait RestPermissions extends Permissions with RestDAO with RestContext {
     }
   }
 
-  override def removeGroup[GT,UT](groupId: String, userId: String)(implicit gr: BackendResource[GT], ur: BackendResource[UT]): Future[Boolean] = {
+  override def removeGroup[GT,UT](groupId: String, userId: String)(implicit gr: Resource[GT], ur: Resource[UT]): Future[Boolean] = {
     userCall(enc(baseUrl, EntityType.Group, groupId, userId)).delete().map { response =>
       checkError(response)
       Cache.remove(canonicalUrl[UT](userId))

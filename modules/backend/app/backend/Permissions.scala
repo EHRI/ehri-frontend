@@ -28,7 +28,7 @@ trait Permissions {
 
   def listScopePermissionGrants[A](id: String, params: PageParams)(implicit rd: BackendReadable[A]): Future[Page[A]]
 
-  def addGroup[GT,UT](groupId: String, userId: String)(implicit gr: BackendResource[GT], ur: BackendResource[UT]): Future[Boolean]
+  def addGroup[GT,UT](groupId: String, userId: String)(implicit gr: Resource[GT], ur: Resource[UT]): Future[Boolean]
 
-  def removeGroup[GT,UT](groupId: String, userId: String)(implicit gr: BackendResource[GT], ur: BackendResource[UT]): Future[Boolean]
+  def removeGroup[GT,UT](groupId: String, userId: String)(implicit gr: Resource[GT], ur: Resource[UT]): Future[Boolean]
 }

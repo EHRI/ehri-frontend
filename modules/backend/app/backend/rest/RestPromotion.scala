@@ -13,22 +13,22 @@ trait RestPromotion extends Promotion with RestDAO with RestContext {
 
   private def requestUrl = s"$baseUrl/promote"
 
-  private def handler[MT](id: String, response: WSResponse)(implicit rs: BackendResource[MT]): MT = {
+  private def handler[MT](id: String, response: WSResponse)(implicit rs: Resource[MT]): MT = {
     val item: MT = checkErrorAndParse(response)(rs.restReads)
     Cache.remove(canonicalUrl(id))
     eventHandler.handleUpdate(id)
     item
   }
 
-  override def promote[MT](id: String)(implicit  rs: BackendResource[MT]): Future[MT] =
+  override def promote[MT](id: String)(implicit  rs: Resource[MT]): Future[MT] =
     userCall(enc(requestUrl, id, "up")).post("").map(handler(id, _))
 
-  override def removePromotion[MT](id: String)(implicit rs: BackendResource[MT]): Future[MT] =
+  override def removePromotion[MT](id: String)(implicit rs: Resource[MT]): Future[MT] =
     userCall(enc(requestUrl, id, "up")).delete().map(handler(id, _))
 
-  override def demote[MT](id: String)(implicit rs: BackendResource[MT]): Future[MT] =
+  override def demote[MT](id: String)(implicit rs: Resource[MT]): Future[MT] =
     userCall(enc(requestUrl, id, "down")).post("").map(handler(id, _))
 
-  override def removeDemotion[MT](id: String)(implicit rs: BackendResource[MT]): Future[MT] =
+  override def removeDemotion[MT](id: String)(implicit rs: Resource[MT]): Future[MT] =
     userCall(enc(requestUrl, id, "down")).delete().map(handler(id, _))
 }

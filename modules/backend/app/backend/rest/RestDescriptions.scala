@@ -15,7 +15,7 @@ trait RestDescriptions extends RestDAO with RestContext with Descriptions {
   private def requestUrl = s"$baseUrl/description"
 
   override def createDescription[MT,DT](id: String, item: DT, logMsg: Option[String] = None)(
-        implicit rs: BackendResource[MT], fmt: BackendWriteable[DT], rd: backend.BackendReadable[DT]): Future[DT] = {
+        implicit rs: Resource[MT], fmt: BackendWriteable[DT], rd: backend.BackendReadable[DT]): Future[DT] = {
     val url: String = enc(requestUrl, id)
     userCall(url).withHeaders(msgHeader(logMsg): _*)
         .post(Json.toJson(item)(fmt.restFormat)).map { response =>
@@ -27,7 +27,7 @@ trait RestDescriptions extends RestDAO with RestContext with Descriptions {
   }
 
   override def updateDescription[MT,DT](id: String, did: String, item: DT, logMsg: Option[String] = None)(
-      implicit rs: BackendResource[MT], fmt: BackendWriteable[DT], rd: backend.BackendReadable[DT]): Future[DT] = {
+      implicit rs: Resource[MT], fmt: BackendWriteable[DT], rd: backend.BackendReadable[DT]): Future[DT] = {
     val url: String = enc(requestUrl, id, did)
     userCall(url).withHeaders(msgHeader(logMsg): _*)
         .put(Json.toJson(item)(fmt.restFormat)).map { response =>
@@ -39,7 +39,7 @@ trait RestDescriptions extends RestDAO with RestContext with Descriptions {
   }
 
   override def deleteDescription[MT](id: String, did: String, logMsg: Option[String] = None)(
-      implicit rs: BackendResource[MT]): Future[Unit] = {
+      implicit rs: Resource[MT]): Future[Unit] = {
     userCall(enc(requestUrl, id, did)).withHeaders(msgHeader(logMsg): _*)
           .delete().map { response =>
       checkError(response)
@@ -49,7 +49,7 @@ trait RestDescriptions extends RestDAO with RestContext with Descriptions {
   }
 
   override def createAccessPoint[MT, DT](id: String, did: String, item: DT, logMsg: Option[String] = None)(
-        implicit rs: BackendResource[MT], fmt: BackendWriteable[DT]): Future[DT] = {
+        implicit rs: Resource[MT], fmt: BackendWriteable[DT]): Future[DT] = {
     val url: String = enc(requestUrl, id, did, EntityType.AccessPoint)
     userCall(url)
         .withHeaders(msgHeader(logMsg): _*)

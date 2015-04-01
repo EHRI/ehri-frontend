@@ -14,7 +14,7 @@ trait RestVisibility extends Visibility with RestDAO with RestContext {
 
   private def requestUrl = s"$baseUrl/access"
 
-  override def setVisibility[MT](id: String, data: Seq[String])(implicit rs: BackendResource[MT]): Future[MT] = {
+  override def setVisibility[MT](id: String, data: Seq[String])(implicit rs: Resource[MT]): Future[MT] = {
     val url: String = enc(requestUrl, id)
     userCall(url)
         .withQueryString(data.map(a => ACCESSOR_PARAM -> a): _*)

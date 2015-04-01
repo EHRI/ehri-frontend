@@ -11,7 +11,7 @@ import helpers.RestBackendRunner
  */
 case class TestResource(id: String, data: JsObject) extends backend.WithId
 object TestResource {
-  implicit object Resource extends backend.BackendResource[TestResource] {
+  implicit object Resource extends backend.Resource[TestResource] {
     def entityType: EntityType.Value = EntityType.DocumentaryUnit
     import play.api.libs.json._
     import play.api.libs.functional.syntax._

@@ -7,9 +7,9 @@ import utils.{Page, PageParams}
  * @author Mike Bryant (http://github.com/mikesname)
  */
 trait Social {
-  def follow[U](userId: String, otherId: String)(implicit rs: BackendResource[U]): Future[Unit]
+  def follow[U](userId: String, otherId: String)(implicit rs: Resource[U]): Future[Unit]
 
-  def unfollow[U](userId: String, otherId: String)(implicit rs: BackendResource[U]): Future[Unit]
+  def unfollow[U](userId: String, otherId: String)(implicit rs: Resource[U]): Future[Unit]
 
   def isFollowing(userId: String, otherId: String): Future[Boolean]
 

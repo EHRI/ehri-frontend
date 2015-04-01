@@ -9,7 +9,7 @@ import play.api.libs.json._
 import play.api.libs.functional.syntax._
 import play.api.i18n.Messages
 import play.api.libs.json.JsObject
-import backend.{Entity, BackendContentType, BackendResource, BackendReadable}
+import backend.{Entity, BackendContentType, Resource, BackendReadable}
 
 object SystemEventF {
 

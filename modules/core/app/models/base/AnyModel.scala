@@ -9,7 +9,7 @@ import play.api.data.validation.ValidationError
 import play.api.libs.json.KeyPathNode
 import scala.collection.SortedMap
 import java.util.NoSuchElementException
-import backend.{Entity, BackendReadable, BackendResource}
+import backend.{Entity, BackendReadable, Resource}
 
 
 trait AnyModel extends backend.WithId {
@@ -69,7 +69,7 @@ object AnyModel {
    * This function allows getting a dynamic Resource for an Accessor given
    * the entity type.
    */
-  def resourceFor(t: EntityType.Value): BackendResource[AnyModel] = new BackendResource[AnyModel] {
+  def resourceFor(t: EntityType.Value): Resource[AnyModel] = new Resource[AnyModel] {
     def entityType: EntityType.Value = t
     val restReads = Converter.restReads
   }

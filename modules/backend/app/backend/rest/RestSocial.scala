@@ -28,7 +28,7 @@ trait RestSocial extends Social with RestDAO with RestContext {
 
   private def isBlockingUrl(userId: String, otherId: String) = enc(requestUrl, userId, "isBlocking", otherId)
 
-  override def follow[U](userId: String, otherId: String)(implicit rs: BackendResource[U]): Future[Unit] = {
+  override def follow[U](userId: String, otherId: String)(implicit rs: Resource[U]): Future[Unit] = {
     userCall(followingUrl(userId)).withQueryString(ID_PARAM -> otherId).post("").map { r =>
       checkError(r)
       Cache.set(isFollowingUrl(userId, otherId), true, cacheTime)
@@ -37,7 +37,7 @@ trait RestSocial extends Social with RestDAO with RestContext {
     }
   }
 
-  override def unfollow[U](userId: String, otherId: String)(implicit rs: BackendResource[U]): Future[Unit] = {
+  override def unfollow[U](userId: String, otherId: String)(implicit rs: Resource[U]): Future[Unit] = {
     userCall(followingUrl(userId)).withQueryString(ID_PARAM -> otherId).delete().map { r =>
       checkError(r)
       Cache.set(isFollowingUrl(userId, otherId), false, cacheTime)

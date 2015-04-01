@@ -3,7 +3,7 @@ package models.base
 import defines.{PermissionType, ContentTypes, EntityType}
 import models._
 import play.api.libs.json._
-import backend.{BackendContentType, BackendResource}
+import backend.{BackendContentType, Resource}
 import acl.{ItemPermissionSet, GlobalPermissionSet, Permission}
 
 object Accessor {

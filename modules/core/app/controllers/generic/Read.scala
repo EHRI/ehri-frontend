@@ -1,7 +1,7 @@
 package controllers.generic
 
 import backend.rest.ItemNotFound
-import backend.{BackendContentType, BackendResource}
+import backend.{BackendContentType, Resource}
 import defines.{ContentTypes, PermissionType}
 import models._
 import play.api.Logger
@@ -121,7 +121,7 @@ trait Read[MT] extends Generic {
       }
     }
 
-  protected def ItemPageAction(implicit rs: BackendResource[MT]) =
+  protected def ItemPageAction(implicit rs: Resource[MT]) =
     OptionalUserAction andThen new ActionTransformer[OptionalUserRequest, ItemPageRequest] {
       def transform[A](input: OptionalUserRequest[A]): Future[ItemPageRequest[A]] = {
         implicit val userOpt = input.userOpt

@@ -8,7 +8,7 @@ import play.api.libs.iteratee.{Enumerator, Concurrent}
 import scala.concurrent.Future
 import scala.util.{Failure, Success}
 import play.api.Logger
-import backend.BackendResource
+import backend.Resource
 
 
 object Indexable {
@@ -69,7 +69,7 @@ trait Indexable[MT] extends Controller with CoreActionBuilders with ControllerHe
    * @param id The parent item id
    * @return An action returning a chunked progress response.
    */
-  def updateChildItemsPost(field: String, id: String)(implicit rs: BackendResource[MT]) = AdminAction { implicit request =>
+  def updateChildItemsPost(field: String, id: String)(implicit rs: Resource[MT]) = AdminAction { implicit request =>
     Logger.debug(s"INDEXING WITH: $searchIndexer")
     val channel = Concurrent.unicast[String] { chan =>
 

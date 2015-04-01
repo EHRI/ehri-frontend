@@ -7,7 +7,7 @@ import models.json._
 import play.api.libs.json._
 import play.api.libs.json.JsObject
 import play.api.i18n.Lang
-import backend.{Entity, BackendReadable, BackendResource}
+import backend.{Entity, BackendReadable, Resource}
 
 
 object PermissionGrantF {
@@ -59,7 +59,7 @@ object PermissionGrant {
     (__ \ META).readWithDefault(Json.obj())
   )(PermissionGrant.apply _)
 
-  implicit object PermissionGrantResource extends BackendResource[PermissionGrant]  {
+  implicit object PermissionGrantResource extends Resource[PermissionGrant]  {
     implicit val restReads = metaReads
     val entityType = EntityType.PermissionGrant
   }
