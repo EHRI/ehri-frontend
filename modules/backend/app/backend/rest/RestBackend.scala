@@ -10,10 +10,10 @@ import backend._
   */
 case class RestBackend(eventHandler: EventHandler)(implicit app: play.api.Application)
   extends Backend {
-  def forUser(apiUser: ApiUser) = new RestBackendHandle(eventHandler)(app, apiUser)
+  def withContext(apiUser: ApiUser)(implicit executionContext: ExecutionContext) = new RestBackendHandle(eventHandler)(app, apiUser, executionContext)
 }
 
-case class RestBackendHandle(eventHandler: EventHandler)(implicit val app: play.api.Application, val apiUser: ApiUser)
+case class RestBackendHandle(eventHandler: EventHandler)(implicit val app: play.api.Application, val apiUser: ApiUser, val executionContext: ExecutionContext)
   extends BackendHandle
   with RestGeneric
   with RestPermissions
@@ -32,15 +32,15 @@ case class RestBackendHandle(eventHandler: EventHandler)(implicit val app: play.
   override def withEventHandler(eventHandler: EventHandler) = this.copy(eventHandler = eventHandler)
 
   // Direct API query
-  override def query(urlpart: String, headers: Headers, params: Map[String,Seq[String]] = Map.empty)(implicit executionContext: ExecutionContext): Future[WSResponse]
+  override def query(urlpart: String, headers: Headers, params: Map[String,Seq[String]] = Map.empty): Future[WSResponse]
       = api.get(urlpart, headers, params)
 
   // Helpers
-  override def createNewUserProfile[T <: WithId](data: Map[String,String] = Map.empty, groups: Seq[String] = Seq.empty)(implicit rd: BackendReadable[T], executionContext: ExecutionContext): Future[T] =
+  override def createNewUserProfile[T <: WithId](data: Map[String,String] = Map.empty, groups: Seq[String] = Seq.empty)(implicit rd: BackendReadable[T]): Future[T] =
     admin.createNewUserProfile[T](data, groups)
 
   // Fetch any type of object. This doesn't really belong here...
-  override def getAny[MT](id: String)(implicit rd: BackendReadable[MT], executionContext: ExecutionContext): Future[MT] = {
+  override def getAny[MT](id: String)(implicit rd: BackendReadable[MT]): Future[MT] = {
     val url: String = enc(baseUrl, "entities", id)
     BackendRequest(url).withHeaders(authHeaders.toSeq: _*).get().map { response =>
       checkErrorAndParse(response, context = Some(url))(rd.restReads)

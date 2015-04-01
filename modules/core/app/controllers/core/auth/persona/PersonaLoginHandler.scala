@@ -51,7 +51,7 @@ trait PersonaLoginHandler extends AccountHelpers {
                 case Some(account) => f(Right(account))(request)
                 case None =>
                   for {
-                    up <- backend.forUser(AnonymousUser).createNewUserProfile[UserProfile](groups = defaultPortalGroups)
+                    up <- backend.withContext(AnonymousUser).createNewUserProfile[UserProfile](groups = defaultPortalGroups)
                     account <- accounts.create(Account(
                       id = up.id,
                       email = email.toLowerCase,

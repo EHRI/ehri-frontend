@@ -1,6 +1,6 @@
 package backend
 
-import scala.concurrent.{ExecutionContext, Future}
+import scala.concurrent.Future
 
 /**
  * @author Mike Bryant (http://github.com/mikesname)
@@ -12,7 +12,7 @@ trait VirtualCollections {
    * @param vcId the virtual collection id
    * @param ids a set of item ids
    */
-  def addReferences[MT](vcId: String, ids: Seq[String])(implicit rs: BackendResource[MT], executionContext: ExecutionContext): Future[Unit]
+  def addReferences[MT](vcId: String, ids: Seq[String])(implicit rs: BackendResource[MT]): Future[Unit]
 
   /**
    * Remove a set of items from a virtual collection.
@@ -20,7 +20,7 @@ trait VirtualCollections {
    * @param vcId the virtual collection id
    * @param ids a set of item ids
    */
-  def deleteReferences[MT](vcId: String, ids: Seq[String])(implicit rs: BackendResource[MT], executionContext: ExecutionContext): Future[Unit]
+  def deleteReferences[MT](vcId: String, ids: Seq[String])(implicit rs: BackendResource[MT]): Future[Unit]
 
   /**
    * Move a set of items from one virtual collection to another
@@ -29,5 +29,5 @@ trait VirtualCollections {
    * @param toVc the destination virtual collection id
    * @param ids a set of item ids
    */
-  def moveReferences[MT](fromVc: String, toVc: String, ids: Seq[String])(implicit rs: BackendResource[MT], executionContext: ExecutionContext): Future[Unit]
+  def moveReferences[MT](fromVc: String, toVc: String, ids: Seq[String])(implicit rs: BackendResource[MT]): Future[Unit]
 }

@@ -33,7 +33,7 @@ case class MockSearchDispatcher(
 ) extends SearchEngine {
 
   private implicit def handle(implicit userOpt: Option[UserProfile]): BackendHandle =
-    backend.forUser(ApiUser(userOpt.map(_.id)))
+    backend.withContext(ApiUser(userOpt.map(_.id)))
 
   override def filter()(implicit userOpt: Option[UserProfile]): Future[SearchResult[FilterHit]] = {
 

@@ -16,11 +16,13 @@ trait RestAnnotations extends Annotations with RestDAO {
 
   val eventHandler: EventHandler
   implicit def apiUser: ApiUser
+  implicit def executionContext: ExecutionContext
+
   import Constants.ACCESSOR_PARAM
 
   private def requestUrl = s"$baseUrl/${EntityType.Annotation}"
 
-  override def getAnnotationsForItem[A](id: String)(implicit rs: BackendReadable[A], executionContext: ExecutionContext): Future[Page[A]] = {
+  override def getAnnotationsForItem[A](id: String)(implicit rs: BackendReadable[A]): Future[Page[A]] = {
     val url = enc(requestUrl, "for", id)
     val pageParams = PageParams.empty.withoutLimit
     userCall(url).withQueryString(pageParams.queryParams: _*).get().map { response =>
@@ -28,7 +30,7 @@ trait RestAnnotations extends Annotations with RestDAO {
     }
   }
 
-  override def createAnnotation[A <: WithId, AF](id: String, ann: AF, accessors: Seq[String] = Nil)(implicit rs: BackendReadable[A], wr: BackendWriteable[AF], executionContext: ExecutionContext): Future[A] = {
+  override def createAnnotation[A <: WithId, AF](id: String, ann: AF, accessors: Seq[String] = Nil)(implicit rs: BackendReadable[A], wr: BackendWriteable[AF]): Future[A] = {
     val url: String = enc(requestUrl, id)
     userCall(url)
         .withQueryString(accessors.map(a => ACCESSOR_PARAM -> a): _*)
@@ -39,7 +41,7 @@ trait RestAnnotations extends Annotations with RestDAO {
     }
   }
 
-  override def createAnnotationForDependent[A <: WithId, AF](id: String, did: String, ann: AF, accessors: Seq[String] = Nil)(implicit rs: BackendReadable[A], wr: BackendWriteable[AF], executionContext: ExecutionContext): Future[A] = {
+  override def createAnnotationForDependent[A <: WithId, AF](id: String, did: String, ann: AF, accessors: Seq[String] = Nil)(implicit rs: BackendReadable[A], wr: BackendWriteable[AF]): Future[A] = {
     val url: String = enc(requestUrl, id, did)
     userCall(url)
       .withQueryString(accessors.map(a => ACCESSOR_PARAM -> a): _*)

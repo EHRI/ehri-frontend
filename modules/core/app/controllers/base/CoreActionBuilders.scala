@@ -23,7 +23,7 @@ trait CoreActionBuilders extends Controller with ControllerHelpers with AuthActi
   // a backend implementation.
   protected def backend: Backend
 
-  protected def userBackend(implicit apiUser: ApiUser): BackendHandle = backend.forUser(apiUser)
+  protected def userBackend(implicit apiUser: ApiUser): BackendHandle = backend.withContext(apiUser)
 
   // NB: Implicit so it can be used as an implicit parameter in views
   // that are rendered from inheriting controllers.

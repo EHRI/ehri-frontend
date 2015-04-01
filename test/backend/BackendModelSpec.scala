@@ -26,7 +26,9 @@ class BackendModelSpec extends RestBackendRunner with PlaySpecification {
   def mockIndexer: SearchIndexer = new MockSearchIndexer(indexEventBuffer)
 
   def testBackendFactory: Backend = new RestBackend(testEventHandler)
-  def testBackend(implicit apiUser: ApiUser): BackendHandle = testBackendFactory.forUser(apiUser)
+
+  def testBackend(implicit apiUser: ApiUser): BackendHandle = testBackendFactory.withContext(apiUser)
+
   def testEventHandler = new EventHandler {
     def handleCreate(id: String) = mockIndexer.indexId(id)
     def handleUpdate(id: String) = mockIndexer.indexId(id)
@@ -154,7 +156,7 @@ class BackendModelSpec extends RestBackendRunner with PlaySpecification {
           val contentType = UserProfile.Resource.contentType
         }
 
-        await(testBackend(apiUser).get[UserProfile]("mike")(badDeserializer, concurrentExecutionContext))
+        await(testBackend.get[UserProfile]("mike")(badDeserializer))
         failure("Expected BadJson error was not found!")
       } catch {
         case e: backend.rest.BadJson =>

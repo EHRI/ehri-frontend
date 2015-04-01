@@ -21,7 +21,7 @@ import play.filters.csrf.CSRFFilter
 import utils.MovedPageLookup
 import utils.search.{MockSearchDispatcher, MockSearchIndexer, _}
 
-import scala.concurrent.Future
+import scala.concurrent.{ExecutionContext, Future}
 
 /**
  * Mixin trait that provides some handy methods to test actions that
@@ -46,7 +46,8 @@ trait TestConfiguration {
 
   // Might want to mock the backend at at some point!
   def testBackendFactory: Backend = new RestBackend(testEventHandler)
-  def testBackend(implicit apiUser: ApiUser): BackendHandle = testBackendFactory.forUser(apiUser)
+  def testBackend(implicit apiUser: ApiUser, executionContext: ExecutionContext): BackendHandle =
+    testBackendFactory.withContext(apiUser)(executionContext)
 
   private def mockResolver: MockSearchResolver = new MockSearchResolver
   private def idGenerator: IdGenerator = new CypherIdGenerator("%06d")
