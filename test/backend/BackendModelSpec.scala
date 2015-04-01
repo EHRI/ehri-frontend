@@ -139,7 +139,7 @@ class BackendModelSpec extends RestBackendRunner with PlaySpecification {
       try {
         // deliberate use the wrong readable here to generate a
         // deserialization error...
-        import backend.BackendReadable
+        import backend.Readable
         import play.api.libs.json._
         import play.api.libs.functional.syntax._
         import models.base.Accessor

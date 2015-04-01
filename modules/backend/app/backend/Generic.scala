@@ -17,7 +17,7 @@ trait Generic {
 
   def create[MT <: WithId, T](item: T, accessors: Seq[String] = Nil, params: Map[String, Seq[String]] = Map.empty, logMsg: Option[String] = None)(implicit rs: Resource[MT], wrt: BackendWriteable[T]): Future[MT]
 
-  def createInContext[MT, T, TT <: WithId](id: String, contentType: ContentTypes.Value, item: T, accessors: Seq[String] = Nil, params: Map[String, Seq[String]] = Map(), logMsg: Option[String] = None)(implicit wrt: BackendWriteable[T], rs: Resource[MT], rd: BackendReadable[TT]): Future[TT]
+  def createInContext[MT, T, TT <: WithId](id: String, contentType: ContentTypes.Value, item: T, accessors: Seq[String] = Nil, params: Map[String, Seq[String]] = Map(), logMsg: Option[String] = None)(implicit wrt: BackendWriteable[T], rs: Resource[MT], rd: Readable[TT]): Future[TT]
 
   def update[MT, T](id: String, item: T, logMsg: Option[String] = None)(implicit wrt: BackendWriteable[T], rs: Resource[MT]): Future[MT]
 
@@ -29,7 +29,7 @@ trait Generic {
 
   def list[MT](params: PageParams = PageParams.empty)(implicit rs: Resource[MT]): Future[Page[MT]]
 
-  def listChildren[MT, CMT](id: String, params: PageParams = PageParams.empty)(implicit rs: Resource[MT], rd: BackendReadable[CMT]): Future[Page[CMT]]
+  def listChildren[MT, CMT](id: String, params: PageParams = PageParams.empty)(implicit rs: Resource[MT], rd: Readable[CMT]): Future[Page[CMT]]
 
   def count[MT](params: PageParams = PageParams.empty)(implicit rs: Resource[MT]): Future[Long]
 

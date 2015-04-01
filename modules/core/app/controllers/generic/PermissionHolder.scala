@@ -8,7 +8,7 @@ import models._
 
 import play.api.libs.concurrent.Execution.Implicits._
 import utils.{Page, PageParams}
-import backend.{BackendReadable, BackendContentType}
+import backend.{Readable, BackendContentType}
 
 import scala.concurrent.Future
 

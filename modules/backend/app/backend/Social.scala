@@ -15,11 +15,11 @@ trait Social {
 
   def isFollower(userId: String, otherId: String): Future[Boolean]
 
-  def followers[U](userId: String, params: PageParams = PageParams.empty)(implicit rd: BackendReadable[U]): Future[Page[U]]
+  def followers[U](userId: String, params: PageParams = PageParams.empty)(implicit rd: Readable[U]): Future[Page[U]]
 
-  def following[U](userId: String, params: PageParams = PageParams.empty)(implicit rd: BackendReadable[U]): Future[Page[U]]
+  def following[U](userId: String, params: PageParams = PageParams.empty)(implicit rd: Readable[U]): Future[Page[U]]
 
-  def watching[A](userId: String, params: PageParams = PageParams.empty)(implicit rd: BackendReadable[A]): Future[Page[A]]
+  def watching[A](userId: String, params: PageParams = PageParams.empty)(implicit rd: Readable[A]): Future[Page[A]]
 
   def watch(userId: String, otherId: String): Future[Unit]
 
@@ -27,7 +27,7 @@ trait Social {
 
   def isWatching(userId: String, otherId: String): Future[Boolean]
 
-  def blocked[A](userId: String, params: PageParams = PageParams.empty)(implicit rd: BackendReadable[A]): Future[Page[A]]
+  def blocked[A](userId: String, params: PageParams = PageParams.empty)(implicit rd: Readable[A]): Future[Page[A]]
 
   def block(userId: String, otherId: String): Future[Unit]
 
@@ -35,9 +35,9 @@ trait Social {
 
   def isBlocking(userId: String, otherId: String): Future[Boolean]
 
-  def userAnnotations[A](userId: String, params: PageParams = PageParams.empty)(implicit rd: BackendReadable[A]): Future[Page[A]]
+  def userAnnotations[A](userId: String, params: PageParams = PageParams.empty)(implicit rd: Readable[A]): Future[Page[A]]
 
-  def userLinks[A](userId: String, params: PageParams = PageParams.empty)(implicit rd: BackendReadable[A]): Future[Page[A]]
+  def userLinks[A](userId: String, params: PageParams = PageParams.empty)(implicit rd: Readable[A]): Future[Page[A]]
 
-  def userBookmarks[A](userId: String, params: PageParams = PageParams.empty)(implicit rd: BackendReadable[A]): Future[Page[A]]
+  def userBookmarks[A](userId: String, params: PageParams = PageParams.empty)(implicit rd: Readable[A]): Future[Page[A]]
 }

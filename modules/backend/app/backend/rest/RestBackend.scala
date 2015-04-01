@@ -36,11 +36,11 @@ case class RestBackendHandle(eventHandler: EventHandler)(implicit val app: play.
       = api.get(urlpart, headers, params)
 
   // Helpers
-  override def createNewUserProfile[T <: WithId](data: Map[String,String] = Map.empty, groups: Seq[String] = Seq.empty)(implicit rd: BackendReadable[T]): Future[T] =
+  override def createNewUserProfile[T <: WithId](data: Map[String,String] = Map.empty, groups: Seq[String] = Seq.empty)(implicit rd: Readable[T]): Future[T] =
     admin.createNewUserProfile[T](data, groups)
 
   // Fetch any type of object. This doesn't really belong here...
-  override def getAny[MT](id: String)(implicit rd: BackendReadable[MT]): Future[MT] = {
+  override def getAny[MT](id: String)(implicit rd: Readable[MT]): Future[MT] = {
     val url: String = enc(baseUrl, "entities", id)
     BackendRequest(url).withHeaders(authHeaders.toSeq: _*).get().map { response =>
       checkErrorAndParse(response, context = Some(url))(rd.restReads)

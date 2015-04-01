@@ -7,7 +7,7 @@ import models.json._
 import play.api.libs.json._
 import play.api.libs.json.JsObject
 import play.api.i18n.Lang
-import backend.{Entity, BackendReadable, Resource}
+import backend.{Entity, Readable, Resource}
 
 
 object PermissionGrantF {
@@ -28,7 +28,7 @@ object PermissionGrantF {
     (__ \ RELATIONSHIPS \ PERM_REL \\ ID).read[String].map(PermissionType.withName)
   )(PermissionGrantF.apply _)
 
-  implicit object Converter extends BackendReadable[PermissionGrantF] {
+  implicit object Converter extends Readable[PermissionGrantF] {
     val restReads = permissionGrantReads
   }
 }

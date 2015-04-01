@@ -61,7 +61,7 @@ trait RestGeneric extends Generic with RestDAO with RestContext {
 
   override def createInContext[MT,T,TT <: WithId](id: String, contentType: ContentTypes.Value, item: T, accessors: Seq[String] = Nil, params: Map[String, Seq[String]] = Map.empty,
       logMsg: Option[String] = None)(
-        implicit wrt: BackendWriteable[T], rs: Resource[MT], rd: backend.BackendReadable[TT]): Future[TT] = {
+        implicit wrt: BackendWriteable[T], rs: Resource[MT], rd: backend.Readable[TT]): Future[TT] = {
     val url = enc(baseUrl, rs.entityType, id, contentType)
     userCall(url)
         .withQueryString(accessors.map(a => ACCESSOR_PARAM -> a): _*)
@@ -123,7 +123,7 @@ trait RestGeneric extends Generic with RestDAO with RestContext {
     }
   }
 
-  override def listChildren[MT,CMT](id: String, params: PageParams = PageParams.empty)(implicit rs: Resource[MT], rd: backend.BackendReadable[CMT]): Future[Page[CMT]] = {
+  override def listChildren[MT,CMT](id: String, params: PageParams = PageParams.empty)(implicit rs: Resource[MT], rd: backend.Readable[CMT]): Future[Page[CMT]] = {
     val url: String = enc(baseUrl, rs.entityType, id, "list")
     userCall(url).withQueryString(params.queryParams: _*).get().map { response =>
       parsePage(response, context = Some(url))(rd.restReads)

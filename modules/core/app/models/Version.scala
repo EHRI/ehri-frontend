@@ -6,7 +6,7 @@ import play.api.libs.json._
 import play.api.libs.functional.syntax._
 import models.json.JsPathExtensions
 import com.fasterxml.jackson.core.JsonParseException
-import backend.{Entity, BackendReadable}
+import backend.{Entity, Readable}
 
 /**
  * Class that holds data about a version of another item.
@@ -42,7 +42,7 @@ object VersionF {
     (__ \ DATA \ VERSION_ENTITY_DATA).readNullable[String]
   )(VersionF.apply _)
 
-  implicit object Converter extends BackendReadable[VersionF] {
+  implicit object Converter extends Readable[VersionF] {
     val restReads: Reads[VersionF] = reads
   }
 }
@@ -63,7 +63,7 @@ object Version {
     (__ \ META).readWithDefault(Json.obj())
   )(Version.apply _)
 
-  implicit object Converter extends BackendReadable[Version] {
+  implicit object Converter extends Readable[Version] {
     val restReads = metaReads
   }
 }

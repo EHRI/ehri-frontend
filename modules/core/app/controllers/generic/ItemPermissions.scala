@@ -7,7 +7,7 @@ import models.base._
 import defines._
 import models.{PermissionGrant, UserProfile}
 import utils.{Page, PageParams}
-import backend.{BackendReadable, BackendContentType}
+import backend.{Readable, BackendContentType}
 
 import scala.concurrent.Future
 

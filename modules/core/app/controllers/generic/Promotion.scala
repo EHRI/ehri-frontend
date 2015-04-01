@@ -1,6 +1,6 @@
 package controllers.generic
 
-import backend.{BackendContentType, BackendReadable}
+import backend.{BackendContentType, Readable}
 import defines.PermissionType
 import play.api.libs.concurrent.Execution.Implicits._
 import play.api.mvc._

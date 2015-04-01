@@ -9,7 +9,7 @@ import play.api.libs.json._
 import play.api.libs.functional.syntax._
 import play.api.i18n.Messages
 import play.api.libs.json.JsObject
-import backend.{Entity, BackendContentType, Resource, BackendReadable}
+import backend.{Entity, BackendContentType, Resource, Readable}
 
 object SystemEventF {
 
@@ -47,7 +47,7 @@ object SystemEventF {
     (__ \ DATA \ EVENT_PROP).readNullable[EventType.Value]
   )(SystemEventF.apply _)
 
-  implicit object Converter extends backend.BackendReadable[SystemEventF] {
+  implicit object Converter extends backend.Readable[SystemEventF] {
     val restReads = Format(systemEventReads,systemEventWrites)
   }
 }

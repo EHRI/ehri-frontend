@@ -10,7 +10,7 @@ import play.api.i18n.Lang
 import play.api.data.Form
 import play.api.data.Forms._
 import play.api.libs.json.JsObject
-import backend.{Entity, BackendReadable, BackendWriteable}
+import backend.{Entity, Readable, BackendWriteable}
 
 
 object AccessPointF {
@@ -107,7 +107,7 @@ object AccessPoint {
       (__ \ META).readWithDefault(Json.obj())
     )(AccessPoint.apply _)
 
-  implicit object Converter extends BackendReadable[AccessPoint] {
+  implicit object Converter extends Readable[AccessPoint] {
     val restReads = metaReads
   }
 

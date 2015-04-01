@@ -16,16 +16,16 @@ trait RestPermissions extends Permissions with RestDAO with RestContext {
 
   private def requestUrl = s"$baseUrl/permission"
 
-  def listPermissionGrants[A](userId: String, params: PageParams)(implicit rd: BackendReadable[A]): Future[Page[A]] =
+  def listPermissionGrants[A](userId: String, params: PageParams)(implicit rd: Readable[A]): Future[Page[A]] =
     listWithUrl(enc(requestUrl, "list", userId), params)
 
-  def listItemPermissionGrants[A](id: String, params: PageParams)(implicit rd: BackendReadable[A]): Future[Page[A]] =
+  def listItemPermissionGrants[A](id: String, params: PageParams)(implicit rd: Readable[A]): Future[Page[A]] =
     listWithUrl(enc(requestUrl, "listForItem", id), params)
 
-  def listScopePermissionGrants[A](id: String, params: PageParams)(implicit rd: BackendReadable[A]): Future[Page[A]] =
+  def listScopePermissionGrants[A](id: String, params: PageParams)(implicit rd: Readable[A]): Future[Page[A]] =
     listWithUrl(enc(requestUrl, "listForScope", id), params)
 
-  private def listWithUrl[A](url: String, params: PageParams)(implicit rd: BackendReadable[A]): Future[Page[A]] = {
+  private def listWithUrl[A](url: String, params: PageParams)(implicit rd: Readable[A]): Future[Page[A]] = {
     userCall(url).withQueryString(params.queryParams: _*).get().map { response =>
       parsePage(response, context = Some(url))(rd.restReads)
     }

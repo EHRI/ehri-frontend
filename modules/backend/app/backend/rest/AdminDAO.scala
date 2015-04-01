@@ -1,13 +1,13 @@
 package backend.rest
 
 import scala.concurrent.{ExecutionContext, Future}
-import backend.{BackendReadable, WithId, EventHandler, ApiUser}
+import backend.{Readable, WithId, EventHandler, ApiUser}
 import play.api.libs.json.Json
 
 case class AdminDAO(eventHandler: EventHandler)(implicit val app: play.api.Application) extends RestDAO {
   def requestUrl = s"$baseUrl/admin"
 
-  def createNewUserProfile[T <: WithId](data: Map[String,String] = Map.empty, groups: Seq[String] = Seq.empty)(implicit apiUser: ApiUser, rd: BackendReadable[T], executionContext: ExecutionContext): Future[T] = {
+  def createNewUserProfile[T <: WithId](data: Map[String,String] = Map.empty, groups: Seq[String] = Seq.empty)(implicit apiUser: ApiUser, rd: Readable[T], executionContext: ExecutionContext): Future[T] = {
     userCall(enc(requestUrl, "createDefaultUserProfile"))
         .withQueryString(groups.map(group => Constants.GROUP_PARAM -> group): _*)
         .post(Json.toJson(data)).map { response =>

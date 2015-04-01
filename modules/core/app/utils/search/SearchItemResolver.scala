@@ -1,7 +1,7 @@
 package utils.search
 
 import scala.concurrent.Future
-import backend.{BackendReadable, ApiUser}
+import backend.{Readable, ApiUser}
 
 /**
  * Component responsible for resolving items from the
@@ -13,5 +13,5 @@ import backend.{BackendReadable, ApiUser}
  * @author Mike Bryant (http://github.com/mikesname)
  */
 trait SearchItemResolver {
-  def resolve[MT](results: Seq[SearchHit])(implicit apiUser: ApiUser, rd: BackendReadable[MT]): Future[Seq[MT]]
+  def resolve[MT](results: Seq[SearchHit])(implicit apiUser: ApiUser, rd: Readable[MT]): Future[Seq[MT]]
 }

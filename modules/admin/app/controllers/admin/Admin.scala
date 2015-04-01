@@ -6,7 +6,7 @@ import controllers.base.AdminController
 import play.api.mvc.Controller
 
 import com.google.inject._
-import backend.{BackendReadable, Backend}
+import backend.{Readable, Backend}
 import defines.EntityType
 import models.base.AnyModel
 import backend.rest.SearchDAO
@@ -14,13 +14,13 @@ import backend.rest.SearchDAO
 
 case class Admin @Inject()(implicit globalConfig: global.GlobalConfig, backend: Backend, accounts: AccountManager, pageRelocator: utils.MovedPageLookup) extends AdminController {
 
-  implicit val rd: BackendReadable[AnyModel] = AnyModel.Converter
+  implicit val rd: Readable[AnyModel] = AnyModel.Converter
 
    /**
    * Action for redirecting to any item page, given a raw id.
    */
   def get(id: String) = OptionalUserAction.async { implicit request =>
-    implicit val rd: BackendReadable[AnyModel] = AnyModel.Converter
+    implicit val rd: Readable[AnyModel] = AnyModel.Converter
     SearchDAO.list(List(id)).map {
       case Nil => NotFound(views.html.errors.itemNotFound())
       case mm :: _ => views.admin.Helpers.linkToOpt(mm)

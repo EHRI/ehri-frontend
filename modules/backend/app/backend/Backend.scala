@@ -31,8 +31,8 @@ trait BackendHandle
   def query(urlpart: String, headers: Headers, params: Map[String,Seq[String]] = Map.empty): Future[WSResponse]
 
   // Helpers
-  def createNewUserProfile[T <: WithId](data: Map[String,String] = Map.empty, groups: Seq[String] = Seq.empty)(implicit rd: BackendReadable[T]): Future[T]
+  def createNewUserProfile[T <: WithId](data: Map[String,String] = Map.empty, groups: Seq[String] = Seq.empty)(implicit rd: Readable[T]): Future[T]
 
   // Fetch any type of object
-  def getAny[MT](id: String)(implicit rd: BackendReadable[MT]): Future[MT]
+  def getAny[MT](id: String)(implicit rd: Readable[MT]): Future[MT]
 }

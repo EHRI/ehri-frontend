@@ -22,11 +22,11 @@ trait Permissions {
 
   def setScopePermissions(userId: String, id: String, data: Map[String, Seq[String]]): Future[GlobalPermissionSet]
 
-  def listPermissionGrants[A](userId: String, params: PageParams)(implicit rd: BackendReadable[A]): Future[Page[A]]
+  def listPermissionGrants[A](userId: String, params: PageParams)(implicit rd: Readable[A]): Future[Page[A]]
 
-  def listItemPermissionGrants[A](id: String, params: PageParams)(implicit rd: BackendReadable[A]): Future[Page[A]]
+  def listItemPermissionGrants[A](id: String, params: PageParams)(implicit rd: Readable[A]): Future[Page[A]]
 
-  def listScopePermissionGrants[A](id: String, params: PageParams)(implicit rd: BackendReadable[A]): Future[Page[A]]
+  def listScopePermissionGrants[A](id: String, params: PageParams)(implicit rd: Readable[A]): Future[Page[A]]
 
   def addGroup[GT,UT](groupId: String, userId: String)(implicit gr: Resource[GT], ur: Resource[UT]): Future[Boolean]
 

@@ -1,6 +1,6 @@
 package controllers.generic
 
-import backend.{BackendContentType, BackendReadable, Resource}
+import backend.{BackendContentType, Readable, Resource}
 import defines.{EntityType, PermissionType}
 import models.base.{Described, Description, MetaModel, Model}
 import models.{AccessPointF, Link, LinkF, UserProfile}
@@ -76,7 +76,7 @@ trait AccessPoints[D <: Description, T <: Model with Described[D], MT <: MetaMod
    *   } ]
    *
    */
-  def getAccessPointsJson(id: String)(implicit rd: BackendReadable[MT], rs: Resource[MT]) = {
+  def getAccessPointsJson(id: String)(implicit rd: Readable[MT], rs: Resource[MT]) = {
     OptionalUserAction.async { implicit request =>
       for (item <- userBackend.get(id); links <- userBackend.getLinksForItem[Link](id)) yield {
         implicit val accessPointFormat = Json.format[AccessPointF]

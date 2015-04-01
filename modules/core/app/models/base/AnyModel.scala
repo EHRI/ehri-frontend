@@ -9,7 +9,7 @@ import play.api.data.validation.ValidationError
 import play.api.libs.json.KeyPathNode
 import scala.collection.SortedMap
 import java.util.NoSuchElementException
-import backend.{Entity, BackendReadable, Resource}
+import backend.{Entity, Readable, Resource}
 
 
 trait AnyModel extends backend.WithId {
@@ -49,7 +49,7 @@ trait Aliased extends AnyModel {
 
 object AnyModel {
 
-  implicit object Converter extends BackendReadable[AnyModel] {
+  implicit object Converter extends Readable[AnyModel] {
     implicit val restReads: Reads[AnyModel] = new Reads[AnyModel] {
       def reads(json: JsValue): JsResult[AnyModel] = {
         // Sniff the type...

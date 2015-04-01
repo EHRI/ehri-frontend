@@ -6,7 +6,7 @@ import defines.EntityType
  * Type classes for connecting models to REST functionality.
  */
 
-trait Resource[T] extends BackendReadable[T] {
+trait Resource[T] extends Readable[T] {
   /**
    * The type of entity that informs the REST URL Path.
    */

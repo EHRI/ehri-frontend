@@ -3,7 +3,7 @@ package backend.rest
 import play.api.libs.concurrent.Execution.Implicits._
 import scala.concurrent.Future
 import play.api.libs.json.{Reads, Json}
-import backend.{BackendReadable, ApiUser}
+import backend.{Readable, ApiUser}
 import utils.search.{SearchItemResolver, SearchHit}
 
 
@@ -11,14 +11,14 @@ trait SearchDAO extends RestDAO {
 
   def requestUrl = s"http://$host:$port/$mount/entities"
 
-  def getAny[MT](id: String)(implicit apiUser: ApiUser,  rd: BackendReadable[MT]): Future[MT] = {
+  def getAny[MT](id: String)(implicit apiUser: ApiUser,  rd: Readable[MT]): Future[MT] = {
     val url: String = enc(requestUrl, id)
     BackendRequest(url).withHeaders(authHeaders.toSeq: _*).get().map { response =>
       checkErrorAndParse(response, context = Some(url))(rd.restReads)
     }
   }
 
-  def listByGid[MT](ids: Seq[Long])(implicit apiUser: ApiUser,  rd: BackendReadable[MT]): Future[Seq[MT]] = {
+  def listByGid[MT](ids: Seq[Long])(implicit apiUser: ApiUser,  rd: Readable[MT]): Future[Seq[MT]] = {
     // NB: Using POST here because the list of IDs can
     // potentially overflow the GET param length...
     if (ids.isEmpty) Future.successful(Seq.empty[MT])
@@ -28,7 +28,7 @@ trait SearchDAO extends RestDAO {
     }
   }
 
-  def list[MT](ids: Seq[String])(implicit apiUser: ApiUser,  rd: BackendReadable[MT]): Future[Seq[MT]] = {
+  def list[MT](ids: Seq[String])(implicit apiUser: ApiUser,  rd: Readable[MT]): Future[Seq[MT]] = {
     // NB: Using POST here because the list of IDs can
     // potentially overflow the GET param length...
     if (ids.isEmpty) Future.successful(Seq.empty[MT])
@@ -47,7 +47,7 @@ object SearchDAO extends SearchDAO {
  * Resolve search hits to DB items by the GID field
  */
 case class GidSearchResolver(implicit val app: play.api.Application) extends RestDAO with SearchDAO with SearchItemResolver {
-  def resolve[MT](docs: Seq[SearchHit])(implicit apiUser: ApiUser,  rd: BackendReadable[MT]): Future[Seq[MT]] =
+  def resolve[MT](docs: Seq[SearchHit])(implicit apiUser: ApiUser,  rd: Readable[MT]): Future[Seq[MT]] =
     listByGid(docs.map(_.gid))
 }
 
@@ -55,6 +55,6 @@ case class GidSearchResolver(implicit val app: play.api.Application) extends Res
  * Resolve search hits to DB items by the itemId field
  */
 case class IdSearchResolver(implicit val app: play.api.Application) extends RestDAO with SearchDAO with SearchItemResolver {
-  def resolve[MT](docs: Seq[SearchHit])(implicit apiUser: ApiUser,  rd: BackendReadable[MT]): Future[Seq[MT]] =
+  def resolve[MT](docs: Seq[SearchHit])(implicit apiUser: ApiUser,  rd: Readable[MT]): Future[Seq[MT]] =
     list(docs.map(_.itemId))
 }
