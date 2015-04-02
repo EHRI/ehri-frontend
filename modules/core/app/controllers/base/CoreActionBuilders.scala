@@ -23,20 +23,39 @@ trait CoreActionBuilders extends Controller with ControllerHelpers with AuthActi
   // a backend implementation.
   protected def backend: Backend
 
-  protected def userBackend(implicit apiUser: ApiUser): BackendHandle = backend.withContext(apiUser)
+  /**
+   * Obtain a handle to the backend database in the context of
+   * a particular user.
+   *
+   * @param apiUser the current user
+   * @return a backend handle
+   */
+  protected def userBackend(implicit apiUser: ApiUser): BackendHandle =
+    backend.withContext(apiUser)
 
-  // NB: Implicit so it can be used as an implicit parameter in views
-  // that are rendered from inheriting controllers.
+  /**
+   * Access the global configuration instance.
+   */
   protected implicit def globalConfig: global.GlobalConfig
 
-  // Override this to allow non-staff to view a page
+  /**
+   * Indicates that the current controller is only accessible to
+   * staff accounts.
+   */
   protected def staffOnly = true
 
-  // Override this to allow non-verified users to view a page
+  /**
+   * Indicates that the current controller is only accessible
+   * to verified accounts.
+   */
   protected def verifiedOnly = true
 
-  // Turning secured off will override staffOnly
-  protected lazy val secured = play.api.Play.current.configuration.getBoolean("ehri.secured").getOrElse(true)
+  /**
+   * Indicates that the current controller is secured, which,
+   * if set to false, overrides staffOnly and verifiedOnly.
+   */
+  protected lazy val secured = play.api.Play.current
+    .configuration.getBoolean("ehri.secured").getOrElse(true)
 
   /**
    * Abstract response methods that should be implemented by inheritors.
@@ -255,7 +274,7 @@ trait CoreActionBuilders extends Controller with ControllerHelpers with AuthActi
   protected def WithContentPermissionAction(permissionType: PermissionType.Value, contentType: ContentTypes.Value) =
     WithUserAction andThen new ActionFilter[WithUserRequest] {
       override protected def filter[A](request: WithUserRequest[A]): Future[Option[Result]] = {
-        if (request.user.hasPermission(contentType, permissionType))  Future.successful(None)
+        if (request.user.hasPermission(contentType, permissionType)) immediate(None)
         else authorizationFailed(request).map(r => Some(r))
       }
     }
@@ -265,9 +284,8 @@ trait CoreActionBuilders extends Controller with ControllerHelpers with AuthActi
    */
   protected def MustBelongTo(groupId: String) = WithUserAction andThen new ActionFilter[WithUserRequest] {
     protected def filter[A](request: WithUserRequest[A]): Future[Option[Result]] = {
-      if (!request.user.isAdmin && !request.user.allGroups.exists(_.id == groupId))
-        authorizationFailed(request).map(r => Some(r))
-      else immediate(None)
+      if (request.user.isAdmin || request.user.allGroups.exists(_.id == groupId)) immediate(None)
+      else authorizationFailed(request).map(r => Some(r))
     }
   }
 
@@ -276,8 +294,8 @@ trait CoreActionBuilders extends Controller with ControllerHelpers with AuthActi
    */
   protected def AdminAction = WithUserAction andThen new ActionFilter[WithUserRequest] {
     protected def filter[A](request: WithUserRequest[A]): Future[Option[Result]] = {
-      if (!request.user.isAdmin) authorizationFailed(request).map(r => Some(r))
-      else immediate(None)
+      if (request.user.isAdmin) immediate(None)
+      else authorizationFailed(request).map(r => Some(r))
     }
   }
 }
