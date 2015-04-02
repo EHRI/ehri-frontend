@@ -16,18 +16,18 @@ trait RestPermissions extends Permissions with RestDAO with RestContext {
 
   private def requestUrl = s"$baseUrl/permission"
 
-  def listPermissionGrants[A](userId: String, params: PageParams)(implicit rd: Readable[A]): Future[Page[A]] =
+  def listPermissionGrants[A: Readable](userId: String, params: PageParams): Future[Page[A]] =
     listWithUrl(enc(requestUrl, "list", userId), params)
 
-  def listItemPermissionGrants[A](id: String, params: PageParams)(implicit rd: Readable[A]): Future[Page[A]] =
+  def listItemPermissionGrants[A: Readable](id: String, params: PageParams): Future[Page[A]] =
     listWithUrl(enc(requestUrl, "listForItem", id), params)
 
-  def listScopePermissionGrants[A](id: String, params: PageParams)(implicit rd: Readable[A]): Future[Page[A]] =
+  def listScopePermissionGrants[A: Readable](id: String, params: PageParams): Future[Page[A]] =
     listWithUrl(enc(requestUrl, "listForScope", id), params)
 
-  private def listWithUrl[A](url: String, params: PageParams)(implicit rd: Readable[A]): Future[Page[A]] = {
+  private def listWithUrl[A: Readable](url: String, params: PageParams): Future[Page[A]] = {
     userCall(url).withQueryString(params.queryParams: _*).get().map { response =>
-      parsePage(response, context = Some(url))(rd.restReads)
+      parsePage(response, context = Some(url))(Readable[A].restReads)
     }
   }
 
@@ -81,7 +81,7 @@ trait RestPermissions extends Permissions with RestDAO with RestContext {
     }
   }
 
-  override def addGroup[GT,UT](groupId: String, userId: String)(implicit gr: Resource[GT], ur: Resource[UT]): Future[Boolean] = {
+  override def addGroup[GT: Resource, UT: Resource](groupId: String, userId: String): Future[Boolean] = {
     userCall(enc(baseUrl, EntityType.Group, groupId, userId)).post(Map[String, Seq[String]]()).map { response =>
       checkError(response)
       Cache.remove(canonicalUrl[UT](userId))
@@ -91,7 +91,7 @@ trait RestPermissions extends Permissions with RestDAO with RestContext {
     }
   }
 
-  override def removeGroup[GT,UT](groupId: String, userId: String)(implicit gr: Resource[GT], ur: Resource[UT]): Future[Boolean] = {
+  override def removeGroup[GT: Resource, UT: Resource](groupId: String, userId: String): Future[Boolean] = {
     userCall(enc(baseUrl, EntityType.Group, groupId, userId)).delete().map { response =>
       checkError(response)
       Cache.remove(canonicalUrl[UT](userId))

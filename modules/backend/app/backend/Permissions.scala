@@ -22,13 +22,13 @@ trait Permissions {
 
   def setScopePermissions(userId: String, id: String, data: Map[String, Seq[String]]): Future[GlobalPermissionSet]
 
-  def listPermissionGrants[A](userId: String, params: PageParams)(implicit rd: Readable[A]): Future[Page[A]]
+  def listPermissionGrants[A: Readable](userId: String, params: PageParams): Future[Page[A]]
 
-  def listItemPermissionGrants[A](id: String, params: PageParams)(implicit rd: Readable[A]): Future[Page[A]]
+  def listItemPermissionGrants[A: Readable](id: String, params: PageParams): Future[Page[A]]
 
-  def listScopePermissionGrants[A](id: String, params: PageParams)(implicit rd: Readable[A]): Future[Page[A]]
+  def listScopePermissionGrants[A: Readable](id: String, params: PageParams): Future[Page[A]]
 
-  def addGroup[GT,UT](groupId: String, userId: String)(implicit gr: Resource[GT], ur: Resource[UT]): Future[Boolean]
+  def addGroup[GT: Resource, UT: Resource](groupId: String, userId: String): Future[Boolean]
 
-  def removeGroup[GT,UT](groupId: String, userId: String)(implicit gr: Resource[GT], ur: Resource[UT]): Future[Boolean]
+  def removeGroup[GT: Resource, UT: Resource](groupId: String, userId: String): Future[Boolean]
 }

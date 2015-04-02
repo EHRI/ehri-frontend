@@ -207,8 +207,8 @@ trait RestDAO {
 
   protected def baseUrl = s"http://$host:$port/$mount"
 
-  protected def canonicalUrl[MT](id: String)(implicit rd: Resource[MT]): String =
-    enc(baseUrl, rd.entityType, id)
+  protected def canonicalUrl[MT: Resource](id: String): String =
+    enc(baseUrl, Resource[MT].entityType, id)
 
   protected def checkError(response: WSResponse): WSResponse = {
     Logger.logger.trace("Response body ! : {}", response.body)

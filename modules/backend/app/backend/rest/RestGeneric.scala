@@ -1,12 +1,11 @@
 package backend.rest
 
-import scala.concurrent.{ExecutionContext, Future}
+import scala.concurrent.Future
 import play.api.libs.json._
 import defines.ContentTypes
 import play.api.cache.Cache
 import utils.{Page, PageParams}
 import backend._
-import backend.ApiUser
 import play.api.libs.json.JsObject
 
 
@@ -33,42 +32,40 @@ trait RestGeneric extends Generic with RestDAO with RestContext {
     }
   }
 
-  override def get[MT](id: String)(implicit rs: Resource[MT]): Future[MT] = {
-    get(rs, id)
+  override def get[MT: Resource](id: String): Future[MT] = {
+    get(Resource[MT], id)
   }
 
-  override def getJson[MT](id: String)(implicit rs: Resource[MT]): Future[JsObject] = {
-    val url: String = enc(baseUrl, rs.entityType, id)
+  override def getJson[MT: Resource](id: String): Future[JsObject] = {
+    val url: String = enc(baseUrl, Resource[MT].entityType, id)
     userCall(url).get().map { response =>
       checkErrorAndParse[JsObject](response, context = Some(url))
     }
   }
 
-  override def create[MT <: WithId, T](item: T, accessors: Seq[String] = Nil,
-      params: Map[String,Seq[String]] = Map.empty,
-      logMsg: Option[String] = None)(implicit rs: Resource[MT], wrt: Writable[T]): Future[MT] = {
-    val url = enc(baseUrl, rs.entityType)
+  override def create[MT <: WithId : Resource, T: Writable](item: T, accessors: Seq[String] = Nil,
+      params: Map[String,Seq[String]] = Map.empty, logMsg: Option[String] = None): Future[MT] = {
+    val url = enc(baseUrl, Resource[MT].entityType)
     userCall(url)
         .withQueryString(accessors.map(a => ACCESSOR_PARAM -> a): _*)
         .withQueryString(unpack(params):_*)
         .withHeaders(msgHeader(logMsg): _*)
-      .post(Json.toJson(item)(wrt.restFormat)).map { response =>
-      val created = checkErrorAndParse(response, context = Some(url))(rs.restReads)
+      .post(Json.toJson(item)(Writable[T].restFormat)).map { response =>
+      val created = checkErrorAndParse(response, context = Some(url))(Resource[MT].restReads)
       eventHandler.handleCreate(created.id)
       created
     }
   }
 
-  override def createInContext[MT,T,TT <: WithId](id: String, contentType: ContentTypes.Value, item: T, accessors: Seq[String] = Nil, params: Map[String, Seq[String]] = Map.empty,
-      logMsg: Option[String] = None)(
-        implicit wrt: Writable[T], rs: Resource[MT], rd: backend.Readable[TT]): Future[TT] = {
-    val url = enc(baseUrl, rs.entityType, id, contentType)
+  override def createInContext[MT: Resource, T: Writable, TT <: WithId : Readable](id: String, contentType: ContentTypes.Value, item: T, accessors: Seq[String] = Nil, params: Map[String, Seq[String]] = Map.empty,
+      logMsg: Option[String] = None): Future[TT] = {
+    val url = enc(baseUrl, Resource[MT].entityType, id, contentType)
     userCall(url)
         .withQueryString(accessors.map(a => ACCESSOR_PARAM -> a): _*)
         .withQueryString(unpack(params):_*)
         .withHeaders(msgHeader(logMsg): _*)
-        .post(Json.toJson(item)(wrt.restFormat)).map { response =>
-      val created = checkErrorAndParse(response, context = Some(url))(rd.restReads)
+        .post(Json.toJson(item)(Writable[T].restFormat)).map { response =>
+      val created = checkErrorAndParse(response, context = Some(url))(Readable[TT].restReads)
       // also reindex parent since this will update child count caches
       eventHandler.handleUpdate(id)
       eventHandler.handleCreate(created.id)
@@ -76,68 +73,66 @@ trait RestGeneric extends Generic with RestDAO with RestContext {
     }
   }
 
-  override def update[MT,T](id: String, item: T, logMsg: Option[String] = None)(
-      implicit wrt: Writable[T], rs: Resource[MT]): Future[MT] = {
-    val url = enc(baseUrl, rs.entityType, id)
+  override def update[MT: Resource, T: Writable](id: String, item: T, logMsg: Option[String] = None): Future[MT] = {
+    val url = enc(baseUrl, Resource[MT].entityType, id)
     userCall(url).withHeaders(msgHeader(logMsg): _*)
-        .put(Json.toJson(item)(wrt.restFormat)).map { response =>
-      val item = checkErrorAndParse(response, context = Some(url))(rs.restReads)
+        .put(Json.toJson(item)(Writable[T].restFormat)).map { response =>
+      val item = checkErrorAndParse(response, context = Some(url))(Resource[MT].restReads)
       eventHandler.handleUpdate(id)
       Cache.remove(canonicalUrl(id))
       item
     }
   }
 
-  override def patch[MT](id: String, data: JsObject, logMsg: Option[String] = None)(
-      implicit rs: Resource[MT]): Future[MT] = {
-    val item = Json.obj(Entity.TYPE -> rs.entityType, Entity.DATA -> data)
-    val url = enc(baseUrl, rs.entityType, id)
+  override def patch[MT: Resource](id: String, data: JsObject, logMsg: Option[String] = None): Future[MT] = {
+    val item = Json.obj(Entity.TYPE -> Resource[MT].entityType, Entity.DATA -> data)
+    val url = enc(baseUrl, Resource[MT].entityType, id)
     userCall(url).withHeaders((PATCH_HEADER_NAME -> true.toString) +: msgHeader(logMsg): _*)
         .put(item).map { response =>
-      val item = checkErrorAndParse(response, context = Some(url))(rs.restReads)
+      val item = checkErrorAndParse(response, context = Some(url))(Resource[MT].restReads)
       eventHandler.handleUpdate(id)
       Cache.remove(canonicalUrl(id))
       item
     }
   }
 
-  override def delete[MT](id: String, logMsg: Option[String] = None)(implicit rs: Resource[MT]): Future[Unit] = {
-    userCall(enc(baseUrl, rs.entityType, id)).delete().map { response =>
+  override def delete[MT: Resource](id: String, logMsg: Option[String] = None): Future[Unit] = {
+    userCall(enc(baseUrl, Resource[MT].entityType, id)).delete().map { response =>
       checkError(response)
       eventHandler.handleDelete(id)
       Cache.remove(canonicalUrl(id))
     }
   }
 
-  override def listJson[MT](params: PageParams = PageParams.empty)(implicit rs: Resource[MT]): Future[Page[JsObject]] = {
-    val url = enc(baseUrl, rs.entityType, "list")
+  override def listJson[MT: Resource](params: PageParams = PageParams.empty): Future[Page[JsObject]] = {
+    val url = enc(baseUrl, Resource[MT].entityType, "list")
     userCall(url).withQueryString(params.queryParams:_*).get().map { response =>
       parsePage[JsObject](response, context = Some(url))
     }
   }
 
-  override def list[MT](params: PageParams = PageParams.empty)(implicit rs: Resource[MT]): Future[Page[MT]] = {
-    val url = enc(baseUrl, rs.entityType, "list")
+  override def list[MT: Resource](params: PageParams = PageParams.empty): Future[Page[MT]] = {
+    val url = enc(baseUrl, Resource[MT].entityType, "list")
     userCall(url).withQueryString(params.queryParams: _*).get().map { response =>
-      parsePage(response, context = Some(url))(rs.restReads)
+      parsePage(response, context = Some(url))(Resource[MT].restReads)
     }
   }
 
-  override def listChildren[MT,CMT](id: String, params: PageParams = PageParams.empty)(implicit rs: Resource[MT], rd: backend.Readable[CMT]): Future[Page[CMT]] = {
-    val url: String = enc(baseUrl, rs.entityType, id, "list")
+  override def listChildren[MT: Resource, CMT: Readable](id: String, params: PageParams = PageParams.empty): Future[Page[CMT]] = {
+    val url: String = enc(baseUrl, Resource[MT].entityType, id, "list")
     userCall(url).withQueryString(params.queryParams: _*).get().map { response =>
-      parsePage(response, context = Some(url))(rd.restReads)
+      parsePage(response, context = Some(url))(Readable[CMT].restReads)
     }
   }
 
-  override def count[MT](params: PageParams = PageParams.empty)(implicit rs: Resource[MT]): Future[Long] = {
-    userCall(enc(baseUrl, rs.entityType, "count")).withQueryString(params.queryParams: _*).get().map { response =>
+  override def count[MT: Resource](params: PageParams = PageParams.empty): Future[Long] = {
+    userCall(enc(baseUrl, Resource[MT].entityType, "count")).withQueryString(params.queryParams: _*).get().map { response =>
       checkErrorAndParse[Long](response)
     }
   }
 
-  override def countChildren[MT](id: String, params: PageParams = PageParams.empty)(implicit rs: Resource[MT]): Future[Long] = {
-    userCall(enc(baseUrl, rs.entityType, id, "count")).withQueryString(params.queryParams: _*).get().map { response =>
+  override def countChildren[MT: Resource](id: String, params: PageParams = PageParams.empty): Future[Long] = {
+    userCall(enc(baseUrl, Resource[MT].entityType, id, "count")).withQueryString(params.queryParams: _*).get().map { response =>
       checkErrorAndParse[Long](response)
     }
   }
