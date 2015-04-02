@@ -28,7 +28,7 @@ trait RestSocial extends Social with RestDAO with RestContext {
 
   private def isBlockingUrl(userId: String, otherId: String) = enc(requestUrl, userId, "isBlocking", otherId)
 
-  override def follow[U](userId: String, otherId: String)(implicit rs: Resource[U]): Future[Unit] = {
+  override def follow[U: Resource](userId: String, otherId: String): Future[Unit] = {
     userCall(followingUrl(userId)).withQueryString(ID_PARAM -> otherId).post("").map { r =>
       checkError(r)
       Cache.set(isFollowingUrl(userId, otherId), true, cacheTime)
@@ -37,7 +37,7 @@ trait RestSocial extends Social with RestDAO with RestContext {
     }
   }
 
-  override def unfollow[U](userId: String, otherId: String)(implicit rs: Resource[U]): Future[Unit] = {
+  override def unfollow[U: Resource](userId: String, otherId: String): Future[Unit] = {
     userCall(followingUrl(userId)).withQueryString(ID_PARAM -> otherId).delete().map { r =>
       checkError(r)
       Cache.set(isFollowingUrl(userId, otherId), false, cacheTime)
@@ -61,24 +61,24 @@ trait RestSocial extends Social with RestDAO with RestContext {
     }
   }
 
-  override def followers[U](userId: String, params: PageParams = PageParams.empty)(implicit rd: Readable[U]): Future[Page[U]] = {
+  override def followers[U: Readable](userId: String, params: PageParams = PageParams.empty): Future[Page[U]] = {
     val url: String = enc(requestUrl, userId, "followers")
     userCall(url).withQueryString(params.queryParams: _*).get().map { r =>
-      parsePage(r, context = Some(url))(rd.restReads)
+      parsePage(r, context = Some(url))(Readable[U].restReads)
     }
   }
 
-  override def following[U](userId: String, params: PageParams = PageParams.empty)(implicit rd: Readable[U]): Future[Page[U]] = {
+  override def following[U: Readable](userId: String, params: PageParams = PageParams.empty): Future[Page[U]] = {
     val url: String = followingUrl(userId)
     userCall(url).withQueryString(params.queryParams: _*).get().map { r =>
-      parsePage(r, context = Some(url))(rd.restReads)
+      parsePage(r, context = Some(url))(Readable[U].restReads)
     }
   }
 
-  override def watching[A](userId: String, params: PageParams = PageParams.empty)(implicit rd: Readable[A]): Future[Page[A]] = {
+  override def watching[A: Readable](userId: String, params: PageParams = PageParams.empty): Future[Page[A]] = {
     val url: String = enc(requestUrl, userId, "watching")
     userCall(url).withQueryString(params.queryParams: _*).get().map { r =>
-      parsePage(r, context = Some(url))(rd.restReads)
+      parsePage(r, context = Some(url))(Readable[A].restReads)
     }
   }
 
@@ -107,10 +107,10 @@ trait RestSocial extends Social with RestDAO with RestContext {
     }
   }
 
-  override def blocked[A](userId: String, params: PageParams = PageParams.empty)(implicit rd: Readable[A]): Future[Page[A]] = {
+  override def blocked[A: Readable](userId: String, params: PageParams = PageParams.empty): Future[Page[A]] = {
     val url: String = blockedUrl(userId)
     userCall(url).withQueryString(params.queryParams: _*).get().map { r =>
-      parsePage(r, context = Some(url))(rd.restReads)
+      parsePage(r, context = Some(url))(Readable[A].restReads)
     }
   }
 
@@ -139,26 +139,24 @@ trait RestSocial extends Social with RestDAO with RestContext {
     }
   }
 
-  override def userAnnotations[A](userId: String, params: PageParams = PageParams.empty)(implicit rd: Readable[A]): Future[Page[A]] = {
+  override def userAnnotations[A: Readable](userId: String, params: PageParams = PageParams.empty): Future[Page[A]] = {
     val url: String = enc(requestUrl, userId, EntityType.Annotation)
-    userCall(url)
-        .withQueryString(params.queryParams: _*).get().map { r =>
-      parsePage(r, context = Some(url))(rd.restReads)
+    userCall(url).withQueryString(params.queryParams: _*).get().map { r =>
+      parsePage(r, context = Some(url))(Readable[A].restReads)
     }
   }
 
-  override def userLinks[A](userId: String, params: PageParams = PageParams.empty)(implicit rd: Readable[A]): Future[Page[A]] = {
+  override def userLinks[A: Readable](userId: String, params: PageParams = PageParams.empty): Future[Page[A]] = {
     val url: String = enc(requestUrl, userId, EntityType.Link)
-    userCall(url)
-        .withQueryString(params.queryParams: _*).get().map { r =>
-      parsePage(r, context = Some(url))(rd.restReads)
+    userCall(url).withQueryString(params.queryParams: _*).get().map { r =>
+      parsePage(r, context = Some(url))(Readable[A].restReads)
     }
   }
 
-  override def userBookmarks[A](userId: String, params: PageParams = PageParams.empty)(implicit rd: Readable[A]): Future[Page[A]] = {
+  override def userBookmarks[A: Readable](userId: String, params: PageParams = PageParams.empty): Future[Page[A]] = {
     val url: String = enc(requestUrl, userId, EntityType.VirtualUnit)
     userCall(url).get().map { r =>
-      parsePage(r, context = Some(url))(rd.restReads)
+      parsePage(r, context = Some(url))(Readable[A].restReads)
     }
   }
 }

@@ -24,23 +24,23 @@ trait RestLinks extends Links with RestDAO with RestContext {
   /**
    * Fetch links for the given item.
    */
-  override def getLinksForItem[A](id: String)(implicit rd: Readable[A]): Future[Page[A]] = {
+  override def getLinksForItem[A: Readable](id: String): Future[Page[A]] = {
     val pageParams = PageParams.empty.withoutLimit
     userCall(enc(requestUrl, "for", id)).withQueryString(pageParams.queryParams: _*)
       .get().map { response =>
-      parsePage(response)(rd.restReads)
+      parsePage(response)(Readable[A].restReads)
     }
   }
 
   /**
    * Create a single link.
    */
-  override def linkItems[MT, A <: WithId, AF](id: String, src: String, link: AF, accessPoint: Option[String] = None)(implicit rs: Resource[MT], rd: Readable[A], wd: Writable[AF]): Future[A] = {
+  override def linkItems[MT: Resource, A <: WithId : Readable, AF: Writable](id: String, src: String, link: AF, accessPoint: Option[String] = None): Future[A] = {
     val url: String = enc(requestUrl, id, src)
     userCall(url).withQueryString(accessPoint.map(a => BODY_PARAM -> a).toSeq: _*)
-      .post(Json.toJson(link)(wd.restFormat)).map { response =>
-      Cache.remove(canonicalUrl(id))
-      val link: A = checkErrorAndParse[A](response, context = Some(url))(rd.restReads)
+      .post(Json.toJson(link)(Writable[AF].restFormat)).map { response =>
+      Cache.remove(canonicalUrl[MT](id))
+      val link: A = checkErrorAndParse[A](response, context = Some(url))(Readable[A].restReads)
       eventHandler.handleCreate(link.id)
       link
     }
@@ -49,7 +49,7 @@ trait RestLinks extends Links with RestDAO with RestContext {
   /**
    * Remove a link on an item.
    */
-  override def deleteLink[MT](id: String, linkId: String)(implicit rs: Resource[MT]): Future[Boolean] = {
+  override def deleteLink[MT: Resource](id: String, linkId: String): Future[Boolean] = {
     val url = enc(requestUrl, "for", id, linkId)
     userCall(url).delete().map { response =>
       checkError(response)
@@ -62,7 +62,7 @@ trait RestLinks extends Links with RestDAO with RestContext {
   /**
    * Create multiple links. NB: This function is NOT transactional.
    */
-  override def linkMultiple[MT, A <: WithId, AF](id: String, srcToLinks: Seq[(String,AF,Option[String])])(implicit rs: Resource[MT], rd: Readable[A], wd: Writable[AF]): Future[Seq[A]] = {
+  override def linkMultiple[MT: Resource, A <: WithId : Readable, AF: Writable](id: String, srcToLinks: Seq[(String,AF,Option[String])]): Future[Seq[A]] = {
     val done: Future[Seq[A]] = Future.sequence {
       srcToLinks.map { case (other, ann, accessPoint) =>
         linkItems(id, other, ann, accessPoint)

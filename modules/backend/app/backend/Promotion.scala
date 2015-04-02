@@ -6,8 +6,8 @@ import scala.concurrent.Future
  * @author Mike Bryant (http://github.com/mikesname)
  */
 trait Promotion {
-  def promote[MT](id: String)(implicit rs: Resource[MT]): Future[MT]
-  def removePromotion[MT](id: String)(implicit rs: Resource[MT]): Future[MT]
-  def demote[MT](id: String)(implicit rs: Resource[MT]): Future[MT]
-  def removeDemotion[MT](id: String)(implicit rs: Resource[MT]): Future[MT]
+  def promote[MT: Resource](id: String): Future[MT]
+  def removePromotion[MT: Resource](id: String): Future[MT]
+  def demote[MT: Resource](id: String): Future[MT]
+  def removeDemotion[MT: Resource](id: String): Future[MT]
 }

@@ -12,7 +12,7 @@ trait VirtualCollections {
    * @param vcId the virtual collection id
    * @param ids a set of item ids
    */
-  def addReferences[MT](vcId: String, ids: Seq[String])(implicit rs: Resource[MT]): Future[Unit]
+  def addReferences[MT: Resource](vcId: String, ids: Seq[String]): Future[Unit]
 
   /**
    * Remove a set of items from a virtual collection.
@@ -20,7 +20,7 @@ trait VirtualCollections {
    * @param vcId the virtual collection id
    * @param ids a set of item ids
    */
-  def deleteReferences[MT](vcId: String, ids: Seq[String])(implicit rs: Resource[MT]): Future[Unit]
+  def deleteReferences[MT: Resource](vcId: String, ids: Seq[String]): Future[Unit]
 
   /**
    * Move a set of items from one virtual collection to another
@@ -29,5 +29,5 @@ trait VirtualCollections {
    * @param toVc the destination virtual collection id
    * @param ids a set of item ids
    */
-  def moveReferences[MT](fromVc: String, toVc: String, ids: Seq[String])(implicit rs: Resource[MT]): Future[Unit]
+  def moveReferences[MT: Resource](fromVc: String, toVc: String, ids: Seq[String]): Future[Unit]
 }
