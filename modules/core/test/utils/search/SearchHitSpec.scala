@@ -60,8 +60,8 @@ class SearchHitSpec extends PlaySpecification {
   "search highlighting" should {
     "highlight body fields but not programmatic ones" in {
       val hl = testHit.highlight(data)
-      hl.body must contain("<em>Demandes</em>")
-      hl.body must not contain("<em>lu-006007-lu-11-iv-3-286</em>")
+      hl must contain("<em>Demandes</em>")
+      hl must not contain("<em>lu-006007-lu-11-iv-3-286</em>")
     }
   }
 }
