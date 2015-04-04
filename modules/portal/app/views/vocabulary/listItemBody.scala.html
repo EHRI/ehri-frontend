@@ -9,5 +9,5 @@
 }
 
 @item.model.description.map { desc =>
-    @Html(views.Helpers.renderMarkdown(desc))
+    @Markdown(desc)
 }

@@ -31,10 +31,10 @@
                                     @item.model.descriptions.headOption.map { desc =>
                                         <div class="item-description">
                                             @desc.details.history.map { d =>
-                                                <p>@Html(views.Helpers.renderMarkdown(d))</p>
+                                                <p>@Markdown(d)</p>
                                             }
                                             @desc.details.generalContext.map { d =>
-                                                <p>@Html(views.Helpers.renderMarkdown(d))</p>
+                                                <p>@Markdown(d)</p>
                                             }
                                         </div>
                                     }

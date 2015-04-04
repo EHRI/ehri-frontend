@@ -8,7 +8,7 @@
                 @fieldAnnotationButton(item, nodeId, key, anns)
             </h4>
             <div class="item-text-field-value" dir="auto">
-                @Html(views.Helpers.renderMarkdown(value))
+                @Markdown(value)
             </div>
             @fieldAnnotationControls(item, nodeId, key, anns)
         </div>

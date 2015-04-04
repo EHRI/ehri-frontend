@@ -5,7 +5,7 @@
         @views.html.common.itemHeader(item.toStringLang) {
         }
         @item.model.description.map { desc =>
-            @Html(views.Helpers.renderMarkdown(desc))
+            @Markdown(desc)
         }
     } {
         @views.html.common.typeLabelWithWatchButton(item, watched.contains(item.id))e

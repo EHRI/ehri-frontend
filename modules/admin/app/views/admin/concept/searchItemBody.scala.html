@@ -25,5 +25,5 @@
 </small>
 
 @desc.displayText.map(views.Helpers.ellipsize(_, 600)).map { sc =>
-    @Html(views.Helpers.renderMarkdown(sc))
+    @Markdown(sc)
 }

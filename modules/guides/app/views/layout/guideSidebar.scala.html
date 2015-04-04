@@ -14,7 +14,7 @@
 	@optionalText.map  { html =>
 		<div class="well well-sm">
 			<article>
-				@Html(views.Helpers.renderMarkdown(html))
+				@Markdown(html)
 			</article>
 		</div>
 	}

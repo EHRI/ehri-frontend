@@ -29,7 +29,7 @@
         </small>
 
         @desc.displayText.map(StringUtils.abbreviate(_, 600)).map { sc =>
-            @Html(views.Helpers.renderMarkdown(sc))
+            @Markdown(sc)
         }
     }.getOrElse {
         <small>@Messages("description.noDescriptions")</small>
