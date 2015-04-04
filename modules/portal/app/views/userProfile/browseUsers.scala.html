@@ -42,10 +42,10 @@
                                 <h3><a class="name" href="@controllers.portal.social.routes.Social.browseUser(user.id)">@user.toStringLang</a></h3>
                                 @userInfo {
                                     @user.model.institution.map { inst =>
-                                        <li>@hit.highlight(inst)</li>
+                                        <li>@inst</li>
                                     }
                                     @user.model.location.map { loc =>
-                                        <li>@hit.highlight(loc)</li>
+                                        <li>@loc</li>
                                     }
                                 }
                             </div>
