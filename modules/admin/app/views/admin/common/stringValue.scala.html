@@ -4,7 +4,7 @@
     @if(str.trim.nonEmpty) {
         <div class="item-text-field" id="@fieldName">
             <h4 class="item-text-field-header">
-            	@Messages(if (fieldPrefix.isEmpty) fieldName else s"$fieldPrefix.$fieldName")
+                @Messages(if (fieldPrefix.isEmpty) fieldName else s"$fieldPrefix.$fieldName")
             </h4>
             <div class="item-text-field-value" dir="auto">
                 @Markdown(str)
