@@ -94,6 +94,31 @@ class UserProfilesSpec extends IntegrationTestRunner with FakeMultipartUpload {
       contentAsString(prof) must contain(testInterest)
     }
 
+    "prevent script injection" in new ITestApp {
+      val testName = "Evil User"
+      val script = "<script>alert(\"Hello...\");</script>"
+      val testInstitution = "Nefarious"
+      val data = Map(
+        UserProfileF.NAME -> Seq(testName),
+        UserProfileF.INSTITUTION -> Seq(testInstitution + script)
+      )
+      val update = route(fakeLoggedInHtmlRequest(privilegedUser,
+        profileRoutes.updateProfilePost()), data).get
+      status(update) must equalTo(SEE_OTHER)
+
+      val prof = route(fakeLoggedInHtmlRequest(privilegedUser, profileRoutes.profile())).get
+      status(prof) must equalTo(OK)
+      contentAsString(prof) must contain(testName)
+      contentAsString(prof) must contain(testInstitution)
+      contentAsString(prof) must not contain script
+      val search = route(fakeLoggedInHtmlRequest(privilegedUser,
+        controllers.portal.social.routes.Social.browseUsers())).get
+      status(search) must equalTo(OK)
+      contentAsString(search) must contain(testName)
+      contentAsString(search) must contain(testInstitution)
+      contentAsString(search) must not contain script
+    }
+
     "not allow uploading non-image files as profile image" in new ITestApp {
       val tmpFile = java.io.File.createTempFile("notAnImage", ".txt")
       tmpFile.deleteOnExit()
