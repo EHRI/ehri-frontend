@@ -6,7 +6,7 @@
             <strong>
                 <ul class="list-unstyled inline inline-separator">
                     @ofn.map { on =>
-                        <li>@highlighter.highlight(on)</li>
+                        <li>@Html(highlighter.highlight(on))</li>
                     }
                     @if(rest.nonEmpty) {
                         <li title="@rest.mkString(", ")">@Messages("truncated")</li>

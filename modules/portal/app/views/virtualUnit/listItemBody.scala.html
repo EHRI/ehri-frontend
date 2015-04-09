@@ -18,7 +18,7 @@
     </div>
 
     @desc.displayText.map(views.Helpers.ellipsize(_, 600)).map { sc =>
-        @highlighter.highlight(views.Helpers.renderMarkdown(sc))
+        @Markdown(highlighter.highlight(sc))
     }
 }.getOrElse {
     <small>@Messages("description.noDescriptions")</small>

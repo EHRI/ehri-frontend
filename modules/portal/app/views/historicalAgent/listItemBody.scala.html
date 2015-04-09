@@ -18,10 +18,10 @@
         </ul>
     </div>
     @desc.details.datesOfExistence.map { d =>
-        @highlighter.highlight(views.Helpers.renderMarkdown(d))
+        @Markdown(highlighter.highlight(d))
     }
     @desc.displayText.map(s => views.Helpers.ellipsize(s, 600)).map { d =>
-        @highlighter.highlight(views.Helpers.renderMarkdown(d))
+        @Markdown(highlighter.highlight(d))
     }
 }.getOrElse {
     <small>@Messages("description.noDescriptions")</small>

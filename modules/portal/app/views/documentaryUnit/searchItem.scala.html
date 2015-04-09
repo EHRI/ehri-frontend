@@ -6,7 +6,7 @@
             @wrapParent(doc, p.parent)
             <li>
                 <a class="search-item-parent-name" href="@controllers.portal.routes.DocumentaryUnits.browse(p.id)">
-                    @hit.highlight(p.toStringLang)
+                    @Markdown(hit.highlight(p.toStringLang))
                 </a>
             </li>
         }
@@ -22,7 +22,7 @@
             @views.html.common.watchButtonsSmall(item, watched)
             </div>
             <h3 class="search-item-heading type-highlight @item.isA.toString" dir="@dir">
-                <a href="@{controllers.portal.routes.DocumentaryUnits.browse(item.id)}@{anchor}">@hit.highlight(desc.name)</a>
+                <a href="@{controllers.portal.routes.DocumentaryUnits.browse(item.id)}@{anchor}">@Html(hit.highlight(desc.name))</a>
             </h3>
             <div class="search-item-body" dir="@dir">
                 <ol class="breadcrumb">@wrapParent(item, item.parent)</ol>

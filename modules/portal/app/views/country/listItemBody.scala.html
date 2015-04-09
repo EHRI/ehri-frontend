@@ -10,6 +10,6 @@
 
 @item.model.displayText.map(views.Helpers.ellipsize(_, 600)).map { sc =>
     <div class="national-report">
-        @highlighter.highlight(views.Helpers.renderMarkdown(sc))
+        @Markdown(highlighter.highlight(sc))
     </div>
 }

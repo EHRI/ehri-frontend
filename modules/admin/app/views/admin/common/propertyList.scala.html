@@ -7,13 +7,13 @@
         case s: String if s.isEmpty => {
         }
         case Some(s) => {
-            <li>@highlighter.highlight(s.toString)</li>
+            <li>@Html(highlighter.highlight(s.toString))</li>
         }
         case s: String => {
-            <li>@highlighter.highlight(s)</li>
+            <li>@Html(highlighter.highlight(s))</li>
         }
         case s => {
-            <li>@highlighter.highlight(s.toString)</li>
+            <li>@Html(highlighter.highlight(s.toString))</li>
         }
     }
 }
