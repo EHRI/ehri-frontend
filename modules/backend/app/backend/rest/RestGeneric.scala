@@ -36,13 +36,6 @@ trait RestGeneric extends Generic with RestDAO with RestContext {
     get(Resource[MT], id)
   }
 
-  override def getJson[MT: Resource](id: String): Future[JsObject] = {
-    val url: String = enc(baseUrl, Resource[MT].entityType, id)
-    userCall(url).get().map { response =>
-      checkErrorAndParse[JsObject](response, context = Some(url))
-    }
-  }
-
   override def create[MT <: WithId : Resource, T: Writable](item: T, accessors: Seq[String] = Nil,
       params: Map[String,Seq[String]] = Map.empty, logMsg: Option[String] = None): Future[MT] = {
     val url = enc(baseUrl, Resource[MT].entityType)
@@ -104,17 +97,13 @@ trait RestGeneric extends Generic with RestDAO with RestContext {
     }
   }
 
-  override def listJson[MT: Resource](params: PageParams = PageParams.empty): Future[Page[JsObject]] = {
-    val url = enc(baseUrl, Resource[MT].entityType, "list")
-    userCall(url).withQueryString(params.queryParams:_*).get().map { response =>
-      parsePage[JsObject](response, context = Some(url))
-    }
-  }
+  override def list[MT: Resource](params: PageParams = PageParams.empty): Future[Page[MT]] =
+    list(Resource[MT], params)
 
-  override def list[MT: Resource](params: PageParams = PageParams.empty): Future[Page[MT]] = {
-    val url = enc(baseUrl, Resource[MT].entityType, "list")
+  override def list[MT](resource: Resource[MT], params: PageParams = PageParams.empty): Future[Page[MT]] = {
+    val url = enc(baseUrl, resource.entityType, "list")
     userCall(url).withQueryString(params.queryParams: _*).get().map { response =>
-      parsePage(response, context = Some(url))(Resource[MT].restReads)
+      parsePage(response, context = Some(url))(resource.restReads)
     }
   }
 
@@ -125,14 +114,14 @@ trait RestGeneric extends Generic with RestDAO with RestContext {
     }
   }
 
-  override def count[MT: Resource](params: PageParams = PageParams.empty): Future[Long] = {
-    userCall(enc(baseUrl, Resource[MT].entityType, "count")).withQueryString(params.queryParams: _*).get().map { response =>
+  override def count[MT: Resource](): Future[Long] = {
+    userCall(enc(baseUrl, Resource[MT].entityType, "count")).get().map { response =>
       checkErrorAndParse[Long](response)
     }
   }
 
-  override def countChildren[MT: Resource](id: String, params: PageParams = PageParams.empty): Future[Long] = {
-    userCall(enc(baseUrl, Resource[MT].entityType, id, "count")).withQueryString(params.queryParams: _*).get().map { response =>
+  override def countChildren[MT: Resource](id: String): Future[Long] = {
+    userCall(enc(baseUrl, Resource[MT].entityType, id, "count")).get().map { response =>
       checkErrorAndParse[Long](response)
     }
   }
