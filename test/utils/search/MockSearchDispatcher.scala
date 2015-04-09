@@ -32,57 +32,68 @@ case class MockSearchDispatcher(
   mode: SearchMode.Value = SearchMode.DefaultAll
 ) extends SearchEngine {
 
+  private val allEntities = Seq(
+    EntityType.DocumentaryUnit,
+    EntityType.Repository,
+    EntityType.HistoricalAgent,
+    EntityType.VirtualUnit,
+    EntityType.UserProfile
+  )
+
   private implicit def handle(implicit userOpt: Option[UserProfile]): BackendHandle =
     backend.withContext(ApiUser(userOpt.map(_.id)))
 
-  override def filter()(implicit userOpt: Option[UserProfile]): Future[SearchResult[FilterHit]] = {
+  private def modelToFilterHit(m: AnyModel): FilterHit =
+    FilterHit(m.id, m.id, m.toStringLang(Lang.defaultLang), m.isA, None, -1L)
 
-    def modelToHit(m: AnyModel): FilterHit =
-      FilterHit(m.id, m.id, m.toStringLang(Lang.defaultLang), m.isA, None, 0L)
-
-    for {
-      docs <- handle.list[DocumentaryUnit]()
-      repos <- handle.list[Repository]()
-      agents <- handle.list[HistoricalAgent]()
-      virtualUnits <- handle.list[VirtualUnit]()
-      all = docs.map(modelToHit) ++ repos.map(modelToHit) ++ agents.map(modelToHit) ++ virtualUnits.map(modelToHit)
-      oftype = all.filter(h => params.entities.contains(h.`type`))
-    } yield {
-      val page = Page(
-        items = oftype, offset = params.offset, limit = params.countOrDefault, total = oftype.size)
-      SearchResult(page, params)
-    }
+  private def modelToSearchHit(m: AnyModel): SearchHit = m match {
+    case d: DescribedMeta[Description,Described[Description]] => descModelToHit(d)
+    case _ => SearchHit(m.id, m.id, m.isA, -1L, Map(
+      SearchConstants.NAME_EXACT -> m.toStringLang(Lang.defaultLang)
+    ))
   }
+
+  private def descModelToHit[T <: DescribedMeta[Description,Described[Description]]](m: T): SearchHit = SearchHit(
+    itemId = m.id,
+    id = m.descriptions.headOption.flatMap(_.id).getOrElse("???"),
+    `type` = m.isA,
+    gid = m.meta.value.get("gid").flatMap(_.asOpt[Long]).getOrElse(-1L),
+    fields = Map(
+      SearchConstants.NAME_EXACT -> m.toStringLang(Lang.defaultLang)
+    )
+  )
+
+  private def lookupItems(entities: Seq[EntityType.Value])(implicit userOpt: Option[UserProfile]): Future[Seq[AnyModel]] = {
+    val types = if (entities.nonEmpty) entities else allEntities
+    val resources = types.map(et => AnyModel.resourceFor(et))
+    // Get the full listing for each type and concat them together
+    // once all futures have completed...
+    Future.sequence(resources.map(r => handle.list(r))).map(_.flatten)
+  }
+
+  override def filter()(implicit userOpt: Option[UserProfile]): Future[SearchResult[FilterHit]] =
+    lookupItems(params.entities).map { items =>
+      SearchResult(Page(
+        offset = params.offset,
+        limit = params.countOrDefault,
+        total = items.size,
+        items = items.map(modelToFilterHit)
+      ), params)
+    }
 
   override def search()(implicit userOpt: Option[UserProfile]): Future[SearchResult[SearchHit]] = {
     paramBuffer += ParamLog(params, facets, facetClasses, filters)
-
-    def descModelToHit[T <: DescribedMeta[Description,Described[Description]]](m: T): SearchHit = SearchHit(
-        itemId = m.id,
-        id = m.descriptions.headOption.flatMap(_.id).getOrElse("???"),
-        `type` = m.isA,
-        gid = m.meta.value.get("gid").flatMap(_.asOpt[Long]).getOrElse(-1L),
-      fields = Map(
-        SearchConstants.NAME_EXACT -> m.toStringLang(Lang.defaultLang)
-      )
-    )
-
-    for {
-      docs <- handle.list[DocumentaryUnit]()
-      repos <- handle.list[Repository]()
-      agents <- handle.list[HistoricalAgent]()
-      virtualUnits <- handle.list[VirtualUnit]()
-      all = docs.map(descModelToHit) ++ repos.map(descModelToHit) ++ agents.map(descModelToHit) ++ virtualUnits.map(descModelToHit)
-      ofType = all.filter(h => params.entities.isEmpty || params.entities.contains(h.`type`))
-      withIds = ofType.filter(h => idFilters.isEmpty || idFilters.contains(h.itemId))
-    } yield {
-      val page = Page(
-        offset = params.offset, limit = params.countOrDefault, total = withIds.size, items = withIds)
-      SearchResult(page, params)
+    lookupItems(params.entities).map { items =>
+      val hits = items.map(modelToSearchHit)
+      val withIds = hits.filter(h => idFilters.isEmpty || idFilters.contains(h.itemId))
+      SearchResult(Page(
+        offset = params.offset,
+        limit = params.countOrDefault,
+        total = withIds.size,
+        items = withIds
+      ), params)
     }
   }
-
-  override def facet(facet: String, sort: FacetQuerySort.Value)(implicit userOpt: Option[UserProfile]): Future[FacetPage[Facet]] = ???
 
   override def withIdFilters(ids: Seq[String]): SearchEngine = copy(idFilters = idFilters ++ ids)
 

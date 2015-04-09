@@ -107,6 +107,4 @@ trait SearchEngine {
   def filter()(implicit userOpt: Option[UserProfile]): Future[SearchResult[FilterHit]]
 
   def search()(implicit userOpt: Option[UserProfile]): Future[SearchResult[SearchHit]]
-
-  def facet(facet: String, sort: FacetQuerySort.Value)(implicit userOpt: Option[UserProfile]): Future[FacetPage[Facet]]
 }
