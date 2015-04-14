@@ -182,7 +182,7 @@ class BackendModelSpec extends RestBackendRunner with PlaySpecification {
     }
 
     "count items" in new TestApp {
-      var r = await(testBackend.count[UserProfile](PageParams()))
+      var r = await(testBackend.count[UserProfile]())
       r mustEqual 5L
     }
 

@@ -57,6 +57,33 @@ class AnnotationsSpec extends IntegrationTestRunner {
       contentAsString(doc) must not contain testAnnotationBody
     }
 
+    "disallow script injection" in new ITestApp {
+      val innocuousText = "This is <b>okay</b>"
+      val evilText = "This is bad"
+      val evilScript = s"<script>alert('$evilText');</script>"
+      val badAnnotation = Map(
+        AnnotationF.BODY -> Seq(innocuousText + evilScript),
+        ContributionVisibility.PARAM -> Seq(ContributionVisibility.Me.toString)
+      )
+      val post = route(fakeLoggedInHtmlRequest(privilegedUser,
+        annotationRoutes.annotateFieldPost(
+          "c4", "cd4", IsadG.SCOPE_CONTENT)), badAnnotation).get
+      status(post) must equalTo(CREATED)
+      contentAsString(post) must contain(innocuousText)
+      contentAsString(post) must not contain evilText
+
+      // Also text the global and personal list views
+      val list = route(fakeLoggedInHtmlRequest(privilegedUser,
+        annotationRoutes.searchAll())).get
+      contentAsString(list) must contain(innocuousText)
+      contentAsString(list) must not contain evilText
+
+      val userList = route(fakeLoggedInHtmlRequest(privilegedUser,
+        controllers.portal.users.routes.UserProfiles.annotations())).get
+      contentAsString(list) must contain(innocuousText)
+      contentAsString(list) must not contain evilText
+    }
+
     "disallow creating annotations without permission" in new ITestApp {
       val post = route(fakeLoggedInHtmlRequest(unprivilegedUser,
         annotationRoutes.annotateFieldPost(

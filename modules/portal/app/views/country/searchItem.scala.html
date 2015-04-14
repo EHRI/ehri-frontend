@@ -2,7 +2,7 @@
 
 @views.html.layout.searchItemOutline(item, watched) {
     <a href="@controllers.portal.routes.Countries.browse(item.id)">
-        @hit.highlight(item.toStringLang)
+        @Html(hit.highlight(item.toStringLang))
     </a>
 } {
     @listItemBody(item)

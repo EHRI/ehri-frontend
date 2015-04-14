@@ -14,7 +14,7 @@ import scala.concurrent.{ExecutionContext, Future}
 case class DbMovedPageLookup()(implicit app: play.api.Application) extends MovedPageLookup {
 
   implicit def executionContext: ExecutionContext =
-    Akka.system.dispatchers.lookup("contexts.simple-db-looksups")
+    Akka.system.dispatchers.lookup("contexts.simple-db-lookups")
 
   override def hasMovedTo(path: String): Future[Option[String]] = Future {
     import anorm.SqlStringInterpolation

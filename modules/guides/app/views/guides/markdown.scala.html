@@ -1,6 +1,6 @@
 @(guide: Guide, page: GuidePage)(implicit userOpt: Option[UserProfile], request: RequestHeader, prefs: utils.SessionPrefs, globalConfig: global.GlobalConfig, lang: Lang, flash: Flash)
 
-@views.html.layout.guideLayout(guide, page, guide.findPages(), optionalContent = page.description.map(d => Html(views.Helpers.renderMarkdown(d)))) {
+@views.html.layout.guideLayout(guide, page, guide.findPages(), optionalContent = page.description.map(d => Html(d))) {
 	<article>
 		<header>
 			<h1>@page.name</h1>

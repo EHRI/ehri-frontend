@@ -9,7 +9,7 @@
         @views.html.helpers.linkTo(other)
         @link.model.description.filterNot(_.trim.isEmpty).map { desc =>
             <div class="access-point-description">
-                @Html(views.Helpers.renderMarkdown(desc))
+                @Markdown(desc)
             </div>
         }
     </li>
@@ -18,7 +18,7 @@
         @accessPoint.name
         @accessPoint.description.filterNot(_.trim.isEmpty).map { desc =>
             <div class="access-point-description">
-                @Html(views.Helpers.renderMarkdown(desc))
+                @Markdown(desc)
             </div>
         }
     </li>

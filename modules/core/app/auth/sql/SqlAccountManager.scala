@@ -24,7 +24,7 @@ case class SqlAccountManager()(implicit app: play.api.Application) extends Accou
   import SqlAccountManager._
 
   override protected implicit def executionContext: ExecutionContext =
-    Akka.system.dispatchers.lookup("contexts.simple-db-looksups")
+    Akka.system.dispatchers.lookup("contexts.simple-db-lookups")
 
   override def oAuth2: OAuth2AssociationManager = new SqlOAuth2AssociationManager()
 

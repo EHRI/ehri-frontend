@@ -104,41 +104,6 @@ case class SolrSearchEngine(
     }
   }
 
-  /**
-   * Return only facet counts for the given query, in pages.
-   * @param facet The facet to fetch the count for.
-   * @param sort How to sort the result, by name or count
-   * @param userOpt An optional user
-   * @return paged Facets
-   */
-  override def facet(facet: String, sort: FacetQuerySort.Value = FacetQuerySort.Name)(
-             implicit userOpt: Option[UserProfile]): Future[FacetPage[Facet]] = {
-
-    // create a response returning 0 documents - we don't
-    // actually care about the documents, so even this is
-    // not strictly necessary... we also don't care about the
-    // ordering.
-    val queryRequest = queryBuilder
-      .setParams(params)
-      .withFacets(facets)
-      .withFacetClasses(facetClasses)
-      .withIdFilters(idFilters)
-      .withFilters(filters)
-      .searchQuery()
-
-    dispatch(queryRequest).map { response =>
-      val fClasses = handler.getResponseParser(response.body).extractFacetData(facets, facetClasses)
-
-      val facetClass = fClasses.find(_.param == facet).getOrElse(
-        throw new Exception("Unknown facet: " + facet))
-      val facetLabels = sort match {
-        case FacetQuerySort.Name => facetClass.sortedByName.slice(params.offset, params.offset + params.countOrDefault)
-        case _ => facetClass.sortedByCount.slice(params.offset, params.offset + params.countOrDefault)
-      }
-      FacetPage(facetClass, facetLabels, params.offset, params.countOrDefault, facetClass.count)
-    }
-  }
-
   override def withIdFilters(ids: Seq[String]): SearchEngine = copy(idFilters = idFilters ++ ids)
 
   override def withFacets(f: Seq[AppliedFacet]): SearchEngine = copy(facets = facets ++ f)

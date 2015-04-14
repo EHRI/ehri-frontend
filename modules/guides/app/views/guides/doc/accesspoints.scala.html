@@ -14,7 +14,7 @@
       <li class="unresolved-access-point" id=" @accessPoint.id">
           @Html(views.Helpers.renderMarkdown(accessPoint.name))
           @accessPoint.description.filter(_.trim.isEmpty).map { desc =>
-          <small><p class="text-muted">@Html(views.Helpers.renderMarkdown(desc))</p></small>
+          <small><p class="text-muted">@Markdown(desc)</p></small>
           }
       </li>
   }

@@ -2,7 +2,7 @@
 
 @textSection(key: String, data: Option[String]) = {
     @data.map { text =>
-        <dt>@Messages(key)</dt><dd>@text</dd>
+        <dt>@Messages(key)</dt><dd>@Html(views.Helpers.renderUntrustedMarkdown(text))</dd>
     }
 }
 

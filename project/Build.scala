@@ -108,7 +108,7 @@ object ApplicationBuild extends Build {
 
   val commonSettings = Seq(
 
-    scalaVersion := "2.10.4",
+    scalaVersion := "2.10.5",
 
     // Increase the JVM heap and permgen to avoid running
     // out of space during the memory intensive integration

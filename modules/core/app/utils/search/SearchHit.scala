@@ -46,7 +46,7 @@ case class SearchHit(
    * @param text Some input text
    * @return  The text and a boolean indicating if highlighting was successful
    */
-  def highlight(text: String): Html = {
+  def highlight(text: String): String = {
     def canHighlightWith(raw: String, text: String): Either[String,String] = {
       // NB: We have to escape the input string using HtmlFormat because it's
       // specialised to avoid XSS. This assumes that the highlight material coming
@@ -66,6 +66,6 @@ case class SearchHit(
       }
     }
 
-    Html(tryHighlight(highlightFields, text, ok = false))
+    tryHighlight(highlightFields, text, ok = false)
   }
 }

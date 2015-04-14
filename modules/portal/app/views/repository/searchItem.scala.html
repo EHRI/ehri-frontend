@@ -1,10 +1,8 @@
 @(item: Repository, hit: utils.search.SearchHit, watched: Boolean, showCountry: Boolean = true)(implicit userOpt: Option[UserProfile], req: RequestHeader, lang: Lang)
 
-@import Isdiah._
-
 @views.html.layout.searchItemOutline(item, watched) {
     <a href="@controllers.portal.routes.Repositories.browse(item.id)">
-        @hit.highlight(item.toStringLang)
+        @Html(hit.highlight(item.toStringLang))
     </a>
 } {
     @listItemBody(item, showCountry, highlighter = hit)
