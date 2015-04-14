@@ -62,9 +62,8 @@ case class GoogleDocsHtmlPages()(implicit app: play.api.Application) extends Htm
       app.configuration.getString(s"pages.external.google.$key.${lang.code}") orElse
           app.configuration.getString(s"pages.external.google.$key.default")
 
-
     getUrl.map { url =>
-      val cacheKey = s"htmlpages.googledocs.$key"
+      val cacheKey = s"htmlpages.googledocs.$key.${lang.code}"
       val cacheTime = 60 * 60 // 1 hour
       if (noCache) googleDocBody(url).map { data =>
         Cache.set(cacheKey, data, cacheTime)
