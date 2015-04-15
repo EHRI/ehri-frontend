@@ -129,7 +129,8 @@ case class UserProfiles @Inject()(implicit globalConfig: global.GlobalConfig, se
           result,
           searchAction = profileRoutes.watching(format = DataFormat.Html),
           followed = false,
-          canMessage = false
+          canMessage = false,
+          watching.map(_.id) // our current watched item IDs
         ))
       }
     }

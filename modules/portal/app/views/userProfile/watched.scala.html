@@ -1,4 +1,4 @@
-@(item: UserProfile, watchList: utils.search.SearchResult[(AnyModel,utils.search.SearchHit)], searchAction: Call, followed: Boolean, canMessage: Boolean)(implicit userOpt: Option[UserProfile], request: RequestHeader, prefs: utils.SessionPrefs, globalConfig: global.GlobalConfig, lang: Lang, flash: Flash)
+@(item: UserProfile, watchList: utils.search.SearchResult[(models.base.AnyModel,utils.search.SearchHit)], searchAction: Call, followed: Boolean, canMessage: Boolean, currentWatchedIds: Seq[String])(implicit userOpt: Option[UserProfile], request: RequestHeader, prefs: utils.SessionPrefs, globalConfig: global.GlobalConfig, lang: Lang, flash: Flash)
 
 @views.html.layout.portalLayout(item.toStringLang, EntityType.UserProfile.toString) {
     @views.html.layout.mainContent {
@@ -10,7 +10,7 @@
                         @views.html.helpers.inlineSearchFilter(watchList.params, id = "watched-q", label = Messages("watched.search"))
                     </h2>
                     <div id="user-watched">
-                    @views.html.userProfile.itemWatchList(item, watchList)
+                    @views.html.userProfile.itemWatchList(item, watchList, currentWatchedIds)
                     </div>
                 </div>
             }
