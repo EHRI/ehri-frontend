@@ -34,12 +34,12 @@
                 <ul class="user-grid clearfix">
                     @result.page.map { case (user, hit) =>
                         <li class="user-grid-item user-info">
-                            <a href="@controllers.portal.social.routes.Social.browseUser(user.id)" class="gravitar img-container">
+                            <a href="@controllers.portal.social.routes.Social.userProfile(user.id)" class="gravitar img-container">
                                 <span class="helper"></span>
                                 <img src="@views.p.Helpers.gravitar(user.model.imageUrl)" />
                             </a>
                             <div class="user-info-details">
-                                <h3><a class="name" href="@controllers.portal.social.routes.Social.browseUser(user.id)">@user.toStringLang</a></h3>
+                                <h3><a class="name" href="@controllers.portal.social.routes.Social.userProfile(user.id)">@user.toStringLang</a></h3>
                                 @userInfo {
                                     @user.model.institution.map { inst =>
                                         <li>@inst</li>

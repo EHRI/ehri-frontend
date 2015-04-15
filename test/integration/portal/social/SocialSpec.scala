@@ -20,7 +20,7 @@ class SocialSpec extends IntegrationTestRunner {
         socialRoutes.followingForUser(privilegedUser.id).url)).get
       // Check the following page contains a link to the user we just followed
       contentAsString(following) must contain(
-        socialRoutes.browseUser(unprivilegedUser.id).url)
+        socialRoutes.userProfile(unprivilegedUser.id).url)
 
       // Unfollow the sucker - he's boring...
       val unfollow = route(fakeLoggedInHtmlRequest(privilegedUser, POST,
@@ -30,7 +30,7 @@ class SocialSpec extends IntegrationTestRunner {
       val following2 = route(fakeLoggedInHtmlRequest(privilegedUser, GET,
         socialRoutes.followingForUser(privilegedUser.id).url)).get
       // Check the following page contains no links to the user we just unfollowed
-      contentAsString(following2) must not contain socialRoutes.browseUser(unprivilegedUser.id).url
+      contentAsString(following2) must not contain socialRoutes.userProfile(unprivilegedUser.id).url
     }
 
     "allow messaging users" in new ITestApp {

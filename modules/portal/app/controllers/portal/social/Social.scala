@@ -37,6 +37,9 @@ case class Social @Inject()(implicit globalConfig: global.GlobalConfig, searchEn
 
   private val usersPerPage = 18
 
+  // Profile is currently an alias for the watch list
+  def userProfile(userId: String) = userWatchList(userId)
+
   def browseUsers = WithUserAction.async { implicit request =>
     // This is a bit gnarly because we want to get a searchable list
     // of users and combine it with a list of existing followers so
@@ -56,7 +59,7 @@ case class Social @Inject()(implicit globalConfig: global.GlobalConfig, searchEn
     ))
   }
 
-  def browseUser(userId: String) = WithUserAction.async { implicit request =>
+  def userActivity(userId: String) = WithUserAction.async { implicit request =>
     // Show the profile home page of a defined user.
     // Activity is the default page
     val listParams = RangeParams.fromRequest(request)
@@ -81,7 +84,7 @@ case class Social @Inject()(implicit globalConfig: global.GlobalConfig, searchEn
     }
   }
 
-  def watchedByUser(userId: String) = WithUserAction.async { implicit request =>
+  def userWatchList(userId: String) = WithUserAction.async { implicit request =>
     // Show a list of watched item by a defined User
     val watching: Future[Page[AnyModel]] = userBackend.watching[AnyModel](userId)
     val isFollowing: Future[Boolean] = userBackend.isFollowing(request.user.id, userId)
@@ -96,7 +99,7 @@ case class Social @Inject()(implicit globalConfig: global.GlobalConfig, searchEn
     } yield Ok(views.html.userProfile.watched(
       them,
       result,
-      socialRoutes.watchedByUser(userId),
+      socialRoutes.userWatchList(userId),
       followed,
       canMessage
     ))
@@ -297,7 +300,7 @@ case class Social @Inject()(implicit globalConfig: global.GlobalConfig, searchEn
             sendMessageEmail(request.user, to, subject, message, copyMe).map { _ =>
               val msg = Messages("social.message.send.confirmation")
               if (isAjax) Ok(Json.obj("ok" -> msg))
-              else Redirect(socialRoutes.browseUser(userId))
+              else Redirect(socialRoutes.userProfile(userId))
                 .flashing("success" -> msg)
             }
           }
