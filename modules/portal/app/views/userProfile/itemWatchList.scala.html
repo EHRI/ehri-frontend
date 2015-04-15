@@ -1,9 +1,9 @@
-@(them: UserProfile, result: utils.search.SearchResult[(models.base.AnyModel, utils.search.SearchHit)])(implicit userOpt: Option[UserProfile], req: RequestHeader, lang: Lang, globalConfig: global.GlobalConfig)
+@(them: UserProfile, result: utils.search.SearchResult[(models.base.AnyModel, utils.search.SearchHit)], currentWatchedIds: Seq[String])(implicit userOpt: Option[UserProfile], req: RequestHeader, lang: Lang, globalConfig: global.GlobalConfig)
 
 @defining(userOpt.exists(_.id == them.id)) { isCurrentUser =>
 
     @if(result.nonEmpty) {
-        @views.html.common.search.searchItemList(result, watched = result.page.items.map(_._1.id))
+        @views.html.common.search.searchItemList(result, currentWatchedIds)
 
         @common.pagination(result.page)
         <div class="list-export-options">

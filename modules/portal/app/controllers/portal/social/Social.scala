@@ -86,22 +86,25 @@ case class Social @Inject()(implicit globalConfig: global.GlobalConfig, searchEn
 
   def userWatchList(userId: String) = WithUserAction.async { implicit request =>
     // Show a list of watched item by a defined User
-    val watching: Future[Page[AnyModel]] = userBackend.watching[AnyModel](userId)
-    val isFollowing: Future[Boolean] = userBackend.isFollowing(request.user.id, userId)
-    val allowMessage: Future[Boolean] = canMessage(request.user.id, userId)
+    val theirWatchingF: Future[Page[AnyModel]] = userBackend.watching[AnyModel](userId)
+    val myWatchingF: Future[Seq[String]] = watchedItemIds(Some(request.user.id))
+    val isFollowingF: Future[Boolean] = userBackend.isFollowing(request.user.id, userId)
+    val allowMessageF: Future[Boolean] = canMessage(request.user.id, userId)
 
     for {
       them <- userBackend.get[UserProfile](userId)
-      theirWatching <- watching
+      theirWatching <- theirWatchingF
+      myWatching <- myWatchingF
       result <- findIn[AnyModel](theirWatching)
-      followed <- isFollowing
-      canMessage <- allowMessage
+      followed <- isFollowingF
+      canMessage <- allowMessageF
     } yield Ok(views.html.userProfile.watched(
       them,
       result,
       socialRoutes.userWatchList(userId),
       followed,
-      canMessage
+      canMessage,
+      myWatching
     ))
   }
 
