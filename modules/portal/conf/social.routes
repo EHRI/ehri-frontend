@@ -1,7 +1,9 @@
 # Social networking stuff...
 
 GET         /                               @controllers.portal.social.Social.browseUsers
-GET         /:userId                        @controllers.portal.social.Social.browseUser(userId: String)
+GET         /:userId                        @controllers.portal.social.Social.userProfile(userId: String)
+GET         /:userId/watched       	        @controllers.portal.social.Social.userWatchList(userId: String)
+GET         /:userId/activity               @controllers.portal.social.Social.userActivity(userId: String)
 GET         /:userId/follow                 @controllers.portal.social.Social.followUser(userId: String)
 POST        /:userId/follow                 @controllers.portal.social.Social.followUserPost(userId: String)
 GET         /:userId/unfollow               @controllers.portal.social.Social.unfollowUser(userId: String)
@@ -12,7 +14,6 @@ GET         /:userId/unblock                @controllers.portal.social.Social.un
 POST        /:userId/unblock                @controllers.portal.social.Social.unblockUserPost(userId: String)
 GET         /:userId/message                @controllers.portal.social.Social.sendMessage(userId: String)
 POST        /:userId/message                @controllers.portal.social.Social.sendMessagePost(userId: String)
-GET         /:userId/watched       	        @controllers.portal.social.Social.watchedByUser(userId: String)
 GET         /:userId/following              @controllers.portal.social.Social.followingForUser(userId: String)
 GET         /:userId/followers              @controllers.portal.social.Social.followersForUser(userId: String)
 

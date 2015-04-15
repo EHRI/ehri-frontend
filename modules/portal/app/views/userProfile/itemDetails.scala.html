@@ -42,7 +42,7 @@
         @views.html.common.typeLabel(EntityType.UserProfile) {
             <ul class="list-group">
                 <li class="list-group-item user-img">
-                    <a href="@{if(isCurrentUser) controllers.portal.users.routes.UserProfiles.profile() else controllers.portal.social.routes.Social.browseUser(item.id)}" class="gravitar">
+                    <a href="@{if(isCurrentUser) controllers.portal.users.routes.UserProfiles.profile() else controllers.portal.social.routes.Social.userProfile(item.id)}" class="gravitar">
                         <img class="user-img-full" src="@views.p.Helpers.gravitar(item.model.imageUrl)" alt="@item.model.name"/>
                     </a>
                 </li>
@@ -77,8 +77,8 @@
             )
         } else  {
             @activitySidebar(
-                controllers.portal.social.routes.Social.browseUser(item.id),
-                controllers.portal.social.routes.Social.watchedByUser(item.id),
+                controllers.portal.social.routes.Social.userActivity(item.id),
+                controllers.portal.social.routes.Social.userWatchList(item.id),
                 controllers.portal.users.routes.UserProfiles.profile()
             )
         }

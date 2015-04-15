@@ -14,7 +14,7 @@
                 <tr>
                     <td>
                         @f.userId.map { id =>
-                            <a href="@controllers.portal.social.routes.Social.browseUser(id)">@f.name.getOrElse(id)</a>
+                            <a href="@controllers.portal.social.routes.Social.userProfile(id)">@f.name.getOrElse(id)</a>
                         }.getOrElse {
                             @f.name.getOrElse("Anonymous")
                         }
