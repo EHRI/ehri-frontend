@@ -119,7 +119,7 @@ object ApplicationBuild extends Build {
       "-XX:+CMSClassUnloadingEnabled",
       "-XX:MaxPermSize=256M",
       "-Dconfig.file=conf/test.conf",
-      "-Dlogback.configurationFile=conf/logger.xml"
+      s"-Dlogback.configurationFile=${(baseDirectory in LocalRootProject).value}/conf/test-logger.xml"
     ),
 
     // Show warnings and deprecations
@@ -258,7 +258,6 @@ object ApplicationBuild extends Build {
         Seq(
           "js/lib/jquery-1.11.2.js",
           "js/lib/jquery.autosize.js",
-          //"js/lib/jquery.history.js",
           "js/lib/jquery.validate.js",
           "js/lib/typeahead.js",
           "js/lib/handlebar.js",
@@ -305,7 +304,10 @@ object ApplicationBuild extends Build {
       "com.github.seratch" %% "scalikesolr" % "4.10.0"
     ),
     resolvers ++= additionalResolvers,
-    version := appVersion
+    version := appVersion,
+    javaOptions in Test ++= Seq(
+      s"-Dlogback.configurationFile=${(baseDirectory in LocalRootProject).value}/conf/test-logger.xml"
+    )
   ).dependsOn(core % "test->test;compile->compile")
 
   lazy val main = Project(appName, file("."))
