@@ -55,7 +55,13 @@ case class Feedback @Inject()(implicit globalConfig: global.GlobalConfig, feedba
     for {
       accTo <- getCopyMail(feedback.`type`)
     } yield {
-      val text = feedback.text.getOrElse("No message provided")
+      val text = feedback.text.map { msg =>
+        s"""
+          |From: ${feedback.name.getOrElse("Anonymous")} (${feedback.email.getOrElse("no email given")})
+          |
+          |$msg
+        """.stripMargin
+      }.getOrElse("No message provided")
       mailer
         .setSubject("EHRI Portal Feedback" + feedback.name.map(n => s" from $n").getOrElse(""))
         .setRecipient(accTo)
