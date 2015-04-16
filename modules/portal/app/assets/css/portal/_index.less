@@ -363,3 +363,12 @@ main.block-text {
   }
 }
 
+// Hack to prevent bootstrap putting modal backdrops
+// on top of the modal content, due to 'strangeness'
+// See: http://stackoverflow.com/questions/20983110/bootstrap-modal-sitting-behind-backdrop
+.modal-backdrop {
+  z-index: -1;
+}
+
+
+
