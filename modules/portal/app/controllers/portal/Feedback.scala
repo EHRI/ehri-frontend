@@ -67,7 +67,7 @@ case class Feedback @Inject()(implicit globalConfig: global.GlobalConfig, feedba
         .setRecipient(accTo)
         .setReplyTo(feedback.email.getOrElse("noreply@ehri-project.eu"))
         .setFrom("EHRI User <noreply@ehri-project.eu>")
-        .send(text, text)
+        .send(text, views.html.Markdown(text).body)
     }
   }
 
