@@ -80,8 +80,8 @@ class AnnotationsSpec extends IntegrationTestRunner {
 
       val userList = route(fakeLoggedInHtmlRequest(privilegedUser,
         controllers.portal.users.routes.UserProfiles.annotations())).get
-      contentAsString(list) must contain(innocuousText)
-      contentAsString(list) must not contain evilText
+      contentAsString(userList) must contain(innocuousText)
+      contentAsString(userList) must not contain evilText
     }
 
     "disallow creating annotations without permission" in new ITestApp {

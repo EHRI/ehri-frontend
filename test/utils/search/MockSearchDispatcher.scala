@@ -37,7 +37,8 @@ case class MockSearchDispatcher(
     EntityType.Repository,
     EntityType.HistoricalAgent,
     EntityType.VirtualUnit,
-    EntityType.UserProfile
+    EntityType.UserProfile,
+    EntityType.Annotation
   )
 
   private implicit def handle(implicit userOpt: Option[UserProfile]): BackendHandle =
