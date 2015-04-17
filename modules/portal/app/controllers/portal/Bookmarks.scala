@@ -84,8 +84,8 @@ case class Bookmarks @Inject()(implicit globalConfig: global.GlobalConfig, searc
 
   def bookmarkInNewSetPost(id: String) = createBookmarkSetPost(List(id))
 
-  def bookmark(itemId: String, bsId: Option[String] = None) = WithUserAction.async { implicit request =>
-    ???
+  def bookmark(itemId: String, bsId: Option[String] = None) = WithUserAction.apply { implicit request =>
+    Ok(views.html.helpers.simpleForm("bookmark.item", bmRoutes.bookmarkPost(itemId, bsId)))
   }
 
   /**

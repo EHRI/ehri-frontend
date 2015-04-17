@@ -2,12 +2,10 @@ package controllers.portal
 
 import auth.AccountManager
 import play.api.libs.concurrent.Execution.Implicits._
-import play.api.mvc.{Result, RequestHeader, Controller}
-import controllers.base.{CoreActionBuilders, ControllerHelpers}
+import play.api.mvc.{Result, RequestHeader}
 import scala.concurrent.Future.{successful => immediate}
 import backend.{Backend, FeedbackDAO}
 import com.google.inject._
-import utils.SessionPrefs
 import com.typesafe.plugin.MailerAPI
 import controllers.portal.base.PortalController
 

@@ -1,18 +1,15 @@
 package controllers.portal
 
 import auth.AccountManager
-import backend.rest.cypher.CypherDAO
 import controllers.base.SearchVC
-import play.api.Play.current
 import controllers.generic.Search
 import models._
 import models.base.AnyModel
 import play.api.libs.concurrent.Execution.Implicits._
-import play.api.libs.json.{JsNumber, JsObject}
 import play.api.mvc.RequestHeader
 import utils.search._
 import defines.EntityType
-import backend.{Entity, IdGenerator, Backend}
+import backend.{IdGenerator, Backend}
 import com.google.inject._
 import scala.concurrent.Future
 import scala.concurrent.Future.{successful => immediate}

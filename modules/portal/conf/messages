@@ -280,7 +280,11 @@ mail.message.copy.subject=EHRI: Your message to {0}: {1}
 mail.message.heading=New message from {0}
 mail.message.copy.heading=Copy of your message to {0}
 mail.message.replyFooter=To respond, reply directly to this message. You can opt-out from receiving user messages by updating your preferences
+
 bookmark.tooltip=Save this item to your bookmarks.
+bookmark.item=Bookmark item
+bookmark.item.tooltip=Save item to your bookmarks.
+bookmark.item.submit=Submit
 
 bookmarkSet.list=Bookmark Sets
 bookmarkSet.defaultSetName=Bookmarked Items
