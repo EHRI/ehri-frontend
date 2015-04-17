@@ -5,8 +5,7 @@ import backend.Backend
 import com.google.inject.{Inject, Singleton}
 import controllers.generic.Search
 import controllers.portal.base.{Generic, PortalController}
-import defines.EntityType
-import models.{Repository, Vocabulary, Concept}
+import models.{Vocabulary, Concept}
 import play.api.libs.concurrent.Execution.Implicits._
 import play.api.mvc.RequestHeader
 import utils.search._

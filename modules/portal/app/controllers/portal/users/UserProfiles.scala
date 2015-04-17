@@ -1,7 +1,6 @@
 package controllers.portal.users
 
 import auth.AccountManager
-import backend.aws.AwsConfig
 import controllers.generic.Search
 import play.api.libs.concurrent.Execution.Implicits._
 import models._
@@ -42,9 +41,6 @@ case class UserProfiles @Inject()(implicit globalConfig: global.GlobalConfig, se
     with LoginLogout
     with PortalAuthConfigImpl
     with Search {
-
-  val entityType = EntityType.UserProfile
-  val contentType = ContentTypes.UserProfile
 
   private val profileRoutes = controllers.portal.users.routes.UserProfiles
 

@@ -35,7 +35,7 @@ trait Descriptions[D <: Description with Persistable, T <: Model with Described[
     with WithOptionalUser
 
 
-  def CreateDescriptionAction(id: String, form: Form[D])(
+  protected def CreateDescriptionAction(id: String, form: Form[D])(
     implicit fmt: Writable[D], drd: Readable[D], ct: ContentType[MT]) =
     WithItemPermissionAction(id, PermissionType.Update) andThen new ActionTransformer[ItemPermissionRequest, ManageDescriptionRequest] {
       override protected def transform[A](request: ItemPermissionRequest[A]): Future[ManageDescriptionRequest[A]] = {
@@ -53,7 +53,7 @@ trait Descriptions[D <: Description with Persistable, T <: Model with Described[
       }
     }
 
-  def UpdateDescriptionAction(id: String, did: String, form: Form[D])(
+  protected def UpdateDescriptionAction(id: String, did: String, form: Form[D])(
     implicit fmt: Writable[D], drd: Readable[D], ct: ContentType[MT]) =
     WithItemPermissionAction(id, PermissionType.Update) andThen new ActionTransformer[ItemPermissionRequest, ManageDescriptionRequest] {
       override protected def transform[A](request: ItemPermissionRequest[A]): Future[ManageDescriptionRequest[A]] = {
@@ -71,7 +71,7 @@ trait Descriptions[D <: Description with Persistable, T <: Model with Described[
       }
     }
 
-  def WithDescriptionAction(id: String, did: String)(
+  protected def WithDescriptionAction(id: String, did: String)(
     implicit fmt: Writable[D], drd: Readable[D], ct: ContentType[MT]) =
     WithItemPermissionAction(id, PermissionType.Update) andThen new ActionRefiner[ItemPermissionRequest,DeleteDescriptionRequest] {
       override protected def refine[A](request: ItemPermissionRequest[A]): Future[Either[Result, DeleteDescriptionRequest[A]]] = {
@@ -82,7 +82,7 @@ trait Descriptions[D <: Description with Persistable, T <: Model with Described[
       }
     }
 
-  def DeleteDescriptionAction(id: String, did: String)(implicit ct: ContentType[MT]) =
+  protected def DeleteDescriptionAction(id: String, did: String)(implicit ct: ContentType[MT]) =
     WithItemPermissionAction(id, PermissionType.Update) andThen new ActionTransformer[ItemPermissionRequest, OptionalUserRequest] {
       override protected def transform[A](request: ItemPermissionRequest[A]): Future[OptionalUserRequest[A]] = {
         implicit val req = request

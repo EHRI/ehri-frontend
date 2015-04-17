@@ -22,7 +22,7 @@ import models.view.AnnotationContext
 
 
 import com.google.inject._
-import controllers.portal.{FacetConfig, Secured}
+import controllers.portal.FacetConfig
 import controllers.portal.base.PortalController
 
 /**

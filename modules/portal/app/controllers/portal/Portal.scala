@@ -1,8 +1,6 @@
 package controllers.portal
 
 import auth.AccountManager
-import backend.rest.ItemNotFound
-import play.api.Logger
 import play.api.Play.current
 import controllers.generic.Search
 import models._
@@ -11,7 +9,7 @@ import play.api.i18n.Messages
 import play.api.libs.concurrent.Execution.Implicits._
 import play.api.mvc._
 import utils.search._
-import play.api.cache.{Cache, Cached}
+import play.api.cache.Cached
 import defines.EntityType
 import play.api.libs.ws.WS
 import play.twirl.api.Html
@@ -25,7 +23,6 @@ import caching.FutureCache
 import controllers.portal.base.PortalController
 import play.api.libs.json.Json
 
-import scala.concurrent.Future
 
 @Singleton
 case class Portal @Inject()(implicit globalConfig: global.GlobalConfig, searchEngine: SearchEngine, searchResolver: SearchItemResolver, backend: Backend,

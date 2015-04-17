@@ -19,8 +19,10 @@ import scala.language.implicitConversions
  */
 trait CoreActionBuilders extends Controller with ControllerHelpers with AuthActionBuilders with AuthConfigImpl {
 
-  // Inheriting controllers need to be injected with
-  // a backend implementation.
+  /**
+   * Inheriting controllers need to be provided/injected with
+   * a backend implementation.
+   */
   protected def backend: Backend
 
   /**

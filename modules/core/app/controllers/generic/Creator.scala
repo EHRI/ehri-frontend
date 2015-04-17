@@ -79,5 +79,6 @@ trait Creator[CF <: Model with Persistable, CMT <: MetaModel[CF], MT <: MetaMode
    * Functor to extract arbitrary DAO params from a request...
    */
   type ExtraParams = Request[_] => Map[String,Seq[String]]
-  def defaultExtra: ExtraParams = (request: Request[_]) => Map.empty
+
+  protected def defaultExtra: ExtraParams = (request: Request[_]) => Map.empty
 }

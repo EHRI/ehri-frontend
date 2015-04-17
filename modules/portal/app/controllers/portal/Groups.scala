@@ -6,7 +6,6 @@ import com.google.inject.{Inject, Singleton}
 import controllers.generic.Search
 import controllers.portal.base.{Generic, PortalController}
 import models.Group
-import play.api.libs.concurrent.Execution.Implicits._
 import utils.search._
 
 /**
@@ -19,8 +18,6 @@ case class Groups @Inject()(implicit globalConfig: global.GlobalConfig, searchEn
   with Generic[Group]
   with Search
   with FacetConfig {
-
-  private val portalGroupRoutes = controllers.portal.routes.Groups
 
   def browse(id: String) = GetItemAction(id).apply { implicit request =>
     Ok(views.html.group.show(request.item))

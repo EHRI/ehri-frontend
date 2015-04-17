@@ -1,7 +1,7 @@
 package controllers.portal.account
 
 import auth.oauth2.OAuth2Flow
-import auth.oauth2.providers.{LinkedInOAuth2Provider, GoogleOAuth2Provider, YahooOAuth2Provider, FacebookOAuth2Provider}
+import auth.oauth2.providers.{GoogleOAuth2Provider, YahooOAuth2Provider, FacebookOAuth2Provider}
 import auth.{HashedPassword, AccountManager}
 import play.api.data.Form
 import play.api.mvc._

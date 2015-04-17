@@ -31,7 +31,11 @@ trait PortalController
   with Secured
   with SessionPreferences[SessionPrefs] {
 
-  def pageRelocator: MovedPageLookup
+  /**
+   * The page relocator handles provides the new location (if any)
+   * for pages that have been moved from one URL to another.
+   */
+  protected def pageRelocator: MovedPageLookup
 
   /**
    * The user's default preferences. The `SessionPreferences` trait generates

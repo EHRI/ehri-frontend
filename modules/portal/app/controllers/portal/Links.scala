@@ -19,8 +19,6 @@ case class Links @Inject()(implicit globalConfig: global.GlobalConfig, searchEng
   with Search
   with FacetConfig {
 
-  private val portalGroupRoutes = controllers.portal.routes.Links
-
   def browse(id: String) = GetItemAction(id).apply { implicit request =>
     Ok(views.html.link.show(request.item))
   }

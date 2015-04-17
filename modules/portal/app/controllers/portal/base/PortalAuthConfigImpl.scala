@@ -27,7 +27,7 @@ trait PortalAuthConfigImpl extends AuthConfigImpl {
   /**
    * A redirect target after a successful user logout.
    */
-  override def logoutSucceeded(request: RequestHeader)(implicit context: ExecutionContext): Future[Result]
-  = immediate(Redirect(defaultLogoutUrl)
+  override def logoutSucceeded(request: RequestHeader)(implicit context: ExecutionContext): Future[Result] =
+    immediate(Redirect(defaultLogoutUrl)
       .flashing("success" -> "logout.confirmation"))
 }

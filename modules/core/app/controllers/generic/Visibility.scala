@@ -22,7 +22,7 @@ trait Visibility[MT] extends Read[MT] {
   ) extends WrappedRequest[A](request)
     with WithOptionalUser
 
-  def EditVisibilityAction(id: String)(implicit ct: ContentType[MT]) =
+  protected def EditVisibilityAction(id: String)(implicit ct: ContentType[MT]) =
     WithItemPermissionAction(id, PermissionType.Update) andThen new ActionTransformer[ItemPermissionRequest, VisibilityRequest] {
       override protected def transform[A](request: ItemPermissionRequest[A]): Future[VisibilityRequest[A]] = {
         for {
@@ -32,7 +32,7 @@ trait Visibility[MT] extends Read[MT] {
       }
     }
 
-  def UpdateVisibilityAction(id: String)(implicit ct: ContentType[MT]) =
+  protected def UpdateVisibilityAction(id: String)(implicit ct: ContentType[MT]) =
     WithItemPermissionAction(id, PermissionType.Update) andThen new ActionTransformer[ItemPermissionRequest,ItemPermissionRequest] {
       override protected def transform[A](request: ItemPermissionRequest[A]): Future[ItemPermissionRequest[A]] = {
         implicit val req = request

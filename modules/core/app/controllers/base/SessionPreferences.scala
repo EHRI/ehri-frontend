@@ -2,7 +2,6 @@ package controllers.base
 
 import play.api.mvc.{Result, RequestHeader}
 import play.api.libs.json.{Writes, Reads, Json}
-import play.api.Logger
 
 /**
  * @author Mike Bryant (http://github.com/mikesname)
