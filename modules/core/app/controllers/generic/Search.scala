@@ -75,7 +75,7 @@ trait Search extends CoreActionBuilders {
    * @param request the current request
    * @return a configured search engine
    */
-  def searchEngineFromRequest(
+  protected def searchEngineFromRequest(
     defaultParams: SearchParams = SearchParams.empty,
     defaultOrder: SearchOrder.Value = SearchOrder.DateNewest,
     facetBuilder: FacetBuilder = emptyFacets
@@ -118,7 +118,7 @@ trait Search extends CoreActionBuilders {
    * @return A query result containing the page of search data,
    *         plus the resolved parameters and facets.
    */
-  def findIn[MT <: WithId](
+  protected def findIn[MT <: WithId](
     items: Seq[MT],
     filters: Map[String, Any] = Map.empty,
     extra: Map[String, Any] = Map.empty,
@@ -158,7 +158,7 @@ trait Search extends CoreActionBuilders {
    * @return A query result containing the page of search data,
    *         plus the resolved parameters and facets.
    */
-  def find[MT](
+  protected def find[MT](
     filters: Map[String, Any] = Map.empty,
     extra: Map[String, Any] = Map.empty,
     defaultParams: SearchParams = SearchParams.empty,
@@ -202,7 +202,7 @@ trait Search extends CoreActionBuilders {
    * @return A query result containing the page of search data,
    *         plus the resolved parameters and facets.
    */
-  def findType[MT](
+  protected def findType[MT](
     filters: Map[String, Any] = Map.empty,
     extra: Map[String, Any] = Map.empty,
     defaultParams: SearchParams = SearchParams.empty,
@@ -216,7 +216,7 @@ trait Search extends CoreActionBuilders {
     find[MT](filters, extra, defaultParams, defaultOrder, idFilters, Seq(rd.entityType), facetBuilder, mode, resolverOpt)
   }
 
-  def filter[A](filters: Map[String, Any] = Map.empty, defaultParams: Option[SearchParams] = None)(implicit userOpt: Option[UserProfile], request: Request[A]): Future[Page[FilterHit]] = {
+  protected def filter[A](filters: Map[String, Any] = Map.empty, defaultParams: Option[SearchParams] = None)(implicit userOpt: Option[UserProfile], request: Request[A]): Future[Page[FilterHit]] = {
     val params = defaultParams.map(p => p.copy(sort = defaultSortFunction(p, request)))
     // Override the entity type with the controller entity type
     val sp = SearchParams.form.bindFromRequest

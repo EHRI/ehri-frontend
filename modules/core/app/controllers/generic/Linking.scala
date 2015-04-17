@@ -53,7 +53,7 @@ trait Linking[MT <: AnyModel] extends Read[MT] with Search {
   ) extends WrappedRequest[A](request)
     with WithOptionalUser
 
-  def LinkSelectAction(id: String, toType: EntityType.Value, facets: FacetBuilder = emptyFacets)(implicit ct: ContentType[MT]) =
+  protected def LinkSelectAction(id: String, toType: EntityType.Value, facets: FacetBuilder = emptyFacets)(implicit ct: ContentType[MT]) =
     WithItemPermissionAction(id, PermissionType.Annotate) andThen new ActionTransformer[ItemPermissionRequest, LinkSelectRequest] {
       override protected def transform[A](request: ItemPermissionRequest[A]): Future[LinkSelectRequest[A]] = {
         implicit val req = request
@@ -71,7 +71,7 @@ trait Linking[MT <: AnyModel] extends Read[MT] with Search {
   ) extends WrappedRequest[A](request)
     with WithOptionalUser
 
-  def LinkAction(id: String, toType: EntityType.Value, to: String)(implicit ct: ContentType[MT]) =
+  protected def LinkAction(id: String, toType: EntityType.Value, to: String)(implicit ct: ContentType[MT]) =
     WithItemPermissionAction(id, PermissionType.Annotate) andThen new ActionTransformer[ItemPermissionRequest, LinkItemsRequest] {
       override protected def transform[A](request: ItemPermissionRequest[A]): Future[LinkItemsRequest[A]] = {
         implicit val req = request
@@ -89,7 +89,7 @@ trait Linking[MT <: AnyModel] extends Read[MT] with Search {
   ) extends WrappedRequest[A](request)
     with WithOptionalUser
 
-  def CreateLinkAction(id: String, toType: EntityType.Value, to: String)(implicit ct: ContentType[MT]) =
+  protected def CreateLinkAction(id: String, toType: EntityType.Value, to: String)(implicit ct: ContentType[MT]) =
     WithItemPermissionAction(id, PermissionType.Annotate) andThen new ActionTransformer[ItemPermissionRequest, CreateLinkRequest] {
       override protected def transform[A](request: ItemPermissionRequest[A]): Future[CreateLinkRequest[A]] = {
         implicit val req = request
@@ -114,7 +114,7 @@ trait Linking[MT <: AnyModel] extends Read[MT] with Search {
   ) extends WrappedRequest[A](request)
     with WithOptionalUser
 
-  def CreateMultipleLinksAction(id: String)(implicit ct: ContentType[MT]) =
+  protected def CreateMultipleLinksAction(id: String)(implicit ct: ContentType[MT]) =
     WithItemPermissionAction(id, PermissionType.Annotate) andThen new ActionTransformer[ItemPermissionRequest, MultiLinksRequest] {
       override protected def transform[A](request: ItemPermissionRequest[A]): Future[MultiLinksRequest[A]] = {
         implicit val req = request
