@@ -6,13 +6,60 @@ import scala.concurrent.Future
  * @author Mike Bryant (http://github.com/mikesname)
  */
 trait Descriptions {
-  def createDescription[MT, DT](id: String, item: DT, logMsg: Option[String] = None)(implicit rs: Resource[MT], fmt: Writable[DT], rd: Readable[DT]): Future[DT]
+  /**
+   * Create a new description on a given item.
+   *
+   * @param id the item's ID
+   * @param desc the description data
+   * @param logMsg an optional log message
+   * @tparam MT the item's meta type
+   * @tparam DT the item's description type
+   */
+  def createDescription[MT: Resource, DT: Writable](id: String, desc: DT, logMsg: Option[String] = None): Future[DT]
 
-  def updateDescription[MT, DT](id: String, did: String, item: DT, logMsg: Option[String] = None)(implicit rs: Resource[MT], fmt: Writable[DT], rd: Readable[DT]): Future[DT]
+  /**
+   * Update a description on a given item.
+   *
+   * @param id the item's ID
+   * @param did the description ID           
+   * @param desc the description data
+   * @param logMsg an optional log message
+   * @tparam MT the item's meta type
+   * @tparam DT the item's description type
+   * @return
+   */
+  def updateDescription[MT: Resource, DT: Writable](id: String, did: String, desc: DT, logMsg: Option[String] = None): Future[DT]
 
-  def deleteDescription[MT](id: String, did: String, logMsg: Option[String] = None)(implicit rs: Resource[MT]): Future[Unit]
+  /**
+   * Create a new access point on the given item description.
+   *
+   * @param id the item's ID
+   * @param did the description ID
+   * @param ap the access point data
+   * @param logMsg an optional log message
+   * @tparam MT the item's meta type
+   * @tparam AP the access point type
+   */
+  def createAccessPoint[MT: Resource, AP: Writable](id: String, did: String, ap: AP, logMsg: Option[String] = None): Future[AP]
 
-  def createAccessPoint[MT, DT](id: String, did: String, item: DT, logMsg: Option[String] = None)(implicit rs: Resource[MT], fmt: Writable[DT]): Future[DT]
+  /**
+   * Delete a given description.
+   *
+   * @param id the item's ID
+   * @param did the description ID
+   * @param logMsg an optional log message
+   * @tparam MT the access point type
+   */
+  def deleteDescription[MT: Resource](id: String, did: String, logMsg: Option[String] = None): Future[Unit]
 
-  def deleteAccessPoint(id: String, did: String, apid: String, logMsg: Option[String] = None): Future[Unit]
+  /**
+   * Delete a given access point.
+   *
+   * @param id the item's ID
+   * @param did the description ID
+   * @param apid the access point ID
+   * @param logMsg an optional log message
+   * @tparam MT the item's meta type
+   */
+  def deleteAccessPoint[MT: Resource](id: String, did: String, apid: String, logMsg: Option[String] = None): Future[Unit]
 }
