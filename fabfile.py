@@ -22,7 +22,7 @@ env.prod = False
 env.use_ssh_config = True
 env.path = '/opt/webapps/' + env.project_name
 env.user = os.getenv("USER")
-env.java_version = 6
+env.java_version = 7
 
 TIMESTAMP_FORMAT = "%Y%m%d%H%M%S"
 
