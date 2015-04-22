@@ -355,6 +355,27 @@ class DocumentaryUnitViewsSpec extends IntegrationTestRunner {
       indexEventBuffer.last must equalTo("cd1-2")
     }
 
+    "allow deleting access points" in new ITestApp {
+      val testItem = "c1"
+      val testItemDesc = "cd1"
+      val testItemAp = "ur1"
+      val get1 = route(fakeLoggedInHtmlRequest(
+          privilegedUser, docRoutes.get(testItem))).get
+      contentAsString(get1) must contain(testItemAp)
+      // Now try again to update the item, which should succeed
+      // Check we can update the item
+      val cr = route(fakeLoggedInHtmlRequest(privilegedUser,
+        docRoutes.deleteAccessPoint(testItem, testItemDesc, testItemAp))).get
+      // NB: This is a JSON-only endpoint so it will give us OK instead
+      // of a redirect
+      status(cr) must equalTo(OK)
+      val get2 = route(fakeLoggedInHtmlRequest(privilegedUser,
+        docRoutes.get(testItem))).get
+      status(get2) must equalTo(OK)
+      indexEventBuffer.last must equalTo(testItem)
+      contentAsString(get2) must not contain testItemAp
+    }
+
     "allow updating visibility" in new ITestApp {
       val test1 = route(fakeLoggedInHtmlRequest(unprivilegedUser, docRoutes.get("c1"))).get
       status(test1) must equalTo(NOT_FOUND)

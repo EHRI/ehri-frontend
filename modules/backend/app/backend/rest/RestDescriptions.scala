@@ -59,7 +59,7 @@ trait RestDescriptions extends RestDAO with RestContext with Descriptions {
     val url = enc(requestUrl, id, did, EntityType.AccessPoint, apid)
     userCall(url).withHeaders(msgHeader(logMsg): _*).delete().map { response =>
       checkError(response)
-      eventHandler.handleDelete(id)
+      eventHandler.handleUpdate(id)
       Cache.remove(canonicalUrl(id))
     }
   }
