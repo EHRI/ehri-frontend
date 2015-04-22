@@ -1,7 +1,6 @@
 @(item: Annotation, annotations: Seq[Annotation])(implicit userOpt: Option[UserProfile], req: RequestHeader, globalConfig: global.GlobalConfig, lang: Lang, flash: Flash)
 
 @views.html.admin.layout.rightSidebar(item.toStringLang, breadcrumbs = views.html.admin.common.breadcrumbs(List(item))) {
-
     @views.html.admin.common.annotated(item, annotations) {
 
         <div class="well well-small">
@@ -9,7 +8,7 @@
         </div>
 
         @item.user.map { u =>
-            <h4>@Messages("annotation.createdBy")</h4>
+            <h4>@Messages("annotation.creator")</h4>
             <a href="@views.admin.Helpers.linkTo(u)">@u.toStringLang</a>
         }
 
