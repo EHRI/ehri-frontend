@@ -1,4 +1,4 @@
-@(item: WithDescriptions[Description], desc: models.base.Description, links: Seq[Link])(implicit prefix: String, userOpt: Option[UserProfile], req: RequestHeader, globalConfig: global.GlobalConfig, lang: Lang)
+@(item: models.base.WithDescriptions[models.base.Description], desc: models.base.Description, links: Seq[Link])(implicit prefix: String, userOpt: Option[UserProfile], req: RequestHeader, globalConfig: global.GlobalConfig, lang: Lang)
 
 @if(desc.accessPoints.nonEmpty) {
     <h3>@Messages(prefix + ".accessPoints")</h3>
@@ -9,7 +9,7 @@
                 <ul class="access-point-links">
                     @linksOfType.map { ap =>
                         @ap.target(item, links).map { case (link, other) =>
-                            <li class="access-point-link resolved-access-point">
+                            <li class="access-point-link resolved-access-point" data-apid="@ap.id">
                                 @itemLink(link, other)
                             </li>
                         }.getOrElse {
