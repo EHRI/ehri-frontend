@@ -44,14 +44,14 @@ trait RestDescriptions extends RestDAO with RestContext with Descriptions {
     }
   }
 
-  override def createAccessPoint[MT: Resource, DT: Writable](id: String, did: String, item: DT, logMsg: Option[String] = None): Future[DT] = {
+  override def createAccessPoint[MT: Resource, AP: Writable](id: String, did: String, item: AP, logMsg: Option[String] = None): Future[AP] = {
     val url: String = enc(requestUrl, id, did, EntityType.AccessPoint)
     userCall(url)
         .withHeaders(msgHeader(logMsg): _*)
-        .post(Json.toJson(item)(Writable[DT].restFormat)).map { response =>
+        .post(Json.toJson(item)(Writable[AP].restFormat)).map { response =>
       eventHandler.handleUpdate(id)
       Cache.remove(canonicalUrl(id))
-      checkErrorAndParse(response, context = Some(url))(Writable[DT].restFormat)
+      checkErrorAndParse(response, context = Some(url))(Writable[AP].restFormat)
     }
   }
 
