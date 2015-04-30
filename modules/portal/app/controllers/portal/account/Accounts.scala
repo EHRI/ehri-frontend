@@ -190,7 +190,7 @@ case class Accounts @Inject()(implicit globalConfig: GlobalConfig, searchEngine:
 
   def signup = loginOrSignup(isLogin = false)
 
-  def loginOrSignup(isLogin: Boolean) = OptionalAuthAction { implicit authRequest =>
+  def loginOrSignup(isLogin: Boolean) = OptionalAccountAction { implicit authRequest =>
     if (globalConfig.readOnly) {
       Redirect(portalRoutes.index()).flashing("warning" -> "login.disabled")
     } else {

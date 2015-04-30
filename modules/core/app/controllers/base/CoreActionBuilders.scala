@@ -248,13 +248,17 @@ trait CoreActionBuilders extends Controller with ControllerHelpers with AuthActi
    *  - the site is not in maintenance mode
    *  - they are allowed in this controller
    */
-  protected def OptionalUserAction =
+  protected def OptionalAccountAction =
     OptionalAuthAction andThen
-    MaintenanceFilter andThen
-    IpFilter andThen
-    ReadOnlyTransformer andThen
-    AllowedFilter andThen
-    FetchProfile
+      MaintenanceFilter andThen
+      IpFilter andThen
+      ReadOnlyTransformer andThen
+      AllowedFilter
+
+  /**
+   * Fetch the profile in addition to the account
+   */
+  protected def OptionalUserAction = OptionalAccountAction andThen FetchProfile
 
   /**
    * Ensure that a user is present

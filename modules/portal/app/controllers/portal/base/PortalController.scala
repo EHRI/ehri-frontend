@@ -184,7 +184,7 @@ trait PortalController
   /**
    * Action which fetches a user's profile and list of watched items.
    */
-  protected def UserBrowseAction = OptionalAuthAction andThen new ActionTransformer[OptionalAuthRequest, UserDetailsRequest] {
+  protected def UserBrowseAction = OptionalAccountAction andThen new ActionTransformer[OptionalAuthRequest, UserDetailsRequest] {
     override protected def transform[A](request: OptionalAuthRequest[A]): Future[UserDetailsRequest[A]] = {
       request.user.map { account =>
         import play.api.libs.concurrent.Execution.Implicits._
