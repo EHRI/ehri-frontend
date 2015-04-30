@@ -26,25 +26,26 @@ object ApplicationBuild extends Build {
     cache,
 
     // Ontology
-    "ehri-project" % "ehri-definitions" % "0.9.3-SNAPSHOT",
+    "ehri-project" % "ehri-definitions" % "0.10.0-SNAPSHOT",
 
     // The ever-vital Joda time
     "joda-time" % "joda-time" % "2.7"
   )
 
   val backendTestDependencies = Seq(
-    "org.neo4j" % "neo4j-kernel" % "1.9.9" % "test" classifier "tests" classifier "",
-    "org.neo4j.app" % "neo4j-server" % "1.9.9" % "test" classifier "tests" classifier "",
+    "org.neo4j" % "neo4j-kernel" % "2.2.1" % "test" classifier "tests" classifier "",
+    "org.neo4j" % "neo4j-io" % "2.2.1" % "test" classifier "tests" classifier "",
+    "org.neo4j.app" % "neo4j-server" % "2.2.1" % "test" classifier "tests" classifier "",
     "org.hamcrest" % "hamcrest-all" % "1.3" % "test",
 
     // This is necessary to allow the Neo4j server to start
-    "com.sun.jersey" % "jersey-core" % "1.9" % "test",
+    "com.sun.jersey" % "jersey-core" % "1.18.2" % "test",
 
     // We need the backend code to test against, but exclude any
     // groovy stuff because a) it's not needed, and b) it has a
     // ton of awkward transitive dependencies
-    "ehri-project" % "ehri-frames" % "0.9.3-SNAPSHOT" % "test" classifier "tests" classifier "" exclude("com.tinkerpop.gremlin", "gremlin-groovy"),
-    "ehri-project" % "ehri-extension" % "0.9.3-SNAPSHOT" % "test" classifier "tests" classifier "" exclude("com.tinkerpop.gremlin", "gremlin-groovy")
+    "ehri-project" % "ehri-frames" % "0.10.0-SNAPSHOT" % "test" classifier "tests" classifier "" exclude("com.tinkerpop.gremlin", "gremlin-groovy"),
+    "ehri-project" % "ehri-extension" % "0.10.0-SNAPSHOT" % "test" classifier "tests" classifier "" exclude("com.tinkerpop.gremlin", "gremlin-groovy")
   )
 
   val coreDependencies = backendDependencies ++ Seq(
@@ -56,7 +57,7 @@ object ApplicationBuild extends Build {
     "commons-io" % "commons-io" % "2.4",
 
     // Injection guff - yep, we're using a beta
-    "com.google.inject" % "guice" % "4.0-beta",
+    "com.google.inject" % "guice" % "4.0",
 
     // Authentication
     "jp.t2v" %% "play2-auth" % "0.13.2",
@@ -196,11 +197,6 @@ object ApplicationBuild extends Build {
 
     // Auto-import EntityType enum into routes
     routesImport += "defines.EntityType",
-
-    // Test the unmanaged directory to test_lib to pick up
-    // the repackaged version of jersey-server that we need to avoid
-    // a conflict with Pegdown and asm-4.x
-    unmanagedBase in Test := baseDirectory.value / "test_lib",
 
     // SBT magic: http://stackoverflow.com/a/12772739/285374
     // pick up additional resources in test
