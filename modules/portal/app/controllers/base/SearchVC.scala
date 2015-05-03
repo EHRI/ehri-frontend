@@ -41,9 +41,9 @@ trait SearchVC {
     dao.get[Seq[String]](
       """
         |START vc = node:entities(__ID__ = {vcid})
-        |MATCH vc<-[?:isPartOf*]-child,
-        |      ddoc<-[?:includesUnit]-vc,
-        |      doc<-[?:includesUnit]-child
+        |OPTIONAL MATCH vc<-[:isPartOf*]-child
+        |OPTIONAL MATCH ddoc<-[:includesUnit]-vc
+        |OPTIONAL MATCH doc<-[:includesUnit]-child
         |RETURN DISTINCT collect(DISTINCT child.__ID__) + collect(DISTINCT doc.__ID__) + collect(DISTINCT ddoc.__ID__)
       """.stripMargin, Map("vcid" -> play.api.libs.json.JsString(id)))(reader).map { seq =>
       Logger.debug(s"Elements: ${seq.length}, distinct: ${seq.distinct.length}")

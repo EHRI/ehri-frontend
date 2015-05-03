@@ -18,5 +18,17 @@ class VirtualUnitsSpec extends IntegrationTestRunner {
         vuRoutes.searchVirtualCollection("vc1"))).get
       contentAsString(search) must contain(vuRoutes.browseVirtualUnit("vc1", "vu1").url)
     }
+
+    "display children with no query" in new ITestApp {
+      val search = route(fakeLoggedInHtmlRequest(privilegedUser,
+        vuRoutes.searchVirtualCollection("vc1"))).get
+      status(search) must equalTo(OK)
+    }
+
+    "display children with query" in new ITestApp {
+      val search = route(fakeLoggedInHtmlRequest(privilegedUser, "GET",
+        vuRoutes.searchVirtualCollection("vc1").url + "?q=test")).get
+      status(search) must equalTo(OK)
+    }
   }
 }
