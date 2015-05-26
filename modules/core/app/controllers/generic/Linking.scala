@@ -57,7 +57,11 @@ trait Linking[MT <: AnyModel] extends Read[MT] with Search {
     WithItemPermissionAction(id, PermissionType.Annotate) andThen new ActionTransformer[ItemPermissionRequest, LinkSelectRequest] {
       override protected def transform[A](request: ItemPermissionRequest[A]): Future[LinkSelectRequest[A]] = {
         implicit val req = request
-        find[AnyModel](facetBuilder = facets, defaultParams = SearchParams(entities = List(toType), excludes=Some(List(id)))).map { r =>
+        find[AnyModel](
+          facetBuilder = facets,
+          defaultParams = SearchParams(excludes=Some(List(id))),
+          entities = Seq(toType)
+        ).map { r =>
           LinkSelectRequest(request.item, r, toType, request.userOpt, request)
         }
       }
