@@ -404,6 +404,15 @@ class DocumentaryUnitViewsSpec extends IntegrationTestRunner {
         docRoutes.get("c4").url)
     }
 
+    "offer correct set of types to link against" in new ITestApp {
+      val select = route(fakeLoggedInHtmlRequest(privilegedUser,
+        docRoutes.linkAnnotateSelect("c1", EntityType.DocumentaryUnit))).get
+      contentAsString(select) must contain(docRoutes
+        .linkAnnotate("c1", EntityType.DocumentaryUnit, "c4").url)
+      contentAsString(select) must not contain(docRoutes
+        .linkAnnotate("c1", EntityType.DocumentaryUnit, "a1").url)
+    }
+
     "allow linking to items via annotation" in new ITestApp {
       val testItem = "c1"
       val linkSrc = "cvocc1"
