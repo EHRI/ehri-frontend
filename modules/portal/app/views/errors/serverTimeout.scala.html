@@ -1,4 +1,4 @@
-@(maintenance: Boolean = false)(implicit req: RequestHeader, lang: Lang)
+@(maintenance: Boolean = false)(implicit req: RequestHeader, messages: Messages)
 
 @if(maintenance) {
     <p class="alert alert-info">@Messages("errors.databaseMaintenance.explanation")</p>

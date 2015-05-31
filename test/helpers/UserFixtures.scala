@@ -1,11 +1,11 @@
 package helpers
 
-import org.specs2.specification.BeforeExample
+import org.specs2.specification.BeforeEach
 
 /**
  * @author Mike Bryant (http://github.com/mikesname)
  */
-trait UserFixtures extends BeforeExample {
+trait UserFixtures extends BeforeEach {
 
   /**
    * Tear down and setup fixtures before every test

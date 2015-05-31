@@ -1,5 +1,7 @@
 package backend.helpdesk
 
+import javax.inject.Inject
+
 import backend.HelpdeskDAO
 import scala.concurrent.{ExecutionContext, Future}
 import play.api.libs.ws.WS
@@ -25,7 +27,7 @@ case class TestHelpdesk(implicit app: play.api.Application) extends HelpdeskDAO 
 /**
  * @author Mike Bryant (http://github.com/mikesname)
  */
-case class EhriHelpdesk(implicit app: play.api.Application) extends HelpdeskDAO {
+case class EhriHelpdesk @Inject() (implicit app: play.api.Application) extends HelpdeskDAO {
   def helpdeskUrl: String = app.configuration.getString("ehri.helpdesk.url")
     .getOrElse(sys.error("Configuration value: 'ehri.helpdesk.url' is not defined"))
 

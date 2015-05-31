@@ -1,4 +1,4 @@
-@(f: play.api.data.Field, label: String, options: Seq[(String,String)], autosubmit: Boolean = false, multiple: Boolean = false)(implicit fieldPrefix: String = "", lang: Lang, fc: helper.FieldConstructor)
+@(f: play.api.data.Field, label: String, options: Seq[(String,String)], autosubmit: Boolean = false, multiple: Boolean = false)(implicit fieldPrefix: String = "", messages: Messages, fc: helper.FieldConstructor)
 
 @defining(views.Helpers.fieldValues(f)) { values =>
     @helper.input(f, 'title -> views.Helpers.renderMarkdown(Messages(fieldPrefix + "." + label + ".description")), '_label -> Messages(if(fieldPrefix.isEmpty) label else fieldPrefix + "." + label)) { (id, name, value, htmlArgs) =>

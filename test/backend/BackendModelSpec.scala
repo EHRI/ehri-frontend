@@ -1,17 +1,20 @@
 package backend
 
-import play.api.Play.current
 import defines.{EntityType, ContentTypes, PermissionType}
+import play.api.cache.CacheApi
+import play.api.inject.guice.GuiceApplicationLoader
 import utils.SystemEventParams.Aggregation
-import utils.{SystemEventParams, RangeParams, RangePage, PageParams}
-import backend.rest.{RestBackend, CypherIdGenerator, ItemNotFound, ValidationError}
+import utils.{RangeParams, RangePage, PageParams, SystemEventParams}
+import backend.rest.{CypherIdGenerator, ItemNotFound, ValidationError}
 import backend.rest.cypher.CypherDAO
-import play.api.libs.json.{JsString, Json}
+import play.api.libs.json.{JsObject, JsString, Json}
 import models.base.AnyModel
 import models._
-import play.api.test.PlaySpecification
+import play.api.test.{WithApplicationLoader, PlaySpecification}
 import utils.search.{MockSearchIndexer, SearchIndexer}
 import helpers.RestBackendRunner
+
+import scala.concurrent.ExecutionContext
 
 /**
  * Spec for testing individual data access components work as expected.
@@ -23,45 +26,80 @@ class BackendModelSpec extends RestBackendRunner with PlaySpecification {
   val entityType = EntityType.UserProfile
   implicit val apiUser: ApiUser = AuthenticatedUser(userProfile.id)
 
+  import play.api.inject.bind
+  val appLoader = new GuiceApplicationLoader(
+    new play.api.inject.guice.GuiceApplicationBuilder()
+    .configure(RestBackendRunner.backendConfig)
+    .overrides(
+      bind[SearchIndexer].toInstance(mockIndexer),
+      bind[EventHandler].toInstance(testEventHandler)
+    )
+  )
+
+  implicit def cache(implicit app: play.api.Application): CacheApi = app.injector.instanceOf[CacheApi]
+  implicit def execContext(implicit app: play.api.Application): ExecutionContext = app.injector.instanceOf[ExecutionContext]
+
   val indexEventBuffer = collection.mutable.ListBuffer.empty[String]
   def mockIndexer: SearchIndexer = new MockSearchIndexer(indexEventBuffer)
 
-  def testBackendFactory: Backend = new RestBackend(testEventHandler)
-
-  def testBackend(implicit apiUser: ApiUser): BackendHandle = testBackendFactory.withContext(apiUser)
+  def testBackend(implicit app: play.api.Application, apiUser: ApiUser): BackendHandle =
+    app.injector.instanceOf[Backend].withContext(apiUser)
 
   def testEventHandler = new EventHandler {
-    def handleCreate(id: String) = mockIndexer.indexId(id)
-    def handleUpdate(id: String) = mockIndexer.indexId(id)
-    def handleDelete(id: String) = mockIndexer.clearId(id)
+    def handleCreate(id: String) = mockIndexer.handle.indexId(id)
+    def handleUpdate(id: String) = mockIndexer.handle.indexId(id)
+    def handleDelete(id: String) = mockIndexer.handle.clearId(id)
+  }
+
+  /**
+   * A minimal object that has a resource type and can be read.
+   */
+  case class TestResource(id: String, data: JsObject) extends backend.WithId
+  object TestResource {
+    implicit object Resource extends backend.Resource[TestResource] {
+      def entityType: EntityType.Value = EntityType.DocumentaryUnit
+      import play.api.libs.json._
+      import play.api.libs.functional.syntax._
+      val restReads: Reads[TestResource] = (
+        (__ \ Entity.ID).read[String] and
+          (__ \ Entity.DATA).read[JsObject]
+        )(TestResource.apply _)
+    }
+  }
+
+  "RestBackend" should {
+    "allow fetching objects" in new WithApplicationLoader(appLoader) {
+      val test: TestResource = await(testBackend.get[TestResource]("c1"))
+      test.id must equalTo("c1")
+    }
   }
 
   "Generic entity operations" should {
-    "not cache invalid responses (as per bug #324)" in new TestApp {
+    "not cache invalid responses (as per bug #324)" in new WithApplicationLoader(appLoader) {
       // Previously this would error the second time because the bad
       // response would be cached and error on JSON deserialization.
       await(testBackend.get[UserProfile]("invalid-id")) must throwA[ItemNotFound]
       await(testBackend.get[UserProfile]("invalid-id")) must throwA[ItemNotFound]
     }
 
-    "not error when retrieving existing items at the wrong path (as per bug #500)" in new TestApp {
+    "not error when retrieving existing items at the wrong path (as per bug #500)" in new WithApplicationLoader(appLoader) {
       // Load the item (populating the cache)
       private val doc: DocumentaryUnit = await(testBackend.get[DocumentaryUnit]("c1"))
       // Now try and fetch it under a different resource path...
       await(testBackend.get[UserProfile]("c1")) must throwA[ItemNotFound]
     }
 
-    "get an item by id" in new TestApp {
+    "get an item by id" in new WithApplicationLoader(appLoader) {
       val profile: UserProfile = await(testBackend.get[UserProfile](userProfile.id))
       profile.id must equalTo(userProfile.id)
     }
 
-    "create an item" in new TestApp {
+    "create an item" in new WithApplicationLoader(appLoader) {
       val user = UserProfileF(id = None, identifier = "foobar", name = "Foobar")
       await(testBackend.create[UserProfile,UserProfileF](user))
     }
 
-    "create an item in (agent) context" in new TestApp {
+    "create an item in (agent) context" in new WithApplicationLoader(appLoader) {
       val doc = DocumentaryUnitF(id = None, identifier = "foobar")
       val r = await(testBackend
           .createInContext[Repository,DocumentaryUnitF,DocumentaryUnit]("r1", ContentTypes.DocumentaryUnit, doc))
@@ -74,7 +112,7 @@ class BackendModelSpec extends RestBackendRunner with PlaySpecification {
       events.lastOption must beSome.which(_ must equalTo("nl-r1-foobar"))
     }
 
-    "create an item in (doc) context" in new TestApp {
+    "create an item in (doc) context" in new WithApplicationLoader(appLoader) {
       val doc = DocumentaryUnitF(id = None, identifier = "foobar")
       val r = await(testBackend
           .createInContext[DocumentaryUnit,DocumentaryUnitF,DocumentaryUnit]("c1", ContentTypes.DocumentaryUnit, doc))
@@ -82,7 +120,7 @@ class BackendModelSpec extends RestBackendRunner with PlaySpecification {
       r.parent.get.id must equalTo("c1")
     }
 
-    "create an item with additional params" in new TestApp {
+    "create an item with additional params" in new WithApplicationLoader(appLoader) {
       val doc = VirtualUnitF(id = None, identifier = "foobar")
       val r = await(testBackend
         .createInContext[VirtualUnit,VirtualUnitF,VirtualUnit]("vc1", ContentTypes.VirtualUnit,
@@ -92,7 +130,7 @@ class BackendModelSpec extends RestBackendRunner with PlaySpecification {
       }
     }
 
-    "update an item by id" in new TestApp {
+    "update an item by id" in new WithApplicationLoader(appLoader) {
       val user = UserProfileF(id = None, identifier = "foobar", name = "Foobar")
       val entity = await(testBackend.create[UserProfile,UserProfileF](user))
       val udata = entity.model.copy(location = Some("London"))
@@ -100,12 +138,12 @@ class BackendModelSpec extends RestBackendRunner with PlaySpecification {
       res.model.location must equalTo(Some("London"))
     }
 
-    "delete an item by id" in new TestApp {
+    "delete an item by id" in new WithApplicationLoader(appLoader) {
       await(testBackend.delete[UserProfile]("reto"))
       await(testBackend.get[UserProfile]("reto")) must throwA[ItemNotFound]
     }
 
-    "patch an item by id" in new TestApp {
+    "patch an item by id" in new WithApplicationLoader(appLoader) {
       val user = UserProfileF(id = None, identifier = "foobar", name = "Foobar")
       val testVal = "http://example.com/"
       val patchData = Json.obj(UserProfileF.IMAGE_URL -> testVal)
@@ -114,7 +152,7 @@ class BackendModelSpec extends RestBackendRunner with PlaySpecification {
       res.model.imageUrl must equalTo(Some(testVal))
     }
 
-    "error when creating an item with a non-unique id" in new TestApp {
+    "error when creating an item with a non-unique id" in new WithApplicationLoader(appLoader) {
       val user = UserProfileF(id = None, identifier = "foobar", name = "Foobar")
       await(testBackend.create[UserProfile,UserProfileF](user))
       try {
@@ -126,7 +164,7 @@ class BackendModelSpec extends RestBackendRunner with PlaySpecification {
       }
     }
 
-    "error when fetching a non-existing item" in new TestApp {
+    "error when fetching a non-existing item" in new WithApplicationLoader(appLoader) {
       try {
         await(testBackend.get[UserProfile]("blibidyblob"))
         failure("Expected Item not found!")
@@ -136,7 +174,7 @@ class BackendModelSpec extends RestBackendRunner with PlaySpecification {
       }
     }
 
-    "error with context data when deserializing JSON incorrectly" in new TestApp {
+    "error with context data when deserializing JSON incorrectly" in new WithApplicationLoader(appLoader) {
       try {
         // deliberate use the wrong readable here to generate a
         // deserialization error...
@@ -168,13 +206,13 @@ class BackendModelSpec extends RestBackendRunner with PlaySpecification {
       }
     }
 
-    "delete an item by id" in new TestApp {
+    "delete an item by id" in new WithApplicationLoader(appLoader) {
       val user = UserProfileF(id = Some("foobar"), identifier = "foo", name = "bar")
       val entity = await(testBackend.create[UserProfile,UserProfileF](user))
       await(testBackend.delete[UserProfile](entity.id))
     }
 
-    "page items" in new TestApp {
+    "page items" in new WithApplicationLoader(appLoader) {
       val r = await(testBackend.list[UserProfile]())
       r.items.length mustEqual 5
       r.page mustEqual 1
@@ -182,22 +220,22 @@ class BackendModelSpec extends RestBackendRunner with PlaySpecification {
       r.total mustEqual 5
     }
 
-    "count items" in new TestApp {
+    "count items" in new WithApplicationLoader(appLoader) {
       var r = await(testBackend.count[UserProfile]())
       r mustEqual 5L
     }
 
-    "emit appropriate signals" in new TestApp {
+    "emit appropriate signals" in new WithApplicationLoader(appLoader) {
     }
   }
 
   "PermissionDAO" should {
-    "be able to fetch user's own permissions" in new TestApp {
+    "be able to fetch user's own permissions" in new WithApplicationLoader(appLoader) {
       val perms = await(testBackend.getGlobalPermissions(userProfile.id))
       userProfile.getPermission(perms, ContentTypes.DocumentaryUnit, PermissionType.Create) must beSome
     }
 
-    "be able to add and revoke a user's global permissions" in new TestApp {
+    "be able to add and revoke a user's global permissions" in new WithApplicationLoader(appLoader) {
       val user = UserProfile(UserProfileF(id = Some("reto"), identifier = "reto", name = "Reto"))
       val perms = await(testBackend.getGlobalPermissions(user.id))
       user.getPermission(perms, ContentTypes.DocumentaryUnit, PermissionType.Create) must beNone
@@ -236,7 +274,7 @@ class BackendModelSpec extends RestBackendRunner with PlaySpecification {
       user.getPermission(newPermsRem, ContentTypes.Repository, PermissionType.Delete) must beNone
     }
 
-    "be able to set a user's permissions within a scope" in new TestApp {
+    "be able to set a user's permissions within a scope" in new WithApplicationLoader(appLoader) {
       val user = UserProfile(UserProfileF(id = Some("reto"), identifier = "reto", name = "Reto"))
       val data = Map(ContentTypes.DocumentaryUnit.toString -> List(
         PermissionType.Update.toString,
@@ -254,7 +292,7 @@ class BackendModelSpec extends RestBackendRunner with PlaySpecification {
       user.getPermission(newItemPerms, PermissionType.Delete) must beSome
     }
 
-    "be able to set a user's permissions for an item" in new TestApp {
+    "be able to set a user's permissions for an item" in new WithApplicationLoader(appLoader) {
       val user = UserProfile(UserProfileF(id = Some("reto"), identifier = "reto", name = "Reto"))
       // NB: Currently, there's already a test permission grant for Reto-create on c1...
       val data = List(PermissionType.Update.toString, PermissionType.Delete.toString)
@@ -266,14 +304,14 @@ class BackendModelSpec extends RestBackendRunner with PlaySpecification {
       user.getPermission(newItemPerms, PermissionType.Delete) must beSome
     }
 
-    "be able to list permissions" in new TestApp {
+    "be able to list permissions" in new WithApplicationLoader(appLoader) {
       val page = await(testBackend.listScopePermissionGrants[PermissionGrant]("r1", PageParams.empty))
       page.items must not(beEmpty)
     }
   }
 
   "VisibilityDAO" should {
-    "set visibility correctly" in new TestApp {
+    "set visibility correctly" in new WithApplicationLoader(appLoader) {
       // First, fetch an object and assert its accessibility
       val c1a = await(testBackend.get[DocumentaryUnit]("c1"))
       c1a.accessors.map(_.id) must containAllOf(List("admin", "mike"))
@@ -283,7 +321,7 @@ class BackendModelSpec extends RestBackendRunner with PlaySpecification {
       c1b.accessors.map(_.id) must containAllOf(List("admin", "mike", "reto"))
     }
 
-    "promote and demote items" in new TestApp {
+    "promote and demote items" in new WithApplicationLoader(appLoader) {
       val ann1: Annotation = await(testBackend.get[Annotation]("ann1"))
       ann1.promoters must beEmpty
       val promoted = await(testBackend.promote[Annotation]("ann1"))
@@ -301,7 +339,7 @@ class BackendModelSpec extends RestBackendRunner with PlaySpecification {
   }
 
   "Event operations" should {
-    "handle paging correctly" in new TestApp {
+    "handle paging correctly" in new WithApplicationLoader(appLoader) {
       // Modify an item 3 times and check the events work properly
       await(testBackend.patch[DocumentaryUnit]("c1", Json.obj("prop1" -> "foo")))
       await(testBackend.patch[DocumentaryUnit]("c1", Json.obj("prop2" -> "foo")))
@@ -334,7 +372,7 @@ class BackendModelSpec extends RestBackendRunner with PlaySpecification {
       pageOneThree.limit must equalTo(1)
     }
 
-    "get activity for a user" in new TestApp {
+    "get activity for a user" in new WithApplicationLoader(appLoader) {
       await(testBackend.patch[DocumentaryUnit]("c1", Json.obj("prop1" -> "foo")))
       val forUser: RangePage[Seq[SystemEvent]] =
         await(testBackend.listEventsForUser[SystemEvent](userProfile.id, RangeParams.empty.withoutLimit))
@@ -347,7 +385,7 @@ class BackendModelSpec extends RestBackendRunner with PlaySpecification {
   }
 
   "Social operations" should {
-    "allow following and unfollowing" in new TestApp {
+    "allow following and unfollowing" in new WithApplicationLoader(appLoader) {
       await(testBackend.isFollowing(userProfile.id, "reto")) must beFalse
       await(testBackend.follow[UserProfile](userProfile.id, "reto"))
       await(testBackend.isFollowing(userProfile.id, "reto")) must beTrue
@@ -359,7 +397,7 @@ class BackendModelSpec extends RestBackendRunner with PlaySpecification {
       await(testBackend.isFollowing(userProfile.id, "reto")) must beFalse
     }
 
-    "allow watching and unwatching" in new TestApp {
+    "allow watching and unwatching" in new WithApplicationLoader(appLoader) {
       await(testBackend.isWatching(userProfile.id, "c1")) must beFalse
       await(testBackend.watch(userProfile.id, "c1"))
       await(testBackend.isWatching(userProfile.id, "c1")) must beTrue
@@ -371,7 +409,7 @@ class BackendModelSpec extends RestBackendRunner with PlaySpecification {
       await(testBackend.isWatching(userProfile.id, "c1")) must beFalse
     }
 
-    "allow blocking and unblocking" in new TestApp {
+    "allow blocking and unblocking" in new WithApplicationLoader(appLoader) {
       await(testBackend.isBlocking(userProfile.id, "reto")) must beFalse
       await(testBackend.block(userProfile.id, "reto"))
       await(testBackend.isBlocking(userProfile.id, "reto")) must beTrue
@@ -383,7 +421,7 @@ class BackendModelSpec extends RestBackendRunner with PlaySpecification {
       await(testBackend.isBlocking(userProfile.id, "reto")) must beFalse
     }
 
-    "handle virtual collections (and bookmarks)" in new TestApp {
+    "handle virtual collections (and bookmarks)" in new WithApplicationLoader(appLoader) {
       val data = VirtualUnitF(
         identifier = "vctest",
         descriptions = List(
@@ -442,7 +480,7 @@ class BackendModelSpec extends RestBackendRunner with PlaySpecification {
   }
 
   "Cypher operations" should {
-    "get a JsValue for a graph item" in new TestApp {
+    "get a JsValue for a graph item" in new WithApplicationLoader(appLoader) {
       val dao = new CypherDAO
       val res = await(dao.cypher(
         """START n = node:entities(__ID__ = {id})
@@ -450,22 +488,22 @@ class BackendModelSpec extends RestBackendRunner with PlaySpecification {
           Map("id" -> JsString("admin"))))
       // It should return one list value in the data section
       val list = (res \ "data").as[List[List[String]]]
-      list(0)(0) mustEqual "admin"
+      list.head.head mustEqual "admin"
     }
   }
 
   "CypherIdGenerator" should {
-    "get the right next ID for repositories" in new TestApp {
-      val idGen = new CypherIdGenerator("%06d")
-      await(idGen.getNextNumericIdentifier(EntityType.Repository)) must equalTo("000005")
+    "get the right next ID for repositories" in new WithApplicationLoader(appLoader) {
+      val idGen = new CypherIdGenerator
+      await(idGen.getNextNumericIdentifier(EntityType.Repository, "%06d")) must equalTo("000005")
     }
 
-    "get the right next ID for collections in scope" in new TestApp {
+    "get the right next ID for collections in scope" in new WithApplicationLoader(appLoader) {
       // There a 4 collections in the fixtures c1-c4
       // Sigh... - now there's also a fixture named "m19", so the next
       // numeric ID with be "20". I didn't plan this.
-      val idGen = new CypherIdGenerator("c%01d")
-      await(idGen.getNextChildNumericIdentifier("r1", EntityType.DocumentaryUnit)) must equalTo("c20")
+      val idGen = new CypherIdGenerator
+      await(idGen.getNextChildNumericIdentifier("r1", EntityType.DocumentaryUnit, "c%01d")) must equalTo("c20")
     }
   }
 }

@@ -1,4 +1,4 @@
-@()(implicit userOpt: Option[UserProfile], request: RequestHeader, lang: Lang)
+@()(implicit userOpt: Option[UserProfile], request: RequestHeader, messages: Messages)
 
 @if(userOpt.isEmpty) {
     <div id="data-policy" class="modal fade" style="display: none" aria-hidden="true" aria-labelledBy="data-policy-label" role="dialog">

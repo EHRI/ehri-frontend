@@ -1,9 +1,9 @@
-@(guide: Guide, page: GuidePage, pages: List[GuidePage], scripts: Html = Html(""), styles: Html = Html(""), optionalContent: Option[Html] = None, otherTitle: Option[String] = None)(content: Html)(implicit userOpt: Option[UserProfile], globalConfig: global.GlobalConfig, request: RequestHeader, lang: Lang)
+@(guide: Guide, page: GuidePage, pages: Seq[GuidePage], scripts: Html = Html(""), styles: Html = Html(""), optionalContent: Option[Html] = None, otherTitle: Option[String] = None)(content: Html)(implicit userOpt: Option[UserProfile], globalConfig: global.GlobalConfig, request: RequestHeader, messages: Messages)
 
 <!DOCTYPE html>
 
 @extraStyles = {
-    <link rel="stylesheet" media="screen" href="@controllers.portal.routes.Assets.versioned("css/guides.css")">
+    <link rel="stylesheet" media="screen" href="@controllers.portal.routes.PortalAssets.at("/public/lib/docview-portal", "css/guides.css")">
     <style type="text/css">@Html(guide.css.getOrElse(""))</style>
     @styles
 }
@@ -28,7 +28,7 @@
     <body>
         @views.html.layout.preambleScripts()
         <header id="top">
-            @views.html.layout.guideHeader(guide, page, guide.findPages())
+            @views.html.layout.guideHeader(guide, page, pages)
         </header>
         <div class="container">
             <div class="row">
@@ -36,7 +36,7 @@
                     @content
                 </div>
                 <div class="col-md-4" id="right-bar">
-                    @views.html.layout.guideSidebar(guide, page, guide.findPages(), optionalContent)
+                    @views.html.layout.guideSidebar(guide, page, pages, optionalContent)
                 </div>
             </div>
         </div>

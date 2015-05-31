@@ -1,4 +1,4 @@
-@(name:String, title: String = "")(html: Html)(implicit fieldPrefix: String, lang: Lang)
+@(name:String, title: String = "")(html: Html)(implicit fieldPrefix: String, messages: Messages)
 
 @if(html.body.trim.nonEmpty) {
     <div class="description-section" id="@{name}-section">

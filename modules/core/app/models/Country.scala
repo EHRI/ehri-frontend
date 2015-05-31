@@ -5,7 +5,7 @@ import base._
 import models.base.Persistable
 import defines.{ContentTypes, EntityType}
 import models.json._
-import play.api.i18n.Lang
+import play.api.i18n.Messages
 import play.api.libs.json._
 import play.api.libs.functional.syntax._
 import play.api.data.Form
@@ -117,5 +117,5 @@ case class Country(
   with Accessible
   with Holder[Repository] {
 
-  override def toStringLang(implicit lang: Lang) = views.Helpers.countryCodeToName(id)
+  override def toStringLang(implicit messages: Messages) = views.Helpers.countryCodeToName(id)
 }

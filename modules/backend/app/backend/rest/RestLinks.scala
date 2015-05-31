@@ -1,7 +1,5 @@
 package backend.rest
 
-import play.api.cache.Cache
-
 import scala.concurrent.Future
 import defines.EntityType
 import play.api.libs.json.Json
@@ -39,7 +37,7 @@ trait RestLinks extends Links with RestDAO with RestContext {
     val url: String = enc(requestUrl, id, src)
     userCall(url).withQueryString(accessPoint.map(a => BODY_PARAM -> a).toSeq: _*)
       .post(Json.toJson(link)(Writable[AF].restFormat)).map { response =>
-      Cache.remove(canonicalUrl[MT](id))
+      cache.remove(canonicalUrl[MT](id))
       val link: A = checkErrorAndParse[A](response, context = Some(url))(Readable[A].restReads)
       eventHandler.handleCreate(link.id)
       link
@@ -54,7 +52,7 @@ trait RestLinks extends Links with RestDAO with RestContext {
     userCall(url).delete().map { response =>
       checkError(response)
       eventHandler.handleDelete(linkId)
-      Cache.remove(canonicalUrl(id))
+      cache.remove(canonicalUrl(id))
       response.status == Status.OK
     }
   }
@@ -69,7 +67,7 @@ trait RestLinks extends Links with RestDAO with RestContext {
       }
     }
     done.map { r =>
-      Cache.remove(canonicalUrl(id))
+      cache.remove(canonicalUrl(id))
       r
     }
   }

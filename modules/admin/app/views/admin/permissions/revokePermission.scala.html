@@ -1,5 +1,4 @@
-@(item: Accessor, perm: PermissionGrant, action: Call, cancel: Call)(
-implicit userOpt: Option[UserProfile], request: RequestHeader, globalConfig: global.GlobalConfig, flash: Flash, token: play.filters.csrf.CSRF.Token)
+@(item: Accessor, perm: PermissionGrant, action: Call, cancel: Call)(implicit userOpt: Option[UserProfile], request: RequestHeader, globalConfig: global.GlobalConfig, messages: Messages, flash: Flash, token: play.filters.csrf.CSRF.Token)
 
 @views.html.admin.layout.rightSidebar(Messages("permissions.revoke"), breadcrumbs = views.html.admin.common.breadcrumbs(List(item))) {
 

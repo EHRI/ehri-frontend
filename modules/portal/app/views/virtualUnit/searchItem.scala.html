@@ -1,4 +1,4 @@
-@(item: models.base.AnyModel, path: Seq[models.base.AnyModel], hit: utils.search.SearchHit, watched: Boolean, showRepository: Boolean = true)(implicit userOpt: Option[UserProfile], req: RequestHeader, globalConfig: global.GlobalConfig, lang: Lang, descriptionId: Option[String] = None, context: Option[models.base.Holder[_]] = None)
+@(item: models.base.AnyModel, path: Seq[models.base.AnyModel], hit: utils.search.SearchHit, watched: Boolean, showRepository: Boolean = true)(implicit userOpt: Option[UserProfile], req: RequestHeader, globalConfig: global.GlobalConfig, messages: Messages, descriptionId: Option[String] = None, context: Option[models.base.Holder[_]] = None)
 
 @wrapParent(doc: models.base.AnyModel, path: Seq[models.base.AnyModel]) = {
     @if(path.lastOption.map(_.id) != context.map(_.id)) {

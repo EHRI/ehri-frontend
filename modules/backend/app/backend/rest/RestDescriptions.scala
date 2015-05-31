@@ -3,7 +3,6 @@ package backend.rest
 import scala.concurrent.Future
 import play.api.libs.json._
 import defines.EntityType
-import play.api.cache.Cache
 import backend._
 
 
@@ -20,7 +19,7 @@ trait RestDescriptions extends RestDAO with RestContext with Descriptions {
         .post(Json.toJson(item)(Writable[DT].restFormat)).map { response =>
       val desc: DT = checkErrorAndParse(response, context = Some(url))(Writable[DT].restFormat)
       eventHandler.handleUpdate(id)
-      Cache.remove(canonicalUrl(id))
+      cache.remove(canonicalUrl(id))
       desc
     }
   }
@@ -31,7 +30,7 @@ trait RestDescriptions extends RestDAO with RestContext with Descriptions {
         .put(Json.toJson(item)(Writable[DT].restFormat)).map { response =>
       val desc: DT = checkErrorAndParse(response, context = Some(url))(Writable[DT].restFormat)
       eventHandler.handleUpdate(id)
-      Cache.remove(canonicalUrl(id))
+      cache.remove(canonicalUrl(id))
       desc
     }
   }
@@ -40,7 +39,7 @@ trait RestDescriptions extends RestDAO with RestContext with Descriptions {
     userCall(enc(requestUrl, id, did)).withHeaders(msgHeader(logMsg): _*).delete().map { response =>
       checkError(response)
       eventHandler.handleDelete(did)
-      Cache.remove(canonicalUrl(id))
+      cache.remove(canonicalUrl(id))
     }
   }
 
@@ -50,7 +49,7 @@ trait RestDescriptions extends RestDAO with RestContext with Descriptions {
         .withHeaders(msgHeader(logMsg): _*)
         .post(Json.toJson(item)(Writable[AP].restFormat)).map { response =>
       eventHandler.handleUpdate(id)
-      Cache.remove(canonicalUrl(id))
+      cache.remove(canonicalUrl(id))
       checkErrorAndParse(response, context = Some(url))(Writable[AP].restFormat)
     }
   }
@@ -60,7 +59,7 @@ trait RestDescriptions extends RestDAO with RestContext with Descriptions {
     userCall(url).withHeaders(msgHeader(logMsg): _*).delete().map { response =>
       checkError(response)
       eventHandler.handleUpdate(id)
-      Cache.remove(canonicalUrl(id))
+      cache.remove(canonicalUrl(id))
     }
   }
 }

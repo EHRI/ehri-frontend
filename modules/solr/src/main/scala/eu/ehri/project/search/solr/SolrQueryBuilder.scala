@@ -352,3 +352,4 @@ case class SolrQueryBuilder(
 
   override def withExtraParams(extra: Map[String, Any]): QueryBuilder = copy(extraParams = extraParams ++ extra)
 }
+

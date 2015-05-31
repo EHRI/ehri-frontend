@@ -1,7 +1,6 @@
 package backend.rest
 
 import scala.concurrent.Future
-import play.api.cache.Cache
 import backend._
 
 
@@ -20,7 +19,7 @@ trait RestVisibility extends Visibility with RestDAO with RestContext {
         .withQueryString(data.map(a => ACCESSOR_PARAM -> a): _*)
         .post("").map { response =>
       val r = checkErrorAndParse(response, context = Some(url))(Resource[MT].restReads)
-      Cache.remove(canonicalUrl(id))
+      cache.remove(canonicalUrl(id))
       eventHandler.handleUpdate(id)
       r
     }

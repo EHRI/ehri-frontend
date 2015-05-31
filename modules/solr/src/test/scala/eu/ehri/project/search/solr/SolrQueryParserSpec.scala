@@ -2,7 +2,6 @@ package eu.ehri.project.search.solr
 
 import helpers.ResourceUtils
 import play.api.test.PlaySpecification
-import play.api.i18n.Messages
 import utils.search.FieldFacetClass
 import views.Helpers
 import models.base.Description
@@ -13,12 +12,14 @@ import models.base.Description
  */
 class SolrQueryParserSpec extends PlaySpecification with ResourceUtils {
 
+  implicit val app = new play.api.inject.guice.GuiceApplicationBuilder().build
   private def xmlResponseString: String = resourceAsString("solrQueryResponse1.xml")
   private def jsonResponseString: String = resourceAsString("solrQueryResponse1.json")
 
   "Solr XML Query Parser" should {
+    val xmlHandler = XmlResponseHandler(app)
     "parse the correct number of docs with the right IDs" in {
-      val qp = XmlResponseHandler.getResponseParser(xmlResponseString)
+      val qp = xmlHandler.getResponseParser(xmlResponseString)
       val docs = qp.items
       docs.size must equalTo(2)
       docs.find(d => d.itemId == "ehri-cb-638") must beSome
@@ -26,13 +27,12 @@ class SolrQueryParserSpec extends PlaySpecification with ResourceUtils {
     }
 
     "parse facets correctly" in {
-      val qp = XmlResponseHandler.getResponseParser(xmlResponseString)
+      val qp = xmlHandler.getResponseParser(xmlResponseString)
       val allFacets = List(
         FieldFacetClass(
           key=Description.LANG_CODE,
-          name=Messages("documentaryUnit." + Description.LANG_CODE),
-          param="lang",
-          render=Helpers.languageCodeToName
+          name= "documentaryUnit." + Description.LANG_CODE,
+          param="lang"
         )
       )
       val facetData = qp.extractFacetData(List.empty, allFacets)
@@ -46,7 +46,7 @@ class SolrQueryParserSpec extends PlaySpecification with ResourceUtils {
     }
 
     "parse highlighting correctly" in {
-      val qp = XmlResponseHandler.getResponseParser(xmlResponseString)
+      val qp = xmlHandler.getResponseParser(xmlResponseString)
       val highlightMap: Map[String, Map[String, Seq[String]]] = qp.highlightMap
       highlightMap.size must equalTo(2)
       val itemMap = highlightMap.get("ehri-cb-638-eng-292")
@@ -61,8 +61,9 @@ class SolrQueryParserSpec extends PlaySpecification with ResourceUtils {
   }
 
   "Solr JSON Query Parser" should {
+    val jsonHandler = JsonResponseHandler(app)
     "parse the correct number of docs with the right IDs" in {
-      val qp = JsonResponseHandler.getResponseParser(jsonResponseString)
+      val qp = jsonHandler.getResponseParser(jsonResponseString)
       println(qp.count)
       val docs = qp.items
       docs.size must equalTo(2)
@@ -71,13 +72,12 @@ class SolrQueryParserSpec extends PlaySpecification with ResourceUtils {
     }
 
     "parse facets correctly" in {
-      val qp = JsonResponseHandler.getResponseParser(jsonResponseString)
+      val qp = jsonHandler.getResponseParser(jsonResponseString)
       val allFacets = List(
         FieldFacetClass(
           key=Description.LANG_CODE,
-          name=Messages("documentaryUnit." + Description.LANG_CODE),
-          param="lang",
-          render=Helpers.languageCodeToName
+          name= "documentaryUnit." + Description.LANG_CODE,
+          param="lang"
         )
       )
       val facetData = qp.extractFacetData(List.empty, allFacets)
@@ -91,7 +91,7 @@ class SolrQueryParserSpec extends PlaySpecification with ResourceUtils {
     }
 
     "parse highlighting correctly" in {
-      val qp = JsonResponseHandler.getResponseParser(jsonResponseString)
+      val qp = jsonHandler.getResponseParser(jsonResponseString)
       val highlightMap: Map[String, Map[String, Seq[String]]] = qp.highlightMap
       highlightMap.size must equalTo(2)
       val itemMap = highlightMap.get("ehri-cb-638-eng-292")

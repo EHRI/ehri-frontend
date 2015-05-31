@@ -33,10 +33,10 @@ object TimeCheckForm {
           if (timeDiff > delay) Valid
           else {
             Logger.logger.error(s"Bad timestamp on signup with delay $delay")
-            Invalid("constraits.timeCheckSeconds.failed")
+            Invalid("constraints.timeCheckSeconds.failed")
           }
         } catch {
-          case e: IllegalArgumentException => Invalid("constraits.timeCheckSeconds.failed")
+          case e: IllegalArgumentException => Invalid("constraints.timeCheckSeconds.failed")
         }
       }.getOrElse(Valid)
     }

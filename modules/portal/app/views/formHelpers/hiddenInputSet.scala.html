@@ -1,4 +1,4 @@
-@(field: play.api.data.Field, name: String)(implicit fieldPrefix: String, lang: Lang, fieldConstructor: views.html.helper.FieldConstructor)
+@(field: play.api.data.Field, name: String)(implicit fieldPrefix: String, messages: Messages, fieldConstructor: views.html.helper.FieldConstructor)
 
 @helper.repeat(field(name), min = 0) { f =>
     @hiddenInput(f)

@@ -1,4 +1,4 @@
-@(annotation: Annotation, highlighter: views.Highlighter = views.NoopHighlighter)(implicit userOpt: Option[UserProfile], req: RequestHeader, lang: Lang, globalConfig: global.GlobalConfig)
+@(annotation: Annotation, highlighter: views.Highlighter = views.NoopHighlighter)(implicit userOpt: Option[UserProfile], req: RequestHeader, messages: Messages, globalConfig: global.GlobalConfig)
 
 <div class="annotation" id="@annotation.id">
     <div class="annotation-header">

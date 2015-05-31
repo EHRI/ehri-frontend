@@ -1,4 +1,4 @@
-@(item: Concept, desc: ConceptDescriptionF, links: Seq[Link], annotations: Seq[Annotation])(implicit userOpt: Option[UserProfile], req: RequestHeader, prefs: utils.SessionPrefs, globalConfig: global.GlobalConfig, lang: Lang, fieldPrefix: String)
+@(item: Concept, desc: ConceptDescriptionF, links: Seq[Link], annotations: Seq[Annotation])(implicit userOpt: Option[UserProfile], req: RequestHeader, prefs: utils.SessionPrefs, globalConfig: global.GlobalConfig, messages: Messages, fieldPrefix: String)
 
 @import ConceptF._
 @import views.html.common.descriptionSection

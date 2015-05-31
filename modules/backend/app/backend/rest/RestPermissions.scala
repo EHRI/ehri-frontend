@@ -4,7 +4,6 @@ import scala.concurrent.Future
 import acl._
 import defines._
 import play.api.libs.json.Json
-import play.api.cache.Cache
 import utils.{Page, PageParams}
 import backend._
 import caching.FutureCache
@@ -41,7 +40,7 @@ trait RestPermissions extends Permissions with RestDAO with RestContext {
 
   override def setGlobalPermissions(userId: String, data: Map[String, Seq[String]]): Future[GlobalPermissionSet] = {
     val url = enc(requestUrl, userId)
-    FutureCache.set(url, cacheTime) {
+   FutureCache.set(url, cacheTime) {
       userCall(url).post(Json.toJson(data))
         .map(r => checkErrorAndParse[GlobalPermissionSet](r, context = Some(url)))
     }
@@ -58,7 +57,7 @@ trait RestPermissions extends Permissions with RestDAO with RestContext {
 
   override def setItemPermissions(userId: String, contentType: ContentTypes.Value, id: String, data: Seq[String]): Future[ItemPermissionSet] = {
     val url = enc(requestUrl, userId, id)
-    FutureCache.set(url, cacheTime) {
+   FutureCache.set(url, cacheTime) {
       userCall(url).post(Json.toJson(data)).map { response =>
         checkErrorAndParse(response, context = Some(url))(ItemPermissionSet.restReads(contentType))
       }
@@ -75,7 +74,7 @@ trait RestPermissions extends Permissions with RestDAO with RestContext {
 
   override def setScopePermissions(userId: String, id: String, data: Map[String,Seq[String]]): Future[GlobalPermissionSet] = {
     val url = enc(requestUrl, userId, "scope", id)
-    FutureCache.set(url, cacheTime) {
+   FutureCache.set(url, cacheTime) {
       userCall(url).post(Json.toJson(data))
         .map(r => checkErrorAndParse[GlobalPermissionSet](r, context = Some(url)))
     }
@@ -84,9 +83,9 @@ trait RestPermissions extends Permissions with RestDAO with RestContext {
   override def addGroup[GT: Resource, UT: Resource](groupId: String, userId: String): Future[Boolean] = {
     userCall(enc(baseUrl, EntityType.Group, groupId, userId)).post(Map[String, Seq[String]]()).map { response =>
       checkError(response)
-      Cache.remove(canonicalUrl[UT](userId))
-      Cache.remove(canonicalUrl[GT](groupId))
-      Cache.remove(enc(requestUrl, userId))
+      cache.remove(canonicalUrl[UT](userId))
+      cache.remove(canonicalUrl[GT](groupId))
+      cache.remove(enc(requestUrl, userId))
       true
     }
   }
@@ -94,9 +93,9 @@ trait RestPermissions extends Permissions with RestDAO with RestContext {
   override def removeGroup[GT: Resource, UT: Resource](groupId: String, userId: String): Future[Boolean] = {
     userCall(enc(baseUrl, EntityType.Group, groupId, userId)).delete().map { response =>
       checkError(response)
-      Cache.remove(canonicalUrl[UT](userId))
-      Cache.remove(canonicalUrl[GT](groupId))
-      Cache.remove(enc(requestUrl, userId))
+      cache.remove(canonicalUrl[UT](userId))
+      cache.remove(canonicalUrl[GT](groupId))
+      cache.remove(enc(requestUrl, userId))
       true
     }
   }

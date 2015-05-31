@@ -1,4 +1,4 @@
-@(id: String, altIds: Option[Seq[String]] = None)(implicit userOpt: Option[UserProfile], request: RequestHeader, globalConfig: global.GlobalConfig, lang: Lang)
+@(id: String, altIds: Option[Seq[String]] = None)(implicit userOpt: Option[UserProfile], request: RequestHeader, globalConfig: global.GlobalConfig, messages: Messages)
 
 @views.html.admin.common.sidebarSection(name = Some(Messages("item.identifier"))) {
     <ul class="list-group">

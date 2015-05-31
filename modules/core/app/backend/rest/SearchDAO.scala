@@ -1,5 +1,8 @@
 package backend.rest
 
+import javax.inject.Inject
+
+import play.api.cache.CacheApi
 import play.api.libs.concurrent.Execution.Implicits._
 import scala.concurrent.Future
 import play.api.libs.json.{Reads, Json}
@@ -39,14 +42,12 @@ trait SearchDAO extends RestDAO {
   }
 }
 
-object SearchDAO extends SearchDAO {
-  implicit val app = play.api.Play.current
-}
+case class Search @Inject() (implicit cache: CacheApi, app: play.api.Application) extends SearchDAO
 
 /**
  * Resolve search hits to DB items by the GID field
  */
-case class GidSearchResolver(implicit val app: play.api.Application) extends RestDAO with SearchDAO with SearchItemResolver {
+case class GidSearchResolver @Inject ()(implicit cache: CacheApi, app: play.api.Application) extends RestDAO with SearchDAO with SearchItemResolver {
   def resolve[MT](docs: Seq[SearchHit])(implicit apiUser: ApiUser,  rd: Readable[MT]): Future[Seq[MT]] =
     listByGid(docs.map(_.gid))
 }
@@ -54,7 +55,7 @@ case class GidSearchResolver(implicit val app: play.api.Application) extends Res
 /**
  * Resolve search hits to DB items by the itemId field
  */
-case class IdSearchResolver(implicit val app: play.api.Application) extends RestDAO with SearchDAO with SearchItemResolver {
+case class IdSearchResolver @Inject ()(implicit cache: CacheApi, app: play.api.Application) extends RestDAO with SearchDAO with SearchItemResolver {
   def resolve[MT](docs: Seq[SearchHit])(implicit apiUser: ApiUser,  rd: Readable[MT]): Future[Seq[MT]] =
     list(docs.map(_.itemId))
 }

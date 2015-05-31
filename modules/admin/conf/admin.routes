@@ -72,5 +72,5 @@ GET         /filter                             @controllers.admin.SearchFilter.
 ->          /keywords                           keywords.Routes
 
 
-GET         /assets/*file                       controllers.admin.Assets.at(path="/public", file)
-GET         /v/*file                            controllers.admin.Assets.versioned(path="/public", file: Asset)
+GET         /assets/*file                       @controllers.admin.AdminAssets.at(path="/public/lib/docview-admin", file)
+#GET         /v/*file                            @controllers.admin.AdminAssets.versioned(path="/public/lib/docview-admin", file: Asset)

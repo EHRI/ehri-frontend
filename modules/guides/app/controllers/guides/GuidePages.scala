@@ -5,16 +5,18 @@ import java.sql.SQLException
 import auth.AccountManager
 import controllers.base.AdminController
 
-import com.google.inject._
+import javax.inject._
 import backend.Backend
 import models.sql.IntegrityError
-import models.{Guide, GuidePage}
+import models.{GuideDAO, Guide, GuidePage}
+import play.api.cache.CacheApi
+import play.api.i18n.MessagesApi
 
 import scala.util.{Success, Failure}
 
 
 @Singleton
-case class GuidePages @Inject()(implicit globalConfig: global.GlobalConfig, backend: Backend, accounts: AccountManager, pageRelocator: utils.MovedPageLookup) extends AdminController {
+case class GuidePages @Inject()(implicit app: play.api.Application, cache: CacheApi, globalConfig: global.GlobalConfig, backend: Backend, accounts: AccountManager, pageRelocator: utils.MovedPageLookup, messagesApi: MessagesApi, guideDAO: GuideDAO) extends AdminController {
 
   private val formPage = models.GuidePage.form
   private final val guidePagesRoutes = controllers.guides.routes.GuidePages
@@ -22,10 +24,10 @@ case class GuidePages @Inject()(implicit globalConfig: global.GlobalConfig, back
   def edit(gPath: String, path: String) = WithUserAction { implicit request =>
     itemOr404 {
       for {
-        guide <- Guide.find(gPath)
-        page <- guide.findPage(path)
+        guide <- guideDAO.find(gPath)
+        page <- guideDAO.findPage(guide, path)
       } yield Ok(views.html.guidePage.edit(guide, page,
-        formPage.fill(page), GuidePage.find(gPath), Guide.findAll(),
+        formPage.fill(page), guideDAO.findPage(gPath), guideDAO.findAll(),
         guidePagesRoutes.editPost(gPath, path)))
     }
   }
@@ -33,24 +35,24 @@ case class GuidePages @Inject()(implicit globalConfig: global.GlobalConfig, back
   def editPost(gPath: String, path: String) = WithUserAction { implicit request =>
     itemOr404 {
       for {
-        guide <- Guide.find(gPath)
-        page <- guide.findPage(path)
+        guide <- guideDAO.find(gPath)
+        page <- guideDAO.findPage(guide, path)
       } yield {
         val boundForm = formPage.bindFromRequest
         boundForm.fold(
           errorForm =>
             BadRequest(views.html.guidePage.edit(guide, page,
-              errorForm, guide.findPages(),
-              Guide.findAll(), guidePagesRoutes.editPost(gPath, path))),
+              errorForm, guideDAO.findPages(guide),
+              guideDAO.findAll(), guidePagesRoutes.editPost(gPath, path))),
           updated => {
-            updated.copy(id = page.id, parent = guide.id).update() match {
+            guideDAO.updatePage(updated.copy(id = page.id, parent = guide.id)) match {
               case Success(()) => Redirect(controllers.guides.routes.Guides.show(gPath))
                 .flashing("success" -> "item.update.confirmation")
               case Failure(IntegrityError(e)) =>
                 val errorForm = boundForm.withError(GuidePage.PATH, "constraints.uniqueness")
                 BadRequest(views.html.guidePage.edit(guide, page,
-                  errorForm, guide.findPages(),
-                  Guide.findAll(), guidePagesRoutes.editPost(gPath, path)))
+                  errorForm, guideDAO.findPages(guide),
+                  guideDAO.findAll(), guidePagesRoutes.editPost(gPath, path)))
               case Failure(e) => throw e
             }
           }
@@ -62,10 +64,10 @@ case class GuidePages @Inject()(implicit globalConfig: global.GlobalConfig, back
   def create(gPath: String) = WithUserAction { implicit request =>
     itemOr404 {
       try {
-        Guide.find(gPath, activeOnly = false).map { guide =>
+        guideDAO.find(gPath, activeOnly = false).map { guide =>
           Ok(views.html.guidePage.create(guide,
             formPage.fill(GuidePage.blueprint(guide.id)),
-            GuidePage.find(gPath), Guide.findAll(),
+            guideDAO.findPage(gPath), guideDAO.findAll(),
             guidePagesRoutes.createPost(gPath)))
         }
       } catch {
@@ -78,15 +80,15 @@ case class GuidePages @Inject()(implicit globalConfig: global.GlobalConfig, back
 
   def createPost(gPath: String) = WithUserAction { implicit request =>
     itemOr404 {
-      Guide.find(gPath, activeOnly = false).flatMap { guide =>
+      guideDAO.find(gPath, activeOnly = false).flatMap { guide =>
         val boundForm = formPage.bindFromRequest
         boundForm.fold(
           errorForm => {
             Some(BadRequest(views.html.guidePage.create(guide, errorForm,
-              guide.findPages(), Guide.findAll(), guidePagesRoutes.createPost(gPath))))
+              guideDAO.findPages(guide), guideDAO.findAll(), guidePagesRoutes.createPost(gPath))))
           }, {
             case GuidePage(_, layout, name, path, menu, cypher, parent, description, params) =>
-              GuidePage.create(layout, name, path, menu, cypher, guide.id, description, params) match {
+              guideDAO.createPage(layout, name, path, menu, cypher, guide.id, description, params) match {
                 case Success(idOpt) => idOpt.map { guidePage =>
                   Redirect(controllers.guides.routes.Guides.show(guide.path))
                     .flashing("success" -> "item.create.confirmation")
@@ -94,7 +96,7 @@ case class GuidePages @Inject()(implicit globalConfig: global.GlobalConfig, back
                 case Failure(IntegrityError(e)) =>
                   val errorForm = boundForm.withError(GuidePage.PATH, "constraints.uniqueness")
                   Some(BadRequest(views.html.guidePage.create(guide, errorForm,
-                    guide.findPages(), Guide.findAll(), guidePagesRoutes.createPost(gPath))))
+                    guideDAO.findPages(guide), guideDAO.findAll(), guidePagesRoutes.createPost(gPath))))
                 case Failure(e) => throw e
               }
         }
@@ -106,11 +108,11 @@ case class GuidePages @Inject()(implicit globalConfig: global.GlobalConfig, back
   def delete(gPath: String, path: String) = WithUserAction { implicit request =>
     itemOr404 {
       for {
-        guide <- Guide.find(gPath)
-        page <- guide.findPage(path)
+        guide <- guideDAO.find(gPath)
+        page <- guideDAO.findPage(guide, path)
       } yield {
-        Ok(views.html.guidePage.delete(guide, page, Guide.findAll(),
-            guide.findPages(), guidePagesRoutes.deletePost(gPath, path)))
+        Ok(views.html.guidePage.delete(guide, page, guideDAO.findAll(),
+          guideDAO.findPages(guide), guidePagesRoutes.deletePost(gPath, path)))
       }
     }
   }
@@ -118,10 +120,10 @@ case class GuidePages @Inject()(implicit globalConfig: global.GlobalConfig, back
   def deletePost(gPath: String, path: String) = WithUserAction { implicit request =>
     itemOr404 {
       for {
-        guide <- Guide.find(gPath)
-        page <- guide.findPage(path)
+        guide <- guideDAO.find(gPath)
+        page <- guideDAO.findPage(guide, path)
       } yield {
-        page.delete()
+        guideDAO.deletePage(page)
         Redirect(controllers.guides.routes.Guides.show(gPath))
       }
     }

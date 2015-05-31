@@ -2,8 +2,10 @@ package controllers.events
 
 import auth.AccountManager
 import models.SystemEvent
+import play.api.cache.CacheApi
+import play.api.i18n.MessagesApi
 import play.api.libs.concurrent.Execution.Implicits._
-import com.google.inject._
+import javax.inject._
 import utils.{RangeParams, SystemEventParams, PageParams}
 import controllers.generic.Read
 import backend.Backend
@@ -11,9 +13,10 @@ import backend.rest.RestHelpers
 import models.base.AnyModel
 import controllers.base.AdminController
 
-case class SystemEvents @Inject()(implicit globalConfig: global.GlobalConfig, backend: Backend, accounts: AccountManager, pageRelocator: utils.MovedPageLookup)
+case class SystemEvents @Inject()(implicit app: play.api.Application, cache: CacheApi, globalConfig: global.GlobalConfig, backend: Backend, accounts: AccountManager, pageRelocator: utils.MovedPageLookup, messagesApi: MessagesApi)
   extends AdminController
-  with Read[SystemEvent] {
+  with Read[SystemEvent]
+  with RestHelpers {
 
   def get(id: String) = ItemMetaAction(id).async { implicit request =>
     // In addition to the item itself, we also want to fetch the subjects associated with it.
@@ -30,7 +33,7 @@ case class SystemEvents @Inject()(implicit globalConfig: global.GlobalConfig, ba
     val filterForm = SystemEventParams.form.fill(eventFilter)
 
     for {
-      users <- RestHelpers.getUserList
+      users <- getUserList
       events <- userBackend.listEvents[SystemEvent](listParams, eventFilter)
     } yield Ok(views.html.admin.systemEvent.list(events, listParams,
         filterForm, users,controllers.events.routes.SystemEvents.list()))

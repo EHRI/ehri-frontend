@@ -6,25 +6,26 @@ import play.api.libs.concurrent.Execution.Implicits._
 import models.Isaar
 import models.base.{Description, AnyModel}
 import controllers.generic.Search
-import play.api.Play.current
 import defines.EntityType
-import play.api.i18n.Messages
+import play.api.i18n.{MessagesApi, Messages}
 import play.api.libs.json.{Writes, Json}
 import play.api.mvc.{AnyContent, Request, Result}
 import utils.{Page, search}
 import views.Helpers
 import utils.search._
 
-import com.google.inject._
-import play.api.cache.{Cache, Cached}
+import javax.inject._
+import play.api.cache.{CacheApi, Cached}
 import backend.Backend
 import controllers.base.AdminController
 
 
 @Singleton
-case class Metrics @Inject()(implicit globalConfig: global.GlobalConfig, searchEngine: SearchEngine, searchResolver: SearchItemResolver, backend: Backend, accounts: AccountManager, pageRelocator: utils.MovedPageLookup) extends AdminController with Search {
+case class Metrics @Inject()(implicit app: play.api.Application, cache: CacheApi, globalConfig: global.GlobalConfig, searchEngine: SearchEngine, searchResolver: SearchItemResolver, backend: Backend, accounts: AccountManager, pageRelocator: utils.MovedPageLookup, messagesApi: MessagesApi) extends AdminController with Search {
 
   private val metricCacheTime = 60 * 60 // 1 hour
+
+  private val statusCached = new Cached(cache)
 
   val searchEntities = List(
     EntityType.DocumentaryUnit,
@@ -59,7 +60,7 @@ case class Metrics @Inject()(implicit globalConfig: global.GlobalConfig, searchE
     )
   }
 
-  def languageOfMaterial = Cached.status(_ => "pages:langMetric", OK, metricCacheTime) {
+  def languageOfMaterial = statusCached.status(_ => "pages:langMetric", OK, metricCacheTime) {
     OptionalUserAction.async { implicit request =>
       find[AnyModel](
         defaultParams = defaultParams,
@@ -81,7 +82,7 @@ case class Metrics @Inject()(implicit globalConfig: global.GlobalConfig, searchE
     )
   }
 
-  def holdingRepository = Cached.status(_ => "pages:repoMetric", OK, metricCacheTime) {
+  def holdingRepository = statusCached.status(_ => "pages:repoMetric", OK, metricCacheTime) {
     OptionalUserAction.async { implicit request =>
       find[AnyModel](
         defaultParams = defaultParams,
@@ -104,7 +105,7 @@ case class Metrics @Inject()(implicit globalConfig: global.GlobalConfig, searchE
     )
   }
 
-  def repositoryCountries = Cached.status(_ => "pages:repoCountryMetric", OK, metricCacheTime) {
+  def repositoryCountries = statusCached.status(_ => "pages:repoCountryMetric", OK, metricCacheTime) {
     OptionalUserAction.async { implicit request =>
       find[AnyModel](
         defaultParams = defaultParams,
@@ -126,7 +127,7 @@ case class Metrics @Inject()(implicit globalConfig: global.GlobalConfig, searchE
     )
   }
 
-  def restricted = Cached.status(_ => "pages:restrictedMetric", OK, metricCacheTime) {
+  def restricted = statusCached.status(_ => "pages:restrictedMetric", OK, metricCacheTime) {
     OptionalUserAction.async { implicit request =>
       find[AnyModel](
         defaultParams = defaultParams,
@@ -150,7 +151,7 @@ case class Metrics @Inject()(implicit globalConfig: global.GlobalConfig, searchE
     )
   }
 
-  def agentTypes = Cached.status(_ => "pages:agentTypeMetric", OK, metricCacheTime) {
+  def agentTypes = statusCached.status(_ => "pages:agentTypeMetric", OK, metricCacheTime) {
     OptionalUserAction.async { implicit request =>
       find[AnyModel](
         entities = List(EntityType.HistoricalAgent),
@@ -161,11 +162,11 @@ case class Metrics @Inject()(implicit globalConfig: global.GlobalConfig, searchE
 
   def clearCached = AdminAction { implicit request =>
     // Hack around lack of manual expiry
-    Cache.remove("pages:agentTypeMetric")
-    Cache.remove("pages:restrictedMetric")
-    Cache.remove("pages:repoCountryMetric")
-    Cache.remove("pages:repoMetric")
-    Cache.remove("pages:langMetric")
+    cache.remove("pages:agentTypeMetric")
+    cache.remove("pages:restrictedMetric")
+    cache.remove("pages:repoCountryMetric")
+    cache.remove("pages:repoMetric")
+    cache.remove("pages:langMetric")
     Redirect(controllers.admin.routes.Home.index())
   }
 }

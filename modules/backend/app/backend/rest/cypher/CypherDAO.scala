@@ -1,5 +1,7 @@
 package backend.rest.cypher
 
+import play.api.cache.CacheApi
+
 import scala.concurrent.Future
 import play.api.{Logger, PlayException}
 import play.api.libs.concurrent.Execution.Implicits._
@@ -9,6 +11,7 @@ import play.api.libs.json.__
 import play.api.libs.ws.WSResponse
 import play.api.libs.ws.WS
 import backend.rest.RestDAO
+import javax.inject.Inject
 
 case class CypherError(
   message: String, exception: String, stacktrace: Seq[String]
@@ -32,7 +35,7 @@ object CypherDAO {
     (__ \ "data").read[Seq[Seq[String]]].map(_.flatMap(_.headOption))
 }
 
-case class CypherDAO()(implicit val app: play.api.Application) extends RestDAO {
+case class CypherDAO @Inject ()(implicit cache: CacheApi, app: play.api.Application) extends RestDAO {
 
   def requestUrl = s"http://$host:$port/db/data/cypher"
 

@@ -1,3 +1,3 @@
 package controllers.guides
 
-object Assets extends controllers.AssetsBuilder
+class Assets extends controllers.Assets(play.api.http.LazyHttpErrorHandler)

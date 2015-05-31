@@ -5,20 +5,22 @@ import controllers.base.SearchVC
 import controllers.generic.Search
 import models._
 import models.base.AnyModel
+import play.api.cache.CacheApi
+import play.api.i18n.MessagesApi
 import play.api.libs.concurrent.Execution.Implicits._
 import play.api.mvc.RequestHeader
 import utils.search._
 import defines.EntityType
 import backend.{IdGenerator, Backend}
-import com.google.inject._
+import javax.inject._
 import scala.concurrent.Future
 import scala.concurrent.Future.{successful => immediate}
 import controllers.portal.base.{Generic, PortalController}
 
 
 @Singleton
-case class VirtualUnits @Inject()(implicit globalConfig: global.GlobalConfig, searchEngine: SearchEngine, searchResolver: SearchItemResolver, backend: Backend,
-    accounts: AccountManager, idGenerator: IdGenerator, pageRelocator: utils.MovedPageLookup)
+case class VirtualUnits @Inject()(implicit app: play.api.Application, cache: CacheApi, globalConfig: global.GlobalConfig, searchEngine: SearchEngine, searchResolver: SearchItemResolver, backend: Backend,
+    accounts: AccountManager, idGenerator: IdGenerator, pageRelocator: utils.MovedPageLookup, messagesApi: MessagesApi)
   extends PortalController
   with Generic[VirtualUnit]
   with Search

@@ -5,35 +5,38 @@ import java.util.UUID
 import anorm.SqlParser._
 import anorm._
 import auth.sql.SqlAccountManager
-import helpers.WithSqlFixtures
 import models.Account
 import org.h2.jdbc.JdbcSQLException
 import org.joda.time.DateTime
-import play.api.db.DB
-import play.api.test.{FakeApplication, PlaySpecification}
+import play.api.db.Database
+import play.api.inject.guice.GuiceApplicationBuilder
+import play.api.test.PlaySpecification
 import utils.PageParams
-
+import helpers.withFixtures
 
 class SqlAccountManagerSpec extends PlaySpecification {
 
   implicit val dateTimeOrdering: Ordering[DateTime] = Ordering.fromLessThan(_ isBefore _)
-  def accounts: AccountManager = SqlAccountManager()(play.api.Play.current)
+
+  implicit val app = new GuiceApplicationBuilder().build()
+
+  def accounts(implicit db: Database, app: play.api.Application): AccountManager = SqlAccountManager()(db, app)
 
   "account manager" should {
-    "load fixtures with the right number of accounts" in new WithSqlFixtures(new FakeApplication) {
-      DB.withConnection { implicit connection =>
+    "load fixtures with the right number of accounts" in withFixtures { implicit db =>
+      db.withConnection { implicit connection =>
         SQL"select count(*) from users".as(scalar[Long].single) must equalTo(5L)
       }
     }
 
-    "enforce email uniqueness" in new WithSqlFixtures(new FakeApplication) {
-      DB.withConnection { implicit connection =>
+    "enforce email uniqueness" in withFixtures { implicit db =>
+      db.withConnection { implicit connection =>
         SQL"insert into users (id,email,verified,staff) values ('blah', ${mocks.privilegedUser.email}},1,1)"
           .executeInsert() must throwA[JdbcSQLException]
       }
     }
 
-    "create accounts with correct properties" in new WithSqlFixtures(new FakeApplication) {
+    "create accounts with correct properties" in withFixtures { implicit db =>
       val now = DateTime.now
       val testAcc = Account(
         id = "test",
@@ -56,19 +59,19 @@ class SqlAccountManagerSpec extends PlaySpecification {
       acc.password must beSome.which(_.check("p4ssword") must beTrue)
     }
 
-    "find multiple accounts by id" in new WithSqlFixtures(new FakeApplication) {
+    "find multiple accounts by id" in withFixtures { implicit db =>
       val accountsById: Seq[Account] = await(accounts.findAllById(
         Seq(mocks.privilegedUser.id, mocks.unprivilegedUser.id)))
       accountsById.find(_.id == mocks.privilegedUser.id) must beSome
       accountsById.find(_.id == mocks.unprivilegedUser.id) must beSome
     }
 
-    "handle empty id lists in multiple account queries" in new WithSqlFixtures(new FakeApplication) {
+    "handle empty id lists in multiple account queries" in withFixtures { implicit db =>
       val accountsById: Seq[Account] = await(accounts.findAllById(Seq.empty))
       accountsById must beEmpty
     }
 
-    "find accounts by token and expire tokens" in new WithSqlFixtures(new FakeApplication) {
+    "find accounts by token and expire tokens" in withFixtures { implicit db =>
       val uuid = UUID.randomUUID()
       await(accounts.createToken(mocks.privilegedUser.id, uuid, isSignUp = true))
       await(accounts.findByToken(uuid.toString, isSignUp = true)) must beSome.which { acc =>
@@ -78,7 +81,7 @@ class SqlAccountManagerSpec extends PlaySpecification {
       await(accounts.findByToken(uuid.toString, isSignUp = true)) must beNone
     }
 
-    "verify accounts via token" in new WithSqlFixtures(new FakeApplication) {
+    "verify accounts via token" in withFixtures { implicit db =>
       val uuid = UUID.randomUUID()
       await(accounts.createToken(mocks.unverifiedUser.id, uuid, isSignUp = false))
       mocks.unverifiedUser.verified must beFalse
@@ -88,20 +91,20 @@ class SqlAccountManagerSpec extends PlaySpecification {
       }
     }
 
-    "find all accounts with pagination" in new WithSqlFixtures(new FakeApplication) {
+    "find all accounts with pagination" in withFixtures { implicit db =>
       await(accounts.findAll()).size must equalTo(5)
       await(accounts.findAll(PageParams(limit = 2))).size must equalTo(2)
     }
 
-    "find accounts by id and email" in new WithSqlFixtures(new FakeApplication) {
-      DB.withConnection { implicit connection =>
+    "find accounts by id and email" in withFixtures { implicit db =>
+      db.withConnection { implicit connection =>
         await(accounts.findById(mocks.privilegedUser.id)) must beSome
         await(accounts.findByEmail(mocks.privilegedUser.email)) must beSome
       }
     }
 
-    "allow deactivating accounts" in new WithSqlFixtures(new FakeApplication) {
-      DB.withConnection { implicit connection =>
+    "allow deactivating accounts" in withFixtures { implicit db =>
+      db.withConnection { implicit connection =>
         await(accounts.findById(mocks.privilegedUser.id)) must beSome.which { user =>
           user.active must beTrue
           await(accounts.update(user.copy(active = false)))
@@ -112,7 +115,7 @@ class SqlAccountManagerSpec extends PlaySpecification {
       }
     }
 
-    "allow setting and updating user's passwords" in new WithSqlFixtures(new FakeApplication) {
+    "allow setting and updating user's passwords" in withFixtures { implicit db =>
       val userOpt: Option[Account] = await(accounts.findByEmail(mocks.privilegedUser.email))
       userOpt must beSome.which { user =>
         await(accounts.update(user.copy(password = Some(HashedPassword.fromPlain("foobar")))))
@@ -126,7 +129,7 @@ class SqlAccountManagerSpec extends PlaySpecification {
 
 
   "openid assoc" should {
-    "find accounts by openid_url and allow adding another" in new WithSqlFixtures(new FakeApplication) {
+    "find accounts by openid_url and allow adding another" in withFixtures { implicit db =>
       val assocOpt = await(accounts.openId.findByUrl(mocks.yahooOpenId.url))
       assocOpt must beSome.which { assoc =>
         assoc.user must beSome.which { user =>
@@ -142,13 +145,13 @@ class SqlAccountManagerSpec extends PlaySpecification {
       }
     }
 
-    "find all associations" in new WithSqlFixtures(new FakeApplication) {
+    "find all associations" in withFixtures { implicit db =>
       await(accounts.openId.findAll).size must equalTo(1)
     }
   }
 
   "oauth2 assoc" should {
-    "find accounts by oauth2 provider info and allow adding another" in new WithSqlFixtures(new FakeApplication) {
+    "find accounts by oauth2 provider info and allow adding another" in withFixtures { implicit db =>
       val assocOpt = await(accounts.oAuth2.findByProviderInfo(mocks.googleOAuthAssoc.providerId, mocks.googleOAuthAssoc.provider))
       assocOpt must beSome.which { assoc =>
         assoc.user must beSome.which { user =>
@@ -164,7 +167,7 @@ class SqlAccountManagerSpec extends PlaySpecification {
       }
     }
 
-    "find all associations" in new WithSqlFixtures(new FakeApplication) {
+    "find all associations" in withFixtures { implicit db =>
       await(accounts.oAuth2.findAll).size must equalTo(2)
     }
   }

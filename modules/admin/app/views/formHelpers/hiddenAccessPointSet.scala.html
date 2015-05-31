@@ -1,4 +1,4 @@
-@(field: play.api.data.Field, name: String)(implicit fieldPrefix: String, lang: Lang)
+@(field: play.api.data.Field, name: String)(implicit fieldPrefix: String, messages: Messages)
 
 @helper.repeat(field(name), min = 0) { desc =>
     @formHelpers.hiddenAccessPoint(desc)

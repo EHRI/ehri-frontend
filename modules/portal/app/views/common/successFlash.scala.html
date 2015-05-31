@@ -1,4 +1,4 @@
-@(flash: Flash)(implicit lang: Lang)
+@(flash: Flash)(implicit messages: Messages)
 
 @flash.data.map { case (key, msg) =>
     @if(key == "success") {

@@ -1,24 +1,24 @@
 package controllers.institutions
 
 import auth.AccountManager
+import play.api.cache.CacheApi
 import play.api.libs.concurrent.Execution.Implicits._
 import forms.VisibilityForm
 import controllers.generic._
 import models._
-import play.api.i18n.Messages
+import play.api.i18n.{MessagesApi, Messages}
 import defines.{EntityType,ContentTypes}
 import views.Helpers
 import utils.search._
-import com.google.inject._
+import javax.inject._
 import scala.concurrent.Future.{successful => immediate}
 import backend.Backend
 import play.api.Configuration
-import play.api.Play.current
 import controllers.base.AdminController
 
 
 @Singleton
-case class Repositories @Inject()(implicit globalConfig: global.GlobalConfig, searchEngine: SearchEngine, searchIndexer: SearchIndexer, searchResolver: SearchItemResolver, backend: Backend, accounts: AccountManager, pageRelocator: utils.MovedPageLookup)
+case class Repositories @Inject()(implicit app: play.api.Application, cache: CacheApi, globalConfig: global.GlobalConfig, searchEngine: SearchEngine, searchIndexer: SearchIndexer, searchResolver: SearchItemResolver, backend: Backend, accounts: AccountManager, pageRelocator: utils.MovedPageLookup, messagesApi: MessagesApi)
   extends AdminController
   with Read[Repository]
   with Update[RepositoryF, Repository]
@@ -91,7 +91,7 @@ case class Repositories @Inject()(implicit globalConfig: global.GlobalConfig, se
 
   private val form = models.Repository.form
 
-  private val childFormDefaults: Option[Configuration] = current.configuration.getConfig(EntityType.DocumentaryUnit)
+  private val childFormDefaults: Option[Configuration] = app.configuration.getConfig(EntityType.DocumentaryUnit)
 
   private val childForm = models.DocumentaryUnit.form
 

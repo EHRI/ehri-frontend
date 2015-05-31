@@ -1,5 +1,6 @@
 package backend.rest
 
+import play.api.cache.CacheApi
 import play.api.libs.json.{JsString, JsValue}
 import defines.EntityType
 import play.api.libs.concurrent.Execution.Implicits._
@@ -9,7 +10,9 @@ import backend.rest.cypher.CypherDAO
 
 trait RestHelpers {
 
-  import play.api.Play.current
+  implicit def app: play.api.Application
+  implicit def cache: CacheApi
+
   private val cypher = new CypherDAO()
 
   def parseUsers(json: JsValue): Seq[(String, String)] = {
@@ -33,5 +36,3 @@ trait RestHelpers {
     }    
   }  
 }
-
-object RestHelpers extends RestHelpers

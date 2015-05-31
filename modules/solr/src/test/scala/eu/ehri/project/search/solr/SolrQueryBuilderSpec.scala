@@ -1,7 +1,6 @@
 package eu.ehri.project.search.solr
 
 import play.api.test.PlaySpecification
-import play.api.i18n.Messages
 import utils.search._
 import com.github.seratch.scalikesolr.request.query.facet.{Value, Param, FacetParam}
 
@@ -11,18 +10,17 @@ import com.github.seratch.scalikesolr.request.query.facet.{Value, Param, FacetPa
 class SolrQueryBuilderSpec extends PlaySpecification {
   val testFieldFacetClass = FieldFacetClass(
       key = "languageCode",
-      name = Messages("facet.languageCode"),
+      name = "facet.languageCode",
       param = "lang",
-      render = (s: String) => utils.i18n.languageCodeToName(s),
       display = FacetDisplay.Choice,
       sort = FacetSort.Name
   )
 
   val testQueryFacetClass = QueryFacetClass(
     key="charCount",
-    name=Messages("facet.lod"),
+    name="Level of detail",
     param="lod",
-    render=s => Messages("facet.lod." + s),
+    render=s => "facet.lod." + s,
     facets=List(
       QueryFacet(value = "low", range = Val("0") to Val("200")),
       QueryFacet(value = "medium", range = Val("201") to Val("5000")),

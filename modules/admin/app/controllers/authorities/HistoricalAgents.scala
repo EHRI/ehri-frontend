@@ -4,16 +4,17 @@ import auth.AccountManager
 import controllers.generic._
 import forms.VisibilityForm
 import models._
-import play.api.i18n.Messages
+import play.api.cache.CacheApi
+import play.api.i18n.{MessagesApi, Messages}
 import defines.{EntityType, PermissionType}
 import utils.search._
-import com.google.inject._
+import javax.inject._
 import backend.Backend
 import controllers.base.AdminController
 
 
 @Singleton
-case class HistoricalAgents @Inject()(implicit globalConfig: global.GlobalConfig, searchEngine: SearchEngine, searchResolver: SearchItemResolver, backend: Backend, accounts: AccountManager, pageRelocator: utils.MovedPageLookup)
+case class HistoricalAgents @Inject()(implicit app: play.api.Application, cache: CacheApi, globalConfig: global.GlobalConfig, searchEngine: SearchEngine, searchResolver: SearchItemResolver, backend: Backend, accounts: AccountManager, pageRelocator: utils.MovedPageLookup, messagesApi: MessagesApi)
   extends AdminController with CRUD[HistoricalAgentF,HistoricalAgent]
 	with Visibility[HistoricalAgent]
   with ItemPermissions[HistoricalAgent]

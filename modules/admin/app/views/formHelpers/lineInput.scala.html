@@ -1,4 +1,4 @@
-@(desc: play.api.data.Field, fieldName: String, args: (Symbol,Any)*)(implicit prefix: String = "", defaults: Option[play.api.Configuration] = None, fieldConstructor: views.html.helper.FieldConstructor, lang: Lang)
+@(desc: play.api.data.Field, fieldName: String, args: (Symbol,Any)*)(implicit prefix: String = "", defaults: Option[play.api.Configuration] = None, fieldConstructor: views.html.helper.FieldConstructor, messages: Messages)
 
 @defining(desc(fieldName)) { field =>
     @helper.inputText(

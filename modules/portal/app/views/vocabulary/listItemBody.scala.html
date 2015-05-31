@@ -1,4 +1,4 @@
-@(item: Vocabulary)(implicit req: RequestHeader, lang: Lang)
+@(item: Vocabulary)(implicit req: RequestHeader, messages: Messages)
 
 @views.html.common.childCount(item) { count =>
     @if(count > 0) {

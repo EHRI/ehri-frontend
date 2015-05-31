@@ -1,4 +1,4 @@
-@()(implicit globalConfig: global.GlobalConfig, lang: Lang)
+@()(implicit globalConfig: global.GlobalConfig, messages: Messages)
 
 @if(globalConfig.analyticsEnabled) {
     @globalConfig.analyticsId.map { track =>

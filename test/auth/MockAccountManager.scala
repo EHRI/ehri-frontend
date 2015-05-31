@@ -1,6 +1,7 @@
 package auth
 
 import java.util.UUID
+import javax.inject.{Inject, Singleton}
 
 import models.{OpenIDAssociation, OAuth2Association, Account}
 import org.joda.time.DateTime
@@ -12,7 +13,8 @@ import scala.concurrent.Future.{successful => immediate}
 /**
  * @author Mike Bryant (http://github.com/mikesname)
  */
-case class MockAccountManager()(implicit app: play.api.Application) extends AccountManager {
+@Singleton
+case class MockAccountManager @Inject()() extends AccountManager {
 
   private val self = this
 

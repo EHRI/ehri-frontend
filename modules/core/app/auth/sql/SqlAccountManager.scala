@@ -9,17 +9,20 @@ import java.util.UUID
 
 import auth.{HashedPassword, OpenIdAssociationManager, OAuth2AssociationManager, AccountManager}
 import models.Account
-import play.api.db.DB
+import play.api.db.Database
 import play.api.libs.concurrent.Akka
 import utils.PageParams
 import anorm.SqlParser._
 import anorm._
 import scala.concurrent.{Future, ExecutionContext}
 
+import javax.inject._
+
 /**
  * @author Mike Bryant (http://github.com/mikesname)
  */
-case class SqlAccountManager()(implicit app: play.api.Application) extends AccountManager {
+@Singleton
+case class SqlAccountManager @Inject()(implicit db: Database, app: play.api.Application) extends AccountManager {
 
   import SqlAccountManager._
 
@@ -31,7 +34,7 @@ case class SqlAccountManager()(implicit app: play.api.Application) extends Accou
   override def openId: OpenIdAssociationManager = new SqlOpenIdAssociationManager()
 
   override def setLoggedIn(account: Account): Future[Account] = Future {
-    DB.withTransaction { implicit conn =>
+    db.withTransaction { implicit conn =>
       SQL"UPDATE users SET last_login = NOW() WHERE id = ${account.id}".executeUpdate()
       // This is a bit dodgy
       account.copy(lastLogin = Some(DateTime.now()))
@@ -42,7 +45,7 @@ case class SqlAccountManager()(implicit app: play.api.Application) extends Accou
     account.password.exists(hpw => if (!account.isLegacy) hpw.check(pw) else  hpw.checkLegacy(pw))
 
   override def authenticateById(id: String, pw: String, verifiedOnly: Boolean): Future[Option[Account]] = Future {
-    DB.withTransaction { implicit conn =>
+    db.withTransaction { implicit conn =>
       getById(id).filter { account =>
         passwordMatches(account, pw)
       }.filter { account =>
@@ -52,7 +55,7 @@ case class SqlAccountManager()(implicit app: play.api.Application) extends Accou
   }(executionContext)
 
   override def authenticateByEmail(email: String, pw: String, verifiedOnly: Boolean): Future[Option[Account]] = Future {
-    DB.withTransaction { implicit conn =>
+    db.withTransaction { implicit conn =>
       getByEmail(email).filter { account =>
         passwordMatches(account, pw)
       }.filter { account =>
@@ -63,7 +66,7 @@ case class SqlAccountManager()(implicit app: play.api.Application) extends Accou
 
 
   override def get(id: String): Future[Account] = Future {
-    DB.withConnection { implicit conn =>
+    db.withConnection { implicit conn =>
       getById(id).map { account =>
         account
       }.getOrElse(throw new NoSuchElementException(id))
@@ -71,7 +74,7 @@ case class SqlAccountManager()(implicit app: play.api.Application) extends Accou
   }(executionContext)
 
   override def verify(account: Account, token: String): Future[Option[Account]] = Future {
-    DB.withTransaction { implicit conn =>
+    db.withTransaction { implicit conn =>
       SQL"UPDATE users SET verified = TRUE WHERE id = ${account.id}".executeUpdate()
       SQL"DELETE FROM token WHERE token = $token".execute()
       Some(account.copy(verified = true))
@@ -79,7 +82,7 @@ case class SqlAccountManager()(implicit app: play.api.Application) extends Accou
   }(executionContext)
 
   override def findById(id: String): Future[Option[Account]] = Future {
-    DB.withConnection { implicit conn =>
+    db.withConnection { implicit conn =>
       getById(id)
     }
   }(executionContext)
@@ -87,13 +90,13 @@ case class SqlAccountManager()(implicit app: play.api.Application) extends Accou
   override def findAllById(ids: Seq[String]): Future[Seq[Account]] =
     if (ids.isEmpty) Future.successful(Seq.empty)
     else Future {
-      DB.withConnection { implicit conn =>
+      db.withConnection { implicit conn =>
         SQL"SELECT * FROM users WHERE users.id IN ($ids)".as(userParser *)
       }
     }(executionContext)
 
   override def findByToken(token: String, isSignUp: Boolean): Future[Option[Account]] = Future {
-    DB.withConnection { implicit conn =>
+    db.withConnection { implicit conn =>
       SQL"""
         SELECT u.*, t.token FROM users u, token t
           WHERE u.id = t.id AND t.token = $token
@@ -104,7 +107,7 @@ case class SqlAccountManager()(implicit app: play.api.Application) extends Accou
   }(executionContext)
 
   override def create(account: Account): Future[Account] = Future {
-    DB.withConnection { implicit conn =>
+    db.withConnection { implicit conn =>
       SQL"""INSERT INTO users
         (id, email, verified, staff, allow_messaging, password, is_legacy)
         VALUES (
@@ -121,7 +124,7 @@ case class SqlAccountManager()(implicit app: play.api.Application) extends Accou
   }(executionContext)
 
   override def update(account: Account): Future[Account] = Future {
-    DB.withConnection { implicit connection =>
+    db.withConnection { implicit connection =>
       SQL"""
         UPDATE users
         SET
@@ -138,21 +141,21 @@ case class SqlAccountManager()(implicit app: play.api.Application) extends Accou
   }(executionContext)
 
   override def delete(id: String): Future[Boolean] = Future {
-    DB.withConnection { implicit connection =>
+    db.withConnection { implicit connection =>
       val rows: Int = SQL"""DELETE FROM users WHERE id = $id LIMIT 1""".executeUpdate()
       rows > 0
     }
   }(executionContext)
 
   override def expireTokens(id: String): Future[Unit] = Future {
-    DB.withConnection { implicit conn =>
+    db.withConnection { implicit conn =>
       SQL"""DELETE FROM token WHERE id = $id""".executeUpdate()
     }
     ()
   }(executionContext)
 
   override def findAll(params: PageParams): Future[Seq[Account]] = Future {
-    DB.withConnection { implicit conn =>
+    db.withConnection { implicit conn =>
       val limit = if (params.hasLimit) params.limit else Integer.MAX_VALUE
       SQL"SELECT * FROM users ORDER BY id LIMIT $limit OFFSET ${params.offset}"
         .as(userParser *)
@@ -160,13 +163,13 @@ case class SqlAccountManager()(implicit app: play.api.Application) extends Accou
   }(executionContext)
 
   override def findByEmail(email: String): Future[Option[Account]] = Future {
-    DB.withConnection { implicit  conn =>
+    db.withConnection { implicit  conn =>
       getByEmail(email)
     }
   }(executionContext)
 
   override def createToken(id: String, uuid: UUID, isSignUp: Boolean): Future[Unit] = Future {
-    DB.withConnection { implicit conn =>
+    db.withConnection { implicit conn =>
       if (isSignUp) createSignupToken(id, uuid) else createResetToken(id, uuid)
     }
     ()
@@ -189,27 +192,6 @@ case class SqlAccountManager()(implicit app: play.api.Application) extends Accou
 }
 
 object SqlAccountManager {
-  /**
-   * Implicit conversion from HashedPassword to Anorm statement value
-   */
-  implicit def pwToStatement: ToStatement[HashedPassword] = new ToStatement[HashedPassword] {
-    def set(s: java.sql.PreparedStatement, index: Int, aValue: HashedPassword): Unit =
-      s.setString(index, aValue.s)
-  }
-
-  /**
-   * Implicit conversion from Anorm row to HashedPassword
-   */
-  implicit def rowToPw: Column[HashedPassword] = {
-    Column.nonNull[HashedPassword] { (value, meta) =>
-      value match {
-        case v: String => Right(HashedPassword.fromHashed(v))
-        case _ => Left(TypeDoesNotMatch(
-          s"Cannot convert $value:${value.asInstanceOf[AnyRef].getClass} to hashed password for column ${meta.column}"))
-      }
-    }
-  }
-
   val userParser = {
     str("users.id") ~
       str("users.email") ~

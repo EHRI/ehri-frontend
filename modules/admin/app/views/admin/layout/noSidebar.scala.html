@@ -1,4 +1,4 @@
-@(title: Any, scripts: Html = Html(""), styles: Html = Html(""), breadcrumbs: Html = Html(""))(content: Html)(implicit userOpt: Option[UserProfile], req: RequestHeader, globalConfig: global.GlobalConfig, flash: Flash, lang: Lang)
+@(title: Any, scripts: Html = Html(""), styles: Html = Html(""), breadcrumbs: Html = Html(""))(content: Html)(implicit userOpt: Option[UserProfile], req: RequestHeader, globalConfig: global.GlobalConfig, flash: Flash, messages: Messages)
 
 @views.html.admin.layout.adminLayout(title, scripts, styles) {
 

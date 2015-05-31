@@ -1,18 +1,19 @@
 package backend.googledocs
 
 import java.io.StringReader
+import javax.inject.Inject
 
 import backend.HtmlPages
 import backend.rest.{PermissionDenied, ItemNotFound}
 import caching.FutureCache
-import play.api.cache.Cache
 import play.api.http.Status
-import play.api.i18n.Lang
+import play.api.i18n.Messages
 import play.api.libs.ws.WS
 import play.twirl.api.Html
 
 import scala.concurrent.Future
 import play.api.libs.concurrent.Execution.Implicits._
+import scala.concurrent.duration._
 
 /**
  * Google docs implementation of an Html Page.
@@ -24,7 +25,7 @@ import play.api.libs.concurrent.Execution.Implicits._
  *
  * @author Mike Bryant (http://github.com/mikesname)
  */
-case class GoogleDocsHtmlPages()(implicit app: play.api.Application) extends HtmlPages {
+case class GoogleDocsHtmlPages @Inject ()(implicit cache: play.api.cache.CacheApi, app: play.api.Application) extends HtmlPages {
   private def googleDocBody(url: String): Future[(Html, Html)] = {
     WS.url(url).withQueryString(
       "e" -> "download",
@@ -57,16 +58,16 @@ case class GoogleDocsHtmlPages()(implicit app: play.api.Application) extends Htm
     }
   }
 
-  override def get(key: String, noCache: Boolean = false)(implicit lang: Lang): Option[Future[(Html, Html)]] = {
+  override def get(key: String, noCache: Boolean = false)(implicit messages: Messages): Option[Future[(Html, Html)]] = {
     def getUrl: Option[String] =
-      app.configuration.getString(s"pages.external.google.$key.${lang.code}") orElse
+      app.configuration.getString(s"pages.external.google.$key.${messages.lang.code}") orElse
           app.configuration.getString(s"pages.external.google.$key.default")
 
     getUrl.map { url =>
-      val cacheKey = s"htmlpages.googledocs.$key.${lang.code}"
-      val cacheTime = 60 * 60 // 1 hour
+      val cacheKey = s"htmlpages.googledocs.$key.${messages.lang.code}"
+      val cacheTime = (60 * 60).seconds
       if (noCache) googleDocBody(url).map { data =>
-        Cache.set(cacheKey, data, cacheTime)
+        cache.set(cacheKey, data, cacheTime)
         data
       } else FutureCache.getOrElse(cacheKey, cacheTime) {
         googleDocBody(url)

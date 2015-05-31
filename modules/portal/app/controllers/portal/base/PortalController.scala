@@ -1,18 +1,20 @@
 package controllers.portal.base
 
+import java.util.concurrent.TimeUnit
+
 import controllers.portal.Secured
 import play.api.Logger
 import defines.{EventType, EntityType}
-import play.api.i18n.Lang
+import play.api.cache.Cached
+import play.api.i18n.{Lang, Messages}
 import utils._
 import controllers.renderError
 import models.UserProfile
 import play.api.mvc._
 import controllers.base.{SessionPreferences, ControllerHelpers, CoreActionBuilders}
+import scala.concurrent.duration.Duration
 import scala.concurrent.{ExecutionContext, Future}
 import scala.concurrent.Future.{successful => immediate}
-import play.api.Play.current
-import play.api.cache.Cache
 import models.base.AnyModel
 import caching.FutureCache
 import models.view.UserDetails
@@ -30,6 +32,9 @@ trait PortalController
   with PortalAuthConfigImpl
   with Secured
   with SessionPreferences[SessionPrefs] {
+
+  implicit def cache: play.api.cache.CacheApi
+  protected def statusCache = new Cached(cache)
 
   /**
    * The page relocator handles provides the new location (if any)
@@ -49,10 +54,10 @@ trait PortalController
    * Extract a language from the user's preferences and put it in
    * the implicit scope.
    */
-  override implicit def request2lang(implicit request: RequestHeader): Lang = {
+  override implicit def request2Messages(implicit request: RequestHeader): Messages = {
     request.preferences.language match {
-      case None => super.request2lang(request)
-      case Some(lang) => Lang(lang)
+      case None => super.request2Messages(request)
+      case Some(lang) => super.request2Messages(request).copy(lang = Lang(lang))
     }
   }
 
@@ -64,7 +69,7 @@ trait PortalController
 
   private def userWatchCacheKey(userId: String) = s"$userId-watchlist"
 
-  protected def clearWatchedItemsCache(userId: String) = Cache.remove(userWatchCacheKey(userId))
+  protected def clearWatchedItemsCache(userId: String) = cache.remove(userWatchCacheKey(userId))
 
   /**
    * Activity event types that we think the user would care about.
@@ -104,7 +109,7 @@ trait PortalController
   }
 
   override def notFoundError(request: RequestHeader, msg: Option[String] = None)(implicit context: ExecutionContext): Future[Result] = {
-    val doMoveCheck: Boolean = current.configuration.getBoolean("ehri.handlePageMoved").getOrElse(false)
+    val doMoveCheck: Boolean = app.configuration.getBoolean("ehri.handlePageMoved").getOrElse(false)
     implicit val r  = request
     val notFoundResponse = NotFound(renderError("errors.itemNotFound", itemNotFound(msg)))
     if (!doMoveCheck) immediate(notFoundResponse)
@@ -166,7 +171,7 @@ trait PortalController
    */
   protected def watchedItemIds(implicit userIdOpt: Option[String]): Future[Seq[String]] = userIdOpt.map { userId =>
     import play.api.libs.concurrent.Execution.Implicits._
-    FutureCache.getOrElse(userWatchCacheKey(userId), 20 * 60) {
+    FutureCache.getOrElse(userWatchCacheKey(userId), Duration.apply(20 * 60, TimeUnit.SECONDS)) {
       import play.api.libs.concurrent.Execution.Implicits._
       implicit val apiUser: ApiUser = ApiUser(Some(userId))
       userBackend.watching[AnyModel](userId, PageParams.empty.withoutLimit).map { page =>

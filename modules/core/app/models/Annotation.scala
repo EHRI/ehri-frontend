@@ -32,8 +32,6 @@ object AnnotationF {
   import Entity._
   import Ontology._
 
-  implicit val annotationTypeReads = enumReads(AnnotationType)
-
   implicit val annotationWrites: Writes[AnnotationF] = new Writes[AnnotationF] {
     def writes(d: AnnotationF): JsValue = {
       Json.obj(
@@ -53,7 +51,7 @@ object AnnotationF {
   implicit val annotationReads: Reads[AnnotationF] = (
     (__ \ TYPE).readIfEquals(EntityType.Annotation) and
     (__ \ ID).readNullable[String] and
-    (__ \ DATA \ ANNOTATION_TYPE_PROP).readWithDefault(Option(AnnotationType.Comment)) and
+    (__ \ DATA \ ANNOTATION_TYPE_PROP).readWithDefault(Option(AnnotationType.Comment))(Reads.optionNoError) and
     (__ \ DATA \ BODY).read[String] and
     (__ \ DATA \ FIELD).readNullable[String] and
     (__ \ DATA \ COMMENT).readNullable[String] and

@@ -1,6 +1,7 @@
 package controllers.core.auth.oauth2
 
 import java.util.UUID
+import java.util.concurrent.TimeUnit
 
 import auth.AuthenticationError
 import auth.oauth2.providers.OAuth2Provider
@@ -11,15 +12,14 @@ import controllers.core.auth.AccountHelpers
 import global.GlobalConfig
 import models._
 import play.api.Logger
-import play.api.Play._
-import play.api.cache.Cache
-import play.api.i18n.Messages
 import play.api.libs.concurrent.Execution.Implicits._
 import play.api.libs.json.{JsString, Json}
+import play.api.i18n.Messages
 import play.api.mvc.{Call, Result, _}
 
 import scala.concurrent.Future
 import scala.concurrent.Future.{successful => immediate}
+import scala.concurrent.duration.Duration
 
 /**
  * Oauth2 login handler implementation, cribbed extensively
@@ -35,6 +35,8 @@ trait OAuth2LoginHandler extends AccountHelpers {
   def accounts: auth.AccountManager
   def globalConfig: GlobalConfig
   def oAuth2Flow: OAuth2Flow
+  implicit def app: play.api.Application
+  def cache: play.api.cache.CacheApi
 
   def oauth2Providers: Seq[OAuth2Provider]
 
@@ -106,7 +108,7 @@ trait OAuth2LoginHandler extends AccountHelpers {
   }
 
   private def checkSessionNonce[A](sessionId: String, state: Option[String])(implicit request: Request[A]): Boolean = {
-    val origStateOpt: Option[String] = Cache.getAs[String](sessionId)
+    val origStateOpt: Option[String] = cache.get[String](sessionId)
     (for {
     // check if the state we sent is equal to the one we're receiving now before continuing the flow.
       originalState <- origStateOpt
@@ -150,7 +152,7 @@ trait OAuth2LoginHandler extends AccountHelpers {
           // with a code parameter, initiating the second phase.
           case None =>
             val state = UUID.randomUUID().toString
-            Cache.set(sessionId, state, 30 * 60)
+            cache.set(sessionId, state, Duration(30 * 60, TimeUnit.SECONDS))
             val redirectUrl = provider.buildRedirectUrl(handlerUrl, state)
             Logger.debug(s"OAuth2 redirect URL: $redirectUrl")
             immediate(Redirect(redirectUrl).withSession(request.session + (SessionKey -> sessionId)))
@@ -159,7 +161,7 @@ trait OAuth2LoginHandler extends AccountHelpers {
           // nonce, proceed to get an access token, the user data, and handle the account
           // creation or updating.
           case Some(c) => if (checkSessionNonce(sessionId, state)) {
-            Cache.remove(sessionId)
+            cache.remove(sessionId)
             (for {
               info <- oAuth2Flow.getAccessToken(provider, handlerUrl, c)
               userData <- oAuth2Flow.getUserData(provider, info)

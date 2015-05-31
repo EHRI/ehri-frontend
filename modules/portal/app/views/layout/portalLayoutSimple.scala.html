@@ -1,8 +1,8 @@
-@(title: Any, itemClass: String = "", scripts: Html = Html(""), styles: Html = Html(""))(content: Html)(implicit userOpt: Option[UserProfile], req: RequestHeader, globalConfig: global.GlobalConfig, flash: Flash, lang: Lang)
+@(title: Any, itemClass: String = "", scripts: Html = Html(""), styles: Html = Html(""))(content: Html)(implicit userOpt: Option[UserProfile], req: RequestHeader, globalConfig: global.GlobalConfig, flash: Flash, messages: Messages)
 
 <!DOCTYPE html>
 
-<html lang="@lang.code">
+<html lang="@messages.lang.code">
     @head(title, styles = styles)
     <body>
         @views.html.layout.readOnly()
@@ -23,10 +23,10 @@
         @views.html.layout.footer()
 
         <script src="//ajax.googleapis.com/ajax/libs/jquery/1.8.3/jquery.min.js"></script>
-        <script src="@controllers.portal.routes.Assets.versioned("js/feedback.js")"></script>
-        <script src="@controllers.portal.routes.Assets.versioned("js/lib/jquery.validate.js")"></script>
-        <script src="@controllers.portal.routes.Assets.versioned("bootstrap/js/bootstrap.min.js")"></script>
-        <script src="@controllers.portal.routes.Assets.versioned("js/common.js")"></script>
+        <script src="@controllers.portal.routes.PortalAssets.at("/public/lib/docview-portal", "js/feedback.js")"></script>
+        <script src="@controllers.portal.routes.PortalAssets.at("/public/lib/docview-portal", "js/lib/jquery.validate.js")"></script>
+        <script src="@controllers.portal.routes.PortalAssets.at("/public/lib/docview-portal", "bootstrap/js/bootstrap.min.js")"></script>
+        <script src="@controllers.portal.routes.PortalAssets.at("/public/lib/docview-portal", "js/common.js")"></script>
 
         <script>
             // Validate any forms with 'validate-form' class...

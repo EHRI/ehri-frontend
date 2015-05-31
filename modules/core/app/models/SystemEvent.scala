@@ -118,7 +118,7 @@ case class SystemEvent(
     case et => et
   }
 
-  override def toStringLang(implicit lang: play.api.i18n.Lang) =
-    Messages(isA + "." + model.eventType.map(_.toString).getOrElse("unknown"))(lang)
+  override def toStringLang(implicit messages: play.api.i18n.Messages) =
+    Messages(isA + "." + model.eventType.map(_.toString).getOrElse("unknown"))(messages)
 }
 

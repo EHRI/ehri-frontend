@@ -1,18 +1,18 @@
 package controllers.units
 
 import auth.AccountManager
+import play.api.cache.CacheApi
 import play.api.libs.concurrent.Execution.Implicits._
 import forms.VisibilityForm
 import models._
 import controllers.generic._
-import play.api.i18n.Messages
+import play.api.i18n.{MessagesApi, Messages}
 import defines.{ContentTypes,EntityType,PermissionType}
 import views.Helpers
 import utils.search._
-import com.google.inject._
+import javax.inject._
 import scala.concurrent.Future.{successful => immediate}
 import backend.{ApiUser, Backend}
-import play.api.Play.current
 import play.api.Configuration
 import play.api.http.MimeTypes
 import utils.ead.EadExporter
@@ -21,7 +21,7 @@ import controllers.base.AdminController
 
 
 @Singleton
-case class DocumentaryUnits @Inject()(implicit globalConfig: global.GlobalConfig, searchEngine: SearchEngine, searchResolver: SearchItemResolver, backend: Backend, accounts: AccountManager, pageRelocator: utils.MovedPageLookup)
+case class DocumentaryUnits @Inject()(implicit app: play.api.Application, cache: CacheApi, globalConfig: global.GlobalConfig, searchEngine: SearchEngine, searchResolver: SearchItemResolver, backend: Backend, accounts: AccountManager, pageRelocator: utils.MovedPageLookup, messagesApi: MessagesApi)
   extends AdminController
   with Read[DocumentaryUnit]
   with Visibility[DocumentaryUnit]
@@ -99,7 +99,7 @@ case class DocumentaryUnits @Inject()(implicit globalConfig: global.GlobalConfig
     )
   }
 
-  val formDefaults: Option[Configuration] = current.configuration.getConfig(EntityType.DocumentaryUnit)
+  val formDefaults: Option[Configuration] = app.configuration.getConfig(EntityType.DocumentaryUnit)
 
   val targetContentTypes = Seq(ContentTypes.DocumentaryUnit)
 

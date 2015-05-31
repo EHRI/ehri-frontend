@@ -1,4 +1,4 @@
-@(loginOrSignup: String, openIdForm: Form[String], oauthProviders: Seq[auth.oauth2.providers.OAuth2Provider], isLogin: Boolean)(implicit request: RequestHeader, globalConfig: global.GlobalConfig, flash: Flash, lang: Lang, token: play.filters.csrf.CSRF.Token, fieldConstructor: helper.FieldConstructor)
+@(loginOrSignup: String, openIdForm: Form[String], oauthProviders: Seq[auth.oauth2.providers.OAuth2Provider], isLogin: Boolean)(implicit request: RequestHeader, globalConfig: global.GlobalConfig, flash: Flash, messages: Messages, token: play.filters.csrf.CSRF.Token, fieldConstructor: helper.FieldConstructor)
 
 
 @openIdStyles = {

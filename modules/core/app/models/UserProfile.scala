@@ -8,7 +8,7 @@ import base.Persistable
 import defines.EntityType
 import play.api.libs.json._
 import models.json._
-import play.api.i18n.Lang
+import play.api.i18n.Messages
 import play.api.libs.functional.syntax._
 import play.api.data.Form
 import play.api.data.Forms._
@@ -186,7 +186,7 @@ case class UserProfile(
   with Accessor
   with Accessible {
 
-  override def toStringLang(implicit lang: Lang) = model.name
+  override def toStringLang(implicit messages: Messages) = model.name
 
   def hasPermission(ct: ContentTypes.Value, p: PermissionType.Value): Boolean = {
     globalPermissions.exists(gp =>

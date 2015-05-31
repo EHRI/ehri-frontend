@@ -14,14 +14,14 @@ trait IdGenerator {
    * Get the next ID for the given entity type by incrementing
    * the highest existing numerical ID by 1.
    */
-  def getNextNumericIdentifier(entityType: EntityType.Value)(implicit executionContent: ExecutionContext): Future[String]
+  def getNextNumericIdentifier(entityType: EntityType.Value, pattern: String)(implicit executionContent: ExecutionContext): Future[String]
 
   /**
    * Get the next ID for the given entity type with the given
    * parent as a permission scope, by incrementing the highest
    * existing numerical ID by 1.
    */
-  def getNextChildNumericIdentifier(parentId: String, entityType: EntityType.Value)(implicit executionContent: ExecutionContext): Future[String]
+  def getNextChildNumericIdentifier(parentId: String, entityType: EntityType.Value, pattern: String)(implicit executionContent: ExecutionContext): Future[String]
 }
 
 object IdGenerator {

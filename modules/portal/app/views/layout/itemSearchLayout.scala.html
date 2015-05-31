@@ -1,4 +1,4 @@
-@(title: Any, itemClass: String, result: utils.search.SearchResult[_], styles: Html = Html(""), scripts: Html = Html(""))(breadcrumbs: Html)(html: Html)(implicit userOpt: Option[UserProfile], request: RequestHeader, prefs: utils.SessionPrefs, globalConfig: global.GlobalConfig, lang: Lang, flash: Flash)
+@(title: Any, itemClass: String, result: utils.search.SearchResult[_], styles: Html = Html(""), scripts: Html = Html(""))(breadcrumbs: Html)(html: Html)(implicit userOpt: Option[UserProfile], request: RequestHeader, prefs: utils.SessionPrefs, globalConfig: global.GlobalConfig, messages: Messages, flash: Flash)
 
 @views.html.layout.portalLayout(Messages("search.item.results.list", title, result.page.start, result.page.end, result.page.total, result.params.query.getOrElse("")), itemClass, styles = styles, scripts = scripts) {
     @breadcrumbs

@@ -1,6 +1,8 @@
 package integration
 
+import auth.AccountManager
 import backend.ApiUser
+import controllers.portal.account.Accounts
 import defines._
 import helpers._
 import models.{Account, UserProfile}

@@ -1,22 +1,23 @@
 package controllers.countries
 
 import auth.AccountManager
+import play.api.cache.CacheApi
+import play.api.i18n.MessagesApi
 import play.api.libs.concurrent.Execution.Implicits._
 import _root_.forms.VisibilityForm
 import controllers.generic._
 import models._
 import defines.{ContentTypes, EntityType}
 import utils.search.{SearchConstants, SearchItemResolver, SearchEngine}
-import com.google.inject._
+import javax.inject._
 import scala.concurrent.Future.{successful => immediate}
 import backend.{Entity, IdGenerator, Backend}
 import play.api.Configuration
-import play.api.Play.current
 import controllers.base.AdminController
 
 
 @Singleton
-case class Countries @Inject()(implicit globalConfig: global.GlobalConfig, searchEngine: SearchEngine, searchResolver: SearchItemResolver, backend: Backend, idGenerator: IdGenerator, accounts: AccountManager, pageRelocator: utils.MovedPageLookup)
+case class Countries @Inject()(implicit app: play.api.Application, cache: CacheApi, globalConfig: global.GlobalConfig, searchEngine: SearchEngine, searchResolver: SearchItemResolver, backend: Backend, idGenerator: IdGenerator, accounts: AccountManager, pageRelocator: utils.MovedPageLookup, messagesApi: MessagesApi)
   extends AdminController
   with CRUD[CountryF,Country]
   with Creator[RepositoryF, Repository, Country]
@@ -32,8 +33,7 @@ case class Countries @Inject()(implicit globalConfig: global.GlobalConfig, searc
 
   val targetContentTypes = Seq(ContentTypes.Repository, ContentTypes.DocumentaryUnit)
 
-  private val childFormDefaults: Option[Configuration]
-      = current.configuration.getConfig(EntityType.Repository)
+  private val childFormDefaults: Option[Configuration] = app.configuration.getConfig(EntityType.Repository)
 
   private val form = models.Country.form
   private val childForm = models.Repository.form
@@ -97,7 +97,7 @@ case class Countries @Inject()(implicit globalConfig: global.GlobalConfig, searc
     // if two repositories get created at the same time.
     // Currently there is not way to notify the user that they should just
     // reset the form or increment the ID manually.
-    idGenerator.getNextNumericIdentifier(EntityType.Repository).map { newid =>
+    idGenerator.getNextNumericIdentifier(EntityType.Repository, "%06d").map { newid =>
       val form = childForm.bind(Map(Entity.IDENTIFIER -> newid))
       Ok(views.html.admin.repository.create(
         request.item, form, childFormDefaults, VisibilityForm.form.fill(request.item.accessors.map(_.id)),

@@ -1,4 +1,4 @@
-@(text: String, link: Call)(html: Html = Html(""))(implicit userOpt: Option[UserProfile], request: RequestHeader, lang: Lang)
+@(text: String, link: Call)(html: Html = Html(""))(implicit userOpt: Option[UserProfile], request: RequestHeader, messages: Messages)
 
 <div class="content-load">
     <div class="content-load-placeholder">@html</div>

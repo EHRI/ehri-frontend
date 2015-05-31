@@ -1,11 +1,9 @@
-import java.net.{URLDecoder,URLEncoder}
-
-import play.api.i18n.Messages
-import play.twirl.api.Html
 
 package object utils {
 
+  import java.net.{URLDecoder,URLEncoder}
   import play.api.mvc.RequestHeader
+
   def isAjax(implicit request: RequestHeader): Boolean =
     request.headers.get("X-REQUESTED-WITH").exists(_.toUpperCase == "XMLHTTPREQUEST")
 

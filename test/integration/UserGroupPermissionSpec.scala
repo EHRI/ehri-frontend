@@ -31,7 +31,7 @@ class UserGroupPermissionSpec extends IntegrationTestRunner with TestHelpers {
 
   private def idFromUrl(url: String) = url.substring(url.lastIndexOf("/") + 1)
 
-  private def createUser(id: String, data: Map[String, String], groups: Seq[String] = Seq.empty): (Account, UserProfile) = {
+  private def createUser(id: String, data: Map[String, String], groups: Seq[String] = Seq.empty)(implicit app: play.api.Application): (Account, UserProfile) = {
     val userPostData: Map[String, Seq[String]] = data
       .map(kv => kv._1 -> Seq(kv._2))
       .updated("identifier", Seq(id))
@@ -48,7 +48,8 @@ class UserGroupPermissionSpec extends IntegrationTestRunner with TestHelpers {
     (acc, await(testBackend.get[UserProfile](id)))
   }
 
-  private def createGroup(id: String, data: Map[String, String], groups: Seq[String] = Seq.empty): Group = {
+  private def createGroup(id: String, data: Map[String, String], groups: Seq[String] = Seq.empty)(implicit app: play.api.Application):
+  Group = {
     val groupPostData: Map[String, Seq[String]] = data
       .map(kv => kv._1 -> Seq(kv._2))
       .updated("identifier", Seq(id))

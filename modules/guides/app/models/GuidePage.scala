@@ -5,14 +5,9 @@ import play.api.data.Forms._
 
 import anorm._
 import anorm.SqlParser._
-import play.api.Play.current
-import play.api.db.DB
 import language.postfixOps
 import utils.db.StorableEnum
 import play.core.parsers.FormUrlEncodedParser
-import models.sql.withIntegrityCheck
-
-import scala.util.Try
 
 /**
  * @author Thibault Clérice (http://github.com/ponteineptique)
@@ -28,34 +23,6 @@ case class GuidePage(
   description: Option[String] = None,
   params: Option[String] = None
 ) {
-  /*
-  * Edit a page
-  */
-  def update(): Try[Unit] = withIntegrityCheck { implicit connection =>
-      SQL"""
-      UPDATE
-        research_guide_page
-      SET
-        layout = $layout,
-        name = $name,
-        path = $path,
-        position = $position,
-        content = $content,
-        research_guide_id = $parent,
-        params = $params,
-        description = $description
-      WHERE id = $id
-      LIMIT 1
-    """.executeUpdate()
-  }
-
-  /*
-  * Delete a page
-  */
-  def delete(): Unit = DB.withConnection { implicit connection =>
-      SQL"""DELETE FROM research_guide_page WHERE id = $id LIMIT 1""".executeUpdate()
-  }
-
   def getParams: Map[String,Seq[String]] = {
     params match {
       case Some(str) => FormUrlEncodedParser.parse(str)
@@ -126,34 +93,6 @@ object GuidePage {
       case oid ~ layout ~ name ~ path ~ menu ~ query ~ pid ~ description ~ params  =>
         GuidePage(oid, layout, name, path, menu, query, pid, description, params)
     }
-  }
-
-  /*
-  * Create a new page
-  */
-  def create(layout: Layout.Value, name: String, path: String, menu: MenuPosition.Value = MenuPosition.Side,
-             cypher: String, parent: Option[Long] = None, description: Option[String] = None, params: Option[String] = None): Try[Option[GuidePage]] =
-      withIntegrityCheck { implicit connection =>
-    val id: Option[Long] = SQL"""
-      INSERT INTO research_guide_page
-        (layout, name, path, position, content, research_guide_id, description, params)
-      VALUES
-        ($layout, $name, $path, $menu, $cypher, $parent, $description, $params)
-    """.executeInsert()
-    id.flatMap { l =>
-      SQL"SELECT * FROM research_guide_page WHERE id = $l".as(rowExtractor.singleOpt)
-    }
-  }
-
-  /*
-  * List or find data
-  */
-  def find(path: String): List[GuidePage] = DB.withConnection { implicit connection =>
-    SQL"""SELECT * FROM research_guide_page WHERE path = $path""".as(rowExtractor *)
-  }
-
-  def findAll(): List[GuidePage] = DB.withConnection { implicit connection =>
-    SQL"""SELECT * FROM research_guide_page""".as(rowExtractor *)
   }
 
   def faceted: GuidePage = {

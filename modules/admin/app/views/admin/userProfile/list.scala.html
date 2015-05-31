@@ -1,4 +1,4 @@
-@(items: utils.Page[UserProfile], params: utils.PageParams)(implicit userOpt: Option[UserProfile], req: RequestHeader, globalConfig: global.GlobalConfig, lang: Lang, flash: Flash)
+@(items: utils.Page[UserProfile], params: utils.PageParams)(implicit userOpt: Option[UserProfile], req: RequestHeader, globalConfig: global.GlobalConfig, messages: Messages, flash: Flash)
 
 @views.html.admin.layout.rightSidebar(Messages("userProfile.list")) {
 

@@ -7,27 +7,33 @@ import defines.EntityType
 import play.api.libs.json._
 import eu.ehri.project.definitions.Ontology
 
+import javax.inject.Inject
+
+import play.api.cache.CacheApi
+
 /**
  * @author Mike Bryant (http://github.com/mikesname)
  */
-case class CypherIdGenerator(idFormat: String = "%06d")(implicit val app: play.api.Application)
+case class CypherIdGenerator @Inject ()(implicit val cache: CacheApi, val app: play.api.Application)
   extends IdGenerator with RestDAO {
+
   val cypher = new CypherDAO
 
-  private def nextId(idList: JsValue): String = {
+  private def nextId(idList: JsValue, pattern: String): String = {
     val result = idList.as[Map[String,JsValue]]
     val data: JsValue = result.getOrElse("data", Json.arr())
     val id = IdGenerator.nextNumericId(data.as[Seq[Seq[String]]].flatten)
-    idFormat.format(id)
+    pattern.format(id)
   }
 
-  def getNextNumericIdentifier(entityType: EntityType.Value)(implicit executionContent: ExecutionContext): Future[String] = {
+  def getNextNumericIdentifier(entityType: EntityType.Value, pattern: String)(implicit executionContent:
+  ExecutionContext): Future[String] = {
     val allIds = """START n = node:entities(__ISA__ = {isA}) RETURN n.identifier"""
     var params = Map("isA" -> JsString(entityType))
-    cypher.cypher(allIds, params).map(nextId)
+    cypher.cypher(allIds, params).map(id => nextId(id, pattern))
   }
 
-  def getNextChildNumericIdentifier(parentId: String, entityType: EntityType.Value)(implicit executionContent: ExecutionContext): Future[String] = {
+  def getNextChildNumericIdentifier(parentId: String, entityType: EntityType.Value, pattern: String)(implicit executionContent: ExecutionContext): Future[String] = {
     val allIds =
       s"""
         | START n = node:entities(__ID__ = {id})
@@ -40,6 +46,6 @@ case class CypherIdGenerator(idFormat: String = "%06d")(implicit val app: play.a
       "isA" -> JsString(entityType),
       "id" -> JsString(parentId)
     )
-    cypher.cypher(allIds, params).map(nextId)
+    cypher.cypher(allIds, params).map(id => nextId(id, pattern))
   }
 }

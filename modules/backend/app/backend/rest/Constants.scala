@@ -49,7 +49,8 @@ object Constants {
   /**
    * Time to cache rest requests for...
    */
-  val cacheTime = 60 * 5 // 5 minutes
+  import scala.concurrent.duration._
+  val cacheTime = (60 * 5) seconds
 
   /**
    * Limit for lists

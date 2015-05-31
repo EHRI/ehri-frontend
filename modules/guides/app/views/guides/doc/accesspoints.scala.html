@@ -1,4 +1,4 @@
-@(item: DocumentaryUnit, desc: DocumentaryUnitDescriptionF, links: Seq[Link],template: (GuidePage, (Guide, List[GuidePage])))(implicit userOpt: Option[UserProfile], request: RequestHeader, prefs: utils.SessionPrefs, globalConfig: global.GlobalConfig, lang: Lang, flash: Flash)
+@(item: DocumentaryUnit, desc: DocumentaryUnitDescriptionF, links: Seq[Link],template: (GuidePage, (Guide, List[GuidePage])))(implicit userOpt: Option[UserProfile], request: RequestHeader, prefs: utils.SessionPrefs, globalConfig: global.GlobalConfig, messages: Messages, flash: Flash)
 
 @import defines._
 

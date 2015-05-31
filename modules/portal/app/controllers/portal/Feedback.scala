@@ -1,11 +1,13 @@
 package controllers.portal
 
 import auth.AccountManager
+import play.api.cache.CacheApi
+import play.api.i18n.MessagesApi
 import play.api.libs.concurrent.Execution.Implicits._
 import play.api.mvc.{Result, RequestHeader}
 import scala.concurrent.Future.{successful => immediate}
 import backend.{Backend, FeedbackDAO}
-import com.google.inject._
+import javax.inject._
 import com.typesafe.plugin.MailerAPI
 import controllers.portal.base.PortalController
 
@@ -13,8 +15,8 @@ import controllers.portal.base.PortalController
  * @author Mike Bryant (http://github.com/mikesname)
  */
 @Singleton
-case class Feedback @Inject()(implicit globalConfig: global.GlobalConfig, feedbackDAO: FeedbackDAO,
-                              backend: Backend, accounts: AccountManager, mailer: MailerAPI, pageRelocator: utils.MovedPageLookup)
+case class Feedback @Inject()(implicit app: play.api.Application, cache: CacheApi, globalConfig: global.GlobalConfig, feedbackDAO: FeedbackDAO,
+                              backend: Backend, accounts: AccountManager, mailer: MailerAPI, pageRelocator: utils.MovedPageLookup, messagesApi: MessagesApi)
   extends PortalController {
 
   import utils.forms._
@@ -71,7 +73,6 @@ case class Feedback @Inject()(implicit globalConfig: global.GlobalConfig, feedba
 
   def feedbackPost = OptionalUserAction.async { implicit request =>
     val boundForm: Form[models.Feedback] = models.Feedback.form.bindFromRequest()
-    import play.api.Play.current
 
     def response(f: Form[models.Feedback]): Result =
       if (isAjax) BadRequest(f.errorsAsJson) else BadRequest(views.html.feedback(f))
@@ -87,7 +88,7 @@ case class Feedback @Inject()(implicit globalConfig: global.GlobalConfig, feedba
             .copy(email = feedback.email.orElse(user.account.map(_.email)))
         }.getOrElse(feedback)
           .copy(context = Some(models.FeedbackContext.fromRequest),
-            mode = Some(play.api.Play.current.mode))
+            mode = Some(app.mode))
         feedbackDAO.create(moreFeedback).map { id =>
           sendMessageEmail(moreFeedback)
           if (isAjax) Ok(id)

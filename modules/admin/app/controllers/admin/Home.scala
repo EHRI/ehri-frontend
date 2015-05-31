@@ -1,18 +1,19 @@
 package controllers.admin
 
 import auth.AccountManager
+import play.api.cache.CacheApi
 import play.api.libs.concurrent.Execution.Implicits._
 import models.{SystemEvent, Isaar}
 import models.base.{Description, AnyModel}
 import controllers.generic.Search
 import play.api.mvc._
 import defines.{EventType, EntityType}
-import play.api.i18n.Messages
+import play.api.i18n.{MessagesApi, Messages}
 import views.Helpers
 import play.api.libs.json.Json
 import utils.search._
 
-import com.google.inject._
+import javax.inject._
 import play.api.http.MimeTypes
 import scala.concurrent.Future.{successful => immediate}
 import backend.Backend
@@ -21,7 +22,7 @@ import controllers.base.AdminController
 
 
 @Singleton
-case class Home @Inject()(implicit globalConfig: global.GlobalConfig, searchEngine: SearchEngine, searchResolver: SearchItemResolver, backend: Backend, accounts: AccountManager, pageRelocator: utils.MovedPageLookup) extends AdminController with Search {
+case class Home @Inject()(implicit app: play.api.Application, cache: CacheApi, globalConfig: global.GlobalConfig, searchEngine: SearchEngine, searchResolver: SearchItemResolver, backend: Backend, accounts: AccountManager, pageRelocator: utils.MovedPageLookup, messagesApi: MessagesApi) extends AdminController with Search {
 
   val searchEntities = List(
     EntityType.DocumentaryUnit,
@@ -121,7 +122,7 @@ case class Home @Inject()(implicit globalConfig: global.GlobalConfig, searchEngi
 
   def metricsJsRoutes = Action { implicit request =>
     Ok(
-      play.api.Routes.javascriptRouter("metricsJsRoutes")(
+      play.api.routing.JavaScriptReverseRouter("metricsJsRoutes")(
         controllers.admin.routes.javascript.Metrics.languageOfMaterial,
         controllers.admin.routes.javascript.Metrics.holdingRepository,
         controllers.admin.routes.javascript.Metrics.repositoryCountries,

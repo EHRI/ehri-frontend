@@ -1,4 +1,4 @@
-@(item: Repository, desc: RepositoryDescriptionF)(implicit userOpt: Option[UserProfile], request: RequestHeader, lang: Lang, globalConfig: global.GlobalConfig)
+@(item: Repository, desc: RepositoryDescriptionF)(implicit userOpt: Option[UserProfile], request: RequestHeader, messages: Messages, globalConfig: global.GlobalConfig)
 
 <div class="item-meta">
     @desc.addresses.headOption.map { address =>

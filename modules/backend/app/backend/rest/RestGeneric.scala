@@ -3,7 +3,6 @@ package backend.rest
 import scala.concurrent.Future
 import play.api.libs.json._
 import defines.ContentTypes
-import play.api.cache.Cache
 import utils.{Page, PageParams}
 import backend._
 import play.api.libs.json.JsObject
@@ -16,17 +15,18 @@ trait RestGeneric extends Generic with RestDAO with RestContext {
 
   import Constants._
 
-  private def unpack(m: Map[String,Seq[String]]): Seq[(String,String)]
-      = m.map(ks => ks._2.map(s => ks._1 -> s)).flatten.toSeq
+  private def unpack(m: Map[String,Seq[String]]): Seq[(String,String)] = m.toSeq.flatMap {
+    case (k, vals) => vals.map(v => k -> v)
+  }
 
   override def get[MT](resource: Resource[MT], id: String): Future[MT] = {
     val url = canonicalUrl(id)(resource)
-    Cache.getAs[JsValue](url).map { json =>
+    cache.get[JsValue](url).map { json =>
       Future.successful(jsonReadToRestError(json, resource.restReads))
     }.getOrElse {
       userCall(url, resource.defaultParams).get().map { response =>
         val item = checkErrorAndParse(response, context = Some(url))(resource.restReads)
-        Cache.set(url, response.json, cacheTime)
+        cache.set(url, response.json, cacheTime)
         item
       }
     }
@@ -72,7 +72,7 @@ trait RestGeneric extends Generic with RestDAO with RestContext {
         .put(Json.toJson(item)(Writable[T].restFormat)).map { response =>
       val item = checkErrorAndParse(response, context = Some(url))(Resource[MT].restReads)
       eventHandler.handleUpdate(id)
-      Cache.remove(canonicalUrl(id))
+      cache.remove(canonicalUrl(id))
       item
     }
   }
@@ -84,7 +84,7 @@ trait RestGeneric extends Generic with RestDAO with RestContext {
         .put(item).map { response =>
       val item = checkErrorAndParse(response, context = Some(url))(Resource[MT].restReads)
       eventHandler.handleUpdate(id)
-      Cache.remove(canonicalUrl(id))
+      cache.remove(canonicalUrl(id))
       item
     }
   }
@@ -93,7 +93,7 @@ trait RestGeneric extends Generic with RestDAO with RestContext {
     userCall(enc(baseUrl, Resource[MT].entityType, id)).delete().map { response =>
       checkError(response)
       eventHandler.handleDelete(id)
-      Cache.remove(canonicalUrl(id))
+      cache.remove(canonicalUrl(id))
     }
   }
 

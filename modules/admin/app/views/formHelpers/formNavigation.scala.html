@@ -1,4 +1,4 @@
-@(fieldPrefix: String, targets: String*)
+@(fieldPrefix: String, targets: String*)(implicit messages: Messages)
 
 <ul class="nav nav-tabs nav-pills nav-stacked affix" id="form-nav-sidebar">
     @targets.map { s =>

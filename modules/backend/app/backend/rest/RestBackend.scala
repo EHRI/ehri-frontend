@@ -1,19 +1,22 @@
 package backend.rest
 
+import javax.inject.Inject
 import scala.concurrent.{ExecutionContext, Future}
 import play.api.mvc.Headers
+import play.api.cache.CacheApi
 import play.api.libs.ws.WSResponse
 import backend._
+
 
 /**
   * @author Mike Bryant (http://github.com/mikesname)
   */
-case class RestBackend(eventHandler: EventHandler)(implicit app: play.api.Application)
+case class RestBackend @Inject ()(eventHandler: EventHandler, cache: CacheApi, app: play.api.Application)
   extends Backend {
-  def withContext(apiUser: ApiUser)(implicit executionContext: ExecutionContext) = new RestBackendHandle(eventHandler)(app, apiUser, executionContext)
+  def withContext(apiUser: ApiUser)(implicit executionContext: ExecutionContext) = new RestBackendHandle(eventHandler)(cache: CacheApi, app, apiUser, executionContext)
 }
 
-case class RestBackendHandle(eventHandler: EventHandler)(implicit val app: play.api.Application, val apiUser: ApiUser, val executionContext: ExecutionContext)
+case class RestBackendHandle(eventHandler: EventHandler)(implicit val cache: CacheApi, val app: play.api.Application, val apiUser: ApiUser, val executionContext: ExecutionContext)
   extends BackendHandle
   with RestGeneric
   with RestPermissions
@@ -27,7 +30,7 @@ case class RestBackendHandle(eventHandler: EventHandler)(implicit val app: play.
   with RestPromotion {
 
   private val api = new ApiDAO
-  private val admin = new AdminDAO(eventHandler)
+  private val admin = new AdminDAO(eventHandler, cache, app)
 
   override def withEventHandler(eventHandler: EventHandler) = this.copy(eventHandler = eventHandler)
 
@@ -49,9 +52,9 @@ case class RestBackendHandle(eventHandler: EventHandler)(implicit val app: play.
 }
 
 object RestBackend {
-  def withNoopHandler(implicit app: play.api.Application): Backend = new RestBackend(new EventHandler {
+  def withNoopHandler(cache: CacheApi, app: play.api.Application): Backend = new RestBackend(new EventHandler {
     def handleCreate(id: String) = ()
     def handleUpdate(id: String) = ()
     def handleDelete(id: String) = ()
-  })
+  }, cache: CacheApi, app)
 }

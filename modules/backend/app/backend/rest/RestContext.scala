@@ -1,5 +1,6 @@
 package backend.rest
 
+import play.api.cache.CacheApi
 import backend.{ApiUser, EventHandler}
 
 import scala.concurrent.ExecutionContext

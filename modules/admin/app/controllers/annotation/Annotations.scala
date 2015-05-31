@@ -2,12 +2,14 @@ package controllers.annotation
 
 import auth.AccountManager
 import models.{AnnotationF, Annotation}
-import com.google.inject._
+import javax.inject._
 import controllers.generic._
 import backend.Backend
 import controllers.base.AdminController
+import play.api.cache.CacheApi
+import play.api.i18n.MessagesApi
 
-case class Annotations @Inject()(implicit globalConfig: global.GlobalConfig, backend: Backend, accounts: AccountManager, pageRelocator: utils.MovedPageLookup)
+case class Annotations @Inject()(implicit app: play.api.Application, cache: CacheApi, globalConfig: global.GlobalConfig, backend: Backend, accounts: AccountManager, pageRelocator: utils.MovedPageLookup, messagesApi: MessagesApi)
   extends AdminController
   with Read[Annotation]
   with Visibility[Annotation]

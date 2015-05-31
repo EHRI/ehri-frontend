@@ -1,4 +1,4 @@
-@(them: UserProfile, result: utils.search.SearchResult[(models.base.AnyModel, utils.search.SearchHit)], currentWatchedIds: Seq[String])(implicit userOpt: Option[UserProfile], req: RequestHeader, lang: Lang, globalConfig: global.GlobalConfig)
+@(them: UserProfile, result: utils.search.SearchResult[(models.base.AnyModel, utils.search.SearchHit)], currentWatchedIds: Seq[String])(implicit userOpt: Option[UserProfile], req: RequestHeader, messages: Messages, globalConfig: global.GlobalConfig)
 
 @defining(userOpt.exists(_.id == them.id)) { isCurrentUser =>
 

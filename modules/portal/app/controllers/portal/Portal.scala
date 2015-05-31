@@ -1,22 +1,23 @@
 package controllers.portal
 
+import java.util.concurrent.TimeUnit
+
 import auth.AccountManager
-import play.api.Play.current
 import controllers.generic.Search
 import models._
 import models.base.AnyModel
-import play.api.i18n.Messages
+import play.api.i18n.{MessagesApi, Messages}
 import play.api.libs.concurrent.Execution.Implicits._
 import play.api.mvc._
 import utils.search._
-import play.api.cache.Cached
-import defines.{EventType, EntityType}
+import play.api.cache.CacheApi
+import defines.EntityType
 import play.api.libs.ws.WS
 import play.twirl.api.Html
 import backend.{HtmlPages, Backend}
 import utils._
 
-import com.google.inject._
+import javax.inject._
 import views.html.errors.pageNotFound
 import org.joda.time.DateTime
 import caching.FutureCache
@@ -25,8 +26,8 @@ import play.api.libs.json.Json
 
 
 @Singleton
-case class Portal @Inject()(implicit globalConfig: global.GlobalConfig, searchEngine: SearchEngine, searchResolver: SearchItemResolver, backend: Backend,
-    accounts: AccountManager, pageRelocator: utils.MovedPageLookup, htmlPages: HtmlPages)
+case class Portal @Inject()(implicit app: play.api.Application, cache: CacheApi, globalConfig: global.GlobalConfig, searchEngine: SearchEngine, searchResolver: SearchItemResolver, backend: Backend,
+    accounts: AccountManager, pageRelocator: utils.MovedPageLookup, messagesApi: MessagesApi, htmlPages: HtmlPages)
   extends PortalController
   with Search
   with FacetConfig {
@@ -112,7 +113,7 @@ case class Portal @Inject()(implicit globalConfig: global.GlobalConfig, searchEn
    * types.
    */
   def index = OptionalUserAction.async { implicit request =>
-    FutureCache.getOrElse("index:metrics", 60 * 5) {
+    FutureCache.getOrElse("index:metrics", scala.concurrent.duration.Duration.apply(60 * 5, TimeUnit.SECONDS)) {
       find[AnyModel](
         defaultParams = SearchParams(
           // we don't need results here because we're only using the facets
@@ -191,7 +192,7 @@ case class Portal @Inject()(implicit globalConfig: global.GlobalConfig, searchEn
     }
   }
 
-  def newsFeed = Cached.status(_ => "pages.newsFeed", OK, 60 * 60) {
+  def newsFeed = statusCache.status(_ => "pages.newsFeed", OK, 60 * 60) {
     Action.async { request =>
       WS.url("http://www.ehri-project.eu/rss.xml").get().map { r =>
         Ok(views.html.newsFeed(NewsItem.fromRss(r.body)))

@@ -1,4 +1,4 @@
-@(recaptchaKey: String)(implicit req: RequestHeader, globalConfig: global.GlobalConfig, lang: Lang)
+@(recaptchaKey: String)(implicit req: RequestHeader, globalConfig: global.GlobalConfig, messages: Messages)
 
 @if(!globalConfig.skipRecaptcha) {
 <script type="text/javascript"

@@ -8,7 +8,7 @@ import scala.concurrent.Future
 /**
  * User: mikebryant
  */
-trait SearchEngine {
+trait SearchEngineConfig {
 
   /**
    * The general search parameters
@@ -50,61 +50,65 @@ trait SearchEngine {
   /**
    * Set the general search parameters.
    */
-  def setParams(params: SearchParams): SearchEngine
+  def setParams(params: SearchParams): SearchEngineConfig
 
   /**
    * Add additional applied facets to this request.
    */
-  def withFacets(facets: Seq[AppliedFacet]): SearchEngine
+  def withFacets(facets: Seq[AppliedFacet]): SearchEngineConfig
 
   /**
    * Add additional facet classes to this request.
    */
-  def withFacetClasses(fc: Seq[FacetClass[Facet]]): SearchEngine
+  def withFacetClasses(fc: Seq[FacetClass[Facet]]): SearchEngineConfig
 
   /**
    * Add additional key/value filters to this request.
    */
-  def withFilters(filters: Map[String,Any]): SearchEngine
+  def withFilters(filters: Map[String,Any]): SearchEngineConfig
 
   /**
    * Add additional ID filters to this request.
    */
-  def withIdFilters(ids: Seq[String]): SearchEngine
+  def withIdFilters(ids: Seq[String]): SearchEngineConfig
 
   /**
    * Add additional IDs to exclude.
    */
-  def withIdExcludes(ids: Seq[String]): SearchEngine
+  def withIdExcludes(ids: Seq[String]): SearchEngineConfig
 
   /**
    * Add entity type constraints.
    */
-  def withEntities(entities: Seq[EntityType.Value]): SearchEngine
+  def withEntities(entities: Seq[EntityType.Value]): SearchEngineConfig
 
   /**
    * Set entity type(s), overriding anything already set.
    */
-  def setEntity(entities: EntityType.Value*): SearchEngine
+  def setEntity(entities: EntityType.Value*): SearchEngineConfig
 
   /**
    * Set the sort order.
    */
-  def setSort(sort: SearchOrder.Value): SearchEngine
+  def setSort(sort: SearchOrder.Value): SearchEngineConfig
 
   /**
    * Add additional engine-specific key/value parameters
    * to this request.
    */
-  def withExtraParams(extra: Map[String,Any]): SearchEngine
+  def withExtraParams(extra: Map[String,Any]): SearchEngineConfig
 
   /**
    * Set the mode for this request.
    */
-  def setMode(mode: SearchMode.Value): SearchEngine
+  def setMode(mode: SearchMode.Value): SearchEngineConfig
 
 
   def filter()(implicit userOpt: Option[UserProfile]): Future[SearchResult[FilterHit]]
 
   def search()(implicit userOpt: Option[UserProfile]): Future[SearchResult[SearchHit]]
+}
+
+trait SearchEngine {
+  def config: SearchEngineConfig
 }

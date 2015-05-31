@@ -6,7 +6,7 @@ import defines.{PermissionType,EntityType}
 import models.json._
 import play.api.libs.json._
 import play.api.libs.json.JsObject
-import play.api.i18n.Lang
+import play.api.i18n.Messages
 import backend.{Entity, Readable, Resource}
 
 
@@ -75,6 +75,6 @@ case class PermissionGrant(
 ) extends AnyModel
   with MetaModel[PermissionGrantF] {
 
-  override def toStringLang(implicit lang: Lang): String =
+  override def toStringLang(implicit messages: Messages): String =
     s"<PermissionGrant: ${accessor.map(_.toStringLang)}: ${targets.headOption.map(_.toStringLang)} [${model.permission}}]>"
 }

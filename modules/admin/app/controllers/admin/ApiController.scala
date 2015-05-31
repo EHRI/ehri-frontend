@@ -2,11 +2,13 @@ package controllers.admin
 
 import auth.AccountManager
 import controllers.base.AdminController
+import play.api.cache.CacheApi
+import play.api.i18n.MessagesApi
 import play.api.mvc.Action
 import play.api.libs.iteratee.Enumerator
 import play.api.libs.concurrent.Execution.Implicits._
 
-import com.google.inject._
+import javax.inject._
 import backend.Backend
 import play.api.Routes
 import play.api.http.MimeTypes
@@ -14,7 +16,7 @@ import com.ning.http.client.{Response => NingResponse}
 import defines.EntityType
 import backend.rest.cypher.CypherDAO
 
-case class ApiController @Inject()(implicit globalConfig: global.GlobalConfig, backend: Backend, accounts: AccountManager, pageRelocator: utils.MovedPageLookup) extends AdminController {
+case class ApiController @Inject()(implicit app: play.api.Application, cache: CacheApi, globalConfig: global.GlobalConfig, backend: Backend, accounts: AccountManager, pageRelocator: utils.MovedPageLookup, messagesApi: MessagesApi) extends AdminController {
 
   def listItems(contentType: EntityType.Value) = Action.async { implicit request =>
     get(s"$contentType/list")(request)
@@ -40,9 +42,7 @@ case class ApiController @Inject()(implicit globalConfig: global.GlobalConfig, b
 
   def jsRoutes = Action { implicit request =>
     Ok(
-      Routes.javascriptRouter("jsRoutes")(
-
-      )
+      play.api.routing.JavaScriptReverseRouter("jsRoutes")()
     ).as(MimeTypes.JAVASCRIPT)
   }
 
@@ -69,7 +69,6 @@ case class ApiController @Inject()(implicit globalConfig: global.GlobalConfig, b
   }
 
   def cypherQuery = AdminAction.async { implicit request =>
-    import play.api.Play.current
     CypherDAO().stream(queryForm.bindFromRequest.value.getOrElse(""), Map.empty).map { r =>
       val response: NingResponse = r.underlying[NingResponse]
       Status(r.status)

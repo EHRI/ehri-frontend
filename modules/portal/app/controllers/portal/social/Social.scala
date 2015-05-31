@@ -2,16 +2,16 @@ package controllers.portal.social
 
 import auth.AccountManager
 import controllers.generic.Search
+import play.api.cache.CacheApi
 import play.api.libs.concurrent.Execution.Implicits._
 import models.{SystemEvent, UserProfile}
 import utils._
 import utils.search._
-import play.api.Play.current
 import backend.{Backend, ApiUser}
 
-import com.google.inject._
+import javax.inject._
 import play.api.mvc.RequestHeader
-import play.api.i18n.Messages
+import play.api.i18n.{MessagesApi, Messages}
 import play.api.libs.json.Json
 import scala.concurrent.Future
 import scala.concurrent.Future.{successful => immediate}
@@ -28,9 +28,9 @@ import controllers.portal.base.PortalController
  * just lists of IDs.
  */
 @Singleton
-case class Social @Inject()(implicit globalConfig: global.GlobalConfig, searchEngine: SearchEngine,
+case class Social @Inject()(implicit app: play.api.Application, cache: CacheApi, globalConfig: global.GlobalConfig, searchEngine: SearchEngine,
                             searchResolver: SearchItemResolver, backend: Backend, accounts: AccountManager,
-    mailer: MailerAPI, pageRelocator: utils.MovedPageLookup)
+    mailer: MailerAPI, pageRelocator: utils.MovedPageLookup, messagesApi: MessagesApi)
   extends PortalController with Search {
 
   private val socialRoutes = controllers.portal.social.routes.Social
@@ -261,7 +261,7 @@ case class Social @Inject()(implicit globalConfig: global.GlobalConfig, searchEn
   }
 
   def sendMessage(userId: String) = WithUserAction.async { implicit request =>
-    val recaptchaKey = current.configuration.getString("recaptcha.key.public")
+    val recaptchaKey = app.configuration.getString("recaptcha.key.public")
       .getOrElse("fakekey")
     for {
       userTo <- userBackend.get[UserProfile](userId)
@@ -279,7 +279,7 @@ case class Social @Inject()(implicit globalConfig: global.GlobalConfig, searchEn
   }
 
   def sendMessagePost(userId: String) = WithUserAction.async { implicit request =>
-    val recaptchaKey = current.configuration.getString("recaptcha.key.public")
+    val recaptchaKey = app.configuration.getString("recaptcha.key.public")
       .getOrElse("fakekey")
     val boundForm = messageForm.bindFromRequest
 

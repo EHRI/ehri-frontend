@@ -1,4 +1,4 @@
-@(item: models.base.AnyModel, annotations: Seq[Annotation], links: Seq[Link], watched: Seq[String], path: Seq[AnyModel] = Seq.empty)(implicit userOpt: Option[UserProfile], request: RequestHeader, prefs: utils.SessionPrefs, globalConfig: global.GlobalConfig, lang: Lang, flash: Flash)
+@(item: models.base.AnyModel, annotations: Seq[Annotation], links: Seq[Link], watched: Seq[String], path: Seq[AnyModel] = Seq.empty)(implicit userOpt: Option[UserProfile], request: RequestHeader, prefs: utils.SessionPrefs, globalConfig: global.GlobalConfig, messages: Messages, flash: Flash)
 
 @if(item.isInstanceOf[DocumentaryUnit]) {
     @itemDetails(item.asInstanceOf[DocumentaryUnit], annotations, links, watched, path)

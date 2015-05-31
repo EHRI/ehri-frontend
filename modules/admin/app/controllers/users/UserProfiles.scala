@@ -2,13 +2,14 @@ package controllers.users
 
 import auth.{HashedPassword, AccountManager}
 import controllers.core.auth.AccountHelpers
+import play.api.cache.CacheApi
 import play.api.libs.concurrent.Execution.Implicits._
 import controllers.generic._
 import models._
-import play.api.i18n.Messages
+import play.api.i18n.{MessagesApi, Messages}
 import defines.{EntityType, PermissionType, ContentTypes}
 import utils.search._
-import com.google.inject._
+import javax.inject._
 import backend.Backend
 import play.api.data.{FormError, Forms, Form}
 import scala.concurrent.Future.{successful => immediate}
@@ -22,7 +23,7 @@ import controllers.base.AdminController
 
 
 @Singleton
-case class UserProfiles @Inject()(implicit globalConfig: global.GlobalConfig, searchIndexer: SearchIndexer, searchEngine: SearchEngine, searchResolver: SearchItemResolver, backend: Backend, accounts: AccountManager, pageRelocator: utils.MovedPageLookup)
+case class UserProfiles @Inject()(implicit app: play.api.Application, cache: CacheApi, globalConfig: global.GlobalConfig, searchIndexer: SearchIndexer, searchEngine: SearchEngine, searchResolver: SearchItemResolver, backend: Backend, accounts: AccountManager, pageRelocator: utils.MovedPageLookup, messagesApi: MessagesApi)
   extends AdminController
   with PermissionHolder[UserProfile]
   with ItemPermissions[UserProfile]
@@ -32,9 +33,8 @@ case class UserProfiles @Inject()(implicit globalConfig: global.GlobalConfig, se
   with Membership[UserProfile]
   with SearchType[UserProfile]
   with Search
-  with AccountHelpers {
-
-  import play.api.Play.current
+  with AccountHelpers
+  with RestHelpers {
 
   private val entityFacets: FacetBuilder = { implicit request =>
     List(
@@ -104,7 +104,7 @@ case class UserProfiles @Inject()(implicit globalConfig: global.GlobalConfig, se
    *    account so they can edit it... all in all not nice.
    */
   def createUserPost = WithContentPermissionAction(PermissionType.Create, ContentTypes.UserProfile).async { implicit request =>
-    RestHelpers.getGroupList.flatMap { allGroups =>
+    getGroupList.flatMap { allGroups =>
       userPasswordForm.bindFromRequest.fold(
         errorForm => immediate(BadRequest(views.html.admin.userProfile.create(
             errorForm,

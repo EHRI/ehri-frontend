@@ -1,4 +1,4 @@
-@(facetClasses: Seq[utils.search.FacetClass[utils.search.Facet]], applied: Seq[utils.search.AppliedFacet])(implicit req: RequestHeader, lang: Lang)
+@(facetClasses: Seq[utils.search.FacetClass[utils.search.Facet]], applied: Seq[utils.search.AppliedFacet])(implicit req: RequestHeader, messages: Messages)
 
 <div class="selected-facets">
     @applied.collect { case utils.search.AppliedFacet(key, values) =>

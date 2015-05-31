@@ -6,12 +6,12 @@ import play.api.libs.openid._
 import play.api.libs.concurrent.Execution.Implicits._
 import play.api._
 import play.api.mvc._
+import play.api.i18n.Messages
 import concurrent.Future
 import backend.{AnonymousUser, Backend}
 import play.api.data.Form
 import play.api.data.Forms._
 import play.api.mvc.Result
-import play.api.i18n.Messages
 import java.net.ConnectException
 import controllers.core.auth.AccountHelpers
 
@@ -22,9 +22,10 @@ trait OpenIDLoginHandler extends AccountHelpers {
 
   self: Controller with CoreActionBuilders =>
 
-  val backend: Backend
-  val accounts: auth.AccountManager
-  val globalConfig: global.GlobalConfig
+  def backend: Backend
+  def accounts: auth.AccountManager
+  def globalConfig: global.GlobalConfig
+  implicit def app: play.api.Application
 
   val attributes = Seq(
     "email" -> "http://schema.openid.net/contact/email",
@@ -48,6 +49,7 @@ trait OpenIDLoginHandler extends AccountHelpers {
   protected def OpenIdLoginAction(handler: Call) = new ActionBuilder[OpenIDRequest] {
     override def invokeBlock[A](request: Request[A], block: (OpenIDRequest[A]) => Future[Result]): Future[Result] = {
       implicit val r = request
+      implicit val a = app
       try {
         val boundForm: Form[String] = openidForm.bindFromRequest
         boundForm.fold(
@@ -85,10 +87,10 @@ trait OpenIDLoginHandler extends AccountHelpers {
 
   protected def OpenIdCallbackAction = new ActionBuilder[OpenIdCallbackRequest] {
     override def invokeBlock[A](request: Request[A], block: (OpenIdCallbackRequest[A]) => Future[Result]): Future[Result] = {
-      import play.api.Play.current
       implicit val r = request
+      implicit val a = app
 
-      OpenID.verifiedId(request).flatMap { info =>
+      OpenID.verifiedId(request, app).flatMap { info =>
 
         // check if there's a user with the right id
         accounts.openId.findByUrl(info.id).flatMap {

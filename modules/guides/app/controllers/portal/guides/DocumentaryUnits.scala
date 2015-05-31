@@ -2,18 +2,20 @@ package controllers.portal.guides
 
 import auth.AccountManager
 import backend.Backend
-import com.google.inject._
+import javax.inject._
 import controllers.generic.SearchType
 import controllers.portal.FacetConfig
 import controllers.portal.base.{Generic, PortalController}
 import models.{Guide, GuidePage, _}
+import play.api.cache.CacheApi
+import play.api.i18n.MessagesApi
 import utils.search.{SearchConstants, SearchItemResolver, SearchEngine}
 
 import play.api.libs.concurrent.Execution.Implicits._
 
 @Singleton
-case class DocumentaryUnits @Inject()(implicit globalConfig: global.GlobalConfig, searchEngine: SearchEngine, searchResolver: SearchItemResolver, backend: Backend,
-                            accounts: AccountManager, pageRelocator: utils.MovedPageLookup)
+case class DocumentaryUnits @Inject()(implicit app: play.api.Application, cache: CacheApi, globalConfig: global.GlobalConfig, searchEngine: SearchEngine, searchResolver: SearchItemResolver, backend: Backend,
+                            accounts: AccountManager, pageRelocator: utils.MovedPageLookup, messagesApi: MessagesApi, guideDAO: GuideDAO)
   extends PortalController
   with Generic[DocumentaryUnit]
   with SearchType[DocumentaryUnit]
@@ -21,7 +23,7 @@ case class DocumentaryUnits @Inject()(implicit globalConfig: global.GlobalConfig
 
   def browse(path: String, id: String) = GetItemAction(id).async { implicit request =>
     futureItemOr404 {
-      Guide.find(path, activeOnly = true).map { guide =>
+      guideDAO.find(path, activeOnly = true).map { guide =>
         val filterKey = if (!hasActiveQuery(request)) SearchConstants.PARENT_ID
           else SearchConstants.ANCESTOR_IDS
 
@@ -32,7 +34,7 @@ case class DocumentaryUnits @Inject()(implicit globalConfig: global.GlobalConfig
           Ok(views.html.guides.documentaryUnit(
             guide,
             GuidePage.document(Some(request.item.toStringLang)),
-            guide.findPages(),
+            guideDAO.findPages(guide),
             request.item,
             result,
             controllers.portal.guides.routes.DocumentaryUnits.browse(path, id),

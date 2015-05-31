@@ -1,7 +1,6 @@
 package controllers.portal
 
 import auth.AccountManager
-import play.api.Play.current
 import controllers.generic.Search
 import models._
 import play.api.libs.concurrent.Execution.Implicits._
@@ -10,19 +9,20 @@ import utils.search._
 import defines.EntityType
 import backend.{IdGenerator, Backend}
 import utils._
-import com.google.inject._
+import javax.inject._
 import scala.concurrent.Future
 import scala.concurrent.Future.{successful => immediate}
 import backend.rest.{ItemNotFound, Constants}
-import play.api.i18n.Lang
+import play.api.i18n.{MessagesApi, Messages}
 import play.api.http.HeaderNames
-import play.api.cache.Cache
+import play.api.cache.CacheApi
 import models.base.AnyModel
 import controllers.portal.base.PortalController
 
+
 @Singleton
-case class Bookmarks @Inject()(implicit globalConfig: global.GlobalConfig, searchEngine: SearchEngine, searchResolver: SearchItemResolver, backend: Backend,
-    accounts: AccountManager, idGenerator: IdGenerator, pageRelocator: utils.MovedPageLookup)
+case class Bookmarks @Inject()(implicit app: play.api.Application, cache: CacheApi, globalConfig: global.GlobalConfig, searchEngine: SearchEngine, searchResolver: SearchItemResolver, backend: Backend,
+    accounts: AccountManager, idGenerator: IdGenerator, pageRelocator: utils.MovedPageLookup, messagesApi: MessagesApi)
   extends PortalController
   with FacetConfig
   with Search {
@@ -33,8 +33,8 @@ case class Bookmarks @Inject()(implicit globalConfig: global.GlobalConfig, searc
   private def defaultBookmarkSetId(implicit user: UserProfile): String =
     s"${user.id}-bookmarks"
 
-  private def bookmarkLang(implicit lang: Lang): String =
-    utils.i18n.lang2to3lookup.getOrElse(lang.language, utils.i18n.defaultLang)
+  private def bookmarkLang(implicit messages: Messages): String =
+    utils.i18n.lang2to3lookup.getOrElse(messages.lang.language, utils.i18n.defaultLang)
 
   /**
    * Implicit helper to transform an in-scope `ProfileRequest` (of any type)
@@ -66,7 +66,7 @@ case class Bookmarks @Inject()(implicit globalConfig: global.GlobalConfig, searc
 
   private def createVirtualCollection(bs: BookmarkSet, items: List[String] = Nil)(implicit user: UserProfile): Future[VirtualUnit] =
     for {
-      nextid <- idGenerator.getNextNumericIdentifier(EntityType.VirtualUnit)
+      nextid <- idGenerator.getNextNumericIdentifier(EntityType.VirtualUnit, "%06d")
       vuForm = bookmarkSetToVu(s"${user.id}-vu$nextid", bs)
       vu <- userBackend.create[VirtualUnit,VirtualUnitF](
         vuForm,
@@ -108,7 +108,7 @@ case class Bookmarks @Inject()(implicit globalConfig: global.GlobalConfig, searc
     }
 
     getOrCreateBS(bsId).map { vu =>
-      Cache.remove(vu.id)
+      cache.remove(vu.id)
       if (isAjax) Ok("ok")
         .withHeaders(HeaderNames.LOCATION -> vuRoutes.browseVirtualCollection(vu.id).url)
       else Redirect(bmRoutes.listBookmarkSets())

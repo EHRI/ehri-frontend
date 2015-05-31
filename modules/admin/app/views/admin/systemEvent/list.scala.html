@@ -1,4 +1,4 @@
-@(page: utils.RangePage[Seq[SystemEvent]], params: utils.RangeParams, filterForm: Form[utils.SystemEventParams], users: Seq[(String,String)], call: Call)(implicit userOpt: Option[UserProfile], req: RequestHeader, globalConfig: global.GlobalConfig, lang: Lang, flash: Flash)
+@(page: utils.RangePage[Seq[SystemEvent]], params: utils.RangeParams, filterForm: Form[utils.SystemEventParams], users: Seq[(String,String)], call: Call)(implicit userOpt: Option[UserProfile], req: RequestHeader, globalConfig: global.GlobalConfig, messages: Messages, flash: Flash)
 
 @import backend.rest.Constants._
 @implicitField = @{ views.html.helper.FieldConstructor(formHelpers.cleanFieldTemplate.f) }

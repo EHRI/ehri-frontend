@@ -1,20 +1,22 @@
 package controllers.vocabularies
 
 import auth.AccountManager
+import play.api.cache.CacheApi
+import play.api.i18n.MessagesApi
 import play.api.libs.concurrent.Execution.Implicits._
 import forms.VisibilityForm
 import controllers.generic._
 import models._
 import defines.{ContentTypes, EntityType}
 import utils.search.{SearchConstants, SearchIndexer, SearchItemResolver, SearchEngine}
-import com.google.inject._
+import javax.inject._
 import scala.concurrent.Future.{successful => immediate}
 import backend.Backend
 import controllers.base.AdminController
 
 
 @Singleton
-case class Vocabularies @Inject()(implicit globalConfig: global.GlobalConfig, searchEngine: SearchEngine, searchIndexer: SearchIndexer, searchResolver: SearchItemResolver, backend: Backend, accounts: AccountManager, pageRelocator: utils.MovedPageLookup)
+case class Vocabularies @Inject()(implicit app: play.api.Application, cache: CacheApi, globalConfig: global.GlobalConfig, searchEngine: SearchEngine, searchIndexer: SearchIndexer, searchResolver: SearchItemResolver, backend: Backend, accounts: AccountManager, pageRelocator: utils.MovedPageLookup, messagesApi: MessagesApi)
   extends AdminController
   with CRUD[VocabularyF,Vocabulary]
   with Creator[ConceptF, Concept, Vocabulary]

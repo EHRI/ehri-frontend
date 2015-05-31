@@ -1,4 +1,4 @@
-@(value: Option[Seq[String]], fieldName: String, transformFunc: (String => String) = s => s)(implicit fieldPrefix: String = "")
+@(value: Option[Seq[String]], fieldName: String, transformFunc: (String => String) = s => s)(implicit fieldPrefix: String = "", messages: Messages)
 
 @value.map { list =>
     @if(list.nonEmpty) {

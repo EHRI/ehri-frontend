@@ -17,6 +17,14 @@ class UserProfilesSpec extends IntegrationTestRunner with FakeMultipartUpload {
   private val profileRoutes = controllers.portal.users.routes.UserProfiles
   private val portalRoutes = controllers.portal.routes.Portal
 
+  private def getProfileImage: File = {
+    // Bit dodgy here, upload the project logo as our profile image
+    val tmpFile = java.io.File.createTempFile("anImage", ".png")
+    tmpFile.deleteOnExit()
+    FileUtils.copyFile(new File("modules/portal/public/img/logo.png"), tmpFile)
+    tmpFile
+  }
+
   "Portal views" should {
     "allow watching and unwatching items" in new ITestApp {
       val watch = route(fakeLoggedInHtmlRequest(privilegedUser,
@@ -121,6 +129,7 @@ class UserProfilesSpec extends IntegrationTestRunner with FakeMultipartUpload {
 
     "not allow uploading non-image files as profile image" in new ITestApp {
       val tmpFile = java.io.File.createTempFile("notAnImage", ".txt")
+      FileUtils.write(tmpFile, "Hello, world\n")
       tmpFile.deleteOnExit()
       val result = route(fakeLoggedInHtmlRequest(privilegedUser,
         profileRoutes.updateProfileImagePost())
@@ -130,17 +139,22 @@ class UserProfilesSpec extends IntegrationTestRunner with FakeMultipartUpload {
     }
 
     "allow uploading image files as profile image" in new ITestApp {
-      // Bit dodgy here, upload the project logo as our profile image
-      val tmpFile = java.io.File.createTempFile("anImage", ".png")
-      FileUtils.copyFile(new File("modules/portal/public/img/logo.png"), tmpFile)
       val result = route(fakeLoggedInHtmlRequest(privilegedUser,
         profileRoutes.updateProfileImagePost())
-        .withFileUpload("image", tmpFile, "image/png")).get
-      println(contentAsString(result))
+        .withFileUpload("image", getProfileImage, "image/png")).get
       status(result) must equalTo(SEE_OTHER)
       storedFileBuffer.lastOption must beSome.which { f =>
         f.toString must endingWith(s"${privilegedUser.id}.png")
       }
+    }
+
+    "prevent uploading files that are too large" in new ITestApp(
+        Map("ehri.portal.profile.maxImageSize" -> 10)) {
+      val result = route(fakeLoggedInHtmlRequest(privilegedUser,
+        profileRoutes.updateProfileImagePost())
+        .withFileUpload("image", getProfileImage, "image/png")).get
+      status(result) must equalTo(REQUEST_ENTITY_TOO_LARGE)
+      contentAsString(result) must contain(Messages("errors.imageTooLarge"))
     }
 
     "allow deleting profile with correct confirmation" in new ITestApp {

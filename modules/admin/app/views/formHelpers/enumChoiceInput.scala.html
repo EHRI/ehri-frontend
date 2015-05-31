@@ -1,4 +1,4 @@
-@(f: play.api.data.Field, enum: Enumeration, label: String, blank: Boolean = false)(implicit fieldPrefix: String = "", fieldConstructor: views.html.helper.FieldConstructor)
+@(f: play.api.data.Field, enum: Enumeration, label: String, blank: Boolean = false)(implicit fieldPrefix: String = "", fieldConstructor: views.html.helper.FieldConstructor, messages: Messages)
 
 @helper.select(
   field = f,

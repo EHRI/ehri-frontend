@@ -1,4 +1,4 @@
-@(item: Repository)(implicit req: RequestHeader, lang: Lang)
+@(item: Repository)(implicit req: RequestHeader, messages: Messages)
 
 @item.model.logoUrl.map { logo =>
     <a class="repository-logo" href="@controllers.portal.routes.Repositories.browse(item.id)">

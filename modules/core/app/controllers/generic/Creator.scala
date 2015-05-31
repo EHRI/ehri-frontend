@@ -31,8 +31,8 @@ trait Creator[CF <: Model with Persistable, CMT <: MetaModel[CF], MT <: MetaMode
   private[generic] def NewChildTransformer(implicit ct: ContentType[MT]) = new ActionTransformer[ItemPermissionRequest, NewChildRequest] {
     override protected def transform[A](request: ItemPermissionRequest[A]): Future[NewChildRequest[A]] = {
       for {
-        users <- RestHelpers.getUserList
-        groups <- RestHelpers.getGroupList
+        users <- getUserList
+        groups <- getGroupList
       } yield NewChildRequest(request.item, users, groups, request.userOpt, request)
     }
   }

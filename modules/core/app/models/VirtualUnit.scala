@@ -11,7 +11,7 @@ import eu.ehri.project.definitions.Ontology
 import backend.rest.Constants
 import play.api.data.Form
 import play.api.data.Forms._
-import play.api.i18n.Lang
+import play.api.i18n.Messages
 import backend._
 import play.api.libs.json.JsObject
 
@@ -127,9 +127,9 @@ case class VirtualUnit(
   with DescribedMeta[DocumentaryUnitDescriptionF, VirtualUnitF]
   with Accessible {
 
-  override def toStringLang(implicit lang: Lang): String = {
-    if (model.descriptions.nonEmpty) super.toStringLang(lang)
-    else includedUnits.headOption.map(_.toStringLang(lang)).getOrElse(id)
+  override def toStringLang(implicit messages: Messages): String = {
+    if (model.descriptions.nonEmpty) super.toStringLang(messages)
+    else includedUnits.headOption.map(_.toStringLang(messages)).getOrElse(id)
   }
 
   def allDescriptions: Seq[DocumentaryUnitDescriptionF]

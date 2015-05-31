@@ -4,6 +4,7 @@ import backend.rest.cypher.CypherDAO
 import models.VirtualUnit
 import models.base.AnyModel
 import play.api.Logger
+import play.api.cache.CacheApi
 import play.api.mvc.Controller
 import utils.search.SearchConstants
 import utils.search.SearchConstants._
@@ -19,7 +20,8 @@ import play.api.libs.concurrent.Execution.Implicits._
 trait SearchVC {
   this: Controller with ControllerHelpers =>
 
-  import play.api.Play.current
+  implicit def app: play.api.Application
+  implicit def cache: CacheApi
 
   /**
    * Fetch a list of descendant IDs for a given virtual collection
@@ -48,7 +50,7 @@ trait SearchVC {
       """.stripMargin, Map("vcid" -> play.api.libs.json.JsString(id)))(reader).map { seq =>
       Logger.debug(s"Elements: ${seq.length}, distinct: ${seq.distinct.length}")
 
-      current.configuration.getInt("search.vc.maxDescendants").map { vcLimit =>
+      app.configuration.getInt("search.vc.maxDescendants").map { vcLimit =>
         if (seq.length > vcLimit) {
           Logger.error(s"Truncating clauses on child item search for $id: items ${seq.length}")
           seq.distinct.take(vcLimit)

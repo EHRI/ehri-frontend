@@ -1,22 +1,25 @@
 package controllers.portal
 
+import com.google.inject.{Inject, Singleton}
+import play.api.cache.{Cached, CacheApi}
 import play.api.http.{ContentTypes, MimeTypes}
-import play.api.Routes
-import play.api.mvc.{Cookie, Controller, Action}
-import play.api.cache.Cached
-import play.api.Play.current
+import play.api.i18n.MessagesApi
+import play.api.mvc.{Controller, Action}
 
 
 
 /**
  * @author Mike Bryant (http://github.com/mikesname)
  */
-object PortalData extends Controller {
+@Singleton
+case class PortalData @Inject()(implicit app: play.api.Application, cache: CacheApi, messagesApi: MessagesApi) extends Controller with play.api.i18n.I18nSupport {
 
-  def jsRoutes = Cached.status(_ => "pages:portalJsRoutes", OK, 3600) {
+  private val statusCache = new Cached(cache)
+
+  def jsRoutes = statusCache.status(_ => "pages:portalJsRoutes", OK, 3600) {
     Action { implicit request =>
       Ok(
-        Routes.javascriptRouter("jsRoutes")(
+        play.api.routing.JavaScriptReverseRouter("jsRoutes")(
           controllers.portal.routes.javascript.Bookmarks.moveBookmarksPost,
           controllers.portal.routes.javascript.Bookmarks.contents,
           controllers.portal.routes.javascript.Bookmarks.bookmarkPost,
@@ -57,7 +60,7 @@ object PortalData extends Controller {
    * Render entity types into the view to serve as JS constants.
    * @return
    */
-  def globalData = Cached.status(_ => "pages:globalData", OK, 3600) {
+  def globalData = statusCache.status(_ => "pages:globalData", OK, 3600) {
     Action { implicit request =>
       import defines.EntityType
       Ok(
@@ -79,7 +82,7 @@ object PortalData extends Controller {
     MovedPermanently("/" + path + query)
   }
 
-  def localeData(lang: String) = Cached.status(_ => "pages:localeData", OK, 3600) {
+  def localeData(lang: String) = statusCache.status(_ => "pages:localeData", OK, 3600) {
     Action { request =>
       implicit val locale = play.api.i18n.Lang(lang)
 

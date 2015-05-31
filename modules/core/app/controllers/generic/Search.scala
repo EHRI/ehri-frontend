@@ -79,7 +79,7 @@ trait Search extends CoreActionBuilders {
     defaultParams: SearchParams = SearchParams.empty,
     defaultOrder: SearchOrder.Value = SearchOrder.DateNewest,
     facetBuilder: FacetBuilder = emptyFacets
-  )(implicit userOpt: Option[UserProfile], request: RequestHeader): SearchEngine = {
+  )(implicit userOpt: Option[UserProfile], request: RequestHeader): SearchEngineConfig = {
     val params = defaultParams
       .copy(sort = defaultSortFunction(defaultParams, request, fallback = defaultOrder))
 
@@ -92,7 +92,7 @@ trait Search extends CoreActionBuilders {
     val facetClasses = facetBuilder(request)
     val appliedFacets: Seq[AppliedFacet] = bindFacetsFromRequest(facetClasses)
 
-    searchEngine
+    searchEngine.config
       .setParams(sp)
       .withFacets(appliedFacets)
       .withFacetClasses(facetClasses)
@@ -223,6 +223,6 @@ trait Search extends CoreActionBuilders {
       .value.getOrElse(SearchParams.empty)
       .setDefault(params)
 
-    searchEngine.setParams(sp).withFilters(filters).filter().map(_.page)
+    searchEngine.config.setParams(sp).withFilters(filters).filter().map(_.page)
   }
 }

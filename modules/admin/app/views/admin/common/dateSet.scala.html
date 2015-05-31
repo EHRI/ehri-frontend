@@ -1,4 +1,4 @@
-@(item: Temporal, fieldName: String)(implicit fieldPrefix: String, userOpt: Option[UserProfile], request: RequestHeader, lang: Lang)
+@(item: Temporal, fieldName: String)(implicit fieldPrefix: String, userOpt: Option[UserProfile], request: RequestHeader, messages: Messages)
 
 @if(item.dates.nonEmpty) {
     <div class="item-text-field" id="@fieldName">

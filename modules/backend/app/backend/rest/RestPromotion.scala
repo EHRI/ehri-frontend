@@ -1,7 +1,6 @@
 package backend.rest
 
 import scala.concurrent.Future
-import play.api.cache.Cache
 import backend._
 import play.api.libs.ws.WSResponse
 
@@ -14,7 +13,7 @@ trait RestPromotion extends Promotion with RestDAO with RestContext {
 
   private def handler[MT: Resource](id: String, response: WSResponse): MT = {
     val item: MT = checkErrorAndParse(response)(Resource[MT].restReads)
-    Cache.remove(canonicalUrl(id))
+    cache.remove(canonicalUrl(id))
     eventHandler.handleUpdate(id)
     item
   }

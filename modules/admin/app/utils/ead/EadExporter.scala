@@ -1,5 +1,6 @@
 package utils.ead
 
+import play.api.i18n.Messages
 import play.api.libs.concurrent.Execution.Implicits._
 import backend.{BackendHandle, ApiUser}
 import scala.concurrent.Future
@@ -39,7 +40,7 @@ case class EadExporter(backendHandle: BackendHandle)(implicit apiUser: ApiUser) 
   /**
    * Fetch an EAD document.
    */
-  def exportEad(id: String, eadId: String): Future[String] = for {
+  def exportEad(id: String, eadId: String)(implicit messages: Messages): Future[String] = for {
     doc <- backendHandle.get[DocumentaryUnit](id)
     repository <- fetchRepository(doc.holder.map(_.id))
     tree <- fetchTree(id, eadId)

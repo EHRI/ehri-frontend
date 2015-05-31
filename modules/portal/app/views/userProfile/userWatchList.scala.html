@@ -1,4 +1,4 @@
-@(item: UserProfile, watchList: utils.search.SearchResult[(models.base.AnyModel,utils.search.SearchHit)], followed: Boolean, canMessage: Boolean, currentWatchedIds: Seq[String])(implicit userOpt: Option[UserProfile], request: RequestHeader, prefs: utils.SessionPrefs, globalConfig: global.GlobalConfig, lang: Lang, flash: Flash)
+@(item: UserProfile, watchList: utils.search.SearchResult[(models.base.AnyModel,utils.search.SearchHit)], followed: Boolean, canMessage: Boolean, currentWatchedIds: Seq[String])(implicit userOpt: Option[UserProfile], request: RequestHeader, prefs: utils.SessionPrefs, globalConfig: global.GlobalConfig, messages: Messages, flash: Flash)
 
 @views.html.layout.portalLayout(item.toStringLang, "userProfile") {
     @views.html.layout.mainContent {

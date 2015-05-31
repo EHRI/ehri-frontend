@@ -3,6 +3,7 @@ package controllers.portal.account
 import auth.oauth2.OAuth2Flow
 import auth.oauth2.providers.{GoogleOAuth2Provider, YahooOAuth2Provider, FacebookOAuth2Provider}
 import auth.{HashedPassword, AccountManager}
+import play.api.cache.CacheApi
 import play.api.data.Form
 import play.api.mvc._
 import models._
@@ -13,10 +14,9 @@ import controllers.core.auth.oauth2._
 import controllers.core.auth.openid.OpenIDLoginHandler
 import controllers.core.auth.userpass.UserPasswordLoginHandler
 import global.GlobalConfig
-import play.api.Play._
 import utils.forms._
 import java.util.UUID
-import play.api.i18n.Messages
+import play.api.i18n.{MessagesApi, Messages}
 import com.google.common.net.HttpHeaders
 import controllers.core.auth.AccountHelpers
 import scala.concurrent.Future
@@ -31,8 +31,8 @@ import controllers.portal.base.PortalController
  * @author Mike Bryant (http://github.com/mikesname)
  */
 @Singleton
-case class Accounts @Inject()(implicit globalConfig: GlobalConfig, searchEngine: SearchEngine, searchResolver: SearchItemResolver, backend: Backend,
-                             accounts: AccountManager, mailer: MailerAPI, oAuth2Flow: OAuth2Flow, pageRelocator: utils.MovedPageLookup)
+case class Accounts @Inject()(implicit app: play.api.Application, cache: CacheApi, globalConfig: GlobalConfig, searchEngine: SearchEngine, searchResolver: SearchItemResolver, backend: Backend,
+                             accounts: AccountManager, mailer: MailerAPI, oAuth2Flow: OAuth2Flow, pageRelocator: utils.MovedPageLookup, messagesApi: MessagesApi)
   extends LoginLogout
   with PortalController
   with OpenIDLoginHandler
@@ -43,16 +43,16 @@ case class Accounts @Inject()(implicit globalConfig: GlobalConfig, searchEngine:
   private val portalRoutes = controllers.portal.routes.Portal
   private val accountRoutes = controllers.portal.account.routes.Accounts
 
-  private def recaptchaKey = current.configuration.getString("recaptcha.key.public")
+  private def recaptchaKey = app.configuration.getString("recaptcha.key.public")
     .getOrElse("fakekey")
 
-  private def rateLimitTimeoutSecs = current.configuration.getInt("ehri.ratelimit.timeout")
+  private def rateLimitTimeoutSecs = app.configuration.getInt("ehri.ratelimit.timeout")
     .getOrElse(3600)
 
   private def rateLimitError(implicit r: RequestHeader) =
     Messages("error.rateLimit", rateLimitTimeoutSecs / 60)
 
-  override val oauth2Providers = Seq(GoogleOAuth2Provider, FacebookOAuth2Provider, YahooOAuth2Provider)
+  override val oauth2Providers = Seq(GoogleOAuth2Provider(), FacebookOAuth2Provider(), YahooOAuth2Provider())
 
   /**
    * Prevent people signin up, logging in etc when in read-only mode.

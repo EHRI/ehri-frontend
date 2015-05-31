@@ -1,31 +1,31 @@
 package caching
 
+import scala.concurrent.duration.Duration
 import scala.concurrent.{ExecutionContext, Future}
 import scala.reflect.ClassTag
-import play.api.cache.Cache
+import play.api.cache.CacheApi
 
 /**
  * Wrapper around Play's simple Cache api for more convenience when
  * using an asynchronous data source.
  */
 object FutureCache {
-  def getOrElse[A](key: String, expiration: Int = 0)(orElse : => Future[A])(implicit app: play.api.Application, ct: ClassTag[A], executionContext: ExecutionContext): Future[A] = {
-    Cache.getAs[A](key) match {
+  def getOrElse[A](key: String, expiration: Duration = Duration.Inf)(orElse : => Future[A])(implicit cache: CacheApi, ct: ClassTag[A], executionContext: ExecutionContext): Future[A] = {
+    cache.get[A](key) match {
       case Some(a) => Future.successful(a)
-      case _ => {
+      case _ =>
         val value = orElse
         value.map { a =>
-          Cache.set(key, a, expiration)
+          cache.set(key, a, expiration)
           a
         }
-      }
     }
   }
 
-  def set[A](key: String, expiration: Int = 0)(get: => Future[A])(implicit app: play.api.Application, ct: ClassTag[A], executionContext: ExecutionContext): Future[A] = {
+  def set[A](key: String, expiration: Duration = Duration.Inf)(get: => Future[A])(implicit cache: CacheApi, ct: ClassTag[A], executionContext: ExecutionContext): Future[A] = {
     val value = get
     value.map { a =>
-      Cache.set(key, a, expiration)
+      cache.set(key, a, expiration)
       a
     }
   }

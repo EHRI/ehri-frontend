@@ -1,6 +1,8 @@
 package eu.ehri.project.search.solr
 
 
+import javax.inject.Inject
+
 import scala.xml.{XML, Node, Elem}
 import defines.EntityType
 import utils.search._
@@ -10,7 +12,7 @@ import utils.search.SearchHit
  * Helper class for parsing a Solr XML Response.
  */
 
-object XmlResponseHandler extends ResponseHandler{
+case class XmlResponseHandler @Inject()(app: play.api.Application) extends ResponseHandler {
   override def getResponseParser(responseBody: String): QueryResponseExtractor = new QueryResponseExtractor {
 
     lazy val response: Elem = XML.loadString(responseBody)

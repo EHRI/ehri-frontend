@@ -1,4 +1,4 @@
-@(item: models.base.DescribedMeta[_,_], desc: models.base.Description, annotations: Seq[Annotation])(html: Html)(implicit fieldPrefix: String, userOpt: Option[UserProfile], req: RequestHeader, prefs: utils.SessionPrefs, lang: Lang, globalConfig: global.GlobalConfig)
+@(item: models.base.DescribedMeta[_,_], desc: models.base.Description, annotations: Seq[Annotation])(html: Html)(implicit fieldPrefix: String, userOpt: Option[UserProfile], req: RequestHeader, prefs: utils.SessionPrefs, messages: Messages, globalConfig: global.GlobalConfig)
 
 @import models.base.Description.CreationProcess
 

@@ -1,4 +1,4 @@
-@()(implicit req: RequestHeader, globalConfig: global.GlobalConfig, lang: Lang)
+@()(implicit req: RequestHeader, globalConfig: global.GlobalConfig, messages: Messages)
 
 @footerLink(call: Call, code: String) = {
     <li class="@views.Helpers.maybeActive(call.url)">
@@ -15,7 +15,7 @@
     <ul id="lang-switcher">
         @globalConfig.languages.map(c => (c, new java.util.Locale(c))).map { case (changeLang, locale) =>
         <li>
-            @if(lang.toString.toLowerCase.contains(changeLang)) {
+            @if(messages.lang.toString.toLowerCase.contains(changeLang)) {
             @locale.getDisplayName(locale).toLowerCase
             } else {
             <a href="@controllers.portal.routes.Portal.changeLocale(changeLang)">

@@ -1,4 +1,4 @@
-@(item: DocumentaryUnit, desc: DocumentaryUnitDescriptionF, links: Seq[Link], annotations: Seq[Annotation])(implicit fieldPrefix: String, userOpt: Option[UserProfile], req: RequestHeader, prefs: utils.SessionPrefs, globalConfig: global.GlobalConfig, lang: Lang)
+@(item: DocumentaryUnit, desc: DocumentaryUnitDescriptionF, links: Seq[Link], annotations: Seq[Annotation])(implicit fieldPrefix: String, userOpt: Option[UserProfile], req: RequestHeader, prefs: utils.SessionPrefs, globalConfig: global.GlobalConfig, messages: Messages)
 @import models.base.Description.CreationProcess
 
 @import models.IsadG._

@@ -1,4 +1,4 @@
-@(item: Group)(implicit req: RequestHeader, lang: Lang)
+@(item: Group)(implicit req: RequestHeader, messages: Messages)
 
 @common.search.searchItemOutline(item) {
     <a href="@controllers.groups.routes.Groups.get(item.id)">@item.toStringLang</a>

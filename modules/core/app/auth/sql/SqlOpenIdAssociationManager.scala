@@ -4,7 +4,7 @@ import java.sql.Connection
 
 import auth.OpenIdAssociationManager
 import models.OpenIDAssociation
-import play.api.db.DB
+import play.api.db.Database
 
 import scala.concurrent.{Future, ExecutionContext}
 import anorm.SqlParser._
@@ -30,26 +30,26 @@ object SqlOpenIdAssociationManager {
 /**
  * @author Mike Bryant (http://github.com/mikesname)
  */
-case class SqlOpenIdAssociationManager()(implicit app: play.api.Application, executionContext: ExecutionContext)
+case class SqlOpenIdAssociationManager()(implicit db: Database, app: play.api.Application, executionContext: ExecutionContext)
   extends OpenIdAssociationManager{
 
   import SqlOpenIdAssociationManager._
 
   def findByUrl(url: String): Future[Option[OpenIDAssociation]] = Future {
-    DB.withConnection { implicit connection =>
+    db.withConnection { implicit connection =>
       getByUrl(url)
     }
   }(executionContext)
 
   def addAssociation(id: String, url: String): Future[Option[OpenIDAssociation]] = Future {
-    DB.withConnection { implicit connection =>
+    db.withConnection { implicit connection =>
       SQL"INSERT INTO openid_association (id, openid_url) VALUES ($id, $url)".executeInsert()
       getByUrl(url)
     }
   }(executionContext)
 
   def findAll: Future[Seq[OpenIDAssociation]] = Future {
-    DB.withConnection { implicit conn =>
+    db.withConnection { implicit conn =>
       SQL"""
         SELECT users.*,  openid_association.*
         FROM openid_association

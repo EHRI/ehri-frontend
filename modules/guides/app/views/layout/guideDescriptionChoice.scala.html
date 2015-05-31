@@ -1,4 +1,4 @@
-@(descriptions: Seq[models.base.Description])(implicit userOpt: Option[UserProfile], req: RequestHeader, lang: Lang)
+@(descriptions: Seq[models.base.Description])(implicit userOpt: Option[UserProfile], req: RequestHeader, messages: Messages)
 
 @if(descriptions.size > 1) {
 <div class="sidebar-section">

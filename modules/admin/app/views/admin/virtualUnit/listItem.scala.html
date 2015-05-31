@@ -1,4 +1,4 @@
-@(item: AnyModel, path: Seq[AnyModel])(implicit userOpt: Option[UserProfile], req: RequestHeader, globalConfig: global.GlobalConfig, lang: Lang, descriptionId: Option[String] = None)
+@(item: AnyModel, path: Seq[AnyModel])(implicit userOpt: Option[UserProfile], req: RequestHeader, globalConfig: global.GlobalConfig, messages: Messages, descriptionId: Option[String] = None)
 
 @common.search.searchItemOutline(item) {
     @* include an anchor to the selected description *@

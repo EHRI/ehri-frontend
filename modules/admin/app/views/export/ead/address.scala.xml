@@ -1,4 +1,4 @@
-@(address: AddressF)(implicit lang: Lang)
+@(address: AddressF)(implicit messages: Messages)
 
 @if(!address.toSeq.isEmpty) {
 <address>

@@ -5,15 +5,16 @@ import java.io.File
 import auth.AccountManager
 import controllers.base.AdminController
 import models.Group
+import play.api.cache.CacheApi
 import play.api.data.Form
 import play.api.data.Forms._
+import play.api.i18n.MessagesApi
 import play.api.libs.concurrent.Execution.Implicits._
 
-import com.google.inject._
+import javax.inject._
 import play.api.mvc.Action
 import backend.Backend
 import play.api.libs.ws.WS
-import backend.rest.RestDAO
 import utils.PageParams
 import backend.rest.cypher.CypherDAO
 
@@ -23,12 +24,13 @@ import scala.concurrent.Future.{successful => immediate}
  * Controller for various monitoring functions.
  */
 @Singleton
-case class Utils @Inject()(implicit globalConfig: global.GlobalConfig, backend: Backend, accounts: AccountManager, pageRelocator: utils.MovedPageLookup)
-    extends AdminController with RestDAO {
+case class Utils @Inject()(implicit app: play.api.Application, cache: CacheApi, globalConfig: global.GlobalConfig, backend: Backend, accounts: AccountManager, pageRelocator: utils.MovedPageLookup, messagesApi: MessagesApi)
+    extends AdminController {
 
   override val staffOnly = false
-
-  implicit val app = play.api.Play.current
+  protected def host: String = getConfigString("neo4j.server.host")
+  protected def port: Int = getConfigInt("neo4j.server.port")
+  protected def mount: String = getConfigString("neo4j.server.endpoint")
 
   /**
    * Check the database is up by trying to load the admin account.

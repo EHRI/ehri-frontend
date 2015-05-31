@@ -1,4 +1,4 @@
-@(events: utils.RangePage[Seq[SystemEvent]], params: utils.RangeParams)(implicit userOpt: Option[UserProfile], request: RequestHeader, lang: Lang, globalConfig: global.GlobalConfig, prefs: utils.SessionPrefs, flash: Flash)
+@(events: utils.RangePage[Seq[SystemEvent]], params: utils.RangeParams)(implicit userOpt: Option[UserProfile], request: RequestHeader, messages: Messages, globalConfig: global.GlobalConfig, prefs: utils.SessionPrefs, flash: Flash)
 
 @views.html.layout.portalLayout(Messages("activity"), "user") {
     @views.html.layout.mainContent {

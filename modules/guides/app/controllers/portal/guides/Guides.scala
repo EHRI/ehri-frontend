@@ -4,7 +4,7 @@ import auth.AccountManager
 import backend.Backend
 import backend.rest.cypher.CypherDAO
 import backend.rest.SearchDAO
-import com.google.inject._
+import javax.inject._
 import controllers.base.SearchVC
 import controllers.generic.Search
 import controllers.portal.FacetConfig
@@ -13,12 +13,12 @@ import defines.EntityType
 import models.GuidePage.Layout
 import models.base.AnyModel
 import models.{GeoCoordinates, Guide, GuidePage, _}
-import play.api.Play.current
 import play.api.Routes
-import play.api.cache.Cached
+import play.api.cache.CacheApi
 import play.api.data.Forms._
 import play.api.data._
 import play.api.http.MimeTypes
+import play.api.i18n.MessagesApi
 import play.api.libs.concurrent.Execution.Implicits._
 import play.api.libs.json._
 import play.api.mvc._
@@ -30,8 +30,7 @@ import scala.concurrent.Future.{successful => immediate}
 
 
 @Singleton
-case class Guides @Inject()(implicit globalConfig: global.GlobalConfig, searchEngine: SearchEngine, searchResolver: SearchItemResolver, backend: Backend,
-                            accounts: AccountManager, pageRelocator: utils.MovedPageLookup)
+case class Guides @Inject()(implicit app: play.api.Application, cache: CacheApi, globalConfig: global.GlobalConfig, searchEngine: SearchEngine, searchResolver: SearchItemResolver, backend: Backend, accounts: AccountManager, pageRelocator: utils.MovedPageLookup, messagesApi: MessagesApi, search: SearchDAO, guides: GuideDAO)
   extends PortalController
   with Search
   with SearchVC
@@ -41,10 +40,10 @@ case class Guides @Inject()(implicit globalConfig: global.GlobalConfig, searchEn
   val htmlAgentOrder = utils.search.SearchOrder.Detail
   val htmlConceptOrder = utils.search.SearchOrder.ChildCount
 
-  def jsRoutes = Cached.status(_ => "pages:guideJsRoutes", OK, 3600) {
+  def jsRoutes = statusCache.status(_ => "pages:guideJsRoutes", OK, 3600) {
     Action { implicit request =>
       Ok(
-        Routes.javascriptRouter("jsRoutes")(
+        play.api.routing.JavaScriptReverseRouter("jsRoutes")(
           controllers.portal.routes.javascript.Portal.filterItems,
           controllers.portal.guides.routes.javascript.DocumentaryUnits.browse,
           controllers.portal.routes.javascript.DocumentaryUnits.browse,
@@ -143,15 +142,15 @@ case class Guides @Inject()(implicit globalConfig: global.GlobalConfig, searchEn
   * Return a list of guides
   */
   def listGuides() = OptionalUserAction { implicit request =>
-    Ok(views.html.guides.guidesList(Guide.findAll(activeOnly = true)))
+    Ok(views.html.guides.guidesList(guides.findAll(activeOnly = true)))
   }
 
   /*
   * Return a homepage for a guide
   */
   def home(path: String) = itemOr404Action {
-    Guide.find(path, activeOnly = true).map { guide =>
-      guideLayout(guide, guide.getDefaultPage)
+    guides.find(path, activeOnly = true).map { guide =>
+      guideLayout(guide, guides.getDefaultPage(guide))
     }
   }
 
@@ -159,8 +158,8 @@ case class Guides @Inject()(implicit globalConfig: global.GlobalConfig, searchEn
   * Return a layout for a guide and a given path
   */
   def layoutRetrieval(path: String, page: String) = itemOr404Action {
-    Guide.find(path, activeOnly = true).map { guide =>
-      guideLayout(guide, guide.findPage(page))
+    guides.find(path, activeOnly = true).map { guide =>
+      guideLayout(guide, guides.findPage(guide, page))
     }
   }
 
@@ -255,7 +254,7 @@ case class Guides @Inject()(implicit globalConfig: global.GlobalConfig, searchEn
     } yield render {
       case Accepts.Html() =>
         if (isAjax) Ok(views.html.guides.ajax(guide, page, r.page, r.params, links))
-        else Ok(views.html.guides.person(guide, page, guide.findPages(), r.page, r.params, links))
+        else Ok(views.html.guides.person(guide, page, guides.findPages(guide), r.page, r.params, links))
       case Accepts.Json() =>
         Ok(guideJson(r.page, request, links))
     }
@@ -280,7 +279,7 @@ case class Guides @Inject()(implicit globalConfig: global.GlobalConfig, searchEn
       } yield render {
           case Accepts.Html() =>
             if (isAjax) Ok(views.html.guides.ajax(guide, page, r.page, r.params, links))
-            else Ok(views.html.guides.places(guide, page, guide.findPages(), r.page, r.params, links, guideJson(r.page, request, links)))
+            else Ok(views.html.guides.places(guide, page, guides.findPages(guide), r.page, r.params, links, guideJson(r.page, request, links)))
           case Accepts.Json() =>
             Ok(guideJson(r.page, request, links))
         }
@@ -301,7 +300,7 @@ case class Guides @Inject()(implicit globalConfig: global.GlobalConfig, searchEn
     } yield render {
       case Accepts.Html() =>
         if (isAjax) Ok(views.html.guides.ajax(guide, page, r.page, r.params, links))
-        else Ok(views.html.guides.organisation(guide, page, guide.findPages(), r.page, r.params, links))
+        else Ok(views.html.guides.organisation(guide, page, guides.findPages(guide), r.page, r.params, links))
       case Accepts.Json() =>
         Ok(guideJson(r.page, request, links))
     }
@@ -311,21 +310,21 @@ case class Guides @Inject()(implicit globalConfig: global.GlobalConfig, searchEn
    *   Layout named "html" (Html)
    */
   def guideHtml(guide: Guide, page: GuidePage) = OptionalUserAction { implicit request =>
-    Ok(views.html.guides.html(guide, page))
+    Ok(views.html.guides.html(guide, page, guides.findPages(guide)))
   }
 
   /*
    *   Layout named "html" (Html)
    */
   def guideMarkdown(guide: Guide, page: GuidePage) = OptionalUserAction { implicit request =>
-    Ok(views.html.guides.markdown(guide, page))
+    Ok(views.html.guides.markdown(guide, page, guides.findPages(guide)))
   }
 
   /**
    * Layout named "timeline"
    */
   def guideTimeline(guide: Guide, page: GuidePage) = OptionalUserAction { implicit request =>
-    Ok(views.html.guides.timeline(guide, page))
+    Ok(views.html.guides.timeline(guide, page, guides.findPages(guide)))
   }
 
   private def getFacetQuery(ids: Seq[String]): String = {
@@ -421,7 +420,7 @@ case class Guides @Inject()(implicit globalConfig: global.GlobalConfig, searchEn
   }
 
   private def mapAccessPoints(guide: Guide, facets: Seq[AnyModel]): Map[String, Seq[AnyModel]] = {
-    guide.findPages().map { page =>
+    guides.findPages(guide).map { page =>
       page.content -> facets.collect {
         case f: Concept if f.vocabulary.exists(_.id == page.content) => f
         case f: HistoricalAgent if f.set.exists(_.id == page.content) => f
@@ -433,7 +432,7 @@ case class Guides @Inject()(implicit globalConfig: global.GlobalConfig, searchEn
   *   Faceted search
   */
   def guideFacets(path: String) = OptionalUserAction.async { implicit request =>
-    Guide.find(path, activeOnly = true).map { guide =>
+    guides.find(path, activeOnly = true).map { guide =>
       /*
        *  If we have keyword, we make a query 
        */
@@ -446,7 +445,7 @@ case class Guides @Inject()(implicit globalConfig: global.GlobalConfig, searchEn
       } yield Ok(views.html.guides.facet(
         guide,
         GuidePage.faceted,
-        guide.findPages(),
+        guides.findPages(guide),
         result,
         Map.empty,
         controllers.portal.guides.routes.Guides.guideFacets(path)
@@ -460,14 +459,14 @@ case class Guides @Inject()(implicit globalConfig: global.GlobalConfig, searchEn
             filters = Map(s"gid:(${ids.take(1024).mkString(" ")})" -> Unit),
             defaultOrder = SearchOrder.Name
           ) else immediate(SearchResult.empty)
-          selectedAccessPoints <- SearchDAO.list[AnyModel](facets)
+          selectedAccessPoints <- search.list[AnyModel](facets)
           availableFacets <- otherFacets(guide, ids)
-          tempAccessPoints <- SearchDAO.listByGid[AnyModel](availableFacets)
+          tempAccessPoints <- search.listByGid[AnyModel](availableFacets)
         } yield {
           Ok(views.html.guides.facet(
             guide,
             GuidePage.faceted,
-            guide.findPages(),
+            guides.findPages(guide),
             pagify(result, selectedAccessPoints),
             mapAccessPoints(guide, tempAccessPoints),
             controllers.portal.guides.routes.Guides.guideFacets(path)
@@ -538,7 +537,7 @@ case class Guides @Inject()(implicit globalConfig: global.GlobalConfig, searchEn
         case Some(t) => searchLinks(id, t)
         case _ => searchLinks(id)
       })
-      docs <- SearchDAO.listByGid[AnyModel](ids)
+      docs <- search.listByGid[AnyModel](ids)
     } yield Ok(Json.toJson(docs.zip(ids).map { case (doc, gid) =>
       Json.toJson(FilterHit(doc.id, "", doc.toStringLang, doc.isA, None, gid))
     }))
@@ -551,7 +550,7 @@ case class Guides @Inject()(implicit globalConfig: global.GlobalConfig, searchEn
         case Some(t) => searchLinks(id, t, Some(context))
         case _ => searchLinks(id, context = Some(context))
       })
-      docs <- SearchDAO.listByGid[AnyModel](ids)
+      docs <- search.listByGid[AnyModel](ids)
     } yield Ok(Json.toJson(docs.zip(ids).map { case (doc, gid) =>
       Json.toJson(FilterHit(doc.id, "", doc.toStringLang, doc.isA, None, gid))
     }))

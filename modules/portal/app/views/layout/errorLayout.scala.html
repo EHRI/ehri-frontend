@@ -1,19 +1,19 @@
-@(title: Any)(content: Html)(implicit req: RequestHeader, globalConfig: global.GlobalConfig, lang: Lang)
+@(title: Any)(content: Html)(implicit req: RequestHeader, globalConfig: global.GlobalConfig, messages: Messages)
 
 <!DOCTYPE html>
 
-<html lang="@lang.code">
+<html lang="@messages.lang.code">
     <head>
         <title>@title</title>
 
-        <link rel="shortcut icon" type="image/png" href="@controllers.portal.routes.Assets.at("img/favicon.png")">
-        <link rel="stylesheet" href="@controllers.portal.routes.Assets.versioned("css/portal.css")">
+        <link rel="shortcut icon" type="image/png" href="@controllers.portal.routes.PortalAssets.at("/public/lib/docview-portal", "img/favicon.png")">
+        <link rel="stylesheet" href="@controllers.portal.routes.PortalAssets.at("/public/lib/docview-portal", "css/portal.css")">
     </head>
     <body>
         <div id="wrap" class="error-page page-container">
             <div class="error-page-header">
                 <div class="container">
-                    <img src="@controllers.portal.routes.Assets.at("img/logo_small.png")" />
+                    <img src="@controllers.portal.routes.PortalAssets.at("/public/lib/docview-portal", "img/logo_small.png")" />
                     <h1 id="error-title">@title</h1>
                 </div>
             </div>

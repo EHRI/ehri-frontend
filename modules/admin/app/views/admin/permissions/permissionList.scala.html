@@ -1,4 +1,4 @@
-@(accessorOpt: Option[Accessor], page: utils.Page[PermissionGrant], namespace: String = "")(implicit req: RequestHeader, globalConfig: global.GlobalConfig, lang: Lang)
+@(accessorOpt: Option[Accessor], page: utils.Page[PermissionGrant], namespace: String = "")(implicit req: RequestHeader, globalConfig: global.GlobalConfig, messages: Messages)
 
 <h3>@Messages("pagination.displayingItems", page.offset + 1, page.offset + page.items.size, page.total)</h3>
 <ul>

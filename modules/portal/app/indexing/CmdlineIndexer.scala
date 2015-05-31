@@ -1,18 +1,17 @@
 package indexing
 
+import com.google.inject.Inject
 import play.api.libs.concurrent.Execution.Implicits._
 import scala.sys.process._
 import defines.EntityType
-import play.api.Play.current
 import play.api.libs.iteratee.Concurrent
-import utils.search.{IndexingError, SearchIndexer}
+import utils.search.{IndexingError, SearchIndexer, SearchIndexerHandle}
 import scala.concurrent.Future
 import com.google.common.collect.EvictingQueue
 
 
-object CmdlineIndexer {
-  def jar = current.configuration.getString("solr.indexer.jar")
-      .getOrElse(sys.error("No indexer jar configured for solr.indexer.jar"))
+case class CmdlineIndexer @Inject()(implicit app: play.api.Application) extends SearchIndexer {
+  def handle = new CmdlineIndexerHandle()
 }
 
 /**
@@ -21,7 +20,7 @@ object CmdlineIndexer {
  * Indexer which uses the command-line tool in
  * bin to index items.
  */
-case class CmdlineIndexer(chan: Option[Concurrent.Channel[String]] = None, processFunc: String => String = identity[String]) extends SearchIndexer {
+case class CmdlineIndexerHandle(chan: Option[Concurrent.Channel[String]] = None, processFunc: String => String = identity[String])(implicit app: play.api.Application) extends SearchIndexerHandle {
 
   override def withChannel(channel: Concurrent.Channel[String], formatter: String => String)
       = copy(chan = Some(channel), processFunc = formatter)
@@ -58,15 +57,18 @@ case class CmdlineIndexer(chan: Option[Concurrent.Channel[String]] = None, proce
     }
   }
 
-  private val binary = Seq("java", "-jar", CmdlineIndexer.jar)
+  private val binary = Seq("java", "-jar", jar)
+
+  private def jar = app.configuration.getString("solr.indexer.jar")
+    .getOrElse(sys.error("No indexer jar configured for solr.indexer.jar"))
 
   private val restUrl = (for {
-    host <- current.configuration.getString("neo4j.server.host")
-    port <- current.configuration.getInt("neo4j.server.port")
-    path <- current.configuration.getString("neo4j.server.endpoint")
+    host <- app.configuration.getString("neo4j.server.host")
+    port <- app.configuration.getInt("neo4j.server.port")
+    path <- app.configuration.getString("neo4j.server.endpoint")
   } yield s"http://$host:$port/$path").getOrElse(sys.error("Unable to find rest service url"))
 
-  private val solrUrl = current.configuration.getString("solr.path").getOrElse(sys.error("Unable to find solr service url"))
+  private val solrUrl = app.configuration.getString("solr.path").getOrElse(sys.error("Unable to find solr service url"))
 
   private val clearArgs = binary ++ Seq(
     "--solr", solrUrl

@@ -1,13 +1,13 @@
-@(title: Any, scripts: Html = Html(""), styles: Html = Html(""))(content: Html)(implicit userOpt: Option[UserProfile] = None, req: RequestHeader, globalConfig: global.GlobalConfig, lang: Lang)
+@(title: Any, scripts: Html = Html(""), styles: Html = Html(""))(content: Html)(implicit userOpt: Option[UserProfile] = None, req: RequestHeader, globalConfig: global.GlobalConfig, messages: Messages)
 
 <!DOCTYPE html>
 
-<html lang="@lang.code">
+<html lang="@messages.lang.code">
     <head>
         <title>@title</title>
 
-        <link rel="shortcut icon" type="image/png" href="@controllers.portal.routes.Assets.versioned("img/favicon.png")">
-        <link href="@controllers.portal.routes.Assets.at("css/admin.css")" rel="stylesheet">
+        <link rel="shortcut icon" type="image/png" href="@controllers.portal.routes.PortalAssets.at("/public/lib/docview-portal", "img/favicon.png")">
+        <link href="@controllers.portal.routes.PortalAssets.at("/public/lib/docview-portal", "css/admin.css")" rel="stylesheet">
         
         <meta name="viewport" content="width=device-width, initial-scale=1">
         @styles

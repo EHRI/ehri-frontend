@@ -26,8 +26,8 @@ trait Visibility[MT] extends Read[MT] {
     WithItemPermissionAction(id, PermissionType.Update) andThen new ActionTransformer[ItemPermissionRequest, VisibilityRequest] {
       override protected def transform[A](request: ItemPermissionRequest[A]): Future[VisibilityRequest[A]] = {
         for {
-          users <- RestHelpers.getUserList
-          groups <- RestHelpers.getGroupList
+          users <- getUserList
+          groups <- getGroupList
         } yield VisibilityRequest(request.item, users, groups, request.userOpt, request)
       }
     }

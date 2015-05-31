@@ -1,14 +1,15 @@
 package controllers.admin
 
 import auth.AccountManager
+import play.api.cache.CacheApi
 import play.api.libs.concurrent.Execution.Implicits._
 import play.api.libs.iteratee.{Concurrent, Enumerator}
 import concurrent.Future
-import play.api.i18n.Messages
+import play.api.i18n.{MessagesApi, Messages}
 import views.Helpers
 import play.api.libs.json.{Writes, Json}
 
-import com.google.inject._
+import javax.inject._
 import models.base.{Description, AnyModel}
 import utils.search._
 import play.api.Logger
@@ -21,7 +22,7 @@ import controllers.base.AdminController
 import defines.EnumUtils.enumMapping
 
 @Singleton
-case class AdminSearch @Inject()(implicit globalConfig: global.GlobalConfig, searchEngine: SearchEngine, searchResolver: SearchItemResolver, searchIndexer: SearchIndexer, backend: Backend, accounts: AccountManager, pageRelocator: utils.MovedPageLookup)
+case class AdminSearch @Inject()(implicit app: play.api.Application, cache: CacheApi, globalConfig: global.GlobalConfig, searchEngine: SearchEngine, searchResolver: SearchItemResolver, searchIndexer: SearchIndexer, backend: Backend, accounts: AccountManager, pageRelocator: utils.MovedPageLookup, messagesApi: MessagesApi)
   extends AdminController
   with Search {
 
@@ -149,7 +150,7 @@ case class AdminSearch @Inject()(implicit globalConfig: global.GlobalConfig, sea
       def optionallyClearIndex: Future[Unit] = {
         if (!deleteAll) Future.successful(Unit)
         else {
-          val f = searchIndexer.clearAll()
+          val f = searchIndexer.handle.clearAll()
           f.onSuccess {
             case () => chan.push(wrapMsg("... finished clearing index"))
           }
@@ -160,7 +161,7 @@ case class AdminSearch @Inject()(implicit globalConfig: global.GlobalConfig, sea
       def optionallyClearType(entityTypes: Seq[EntityType.Value]): Future[Unit] = {
         if (!deleteTypes || deleteAll) Future.successful(Unit)
         else {
-          val f = searchIndexer.clearTypes(entityTypes = entityTypes)
+          val f = searchIndexer.handle.clearTypes(entityTypes = entityTypes)
           f.onSuccess {
             case () => chan.push(wrapMsg(s"... finished clearing index for types: $entityTypes"))
           }
@@ -171,7 +172,7 @@ case class AdminSearch @Inject()(implicit globalConfig: global.GlobalConfig, sea
       val job = for {
         _ <- optionallyClearIndex
         _ <- optionallyClearType(entities)
-        task <- searchIndexer.withChannel(chan, wrapMsg).indexTypes(entityTypes = entities)
+        task <- searchIndexer.handle.withChannel(chan, wrapMsg).indexTypes(entityTypes = entities)
       } yield task
 
       job.onComplete {

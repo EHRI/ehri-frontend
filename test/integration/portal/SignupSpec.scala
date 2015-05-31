@@ -50,7 +50,7 @@ class SignupSpec extends IntegrationTestRunner {
     }
 
     "prevent signup with too short a password" in new ITestApp {
-      val length = play.api.Play.current.configuration
+      val length = app.configuration
         .getInt("ehri.passwords.minLength").getOrElse(100)
       val badData = data
         .updated(SignupData.PASSWORD, Seq("short"))
@@ -75,15 +75,16 @@ class SignupSpec extends IntegrationTestRunner {
         .updated(TIMESTAMP, Seq(org.joda.time.DateTime.now.toString))
       val signup = route(FakeRequest(accountRoutes.signupPost())
         .withSession(CSRF_TOKEN_NAME -> fakeCsrfString), badData).get
+      println(redirectLocation(signup))
       status(signup) must equalTo(BAD_REQUEST)
-      contentAsString(signup) must contain(Messages("constraits.timeCheckSeconds.failed"))
+      contentAsString(signup) must contain(Messages("constraints.timeCheckSeconds.failed"))
 
       val badData2 = data
         .updated(TIMESTAMP, Seq("bad-date"))
       val signup2 = route(FakeRequest(accountRoutes.signupPost())
         .withSession(CSRF_TOKEN_NAME -> fakeCsrfString), badData2).get
       status(signup2) must equalTo(BAD_REQUEST)
-      contentAsString(signup2) must contain(Messages("constraits.timeCheckSeconds.failed"))
+      contentAsString(signup2) must contain(Messages("constraints.timeCheckSeconds.failed"))
     }
 
     "prevent signup with filled blank field" in new ITestApp {

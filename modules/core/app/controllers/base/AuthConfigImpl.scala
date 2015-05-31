@@ -15,8 +15,7 @@ import play.api.Logger
 
 trait AuthConfigImpl extends AuthConfig with Results {
 
-  import play.api.Play.current
-
+  implicit def app: play.api.Application
   protected def globalConfig: global.GlobalConfig
 
   /**
@@ -50,13 +49,13 @@ trait AuthConfigImpl extends AuthConfig with Results {
    * However default is false, I strongly recommend using true in a production.
    */
   override lazy val cookieSecureOption: Boolean =
-    current.configuration.getBoolean("auth.cookie.secure").getOrElse(false)
+    app.configuration.getBoolean("auth.cookie.secure").getOrElse(false)
 
   /**
    * A duration of the session timeout in seconds
    */
   override lazy val sessionTimeoutInSeconds: Int =
-    current.configuration.getInt("auth.session.timeout").getOrElse(60 * 60 * 24) // default 1 day
+    app.configuration.getInt("auth.session.timeout").getOrElse(60 * 60 * 24) // default 1 day
 
   /**
    * A `ClassManifest` is used to get an id from the Cache API.

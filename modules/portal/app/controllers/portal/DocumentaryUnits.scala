@@ -2,6 +2,8 @@ package controllers.portal
 
 import auth.AccountManager
 import models.base.AnyModel
+import play.api.cache.CacheApi
+import play.api.i18n.MessagesApi
 import play.api.libs.concurrent.Execution.Implicits._
 import backend.Backend
 import com.google.inject.{Inject, Singleton}
@@ -18,8 +20,8 @@ import scala.concurrent.Future.{successful => immediate}
  * @author Mike Bryant (http://github.com/mikesname)
  */
 @Singleton
-case class DocumentaryUnits @Inject()(implicit globalConfig: global.GlobalConfig, searchEngine: SearchEngine, searchResolver: SearchItemResolver, backend: Backend,
-                                  accounts: AccountManager, pageRelocator: utils.MovedPageLookup)
+case class DocumentaryUnits @Inject()(implicit app: play.api.Application, cache: CacheApi, globalConfig: global.GlobalConfig, searchEngine: SearchEngine, searchResolver: SearchItemResolver, backend: Backend,
+                                  accounts: AccountManager, pageRelocator: utils.MovedPageLookup, messagesApi: MessagesApi)
   extends PortalController
   with Generic[DocumentaryUnit]
   with Search

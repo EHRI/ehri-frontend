@@ -1,9 +1,9 @@
-@()(implicit lang: Lang)
+@()(implicit messages: Messages)
 
-<script src="@controllers.portal.routes.Assets.versioned("js/script-pre.js")"></script>
-@lang.language match {
+<script src="@controllers.portal.routes.PortalAssets.at("/public/lib/docview-portal", "js/script-pre.js")"></script>
+@messages.lang.language match {
     case "en" => {}
     case _ => {
-        <script src="@controllers.portal.routes.Assets.versioned("js/select2/select2_locale_" + lang.language +".js")"></script>
+        <script src="@controllers.portal.routes.PortalAssets.at("/public/lib/docview-portal", "js/select2/select2_locale_" + messages.lang.language +".js")"></script>
     }
 }

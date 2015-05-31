@@ -1,4 +1,4 @@
-@(annotation: Annotation, editable: Boolean)(implicit userOpt: Option[UserProfile], req: RequestHeader, lang: Lang, globalConfig: global.GlobalConfig)
+@(annotation: Annotation, editable: Boolean)(implicit userOpt: Option[UserProfile], req: RequestHeader, messages: Messages, globalConfig: global.GlobalConfig)
 
 <div class="annotation @{if(annotation.isPromoted) "promoted"}" id="@annotation.id">
     @Html(views.Helpers.renderUntrustedMarkdown(annotation.model.body))

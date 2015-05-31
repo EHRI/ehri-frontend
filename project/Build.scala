@@ -12,6 +12,7 @@ import play.PlayImport.PlayKeys._
 import play.twirl.sbt.Import.TwirlKeys.templateImports
 import sbt.Keys._
 import sbt._
+import play.sbt.routes.RoutesKeys._
 
 object ApplicationBuild extends Build {
 
@@ -33,9 +34,10 @@ object ApplicationBuild extends Build {
   )
 
   val backendTestDependencies = Seq(
-    "org.neo4j" % "neo4j-kernel" % "2.2.1" % "test" classifier "tests" classifier "",
-    "org.neo4j" % "neo4j-io" % "2.2.1" % "test" classifier "tests" classifier "",
-    "org.neo4j.app" % "neo4j-server" % "2.2.1" % "test" classifier "tests" classifier "",
+    specs2 % Test,
+    "org.neo4j" % "neo4j-kernel" % "2.2.1" % "test" classifier "tests" classifier "" exclude("org.mockito", "mockito-core"),
+    "org.neo4j" % "neo4j-io" % "2.2.1" % "test" classifier "tests" classifier "" exclude("org.mockito", "mockito-core"),
+    "org.neo4j.app" % "neo4j-server" % "2.2.1" % "test" classifier "tests" classifier "" exclude("org.mockito", "mockito-core"),
     "org.hamcrest" % "hamcrest-all" % "1.3" % "test",
 
     // This is necessary to allow the Neo4j server to start
@@ -44,20 +46,21 @@ object ApplicationBuild extends Build {
     // We need the backend code to test against, but exclude any
     // groovy stuff because a) it's not needed, and b) it has a
     // ton of awkward transitive dependencies
-    "ehri-project" % "ehri-frames" % "0.10.1-SNAPSHOT" % "test" classifier "tests" classifier "" exclude("com.tinkerpop.gremlin", "gremlin-groovy"),
-    "ehri-project" % "ehri-extension" % "0.10.1-SNAPSHOT" % "test" classifier "tests" classifier "" exclude("com.tinkerpop.gremlin", "gremlin-groovy")
+    "ehri-project" % "ehri-frames" % "0.10.1-SNAPSHOT" % "test" classifier "tests" classifier "" exclude("com.tinkerpop.gremlin", "gremlin-groovy") exclude("org.mockito", "mockito-core"),
+    "ehri-project" % "ehri-extension" % "0.10.1-SNAPSHOT" % "test" classifier "tests" classifier "" exclude("com.tinkerpop.gremlin", "gremlin-groovy") exclude("org.mockito", "mockito-core")
   )
+
 
   val coreDependencies = backendDependencies ++ Seq(
     jdbc,
-    anorm,
+    evolutions,
     filters,
+
+    // Anorm DB lib
+    "com.typesafe.play" %% "anorm" % "2.4.0-M3",
 
     // Commons IO
     "commons-io" % "commons-io" % "2.4",
-
-    // Injection guff - yep, we're using a beta
-    "com.google.inject" % "guice" % "4.0",
 
     // Authentication
     "jp.t2v" %% "play2-auth" % "0.13.2",
@@ -93,6 +96,7 @@ object ApplicationBuild extends Build {
   )
 
   val testDependencies = backendTestDependencies ++ Seq(
+    specs2 % Test,
     "jp.t2v" %% "play2-auth-test" % "0.13.2" % "test"
   )
 
@@ -102,7 +106,8 @@ object ApplicationBuild extends Build {
     "Codahale" at "http://repo.codahale.com",
     "Typesafe Repository" at "http://repo.typesafe.com/typesafe/releases/",
     Resolver.sonatypeRepo("releases"),
-    "EHRI Snapshots" at "http://ehridev.dans.knaw.nl/artifactory/libs-snapshot/"
+    "EHRI Snapshots" at "http://ehridev.dans.knaw.nl/artifactory/libs-snapshot/",
+    "scalaz-bintray" at "http://dl.bintray.com/scalaz/releases"
   )
 
   val validateMessages = TaskKey[Unit]("validate-messages", "Validate messages")
@@ -118,9 +123,8 @@ object ApplicationBuild extends Build {
     javaOptions in Test ++= Seq(
       "-Xmx1G",
       "-XX:+CMSClassUnloadingEnabled",
-      "-XX:MaxPermSize=256M",
       "-Dconfig.file=conf/test.conf",
-      s"-Dlogback.configurationFile=${(baseDirectory in LocalRootProject).value}/conf/test-logger.xml"
+      s"-Dlogger.file=${(baseDirectory in LocalRootProject).value}/conf/test-logger.xml"
     ),
 
     // Show warnings and deprecations
@@ -131,6 +135,11 @@ object ApplicationBuild extends Build {
       "-deprecation",
       "-target:jvm-1.6"
     ),
+
+/*
+    // Instantiate controllers via dependency injection
+    routesGenerator := InjectedRoutesGenerator,
+*/
 
     // Allow SBT to tell Scaladoc where to find external
     // api docs if dependencies provide that metadata
@@ -241,7 +250,7 @@ object ApplicationBuild extends Build {
     routesImport += "models.view._",
     libraryDependencies ++= portalDependencies,
     RjsKeys.mainModule := "portal-main",
-    pipelineStages := Seq(rjs, concat, digest, gzip),
+    //pipelineStages := Seq(rjs, concat, digest, gzip),
     pipelineStages in Assets := Seq(concat, digest, gzip),
     Concat.groups := Seq(
      "css/portal-all.css" -> group(
@@ -286,7 +295,8 @@ object ApplicationBuild extends Build {
 
   lazy val admin = Project(appName + "-admin", file("modules/admin"))
     .enablePlugins(play.PlayScala).settings(
-    version := appVersion
+    version := appVersion,
+    libraryDependencies += specs2 % Test
   ).settings(commonSettings: _*).dependsOn(portal)
 
   lazy val guides = Project(appName + "-guides", file("modules/guides"))

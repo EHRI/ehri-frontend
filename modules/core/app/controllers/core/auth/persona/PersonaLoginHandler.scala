@@ -4,8 +4,8 @@ import models.{UserProfile, Account}
 import play.api.mvc._
 import play.api.libs.ws.WS
 import play.api.libs.concurrent.Execution.Implicits._
-import play.api.libs.json.JsString
-import com.google.inject._
+import play.api.libs.json.{JsDefined,JsString}
+import javax.inject._
 import scala.concurrent.Future.{successful => immediate}
 import backend.{AnonymousUser, Backend}
 import scala.concurrent.Future
@@ -21,11 +21,10 @@ trait PersonaLoginHandler extends AccountHelpers {
 
   self: Controller =>
 
-  import play.api.Play.current
-
   def globalConfig: global.GlobalConfig
   def backend: Backend
   def accounts: auth.AccountManager
+  implicit def app: play.api.Application
 
   val PERSONA_URL = "https://verifier.login.persona.org/verify"
   val EHRI_URL = "localhost"; //"http://ehritest.dans.knaw.nl"
@@ -33,7 +32,7 @@ trait PersonaLoginHandler extends AccountHelpers {
 
   object personaLoginPost {
     def async(f: Either[String,Account] => Request[AnyContent] => Future[Result]): Action[AnyContent] = {
-      val canMessageUsers = play.api.Play.current.configuration
+      val canMessageUsers = app.configuration
         .getBoolean("ehri.users.messaging.default").getOrElse(false)
 
       Action.async { implicit request =>
@@ -44,7 +43,7 @@ trait PersonaLoginHandler extends AccountHelpers {
 
         WS.url(PERSONA_URL).post(validate).flatMap { response =>
           response.json \ "status" match {
-            case js @ JsString("okay") =>
+            case js @ JsDefined(JsString("okay")) =>
               val email: String = (response.json \ "email").as[String]
 
               accounts.findByEmail(email.toLowerCase).flatMap {

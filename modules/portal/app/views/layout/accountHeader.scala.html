@@ -1,4 +1,4 @@
-@(showSearch: Boolean = true, showFeedback: Boolean = true, showAdminLink: Boolean = false)(implicit userOpt: Option[UserProfile], request: RequestHeader, prefs: utils.SessionPrefs, globalConfig: global.GlobalConfig, lang: Lang)
+@(showSearch: Boolean = true, showFeedback: Boolean = true, showAdminLink: Boolean = false)(implicit userOpt: Option[UserProfile], request: RequestHeader, prefs: utils.SessionPrefs, globalConfig: global.GlobalConfig, messages: Messages)
 
 @topNavBar {
     @if(userOpt.isDefined) {

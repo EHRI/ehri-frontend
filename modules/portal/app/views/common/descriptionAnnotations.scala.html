@@ -1,4 +1,4 @@
-@(item: models.base.AnyModel, desc: models.base.Description, annotations: Seq[Annotation])(implicit userOpt: Option[UserProfile], req: RequestHeader, prefs: utils.SessionPrefs, lang: Lang, globalConfig: global.GlobalConfig)
+@(item: models.base.AnyModel, desc: models.base.Description, annotations: Seq[Annotation])(implicit userOpt: Option[UserProfile], req: RequestHeader, prefs: utils.SessionPrefs, messages: Messages, globalConfig: global.GlobalConfig)
 
 <div class="description-annotations annotation-set">
     @defining(Annotation.itemAnnotations(desc.id, annotations).filter(_.model.field.isEmpty)) { annotations =>

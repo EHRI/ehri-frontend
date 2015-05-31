@@ -4,7 +4,6 @@ import backend._
 import scala.concurrent.Future
 import utils.{Page, PageParams}
 import defines.EntityType
-import play.api.cache.Cache
 import caching.FutureCache
 
 /**
@@ -31,18 +30,18 @@ trait RestSocial extends Social with RestDAO with RestContext {
   override def follow[U: Resource](userId: String, otherId: String): Future[Unit] = {
     userCall(followingUrl(userId)).withQueryString(ID_PARAM -> otherId).post("").map { r =>
       checkError(r)
-      Cache.set(isFollowingUrl(userId, otherId), true, cacheTime)
-      Cache.remove(followingUrl(userId))
-      Cache.remove(canonicalUrl(userId))
+      cache.set(isFollowingUrl(userId, otherId), true, cacheTime)
+      cache.remove(followingUrl(userId))
+      cache.remove(canonicalUrl(userId))
     }
   }
 
   override def unfollow[U: Resource](userId: String, otherId: String): Future[Unit] = {
     userCall(followingUrl(userId)).withQueryString(ID_PARAM -> otherId).delete().map { r =>
       checkError(r)
-      Cache.set(isFollowingUrl(userId, otherId), false, cacheTime)
-      Cache.remove(followingUrl(userId))
-      Cache.remove(canonicalUrl(userId))
+      cache.set(isFollowingUrl(userId, otherId), false, cacheTime)
+      cache.remove(followingUrl(userId))
+      cache.remove(canonicalUrl(userId))
     }
   }
 
@@ -84,16 +83,16 @@ trait RestSocial extends Social with RestDAO with RestContext {
 
   override def watch(userId: String, otherId: String): Future[Unit] = {
     userCall(watchingUrl(userId)).withQueryString(ID_PARAM -> otherId).post("").map { r =>
-      Cache.set(isWatchingUrl(userId, otherId), true, cacheTime)
-      Cache.remove(watchingUrl(userId))
+      cache.set(isWatchingUrl(userId, otherId), true, cacheTime)
+      cache.remove(watchingUrl(userId))
       checkError(r)
     }
   }
 
   override def unwatch(userId: String, otherId: String): Future[Unit] = {
     userCall(watchingUrl(userId)).withQueryString(ID_PARAM -> otherId).delete().map { r =>
-      Cache.set(isWatchingUrl(userId, otherId), false, cacheTime)
-      Cache.remove(watchingUrl(userId))
+      cache.set(isWatchingUrl(userId, otherId), false, cacheTime)
+      cache.remove(watchingUrl(userId))
       checkError(r)
     }
   }
@@ -116,16 +115,16 @@ trait RestSocial extends Social with RestDAO with RestContext {
 
   override def block(userId: String, otherId: String): Future[Unit] = {
     userCall(blockedUrl(userId)).withQueryString(ID_PARAM -> otherId).post("").map { r =>
-      Cache.set(isBlockingUrl(userId, otherId), true, cacheTime)
-      Cache.remove(blockedUrl(userId))
+      cache.set(isBlockingUrl(userId, otherId), true, cacheTime)
+      cache.remove(blockedUrl(userId))
       checkError(r)
     }
   }
 
   override def unblock(userId: String, otherId: String): Future[Unit] = {
     userCall(blockedUrl(userId)).withQueryString(ID_PARAM -> otherId).delete().map { r =>
-      Cache.set(isBlockingUrl(userId, otherId), false, cacheTime)
-      Cache.remove(blockedUrl(userId))
+      cache.set(isBlockingUrl(userId, otherId), false, cacheTime)
+      cache.remove(blockedUrl(userId))
       checkError(r)
     }
   }

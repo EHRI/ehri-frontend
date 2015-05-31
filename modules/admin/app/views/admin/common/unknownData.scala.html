@@ -1,4 +1,4 @@
-@(e: Entity)(implicit userOpt: Option[UserProfile], lang: Lang, req: RequestHeader)
+@(e: Entity)(implicit userOpt: Option[UserProfile], messages: Messages, req: RequestHeader)
 
 @if(e.data.nonEmpty) {
     <small class="unknown-data-section text-muted">

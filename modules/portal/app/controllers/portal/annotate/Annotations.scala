@@ -1,11 +1,12 @@
 package controllers.portal.annotate
 
 import auth.AccountManager
+import play.api.cache.CacheApi
+import play.api.i18n.MessagesApi
 import play.api.libs.concurrent.Execution.Implicits._
 import play.api.mvc._
 import controllers.generic.{Search, Read, Promotion, Visibility}
 import models.{AnnotationF, Annotation, UserProfile}
-import play.api.Play.current
 import utils.ContributionVisibility
 import scala.concurrent.Future.{successful => immediate}
 import defines.{EntityType, PermissionType}
@@ -21,7 +22,7 @@ import utils.search.{SearchItemResolver, SearchEngine}
 import models.view.AnnotationContext
 
 
-import com.google.inject._
+import javax.inject._
 import controllers.portal.FacetConfig
 import controllers.portal.base.PortalController
 
@@ -29,8 +30,8 @@ import controllers.portal.base.PortalController
  * @author Mike Bryant (http://github.com/mikesname)
  */
 @Singleton
-case class Annotations @Inject()(implicit globalConfig: global.GlobalConfig, searchEngine: SearchEngine, searchResolver: SearchItemResolver,
-                                 backend: Backend, accounts: AccountManager, pageRelocator: utils.MovedPageLookup)
+case class Annotations @Inject()(implicit app: play.api.Application, cache: CacheApi, globalConfig: global.GlobalConfig, searchEngine: SearchEngine, searchResolver: SearchItemResolver,
+                                 backend: Backend, accounts: AccountManager, pageRelocator: utils.MovedPageLookup, messagesApi: MessagesApi)
   extends PortalController
   with Read[Annotation]
   with Visibility[Annotation]

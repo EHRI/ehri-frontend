@@ -1,5 +1,7 @@
 package backend.rest
 
+import java.util.concurrent.TimeUnit
+
 import play.api.Logger
 import play.api.http.{Writeable, ContentTypeOf, HeaderNames, ContentTypes}
 import play.api.libs.json._
@@ -7,11 +9,14 @@ import backend._
 import com.fasterxml.jackson.core.JsonParseException
 import utils.{RangePage, RangeParams, Page}
 import scala.concurrent.Future
+import scala.concurrent.duration.Duration
 
+import play.api.cache.CacheApi
 
 trait RestDAO {
 
-  protected implicit def app: play.api.Application
+  implicit def app: play.api.Application
+  implicit def cache: CacheApi
 
   import play.api.libs.concurrent.Execution.Implicits._
   import play.api.libs.ws.{EmptyBody, InMemoryBody, WSBody, WS, WSResponse}
@@ -28,7 +33,6 @@ trait RestDAO {
     )(implicit apiUser: ApiUser) {
 
     import scala.util.matching.Regex
-    import play.api.cache.Cache
     import scala.concurrent.Future
 
     private val CCExtractor: Regex = """.*?max-age=(\d+)""".r
@@ -42,12 +46,12 @@ trait RestDAO {
             && age.toInt > 0
             && response.status >= 200 && response.status < 300 =>
             Logger.trace(s"CACHING: $method $url $age")
-            Cache.set(url, response, age.toInt)
+            cache.set(url, response, Duration(age.toInt, TimeUnit.SECONDS))
           // if not, ensure it's invalidated
           case _ if method != "GET" =>
             val itemUrl = response.header(HeaderNames.LOCATION).getOrElse(url)
             Logger.trace(s"Evicting from cache: $method $itemUrl")
-            Cache.remove(itemUrl)
+            cache.remove(itemUrl)
           case _ =>
         }
       }
@@ -108,7 +112,7 @@ trait RestDAO {
     def withMethod(method: String) = copy(method = method)
 
     def execute(): Future[WSResponse] = {
-      if (method == "GET") Cache.getAs[WSResponse](url) match {
+      if (method == "GET") cache.get[WSResponse](url) match {
         case Some(r) =>
           Logger.trace(s"Retrieved from cache: $url")
           Future.successful(r)

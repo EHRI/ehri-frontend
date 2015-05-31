@@ -1,4 +1,4 @@
-@()(implicit req: RequestHeader, globalConfig: global.GlobalConfig, lang: Lang)
+@()(implicit req: RequestHeader, globalConfig: global.GlobalConfig, messages: Messages)
 
 @if(globalConfig.readOnly) {
     <div class="alert alert-warning readonly-message">

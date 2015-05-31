@@ -4,7 +4,7 @@ import java.sql.Connection
 
 import auth.OAuth2AssociationManager
 import models.OAuth2Association
-import play.api.db.DB
+import play.api.db.Database
 
 import scala.concurrent.{ExecutionContext, Future}
 import anorm.SqlParser._
@@ -32,25 +32,25 @@ object SqlOAuth2AssociationManager {
 /**
  * @author Mike Bryant (http://github.com/mikesname)
  */
-case class SqlOAuth2AssociationManager()(implicit app: play.api.Application, executionContext: ExecutionContext)
+case class SqlOAuth2AssociationManager()(implicit db: Database, app: play.api.Application, executionContext: ExecutionContext)
   extends OAuth2AssociationManager{
 
   import SqlOAuth2AssociationManager._
 
   def findByProviderInfo(providerUserId: String, provider: String): Future[Option[OAuth2Association]] = Future {
-    DB.withConnection { implicit connection =>
+    db.withConnection { implicit connection =>
       getByInfo(providerUserId, provider)
     }
   }(executionContext)
 
   def findForAccount(id: String): Future[Seq[OAuth2Association]] = Future {
-    DB.withConnection { implicit conn =>
+    db.withConnection { implicit conn =>
       getForAccount(id)
     }
   }(executionContext)
 
   def findAll: Future[Seq[OAuth2Association]] = Future {
-    DB.withConnection { implicit connection =>
+    db.withConnection { implicit connection =>
       SQL"""
         SELECT users.*, oauth2_association.*
         FROM oauth2_association
@@ -60,7 +60,7 @@ case class SqlOAuth2AssociationManager()(implicit app: play.api.Application, exe
   }(executionContext)
 
   def addAssociation(id: String, providerId: String, provider: String): Future[Option[OAuth2Association]] = Future {
-    DB.withConnection { implicit connection =>
+    db.withConnection { implicit connection =>
       SQL"""
         INSERT INTO oauth2_association (id, provider_id, provider) VALUES ($id, $providerId, $provider)
         """.executeInsert()

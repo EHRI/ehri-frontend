@@ -1,8 +1,6 @@
-@(item: Option[Vocabulary], f: Form[models.VocabularyF])
+@(item: Option[Vocabulary], f: Form[models.VocabularyF])(implicit fieldConstructor: helper.FieldConstructor, messages: Messages)
 
 @import views.html.formHelpers._
-
-@implicitField = @{ views.html.helper.FieldConstructor(formHelpers.fieldTemplate.f) }
 
 @defining(EntityType.Vocabulary.toString) { implicit fieldPrefix =>
     @formHelpers.lineInput(f(""), Entity.IDENTIFIER)
