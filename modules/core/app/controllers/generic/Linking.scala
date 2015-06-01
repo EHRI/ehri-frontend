@@ -139,7 +139,7 @@ trait Linking[MT <: AnyModel] extends Read[MT] with Search {
   def createLink(id: String, apid: String)(implicit ct: ContentType[MT]) = {
     WithItemPermissionAction(id, PermissionType.Annotate).async(parse.json) { implicit request =>
       request.body.validate[AccessPointLink].fold(
-        errors => immediate(BadRequest(JsError.toFlatJson(errors))),
+        errors => immediate(BadRequest(JsError.toJson(errors))),
         ann => {
           val link = new LinkF(id = None, linkType=LinkF.LinkType.Associative, description=ann.description)
           userBackend.linkItems[MT, Link, LinkF](id, ann.target, link, Some(apid)).map { ann =>
@@ -157,7 +157,7 @@ trait Linking[MT <: AnyModel] extends Read[MT] with Search {
   def createMultipleLinks(id: String)(implicit ct: ContentType[MT]) = {
     WithItemPermissionAction(id, PermissionType.Annotate).async(parse.json) { implicit request =>
       request.body.validate[List[AccessPointLink]].fold(
-        errors => immediate(BadRequest(JsError.toFlatJson(errors))),
+        errors => immediate(BadRequest(JsError.toJson(errors))),
         anns => {
           val links = anns.map(ann =>
             (ann.target, new LinkF(id = None, linkType=ann.`type`.getOrElse(LinkF.LinkType.Associative), description=ann.description), None)
@@ -176,7 +176,7 @@ trait Linking[MT <: AnyModel] extends Read[MT] with Search {
   def createAccessPoint(id: String, did: String)(implicit ct: ContentType[MT]) = {
     WithItemPermissionAction(id, PermissionType.Update).async(parse.json) { implicit request =>
       request.body.validate[AccessPointF](AccessPointLink.accessPointFormat).fold(
-        errors => immediate(BadRequest(JsError.toFlatJson(errors))),
+        errors => immediate(BadRequest(JsError.toJson(errors))),
         ap => userBackend.createAccessPoint(id, did, ap).map { ann =>
           Created(Json.toJson(ann)(Json.format[AccessPointF]))
         }

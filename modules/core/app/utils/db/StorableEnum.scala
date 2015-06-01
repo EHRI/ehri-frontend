@@ -9,9 +9,9 @@ trait StorableEnum {
   self: Enumeration =>
 
   implicit def rowToEnum: Column[Value] = {
-    Column.nonNull[Value] { (value, meta) =>
+    Column.nonNull1[Value] { (value, meta) =>
       try {
-        MayErr(Right(withName(value.toString)))
+        Right(withName(value.toString))
       } catch {
         case e: Throwable => Left(TypeDoesNotMatch(
           s"Cannot convert $value: ${value.asInstanceOf[AnyRef].getClass} to ${getClass.getName}"))

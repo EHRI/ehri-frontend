@@ -22,7 +22,7 @@ trait Annotate[MT] extends Read[MT] {
    */
   def createAnnotationJsonPost(id: String) = Action.async(parse.json) { request =>
     request.body.validate[AnnotationF](AnnotationF.Converter.clientFormat).fold(
-      errors => immediate(BadRequest(JsError.toFlatJson(errors))),
+      errors => immediate(BadRequest(JsError.toJson(errors))),
       ap => {
         // NB: No checking of permissions here - we're going to depend
         // on the server for that

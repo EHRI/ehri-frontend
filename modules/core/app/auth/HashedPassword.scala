@@ -31,7 +31,7 @@ object HashedPassword {
    * Implicit conversion from Anorm row to HashedPassword
    */
   implicit def rowToPw: Column[HashedPassword] = {
-    Column.nonNull[HashedPassword] { (value, meta) =>
+    Column.nonNull1[HashedPassword] { (value, meta) =>
       value match {
         case v: String => Right(HashedPassword.fromHashed(v))
         case _ => Left(TypeDoesNotMatch(
