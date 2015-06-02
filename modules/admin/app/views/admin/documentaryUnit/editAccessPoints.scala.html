@@ -15,10 +15,10 @@
             controllers.units.routes.javascript.DocumentaryUnits.deleteLink,
             controllers.units.routes.javascript.DocumentaryUnits.deleteLinkAndAccessPoint
         )
-        <script src="@controllers.portal.routes.PortalAssets.at("/public/lib/docview-portal", "js/lib/handlebar.js")"></script>
-        <script src="@controllers.portal.routes.PortalAssets.at("/public/lib/docview-portal", "js/lib/typeahead.js")"></script>
-        <script src="@controllers.portal.routes.PortalAssets.at("/public/lib/docview-portal", "js/bootstrap.confirmation.js")"></script>
-        <script src="@controllers.admin.routes.AdminAssets.at("js/access-points.js")"></script>
+        <script src="@controllers.portal.routes.PortalAssets.versioned("js/lib/handlebar.js")"></script>
+        <script src="@controllers.portal.routes.PortalAssets.versioned("js/lib/typeahead.js")"></script>
+        <script src="@controllers.portal.routes.PortalAssets.versioned("js/bootstrap.confirmation.js")"></script>
+        <script src="@controllers.admin.routes.AdminAssets.versioned("js/access-points.js")"></script>
         <style type="text/css">
             .modal-dialog { width: 80%;}
             .model { display:none; }

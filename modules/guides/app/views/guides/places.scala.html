@@ -7,11 +7,11 @@
     <script src="//cdnjs.cloudflare.com/ajax/libs/leaflet/0.7.3/leaflet.js"></script>
     <script type="text/javascript">
     templateParams = "@Html(page.params.getOrElse(""))";
-    redIcon_URL = "@controllers.portal.routes.PortalAssets.at("/public/lib/docview-portal", "img/marker-icon-red.png")";
+    redIcon_URL = "@controllers.portal.routes.PortalAssets.versioned("img/marker-icon-red.png")";
     MAP_URL = "@controllers.portal.guides.routes.Guides.layoutRetrieval(guide.path, page.path)";
     $originalMarkers = @Html(Json.stringify(json));
     </script>
-    <script type="text/javascript" src="@controllers.portal.routes.PortalAssets.at("/public/lib/docview-portal", "js/portal-guide-map.js")"></script>
+    <script type="text/javascript" src="@controllers.portal.routes.PortalAssets.versioned("js/portal-guide-map.js")"></script>
 }
 @css = {
     <link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/leaflet/0.7.3/leaflet.css" />

@@ -70,7 +70,7 @@ object Helpers {
    */
   def gravitar(img: Option[String]): String =
     img.map(_.replaceFirst("https?://", "//"))
-      .getOrElse(controllers.portal.routes.PortalAssets.at("/public/lib/docview-portal", "img/default-gravitar.png").url)
+      .getOrElse(controllers.portal.routes.PortalAssets.at("img/default-gravitar.png").url)
 
   def remoteGravitar(userId: String): String = {
     val hash = DigestUtils.md5Hex(s"$userId@ehri-project.eu")

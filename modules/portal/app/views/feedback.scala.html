@@ -2,9 +2,6 @@
 
 
 @views.html.layout.portalLayoutSimple(Messages("feedback")) {
-    <script src="//ajax.googleapis.com/ajax/libs/jquery/1.10.2/jquery.min.js"></script>
-    <script src="@controllers.portal.routes.PortalAssets.at("/public/lib/docview-portal", "js/lib/jquery.validate.js")"></script>
-
     @views.html.layout.mainContent {
         @views.html.layout.feedback(form)
     }

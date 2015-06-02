@@ -1,9 +1,9 @@
 @(extra: Html = Html(""))(implicit userOpt: Option[UserProfile], messages: Messages)
 
 @if(userOpt.isDefined) {
-	<script src="@controllers.portal.routes.PortalAssets.at("/public/lib/docview-portal", "js/script-post-signedin.js")"></script>
+	<script src="@controllers.portal.routes.PortalAssets.versioned("js/script-post-signedin.js")"></script>
 } else {
-	<script src="@controllers.portal.routes.PortalAssets.at("/public/lib/docview-portal", "js/script-post.js")"></script>
+	<script src="@controllers.portal.routes.PortalAssets.versioned("js/script-post.js")"></script>
 }
 <script src="@controllers.portal.routes.PortalData.jsRoutes"></script>
 @extra

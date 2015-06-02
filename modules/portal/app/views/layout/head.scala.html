@@ -3,18 +3,18 @@
 <head>
     <title>EHRI - @title</title>
 
-    <link rel="shortcut icon" type="image/png" href="@controllers.portal.routes.PortalAssets.at("/public/lib/docview-portal", "img/favicon.png")">
+    <link rel="shortcut icon" type="image/png" href="@controllers.portal.routes.PortalAssets.versioned("img/favicon.png")">
     <!--[if lte IE 9]>
-    <link rel="stylesheet" href="@controllers.portal.routes.PortalAssets.at("/public/lib/docview-portal", "css/font-awesome.css")">
-    <link rel="stylesheet" href="@controllers.portal.routes.PortalAssets.at("/public/lib/docview-portal", "css/portal.css")">
+    <link rel="stylesheet" href="@controllers.portal.routes.PortalAssets.versioned("css/font-awesome.css")">
+    <link rel="stylesheet" href="@controllers.portal.routes.PortalAssets.versioned("css/portal.css")">
     <![endif]-->
     <!--[if !IE]> -->
-    <link rel="stylesheet" href="@controllers.portal.routes.PortalAssets.at("/public/lib/docview-portal", "css/portal-all.css")">
+    <link rel="stylesheet" href="@controllers.portal.routes.PortalAssets.versioned("css/portal-all.css")">
     <!-- <![endif]-->
 
     @if(messages.lang.code.startsWith("he")) {
         <!-- experimental hebrew right-to-left support -->
-        <link rel="stylesheet" href="@controllers.portal.routes.PortalAssets.at("/public/lib/docview-portal", "css/lib/bootstrap-rtl.css")">
+        <link rel="stylesheet" href="@controllers.portal.routes.PortalAssets.versioned("css/lib/bootstrap-rtl.css")">
     }
 
     <meta name="viewport" content="width=device-width, initial-scale=1">

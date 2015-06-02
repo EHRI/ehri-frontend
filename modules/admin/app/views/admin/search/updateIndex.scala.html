@@ -21,7 +21,7 @@
         var DONE_MSG = "<message>@controllers.generic.Indexable.DONE_MESSAGE</message>";
         var ERR_MSG = "<message>@controllers.generic.Indexable.ERR_MESSAGE</message>";
     </script>
-    <script src="@controllers.portal.routes.PortalAssets.at("/public/lib/docview-portal", "js/index_utils.js")" type="text/javascript"></script>
+    <script src="@controllers.portal.routes.PortalAssets.versioned("js/index_utils.js")" type="text/javascript"></script>
 }
 
 @implicitField = @{ views.html.helper.FieldConstructor(formHelpers.fieldTemplate.f) }

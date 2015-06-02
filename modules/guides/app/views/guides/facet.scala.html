@@ -3,14 +3,14 @@
 @import utils.search.SearchOrder
 
 @js = {
-    <script type="text/javascript" src="@controllers.portal.routes.PortalAssets.at("/public/lib/docview-portal", "js/portal-guide.js")"></script>
-    <script type="text/javascript" src="@controllers.portal.routes.PortalAssets.at("/public/lib/docview-portal", "js/portal-guide-facet.js")"></script>
-    <script src="@controllers.portal.routes.PortalAssets.at("/public/lib/docview-portal", "js/select2/select2.js")"></script>
+    <script type="text/javascript" src="@controllers.portal.routes.PortalAssets.versioned("js/portal-guide.js")"></script>
+    <script type="text/javascript" src="@controllers.portal.routes.PortalAssets.versioned("js/portal-guide-facet.js")"></script>
+    <script src="@controllers.portal.routes.PortalAssets.versioned("js/select2/select2.js")"></script>
 
     @messages.lang.language match {
         case "en" => {}
         case _ => {
-             <script src="@controllers.portal.routes.PortalAssets.at("/public/lib/docview-portal", "js/select2/select2_locale_" + messages.lang.language +".js")"></script>
+             <script src="@controllers.portal.routes.PortalAssets.at("js/select2/select2_locale_" + messages.lang.language +".js")"></script>
         }
     }
     <script type="text/javascript">

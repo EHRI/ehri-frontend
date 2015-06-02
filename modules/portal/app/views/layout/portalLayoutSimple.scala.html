@@ -7,6 +7,7 @@
     <body>
         @views.html.layout.readOnly()
         @views.html.layout.message()
+        @views.html.layout.preambleScripts()
         <div id="wrap">
             @defining(utils.SessionPrefs()) { implicit prefs =>
                 <header id="header" class="navigation">
@@ -21,12 +22,6 @@
             </div>
         </div>
         @views.html.layout.footer()
-
-        <script src="//ajax.googleapis.com/ajax/libs/jquery/1.8.3/jquery.min.js"></script>
-        <script src="@controllers.portal.routes.PortalAssets.at("/public/lib/docview-portal", "js/feedback.js")"></script>
-        <script src="@controllers.portal.routes.PortalAssets.at("/public/lib/docview-portal", "js/lib/jquery.validate.js")"></script>
-        <script src="@controllers.portal.routes.PortalAssets.at("/public/lib/docview-portal", "bootstrap/js/bootstrap.min.js")"></script>
-        <script src="@controllers.portal.routes.PortalAssets.at("/public/lib/docview-portal", "js/common.js")"></script>
 
         <script>
             // Validate any forms with 'validate-form' class...

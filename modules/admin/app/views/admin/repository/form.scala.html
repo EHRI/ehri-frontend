@@ -5,9 +5,9 @@
 
 @implicitField = @{ views.html.helper.FieldConstructor(formHelpers.fieldTemplate.f) }
 
-<script type="text/javascript" src="@controllers.portal.routes.PortalAssets.at("/public/lib/docview-portal", "js/lib/typeahead.js")"></script>
-<script type="text/javascript" src="@controllers.portal.routes.PortalAssets.at("/public/lib/docview-portal", "js/lib/handlebar.js")"></script>
-<script type="text/javascript" src="@controllers.portal.routes.PortalAssets.at("/public/lib/docview-portal", "js/address.js")"></script>
+<script type="text/javascript" src="@controllers.portal.routes.PortalAssets.versioned("js/lib/typeahead.js")"></script>
+<script type="text/javascript" src="@controllers.portal.routes.PortalAssets.versioned("js/lib/handlebar.js")"></script>
+<script type="text/javascript" src="@controllers.portal.routes.PortalAssets.versioned("js/address.js")"></script>
 
 @defining(EntityType.Repository.toString) { implicit fieldPrefix =>
     @formHelpers.lineInput(f(""), IDENTIFIER)
