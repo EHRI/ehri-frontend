@@ -10,6 +10,8 @@ import defines.EntityType
 import backend.{IdGenerator, Backend}
 import utils._
 import javax.inject._
+import views.MarkdownRenderer
+
 import scala.concurrent.Future
 import scala.concurrent.Future.{successful => immediate}
 import backend.rest.{ItemNotFound, Constants}
@@ -22,7 +24,7 @@ import controllers.portal.base.PortalController
 
 @Singleton
 case class Bookmarks @Inject()(implicit app: play.api.Application, cache: CacheApi, globalConfig: global.GlobalConfig, searchEngine: SearchEngine, searchResolver: SearchItemResolver, backend: Backend,
-    accounts: AccountManager, idGenerator: IdGenerator, pageRelocator: utils.MovedPageLookup, messagesApi: MessagesApi)
+    accounts: AccountManager, idGenerator: IdGenerator, pageRelocator: utils.MovedPageLookup, messagesApi: MessagesApi, markdown: MarkdownRenderer)
   extends PortalController
   with FacetConfig
   with Search {

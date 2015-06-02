@@ -10,13 +10,15 @@ import models._
 import defines.{ContentTypes, EntityType}
 import utils.search.{SearchConstants, SearchIndexer, SearchItemResolver, SearchEngine}
 import javax.inject._
+import views.MarkdownRenderer
+
 import scala.concurrent.Future.{successful => immediate}
 import backend.Backend
 import controllers.base.AdminController
 
 
 @Singleton
-case class Vocabularies @Inject()(implicit app: play.api.Application, cache: CacheApi, globalConfig: global.GlobalConfig, searchEngine: SearchEngine, searchIndexer: SearchIndexer, searchResolver: SearchItemResolver, backend: Backend, accounts: AccountManager, pageRelocator: utils.MovedPageLookup, messagesApi: MessagesApi)
+case class Vocabularies @Inject()(implicit app: play.api.Application, cache: CacheApi, globalConfig: global.GlobalConfig, searchEngine: SearchEngine, searchIndexer: SearchIndexer, searchResolver: SearchItemResolver, backend: Backend, accounts: AccountManager, pageRelocator: utils.MovedPageLookup, messagesApi: MessagesApi, markdown: MarkdownRenderer)
   extends AdminController
   with CRUD[VocabularyF,Vocabulary]
   with Creator[ConceptF, Concept, Vocabulary]

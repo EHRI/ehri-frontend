@@ -1,4 +1,4 @@
-@(item: models.base.AnyModel, accessPoint: AccessPointF, links: Seq[Link])(implicit userOpt: Option[UserProfile], messages: Messages, req: RequestHeader, globalConfig: global.GlobalConfig)
+@(item: models.base.AnyModel, accessPoint: AccessPointF, links: Seq[Link])(implicit userOpt: Option[UserProfile], req: RequestHeader, globalConfig: global.GlobalConfig, messages: Messages, md: views.MarkdownRenderer)
 
 @*
  * Render an access point which may or may not have a corresponding

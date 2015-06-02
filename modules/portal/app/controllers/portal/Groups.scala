@@ -9,13 +9,14 @@ import models.Group
 import play.api.cache.CacheApi
 import play.api.i18n.MessagesApi
 import utils.search._
+import views.MarkdownRenderer
 
 /**
  * @author Mike Bryant (http://github.com/mikesname)
  */
 @Singleton
 case class Groups @Inject()(implicit app: play.api.Application, cache: CacheApi, globalConfig: global.GlobalConfig, searchEngine: SearchEngine, searchResolver: SearchItemResolver, backend: Backend,
-                                  accounts: AccountManager, pageRelocator: utils.MovedPageLookup, messagesApi: MessagesApi)
+                                  accounts: AccountManager, pageRelocator: utils.MovedPageLookup, messagesApi: MessagesApi, markdown: MarkdownRenderer)
   extends PortalController
   with Generic[Group]
   with Search

@@ -13,6 +13,7 @@ import defines.EntityType
 import models.DocumentaryUnit
 import play.api.mvc.RequestHeader
 import utils.search._
+import views.MarkdownRenderer
 
 import scala.concurrent.Future.{successful => immediate}
 
@@ -21,7 +22,7 @@ import scala.concurrent.Future.{successful => immediate}
  */
 @Singleton
 case class DocumentaryUnits @Inject()(implicit app: play.api.Application, cache: CacheApi, globalConfig: global.GlobalConfig, searchEngine: SearchEngine, searchResolver: SearchItemResolver, backend: Backend,
-                                  accounts: AccountManager, pageRelocator: utils.MovedPageLookup, messagesApi: MessagesApi)
+                                  accounts: AccountManager, pageRelocator: utils.MovedPageLookup, messagesApi: MessagesApi, markdown: MarkdownRenderer)
   extends PortalController
   with Generic[DocumentaryUnit]
   with Search

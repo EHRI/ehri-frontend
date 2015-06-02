@@ -18,6 +18,7 @@ import backend.{HtmlPages, Backend}
 import utils._
 
 import javax.inject._
+import views.MarkdownRenderer
 import views.html.errors.pageNotFound
 import org.joda.time.DateTime
 import caching.FutureCache
@@ -27,7 +28,7 @@ import play.api.libs.json.Json
 
 @Singleton
 case class Portal @Inject()(implicit app: play.api.Application, cache: CacheApi, globalConfig: global.GlobalConfig, searchEngine: SearchEngine, searchResolver: SearchItemResolver, backend: Backend,
-    accounts: AccountManager, pageRelocator: utils.MovedPageLookup, messagesApi: MessagesApi, htmlPages: HtmlPages)
+    accounts: AccountManager, pageRelocator: utils.MovedPageLookup, messagesApi: MessagesApi, markdown: MarkdownRenderer, htmlPages: HtmlPages)
   extends PortalController
   with Search
   with FacetConfig {

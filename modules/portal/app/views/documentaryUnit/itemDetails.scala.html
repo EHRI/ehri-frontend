@@ -1,4 +1,4 @@
-@(item: DocumentaryUnit, annotations: Seq[Annotation], links: Seq[Link], watched: Seq[String])(implicit userOpt: Option[UserProfile], request: RequestHeader, prefs: utils.SessionPrefs, globalConfig: global.GlobalConfig, messages: Messages, flash: Flash)
+@(item: DocumentaryUnit, annotations: Seq[Annotation], links: Seq[Link], watched: Seq[String])(implicit userOpt: Option[UserProfile], request: RequestHeader, prefs: utils.SessionPrefs, globalConfig: global.GlobalConfig, messages: Messages, flash: Flash, md: views.MarkdownRenderer)
 
 @views.html.layout.itemDetails {
     @defining(EntityType.DocumentaryUnit.toString) { implicit fieldPrefix =>

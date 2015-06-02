@@ -10,6 +10,8 @@ import models._
 import defines.{ContentTypes, EntityType}
 import utils.search.{SearchConstants, SearchItemResolver, SearchEngine}
 import javax.inject._
+import views.MarkdownRenderer
+
 import scala.concurrent.Future.{successful => immediate}
 import backend.{Entity, IdGenerator, Backend}
 import play.api.Configuration
@@ -17,7 +19,7 @@ import controllers.base.AdminController
 
 
 @Singleton
-case class Countries @Inject()(implicit app: play.api.Application, cache: CacheApi, globalConfig: global.GlobalConfig, searchEngine: SearchEngine, searchResolver: SearchItemResolver, backend: Backend, idGenerator: IdGenerator, accounts: AccountManager, pageRelocator: utils.MovedPageLookup, messagesApi: MessagesApi)
+case class Countries @Inject()(implicit app: play.api.Application, cache: CacheApi, globalConfig: global.GlobalConfig, searchEngine: SearchEngine, searchResolver: SearchItemResolver, backend: Backend, idGenerator: IdGenerator, accounts: AccountManager, pageRelocator: utils.MovedPageLookup, messagesApi: MessagesApi, markdown: MarkdownRenderer)
   extends AdminController
   with CRUD[CountryF,Country]
   with Creator[RepositoryF, Repository, Country]

@@ -1,4 +1,4 @@
-@(form: play.api.data.Form[AnnotationF])(implicit userOpt: Option[UserProfile], req: RequestHeader, globalConfig: global.GlobalConfig, fieldConstructor: helper.FieldConstructor, messages: Messages, flash: Flash, token: play.filters.csrf.CSRF.Token)
+@(form: play.api.data.Form[AnnotationF])(implicit userOpt: Option[UserProfile], req: RequestHeader, globalConfig: global.GlobalConfig, fieldConstructor: helper.FieldConstructor, messages: Messages, md: views.MarkdownRenderer, flash: Flash, token: play.filters.csrf.CSRF.Token)
 
 @import AnnotationF._
 

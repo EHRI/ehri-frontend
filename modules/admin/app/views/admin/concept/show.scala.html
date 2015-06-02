@@ -1,4 +1,4 @@
-@(item: Concept, page: utils.Page[Concept], params: utils.PageParams, links: Seq[Link], annotations: Seq[Annotation])(implicit userOpt: Option[UserProfile], req: RequestHeader, globalConfig: global.GlobalConfig, messages: Messages, flash: Flash)
+@(item: Concept, page: utils.Page[Concept], params: utils.PageParams, links: Seq[Link], annotations: Seq[Annotation])(implicit userOpt: Option[UserProfile], req: RequestHeader, globalConfig: global.GlobalConfig, messages: Messages, md: views.MarkdownRenderer, flash: Flash)
 
 @views.html.admin.layout.adminLayout(item.toStringLang) {
     @breadcrumbs(item)

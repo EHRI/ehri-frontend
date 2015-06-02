@@ -5,6 +5,7 @@ import play.api.cache.CacheApi
 import play.api.i18n.MessagesApi
 import play.api.libs.concurrent.Execution.Implicits._
 import play.api.mvc.{Result, RequestHeader}
+import views.MarkdownRenderer
 import scala.concurrent.Future.{successful => immediate}
 import backend.{Backend, FeedbackDAO}
 import javax.inject._
@@ -16,7 +17,7 @@ import controllers.portal.base.PortalController
  */
 @Singleton
 case class Feedback @Inject()(implicit app: play.api.Application, cache: CacheApi, globalConfig: global.GlobalConfig, feedbackDAO: FeedbackDAO,
-                              backend: Backend, accounts: AccountManager, mailer: MailerAPI, pageRelocator: utils.MovedPageLookup, messagesApi: MessagesApi)
+                              backend: Backend, accounts: AccountManager, mailer: MailerAPI, pageRelocator: utils.MovedPageLookup, messagesApi: MessagesApi, markdown: MarkdownRenderer)
   extends PortalController {
 
   import utils.forms._
@@ -67,7 +68,7 @@ case class Feedback @Inject()(implicit app: play.api.Application, cache: CacheAp
         .setRecipient(accTo)
         .setReplyTo(feedback.email.getOrElse("noreply@ehri-project.eu"))
         .setFrom("EHRI User <noreply@ehri-project.eu>")
-        .send(text, views.html.Markdown(text).body)
+        .send(text, markdown.renderMarkdown(text))
     }
   }
 

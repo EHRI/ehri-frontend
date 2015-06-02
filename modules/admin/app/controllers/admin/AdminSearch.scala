@@ -6,7 +6,7 @@ import play.api.libs.concurrent.Execution.Implicits._
 import play.api.libs.iteratee.{Concurrent, Enumerator}
 import concurrent.Future
 import play.api.i18n.{MessagesApi, Messages}
-import views.Helpers
+import views.{MarkdownRenderer, Helpers}
 import play.api.libs.json.{Writes, Json}
 
 import javax.inject._
@@ -22,7 +22,7 @@ import controllers.base.AdminController
 import defines.EnumUtils.enumMapping
 
 @Singleton
-case class AdminSearch @Inject()(implicit app: play.api.Application, cache: CacheApi, globalConfig: global.GlobalConfig, searchEngine: SearchEngine, searchResolver: SearchItemResolver, searchIndexer: SearchIndexer, backend: Backend, accounts: AccountManager, pageRelocator: utils.MovedPageLookup, messagesApi: MessagesApi)
+case class AdminSearch @Inject()(implicit app: play.api.Application, cache: CacheApi, globalConfig: global.GlobalConfig, searchEngine: SearchEngine, searchResolver: SearchItemResolver, searchIndexer: SearchIndexer, backend: Backend, accounts: AccountManager, pageRelocator: utils.MovedPageLookup, messagesApi: MessagesApi, markdown: MarkdownRenderer)
   extends AdminController
   with Search {
 

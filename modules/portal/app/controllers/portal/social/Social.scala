@@ -13,6 +13,7 @@ import javax.inject._
 import play.api.mvc.RequestHeader
 import play.api.i18n.{MessagesApi, Messages}
 import play.api.libs.json.Json
+import views.MarkdownRenderer
 import scala.concurrent.Future
 import scala.concurrent.Future.{successful => immediate}
 import models.base.AnyModel
@@ -30,7 +31,7 @@ import controllers.portal.base.PortalController
 @Singleton
 case class Social @Inject()(implicit app: play.api.Application, cache: CacheApi, globalConfig: global.GlobalConfig, searchEngine: SearchEngine,
                             searchResolver: SearchItemResolver, backend: Backend, accounts: AccountManager,
-    mailer: MailerAPI, pageRelocator: utils.MovedPageLookup, messagesApi: MessagesApi)
+    mailer: MailerAPI, pageRelocator: utils.MovedPageLookup, messagesApi: MessagesApi, markdown: MarkdownRenderer)
   extends PortalController with Search {
 
   private val socialRoutes = controllers.portal.social.routes.Social

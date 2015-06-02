@@ -8,7 +8,7 @@ import controllers.generic._
 import models._
 import play.api.i18n.{MessagesApi, Messages}
 import defines.{EntityType,ContentTypes}
-import views.Helpers
+import views.{MarkdownRenderer, Helpers}
 import utils.search._
 import javax.inject._
 import scala.concurrent.Future.{successful => immediate}
@@ -18,7 +18,7 @@ import controllers.base.AdminController
 
 
 @Singleton
-case class Repositories @Inject()(implicit app: play.api.Application, cache: CacheApi, globalConfig: global.GlobalConfig, searchEngine: SearchEngine, searchIndexer: SearchIndexer, searchResolver: SearchItemResolver, backend: Backend, accounts: AccountManager, pageRelocator: utils.MovedPageLookup, messagesApi: MessagesApi)
+case class Repositories @Inject()(implicit app: play.api.Application, cache: CacheApi, globalConfig: global.GlobalConfig, searchEngine: SearchEngine, searchIndexer: SearchIndexer, searchResolver: SearchItemResolver, backend: Backend, accounts: AccountManager, pageRelocator: utils.MovedPageLookup, messagesApi: MessagesApi, markdown: MarkdownRenderer)
   extends AdminController
   with Read[Repository]
   with Update[RepositoryF, Repository]

@@ -1,4 +1,4 @@
-@(events: utils.RangePage[Seq[SystemEvent]])(implicit userOpt: Option[UserProfile], request: RequestHeader, messages: Messages, globalConfig: global.GlobalConfig, prefs: utils.SessionPrefs)
+@(events: utils.RangePage[Seq[SystemEvent]])(implicit userOpt: Option[UserProfile], request: RequestHeader, globalConfig: global.GlobalConfig, prefs: utils.SessionPrefs, messages: Messages, md: views.MarkdownRenderer)
 
 <!-- Modal -->
 <div class="modal-header">

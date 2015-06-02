@@ -1,4 +1,4 @@
-@(stats: utils.Stats)(implicit userOpt: Option[UserProfile], request: RequestHeader, prefs: utils.SessionPrefs, globalConfig: global.GlobalConfig, messages: Messages, flash: Flash)
+@(stats: utils.Stats)(implicit userOpt: Option[UserProfile], request: RequestHeader, prefs: utils.SessionPrefs, globalConfig: global.GlobalConfig, messages: Messages, md: views.MarkdownRenderer, flash: Flash)
 
 @countLink(url: String, key: String, params: Any*) = {
 <a href="@url">@Messages(key, params: _*)</a>
@@ -34,7 +34,7 @@
                 <div class="container">
                     <div class="row">
                         <div class="welcome-lead">
-                            @Html(views.Helpers.renderMarkdown(Messages("welcome.blurb")))
+                            @Html(md.renderMarkdown(Messages("welcome.blurb")))
                         </div>
                     </div>
                     <!-- Example row of columns -->

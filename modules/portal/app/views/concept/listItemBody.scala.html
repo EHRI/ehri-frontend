@@ -1,4 +1,4 @@
-@(item: Concept, highlighter: views.Highlighter = views.NoopHighlighter)(implicit req: RequestHeader, messages: Messages, descriptionId: Option[String] = None)
+@(item: Concept, highlighter: views.Highlighter = views.NoopHighlighter)(implicit req: RequestHeader, messages: Messages, md: views.MarkdownRenderer, descriptionId: Option[String] = None)
 
 @item.model.primaryDescription(descriptionId).map { desc =>
     <div class="search-item-details">

@@ -11,12 +11,13 @@ import models.sql.IntegrityError
 import models.{GuideDAO, Guide, GuidePage}
 import play.api.cache.CacheApi
 import play.api.i18n.MessagesApi
+import views.MarkdownRenderer
 
 import scala.util.{Success, Failure}
 
 
 @Singleton
-case class GuidePages @Inject()(implicit app: play.api.Application, cache: CacheApi, globalConfig: global.GlobalConfig, backend: Backend, accounts: AccountManager, pageRelocator: utils.MovedPageLookup, messagesApi: MessagesApi, guideDAO: GuideDAO) extends AdminController {
+case class GuidePages @Inject()(implicit app: play.api.Application, cache: CacheApi, globalConfig: global.GlobalConfig, backend: Backend, accounts: AccountManager, pageRelocator: utils.MovedPageLookup, messagesApi: MessagesApi, markdown: MarkdownRenderer, guideDAO: GuideDAO) extends AdminController {
 
   private val formPage = models.GuidePage.form
   private final val guidePagesRoutes = controllers.guides.routes.GuidePages

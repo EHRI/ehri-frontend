@@ -12,8 +12,9 @@ import backend.Backend
 import backend.rest.RestHelpers
 import models.base.AnyModel
 import controllers.base.AdminController
+import views.MarkdownRenderer
 
-case class SystemEvents @Inject()(implicit app: play.api.Application, cache: CacheApi, globalConfig: global.GlobalConfig, backend: Backend, accounts: AccountManager, pageRelocator: utils.MovedPageLookup, messagesApi: MessagesApi)
+case class SystemEvents @Inject()(implicit app: play.api.Application, cache: CacheApi, globalConfig: global.GlobalConfig, backend: Backend, accounts: AccountManager, pageRelocator: utils.MovedPageLookup, messagesApi: MessagesApi, markdown: MarkdownRenderer)
   extends AdminController
   with Read[SystemEvent]
   with RestHelpers {

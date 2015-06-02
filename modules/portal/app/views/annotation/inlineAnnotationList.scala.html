@@ -1,18 +1,18 @@
-@(annotations: Seq[Annotation])(implicit userOpt: Option[UserProfile], req: RequestHeader, prefs: utils.SessionPrefs, messages: Messages, globalConfig: global.GlobalConfig)
+@(annotations: Seq[Annotation])(implicit userOpt: Option[UserProfile], req: RequestHeader, prefs: utils.SessionPrefs, globalConfig: global.GlobalConfig, messages: Messages, md: views.MarkdownRenderer)
 
 @defining(views.p.Helpers.sortAnnotations(annotations)) { case (mine, promoted, others) =>
     <ul class="annotation-list">
         @for(ann <- mine) {
-            <li class="personal">@views.html.annotation.annotationInline(ann, true)</li>
+            <li class="personal">@views.html.annotation.annotationInline(ann, editable = true)</li>
         }
         @for(ann <- promoted) {
             <li class="promoted user-content @{if(!prefs.showUserContent) "hidden"}">
-                @views.html.annotation.annotationInline(ann, false)
+                @views.html.annotation.annotationInline(ann, editable = false)
             </li>
         }
         @for(ann <- others) {
             <li class="other user-content @{if(!prefs.showUserContent) "hidden"}">
-                @views.html.annotation.annotationInline(ann, false)
+                @views.html.annotation.annotationInline(ann, editable = false)
             </li>
         }
     </ul>

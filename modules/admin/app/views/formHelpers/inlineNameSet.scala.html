@@ -1,10 +1,10 @@
-@(field: play.api.data.Field, name: String)(implicit fieldPrefix: String, messages: Messages, fieldConstructor: views.html.helper.FieldConstructor)
+@(field: play.api.data.Field, name: String)(implicit fieldPrefix: String, messages: Messages, md: views.MarkdownRenderer, fieldConstructor: views.html.helper.FieldConstructor)
 
 <div class="inline-formset form-group clearfix @{if(field.hasErrors) "has-error"}" data-prefix="@name">
     <label class="col-sm-3 control-label">
         @Messages(fieldPrefix + "." + name)
         <a href="#"
-            title="@views.Helpers.renderMarkdown(Messages(fieldPrefix + "." + name + ".description"))"
+            title="@md.renderMarkdown(Messages(fieldPrefix + "." + name + ".description"))"
             class="add-inline-element">
             <i class="glyphicon glyphicon-plus-sign"></i>
         </a>

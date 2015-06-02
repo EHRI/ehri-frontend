@@ -10,6 +10,7 @@ import play.api.cache.CacheApi
 import play.api.i18n.MessagesApi
 import play.api.libs.concurrent.Execution.Implicits._
 import utils.search._
+import views.MarkdownRenderer
 
 import scala.concurrent.Future.{successful => immediate}
 
@@ -18,7 +19,7 @@ import scala.concurrent.Future.{successful => immediate}
  */
 @Singleton
 case class Countries @Inject()(implicit app: play.api.Application, cache: CacheApi, globalConfig: global.GlobalConfig, searchEngine: SearchEngine, searchResolver: SearchItemResolver, backend: Backend,
-                                  accounts: AccountManager, pageRelocator: utils.MovedPageLookup, messagesApi: MessagesApi)
+                                  accounts: AccountManager, pageRelocator: utils.MovedPageLookup, messagesApi: MessagesApi, markdown: MarkdownRenderer)
   extends PortalController
   with Generic[Country]
   with Search

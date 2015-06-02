@@ -9,6 +9,7 @@ import play.api.i18n.{MessagesApi, Messages}
 import play.api.mvc._
 import play.api.libs.json.{JsValue, Json, JsObject}
 import utils._
+import views.MarkdownRenderer
 import scala.concurrent.Future.{successful => immediate}
 import jp.t2v.lab.play2.auth.LoginLogout
 import play.api.libs.Files.TemporaryFile
@@ -34,7 +35,7 @@ import controllers.portal.base.{PortalController, PortalAuthConfigImpl}
  */
 @Singleton
 case class UserProfiles @Inject()(implicit app: play.api.Application, cache: CacheApi, globalConfig: global.GlobalConfig, searchEngine: SearchEngine, searchResolver: SearchItemResolver, backend: Backend,
-                            accounts: AccountManager, mailer: MailerAPI, pageRelocator: utils.MovedPageLookup, messagesApi: MessagesApi,
+                            accounts: AccountManager, mailer: MailerAPI, pageRelocator: utils.MovedPageLookup, messagesApi: MessagesApi, markdown: MarkdownRenderer,
                                   fileStorage: FileStorage)
     extends PortalController
     with LoginLogout

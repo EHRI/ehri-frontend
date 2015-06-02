@@ -1,4 +1,4 @@
-@(guide: Guide, page: GuidePage, pages: List[GuidePage], items: utils.Page[(AnyModel,utils.search.SearchHit)], params: utils.search.SearchParams, links: Map[String, Long])(implicit userOpt: Option[UserProfile], request: RequestHeader, prefs: utils.SessionPrefs, globalConfig: global.GlobalConfig, messages: Messages, flash: Flash)
+@(guide: Guide, page: GuidePage, pages: List[GuidePage], items: utils.Page[(AnyModel,utils.search.SearchHit)], params: utils.search.SearchParams, links: Map[String, Long])(implicit userOpt: Option[UserProfile], request: RequestHeader, prefs: utils.SessionPrefs, globalConfig: global.GlobalConfig, messages: Messages, md: views.MarkdownRenderer, flash: Flash)
 
 @js = {
 	<script type="text/javascript">
@@ -55,7 +55,7 @@
 }
 
 @sidebar(page: GuidePage) = {
-    @page.description.map(d => Html(views.Helpers.renderTrustedMarkdown(d)))
+    @page.description.map(d => Html(md.renderTrustedMarkdown(d)))
 }
 
 @views.html.layout.guideLayout(guide, page, pages, scripts = js, optionalContent = Some(sidebar(page))) {

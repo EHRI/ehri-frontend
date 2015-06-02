@@ -1,4 +1,4 @@
-@(guide: Guide, page: GuidePage, pages: Seq[GuidePage], sidebar: Option[Html] = None)(implicit request: RequestHeader, messages: Messages)
+@(guide: Guide, page: GuidePage, pages: Seq[GuidePage], sidebar: Option[Html] = None)(implicit request: RequestHeader, messages: Messages, md: views.MarkdownRenderer)
 
 @articleHTML(optionalText: Option[Html]) = {
 	@optionalText.map  { html =>

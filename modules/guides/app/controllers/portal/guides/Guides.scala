@@ -24,13 +24,14 @@ import play.api.libs.json._
 import play.api.mvc._
 import utils.search._
 import controllers.renderError
+import views.MarkdownRenderer
 
 import scala.concurrent.Future
 import scala.concurrent.Future.{successful => immediate}
 
 
 @Singleton
-case class Guides @Inject()(implicit app: play.api.Application, cache: CacheApi, globalConfig: global.GlobalConfig, searchEngine: SearchEngine, searchResolver: SearchItemResolver, backend: Backend, accounts: AccountManager, pageRelocator: utils.MovedPageLookup, messagesApi: MessagesApi, search: SearchDAO, guides: GuideDAO)
+case class Guides @Inject()(implicit app: play.api.Application, cache: CacheApi, globalConfig: global.GlobalConfig, searchEngine: SearchEngine, searchResolver: SearchItemResolver, backend: Backend, accounts: AccountManager, pageRelocator: utils.MovedPageLookup, messagesApi: MessagesApi, markdown: MarkdownRenderer, search: SearchDAO, guides: GuideDAO)
   extends PortalController
   with Search
   with SearchVC

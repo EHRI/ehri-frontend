@@ -1,4 +1,4 @@
-@(guide: Guide, page: GuidePage, pages: List[GuidePage], concepts: utils.Page[(Concept,utils.search.SearchHit)], params: utils.search.SearchParams, links: Map[String, Long], json: play.api.libs.json.JsValue)(implicit userOpt: Option[UserProfile], request: RequestHeader, prefs: utils.SessionPrefs, globalConfig: global.GlobalConfig, messages: Messages, flash: Flash)
+@(guide: Guide, page: GuidePage, pages: List[GuidePage], concepts: utils.Page[(Concept,utils.search.SearchHit)], params: utils.search.SearchParams, links: Map[String, Long], json: play.api.libs.json.JsValue)(implicit userOpt: Option[UserProfile], request: RequestHeader, prefs: utils.SessionPrefs, globalConfig: global.GlobalConfig, messages: Messages, md: views.MarkdownRenderer, flash: Flash)
 
 
 @import play.api.libs.json._
@@ -46,7 +46,7 @@
         </section>
     }
 
-    @page.description.map(d => Html(views.Helpers.renderTrustedMarkdown(d)))
+    @page.description.map(d => Html(md.renderTrustedMarkdown(d)))
 }
 @views.html.layout.guideLayout(guide, page, pages, js, css, optionalContent = Some(optionalContent(page))) {
     <article>

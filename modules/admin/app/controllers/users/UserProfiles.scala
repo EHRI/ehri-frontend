@@ -12,6 +12,7 @@ import utils.search._
 import javax.inject._
 import backend.Backend
 import play.api.data.{FormError, Forms, Form}
+import views.MarkdownRenderer
 import scala.concurrent.Future.{successful => immediate}
 import play.api.libs.json.Json
 import scala.concurrent.Future
@@ -23,7 +24,7 @@ import controllers.base.AdminController
 
 
 @Singleton
-case class UserProfiles @Inject()(implicit app: play.api.Application, cache: CacheApi, globalConfig: global.GlobalConfig, searchIndexer: SearchIndexer, searchEngine: SearchEngine, searchResolver: SearchItemResolver, backend: Backend, accounts: AccountManager, pageRelocator: utils.MovedPageLookup, messagesApi: MessagesApi)
+case class UserProfiles @Inject()(implicit app: play.api.Application, cache: CacheApi, globalConfig: global.GlobalConfig, searchIndexer: SearchIndexer, searchEngine: SearchEngine, searchResolver: SearchItemResolver, backend: Backend, accounts: AccountManager, pageRelocator: utils.MovedPageLookup, messagesApi: MessagesApi, markdown: MarkdownRenderer)
   extends AdminController
   with PermissionHolder[UserProfile]
   with ItemPermissions[UserProfile]

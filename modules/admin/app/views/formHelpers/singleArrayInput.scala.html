@@ -1,3 +1,3 @@
-@(desc: play.api.data.Field, fieldName: String)(implicit prefix: String = "", fieldConstructor: views.html.helper.FieldConstructor, messages: Messages)
+@(desc: play.api.data.Field, fieldName: String)(implicit prefix: String = "", fieldConstructor: views.html.helper.FieldConstructor, messages: Messages, md: views.MarkdownRenderer)
 
-@helper.inputText(desc(fieldName + "[0]"), 'title -> views.Helpers.renderMarkdown(Messages(prefix + "." + fieldName + ".description")), 'class -> "form-control", '_label -> Messages(if (prefix.isEmpty) fieldName else "%s.%s".format(prefix, fieldName)))
+@helper.inputText(desc(fieldName + "[0]"), 'title -> md.renderMarkdown(Messages(prefix + "." + fieldName + ".description")), 'class -> "form-control", '_label -> Messages(if (prefix.isEmpty) fieldName else "%s.%s".format(prefix, fieldName)))

@@ -1,4 +1,4 @@
-@(users: Seq[(String,String)], groups: Seq[(String,String)])(implicit messages: Messages)
+@(users: Seq[(String,String)], groups: Seq[(String,String)])(implicit messages: Messages, md: views.MarkdownRenderer)
 
 @import backend.rest.Constants.MEMBER
 

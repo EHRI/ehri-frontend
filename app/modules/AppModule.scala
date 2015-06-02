@@ -10,16 +10,18 @@ import backend.parse.ParseFeedbackDAO
 import backend.rest.{SearchDAO, CypherIdGenerator, GidSearchResolver}
 import com.google.inject.AbstractModule
 import com.typesafe.plugin.{MockMailer, MailerAPI}
-import eu.ehri.project.search.solr.{SolrQueryBuilder, QueryBuilder, SolrSearchEngine, JsonResponseHandler, ResponseHandler}
+import eu.ehri.project.search.solr.{SolrSearchEngine, JsonResponseHandler, ResponseHandler}
 import global.{AppGlobalConfig, GlobalBackend, GlobalEventHandler, GlobalConfig}
 import indexing.CmdlineIndexer
 import models.{DatabaseGuideDAO, GuideDAO}
 import utils.{DbMovedPageLookup, MovedPageLookup}
 import utils.search.{SearchItemResolver, SearchEngine, SearchIndexer}
+import views.{PegdownMarkdownRendererProvider, MarkdownRenderer}
+
 
 class AppModule extends AbstractModule {
   protected def configure(): Unit = {
-    bind(classOf[auth.AccountManager]).to(classOf[auth.sql.SqlAccountManager])
+    bind(classOf[AccountManager]).to(classOf[auth.sql.SqlAccountManager])
     bind(classOf[GlobalConfig]).to(classOf[AppGlobalConfig])
     bind(classOf[ResponseHandler]).to(classOf[JsonResponseHandler])
     bind(classOf[SearchIndexer]).to(classOf[CmdlineIndexer])
@@ -37,5 +39,6 @@ class AppModule extends AbstractModule {
     bind(classOf[FileStorage]).to(classOf[S3FileStorage])
     bind(classOf[HtmlPages]).to(classOf[GoogleDocsHtmlPages])
     bind(classOf[GuideDAO]).to(classOf[DatabaseGuideDAO])
+    bind(classOf[MarkdownRenderer]).toProvider(classOf[PegdownMarkdownRendererProvider])
   }
 }

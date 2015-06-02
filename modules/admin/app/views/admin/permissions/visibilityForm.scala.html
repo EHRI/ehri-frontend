@@ -1,4 +1,4 @@
-@(f: Form[Seq[String]], users: Seq[(String,String)], groups: Seq[(String,String)])(implicit req: RequestHeader, messages: Messages)
+@(f: Form[Seq[String]], users: Seq[(String,String)], groups: Seq[(String,String)])(implicit req: RequestHeader, messages: Messages, md: views.MarkdownRenderer)
 
 @import backend.rest.Constants.ACCESSOR_PARAM
 

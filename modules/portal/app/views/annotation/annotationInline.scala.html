@@ -1,7 +1,7 @@
-@(annotation: Annotation, editable: Boolean)(implicit userOpt: Option[UserProfile], req: RequestHeader, messages: Messages, globalConfig: global.GlobalConfig)
+@(annotation: Annotation, editable: Boolean)(implicit userOpt: Option[UserProfile], req: RequestHeader, globalConfig: global.GlobalConfig, messages: Messages, md: views.MarkdownRenderer)
 
 <div class="annotation @{if(annotation.isPromoted) "promoted"}" id="@annotation.id">
-    @Html(views.Helpers.renderUntrustedMarkdown(annotation.model.body))
+    @Html(md.renderUntrustedMarkdown(annotation.model.body))
     @for(user <- annotation.user ; event <- annotation.latestEvent) {
         - <div class="annotation-meta">
             @views.html.helpers.linkTo(user, attributes = Seq('rel -> "nofollow"))

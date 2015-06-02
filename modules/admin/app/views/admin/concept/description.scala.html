@@ -1,4 +1,4 @@
-@(item: Concept, desc: ConceptDescriptionF, links: Seq[Link], annotations: Seq[Annotation])(implicit prefix: String, userOpt: Option[UserProfile], req: RequestHeader, globalConfig: global.GlobalConfig, messages: Messages)
+@(item: Concept, desc: ConceptDescriptionF, links: Seq[Link], annotations: Seq[Annotation])(implicit prefix: String, userOpt: Option[UserProfile], req: RequestHeader, globalConfig: global.GlobalConfig, messages: Messages, md: views.MarkdownRenderer)
 
 @import ConceptF._
 

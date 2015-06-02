@@ -1,4 +1,4 @@
-@(item: HistoricalAgent, desc: HistoricalAgentDescriptionF, links: Seq[Link], annotations: Seq[Annotation])(implicit userOpt: Option[UserProfile], request: RequestHeader, fieldPrefix: String, messages: Messages, globalConfig: global.GlobalConfig)
+@(item: HistoricalAgent, desc: HistoricalAgentDescriptionF, links: Seq[Link], annotations: Seq[Annotation])(implicit userOpt: Option[UserProfile], request: RequestHeader, fieldPrefix: String, messages: Messages, md: views.MarkdownRenderer, globalConfig: global.GlobalConfig)
 
 @import Isaar._
 @import views.html.admin.common.descriptionSection

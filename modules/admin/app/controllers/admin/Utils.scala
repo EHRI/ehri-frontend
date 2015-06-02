@@ -17,6 +17,7 @@ import backend.Backend
 import play.api.libs.ws.WS
 import utils.PageParams
 import backend.rest.cypher.CypherDAO
+import views.MarkdownRenderer
 
 import scala.concurrent.Future.{successful => immediate}
 
@@ -24,7 +25,7 @@ import scala.concurrent.Future.{successful => immediate}
  * Controller for various monitoring functions.
  */
 @Singleton
-case class Utils @Inject()(implicit app: play.api.Application, cache: CacheApi, globalConfig: global.GlobalConfig, backend: Backend, accounts: AccountManager, pageRelocator: utils.MovedPageLookup, messagesApi: MessagesApi)
+case class Utils @Inject()(implicit app: play.api.Application, cache: CacheApi, globalConfig: global.GlobalConfig, backend: Backend, accounts: AccountManager, pageRelocator: utils.MovedPageLookup, messagesApi: MessagesApi, markdown: MarkdownRenderer)
     extends AdminController {
 
   override val staffOnly = false

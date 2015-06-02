@@ -8,11 +8,12 @@ import models.{Guide, GuidePage, _}
 import play.api.cache.CacheApi
 import play.api.i18n.MessagesApi
 import utils.search.{SearchEngine, SearchItemResolver}
+import views.MarkdownRenderer
 
 
 @Singleton
 case class Repositories @Inject()(implicit app: play.api.Application, cache: CacheApi, globalConfig: global.GlobalConfig, searchEngine: SearchEngine, searchResolver: SearchItemResolver, backend: Backend,
-                            accounts: AccountManager, pageRelocator: utils.MovedPageLookup, messagesApi: MessagesApi, guideDAO: GuideDAO)
+                            accounts: AccountManager, pageRelocator: utils.MovedPageLookup, messagesApi: MessagesApi, markdown: MarkdownRenderer, guideDAO: GuideDAO)
   extends PortalController
   with Generic[Repository] {
 

@@ -1,4 +1,4 @@
-@(f: Form[HistoricalAgentF], defaults: Option[play.api.Configuration] = None)(implicit userOpt: Option[UserProfile], req: RequestHeader, globalConfig: global.GlobalConfig, messages: Messages, flash: Flash)
+@(f: Form[HistoricalAgentF], defaults: Option[play.api.Configuration] = None)(implicit userOpt: Option[UserProfile], req: RequestHeader, globalConfig: global.GlobalConfig, messages: Messages, md: views.MarkdownRenderer, flash: Flash)
 
 @import models.Isaar._
 @import views.html.formHelpers._

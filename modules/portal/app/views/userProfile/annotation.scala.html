@@ -1,4 +1,4 @@
-@(annotation: Annotation, highlighter: views.Highlighter = views.NoopHighlighter)(implicit userOpt: Option[UserProfile], req: RequestHeader, messages: Messages, globalConfig: global.GlobalConfig)
+@(annotation: Annotation, highlighter: views.Highlighter = views.NoopHighlighter)(implicit userOpt: Option[UserProfile], req: RequestHeader, messages: Messages, md: views.MarkdownRenderer, globalConfig: global.GlobalConfig)
 
 <div class="annotation" id="@annotation.id">
     <div class="annotation-header">
@@ -10,7 +10,7 @@
         }
     </div>
     <blockquote class="annotation-body">
-        @Html(highlighter.highlight(views.Helpers.renderUntrustedMarkdown(annotation.model.body)))
+        @Html(highlighter.highlight(md.renderUntrustedMarkdown(annotation.model.body)))
     </blockquote>
     <div class="annotation-meta">
         @for(user <- annotation.user ; event <- annotation.latestEvent) {

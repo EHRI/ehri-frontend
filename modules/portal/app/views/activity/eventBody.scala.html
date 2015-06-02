@@ -1,9 +1,9 @@
-@(event: SystemEvent, subject: models.base.AnyModel, user: models.base.Accessor, et: defines.EventType.Value)(implicit userOpt: Option[UserProfile], req: RequestHeader, globalConfig: global.GlobalConfig, messages: Messages)
+@(event: SystemEvent, subject: models.base.AnyModel, user: models.base.Accessor, et: defines.EventType.Value)(implicit userOpt: Option[UserProfile], req: RequestHeader, globalConfig: global.GlobalConfig, messages: Messages, md: views.MarkdownRenderer)
 
 @import defines.EventType
 
 @annotationBody(ann: Annotation) = {
-    <blockquote>@Html(views.Helpers.renderUntrustedMarkdown(ann.model.body))</blockquote>
+    <blockquote>@Html(md.renderUntrustedMarkdown(ann.model.body))</blockquote>
 }
 
 @eventModification(subject: models.Annotation) = {

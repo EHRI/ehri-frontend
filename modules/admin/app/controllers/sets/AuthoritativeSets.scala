@@ -10,6 +10,8 @@ import models._
 import defines.{ContentTypes, EntityType}
 import utils.search.{SearchConstants, SearchIndexer, SearchItemResolver, SearchEngine}
 import javax.inject._
+import views.MarkdownRenderer
+
 import scala.concurrent.Future.{successful => immediate}
 import backend.{Entity, IdGenerator, Backend}
 import play.api.Configuration
@@ -19,7 +21,7 @@ import controllers.base.AdminController
 @Singleton
 case class
 AuthoritativeSets @Inject()(implicit app: play.api.Application, cache: CacheApi, globalConfig: global.GlobalConfig, searchEngine: SearchEngine, searchIndexer: SearchIndexer,
-            searchResolver: SearchItemResolver, backend: Backend, idGenerator: IdGenerator, accounts: AccountManager, pageRelocator: utils.MovedPageLookup, messagesApi: MessagesApi)
+            searchResolver: SearchItemResolver, backend: Backend, idGenerator: IdGenerator, accounts: AccountManager, pageRelocator: utils.MovedPageLookup, messagesApi: MessagesApi, markdown: MarkdownRenderer)
   extends AdminController
   with CRUD[AuthoritativeSetF,AuthoritativeSet]
   with Creator[HistoricalAgentF, HistoricalAgent, AuthoritativeSet]

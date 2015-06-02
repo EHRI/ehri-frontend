@@ -8,6 +8,7 @@ import play.api.mvc._
 import controllers.generic.{Search, Read, Promotion, Visibility}
 import models.{AnnotationF, Annotation, UserProfile}
 import utils.ContributionVisibility
+import views.MarkdownRenderer
 import scala.concurrent.Future.{successful => immediate}
 import defines.{EntityType, PermissionType}
 import backend.rest.cypher.CypherDAO
@@ -31,7 +32,7 @@ import controllers.portal.base.PortalController
  */
 @Singleton
 case class Annotations @Inject()(implicit app: play.api.Application, cache: CacheApi, globalConfig: global.GlobalConfig, searchEngine: SearchEngine, searchResolver: SearchItemResolver,
-                                 backend: Backend, accounts: AccountManager, pageRelocator: utils.MovedPageLookup, messagesApi: MessagesApi)
+                                 backend: Backend, accounts: AccountManager, pageRelocator: utils.MovedPageLookup, messagesApi: MessagesApi, markdown: MarkdownRenderer)
   extends PortalController
   with Read[Annotation]
   with Visibility[Annotation]

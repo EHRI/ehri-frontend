@@ -1,7 +1,4 @@
-@(event: SystemEvent)(implicit userOpt: Option[UserProfile], req: RequestHeader, globalConfig: global.GlobalConfig, messages: Messages)
-
-@import defines.EventType
-@import models.{Annotation,AnnotationF}
+@(event: SystemEvent)(implicit userOpt: Option[UserProfile], req: RequestHeader, globalConfig: global.GlobalConfig, messages: Messages, md: views.MarkdownRenderer)
 
 @eventTitle(user: Html, eventType: String, item: models.base.AnyModel) = {
     @Html(Messages("timeline.eventType." + eventType, user, Messages("timeline.target." + item.isA.toString)))

@@ -1,4 +1,4 @@
-@(guide: Guide, page: GuidePage, pages: List[GuidePage], result: utils.search.SearchResult[(DocumentaryUnit,utils.search.SearchHit)], available: Map[String, Seq[models.base.AnyModel]], action: Call)(implicit userOpt: Option[UserProfile], request: RequestHeader, prefs: utils.SessionPrefs, globalConfig: global.GlobalConfig, messages: Messages, flash: Flash)
+@(guide: Guide, page: GuidePage, pages: List[GuidePage], result: utils.search.SearchResult[(DocumentaryUnit,utils.search.SearchHit)], available: Map[String, Seq[models.base.AnyModel]], action: Call)(implicit userOpt: Option[UserProfile], request: RequestHeader, prefs: utils.SessionPrefs, globalConfig: global.GlobalConfig, messages: Messages, md: views.MarkdownRenderer, flash: Flash)
 
 @import utils.search.SearchOrder
 
@@ -117,7 +117,7 @@
             @facets
         }
     </div>
-    @page.description.map(d => Html(views.Helpers.renderTrustedMarkdown(d)))
+    @page.description.map(d => Html(md.renderTrustedMarkdown(d)))
 }
 
 

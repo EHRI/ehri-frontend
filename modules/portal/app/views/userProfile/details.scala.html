@@ -1,8 +1,8 @@
-@(user: UserProfile, profilePage: Boolean = false)(implicit userOpt: Option[UserProfile], request: RequestHeader, prefs: utils.SessionPrefs, globalConfig: global.GlobalConfig, messages: Messages, flash: Flash)
+@(user: UserProfile, profilePage: Boolean = false)(implicit userOpt: Option[UserProfile], request: RequestHeader, prefs: utils.SessionPrefs, globalConfig: global.GlobalConfig, messages: Messages, md: views.MarkdownRenderer, flash: Flash)
 
 @textSection(key: String, data: Option[String]) = {
     @data.map { text =>
-        <dt>@Messages(key)</dt><dd>@Html(views.Helpers.renderUntrustedMarkdown(text))</dd>
+        <dt>@Messages(key)</dt><dd>@Html(md.renderUntrustedMarkdown(text))</dd>
     }
 }
 

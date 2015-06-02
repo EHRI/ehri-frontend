@@ -1,4 +1,4 @@
-@(item: Repository, showCountry: Boolean, highlighter: views.Highlighter = views.NoopHighlighter)(implicit userOpt: Option[UserProfile], req: RequestHeader, messages: Messages, descriptionId: Option[String] = None)
+@(item: Repository, showCountry: Boolean, highlighter: views.Highlighter = views.NoopHighlighter)(implicit userOpt: Option[UserProfile], req: RequestHeader, messages: Messages, md: views.MarkdownRenderer, descriptionId: Option[String] = None)
 
 @item.model.primaryDescription(descriptionId).map { desc =>
 
