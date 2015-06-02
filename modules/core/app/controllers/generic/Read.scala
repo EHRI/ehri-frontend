@@ -46,7 +46,7 @@ trait Read[MT] extends Generic {
 
   case class ItemHistoryRequest[A](
     item: MT,
-    page: RangePage[SystemEvent],
+    page: RangePage[Seq[SystemEvent]],
     params: RangeParams,
     userOpt: Option[UserProfile],
     request: Request[A]
@@ -138,7 +138,7 @@ trait Read[MT] extends Generic {
         implicit val req = request
         val params = RangeParams.fromRequest(request)
         val getF: Future[MT] = userBackend.get(itemId)
-        val historyF: Future[RangePage[SystemEvent]] = userBackend.history[SystemEvent](itemId, params)
+        val historyF: Future[RangePage[Seq[SystemEvent]]] = userBackend.history[SystemEvent](itemId, params)
         for {
           item <- getF
           events <- historyF

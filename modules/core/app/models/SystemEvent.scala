@@ -97,6 +97,27 @@ case class SystemEvent(
 
   def time = DateTimeFormat.forPattern(SystemEventF.FORMAT).print(model.timestamp)
 
+  /**
+   * If the event is of a certain type (link, annotate) the effective
+   * subject is the scope in which the link or annotation is made,
+   * rather than the link/annotation itself.
+   */
+  def effectiveSubject: Option[AnyModel] =
+    if (model.eventType == Some(EventType.link) || model.eventType == Some(EventType.annotation))
+      scope else firstSubject
+
+  import EventType._
+
+  /**
+   * For display purposes, collapse certain specific event types to a more
+   * general "effective" type: create, modify,delete, etc.
+   */
+  def effectiveType: Option[EventType.Value] = model.eventType.map {
+    case `createDependent`|`modifyDependent`|`deleteDependent` => modification
+    case `setGlobalPermissions`|`setItemPermissions`|`setVisibility`|`addGroup`|`removeGroup` => modification
+    case et => et
+  }
+
   override def toStringLang(implicit lang: play.api.i18n.Lang) =
     Messages(isA + "." + model.eventType.map(_.toString).getOrElse("unknown"))(lang)
 }

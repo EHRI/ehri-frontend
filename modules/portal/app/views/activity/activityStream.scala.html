@@ -1,28 +1,11 @@
-@(user: UserProfile, page: utils.RangePage[SystemEvent])(implicit userOpt: Option[UserProfile], req: RequestHeader, prefs: utils.SessionPrefs, globalConfig: global.GlobalConfig, lang: Lang)
-
-@import backend.rest.Constants.OFFSET_PARAM
+@(page: utils.RangePage[Seq[SystemEvent]])(implicit userOpt: Option[UserProfile], req: RequestHeader, prefs: utils.SessionPrefs, globalConfig: global.GlobalConfig, lang: Lang)
 
 <div class="activity-stream-wrapper">
     @if(page.nonEmpty) {
-        <div class="timeline-container">
-            <ul id="activity-stream" class="timeline timeline-user">
-                @eventItems(page)
-            </ul>
-        </div>
-        @if(page.more) {
-            <a id="activity-stream-fetchmore" class="btn btn-default btn-block"
-               data-limit="@page.limit" data-offset="@(page.offset + page.limit)"
-               href="@utils.joinPath(req.path, req.queryString.updated(OFFSET_PARAM, Seq((page.offset + page.limit).toString)))">
-                @Messages("activity.fetchMore")
-            </a>
-        }
+        @views.html.activity.timeline(page)
     } else {
         <p class="no-content">
-            @if(userOpt.exists(_.id != user.id)) {
-                @Messages("activity.noUserActivityYet", user.toStringLang)
-            } else {
-                @Messages("activity.noActivityYet")
-            }
+            @Messages("activity.noActivityYet")
         </p>
     }
 </div>

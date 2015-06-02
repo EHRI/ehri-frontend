@@ -1,0 +1,12 @@
+@(items: Seq[SystemEvent])(implicit globalConfig: global.GlobalConfig, lang: Lang)
+
+<li class="list-item">
+    @items.headOption.map { item =>
+        @views.html.admin.systemEvent.eventItem(item)
+        @defining(items.tail.size) { restCount =>
+            @if(restCount > 0) {
+                <div><small>And @restCount more</small></div>
+            }
+        }
+    }
+</li>

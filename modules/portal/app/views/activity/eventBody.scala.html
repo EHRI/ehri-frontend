@@ -1,0 +1,66 @@
+@(event: SystemEvent, subject: models.base.AnyModel, user: models.base.Accessor, et: defines.EventType.Value)(implicit userOpt: Option[UserProfile], req: RequestHeader, globalConfig: global.GlobalConfig, lang: Lang)
+
+@import defines.EventType
+
+@annotationBody(ann: Annotation) = {
+    <blockquote>@Html(views.Helpers.renderUntrustedMarkdown(ann.model.body))</blockquote>
+}
+
+@eventModification(subject: models.Annotation) = {
+@subject.target.map{ target =>
+    @eventFooter(target, views.html.helpers.linkToWithFragment(target, "#" + subject.id))
+}
+}
+
+@eventFooter(item : models.base.AnyModel, link: Html) = {
+    <div class="event-footer @item.isA">@link</div>
+}
+
+@et match {
+    case EventType.modification if user.id == subject.id => {
+        @* No text for this one... *@
+    }
+    case EventType.modification => {
+        @subject match {
+            case m: Annotation => {
+                @annotationBody(m)
+                @eventModification(m)
+            }
+            case _ => {
+                @eventFooter(subject, views.html.helpers.linkTo(subject))
+            }
+        }
+    }
+    case EventType.link => {
+        @* Annotations and links are special cases. We could link directly to the item but it wouldn't be very useful for the user.
+        Instead we link to the scope item (if it's available), with the link/comment id as a fragment. *@
+        @event.scope.map { scope =>
+            @if(scope.id == subject.id) {
+                @eventFooter(subject, views.html.helpers.linkTo(subject))
+            } else {
+                @eventFooter(scope, views.html.helpers.linkToWithFragment(scope, "#" + subject.id))
+            }
+        }
+    }
+    case EventType.annotation => {
+        @subject match {
+            case m: Annotation => {
+                @annotationBody(m)
+            }
+            case _ => {
+                @* Nothing to do there *@
+            }
+        }
+        @event.scope.map { scope =>
+            @if(scope.id == subject.id) {
+                @eventFooter(subject, views.html.helpers.linkTo(subject))
+            } else {
+                @eventFooter(scope, views.html.helpers.linkToWithFragment(scope, "#" + subject.id))
+            }
+        }
+    }
+    case _ => {
+        @* Not bothering with other events yet... *@
+        @eventFooter(subject, views.html.helpers.linkTo(subject))
+    }
+}

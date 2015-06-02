@@ -10,7 +10,7 @@ import play.api.libs.concurrent.Execution.Implicits._
 import play.api.mvc._
 import utils.search._
 import play.api.cache.Cached
-import defines.EntityType
+import defines.{EventType, EntityType}
 import play.api.libs.ws.WS
 import play.twirl.api.Html
 import backend.{HtmlPages, Backend}
@@ -137,7 +137,7 @@ case class Portal @Inject()(implicit globalConfig: global.GlobalConfig, searchEn
     val filters = SystemEventParams.fromRequest(request)
     userBackend.history[SystemEvent](id, params, filters).map { events =>
       if (isAjax && modal) Ok(views.html.activity.itemActivityModal(events))
-      else if (isAjax) Ok(views.html.activity.itemEventItems(events))
+      else if (isAjax) Ok(views.html.activity.eventItems(events))
         .withHeaders("activity-more" -> events.more.toString)
       else Ok(views.html.activity.itemActivity(events, params))
     }

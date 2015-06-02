@@ -1,4 +1,4 @@
-@(events: utils.RangePage[SystemEvent])(implicit userOpt: Option[UserProfile], request: RequestHeader, lang: Lang, globalConfig: global.GlobalConfig, prefs: utils.SessionPrefs)
+@(events: utils.RangePage[Seq[SystemEvent]])(implicit userOpt: Option[UserProfile], request: RequestHeader, lang: Lang, globalConfig: global.GlobalConfig, prefs: utils.SessionPrefs)
 
 <!-- Modal -->
 <div class="modal-header">
@@ -6,7 +6,7 @@
     <h4 class="modal-title" id="history-modal-label">@Messages("item.history")</h4>
 </div>
 <div class="modal-body">
-    @itemActivityStream(events)
+    @views.html.activity.activityStream(events)
 </div>
 <div class="modal-footer">
     <button type="button" class="btn btn-default" data-dismiss="modal">@Messages("close")</button>

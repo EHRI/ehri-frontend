@@ -158,7 +158,7 @@ case class VirtualUnits @Inject()(implicit globalConfig: global.GlobalConfig, se
   }
 
   def history(id: String) = ItemHistoryAction(id).apply { implicit request =>
-    Ok(views.html.admin.systemEvents.itemList(request.item, request.page, request.params))
+    Ok(views.html.admin.systemEvent.itemList(request.item, request.page, request.params))
   }
 
   def list = ItemPageAction.apply { implicit request =>
