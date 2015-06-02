@@ -1,0 +1,15 @@
+@(user: UserProfile, page: utils.RangePage[Seq[SystemEvent]])(implicit userOpt: Option[UserProfile], req: RequestHeader, prefs: utils.SessionPrefs, globalConfig: global.GlobalConfig, lang: Lang)
+
+<div class="activity-stream-wrapper">
+    @if(page.nonEmpty) {
+        @views.html.activity.timeline(page)
+    } else {
+        <p class="no-content">
+            @if(userOpt.exists(_.id != user.id)) {
+                @Messages("activity.noUserActivityYet", user.toStringLang)
+            } else {
+                @Messages("activity.noActivityYet")
+            }
+        </p>
+    }
+</div>

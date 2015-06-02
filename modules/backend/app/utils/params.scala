@@ -7,7 +7,7 @@ import backend.rest.Constants._
 import defines.{EnumUtils, EntityType, EventType}
 import org.joda.time.DateTime
 import org.joda.time.format.ISODateTimeFormat
-import utils.SystemEventParams.ShowType
+import utils.SystemEventParams.{Aggregation, ShowType}
 
 object Ranged {
   def streamHeader: (String, String) = STREAM_HEADER -> true.toString
@@ -75,7 +75,8 @@ case class SystemEventParams(
   itemTypes: Seq[EntityType.Value] = Nil,
   from: Option[DateTime] = None,
   to: Option[DateTime] = None,
-  show: Option[ShowType.Value] = None) {
+  show: Option[ShowType.Value] = None,
+  aggregation: Option[Aggregation.Value] = None) {
   import SystemEventParams._
   private val fmt = ISODateTimeFormat.dateTime.withZoneUTC
 
@@ -85,7 +86,9 @@ case class SystemEventParams(
       itemTypes.map(et => ITEM_TYPE -> et.toString) ++
       from.map(f => FROM -> fmt.print(f)).toSeq ++
       to.map(t => TO -> fmt.print(t)).toSeq ++
-      show.map(f => SHOW -> f.toString).toSeq).toSeq
+      show.map(f => SHOW -> f.toString).toSeq ++
+      aggregation.map(f => AGGREGATION -> f.toString).toSeq
+      ).toSeq
   }
 }
 
@@ -103,6 +106,14 @@ object SystemEventParams {
     val Follows = Value("follows")
   }
 
+  val AGGREGATION = "aggregation"
+  object Aggregation extends Enumeration {
+    type Type = Value
+    val User = Value("user")
+    val Strict = Value("strict")
+    val Off = Value("off")
+  }
+
   def form: Form[SystemEventParams] = Form(
     mapping(
       USERS -> seq(text),
@@ -110,7 +121,8 @@ object SystemEventParams {
       ITEM_TYPE -> seq(enumMapping(EntityType)),
       FROM -> optional(jodaDate(pattern = DATE_PATTERN)),
       TO -> optional(jodaDate(pattern = DATE_PATTERN)),
-      SHOW -> optional(enumMapping(ShowType))
+      SHOW -> optional(enumMapping(ShowType)),
+      AGGREGATION -> optional(enumMapping(Aggregation))
     )(SystemEventParams.apply)(SystemEventParams.unapply)
   )
 

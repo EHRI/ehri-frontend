@@ -1,0 +1,8 @@
+@(page: Iterable[Seq[SystemEvent]])(implicit userOpt: Option[UserProfile], req: RequestHeader, globalConfig: global.GlobalConfig, lang: Lang)
+
+@for(eventSeq <- page) {
+    @for(event <- eventSeq) {
+        @* TODO: Implement summarisation *@
+        @views.html.admin.systemEvent.listEntry(event)
+    }
+}

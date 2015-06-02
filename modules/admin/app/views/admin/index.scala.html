@@ -1,22 +1,20 @@
-@(activityOpt: Option[Iterable[SystemEvent]])(implicit userOpt: Option[UserProfile] = None, req: RequestHeader, globalConfig: global.GlobalConfig, lang: Lang, flash: Flash)
+@(activityOpt: Option[Iterable[Seq[SystemEvent]]])(implicit userOpt: Option[UserProfile] = None, req: RequestHeader, globalConfig: global.GlobalConfig, lang: Lang, flash: Flash)
 
 @views.html.admin.layout.rightSidebar(Messages("admin.home.title")) {
 
     @activityOpt.map { events =>
         <h3>@Messages("admin.recentActivity")</h3>
         <ul id="activity-stream" class="list-unstyled">
-            @for(event <- events) {
-                @systemEvents.listEntry(event)
-            }
+            @views.html.admin.systemEvent.aggregateList(events)
         </ul>
     }
 } {
     @views.html.admin.common.sidebarActions { user =>
         @views.html.admin.common.sidebarAction(user.isAdmin) {
-            <a href="@controllers.admin.routes.Home.metrics">@Messages("admin.metrics.show")</a>
+            <a href="@controllers.admin.routes.Home.metrics()">@Messages("admin.metrics.show")</a>
         }
         @views.html.admin.common.sidebarAction() {
-            <a href="@controllers.events.routes.SystemEvents.list">@Messages("systemEvent.list")</a>
+            <a href="@controllers.events.routes.SystemEvents.list()">@Messages("systemEvent.list")</a>
         }
     }
 }

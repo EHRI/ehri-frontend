@@ -1,5 +1,15 @@
-@(events: Iterable[SystemEvent])(implicit userOpt: Option[UserProfile], req: RequestHeader, globalConfig: global.GlobalConfig, lang: Lang)
+@(events: Iterable[Seq[SystemEvent]])(implicit userOpt: Option[UserProfile], req: RequestHeader, globalConfig: global.GlobalConfig, lang: Lang)
 
-@for(event <- events) {
-    @eventItem(event)
+@for(eventSeq <- events) {
+    @if(eventSeq.size == 1) {
+        @views.html.activity.eventItem(eventSeq.head)
+    } else {
+        @defining(EventSummary(eventSeq)) { summary =>
+            @if(summary.sameSubject && summary.sameType) {
+                @views.html.activity.eventItem(eventSeq.head)
+            } else {
+                @views.html.activity.eventSummary(summary)
+            }
+        }
+    }
 }

@@ -92,8 +92,8 @@ case class UserProfiles @Inject()(implicit globalConfig: global.GlobalConfig, se
     val eventParams = SystemEventParams.fromRequest(request)
       .copy(eventTypes = activityEventTypes)
       .copy(itemTypes = activityItemTypes)
-    val events: Future[RangePage[SystemEvent]] =
-      userBackend.listEventsByUser[SystemEvent](request.user.id, listParams, eventParams)
+    val events: Future[RangePage[Seq[SystemEvent]]] =
+      userBackend.listUserActions[SystemEvent](request.user.id, listParams, eventParams)
 
     events.map { myActivity =>
       if (isAjax) Ok(views.html.activity.eventItems(myActivity))

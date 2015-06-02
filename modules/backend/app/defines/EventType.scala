@@ -18,7 +18,13 @@ object EventType extends Enumeration() {
     removeGroup,
     ingest,
     promotion,
-    demotion = Value
+    demotion,
+    follow,
+    unfollow,
+    watch,
+    unwatch,
+    block,
+    unblock = Value
 
   implicit val format = defines.EnumUtils.enumFormat(this)
 }

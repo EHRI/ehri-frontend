@@ -77,7 +77,8 @@ trait PortalController
     EventType.createDependent,
     EventType.deleteDependent,
     EventType.link,
-    EventType.annotation
+    EventType.annotation,
+    EventType.watch
   )
 
   /**

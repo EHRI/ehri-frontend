@@ -66,8 +66,8 @@ case class Social @Inject()(implicit globalConfig: global.GlobalConfig, searchEn
     val eventParams = SystemEventParams.fromRequest(request)
       .copy(eventTypes = activityEventTypes)
       .copy(itemTypes = activityItemTypes)
-    val events: Future[RangePage[SystemEvent]] =
-      userBackend.listEventsByUser[SystemEvent](userId, listParams, eventParams)
+    val events: Future[RangePage[Seq[SystemEvent]]] =
+      userBackend.listUserActions[SystemEvent](userId, listParams, eventParams)
 
     if (isAjax) events.map { theirActivity =>
       Ok(views.html.activity.eventItems(theirActivity))

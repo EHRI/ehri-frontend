@@ -2,7 +2,8 @@ package backend
 
 import play.api.Play.current
 import defines.{EntityType, ContentTypes, PermissionType}
-import utils.{RangeParams, RangePage, PageParams}
+import utils.SystemEventParams.Aggregation
+import utils.{SystemEventParams, RangeParams, RangePage, PageParams}
 import backend.rest.{RestBackend, CypherIdGenerator, ItemNotFound, ValidationError}
 import backend.rest.cypher.CypherDAO
 import play.api.libs.json.{JsString, Json}
@@ -308,25 +309,40 @@ class BackendModelSpec extends RestBackendRunner with PlaySpecification {
 
       // Fetching all the items (limit = -1), implies there are never more
       // items because we've got them all...
-      val pageNoLimit: RangePage[SystemEvent] =
-        await(testBackend.history[SystemEvent]("c1", RangeParams.empty.withoutLimit))
-      pageNoLimit.size must equalTo(3)
+      // NB: Turning off event aggregation, because otherwise all events
+      // will come in one batch (since they're by the same user)
+      val eventParams = SystemEventParams.empty.copy(aggregation = Some(Aggregation.Off))
+      val pageNoLimit: RangePage[Seq[SystemEvent]] =
+        await(testBackend.history[SystemEvent]("c1", RangeParams.empty.withoutLimit, eventParams))
+      pageNoLimit.size must equalTo(3) // 1 user
+      pageNoLimit.head.size must equalTo(1)
       pageNoLimit.more must beFalse
       pageNoLimit.limit must equalTo(-1)
 
-      val pageOne: RangePage[SystemEvent] =
-        await(testBackend.history[SystemEvent]("c1", RangeParams(limit = 2)))
+      val pageOne: RangePage[Seq[SystemEvent]] =
+        await(testBackend.history[SystemEvent]("c1", RangeParams(limit = 2), eventParams))
       pageOne.size must equalTo(2)
       pageOne.more must beTrue
       pageOne.offset must equalTo(0)
       pageOne.limit must equalTo(2)
 
-      val pageOneThree: RangePage[SystemEvent] =
-        await(testBackend.history[SystemEvent]("c1", RangeParams(offset = 2, limit = 1)))
+      val pageOneThree: RangePage[Seq[SystemEvent]] =
+        await(testBackend.history[SystemEvent]("c1", RangeParams(offset = 2, limit = 1), eventParams))
       pageOneThree.size must equalTo(1)
       pageOneThree.more must beFalse
       pageOneThree.offset must equalTo(2)
       pageOneThree.limit must equalTo(1)
+    }
+
+    "get activity for a user" in new TestApp {
+      await(testBackend.patch[DocumentaryUnit]("c1", Json.obj("prop1" -> "foo")))
+      val forUser: RangePage[Seq[SystemEvent]] =
+        await(testBackend.listEventsForUser[SystemEvent](userProfile.id, RangeParams.empty.withoutLimit))
+      forUser.size must equalTo(1)
+
+      val byUser: RangePage[Seq[SystemEvent]] =
+        await(testBackend.listUserActions[SystemEvent](userProfile.id, RangeParams.empty.withoutLimit))
+      byUser.size must equalTo(1)
     }
   }
 

@@ -1,5 +1,6 @@
 package models.base
 
+import org.apache.commons.lang3.StringUtils
 import play.api.libs.json._
 import defines.{ContentTypes, EntityType}
 import play.api.i18n.Lang
@@ -34,7 +35,7 @@ trait AnyModel extends backend.WithId {
   /**
    * Abbreviated version of the canonical name
    */
-  def toStringAbbr(implicit lang: Lang) = toStringLang(lang)
+  def toStringAbbr(implicit lang: Lang) = StringUtils.abbreviate(toStringLang(lang), 80)
 }
 
 trait Model {
@@ -110,8 +111,6 @@ trait MetaModel[+T <: Model] extends AnyModel {
       d.primaryDescription(lang).orElse(d.descriptions.headOption).fold(id)(_.name)
     case _ => id
   }
-
-  override def toStringAbbr(implicit lang: Lang): String = toStringLang(lang)
 }
 
 trait WithDescriptions[+T <: Description] extends AnyModel {

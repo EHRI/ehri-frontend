@@ -349,6 +349,11 @@ systemEvent.removeGroup=Member removed from group
 systemEvent.ingest=Items imported
 systemEvent.promotion=Item Promoted
 systemEvent.demotion=Item Promotion Removed
+systemEvent.watch=Started watching an item
+systemEvent.unwatch=Stopped watching an item
+systemEvent.follow=Started following a user
+systemEvent.unfollow=Stopped following a user
+
 
 #
 # Miscellaneous errors
@@ -603,11 +608,13 @@ timeline.eventType.link={0} linked {1}
 timeline.eventType.createDependent={0} updated {1}
 timeline.eventType.modifyDependent={0} updated {1}
 timeline.eventType.deleteDependent={0} updated {1}
+timeline.eventType.watch={0} started watching {1}
+timeline.eventType.follow={0} started following {1}
 timeline.eventType.setVisibility={0} updated {1}
 timeline.eventType.setGlobalPermissions={0} updated {1}
 timeline.eventType.setItemPermissions={0} updated {1}
 timeline.target.group=a group
-timeline.target.userProfile=an user
+timeline.target.userProfile=a user
 timeline.target.repository=a collection holding institution
 timeline.target.historicalAgent=a historical agent
 timeline.target.documentaryUnit=an archival description
