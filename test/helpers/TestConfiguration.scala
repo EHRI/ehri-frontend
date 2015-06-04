@@ -1,5 +1,7 @@
 package helpers
 
+import javax.inject.Inject
+
 import auth.oauth2.{MockOAuth2Flow, OAuth2Flow}
 import auth.{AccountManager, MockAccountManager}
 import backend._
@@ -164,6 +166,16 @@ trait TestConfiguration extends play.api.i18n.I18nSupport {
         }
       }
     }
+  }
+
+  implicit class FakeRequestExtensions[A](fr: FakeRequest[A]) {
+    def withUser(user: Account)(implicit app: play.api.Application): FakeRequest[A] = {
+      fr.withLoggedIn(authConfig(app))(user.id)
+    }
+
+    def withCsrf: FakeRequest[A] = if (fr.method == POST)
+      fr.withSession(CSRF_TOKEN_NAME -> fakeCsrfString)
+        .withHeaders(CSRF_HEADER_NAME -> CSRF_HEADER_NOCHECK) else fr
   }
 
   /**
