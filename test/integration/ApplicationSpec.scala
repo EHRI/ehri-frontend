@@ -127,14 +127,16 @@ class ApplicationSpec extends PlaySpecification with TestConfiguration with User
     }
 
     "redirect 301 for trailing-slash URLs" in new ITestApp {
-      val home = route(fakeLoggedInHtmlRequest(mocks.publicUser, GET,
-        controllers.admin.routes.Home.index().url + "/")).get
+      val home = route(FakeRequest(GET,
+          controllers.admin.routes.Home.index().url + "/")
+        .withUser(mocks.publicUser)).get
       status(home) must equalTo(MOVED_PERMANENTLY)
     }
 
     "deny non-staff users access to admin areas" in new ITestApp {
-      val home = route(fakeLoggedInHtmlRequest(mocks.publicUser, GET,
-        controllers.admin.routes.Home.index().url)).get
+      val home = route(FakeRequest(GET,
+          controllers.admin.routes.Home.index().url)
+        .withUser(mocks.publicUser)).get
       status(home) must equalTo(UNAUTHORIZED)
     }
 
@@ -142,14 +144,15 @@ class ApplicationSpec extends PlaySpecification with TestConfiguration with User
       var user = Account("pete", "unverified@example.com", verified = false, staff = true)
       mocks.accountFixtures += user.id -> user
 
-      val home = route(fakeLoggedInHtmlRequest(user, GET,
-        controllers.admin.routes.Home.index().url)).get
+      val home = route(FakeRequest(GET,
+        controllers.admin.routes.Home.index().url).withUser(user)).get
       status(home) must equalTo(UNAUTHORIZED)
     }
 
     "redirect to default URL when accessing login page when logged in" in new ITestApp {
-      val login = route(fakeLoggedInHtmlRequest(mocks.publicUser, GET,
-        controllers.portal.account.routes.Accounts.loginOrSignup().url)).get
+      val login = route(FakeRequest(GET,
+          controllers.portal.account.routes.Accounts.loginOrSignup().url)
+        .withUser(mocks.publicUser)).get
       status(login) must equalTo(SEE_OTHER)
     }
 

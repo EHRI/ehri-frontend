@@ -176,6 +176,10 @@ trait TestConfiguration extends play.api.i18n.I18nSupport {
     def withCsrf: FakeRequest[A] = if (fr.method == POST)
       fr.withSession(CSRF_TOKEN_NAME -> fakeCsrfString)
         .withHeaders(CSRF_HEADER_NAME -> CSRF_HEADER_NOCHECK) else fr
+
+    def accepting(m: String*): FakeRequest[A] = m.foldLeft(fr) { (c, m) =>
+      c.withHeaders(ACCEPT -> m)
+    }
   }
 
   /**
