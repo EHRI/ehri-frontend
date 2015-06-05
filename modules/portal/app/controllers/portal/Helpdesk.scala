@@ -11,15 +11,26 @@ import javax.inject._
 import backend.rest.SearchDAO
 import com.typesafe.plugin.MailerAPI
 import controllers.portal.base.PortalController
+import utils.MovedPageLookup
 import utils.search.SearchItemResolver
 
 /**
  * @author Mike Bryant (http://github.com/mikesname)
  */
 @Singleton
-case class Helpdesk @Inject()(implicit  app: play.api.Application, cache: CacheApi, globalConfig: global.GlobalConfig, backend: Backend, resolver: SearchItemResolver,
-    accounts: AccountManager, mailer: MailerAPI, helpdeskDAO: HelpdeskDAO, pageRelocator: utils.MovedPageLookup, messagesApi: MessagesApi, search: SearchDAO)
-  extends PortalController {
+case class Helpdesk @Inject()(
+  implicit  app: play.api.Application,
+  cache: CacheApi,
+  globalConfig: global.GlobalConfig,
+  backend: Backend,
+  resolver: SearchItemResolver,
+  accounts: AccountManager,
+  mailer: MailerAPI,
+  helpdeskDAO: HelpdeskDAO,
+  pageRelocator: MovedPageLookup,
+  messagesApi: MessagesApi,
+  search: SearchDAO
+) extends PortalController {
 
   import play.api.data.Form
   import play.api.data.Forms._

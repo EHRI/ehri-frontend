@@ -8,7 +8,7 @@ import controllers.generic._
 import models._
 import play.api.i18n.{MessagesApi, Messages}
 import defines.{ContentTypes, EntityType}
-import utils.PageParams
+import utils.{MovedPageLookup, PageParams}
 import views.{MarkdownRenderer, Helpers}
 import utils.search._
 import javax.inject._
@@ -18,8 +18,18 @@ import controllers.base.AdminController
 
 
 @Singleton
-case class Concepts @Inject()(implicit app: play.api.Application, cache: CacheApi, globalConfig: global.GlobalConfig, searchEngine: SearchEngine, searchResolver: SearchItemResolver, backend: Backend, accounts: AccountManager, pageRelocator: utils.MovedPageLookup, messagesApi: MessagesApi, markdown: MarkdownRenderer)
-  extends AdminController
+case class Concepts @Inject()(
+  implicit app: play.api.Application,
+  cache: CacheApi,
+  globalConfig: global.GlobalConfig,
+  searchEngine: SearchEngine,
+  searchResolver: SearchItemResolver,
+  backend: Backend,
+  accounts: AccountManager,
+  pageRelocator: MovedPageLookup,
+  messagesApi: MessagesApi,
+  markdown: MarkdownRenderer
+) extends AdminController
   with Creator[ConceptF, Concept, Concept]
   with Visibility[Concept]
   with Read[Concept]

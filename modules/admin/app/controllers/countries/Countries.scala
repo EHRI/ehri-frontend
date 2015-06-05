@@ -8,6 +8,7 @@ import _root_.forms.VisibilityForm
 import controllers.generic._
 import models._
 import defines.{ContentTypes, EntityType}
+import utils.MovedPageLookup
 import utils.search.{SearchConstants, SearchItemResolver, SearchEngine}
 import javax.inject._
 import views.MarkdownRenderer
@@ -19,8 +20,19 @@ import controllers.base.AdminController
 
 
 @Singleton
-case class Countries @Inject()(implicit app: play.api.Application, cache: CacheApi, globalConfig: global.GlobalConfig, searchEngine: SearchEngine, searchResolver: SearchItemResolver, backend: Backend, idGenerator: IdGenerator, accounts: AccountManager, pageRelocator: utils.MovedPageLookup, messagesApi: MessagesApi, markdown: MarkdownRenderer)
-  extends AdminController
+case class Countries @Inject()(
+  implicit app: play.api.Application,
+  cache: CacheApi,
+  globalConfig: global.GlobalConfig,
+  searchEngine: SearchEngine,
+  searchResolver: SearchItemResolver,
+  idGenerator: IdGenerator,
+  backend: Backend,
+  accounts: AccountManager,
+  pageRelocator: MovedPageLookup,
+  messagesApi: MessagesApi,
+  markdown: MarkdownRenderer
+) extends AdminController
   with CRUD[CountryF,Country]
   with Creator[RepositoryF, Repository, Country]
   with Visibility[Country]

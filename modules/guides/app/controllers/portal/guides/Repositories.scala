@@ -12,9 +12,19 @@ import views.MarkdownRenderer
 
 
 @Singleton
-case class Repositories @Inject()(implicit app: play.api.Application, cache: CacheApi, globalConfig: global.GlobalConfig, searchEngine: SearchEngine, searchResolver: SearchItemResolver, backend: Backend,
-                            accounts: AccountManager, pageRelocator: utils.MovedPageLookup, messagesApi: MessagesApi, markdown: MarkdownRenderer, guideDAO: GuideDAO)
-  extends PortalController
+case class Repositories @Inject()(
+  implicit app: play.api.Application,
+  cache: CacheApi,
+  globalConfig: global.GlobalConfig,
+  searchEngine: SearchEngine,
+  searchResolver: SearchItemResolver,
+  backend: Backend,
+  accounts: AccountManager,
+  pageRelocator: utils.MovedPageLookup,
+  messagesApi: MessagesApi,
+  markdown: MarkdownRenderer,
+  guideDAO: GuideDAO
+) extends PortalController
   with Generic[Repository] {
 
   def browse(path: String, id: String) = GetItemAction(id).apply { implicit request =>

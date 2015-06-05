@@ -12,6 +12,7 @@ import controllers.portal.base.{Generic, PortalController}
 import defines.EntityType
 import models.DocumentaryUnit
 import play.api.mvc.RequestHeader
+import utils.MovedPageLookup
 import utils.search._
 import views.MarkdownRenderer
 
@@ -21,9 +22,18 @@ import scala.concurrent.Future.{successful => immediate}
  * @author Mike Bryant (http://github.com/mikesname)
  */
 @Singleton
-case class DocumentaryUnits @Inject()(implicit app: play.api.Application, cache: CacheApi, globalConfig: global.GlobalConfig, searchEngine: SearchEngine, searchResolver: SearchItemResolver, backend: Backend,
-                                  accounts: AccountManager, pageRelocator: utils.MovedPageLookup, messagesApi: MessagesApi, markdown: MarkdownRenderer)
-  extends PortalController
+case class DocumentaryUnits @Inject()(
+  implicit app: play.api.Application,
+  cache: CacheApi,
+  globalConfig: global.GlobalConfig,
+  searchEngine: SearchEngine,
+  searchResolver: SearchItemResolver,
+  backend: Backend,
+  accounts: AccountManager,
+  pageRelocator: MovedPageLookup,
+  messagesApi: MessagesApi,
+  markdown: MarkdownRenderer
+) extends PortalController
   with Generic[DocumentaryUnit]
   with Search
   with FacetConfig {

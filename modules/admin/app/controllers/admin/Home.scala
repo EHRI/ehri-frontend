@@ -17,12 +17,23 @@ import javax.inject._
 import play.api.http.MimeTypes
 import scala.concurrent.Future.{successful => immediate}
 import backend.Backend
-import utils.{RangeParams, SystemEventParams}
+import utils.{MovedPageLookup, RangeParams, SystemEventParams}
 import controllers.base.AdminController
 
 
 @Singleton
-case class Home @Inject()(implicit app: play.api.Application, cache: CacheApi, globalConfig: global.GlobalConfig, searchEngine: SearchEngine, searchResolver: SearchItemResolver, backend: Backend, accounts: AccountManager, pageRelocator: utils.MovedPageLookup, messagesApi: MessagesApi) extends AdminController with Search {
+case class Home @Inject()(
+  implicit app: play.api.Application,
+  cache: CacheApi,
+  globalConfig: global.GlobalConfig,
+  searchEngine: SearchEngine,
+  searchResolver: SearchItemResolver,
+  backend: Backend,
+  accounts: AccountManager,
+  pageRelocator: MovedPageLookup,
+  messagesApi: MessagesApi
+) extends AdminController
+  with Search {
 
   val searchEntities = List(
     EntityType.DocumentaryUnit,

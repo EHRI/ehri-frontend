@@ -5,6 +5,7 @@ import play.api.cache.CacheApi
 import play.api.i18n.MessagesApi
 import play.api.libs.concurrent.Execution.Implicits._
 import play.api.mvc.{Result, RequestHeader}
+import utils.MovedPageLookup
 import views.MarkdownRenderer
 import scala.concurrent.Future.{successful => immediate}
 import backend.{Backend, FeedbackDAO}
@@ -16,9 +17,18 @@ import controllers.portal.base.PortalController
  * @author Mike Bryant (http://github.com/mikesname)
  */
 @Singleton
-case class Feedback @Inject()(implicit app: play.api.Application, cache: CacheApi, globalConfig: global.GlobalConfig, feedbackDAO: FeedbackDAO,
-                              backend: Backend, accounts: AccountManager, mailer: MailerAPI, pageRelocator: utils.MovedPageLookup, messagesApi: MessagesApi, markdown: MarkdownRenderer)
-  extends PortalController {
+case class Feedback @Inject()(
+  implicit app: play.api.Application,
+  cache: CacheApi,
+  globalConfig: global.GlobalConfig,
+  feedbackDAO: FeedbackDAO,
+  backend: Backend,
+  accounts: AccountManager,
+  mailer: MailerAPI,
+  pageRelocator: MovedPageLookup,
+  messagesApi: MessagesApi,
+  markdown: MarkdownRenderer
+) extends PortalController {
 
   import utils.forms._
   import play.api.data.Form

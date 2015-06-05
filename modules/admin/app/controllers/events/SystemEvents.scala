@@ -6,7 +6,7 @@ import play.api.cache.CacheApi
 import play.api.i18n.MessagesApi
 import play.api.libs.concurrent.Execution.Implicits._
 import javax.inject._
-import utils.{RangeParams, SystemEventParams, PageParams}
+import utils.{MovedPageLookup, RangeParams, SystemEventParams, PageParams}
 import controllers.generic.Read
 import backend.Backend
 import backend.rest.RestHelpers
@@ -14,8 +14,16 @@ import models.base.AnyModel
 import controllers.base.AdminController
 import views.MarkdownRenderer
 
-case class SystemEvents @Inject()(implicit app: play.api.Application, cache: CacheApi, globalConfig: global.GlobalConfig, backend: Backend, accounts: AccountManager, pageRelocator: utils.MovedPageLookup, messagesApi: MessagesApi, markdown: MarkdownRenderer)
-  extends AdminController
+case class SystemEvents @Inject()(
+  implicit app: play.api.Application,
+  cache: CacheApi,
+  globalConfig: global.GlobalConfig,
+  backend: Backend,
+  accounts: AccountManager,
+  pageRelocator: MovedPageLookup,
+  messagesApi: MessagesApi,
+  markdown: MarkdownRenderer
+) extends AdminController
   with Read[SystemEvent]
   with RestHelpers {
 

@@ -31,8 +31,20 @@ import scala.concurrent.Future.{successful => immediate}
 
 
 @Singleton
-case class Guides @Inject()(implicit app: play.api.Application, cache: CacheApi, globalConfig: global.GlobalConfig, searchEngine: SearchEngine, searchResolver: SearchItemResolver, backend: Backend, accounts: AccountManager, pageRelocator: utils.MovedPageLookup, messagesApi: MessagesApi, markdown: MarkdownRenderer, search: SearchDAO, guides: GuideDAO)
-  extends PortalController
+case class Guides @Inject()(
+  implicit app: play.api.Application,
+  cache: CacheApi,
+  globalConfig: global.GlobalConfig,
+  searchEngine: SearchEngine,
+  searchResolver: SearchItemResolver,
+  backend: Backend,
+  accounts: AccountManager,
+  pageRelocator: utils.MovedPageLookup,
+  messagesApi: MessagesApi,
+  markdown: MarkdownRenderer,
+  search: SearchDAO,
+  guides: GuideDAO
+) extends PortalController
   with Search
   with SearchVC
   with FacetConfig {

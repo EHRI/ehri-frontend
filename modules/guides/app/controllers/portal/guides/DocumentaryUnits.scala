@@ -15,9 +15,19 @@ import play.api.libs.concurrent.Execution.Implicits._
 import views.MarkdownRenderer
 
 @Singleton
-case class DocumentaryUnits @Inject()(implicit app: play.api.Application, cache: CacheApi, globalConfig: global.GlobalConfig, searchEngine: SearchEngine, searchResolver: SearchItemResolver, backend: Backend,
-                            accounts: AccountManager, pageRelocator: utils.MovedPageLookup, messagesApi: MessagesApi, markdown: MarkdownRenderer, guideDAO: GuideDAO)
-  extends PortalController
+case class DocumentaryUnits @Inject()(
+  implicit app: play.api.Application,
+  cache: CacheApi,
+  globalConfig: global.GlobalConfig,
+  searchEngine: SearchEngine,
+  searchResolver: SearchItemResolver,
+  backend: Backend,
+  accounts: AccountManager,
+  pageRelocator: utils.MovedPageLookup,
+  messagesApi: MessagesApi,
+  markdown: MarkdownRenderer,
+  guideDAO: GuideDAO
+) extends PortalController
   with Generic[DocumentaryUnit]
   with SearchType[DocumentaryUnit]
   with FacetConfig {

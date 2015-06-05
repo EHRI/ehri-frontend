@@ -8,6 +8,7 @@ import play.api.data.Form
 import play.api.mvc._
 import models._
 import play.api.libs.concurrent.Execution.Implicits._
+import utils.MovedPageLookup
 import scala.concurrent.Future.{successful => immediate}
 import jp.t2v.lab.play2.auth.LoginLogout
 import controllers.core.auth.oauth2._
@@ -31,9 +32,19 @@ import controllers.portal.base.PortalController
  * @author Mike Bryant (http://github.com/mikesname)
  */
 @Singleton
-case class Accounts @Inject()(implicit app: play.api.Application, cache: CacheApi, globalConfig: GlobalConfig, searchEngine: SearchEngine, searchResolver: SearchItemResolver, backend: Backend,
-                             accounts: AccountManager, mailer: MailerAPI, oAuth2Flow: OAuth2Flow, pageRelocator: utils.MovedPageLookup, messagesApi: MessagesApi)
-  extends LoginLogout
+case class Accounts @Inject()(
+  implicit app: play.api.Application,
+  cache: CacheApi,
+  globalConfig: GlobalConfig,
+  searchEngine: SearchEngine,
+  searchResolver: SearchItemResolver,
+  backend: Backend,
+  accounts: AccountManager,
+  mailer: MailerAPI,
+  oAuth2Flow: OAuth2Flow,
+  pageRelocator: MovedPageLookup,
+  messagesApi: MessagesApi
+) extends LoginLogout
   with PortalController
   with OpenIDLoginHandler
   with OAuth2LoginHandler

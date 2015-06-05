@@ -29,10 +29,20 @@ import controllers.portal.base.PortalController
  * just lists of IDs.
  */
 @Singleton
-case class Social @Inject()(implicit app: play.api.Application, cache: CacheApi, globalConfig: global.GlobalConfig, searchEngine: SearchEngine,
-                            searchResolver: SearchItemResolver, backend: Backend, accounts: AccountManager,
-    mailer: MailerAPI, pageRelocator: utils.MovedPageLookup, messagesApi: MessagesApi, markdown: MarkdownRenderer)
-  extends PortalController with Search {
+case class Social @Inject()(
+  implicit app: play.api.Application,
+  cache: CacheApi,
+  globalConfig: global.GlobalConfig,
+  searchEngine: SearchEngine,
+  searchResolver: SearchItemResolver,
+  backend: Backend,
+  accounts: AccountManager,
+  mailer: MailerAPI,
+  pageRelocator: MovedPageLookup,
+  messagesApi: MessagesApi,
+  markdown: MarkdownRenderer
+) extends PortalController
+  with Search {
 
   private val socialRoutes = controllers.portal.social.routes.Social
 

@@ -31,9 +31,18 @@ import controllers.portal.base.PortalController
  * @author Mike Bryant (http://github.com/mikesname)
  */
 @Singleton
-case class Annotations @Inject()(implicit app: play.api.Application, cache: CacheApi, globalConfig: global.GlobalConfig, searchEngine: SearchEngine, searchResolver: SearchItemResolver,
-                                 backend: Backend, accounts: AccountManager, pageRelocator: utils.MovedPageLookup, messagesApi: MessagesApi, markdown: MarkdownRenderer)
-  extends PortalController
+case class Annotations @Inject()(
+  implicit app: play.api.Application,
+  cache: CacheApi,
+  globalConfig: global.GlobalConfig,
+  searchEngine: SearchEngine,
+  searchResolver: SearchItemResolver,
+  backend: Backend,
+  accounts: AccountManager,
+  pageRelocator: utils.MovedPageLookup,
+  messagesApi: MessagesApi,
+  markdown: MarkdownRenderer
+) extends PortalController
   with Read[Annotation]
   with Visibility[Annotation]
   with Promotion[Annotation]

@@ -21,7 +21,18 @@ import controllers.base.AdminController
 
 
 @Singleton
-case class Metrics @Inject()(implicit app: play.api.Application, cache: CacheApi, globalConfig: global.GlobalConfig, searchEngine: SearchEngine, searchResolver: SearchItemResolver, backend: Backend, accounts: AccountManager, pageRelocator: utils.MovedPageLookup, messagesApi: MessagesApi) extends AdminController with Search {
+case class Metrics @Inject()(
+  implicit app: play.api.Application,
+  cache: CacheApi,
+  globalConfig: global.GlobalConfig,
+  searchEngine: SearchEngine,
+  searchResolver: SearchItemResolver,
+  backend: Backend,
+  accounts: AccountManager,
+  pageRelocator: utils.MovedPageLookup,
+  messagesApi: MessagesApi
+) extends AdminController
+  with Search {
 
   private val metricCacheTime = 60 * 60 // 1 hour
 

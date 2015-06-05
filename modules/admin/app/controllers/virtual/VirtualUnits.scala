@@ -9,6 +9,7 @@ import controllers.generic._
 import play.api.i18n.{MessagesApi, Messages}
 import defines.{ContentTypes,EntityType,PermissionType}
 import play.api.mvc.{Action, RequestHeader}
+import utils.MovedPageLookup
 import views.{MarkdownRenderer, Helpers}
 import utils.search._
 import javax.inject._
@@ -25,9 +26,19 @@ import controllers.base.{SearchVC, AdminController}
 
 
 @Singleton
-case class VirtualUnits @Inject()(implicit app: play.api.Application, cache: CacheApi, globalConfig: global.GlobalConfig, searchEngine: SearchEngine, idGenerator: IdGenerator,
-                                  searchResolver: SearchItemResolver, backend: Backend, accounts: AccountManager, pageRelocator: utils.MovedPageLookup, messagesApi: MessagesApi, markdown: MarkdownRenderer)
-  extends AdminController
+case class VirtualUnits @Inject()(
+  implicit app: play.api.Application,
+  cache: CacheApi,
+  globalConfig: global.GlobalConfig,
+  searchEngine: SearchEngine,
+  idGenerator: IdGenerator,
+  searchResolver: SearchItemResolver,
+  backend: Backend,
+  accounts: AccountManager,
+  pageRelocator: MovedPageLookup,
+  messagesApi: MessagesApi,
+  markdown: MarkdownRenderer
+) extends AdminController
   with Read[VirtualUnit]
   with Visibility[VirtualUnit]
   with Create[VirtualUnitF,VirtualUnit]

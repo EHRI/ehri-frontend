@@ -4,6 +4,7 @@ import auth.AccountManager
 import play.api.cache.CacheApi
 import play.api.libs.concurrent.Execution.Implicits._
 import play.api.libs.iteratee.{Concurrent, Enumerator}
+import utils.MovedPageLookup
 import concurrent.Future
 import play.api.i18n.{MessagesApi, Messages}
 import views.{MarkdownRenderer, Helpers}
@@ -22,8 +23,19 @@ import controllers.base.AdminController
 import defines.EnumUtils.enumMapping
 
 @Singleton
-case class AdminSearch @Inject()(implicit app: play.api.Application, cache: CacheApi, globalConfig: global.GlobalConfig, searchEngine: SearchEngine, searchResolver: SearchItemResolver, searchIndexer: SearchIndexer, backend: Backend, accounts: AccountManager, pageRelocator: utils.MovedPageLookup, messagesApi: MessagesApi, markdown: MarkdownRenderer)
-  extends AdminController
+case class AdminSearch @Inject()(
+  implicit app: play.api.Application,
+  cache: CacheApi,
+  globalConfig: global.GlobalConfig,
+  searchEngine: SearchEngine,
+  searchResolver: SearchItemResolver,
+  searchIndexer: SearchIndexer,
+  backend: Backend,
+  accounts: AccountManager,
+  pageRelocator: MovedPageLookup,
+  messagesApi: MessagesApi,
+  markdown: MarkdownRenderer
+) extends AdminController
   with Search {
 
   // i.e. Everything

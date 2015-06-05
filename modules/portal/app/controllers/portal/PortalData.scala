@@ -12,7 +12,12 @@ import play.api.mvc.{Controller, Action}
  * @author Mike Bryant (http://github.com/mikesname)
  */
 @Singleton
-case class PortalData @Inject()(implicit app: play.api.Application, cache: CacheApi, messagesApi: MessagesApi) extends Controller with play.api.i18n.I18nSupport {
+case class PortalData @Inject()(
+  implicit app: play.api.Application,
+  cache: CacheApi,
+  messagesApi: MessagesApi
+) extends Controller
+  with play.api.i18n.I18nSupport {
 
   private val statusCache = new Cached(cache)
 

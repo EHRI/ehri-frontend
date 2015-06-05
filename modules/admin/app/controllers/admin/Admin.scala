@@ -12,9 +12,19 @@ import backend.{Readable, Backend}
 import defines.EntityType
 import models.base.AnyModel
 import backend.rest.SearchDAO
+import utils.MovedPageLookup
 
 @Singleton
-case class Admin @Inject()(implicit app: play.api.Application, cache: CacheApi, globalConfig: global.GlobalConfig, backend: Backend, accounts: AccountManager, pageRelocator: utils.MovedPageLookup, messagesApi: MessagesApi, search: SearchDAO) extends AdminController {
+case class Admin @Inject()(
+  implicit app: play.api.Application,
+  cache: CacheApi,
+  globalConfig: global.GlobalConfig,
+  backend: Backend,
+  accounts: AccountManager,
+  pageRelocator: MovedPageLookup,
+  messagesApi: MessagesApi,
+  search: SearchDAO
+) extends AdminController {
 
   implicit val rd: Readable[AnyModel] = AnyModel.Converter
 

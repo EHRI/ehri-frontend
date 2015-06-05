@@ -8,10 +8,19 @@ import backend.Backend
 import controllers.base.AdminController
 import play.api.cache.CacheApi
 import play.api.i18n.MessagesApi
+import utils.MovedPageLookup
 import views.MarkdownRenderer
 
-case class Annotations @Inject()(implicit app: play.api.Application, cache: CacheApi, globalConfig: global.GlobalConfig, backend: Backend, accounts: AccountManager, pageRelocator: utils.MovedPageLookup, messagesApi: MessagesApi, markdown: MarkdownRenderer)
-  extends AdminController
+case class Annotations @Inject()(
+  implicit app: play.api.Application,
+  cache: CacheApi,
+  globalConfig: global.GlobalConfig,
+  backend: Backend,
+  accounts: AccountManager,
+  pageRelocator: MovedPageLookup,
+  messagesApi: MessagesApi,
+  markdown: MarkdownRenderer
+) extends AdminController
   with Read[Annotation]
   with Visibility[Annotation]
   with Promotion[Annotation]

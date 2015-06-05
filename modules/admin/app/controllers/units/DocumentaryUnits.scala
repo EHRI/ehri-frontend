@@ -8,6 +8,7 @@ import models._
 import controllers.generic._
 import play.api.i18n.{MessagesApi, Messages}
 import defines.{ContentTypes,EntityType,PermissionType}
+import utils.MovedPageLookup
 import views.{MarkdownRenderer, Helpers}
 import utils.search._
 import javax.inject._
@@ -21,8 +22,18 @@ import controllers.base.AdminController
 
 
 @Singleton
-case class DocumentaryUnits @Inject()(implicit app: play.api.Application, cache: CacheApi, globalConfig: global.GlobalConfig, searchEngine: SearchEngine, searchResolver: SearchItemResolver, backend: Backend, accounts: AccountManager, pageRelocator: utils.MovedPageLookup, messagesApi: MessagesApi, markdown: MarkdownRenderer)
-  extends AdminController
+case class DocumentaryUnits @Inject()(
+  implicit app: play.api.Application,
+  cache: CacheApi,
+  globalConfig: global.GlobalConfig,
+  searchEngine: SearchEngine,
+  searchResolver: SearchItemResolver,
+  backend: Backend,
+  accounts: AccountManager,
+  pageRelocator: MovedPageLookup,
+  messagesApi: MessagesApi,
+  markdown: MarkdownRenderer
+) extends AdminController
   with Read[DocumentaryUnit]
   with Visibility[DocumentaryUnit]
   with Creator[DocumentaryUnitF, DocumentaryUnit, DocumentaryUnit]

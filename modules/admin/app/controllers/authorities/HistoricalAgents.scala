@@ -7,6 +7,7 @@ import models._
 import play.api.cache.CacheApi
 import play.api.i18n.{MessagesApi, Messages}
 import defines.{EntityType, PermissionType}
+import utils.MovedPageLookup
 import utils.search._
 import javax.inject._
 import backend.Backend
@@ -15,8 +16,18 @@ import views.MarkdownRenderer
 
 
 @Singleton
-case class HistoricalAgents @Inject()(implicit app: play.api.Application, cache: CacheApi, globalConfig: global.GlobalConfig, searchEngine: SearchEngine, searchResolver: SearchItemResolver, backend: Backend, accounts: AccountManager, pageRelocator: utils.MovedPageLookup, messagesApi: MessagesApi, markdown: MarkdownRenderer)
-  extends AdminController with CRUD[HistoricalAgentF,HistoricalAgent]
+case class HistoricalAgents @Inject()(
+  implicit app: play.api.Application,
+  cache: CacheApi,
+  globalConfig: global.GlobalConfig,
+  searchEngine: SearchEngine,
+  searchResolver: SearchItemResolver,
+  backend: Backend,
+  accounts: AccountManager,
+  pageRelocator: MovedPageLookup,
+  messagesApi: MessagesApi,
+  markdown: MarkdownRenderer
+) extends AdminController with CRUD[HistoricalAgentF,HistoricalAgent]
 	with Visibility[HistoricalAgent]
   with ItemPermissions[HistoricalAgent]
   with Linking[HistoricalAgent]

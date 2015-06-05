@@ -34,13 +34,23 @@ import controllers.portal.base.{PortalController, PortalAuthConfigImpl}
  * @author Mike Bryant (http://github.com/mikesname)
  */
 @Singleton
-case class UserProfiles @Inject()(implicit app: play.api.Application, cache: CacheApi, globalConfig: global.GlobalConfig, searchEngine: SearchEngine, searchResolver: SearchItemResolver, backend: Backend,
-                            accounts: AccountManager, mailer: MailerAPI, pageRelocator: utils.MovedPageLookup, messagesApi: MessagesApi, markdown: MarkdownRenderer,
-                                  fileStorage: FileStorage)
-    extends PortalController
-    with LoginLogout
-    with PortalAuthConfigImpl
-    with Search {
+case class UserProfiles @Inject()(
+  implicit app: play.api.Application,
+  cache: CacheApi,
+  globalConfig: global.GlobalConfig,
+  searchEngine: SearchEngine,
+  searchResolver: SearchItemResolver,
+  backend: Backend,
+  accounts: AccountManager,
+  mailer: MailerAPI,
+  pageRelocator: utils.MovedPageLookup,
+  messagesApi: MessagesApi,
+  markdown: MarkdownRenderer,
+  fileStorage: FileStorage
+) extends PortalController
+  with LoginLogout
+  with PortalAuthConfigImpl
+  with Search {
 
   private val profileRoutes = controllers.portal.users.routes.UserProfiles
 

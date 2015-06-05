@@ -8,6 +8,7 @@ import controllers.generic._
 import models._
 import play.api.i18n.{MessagesApi, Messages}
 import defines.{EntityType, PermissionType, ContentTypes}
+import utils.MovedPageLookup
 import utils.search._
 import javax.inject._
 import backend.Backend
@@ -24,8 +25,19 @@ import controllers.base.AdminController
 
 
 @Singleton
-case class UserProfiles @Inject()(implicit app: play.api.Application, cache: CacheApi, globalConfig: global.GlobalConfig, searchIndexer: SearchIndexer, searchEngine: SearchEngine, searchResolver: SearchItemResolver, backend: Backend, accounts: AccountManager, pageRelocator: utils.MovedPageLookup, messagesApi: MessagesApi, markdown: MarkdownRenderer)
-  extends AdminController
+case class UserProfiles @Inject()(
+  implicit app: play.api.Application,
+  cache: CacheApi,
+  globalConfig: global.GlobalConfig,
+  searchIndexer: SearchIndexer,
+  searchEngine: SearchEngine,
+  searchResolver: SearchItemResolver,
+  backend: Backend,
+  accounts: AccountManager,
+  pageRelocator: MovedPageLookup,
+  messagesApi: MessagesApi,
+  markdown: MarkdownRenderer
+) extends AdminController
   with PermissionHolder[UserProfile]
   with ItemPermissions[UserProfile]
   with Read[UserProfile]

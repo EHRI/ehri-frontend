@@ -15,9 +15,19 @@ import play.api.http.MimeTypes
 import com.ning.http.client.{Response => NingResponse}
 import defines.EntityType
 import backend.rest.cypher.CypherDAO
+import utils.MovedPageLookup
 import views.MarkdownRenderer
 
-case class ApiController @Inject()(implicit app: play.api.Application, cache: CacheApi, globalConfig: global.GlobalConfig, backend: Backend, accounts: AccountManager, pageRelocator: utils.MovedPageLookup, messagesApi: MessagesApi, markdown: MarkdownRenderer) extends AdminController {
+case class ApiController @Inject()(
+  implicit app: play.api.Application,
+  cache: CacheApi,
+  globalConfig: global.GlobalConfig,
+  backend: Backend,
+  accounts: AccountManager,
+  pageRelocator: MovedPageLookup,
+  messagesApi: MessagesApi,
+  markdown: MarkdownRenderer
+) extends AdminController {
 
   def listItems(contentType: EntityType.Value) = Action.async { implicit request =>
     get(s"$contentType/list")(request)
