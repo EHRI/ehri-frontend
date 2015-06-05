@@ -2,12 +2,14 @@ package integration
 
 import play.api.test._
 
-import helpers.{TestHelpers, UserFixtures, TestConfiguration}
+import helpers.{UserFixtures, TestConfiguration}
 import play.api.i18n.Messages
 import models.{Account, SignupData}
+import play.api.i18n.Messages.Implicits._
 
 
-class ApplicationSpec extends PlaySpecification with TestConfiguration with UserFixtures with TestHelpers {
+
+class ApplicationSpec extends PlaySpecification with TestConfiguration with UserFixtures {
   sequential
 
   private val accountRoutes = controllers.portal.account.routes.Accounts

@@ -5,7 +5,7 @@ import models.{GroupF, Group, UserProfileF, UserProfile}
 import play.api.test.FakeRequest
 
 
-class RepositoryViewsSpec extends IntegrationTestRunner with TestHelpers {
+class RepositoryViewsSpec extends IntegrationTestRunner {
   import mocks.{privilegedUser,unprivilegedUser}
 
   private val repoRoutes = controllers.institutions.routes.Repositories

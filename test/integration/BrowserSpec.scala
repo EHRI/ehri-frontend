@@ -3,16 +3,14 @@ package integration
 import mocks.MockMovedPageLookup
 import play.api.inject._
 import play.api.test._
-import play.api.i18n.{MessagesApi, Messages}
+import play.api.i18n.Messages
 import utils.MovedPageLookup
+import play.api.i18n.Messages.Implicits._
 
-class BrowserSpec extends PlaySpecification with play.api.i18n.I18nSupport {
+class BrowserSpec extends PlaySpecification {
 
   val appBuilder = new play.api.inject.guice.GuiceApplicationBuilder()
     .overrides(bind[MovedPageLookup].toInstance(MockMovedPageLookup()))
-
-  implicit def messagesApi: MessagesApi =
-    appBuilder.build().injector.instanceOf[play.api.i18n.MessagesApi]
 
   "Application" should {
 

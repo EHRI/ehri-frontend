@@ -11,6 +11,7 @@ import scala.concurrent.Future
 import backend.{BackendHandle, Backend, ApiUser}
 import models.base.{DescribedMeta, Described, Description, AnyModel}
 
+
 /**
  * This class mocks a search displatcher by simply returning
  * whatever's in the backend, wrapped as a search hit...

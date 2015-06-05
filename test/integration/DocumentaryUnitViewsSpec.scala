@@ -6,6 +6,7 @@ import models.{Group, UserProfile, _}
 import play.api.http.{HeaderNames, MimeTypes}
 import play.api.i18n.Messages
 import play.api.test.FakeRequest
+import play.api.i18n.Messages.Implicits._
 
 
 class DocumentaryUnitViewsSpec extends IntegrationTestRunner {

@@ -21,7 +21,7 @@ import play.api.test.FakeRequest
  *    - user1 has update perms on the note-approvers group
  *    - user1 belongs to note-approvers herself
  */
-class UserGroupPermissionSpec extends IntegrationTestRunner with TestHelpers {
+class UserGroupPermissionSpec extends IntegrationTestRunner {
   import mocks.privilegedUser
 
   implicit val apiUser: ApiUser = ApiUser(Some(privilegedUser.id))

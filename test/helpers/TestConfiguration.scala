@@ -28,7 +28,7 @@ import scala.concurrent.{ExecutionContext, Future}
  * Mixin trait that provides some handy methods to test actions that
  * have authorisation, such as fakeApplication and fakeLoggedInHtmlRequest.
  */
-trait TestConfiguration extends play.api.i18n.I18nSupport {
+trait TestConfiguration {
 
   this: PlayRunners with RouteInvokers =>
 
@@ -49,8 +49,7 @@ trait TestConfiguration extends play.api.i18n.I18nSupport {
   private def mockIndexer: SearchIndexer = new MockSearchIndexer(indexEventBuffer)
   private def mockFeedback: FeedbackDAO = new MockFeedbackDAO(feedbackBuffer)
   private def mockHelpdesk: HelpdeskDAO = new MockHelpdeskDAO(helpdeskBuffer)
-  //private def mockResolver: MockSearchResolver = new MockSearchResolver
-  //private def mockSearchEngine: SearchEngine = new MockSearchEngine(testBackendFactory)
+
   // NB: The mutable state for the user DAO is still stored globally
   // in the mocks package.
   def mockAccounts: AccountManager = MockAccountManager()
@@ -97,8 +96,8 @@ trait TestConfiguration extends play.api.i18n.I18nSupport {
 
   val integrationAppLoader = new GuiceApplicationLoader(appBuilder)
 
-  implicit def messagesApi: MessagesApi =
-    appBuilder.build().injector.instanceOf[play.api.i18n.MessagesApi]
+//  implicit def messagesApi: MessagesApi =
+//    appBuilder.build().injector.instanceOf[play.api.i18n.MessagesApi]
 
   implicit def execContext(implicit app: play.api.Application): ExecutionContext =
     app.injector.instanceOf[ExecutionContext]

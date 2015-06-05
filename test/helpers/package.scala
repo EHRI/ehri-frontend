@@ -8,9 +8,6 @@ import scala.concurrent.Await
 import scala.concurrent.duration._
 
 
-/**
- * User: mike
- */
 package object helpers {
 
   import play.api.db.{Database, Databases}

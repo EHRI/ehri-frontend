@@ -5,6 +5,7 @@ import models._
 import org.joda.time.DateTime
 import play.api.test.FakeRequest
 import play.api.i18n.Messages
+import play.api.i18n.Messages.Implicits._
 
 
 class SignupSpec extends IntegrationTestRunner {

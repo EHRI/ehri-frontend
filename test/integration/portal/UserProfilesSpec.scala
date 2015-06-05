@@ -10,6 +10,8 @@ import play.api.http.MimeTypes
 import play.api.i18n.Messages
 import play.api.libs.json.JsObject
 import play.api.test.FakeRequest
+import play.api.i18n.Messages.Implicits._
+
 
 
 class UserProfilesSpec extends IntegrationTestRunner with FakeMultipartUpload {

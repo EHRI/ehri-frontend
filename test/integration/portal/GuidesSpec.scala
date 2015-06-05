@@ -5,6 +5,7 @@ import play.api.i18n.Messages
 import play.api.test.FakeRequest
 import mocks._
 import models.{GuidePage, Guide}
+import play.api.i18n.Messages.Implicits._
 
 
 class GuidesSpec extends IntegrationTestRunner {

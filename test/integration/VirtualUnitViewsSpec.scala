@@ -1,12 +1,12 @@
 package integration
 
 import backend.{ApiUser, AuthenticatedUser}
-import helpers.{TestHelpers, IntegrationTestRunner}
+import helpers.IntegrationTestRunner
 import models._
 import play.api.test.FakeRequest
 
 
-class VirtualUnitViewsSpec extends IntegrationTestRunner with TestHelpers {
+class VirtualUnitViewsSpec extends IntegrationTestRunner {
   import mocks.{privilegedUser, unprivilegedUser}
 
   val userProfile = UserProfile(

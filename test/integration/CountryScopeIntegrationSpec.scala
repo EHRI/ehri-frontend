@@ -19,7 +19,7 @@ import play.api.test.FakeRequest
  *  - create a doc in the repo
  *  - check that the user cannot write outside the country
  */
-class CountryScopeIntegrationSpec extends IntegrationTestRunner with TestHelpers {
+class CountryScopeIntegrationSpec extends IntegrationTestRunner {
   import mocks.privilegedUser
 
   implicit val apiUser: ApiUser = ApiUser(Some(privilegedUser.id))
