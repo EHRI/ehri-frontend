@@ -4,7 +4,7 @@ import controllers.base.SessionPreferences
 import controllers.portal.ReversePortal
 import helpers.IntegrationTestRunner
 import play.api.libs.json.Json
-import play.api.test.{FakeApplication, FakeRequest}
+import play.api.test.FakeRequest
 import utils.SessionPrefs
 
 
@@ -17,27 +17,27 @@ class PortalSpec extends IntegrationTestRunner {
 
   "Portal views" should {
     "show index page" in new ITestApp {
-      val doc = route(FakeRequest(GET, portalRoutes.index().url)).get
+      val doc = route(FakeRequest(portalRoutes.index())).get
       status(doc) must equalTo(OK)
     }
 
     "send 301 when an item has been renamed" in new ITestApp {
       val oldRoute = controllers.portal.routes.DocumentaryUnits.browse("OLD")
       val newRoute = controllers.portal.routes.DocumentaryUnits.browse("NEW")
-      val before = route(FakeRequest(oldRoute)).get
+      val before = FakeRequest(oldRoute).call()
       status(before) must equalTo(NOT_FOUND)
 
       mocks.movedPages += oldRoute.url -> newRoute.url
-      val rename = route(FakeRequest(oldRoute)).get
+      val rename = FakeRequest(oldRoute).call()
       status(rename) must equalTo(MOVED_PERMANENTLY)
       redirectLocation(rename) must equalTo(Some(newRoute.url))
     }
 
     "allow setting view preferences" in new ITestApp {
-      val prefJson = route(FakeRequest(portalRoutes.prefs())).get
+      val prefJson = FakeRequest(portalRoutes.prefs()).withUser(privilegedUser).call()
       (contentAsJson(prefJson) \ SessionPrefs.SHOW_USER_CONTENT).as[Boolean] must beTrue
-      val setPrefs = route(fakeLoggedInRequest(privilegedUser, POST, portalRoutes.updatePrefs().url)
-        .withFormUrlEncodedBody(SessionPrefs.SHOW_USER_CONTENT -> "false")).get
+      val setPrefs = FakeRequest(portalRoutes.updatePrefs()).withUser(privilegedUser)
+        .withFormUrlEncodedBody(SessionPrefs.SHOW_USER_CONTENT -> "false").withCsrf.call()
       status(setPrefs) must equalTo(SEE_OTHER)
       session(setPrefs).get(SessionPreferences.DEFAULT_STORE_KEY) must beSome.which {jsStr =>
         val json = Json.parse(jsStr)
@@ -46,9 +46,9 @@ class PortalSpec extends IntegrationTestRunner {
     }
 
     "allow setting the language" in new ITestApp {
-      val about = route(FakeRequest(portalRoutes.about())).get
+      val about = FakeRequest(portalRoutes.about()).call()
       session(about).get(SessionPreferences.DEFAULT_STORE_KEY) must beNone
-      val setLang = route(FakeRequest(portalRoutes.changeLocale("de"))).get
+      val setLang = FakeRequest(portalRoutes.changeLocale("de")).call()
       status(setLang) must equalTo(SEE_OTHER)
       session(setLang).get(SessionPreferences.DEFAULT_STORE_KEY) must beSome.which { jsStr =>
         val json = Json.parse(jsStr)
@@ -57,31 +57,27 @@ class PortalSpec extends IntegrationTestRunner {
     }
 
     "view docs" in new ITestApp {
-      val doc = route(fakeLoggedInHtmlRequest(privilegedUser,
-        controllers.portal.routes.DocumentaryUnits.browse("c1"))).get
+      val doc = FakeRequest(controllers.portal.routes.DocumentaryUnits.browse("c4")).call()
       status(doc) must equalTo(OK)
     }
 
     "view repositories" in new ITestApp {
-      val doc = route(fakeLoggedInHtmlRequest(privilegedUser,
-        controllers.portal.routes.Repositories.browse("r1"))).get
+      val doc = FakeRequest(controllers.portal.routes.Repositories.browse("r1")).call()
       status(doc) must equalTo(OK)
     }
 
     "view historical agents" in new ITestApp {
-      val doc = route(fakeLoggedInHtmlRequest(privilegedUser,
-        controllers.portal.routes.HistoricalAgents.browse("a1"))).get
+      val doc = FakeRequest(controllers.portal.routes.HistoricalAgents.browse("a1")).call()
       status(doc) must equalTo(OK)
     }
     
     "view item history" in new ITestApp {
-      val history = route(fakeLoggedInHtmlRequest(privilegedUser,
-        portalRoutes.itemHistory("c1"))).get
+      val history = FakeRequest(portalRoutes.itemHistory("c4")).call()
       status(history) must equalTo(OK)
     }
 
     "fetch external pages" in new ITestApp {
-      val faq = route(FakeRequest(portalRoutes.externalPage("faq"))).get
+      val faq = FakeRequest(portalRoutes.externalPage("faq")).call()
       status(faq) must equalTo(OK)
       contentAsString(faq) must contain(mocks.externalPages.get("faq").get.toString())
     }

@@ -1,25 +1,23 @@
 package integration
 
-import play.api.mvc.Result
 import play.api.test._
 
 import helpers.{TestHelpers, UserFixtures, TestConfiguration}
 import play.api.i18n.Messages
 import models.{Account, SignupData}
 
-import scala.concurrent.Future
 
-/**
- * Basic app helpers which don't require a running DB.
- */
 class ApplicationSpec extends PlaySpecification with TestConfiguration with UserFixtures with TestHelpers {
   sequential
+
+  private val accountRoutes = controllers.portal.account.routes.Accounts
+  private val portalRoutes = controllers.portal.routes.Portal
 
   override def getConfig = Map("ehri.secured" -> true)
 
   "Application" should {
     "send 404 on a bad request" in new ITestApp {
-      val r404 = route(FakeRequest(GET, "/NOTHINGHERE")).get
+      val r404 = FakeRequest(GET, "/NOTHINGHERE").call()
       status(r404) must equalTo(NOT_FOUND)
     }
 
@@ -35,16 +33,14 @@ class ApplicationSpec extends PlaySpecification with TestConfiguration with User
       // nothing significant about using the /forgot endpoint
       // here, only that it's a simple layout
       try {
-        val pageReadOnly = route(FakeRequest(
-          controllers.portal.account.routes.Accounts.forgotPassword())).get
+        val pageReadOnly = FakeRequest(accountRoutes.forgotPassword()).call()
         status(pageReadOnly) must equalTo(OK)
         contentAsString(pageReadOnly) must contain(Messages("errors.readonly"))
 
         // Deleting the file should make the message go away
         f.delete()
 
-        val page = route(FakeRequest(
-          controllers.portal.account.routes.Accounts.forgotPassword())).get
+        val page = FakeRequest(accountRoutes.forgotPassword()).call
         status(page) must equalTo(OK)
         contentAsString(page) must not contain Messages("errors.readonly")
       } finally {
@@ -56,14 +52,14 @@ class ApplicationSpec extends PlaySpecification with TestConfiguration with User
       val f = new java.io.File("MAINTENANCE")
       f.createNewFile()
       try {
-        val pageOffline = route(FakeRequest(controllers.portal.routes.Portal.dataPolicy())).get
+        val pageOffline = FakeRequest(portalRoutes.dataPolicy()).call()
         status(pageOffline) must equalTo(SERVICE_UNAVAILABLE)
         contentAsString(pageOffline) must contain(Messages("errors.maintenance"))
 
         // Deleting the file should make the message go away
         f.delete()
 
-        val pageOnline = route(FakeRequest(controllers.portal.routes.Portal.dataPolicy())).get
+        val pageOnline = FakeRequest(portalRoutes.dataPolicy()).call()
         status(pageOnline) must equalTo(OK)
         contentAsString(pageOnline) must not contain Messages("errors.maintenance")
       } finally {
@@ -78,14 +74,14 @@ class ApplicationSpec extends PlaySpecification with TestConfiguration with User
       val veryImportantMessage = "This is a very important message!"
       FileUtils.write(f, veryImportantMessage, "UTF-8")
       try {
-        val pageWithMessage = route(FakeRequest(controllers.portal.routes.Portal.dataPolicy())).get
+        val pageWithMessage = FakeRequest(portalRoutes.dataPolicy()).call()
         status(pageWithMessage) must equalTo(OK)
         contentAsString(pageWithMessage) must contain(veryImportantMessage)
 
         // Deleting the file should make the message go away
         f.delete()
 
-        val pageWithoutMessage = route(FakeRequest(controllers.portal.routes.Portal.dataPolicy())).get
+        val pageWithoutMessage = FakeRequest(portalRoutes.dataPolicy()).call()
         status(pageWithoutMessage) must equalTo(OK)
         contentAsString(pageWithoutMessage) must not contain veryImportantMessage
       } finally {
@@ -97,17 +93,17 @@ class ApplicationSpec extends PlaySpecification with TestConfiguration with User
       import org.apache.commons.io.FileUtils
       val f = new java.io.File("IP_WHITELIST")
       f.createNewFile()
-      val req = FakeRequest(controllers.portal.routes.Portal.dataPolicy())
+      val req = FakeRequest(portalRoutes.dataPolicy())
       FileUtils.write(f, req.remoteAddress, "UTF-8")
       try {
-        val pageWithMessage = route(req).get
+        val pageWithMessage = req.call()
         status(pageWithMessage) must equalTo(OK)
         contentAsString(pageWithMessage) must contain(req.remoteAddress)
 
         // Deleting the file should make the message go away
         f.delete()
 
-        val pageWithoutMessage = route(FakeRequest(controllers.portal.routes.Portal.dataPolicy())).get
+        val pageWithoutMessage = FakeRequest(portalRoutes.dataPolicy()).call()
         status(pageWithoutMessage) must equalTo(OK)
         contentAsString(pageWithoutMessage) must not contain req.remoteAddress
       } finally {
@@ -116,9 +112,9 @@ class ApplicationSpec extends PlaySpecification with TestConfiguration with User
     }
 
     "disallow the right stuff in robots.txt" in new ITestApp {
-      val robots = contentAsString(route(FakeRequest(GET, "/robots.txt")).get)
-      robots must contain("Disallow: " + controllers.portal.routes.Portal.personalisedActivity().url)
-      robots must contain("Disallow: " + controllers.portal.account.routes.Accounts.loginOrSignup().url)
+      val robots = contentAsString(FakeRequest(GET, "/robots.txt").call())
+      robots must contain("Disallow: " + portalRoutes.personalisedActivity().url)
+      robots must contain("Disallow: " + accountRoutes.loginOrSignup().url)
       robots must contain("Disallow: " + controllers.portal.routes.Helpdesk.helpdesk().url)
       robots must contain("Disallow: " + controllers.portal.routes.Feedback.feedback().url)
       robots must contain("Disallow: " + controllers.portal.social.routes.Social.browseUsers().url)
@@ -127,16 +123,16 @@ class ApplicationSpec extends PlaySpecification with TestConfiguration with User
     }
 
     "redirect 301 for trailing-slash URLs" in new ITestApp {
-      val home = route(FakeRequest(GET,
-          controllers.admin.routes.Home.index().url + "/")
-        .withUser(mocks.publicUser)).get
+      val home = FakeRequest(GET, controllers.admin.routes.Home.index().url + "/")
+        .withUser(mocks.publicUser)
+        .call()
       status(home) must equalTo(MOVED_PERMANENTLY)
     }
 
     "deny non-staff users access to admin areas" in new ITestApp {
-      val home = route(FakeRequest(GET,
-          controllers.admin.routes.Home.index().url)
-        .withUser(mocks.publicUser)).get
+      val home = FakeRequest(GET, controllers.admin.routes.Home.index().url)
+        .withUser(mocks.publicUser)
+        .call()
       status(home) must equalTo(UNAUTHORIZED)
     }
 
@@ -144,28 +140,28 @@ class ApplicationSpec extends PlaySpecification with TestConfiguration with User
       var user = Account("pete", "unverified@example.com", verified = false, staff = true)
       mocks.accountFixtures += user.id -> user
 
-      val home = route(FakeRequest(GET,
-        controllers.admin.routes.Home.index().url).withUser(user)).get
+      val home = FakeRequest(controllers.admin.routes.Home.index())
+        .withUser(user)
+        .call()
       status(home) must equalTo(UNAUTHORIZED)
     }
 
     "redirect to default URL when accessing login page when logged in" in new ITestApp {
-      val login = route(FakeRequest(GET,
-          controllers.portal.account.routes.Accounts.loginOrSignup().url)
-        .withUser(mocks.publicUser)).get
+      val login = FakeRequest(accountRoutes.loginOrSignup())
+        .withUser(mocks.publicUser)
+        .call()
       status(login) must equalTo(SEE_OTHER)
     }
 
     "not redirect to login at admin home when unsecured" in new ITestApp(Map("ehri.secured" -> false)) {
-      val home = route(FakeRequest(GET,
-        controllers.admin.routes.Home.index().url)).get
+      val home = FakeRequest(controllers.admin.routes.Home.index()).call()
       status(home) must equalTo(OK)
     }
 
     "allow access to the openid callback url, and return a bad request" in new ITestApp {
-      val home = route(FakeRequest(GET,
-        controllers.portal.account.routes.Accounts.openIDCallback().url)
-        .withSession(CSRF_TOKEN_NAME -> fakeCsrfString)).get
+      val home = FakeRequest(accountRoutes.openIDCallback())
+        .withSession(CSRF_TOKEN_NAME -> fakeCsrfString)
+        .call()
       status(home) must equalTo(BAD_REQUEST)
     }
     
@@ -174,9 +170,9 @@ class ApplicationSpec extends PlaySpecification with TestConfiguration with User
         "email" -> Seq("test@example.com"),
         CSRF_TOKEN_NAME -> Seq(fakeCsrfString)
       )
-      val forgot = route(FakeRequest(POST,
-        controllers.portal.account.routes.Accounts.forgotPasswordPost().url)
-        .withSession(CSRF_TOKEN_NAME -> fakeCsrfString), data).get
+      val forgot = FakeRequest(accountRoutes.forgotPasswordPost())
+        .withSession(CSRF_TOKEN_NAME -> fakeCsrfString)
+        .callWith(data)
       status(forgot) must equalTo(BAD_REQUEST)
       contentAsString(forgot) must contain(Messages("error.badRecaptcha"))
     }
@@ -186,9 +182,9 @@ class ApplicationSpec extends PlaySpecification with TestConfiguration with User
         "email" -> Seq("test@example.com"),
         CSRF_TOKEN_NAME -> Seq(fakeCsrfString)
       )
-      val forgot = route(FakeRequest(POST,
-        controllers.portal.account.routes.Accounts.forgotPasswordPost().url)
-        .withSession(CSRF_TOKEN_NAME -> fakeCsrfString), data).get
+      val forgot = FakeRequest(accountRoutes.forgotPasswordPost())
+        .withSession(CSRF_TOKEN_NAME -> fakeCsrfString)
+        .callWith(data)
       status(forgot) must equalTo(BAD_REQUEST)
       contentAsString(forgot) must contain(Messages("error.emailNotFound"))
     }
@@ -199,9 +195,9 @@ class ApplicationSpec extends PlaySpecification with TestConfiguration with User
         "email" -> Seq(mocks.unprivilegedUser.email),
         CSRF_TOKEN_NAME -> Seq(fakeCsrfString)
       )
-      val forgot = route(FakeRequest(POST,
-        controllers.portal.account.routes.Accounts.forgotPasswordPost().url)
-        .withSession(CSRF_TOKEN_NAME -> fakeCsrfString), data).get
+      val forgot = FakeRequest(accountRoutes.forgotPasswordPost())
+        .withSession(CSRF_TOKEN_NAME -> fakeCsrfString)
+        .callWith(data)
       status(forgot) must equalTo(SEE_OTHER)
       mailBuffer.size must beEqualTo(numSentMails + 1)
       mailBuffer.last.to must contain(mocks.unprivilegedUser.email)
@@ -213,17 +209,16 @@ class ApplicationSpec extends PlaySpecification with TestConfiguration with User
         "email" -> Seq(mocks.unprivilegedUser.email),
         CSRF_TOKEN_NAME -> Seq(fakeCsrfString)
       )
-      val forgot = route(FakeRequest(POST,
-        controllers.portal.account.routes.Accounts.forgotPasswordPost().url)
-        .withSession(CSRF_TOKEN_NAME -> fakeCsrfString), data).get
+      val forgot = FakeRequest(accountRoutes.forgotPasswordPost())
+        .withSession(CSRF_TOKEN_NAME -> fakeCsrfString)
+        .callWith(data)
       status(forgot) must equalTo(SEE_OTHER)
       mailBuffer.size must beEqualTo(numSentMails + 1)
       mailBuffer.last.to must contain(mocks.unprivilegedUser.email)
 
       val token = mocks.tokenFixtures.last._1
-      val resetForm = route(FakeRequest(GET,
-        controllers.portal.account.routes.Accounts.resetPassword(token).url)
-        .withSession(CSRF_TOKEN_NAME -> fakeCsrfString)).get
+      val resetForm = FakeRequest(accountRoutes.resetPassword(token))
+        .callWith(data)
       status(resetForm) must equalTo(OK)
 
       val rstData: Map[String,Seq[String]] = Map(
@@ -231,14 +226,13 @@ class ApplicationSpec extends PlaySpecification with TestConfiguration with User
         "confirm"  -> Seq("hellokitty"),
         CSRF_TOKEN_NAME -> Seq(fakeCsrfString)
       )
-      val resetPost = route(FakeRequest(POST,
-        controllers.portal.account.routes.Accounts.resetPassword(token).url)
-        .withSession(CSRF_TOKEN_NAME -> fakeCsrfString), rstData).get
+      val resetPost = FakeRequest(accountRoutes.resetPasswordPost(token))
+        .withCsrf
+        .callWith(rstData)
       status(resetPost) must equalTo(SEE_OTHER)
 
-      val expired = route(FakeRequest(GET,
-        controllers.portal.account.routes.Accounts.resetPassword(token).url)
-        .withSession(CSRF_TOKEN_NAME -> fakeCsrfString)).get
+      val expired = FakeRequest(accountRoutes.resetPassword(token))
+        .call()
       status(expired) must equalTo(SEE_OTHER)
       flash(expired).get("danger") must beSome.which{ msg =>
         msg must equalTo("login.error.badResetToken")
@@ -255,24 +249,24 @@ class ApplicationSpec extends PlaySpecification with TestConfiguration with User
         CSRF_TOKEN_NAME -> Seq(fakeCsrfString)
       )
 
-      val attempt1 = route(FakeRequest(POST,
-        controllers.portal.account.routes.Accounts.passwordLoginPost().url)
-        .withSession(CSRF_TOKEN_NAME -> fakeCsrfString), data).get
+      val attempt1 = FakeRequest(accountRoutes.passwordLoginPost())
+        .withSession(CSRF_TOKEN_NAME -> fakeCsrfString)
+        .callWith(data)
       status(attempt1) must equalTo(BAD_REQUEST)
-      val attempt2 = route(FakeRequest(POST,
-        controllers.portal.account.routes.Accounts.passwordLoginPost().url)
-        .withSession(CSRF_TOKEN_NAME -> fakeCsrfString), data).get
+      val attempt2 = FakeRequest(accountRoutes.passwordLoginPost())
+        .withSession(CSRF_TOKEN_NAME -> fakeCsrfString)
+        .callWith(data)
       status(attempt2) must equalTo(BAD_REQUEST)
-      val attempt3 = route(FakeRequest(POST,
-        controllers.portal.account.routes.Accounts.passwordLoginPost().url)
-        .withSession(CSRF_TOKEN_NAME -> fakeCsrfString), data).get
+      val attempt3 = FakeRequest(accountRoutes.passwordLoginPost())
+        .withSession(CSRF_TOKEN_NAME -> fakeCsrfString)
+        .callWith(data)
       status(attempt3) must equalTo(TOO_MANY_REQUEST)
 
       // Wait for the timeout to expire and try again...
       Thread.sleep(1500)
-      val attempt4 = route(FakeRequest(POST,
-        controllers.portal.account.routes.Accounts.passwordLoginPost().url)
-        .withSession(CSRF_TOKEN_NAME -> fakeCsrfString), data).get
+      val attempt4 = FakeRequest(accountRoutes.passwordLoginPost())
+        .withSession(CSRF_TOKEN_NAME -> fakeCsrfString)
+        .callWith(data)
       status(attempt4) must equalTo(BAD_REQUEST)
     }
   }

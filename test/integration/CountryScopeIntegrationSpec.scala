@@ -53,13 +53,13 @@ class CountryScopeIntegrationSpec extends IntegrationTestRunner with TestHelpers
         "name" -> Seq("UK Archivists"),
         "description" -> Seq("Group for UK archivists")
       )
-      val groupCreatePost = route(FakeRequest(groupRoutes.createPost())
-        .withUser(privilegedUser).withCsrf, groupData).get
+      val groupCreatePost = FakeRequest(groupRoutes.createPost())
+        .withUser(privilegedUser).withCsrf.callWith(groupData)
       status(groupCreatePost) must equalTo(SEE_OTHER)
 
       // Check we can read the group
-      val groupRead = route(FakeRequest(groupRoutes.get(groupId))
-        .withUser(privilegedUser)).get
+      val groupRead = FakeRequest(groupRoutes.get(groupId))
+        .withUser(privilegedUser).call()
       status(groupRead) must equalTo(OK)
 
       // Grant scoped permissions for the group to create repos and docs in country gb
@@ -70,9 +70,9 @@ class CountryScopeIntegrationSpec extends IntegrationTestRunner with TestHelpers
         EntityType.Repository.toString -> permissionsToGrant.map(_.toString),
         EntityType.DocumentaryUnit.toString -> permissionsToGrant.map(_.toString)
       )
-      val permSetPost = route(FakeRequest(countryRoutes
+      val permSetPost = FakeRequest(countryRoutes
             .setScopedPermissionsPost(countryId, EntityType.Group, groupId))
-        .withUser(privilegedUser).withCsrf, permData).get
+        .withUser(privilegedUser).withCsrf.callWith(permData)
       status(permSetPost) must equalTo(SEE_OTHER)
 
       // Okay, now create a new user and add them to the ukarchivists group. Do this
@@ -86,13 +86,13 @@ class CountryScopeIntegrationSpec extends IntegrationTestRunner with TestHelpers
         "confirm" -> Seq("changeme"),
         "group[]" -> Seq(groupId) // NB: Note brackets on param name!!!
       )
-      val userCreatePost = route(FakeRequest(userRoutes.createUserPost())
-        .withUser(privilegedUser).withCsrf, newUserData).get
+      val userCreatePost = FakeRequest(userRoutes.createUserPost())
+        .withUser(privilegedUser).withCsrf.callWith(newUserData)
       status(userCreatePost) must equalTo(SEE_OTHER)
 
       // Check we can read the user's page
-      val userRead =  route(FakeRequest(userRoutes.get(userId))
-        .withUser(privilegedUser)).get
+      val userRead =  FakeRequest(userRoutes.get(userId))
+        .withUser(privilegedUser).call()
       status(userRead) must equalTo(OK)
 
       // Fetch the user's profile to perform subsequent logins
@@ -106,8 +106,8 @@ class CountryScopeIntegrationSpec extends IntegrationTestRunner with TestHelpers
 
       // Check the user can read their profile as themselves...
       // Check we can read the user's page
-      val userReadAsSelf =  route(FakeRequest(userRoutes.get(userId))
-        .withUser(fakeAccount)).get
+      val userReadAsSelf =  FakeRequest(userRoutes.get(userId))
+        .withUser(fakeAccount).call()
       status(userReadAsSelf) must equalTo(OK)
 
       // Now we're going to create a repository as the new user
@@ -117,19 +117,19 @@ class CountryScopeIntegrationSpec extends IntegrationTestRunner with TestHelpers
         "descriptions[0].name" -> Seq("A Test Repository"),
         "descriptions[0].descriptionArea.history" -> Seq("A repository with a long history")
       )
-      val repoCreatePost = route(FakeRequest(countryRoutes.createRepositoryPost(countryId))
-        .withUser(fakeAccount).withCsrf, repoData).get
+      val repoCreatePost = FakeRequest(countryRoutes.createRepositoryPost(countryId))
+        .withUser(fakeAccount).withCsrf.callWith(repoData)
       status(repoCreatePost) must equalTo(SEE_OTHER)
 
       // Test we can NOT create a repository in the other country...
-      val otherRepoCreatePost = route(FakeRequest(countryRoutes.createRepositoryPost(otherCountryId))
-        .withUser(fakeAccount).withCsrf, repoData).get
+      val otherRepoCreatePost = FakeRequest(countryRoutes.createRepositoryPost(otherCountryId))
+        .withUser(fakeAccount).withCsrf.callWith(repoData)
       status(otherRepoCreatePost) must equalTo(FORBIDDEN)
 
 
       // Test we can read the new repository
       val repoId = idFromUrl(redirectLocation(repoCreatePost).get)
-      val repoRead = route(FakeRequest(repoRoutes.get(repoId)).withUser(fakeAccount)).get
+      val repoRead = FakeRequest(repoRoutes.get(repoId)).withUser(fakeAccount).call()
       status(repoRead) must equalTo(OK)
       contentAsString(repoRead) must contain("A Test Repository")
 
@@ -137,7 +137,7 @@ class CountryScopeIntegrationSpec extends IntegrationTestRunner with TestHelpers
       contentAsString(repoRead) must contain(repoRoutes.createDoc(repoId).url)
 
       // Test we can NOT create docs in repository r1, which is in country NL
-      val otherRepoRead = route(FakeRequest(repoRoutes.get(otherRepoId)).withUser(fakeAccount)).get
+      val otherRepoRead = FakeRequest(repoRoutes.get(otherRepoId)).withUser(fakeAccount).call()
       status(otherRepoRead) must equalTo(OK)
       contentAsString(otherRepoRead) must not contain
           repoRoutes.createDoc(otherRepoId).url
@@ -150,22 +150,22 @@ class CountryScopeIntegrationSpec extends IntegrationTestRunner with TestHelpers
         "descriptions[0].contentArea.scopeAndContent" -> Seq("Lots...")
       )
 
-      val createDocPost = route(FakeRequest(repoRoutes.createDocPost(repoId))
-        .withUser(fakeAccount).withCsrf, docData).get
+      val createDocPost = FakeRequest(repoRoutes.createDocPost(repoId))
+        .withUser(fakeAccount).withCsrf.callWith(docData)
       status(createDocPost) must equalTo(SEE_OTHER)
 
       // Test we can read the new repository
       val docId = idFromUrl(redirectLocation(createDocPost).get)
-      val docRead = route(FakeRequest(docRoutes.get(docId))
-        .withUser(fakeAccount)).get
+      val docRead = FakeRequest(docRoutes.get(docId))
+        .withUser(fakeAccount).call()
       status(docRead) must equalTo(OK)
       contentAsString(docRead) must contain("A new document")
       contentAsString(docRead) must contain(docRoutes.createDoc(docId).url)
 
       // Test we CAN'T create extra docs in an existing doc (c1)
       println("Checking cannot create in other doc...")
-      val otherDocRead = route(FakeRequest(docRoutes.get(otherDocId))
-        .withUser(fakeAccount)).get
+      val otherDocRead = FakeRequest(docRoutes.get(otherDocId))
+        .withUser(fakeAccount).call()
       status(otherDocRead) must equalTo(OK)
       contentAsString(otherDocRead) must not contain
           docRoutes.createDoc(otherDocId).url

@@ -1,7 +1,5 @@
 package helpers
 
-import javax.inject.Inject
-
 import auth.oauth2.{MockOAuth2Flow, OAuth2Flow}
 import auth.{AccountManager, MockAccountManager}
 import backend._
@@ -10,29 +8,21 @@ import backend.helpdesk.{MockFeedbackDAO, MockHelpdeskDAO}
 import backend.rest.RestBackend
 import com.typesafe.plugin.MailerAPI
 import controllers.base.AuthConfigImpl
-import global.{AppGlobalConfig, GlobalConfig}
+import global.GlobalConfig
 import jp.t2v.lab.play2.auth.test.Helpers._
 import mocks.{MockBufferedMailer, _}
 import models.{Account, Feedback}
 import org.specs2.execute.{Result, AsResult}
-import play.api.GlobalSettings
-import play.api.cache.CacheApi
 import play.api.db.Database
-import play.api.http.{HeaderNames, MimeTypes}
+import play.api.http.Writeable
 import play.api.i18n.MessagesApi
 import play.api.inject.guice.GuiceApplicationLoader
-import play.api.mvc._
 import play.api.test.Helpers._
-import play.api.test.{WithApplicationLoader, PlayRunners, FakeApplication, FakeRequest}
-import play.filters.csrf.CSRFFilter
+import play.api.test._
 import utils.MovedPageLookup
-import utils.search.{MockSearchEngineConfig, MockSearchIndexer, _}
-
-import scala.collection.mutable
-import scala.collection.mutable.ListBuffer
-import scala.concurrent.duration.Duration
+import utils.search.{MockSearchIndexer, _}
 import scala.concurrent.{ExecutionContext, Future}
-import scala.reflect.ClassTag
+
 
 /**
  * Mixin trait that provides some handy methods to test actions that
@@ -40,7 +30,7 @@ import scala.reflect.ClassTag
  */
 trait TestConfiguration extends play.api.i18n.I18nSupport {
 
-  this: PlayRunners =>
+  this: PlayRunners with RouteInvokers =>
 
   import RestBackendRunner._
 
@@ -168,6 +158,9 @@ trait TestConfiguration extends play.api.i18n.I18nSupport {
     }
   }
 
+  /**
+   * Convenience extensions for the FakeRequest object.
+   */
   implicit class FakeRequestExtensions[A](fr: FakeRequest[A]) {
     def withUser(user: Account)(implicit app: play.api.Application): FakeRequest[A] = {
       fr.withLoggedIn(authConfig(app))(user.id)
@@ -180,52 +173,11 @@ trait TestConfiguration extends play.api.i18n.I18nSupport {
     def accepting(m: String*): FakeRequest[A] = m.foldLeft(fr) { (c, m) =>
       c.withHeaders(ACCEPT -> m)
     }
+
+    def call()(implicit app: play.api.Application, w: Writeable[A]): Future[play.api.mvc.Result] =
+      route(app, fr).getOrElse(sys.error(s"Unexpected null route for ${fr.uri} (${fr.method})"))
+
+    def callWith[T](body: T)(implicit app: play.api.Application, w: Writeable[T]): Future[play.api.mvc.Result] =
+      route(app, fr, body).getOrElse(sys.error(s"Unexpected null route for ${fr.uri} (${fr.method})"))
   }
-
-  /**
-   * Get a FakeRequest with CSRF Headers
-   */
-  def fakeRequest(rtype: String, path: String) = {
-    val fr = FakeRequest(rtype, path)
-    // Since we use csrf in forms, even though it's disabled in
-    // tests we still need to add a fake token to the session so
-    // the token is there when the form tries to render it.
-    if (rtype == POST) fr
-      .withSession(CSRF_TOKEN_NAME -> fakeCsrfString)
-      .withHeaders(CSRF_HEADER_NAME -> CSRF_HEADER_NOCHECK) else fr
-  }
-
-  def fakeRequest(call: Call): FakeRequest[AnyContentAsEmpty.type] =
-    fakeRequest(call.method, call.url)
-
-  /**
-   * Get a FakeRequest with authorization cookies for the given user
-   * and HTML Accept.
-   */
-  def fakeLoggedInRequest(user: Account, rtype: String, path: String)(implicit app: play.api.Application) =
-    fakeRequest(rtype, path).withLoggedIn(authConfig(app))(user.id)
-
-  def fakeLoggedInRequest(user: Account, call: Call)(implicit app: play.api.Application): FakeRequest[AnyContentAsEmpty.type] =
-    fakeLoggedInRequest(user, call.method, call.url)
-
-  /**
-   * Get a FakeRequest with authorization cookies for the given user
-   * and HTML Accept.
-   */
-  def fakeLoggedInHtmlRequest(user: Account, rtype: String, path: String)(implicit app: play.api.Application) =
-    fakeLoggedInRequest(user, rtype, path)
-      .withHeaders(HeaderNames.ACCEPT -> MimeTypes.HTML, HeaderNames.CONTENT_TYPE -> MimeTypes.FORM)
-
-  def fakeLoggedInHtmlRequest(user: Account, call: Call)(implicit app: play.api.Application): FakeRequest[AnyContentAsEmpty.type] =
-    fakeLoggedInHtmlRequest(user, call.method, call.url)
-
-  /**
-   * Get a FakeRequest with authorization cookies for the given user
-   * and HTML Accept.
-   */
-  def fakeLoggedInJsonRequest(user: Account, rtype: String, path: String)(implicit app: play.api.Application) =
-    fakeLoggedInRequest(user, rtype, path).withHeaders(HeaderNames.ACCEPT -> MimeTypes.JSON)
-
-  def fakeLoggedInJsonRequest(user: Account, call: Call)(implicit app: play.api.Application): FakeRequest[AnyContentAsEmpty.type] =
-    fakeLoggedInJsonRequest(user, call.method, call.url)
 }

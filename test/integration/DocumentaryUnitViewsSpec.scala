@@ -27,7 +27,7 @@ class DocumentaryUnitViewsSpec extends IntegrationTestRunner {
   "DocumentaryUnit views" should {
 
     "list should get some (world-readable) items" in new ITestApp {
-      val list = route(FakeRequest(docRoutes.list()).withUser(unprivilegedUser)).get
+      val list = FakeRequest(docRoutes.list()).withUser(unprivilegedUser).call()
       status(list) must equalTo(OK)
       contentAsString(list) must contain(multipleItemsHeader)
       contentAsString(list) must not contain "Documentary Unit 1"
@@ -36,7 +36,7 @@ class DocumentaryUnitViewsSpec extends IntegrationTestRunner {
     }
 
     "list when logged in should get more items" in new ITestApp {
-      val list = route(FakeRequest(docRoutes.list()).withUser(privilegedUser)).get
+      val list = FakeRequest(docRoutes.list()).withUser(privilegedUser).call()
       status(list) must equalTo(OK)
       contentAsString(list) must contain(multipleItemsHeader)
       contentAsString(list) must contain("Documentary Unit 1")
@@ -46,7 +46,7 @@ class DocumentaryUnitViewsSpec extends IntegrationTestRunner {
     }
 
     "search should find some items" in new ITestApp {
-      val search = route(FakeRequest(docRoutes.search()).withUser(privilegedUser)).get
+      val search = FakeRequest(docRoutes.search()).withUser(privilegedUser).call()
       status(search) must equalTo(OK)
       contentAsString(search) must contain(multipleItemsHeader)
       contentAsString(search) must contain("Documentary Unit 1")
@@ -56,7 +56,7 @@ class DocumentaryUnitViewsSpec extends IntegrationTestRunner {
     }
 
     "link to other privileged actions when logged in" in new ITestApp {
-      val show = route(FakeRequest(docRoutes.get("c1")).withUser(privilegedUser)).get
+      val show = FakeRequest(docRoutes.get("c1")).withUser(privilegedUser).call()
       status(show) must equalTo(OK)
       contentAsString(show) must contain(docRoutes.update("c1").url)
       contentAsString(show) must contain(docRoutes.delete("c1").url)
@@ -66,32 +66,32 @@ class DocumentaryUnitViewsSpec extends IntegrationTestRunner {
     }
 
     "link to holder" in new ITestApp {
-      val show = route(FakeRequest(docRoutes.get("c1")).withUser(privilegedUser)).get
+      val show = FakeRequest(docRoutes.get("c1")).withUser(privilegedUser).call()
       status(show) must equalTo(OK)
 
       contentAsString(show) must contain(repoRoutes.get("r1").url)
     }
 
     "link to holder when a child item" in new ITestApp {
-      val show = route(FakeRequest(docRoutes.get("c2")).withUser(privilegedUser)).get
+      val show = FakeRequest(docRoutes.get("c2")).withUser(privilegedUser).call()
       status(show) must equalTo(OK)
 
       contentAsString(show) must contain(repoRoutes.get("r1").url)
     }
 
     "show history when logged in as privileged user" in new ITestApp {
-      val show = route(FakeRequest(docRoutes.history("c1")).withUser(privilegedUser)).get
+      val show = FakeRequest(docRoutes.history("c1")).withUser(privilegedUser).call()
       status(show) must equalTo(OK)
     }
 
     "throw a 404 when fetching items with the wrong type" in new ITestApp {
       // r1 is a repository, not a doc unit
-      val show = route(FakeRequest(docRoutes.get("r1")).withUser(privilegedUser)).get
+      val show = FakeRequest(docRoutes.get("r1")).withUser(privilegedUser).call()
       status(show) must equalTo(NOT_FOUND)
     }
 
     "allow EAD export" in new ITestApp {
-      val ead = route(FakeRequest(docRoutes.exportEad("c1")).withUser(privilegedUser)).get
+      val ead = FakeRequest(docRoutes.exportEad("c1")).withUser(privilegedUser).call()
       status(ead) must equalTo(OK)
       contentType(ead) must beSome.which { ct =>
         ct must equalTo(MimeTypes.XML)
@@ -102,18 +102,18 @@ class DocumentaryUnitViewsSpec extends IntegrationTestRunner {
   "Documentary unit access functionality" should {
 
     "give access to c1 when logged in" in new ITestApp {
-      val show = route(FakeRequest(docRoutes.get("c1")).withUser(privilegedUser)).get
+      val show = FakeRequest(docRoutes.get("c1")).withUser(privilegedUser).call()
       status(show) must equalTo(OK)
       contentAsString(show) must contain("c1")
     }
 
     "deny access to c2 when logged in as an ordinary user" in new ITestApp {
-      val show = route(FakeRequest(docRoutes.get("c2")).withUser(unprivilegedUser)).get
+      val show = FakeRequest(docRoutes.get("c2")).withUser(unprivilegedUser).call()
       status(show) must equalTo(NOT_FOUND)
     }
 
     "allow deleting c4 when logged in" in new ITestApp {
-      val del = route(FakeRequest(docRoutes.deletePost("c4")).withUser(privilegedUser)).get
+      val del = FakeRequest(docRoutes.deletePost("c4")).withUser(privilegedUser).call()
       status(del) must equalTo(SEE_OTHER)
     }
   }
@@ -122,14 +122,14 @@ class DocumentaryUnitViewsSpec extends IntegrationTestRunner {
 
     "show correct default values in the form when creating new items" in new ITestApp(
       Map("documentaryUnit.rulesAndConventions" -> "SOME RANDOM VALUE")) {
-      val form = route(FakeRequest(repoRoutes.createDoc("r1")).withUser(privilegedUser)).get
+      val form = FakeRequest(repoRoutes.createDoc("r1")).withUser(privilegedUser).call()
       status(form) must equalTo(OK)
       contentAsString(form) must contain("SOME RANDOM VALUE")
     }
 
     "NOT show default values in the form when editing items" in new ITestApp(
       Map("documentaryUnit.rulesAndConventions" -> "SOME RANDOM VALUE")) {
-      val form = route(FakeRequest(docRoutes.update("c1")).withUser(privilegedUser)).get
+      val form = FakeRequest(docRoutes.update("c1")).withUser(privilegedUser).call()
       status(form) must equalTo(OK)
       contentAsString(form) must not contain "SOME RANDOM VALUE"
     }
@@ -144,12 +144,12 @@ class DocumentaryUnitViewsSpec extends IntegrationTestRunner {
         "descriptions[0].identityArea.dates[0].endDate" -> Seq("1945-01-01"),
         "publicationStatus" -> Seq("Published")
       )
-      val cr = route(FakeRequest(repoRoutes.createDocPost("r1"))
-        .withUser(privilegedUser).withCsrf, testData).get
+      val cr = FakeRequest(repoRoutes.createDocPost("r1"))
+        .withUser(privilegedUser).withCsrf.callWith(testData)
       status(cr) must equalTo(SEE_OTHER)
 
-      val show = route(FakeRequest(GET, redirectLocation(cr).get)
-        .withUser(privilegedUser)).get
+      val show = FakeRequest(GET, redirectLocation(cr).get)
+        .withUser(privilegedUser).call()
       status(show) must equalTo(OK)
 
       contentAsString(show) must contain("Some content")
@@ -166,11 +166,11 @@ class DocumentaryUnitViewsSpec extends IntegrationTestRunner {
         "descriptions[0].languageCode" -> Seq("heb"),
         "descriptions[0].identityArea.name" -> Seq("Hebrew Item")
       )
-      val cr = route(FakeRequest(repoRoutes.createDocPost("r1"))
-        .withUser(privilegedUser).withCsrf, testData).get
+      val cr = FakeRequest(repoRoutes.createDocPost("r1"))
+        .withUser(privilegedUser).withCsrf.callWith(testData)
       status(cr) must equalTo(SEE_OTHER)
 
-      val show = route(FakeRequest(GET, redirectLocation(cr).get).withUser(privilegedUser)).get
+      val show = FakeRequest(GET, redirectLocation(cr).get).withUser(privilegedUser).call()
       status(show) must equalTo(OK)
 
       contentAsString(show) must contain(docRoutes.history("nl-r1-זהמזהה").url)
@@ -183,12 +183,14 @@ class DocumentaryUnitViewsSpec extends IntegrationTestRunner {
         "descriptions[0].languageCode" -> Seq("eng"),
         "descriptions[0].identityArea.name" -> Seq("Child Item")
       )
-      val cr = route(FakeRequest(docRoutes.createDocPost("c1"))
-        .withUser(privilegedUser).withCsrf, testData).get
+      val cr = FakeRequest(docRoutes.createDocPost("c1"))
+        .withUser(privilegedUser)
+        .withCsrf.callWith(testData)
       status(cr) must equalTo(SEE_OTHER)
 
-      val show = route(FakeRequest(GET, redirectLocation(cr).get)
-        .withUser(privilegedUser)).get
+      val show = FakeRequest(GET, redirectLocation(cr).get)
+        .withUser(privilegedUser)
+        .call()
       status(show) must equalTo(OK)
 
       contentAsString(show) must contain(docRoutes.history("nl-r1-c1-childitem").url)
@@ -204,10 +206,10 @@ class DocumentaryUnitViewsSpec extends IntegrationTestRunner {
       // a form error should result from using the same identifier
       // twice within the given scope (in this case, r1)
       val call = FakeRequest(repoRoutes.createDocPost("r1")).withUser(privilegedUser).withCsrf
-      val cr1 = route(call, testData).get
+      val cr1 = call.callWith(testData)
       status(cr1) must equalTo(SEE_OTHER)
       // okay the first time
-      val cr2 = route(call, testData).get
+      val cr2 = call.callWith(testData)
       status(cr2) must equalTo(BAD_REQUEST)
       // NB: This error string comes from the server, so might
       // not match if changed there - single quotes surround the value
@@ -220,7 +222,7 @@ class DocumentaryUnitViewsSpec extends IntegrationTestRunner {
         "descriptions[0].identityArea.dates[0].startDate" -> Seq("1939-01-01"),
         "descriptions[0].identityArea.dates[0].endDate" -> Seq("1945-01-01")
       )
-      val cr3 = route(call, testData2).get
+      val cr3 = call.callWith(testData2)
       status(cr3) must equalTo(BAD_REQUEST)
       // NB: This error string comes from the server, so might
       // not match if changed there - single quotes surround the value
@@ -236,8 +238,10 @@ class DocumentaryUnitViewsSpec extends IntegrationTestRunner {
       // Since the item id is derived from the identifier field,
       // a form error should result from using the same identifier
       // twice within the given scope (in this case, r1)
-      val cr = route(FakeRequest(repoRoutes.createDocPost("r1"))
-        .withUser(privilegedUser).withCsrf, testData).get
+      val cr = FakeRequest(repoRoutes.createDocPost("r1"))
+        .withUser(privilegedUser)
+        .withCsrf
+        .callWith(testData)
       status(cr) must equalTo(BAD_REQUEST)
       // If we were doing validating dates we'd use:
       contentAsString(cr) must contain(Messages("error.date"))
@@ -254,11 +258,13 @@ class DocumentaryUnitViewsSpec extends IntegrationTestRunner {
         "descriptions[0].notes[0]" -> Seq("Test Note"),
         "publicationStatus" -> Seq("Draft")
       )
-      val cr = route(FakeRequest(docRoutes.updatePost("c1"))
-        .withUser(privilegedUser).withCsrf, testData).get
+      val cr = FakeRequest(docRoutes.updatePost("c1"))
+        .withUser(privilegedUser)
+        .withCsrf
+        .callWith(testData)
       status(cr) must equalTo(SEE_OTHER)
 
-      val show = route(FakeRequest(GET, redirectLocation(cr).get).withUser(privilegedUser)).get
+      val show = FakeRequest(GET, redirectLocation(cr).get).withUser(privilegedUser).call()
       status(show) must equalTo(OK)
       contentAsString(show) must contain("Collection 1 Parallel Name")
       contentAsString(show) must contain("New Content for c1")
@@ -274,11 +280,13 @@ class DocumentaryUnitViewsSpec extends IntegrationTestRunner {
         "descriptions[0].identityArea.name" -> Seq("Collection 1 - Updated"),
         "logMessage" -> Seq(msg)
       )
-      val cr = route(FakeRequest(docRoutes.updatePost("c1")).withUser(privilegedUser).withCsrf, testData).get
+      val cr = FakeRequest(docRoutes.updatePost("c1")).withUser(privilegedUser)
+        .withCsrf
+        .callWith(testData)
       status(cr) must equalTo(SEE_OTHER)
 
       // Get the item history page and check the message is there...
-      val show = route(FakeRequest(docRoutes.history("c1")).withUser(privilegedUser)).get
+      val show = FakeRequest(docRoutes.history("c1")).withUser(privilegedUser).call()
       status(show) must equalTo(OK)
       // Log message should be in the history section...
       contentAsString(show) must contain(msg)
@@ -294,11 +302,12 @@ class DocumentaryUnitViewsSpec extends IntegrationTestRunner {
         "publicationStatus" -> Seq("Draft")
       )
 
-      val cr = route(FakeRequest(docRoutes.updatePost("c4")).withUser(unprivilegedUser), testData).get
+      val cr = FakeRequest(docRoutes.updatePost("c4"))
+        .withUser(unprivilegedUser).callWith(testData)
       status(cr) must equalTo(FORBIDDEN)
 
       // We can view the item when not logged in...
-      val show = route(FakeRequest(docRoutes.get("c4")).withUser(unprivilegedUser)).get
+      val show = FakeRequest(docRoutes.get("c4")).withUser(unprivilegedUser).call()
       status(show) must equalTo(OK)
       contentAsString(show) must not contain "New Content for c4"
       indexEventBuffer.last must not equalTo "c4"
@@ -313,10 +322,13 @@ class DocumentaryUnitViewsSpec extends IntegrationTestRunner {
       )
       // Now try again to update the item, which should succeed
       // Check we can update the item
-      val cr = route(FakeRequest(
-        docRoutes.createDescriptionPost(testItem)).withUser(privilegedUser).withCsrf, testData).get
+      val cr = FakeRequest(docRoutes.createDescriptionPost(testItem))
+        .withUser(privilegedUser)
+        .withCsrf.callWith(testData)
       status(cr) must equalTo(SEE_OTHER)
-      val getR = route(FakeRequest(GET, redirectLocation(cr).get).withUser(privilegedUser)).get
+      val getR = FakeRequest(GET, redirectLocation(cr).get)
+        .withUser(privilegedUser)
+        .call()
       status(getR) must equalTo(OK)
       contentAsString(getR) must contain("This is a second description")
       indexEventBuffer.last must equalTo("c1")
@@ -333,11 +345,14 @@ class DocumentaryUnitViewsSpec extends IntegrationTestRunner {
       )
       // Now try again to update the item, which should succeed
       // Check we can update the item
-      val cr = route(FakeRequest(docRoutes.updateDescriptionPost(testItem, testItemDesc))
-        .withUser(privilegedUser).withCsrf, testData).get
+      val cr = FakeRequest(docRoutes.updateDescriptionPost(testItem, testItemDesc))
+        .withUser(privilegedUser)
+        .withCsrf
+        .callWith(testData)
       status(cr) must equalTo(SEE_OTHER)
-      val getR = route(FakeRequest(GET, redirectLocation(cr).get)
-        .withUser(privilegedUser)).get
+      val getR = FakeRequest(GET, redirectLocation(cr).get)
+        .withUser(privilegedUser)
+        .call()
       status(getR) must equalTo(OK)
       contentAsString(getR) must contain("This is an updated description")
       contentAsString(getR) must not contain "Some description text for c1"
@@ -349,11 +364,14 @@ class DocumentaryUnitViewsSpec extends IntegrationTestRunner {
       val testItemDesc = "cd1-2"
       // Now try again to update the item, which should succeed
       // Check we can update the item
-      val cr = route(FakeRequest(docRoutes.deleteDescriptionPost(testItem, testItemDesc))
-        .withUser(privilegedUser).withCsrf).get
+      val cr = FakeRequest(docRoutes.deleteDescriptionPost(testItem, testItemDesc))
+        .withUser(privilegedUser)
+        .withCsrf
+        .call()
       status(cr) must equalTo(SEE_OTHER)
-      val getR = route(FakeRequest(GET, redirectLocation(cr).get)
-        .withUser(privilegedUser)).get
+      val getR = FakeRequest(GET, redirectLocation(cr).get)
+        .withUser(privilegedUser)
+        .call()
       status(getR) must equalTo(OK)
       contentAsString(getR) must not contain "Some alternate description text for c1"
       indexEventBuffer.last must equalTo("cd1-2")
@@ -363,31 +381,30 @@ class DocumentaryUnitViewsSpec extends IntegrationTestRunner {
       val testItem = "c1"
       val testItemDesc = "cd1"
       val testItemAp = "ur1"
-      val get1 = route(FakeRequest(
-          docRoutes.get(testItem)).withUser(privilegedUser)).get
+      val get1 = FakeRequest(docRoutes.get(testItem)).withUser(privilegedUser).call()
       contentAsString(get1) must contain(testItemAp)
       // Now try again to update the item, which should succeed
       // Check we can update the item
-      val cr = route(FakeRequest(docRoutes.deleteAccessPoint(testItem, testItemDesc, testItemAp))
-        .withUser(privilegedUser).withCsrf).get
+      val cr = FakeRequest(docRoutes.deleteAccessPoint(testItem, testItemDesc, testItemAp))
+        .withUser(privilegedUser).withCsrf.call()
       // NB: This is a JSON-only endpoint so it will give us OK instead
       // of a redirect
       status(cr) must equalTo(OK)
-      val get2 = route(FakeRequest(docRoutes.get(testItem)).withUser(privilegedUser)).get
+      val get2 = FakeRequest(docRoutes.get(testItem)).withUser(privilegedUser).call()
       status(get2) must equalTo(OK)
       indexEventBuffer.last must equalTo(testItem)
       contentAsString(get2) must not contain testItemAp
     }
 
     "allow updating visibility" in new ITestApp {
-      val test1 = route(FakeRequest(docRoutes.get("c1")).withUser(unprivilegedUser)).get
+      val test1 = FakeRequest(docRoutes.get("c1")).withUser(unprivilegedUser).call()
       status(test1) must equalTo(NOT_FOUND)
       // Make item visible to user
       val data = Map(backend.rest.Constants.ACCESSOR_PARAM -> Seq(unprivilegedUser.id))
-      val cr = route(FakeRequest(docRoutes.visibilityPost("c1"))
-        .withUser(privilegedUser).withCsrf, data).get
+      val cr = FakeRequest(docRoutes.visibilityPost("c1"))
+        .withUser(privilegedUser).withCsrf.callWith(data)
       status(cr) must equalTo(SEE_OTHER)
-      val test2 = route(FakeRequest(docRoutes.get("c1")).withUser(unprivilegedUser)).get
+      val test2 = FakeRequest(docRoutes.get("c1")).withUser(unprivilegedUser).call()
       status(test2) must equalTo(OK)
     }
   }
@@ -395,22 +412,22 @@ class DocumentaryUnitViewsSpec extends IntegrationTestRunner {
   "Documentary Unit link/annotate functionality" should {
 
     "contain correct access point links" in new ITestApp {
-      val show = route(FakeRequest(docRoutes.get("c1")).withUser(privilegedUser)).get
+      val show = FakeRequest(docRoutes.get("c1")).withUser(privilegedUser).call()
       contentAsString(show) must contain("access-point-links")
       contentAsString(show) must contain(
         controllers.authorities.routes.HistoricalAgents.get("a1").url)
     }
 
     "contain correct annotation links" in new ITestApp {
-      val show = route(FakeRequest(docRoutes.get("c1")).withUser(privilegedUser)).get
+      val show = FakeRequest(docRoutes.get("c1")).withUser(privilegedUser).call()
       contentAsString(show) must contain("annotation-links")
       contentAsString(show) must contain(
         docRoutes.get("c4").url)
     }
 
     "offer correct set of types to link against" in new ITestApp {
-      val select = route(FakeRequest(docRoutes
-        .linkAnnotateSelect("c1", EntityType.DocumentaryUnit)).withUser(privilegedUser)).get
+      val select = FakeRequest(docRoutes
+        .linkAnnotateSelect("c1", EntityType.DocumentaryUnit)).withUser(privilegedUser).call()
       contentAsString(select) must contain(docRoutes
         .linkAnnotate("c1", EntityType.DocumentaryUnit, "c4").url)
       contentAsString(select) must not contain(docRoutes
@@ -425,11 +442,11 @@ class DocumentaryUnitViewsSpec extends IntegrationTestRunner {
         LinkF.LINK_TYPE -> Seq(LinkF.LinkType.Associative.toString),
         LinkF.DESCRIPTION -> Seq(body)
       )
-      val cr = route(FakeRequest(docRoutes.linkAnnotatePost(testItem, EntityType.Concept, linkSrc))
-        .withUser(privilegedUser).withCsrf, testData).get
+      val cr = FakeRequest(docRoutes.linkAnnotatePost(testItem, EntityType.Concept, linkSrc))
+        .withUser(privilegedUser).withCsrf.callWith(testData)
       status(cr) must equalTo(SEE_OTHER)
-      val getR = route(FakeRequest(GET, redirectLocation(cr).get)
-        .withUser(privilegedUser)).get
+      val getR = FakeRequest(GET, redirectLocation(cr).get)
+        .withUser(privilegedUser).call()
       status(getR) must equalTo(OK)
       contentAsString(getR) must contain(linkSrc)
       contentAsString(getR) must contain(body)
@@ -447,11 +464,11 @@ class DocumentaryUnitViewsSpec extends IntegrationTestRunner {
         "link[1].data." + LinkF.LINK_TYPE -> Seq(LinkF.LinkType.Associative.toString),
         "link[1].data." + LinkF.DESCRIPTION -> Seq(body2)
       )
-      val cr = route(FakeRequest(docRoutes.linkMultiAnnotatePost(testItem))
-        .withUser(privilegedUser).withCsrf, testData).get
+      val cr = FakeRequest(docRoutes.linkMultiAnnotatePost(testItem))
+        .withUser(privilegedUser).withCsrf.callWith(testData)
       status(cr) must equalTo(SEE_OTHER)
-      val getR = route(FakeRequest(GET, redirectLocation(cr).get)
-        .withUser(privilegedUser)).get
+      val getR = FakeRequest(GET, redirectLocation(cr).get)
+        .withUser(privilegedUser).call()
       status(getR) must equalTo(OK)
       contentAsString(getR) must contain("c2")
       contentAsString(getR) must contain(body1)
@@ -463,8 +480,7 @@ class DocumentaryUnitViewsSpec extends IntegrationTestRunner {
   "Documentary unit permissions functionality" should {
 
     "should redirect to login page when permission denied when not logged in" in new ITestApp {
-      val show = route(FakeRequest(docRoutes.get("c1"))
-        .withHeaders(HeaderNames.ACCEPT -> MimeTypes.HTML)).get
+      val show = FakeRequest(docRoutes.get("c1")).call()
       status(show) must equalTo(SEE_OTHER)
     }
 
@@ -481,25 +497,25 @@ class DocumentaryUnitViewsSpec extends IntegrationTestRunner {
 
       // Trying to create the item should fail initially.
       // Check we cannot create an item...
-      val cr = route(FakeRequest(repoRoutes.createDocPost("r2"))
-        .withUser(unprivilegedUser).withCsrf, testData).get
+      val cr = FakeRequest(repoRoutes.createDocPost("r2"))
+        .withUser(unprivilegedUser).withCsrf.callWith(testData)
       status(cr) must equalTo(FORBIDDEN)
 
       // Grant permissions to create docs within the scope of r2
       val permTestData: Map[String, List[String]] = Map(
         ContentTypes.DocumentaryUnit.toString -> List("create", "update", "delete")
       )
-      val permReq = route(FakeRequest(repoRoutes
+      val permReq = FakeRequest(repoRoutes
           .setScopedPermissionsPost(testRepo, EntityType.UserProfile, unprivilegedUser.id))
-        .withUser(privilegedUser).withCsrf, permTestData).get
+        .withUser(privilegedUser).withCsrf.callWith(permTestData)
       status(permReq) must equalTo(SEE_OTHER)
       // Now try again and create the item... it should succeed.
       // Check we cannot create an item...
-      val cr2 = route(FakeRequest(repoRoutes.createDocPost(testRepo))
-        .withUser(unprivilegedUser).withCsrf, testData).get
+      val cr2 = FakeRequest(repoRoutes.createDocPost(testRepo))
+        .withUser(unprivilegedUser).withCsrf.callWith(testData)
       status(cr2) must equalTo(SEE_OTHER)
-      val getR = route(FakeRequest(GET, redirectLocation(cr2).get)
-        .withUser(unprivilegedUser).withCsrf).get
+      val getR = FakeRequest(GET, redirectLocation(cr2).get)
+        .withUser(unprivilegedUser).withCsrf.call()
       status(getR) must equalTo(OK)
     }
 
@@ -516,25 +532,25 @@ class DocumentaryUnitViewsSpec extends IntegrationTestRunner {
 
       // Trying to create the item should fail initially.
       // Check we cannot create an item...
-      val cr = route(FakeRequest(docRoutes.updatePost(testItem))
-        .withUser(unprivilegedUser).withCsrf, testData).get
+      val cr = FakeRequest(docRoutes.updatePost(testItem))
+        .withUser(unprivilegedUser).withCsrf.callWith(testData)
       status(cr) must equalTo(FORBIDDEN)
 
       // Grant permissions to update item c1
       val permTestData: Map[String, List[String]] = Map(
         ContentTypes.DocumentaryUnit.toString -> List("update")
       )
-      val permReq = route(FakeRequest(docRoutes
+      val permReq = FakeRequest(docRoutes
         .setItemPermissionsPost(testItem, EntityType.UserProfile, unprivilegedUser.id))
-        .withUser(privilegedUser).withCsrf, permTestData).get
+        .withUser(privilegedUser).withCsrf.callWith(permTestData)
       status(permReq) must equalTo(SEE_OTHER)
       // Now try again to update the item, which should succeed
       // Check we can update the item
-      val cr2 = route(FakeRequest(docRoutes.updatePost(testItem))
-        .withUser(unprivilegedUser).withCsrf, testData).get
+      val cr2 = FakeRequest(docRoutes.updatePost(testItem))
+        .withUser(unprivilegedUser).withCsrf.callWith(testData)
       status(cr2) must equalTo(SEE_OTHER)
-      val getR = route(FakeRequest(GET, redirectLocation(cr2).get)
-        .withUser(unprivilegedUser)).get
+      val getR = FakeRequest(GET, redirectLocation(cr2).get)
+        .withUser(unprivilegedUser).call()
       status(getR) must equalTo(OK)
     }    
   }

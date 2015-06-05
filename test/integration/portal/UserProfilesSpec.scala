@@ -9,6 +9,7 @@ import org.apache.commons.io.FileUtils
 import play.api.http.MimeTypes
 import play.api.i18n.Messages
 import play.api.libs.json.JsObject
+import play.api.test.FakeRequest
 
 
 class UserProfilesSpec extends IntegrationTestRunner with FakeMultipartUpload {
@@ -27,24 +28,23 @@ class UserProfilesSpec extends IntegrationTestRunner with FakeMultipartUpload {
 
   "Portal views" should {
     "allow watching and unwatching items" in new ITestApp {
-      val watch = route(fakeLoggedInHtmlRequest(privilegedUser,
-        profileRoutes.watchItemPost("c1")), "").get
+      val watch = FakeRequest(profileRoutes.watchItemPost("c1"))
+        .withUser(privilegedUser).withCsrf.callWith("")
       status(watch) must equalTo(SEE_OTHER)
 
       // Watched items show up on the profile - maybe change this?
-      val watching = route(fakeLoggedInHtmlRequest(privilegedUser,
-        profileRoutes.watching())).get
+      val watching = FakeRequest(profileRoutes.watching()).withUser(privilegedUser).call()
       // Check the following page contains a link to the user we just followed
       contentAsString(watching) must contain(
         controllers.portal.routes.DocumentaryUnits.browse("c1").url)
 
       // Unwatch
-      val unwatch = route(fakeLoggedInHtmlRequest(privilegedUser,
-        profileRoutes.unwatchItemPost("c1")), "").get
+      val unwatch = FakeRequest(profileRoutes.unwatchItemPost("c1"))
+        .withUser(privilegedUser).withCsrf.callWith("")
       status(unwatch) must equalTo(SEE_OTHER)
 
-      val watching2 = route(fakeLoggedInHtmlRequest(privilegedUser,
-        profileRoutes.watching())).get
+      val watching2 = FakeRequest(profileRoutes.watching())
+        .withUser(privilegedUser).call()
       // Check the profile contains no links to the item we just unwatched
       contentAsString(watching2) must not contain controllers.portal.routes.DocumentaryUnits.browse("c1").url
 
@@ -52,25 +52,24 @@ class UserProfilesSpec extends IntegrationTestRunner with FakeMultipartUpload {
     
     "allow fetching watched items as text, JSON, or CSV" in new ITestApp {
       import controllers.DataFormat
-      val watch = route(fakeLoggedInHtmlRequest(privilegedUser,
-        profileRoutes.watchItemPost("c1")), "").get
+      val watch = FakeRequest(profileRoutes.watchItemPost("c1")).withUser(privilegedUser).withCsrf.callWith("")
       status(watch) must equalTo(SEE_OTHER)
 
-      val watchingText = route(fakeLoggedInHtmlRequest(privilegedUser,
-        profileRoutes.watching(format = DataFormat.Text))).get
+      val watchingText = FakeRequest(profileRoutes.watching(format = DataFormat.Text))
+        .withUser(privilegedUser).call()
       contentType(watchingText)  must beSome.which { ct =>
         ct must be equalTo MimeTypes.TEXT.toString
       }
       
-      val watchingJson = route(fakeLoggedInHtmlRequest(privilegedUser,
-        profileRoutes.watching(format = DataFormat.Json))).get
+      val watchingJson = FakeRequest(profileRoutes.watching(format = DataFormat.Json))
+        .withUser(privilegedUser).call()
       contentType(watchingJson)  must beSome.which { ct =>
         ct must be equalTo MimeTypes.JSON.toString
       }
       contentAsJson(watchingJson).validate[Seq[JsObject]].asOpt must beSome
       
-      val watchingCsv = route(fakeLoggedInHtmlRequest(privilegedUser,
-        profileRoutes.watching(format = DataFormat.Csv))).get
+      val watchingCsv = FakeRequest(profileRoutes.watching(format = DataFormat.Csv))
+        .withUser(privilegedUser).call()
       println(contentAsString(watchingCsv))
       contentType(watchingCsv)  must beSome.which { ct =>
         ct must be equalTo "text/csv"
@@ -78,8 +77,8 @@ class UserProfilesSpec extends IntegrationTestRunner with FakeMultipartUpload {
     }
 
     "allow viewing profile" in new ITestApp {
-      val prof = route(fakeLoggedInHtmlRequest(privilegedUser,
-        profileRoutes.profile())).get
+      val prof = FakeRequest(profileRoutes.profile())
+        .withUser(privilegedUser).call()
       status(prof) must equalTo(OK)
     }       
 
@@ -91,12 +90,11 @@ class UserProfilesSpec extends IntegrationTestRunner with FakeMultipartUpload {
         UserProfileF.NAME -> Seq(testName),
         UserProfileF.INTERESTS -> Seq(testInterest)
       )
-      val update = route(fakeLoggedInHtmlRequest(privilegedUser,
-        profileRoutes.updateProfilePost()), data).get
+      val update = FakeRequest(profileRoutes.updateProfilePost())
+        .withUser(privilegedUser).withCsrf.callWith(data)
       status(update) must equalTo(SEE_OTHER)
 
-      val prof = route(fakeLoggedInHtmlRequest(privilegedUser,
-        profileRoutes.profile())).get
+      val prof = FakeRequest(profileRoutes.profile()).withUser(privilegedUser).call()
       status(prof) must equalTo(OK)
       contentAsString(prof) must contain(testName)
       contentAsString(prof) must contain(testInterest)
@@ -110,17 +108,18 @@ class UserProfilesSpec extends IntegrationTestRunner with FakeMultipartUpload {
         UserProfileF.NAME -> Seq(testName),
         UserProfileF.INSTITUTION -> Seq(testInstitution + script)
       )
-      val update = route(fakeLoggedInHtmlRequest(privilegedUser,
-        profileRoutes.updateProfilePost()), data).get
+      val update = FakeRequest(profileRoutes.updateProfilePost())
+        .withUser(privilegedUser).withCsrf.callWith(data)
       status(update) must equalTo(SEE_OTHER)
 
-      val prof = route(fakeLoggedInHtmlRequest(privilegedUser, profileRoutes.profile())).get
+      val prof = FakeRequest(profileRoutes.profile())
+        .withUser(privilegedUser).call()
       status(prof) must equalTo(OK)
       contentAsString(prof) must contain(testName)
       contentAsString(prof) must contain(testInstitution)
       contentAsString(prof) must not contain script
-      val search = route(fakeLoggedInHtmlRequest(privilegedUser,
-        controllers.portal.social.routes.Social.browseUsers())).get
+      val search = FakeRequest(controllers.portal.social.routes.Social.browseUsers())
+        .withUser(privilegedUser).call()
       status(search) must equalTo(OK)
       contentAsString(search) must contain(testName)
       contentAsString(search) must contain(testInstitution)
@@ -131,17 +130,21 @@ class UserProfilesSpec extends IntegrationTestRunner with FakeMultipartUpload {
       val tmpFile = java.io.File.createTempFile("notAnImage", ".txt")
       FileUtils.write(tmpFile, "Hello, world\n")
       tmpFile.deleteOnExit()
-      val result = route(fakeLoggedInHtmlRequest(privilegedUser,
-        profileRoutes.updateProfileImagePost())
-          .withFileUpload("image", tmpFile, "image/png")).get
+      val result = FakeRequest(profileRoutes.updateProfileImagePost())
+        .withFileUpload("image", tmpFile, "image/png")
+        .withUser(privilegedUser)
+        .withCsrf
+        .call()
       status(result) must equalTo(BAD_REQUEST)
       contentAsString(result) must contain(Messages("errors.badFileType"))
     }
 
     "allow uploading image files as profile image" in new ITestApp {
-      val result = route(fakeLoggedInHtmlRequest(privilegedUser,
-        profileRoutes.updateProfileImagePost())
-        .withFileUpload("image", getProfileImage, "image/png")).get
+      val result = FakeRequest(profileRoutes.updateProfileImagePost())
+        .withFileUpload("image", getProfileImage, "image/png")
+        .withUser(privilegedUser)
+        .withCsrf
+        .call()
       status(result) must equalTo(SEE_OTHER)
       storedFileBuffer.lastOption must beSome.which { f =>
         f.toString must endingWith(s"${privilegedUser.id}.png")
@@ -150,9 +153,11 @@ class UserProfilesSpec extends IntegrationTestRunner with FakeMultipartUpload {
 
     "prevent uploading files that are too large" in new ITestApp(
         Map("ehri.portal.profile.maxImageSize" -> 10)) {
-      val result = route(fakeLoggedInHtmlRequest(privilegedUser,
-        profileRoutes.updateProfileImagePost())
-        .withFileUpload("image", getProfileImage, "image/png")).get
+      val result = FakeRequest(profileRoutes.updateProfileImagePost())
+        .withFileUpload("image", getProfileImage, "image/png")
+        .withUser(privilegedUser)
+        .withCsrf
+        .call()
       status(result) must equalTo(REQUEST_ENTITY_TOO_LARGE)
       contentAsString(result) must contain(Messages("errors.imageTooLarge"))
     }
@@ -162,8 +167,8 @@ class UserProfilesSpec extends IntegrationTestRunner with FakeMultipartUpload {
       implicit val apiUser = AuthenticatedUser(privilegedUser.id)
       val cname = await(testBackend.get[UserProfile](privilegedUser.id)).model.name
       val data = Map("confirm" -> Seq(cname))
-      val delete = route(fakeLoggedInHtmlRequest(privilegedUser,
-        profileRoutes.deleteProfilePost()), data).get
+      val delete = FakeRequest(profileRoutes.deleteProfilePost())
+        .withUser(privilegedUser).withCsrf.callWith(data)
       status(delete) must equalTo(SEE_OTHER)
 
       // Check user has been anonymised...
@@ -175,8 +180,8 @@ class UserProfilesSpec extends IntegrationTestRunner with FakeMultipartUpload {
 
     "disallow deleting profile without correct confirmation" in new ITestApp {
       val data = Map("confirm" -> Seq("THE WRONG CONFIRMATION"))
-      val delete = route(fakeLoggedInHtmlRequest(privilegedUser,
-        profileRoutes.deleteProfilePost()), data).get
+      val delete = FakeRequest(profileRoutes.deleteProfilePost())
+        .withUser(privilegedUser).withCsrf.callWith(data)
       status(delete) must equalTo(BAD_REQUEST)
     }
   }

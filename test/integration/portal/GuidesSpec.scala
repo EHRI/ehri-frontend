@@ -37,51 +37,51 @@ class GuidesSpec extends IntegrationTestRunner {
     )
 
     "be able to create guides " in new DBTestApp("guide-fixtures.sql") {
-      val create = route(fakeLoggedInHtmlRequest(privilegedUser,
-        guideAdminRoutes.createPost()), guideData).get
+      val create = FakeRequest(guideAdminRoutes.createPost())
+        .withUser(privilegedUser).withCsrf.callWith(guideData)
       status(create) must equalTo(SEE_OTHER)
-      val doc = route(fakeLoggedInHtmlRequest(privilegedUser, GET,
-        redirectLocation(create).get)).get
+      val doc = FakeRequest(GET, redirectLocation(create).get)
+        .withUser(privilegedUser).call()
       contentAsString(doc) must contain("Hello")
     }
 
     "maintain path uniqueness " in new DBTestApp("guide-fixtures.sql") {
       val data = guideData.updated(Guide.PATH, Seq("terezin"))
-      val create = route(fakeLoggedInHtmlRequest(privilegedUser,
-        guideAdminRoutes.createPost()), data).get
+      val create = FakeRequest(guideAdminRoutes.createPost())
+        .withUser(privilegedUser).withCsrf.callWith(data)
       status(create) must equalTo(BAD_REQUEST)
       contentAsString(create) must contain(Messages("constraints.uniqueness"))
     }
 
     "be able to edit guides, including changing the URL " in new DBTestApp("guide-fixtures.sql") {
-      val edit = route(fakeLoggedInHtmlRequest(privilegedUser,
-        guideAdminRoutes.editPost("jewishcommunity")), guideData).get
+      val edit = FakeRequest(guideAdminRoutes.editPost("jewishcommunity"))
+        .withUser(privilegedUser).withCsrf.callWith(guideData)
       status(edit) must equalTo(SEE_OTHER)
       redirectLocation(edit).get must equalTo(guideAdminRoutes.show("hello").url)
-      val doc = route(fakeLoggedInHtmlRequest(privilegedUser,
-        guideAdminRoutes.show("hello"))).get
+      val doc = FakeRequest(guideAdminRoutes.show("hello"))
+        .withUser(privilegedUser).call()
       status(doc) must equalTo(OK)
       contentAsString(doc) must contain("Hello")
     }
 
     "be able to edit guides, not changing the URL " in new DBTestApp("guide-fixtures.sql") {
       val data = guideData.updated(Guide.PATH, Seq("jewishcommunity"))
-      val edit = route(fakeLoggedInHtmlRequest(privilegedUser,
-        guideAdminRoutes.editPost("jewishcommunity")), data).get
+      val edit = FakeRequest(guideAdminRoutes.editPost("jewishcommunity"))
+        .withUser(privilegedUser).withCsrf.callWith(data)
       status(edit) must equalTo(SEE_OTHER)
     }
 
     "not be able to violate path uniqueness " in new DBTestApp("guide-fixtures.sql") {
       val data = guideData.updated(Guide.PATH, Seq("jewishcommunity"))
-      val create = route(fakeLoggedInHtmlRequest(privilegedUser,
-        guideAdminRoutes.createPost()), data).get
+      val create = FakeRequest(guideAdminRoutes.createPost())
+        .withUser(privilegedUser).withCsrf.callWith(data)
       status(create) must equalTo(BAD_REQUEST)
       contentAsString(create) must contain(Messages("constraints.uniqueness"))
     }
 
     "redirect after deleting guides" in  new DBTestApp("guide-fixtures.sql") {
-      val del = route(fakeLoggedInHtmlRequest(privilegedUser,
-        guideAdminRoutes.deletePost("jewishcommunity"))).get
+      val del = FakeRequest(guideAdminRoutes.deletePost("jewishcommunity"))
+        .withUser(privilegedUser).withCsrf.call()
       status(del) must equalTo(SEE_OTHER)
       redirectLocation(del).get must equalTo(guideAdminRoutes.list().url)
     }
@@ -95,36 +95,35 @@ class GuidesSpec extends IntegrationTestRunner {
     )
 
     "be able to create guide pages " in new DBTestApp("guide-fixtures.sql") {
-      val create = route(fakeLoggedInHtmlRequest(privilegedUser,
-        guidePageAdminRoutes.createPost("terezin")), pageData).get
+      val create = FakeRequest(guidePageAdminRoutes.createPost("terezin"))
+        .withUser(privilegedUser).withCsrf.callWith(pageData)
       status(create) must equalTo(SEE_OTHER)
-      val doc = route(fakeLoggedInHtmlRequest(privilegedUser, GET,
-        redirectLocation(create).get)).get
+      val doc = FakeRequest(GET, redirectLocation(create).get)
+        .withUser(privilegedUser).call()
       contentAsString(doc) must contain("Blah")
     }
 
     "be able to edit guide pages, including changing the URL " in new DBTestApp("guide-fixtures.sql") {
-      val edit = route(fakeLoggedInHtmlRequest(privilegedUser,
-        guidePageAdminRoutes.editPost("terezin", "places")), pageData).get
+      val edit = FakeRequest(guidePageAdminRoutes.editPost("terezin", "places"))
+        .withUser(privilegedUser).withCsrf.callWith(pageData)
       status(edit) must equalTo(SEE_OTHER)
       redirectLocation(edit).get must equalTo(guideAdminRoutes.show("terezin").url)
-      val doc = route(fakeLoggedInHtmlRequest(privilegedUser, GET,
-        guideAdminRoutes.show("terezin").url)).get
+      val doc = FakeRequest(guideAdminRoutes.show("terezin")).withUser(privilegedUser).call()
       status(doc) must equalTo(OK)
       contentAsString(doc) must contain("Blah")
     }
 
     "not be able to violate path uniqueness " in new DBTestApp("guide-fixtures.sql") {
       val data = pageData.updated(GuidePage.PATH, Seq("keywords"))
-      val edit = route(fakeLoggedInHtmlRequest(privilegedUser,
-        guidePageAdminRoutes.editPost("terezin", "places")), data).get
+      val edit = FakeRequest(guidePageAdminRoutes.editPost("terezin", "places"))
+        .withUser(privilegedUser).withCsrf.callWith(data)
       status(edit) must equalTo(BAD_REQUEST)
       contentAsString(edit) must contain(Messages("constraints.uniqueness"))
     }
 
     "redirect after deleting guide pages" in  new DBTestApp("guide-fixtures.sql") {
-      val del = route(fakeLoggedInHtmlRequest(privilegedUser,
-        guidePageAdminRoutes.deletePost("terezin", "places"))).get
+      val del = FakeRequest(guidePageAdminRoutes.deletePost("terezin", "places"))
+        .withUser(privilegedUser).withCsrf.call()
       status(del) must equalTo(SEE_OTHER)
       redirectLocation(del).get must equalTo(guideAdminRoutes.show("terezin").url)
     }

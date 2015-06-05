@@ -2,12 +2,15 @@ package integration
 
 import helpers._
 import models.{GroupF, Group, UserProfileF, UserProfile}
+import play.api.test.FakeRequest
 
 
 class RepositoryViewsSpec extends IntegrationTestRunner with TestHelpers {
   import mocks.{privilegedUser,unprivilegedUser}
 
   private val repoRoutes = controllers.institutions.routes.Repositories
+  private val countryRoutes = controllers.countries.routes.Countries
+  
 
   // Mock user who belongs to admin
   val userProfile = UserProfile(
@@ -25,7 +28,7 @@ class RepositoryViewsSpec extends IntegrationTestRunner with TestHelpers {
     val COUNTRY = "nl"
 
     "list should get some items" in new ITestApp {
-      val list = route(fakeLoggedInHtmlRequest(unprivilegedUser, repoRoutes.list())).get
+      val list = FakeRequest(repoRoutes.list()).withUser(unprivilegedUser).call()
       status(list) must equalTo(OK)
       contentAsString(list) must contain(multipleItemsHeader)
       contentAsString(list) must contain("r1")
@@ -33,7 +36,7 @@ class RepositoryViewsSpec extends IntegrationTestRunner with TestHelpers {
     }
 
     "search should get some items" in new ITestApp {
-      val list = route(fakeLoggedInHtmlRequest(unprivilegedUser, repoRoutes.search())).get
+      val list = FakeRequest(repoRoutes.search()).withUser(unprivilegedUser).call()
       status(list) must equalTo(OK)
       contentAsString(list) must contain(multipleItemsHeader)
       contentAsString(list) must contain("r1")
@@ -42,15 +45,14 @@ class RepositoryViewsSpec extends IntegrationTestRunner with TestHelpers {
 
     "show correct default values in the form when creating new items" in new ITestApp(
       Map("repository.holdings" -> "SOME RANDOM VALUE")) {
-      val form = route(fakeLoggedInHtmlRequest(privilegedUser,
-        controllers.countries.routes.Countries.createRepository(COUNTRY))).get
+      val form = FakeRequest(countryRoutes.createRepository(COUNTRY)).withUser(privilegedUser).call()
       status(form) must equalTo(OK)
       contentAsString(form) must contain("SOME RANDOM VALUE")
     }
 
     "NOT show default values in the form when editing items" in new ITestApp(
       Map("repository.holdings" -> "SOME RANDOM VALUE")) {
-      val form = route(fakeLoggedInHtmlRequest(privilegedUser, repoRoutes.update("r1"))).get
+      val form = FakeRequest(repoRoutes.update("r1")).withUser(privilegedUser).call()
       status(form) must equalTo(OK)
       contentAsString(form) must not contain "SOME RANDOM VALUE"
     }
@@ -72,12 +74,11 @@ class RepositoryViewsSpec extends IntegrationTestRunner with TestHelpers {
         "descriptions[0].controlArea[0].sources[1]" -> Seq("YV"),
         "publicationStatus" -> Seq("Published")
       )
-      val cr = route(fakeLoggedInHtmlRequest(privilegedUser,
-        controllers.countries.routes.Countries.createRepositoryPost(COUNTRY)), testData).get
+      val cr = FakeRequest(countryRoutes.createRepositoryPost(COUNTRY))
+        .withUser(privilegedUser).withCsrf.callWith(testData)
       status(cr) must equalTo(SEE_OTHER)
 
-      val show = route(fakeLoggedInHtmlRequest(privilegedUser, GET,
-        redirectLocation(cr).get)).get
+      val show = FakeRequest(GET, redirectLocation(cr).get).withUser(privilegedUser).call()
       status(show) must equalTo(OK)
       contentAsString(show) must contain("Some history")
       contentAsString(show) must contain("Some content")
@@ -89,8 +90,8 @@ class RepositoryViewsSpec extends IntegrationTestRunner with TestHelpers {
     "error if missing mandatory values" in new ITestApp {
       val testData: Map[String, Seq[String]] = Map(
       )
-      val cr = route(fakeLoggedInHtmlRequest(privilegedUser,
-        controllers.countries.routes.Countries.createRepositoryPost(COUNTRY)), testData).get
+      val cr = FakeRequest(countryRoutes.createRepositoryPost(COUNTRY))
+        .withUser(privilegedUser).withCsrf.callWith(testData)
       status(cr) must equalTo(BAD_REQUEST)
     }
 
@@ -98,17 +99,17 @@ class RepositoryViewsSpec extends IntegrationTestRunner with TestHelpers {
       val testData: Map[String, Seq[String]] = Map(
         "identifier" -> Seq("r1")
       )
-      val cr = route(fakeLoggedInHtmlRequest(privilegedUser,
-        controllers.countries.routes.Countries.createRepositoryPost(COUNTRY)), testData).get
+      val cr = FakeRequest(countryRoutes.createRepositoryPost(COUNTRY))
+        .withUser(privilegedUser).withCsrf.callWith(testData)
       status(cr) must equalTo(SEE_OTHER)
-      val cr2 = route(fakeLoggedInHtmlRequest(privilegedUser,
-        controllers.countries.routes.Countries.createRepositoryPost(COUNTRY)), testData).get
+      val cr2 = FakeRequest(countryRoutes.createRepositoryPost(COUNTRY))
+        .withUser(privilegedUser).withCsrf.callWith(testData)
       status(cr2) must equalTo(BAD_REQUEST)
     }
 
 
     "link to other privileged actions when logged in" in new ITestApp {
-      val show = route(fakeLoggedInHtmlRequest(privilegedUser, repoRoutes.get("r1"))).get
+      val show = FakeRequest(repoRoutes.get("r1")).withUser(privilegedUser).call()
       status(show) must equalTo(OK)
       contentAsString(show) must contain(repoRoutes.update("r1").url)
       contentAsString(show) must contain(repoRoutes.delete("r1").url)
@@ -128,10 +129,11 @@ class RepositoryViewsSpec extends IntegrationTestRunner with TestHelpers {
         "descriptions[0].descriptionArea.geoculturalContext" -> Seq("New Content for r1"),
         "publicationStatus" -> Seq("Draft")
       )
-      val cr = route(fakeLoggedInHtmlRequest(privilegedUser, repoRoutes.updatePost("r1")), testData).get
+      val cr = FakeRequest(repoRoutes.updatePost("r1"))
+        .withUser(privilegedUser).withCsrf.callWith(testData)
       status(cr) must equalTo(SEE_OTHER)
 
-      val show = route(fakeLoggedInHtmlRequest(privilegedUser, GET, redirectLocation(cr).get)).get
+      val show = FakeRequest(GET, redirectLocation(cr).get).withUser(privilegedUser).call()
       status(show) must equalTo(OK)
       contentAsString(show) must contain("New Content for r1")
       indexEventBuffer.last must equalTo("r1")
@@ -145,11 +147,12 @@ class RepositoryViewsSpec extends IntegrationTestRunner with TestHelpers {
         "descriptions[0].descriptionArea.geoculturalContext" -> Seq("New Content for r1"),
         "publicationStatus" -> Seq("Draft")
       )
-      val cr = route(fakeLoggedInHtmlRequest(unprivilegedUser, repoRoutes.updatePost("r1")), testData).get
+      val cr = FakeRequest(repoRoutes.updatePost("r1"))
+        .withUser(unprivilegedUser).withCsrf.callWith(testData)
       status(cr) must equalTo(FORBIDDEN)
 
       // We can view the item when not logged in...
-      val show = route(fakeLoggedInHtmlRequest(unprivilegedUser, repoRoutes.get("r1"))).get
+      val show = FakeRequest(repoRoutes.get("r1")).withUser(unprivilegedUser).call()
       status(show) must equalTo(OK)
       contentAsString(show) must not contain "New Content for r1"
     }

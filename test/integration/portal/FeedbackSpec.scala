@@ -2,11 +2,11 @@ package integration.portal
 
 import helpers.IntegrationTestRunner
 import play.api.test.FakeRequest
-import utils.forms._
-import scala.Some
+
 
 class FeedbackSpec extends IntegrationTestRunner {
 
+  import mocks.privilegedUser
   override def getConfig = Map(
     "ehri.signup.timeCheckSeconds" -> -1
   )
@@ -25,8 +25,8 @@ class FeedbackSpec extends IntegrationTestRunner {
 
     "allow anon feedback" in new ITestApp {
       val fbCount = feedbackBuffer.size
-      val post = route(fakeRequest(
-          controllers.portal.routes.Feedback.feedbackPost()), fb).get
+      val post = FakeRequest(controllers.portal.routes.Feedback.feedbackPost())
+        .withCsrf.callWith(fb)
       status(post) must equalTo(SEE_OTHER)
       val newCount = feedbackBuffer.size
       newCount must equalTo(fbCount + 1)
@@ -38,14 +38,14 @@ class FeedbackSpec extends IntegrationTestRunner {
 
     "allow logged-in feedback" in new ITestApp {
       val fbCount = feedbackBuffer.size
-      val post = route(fakeLoggedInHtmlRequest(mocks.privilegedUser,
-        controllers.portal.routes.Feedback.feedbackPost()), fb).get
+      val post = FakeRequest(controllers.portal.routes.Feedback.feedbackPost())
+        .withUser(privilegedUser).withCsrf.callWith(fb)
       status(post) must equalTo(SEE_OTHER)
       val newCount = feedbackBuffer.size
       newCount must equalTo(fbCount + 1)
       feedbackBuffer.get(newCount) must beSome.which { f =>
         f.text must equalTo(Some("it doesn't work"))
-        f.email must equalTo(Some(mocks.privilegedUser.email))
+        f.email must equalTo(Some(privilegedUser.email))
       }
     }
 
@@ -56,8 +56,8 @@ class FeedbackSpec extends IntegrationTestRunner {
       "ehri.portal.feedback.data.copyTo" -> Seq(testDataMail)
     )) {
       val dataFb = fb.updated(TYPE, Seq(models.Feedback.Type.Data.toString))
-      val post = route(fakeLoggedInHtmlRequest(mocks.privilegedUser,
-          controllers.portal.routes.Feedback.feedbackPost()), dataFb).get
+      val post = FakeRequest(controllers.portal.routes.Feedback.feedbackPost())
+        .withUser(privilegedUser).withCsrf.callWith(dataFb)
       status(post) must equalTo(SEE_OTHER)
       mailBuffer.lastOption must beSome.which { m =>
         m.to.headOption must equalTo(Some(testDataMail))
@@ -68,8 +68,8 @@ class FeedbackSpec extends IntegrationTestRunner {
       "ehri.portal.feedback.site.copyTo" -> Seq(testSiteMail)
     )) {
       val dataFb = fb.updated(TYPE, Seq(models.Feedback.Type.Site.toString))
-      val post = route(fakeLoggedInHtmlRequest(mocks.privilegedUser,
-        controllers.portal.routes.Feedback.feedbackPost()), dataFb).get
+      val post = FakeRequest(controllers.portal.routes.Feedback.feedbackPost())
+        .withUser(privilegedUser).withCsrf.callWith(dataFb)
       status(post) must equalTo(SEE_OTHER)
       mailBuffer.lastOption must beSome.which { m =>
         m.to.headOption must equalTo(Some(testSiteMail))

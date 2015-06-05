@@ -4,6 +4,7 @@ import helpers._
 import models.{Group, UserProfileF, UserProfile}
 import defines._
 import backend.ApiUser
+import play.api.test.FakeRequest
 
 /**
  * Spec to test various page views operate as expected.
@@ -21,8 +22,8 @@ class EntityViewsSpec extends IntegrationTestRunner {
   "HistoricalAgent views" should {
     "list should get some items" in new ITestApp {
 
-      val list = route(fakeLoggedInHtmlRequest(unprivilegedUser,
-          controllers.authorities.routes.HistoricalAgents.list())).get
+      val list = FakeRequest(controllers.authorities.routes.HistoricalAgents.list())
+        .withUser(unprivilegedUser).call()
       status(list) must equalTo(OK)
       contentAsString(list) must contain(multipleItemsHeader)
       contentAsString(list) must contain("a1")
@@ -41,13 +42,11 @@ class EntityViewsSpec extends IntegrationTestRunner {
         "descriptions[0].descriptionArea.generalContext" -> Seq("Some content"),
         "publicationStatus" -> Seq("Published")
       )
-      val cr = route(fakeLoggedInHtmlRequest(privilegedUser,
-        controllers.sets.routes.AuthoritativeSets
-          .createHistoricalAgentPost("auths")), testData).get
+      val cr = FakeRequest(controllers.sets.routes.AuthoritativeSets.createHistoricalAgentPost("auths"))
+        .withUser(privilegedUser).withCsrf.callWith(testData)
       status(cr) must equalTo(SEE_OTHER)
 
-      val show = route(fakeLoggedInHtmlRequest(privilegedUser, GET,
-        redirectLocation(cr).get)).get
+      val show = FakeRequest(GET, redirectLocation(cr).get).withUser(privilegedUser).call()
       status(show) must equalTo(OK)
       contentAsString(show) must contain("Some history")
       contentAsString(show) must contain("Some content")
@@ -56,9 +55,8 @@ class EntityViewsSpec extends IntegrationTestRunner {
     "error if missing mandatory values" in new ITestApp {
       val testData: Map[String, Seq[String]] = Map(
       )
-      val cr = route(fakeLoggedInHtmlRequest(privilegedUser,
-        controllers.sets.routes.AuthoritativeSets
-          .createHistoricalAgentPost("auths")), testData).get
+      val cr = FakeRequest(controllers.sets.routes.AuthoritativeSets.createHistoricalAgentPost("auths"))
+        .withUser(privilegedUser).withCsrf.callWith(testData)
       status(cr) must equalTo(BAD_REQUEST)
     }
 
@@ -69,20 +67,18 @@ class EntityViewsSpec extends IntegrationTestRunner {
         "descriptions[0].typeOfEntity" -> Seq("corporateBody"),
         "descriptions[0].languageCode" -> Seq("eng")
       )
-      val cr = route(fakeLoggedInHtmlRequest(privilegedUser,
-        controllers.sets.routes.AuthoritativeSets
-          .createHistoricalAgentPost("auths")), testData).get
+      val cr = FakeRequest(controllers.sets.routes.AuthoritativeSets.createHistoricalAgentPost("auths"))
+        .withUser(privilegedUser).withCsrf.callWith(testData)
       status(cr) must equalTo(SEE_OTHER)
-      val cr2 = route(fakeLoggedInHtmlRequest(privilegedUser,
-        controllers.sets.routes.AuthoritativeSets
-          .createHistoricalAgentPost("auths")), testData).get
+      val cr2 = FakeRequest(controllers.sets.routes.AuthoritativeSets.createHistoricalAgentPost("auths"))
+        .withUser(privilegedUser).withCsrf.callWith(testData)
       status(cr2) must equalTo(BAD_REQUEST)
     }
 
 
     "link to other privileged actions when logged in" in new ITestApp {
-      val show = route(fakeLoggedInHtmlRequest(privilegedUser,
-        controllers.authorities.routes.HistoricalAgents.get("a1"))).get
+      val show = FakeRequest(controllers.authorities.routes.HistoricalAgents.get("a1"))
+        .withUser(privilegedUser).call()
       status(show) must equalTo(OK)
       contentAsString(show) must contain(controllers.authorities.routes.HistoricalAgents.update("a1").url)
       contentAsString(show) must contain(controllers.authorities.routes.HistoricalAgents.delete("a1").url)
@@ -102,11 +98,11 @@ class EntityViewsSpec extends IntegrationTestRunner {
         "descriptions[0].descriptionArea.generalContext" -> Seq("New Content for a1"),
         "publicationStatus" -> Seq("Draft")
       )
-      val cr = route(fakeLoggedInHtmlRequest(privilegedUser,
-        controllers.authorities.routes.HistoricalAgents.updatePost("a1")), testData).get
+      val cr = FakeRequest(controllers.authorities.routes.HistoricalAgents.updatePost("a1"))
+        .withUser(privilegedUser).withCsrf.callWith(testData)
       status(cr) must equalTo(SEE_OTHER)
 
-      val show = route(fakeLoggedInHtmlRequest(privilegedUser, GET, redirectLocation(cr).get)).get
+      val show = FakeRequest(GET, redirectLocation(cr).get).withUser(privilegedUser).call()
       status(show) must equalTo(OK)
       contentAsString(show) must contain("New Content for a1")
     }
@@ -115,22 +111,22 @@ class EntityViewsSpec extends IntegrationTestRunner {
       val testData: Map[String, Seq[String]] = Map(
         "identifier" -> Seq("a1")
       )
-      val cr = route(fakeLoggedInHtmlRequest(unprivilegedUser,
-        controllers.authorities.routes.HistoricalAgents.updatePost("a1")), testData).get
+      val cr = FakeRequest(controllers.authorities.routes.HistoricalAgents.updatePost("a1"))
+        .withUser(unprivilegedUser).withCsrf.callWith(testData)
       status(cr) must equalTo(FORBIDDEN)
     }
 
     "show correct default values in the form when creating new items" in new ITestApp(
       Map("historicalAgent.rulesAndConventions" -> "SOME RANDOM VALUE")) {
-      val form = route(fakeLoggedInHtmlRequest(privilegedUser,
-        controllers.sets.routes.AuthoritativeSets.createHistoricalAgent("auths"))).get
+      val form = FakeRequest(controllers.sets.routes.AuthoritativeSets.createHistoricalAgent("auths"))
+        .withUser(privilegedUser).call()
       status(form) must equalTo(OK)
       contentAsString(form) must contain("SOME RANDOM VALUE")
     }
 
     "contain links to external items" in new ITestApp {
-      val show = route(fakeLoggedInHtmlRequest(privilegedUser,
-        controllers.authorities.routes.HistoricalAgents.get("a1"))).get
+      val show = FakeRequest(controllers.authorities.routes.HistoricalAgents.get("a1"))
+        .withUser(privilegedUser).call()
       contentAsString(show) must contain("external-item-link")
       contentAsString(show) must contain(
         controllers.units.routes.DocumentaryUnits.get("c1").url)
@@ -147,8 +143,8 @@ class EntityViewsSpec extends IntegrationTestRunner {
         ContentTypes.Repository.toString -> List(PermissionType.Create.toString),
         ContentTypes.DocumentaryUnit.toString -> List(PermissionType.Create.toString)
       )
-      val cr = route(fakeLoggedInHtmlRequest(privilegedUser,
-        controllers.users.routes.UserProfiles.permissionsPost(subjectUser.id)), testData).get
+      val cr = FakeRequest(controllers.users.routes.UserProfiles.permissionsPost(subjectUser.id))
+        .withUser(privilegedUser).withCsrf.callWith(testData)
       status(cr) must equalTo(SEE_OTHER)
 
       // Now check we can read back the same permissions.
@@ -160,7 +156,7 @@ class EntityViewsSpec extends IntegrationTestRunner {
     }
 
     "link to other privileged actions when logged in" in new ITestApp {
-      val show = route(fakeLoggedInHtmlRequest(privilegedUser, controllers.users.routes.UserProfiles.get(id))).get
+      val show = FakeRequest(controllers.users.routes.UserProfiles.get(id)).withUser(privilegedUser).call()
       status(show) must equalTo(OK)
       contentAsString(show) must contain(controllers.users.routes.UserProfiles.update(id).url)
       contentAsString(show) must contain(controllers.users.routes.UserProfiles.delete(id).url)
@@ -172,9 +168,8 @@ class EntityViewsSpec extends IntegrationTestRunner {
 
     "allow adding users to groups" in new ITestApp {
       // Going to add user Reto to group Niod
-      val add = route(fakeLoggedInHtmlRequest(privilegedUser,
-        controllers.users.routes.UserProfiles.addToGroup(id, "niod"))
-          .withFormUrlEncodedBody()).get
+      val add = FakeRequest(controllers.users.routes.UserProfiles.addToGroup(id, "niod"))
+          .withUser(privilegedUser).withCsrf.call()
       status(add) must equalTo(SEE_OTHER)
 
       val userFetch = await(testBackend.get[UserProfile](id))
@@ -187,8 +182,8 @@ class EntityViewsSpec extends IntegrationTestRunner {
         before.active must beTrue
       }
       val data = Map("staff" -> Seq(false.toString), "active" -> Seq(false.toString))
-      val update = route(fakeLoggedInHtmlRequest(privilegedUser,
-        controllers.users.routes.UserProfiles.updatePost(unprivilegedUser.id)), data).get
+      val update = FakeRequest(controllers.users.routes.UserProfiles.updatePost(unprivilegedUser.id))
+        .withUser(privilegedUser).withCsrf.callWith(data)
       status(update) must equalTo(SEE_OTHER)
       await(mockAccounts.findById(unprivilegedUser.id)) must beSome.which { after =>
         after.staff must beFalse
@@ -197,25 +192,23 @@ class EntityViewsSpec extends IntegrationTestRunner {
     }
 
     "not allow deletion unless confirmation is given" in new ITestApp {
-      val del = route(fakeLoggedInHtmlRequest(privilegedUser,
-        controllers.users.routes.UserProfiles.deletePost("reto"))
-        .withFormUrlEncodedBody()).get
+      val del = FakeRequest(controllers.users.routes.UserProfiles.deletePost("reto"))
+        .withUser(privilegedUser).withCsrf.call()
       status(del) must equalTo(BAD_REQUEST)
     }
 
     "allow deletion when confirmation is given" in new ITestApp {
       // Confirmation is the user's full name
       val data = Map("deleteCheck" -> Seq("Reto"))
-      val del = route(fakeLoggedInHtmlRequest(privilegedUser,
-        controllers.users.routes.UserProfiles.deletePost("reto")), data).get
+      val del = FakeRequest(controllers.users.routes.UserProfiles.deletePost("reto"))
+        .withUser(privilegedUser).withCsrf.callWith(data)
       status(del) must equalTo(SEE_OTHER)
     }
 
     "allow removing users from groups" in new ITestApp {
       // Going to add remove Reto from group KCL
-      val rem = route(fakeLoggedInHtmlRequest(privilegedUser,
-        controllers.users.routes.UserProfiles.removeFromGroup(id, "kcl"))
-          .withFormUrlEncodedBody()).get
+      val rem = FakeRequest(controllers.users.routes.UserProfiles.removeFromGroup(id, "kcl"))
+          .withUser(privilegedUser).withCsrf.call()
       status(rem) must equalTo(SEE_OTHER)
 
       val userFetch = await(testBackend.get[UserProfile](id))
@@ -228,7 +221,7 @@ class EntityViewsSpec extends IntegrationTestRunner {
     val id = "kcl"
 
     "detail when logged in should link to other privileged actions" in new ITestApp {
-      val show = route(fakeLoggedInHtmlRequest(privilegedUser, controllers.groups.routes.Groups.get(id))).get
+      val show = FakeRequest(controllers.groups.routes.Groups.get(id)).withUser(privilegedUser).call()
       status(show) must equalTo(OK)
       contentAsString(show) must contain(controllers.groups.routes.Groups.update(id).url)
       contentAsString(show) must contain(controllers.groups.routes.Groups.delete(id).url)
@@ -240,9 +233,8 @@ class EntityViewsSpec extends IntegrationTestRunner {
 
     "allow adding groups to groups" in new ITestApp {
       // Add KCL to Admin
-      val add = route(fakeLoggedInHtmlRequest(privilegedUser,
-        controllers.groups.routes.Groups.addToGroup(id, "admin"))
-          .withFormUrlEncodedBody()).get
+      val add = FakeRequest(controllers.groups.routes.Groups.addToGroup(id, "admin"))
+        .withUser(privilegedUser).withCsrf.call()
       status(add) must equalTo(SEE_OTHER)
 
       val groupFetch = await(testBackend.get[Group](id))
@@ -251,9 +243,8 @@ class EntityViewsSpec extends IntegrationTestRunner {
 
     "allow removing groups from groups" in new ITestApp {
       // Remove NIOD from Admin
-      val rem = route(fakeLoggedInHtmlRequest(privilegedUser,
-        controllers.groups.routes.Groups.removeFromGroup("niod", "admin"))
-          .withFormUrlEncodedBody()).get
+      val rem = FakeRequest(controllers.groups.routes.Groups.removeFromGroup("niod", "admin"))
+          .withUser(privilegedUser).withCsrf.call()
       status(rem) must equalTo(SEE_OTHER)
 
       val groupFetch = await(testBackend.get[Group]("niod"))
@@ -264,8 +255,8 @@ class EntityViewsSpec extends IntegrationTestRunner {
   "HistoricalAgent views" should {
     "list should get some items" in new ITestApp {
 
-      val list = route(fakeLoggedInHtmlRequest(unprivilegedUser,
-        controllers.authorities.routes.HistoricalAgents.list())).get
+      val list = FakeRequest(controllers.authorities.routes.HistoricalAgents.list())
+        .withUser(unprivilegedUser).call()
       status(list) must equalTo(OK)
       contentAsString(list) must contain(multipleItemsHeader)
       contentAsString(list) must contain("a1")
@@ -284,13 +275,12 @@ class EntityViewsSpec extends IntegrationTestRunner {
         "descriptions[0].descriptionArea.generalContext" -> Seq("Some content"),
         "publicationStatus" -> Seq("Published")
       )
-      val cr = route(fakeLoggedInHtmlRequest(privilegedUser,
-        controllers.sets.routes.AuthoritativeSets
-          .createHistoricalAgentPost("auths")), testData).get
+      val cr = FakeRequest(controllers.sets.routes.AuthoritativeSets.createHistoricalAgentPost("auths"))
+        .withUser(privilegedUser).withCsrf.callWith(testData)
       status(cr) must equalTo(SEE_OTHER)
 
-      val show = route(fakeLoggedInHtmlRequest(privilegedUser, GET,
-        redirectLocation(cr).get)).get
+      val show = FakeRequest(GET, redirectLocation(cr).get)
+        .withUser(privilegedUser).call()
       status(show) must equalTo(OK)
       contentAsString(show) must contain("Some history")
       contentAsString(show) must contain("Some content")
@@ -299,9 +289,8 @@ class EntityViewsSpec extends IntegrationTestRunner {
     "error if missing mandatory values" in new ITestApp {
       val testData: Map[String, Seq[String]] = Map(
       )
-      val cr = route(fakeLoggedInHtmlRequest(privilegedUser,
-        controllers.sets.routes.AuthoritativeSets
-          .createHistoricalAgentPost("auths")), testData).get
+      val cr = FakeRequest(controllers.sets.routes.AuthoritativeSets.createHistoricalAgentPost("auths"))
+        .withUser(privilegedUser).withCsrf.callWith(testData)
       status(cr) must equalTo(BAD_REQUEST)
     }
 
@@ -312,18 +301,16 @@ class EntityViewsSpec extends IntegrationTestRunner {
         "descriptions[0].typeOfEntity" -> Seq("corporateBody"),
         "descriptions[0].languageCode" -> Seq("eng")
       )
-      val cr = route(fakeLoggedInHtmlRequest(privilegedUser,
-        controllers.sets.routes.AuthoritativeSets
-          .createHistoricalAgentPost("auths")), testData).get
+      val cr = FakeRequest(controllers.sets.routes.AuthoritativeSets.createHistoricalAgentPost("auths"))
+        .withUser(privilegedUser).withCsrf.callWith(testData)
       status(cr) must equalTo(SEE_OTHER)
-      val cr2 = route(fakeLoggedInHtmlRequest(privilegedUser,
-        controllers.sets.routes.AuthoritativeSets
-          .createHistoricalAgentPost("auths")), testData).get
+      val cr2 = FakeRequest(controllers.sets.routes.AuthoritativeSets.createHistoricalAgentPost("auths"))
+        .withUser(privilegedUser).withCsrf.callWith(testData)
       status(cr2) must equalTo(BAD_REQUEST)
     }
 
     "link to other privileged actions when logged in" in new ITestApp {
-      val show = route(fakeLoggedInHtmlRequest(privilegedUser, controllers.authorities.routes.HistoricalAgents.get("a1"))).get
+      val show = FakeRequest(controllers.authorities.routes.HistoricalAgents.get("a1")).withUser(privilegedUser).call()
       status(show) must equalTo(OK)
       contentAsString(show) must contain(controllers.authorities.routes.HistoricalAgents.update("a1").url)
       contentAsString(show) must contain(controllers.authorities.routes.HistoricalAgents.delete("a1").url)
@@ -343,11 +330,11 @@ class EntityViewsSpec extends IntegrationTestRunner {
         "descriptions[0].descriptionArea.generalContext" -> Seq("New Content for a1"),
         "publicationStatus" -> Seq("Draft")
       )
-      val cr = route(fakeLoggedInHtmlRequest(privilegedUser,
-        controllers.authorities.routes.HistoricalAgents.updatePost("a1")), testData).get
+      val cr = FakeRequest(controllers.authorities.routes.HistoricalAgents.updatePost("a1"))
+        .withUser(privilegedUser).withCsrf.callWith(testData)
       status(cr) must equalTo(SEE_OTHER)
 
-      val show = route(fakeLoggedInHtmlRequest(privilegedUser, GET, redirectLocation(cr).get)).get
+      val show = FakeRequest(GET, redirectLocation(cr).get).withUser(privilegedUser).call()
       status(show) must equalTo(OK)
       contentAsString(show) must contain("New Content for a1")
     }
@@ -356,22 +343,22 @@ class EntityViewsSpec extends IntegrationTestRunner {
       val testData: Map[String, Seq[String]] = Map(
         "identifier" -> Seq("a1")
       )
-      val cr = route(fakeLoggedInHtmlRequest(unprivilegedUser,
-        controllers.authorities.routes.HistoricalAgents.updatePost("a1")), testData).get
+      val cr = FakeRequest(controllers.authorities.routes.HistoricalAgents.updatePost("a1"))
+        .withUser(unprivilegedUser).withCsrf.callWith(testData)
       status(cr) must equalTo(FORBIDDEN)
     }
 
     "show correct default values in the form when creating new items" in new ITestApp(
       Map("historicalAgent.rulesAndConventions" -> "SOME RANDOM VALUE")) {
-      val form = route(fakeLoggedInHtmlRequest(privilegedUser,
-        controllers.sets.routes.AuthoritativeSets.createHistoricalAgent("auths"))).get
+      val form = FakeRequest(controllers.sets.routes.AuthoritativeSets.createHistoricalAgent("auths"))
+        .withUser(privilegedUser).call()
       status(form) must equalTo(OK)
       contentAsString(form) must contain("SOME RANDOM VALUE")
     }
 
     "contain links to external items" in new ITestApp {
-      val show = route(fakeLoggedInHtmlRequest(privilegedUser,
-        controllers.authorities.routes.HistoricalAgents.get("a1"))).get
+      val show = FakeRequest(controllers.authorities.routes.HistoricalAgents.get("a1"))
+        .withUser(privilegedUser).call()
       contentAsString(show) must contain("external-item-link")
       contentAsString(show) must contain(
         controllers.units.routes.DocumentaryUnits.get("c1").url)
@@ -384,12 +371,11 @@ class EntityViewsSpec extends IntegrationTestRunner {
         "identifier" -> Seq("test-vocab"),
         "name" -> Seq("Test Vocab")
       )
-      val cr = route(fakeLoggedInHtmlRequest(privilegedUser,
-        controllers.vocabularies.routes.Vocabularies.createPost()), testData).get
+      val cr = FakeRequest(controllers.vocabularies.routes.Vocabularies.createPost())
+        .withUser(privilegedUser).withCsrf.callWith(testData)
       status(cr) must equalTo(SEE_OTHER)
 
-      val show = route(fakeLoggedInHtmlRequest(privilegedUser, GET,
-        redirectLocation(cr).get)).get
+      val show = FakeRequest(GET, redirectLocation(cr).get).withUser(privilegedUser).call()
       status(show) must equalTo(OK)
       contentAsString(show) must contain("Test Vocab")
     }
@@ -398,8 +384,8 @@ class EntityViewsSpec extends IntegrationTestRunner {
       val testData: Map[String, Seq[String]] = Map(
         "identifier" -> Seq("test-vocab")
       )
-      val cr = route(fakeLoggedInHtmlRequest(privilegedUser,
-        controllers.vocabularies.routes.Vocabularies.createPost()), testData).get
+      val cr = FakeRequest(controllers.vocabularies.routes.Vocabularies.createPost())
+        .withUser(privilegedUser).withCsrf.callWith(testData)
       status(cr) must equalTo(BAD_REQUEST)
     }
 
@@ -408,11 +394,12 @@ class EntityViewsSpec extends IntegrationTestRunner {
         "identifier" -> Seq("cvoc1"),
         "name" -> Seq("Another Name")
       )
-      val cr = route(fakeLoggedInHtmlRequest(privilegedUser,
-        controllers.vocabularies.routes.Vocabularies.updatePost("cvoc1")), testData).get
+      val cr = FakeRequest(controllers.vocabularies.routes.Vocabularies.updatePost("cvoc1"))
+        .withUser(privilegedUser).withCsrf.callWith(testData)
       status(cr) must equalTo(SEE_OTHER)
 
-      val show = route(fakeLoggedInHtmlRequest(privilegedUser, GET, redirectLocation(cr).get)).get
+      val show = FakeRequest(GET, redirectLocation(cr).get)
+        .withUser(privilegedUser).call()
       status(show) must equalTo(OK)
       contentAsString(show) must contain("Another Name")
     }

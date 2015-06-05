@@ -2,6 +2,7 @@ package integration.portal.social
 
 import helpers.IntegrationTestRunner
 import controllers.portal.social.ReverseSocial
+import play.api.test.FakeRequest
 
 class SocialSpec extends IntegrationTestRunner {
   import mocks.{privilegedUser, unprivilegedUser}
@@ -12,23 +13,23 @@ class SocialSpec extends IntegrationTestRunner {
 
   "Social views" should {
     "allow following and unfollowing users" in new ITestApp {
-      val follow = route(fakeLoggedInHtmlRequest(privilegedUser, POST,
-        socialRoutes.followUser(unprivilegedUser.id).url), "").get
+      val follow = FakeRequest(socialRoutes.followUserPost(unprivilegedUser.id))
+        .withUser(privilegedUser).withCsrf.call()
       status(follow) must equalTo(SEE_OTHER)
 
-      val following = route(fakeLoggedInHtmlRequest(privilegedUser, GET,
-        socialRoutes.followingForUser(privilegedUser.id).url)).get
+      val following = FakeRequest(socialRoutes.followingForUser(privilegedUser.id))
+        .withUser(privilegedUser).call()
       // Check the following page contains a link to the user we just followed
       contentAsString(following) must contain(
         socialRoutes.userProfile(unprivilegedUser.id).url)
 
       // Unfollow the sucker - he's boring...
-      val unfollow = route(fakeLoggedInHtmlRequest(privilegedUser, POST,
-        socialRoutes.unfollowUser(unprivilegedUser.id).url), "").get
+      val unfollow = FakeRequest(socialRoutes.unfollowUserPost(unprivilegedUser.id))
+        .withUser(privilegedUser).withCsrf.call()
       status(unfollow) must equalTo(SEE_OTHER)
 
-      val following2 = route(fakeLoggedInHtmlRequest(privilegedUser, GET,
-        socialRoutes.followingForUser(privilegedUser.id).url)).get
+      val following2 = FakeRequest(socialRoutes.followingForUser(privilegedUser.id))
+        .withUser(privilegedUser).call()
       // Check the following page contains no links to the user we just unfollowed
       contentAsString(following2) must not contain socialRoutes.userProfile(unprivilegedUser.id).url
     }
@@ -40,8 +41,8 @@ class SocialSpec extends IntegrationTestRunner {
         "message" -> Seq("World")
       )
 
-      val postMsg = route(fakeLoggedInHtmlRequest(privilegedUser, POST,
-        socialRoutes.sendMessagePost(unprivilegedUser.id).url), msgData).get
+      val postMsg = FakeRequest(socialRoutes.sendMessagePost(unprivilegedUser.id))
+        .withUser(privilegedUser).withCsrf.callWith(msgData)
       status(postMsg) must equalTo(SEE_OTHER)
       mailBuffer.size must beEqualTo(numSentMails + 1)
       mailBuffer.last.text must contain("World")
@@ -55,8 +56,8 @@ class SocialSpec extends IntegrationTestRunner {
         "copySelf" -> Seq("true")
       )
 
-      val postMsg = route(fakeLoggedInHtmlRequest(privilegedUser, POST,
-        socialRoutes.sendMessagePost(unprivilegedUser.id).url), msgData).get
+      val postMsg = FakeRequest(socialRoutes.sendMessagePost(unprivilegedUser.id))
+        .withUser(privilegedUser).withCsrf.callWith(msgData)
       status(postMsg) must equalTo(SEE_OTHER)
       mailBuffer.size must beEqualTo(numSentMails + 2)
       mailBuffer.last.text must contain("World")
@@ -68,23 +69,23 @@ class SocialSpec extends IntegrationTestRunner {
 
       val msgData = Map("subject" -> Seq("Hello"), "message" -> Seq("World"))
 
-      val postMsg = route(fakeLoggedInHtmlRequest(privilegedUser, GET,
-        socialRoutes.sendMessage(user.id).url)).get
+      val postMsg = FakeRequest(socialRoutes.sendMessage(user.id))
+        .withUser(privilegedUser).call()
       status(postMsg) must equalTo(BAD_REQUEST)
 
       mocks.accountFixtures += user.id -> user.copy(allowMessaging = true)
-      val postMsg2 = route(fakeLoggedInHtmlRequest(privilegedUser, GET,
-        socialRoutes.sendMessage(user.id).url)).get
+      val postMsg2 = FakeRequest(socialRoutes.sendMessage(user.id))
+        .withUser(privilegedUser).call()
       status(postMsg2) must equalTo(OK)
     }
 
     "disallow messaging users when blocked" in new ITestApp {
-      val block = route(fakeLoggedInHtmlRequest(unprivilegedUser, POST,
-        socialRoutes.blockUser(privilegedUser.id).url)).get
+      val block = FakeRequest(socialRoutes.blockUserPost(privilegedUser.id))
+        .withUser(unprivilegedUser).withCsrf.call()
       status(block) must equalTo(SEE_OTHER)
 
-      val postMsg = route(fakeLoggedInHtmlRequest(privilegedUser, GET,
-        socialRoutes.sendMessage(unprivilegedUser.id).url)).get
+      val postMsg = FakeRequest(socialRoutes.sendMessage(unprivilegedUser.id))
+        .withUser(privilegedUser).call()
       status(postMsg) must equalTo(BAD_REQUEST)
     }
   }
