@@ -1,6 +1,7 @@
 package controllers.units
 
 import auth.AccountManager
+import backend.rest.cypher.Cypher
 import play.api.cache.CacheApi
 import play.api.libs.concurrent.Execution.Implicits._
 import forms.VisibilityForm
@@ -32,7 +33,8 @@ case class DocumentaryUnits @Inject()(
   accounts: AccountManager,
   pageRelocator: MovedPageLookup,
   messagesApi: MessagesApi,
-  markdown: MarkdownRenderer
+  markdown: MarkdownRenderer,
+  cypher: Cypher
 ) extends AdminController
   with Read[DocumentaryUnit]
   with Visibility[DocumentaryUnit]

@@ -1,6 +1,7 @@
 package controllers.portal
 
 import auth.AccountManager
+import backend.rest.cypher.Cypher
 import controllers.generic.Search
 import models._
 import play.api.libs.concurrent.Execution.Implicits._
@@ -34,7 +35,8 @@ case class Bookmarks @Inject()(
   idGenerator: IdGenerator,
   pageRelocator: MovedPageLookup,
   messagesApi: MessagesApi,
-  markdown: MarkdownRenderer
+  markdown: MarkdownRenderer,
+  cypher: Cypher
 ) extends PortalController
   with FacetConfig
   with Search {

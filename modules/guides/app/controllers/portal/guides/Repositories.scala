@@ -3,6 +3,7 @@ package controllers.portal.guides
 import auth.AccountManager
 import backend.Backend
 import javax.inject._
+import backend.rest.cypher.Cypher
 import controllers.portal.base.{Generic, PortalController}
 import models.{Guide, GuidePage, _}
 import play.api.cache.CacheApi
@@ -23,7 +24,8 @@ case class Repositories @Inject()(
   pageRelocator: utils.MovedPageLookup,
   messagesApi: MessagesApi,
   markdown: MarkdownRenderer,
-  guideDAO: GuideDAO
+  guideDAO: GuideDAO,
+  cypher: Cypher
 ) extends PortalController
   with Generic[Repository] {
 

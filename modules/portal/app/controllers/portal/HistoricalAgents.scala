@@ -2,6 +2,7 @@ package controllers.portal
 
 import auth.AccountManager
 import backend.Backend
+import backend.rest.cypher.Cypher
 import com.google.inject.{Inject, Singleton}
 import controllers.generic.Search
 import controllers.portal.base.{Generic, PortalController}
@@ -27,7 +28,8 @@ case class HistoricalAgents @Inject()(
   accounts: AccountManager,
   pageRelocator: MovedPageLookup,
   messagesApi: MessagesApi,
-  markdown: MarkdownRenderer
+  markdown: MarkdownRenderer,
+  cypher: Cypher
 ) extends PortalController
   with Generic[HistoricalAgent]
   with Search

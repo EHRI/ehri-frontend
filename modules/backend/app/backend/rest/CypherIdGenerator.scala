@@ -1,7 +1,8 @@
 package backend.rest
 
 import backend.IdGenerator
-import backend.rest.cypher.CypherDAO
+import backend.rest.cypher.Cypher
+import com.google.inject.Singleton
 import scala.concurrent.{Future, ExecutionContext}
 import defines.EntityType
 import play.api.libs.json._
@@ -9,15 +10,11 @@ import eu.ehri.project.definitions.Ontology
 
 import javax.inject.Inject
 
-import play.api.cache.CacheApi
-
 /**
  * @author Mike Bryant (http://github.com/mikesname)
  */
-case class CypherIdGenerator @Inject ()(implicit val cache: CacheApi, val app: play.api.Application)
-  extends IdGenerator with RestDAO {
-
-  val cypher = new CypherDAO
+@Singleton
+case class CypherIdGenerator @Inject ()(cypher: Cypher) extends IdGenerator {
 
   private def nextId(idList: JsValue, pattern: String): String = {
     val result = idList.as[Map[String,JsValue]]

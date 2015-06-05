@@ -2,7 +2,7 @@ package controllers.portal.guides
 
 import auth.AccountManager
 import backend.Backend
-import backend.rest.cypher.CypherDAO
+import backend.rest.cypher.Cypher
 import backend.rest.SearchDAO
 import javax.inject._
 import controllers.base.SearchVC
@@ -13,7 +13,6 @@ import defines.EntityType
 import models.GuidePage.Layout
 import models.base.AnyModel
 import models.{GeoCoordinates, Guide, GuidePage, _}
-import play.api.Routes
 import play.api.cache.CacheApi
 import play.api.data.Forms._
 import play.api.data._
@@ -43,7 +42,8 @@ case class Guides @Inject()(
   messagesApi: MessagesApi,
   markdown: MarkdownRenderer,
   search: SearchDAO,
-  guides: GuideDAO
+  guides: GuideDAO,
+  cypher: Cypher
 ) extends PortalController
   with Search
   with SearchVC
@@ -112,7 +112,6 @@ case class Guides @Inject()(
    */
   private def countLinks(virtualUnit: String, target: Seq[String]): Future[Map[String, Long]] = {
     if (target.nonEmpty) {
-      val cypher = new CypherDAO
       val query = s"""
           START 
             virtualUnit = node:entities(__ID__= {inContext}),
@@ -356,7 +355,6 @@ case class Guides @Inject()(
    *   Faceted request
    */
   private def searchFacets(guide: Guide, ids: Seq[String]): Future[Seq[Long]] = {
-    val cypher = new CypherDAO
     val query =
       s"""
         START 
@@ -386,7 +384,6 @@ case class Guides @Inject()(
    * Function to get items
    */
   private def otherFacets(guide: Guide, ids: Seq[Long]): Future[Seq[Long]] = {
-    val cypher = new CypherDAO
     val query =
       s"""
         START 
@@ -503,7 +500,6 @@ case class Guides @Inject()(
 
 
   private def searchLinks(target: String, documentType: String = EntityType.DocumentaryUnit.toString, context: Option[String] = None): Future[Seq[Long]] = {
-    val cypher = new CypherDAO
     context match {
       case Some(str) =>
         val query = s"""

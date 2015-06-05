@@ -1,6 +1,7 @@
 package controllers.keywords
 
 import auth.AccountManager
+import backend.rest.cypher.Cypher
 import play.api.cache.CacheApi
 import play.api.libs.concurrent.Execution.Implicits._
 import _root_.forms.VisibilityForm
@@ -28,7 +29,8 @@ case class Concepts @Inject()(
   accounts: AccountManager,
   pageRelocator: MovedPageLookup,
   messagesApi: MessagesApi,
-  markdown: MarkdownRenderer
+  markdown: MarkdownRenderer,
+  cypher: Cypher
 ) extends AdminController
   with Creator[ConceptF, Concept, Concept]
   with Visibility[Concept]

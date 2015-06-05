@@ -1,6 +1,5 @@
 package backend.googledocs
 
-import java.io.StringReader
 import javax.inject.Inject
 
 import backend.HtmlPages
@@ -8,7 +7,7 @@ import backend.rest.{PermissionDenied, ItemNotFound}
 import caching.FutureCache
 import play.api.http.Status
 import play.api.i18n.Messages
-import play.api.libs.ws.WS
+import play.api.libs.ws.WSClient
 import play.twirl.api.Html
 
 import scala.concurrent.Future
@@ -25,9 +24,9 @@ import scala.concurrent.duration._
  *
  * @author Mike Bryant (http://github.com/mikesname)
  */
-case class GoogleDocsHtmlPages @Inject ()(implicit cache: play.api.cache.CacheApi, app: play.api.Application) extends HtmlPages {
+case class GoogleDocsHtmlPages @Inject ()(implicit cache: play.api.cache.CacheApi, app: play.api.Application, ws: WSClient) extends HtmlPages {
   private def googleDocBody(url: String): Future[(Html, Html)] = {
-    WS.url(url).withQueryString(
+    ws.url(url).withQueryString(
       "e" -> "download",
       "exportFormat" -> "html",
       "format" -> "html"

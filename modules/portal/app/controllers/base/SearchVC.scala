@@ -1,13 +1,12 @@
 package controllers.base
 
-import backend.rest.cypher.CypherDAO
+import backend.rest.cypher.Cypher
 import models.VirtualUnit
 import models.base.AnyModel
 import play.api.Logger
 import play.api.cache.CacheApi
 import play.api.mvc.Controller
 import utils.search.SearchConstants
-import utils.search.SearchConstants._
 
 import scala.concurrent.Future
 import play.api.libs.concurrent.Execution.Implicits._
@@ -22,6 +21,7 @@ trait SearchVC {
 
   implicit def app: play.api.Application
   implicit def cache: CacheApi
+  def cypher: Cypher
 
   /**
    * Fetch a list of descendant IDs for a given virtual collection
@@ -34,13 +34,12 @@ trait SearchVC {
    */
   protected def descendantIds(id: String): Future[Seq[String]] = {
     import play.api.libs.json._
-    val dao = new CypherDAO()
 
     val reader: Reads[Seq[String]] =
       (__ \ "data").read[Seq[Seq[Seq[String]]]]
         .map { r => r.flatten.flatten }
 
-    dao.get[Seq[String]](
+    cypher.get[Seq[String]](
       """
         |START vc = node:entities(__ID__ = {vcid})
         |OPTIONAL MATCH vc<-[:isPartOf*]-child

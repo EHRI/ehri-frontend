@@ -1,6 +1,7 @@
 package controllers.events
 
 import auth.AccountManager
+import backend.rest.cypher.Cypher
 import models.SystemEvent
 import play.api.cache.CacheApi
 import play.api.i18n.MessagesApi
@@ -22,7 +23,8 @@ case class SystemEvents @Inject()(
   accounts: AccountManager,
   pageRelocator: MovedPageLookup,
   messagesApi: MessagesApi,
-  markdown: MarkdownRenderer
+  markdown: MarkdownRenderer,
+  cypher: Cypher
 ) extends AdminController
   with Read[SystemEvent]
   with RestHelpers {

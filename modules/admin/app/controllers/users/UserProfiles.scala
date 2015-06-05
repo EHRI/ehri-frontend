@@ -1,6 +1,7 @@
 package controllers.users
 
 import auth.{HashedPassword, AccountManager}
+import backend.rest.cypher.Cypher
 import controllers.core.auth.AccountHelpers
 import play.api.cache.CacheApi
 import play.api.libs.concurrent.Execution.Implicits._
@@ -36,7 +37,8 @@ case class UserProfiles @Inject()(
   accounts: AccountManager,
   pageRelocator: MovedPageLookup,
   messagesApi: MessagesApi,
-  markdown: MarkdownRenderer
+  markdown: MarkdownRenderer,
+  cypher: Cypher
 ) extends AdminController
   with PermissionHolder[UserProfile]
   with ItemPermissions[UserProfile]

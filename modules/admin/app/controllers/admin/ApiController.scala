@@ -4,17 +4,17 @@ import auth.AccountManager
 import controllers.base.AdminController
 import play.api.cache.CacheApi
 import play.api.i18n.MessagesApi
+import play.api.libs.ws.WSClient
 import play.api.mvc.Action
 import play.api.libs.iteratee.Enumerator
 import play.api.libs.concurrent.Execution.Implicits._
 
 import javax.inject._
 import backend.Backend
-import play.api.Routes
 import play.api.http.MimeTypes
 import com.ning.http.client.{Response => NingResponse}
 import defines.EntityType
-import backend.rest.cypher.CypherDAO
+import backend.rest.cypher.Cypher
 import utils.MovedPageLookup
 import views.MarkdownRenderer
 
@@ -26,7 +26,9 @@ case class ApiController @Inject()(
   accounts: AccountManager,
   pageRelocator: MovedPageLookup,
   messagesApi: MessagesApi,
-  markdown: MarkdownRenderer
+  markdown: MarkdownRenderer,
+  cypher: Cypher,
+  ws: WSClient
 ) extends AdminController {
 
   def listItems(contentType: EntityType.Value) = Action.async { implicit request =>
@@ -74,13 +76,13 @@ case class ApiController @Inject()(
       |LIMIT 100
     """.stripMargin
 
-  def cypher = AdminAction { implicit request =>
+  def cypherForm = AdminAction { implicit request =>
     Ok(views.html.admin.queryForm(queryForm.fill(defaultCypher),
       controllers.admin.routes.ApiController.cypherQuery(), "Cypher"))
   }
 
   def cypherQuery = AdminAction.async { implicit request =>
-    CypherDAO().stream(queryForm.bindFromRequest.value.getOrElse(""), Map.empty).map { r =>
+    cypher.stream(queryForm.bindFromRequest.value.getOrElse(""), Map.empty).map { r =>
       val response: NingResponse = r.underlying[NingResponse]
       Status(r.status)
         .chunked(Enumerator.fromStream(response.getResponseBodyAsStream))

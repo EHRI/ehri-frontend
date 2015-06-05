@@ -1,6 +1,7 @@
 package controllers.authorities
 
 import auth.AccountManager
+import backend.rest.cypher.Cypher
 import controllers.generic._
 import forms.VisibilityForm
 import models._
@@ -26,7 +27,8 @@ case class HistoricalAgents @Inject()(
   accounts: AccountManager,
   pageRelocator: MovedPageLookup,
   messagesApi: MessagesApi,
-  markdown: MarkdownRenderer
+  markdown: MarkdownRenderer,
+  cypher: Cypher
 ) extends AdminController with CRUD[HistoricalAgentF,HistoricalAgent]
 	with Visibility[HistoricalAgent]
   with ItemPermissions[HistoricalAgent]

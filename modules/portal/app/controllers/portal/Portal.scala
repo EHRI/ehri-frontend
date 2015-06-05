@@ -12,7 +12,7 @@ import play.api.mvc._
 import utils.search._
 import play.api.cache.CacheApi
 import defines.EntityType
-import play.api.libs.ws.WS
+import play.api.libs.ws.WSClient
 import play.twirl.api.Html
 import backend.{HtmlPages, Backend}
 import utils._
@@ -38,7 +38,8 @@ case class Portal @Inject()(
   pageRelocator: MovedPageLookup,
   messagesApi: MessagesApi,
   markdown: MarkdownRenderer,
-  htmlPages: HtmlPages
+  htmlPages: HtmlPages,
+  ws: WSClient
 ) extends PortalController
   with Search
   with FacetConfig {
@@ -205,7 +206,7 @@ case class Portal @Inject()(
 
   def newsFeed = statusCache.status(_ => "pages.newsFeed", OK, 60 * 60) {
     Action.async { request =>
-      WS.url("http://www.ehri-project.eu/rss.xml").get().map { r =>
+      ws.url("http://www.ehri-project.eu/rss.xml").get().map { r =>
         Ok(views.html.newsFeed(NewsItem.fromRss(r.body)))
       }
     }

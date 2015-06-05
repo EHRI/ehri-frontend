@@ -1,6 +1,7 @@
 package controllers.admin
 
 import auth.AccountManager
+import backend.rest.cypher.Cypher
 import play.api.cache.CacheApi
 import play.api.libs.concurrent.Execution.Implicits._
 import play.api.libs.iteratee.{Concurrent, Enumerator}
@@ -34,7 +35,8 @@ case class AdminSearch @Inject()(
   accounts: AccountManager,
   pageRelocator: MovedPageLookup,
   messagesApi: MessagesApi,
-  markdown: MarkdownRenderer
+  markdown: MarkdownRenderer,
+  cypher: Cypher
 ) extends AdminController
   with Search {
 

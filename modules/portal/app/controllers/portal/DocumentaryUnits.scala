@@ -1,6 +1,7 @@
 package controllers.portal
 
 import auth.AccountManager
+import backend.rest.cypher.Cypher
 import models.base.AnyModel
 import play.api.cache.CacheApi
 import play.api.i18n.MessagesApi
@@ -32,7 +33,8 @@ case class DocumentaryUnits @Inject()(
   accounts: AccountManager,
   pageRelocator: MovedPageLookup,
   messagesApi: MessagesApi,
-  markdown: MarkdownRenderer
+  markdown: MarkdownRenderer,
+  cypher: Cypher
 ) extends PortalController
   with Generic[DocumentaryUnit]
   with Search

@@ -1,6 +1,7 @@
 package controllers.portal
 
 import auth.AccountManager
+import backend.rest.cypher.Cypher
 import controllers.base.SearchVC
 import controllers.generic.Search
 import models._
@@ -33,7 +34,8 @@ case class VirtualUnits @Inject()(
   idGenerator: IdGenerator,
   pageRelocator: MovedPageLookup,
   messagesApi: MessagesApi,
-  markdown: MarkdownRenderer
+  markdown: MarkdownRenderer,
+  cypher: Cypher
 ) extends PortalController
   with Generic[VirtualUnit]
   with Search

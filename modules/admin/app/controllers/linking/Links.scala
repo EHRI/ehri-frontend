@@ -1,6 +1,7 @@
 package controllers.linking
 
 import auth.AccountManager
+import backend.rest.cypher.Cypher
 import forms.VisibilityForm
 import models.{LinkF, Link}
 import javax.inject._
@@ -21,7 +22,8 @@ case class Links @Inject()(
   accounts: AccountManager,
   pageRelocator: MovedPageLookup,
   messagesApi: MessagesApi,
-  markdown: MarkdownRenderer
+  markdown: MarkdownRenderer,
+  cypher: Cypher
 ) extends AdminController
   with Read[Link]
   with Visibility[Link]

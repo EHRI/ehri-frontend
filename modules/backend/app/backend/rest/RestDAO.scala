@@ -7,6 +7,7 @@ import play.api.http.{Writeable, ContentTypeOf, HeaderNames, ContentTypes}
 import play.api.libs.json._
 import backend._
 import com.fasterxml.jackson.core.JsonParseException
+import play.api.libs.ws.WSClient
 import utils.{RangePage, RangeParams, Page}
 import scala.concurrent.Future
 import scala.concurrent.duration.Duration
@@ -17,9 +18,10 @@ trait RestDAO {
 
   implicit def app: play.api.Application
   implicit def cache: CacheApi
+  def ws: WSClient
 
   import play.api.libs.concurrent.Execution.Implicits._
-  import play.api.libs.ws.{EmptyBody, InMemoryBody, WSBody, WS, WSResponse}
+  import play.api.libs.ws.{EmptyBody, InMemoryBody, WSBody, WSResponse}
 
   /**
    * Wrapper for WS.
@@ -68,7 +70,7 @@ trait RestDAO {
 
     private def runWs: Future[WSResponse] = {
       Logger.debug(s"WS: $apiUser $method $fullUrl")
-      WS.url(url)
+      ws.url(url)
         .withQueryString(queryString: _*)
         .withHeaders(headers: _*)
         .withBody(body)

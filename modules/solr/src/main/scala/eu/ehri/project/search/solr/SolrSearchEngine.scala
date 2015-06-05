@@ -5,7 +5,7 @@ import javax.inject.Inject
 import defines.EntityType
 import play.api.libs.concurrent.Execution.Implicits._
 import models.UserProfile
-import play.api.libs.ws.{WSResponse, WS}
+import play.api.libs.ws.{WSClient, WSResponse}
 import play.api.Logger
 import utils.Page
 import scala.concurrent.Future
@@ -28,7 +28,7 @@ case class SolrSearchConfig(
   facetClasses: Seq[FacetClass[Facet]] = Seq.empty,
   extraParams: Map[String, Any] = Map.empty,
   mode: SearchMode.Value = SearchMode.DefaultAll
-)(implicit val app: play.api.Application)
+)(implicit val app: play.api.Application, ws: WSClient)
   extends SearchEngineConfig {
 
   val queryBuilder = new SolrQueryBuilder(WriterType.Json)(app)
@@ -47,7 +47,7 @@ case class SolrSearchConfig(
   def fullSearchUrl(query: Map[String,Seq[String]]) = utils.joinPath(solrSelectUrl, query)
 
   def dispatch(query: Map[String,Seq[String]]): Future[WSResponse] = {
-    WS.url(solrSelectUrl)
+    ws.url(solrSelectUrl)
       .withHeaders(HeaderNames.CONTENT_TYPE -> MimeTypes.FORM)
       .post(query)
   }
@@ -130,6 +130,6 @@ case class SolrSearchConfig(
   override def setSort(sort: SearchOrder.Value): SearchEngineConfig = copy(params = params.copy(sort = Some(sort)))
 }
 
-case class SolrSearchEngine @Inject()(handler: ResponseHandler, app: play.api.Application) extends SearchEngine {
-  def config = new SolrSearchConfig(handler)(app)
+case class SolrSearchEngine @Inject()(handler: ResponseHandler, app: play.api.Application, ws: WSClient) extends SearchEngine {
+  def config = new SolrSearchConfig(handler)(app, ws)
 }

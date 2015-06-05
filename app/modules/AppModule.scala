@@ -7,6 +7,7 @@ import backend.aws.S3FileStorage
 import backend.googledocs.GoogleDocsHtmlPages
 import backend.helpdesk.EhriHelpdesk
 import backend.parse.ParseFeedbackDAO
+import backend.rest.cypher.{CypherDAO, Cypher}
 import backend.rest.{SearchDAO, CypherIdGenerator, GidSearchResolver}
 import com.google.inject.AbstractModule
 import com.typesafe.plugin.{MockMailer, MailerAPI}
@@ -40,5 +41,6 @@ class AppModule extends AbstractModule {
     bind(classOf[HtmlPages]).to(classOf[GoogleDocsHtmlPages])
     bind(classOf[GuideDAO]).to(classOf[DatabaseGuideDAO])
     bind(classOf[MarkdownRenderer]).toProvider(classOf[PegdownMarkdownRendererProvider])
+    bind(classOf[Cypher]).to(classOf[CypherDAO])
   }
 }

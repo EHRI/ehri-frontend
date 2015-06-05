@@ -4,20 +4,25 @@ import javax.inject.Inject
 import scala.concurrent.{ExecutionContext, Future}
 import play.api.mvc.Headers
 import play.api.cache.CacheApi
-import play.api.libs.ws.WSResponse
+import play.api.libs.ws.{WSClient, WSResponse}
 import backend._
 
 
 /**
   * @author Mike Bryant (http://github.com/mikesname)
   */
-case class RestBackend @Inject ()(eventHandler: EventHandler, cache: CacheApi, app: play.api.Application)
+case class RestBackend @Inject ()(eventHandler: EventHandler, cache: CacheApi, app: play.api.Application, ws: WSClient)
   extends Backend {
-  def withContext(apiUser: ApiUser)(implicit executionContext: ExecutionContext) = new RestBackendHandle(eventHandler)(cache: CacheApi, app, apiUser, executionContext)
+  def withContext(apiUser: ApiUser)(implicit executionContext: ExecutionContext) = new RestBackendHandle(eventHandler)(cache: CacheApi, app, apiUser, executionContext, ws)
 }
 
-case class RestBackendHandle(eventHandler: EventHandler)(implicit val cache: CacheApi, val app: play.api.Application, val apiUser: ApiUser, val executionContext: ExecutionContext)
-  extends BackendHandle
+case class RestBackendHandle(eventHandler: EventHandler)(
+  implicit val cache: CacheApi,
+  val app: play.api.Application,
+  val apiUser: ApiUser,
+  val executionContext: ExecutionContext,
+  val ws: WSClient
+) extends BackendHandle
   with RestGeneric
   with RestPermissions
   with RestDescriptions
@@ -30,7 +35,7 @@ case class RestBackendHandle(eventHandler: EventHandler)(implicit val cache: Cac
   with RestPromotion {
 
   private val api = new ApiDAO
-  private val admin = new AdminDAO(eventHandler, cache, app)
+  private val admin = new AdminDAO(eventHandler, cache, app, ws)
 
   override def withEventHandler(eventHandler: EventHandler) = this.copy(eventHandler = eventHandler)
 
@@ -52,9 +57,9 @@ case class RestBackendHandle(eventHandler: EventHandler)(implicit val cache: Cac
 }
 
 object RestBackend {
-  def withNoopHandler(cache: CacheApi, app: play.api.Application): Backend = new RestBackend(new EventHandler {
+  def withNoopHandler(cache: CacheApi, app: play.api.Application, ws: WSClient): Backend = new RestBackend(new EventHandler {
     def handleCreate(id: String) = ()
     def handleUpdate(id: String) = ()
     def handleDelete(id: String) = ()
-  }, cache: CacheApi, app)
+  }, cache: CacheApi, app, ws)
 }

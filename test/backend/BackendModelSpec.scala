@@ -3,6 +3,7 @@ package backend
 import defines.{EntityType, ContentTypes, PermissionType}
 import play.api.cache.CacheApi
 import play.api.inject.guice.GuiceApplicationLoader
+import play.api.libs.ws.WSClient
 import utils.SystemEventParams.Aggregation
 import utils.{RangeParams, RangePage, PageParams, SystemEventParams}
 import backend.rest.{CypherIdGenerator, ItemNotFound, ValidationError}
@@ -36,6 +37,7 @@ class BackendModelSpec extends RestBackendRunner with PlaySpecification {
     )
   )
 
+  implicit def ws(implicit app: play.api.Application): WSClient = app.injector.instanceOf[WSClient]
   implicit def cache(implicit app: play.api.Application): CacheApi = app.injector.instanceOf[CacheApi]
   implicit def execContext(implicit app: play.api.Application): ExecutionContext = app.injector.instanceOf[ExecutionContext]
 
@@ -494,7 +496,7 @@ class BackendModelSpec extends RestBackendRunner with PlaySpecification {
 
   "CypherIdGenerator" should {
     "get the right next ID for repositories" in new WithApplicationLoader(appLoader) {
-      val idGen = new CypherIdGenerator
+      val idGen = new CypherIdGenerator(new CypherDAO)
       await(idGen.getNextNumericIdentifier(EntityType.Repository, "%06d")) must equalTo("000005")
     }
 
@@ -502,7 +504,7 @@ class BackendModelSpec extends RestBackendRunner with PlaySpecification {
       // There a 4 collections in the fixtures c1-c4
       // Sigh... - now there's also a fixture named "m19", so the next
       // numeric ID with be "20". I didn't plan this.
-      val idGen = new CypherIdGenerator
+      val idGen = new CypherIdGenerator(new CypherDAO)
       await(idGen.getNextChildNumericIdentifier("r1", EntityType.DocumentaryUnit, "c%01d")) must equalTo("c20")
     }
   }

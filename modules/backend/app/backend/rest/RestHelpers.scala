@@ -5,15 +5,14 @@ import play.api.libs.json.{JsString, JsValue}
 import defines.EntityType
 import play.api.libs.concurrent.Execution.Implicits._
 import scala.concurrent.Future
-import backend.rest.cypher.CypherDAO
+import backend.rest.cypher.Cypher
 
 
 trait RestHelpers {
 
   implicit def app: play.api.Application
   implicit def cache: CacheApi
-
-  private val cypher = new CypherDAO()
+  def cypher: Cypher
 
   def parseUsers(json: JsValue): Seq[(String, String)] = {
     (json \ "data").as[Seq[Seq[String]]].flatMap {

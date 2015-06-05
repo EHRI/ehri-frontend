@@ -1,6 +1,7 @@
 package controllers.groups
 
 import auth.AccountManager
+import backend.rest.cypher.Cypher
 import defines.EntityType
 import play.api.cache.CacheApi
 import play.api.i18n.MessagesApi
@@ -30,7 +31,8 @@ case class Groups @Inject()(
   accounts: AccountManager,
   pageRelocator: utils.MovedPageLookup,
   messagesApi: MessagesApi,
-  markdown: MarkdownRenderer
+  markdown: MarkdownRenderer,
+  cypher: Cypher
 ) extends AdminController
   with PermissionHolder[Group]
   with Visibility[Group]

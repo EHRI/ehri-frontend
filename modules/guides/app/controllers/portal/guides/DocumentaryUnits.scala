@@ -3,6 +3,7 @@ package controllers.portal.guides
 import auth.AccountManager
 import backend.Backend
 import javax.inject._
+import backend.rest.cypher.Cypher
 import controllers.generic.SearchType
 import controllers.portal.FacetConfig
 import controllers.portal.base.{Generic, PortalController}
@@ -26,7 +27,8 @@ case class DocumentaryUnits @Inject()(
   pageRelocator: utils.MovedPageLookup,
   messagesApi: MessagesApi,
   markdown: MarkdownRenderer,
-  guideDAO: GuideDAO
+  guideDAO: GuideDAO,
+  cypher: Cypher
 ) extends PortalController
   with Generic[DocumentaryUnit]
   with SearchType[DocumentaryUnit]

@@ -1,6 +1,7 @@
 package controllers.portal.social
 
 import auth.AccountManager
+import backend.rest.cypher.Cypher
 import controllers.generic.Search
 import play.api.cache.CacheApi
 import play.api.libs.concurrent.Execution.Implicits._
@@ -40,7 +41,8 @@ case class Social @Inject()(
   mailer: MailerAPI,
   pageRelocator: MovedPageLookup,
   messagesApi: MessagesApi,
-  markdown: MarkdownRenderer
+  markdown: MarkdownRenderer,
+  cypher: Cypher
 ) extends PortalController
   with Search {
 

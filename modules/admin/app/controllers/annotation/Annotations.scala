@@ -1,6 +1,7 @@
 package controllers.annotation
 
 import auth.AccountManager
+import backend.rest.cypher.Cypher
 import models.{AnnotationF, Annotation}
 import javax.inject._
 import controllers.generic._
@@ -19,7 +20,8 @@ case class Annotations @Inject()(
   accounts: AccountManager,
   pageRelocator: MovedPageLookup,
   messagesApi: MessagesApi,
-  markdown: MarkdownRenderer
+  markdown: MarkdownRenderer,
+  cypher: Cypher
 ) extends AdminController
   with Read[Annotation]
   with Visibility[Annotation]

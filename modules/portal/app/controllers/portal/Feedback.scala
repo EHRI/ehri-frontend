@@ -1,6 +1,7 @@
 package controllers.portal
 
 import auth.AccountManager
+import backend.rest.cypher.Cypher
 import play.api.cache.CacheApi
 import play.api.i18n.MessagesApi
 import play.api.libs.concurrent.Execution.Implicits._
@@ -27,7 +28,8 @@ case class Feedback @Inject()(
   mailer: MailerAPI,
   pageRelocator: MovedPageLookup,
   messagesApi: MessagesApi,
-  markdown: MarkdownRenderer
+  markdown: MarkdownRenderer,
+  cypher: Cypher
 ) extends PortalController {
 
   import utils.forms._

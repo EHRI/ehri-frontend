@@ -1,6 +1,7 @@
 package controllers.vocabularies
 
 import auth.AccountManager
+import backend.rest.cypher.Cypher
 import play.api.cache.CacheApi
 import play.api.i18n.MessagesApi
 import play.api.libs.concurrent.Execution.Implicits._
@@ -18,8 +19,20 @@ import controllers.base.AdminController
 
 
 @Singleton
-case class Vocabularies @Inject()(implicit app: play.api.Application, cache: CacheApi, globalConfig: global.GlobalConfig, searchEngine: SearchEngine, searchIndexer: SearchIndexer, searchResolver: SearchItemResolver, backend: Backend, accounts: AccountManager, pageRelocator: utils.MovedPageLookup, messagesApi: MessagesApi, markdown: MarkdownRenderer)
-  extends AdminController
+case class Vocabularies @Inject()(
+  implicit app: play.api.Application,
+  cache: CacheApi,
+  globalConfig: global.GlobalConfig,
+  searchEngine: SearchEngine,
+  searchIndexer: SearchIndexer,
+  searchResolver: SearchItemResolver,
+  backend: Backend,
+  accounts: AccountManager,
+  pageRelocator: utils.MovedPageLookup,
+  messagesApi: MessagesApi,
+  markdown: MarkdownRenderer,
+  cypher: Cypher
+) extends AdminController
   with CRUD[VocabularyF,Vocabulary]
   with Creator[ConceptF, Concept, Vocabulary]
   with Visibility[Vocabulary]

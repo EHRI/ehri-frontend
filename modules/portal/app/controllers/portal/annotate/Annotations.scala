@@ -11,7 +11,7 @@ import utils.ContributionVisibility
 import views.MarkdownRenderer
 import scala.concurrent.Future.{successful => immediate}
 import defines.{EntityType, PermissionType}
-import backend.rest.cypher.CypherDAO
+import backend.rest.cypher.Cypher
 import play.api.libs.json.Json
 import eu.ehri.project.definitions.Ontology
 import scala.concurrent.Future
@@ -41,7 +41,8 @@ case class Annotations @Inject()(
   accounts: AccountManager,
   pageRelocator: utils.MovedPageLookup,
   messagesApi: MessagesApi,
-  markdown: MarkdownRenderer
+  markdown: MarkdownRenderer,
+  cypher: Cypher
 ) extends PortalController
   with Read[Annotation]
   with Visibility[Annotation]
@@ -284,7 +285,7 @@ case class Annotations @Inject()(
 
     import play.api.libs.json._
 
-    val cypher =
+    val cypherQ =
       """
         |START n=node:entities(__ID__ = {user})
         |MATCH n -[:belongsTo*]-> g <-[:belongsTo]- u
@@ -292,7 +293,7 @@ case class Annotations @Inject()(
         |RETURN DISTINCT u.__ID__, u.name
       """.stripMargin
 
-    (new CypherDAO).cypher(cypher,
+    cypher.cypher(cypherQ,
         Map("user" -> JsString(user.id),
           "label" -> JsString(Ontology.ACCESSOR_BELONGS_TO_GROUP))).map { json =>
         val users: Seq[(String,String)] = json.as[List[(String,String)]](

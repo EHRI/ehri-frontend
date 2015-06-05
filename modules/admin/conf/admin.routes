@@ -48,7 +48,7 @@ GET         /api/:contentType/:id               @controllers.admin.ApiController
 GET         /api/*path                          @controllers.admin.ApiController.get(path: String)
 
 # API Sparql and Cypher queries - TESTING
-GET         /cypher                             @controllers.admin.ApiController.cypher
+GET         /cypher                             @controllers.admin.ApiController.cypherForm
 GET         /cypherQuery                        @controllers.admin.ApiController.cypherQuery
 GET         /sparql                             @controllers.admin.ApiController.sparql
 GET         /sparqlQuery                        @controllers.admin.ApiController.sparqlQuery
