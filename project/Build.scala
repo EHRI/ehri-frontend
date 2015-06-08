@@ -120,7 +120,8 @@ object ApplicationBuild extends Build {
     "parse.conf",
     "aws.conf",
     "test.conf",
-    "external_pages.conf"
+    "external_pages.conf",
+    "test-logger.xml"
   )
 
   val commonSettings = Seq(
