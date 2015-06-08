@@ -230,21 +230,21 @@ object ApplicationBuild extends Build {
   )
 
   lazy val backend = Project(appName + "-backend", file("modules/backend"))
-    .enablePlugins(play.PlayScala).settings(
+    .enablePlugins(play.sbt.PlayScala).settings(
     version := appVersion,
     name := appName + "-backend",
     libraryDependencies ++= backendDependencies ++ backendTestDependencies
   ).settings(commonSettings: _*)
 
   lazy val core = Project(appName + "-core", file("modules/core"))
-    .enablePlugins(play.PlayScala).settings(
+    .enablePlugins(play.sbt.PlayScala).settings(
       version := appVersion,
       name := appName + "-core",
       libraryDependencies ++= coreDependencies
   ).settings(commonSettings: _*).dependsOn(backend % "test->test;compile->compile")
 
   lazy val portal = Project(appName + "-portal", file("modules/portal"))
-    .enablePlugins(play.PlayScala)
+    .enablePlugins(play.sbt.PlayScala)
     .enablePlugins(SbtWeb).settings(
     version := appVersion,
     routesImport += "models.view._",
@@ -294,13 +294,13 @@ object ApplicationBuild extends Build {
   ).settings(commonSettings: _*).dependsOn(core % "test->test;compile->compile")
 
   lazy val admin = Project(appName + "-admin", file("modules/admin"))
-    .enablePlugins(play.PlayScala).settings(
+    .enablePlugins(play.sbt.PlayScala).settings(
     version := appVersion,
     libraryDependencies += specs2 % Test
   ).settings(commonSettings: _*).dependsOn(portal)
 
   lazy val guides = Project(appName + "-guides", file("modules/guides"))
-    .enablePlugins(play.PlayScala).settings(
+    .enablePlugins(play.sbt.PlayScala).settings(
     version := appVersion
   ).settings(commonSettings: _*).dependsOn(admin)
 
@@ -317,7 +317,7 @@ object ApplicationBuild extends Build {
   ).dependsOn(core % "test->test;compile->compile")
 
   lazy val main = Project(appName, file("."))
-    .enablePlugins(play.PlayScala).settings(
+    .enablePlugins(play.sbt.PlayScala).settings(
     version := appVersion,
     libraryDependencies ++= coreDependencies ++ testDependencies
   ).settings(commonSettings ++ assetSettings: _*)
