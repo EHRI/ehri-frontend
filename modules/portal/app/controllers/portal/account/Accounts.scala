@@ -63,7 +63,11 @@ case class Accounts @Inject()(
   private def rateLimitError(implicit r: RequestHeader) =
     Messages("error.rateLimit", rateLimitTimeoutSecs / 60)
 
-  override val oauth2Providers = Seq(GoogleOAuth2Provider(), FacebookOAuth2Provider(), YahooOAuth2Provider())
+  override val oauth2Providers = Seq(
+    GoogleOAuth2Provider(app.configuration),
+    FacebookOAuth2Provider(app.configuration),
+    YahooOAuth2Provider(app.configuration)
+  )
 
   /**
    * Prevent people signin up, logging in etc when in read-only mode.

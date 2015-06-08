@@ -1,7 +1,5 @@
 package auth.oauth2.providers
 
-import javax.inject.Inject
-
 import auth.oauth2.UserData
 import com.fasterxml.jackson.core.JsonParseException
 import play.api.libs.json._
@@ -9,7 +7,7 @@ import play.api.libs.json._
 /**
  * @author Mike Bryant (http://github.com/mikesname)
  */
-case class GoogleOAuth2Provider @Inject ()(implicit val app: play.api.Application) extends OAuth2Provider {
+case class GoogleOAuth2Provider(config: play.api.Configuration) extends OAuth2Provider {
 
   val name = "google"
 

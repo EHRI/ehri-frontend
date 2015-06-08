@@ -1,7 +1,5 @@
 package auth.oauth2.providers
 
-import javax.inject.Inject
-
 import auth.oauth2.{OAuth2Info, UserData}
 import com.fasterxml.jackson.core.JsonParseException
 import org.apache.commons.codec.binary.Base64
@@ -11,7 +9,7 @@ import play.api.libs.json.Json
 /**
  * @author Mike Bryant (http://github.com/mikesname)
  */
-case class YahooOAuth2Provider @Inject()(implicit val app: play.api.Application) extends OAuth2Provider {
+case class YahooOAuth2Provider (config: play.api.Configuration) extends OAuth2Provider {
 
   val name = "yahoo"
 

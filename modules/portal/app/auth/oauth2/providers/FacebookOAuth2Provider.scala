@@ -9,7 +9,7 @@ import play.api.libs.json._
 /**
  * @author Mike Bryant (http://github.com/mikesname)
  */
-case class FacebookOAuth2Provider @Inject() (implicit val app: play.api.Application) extends OAuth2Provider {
+case class FacebookOAuth2Provider (config: play.api.Configuration) extends OAuth2Provider {
   val name = "facebook"
 
   override def getUserInfoParams(info: OAuth2Info): Seq[(String,String)] =

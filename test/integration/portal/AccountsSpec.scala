@@ -58,7 +58,7 @@ class AccountsSpec extends IntegrationTestRunner {
       val singleUseKey = "useOnce"
       val randomState = "473284374"
       cache.set(singleUseKey, randomState)
-      val login = FakeRequest(accountRoutes.oauth2(GoogleOAuth2Provider().name,
+      val login = FakeRequest(accountRoutes.oauth2(GoogleOAuth2Provider(app.configuration).name,
           code = Some("blah"), state=Some(randomState)))
         .withSession("sid" -> singleUseKey).call()
       status(login) must equalTo(SEE_OTHER)
@@ -70,7 +70,7 @@ class AccountsSpec extends IntegrationTestRunner {
       val singleUseKey = "useOnce"
       cache.set(singleUseKey, "jdjjjr")
       val login = FakeRequest(
-        accountRoutes.oauth2(GoogleOAuth2Provider().name,
+        accountRoutes.oauth2(GoogleOAuth2Provider(app.configuration).name,
           code = Some("blah"), state=Some("dk3kdm34")))
         .withSession("sid" -> singleUseKey).call()
       status(login) must equalTo(BAD_REQUEST)
