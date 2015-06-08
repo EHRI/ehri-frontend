@@ -5,6 +5,7 @@ import auth.oauth2.providers.{GoogleOAuth2Provider, YahooOAuth2Provider, Faceboo
 import auth.{HashedPassword, AccountManager}
 import play.api.cache.CacheApi
 import play.api.data.Form
+import play.api.libs.mailer.{Email, MailerClient}
 import play.api.mvc._
 import models._
 import play.api.libs.concurrent.Execution.Implicits._
@@ -23,7 +24,6 @@ import controllers.core.auth.AccountHelpers
 import scala.concurrent.Future
 import backend.{AnonymousUser, Backend}
 import play.api.mvc.Result
-import com.typesafe.plugin.MailerAPI
 import com.google.inject.{Singleton, Inject}
 import utils.search.{SearchItemResolver, SearchEngine}
 import controllers.portal.base.PortalController
@@ -40,7 +40,7 @@ case class Accounts @Inject()(
   searchResolver: SearchItemResolver,
   backend: Backend,
   accounts: AccountManager,
-  mailer: MailerAPI,
+  mailer: MailerClient,
   oAuth2Flow: OAuth2Flow,
   pageRelocator: MovedPageLookup,
   messagesApi: MessagesApi
@@ -92,13 +92,15 @@ case class Accounts @Inject()(
     override def composeAction[A](action: Action[A]) = new NotReadOnly(action)
   }
 
-  def sendValidationEmail(email: String, uuid: UUID)(implicit request: RequestHeader) {
-    mailer
-      .setSubject("Please confirm your EHRI Account Email")
-      .setRecipient(email)
-      .setFrom("EHRI Email Validation <noreply@ehri-project.eu>")
-      .send(views.txt.account.mail.confirmEmail(uuid).body,
-      views.html.account.mail.confirmEmail(uuid).body)
+  def sendValidationEmail(emailAddress: String, uuid: UUID)(implicit request: RequestHeader) {
+    val email = Email(
+      subject = "Please confirm your EHRI Account Email",
+      from = "EHRI Email Validation <noreply@ehri-project.eu>",
+      to = Seq(emailAddress),
+      bodyText = Some(views.txt.account.mail.confirmEmail(uuid).body),
+      bodyHtml = Some(views.html.account.mail.confirmEmail(uuid).body)
+    )
+    mailer.send(email)
   }
 
   def RateLimit = new ActionBuilder[Request] {
@@ -355,12 +357,14 @@ case class Accounts @Inject()(
     }
   }
 
-  private def sendResetEmail(email: String, uuid: UUID)(implicit request: RequestHeader) {
-    mailer
-      .setSubject("EHRI Password Reset")
-      .setRecipient(email)
-      .setFrom("EHRI Password Reset <noreply@ehri-project.eu>")
-      .send(views.txt.account.mail.forgotPassword(uuid).body,
-      views.html.account.mail.forgotPassword(uuid).body)
+  private def sendResetEmail(emailAddress: String, uuid: UUID)(implicit request: RequestHeader) {
+    val email = Email(
+      subject = "EHRI Password Reset",
+      to = Seq(emailAddress),
+      from = "EHRI Password Reset <noreply@ehri-project.eu>",
+      bodyText = Some(views.txt.account.mail.forgotPassword(uuid).body),
+      bodyHtml = Some(views.html.account.mail.forgotPassword(uuid).body)
+    )
+    mailer.send(email)
   }
 }

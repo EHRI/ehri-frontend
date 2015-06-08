@@ -6,7 +6,6 @@ import backend._
 import backend.aws.MockFileStorage
 import backend.helpdesk.{MockFeedbackDAO, MockHelpdeskDAO}
 import backend.rest.RestBackend
-import com.typesafe.plugin.MailerAPI
 import controllers.base.AuthConfigImpl
 import global.GlobalConfig
 import jp.t2v.lab.play2.auth.test.Helpers._
@@ -15,8 +14,8 @@ import models.{Account, Feedback}
 import org.specs2.execute.{Result, AsResult}
 import play.api.db.Database
 import play.api.http.Writeable
-import play.api.i18n.MessagesApi
 import play.api.inject.guice.GuiceApplicationLoader
+import play.api.libs.mailer.{MailerClient, Email}
 import play.api.test.Helpers._
 import play.api.test._
 import utils.MovedPageLookup
@@ -40,12 +39,12 @@ trait TestConfiguration {
   // whatsit etc...
   val feedbackBuffer = collection.mutable.HashMap.empty[Int,Feedback]
   val helpdeskBuffer = collection.mutable.HashMap.empty[Int, Seq[(String, Double)]]
-  val mailBuffer = collection.mutable.ListBuffer.empty[MockMail]
+  val mailBuffer = collection.mutable.ListBuffer.empty[Email]
   val storedFileBuffer = collection.mutable.ListBuffer.empty[java.net.URI]
   val searchParamBuffer = collection.mutable.ListBuffer.empty[ParamLog]
   val indexEventBuffer = collection.mutable.ListBuffer.empty[String]
 
-  private def mockMailer: MailerAPI = new MockBufferedMailer(mailBuffer)
+  private def mockMailer: MailerClient = new MockBufferedMailer(mailBuffer)
   private def mockIndexer: SearchIndexer = new MockSearchIndexer(indexEventBuffer)
   private def mockFeedback: FeedbackDAO = new MockFeedbackDAO(feedbackBuffer)
   private def mockHelpdesk: HelpdeskDAO = new MockHelpdeskDAO(helpdeskBuffer)
@@ -76,7 +75,7 @@ trait TestConfiguration {
 
   val appBuilder = new play.api.inject.guice.GuiceApplicationBuilder()
     .overrides(
-      bind[MailerAPI].toInstance(mockMailer),
+      bind[MailerClient].toInstance(mockMailer),
       bind[OAuth2Flow].toInstance(mockOAuth2Flow),
       bind[FileStorage].toInstance(mockFileStorage),
       bind[MovedPageLookup].toInstance(mockRelocator),

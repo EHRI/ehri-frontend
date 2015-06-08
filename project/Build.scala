@@ -21,7 +21,7 @@ object ApplicationBuild extends Build {
   logBuffered := false
 
   val appName = "docview"
-  val appVersion = "1.0.3-SNAPSHOT"
+  val appVersion = "1.0.4-SNAPSHOT"
 
   val backendDependencies = Seq(
     ws,
@@ -79,7 +79,7 @@ object ApplicationBuild extends Build {
     "org.jsoup" % "jsoup" % "1.8.1",
 
     // Mailer...
-    "com.typesafe.play.plugins" %% "play-plugins-mailer" % "2.3.0",
+    "com.typesafe.play" %% "play-mailer" % "3.0.1",
 
     // Time formatting library
     "org.ocpsoft.prettytime" % "prettytime" % "1.0.8.Final",
@@ -87,7 +87,7 @@ object ApplicationBuild extends Build {
     // Logging: Janino is necessary for configuring LogBack's regex filter
     "org.codehaus.janino" % "janino" % "2.7.7"
   )
-  
+
   val portalDependencies = Seq(
     "net.coobird" % "thumbnailator" % "[0.4, 0.5)",
     "net.sf.opencsv" % "opencsv" % "2.3",
@@ -173,7 +173,6 @@ object ApplicationBuild extends Build {
         import java.text.MessageFormat
         import scala.collection.JavaConverters._
         import java.io.FileInputStream
-
         val properties: Properties = new Properties()
         val fis = new FileInputStream(messageFile)
         try {

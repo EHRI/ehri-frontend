@@ -45,7 +45,7 @@ class SocialSpec extends IntegrationTestRunner {
         .withUser(privilegedUser).withCsrf.callWith(msgData)
       status(postMsg) must equalTo(SEE_OTHER)
       mailBuffer.size must beEqualTo(numSentMails + 1)
-      mailBuffer.last.text must contain("World")
+      mailBuffer.last.bodyText.getOrElse("") must contain("World")
     }
 
     "allow messaging users with copy to self" in new ITestApp {
@@ -60,7 +60,7 @@ class SocialSpec extends IntegrationTestRunner {
         .withUser(privilegedUser).withCsrf.callWith(msgData)
       status(postMsg) must equalTo(SEE_OTHER)
       mailBuffer.size must beEqualTo(numSentMails + 2)
-      mailBuffer.last.text must contain("World")
+      mailBuffer.last.bodyText.getOrElse("") must contain("World")
     }
 
     "disallow messaging users with messaging disabled" in new ITestApp {

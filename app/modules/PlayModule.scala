@@ -1,6 +1,7 @@
 package modules
 
 import com.google.inject.{Provider, AbstractModule}
+import play.api.i18n.MessagesApi
 
 import scala.concurrent.ExecutionContext
 

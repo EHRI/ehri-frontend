@@ -6,6 +6,7 @@ import play.api.cache.CacheApi
 import play.api.libs.concurrent.Execution.Implicits._
 import models._
 import play.api.i18n.{MessagesApi, Messages}
+import play.api.libs.mailer.MailerClient
 import play.api.mvc._
 import play.api.libs.json.{JsValue, Json, JsObject}
 import utils._
@@ -27,7 +28,6 @@ import play.api.http.{HeaderNames, MimeTypes}
 import org.joda.time.format.ISODateTimeFormat
 import models.base.AnyModel
 import net.coobird.thumbnailator.Thumbnails
-import com.typesafe.plugin.MailerAPI
 import controllers.portal.base.{PortalController, PortalAuthConfigImpl}
 
 /**
@@ -42,7 +42,7 @@ case class UserProfiles @Inject()(
   searchResolver: SearchItemResolver,
   backend: Backend,
   accounts: AccountManager,
-  mailer: MailerAPI,
+  mailer: MailerClient,
   pageRelocator: utils.MovedPageLookup,
   messagesApi: MessagesApi,
   markdown: MarkdownRenderer,

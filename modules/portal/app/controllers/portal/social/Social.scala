@@ -6,6 +6,7 @@ import controllers.generic.Search
 import play.api.cache.CacheApi
 import play.api.libs.concurrent.Execution.Implicits._
 import models.{SystemEvent, UserProfile}
+import play.api.libs.mailer.{Email, MailerClient}
 import utils._
 import utils.search._
 import backend.{Backend, ApiUser}
@@ -19,7 +20,6 @@ import scala.concurrent.Future
 import scala.concurrent.Future.{successful => immediate}
 import models.base.AnyModel
 import play.api.mvc.Result
-import com.typesafe.plugin.MailerAPI
 import controllers.portal.base.PortalController
 
 /**
@@ -38,7 +38,7 @@ case class Social @Inject()(
   searchResolver: SearchItemResolver,
   backend: Backend,
   accounts: AccountManager,
-  mailer: MailerAPI,
+  mailer: MailerClient,
   pageRelocator: MovedPageLookup,
   messagesApi: MessagesApi,
   markdown: MarkdownRenderer,
@@ -252,22 +252,25 @@ case class Social @Inject()(
         accTo <- accToOpt
       } yield {
         val heading = Messages("mail.message.heading", from.toStringLang)
-        mailer
-          .setSubject(Messages("mail.message.subject", from.toStringLang, subject))
-          .setRecipient(accTo.email)
-          .setReplyTo(accFrom.email)
-          .setFrom("EHRI User <noreply@ehri-project.eu>")
-          .send(views.txt.social.mail.messageEmail(heading, subject, message).body,
-            views.html.social.mail.messageEmail(heading, subject, message).body)
+        val emailMessage = Email(
+          subject = Messages("mail.message.heading", from.toStringLang),
+          to = Seq(s"${to.model.name}} <${accTo.email}>"),
+          from = "EHRI User <noreply@ehri-project.eu>",
+          replyTo = Some(s"${from.model.name}} <${accFrom.email}>"),
+          bodyText = Some(views.txt.social.mail.messageEmail(heading, subject, message).body),
+          bodyHtml = Some(views.html.social.mail.messageEmail(heading, subject, message).body)
+        )
+        mailer.send(emailMessage)
 
         if (copy) {
           val copyHeading = Messages("mail.message.copy.heading", to.toStringLang)
-          mailer
-            .setSubject(Messages("mail.message.copy.subject", to.toStringLang, subject))
-            .setRecipient(accFrom.email)
-            .setFrom("EHRI User <noreply@ehri-project.eu>")
-            .send(views.txt.social.mail.messageEmail(copyHeading, subject, message, isCopy = true).body,
-              views.html.social.mail.messageEmail(copyHeading, subject, message, isCopy = true).body)
+          val copyEmailMessage = emailMessage.copy(
+            subject = Messages("mail.message.copy.heading", to.toStringLang),
+            to = Seq(accFrom.email),
+            bodyText = Some(views.txt.social.mail.messageEmail(copyHeading, subject, message, isCopy = true).body),
+            bodyHtml = Some(views.html.social.mail.messageEmail(copyHeading, subject, message, isCopy = true).body)
+          )
+          mailer.send(copyEmailMessage)
         }
       }
     }

@@ -10,11 +10,11 @@ import backend.parse.ParseFeedbackDAO
 import backend.rest.cypher.{CypherDAO, Cypher}
 import backend.rest.{SearchDAO, CypherIdGenerator, GidSearchResolver}
 import com.google.inject.AbstractModule
-import com.typesafe.plugin.{MockMailer, MailerAPI}
 import eu.ehri.project.search.solr.{SolrSearchEngine, JsonResponseHandler, ResponseHandler}
 import global.{AppGlobalConfig, GlobalBackend, GlobalEventHandler, GlobalConfig}
 import indexing.CmdlineIndexer
 import models.{DatabaseGuideDAO, GuideDAO}
+import play.api.i18n.MessagesApi
 import utils.{DbMovedPageLookup, MovedPageLookup}
 import utils.search.{SearchItemResolver, SearchEngine, SearchIndexer}
 import views.{PegdownMarkdownRendererProvider, MarkdownRenderer}
@@ -34,7 +34,6 @@ class AppModule extends AbstractModule {
     bind(classOf[FeedbackDAO]).to(classOf[ParseFeedbackDAO])
     bind(classOf[HelpdeskDAO]).to(classOf[EhriHelpdesk])
     bind(classOf[IdGenerator]).to(classOf[CypherIdGenerator])
-    bind(classOf[MailerAPI]).toInstance(MockMailer)
     bind(classOf[OAuth2Flow]).to(classOf[WebOAuth2Flow])
     bind(classOf[MovedPageLookup]).to(classOf[DbMovedPageLookup])
     bind(classOf[FileStorage]).to(classOf[S3FileStorage])

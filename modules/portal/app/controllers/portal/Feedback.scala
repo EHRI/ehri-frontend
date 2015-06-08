@@ -5,13 +5,13 @@ import backend.rest.cypher.Cypher
 import play.api.cache.CacheApi
 import play.api.i18n.MessagesApi
 import play.api.libs.concurrent.Execution.Implicits._
+import play.api.libs.mailer.{Email, MailerClient}
 import play.api.mvc.{Result, RequestHeader}
 import utils.MovedPageLookup
 import views.MarkdownRenderer
 import scala.concurrent.Future.{successful => immediate}
 import backend.{Backend, FeedbackDAO}
 import javax.inject._
-import com.typesafe.plugin.MailerAPI
 import controllers.portal.base.PortalController
 
 /**
@@ -25,7 +25,7 @@ case class Feedback @Inject()(
   feedbackDAO: FeedbackDAO,
   backend: Backend,
   accounts: AccountManager,
-  mailer: MailerAPI,
+  mailer: MailerClient,
   pageRelocator: MovedPageLookup,
   messagesApi: MessagesApi,
   markdown: MarkdownRenderer,
@@ -75,12 +75,15 @@ case class Feedback @Inject()(
           |$msg
         """.stripMargin
       }.getOrElse("No message provided")
-      mailer
-        .setSubject("EHRI Portal Feedback" + feedback.name.map(n => s" from $n").getOrElse(""))
-        .setRecipient(accTo)
-        .setReplyTo(feedback.email.getOrElse("noreply@ehri-project.eu"))
-        .setFrom("EHRI User <noreply@ehri-project.eu>")
-        .send(text, markdown.renderMarkdown(text))
+      val email = Email(
+        subject = "EHRI Portal Feedback" + feedback.name.map(n => s" from $n").getOrElse(""),
+        to = Seq(accTo),
+        from = "EHRI User <noreply@ehri-project.eu>",
+        replyTo = feedback.email,
+        bodyText = Some(text),
+        bodyHtml = Some(markdown.renderUntrustedMarkdown(text))
+      )
+      mailer.send(email)
     }
   }
 

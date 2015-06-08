@@ -4,12 +4,12 @@ import auth.AccountManager
 import play.api.cache.CacheApi
 import play.api.i18n.MessagesApi
 import play.api.libs.concurrent.Execution.Implicits._
+import play.api.libs.mailer.{Email, MailerClient}
 import play.api.mvc.RequestHeader
 import backend.{BadHelpdeskResponse, HelpdeskDAO, Backend}
 import models.{UserProfile, Repository}
 import javax.inject._
 import backend.rest.SearchDAO
-import com.typesafe.plugin.MailerAPI
 import controllers.portal.base.PortalController
 import utils.MovedPageLookup
 import utils.search.SearchItemResolver
@@ -25,7 +25,7 @@ case class Helpdesk @Inject()(
   backend: Backend,
   resolver: SearchItemResolver,
   accounts: AccountManager,
-  mailer: MailerAPI,
+  mailer: MailerClient,
   helpdeskDAO: HelpdeskDAO,
   pageRelocator: MovedPageLookup,
   messagesApi: MessagesApi,
@@ -55,12 +55,15 @@ case class Helpdesk @Inject()(
     }
   }
 
-  private def sendMessageEmail(email: String, query: String)(implicit request: RequestHeader): Unit = {
-    mailer
-      .setSubject("EHRI Portal Helpdesk")
-      .setRecipient(email)
-      .setFrom("EHRI User <noreply@ehri-project.eu>")
-      .send(query, query)
+  private def sendMessageEmail(emailAddress: String, query: String)(implicit request: RequestHeader): Unit = {
+    val email = Email(
+      subject = "EHRI Portal Helpdesk",
+      to = Seq(emailAddress),
+      from = "EHRI User <noreply@ehri-project.eu>",
+      bodyText = Some(query),
+      bodyHtml = Some(query)
+    )
+    mailer.send(email)
   }
 
   def helpdeskPost = OptionalUserAction.async { implicit request =>

@@ -35,7 +35,7 @@ class HelpdeskSpec extends IntegrationTestRunner {
         .withUser(privilegedUser).withCsrf.callWith(data)
       status(post) must equalTo(OK)
       mailBuffer.size must equalTo(mailsBefore + 1)
-      mailBuffer.last.text must contain(testMailContent)
+      mailBuffer.last.bodyText.getOrElse("") must contain(testMailContent)
     }
 
     "give the right results" in new ITestApp {

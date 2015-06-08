@@ -1,8 +1,6 @@
 package mocks
 
-import com.typesafe.plugin.MailerBuilder
-
-case class MockMail(to: List[String], from: List[String], text: String, html: String)
+import play.api.libs.mailer.{Email, MailerClient}
 
 /**
  * Mock mailer plugin that buffers results. The default one
@@ -10,9 +8,10 @@ case class MockMail(to: List[String], from: List[String], text: String, html: St
  *
  * @author Mike Bryant (http://github.com/mikesname)
  */
-case class MockBufferedMailer(mailBuffer: collection.mutable.ListBuffer[MockMail]) extends MailerBuilder {
-  def send(bodyText: String, bodyHtml: String): Unit = {
-    mailBuffer += MockMail(e("recipients"), e("from"), bodyText, bodyHtml)
+case class MockBufferedMailer(mailBuffer: collection.mutable.ListBuffer[Email]) extends MailerClient {
+  def send(email: Email): String = {
+    mailBuffer += email
+    email.subject
   }
 }
 
