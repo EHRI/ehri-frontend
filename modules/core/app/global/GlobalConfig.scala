@@ -29,8 +29,9 @@ trait GlobalConfig {
   lazy val analyticsId: Option[String] =
     configuration.getString("analytics.trackingId")
 
-  lazy val languages: Seq[String] = configuration
-        .getString("application.langs").map(_.split(",").toSeq).getOrElse(Nil)
+  import scala.collection.JavaConversions._
+  lazy val languages: Seq[String] =
+    configuration.getStringList("play.i18n.langs").toSeq.flatten
 
   // Set readonly mode...
   private lazy val readOnlyFile: Option[File] = configuration.getString("ehri.readonly.file")
