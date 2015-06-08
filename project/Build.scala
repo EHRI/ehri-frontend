@@ -1,18 +1,19 @@
 
 import com.typesafe.sbt.digest.Import._
 import com.typesafe.sbt.gzip.Import._
+import com.typesafe.sbt.packager.universal.UniversalPlugin.autoImport._
 import com.typesafe.sbt.jse.JsEngineImport.JsEngineKeys
 import com.typesafe.sbt.less.Import._
 import com.typesafe.sbt.rjs.Import._
 import net.ground5hark.sbt.concat.Import._
 import com.typesafe.sbt.web.SbtWeb.autoImport._
 import com.typesafe.sbt.web._
-import play.Play.autoImport._
-import play.PlayImport.PlayKeys._
+import play.sbt.Play.autoImport._
 import play.twirl.sbt.Import.TwirlKeys.templateImports
 import sbt.Keys._
 import sbt._
 import play.sbt.routes.RoutesKeys._
+
 
 object ApplicationBuild extends Build {
 
@@ -111,6 +112,16 @@ object ApplicationBuild extends Build {
   )
 
   val validateMessages = TaskKey[Unit]("validate-messages", "Validate messages")
+
+  // Exclude certain conf files (e.g. those containing secret keys)
+  // that we do not want packaged
+  val excludedResources = Seq(
+    "oauth2.conf",
+    "parse.conf",
+    "aws.conf",
+    "test.conf",
+    "external_pages.conf"
+  )
 
   val commonSettings = Seq(
 
@@ -220,10 +231,10 @@ object ApplicationBuild extends Build {
     includeFilter in (Assets, LessKeys.less) := "*.less",
     excludeFilter in (Assets, LessKeys.less) := "_*.less",
 
-    // Exclude certain conf files (e.g. those containing secret keys)
-    // that we do not want packaged
-    excludeFilter in unmanagedResources := ("oauth2.conf"
-        || "parse.conf" || "aws.conf" || "test.conf" || "external_pages.conf")
+    // Filter out excluded resources from packaging
+    mappings in Universal := (mappings in Universal).value.filterNot { case (f, s) =>
+      excludedResources contains f.getName
+    }
   )
 
   val assetSettings = Seq(
