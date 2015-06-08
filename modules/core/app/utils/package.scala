@@ -17,9 +17,9 @@ package object utils {
    * @return an encoded URL parameter string
    */
   def joinQueryString(qs: Map[String, Seq[String]]): String =
-    qs.map { case (key, vals) =>
-      vals.map(v => "%s=%s".format(URLEncoder.encode(key, "UTF-8"), URLEncoder.encode(v, "UTF-8")))
-    }.flatten.mkString("&")
+    qs.flatMap { case (key, vals) =>
+      vals.map(v => URLEncoder.encode(key, "UTF-8") + "=" + URLEncoder.encode(v, "UTF-8"))
+    }.mkString("&")
 
   /**
    * Turn an URL parameter string into a map of key to value sequences.
