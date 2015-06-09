@@ -72,13 +72,13 @@ trait CoreActionBuilders extends Controller with ControllerHelpers with AuthActi
   /**
    * A backend resource was not found
    */
-  protected def notFoundError(request: RequestHeader, msg: Option[String] = None)(implicit context: ExecutionContext)
-  : Future[Result]
+  protected def notFoundError(request: RequestHeader, msg: Option[String] = None)(implicit context: ExecutionContext): Future[Result]
 
   /**
-   * The attempted action is not allowed with the user's permission set
+   * The user didn't have the required permissions
    */
-  protected def authorizationFailed(request: RequestHeader)(implicit context: ExecutionContext): Future[Result]
+  protected def authorizationFailed(request: RequestHeader, user: UserProfile)(implicit context: ExecutionContext): Future[Result]
+
 
   /**
    * The site is down currently for maintenance
@@ -281,7 +281,7 @@ trait CoreActionBuilders extends Controller with ControllerHelpers with AuthActi
     WithUserAction andThen new ActionFilter[WithUserRequest] {
       override protected def filter[A](request: WithUserRequest[A]): Future[Option[Result]] = {
         if (request.user.hasPermission(contentType, permissionType)) immediate(None)
-        else authorizationFailed(request).map(r => Some(r))
+        else authorizationFailed(request, request.user).map(r => Some(r))
       }
     }
 
@@ -291,7 +291,7 @@ trait CoreActionBuilders extends Controller with ControllerHelpers with AuthActi
   protected def MustBelongTo(groupId: String) = WithUserAction andThen new ActionFilter[WithUserRequest] {
     protected def filter[A](request: WithUserRequest[A]): Future[Option[Result]] = {
       if (request.user.isAdmin || request.user.allGroups.exists(_.id == groupId)) immediate(None)
-      else authorizationFailed(request).map(r => Some(r))
+      else authorizationFailed(request, request.user).map(r => Some(r))
     }
   }
 
@@ -301,7 +301,7 @@ trait CoreActionBuilders extends Controller with ControllerHelpers with AuthActi
   protected def AdminAction = WithUserAction andThen new ActionFilter[WithUserRequest] {
     protected def filter[A](request: WithUserRequest[A]): Future[Option[Result]] = {
       if (request.user.isAdmin) immediate(None)
-      else authorizationFailed(request).map(r => Some(r))
+      else authorizationFailed(request, request.user).map(r => Some(r))
     }
   }
 }

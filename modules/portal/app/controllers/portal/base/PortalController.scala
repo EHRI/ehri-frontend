@@ -9,7 +9,7 @@ import play.api.cache.Cached
 import play.api.i18n.{Lang, Messages}
 import utils._
 import controllers.renderError
-import models.UserProfile
+import models.{Account, UserProfile}
 import play.api.mvc._
 import controllers.base.{SessionPreferences, ControllerHelpers, CoreActionBuilders}
 import utils.caching.FutureCache
@@ -139,7 +139,12 @@ trait PortalController
     }
   }
 
-  override def authorizationFailed(request: RequestHeader)(implicit context: ExecutionContext): Future[Result] = {
+  override def authorizationFailed(request: RequestHeader, user: UserProfile)(implicit context: ExecutionContext): Future[Result] = {
+    implicit val r = request
+    immediate(Forbidden(renderError("errors.permissionDenied", views.html.errors.permissionDenied())))
+  }
+
+  override def authorizationFailed(request: RequestHeader, account: Account, authority: Option[Authority] = None)(implicit context: ExecutionContext): Future[Result] = {
     implicit val r = request
     immediate(Forbidden(renderError("errors.permissionDenied", views.html.errors.permissionDenied())))
   }

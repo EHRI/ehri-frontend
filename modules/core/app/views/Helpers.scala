@@ -11,7 +11,7 @@ import backend.Entity
 package object Helpers {
 
   // Pretty relative date/time handling
-  import org.ocpsoft.pretty.time.PrettyTime
+  import org.ocpsoft.prettytime.PrettyTime
   def relativeDate(d: java.util.Date)(implicit messages: Messages): String = {
     val p = new PrettyTime(messages.lang.toLocale)
     p.format(d)

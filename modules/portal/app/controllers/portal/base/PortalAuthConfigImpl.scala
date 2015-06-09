@@ -1,6 +1,6 @@
 package controllers.portal.base
 
-import controllers.base.AuthConfigImpl
+import controllers.base.{CoreActionBuilders, AuthConfigImpl}
 import play.api.Logger
 import play.api.mvc.{Call, RequestHeader, Result}
 
@@ -11,6 +11,8 @@ import scala.concurrent.{ExecutionContext, Future}
  * @author Mike Bryant (http://github.com/mikesname)
  */
 trait PortalAuthConfigImpl extends AuthConfigImpl {
+
+  this: CoreActionBuilders =>
 
   override def defaultLogoutUrl: Call = controllers.portal.routes.Portal.index()
   override def defaultLoginUrl = controllers.portal.users.routes.UserProfiles.profile()

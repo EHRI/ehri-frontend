@@ -1,6 +1,7 @@
 package controllers.base
 
 import jp.t2v.lab.play2.auth._
+import models.Account
 import play.api.mvc._
 
 import scala.reflect.classTag
@@ -15,19 +16,11 @@ import play.api.Logger
 
 trait AuthConfigImpl extends AuthConfig with Results {
 
-  implicit def app: play.api.Application
-  protected def globalConfig: global.GlobalConfig
-
-  /**
-   * The type of ID
-   */
   type Id = String
+  type User = Account
+  type Authority = defines.PermissionType.Value
 
-  /**
-   * A type that represents a user in your application.
-   * `User`, `Account` and so on.
-   */
-  type User = models.Account
+  implicit def app: play.api.Application
 
   // Specific type of user-finder loaded via a plugin
   protected def accounts: auth.AccountManager
@@ -45,11 +38,12 @@ trait AuthConfigImpl extends AuthConfig with Results {
   override lazy val idContainer: AsyncIdContainer[Id] = AsyncIdContainer(new CookieIdContainer[Id])
 
   /**
-   * Whether use the secure option or not use it in the cookie.
-   * However default is false, I strongly recommend using true in a production.
+   * Auth cookie access options.
    */
-  override lazy val cookieSecureOption: Boolean =
-    app.configuration.getBoolean("auth.cookie.secure").getOrElse(false)
+  override lazy val tokenAccessor: TokenAccessor = new CookieTokenAccessor(
+    cookieSecureOption = app.configuration.getBoolean("auth.cookie.secure").getOrElse(false),
+    cookieMaxAge = Some(sessionTimeoutInSeconds)
+  )
 
   /**
    * A duration of the session timeout in seconds
@@ -94,7 +88,7 @@ trait AuthConfigImpl extends AuthConfig with Results {
   /**
    * A redirect target after a failed authorization.
    */
-  override def authorizationFailed(request: RequestHeader)(implicit context: ExecutionContext): Future[Result] =
+  override def authorizationFailed(request: RequestHeader, user: User, authority: Option[Authority])(implicit context: ExecutionContext): Future[Result] =
     immediate(Forbidden("no permission"))
 
   /**
