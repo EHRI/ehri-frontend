@@ -4,6 +4,7 @@ import auth.AccountManager
 import play.api.cache.CacheApi
 import play.api.i18n.MessagesApi
 import play.api.libs.concurrent.Execution.Implicits._
+import play.api.libs.ws.WSClient
 import play.api.mvc._
 import controllers.generic.{Search, Read, Promotion, Visibility}
 import models.{AnnotationF, Annotation, UserProfile}
@@ -42,6 +43,7 @@ case class Annotations @Inject()(
   pageRelocator: utils.MovedPageLookup,
   messagesApi: MessagesApi,
   markdown: MarkdownRenderer,
+  ws: WSClient,
   cypher: Cypher
 ) extends PortalController
   with Read[Annotation]

@@ -3,9 +3,11 @@ package controllers.portal.account
 import auth.oauth2.OAuth2Flow
 import auth.oauth2.providers.{GoogleOAuth2Provider, YahooOAuth2Provider, FacebookOAuth2Provider}
 import auth.{HashedPassword, AccountManager}
+import controllers.base.RecaptchaHelper
 import play.api.cache.CacheApi
 import play.api.data.Form
 import play.api.libs.mailer.{Email, MailerClient}
+import play.api.libs.ws.WSClient
 import play.api.mvc._
 import models._
 import play.api.libs.concurrent.Execution.Implicits._
@@ -43,13 +45,15 @@ case class Accounts @Inject()(
   mailer: MailerClient,
   oAuth2Flow: OAuth2Flow,
   pageRelocator: MovedPageLookup,
-  messagesApi: MessagesApi
+  messagesApi: MessagesApi,
+  ws: WSClient
 ) extends LoginLogout
   with PortalController
   with OpenIDLoginHandler
   with OAuth2LoginHandler
   with UserPasswordLoginHandler
-  with AccountHelpers {
+  with AccountHelpers
+  with RecaptchaHelper {
 
   private val portalRoutes = controllers.portal.routes.Portal
   private val accountRoutes = controllers.portal.account.routes.Accounts

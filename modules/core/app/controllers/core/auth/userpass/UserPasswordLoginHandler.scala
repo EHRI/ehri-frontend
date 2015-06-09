@@ -11,17 +11,16 @@ import play.api.Logger
 import jp.t2v.lab.play2.auth.LoginLogout
 import play.api.data.{Forms, Form}
 import play.api.data.Forms._
-import utils.forms._
 import play.api.mvc.Result
 import java.util.UUID
-import controllers.base.CoreActionBuilders
+import controllers.base.{RecaptchaHelper, CoreActionBuilders}
 
 /**
  * @author Mike Bryant (http://github.com/mikesname)
  */
 trait UserPasswordLoginHandler {
 
-  self: Controller with CoreActionBuilders with LoginLogout with AccountHelpers =>
+  self: CoreActionBuilders with LoginLogout with AccountHelpers with RecaptchaHelper =>
 
   val accounts: auth.AccountManager
   implicit def app: play.api.Application

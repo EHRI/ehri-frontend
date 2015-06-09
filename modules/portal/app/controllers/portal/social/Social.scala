@@ -2,11 +2,13 @@ package controllers.portal.social
 
 import auth.AccountManager
 import backend.rest.cypher.Cypher
+import controllers.base.RecaptchaHelper
 import controllers.generic.Search
 import play.api.cache.CacheApi
 import play.api.libs.concurrent.Execution.Implicits._
 import models.{SystemEvent, UserProfile}
 import play.api.libs.mailer.{Email, MailerClient}
+import play.api.libs.ws.WSClient
 import utils._
 import utils.search._
 import backend.{Backend, ApiUser}
@@ -42,8 +44,10 @@ case class Social @Inject()(
   pageRelocator: MovedPageLookup,
   messagesApi: MessagesApi,
   markdown: MarkdownRenderer,
+  ws: WSClient,
   cypher: Cypher
 ) extends PortalController
+  with RecaptchaHelper
   with Search {
 
   private val socialRoutes = controllers.portal.social.routes.Social
@@ -218,7 +222,6 @@ case class Social @Inject()(
 
   import play.api.data.Form
   import play.api.data.Forms._
-  import utils.forms.checkRecapture
   private val messageForm = Form(
     tuple(
       "subject" -> nonEmptyText,

@@ -5,8 +5,8 @@ import java.util.concurrent.TimeUnit
 import play.api.Logger
 import play.api.http.HeaderNames
 import play.api.mvc._
-
 import scala.concurrent.duration.{FiniteDuration, Duration}
+
 
 trait ControllerHelpers extends play.api.i18n.I18nSupport {
 
