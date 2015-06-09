@@ -17,8 +17,15 @@ class PortalSpec extends IntegrationTestRunner {
 
   "Portal views" should {
     "show index page" in new ITestApp {
-      val doc = route(FakeRequest(portalRoutes.index())).get
+      val doc = FakeRequest(portalRoutes.index()).call()
       status(doc) must equalTo(OK)
+    }
+
+    "show index page in other languages" in new ITestApp {
+      val doc = FakeRequest(portalRoutes.index())
+        .withPreferences(new SessionPrefs(language = Some("fr")))
+        .call()
+      contentAsString(doc) must contain("Bienvenue sur")
     }
 
     "send 301 when an item has been renamed" in new ITestApp {
