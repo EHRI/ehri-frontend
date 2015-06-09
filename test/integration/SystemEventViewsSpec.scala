@@ -8,7 +8,7 @@ import play.api.test.FakeRequest
  * Spec to test various page views operate as expected.
  */
 class SystemEventViewsSpec extends IntegrationTestRunner {
-  import mocks.privilegedUser
+  import mockdata.privilegedUser
 
   "System Event views" should {
 

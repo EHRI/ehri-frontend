@@ -12,7 +12,7 @@ import utils.search.SearchConstants
  */
 class SearchSpec extends IntegrationTestRunner {
 
-  import mocks.privilegedUser
+  import mockdata.privilegedUser
 
   val userProfile = UserProfile(
     model = UserProfileF(id = Some(privilegedUser.id), identifier = "test", name="test user"),

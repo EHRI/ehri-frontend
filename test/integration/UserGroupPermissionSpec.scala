@@ -22,7 +22,7 @@ import play.api.test.FakeRequest
  *    - user1 belongs to note-approvers herself
  */
 class UserGroupPermissionSpec extends IntegrationTestRunner {
-  import mocks.privilegedUser
+  import mockdata.privilegedUser
 
   implicit val apiUser: ApiUser = ApiUser(Some(privilegedUser.id))
 

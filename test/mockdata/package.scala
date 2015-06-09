@@ -1,7 +1,7 @@
 import models.{OpenIDAssociation, OAuth2Association, Account}
 import play.twirl.api.Html
 
-package object mocks {
+package object mockdata {
 
   val privilegedUser = Account("mike", "example1@example.com", verified = true, staff = true)
   val unprivilegedUser = Account("reto", "example2@example.com", verified = true, staff = true)

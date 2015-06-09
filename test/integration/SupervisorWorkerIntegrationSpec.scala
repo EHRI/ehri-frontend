@@ -18,7 +18,7 @@ import play.api.test.FakeRequest
  *  - check that these perms are respected
  */
 class SupervisorWorkerIntegrationSpec extends IntegrationTestRunner {
-  import mocks.privilegedUser
+  import mockdata.privilegedUser
 
   implicit val apiUser: ApiUser = ApiUser(Some(privilegedUser.id))
 
@@ -137,7 +137,7 @@ class SupervisorWorkerIntegrationSpec extends IntegrationTestRunner {
       // Add their account to the mocks
       val haAccount = Account(headArchivistUserId, "head-archivist@example.com",
           verified = true, staff = true)
-      mocks.accountFixtures += haAccount.id -> haAccount
+      mockdata.accountFixtures += haAccount.id -> haAccount
 
 
       // Now create a new user and add them to the archivists group. Do this
@@ -166,7 +166,7 @@ class SupervisorWorkerIntegrationSpec extends IntegrationTestRunner {
       // Add the archivists group to the account mocks
       val aAccount = Account(archivistUserId, "archivist1@example.com",
         verified = true, staff = true)
-      mocks.accountFixtures += aAccount.id -> aAccount
+      mockdata.accountFixtures += aAccount.id -> aAccount
 
 
       // Check each user can read their profile as themselves...

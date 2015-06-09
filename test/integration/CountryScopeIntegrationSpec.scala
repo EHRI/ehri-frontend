@@ -20,7 +20,7 @@ import play.api.test.FakeRequest
  *  - check that the user cannot write outside the country
  */
 class CountryScopeIntegrationSpec extends IntegrationTestRunner {
-  import mocks.privilegedUser
+  import mockdata.privilegedUser
 
   implicit val apiUser: ApiUser = ApiUser(Some(privilegedUser.id))
 
@@ -102,7 +102,7 @@ class CountryScopeIntegrationSpec extends IntegrationTestRunner {
       // Then we add the account to the user fixtures (instead of adding it to the database,
       // which we don't have while testing.)
       val fakeAccount = Account(userId, "testuser@example.com", verified = true, staff = true)
-      mocks.accountFixtures += fakeAccount.id -> fakeAccount
+      mockdata.accountFixtures += fakeAccount.id -> fakeAccount
 
       // Check the user can read their profile as themselves...
       // Check we can read the user's page

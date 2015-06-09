@@ -31,7 +31,7 @@ class SqlAccountManagerSpec extends PlaySpecification {
 
     "enforce email uniqueness" in withFixtures { implicit db =>
       db.withConnection { implicit connection =>
-        SQL"insert into users (id,email,verified,staff) values ('blah', ${mocks.privilegedUser.email}},1,1)"
+        SQL"insert into users (id,email,verified,staff) values ('blah', ${mockdata.privilegedUser.email}},1,1)"
           .executeInsert() must throwA[JdbcSQLException]
       }
     }
@@ -61,9 +61,9 @@ class SqlAccountManagerSpec extends PlaySpecification {
 
     "find multiple accounts by id" in withFixtures { implicit db =>
       val accountsById: Seq[Account] = await(accounts.findAllById(
-        Seq(mocks.privilegedUser.id, mocks.unprivilegedUser.id)))
-      accountsById.find(_.id == mocks.privilegedUser.id) must beSome
-      accountsById.find(_.id == mocks.unprivilegedUser.id) must beSome
+        Seq(mockdata.privilegedUser.id, mockdata.unprivilegedUser.id)))
+      accountsById.find(_.id == mockdata.privilegedUser.id) must beSome
+      accountsById.find(_.id == mockdata.unprivilegedUser.id) must beSome
     }
 
     "handle empty id lists in multiple account queries" in withFixtures { implicit db =>
@@ -73,20 +73,20 @@ class SqlAccountManagerSpec extends PlaySpecification {
 
     "find accounts by token and expire tokens" in withFixtures { implicit db =>
       val uuid = UUID.randomUUID()
-      await(accounts.createToken(mocks.privilegedUser.id, uuid, isSignUp = true))
+      await(accounts.createToken(mockdata.privilegedUser.id, uuid, isSignUp = true))
       await(accounts.findByToken(uuid.toString, isSignUp = true)) must beSome.which { acc =>
-        acc.id must equalTo(mocks.privilegedUser.id)
+        acc.id must equalTo(mockdata.privilegedUser.id)
       }
-      await(accounts.expireTokens(mocks.privilegedUser.id))
+      await(accounts.expireTokens(mockdata.privilegedUser.id))
       await(accounts.findByToken(uuid.toString, isSignUp = true)) must beNone
     }
 
     "verify accounts via token" in withFixtures { implicit db =>
       val uuid = UUID.randomUUID()
-      await(accounts.createToken(mocks.unverifiedUser.id, uuid, isSignUp = false))
-      mocks.unverifiedUser.verified must beFalse
-      await(accounts.verify(mocks.unverifiedUser, uuid.toString)) must beSome
-      await(accounts.findById(mocks.unprivilegedUser.id)) must beSome.which { check =>
+      await(accounts.createToken(mockdata.unverifiedUser.id, uuid, isSignUp = false))
+      mockdata.unverifiedUser.verified must beFalse
+      await(accounts.verify(mockdata.unverifiedUser, uuid.toString)) must beSome
+      await(accounts.findById(mockdata.unprivilegedUser.id)) must beSome.which { check =>
         check.verified must beTrue
       }
     }
@@ -98,17 +98,17 @@ class SqlAccountManagerSpec extends PlaySpecification {
 
     "find accounts by id and email" in withFixtures { implicit db =>
       db.withConnection { implicit connection =>
-        await(accounts.findById(mocks.privilegedUser.id)) must beSome
-        await(accounts.findByEmail(mocks.privilegedUser.email)) must beSome
+        await(accounts.findById(mockdata.privilegedUser.id)) must beSome
+        await(accounts.findByEmail(mockdata.privilegedUser.email)) must beSome
       }
     }
 
     "allow deactivating accounts" in withFixtures { implicit db =>
       db.withConnection { implicit connection =>
-        await(accounts.findById(mocks.privilegedUser.id)) must beSome.which { user =>
+        await(accounts.findById(mockdata.privilegedUser.id)) must beSome.which { user =>
           user.active must beTrue
           await(accounts.update(user.copy(active = false)))
-          await(accounts.findById(mocks.privilegedUser.id)) must beSome.which { inactive =>
+          await(accounts.findById(mockdata.privilegedUser.id)) must beSome.which { inactive =>
             inactive.active must beFalse
           }
         }
@@ -116,13 +116,13 @@ class SqlAccountManagerSpec extends PlaySpecification {
     }
 
     "allow setting and updating user's passwords" in withFixtures { implicit db =>
-      val userOpt: Option[Account] = await(accounts.findByEmail(mocks.privilegedUser.email))
+      val userOpt: Option[Account] = await(accounts.findByEmail(mockdata.privilegedUser.email))
       userOpt must beSome.which { user =>
         await(accounts.update(user.copy(password = Some(HashedPassword.fromPlain("foobar")))))
-        await(accounts.authenticateByEmail(mocks.privilegedUser.email, "foobar")) must beSome
+        await(accounts.authenticateByEmail(mockdata.privilegedUser.email, "foobar")) must beSome
 
         await(accounts.update(user.copy(password = Some(HashedPassword.fromPlain("barfoo")))))
-        await(accounts.authenticateByEmail(mocks.privilegedUser.email, "barfoo")) must beSome
+        await(accounts.authenticateByEmail(mockdata.privilegedUser.email, "barfoo")) must beSome
       }
     }
   }
@@ -130,10 +130,10 @@ class SqlAccountManagerSpec extends PlaySpecification {
 
   "openid assoc" should {
     "find accounts by openid_url and allow adding another" in withFixtures { implicit db =>
-      val assocOpt = await(accounts.openId.findByUrl(mocks.yahooOpenId.url))
+      val assocOpt = await(accounts.openId.findByUrl(mockdata.yahooOpenId.url))
       assocOpt must beSome.which { assoc =>
         assoc.user must beSome.which { user =>
-          user.email must beEqualTo(mocks.moderator.email)
+          user.email must beEqualTo(mockdata.moderator.email)
 
           val assoc2Opt = await(accounts.openId.addAssociation(user.id, "another-test-url"))
           assoc2Opt must beSome.which { assoc2 =>
@@ -152,10 +152,10 @@ class SqlAccountManagerSpec extends PlaySpecification {
 
   "oauth2 assoc" should {
     "find accounts by oauth2 provider info and allow adding another" in withFixtures { implicit db =>
-      val assocOpt = await(accounts.oAuth2.findByProviderInfo(mocks.googleOAuthAssoc.providerId, mocks.googleOAuthAssoc.provider))
+      val assocOpt = await(accounts.oAuth2.findByProviderInfo(mockdata.googleOAuthAssoc.providerId, mockdata.googleOAuthAssoc.provider))
       assocOpt must beSome.which { assoc =>
         assoc.user must beSome.which { user =>
-          user.email must beEqualTo(mocks.privilegedUser.email)
+          user.email must beEqualTo(mockdata.privilegedUser.email)
 
           val assoc2Opt = await(accounts.oAuth2.addAssociation(user.id, "4321", "facebook"))
           assoc2Opt must beSome.which { assoc2 =>

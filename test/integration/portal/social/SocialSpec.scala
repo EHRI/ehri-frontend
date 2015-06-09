@@ -5,7 +5,7 @@ import controllers.portal.social.ReverseSocial
 import play.api.test.FakeRequest
 
 class SocialSpec extends IntegrationTestRunner {
-  import mocks.{privilegedUser, unprivilegedUser}
+  import mockdata.{privilegedUser, unprivilegedUser}
 
   private val socialRoutes: ReverseSocial = controllers.portal.social.routes.Social
 
@@ -65,7 +65,7 @@ class SocialSpec extends IntegrationTestRunner {
 
     "disallow messaging users with messaging disabled" in new ITestApp {
       val user = unprivilegedUser
-      mocks.accountFixtures += user.id -> user.copy(allowMessaging = false)
+      mockdata.accountFixtures += user.id -> user.copy(allowMessaging = false)
 
       val msgData = Map("subject" -> Seq("Hello"), "message" -> Seq("World"))
 
@@ -73,7 +73,7 @@ class SocialSpec extends IntegrationTestRunner {
         .withUser(privilegedUser).call()
       status(postMsg) must equalTo(BAD_REQUEST)
 
-      mocks.accountFixtures += user.id -> user.copy(allowMessaging = true)
+      mockdata.accountFixtures += user.id -> user.copy(allowMessaging = true)
       val postMsg2 = FakeRequest(socialRoutes.sendMessage(user.id))
         .withUser(privilegedUser).call()
       status(postMsg2) must equalTo(OK)

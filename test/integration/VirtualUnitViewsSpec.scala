@@ -7,7 +7,7 @@ import play.api.test.FakeRequest
 
 
 class VirtualUnitViewsSpec extends IntegrationTestRunner {
-  import mocks.{privilegedUser, unprivilegedUser}
+  import mockdata.{privilegedUser, unprivilegedUser}
 
   val userProfile = UserProfile(
     model = UserProfileF(id = Some(privilegedUser.id), identifier = "test", name="test user"),

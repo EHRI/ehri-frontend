@@ -12,7 +12,7 @@ import play.api.test.FakeRequest
 
 
 class AnnotationsSpec extends IntegrationTestRunner {
-  import mocks.{privilegedUser, unprivilegedUser, moderator}
+  import mockdata.{privilegedUser, unprivilegedUser, moderator}
 
   private val annotationRoutes: ReverseAnnotations = controllers.portal.annotate.routes.Annotations
   private val portalRoutes: ReversePortal = controllers.portal.routes.Portal

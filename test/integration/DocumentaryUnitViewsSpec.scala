@@ -10,7 +10,7 @@ import play.api.i18n.Messages.Implicits._
 
 
 class DocumentaryUnitViewsSpec extends IntegrationTestRunner {
-  import mocks.{privilegedUser, unprivilegedUser}
+  import mockdata.{privilegedUser, unprivilegedUser}
 
   private val docRoutes = controllers.units.routes.DocumentaryUnits
   private val repoRoutes = controllers.institutions.routes.Repositories

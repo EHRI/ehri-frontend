@@ -10,7 +10,7 @@ import utils.forms.HoneyPotForm._
 import utils.forms.TimeCheckForm._
 
 class AccountsSpec extends IntegrationTestRunner {
-  import mocks.privilegedUser
+  import mockdata.privilegedUser
 
   private val accountRoutes = controllers.portal.account.routes.Accounts
 

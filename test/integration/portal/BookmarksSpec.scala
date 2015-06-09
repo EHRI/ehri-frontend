@@ -6,7 +6,7 @@ import play.api.test.FakeRequest
 
 
 class BookmarksSpec extends IntegrationTestRunner {
-  import mocks.privilegedUser
+  import mockdata.privilegedUser
 
   private val bmRoutes = controllers.portal.routes.Bookmarks
   private val vuRoutes = controllers.portal.routes.VirtualUnits

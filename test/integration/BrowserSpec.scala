@@ -1,10 +1,9 @@
 package integration
 
-import mocks.MockMovedPageLookup
 import play.api.inject._
 import play.api.test._
 import play.api.i18n.Messages
-import utils.MovedPageLookup
+import utils.{MockMovedPageLookup, MovedPageLookup}
 import play.api.i18n.Messages.Implicits._
 
 class BrowserSpec extends PlaySpecification {
@@ -20,7 +19,7 @@ class BrowserSpec extends PlaySpecification {
     }
 
     "return 301 for moved pages" in new WithBrowser(app = appBuilder.build()) {
-      mocks.movedPages += "/foo" -> "/bar"
+      mockdata.movedPages += "/foo" -> "/bar"
       browser.goTo("/foo")
       browser.$("#error-title").getTexts.get(0) must equalTo(Messages("errors.pageNotFound"))
     }

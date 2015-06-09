@@ -48,13 +48,13 @@ package object helpers {
    */
   def loadSqlFixtures(implicit db: Database, app: play.api.Application) = {
     val accounts: AccountManager = SqlAccountManager()
-    mocks.users.foreach { case (profile, account) =>
+    mockdata.users.foreach { case (profile, account) =>
       val acc = Await.result(accounts.create(account), 1.second)
     }
-    mocks.oAuth2Associations.map { assoc =>
+    mockdata.oAuth2Associations.map { assoc =>
       Await.result(accounts.oAuth2.addAssociation(assoc.id, assoc.providerId, assoc.provider), 1.second)
     }
-    mocks.openIDAssociations.map { assoc =>
+    mockdata.openIDAssociations.map { assoc =>
       Await.result(accounts.openId.addAssociation(assoc.id, assoc.url), 1.second)
     }
   }

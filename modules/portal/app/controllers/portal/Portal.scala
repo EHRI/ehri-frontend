@@ -9,6 +9,7 @@ import models.base.AnyModel
 import play.api.i18n.{MessagesApi, Messages}
 import play.api.libs.concurrent.Execution.Implicits._
 import play.api.mvc._
+import utils.caching.FutureCache
 import utils.search._
 import play.api.cache.CacheApi
 import defines.EntityType
@@ -21,7 +22,6 @@ import javax.inject._
 import views.MarkdownRenderer
 import views.html.errors.pageNotFound
 import org.joda.time.DateTime
-import caching.FutureCache
 import controllers.portal.base.PortalController
 import play.api.libs.json.Json
 

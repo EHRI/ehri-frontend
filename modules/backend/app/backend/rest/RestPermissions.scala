@@ -1,12 +1,13 @@
 package backend.rest
 
+import utils.caching.FutureCache
+
 import scala.concurrent.Future
 import acl._
 import defines._
 import play.api.libs.json.Json
 import utils.{Page, PageParams}
 import backend._
-import caching.FutureCache
 
 
 trait RestPermissions extends Permissions with RestDAO with RestContext {

@@ -3,7 +3,7 @@ package integration.portal
 import helpers.IntegrationTestRunner
 import play.api.i18n.Messages
 import play.api.test.FakeRequest
-import mocks._
+import mockdata._
 import models.{GuidePage, Guide}
 import play.api.i18n.Messages.Implicits._
 

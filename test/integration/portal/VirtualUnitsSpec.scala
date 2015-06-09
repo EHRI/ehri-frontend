@@ -6,7 +6,7 @@ import play.api.test.FakeRequest
 
 
 class VirtualUnitsSpec extends IntegrationTestRunner {
-  import mocks.privilegedUser
+  import mockdata.privilegedUser
 
   private val vuRoutes: ReverseVirtualUnits = controllers.portal.routes.VirtualUnits
 

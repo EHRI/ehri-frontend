@@ -1,10 +1,10 @@
 package backend.rest
 
 import backend._
+import utils.caching.FutureCache
 import scala.concurrent.Future
 import utils.{Page, PageParams}
 import defines.EntityType
-import caching.FutureCache
 
 /**
  * @author Mike Bryant (http://github.com/mikesname)

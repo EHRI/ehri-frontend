@@ -12,11 +12,11 @@ import controllers.renderError
 import models.UserProfile
 import play.api.mvc._
 import controllers.base.{SessionPreferences, ControllerHelpers, CoreActionBuilders}
+import utils.caching.FutureCache
 import scala.concurrent.duration.Duration
 import scala.concurrent.{ExecutionContext, Future}
 import scala.concurrent.Future.{successful => immediate}
 import models.base.AnyModel
-import caching.FutureCache
 import models.view.UserDetails
 import backend.ApiUser
 import play.api.mvc.Result

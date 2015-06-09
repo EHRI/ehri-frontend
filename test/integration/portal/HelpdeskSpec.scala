@@ -5,7 +5,7 @@ import play.api.test.FakeRequest
 
 class HelpdeskSpec extends IntegrationTestRunner {
 
-  import mocks.privilegedUser
+  import mockdata.privilegedUser
 
   "Helpdesk views" should {
     "not allow empty queries" in new ITestApp {

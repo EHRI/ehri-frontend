@@ -4,11 +4,11 @@ import javax.inject.Inject
 
 import backend.HtmlPages
 import backend.rest.{PermissionDenied, ItemNotFound}
-import caching.FutureCache
 import play.api.http.Status
 import play.api.i18n.Messages
 import play.api.libs.ws.WSClient
 import play.twirl.api.Html
+import utils.caching.FutureCache
 
 import scala.concurrent.Future
 import play.api.libs.concurrent.Execution.Implicits._

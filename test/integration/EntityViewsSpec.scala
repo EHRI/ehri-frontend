@@ -10,7 +10,7 @@ import play.api.test.FakeRequest
  * Spec to test various page views operate as expected.
  */
 class EntityViewsSpec extends IntegrationTestRunner {
-  import mocks.{privilegedUser,unprivilegedUser}
+  import mockdata.{privilegedUser,unprivilegedUser}
 
   implicit val apiUser: ApiUser = ApiUser(Some(privilegedUser.id))
 

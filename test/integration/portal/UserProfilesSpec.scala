@@ -15,7 +15,7 @@ import play.api.i18n.Messages.Implicits._
 
 
 class UserProfilesSpec extends IntegrationTestRunner with FakeMultipartUpload {
-  import mocks.privilegedUser
+  import mockdata.privilegedUser
 
   private val profileRoutes = controllers.portal.users.routes.UserProfiles
   private val portalRoutes = controllers.portal.routes.Portal

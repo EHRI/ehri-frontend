@@ -1,23 +1,20 @@
-package modules
-
 import auth.AccountManager
-import auth.oauth2.{WebOAuth2Flow, OAuth2Flow}
+import auth.oauth2.{OAuth2Flow, WebOAuth2Flow}
 import backend._
 import backend.aws.S3FileStorage
 import backend.googledocs.GoogleDocsHtmlPages
 import backend.helpdesk.EhriHelpdesk
 import backend.parse.ParseFeedbackDAO
-import backend.rest.cypher.{CypherDAO, Cypher}
-import backend.rest.{SearchDAO, CypherIdGenerator, GidSearchResolver}
+import backend.rest.cypher.{Cypher, CypherDAO}
+import backend.rest.{CypherIdGenerator, GidSearchResolver, SearchDAO}
 import com.google.inject.AbstractModule
-import eu.ehri.project.search.solr.{SolrSearchEngine, JsonResponseHandler, ResponseHandler}
-import global.{AppGlobalConfig, GlobalBackend, GlobalEventHandler, GlobalConfig}
+import eu.ehri.project.search.solr.{JsonResponseHandler, ResponseHandler, SolrSearchEngine}
+import global.{AppGlobalConfig, GlobalBackend, GlobalConfig, GlobalEventHandler}
 import indexing.CmdlineIndexer
 import models.{DatabaseGuideDAO, GuideDAO}
-import play.api.i18n.MessagesApi
+import utils.search.{SearchEngine, SearchIndexer, SearchItemResolver}
 import utils.{DbMovedPageLookup, MovedPageLookup}
-import utils.search.{SearchItemResolver, SearchEngine, SearchIndexer}
-import views.{PegdownMarkdownRendererProvider, MarkdownRenderer}
+import views.{MarkdownRenderer, PegdownMarkdownRendererProvider}
 
 
 class AppModule extends AbstractModule {

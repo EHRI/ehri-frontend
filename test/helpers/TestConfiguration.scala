@@ -1,7 +1,7 @@
 package helpers
 
 import auth.oauth2.{MockOAuth2Flow, OAuth2Flow}
-import auth.{AccountManager, MockAccountManager}
+import auth.{MockAccountManager, AccountManager}
 import backend._
 import backend.aws.MockFileStorage
 import backend.helpdesk.{MockFeedbackDAO, MockHelpdeskDAO}
@@ -9,7 +9,7 @@ import backend.rest.RestBackend
 import controllers.base.{SessionPreferences, AuthConfigImpl}
 import global.GlobalConfig
 import jp.t2v.lab.play2.auth.test.Helpers._
-import mocks.{MockBufferedMailer, _}
+import mockdata.{_}
 import models.{Account, Feedback}
 import org.specs2.execute.{Result, AsResult}
 import play.api.db.Database
@@ -19,7 +19,7 @@ import play.api.libs.json.{Json, Writes}
 import play.api.libs.mailer.{MailerClient, Email}
 import play.api.test.Helpers._
 import play.api.test._
-import utils.MovedPageLookup
+import utils.{MockBufferedMailer, MockMovedPageLookup, MovedPageLookup}
 import utils.search.{MockSearchIndexer, _}
 import scala.concurrent.{ExecutionContext, Future}
 

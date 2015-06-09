@@ -13,7 +13,7 @@ import scala.concurrent.Future
  */
 case class MockHtmlPages() extends HtmlPages {
   override def get(key: String, noCache: Boolean)(implicit messages: Messages): Option[Future[(Html, Html)]] = {
-    mocks.externalPages.get(key).map { html =>
+    mockdata.externalPages.get(key).map { html =>
       Some(Future.successful(Html("") -> html))
     }.getOrElse(throw new ItemNotFound())
   }

@@ -6,7 +6,7 @@ import play.api.test.FakeRequest
 
 class FeedbackSpec extends IntegrationTestRunner {
 
-  import mocks.privilegedUser
+  import mockdata.privilegedUser
   override def getConfig = Map(
     "ehri.signup.timeCheckSeconds" -> -1
   )

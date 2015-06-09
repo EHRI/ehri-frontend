@@ -126,21 +126,21 @@ class ApplicationSpec extends PlaySpecification with TestConfiguration with User
 
     "redirect 301 for trailing-slash URLs" in new ITestApp {
       val home = FakeRequest(GET, controllers.admin.routes.Home.index().url + "/")
-        .withUser(mocks.publicUser)
+        .withUser(mockdata.publicUser)
         .call()
       status(home) must equalTo(MOVED_PERMANENTLY)
     }
 
     "deny non-staff users access to admin areas" in new ITestApp {
       val home = FakeRequest(GET, controllers.admin.routes.Home.index().url)
-        .withUser(mocks.publicUser)
+        .withUser(mockdata.publicUser)
         .call()
       status(home) must equalTo(UNAUTHORIZED)
     }
 
     "deny non-verified users access to admin areas" in new ITestApp {
       var user = Account("pete", "unverified@example.com", verified = false, staff = true)
-      mocks.accountFixtures += user.id -> user
+      mockdata.accountFixtures += user.id -> user
 
       val home = FakeRequest(controllers.admin.routes.Home.index())
         .withUser(user)
@@ -150,7 +150,7 @@ class ApplicationSpec extends PlaySpecification with TestConfiguration with User
 
     "redirect to default URL when accessing login page when logged in" in new ITestApp {
       val login = FakeRequest(accountRoutes.loginOrSignup())
-        .withUser(mocks.publicUser)
+        .withUser(mockdata.publicUser)
         .call()
       status(login) must equalTo(SEE_OTHER)
     }
@@ -194,7 +194,7 @@ class ApplicationSpec extends PlaySpecification with TestConfiguration with User
     "create a reset token on password reset with correct email" in new ITestApp(Map("recaptcha.skip" -> true)) {
       val numSentMails = mailBuffer.size
       val data: Map[String,Seq[String]] = Map(
-        "email" -> Seq(mocks.unprivilegedUser.email),
+        "email" -> Seq(mockdata.unprivilegedUser.email),
         CSRF_TOKEN_NAME -> Seq(fakeCsrfString)
       )
       val forgot = FakeRequest(accountRoutes.forgotPasswordPost())
@@ -202,13 +202,13 @@ class ApplicationSpec extends PlaySpecification with TestConfiguration with User
         .callWith(data)
       status(forgot) must equalTo(SEE_OTHER)
       mailBuffer.size must beEqualTo(numSentMails + 1)
-      mailBuffer.last.to must contain(mocks.unprivilegedUser.email)
+      mailBuffer.last.to must contain(mockdata.unprivilegedUser.email)
     }
 
     "check password reset token works (but only once)" in new ITestApp(Map("recaptcha.skip" -> true)) {
       val numSentMails = mailBuffer.size
       val data: Map[String,Seq[String]] = Map(
-        "email" -> Seq(mocks.unprivilegedUser.email),
+        "email" -> Seq(mockdata.unprivilegedUser.email),
         CSRF_TOKEN_NAME -> Seq(fakeCsrfString)
       )
       val forgot = FakeRequest(accountRoutes.forgotPasswordPost())
@@ -216,9 +216,9 @@ class ApplicationSpec extends PlaySpecification with TestConfiguration with User
         .callWith(data)
       status(forgot) must equalTo(SEE_OTHER)
       mailBuffer.size must beEqualTo(numSentMails + 1)
-      mailBuffer.last.to must contain(mocks.unprivilegedUser.email)
+      mailBuffer.last.to must contain(mockdata.unprivilegedUser.email)
 
-      val token = mocks.tokenFixtures.last._1
+      val token = mockdata.tokenFixtures.last._1
       val resetForm = FakeRequest(accountRoutes.resetPassword(token))
         .callWith(data)
       status(resetForm) must equalTo(OK)

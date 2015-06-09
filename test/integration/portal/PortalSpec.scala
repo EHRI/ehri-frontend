@@ -9,7 +9,7 @@ import utils.SessionPrefs
 
 
 class PortalSpec extends IntegrationTestRunner {
-  import mocks.privilegedUser
+  import mockdata.privilegedUser
 
   private val portalRoutes: ReversePortal = controllers.portal.routes.Portal
 
@@ -34,7 +34,7 @@ class PortalSpec extends IntegrationTestRunner {
       val before = FakeRequest(oldRoute).call()
       status(before) must equalTo(NOT_FOUND)
 
-      mocks.movedPages += oldRoute.url -> newRoute.url
+      mockdata.movedPages += oldRoute.url -> newRoute.url
       val rename = FakeRequest(oldRoute).call()
       status(rename) must equalTo(MOVED_PERMANENTLY)
       redirectLocation(rename) must equalTo(Some(newRoute.url))
@@ -86,7 +86,7 @@ class PortalSpec extends IntegrationTestRunner {
     "fetch external pages" in new ITestApp {
       val faq = FakeRequest(portalRoutes.externalPage("faq")).call()
       status(faq) must equalTo(OK)
-      contentAsString(faq) must contain(mocks.externalPages.get("faq").get.toString())
+      contentAsString(faq) must contain(mockdata.externalPages.get("faq").get.toString())
     }
   }
 }

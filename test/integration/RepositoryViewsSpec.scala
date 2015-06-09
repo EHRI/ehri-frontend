@@ -6,7 +6,7 @@ import play.api.test.FakeRequest
 
 
 class RepositoryViewsSpec extends IntegrationTestRunner {
-  import mocks.{privilegedUser,unprivilegedUser}
+  import mockdata.{privilegedUser,unprivilegedUser}
 
   private val repoRoutes = controllers.institutions.routes.Repositories
   private val countryRoutes = controllers.countries.routes.Countries

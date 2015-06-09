@@ -14,7 +14,7 @@ import scala.util.{Success, Failure, Try}
  */
 class APISpec extends IntegrationTestRunner {
 
-  import mocks.privilegedUser
+  import mockdata.privilegedUser
 
   private val docRoutes = controllers.units.routes.DocumentaryUnits
 

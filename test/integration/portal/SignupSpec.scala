@@ -37,13 +37,13 @@ class SignupSpec extends IntegrationTestRunner {
 
     "create a validation token and send a mail on signup" in new ITestApp {
       val numSentMails = mailBuffer.size
-      val numAccounts = mocks.accountFixtures.size
+      val numAccounts = mockdata.accountFixtures.size
       val signup = FakeRequest(accountRoutes.signupPost()).withCsrf.callWith(data)
       status(signup) must equalTo(SEE_OTHER)
       mailBuffer.size must beEqualTo(numSentMails + 1)
       mailBuffer.last.to must contain(testEmail)
-      mocks.accountFixtures.size must equalTo(numAccounts + 1)
-      val userOpt = mocks.accountFixtures.values.find(u => u.email == testEmail)
+      mockdata.accountFixtures.size must equalTo(numAccounts + 1)
+      val userOpt = mockdata.accountFixtures.values.find(u => u.email == testEmail)
       userOpt must beSome.which { user =>
         user.verified must beFalse
       }
@@ -100,7 +100,7 @@ class SignupSpec extends IntegrationTestRunner {
     "allow unverified user to log in" in new ITestApp {
       val signup = FakeRequest(accountRoutes.signupPost()).withCsrf.callWith(data)
       status(signup) must equalTo(SEE_OTHER)
-      mocks.accountFixtures.find(_._2.email == testEmail) must beSome.which { case(uid, u) =>
+      mockdata.accountFixtures.find(_._2.email == testEmail) must beSome.which { case(uid, u) =>
         // Ensure we can log in and view our profile
         val index = FakeRequest(controllers.portal.users.routes.UserProfiles.profile())
           .withUser(u).call()
@@ -115,7 +115,7 @@ class SignupSpec extends IntegrationTestRunner {
 
       val signup = FakeRequest(accountRoutes.signupPost()).withCsrf.callWith(data2)
       status(signup) must equalTo(SEE_OTHER)
-      mocks.accountFixtures.find(_._2.email == testEmail2) must beSome.which { case (uid, u) =>
+      mockdata.accountFixtures.find(_._2.email == testEmail2) must beSome.which { case (uid, u) =>
         u.hasPassword must beTrue
 
         val logout = FakeRequest(accountRoutes.logout()).withUser(u).call()
@@ -128,7 +128,7 @@ class SignupSpec extends IntegrationTestRunner {
         redirectLocation(login) must beSome.which { loc =>
           loc must equalTo(controllers.portal.users.routes.UserProfiles.profile().url)
           // Check login time has been updated...
-          mocks.accountFixtures.get(uid) must beSome.which { u2 =>
+          mockdata.accountFixtures.get(uid) must beSome.which { u2 =>
             u2.hasPassword must beTrue
             u2.lastLogin must beSome.which { t2 =>
               t2 must beGreaterThan(time)

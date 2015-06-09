@@ -23,6 +23,7 @@
   <!-- Turn down the default level of some classes that log with each
        application restart -->
   <logger name="com.zaxxer.hikari.pool.HikariPool" level="ERROR" />
+  <logger name="com.zaxxer.hikari.HikariDataSource" level="ERROR" />
   <logger name="play.api.libs.concurrent.ActorSystemProvider" level="ERROR" />
   <logger name="application" level="ERROR" />
   

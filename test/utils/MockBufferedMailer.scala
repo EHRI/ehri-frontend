@@ -1,4 +1,4 @@
-package mocks
+package utils
 
 import play.api.libs.mailer.{Email, MailerClient}
 
