@@ -88,7 +88,7 @@ case class Guides @Inject()(implicit globalConfig: global.GlobalConfig, searchEn
           "pt" -> s"$lat,$lng",
           "sfield" -> "location",
           "sort" -> "geodist() asc",
-          "d" -> dist.getOrElse(1.0),
+          "d" -> dist.getOrElse(1000), // km
           "fq" -> "{!bbox}"
         )
       }
