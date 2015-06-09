@@ -6,7 +6,7 @@ import backend._
 import backend.aws.MockFileStorage
 import backend.helpdesk.{MockFeedbackDAO, MockHelpdeskDAO}
 import backend.rest.RestBackend
-import controllers.base.AuthConfigImpl
+import controllers.base.{SessionPreferences, AuthConfigImpl}
 import global.GlobalConfig
 import jp.t2v.lab.play2.auth.test.Helpers._
 import mocks.{MockBufferedMailer, _}
@@ -15,6 +15,7 @@ import org.specs2.execute.{Result, AsResult}
 import play.api.db.Database
 import play.api.http.Writeable
 import play.api.inject.guice.GuiceApplicationLoader
+import play.api.libs.json.{Json, Writes}
 import play.api.libs.mailer.{MailerClient, Email}
 import play.api.test.Helpers._
 import play.api.test._
@@ -160,21 +161,42 @@ trait TestConfiguration {
    * Convenience extensions for the FakeRequest object.
    */
   implicit class FakeRequestExtensions[A](fr: FakeRequest[A]) {
+    /**
+     * Set the request to be authenticated for the given user.
+     */
     def withUser(user: Account)(implicit app: play.api.Application): FakeRequest[A] = {
       fr.withLoggedIn(authConfig(app))(user.id)
     }
 
+    /**
+     * Add a dummy CSRF to the fake request.
+     */
     def withCsrf: FakeRequest[A] = if (fr.method == POST)
       fr.withSession(CSRF_TOKEN_NAME -> fakeCsrfString)
         .withHeaders(CSRF_HEADER_NAME -> CSRF_HEADER_NOCHECK) else fr
 
+    /**
+     * Add a serialized preferences object to the fake request's session.
+     */
+    def withPreferences[T: Writes](p: T): FakeRequest[A] =
+      fr.withSession(SessionPreferences.DEFAULT_STORE_KEY -> Json.stringify(Json.toJson(p)(implicitly[Writes[T]])))
+
+    /**
+     * Set the accepting header to the given mime-types.
+     */
     def accepting(m: String*): FakeRequest[A] = m.foldLeft(fr) { (c, m) =>
       c.withHeaders(ACCEPT -> m)
     }
 
+    /**
+     * Call the request.
+     */
     def call()(implicit app: play.api.Application, w: Writeable[A]): Future[play.api.mvc.Result] =
       route(app, fr).getOrElse(sys.error(s"Unexpected null route for ${fr.uri} (${fr.method})"))
 
+    /**
+     * Call the request with the given body.
+     */
     def callWith[T](body: T)(implicit app: play.api.Application, w: Writeable[T]): Future[play.api.mvc.Result] =
       route(app, fr, body).getOrElse(sys.error(s"Unexpected null route for ${fr.uri} (${fr.method})"))
   }
