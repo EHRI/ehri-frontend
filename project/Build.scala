@@ -148,10 +148,9 @@ object ApplicationBuild extends Build {
       "-target:jvm-1.6"
     ),
 
-/*
+
     // Instantiate controllers via dependency injection
     routesGenerator := InjectedRoutesGenerator,
-*/
 
     // Allow SBT to tell Scaladoc where to find external
     // api docs if dependencies provide that metadata
@@ -161,7 +160,6 @@ object ApplicationBuild extends Build {
     parallelExecution := false,
 
     // Check messages files contain valid format strings
-    // TODO: Figure out how to run this on specific triggers
     validateMessages := {
       def messagesFiles(base: File): Seq[File] = {
         val finder: PathFinder = (base / "conf") * "messages*"
@@ -200,8 +198,10 @@ object ApplicationBuild extends Build {
         }
       }
       val allMessages = messagesFiles(baseDirectory.value)
-      streams.value.log.info(s"Validating ${allMessages.size} messages file(s)")
-      allMessages.foreach(validate)
+      if (allMessages.nonEmpty) {
+        streams.value.log.debug(s"Validating ${allMessages.size} messages file(s) in ${baseDirectory.value}")
+        allMessages.foreach(validate)
+      }
     },
 
     // Classes to auto-import into templates
@@ -234,6 +234,11 @@ object ApplicationBuild extends Build {
     // Filter out excluded resources from packaging
     mappings in Universal := (mappings in Universal).value.filterNot { case (f, s) =>
       excludedResources contains f.getName
+    },
+
+    compile in Compile := {
+      validateMessages.value
+      (compile in Compile).value
     }
   )
 
@@ -323,7 +328,7 @@ object ApplicationBuild extends Build {
     resolvers ++= additionalResolvers,
     version := appVersion,
     javaOptions in Test ++= Seq(
-      s"-Dlogback.configurationFile=${(baseDirectory in LocalRootProject).value}/conf/test-logger.xml"
+      s"-Dlogger.file=${(baseDirectory in LocalRootProject).value}/conf/test-logger.xml"
     )
   ).dependsOn(core % "test->test;compile->compile")
 
