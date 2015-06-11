@@ -1,17 +1,14 @@
 package utils
 
-import play.api.test.PlaySpecification
+import org.specs2.mutable.Specification
 
-/**
- * @author Mike Bryant (http://github.com/mikesname)
- */
-class PageSpec extends PlaySpecification {
+class PageSpec extends Specification {
 
   val data = 1 to 30
 
   val testPage1 = Page(items = data.take(10), offset = 0, limit = 10, total = 30)
   val testPage2 = Page(items = data.drop(10), offset = 10, limit = 40, total = 30)
-  val testPage3 = Page(items = data.drop(20).take(10), offset = 20, limit = 10, total = 30)
+  val testPage3 = Page(items = data.slice(20, 30), offset = 20, limit = 10, total = 30)
 
   "Page class" should {
     "provide correct offset, start, and end" in {

@@ -1,8 +1,8 @@
 package defines
 
-import play.api.test.PlaySpecification
+import org.specs2.mutable.Specification
 
-class EnumUtilsSpec extends PlaySpecification {
+class EnumUtilsSpec extends Specification {
   "tolerant enum seq binder should" should {
     import EnumUtils.tolerantSeq
     object MyEnum extends scala.Enumeration {

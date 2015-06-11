@@ -1,16 +1,11 @@
 package acl
 
-import play.api.test.PlaySpecification
+import org.specs2.mutable.Specification
 import defines.{ContentTypes, PermissionType}
 import play.api.libs.json.Json
-import models.{UserProfileF, UserProfile}
 
-/**
- * @author Mike Bryant (http://github.com/mikesname)
- */
-class PermissionSetSpec extends PlaySpecification {
 
-  val user = UserProfile(UserProfileF(id = Some("bob"), identifier = "bob", name = "Bob"))
+class PermissionSetSpec extends Specification {
 
   "GlobalPermissionSet" should {
     "parse correctly" in {
