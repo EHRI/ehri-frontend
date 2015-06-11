@@ -13,7 +13,7 @@ import utils.search.{SearchItemResolver, SearchHit}
 
 trait SearchDAO extends RestDAO {
 
-  def requestUrl = s"http://$host:$port/$mount/entities"
+  def requestUrl = s"$baseUrl/entities"
 
   def getAny[MT](id: String)(implicit apiUser: ApiUser,  rd: Readable[MT]): Future[MT] = {
     val url: String = enc(requestUrl, id)

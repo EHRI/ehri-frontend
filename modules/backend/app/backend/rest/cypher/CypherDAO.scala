@@ -31,13 +31,13 @@ object CypherErrorReader {
 
 @Singleton
 case class CypherDAO @Inject ()(
-  implicit cache: CacheApi,
-  app: play.api.Application,
-  ws: WSClient
+  implicit val cache: CacheApi,
+  val app: play.api.Application,
+  val ws: WSClient
 ) extends Cypher
   with RestDAO {
 
-  def requestUrl = s"http://$host:$port/db/data/cypher"
+  def requestUrl = utils.serviceBaseUrl("cypher", app.configuration)
 
   import CypherErrorReader._
 

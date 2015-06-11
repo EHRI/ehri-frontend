@@ -209,7 +209,7 @@ case class SolrQueryBuilder(
       req.set(key, value)
     }
 
-    utils.parseQueryString(req.queryString())
+    utils.http.parseQueryString(req.queryString())
   }
 
 
@@ -335,7 +335,7 @@ case class SolrQueryBuilder(
 
     // FIXME: It's RUBBISH to parse the output of scalikesolr's query string
     // TODO: Implement a light-weight request builder
-    utils.parseQueryString(req.queryString())
+    utils.http.parseQueryString(req.queryString())
   }
 
   override def withIdFilters(ids: Seq[String]): QueryBuilder = copy(idFilters = idFilters ++ ids)

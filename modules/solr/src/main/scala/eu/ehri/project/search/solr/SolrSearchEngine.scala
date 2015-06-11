@@ -36,15 +36,14 @@ case class SolrSearchConfig(
   // Dummy value to satisfy the RestDAO trait...
   val userProfile: Option[UserProfile] = None
 
-  lazy val solrPath = app.configuration.getString("solr.path")
-    .getOrElse(sys.error("Missing configuration: solr.path"))
+  lazy val solrPath = utils.serviceBaseUrl("solr", app.configuration)
 
   def solrSelectUrl = solrPath + "/select"
 
   /**
    * Get the Solr URL...
    */
-  def fullSearchUrl(query: Map[String,Seq[String]]) = utils.joinPath(solrSelectUrl, query)
+  def fullSearchUrl(query: Map[String,Seq[String]]) = utils.http.joinPath(solrSelectUrl, query)
 
   def dispatch(query: Map[String,Seq[String]]): Future[WSResponse] = {
     ws.url(solrSelectUrl)

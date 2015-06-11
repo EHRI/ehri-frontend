@@ -201,17 +201,7 @@ trait RestDAO {
     uri.toString
   }
 
-  protected def getConfigString(key: String): String =
-    app.configuration.getString(key).getOrElse(sys.error(s"Missing configuration value: '$key'"))
-
-  protected def getConfigInt(key: String): Int =
-    app.configuration.getInt(key).getOrElse(sys.error(s"Missing configuration value: '$key'"))
-
-  protected def host: String = getConfigString("neo4j.server.host")
-  protected def port: Int = getConfigInt("neo4j.server.port")
-  protected def mount: String = getConfigString("neo4j.server.endpoint")
-
-  protected def baseUrl = s"http://$host:$port/$mount"
+  protected def baseUrl: String = utils.serviceBaseUrl("ehridata", app.configuration)
 
   protected def canonicalUrl[MT: Resource](id: String): String =
     enc(baseUrl, Resource[MT].entityType, id)

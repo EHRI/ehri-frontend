@@ -41,7 +41,7 @@ case class CmdlineIndexerHandle(chan: Option[Concurrent.Channel[String]] = None,
       // want to buffer that which contains the format:
       // [type] -> [id]
       if (s.contains("->")) report()
-      else chan.map(_.push(processFunc(s)))
+      else chan.foreach(_.push(processFunc(s)))
     }
 
     def lastMessages: List[String] = {
@@ -52,7 +52,7 @@ case class CmdlineIndexerHandle(chan: Option[Concurrent.Channel[String]] = None,
     private def report(): Unit = {
       count += 1
       if (count % bufferCount == 0) {
-        chan.map(_.push(processFunc("Items processed: " + count)))
+        chan.foreach(_.push(processFunc("Items processed: " + count)))
       }
     }
   }
@@ -62,13 +62,9 @@ case class CmdlineIndexerHandle(chan: Option[Concurrent.Channel[String]] = None,
   private def jar = app.configuration.getString("solr.indexer.jar")
     .getOrElse(sys.error("No indexer jar configured for solr.indexer.jar"))
 
-  private val restUrl = (for {
-    host <- app.configuration.getString("neo4j.server.host")
-    port <- app.configuration.getInt("neo4j.server.port")
-    path <- app.configuration.getString("neo4j.server.endpoint")
-  } yield s"http://$host:$port/$path").getOrElse(sys.error("Unable to find rest service url"))
+  private val restUrl = utils.serviceBaseUrl("ehridata", app.configuration)
 
-  private val solrUrl = app.configuration.getString("solr.path").getOrElse(sys.error("Unable to find solr service url"))
+  private val solrUrl = utils.serviceBaseUrl("solr", app.configuration)
 
   private val clearArgs = binary ++ Seq(
     "--solr", solrUrl

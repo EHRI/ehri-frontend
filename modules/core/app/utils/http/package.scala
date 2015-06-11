@@ -1,7 +1,12 @@
+package utils
 
-package object utils {
+/**
+ * @author Mike Bryant (http://github.com/mikesname)
+ */
+package object http {
 
-  import java.net.{URLDecoder,URLEncoder}
+  import java.net.{URLDecoder, URLEncoder}
+
   import play.api.mvc.RequestHeader
 
   def isAjax(implicit request: RequestHeader): Boolean =

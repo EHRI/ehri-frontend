@@ -40,9 +40,8 @@ case class Utils @Inject()(
 ) extends AdminController {
 
   override val staffOnly = false
-  protected def host: String = getConfigString("neo4j.server.host")
-  protected def port: Int = getConfigInt("neo4j.server.port")
-  protected def mount: String = getConfigString("neo4j.server.endpoint")
+
+  private val baseUrl = utils.serviceBaseUrl("ehridata", app.configuration)
 
   /**
    * Check the database is up by trying to load the admin account.
@@ -50,7 +49,7 @@ case class Utils @Inject()(
   def checkDb = Action.async { implicit request =>
     // Not using the EntityDAO directly here to avoid caching
     // and logging
-    ws.url(s"http://$host:$port/$mount/group/admin").get().map { r =>
+    ws.url(s"$baseUrl/group/admin").get().map { r =>
       r.json.validate[Group](Group.GroupResource.restReads).fold(
         _ => ServiceUnavailable("ko\nbad json"),
         _ => Ok("ok")

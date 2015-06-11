@@ -130,7 +130,7 @@ trait PortalController
    * A redirect target after a failed authentication.
    */
   override def authenticationFailed(request: RequestHeader)(implicit context: ExecutionContext): Future[Result] = {
-    if (utils.isAjax(request)) {
+    if (isAjax(request)) {
       Logger.logger.warn("Auth failed for: {}", request.toString())
       immediate(Unauthorized("authentication failed"))
     } else {

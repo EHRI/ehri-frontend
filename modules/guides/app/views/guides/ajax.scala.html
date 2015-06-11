@@ -46,7 +46,7 @@
 }
 @if(items.hasMultiplePages) {
     @if(items.numPages >= items.page + 1) {
-        <li class="facet-scroll" data-target="@utils.joinPath(request.path, request.queryString.updated(pageParam, Seq((items.page + 1).toString)))">
+        <li class="facet-scroll" data-target="@utils.http.joinPath(request.path, request.queryString.updated(pageParam, Seq((items.page + 1).toString)))">
             @Messages("guides.loading")
         </li>
     }

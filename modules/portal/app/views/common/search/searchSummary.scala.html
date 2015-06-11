@@ -11,7 +11,7 @@
             @if(query != corrected.trim.toLowerCase && query.contains(actual.trim.toLowerCase)) {
                 (@Messages("search.spellingSuggestion") <i>
                     <strong>
-                        <a href="@utils.joinPath(req.path, req.queryString.updated(SearchParams.QUERY, Seq(corrected)))">@corrected</a>
+                        <a href="@utils.http.joinPath(req.path, req.queryString.updated(SearchParams.QUERY, Seq(corrected)))">@corrected</a>
                     </strong>
                 </i>?)
             }

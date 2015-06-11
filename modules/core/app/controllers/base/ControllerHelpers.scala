@@ -43,7 +43,7 @@ trait ControllerHelpers extends play.api.i18n.I18nSupport {
   /**
    * Check if a request is Ajax.
    */
-  protected def isAjax(implicit request: RequestHeader): Boolean = utils.isAjax
+  protected def isAjax(implicit request: RequestHeader): Boolean = utils.http.isAjax
 
   /**
    * Check a particular remote address doesn't exceed a rate limit for a
