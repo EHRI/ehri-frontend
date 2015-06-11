@@ -37,6 +37,7 @@ class BackendModelSpec extends RestBackendRunner with PlaySpecification {
     )
   )
 
+  implicit def config(implicit app: play.api.Application): play.api.Configuration = app.configuration
   implicit def ws(implicit app: play.api.Application): WSClient = app.injector.instanceOf[WSClient]
   implicit def cache(implicit app: play.api.Application): CacheApi = app.injector.instanceOf[CacheApi]
   implicit def execContext(implicit app: play.api.Application): ExecutionContext = app.injector.instanceOf[ExecutionContext]

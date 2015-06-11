@@ -16,7 +16,7 @@ import play.api.cache.CacheApi
 
 trait RestDAO {
 
-  implicit def app: play.api.Application
+  implicit def config: play.api.Configuration
   implicit def cache: CacheApi
   def ws: WSClient
 
@@ -40,7 +40,7 @@ trait RestDAO {
     private val CCExtractor: Regex = """.*?max-age=(\d+)""".r
 
     private def conditionalCache(url: String, method: String, response: WSResponse): WSResponse = {
-      val doCache = app.configuration.getBoolean("ehri.ws.cache").getOrElse(false)
+      val doCache = config.getBoolean("ehri.ws.cache").getOrElse(false)
       if (doCache) {
         response.header(HeaderNames.CACHE_CONTROL) match {
           // if there's a max-age cache on a GET request cache the response.
@@ -137,9 +137,9 @@ trait RestDAO {
    */
   protected def joinQueryString(qs: Map[String, Seq[String]]): String = {
     import java.net.URLEncoder
-    qs.map { case (key, vals) =>
-      vals.map(v => "%s=%s".format(key, URLEncoder.encode(v, "UTF-8")))
-    }.flatten.mkString("&")
+    qs.flatMap { case (key, vals) =>
+      vals.map(v => s"$key=${URLEncoder.encode(v, "UTF-8")}")
+    }.mkString("&")
   }
 
   /**
@@ -165,14 +165,14 @@ trait RestDAO {
    */
   import scala.collection.JavaConversions._
   private lazy val includeProps
-    = app.configuration.getStringList("ehri.backend.includedProperties").map(_.toSeq)
+    = config.getStringList("ehri.backend.includedProperties").map(_.toSeq)
         .getOrElse(Seq.empty[String])
 
 
   protected def userCall(url: String, params: Seq[(String,String)] = Seq.empty)(implicit apiUser: ApiUser): BackendRequest = {
     BackendRequest(url).withHeaders(authHeaders.toSeq: _*)
       .withQueryString(params: _*)
-      .withQueryString(includeProps.map(p => Constants.INCLUDE_PROPERTIES_PARAM -> p).toSeq: _*)
+      .withQueryString(includeProps.map(p => Constants.INCLUDE_PROPERTIES_PARAM -> p): _*)
   }
 
   /**
@@ -201,7 +201,7 @@ trait RestDAO {
     uri.toString
   }
 
-  protected def baseUrl: String = utils.serviceBaseUrl("ehridata", app.configuration)
+  protected def baseUrl: String = utils.serviceBaseUrl("ehridata", config)
 
   protected def canonicalUrl[MT: Resource](id: String): String =
     enc(baseUrl, Resource[MT].entityType, id)

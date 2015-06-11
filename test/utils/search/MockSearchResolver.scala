@@ -10,7 +10,7 @@ import backend.{Readable, ApiUser}
 import backend.rest.SearchDAO
 
 @Singleton
-case class MockSearchResolver @Inject()(implicit cache: CacheApi, app: play.api.Application, ws: WSClient) extends SearchDAO with SearchItemResolver {
+case class MockSearchResolver @Inject()(implicit cache: CacheApi, config: play.api.Configuration, ws: WSClient) extends SearchDAO with SearchItemResolver {
   def resolve[MT](results: Seq[SearchHit])(implicit apiUser: ApiUser, rd: Readable[MT]): Future[Seq[MT]] = {
     list(results.map(_.itemId))
   }

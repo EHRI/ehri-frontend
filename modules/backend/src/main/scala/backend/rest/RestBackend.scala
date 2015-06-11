@@ -11,14 +11,14 @@ import backend._
 /**
   * @author Mike Bryant (http://github.com/mikesname)
   */
-case class RestBackend @Inject ()(eventHandler: EventHandler, cache: CacheApi, app: play.api.Application, ws: WSClient)
+case class RestBackend @Inject ()(eventHandler: EventHandler, cache: CacheApi, config: play.api.Configuration, ws: WSClient)
   extends Backend {
-  def withContext(apiUser: ApiUser)(implicit executionContext: ExecutionContext) = new RestBackendHandle(eventHandler)(cache: CacheApi, app, apiUser, executionContext, ws)
+  def withContext(apiUser: ApiUser)(implicit executionContext: ExecutionContext) = new RestBackendHandle(eventHandler)(cache: CacheApi, config, apiUser, executionContext, ws)
 }
 
 case class RestBackendHandle(eventHandler: EventHandler)(
   implicit val cache: CacheApi,
-  val app: play.api.Application,
+  val config: play.api.Configuration,
   val apiUser: ApiUser,
   val executionContext: ExecutionContext,
   val ws: WSClient
@@ -35,7 +35,7 @@ case class RestBackendHandle(eventHandler: EventHandler)(
   with RestPromotion {
 
   private val api = new ApiDAO
-  private val admin = new AdminDAO(eventHandler, cache, app, ws)
+  private val admin = new AdminDAO(eventHandler, cache, config, ws)
 
   override def withEventHandler(eventHandler: EventHandler) = this.copy(eventHandler = eventHandler)
 
@@ -57,9 +57,9 @@ case class RestBackendHandle(eventHandler: EventHandler)(
 }
 
 object RestBackend {
-  def withNoopHandler(cache: CacheApi, app: play.api.Application, ws: WSClient): Backend = new RestBackend(new EventHandler {
+  def withNoopHandler(cache: CacheApi, config: play.api.Configuration, ws: WSClient): Backend = new RestBackend(new EventHandler {
     def handleCreate(id: String) = ()
     def handleUpdate(id: String) = ()
     def handleDelete(id: String) = ()
-  }, cache: CacheApi, app, ws)
+  }, cache: CacheApi, config, ws)
 }

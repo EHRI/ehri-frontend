@@ -25,11 +25,11 @@ abstract class ParseDAO[T: Format](objectName: String) extends RestDAO {
     implicit val format: Format[Results] = Json.format[Results]
   }
 
-  private def appKey = app.configuration.getString("parse.keys.applicationId").getOrElse("fake")
+  private def appKey = config.getString("parse.keys.applicationId").getOrElse("fake")
 
-  private def restKey = app.configuration.getString("parse.keys.restApiKey").getOrElse("fake")
+  private def restKey = config.getString("parse.keys.restApiKey").getOrElse("fake")
 
-  private def url = app.configuration.getString("parse.baseUrl").getOrElse("fake")
+  private def url = config.getString("parse.baseUrl").getOrElse("fake")
 
   private def parseHeaders = Seq(
     "X-Parse-Application-Id" -> appKey,
