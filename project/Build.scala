@@ -246,11 +246,12 @@ object ApplicationBuild extends Build {
   )
 
   lazy val backend = Project(appName + "-backend", file("modules/backend"))
-    .enablePlugins(play.sbt.PlayScala).settings(
-    version := appVersion,
-    name := appName + "-backend",
-    libraryDependencies ++= backendDependencies ++ backendTestDependencies
-  ).settings(commonSettings: _*)
+    .settings(
+      version := appVersion,
+      name := appName + "-backend",
+      libraryDependencies ++= backendDependencies ++ backendTestDependencies,
+      resolvers ++= additionalResolvers
+  )
 
   lazy val core = Project(appName + "-core", file("modules/core"))
     .enablePlugins(play.sbt.PlayScala).settings(
