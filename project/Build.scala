@@ -216,7 +216,10 @@ object ApplicationBuild extends Build {
     resolvers ++= additionalResolvers,
 
     // Auto-import EntityType enum into routes
-    routesImport += "defines.EntityType",
+    routesImport ++= Seq(
+      "defines.EntityType",
+      "defines.binders._"
+    ),
 
     // SBT magic: http://stackoverflow.com/a/12772739/285374
     // pick up additional resources in test

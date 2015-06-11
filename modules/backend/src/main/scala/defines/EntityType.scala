@@ -1,6 +1,11 @@
 package defines
 
-object EntityType extends BindableEnum {
+object EntityType extends Enumeration {
+  // Allow these enums to be converted to strings implicitly,
+  // since the binding relies on to/from string behaviour.
+  import language.implicitConversions
+  implicit def enumToString(e: Enumeration#Value): String = e.toString
+
   type Type = Value
   val DocumentaryUnit = Value("documentaryUnit")
   val DocumentaryUnitDescription = Value("documentDescription")
@@ -29,5 +34,5 @@ object EntityType extends BindableEnum {
   val VirtualUnit = Value("virtualUnit")
   val Version = Value("version")
 
-  implicit val format = defines.EnumUtils.enumFormat(this)
+  implicit val _format = defines.EnumUtils.enumFormat(this)
 }

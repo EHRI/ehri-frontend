@@ -77,7 +77,7 @@ class UserGroupPermissionSpec extends IntegrationTestRunner {
 
       // Now set UPDATE permissions - this should still NOT be sufficient
       await(testBackend.setItemPermissions(management.id, ContentTypes.Group, noteApprovers.id,
-        Seq(PermissionType.Update)))
+        Seq(PermissionType.Update.toString)))
 
       val attempt2 = FakeRequest(userRoutes.addToGroup(user2.id, noteApprovers.id))
         .withUser(acc1).withCsrf.call()
@@ -86,7 +86,7 @@ class UserGroupPermissionSpec extends IntegrationTestRunner {
       // Now set GRANT permissions on the user - this will still fail because
       // the user1 is not a member of noteApprovers
       await(testBackend.setItemPermissions(acc1.id, ContentTypes.UserProfile, acc2.id,
-        Seq(PermissionType.Grant)))
+        Seq(PermissionType.Grant.toString)))
 
       // NB: Currently the front-end does not protect us against attempting
       // to add this user,

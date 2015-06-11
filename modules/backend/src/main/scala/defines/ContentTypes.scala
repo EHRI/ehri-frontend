@@ -16,5 +16,5 @@ object ContentTypes extends Enumeration() {
   val Country = Value("country")
   val VirtualUnit = Value("virtualUnit")
 
-  implicit val format = defines.EnumUtils.enumFormat(this)
+  implicit val _format = defines.EnumUtils.enumFormat(this)
 }

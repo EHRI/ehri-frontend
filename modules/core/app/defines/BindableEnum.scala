@@ -1,6 +1,6 @@
 package defines
 
-import play.api.mvc.{QueryStringBindable, PathBindable}
+import play.api.mvc.{PathBindable, QueryStringBindable}
 
 import scala.language.implicitConversions
 
@@ -11,6 +11,11 @@ import scala.language.implicitConversions
  * @author Mike Bryant (http://github.com/mikesname)
  */
 abstract class BindableEnum extends Enumeration {
+
+  // Allow these enums to be converted to strings implicitly,
+  // since the binding relies on to/from string behaviour.
+  import language.implicitConversions
+  implicit def enumToString(e: Enumeration#Value): String = e.toString
 
   implicit def bindableEnum: PathBindable[Value] = new PathBindable[Value] {
     def bind(key: String, value: String) =

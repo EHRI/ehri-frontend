@@ -10,8 +10,6 @@ object PermissionType extends Enumeration {
 	val Annotate = Value("annotate")
   val Promote = Value("promote")
 
-  implicit val format = defines.EnumUtils.enumFormat(this)
-
   /**
    * Unfortunately Scala enums can't have proper
    * methods/data so we have to use this hacky function
@@ -31,4 +29,6 @@ object PermissionType extends Enumeration {
    * Test permission p2 is 'in' permission p1
    */
   def in(p1: Value, p2: Value): Boolean = (bitMask(p1) & bitMask(p2)) == bitMask(p2)
+
+  implicit val _format = defines.EnumUtils.enumFormat(this)
 }
