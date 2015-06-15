@@ -28,7 +28,7 @@ object ApplicationBuild extends Build {
     cache,
 
     // Ontology
-    "ehri-project" % "ehri-definitions" % "0.10.1-SNAPSHOT",
+    "ehri-project" % "ehri-definitions" % "0.10.2-SNAPSHOT",
 
     // The ever-vital Joda time
     "joda-time" % "joda-time" % "2.7"
@@ -47,8 +47,8 @@ object ApplicationBuild extends Build {
     // We need the backend code to test against, but exclude any
     // groovy stuff because a) it's not needed, and b) it has a
     // ton of awkward transitive dependencies
-    "ehri-project" % "ehri-frames" % "0.10.1-SNAPSHOT" % "test" classifier "tests" classifier "" exclude("com.tinkerpop.gremlin", "gremlin-groovy") exclude("org.mockito", "mockito-core"),
-    "ehri-project" % "ehri-extension" % "0.10.1-SNAPSHOT" % "test" classifier "tests" classifier "" exclude("com.tinkerpop.gremlin", "gremlin-groovy") exclude("org.mockito", "mockito-core")
+    "ehri-project" % "ehri-frames" % "0.10.2-SNAPSHOT" % "test" classifier "tests" classifier "" exclude("com.tinkerpop.gremlin", "gremlin-groovy") exclude("org.mockito", "mockito-core"),
+    "ehri-project" % "ehri-extension" % "0.10.2-SNAPSHOT" % "test" classifier "tests" classifier "" exclude("com.tinkerpop.gremlin", "gremlin-groovy") exclude("org.mockito", "mockito-core")
   )
 
 
