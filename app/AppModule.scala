@@ -14,7 +14,7 @@ import indexing.CmdlineIndexer
 import models.{DatabaseGuideDAO, GuideDAO}
 import utils.search.{SearchEngine, SearchIndexer, SearchItemResolver}
 import utils.{DbMovedPageLookup, MovedPageLookup}
-import views.{MarkdownRenderer, PegdownMarkdownRendererProvider}
+import views.{MarkdownRenderer, PegDownMarkdownRendererProvider}
 
 
 class AppModule extends AbstractModule {
@@ -36,7 +36,7 @@ class AppModule extends AbstractModule {
     bind(classOf[FileStorage]).to(classOf[S3FileStorage])
     bind(classOf[HtmlPages]).to(classOf[GoogleDocsHtmlPages])
     bind(classOf[GuideDAO]).to(classOf[DatabaseGuideDAO])
-    bind(classOf[MarkdownRenderer]).toProvider(classOf[PegdownMarkdownRendererProvider])
+    bind(classOf[MarkdownRenderer]).toProvider(classOf[PegDownMarkdownRendererProvider])
     bind(classOf[Cypher]).to(classOf[CypherDAO])
   }
 }
