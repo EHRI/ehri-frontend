@@ -1,4 +1,4 @@
-@(item: DocumentaryUnit, desc: DocumentaryUnitDescriptionF, links: Seq[Link],template: (GuidePage, (Guide, List[GuidePage])))(implicit userOpt: Option[UserProfile], request: RequestHeader, prefs: utils.SessionPrefs, globalConfig: global.GlobalConfig, lang: Lang, flash: Flash)
+@(item: DocumentaryUnit, desc: DocumentaryUnitDescriptionF, links: Seq[Link],template: (GuidePage, (Guide, List[GuidePage])))(implicit userOpt: Option[UserProfile], request: RequestHeader, prefs: utils.SessionPrefs, globalConfig: global.GlobalConfig, messages: Messages, md: views.MarkdownRenderer, flash: Flash)
 
 @import defines._
 
@@ -12,7 +12,7 @@
       </li>
   }.getOrElse {
       <li class="unresolved-access-point" id=" @accessPoint.id">
-          @Html(views.Helpers.renderMarkdown(accessPoint.name))
+          @Markdown(accessPoint.name)
           @accessPoint.description.filter(_.trim.isEmpty).map { desc =>
           <small><p class="text-muted">@Markdown(desc)</p></small>
           }

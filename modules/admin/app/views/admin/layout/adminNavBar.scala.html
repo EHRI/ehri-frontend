@@ -1,4 +1,4 @@
-@()(implicit userOpt: Option[UserProfile], request: RequestHeader, lang: Lang, globalConfig: global.GlobalConfig)
+@()(implicit userOpt: Option[UserProfile], request: RequestHeader, messages: Messages, globalConfig: global.GlobalConfig)
 
 @activeIfCurrent(url: String, text: String) = {
     <li class="@{if(request.path.startsWith(url)) "active" else ""}"><a href="@url">@Html(text)</a></li>

@@ -1,15 +1,18 @@
 package controllers.portal.annotate
 
 import auth.AccountManager
+import play.api.cache.CacheApi
+import play.api.i18n.MessagesApi
 import play.api.libs.concurrent.Execution.Implicits._
+import play.api.libs.ws.WSClient
 import play.api.mvc._
 import controllers.generic.{Search, Read, Promotion, Visibility}
 import models.{AnnotationF, Annotation, UserProfile}
-import play.api.Play.current
 import utils.ContributionVisibility
+import views.MarkdownRenderer
 import scala.concurrent.Future.{successful => immediate}
 import defines.{EntityType, PermissionType}
-import backend.rest.cypher.CypherDAO
+import backend.rest.cypher.Cypher
 import play.api.libs.json.Json
 import eu.ehri.project.definitions.Ontology
 import scala.concurrent.Future
@@ -21,7 +24,7 @@ import utils.search.{SearchItemResolver, SearchEngine}
 import models.view.AnnotationContext
 
 
-import com.google.inject._
+import javax.inject._
 import controllers.portal.FacetConfig
 import controllers.portal.base.PortalController
 
@@ -29,9 +32,20 @@ import controllers.portal.base.PortalController
  * @author Mike Bryant (http://github.com/mikesname)
  */
 @Singleton
-case class Annotations @Inject()(implicit globalConfig: global.GlobalConfig, searchEngine: SearchEngine, searchResolver: SearchItemResolver,
-                                 backend: Backend, accounts: AccountManager, pageRelocator: utils.MovedPageLookup)
-  extends PortalController
+case class Annotations @Inject()(
+  implicit app: play.api.Application,
+  cache: CacheApi,
+  globalConfig: global.GlobalConfig,
+  searchEngine: SearchEngine,
+  searchResolver: SearchItemResolver,
+  backend: Backend,
+  accounts: AccountManager,
+  pageRelocator: utils.MovedPageLookup,
+  messagesApi: MessagesApi,
+  markdown: MarkdownRenderer,
+  ws: WSClient,
+  cypher: Cypher
+) extends PortalController
   with Read[Annotation]
   with Visibility[Annotation]
   with Promotion[Annotation]
@@ -273,7 +287,7 @@ case class Annotations @Inject()(implicit globalConfig: global.GlobalConfig, sea
 
     import play.api.libs.json._
 
-    val cypher =
+    val cypherQ =
       """
         |START n=node:entities(__ID__ = {user})
         |MATCH n -[:belongsTo*]-> g <-[:belongsTo]- u
@@ -281,7 +295,7 @@ case class Annotations @Inject()(implicit globalConfig: global.GlobalConfig, sea
         |RETURN DISTINCT u.__ID__, u.name
       """.stripMargin
 
-    (new CypherDAO).cypher(cypher,
+    cypher.cypher(cypherQ,
         Map("user" -> JsString(user.id),
           "label" -> JsString(Ontology.ACCESSOR_BELONGS_TO_GROUP))).map { json =>
         val users: Seq[(String,String)] = json.as[List[(String,String)]](

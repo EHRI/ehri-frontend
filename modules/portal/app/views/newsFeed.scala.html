@@ -1,4 +1,4 @@
-@(items: Seq[controllers.portal.Portal#NewsItem])
+@(items: Seq[controllers.portal.Portal#NewsItem])(implicit messages: Messages)
 
 @items.map { item =>
     <li>

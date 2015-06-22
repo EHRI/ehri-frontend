@@ -1,4 +1,4 @@
-@(item: DocumentaryUnit)(implicit lang: Lang)
+@(item: DocumentaryUnit)(implicit messages: Messages)
 
 
 <profiledesc>

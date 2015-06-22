@@ -1,13 +1,13 @@
 package auth.oauth2.providers
 
-import auth.oauth2.{OAuth2Constants, UserData}
+import auth.oauth2.UserData
 import com.fasterxml.jackson.core.JsonParseException
 import play.api.libs.json._
 
 /**
  * @author Mike Bryant (http://github.com/mikesname)
  */
-object GoogleOAuth2Provider extends OAuth2Provider {
+case class GoogleOAuth2Provider(config: play.api.Configuration) extends OAuth2Provider {
 
   val name = "google"
 

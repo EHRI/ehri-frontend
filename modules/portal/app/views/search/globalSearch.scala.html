@@ -1,4 +1,4 @@
-@(result: utils.search.SearchResult[(models.base.AnyModel, utils.search.SearchHit)], action: Call, watched: Seq[String])(implicit userOpt: Option[UserProfile], request: RequestHeader, prefs: utils.SessionPrefs, globalConfig: global.GlobalConfig, lang: Lang, flash: Flash, context: Option[models.base.Holder[_]] = None)
+@(result: utils.search.SearchResult[(models.base.AnyModel, utils.search.SearchHit)], action: Call, watched: Seq[String])(implicit userOpt: Option[UserProfile], request: RequestHeader, prefs: utils.SessionPrefs, globalConfig: global.GlobalConfig, messages: Messages, md: views.MarkdownRenderer, flash: Flash, context: Option[models.base.Holder[_]] = None)
 
 @views.html.layout.searchLayout(Messages("search.submit"), itemClass = "", result = result) {
     @views.html.common.search.searchForm(result, action) {

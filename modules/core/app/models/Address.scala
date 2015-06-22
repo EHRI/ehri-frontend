@@ -2,6 +2,7 @@ package models
 
 import defines.EntityType
 import models.base.Model
+import play.api.i18n.Messages
 import play.api.libs.json._
 import models.json._
 import backend.{Entity, Writable}
@@ -81,7 +82,7 @@ case class AddressF(
     city,
     region,
     postalCode,
-    countryCode.map(views.Helpers.countryCodeToName),
+    countryCode, // FIXME: Convert to country
     email.headOption,
     telephone.headOption,
     fax.headOption,

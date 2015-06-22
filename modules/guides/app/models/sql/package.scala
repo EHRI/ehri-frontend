@@ -1,9 +1,7 @@
 package models
 
 import java.sql.{Connection, SQLException}
-
-import play.api.db.DB
-
+import play.api.db.Database
 import scala.util.{Failure, Try}
 
 package object sql {
@@ -13,8 +11,8 @@ package object sql {
   // It also won't tell you which field on which the error occurred.
   private val integrityMatch = """.*(primary key violation|Duplicate entry).*""".r
 
-  def withIntegrityCheck[T](f: => Connection => T)(implicit app: play.api.Application): Try[T] = Try {
-    DB.withConnection { connection =>
+  def withIntegrityCheck[T](f: => Connection => T)(implicit db: Database): Try[T] = Try {
+    db.withConnection { connection =>
       f(connection)
     }
   } recoverWith {

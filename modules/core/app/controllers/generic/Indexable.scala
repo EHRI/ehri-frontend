@@ -53,7 +53,7 @@ trait Indexable[MT] extends Controller with CoreActionBuilders with ControllerHe
    */
   def updateItemPost(id: String) = AdminAction { implicit request =>
     val channel = Concurrent.unicast[String] { chan =>
-      searchIndexer.withChannel(chan, wrapMsg).indexId(id).onComplete {
+      searchIndexer.handle.withChannel(chan, wrapMsg).indexId(id).onComplete {
         case Success(()) => finishSuccess(chan)
         case Failure(t) => finishError(chan, t)
       }
@@ -74,7 +74,7 @@ trait Indexable[MT] extends Controller with CoreActionBuilders with ControllerHe
     val channel = Concurrent.unicast[String] { chan =>
 
       def clearIndex: Future[Unit] = {
-        val f = searchIndexer.clearKeyValue(field, id)
+        val f = searchIndexer.handle.clearKeyValue(field, id)
         f.onSuccess {
           case () => chan.push(wrapMsg("... finished clearing index"))
         }
@@ -82,7 +82,7 @@ trait Indexable[MT] extends Controller with CoreActionBuilders with ControllerHe
       }
 
       val job = clearIndex.flatMap { _ =>
-        searchIndexer.withChannel(chan, wrapMsg).indexChildren(rs.entityType, id)
+        searchIndexer.handle.withChannel(chan, wrapMsg).indexChildren(rs.entityType, id)
       }
 
       job.onComplete {

@@ -1,4 +1,4 @@
-@(params: utils.search.SearchParams, fields: Seq[utils.search.SearchField.Value] = Seq.empty, autofocus: Boolean = false, fielded: Boolean = false, placeholder: String = "search.queryPlaceholder")(implicit userOpt: Option[UserProfile], request: RequestHeader, globalConfig: global.GlobalConfig, lang: Lang, flash: Flash)
+@(params: utils.search.SearchParams, fields: Seq[utils.search.SearchField.Value] = Seq.empty, autofocus: Boolean = false, fielded: Boolean = false, placeholder: String = "search.queryPlaceholder")(implicit userOpt: Option[UserProfile], request: RequestHeader, globalConfig: global.GlobalConfig, messages: Messages, flash: Flash)
 
 @import utils.search.{SearchParams,SearchField}
 

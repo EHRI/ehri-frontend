@@ -12,5 +12,5 @@ GET        /:guide/document/:id              @controllers.portal.guides.Document
 GET        /:guide/repository/:id            @controllers.portal.guides.Repositories.browse(guide: String, id: String)
 GET        /:guide/:page                     @controllers.portal.guides.Guides.layoutRetrieval(guide: String, page: String)
 
-GET        /assets/*file                     controllers.portal.guides.Assets.at(path="/public", file)
-GET        /v/*file                          controllers.portal.guides.Assets.versioned(path="/public", file: Asset)
+GET        /assets/*file                     @controllers.portal.guides.Assets.at(path="/public", file)
+GET        /v/*file                          @controllers.portal.guides.Assets.versioned(path="/public", file: Asset)

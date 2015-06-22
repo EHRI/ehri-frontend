@@ -1,4 +1,4 @@
-@(user : UserProfile, additionalTitle : String = "")(controls: Html = Html(""))(implicit userOpt: Option[UserProfile], request: RequestHeader, prefs: utils.SessionPrefs, globalConfig: global.GlobalConfig, lang: Lang, flash: Flash)
+@(user : UserProfile, additionalTitle : String = "")(controls: Html = Html(""))(implicit userOpt: Option[UserProfile], request: RequestHeader, prefs: utils.SessionPrefs, globalConfig: global.GlobalConfig, messages: Messages, flash: Flash)
 
 
 <nav class="info-bar user-profile-bar collapse navbar-collapse">

@@ -1,6 +1,6 @@
 package backend
 
-import play.api.i18n.Lang
+import play.api.i18n.Messages
 import play.twirl.api.Html
 
 import scala.concurrent.Future
@@ -21,5 +21,5 @@ trait HtmlPages {
    * @param lang the language of the document version
    * @return An optional, future of Css -> Body HTML
    */
-  def get(key: String, noCache: Boolean = false)(implicit lang: Lang): Option[Future[(Html, Html)]]
+  def get(key: String, noCache: Boolean = false)(implicit messages: Messages): Option[Future[(Html, Html)]]
 }

@@ -48,8 +48,8 @@ trait Create[F <: Model with Persistable, MT <: MetaModel[F]] extends Generic {
     WithContentPermissionAction(PermissionType.Create, ct.contentType) andThen new ActionTransformer[WithUserRequest, UserGroupsRequest] {
       override protected def transform[A](request: WithUserRequest[A]): Future[UserGroupsRequest[A]] = {
         for {
-          users <- RestHelpers.getUserList
-          groups <- RestHelpers.getGroupList
+          users <- getUserList
+          groups <- getGroupList
         } yield UserGroupsRequest(users, groups, request.user, request)
       }
     }

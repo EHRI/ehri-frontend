@@ -1,4 +1,4 @@
-@(form: Form[(Option[String], String, Boolean)], query: String, results: Seq[(String, Double)], institutions: Seq[Repository])(implicit userOpt: Option[UserProfile], request: RequestHeader, lang: Lang, flash: Flash, globalConfig: global.GlobalConfig, prefs: utils.SessionPrefs)
+@(form: Form[(Option[String], String, Boolean)], query: String, results: Seq[(String, Double)], institutions: Seq[Repository])(implicit userOpt: Option[UserProfile], request: RequestHeader, messages: Messages, flash: Flash, globalConfig: global.GlobalConfig, prefs: utils.SessionPrefs)
 
 @views.html.layout.portalLayout(Messages("helpdesk")) {
 

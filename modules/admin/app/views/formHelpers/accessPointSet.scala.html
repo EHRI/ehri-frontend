@@ -1,4 +1,4 @@
-@(field: play.api.data.Field, name: String)(implicit fieldPrefix: String, userOpt: Option[UserProfile], req: RequestHeader, globalConfig: global.GlobalConfig, lang: Lang)
+@(field: play.api.data.Field, name: String)(implicit fieldPrefix: String, userOpt: Option[UserProfile], req: RequestHeader, globalConfig: global.GlobalConfig, messages: Messages, md: views.MarkdownRenderer)
 
 <div class="control-form" data-prefix="@name">
         <!-- Template for adding inline date forms via JS -->

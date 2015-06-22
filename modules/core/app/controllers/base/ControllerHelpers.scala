@@ -1,13 +1,17 @@
 package controllers.base
 
+import java.util.concurrent.TimeUnit
+
 import play.api.Logger
-import play.api.cache.Cache
 import play.api.http.HeaderNames
 import play.api.mvc._
+import scala.concurrent.duration.{FiniteDuration, Duration}
 
-trait ControllerHelpers {
 
-  import play.api.Play.current
+trait ControllerHelpers extends play.api.i18n.I18nSupport {
+
+  implicit def app: play.api.Application
+  implicit def cache: play.api.cache.CacheApi
 
   /**
    * Get the remote IP of a user, taking into account intermediate
@@ -21,25 +25,25 @@ trait ControllerHelpers {
   /**
    * Fetch a value from config or throw an error.
    */
-  protected def getConfigInt(key: String)(implicit app: play.api.Application): Int =
+  protected def getConfigInt(key: String): Int =
     app.configuration.getInt(key).getOrElse(sys.error(s"Missing config key: $key"))
 
   /**
    * Fetch a value from config or throw an error.
    */
-  protected def getConfigString(key: String)(implicit app: play.api.Application): String =
+  protected def getConfigString(key: String): String =
     app.configuration.getString(key).getOrElse(sys.error(s"Missing config key: $key"))
 
   /**
    * Fetch a value from config or default to a fallback.
    */
-  protected def getConfigString(key: String, fallback: String)(implicit app: play.api.Application): String =
+  protected def getConfigString(key: String, fallback: String): String =
     app.configuration.getString(key).getOrElse(fallback)
 
   /**
    * Check if a request is Ajax.
    */
-  protected def isAjax(implicit request: RequestHeader): Boolean = utils.isAjax
+  protected def isAjax(implicit request: RequestHeader): Boolean = utils.http.isAjax
 
   /**
    * Check a particular remote address doesn't exceed a rate limit for a
@@ -50,9 +54,11 @@ trait ControllerHelpers {
     val timeoutSecs: Int = getConfigInt("ehri.ratelimit.timeout")
     val ip = remoteIp(request)
     val key = request.path + ip
-    val count = Cache.getOrElse(key, timeoutSecs)(0)
+    val duration: FiniteDuration = Duration(timeoutSecs, TimeUnit.SECONDS)
+    val count = cache.get(key).getOrElse(0)
+    Logger.debug(s"Check rate limit: Limit $limit, timeout $duration, ip: $ip, key: $key, current: $count")
     if (count < limit) {
-      Cache.set(key, count + 1, timeoutSecs)
+      cache.set(key, count + 1, duration)
       true
     } else {
       Logger.warn(s"Rate limit refusal for IP $ip at ${request.path}")

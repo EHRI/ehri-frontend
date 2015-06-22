@@ -1,4 +1,4 @@
-@(item: models.base.AnyModel, watched: Boolean, priorContent: Html = Html(""))(implicit userOpt: Option[UserProfile], lang: Lang)
+@(item: models.base.AnyModel, watched: Boolean, priorContent: Html = Html(""))(implicit userOpt: Option[UserProfile], messages: Messages)
 
 @views.html.common.typeLabel(item.isA)  {
     @priorContent

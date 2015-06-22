@@ -1,4 +1,4 @@
-@(user: UserProfile, follows: utils.Page[UserProfile])(implicit req: RequestHeader, lang: Lang)
+@(user: UserProfile, follows: utils.Page[UserProfile])(implicit req: RequestHeader, messages: Messages)
 
 @views.html.common.footerPanel(Messages("profile.following")) {
     @if(follows.nonEmpty) {

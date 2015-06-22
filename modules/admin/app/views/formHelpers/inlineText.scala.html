@@ -1,4 +1,4 @@
-@(desc: Field, rows: Int = 2)(implicit fieldPrefix: String, lang: Lang, fieldConstructor: views.html.helper.FieldConstructor)
+@(desc: Field, rows: Int = 2)(implicit fieldPrefix: String, messages: Messages, fieldConstructor: views.html.helper.FieldConstructor)
 
 <div class="inline-element">
     <div class="form-group @{if(desc.hasErrors) "has-error"}">

@@ -1,4 +1,4 @@
-@(form: Form[String], action: Call, name: String)(implicit userOpt: Option[UserProfile], req: RequestHeader, globalConfig: global.GlobalConfig, lang: Lang, flash: Flash)
+@(form: Form[String], action: Call, name: String)(implicit userOpt: Option[UserProfile], req: RequestHeader, globalConfig: global.GlobalConfig, messages: Messages, md: views.MarkdownRenderer, flash: Flash)
 
 
 @extrascripts = {

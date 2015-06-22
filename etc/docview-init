@@ -17,7 +17,7 @@ CONF=$APP_PATH/conf/prod.conf
 
 start() {
 	cd $APP_PATH
-	su $USER -c "$APP_PATH/target/start -DapplyEvolutions.default=true -Dhttp.port=9000 -Dconfig.file=$CONF &"
+	su $USER -c "$APP_PATH/target/start -Dplay.evolutions.default.autoApply=false -Dhttp.port=9000 -Dconfig.file=$CONF &"
 }
 
 stop() {

@@ -1,12 +1,13 @@
 package integration
 
 import backend.{ApiUser, AuthenticatedUser}
-import helpers.{TestHelpers, IntegrationTestRunner}
+import helpers.IntegrationTestRunner
 import models._
+import play.api.test.FakeRequest
 
 
-class VirtualUnitViewsSpec extends IntegrationTestRunner with TestHelpers {
-  import mocks.{privilegedUser, unprivilegedUser}
+class VirtualUnitViewsSpec extends IntegrationTestRunner {
+  import mockdata.{privilegedUser, unprivilegedUser}
 
   val userProfile = UserProfile(
     model = UserProfileF(id = Some(privilegedUser.id), identifier = "test", name="test user"),
@@ -23,14 +24,14 @@ class VirtualUnitViewsSpec extends IntegrationTestRunner with TestHelpers {
   "VirtualUnit views" should {
 
     "search should find some items" in new ITestApp {
-      val search = route(fakeLoggedInHtmlRequest(privilegedUser, vuRoutes.search())).get
+      val search = FakeRequest(vuRoutes.search()).withUser(privilegedUser).call()
       status(search) must equalTo(OK)
       contentAsString(search) must contain(multipleItemsHeader)
       contentAsString(search) must contain("vu1")
     }
 
     "link to other privileged actions when logged in" in new ITestApp {
-      val show = route(fakeLoggedInHtmlRequest(privilegedUser, vuRoutes.get("vu1"))).get
+      val show = FakeRequest(vuRoutes.get("vu1")).withUser(privilegedUser).call()
       status(show) must equalTo(OK)
       contentAsString(show) must contain(vuRoutes.update("vu1").url)
       contentAsString(show) must contain(vuRoutes.delete("vu1").url)
@@ -41,8 +42,8 @@ class VirtualUnitViewsSpec extends IntegrationTestRunner with TestHelpers {
     }
 
     "link to holder when a child item" in new ITestApp {
-      val show = route(fakeLoggedInHtmlRequest(privilegedUser,
-          vuRoutes.getInVc("vc1,vu1", "vu2"))).get
+      val show = FakeRequest(vuRoutes.getInVc("vc1,vu1", "vu2"))
+        .withUser(privilegedUser).call()
       status(show) must equalTo(OK)
 
       contentAsString(show) must contain(vuRoutes.get("vc1").url)
@@ -58,13 +59,13 @@ class VirtualUnitViewsSpec extends IntegrationTestRunner with TestHelpers {
         "descriptions[0].identityArea.dates[0].endDate" -> Seq("1945-01-01"),
         "publicationStatus" -> Seq("Published")
       )
-      val cr = route(fakeLoggedInHtmlRequest(privilegedUser,
-        vuRoutes.createChildPost("vc1")), testData).get
+      val cr = FakeRequest(vuRoutes.createChildPost("vc1"))
+        .withUser(privilegedUser).withCsrf.callWith(testData)
       status(cr) must equalTo(SEE_OTHER)
       redirectLocation(cr) must equalTo(Some(vuRoutes.getInVc("vc1", "hellokitty").url))
 
-      val show = route(fakeLoggedInHtmlRequest(privilegedUser,
-        vuRoutes.getInVc("vc1", "hellokitty"))).get
+      val show = FakeRequest(vuRoutes.getInVc("vc1", "hellokitty"))
+        .withUser(privilegedUser).call()
       status(show) must equalTo(OK)
 
       contentAsString(show) must contain("Some content")
@@ -84,17 +85,17 @@ class VirtualUnitViewsSpec extends IntegrationTestRunner with TestHelpers {
       val testData: Map[String, Seq[String]] = Map(
         VirtualUnitF.INCLUDE_REF -> Seq("c1 c4")
       )
-      val cr = route(fakeLoggedInHtmlRequest(privilegedUser,
-        vuRoutes.createChildRefPost("vc1")), testData).get
+      val cr = FakeRequest(vuRoutes.createChildRefPost("vc1"))
+        .withUser(privilegedUser).withCsrf.callWith(testData)
       status(cr) must equalTo(SEE_OTHER)
 
       val included = await(testBackend.get[VirtualUnit]("vc1")).includedUnits.map(_.id)
       included must contain("c1")
       included must contain("c4")
 
-      val del = route(fakeLoggedInHtmlRequest(privilegedUser,
-        vuRoutes.deleteChildRefPost("vc1")), Map(
-          VirtualUnitF.INCLUDE_REF -> Seq("c1"))).get
+      val del = FakeRequest(vuRoutes.deleteChildRefPost("vc1"))
+        .withUser(privilegedUser).withCsrf.callWith(Map(
+        VirtualUnitF.INCLUDE_REF -> Seq("c1")))
       status(del) must equalTo(SEE_OTHER)
 
       val newIncludes = await(testBackend.get[VirtualUnit]("vc1")).includedUnits.map(_.id)

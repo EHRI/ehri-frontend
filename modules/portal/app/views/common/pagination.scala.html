@@ -10,7 +10,7 @@
                     <li class="disabled"><a>@cp</a></li>
                 } else {
                     @defining(namespace + PAGE_PARAM) { pageParam =>
-                        <li><a href="@utils.joinPath(
+                        <li><a href="@utils.http.joinPath(
                             call.map(_.url).getOrElse(req.path),
                             req.queryString.updated(pageParam, Seq(cp.toString))
                         )">@cp</a>

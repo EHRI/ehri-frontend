@@ -1,4 +1,4 @@
-@(f: play.api.data.Field, label: String, options: List[(AnyVal,String)], blank: Boolean = false)(implicit fieldPrefix: String = "", lang: Lang, fieldConstructor: views.html.helper.FieldConstructor)
+@(f: play.api.data.Field, label: String, options: List[(AnyVal,String)], blank: Boolean = false)(implicit fieldPrefix: String = "", messages: Messages, fieldConstructor: views.html.helper.FieldConstructor)
 
 @helper.input(f, args = '_label -> Messages(if(fieldPrefix.isEmpty) label else fieldPrefix + "." + label), 'class -> "form-control select2") { (id, name, value, htmlArgs) =>
 	

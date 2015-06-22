@@ -1,4 +1,4 @@
-@(item: UserProfile, f: Form[AdminUserData])(implicit fieldConstructor: helper.FieldConstructor)
+@(item: UserProfile, f: Form[AdminUserData])(implicit fieldConstructor: helper.FieldConstructor, messages: Messages, md: views.MarkdownRenderer)
 
 @import UserProfileF._
 

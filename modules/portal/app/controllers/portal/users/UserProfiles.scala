@@ -2,23 +2,24 @@ package controllers.portal.users
 
 import auth.AccountManager
 import controllers.generic.Search
+import play.api.cache.CacheApi
 import play.api.libs.concurrent.Execution.Implicits._
 import models._
-import play.api.i18n.Messages
+import play.api.i18n.{MessagesApi, Messages}
+import play.api.libs.mailer.MailerClient
 import play.api.mvc._
-import defines.{ContentTypes, EntityType}
 import play.api.libs.json.{JsValue, Json, JsObject}
 import utils._
+import views.MarkdownRenderer
 import scala.concurrent.Future.{successful => immediate}
 import jp.t2v.lab.play2.auth.LoginLogout
 import play.api.libs.Files.TemporaryFile
-import play.api.Play.current
 import java.io.{StringWriter, File}
 import scala.concurrent.Future
 import utils.search._
 import backend._
 
-import com.google.inject._
+import javax.inject._
 import net.coobird.thumbnailator.tasks.UnsupportedFormatException
 import play.api.mvc.MaxSizeExceeded
 import play.api.mvc.MultipartFormData.FilePart
@@ -27,20 +28,29 @@ import play.api.http.{HeaderNames, MimeTypes}
 import org.joda.time.format.ISODateTimeFormat
 import models.base.AnyModel
 import net.coobird.thumbnailator.Thumbnails
-import com.typesafe.plugin.MailerAPI
 import controllers.portal.base.{PortalController, PortalAuthConfigImpl}
 
 /**
  * @author Mike Bryant (http://github.com/mikesname)
  */
 @Singleton
-case class UserProfiles @Inject()(implicit globalConfig: global.GlobalConfig, searchEngine: SearchEngine, searchResolver: SearchItemResolver, backend: Backend,
-                            accounts: AccountManager, mailer: MailerAPI, pageRelocator: utils.MovedPageLookup,
-                                  fileStorage: FileStorage)
-    extends PortalController
-    with LoginLogout
-    with PortalAuthConfigImpl
-    with Search {
+case class UserProfiles @Inject()(
+  implicit app: play.api.Application,
+  cache: CacheApi,
+  globalConfig: global.GlobalConfig,
+  searchEngine: SearchEngine,
+  searchResolver: SearchItemResolver,
+  backend: Backend,
+  accounts: AccountManager,
+  mailer: MailerClient,
+  pageRelocator: utils.MovedPageLookup,
+  messagesApi: MessagesApi,
+  markdown: MarkdownRenderer,
+  fileStorage: FileStorage
+) extends PortalController
+  with LoginLogout
+  with PortalAuthConfigImpl
+  with Search {
 
   private val profileRoutes = controllers.portal.users.routes.UserProfiles
 
@@ -300,15 +310,16 @@ case class UserProfiles @Inject()(implicit globalConfig: global.GlobalConfig, se
   def updateProfileImage() = updateProfile()
 
   // Body parser that'll refuse anything larger than 5MB
-  private def uploadParser = parse.maxLength(5 * 1024 * 1024, parse.multipartFormData)
+  private def uploadParser = parse.maxLength(
+    getConfigInt("ehri.portal.profile.maxImageSize"), parse.multipartFormData)
 
   def updateProfileImagePost() = WithUserAction.async(uploadParser) { implicit request =>
 
-    def onError(err: String): Future[Result] = immediate(
-        BadRequest(views.html.userProfile.editProfile(profileDataForm,
+    def onError(err: String, status: Status = BadRequest): Future[Result] = immediate(
+        status(views.html.userProfile.editProfile(profileDataForm,
           imageForm.withGlobalError(err), accountPrefsForm)))
     request.body match {
-      case Left(MaxSizeExceeded(length)) => onError("errors.imageTooLarge")
+      case Left(MaxSizeExceeded(length)) => onError("errors.imageTooLarge", EntityTooLarge)
       case Right(multipartForm) => multipartForm.file("image").map { file =>
         if (isValidContentType(file)) {
           try {

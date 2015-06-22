@@ -1,19 +1,21 @@
 package controllers.virtual
 
 import auth.AccountManager
+import backend.rest.cypher.Cypher
+import play.api.cache.CacheApi
 import play.api.libs.concurrent.Execution.Implicits._
 import forms.VisibilityForm
 import models._
 import controllers.generic._
-import play.api.i18n.Messages
+import play.api.i18n.{MessagesApi, Messages}
 import defines.{ContentTypes,EntityType,PermissionType}
 import play.api.mvc.{Action, RequestHeader}
-import views.Helpers
+import utils.MovedPageLookup
+import views.{MarkdownRenderer, Helpers}
 import utils.search._
-import com.google.inject._
+import javax.inject._
 import scala.concurrent.Future.{successful => immediate}
 import backend.{Entity, IdGenerator, Backend}
-import play.api.Play.current
 import play.api.Configuration
 import play.api.data.Form
 import play.api.data.Forms._
@@ -25,9 +27,20 @@ import controllers.base.{SearchVC, AdminController}
 
 
 @Singleton
-case class VirtualUnits @Inject()(implicit globalConfig: global.GlobalConfig, searchEngine: SearchEngine, idGenerator: IdGenerator,
-                                  searchResolver: SearchItemResolver, backend: Backend, accounts: AccountManager, pageRelocator: utils.MovedPageLookup)
-  extends AdminController
+case class VirtualUnits @Inject()(
+  implicit app: play.api.Application,
+  cache: CacheApi,
+  globalConfig: global.GlobalConfig,
+  searchEngine: SearchEngine,
+  idGenerator: IdGenerator,
+  searchResolver: SearchItemResolver,
+  backend: Backend,
+  accounts: AccountManager,
+  pageRelocator: MovedPageLookup,
+  messagesApi: MessagesApi,
+  markdown: MarkdownRenderer,
+  cypher: Cypher
+) extends AdminController
   with Read[VirtualUnit]
   with Visibility[VirtualUnit]
   with Create[VirtualUnitF,VirtualUnit]
@@ -76,7 +89,7 @@ case class VirtualUnits @Inject()(implicit globalConfig: global.GlobalConfig, se
     )
   }
 
-  val formDefaults: Option[Configuration] = current.configuration.getConfig(EntityType.VirtualUnit)
+  val formDefaults: Option[Configuration] = app.configuration.getConfig(EntityType.VirtualUnit)
 
   val targetContentTypes = Seq(ContentTypes.VirtualUnit)
 
@@ -180,7 +193,7 @@ case class VirtualUnits @Inject()(implicit globalConfig: global.GlobalConfig, se
   }
 
   def create = NewItemAction.async { implicit request =>
-    idGenerator.getNextNumericIdentifier(EntityType.VirtualUnit).map { newId =>
+    idGenerator.getNextNumericIdentifier(EntityType.VirtualUnit, "%06d").map { newId =>
       Ok(views.html.admin.virtualUnit.create(None, form.bind(Map(Entity.IDENTIFIER -> makeId(newId))),
         VisibilityForm.form,
         request.users, request.groups, vuRoutes.createPost()))
@@ -199,7 +212,7 @@ case class VirtualUnits @Inject()(implicit globalConfig: global.GlobalConfig, se
   }
 
   def createChild(id: String) = NewChildAction(id).async { implicit request =>
-    idGenerator.getNextNumericIdentifier(EntityType.VirtualUnit).map { newId =>
+    idGenerator.getNextNumericIdentifier(EntityType.VirtualUnit, "%06d").map { newId =>
       Ok(views.html.admin.virtualUnit.create(
         Some(request.item), childForm.bind(Map(Entity.IDENTIFIER -> makeId(newId))),
         VisibilityForm.form.fill(request.item.accessors.map(_.id)),

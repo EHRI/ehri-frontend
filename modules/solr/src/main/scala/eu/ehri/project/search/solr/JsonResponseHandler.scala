@@ -1,5 +1,7 @@
 package eu.ehri.project.search.solr
 
+import javax.inject.Inject
+
 import utils.search._
 import defines.EntityType
 import utils.search.SearchHit
@@ -9,7 +11,7 @@ import utils.search.SearchHit
  *
  * @author Mike Bryant (http://github.com/mikesname)
  */
-object JsonResponseHandler extends ResponseHandler{
+case class JsonResponseHandler @Inject()(app: play.api.Application) extends ResponseHandler {
   import SearchConstants._
   import play.api.libs.json._
   import play.api.libs.functional.syntax._

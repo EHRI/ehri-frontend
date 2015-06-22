@@ -8,6 +8,8 @@ import javax.xml.XMLConstants
 import javax.xml.transform.stream.StreamSource
 import javax.xml.transform.stream
 import org.xml.sax.SAXParseException
+import play.api.i18n.Messages.Implicits._
+
 
 /**
  * @author Mike Bryant (http://github.com/mikesname)

@@ -1,4 +1,4 @@
-@(value: Option[Seq[String]], fieldName: String, transformFunc: (String => String) = s => s)(implicit fieldPrefix: String = "")
+@(value: Option[Seq[String]], fieldName: String, transformFunc: (String => String) = s => s)(implicit fieldPrefix: String = "", messages: Messages, md: views.MarkdownRenderer)
 
 @value.map { list =>
     @if(list.nonEmpty) {
@@ -6,7 +6,7 @@
             <h4 class="item-text-field-header">@Messages(if (fieldPrefix.isEmpty) fieldName else s"$fieldPrefix.$fieldName")</h4>
             <ul class="item-text-field-value item-text-field-list" dir="auto">
 	            @list.map { item =>
-	                <li>@Html(views.Helpers.renderMarkdown(transformFunc(item)))</li>
+	                <li>@Markdown(transformFunc(item))</li>
 	            }
             </ul>
     	</div>

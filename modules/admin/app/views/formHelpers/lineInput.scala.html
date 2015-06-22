@@ -1,4 +1,4 @@
-@(desc: play.api.data.Field, fieldName: String, args: (Symbol,Any)*)(implicit prefix: String = "", defaults: Option[play.api.Configuration] = None, fieldConstructor: views.html.helper.FieldConstructor, lang: Lang)
+@(desc: play.api.data.Field, fieldName: String, args: (Symbol,Any)*)(implicit prefix: String = "", defaults: Option[play.api.Configuration] = None, fieldConstructor: views.html.helper.FieldConstructor, messages: Messages, md: views.MarkdownRenderer)
 
 @defining(desc(fieldName)) { field =>
     @helper.inputText(
@@ -6,7 +6,7 @@
         args = views.Helpers.argsWithDefaults(
             args.map { case (s,v) => if(s == 'class) s -> (v.toString + " form-control") else s -> v },
             '_label -> Messages(if (prefix.isEmpty) fieldName else s"$prefix.$fieldName"),
-            'title -> views.Helpers.renderMarkdown(Messages((if (prefix != "") prefix + "." else "") + fieldName + ".description")),
+            'title -> md.renderMarkdown(Messages((if (prefix != "") prefix + "." else "") + fieldName + ".description")),
             'class -> "form-control"
         ): _*
     )

@@ -1,4 +1,4 @@
-@(item: Concept)(implicit userOpt: Option[UserProfile], req: RequestHeader, globalConfig: global.GlobalConfig, lang: Lang)
+@(item: Concept)(implicit userOpt: Option[UserProfile], req: RequestHeader, globalConfig: global.GlobalConfig, messages: Messages)
 
 @layout.infobar {
     @item.vocabulary.map { vocab =>

@@ -1,4 +1,4 @@
-@(item: Vocabulary, hit: utils.search.SearchHit, watched: Boolean = false)(implicit userOpt: Option[UserProfile], req: RequestHeader, lang: Lang)
+@(item: Vocabulary, hit: utils.search.SearchHit, watched: Boolean = false)(implicit userOpt: Option[UserProfile], req: RequestHeader, messages: Messages, md: views.MarkdownRenderer)
 
 @views.html.layout.searchItemOutline(item, watched) {
     <a class="cvocVocabulary" href="@controllers.portal.routes.Vocabularies.browse(item.id)">@item.toStringLang</a>

@@ -1,4 +1,4 @@
-@(perm: Option[backend.rest.PermissionDenied] = None)(implicit req: RequestHeader, lang: Lang)
+@(perm: Option[backend.rest.PermissionDenied] = None)(implicit req: RequestHeader, messages: Messages)
 
 <p class="text-error">@Messages("errors.permissionDenied.explanation")</p>
 

@@ -1,8 +1,9 @@
 package utils
 
+import com.google.inject.{Inject, Singleton}
 import org.joda.time.DateTime
 import org.joda.time.format.{DateTimeFormatter, ISODateTimeFormat}
-import play.api.i18n.Messages
+import play.api.i18n.{MessagesApi, Messages}
 import play.api.mvc.RequestHeader
 import utils.search._
 
@@ -12,20 +13,11 @@ import utils.search._
  *
  * @author Mike Bryant (http://github.com/mikesname)
  */
-object DateFacetUtils {
+@Singleton
+case class DateFacetUtils @Inject()(implicit messagesApi: MessagesApi) extends play.api.i18n.I18nSupport {
 
-  import play.api.data.Form
-  import play.api.data.Forms._
+  import DateFacetUtils._
 
-  val DATE_PARAM = "dates"
-
-  val dateQueryForm = Form(single(DATE_PARAM -> nonEmptyText))
-
-  val formatter: DateTimeFormatter
-      = ISODateTimeFormat.dateTime().withZoneUTC()
-
-  def startDate(year: Int): String = formatter.print(new DateTime(year, 1, 1, 0, 0))
-  def endDate(year: Int): String = formatter.print(new DateTime(year, 12, 12, 23, 59))
   private val dateParamValueMatcher = new scala.util.matching.Regex("""^(\d{4})?-(\d{4})?$""", "start", "end")
 
   /**
@@ -49,7 +41,7 @@ object DateFacetUtils {
   /**
    * Get a formatted representation of the date string.
    */
-  def formatReadable(ds: String)(implicit request: RequestHeader): Option[String] = {
+  def formatReadable(ds: String): Option[String] = {
     dateParamValueMatcher.findFirstMatchIn(ds).map { m =>
       val start = Option(m.group("start")).map(_.toInt)
       val end = Option(m.group("end")).map(_.toInt)
@@ -63,4 +55,18 @@ object DateFacetUtils {
       }
     }
   }
+}
+
+object DateFacetUtils {
+  import play.api.data.Form
+  import play.api.data.Forms._
+
+  val DATE_PARAM = "dates"
+
+  val dateQueryForm = Form(single(DATE_PARAM -> nonEmptyText))
+
+  def startDate(year: Int): String = formatter.print(new DateTime(year, 1, 1, 0, 0))
+  def endDate(year: Int): String = formatter.print(new DateTime(year, 12, 12, 23, 59))
+
+  val formatter: DateTimeFormatter = ISODateTimeFormat.dateTime().withZoneUTC()
 }

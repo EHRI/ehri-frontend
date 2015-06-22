@@ -1,4 +1,4 @@
-@(item: AuthoritativeSet)(implicit req: RequestHeader, lang: Lang)
+@(item: AuthoritativeSet)(implicit req: RequestHeader, messages: Messages, md: views.MarkdownRenderer)
 
 @common.search.searchItemOutline(item) {
     <a href="@controllers.sets.routes.AuthoritativeSets.get(item.id)">@item.toStringLang</a>

@@ -1,4 +1,4 @@
-@(desc: DocumentaryUnitDescriptionF)(implicit lang: Lang)
+@(desc: DocumentaryUnitDescriptionF)(implicit messages: Messages)
 
 @import AccessPointF.AccessPointType
 

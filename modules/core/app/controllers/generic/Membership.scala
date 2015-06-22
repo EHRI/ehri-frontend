@@ -34,7 +34,7 @@ trait Membership[MT <: Accessor] extends Read[MT] {
   protected def MembershipAction(id: String)(implicit ct: ContentType[MT]) =
     WithItemPermissionAction(id, PermissionType.Grant) andThen new ActionTransformer[ItemPermissionRequest, MembershipRequest] {
       override protected def transform[A](request: ItemPermissionRequest[A]): Future[MembershipRequest[A]] = {
-        RestHelpers.getGroupList.map { groups =>
+        getGroupList.map { groups =>
           // filter out the groups the user already belongs to
           val filteredGroups = groups.filter(t => t._1 != request.item.id).filter {
             case (ident, name) =>

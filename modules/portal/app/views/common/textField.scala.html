@@ -1,4 +1,4 @@
-@(item: models.base.AnyModel, nodeId: String, valueOpt: Option[String], key: String)(implicit fieldPrefix: String, userOpt: Option[UserProfile], req: RequestHeader, prefs: utils.SessionPrefs, globalConfig: global.GlobalConfig, lang: Lang, fieldAnnotations: Seq[Annotation])
+@(item: models.base.AnyModel, nodeId: String, valueOpt: Option[String], key: String)(implicit fieldPrefix: String, userOpt: Option[UserProfile], req: RequestHeader, prefs: utils.SessionPrefs, globalConfig: global.GlobalConfig, messages: Messages, md: views.MarkdownRenderer, fieldAnnotations: Seq[Annotation])
 
 @defining(fieldAnnotations.filter(_.model.field==Some(key))) { anns =>
     @valueOpt.filterNot(_.isEmpty).map { value =>

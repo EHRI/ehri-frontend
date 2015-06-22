@@ -1,4 +1,4 @@
-@(page: utils.RangePage[Seq[SystemEvent]])(implicit userOpt: Option[UserProfile], req: RequestHeader, prefs: utils.SessionPrefs, globalConfig: global.GlobalConfig, lang: Lang)
+@(page: utils.RangePage[Seq[SystemEvent]])(implicit userOpt: Option[UserProfile], req: RequestHeader, prefs: utils.SessionPrefs, globalConfig: global.GlobalConfig, messages: Messages, md: views.MarkdownRenderer)
 
 @import backend.rest.Constants.OFFSET_PARAM
 
@@ -10,7 +10,7 @@
 @if(page.more) {
     <a id="activity-stream-fetchmore" class="btn btn-default btn-block"
     data-limit="@page.limit" data-offset="@(page.offset + page.limit)"
-    href="@utils.joinPath(req.path, req.queryString.filterKeys(_ != "modal").updated(OFFSET_PARAM, Seq((page.offset + page.limit).toString)))">
+    href="@utils.http.joinPath(req.path, req.queryString.filterKeys(_ != "modal").updated(OFFSET_PARAM, Seq((page.offset + page.limit).toString)))">
     @Messages("activity.fetchMore")
     </a>
 }

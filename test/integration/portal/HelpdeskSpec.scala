@@ -1,8 +1,11 @@
 package integration.portal
 
 import helpers.IntegrationTestRunner
+import play.api.test.FakeRequest
 
 class HelpdeskSpec extends IntegrationTestRunner {
+
+  import mockdata.privilegedUser
 
   "Helpdesk views" should {
     "not allow empty queries" in new ITestApp {
@@ -13,8 +16,8 @@ class HelpdeskSpec extends IntegrationTestRunner {
         "copyMe" -> Seq("false")
       )
 
-      val post = route(fakeLoggedInHtmlRequest(mocks.privilegedUser,
-        controllers.portal.routes.Helpdesk.helpdeskPost()), data).get
+      val post = FakeRequest(controllers.portal.routes.Helpdesk.helpdeskPost())
+        .withUser(privilegedUser).withCsrf.callWith(data)
       status(post) must equalTo(BAD_REQUEST)
       helpdeskBuffer.size must equalTo(origCount)
     }
@@ -28,11 +31,11 @@ class HelpdeskSpec extends IntegrationTestRunner {
         "copyMe" -> Seq("true")
       )
 
-      val post = route(fakeLoggedInHtmlRequest(mocks.privilegedUser,
-        controllers.portal.routes.Helpdesk.helpdeskPost()), data).get
+      val post = FakeRequest(controllers.portal.routes.Helpdesk.helpdeskPost())
+        .withUser(privilegedUser).withCsrf.callWith(data)
       status(post) must equalTo(OK)
       mailBuffer.size must equalTo(mailsBefore + 1)
-      mailBuffer.last.text must contain(testMailContent)
+      mailBuffer.last.bodyText.getOrElse("") must contain(testMailContent)
     }
 
     "give the right results" in new ITestApp {
@@ -43,8 +46,8 @@ class HelpdeskSpec extends IntegrationTestRunner {
         "copyMe" -> Seq("false")
       )
 
-      val try1 = route(fakeLoggedInHtmlRequest(mocks.privilegedUser,
-        controllers.portal.routes.Helpdesk.helpdeskPost()), data1).get
+      val try1 = FakeRequest(controllers.portal.routes.Helpdesk.helpdeskPost())
+        .withUser(privilegedUser).withCsrf.callWith(data1)
       status(try1) must equalTo(OK)
       helpdeskBuffer.size must equalTo(origCount + 1)
       contentAsString(try1) must contain(
@@ -52,9 +55,9 @@ class HelpdeskSpec extends IntegrationTestRunner {
 
       // if the query doesn't contain 'netherlands' we should get
       // 'r2' back as the recommended institution...
-      val try2 = route(fakeLoggedInHtmlRequest(mocks.privilegedUser,
-        controllers.portal.routes.Helpdesk.helpdeskPost()),
-        data1.updated("query", Seq("Stuff in the UK"))).get
+      val try2 = FakeRequest(controllers.portal.routes.Helpdesk.helpdeskPost())
+        .withUser(privilegedUser).withCsrf
+        .callWith(data1.updated("query", Seq("Stuff in the UK")))
       status(try2) must equalTo(OK)
       helpdeskBuffer.size must equalTo(origCount + 2)
       contentAsString(try2) must not contain

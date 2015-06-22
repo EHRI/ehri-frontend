@@ -1,5 +1,7 @@
 package auth.oauth2.providers
 
+import javax.inject.Inject
+
 import auth.oauth2.{OAuth2Constants, OAuth2Info, UserData}
 import com.fasterxml.jackson.core.JsonParseException
 import play.api.libs.json._
@@ -7,7 +9,7 @@ import play.api.libs.json._
 /**
  * @author Mike Bryant (http://github.com/mikesname)
  */
-object FacebookOAuth2Provider extends OAuth2Provider {
+case class FacebookOAuth2Provider (config: play.api.Configuration) extends OAuth2Provider {
   val name = "facebook"
 
   override def getUserInfoParams(info: OAuth2Info): Seq[(String,String)] =

@@ -3,11 +3,11 @@ package models.base
 import org.apache.commons.lang3.StringUtils
 import play.api.libs.json._
 import defines.{ContentTypes, EntityType}
-import play.api.i18n.Lang
 import models.json.Utils
 import models._
 import play.api.data.validation.ValidationError
 import play.api.libs.json.KeyPathNode
+import play.api.i18n.Messages
 import scala.collection.SortedMap
 import java.util.NoSuchElementException
 import backend.{Entity, Readable, Resource}
@@ -27,15 +27,15 @@ trait AnyModel extends backend.WithId {
   /**
    * Language-dependent version of the name
    */
-  def toStringLang(implicit lang: Lang): String = this match {
-    case e: MetaModel[_] => e.toStringLang(lang)
+  def toStringLang(implicit messages: Messages): String = this match {
+    case e: MetaModel[_] => e.toStringLang(messages)
     case t => t.toString
   }
 
   /**
    * Abbreviated version of the canonical name
    */
-  def toStringAbbr(implicit lang: Lang) = StringUtils.abbreviate(toStringLang(lang), 80)
+  def toStringAbbr(implicit messages: Messages) = StringUtils.abbreviate(toStringLang(messages), 80)
 }
 
 trait Model {
@@ -45,7 +45,7 @@ trait Model {
 }
 
 trait Aliased extends AnyModel {
-  def allNames(implicit lang: Lang): Seq[String] = Seq(toStringLang(lang))
+  def allNames(implicit messages: Messages): Seq[String] = Seq(toStringLang(messages))
 }
 
 object AnyModel {
@@ -106,11 +106,13 @@ trait MetaModel[+T <: Model] extends AnyModel {
 
   def isA = model.isA
 
-  override def toStringLang(implicit lang: Lang) = model match {
+  override def toStringLang(implicit messages: Messages) = model match {
     case d: Described[Description] =>
-      d.primaryDescription(lang).orElse(d.descriptions.headOption).fold(id)(_.name)
+      d.primaryDescription(messages).orElse(d.descriptions.headOption).fold(id)(_.name)
     case _ => id
   }
+
+  override def toStringAbbr(implicit messages: Messages): String = toStringLang(messages)
 }
 
 trait WithDescriptions[+T <: Description] extends AnyModel {
@@ -277,19 +279,19 @@ trait Described[+T <: Description] extends Model {
    * Get a description with an optional ID, falling back on the first
    * appropriate one for the given (implicit) language code.
    * @param id The (optional) description ID
-   * @param lang The current language
+   * @param messages The current language
    * @return A description matching that ID, or the first found with that language.
    */
-  def primaryDescription(id: Option[String])(implicit lang: Lang): Option[T] =
-    id.fold(primaryDescription(lang))(s => primaryDescription(s))
+  def primaryDescription(id: Option[String])(implicit messages: Messages): Option[T] =
+    id.fold(primaryDescription(messages))(s => primaryDescription(s))
 
   /**
    * Get the first description for the current language
-   * @param lang The current language
+   * @param messages The current language
    * @return The first description found with a matching language code
    */
-  def primaryDescription(implicit lang: Lang): Option[T] = {
-    val code3 = utils.i18n.lang2to3lookup.getOrElse(lang.language, lang.language)
+  def primaryDescription(implicit messages: Messages): Option[T] = {
+    val code3 = utils.i18n.lang2to3lookup.getOrElse(messages.lang.language, messages.lang.language)
     descriptions.find(_.languageCode == code3).orElse(descriptions.headOption)
   }
 
@@ -298,11 +300,11 @@ trait Described[+T <: Description] extends Model {
    * appropriate one for the given (implicit) language code.
    *
    * @param id The description ID
-   * @param lang The current language
+   * @param messages The current language
    * @return A description matching that ID, or the first found with that language.
    */
-  def primaryDescription(id: String)(implicit lang: Lang): Option[T] =
-    description(id).orElse(primaryDescription(lang))
+  def primaryDescription(id: String)(implicit messages: Messages): Option[T] =
+    description(id).orElse(primaryDescription(messages))
 
   def accessPoints: Seq[AccessPointF] =
     descriptions.flatMap(_.accessPoints)

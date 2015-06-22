@@ -4,20 +4,21 @@ import auth.HashedPassword
 import auth.oauth2.providers.GoogleOAuth2Provider
 import helpers.IntegrationTestRunner
 import models.SignupData
-import play.api.cache.Cache
-import play.api.test.{WithApplication, FakeApplication, FakeRequest}
+import play.api.cache.CacheApi
+import play.api.test.{WithApplication, FakeRequest}
 import utils.forms.HoneyPotForm._
 import utils.forms.TimeCheckForm._
 
 class AccountsSpec extends IntegrationTestRunner {
-  import mocks.privilegedUser
+  import mockdata.privilegedUser
 
   private val accountRoutes = controllers.portal.account.routes.Accounts
 
+  implicit def cache(implicit app: play.api.Application) = app.injector.instanceOf[CacheApi]
+
   "Account views" should {
     "redirect to index page on log out" in new ITestApp {
-      val logout = route(fakeLoggedInHtmlRequest(privilegedUser, GET,
-        accountRoutes.logout().url)).get
+      val logout = FakeRequest(accountRoutes.logout()).withUser(privilegedUser).call()
       status(logout) must equalTo(SEE_OTHER)
       flash(logout).get("success") must beSome.which { fl =>
         // NB: No i18n here...
@@ -41,9 +42,8 @@ class AccountsSpec extends IntegrationTestRunner {
 
       await(mockAccounts.update(privilegedUser
         .copy(password = Some(HashedPassword.fromPlain(testPassword)))))
-      val login = route(FakeRequest(POST,
-        accountRoutes.passwordLoginPost().url)
-        .withSession(CSRF_TOKEN_NAME -> fakeCsrfString), data).get
+      val login = FakeRequest(accountRoutes.passwordLoginPost())
+        .withSession(CSRF_TOKEN_NAME -> fakeCsrfString).callWith(data)
       status(login) must equalTo(SEE_OTHER)
     }
   }
@@ -57,29 +57,27 @@ class AccountsSpec extends IntegrationTestRunner {
       // a user in the mocks DB (mike)
       val singleUseKey = "useOnce"
       val randomState = "473284374"
-      Cache.set(singleUseKey, randomState)
-      val login = route(FakeRequest(GET,
-        accountRoutes.oauth2(GoogleOAuth2Provider.name,
-          code = Some("blah"), state=Some(randomState)).url)
-        .withSession("sid" -> singleUseKey)).get
+      cache.set(singleUseKey, randomState)
+      val login = FakeRequest(accountRoutes.oauth2(GoogleOAuth2Provider(app.configuration).name,
+          code = Some("blah"), state=Some(randomState)))
+        .withSession("sid" -> singleUseKey).call()
       status(login) must equalTo(SEE_OTHER)
       // The handle should have deleted the single-use key
-      Cache.getAs[String](singleUseKey) must beNone
+      cache.get[String](singleUseKey) must beNone
     }
 
     "error with bad session state" in new WithApplication {
       val singleUseKey = "useOnce"
-      Cache.set(singleUseKey, "jdjjjr")
-      val login = route(FakeRequest(GET,
-        accountRoutes.oauth2(GoogleOAuth2Provider.name,
-          code = Some("blah"), state=Some("dk3kdm34")).url)
-        .withSession("sid" -> singleUseKey)).get
+      cache.set(singleUseKey, "jdjjjr")
+      val login = FakeRequest(
+        accountRoutes.oauth2(GoogleOAuth2Provider(app.configuration).name,
+          code = Some("blah"), state=Some("dk3kdm34")))
+        .withSession("sid" -> singleUseKey).call()
       status(login) must equalTo(BAD_REQUEST)
     }
 
     "error with bad provider" in new ITestApp {
-      val login = route(FakeRequest(GET,
-        accountRoutes.oauth2("no-provider").url)).get
+      val login = FakeRequest(accountRoutes.oauth2("no-provider")).call()
       status(login) must equalTo(NOT_FOUND)
     }
   }

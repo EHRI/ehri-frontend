@@ -1,4 +1,4 @@
-@(item: DocumentaryUnit, showRepository: Boolean = true, highlighter: views.Highlighter = views.NoopHighlighter)(implicit userOpt: Option[UserProfile], req: RequestHeader, globalConfig: global.GlobalConfig, lang: Lang, descriptionId: Option[String] = None)
+@(item: DocumentaryUnit, showRepository: Boolean = true, highlighter: views.Highlighter = views.NoopHighlighter)(implicit userOpt: Option[UserProfile], req: RequestHeader, globalConfig: global.GlobalConfig, messages: Messages, md: views.MarkdownRenderer, descriptionId: Option[String] = None)
 
 @item.model.primaryDescription(descriptionId).map { desc =>
     @common.otherNameListSmall(desc.identity.parallelFormsOfName.toList.flatten)
@@ -19,7 +19,7 @@
     </div>
 
     @desc.displayText.map(views.Helpers.ellipsize(_, 600)).map { sc =>
-        @Markdown(highlighter.highlight(views.Helpers.renderMarkdown(sc)))
+        @Markdown(highlighter.highlight(md.renderMarkdown(sc)))
     }
 }.getOrElse {
     <small>@Messages("description.noDescriptions")</small>

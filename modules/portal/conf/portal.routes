@@ -12,8 +12,8 @@ GET         /activity                             @controllers.portal.Portal.per
 GET         /helpdesk                             @controllers.portal.Helpdesk.helpdesk
 POST        /helpdesk                             @controllers.portal.Helpdesk.helpdeskPost
 
-GET         /robots.txt                           controllers.portal.Assets.at(path="/public", file="robots.txt")
-GET         /sitemap.xml                          controllers.portal.Assets.at(path="/public", file="sitemap.xml")
+GET         /robots.txt                           @controllers.portal.PortalAssets.at(path="/public/lib/docview-portal", file="robots.txt")
+GET         /sitemap.xml                          @controllers.portal.PortalAssets.at(path="/public/lib/docview-portal", file="sitemap.xml")
 
 GET         /contact                              @controllers.portal.Portal.contact
 GET         /about                                @controllers.portal.Portal.about
@@ -25,10 +25,10 @@ GET         /help/:page                           @controllers.portal.Portal.ext
 GET         /prefs                                @controllers.portal.Portal.prefs
 POST        /prefs                                @controllers.portal.Portal.updatePrefs
 GET         /locale/:lang                         @controllers.portal.Portal.changeLocale(lang: String)
-GET         /localeData                           controllers.portal.PortalData.localeData(lang: String ?= "en")
+GET         /localeData                           @controllers.portal.PortalData.localeData(lang: String ?= "en")
 
 # Remove trailing slash from all URL and redirect to slashless path
-GET         /*path/                               controllers.portal.PortalData.untrail(path)
+GET         /*path/                               @controllers.portal.PortalData.untrail(path)
 
 GET         /feedback                             @controllers.portal.Feedback.feedback
 POST        /feedback                             @controllers.portal.Feedback.feedbackPost
@@ -84,9 +84,9 @@ GET         /data-policy                          @controllers.portal.Portal.dat
 GET         /filter                               @controllers.portal.Portal.filterItems
 
 # Various JS data helpers
-GET         /routes                               controllers.portal.PortalData.jsRoutes
-GET         /globalData                           controllers.portal.PortalData.globalData
+GET         /routes                               @controllers.portal.PortalData.jsRoutes
+GET         /globalData                           @controllers.portal.PortalData.globalData
 
 # Map static resources from the /public folder to the /assets URL path
-GET         /assets/*file                         controllers.portal.Assets.at(path="/public", file)
-GET         /v/*file                              controllers.portal.Assets.versioned(path="/public", file: Asset)
+GET         /assets/*file                         @controllers.portal.PortalAssets.at(path="/public/lib/docview-portal", file)
+GET         /v/*file                              @controllers.portal.PortalAssets.versioned(path="/public/lib/docview-portal", file: Asset)

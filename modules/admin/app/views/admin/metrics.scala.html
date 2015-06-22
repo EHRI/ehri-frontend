@@ -1,10 +1,10 @@
-@()(implicit userOpt: Option[UserProfile] = None, req: RequestHeader, globalConfig: global.GlobalConfig, lang: Lang, flash: Flash)
+@()(implicit userOpt: Option[UserProfile] = None, req: RequestHeader, globalConfig: global.GlobalConfig, messages: Messages, flash: Flash)
 
 @extrascript = {
 
-    <script type="text/javascript" src="@controllers.portal.routes.PortalData.localeData(lang.code)"></script>
-    <script type="text/javascript" src="@controllers.admin.routes.Assets.versioned("js/lib/jquery.flot.js")"></script>
-    <script type="text/javascript" src="@controllers.admin.routes.Assets.versioned("js/lib/jquery.flot.pie.js")"></script>
+    <script type="text/javascript" src="@controllers.portal.routes.PortalData.localeData(messages.lang.code)"></script>
+    <script type="text/javascript" src="@controllers.admin.routes.AdminAssets.at("js/lib/jquery.flot.js")"></script>
+    <script type="text/javascript" src="@controllers.admin.routes.AdminAssets.at("js/lib/jquery.flot.pie.js")"></script>
     <script type="text/javascript" src="@controllers.admin.routes.Home.metricsJsRoutes()"></script>
     <script type="text/javascript">
 

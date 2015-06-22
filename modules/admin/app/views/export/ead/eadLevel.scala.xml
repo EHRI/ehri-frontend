@@ -1,4 +1,4 @@
-@(cno: Int, tree: utils.ead.DocTree)(implicit lang: Lang)
+@(cno: Int, tree: utils.ead.DocTree)(implicit messages: Messages)
 
 @defining(f"c$cno%02d") { levelTag =>
     <@levelTag level="@tree.item.model.primaryDescription.flatMap(_.identity.levelOfDescription).getOrElse("otherlevel")">

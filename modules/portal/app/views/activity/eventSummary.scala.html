@@ -1,4 +1,4 @@
-@(summary: EventSummary)(implicit userOpt: Option[UserProfile], req: RequestHeader, globalConfig: global.GlobalConfig, lang: Lang)
+@(summary: EventSummary)(implicit userOpt: Option[UserProfile], req: RequestHeader, globalConfig: global.GlobalConfig, messages: Messages, md: views.MarkdownRenderer)
 
 @summary.user.map { accessor =>
     <li xmlns="http://www.w3.org/1999/html">

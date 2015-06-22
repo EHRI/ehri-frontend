@@ -1,4 +1,4 @@
-@(list: Option[Seq[String]])(implicit lang: Lang)
+@(list: Option[Seq[String]])(implicit messages: Messages)
 
 @defining(list.toList.flatten) { pfn =>
     @if(pfn.nonEmpty) {

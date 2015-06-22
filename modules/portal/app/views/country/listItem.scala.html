@@ -1,4 +1,4 @@
-@(item: Country, watched: Boolean = false)(implicit userOpt: Option[UserProfile], req: RequestHeader, lang: Lang)
+@(item: Country, watched: Boolean = false)(implicit userOpt: Option[UserProfile], req: RequestHeader, messages: Messages, md: views.MarkdownRenderer)
 
 @views.html.layout.searchItemOutline(item, watched) {
     <a href="@controllers.portal.routes.Countries.browse(item.id)">@item.toStringLang</a>

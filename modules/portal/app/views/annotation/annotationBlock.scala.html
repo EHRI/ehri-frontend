@@ -1,4 +1,4 @@
-@(annotation: Annotation, editable: Boolean)(implicit userOpt: Option[UserProfile], req: RequestHeader, lang: Lang, globalConfig: global.GlobalConfig)
+@(annotation: Annotation, editable: Boolean)(implicit userOpt: Option[UserProfile], req: RequestHeader, globalConfig: global.GlobalConfig, messages: Messages, md: views.MarkdownRenderer)
 
 @import defines.{ContentTypes,PermissionType}
 
@@ -33,6 +33,6 @@
 	    }
 	</div>
 	<div class="item-text-field-value">
-	    @Html(views.Helpers.renderUntrustedMarkdown(annotation.model.body))
+	    @Html(md.renderUntrustedMarkdown(annotation.model.body))
    </div>
 </div>

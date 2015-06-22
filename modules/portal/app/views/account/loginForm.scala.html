@@ -1,4 +1,4 @@
-@(pwForm: Form[(String,String)])(implicit request: RequestHeader, globalConfig: global.GlobalConfig, flash: Flash, lang: Lang, token: play.filters.csrf.CSRF.Token, fieldConstructor: helper.FieldConstructor)
+@(pwForm: Form[(String,String)])(implicit request: RequestHeader, globalConfig: global.GlobalConfig, flash: Flash, messages: Messages, token: play.filters.csrf.CSRF.Token, fieldConstructor: helper.FieldConstructor)
 
 @helper.form(action = controllers.portal.account.routes.Accounts.passwordLoginPost(), 'class -> "login-form form validate-form", 'role -> "form") {
     @formHelpers.csrfToken()
@@ -14,8 +14,8 @@
     <div class="form-group">
         <p class="login-disclaimer">@Html(Messages(
             "login.dataPolicyNag",
-            Html(s"<a target='_blank' tabindex='-1' href='${controllers.portal.routes.Portal.dataPolicy()}'>${Messages("dataPolicy").toLowerCase(lang.toLocale)}</a>"),
-            Html(s"<a target='_blank' tabindex='-1' href='${controllers.portal.routes.Portal.terms()}'>${Messages("termsAndConditions").toLowerCase(lang.toLocale)}</a>")
+            Html(s"<a target='_blank' tabindex='-1' href='${controllers.portal.routes.Portal.dataPolicy()}'>${Messages("dataPolicy").toLowerCase(messages.lang.toLocale)}</a>"),
+            Html(s"<a target='_blank' tabindex='-1' href='${controllers.portal.routes.Portal.terms()}'>${Messages("termsAndConditions").toLowerCase(messages.lang.toLocale)}</a>")
         ))</p>
 
         <input type="submit" class="login-button btn btn-post" value="@Messages("login.password.submit")" />

@@ -9,7 +9,7 @@ import play.api.libs.json.Json
 /**
  * @author Mike Bryant (http://github.com/mikesname)
  */
-object YahooOAuth2Provider extends OAuth2Provider {
+case class YahooOAuth2Provider (config: play.api.Configuration) extends OAuth2Provider {
 
   val name = "yahoo"
 

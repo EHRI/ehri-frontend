@@ -1,6 +1,6 @@
 package models
 
-import play.api.i18n.Lang
+import play.api.i18n.Messages
 
 /**
  * Class representing a user bookmark set, e.g. a
@@ -17,10 +17,10 @@ object BookmarkSet {
 
   import play.api.data.Form
   import play.api.data.Forms._
-  def bookmarkForm(implicit lang: Lang): Form[BookmarkSet] = Form(
+  def bookmarkForm(implicit messages: Messages): Form[BookmarkSet] = Form(
     mapping(
       NAME -> nonEmptyText,
-      LANG_CODE -> ignored(utils.i18n.lang2to3lookup.getOrElse(lang.language, utils.i18n.defaultLang)),
+      LANG_CODE -> ignored(utils.i18n.lang2to3lookup.getOrElse(messages.lang.language, utils.i18n.defaultLang)),
       DESCRIPTION -> optional(text)
     )(BookmarkSet.apply)(BookmarkSet.unapply)
   )

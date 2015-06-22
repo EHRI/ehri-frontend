@@ -1,4 +1,4 @@
-@(item: Promotable, promoteUrl: Call, demoteUrl: Call, contentType: ContentTypes.Value)(implicit userOpt: Option[UserProfile], globalConfig: global.GlobalConfig)
+@(item: Promotable, promoteUrl: Call, demoteUrl: Call, contentType: ContentTypes.Value)(implicit userOpt: Option[UserProfile], globalConfig: global.GlobalConfig, messages: Messages)
 
 @if(item.promoters.nonEmpty || (userOpt.isDefined && userOpt.get.hasPermission(contentType, PermissionType.Promote))) {
     <div class="well well-small">

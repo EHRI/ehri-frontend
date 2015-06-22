@@ -4,7 +4,7 @@ import models.base._
 import defines.{ContentTypes, EntityType}
 import play.api.libs.json._
 import models.json._
-import play.api.i18n.Lang
+import play.api.i18n.Messages
 import play.api.libs.functional.syntax._
 import play.api.data.Form
 import play.api.data.Forms._
@@ -100,6 +100,6 @@ case class Group(
   with Accessor
   with Accessible {
 
-  override def toStringLang(implicit lang: Lang) = model.name
+  override def toStringLang(implicit messages: Messages) = model.name
 }
 

@@ -5,9 +5,8 @@ import auth.oauth2.UserData
 /**
  * @author Mike Bryant (http://github.com/mikesname)
  */
-object LinkedInOAuth2Provider extends OAuth2Provider {
+case class LinkedInOAuth2Provider (config: play.api.Configuration) extends OAuth2Provider {
   val name = "linkedin"
 
   def parseUserInfo(data: String): Option[UserData] = ???
-
 }

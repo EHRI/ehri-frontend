@@ -13,7 +13,7 @@ import scala.concurrent.Future.{successful => immediate}
 /**
  * Base trait for controllers that deal with the backend.
  */
-trait Generic extends CoreActionBuilders {
+trait Generic extends CoreActionBuilders with RestHelpers {
 
   val backend: Backend
 
@@ -32,7 +32,7 @@ trait Generic extends CoreActionBuilders {
    */
   object getGroups {
     def async(f: Seq[(String,String)] => Future[Result])(implicit userOpt: Option[UserProfile], request: RequestHeader): Future[Result] = {
-      RestHelpers.getGroupList.flatMap { groups =>
+      getGroupList.flatMap { groups =>
         f(groups)
       }
     }
@@ -49,8 +49,8 @@ trait Generic extends CoreActionBuilders {
     def async(f: Seq[(String,String)] => Seq[(String,String)] => Future[Result])(
       implicit userOpt: Option[UserProfile], request: RequestHeader): Future[Result] = {
       for {
-        users <- RestHelpers.getUserList
-        groups <- RestHelpers.getGroupList
+        users <- getUserList
+        groups <- getGroupList
         r <- f(users)(groups)
       } yield r
     }

@@ -1,4 +1,4 @@
-@(title: Any)(content: Html)(implicit req: RequestHeader, globalConfig: global.GlobalConfig, lang: Lang)
+@(title: Any)(content: Html)(implicit req: RequestHeader, globalConfig: global.GlobalConfig, messages: Messages)
 
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"> 
 <html xmlns="http://www.w3.org/1999/xhtml">
@@ -52,31 +52,11 @@
                     <td width="12%" valign="top"></td>
                     <td width="76%" valign="middle">
                         <a href="@controllers.portal.routes.Portal.index.absoluteURL(secure = globalConfig.https)" title="European Holocaust Research Infrastructure">
-                            <img src="@controllers.portal.routes.Assets.at("img/text-logo-small.png").absoluteURL(secure = globalConfig.https)" alt="EHRI" class="image_fix" />
+                            <img src="@controllers.portal.routes.PortalAssets.versioned("img/text-logo-small.png").absoluteURL(secure = globalConfig.https)" alt="EHRI" class="image_fix" />
                         </a>
                     </td>
                     <td width="12%" valign="top"></td>
                 </tr>
-                @* To add when we will have such links
-                <tr>
-                    <td width="12%" valign="top"></td>
-                    <td width="76%" valign="middle" align="center" class="white">
-                        <a href="" title="European Holocaust Research Infrastructure" class="white">
-                            Report an abuse
-                        </a> | 
-                        <a href="" title="European Holocaust Research Infrastructure" class="white">
-                            Test
-                        </a> | 
-                        <a href="" title="European Holocaust Research Infrastructure" class="white">
-                            Test
-                        </a> |
-                        <a href="" title="European Holocaust Research Infrastructure" class="white">
-                            Test
-                        </a>
-                    </td>
-                    <td width="12%" valign="top"></td>
-                </tr>
-                *@
             </table>
         </td> 
     </tr>
@@ -100,9 +80,8 @@
                             <p align="left" class="footer-content-left"><a
                                     href="http://client.updatemyprofile.com/d-l-2AD73FFF-l-t" lang="en">Edit your
                                 subscription</a> | <a href="http://preview.createsend1.com/t/d-u-l-l-i/">Unsubscribe</a></p>
-
+                            </p>
                             *@
-                        </p>
                     </td>
                     <td width="12%" valign="top"></td>
                 </tr>

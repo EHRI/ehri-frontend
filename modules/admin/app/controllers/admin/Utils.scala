@@ -5,17 +5,20 @@ import java.io.File
 import auth.AccountManager
 import controllers.base.AdminController
 import models.Group
+import play.api.cache.CacheApi
 import play.api.data.Form
 import play.api.data.Forms._
+import play.api.i18n.MessagesApi
 import play.api.libs.concurrent.Execution.Implicits._
 
-import com.google.inject._
+import javax.inject._
+import play.api.libs.json._
 import play.api.mvc.Action
 import backend.Backend
-import play.api.libs.ws.WS
-import backend.rest.RestDAO
-import utils.PageParams
-import backend.rest.cypher.CypherDAO
+import play.api.libs.ws.WSClient
+import utils.{MovedPageLookup, PageParams}
+import backend.rest.cypher.Cypher
+import views.MarkdownRenderer
 
 import scala.concurrent.Future.{successful => immediate}
 
@@ -23,12 +26,22 @@ import scala.concurrent.Future.{successful => immediate}
  * Controller for various monitoring functions.
  */
 @Singleton
-case class Utils @Inject()(implicit globalConfig: global.GlobalConfig, backend: Backend, accounts: AccountManager, pageRelocator: utils.MovedPageLookup)
-    extends AdminController with RestDAO {
+case class Utils @Inject()(
+  implicit app: play.api.Application,
+  cache: CacheApi,
+  globalConfig: global.GlobalConfig,
+  backend: Backend,
+  accounts: AccountManager,
+  pageRelocator: MovedPageLookup,
+  messagesApi: MessagesApi,
+  markdown: MarkdownRenderer,
+  cypher: Cypher,
+  ws: WSClient
+) extends AdminController {
 
   override val staffOnly = false
 
-  implicit val app = play.api.Play.current
+  private val baseUrl = utils.serviceBaseUrl("ehridata", app.configuration)
 
   /**
    * Check the database is up by trying to load the admin account.
@@ -36,7 +49,7 @@ case class Utils @Inject()(implicit globalConfig: global.GlobalConfig, backend: 
   def checkDb = Action.async { implicit request =>
     // Not using the EntityDAO directly here to avoid caching
     // and logging
-    WS.url("http://%s:%d/%s/group/admin".format(host, port, mount)).get().map { r =>
+    ws.url(s"$baseUrl/group/admin").get().map { r =>
       r.json.validate[Group](Group.GroupResource.restReads).fold(
         _ => ServiceUnavailable("ko\nbad json"),
         _ => Ok("ok")
@@ -97,12 +110,15 @@ case class Utils @Inject()(implicit globalConfig: global.GlobalConfig, backend: 
    * the graph DB, and vice versa.
    */
   def checkUserSync = Action.async { implicit request =>
+    val stringList: Reads[Seq[String]] =
+      (__ \ "data").read[Seq[Seq[String]]].map(_.flatMap(_.headOption))
+
     for {
       allAccounts <- accounts.findAll(PageParams.empty.withoutLimit)
-      profileIds <- CypherDAO().get(
+      profileIds <- cypher.get(
         """START n = node:entities("__ISA__:userProfile")
           |RETURN n.__ID__
-        """.stripMargin, Map.empty)(CypherDAO.stringList)
+        """.stripMargin, Map.empty)(stringList)
       accountIds = allAccounts.map(_.id)
     } yield {
       val noProfile = accountIds.diff(profileIds)

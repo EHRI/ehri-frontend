@@ -1,16 +1,16 @@
-@(guide: Guide, page: GuidePage, pages: List[GuidePage], result: utils.search.SearchResult[(DocumentaryUnit,utils.search.SearchHit)], available: Map[String, Seq[models.base.AnyModel]], action: Call)(implicit userOpt: Option[UserProfile], request: RequestHeader, prefs: utils.SessionPrefs, globalConfig: global.GlobalConfig, lang: Lang, flash: Flash)
+@(guide: Guide, page: GuidePage, pages: List[GuidePage], result: utils.search.SearchResult[(DocumentaryUnit,utils.search.SearchHit)], available: Map[String, Seq[models.base.AnyModel]], action: Call)(implicit userOpt: Option[UserProfile], request: RequestHeader, prefs: utils.SessionPrefs, globalConfig: global.GlobalConfig, messages: Messages, md: views.MarkdownRenderer, flash: Flash)
 
 @import utils.search.SearchOrder
 
 @js = {
-    <script type="text/javascript" src="@controllers.portal.routes.Assets.versioned("js/portal-guide.js")"></script>
-    <script type="text/javascript" src="@controllers.portal.routes.Assets.versioned("js/portal-guide-facet.js")"></script>
-    <script src="@controllers.portal.routes.Assets.versioned("js/select2/select2.js")"></script>
+    <script type="text/javascript" src="@controllers.portal.routes.PortalAssets.versioned("js/portal-guide.js")"></script>
+    <script type="text/javascript" src="@controllers.portal.routes.PortalAssets.versioned("js/portal-guide-facet.js")"></script>
+    <script src="@controllers.portal.routes.PortalAssets.versioned("js/select2/select2.js")"></script>
 
-    @lang.language match {
+    @messages.lang.language match {
         case "en" => {}
         case _ => {
-             <script src="@controllers.portal.routes.Assets.versioned("js/select2/select2_locale_" + lang.language +".js")"></script>
+             <script src="@controllers.portal.routes.PortalAssets.at("js/select2/select2_locale_" + messages.lang.language +".js")"></script>
         }
     }
     <script type="text/javascript">
@@ -117,7 +117,7 @@
             @facets
         }
     </div>
-    @page.description.map(d => Html(views.Helpers.renderTrustedMarkdown(d)))
+    @page.description.map(d => Html(md.renderTrustedMarkdown(d)))
 }
 
 

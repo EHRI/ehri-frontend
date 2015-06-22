@@ -14,9 +14,8 @@ import eu.ehri.project.definitions.Ontology
 import java.net.URL
 import play.api.data.Form
 import play.api.data.Forms._
-import play.api.i18n.Lang
+import play.api.i18n.Messages
 import backend._
-import scala.Some
 import play.api.libs.json.JsObject
 
 
@@ -98,12 +97,12 @@ case class Repository(
   with Accessible
   with Holder[DocumentaryUnit] {
 
-  override def allNames(implicit lang: Lang) = model.primaryDescription(lang) match {
+  override def allNames(implicit messages: Messages) = model.primaryDescription(messages) match {
     case Some(desc) => desc.name +: (desc.otherFormsOfName.toSeq.flatten ++ desc.parallelFormsOfName.toSeq.flatten)
-    case None => Seq(toStringLang(lang))
+    case None => Seq(toStringLang(messages))
   }
 
-  override def toStringAbbr(implicit lang: Lang): String =
+  override def toStringAbbr(implicit messages: Messages): String =
     allNames.reduceLeft( (a, b) => if (a.length < b.length) a else b)
 
   def url: Option[URL] = (for {

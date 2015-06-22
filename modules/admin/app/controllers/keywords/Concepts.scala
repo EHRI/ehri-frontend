@@ -1,25 +1,37 @@
 package controllers.keywords
 
 import auth.AccountManager
+import backend.rest.cypher.Cypher
+import play.api.cache.CacheApi
 import play.api.libs.concurrent.Execution.Implicits._
 import _root_.forms.VisibilityForm
 import controllers.generic._
 import models._
-import play.api.i18n.Messages
+import play.api.i18n.{MessagesApi, Messages}
 import defines.{ContentTypes, EntityType}
-import utils.PageParams
-import views.Helpers
+import utils.{MovedPageLookup, PageParams}
+import views.{MarkdownRenderer, Helpers}
 import utils.search._
-import com.google.inject._
+import javax.inject._
 import scala.concurrent.Future.{successful => immediate}
 import backend.Backend
-import models.base.Description
 import controllers.base.AdminController
 
 
 @Singleton
-case class Concepts @Inject()(implicit globalConfig: global.GlobalConfig, searchEngine: SearchEngine, searchResolver: SearchItemResolver, backend: Backend, accounts: AccountManager, pageRelocator: utils.MovedPageLookup)
-  extends AdminController
+case class Concepts @Inject()(
+  implicit app: play.api.Application,
+  cache: CacheApi,
+  globalConfig: global.GlobalConfig,
+  searchEngine: SearchEngine,
+  searchResolver: SearchItemResolver,
+  backend: Backend,
+  accounts: AccountManager,
+  pageRelocator: MovedPageLookup,
+  messagesApi: MessagesApi,
+  markdown: MarkdownRenderer,
+  cypher: Cypher
+) extends AdminController
   with Creator[ConceptF, Concept, Concept]
   with Visibility[Concept]
   with Read[Concept]

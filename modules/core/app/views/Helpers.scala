@@ -1,11 +1,9 @@
 package views
 
-import play.api.i18n.Lang
+import org.jsoup.Jsoup
+import org.jsoup.safety.Whitelist
 import org.apache.commons.lang3.StringUtils
-import models._
-import models.base.AnyModel
-import play.api.mvc.Call
-import scala.util.matching.Regex
+import play.api.i18n.Messages
 import play.api.mvc.RequestHeader
 import backend.Entity
 
@@ -14,61 +12,14 @@ package object Helpers {
 
   // Pretty relative date/time handling
   import org.ocpsoft.pretty.time.PrettyTime
-  def relativeDate(d: java.util.Date)(implicit lang: Lang): String = {
-    val p = new PrettyTime(lang.toLocale)
+  def relativeDate(d: java.util.Date)(implicit messages: Messages): String = {
+    val p = new PrettyTime(messages.lang.toLocale)
     p.format(d)
   }
-  def relativeDate(d: org.joda.time.DateTime)(implicit lang: Lang): String = relativeDate(d.toDate)
-  def relativeDate(d: Option[org.joda.time.DateTime])(implicit lang: Lang): String =
+  def relativeDate(d: org.joda.time.DateTime)(implicit messages: Messages): String = relativeDate(d.toDate)
+  def relativeDate(d: Option[org.joda.time.DateTime])(implicit messages: Messages): String =
     d.fold("")(dt => relativeDate(dt.toDate))
 
-
-  // Initialize Markdown processor for rendering markdown. NB: The
-  // instance is apparently not thread safe, so using a threadlocal
-  // here to be on the safe side.
-  import org.pegdown.{LinkRenderer, Extensions, PegDownProcessor}
-  import org.pegdown.ast.{AutoLinkNode, ExpLinkNode}
-  import org.jsoup.Jsoup
-  import org.jsoup.safety.Whitelist
-
-  private val linkRenderer = new LinkRenderer() {
-    override def render(node: AutoLinkNode) = {
-      new LinkRenderer.Rendering(node.getText, node.getText)
-        .withAttribute("rel", "nofollow")
-        .withAttribute("target", "_blank")
-        .withAttribute("class", "external")
-    }
-    override def render(node: ExpLinkNode, text: String) = {
-      new LinkRenderer.Rendering(node.url, text)
-        .withAttribute("rel", "nofollow")
-        .withAttribute("target", "_blank")
-        .withAttribute("class", "external")
-        .withAttribute("title", node.title)
-    }
-  }
-  private val markdownParser = new ThreadLocal[PegDownProcessor]
-  private val whiteListStandard: Whitelist = Whitelist.basic()
-    .addAttributes("a", "target", "_blank")
-    .addAttributes("a", "class", "external")
-    .addAttributes("a", "rel", "nofollow")
-  private val whiteListStrict: Whitelist = Whitelist.simpleText().addTags("p", "a")
-    .addAttributes("a", "target", "_blank")
-    .addAttributes("a", "class", "external")
-    .addAttributes("a", "rel", "nofollow")
-  def getMarkdownProcessor = Option(markdownParser.get).getOrElse {
-    val parser = new PegDownProcessor(Extensions.AUTOLINKS)
-    markdownParser.set(parser)
-    parser
-  }
-
-  def renderUntrustedMarkdown(text: String): String =
-    Jsoup.clean(getMarkdownProcessor.markdownToHtml(text, linkRenderer), whiteListStrict)
-
-  def renderMarkdown(text: String): String =
-    Jsoup.clean(getMarkdownProcessor.markdownToHtml(text, linkRenderer), whiteListStandard)
-
-  def renderTrustedMarkdown(text: String): String =
-    getMarkdownProcessor.markdownToHtml(text, linkRenderer)
 
   def stripTags(htmlText: String): String = Jsoup.clean(htmlText, Whitelist.none())
 
@@ -122,8 +73,8 @@ package object Helpers {
   /**
    * Get a list of code->name pairs for the given language.
    */
-  def languagePairList(implicit lang: Lang): List[(String,String)] =
-    utils.i18n.languagePairList(lang)
+  def languagePairList(implicit messages: Messages): List[(String,String)] =
+    utils.i18n.languagePairList(messages)
 
   /**
    * Get a list of ISO15924 script.
@@ -131,32 +82,32 @@ package object Helpers {
    * NB: The implicit lang parameter is currently ignored because
    * the script data is not localised.
    */
-  def scriptPairList(implicit lang: Lang): List[(String,String)] =
-    utils.i18n.scriptPairList(lang)
+  def scriptPairList(implicit messages: Messages): List[(String,String)] =
+    utils.i18n.scriptPairList(messages)
 
   /**
    * Get a list of country->name pairs for the given language.
    */
-  def countryPairList(implicit lang: Lang): List[(String,String)] =
-    utils.i18n.countryPairList(lang)
+  def countryPairList(implicit messages: Messages): List[(String,String)] =
+    utils.i18n.countryPairList(messages)
 
   /**
    * Get a language name for a given code.
    */
-  def languageCodeToName(code: String)(implicit lang: Lang): String =
-    utils.i18n.languageCodeToName(code)(lang)
+  def languageCodeToName(code: String)(implicit messages: Messages): String =
+    utils.i18n.languageCodeToName(code)(messages)
 
   /**
    * Get the script name for a given code.
    */
-  def scriptCodeToName(code: String)(implicit lang: Lang): String =
-    utils.i18n.scriptCodeToName(code)(lang)
+  def scriptCodeToName(code: String)(implicit messages: Messages): String =
+    utils.i18n.scriptCodeToName(code)(messages)
 
   /**
    * Get the country name for a given code.
    */
-  def countryCodeToName(code: String)(implicit lang: Lang): String =
-    utils.i18n.countryCodeToName(code)(lang)
+  def countryCodeToName(code: String)(implicit messages: Messages): String =
+    utils.i18n.countryCodeToName(code)(messages)
 
   /**
    * Function that shouldn't be necessary. Extract a list of values from

@@ -1,9 +1,11 @@
-@(guide: Guide, page: GuidePage, pages: List[GuidePage])(implicit request: RequestHeader, lang: Lang)
+@(guide: Guide, page: GuidePage, pages: Seq[GuidePage])(implicit request: RequestHeader, messages: Messages)
 
 <div class="container">
     <div class="row">
         <div class="col-md-3  col-md-push-9 text-center">
-            <a href="@controllers.portal.guides.routes.Guides.listGuides()"><img src="@controllers.portal.routes.Assets.at("img/text-logo.png")" class="img-responsive" alt="EHRI" /></a>
+            <a href="@controllers.portal.guides.routes.Guides.listGuides()">
+                <img src="@controllers.portal.routes.PortalAssets.versioned("img/text-logo.png")" class="img-responsive" alt="EHRI" />
+            </a>
         </div>
 
         <div class="col-md-9 col-md-pull-3">

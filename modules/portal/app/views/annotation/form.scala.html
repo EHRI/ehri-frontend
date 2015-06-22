@@ -1,4 +1,4 @@
-@(f: Form[AnnotationF])(implicit userOpt: Option[UserProfile], req: RequestHeader, lang: Lang, globalConfig: global.GlobalConfig)
+@(f: Form[AnnotationF])(implicit userOpt: Option[UserProfile], req: RequestHeader, messages: Messages, globalConfig: global.GlobalConfig)
 
 @import AnnotationF._
 @import utils.ContributionVisibility.{Me,Groups,Custom,PARAM}

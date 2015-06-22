@@ -6,7 +6,7 @@ import eu.ehri.project.definitions.Ontology
 import play.api.libs.json.{Json, JsObject}
 import defines.EntityType
 import models.AccessPointF
-import play.api.i18n.Lang
+import play.api.i18n.{MessagesApi, Messages, Lang}
 import Description._
 import backend.Entity
 
@@ -43,7 +43,10 @@ case class TestModel(
 /**
  * @author Mike Bryant (http://github.com/mikesname)
  */
-class AnyModelSpec extends PlaySpecification {
+class AnyModelSpec extends PlaySpecification with play.api.i18n.I18nSupport {
+
+  implicit val application = new play.api.inject.guice.GuiceApplicationBuilder().build
+  implicit val messagesApi = application.injector.instanceOf[MessagesApi]
 
   val testModel = TestModel(
     TestModelF(
@@ -65,9 +68,9 @@ class AnyModelSpec extends PlaySpecification {
 
   "AnyModel" should {
     "pick the right locale-dependent name" in {
-      testModel.toStringLang(Lang("en")) must equalTo("name1")
-      testModel.toStringLang(Lang("fr")) must equalTo("name2")
-      testModel.toStringLang(Lang("en", "GB")) must equalTo("name1")
+      testModel.toStringLang(Messages(Lang("en"), messagesApi)) must equalTo("name1")
+      testModel.toStringLang(Messages(Lang("fr"), messagesApi)) must equalTo("name2")
+      testModel.toStringLang(Messages(Lang("en", "GB"), messagesApi)) must equalTo("name1")
     }
 
     "count descriptions properly" in {

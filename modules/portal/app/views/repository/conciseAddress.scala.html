@@ -1,4 +1,4 @@
-@(item: Repository, desc: RepositoryDescriptionF, includeCountry: Boolean = true, highlighter: views.Highlighter = views.NoopHighlighter)(implicit userOpt: Option[UserProfile], request: RequestHeader, lang: Lang)
+@(item: Repository, desc: RepositoryDescriptionF, includeCountry: Boolean = true, highlighter: views.Highlighter = views.NoopHighlighter)(implicit userOpt: Option[UserProfile], request: RequestHeader, messages: Messages)
 
 <ul class="concise-address">
     @if(includeCountry) {

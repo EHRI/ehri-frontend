@@ -1,4 +1,4 @@
-@(user: UserProfile, following: Boolean)(implicit lang: Lang)
+@(user: UserProfile, following: Boolean)(implicit messages: Messages)
 
 <a data-item="@user.id"
    class="btn btn-sm btn-danger unfollow"

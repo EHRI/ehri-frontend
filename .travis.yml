@@ -2,6 +2,9 @@ language: scala
 scala:
     - 2.10.5
 
+jdk:
+    oraclejdk8
+
 # Use container-based infrastructure to share Ivy cache...
 sudo: false
 

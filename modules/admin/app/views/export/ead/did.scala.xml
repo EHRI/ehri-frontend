@@ -1,4 +1,4 @@
-@(item: DocumentaryUnit, desc: DocumentaryUnitDescriptionF)(implicit lang: Lang)
+@(item: DocumentaryUnit, desc: DocumentaryUnitDescriptionF)(implicit messages: Messages)
 
 <unitid>@item.model.identifier</unitid>
 <unittitle>@desc.name</unittitle>
@@ -13,7 +13,7 @@
 @desc.conditions.languageOfMaterials.map { langs =>
     <langmaterial>
         @langs.map { lang =>
-        <language langcode="@lang">@views.Helpers.languageCodeToName(lang)</language>
+        <language langcode="@messages.lang">@views.Helpers.languageCodeToName(lang)</language>
         }
     </langmaterial>
 }

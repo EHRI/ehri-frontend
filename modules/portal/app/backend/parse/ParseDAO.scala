@@ -1,6 +1,5 @@
 package backend.parse
 
-import play.api.libs.ws.WS
 import play.api.libs.json.{Format, Json}
 import play.api.Logger
 import backend.rest.RestDAO
@@ -26,11 +25,11 @@ abstract class ParseDAO[T: Format](objectName: String) extends RestDAO {
     implicit val format: Format[Results] = Json.format[Results]
   }
 
-  private def appKey = app.configuration.getString("parse.keys.applicationId").getOrElse("fake")
+  private def appKey = config.getString("parse.keys.applicationId").getOrElse("fake")
 
-  private def restKey = app.configuration.getString("parse.keys.restApiKey").getOrElse("fake")
+  private def restKey = config.getString("parse.keys.restApiKey").getOrElse("fake")
 
-  private def url = app.configuration.getString("parse.baseUrl").getOrElse("fake")
+  private def url = config.getString("parse.baseUrl").getOrElse("fake")
 
   private def parseHeaders = Seq(
     "X-Parse-Application-Id" -> appKey,
@@ -39,11 +38,11 @@ abstract class ParseDAO[T: Format](objectName: String) extends RestDAO {
   )
 
 
-  private def parseUrl(oid: Option[String])
-      = oid.map(id => enc(url, objectName, id)).getOrElse(enc(url, objectName))
+  private def parseUrl(oid: Option[String]) =
+    oid.map(id => enc(url, objectName, id)).getOrElse(enc(url, objectName))
 
-  private def parseCall(oid: Option[String] = None, params: Seq[(String,String)] = Seq.empty)
-      = WS.url(parseUrl(oid)).withHeaders(parseHeaders: _*).withQueryString(params: _*)
+  private def parseCall(oid: Option[String] = None, params: Seq[(String,String)] = Seq.empty) =
+    ws.url(parseUrl(oid)).withHeaders(parseHeaders: _*).withQueryString(params: _*)
 
   def create(feedback: T)(implicit executionContext: ExecutionContext): Future[String] = {
     parseCall().post(Json.toJson(feedback)).map { r =>

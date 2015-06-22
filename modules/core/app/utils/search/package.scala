@@ -15,13 +15,13 @@ package object search {
   }
 
   def pathWithoutFacet(fc: FacetClass[_], f: String, path: String, qs: Map[String, Seq[String]]): String =
-    joinPath(path, qs.collect {
+    http.joinPath(path, qs.collect {
         case (q, vals) if q == fc.param => q -> vals.filter(_ != f)
         case pair => pair
     })
 
   def pathWithFacet(fc: FacetClass[_], f: String, path: String, qs: Map[String, Seq[String]]): String =
-    joinPath(path, if (qs.contains(fc.param)) {
+    http.joinPath(path, if (qs.contains(fc.param)) {
       qs.collect {
         case (q, vals) if q == fc.param => q -> vals.union(Seq(f)).distinct.sorted
         case pair => pair

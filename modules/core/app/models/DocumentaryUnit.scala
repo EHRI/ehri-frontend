@@ -67,7 +67,7 @@ object DocumentaryUnitF {
     (__ \ DATA \ IDENTIFIER).read[String] and
     (__ \ DATA \ OTHER_IDENTIFIERS).readSeqOrSingleNullable[String] and
     (__ \ DATA \ PUBLICATION_STATUS).readNullable[PublicationStatus.Value] and
-    (__ \ DATA \ COPYRIGHT).readWithDefault(Option(CopyrightStatus.Unknown)) and
+    (__ \ DATA \ COPYRIGHT).readWithDefault(Option(CopyrightStatus.Unknown))(Reads.optionNoError) and
     (__ \ DATA \ SCOPE).readNullable[Scope.Value] and
     (__ \ RELATIONSHIPS \ DESCRIPTION_FOR_ENTITY).nullableSeqReads[DocumentaryUnitDescriptionF]
   )(DocumentaryUnitF.apply _)

@@ -1,4 +1,4 @@
-@(item: models.base.Accessible, historyUrl: Call)
+@(item: models.base.Accessible, historyUrl: Call)(implicit messages: Messages)
 
 @item.latestEvent.map { ev =>
     <div class="well well-small latest-event">

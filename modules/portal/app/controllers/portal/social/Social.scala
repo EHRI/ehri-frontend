@@ -1,23 +1,27 @@
 package controllers.portal.social
 
 import auth.AccountManager
+import backend.rest.cypher.Cypher
+import controllers.base.RecaptchaHelper
 import controllers.generic.Search
+import play.api.cache.CacheApi
 import play.api.libs.concurrent.Execution.Implicits._
 import models.{SystemEvent, UserProfile}
+import play.api.libs.mailer.{Email, MailerClient}
+import play.api.libs.ws.WSClient
 import utils._
 import utils.search._
-import play.api.Play.current
 import backend.{Backend, ApiUser}
 
-import com.google.inject._
+import javax.inject._
 import play.api.mvc.RequestHeader
-import play.api.i18n.Messages
+import play.api.i18n.{MessagesApi, Messages}
 import play.api.libs.json.Json
+import views.MarkdownRenderer
 import scala.concurrent.Future
 import scala.concurrent.Future.{successful => immediate}
 import models.base.AnyModel
 import play.api.mvc.Result
-import com.typesafe.plugin.MailerAPI
 import controllers.portal.base.PortalController
 
 /**
@@ -28,10 +32,23 @@ import controllers.portal.base.PortalController
  * just lists of IDs.
  */
 @Singleton
-case class Social @Inject()(implicit globalConfig: global.GlobalConfig, searchEngine: SearchEngine,
-                            searchResolver: SearchItemResolver, backend: Backend, accounts: AccountManager,
-    mailer: MailerAPI, pageRelocator: utils.MovedPageLookup)
-  extends PortalController with Search {
+case class Social @Inject()(
+  implicit app: play.api.Application,
+  cache: CacheApi,
+  globalConfig: global.GlobalConfig,
+  searchEngine: SearchEngine,
+  searchResolver: SearchItemResolver,
+  backend: Backend,
+  accounts: AccountManager,
+  mailer: MailerClient,
+  pageRelocator: MovedPageLookup,
+  messagesApi: MessagesApi,
+  markdown: MarkdownRenderer,
+  ws: WSClient,
+  cypher: Cypher
+) extends PortalController
+  with RecaptchaHelper
+  with Search {
 
   private val socialRoutes = controllers.portal.social.routes.Social
 
@@ -205,7 +222,6 @@ case class Social @Inject()(implicit globalConfig: global.GlobalConfig, searchEn
 
   import play.api.data.Form
   import play.api.data.Forms._
-  import utils.forms.checkRecapture
   private val messageForm = Form(
     tuple(
       "subject" -> nonEmptyText,
@@ -239,29 +255,32 @@ case class Social @Inject()(implicit globalConfig: global.GlobalConfig, searchEn
         accTo <- accToOpt
       } yield {
         val heading = Messages("mail.message.heading", from.toStringLang)
-        mailer
-          .setSubject(Messages("mail.message.subject", from.toStringLang, subject))
-          .setRecipient(accTo.email)
-          .setReplyTo(accFrom.email)
-          .setFrom("EHRI User <noreply@ehri-project.eu>")
-          .send(views.txt.social.mail.messageEmail(heading, subject, message).body,
-            views.html.social.mail.messageEmail(heading, subject, message).body)
+        val emailMessage = Email(
+          subject = Messages("mail.message.heading", from.toStringLang),
+          to = Seq(s"${to.model.name}} <${accTo.email}>"),
+          from = "EHRI User <noreply@ehri-project.eu>",
+          replyTo = Some(s"${from.model.name}} <${accFrom.email}>"),
+          bodyText = Some(views.txt.social.mail.messageEmail(heading, subject, message).body),
+          bodyHtml = Some(views.html.social.mail.messageEmail(heading, subject, message).body)
+        )
+        mailer.send(emailMessage)
 
         if (copy) {
           val copyHeading = Messages("mail.message.copy.heading", to.toStringLang)
-          mailer
-            .setSubject(Messages("mail.message.copy.subject", to.toStringLang, subject))
-            .setRecipient(accFrom.email)
-            .setFrom("EHRI User <noreply@ehri-project.eu>")
-            .send(views.txt.social.mail.messageEmail(copyHeading, subject, message, isCopy = true).body,
-              views.html.social.mail.messageEmail(copyHeading, subject, message, isCopy = true).body)
+          val copyEmailMessage = emailMessage.copy(
+            subject = Messages("mail.message.copy.heading", to.toStringLang),
+            to = Seq(accFrom.email),
+            bodyText = Some(views.txt.social.mail.messageEmail(copyHeading, subject, message, isCopy = true).body),
+            bodyHtml = Some(views.html.social.mail.messageEmail(copyHeading, subject, message, isCopy = true).body)
+          )
+          mailer.send(copyEmailMessage)
         }
       }
     }
   }
 
   def sendMessage(userId: String) = WithUserAction.async { implicit request =>
-    val recaptchaKey = current.configuration.getString("recaptcha.key.public")
+    val recaptchaKey = app.configuration.getString("recaptcha.key.public")
       .getOrElse("fakekey")
     for {
       userTo <- userBackend.get[UserProfile](userId)
@@ -279,7 +298,7 @@ case class Social @Inject()(implicit globalConfig: global.GlobalConfig, searchEn
   }
 
   def sendMessagePost(userId: String) = WithUserAction.async { implicit request =>
-    val recaptchaKey = current.configuration.getString("recaptcha.key.public")
+    val recaptchaKey = app.configuration.getString("recaptcha.key.public")
       .getOrElse("fakekey")
     val boundForm = messageForm.bindFromRequest
 

@@ -1,4 +1,4 @@
-@(f: play.api.data.Field, label: String, options: List[(String,String)], blank: Boolean = false)(implicit fieldPrefix: String = "", lang: Lang, fieldConstructor: views.html.helper.FieldConstructor)
+@(f: play.api.data.Field, label: String, options: List[(String,String)], blank: Boolean = false)(implicit fieldPrefix: String = "", messages: Messages, fieldConstructor: views.html.helper.FieldConstructor)
 
 @helper.select(
   field = f,

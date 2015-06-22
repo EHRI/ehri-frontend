@@ -1,4 +1,4 @@
-@(e: backend.BadHelpdeskResponse)(implicit userOpt: Option[UserProfile], request: RequestHeader, lang: Lang, flash: Flash, globalConfig: global.GlobalConfig, prefs: utils.SessionPrefs)
+@(e: backend.BadHelpdeskResponse)(implicit userOpt: Option[UserProfile], request: RequestHeader, messages: Messages, flash: Flash, globalConfig: global.GlobalConfig, prefs: utils.SessionPrefs)
 
 @views.html.layout.portalLayout(Messages("helpdesk")) {
 

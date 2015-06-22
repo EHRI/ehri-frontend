@@ -1,4 +1,4 @@
-@(item: models.base.AnyModel, hit: utils.search.SearchHit, action: Call, guidePath: Option[String] = None, conceptMode:String = "default")(implicit userOpt: Option[UserProfile], req: RequestHeader, globalConfig: global.GlobalConfig, lang: Lang)
+@(item: models.base.AnyModel, hit: utils.search.SearchHit, action: Call, guidePath: Option[String] = None, mode: GuidePage.Layout.Value)(implicit userOpt: Option[UserProfile], req: RequestHeader, globalConfig: global.GlobalConfig, messages: Messages)
 
 @filteredLink(id: String) = {
     @guidePath match {
@@ -16,8 +16,8 @@
                     @bt.toStringLang
                 </span>
             }
-            @conceptMode match { 
-                case "organisation" => {
+            @mode match {
+                case GuidePage.Layout.Organisation => {
                     @if(d.childCount.getOrElse(0) > 0) {
                         <a href="@action?parent=@d.id">@d.toStringLang</a>
                     } else {

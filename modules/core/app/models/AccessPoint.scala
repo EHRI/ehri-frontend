@@ -6,11 +6,11 @@ import defines.EntityType
 import models.json._
 import play.api.libs.json._
 import play.api.libs.functional.syntax._
-import play.api.i18n.Lang
 import play.api.data.Form
 import play.api.data.Forms._
 import play.api.libs.json.JsObject
 import backend.{Entity, Readable, Writable}
+import play.api.i18n.Messages
 
 
 object AccessPointF {
@@ -130,5 +130,5 @@ case class AccessPoint(
   meta: JsObject = JsObject(Seq())
 ) extends AnyModel with MetaModel[AccessPointF] {
 
-  override def toStringLang(implicit lang: Lang) = "Access Point: (" + id + ")"
+  override def toStringLang(implicit messages: Messages) = "Access Point: (" + id + ")"
 }

@@ -1,4 +1,4 @@
-@(result: utils.search.SearchResult[(models.base.AnyModel, utils.search.SearchHit)])(implicit userOpt: Option[UserProfile], req: RequestHeader, globalConfig: global.GlobalConfig, lang: Lang)
+@(result: utils.search.SearchResult[(models.base.AnyModel, utils.search.SearchHit)])(implicit userOpt: Option[UserProfile], req: RequestHeader, globalConfig: global.GlobalConfig, messages: Messages, md: views.MarkdownRenderer)
 
 <ul class="search-result-list">
     @result.page.map { case(item, hit) =>

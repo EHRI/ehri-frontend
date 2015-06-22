@@ -1,21 +1,36 @@
 package controllers.portal
 
 import auth.AccountManager
+import backend.rest.cypher.Cypher
+import play.api.cache.CacheApi
+import play.api.i18n.MessagesApi
 import play.api.libs.concurrent.Execution.Implicits._
+import play.api.libs.mailer.{Email, MailerClient}
 import play.api.mvc.{Result, RequestHeader}
+import utils.MovedPageLookup
+import views.MarkdownRenderer
 import scala.concurrent.Future.{successful => immediate}
 import backend.{Backend, FeedbackDAO}
-import com.google.inject._
-import com.typesafe.plugin.MailerAPI
+import javax.inject._
 import controllers.portal.base.PortalController
 
 /**
  * @author Mike Bryant (http://github.com/mikesname)
  */
 @Singleton
-case class Feedback @Inject()(implicit globalConfig: global.GlobalConfig, feedbackDAO: FeedbackDAO,
-                              backend: Backend, accounts: AccountManager, mailer: MailerAPI, pageRelocator: utils.MovedPageLookup)
-  extends PortalController {
+case class Feedback @Inject()(
+  implicit app: play.api.Application,
+  cache: CacheApi,
+  globalConfig: global.GlobalConfig,
+  feedbackDAO: FeedbackDAO,
+  backend: Backend,
+  accounts: AccountManager,
+  mailer: MailerClient,
+  pageRelocator: MovedPageLookup,
+  messagesApi: MessagesApi,
+  markdown: MarkdownRenderer,
+  cypher: Cypher
+) extends PortalController {
 
   import utils.forms._
   import play.api.data.Form
@@ -60,18 +75,20 @@ case class Feedback @Inject()(implicit globalConfig: global.GlobalConfig, feedba
           |$msg
         """.stripMargin
       }.getOrElse("No message provided")
-      mailer
-        .setSubject("EHRI Portal Feedback" + feedback.name.map(n => s" from $n").getOrElse(""))
-        .setRecipient(accTo)
-        .setReplyTo(feedback.email.getOrElse("noreply@ehri-project.eu"))
-        .setFrom("EHRI User <noreply@ehri-project.eu>")
-        .send(text, views.html.Markdown(text).body)
+      val email = Email(
+        subject = "EHRI Portal Feedback" + feedback.name.map(n => s" from $n").getOrElse(""),
+        to = Seq(accTo),
+        from = "EHRI User <noreply@ehri-project.eu>",
+        replyTo = feedback.email,
+        bodyText = Some(text),
+        bodyHtml = Some(markdown.renderUntrustedMarkdown(text))
+      )
+      mailer.send(email)
     }
   }
 
   def feedbackPost = OptionalUserAction.async { implicit request =>
     val boundForm: Form[models.Feedback] = models.Feedback.form.bindFromRequest()
-    import play.api.Play.current
 
     def response(f: Form[models.Feedback]): Result =
       if (isAjax) BadRequest(f.errorsAsJson) else BadRequest(views.html.feedback(f))
@@ -87,7 +104,7 @@ case class Feedback @Inject()(implicit globalConfig: global.GlobalConfig, feedba
             .copy(email = feedback.email.orElse(user.account.map(_.email)))
         }.getOrElse(feedback)
           .copy(context = Some(models.FeedbackContext.fromRequest),
-            mode = Some(play.api.Play.current.mode))
+            mode = Some(app.mode))
         feedbackDAO.create(moreFeedback).map { id =>
           sendMessageEmail(moreFeedback)
           if (isAjax) Ok(id)

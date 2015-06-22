@@ -6,7 +6,7 @@ import models.base.Persistable
 import defines.{ContentTypes, EntityType}
 import play.api.libs.json._
 import models.json._
-import play.api.i18n.Lang
+import play.api.i18n.Messages
 import play.api.libs.functional.syntax._
 import play.api.data.Form
 import play.api.data.Forms._
@@ -106,5 +106,5 @@ case class Vocabulary(
   with Accessible
   with Holder[Concept] {
 
-  override def toStringLang(implicit lang: Lang): String = model.name.getOrElse(id)
+  override def toStringLang(implicit messages: Messages): String = model.name.getOrElse(id)
 }

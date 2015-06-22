@@ -1,4 +1,4 @@
-@(item: AnyModel, path: Seq[AnyModel], watched: Boolean)(implicit userOpt: Option[UserProfile], req: RequestHeader, globalConfig: global.GlobalConfig, lang: Lang)
+@(item: AnyModel, path: Seq[AnyModel], watched: Boolean)(implicit userOpt: Option[UserProfile], req: RequestHeader, globalConfig: global.GlobalConfig, messages: Messages)
 
 @linkVc(item: AnyModel, path: Seq[AnyModel]) = {
     <li><a class="type-highlight @item.isA" href="@views.p.Helpers.virtualUnitUrl(path, item.id)">@item.toStringAbbr</a></li>

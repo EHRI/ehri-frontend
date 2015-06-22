@@ -3,26 +3,29 @@ package controllers.portal.account
 import auth.oauth2.OAuth2Flow
 import auth.oauth2.providers.{GoogleOAuth2Provider, YahooOAuth2Provider, FacebookOAuth2Provider}
 import auth.{HashedPassword, AccountManager}
+import controllers.base.RecaptchaHelper
+import play.api.cache.CacheApi
 import play.api.data.Form
+import play.api.libs.mailer.{Email, MailerClient}
+import play.api.libs.ws.WSClient
 import play.api.mvc._
 import models._
 import play.api.libs.concurrent.Execution.Implicits._
+import utils.MovedPageLookup
 import scala.concurrent.Future.{successful => immediate}
 import jp.t2v.lab.play2.auth.LoginLogout
 import controllers.core.auth.oauth2._
 import controllers.core.auth.openid.OpenIDLoginHandler
 import controllers.core.auth.userpass.UserPasswordLoginHandler
 import global.GlobalConfig
-import play.api.Play._
 import utils.forms._
 import java.util.UUID
-import play.api.i18n.Messages
+import play.api.i18n.{MessagesApi, Messages}
 import com.google.common.net.HttpHeaders
 import controllers.core.auth.AccountHelpers
 import scala.concurrent.Future
 import backend.{AnonymousUser, Backend}
 import play.api.mvc.Result
-import com.typesafe.plugin.MailerAPI
 import com.google.inject.{Singleton, Inject}
 import utils.search.{SearchItemResolver, SearchEngine}
 import controllers.portal.base.PortalController
@@ -31,28 +34,44 @@ import controllers.portal.base.PortalController
  * @author Mike Bryant (http://github.com/mikesname)
  */
 @Singleton
-case class Accounts @Inject()(implicit globalConfig: GlobalConfig, searchEngine: SearchEngine, searchResolver: SearchItemResolver, backend: Backend,
-                             accounts: AccountManager, mailer: MailerAPI, oAuth2Flow: OAuth2Flow, pageRelocator: utils.MovedPageLookup)
-  extends LoginLogout
+case class Accounts @Inject()(
+  implicit app: play.api.Application,
+  cache: CacheApi,
+  globalConfig: GlobalConfig,
+  searchEngine: SearchEngine,
+  searchResolver: SearchItemResolver,
+  backend: Backend,
+  accounts: AccountManager,
+  mailer: MailerClient,
+  oAuth2Flow: OAuth2Flow,
+  pageRelocator: MovedPageLookup,
+  messagesApi: MessagesApi,
+  ws: WSClient
+) extends LoginLogout
   with PortalController
   with OpenIDLoginHandler
   with OAuth2LoginHandler
   with UserPasswordLoginHandler
-  with AccountHelpers {
+  with AccountHelpers
+  with RecaptchaHelper {
 
   private val portalRoutes = controllers.portal.routes.Portal
   private val accountRoutes = controllers.portal.account.routes.Accounts
 
-  private def recaptchaKey = current.configuration.getString("recaptcha.key.public")
+  private def recaptchaKey = app.configuration.getString("recaptcha.key.public")
     .getOrElse("fakekey")
 
-  private def rateLimitTimeoutSecs = current.configuration.getInt("ehri.ratelimit.timeout")
+  private def rateLimitTimeoutSecs = app.configuration.getInt("ehri.ratelimit.timeout")
     .getOrElse(3600)
 
   private def rateLimitError(implicit r: RequestHeader) =
     Messages("error.rateLimit", rateLimitTimeoutSecs / 60)
 
-  override val oauth2Providers = Seq(GoogleOAuth2Provider, FacebookOAuth2Provider, YahooOAuth2Provider)
+  override val oauth2Providers = Seq(
+    GoogleOAuth2Provider(app.configuration),
+    FacebookOAuth2Provider(app.configuration),
+    YahooOAuth2Provider(app.configuration)
+  )
 
   /**
    * Prevent people signin up, logging in etc when in read-only mode.
@@ -77,13 +96,15 @@ case class Accounts @Inject()(implicit globalConfig: GlobalConfig, searchEngine:
     override def composeAction[A](action: Action[A]) = new NotReadOnly(action)
   }
 
-  def sendValidationEmail(email: String, uuid: UUID)(implicit request: RequestHeader) {
-    mailer
-      .setSubject("Please confirm your EHRI Account Email")
-      .setRecipient(email)
-      .setFrom("EHRI Email Validation <noreply@ehri-project.eu>")
-      .send(views.txt.account.mail.confirmEmail(uuid).body,
-      views.html.account.mail.confirmEmail(uuid).body)
+  def sendValidationEmail(emailAddress: String, uuid: UUID)(implicit request: RequestHeader) {
+    val email = Email(
+      subject = "Please confirm your EHRI Account Email",
+      from = "EHRI Email Validation <noreply@ehri-project.eu>",
+      to = Seq(emailAddress),
+      bodyText = Some(views.txt.account.mail.confirmEmail(uuid).body),
+      bodyHtml = Some(views.html.account.mail.confirmEmail(uuid).body)
+    )
+    mailer.send(email)
   }
 
   def RateLimit = new ActionBuilder[Request] {
@@ -340,12 +361,14 @@ case class Accounts @Inject()(implicit globalConfig: GlobalConfig, searchEngine:
     }
   }
 
-  private def sendResetEmail(email: String, uuid: UUID)(implicit request: RequestHeader) {
-    mailer
-      .setSubject("EHRI Password Reset")
-      .setRecipient(email)
-      .setFrom("EHRI Password Reset <noreply@ehri-project.eu>")
-      .send(views.txt.account.mail.forgotPassword(uuid).body,
-      views.html.account.mail.forgotPassword(uuid).body)
+  private def sendResetEmail(emailAddress: String, uuid: UUID)(implicit request: RequestHeader) {
+    val email = Email(
+      subject = "EHRI Password Reset",
+      to = Seq(emailAddress),
+      from = "EHRI Password Reset <noreply@ehri-project.eu>",
+      bodyText = Some(views.txt.account.mail.forgotPassword(uuid).body),
+      bodyHtml = Some(views.html.account.mail.forgotPassword(uuid).body)
+    )
+    mailer.send(email)
   }
 }

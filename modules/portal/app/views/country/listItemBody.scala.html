@@ -1,4 +1,4 @@
-@(item: Country, highlighter: views.Highlighter = views.NoopHighlighter)(implicit req: RequestHeader, lang: Lang)
+@(item: Country, highlighter: views.Highlighter = views.NoopHighlighter)(implicit req: RequestHeader, messages: Messages, md: views.MarkdownRenderer)
 
 @views.html.common.childCount(item) { count =>
     @if(count > 0) {

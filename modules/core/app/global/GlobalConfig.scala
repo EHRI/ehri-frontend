@@ -1,46 +1,51 @@
 package global
 
-import play.api.Play.current
 import java.io.File
+import javax.inject.Inject
+
+case class AppGlobalConfig @Inject()(configuration: play.api.Configuration) extends GlobalConfig
 
 trait GlobalConfig {
+  
+  def configuration: play.api.Configuration
 
   /**
    * Flag to indicate whether we're running a testing config or not.
    * This is different from the usual dev/prod run configuration because
    * we might be running experimental stuff on a real life server.
    */
-  def isTestMode = current.configuration.getBoolean("ehri.testing").getOrElse(true)
-  def isStageMode = current.configuration.getBoolean("ehri.staging").getOrElse(false)
+  def isTestMode = configuration.getBoolean("ehri.testing").getOrElse(true)
+  def isStageMode = configuration.getBoolean("ehri.staging").getOrElse(false)
 
   lazy val https =
-    current.configuration.getBoolean("ehri.https").getOrElse(false)
+    configuration.getBoolean("ehri.https").getOrElse(false)
 
   lazy val skipRecaptcha =
-    current.configuration.getBoolean("recaptcha.skip").getOrElse(false)
+    configuration.getBoolean("recaptcha.skip").getOrElse(false)
 
   lazy val analyticsEnabled: Boolean =
-    current.configuration.getBoolean("analytics.enabled").getOrElse(false)
+    configuration.getBoolean("analytics.enabled").getOrElse(false)
 
   lazy val analyticsId: Option[String] =
-    current.configuration.getString("analytics.trackingId")
+    configuration.getString("analytics.trackingId")
 
-  lazy val languages: Seq[String] = current.configuration
-        .getString("application.langs").map(_.split(",").toSeq).getOrElse(Nil)
+  import scala.collection.JavaConversions._
+  lazy val languages: Seq[String] =
+    configuration.getStringList("play.i18n.langs").toSeq.flatten
 
   // Set readonly mode...
-  private lazy val readOnlyFile: Option[File] = current.configuration.getString("ehri.readonly.file")
+  private lazy val readOnlyFile: Option[File] = configuration.getString("ehri.readonly.file")
       .map(new File(_))
 
   // Set maintenance mode...
-  private lazy val maintenanceFile: Option[File] = current.configuration.getString("ehri.maintenance.file")
+  private lazy val maintenanceFile: Option[File] = configuration.getString("ehri.maintenance.file")
     .map(new File(_))
 
   // Read a stock message
-  private lazy val messageFile: Option[File] = current.configuration.getString("ehri.message.file")
+  private lazy val messageFile: Option[File] = configuration.getString("ehri.message.file")
     .map(new File(_))
 
-  private lazy val ipFilterFile: Option[File] = current.configuration.getString("ehri.ipfilter.file")
+  private lazy val ipFilterFile: Option[File] = configuration.getString("ehri.ipfilter.file")
     .map(new File(_))
 
   def readOnly: Boolean = readOnlyFile.exists(file => file.isFile && file.exists)
@@ -51,14 +56,14 @@ trait GlobalConfig {
    * Fetch a config string value.
    */
   def configString(key: String, orElse: String): String =
-    current.configuration.getString(key).getOrElse(orElse)
+    configuration.getString(key).getOrElse(orElse)
 
   /**
    * Fetch a config string list value.
    */
   def configStringList(key: String, orElse: List[String] = Nil): List[String] = {
     import scala.collection.JavaConverters._
-    current.configuration.getStringList(key).map(_.asScala.toList).getOrElse(orElse)
+    configuration.getStringList(key).map(_.asScala.toList).getOrElse(orElse)
   }
 
 

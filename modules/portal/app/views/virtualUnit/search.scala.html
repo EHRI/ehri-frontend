@@ -1,4 +1,4 @@
-@(item: models.base.AnyModel, result: utils.search.SearchResult[(models.base.AnyModel,utils.search.SearchHit)], action: Call, watched: Seq[String], path: Seq[models.base.AnyModel] = Seq.empty)(implicit userOpt: Option[UserProfile], request: RequestHeader, prefs: utils.SessionPrefs, globalConfig: global.GlobalConfig, lang: Lang, flash: Flash)
+@(item: models.base.AnyModel, result: utils.search.SearchResult[(models.base.AnyModel,utils.search.SearchHit)], action: Call, watched: Seq[String], path: Seq[models.base.AnyModel] = Seq.empty)(implicit userOpt: Option[UserProfile], request: RequestHeader, prefs: utils.SessionPrefs, globalConfig: global.GlobalConfig, messages: Messages, md: views.MarkdownRenderer, flash: Flash)
 
 @views.html.layout.itemSearchLayout(item.toStringLang, defines.EntityType.VirtualUnit.toString, result) {
     @infobar(item, path, watched.contains(item.id))

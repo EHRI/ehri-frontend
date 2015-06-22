@@ -1,24 +1,42 @@
 package controllers.sets
 
 import auth.AccountManager
+import backend.rest.cypher.Cypher
+import play.api.cache.CacheApi
+import play.api.i18n.MessagesApi
 import play.api.libs.concurrent.Execution.Implicits._
 import _root_.forms.VisibilityForm
 import controllers.generic._
 import models._
 import defines.{ContentTypes, EntityType}
+import utils.MovedPageLookup
 import utils.search.{SearchConstants, SearchIndexer, SearchItemResolver, SearchEngine}
-import com.google.inject._
+import javax.inject._
+import views.MarkdownRenderer
+
 import scala.concurrent.Future.{successful => immediate}
 import backend.{Entity, IdGenerator, Backend}
 import play.api.Configuration
-import play.api.Play.current
 import controllers.base.AdminController
+
 
 @Singleton
 case class
-AuthoritativeSets @Inject()(implicit globalConfig: global.GlobalConfig, searchEngine: SearchEngine, searchIndexer: SearchIndexer,
-            searchResolver: SearchItemResolver, backend: Backend, idGenerator: IdGenerator, accounts: AccountManager, pageRelocator: utils.MovedPageLookup)
-  extends AdminController
+AuthoritativeSets @Inject()(
+  implicit app: play.api.Application,
+  cache: CacheApi,
+  globalConfig: global.GlobalConfig,
+  searchEngine: SearchEngine,
+  searchIndexer: SearchIndexer,
+  searchResolver: SearchItemResolver,
+  backend: Backend,
+  idGenerator: IdGenerator,
+  accounts: AccountManager,
+  pageRelocator: MovedPageLookup,
+  messagesApi: MessagesApi,
+  markdown: MarkdownRenderer,
+  cypher: Cypher
+) extends AdminController
   with CRUD[AuthoritativeSetF,AuthoritativeSet]
   with Creator[HistoricalAgentF, HistoricalAgent, AuthoritativeSet]
   with Visibility[AuthoritativeSet]
@@ -27,7 +45,7 @@ AuthoritativeSets @Inject()(implicit globalConfig: global.GlobalConfig, searchEn
   with Indexable[AuthoritativeSet]
   with Search {
 
-  private val formDefaults: Option[Configuration] = current.configuration.getConfig(EntityType.HistoricalAgent)
+  private val formDefaults: Option[Configuration] = app.configuration.getConfig(EntityType.HistoricalAgent)
 
   val targetContentTypes = Seq(ContentTypes.HistoricalAgent)
   private val form = models.AuthoritativeSet.form
@@ -83,7 +101,7 @@ AuthoritativeSets @Inject()(implicit globalConfig: global.GlobalConfig, searchEn
   }
 
   def createHistoricalAgent(id: String) = NewChildAction(id).async { implicit request =>
-    idGenerator.getNextChildNumericIdentifier(id, EntityType.HistoricalAgent).map { newid =>
+    idGenerator.getNextChildNumericIdentifier(id, EntityType.HistoricalAgent, "%06d").map { newid =>
       Ok(views.html.admin.historicalAgent.create(
         request.item, childForm.bind(Map(Entity.IDENTIFIER -> newid)),
         formDefaults, VisibilityForm.form.fill(request.item.accessors.map(_.id)),

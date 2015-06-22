@@ -17,9 +17,15 @@
       <pattern>%coloredLevel %logger{15} - %message%n%xException{5}</pattern>
     </encoder>
   </appender>
-  
+
   <logger name="play" level="INFO" />
-  <logger name="application" level="DEBUG" />
+  
+  <!-- Turn down the default level of some classes that log with each
+       application restart -->
+  <logger name="com.zaxxer.hikari.pool.HikariPool" level="ERROR" />
+  <logger name="com.zaxxer.hikari.HikariDataSource" level="ERROR" />
+  <logger name="play.api.libs.concurrent.ActorSystemProvider" level="ERROR" />
+  <logger name="application" level="ERROR" />
   
   <!-- Off these ones as they are annoying, and anyway we manage configuration ourself -->
   <logger name="com.avaje.ebean.config.PropertyMapLoader" level="OFF" />

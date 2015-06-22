@@ -5,7 +5,7 @@ import base._
 import models.base.Persistable
 import defines.{ContentTypes, EntityType}
 import models.json._
-import play.api.i18n.Lang
+import play.api.i18n.Messages
 import play.api.libs.json._
 import play.api.libs.functional.syntax._
 import play.api.data.Form
@@ -103,5 +103,5 @@ case class AuthoritativeSet(
   with Accessible
   with Holder[HistoricalAgent] {
 
-  override def toStringLang(implicit lang: Lang): String = model.name.getOrElse(id)
+  override def toStringLang(implicit messages: Messages): String = model.name.getOrElse(id)
 }

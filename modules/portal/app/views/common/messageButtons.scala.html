@@ -1,4 +1,4 @@
-@(user: UserProfile, canMessage: Boolean)(implicit lang: Lang, request: RequestHeader)
+@(user: UserProfile, canMessage: Boolean)(implicit messages: Messages, request: RequestHeader)
 
 @if(canMessage) {
     <a class="btn btn-sm btn-default message-user"

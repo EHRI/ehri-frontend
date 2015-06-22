@@ -1,8 +1,10 @@
 package backend.helpdesk
 
+import javax.inject.Inject
+
 import backend.HelpdeskDAO
 import scala.concurrent.{ExecutionContext, Future}
-import play.api.libs.ws.WS
+import play.api.libs.ws.WSClient
 
 
 case class TestHelpdesk(implicit app: play.api.Application) extends HelpdeskDAO {
@@ -25,13 +27,13 @@ case class TestHelpdesk(implicit app: play.api.Application) extends HelpdeskDAO 
 /**
  * @author Mike Bryant (http://github.com/mikesname)
  */
-case class EhriHelpdesk(implicit app: play.api.Application) extends HelpdeskDAO {
+case class EhriHelpdesk @Inject() (implicit app: play.api.Application, ws: WSClient) extends HelpdeskDAO {
   def helpdeskUrl: String = app.configuration.getString("ehri.helpdesk.url")
     .getOrElse(sys.error("Configuration value: 'ehri.helpdesk.url' is not defined"))
 
   def askQuery(query: String)(implicit executionContext: ExecutionContext): Future[Seq[(String,Double)]] = {
     // NB: Order is significant here, we want highest score first
-    WS.url(helpdeskUrl).withQueryString(HelpdeskDAO.QUERY -> query).get().map { r =>
+    ws.url(helpdeskUrl).withQueryString(HelpdeskDAO.QUERY -> query).get().map { r =>
       r.json.as[Map[String,Double]].toSeq.sortWith { case (a, b) =>
         a._2 > b._2
       }
@@ -39,7 +41,7 @@ case class EhriHelpdesk(implicit app: play.api.Application) extends HelpdeskDAO 
   }
 
   def available(implicit executionContext: ExecutionContext): Future[Seq[(String,String)]] = {
-    WS.url(helpdeskUrl).get().map { r =>
+    ws.url(helpdeskUrl).get().map { r =>
       r.json.as[Map[String,String]].toSeq
     }
   }

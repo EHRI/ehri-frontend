@@ -1,6 +1,6 @@
 package helpers
 
-import play.api.test.{PlaySpecification, WithApplication}
+import play.api.test.PlaySpecification
 
 /**
  * Abstract specification which initialises an instance of the
@@ -9,15 +9,6 @@ import play.api.test.{PlaySpecification, WithApplication}
  */
 trait IntegrationTestRunner extends PlaySpecification with RestBackendRunner with UserFixtures with TestConfiguration {
   sequential
-
-  /**
-   * Test running Fake Application. We have general all-test configuration,
-   * handled in `config`, and per-test configuration (`specificConfig`) that
-   * will be merged.
-   * @param specificConfig A map of config values for this test
-   */
-  class ITestApp(val specificConfig: Map[String,Any] = Map.empty) extends WithApplication(
-    fakeApplication(additionalConfiguration = backendConfig ++ getConfig ++ specificConfig, global = getGlobal))
 
   // NB: Because both UserFixtures and the RestBackendendRunner
   // do stuff before each test we need to break the ambiguity of

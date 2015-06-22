@@ -1,10 +1,10 @@
 package integration
 
 import backend.ApiUser
-import backend.rest.PermissionDenied
 import defines._
 import helpers._
 import models.{Group, Account, UserProfile}
+import play.api.test.FakeRequest
 
 /**
  * End-to-end test of the permissions system, implemented as one massive test.
@@ -21,17 +21,15 @@ import models.{Group, Account, UserProfile}
  *    - user1 has update perms on the note-approvers group
  *    - user1 belongs to note-approvers herself
  */
-class UserGroupPermissionSpec extends IntegrationTestRunner with TestHelpers {
-  import mocks.privilegedUser
+class UserGroupPermissionSpec extends IntegrationTestRunner {
+  import mockdata.privilegedUser
 
   implicit val apiUser: ApiUser = ApiUser(Some(privilegedUser.id))
 
   private val userRoutes = controllers.users.routes.UserProfiles
   private val groupRoutes = controllers.groups.routes.Groups
 
-  private def idFromUrl(url: String) = url.substring(url.lastIndexOf("/") + 1)
-
-  private def createUser(id: String, data: Map[String, String], groups: Seq[String] = Seq.empty): (Account, UserProfile) = {
+  private def createUser(id: String, data: Map[String, String], groups: Seq[String] = Seq.empty)(implicit app: play.api.Application): (Account, UserProfile) = {
     val userPostData: Map[String, Seq[String]] = data
       .map(kv => kv._1 -> Seq(kv._2))
       .updated("identifier", Seq(id))
@@ -40,22 +38,23 @@ class UserGroupPermissionSpec extends IntegrationTestRunner with TestHelpers {
       .updated("confirm", Seq("mypass"))
       .updated("group[]", groups)
 
-    val userCreatePost = route(fakeLoggedInHtmlRequest(privilegedUser,
-     userRoutes.createUserPost()), userPostData).get
+    val userCreatePost = FakeRequest(userRoutes.createUserPost())
+      .withUser(privilegedUser).withCsrf.callWith(userPostData)
     status(userCreatePost) must equalTo(SEE_OTHER)
     redirectLocation(userCreatePost) must equalTo(Some(userRoutes.get(id).url))
     val acc: Account = await(mockAccounts.get(id))
     (acc, await(testBackend.get[UserProfile](id)))
   }
 
-  private def createGroup(id: String, data: Map[String, String], groups: Seq[String] = Seq.empty): Group = {
+  private def createGroup(id: String, data: Map[String, String], groups: Seq[String] = Seq.empty)(implicit app: play.api.Application):
+  Group = {
     val groupPostData: Map[String, Seq[String]] = data
       .map(kv => kv._1 -> Seq(kv._2))
       .updated("identifier", Seq(id))
       .updated("group[]", groups)
 
-    val groupCreatePost = route(fakeLoggedInHtmlRequest(privilegedUser,
-      groupRoutes.createPost()), groupPostData).get
+    val groupCreatePost = FakeRequest(groupRoutes.createPost())
+      .withUser(privilegedUser).withCsrf.callWith(groupPostData)
     status(groupCreatePost) must equalTo(SEE_OTHER)
     redirectLocation(groupCreatePost) must equalTo(Some(groupRoutes.get(id).url))
     await(testBackend.get[Group](id))
@@ -72,33 +71,33 @@ class UserGroupPermissionSpec extends IntegrationTestRunner with TestHelpers {
 
       // Currently, user1 should **not** be able to add user2 to noteApprovers because
       // the management group does not have grant OR update permissions on that group
-      val attempt1 = route(fakeLoggedInHtmlRequest(acc1,
-        userRoutes.addToGroup(user2.id, noteApprovers.id))).get
+      val attempt1 = FakeRequest(userRoutes.addToGroup(user2.id, noteApprovers.id))
+        .withUser(acc1).withCsrf.call()
       status(attempt1) must equalTo(FORBIDDEN)
 
       // Now set UPDATE permissions - this should still NOT be sufficient
       await(testBackend.setItemPermissions(management.id, ContentTypes.Group, noteApprovers.id,
-        Seq(PermissionType.Update)))
+        Seq(PermissionType.Update.toString)))
 
-      val attempt2 = route(fakeLoggedInHtmlRequest(acc1,
-        userRoutes.addToGroup(user2.id, noteApprovers.id))).get
+      val attempt2 = FakeRequest(userRoutes.addToGroup(user2.id, noteApprovers.id))
+        .withUser(acc1).withCsrf.call()
       status(attempt2) must equalTo(FORBIDDEN)
 
       // Now set GRANT permissions on the user - this will still fail because
       // the user1 is not a member of noteApprovers
       await(testBackend.setItemPermissions(acc1.id, ContentTypes.UserProfile, acc2.id,
-        Seq(PermissionType.Grant)))
+        Seq(PermissionType.Grant.toString)))
 
       // NB: Currently the front-end does not protect us against attempting
       // to add this user,
-      val attempt3 = route(fakeLoggedInHtmlRequest(acc1,
-        userRoutes.addToGroup(acc2.id, noteApprovers.id))).get
+      val attempt3 = FakeRequest(userRoutes.addToGroup(acc2.id, noteApprovers.id))
+        .withUser(acc1).withCsrf.call()
       status(attempt3) must equalTo(FORBIDDEN)
 
       await(testBackend.addGroup[Group, UserProfile](noteApprovers.id, acc1.id)) must beTrue
 
-      val attempt4 = route(fakeLoggedInHtmlRequest(acc1,
-        userRoutes.addToGroup(acc2.id, noteApprovers.id))).get
+      val attempt4 = FakeRequest(userRoutes.addToGroup(acc2.id, noteApprovers.id))
+        .withUser(acc1).withCsrf.call()
       status(attempt4) must equalTo(SEE_OTHER)
     }
   }

@@ -1,4 +1,4 @@
-@(pwForm: Form[(String,String)], registerForm: Form[SignupData], registerAction: Call, recaptchaKey: String, openIdForm: Form[String], oauthProviders: Seq[auth.oauth2.providers.OAuth2Provider] = Seq.empty, isLogin: Boolean = true)(implicit userOpt: Option[UserProfile], request: RequestHeader, globalConfig: global.GlobalConfig, flash: Flash, lang: Lang, token: play.filters.csrf.CSRF.Token, prefs: utils.SessionPrefs)
+@(pwForm: Form[(String,String)], registerForm: Form[SignupData], registerAction: Call, recaptchaKey: String, openIdForm: Form[String], oauthProviders: Seq[auth.oauth2.providers.OAuth2Provider] = Seq.empty, isLogin: Boolean = true)(implicit userOpt: Option[UserProfile], request: RequestHeader, globalConfig: global.GlobalConfig, flash: Flash, messages: Messages, token: play.filters.csrf.CSRF.Token, prefs: utils.SessionPrefs)
 
 @implicitField = @{ views.html.helper.FieldConstructor(views.html.helpers.fieldTemplateSignUp.f) }
 

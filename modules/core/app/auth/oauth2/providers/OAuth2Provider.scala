@@ -11,6 +11,8 @@ import play.api.libs.json.Json
  */
 trait OAuth2Provider {
 
+  implicit def config: play.api.Configuration
+
 
   /**
    * The name of this provider
@@ -130,9 +132,8 @@ trait OAuth2Provider {
   )
 
   private def getSetting(key: String): String = {
-    import play.api.Play.current
     val keyName = "oauth2." + name + "." + key
-    current.configuration.getString(keyName)
+    config.getString(keyName)
       .getOrElse(sys.error("Configuration key not found: " + keyName))
   }
 }

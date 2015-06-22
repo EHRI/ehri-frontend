@@ -1,20 +1,20 @@
-@(title: Any, styles: Html = Html(""), meta: Map[String,String] = Map.empty)(implicit globalConfig: global.GlobalConfig, lang: Lang)
+@(title: Any, styles: Html = Html(""), meta: Map[String,String] = Map.empty)(implicit globalConfig: global.GlobalConfig, messages: Messages)
 
 <head>
     <title>EHRI - @title</title>
 
-    <link rel="shortcut icon" type="image/png" href="@controllers.portal.routes.Assets.versioned("img/favicon.png")">
+    <link rel="shortcut icon" type="image/png" href="@controllers.portal.routes.PortalAssets.versioned("img/favicon.png")">
     <!--[if lte IE 9]>
-    <link rel="stylesheet" href="@controllers.portal.routes.Assets.versioned("css/font-awesome.css")">
-    <link rel="stylesheet" href="@controllers.portal.routes.Assets.versioned("css/portal.css")">
+    <link rel="stylesheet" href="@controllers.portal.routes.PortalAssets.versioned("css/font-awesome.css")">
+    <link rel="stylesheet" href="@controllers.portal.routes.PortalAssets.versioned("css/portal.css")">
     <![endif]-->
     <!--[if !IE]> -->
-    <link rel="stylesheet" href="@controllers.portal.routes.Assets.versioned("css/portal-all.css")">
+    <link rel="stylesheet" href="@controllers.portal.routes.PortalAssets.versioned("css/portal-all.css")">
     <!-- <![endif]-->
 
-    @if(lang.code.startsWith("he")) {
+    @if(messages.lang.code.startsWith("he")) {
         <!-- experimental hebrew right-to-left support -->
-        <link rel="stylesheet" href="@controllers.portal.routes.Assets.versioned("css/lib/bootstrap-rtl.css")">
+        <link rel="stylesheet" href="@controllers.portal.routes.PortalAssets.versioned("css/lib/bootstrap-rtl.css")">
     }
 
     <meta name="viewport" content="width=device-width, initial-scale=1">

@@ -1,4 +1,4 @@
-@(item: DocumentaryUnit)(implicit req: RequestHeader)
+@(item: DocumentaryUnit)(implicit req: RequestHeader, messages: Messages)
 
 @item.holder.flatMap(_.model.logoUrl).map { logo =>
     @defining(item.url.map(_.toString).getOrElse(req.path)) { url =>

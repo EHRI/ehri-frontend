@@ -2,7 +2,7 @@ package controllers.portal
 
 import controllers.generic.Search
 import models.Isaar
-import play.api.i18n.Messages
+import play.api.i18n.{MessagesApi, Messages}
 import play.api.mvc.{Controller, RequestHeader}
 import utils.DateFacetUtils._
 import utils.search._
@@ -16,9 +16,13 @@ import views.Helpers
  */
 trait FacetConfig extends Search {
 
-  this: Controller =>
+  this: Controller with play.api.i18n.I18nSupport =>
 
   import utils.search.SearchConstants._
+
+  implicit def messagesApi: MessagesApi
+
+  private val dateFacetUtils = utils.DateFacetUtils()(messagesApi)
 
   /**
    * Return a date query facet if valid start/end params have been given.
@@ -26,12 +30,12 @@ trait FacetConfig extends Search {
   private def dateList(implicit request: RequestHeader): Option[QueryFacet] = {
     for {
       dateString <- dateQueryForm.bindFromRequest(request.queryString).value
-      queryRange = formatAsQuery(dateString)
+      queryRange = dateFacetUtils.formatAsQuery(dateString)
     } yield
       QueryFacet(
         value = dateString,
         range = queryRange,
-        name = formatReadable(dateString)
+        name = dateFacetUtils.formatReadable(dateString)
       )
   }
 

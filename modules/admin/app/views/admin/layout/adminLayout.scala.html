@@ -1,28 +1,28 @@
-@(title: Any, scripts: Html = Html(""), styles: Html = Html(""))(content: Html)(implicit userOpt: Option[UserProfile], req: RequestHeader, globalConfig: global.GlobalConfig, flash: Flash, lang: Lang)
+@(title: Any, scripts: Html = Html(""), styles: Html = Html(""))(content: Html)(implicit userOpt: Option[UserProfile], req: RequestHeader, globalConfig: global.GlobalConfig, flash: Flash, messages: Messages)
 
 <!DOCTYPE html>
 
-<html lang="@lang.code">
+<html lang="@messages.lang.code">
     <head>
         <title>@title</title>
 
-        <link rel="shortcut icon" type="image/png" href="@controllers.portal.routes.Assets.versioned("img/favicon.png")">
-	    <link href="@controllers.portal.routes.Assets.versioned("bootstrap/css/datepicker.css")" rel="stylesheet">
-        <link href="@controllers.portal.routes.Assets.versioned("css/admin.css")" rel="stylesheet">
+        <link rel="shortcut icon" type="image/png" href="@controllers.portal.routes.PortalAssets.versioned("img/favicon.png")">
+	    <link href="@controllers.portal.routes.PortalAssets.versioned("bootstrap/css/datepicker.css")" rel="stylesheet">
+        <link href="@controllers.portal.routes.PortalAssets.versioned("css/admin.css")" rel="stylesheet">
 
         <meta name="viewport" content="width=device-width, initial-scale=1">
         
         @styles
     </head>
     <body data-spy="scroll" data-target="#form-nav-sidebar">
-        <script src="@controllers.portal.routes.Assets.versioned("js/lib/jquery-1.11.2.js")"></script>
-        <script src="@controllers.portal.routes.Assets.versioned("js/lib/jquery.history.js")"></script>
-        <script src="@controllers.portal.routes.Assets.versioned("js/select2/select2.js")"></script>
-        <script src="@controllers.portal.routes.Assets.versioned("bootstrap/js/bootstrap.js")"></script>
-        <script src="@controllers.portal.routes.Assets.versioned("bootstrap/js/bootstrap-modal.js")"></script>
-        <script src="@controllers.portal.routes.Assets.versioned("bootstrap/js/bootstrap-modalmanager.js")"></script>
-        <script src="@controllers.portal.routes.Assets.versioned("js/common.js")"></script>
-        <script src="@controllers.portal.routes.Assets.versioned("js/admin.js")"></script>
+        <script src="@controllers.portal.routes.PortalAssets.versioned("js/lib/jquery-1.11.2.js")"></script>
+        <script src="@controllers.portal.routes.PortalAssets.versioned("js/lib/jquery.history.js")"></script>
+        <script src="@controllers.portal.routes.PortalAssets.versioned("js/select2/select2.js")"></script>
+        <script src="@controllers.portal.routes.PortalAssets.versioned("bootstrap/js/bootstrap.js")"></script>
+        <script src="@controllers.portal.routes.PortalAssets.versioned("bootstrap/js/bootstrap-modal.js")"></script>
+        <script src="@controllers.portal.routes.PortalAssets.versioned("bootstrap/js/bootstrap-modalmanager.js")"></script>
+        <script src="@controllers.portal.routes.PortalAssets.versioned("js/common.js")"></script>
+        <script src="@controllers.portal.routes.PortalAssets.versioned("js/admin.js")"></script>
         <script src="@controllers.portal.routes.PortalData.jsRoutes()"></script>
         @scripts
 

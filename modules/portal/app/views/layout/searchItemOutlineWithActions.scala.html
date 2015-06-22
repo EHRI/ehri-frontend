@@ -1,4 +1,4 @@
-@(item: models.base.AnyModel)(heading: Html)(actions: Html)(body: Html = Html(""))(implicit userOpt: Option[UserProfile], lang: Lang)
+@(item: models.base.AnyModel)(heading: Html)(actions: Html)(body: Html = Html(""))(implicit userOpt: Option[UserProfile], messages: Messages)
 
 <div class="search-item" id="@item.id">
     <div class="search-item-actions">

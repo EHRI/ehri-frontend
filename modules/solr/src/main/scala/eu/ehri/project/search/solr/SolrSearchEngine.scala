@@ -1,10 +1,12 @@
 package eu.ehri.project.search.solr
 
+import javax.inject.Inject
+
 import defines.EntityType
 import play.api.libs.concurrent.Execution.Implicits._
 import models.UserProfile
-import play.api.libs.ws.{WSResponse, WS}
-import play.api.{Play, Logger}
+import play.api.libs.ws.{WSClient, WSResponse}
+import play.api.Logger
 import utils.Page
 import scala.concurrent.Future
 import utils.search._
@@ -17,8 +19,7 @@ import play.api.http.{MimeTypes, HeaderNames}
  * Implements the plugin implementation so other search
  * engines/mocks can be substituted.
  */
-case class SolrSearchEngine(
-  queryBuilder: QueryBuilder,
+case class SolrSearchConfig(
   handler: ResponseHandler,
   params: SearchParams = SearchParams.empty,
   filters: Map[String, Any] = Map.empty,
@@ -27,24 +28,25 @@ case class SolrSearchEngine(
   facetClasses: Seq[FacetClass[Facet]] = Seq.empty,
   extraParams: Map[String, Any] = Map.empty,
   mode: SearchMode.Value = SearchMode.DefaultAll
-)(implicit val app: play.api.Application)
-  extends SearchEngine {
+)(implicit val app: play.api.Application, ws: WSClient)
+  extends SearchEngineConfig {
 
+  val queryBuilder = new SolrQueryBuilder(WriterType.Json)(app)
+  
   // Dummy value to satisfy the RestDAO trait...
   val userProfile: Option[UserProfile] = None
 
-  lazy val solrPath = Play.current.configuration.getString("solr.path")
-    .getOrElse(sys.error("Missing configuration: solr.path"))
+  lazy val solrPath = utils.serviceBaseUrl("solr", app.configuration)
 
   def solrSelectUrl = solrPath + "/select"
 
   /**
    * Get the Solr URL...
    */
-  def fullSearchUrl(query: Map[String,Seq[String]]) = utils.joinPath(solrSelectUrl, query)
+  def fullSearchUrl(query: Map[String,Seq[String]]) = utils.http.joinPath(solrSelectUrl, query)
 
   def dispatch(query: Map[String,Seq[String]]): Future[WSResponse] = {
-    WS.url(solrSelectUrl)
+    ws.url(solrSelectUrl)
       .withHeaders(HeaderNames.CONTENT_TYPE -> MimeTypes.FORM)
       .post(query)
   }
@@ -104,25 +106,29 @@ case class SolrSearchEngine(
     }
   }
 
-  override def withIdFilters(ids: Seq[String]): SearchEngine = copy(idFilters = idFilters ++ ids)
+  override def withIdFilters(ids: Seq[String]): SearchEngineConfig = copy(idFilters = idFilters ++ ids)
 
-  override def withFacets(f: Seq[AppliedFacet]): SearchEngine = copy(facets = facets ++ f)
+  override def withFacets(f: Seq[AppliedFacet]): SearchEngineConfig = copy(facets = facets ++ f)
 
-  override def setMode(mode: SearchMode.Value): SearchEngine = copy(mode = mode)
+  override def setMode(mode: SearchMode.Value): SearchEngineConfig = copy(mode = mode)
 
-  override def withFilters(f: Map[String, Any]): SearchEngine = copy(filters = filters ++ f)
+  override def withFilters(f: Map[String, Any]): SearchEngineConfig = copy(filters = filters ++ f)
 
-  override def setParams(params: SearchParams): SearchEngine = copy(params = params)
+  override def setParams(params: SearchParams): SearchEngineConfig = copy(params = params)
 
-  override def withFacetClasses(fc: Seq[FacetClass[Facet]]): SearchEngine = copy(facetClasses = facetClasses ++ fc)
+  override def withFacetClasses(fc: Seq[FacetClass[Facet]]): SearchEngineConfig = copy(facetClasses = facetClasses ++ fc)
 
-  override def withExtraParams(extra: Map[String, Any]): SearchEngine = copy(extraParams = extraParams ++ extra)
+  override def withExtraParams(extra: Map[String, Any]): SearchEngineConfig = copy(extraParams = extraParams ++ extra)
 
-  override def withIdExcludes(ids: Seq[String]): SearchEngine = copy(params = params.copy(excludes = Some(ids.toList)))
+  override def withIdExcludes(ids: Seq[String]): SearchEngineConfig = copy(params = params.copy(excludes = Some(ids.toList)))
 
-  override def withEntities(entities: Seq[EntityType.Value]): SearchEngine = copy(params = params.copy(entities = entities.toList))
+  override def withEntities(entities: Seq[EntityType.Value]): SearchEngineConfig = copy(params = params.copy(entities = entities.toList))
 
-  override def setEntity(entities: EntityType.Value*): SearchEngine = copy(params = params.copy(entities = entities.toList))
+  override def setEntity(entities: EntityType.Value*): SearchEngineConfig = copy(params = params.copy(entities = entities.toList))
 
-  override def setSort(sort: SearchOrder.Value): SearchEngine = copy(params = params.copy(sort = Some(sort)))
+  override def setSort(sort: SearchOrder.Value): SearchEngineConfig = copy(params = params.copy(sort = Some(sort)))
+}
+
+case class SolrSearchEngine @Inject()(handler: ResponseHandler, app: play.api.Application, ws: WSClient) extends SearchEngine {
+  def config = new SolrSearchConfig(handler)(app, ws)
 }

@@ -1,17 +1,19 @@
 
 import com.typesafe.sbt.digest.Import._
 import com.typesafe.sbt.gzip.Import._
+import com.typesafe.sbt.packager.universal.UniversalPlugin.autoImport._
 import com.typesafe.sbt.jse.JsEngineImport.JsEngineKeys
 import com.typesafe.sbt.less.Import._
 import com.typesafe.sbt.rjs.Import._
 import net.ground5hark.sbt.concat.Import._
 import com.typesafe.sbt.web.SbtWeb.autoImport._
 import com.typesafe.sbt.web._
-import play.Play.autoImport._
-import play.PlayImport.PlayKeys._
+import play.sbt.Play.autoImport._
 import play.twirl.sbt.Import.TwirlKeys.templateImports
 import sbt.Keys._
 import sbt._
+import play.sbt.routes.RoutesKeys._
+
 
 object ApplicationBuild extends Build {
 
@@ -19,23 +21,24 @@ object ApplicationBuild extends Build {
   logBuffered := false
 
   val appName = "docview"
-  val appVersion = "1.0.3-SNAPSHOT"
+  val appVersion = "1.0.4-SNAPSHOT"
 
   val backendDependencies = Seq(
     ws,
     cache,
 
     // Ontology
-    "ehri-project" % "ehri-definitions" % "0.10.1-SNAPSHOT",
+    "ehri-project" % "ehri-definitions" % "0.10.2-SNAPSHOT",
 
     // The ever-vital Joda time
     "joda-time" % "joda-time" % "2.7"
   )
 
   val backendTestDependencies = Seq(
-    "org.neo4j" % "neo4j-kernel" % "2.2.1" % "test" classifier "tests" classifier "",
-    "org.neo4j" % "neo4j-io" % "2.2.1" % "test" classifier "tests" classifier "",
-    "org.neo4j.app" % "neo4j-server" % "2.2.1" % "test" classifier "tests" classifier "",
+    specs2 % Test,
+    "org.neo4j" % "neo4j-kernel" % "2.2.1" % "test" classifier "tests" classifier "" exclude("org.mockito", "mockito-core"),
+    "org.neo4j" % "neo4j-io" % "2.2.1" % "test" classifier "tests" classifier "" exclude("org.mockito", "mockito-core"),
+    "org.neo4j.app" % "neo4j-server" % "2.2.1" % "test" classifier "tests" classifier "" exclude("org.mockito", "mockito-core"),
     "org.hamcrest" % "hamcrest-all" % "1.3" % "test",
 
     // This is necessary to allow the Neo4j server to start
@@ -44,20 +47,21 @@ object ApplicationBuild extends Build {
     // We need the backend code to test against, but exclude any
     // groovy stuff because a) it's not needed, and b) it has a
     // ton of awkward transitive dependencies
-    "ehri-project" % "ehri-frames" % "0.10.1-SNAPSHOT" % "test" classifier "tests" classifier "" exclude("com.tinkerpop.gremlin", "gremlin-groovy"),
-    "ehri-project" % "ehri-extension" % "0.10.1-SNAPSHOT" % "test" classifier "tests" classifier "" exclude("com.tinkerpop.gremlin", "gremlin-groovy")
+    "ehri-project" % "ehri-frames" % "0.10.2-SNAPSHOT" % "test" classifier "tests" classifier "" exclude("com.tinkerpop.gremlin", "gremlin-groovy") exclude("org.mockito", "mockito-core"),
+    "ehri-project" % "ehri-extension" % "0.10.2-SNAPSHOT" % "test" classifier "tests" classifier "" exclude("com.tinkerpop.gremlin", "gremlin-groovy") exclude("org.mockito", "mockito-core")
   )
+
 
   val coreDependencies = backendDependencies ++ Seq(
     jdbc,
-    anorm,
+    evolutions,
     filters,
+
+    // Anorm DB lib
+    "com.typesafe.play" %% "anorm" % "2.4.0-M3",
 
     // Commons IO
     "commons-io" % "commons-io" % "2.4",
-
-    // Injection guff - yep, we're using a beta
-    "com.google.inject" % "guice" % "4.0",
 
     // Authentication
     "jp.t2v" %% "play2-auth" % "0.13.2",
@@ -75,7 +79,7 @@ object ApplicationBuild extends Build {
     "org.jsoup" % "jsoup" % "1.8.1",
 
     // Mailer...
-    "com.typesafe.play.plugins" %% "play-plugins-mailer" % "2.3.0",
+    "com.typesafe.play" %% "play-mailer" % "3.0.1",
 
     // Time formatting library
     "org.ocpsoft.prettytime" % "prettytime" % "1.0.8.Final",
@@ -83,7 +87,7 @@ object ApplicationBuild extends Build {
     // Logging: Janino is necessary for configuring LogBack's regex filter
     "org.codehaus.janino" % "janino" % "2.7.7"
   )
-  
+
   val portalDependencies = Seq(
     "net.coobird" % "thumbnailator" % "[0.4, 0.5)",
     "net.sf.opencsv" % "opencsv" % "2.3",
@@ -93,6 +97,7 @@ object ApplicationBuild extends Build {
   )
 
   val testDependencies = backendTestDependencies ++ Seq(
+    specs2 % Test,
     "jp.t2v" %% "play2-auth-test" % "0.13.2" % "test"
   )
 
@@ -102,10 +107,22 @@ object ApplicationBuild extends Build {
     "Codahale" at "http://repo.codahale.com",
     "Typesafe Repository" at "http://repo.typesafe.com/typesafe/releases/",
     Resolver.sonatypeRepo("releases"),
-    "EHRI Snapshots" at "http://ehridev.dans.knaw.nl/artifactory/libs-snapshot/"
+    "EHRI Snapshots" at "http://ehridev.dans.knaw.nl/artifactory/libs-snapshot/",
+    "scalaz-bintray" at "http://dl.bintray.com/scalaz/releases"
   )
 
   val validateMessages = TaskKey[Unit]("validate-messages", "Validate messages")
+
+  // Exclude certain conf files (e.g. those containing secret keys)
+  // that we do not want packaged
+  val excludedResources = Seq(
+    "oauth2.conf",
+    "parse.conf",
+    "aws.conf",
+    "test.conf",
+    "external_pages.conf",
+    "test-logger.xml"
+  )
 
   val commonSettings = Seq(
 
@@ -118,9 +135,8 @@ object ApplicationBuild extends Build {
     javaOptions in Test ++= Seq(
       "-Xmx1G",
       "-XX:+CMSClassUnloadingEnabled",
-      "-XX:MaxPermSize=256M",
       "-Dconfig.file=conf/test.conf",
-      s"-Dlogback.configurationFile=${(baseDirectory in LocalRootProject).value}/conf/test-logger.xml"
+      s"-Dlogger.file=${(baseDirectory in LocalRootProject).value}/conf/test-logger.xml"
     ),
 
     // Show warnings and deprecations
@@ -132,6 +148,10 @@ object ApplicationBuild extends Build {
       "-target:jvm-1.6"
     ),
 
+
+    // Instantiate controllers via dependency injection
+    routesGenerator := InjectedRoutesGenerator,
+
     // Allow SBT to tell Scaladoc where to find external
     // api docs if dependencies provide that metadata
     autoAPIMappings := true,
@@ -140,7 +160,6 @@ object ApplicationBuild extends Build {
     parallelExecution := false,
 
     // Check messages files contain valid format strings
-    // TODO: Figure out how to run this on specific triggers
     validateMessages := {
       def messagesFiles(base: File): Seq[File] = {
         val finder: PathFinder = (base / "conf") * "messages*"
@@ -152,7 +171,6 @@ object ApplicationBuild extends Build {
         import java.text.MessageFormat
         import scala.collection.JavaConverters._
         import java.io.FileInputStream
-
         val properties: Properties = new Properties()
         val fis = new FileInputStream(messageFile)
         try {
@@ -180,8 +198,10 @@ object ApplicationBuild extends Build {
         }
       }
       val allMessages = messagesFiles(baseDirectory.value)
-      streams.value.log.info(s"Validating ${allMessages.size} messages file(s)")
-      allMessages.foreach(validate)
+      if (allMessages.nonEmpty) {
+        streams.value.log.debug(s"Validating ${allMessages.size} messages file(s) in ${baseDirectory.value}")
+        allMessages.foreach(validate)
+      }
     },
 
     // Classes to auto-import into templates
@@ -196,7 +216,10 @@ object ApplicationBuild extends Build {
     resolvers ++= additionalResolvers,
 
     // Auto-import EntityType enum into routes
-    routesImport += "defines.EntityType",
+    routesImport ++= Seq(
+      "defines.EntityType",
+      "defines.binders._"
+    ),
 
     // SBT magic: http://stackoverflow.com/a/12772739/285374
     // pick up additional resources in test
@@ -211,37 +234,43 @@ object ApplicationBuild extends Build {
     includeFilter in (Assets, LessKeys.less) := "*.less",
     excludeFilter in (Assets, LessKeys.less) := "_*.less",
 
-    // Exclude certain conf files (e.g. those containing secret keys)
-    // that we do not want packaged
-    excludeFilter in unmanagedResources := ("oauth2.conf"
-        || "parse.conf" || "aws.conf" || "test.conf" || "external_pages.conf")
+    // Filter out excluded resources from packaging
+    mappings in Universal := (mappings in Universal).value.filterNot { case (f, s) =>
+      excludedResources contains f.getName
+    },
+
+    compile in Compile := {
+      validateMessages.value
+      (compile in Compile).value
+    }
   )
 
   val assetSettings = Seq(
   )
 
   lazy val backend = Project(appName + "-backend", file("modules/backend"))
-    .enablePlugins(play.PlayScala).settings(
-    version := appVersion,
-    name := appName + "-backend",
-    libraryDependencies ++= backendDependencies ++ backendTestDependencies
-  ).settings(commonSettings: _*)
+    .settings(
+      version := appVersion,
+      name := appName + "-backend",
+      libraryDependencies ++= backendDependencies ++ backendTestDependencies,
+      resolvers ++= additionalResolvers
+  )
 
   lazy val core = Project(appName + "-core", file("modules/core"))
-    .enablePlugins(play.PlayScala).settings(
+    .enablePlugins(play.sbt.PlayScala).settings(
       version := appVersion,
       name := appName + "-core",
       libraryDependencies ++= coreDependencies
   ).settings(commonSettings: _*).dependsOn(backend % "test->test;compile->compile")
 
   lazy val portal = Project(appName + "-portal", file("modules/portal"))
-    .enablePlugins(play.PlayScala)
+    .enablePlugins(play.sbt.PlayScala)
     .enablePlugins(SbtWeb).settings(
     version := appVersion,
     routesImport += "models.view._",
     libraryDependencies ++= portalDependencies,
     RjsKeys.mainModule := "portal-main",
-    pipelineStages := Seq(rjs, concat, digest, gzip),
+    //pipelineStages := Seq(rjs, concat, digest, gzip),
     pipelineStages in Assets := Seq(concat, digest, gzip),
     Concat.groups := Seq(
      "css/portal-all.css" -> group(
@@ -285,12 +314,13 @@ object ApplicationBuild extends Build {
   ).settings(commonSettings: _*).dependsOn(core % "test->test;compile->compile")
 
   lazy val admin = Project(appName + "-admin", file("modules/admin"))
-    .enablePlugins(play.PlayScala).settings(
-    version := appVersion
+    .enablePlugins(play.sbt.PlayScala).settings(
+    version := appVersion,
+    libraryDependencies += specs2 % Test
   ).settings(commonSettings: _*).dependsOn(portal)
 
   lazy val guides = Project(appName + "-guides", file("modules/guides"))
-    .enablePlugins(play.PlayScala).settings(
+    .enablePlugins(play.sbt.PlayScala).settings(
     version := appVersion
   ).settings(commonSettings: _*).dependsOn(admin)
 
@@ -302,12 +332,12 @@ object ApplicationBuild extends Build {
     resolvers ++= additionalResolvers,
     version := appVersion,
     javaOptions in Test ++= Seq(
-      s"-Dlogback.configurationFile=${(baseDirectory in LocalRootProject).value}/conf/test-logger.xml"
+      s"-Dlogger.file=${(baseDirectory in LocalRootProject).value}/conf/test-logger.xml"
     )
   ).dependsOn(core % "test->test;compile->compile")
 
   lazy val main = Project(appName, file("."))
-    .enablePlugins(play.PlayScala).settings(
+    .enablePlugins(play.sbt.PlayScala).settings(
     version := appVersion,
     libraryDependencies ++= coreDependencies ++ testDependencies
   ).settings(commonSettings ++ assetSettings: _*)

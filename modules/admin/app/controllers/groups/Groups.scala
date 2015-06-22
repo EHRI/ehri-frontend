@@ -1,15 +1,19 @@
 package controllers.groups
 
 import auth.AccountManager
+import backend.rest.cypher.Cypher
 import defines.EntityType
+import play.api.cache.CacheApi
+import play.api.i18n.MessagesApi
 import play.api.libs.concurrent.Execution.Implicits._
 import controllers.generic._
 import forms.VisibilityForm
 import models.{UserProfile, Group, GroupF}
 import models.base.Accessor
-import com.google.inject._
+import javax.inject._
 import utils.PageParams
 import utils.search.{SearchItemResolver, SearchEngine}
+import views.MarkdownRenderer
 import scala.concurrent.Future
 import backend.Backend
 import backend.rest.Constants
@@ -17,7 +21,19 @@ import play.api.mvc.Request
 import play.api.data.{Forms, Form}
 import controllers.base.AdminController
 
-case class Groups @Inject()(implicit globalConfig: global.GlobalConfig, searchEngine: SearchEngine, searchResolver: SearchItemResolver, backend: Backend, accounts: AccountManager, pageRelocator: utils.MovedPageLookup) extends AdminController
+case class Groups @Inject()(
+  implicit app: play.api.Application,
+  cache: CacheApi,
+  globalConfig: global.GlobalConfig,
+  searchEngine: SearchEngine,
+  searchResolver: SearchItemResolver,
+  backend: Backend,
+  accounts: AccountManager,
+  pageRelocator: utils.MovedPageLookup,
+  messagesApi: MessagesApi,
+  markdown: MarkdownRenderer,
+  cypher: Cypher
+) extends AdminController
   with PermissionHolder[Group]
   with Visibility[Group]
   with Membership[Group]

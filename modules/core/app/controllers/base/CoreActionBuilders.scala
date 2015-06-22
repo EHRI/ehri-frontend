@@ -56,7 +56,7 @@ trait CoreActionBuilders extends Controller with ControllerHelpers with AuthActi
    * Indicates that the current controller is secured, which,
    * if set to false, overrides staffOnly and verifiedOnly.
    */
-  protected lazy val secured = play.api.Play.current
+  protected lazy val secured = app
     .configuration.getBoolean("ehri.secured").getOrElse(true)
 
   /**
