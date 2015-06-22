@@ -5,8 +5,8 @@ import play.api.test.PlaySpecification
 /**
  * @author Mike Bryant (http://github.com/mikesname)
  */
-class PegdownMarkdownSpec extends PlaySpecification {
-  val mdprocessor = new PegdownMarkdownRendererProvider().get
+class PegDownMarkdownProcessorSpec extends PlaySpecification {
+  val mdprocessor = new PegDownMarkdownRenderer
 
   "pegdown markdown processor" should {
     "parse markdown correctly" in {
