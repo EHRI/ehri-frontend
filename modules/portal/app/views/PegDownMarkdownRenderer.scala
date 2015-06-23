@@ -9,9 +9,19 @@ import org.pegdown.ast.{AutoLinkNode, ExpLinkNode}
 import org.pegdown.{Extensions, LinkRenderer, PegDownProcessor}
 
 
-case class PegDownMarkdownRenderer(
-  pegDownProcessor: PegDownProcessor = new PegDownProcessor(Extensions.AUTOLINKS)
-) extends MarkdownRenderer {
+case class PegDownMarkdownRenderer() extends MarkdownRenderer {
+
+  // Pegdown is not thread safe so we need to use a threadlocal
+  // for this
+  // https://github.com/sirthias/parboiled/issues/11#issuecomment-617256
+  private val _pegDown = new ThreadLocal[PegDownProcessor]
+  private def getPegDown = {
+    Option(_pegDown.get()).getOrElse {
+      val parser = new PegDownProcessor(Extensions.AUTOLINKS)
+      _pegDown.set(parser)
+      parser
+    }
+  }
 
   private val linkRenderer = new LinkRenderer() {
     override def render(node: AutoLinkNode) = {
@@ -40,13 +50,13 @@ case class PegDownMarkdownRenderer(
     .addAttributes("a", "rel", "nofollow")
 
   override def renderMarkdown(markdown: String): String =
-    Jsoup.clean(pegDownProcessor.markdownToHtml(markdown, linkRenderer), whiteListStandard)
+    Jsoup.clean(getPegDown.markdownToHtml(markdown, linkRenderer), whiteListStandard)
 
   override def renderUntrustedMarkdown(markdown: String): String =
-    Jsoup.clean(pegDownProcessor.markdownToHtml(markdown, linkRenderer), whiteListStrict)
+    Jsoup.clean(getPegDown.markdownToHtml(markdown, linkRenderer), whiteListStrict)
 
   override def renderTrustedMarkdown(markdown: String): String =
-    pegDownProcessor.markdownToHtml(markdown, linkRenderer)
+    getPegDown.markdownToHtml(markdown, linkRenderer)
 }
 
 @Singleton
