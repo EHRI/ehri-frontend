@@ -1,6 +1,6 @@
 # Group routes
 
-GET         /                                   @controllers.groups.Groups.list
+GET         /                                   @controllers.groups.Groups.search
 GET         /create                             @controllers.groups.Groups.create
 POST        /create                             @controllers.groups.Groups.createPost
 GET         /:id                                @controllers.groups.Groups.get(id: String)
