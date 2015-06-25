@@ -99,7 +99,7 @@ case class SolrSearchConfig(
       .setMode(mode)
       .searchQuery()
 
-    logger.info(fullSearchUrl(queryRequest))
+    logger.debug(fullSearchUrl(queryRequest))
     dispatch(queryRequest).map { response =>
       val parser = handler.getResponseParser(response.body)
       val facetClassList: Seq[FacetClass[Facet]] = parser.extractFacetData(facets, facetClasses)

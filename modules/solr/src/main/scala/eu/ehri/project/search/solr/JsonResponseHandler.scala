@@ -60,7 +60,7 @@ case class JsonResponseHandler @Inject()(app: play.api.Application) extends Resp
 
     private def rawSpellcheckSuggestions: Option[(String,Seq[Suggestion])] = for {
       suggest <- (response \ "spellcheck"\ "suggestions").asOpt[Seq[JsValue]] if suggest.size > 2
-      word <- suggest(0).asOpt[String]
+      word <- suggest.head.asOpt[String]
       correct <- (suggest(1) \ "suggestion").asOpt(Reads.seq(Suggestion.suggestionReads))
     } yield (word, correct)
 
@@ -81,7 +81,7 @@ case class JsonResponseHandler @Inject()(app: play.api.Application) extends Resp
 
         val fields = jsObj.value.collect {
           case (field, JsString(str)) => field -> str
-          case (field, JsArray(JsString(str) :: _)) => field -> str
+          case (field, JsArray(Seq(JsString(str), _*))) => field -> str
         }.toMap
 
         hit.copy(fields = fields, highlights = highlights, phrases = phrases)
@@ -119,8 +119,8 @@ case class JsonResponseHandler @Inject()(app: play.api.Application) extends Resp
       }
     }
 
-    private def appliedFacetValues(fc: FacetClass[_], appliedFacets: Seq[AppliedFacet]): Seq[String]
-    = appliedFacets.find(_.name == fc.key).map(_.values).getOrElse(Seq.empty)
+    private def appliedFacetValues(fc: FacetClass[_], appliedFacets: Seq[AppliedFacet]): Seq[String] =
+      appliedFacets.find(_.name == fc.key).map(_.values).getOrElse(Seq.empty)
 
     private def extractFieldFacet(fc: FieldFacetClass, applied: Seq[String]): FieldFacetClass = {
       rawFieldFacets.get(fc.key).map(_.validate(fieldFacetValueReader)).collect {

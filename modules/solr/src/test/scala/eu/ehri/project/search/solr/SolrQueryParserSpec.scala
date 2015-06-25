@@ -64,7 +64,6 @@ class SolrQueryParserSpec extends PlaySpecification with ResourceUtils {
     val jsonHandler = JsonResponseHandler(app)
     "parse the correct number of docs with the right IDs" in {
       val qp = jsonHandler.getResponseParser(jsonResponseString)
-      println(qp.count)
       val docs = qp.items
       docs.size must equalTo(2)
       docs.find(d => d.itemId == "ehri-cb-638") must beSome
@@ -99,6 +98,10 @@ class SolrQueryParserSpec extends PlaySpecification with ResourceUtils {
       val place = itemMap.get.get("place_t")
       place must beSome
       place.get must equalTo(Seq("Active in the Netherlands, <em>Amsterdam</em>."))
+
+      qp.items(0).fields.get("holderName") must beSome.which { v =>
+        v must equalTo("EHRI Corporate Bodies")
+      }
 
       val doc1 = qp.items(0)
       doc1.highlights.get("place_t").get must equalTo(Seq("Active in the Netherlands, <em>Amsterdam</em>."))
