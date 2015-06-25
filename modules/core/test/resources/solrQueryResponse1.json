@@ -29,7 +29,10 @@
                         "id": "ehri-cb-638-eng-292", 
                         "itemId": "ehri-cb-638", 
                         "name": "Zentralstelle f\u00fcr j\u00fcdische Auswanderung Amsterdam", 
-                        "type": "historicalAgent"
+                        "type": "historicalAgent",
+                        "holderName": [
+                            "EHRI Corporate Bodies"
+                        ]
                     }, 
                     {
                         "gid": 34344, 
