@@ -22,7 +22,7 @@ object Helpers {
 
   val moreMenu = Seq(
     ("contentTypes.userProfile",      controllers.users.routes.UserProfiles.search().url),
-    ("contentTypes.group",            controllers.groups.routes.Groups.list().url),
+    ("contentTypes.group",            controllers.groups.routes.Groups.search().url),
     ("contentTypes.country",          controllers.countries.routes.Countries.search().url),
     ("contentTypes.cvocVocabulary",   controllers.vocabularies.routes.Vocabularies.list().url),
     ("contentTypes.authoritativeSet", controllers.sets.routes.AuthoritativeSets.list().url),

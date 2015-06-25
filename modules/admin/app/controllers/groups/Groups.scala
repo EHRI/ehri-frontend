@@ -38,7 +38,8 @@ case class Groups @Inject()(
   with Visibility[Group]
   with Membership[Group]
   with ItemPermissions[Group]
-  with CRUD[GroupF, Group] {
+  with CRUD[GroupF, Group]
+  with SearchType[Group] {
 
   private val form = models.Group.form
   private val groupRoutes = controllers.groups.routes.Groups
@@ -61,8 +62,8 @@ case class Groups @Inject()(
     Ok(views.html.admin.systemEvent.itemList(request.item, request.page, request.params))
   }
 
-  def list = ItemPageAction.apply { implicit request =>
-    Ok(views.html.admin.group.list(request.page, request.params))
+  def search = SearchTypeAction().apply { implicit request =>
+    Ok(views.html.admin.group.search(request.result, groupRoutes.search()))
   }
 
   def create = NewItemAction.apply { implicit request =>
@@ -112,7 +113,7 @@ case class Groups @Inject()(
   }
 
   def deletePost(id: String) = DeleteAction(id).apply { implicit request =>
-    Redirect(groupRoutes.list())
+    Redirect(groupRoutes.search())
         .flashing("success" -> "item.delete.confirmation")
   }
 

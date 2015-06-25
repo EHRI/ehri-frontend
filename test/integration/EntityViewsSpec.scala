@@ -228,7 +228,7 @@ class EntityViewsSpec extends IntegrationTestRunner {
       contentAsString(show) must contain(controllers.groups.routes.Groups.permissions(id).url)
       contentAsString(show) must contain(controllers.groups.routes.Groups.grantList(id).url)
       contentAsString(show) must contain(controllers.groups.routes.Groups.membership(id).url)
-      contentAsString(show) must contain(controllers.groups.routes.Groups.list().url)
+      contentAsString(show) must contain(controllers.groups.routes.Groups.search().url)
     }
 
     "allow adding groups to groups" in new ITestApp {
