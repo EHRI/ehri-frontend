@@ -69,5 +69,9 @@ class SolrQueryBuilderSpec extends PlaySpecification {
       facets must contain(fq3)
       facets must contain(fq4)
     }
+
+    "handle string escaping" in {
+      SolrQueryBuilder.escape("\"[]\\") must equalTo("\\\"\\[\\]\\\\")
+    }
   }
 }
