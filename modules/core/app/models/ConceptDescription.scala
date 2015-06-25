@@ -32,6 +32,7 @@ object ConceptDescriptionF {
           SCOPENOTE -> d.scopeNote,
           LONGITUDE -> d.longitude,
           LATITUDE -> d.latitude,
+          URL -> d.url,
           CREATION_PROCESS -> d.creationProcess
         ),
         RELATIONSHIPS -> Json.obj(
@@ -52,6 +53,7 @@ object ConceptDescriptionF {
     (__ \ DATA \ SCOPENOTE).readSeqOrSingleNullable[String] and
     (__ \ DATA \ LONGITUDE).readNullable[BigDecimal] and
     (__ \ DATA \ LATITUDE).readNullable[BigDecimal] and
+    (__ \ DATA \ URL).readNullable[String] and
     (__ \ DATA \ CREATION_PROCESS).readWithDefault(CreationProcess.Manual) and
     (__ \ RELATIONSHIPS \ Ontology.HAS_ACCESS_POINT).nullableSeqReads[AccessPointF] and
     (__ \ RELATIONSHIPS \ Ontology.HAS_UNKNOWN_PROPERTY).nullableSeqReads[Entity]
@@ -74,6 +76,7 @@ case class ConceptDescriptionF(
   scopeNote: Option[Seq[String]] = None,
   longitude: Option[BigDecimal] = None,
   latitude: Option[BigDecimal] = None,
+  url: Option[String] = None,
   creationProcess: Description.CreationProcess.Value = Description.CreationProcess.Manual,
   accessPoints: Seq[AccessPointF] = Nil,
   unknownProperties: Seq[Entity] = Nil
@@ -102,6 +105,7 @@ object ConceptDescription {
     SCOPENOTE -> optional(seq(nonEmptyText)),
     LONGITUDE -> optional(bigDecimal),
     LATITUDE -> optional(bigDecimal),
+    URL -> optional(nonEmptyText),
     CREATION_PROCESS -> default(enumMapping(CreationProcess), CreationProcess.Manual),
     ACCESS_POINTS -> seq(AccessPoint.form.mapping),
     UNKNOWN_DATA -> seq(entity)

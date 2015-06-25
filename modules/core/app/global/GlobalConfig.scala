@@ -29,6 +29,9 @@ trait GlobalConfig {
   lazy val analyticsId: Option[String] =
     configuration.getString("analytics.trackingId")
 
+  lazy val mapsApiKey: Option[String] =
+    configuration.getString("google.maps.browserApiKey")
+
   import scala.collection.JavaConversions._
   lazy val languages: Seq[String] =
     configuration.getStringList("play.i18n.langs").toSeq.flatten

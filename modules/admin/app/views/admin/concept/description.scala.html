@@ -23,8 +23,25 @@
                 [@views.Helpers.languageCodeToName(desc.languageCode)]
             </i>
         </dd>
-        @listItem(desc.altLabels.toList.flatten, ALTLABEL)
-        @listItem(desc.scopeNote.toList.flatten, SCOPENOTE)
-        @listItem(desc.definition.toList.flatten, DEFINITION)
+        @Map(ALTLABEL -> desc.altLabels, SCOPENOTE -> desc.scopeNote, DEFINITION -> desc.definition).map { case (key, listOpt) =>
+            @listOpt.map { list =>
+                @listItem(list, key)
+            }
+        }
+        @Map(LONGITUDE -> desc.longitude.map(_.toString), LATITUDE -> desc.latitude.map(_.toString)).map { case (key, valueOpt) =>
+            @valueOpt.map { value =>
+                <dt>@Messages(prefix + "." + key)</dt>
+                <dd>@value</dd>
+            }
+        }
     </dl>
+
+    @desc.url.map { url =>
+        <a href="@url" target="_blank">@url</a>
+    }
+
+    @for(lat <- desc.latitude; lng <- desc.longitude; mapsApiKey <- globalConfig.mapsApiKey) {
+        <hr />
+        <iframe width="300" height="225" frameborder="0" style="border:0" src="https://www.google.com/maps/embed/v1/view?key=@mapsApiKey&center=@lat%2C@lng&zoom=12"></iframe>
+    }
 }

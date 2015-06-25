@@ -1075,6 +1075,9 @@ cvocConcept.search=Search Terms
 cvocConcept.broaderTerms=Broader Terms
 cvocConcept.narrowerTerms=Narrower Terms
 cvocConcept.narrowerTermsPageHeader={2,choice,0#No narrower terms found|1#One narrower term found|1<Narrower terms {0,number,integer} to {1,number,integer} of {2,number,integer}}
+cvocConcept.longitude=Longitude
+cvocConcept.latitude=Latitude
+cvocConcept.url=URL
 
 #
 # Virtual documentary units

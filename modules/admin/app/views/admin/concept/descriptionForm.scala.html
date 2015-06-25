@@ -21,7 +21,9 @@
     @formHelpers.inlineTextSet(desc, SCOPENOTE, rows = 4)
     @formHelpers.inlineTextSet(desc, DEFINITION, rows = 4)
 
-    @hiddenInput(desc(LONGITUDE))
-    @hiddenInput(desc(LATITUDE))
+    @formHelpers.lineInput(desc, LONGITUDE)
+    @formHelpers.lineInput(desc, LATITUDE)
+
+    @formHelpers.lineInput(desc, URL)
     <hr />
 }

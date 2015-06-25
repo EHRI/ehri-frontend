@@ -72,6 +72,7 @@ annotation.target=Target
 # Linking
 #
 link.linkTo=Links to Other Items
+link.linkTo.item=Link to {0}
 link.linkTo.submit=Create Relationship
 link.items=Related Items
 link.itemLink=Relationship

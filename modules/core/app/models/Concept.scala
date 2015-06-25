@@ -19,7 +19,7 @@ object ConceptF {
   val ALTLABEL = "altLabel"
   val DEFINITION = "definition"
   val SCOPENOTE = "scopeNote"
-  
+  val URL = "url"
   val LONGITUDE = "longitude"
   val LATITUDE = "latitude"
   val ACCESS_POINTS = "accessPoints"
