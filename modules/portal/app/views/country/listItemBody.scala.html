@@ -1,8 +1,12 @@
-@(item: Country, highlighter: views.Highlighter = views.NoopHighlighter)(implicit req: RequestHeader, messages: Messages, md: views.MarkdownRenderer)
+@(item: Country, highlighter: views.Highlighter = views.NoopHighlighter)(implicit req: RequestHeader, messages:
+Messages, md: views.MarkdownRenderer)
 
 @views.html.common.childCount(item) { count =>
     @if(count > 0) {
         <div class="search-item-details">
+            <ul class="country-search-details">
+                @views.html.country.listItemMeta(item, highlighter)
+            </ul>
             <a href="@controllers.portal.routes.Countries.search(item.id)">@Messages("country.childCount", count)</a>
         </div>
     }
