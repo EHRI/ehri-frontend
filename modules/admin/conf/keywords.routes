@@ -12,5 +12,7 @@ GET     /:id/create                                 @controllers.keywords.Concep
 POST    /:id/create                                 @controllers.keywords.Concepts.createConceptPost(id: String)
 GET     /:id/visibility                             @controllers.keywords.Concepts.visibility(id: String)
 POST    /:id/visibility                             @controllers.keywords.Concepts.visibilityPost(id: String)
+GET     /:id/link                                   @controllers.keywords.Concepts.linkTo(id: String)
+GET     /:id/link/:toType                           @controllers.keywords.Concepts.linkAnnotateSelect(id: String, toType: EntityType.Value)
 GET     /:id/link/:toType/:to                       @controllers.keywords.Concepts.linkAnnotate(id: String, toType: EntityType.Value, to: String)
 POST    /:id/link/:toType/:to                       @controllers.keywords.Concepts.linkAnnotatePost(id: String, toType: EntityType.Value, to: String)

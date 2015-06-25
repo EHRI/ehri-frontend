@@ -1,0 +1,43 @@
+@(result: utils.search.SearchResult[(models.base.AnyModel, utils.search.SearchHit)])(priorContent: models.base.AnyModel => Html = _ => Html(""))(implicit userOpt: Option[UserProfile], req: RequestHeader, globalConfig: global.GlobalConfig, messages: Messages, md: views.MarkdownRenderer)
+
+<ul class="search-result-list">
+    @result.page.map { case(item, hit) =>
+        @defining(hit.id) { implicit descriptionId =>
+            <li>
+                @priorContent(item)
+                @item match {
+                    case d: DocumentaryUnit => {
+                        @views.html.admin.documentaryUnit.listItem(d)
+                    }
+                    case d: HistoricalAgent => {
+                        @views.html.admin.historicalAgent.listItem(d)
+                    }
+                    case d: Repository => {
+                        @views.html.admin.repository.listItem(d)
+                    }
+                    case d: Concept => {
+                        @views.html.admin.concept.listItem(d)
+                    }
+                    case d: Country => {
+                        @views.html.admin.country.searchItem(d)
+                    }
+                    case d: UserProfile => {
+                        @views.html.admin.userProfile.listItem(d)
+                    }
+                    case d: Group => {
+                        @views.html.admin.group.listItem(d)
+                    }
+                    case d: AuthoritativeSet => {
+                        @views.html.admin.authoritativeSet.listItem(d)
+                    }
+                    case d: Vocabulary => {
+                        @views.html.admin.vocabulary.listItem(d)
+                    }
+                    case _ => {
+                        @searchItem(item)
+                    }
+                }
+            </li>
+        }
+    }
+</ul>

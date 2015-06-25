@@ -10,6 +10,9 @@
     @views.html.admin.common.sidebarAction(user.hasPermission(ContentTypes.Concept, PermissionType.Delete)) {
         <a href="@controllers.keywords.routes.Concepts.delete(item.id)">@Messages("item.delete")</a>
     }
+    @views.html.admin.common.sidebarAction(user.hasPermission(ContentTypes.Concept, PermissionType.Annotate)) {
+        <a href="@controllers.keywords.routes.Concepts.linkAnnotateSelect(item.id, EntityType.Concept)">@Messages("link.create")</a>
+    }
     @views.html.admin.common.sidebarAction() {
         <a href="@controllers.keywords.routes.Concepts.history(item.id)">@Messages("item.history")</a>
     }

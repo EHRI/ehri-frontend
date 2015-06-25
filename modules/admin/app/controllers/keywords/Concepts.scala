@@ -8,7 +8,7 @@ import _root_.forms.VisibilityForm
 import controllers.generic._
 import models._
 import play.api.i18n.{MessagesApi, Messages}
-import defines.{ContentTypes, EntityType}
+import defines.{PermissionType, ContentTypes, EntityType}
 import utils.{MovedPageLookup, PageParams}
 import views.{MarkdownRenderer, Helpers}
 import utils.search._
@@ -153,6 +153,17 @@ case class Concepts @Inject()(
         Redirect(conceptRoutes.get(id))
           .flashing("success" -> "item.update.confirmation")
     }
+  }
+
+  def linkTo(id: String) = WithItemPermissionAction(id, PermissionType.Annotate).apply { implicit request =>
+    Ok(views.html.admin.concept.linkTo(request.item))
+  }
+
+  def linkAnnotateSelect(id: String, toType: EntityType.Value) = LinkSelectAction(id, toType).apply { implicit request =>
+    Ok(views.html.admin.link.linkSourceList(
+      request.item, request.searchResult, request.entityType,
+      conceptRoutes.linkAnnotateSelect(id, toType),
+      conceptRoutes.linkAnnotate))
   }
 }
 
