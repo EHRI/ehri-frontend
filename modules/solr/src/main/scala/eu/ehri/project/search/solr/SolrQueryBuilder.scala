@@ -9,7 +9,7 @@ import com.github.seratch.scalikesolr.request.query.group.{GroupParams,GroupFiel
 import defines.EntityType
 import models.UserProfile
 import utils.search._
-import play.api.Logger
+import play.api.{Configuration, Logger}
 import com.github.seratch.scalikesolr.request.query.facet.Value
 import com.github.seratch.scalikesolr.request.QueryRequest
 import com.github.seratch.scalikesolr.request.query.facet.Param
@@ -19,11 +19,27 @@ import com.github.seratch.scalikesolr.{WriterType => SWriterType}
 
 object SolrQueryBuilder {
 
+  def escape(s: CharSequence): String = {
+    val sb: StringBuffer = new StringBuffer()
+    0.until(s.length()).foreach { i =>
+      val c = s.charAt(i)
+      if (c == '\\' || c == '!' || c == '(' || c == ')' ||
+        c == ':'  || c == '^' || c == '[' || c == ']' ||
+        c == '{'  || c == '}' || c == '~' || c == '*' || c == '?' ||
+        c == '"'  || c == ' '
+      ) {
+        sb.append('\\')
+      }
+      sb.append(c);
+    }
+    sb.toString
+  }
+
   /**
    * Set a list of facets on a request.
    */
   def getRequestFacets(flist: Seq[FacetClass[Facet]]): Seq[FacetParam] =
-    flist.map(SolrFacetParser.facetAsParams).flatten
+    flist.flatMap(SolrFacetParser.facetAsParams)
 
   /**
    * Apply filters to the request based on a set of applied facets.
@@ -43,7 +59,7 @@ object SolrQueryBuilder {
               // Choice facets need a tag in front of the parameter so they can be
               // excluded from count-limiting filters
               // http://wiki.apache.org/solr/SimpleFacetParameters#Multi-Select_Faceting_and_LocalParams
-              val filter = paramVals.map(v => "\"" + v + "\"").mkString(" ")
+              val filter = paramVals.map(s => "\"" + escape(s) + "\"").mkString(" ")
               Some(s"${fc.key}:($filter)")
             case fc: QueryFacetClass =>
               val activeRanges = fc.facets.filter(f => paramVals.contains(f.value))
@@ -80,7 +96,7 @@ case class SolrQueryBuilder(
   idFilters: Seq[String] = Seq.empty,
   extraParams: Map[String,Any] = Map.empty,
   mode: SearchMode.Value = SearchMode.DefaultAll
-)(implicit app: play.api.Application) extends QueryBuilder {
+)(implicit config: Configuration) extends QueryBuilder {
 
   import SearchConstants._
   import SolrQueryBuilder._
@@ -90,12 +106,12 @@ case class SolrQueryBuilder(
    */
   private lazy val queryFieldsWithBoost: Seq[(String,Option[Double])] = Seq(
     ITEM_ID, IDENTIFIER, NAME_EXACT, NAME_MATCH, OTHER_NAMES, PARALLEL_NAMES, ALT_NAMES, NAME_SORT, TEXT
-  ).map(f => f -> app.configuration.getDouble(s"search.boost.$f"))
+  ).map(f => f -> config.getDouble(s"search.boost.$f"))
 
   private lazy val spellcheckParams: Seq[(String,Option[String])] = Seq(
     "count", "onlyMorePopular", "extendedResults", "accuracy",
     "collate", "maxCollations", "maxCollationTries", "maxResultsForSuggest"
-  ).map(f => f -> app.configuration.getString(s"search.spellcheck.$f"))
+  ).map(f => f -> config.getString(s"search.spellcheck.$f"))
 
 
   /**
@@ -205,7 +221,7 @@ case class SolrQueryBuilder(
     req.setFieldsToReturn(FieldsToReturn(s"$ID $ITEM_ID $NAME_EXACT $TYPE $HOLDER_NAME $DB_ID"))
     if (alphabetical) req.setSort(Sort(s"$NAME_SORT asc"))
 
-    extraParams.map { case (key, value) =>
+    extraParams.foreach { case (key, value) =>
       req.set(key, value)
     }
 
@@ -263,7 +279,7 @@ case class SolrQueryBuilder(
     // Set result ordering, defaulting to the solr default 'score asc'
     // (but we have to specify this to allow 'score desc' ??? (Why is this needed?)
     // FIXME: This horrid concatenation of name/order
-    params.sort.map { sort =>
+    params.sort.foreach { sort =>
       req.setSort(Sort(s"${sort.toString.split("""\.""").mkString(" ")}"))
     }
 
@@ -281,12 +297,12 @@ case class SolrQueryBuilder(
     }
 
     // Set field aliases
-    app.configuration.getConfig("search.fieldAliases").map{ config =>
-      config.keys.map { alias =>
-        config.getString(alias).map { fieldName =>
-          req.set(s"f.$alias.qf", fieldName)
-        }
-      }
+    for {
+      config <- config.getConfig("search.fieldAliases")
+      alias <- config.keys
+      fieldName <- config.getString(alias) 
+    } {
+      req.set(s"f.$alias.qf", fieldName)
     }
 
     // Mmmn, speckcheck
@@ -311,7 +327,7 @@ case class SolrQueryBuilder(
     applyIdFilters(req, idFilters)
 
     // Apply other arbitrary hard filters
-    filters.map { case (key, value) =>
+    filters.foreach { case (key, value) =>
       val filter = value match {
         // Have to quote strings
         case s: String => "%s:\"%s\"".format(key, value)
@@ -329,7 +345,7 @@ case class SolrQueryBuilder(
     // is a major gotcha!
     setGrouping(req, params)
 
-    extraParams.map { case (key, value) =>
+    extraParams.foreach { case (key, value) =>
       req.set(key, value)
     }
 

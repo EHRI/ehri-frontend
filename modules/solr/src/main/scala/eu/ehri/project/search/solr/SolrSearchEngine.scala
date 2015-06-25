@@ -6,7 +6,7 @@ import defines.EntityType
 import play.api.libs.concurrent.Execution.Implicits._
 import models.UserProfile
 import play.api.libs.ws.{WSClient, WSResponse}
-import play.api.Logger
+import play.api.{Configuration, Logger}
 import utils.Page
 import scala.concurrent.Future
 import utils.search._
@@ -28,15 +28,17 @@ case class SolrSearchConfig(
   facetClasses: Seq[FacetClass[Facet]] = Seq.empty,
   extraParams: Map[String, Any] = Map.empty,
   mode: SearchMode.Value = SearchMode.DefaultAll
-)(implicit val app: play.api.Application, ws: WSClient)
+)(implicit val conf: play.api.Configuration, ws: WSClient)
   extends SearchEngineConfig {
 
-  val queryBuilder = new SolrQueryBuilder(WriterType.Json)(app)
+  val logger: Logger = Logger(this.getClass)
+
+  val queryBuilder = new SolrQueryBuilder(WriterType.Json)(conf)
   
   // Dummy value to satisfy the RestDAO trait...
   val userProfile: Option[UserProfile] = None
 
-  lazy val solrPath = utils.serviceBaseUrl("solr", app.configuration)
+  lazy val solrPath = utils.serviceBaseUrl("solr", conf)
 
   def solrSelectUrl = solrPath + "/select"
 
@@ -97,7 +99,7 @@ case class SolrSearchConfig(
       .setMode(mode)
       .searchQuery()
 
-    Logger.logger.debug("SOLR: {}", fullSearchUrl(queryRequest))
+    logger.info(fullSearchUrl(queryRequest))
     dispatch(queryRequest).map { response =>
       val parser = handler.getResponseParser(response.body)
       val facetClassList: Seq[FacetClass[Facet]] = parser.extractFacetData(facets, facetClasses)
@@ -129,6 +131,6 @@ case class SolrSearchConfig(
   override def setSort(sort: SearchOrder.Value): SearchEngineConfig = copy(params = params.copy(sort = Some(sort)))
 }
 
-case class SolrSearchEngine @Inject()(handler: ResponseHandler, app: play.api.Application, ws: WSClient) extends SearchEngine {
-  def config = new SolrSearchConfig(handler)(app, ws)
+case class SolrSearchEngine @Inject()(handler: ResponseHandler, conf: Configuration, ws: WSClient) extends SearchEngine {
+  def config = new SolrSearchConfig(handler)(conf, ws)
 }
