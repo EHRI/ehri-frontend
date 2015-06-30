@@ -21,7 +21,7 @@
             }
         } {
             @collectionContext(item, path)
-            @views.html.common.latestAction(item, controllers.portal.routes.Portal.itemHistory(item.id))
+            @views.html.common.latestAction(item, controllers.portal.routes.Portal.itemHistory(item.id, modal = true))
         }
     }
 }
