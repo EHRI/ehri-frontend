@@ -1,4 +1,4 @@
 package controllers.portal.guides
 
-class Assets extends controllers.Assets(play.api.http.LazyHttpErrorHandler)
+class GuideAssets extends controllers.Assets(play.api.http.LazyHttpErrorHandler)
 
