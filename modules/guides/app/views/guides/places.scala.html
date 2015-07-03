@@ -11,7 +11,7 @@
     MAP_URL = "@controllers.portal.guides.routes.Guides.layoutRetrieval(guide.path, page.path)";
     $originalMarkers = @Html(Json.stringify(json));
     </script>
-    <script type="text/javascript" src="@controllers.portal.routes.PortalAssets.versioned("js/portal-guide-map.js")"></script>
+    <script type="text/javascript" src="@controllers.portal.guides.routes.GuideAssets.versioned("js/portal-guide-map.js")"></script>
 }
 @css = {
     <link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/leaflet/0.7.3/leaflet.css" />
