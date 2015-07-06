@@ -88,5 +88,10 @@ class PortalSpec extends IntegrationTestRunner {
       status(faq) must equalTo(OK)
       contentAsString(faq) must contain(mockdata.externalPages.get("faq").get.toString())
     }
+
+    "return 404 for external pages with a malformed id (bug #635)" in new ITestApp {
+      val faq = FakeRequest(portalRoutes.externalPage(",b.name,k.length")).call()
+      status(faq) must equalTo(NOT_FOUND)
+    }
   }
 }

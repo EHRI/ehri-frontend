@@ -19,7 +19,7 @@ GET         /contact                              @controllers.portal.Portal.con
 GET         /about                                @controllers.portal.Portal.about
 GET         /terms                                @controllers.portal.Portal.terms
 
-GET         /help/:page                           @controllers.portal.Portal.externalPage(page: String)
+GET         /help/$page<\w+>                      @controllers.portal.Portal.externalPage(page: String)
 
 # Change locale
 GET         /prefs                                @controllers.portal.Portal.prefs
