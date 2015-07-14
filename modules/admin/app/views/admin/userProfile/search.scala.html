@@ -8,6 +8,9 @@
         @views.html.admin.common.sidebarAction(user.isAdmin && user.hasPermission(ContentTypes.UserProfile, PermissionType.Create)) {
             <a href="@controllers.users.routes.UserProfiles.createUser()">@Messages("userProfile.create")</a>
         }
+        @views.html.admin.common.sidebarAction(user.isAdmin) {
+            <a href="@controllers.users.routes.UserProfiles.export()">@Messages("userProfile.export")</a>
+        }
     }
     @common.search.facetList(result.facetClasses, action)
 }

@@ -90,7 +90,7 @@ object ApplicationBuild extends Build {
 
   val portalDependencies = Seq(
     "net.coobird" % "thumbnailator" % "[0.4, 0.5)",
-    "net.sf.opencsv" % "opencsv" % "2.3",
+    "com.opencsv" % "opencsv" % "3.4",
 
     // S3 Upload plugin
     "com.github.seratch" %% "awscala" % "0.3.+"
