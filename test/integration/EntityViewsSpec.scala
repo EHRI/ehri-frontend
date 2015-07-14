@@ -4,6 +4,7 @@ import helpers._
 import models.{Group, UserProfileF, UserProfile}
 import defines._
 import backend.ApiUser
+import play.api.http.HeaderNames
 import play.api.test.FakeRequest
 
 /**
@@ -213,6 +214,16 @@ class EntityViewsSpec extends IntegrationTestRunner {
 
       val userFetch = await(testBackend.get[UserProfile](id))
       userFetch.groups.map(_.id) must not contain "kcl"
+    }
+
+    "allow exporting users" in new ITestApp {
+      val csv = FakeRequest(controllers.users.routes.UserProfiles.export())
+        .withUser(privilegedUser).call()
+      status(csv) must equalTo(OK)
+      header(HeaderNames.CONTENT_DISPOSITION, csv) must beSome.which { s =>
+        s must contain("attachment; filename=users_")
+      }
+      contentAsString(csv) must contain("example1@example.com")
     }
   }
 

@@ -1,6 +1,7 @@
 package controllers.portal.users
 
 import auth.AccountManager
+import controllers.base.CsvHelpers
 import controllers.generic.Search
 import play.api.cache.CacheApi
 import play.api.libs.concurrent.Execution.Implicits._
@@ -50,7 +51,8 @@ case class UserProfiles @Inject()(
 ) extends PortalController
   with LoginLogout
   with PortalAuthConfigImpl
-  with Search {
+  with Search
+  with CsvHelpers {
 
   private val profileRoutes = controllers.portal.users.routes.UserProfiles
 
@@ -196,18 +198,6 @@ case class UserProfiles @Inject()(
         )
       }
     }
-  }
-
-  def writeCsv(headers: Seq[String], data: Seq[Array[String]])(implicit request: RequestHeader): String = {
-    import au.com.bytecode.opencsv.CSVWriter
-    val buffer = new StringWriter()
-    val csvWriter = new CSVWriter(buffer)
-    csvWriter.writeNext(headers.toArray)
-    for (item <- data) {
-      csvWriter.writeNext(item)
-    }
-    csvWriter.close()
-    buffer.getBuffer.toString
   }
 
   def annotationListToJson(annotations: Seq[Annotation])(implicit request: RequestHeader): JsValue

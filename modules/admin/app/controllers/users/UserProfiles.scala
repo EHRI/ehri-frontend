@@ -3,13 +3,15 @@ package controllers.users
 import auth.{HashedPassword, AccountManager}
 import backend.rest.cypher.Cypher
 import controllers.core.auth.AccountHelpers
+import org.joda.time.DateTime
 import play.api.cache.CacheApi
+import play.api.http.HeaderNames
 import play.api.libs.concurrent.Execution.Implicits._
 import controllers.generic._
 import models._
 import play.api.i18n.{MessagesApi, Messages}
 import defines.{EntityType, PermissionType, ContentTypes}
-import utils.MovedPageLookup
+import utils.{PageParams, MovedPageLookup}
 import utils.search._
 import javax.inject._
 import backend.Backend
@@ -22,7 +24,7 @@ import play.api.mvc.Request
 import backend.rest.{ValidationError, RestHelpers}
 import play.api.mvc.Result
 import play.api.libs.json.JsObject
-import controllers.base.AdminController
+import controllers.base.{CsvHelpers, AdminController}
 
 
 @Singleton
@@ -49,7 +51,8 @@ case class UserProfiles @Inject()(
   with SearchType[UserProfile]
   with Search
   with AccountHelpers
-  with RestHelpers {
+  with RestHelpers
+  with CsvHelpers {
 
   private val entityFacets: FacetBuilder = { implicit request =>
     List(
@@ -204,6 +207,37 @@ case class UserProfiles @Inject()(
 
   def list = ItemPageAction.apply { implicit request =>
     Ok(views.html.admin.userProfile.list(request.page, request.params))
+  }
+
+  def export = AdminAction.async { implicit request =>
+    for {
+      accounts <- accounts.findAll(PageParams.empty.withoutLimit)
+      users <- userBackend.list[UserProfile](PageParams.empty.withoutLimit)
+    } yield {
+      val exportDate = DateTime.now().toString("YMMdd")
+      val headers = Seq(
+        "name", "email", "location", "url", "institution", "role", "about", "interests", "created"
+      )
+      val data: Seq[Array[String]] = for {
+        user <- users
+        account <- accounts.find(_.id == user.id)
+      } yield {
+        Array(
+          user.model.name,
+          account.email,
+          user.model.location.getOrElse(""),
+          user.model.url.orElse(user.model.workUrl).getOrElse(""),
+          user.model.institution.getOrElse(""),
+          user.model.role.getOrElse(""),
+          user.model.about.getOrElse(""),
+          user.model.interests.getOrElse(""),
+          account.created.map(_.toString("YMMdd")).getOrElse("")
+        )
+      }
+      Ok(writeCsv(headers, data))
+        .as("text/csv")
+        .withHeaders(HeaderNames.CONTENT_DISPOSITION -> s"attachment; filename=users_$exportDate.csv")
+    }
   }
 
   def update(id: String) = WithItemPermissionAction(id, PermissionType.Update).async { implicit request =>

@@ -2,6 +2,7 @@
 
 GET     /                                   @controllers.users.UserProfiles.search
 GET     /list                               @controllers.users.UserProfiles.list
+GET     /export                             @controllers.users.UserProfiles.export
 GET     /create                             @controllers.users.UserProfiles.createUser
 POST    /create                             @controllers.users.UserProfiles.createUserPost
 GET     /:id                                @controllers.users.UserProfiles.get(id: String)

@@ -227,6 +227,7 @@ userProfile.missingAccount=No account found
 userProfile.list=Users
 userProfile.create=Create New User
 userProfile.create.submit=Create User
+userProfile.export=Export active users
 userProfile.update=Update User
 userProfile.update.item=Update User {0}
 userProfile.update.submit=Update User

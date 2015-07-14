@@ -91,7 +91,7 @@ case class Utils @Inject()(
 
   private def parseCsv(file: File): Seq[(String, String)] = {
     import java.io.{InputStreamReader, FileInputStream}
-    import au.com.bytecode.opencsv.CSVReader
+    import com.opencsv.CSVReader
     import scala.collection.JavaConverters._
 
     val csvReader: CSVReader = new CSVReader(
