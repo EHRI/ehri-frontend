@@ -1,5 +1,7 @@
 package backend.rest
 
+import java.net.URLEncoder
+import java.nio.charset.StandardCharsets
 import java.util.concurrent.TimeUnit
 
 import play.api.Logger
@@ -130,24 +132,24 @@ trait RestDAO {
    * Header to add for log messages.
    */
   protected def msgHeader(msg: Option[String]): Seq[(String,String)] =
-    msg.map(m => Seq(LOG_MESSAGE_HEADER_NAME -> m)).getOrElse(Seq.empty)
+    msg
+      .map(m => Seq(LOG_MESSAGE_HEADER_NAME -> URLEncoder.encode(m, StandardCharsets.UTF_8.name)))
+      .getOrElse(Seq.empty)
 
   /**
    * Join params into a query string
    */
-  protected def joinQueryString(qs: Map[String, Seq[String]]): String = {
-    import java.net.URLEncoder
+  protected def joinQueryString(qs: Map[String, Seq[String]]): String =
     qs.flatMap { case (key, vals) =>
-      vals.map(v => s"$key=${URLEncoder.encode(v, "UTF-8")}")
+      vals.map(v => s"$key=${URLEncoder.encode(v, StandardCharsets.UTF_8.name)}")
     }.mkString("&")
-  }
 
   /**
    * Standard headers we sent to every Neo4j/EHRI Server request.
    */
   protected val headers = Map(
     HeaderNames.ACCEPT -> ContentTypes.JSON,
-    HeaderNames.ACCEPT_CHARSET -> "UTF-8",
+    HeaderNames.ACCEPT_CHARSET -> StandardCharsets.UTF_8.name,
     HeaderNames.CONTENT_TYPE -> ContentTypes.JSON
   )
 
@@ -164,8 +166,8 @@ trait RestDAO {
    * Create a web request with correct auth parameters for the REST API.
    */
   import scala.collection.JavaConversions._
-  private lazy val includeProps
-    = config.getStringList("ehri.backend.includedProperties").map(_.toSeq)
+  private lazy val includeProps =
+    config.getStringList("ehri.backend.includedProperties").map(_.toSeq)
         .getOrElse(Seq.empty[String])
 
 

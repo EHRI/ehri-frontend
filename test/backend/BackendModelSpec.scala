@@ -102,6 +102,16 @@ class BackendModelSpec extends RestBackendRunner with PlaySpecification {
       await(testBackend.create[UserProfile,UserProfileF](user))
     }
 
+    "use higher characters in log messages" in new WithApplicationLoader(appLoader) {
+      val msg = "This is a 日本語メッセージ"
+      val user = UserProfileF(id = None, identifier = "foobar", name = "Foobar")
+      await(testBackend.create[UserProfile,UserProfileF](user, logMsg = Some(msg)))
+      val history = await(testBackend.history[SystemEvent]("foobar", RangeParams(limit = 1)))
+      history.items.size must_== 1
+      history.head.size must_== 1
+      history.head.head.model.logMessage must_== Some(msg)
+    }
+
     "create an item in (agent) context" in new WithApplicationLoader(appLoader) {
       val doc = DocumentaryUnitF(id = None, identifier = "foobar")
       val r = await(testBackend
