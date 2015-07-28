@@ -35,9 +35,6 @@ case class SolrSearchConfig(
 
   val queryBuilder = new SolrQueryBuilder(WriterType.Json)(conf)
   
-  // Dummy value to satisfy the RestDAO trait...
-  val userProfile: Option[UserProfile] = None
-
   lazy val solrPath = utils.serviceBaseUrl("solr", conf)
 
   def solrSelectUrl = solrPath + "/select"

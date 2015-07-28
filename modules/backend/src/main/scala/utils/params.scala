@@ -10,7 +10,7 @@ import org.joda.time.format.ISODateTimeFormat
 import utils.SystemEventParams.{Aggregation, ShowType}
 
 object Ranged {
-  def streamHeader: (String, String) = STREAM_HEADER -> true.toString
+  def streamHeader: (String, String) = STREAM_HEADER_NAME -> true.toString
 }
 
 trait Ranged {

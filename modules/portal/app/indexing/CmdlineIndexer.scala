@@ -1,5 +1,6 @@
 package indexing
 
+import backend.rest.Constants
 import com.google.inject.Inject
 import play.api.libs.concurrent.Execution.Implicits._
 import scala.sys.process._
@@ -74,8 +75,8 @@ case class CmdlineIndexerHandle(chan: Option[Concurrent.Channel[String]] = None,
     "--index",
     "--solr", solrUrl,
     "--rest", restUrl,
-    "-H", "Authorization=admin",
-    "-H", "X-Stream=true",
+    "-H", Constants.AUTH_HEADER_NAME + "=admin",
+    "-H", Constants.STREAM_HEADER_NAME + "=true",
     "--verbose" // print one line of output per item
   )
 
