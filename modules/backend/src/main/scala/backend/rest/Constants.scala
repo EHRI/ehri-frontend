@@ -8,12 +8,17 @@ object Constants {
    * Name of the header that passes that accessing user id to
    * the server.
    */
-  val AUTH_HEADER_NAME = "Authorization"
+  val AUTH_HEADER_NAME = "X-User"
 
   /**
    * Name of header for passing a log message through a POST request.
    */
-  val LOG_MESSAGE_HEADER_NAME = "logMessage"
+  val LOG_MESSAGE_HEADER_NAME = "X-LogMessage"
+
+  /**
+   * Indicate that we want to stream list results.
+   */
+  val STREAM_HEADER_NAME = "X-Stream"
 
   /**
    * Name of the header for specifying partial item merge (placeholder
@@ -22,14 +27,14 @@ object Constants {
   val PATCH_HEADER_NAME = "Patch"
 
   /**
-   * Indicate that we want to stream list results.
-   */
-  val STREAM_HEADER = "X-Stream"
-
-  /**
    * Parameter for specifying allowed accessors to resources.
    */
   val ACCESSOR_PARAM = "accessibleTo"
+
+  /**
+   * Name of header for passing a log message through a POST request.
+   */
+  val LOG_MESSAGE_PARAM = "logMessage"
 
   /**
    * Parameter for default group membership.

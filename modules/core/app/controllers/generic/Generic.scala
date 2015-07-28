@@ -23,7 +23,7 @@ trait Generic extends CoreActionBuilders with RestHelpers {
   def getLogMessage(implicit request: Request[_]) = {
     import play.api.data.Form
     import play.api.data.Forms._
-    Form(single(Constants.LOG_MESSAGE_HEADER_NAME -> optional(nonEmptyText)))
+    Form(single(Constants.LOG_MESSAGE_PARAM -> optional(nonEmptyText)))
       .bindFromRequest.value.getOrElse(None)
   }
 

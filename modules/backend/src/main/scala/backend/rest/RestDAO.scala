@@ -9,7 +9,7 @@ import play.api.http.{Writeable, ContentTypeOf, HeaderNames, ContentTypes}
 import play.api.libs.json._
 import backend._
 import com.fasterxml.jackson.core.JsonParseException
-import play.api.libs.ws.WSClient
+import play.api.libs.ws.{WSAuthScheme, WSClient}
 import utils.{RangePage, RangeParams, Page}
 import scala.concurrent.Future
 import scala.concurrent.duration.Duration
@@ -40,6 +40,11 @@ trait RestDAO {
     import scala.concurrent.Future
 
     private val CCExtractor: Regex = """.*?max-age=(\d+)""".r
+
+    lazy val credentials = for {
+      username <- config.getString("services.ehridata.username")
+      password <- config.getString("services.ehridata.password")
+    } yield (username, password)
 
     private def conditionalCache(url: String, method: String, response: WSResponse): WSResponse = {
       val doCache = config.getBoolean("ehri.ws.cache").getOrElse(false)
@@ -72,10 +77,14 @@ trait RestDAO {
 
     private def runWs: Future[WSResponse] = {
       Logger.debug(s"WS: $apiUser $method $fullUrl")
-      ws.url(url)
+      val holder = ws.url(url)
         .withQueryString(queryString: _*)
         .withHeaders(headers: _*)
         .withBody(body)
+      val holderWithAuth = credentials.fold(holder) { case (un, pw) =>
+        holder.withAuth(un, pw, WSAuthScheme.BASIC)
+      }
+      holderWithAuth
         .execute(method)
         .map(checkError)
         .map(r => conditionalCache(url, method, r))
@@ -172,7 +181,8 @@ trait RestDAO {
 
 
   protected def userCall(url: String, params: Seq[(String,String)] = Seq.empty)(implicit apiUser: ApiUser): BackendRequest = {
-    BackendRequest(url).withHeaders(authHeaders.toSeq: _*)
+    BackendRequest(url)
+      .withHeaders(authHeaders.toSeq: _*)
       .withQueryString(params: _*)
       .withQueryString(includeProps.map(p => Constants.INCLUDE_PROPERTIES_PARAM -> p): _*)
   }
@@ -183,7 +193,7 @@ trait RestDAO {
   protected def fetchRange[T](req: BackendRequest, params: RangeParams, context: Option[String])(
       implicit reader: Reads[T]): Future[RangePage[T]] = {
     val incParams = if(params.hasLimit) params.copy(limit = params.limit + 1) else params
-    req.withHeaders(STREAM_HEADER -> true.toString)
+    req.withHeaders(STREAM_HEADER_NAME -> true.toString)
       .withQueryString(incParams.queryParams: _*)
         .get().map { r =>
       val page = parsePage(r, context)(reader)
