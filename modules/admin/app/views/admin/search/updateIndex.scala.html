@@ -34,8 +34,8 @@
         @helper.checkbox(form("clearTypes"), '_label -> Messages("search.index.clear.types"))
 
         <div class="form-group">
-            <label class="col-sm-3 form-label">@Messages("search.index.types")</label>
-            <div class="col-sm-9">
+            <label class="control-label">@Messages("search.index.types")</label>
+            <div class="control-elements">
                 <label class="checkbox"><input type="checkbox" id="select-all" /> @Messages("search.index.types.selectAll")</label>
                 <hr />
                 @types.map { et =>
@@ -47,7 +47,9 @@
             </div>
         </div>
         <div class="form-actions">
-            <input type="submit" id="submit-update" class="btn btn-danger" value="@Messages("search.index.update")" />
+            <div class="form-group">
+                <input type="submit" id="submit-update" class="btn btn-danger" value="@Messages("search.index.update")" />
+            </div>
         </div>
 
         <div id="update-progress">

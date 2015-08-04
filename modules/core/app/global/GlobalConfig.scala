@@ -26,6 +26,9 @@ trait GlobalConfig {
   lazy val analyticsEnabled: Boolean =
     configuration.getBoolean("analytics.enabled").getOrElse(false)
 
+  lazy val logMessageMaxLength: Int =
+    configInt("ehri.logMessage.maxLength", 400)
+
   lazy val analyticsId: Option[String] =
     configuration.getString("analytics.trackingId")
 
@@ -54,6 +57,12 @@ trait GlobalConfig {
   def readOnly: Boolean = readOnlyFile.exists(file => file.isFile && file.exists)
 
   def maintenance: Boolean = maintenanceFile.exists(file => file.isFile && file.exists)
+
+  /**
+   * Fetch a config integer value
+   */
+  def configInt(key: String, orElse: Int): Int =
+    configuration.getInt(key).getOrElse(orElse)
 
   /**
    * Fetch a config string value.

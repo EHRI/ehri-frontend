@@ -1,6 +1,7 @@
 package controllers.generic
 
 import controllers.base.CoreActionBuilders
+import global.GlobalConfig
 import play.api.libs.concurrent.Execution.Implicits._
 import backend.Backend
 import backend.rest.{Constants, RestHelpers}
@@ -15,7 +16,8 @@ import scala.concurrent.Future.{successful => immediate}
  */
 trait Generic extends CoreActionBuilders with RestHelpers {
 
-  val backend: Backend
+  def globalConfig: GlobalConfig
+  def backend: Backend
 
   /**
    * Extract a log message from an incoming request params
@@ -23,7 +25,7 @@ trait Generic extends CoreActionBuilders with RestHelpers {
   def getLogMessage(implicit request: Request[_]) = {
     import play.api.data.Form
     import play.api.data.Forms._
-    Form(single(Constants.LOG_MESSAGE_PARAM -> optional(nonEmptyText)))
+    Form(single(Constants.LOG_MESSAGE_PARAM -> optional(nonEmptyText(maxLength = globalConfig.logMessageMaxLength))))
       .bindFromRequest.value.getOrElse(None)
   }
 

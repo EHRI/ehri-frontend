@@ -3,8 +3,8 @@
 @import backend.rest.Constants.MEMBER
 
 <div class="form-group">
-    <label class="control-label col-sm-3" for="id_group_members">@Messages("group.members")</label>
-    <div class="col-sm-9">
+    <label class="control-label" for="id_group_members">@Messages("group.members")</label>
+    <div class="control-element">
         <select class="form-control select2" name="@{MEMBER}[]" multiple id="id_group_members">
             <optgroup label="@Messages("contentTypes.userProfile")">
             @users.map { case (id,name) =>

@@ -17,6 +17,31 @@
   .make-sm-column(9);
 }
 
+.inline-element {
+  &-data {
+    .make-sm-column(11);
+
+    // Tables within data elements (e.g. date selectors)
+    // require some tweaks to look consistent, namely,
+    // moving them up a few pixels and removing padding
+    // from the first-and-last cells
+    table {
+      margin-top: -@small-padding;
+      tr {
+        td:first-child {
+          padding-left: 0;
+        }
+        td:last-child {
+          padding-right: 0;
+        }
+      }
+    }
+  }
+  &-remove {
+    .make-sm-column(1);
+  }
+}
+
 // standard form controls
 .form-group {
   >.control-label {
@@ -41,5 +66,4 @@
   .control-element {
     .make-md-column(9);
   }
-
 }

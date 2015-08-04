@@ -25,14 +25,14 @@
 
             <div class="inline-formset form-group clearfix" data-prefix="@DATES">
                 <!-- Template for adding inline date forms via JS -->
-                <label class="col-sm-3 control-label">
+                <label class="control-label">
                     @Messages(fieldPrefix + "." + DATES)
                     <a href="#" class="add-inline-element"><i class="glyphicon glyphicon-plus-sign"></i></a>
                 </label>
                 <div class="inline-element-template form-template">
                     @inlineDateSet(desc(DATES + "[IDX]"))
                 </div>
-                <div class="col-sm-9 inline-element-list">
+                <div class="inline-element-list">
                     @helper.repeat(desc(DATES), min = 0) { desc =>
                         @inlineDateSet(desc)
                     }
