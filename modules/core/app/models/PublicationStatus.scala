@@ -5,5 +5,5 @@ object PublicationStatus extends Enumeration {
 	val Draft = Value("Draft")
   val Published = Value("Published")
 
-  implicit val format = defines.EnumUtils.enumFormat(this)
+  implicit val _format = defines.EnumUtils.enumFormat(this)
 }

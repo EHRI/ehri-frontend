@@ -23,7 +23,7 @@
 
 	@helper.form(action = action, 'class -> "entity-form form-horizontal") {
         @formHelpers.csrfToken()
-		@form(f, defaults)
+		@views.html.admin.documentaryUnit.form(f, defaults)
 
         @views.html.admin.permissions.visibilityForm(vf, users, groups)
 		@formHelpers.submitButtonWithLogMessageInput(Messages("documentaryUnit.create.submit"), cancel = views.admin.Helpers.linkToOpt(item))

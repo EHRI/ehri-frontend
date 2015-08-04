@@ -217,7 +217,7 @@ a.alt {
 }
 
 #form-nav-sidebar {
-    //top: 80px;
+    top: 40px;
 }
 
 #head-signin {
@@ -230,10 +230,6 @@ a.alt {
     /*   padding: 20px 20px;*/
     border-top: 1px solid darken(@pale-gray, 20%);
     background-color: @pale-gray;
-}
-
-.remove-inline-element {
-    margin-left: 0.5em;
 }
 
 .event-filter {
@@ -263,3 +259,10 @@ a.alt {
   &:extend(.list-unstyled);
 }
 
+.overview-items {
+  .make-row();
+
+  .overview-box {
+    .make-md-column(6);
+  }
+}

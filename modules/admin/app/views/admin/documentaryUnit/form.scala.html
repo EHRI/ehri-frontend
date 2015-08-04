@@ -5,9 +5,9 @@
 
 @implicitField = @{ views.html.helper.FieldConstructor(formHelpers.fieldTemplate.f) }
 
-@defining(EntityType.DocumentaryUnit.toString) { implicit fieldPrefix =>
+@defining(defines.EntityType.DocumentaryUnit.toString) { implicit fieldPrefix =>
 
-    @formHelpers.lineInput(f(""), Entity.IDENTIFIER)
+    @formHelpers.lineInput(f(""), backend.Entity.IDENTIFIER)
     @formHelpers.inlineNameSet(f(""), OTHER_IDENTIFIERS)
 
     @helper.repeat(f("descriptions"), min=math.max(f("descriptions").indexes.length, 1)) { desc =>
@@ -15,14 +15,16 @@
             @descriptionForm(desc)
         }
     }
-}
 
-@formHelpers.descriptionFormSection(ADMINISTRATION_AREA) {
-    @formHelpers.enumChoiceInput(f(PUB_STATUS), PublicationStatus, Messages(PUB_STATUS))
-    @defining("copyrightStatus") { implicit fieldPrefix =>
-        @formHelpers.enumChoiceInput(f(COPYRIGHT), CopyrightStatus, Messages(COPYRIGHT))
-    }
-    @defining("scope") { implicit fieldPrefix =>
-        @formHelpers.enumChoiceInput(f(SCOPE), Scope, Messages(SCOPE))
+    @formHelpers.descriptionFormSection(ADMINISTRATION_AREA) {
+        @defining("publicationStatus") { implicit fieldPrefix =>
+            @formHelpers.enumChoiceInput(f(PUB_STATUS), PublicationStatus, Messages(PUB_STATUS))
+        }
+        @defining("copyrightStatus") { implicit fieldPrefix =>
+            @formHelpers.enumChoiceInput(f(COPYRIGHT), CopyrightStatus, Messages(COPYRIGHT))
+        }
+        @defining("scope") { implicit fieldPrefix =>
+            @formHelpers.enumChoiceInput(f(SCOPE), Scope, Messages(SCOPE))
+        }
     }
 }

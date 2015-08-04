@@ -1,7 +1,7 @@
 @(field: play.api.data.Field, name: String)(implicit fieldPrefix: String, messages: Messages, md: views.MarkdownRenderer, fieldConstructor: views.html.helper.FieldConstructor)
 
 <div class="inline-formset form-group clearfix @{if(field.hasErrors) "has-error"}" data-prefix="@name">
-    <label class="col-sm-3 control-label">
+    <label class="control-label">
         @Messages(fieldPrefix + "." + name)
         <a href="#"
             title="@md.renderMarkdown(Messages(fieldPrefix + "." + name + ".description"))"
@@ -13,7 +13,7 @@
     <div class="inline-element-template form-template">
         @formHelpers.inlineName(field(name + "[IDX]"))
     </div>
-    <div class="inline-element-list col-sm-9">
+    <div class="inline-element-list">
         @helper.repeat(field(name), min = 0) { f =>
             @formHelpers.inlineName(f)
         }

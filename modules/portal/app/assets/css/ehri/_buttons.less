@@ -36,6 +36,7 @@
 }
 
 .form-actions {
+  .make-row();
   background-color: @well-bg;
   border-top: 1px solid @well-border;
   padding: 15px 5px;
@@ -43,6 +44,11 @@
   &.sticky {
     .container;
     bottom: 0 !important;
+  }
+
+  .form-group {
+    .make-md-column(9);
+    .make-md-column-offset(3);
   }
 }
 
