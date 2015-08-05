@@ -2,6 +2,12 @@
 
 <div class="annotation" id="@annotation.id">
     <div class="annotation-header">
+        @for(user <- annotation.user ; event <- annotation.latestEvent) {
+            <div class="annotation-meta" title="@event.model.timestamp">
+            <span class="glyphicon glyphicon-time"></span>
+                @views.Helpers.relativeDate(event.model.timestamp)
+            </div>
+        }
         @annotation.target.map { src =>
             @views.html.helpers.linkToWithFragment(src, "#" + annotation.id, content = Html(highlighter.highlight(src.toStringLang)))
             @annotation.model.field.map { field =>
@@ -9,13 +15,7 @@
             }
         }
     </div>
-    <blockquote class="annotation-body">
-        @Html(highlighter.highlight(md.renderUntrustedMarkdown(annotation.model.body)))
-    </blockquote>
-    <div class="annotation-meta">
-        @for(user <- annotation.user ; event <- annotation.latestEvent) {
-            <span class="glyphicon glyphicon-time"></span>
-            @views.Helpers.relativeDate(event.model.timestamp)
-        }
-    </div>
+
+    @views.html.annotation.annotationText(annotation, highlighter)
+    @views.html.annotation.listItemFooter(annotation, highlighter)
 </div>
