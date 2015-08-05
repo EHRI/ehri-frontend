@@ -1,4 +1,4 @@
-@(form: Form[Feedback])(implicit userOpt: Option[UserProfile], request: RequestHeader, messages: Messages, tokenOpt: Option[play.filters.csrf.CSRF.Token] = None)
+@(form: Form[Feedback])(implicit userOpt: Option[UserProfile], request: RequestHeader, messages: Messages, token: play.filters.csrf.CSRF.Token)
 
 @import models.Feedback.{NAME,EMAIL}
     @import utils.forms.HoneyPotForm.BLANK_CHECK
@@ -7,9 +7,7 @@
 @helper.form(action = controllers.portal.routes.Feedback.feedbackPost(), 'role -> "form", 'id -> "suggestion-form") {
     <fieldset>
         <div class="modal-body">
-            @tokenOpt.map { t =>
-                @formHelpers.csrfToken()
-            }
+            @formHelpers.csrfToken()
             @if(userOpt.isEmpty) {
                 <div class="form-group">
                     <input type="text" class="form-control" name="@NAME" placeholder="@Messages(NAME) (@Messages("optional"))" />
@@ -26,7 +24,7 @@
                 <input tabindex="-1" type="text" name="@BLANK_CHECK" title="[Leave this blank]" autocomplete="off" value="" />
             </div>
         </div>
-        <div class="form-actions modal-footer">
+        <div class="modal-footer">
             <a tabindex="-1" class="btn btn-danger" href="@controllers.portal.routes.Portal.index()" id="cancel">@Messages("cancel")</a>
             <button type="submit" class="submit btn btn-default">@Messages("feedback.submit")</button>
         </div>
