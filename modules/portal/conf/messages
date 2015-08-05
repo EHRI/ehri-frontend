@@ -558,7 +558,7 @@ annotation.delete=Delete
 annotation.delete.submit=Delete
 annotation.delete.title=Delete Note
 annotation.field.showHidden=Show/hide {0,choice,1#1 public note made by another person|1<{0} public notes made by other people}
-annotation.createdBy=Created by {0} at {1}
+annotation.createdBy=Created by {0} {1}
 annotation.showPublic={0,choice,1#Show 1 public note|1<Show {0} public notes}
 annotation.placeholder=
 

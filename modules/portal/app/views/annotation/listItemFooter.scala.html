@@ -1,0 +1,42 @@
+@(item: Annotation, highlighter: views.Highlighter = views.NoopHighlighter)(implicit userOpt: Option[UserProfile], req: RequestHeader, messages: Messages, md: views.MarkdownRenderer, globalConfig: global.GlobalConfig)
+
+@list(cls: String)(html: Html) = {
+    @if(html.body.trim.nonEmpty) {
+        <ul class="@cls">@html</ul>
+    }
+}
+
+<div class="search-item-footer">
+    @list("list-item-meta") {
+        @if(item.isPromoted) {
+            <li>
+                @defining(item.promoters.take(3), item.promoters.drop(3).size) { case (first, rest) =>
+                @Messages("promotion.promotedBy", first.map(_.toStringLang).mkString(", "))
+                @Messages("promotion.promotedBy.extended", rest)}
+                <span class="fa fa-eye"></span>
+            </li>
+        } else {
+            @if(item.accessors.nonEmpty) {
+                <li>
+                    @if(userOpt.exists(u => item.privateTo(u))) {
+                        <strong>@Messages("contribution.visibility.isPrivate")</strong>
+                    } else {
+                        @defining(item.accessors.take(3), item.accessors.drop(3).size) { case (first, rest) =>
+                            @Messages("access.accessibleTo", first.map(_.toStringLang).mkString(", "))
+                            @Messages("access.accessibleTo.extended", rest)}
+                    }
+                    <span class="fa fa-eye-slash"></span>
+                </li>
+            } else {
+                <li>@Messages("access.all")</li>
+            }
+            @list("list-item-actions") {
+                @if(item.isOwnedBy(userOpt) || userOpt.exists(_.hasPermission(ContentTypes.Annotation, PermissionType.Delete))) {
+                    <li><a class="delete-annotation"
+                    title="@Messages("annotation.delete.title")"href="@controllers.portal.annotate.routes.Annotations.deleteAnnotation(item.id)">@Messages("annotation.delete")</a>
+                    </li>
+                }
+            }
+        }
+    }
+</div>
