@@ -28,7 +28,7 @@
     height: 100px;
     width: 100px;
     text-align: center;
-    background-color: #f5f5f5 ;
+    background-color: @pale-gray;
     margin-right: @medium-margin;
     display: inline-block;
     vertical-align: middle;
@@ -141,4 +141,10 @@
 
 .watched-items {
   &:extend(.list-unstyled);
+}
+
+.message-form {
+  .modal-footer {
+    background-color: @pale-gray;
+  }
 }
