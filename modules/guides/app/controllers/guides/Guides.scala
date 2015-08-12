@@ -32,13 +32,13 @@ case class Guides @Inject()(
   private final val guidesRoutes = controllers.guides.routes.Guides
 
   def list() = OptionalUserAction { implicit request =>
-    Ok(views.html.guide.list(guideDAO.findAll()))
+    Ok(views.html.admin.guide.list(guideDAO.findAll()))
   }
 
   def show(path: String) = WithUserAction { implicit request =>
     itemOr404 {
       guideDAO.find(path, activeOnly = false).map { guide =>
-        Ok(views.html.guide.show(guide, guideDAO.findPages(guide), guideDAO.findAll()))
+        Ok(views.html.admin.guide.show(guide, guideDAO.findPages(guide), guideDAO.findAll()))
       }
     }
   }
@@ -46,7 +46,7 @@ case class Guides @Inject()(
   def edit(path: String) = WithUserAction { implicit request =>
     itemOr404 {
       guideDAO.find(path, activeOnly = false).map { guide =>
-        Ok(views.html.guide.edit(guide, formGuide.fill(guide), guideDAO.findAll(),
+        Ok(views.html.admin.guide.edit(guide, formGuide.fill(guide), guideDAO.findAll(),
           guideDAO.findPages(guide), guidesRoutes.editPost(path)))
       }
     }
@@ -58,7 +58,7 @@ case class Guides @Inject()(
         val boundForm = formGuide.bindFromRequest
         boundForm.fold(
           errorForm => {
-            BadRequest(views.html.guide.edit(guide, errorForm, guideDAO.findAll(),
+            BadRequest(views.html.admin.guide.edit(guide, errorForm, guideDAO.findAll(),
               guideDAO.findPages(guide), guidesRoutes.editPost(path)))
           },
           updated => {
@@ -70,7 +70,7 @@ case class Guides @Inject()(
                 .flashing("success" -> "item.update.confirmation")
               case Failure(IntegrityError(e)) =>
                 val errorForm = boundForm.withError(Guide.PATH, "constraints.uniqueness")
-                BadRequest(views.html.guide.edit(guide, errorForm, guideDAO.findAll(),
+                BadRequest(views.html.admin.guide.edit(guide, errorForm, guideDAO.findAll(),
                   guideDAO.findPages(guide), guidesRoutes.editPost(path)))
               case Failure(e) => throw e
             }
@@ -81,14 +81,14 @@ case class Guides @Inject()(
   }
 
   def create() = WithUserAction { implicit request =>
-    Ok(views.html.guide.create(formGuide.fill(Guide.blueprint()), guideDAO.findAll(), guidesRoutes.createPost()))
+    Ok(views.html.admin.guide.create(formGuide.fill(Guide.blueprint()), guideDAO.findAll(), guidesRoutes.createPost()))
   }
 
   def createPost() = WithUserAction { implicit request =>
     val boundForm = formGuide.bindFromRequest
     boundForm.fold(
       errorForm => {
-        BadRequest(views.html.guide.create(errorForm, guideDAO.findAll(), guidesRoutes.createPost()))
+        BadRequest(views.html.admin.guide.create(errorForm, guideDAO.findAll(), guidesRoutes.createPost()))
       }, {
         case Guide(_, name, path, picture, virtualUnit, description, css, active, default) =>
           itemOr404 {
@@ -98,7 +98,7 @@ case class Guides @Inject()(
               }
               case Failure(IntegrityError(e)) =>
                 val errorForm = boundForm.withError(Guide.PATH, "constraints.uniqueness")
-                Some(BadRequest(views.html.guide.create(errorForm, guideDAO.findAll(), guidesRoutes.createPost())))
+                Some(BadRequest(views.html.admin.guide.create(errorForm, guideDAO.findAll(), guidesRoutes.createPost())))
               case Failure(e) => throw e
             }
           }
@@ -109,7 +109,7 @@ case class Guides @Inject()(
   def delete(path: String) = WithUserAction { implicit request =>
     itemOr404 {
       guideDAO.find(path).map { guide =>
-        Ok(views.html.guide.delete(guide, guideDAO.findAll(), guidesRoutes.deletePost(path)))
+        Ok(views.html.admin.guide.delete(guide, guideDAO.findAll(), guidesRoutes.deletePost(path)))
       }
     }
   }

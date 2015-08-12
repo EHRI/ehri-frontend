@@ -38,7 +38,7 @@ case class GuidePages @Inject()(
       for {
         guide <- guideDAO.find(gPath)
         page <- guideDAO.findPage(guide, path)
-      } yield Ok(views.html.guidePage.edit(guide, page,
+      } yield Ok(views.html.admin.guidePage.edit(guide, page,
         formPage.fill(page), guideDAO.findPage(gPath), guideDAO.findAll(),
         guidePagesRoutes.editPost(gPath, path)))
     }
@@ -53,7 +53,7 @@ case class GuidePages @Inject()(
         val boundForm = formPage.bindFromRequest
         boundForm.fold(
           errorForm =>
-            BadRequest(views.html.guidePage.edit(guide, page,
+            BadRequest(views.html.admin.guidePage.edit(guide, page,
               errorForm, guideDAO.findPages(guide),
               guideDAO.findAll(), guidePagesRoutes.editPost(gPath, path))),
           updated => {
@@ -62,7 +62,7 @@ case class GuidePages @Inject()(
                 .flashing("success" -> "item.update.confirmation")
               case Failure(IntegrityError(e)) =>
                 val errorForm = boundForm.withError(GuidePage.PATH, "constraints.uniqueness")
-                BadRequest(views.html.guidePage.edit(guide, page,
+                BadRequest(views.html.admin.guidePage.edit(guide, page,
                   errorForm, guideDAO.findPages(guide),
                   guideDAO.findAll(), guidePagesRoutes.editPost(gPath, path)))
               case Failure(e) => throw e
@@ -77,7 +77,7 @@ case class GuidePages @Inject()(
     itemOr404 {
       try {
         guideDAO.find(gPath, activeOnly = false).map { guide =>
-          Ok(views.html.guidePage.create(guide,
+          Ok(views.html.admin.guidePage.create(guide,
             formPage.fill(GuidePage.blueprint(guide.id)),
             guideDAO.findPage(gPath), guideDAO.findAll(),
             guidePagesRoutes.createPost(gPath)))
@@ -96,7 +96,7 @@ case class GuidePages @Inject()(
         val boundForm = formPage.bindFromRequest
         boundForm.fold(
           errorForm => {
-            Some(BadRequest(views.html.guidePage.create(guide, errorForm,
+            Some(BadRequest(views.html.admin.guidePage.create(guide, errorForm,
               guideDAO.findPages(guide), guideDAO.findAll(), guidePagesRoutes.createPost(gPath))))
           }, {
             case GuidePage(_, layout, name, path, menu, cypher, parent, description, params) =>
@@ -107,7 +107,7 @@ case class GuidePages @Inject()(
                 }
                 case Failure(IntegrityError(e)) =>
                   val errorForm = boundForm.withError(GuidePage.PATH, "constraints.uniqueness")
-                  Some(BadRequest(views.html.guidePage.create(guide, errorForm,
+                  Some(BadRequest(views.html.admin.guidePage.create(guide, errorForm,
                     guideDAO.findPages(guide), guideDAO.findAll(), guidePagesRoutes.createPost(gPath))))
                 case Failure(e) => throw e
               }
@@ -123,7 +123,7 @@ case class GuidePages @Inject()(
         guide <- guideDAO.find(gPath)
         page <- guideDAO.findPage(guide, path)
       } yield {
-        Ok(views.html.guidePage.delete(guide, page, guideDAO.findAll(),
+        Ok(views.html.admin.guidePage.delete(guide, page, guideDAO.findAll(),
           guideDAO.findPages(guide), guidePagesRoutes.deletePost(gPath, path)))
       }
     }

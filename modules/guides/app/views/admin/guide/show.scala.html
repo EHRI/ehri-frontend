@@ -7,7 +7,7 @@
 	</ol>
 }
 
-@guide.guidesAdminLayout("Guide", guides, Some(g  -> pages), breadcrumbs) {
+@views.html.admin.layout.guidesAdminLayout("Guide", guides, Some(g  -> pages), breadcrumbs) {
 	<h3>@g.name - <a href="@controllers.guides.routes.Guides.edit(g.path)">@Messages("guide.update")</a></h3>
 	<h4>@Messages("guidePage.list")</h4>
 	<ul class="nav nav-pills nav-stacked">

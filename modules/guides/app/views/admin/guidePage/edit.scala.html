@@ -14,7 +14,7 @@ implicit userOpt: Option[UserProfile], req: RequestHeader, globalConfig: global.
     </a>
 }
 
-@guide.guidesAdminLayout(Messages("guidePage.update.item", page.name), guides, Some(g -> pages), breadcrumbs, sidebar) {
+@views.html.admin.layout.guidesAdminLayout(Messages("guidePage.update.item", page.name), guides, Some(g -> pages), breadcrumbs, sidebar) {
 	@helper.form(action = action, 'class -> "entity-form form-horizontal") {
 	
     	@views.html.common.errorFlash(flash)

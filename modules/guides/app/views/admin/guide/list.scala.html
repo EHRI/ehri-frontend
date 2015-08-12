@@ -1,6 +1,6 @@
 @(guides: List[Guide])(implicit userOpt: Option[UserProfile], req: RequestHeader, globalConfig: global.GlobalConfig, messages: Messages, md: views.MarkdownRenderer, flash: Flash)
 
-@guide.guidesAdminLayout(Messages("guide.heading"), guides) {
+@views.html.admin.layout.guidesAdminLayout(Messages("guide.heading"), guides) {
 	<h4>Available Guides</h4>
 	<ul class="nav nav-pills nav-stacked">
 		@for(guide <- guides) {
