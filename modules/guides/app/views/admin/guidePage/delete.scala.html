@@ -9,7 +9,7 @@ implicit userOpt: Option[UserProfile], req: RequestHeader, globalConfig: global.
 	</ol>
 }
 
-@guide.guidesAdminLayout(Messages("guidePage.delete.item", page.name), guides, Some(g -> pages), breadcrumbs) {
+@views.html.admin.layout.guidesAdminLayout(Messages("guidePage.delete.item", page.name), guides, Some(g -> pages), breadcrumbs) {
 	@helper.form(action = action, 'class -> "entity-form form-horizontal") {
         @formHelpers.csrfToken()
 

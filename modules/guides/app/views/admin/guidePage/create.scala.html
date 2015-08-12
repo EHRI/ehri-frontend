@@ -1,4 +1,4 @@
-@(g: Guide, f: Form[models.Guide], guides: List[Guide], pages: List[GuidePage], action: Call)(
+@(g: Guide, f: Form[models.GuidePage], pages: List[GuidePage], guides: List[Guide], action: Call)(
 implicit userOpt: Option[UserProfile], req: RequestHeader, globalConfig: global.GlobalConfig, messages: Messages, md: views.MarkdownRenderer, flash: Flash, token: play.filters.csrf.CSRF.Token)
 
 @breadcrumbs = {
@@ -8,17 +8,13 @@ implicit userOpt: Option[UserProfile], req: RequestHeader, globalConfig: global.
 	</ol>
 }
 
-@sidebar = {
-	<a class="btn btn-danger" href="@controllers.guides.routes.Guides.delete(g.path)">
-        @Messages("guide.delete")
-    </a>
-}
-
-@guide.guidesAdminLayout(Messages("guide.update.item", g.name), guides, breadcrumbs = breadcrumbs, sideBar= sidebar) {
+@views.html.admin.layout.guidesAdminLayout(Messages("guidePage.create"), guides, Some(g -> pages), breadcrumbs) {
 	@helper.form(action = action, 'class -> "entity-form form-horizontal") {
-        @formHelpers.csrfToken()
-    	@renderForm(None, f, pages)
+    	@common.errorFlash(flash)
 
-        @formHelpers.submitButton(Messages("guide.update.submit"))
+        @formHelpers.csrfToken()
+    	@renderForm(None, f)
+
+        @formHelpers.submitButton(Messages("guidePage.create.submit"))
 	}
 }
