@@ -3,7 +3,6 @@ package eu.ehri.project.search.solr
 import helpers.ResourceUtils
 import play.api.test.PlaySpecification
 import utils.search.FieldFacetClass
-import views.Helpers
 import models.base.Description
 
 
@@ -12,7 +11,7 @@ import models.base.Description
  */
 class SolrQueryParserSpec extends PlaySpecification with ResourceUtils {
 
-  implicit val app = new play.api.inject.guice.GuiceApplicationBuilder().build
+  implicit val app = new play.api.inject.guice.GuiceApplicationBuilder().build()
   private def xmlResponseString: String = resourceAsString("solrQueryResponse1.xml")
   private def jsonResponseString: String = resourceAsString("solrQueryResponse1.json")
 
@@ -37,10 +36,10 @@ class SolrQueryParserSpec extends PlaySpecification with ResourceUtils {
       )
       val facetData = qp.extractFacetData(List.empty, allFacets)
       facetData.size must equalTo(1)
-      facetData(0).count must equalTo(2)
-      facetData(0).facets(0).value must equalTo("eng")
-      facetData(0).facets(1).value must equalTo("fre")
-      facetData(0).sortedByCount.headOption must beSome.which { top =>
+      facetData.head.count must equalTo(2)
+      facetData.head.facets.head.value must equalTo("eng")
+      facetData.head.facets(1).value must equalTo("fre")
+      facetData.head.facets.headOption must beSome.which { top =>
         top.value must equalTo("eng")
       }
     }
@@ -55,7 +54,7 @@ class SolrQueryParserSpec extends PlaySpecification with ResourceUtils {
       place must beSome
       place.get must equalTo(Seq("Active in the Netherlands, <em>Amsterdam</em>."))
 
-      val doc1 = qp.items(0)
+      val doc1 = qp.items.head
       doc1.highlights.get("place_t").get must equalTo(Seq("Active in the Netherlands, <em>Amsterdam</em>."))
     }
   }
@@ -81,10 +80,10 @@ class SolrQueryParserSpec extends PlaySpecification with ResourceUtils {
       )
       val facetData = qp.extractFacetData(List.empty, allFacets)
       facetData.size must equalTo(1)
-      facetData(0).count must equalTo(2)
-      facetData(0).facets(0).value must equalTo("eng")
-      facetData(0).facets(1).value must equalTo("fre")
-      facetData(0).sortedByCount.headOption must beSome.which { top =>
+      facetData.head.count must equalTo(2)
+      facetData.head.facets.head.value must equalTo("eng")
+      facetData.head.facets(1).value must equalTo("fre")
+      facetData.head.facets.headOption must beSome.which { top =>
         top.value must equalTo("eng")
       }
     }
@@ -99,11 +98,11 @@ class SolrQueryParserSpec extends PlaySpecification with ResourceUtils {
       place must beSome
       place.get must equalTo(Seq("Active in the Netherlands, <em>Amsterdam</em>."))
 
-      qp.items(0).fields.get("holderName") must beSome.which { v =>
+      qp.items.head.fields.get("holderName") must beSome.which { v =>
         v must equalTo("EHRI Corporate Bodies")
       }
 
-      val doc1 = qp.items(0)
+      val doc1 = qp.items.head
       doc1.highlights.get("place_t").get must equalTo(Seq("Active in the Netherlands, <em>Amsterdam</em>."))
     }
   }

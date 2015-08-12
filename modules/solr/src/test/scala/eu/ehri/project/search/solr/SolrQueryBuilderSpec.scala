@@ -57,17 +57,19 @@ class SolrQueryBuilderSpec extends PlaySpecification {
       // These are the FacetParams that our test facets should generate -
       // one for the field facet and one for each range in the query facet.
       val fq1 = new FacetParam(new Param("facet.field"), new Value("{!ex=languageCode}languageCode"))
-      val fq2 = new FacetParam(new Param("facet.query"), new Value("charCount:[0 TO 200]"))
-      val fq3 = new FacetParam(new Param("facet.query"), new Value("charCount:[201 TO 5000]"))
-      val fq4 = new FacetParam(new Param("facet.query"), new Value("charCount:[5001 TO *]"))
+      val fq2 = new FacetParam(new Param("f.languageCode.facet.sort"), new Value("index"))
+      val fq3 = new FacetParam(new Param("facet.query"), new Value("charCount:[0 TO 200]"))
+      val fq4 = new FacetParam(new Param("facet.query"), new Value("charCount:[201 TO 5000]"))
+      val fq5 = new FacetParam(new Param("facet.query"), new Value("charCount:[5001 TO *]"))
 
       val facets: Seq[FacetParam] = SolrQueryBuilder.getRequestFacets(
         List(testFieldFacetClass, testQueryFacetClass))
-      facets.size must equalTo(4)
+      facets.size must equalTo(5)
       facets must contain(fq1)
       facets must contain(fq2)
       facets must contain(fq3)
       facets must contain(fq4)
+      facets must contain(fq5)
     }
 
     "handle string escaping" in {
