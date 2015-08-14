@@ -14,13 +14,8 @@ sealed trait FacetClass[+T <: Facet] {
   def sort: FacetSort.Value = FacetSort.Count
   def display: FacetDisplay.Value = FacetDisplay.List
   def count: Int = facets.length
-  def sortedByName = facets.sortBy(_.name)
-  def sortedByCount = facets.sortWith(_.count > _.count)
-  def sorted: Seq[T] = sort match {
-    case FacetSort.Name => sortedByName
-    case FacetSort.Count => sortedByCount
-    case _ => facets
-  }
+  def limit: Option[Int] = None
+  def minCount: Option[Int] = None
 
   /**
    * This key is a valid facet value. By default any values
@@ -61,6 +56,8 @@ case class FieldFacetClass(
   key: String,
   name: String,
   param: String,
+  override val limit: Option[Int] = None,
+  override val minCount: Option[Int] = None,
   override val render: (String) => String = s=>s,
   facets: Seq[FieldFacet] = Nil,
   override val display: FacetDisplay.Value = FacetDisplay.List,
@@ -102,7 +99,7 @@ object FacetClass {
       "param" -> Json.toJson(fc.param),
       "name" -> Json.toJson(fc.name),
       "key" -> Json.toJson(fc.key),
-      "facets" -> Json.toJson(fc.sorted)
+      "facets" -> Json.toJson(fc.facets)
     )
   }
 }
