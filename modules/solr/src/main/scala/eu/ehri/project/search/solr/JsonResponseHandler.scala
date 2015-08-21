@@ -18,6 +18,7 @@ case class JsonResponseHandler @Inject()(app: play.api.Application) extends Resp
 
   // Intermediate structures...
   private case class SolrData(
+    query: Option[String],
     count: Int,
     rawDocs: Seq[JsObject],
     highLights: Option[Map[String,Map[String,Seq[String]]]],
@@ -26,6 +27,7 @@ case class JsonResponseHandler @Inject()(app: play.api.Application) extends Resp
 
   private object SolrData {
     implicit val reads: Reads[SolrData] = (
+      (__ \ "responseHeader" \ "params"\ "q").readNullable[String] and
       (__ \ "grouped" \ ITEM_ID \ "ngroups").read[Int] and
       (__ \ "grouped" \ ITEM_ID \ "doclist" \ "docs").read[Seq[JsObject]] and
       (__ \ "highlighting").readNullable[Map[String,Map[String,Seq[String]]]] and
@@ -49,13 +51,26 @@ case class JsonResponseHandler @Inject()(app: play.api.Application) extends Resp
 
     private lazy val response: JsValue = Json.parse(responseBody)
 
-    /**
-     * Fetch the first available spellcheck suggestion.
-     */
-    lazy val spellcheckSuggestion: Option[(String, String)] = for {
-      (word, suggests) <- rawSpellcheckSuggestions
-      best <- suggests.sortBy(_.freq).reverse.headOption
-    } yield (word, best.word)
+    // If collation is enabled, fetch that because it gives us a new
+    // search query with the mispelled terms replaced. Otherwise,
+    // fetch the first mispelled term suggestion.
+    lazy val spellcheckSuggestion: Option[(String, String)] =
+      collatedSpellcheckSuggestions.orElse(for {
+        (word, suggests) <- rawSpellcheckSuggestions
+        best <- suggests.sortBy(_.freq).reverse.headOption
+      } yield (word, best.word))
+
+    // NB: Parsing Solr JSON spellcheck data is horrible because everything is
+    // just in a big heterogeneous list. In this case, the first N*2 items are all
+    // words and their suggested replacements, followed by: string `correctlySpelled`
+    // boolean `true|false`, string `collation`, and the collation itself (another
+    // string.) Therefore, if we have a collated spellcheck term there will be at
+    // minimum 6 items in the list, and we pick the first collated suggestion.
+    private def collatedSpellcheckSuggestions: Option[(String,String)] = for {
+      suggest <- (response \ "spellcheck"\ "suggestions").asOpt[Seq[JsValue]] if suggest.size > 5
+      collation <- suggest.dropWhile(_ != JsString("collation"))(1).asOpt[String]
+      q <- raw.query
+    } yield (q, collation)
 
 
     private def rawSpellcheckSuggestions: Option[(String,Seq[Suggestion])] = for {
@@ -67,7 +82,7 @@ case class JsonResponseHandler @Inject()(app: play.api.Application) extends Resp
     /**
      * Extract query phrases from the 'q' parameter.
      */
-    lazy val phrases: Seq[String] = (response \ "responseHeader" \ "params" \ "q").asOpt[String].toSeq
+    lazy val phrases: Seq[String] = raw.query.toSeq
 
     /**
      * Extract items, along with their highlighting snippets.
