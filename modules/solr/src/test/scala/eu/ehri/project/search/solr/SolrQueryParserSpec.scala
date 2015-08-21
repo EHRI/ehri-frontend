@@ -105,5 +105,12 @@ class SolrQueryParserSpec extends PlaySpecification with ResourceUtils {
       val doc1 = qp.items.head
       doc1.highlights.get("place_t").get must equalTo(Seq("Active in the Netherlands, <em>Amsterdam</em>."))
     }
+
+    "parse collated spellcheck data correctly" in {
+      val qp = jsonHandler.getResponseParser(jsonResponseString)
+      qp.spellcheckSuggestion must beSome.which { case (_, corrected) =>
+        corrected must equalTo("purposely mispelled")
+      }
+    }
   }
 }

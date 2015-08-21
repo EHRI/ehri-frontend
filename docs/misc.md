@@ -7,6 +7,19 @@
 Search dispatchers abstract the interface of a particular search engine and provide an asynchronous interface to submit some
 query and retrieve the results. At present the interface is unstable and highly subject to change.
 
+#### Search Dispatcher Logging
+
+It can be useful to see exactly what Solr search is being dispatched. This can be enabled by setting the
+`eu.ehri.project.search.solr` logger to `DEBUG` by adding the following like to `conf/logger.xml`:
+
+```xml
+    <configuration>
+        <!-- Lots of stuff... -->
+        <logger name="eu.ehri.project.search.solr" level="DEBUG" />
+        <!-- Lots more stuff... -->
+    </configuration>
+```
+
 ### Search Resolvers
 
 When we get some search results from the dispatcher the first thing we often want to do is look them up in the database
