@@ -68,14 +68,15 @@ case class JsonResponseHandler @Inject()(app: play.api.Application) extends Resp
     // minimum 6 items in the list, and we pick the first collated suggestion.
     private def collatedSpellcheckSuggestions: Option[(String,String)] = for {
       suggest <- (response \ "spellcheck"\ "suggestions").asOpt[Seq[JsValue]] if suggest.size > 5
-      collation <- suggest.dropWhile(_ != JsString("collation"))(1).asOpt[String]
+      collationList = suggest.dropWhile(_ != JsString("collation")) if collationList.size > 1
+      collation <- collationList(1).asOpt[String]
       q <- raw.query
     } yield (q, collation)
 
 
     private def rawSpellcheckSuggestions: Option[(String,Seq[Suggestion])] = for {
       suggest <- (response \ "spellcheck"\ "suggestions").asOpt[Seq[JsValue]] if suggest.size > 2
-      word <- suggest.head.asOpt[String]
+      word <- suggest.headOption.flatMap(_.asOpt[String])
       correct <- (suggest(1) \ "suggestion").asOpt(Reads.seq(Suggestion.suggestionReads))
     } yield (word, correct)
 

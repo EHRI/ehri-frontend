@@ -1,0 +1,153 @@
+{
+  "facet_counts": {
+    "facet_dates": {},
+    "facet_fields": {
+      "copyrightStatus": [],
+      "languageCode": [
+        "eng",
+        2,
+        "fre",
+        1
+      ],
+      "scope": [],
+      "type": [
+        "country",
+        1,
+        "historicalAgent",
+        1
+      ]
+    },
+    "facet_queries": {},
+    "facet_ranges": {}
+  },
+  "grouped": {
+    "itemId": {
+      "doclist": {
+        "docs": [
+          {
+            "gid": 19917,
+            "id": "ehri-cb-638-eng-292",
+            "itemId": "ehri-cb-638",
+            "name": "Zentralstelle f\u00fcr j\u00fcdische Auswanderung Amsterdam",
+            "type": "historicalAgent",
+            "holderName": [
+              "EHRI Corporate Bodies"
+            ]
+          },
+          {
+            "gid": 34344,
+            "id": "nl",
+            "itemId": "nl",
+            "name": "Netherlands",
+            "type": "country"
+          }
+        ],
+        "numFound": 2,
+        "start": 0
+      },
+      "matches": 2,
+      "ngroups": 2
+    }
+  },
+  "highlighting": {
+    "ehri-cb-638-eng-292": {
+      "biographicalHistory_de": [
+        "The Zentralstelle f\u00fcr j\u00fcdische Auswanderung <em>Amsterdam</em> was the <em>Amsterdam</em> office of the German"
+      ],
+      "descriptionUrl_t": [
+        "http://authorities.ehri-project.eu/index.php/zentralstelle-fur-judische-auswanderung-<em>amsterdam</em>;eac"
+      ],
+      "name_de": [
+        "Zentralstelle f\u00fcr j\u00fcdische Auswanderung <em>Amsterdam</em>"
+      ],
+      "name_ngram": [
+        "Centraal bureau voor Joodse emigratie <em>Amsterdam</em>"
+      ],
+      "parallelFormsOfName": [
+        "Centraal bureau voor Joodse emigratie <em>Amsterdam</em>"
+      ],
+      "place_t": [
+        "Active in the Netherlands, <em>Amsterdam</em>."
+      ],
+      "source_t": [
+        "<em>Auschwitz</em> Committee, www.auschwitz.nl"
+      ],
+      "title": [
+        "Zentralstelle f\u00fcr j\u00fcdische Auswanderung <em>Amsterdam</em>"
+      ]
+    },
+    "nl": {
+      "report_t": [
+        " <em>Amsterdam</em>. A\nseries of anti-Jewish measures began in the fall of 1940. In\nmid-February 1941, the German"
+      ]
+    }
+  },
+  "responseHeader": {
+    "QTime": 7,
+    "params": {
+      "defType": "edismax",
+      "facet": "true",
+      "facet.field": [
+        "languageCode",
+        "type",
+        "copyrightStatus",
+        "scope"
+      ],
+      "facet.mincount": "1",
+      "fl": "id itemId type gid name",
+      "group": "true",
+      "group.cache.percent": "0",
+      "group.facet": "true",
+      "group.field": "itemId",
+      "group.format": "simple",
+      "group.limit": "1",
+      "group.ngroups": "true",
+      "group.offset": "0",
+      "hl": "true",
+      "hl.fl": "*",
+      "hl.usePhraseHighlighter": "true",
+      "q": "+auschwitz +amsterdam",
+      "qf": "itemId^5 name^4 title^4 otherFormsOfName^4 parallelFormsOfName^4 name_sort^3 text",
+      "rows": [
+        "20",
+        "10"
+      ],
+      "sort": "score desc",
+      "spellcheck": "true",
+      "spellcheck.extendedResults": "true",
+      "spellcheck.q": "+auschwitz +amsterdam",
+      "start": [
+        "0",
+        "0"
+      ],
+      "wt": "json"
+    },
+    "status": 0
+  },
+  "spellcheck": {
+    "suggestions": [
+      "purpusly",
+      {
+        "numFound": 1,
+        "suggestion": [
+          {
+            "word": "purposely",
+            "freq": 1
+          }
+        ]
+      },
+      "mispeled",
+      {
+        "numFound": 1,
+        "suggestion": [
+          {
+            "word": "mispelled",
+            "freq": 1
+          }
+        ]
+      },
+      "correctlySpelled",
+      false
+    ]
+  }
+}
