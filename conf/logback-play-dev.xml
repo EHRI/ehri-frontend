@@ -13,6 +13,15 @@
    </appender>
 
   <appender name="STDOUT" class="ch.qos.logback.core.ConsoleAppender">
+
+    <!-- Woraround for issue https://github.com/playframework/playframework/issues/4574 -->
+    <filter class="ch.qos.logback.core.filter.EvaluatorFilter">
+      <evaluator>
+        <expression>event.getMessage().contains("Logger configuration in conf files is deprecated and has no effect.")</expression>
+      </evaluator>
+      <onMatch>DENY</onMatch>
+    </filter>
+
     <encoder>
       <pattern>%coloredLevel %logger{15} - %message%n%xException{5}</pattern>
     </encoder>
@@ -25,7 +34,7 @@
   <logger name="com.zaxxer.hikari.pool.HikariPool" level="ERROR" />
   <logger name="com.zaxxer.hikari.HikariDataSource" level="ERROR" />
   <logger name="play.api.libs.concurrent.ActorSystemProvider" level="ERROR" />
-  <logger name="application" level="ERROR" />
+  <logger name="application" level="WARN" />
   
   <!-- Off these ones as they are annoying, and anyway we manage configuration ourself -->
   <logger name="com.avaje.ebean.config.PropertyMapLoader" level="OFF" />
