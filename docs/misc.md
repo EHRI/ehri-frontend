@@ -10,7 +10,7 @@ query and retrieve the results. At present the interface is unstable and highly 
 #### Search Dispatcher Logging
 
 It can be useful to see exactly what Solr search is being dispatched. This can be enabled by setting the
-`eu.ehri.project.search.solr` logger to `DEBUG` by adding the following like to `conf/logger.xml`:
+`eu.ehri.project.search.solr` logger to `DEBUG` by adding the following like to `conf/logback-play-dev.xml`:
 
 ```xml
     <configuration>

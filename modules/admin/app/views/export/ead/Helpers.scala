@@ -1,16 +1,12 @@
 package views.export.ead
 
-import javax.xml.transform.{OutputKeys, TransformerFactory}
-import javax.xml.transform.stream.{StreamSource, StreamResult}
-import java.io.{StringReader, StringWriter}
 import org.pegdown.{LinkRenderer, Extensions, PegDownProcessor}
-import utils.ead.{XmlFormatter, ToEadSerializer}
+import utils.ead.ToEadSerializer
 
 /**
  * @author Mike Bryant (http://github.com/mikesname)
  */
 object Helpers {
-  def tidyXml(xml: String): String = XmlFormatter.format(xml)
 
   // Initialize Markdown processor for rendering markdown. NB: The
   // instance is apparently not thread safe, so using a threadlocal

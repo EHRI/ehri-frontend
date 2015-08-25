@@ -121,7 +121,7 @@ object ApplicationBuild extends Build {
     "aws.conf",
     "test.conf",
     "external_pages.conf",
-    "test-logger.xml"
+    "logback-play-dev.xml"
   )
 
   val commonSettings = Seq(
@@ -136,7 +136,7 @@ object ApplicationBuild extends Build {
       "-Xmx1G",
       "-XX:+CMSClassUnloadingEnabled",
       "-Dconfig.file=conf/test.conf",
-      s"-Dlogger.file=${(baseDirectory in LocalRootProject).value}/conf/test-logger.xml"
+      s"-Dlogger.file=${(baseDirectory in LocalRootProject).value / "conf" / "logback-play-dev.xml"}"
     ),
 
     // Show warnings and deprecations
@@ -332,7 +332,7 @@ object ApplicationBuild extends Build {
     resolvers ++= additionalResolvers,
     version := appVersion,
     javaOptions in Test ++= Seq(
-      s"-Dlogger.file=${(baseDirectory in LocalRootProject).value}/conf/test-logger.xml"
+      s"-Dlogger.file=${(baseDirectory in LocalRootProject).value / "conf" / "logback-play-dev.xml"}"
     )
   ).dependsOn(core % "test->test;compile->compile")
 

@@ -1,5 +1,6 @@
 package utils.ead
 
+import com.jmcejuela.scala.xml.XMLPrettyPrinter
 import play.api.i18n.Messages
 import play.api.libs.concurrent.Execution.Implicits._
 import backend.{BackendHandle, ApiUser}
@@ -15,6 +16,7 @@ import models.{Repository, DocumentaryUnit}
  */
 case class EadExporter(backendHandle: BackendHandle)(implicit apiUser: ApiUser) {
   private val params = PageParams.empty.withoutLimit // can't get around large limits yet...
+  private val printer = new XMLPrettyPrinter(4)
 
   /**
    * Fetch the full item and it's set of children, recursively.
@@ -45,6 +47,5 @@ case class EadExporter(backendHandle: BackendHandle)(implicit apiUser: ApiUser) 
     repository <- fetchRepository(doc.holder.map(_.id))
     tree <- fetchTree(id, eadId)
     treeWithRepo = tree.copy(item = tree.item.copy(holder = repository))
-  } yield XmlFormatter.format(
-      views.xml.export.ead.ead(treeWithRepo).body)
+  } yield views.xml.export.ead.ead(treeWithRepo).body
 }
