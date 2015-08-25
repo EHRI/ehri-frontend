@@ -1,7 +1,10 @@
 package controllers.units
 
+import java.io.OutputStreamWriter
+
 import auth.AccountManager
 import backend.rest.cypher.Cypher
+import com.jmcejuela.scala.xml.XMLPrettyPrinter
 import play.api.cache.CacheApi
 import play.api.libs.concurrent.Execution.Implicits._
 import forms.VisibilityForm
@@ -9,6 +12,7 @@ import models._
 import controllers.generic._
 import play.api.i18n.{MessagesApi, Messages}
 import defines.{ContentTypes,EntityType,PermissionType}
+import play.api.libs.iteratee.Enumerator
 import utils.MovedPageLookup
 import views.{MarkdownRenderer, Helpers}
 import utils.search._
@@ -375,11 +379,19 @@ case class DocumentaryUnits @Inject()(
     }
   }
 
+  private val xmlPrinter = new XMLPrettyPrinter(4)
+
   def exportEad(id: String) = OptionalAccountAction.async { implicit authRequest =>
     val eadId: String = docRoutes.exportEad(id).absoluteURL(globalConfig.https)
 
-    EadExporter(userBackend).exportEad(id, eadId).map { xml =>
-      Ok(xml).as(MimeTypes.XML)
+    EadExporter(userBackend).exportEad(id, eadId).map { ead =>
+
+      val enumerator = Enumerator.outputStream { os =>
+        val writer = new OutputStreamWriter(os)
+        xmlPrinter.write(xml.XML.loadString(ead), null, addXmlDeclaration = true)(writer)
+      }
+
+      Ok.stream(enumerator >>> Enumerator.eof).as(MimeTypes.XML)
     }
   }
 }
