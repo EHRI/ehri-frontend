@@ -5,15 +5,15 @@ import com.google.inject.Inject
 import scala.sys.process._
 import defines.EntityType
 import play.api.libs.iteratee.Concurrent
-import utils.search.{IndexingError, SearchIndexer, SearchIndexerHandle}
+import utils.search.{IndexingError, SearchIndexMediator, SearchIndexMediatorHandle}
 import scala.concurrent.{ExecutionContext, Future}
 import com.google.common.collect.EvictingQueue
 
 
-case class CmdlineIndexer @Inject()(
+case class CmdlineIndexMediator @Inject()(
     implicit config: play.api.Configuration,
-    executionContext: ExecutionContext) extends SearchIndexer {
-  def handle = new CmdlineIndexerHandle()
+    executionContext: ExecutionContext) extends SearchIndexMediator {
+  def handle = new CmdlineIndexMediatorHandle()
 }
 
 /**
@@ -22,10 +22,10 @@ case class CmdlineIndexer @Inject()(
  *
  * @author Mike Bryant (http://github.com/mikesname)
  */
-case class CmdlineIndexerHandle(
+case class CmdlineIndexMediatorHandle(
   chan: Option[Concurrent.Channel[String]] = None,
   processFunc: String => String = identity[String]
-)(implicit config: play.api.Configuration, executionContext: ExecutionContext) extends SearchIndexerHandle {
+)(implicit config: play.api.Configuration, executionContext: ExecutionContext) extends SearchIndexMediatorHandle {
 
   override def withChannel(channel: Concurrent.Channel[String], formatter: String => String)
       = copy(chan = Some(channel), processFunc = formatter)

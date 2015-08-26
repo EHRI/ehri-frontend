@@ -30,7 +30,7 @@ case class AdminSearch @Inject()(
   globalConfig: global.GlobalConfig,
   searchEngine: SearchEngine,
   searchResolver: SearchItemResolver,
-  searchIndexer: SearchIndexer,
+  searchIndexer: SearchIndexMediator,
   backend: Backend,
   accounts: AccountManager,
   pageRelocator: MovedPageLookup,

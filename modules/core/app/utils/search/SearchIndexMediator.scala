@@ -7,17 +7,24 @@ import scala.concurrent.Future
 
 case class IndexingError(msg: String) extends Exception(msg)
 
-trait SearchIndexer {
-  def handle: SearchIndexerHandle
+trait SearchIndexMediator {
+  def handle: SearchIndexMediatorHandle
 }
 
 /**
  * Interface to an indexer service.
- *
  */
-trait SearchIndexerHandle {
+trait SearchIndexMediatorHandle {
 
-  def withChannel(channel: Concurrent.Channel[String], formatter: String => String = identity[String]): SearchIndexerHandle = this
+  /**
+   * Provide a concurrent channel through which to
+   * pass update events.
+   *
+   * @param channel the channel
+   * @param formatter a formatter for event strings
+   * @return
+   */
+  def withChannel(channel: Concurrent.Channel[String], formatter: String => String = identity[String]): SearchIndexMediatorHandle = this
 
   /**
    * Index a single item by id.

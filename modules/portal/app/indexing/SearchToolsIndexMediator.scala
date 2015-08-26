@@ -14,16 +14,16 @@ import eu.ehri.project.indexing.sink.impl.{CallbackSink, IndexJsonSink}
 import eu.ehri.project.indexing.source.impl.WebJsonSource
 import play.api.Logger
 import play.api.libs.iteratee.Concurrent
-import utils.search.{SearchIndexerHandle, SearchIndexer}
+import utils.search.{SearchIndexMediatorHandle, SearchIndexMediator}
 import collection.JavaConverters._
 
 import scala.concurrent.{ExecutionContext, Future}
 
-case class SearchToolsIndexer @Inject()(
+case class SearchToolsIndexMediator @Inject()(
     implicit index: Index,
     config: play.api.Configuration,
-    executionContext: ExecutionContext)  extends SearchIndexer {
-  override def handle: SearchIndexerHandle = new SearchToolsIndexerHandle()
+    executionContext: ExecutionContext)  extends SearchIndexMediator {
+  override def handle: SearchIndexMediatorHandle = new SearchToolsIndexMediatorHandle()
 }
 
 /**
@@ -34,12 +34,12 @@ case class SearchToolsIndexer @Inject()(
  *
  * @author Mike Bryant (http://github.com/mikesname)
  */
-case class SearchToolsIndexerHandle(
+case class SearchToolsIndexMediatorHandle(
   chan: Option[Concurrent.Channel[String]] = None,
   processFunc: String => String = identity[String]
 )(implicit index: Index,
   config: play.api.Configuration,
-  executionContext: ExecutionContext) extends SearchIndexerHandle {
+  executionContext: ExecutionContext) extends SearchIndexMediatorHandle {
 
   val logger  = Logger(this.getClass)
 

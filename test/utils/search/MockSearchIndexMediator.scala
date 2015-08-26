@@ -4,8 +4,8 @@ import defines.EntityType
 import play.api.Logger
 import scala.concurrent.Future
 
-case class MockSearchIndexer(eventBuffer: collection.mutable.ListBuffer[String]) extends SearchIndexer {
-  def handle = new MockSearchIndexerHandle(eventBuffer)
+case class MockSearchIndexMediator(eventBuffer: collection.mutable.ListBuffer[String]) extends SearchIndexMediator {
+  def handle = new MockSearchIndexMediatorHandle(eventBuffer)
 }
 
 /**
@@ -14,7 +14,7 @@ case class MockSearchIndexer(eventBuffer: collection.mutable.ListBuffer[String])
  * TODO: Integrate better with fixtures.
  *
  */
-case class MockSearchIndexerHandle(eventBuffer: collection.mutable.ListBuffer[String]) extends SearchIndexerHandle {
+case class MockSearchIndexMediatorHandle(eventBuffer: collection.mutable.ListBuffer[String]) extends SearchIndexMediatorHandle {
 
   def indexId(id: String) = {
     eventBuffer += id

@@ -32,7 +32,7 @@ case class UserProfiles @Inject()(
   implicit app: play.api.Application,
   cache: CacheApi,
   globalConfig: global.GlobalConfig,
-  searchIndexer: SearchIndexer,
+  searchIndexer: SearchIndexMediator,
   searchEngine: SearchEngine,
   searchResolver: SearchItemResolver,
   backend: Backend,

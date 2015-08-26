@@ -14,9 +14,9 @@ import eu.ehri.project.indexing.index.Index
 import eu.ehri.project.indexing.index.impl.SolrIndex
 import eu.ehri.project.search.solr.{JsonResponseHandler, ResponseHandler, SolrSearchEngine}
 import global.{AppGlobalConfig, GlobalConfig, GlobalEventHandler}
-import indexing.SearchToolsIndexer
+import indexing.SearchToolsIndexMediator
 import models.{DatabaseGuideDAO, GuideDAO}
-import utils.search.{SearchEngine, SearchIndexer, SearchItemResolver}
+import utils.search.{SearchEngine, SearchIndexMediator, SearchItemResolver}
 import utils.{DbMovedPageLookup, MovedPageLookup}
 import views.{MarkdownRenderer, PegDownMarkdownRendererProvider}
 
@@ -30,7 +30,7 @@ class AppModule extends AbstractModule {
     bind(classOf[GlobalConfig]).to(classOf[AppGlobalConfig])
     bind(classOf[Index]).toProvider(classOf[SolrIndexProvider])
     bind(classOf[ResponseHandler]).to(classOf[JsonResponseHandler])
-    bind(classOf[SearchIndexer]).to(classOf[SearchToolsIndexer])
+    bind(classOf[SearchIndexMediator]).to(classOf[SearchToolsIndexMediator])
     bind(classOf[SearchEngine]).to(classOf[SolrSearchEngine])
     bind(classOf[SearchItemResolver]).to(classOf[GidSearchResolver])
     bind(classOf[EventHandler]).to(classOf[GlobalEventHandler])

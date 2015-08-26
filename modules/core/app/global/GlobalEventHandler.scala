@@ -4,14 +4,14 @@ import javax.inject.Inject
 
 import backend.EventHandler
 import play.api.Logger
-import utils.search.SearchIndexer
+import utils.search.SearchIndexMediator
 
 import scala.concurrent.Future
 
 /**
  * @author Mike Bryant (http://github.com/mikesname)
  */
-case class GlobalEventHandler @Inject()(searchIndexer: SearchIndexer) extends EventHandler {
+case class GlobalEventHandler @Inject()(searchIndexer: SearchIndexMediator) extends EventHandler {
   // Bind the EntityDAO Create/Update/Delete actions
   // to the SolrIndexer update/delete handlers. Do this
   // asynchronously and log any failures...
