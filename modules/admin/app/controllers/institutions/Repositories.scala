@@ -25,7 +25,7 @@ case class Repositories @Inject()(
   cache: CacheApi,
   globalConfig: global.GlobalConfig,
   searchEngine: SearchEngine,
-  searchIndexer: SearchIndexer,
+  searchIndexer: SearchIndexMediator,
   searchResolver: SearchItemResolver,
   backend: Backend,
   accounts: AccountManager,

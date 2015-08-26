@@ -31,7 +31,7 @@ object ApplicationBuild extends Build {
     "ehri-project" % "ehri-definitions" % "0.10.4-SNAPSHOT",
 
     // The ever-vital Joda time
-    "joda-time" % "joda-time" % "2.7"
+    "joda-time" % "joda-time" % "2.8.1"
   )
 
   val backendTestDependencies = Seq(
@@ -91,6 +91,10 @@ object ApplicationBuild extends Build {
   val portalDependencies = Seq(
     "net.coobird" % "thumbnailator" % "[0.4, 0.5)",
     "com.opencsv" % "opencsv" % "3.4",
+
+    // EHRI indexing tools
+    "ehri-project" % "index-data-converter" % "1.1.1-SNAPSHOT" exclude("log4j", "log4j") exclude ("org.slf4j", "slf4j-log4j12"),
+    "com.sun.jersey" % "jersey-core" % "1.18.2",
 
     // S3 Upload plugin
     "com.github.seratch" %% "awscala" % "0.3.+"

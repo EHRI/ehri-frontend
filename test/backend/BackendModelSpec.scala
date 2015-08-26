@@ -12,7 +12,7 @@ import play.api.libs.json.{JsObject, JsString, Json}
 import models.base.AnyModel
 import models._
 import play.api.test.{WithApplicationLoader, PlaySpecification}
-import utils.search.{MockSearchIndexer, SearchIndexer}
+import utils.search.{MockSearchIndexMediator, SearchIndexMediator}
 import helpers.RestBackendRunner
 
 import scala.concurrent.ExecutionContext
@@ -32,7 +32,7 @@ class BackendModelSpec extends RestBackendRunner with PlaySpecification {
     new play.api.inject.guice.GuiceApplicationBuilder()
     .configure(RestBackendRunner.backendConfig)
     .overrides(
-      bind[SearchIndexer].toInstance(mockIndexer),
+      bind[SearchIndexMediator].toInstance(mockIndexer),
       bind[EventHandler].toInstance(testEventHandler)
     )
   )
@@ -43,7 +43,7 @@ class BackendModelSpec extends RestBackendRunner with PlaySpecification {
   implicit def execContext(implicit app: play.api.Application): ExecutionContext = app.injector.instanceOf[ExecutionContext]
 
   val indexEventBuffer = collection.mutable.ListBuffer.empty[String]
-  def mockIndexer: SearchIndexer = new MockSearchIndexer(indexEventBuffer)
+  def mockIndexer: SearchIndexMediator = new MockSearchIndexMediator(indexEventBuffer)
 
   def testBackend(implicit app: play.api.Application, apiUser: ApiUser): BackendHandle =
     app.injector.instanceOf[Backend].withContext(apiUser)

@@ -20,7 +20,7 @@ import play.api.libs.mailer.{MailerClient, Email}
 import play.api.test.Helpers._
 import play.api.test._
 import utils.{MockBufferedMailer, MockMovedPageLookup, MovedPageLookup}
-import utils.search.{MockSearchIndexer, _}
+import utils.search.{MockSearchIndexMediator, _}
 import scala.concurrent.{ExecutionContext, Future}
 
 
@@ -46,7 +46,7 @@ trait TestConfiguration {
   val indexEventBuffer = collection.mutable.ListBuffer.empty[String]
 
   private def mockMailer: MailerClient = new MockBufferedMailer(mailBuffer)
-  private def mockIndexer: SearchIndexer = new MockSearchIndexer(indexEventBuffer)
+  private def mockIndexer: SearchIndexMediator = new MockSearchIndexMediator(indexEventBuffer)
   private def mockFeedback: FeedbackDAO = new MockFeedbackDAO(feedbackBuffer)
   private def mockHelpdesk: HelpdeskDAO = new MockHelpdeskDAO(helpdeskBuffer)
 
@@ -87,7 +87,7 @@ trait TestConfiguration {
       bind[FeedbackDAO].toInstance(mockFeedback),
       bind[EventHandler].toInstance(testEventHandler),
       bind[Backend].to[RestBackend],
-      bind[SearchIndexer].toInstance(mockIndexer),
+      bind[SearchIndexMediator].toInstance(mockIndexer),
       bind[HtmlPages].toInstance(mockHtmlPages),
       bind[Database].toInstance(helpers.testDatabase)
     ).bindings(

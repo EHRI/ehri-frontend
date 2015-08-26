@@ -9,7 +9,7 @@ import forms.VisibilityForm
 import controllers.generic._
 import models._
 import defines.{ContentTypes, EntityType}
-import utils.search.{SearchConstants, SearchIndexer, SearchItemResolver, SearchEngine}
+import utils.search.{SearchConstants, SearchIndexMediator, SearchItemResolver, SearchEngine}
 import javax.inject._
 import views.MarkdownRenderer
 
@@ -24,7 +24,7 @@ case class Vocabularies @Inject()(
   cache: CacheApi,
   globalConfig: global.GlobalConfig,
   searchEngine: SearchEngine,
-  searchIndexer: SearchIndexer,
+  searchIndexer: SearchIndexMediator,
   searchResolver: SearchItemResolver,
   backend: Backend,
   accounts: AccountManager,

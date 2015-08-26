@@ -2,26 +2,30 @@ package indexing
 
 import backend.rest.Constants
 import com.google.inject.Inject
-import play.api.libs.concurrent.Execution.Implicits._
 import scala.sys.process._
 import defines.EntityType
 import play.api.libs.iteratee.Concurrent
-import utils.search.{IndexingError, SearchIndexer, SearchIndexerHandle}
-import scala.concurrent.Future
+import utils.search.{IndexingError, SearchIndexMediator, SearchIndexMediatorHandle}
+import scala.concurrent.{ExecutionContext, Future}
 import com.google.common.collect.EvictingQueue
 
 
-case class CmdlineIndexer @Inject()(implicit app: play.api.Application) extends SearchIndexer {
-  def handle = new CmdlineIndexerHandle()
+case class CmdlineIndexMediator @Inject()(
+    implicit config: play.api.Configuration,
+    executionContext: ExecutionContext) extends SearchIndexMediator {
+  def handle = new CmdlineIndexMediatorHandle()
 }
 
 /**
- * User: mikebryant
- *
  * Indexer which uses the command-line tool in
  * bin to index items.
+ *
+ * @author Mike Bryant (http://github.com/mikesname)
  */
-case class CmdlineIndexerHandle(chan: Option[Concurrent.Channel[String]] = None, processFunc: String => String = identity[String])(implicit app: play.api.Application) extends SearchIndexerHandle {
+case class CmdlineIndexMediatorHandle(
+  chan: Option[Concurrent.Channel[String]] = None,
+  processFunc: String => String = identity[String]
+)(implicit config: play.api.Configuration, executionContext: ExecutionContext) extends SearchIndexMediatorHandle {
 
   override def withChannel(channel: Concurrent.Channel[String], formatter: String => String)
       = copy(chan = Some(channel), processFunc = formatter)
@@ -60,12 +64,12 @@ case class CmdlineIndexerHandle(chan: Option[Concurrent.Channel[String]] = None,
 
   private val binary = Seq("java", "-jar", jar)
 
-  private def jar = app.configuration.getString("solr.indexer.jar")
+  private def jar = config.getString("solr.indexer.jar")
     .getOrElse(sys.error("No indexer jar configured for solr.indexer.jar"))
 
-  private val restUrl = utils.serviceBaseUrl("ehridata", app.configuration)
+  private val restUrl = utils.serviceBaseUrl("ehridata", config)
 
-  private val solrUrl = utils.serviceBaseUrl("solr", app.configuration)
+  private val solrUrl = utils.serviceBaseUrl("solr", config)
 
   private val clearArgs = binary ++ Seq(
     "--solr", solrUrl
