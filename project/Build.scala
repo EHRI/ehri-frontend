@@ -36,9 +36,9 @@ object ApplicationBuild extends Build {
 
   val backendTestDependencies = Seq(
     specs2 % Test,
-    "org.neo4j" % "neo4j-kernel" % "2.2.1" % "test" classifier "tests" classifier "" exclude("org.mockito", "mockito-core"),
-    "org.neo4j" % "neo4j-io" % "2.2.1" % "test" classifier "tests" classifier "" exclude("org.mockito", "mockito-core"),
-    "org.neo4j.app" % "neo4j-server" % "2.2.1" % "test" classifier "tests" classifier "" exclude("org.mockito", "mockito-core"),
+    "org.neo4j" % "neo4j-kernel" % "2.2.2" % "test" classifier "tests" classifier "" exclude("org.mockito", "mockito-core"),
+    "org.neo4j" % "neo4j-io" % "2.2.2" % "test" classifier "tests" classifier "" exclude("org.mockito", "mockito-core"),
+    "org.neo4j.app" % "neo4j-server" % "2.2.2" % "test" classifier "tests" classifier "" exclude("org.mockito", "mockito-core"),
     "org.hamcrest" % "hamcrest-all" % "1.3" % "test",
 
     // This is necessary to allow the Neo4j server to start
@@ -51,14 +51,13 @@ object ApplicationBuild extends Build {
     "ehri-project" % "ehri-extension" % "0.10.4-SNAPSHOT" % "test" classifier "tests" classifier "" exclude("com.tinkerpop.gremlin", "gremlin-groovy") exclude("org.mockito", "mockito-core")
   )
 
-
   val coreDependencies = backendDependencies ++ Seq(
     jdbc,
     evolutions,
     filters,
 
     // Anorm DB lib
-    "com.typesafe.play" %% "anorm" % "2.4.0-M3",
+    "com.typesafe.play" %% "anorm" % "2.4.0",
 
     // Commons IO
     "commons-io" % "commons-io" % "2.4",
@@ -93,11 +92,12 @@ object ApplicationBuild extends Build {
     "com.opencsv" % "opencsv" % "3.4",
 
     // EHRI indexing tools
-    "ehri-project" % "index-data-converter" % "1.1.1-SNAPSHOT" exclude("log4j", "log4j") exclude ("org.slf4j", "slf4j-log4j12"),
+    "ehri-project" % "index-data-converter" % "1.1.2-SNAPSHOT" exclude("log4j", "log4j") exclude ("org.slf4j", "slf4j-log4j12"),
     "com.sun.jersey" % "jersey-core" % "1.18.2",
 
     // S3 Upload plugin
     "com.github.seratch" %% "awscala" % "0.3.+"
+
   )
 
   val testDependencies = backendTestDependencies ++ Seq(
