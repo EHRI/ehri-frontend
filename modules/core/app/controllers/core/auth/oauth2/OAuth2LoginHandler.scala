@@ -31,6 +31,8 @@ trait OAuth2LoginHandler extends AccountHelpers {
 
   self: Controller with CoreActionBuilders =>
 
+  def logger = Logger(this.getClass)
+
   def backend: Backend
   def accounts: auth.AccountManager
   def globalConfig: GlobalConfig
@@ -81,7 +83,7 @@ trait OAuth2LoginHandler extends AccountHelpers {
   private def getOrCreateAccount(provider: OAuth2Provider, userData: UserData): Future[Account] = {
     accounts.oAuth2.findByProviderInfo(userData.providerId, provider.name).flatMap { assocOpt =>
       assocOpt.flatMap(_.user).map { account =>
-        Logger.info(s"Found existing association for ${userData.name} -> ${provider.name}")
+        logger.info(s"Found existing association for ${userData.name} -> ${provider.name}")
         for {
           updated <- accounts.update(account.copy(verified = true))
           _ <- updateUserInfo(updated, userData)
@@ -89,14 +91,14 @@ trait OAuth2LoginHandler extends AccountHelpers {
       } getOrElse {
         accounts.findByEmail(userData.email).flatMap { accountOpt =>
           accountOpt.map { account =>
-            Logger.info(s"Creating new association for ${userData.name} -> ${provider.name}")
+            logger.info(s"Creating new association for ${userData.name} -> ${provider.name}")
             for {
               updated <- accounts.update(account.copy(verified = true))
               _ <- accounts.oAuth2.addAssociation(updated.id, userData.providerId, provider.name)
               _ <- updateUserInfo(updated, userData)
             } yield updated
           } getOrElse {
-            Logger.info(s"Creating new account for ${userData.name} -> ${provider.name}")
+            logger.info(s"Creating new account for ${userData.name} -> ${provider.name}")
             for {
               newAccount <- createNewProfile(userData, provider)
               _ <- accounts.oAuth2.addAssociation(newAccount.id, userData.providerId, provider.name)
@@ -115,11 +117,11 @@ trait OAuth2LoginHandler extends AccountHelpers {
       currentState <- state
     } yield {
       val check = originalState == currentState
-      if (!check) Logger.error(s"OAuth2 state mismatch: sessionId: $sessionId, " +
+      if (!check) logger.error(s"OAuth2 state mismatch: sessionId: $sessionId, " +
         s"original token: $origStateOpt, new token: $state")
       check
     }).getOrElse {
-      Logger.error(s"Missing OAuth2 state data: session key -> $sessionId")
+      logger.error(s"Missing OAuth2 state data: session key -> $sessionId")
       false
     }
   }
@@ -154,7 +156,7 @@ trait OAuth2LoginHandler extends AccountHelpers {
             val state = UUID.randomUUID().toString
             cache.set(sessionId, state, Duration(30 * 60, TimeUnit.SECONDS))
             val redirectUrl = provider.buildRedirectUrl(handlerUrl, state)
-            Logger.debug(s"OAuth2 redirect URL: $redirectUrl")
+            logger.debug(s"OAuth2 redirect URL: $redirectUrl")
             immediate(Redirect(redirectUrl).withSession(request.session + (SessionKey -> sessionId)))
 
           // Second phase of request. Using our new code, and with the same random session
@@ -170,7 +172,7 @@ trait OAuth2LoginHandler extends AccountHelpers {
               result <- block(authRequest)
             } yield result) recoverWith {
               case e@AuthenticationError(msg) =>
-                Logger.error(msg)
+                logger.error(msg)
                 block(OAuth2Request(Left(Messages("login.error.oauth2.info",
                   provider.name.toUpperCase)), request))
             }

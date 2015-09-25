@@ -32,7 +32,7 @@ case class ApiController @Inject()(
 ) extends AdminController {
 
   def listItems(contentType: EntityType.Value) = Action.async { implicit request =>
-    get(s"$contentType/list")(request)
+    get(contentType)(request)
   }
 
   def getItem(contentType: EntityType.Value, id: String) = Action.async { implicit request =>

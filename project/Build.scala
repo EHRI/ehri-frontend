@@ -23,12 +23,16 @@ object ApplicationBuild extends Build {
   val appName = "docview"
   val appVersion = "1.0.4-SNAPSHOT"
 
+  val backendVersion = "0.11.0-SNAPSHOT"
+  val neo4jVersion = "2.2.5"
+  val jerseyVersion = "1.19"
+
   val backendDependencies = Seq(
     ws,
     cache,
 
     // Ontology
-    "ehri-project" % "ehri-definitions" % "0.10.4-SNAPSHOT",
+    "ehri-project" % "ehri-definitions" % backendVersion,
 
     // The ever-vital Joda time
     "joda-time" % "joda-time" % "2.8.1"
@@ -36,19 +40,22 @@ object ApplicationBuild extends Build {
 
   val backendTestDependencies = Seq(
     specs2 % Test,
-    "org.neo4j" % "neo4j-kernel" % "2.2.1" % "test" classifier "tests" classifier "" exclude("org.mockito", "mockito-core"),
-    "org.neo4j" % "neo4j-io" % "2.2.1" % "test" classifier "tests" classifier "" exclude("org.mockito", "mockito-core"),
-    "org.neo4j.app" % "neo4j-server" % "2.2.1" % "test" classifier "tests" classifier "" exclude("org.mockito", "mockito-core"),
+    "org.neo4j" % "neo4j-kernel" % neo4jVersion % "test" classifier "tests" classifier "" exclude("org.mockito", "mockito-core"),
+    "org.neo4j" % "neo4j-io" % neo4jVersion % "test" classifier "tests" classifier "" exclude("org.mockito", "mockito-core"),
+    "org.neo4j.app" % "neo4j-server" % neo4jVersion % "test" classifier "tests" classifier "" exclude("org.mockito",
+      "mockito-core"),
     "org.hamcrest" % "hamcrest-all" % "1.3" % "test",
 
     // This is necessary to allow the Neo4j server to start
-    "com.sun.jersey" % "jersey-core" % "1.18.2" % "test",
+    "com.sun.jersey" % "jersey-core" % jerseyVersion % "test",
+    "com.sun.jersey" % "jersey-server" % jerseyVersion % "test",
 
     // We need the backend code to test against, but exclude any
     // groovy stuff because a) it's not needed, and b) it has a
     // ton of awkward transitive dependencies
-    "ehri-project" % "ehri-frames" % "0.10.4-SNAPSHOT" % "test" classifier "tests" classifier "" exclude("com.tinkerpop.gremlin", "gremlin-groovy") exclude("org.mockito", "mockito-core"),
-    "ehri-project" % "ehri-extension" % "0.10.4-SNAPSHOT" % "test" classifier "tests" classifier "" exclude("com.tinkerpop.gremlin", "gremlin-groovy") exclude("org.mockito", "mockito-core")
+    "ehri-project" % "ehri-frames" % backendVersion % "test" classifier "tests" classifier "" exclude("com.tinkerpop.gremlin",
+      "gremlin-groovy") exclude("org.mockito", "mockito-core"),
+    "ehri-project" % "ehri-extension" % backendVersion % "test" classifier "tests" classifier "" exclude("com.tinkerpop.gremlin", "gremlin-groovy") exclude("org.mockito", "mockito-core")
   )
 
 
@@ -93,8 +100,9 @@ object ApplicationBuild extends Build {
     "com.opencsv" % "opencsv" % "3.4",
 
     // EHRI indexing tools
-    "ehri-project" % "index-data-converter" % "1.1.1-SNAPSHOT" exclude("log4j", "log4j") exclude ("org.slf4j", "slf4j-log4j12"),
-    "com.sun.jersey" % "jersey-core" % "1.18.2",
+    "ehri-project" % "index-data-converter" % "1.1.3-SNAPSHOT" exclude("log4j", "log4j") exclude ("org.slf4j",
+      "slf4j-log4j12"),
+    "com.sun.jersey" % "jersey-core" % jerseyVersion,
 
     // S3 Upload plugin
     "com.github.seratch" %% "awscala" % "0.3.+"

@@ -238,6 +238,11 @@ class BackendModelSpec extends RestBackendRunner with PlaySpecification {
       r mustEqual 5L
     }
 
+    "count child items" in new WithApplicationLoader(appLoader) {
+      var r = await(testBackend.countChildren[DocumentaryUnit]("c1"))
+      r mustEqual 1L
+    }
+
     "emit appropriate signals" in new WithApplicationLoader(appLoader) {
     }
   }
