@@ -29,21 +29,29 @@
 
   <logger name="play" level="INFO" />
   
-  <!-- Turn down the default level of some classes that log with each
-       application restart -->
-  <logger name="com.zaxxer.hikari.pool.HikariPool" level="ERROR" />
-  <logger name="com.zaxxer.hikari.HikariDataSource" level="ERROR" />
-  <logger name="play.api.libs.concurrent.ActorSystemProvider" level="ERROR" />
-  <logger name="application" level="WARN" />
-  
   <!-- Off these ones as they are annoying, and anyway we manage configuration ourself -->
   <logger name="com.avaje.ebean.config.PropertyMapLoader" level="OFF" />
   <logger name="com.avaje.ebeaninternal.server.core.XmlConfigLoader" level="OFF" />
   <logger name="com.avaje.ebeaninternal.server.lib.BackgroundThread" level="OFF" />
   <logger name="com.gargoylesoftware.htmlunit.javascript" level="OFF" />
 
-  <!--  <logger name="com.ning.http.client" level="DEBUG" />
-  <logger name="play.api.libs.ws" level="DEBUG" /> -->
+  <!-- Turn down the default level of some classes that log with each
+       application restart -->
+  <logger name="com.zaxxer.hikari.pool.HikariPool" level="ERROR" />
+  <logger name="com.zaxxer.hikari.HikariDataSource" level="ERROR" />
+  <logger name="play.api.libs.concurrent.ActorSystemProvider" level="ERROR" />
+
+  <!-- Uncomment to see backend request HTTP calls -->
+  <!-- <logger name="backend" level="DEBUG" /> -->
+
+  <!-- Uncomment to log backend transaction opening and closing -->
+  <!--<logger name="eu.ehri.project.core.impl" level="TRACE" />-->
+
+  <!-- Uncomment to show LOTS of debug info about HTTP calls -->
+  <!-- <logger name="com.ning.http.client" level="DEBUG" /> -->
+  <!-- <logger name="play.api.libs.ws" level="DEBUG" /> -->
+
+  <logger name="application" level="WARN" />
 
   <root level="ERROR">
     <appender-ref ref="STDOUT" />

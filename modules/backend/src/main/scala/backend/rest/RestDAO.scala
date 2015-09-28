@@ -25,6 +25,8 @@ trait RestDAO {
   import play.api.libs.concurrent.Execution.Implicits._
   import play.api.libs.ws.{EmptyBody, InMemoryBody, WSBody, WSResponse}
 
+  private def logger: Logger = Logger(this.getClass)
+
   /**
    * Wrapper for WS.
    */
@@ -54,12 +56,12 @@ trait RestDAO {
           case Some(CCExtractor(age)) if method == "GET"
             && age.toInt > 0
             && response.status >= 200 && response.status < 300 =>
-            Logger.trace(s"CACHING: $method $url $age")
+            logger.trace(s"CACHING: $method $url $age")
             cache.set(url, response, Duration(age.toInt, TimeUnit.SECONDS))
           // if not, ensure it's invalidated
           case _ if method != "GET" =>
             val itemUrl = response.header(HeaderNames.LOCATION).getOrElse(url)
-            Logger.trace(s"Evicting from cache: $method $itemUrl")
+            logger.trace(s"Evicting from cache: $method $itemUrl")
             cache.remove(itemUrl)
           case _ =>
         }
@@ -76,7 +78,7 @@ trait RestDAO {
       if (queryStringMap.nonEmpty) s"$url?${joinQueryString(queryStringMap)}" else url
 
     private def runWs: Future[WSResponse] = {
-      Logger.debug(s"WS: $apiUser $method $fullUrl")
+      logger.debug(s"WS: $apiUser $method $fullUrl")
       val holder = ws.url(url)
         .withQueryString(queryString: _*)
         .withHeaders(headers: _*)
@@ -127,7 +129,7 @@ trait RestDAO {
     def execute(): Future[WSResponse] = {
       if (method == "GET") cache.get[WSResponse](url) match {
         case Some(r) =>
-          Logger.trace(s"Retrieved from cache: $url")
+          logger.trace(s"Retrieved from cache: $url")
           Future.successful(r)
         case _ => runWs
       } else runWs
@@ -219,7 +221,7 @@ trait RestDAO {
     enc(baseUrl, Resource[MT].entityType, id)
 
   protected def checkError(response: WSResponse): WSResponse = {
-    Logger.logger.trace("Response body ! : {}", response.body)
+    logger.trace(s"Response body ! : ${response.body}")
     response.status match {
       case OK | CREATED => response
       case e => e match {
@@ -228,7 +230,7 @@ trait RestDAO {
           response.json.validate[PermissionDenied].fold(
             err => throw PermissionDenied(),
             perm => {
-              Logger.logger.error("Permission denied error! : {}", response.json)
+              logger.error(s"Permission denied error! : ${response.json}")
               throw perm
             }
           )
@@ -238,15 +240,15 @@ trait RestDAO {
               // Temporary approach to handling random Deserialization errors.
               // In practice this should happen
               if ((response.json \ "error").asOpt[String] == Some("DeserializationError")) {
-                Logger.logger.error("Derialization error! : {}", response.json)
+                logger.error(s"Derialization error! : ${response.json}")
                 throw DeserializationError()
               } else {
-                Logger.error("Bad request: " + response.body)
+                logger.error("Bad request: " + response.body)
                 throw sys.error(s"Unexpected BAD REQUEST: $e \n${response.body}")
               }
             },
             errorSet => {
-              Logger.logger.warn("ValidationError ! : {}", response.json)
+              logger.warn(s"ValidationError ! : ${response.json}")
               throw ValidationError(errorSet)
             }
           )
@@ -255,14 +257,14 @@ trait RestDAO {
             throw new BadRequest(response.body)
         }
         case NOT_FOUND =>
-          //Logger.logger.error("404: {} -> {}", Array(response.underlying[AHCRe].getUri, response.body))
+          //logger.error("404: {} -> {}", Array(response.underlying[AHCRe].getUri, response.body))
           response.json.validate[ItemNotFound].fold(
             e => throw new ItemNotFound(),
             err => throw err
           )
         case _ =>
           val err = s"Unexpected response: ${response.status}: '${response.body}'"
-          Logger.logger.error(err)
+          logger.error(err)
           sys.error(err)
       }
     }
@@ -282,26 +284,31 @@ trait RestDAO {
    */
   private[rest] val Extractor = """offset=(-?\d+); limit=(-?\d+); total=(-?\d+)""".r
 
+  private[rest] def parsePagination(response: WSResponse, context: Option[String]): Option[(Int, Int, Int)] = {
+    val pagination = response.header(HeaderNames.CONTENT_RANGE).getOrElse("")
+    Extractor.findFirstIn(pagination) match {
+      case Some(Extractor(offset, limit, total)) => Some((offset.toInt, limit.toInt, total.toInt))
+      case _ => None
+    }
+  }
+
   private[rest] def parsePage[T](response: WSResponse, context: Option[String])(implicit rd: Reads[T]): Page[T] = {
     checkError(response).json.validate(Reads.seq(rd)).fold(
       invalid => throw new BadJson(
         invalid, url = context, data = Some(Json.prettyPrint(response.json))),
-      items => {
-        val pagination = response.header(HeaderNames.CONTENT_RANGE).getOrElse("")
-        Extractor.findFirstIn(pagination) match {
-          case Some(Extractor(offset, limit, total)) => Page(
-            items = items,
-            offset = offset.toInt,
-            limit = limit.toInt,
-            total = total.toInt
-          )
-          case m => Page(
-            items = items,
-            offset = 0,
-            limit = Constants.DEFAULT_LIST_LIMIT,
-            total = -1
-          )
-        }
+      items => parsePagination(response, context) match {
+        case Some((offset, limit, total)) => Page(
+          items = items,
+          offset = offset,
+          limit = limit,
+          total = total
+        )
+        case _ => Page(
+          items = items,
+          offset = 0,
+          limit = Constants.DEFAULT_LIST_LIMIT,
+          total = -1
+        )
       }
     )
   }

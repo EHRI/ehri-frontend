@@ -101,7 +101,7 @@ trait RestGeneric extends Generic with RestDAO with RestContext {
     list(Resource[MT], params)
 
   override def list[MT](resource: Resource[MT], params: PageParams = PageParams.empty): Future[Page[MT]] = {
-    val url = enc(baseUrl, resource.entityType, "list")
+    val url = enc(baseUrl, resource.entityType)
     userCall(url).withQueryString(params.queryParams: _*).get().map { response =>
       parsePage(response, context = Some(url))(resource.restReads)
     }
@@ -114,15 +114,17 @@ trait RestGeneric extends Generic with RestDAO with RestContext {
     }
   }
 
-  override def count[MT: Resource](): Future[Long] = {
-    userCall(enc(baseUrl, Resource[MT].entityType, "count")).get().map { response =>
-      checkErrorAndParse[Long](response)
-    }
-  }
+  override def count[MT: Resource](): Future[Long] =
+    getTotal(enc(baseUrl, Resource[MT].entityType))
 
-  override def countChildren[MT: Resource](id: String): Future[Long] = {
-    userCall(enc(baseUrl, Resource[MT].entityType, id, "count")).get().map { response =>
-      checkErrorAndParse[Long](response)
+  override def countChildren[MT: Resource](id: String): Future[Long] =
+    getTotal(enc(baseUrl, Resource[MT].entityType, id, "list"))
+
+  private def getTotal(url: String): Future[Long] = {
+    userCall(url).withMethod("HEAD").execute().map { response =>
+      parsePagination(response, context = Some(url)).map { case (_, _, total) =>
+        total.toLong
+      }.getOrElse(-1L)
     }
   }
 }

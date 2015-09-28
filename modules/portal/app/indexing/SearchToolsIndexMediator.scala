@@ -6,8 +6,8 @@ import javax.inject.Inject
 import backend.rest.Constants
 import com.fasterxml.jackson.databind.JsonNode
 import defines.EntityType
-import eu.ehri.project.indexing.IndexHelper
-import eu.ehri.project.indexing.IndexHelper.Builder
+import eu.ehri.project.indexing.Pipeline.Builder
+import eu.ehri.project.indexing.{IndexHelper,Pipeline}
 import eu.ehri.project.indexing.converter.impl.JsonConverter
 import eu.ehri.project.indexing.index.Index
 import eu.ehri.project.indexing.sink.impl.{CallbackSink, IndexJsonSink}
@@ -56,8 +56,8 @@ case class SearchToolsIndexMediatorHandle(
     props
   }
 
-  private def indexHelper(specs: String*): IndexHelper = {
-    val builder = (new Builder)
+  private def indexHelper(specs: String*): Pipeline[JsonNode, JsonNode] = {
+    val builder = new Builder[JsonNode, JsonNode]
       .addSink(new IndexJsonSink(index, new IndexJsonSink.EventHandler {
         override def handleEvent(event: Any): Unit = {
           chan.foreach(_.push(processFunc(event.toString)))
@@ -87,17 +87,17 @@ case class SearchToolsIndexMediatorHandle(
 
   override def indexId(id: String): Future[Unit] = Future {
     logger.debug(s"Indexing: $id")
-    indexHelper("@" + id).iterate()
+    indexHelper("@" + id).run()
   }
 
   override def indexChildren(entityType: EntityType.Value, id: String): Future[Unit] = Future {
     logger.debug(s"Index children: $entityType|$id")
-    indexHelper(entityType + "|" + id).iterate()
+    indexHelper(entityType + "|" + id).run()
   }
 
   override def indexTypes(entityTypes: Seq[EntityType.Value]): Future[Unit] = Future {
     logger.debug(s"Index types: ${entityTypes.mkString(", ")}")
-    indexHelper(entityTypes.map(_.toString): _*).iterate()
+    indexHelper(entityTypes.map(_.toString): _*).run()
   }
 
   override def clearKeyValue(key: String, value: String): Future[Unit] = Future {
