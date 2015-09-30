@@ -100,7 +100,7 @@ trait RestGeneric extends Generic with RestDAO with RestContext {
   override def list[MT: Resource](params: PageParams = PageParams.empty): Future[Page[MT]] =
     list(Resource[MT], params)
 
-  override def list[MT](resource: Resource[MT], params: PageParams = PageParams.empty): Future[Page[MT]] = {
+  override def list[MT](resource: Resource[MT], params: PageParams): Future[Page[MT]] = {
     val url = enc(baseUrl, resource.entityType)
     userCall(url).withQueryString(params.queryParams: _*).get().map { response =>
       parsePage(response, context = Some(url))(resource.restReads)
