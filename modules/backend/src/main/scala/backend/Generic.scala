@@ -95,7 +95,7 @@ trait Generic {
    * @param params the list parameters
    * @tparam MT the generic type of the resource items
    */
-  def list[MT](resource: Resource[MT], params: PageParams = PageParams.empty): Future[Page[MT]]
+  def list[MT](resource: Resource[MT], params: PageParams): Future[Page[MT]]
 
   /**
    * List items with the implicit resource type.

@@ -3,7 +3,7 @@ package utils.search
 import javax.inject.Inject
 
 import defines.EntityType
-import utils.Page
+import utils.{PageParams, Page}
 
 import scala.concurrent.ExecutionContext.Implicits._
 import models._
@@ -65,7 +65,7 @@ case class MockSearchEngineConfig(
     val resources = types.map(et => AnyModel.resourceFor(et))
     // Get the full listing for each type and concat them together
     // once all futures have completed...
-    Future.sequence(resources.map(r => handle.list(r))).map(_.flatten)
+    Future.sequence(resources.map(r => handle.list(r, PageParams.empty))).map(_.flatten)
   }
 
   override def filter()(implicit userOpt: Option[UserProfile]): Future[SearchResult[FilterHit]] =
