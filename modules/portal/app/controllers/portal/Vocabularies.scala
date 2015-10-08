@@ -40,10 +40,6 @@ case class Vocabularies @Inject()(
 
   private val portalVocabRoutes = controllers.portal.routes.Vocabularies
 
-  private def filters(id: String)(implicit request: RequestHeader): Map[String,Any] =
-    (if (!hasActiveQuery(request)) Map(SearchConstants.TOP_LEVEL -> true)
-      else Map.empty[String,Any]) ++ Map(SearchConstants.HOLDER_ID -> id)
-
   def searchAll = UserBrowseAction.async { implicit request =>
     findType[Vocabulary](
       facetBuilder = repositorySearchFacets
@@ -55,7 +51,7 @@ case class Vocabularies @Inject()(
   def browse(id: String) = GetItemAction(id).async { implicit request =>
     if (isAjax) immediate(Ok(views.html.vocabulary.itemDetails(request.item, request.annotations, request.links, request.watched)))
     else findType[Concept](
-      filters = filters(request.item.id),
+      filters = Map(SearchConstants.HOLDER_ID -> id),
       facetBuilder = conceptFacets
     ).map { result =>
       Ok(views.html.vocabulary.show(request.item, result, request.annotations,
@@ -64,15 +60,14 @@ case class Vocabularies @Inject()(
   }
 
   def search(id: String) = GetItemAction(id).async { implicit request =>
-      findType[Concept](
-        filters = filters(request.item.id),
-        facetBuilder = conceptFacets
-      ).map { result =>
-        if (isAjax) Ok(views.html.vocabulary.childItemSearch(request.item, result,
-          portalVocabRoutes.search(id), request.watched))
-        else Ok(views.html.vocabulary.search(request.item, result,
-          portalVocabRoutes.search(id), request.watched))
-      }
+    findType[Concept](
+      filters = Map(SearchConstants.HOLDER_ID -> id),
+      facetBuilder = conceptFacets
+    ).map { result =>
+      if (isAjax) Ok(views.html.vocabulary.childItemSearch(request.item, result,
+        portalVocabRoutes.search(id), request.watched))
+      else Ok(views.html.vocabulary.search(request.item, result,
+        portalVocabRoutes.search(id), request.watched))
+    }
   }
-
 }

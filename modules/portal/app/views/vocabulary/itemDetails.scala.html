@@ -8,7 +8,7 @@
             @Markdown(desc)
         }
     } {
-        @views.html.common.typeLabelWithWatchButton(item, watched.contains(item.id))e
+        @views.html.common.typeLabelWithWatchButton(item, watched.contains(item.id))
         @views.html.common.childItemSidebar(item, EntityType.Concept)
         @views.html.common.latestAction(item, controllers.portal.routes.Portal.itemHistory(item.id, modal = true))
     }
