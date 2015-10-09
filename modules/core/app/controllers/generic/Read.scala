@@ -64,8 +64,10 @@ trait Read[MT] extends Generic {
 
   private def WithPermissionFilter(perm: PermissionType.Value, contentType: ContentTypes.Value) = new ActionFilter[ItemPermissionRequest] {
     override protected def filter[A](request: ItemPermissionRequest[A]): Future[Option[Result]] = {
-      if (!request.userOpt.exists(_.hasPermission(contentType, perm)))  authorizationFailed(request).map(r => Some(r))
-      else Future.successful(None)
+      request.userOpt.map { user =>
+        if (user.hasPermission(contentType, perm)) Future.successful(None)
+        else authorizationFailed(request, user).map(r => Some(r))
+      }.getOrElse(authenticationFailed(request).map(r => Some(r)))
     }
   }
 

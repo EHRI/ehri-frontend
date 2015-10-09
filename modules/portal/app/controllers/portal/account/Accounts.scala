@@ -348,7 +348,7 @@ case class Accounts @Inject()(
           Redirect(redirect)
             .flashing("success" -> "mail.emailConfirmationResent")
         }
-      case _ => authorizationFailed(request)
+      case _ => authenticationFailed(request)
     }
   }
 

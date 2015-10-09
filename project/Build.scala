@@ -65,31 +65,33 @@ object ApplicationBuild extends Build {
     filters,
 
     // Anorm DB lib
-    "com.typesafe.play" %% "anorm" % "2.4.0-M3",
+    "com.typesafe.play" %% "anorm" % "2.4.0",
 
     // Commons IO
     "commons-io" % "commons-io" % "2.4",
 
     // Authentication
-    "jp.t2v" %% "play2-auth" % "0.13.2",
+    "jp.t2v" %% "play2-auth" % "0.14.1",
 
     // Password hashing
     "org.mindrot" % "jbcrypt" % "0.3m",
 
-    // Mysql driver
-    "mysql" % "mysql-connector-java" % "5.1.25",
+    // Mysql driver. Note: version 5.1.36 is
+    // incompatible with our old version of MySQL:
+    // https://bugs.mysql.com/bug.php?id=77665
+    "mysql" % "mysql-connector-java" % "5.1.35",
 
     // Markdown rendering
-    "org.pegdown" % "pegdown" % "1.5.0",
+    "org.pegdown" % "pegdown" % "1.6.0",
 
     // HTML sanitising...
-    "org.jsoup" % "jsoup" % "1.8.1",
+    "org.jsoup" % "jsoup" % "1.8.3",
 
     // Mailer...
     "com.typesafe.play" %% "play-mailer" % "3.0.1",
 
     // Time formatting library
-    "org.ocpsoft.prettytime" % "prettytime" % "1.0.8.Final",
+    "org.ocpsoft.prettytime" % "prettytime" % "3.2.7.Final",
 
     // Logging: Janino is necessary for configuring LogBack's regex filter
     "org.codehaus.janino" % "janino" % "2.7.7"
@@ -97,7 +99,7 @@ object ApplicationBuild extends Build {
 
   val portalDependencies = Seq(
     "net.coobird" % "thumbnailator" % "[0.4, 0.5)",
-    "com.opencsv" % "opencsv" % "3.4",
+    "com.opencsv" % "opencsv" % "3.5",
 
     // EHRI indexing tools
     "ehri-project" % "index-data-converter" % "1.1.3-SNAPSHOT" exclude("log4j", "log4j") exclude ("org.slf4j",
@@ -110,17 +112,14 @@ object ApplicationBuild extends Build {
 
   val testDependencies = backendTestDependencies ++ Seq(
     specs2 % Test,
-    "jp.t2v" %% "play2-auth-test" % "0.13.2" % "test"
+    "jp.t2v" %% "play2-auth-test" % "0.14.1" % "test"
   )
 
   val additionalResolvers = Seq(
-    "neo4j-public-repository" at "http://m2.neo4j.org/content/groups/public",
-    "Local Maven Repository" at "file:///" + Path.userHome.absolutePath + "/.m2/repository",
-    "Codahale" at "http://repo.codahale.com",
-    "Typesafe Repository" at "http://repo.typesafe.com/typesafe/releases/",
+    Resolver.mavenLocal,
     Resolver.sonatypeRepo("releases"),
-    "EHRI Snapshots" at "http://ehridev.dans.knaw.nl/artifactory/libs-snapshot/",
-    "scalaz-bintray" at "http://dl.bintray.com/scalaz/releases"
+    Resolver.sonatypeRepo("snapshots"),
+    "EHRI Snapshots" at "http://ehridev.dans.knaw.nl/artifactory/libs-snapshot/"
   )
 
   val validateMessages = TaskKey[Unit]("validate-messages", "Validate messages")
@@ -159,7 +158,6 @@ object ApplicationBuild extends Build {
       "-deprecation",
       "-target:jvm-1.6"
     ),
-
 
     // Instantiate controllers via dependency injection
     routesGenerator := InjectedRoutesGenerator,
