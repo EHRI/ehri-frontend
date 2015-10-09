@@ -8,7 +8,7 @@
     <div class="form-group search-box">
         <div class="input-group">
             <label for="id_q" class="sr-only">@Messages(placeholder)</label>
-            <input type="search"
+            <input type="search" id="id_q"
                 placeholder="@Messages(placeholder)" class="form-control" name="@SearchParams.QUERY" value="@params.query" @{if(autofocus) "autofocus"} />
             @if(fielded) {
                 <span class="input-group-addon field-selector">

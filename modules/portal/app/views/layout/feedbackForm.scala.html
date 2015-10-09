@@ -4,7 +4,7 @@
     @import utils.forms.HoneyPotForm.BLANK_CHECK
     @import utils.forms.TimeCheckForm.TIMESTAMP
 
-@helper.form(action = controllers.portal.routes.Feedback.feedbackPost(), 'role -> "form", 'id -> "suggestion-form") {
+@helper.form(action = controllers.portal.routes.Feedback.feedbackPost(), 'id -> "suggestion-form") {
     <fieldset>
         <div class="modal-body">
             @formHelpers.csrfToken()

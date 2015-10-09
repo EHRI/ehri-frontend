@@ -1,5 +1,5 @@
 .description-notice-text {
-  .small;
+  &:extend(.small);
   background-color: @pale-gray;
   color: @almost-black;
   font-style: italic;
@@ -188,3 +188,7 @@ dl.item-meta {
   top: 10px;
 }
 
+.other-name-list-small {
+  font-weight: bold;
+  &:extend(.small, .list-unstyled);
+}
