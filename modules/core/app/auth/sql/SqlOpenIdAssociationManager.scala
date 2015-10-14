@@ -43,7 +43,8 @@ case class SqlOpenIdAssociationManager()(implicit db: Database, app: play.api.Ap
 
   def addAssociation(id: String, url: String): Future[Option[OpenIDAssociation]] = Future {
     db.withConnection { implicit connection =>
-      SQL"INSERT INTO openid_association (id, openid_url) VALUES ($id, $url)".executeInsert()
+      SQL"INSERT INTO openid_association (id, openid_url) VALUES ($id, $url)"
+        .executeInsert(SqlParser.scalar[String].singleOpt)
       getByUrl(url)
     }
   }(executionContext)

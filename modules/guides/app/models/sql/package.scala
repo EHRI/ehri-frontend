@@ -9,7 +9,7 @@ package object sql {
   // FIXME: This is a hack to match the integrity errors thrown by H2 and MySQL. It won't
   // work with PostgreSQL.
   // It also won't tell you which field on which the error occurred.
-  private val integrityMatch = """.*(primary key violation|Duplicate entry).*""".r
+  private val integrityMatch = """.*(primary key violation|Duplicate entry|already exists).*""".r
 
   def withIntegrityCheck[T](f: => Connection => T)(implicit db: Database): Try[T] = Try {
     db.withConnection { connection =>

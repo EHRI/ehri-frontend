@@ -1,8 +1,8 @@
 
-import java.io.File
-import java.sql.CallableStatement
+import java.io._
 import auth.AccountManager
 import auth.sql.SqlAccountManager
+import play.api.Configuration
 
 import scala.concurrent.Await
 import scala.concurrent.duration._
@@ -13,17 +13,26 @@ package object helpers {
   import play.api.db.{Database, Databases}
   import play.api.db.evolutions._
 
-  def testDatabase = Databases.inMemory(
-    urlOptions = Map(
-      "MODE" -> "MYSQL"
-    ),
-    config = Map(
-      "logStatements" -> true
+  private def loadDatabaseForSimpleConfig: Database = {
+    // This is annoying, but because we don't have (or want) a
+    // whole app to test parts of the DB behaviour we have to load
+    // the DB config manually (I think.)
+    // NB: There should be an easier way of doing this.
+    val config = Configuration.load(play.api.Environment.simple())
+    Databases.apply(
+      config.getString("db.default.driver")
+        .getOrElse(sys.error("Missing database config for driver")),
+      config.getString("db.default.url")
+        .getOrElse(sys.error("Missing database config for url")),
+      config = Map(
+        "username" -> config.getString("db.default.username").getOrElse(""),
+        "password" -> config.getString("db.default.password").getOrElse("")
+      )
     )
-  )
+  }
 
   def withDatabase[T](block: Database => T): T = {
-    implicit val db = testDatabase
+    val db: Database = loadDatabaseForSimpleConfig
     Evolutions.withEvolutions(db) {
       block(db)
     }
@@ -65,8 +74,10 @@ package object helpers {
   def loadSqlResource(resource: String)(implicit db: Database) = db.withConnection { conn =>
     val file = new File(getClass.getClassLoader.getResource(resource).toURI)
     val path = file.getAbsolutePath
-    val statement: CallableStatement = conn.prepareCall(s"RUNSCRIPT FROM '$path'")
-    statement.execute()
-    conn.commit()
+    val runner = new ScriptRunner(conn, false, true)
+    runner.setLogWriter(new PrintWriter(new OutputStream {
+      override def write(b: Int): Unit = ()
+    }))
+    runner.runScript(new BufferedReader(new FileReader(path)))
   }
 }

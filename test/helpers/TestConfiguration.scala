@@ -88,8 +88,7 @@ trait TestConfiguration {
       bind[EventHandler].toInstance(testEventHandler),
       bind[Backend].to[RestBackend],
       bind[SearchIndexMediator].toInstance(mockIndexer),
-      bind[HtmlPages].toInstance(mockHtmlPages),
-      bind[Database].toInstance(helpers.testDatabase)
+      bind[HtmlPages].toInstance(mockHtmlPages)
     ).bindings(
       bind[SearchLogger].toInstance(searchLogger)
     )

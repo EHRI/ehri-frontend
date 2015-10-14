@@ -23,8 +23,8 @@ case class Guide(
   virtualUnit: String,
   description: Option[String] = None,
   css: Option[String] = None,
-  active: Int = 0,
-  default: Long = 0
+  active: Boolean = true,
+  defaultPage: Option[Long] = None
 )
 
 object Guide {
@@ -36,7 +36,7 @@ object Guide {
   val DESCRIPTION = "description"
   val PICTURE = "picture"
   val ACTIVE = "active"
-  val DEFAULT = "default"
+  val DEFAULT_PAGE = "default_page"
   val CSS = "css"
 
   implicit val form = Form(
@@ -48,9 +48,8 @@ object Guide {
       VIRTUALUNIT -> nonEmptyText,
       DESCRIPTION -> optional(text),
       CSS -> optional(text),
-      // FIXME: Active really shouldn't be an int
-      ACTIVE -> optional(boolean).transform[Int](f => if(f.getOrElse(false)) 1 else 0, i => Some(i > 0)),
-      DEFAULT -> longNumber
+      ACTIVE -> boolean,
+      DEFAULT_PAGE -> optional(longNumber)
     )(Guide.apply)(Guide.unapply)
   )
 
@@ -62,14 +61,14 @@ object Guide {
       get[String](VIRTUALUNIT) ~
       get[Option[String]](DESCRIPTION) ~
       get[Option[String]](CSS) ~
-      get[Int](ACTIVE) ~
-      get[Long](DEFAULT) map {
+      get[Boolean](ACTIVE) ~
+      get[Option[Long]](DEFAULT_PAGE) map {
       case gid ~ name ~ path ~ pic ~ virtualUnit ~ desc ~ css ~ active ~ deft =>
         Guide(gid, name, path, pic, virtualUnit, desc, css, active, deft)
     }
   }
 
-  def blueprint(): Guide = Guide(Some(0), "", "", Some(""), "", Some(""), Some(""), active = 0, 0)
+  def blueprint(): Guide = Guide(Some(0), "", "", Some(""), "", Some(""), Some(""), active = true)
 }
 
 trait GuideDAO {
@@ -78,7 +77,7 @@ trait GuideDAO {
   def getDefaultPage(guide: Guide): Option[GuidePage]
   def delete(guide: Guide): Unit
   def update(guide: Guide): Try[Unit]
-  def create(name: String, path: String, picture: Option[String] = None, virtualUnit: String, description: Option[String] = None, css: Option[String] = None, active: Int): Try[Option[Guide]]
+  def create(name: String, path: String, picture: Option[String] = None, virtualUnit: String, description: Option[String] = None, css: Option[String] = None, active: Boolean): Try[Option[Guide]]
   def findAll(activeOnly: Boolean = false): List[Guide]
   def find(path: String, activeOnly: Boolean = false): Option[Guide]
   def findById(id: Long): Option[Guide]
@@ -120,18 +119,20 @@ case class DatabaseGuideDAO @Inject ()(implicit db: Database) extends GuideDAO {
         description = ${guide.description},
         css = ${guide.css},
         active = ${guide.active},
-        `default` = ${guide.default}
+        default_page = ${guide.defaultPage}
       WHERE
         id = ${guide.id}
-      LIMIT 1
       """.executeUpdate()
   }
 
   def getDefaultPage(guide: Guide): Option[GuidePage] = db.withConnection { implicit connection =>
-    guide.id.flatMap { id =>
-      SQL"""SELECT * FROM research_guide_page WHERE research_guide_id = $id AND id = ${guide.default}"""
+    val page = for {
+      id <- guide.id
+      dp <- guide.defaultPage
+      page <- SQL"""SELECT * FROM research_guide_page WHERE research_guide_id = $id AND id = $dp"""
         .as(GuidePage.rowExtractor.singleOpt)
-    }
+    } yield page
+    page.orElse(findPages(guide).headOption)
   }
 
   override def findById(id: Long): Option[Guide] = db.withConnection { implicit connection =>
@@ -139,27 +140,27 @@ case class DatabaseGuideDAO @Inject ()(implicit db: Database) extends GuideDAO {
   }
 
   override def findAll(activeOnly: Boolean = false): List[Guide] = db.withConnection { implicit connection =>
-    (if (activeOnly) SQL"""SELECT * FROM research_guide WHERE active = 1"""
+    (if (activeOnly) SQL"""SELECT * FROM research_guide WHERE active"""
     else SQL"""SELECT * FROM research_guide"""
       ).as(Guide.rowExtractor *)
   }
 
   override def delete(guide: Guide): Unit = db.withConnection { implicit connection =>
-    SQL"""DELETE FROM research_guide WHERE id = ${guide.id} LIMIT 1""".executeUpdate()
+    SQL"""DELETE FROM research_guide WHERE id = ${guide.id}""".executeUpdate()
   }
 
   override def find(path: String, activeOnly: Boolean = false): Option[Guide] = db.withConnection { implicit connection =>
-    (if (activeOnly) SQL"""SELECT * FROM research_guide WHERE path = $path AND active = 1 LIMIT 1"""
-    else SQL"""SELECT * FROM research_guide WHERE path = $path LIMIT 1"""
-      ).as(Guide.rowExtractor.singleOpt)
+    (if (activeOnly) SQL"""SELECT * FROM research_guide WHERE path = $path AND active LIMIT 1"""
+    else SQL"""SELECT * FROM research_guide WHERE path = $path LIMIT 1""")
+      .as(Guide.rowExtractor.singleOpt)
   }
 
-  override def create(name: String, path: String, picture: Option[String] = None, virtualUnit: String, description: Option[String] = None, css: Option[String] = None, active: Int): Try[Option[Guide]] = withIntegrityCheck { implicit connection =>
+  override def create(name: String, path: String, picture: Option[String] = None, virtualUnit: String, description: Option[String] = None, css: Option[String] = None, active: Boolean): Try[Option[Guide]] = withIntegrityCheck { implicit connection =>
     val id: Option[Long] = SQL"""
     INSERT INTO research_guide
       (name, path, picture, virtual_unit, description, css, active)
     VALUES ($name, $path, $picture, $virtualUnit, $description, $css, $active)
-    """.executeInsert()
+    """.executeInsert(SqlParser.scalar[Long].singleOpt)
     id.flatMap(findById)
   }
 
@@ -180,7 +181,6 @@ case class DatabaseGuideDAO @Inject ()(implicit db: Database) extends GuideDAO {
         params = ${page.params},
         description = ${page.description}
       WHERE id = ${page.id}
-      LIMIT 1
     """.executeUpdate()
   }
 
@@ -188,7 +188,7 @@ case class DatabaseGuideDAO @Inject ()(implicit db: Database) extends GuideDAO {
   * Delete a page
   */
   override def deletePage(page: GuidePage): Unit = db.withConnection { implicit connection =>
-    SQL"""DELETE FROM research_guide_page WHERE id = ${page.id} LIMIT 1""".executeUpdate()
+    SQL"""DELETE FROM research_guide_page WHERE id = ${page.id}""".executeUpdate()
   }
 
   /*
@@ -202,7 +202,7 @@ case class DatabaseGuideDAO @Inject ()(implicit db: Database) extends GuideDAO {
         (layout, name, path, position, content, research_guide_id, description, params)
       VALUES
         ($layout, $name, $path, $menu, $cypher, $parent, $description, $params)
-    """.executeInsert()
+    """.executeInsert(SqlParser.scalar[Long].singleOpt)
       id.flatMap { l =>
         SQL"SELECT * FROM research_guide_page WHERE id = $l".as(GuidePage.rowExtractor.singleOpt)
       }

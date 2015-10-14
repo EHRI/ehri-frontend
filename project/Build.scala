@@ -81,6 +81,9 @@ object ApplicationBuild extends Build {
     // https://bugs.mysql.com/bug.php?id=77665
     "mysql" % "mysql-connector-java" % "5.1.35",
 
+    // PostgreSQL
+    //"org.postgresql" % "postgresql" % "9.4-1204-jdbc42",
+
     // Markdown rendering
     "org.pegdown" % "pegdown" % "1.6.0",
 

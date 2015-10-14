@@ -63,7 +63,7 @@ case class SqlOAuth2AssociationManager()(implicit db: Database, app: play.api.Ap
     db.withConnection { implicit connection =>
       SQL"""
         INSERT INTO oauth2_association (id, provider_id, provider) VALUES ($id, $providerId, $provider)
-        """.executeInsert()
+        """.executeInsert(SqlParser.scalar[String].singleOpt)
       getByInfo(providerId, provider)
     }
   }(executionContext)
