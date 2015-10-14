@@ -40,7 +40,7 @@ class ToEadSerializerSpec extends PlaySpecification {
       | 2. two item
       | 3. three item
       |
-      |Blah blah and [a link](http://portal.ehri-project.eu).
+      |Blah blah and [a link](http://portal.ehri-project.eu?foo=bar&bar=baz).
     """.stripMargin
 
   "ToEadSerializer" should {
@@ -55,6 +55,7 @@ class ToEadSerializerSpec extends PlaySpecification {
       ead must contain("<list>")
       ead must contain("<item>")
       ead must not contain "<item><p>"
+      ead must contain("http://portal.ehri-project.eu?foo=bar&amp;bar=baz")
       ead must contain("extptr")
     }
   }
