@@ -383,15 +383,13 @@ case class DocumentaryUnits @Inject()(
 
   def exportEad(id: String) = OptionalAccountAction.async { implicit authRequest =>
     val eadId: String = docRoutes.exportEad(id).absoluteURL(globalConfig.https)
-
     EadExporter(userBackend).exportEad(id, eadId).map { ead =>
-
       val enumerator = Enumerator.outputStream { os =>
         val writer = new OutputStreamWriter(os)
         xmlPrinter.write(xml.XML.loadString(ead), null, addXmlDeclaration = true)(writer)
       }
 
-      Ok.stream(enumerator >>> Enumerator.eof).as(MimeTypes.XML)
+      Ok.chunked(enumerator.andThen(Enumerator.eof)).as(MimeTypes.XML)
     }
   }
 }

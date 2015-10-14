@@ -1,6 +1,7 @@
 package utils.ead;
 
 import org.parboiled.common.StringUtils;
+import org.pegdown.FastEncoder;
 import org.pegdown.LinkRenderer;
 import org.pegdown.Printer;
 import org.pegdown.ast.*;
@@ -20,8 +21,8 @@ import static org.parboiled.common.Preconditions.checkArgNotNull;
  */
 public class ToEadSerializer implements Visitor {
     protected Printer printer = new Printer();
-    protected final Map<String, ReferenceNode> references = new HashMap<String, ReferenceNode>();
-    protected final Map<String, String> abbreviations = new HashMap<String, String>();
+    protected final Map<String, ReferenceNode> references = new HashMap<>();
+    protected final Map<String, String> abbreviations = new HashMap<>();
     protected final LinkRenderer linkRenderer;
 
     protected TableNode currentTableNode;
@@ -359,11 +360,11 @@ public class ToEadSerializer implements Visitor {
 
     protected void printLink(LinkRenderer.Rendering rendering) {
         printer.print('<').print("extptr");
-        printAttribute("href", rendering.href);
+        printAttribute("href", FastEncoder.encode(rendering.href));
         for (LinkRenderer.Attribute attr : rendering.attributes) {
             printAttribute(attr.name, attr.value);
         }
-        printer.print('>').print(rendering.text).print("</extptr>");
+        printer.print('>').printEncoded(rendering.text).print("</extptr>");
     }
 
     private void printAttribute(String name, String value) {
@@ -416,7 +417,7 @@ public class ToEadSerializer implements Visitor {
 
                 // ok, legal match so save an expansions "task" for all matches
                 if (expansions == null) {
-                    expansions = new TreeMap<Integer, Map.Entry<String, String>>();
+                    expansions = new TreeMap<>();
                 }
                 expansions.put(sx, entry);
             }
