@@ -20,7 +20,7 @@ CREATE UNIQUE INDEX users_email ON users (email);
 CREATE TABLE openid_association (
     id          VARCHAR(50) NOT NULL,
     openid_url  VARCHAR(255) NOT NULL,
-    created     TIMESTAMP NOT NULL,
+    created     TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
     PRIMARY KEY (id, openid_url)
 );
 
@@ -30,7 +30,7 @@ CREATE TABLE oauth2_association (
   id            VARCHAR(50) NOT NULL,
   provider_id   VARCHAR(100) NOT NULL,
   provider      VARCHAR(10) NOT NULL,
-  created       TIMESTAMP NOT NULL,
+  created       TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
   PRIMARY KEY (id, provider_id, provider)
 );
 
@@ -40,7 +40,7 @@ CREATE TABLE token (
   id          VARCHAR(50) NOT NULL,
   token       VARCHAR(255) NOT NULL PRIMARY KEY,
   expires     TIMESTAMP NOT NULL,
-  is_sign_up  BOOLEAN NOT NULL DEFAULT 0
+  is_sign_up  BOOLEAN NOT NULL DEFAULT FALSE
 );
 
 ALTER TABLE token ADD CONSTRAINT token_profile_id FOREIGN KEY (id) REFERENCES users (id) ON DELETE CASCADE;
@@ -69,15 +69,15 @@ CREATE TABLE research_guide (
   virtual_unit VARCHAR(255) DEFAULT NULL,
   description MEDIUMTEXT,
   css TEXT,
-  active INT(1) NULL DEFAULT 0,
-  `default` INT(1) DEFAULT 0
+  active BOOLEAN NOT NULL DEFAULT TRUE,
+  default_page INTEGER(11) NULL
 );
 
 ALTER TABLE research_guide ADD CONSTRAINT research_guide_path_unique UNIQUE(path);
 
 CREATE TABLE research_guide_page (
   id INTEGER(11) NOT NULL AUTO_INCREMENT PRIMARY KEY,
-  research_guide_id INTEGER(11) DEFAULT NULL,
+  research_guide_id INTEGER(11) NOT NULL,
   name TEXT NOT NULL,
   layout VARCHAR(45) DEFAULT NULL,
   content MEDIUMTEXT,
@@ -86,7 +86,6 @@ CREATE TABLE research_guide_page (
   description MEDIUMTEXT,
   params VARCHAR(255) DEFAULT NULL
 );
-
 
 ALTER TABLE research_guide_page ADD CONSTRAINT research_guide_page_id FOREIGN KEY (research_guide_id) REFERENCES research_guide (id) ON DELETE CASCADE;
 ALTER TABLE research_guide_page ADD UNIQUE research_guide_path_guide_id(research_guide_id, path);

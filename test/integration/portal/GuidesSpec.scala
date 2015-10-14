@@ -33,11 +33,10 @@ class GuidesSpec extends IntegrationTestRunner {
       Guide.PICTURE -> Seq("/foo/bar"),
       Guide.VIRTUALUNIT -> Seq("hello"),
       Guide.DESCRIPTION -> Seq("Hello, world"),
-      Guide.DEFAULT -> Seq("0"),
       Guide.ACTIVE -> Seq(true.toString)
     )
 
-    "be able to create guides " in new DBTestApp("guide-fixtures.sql") {
+    "be able to create guides" in new DBTestApp("guide-fixtures.sql") {
       val create = FakeRequest(guideAdminRoutes.createPost())
         .withUser(privilegedUser).withCsrf.callWith(guideData)
       status(create) must equalTo(SEE_OTHER)
@@ -46,7 +45,7 @@ class GuidesSpec extends IntegrationTestRunner {
       contentAsString(doc) must contain("Hello")
     }
 
-    "maintain path uniqueness " in new DBTestApp("guide-fixtures.sql") {
+    "maintain path uniqueness" in new DBTestApp("guide-fixtures.sql") {
       val data = guideData.updated(Guide.PATH, Seq("terezin"))
       val create = FakeRequest(guideAdminRoutes.createPost())
         .withUser(privilegedUser).withCsrf.callWith(data)
@@ -54,7 +53,7 @@ class GuidesSpec extends IntegrationTestRunner {
       contentAsString(create) must contain(Messages("constraints.uniqueness"))
     }
 
-    "be able to edit guides, including changing the URL " in new DBTestApp("guide-fixtures.sql") {
+    "be able to edit guides, including changing the URL" in new DBTestApp("guide-fixtures.sql") {
       val edit = FakeRequest(guideAdminRoutes.editPost("jewishcommunity"))
         .withUser(privilegedUser).withCsrf.callWith(guideData)
       status(edit) must equalTo(SEE_OTHER)
@@ -65,14 +64,14 @@ class GuidesSpec extends IntegrationTestRunner {
       contentAsString(doc) must contain("Hello")
     }
 
-    "be able to edit guides, not changing the URL " in new DBTestApp("guide-fixtures.sql") {
+    "be able to edit guides, not changing the URL" in new DBTestApp("guide-fixtures.sql") {
       val data = guideData.updated(Guide.PATH, Seq("jewishcommunity"))
       val edit = FakeRequest(guideAdminRoutes.editPost("jewishcommunity"))
         .withUser(privilegedUser).withCsrf.callWith(data)
       status(edit) must equalTo(SEE_OTHER)
     }
 
-    "not be able to violate path uniqueness " in new DBTestApp("guide-fixtures.sql") {
+    "not be able to violate path uniqueness" in new DBTestApp("guide-fixtures.sql") {
       val data = guideData.updated(Guide.PATH, Seq("jewishcommunity"))
       val create = FakeRequest(guideAdminRoutes.createPost())
         .withUser(privilegedUser).withCsrf.callWith(data)
@@ -95,7 +94,7 @@ class GuidesSpec extends IntegrationTestRunner {
       GuidePage.CONTENT -> Seq("blah")
     )
 
-    "be able to create guide pages " in new DBTestApp("guide-fixtures.sql") {
+    "be able to create guide pages" in new DBTestApp("guide-fixtures.sql") {
       val create = FakeRequest(guidePageAdminRoutes.createPost("terezin"))
         .withUser(privilegedUser).withCsrf.callWith(pageData)
       status(create) must equalTo(SEE_OTHER)
@@ -104,7 +103,7 @@ class GuidesSpec extends IntegrationTestRunner {
       contentAsString(doc) must contain("Blah")
     }
 
-    "be able to edit guide pages, including changing the URL " in new DBTestApp("guide-fixtures.sql") {
+    "be able to edit guide pages, including changing the URL" in new DBTestApp("guide-fixtures.sql") {
       val edit = FakeRequest(guidePageAdminRoutes.editPost("terezin", "places"))
         .withUser(privilegedUser).withCsrf.callWith(pageData)
       status(edit) must equalTo(SEE_OTHER)
@@ -114,7 +113,7 @@ class GuidesSpec extends IntegrationTestRunner {
       contentAsString(doc) must contain("Blah")
     }
 
-    "not be able to violate path uniqueness " in new DBTestApp("guide-fixtures.sql") {
+    "not be able to violate path uniqueness" in new DBTestApp("guide-fixtures.sql") {
       val data = pageData.updated(GuidePage.PATH, Seq("keywords"))
       val edit = FakeRequest(guidePageAdminRoutes.editPost("terezin", "places"))
         .withUser(privilegedUser).withCsrf.callWith(data)

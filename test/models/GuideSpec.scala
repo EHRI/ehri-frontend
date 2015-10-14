@@ -27,7 +27,7 @@ class GuideSpec extends PlaySpecification {
       withDatabaseFixture("guide-fixtures.sql") { implicit db =>
         val dao = DatabaseGuideDAO()
         dao.findAll(activeOnly = true).size must equalTo(2)
-        dao.create(name = "Test", path = "test", virtualUnit = "test", active = 1) must beSuccessfulTry.which { guideOpt =>
+        dao.create(name = "Test", path = "test", virtualUnit = "test", active = true) must beSuccessfulTry.which { guideOpt =>
           guideOpt must beSome.which { guide =>
             guide.name must equalTo("Test")
           }
@@ -41,7 +41,7 @@ class GuideSpec extends PlaySpecification {
       withDatabaseFixture("guide-fixtures.sql") { implicit db =>
         val dao = DatabaseGuideDAO()
         dao.findAll(activeOnly = true).size must equalTo(2)
-        dao.create(name = "Test", path = "terezin", virtualUnit = "test", active = 1) must beFailedTry
+        dao.create(name = "Test", path = "terezin", virtualUnit = "test", active = true) must beFailedTry
           .withThrowable[models.sql.IntegrityError]
       }
     }

@@ -14,6 +14,7 @@ import play.api.libs.concurrent.Akka
 import utils.PageParams
 import anorm.SqlParser._
 import anorm._
+import anorm.JodaParameterMetaData._
 import scala.concurrent.{Future, ExecutionContext}
 
 import javax.inject._
@@ -118,7 +119,7 @@ case class SqlAccountManager @Inject()(implicit db: Database, app: play.api.Appl
           ${account.allowMessaging},
           ${account.password},
           ${account.isLegacy}
-      )""".executeInsert()
+      )""".executeInsert(SqlParser.scalar[String].singleOpt)
       getById(account.id).get
     }
   }(executionContext)
@@ -142,7 +143,7 @@ case class SqlAccountManager @Inject()(implicit db: Database, app: play.api.Appl
 
   override def delete(id: String): Future[Boolean] = Future {
     db.withConnection { implicit connection =>
-      val rows: Int = SQL"""DELETE FROM users WHERE id = $id LIMIT 1""".executeUpdate()
+      val rows: Int = SQL"""DELETE FROM users WHERE id = $id""".executeUpdate()
       rows > 0
     }
   }(executionContext)
@@ -183,12 +184,15 @@ case class SqlAccountManager @Inject()(implicit db: Database, app: play.api.Appl
     SQL"SELECT * FROM users WHERE users.id = $id".as(userParser.singleOpt)
 
   private def createSignupToken(id: String, uuid: UUID)(implicit conn: Connection): Unit =
+    // NB: calculating expires here to avoid DB compatibility issues...
     SQL"""INSERT INTO token (id, token, expires, is_sign_up)
-           VAlUES ($id, $uuid, TIMESTAMPADD(WEEK, 1, NOW()), 1)""".executeInsert()
+           VALUES ($id, $uuid, ${DateTime.now().plusWeeks(1)}, TRUE)"""
+      .executeInsert(SqlParser.scalar[String].singleOpt)
 
   private def createResetToken(id: String, uuid: UUID)(implicit conn: Connection): Unit =
     SQL"""INSERT INTO token (id, token, expires, is_sign_up)
-           VAlUES ($id, $uuid, TIMESTAMPADD(HOUR, 1, NOW()), 0)""".executeInsert()
+           VALUES ($id, $uuid, ${DateTime.now().plusHours(1)}, FALSE)"""
+      .executeInsert(SqlParser.scalar[String].singleOpt)
 }
 
 object SqlAccountManager {
