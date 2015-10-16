@@ -54,8 +54,8 @@ case class VirtualUnits @Inject()(
   def filtersOrIds(item: AnyModel)(implicit request: RequestHeader): Future[Map[String,Any]] = {
     import SearchConstants._
     if (!hasActiveQuery(request)) immediate(buildChildSearchFilter(item))
-    else descendantIds(item.id).map { seq =>
-      if (seq.isEmpty) Map.empty
+    else descendantIds(item).map { seq =>
+      if (seq.isEmpty) Map(ITEM_ID -> "__NO_VALID_ID__")
       else Map(s"$ITEM_ID:(${seq.mkString(" ")}) OR $ANCESTOR_IDS:(${seq.mkString(" ")})" -> Unit)
     }
   }
@@ -77,7 +77,7 @@ case class VirtualUnits @Inject()(
   }
 
   def browseVirtualCollections = UserBrowseAction.async { implicit request =>
-    val filters = if (request.getQueryString(SearchParams.QUERY).filterNot(_.trim.isEmpty).isEmpty)
+    val filters = if (request.getQueryString(SearchParams.QUERY).forall(_.trim.isEmpty))
       Map(SearchConstants.TOP_LEVEL -> true) else Map.empty[String,Any]
 
     find[VirtualUnit](

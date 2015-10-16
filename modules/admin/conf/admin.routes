@@ -42,8 +42,6 @@ GET         /item/:id                           @controllers.admin.Admin.get(id:
 GET         /item/:type/:id                     @controllers.admin.Admin.getType(type: String, id: String)
 
 # API
-GET         /api/:id                            @controllers.admin.ApiController.getAny(id: String)
-GET         /api/:contentType/list              @controllers.admin.ApiController.listItems(contentType: defines.EntityType.Value)
 GET         /api/:contentType/:id               @controllers.admin.ApiController.getItem(contentType: defines.EntityType.Value, id: String)
 GET         /api/*path                          @controllers.admin.ApiController.get(path: String)
 

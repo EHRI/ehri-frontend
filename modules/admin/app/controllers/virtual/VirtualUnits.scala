@@ -102,7 +102,7 @@ case class VirtualUnits @Inject()(
   private val vuRoutes = controllers.virtual.routes.VirtualUnits
 
   def contentsOf(id: String) = Action.async { implicit request =>
-    descendantIds(id).map { seq =>
+    vcDescendantIds(id).map { seq =>
       Ok(play.api.libs.json.Json.toJson(seq))
     }
   }
@@ -112,7 +112,7 @@ case class VirtualUnits @Inject()(
   // has no parent items - UNLESS there's a query, in which case we're
   // going to peer INSIDE items... dodgy logic, maybe...
 
-    val filters = if (request.getQueryString(SearchParams.QUERY).filterNot(_.trim.isEmpty).isEmpty)
+    val filters = if (request.getQueryString(SearchParams.QUERY).forall(_.trim.isEmpty))
       Map(SearchConstants.TOP_LEVEL -> true) else Map.empty[String,Any]
     find[VirtualUnit](
       filters = filters,
@@ -125,7 +125,7 @@ case class VirtualUnits @Inject()(
 
   def searchChildren(id: String) = ItemPermissionAction(id).async { implicit request =>
     for {
-      ids <- descendantIds(id)
+      ids <- descendantIds(request.item)
       result <- find[AnyModel](
         filters = buildChildSearchFilter(request.item),
         entities = List(EntityType.VirtualUnit, EntityType.DocumentaryUnit),

@@ -2,6 +2,7 @@ package backend.rest.cypher
 
 import com.google.inject.Singleton
 import play.api.cache.CacheApi
+import play.api.libs.iteratee.Enumerator
 
 import scala.concurrent.Future
 import play.api.{Logger, PlayException}
@@ -9,7 +10,7 @@ import play.api.libs.concurrent.Execution.Implicits._
 import play.api.libs.json.{Json,JsValue}
 import play.api.libs.json.Reads
 import play.api.libs.json.__
-import play.api.libs.ws.{WSClient, WSResponse}
+import play.api.libs.ws.{WSResponseHeaders, WSClient, WSResponse}
 import backend.rest.RestDAO
 import javax.inject.Inject
 
@@ -37,6 +38,8 @@ case class CypherDAO @Inject ()(
 ) extends Cypher
   with RestDAO {
 
+  val logger: Logger = play.api.Logger(getClass)
+
   def requestUrl = utils.serviceBaseUrl("cypher", config)
 
   import CypherErrorReader._
@@ -48,16 +51,19 @@ case class CypherDAO @Inject ()(
 
   def cypher(scriptBody: String, params: Map[String,JsValue] = Map.empty): Future[JsValue] = {
     val data = Json.obj("query" -> scriptBody, "params" -> params)
-    Logger.logger.debug("Cypher: {}", Json.toJson(data))
+    logger.debug(s"Cypher: ${Json.toJson(data)}")
     ws.url(requestUrl).withHeaders(headers.toSeq: _*).post(data).map(checkCypherError)
   }
 
   def get[T: Reads](scriptBody: String, params: Map[String,JsValue]): Future[T] =
     cypher(scriptBody, params).map(_.as(implicitly[Reads[T]]))
 
-  def stream(scriptBody: String, params: Map[String,JsValue] = Map.empty): Future[WSResponse] = {
+  def stream(scriptBody: String, params: Map[String,JsValue] = Map.empty): Future[(WSResponseHeaders, Enumerator[Array[Byte]])] = {
     val data = Json.obj("query" -> scriptBody, "params" -> params)
-    Logger.logger.debug("Cypher: {}", Json.toJson(data))
-    ws.url(requestUrl).withHeaders((headers + ("X-Stream" -> "true")).toSeq: _*).post(data)
+    logger.debug(s"Cypher: ${Json.toJson(data)}")
+    ws.url(requestUrl).withHeaders((headers + ("X-Stream" -> "true")).toSeq: _*)
+      .withBody(data)
+      .withMethod("POST")
+      .stream()
   }
 }

@@ -1,10 +1,12 @@
 package backend.rest
 
 import javax.inject.Inject
+import play.api.libs.iteratee.Enumerator
+
 import scala.concurrent.{ExecutionContext, Future}
 import play.api.mvc.Headers
 import play.api.cache.CacheApi
-import play.api.libs.ws.{WSClient, WSResponse}
+import play.api.libs.ws.{WSResponseHeaders, WSClient, WSResponse}
 import backend._
 
 
@@ -34,14 +36,16 @@ case class RestBackendHandle(eventHandler: EventHandler)(
   with RestVisibility
   with RestPromotion {
 
-  private val api = new ApiDAO
   private val admin = new AdminDAO(eventHandler, cache, config, ws)
 
   override def withEventHandler(eventHandler: EventHandler) = this.copy(eventHandler = eventHandler)
 
   // Direct API query
-  override def query(urlpart: String, headers: Headers, params: Map[String,Seq[String]] = Map.empty): Future[WSResponse]
-      = api.get(urlpart, headers, params)
+  override def query(urlPart: String, headers: Headers, params: Map[String,Seq[String]] = Map.empty): Future[WSResponse] =
+    userCall(enc(baseUrl, urlPart) + (if(params.nonEmpty) "?" + joinQueryString(params) else "")).get()
+
+  override def stream(urlPart: String, headers: Headers, params: Map[String,Seq[String]] = Map.empty): Future[(WSResponseHeaders, Enumerator[Array[Byte]])] =
+    userCall(enc(baseUrl, urlPart) + (if(params.nonEmpty) "?" + joinQueryString(params) else "")).withMethod("GET").stream()
 
   // Helpers
   override def createNewUserProfile[T <: WithId](data: Map[String,String] = Map.empty, groups: Seq[String] = Seq.empty)(implicit rd: Readable[T]): Future[T] =
