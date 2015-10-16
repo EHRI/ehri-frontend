@@ -345,7 +345,7 @@ case class Guides @Inject()(
 
   def childItemIds(item: String)(implicit request: RequestHeader): Future[Map[String,Any]] = {
     import SearchConstants._
-    descendantIds(item).map { seq =>
+    vcDescendantIds(item).map { seq =>
       if (seq.isEmpty) Map(ITEM_ID -> "__NO_VALID_ID__")
       else Map(s"$ITEM_ID:(${seq.mkString(" ")}) OR $ANCESTOR_IDS:(${seq.mkString(" ")})" -> Unit)
     }

@@ -23,6 +23,8 @@ trait SearchVC {
   implicit def cache: CacheApi
   def cypher: Cypher
 
+  private def logger: Logger = Logger(getClass)
+
   /**
    * Fetch a list of descendant IDs for a given virtual collection
    * in order to constrain a search space. This is:
@@ -32,7 +34,7 @@ trait SearchVC {
    * @param id the parent VC id
    * @return a sequence of descendant IDs
    */
-  protected def descendantIds(id: String): Future[Seq[String]] = {
+  protected def vcDescendantIds(id: String): Future[Seq[String]] = {
     import play.api.libs.json._
 
     val reader: Reads[Seq[String]] =
@@ -47,7 +49,7 @@ trait SearchVC {
         |OPTIONAL MATCH doc<-[:includesUnit]-child
         |RETURN DISTINCT collect(DISTINCT child.__ID__) + collect(DISTINCT doc.__ID__) + collect(DISTINCT ddoc.__ID__)
       """.stripMargin, Map("vcid" -> play.api.libs.json.JsString(id)))(reader).map { seq =>
-      Logger.debug(s"Elements: ${seq.length}, distinct: ${seq.distinct.length}")
+      logger.debug(s"Elements: ${seq.length}, distinct: ${seq.distinct.length}")
 
       app.configuration.getInt("search.vc.maxDescendants").map { vcLimit =>
         if (seq.length > vcLimit) {
@@ -55,6 +57,22 @@ trait SearchVC {
           seq.distinct.take(vcLimit)
         } else seq
       }.getOrElse(seq)
+    }
+  }
+
+  /**
+   * Fetch a list of descendant IDs for a given virtual collection
+   * in order to constrain a search space. This is:
+   *  - child virtual collections
+   *  - top level documentary units
+   *
+   * @param item a documentary unit or virtual collection
+   * @return a sequence of descendant IDs
+   */
+  protected def descendantIds(item: AnyModel): Future[Seq[String]] = {
+    item match {
+      case v: VirtualUnit => vcDescendantIds(item.id)
+      case d => Future.successful(Seq(item.id))
     }
   }
 
@@ -68,6 +86,7 @@ trait SearchVC {
     // - query for anything that has the VUs parent ID *or* anything
     // with an itemId among its included DUs
     import SearchConstants._
+    logger.info(s"Building child search for: ${item.id}")
     item match {
       case v: VirtualUnit =>
         val pq = v.includedUnits.map(_.id)

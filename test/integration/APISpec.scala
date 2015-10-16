@@ -1,10 +1,13 @@
 package integration
 
+import backend.rest.Constants
 import controllers.generic.AccessPointLink
+import defines.EntityType
 import helpers._
 import models.{AnnotationF, AccessPointF}
 import models.LinkF.LinkType
-import play.api.libs.json.{JsBoolean, Json}
+import play.api.http.ContentTypes
+import play.api.libs.json.{JsValue, JsBoolean, Json}
 import play.api.test.FakeRequest
 
 import scala.util.{Success, Failure, Try}
@@ -87,6 +90,33 @@ class APISpec extends IntegrationTestRunner {
       val cr = FakeRequest(controllers.annotation.routes.Annotations.createAnnotationJsonPost("c1"))
         .withUser(privilegedUser).withCsrf.callWith(json)
       status(cr) must equalTo(CREATED)
+    }
+  }
+
+  "Direct API access for GET requests" should {
+    "stream with chunked encoding" in new ITestApp {
+      val c = FakeRequest(controllers.admin.routes.ApiController
+        .get(EntityType.DocumentaryUnit))
+        .withHeaders(Constants.STREAM_HEADER_NAME -> "true")
+        .withUser(privilegedUser).call()
+      status(c) must equalTo(OK)
+      headers(c).get(CONTENT_LENGTH) must beNone
+      contentType(c) must equalTo(Some("application/json"))
+      headers(c).get(TRANSFER_ENCODING) must beSome.which { e =>
+        e must_== "chunked"
+      }
+    }
+
+    "stream with length" in new ITestApp {
+      val c = FakeRequest(controllers.admin.routes.ApiController
+        .get(s"${EntityType.DocumentaryUnit}/c1"))
+        .withUser(privilegedUser).call()
+      status(c) must equalTo(OK)
+      contentType(c) must equalTo(Some("application/json"))
+      headers(c).get(CONTENT_LENGTH) must beSome.which { l =>
+        l.toInt must beGreaterThan(0)
+      }
+      headers(c).get(TRANSFER_ENCODING) must beNone
     }
   }
 }

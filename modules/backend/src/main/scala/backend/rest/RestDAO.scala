@@ -6,10 +6,11 @@ import java.util.concurrent.TimeUnit
 
 import play.api.Logger
 import play.api.http.{Writeable, ContentTypeOf, HeaderNames, ContentTypes}
+import play.api.libs.iteratee.Enumerator
 import play.api.libs.json._
 import backend._
 import com.fasterxml.jackson.core.JsonParseException
-import play.api.libs.ws.{WSAuthScheme, WSClient}
+import play.api.libs.ws.{WSRequest, WSResponseHeaders, WSAuthScheme, WSClient}
 import utils.{RangePage, RangeParams, Page}
 import scala.concurrent.Future
 import scala.concurrent.duration.Duration
@@ -77,19 +78,27 @@ trait RestDAO {
     private def fullUrl: String =
       if (queryStringMap.nonEmpty) s"$url?${joinQueryString(queryStringMap)}" else url
 
-    private def runWs: Future[WSResponse] = {
-      logger.debug(s"WS: $apiUser $method $fullUrl")
+    private def holderWithAuth: WSRequest = {
       val holder = ws.url(url)
         .withQueryString(queryString: _*)
         .withHeaders(headers: _*)
         .withBody(body)
-      val holderWithAuth = credentials.fold(holder) { case (un, pw) =>
+      credentials.fold(holder) { case (un, pw) =>
         holder.withAuth(un, pw, WSAuthScheme.BASIC)
       }
+    }
+
+    private def runWs: Future[WSResponse] = {
+      logger.debug(s"WS: $apiUser $method $fullUrl")
       holderWithAuth
         .execute(method)
         .map(checkError)
         .map(r => conditionalCache(url, method, r))
+    }
+
+    def stream(): Future[(WSResponseHeaders, Enumerator[Array[Byte]])] = {
+      logger.debug(s"WS (stream): $apiUser $method $fullUrl")
+      holderWithAuth.stream()
     }
 
     def get(): Future[WSResponse] = copy(method = "GET").execute()

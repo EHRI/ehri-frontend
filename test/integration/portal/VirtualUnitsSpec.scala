@@ -3,6 +3,7 @@ package integration.portal
 import helpers.IntegrationTestRunner
 import controllers.portal.ReverseVirtualUnits
 import play.api.test.FakeRequest
+import utils.search.SearchConstants
 
 
 class VirtualUnitsSpec extends IntegrationTestRunner {
@@ -24,12 +25,31 @@ class VirtualUnitsSpec extends IntegrationTestRunner {
       val search = FakeRequest(vuRoutes.searchVirtualCollection("vc1"))
         .withUser(privilegedUser).call()
       status(search) must equalTo(OK)
+      searchParamBuffer.last.filters.headOption must beSome.which { case (k, v) =>
+        k must contain(SearchConstants.PARENT_ID)
+      }
+      contentAsString(search) must contain("vu1")
     }
 
     "display children with query" in new ITestApp {
       val search = FakeRequest(GET, vuRoutes.searchVirtualCollection("vc1").url + "?q=test")
         .withUser(privilegedUser).call()
       status(search) must equalTo(OK)
+      searchParamBuffer.last.filters.headOption must beSome.which { case (k, v) =>
+        println(k)
+        k must contain(SearchConstants.ANCESTOR_IDS)
+      }
+      contentAsString(search) must contain("vu1")
+    }
+
+    "display children for doc units in VC context" in new ITestApp {
+      val search = FakeRequest(vuRoutes.searchVirtualUnit("vc1,vu1", "c1"))
+        .withUser(privilegedUser).call()
+      status(search) must equalTo(OK)
+      searchParamBuffer.last.filters.headOption must beSome.which { case (k, v) =>
+        k must contain(SearchConstants.PARENT_ID)
+      }
+      contentAsString(search) must contain("c4")
     }
   }
 }
