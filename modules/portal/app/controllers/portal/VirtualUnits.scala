@@ -51,12 +51,20 @@ case class VirtualUnits @Inject()(
       request.item, request.annotations, request.links, request.watched))
   }
 
-  def filtersOrIds(item: AnyModel)(implicit request: RequestHeader): Future[Map[String,Any]] = {
+  private def filtersOrIds(item: AnyModel)(implicit request: RequestHeader): Future[Map[String,Any]] = {
     import SearchConstants._
-    if (!hasActiveQuery(request)) immediate(buildChildSearchFilter(item))
-    else descendantIds(item).map { seq =>
-      if (seq.isEmpty) Map(ITEM_ID -> "__NO_VALID_ID__")
-      else Map(s"$ITEM_ID:(${seq.mkString(" ")}) OR $ANCESTOR_IDS:(${seq.mkString(" ")})" -> Unit)
+    item match {
+      // If we don't have an active query, this is just the immediate children
+      case _ if !hasActiveQuery(request) => immediate(buildChildSearchFilter(item))
+      // If we do, and the item is a virtual unit, we need to specifically query
+      // the immediate leaf nodes and construct an ID-or-ANCESTOR query
+      case v: VirtualUnit => descendantIds(item).map { seq =>
+        if (seq.isEmpty) Map(ITEM_ID -> "__NO_VALID_ID__")
+        else Map(s"$ITEM_ID:(${seq.mkString(" ")}) OR $ANCESTOR_IDS:(${seq.mkString(" ")})" -> Unit)
+      }
+      // otherwise, for documentary units, we can just query
+      // all ancestors
+      case d => immediate(Map(s"$ANCESTOR_IDS:${item.id}" -> Unit))
     }
   }
 

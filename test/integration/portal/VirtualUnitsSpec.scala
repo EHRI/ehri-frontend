@@ -36,8 +36,8 @@ class VirtualUnitsSpec extends IntegrationTestRunner {
         .withUser(privilegedUser).call()
       status(search) must equalTo(OK)
       searchParamBuffer.last.filters.headOption must beSome.which { case (k, v) =>
-        println(k)
         k must contain(SearchConstants.ANCESTOR_IDS)
+        k must contain(SearchConstants.ITEM_ID)
       }
       contentAsString(search) must contain("vu1")
     }
@@ -48,6 +48,16 @@ class VirtualUnitsSpec extends IntegrationTestRunner {
       status(search) must equalTo(OK)
       searchParamBuffer.last.filters.headOption must beSome.which { case (k, v) =>
         k must contain(SearchConstants.PARENT_ID)
+      }
+      contentAsString(search) must contain("c4")
+    }
+
+    "display children for doc units in VC context with query" in new ITestApp {
+      val search = FakeRequest(GET, vuRoutes.searchVirtualUnit("vc1,vu1", "c1").url + "?q=test")
+        .withUser(privilegedUser).call()
+      status(search) must equalTo(OK)
+      searchParamBuffer.last.filters.headOption must beSome.which { case (k, v) =>
+        k must contain(SearchConstants.ANCESTOR_IDS)
       }
       contentAsString(search) must contain("c4")
     }
