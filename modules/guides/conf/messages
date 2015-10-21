@@ -13,6 +13,7 @@ guide.objectId=Numeric Identifier
 guide.objectId.description=Automatic identifier
 guide.path=Path (url)
 guide.path.description=Will be available through /guides/path
+guide.path.constraint.validity=Guide path must only contain ASCII letters, numbers, and hyphens
 guide.name=Name
 guide.name.description=Name of the guide
 guide.description=Description
@@ -38,7 +39,6 @@ guide.delete.item=Delete this Guide
 guide.delete.check=Delete this Guide?
 guide.delete.submit=Delete
 
-
 guidePage.list=Available Guide Pages
 guidePage.update=Edit page
 guidePage.update.item=Edit {0}
@@ -53,6 +53,7 @@ guidePage.delete.submit=Delete
 guidePage.objectId=Numeric Identifier
 guidePage.name=Title
 guidePage.path=Path (url)
+guidePage.path.constraint.validity=Guide page path must only contain ASCII letters, numbers, and hyphens
 guidePage.position=Menu Position
 guidePage.layout=Layout
 guidePage.content=Content
