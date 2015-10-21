@@ -43,7 +43,8 @@ object Guide {
     mapping(
       OBJECTID -> ignored(Option.empty[Long]),
       NAME -> nonEmptyText,
-      PATH -> nonEmptyText,
+      PATH -> nonEmptyText.verifying("guide.path.constraint.validity",
+        p => p.matches("[0-9a-zA-Z\\-]+")),
       PICTURE -> optional(nonEmptyText),
       VIRTUALUNIT -> nonEmptyText,
       DESCRIPTION -> optional(text),

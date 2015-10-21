@@ -53,6 +53,14 @@ class GuidesSpec extends IntegrationTestRunner {
       contentAsString(create) must contain(Messages("constraints.uniqueness"))
     }
 
+    "maintain path validity" in new DBTestApp("guide-fixtures.sql") {
+      val data = guideData.updated(Guide.PATH, Seq("path with space"))
+      val create = FakeRequest(guideAdminRoutes.createPost())
+        .withUser(privilegedUser).withCsrf.callWith(data)
+      status(create) must equalTo(BAD_REQUEST)
+      contentAsString(create) must contain(Messages("guide.path.constraint.validity"))
+    }
+
     "be able to edit guides, including changing the URL" in new DBTestApp("guide-fixtures.sql") {
       val edit = FakeRequest(guideAdminRoutes.editPost("jewishcommunity"))
         .withUser(privilegedUser).withCsrf.callWith(guideData)
