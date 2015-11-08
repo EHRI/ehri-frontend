@@ -43,5 +43,13 @@
         @views.html.admin.common.sidebarAction() {
             <a href="@controllers.admin.routes.ApiController.getItem(item.isA, item.id)">@Messages("item.export.json")</a>
         }
+        @views.html.admin.common.sidebarAction() {
+            <a href="@controllers.vocabularies.routes.Vocabularies.exportSkos(item.id, format = Some("TTL"))">
+                @Messages("item.export") @Messages("item.export.rdf.ttl")
+            </a>
+            <a href="@controllers.vocabularies.routes.Vocabularies.exportSkos(item.id, format = Some("RDF/XML"))">
+            @Messages("item.export.rdf.xml")
+            </a>
+        }
     }
 }

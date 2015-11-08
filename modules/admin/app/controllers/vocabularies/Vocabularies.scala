@@ -1,14 +1,17 @@
 package controllers.vocabularies
 
 import auth.AccountManager
+import backend.rest.Constants
 import backend.rest.cypher.Cypher
 import play.api.cache.CacheApi
+import play.api.http.{MimeTypes, HeaderNames}
 import play.api.i18n.MessagesApi
 import play.api.libs.concurrent.Execution.Implicits._
 import forms.VisibilityForm
 import controllers.generic._
 import models._
 import defines.{ContentTypes, EntityType}
+import play.api.libs.ws.WSClient
 import utils.search.{SearchConstants, SearchIndexMediator, SearchItemResolver, SearchEngine}
 import javax.inject._
 import views.MarkdownRenderer
@@ -31,7 +34,8 @@ case class Vocabularies @Inject()(
   pageRelocator: utils.MovedPageLookup,
   messagesApi: MessagesApi,
   markdown: MarkdownRenderer,
-  cypher: Cypher
+  cypher: Cypher,
+  ws: WSClient
 ) extends AdminController
   with CRUD[VocabularyF,Vocabulary]
   with Creator[ConceptF, Concept, Vocabulary]
@@ -186,6 +190,16 @@ case class Vocabularies @Inject()(
   }
 
   def updateIndexPost(id: String) = updateChildItemsPost(SearchConstants.HOLDER_ID, id)
+
+  def exportSkos(id: String, format: Option[String]) = OptionalUserAction.async { implicit request =>
+    val baseUrl: Option[String] = request.getQueryString("baseUri")
+    ws.url(utils.serviceBaseUrl("ehridata", app.configuration) + s"/${EntityType.Vocabulary}/$id/export")
+        .withQueryString(format.toSeq.map(f => "format" -> f): _*)
+        .withQueryString(baseUrl.toSeq.map(url => "baseUri" -> url): _*)
+        .withHeaders(request.userOpt.map(u => Constants.AUTH_HEADER_NAME -> u.id).toSeq: _*).get().map { r =>
+      Ok(r.body).as(r.header(HeaderNames.CONTENT_TYPE).getOrElse(MimeTypes.TEXT))
+    }
+  }
 }
 
 
