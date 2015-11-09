@@ -41,11 +41,13 @@ case class RestBackendHandle(eventHandler: EventHandler)(
   override def withEventHandler(eventHandler: EventHandler) = this.copy(eventHandler = eventHandler)
 
   // Direct API query
-  override def query(urlPart: String, headers: Headers, params: Map[String,Seq[String]] = Map.empty): Future[WSResponse] =
-    userCall(enc(baseUrl, urlPart) + (if(params.nonEmpty) "?" + joinQueryString(params) else "")).get()
+  override def query(urlPart: String, headers: Headers = Headers(), params: Map[String,Seq[String]] = Map.empty): Future[WSResponse] =
+    userCall(enc(baseUrl, urlPart) + (if(params.nonEmpty) "?" + joinQueryString(params) else ""))
+      .withHeaders(headers.headers: _*).get()
 
-  override def stream(urlPart: String, headers: Headers, params: Map[String,Seq[String]] = Map.empty): Future[(WSResponseHeaders, Enumerator[Array[Byte]])] =
-    userCall(enc(baseUrl, urlPart) + (if(params.nonEmpty) "?" + joinQueryString(params) else "")).withMethod("GET").stream()
+  override def stream(urlPart: String, headers: Headers = Headers(), params: Map[String,Seq[String]] = Map.empty): Future[(WSResponseHeaders, Enumerator[Array[Byte]])] =
+    userCall(enc(baseUrl, urlPart) + (if(params.nonEmpty) "?" + joinQueryString(params) else ""))
+      .withHeaders(headers.headers: _*).withMethod("GET").stream()
 
   // Helpers
   override def createNewUserProfile[T <: WithId](data: Map[String,String] = Map.empty, groups: Seq[String] = Seq.empty)(implicit rd: Readable[T]): Future[T] =

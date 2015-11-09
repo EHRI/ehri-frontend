@@ -42,7 +42,7 @@ case class ApiController @Inject()(
 
   def get(urlPart: String) = OptionalUserAction.async { implicit request =>
     val url = urlPart + (if(request.rawQueryString.trim.isEmpty) "" else "?" + request.rawQueryString)
-    userBackend.stream(url, request.headers).map { case (headers, stream) =>
+    userBackend.stream(urlPart).map { case (headers, stream) =>
       val length = headers.headers
         .get(HeaderNames.CONTENT_LENGTH).flatMap(_.headOption.map(_.toInt)).getOrElse(-1)
       val result:Status = Status(headers.status)
