@@ -27,6 +27,14 @@
     </encoder>
   </appender>
 
+  <appender name="ASYNCFILE" class="ch.qos.logback.classic.AsyncAppender">
+    <appender-ref ref="FILE" />
+  </appender>
+
+  <appender name="ASYNCSTDOUT" class="ch.qos.logback.classic.AsyncAppender">
+    <appender-ref ref="STDOUT" />
+  </appender>
+
   <logger name="play" level="INFO" />
   
   <!-- Off these ones as they are annoying, and anyway we manage configuration ourself -->
@@ -37,15 +45,14 @@
 
   <!-- Turn down the default level of some classes that log with each
        application restart -->
-  <logger name="com.zaxxer.hikari.pool.HikariPool" level="ERROR" />
-  <logger name="com.zaxxer.hikari.HikariDataSource" level="ERROR" />
+  <logger name="com.zaxxer.hikari" level="ERROR" />
   <logger name="play.api.libs.concurrent.ActorSystemProvider" level="ERROR" />
 
   <!-- Uncomment to see backend request HTTP calls -->
   <!-- <logger name="backend" level="DEBUG" /> -->
 
   <!-- Uncomment to log backend transaction opening and closing -->
-  <!--<logger name="eu.ehri.project.core.impl" level="TRACE" />-->
+  <!-- <logger name="eu.ehri.project.core.impl" level="TRACE" /> -->
 
   <!-- Uncomment to show LOTS of debug info about HTTP calls -->
   <!-- <logger name="com.ning.http.client" level="DEBUG" /> -->
@@ -54,8 +61,8 @@
   <logger name="application" level="WARN" />
 
   <root level="ERROR">
-    <appender-ref ref="STDOUT" />
-    <appender-ref ref="FILE" />
+    <appender-ref ref="ASYNCSTDOUT" />
+    <appender-ref ref="ASYNCFILE" />
   </root>
   
 </configuration>

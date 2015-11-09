@@ -115,10 +115,7 @@ case class Utils @Inject()(
 
     for {
       allAccounts <- accounts.findAll(PageParams.empty.withoutLimit)
-      profileIds <- cypher.get(
-        """START n = node:entities("__ISA__:userProfile")
-          |RETURN n.__ID__
-        """.stripMargin, Map.empty)(stringList)
+      profileIds <- cypher.get("MATCH (n:userProfile) RETURN n.__ID__", Map.empty)(stringList)
       accountIds = allAccounts.map(_.id)
     } yield {
       val noProfile = accountIds.diff(profileIds)

@@ -62,7 +62,7 @@ case class ApiController @Inject()(
 
   private val defaultCypher =
     """
-      |START n = node:entities("__ISA__:userProfile")
+      |MATCH (n:userProfile)
       |RETURN n, n.name
       |LIMIT 100
     """.stripMargin
@@ -73,10 +73,12 @@ case class ApiController @Inject()(
   }
 
   def cypherQuery = AdminAction.async { implicit request =>
-    cypher.stream(queryForm.bindFromRequest.value.getOrElse(""), Map.empty).map { case(headers, stream) =>
-      Status(headers.status)
-        .chunked(stream)
-        .withHeaders(passThroughHeaders(headers.headers): _*)
+    // NB: JS doesn't handle streaming responses well, so if we're
+    // calling it from there don't chunk the response.
+    val q: String = queryForm.bindFromRequest.value.getOrElse("")
+    if (isAjax) cypher.cypher(q, Map.empty).map(r => Ok(r))
+    else cypher.stream(q, Map.empty).map { case(headers, stream) =>
+      Status(headers.status).chunked(stream)
     }
   }
 

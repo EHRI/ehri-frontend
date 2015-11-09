@@ -20,11 +20,12 @@ object ApplicationBuild extends Build {
   parallelExecution in ThisBuild := false
   logBuffered := false
 
+  val projectScalaVersion = "2.11.7"
   val appName = "docview"
-  val appVersion = "1.0.4-SNAPSHOT"
+  val appVersion = "1.0.5-SNAPSHOT"
 
-  val backendVersion = "0.11.0-SNAPSHOT"
-  val neo4jVersion = "2.2.5"
+  val backendVersion = "0.11.1-SNAPSHOT"
+  val neo4jVersion = "2.3.0"
   val jerseyVersion = "1.19"
 
   val backendDependencies = Seq(
@@ -122,7 +123,9 @@ object ApplicationBuild extends Build {
     Resolver.mavenLocal,
     Resolver.sonatypeRepo("releases"),
     Resolver.sonatypeRepo("snapshots"),
-    "EHRI Snapshots" at "http://ehridev.dans.knaw.nl/artifactory/libs-snapshot/"
+    "EHRI Snapshots" at "http://ehridev.dans.knaw.nl/artifactory/libs-snapshot/",
+    // For this annoying issue: https://github.com/etorreborre/specs2/issues/347
+    "scalaz-bintray" at "http://dl.bintray.com/scalaz/releases"
   )
 
   val validateMessages = TaskKey[Unit]("validate-messages", "Validate messages")
@@ -140,9 +143,11 @@ object ApplicationBuild extends Build {
 
   val commonSettings = Seq(
 
-    scalaVersion := "2.10.5",
+    version := appVersion,
 
-    // Increase the JVM heap and permgen to avoid running
+    scalaVersion in ThisBuild := projectScalaVersion,
+
+    // Increase the JVM heap to avoid running
     // out of space during the memory intensive integration
     // tests. Additionally, set the path to the test config
     // file as an env var.
@@ -158,19 +163,20 @@ object ApplicationBuild extends Build {
       "-encoding", "UTF-8",
       "-Xlint",
       "-unchecked",
-      "-deprecation",
-      "-target:jvm-1.6"
+      "-deprecation"
     ),
 
-    // Instantiate controllers via dependency injection
-    routesGenerator := InjectedRoutesGenerator,
+    // Don't execute tests in parallel
+    parallelExecution := false,
+
+    resolvers ++= additionalResolvers
+  )
+
+  val webAppSettings = Seq(
 
     // Allow SBT to tell Scaladoc where to find external
     // api docs if dependencies provide that metadata
     autoAPIMappings := true,
-
-      // Don't execute tests in parallel
-    parallelExecution := false,
 
     // Check messages files contain valid format strings
     validateMessages := {
@@ -226,8 +232,6 @@ object ApplicationBuild extends Build {
       "backend.Entity"
     ),
 
-    resolvers ++= additionalResolvers,
-
     // Auto-import EntityType enum into routes
     routesImport ++= Seq(
       "defines.EntityType",
@@ -263,7 +267,6 @@ object ApplicationBuild extends Build {
 
   lazy val backend = Project(appName + "-backend", file("modules/backend"))
     .settings(
-      version := appVersion,
       name := appName + "-backend",
       libraryDependencies ++= backendDependencies ++ backendTestDependencies,
       resolvers ++= additionalResolvers
@@ -271,7 +274,6 @@ object ApplicationBuild extends Build {
 
   lazy val core = Project(appName + "-core", file("modules/core"))
     .enablePlugins(play.sbt.PlayScala).settings(
-      version := appVersion,
       name := appName + "-core",
       libraryDependencies ++= coreDependencies
   ).settings(commonSettings: _*).dependsOn(backend % "test->test;compile->compile")
@@ -279,7 +281,6 @@ object ApplicationBuild extends Build {
   lazy val portal = Project(appName + "-portal", file("modules/portal"))
     .enablePlugins(play.sbt.PlayScala)
     .enablePlugins(SbtWeb).settings(
-    version := appVersion,
     routesImport += "models.view._",
     libraryDependencies ++= portalDependencies,
     RjsKeys.mainModule := "portal-main",
@@ -324,35 +325,31 @@ object ApplicationBuild extends Build {
         )
       )
     )
-  ).settings(commonSettings: _*).dependsOn(core % "test->test;compile->compile")
+  ).settings(commonSettings ++ webAppSettings: _*).dependsOn(core % "test->test;compile->compile")
 
   lazy val admin = Project(appName + "-admin", file("modules/admin"))
     .enablePlugins(play.sbt.PlayScala).settings(
-    version := appVersion,
     libraryDependencies += specs2 % Test
-  ).settings(commonSettings: _*).dependsOn(portal)
+  ).settings(commonSettings ++ webAppSettings: _*).dependsOn(portal)
 
   lazy val guides = Project(appName + "-guides", file("modules/guides"))
     .enablePlugins(play.sbt.PlayScala).settings(
-    version := appVersion
-  ).settings(commonSettings: _*).dependsOn(admin)
+  ).settings(commonSettings ++ webAppSettings: _*).dependsOn(admin)
 
   // Solr search engine implementation.
   lazy val solr = Project(appName + "-solr", file("modules/solr")).settings(
     libraryDependencies ++= Seq(
       "com.github.seratch" %% "scalikesolr" % "4.10.0"
-    ),
-    resolvers ++= additionalResolvers,
-    version := appVersion,
-    javaOptions in Test ++= Seq(
-      s"-Dlogger.file=${(baseDirectory in LocalRootProject).value / "conf" / "logback-play-dev.xml"}"
-    )
-  ).dependsOn(core % "test->test;compile->compile")
+    )).settings(commonSettings: _*)
+  .dependsOn(core % "test->test;compile->compile")
 
   lazy val main = Project(appName, file("."))
     .enablePlugins(play.sbt.PlayScala).settings(
-    version := appVersion,
-    libraryDependencies ++= coreDependencies ++ testDependencies
+
+      // Instantiate controllers via dependency injection
+      routesGenerator := InjectedRoutesGenerator,
+
+      libraryDependencies ++= coreDependencies ++ testDependencies
   ).settings(commonSettings ++ assetSettings: _*)
     .dependsOn(portal % "test->test;compile->compile", admin, guides, solr)
     .aggregate(backend, core, admin, portal, guides, solr)
