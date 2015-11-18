@@ -4,6 +4,12 @@
     @views.html.admin.common.sidebarAction(user.hasPermission(ContentTypes.DocumentaryUnit, PermissionType.Create)) {
         <a href="@controllers.institutions.routes.Repositories.createDoc(item.id)">@Messages("documentaryUnit.child.create")</a>
     }
+    @views.html.admin.common.sidebarAction(user.hasPermission(ContentTypes.Repository, PermissionType.Annotate)) {
+        <a href="@controllers.institutions.routes.Repositories.linkAnnotateSelect(item.id, EntityType.Repository)">@Messages("link.create.to.repository")</a>
+    }
+    @views.html.admin.common.sidebarAction(user.hasPermission(ContentTypes.Repository, PermissionType.Annotate)) {
+        <a href="@controllers.institutions.routes.Repositories.linkAnnotateSelect(item.id, EntityType.DocumentaryUnit)">@Messages("link.create.to.documentaryUnit")</a>
+    }
     @views.html.admin.common.sidebarAction(user.hasPermission(ContentTypes.Repository, PermissionType.Update)) {
         <a href="@controllers.institutions.routes.Repositories.update(item.id)">@Messages("item.update")</a>
     }
