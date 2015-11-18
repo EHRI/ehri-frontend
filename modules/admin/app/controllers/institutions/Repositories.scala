@@ -8,7 +8,7 @@ import forms.VisibilityForm
 import controllers.generic._
 import models._
 import play.api.i18n.{MessagesApi, Messages}
-import defines.{EntityType,ContentTypes}
+import defines.{PermissionType, EntityType, ContentTypes}
 import utils.MovedPageLookup
 import views.{MarkdownRenderer, Helpers}
 import utils.search._
@@ -41,6 +41,7 @@ case class Repositories @Inject()(
 	with Visibility[Repository]
   with ScopePermissions[Repository]
   with Annotate[Repository]
+  with Linking[Repository]
   with SearchType[Repository]
   with Search
   with Indexable[Repository] {
@@ -240,6 +241,33 @@ case class Repositories @Inject()(
     UpdateScopePermissionsAction(id, userType, userId).apply { implicit request =>
       Redirect(repositoryRoutes.managePermissions(id))
         .flashing("success" -> "item.update.confirmation")
+    }
+  }
+
+  def linkTo(id: String) = WithItemPermissionAction(id, PermissionType.Annotate).apply { implicit request =>
+    Ok(views.html.admin.repository.linkTo(request.item))
+  }
+
+  def linkAnnotateSelect(id: String, toType: EntityType.Value) = LinkSelectAction(id, toType).apply { implicit request =>
+    Ok(views.html.admin.link.linkSourceList(
+      request.item, request.searchResult, request.entityType,
+      repositoryRoutes.linkAnnotateSelect(id, toType),
+      repositoryRoutes.linkAnnotate))
+  }
+
+  def linkAnnotate(id: String, toType: EntityType.Value, to: String) = LinkAction(id, toType, to).apply { implicit request =>
+    Ok(views.html.admin.link.create(request.from, request.to,
+      Link.form, repositoryRoutes.linkAnnotatePost(id, toType, to)))
+  }
+
+  def linkAnnotatePost(id: String, toType: EntityType.Value, to: String) = CreateLinkAction(id, toType, to).apply { implicit request =>
+    request.formOrLink match {
+      case Left((target,errorForm)) =>
+        BadRequest(views.html.admin.link.create(request.from, target,
+          errorForm, repositoryRoutes.linkAnnotatePost(id, toType, to)))
+      case Right(_) =>
+        Redirect(repositoryRoutes.get(id))
+          .flashing("success" -> "item.update.confirmation")
     }
   }
 

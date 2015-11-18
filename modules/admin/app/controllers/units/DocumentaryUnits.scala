@@ -18,11 +18,10 @@ import views.{MarkdownRenderer, Helpers}
 import utils.search._
 import javax.inject._
 import scala.concurrent.Future.{successful => immediate}
-import backend.{ApiUser, Backend}
+import backend.Backend
 import play.api.Configuration
 import play.api.http.MimeTypes
 import utils.ead.EadExporter
-import models.base.Description
 import controllers.base.AdminController
 
 

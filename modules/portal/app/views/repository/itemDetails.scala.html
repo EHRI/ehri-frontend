@@ -6,6 +6,8 @@
             @item.model.descriptions.map { desc =>
                 @description(item, desc, links, annotations)
             }
+            @views.html.common.externalLinks(item, links)
+            @views.html.common.annotationLinks(item, links)
         } {
             @views.html.common.typeLabelWithWatchButton(item, watched.contains(item.id))
         } {

@@ -1,4 +1,4 @@
-@(item: Accessible, users: Seq[(String,String)], groups: Seq[(String,String)], action: (String,EntityType.Value,String) => Call)(
+@(item: models.base.Accessible, users: Seq[(String,String)], groups: Seq[(String,String)], action: (String, defines.EntityType.Value,String) => Call)(
     implicit userOpt: Option[UserProfile], req: RequestHeader, globalConfig: global.GlobalConfig, messages: Messages, flash: Flash)
 
 @implicitField = @{ views.html.helper.FieldConstructor(formHelpers.fieldTemplate.f) }
@@ -14,7 +14,7 @@
         <ul>
         @groups.map { case (id, name) =>
         <li>
-            <a href="@action(item.id, EntityType.Group, id)">@name</a>
+            <a href="@action(item.id, defines.EntityType.Group, id)">@name</a>
         </li>
         }
         </ul>
@@ -26,7 +26,7 @@
         <ul>
         @users.map { case (id, name) =>
         <li>
-            <a href="@action(item.id, EntityType.UserProfile, id)">@name</a>
+            <a href="@action(item.id, defines.EntityType.UserProfile, id)">@name</a>
         </li>
         }
         </ul>

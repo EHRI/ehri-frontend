@@ -84,6 +84,7 @@ link.create.item=Link ''{0}'' to ''{1}''
 link.update=Update Relation
 link.update.submit=Submit
 link.create.to.documentaryUnit=Link to a documentary unit
+link.create.to.repository=Link to an institution
 link.create.to.historicalAgent=Link to an authority file
 link.create.to.virtualUnit=Link to Virtual Item
 link.create.to.cvocConcept=Link to a vocabulary term
