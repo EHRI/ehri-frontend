@@ -32,7 +32,7 @@ object VirtualUnitF {
           IDENTIFIER -> d.identifier
         ),
         RELATIONSHIPS -> Json.obj(
-          Ontology.DESCRIPTION_FOR_ENTITY -> Json.toJson(d.descriptions.map(Json.toJson(_)).toSeq)
+          Ontology.DESCRIPTION_FOR_ENTITY -> Json.toJson(d.descriptions.map(Json.toJson(_)))
         )
       )
     }

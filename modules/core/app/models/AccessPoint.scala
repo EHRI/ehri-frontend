@@ -78,13 +78,13 @@ case class AccessPointF(
    * Given a set of links, see if we can find one with this access point
    * as a body.
    */
-  def linkFor(links: Seq[Link]): Option[Link] = links.find(_.bodies.exists(body => body.id == id))
+  def linkFor(links: Seq[Link]): Option[Link] = links.find(_.bodies.exists(body => body.model.id == id))
 
   /**
    * Given a set of links, see if we can find one with this access point
    * as a body.
    */
-  def linksFor(links: Seq[Link]): Seq[Link] = links.filter(_.bodies.exists(body => body.id == id))
+  def linksFor(links: Seq[Link]): Seq[Link] = links.filter(_.bodies.exists(body => body.model.id == id))
 
   /**
    * Given an item and a set of links, see if we can resolve the
@@ -113,7 +113,7 @@ object AccessPoint {
 
 
   def linksOfType(links: Seq[Link], `type`: AccessPointF.AccessPointType.Value): Seq[Link]
-      = links.filter(_.bodies.exists(body => body.accessPointType == `type`))
+      = links.filter(_.bodies.exists(body => body.model.accessPointType == `type`))
 
   val form = Form(mapping(
     ISA -> ignored(EntityType.AccessPoint),

@@ -8,7 +8,7 @@ import play.api.mvc.RequestHeader
 import backend.Entity
 
 
-package object Helpers {
+object Helpers {
 
   // Pretty relative date/time handling
   import org.ocpsoft.prettytime.PrettyTime

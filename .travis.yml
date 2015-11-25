@@ -14,10 +14,11 @@ cache:
     - $HOME/.ivy2/cache
     - $HOME/.sbt/boot/
 
-script:
-  # Your normal script
-  - sbt ++$TRAVIS_SCALA_VERSION -J-XX:ReservedCodeCacheSize=256M test
-
+before_cache:
   #     # Tricks to avoid unnecessary cache updates
   - find $HOME/.sbt -name "*.lock" -exec rm "{}" ";"
   - find $HOME/.ivy2 -name "ivydata-*.properties" -exec rm "{}" ";"
+
+script:
+  # Your normal script
+  - sbt ++$TRAVIS_SCALA_VERSION -J-XX:ReservedCodeCacheSize=256M test

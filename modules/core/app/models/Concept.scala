@@ -42,7 +42,7 @@ object ConceptF {
           IDENTIFIER -> d.identifier
         ),
         RELATIONSHIPS -> Json.obj(
-          DESCRIPTION_FOR_ENTITY -> Json.toJson(d.descriptions.map(Json.toJson(_)).toSeq)
+          DESCRIPTION_FOR_ENTITY -> Json.toJson(d.descriptions.map(Json.toJson(_)))
         )
       )
     }
@@ -74,6 +74,7 @@ case class ConceptF(
 object Concept {
   import eu.ehri.project.definitions.Ontology._
   import play.api.libs.functional.syntax._
+  import DescribedMeta._
   import Entity._
 
   private implicit val systemEventReads = SystemEvent.SystemEventResource.restReads
@@ -101,10 +102,10 @@ object Concept {
 
   val form = Form(
     mapping(
-      Entity.ISA -> ignored(EntityType.Concept),
-      Entity.ID -> optional(nonEmptyText),
-      Entity.IDENTIFIER -> nonEmptyText,
-      "descriptions" -> seq(ConceptDescription.form.mapping)
+      ISA -> ignored(EntityType.Concept),
+      ID -> optional(nonEmptyText),
+      IDENTIFIER -> nonEmptyText,
+      DESCRIPTIONS -> seq(ConceptDescription.form.mapping)
     )(ConceptF.apply)(ConceptF.unapply)
   )
 }

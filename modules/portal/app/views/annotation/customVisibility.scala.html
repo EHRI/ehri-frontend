@@ -11,15 +11,15 @@
 
     <div class="preset-visibility">
         <label for="@(PARAM)_@(Me)" class="radio-inline">
-            <input class="visibility" type="radio" id="@(PARAM)_@(Me)" name="@PARAM" value="@Me" @{if(visForm.value == Some(Me)) "checked"}>
+            <input class="visibility" type="radio" id="@(PARAM)_@(Me)" name="@PARAM" value="@Me" @{if(visForm.value.contains(Me)) "checked"}>
             @Messages("contribution.visibility.me")
         </label>
         <label for="@(PARAM)_@(Groups)" class="radio-inline">
-            <input class="visibility" type="radio" id="@(PARAM)_@(Groups)" name="@PARAM" value="@Groups" @{if(visForm.value == Some(Groups)) "checked"}>
+            <input class="visibility" type="radio" id="@(PARAM)_@(Groups)" name="@PARAM" value="@Groups" @{if(visForm.value.contains(Groups)) "checked"}>
             @Messages("contribution.visibility.groups")
         </label>
         <label for="@(PARAM)_@(Custom)" class="radio-inline">
-            <input class="visibility" type="radio" id="@(PARAM)_@(Custom)" name="@PARAM" value="@Custom" @{if(visForm.value == Some(Custom)) "checked"}>
+            <input class="visibility" type="radio" id="@(PARAM)_@(Custom)" name="@PARAM" value="@Custom" @{if(visForm.value.contains(Custom)) "checked"}>
             @Messages("contribution.visibility.custom")
         </label>
     </div>
