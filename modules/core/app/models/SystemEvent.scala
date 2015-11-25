@@ -18,7 +18,7 @@ object SystemEventF {
   final val EVENT_TYPE = "eventType"
   final val FORMAT = "yyyy-MM-dd'T'HH:mm:ssSSSZ"
 
-  import SystemEventF.{EVENT_TYPE => EVENT_PROP, _}
+  import SystemEventF.{EVENT_TYPE => EVENT_PROP}
   import Entity._
 
   // We won't need to use this, since events are created automatically
@@ -64,7 +64,7 @@ case class SystemEventF(
 
 object SystemEvent {
   import play.api.libs.functional.syntax._
-  import SystemEventF.{EVENT_TYPE => EVENT_PROP, _}
+  import SystemEventF._
   import Entity._
   import eu.ehri.project.definitions.Ontology._
 
@@ -103,7 +103,7 @@ case class SystemEvent(
    * rather than the link/annotation itself.
    */
   def effectiveSubject: Option[AnyModel] =
-    if (model.eventType == Some(EventType.link) || model.eventType == Some(EventType.annotation))
+    if (model.eventType.contains(EventType.link) || model.eventType.contains(EventType.annotation))
       scope else firstSubject
 
   import EventType._

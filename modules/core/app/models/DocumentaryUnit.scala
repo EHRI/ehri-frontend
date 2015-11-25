@@ -55,7 +55,7 @@ object DocumentaryUnitF {
           SCOPE -> d.scope
         ),
         RELATIONSHIPS -> Json.obj(
-          Ontology.DESCRIPTION_FOR_ENTITY -> Json.toJson(d.descriptions.map(Json.toJson(_)).toSeq)
+          Ontology.DESCRIPTION_FOR_ENTITY -> Json.toJson(d.descriptions.map(Json.toJson(_)))
         )
       )
     }
@@ -94,12 +94,13 @@ case class DocumentaryUnitF(
   with Persistable
   with Described[DocumentaryUnitDescriptionF] {
 
-  override def description(did: String): Option[DocumentaryUnitDescriptionF]
-    = descriptions.find(d => d.id.isDefined && d.id.get == did)
+  override def description(did: String): Option[DocumentaryUnitDescriptionF] =
+    descriptions.find(d => d.id.isDefined && d.id.get == did)
 }
 
 object DocumentaryUnit {
   import Entity._
+  import DescribedMeta._
   import models.DocumentaryUnitF._
   import eu.ehri.project.definitions.Ontology.{OTHER_IDENTIFIERS => _, _}
   import defines.EnumUtils.enumMapping
@@ -142,7 +143,7 @@ object DocumentaryUnit {
       PUBLICATION_STATUS -> optional(enumMapping(models.PublicationStatus)),
       COPYRIGHT -> optional(enumMapping(CopyrightStatus)),
       SCOPE -> optional(enumMapping(Scope)),
-      "descriptions" -> seq(DocumentaryUnitDescription.form.mapping)
+      DESCRIPTIONS -> seq(DocumentaryUnitDescription.form.mapping)
     )(DocumentaryUnitF.apply)(DocumentaryUnitF.unapply)
   )
 }

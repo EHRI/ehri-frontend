@@ -116,7 +116,7 @@ trait RestDAO {
      */
     def withBody[T](body: T)(implicit wrt: Writeable[T], ct: ContentTypeOf[T]): BackendRequest = {
       val wsBody = InMemoryBody(wrt.transform(body))
-      if (headers.contains(HeaderNames.CONTENT_TYPE)) {
+      if (headers.toMap.contains(HeaderNames.CONTENT_TYPE)) {
         withBody(wsBody)
       } else {
         ct.mimeType.fold(withBody(wsBody)) { contentType =>
@@ -248,7 +248,7 @@ trait RestDAO {
             e => {
               // Temporary approach to handling random Deserialization errors.
               // In practice this should happen
-              if ((response.json \ "error").asOpt[String] == Some("DeserializationError")) {
+              if ((response.json \ "error").asOpt[String].contains("DeserializationError")) {
                 logger.error(s"Derialization error! : ${response.json}")
                 throw DeserializationError()
               } else {

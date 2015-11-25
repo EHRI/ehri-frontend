@@ -42,7 +42,7 @@ object RepositoryF {
           LOGO_URL -> d.logoUrl
         ),
         RELATIONSHIPS -> Json.obj(
-          DESCRIPTION_FOR_ENTITY -> Json.toJson(d.descriptions.map(Json.toJson(_)).toSeq)
+          DESCRIPTION_FOR_ENTITY -> Json.toJson(d.descriptions.map(Json.toJson(_)))
         )
       )
     }
@@ -120,6 +120,7 @@ case class Repository(
 
 object Repository {
   import Entity._
+  import DescribedMeta._
   import RepositoryF._
   import Ontology._
   import defines.EnumUtils.enumMapping
@@ -155,7 +156,7 @@ object Repository {
       ID -> optional(nonEmptyText),
       IDENTIFIER -> nonEmptyText(minLength=2), // TODO: Increase to > 2, not done yet 'cos of test fixtures
       PUBLICATION_STATUS -> optional(enumMapping(models.PublicationStatus)),
-      "descriptions" -> seq(RepositoryDescription.form.mapping),
+      DESCRIPTIONS -> seq(RepositoryDescription.form.mapping),
       PRIORITY -> optional(number(min = -1, max = 5)),
       URL_PATTERN -> optional(nonEmptyText verifying("errors.badUrlPattern",
         pattern => validateUrlPattern(pattern)

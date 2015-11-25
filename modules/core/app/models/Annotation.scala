@@ -109,13 +109,13 @@ object Annotation {
    * Filter annotations on individual fields
    */
   def fieldAnnotations(partId: Option[String], annotations: Seq[Annotation]): Seq[Annotation] =
-    annotations.filter(_.targetParts.exists(p => Some(p.id) == partId)).filter(_.model.field.isDefined)
+    annotations.filter(_.targetParts.exists(p => partId.contains(p.id))).filter(_.model.field.isDefined)
 
   /**
    * Filter annotations on the item
    */
   def itemAnnotations(partId: Option[String], annotations: Seq[Annotation]): Seq[Annotation] =
-    annotations.filter(_.targetParts.exists(p => Some(p.id) == partId))
+    annotations.filter(_.targetParts.exists(p => partId.contains(p.id)))
 
   /**
    * Filter annotations on the item
