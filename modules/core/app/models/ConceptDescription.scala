@@ -36,8 +36,8 @@ object ConceptDescriptionF {
           CREATION_PROCESS -> d.creationProcess
         ),
         RELATIONSHIPS -> Json.obj(
-          Ontology.HAS_ACCESS_POINT -> Json.toJson(d.accessPoints.map(Json.toJson(_)).toSeq),
-          Ontology.HAS_UNKNOWN_PROPERTY -> Json.toJson(d.unknownProperties.map(Json.toJson(_)).toSeq)
+          Ontology.HAS_ACCESS_POINT -> Json.toJson(d.accessPoints.map(Json.toJson(_))),
+          Ontology.HAS_UNKNOWN_PROPERTY -> Json.toJson(d.unknownProperties.map(Json.toJson(_)))
         )
       )
     }

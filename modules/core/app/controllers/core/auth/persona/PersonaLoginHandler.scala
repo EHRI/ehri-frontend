@@ -63,7 +63,7 @@ trait PersonaLoginHandler extends AccountHelpers {
                     r <- f(Right(account))(request)
                   } yield r
               }
-            case other => f(Left(other.toString()))(request)
+            case other => f(Left(other.toString))(request)
           }
         }
       }

@@ -36,7 +36,7 @@ object HistoricalAgentF {
           PUBLICATION_STATUS -> d.publicationStatus
         ),
         RELATIONSHIPS -> Json.obj(
-          DESCRIPTION_FOR_ENTITY -> Json.toJson(d.descriptions.map(Json.toJson(_)).toSeq)
+          DESCRIPTION_FOR_ENTITY -> Json.toJson(d.descriptions.map(Json.toJson(_)))
         )
       )
     }
@@ -73,6 +73,7 @@ case class HistoricalAgentF(
 object HistoricalAgent {
   import play.api.libs.functional.syntax._
   import Entity._
+  import DescribedMeta._
   import HistoricalAgentF._
   import Ontology._
   import defines.EnumUtils.enumMapping
@@ -100,7 +101,7 @@ object HistoricalAgent {
       ID -> optional(nonEmptyText),
       IDENTIFIER -> nonEmptyText(minLength=2), // TODO: Increase to > 2, not done yet 'cos of test fixtures,
       PUBLICATION_STATUS -> optional(enumMapping(models.PublicationStatus)),
-      "descriptions" -> seq(HistoricalAgentDescription.form.mapping)
+      DESCRIPTIONS -> seq(HistoricalAgentDescription.form.mapping)
     )(HistoricalAgentF.apply)(HistoricalAgentF.unapply)
   )
 }
