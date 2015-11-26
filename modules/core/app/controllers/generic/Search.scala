@@ -38,7 +38,7 @@ trait Search extends CoreActionBuilders {
    * request, as opposed to facet filtering a full list.
    */
   protected def hasActiveQuery(request: RequestHeader): Boolean =
-    request.getQueryString(SearchParams.QUERY).filter(_.nonEmpty).isDefined
+    request.getQueryString(SearchParams.QUERY).exists(_.nonEmpty)
 
   private def bindFacetsFromRequest(facetClasses: Seq[FacetClass[Facet]])(implicit request: RequestHeader): Seq[AppliedFacet] =
     facetClasses.flatMap { fc =>

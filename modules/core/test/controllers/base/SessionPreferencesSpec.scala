@@ -20,7 +20,7 @@ object TestPrefs {
 // depends on smtp.host, and crypto (for session reading/writing)
 // which needs a dummy secret.
 case class FakeApp() extends WithApplication(new FakeApplication(
-  additionalConfiguration = Map("smtp.host" -> "localhost", "application.secret" -> "foobar")))
+  additionalConfiguration = Map("smtp.host" -> "localhost", "play.crypto.secret" -> "foobar")))
 
 trait PrefTest extends SessionPreferences[TestPrefs] {
   this: Controller =>

@@ -2,6 +2,8 @@ package defines
 
 import play.api.mvc.{QueryStringBindable, PathBindable}
 
+import scala.language.implicitConversions
+
 /**
  * @author Mike Bryant (http://github.com/mikesname)
  */

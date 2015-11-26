@@ -189,7 +189,7 @@ trait Linking[MT <: AnyModel] extends Read[MT] with Search {
    */
   def getLink(id: String, apid: String) = OptionalUserAction.async { implicit  request =>
     userBackend.getLinksForItem[Link](id).map { links =>
-      val linkOpt = links.find(link => link.bodies.exists(b => b.id == Some(apid)))
+      val linkOpt = links.find(link => link.bodies.exists(b => b.model.id.contains(apid)))
       val res = for {
         link <- linkOpt
         target <- link.opposingTarget(id)

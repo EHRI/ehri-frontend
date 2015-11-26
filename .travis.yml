@@ -8,16 +8,24 @@ jdk:
 # Use container-based infrastructure to share Ivy cache...
 sudo: false
 
+# Attempt to prevent flaky network tests by using a later
+# JDK than travis provides at the time of writing (u31)
+addons:
+  hosts:
+    - localhost
+    - 127.0.0.1
+
 # These directories are cached to S3 at the end of the build
 cache:
   directories:
     - $HOME/.ivy2/cache
     - $HOME/.sbt/boot/
 
-script:
-  # Your normal script
-  - sbt ++$TRAVIS_SCALA_VERSION -J-XX:ReservedCodeCacheSize=256M test
-
+before_cache:
   #     # Tricks to avoid unnecessary cache updates
   - find $HOME/.sbt -name "*.lock" -exec rm "{}" ";"
   - find $HOME/.ivy2 -name "ivydata-*.properties" -exec rm "{}" ";"
+
+script:
+  # Your normal script
+  - sbt ++$TRAVIS_SCALA_VERSION "set fork in Global := false" -J-XX:ReservedCodeCacheSize=256M test
