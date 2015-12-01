@@ -1,10 +1,9 @@
-@(f: play.api.data.Field, label: String, options: List[(AnyVal,String)], blank: Boolean = false)(implicit fieldPrefix: String = "", messages: Messages, fieldConstructor: views.html.helper.FieldConstructor)
+@(f: play.api.data.Field, label: String, options: List[(AnyVal, String)], blank: Boolean = false)(implicit fieldPrefix: String = "", messages: Messages, fieldConstructor: views.html.helper.FieldConstructor)
 
 @helper.input(f, args = '_label -> Messages(if(fieldPrefix.isEmpty) label else fieldPrefix + "." + label), 'class -> "form-control select2") { (id, name, value, htmlArgs) =>
-	
-	<select id="@id" name="@name" @toHtmlArgs(htmlArgs)>
-	    @options.map { v =>
-	        <option value="@v._1" @if(value.getOrElse(0) == v._1) { "selected" }>@v._2</option>
-	    }
-	</select>
+    <select id="@id" name="@name" @toHtmlArgs(htmlArgs)>
+    @options.map { v =>
+        <option value="@v._1" @(if(value.getOrElse(0) == v._1) "selected")>@v._2 </option>
+    }
+    </select>
 }

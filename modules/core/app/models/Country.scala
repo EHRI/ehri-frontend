@@ -24,36 +24,19 @@ object CountryF {
 
   import Entity._
 
-  implicit val countryWrites: Writes[CountryF] = new Writes[CountryF] {
-    def writes(d: CountryF): JsValue = {
-      Json.obj(
-        ID -> d.id,
-        TYPE -> d.isA,
-        DATA -> Json.obj(
-          IDENTIFIER -> d.identifier,
-          ABSTRACT -> d.abs,
-          HISTORY -> d.history,
-          SITUATION -> d.situation,
-          DATA_SUMMARY -> d.summary,
-          DATA_EXTENSIVE -> d.extensive
-        )
-      )
-    }
-  }
-
-  lazy implicit val countryReads: Reads[CountryF] = (
-    (__ \ TYPE).readIfEquals(EntityType.Country) and
-    (__ \ ID).readNullable[String] and
-    (__ \ DATA \ IDENTIFIER).read[String] and
-    (__ \ DATA \ ABSTRACT).readNullable[String] and
-    (__ \ DATA \ HISTORY).readNullable[String] and
-    (__ \ DATA \ SITUATION).readNullable[String] and
-    (__ \ DATA \ DATA_SUMMARY).readNullable[String] and
-    (__ \ DATA \ DATA_EXTENSIVE).readNullable[String]
-  )(CountryF.apply _)
+  lazy implicit val countryFormat: Format[CountryF] = (
+    (__ \ TYPE).formatIfEquals(EntityType.Country) and
+    (__ \ ID).formatNullable[String] and
+    (__ \ DATA \ IDENTIFIER).format[String] and
+    (__ \ DATA \ ABSTRACT).formatNullable[String] and
+    (__ \ DATA \ HISTORY).formatNullable[String] and
+    (__ \ DATA \ SITUATION).formatNullable[String] and
+    (__ \ DATA \ DATA_SUMMARY).formatNullable[String] and
+    (__ \ DATA \ DATA_EXTENSIVE).formatNullable[String]
+  )(CountryF.apply, unlift(CountryF.unapply))
 
   implicit object Converter extends Writable[CountryF] {
-    lazy val restFormat = Format(countryReads,countryWrites)
+    lazy val restFormat = countryFormat
   }
 }
 
@@ -78,10 +61,10 @@ object Country {
   import CountryF._
 
   implicit val metaReads: Reads[Country] = (
-    __.read[CountryF](countryReads) and
+    __.read[CountryF](countryFormat) and
     // Latest event
-    (__ \ RELATIONSHIPS \ IS_ACCESSIBLE_TO).nullableSeqReads(Accessor.Converter.restReads) and
-    (__ \ RELATIONSHIPS \ ENTITY_HAS_LIFECYCLE_EVENT).nullableHeadReads[SystemEvent] and
+    (__ \ RELATIONSHIPS \ IS_ACCESSIBLE_TO).readSeqOrEmpty(Accessor.Converter.restReads) and
+    (__ \ RELATIONSHIPS \ ENTITY_HAS_LIFECYCLE_EVENT).readHeadNullable[SystemEvent] and
     (__ \ META).readWithDefault(Json.obj())
   )(Country.apply _)
 

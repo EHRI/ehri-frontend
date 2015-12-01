@@ -40,33 +40,15 @@ object DatePeriodF {
 
   import Entity.{TYPE => ETYPE,_}
 
-  implicit val datePeriodReads: Reads[DatePeriodF] = (
-    (__ \ ETYPE).readIfEquals(EntityType.DatePeriod) and
-    (__ \ ID).readNullable[String] and
-    (__ \ DATA \ TYPE).readNullable[DatePeriodType.Value] and
-    (__ \ DATA \ START_DATE).readNullable[String] and
-    (__ \ DATA \ END_DATE).readNullable[String] and
-    (__ \ DATA \ PRECISION).readNullable[DatePeriodPrecision.Value] and
-    (__ \ DATA \ DESCRIPTION).readNullable[String]
-  )(DatePeriodF.apply _)
-
-  implicit val datePeriodWrites = new Writes[DatePeriodF] {
-    def writes(d: DatePeriodF): JsValue = {
-      Json.obj(
-        ID -> d.id,
-        ETYPE -> d.isA,
-        DATA -> Json.obj(
-          TYPE -> d.`type` ,
-          START_DATE -> d.startDate,
-          END_DATE -> d.endDate,
-          PRECISION -> d.precision,
-          DESCRIPTION -> d.description
-        )
-      )
-    }
-  }
-
-  implicit val datePeriodFormat: Format[DatePeriodF] = Format(datePeriodReads,datePeriodWrites)
+  implicit val datePeriodFormat: Format[DatePeriodF] = (
+    (__ \ ETYPE).formatIfEquals(EntityType.DatePeriod) and
+    (__ \ ID).formatNullable[String] and
+    (__ \ DATA \ TYPE).formatNullable[DatePeriodType.Value] and
+    (__ \ DATA \ START_DATE).formatNullable[String] and
+    (__ \ DATA \ END_DATE).formatNullable[String] and
+    (__ \ DATA \ PRECISION).formatNullable[DatePeriodPrecision.Value] and
+    (__ \ DATA \ DESCRIPTION).formatNullable[String]
+  )(DatePeriodF.apply, unlift(DatePeriodF.unapply))
 
   implicit object Converter extends Writable[DatePeriodF] {
     lazy val restFormat = datePeriodFormat

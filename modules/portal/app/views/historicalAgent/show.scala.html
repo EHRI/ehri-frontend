@@ -2,19 +2,6 @@
 
 @views.html.layout.portalLayout(item.toStringLang, EntityType.HistoricalAgent.toString) {
     @views.html.layout.mainContent {
-        @defining(EntityType.HistoricalAgent.toString) { implicit fieldPrefix =>
-            @views.html.layout.descriptionContainer(item.model.descriptions) {
-                @item.model.descriptions.map { desc =>
-                    @description(item, desc, links, annotations)
-                }
-
-                @views.html.common.externalLinks(item, links)
-                @views.html.common.annotationLinks(item, links)
-            } {
-                @views.html.common.typeLabelWithWatchButton(item, watched.contains(item.id))
-            } {
-                @views.html.common.latestAction(item, controllers.portal.routes.Portal.itemHistory(item.id, modal = true))
-            }
-        }
+        @views.html.historicalAgent.itemDetails(item, annotations, links, watched)
     }
 }

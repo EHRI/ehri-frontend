@@ -46,85 +46,45 @@ object HistoricalAgentDescriptionF {
   import Isaar._
   import eu.ehri.project.definitions.Ontology._
 
-  implicit val historicalAgentDescriptionWrites = new Writes[HistoricalAgentDescriptionF] {
-    def writes(d: HistoricalAgentDescriptionF): JsValue = {
-      Json.obj(
-        ID -> d.id,
-        TYPE -> d.isA,
-        DATA -> Json.obj(
-          AUTHORIZED_FORM_OF_NAME -> d.name,
-          ENTITY_TYPE -> d.entityType,
-          LANG_CODE -> d.languageCode,
-          OTHER_FORMS_OF_NAME -> d.otherFormsOfName,
-          PARALLEL_FORMS_OF_NAME -> d.parallelFormsOfName,
-          DATES_OF_EXISTENCE -> d.details.datesOfExistence,
-          HISTORY -> d.details.history,
-          PLACES -> d.details.places,
-          LEGAL_STATUS -> d.details.legalStatus,
-          FUNCTIONS -> d.details.functions,
-          MANDATES -> d.details.mandates,
-          INTERNAL_STRUCTURE -> d.details.internalStructure,
-          GENERAL_CONTEXT -> d.details.generalContext,
-          DESCRIPTION_IDENTIFIER -> d.control.descriptionIdentifier,
-          INSTITUTION_IDENTIFIER -> d.control.institutionIdentifier,
-          RULES_CONVENTIONS -> d.control.rulesAndConventions,
-          STATUS -> d.control.status,
-          LEVEL_OF_DETAIL -> d.control.levelOfDetail,
-          DATES_CVD -> d.control.datesCDR,
-          LANGUAGES_USED -> d.control.languages,
-          SCRIPTS_USED -> d.control.scripts,
-          SOURCES -> d.control.sources,
-          MAINTENANCE_NOTES -> d.control.maintenanceNotes,
-          CREATION_PROCESS -> d.creationProcess
-        ),
-        RELATIONSHIPS -> Json.obj(
-          HAS_ACCESS_POINT -> Json.toJson(d.accessPoints.map(Json.toJson(_))),
-          HAS_UNKNOWN_PROPERTY -> Json.toJson(d.unknownProperties.map(Json.toJson(_))),
-          ENTITY_HAS_DATE -> Json.toJson(d.dates.map(Json.toJson(_)))
-        )
-      )
-    }
-  }
+  implicit val historicalAgentDescriptionFormat: Format[HistoricalAgentDescriptionF] = (
+    (__ \ TYPE).formatIfEquals(EntityType.HistoricalAgentDescription) and
+    (__ \ ID).formatNullable[String] and
+    (__ \ DATA \ LANG_CODE).format[String] and
+    (__ \ DATA \ ENTITY_TYPE).formatWithDefault(HistoricalAgentType.CorporateBody) and
+    (__ \ DATA \ AUTHORIZED_FORM_OF_NAME).formatWithDefault(UNNAMED_PLACEHOLDER) and
+    (__ \ DATA \ OTHER_FORMS_OF_NAME).formatSeqOrSingleNullable[String] and
+    (__ \ DATA \ PARALLEL_FORMS_OF_NAME).formatSeqOrSingleNullable[String] and
+    (__ \ RELATIONSHIPS \ ENTITY_HAS_DATE).formatSeqOrEmpty[DatePeriodF] and
+    (__ \ DATA).format[IsaarDetail]((
+      (__ \ DATES_OF_EXISTENCE).formatNullable[String] and
+      (__ \ HISTORY).formatNullable[String] and
+      (__ \ PLACES).formatSeqOrSingleNullable[String] and
+      (__ \ LEGAL_STATUS).formatNullable[String] and
+      (__ \ FUNCTIONS).formatNullable[String] and
+      (__ \ MANDATES).formatNullable[String] and
+      (__ \ INTERNAL_STRUCTURE).formatNullable[String] and
+      (__ \ GENERAL_CONTEXT).formatNullable[String]
+    )(IsaarDetail.apply, unlift(IsaarDetail.unapply))) and
+    (__ \ DATA).format[IsaarControl]((
+      (__ \ DESCRIPTION_IDENTIFIER).formatNullable[String] and
+      (__ \ INSTITUTION_IDENTIFIER).formatNullable[String] and
+      (__ \ RULES_CONVENTIONS).formatNullable[String] and
+      (__ \ STATUS).formatNullable[String] and
+      (__ \ LEVEL_OF_DETAIL).formatNullable[String] and
+      (__ \ DATES_CVD).formatNullable[String] and
+      (__ \ LANGUAGES_USED).formatNullable[Seq[String]] and
+      (__ \ SCRIPTS_USED).formatNullable[Seq[String]] and
+      (__ \ SOURCES).formatSeqOrSingleNullable[String] and
+      (__ \ MAINTENANCE_NOTES).formatNullable[String]
+    )(IsaarControl.apply, unlift(IsaarControl.unapply))) and
+    (__ \ DATA \ CREATION_PROCESS).formatWithDefault(CreationProcess.Manual) and
+    (__ \ RELATIONSHIPS \ HAS_ACCESS_POINT).formatSeqOrEmpty[AccessPointF] and
+    (__ \ RELATIONSHIPS \ HAS_MAINTENANCE_EVENT).formatSeqOrEmpty[Entity] and
+    (__ \ RELATIONSHIPS \ HAS_UNKNOWN_PROPERTY).formatSeqOrEmpty[Entity]
+  )(HistoricalAgentDescriptionF.apply, unlift(HistoricalAgentDescriptionF.unapply))
 
-  implicit val historicalAgentDescriptionReads: Reads[HistoricalAgentDescriptionF] = (
-    (__ \ TYPE).readIfEquals(EntityType.HistoricalAgentDescription) and
-    (__ \ ID).readNullable[String] and
-    (__ \ DATA \ LANG_CODE).read[String] and
-    (__ \ DATA \ ENTITY_TYPE).readWithDefault(HistoricalAgentType.CorporateBody) and
-    (__ \ DATA \ AUTHORIZED_FORM_OF_NAME).readWithDefault(UNNAMED_PLACEHOLDER) and
-    (__ \ DATA \ OTHER_FORMS_OF_NAME).readSeqOrSingleNullable[String] and
-    (__ \ DATA \ PARALLEL_FORMS_OF_NAME).readSeqOrSingleNullable[String] and
-    (__ \ RELATIONSHIPS \ ENTITY_HAS_DATE).nullableSeqReads[DatePeriodF] and
-    (__ \ DATA).read[IsaarDetail]((
-      (__ \ DATES_OF_EXISTENCE).readNullable[String] and
-      (__ \ HISTORY).readNullable[String] and
-      (__ \ PLACES).readSeqOrSingleNullable[String] and
-      (__ \ LEGAL_STATUS).readNullable[String] and
-      (__ \ FUNCTIONS).readNullable[String] and
-      (__ \ MANDATES).readNullable[String] and
-      (__ \ INTERNAL_STRUCTURE).readNullable[String] and
-      (__ \ GENERAL_CONTEXT).readNullable[String]
-    )(IsaarDetail.apply _)) and
-    (__ \ DATA).read[IsaarControl]((
-      (__ \ DESCRIPTION_IDENTIFIER).readNullable[String] and
-      (__ \ INSTITUTION_IDENTIFIER).readNullable[String] and
-      (__ \ RULES_CONVENTIONS).readNullable[String] and
-      (__ \ STATUS).readNullable[String] and
-      (__ \ LEVEL_OF_DETAIL).readNullable[String] and
-      (__ \ DATES_CVD).readNullable[String] and
-      (__ \ LANGUAGES_USED).readNullable[Seq[String]] and
-      (__ \ SCRIPTS_USED).readNullable[Seq[String]] and
-      (__ \ SOURCES).readSeqOrSingleNullable[String] and
-      (__ \ MAINTENANCE_NOTES).readNullable[String]
-    )(IsaarControl.apply _)) and
-    (__ \ DATA \ CREATION_PROCESS).readWithDefault(CreationProcess.Manual) and
-    (__ \ RELATIONSHIPS \ HAS_ACCESS_POINT).nullableSeqReads[AccessPointF] and
-    (__ \ RELATIONSHIPS \ HAS_UNKNOWN_PROPERTY).nullableSeqReads[Entity]
-  )(HistoricalAgentDescriptionF.apply _)
-
-  implicit object Converter extends Readable[HistoricalAgentDescriptionF] with Writable[HistoricalAgentDescriptionF]  {
-    val restReads = historicalAgentDescriptionReads
-    val restFormat = Format(historicalAgentDescriptionReads,historicalAgentDescriptionWrites)
+  implicit object Converter extends Writable[HistoricalAgentDescriptionF]  {
+    val restFormat = historicalAgentDescriptionFormat
   }
 }
 
@@ -143,6 +103,7 @@ case class HistoricalAgentDescriptionF(
   control: IsaarControl,
   creationProcess: CreationProcess.Value = CreationProcess.Manual,
   accessPoints: Seq[AccessPointF],
+  maintenanceEvents: Seq[Entity] = Nil,
   unknownProperties: Seq[Entity] = Nil
 ) extends Model
   with Persistable
@@ -211,6 +172,7 @@ object HistoricalAgentDescription {
       )(IsaarControl.apply)(IsaarControl.unapply),
       CREATION_PROCESS -> default(enumMapping(CreationProcess), CreationProcess.Manual),
       ACCESS_POINTS -> seq(AccessPoint.form.mapping),
+      MAINTENANCE_EVENTS -> seq(entity),
       UNKNOWN_DATA -> seq(entity)
     )(HistoricalAgentDescriptionF.apply)(HistoricalAgentDescriptionF.unapply)
   )

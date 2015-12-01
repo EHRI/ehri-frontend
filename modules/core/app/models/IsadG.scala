@@ -17,7 +17,7 @@ case object IsadG {
     val Other = Value("otherlevel")
     val Class = Value("class")
 
-    implicit val format = defines.EnumUtils.enumFormat(this)
+    implicit val _format = defines.EnumUtils.enumFormat(this)
   }
 
   /* ISAD(G)-based field set */

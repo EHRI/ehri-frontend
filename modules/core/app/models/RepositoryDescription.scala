@@ -54,101 +54,54 @@ object RepositoryDescriptionF {
   import Isdiah._
   import eu.ehri.project.definitions.Ontology._
 
-  implicit val repositoryDescriptionWrites = new Writes[RepositoryDescriptionF] {
-    def writes(d: RepositoryDescriptionF): JsValue = {
-      Json.obj(
-        ID -> d.id,
-        TYPE -> d.isA,
-        DATA -> Json.obj(
-          AUTHORIZED_FORM_OF_NAME -> d.name,
-          LANG_CODE -> d.languageCode,
-          OTHER_FORMS_OF_NAME -> d.otherFormsOfName,
-          PARALLEL_FORMS_OF_NAME -> d.parallelFormsOfName,
-          HISTORY -> d.details.history,
-          GEOCULTURAL_CONTEXT -> d.details.generalContext,
-          MANDATES -> d.details.mandates,
-          ADMINISTRATIVE_STRUCTURE -> d.details.administrativeStructure,
-          RECORDS -> d.details.records,
-          BUILDINGS -> d.details.buildings,
-          HOLDINGS -> d.details.holdings,
-          FINDING_AIDS -> d.details.findingAids,
-          OPENING_TIMES -> d.access.openingTimes,
-          CONDITIONS -> d.access.conditions,
-          ACCESSIBILITY -> d.access.accessibility,
-          RESEARCH_SERVICES -> d.services.researchServices,
-          REPROD_SERVICES -> d.services.reproductionServices,
-          PUBLIC_AREAS -> d.services.publicAreas,
-          DESCRIPTION_IDENTIFIER -> d.control.descriptionIdentifier,
-          INSTITUTION_IDENTIFIER -> d.control.institutionIdentifier,
-          RULES_CONVENTIONS -> d.control.rulesAndConventions,
-          STATUS -> d.control.status,
-          LEVEL_OF_DETAIL -> d.control.levelOfDetail,
-          DATES_CVD -> d.control.datesCDR,
-          LANGUAGES_USED -> d.control.languages,
-          SCRIPTS_USED -> d.control.scripts,
-          SOURCES -> d.control.sources,
-          MAINTENANCE_NOTES -> d.control.maintenanceNotes,
-          CREATION_PROCESS -> d.creationProcess
-        ),
-        RELATIONSHIPS -> Json.obj(
-          ENTITY_HAS_ADDRESS -> Json.toJson(d.addresses.map(Json.toJson(_))),
-          HAS_ACCESS_POINT -> Json.toJson(d.accessPoints.map(Json.toJson(_))),
-          HAS_MAINTENANCE_EVENT -> Json.toJson(d.maintenanceEvents.map(Json.toJson(_))),
-          HAS_UNKNOWN_PROPERTY -> Json.toJson(d.unknownProperties.map(Json.toJson(_)))
-        )
-      )
-    }
-  }
+  implicit val repositoryDescriptionFormat: Format[RepositoryDescriptionF] = (
+    (__ \ TYPE).formatIfEquals(EntityType.RepositoryDescription) and
+    (__ \ ID).formatNullable[String] and
+    (__ \ DATA \ LANG_CODE).format[String] and
+    (__ \ DATA \ AUTHORIZED_FORM_OF_NAME).format[String] and
+    (__ \ DATA \ OTHER_FORMS_OF_NAME).formatSeqOrSingleNullable[String] and
+    (__ \ DATA \ PARALLEL_FORMS_OF_NAME).formatSeqOrSingleNullable[String] and
+    (__ \ RELATIONSHIPS \ ENTITY_HAS_ADDRESS).formatSeqOrEmpty[AddressF] and
+    (__ \ DATA).format[IsdiahDetails]((
+      (__ \ HISTORY).formatNullable[String] and
+      (__ \ GEOCULTURAL_CONTEXT).formatNullable[String] and
+      (__ \ MANDATES).formatNullable[String] and
+      (__ \ ADMINISTRATIVE_STRUCTURE).formatNullable[String] and
+      (__ \ RECORDS).formatNullable[String] and
+      (__ \ BUILDINGS).formatNullable[String] and
+      (__ \ HOLDINGS).formatNullable[String] and
+      (__ \ FINDING_AIDS).formatNullable[String]
+    )(IsdiahDetails.apply, unlift(IsdiahDetails.unapply))) and
+    (__ \ DATA).format[IsdiahAccess]((
+      (__ \ OPENING_TIMES).formatNullable[String] and
+      (__ \ CONDITIONS).formatNullable[String] and
+      (__ \ ACCESSIBILITY).formatNullable[String]
+    )(IsdiahAccess.apply, unlift(IsdiahAccess.unapply))) and
+    (__ \ DATA).format[IsdiahServices]((
+      (__ \ RESEARCH_SERVICES).formatNullable[String] and
+      (__ \ REPROD_SERVICES).formatNullable[String] and
+      (__ \ PUBLIC_AREAS).formatNullable[String]
+    )(IsdiahServices.apply, unlift(IsdiahServices.unapply))) and
+    (__ \ DATA).format[IsdiahControl]((
+      (__ \ DESCRIPTION_IDENTIFIER).formatNullable[String] and
+      (__ \ INSTITUTION_IDENTIFIER).formatNullable[String] and
+      (__ \ RULES_CONVENTIONS).formatNullable[String] and
+      (__ \ STATUS).formatNullable[String] and
+      (__ \ LEVEL_OF_DETAIL).formatNullable[String] and
+      (__ \ DATES_CVD).formatNullable[String] and
+      (__ \ LANGUAGES_USED).formatNullable[Seq[String]] and
+      (__ \ SCRIPTS_USED).formatSeqOrSingleNullable[String] and
+      (__ \ SOURCES).formatSeqOrSingleNullable[String] and
+      (__ \ MAINTENANCE_NOTES).formatNullable[String]
+    )(IsdiahControl.apply, unlift(IsdiahControl.unapply))) and
+    (__ \ DATA \ CREATION_PROCESS).formatWithDefault(CreationProcess.Manual) and
+    (__ \ RELATIONSHIPS \ HAS_ACCESS_POINT).formatSeqOrEmpty[AccessPointF] and
+    (__ \ RELATIONSHIPS \ HAS_MAINTENANCE_EVENT).formatSeqOrEmpty[Entity] and
+    (__ \ RELATIONSHIPS \ HAS_UNKNOWN_PROPERTY).formatSeqOrEmpty[Entity]
+  )(RepositoryDescriptionF.apply, unlift(RepositoryDescriptionF.unapply))
 
-  implicit val repositoryDescriptionReads: Reads[RepositoryDescriptionF] = (
-    (__ \ TYPE).readIfEquals(EntityType.RepositoryDescription) and
-    (__ \ ID).readNullable[String] and
-    (__ \ DATA \ LANG_CODE).read[String] and
-    (__ \ DATA \ AUTHORIZED_FORM_OF_NAME).read[String] and
-    (__ \ DATA \ OTHER_FORMS_OF_NAME).readSeqOrSingleNullable[String] and
-    (__ \ DATA \ PARALLEL_FORMS_OF_NAME).readSeqOrSingleNullable[String] and
-    (__ \ RELATIONSHIPS \ ENTITY_HAS_ADDRESS).nullableSeqReads[AddressF] and
-    (__ \ DATA).read[IsdiahDetails]((
-      (__ \ HISTORY).readNullable[String] and
-      (__ \ GEOCULTURAL_CONTEXT).readNullable[String] and
-      (__ \ MANDATES).readNullable[String] and
-      (__ \ ADMINISTRATIVE_STRUCTURE).readNullable[String] and
-      (__ \ RECORDS).readNullable[String] and
-      (__ \ BUILDINGS).readNullable[String] and
-      (__ \ HOLDINGS).readNullable[String] and
-      (__ \ FINDING_AIDS).readNullable[String]
-    )(IsdiahDetails.apply _)) and
-    (__ \ DATA).read[IsdiahAccess]((
-      (__ \ OPENING_TIMES).readNullable[String] and
-      (__ \ CONDITIONS).readNullable[String] and
-      (__ \ ACCESSIBILITY).readNullable[String]
-    )(IsdiahAccess.apply _)) and
-    (__ \ DATA).read[IsdiahServices]((
-      (__ \ RESEARCH_SERVICES).readNullable[String] and
-      (__ \ REPROD_SERVICES).readNullable[String] and
-      (__ \ PUBLIC_AREAS).readNullable[String]
-    )(IsdiahServices.apply _)) and
-    (__ \ DATA).read[IsdiahControl]((
-      (__ \ DESCRIPTION_IDENTIFIER).readNullable[String] and
-      (__ \ INSTITUTION_IDENTIFIER).readNullable[String] and
-      (__ \ RULES_CONVENTIONS).readNullable[String] and
-      (__ \ STATUS).readNullable[String] and
-      (__ \ LEVEL_OF_DETAIL).readNullable[String] and
-      (__ \ DATES_CVD).readNullable[String] and
-      (__ \ LANGUAGES_USED).readNullable[Seq[String]] and
-      (__ \ SCRIPTS_USED).readSeqOrSingleNullable[String] and
-      (__ \ SOURCES).readSeqOrSingleNullable[String] and
-      (__ \ MAINTENANCE_NOTES).readNullable[String]
-    )(IsdiahControl.apply _)) and
-    (__ \ DATA \ CREATION_PROCESS).readWithDefault(CreationProcess.Manual) and
-    (__ \ RELATIONSHIPS \ HAS_ACCESS_POINT).nullableSeqReads[AccessPointF] and
-    (__ \ RELATIONSHIPS \ HAS_MAINTENANCE_EVENT).nullableSeqReads[Entity] and
-    (__ \ RELATIONSHIPS \ HAS_UNKNOWN_PROPERTY).nullableSeqReads[Entity]
-  )(RepositoryDescriptionF.apply _)
-
-  implicit object Converter extends Readable[RepositoryDescriptionF] with Writable[RepositoryDescriptionF] {
-    val restReads = repositoryDescriptionReads
-    val restFormat = Format(repositoryDescriptionReads, repositoryDescriptionWrites)
+  implicit object Converter extends Writable[RepositoryDescriptionF] {
+    val restFormat = repositoryDescriptionFormat
   }
 }
 

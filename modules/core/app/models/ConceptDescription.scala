@@ -19,47 +19,21 @@ object ConceptDescriptionF {
   import Entity._
   import ConceptF._
 
-  implicit val conceptDescriptionWrites = new Writes[ConceptDescriptionF] {
-    def writes(d: ConceptDescriptionF): JsValue = {
-      Json.obj(
-        ID -> d.id,
-        TYPE -> d.isA,
-        DATA -> Json.obj(
-          LANG_CODE -> d.languageCode,
-          PREFLABEL -> d.name,
-          ALTLABEL -> d.altLabels,
-          DEFINITION -> d.definition,
-          SCOPENOTE -> d.scopeNote,
-          LONGITUDE -> d.longitude,
-          LATITUDE -> d.latitude,
-          URL -> d.url,
-          CREATION_PROCESS -> d.creationProcess
-        ),
-        RELATIONSHIPS -> Json.obj(
-          Ontology.HAS_ACCESS_POINT -> Json.toJson(d.accessPoints.map(Json.toJson(_))),
-          Ontology.HAS_UNKNOWN_PROPERTY -> Json.toJson(d.unknownProperties.map(Json.toJson(_)))
-        )
-      )
-    }
-  }
-
-  implicit val conceptDescriptionReads: Reads[ConceptDescriptionF] = (
-    (__ \ TYPE).readIfEquals(EntityType.ConceptDescription) and
-    (__ \ ID).readNullable[String] and
-    (__ \ DATA \ LANG_CODE).read[String] and
-    (__ \ DATA \ PREFLABEL).read[String] and
-    (__ \ DATA \ ALTLABEL).readSeqOrSingleNullable[String] and
-    (__ \ DATA \ DEFINITION).readSeqOrSingleNullable[String] and
-    (__ \ DATA \ SCOPENOTE).readSeqOrSingleNullable[String] and
-    (__ \ DATA \ LONGITUDE).readNullable[BigDecimal] and
-    (__ \ DATA \ LATITUDE).readNullable[BigDecimal] and
-    (__ \ DATA \ URL).readNullable[String] and
-    (__ \ DATA \ CREATION_PROCESS).readWithDefault(CreationProcess.Manual) and
-    (__ \ RELATIONSHIPS \ Ontology.HAS_ACCESS_POINT).nullableSeqReads[AccessPointF] and
-    (__ \ RELATIONSHIPS \ Ontology.HAS_UNKNOWN_PROPERTY).nullableSeqReads[Entity]
-  )(ConceptDescriptionF.apply _)
-
-  implicit val conceptDescriptionFormat: Format[ConceptDescriptionF] = Format(conceptDescriptionReads,conceptDescriptionWrites)
+  implicit val conceptDescriptionFormat: Format[ConceptDescriptionF] = (
+    (__ \ TYPE).formatIfEquals(EntityType.ConceptDescription) and
+    (__ \ ID).formatNullable[String] and
+    (__ \ DATA \ LANG_CODE).format[String] and
+    (__ \ DATA \ PREFLABEL).format[String] and
+    (__ \ DATA \ ALTLABEL).formatSeqOrSingleNullable[String] and
+    (__ \ DATA \ DEFINITION).formatSeqOrSingleNullable[String] and
+    (__ \ DATA \ SCOPENOTE).formatSeqOrSingleNullable[String] and
+    (__ \ DATA \ LONGITUDE).formatNullable[BigDecimal] and
+    (__ \ DATA \ LATITUDE).formatNullable[BigDecimal] and
+    (__ \ DATA \ URL).formatNullable[String] and
+    (__ \ DATA \ CREATION_PROCESS).formatWithDefault(CreationProcess.Manual) and
+    (__ \ RELATIONSHIPS \ Ontology.HAS_ACCESS_POINT).formatSeqOrEmpty[AccessPointF] and
+    (__ \ RELATIONSHIPS \ Ontology.HAS_UNKNOWN_PROPERTY).formatSeqOrEmpty[Entity]
+  )(ConceptDescriptionF.apply, unlift(ConceptDescriptionF.unapply))
 
   implicit object Converter extends Writable[ConceptDescriptionF] {
     lazy val restFormat = conceptDescriptionFormat

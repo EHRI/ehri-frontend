@@ -42,53 +42,25 @@ object UserProfileF {
 
   import Entity._
 
-  implicit val userProfileWrites: Writes[UserProfileF] = new Writes[UserProfileF] {
-    def writes(d: UserProfileF): JsValue = {
-      Json.obj(
-        ID -> d.id,
-        TYPE -> d.isA,
-        DATA -> Json.obj(
-          IDENTIFIER -> d.identifier,
-          NAME -> d.name,
-          LOCATION -> d.location,
-          ABOUT -> d.about,
-          LANGUAGES -> d.languages,
-          IMAGE_URL -> d.imageUrl,
-          URL -> d.url,
-          WORK_URL -> d.workUrl,
-          FIRST_NAMES -> d.firstNames,
-          LAST_NAME -> d.lastName,
-          TITLE -> d.title,
-          INSTITUTION -> d.institution,
-          ROLE -> d.role,
-          INTERESTS -> d.interests,
-          ACTIVE -> d.active
-        )
-      )
-    }
-  }
-
-  implicit val userProfileReads: Reads[UserProfileF] = (
-    (__ \ TYPE).readIfEquals(EntityType.UserProfile) and
-      (__ \ ID).readNullable[String] and
-      (__ \ DATA \ IDENTIFIER).read[String] and
-      (__ \ DATA \ NAME).read[String] and
-      (__ \ DATA \ LOCATION).readNullable[String] and
-      (__ \ DATA \ ABOUT).readNullable[String] and
-      (__ \ DATA \ LANGUAGES).readSeqOrSingle[String] and
-      (__ \ DATA \ IMAGE_URL).readNullable[String] and
-      (__ \ DATA \ URL).readNullable[String] and
-      (__ \ DATA \ WORK_URL).readNullable[String] and
-      (__ \ DATA \ FIRST_NAMES).readNullable[String] and
-      (__ \ DATA \ LAST_NAME).readNullable[String] and
-      (__ \ DATA \ TITLE).readNullable[String] and
-      (__ \ DATA \ INSTITUTION).readNullable[String] and
-      (__ \ DATA \ ROLE).readNullable[String] and
-      (__ \ DATA \ INTERESTS).readNullable[String] and
-      (__ \ DATA \ ACTIVE).readWithDefault(true)
-    )(UserProfileF.apply _)
-
-  implicit val userProfileFormat: Format[UserProfileF] = Format(userProfileReads,userProfileWrites)
+  implicit val userProfileFormat: Format[UserProfileF] = (
+    (__ \ TYPE).formatIfEquals(EntityType.UserProfile) and
+      (__ \ ID).formatNullable[String] and
+      (__ \ DATA \ IDENTIFIER).format[String] and
+      (__ \ DATA \ NAME).format[String] and
+      (__ \ DATA \ LOCATION).formatNullable[String] and
+      (__ \ DATA \ ABOUT).formatNullable[String] and
+      (__ \ DATA \ LANGUAGES).formatSeqOrSingle[String] and
+      (__ \ DATA \ IMAGE_URL).formatNullable[String] and
+      (__ \ DATA \ URL).formatNullable[String] and
+      (__ \ DATA \ WORK_URL).formatNullable[String] and
+      (__ \ DATA \ FIRST_NAMES).formatNullable[String] and
+      (__ \ DATA \ LAST_NAME).formatNullable[String] and
+      (__ \ DATA \ TITLE).formatNullable[String] and
+      (__ \ DATA \ INSTITUTION).formatNullable[String] and
+      (__ \ DATA \ ROLE).formatNullable[String] and
+      (__ \ DATA \ INTERESTS).formatNullable[String] and
+      (__ \ DATA \ ACTIVE).formatWithDefault(true)
+    )(UserProfileF.apply, unlift(UserProfileF.unapply))
 
   implicit object Converter extends Writable[UserProfileF] {
     lazy val restFormat = userProfileFormat
@@ -126,9 +98,9 @@ object UserProfile {
 
   implicit val metaReads: Reads[UserProfile] = (
     __.read[UserProfileF] and
-    (__ \ RELATIONSHIPS \ ACCESSOR_BELONGS_TO_GROUP).lazyNullableSeqReads(groupReads) and
-    (__ \ RELATIONSHIPS \ IS_ACCESSIBLE_TO).lazyNullableSeqReads(Accessor.Converter.restReads) and
-    (__ \ RELATIONSHIPS \ ENTITY_HAS_LIFECYCLE_EVENT).nullableHeadReads[SystemEvent] and
+    (__ \ RELATIONSHIPS \ ACCESSOR_BELONGS_TO_GROUP).lazyReadSeqOrEmpty(groupReads) and
+    (__ \ RELATIONSHIPS \ IS_ACCESSIBLE_TO).lazyReadSeqOrEmpty(Accessor.Converter.restReads) and
+    (__ \ RELATIONSHIPS \ ENTITY_HAS_LIFECYCLE_EVENT).readHeadNullable[SystemEvent] and
     (__ \ META).readWithDefault(Json.obj())
   )(UserProfile.quickApply _)
 

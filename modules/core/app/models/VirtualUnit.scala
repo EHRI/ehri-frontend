@@ -23,30 +23,15 @@ object VirtualUnitF {
   import Entity._
   import Ontology._
 
-  implicit val virtualUnitWrites: Writes[VirtualUnitF] = new Writes[VirtualUnitF] {
-    def writes(d: VirtualUnitF): JsValue = {
-      Json.obj(
-        ID -> d.id,
-        TYPE -> d.isA,
-        DATA -> Json.obj(
-          IDENTIFIER -> d.identifier
-        ),
-        RELATIONSHIPS -> Json.obj(
-          Ontology.DESCRIPTION_FOR_ENTITY -> Json.toJson(d.descriptions.map(Json.toJson(_)))
-        )
-      )
-    }
-  }
-
-  implicit val virtualUnitReads: Reads[VirtualUnitF] = (
-    (__ \ TYPE).readIfEquals(EntityType.VirtualUnit) and
-    (__ \ ID).readNullable[String] and
-    (__ \ DATA \ IDENTIFIER).read[String] and
-    (__ \ RELATIONSHIPS \ DESCRIPTION_FOR_ENTITY).nullableSeqReads[DocumentaryUnitDescriptionF]
-  )(VirtualUnitF.apply _)
+  implicit val virtualUnitFormat: Format[VirtualUnitF] = (
+    (__ \ TYPE).formatIfEquals(EntityType.VirtualUnit) and
+    (__ \ ID).formatNullable[String] and
+    (__ \ DATA \ IDENTIFIER).format[String] and
+    (__ \ RELATIONSHIPS \ DESCRIPTION_FOR_ENTITY).formatSeqOrEmpty[DocumentaryUnitDescriptionF]
+  )(VirtualUnitF.apply, unlift(VirtualUnitF.unapply))
 
   implicit object Converter extends Writable[VirtualUnitF] {
-    val restFormat = Format(virtualUnitReads,virtualUnitWrites)
+    val restFormat = virtualUnitFormat
   }
 }
 
@@ -71,13 +56,13 @@ object VirtualUnit {
   import Ontology._
 
   implicit val metaReads: Reads[VirtualUnit] = (
-    __.read[VirtualUnitF](virtualUnitReads) and
-    (__ \ RELATIONSHIPS \ VC_INCLUDES_UNIT).nullableSeqReads(DocumentaryUnit.DocumentaryUnitResource.restReads) and
-    (__ \ RELATIONSHIPS \ VC_HAS_AUTHOR).nullableHeadReads(Accessor.Converter.restReads) and
-    (__ \ RELATIONSHIPS \ VC_IS_PART_OF).lazyNullableHeadReads(metaReads) and
-    (__ \ RELATIONSHIPS \ DOC_IS_CHILD_OF).nullableHeadReads[Repository] and
-    (__ \ RELATIONSHIPS \ IS_ACCESSIBLE_TO).lazyNullableSeqReads(Accessor.Converter.restReads) and
-    (__ \ RELATIONSHIPS \ ENTITY_HAS_LIFECYCLE_EVENT).nullableHeadReads[SystemEvent] and
+    __.read[VirtualUnitF](virtualUnitFormat) and
+    (__ \ RELATIONSHIPS \ VC_INCLUDES_UNIT).readSeqOrEmpty(DocumentaryUnit.DocumentaryUnitResource.restReads) and
+    (__ \ RELATIONSHIPS \ VC_HAS_AUTHOR).readHeadNullable(Accessor.Converter.restReads) and
+    (__ \ RELATIONSHIPS \ VC_IS_PART_OF).lazyReadHeadNullable(metaReads) and
+    (__ \ RELATIONSHIPS \ DOC_IS_CHILD_OF).readHeadNullable[Repository] and
+    (__ \ RELATIONSHIPS \ IS_ACCESSIBLE_TO).lazyReadSeqOrEmpty(Accessor.Converter.restReads) and
+    (__ \ RELATIONSHIPS \ ENTITY_HAS_LIFECYCLE_EVENT).readHeadNullable[SystemEvent] and
     (__ \ META).readWithDefault(Json.obj())
   )(VirtualUnit.apply _)
 

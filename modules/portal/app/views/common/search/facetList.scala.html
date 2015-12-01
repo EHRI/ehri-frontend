@@ -12,7 +12,12 @@
             <li class="facet-class facet-dropdown @{if(fc.isActive) "active"}">
                 @facetLabel(fc)
                 <div class="facet-options">
-                    <select multiple style="width: 100%" name="@fc.param" data-placeholder="@Messages("facet." + fc.param + ".placeholder")" class="form-control select2 autosubmit">
+                    <label class="sr-only" for="facets-select-@fc.param">@Messages("facet." + fc.param)</label>
+                    <select id="facets-select-@fc.param"
+                            multiple style="width: 100%"
+                            name="@fc.param"
+                            data-placeholder="@Messages("facet." + fc.param + ".placeholder")"
+                            class="form-control select2 autosubmit">
                         <option></option>
                         @fc.facets.filter(_.count > 0).map { f =>
                             <option value="@f.value" @{if(f.applied) "selected"}>@fc.pretty(f) (@f.count)</option>

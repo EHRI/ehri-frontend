@@ -32,34 +32,17 @@ object LinkF {
   import Ontology._
   import play.api.libs.functional.syntax._
 
-  implicit val linkWrites: Writes[LinkF] = new Writes[LinkF] {
-    def writes(d: LinkF): JsValue = {
-      Json.obj(
-        ID -> d.id,
-        TYPE -> d.isA,
-        DATA -> Json.obj(
-          LINK_TYPE -> d.linkType,
-          DESCRIPTION -> d.description,
-          IS_PROMOTABLE -> d.isPromotable
-        ),
-        RELATIONSHIPS -> Json.obj(
-          ENTITY_HAS_DATE -> Json.toJson(d.dates.map(Json.toJson(_)))
-        )
-      )
-    }
-  }
-
-  implicit val linkReads: Reads[LinkF] = (
-    (__ \ TYPE).readIfEquals(EntityType.Link) and
-    (__ \ ID).readNullable[String] and
-    (__ \ DATA \ LINK_TYPE).readWithDefault(LinkType.Associative) and
-    (__ \ DATA \ DESCRIPTION).readNullable[String] and
-    (__ \ DATA \ IS_PROMOTABLE).readWithDefault(false) and
-    (__ \ RELATIONSHIPS \ ENTITY_HAS_DATE).nullableSeqReads[DatePeriodF]
-  )(LinkF.apply _)
+  implicit val linkFormat: Format[LinkF] = (
+    (__ \ TYPE).formatIfEquals(EntityType.Link) and
+    (__ \ ID).formatNullable[String] and
+    (__ \ DATA \ LINK_TYPE).formatWithDefault(LinkType.Associative) and
+    (__ \ DATA \ DESCRIPTION).formatNullable[String] and
+    (__ \ DATA \ IS_PROMOTABLE).formatWithDefault(false) and
+    (__ \ RELATIONSHIPS \ ENTITY_HAS_DATE).formatSeqOrEmpty[DatePeriodF]
+  )(LinkF.apply _, unlift(LinkF.unapply))
 
   implicit object Converter extends Writable[LinkF] {
-    lazy val restFormat = Format(linkReads,linkWrites)
+    lazy val restFormat = linkFormat
   }
 }
 
@@ -86,13 +69,13 @@ object Link {
 
   implicit val metaReads: Reads[Link] = (
     __.read[LinkF] and
-    (__ \ RELATIONSHIPS \ LINK_HAS_TARGET).lazyNullableSeqReads(AnyModel.Converter.restReads) and
-    (__ \ RELATIONSHIPS \ LINK_HAS_LINKER).nullableHeadReads[UserProfile] and
-    (__ \ RELATIONSHIPS \ LINK_HAS_BODY).nullableSeqReads[AccessPoint] and
-    (__ \ RELATIONSHIPS \ IS_ACCESSIBLE_TO).lazyNullableSeqReads(Accessor.Converter.restReads) and
-    (__ \ RELATIONSHIPS \ PROMOTED_BY).nullableSeqReads[UserProfile] and
-    (__ \ RELATIONSHIPS \ DEMOTED_BY).nullableSeqReads[UserProfile] and
-    (__ \ RELATIONSHIPS \ ENTITY_HAS_LIFECYCLE_EVENT).nullableHeadReads[SystemEvent] and
+    (__ \ RELATIONSHIPS \ LINK_HAS_TARGET).lazyReadSeqOrEmpty(AnyModel.Converter.restReads) and
+    (__ \ RELATIONSHIPS \ LINK_HAS_LINKER).readHeadNullable[UserProfile] and
+    (__ \ RELATIONSHIPS \ LINK_HAS_BODY).readSeqOrEmpty[AccessPoint] and
+    (__ \ RELATIONSHIPS \ IS_ACCESSIBLE_TO).lazyReadSeqOrEmpty(Accessor.Converter.restReads) and
+    (__ \ RELATIONSHIPS \ PROMOTED_BY).readSeqOrEmpty[UserProfile] and
+    (__ \ RELATIONSHIPS \ DEMOTED_BY).readSeqOrEmpty[UserProfile] and
+    (__ \ RELATIONSHIPS \ ENTITY_HAS_LIFECYCLE_EVENT).readHeadNullable[SystemEvent] and
     (__ \ META).readWithDefault(Json.obj())
   )(Link.apply _)
 

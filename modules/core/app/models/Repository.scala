@@ -29,37 +29,16 @@ object RepositoryF {
   import Entity._
   import Ontology._
 
-  implicit val repositoryWrites: Writes[RepositoryF] = new Writes[RepositoryF] {
-    def writes(d: RepositoryF): JsValue = {
-      Json.obj(
-        ID -> d.id,
-        TYPE -> d.isA,
-        DATA -> Json.obj(
-          IDENTIFIER -> d.identifier,
-          PUBLICATION_STATUS -> d.publicationStatus,
-          PRIORITY -> d.priority,
-          URL_PATTERN -> d.urlPattern,
-          LOGO_URL -> d.logoUrl
-        ),
-        RELATIONSHIPS -> Json.obj(
-          DESCRIPTION_FOR_ENTITY -> Json.toJson(d.descriptions.map(Json.toJson(_)))
-        )
-      )
-    }
-  }
-
-  implicit val repositoryReads: Reads[RepositoryF] = (
-    (__ \ TYPE).readIfEquals(EntityType.Repository) and
-    (__ \ ID).readNullable[String] and
-    (__ \ DATA \ IDENTIFIER).read[String] and
-    (__ \ DATA \ PUBLICATION_STATUS).readNullable[PublicationStatus.Value] and
-    (__ \ RELATIONSHIPS \ DESCRIPTION_FOR_ENTITY).nullableSeqReads[RepositoryDescriptionF] and
-    (__ \ DATA \ PRIORITY).readNullable[Int] and
-    (__ \ DATA \ URL_PATTERN).readNullable[String] and
-    (__ \ DATA \ LOGO_URL).readNullable[String]
-  )(RepositoryF.apply _)
-
-  implicit val repositoryFormat: Format[RepositoryF] = Format(repositoryReads,repositoryWrites)
+  implicit val repositoryFormat: Format[RepositoryF] = (
+    (__ \ TYPE).formatIfEquals(EntityType.Repository) and
+    (__ \ ID).formatNullable[String] and
+    (__ \ DATA \ IDENTIFIER).format[String] and
+    (__ \ DATA \ PUBLICATION_STATUS).formatNullable[PublicationStatus.Value] and
+    (__ \ RELATIONSHIPS \ DESCRIPTION_FOR_ENTITY).formatSeqOrEmpty[RepositoryDescriptionF] and
+    (__ \ DATA \ PRIORITY).formatNullable[Int] and
+    (__ \ DATA \ URL_PATTERN).formatNullable[String] and
+    (__ \ DATA \ LOGO_URL).formatNullable[String]
+  )(RepositoryF.apply, unlift(RepositoryF.unapply))
 
   implicit object Converter extends Writable[RepositoryF] {
     val restFormat = repositoryFormat
@@ -126,10 +105,10 @@ object Repository {
   import defines.EnumUtils.enumMapping
 
   implicit lazy val metaReads: Reads[Repository] = (
-    __.read[RepositoryF](repositoryReads) and
-    (__ \ RELATIONSHIPS \ REPOSITORY_HAS_COUNTRY).nullableHeadReads[Country] and
-    (__ \ RELATIONSHIPS \ IS_ACCESSIBLE_TO).lazyNullableSeqReads(Accessor.Converter.restReads) and
-    (__ \ RELATIONSHIPS \ ENTITY_HAS_LIFECYCLE_EVENT).nullableHeadReads[SystemEvent] and
+    __.read[RepositoryF](repositoryFormat) and
+    (__ \ RELATIONSHIPS \ REPOSITORY_HAS_COUNTRY).readHeadNullable[Country] and
+    (__ \ RELATIONSHIPS \ IS_ACCESSIBLE_TO).lazyReadSeqOrEmpty(Accessor.Converter.restReads) and
+    (__ \ RELATIONSHIPS \ ENTITY_HAS_LIFECYCLE_EVENT).readHeadNullable[SystemEvent] and
     (__ \ META).readWithDefault(Json.obj())
   )(Repository.apply _)
 

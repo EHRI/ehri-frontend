@@ -1,9 +1,0 @@
-@(address: AddressF)(implicit messages: Messages)
-
-@if(!address.toSeq.isEmpty) {
-<address>
-    @address.toSeq.map { line =>
-        <addressline>@line</addressline>
-    }
-</address>
-}

@@ -21,34 +21,21 @@ object SystemEventF {
   import SystemEventF.{EVENT_TYPE => EVENT_PROP}
   import Entity._
 
-  // We won't need to use this, since events are created automatically
-  // but doing it anyway just for completeness
-  implicit val systemEventWrites = new Writes[SystemEventF] {
-    def writes(d: SystemEventF): JsValue = {
-      Json.obj(
-        ID -> d.id,
-        TYPE -> d.isA,
-        DATA -> Json.obj(
-          TIMESTAMP -> d.timestamp,
-          LOG_MESSAGE -> d.logMessage,
-          EVENT_PROP -> d.eventType
-        )
-      )
-    }
-  }
-
-  implicit val systemEventReads: Reads[SystemEventF] = (
-    (__ \ TYPE).readIfEquals(EntityType.SystemEvent) and
-    (__ \ ID).readNullable[String] and
+  implicit val systemEventFormat: Format[SystemEventF] = (
+    (__ \ TYPE).formatIfEquals(EntityType.SystemEvent) and
+    (__ \ ID).formatNullable[String] and
     // NB: Default Joda DateTime format is less flexible then
     // using the constructor from a string
-    (__ \ DATA \ TIMESTAMP).read[String].map(new DateTime(_)) and
-    (__ \ DATA \ LOG_MESSAGE).readNullable[String] and
-    (__ \ DATA \ EVENT_PROP).readNullable[EventType.Value]
-  )(SystemEventF.apply _)
+    (__ \ DATA \ TIMESTAMP).format[String].inmap(
+      s => new DateTime(s),
+      (dt: DateTime) => dt.toString
+    ) and
+    (__ \ DATA \ LOG_MESSAGE).formatNullable[String] and
+    (__ \ DATA \ EVENT_PROP).formatNullable[EventType.Value]
+  )(SystemEventF.apply, unlift(SystemEventF.unapply))
 
   implicit object Converter extends backend.Readable[SystemEventF] {
-    val restReads = Format(systemEventReads,systemEventWrites)
+    val restReads = systemEventFormat
   }
 }
 
@@ -70,10 +57,10 @@ object SystemEvent {
 
   implicit val metaReads: Reads[SystemEvent] = (
     __.read[SystemEventF] and
-    (__ \ RELATIONSHIPS \ EVENT_HAS_SCOPE).lazyNullableHeadReads(AnyModel.Converter.restReads) and
-    (__ \ RELATIONSHIPS \ EVENT_HAS_FIRST_SUBJECT).lazyNullableHeadReads(AnyModel.Converter.restReads) and
-    (__ \ RELATIONSHIPS \ EVENT_HAS_ACTIONER).lazyNullableHeadReads(Accessor.Converter.restReads) and
-    (__ \ RELATIONSHIPS \ VERSION_HAS_EVENT).nullableHeadReads(Version.Converter.restReads) and
+    (__ \ RELATIONSHIPS \ EVENT_HAS_SCOPE).lazyReadHeadNullable(AnyModel.Converter.restReads) and
+    (__ \ RELATIONSHIPS \ EVENT_HAS_FIRST_SUBJECT).lazyReadHeadNullable(AnyModel.Converter.restReads) and
+    (__ \ RELATIONSHIPS \ EVENT_HAS_ACTIONER).lazyReadHeadNullable(Accessor.Converter.restReads) and
+    (__ \ RELATIONSHIPS \ VERSION_HAS_EVENT).readHeadNullable(Version.Converter.restReads) and
     (__ \ META).readWithDefault(Json.obj())
   )(SystemEvent.apply _)
 
