@@ -37,10 +37,14 @@ package object json {
     def readWithDefault[T](t: T)(implicit r: Reads[T]): Reads[T] =
       path.read[T].orElse(Reads.pure(t))
 
+    /** Attempt to read a path, falling back on a default value. */
+    def readNullableWithDefault[T](t: T)(implicit r: Reads[T]): Reads[Option[T]] =
+      path.readNullable[T].orElse(Reads.pure(Some(t))).map(_.orElse(Some(t)))
+
     /** Attempt to read a list, falling back on an empty list if the
      * path does not exist.
      */
-    def nullableSeqReads[T](implicit r: Reads[T]): Reads[Seq[T]] = new Reads[Seq[T]] {
+    def readSeqOrEmpty[T](implicit r: Reads[T]): Reads[Seq[T]] = new Reads[Seq[T]] {
       def reads(json: JsValue): JsResult[Seq[T]] = {
         path.asSingleJsResult(json).fold(
           invalid = { err =>
@@ -53,34 +57,61 @@ package object json {
       }
     }
 
+    /** Attempt to read a path, falling back on a default value. */
+    def formatWithDefault[T](t: T)(implicit fmt: Format[T]): OFormat[T] =
+      OFormat(readWithDefault(t), path.write[T])
+
+    /** Read/write a nullable item, with a default read value (and a nullable write) */
+    def formatNullableWithDefault[T](t: T)(implicit fmt: Format[T]): OFormat[Option[T]] =
+      OFormat(readNullableWithDefault(t), path.writeNullable[T])
+
+    /** Read/write an item, but validating on read that it's equal to the given value  */
+    def formatIfEquals[T](v: T)(implicit fmt: Format[T]): OFormat[T] =
+      OFormat[T](readIfEquals(v), path.write[T])
+
     /** Write a list if it is non-empty, otherwise nothing. */
-    def nullableSeqWrites[T](implicit w: Writes[T]): OWrites[Seq[T]] = {
+    def writeSeqOrEmpty[T](implicit w: Writes[T]): OWrites[Seq[T]] = {
       new OWrites[Seq[T]] {
         def writes(o: Seq[T]): JsObject =
           if (o.isEmpty) Json.obj() else path.write[Seq[T]].writes(o)
       }
     }
 
-    def nullableSeqFormat[T](implicit fmt: Format[T]): OFormat[Seq[T]] =
-      OFormat[Seq[T]](nullableSeqReads(fmt), nullableSeqWrites(fmt))
+    /** Write a list if it is non-empty, otherwise nothing. */
+    def writeNullableSeqOrEmpty[T](implicit w: Writes[T]): OWrites[Option[Seq[T]]] = {
+      new OWrites[Option[Seq[T]]] {
+        def writes(o: Option[Seq[T]]): JsObject =
+          if (o.toSeq.flatten.isEmpty) Json.obj()
+          else path.write[Seq[T]].writes(o.toSeq.flatten)
+      }
+    }
 
-    def lazyNullableSeqReads[T](r: => Reads[T]): Reads[Seq[T]] =
-      Reads(js => nullableSeqReads(r).reads(js))
+    def formatSeqOrEmpty[T](implicit fmt: Format[T]): OFormat[Seq[T]] =
+      OFormat[Seq[T]](readSeqOrEmpty(fmt), writeSeqOrEmpty(fmt))
+
+    def lazyReadSeqOrEmpty[T](r: => Reads[T]): Reads[Seq[T]] =
+      Reads(js => readSeqOrEmpty(r).reads(js))
+
+    def formatSeqOrSingle[T](implicit fmt: Format[T]): OFormat[Seq[T]] =
+      OFormat(readSeqOrSingle(fmt), writeSeqOrEmpty(fmt))
+
+    def formatSeqOrSingleNullable[T](implicit fmt: Format[T]): OFormat[Option[Seq[T]]] =
+      OFormat(readSeqOrSingleNullable(fmt), writeNullableSeqOrEmpty(fmt))
 
     def lazyNullableSeqWrites[T](w: => Writes[T]): OWrites[Seq[T]] =
-      OWrites((t: Seq[T]) => nullableSeqWrites[T](w).writes(t).as[JsObject])
+      OWrites((t: Seq[T]) => writeSeqOrEmpty[T](w).writes(t).as[JsObject])
 
     def lazyNullableSeqFormat[T](fmt: => Format[T]): OFormat[Seq[T]] =
-      OFormat[Seq[T]](lazyNullableSeqReads(fmt), lazyNullableSeqWrites(fmt))
+      OFormat[Seq[T]](lazyReadSeqOrEmpty(fmt), lazyNullableSeqWrites(fmt))
 
     /** Read the first item from a list that may be none, if
      * the path is missing.
      */
-    def nullableHeadReads[T](implicit r: Reads[T]): Reads[Option[T]] =
-      nullableSeqReads(r).map(_.headOption)
+    def readHeadNullable[T](implicit r: Reads[T]): Reads[Option[T]] =
+      readSeqOrEmpty(r).map(_.headOption)
 
-    /** Lazy variant of [[models.json.JsPathExtensions.nullableHeadReads]]. */
-    def lazyNullableHeadReads[T](r: => Reads[T]): Reads[Option[T]] =
-      Reads(js => nullableHeadReads(r).reads(js))
+    /** Lazy variant of [[models.json.JsPathExtensions.readHeadNullable]]. */
+    def lazyReadHeadNullable[T](r: => Reads[T]): Reads[Option[T]] =
+      Reads(js => readHeadNullable(r).reads(js))
   }
 }

@@ -8,7 +8,6 @@ import play.api.i18n.Messages
 import play.api.libs.functional.syntax._
 import play.api.data.Form
 import play.api.data.Forms._
-import play.api.libs.json.JsObject
 import eu.ehri.project.definitions.Ontology
 import backend._
 import play.api.libs.json.JsObject
@@ -20,29 +19,13 @@ object GroupF {
 
   import Entity._
 
-  implicit val groupWrites: Writes[GroupF] = new Writes[GroupF] {
-    def writes(d: GroupF): JsValue = {
-      Json.obj(
-        ID -> d.id,
-        TYPE -> d.isA,
-        DATA -> Json.obj(
-          IDENTIFIER -> d.identifier,
-          NAME -> d.name,
-          DESCRIPTION -> d.description
-        )
-      )
-    }
-  }
-
-  implicit val groupReads: Reads[GroupF] = (
-    (__ \ TYPE).readIfEquals(EntityType.Group) and
-    (__ \ ID).readNullable[String] and
-    (__ \ DATA \ IDENTIFIER).read[String] and
-    (__ \ DATA \ NAME).read[String] and
-    (__ \ DATA \ DESCRIPTION).readNullable[String]
-  )(GroupF.apply _)
-
-  implicit val groupFormat: Format[GroupF] = Format(groupReads,groupWrites)
+  implicit val groupFormat: Format[GroupF] = (
+    (__ \ TYPE).formatIfEquals(EntityType.Group) and
+    (__ \ ID).formatNullable[String] and
+    (__ \ DATA \ IDENTIFIER).format[String] and
+    (__ \ DATA \ NAME).format[String] and
+    (__ \ DATA \ DESCRIPTION).formatNullable[String]
+  )(GroupF.apply _, unlift(GroupF.unapply))
 
   implicit object Converter extends Writable[GroupF] {
     lazy val restFormat = groupFormat
@@ -66,9 +49,9 @@ object Group {
 
   implicit val metaReads: Reads[Group] = (
     __.read[GroupF] and
-    (__ \ RELATIONSHIPS \ ACCESSOR_BELONGS_TO_GROUP).lazyNullableSeqReads(metaReads) and
-    (__ \ RELATIONSHIPS \ IS_ACCESSIBLE_TO).lazyNullableSeqReads(Accessor.Converter.restReads) and
-    (__ \ RELATIONSHIPS \ ENTITY_HAS_LIFECYCLE_EVENT).nullableHeadReads[SystemEvent] and
+    (__ \ RELATIONSHIPS \ ACCESSOR_BELONGS_TO_GROUP).lazyReadSeqOrEmpty(metaReads) and
+    (__ \ RELATIONSHIPS \ IS_ACCESSIBLE_TO).lazyReadSeqOrEmpty(Accessor.Converter.restReads) and
+    (__ \ RELATIONSHIPS \ ENTITY_HAS_LIFECYCLE_EVENT).readHeadNullable[SystemEvent] and
     (__ \ META).readWithDefault(Json.obj())
   )(Group.apply _)
 

@@ -1,10 +1,8 @@
 package controllers.units
 
-import java.io.OutputStreamWriter
-
 import auth.AccountManager
+import backend.rest.Constants
 import backend.rest.cypher.Cypher
-import com.jmcejuela.scala.xml.XMLPrettyPrinter
 import play.api.cache.CacheApi
 import play.api.libs.concurrent.Execution.Implicits._
 import forms.VisibilityForm
@@ -13,6 +11,7 @@ import controllers.generic._
 import play.api.i18n.{MessagesApi, Messages}
 import defines.{ContentTypes,EntityType,PermissionType}
 import play.api.libs.iteratee.Enumerator
+import play.api.libs.ws.WSClient
 import utils.MovedPageLookup
 import views.{MarkdownRenderer, Helpers}
 import utils.search._
@@ -21,7 +20,6 @@ import scala.concurrent.Future.{successful => immediate}
 import backend.Backend
 import play.api.Configuration
 import play.api.http.MimeTypes
-import utils.ead.EadExporter
 import controllers.base.AdminController
 
 
@@ -37,7 +35,8 @@ case class DocumentaryUnits @Inject()(
   pageRelocator: MovedPageLookup,
   messagesApi: MessagesApi,
   markdown: MarkdownRenderer,
-  cypher: Cypher
+  cypher: Cypher,
+  ws: WSClient
 ) extends AdminController
   with Read[DocumentaryUnit]
   with Visibility[DocumentaryUnit]
@@ -378,17 +377,12 @@ case class DocumentaryUnits @Inject()(
     }
   }
 
-  private val xmlPrinter = new XMLPrettyPrinter(4)
-
-  def exportEad(id: String) = OptionalAccountAction.async { implicit authRequest =>
-    val eadId: String = docRoutes.exportEad(id).absoluteURL(globalConfig.https)
-    EadExporter(userBackend).exportEad(id, eadId).map { ead =>
-      val enumerator = Enumerator.outputStream { os =>
-        val writer = new OutputStreamWriter(os)
-        xmlPrinter.write(xml.XML.loadString(ead), null, addXmlDeclaration = true)(writer)
-      }
-
-      Ok.chunked(enumerator.andThen(Enumerator.eof)).as(MimeTypes.XML)
+  def exportEad(id: String) = OptionalUserAction.async { implicit request =>
+    ws.url(utils.serviceBaseUrl("ehridata", app.configuration) + s"/${EntityType.DocumentaryUnit}/$id/ead")
+      .withQueryString(request.getQueryString("lang").toSeq.map(l => "lang" -> l): _*)
+      .withHeaders(request.userOpt.map(u => Constants.AUTH_HEADER_NAME -> u.id).toSeq: _*)
+        .withMethod("GET").stream().map { case (h, b) =>
+      Ok.chunked(b.andThen(Enumerator.eof)).as(MimeTypes.XML)
     }
   }
 }

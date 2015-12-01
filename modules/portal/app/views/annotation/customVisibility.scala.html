@@ -23,7 +23,7 @@
             @Messages("contribution.visibility.custom")
         </label>
     </div>
-    <div class="custom-visibility" style="@{if(visForm.value != Some(Custom)) "display:none"}">
+    <div class="custom-visibility" style="@{if(!visForm.value.contains(Custom)) "display:none"}">
         @defining(views.Helpers.fieldValues(accessorsForm(ACCESSOR_PARAM))) { values =>
         <select class="form-control select2 custom-accessors" multiple name="@(ACCESSOR_PARAM)[]">
             <option></option>

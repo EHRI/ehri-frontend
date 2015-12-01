@@ -50,7 +50,7 @@ class JsPathExtensionsSpec extends PlaySpecification {
       )
       val testJsonReads: Reads[TestData] = (
         (__ \ "field1").read[String] and
-        (__ \ "field2").nullableSeqReads[String]
+        (__ \ "field2").readSeqOrEmpty[String]
       )(TestData.apply _)
 
       testJson1.validate(testJsonReads).asOpt must beSome.which { data =>
@@ -71,7 +71,7 @@ class JsPathExtensionsSpec extends PlaySpecification {
 
       val testJsonWrites: Writes[TestData] = (
         (__ \ "field1").write[String] and
-        (__ \ "field2").nullableSeqWrites[String]
+        (__ \ "field2").writeSeqOrEmpty[String]
       )(unlift(TestData.unapply))
 
       Json.toJson(item1)(testJsonWrites) must equalTo(Json.obj(
@@ -104,7 +104,7 @@ class JsPathExtensionsSpec extends PlaySpecification {
       )
       val testJsonReads: Reads[TestData] = (
         (__ \ "field1").read[String] and
-          (__ \ "field2").nullableHeadReads[String]
+          (__ \ "field2").readHeadNullable[String]
         )(TestData.apply _)
 
       testJson1.validate(testJsonReads).asOpt must beSome.which { data =>
@@ -190,6 +190,59 @@ class JsPathExtensionsSpec extends PlaySpecification {
         }
       }
       testJson3.validate(testJsonReads).asEither must beLeft
+    }
+
+    "allow reading/writing nullable lists with single-item fallback" in {
+      case class TestData(field1: Option[String], field2: Option[Seq[String]])
+      // valid
+      val testJson1: JsValue = Json.obj(
+        "field2" -> Json.arr("foo")
+      )
+      // valid - with single item
+      val testJson2: JsValue = Json.obj(
+        "field1" -> "val",
+        "field2" -> "foo"
+      )
+      // invalid, list exists but is wrong type
+      val testJson3: JsValue = Json.obj(
+        "field1" -> "val",
+        "field2" -> Json.arr(
+          Json.obj("foo" -> "bar")
+        )
+      )
+      val testJsonFormat: Format[TestData] = (
+        (__ \ "field1").formatNullableWithDefault("bar") and
+        (__ \ "field2").formatSeqOrSingleNullable[String]
+      )(TestData.apply, unlift(TestData.unapply))
+
+      testJson1.validate(testJsonFormat).asOpt must beSome.which { data =>
+        data.field1 must beSome.which { value =>
+          value must_== "bar"
+        }
+        data.field2 must beSome.which { value =>
+          value.headOption must equalTo(Some("foo"))
+        }
+      }
+
+      testJson2.validate(testJsonFormat).asOpt must beSome.which { data =>
+        data.field1 must beSome.which { value =>
+          value must_== "val"
+        }
+        data.field2 must beSome.which { value =>
+          value.headOption must equalTo(Some("foo"))
+        }
+      }
+
+      val obj = Json.toJson(
+        TestData(field1 = None, field2 = Some(Seq("foo"))))(testJsonFormat)
+      obj.validate(testJsonFormat).asOpt must beSome.which { data =>
+        data.field1 must beSome.which { value =>
+          value must_== "bar"
+        }
+        data.field2 must beSome.which { value =>
+          value.headOption must_== Some("foo")
+        }
+      }
     }
   }
 }

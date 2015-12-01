@@ -32,34 +32,18 @@ object AnnotationF {
   import Entity._
   import Ontology._
 
-  implicit val annotationWrites: Writes[AnnotationF] = new Writes[AnnotationF] {
-    def writes(d: AnnotationF): JsValue = {
-      Json.obj(
-        ID -> d.id,
-        TYPE -> d.isA,
-        DATA -> Json.obj(
-          ANNOTATION_TYPE_PROP -> d.annotationType,
-          BODY -> d.body,
-          FIELD -> d.field,
-          COMMENT -> d.comment,
-          IS_PROMOTABLE -> d.isPromotable
-        )
-      )
-    }
-  }
-
-  implicit val annotationReads: Reads[AnnotationF] = (
-    (__ \ TYPE).readIfEquals(EntityType.Annotation) and
-    (__ \ ID).readNullable[String] and
-    (__ \ DATA \ ANNOTATION_TYPE_PROP).readWithDefault(Option(AnnotationType.Comment))(Reads.optionNoError) and
-    (__ \ DATA \ BODY).read[String] and
-    (__ \ DATA \ FIELD).readNullable[String] and
-    (__ \ DATA \ COMMENT).readNullable[String] and
-    (__ \ DATA \ IS_PROMOTABLE).readNullable[Boolean].map(_.getOrElse(false))
-  )(AnnotationF.apply _)
+  implicit val annotationFormat: Format[AnnotationF] = (
+    (__ \ TYPE).formatIfEquals(EntityType.Annotation) and
+    (__ \ ID).formatNullable[String] and
+    (__ \ DATA \ ANNOTATION_TYPE_PROP).formatNullableWithDefault(AnnotationType.Comment) and
+    (__ \ DATA \ BODY).format[String] and
+    (__ \ DATA \ FIELD).formatNullable[String] and
+    (__ \ DATA \ COMMENT).formatNullable[String] and
+    (__ \ DATA \ IS_PROMOTABLE).formatWithDefault(false)
+  )(AnnotationF.apply, unlift(AnnotationF.unapply))
 
   implicit object Converter extends Writable[AnnotationF] {
-    lazy val restFormat = Format(annotationReads,annotationWrites)
+    lazy val restFormat = annotationFormat
     lazy val clientFormat = Json.format[AnnotationF]
   }
 }
@@ -87,15 +71,15 @@ object Annotation {
 
   implicit val metaReads: Reads[Annotation] = (
     __.read[AnnotationF] and
-    (__ \ RELATIONSHIPS \ ANNOTATION_ANNOTATES).lazyNullableSeqReads[Annotation](metaReads) and
-    (__ \ RELATIONSHIPS \ ANNOTATOR_HAS_ANNOTATION).nullableHeadReads[UserProfile] and
-    (__ \ RELATIONSHIPS \ ANNOTATION_HAS_SOURCE).lazyNullableHeadReads[AnyModel](anyModelReads) and
-    (__ \ RELATIONSHIPS \ ANNOTATES).lazyNullableHeadReads[AnyModel](anyModelReads) and
-    (__ \ RELATIONSHIPS \ ANNOTATES_PART).nullableHeadReads[Entity] and
-    (__ \ RELATIONSHIPS \ IS_ACCESSIBLE_TO).nullableSeqReads[Accessor] and
-    (__ \ RELATIONSHIPS \ PROMOTED_BY).nullableSeqReads[UserProfile] and
-    (__ \ RELATIONSHIPS \ DEMOTED_BY).nullableSeqReads[UserProfile] and
-    (__ \ RELATIONSHIPS \ ENTITY_HAS_LIFECYCLE_EVENT).nullableHeadReads[SystemEvent] and
+    (__ \ RELATIONSHIPS \ ANNOTATION_ANNOTATES).lazyReadSeqOrEmpty[Annotation](metaReads) and
+    (__ \ RELATIONSHIPS \ ANNOTATOR_HAS_ANNOTATION).readHeadNullable[UserProfile] and
+    (__ \ RELATIONSHIPS \ ANNOTATION_HAS_SOURCE).lazyReadHeadNullable[AnyModel](anyModelReads) and
+    (__ \ RELATIONSHIPS \ ANNOTATES).lazyReadHeadNullable[AnyModel](anyModelReads) and
+    (__ \ RELATIONSHIPS \ ANNOTATES_PART).readHeadNullable[Entity] and
+    (__ \ RELATIONSHIPS \ IS_ACCESSIBLE_TO).readSeqOrEmpty[Accessor] and
+    (__ \ RELATIONSHIPS \ PROMOTED_BY).readSeqOrEmpty[UserProfile] and
+    (__ \ RELATIONSHIPS \ DEMOTED_BY).readSeqOrEmpty[UserProfile] and
+    (__ \ RELATIONSHIPS \ ENTITY_HAS_LIFECYCLE_EVENT).readHeadNullable[SystemEvent] and
     (__ \ META).readWithDefault(Json.obj())
   )(Annotation.apply _)
 

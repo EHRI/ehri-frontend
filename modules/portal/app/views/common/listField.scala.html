@@ -1,20 +1,20 @@
 @(item: models.base.AnyModel, nodeId: String, value: Option[Seq[String]], key: String, transformFunc: (String => String) = s => s)(implicit fieldPrefix: String, userOpt: Option[UserProfile], req: RequestHeader, prefs: utils.SessionPrefs, globalConfig: global.GlobalConfig, messages: Messages, md: views.MarkdownRenderer, fieldAnnotations: Seq[Annotation])
 
 @value.map { list =>
-	@defining(fieldAnnotations.filter(_.model.field==Some(key))) { anns =>
-	    @if(list.nonEmpty) {
-	        <div class="item-text-field @{if(views.p.Helpers.isAnnotatable(item, userOpt)) "annotable"}" id="@nodeId-@key">
-	            <h4 class="item-text-field-header">
-	            	@Messages(if (fieldPrefix.isEmpty) key else s"$fieldPrefix.$key")
-                	@fieldAnnotationButton(item, nodeId, key, anns)
-	            </h4>
-	            <ul class="item-text-field-value item-text-field-list" dir="auto">
-                    @list.map { item =>
-                        <li>@Markdown(transformFunc(item))</li>
-                    }
-	            </ul>
+    @defining(fieldAnnotations.filter(_.model.field.contains(key))) { anns =>
+        @if(list.nonEmpty) {
+            <div class="item-text-field @{if(views.p.Helpers.isAnnotatable(item, userOpt)) "annotable"}" id="@nodeId-@key">
+                <h4 class="item-text-field-header">
+                    @Messages(if(fieldPrefix.isEmpty) key else s"$fieldPrefix.$key")
+                    @fieldAnnotationButton(item, nodeId, key, anns)
+                </h4>
+                <ul class="item-text-field-value item-text-field-list" dir="auto">
+                @list.map { item =>
+                    <li>@Markdown(transformFunc(item))</li>
+                }
+                </ul>
                 @fieldAnnotationControls(item, nodeId, key, anns)
-	        </div>
-	    }
-	}
+            </div>
+        }
+    }
 }

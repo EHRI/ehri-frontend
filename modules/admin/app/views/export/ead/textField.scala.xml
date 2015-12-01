@@ -1,7 +1,0 @@
-@(tag: String, data: Option[String])
-
-@data.filterNot(_.trim.isEmpty).map { content =>
-    <@tag>
-        @Xml(views.export.ead.Helpers.renderMarkdownAsEad(content))
-    </@tag>
-}

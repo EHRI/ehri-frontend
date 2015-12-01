@@ -71,119 +71,63 @@ object DocumentaryUnitDescriptionF {
   import IsadG._
   import Ontology._
 
-  implicit val documentaryUnitDescriptionWrites = new Writes[DocumentaryUnitDescriptionF] {
-    def writes(d: DocumentaryUnitDescriptionF): JsValue = {
-      Json.obj(
-        ID -> d.id,
-        TYPE -> d.isA,
-        DATA -> Json.obj(
-          IDENTIFIER -> d.identity.identifier,
-          TITLE -> d.identity.name,
-          PARALLEL_FORMS_OF_NAME -> d.identity.parallelFormsOfName,
-          REF -> d.identity.ref,
-          ABSTRACT -> d.identity.`abstract`,
-          LANG_CODE -> d.languageCode,
-          LEVEL_OF_DESCRIPTION -> d.identity.levelOfDescription,
-          PHYSICAL_LOCATION -> d.identity.physicalLocation,
-          EXTENT_MEDIUM -> d.identity.extentAndMedium,
-          UNIT_DATES -> d.identity.unitDates,
-          ADMIN_BIOG -> d.context.biographicalHistory,
-          ARCH_HIST -> d.context.archivalHistory,
-          ACQUISITION -> d.context.acquisition,
-          SCOPE_CONTENT -> d.content.scopeAndContent,
-          APPRAISAL -> d.content.appraisal,
-          ACCRUALS -> d.content.accruals,
-          SYS_ARR -> d.content.systemOfArrangement,
-          ACCESS_COND -> d.conditions.conditionsOfAccess,
-          REPROD_COND -> d.conditions.conditionsOfReproduction,
-          LANG_MATERIALS -> d.conditions.languageOfMaterials,
-          SCRIPT_MATERIALS -> d.conditions.scriptOfMaterials,
-          PHYSICAL_CHARS -> d.conditions.physicalCharacteristics,
-          FINDING_AIDS -> d.conditions.findingAids,
-          LOCATION_ORIGINALS -> d.materials.locationOfOriginals,
-          LOCATION_COPIES -> d.materials.locationOfCopies,
-          RELATED_UNITS -> d.materials.relatedUnitsOfDescription,
-          PUBLICATION_NOTE -> d.materials.publicationNote,
-          NOTES -> d.notes,
-          ARCHIVIST_NOTE -> d.control.archivistNote,
-          SOURCES -> d.control.sources,
-          RULES_CONVENTIONS -> d.control.rulesAndConventions,
-          DATES_DESCRIPTIONS -> d.control.datesOfDescriptions,
-          PROCESS_INFO -> d.control.processInfo,
-          CREATION_PROCESS -> d.creationProcess
-        ),
-        RELATIONSHIPS -> Json.obj(
-          ENTITY_HAS_DATE -> Json.toJson(d.dates.map(Json.toJson(_))),
-          HAS_ACCESS_POINT -> Json.toJson(d.accessPoints.map(Json.toJson(_))),
-          HAS_MAINTENANCE_EVENT -> Json.toJson(d.maintenanceEvents.map(Json.toJson(_))),
-          HAS_UNKNOWN_PROPERTY -> Json.toJson(d.unknownProperties.map(Json.toJson(_)))
-        )
-      )
-    }
-  }
+  implicit val documentaryUnitDescriptionFormat: Format[DocumentaryUnitDescriptionF] = (
+    (__ \ TYPE).formatIfEquals(EntityType.DocumentaryUnitDescription) and
+    (__ \ ID).formatNullable[String] and
+    (__ \ DATA \ LANG_CODE).format[String] and
+    __.format[IsadGIdentity]((
+      (__ \ DATA \ TITLE).format[String] and
+      (__ \ DATA \ PARALLEL_FORMS_OF_NAME).formatSeqOrSingleNullable[String] and
+      (__ \ DATA \ IDENTIFIER).formatNullable[String] and
+      (__ \ DATA \ REF).formatNullable[String] and
+      (__ \ DATA \ ABSTRACT).formatNullable[String] and
+      (__ \ RELATIONSHIPS \ ENTITY_HAS_DATE).formatSeqOrEmpty[DatePeriodF] and
+      (__ \ DATA \ UNIT_DATES).formatSeqOrSingleNullable[String] and
+      (__ \ DATA \ LEVEL_OF_DESCRIPTION).formatNullable[String] and
+      (__ \ DATA \ PHYSICAL_LOCATION).formatSeqOrSingleNullable[String] and
+      (__ \ DATA \ EXTENT_MEDIUM).formatNullable[String]
+    )(IsadGIdentity.apply, unlift(IsadGIdentity.unapply))) and
+    (__ \ DATA).format[IsadGContext]((
+      (__ \ ADMIN_BIOG).formatNullable[String] and
+      (__ \ ARCH_HIST).formatNullable[String] and
+      (__ \ ACQUISITION).formatNullable[String]
+    )(IsadGContext.apply, unlift(IsadGContext.unapply))) and
+    (__ \ DATA).format[IsadGContent]((
+      (__ \ SCOPE_CONTENT).formatNullable[String] and
+      (__ \ APPRAISAL).formatNullable[String] and
+      (__ \ ACCRUALS).formatNullable[String] and
+      (__ \ SYS_ARR).formatNullable[String]
+    )(IsadGContent.apply, unlift(IsadGContent.unapply))) and
+    (__ \ DATA).format[IsadGConditions]((
+      (__ \ ACCESS_COND).formatNullable[String] and
+      (__ \ REPROD_COND).formatNullable[String] and
+      (__ \ LANG_MATERIALS).formatSeqOrSingleNullable[String] and
+      (__ \ SCRIPT_MATERIALS).formatSeqOrSingleNullable[String] and
+      (__ \ PHYSICAL_CHARS).formatNullable[String] and
+      (__ \ FINDING_AIDS).formatSeqOrSingleNullable[String]
+    )(IsadGConditions.apply, unlift(IsadGConditions.unapply))) and
+    (__ \ DATA).format[IsadGMaterials]((
+      (__ \ LOCATION_ORIGINALS).formatSeqOrSingleNullable[String] and
+      (__ \ LOCATION_COPIES).formatSeqOrSingleNullable[String] and
+      (__ \ RELATED_UNITS).formatSeqOrSingleNullable[String] and
+      (__ \ PUBLICATION_NOTE).formatNullable[String]
+    )(IsadGMaterials.apply, unlift(IsadGMaterials.unapply))) and
+    (__ \ DATA \ NOTES).formatSeqOrSingleNullable[String] and
+    (__ \ DATA).format[IsadGControl]((
+      (__ \ ARCHIVIST_NOTE).formatNullable[String] and
+      (__ \ SOURCES).formatSeqOrSingleNullable[String] and
+      (__ \ RULES_CONVENTIONS).formatNullable[String] and
+      (__ \ DATES_DESCRIPTIONS).formatNullable[String] and
+      (__ \ PROCESS_INFO).formatSeqOrSingleNullable[String]
+    )(IsadGControl.apply, unlift(IsadGControl.unapply))) and
+    (__ \ DATA \ CREATION_PROCESS).formatWithDefault(CreationProcess.Manual) and
+    (__ \ RELATIONSHIPS \ HAS_ACCESS_POINT).formatSeqOrEmpty[AccessPointF] and
+    (__ \ RELATIONSHIPS \ HAS_MAINTENANCE_EVENT).formatSeqOrEmpty[Entity] and
+    (__ \ RELATIONSHIPS \ HAS_UNKNOWN_PROPERTY).formatSeqOrEmpty[Entity]
+  )(DocumentaryUnitDescriptionF.apply, unlift(DocumentaryUnitDescriptionF.unapply))
 
-  private implicit val levelOfDescriptionReads = enumReads(LevelOfDescription)
-
-  implicit val documentaryUnitDescriptionReads: Reads[DocumentaryUnitDescriptionF] = (
-    (__ \ TYPE).readIfEquals(EntityType.DocumentaryUnitDescription) and
-    (__ \ ID).readNullable[String] and
-    (__ \ DATA \ LANG_CODE).read[String] and
-    __.read[IsadGIdentity]((
-      (__ \ DATA \ TITLE).read[String] and
-      (__ \ DATA \ PARALLEL_FORMS_OF_NAME).readSeqOrSingleNullable[String] and
-      (__ \ DATA \ IDENTIFIER).readNullable[String] and
-      (__ \ DATA \ REF).readNullable[String] and
-      (__ \ DATA \ ABSTRACT).readNullable[String] and
-      (__ \ RELATIONSHIPS \ ENTITY_HAS_DATE).nullableSeqReads[DatePeriodF] and
-      (__ \ DATA \ UNIT_DATES).readSeqOrSingleNullable[String] and
-      (__ \ DATA \ LEVEL_OF_DESCRIPTION).readNullable[String] and
-      (__ \ DATA \ PHYSICAL_LOCATION).readSeqOrSingleNullable[String] and
-      (__ \ DATA \ EXTENT_MEDIUM).readNullable[String]
-    )(IsadGIdentity.apply _)) and
-    (__ \ DATA).read[IsadGContext]((
-      (__ \ ADMIN_BIOG).readNullable[String] and
-      (__ \ ARCH_HIST).readNullable[String] and
-      (__ \ ACQUISITION).readNullable[String]
-    )(IsadGContext.apply _)) and
-    (__ \ DATA).read[IsadGContent]((
-      (__ \ SCOPE_CONTENT).readNullable[String] and
-      (__ \ APPRAISAL).readNullable[String] and
-      (__ \ ACCRUALS).readNullable[String] and
-      (__ \ SYS_ARR).readNullable[String]
-    )(IsadGContent.apply _)) and
-    (__ \ DATA).read[IsadGConditions]((
-      (__ \ ACCESS_COND).readNullable[String] and
-      (__ \ REPROD_COND).readNullable[String] and
-      (__ \ LANG_MATERIALS).readSeqOrSingleNullable[String] and
-      (__ \ SCRIPT_MATERIALS).readSeqOrSingleNullable[String] and
-      (__ \ PHYSICAL_CHARS).readNullable[String] and
-      (__ \ FINDING_AIDS).readSeqOrSingleNullable[String]
-    )(IsadGConditions.apply _)) and
-    (__ \ DATA).read[IsadGMaterials]((
-      (__ \ LOCATION_ORIGINALS).readSeqOrSingleNullable[String] and
-      (__ \ LOCATION_COPIES).readSeqOrSingleNullable[String] and
-      (__ \ RELATED_UNITS).readSeqOrSingleNullable[String] and
-      (__ \ PUBLICATION_NOTE).readNullable[String]
-    )(IsadGMaterials.apply _)) and
-    (__ \ DATA \ NOTES).readSeqOrSingleNullable[String] and
-    (__ \ DATA).read[IsadGControl]((
-      (__ \ ARCHIVIST_NOTE).readNullable[String] and
-      (__ \ SOURCES).readSeqOrSingleNullable[String] and
-      (__ \ RULES_CONVENTIONS).readNullable[String] and
-      (__ \ DATES_DESCRIPTIONS).readNullable[String] and
-      (__ \ PROCESS_INFO).readSeqOrSingleNullable[String]
-    )(IsadGControl.apply _)) and
-    (__ \ DATA \ CREATION_PROCESS).readWithDefault(CreationProcess.Manual) and
-    (__ \ RELATIONSHIPS \ HAS_ACCESS_POINT).nullableSeqReads[AccessPointF] and
-    (__ \ RELATIONSHIPS \ HAS_MAINTENANCE_EVENT).nullableSeqReads[Entity] and
-    (__ \ RELATIONSHIPS \ HAS_UNKNOWN_PROPERTY).nullableSeqReads[Entity]
-  )(DocumentaryUnitDescriptionF.apply _)
-
-  implicit object Converter
-      extends Readable[DocumentaryUnitDescriptionF]
-      with Writable[DocumentaryUnitDescriptionF] {
-    val restReads = documentaryUnitDescriptionReads
-    val restFormat = Format(documentaryUnitDescriptionReads, documentaryUnitDescriptionWrites)
+  implicit object Converter extends Writable[DocumentaryUnitDescriptionF] {
+    val restFormat = documentaryUnitDescriptionFormat
   }
 }
 

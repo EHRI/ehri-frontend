@@ -25,29 +25,13 @@ object VocabularyF {
 
   import Entity._
 
-  implicit val vocabularyWrites: Writes[VocabularyF] = new Writes[VocabularyF] {
-    def writes(d: VocabularyF): JsValue = {
-      Json.obj(
-        ID -> d.id,
-        TYPE -> d.isA,
-        DATA -> Json.obj(
-          IDENTIFIER -> d.identifier,
-          NAME -> d.name,
-          DESCRIPTION -> d.description
-        )
-      )
-    }
-  }
-
-  implicit val vocabularyReads: Reads[VocabularyF] = (
-    (__ \ TYPE).readIfEquals(EntityType.Vocabulary) and
-    (__ \ ID).readNullable[String] and
-    (__ \ DATA \ IDENTIFIER).read[String] and
-    (__ \ DATA \ NAME).readNullable[String] and
-    (__ \ DATA \ DESCRIPTION).readNullable[String]
-  )(VocabularyF.apply _)
-
-  implicit val vocabularyFormat: Format[VocabularyF] = Format(vocabularyReads,vocabularyWrites)
+  implicit val vocabularyFormat: Format[VocabularyF] = (
+    (__ \ TYPE).formatIfEquals(EntityType.Vocabulary) and
+    (__ \ ID).formatNullable[String] and
+    (__ \ DATA \ IDENTIFIER).format[String] and
+    (__ \ DATA \ NAME).formatNullable[String] and
+    (__ \ DATA \ DESCRIPTION).formatNullable[String]
+  )(VocabularyF.apply _, unlift(VocabularyF.unapply))
 
   implicit object Converter extends Writable[VocabularyF] {
     lazy val restFormat = vocabularyFormat
@@ -73,8 +57,8 @@ object Vocabulary {
 
   implicit val metaReads: Reads[Vocabulary] = (
     __.read[VocabularyF] and
-    (__ \ RELATIONSHIPS \ IS_ACCESSIBLE_TO).lazyNullableSeqReads(Accessor.Converter.restReads) and
-    (__ \ RELATIONSHIPS \ ENTITY_HAS_LIFECYCLE_EVENT).nullableHeadReads[SystemEvent] and
+    (__ \ RELATIONSHIPS \ IS_ACCESSIBLE_TO).lazyReadSeqOrEmpty(Accessor.Converter.restReads) and
+    (__ \ RELATIONSHIPS \ ENTITY_HAS_LIFECYCLE_EVENT).readHeadNullable[SystemEvent] and
     (__ \ META).readWithDefault(Json.obj())
   )(Vocabulary.apply _)
 

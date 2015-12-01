@@ -10,7 +10,7 @@
     @list("list-item-meta") {
         @if(item.isPromoted) {
             <li>
-                @defining(item.promoters.take(3), item.promoters.drop(3).size) { case (first, rest) =>
+                @defining((item.promoters.take(3), item.promoters.drop(3).size)) { case (first, rest) =>
                 @Messages("promotion.promotedBy", first.map(_.toStringLang).mkString(", "))
                 @Messages("promotion.promotedBy.extended", rest)}
                 <span class="fa fa-eye"></span>
@@ -21,7 +21,7 @@
                     @if(userOpt.exists(u => item.privateTo(u))) {
                         <strong>@Messages("contribution.visibility.isPrivate")</strong>
                     } else {
-                        @defining(item.accessors.take(3), item.accessors.drop(3).size) { case (first, rest) =>
+                        @defining((item.accessors.take(3), item.accessors.drop(3).size)) { case (first, rest) =>
                             @Messages("access.accessibleTo", first.map(_.toStringLang).mkString(", "))
                             @Messages("access.accessibleTo.extended", rest)}
                     }
@@ -31,9 +31,9 @@
                 <li>@Messages("access.all")</li>
             }
             @list("list-item-actions") {
-                @if(item.isOwnedBy(userOpt) || userOpt.exists(_.hasPermission(ContentTypes.Annotation, PermissionType.Delete))) {
+                @if(item.isOwnedBy(userOpt) || userOpt.exists(_.hasPermission(defines.ContentTypes.Annotation, defines.PermissionType.Delete))) {
                     <li><a class="delete-annotation"
-                    title="@Messages("annotation.delete.title")"href="@controllers.portal.annotate.routes.Annotations.deleteAnnotation(item.id)">@Messages("annotation.delete")</a>
+                    title="@Messages("annotation.delete.title")" href="@controllers.portal.annotate.routes.Annotations.deleteAnnotation(item.id)">@Messages("annotation.delete")</a>
                     </li>
                 }
             }

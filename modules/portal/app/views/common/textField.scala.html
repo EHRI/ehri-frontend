@@ -1,6 +1,6 @@
 @(item: models.base.AnyModel, nodeId: String, valueOpt: Option[String], key: String)(implicit fieldPrefix: String, userOpt: Option[UserProfile], req: RequestHeader, prefs: utils.SessionPrefs, globalConfig: global.GlobalConfig, messages: Messages, md: views.MarkdownRenderer, fieldAnnotations: Seq[Annotation])
 
-@defining(fieldAnnotations.filter(_.model.field==Some(key))) { anns =>
+@defining(fieldAnnotations.filter(_.model.field.contains(key))) { anns =>
     @valueOpt.filterNot(_.isEmpty).map { value =>
         <div class="item-text-field @{if(views.p.Helpers.isAnnotatable(item, userOpt)) "annotable"}" id="@nodeId-@key">
             <h4 class="item-text-field-header" dir="auto">

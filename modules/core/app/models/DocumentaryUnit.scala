@@ -42,37 +42,16 @@ object DocumentaryUnitF {
   import Entity._
   import eu.ehri.project.definitions.Ontology._
 
-  implicit val documentaryUnitWrites: Writes[DocumentaryUnitF] = new Writes[DocumentaryUnitF] {
-    def writes(d: DocumentaryUnitF): JsValue = {
-      Json.obj(
-        ID -> d.id,
-        TYPE -> d.isA,
-        DATA -> Json.obj(
-          IDENTIFIER -> d.identifier,
-          OTHER_IDENTIFIERS -> d.otherIdentifiers,
-          PUBLICATION_STATUS -> d.publicationStatus,
-          COPYRIGHT -> d.copyrightStatus.orElse(Some(CopyrightStatus.Unknown)),
-          SCOPE -> d.scope
-        ),
-        RELATIONSHIPS -> Json.obj(
-          Ontology.DESCRIPTION_FOR_ENTITY -> Json.toJson(d.descriptions.map(Json.toJson(_)))
-        )
-      )
-    }
-  }
-
-  implicit val documentaryUnitReads: Reads[DocumentaryUnitF] = (
-    (__ \ TYPE).readIfEquals(EntityType.DocumentaryUnit) and
-    (__ \ ID).readNullable[String] and
-    (__ \ DATA \ IDENTIFIER).read[String] and
-    (__ \ DATA \ OTHER_IDENTIFIERS).readSeqOrSingleNullable[String] and
-    (__ \ DATA \ PUBLICATION_STATUS).readNullable[PublicationStatus.Value] and
-    (__ \ DATA \ COPYRIGHT).readWithDefault(Option(CopyrightStatus.Unknown))(Reads.optionNoError) and
-    (__ \ DATA \ SCOPE).readNullable[Scope.Value] and
-    (__ \ RELATIONSHIPS \ DESCRIPTION_FOR_ENTITY).nullableSeqReads[DocumentaryUnitDescriptionF]
-  )(DocumentaryUnitF.apply _)
-
-  implicit val documentaryUnitFormat: Format[DocumentaryUnitF] = Format(documentaryUnitReads,documentaryUnitWrites)
+  implicit val documentaryUnitFormat: Format[DocumentaryUnitF] = (
+    (__ \ TYPE).formatIfEquals(EntityType.DocumentaryUnit) and
+    (__ \ ID).formatNullable[String] and
+    (__ \ DATA \ IDENTIFIER).format[String] and
+    (__ \ DATA \ OTHER_IDENTIFIERS).formatSeqOrSingleNullable[String] and
+    (__ \ DATA \ PUBLICATION_STATUS).formatNullable[PublicationStatus.Value] and
+    (__ \ DATA \ COPYRIGHT).formatNullableWithDefault(CopyrightStatus.Unknown) and
+    (__ \ DATA \ SCOPE).formatNullable[Scope.Value] and
+    (__ \ RELATIONSHIPS \ DESCRIPTION_FOR_ENTITY).formatSeqOrEmpty[DocumentaryUnitDescriptionF]
+  )(DocumentaryUnitF.apply _, unlift(DocumentaryUnitF.unapply))
 
   implicit object Converter extends Writable[DocumentaryUnitF] {
     val restFormat = documentaryUnitFormat
@@ -106,11 +85,11 @@ object DocumentaryUnit {
   import defines.EnumUtils.enumMapping
 
   implicit val metaReads: Reads[DocumentaryUnit] = (
-    __.read[DocumentaryUnitF](documentaryUnitReads) and
-    (__ \ RELATIONSHIPS \ DOC_HELD_BY_REPOSITORY).nullableHeadReads[Repository] and
-    (__ \ RELATIONSHIPS \ DOC_IS_CHILD_OF).lazyNullableHeadReads(metaReads) and
-    (__ \ RELATIONSHIPS \ IS_ACCESSIBLE_TO).nullableSeqReads(Accessor.Converter.restReads) and
-    (__ \ RELATIONSHIPS \ ENTITY_HAS_LIFECYCLE_EVENT).nullableHeadReads[SystemEvent] and
+    __.read[DocumentaryUnitF](documentaryUnitFormat) and
+    (__ \ RELATIONSHIPS \ DOC_HELD_BY_REPOSITORY).readHeadNullable[Repository] and
+    (__ \ RELATIONSHIPS \ DOC_IS_CHILD_OF).lazyReadHeadNullable(metaReads) and
+    (__ \ RELATIONSHIPS \ IS_ACCESSIBLE_TO).readSeqOrEmpty(Accessor.Converter.restReads) and
+    (__ \ RELATIONSHIPS \ ENTITY_HAS_LIFECYCLE_EVENT).readHeadNullable[SystemEvent] and
     (__ \ META).readWithDefault(Json.obj())
   )(DocumentaryUnit.apply _)
 

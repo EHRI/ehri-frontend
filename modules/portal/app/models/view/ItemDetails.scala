@@ -12,6 +12,5 @@ case class ItemDetails(
   links: Page[Link],
   watched: Seq[String] = Nil
 ) {
-  def isWatching(item: AnyModel): Boolean =
-    watched.exists(_ == item.id)
+  def isWatching(item: AnyModel): Boolean = watched.contains(item.id)
 }

@@ -36,33 +36,16 @@ object AccessPointF {
 
   import Entity.{TYPE => ETYPE,_}
 
-  implicit val accessPointReads: Reads[AccessPointF] = (
-    (__ \ ETYPE).readIfEquals(EntityType.AccessPoint) and
-    (__ \ ID).readNullable[String] and
-    (__ \ DATA \ TYPE).readWithDefault(AccessPointType.Other) and
-    // FIXME: Target should be consistent!!!
-    ((__ \ DATA \ TARGET).read[String]
-      orElse (__ \ DATA \ DESCRIPTION).read[String]
-      orElse Reads.pure("Unknown target!")) and
-    (__ \ DATA \ DESCRIPTION).readNullable[String]
-  )(AccessPointF.apply _)
-
-  implicit val accessPointWrites = new Writes[AccessPointF] {
-    def writes(d: AccessPointF): JsValue = {
-      Json.obj(
-        ID -> d.id,
-        TYPE -> d.isA,
-        DATA -> Json.obj(
-          TYPE -> d.accessPointType,
-          TARGET -> d.name,
-          DESCRIPTION -> d.description
-        )
-      )
-    }
-  }
+  implicit val accessPointFormat: Format[AccessPointF] = (
+    (__ \ ETYPE).formatIfEquals(EntityType.AccessPoint) and
+    (__ \ ID).formatNullable[String] and
+    (__ \ DATA \ TYPE).formatWithDefault(AccessPointType.Other) and
+    (__ \ DATA \ TARGET).format[String] and
+    (__ \ DATA \ DESCRIPTION).formatNullable[String]
+  )(AccessPointF.apply, unlift(AccessPointF.unapply))
 
   implicit object Converter extends Writable[AccessPointF] {
-    lazy val restFormat = Format(accessPointReads,accessPointWrites)
+    lazy val restFormat = accessPointFormat
   }
 }
 

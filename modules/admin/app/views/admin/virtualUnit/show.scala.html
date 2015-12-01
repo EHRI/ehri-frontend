@@ -5,7 +5,7 @@
         @path.headOption.map { vc =>
             <h3><a href="@controllers.virtual.routes.VirtualUnits.get(vc.id)">@vc.toStringLang</a></h3>
             @item.parent.filter(_.id != vc.id).map { parent =>
-                @if(!(Some(parent.id) == path.headOption.map(_.id))) {
+                @if(!path.headOption.map(_.id).contains(parent.id)) {
                     <h4>@Messages("virtualUnit.parentItem"):
                         <a href="@controllers.virtual.routes.VirtualUnits.get(parent.id)">@parent.toStringLang</a>
                     </h4>

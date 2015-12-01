@@ -2,7 +2,6 @@ package models
 
 import defines.EntityType
 import models.base.Model
-import play.api.i18n.Messages
 import play.api.libs.json._
 import models.json._
 import backend.{Entity, Writable}
@@ -15,45 +14,21 @@ object AddressF {
   import Isdiah._
   import play.api.libs.functional.syntax._
 
-  implicit val addressWrites = new Writes[AddressF] {
-    def writes(d: AddressF): JsValue = {
-      Json.obj(
-        ID -> d.id,
-        TYPE -> d.isA,
-        DATA -> Json.obj(
-          ADDRESS_NAME -> d.name,
-          CONTACT_PERSON -> d.contactPerson,
-          STREET_ADDRESS -> d.streetAddress,
-          CITY -> d.city,
-          REGION -> d.region,
-          POSTAL_CODE -> d.postalCode,
-          COUNTRY_CODE -> d.countryCode,
-          EMAIL -> d.email,
-          TELEPHONE -> d.telephone,
-          FAX -> d.fax,
-          URL -> d.url
-        )
-      )
-    }
-  }
-
-  implicit val addressReads: Reads[AddressF] = (
-    (__ \ TYPE).readIfEquals(EntityType.Address) and
-    (__ \ ID).readNullable[String] and
-    (__ \ DATA \ ADDRESS_NAME).readNullable[String] and
-    (__ \ DATA \ CONTACT_PERSON).readNullable[String] and
-    (__ \ DATA \ STREET_ADDRESS).readNullable[String] and
-    (__ \ DATA \ CITY).readNullable[String] and
-    (__ \ DATA \ REGION).readNullable[String] and
-    (__ \ DATA \ POSTAL_CODE).readNullable[String] and
-    (__ \ DATA \ COUNTRY_CODE).readNullable[String] and
-    (__ \ DATA \ EMAIL).readSeqOrSingle[String] and
-    (__ \ DATA \ TELEPHONE).readSeqOrSingle[String] and
-    (__ \ DATA \ FAX).readSeqOrSingle[String] and
-    (__ \ DATA \ URL).readSeqOrSingle[String]
-  )(AddressF.apply _)
-
-  implicit val addressFormat: Format[AddressF] = Format(addressReads,addressWrites)
+  implicit val addressFormat: Format[AddressF] = (
+    (__ \ TYPE).formatIfEquals(EntityType.Address) and
+    (__ \ ID).formatNullable[String] and
+    (__ \ DATA \ ADDRESS_NAME).formatNullable[String] and
+    (__ \ DATA \ CONTACT_PERSON).formatNullable[String] and
+    (__ \ DATA \ STREET_ADDRESS).formatNullable[String] and
+    (__ \ DATA \ CITY).formatNullable[String] and
+    (__ \ DATA \ REGION).formatNullable[String] and
+    (__ \ DATA \ POSTAL_CODE).formatNullable[String] and
+    (__ \ DATA \ COUNTRY_CODE).formatNullable[String] and
+    (__ \ DATA \ EMAIL).formatSeqOrSingle[String] and
+    (__ \ DATA \ TELEPHONE).formatSeqOrSingle[String] and
+    (__ \ DATA \ FAX).formatSeqOrSingle[String] and
+    (__ \ DATA \ URL).formatSeqOrSingle[String]
+  )(AddressF.apply, unlift(AddressF.unapply))
 
   implicit object Converter extends Writable[AddressF] {
     val restFormat: Format[AddressF] = addressFormat

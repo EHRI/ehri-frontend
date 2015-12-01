@@ -21,30 +21,13 @@ object AuthoritativeSetF {
 
   import Entity._
 
-  implicit val authoritativeSetWrites: Writes[AuthoritativeSetF] = new Writes[AuthoritativeSetF] {
-    def writes(d: AuthoritativeSetF): JsValue = {
-      Json.obj(
-        ID -> d.id,
-        TYPE -> d.isA,
-        DATA -> Json.obj(
-          IDENTIFIER -> d.identifier,
-          NAME -> d.name,
-          DESCRIPTION -> d.description
-        )
-      )
-    }
-  }
-
-  implicit val authoritativeSetReads: Reads[AuthoritativeSetF] = (
-    (__ \ TYPE).readIfEquals(EntityType.AuthoritativeSet) and
-    (__ \ ID).readNullable[String] and
-    (__ \ DATA \ IDENTIFIER).read[String] and
-    (__ \ DATA \ NAME).readNullable[String] and
-    (__ \ DATA \ DESCRIPTION).readNullable[String]
-  )(AuthoritativeSetF.apply _)
-
-  implicit val authoritativeSetFormat: Format[AuthoritativeSetF]
-  = Format(authoritativeSetReads,authoritativeSetWrites)
+  implicit val authoritativeSetFormat: Format[AuthoritativeSetF] = (
+    (__ \ TYPE).formatIfEquals(EntityType.AuthoritativeSet) and
+    (__ \ ID).formatNullable[String] and
+    (__ \ DATA \ IDENTIFIER).format[String] and
+    (__ \ DATA \ NAME).formatNullable[String] and
+    (__ \ DATA \ DESCRIPTION).formatNullable[String]
+  )(AuthoritativeSetF.apply, unlift(AuthoritativeSetF.unapply))
 
   implicit object Converter extends Writable[AuthoritativeSetF] {
     lazy val restFormat = authoritativeSetFormat
@@ -70,8 +53,8 @@ object AuthoritativeSet {
 
   implicit val metaReads: Reads[AuthoritativeSet] = (
     __.read[AuthoritativeSetF] and
-    (__ \ RELATIONSHIPS \ IS_ACCESSIBLE_TO).nullableSeqReads[Accessor] and
-    (__ \ RELATIONSHIPS \ ENTITY_HAS_LIFECYCLE_EVENT).nullableHeadReads[SystemEvent] and
+    (__ \ RELATIONSHIPS \ IS_ACCESSIBLE_TO).readSeqOrEmpty[Accessor] and
+    (__ \ RELATIONSHIPS \ ENTITY_HAS_LIFECYCLE_EVENT).readHeadNullable[SystemEvent] and
     (__ \ META).readWithDefault(Json.obj())
   )(AuthoritativeSet.apply _)
 

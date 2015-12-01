@@ -11,7 +11,7 @@
                 <li title="@event.time">@Messages("systemEvent.lastUpdated", views.Helpers.relativeDate(event.model.timestamp))</li>
             }
         </ul>
-        @if(item.broaderTerms.size > 0) {
+        @if(item.broaderTerms.nonEmpty) {
             <ul class="concept-broader-terms">
                 <li>@Messages("cvocConcept.broaderTerms")</li>
                 @item.broaderTerms.map { bt =>

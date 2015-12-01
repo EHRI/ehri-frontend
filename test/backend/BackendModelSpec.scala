@@ -199,9 +199,9 @@ class BackendModelSpec extends RestBackendRunner with PlaySpecification {
         val badDeserializer = new ContentType[UserProfile] {
           val restReads: Reads[UserProfile] = (
             __.read[UserProfileF] and
-            __.lazyNullableSeqReads(Group.GroupResource.restReads) and
-            __.lazyNullableSeqReads(Accessor.Converter.restReads) and
-            __.nullableHeadReads[SystemEvent] and
+            __.lazyReadSeqOrEmpty(Group.GroupResource.restReads) and
+            __.lazyReadSeqOrEmpty(Accessor.Converter.restReads) and
+            __.readHeadNullable[SystemEvent] and
             __.read[JsObject]
           )(UserProfile.quickApply _)
           val entityType = UserProfile.UserProfileResource.entityType

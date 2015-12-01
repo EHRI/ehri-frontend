@@ -33,30 +33,12 @@ object ConceptF {
   import play.api.libs.functional.syntax._
   import Entity._
 
-  implicit val conceptWrites: Writes[ConceptF] = new Writes[ConceptF] {
-    def writes(d: ConceptF): JsValue = {
-      Json.obj(
-        ID -> d.id,
-        TYPE -> d.isA,
-        DATA -> Json.obj(
-          IDENTIFIER -> d.identifier
-        ),
-        RELATIONSHIPS -> Json.obj(
-          DESCRIPTION_FOR_ENTITY -> Json.toJson(d.descriptions.map(Json.toJson(_)))
-        )
-      )
-    }
-  }
-
-  implicit val conceptReads: Reads[ConceptF] = (
-    (__ \ TYPE).readIfEquals(EntityType.Concept) and
-    (__ \ ID).readNullable[String] and
-    (__ \ DATA \ IDENTIFIER).read[String] and
-    (__ \ RELATIONSHIPS \ DESCRIPTION_FOR_ENTITY).nullableSeqReads[ConceptDescriptionF]
-  )(ConceptF.apply _)
-
-  implicit val conceptFormat: Format[ConceptF] = Format(conceptReads,conceptWrites)
-
+  implicit val conceptFormat: Format[ConceptF] = (
+    (__ \ TYPE).formatIfEquals(EntityType.Concept) and
+    (__ \ ID).formatNullable[String] and
+    (__ \ DATA \ IDENTIFIER).format[String] and
+    (__ \ RELATIONSHIPS \ DESCRIPTION_FOR_ENTITY).formatSeqOrEmpty[ConceptDescriptionF]
+  )(ConceptF.apply, unlift(ConceptF.unapply))
 
   implicit object Converter extends Writable[ConceptF] {
     val restFormat = conceptFormat
@@ -82,11 +64,11 @@ object Concept {
 
   implicit val metaReads: Reads[Concept] = (
     __.read[ConceptF] and
-    (__ \ RELATIONSHIPS \ ITEM_IN_AUTHORITATIVE_SET).nullableHeadReads[Vocabulary] and
-    (__ \ RELATIONSHIPS \ CONCEPT_HAS_BROADER).lazyNullableHeadReads[Concept](metaReads) and
-    (__ \ RELATIONSHIPS \ CONCEPT_HAS_BROADER).lazyNullableSeqReads[Concept](metaReads) and
-    (__ \ RELATIONSHIPS \ IS_ACCESSIBLE_TO).nullableSeqReads[Accessor](Accessor.Converter.restReads) and
-    (__ \ RELATIONSHIPS \ ENTITY_HAS_LIFECYCLE_EVENT).nullableHeadReads[SystemEvent] and
+    (__ \ RELATIONSHIPS \ ITEM_IN_AUTHORITATIVE_SET).readHeadNullable[Vocabulary] and
+    (__ \ RELATIONSHIPS \ CONCEPT_HAS_BROADER).lazyReadHeadNullable[Concept](metaReads) and
+    (__ \ RELATIONSHIPS \ CONCEPT_HAS_BROADER).lazyReadSeqOrEmpty[Concept](metaReads) and
+    (__ \ RELATIONSHIPS \ IS_ACCESSIBLE_TO).readSeqOrEmpty[Accessor](Accessor.Converter.restReads) and
+    (__ \ RELATIONSHIPS \ ENTITY_HAS_LIFECYCLE_EVENT).readHeadNullable[SystemEvent] and
     (__ \ META).readWithDefault(Json.obj())
   )(Concept.apply _)
 

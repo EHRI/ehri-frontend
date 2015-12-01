@@ -59,7 +59,7 @@ object Version {
 
   implicit val metaReads: Reads[Version] = (
     __.read[VersionF] and
-    (__ \ RELATIONSHIPS \ VERSION_HAS_EVENT).nullableHeadReads[SystemEvent] and
+    (__ \ RELATIONSHIPS \ VERSION_HAS_EVENT).readHeadNullable[SystemEvent] and
     (__ \ META).readWithDefault(Json.obj())
   )(Version.apply _)
 

@@ -20,7 +20,11 @@
           "data" : {
             "streetAddress" : "29 Russell Square",
             "name" : "Primary",
-            "city" : "London"
+            "municipality" : "London",
+            "telephone": [
+              "01414 1232493",
+              "+00 44 112233u"
+            ]
           },
           "type" : "address",
           "relationships" : {
