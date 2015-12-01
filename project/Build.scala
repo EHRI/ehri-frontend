@@ -25,7 +25,7 @@ object ApplicationBuild extends Build {
   val appVersion = "1.0.5-SNAPSHOT"
 
   val backendVersion = "0.11.1-SNAPSHOT"
-  val neo4jVersion = "2.3.0"
+  val neo4jVersion = "2.3.1"
   val jerseyVersion = "1.19"
 
   val backendDependencies = Seq(

@@ -43,7 +43,7 @@ object LinkF {
           IS_PROMOTABLE -> d.isPromotable
         ),
         RELATIONSHIPS -> Json.obj(
-          ENTITY_HAS_DATE -> Json.toJson(d.dates.map(Json.toJson(_)).toSeq)
+          ENTITY_HAS_DATE -> Json.toJson(d.dates.map(Json.toJson(_)))
         )
       )
     }
@@ -67,7 +67,7 @@ case class LinkF(
   isA: EntityType.Value = EntityType.Link,
   id: Option[String],
   linkType: LinkF.LinkType.Type,
-  description: Option[String],
+  description: Option[String] = None,
   isPromotable: Boolean = false,
   @models.relation(Ontology.ENTITY_HAS_DATE)
   dates: Seq[DatePeriodF] = Nil
@@ -88,7 +88,7 @@ object Link {
     __.read[LinkF] and
     (__ \ RELATIONSHIPS \ LINK_HAS_TARGET).lazyNullableSeqReads(AnyModel.Converter.restReads) and
     (__ \ RELATIONSHIPS \ LINK_HAS_LINKER).nullableHeadReads[UserProfile] and
-    (__ \ RELATIONSHIPS \ LINK_HAS_BODY).nullableSeqReads[AccessPointF] and
+    (__ \ RELATIONSHIPS \ LINK_HAS_BODY).nullableSeqReads[AccessPoint] and
     (__ \ RELATIONSHIPS \ IS_ACCESSIBLE_TO).lazyNullableSeqReads(Accessor.Converter.restReads) and
     (__ \ RELATIONSHIPS \ PROMOTED_BY).nullableSeqReads[UserProfile] and
     (__ \ RELATIONSHIPS \ DEMOTED_BY).nullableSeqReads[UserProfile] and
@@ -126,7 +126,7 @@ case class Link(
   model: LinkF,
   targets: Seq[AnyModel] = Nil,
   user: Option[UserProfile] = None,
-  bodies: Seq[AccessPointF] = Nil,
+  bodies: Seq[AccessPoint] = Nil,
   accessors: Seq[Accessor] = Nil,
   promoters: Seq[UserProfile] = Nil,
   demoters: Seq[UserProfile] = Nil,

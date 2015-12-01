@@ -113,10 +113,10 @@ object DocumentaryUnitDescriptionF {
           CREATION_PROCESS -> d.creationProcess
         ),
         RELATIONSHIPS -> Json.obj(
-          ENTITY_HAS_DATE -> Json.toJson(d.dates.map(Json.toJson(_)).toSeq),
-          HAS_ACCESS_POINT -> Json.toJson(d.accessPoints.map(Json.toJson(_)).toSeq),
-          HAS_MAINTENANCE_EVENT -> Json.toJson(d.maintenanceEvents.map(Json.toJson(_)).toSeq),
-          HAS_UNKNOWN_PROPERTY -> Json.toJson(d.unknownProperties.map(Json.toJson(_)).toSeq)
+          ENTITY_HAS_DATE -> Json.toJson(d.dates.map(Json.toJson(_))),
+          HAS_ACCESS_POINT -> Json.toJson(d.accessPoints.map(Json.toJson(_))),
+          HAS_MAINTENANCE_EVENT -> Json.toJson(d.maintenanceEvents.map(Json.toJson(_))),
+          HAS_UNKNOWN_PROPERTY -> Json.toJson(d.unknownProperties.map(Json.toJson(_)))
         )
       )
     }

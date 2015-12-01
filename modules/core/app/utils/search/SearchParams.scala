@@ -77,7 +77,7 @@ case class SearchParams(
    * Is there an active constraint on these params?
    * TODO: Should this include page etc?
    */
-  def isFiltered: Boolean = query.filterNot(_.trim.isEmpty).isDefined
+  def isFiltered: Boolean = !query.forall(_.trim.isEmpty)
 
   def offset = Math.max(0, (pageOrDefault - 1) * countOrDefault)
 

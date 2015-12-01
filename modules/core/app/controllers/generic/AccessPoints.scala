@@ -87,7 +87,7 @@ trait AccessPoints[D <: Description, T <: Model with Described[D], MT <: MetaMod
         val list = item.model.descriptions.map { desc =>
           val accessPointTypes = AccessPointF.AccessPointType.values.toList.map { apt =>
             val apTypes = desc.accessPoints.filter(_.accessPointType == apt).map { ap =>
-              val linkOpt = links.find(_.bodies.exists(b => b.id == ap.id))
+              val linkOpt = links.find(_.bodies.exists(b => b.model.id == ap.id))
               new LinkItem(
                 ap,
                 linkOpt.map(_.model),

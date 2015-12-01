@@ -38,6 +38,34 @@ trait AnyModel extends backend.WithId {
   def toStringAbbr(implicit messages: Messages) = StringUtils.abbreviate(toStringLang(messages), 80)
 }
 
+object AnyModel {
+
+  implicit object Converter extends Readable[AnyModel] {
+    implicit val restReads: Reads[AnyModel] = new Reads[AnyModel] {
+      def reads(json: JsValue): JsResult[AnyModel] = {
+        // Sniff the type...
+        val et = (json \ Entity.TYPE).as(defines.EnumUtils.enumReads(EntityType))
+        Utils.restReadRegistry.lift(et).map { reads =>
+          json.validate(reads)
+        }.getOrElse {
+          JsError(
+            JsPath(List(KeyPathNode(Entity.TYPE))),
+            ValidationError(s"Unregistered AnyModel type for REST: $et"))
+        }
+      }
+    }
+  }
+
+  /**
+    * This function allows getting a dynamic Resource for an Accessor given
+    * the entity type.
+    */
+  def resourceFor(t: EntityType.Value): Resource[AnyModel] = new Resource[AnyModel] {
+    def entityType: EntityType.Value = t
+    val restReads = Converter.restReads
+  }
+}
+
 trait Model {
   def id: Option[String]
 
@@ -46,34 +74,6 @@ trait Model {
 
 trait Aliased extends AnyModel {
   def allNames(implicit messages: Messages): Seq[String] = Seq(toStringLang(messages))
-}
-
-object AnyModel {
-
-  implicit object Converter extends Readable[AnyModel] {
-    implicit val restReads: Reads[AnyModel] = new Reads[AnyModel] {
-      def reads(json: JsValue): JsResult[AnyModel] = {
-        // Sniff the type...
-        val et = (json \ Entity.TYPE).as(defines.EnumUtils.enumReads(EntityType))
-        Utils.restReadRegistry.get(et).map { reads =>
-          json.validate(reads)
-        }.getOrElse {
-          JsError(
-            JsPath(List(KeyPathNode(Entity.TYPE))),
-            ValidationError(s"Unregistered AnyModel type for REST: $et (registered: ${Utils.restReadRegistry.keySet}"))
-        }
-      }
-    }
-  }
-
-  /**
-   * This function allows getting a dynamic Resource for an Accessor given
-   * the entity type.
-   */
-  def resourceFor(t: EntityType.Value): Resource[AnyModel] = new Resource[AnyModel] {
-    def entityType: EntityType.Value = t
-    val restReads = Converter.restReads
-  }
 }
 
 trait Named {
@@ -134,7 +134,7 @@ trait WithDescriptions[+T <: Description] extends AnyModel {
    */
   def accessPointLinks(links: Seq[Link]): Seq[(Link,AccessPointF)] = for {
     link <- links.filterNot(_.bodies.isEmpty)
-    accessPoint <- allAccessPoints.find(a => link.bodies.map(_.id).contains(a.id))
+    accessPoint <- allAccessPoints.find(a => link.bodies.map(_.model.id).contains(a.id))
   } yield (link, accessPoint)
 
   /**
@@ -148,11 +148,13 @@ trait WithDescriptions[+T <: Description] extends AnyModel {
    */
   def externalLinks(links: Seq[Link]): Seq[Link] = for {
     link <- links.filter(_.bodies.nonEmpty)
-      if link.bodies.map(_.id).intersect(allAccessPoints.map(_.id)).isEmpty
+      if link.bodies.map(_.model.id).intersect(allAccessPoints.map(_.id)).isEmpty
   } yield link
 
   /**
-   * Links that don't relate to access points.
+   * Links that don't relate to access points at all, such
+   * as annotations that assert a relationship between two
+   * items without "belonging" to either one.
    */
   def annotationLinks(links: Seq[Link]): Seq[Link] =
     links.filter(link => link.bodies.isEmpty && link.opposingTarget(this).isDefined)
@@ -160,6 +162,10 @@ trait WithDescriptions[+T <: Description] extends AnyModel {
 
 trait DescribedMeta[+TD <: Description, +T <: Described[TD]] extends MetaModel[T] with WithDescriptions[TD] {
   def descriptions: Seq[TD] = model.descriptions
+}
+
+object DescribedMeta {
+  val DESCRIPTIONS = "descriptions"
 }
 
 trait Holder[+T] extends AnyModel {
@@ -282,7 +288,7 @@ trait Described[+T <: Description] extends Model {
    * @param id The description ID
    * @return A description matching that ID, optionally empty
    */
-  def description(id: String): Option[T] = descriptions.find(_.id == Some(id))
+  def description(id: String): Option[T] = descriptions.find(_.id.contains(id))
 
   /**
    * Get a description with an optional ID, falling back on the first

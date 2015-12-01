@@ -78,8 +78,8 @@ object HistoricalAgentDescriptionF {
           CREATION_PROCESS -> d.creationProcess
         ),
         RELATIONSHIPS -> Json.obj(
-          HAS_ACCESS_POINT -> Json.toJson(d.accessPoints.map(Json.toJson(_)).toSeq),
-          HAS_UNKNOWN_PROPERTY -> Json.toJson(d.unknownProperties.map(Json.toJson(_)).toSeq),
+          HAS_ACCESS_POINT -> Json.toJson(d.accessPoints.map(Json.toJson(_))),
+          HAS_UNKNOWN_PROPERTY -> Json.toJson(d.unknownProperties.map(Json.toJson(_))),
           ENTITY_HAS_DATE -> Json.toJson(d.dates.map(Json.toJson(_)))
         )
       )

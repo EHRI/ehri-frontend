@@ -16,5 +16,5 @@ import java.lang.annotation.Target;
 @Retention(RetentionPolicy.RUNTIME)
 @Target({ElementType.PARAMETER,ElementType.FIELD,ElementType.METHOD})
 public @interface Relation {
-	public String value();
+	String value();
 }
