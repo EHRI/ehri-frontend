@@ -157,4 +157,13 @@ class RepositoryViewsSpec extends IntegrationTestRunner {
       contentAsString(show) must not contain "New Content for r1"
     }
   }
+
+  "Repository export functionality" should {
+    "allow exporting EAG" in new ITestApp {
+      val exportReq = FakeRequest(repoRoutes.exportEag("r1"))
+        .withUser(privilegedUser).withCsrf.call()
+      status(exportReq) must equalTo(OK)
+      contentType(exportReq) must equalTo(Some("text/xml"))
+    }
+  }
 }

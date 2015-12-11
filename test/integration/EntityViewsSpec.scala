@@ -21,9 +21,12 @@ class EntityViewsSpec extends IntegrationTestRunner {
   val noItemsHeader = "No items found"
 
   "HistoricalAgent views" should {
+
+    val histAgentRoutes = controllers.authorities.routes.HistoricalAgents
+
     "list should get some items" in new ITestApp {
 
-      val list = FakeRequest(controllers.authorities.routes.HistoricalAgents.list())
+      val list = FakeRequest(histAgentRoutes.list())
         .withUser(unprivilegedUser).call()
       status(list) must equalTo(OK)
       contentAsString(list) must contain(multipleItemsHeader)
@@ -78,13 +81,13 @@ class EntityViewsSpec extends IntegrationTestRunner {
 
 
     "link to other privileged actions when logged in" in new ITestApp {
-      val show = FakeRequest(controllers.authorities.routes.HistoricalAgents.get("a1"))
+      val show = FakeRequest(histAgentRoutes.get("a1"))
         .withUser(privilegedUser).call()
       status(show) must equalTo(OK)
-      contentAsString(show) must contain(controllers.authorities.routes.HistoricalAgents.update("a1").url)
-      contentAsString(show) must contain(controllers.authorities.routes.HistoricalAgents.delete("a1").url)
-      contentAsString(show) must contain(controllers.authorities.routes.HistoricalAgents.visibility("a1").url)
-      contentAsString(show) must contain(controllers.authorities.routes.HistoricalAgents.search().url)
+      contentAsString(show) must contain(histAgentRoutes.update("a1").url)
+      contentAsString(show) must contain(histAgentRoutes.delete("a1").url)
+      contentAsString(show) must contain(histAgentRoutes.visibility("a1").url)
+      contentAsString(show) must contain(histAgentRoutes.search().url)
     }
 
     "allow updating items when logged in as privileged user" in new ITestApp {
@@ -99,7 +102,7 @@ class EntityViewsSpec extends IntegrationTestRunner {
         "descriptions[0].descriptionArea.generalContext" -> Seq("New Content for a1"),
         "publicationStatus" -> Seq("Draft")
       )
-      val cr = FakeRequest(controllers.authorities.routes.HistoricalAgents.updatePost("a1"))
+      val cr = FakeRequest(histAgentRoutes.updatePost("a1"))
         .withUser(privilegedUser).withCsrf.callWith(testData)
       status(cr) must equalTo(SEE_OTHER)
 
@@ -112,7 +115,7 @@ class EntityViewsSpec extends IntegrationTestRunner {
       val testData: Map[String, Seq[String]] = Map(
         "identifier" -> Seq("a1")
       )
-      val cr = FakeRequest(controllers.authorities.routes.HistoricalAgents.updatePost("a1"))
+      val cr = FakeRequest(histAgentRoutes.updatePost("a1"))
         .withUser(unprivilegedUser).withCsrf.callWith(testData)
       status(cr) must equalTo(FORBIDDEN)
     }
@@ -126,11 +129,18 @@ class EntityViewsSpec extends IntegrationTestRunner {
     }
 
     "contain links to external items" in new ITestApp {
-      val show = FakeRequest(controllers.authorities.routes.HistoricalAgents.get("a1"))
+      val show = FakeRequest(histAgentRoutes.get("a1"))
         .withUser(privilegedUser).call()
       contentAsString(show) must contain("external-item-link")
       contentAsString(show) must contain(
         controllers.units.routes.DocumentaryUnits.get("c1").url)
+    }
+
+    "allow exporting EAC" in new ITestApp {
+      val exportReq = FakeRequest(histAgentRoutes.exportEac("a1"))
+        .withUser(privilegedUser).withCsrf.call()
+      status(exportReq) must equalTo(OK)
+      contentType(exportReq) must equalTo(Some("text/xml"))
     }
   }
 

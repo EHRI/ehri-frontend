@@ -95,7 +95,7 @@ class DocumentaryUnitViewsSpec extends IntegrationTestRunner {
       val ead = FakeRequest(docRoutes.exportEad("c1")).withUser(privilegedUser).call()
       status(ead) must equalTo(OK)
       contentType(ead) must beSome.which { ct =>
-        ct must equalTo(MimeTypes.XML)
+        ct must equalTo("text/xml")
       }
     }
   }
