@@ -11,11 +11,11 @@
     </label>
 
     <div class="inline-element-template form-template">
-        @formHelpers.inlineName(field(name + "[IDX]"))
+        @formHelpers.inlineName(field(name + "[IDX]"), name)
     </div>
     <div class="inline-element-list">
         @helper.repeat(field(name), min = 0) { f =>
-            @formHelpers.inlineName(f)
+            @formHelpers.inlineName(f, name)
         }
     </div>
 </div>

@@ -10,7 +10,6 @@ import controllers.generic._
 import play.api.i18n.{MessagesApi, Messages}
 import defines.{ContentTypes,EntityType,PermissionType}
 import play.api.libs.iteratee.Enumerator
-import play.api.mvc.{Headers, ResponseHeader, Result}
 import utils.MovedPageLookup
 import views.{MarkdownRenderer, Helpers}
 import utils.search._
@@ -18,7 +17,6 @@ import javax.inject._
 import scala.concurrent.Future.{successful => immediate}
 import backend.Backend
 import play.api.Configuration
-import play.api.http.{HeaderNames, MimeTypes}
 import controllers.base.AdminController
 
 

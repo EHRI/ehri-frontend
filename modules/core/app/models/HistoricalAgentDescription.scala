@@ -17,9 +17,9 @@ case class IsaarDetail(
   datesOfExistence: Option[String] = None,
   history: Option[String] = None,
   places: Option[Seq[String]] = None,
-  legalStatus: Option[String] = None,
-  functions: Option[String] = None,
-  mandates: Option[String] = None,
+  legalStatus: Option[Seq[String]] = None,
+  functions: Option[Seq[String]] = None,
+  mandates: Option[Seq[String]] = None,
   internalStructure: Option[String] = None,
   generalContext: Option[String] = None
 ) extends AttributeSet
@@ -59,9 +59,9 @@ object HistoricalAgentDescriptionF {
       (__ \ DATES_OF_EXISTENCE).formatNullable[String] and
       (__ \ HISTORY).formatNullable[String] and
       (__ \ PLACES).formatSeqOrSingleNullable[String] and
-      (__ \ LEGAL_STATUS).formatNullable[String] and
-      (__ \ FUNCTIONS).formatNullable[String] and
-      (__ \ MANDATES).formatNullable[String] and
+      (__ \ LEGAL_STATUS).formatSeqOrSingleNullable[String] and
+      (__ \ FUNCTIONS).formatSeqOrSingleNullable[String] and
+      (__ \ MANDATES).formatSeqOrSingleNullable[String] and
       (__ \ INTERNAL_STRUCTURE).formatNullable[String] and
       (__ \ GENERAL_CONTEXT).formatNullable[String]
     )(IsaarDetail.apply, unlift(IsaarDetail.unapply))) and
@@ -110,7 +110,7 @@ case class HistoricalAgentDescriptionF(
   with Description
   with Temporal {
 
-  def displayText = details.history orElse details.generalContext orElse details.functions
+  def displayText = details.history orElse details.generalContext orElse details.internalStructure
 
   import Isaar._
 
@@ -118,9 +118,9 @@ case class HistoricalAgentDescriptionF(
     DATES_OF_EXISTENCE -> details.datesOfExistence,
     HISTORY -> details.history,
     PLACES -> details.places.map(_.mkString("\n")),
-    LEGAL_STATUS -> details.legalStatus,
-    FUNCTIONS -> details.functions,
-    MANDATES -> details.mandates,
+    LEGAL_STATUS -> details.legalStatus.map(_.mkString("\n")),
+    FUNCTIONS -> details.functions.map(_.mkString("\n")),
+    MANDATES -> details.mandates.map(_.mkString("\n")),
     INTERNAL_STRUCTURE -> details.internalStructure,
     GENERAL_CONTEXT -> details.generalContext,
     DESCRIPTION_IDENTIFIER -> control.descriptionIdentifier,
@@ -152,9 +152,9 @@ object HistoricalAgentDescription {
         DATES_OF_EXISTENCE -> optional(text),
         HISTORY -> optional(text),
         PLACES -> optional(seq(text)),
-        LEGAL_STATUS -> optional(text),
-        FUNCTIONS -> optional(text),
-        MANDATES -> optional(text),
+        LEGAL_STATUS -> optional(seq(text)),
+        FUNCTIONS -> optional(seq(text)),
+        MANDATES -> optional(seq(text)),
         INTERNAL_STRUCTURE -> optional(text),
         GENERAL_CONTEXT -> optional(text)
       )(IsaarDetail.apply)(IsaarDetail.unapply),

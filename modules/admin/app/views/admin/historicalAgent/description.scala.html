@@ -19,9 +19,9 @@
         @views.html.admin.common.stringValue(desc.details.datesOfExistence, DATES_OF_EXISTENCE)
         @views.html.admin.common.stringValue(desc.details.history, HISTORY)
         @views.html.admin.common.listValue(desc.details.places, PLACES)
-        @views.html.admin.common.stringValue(desc.details.legalStatus, LEGAL_STATUS)
-        @views.html.admin.common.stringValue(desc.details.functions, FUNCTIONS)
-        @views.html.admin.common.stringValue(desc.details.mandates, MANDATES)
+        @views.html.admin.common.listValue(desc.details.legalStatus, LEGAL_STATUS)
+        @views.html.admin.common.listValue(desc.details.functions, FUNCTIONS)
+        @views.html.admin.common.listValue(desc.details.mandates, MANDATES)
         @views.html.admin.common.stringValue(desc.details.internalStructure, INTERNAL_STRUCTURE)
         @views.html.admin.common.stringValue(desc.details.generalContext, GENERAL_CONTEXT)
     }
