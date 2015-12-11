@@ -18,3 +18,4 @@ GET     /:id/link                      @controllers.authorities.HistoricalAgents
 GET     /:id/link/:toType              @controllers.authorities.HistoricalAgents.linkAnnotateSelect(id: String, toType: EntityType.Value)
 GET     /:id/link/:toType/:to          @controllers.authorities.HistoricalAgents.linkAnnotate(id: String, toType: EntityType.Value, to: String)
 POST    /:id/link/:toType/:to          @controllers.authorities.HistoricalAgents.linkAnnotatePost(id: String, toType: EntityType.Value, to: String)
+GET     /:id/eac                       @controllers.authorities.HistoricalAgents.exportEac(id: String)

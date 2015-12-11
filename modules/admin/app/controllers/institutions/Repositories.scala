@@ -9,6 +9,8 @@ import controllers.generic._
 import models._
 import play.api.i18n.{MessagesApi, Messages}
 import defines.{PermissionType, EntityType, ContentTypes}
+import play.api.libs.iteratee.Enumerator
+import play.api.mvc.{Result, ResponseHeader}
 import utils.MovedPageLookup
 import views.{MarkdownRenderer, Helpers}
 import utils.search._
@@ -277,4 +279,13 @@ case class Repositories @Inject()(
   }
 
   def updateIndexPost(id: String) = updateChildItemsPost(SearchConstants.HOLDER_ID, id)
+
+  def exportEag(id: String) = OptionalUserAction.async { implicit request =>
+    val params = request.queryString.filterKeys(_ == "lang")
+    userBackend.stream(s"${EntityType.Repository}/$id/eag", params = params).map { case (head, body) =>
+      Status(head.status)
+        .chunked(body.andThen(Enumerator.eof))
+        .withHeaders(head.headers.map(s => (s._1, s._2.head)).toSeq: _*)
+    }
+  }
 }

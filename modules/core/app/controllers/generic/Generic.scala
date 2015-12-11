@@ -62,4 +62,5 @@ trait Generic extends CoreActionBuilders with RestHelpers {
       async(f.andThen(_.andThen(t => immediate(t))))
     }
   }
+
 }

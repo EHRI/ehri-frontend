@@ -168,9 +168,7 @@ trait RestDAO {
    * Standard headers we sent to every Neo4j/EHRI Server request.
    */
   protected val headers = Map(
-    HeaderNames.ACCEPT -> ContentTypes.JSON,
-    HeaderNames.ACCEPT_CHARSET -> StandardCharsets.UTF_8.name,
-    HeaderNames.CONTENT_TYPE -> ContentTypes.JSON
+    HeaderNames.ACCEPT_CHARSET -> StandardCharsets.UTF_8.name
   )
 
   /**
