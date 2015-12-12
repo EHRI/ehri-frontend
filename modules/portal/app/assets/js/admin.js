@@ -117,6 +117,19 @@ jQuery(function($) {
 
   $("nav.responsive").stickyFormFooter();
 
+  function addPopover($elem, trigger) {
+    var trigger = trigger || "blur";
+    $elem.popover({
+      html: true,
+      delay:{
+        show: 500,
+        hide: 100
+      },
+      trigger: trigger,
+      placement: "bottom"
+    });
+  }
+
   // Add Bootstrap tooltip on input boxes with a title.
   // Filter items with an empty title.
   $("input[type=text][title!=''],textarea[title!='']").each(function() {
@@ -124,15 +137,7 @@ jQuery(function($) {
       that.attr("data-content", that.attr("title"));
       that.attr("title", that.parents(".control-group").find(".control-label").text());
       if(!that.parents(".control-group").hasClass("quiet")) {
-        that.popover({
-          html: true,
-          delay:{
-            show: 500,
-            hide: 100
-          },
-          trigger: "blur",
-          placement: "bottom"
-        });
+        addPopover(that);
       }
   });
 
@@ -182,14 +187,16 @@ jQuery(function($) {
     // We want to replace all instances of prefix[IDX] and prefix_IDX
     var re1 = new RegExp(prefix + "\\[IDX\\]", "g");
     var re2 = new RegExp(prefix + "_IDX", "g");
-    var elem = $(template.html()
+    var $elem = $(template.html()
         .replace(re1, prefix + "[" + idx + "]")
         .replace(re2, prefix + "_" + idx));
     //container.append(elem);
-    set.append(elem);
-
+    set.append($elem);
     // Add select2 support...
-    elem.find("div.select2-container").remove();
-    elem.find("select.select2").removeClass(".select2-offscreen").select2();
+    $elem.find("div.select2-container").remove();
+    $elem.find("select.select2").removeClass(".select2-offscreen").select2();
+
+    // And a help popover
+    addPopover($elem.find("textarea,input"));
   });
 });

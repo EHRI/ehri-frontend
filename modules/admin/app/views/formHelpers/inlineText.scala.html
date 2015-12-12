@@ -1,9 +1,10 @@
-@(desc: Field, rows: Int = 2)(implicit fieldPrefix: String, messages: Messages, fieldConstructor: views.html.helper.FieldConstructor)
+@(desc: Field, name: String, rows: Int = 2)(implicit fieldPrefix: String, messages: Messages, md: views.MarkdownRenderer, fieldConstructor: views.html.helper.FieldConstructor)
 
 <div class="inline-element">
     <div class="form-group @{if(desc.hasErrors) "has-error"}">
         <div class="inline-control">
-            <textarea class="form-control" rows="@rows" name="@desc.name" id="@desc.id">@desc.value</textarea>
+            <textarea class="form-control" rows="@rows" name="@desc.name" id="@desc.id"
+                title="@(md.renderMarkdown(Messages((if (fieldPrefix != "") fieldPrefix + "." else "") + name + ".description")))">@desc.value</textarea>
             <span class="help-block col-sm-10 errors">@desc.errors.map(e => Messages(e.message)).mkString(", ")</span>
         </div>
         <div class="inline-remove">

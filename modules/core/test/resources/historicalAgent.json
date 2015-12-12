@@ -19,6 +19,7 @@
         "typeOfEntity" : "corporateBody",
         "parallelFormsOfName" : [ "Parellel name for Test Authority 2" ],
         "datesOfExistence" : "1900-2000",
+        "places": ["Germany", "Poland"],
         "history": "Some history"
       },
       "type" : "historicalAgentDescription",
