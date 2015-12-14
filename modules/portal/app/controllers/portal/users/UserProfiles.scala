@@ -1,7 +1,6 @@
 package controllers.portal.users
 
 import auth.AccountManager
-import controllers.base.CsvHelpers
 import controllers.generic.Search
 import play.api.cache.CacheApi
 import play.api.libs.concurrent.Execution.Implicits._
@@ -15,7 +14,7 @@ import views.MarkdownRenderer
 import scala.concurrent.Future.{successful => immediate}
 import jp.t2v.lab.play2.auth.LoginLogout
 import play.api.libs.Files.TemporaryFile
-import java.io.{StringWriter, File}
+import java.io.File
 import scala.concurrent.Future
 import utils.search._
 import backend._

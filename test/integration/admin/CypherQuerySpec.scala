@@ -80,6 +80,14 @@ class CypherQuerySpec extends IntegrationTestRunner {
         r.columns.head must_== "1"
         r.data.head.head must_== JsNumber(1)
       }
+
+      // CSV
+      val q2 = FakeRequest("GET", controllers.cypher.routes.CypherQueries
+        .executeQuery(fakeKey.toString) + "?format=csv")
+        .withUser(privilegedUser)
+        .call()
+      status(q2) must equalTo(OK)
+      contentAsString(q2) must_== "1\n1\n"
     }
   }
 }

@@ -3,11 +3,12 @@ package controllers.cypher
 import javax.inject.{Inject, Singleton}
 
 import auth.AccountManager
+import play.api.http.{ContentTypes, HeaderNames}
 import play.api.libs.concurrent.Execution.Implicits._
 import backend.rest.cypher.CypherDAO
 import backend.{Backend, CypherQueryDAO}
 import controllers.base.AdminController
-import models.CypherQuery
+import models.{ResultFormat, CypherQuery}
 import play.api.cache.CacheApi
 import play.api.data.Form
 import play.api.data.Forms._
@@ -119,11 +120,21 @@ case class CypherQueries @Inject()(
   }
 
   def executeQuery(id: String) = WithUserAction.async { implicit request =>
+    val csv = request.getQueryString("format").contains("csv")
     cypherQueryDAO.get(id).flatMap { query =>
-      val name = query.name.replaceAll("[^a-zA-Z0-9_-]", "-")
-      cypher.stream(query.query).map { case (head, body) =>
-        Ok.stream(body)
-          .withHeaders("Content-Disposition" -> s"attachment; filename='$name-$id'")
+      val ext = if (csv) ".csv" else ".json"
+      val name = query.name.replaceAll("[\\W-]", "-").toLowerCase
+      val filename = s"${name}-$id$ext"
+      if (csv) {
+        cypher.get[ResultFormat](query.query, Map.empty).map { r =>
+          Ok(r.toCsv(quote = false)).as("text/csv")
+            .withHeaders(HeaderNames.CONTENT_DISPOSITION -> s"attachment; filename='$filename'")
+        }
+      } else {
+        cypher.stream(query.query).map { case (head, body) =>
+          Ok.stream(body).as(ContentTypes.JSON)
+            .withHeaders(HeaderNames.CONTENT_DISPOSITION -> s"attachment; filename='$filename'")
+        }
       }
     }
   }

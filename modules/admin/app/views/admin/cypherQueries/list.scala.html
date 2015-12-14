@@ -20,8 +20,11 @@
                     <ul class="list-item-actions">
 
                         <li><a
-                            title="@Messages("cypherQuery.download.description")"
-                            href="@controllers.cypher.routes.CypherQueries.executeQuery(oid)">@Messages("cypherQuery.download")</a></li>
+                            title="@Messages("download.format.json")"
+                            href="@controllers.cypher.routes.CypherQueries.executeQuery(oid)">JSON</a></li>
+                        <li><a
+                            title="@Messages("download.format.csv")"
+                            href="@controllers.cypher.routes.CypherQueries.executeQuery(oid)?format=csv">CSV</a></li>
                         @if(userOpt.exists(_.isAdmin)) {
                             <li><a
                                 title="@Messages("cypherQuery.update.description")"

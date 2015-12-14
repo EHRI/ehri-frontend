@@ -134,7 +134,7 @@ item.noItemsFound=No items found
 #
 # Cypher queries
 #
-cypherQuery.list=Cypher Queries
+cypherQuery.list=Database Queries
 cypherQuery.create=New query
 cypherQuery.create.submit=Create Query
 cypherQuery.name=Name

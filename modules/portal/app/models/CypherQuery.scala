@@ -5,10 +5,25 @@ import org.joda.time.DateTime
 import play.api.data.Form
 import play.api.data.Forms._
 import play.api.libs.iteratee.Enumerator
-import play.api.libs.json.{JsValue, Format, Reads, Json}
+import play.api.libs.json._
 import play.api.libs.ws.WSResponseHeaders
+import utils.CsvHelpers
 
 import scala.concurrent.{ExecutionContext, Future}
+
+case class ResultFormat(columns: Seq[String], data: Seq[Seq[JsValue]]) {
+  def toCsv(quote: Boolean = false): String =
+    CsvHelpers.writeCsv(columns, data.map(_.collect {
+      case JsString(s) => s
+      case JsNumber(i) => i.toString()
+      case JsNull => ""
+      case JsBoolean(b) => b.toString
+    }.toArray), quote)
+}
+object ResultFormat {
+  implicit val _reads = Json.reads[ResultFormat]
+}
+
 
 /**
  * A pre-baked Cypher query.
