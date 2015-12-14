@@ -1,4 +1,4 @@
-package integration
+package integration.admin
 
 import backend.ApiUser
 import defines._

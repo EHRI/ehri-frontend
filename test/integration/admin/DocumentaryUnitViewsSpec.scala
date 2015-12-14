@@ -1,12 +1,11 @@
-package integration
+package integration.admin
 
 import defines.{ContentTypes, EntityType}
 import helpers.IntegrationTestRunner
 import models.{Group, UserProfile, _}
-import play.api.http.{HeaderNames, MimeTypes}
 import play.api.i18n.Messages
-import play.api.test.FakeRequest
 import play.api.i18n.Messages.Implicits._
+import play.api.test.FakeRequest
 
 
 class DocumentaryUnitViewsSpec extends IntegrationTestRunner {

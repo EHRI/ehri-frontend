@@ -1,7 +1,6 @@
-package integration
+package integration.admin
 
 import helpers._
-import backend.ApiUser
 import play.api.test.FakeRequest
 
 /**

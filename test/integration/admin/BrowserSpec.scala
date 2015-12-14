@@ -1,10 +1,10 @@
-package integration
+package integration.admin
 
+import play.api.i18n.Messages
+import play.api.i18n.Messages.Implicits._
 import play.api.inject._
 import play.api.test._
-import play.api.i18n.Messages
 import utils.{MockMovedPageLookup, MovedPageLookup}
-import play.api.i18n.Messages.Implicits._
 
 class BrowserSpec extends PlaySpecification {
 

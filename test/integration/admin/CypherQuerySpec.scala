@@ -1,8 +1,8 @@
-package integration
+package integration.admin
 
 import helpers.IntegrationTestRunner
 import models.CypherQuery
-import play.api.libs.json.{JsNumber, Json, JsValue}
+import play.api.libs.json.{JsNumber, JsValue, Json}
 import play.api.test.FakeRequest
 
 
