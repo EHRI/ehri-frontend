@@ -1,0 +1,48 @@
+@(queries: Seq[CypherQuery])(implicit userOpt: Option[UserProfile], req: RequestHeader, globalConfig: global.GlobalConfig, messages: Messages, md: views.MarkdownRenderer, flash: Flash)
+
+@views.html.admin.layout.rightSidebar(Messages("cypherQuery.list")) {
+    <ul class="search-result-list">
+    @queries.map { query =>
+        @query.objectId.map { oid =>
+            @views.html.layout.searchItemOutlineWithActions(oid, "cypherQuery") {
+                @query.name
+            } {
+            } {
+                <pre><code>@query.query.stripMargin</code></pre>
+                <div class="text-muted">
+                    @query.description
+                </div>
+
+                <div class="search-item-footer">
+                    <ul class="list-item-meta">
+                        <li>@Messages("item.update.when", views.Helpers.relativeDate(query.updatedAt) )</li>
+                    </ul>
+                    <ul class="list-item-actions">
+
+                        <li><a
+                            title="@Messages("cypherQuery.download.description")"
+                            href="@controllers.cypher.routes.CypherQueries.executeQuery(oid)">@Messages("cypherQuery.download")</a></li>
+                        @if(userOpt.exists(_.isAdmin)) {
+                            <li><a
+                                title="@Messages("cypherQuery.update.description")"
+                                href="@controllers.cypher.routes.CypherQueries.updateQuery(oid)">@Messages("cypherQuery.update")</a></li>
+                            <li><a class="ajax-action"
+                                title="@Messages("cypherQuery.delete.description")"
+                                href="@controllers.cypher.routes.CypherQueries.deleteQuery(oid)">@Messages("cypherQuery.delete")</a></li>
+                        }
+                    </ul>
+                </div>
+            }
+        }
+    }
+    </ul>
+} {
+    @views.html.admin.common.sidebarActions { user =>
+        @views.html.admin.common.sidebarAction(user.isAdmin) {
+            <a href="@controllers.cypher.routes.CypherQueries.createQuery()">@Messages("cypherQuery.create")</a>
+        }
+        @views.html.admin.common.sidebarAction(user.isAdmin) {
+            <a href="@controllers.cypher.routes.CypherQueries.cypherForm()">@Messages("cypherQuery.console")</a>
+        }
+    }
+}

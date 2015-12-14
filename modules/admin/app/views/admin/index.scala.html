@@ -16,5 +16,8 @@
         @views.html.admin.common.sidebarAction() {
             <a href="@controllers.events.routes.SystemEvents.list()">@Messages("systemEvent.list")</a>
         }
+        @views.html.admin.common.sidebarAction() {
+            <a href="@controllers.cypher.routes.CypherQueries.listQueries()">@Messages("cypherQuery.list")</a>
+        }
     }
 }

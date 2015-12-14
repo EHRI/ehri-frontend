@@ -1,0 +1,12 @@
+@(item: CypherQuery, f: play.api.data.Form[CypherQuery], action: Call)(implicit userOpt: Option[UserProfile], req: RequestHeader, globalConfig: global.GlobalConfig, messages: Messages, md: views.MarkdownRenderer, flash: Flash, token: play.filters.csrf.CSRF.Token)
+
+@views.html.admin.layout.rightSidebar(Messages("item.update")) {
+	@helper.form(action = action, 'class -> "entity-form form-horizontal") {
+        @formHelpers.csrfToken()
+        @views.html.admin.cypherQueries.form(Some(item), f, action)
+
+        @formHelpers.submitButton(Messages("item.update.submit"))
+	}
+} {
+
+}
