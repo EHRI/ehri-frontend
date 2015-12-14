@@ -11,7 +11,7 @@ import controllers.generic._
 import models._
 import play.api.i18n.{MessagesApi, Messages}
 import defines.{EntityType, PermissionType, ContentTypes}
-import utils.{PageParams, MovedPageLookup}
+import utils.{CsvHelpers, PageParams, MovedPageLookup}
 import utils.search._
 import javax.inject._
 import backend.Backend
@@ -24,7 +24,7 @@ import play.api.mvc.Request
 import backend.rest.{ValidationError, RestHelpers}
 import play.api.mvc.Result
 import play.api.libs.json.JsObject
-import controllers.base.{CsvHelpers, AdminController}
+import controllers.base.AdminController
 
 
 @Singleton

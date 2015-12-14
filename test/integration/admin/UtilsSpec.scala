@@ -1,4 +1,4 @@
-package integration
+package integration.admin
 
 import helpers._
 import play.api.test.FakeRequest

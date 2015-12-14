@@ -65,7 +65,21 @@ case class MockSearchEngineConfig(
     val resources = types.map(et => AnyModel.resourceFor(et))
     // Get the full listing for each type and concat them together
     // once all futures have completed...
-    Future.sequence(resources.map(r => handle.list(r, PageParams.empty))).map(_.flatten)
+    // FIXME: HACK! If we fire off X parallel queries to the newly instantiated
+    // backend we hit a rare syncronisation condition where the vertex index has not yet
+    // been created, and multiple threads try to fetch-and-create it simultaneously.
+    // This can sometimes result in NullPointerExceptions in the backend. This wouldn't
+    // happen in real life since we only create the index at database instantiation time,
+    // but it's an (occasional) issue when a mock search query is the first thing to hit
+    // the database after setup. To get round this we fetch the first resource list
+    // on its own, and the remainder in parallel.
+    // A better way to resolve this might be to find a nicer way of mocking search
+    // queries.
+    handle.list(resources.head, PageParams.empty).flatMap { d =>
+      Future.sequence(resources.tail.map(r => handle.list(r, PageParams.empty))).map { r =>
+        d.items ++ r.flatten
+      }
+    }
   }
 
   override def filter()(implicit userOpt: Option[UserProfile]): Future[SearchResult[FilterHit]] =

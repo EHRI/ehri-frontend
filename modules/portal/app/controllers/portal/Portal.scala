@@ -25,6 +25,8 @@ import org.joda.time.DateTime
 import controllers.portal.base.PortalController
 import play.api.libs.json.Json
 
+import scala.concurrent.duration.Duration
+
 
 @Singleton
 case class Portal @Inject()(
@@ -125,7 +127,7 @@ case class Portal @Inject()(
    * types.
    */
   def index = OptionalUserAction.async { implicit request =>
-    FutureCache.getOrElse("index:metrics", scala.concurrent.duration.Duration.apply(60 * 5, TimeUnit.SECONDS)) {
+    FutureCache.getOrElse("index:metrics", Duration(60 * 5, TimeUnit.SECONDS)) {
       find[AnyModel](
         defaultParams = SearchParams(
           // we don't need results here because we're only using the facets

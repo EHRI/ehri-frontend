@@ -25,7 +25,6 @@ case class ApiController @Inject()(
   pageRelocator: MovedPageLookup,
   messagesApi: MessagesApi,
   markdown: MarkdownRenderer,
-  cypher: Cypher,
   ws: WSClient
 ) extends AdminController {
 
@@ -59,28 +58,6 @@ case class ApiController @Inject()(
   import play.api.data.Form
   import play.api.data.Forms._
   private val queryForm = Form(single("q" -> text))
-
-  private val defaultCypher =
-    """
-      |MATCH (n:userProfile)
-      |RETURN n, n.name
-      |LIMIT 100
-    """.stripMargin
-
-  def cypherForm = AdminAction { implicit request =>
-    Ok(views.html.admin.queryForm(queryForm.fill(defaultCypher),
-      controllers.admin.routes.ApiController.cypherQuery(), "Cypher"))
-  }
-
-  def cypherQuery = AdminAction.async { implicit request =>
-    // NB: JS doesn't handle streaming responses well, so if we're
-    // calling it from there don't chunk the response.
-    val q: String = queryForm.bindFromRequest.value.getOrElse("")
-    if (isAjax) cypher.cypher(q, Map.empty).map(r => Ok(r))
-    else cypher.stream(q, Map.empty).map { case(headers, stream) =>
-      Status(headers.status).chunked(stream)
-    }
-  }
 
   private val defaultSparql =
     """
