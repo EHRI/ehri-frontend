@@ -1,0 +1,12 @@
+# Routes for executing Cypher and pre-baked queries
+
+GET         /                   @controllers.cypher.CypherQueries.listQueries
+GET         /query              @controllers.cypher.CypherQueries.cypherForm
+GET         /submit             @controllers.cypher.CypherQueries.cypherQuery
+GET         /create             @controllers.cypher.CypherQueries.createQuery
+POST        /create             @controllers.cypher.CypherQueries.createQueryPost
+GET         /update/:id         @controllers.cypher.CypherQueries.updateQuery(id: String)
+POST        /update/:id         @controllers.cypher.CypherQueries.updateQueryPost(id: String)
+GET         /delete/:id         @controllers.cypher.CypherQueries.deleteQuery(id: String)
+POST        /delete/:id         @controllers.cypher.CypherQueries.deleteQueryPost(id: String)
+GET         /execute/:id        @controllers.cypher.CypherQueries.executeQuery(id: String)

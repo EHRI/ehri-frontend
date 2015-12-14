@@ -1,9 +1,9 @@
-package integration
+package integration.admin
 
+import backend.ApiUser
+import defines._
 import helpers._
 import models.{Account, UserProfile}
-import defines._
-import backend.ApiUser
 import play.api.test.FakeRequest
 
 /**

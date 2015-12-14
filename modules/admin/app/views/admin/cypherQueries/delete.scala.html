@@ -1,0 +1,12 @@
+@(item: CypherQuery, action: Call, cancel: Call)(implicit userOpt: Option[UserProfile], request: RequestHeader, globalConfig: global.GlobalConfig, messages: Messages, flash: Flash, token: play.filters.csrf.CSRF.Token)
+
+@views.html.admin.layout.rightSidebar(Messages("item.delete")) {
+    <p>@Messages("item.delete")</p>
+    @helper.form(action = action, 'class -> "form-horizontal") {
+        @formHelpers.csrfToken()
+        @formHelpers.submitButtonWithLogMessageInput(Messages("item.delete.submit"), cancel = Some(cancel))
+    }
+} {
+
+}
+

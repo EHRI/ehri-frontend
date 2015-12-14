@@ -117,8 +117,11 @@ item.delete.confirmation=Item successfully deleted
 item.create=Create Item
 item.create.submit=Create
 item.create.confirmation=Item successfully created
+item.create.when=Created {0}
 item.update=Edit Item
+item.update.submit=Update
 item.update.confirmation=Item successfully updated
+item.update.when=Updated {0}
 item.promote=Promote Item Publicly
 item.promote.submit=Promote Item
 item.promote.confirmation=Item promoted
@@ -126,6 +129,30 @@ item.demote=Remove Item Promotion
 item.demote.submit=Remove Promotion
 item.demote.confirmation=Item promotion removed
 item.noItemsFound=No items found
+
+
+#
+# Cypher queries
+#
+cypherQuery.list=Database Queries
+cypherQuery.create=New query
+cypherQuery.create.submit=Create Query
+cypherQuery.name=Name
+cypherQuery.query=Cypher
+cypherQuery.query.description=The Cypher code for this query
+cypherQuery.description=Description
+cypherQuery.description.description=A description of this query
+cypherQuery.public=Public
+cypherQuery.public.description=Non-admin users can run this query
+cypherQuery.execute=Execute
+cypherQuery.execute.description=Execute this query
+cypherQuery.download=Download
+cypherQuery.download.description=Execute and download query results
+cypherQuery.console=Cypher console
+cypherQuery.delete=Delete
+cypherQuery.delete.description=Delete query (this action cannot be undone)
+cypherQuery.update=Edit
+cypherQuery.update.description=Edit query
 
 #
 # Form misc

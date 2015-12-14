@@ -6,7 +6,7 @@ import backend._
 import backend.aws.S3FileStorage
 import backend.googledocs.GoogleDocsHtmlPages
 import backend.helpdesk.EhriHelpdesk
-import backend.parse.ParseFeedbackDAO
+import backend.parse.{ParseCypherQueryDAO, ParseFeedbackDAO}
 import backend.rest.cypher.{Cypher, CypherDAO}
 import backend.rest.{RestBackend, CypherIdGenerator, GidSearchResolver, SearchDAO}
 import com.google.inject.AbstractModule
@@ -37,6 +37,7 @@ class AppModule extends AbstractModule {
     bind(classOf[Backend]).to(classOf[RestBackend])
     bind(classOf[SearchDAO]).to(classOf[backend.rest.Search])
     bind(classOf[FeedbackDAO]).to(classOf[ParseFeedbackDAO])
+    bind(classOf[CypherQueryDAO]).to(classOf[ParseCypherQueryDAO])
     bind(classOf[HelpdeskDAO]).to(classOf[EhriHelpdesk])
     bind(classOf[IdGenerator]).to(classOf[CypherIdGenerator])
     bind(classOf[OAuth2Flow]).to(classOf[WebOAuth2Flow])

@@ -1,11 +1,10 @@
-package integration
+package integration.admin
 
-import play.api.test._
-
-import helpers.{UserFixtures, TestConfiguration}
-import play.api.i18n.Messages
+import helpers.{TestConfiguration, UserFixtures}
 import models.{Account, SignupData}
+import play.api.i18n.Messages
 import play.api.i18n.Messages.Implicits._
+import play.api.test._
 
 
 

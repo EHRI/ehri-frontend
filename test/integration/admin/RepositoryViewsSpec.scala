@@ -1,12 +1,12 @@
-package integration
+package integration.admin
 
 import helpers._
-import models.{GroupF, Group, UserProfileF, UserProfile}
+import models.{Group, GroupF, UserProfile, UserProfileF}
 import play.api.test.FakeRequest
 
 
 class RepositoryViewsSpec extends IntegrationTestRunner {
-  import mockdata.{privilegedUser,unprivilegedUser}
+  import mockdata.{privilegedUser, unprivilegedUser}
 
   private val repoRoutes = controllers.institutions.routes.Repositories
   private val countryRoutes = controllers.countries.routes.Countries
