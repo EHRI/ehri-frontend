@@ -34,6 +34,7 @@ case class CypherQuery(
   name: String,
   query: String,
   description: Option[String] = None,
+  public: Boolean = false,
   createdAt: Option[DateTime] = None,
   updatedAt: Option[DateTime] = None
 ) {
@@ -50,6 +51,7 @@ object CypherQuery {
   val NAME = "name"
   val QUERY = "query"
   val DESCRIPTION = "description"
+  val PUBLIC = "public"
 
   implicit val isoJodaDateReads = Reads.jodaDateReads("yyyy-MM-dd'T'HH:mm:ss.SSSZ")
   implicit val _format: Format[CypherQuery] = Json.format[CypherQuery]
@@ -61,6 +63,7 @@ object CypherQuery {
       NAME -> nonEmptyText,
       QUERY -> nonEmptyText,
       DESCRIPTION -> optional(text),
+      PUBLIC -> boolean,
       "createdAt" -> ignored(Option.empty[DateTime]),
       "updatedAt" -> ignored(Option.empty[DateTime])
     )(CypherQuery.apply)(CypherQuery.unapply)

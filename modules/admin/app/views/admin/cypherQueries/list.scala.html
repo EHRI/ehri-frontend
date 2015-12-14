@@ -16,9 +16,11 @@
                 <div class="search-item-footer">
                     <ul class="list-item-meta">
                         <li>@Messages("item.update.when", views.Helpers.relativeDate(query.updatedAt) )</li>
+                        <li title="@Messages("cypherQuery.public.description")">
+                            <span class="glyphicon glyphicon-eye-@(if (query.public) "open" else "close")"></span>
+                        </li>
                     </ul>
                     <ul class="list-item-actions">
-
                         <li><a
                             title="@Messages("download.format.json")"
                             href="@controllers.cypher.routes.CypherQueries.executeQuery(oid)">JSON</a></li>

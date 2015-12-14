@@ -3,6 +3,7 @@ package controllers.cypher
 import javax.inject.{Inject, Singleton}
 
 import auth.AccountManager
+import controllers.DataFormat
 import play.api.http.{ContentTypes, HeaderNames}
 import play.api.libs.concurrent.Execution.Implicits._
 import backend.rest.cypher.CypherDAO
@@ -120,7 +121,7 @@ case class CypherQueries @Inject()(
   }
 
   def executeQuery(id: String) = WithUserAction.async { implicit request =>
-    val csv = request.getQueryString("format").contains("csv")
+    val csv = request.getQueryString("format").contains(DataFormat.Csv.toString)
     cypherQueryDAO.get(id).flatMap { query =>
       val ext = if (csv) ".csv" else ".json"
       val name = query.name.replaceAll("[\\W-]", "-").toLowerCase
