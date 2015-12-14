@@ -1,8 +1,8 @@
-package integration
+package integration.admin
 
-import helpers._
-import models.{GroupF, Group, UserProfileF, UserProfile}
 import defines.EntityType
+import helpers._
+import models.{Group, GroupF, UserProfile, UserProfileF}
 import play.api.http.MimeTypes
 import play.api.test.FakeRequest
 import utils.search.SearchConstants

@@ -1,10 +1,10 @@
-@(item: models.base.AnyModel)(heading: Html)(actions: Html)(body: Html = Html(""))(implicit userOpt: Option[UserProfile], messages: Messages)
+@(id: String, itemType: String)(heading: Html)(actions: Html)(body: Html = Html(""))(implicit userOpt: Option[UserProfile], messages: Messages)
 
-<div class="search-item" id="@item.id">
+<div class="search-item" id="@id">
     <div class="search-item-actions">
         @actions
     </div>
-    <h2 class="search-item-heading type-highlight @item.isA.toString">
+    <h2 class="search-item-heading type-highlight @itemType">
         @heading
     </h2>
     <div class="search-item-body">

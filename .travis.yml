@@ -20,5 +20,9 @@ before_cache:
   - find $HOME/.ivy2 -name "ivydata-*.properties" -exec rm "{}" ";"
 
 script:
-  # Your normal script
-  - sbt ++$TRAVIS_SCALA_VERSION -J-XX:ReservedCodeCacheSize=256M test
+  # Your normal scripts
+  - sbt ++$TRAVIS_SCALA_VERSION -J-XX:ReservedCodeCacheSize=256M "test-only models.* auth.* utils.* views.*"
+  - sbt ++$TRAVIS_SCALA_VERSION -J-XX:ReservedCodeCacheSize=256M "test-only backend.*"
+  - sbt ++$TRAVIS_SCALA_VERSION -J-XX:ReservedCodeCacheSize=256M "test-only controllers.*"
+  - sbt ++$TRAVIS_SCALA_VERSION -J-XX:ReservedCodeCacheSize=256M "test-only integration.admin.*"
+  - sbt ++$TRAVIS_SCALA_VERSION -J-XX:ReservedCodeCacheSize=256M "test-only integration.portal.*"

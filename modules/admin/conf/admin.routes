@@ -45,9 +45,7 @@ GET         /item/:type/:id                     @controllers.admin.Admin.getType
 GET         /api/:contentType/:id               @controllers.admin.ApiController.getItem(contentType: defines.EntityType.Value, id: String)
 GET         /api/*path                          @controllers.admin.ApiController.get(path: String)
 
-# API Sparql and Cypher queries - TESTING
-GET         /cypher                             @controllers.admin.ApiController.cypherForm
-GET         /cypherQuery                        @controllers.admin.ApiController.cypherQuery
+# API Sparql
 GET         /sparql                             @controllers.admin.ApiController.sparql
 GET         /sparqlQuery                        @controllers.admin.ApiController.sparqlQuery
 
@@ -69,6 +67,8 @@ GET         /filter                             @controllers.admin.SearchFilter.
 ->          /vocabularies                       vocabularies.Routes
 ->          /keywords                           keywords.Routes
 
+# Managing Cypher queries
+->          /cypher                             cypher.Routes
 
 GET         /assets/*file                       @controllers.admin.AdminAssets.at(path="/public/lib/docview-admin", file)
 GET         /v/*file                            @controllers.admin.AdminAssets.versioned(path="/public/lib/docview-admin", file: Asset)

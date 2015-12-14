@@ -1,7 +1,7 @@
 @(item: Annotation, highlighter: views.Highlighter = views.NoopHighlighter)(implicit userOpt: Option[UserProfile], req: RequestHeader, messages: Messages, md: views.MarkdownRenderer, globalConfig: global.GlobalConfig)
 
 @item.target.map { src =>
-    @views.html.layout.searchItemOutlineWithActions(src) {
+    @views.html.layout.searchItemOutlineWithActions(src.id, src.isA) {
         @views.html.helpers.linkToWithFragment(src, "#" + item.id)
     } {
         @listActions(item, ContentTypes.Annotation)
@@ -9,7 +9,7 @@
         @listItemBody(item, highlighter)
     }
 }.getOrElse {
-    @views.html.layout.searchItemOutlineWithActions(item) {
+    @views.html.layout.searchItemOutlineWithActions(item.id, item.isA) {
         <strong>[No Target]</strong>@views.html.helpers.linkTo(item)
     } {
         @listActions(item, ContentTypes.Annotation)

@@ -13,10 +13,18 @@ import scala.concurrent.{Future, ExecutionContext}
  */
 abstract class ParseDAO[T: Format](objectName: String) extends RestDAO {
 
+  protected def logger: Logger = Logger(this.getClass)
+
   case class Confirmation(createdAt: String, objectId: String)
+
+  case class UpdateConfirmation(updatedAt: String)
 
   object Confirmation {
     implicit val format: Format[Confirmation] = Json.format[Confirmation]
+  }
+
+  object UpdateConfirmation {
+    implicit val format: Format[UpdateConfirmation] = Json.format[UpdateConfirmation]
   }
 
   case class Results(results: Seq[T])
@@ -46,8 +54,21 @@ abstract class ParseDAO[T: Format](objectName: String) extends RestDAO {
 
   def create(feedback: T)(implicit executionContext: ExecutionContext): Future[String] = {
     parseCall().post(Json.toJson(feedback)).map { r =>
-      Logger.info("Parse create response: " + r.body)
+      logger.info("Parse create response: " + r.body)
       r.json.as[Confirmation].objectId
+    }
+  }
+
+  def get(id: String)(implicit executionContext: ExecutionContext): Future[T] = {
+    parseCall(Some(id)).get().map { r =>
+      r.json.as[T]
+    }
+  }
+
+  def update(id: String, item:T)(implicit executionContext: ExecutionContext): Future[String] = {
+    parseCall(Some(id)).put(Json.toJson(item)).map { r =>
+      logger.info("Parse update response: " + r.body)
+      r.json.as[UpdateConfirmation].updatedAt
     }
   }
 

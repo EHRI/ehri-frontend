@@ -1,16 +1,15 @@
-package integration
+package integration.admin
 
 import backend.rest.Constants
 import controllers.generic.AccessPointLink
 import defines.EntityType
 import helpers._
-import models.{AnnotationF, AccessPointF}
 import models.LinkF.LinkType
-import play.api.http.ContentTypes
-import play.api.libs.json.{JsValue, JsBoolean, Json}
+import models.{AccessPointF, AnnotationF}
+import play.api.libs.json.{JsBoolean, Json}
 import play.api.test.FakeRequest
 
-import scala.util.{Success, Failure, Try}
+import scala.util.{Failure, Success, Try}
 
 /**
  * Spec for testing various JSON endpoints used by Ajax components etc.

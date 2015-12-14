@@ -1,9 +1,9 @@
-package integration
+package integration.admin
 
-import helpers._
-import models.{Group, UserProfileF, UserProfile}
-import defines._
 import backend.ApiUser
+import defines._
+import helpers._
+import models.{Group, UserProfile, UserProfileF}
 import play.api.http.HeaderNames
 import play.api.test.FakeRequest
 
@@ -11,7 +11,7 @@ import play.api.test.FakeRequest
  * Spec to test various page views operate as expected.
  */
 class EntityViewsSpec extends IntegrationTestRunner {
-  import mockdata.{privilegedUser,unprivilegedUser}
+  import mockdata.{privilegedUser, unprivilegedUser}
 
   implicit val apiUser: ApiUser = ApiUser(Some(privilegedUser.id))
 

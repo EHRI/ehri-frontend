@@ -4,15 +4,15 @@ import auth.oauth2.{MockOAuth2Flow, OAuth2Flow}
 import auth.{MockAccountManager, AccountManager}
 import backend._
 import backend.aws.MockFileStorage
-import backend.helpdesk.{MockFeedbackDAO, MockHelpdeskDAO}
+import backend.feedback.MockFeedbackDAO
+import backend.helpdesk.MockHelpdeskDAO
 import backend.rest.RestBackend
 import controllers.base.{SessionPreferences, AuthConfigImpl}
 import global.GlobalConfig
 import jp.t2v.lab.play2.auth.test.Helpers._
 import mockdata.{_}
-import models.{Account, Feedback}
+import models.{CypherQuery, Account, Feedback}
 import org.specs2.execute.{Result, AsResult}
-import play.api.db.Database
 import play.api.http.Writeable
 import play.api.inject.guice.GuiceApplicationLoader
 import play.api.libs.json.{Json, Writes}
@@ -39,6 +39,7 @@ trait TestConfiguration {
   // a very unclean way but are useful for determining the last-used
   // whatsit etc...
   val feedbackBuffer = collection.mutable.HashMap.empty[Int,Feedback]
+  val cypherQueryBuffer = collection.mutable.HashMap.empty[Int,CypherQuery]
   val helpdeskBuffer = collection.mutable.HashMap.empty[Int, Seq[(String, Double)]]
   val mailBuffer = collection.mutable.ListBuffer.empty[Email]
   val storedFileBuffer = collection.mutable.ListBuffer.empty[java.net.URI]
@@ -49,6 +50,7 @@ trait TestConfiguration {
   private def mockIndexer: SearchIndexMediator = new MockSearchIndexMediator(indexEventBuffer)
   private def mockFeedback: FeedbackDAO = new MockFeedbackDAO(feedbackBuffer)
   private def mockHelpdesk: HelpdeskDAO = new MockHelpdeskDAO(helpdeskBuffer)
+  private def mockCypherQueries: CypherQueryDAO = new MockCypherQueryDAO(cypherQueryBuffer)
 
   // NB: The mutable state for the user DAO is still stored globally
   // in the mocks package.
@@ -85,6 +87,7 @@ trait TestConfiguration {
       bind[HelpdeskDAO].toInstance(mockHelpdesk),
       bind[SearchItemResolver].to[MockSearchResolver],
       bind[FeedbackDAO].toInstance(mockFeedback),
+      bind[CypherQueryDAO].toInstance(mockCypherQueries),
       bind[EventHandler].toInstance(testEventHandler),
       bind[Backend].to[RestBackend],
       bind[SearchIndexMediator].toInstance(mockIndexer),
