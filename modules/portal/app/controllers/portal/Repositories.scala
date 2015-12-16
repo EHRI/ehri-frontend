@@ -6,10 +6,12 @@ import backend.rest.cypher.Cypher
 import com.google.inject.{Inject, Singleton}
 import controllers.generic.Search
 import controllers.portal.base.{Generic, PortalController}
+import defines.EntityType
 import models.{Repository, DocumentaryUnit}
 import play.api.cache.CacheApi
 import play.api.i18n.MessagesApi
 import play.api.libs.concurrent.Execution.Implicits._
+import play.api.libs.iteratee.Enumerator
 import play.api.mvc.RequestHeader
 import utils.MovedPageLookup
 import utils.search._
@@ -87,6 +89,16 @@ case class Repositories @Inject()(
         portalRepoRoutes.search(id), request.watched))
       else Ok(views.html.repository.search(request.item, result,
         portalRepoRoutes.search(id), request.watched))
+    }
+  }
+
+  def export(id: String) = OptionalUserAction.async { implicit request =>
+    val format = "eag" // Hardcoded for now!
+    val params = request.queryString.filterKeys(_ == "lang")
+    userBackend.stream(s"${EntityType.Repository}/$id/$format", params = params).map { case (head, body) =>
+      Status(head.status)
+        .chunked(body.andThen(Enumerator.eof))
+        .withHeaders(head.headers.map(s => (s._1, s._2.head)).toSeq: _*)
     }
   }
 }

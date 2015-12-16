@@ -68,16 +68,40 @@ class PortalSpec extends IntegrationTestRunner {
       status(doc) must equalTo(OK)
     }
 
+    "export docs as EAD" in new ITestApp {
+      val ead = FakeRequest(controllers.portal.routes.DocumentaryUnits.export("c4")).call()
+      status(ead) must equalTo(OK)
+      contentType(ead) must beSome.which { ct =>
+        ct must equalTo("text/xml")
+      }
+    }
+
     "view repositories" in new ITestApp {
       val doc = FakeRequest(controllers.portal.routes.Repositories.browse("r1")).call()
       status(doc) must equalTo(OK)
+    }
+
+    "export repositories as EAG" in new ITestApp {
+      val eag = FakeRequest(controllers.portal.routes.Repositories.export("r1")).call()
+      status(eag) must equalTo(OK)
+      contentType(eag) must beSome.which { ct =>
+        ct must equalTo("text/xml")
+      }
     }
 
     "view historical agents" in new ITestApp {
       val doc = FakeRequest(controllers.portal.routes.HistoricalAgents.browse("a1")).call()
       status(doc) must equalTo(OK)
     }
-    
+
+    "export historical agents as EAC" in new ITestApp {
+      val eac = FakeRequest(controllers.portal.routes.HistoricalAgents.export("a1")).call()
+      status(eac) must equalTo(OK)
+      contentType(eac) must beSome.which { ct =>
+        ct must equalTo("text/xml")
+      }
+    }
+
     "view item history" in new ITestApp {
       val history = FakeRequest(portalRoutes.itemHistory("c4")).call()
       status(history) must equalTo(OK)

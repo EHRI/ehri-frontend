@@ -9,7 +9,6 @@ import models._
 import controllers.generic._
 import play.api.i18n.{MessagesApi, Messages}
 import defines.{ContentTypes,EntityType,PermissionType}
-import play.api.libs.iteratee.Enumerator
 import utils.MovedPageLookup
 import views.{MarkdownRenderer, Helpers}
 import utils.search._
@@ -370,15 +369,6 @@ case class DocumentaryUnits @Inject()(
   def manageAccessPoints(id: String, descriptionId: String) = {
     WithDescriptionAction(id, descriptionId).apply { implicit request =>
       Ok(views.html.admin.documentaryUnit.editAccessPoints(request.item, request.description))
-    }
-  }
-
-  def exportEad(id: String) = OptionalUserAction.async { implicit request =>
-    val params = request.queryString.filterKeys(_ == "lang")
-    userBackend.stream(s"${EntityType.DocumentaryUnit}/$id/ead", params = params).map { case (head, body) =>
-      Status(head.status)
-        .chunked(body.andThen(Enumerator.eof))
-        .withHeaders(head.headers.map(s => (s._1, s._2.head)).toSeq: _*)
     }
   }
 }

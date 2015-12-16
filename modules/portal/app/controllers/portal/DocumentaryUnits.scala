@@ -12,6 +12,7 @@ import controllers.generic.Search
 import controllers.portal.base.{Generic, PortalController}
 import defines.EntityType
 import models.DocumentaryUnit
+import play.api.libs.iteratee.Enumerator
 import play.api.mvc.RequestHeader
 import utils.MovedPageLookup
 import utils.search._
@@ -81,6 +82,16 @@ case class DocumentaryUnits @Inject()(
         portalDocRoutes.search(id), request.watched))
       else Ok(views.html.documentaryUnit.search(request.item, result,
         portalDocRoutes.search(id), request.watched))
+    }
+  }
+
+  def export(id: String) = OptionalUserAction.async { implicit request =>
+    val format = "ead" // Hardcoded for now!
+    val params = request.queryString.filterKeys(_ == "lang")
+    userBackend.stream(s"${EntityType.DocumentaryUnit}/$id/$format", params = params).map { case (head, body) =>
+      Status(head.status)
+        .chunked(body.andThen(Enumerator.eof))
+        .withHeaders(head.headers.map(s => (s._1, s._2.head)).toSeq: _*)
     }
   }
 }

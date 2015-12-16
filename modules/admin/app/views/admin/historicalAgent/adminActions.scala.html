@@ -20,7 +20,6 @@
         <a href="@controllers.admin.routes.ApiController.getItem(item.isA, item.id)">@Messages("item.export.json")</a>
     }
     @views.html.admin.common.sidebarAction() {
-        <a href="@controllers.authorities.routes.HistoricalAgents.exportEac(item.id)">@Messages("historicalAgent.export.eac")
-        </a>
+        <a href="@controllers.portal.routes.HistoricalAgents.export(item.id)">@Messages("historicalAgent.export.eac")</a>
     }
 }
