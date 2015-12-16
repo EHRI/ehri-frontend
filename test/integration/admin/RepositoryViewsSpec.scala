@@ -10,7 +10,6 @@ class RepositoryViewsSpec extends IntegrationTestRunner {
 
   private val repoRoutes = controllers.institutions.routes.Repositories
   private val countryRoutes = controllers.countries.routes.Countries
-  
 
   // Mock user who belongs to admin
   val userProfile = UserProfile(
@@ -155,15 +154,6 @@ class RepositoryViewsSpec extends IntegrationTestRunner {
       val show = FakeRequest(repoRoutes.get("r1")).withUser(unprivilegedUser).call()
       status(show) must equalTo(OK)
       contentAsString(show) must not contain "New Content for r1"
-    }
-  }
-
-  "Repository export functionality" should {
-    "allow exporting EAG" in new ITestApp {
-      val exportReq = FakeRequest(repoRoutes.exportEag("r1"))
-        .withUser(privilegedUser).withCsrf.call()
-      status(exportReq) must equalTo(OK)
-      contentType(exportReq) must equalTo(Some("text/xml"))
     }
   }
 }

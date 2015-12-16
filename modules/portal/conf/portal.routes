@@ -43,11 +43,15 @@ GET         /countries/:id/search                 @controllers.portal.Countries.
 GET         /institutions                         @controllers.portal.Repositories.searchAll
 GET         /institutions/:id                     @controllers.portal.Repositories.browse(id: String)
 GET         /institutions/:id/search              @controllers.portal.Repositories.search(id: String)
+GET         /institutions/:id/export              @controllers.portal.Repositories.export(id: String)
 GET         /units                                @controllers.portal.DocumentaryUnits.searchAll
 GET         /units/:id                            @controllers.portal.DocumentaryUnits.browse(id: String)
 GET         /units/:id/search                     @controllers.portal.DocumentaryUnits.search(id: String)
+GET         /units/:id/export                     @controllers.portal.DocumentaryUnits.export(id: String)
+
 GET         /authorities                          @controllers.portal.HistoricalAgents.searchAll
 GET         /authorities/:id                      @controllers.portal.HistoricalAgents.browse(id: String)
+GET         /authorities/:id/export               @controllers.portal.HistoricalAgents.export(id: String)
 GET         /keywords                             @controllers.portal.Concepts.searchAll
 GET         /keywords/:id                         @controllers.portal.Concepts.browse(id: String)
 GET         /links/:id                            @controllers.portal.Links.browse(id: String)

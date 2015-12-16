@@ -135,13 +135,6 @@ class EntityViewsSpec extends IntegrationTestRunner {
       contentAsString(show) must contain(
         controllers.units.routes.DocumentaryUnits.get("c1").url)
     }
-
-    "allow exporting EAC" in new ITestApp {
-      val exportReq = FakeRequest(histAgentRoutes.exportEac("a1"))
-        .withUser(privilegedUser).withCsrf.call()
-      status(exportReq) must equalTo(OK)
-      contentType(exportReq) must equalTo(Some("text/xml"))
-    }
   }
 
   "UserProfile views" should {

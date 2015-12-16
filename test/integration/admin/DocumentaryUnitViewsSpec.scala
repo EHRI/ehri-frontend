@@ -89,14 +89,6 @@ class DocumentaryUnitViewsSpec extends IntegrationTestRunner {
       val show = FakeRequest(docRoutes.get("r1")).withUser(privilegedUser).call()
       status(show) must equalTo(NOT_FOUND)
     }
-
-    "allow EAD export" in new ITestApp {
-      val ead = FakeRequest(docRoutes.exportEad("c1")).withUser(privilegedUser).call()
-      status(ead) must equalTo(OK)
-      contentType(ead) must beSome.which { ct =>
-        ct must equalTo("text/xml")
-      }
-    }
   }
 
   "Documentary unit access functionality" should {

@@ -3,14 +3,11 @@ package controllers.authorities
 import auth.AccountManager
 import backend.rest.cypher.Cypher
 import controllers.generic._
-import play.api.libs.concurrent.Execution.Implicits._
 import forms.VisibilityForm
 import models._
 import play.api.cache.CacheApi
 import play.api.i18n.{MessagesApi, Messages}
 import defines.{EntityType, PermissionType}
-import play.api.libs.iteratee.Enumerator
-import play.api.mvc.{Result, ResponseHeader}
 import utils.MovedPageLookup
 import utils.search._
 import javax.inject._
@@ -164,14 +161,5 @@ case class HistoricalAgents @Inject()(
           Redirect(histRoutes.get(id))
             .flashing("success" -> "item.update.confirmation")
       }
-  }
-
-  def exportEac(id: String) = OptionalUserAction.async { implicit request =>
-    val params = request.queryString.filterKeys(_ == "lang")
-    userBackend.stream(s"${EntityType.HistoricalAgent}/$id/eac", params = params).map { case (head, body) =>
-      Status(head.status)
-        .chunked(body.andThen(Enumerator.eof))
-        .withHeaders(head.headers.map(s => (s._1, s._2.head)).toSeq: _*)
-    }
   }
 }

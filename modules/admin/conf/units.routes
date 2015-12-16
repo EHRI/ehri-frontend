@@ -25,7 +25,6 @@ POST    /:id/permissions/:userType/:userId         @controllers.units.Documentar
 GET     /:id/scope/add                             @controllers.units.DocumentaryUnits.addScopedPermissions(id: String)
 GET     /:id/scope/:userType/:userId               @controllers.units.DocumentaryUnits.setScopedPermissions(id: String, userType: EntityType.Value, userId: String)
 POST    /:id/scope/:userType/:userId               @controllers.units.DocumentaryUnits.setScopedPermissionsPost(id: String, userType: EntityType.Value, userId: String)
-GET     /:id/ead                                   @controllers.units.DocumentaryUnits.exportEad(id: String)
 
 GET     /:id/link                                  @controllers.units.DocumentaryUnits.linkTo(id: String)
 GET     /:id/link/:toType                          @controllers.units.DocumentaryUnits.linkAnnotateSelect(id: String, toType: EntityType.Value)
