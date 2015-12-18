@@ -27,7 +27,7 @@ case object Isdiah {
   val CITY = "municipality"
   val REGION = "firstdem"
   val COUNTRY_CODE = "countryCode"
-  val POSTAL_CODE = "postalcode"
+  val POSTAL_CODE = "postalCode"
   val EMAIL = "email"
   val TELEPHONE = "telephone"
   val FAX = "fax"

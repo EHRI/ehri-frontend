@@ -84,7 +84,7 @@
           "id" : "dbde8e48-7c5b-45f9-a8f5-873fd868b2a1",
           "data" : {
             "firstdem" : "Somewhere",
-            "postalcode" : "11111",
+            "postalCode" : "11111",
             "fax" : [ "12 34 56 78 90" ],
             "email" : [ "arhiv@something.net" ],
             "webpage" : [ "http://testing.com" ],
