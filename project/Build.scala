@@ -24,7 +24,7 @@ object ApplicationBuild extends Build {
   val appName = "docview"
   val appVersion = "1.0.5-SNAPSHOT"
 
-  val backendVersion = "0.11.1-SNAPSHOT"
+  val backendVersion = "0.11.2-SNAPSHOT"
   val neo4jVersion = "2.3.1"
   val jerseyVersion = "1.19"
 
@@ -54,9 +54,9 @@ object ApplicationBuild extends Build {
     // We need the backend code to test against, but exclude any
     // groovy stuff because a) it's not needed, and b) it has a
     // ton of awkward transitive dependencies
-    "ehri-project" % "ehri-frames" % backendVersion % "test" classifier "tests" classifier "" exclude("com.tinkerpop.gremlin",
+    "ehri-project" % "ehri-core" % backendVersion % "test" classifier "tests" classifier "" exclude("com.tinkerpop.gremlin",
       "gremlin-groovy") exclude("org.mockito", "mockito-core"),
-    "ehri-project" % "ehri-extension" % backendVersion % "test" classifier "tests" classifier "" exclude("com.tinkerpop.gremlin", "gremlin-groovy") exclude("org.mockito", "mockito-core")
+    "ehri-project" % "ehri-ws" % backendVersion % "test" classifier "tests" classifier "" exclude("com.tinkerpop.gremlin", "gremlin-groovy") exclude("org.mockito", "mockito-core")
   )
 
 
