@@ -12,9 +12,9 @@ import backend._
 
 trait RestPermissions extends Permissions with RestDAO with RestContext {
 
-  import Constants._
+  import backend.rest.Constants._
 
-  private def requestUrl = s"$baseUrl/permission"
+  private def requestUrl = enc(baseUrl, EntityType.Permission)
 
   def listPermissionGrants[A: Readable](userId: String, params: PageParams): Future[Page[A]] =
     listWithUrl(enc(requestUrl, "list", userId), params)

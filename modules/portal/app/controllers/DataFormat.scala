@@ -11,4 +11,5 @@ object DataFormat extends BindableEnum {
   val Xml = Value("xml")
   val Html = Value("html")
   val Csv = Value("csv")
+  val Tsv = Value("tsv")
 }

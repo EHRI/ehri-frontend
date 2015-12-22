@@ -120,22 +120,23 @@ case class CypherQueries @Inject()(
     }
   }
 
-  def executeQuery(id: String) = WithUserAction.async { implicit request =>
-    val csv = request.getQueryString("format").contains(DataFormat.Csv.toString)
+  def executeQuery(id: String, format: DataFormat.Value) = WithUserAction.async { implicit request =>
     cypherQueryDAO.get(id).flatMap { query =>
-      val ext = if (csv) ".csv" else ".json"
       val name = query.name.replaceAll("[\\W-]", "-").toLowerCase
-      val filename = s"${name}-$id$ext"
-      if (csv) {
-        cypher.get[ResultFormat](query.query, Map.empty).map { r =>
-          Ok(r.toCsv(quote = false)).as("text/csv")
-            .withHeaders(HeaderNames.CONTENT_DISPOSITION -> s"attachment; filename='$filename'")
-        }
-      } else {
-        cypher.stream(query.query).map { case (head, body) =>
-          Ok.stream(body).as(ContentTypes.JSON)
-            .withHeaders(HeaderNames.CONTENT_DISPOSITION -> s"attachment; filename='$filename'")
-        }
+      val filename = s"$name-$id.$format"
+      format match {
+        case DataFormat.Csv | DataFormat.Tsv =>
+          cypher.get[ResultFormat](query.query, Map.empty).map { r =>
+            Ok(r.toCsv(sep = if (format == DataFormat.Csv) ',' else '\t', quote = false))
+              .as(s"text/$format; charset=utf-8")
+              .withHeaders(HeaderNames.CONTENT_DISPOSITION -> s"attachment; filename='$filename'")
+          }
+        case DataFormat.Json =>
+          cypher.stream(query.query).map { case (head, body) =>
+            Ok.stream(body).as(ContentTypes.JSON)
+              .withHeaders(HeaderNames.CONTENT_DISPOSITION -> s"attachment; filename='$filename'")
+          }
+        case _ => immediate(NotAcceptable(s"Unsupported type: $format"))
       }
     }
   }

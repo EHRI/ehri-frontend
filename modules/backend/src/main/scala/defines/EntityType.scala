@@ -1,38 +1,40 @@
 package defines
 
+import eu.ehri.project.definitions.Entities._
+
 object EntityType extends Enumeration {
   // Allow these enums to be converted to strings implicitly,
   // since the binding relies on to/from string behaviour.
-  import language.implicitConversions
+  import scala.language.implicitConversions
   implicit def enumToString(e: Enumeration#Value): String = e.toString
 
   type Type = Value
-  val DocumentaryUnit = Value("documentaryUnit")
-  val DocumentaryUnitDescription = Value("documentDescription")
-  val Repository = Value("repository")
-  val RepositoryDescription = Value("repositoryDescription")
-  val HistoricalAgent = Value("historicalAgent")
-  val HistoricalAgentDescription = Value("historicalAgentDescription")
-  val SystemEvent = Value("systemEvent")
-  val UserProfile = Value("userProfile")
-  val Group = Value("group")
-  val ContentType = Value("contentType")
-  val DatePeriod = Value("datePeriod")
-  val Address = Value("address")
-  val PermissionGrant = Value("permissionGrant")
-  val Permission = Value("permission")
-  val Annotation = Value("annotation")
-  val Concept = Value("cvocConcept")
-  val ConceptDescription = Value("cvocConceptDescription")
-  val Vocabulary = Value("cvocVocabulary")
-  val AuthoritativeSet = Value("authoritativeSet")
-  val AccessPoint = Value("relationship")
-  val Link = Value("link")
-  val Country = Value("country")
-  val UnknownProperty = Value("property")
-  val MaintenanceEvent = Value("maintenanceEvent")
-  val VirtualUnit = Value("virtualUnit")
-  val Version = Value("version")
+  val DocumentaryUnit = Value(DOCUMENTARY_UNIT)
+  val DocumentaryUnitDescription = Value(DOCUMENT_DESCRIPTION)
+  val Repository = Value(REPOSITORY)
+  val RepositoryDescription = Value(REPOSITORY_DESCRIPTION)
+  val HistoricalAgent = Value(HISTORICAL_AGENT)
+  val HistoricalAgentDescription = Value(HISTORICAL_AGENT_DESCRIPTION)
+  val SystemEvent = Value(SYSTEM_EVENT)
+  val UserProfile = Value(USER_PROFILE)
+  val Group = Value(GROUP)
+  val ContentType = Value(CONTENT_TYPE)
+  val DatePeriod = Value(DATE_PERIOD)
+  val Address = Value(ADDRESS)
+  val PermissionGrant = Value(PERMISSION_GRANT)
+  val Permission = Value(PERMISSION)
+  val Annotation = Value(ANNOTATION)
+  val Concept = Value(CVOC_CONCEPT)
+  val ConceptDescription = Value(CVOC_CONCEPT_DESCRIPTION)
+  val Vocabulary = Value(CVOC_VOCABULARY)
+  val AuthoritativeSet = Value(AUTHORITATIVE_SET)
+  val AccessPoint = Value(ACCESS_POINT)
+  val Link = Value(LINK)
+  val Country = Value(COUNTRY)
+  val UnknownProperty = Value(UNKNOWN_PROPERTY)
+  val MaintenanceEvent = Value(MAINTENANCE_EVENT)
+  val VirtualUnit = Value(VIRTUAL_UNIT)
+  val Version = Value(VERSION)
 
   implicit val _format = defines.EnumUtils.enumFormat(this)
 }

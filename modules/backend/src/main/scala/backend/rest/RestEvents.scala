@@ -13,7 +13,7 @@ import defines.EntityType
  */
 trait RestEvents extends Events with RestDAO with RestContext {
 
-  private def requestUrl = s"$baseUrl/${EntityType.SystemEvent}"
+  private def requestUrl = enc(baseUrl,  EntityType.SystemEvent)
 
   override def history[A: Readable](id: String, params: RangeParams, filters: SystemEventParams = SystemEventParams.empty): Future[RangePage[Seq[A]]] = {
     val url: String = enc(requestUrl, "aggregateFor", id)

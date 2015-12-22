@@ -8,7 +8,7 @@
         @common.pagination(result.page)
         <div class="list-export-options">
             <span class="glyphicon glyphicon-download"></span>
-            @for(fmt <- Seq(DataFormat.Text, DataFormat.Csv, DataFormat.Json)) {
+            @for(fmt <- Seq(DataFormat.Text, DataFormat.Csv, DataFormat.Tsv, DataFormat.Json)) {
                 <a class="alt" target="_blank" title="@Messages("download.format." + fmt.toString)" href="@controllers.portal.users.routes.UserProfiles.watching(format = fmt)&limit=-1">
                 @fmt
                 </a>
