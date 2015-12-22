@@ -43,14 +43,14 @@ class RepositoryViewsSpec extends IntegrationTestRunner {
     }
 
     "show correct default values in the form when creating new items" in new ITestApp(
-      Map("repository.holdings" -> "SOME RANDOM VALUE")) {
+      Map("Repository.holdings" -> "SOME RANDOM VALUE")) {
       val form = FakeRequest(countryRoutes.createRepository(COUNTRY)).withUser(privilegedUser).call()
       status(form) must equalTo(OK)
       contentAsString(form) must contain("SOME RANDOM VALUE")
     }
 
     "NOT show default values in the form when editing items" in new ITestApp(
-      Map("repository.holdings" -> "SOME RANDOM VALUE")) {
+      Map("Repository.holdings" -> "SOME RANDOM VALUE")) {
       val form = FakeRequest(repoRoutes.update("r1")).withUser(privilegedUser).call()
       status(form) must equalTo(OK)
       contentAsString(form) must not contain "SOME RANDOM VALUE"

@@ -5,6 +5,6 @@
     "name" : "EHRI Skos",
     "identifier" : "ehri-skos"
   },
-  "type" : "cvocVocabulary",
+  "type" : "CvocVocabulary",
   "relationships" : {}
 }

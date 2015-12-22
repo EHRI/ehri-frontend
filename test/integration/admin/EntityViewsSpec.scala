@@ -121,7 +121,7 @@ class EntityViewsSpec extends IntegrationTestRunner {
     }
 
     "show correct default values in the form when creating new items" in new ITestApp(
-      Map("historicalAgent.rulesAndConventions" -> "SOME RANDOM VALUE")) {
+      Map("HistoricalAgent.rulesAndConventions" -> "SOME RANDOM VALUE")) {
       val form = FakeRequest(controllers.sets.routes.AuthoritativeSets.createHistoricalAgent("auths"))
         .withUser(privilegedUser).call()
       status(form) must equalTo(OK)
@@ -363,7 +363,7 @@ class EntityViewsSpec extends IntegrationTestRunner {
     }
 
     "show correct default values in the form when creating new items" in new ITestApp(
-      Map("historicalAgent.rulesAndConventions" -> "SOME RANDOM VALUE")) {
+      Map("HistoricalAgent.rulesAndConventions" -> "SOME RANDOM VALUE")) {
       val form = FakeRequest(controllers.sets.routes.AuthoritativeSets.createHistoricalAgent("auths"))
         .withUser(privilegedUser).call()
       status(form) must equalTo(OK)

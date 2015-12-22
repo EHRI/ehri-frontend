@@ -1,12 +1,13 @@
 package models.base
 
-import defines.{PermissionType, ContentTypes, EntityType}
+import acl.{GlobalPermissionSet, ItemPermissionSet, Permission}
+import backend.ContentType
+import defines.{ContentTypes, EntityType, PermissionType}
 import models._
 import play.api.libs.json._
-import backend.{ContentType, Resource}
-import acl.{ItemPermissionSet, GlobalPermissionSet, Permission}
 
 object Accessor {
+  final val ADMIN_GROUP_NAME = "admin"
   final val BELONGS_REL = "belongsTo"
 
   implicit object Converter extends backend.Readable[Accessor] {
@@ -33,23 +34,25 @@ trait Accessor extends AnyModel {
   def id: String
   def isA: EntityType.Value
 
+  import models.base.Accessor._
+
   lazy val allGroups: Seq[Group] = getGroups(this)
 
-  def isAdmin = getAccessor(groups, "admin").isDefined
+  def isAdmin = getAccessor(groups, ADMIN_GROUP_NAME).isDefined
 
-	// Search up the tree(?) if parent groups, looking
-	// for one with the desired id.
-	def getAccessor(groups: Seq[Accessor], id: String): Option[Accessor] = {
-	  groups.toList match {
-	    case lst @ head :: rest =>
+  // Search up the tree(?) if parent groups, looking
+  // for one with the desired id.
+  def getAccessor(groups: Seq[Accessor], id: String): Option[Accessor] = {
+    groups.toList match {
+      case lst@head :: rest =>
         if (head.id == id) Some(head)
         else getAccessor(head.groups, id) match {
-            case s @ Some(g) => s
-            case None => getAccessor(rest, id)
+          case s@Some(g) => s
+          case None => getAccessor(rest, id)
         }
       case Nil => None
-	  }
-	}
+    }
+  }
 
   private def getGroups(acc: Accessor): Seq[Group] = {
     acc.groups.foldLeft(acc.groups) { case (all, g) =>

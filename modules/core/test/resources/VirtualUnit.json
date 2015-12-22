@@ -3,18 +3,18 @@
   "data" : {
     "identifier" : "foobar"
   },
-  "type" : "virtualUnit",
+  "type" : "VirtualUnit",
   "relationships" : {
     "includesUnit" : [ {
       "id" : "c1",
       "data" : {
         "identifier" : "c1"
       },
-      "type" : "documentaryUnit",
+      "type" : "DocumentaryUnit",
       "relationships" : {
         "describes" : [ {
           "id" : "7786576c-9aee-4a83-9463-ef747cdef6d3",
-          "type" : "documentDescription",
+          "type" : "DocumentaryUnitDescription",
           "data" : {
             "name" : "Some description text for c1",
             "languageCode" : "eng"
@@ -30,7 +30,7 @@
         "timestamp" : "2014-05-09T16:41:17.459+01:00",
         "eventType" : "setVisibility"
       },
-      "type" : "systemEvent",
+      "type" : "SystemEvent",
       "relationships" : {
         "hasActioner" : [ {
           "id" : "mike",
@@ -38,7 +38,7 @@
             "name" : "Mike",
             "identifier" : "mike"
           },
-          "type" : "userProfile",
+          "type" : "UserProfile",
           "relationships" : {
             "belongsTo" : [ {
               "id" : "kcl",
@@ -46,7 +46,7 @@
                 "name" : "KCL",
                 "identifier" : "kcl-group"
               },
-              "type" : "group",
+              "type" : "Group",
               "relationships" : { }
             }, {
               "id" : "admin",
@@ -54,7 +54,7 @@
                 "name" : "Administrators",
                 "identifier" : "admin"
               },
-              "type" : "group",
+              "type" : "Group",
               "relationships" : { }
             } ]
           }
@@ -69,7 +69,7 @@
       "data" : {
         "identifier" : "vc1"
       },
-      "type" : "virtualUnit",
+      "type" : "VirtualUnit",
       "relationships" : {
         "describes" : [ {
           "id" : "vcd1",
@@ -77,7 +77,7 @@
             "languageCode" : "eng",
             "name" : "Virtual Collection 1"
           },
-          "type" : "documentDescription",
+          "type" : "DocumentaryUnitDescription",
           "relationships" : { }
         } ]
       },
