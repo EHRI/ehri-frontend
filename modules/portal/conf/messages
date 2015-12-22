@@ -103,6 +103,7 @@ truncated.items.remaining={0,choice,0#|1#and 1 more...|1<and {0,number,integer} 
 download=Download
 download.format.txt=Download as plain text
 download.format.csv=Download as CSV
+download.format.tsv=Download as TSV
 download.format.json=Download as JSON
 
 #

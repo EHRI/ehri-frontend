@@ -12,13 +12,13 @@ import utils.CsvHelpers
 import scala.concurrent.{ExecutionContext, Future}
 
 case class ResultFormat(columns: Seq[String], data: Seq[Seq[JsValue]]) {
-  def toCsv(quote: Boolean = false): String =
+  def toCsv(sep: Char = ',', quote: Boolean = false): String =
     CsvHelpers.writeCsv(columns, data.map(_.collect {
       case JsString(s) => s
       case JsNumber(i) => i.toString()
       case JsNull => ""
       case JsBoolean(b) => b.toString
-    }.toArray), quote)
+    }.toArray), sep = sep, quote = quote)
 }
 object ResultFormat {
   implicit val _reads = Json.reads[ResultFormat]

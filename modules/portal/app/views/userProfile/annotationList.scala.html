@@ -11,7 +11,7 @@
     @common.pagination(annotations.page)
     <div class="list-export-options">
         <span class="glyphicon glyphicon-download"></span>
-        @for(fmt <- Seq(DataFormat.Text, DataFormat.Csv, DataFormat.Json)) {
+        @for(fmt <- Seq(DataFormat.Text, DataFormat.Csv, DataFormat.Tsv, DataFormat.Json)) {
             <a class="download-link" target="_blank" title="@Messages("download.format." + fmt)"
                     href="@controllers.portal.users.routes.UserProfiles.annotations(format = fmt)&limit=1000">
                 @fmt

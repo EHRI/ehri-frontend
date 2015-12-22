@@ -123,11 +123,12 @@ case class UserProfiles @Inject()(
       format match {
         case DataFormat.Text => Ok(views.txt.userProfile.watchedItems(watchList))
           .as(MimeTypes.TEXT)
-        case DataFormat.Csv => Ok(writeCsv(
+        case DataFormat.Csv | DataFormat.Tsv => Ok(writeCsv(
           List("Item", "URL"),
-          watchList.items.map(a => ExportWatchItem.fromItem(a).toCsv)))
-          .as("text/csv")
-          .withHeaders(HeaderNames.CONTENT_DISPOSITION -> s"attachment; filename=${request.user.id}_watched.csv")
+          watchList.items.map(a => ExportWatchItem.fromItem(a).toCsv),
+            sep = if (format == DataFormat.Csv) ',' else '\t'))
+          .as(s"text/$format; charset=utf-8")
+          .withHeaders(HeaderNames.CONTENT_DISPOSITION -> s"attachment; filename=${request.user.id}_watched.$format")
         case DataFormat.Json =>
           Ok(Json.toJson(watchList.items.map(ExportWatchItem.fromItem)))
             .as(MimeTypes.JSON)
@@ -180,11 +181,12 @@ case class UserProfiles @Inject()(
         case DataFormat.Text =>
           Ok(views.txt.userProfile.annotations(itemsOnly).body.trim)
             .as(MimeTypes.TEXT)
-        case DataFormat.Csv => Ok(writeCsv(
+        case DataFormat.Csv | DataFormat.Tsv => Ok(writeCsv(
             List("Item", "Field", "Note", "Time", "URL"),
-            itemsOnly.items.map(a => ExportAnnotation.fromAnnotation(a).toCsv)))
-          .as("text/csv")
-          .withHeaders(HeaderNames.CONTENT_DISPOSITION -> s"attachment; filename=${request.user.id}_notes.csv")
+            itemsOnly.items.map(a => ExportAnnotation.fromAnnotation(a).toCsv),
+              sep = if (format == DataFormat.Csv) ',' else '\t'))
+          .as(s"text/$format; charset=utf-8")
+          .withHeaders(HeaderNames.CONTENT_DISPOSITION -> s"attachment; filename=${request.user.id}_notes.$format")
         case DataFormat.Json =>
           Ok(Json.toJson(itemsOnly.items.map(ExportAnnotation.fromAnnotation)))
             .as(MimeTypes.JSON)

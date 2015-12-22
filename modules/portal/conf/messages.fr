@@ -78,6 +78,7 @@ truncated.items.remaining={0,choice,0#|1#et 1 de plus...|1<et {0,number,integer}
 download=Télécharger
 download.format.txt=Télécharger sous forme de texte
 download.format.csv=Télécharger sous format CSV
+download.format.tsv=Télécharger sous format TSV
 download.format.json=Télécharger sous format JSON
 profile.preferences=Préférences
 profile.preferences.updated=Préférences mises à jour

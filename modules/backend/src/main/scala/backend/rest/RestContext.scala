@@ -14,7 +14,7 @@ import scala.concurrent.ExecutionContext
  * @author Mike Bryant (http://github.com/mikesname)
  */
 trait RestContext {
-  val eventHandler: EventHandler
+  def eventHandler: EventHandler
   implicit def apiUser: ApiUser
   implicit def executionContext: ExecutionContext
 }

@@ -14,13 +14,13 @@ import backend.Annotations
  */
 trait RestAnnotations extends Annotations with RestDAO {
 
-  val eventHandler: EventHandler
+  def eventHandler: EventHandler
   implicit def apiUser: ApiUser
   implicit def executionContext: ExecutionContext
 
-  import Constants.ACCESSOR_PARAM
+  import backend.rest.Constants.ACCESSOR_PARAM
 
-  private def requestUrl = s"$baseUrl/${EntityType.Annotation}"
+  private def requestUrl = enc(baseUrl, EntityType.Annotation)
 
   override def getAnnotationsForItem[A: Readable](id: String): Future[Page[A]] = {
     val url = enc(requestUrl, "for", id)

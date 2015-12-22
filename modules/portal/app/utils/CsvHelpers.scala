@@ -8,10 +8,10 @@ import com.opencsv.CSVWriter
  * @author Mike Bryant (http://github.com/mikesname)
  */
 trait CsvHelpers {
-  def writeCsv(headers: Seq[String], data: Seq[Array[String]], quote: Boolean = true): String = {
+  def writeCsv(headers: Seq[String], data: Seq[Array[String]], sep: Char = ',', quote: Boolean = true): String = {
     val buffer = new StringWriter()
-    val csvWriter = if (quote) new CSVWriter(buffer)
-      else new CSVWriter(buffer, ',', CSVWriter.NO_QUOTE_CHARACTER)
+    val csvWriter = if (quote) new CSVWriter(buffer, sep)
+      else new CSVWriter(buffer, sep, CSVWriter.NO_QUOTE_CHARACTER)
     try {
       csvWriter.writeNext(headers.toArray)
       for (item <- data) {
