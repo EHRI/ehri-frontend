@@ -5,7 +5,7 @@
     "priority" : 5,
     "identifier" : "000001"
   },
-  "type" : "repository",
+  "type" : "Repository",
   "relationships" : {
     "describes" : [ {
       "id" : "ua-000001-eng-000001-desc",
@@ -22,7 +22,7 @@
         "maintenanceNotes" : "Some maintenance info",
         "rulesAndConventions" : "ISDIAH"
       },
-      "type" : "repositoryDescription",
+      "type" : "RepositoryDescription",
       "relationships" : {
         "maintenance" : [ {
           "id" : "adc4642a-1e90-4b0e-9d47-66bc1f112cee",
@@ -31,7 +31,7 @@
             "eventType" : "update",
             "maintenanceEvent/date" : "2013-09-09"
           },
-          "type" : "maintenanceEvent",
+          "type" : "MaintenanceEvent",
           "relationships" : {
           },
           "meta" : {
@@ -44,7 +44,7 @@
             "eventType" : "update",
             "maintenanceEvent/date" : "2012-03-09"
           },
-          "type" : "maintenanceEvent",
+          "type" : "MaintenanceEvent",
           "relationships" : {
           },
           "meta" : {
@@ -57,7 +57,7 @@
             "eventType" : "creation",
             "maintenanceEvent/date" : "2012-03-09T12:22:07"
           },
-          "type" : "maintenanceEvent",
+          "type" : "MaintenanceEvent",
           "relationships" : {
           },
           "meta" : {
@@ -73,7 +73,7 @@
             "eag_archguide_desc_webpage_" : "Website",
             "eag_archguide_desc_extent_num_" : "volume"
           },
-          "type" : "property",
+          "type" : "UnknownProperty",
           "relationships" : {
           },
           "meta" : {
@@ -93,7 +93,7 @@
             "countryCode" : "AL",
             "telephone" : [ "12 34 56 78 90" ]
           },
-          "type" : "address",
+          "type" : "Address",
           "relationships" : {
           },
           "meta" : {
@@ -110,7 +110,7 @@
       "data" : {
         "identifier" : "uk"
       },
-      "type" : "country",
+      "type" : "Country",
       "relationships" : {
       },
       "meta" : {
@@ -123,7 +123,7 @@
         "timestamp" : "2014-05-12T15:03:30.503+01:00",
         "eventType" : "modification"
       },
-      "type" : "systemEvent",
+      "type" : "SystemEvent",
       "relationships" : {
         "hasActioner" : [ {
           "id" : "bob",
@@ -131,7 +131,7 @@
             "name" : "Bob",
             "identifier" : "bob"
           },
-          "type" : "userProfile",
+          "type" : "UserProfile",
           "relationships" : {
             "belongsTo" : [ {
               "id" : "admin",
@@ -139,7 +139,7 @@
                 "name" : "Administrators",
                 "identifier" : "admin"
               },
-              "type" : "group",
+              "type" : "Group",
               "relationships" : {
               },
               "meta" : {

@@ -5,7 +5,7 @@
     "name" : "Restricted Access",
     "identifier" : "restricted-access"
   },
-  "type" : "group",
+  "type" : "Group",
   "relationships" : {
     "lifecycleEvent" : [ {
       "id" : "98114aa9-e5f7-48bb-8deb-8543633b539a",
@@ -14,7 +14,7 @@
         "identifier" : "81805f42-5772-4ae9-a494-521f82523fc1",
         "logMessage" : "Added userProfile to group"
       },
-      "type" : "systemEvent",
+      "type" : "SystemEvent",
       "relationships" : {
         "hasActioner" : [ {
           "id" : "mike",
@@ -25,7 +25,7 @@
             "about" : "Testing the system",
             "identifier" : "mike"
           },
-          "type" : "userProfile",
+          "type" : "UserProfile",
           "relationships" : {
             "belongsTo" : [ {
               "id" : "admin",
@@ -34,7 +34,7 @@
                 "name" : "Administrators",
                 "identifier" : "admin"
               },
-              "type" : "group",
+              "type" : "Group",
               "relationships" : {
               }
             } ]

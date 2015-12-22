@@ -13,7 +13,7 @@
     "interests" : "History",
     "identifier" : "mike"
   },
-  "type" : "userProfile",
+  "type" : "UserProfile",
   "relationships" : {
     "lifecycleEvent" : [ {
       "id" : "8d852619-339c-447c-9934-ed21d8584d7a",
@@ -22,7 +22,7 @@
         "identifier" : "c21c4f71-a6ab-49c8-b450-97bf8ea39687",
         "logMessage" : "Updating item (userProfile): 'mike'"
       },
-      "type" : "systemEvent",
+      "type" : "SystemEvent",
       "relationships" : {
         "hasActioner" : [ {
           "id" : "mike",
@@ -33,7 +33,7 @@
             "about" : "Testing the system",
             "identifier" : "mike"
           },
-          "type" : "userProfile",
+          "type" : "UserProfile",
           "relationships" : {
             "belongsTo" : [ {
               "id" : "admin",
@@ -42,7 +42,7 @@
                 "name" : "Administrators",
                 "identifier" : "admin"
               },
-              "type" : "group",
+              "type" : "Group",
               "relationships" : {
               }
             } ]
@@ -57,7 +57,7 @@
         "name" : "Administrators",
         "identifier" : "admin"
       },
-      "type" : "group",
+      "type" : "Group",
       "relationships" : {}
     } ]
   }

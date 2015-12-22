@@ -10,7 +10,7 @@ object EntityType extends Enumeration {
 
   type Type = Value
   val DocumentaryUnit = Value(DOCUMENTARY_UNIT)
-  val DocumentaryUnitDescription = Value(DOCUMENT_DESCRIPTION)
+  val DocumentaryUnitDescription = Value(DOCUMENTARY_UNIT_DESCRIPTION)
   val Repository = Value(REPOSITORY)
   val RepositoryDescription = Value(REPOSITORY_DESCRIPTION)
   val HistoricalAgent = Value(HISTORICAL_AGENT)

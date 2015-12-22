@@ -24,7 +24,7 @@ object ApplicationBuild extends Build {
   val appName = "docview"
   val appVersion = "1.0.5-SNAPSHOT"
 
-  val backendVersion = "0.11.2-SNAPSHOT"
+  val backendVersion = "0.12.0-SNAPSHOT"
   val neo4jVersion = "2.3.1"
   val jerseyVersion = "1.19"
 

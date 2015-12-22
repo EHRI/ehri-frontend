@@ -5,7 +5,7 @@
     "name" : "Wiener Library",
     "identifier" : "wiener-library"
   },
-  "type" : "repository",
+  "type" : "Repository",
   "relationships" : {
     "describes" : [ {
       "id" : "9c5eadd2-6c57-4467-ba02-cd4b2c49ffa6",
@@ -13,7 +13,7 @@
         "languageCode" : "en",
         "name" : "Wiener Library"
       },
-      "type" : "repositoryDescription",
+      "type" : "RepositoryDescription",
       "relationships" : {
         "hasAddress" : [ {
           "id" : "d9569bef-a939-4565-83ae-a52e57e6b222",
@@ -26,7 +26,7 @@
               "+00 44 112233u"
             ]
           },
-          "type" : "address",
+          "type" : "Address",
           "relationships" : {
           }
         } ]
@@ -39,7 +39,7 @@
         "identifier" : "babe0ea4-8c66-4607-b545-199b29976bba",
         "logMessage" : "Added annotation"
       },
-      "type" : "systemEvent",
+      "type" : "SystemEvent",
       "relationships" : {
         "hasActioner" : [ {
           "id" : "mike",
@@ -50,7 +50,7 @@
             "about" : "Testing the system",
             "identifier" : "mike"
           },
-          "type" : "userProfile",
+          "type" : "UserProfile",
           "relationships" : {
             "belongsTo" : [ {
               "id" : "admin",
@@ -59,7 +59,7 @@
                 "name" : "Administrators",
                 "identifier" : "admin"
               },
-              "type" : "group",
+              "type" : "Group",
               "relationships" : {
               }
             } ]

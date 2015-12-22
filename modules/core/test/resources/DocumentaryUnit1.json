@@ -6,7 +6,7 @@
     "copyright" : "unknown",
     "identifier" : "123456"
   },
-  "type" : "documentaryUnit",
+  "type" : "DocumentaryUnit",
   "relationships" : {
     "describes" : [ {
       "id" : "ua-000001-p-0001-eng",
@@ -16,7 +16,7 @@
         "levelOfDescription" : "collection",
         "rulesAndConventions" : "EHRI Guidelines for Description v.1.0"
       },
-      "type" : "documentDescription",
+      "type" : "DocumentaryUnitDescription",
       "relationships" : {
         "hasDate" : [ {
           "id" : "d5882905-bc07-11e3-985a-bf23af5268e8",
@@ -25,7 +25,7 @@
             "precision" : "year",
             "type" : "creation"
           },
-          "type" : "datePeriod",
+          "type" : "DatePeriod",
           "relationships" : {
           },
           "meta" : {
@@ -50,7 +50,7 @@
         "notes" : [ "Just adding a note to this descriptions" ],
         "rulesAndConventions" : "ISAD (G)"
       },
-      "type" : "documentDescription",
+      "type" : "DocumentaryUnitDescription",
       "relationships" : {
         "hasUnknownProperty" : [ {
           "id" : "4bf95f1c-825a-4ef6-90de-189182ed0770",
@@ -59,7 +59,7 @@
             "ehri_scope" : "low",
             "ehri_priorty" : "1"
           },
-          "type" : "property",
+          "type" : "UnknownProperty",
           "relationships" : {
           },
           "meta" : {
@@ -72,7 +72,7 @@
             "startDate" : "1940",
             "endDate" : "1940"
           },
-          "type" : "datePeriod",
+          "type" : "DatePeriod",
           "relationships" : {
           },
           "meta" : {
@@ -89,7 +89,7 @@
       "data" : {
         "identifier" : "003305"
       },
-      "type" : "repository",
+      "type" : "Repository",
       "relationships" : {
         "describes" : [ {
           "id" : "ua-000001-eng-000001-desc",
@@ -97,7 +97,7 @@
             "languageCode" : "eng",
             "name" : "A Random Archive"
           },
-          "type" : "repositoryDescription",
+          "type" : "RepositoryDescription",
           "relationships" : {
           }
         } ],
@@ -106,7 +106,7 @@
           "data" : {
             "identifier" : "uk"
           },
-          "type" : "country",
+          "type" : "Country",
           "relationships" : {
           },
           "meta" : {
@@ -124,7 +124,7 @@
         "timestamp" : "2014-05-12T14:50:43.989+01:00",
         "eventType" : "modifyDependent"
       },
-      "type" : "systemEvent",
+      "type" : "SystemEvent",
       "relationships" : {
         "hasActioner" : [ {
           "id" : "bob",
@@ -132,7 +132,7 @@
             "name" : "Bob",
             "identifier" : "bob"
           },
-          "type" : "userProfile",
+          "type" : "UserProfile",
           "relationships" : {
             "belongsTo" : [ {
               "id" : "admin",
@@ -140,7 +140,7 @@
                 "name" : "Administrators",
                 "identifier" : "admin"
               },
-              "type" : "group",
+              "type" : "Group",
               "relationships" : {
               },
               "meta" : {

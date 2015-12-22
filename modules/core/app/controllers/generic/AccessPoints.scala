@@ -52,21 +52,21 @@ trait AccessPoints[D <: Description, T <: Model with Described[D], MT <: MetaMod
    *       "type" : "placeAccess",
    *       "data" : [ {
    *         "accessPoint" : {
-   *           "isA" : "relationship",
+   *           "isA" : "AccessPoint",
    *           "id" : "07238843-5b75-4af0-80b6-67c17c285686",
    *           "accessPointType" : "placeAccess",
    *           "name" : "Wiener Library Archives",
    *           "description" : ""
    *         },
    *         "link" : {
-   *           "isA" : "link",
+   *           "isA" : "Link",
    *           "id" : "1fdb1ece-8202-496d-a01d-33cdddede00f",
    *           "linkType" : "associative",
    *           "description" : ""
    *         },
    *         "target" : {
    *           "id" : "il-002821",
-   *           "type" : "repository"
+   *           "type" : "Repository"
    *         }
    *       } ]
    *     }, {
