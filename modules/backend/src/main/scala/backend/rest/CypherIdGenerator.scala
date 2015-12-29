@@ -25,17 +25,16 @@ case class CypherIdGenerator @Inject ()(cypher: Cypher) extends IdGenerator {
 
   def getNextNumericIdentifier(entityType: EntityType.Value, pattern: String)(implicit executionContent:
   ExecutionContext): Future[String] = {
-    val allIds = """START n = node:entities(__ISA__ = {isA}) RETURN n.identifier"""
-    var params = Map("isA" -> JsString(entityType))
+    val allIds = """MATCH (n:_Entity) WHERE n.__type = {isA} RETURN n.identifier"""
+    var params = Map("isA" -> JsString(entityType.toString))
     cypher.cypher(allIds, params).map(id => nextId(id, pattern))
   }
 
   def getNextChildNumericIdentifier(parentId: String, entityType: EntityType.Value, pattern: String)(implicit executionContent: ExecutionContext): Future[String] = {
     val allIds =
       s"""
-        | START n = node:entities(__ID__ = {id})
-        | MATCH c-[:${Ontology.HAS_PERMISSION_SCOPE}]->n
-        | WHERE c.__ISA__ = {isA}
+        | MATCH (c:_Entity)-[:${Ontology.HAS_PERMISSION_SCOPE}]->(n:_Entity)
+        | WHERE n.__id = {id} AND c.__type = {isA}
         | RETURN c.identifier
         | """.stripMargin
 

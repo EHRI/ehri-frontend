@@ -113,18 +113,17 @@ case class Guides @Inject()(
   private def countLinks(virtualUnit: String, target: Seq[String]): Future[Map[String, Long]] = {
     if (target.nonEmpty) {
       val query = s"""
-          START 
-            virtualUnit = node:entities(__ID__= {inContext}),
-            accessPoints = node:entities({accessPoint})
-          MATCH 
-               (link)-[:inContextOf]->virtualUnit,
-              (doc)<-[:hasLinkTarget]-(link)-[:hasLinkTarget]->accessPoints
-           WHERE doc <> accessPoints
-           RETURN accessPoints.__ID__, COUNT(ID(doc))
+          MATCH
+              (vc:VirtualUnit)<-[:inContextOf]-(link:Link),
+              (entity:_Entity)<-[:hasLinkTarget]-link-[:hasLinkTarget]->doc
+           WHERE vc.__id = {inContext}
+             AND entity.__id IN {accessPoints}
+             AND doc <> entity
+           RETURN entity.__id AS id, COUNT(doc)
           """.stripMargin
       val params = Map(
         "inContext" -> JsString(virtualUnit),
-        "accessPoint" -> JsString(getFacetQuery(target))
+        "accessPoints" -> Json.toJson(target)
       )
       cypher.cypher(query, params).map { json =>
         (json \ "data").as[List[List[JsValue]]].collect {
@@ -339,10 +338,6 @@ case class Guides @Inject()(
     Ok(views.html.guides.timeline(guide, page, guides.findPages(guide)))
   }
 
-  private def getFacetQuery(ids: Seq[String]): String = {
-    ids.filterNot(_.isEmpty).map("__ID__:" + _).reduce((a, b) => a + " OR " + b)
-  }
-
   def childItemIds(item: String)(implicit request: RequestHeader): Future[Map[String,Any]] = {
     import SearchConstants._
     vcDescendantIds(item).map { seq =>
@@ -357,23 +352,19 @@ case class Guides @Inject()(
   private def searchFacets(guide: Guide, ids: Seq[String]): Future[Seq[Long]] = {
     val query =
       s"""
-        START 
-          virtualUnit = node:entities(__ID__= {guide}), 
-          accessPoints = node:entities({guideFacets})
-        MATCH 
-             (link)-[:inContextOf]->virtualUnit,
-            (doc)<-[:hasLinkTarget]-(link)-[:hasLinkTarget]->accessPoints
-         WHERE doc.__ISA__ = "documentaryUnit"
-         WITH collect(accessPoints.__ID__) AS accessPointsId, doc
-         WHERE ALL (x IN {accesslist} 
+        MATCH
+            (vc:VirtualUnit)<-[:inContextOf]-(link: Link),
+            (doc:DocumentaryUnit)<-[:hasLinkTarget]-(link)-[:hasLinkTarget]->(entity:_Entity)
+         WHERE entity.__id IN {accessList} AND vc.__id = {guide}
+         WITH collect(entity.__id) AS accessPointsId, doc
+         WHERE ALL (x IN {accessList}
                    WHERE x IN accessPointsId)
          RETURN ID(doc)
         """.stripMargin
     cypher.cypher(query, Map(
       /* All IDS */
       "guide" -> JsString(guide.virtualUnit),
-      "accesslist" -> Json.toJson(ids),
-      "guideFacets" -> JsString(getFacetQuery(ids))
+      "accessList" -> Json.toJson(ids)
       /* End IDS */
     )).map { r =>
       (r \ "data").as[Seq[Seq[Long]]].flatten
@@ -386,14 +377,12 @@ case class Guides @Inject()(
   private def otherFacets(guide: Guide, ids: Seq[Long]): Future[Seq[Long]] = {
     val query =
       s"""
-        START 
-          virtualUnit = node:entities(__ID__= {guide}), 
-          doc = node({docList})
+        START doc = node({docList})
         MATCH 
-             (link)-[:inContextOf]->virtualUnit,
-            doc<-[:hasLinkTarget]-(link)-[:hasLinkTarget]->(accessPoints)
-          WHERE doc <> accessPoints
-         RETURN DISTINCT ID(accessPoints)
+             (link:Link)-[:inContextOf]->(vc:VirtualUnit),
+            doc<-[:hasLinkTarget]-(link)-[:hasLinkTarget]->(ap:AccessPoint)
+          WHERE vc.__id = {guide} AND doc <> ap
+         RETURN DISTINCT ID(ap)
         """.stripMargin
     cypher.cypher(query, Map(
       /* All IDS */
@@ -503,13 +492,12 @@ case class Guides @Inject()(
     context match {
       case Some(str) =>
         val query = s"""
-          |START
-          |  virtualUnit = node:entities(__ID__= {inContext}),
-          |  accessPoints = node:entities(__ID__= {accessPoint})
           |MATCH
-          |     (link)-[:inContextOf]->virtualUnit,
-          |    (doc)<-[:hasLinkTarget]-(link)-[:hasLinkTarget]->accessPoints
-          |WHERE doc <> accessPoints AND doc.__ISA__ = {type}
+          |     (link:Link)-[:inContextOf]->(vc:VirtualUnit),
+          |    (doc)<-[:hasLinkTarget]-(link)-[:hasLinkTarget]->(entity:_Entity)
+          |WHERE entity.__id = {accessPoint}
+          |  AND vc.__id = {inContext}
+          |  AND doc <> entity AND doc.__type = {type}
           |RETURN ID(doc) LIMIT 5
         """.stripMargin
         val params = Map(
@@ -522,11 +510,11 @@ case class Guides @Inject()(
         }
       case _ =>
         val query: String = s"""
-          |START
-          |  accessPoints = node:entities(__ID__= {accessPoint})
           |MATCH
-          |     (doc)<-[:hasLinkTarget]-(link)-[:hasLinkTarget]->accessPoints
-          | WHERE doc <> accessPoints AND doc.__ISA__ = {type}
+          |     (doc)<-[:hasLinkTarget]-(link:Link)-[:hasLinkTarget]->(entity:_Entity)
+          | WHERE entity.__id = {accessPoint}
+          | AND doc <> entity
+          | AND doc.__type = {type}
           | RETURN ID(doc) LIMIT 5
         """.stripMargin
         val params = Map(

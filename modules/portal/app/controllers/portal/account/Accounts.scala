@@ -107,15 +107,15 @@ case class Accounts @Inject()(
     mailer.send(email)
   }
 
-  def RateLimit = new ActionBuilder[Request] {
-    override def invokeBlock[A](request: Request[A], block: (Request[A]) => Future[Result]): Future[Result] = {
-      if (request.method != "POST") block(request)
-      else {
-        if (checkRateLimit(request)) block(request)
-        else immediate(TooManyRequest(rateLimitError(request)))
+    object RateLimit extends ActionBuilder[Request] {
+      override def invokeBlock[A](request: Request[A], block: (Request[A]) => Future[Result]): Future[Result] = {
+        if (request.method != "POST") block(request)
+        else {
+          if (checkRateLimit(request)) block(request)
+          else immediate(TooManyRequest(rateLimitError(request)))
+        }
       }
     }
-  }
 
   def signupPost = NotReadOnlyAction.async { implicit request =>
     implicit val userOpt: Option[UserProfile] = None
