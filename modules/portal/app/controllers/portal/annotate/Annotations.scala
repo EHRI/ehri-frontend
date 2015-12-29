@@ -289,10 +289,9 @@ case class Annotations @Inject()(
 
     val cypherQ =
       """
-        |START n=node:entities(__ID__ = {user})
-        |MATCH n -[:belongsTo*]-> g <-[:belongsTo]- u
-        |WHERE u.__ID__ <> {user}
-        |RETURN DISTINCT u.__ID__, u.name
+        |MATCH (n:UserProfile)-[:belongsTo*]->(g:Group)<-[:belongsTo]-(u:_Item)
+        |WHERE u.__id <> {user} AND n.__id = {user}
+        |RETURN DISTINCT u.__id, u.name
       """.stripMargin
 
     cypher.cypher(cypherQ,

@@ -20,6 +20,7 @@ object LinkF {
 
   object LinkType extends Enumeration {
     type Type = Value
+    val Identity = Value("identity")
     val Associative = Value("associative")
     val Family = Value("family")
     val Hierarchical = Value("hierarchical")
