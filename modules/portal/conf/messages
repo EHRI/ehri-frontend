@@ -30,16 +30,16 @@ help.helpdesk=Helpdesk
 #
 # Landing page: https://portal.ehri-project.eu
 #
-landingBlurb.repository=Browse {0} in {1}.
-landingBlurb.repository.link={0} archival institutions
-landingBlurb.repository.country.link={0} countries
-landingBlurb.country=Browse {0}.
-landingBlurb.country.link={0} country reports
-landingBlurb.documentaryUnit=Browse {0} in {1}.
-landingBlurb.documentaryUnit.link={0} archival descriptions
-landingBlurb.documentaryUnit.repository.link={0} institutions
-landingBlurb.historicalAgent=Browse {0}, comprised of {1}, {2} and {3}.
-landingBlurb.historicalAgent.link={0} historical agents
+landingBlurb.Repository=Browse {0} in {1}.
+landingBlurb.Repository.link={0} archival institutions
+landingBlurb.Repository.Country.link={0} countries
+landingBlurb.Country=Browse {0}.
+landingBlurb.Country.link={0} country reports
+landingBlurb.DocumentaryUnit=Browse {0} in {1}.
+landingBlurb.DocumentaryUnit.link={0} archival descriptions
+landingBlurb.DocumentaryUnit.Repository.link={0} institutions
+landingBlurb.HistoricalAgent=Browse {0}, comprised of {1}, {2} and {3}.
+landingBlurb.HistoricalAgent.link={0} historical agents
 landingBlurb.corporateBody.link={0,choice,0#{0} corporate bodies|1#1 corporate body|1<{0,number,integer} corporate bodies}
 landingBlurb.person.link={0} Persons
 landingBlurb.family.link={0,choice,0#{0} families|1#1 family|1<{0,number,integer} families}
@@ -163,25 +163,25 @@ profile.unwatch.title=Remove item from your watch list
 # Data types
 #
 type=Item type
-type.repository=Archival Institutions
-type.repository.description=An inventory of archival institutions that \
+type.Repository=Archival Institutions
+type.Repository.description=An inventory of archival institutions that \
   hold Holocaust-related material.
-type.documentaryUnit=Archival Descriptions
-type.documentaryUnit.description=Electronic descriptions and finding aids of Holocaust-related archival material.
-type.historicalAgent=Historical Agents
-type.historicalAgent.description=People, families, and corporate bodies related to EHRI archival descriptions.
-type.country=Countries
-type.country.description=EHRI national reports provide an overview of \
+type.DocumentaryUnit=Archival Descriptions
+type.DocumentaryUnit.description=Electronic descriptions and finding aids of Holocaust-related archival material.
+type.HistoricalAgent=Historical Agents
+type.HistoricalAgent.description=People, families, and corporate bodies related to EHRI archival descriptions.
+type.Country=Countries
+type.Country.description=EHRI national reports provide an overview of \
   the Second World War and Holocaust history as well as of the archival situation \
   in the covered countries.
-type.cvocConcept=Keywords
-type.cvocConcept.description=Subject terms related to EHRI archival descriptions.
-type.userProfile=People on EHRI
-type.group=Groups
-type.virtualUnit=Virtual Collections
-type.annotation=Notes
-type.link=Connections
-type.cvocVocabulary=Vocabularies
+type.CvocConcept=Keywords
+type.CvocConcept.description=Subject terms related to EHRI archival descriptions.
+type.UserProfile=People on EHRI
+type.Group=Groups
+type.VirtualUnit=Virtual Collections
+type.Annotation=Notes
+type.Link=Connections
+type.CvocVocabulary=Vocabularies
 
 #
 # Dates
@@ -450,8 +450,8 @@ facet.manifestation=Manifestation
 facet.manifestation.tooltip=Items described in accordance to physical \
   organisation, or ''virtual'' items aggregating descriptions of material from different \
   sources and potentially held by different institutions.
-facet.manifestation.documentaryUnit=Actual/Physical
-facet.manifestation.virtualUnit=Virtual Collection
+facet.manifestation.DocumentaryUnit=Actual/Physical
+facet.manifestation.VirtualUnit=Virtual Collection
 facet.country=Country
 facet.country.tooltip=The country in which the source material resides.
 facet.country.placeholder=Filter Country
@@ -614,19 +614,18 @@ timeline.eventType.follow={0} started following {1}
 timeline.eventType.setVisibility={0} updated {1}
 timeline.eventType.setGlobalPermissions={0} updated {1}
 timeline.eventType.setItemPermissions={0} updated {1}
-timeline.target.group=a group
-timeline.target.userProfile=a user
-timeline.target.repository=a collection holding institution
-timeline.target.historicalAgent=a historical agent
-timeline.target.documentaryUnit=an archival description
-timeline.target.action=an user event
-timeline.target.cvocVocabulary=a vocabulariy
-timeline.target.authoritativeSet=an authority sets
-timeline.target.cvocConcept=a term
-timeline.target.annotation=an annotation
-timeline.target.country=a country
-timeline.target.link=a link
-timeline.target.systemEvent=an history
+timeline.target.Group=a group
+timeline.target.UserProfile=a user
+timeline.target.Repository=a collection holding institution
+timeline.target.HistoricalAgent=a historical agent
+timeline.target.DocumentaryUnit=an archival description
+timeline.target.CvocVocabulary=a vocabulariy
+timeline.target.AuthoritativeSet=an authority sets
+timeline.target.CvocConcept=a term
+timeline.target.Annotation=an annotation
+timeline.target.Country=a country
+timeline.target.Link=a link
+timeline.target.SystemEvent=an history
 
 #
 # Visibility of user-generated content
@@ -647,9 +646,9 @@ contribution.visibility.isPrivate.title=Only you can see this note. \
 search=Search
 search.sort.title=Search result ordering
 search.global=Search Everything
-search.repository=Search Repositories
-search.documentaryUnit=Search Archival Descriptions
-search.historicalAgent=Search Historical Agents
+search.Repository=Search Repositories
+search.DocumentaryUnit=Search Archival Descriptions
+search.HistoricalAgent=Search Historical Agents
 search.helper.example=Phrase
 search.helper.linkTitle=Advanced query tips
 search.helper=There are several ways to be more specific in your search query:

@@ -9,7 +9,7 @@
 <script type="text/javascript" src="@controllers.portal.routes.PortalAssets.versioned("js/lib/handlebar.js")"></script>
 <script type="text/javascript" src="@controllers.portal.routes.PortalAssets.versioned("js/address.js")"></script>
 
-@defining(EntityType.Repository.toString) { implicit fieldPrefix =>
+@defining("repository") { implicit fieldPrefix =>
     @formHelpers.lineInput(f(""), IDENTIFIER)
 
     @helper.repeat(f("descriptions"), min=math.max(f("descriptions").indexes.length, 1)) { desc =>

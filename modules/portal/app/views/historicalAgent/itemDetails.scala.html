@@ -1,6 +1,6 @@
 @(item: HistoricalAgent, annotations: Seq[Annotation], links: Seq[Link], watched: Seq[String])(implicit userOpt: Option[UserProfile], request: RequestHeader, prefs: utils.SessionPrefs, globalConfig: global.GlobalConfig, messages: Messages, md: views.MarkdownRenderer, flash: Flash)
 
-@defining(defines.EntityType.HistoricalAgent.toString) { implicit fieldPrefix =>
+@defining("historicalAgent") { implicit fieldPrefix =>
     @views.html.layout.descriptionContainer(item.model.descriptions) {
         @item.model.descriptions.map { desc =>
             @views.html.historicalAgent.description(item, desc, links, annotations)

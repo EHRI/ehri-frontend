@@ -109,7 +109,7 @@ case class DocumentaryUnits @Inject()(
     )
   }
 
-  val formDefaults: Option[Configuration] = app.configuration.getConfig(EntityType.DocumentaryUnit)
+  val formDefaults: Option[Configuration] = app.configuration.getConfig(EntityType.DocumentaryUnit.toString)
 
   val targetContentTypes = Seq(ContentTypes.DocumentaryUnit)
 

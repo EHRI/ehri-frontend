@@ -2,7 +2,7 @@
 
 @import UserProfileF._
 
-@defining(EntityType.UserProfile.toString) { implicit fieldPrefix =>
+@defining("userProfile") { implicit fieldPrefix =>
     @formHelpers.checkbox(f(""), "staff")
     @formHelpers.checkbox(f(""), ACTIVE)
 }

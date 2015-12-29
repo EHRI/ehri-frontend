@@ -16,7 +16,7 @@
     @views.html.admin.common.breadcrumbs(path.toList ::: List(item))
     @layout.mainContent {
         @layout.itemDetails {
-            @defining(EntityType.DocumentaryUnit.toString) { implicit fieldPrefix =>
+            @defining("documentaryUnit") { implicit fieldPrefix =>
                 @layout.descriptionContainer(item.model.descriptions) {
                     @if(item.model.descriptions.isEmpty) {
                         <p class="text-muted">@Messages("documentaryUnit.noDescriptions")</p>

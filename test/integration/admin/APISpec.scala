@@ -95,7 +95,7 @@ class APISpec extends IntegrationTestRunner {
   "Direct API access for GET requests" should {
     "stream with chunked encoding" in new ITestApp {
       val c = FakeRequest(controllers.admin.routes.ApiController
-        .get(EntityType.DocumentaryUnit))
+        .get(EntityType.DocumentaryUnit.toString))
         .withHeaders(Constants.STREAM_HEADER_NAME -> "true")
         .withUser(privilegedUser).call()
       status(c) must equalTo(OK)
