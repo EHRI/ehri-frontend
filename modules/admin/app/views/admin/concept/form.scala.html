@@ -7,7 +7,7 @@
 
 @formHelpers.lineInput(f(""), Entity.IDENTIFIER)
 
-@defining(EntityType.Concept.toString) { implicit prefix =>
+@defining("cvocConcept") { implicit prefix =>
     <fieldset id="descriptions-area">
         <div class="inline-formset" data-prefix="descriptions">
             <label>

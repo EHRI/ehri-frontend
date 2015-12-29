@@ -4,7 +4,7 @@
     @breadcrumbs(item)
     @layout.mainContent {
         @layout.itemDetails {
-            @defining(EntityType.Repository.toString) { implicit fieldPrefix =>
+            @defining("repository") { implicit fieldPrefix =>
                 @item.model.identifier
                 @item.model.priority.map { p =>
                     <span class="badge priority@p">

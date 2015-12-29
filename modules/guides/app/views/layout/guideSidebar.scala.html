@@ -1,34 +1,37 @@
 @(guide: Guide, page: GuidePage, pages: Seq[GuidePage], sidebar: Option[Html] = None)(implicit request: RequestHeader, messages: Messages, md: views.MarkdownRenderer)
 
 @articleHTML(optionalText: Option[Html]) = {
-	@optionalText.map  { html =>
-		<div class="well well-sm">
-			<article>
-				@html
-			</article>
-		</div>
-	}
+    @optionalText.map { html =>
+        <div class="well well-sm">
+            <article>
+                @html
+            </article>
+        </div>
+    }
 }
 
 @articleString(optionalText: Option[String]) = {
-	@optionalText.map  { html =>
-		<div class="well well-sm">
-			<article>
-				@Markdown(html)
-			</article>
-		</div>
-	}
+    @optionalText.map { html =>
+        <div class="well well-sm">
+            <article>
+                @Markdown(html)
+            </article>
+        </div>
+    }
 }
 
 @articleHTML(sidebar)
 
 <div class="well well-sm">
     <ul class="nav nav-pills nav-stacked">
-            @for(otherPage <- pages.filter(_.position == GuidePage.MenuPosition.Side)) {
-                <li><a class="@{if(page.path == otherPage.path)"active"}" href="@controllers.portal.guides.routes.Guides.layoutRetrieval(guide.path, otherPage.path)">
-                    @otherPage.name
-                </a></li>
-            }
+        @for(otherPage <- pages.filter(_.position == GuidePage.MenuPosition.Side)) {
+            <li><a class="@{
+                if(page.path == otherPage.path) "active"
+            }" href="@controllers.portal.guides.routes.Guides.layoutRetrieval(guide.path, otherPage.path)">
+            @otherPage.name
+            </a>
+            </li>
+        }
         <li><a href="@controllers.portal.guides.routes.Guides.listGuides()">@Messages("guides")</a></li>
     </ul>
 </div>

@@ -48,14 +48,13 @@ case class Repositories @Inject()(
 
   // Documentary unit facets
   private val repositoryFacets: FacetBuilder = { implicit request =>
-    val prefix = EntityType.Repository.toString
     import SearchConstants._
     List(
       QueryFacetClass(
         key = CHILD_COUNT,
-        name = Messages(prefix + ".itemsHeldOnline"),
+        name = Messages("repository.itemsHeldOnline"),
         param = "data",
-        render = s => Messages(prefix + "." + s),
+        render = s => Messages("repository." + s),
         facets = List(
           QueryFacet(value = "false", range = Val("0"), name = Some("noChildItems")),
           QueryFacet(value = "true", range = Val("1"), name = Some("hasChildItems"))
@@ -106,7 +105,7 @@ case class Repositories @Inject()(
 
   private val form = models.Repository.form
 
-  private val childFormDefaults: Option[Configuration] = app.configuration.getConfig(EntityType.DocumentaryUnit)
+  private val childFormDefaults: Option[Configuration] = app.configuration.getConfig(EntityType.DocumentaryUnit.toString)
 
   private val childForm = models.DocumentaryUnit.form
 

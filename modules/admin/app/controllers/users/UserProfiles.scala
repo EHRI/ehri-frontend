@@ -69,7 +69,7 @@ case class UserProfiles @Inject()(
       ),
       FieldFacetClass(
         key="groupName",
-        name=Messages("contentTypes.group"),
+        name=Messages("contentTypes.Group"),
         param="group",
         sort = FacetSort.Name
       )

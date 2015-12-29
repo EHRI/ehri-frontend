@@ -39,7 +39,7 @@ case class CypherIdGenerator @Inject ()(cypher: Cypher) extends IdGenerator {
         | """.stripMargin
 
     var params = Map(
-      "isA" -> JsString(entityType),
+      "isA" -> JsString(entityType.toString),
       "id" -> JsString(parentId)
     )
     cypher.cypher(allIds, params).map(id => nextId(id, pattern))

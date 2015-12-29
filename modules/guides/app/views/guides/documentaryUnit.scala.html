@@ -21,7 +21,7 @@
         <small class="text-muted">@Messages("guides.annotation")</small><br />
         <small><a href="@controllers.portal.routes.DocumentaryUnits.browse(item.id)">@Messages("guides.seeOnPortal")</a></small>
     </p>
-    @defining(EntityType.DocumentaryUnit.toString) { implicit prefix =>
+    @defining("documentaryUnit") { implicit prefix =>
         <section class="archival-context panel-details repository">
             @item.holder.map { holder =>
                 <div class="panel-heading">
@@ -45,7 +45,7 @@
 
 @views.html.layout.guideLayout(guide, page, pages, optionalContent = Some(sidebar(page))) {
     <article class="description-viewport">
-    @defining(EntityType.DocumentaryUnit.toString) { implicit fieldPrefix =>
+    @defining("documentaryUnit") { implicit fieldPrefix =>
         @defining(annotations) { implicit annotations =>
             @item.model.descriptions.map { desc =>
                 @views.html.documentaryUnit.description(item, desc, links, annotations)

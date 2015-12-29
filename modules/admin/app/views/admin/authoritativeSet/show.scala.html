@@ -2,7 +2,7 @@
 
 @views.html.admin.layout.rightSidebar(item.toStringLang, breadcrumbs = views.html.admin.common.breadcrumbs(List(item))) {
 
-    @defining(EntityType.AuthoritativeSet.toString) { implicit  prefix =>
+    @defining("authoritativeSet") { implicit  prefix =>
         @views.html.admin.common.stringValue(item.model.description, models.AuthoritativeSetF.DESCRIPTION)
     }
 

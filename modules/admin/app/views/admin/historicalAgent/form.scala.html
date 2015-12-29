@@ -5,7 +5,7 @@
 
 @implicitField = @{ views.html.helper.FieldConstructor(formHelpers.fieldTemplate.f) }
 
-@defining(EntityType.HistoricalAgent.toString) { implicit fieldPrefix =>
+@defining("historicalAgent") { implicit fieldPrefix =>
     @lineInput(f(""), IDENTIFIER)
 
     @helper.repeat(f("descriptions"), min=math.max(f("descriptions").indexes.length, 1)) { desc =>

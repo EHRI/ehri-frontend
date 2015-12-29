@@ -20,13 +20,13 @@
         <div id="navbar-primary" class="navbar-collapse collapse">
             <ul class="nav navbar-nav">
                 <li class="country @views.Helpers.maybeActivePath(controllers.portal.routes.Countries.searchAll().url)">
-                    <a href="@controllers.portal.routes.Countries.searchAll()">@Messages("type.country")</a>
+                    <a href="@controllers.portal.routes.Countries.searchAll()">@Messages("type.Country")</a>
                 </li>
                 <li class="repository @views.Helpers.maybeActivePath(controllers.portal.routes.Repositories.searchAll().url)">
-                    <a href="@controllers.portal.routes.Repositories.searchAll()">@Messages("type.repository")</a>
+                    <a href="@controllers.portal.routes.Repositories.searchAll()">@Messages("type.Repository")</a>
                 </li>
                 <li class="documentaryUnit @views.Helpers.maybeActivePath(controllers.portal.routes.DocumentaryUnits.searchAll().url)">
-                    <a href="@controllers.portal.routes.DocumentaryUnits.searchAll()">@Messages("type.documentaryUnit")</a>
+                    <a href="@controllers.portal.routes.DocumentaryUnits.searchAll()">@Messages("type.DocumentaryUnit")</a>
                 </li>
             </ul>
         </div>
