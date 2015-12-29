@@ -501,8 +501,7 @@ class BackendModelSpec extends RestBackendRunner with PlaySpecification {
     "get a JsValue for a graph item" in new WithApplicationLoader(appLoader) {
       val dao = new CypherDAO
       val res = await(dao.cypher(
-        """START n = node:entities(__ID__ = {id})
-           RETURN n.identifier, n.name""",
+        """MATCH (n:_Item) WHERE n.__id = {id} RETURN n.identifier, n.name""",
           Map("id" -> JsString("admin"))))
       // It should return one list value in the data section
       val list = (res \ "data").as[List[List[String]]]

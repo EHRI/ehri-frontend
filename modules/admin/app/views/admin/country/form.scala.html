@@ -2,7 +2,7 @@
 
 @implicitField = @{ views.html.helper.FieldConstructor(formHelpers.fieldTemplate.f) }
 
-@defining(EntityType.Country.toString) { implicit fieldPrefix =>
+@defining("country") { implicit fieldPrefix =>
     @formHelpers.lineInput(f(""), Entity.IDENTIFIER)
     @formHelpers.textInput(f(""), CountryF.ABSTRACT)
     @formHelpers.textInput(f(""), CountryF.HISTORY)

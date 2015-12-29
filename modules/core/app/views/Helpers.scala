@@ -1,5 +1,6 @@
 package views
 
+import defines.EntityType
 import org.jsoup.Jsoup
 import org.jsoup.safety.Whitelist
 import org.apache.commons.lang3.StringUtils
@@ -19,6 +20,18 @@ object Helpers {
   def relativeDate(d: org.joda.time.DateTime)(implicit messages: Messages): String = relativeDate(d.toDate)
   def relativeDate(d: Option[org.joda.time.DateTime])(implicit messages: Messages): String =
     d.fold("")(dt => relativeDate(dt.toDate))
+
+  /**
+   * Get the field prefix for an entity type. This is just the entity type
+   * string with a lower-cased first letter.
+   *
+   * As a general rule, do not use this because it is fragile.
+   * FIXME: Better solution here.
+   */
+  def prefixFor(et: EntityType.Value): String = et match {
+    case EntityType.VirtualUnit => prefixFor(EntityType.DocumentaryUnit)
+    case _ => et.toString.substring(0, 1).toLowerCase + et.toString.substring(1)
+  }
 
 
   def stripTags(htmlText: String): String = Jsoup.clean(htmlText, Whitelist.none())

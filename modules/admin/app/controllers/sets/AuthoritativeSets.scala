@@ -45,7 +45,7 @@ AuthoritativeSets @Inject()(
   with Indexable[AuthoritativeSet]
   with Search {
 
-  private val formDefaults: Option[Configuration] = app.configuration.getConfig(EntityType.HistoricalAgent)
+  private val formDefaults: Option[Configuration] = app.configuration.getConfig(EntityType.HistoricalAgent.toString)
 
   val targetContentTypes = Seq(ContentTypes.HistoricalAgent)
   private val form = models.AuthoritativeSet.form

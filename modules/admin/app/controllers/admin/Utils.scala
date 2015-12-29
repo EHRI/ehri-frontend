@@ -4,7 +4,9 @@ import java.io.File
 
 import auth.AccountManager
 import controllers.base.AdminController
+import defines.EntityType
 import models.Group
+import models.base.Accessor
 import play.api.cache.CacheApi
 import play.api.data.Form
 import play.api.data.Forms._
@@ -49,7 +51,7 @@ case class Utils @Inject()(
   def checkDb = Action.async { implicit request =>
     // Not using the EntityDAO directly here to avoid caching
     // and logging
-    ws.url(s"$baseUrl/group/admin").get().map { r =>
+    ws.url(s"$baseUrl/${EntityType.Group}/${Accessor.ADMIN_GROUP_NAME}").get().map { r =>
       r.json.validate[Group](Group.GroupResource.restReads).fold(
         _ => ServiceUnavailable("ko\nbad json"),
         _ => Ok("ok")
@@ -115,7 +117,7 @@ case class Utils @Inject()(
 
     for {
       allAccounts <- accounts.findAll(PageParams.empty.withoutLimit)
-      profileIds <- cypher.get("MATCH (n:userProfile) RETURN n.__ID__", Map.empty)(stringList)
+      profileIds <- cypher.get("MATCH (n:userProfile) RETURN n.__id", Map.empty)(stringList)
       accountIds = allAccounts.map(_.id)
     } yield {
       val noProfile = accountIds.diff(profileIds)

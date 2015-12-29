@@ -10,7 +10,7 @@
     "places" : [ "Berlin", "Europe", "Germany", "Western Europe" ],
     "identifier" : "GB 1556 WL 760"
   },
-  "type" : "documentaryUnit",
+  "type" : "DocumentaryUnit",
   "relationships" : {
     "describes" : [ {
       "id" : "7786576c-9aee-4a83-9463-ef747cdef6d3",
@@ -40,11 +40,11 @@
         "locationOfCopies" : "",
         "provenance": "test"
       },
-      "type" : "documentDescription",
+      "type" : "DocumentaryUnitDescription",
       "relationships" : {
         "relatesTo": [ {
           "id": "dfkskekdkslekfs",
-          "type": "relationship",
+          "type": "AccessPoint",
           "data" : {
             "name": "Something",
             "description": "Something else"
@@ -56,7 +56,7 @@
             "startDate" : "1933-01-01",
             "endDate" : "1959-01-01"
           },
-          "type" : "datePeriod",
+          "type" : "DatePeriod",
           "relationships" : {
           }
         } ]
@@ -69,7 +69,7 @@
         "name" : "Wiener Library",
         "identifier" : "wiener-library"
       },
-      "type" : "repository",
+      "type" : "Repository",
       "relationships" : {
         "describes" : [ {
           "id" : "5379607d-0b92-48a0-8309-c6b9e209a0dd",
@@ -78,14 +78,14 @@
             "history" : "The Wiener Library is in London",
             "languageCode" : "en"
           },
-          "type" : "repositoryDescription",
+          "type" : "RepositoryDescription",
           "relationships" : {
             "hasAddress" : [ {
               "id" : "134494ac-ff89-457c-b1d0-b0d88bc60836",
               "data" : {
                 "addressName" : "primary"
               },
-              "type" : "address",
+              "type" : "Address",
               "relationships" : {
               }
             } ]
@@ -100,7 +100,7 @@
         "identifier" : "c83f104f-9487-4c2f-8bcf-e183316ee1b8",
         "logMessage" : "Imported from command-line"
       },
-      "type" : "systemEvent",
+      "type" : "SystemEvent",
       "relationships" : {
         "hasActioner" : [ {
           "id" : "mike",
@@ -108,7 +108,7 @@
             "name" : "mike",
             "identifier" : "mike"
           },
-          "type" : "userProfile",
+          "type" : "UserProfile",
           "relationships" : {
             "belongsTo" : [ {
               "id" : "admin",
@@ -116,7 +116,7 @@
                 "name" : "Administrators",
                 "identifier" : "admin"
               },
-              "type" : "group",
+              "type" : "Group",
               "relationships" : {
               }
             } ]

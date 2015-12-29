@@ -6,7 +6,7 @@
     "dataSummary" : "**For further reference:**\r\n\r\nTůma, Oldřich, Jitka Svobodová & Ulrich Mählert, *Vademecum Contemporary\r\nHistory Czech Republic. A Guide to Archives, Research Institutions,\r\nLibraries, Associations, Museums and Places of Memorial*(Prague:\r\nInstitute for Contemporary History, Academy of Sciences of the Czech\r\nRepublic, 2005).\r\n\r\nSee:\r\n[http://www.stiftung-aufarbeitung.de/downloads/pdf/vade-tschech.pdf](http://www.stiftung-aufarbeitung.de/downloads/pdf/vade-tschech.pdf);\r\n[http://www.usd.cas.cz/](http://www.usd.cas.cz/)\r\n\r\n**For information on the content and structure of the EHRI national\r\nreports, please consult the\r\n[introduction](http://www.ehri-project.eu/drupal/national-reports).**\r\n",
     "situation" : "The state archival system in the Czech Republic consists of The National\r\nArchives in Prague and the local archives. The National Archives and 7\r\nregional archives are subordinate to the National Archival\r\nAdministration. 70 district archives are subordinated to the regional\r\narchives. Next to the state archives, there are collections in private\r\narchives and museums.\r\n\r\nApart of these state archives, other state archives holding collections\r\nrelating to the Second World War are the Archive of Military History,\r\nthe National Film Archive, the Archive of the Academy of Sciences of the\r\nCzech Republic and the Institute for the Study of Totalitarian Regimes\r\n(which holds the archives of the former communist security services).\r\nThe Terezín Memorial in the former Theresienstadt ghetto is a state\r\nmuseum and research institute. Non-state institutions doing research and\r\ncollecting documents on the Holocaust include the Jewish Museum in\r\nPrague and the Terezin Initiative Institute (an institution in Prague\r\ncreated by former inmates of the Theresienstadt Ghetto)."
   },
-  "type" : "country",
+  "type" : "Country",
   "relationships" : {
     "lifecycleEvent" : [ {
       "id" : "af657a6a-9c99-11e4-b363-09bf296836aa",
@@ -14,7 +14,7 @@
         "timestamp" : "2015-01-15T09:34:21.455Z",
         "eventType" : "modification"
       },
-      "type" : "systemEvent",
+      "type" : "SystemEvent",
       "relationships" : {
         "hasActioner" : [ {
           "id" : "mike",
@@ -22,7 +22,7 @@
             "name" : "Mike",
             "identifier" : "mike"
           },
-          "type" : "userProfile",
+          "type" : "UserProfile",
           "relationships" : {
             "belongsTo" : [ {
               "id" : "moderators",
@@ -30,7 +30,7 @@
                 "name" : "Moderators",
                 "identifier" : "moderators"
               },
-              "type" : "group",
+              "type" : "Group",
               "relationships" : {
               },
               "meta" : {
@@ -42,7 +42,7 @@
                 "name" : "Portal",
                 "identifier" : "portal"
               },
-              "type" : "group",
+              "type" : "Group",
               "relationships" : {
               },
               "meta" : {
@@ -54,7 +54,7 @@
                 "name" : "Administrators",
                 "identifier" : "admin"
               },
-              "type" : "group",
+              "type" : "Group",
               "relationships" : {
               },
               "meta" : {

@@ -3,7 +3,7 @@
   "data" : {
     "identifier" : "http://ehri01.dans.knaw.nl/tematres/vocab/?tema=671"
   },
-  "type" : "cvocConcept",
+  "type" : "CvocConcept",
   "relationships" : {
     "inCvoc" : [ {
       "id" : "ehri-skos",
@@ -12,7 +12,7 @@
         "name" : "EHRI Skos",
         "identifier" : "ehri-skos"
       },
-      "type" : "cvocVocabulary",
+      "type" : "CvocVocabulary",
       "relationships" : {}
     } ],
     "describes" : [ {
@@ -21,7 +21,7 @@
         "languageCode" : "en",
         "name" : "Art culture science religion"
       },
-      "type" : "cvocConceptDescription",
+      "type" : "CvocConceptDescription",
       "relationships" : {
       }
     } ],
@@ -33,7 +33,7 @@
         "identifier" : "10997557-ec46-41fa-a2b2-69e3fb00f11f",
         "logMessage" : "Imported from command-line"
       },
-      "type" : "systemEvent",
+      "type" : "SystemEvent",
       "relationships" : {
         "hasActioner" : [ {
           "id" : "mike",
@@ -44,7 +44,7 @@
             "about" : "Testing the system",
             "identifier" : "mike"
           },
-          "type" : "userProfile",
+          "type" : "UserProfile",
           "relationships" : {
             "belongsTo" : [ {
               "id" : "admin",
@@ -53,7 +53,7 @@
                 "name" : "Administrators",
                 "identifier" : "admin"
               },
-              "type" : "group",
+              "type" : "Group",
               "relationships" : {
               }
             } ]

@@ -4,7 +4,7 @@
 
 @implicitField = @{ helper.FieldConstructor(fieldTemplate.f) }
 
-@defining(EntityType.AuthoritativeSet.toString) { implicit fieldPrefix =>
+@defining("authoritativeSet") { implicit fieldPrefix =>
     @lineInput(f(""), Entity.IDENTIFIER)
     @lineInput(f(""), AuthoritativeSetF.NAME)
     @textInput(f(""), AuthoritativeSetF.DESCRIPTION)

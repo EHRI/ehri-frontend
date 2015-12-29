@@ -22,7 +22,7 @@ trait RestHelpers {
   }
 
   private def getTypeIdAndName(s: EntityType.Value): Future[Seq[(String, String)]] =
-    cypher.cypher(s"MATCH (n:$s) RETURN n.__ID__, n.name").map(parseIds)
+    cypher.cypher(s"MATCH (n:$s) RETURN n.__id, n.name").map(parseIds)
 
   def getGroupList: Future[Seq[(String,String)]] = getTypeIdAndName(EntityType.Group)
   

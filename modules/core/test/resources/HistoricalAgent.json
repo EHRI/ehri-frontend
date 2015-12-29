@@ -5,7 +5,7 @@
     "name" : "Test Authority 2",
     "identifier" : "another-test-authority"
   },
-  "type" : "historicalAgent",
+  "type" : "HistoricalAgent",
   "relationships" : {
     "describes" : [ {
       "id" : "cdb5d0aa-2100-49f9-8481-2b7b278825fa",
@@ -22,11 +22,11 @@
         "places": ["Germany", "Poland"],
         "history": "Some history"
       },
-      "type" : "historicalAgentDescription",
+      "type" : "HistoricalAgentDescription",
       "relationships" : {
         "relatesTo": [ {
           "id": "dfkskekdkslekfs",
-          "type": "relationship",
+          "type": "AccessPoint",
           "data" : {
             "name": "Something",
             "description": "Something else"
@@ -41,7 +41,7 @@
         "identifier" : "5a47b976-91b1-42e7-9342-ba3175560ee3",
         "logMessage" : "Updating item (historicalAgent): 'another-test-authority'"
       },
-      "type" : "systemEvent",
+      "type" : "SystemEvent",
       "relationships" : {
         "hasActioner" : [ {
           "id" : "mike",
@@ -52,7 +52,7 @@
             "about" : "Testing the system",
             "identifier" : "mike"
           },
-          "type" : "userProfile",
+          "type" : "UserProfile",
           "relationships" : {
             "belongsTo" : [ {
               "id" : "admin",
@@ -61,7 +61,7 @@
                 "name" : "Administrators",
                 "identifier" : "admin"
               },
-              "type" : "group",
+              "type" : "Group",
               "relationships" : {
               }
             } ]

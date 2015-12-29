@@ -3,14 +3,10 @@ package defines
 import eu.ehri.project.definitions.Entities._
 
 object EntityType extends Enumeration {
-  // Allow these enums to be converted to strings implicitly,
-  // since the binding relies on to/from string behaviour.
-  import scala.language.implicitConversions
-  implicit def enumToString(e: Enumeration#Value): String = e.toString
 
   type Type = Value
   val DocumentaryUnit = Value(DOCUMENTARY_UNIT)
-  val DocumentaryUnitDescription = Value(DOCUMENT_DESCRIPTION)
+  val DocumentaryUnitDescription = Value(DOCUMENTARY_UNIT_DESCRIPTION)
   val Repository = Value(REPOSITORY)
   val RepositoryDescription = Value(REPOSITORY_DESCRIPTION)
   val HistoricalAgent = Value(HISTORICAL_AGENT)

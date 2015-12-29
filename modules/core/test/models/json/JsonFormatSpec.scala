@@ -26,7 +26,7 @@ class JsonFormatSpec extends PlaySpecification with ResourceUtils {
   }
 
   "Documentary Unit metadata should read correctly" in {
-    val doc: DocumentaryUnit = readResource("documentaryUnit1.json").as[DocumentaryUnit]
+    val doc: DocumentaryUnit = readResource(s"${EntityType.DocumentaryUnit}1.json").as[DocumentaryUnit]
     doc.holder must beSome
     doc.latestEvent must beSome
     doc.meta.value.get("childCount") must beSome
@@ -61,7 +61,7 @@ class JsonFormatSpec extends PlaySpecification with ResourceUtils {
   }
 
   "Repository metadata should read correctly" in {
-    val repository: Repository = readResource("repository1.json").as[Repository]
+    val repository: Repository = readResource(s"${EntityType.Repository}1.json").as[Repository]
     repository.country must beSome
     repository.latestEvent must beSome
     repository.meta.value.get("childCount") must beSome

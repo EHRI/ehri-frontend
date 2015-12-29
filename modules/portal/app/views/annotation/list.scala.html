@@ -1,9 +1,9 @@
 @(result: utils.search.SearchResult[(Annotation,utils.search.SearchHit)], action: Call)(implicit userOpt: Option[UserProfile], request: RequestHeader, prefs: utils.SessionPrefs, globalConfig: global.GlobalConfig, messages: Messages, md: views.MarkdownRenderer, flash: Flash)
 
-@views.html.layout.portalLayout(Messages("type.annotation"), EntityType.Annotation.toString) {
+@views.html.layout.portalLayout(Messages("type.Annotation"), EntityType.Annotation.toString) {
     @views.html.layout.mainContent {
         @views.html.common.search.searchForm(result, action, autofocus = false) {
-            @views.html.common.search.searchItemList(result, Seq.empty, itemClass="annotation")
+            @views.html.common.search.searchItemList(result, Seq.empty, itemClass=EntityType.Annotation.toString)
         } {
             @views.html.common.typeLabel(EntityType.Annotation) {
             }
