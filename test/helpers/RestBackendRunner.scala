@@ -4,7 +4,7 @@ import org.specs2.mutable.Specification
 import org.specs2.specification.BeforeEach
 import org.specs2.specification.core.Fragments
 import eu.ehri.extension.test.helpers.ServerRunner
-import eu.ehri.extension.AbstractAccessibleEntityResource
+import eu.ehri.extension.SystemEventResource
 
 
 /**
@@ -37,7 +37,7 @@ trait RestBackendRunner extends BeforeAllAfterAll {
 
   import RestBackendRunner._
   private val runner = ServerRunner.getInstance(testPort,
-    classOf[AbstractAccessibleEntityResource[_]].getPackage.getName, testEndpoint)
+    classOf[SystemEventResource].getPackage.getName, testEndpoint)
 
   /**
    * Tear down and setup fixtures before every test
