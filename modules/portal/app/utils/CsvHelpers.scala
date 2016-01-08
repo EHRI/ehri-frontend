@@ -1,27 +1,22 @@
 package utils
 
-import java.io.StringWriter
+import com.fasterxml.jackson.core.FormatSchema
+import com.fasterxml.jackson.dataformat.csv.{CsvGenerator, CsvMapper, CsvSchema}
 
-import com.opencsv.CSVWriter
-
-/**
- * @author Mike Bryant (http://github.com/mikesname)
- */
 trait CsvHelpers {
-  def writeCsv(headers: Seq[String], data: Seq[Array[String]], sep: Char = ',', quote: Boolean = true): String = {
-    val buffer = new StringWriter()
-    val csvWriter = if (quote) new CSVWriter(buffer, sep)
-      else new CSVWriter(buffer, sep, CSVWriter.NO_QUOTE_CHARACTER)
-    try {
-      csvWriter.writeNext(headers.toArray)
-      for (item <- data) {
-        csvWriter.writeNext(item)
-      }
-      buffer.getBuffer.toString
-    } finally {
-      csvWriter.close()
-    }
+  def writeCsv(headers: Seq[String], data: Seq[Array[String]], sep: Char = ','): String = {
+    val format = CsvSchema.builder().setColumnSeparator(sep).setUseHeader(true)
+    val schema: FormatSchema = headers.foldLeft(format) { (s, h) =>
+      s.addColumn(h)
+    }.build()
+
+    CsvHelpers.mapper.writer(schema).writeValueAsString(data.toArray)
   }
 }
 
-object CsvHelpers extends CsvHelpers
+object CsvHelpers extends CsvHelpers {
+  // String quoting check necessary to avoid over-cautious quoting
+  // of unicode-containing values
+  val mapper = new CsvMapper()
+    .enable(CsvGenerator.Feature.STRICT_CHECK_FOR_QUOTING)
+}
