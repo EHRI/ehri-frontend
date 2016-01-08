@@ -18,7 +18,7 @@ case class ResultFormat(columns: Seq[String], data: Seq[Seq[JsValue]]) {
       case JsNumber(i) => i.toString()
       case JsNull => ""
       case JsBoolean(b) => b.toString
-    }.toArray), sep = sep, quote = quote)
+    }.toArray), sep = sep)
 }
 object ResultFormat {
   implicit val _reads = Json.reads[ResultFormat]

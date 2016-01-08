@@ -5,7 +5,6 @@ import java.io.{StringWriter, File, FileInputStream, InputStreamReader}
 import auth.{HashedPassword, AccountManager}
 import backend.{ApiUser, BackendHandle, EventHandler, Backend}
 import javax.inject._
-import com.opencsv.{CSVReader, CSVWriter}
 import controllers.base.AdminController
 import controllers.core.auth.AccountHelpers
 import defines.{PermissionType, ContentTypes, EntityType}
@@ -15,7 +14,7 @@ import play.api.Logger
 import play.api.cache.CacheApi
 import play.api.i18n.MessagesApi
 import play.api.libs.concurrent.Execution.Implicits._
-import utils.MovedPageLookup
+import utils.{CsvHelpers, MovedPageLookup}
 
 import scala.concurrent.Future
 import scala.concurrent.Future.{successful => immediate}
@@ -129,7 +128,7 @@ case class LegacyAccounts @Inject()(
             val csv = done.map { case (uid, account, profile, updated) =>
               Array(uid.toString, account.id, account.email, profile.model.name, updated.toString)
             }
-            Ok(writeCsv(Seq("UID", "ID", "EMAIL", "NAME", "UPDATED"), csv))
+            Ok(CsvHelpers.writeCsv(Seq("UID", "ID", "EMAIL", "NAME", "UPDATED"), csv))
           } recover {
             case ParseError(row, msg) => BadRequest(s"Error at row $row: $msg")
           }
@@ -140,17 +139,6 @@ case class LegacyAccounts @Inject()(
             controllers.admin.routes.LegacyAccounts.importLegacy())))
         }
     )
-  }
-
-  private def writeCsv(headers: Seq[String], data: Seq[Array[String]]): String = {
-    val buffer = new StringWriter()
-    val csvWriter = new CSVWriter(buffer)
-    csvWriter.writeNext(headers.toArray)
-    for (item <- data) {
-      csvWriter.writeNext(item)
-    }
-    csvWriter.close()
-    buffer.getBuffer.toString
   }
 
   private def getAccountAndProfile(num: Int, data: LegacyData)(implicit userOpt: Option[UserProfile]): Future[(Int, Account, UserProfile, Boolean)] = {
@@ -176,12 +164,15 @@ case class LegacyAccounts @Inject()(
     if (s == null || s.trim.isEmpty || s.trim.equalsIgnoreCase("NULL")) None else Some(s)
 
   private def importCsv(offset: Int, file: File)(implicit userOpt: Option[UserProfile]): Future[List[(Int, Account, UserProfile, Boolean)]] = {
-    val csvReader: CSVReader = new CSVReader(
-      new InputStreamReader(
-        new FileInputStream(file), "UTF-8"), ',', '"', 1)
-
+    import java.io.FileInputStream
     import scala.collection.JavaConverters._
-    val all = csvReader.readAll()
+    import com.fasterxml.jackson.dataformat.csv.CsvSchema
+
+    val schema = CsvSchema.builder().setColumnSeparator(',')
+      .setQuoteChar('"').setUseHeader(true).build()
+    val all: java.util.List[Array[String]] = CsvHelpers.mapper
+      .reader(schema).readValue(new FileInputStream(file))
+
     val allData: List[List[String]] = (for {
       arr <- all.asScala
     } yield arr.toList).toList

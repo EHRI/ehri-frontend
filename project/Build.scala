@@ -103,7 +103,7 @@ object ApplicationBuild extends Build {
 
   val portalDependencies = Seq(
     "net.coobird" % "thumbnailator" % "[0.4, 0.5)",
-    "com.opencsv" % "opencsv" % "3.6",
+    "com.fasterxml.jackson.dataformat" % "jackson-dataformat-csv" % "2.6.4",
 
     // EHRI indexing tools
     "ehri-project" % "index-data-converter" % "1.1.3-SNAPSHOT" exclude("log4j", "log4j") exclude ("org.slf4j",

@@ -16,7 +16,7 @@ import play.api.libs.json._
 import play.api.mvc.Action
 import backend.Backend
 import play.api.libs.ws.WSClient
-import utils.{MovedPageLookup, PageParams}
+import utils.{CsvHelpers, MovedPageLookup, PageParams}
 import backend.rest.cypher.Cypher
 import views.MarkdownRenderer
 
@@ -90,14 +90,13 @@ case class Utils @Inject()(
   }
 
   private def parseCsv(file: File): Seq[(String, String)] = {
-    import java.io.{InputStreamReader, FileInputStream}
-    import com.opencsv.CSVReader
+    import java.io.FileInputStream
     import scala.collection.JavaConverters._
+    import com.fasterxml.jackson.dataformat.csv.CsvSchema
 
-    val csvReader: CSVReader = new CSVReader(
-      new InputStreamReader(
-        new FileInputStream(file), "UTF-8"), '\t')
-    val all = csvReader.readAll()
+    val schema = CsvSchema.builder().setColumnSeparator('\t').build()
+    val all: java.util.List[Array[String]] = CsvHelpers.mapper
+      .reader(schema).readValue(new FileInputStream(file))
     (for {
       arr <- all.asScala
     } yield arr.toList).toSeq.collect {
