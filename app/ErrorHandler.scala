@@ -15,7 +15,7 @@ import scala.concurrent.Future
 import scala.concurrent.Future.{successful => immediate}
 
 import controllers.renderError
-import views.html.errors.{permissionDenied, itemNotFound, serverTimeout, fatalError}
+import views.html.errors.{permissionDenied, itemNotFound, serverTimeout, fatalError, pageNotFound, genericError}
 
 /**
  * @author Mike Bryant (http://github.com/mikesname)
@@ -25,23 +25,38 @@ class ErrorHandler @Inject() (
   config: Configuration,
   sourceMapper: OptionalSourceMapper,
   router: Provider[Router]
-) extends DefaultHttpErrorHandler(env, config, sourceMapper, router) with I18nSupport with SessionPreferences[SessionPrefs] {
+) extends DefaultHttpErrorHandler(env, config, sourceMapper, router)
+with I18nSupport
+with SessionPreferences[SessionPrefs] {
 
   override val defaultPreferences = new SessionPrefs
 
   implicit def messagesApi: MessagesApi = new DefaultMessagesApi(env, config, new DefaultLangs(config))
   implicit def globalConfig: GlobalConfig = new AppGlobalConfig(config)
 
-  override def onNotFound(request: RequestHeader, message: String): Future[Result] = {
-    implicit val r = request
-    immediate(NotFound(renderError("errors.pageNotFound", views.html.errors.pageNotFound())))
-  }
-
   override implicit def request2Messages(implicit request: RequestHeader): Messages = {
     request.preferences.language match {
       case None => super.request2Messages(request)
       case Some(lang) => super.request2Messages(request).copy(lang = Lang(lang))
     }
+  }
+
+  // NB: Handling this *also* overrides onNotFound
+  override def onClientError(request: RequestHeader, statusCode: Int, message: String) = {
+    implicit val r = request
+
+    statusCode match {
+      case play.api.http.Status.NOT_FOUND => onNotFound(request, message)
+      case _ => immediate(
+        Status(statusCode)(
+          renderError("errors.clientError", genericError(message)))
+      )
+    }
+  }
+
+  override def onNotFound(request: RequestHeader, message: String): Future[Result] = {
+    implicit val r = request
+    immediate(NotFound(renderError("errors.pageNotFound", pageNotFound())))
   }
 
   override def onServerError(request: RequestHeader, exception: Throwable): Future[Result] = {

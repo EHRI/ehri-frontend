@@ -53,6 +53,7 @@ errors.itemNotFound=Objet non trouvé
 errors.itemNotFound.explanation=Cet objet n''a pas été trouvé dans la base de données.
 errors.pageNotFound=La page n''a pas été trouvée
 errors.pageNotFound.explanation=La page n''existe pas sur cet emplacement, ou elle a été déplacée.
+errors.clientError=Il y avait un problème
 errors.genericProblem=Une erreur est survenue
 errors.genericProblem.explanation=Nous sommes désolés, mais cette page ne peut être chargée. Nous en avons été informés \
   et nous mettons tout en œuvre pour réparer le problème dans le plus bref délais.

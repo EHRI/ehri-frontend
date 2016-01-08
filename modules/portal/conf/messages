@@ -68,6 +68,7 @@ errors.itemNotFound=Item Not Found
 errors.itemNotFound.explanation=That item couldn''t be found in the database.
 errors.pageNotFound=Page Not Found
 errors.pageNotFound.explanation=The page at this location either doesn''t exist or has moved.
+errors.clientError=There was a problem
 errors.genericProblem=An Error Occurred
 errors.genericProblem.explanation=We''re very sorry, but there''s a problem loading that page. We''ve been informed of \
   this and will endeavour to fix the problem as soon as possible.
