@@ -53,6 +53,7 @@ errors.itemNotFound=Nie znaleziono pozycji
 errors.itemNotFound.explanation=Nie udało się odnaleźć tej pozycji w bazie danych.
 errors.pageNotFound=Nie znaleziono strony
 errors.pageNotFound.explanation=Strona o tym adresie nie istnieje lub została przeniesiona.
+errors.clientError=Był problem
 errors.genericProblem=Wystąpił błąd.
 errors.genericProblem.explanation=Przepraszamy, ale wystąpił problem podczas wczytywania tej strony. Zostaliśmy o tym poinformowani \
     i dołożymy wszelkich starań, aby jak najszybciej rozwiązać problem.

@@ -186,7 +186,8 @@ case class Accounts @Inject()(
       } yield result
       case None =>
       immediate(BadRequest(
-          views.html.errors.itemNotFound(Some(Messages("signup.validation.badToken")))))
+          controllers.renderError("errors.clientError",
+            views.html.errors.genericError(Messages("signup.validation.badToken")))))
     }
   }
 
