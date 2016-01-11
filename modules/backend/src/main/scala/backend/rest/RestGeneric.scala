@@ -62,6 +62,7 @@ trait RestGeneric extends Generic with RestDAO with RestContext {
       // also reindex parent since this will update child count caches
       eventHandler.handleUpdate(id)
       eventHandler.handleCreate(created.id)
+      cache.remove(canonicalUrl(id))
       created
     }
   }
