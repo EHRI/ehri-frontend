@@ -3,7 +3,7 @@
   "data" : {
     "identifier" : "foobar"
   },
-  "type" : "virtualUnit",
+  "type" : "VirtualUnit",
   "relationships" : {
     "lifecycleEvent" : [ {
       "id" : "5c45d68c-d790-11e3-bb6c-41cb20310239",
@@ -11,7 +11,7 @@
         "timestamp" : "2014-05-09T16:41:17.459+01:00",
         "eventType" : "setVisibility"
       },
-      "type" : "systemEvent",
+      "type" : "SystemEvent",
       "relationships" : {
         "hasActioner" : [ {
           "id" : "mike",
@@ -19,7 +19,7 @@
             "name" : "Mike",
             "identifier" : "mike"
           },
-          "type" : "userProfile",
+          "type" : "UserProfile",
           "relationships" : {
             "belongsTo" : [ {
               "id" : "kcl",
@@ -27,7 +27,7 @@
                 "name" : "KCL",
                 "identifier" : "kcl-group"
               },
-              "type" : "group",
+              "type" : "Group",
               "relationships" : { }
             }, {
               "id" : "admin",
@@ -35,7 +35,7 @@
                 "name" : "Administrators",
                 "identifier" : "admin"
               },
-              "type" : "group",
+              "type" : "Group",
               "relationships" : { }
             } ]
           }
@@ -50,7 +50,7 @@
       "data" : {
         "identifier" : "vc1"
       },
-      "type" : "virtualUnit",
+      "type" : "VirtualUnit",
       "relationships" : {
         "describes" : [ {
           "id" : "vcd1",
@@ -58,7 +58,7 @@
             "languageCode" : "eng",
             "name" : "Virtual Collection 1"
           },
-          "type" : "documentDescription",
+          "type" : "DocumentaryUnitDescription",
           "relationships" : { }
         } ]
       },

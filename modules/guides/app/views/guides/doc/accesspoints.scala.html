@@ -22,7 +22,7 @@
 
 
 @if(links.nonEmpty) {
-  @defining(EntityType.DocumentaryUnit.toString) { implicit fieldPrefix =>
+  @defining("documentaryUnit") { implicit fieldPrefix =>
     @views.html.common.descriptionSection("accessPointLinks", Messages("item.accessPointLinks")) {
         @if(desc.accessPoints.nonEmpty) {
             @AccessPointF.AccessPointType.values.toList.map { accessPointType =>

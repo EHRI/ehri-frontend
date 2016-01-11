@@ -5,7 +5,7 @@
     @breadcrumbs(item)
     @layout.mainContent {
         @layout.itemDetails {
-            @defining(EntityType.HistoricalAgent.toString) { implicit fieldPrefix =>
+            @defining("historicalAgent") { implicit fieldPrefix =>
                 @layout.descriptionContainer(item.model.descriptions) {
                     @item.model.descriptions.map { desc =>
                         @description(item, desc, links, annotations)

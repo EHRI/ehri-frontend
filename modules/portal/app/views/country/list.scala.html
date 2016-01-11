@@ -1,6 +1,6 @@
 @(result: utils.search.SearchResult[(Country,utils.search.SearchHit)], action: Call, watched: Seq[String])(implicit userOpt: Option[UserProfile], request: RequestHeader, prefs: utils.SessionPrefs, globalConfig: global.GlobalConfig, messages: Messages, md: views.MarkdownRenderer, flash: Flash, context: Option[Holder[_]] = None)
 
-@views.html.layout.searchLayout(Messages("type.country"), EntityType.Country.toString, result, meta = Map("description" -> Messages("type.country.description")(messages.copy(lang = Lang.defaultLang)))) {
+@views.html.layout.searchLayout(Messages("type.Country"), EntityType.Country.toString, result, meta = Map("description" -> Messages("type.Country.description")(messages.copy(lang = Lang.defaultLang)))) {
     @views.html.common.search.searchForm(result, action, autofocus = false) {
         @views.html.common.search.searchItemList(result, watched)
     } {

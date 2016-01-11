@@ -5,7 +5,7 @@
 @views.html.admin.layout.rightSidebar(item.toStringLang, breadcrumbs = views.html.admin.common.breadcrumbs(List(item))) {
 
     @views.html.admin.common.annotated(item, annotations) {
-        @defining(EntityType.Vocabulary.toString) { implicit  prefix =>
+        @defining("cvocVocabulary") { implicit  prefix =>
             @views.html.admin.common.stringValue(item.model.description, VocabularyF.DESCRIPTION)
         }
     }

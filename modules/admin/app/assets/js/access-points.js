@@ -245,7 +245,7 @@ $(document).ready(function () {
       data: JSON.stringify({
         name: $scope.name,
         accessPointType: $scope.type,
-        isA: "relationship",
+        isA: "AccessPoint",
         description: $scope.description
       }),
       headers: ajaxHeaders

@@ -4,7 +4,7 @@
     @breadcrumbs(item)
     @layout.mainContent {
         @layout.itemDetails {
-            @defining(item.isA.toString) { implicit fieldPrefix =>
+            @defining("cvocConcept") { implicit fieldPrefix =>
                 @layout.descriptionContainer(item.model.descriptions) {
                     <div class="row">
                         <div class="col-md-8">

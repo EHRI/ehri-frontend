@@ -11,9 +11,9 @@
       ],
       "scope": [],
       "type": [
-        "country",
+        "Country",
         1,
-        "historicalAgent",
+        "HistoricalAgent",
         1
       ]
     },
@@ -29,7 +29,7 @@
             "id": "ehri-cb-638-eng-292",
             "itemId": "ehri-cb-638",
             "name": "Zentralstelle f\u00fcr j\u00fcdische Auswanderung Amsterdam",
-            "type": "historicalAgent",
+            "type": "HistoricalAgent",
             "holderName": [
               "EHRI Corporate Bodies"
             ]
@@ -39,7 +39,7 @@
             "id": "nl",
             "itemId": "nl",
             "name": "Netherlands",
-            "type": "country"
+            "type": "Country"
           }
         ],
         "numFound": 2,

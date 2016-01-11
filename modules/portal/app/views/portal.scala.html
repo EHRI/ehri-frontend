@@ -40,48 +40,48 @@
                     <!-- Example row of columns -->
                     <div class="row">
                         <div class="welcome-section country">
-                            <h2><a href="@controllers.portal.routes.Countries.searchAll()">@Messages("type.country")</a>
+                            <h2><a href="@controllers.portal.routes.Countries.searchAll()">@Messages("type.Country")</a>
                             </h2>
 
-                            <p>@Messages("type.country.description")</p>
+                            <p>@Messages("type.Country.description")</p>
                         </div>
-                        <div class="welcome-section repository">
-                            <h2><a href="@controllers.portal.routes.Repositories.searchAll()">@Messages("type.repository")</a>
+                        <div class="welcome-section Repository">
+                            <h2><a href="@controllers.portal.routes.Repositories.searchAll()">@Messages("type.Repository")</a>
                             </h2>
 
-                            <p>@Messages("type.repository.description")</p>
+                            <p>@Messages("type.Repository.description")</p>
                         </div>
-                        <div class="welcome-section documentaryUnit">
-                            <h2><a href="@controllers.portal.routes.DocumentaryUnits.searchAll()">@Messages("type.documentaryUnit")</a>
+                        <div class="welcome-section DocumentaryUnit">
+                            <h2><a href="@controllers.portal.routes.DocumentaryUnits.searchAll()">@Messages("type.DocumentaryUnit")</a>
                             </h2>
 
-                            <p>@Messages("type.documentaryUnit.description")</p>
+                            <p>@Messages("type.DocumentaryUnit.description")</p>
                         </div>
                     </div>
                     <div class="row">
-                        <div class="welcome-section country">
+                        <div class="welcome-section Country">
                             @{Html(Messages(
-                            "landingBlurb.country",
+                            "landingBlurb.Country",
                             countLink(controllers.portal.routes.Countries.searchAll().url,
-                            "landingBlurb.country.link", stats.countryCount).body.trim
+                            "landingBlurb.Country.link", stats.countryCount).body.trim
                             ))}
                         </div>
-                        <div class="welcome-section repository">
+                        <div class="welcome-section Repository">
                             @{Html(Messages(
-                            "landingBlurb.repository",
+                            "landingBlurb.Repository",
                             countLink(controllers.portal.routes.Repositories.searchAll().url,
-                            "landingBlurb.repository.link", stats.repositoryCount).body.trim,
+                            "landingBlurb.Repository.link", stats.repositoryCount).body.trim,
                             countLink(controllers.portal.routes.Countries.searchAll().url + "?data=yes",
-                            "landingBlurb.repository.country.link", stats.inCountryCount).body.trim
+                            "landingBlurb.Repository.Country.link", stats.inCountryCount).body.trim
                             ))}
                         </div>
-                        <div class="welcome-section documentaryUnit">
+                        <div class="welcome-section DocumentaryUnit">
                             @{Html(Messages(
-                            "landingBlurb.documentaryUnit",
+                            "landingBlurb.DocumentaryUnit",
                             countLink(controllers.portal.routes.DocumentaryUnits.searchAll().url,
-                            "landingBlurb.documentaryUnit.link", stats.documentaryUnitCount).body.trim,
+                            "landingBlurb.DocumentaryUnit.link", stats.documentaryUnitCount).body.trim,
                             countLink(controllers.portal.routes.Repositories.searchAll().url + "?data=yes",
-                            "landingBlurb.documentaryUnit.repository.link", stats.inRepositoryCount).body.trim
+                            "landingBlurb.DocumentaryUnit.Repository.link", stats.inRepositoryCount).body.trim
                             ))}
                         </div>
                     </div>

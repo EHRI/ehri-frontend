@@ -21,7 +21,7 @@ class CypherQuerySpec extends IntegrationTestRunner {
 
     val formData = Map(
       NAME -> Seq("Test Query"),
-      QUERY -> Seq("MATCH (u:userProfile) RETURN u.__ID__"),
+      QUERY -> Seq("MATCH (u:userProfile) RETURN u.__id"),
       DESCRIPTION -> Seq("List all users")
     )
 

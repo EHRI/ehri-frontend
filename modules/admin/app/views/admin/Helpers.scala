@@ -14,20 +14,20 @@ object Helpers {
 
   val mainMenu = Seq(
     ("pages.search",                  controllers.admin.routes.AdminSearch.search().url),
-    ("contentTypes.documentaryUnit",  controllers.units.routes.DocumentaryUnits.search().url),
-    ("contentTypes.historicalAgent",  controllers.authorities.routes.HistoricalAgents.search().url),
-    ("contentTypes.repository",       controllers.institutions.routes.Repositories.search().url),
-    ("contentTypes.cvocConcept",      controllers.keywords.routes.Concepts.search().url)
+    ("contentTypes.DocumentaryUnit",  controllers.units.routes.DocumentaryUnits.search().url),
+    ("contentTypes.HistoricalAgent",  controllers.authorities.routes.HistoricalAgents.search().url),
+    ("contentTypes.Repository",       controllers.institutions.routes.Repositories.search().url),
+    ("contentTypes.CvocConcept",      controllers.keywords.routes.Concepts.search().url)
   )
 
   val moreMenu = Seq(
-    ("contentTypes.userProfile",      controllers.users.routes.UserProfiles.search().url),
-    ("contentTypes.group",            controllers.groups.routes.Groups.search().url),
-    ("contentTypes.country",          controllers.countries.routes.Countries.search().url),
-    ("contentTypes.cvocVocabulary",   controllers.vocabularies.routes.Vocabularies.list().url),
-    ("contentTypes.authoritativeSet", controllers.sets.routes.AuthoritativeSets.list().url),
+    ("contentTypes.UserProfile",      controllers.users.routes.UserProfiles.search().url),
+    ("contentTypes.Group",            controllers.groups.routes.Groups.search().url),
+    ("contentTypes.Country",          controllers.countries.routes.Countries.search().url),
+    ("contentTypes.CvocVocabulary",   controllers.vocabularies.routes.Vocabularies.list().url),
+    ("contentTypes.AuthoritativeSet", controllers.sets.routes.AuthoritativeSets.list().url),
     ("s1", "-"),
-    ("contentTypes.systemEvent",      controllers.events.routes.SystemEvents.list().url),
+    ("contentTypes.SystemEvent",      controllers.events.routes.SystemEvents.list().url),
     ("s2", "-"),
     ("search.index.update",            controllers.admin.routes.AdminSearch.updateIndex().url)
   )

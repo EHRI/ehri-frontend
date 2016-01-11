@@ -8,7 +8,7 @@
 @helper.form(action = action, 'class -> "form-inline", 'role -> "form") {
     <input type="hidden" name="@OFFSET_PARAM" value="@params.offset" />
     <input type="hidden" name="@LIMIT_PARAM" value="@params.limit" />
-    @defining(defines.EntityType.SystemEvent.toString) { implicit fieldPrefix =>
+    @defining("systemEvent") { implicit fieldPrefix =>
         @formHelpers.multiselectInput(
             filterForm(EVENT_TYPE),
             EVENT_TYPE,

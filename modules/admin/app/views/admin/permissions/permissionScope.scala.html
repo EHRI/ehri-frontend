@@ -10,7 +10,7 @@
     </div>
 
     @if(groups.nonEmpty) {
-        <strong>@Messages("contentTypes.group"): </strong>&nbsp;
+        <strong>@Messages("contentTypes.Group"): </strong>&nbsp;
         <ul>
         @groups.map { case (id, name) =>
         <li>
@@ -22,7 +22,7 @@
     }
 
     @if(users.nonEmpty) {
-        <strong>@Messages("contentTypes.userProfile"): </strong>&nbsp;
+        <strong>@Messages("contentTypes.UserProfile"): </strong>&nbsp;
         <ul>
         @users.map { case (id, name) =>
         <li>

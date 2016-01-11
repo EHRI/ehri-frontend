@@ -89,7 +89,7 @@ case class VirtualUnits @Inject()(
     )
   }
 
-  val formDefaults: Option[Configuration] = app.configuration.getConfig(EntityType.VirtualUnit)
+  val formDefaults: Option[Configuration] = app.configuration.getConfig(EntityType.VirtualUnit.toString)
 
   val targetContentTypes = Seq(ContentTypes.VirtualUnit)
 
