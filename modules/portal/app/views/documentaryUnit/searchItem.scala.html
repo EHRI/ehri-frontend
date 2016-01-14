@@ -6,7 +6,7 @@
             @wrapParent(doc, p.parent)
             <li>
                 <a class="search-item-parent-name" href="@controllers.portal.routes.DocumentaryUnits.browse(p.id)">
-                    @Markdown(hit.highlight(p.toStringLang))
+                    @Html(hit.highlight(p.toStringLang))
                 </a>
             </li>
         }

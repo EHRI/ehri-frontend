@@ -4,7 +4,13 @@
     @formHelpers.csrfToken()
     @formHelpers.globalErrors(form)
 
-    @helper.checkbox(form("allowMessaging"), 'type -> "checkbox", '_label -> Messages("profile.preferences.allowMessaging"), 'title -> Messages("profile.preferences.allowMessaging.description"), '_showConstraints -> false)
+    @helper.checkbox(
+        form("allowMessaging"),
+        'type -> "checkbox",
+        '_label -> Messages("profile.preferences.allowMessaging"),
+        'title -> Messages("profile.preferences.allowMessaging.description"),
+        '_showConstraints -> false
+    )
 
 <div class="form-group">
     <div class="form-submit">

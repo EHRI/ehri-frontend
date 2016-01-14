@@ -11,18 +11,7 @@
     }
     @if(showFeedback) {
         <li class="slide-out-div">
-            <a class="handle" role="button" aria-expanded="false" href="@controllers.portal.routes.Feedback.feedback()">
-                @Messages("feedback")
-                <span class="caret"></span>
-            </a>
-            <div id="suggestions">
-                <div id="suggestion-thanks" class="alert alert-success">
-                    <h4>@Messages("feedback.thanks")</h4>
-                    @Messages("feedback.thanks.message")
-                </div>
-
-                @feedbackForm(models.Feedback.form)
-            </div>
+            @views.html.feedback.modal(models.Feedback.form)
         </li>
     }
     <li class="dropdown">

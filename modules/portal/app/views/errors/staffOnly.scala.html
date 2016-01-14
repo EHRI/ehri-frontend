@@ -1,7 +1,7 @@
 @()(implicit userOpt: Option[UserProfile] = None, req: RequestHeader, globalConfig: global.GlobalConfig, messages: Messages, flash: Flash)
 
 <p class="alert alert-info alert-block">
-    <strong>@Messages("errors.staffOnly")</strong><br/>
+    <strong>@Messages("errors.staffOnly")</strong><br>
     @Messages("errors.staffOnlyMessage")
 </p>
-<p><a href="/logout">@Messages("logout")</a></p>
+<p><a href="@controllers.portal.account.routes.Accounts.logout()">@Messages("logout")</a></p>
