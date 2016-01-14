@@ -1,9 +1,5 @@
 @(loginOrSignup: String, openIdForm: Form[String], oauthProviders: Seq[auth.oauth2.providers.OAuth2Provider], isLogin: Boolean)(implicit request: RequestHeader, globalConfig: global.GlobalConfig, flash: Flash, messages: Messages, token: play.filters.csrf.CSRF.Token, fieldConstructor: helper.FieldConstructor)
 
-
-@openIdStyles = {
-}
-
 @helper.form(action = controllers.portal.account.routes.Accounts.openIDLoginPost(isLogin), 'class -> "openid form validate-form", 'role -> "form") {
     @formHelpers.csrfToken()
     @formHelpers.globalErrors(openIdForm)
@@ -22,7 +18,6 @@
 
     <div class="more-login-options @{if(openIdForm.hasErrors) "errors"}">
         <div class="form-block">
-
             @helper.inputText(
                 openIdForm("openid_identifier"),
                 'placeholder -> Messages("login.openid.urlPlaceholder"),

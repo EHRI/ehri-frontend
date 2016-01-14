@@ -51,10 +51,6 @@ case class Feedback @Inject()(
       verifying blankFieldIsBlank verifying formSubmissionTime
   )
 
-  def feedback = OptionalUserAction { implicit request =>
-    Ok(views.html.feedback(models.Feedback.form))
-  }
-
   private def getCopyMail(feedbackType: Option[models.Feedback.Type.Value])(implicit app: play.api.Application): Seq[String] = {
     import scala.collection.JavaConverters._
     val defaultOpt = app.configuration.getStringList("ehri.portal.feedback.copyTo").map(_.asScala)
@@ -87,11 +83,15 @@ case class Feedback @Inject()(
     }
   }
 
+  def feedback = OptionalUserAction { implicit request =>
+    Ok(views.html.feedback.create(models.Feedback.form))
+  }
+
   def feedbackPost = OptionalUserAction.async { implicit request =>
     val boundForm: Form[models.Feedback] = models.Feedback.form.bindFromRequest()
 
     def response(f: Form[models.Feedback]): Result =
-      if (isAjax) BadRequest(f.errorsAsJson) else BadRequest(views.html.feedback(f))
+      if (isAjax) BadRequest(f.errorsAsJson) else BadRequest(views.html.feedback.create(f))
 
     // check the anti-bot measures and immediately return the original
     // form. No feedback needed since they're (hopefully) a bot.
@@ -117,7 +117,7 @@ case class Feedback @Inject()(
 
   def list = AdminAction.async { implicit request =>
     feedbackDAO.list("order" -> "-createdAt").map { flist =>
-      Ok(views.html.feedbackList(flist.filter(_.text.isDefined)))
+      Ok(views.html.feedback.list(flist.filter(_.text.isDefined)))
     }
   }
 }

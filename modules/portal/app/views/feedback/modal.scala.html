@@ -1,0 +1,14 @@
+@(form: Form[Feedback])(implicit userOpt: Option[UserProfile], request: RequestHeader, messages: Messages, token: play.filters.csrf.CSRF.Token)
+
+<a class="handle" role="button" aria-expanded="false" href="@controllers.portal.routes.Feedback.feedback()">
+    @Messages("feedback")
+<span class="caret"></span>
+</a>
+<div id="suggestions">
+    <div id="suggestion-thanks" class="alert alert-success">
+        <h4>@Messages("feedback.thanks")</h4>
+        @Messages("feedback.thanks.message")
+    </div>
+
+    @views.html.feedback.form(models.Feedback.form)
+</div>
