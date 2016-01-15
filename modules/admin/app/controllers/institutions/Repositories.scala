@@ -88,14 +88,14 @@ case class Repositories @Inject()(
         sort = FacetSort.Name,
         display = FacetDisplay.Choice,
         render = {
-          case s if s == "0" => Messages("priority.zero")
-          case s if s == "1" => Messages("priority.one")
-          case s if s == "2" => Messages("priority.two")
-          case s if s == "3" => Messages("priority.three")
-          case s if s == "4" => Messages("priority.four")
-          case s if s == "5" => Messages("priority.five")
-          case s if s == "-1" => Messages("priority.reject")
-          case _ => Messages("priority.unknown")
+          case s if s == "0" => Messages("repository.priority.zero")
+          case s if s == "1" => Messages("repository.priority.one")
+          case s if s == "2" => Messages("repository.priority.two")
+          case s if s == "3" => Messages("repository.priority.three")
+          case s if s == "4" => Messages("repository.priority.four")
+          case s if s == "5" => Messages("repository.priority.five")
+          case s if s == "-1" => Messages("repository.priority.reject")
+          case _ => Messages("repository.priority.unknown")
         }
       )
     )
