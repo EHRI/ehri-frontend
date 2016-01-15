@@ -38,7 +38,7 @@ case class CypherQueries @Inject()(
 
   private val defaultCypher =
     """
-      |MATCH (n:userProfile)
+      |MATCH (n:UserProfile)
       |RETURN n, n.name
       |LIMIT 100
     """.stripMargin
