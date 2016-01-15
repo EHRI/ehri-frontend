@@ -17,14 +17,13 @@
             @descriptionForm(desc)
         }
     }
-}
-
-@formHelpers.descriptionFormSection(ADMINISTRATION_AREA) {
-    @formHelpers.lineInput(f(""), URL_PATTERN)
-    @formHelpers.lineInput(f(""), LOGO_URL)
-    @defining("publicationStatus") { implicit fieldPrefix =>
-        @formHelpers.enumChoiceInput(f(PUBLICATION_STATUS), PublicationStatus, Messages(PUBLICATION_STATUS))
+    @formHelpers.descriptionFormSection(ADMINISTRATION_AREA) {
+        @formHelpers.lineInput(f(""), URL_PATTERN)
+        @formHelpers.lineInput(f(""), LOGO_URL)
+        @defining("publicationStatus") { implicit fieldPrefix =>
+            @formHelpers.enumChoiceInput(f(PUBLICATION_STATUS), PublicationStatus, Messages(PUBLICATION_STATUS))
+        }
+        @formHelpers.choiceInput(f(PRIORITY), PRIORITY, 1.to(5).map(i => (i.toString,i.toString)).toList ++ List(("-1", "Reject")), blank=true)
     }
-    @formHelpers.choiceInput(f(PRIORITY), PRIORITY, 1.to(5).map(i => (i.toString,i.toString)).toList ++ List(("-1", "Reject")), blank=true)
 }
 

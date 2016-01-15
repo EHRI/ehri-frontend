@@ -155,19 +155,6 @@ cypherQuery.delete.description=Delete query (this action cannot be undone)
 cypherQuery.update=Edit
 cypherQuery.update.description=Edit query
 
-#
-# Form misc
-#
-priority=Priority
-priority.five=Five
-priority.four=Four
-priority.three=Three
-priority.two=Two
-priority.one=One
-priority.zero=Zero
-priority.reject=Reject
-priority.unknown=-
-
 # Provenance
 forms.logMessagePlaceholder=Tell people what you''re doing (optional, 400 characters max)...
 
@@ -378,15 +365,6 @@ permissions.revoke.submit=Revoke
 
 error.badUrlPattern=Invalid URL pattern. The pattern must contain the substitution variable '''{'identifer'}'''\
   and be an otherwise valid URL.
-
-urlPattern=Item URL Pattern
-urlPattern.description=The URL pattern is used to provide automatic linking from items on EHRI to the \
-  source institution''s website, providing that EHRI identifiers are also used to identify the items on the \
-  other institution''s site. The given URL must be a valid except for the substitution of '''{'identifier'}''' \
-  where the item''s identifier should go.
-
-logoUrl=Logo URL
-logoUrl.description=A URL to a logo image for the repository.
 
 # Admin Misc
 actions=Actions
@@ -719,6 +697,7 @@ repository.descriptionArea=Description Area
 repository.identity=Identity Area
 repository.contact=Contact Area
 repository.addresses=Address Area
+repository.addresses.create=Add Address
 repository.access=Access Area
 repository.services=Services Area
 repository.administrationArea=Administration
@@ -761,6 +740,15 @@ repository.addressArea=Address Area
 repository.addressName=Address Name/Type
 repository.addressName.description=A short descriptive indicating the type of address given below\
   e.g ''primary''
+
+repository.municipality.description=The city in which this institution resides.
+repository.firstdem.description=Autonomous community or region
+repository.street.description=
+repository.postalCode.description=
+repository.email.description=
+repository.telephone.description=
+repository.fax.description=
+repository.webpage.description=
 
 repository.contactPerson.description=To provide users with all the information needed to contact members of staff.\n\n\
 Record the name, the contact details and the position of the members of staff (first\
@@ -923,6 +911,25 @@ repository.maintenanceNotes.description=To document additional information relat
 Record notes pertinent to the creation and maintenance of the description. For\
 example, the names of persons responsible for creating and/or revising the description\
 may be recorded here. (5.6.9)
+
+repository.urlPattern=Item URL Pattern
+repository.urlPattern.description=The URL pattern is used to provide automatic linking from items on EHRI to the \
+  source institution''s website, providing that EHRI identifiers are also used to identify the items on the \
+  other institution''s site. The given URL must be a valid except for the substitution of '''{'identifier'}''' \
+  where the item''s identifier should go.
+
+repository.logoUrl=Logo URL
+repository.logoUrl.description=A URL to a logo image for the repository.
+
+repository.priority=Priority
+repository.priority.five=Five
+repository.priority.four=Four
+repository.priority.three=Three
+repository.priority.two=Two
+repository.priority.one=One
+repository.priority.zero=Zero
+repository.priority.reject=Reject
+repository.priority.unknown=-
 
 
 # Authority i18n messages
