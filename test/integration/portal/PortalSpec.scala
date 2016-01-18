@@ -74,6 +74,7 @@ class PortalSpec extends IntegrationTestRunner {
       contentType(ead) must beSome.which { ct =>
         ct must equalTo("text/xml")
       }
+      contentAsString(ead) must contain("<ead")
     }
 
     "view repositories" in new ITestApp {
@@ -87,6 +88,7 @@ class PortalSpec extends IntegrationTestRunner {
       contentType(eag) must beSome.which { ct =>
         ct must equalTo("text/xml")
       }
+      contentAsString(eag) must contain("<eag")
     }
 
     "view historical agents" in new ITestApp {
@@ -100,6 +102,7 @@ class PortalSpec extends IntegrationTestRunner {
       contentType(eac) must beSome.which { ct =>
         ct must equalTo("text/xml")
       }
+      contentAsString(eac) must contain("<eac-cpf")
     }
 
     "view item history" in new ITestApp {

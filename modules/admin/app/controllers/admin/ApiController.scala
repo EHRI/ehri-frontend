@@ -70,7 +70,7 @@ case class ApiController @Inject()(
       |# Select all the userProfile nodes and their name properties...
       |SELECT ?n ?u WHERE {
       |    ?u a pgm:Vertex ;
-      |       prop:__type  "userProfile" ;
+      |       prop:__type  "UserProfile" ;
       |       prop:name     ?n .
       |}
       |
