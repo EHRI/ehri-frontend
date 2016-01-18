@@ -2,27 +2,43 @@
 
 <!DOCTYPE html>
 
-<html lang="@messages.lang.code">
-    @head(title, styles = styles, meta = meta)
-    <body class="@itemClass">
-        @preambleScripts()
-        <div id="wrap">
-            @views.html.layout.readOnly()
-            @views.html.layout.message()
-            @views.html.layout.ipFilter()
-            <header id="header" class="navigation">
-                @accountHeader(showSearch = true, showFeedback = true, showAdminLink = true)
-                @primaryHeader()
-            </header>
+@fsstyles = {
+    @styles
+    @if(globalConfig.isEmbedMode) {
+        <link rel="stylesheet" href="@controllers.portal.routes.PortalAssets.versioned("css/fullscreen.css")">
+    }
+}
 
-            @views.html.common.flash(flash)
-            <div class="page-content container">
-                @content
-                <div id="push"></div>
+<html lang="@messages.lang.code">
+    @defining(globalConfig.isEmbedMode) { fullscreen =>
+        @views.html.layout.head(title, styles = fsstyles, meta = meta)
+        <body class="@itemClass @(if(fullscreen) "fullscreen")">
+            @views.html.layout.preambleScripts()
+            <div id="wrap">
+                @if(!fullscreen) {
+                    @views.html.layout.readOnly()
+                    @views.html.layout.message()
+                    @views.html.layout.ipFilter()
+                    <header id="header" class="navigation">
+                        @views.html.layout.accountHeader(showSearch = true, showFeedback = true, showAdminLink = true)
+                        @views.html.layout.primaryHeader()
+                    </header>
+                    @views.html.common.flash(flash)
+                }
+                <div class="page-content">
+                    @content
+                    <div id="push"></div>
+                </div>
             </div>
-        </div>
-        @views.html.layout.footer()
-        @views.html.dataPolicyModal()
-        @postambleScripts(extra = scripts)
-    </body>
+            @if(!fullscreen) {
+                @views.html.layout.footer()
+                @views.html.dataPolicyModal()
+            } else {
+                <footer id="fullscreen-footer" class="footer sticky">
+                    <a id="open-in-portal" class="external" target="_blank" href="@globalConfig.absolutePath">@Messages("fullscreen.viewOnPortal")</a>
+                </footer>
+            }
+            @views.html.layout.postambleScripts(extra = scripts)
+        </body>
+    }
 </html>
