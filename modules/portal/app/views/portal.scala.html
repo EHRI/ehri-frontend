@@ -29,60 +29,55 @@
                     </div>
                 </div>
 
-                @views.html.common.flash(flash)
-
-                <div class="container">
+                @views.html.layout.mainContent {
+                    @views.html.common.flash(flash)
                     <div class="row">
                         <div class="welcome-lead">
-                            @Html(md.renderMarkdown(Messages("welcome.blurb")))
+                            @Markdown(Messages("welcome.blurb"))
                         </div>
                     </div>
-                    <!-- Example row of columns -->
                     <div class="row">
                         <div class="welcome-section Country">
                             <h2><a href="@controllers.portal.routes.Countries.searchAll()">@Messages("type.Country")</a>
                             </h2>
-
                             <p>@Messages("type.Country.description")</p>
                         </div>
                         <div class="welcome-section Repository">
                             <h2><a href="@controllers.portal.routes.Repositories.searchAll()">@Messages("type.Repository")</a>
                             </h2>
-
                             <p>@Messages("type.Repository.description")</p>
                         </div>
                         <div class="welcome-section DocumentaryUnit">
                             <h2><a href="@controllers.portal.routes.DocumentaryUnits.searchAll()">@Messages("type.DocumentaryUnit")</a>
                             </h2>
-
                             <p>@Messages("type.DocumentaryUnit.description")</p>
                         </div>
                     </div>
                     <div class="row">
                         <div class="welcome-section Country">
-                            @{Html(Messages(
+                        @(Html(Messages(
                             "landingBlurb.Country",
                             countLink(controllers.portal.routes.Countries.searchAll().url,
-                            "landingBlurb.Country.link", stats.countryCount).body.trim
-                            ))}
+                                "landingBlurb.Country.link", stats.countryCount).body.trim
+                        )))
                         </div>
                         <div class="welcome-section Repository">
-                            @{Html(Messages(
+                        @(Html(Messages(
                             "landingBlurb.Repository",
                             countLink(controllers.portal.routes.Repositories.searchAll().url,
-                            "landingBlurb.Repository.link", stats.repositoryCount).body.trim,
+                                "landingBlurb.Repository.link", stats.repositoryCount).body.trim,
                             countLink(controllers.portal.routes.Countries.searchAll().url + "?data=yes",
-                            "landingBlurb.Repository.Country.link", stats.inCountryCount).body.trim
-                            ))}
+                                "landingBlurb.Repository.Country.link", stats.inCountryCount).body.trim
+                        )))
                         </div>
                         <div class="welcome-section DocumentaryUnit">
-                            @{Html(Messages(
+                        @(Html(Messages(
                             "landingBlurb.DocumentaryUnit",
                             countLink(controllers.portal.routes.DocumentaryUnits.searchAll().url,
-                            "landingBlurb.DocumentaryUnit.link", stats.documentaryUnitCount).body.trim,
+                                "landingBlurb.DocumentaryUnit.link", stats.documentaryUnitCount).body.trim,
                             countLink(controllers.portal.routes.Repositories.searchAll().url + "?data=yes",
-                            "landingBlurb.DocumentaryUnit.Repository.link", stats.inRepositoryCount).body.trim
-                            ))}
+                                "landingBlurb.DocumentaryUnit.Repository.link", stats.inRepositoryCount).body.trim
+                        )))
                         </div>
                     </div>
                     <div class="row">
@@ -96,8 +91,7 @@
                     </div>
                 </div>
                 <div id="push"></div>
-            </div>
-            <!-- /container -->
+            }
         </div>
         @views.html.layout.footer()
         @views.html.dataPolicyModal()

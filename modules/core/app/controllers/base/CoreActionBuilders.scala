@@ -199,6 +199,12 @@ trait CoreActionBuilders extends Controller with ControllerHelpers with AuthActi
     }
   }
 
+  protected object EmbedTransformer extends ActionTransformer[OptionalAuthRequest,OptionalAuthRequest]{
+    protected def transform[A](request: OptionalAuthRequest[A]): Future[OptionalAuthRequest[A]] = immediate {
+      if (globalConfig.isEmbedMode(request)) new OptionalAuthRequest(None, request.underlying) else request
+    }
+  }
+
   /**
    * If the global read-only flag is enabled, remove the account from
    * the request, globally denying all secured actions.
@@ -253,6 +259,7 @@ trait CoreActionBuilders extends Controller with ControllerHelpers with AuthActi
       MaintenanceFilter andThen
       IpFilter andThen
       ReadOnlyTransformer andThen
+      EmbedTransformer andThen
       AllowedFilter
 
   /**

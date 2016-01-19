@@ -3,10 +3,12 @@ package global
 import java.io.File
 import javax.inject.Inject
 
+import play.api.mvc.RequestHeader
+
 case class AppGlobalConfig @Inject()(configuration: play.api.Configuration) extends GlobalConfig
 
 trait GlobalConfig {
-  
+
   def configuration: play.api.Configuration
 
   /**
@@ -15,7 +17,11 @@ trait GlobalConfig {
    * we might be running experimental stuff on a real life server.
    */
   def isTestMode = configuration.getBoolean("ehri.testing").getOrElse(true)
+
   def isStageMode = configuration.getBoolean("ehri.staging").getOrElse(false)
+  
+  def isEmbedMode(implicit req: RequestHeader): Boolean =
+    req.getQueryString("embed").map(_.toLowerCase).contains("true")
 
   lazy val https =
     configuration.getBoolean("ehri.https").getOrElse(false)
@@ -36,12 +42,22 @@ trait GlobalConfig {
     configuration.getString("google.maps.browserApiKey")
 
   import scala.collection.JavaConversions._
+
   lazy val languages: Seq[String] =
     configuration.getStringList("play.i18n.langs").toSeq.flatten
 
+  def protocol(implicit req: RequestHeader): String =
+    "http" + (if (req.secure) "s" else "") + "://"
+
+  def absoluteURL(implicit req: RequestHeader): String =
+    protocol + req.host + req.uri
+
+  def absolutePath(implicit req: RequestHeader): String =
+    protocol + req.host + req.path
+
   // Set readonly mode...
   private lazy val readOnlyFile: Option[File] = configuration.getString("ehri.readonly.file")
-      .map(new File(_))
+    .map(new File(_))
 
   // Set maintenance mode...
   private lazy val maintenanceFile: Option[File] = configuration.getString("ehri.maintenance.file")
