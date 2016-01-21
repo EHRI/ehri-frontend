@@ -100,6 +100,14 @@ class UserProfilesSpec extends IntegrationTestRunner with FakeMultipartUpload {
       status(prof) must equalTo(OK)
       contentAsString(prof) must contain(testName)
       contentAsString(prof) must contain(testInterest)
+
+      // Ensure about text can be cleared
+      val update2 = FakeRequest(profileRoutes.updateProfilePost())
+        .withUser(privilegedUser).withCsrf.callWith(data
+        .updated(UserProfileF.INTERESTS, Seq("")))
+      status(update2) must equalTo(SEE_OTHER)
+      val prof2 = FakeRequest(profileRoutes.profile()).withUser(privilegedUser).call()
+      contentAsString(prof2) must not contain testInterest
     }
 
     "prevent script injection" in new ITestApp {
