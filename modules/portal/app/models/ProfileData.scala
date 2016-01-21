@@ -1,7 +1,5 @@
 package models
 
-import play.api.libs.json.{Json, Writes}
-
 /**
  * Class representing the parts of a users profile editable
  * via the UI. This is basically everything, with the exception
@@ -19,23 +17,42 @@ case class ProfileData(
   institution: Option[String] = None,
   role: Option[String] = None,
   interests: Option[String] = None
-)
+) {
+
+  def toUser(user: UserProfileF): UserProfileF = user.copy(
+      name = name,
+      location = location,
+      languages = languages,
+      about = about,
+      url = url,
+      workUrl = workUrl,
+      title = title,
+      institution = institution,
+      role = role,
+      interests = interests
+    )
+}
 
 object ProfileData {
 
-  def fromUser(user: UserProfile): ProfileData = new ProfileData(
-    user.model.name, user.model.location, user.model.languages,
-    user.model.about, user.model.url, user.model.workUrl,
-    user.model.title, user.model.institution, user.model.role,
-    user.model.interests
+  def fromUser(user: UserProfileF): ProfileData = new ProfileData(
+    user.name,
+    user.location,
+    user.languages,
+    user.about,
+    user.url,
+    user.workUrl,
+    user.title,
+    user.institution,
+    user.role,
+    user.interests
   )
 
   import play.api.data.Forms._
   import play.api.data.Form
-  import UserProfileF.{LOCATION => USERLOC, _}
+  import models.UserProfileF.{LOCATION => USERLOC, _}
   import utils.forms.isValidUrl
 
-  implicit val writes: Writes[ProfileData] = Json.format[ProfileData]
   val form: Form[ProfileData] = Form(
     mapping(
       NAME -> nonEmptyText,

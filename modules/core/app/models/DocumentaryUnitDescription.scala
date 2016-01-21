@@ -9,9 +9,8 @@ import eu.ehri.project.definitions.Ontology
 import utils.forms._
 import play.api.data.Form
 import play.api.data.Forms._
-import defines.EnumUtils._
-import backend.{Entity, Readable, Writable}
-import Description._
+import backend.{Entity, Writable}
+import models.base.Description._
 
 case class IsadGIdentity(
   name: String,

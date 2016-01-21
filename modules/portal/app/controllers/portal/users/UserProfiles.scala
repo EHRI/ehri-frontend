@@ -223,7 +223,7 @@ case class UserProfiles @Inject()(
 
   private def profileDataForm(implicit userOpt: Option[UserProfile]): Form[ProfileData] = {
     userOpt.map { user =>
-      ProfileData.form.fill(ProfileData.fromUser(user))
+      ProfileData.form.fill(ProfileData.fromUser(user.model))
     } getOrElse {
       ProfileData.form
     }
@@ -261,7 +261,8 @@ case class UserProfiles @Inject()(
       errForm => immediate(
         BadRequest(views.html.userProfile.editProfile(errForm, imageForm, accountPrefsForm))
       ),
-      profile => userBackend.patch[UserProfile](request.user.id, Json.toJson(profile).as[JsObject]).map { userProfile =>
+      profile => userBackend.update[UserProfile, UserProfileF](
+          request.user.id, profile.toUser(request.user.model)).map { userProfile =>
         Redirect(profileRoutes.profile())
           .flashing("success" -> Messages("profile.update.confirmation"))
       }
