@@ -7,28 +7,30 @@
 }
 
 <footer id="portal-footer" class="footer sticky">
-    <ul id="navbar-tertiary">
-        @footerLink(controllers.portal.routes.Portal.terms(), "termsAndConditions")
-        @footerLink(controllers.portal.routes.Portal.dataPolicy(), "dataPolicy")
-    </ul>
+    <div class="footer-content">
+        <ul id="navbar-tertiary">
+            @footerLink(controllers.portal.routes.Portal.terms(), "termsAndConditions")
+            @footerLink(controllers.portal.routes.Portal.dataPolicy(), "dataPolicy")
+        </ul>
 
-    <ul id="lang-switcher">
+        <ul id="lang-switcher">
         @globalConfig.languages.map(c => (c, new java.util.Locale(c))).map { case (changeLang, locale) =>
         <li>
             @if(messages.lang.toString.toLowerCase.contains(changeLang)) {
-            @locale.getDisplayName(locale).toLowerCase
-            } else {
-            <a href="@controllers.portal.routes.Portal.changeLocale(changeLang)">
                 @locale.getDisplayName(locale).toLowerCase
-            </a>
+            } else {
+                <a href="@controllers.portal.routes.Portal.changeLocale(changeLang)">
+                @locale.getDisplayName(locale).toLowerCase
+                </a>
             }
         </li>
         }
-    </ul>
+        </ul>
 
-    <div class="footer-blurb">
-        <hr />
-        &copy; @Messages("copyright.holder") &nbsp;&nbsp; @Messages("footer.funding")
-        <img class="eu-logo" alt="EU Logo" src="//ehri-assets.s3.amazonaws.com/eu_logo.png" />
+        <div class="footer-blurb">
+            <hr />
+                &copy; @Messages("copyright.holder") &nbsp;&nbsp; @Messages("footer.funding")
+            <img class="eu-logo" alt="EU Logo" src="//ehri-assets.s3.amazonaws.com/eu_logo.png" />
+        </div>
     </div>
 </footer>

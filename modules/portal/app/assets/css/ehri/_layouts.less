@@ -12,16 +12,23 @@ body {
 }
 
 .main-content {
-  &:extend(.container-fluid);
   padding-bottom: @large-padding;
   padding-top: @large-padding;
+}
+
+.info-bar, .main-content, .footer-content {
+  &:extend(.container);
+}
+
+.fullscreen {
+  .info-bar, .main-content, .footer-content {
+    width: 100%;
+  }
 }
 
 /* Wrapper for page content to push down footer */
 #wrap {
   background-color: white;
-  border-left: 1px solid @dark-gray;
-  border-right: 1px solid @dark-gray;
   min-height: 100%;
   height: auto !important;
   height: 100%;
