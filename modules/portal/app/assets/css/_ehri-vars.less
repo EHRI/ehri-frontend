@@ -28,6 +28,20 @@
 @promoted-arrow-color: #DD9300;
 
 
+@max-body-width: 1100px;
+@about-page-width: 320px;
+
+@shadow-depth: 5px;
+@shadow-blur: 5px;
+@shadow-color: @dark-gray;
+@shadow-opacity: 0.7;
+
+@search-hit-highlight: #FFFFDD;
+
+@gravitar-size: 48px;
+
+@footer-height: 150px;
+
 // Spacings
 @search-item-spacing: 1.5em;
 
@@ -86,22 +100,3 @@
 
 /* Zocial */
 @icon-zocial-name : "zocial";
-
-.highlight-glow {
-  text-shadow: rgba(82, 168, 236, 0.8) 0 0 10px;
-}
-
-// HACK! Grey colour for disabled links in pagination is overridden
-// by the entity colour class:
-// https://github.com/mikesname/docview/issues/268
-.pagination > li.disabled > a {
-  color: @muted-gray;
-}
-
-.alert.readonly-message {
-  margin-bottom: 0;
-}
-
-.watch-controls > a, .watch-controls > a:hover {
-  text-decoration: none;
-}
