@@ -274,6 +274,26 @@ input.placeholder, textarea.placeholder {
   }
 }
 
+.watch-controls > a, .watch-controls > a:hover {
+  text-decoration: none;
+}
+
+.highlight-glow {
+  text-shadow: rgba(82, 168, 236, 0.8) 0 0 10px;
+}
+
+// HACK! Grey colour for disabled links in pagination is overridden
+// by the entity colour class:
+// https://github.com/mikesname/docview/issues/268
+.pagination > li.disabled > a {
+  color: @muted-gray;
+}
+
+.alert.readonly-message {
+  margin-bottom: 0;
+}
+
+
 // Add an outline to tab panes
 .tab-content-panel {
   border-left: 1px solid @medium-gray;
@@ -285,7 +305,6 @@ input.placeholder, textarea.placeholder {
 .invisible {
   visibility: hidden;
 }
-
 
 // Wide buttons with loadable content
 .content-load a.toggle, a.load-in-view {
@@ -320,8 +339,7 @@ ol.cookie-usage {
 // About page
 .about-image {
   float: right;
-  // FIXME: Hard-coded width...
-  width: 320px;
+  width: @about-page-width;
 //  display: table;
   padding: @medium-padding;
 
