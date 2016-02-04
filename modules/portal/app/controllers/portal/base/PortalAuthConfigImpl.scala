@@ -7,9 +7,6 @@ import play.api.mvc.{Call, RequestHeader, Result}
 import scala.concurrent.Future.{successful => immediate}
 import scala.concurrent.{ExecutionContext, Future}
 
-/**
- * @author Mike Bryant (http://github.com/mikesname)
- */
 trait PortalAuthConfigImpl extends AuthConfigImpl {
 
   this: CoreActionBuilders =>

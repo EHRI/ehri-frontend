@@ -6,8 +6,7 @@ import play.api.test.PlaySpecification
 import helpers.ResourceUtils
 
 /**
-  * @author Mike Bryant (http://github.com/mikesname)
-  */
+   */
 class FacebookOAuth2ProviderSpec extends PlaySpecification with ResourceUtils {
 
   def testAccessData = resourceAsString("facebookAccessData.txt")

@@ -4,9 +4,6 @@ import play.api.test.PlaySpecification
 import utils.search._
 import com.github.seratch.scalikesolr.request.query.facet.{Value, Param, FacetParam}
 
-/**
- * @author Mike Bryant (http://github.com/mikesname)
- */
 class SolrQueryBuilderSpec extends PlaySpecification {
   val testFieldFacetClass = FieldFacetClass(
       key = "languageCode",

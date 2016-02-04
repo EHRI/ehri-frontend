@@ -13,7 +13,6 @@ import play.api.Logger
  * Implementation of play2-auth
  * https://github.com/t2v/play20-auth/blob/master/README.md
  */
-
 trait AuthConfigImpl extends AuthConfig with Results {
 
   type Id = String

@@ -8,9 +8,6 @@ import org.joda.time.DateTime
 import defines.BindableEnum
 import defines.EnumUtils.enumMapping
 
-/**
- * @author Mike Bryant (http://github.com/mikesname)
- */
 case class Feedback(
   objectId: Option[String] = None,
   userId: Option[String],

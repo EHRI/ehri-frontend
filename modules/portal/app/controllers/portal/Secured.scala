@@ -2,9 +2,6 @@ package controllers.portal
 
 import controllers.base.CoreActionBuilders
 
-/**
- * @author Mike Bryant (http://github.com/mikesname)
- */
 trait Secured {
 
   self: CoreActionBuilders =>

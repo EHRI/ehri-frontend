@@ -10,8 +10,6 @@ import scala.concurrent.ExecutionContext
  *  - the event handler
  *  - the user
  *  - the execution context
- *
- * @author Mike Bryant (http://github.com/mikesname)
  */
 trait RestContext {
   def eventHandler: EventHandler

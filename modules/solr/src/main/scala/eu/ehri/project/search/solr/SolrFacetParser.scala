@@ -4,9 +4,6 @@ import com.github.seratch.scalikesolr.request.query.facet.{Param, Value, FacetPa
 import play.api.Logger
 import utils.search._
 
-/**
- * @author Mike Bryant (http://github.com/mikesname)
- */
 object SolrFacetParser {
   def facetValue(q: Facet): String = q match {
     case FieldFacet(value, l_, _, _) => value

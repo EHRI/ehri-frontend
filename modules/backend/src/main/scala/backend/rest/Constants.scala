@@ -1,8 +1,5 @@
 package backend.rest
 
-/**
- * @author Mike Bryant (http://github.com/mikesname)
- */
 object Constants {
   /**
    * Name of the header that passes that accessing user id to

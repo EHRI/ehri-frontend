@@ -4,9 +4,6 @@ import scala.concurrent.Future
 import utils._
 
 
-/**
- * @author Mike Bryant (http://github.com/mikesname)
- */
 trait Events {
   /**
    * Fetch the global event stream.

@@ -10,8 +10,6 @@ import backend.{Entity, Readable}
 
 /**
  * Class that holds data about a version of another item.
- *
- * @author Mike Bryant (http://github.com/mikesname)
  */
 case class VersionF(
   isA: EntityType.Value = EntityType.Version,

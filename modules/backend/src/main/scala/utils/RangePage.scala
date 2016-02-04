@@ -3,8 +3,6 @@ package utils
 /**
  * A range represents a window in a potentially infinite
  * set of data
- *
- * @author Mike Bryant (http://github.com/mikesname)
  */
 case class RangePage[+T](
   offset: Int,

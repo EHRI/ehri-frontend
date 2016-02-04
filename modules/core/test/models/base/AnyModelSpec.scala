@@ -40,9 +40,6 @@ case class TestModel(
 ) extends MetaModel[TestModelF]
   with DescribedMeta[TestDescriptionF, TestModelF]
 
-/**
- * @author Mike Bryant (http://github.com/mikesname)
- */
 class AnyModelSpec extends PlaySpecification with play.api.i18n.I18nSupport {
 
   implicit val application = new play.api.inject.guice.GuiceApplicationBuilder().build

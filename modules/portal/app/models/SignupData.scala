@@ -4,8 +4,6 @@ import utils.forms.{HoneyPotForm, TimeCheckForm}
 
 /**
  * Manage signup data.
- *
- * @author Mike Bryant (http://github.com/mikesname)
  */
 case class SignupData(
   name: String,

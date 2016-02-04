@@ -4,9 +4,6 @@ import play.api.libs.json._
 import play.api.libs.json.JsBoolean
 import play.api.libs.json.JsNumber
 
-/**
- * @author Mike Bryant (http://github.com/mikesname)
- */
 
 
 case object FacetSort extends Enumeration {

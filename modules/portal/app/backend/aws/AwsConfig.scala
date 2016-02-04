@@ -1,8 +1,5 @@
 package backend.aws
 
-/**
- * @author Mike Bryant (http://github.com/mikesname)
- */
 case class AwsConfig(
   region: String,
   instance: String,

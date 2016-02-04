@@ -3,9 +3,6 @@ package eu.ehri.project.search.solr
 import models.UserProfile
 import utils.search._
 
-/**
- * @author Mike Bryant (http://github.com/mikesname)
- */
 trait QueryBuilder {
 
   /**

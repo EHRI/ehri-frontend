@@ -10,9 +10,6 @@ import utils.PageParams
 import scala.concurrent.Future.{successful => immediate}
 import scala.concurrent.{ExecutionContext, Future}
 
-/**
- * @author Mike Bryant (http://github.com/mikesname)
- */
 @Singleton
 case class MockAccountManager @Inject()() extends AccountManager {
 

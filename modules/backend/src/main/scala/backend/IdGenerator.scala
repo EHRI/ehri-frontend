@@ -5,8 +5,6 @@ import scala.concurrent.{ExecutionContext, Future}
 
 /**
  * Helper that generates IDs for content types.
- *
- * @author Mike Bryant (http://github.com/mikesname)
  */
 trait IdGenerator {
 

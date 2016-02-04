@@ -2,9 +2,6 @@ package backend
 
 import scala.concurrent.Future
 
-/**
- * @author Mike Bryant (http://github.com/mikesname)
- */
 trait VirtualCollections {
   /**
    * Include a set of items in a virtual collection.

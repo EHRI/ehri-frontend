@@ -6,9 +6,6 @@ import utils.search.FieldFacetClass
 import models.base.Description
 
 
-/**
- * @author Mike Bryant (http://github.com/mikesname)
- */
 class SolrQueryParserSpec extends PlaySpecification with ResourceUtils {
 
   implicit val app = new play.api.inject.guice.GuiceApplicationBuilder().build()

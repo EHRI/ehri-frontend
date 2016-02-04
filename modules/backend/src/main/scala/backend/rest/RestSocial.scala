@@ -6,9 +6,6 @@ import scala.concurrent.Future
 import utils.{Page, PageParams}
 import defines.EntityType
 
-/**
- * @author Mike Bryant (http://github.com/mikesname)
- */
 trait RestSocial extends Social with RestDAO with RestContext {
 
   import backend.rest.Constants._

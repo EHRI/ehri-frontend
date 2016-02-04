@@ -4,9 +4,6 @@ import play.api.test.PlaySpecification
 
 import scala.collection.immutable.ListMap
 
-/**
- * @author Mike Bryant (http://github.com/mikesname)
- */
 class FacetSpec extends PlaySpecification {
 
   private val testData = Map(

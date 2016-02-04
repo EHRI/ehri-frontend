@@ -4,9 +4,6 @@ import play.api.{Configuration, Environment}
 import play.api.i18n.{Lang, DefaultLangs, DefaultMessagesApi}
 import play.api.test.PlaySpecification
 
-/**
- * @author Mike Bryant (http://github.com/mikesname)
- */
 class I18nSpec extends PlaySpecification {
 
   val conf = Configuration.reference ++ Configuration.from(Map("play.i18n.langs" -> Seq("en", "fr")))

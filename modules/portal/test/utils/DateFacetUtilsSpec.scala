@@ -5,9 +5,6 @@ import play.api.i18n.{MessagesApi, Messages}
 import play.api.test.PlaySpecification
 import utils.search.{End, Start, Val}
 
-/**
- * @author Mike Bryant (http://github.com/mikesname)
- */
 class DateFacetUtilsSpec extends PlaySpecification with play.api.i18n.I18nSupport {
   import utils.DateFacetUtils._
 

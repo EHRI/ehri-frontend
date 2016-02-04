@@ -6,9 +6,6 @@ import scala.concurrent.{ExecutionContext, Future}
 import play.api.mvc.Headers
 import play.api.libs.ws.{WSResponseHeaders, WSResponse}
 
-/**
- * @author Mike Bryant (http://github.com/mikesname)
- */
 
 trait Backend {
   def withContext(apiUser: ApiUser)(implicit executionContext: ExecutionContext): BackendHandle

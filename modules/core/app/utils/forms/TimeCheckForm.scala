@@ -7,8 +7,6 @@ import play.api.data.validation.{Invalid, Valid, Constraint}
  * A form with a time-check field, i.e. that should not
  * be submitted within a certain time period of being
  * rendered.
- *
- * @author Mike Bryant (http://github.com/mikesname)
  */
 trait TimeCheckForm {
   def timestamp: String

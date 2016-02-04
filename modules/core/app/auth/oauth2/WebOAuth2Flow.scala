@@ -10,9 +10,6 @@ import play.api.libs.ws.WSClient
 import scala.concurrent.ExecutionContext.Implicits._
 import scala.concurrent.Future
 
-/**
- * @author Mike Bryant (http://github.com/mikesname)
- */
 case class WebOAuth2Flow @Inject ()(implicit app: play.api.Application, ws: WSClient) extends OAuth2Flow {
 
   override def getAccessToken(provider: OAuth2Provider, handlerUrl: String, code: String): Future[OAuth2Info] = {

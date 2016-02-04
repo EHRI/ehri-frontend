@@ -7,9 +7,6 @@ import utils.PageParams
 
 import scala.concurrent.{ExecutionContext, Future}
 
-/**
- * @author Mike Bryant (http://github.com/mikesname)
- */
 trait AccountManager {
 
   def oAuth2: OAuth2AssociationManager

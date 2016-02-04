@@ -5,9 +5,6 @@ import defines.EntityType
 import models._
 import play.api.libs.json.Reads
 
-/**
- * @author Mike Bryant (http://github.com/mikesname
- */
 object Utils {
   val restReadRegistry: PartialFunction[EntityType.Value, Reads[AnyModel]] = {
     case EntityType.Repository => Repository.RepositoryResource.restReads.asInstanceOf[Reads[AnyModel]]

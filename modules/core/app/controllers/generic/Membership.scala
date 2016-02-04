@@ -10,9 +10,6 @@ import play.api.mvc.{ActionTransformer, Request, WrappedRequest}
 
 import scala.concurrent.Future
 
-/**
- * @author Mike Bryant (http://github.com/mikesname)
- */
 trait Membership[MT <: Accessor] extends Read[MT] {
 
   case class MembershipRequest[A](

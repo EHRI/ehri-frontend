@@ -39,8 +39,6 @@ trait PrefTest extends SessionPreferences[TestPrefs] {
 
 /**
  * Test session loading/saving behaviour.
- *
- * @author Mike Bryant (http://github.com/mikesname)
  */
 class SessionPreferencesSpec extends PlaySpecification with Results {
   class PrefTestController() extends Controller with PrefTest

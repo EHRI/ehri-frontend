@@ -2,9 +2,6 @@ package models.forms
 
 import play.api.test.PlaySpecification
 
-/**
- * @author Mike Bryant (http://github.com/mikesname)
- */
 class AddressSpec extends PlaySpecification {
   "address form" should {
     "NOT allow relaxed URLs" in {

@@ -15,9 +15,6 @@ import play.api.mvc.Result
 import java.util.UUID
 import controllers.base.{RecaptchaHelper, CoreActionBuilders}
 
-/**
- * @author Mike Bryant (http://github.com/mikesname)
- */
 trait UserPasswordLoginHandler {
 
   self: CoreActionBuilders with LoginLogout with AccountHelpers with RecaptchaHelper =>

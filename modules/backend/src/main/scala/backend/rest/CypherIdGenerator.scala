@@ -10,9 +10,6 @@ import eu.ehri.project.definitions.Ontology
 
 import javax.inject.Inject
 
-/**
- * @author Mike Bryant (http://github.com/mikesname)
- */
 @Singleton
 case class CypherIdGenerator @Inject ()(cypher: Cypher) extends IdGenerator {
 

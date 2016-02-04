@@ -5,9 +5,6 @@ import play.api.libs.json.{Format, Json}
 import play.api.mvc.{Headers, RequestHeader}
 import org.joda.time.format.ISODateTimeFormat
 
-/**
- * @author Mike Bryant (http://github.com/mikesname)
- */
 case class FeedbackContext(
   path: String,
   queryString: Map[String,Seq[String]],

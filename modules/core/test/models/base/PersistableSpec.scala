@@ -5,9 +5,6 @@ import models.{DatePeriod, DatePeriodF}
 import backend.ErrorSet
 
 
-/**
- * @author Mike Bryant (http://github.com/mikesname)
- */
 class PersistableSpec extends PlaySpecification {
 
   import play.api.libs.json._

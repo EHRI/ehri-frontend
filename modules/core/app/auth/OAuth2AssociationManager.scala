@@ -3,9 +3,6 @@ package auth
 import models.OAuth2Association
 import scala.concurrent.Future
 
-/**
- * @author Mike Bryant (http://github.com/mikesname)
- */
 trait OAuth2AssociationManager {
 
   def findByProviderInfo(providerUserId: String, provider: String): Future[Option[OAuth2Association]]

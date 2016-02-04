@@ -24,9 +24,6 @@ case class TestHelpdesk(implicit app: play.api.Application) extends HelpdeskDAO 
 }
 
 
-/**
- * @author Mike Bryant (http://github.com/mikesname)
- */
 case class EhriHelpdesk @Inject() (implicit app: play.api.Application, ws: WSClient) extends HelpdeskDAO {
   def helpdeskUrl: String = app.configuration.getString("ehri.helpdesk.url")
     .getOrElse(sys.error("Configuration value: 'ehri.helpdesk.url' is not defined"))

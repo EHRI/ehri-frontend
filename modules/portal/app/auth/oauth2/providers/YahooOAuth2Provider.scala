@@ -6,9 +6,6 @@ import org.apache.commons.codec.binary.Base64
 import play.api.http.ContentTypes
 import play.api.libs.json.Json
 
-/**
- * @author Mike Bryant (http://github.com/mikesname)
- */
 case class YahooOAuth2Provider (config: play.api.Configuration) extends OAuth2Provider {
 
   val name = "yahoo"

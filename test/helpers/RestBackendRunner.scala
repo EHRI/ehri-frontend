@@ -30,9 +30,6 @@ object RestBackendRunner {
   )
 }
 
-/**
- * @author Mike Bryant (http://github.com/mikesname)
- */
 trait RestBackendRunner extends BeforeAllAfterAll {
 
   import RestBackendRunner._

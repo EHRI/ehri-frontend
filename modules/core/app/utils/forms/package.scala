@@ -5,8 +5,6 @@ import backend.Entity
 
 /**
  * Form-related utilities
- *
- * @author Mike Bryant (http://github.com/mikesname)
  */
 package object forms {
 

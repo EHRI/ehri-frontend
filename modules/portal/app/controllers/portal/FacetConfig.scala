@@ -11,8 +11,6 @@ import views.Helpers
 
 /**
  * Facet configuration for various kinds of searches.
- *
- * @author Mike Bryant (http://github.com/mikesname)
  */
 trait FacetConfig extends Search {
 

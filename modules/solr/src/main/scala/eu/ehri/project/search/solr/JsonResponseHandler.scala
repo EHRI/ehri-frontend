@@ -8,8 +8,6 @@ import utils.search.SearchHit
 
 /**
  * Extracts useful data from a Solr JSON response.
- *
- * @author Mike Bryant (http://github.com/mikesname)
  */
 case class JsonResponseHandler @Inject()(app: play.api.Application) extends ResponseHandler {
   import SearchConstants._

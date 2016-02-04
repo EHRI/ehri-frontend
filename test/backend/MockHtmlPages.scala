@@ -8,8 +8,6 @@ import scala.concurrent.Future
 
 /**
  * Mock external pages.
- *
- * @author Mike Bryant (http://github.com/mikesname)
  */
 case class MockHtmlPages() extends HtmlPages {
   override def get(key: String, noCache: Boolean)(implicit messages: Messages): Option[Future[(Html, Html)]] = {

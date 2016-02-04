@@ -9,9 +9,6 @@ import utils.Page
 
 import scala.concurrent.Future
 
-/**
- * @author Mike Bryant (http://github.com/mikesname)
- */
 trait Generic[MT] extends Read[MT] {
   this: PortalController =>
 

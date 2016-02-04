@@ -9,8 +9,6 @@ import scala.concurrent.Future
  * Interface for static HTML pages that are pulled
  * from some external source and embedded in our
  * page template.
- *
- * @author Mike Bryant (http://github.com/mikesname)
  */
 trait HtmlPages {
   /**

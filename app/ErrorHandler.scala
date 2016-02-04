@@ -17,9 +17,6 @@ import scala.concurrent.Future.{successful => immediate}
 import controllers.renderError
 import views.html.errors.{permissionDenied, itemNotFound, serverTimeout, fatalError, pageNotFound, genericError}
 
-/**
- * @author Mike Bryant (http://github.com/mikesname)
- */
 class ErrorHandler @Inject() (
   env: Environment,
   config: Configuration,

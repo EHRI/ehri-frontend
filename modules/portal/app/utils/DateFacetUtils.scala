@@ -10,8 +10,6 @@ import utils.search._
 /**
  * Utils for converting URL-friendly date facet params
  * to Solr format.
- *
- * @author Mike Bryant (http://github.com/mikesname)
  */
 @Singleton
 case class DateFacetUtils @Inject()(implicit messagesApi: MessagesApi) extends play.api.i18n.I18nSupport {

@@ -10,9 +10,6 @@ import backend.FileStorage
 
 import scala.concurrent.{ExecutionContext, Future}
 
-/**
- * @author Mike Bryant (http://github.com/mikesname)
- */
 case class S3FileStorage @Inject ()(implicit app: play.api.Application) extends FileStorage {
   override def putFile(instance: String, classifier: String, path: String, file: File)(implicit executionContext:
   ExecutionContext):

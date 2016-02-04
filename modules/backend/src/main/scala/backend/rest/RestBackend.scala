@@ -11,8 +11,7 @@ import backend._
 
 
 /**
-  * @author Mike Bryant (http://github.com/mikesname)
-  */
+   */
 case class RestBackend @Inject ()(eventHandler: EventHandler, cache: CacheApi, config: play.api.Configuration, ws: WSClient)
   extends Backend {
   def withContext(apiUser: ApiUser)(implicit executionContext: ExecutionContext) = new RestBackendHandle(eventHandler)(cache: CacheApi, config, apiUser, executionContext, ws)

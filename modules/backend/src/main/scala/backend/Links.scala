@@ -3,9 +3,6 @@ package backend
 import scala.concurrent.Future
 import utils.Page
 
-/**
- * @author Mike Bryant (http://github.com/mikesname)
- */
 trait Links {
   def getLinksForItem[A: Readable](id: String): Future[Page[A]]
 

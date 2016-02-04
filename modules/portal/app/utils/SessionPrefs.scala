@@ -5,8 +5,6 @@ import play.api.data.Form
 /**
  * Helper class for encapsulating session-backed user
  * preferences.
- *
- * @author Mike Bryant (http://github.com/mikesname)
  */
 case class SessionPrefs(
   showUserContent: Boolean = true,

@@ -8,8 +8,6 @@ import defines.BindableEnum
  *  - block - below an item description
  *  - field - inline with an item field
  *  - list  - in a list of annotations
- *
- * @author Mike Bryant (http://github.com/mikesname)
  */
 object AnnotationContext extends BindableEnum {
   type Type = Value

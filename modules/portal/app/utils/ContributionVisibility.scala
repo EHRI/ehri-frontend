@@ -6,8 +6,6 @@ import defines.EnumUtils.enumMapping
 /**
  * Enum defining modes of visibility for contributed
  * content.
- *
- * @author Mike Bryant (http://github.com/mikesname)
  */
 object ContributionVisibility extends Enumeration {
 

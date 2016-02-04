@@ -10,9 +10,6 @@ import play.api.mvc.{AnyContent, Request, Result}
 
 import scala.concurrent.Future.{successful => immediate}
 
-/**
- * @author Mike Bryant (http://github.com/mikesname)
- */
 trait AccessPoints[D <: Description, T <: Model with Described[D], MT <: MetaModel[T]] extends Read[MT] {
 
   // NB: This doesn't work when placed within the function scope

@@ -8,9 +8,6 @@ import play.api.mvc.{Controller, Action}
 
 
 
-/**
- * @author Mike Bryant (http://github.com/mikesname)
- */
 @Singleton
 case class PortalData @Inject()(
   implicit app: play.api.Application,

@@ -9,8 +9,6 @@ import org.joda.time.DateTime
  * aggregated by either a) being sequential and having the
  * same user, or b) being repeated actions on the same item
  * by the same user.
- *
- * @author Mike Bryant (http://github.com/mikesname)
  */
 case class EventSummary(events: Seq[SystemEvent]) {
   lazy val user: Option[Accessor] = events.headOption.flatMap(_.actioner)

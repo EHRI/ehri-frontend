@@ -5,8 +5,6 @@ import utils.search.{AppliedFacet, Facet, FacetClass, SearchHit}
 /**
  * Trait that exposes all the relevant information
  * we need to extract from a search query response.
- *
- * @author Mike Bryant (http://github.com/mikesname)
  */
 trait QueryResponseExtractor {
   def phrases: Seq[String]

@@ -6,9 +6,6 @@ import auth.oauth2._
 import com.fasterxml.jackson.core.JsonParseException
 import play.api.libs.json.Json
 
-/**
- * @author Mike Bryant (http://github.com/mikesname)
- */
 trait OAuth2Provider {
 
   implicit def config: play.api.Configuration

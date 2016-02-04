@@ -5,8 +5,6 @@ import play.api.mvc.Call
 
 /**
  * Admin view helpers.
- *
- * @author Mike Bryant (http://github.com/mikesname)
  */
 object Helpers {
 

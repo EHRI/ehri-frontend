@@ -6,9 +6,6 @@ import utils.{Page, PageParams}
 
 import scala.concurrent.Future
 
-/**
- * @author Mike Bryant (http://github.com/mikesname)
- */
 trait Generic {
 
   /**

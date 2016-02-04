@@ -14,9 +14,6 @@ import backend.{Backend, FeedbackDAO}
 import javax.inject._
 import controllers.portal.base.PortalController
 
-/**
- * @author Mike Bryant (http://github.com/mikesname)
- */
 @Singleton
 case class Feedback @Inject()(
   implicit app: play.api.Application,

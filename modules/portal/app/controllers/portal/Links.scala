@@ -12,9 +12,6 @@ import play.api.i18n.MessagesApi
 import utils.search._
 import views.MarkdownRenderer
 
-/**
- * @author Mike Bryant (http://github.com/mikesname)
- */
 @Singleton
 case class Links @Inject()(
   implicit app: play.api.Application,
