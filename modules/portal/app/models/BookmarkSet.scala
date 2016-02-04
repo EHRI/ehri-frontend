@@ -6,8 +6,6 @@ import play.api.i18n.Messages
  * Class representing a user bookmark set, e.g. a
  * container for a bunch of bookmarks. On the server
  * this is represented as a virtual unit.
- *
- * @author Mike Bryant (http://github.com/mikesname)
  */
 case class BookmarkSet(name: String, lang: String, description: Option[String])
 object BookmarkSet {

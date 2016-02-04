@@ -12,7 +12,6 @@ case class MockSearchIndexMediator(eventBuffer: collection.mutable.ListBuffer[St
  * User: michaelb
  *
  * TODO: Integrate better with fixtures.
- *
  */
 case class MockSearchIndexMediatorHandle(eventBuffer: collection.mutable.ListBuffer[String]) extends SearchIndexMediatorHandle {
 

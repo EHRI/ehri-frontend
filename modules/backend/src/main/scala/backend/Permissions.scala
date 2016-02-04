@@ -6,9 +6,6 @@ import acl.{ItemPermissionSet, GlobalPermissionSet}
 import defines.ContentTypes
 
 
-/**
- * @author Mike Bryant (http://github.com/mikesname)
- */
 trait Permissions {
   def getItemPermissions(userId: String, contentType: ContentTypes.Value, id: String): Future[ItemPermissionSet]
 

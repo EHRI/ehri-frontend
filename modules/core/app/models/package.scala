@@ -1,6 +1,3 @@
-/**
- * @author Mike Bryant (http://github.com/mikesname)
- */
 package object models {
   /* This type alias provides a means to ensure that the
    * `@Relation(type)` annotation on constructor val params

@@ -12,9 +12,6 @@ import language.postfixOps
 import scala.util.Try
 import models.sql.withIntegrityCheck
 
-/**
- * @author Thibault Clérice (http://github.com/ponteineptique)
- */
 case class Guide(
   id: Option[Long] = None,
   name: String,

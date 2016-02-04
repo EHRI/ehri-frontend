@@ -4,9 +4,6 @@ import utils.Page
 
 import scala.collection.generic.CanBuildFrom
 
-/**
- * @author Mike Bryant (http://github.com/mikesname)
- */
 case class SearchResult[+T](
   page: Page[T],
   params: SearchParams,

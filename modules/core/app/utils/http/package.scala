@@ -1,8 +1,5 @@
 package utils
 
-/**
- * @author Mike Bryant (http://github.com/mikesname)
- */
 package object http {
 
   import java.net.{URLDecoder, URLEncoder}

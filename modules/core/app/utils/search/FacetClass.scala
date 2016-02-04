@@ -2,9 +2,6 @@ package utils.search
 
 import play.api.libs.json.{JsNumber, Json, Writes}
 
-/**
- * @author Mike Bryant (http://github.com/mikesname)
- */
 sealed trait FacetClass[+T <: Facet] {
   def key: String
   def name: String

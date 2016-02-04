@@ -19,8 +19,6 @@ case class CmdlineIndexMediator @Inject()(
 /**
  * Indexer which uses the command-line tool in
  * bin to index items.
- *
- * @author Mike Bryant (http://github.com/mikesname)
  */
 case class CmdlineIndexMediatorHandle(
   chan: Option[Concurrent.Channel[String]] = None,

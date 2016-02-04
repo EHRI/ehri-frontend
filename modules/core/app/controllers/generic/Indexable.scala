@@ -23,8 +23,6 @@ object Indexable {
 /**
  * Mixin trait for items which can be individually re-indexed, i.e:
  * repositories, vocabularies, countries, etc.
- *
- * @author Mike Bryant (http://github.com/mikesname)
  */
 trait Indexable[MT] extends Controller with CoreActionBuilders with ControllerHelpers {
 

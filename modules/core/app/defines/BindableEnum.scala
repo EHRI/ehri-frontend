@@ -7,8 +7,6 @@ import scala.language.implicitConversions
 /**
  * Enum that can be used in path parameters and query strings to
  * provide a value constraint.
- *
- * @author Mike Bryant (http://github.com/mikesname)
  */
 abstract class BindableEnum extends Enumeration {
 

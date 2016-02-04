@@ -6,9 +6,6 @@ import scala.concurrent.Future
 import scala.concurrent.Future.{successful => immediate}
 import scala.io.Source
 
-/**
- * @author Mike Bryant (http://github.com/mikesname)
- */
 case class MockOAuth2Flow() extends OAuth2Flow {
 
   private def resourceAsString(name: String): String = Source.fromInputStream(getClass

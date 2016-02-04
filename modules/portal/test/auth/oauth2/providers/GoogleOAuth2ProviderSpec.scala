@@ -5,9 +5,6 @@ import play.api.inject.guice.GuiceApplicationBuilder
 import play.api.test.PlaySpecification
 import helpers.ResourceUtils
 
-/**
- * @author Mike Bryant (http://github.com/mikesname)
- */
 class GoogleOAuth2ProviderSpec extends PlaySpecification with ResourceUtils {
 
   def testAccessData = resourceAsString("googleAccessData.txt")

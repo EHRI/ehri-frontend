@@ -3,9 +3,6 @@ package controllers.base
 import play.api.mvc.{Result, RequestHeader}
 import play.api.libs.json.{Writes, Reads, Json}
 
-/**
- * @author Mike Bryant (http://github.com/mikesname)
- */
 trait SessionPreferences[T] {
 
   import SessionPreferences._

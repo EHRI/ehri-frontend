@@ -5,9 +5,6 @@ import java.net.URI
 
 import scala.concurrent.{ExecutionContext, Future}
 
-/**
- * @author Mike Bryant (http://github.com/mikesname)
- */
 trait FileStorage {
   /**
    * Put a file object in storage.

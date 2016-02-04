@@ -1,8 +1,5 @@
 package auth
 
-/**
- * @author Mike Bryant (http://github.com/mikesname)
- */
 case class AuthenticationError(msg: String) extends Exception(msg)
 
 object AuthenticationError {

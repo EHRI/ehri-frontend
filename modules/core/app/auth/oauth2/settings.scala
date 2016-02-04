@@ -5,8 +5,6 @@ import auth.AuthenticationError
 /**
  * OAuth2 authentication code, largely adapted from
  * SecureSocial (thanks Jorge!)
- *
- * @author Mike Bryant (http://github.com/mikesname)
  */
 object OAuth2Settings {
   val AuthorizationUrl = "authorizationUrl"

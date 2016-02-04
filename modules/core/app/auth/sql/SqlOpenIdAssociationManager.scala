@@ -27,9 +27,6 @@ object SqlOpenIdAssociationManager {
   }
 }
 
-/**
- * @author Mike Bryant (http://github.com/mikesname)
- */
 case class SqlOpenIdAssociationManager()(implicit db: Database, app: play.api.Application, executionContext: ExecutionContext)
   extends OpenIdAssociationManager{
 

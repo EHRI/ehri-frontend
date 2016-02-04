@@ -24,8 +24,6 @@ import scala.concurrent.duration.Duration
 /**
  * Oauth2 login handler implementation, cribbed extensively
  * from SecureSocial.
- *
- * @author Mike Bryant (http://github.com/mikesname)
  */
 trait OAuth2LoginHandler extends AccountHelpers {
 

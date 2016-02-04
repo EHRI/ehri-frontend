@@ -4,9 +4,6 @@ import play.api.libs.json._
 import play.api.libs.functional.syntax._
 import play.api.test.PlaySpecification
 
-/**
- * @author Mike Bryant (http://github.com/mikesname)
- */
 class JsPathExtensionsSpec extends PlaySpecification {
 
   "JsPath with extensions" should {

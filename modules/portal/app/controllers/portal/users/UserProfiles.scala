@@ -30,9 +30,6 @@ import models.base.AnyModel
 import net.coobird.thumbnailator.Thumbnails
 import controllers.portal.base.{PortalController, PortalAuthConfigImpl}
 
-/**
- * @author Mike Bryant (http://github.com/mikesname)
- */
 @Singleton
 case class UserProfiles @Inject()(
   implicit app: play.api.Application,

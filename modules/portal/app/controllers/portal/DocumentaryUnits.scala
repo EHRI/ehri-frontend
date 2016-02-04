@@ -20,9 +20,6 @@ import views.MarkdownRenderer
 
 import scala.concurrent.Future.{successful => immediate}
 
-/**
- * @author Mike Bryant (http://github.com/mikesname)
- */
 @Singleton
 case class DocumentaryUnits @Inject()(
   implicit app: play.api.Application,

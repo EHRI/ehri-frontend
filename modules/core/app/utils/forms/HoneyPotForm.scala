@@ -6,8 +6,6 @@ import play.api.data.validation.{Invalid, Valid, Constraint}
  * A form with a honey pot field, i.e. one that should
  * not be filled with a non-blank value by an actual-person
  * user.
- *
- * @author Mike Bryant (http://github.com/mikesname)
  */
 trait HoneyPotForm {
   def blankCheck: String

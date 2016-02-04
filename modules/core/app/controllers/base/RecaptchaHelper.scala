@@ -8,9 +8,6 @@ import play.api.mvc.Request
 
 import scala.concurrent.{ExecutionContext, Future}
 
-/**
- * @author Mike Bryant (http://github.com/mikesname)
- */
 trait RecaptchaHelper {
   self: ControllerHelpers =>
 

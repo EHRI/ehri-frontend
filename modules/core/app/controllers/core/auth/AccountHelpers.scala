@@ -2,9 +2,6 @@ package controllers.core.auth
 
 import scala.collection.JavaConversions
 
-/**
- * @author Mike Bryant (http://github.com/mikesname)
- */
 trait AccountHelpers {
 
   implicit def app: play.api.Application

@@ -3,9 +3,6 @@ package backend
 import scala.concurrent.Future
 import utils.{Page, PageParams}
 
-/**
- * @author Mike Bryant (http://github.com/mikesname)
- */
 trait Social {
   def follow[U: Resource](userId: String, otherId: String): Future[Unit]
 

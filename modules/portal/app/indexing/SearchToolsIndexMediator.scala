@@ -31,8 +31,6 @@ case class SearchToolsIndexMediator @Inject()(
  * provides a more convenient API for keeping the search
  * engine updated. This uses the library in-process, which
  * is more convenient for deployment.
- *
- * @author Mike Bryant (http://github.com/mikesname)
  */
 case class SearchToolsIndexMediatorHandle(
   chan: Option[Concurrent.Channel[String]] = None,

@@ -4,9 +4,6 @@ import auth.oauth2.providers.OAuth2Provider
 
 import scala.concurrent.Future
 
-/**
- * @author Mike Bryant (http://github.com/mikesname)
- */
 trait OAuth2Flow {
   /**
    * Second step after OAuth2 initial redirect to provider. Use code from provider

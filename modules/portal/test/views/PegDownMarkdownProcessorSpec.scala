@@ -2,9 +2,6 @@ package views
 
 import play.api.test.PlaySpecification
 
-/**
- * @author Mike Bryant (http://github.com/mikesname)
- */
 class PegDownMarkdownProcessorSpec extends PlaySpecification {
   val mdprocessor = new PegDownMarkdownRenderer
 

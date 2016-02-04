@@ -13,8 +13,6 @@ import play.api.libs.concurrent.Execution.Implicits._
 
 /**
  * Helpers for searching virtual collections
- *
- * @author Mike Bryant (http://github.com/mikesname)
  */
 trait SearchVC {
   this: Controller with ControllerHelpers =>

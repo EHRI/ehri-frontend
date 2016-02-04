@@ -19,9 +19,6 @@ import scala.concurrent.{Future, ExecutionContext}
 
 import javax.inject._
 
-/**
- * @author Mike Bryant (http://github.com/mikesname)
- */
 @Singleton
 case class SqlAccountManager @Inject()(implicit db: Database, app: play.api.Application) extends AccountManager {
 

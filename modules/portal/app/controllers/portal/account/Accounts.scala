@@ -30,9 +30,6 @@ import com.google.inject.{Singleton, Inject}
 import utils.search.{SearchItemResolver, SearchEngine}
 import controllers.portal.base.PortalController
 
-/**
- * @author Mike Bryant (http://github.com/mikesname)
- */
 @Singleton
 case class Accounts @Inject()(
   implicit app: play.api.Application,

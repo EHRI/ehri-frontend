@@ -4,9 +4,6 @@ import backend.HelpdeskDAO
 import scala.concurrent.{ExecutionContext, Future}
 import scala.concurrent.Future.{successful => immediate}
 
-/**
- * @author Mike Bryant (http://github.com/mikesname)
- */
 case class MockHelpdeskDAO(buffer: collection.mutable.HashMap[Int, Seq[(String, Double)]]) extends HelpdeskDAO {
   private def returnResponse(instId: String*): Seq[(String, Double)] = {
     val r = instId.toSeq.map(id => (id, 0.1))

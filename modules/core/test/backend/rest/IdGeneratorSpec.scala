@@ -4,9 +4,6 @@ import play.api.test.PlaySpecification
 import controllers.base.FakeApp
 import backend.IdGenerator
 
-/**
- * @author Mike Bryant (http://github.com/mikesname)
- */
 class IdGeneratorSpec extends PlaySpecification {
 
   "IdGenerator" should {

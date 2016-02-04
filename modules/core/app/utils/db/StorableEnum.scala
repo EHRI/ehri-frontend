@@ -2,9 +2,6 @@ package utils.db
 
 import anorm.{ToStatement, TypeDoesNotMatch, MayErr, Column}
 
-/**
- * @author Mike Bryant (http://github.com/mikesname)
- */
 trait StorableEnum {
   self: Enumeration =>
 

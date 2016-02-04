@@ -4,9 +4,6 @@ import play.api.mvc.{QueryStringBindable, PathBindable}
 
 import scala.language.implicitConversions
 
-/**
- * @author Mike Bryant (http://github.com/mikesname)
- */
 object EnumerationBinders {
   implicit def bindableEnum[E <: Enumeration](enum: E): PathBindable[E#Value] = new PathBindable[E#Value] {
     def bind(key: String, value: String) =

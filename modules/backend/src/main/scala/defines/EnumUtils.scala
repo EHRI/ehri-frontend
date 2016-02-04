@@ -1,8 +1,5 @@
 package defines
 
-/**
- * @author Mike Bryant (http://github.com/mikesname)
- */
 
 import play.api.data.format.Formatter
 import play.api.data.{FormError, Forms, Mapping}

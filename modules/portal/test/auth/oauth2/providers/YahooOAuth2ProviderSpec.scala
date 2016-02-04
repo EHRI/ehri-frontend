@@ -5,8 +5,7 @@ import play.api.inject.guice.GuiceApplicationBuilder
 import play.api.test.PlaySpecification
 
 /**
-  * @author Mike Bryant (http://github.com/mikesname)
-  */
+   */
 class YahooOAuth2ProviderSpec extends PlaySpecification with ResourceUtils {
 
   val testAccessData = resourceAsString("yahooAccessData.txt")

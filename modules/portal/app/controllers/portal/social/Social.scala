@@ -25,7 +25,6 @@ import play.api.mvc.Result
 import controllers.portal.base.PortalController
 
 /**
- * @author Mike Bryant (http://github.com/mikesname)
  *
  * NB: Things like watching and following items could
  * be greatly optimised by implementing caching for

@@ -5,9 +5,6 @@ import defines.EntityType
 import scala.concurrent.Future
 
 
-/**
- * @author Mike Bryant (http://github.com/mikesname)
- */
 trait RestVirtualCollections extends VirtualCollections with RestDAO with RestContext {
 
   import backend.rest.Constants._

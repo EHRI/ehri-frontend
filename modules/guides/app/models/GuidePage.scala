@@ -9,9 +9,6 @@ import language.postfixOps
 import utils.db.StorableEnum
 import play.core.parsers.FormUrlEncodedParser
 
-/**
- * @author Thibault Clérice (http://github.com/ponteineptique)
- */
 case class GuidePage(
   id: Option[Long] = None,
   layout: GuidePage.Layout.Value,

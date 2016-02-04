@@ -14,9 +14,6 @@ import controllers.portal.base.PortalController
 import utils.MovedPageLookup
 import utils.search.SearchItemResolver
 
-/**
- * @author Mike Bryant (http://github.com/mikesname)
- */
 @Singleton
 case class Helpdesk @Inject()(
   implicit  app: play.api.Application,

@@ -4,9 +4,6 @@ import play.api.mvc.RequestHeader
 import play.twirl.api.Html
 import views.html.layout.errorLayout
 
-/**
- * @author Mike Bryant (http://github.com/mikesname)
- */
 package object controllers {
 
   def isAjax(implicit request: RequestHeader): Boolean =

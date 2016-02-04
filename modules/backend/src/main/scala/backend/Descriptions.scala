@@ -2,9 +2,6 @@ package backend
 
 import scala.concurrent.Future
 
-/**
- * @author Mike Bryant (http://github.com/mikesname)
- */
 trait Descriptions {
   /**
    * Create a new description on a given item.

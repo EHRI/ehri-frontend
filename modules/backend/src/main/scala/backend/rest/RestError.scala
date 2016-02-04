@@ -6,9 +6,6 @@ import play.api.libs.functional.syntax._
 import play.api.libs.json._
 import play.api.mvc.RequestHeader
 
-/**
- * @author Mike Bryant (http://github.com/mikesname)
- */
 sealed trait RestError extends Throwable
 
 case class PermissionDenied(

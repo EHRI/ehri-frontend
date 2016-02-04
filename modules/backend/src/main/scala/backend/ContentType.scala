@@ -7,8 +7,6 @@ import scala.annotation.implicitNotFound
 /**
  * A type class for content type items that can be read
  * from the backend.
- *
- * @author Mike Bryant (http://github.com/mikesname)
  */
 @implicitNotFound("No member of type class ContentType found for type ${T}")
 trait ContentType[T] extends Resource[T] {

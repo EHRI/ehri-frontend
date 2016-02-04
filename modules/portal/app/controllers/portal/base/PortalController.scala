@@ -23,9 +23,6 @@ import play.api.mvc.Result
 import views.html.errors.{maintenance, itemNotFound}
 
 
-/**
- * @author Mike Bryant (http://github.com/mikesname)
- */
 trait PortalController
   extends CoreActionBuilders
   with ControllerHelpers

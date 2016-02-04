@@ -8,9 +8,6 @@ import utils.search.SearchIndexMediator
 
 import scala.concurrent.Future
 
-/**
- * @author Mike Bryant (http://github.com/mikesname)
- */
 case class GlobalEventHandler @Inject()(searchIndexer: SearchIndexMediator) extends EventHandler {
   // Bind the EntityDAO Create/Update/Delete actions
   // to the SolrIndexer update/delete handlers. Do this

@@ -3,9 +3,6 @@ package utils.search
 import play.api.test.PlaySpecification
 import defines.EntityType
 
-/**
- * @author Mike Bryant (http://github.com/mikesname)
- */
 class SearchHitSpec extends PlaySpecification {
 
   private val testHit = SearchHit(

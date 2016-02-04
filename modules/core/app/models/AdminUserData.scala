@@ -5,8 +5,6 @@ import play.api.data.{Forms, Form}
 
 /**
  * Subset of user data that is editable by admin users.
- *
- * @author Mike Bryant (http://github.com/mikesname)
  */
 case class AdminUserData(active: Boolean, staff: Boolean)
 

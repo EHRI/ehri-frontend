@@ -7,8 +7,6 @@ import scala.annotation.implicitNotFound
 /**
  * A type class for items that can be saved (written)
  * to the backend.
- *
- * @author Mike Bryant (http://github.com/mikesname)
  */
 @implicitNotFound("No member of type class Writable found for type ${T}")
 trait Writable[T] {

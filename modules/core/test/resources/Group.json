@@ -21,7 +21,7 @@
           "data" : {
             "languages" : [ "en" ],
             "location" : "London",
-            "name" : "Mike Bryant",
+            "name" : "Mike",
             "about" : "Testing the system",
             "identifier" : "mike"
           },

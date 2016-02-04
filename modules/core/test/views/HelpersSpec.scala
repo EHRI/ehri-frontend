@@ -2,9 +2,6 @@ package views
 
 import play.api.test.PlaySpecification
 
-/**
- * @author Mike Bryant (http://github.com/mikesname)
- */
 class HelpersSpec extends PlaySpecification {
   "view helpers" should {
     "shortens correctly a normal string" in {

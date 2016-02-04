@@ -10,8 +10,6 @@ import controllers.portal.ReversePortal
 
 /**
  * Portal view helpers.
- *
- * @author Mike Bryant (http://github.com/mikesname)
  */
 object Helpers {
 
