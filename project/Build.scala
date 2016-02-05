@@ -111,7 +111,7 @@ object Build extends Build {
     "com.sun.jersey" % "jersey-core" % jerseyVersion,
 
     // S3 Upload plugin
-    "com.github.seratch" %% "awscala" % "0.3.+"
+    "com.github.seratch" %% "awscala" % "0.5.+"
   )
 
   val testDependencies = backendTestDependencies ++ Seq(

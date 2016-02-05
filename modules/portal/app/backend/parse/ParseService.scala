@@ -53,8 +53,8 @@ abstract class ParseService[T: Format](objectName: String) extends RestService {
   private def parseCall(oid: Option[String] = None, params: Seq[(String,String)] = Seq.empty) =
     ws.url(parseUrl(oid)).withHeaders(parseHeaders: _*).withQueryString(params: _*)
 
-  def create(feedback: T)(implicit executionContext: ExecutionContext): Future[String] = {
-    parseCall().post(Json.toJson(feedback)).map { r =>
+  def create(item: T)(implicit executionContext: ExecutionContext): Future[String] = {
+    parseCall().post(Json.toJson(item)).map { r =>
       logger.debug("Parse create response: " + r.body)
       r.json.as[Confirmation].objectId
     }
