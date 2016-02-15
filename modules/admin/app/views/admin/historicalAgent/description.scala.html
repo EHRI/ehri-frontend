@@ -1,6 +1,6 @@
 @(item: HistoricalAgent, desc: HistoricalAgentDescriptionF, links: Seq[Link], annotations: Seq[Annotation])(implicit userOpt: Option[UserProfile], request: RequestHeader, fieldPrefix: String, messages: Messages, md: views.MarkdownRenderer, globalConfig: global.GlobalConfig)
 
-@import Isaar._
+@import models.Isaar._
 @import views.html.admin.common.descriptionSection
 
 
@@ -33,8 +33,8 @@
         @views.html.admin.common.stringValue(desc.control.status, STATUS)
         @views.html.admin.common.stringValue(desc.control.levelOfDetail, LEVEL_OF_DETAIL)
         @views.html.admin.common.stringValue(desc.control.datesCDR, DATES_CVD)
-        @views.html.admin.common.listValue(desc.control.languages, LANGUAGES_USED, transformFunc = {s => views.Helpers.languageCodeToName(s)})
-        @views.html.admin.common.listValue(desc.control.scripts, SCRIPTS_USED, transformFunc = {s => views.Helpers.scriptCodeToName(s)})
+        @views.html.admin.common.listValue(desc.control.languages, LANGUAGES_USED, transformFunc = s => views.Helpers.languageCodeToName(s))
+        @views.html.admin.common.listValue(desc.control.scripts, SCRIPTS_USED, transformFunc = s => views.Helpers.scriptCodeToName(s))
         @views.html.admin.common.listValue(desc.control.sources, SOURCES)
         @views.html.admin.common.stringValue(desc.control.maintenanceNotes, MAINTENANCE_NOTES)
     }
