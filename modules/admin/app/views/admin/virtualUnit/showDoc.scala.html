@@ -1,18 +1,7 @@
 @(item: DocumentaryUnit, result: utils.search.SearchResult[(models.base.AnyModel, utils.search.SearchHit)], action: Call, annotations: Seq[Annotation], links: Seq[Link], path: Seq[models.base.AnyModel])(implicit userOpt: Option[UserProfile], req: RequestHeader, globalConfig: global.GlobalConfig, messages: Messages, md: views.MarkdownRenderer, flash: Flash)
 
 @views.html.admin.layout.adminLayout(item.toStringLang) {
-    <div class="virtual-collection-header info-bar">
-        @path.headOption.map { vc =>
-            <h3><a href="@controllers.virtual.routes.VirtualUnits.get(vc.id)">@vc.toStringLang</a></h3>
-            @item.parent.filter(_.id != vc.id).map { parent =>
-                @if(!path.headOption.map(_.id).contains(parent.id)) {
-                    <h4>@Messages("documentaryUnit.parentItem"):
-                        <a href="@controllers.units.routes.DocumentaryUnits.get(parent.id)">@parent.toStringLang</a>
-                    </h4>
-                }
-            }
-        }
-    </div>
+    @views.html.admin.virtualUnit.vcHeader(item, path)
     @views.html.admin.common.breadcrumbs(path.toList :+ item)
     @layout.mainContent {
         @layout.itemDetails {

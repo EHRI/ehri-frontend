@@ -226,8 +226,7 @@ trait Description extends Model {
 
   def isRightToLeft = languageCode == "heb" || languageCode == "ara"
 
-  def localId: Option[String] =
-    id.map(did => did.substring(did.indexOf(Description.DESCRIPTION_DELIMITER) + 1))
+  def localId: Option[String] = id.flatMap(Description.localId)
 }
 
 object Description {
@@ -278,6 +277,17 @@ object Description {
     before = descriptions.take(i)
     after = descriptions.drop(i + 1)
   } yield (elem, before ++ after)
+
+  /**
+   * The 'local' ID part of an individual description is the
+   * section after a period.
+   *
+   * @param id the full id, including that described item
+   * @return the local part of the id, unique to a description
+   */
+  def localId(id: String): Option[String] =
+    if (id.contains(DESCRIPTION_DELIMITER)) Some(id.substring(id.indexOf(DESCRIPTION_DELIMITER) + 1))
+    else None
 }
 
 trait Described[+T <: Description] extends Model {

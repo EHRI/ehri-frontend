@@ -2,7 +2,7 @@
 
 <ul class="list-unstyled">
     @result.page.map { case(item, hit) =>
-        @defining(Some(hit.id)) { implicit descriptionId =>
+        @defining(models.base.Description.localId(hit.id)) { implicit descriptionId =>
             <li>
                 @item match {
                     case d: VirtualUnit => {

@@ -27,18 +27,16 @@
             <div class="panel-body map-result-list">
                 <ul class="list-unstyled">
                     @concepts.items.map { case(item, hit) =>
-                        @defining(Some(hit.id)) { implicit descriptionId =>
-                            <li>
-                                <div class="search-item" id="@item.id">
-                                    @item.model.descriptions.headOption.map { desc =>
-                                        @if(desc.longitude.nonEmpty) {
-                                            <a class="zoom-to" href="#map" data-id="@item.id" data-longitude="@desc.longitude" data-latitude="@desc.latitude"><span class=" glyphicon glyphicon-map-marker"></span></a>
-                                        }
+                        <li>
+                            <div class="search-item" id="@item.id">
+                                @item.model.descriptions.headOption.map { desc =>
+                                    @if(desc.longitude.nonEmpty) {
+                                        <a class="zoom-to" href="#map" data-id="@item.id" data-longitude="@desc.longitude" data-latitude="@desc.latitude"><span class=" glyphicon glyphicon-map-marker"></span></a>
                                     }
-                                    @guideItem(item, hit, controllers.portal.guides.routes.Guides.layoutRetrieval(guide.path, page.path), Some(guide.path), page.layout)
-                                </div>
-                            </li>
-                        }
+                                }
+                                @guideItem(item, hit, controllers.portal.guides.routes.Guides.layoutRetrieval(guide.path, page.path), Some(guide.path), page.layout)
+                            </div>
+                        </li>
                     }
                 </ul>
                 @common.pagination(concepts)

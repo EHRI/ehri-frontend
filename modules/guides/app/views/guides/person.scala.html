@@ -19,30 +19,28 @@
         <section>
             <ul class="list-unstyled">
             @items.items.map { case (item, hit) =>
-                @defining(Some(hit.id)) { implicit descriptionId =>
-                    <li>
-                        <div class="search-item" id="@item.id">
-                            <h3 class="search-item-heading type-highlight @item.isA.toString">
-                            @item.toStringLang
-                            </h3>
-                            <div class="search-item-body">
-                                <div class="small">
-                                    <a class="popover-accesspoints" data-count="@linkCount.getOrElse(item.id, 0)" data-target="@item.id"><span class="glyphicon glyphicon-search"></span></a>
-                                </div>
-                                @item.model.descriptions.headOption.map { desc =>
-                                    <div class="item-description">
-                                        @desc.details.history.map { d =>
-                                            <p>@Markdown(d)</p>
-                                        }
-                                        @desc.details.generalContext.map { d =>
-                                            <p>@Markdown(d)</p>
-                                        }
-                                    </div>
-                                }
+                <li>
+                    <div class="search-item" id="@item.id">
+                        <h3 class="search-item-heading type-highlight @item.isA.toString">
+                        @item.toStringLang
+                        </h3>
+                        <div class="search-item-body">
+                            <div class="small">
+                                <a class="popover-accesspoints" data-count="@linkCount.getOrElse(item.id, 0)" data-target="@item.id"><span class="glyphicon glyphicon-search"></span></a>
                             </div>
+                            @item.model.descriptions.headOption.map { desc =>
+                                <div class="item-description">
+                                    @desc.details.history.map { d =>
+                                        <p>@Markdown(d)</p>
+                                    }
+                                    @desc.details.generalContext.map { d =>
+                                        <p>@Markdown(d)</p>
+                                    }
+                                </div>
+                            }
                         </div>
-                    </li>
-                }
+                    </div>
+                </li>
             }
             </ul>
         </section>

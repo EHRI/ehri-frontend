@@ -61,8 +61,7 @@ case class DocumentaryUnits @Inject()(
         key = LANGUAGE_CODE,
         name = Messages("documentaryUnit." + LANGUAGE_CODE),
         param = "lang",
-        render = Helpers.languageCodeToName,
-        display = FacetDisplay.DropDown
+        render = Helpers.languageCodeToName
       ),
       FieldFacetClass(
         key = CREATION_PROCESS,
