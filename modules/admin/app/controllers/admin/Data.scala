@@ -1,22 +1,21 @@
 package controllers.admin
 
 import auth.AccountManager
+import backend.rest.SearchDAO
 import controllers.base.AdminController
+import models.base.AnyModel
 import play.api.cache.CacheApi
 import play.api.i18n.MessagesApi
 import play.api.libs.ws.WSClient
-import play.api.mvc.Action
 import play.api.libs.concurrent.Execution.Implicits._
 
 import javax.inject._
-import backend.Backend
+import backend.{Readable, Backend}
 import play.api.http.HeaderNames
-import defines.EntityType
-import backend.rest.cypher.Cypher
 import utils.MovedPageLookup
 import views.MarkdownRenderer
 
-case class ApiController @Inject()(
+case class Data @Inject()(
   implicit app: play.api.Application,
   cache: CacheApi,
   globalConfig: global.GlobalConfig,
@@ -24,9 +23,12 @@ case class ApiController @Inject()(
   accounts: AccountManager,
   pageRelocator: MovedPageLookup,
   messagesApi: MessagesApi,
+  search: SearchDAO,
   markdown: MarkdownRenderer,
   ws: WSClient
 ) extends AdminController {
+
+  implicit val rd: Readable[AnyModel] = AnyModel.Converter
 
   private def passThroughHeaders(headers: Map[String, Seq[String]],
                                  filter: Seq[String] = Seq.empty): Seq[(String, String)] = {
@@ -35,13 +37,24 @@ case class ApiController @Inject()(
     }.toSeq
   }
 
-  def getItem(contentType: EntityType.Value, id: String) = Action.async { implicit request =>
-    get(s"$contentType/$id")(request)
+  def getItem(id: String) = OptionalUserAction.async { implicit request =>
+    implicit val rd: Readable[AnyModel] = AnyModel.Converter
+    search.list(List(id)).map {
+      case Nil => NotFound(views.html.errors.itemNotFound())
+      case mm :: _ => views.admin.Helpers.linkToOpt(mm)
+        .map(Redirect) getOrElse NotFound(views.html.errors.itemNotFound())
+    }
   }
 
-  def get(urlPart: String) = OptionalUserAction.async { implicit request =>
+  def getItemType(entityType: defines.EntityType.Value, id: String) = OptionalUserAction { implicit request =>
+    views.admin.Helpers.linkToOpt(entityType, id)
+      .map(Redirect)
+      .getOrElse(NotFound(views.html.errors.itemNotFound()))
+  }
+
+  def forward(urlPart: String) = OptionalUserAction.async { implicit request =>
     val url = urlPart + (if(request.rawQueryString.trim.isEmpty) "" else "?" + request.rawQueryString)
-    userBackend.stream(urlPart).map { case (headers, stream) =>
+    userBackend.stream(url).map { case (headers, stream) =>
       val length = headers.headers
         .get(HeaderNames.CONTENT_LENGTH).flatMap(_.headOption.map(_.toInt)).getOrElse(-1)
       val result:Status = Status(headers.status)
@@ -79,7 +92,7 @@ case class ApiController @Inject()(
 
   def sparql = AdminAction { implicit request =>
     Ok(views.html.admin.queryForm(queryForm.fill(defaultSparql),
-        controllers.admin.routes.ApiController.sparqlQuery(), "SparQL"))
+        controllers.admin.routes.Data.sparqlQuery(), "SparQL"))
   }
 
   def sparqlQuery = AdminAction.async { implicit request =>

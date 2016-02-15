@@ -1,4 +1,4 @@
-@(item: SystemEvent, page: utils.Page[AnyModel], params: utils.PageParams)(implicit userOpt: Option[UserProfile], req: RequestHeader, globalConfig: global.GlobalConfig, messages: Messages, md: views.MarkdownRenderer, flash: Flash)
+@(item: SystemEvent, page: utils.Page[models.base.AnyModel], params: utils.PageParams)(implicit userOpt: Option[UserProfile], req: RequestHeader, globalConfig: global.GlobalConfig, messages: Messages, md: views.MarkdownRenderer, flash: Flash)
 
 @title(item: SystemEvent) = {
     @item.scope.map { scope =>
@@ -29,7 +29,7 @@
         @* If it's a deletion event the subject won't be available (because
             it's been deleted. In this case we have to look for data in
             the last connected item version. *@
-        @if(item.model.eventType.exists(_ == EventType.deletion)) {
+        @if(item.model.eventType.contains(defines.EventType.deletion)) {
             @item.version.map { version =>
                 @Messages("systemEvent.deletion.itemInfo", version.model.itemType, version.model.itemId)
                 @version.model.entity.map { entity =>

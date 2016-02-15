@@ -73,7 +73,7 @@ case class Annotations @Inject()(
   }
 
   def deletePost(id: String, redirect: Option[String] = None) = DeleteAction(id).apply { implicit request =>
-    Redirect(redirect.map(r => controllers.admin.routes.Admin.get(r))
+    Redirect(redirect.map(r => controllers.admin.routes.Data.getItem(r))
         .getOrElse(controllers.admin.routes.Home.index()))
         .flashing("success" -> "item.delete.confirmation")
   }

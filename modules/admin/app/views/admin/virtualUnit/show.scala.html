@@ -1,7 +1,7 @@
-@(item: VirtualUnit, result: utils.search.SearchResult[(AnyModel, utils.search.SearchHit)], action: Call, annotations: Seq[Annotation], links: Seq[Link], path: Seq[AnyModel] = Nil)(implicit userOpt: Option[UserProfile], req: RequestHeader, globalConfig: global.GlobalConfig, messages: Messages, md: views.MarkdownRenderer, flash: Flash)
+@(item: VirtualUnit, result: utils.search.SearchResult[(models.base.AnyModel, utils.search.SearchHit)], action: Call, annotations: Seq[Annotation], links: Seq[Link], path: Seq[models.base.AnyModel] = Nil)(implicit userOpt: Option[UserProfile], req: RequestHeader, globalConfig: global.GlobalConfig, messages: Messages, md: views.MarkdownRenderer, flash: Flash)
 
 @views.html.admin.layout.adminLayout(item.toStringLang) {
-    <div class="virtual-collection-header">
+    <div class="virtual-collection-header info-bar">
         @path.headOption.map { vc =>
             <h3><a href="@controllers.virtual.routes.VirtualUnits.get(vc.id)">@vc.toStringLang</a></h3>
             @item.parent.filter(_.id != vc.id).map { parent =>
@@ -35,13 +35,13 @@
 
                 } {
                     @views.html.admin.common.latestAction(item, controllers.virtual.routes.VirtualUnits.history(item.id))
-                    @views.html.admin.common.visibility(item, controllers.virtual.routes.VirtualUnits.visibility(item.id), ContentTypes.VirtualUnit)
-                    @adminActions(item)
+                    @views.html.admin.common.visibility(item, controllers.virtual.routes.VirtualUnits.visibility(item.id), defines.ContentTypes.VirtualUnit)
+                    @views.html.admin.virtualUnit.adminActions(item)
                 }
 
                 @views.html.common.search.searchSection(item, Messages("documentaryUnit.childItems", item.toStringAbbr(messages)), result) {
                     @views.html.common.search.searchForm(result, action, autofocus = false) {
-                        @searchItemList(result, path :+ item)
+                        @views.html.admin.virtualUnit.searchItemList(result, path :+ item)
                     } {
                         @common.search.facetList(result.facetClasses, action)
                     }

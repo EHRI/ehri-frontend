@@ -94,8 +94,8 @@ class APISpec extends IntegrationTestRunner {
 
   "Direct API access for GET requests" should {
     "stream with chunked encoding" in new ITestApp {
-      val c = FakeRequest(controllers.admin.routes.ApiController
-        .get(EntityType.DocumentaryUnit.toString))
+      val c = FakeRequest(controllers.admin.routes.Data
+        .forward(EntityType.DocumentaryUnit.toString))
         .withHeaders(Constants.STREAM_HEADER_NAME -> "true")
         .withUser(privilegedUser).call()
       status(c) must equalTo(OK)
@@ -107,8 +107,8 @@ class APISpec extends IntegrationTestRunner {
     }
 
     "stream with length" in new ITestApp {
-      val c = FakeRequest(controllers.admin.routes.ApiController
-        .get(s"${EntityType.DocumentaryUnit}/c1"))
+      val c = FakeRequest(controllers.admin.routes.Data
+        .forward(s"${EntityType.DocumentaryUnit}/c1"))
         .withUser(privilegedUser).call()
       status(c) must equalTo(OK)
       contentType(c) must equalTo(Some("application/json"))
@@ -116,6 +116,15 @@ class APISpec extends IntegrationTestRunner {
         l.toInt must beGreaterThan(0)
       }
       headers(c).get(TRANSFER_ENCODING) must beNone
+    }
+
+    "return the right content type" in new ITestApp {
+      val c = FakeRequest(controllers.admin.routes.Data
+        .forward("tools/schema"))
+        .withUser(privilegedUser).call()
+      contentAsString(c) must contain(EntityType.DocumentaryUnit.toString)
+      status(c) must equalTo(OK)
+      contentType(c) must equalTo(Some("text/turtle"))
     }
   }
 }

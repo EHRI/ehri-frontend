@@ -1,11 +1,11 @@
-@(item: AnyModel, result: utils.search.SearchResult[(AnyModel, utils.search.SearchHit)], action: Call, annotations: Seq[Annotation], links: Seq[Link], path: Seq[AnyModel])(implicit userOpt: Option[UserProfile], req: RequestHeader, globalConfig: global.GlobalConfig, messages: Messages, md: views.MarkdownRenderer, flash: Flash)
+@(item: models.base.AnyModel, result: utils.search.SearchResult[(models.base.AnyModel, utils.search.SearchHit)], action: Call, annotations: Seq[Annotation], links: Seq[Link], path: Seq[models.base.AnyModel])(implicit userOpt: Option[UserProfile], req: RequestHeader, globalConfig: global.GlobalConfig, messages: Messages, md: views.MarkdownRenderer, flash: Flash)
 
 @item match {
     case d: VirtualUnit => {
-        @show(d, result, action, annotations, links, path)
+        @views.html.admin.virtualUnit.show(d, result, action, annotations, links, path)
     }
     case d: DocumentaryUnit => {
-        @showDoc(d, result, action, annotations, links, path)
+        @views.html.admin.virtualUnit.showDoc(d, result, action, annotations, links, path)
     }
     case _ => {
         <div>Unknown model for list: @item</div>
