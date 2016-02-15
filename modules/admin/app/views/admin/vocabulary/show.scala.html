@@ -41,7 +41,7 @@
             <a href="@controllers.vocabularies.routes.Vocabularies.updateIndex(item.id)">@Messages("search.index.update")</a>
         }
         @views.html.admin.common.sidebarAction() {
-            <a href="@controllers.admin.routes.ApiController.getItem(item.isA, item.id)">@Messages("item.export.json")</a>
+            <a href="@controllers.admin.routes.Data.getItemType(item.isA, item.id)">@Messages("item.export.json")</a>
         }
         @views.html.admin.common.sidebarAction() {
             <a href="@controllers.vocabularies.routes.Vocabularies.exportSkos(item.id, format = Some("TTL"))">

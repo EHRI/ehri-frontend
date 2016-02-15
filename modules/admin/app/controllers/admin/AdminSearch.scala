@@ -49,7 +49,6 @@ case class AdminSearch @Inject()(
         name = Messages("documentaryUnit." + Description.LANG_CODE),
         param = "lang",
         render = (s: String) => Helpers.languageCodeToName(s),
-        display = FacetDisplay.DropDown,
         sort = FacetSort.Name
       ),
       FieldFacetClass(

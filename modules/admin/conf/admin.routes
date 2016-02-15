@@ -37,17 +37,17 @@ POST        /movedItems                         @controllers.admin.Utils.addMove
 GET         /monitor/_check                     @controllers.admin.Utils.checkDb
 GET         /monitor/_checkUserSync             @controllers.admin.Utils.checkUserSync
 
-# Generic item redirection
-GET         /item/:id                           @controllers.admin.Admin.get(id: String)
-GET         /item/:type/:id                     @controllers.admin.Admin.getType(type: String, id: String)
-
 # API
-GET         /api/:contentType/:id               @controllers.admin.ApiController.getItem(contentType: defines.EntityType.Value, id: String)
-GET         /api/*path                          @controllers.admin.ApiController.get(path: String)
+# Forward to any backend GET method
+GET         /api/*path                          @controllers.admin.Data.forward(path: String)
+
+# Get items by id and type/id
+GET         /item/:id                           @controllers.admin.Data.getItem(id: String)
+GET         /item/:entityType/:id               @controllers.admin.Data.getItemType(entityType: defines.EntityType.Value, id: String)
 
 # API Sparql
-GET         /sparql                             @controllers.admin.ApiController.sparql
-GET         /sparqlQuery                        @controllers.admin.ApiController.sparqlQuery
+GET         /sparql                             @controllers.admin.Data.sparql
+GET         /sparqlQuery                        @controllers.admin.Data.sparqlQuery
 
 # Simple filtering
 GET         /filter                             @controllers.admin.SearchFilter.filterItems

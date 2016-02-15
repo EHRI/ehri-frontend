@@ -2,7 +2,7 @@
 
 <ul class="search-result-list">
     @result.page.map { case(item, hit) =>
-        @defining(hit.id) { implicit descriptionId =>
+        @defining(models.base.Description.localId(hit.id)) { implicit descriptionId =>
             <li>
                 @priorContent(item)
                 @item match {
@@ -30,11 +30,14 @@
                     case d: AuthoritativeSet => {
                         @views.html.admin.authoritativeSet.listItem(d)
                     }
+                    case d: VirtualUnit => {
+                        @views.html.admin.virtualUnit.listItem(d, Seq.empty)
+                    }
                     case d: Vocabulary => {
                         @views.html.admin.vocabulary.listItem(d)
                     }
                     case _ => {
-                        @searchItem(item)
+                        @views.html.admin.search.searchItem(item)
                     }
                 }
             </li>

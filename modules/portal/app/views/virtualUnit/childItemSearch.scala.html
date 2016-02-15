@@ -1,11 +1,11 @@
-@(item: AnyModel, result: utils.search.SearchResult[(AnyModel,utils.search.SearchHit)], action: Call, watched: Seq[String], path: Seq[AnyModel] = Seq.empty)(implicit userOpt: Option[UserProfile], req: RequestHeader, globalConfig: global.GlobalConfig, messages: Messages, md: views.MarkdownRenderer, flash: Flash, context: Option[Holder[_]] = None)
+@(item: models.base.AnyModel, result: utils.search.SearchResult[(models.base.AnyModel,utils.search.SearchHit)], action: Call, watched: Seq[String], path: Seq[models.base.AnyModel] = Seq.empty)(implicit userOpt: Option[UserProfile], req: RequestHeader, globalConfig: global.GlobalConfig, messages: Messages, md: views.MarkdownRenderer, flash: Flash, context: Option[models.base.Holder[_]] = None)
 
 @views.html.common.search.searchForm(result, action, key = Messages("documentaryUnit.searchItems", item.toStringLang), autofocus = false) {
     @defining(Some(item)) { implicit context =>
 
         <ul class="list-unstyled search-result-list">
             @result.page.items.map { case(doc, hit) =>
-                @defining(Some(hit.id)) { implicit descriptionId =>
+                @defining(models.base.Description.localId(hit.id)) { implicit descriptionId =>
                     @defining(watched.contains(doc.id)) { watched =>
                     <li>
                         @searchItem(doc, path :+ item, hit, watched)

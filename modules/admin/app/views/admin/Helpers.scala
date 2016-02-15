@@ -57,5 +57,4 @@ object Helpers {
 
   def linkToOpt(item: AnyModel): Option[Call] =
     catching(classOf[IllegalArgumentException]).opt(linkTo(item))
-
 }

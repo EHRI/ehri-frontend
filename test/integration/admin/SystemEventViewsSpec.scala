@@ -20,7 +20,7 @@ class SystemEventViewsSpec extends IntegrationTestRunner {
       // include the item title extracted from the last version
       val events = FakeRequest(controllers.events.routes.SystemEvents.list())
         .withUser(privilegedUser).call()
-      contentAsString(events) must contain("An Authority 1")
+      contentAsString(events) must contain("a1")
     }
   }
 }

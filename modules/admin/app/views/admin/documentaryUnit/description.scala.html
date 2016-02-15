@@ -35,8 +35,8 @@
         @stringValue(desc.conditions.conditionsOfAccess, ACCESS_COND)
         @stringValue(desc.conditions.conditionsOfReproduction, REPROD_COND)
 
-        @listValue(desc.conditions.languageOfMaterials, LANG_MATERIALS, transformFunc = {s => views.Helpers.languageCodeToName(s)})
-        @listValue(desc.conditions.scriptOfMaterials, SCRIPT_MATERIALS, transformFunc = {s => views.Helpers.scriptCodeToName(s)})
+        @listValue(desc.conditions.languageOfMaterials, LANG_MATERIALS, transformFunc = s => views.Helpers.languageCodeToName(s))
+        @listValue(desc.conditions.scriptOfMaterials, SCRIPT_MATERIALS, transformFunc = s => views.Helpers.scriptCodeToName(s))
         @stringValue(desc.conditions.physicalCharacteristics, PHYSICAL_CHARS)
         @listValue(desc.conditions.findingAids, FINDING_AIDS)
     }

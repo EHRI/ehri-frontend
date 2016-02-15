@@ -1,0 +1,14 @@
+@(item: models.base.Hierarchical[_ <: models.base.AnyModel], path: Seq[models.base.AnyModel])(implicit userOpt: Option[UserProfile], req: RequestHeader, globalConfig: global.GlobalConfig, messages: Messages, md: views.MarkdownRenderer)
+
+<div class="virtual-collection-header info-bar">
+    @path.headOption.map { vc =>
+        <h3><a class="type-highlight @vc.isA" href="@controllers.virtual.routes.VirtualUnits.get(vc.id)">@vc.toStringLang</a></h3>
+        @item.parent.filter(_.id != vc.id).map { parent =>
+            @if(!path.headOption.map(_.id).contains(parent.id)) {
+                <h4>@Messages("documentaryUnit.parentItem"):
+                    <a class="type-highlight @parent.isA" href="@views.admin.Helpers.linkTo(parent.isA, parent.id)">@parent.toStringLang</a>
+                </h4>
+            }
+        }
+    }
+</div>

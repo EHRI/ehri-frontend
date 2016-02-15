@@ -3,7 +3,7 @@
 @views.html.layout.searchItemOutline(item, watched) {
     <a href="@controllers.portal.routes.Concepts.browse(item.id)">@Html(hit.highlight(item.toStringLang))</a>
 } {
-    @defining(Some(hit.id)) { implicit descId =>
+    @defining(models.base.Description.localId(hit.id)) { implicit descId =>
         @listItemBody(item, highlighter = hit)
     }
 }

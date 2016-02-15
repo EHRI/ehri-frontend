@@ -1,7 +1,7 @@
-@(guide: Guide, page: GuidePage, pages: List[GuidePage], items: utils.Page[(AnyModel,utils.search.SearchHit)], params: utils.search.SearchParams, links: Map[String, Long])(implicit userOpt: Option[UserProfile], request: RequestHeader, prefs: utils.SessionPrefs, globalConfig: global.GlobalConfig, messages: Messages, md: views.MarkdownRenderer, flash: Flash)
+@(guide: Guide, page: GuidePage, pages: List[GuidePage], items: utils.Page[(models.base.AnyModel, utils.search.SearchHit)], params: utils.search.SearchParams, links: Map[String, Long])(implicit userOpt: Option[UserProfile], request: RequestHeader, prefs: utils.SessionPrefs, globalConfig: global.GlobalConfig, messages: Messages, md: views.MarkdownRenderer, flash: Flash)
 
 @js = {
-	<script type="text/javascript">
+    <script type="text/javascript">
 	$(document).ready(function() {
 		var loadOrganisation = function($ul, $href, append) {
 			if(typeof append === "undefined") {
@@ -33,8 +33,7 @@
 			if($scroll.length === 0){
 				if($ul === "undefined" || $ul.length === 0) {
 					$parent.append($("<ul />", {"class" : "list-item hierarchy"}))
-					var $ul = $parent.find("ul:first")
-					loadOrganisation($ul, $href);
+					loadOrganisation($parent.find("ul:first"), $href);
 				} else {
 					var $li = $ul.find("li:first");
 					if($li === "undefined" || $li.length === 0) {
@@ -44,11 +43,9 @@
 					}
 				}
 			} else {
-
 				loadOrganisation($scroll.parent("ul").first(), $href, true);
 				$scroll.remove();
 			}
-
 		});
 	});
 	</script>
@@ -59,53 +56,51 @@
 }
 
 @views.html.layout.guideLayout(guide, page, pages, scripts = js, optionalContent = Some(sidebar(page))) {
-	<article>
-		<header>
-			<h1>@page.name</h1>
-			<form role="form" action="@controllers.portal.guides.routes.Guides.layoutRetrieval(guide.path, page.path)">
-				<ul class="nav nav-pills nav-ehri nav-ehri-black nav-justified">
-					<li><input class="nav-ehri nav-ehri-black nav-ehri-input" name="q" placeholder="Quick Search" /></li>
-					<li><button type="submit" class="nav-ehri nav-ehri-black nav-ehri-input"><span class="glyphicon glyphicon-search"></span><span class="text-hide">Search</span></button></li>
-				</ul>
-			</form>
-		</header>
-		<section>
-			<section class="content-results">
-				<ul class="list-unstyled">
-				    @items.items.map { case(item, hit) =>
-				        @defining(Some(hit.id)) { implicit descriptionId =>
-				            <li>
-                                <div class="search-item" id="@item.id">
-                                        <h3 class="search-item-heading type-highlight @item.isA.toString">
-                                            @views.html.guides.guideItem(
-                                                item,
-                                                hit,
-                                                controllers.portal.guides.routes.Guides.layoutRetrieval(guide.path, page.path),
-                                                Some(guide.path),
-                                                page.layout
-                                            )
-                                            <a class="popover-accesspoints" data-count="@links.get(item.id).getOrElse(0)" data-target="@item.id"><span class="glyphicon glyphicon-search"></span></a>
-                                        </h3>
-                                        <div class="search-item-body">
-                                            @item match {
-                                                 case d: HistoricalAgent => {
-                                                     @views.html.historicalAgent.listItemBody(d)
-                                                }
-                                                case _ => {
-
-                                                }
-                                            }
-                                        </div>
+    <article>
+        <header>
+            <h1>@page.name</h1>
+            <form role="form" action="@controllers.portal.guides.routes.Guides.layoutRetrieval(guide.path, page.path)">
+                <ul class="nav nav-pills nav-ehri nav-ehri-black nav-justified">
+                    <li><input class="nav-ehri nav-ehri-black nav-ehri-input" name="q" placeholder="Quick Search" /></li>
+                    <li><button type="submit" class="nav-ehri nav-ehri-black nav-ehri-input"><span class="glyphicon glyphicon-search"></span><span class="text-hide">
+                        Search</span></button></li>
+                </ul>
+            </form>
+        </header>
+        <section>
+            <section class="content-results">
+                <ul class="list-unstyled">
+                    @items.items.map { case (item, hit) =>
+                        <li>
+                            <div class="search-item" id="@item.id">
+                                <h3 class="search-item-heading type-highlight @item.isA.toString">
+                                    @views.html.guides.guideItem(
+                                        item,
+                                        hit,
+                                        controllers.portal.guides.routes.Guides.layoutRetrieval(guide.path, page.path),
+                                        Some(guide.path),
+                                        page.layout
+                                    )
+                                    <a class="popover-accesspoints" data-count="@links.getOrElse(item.id, 0)" data-target="@item.id"><span class="glyphicon glyphicon-search"></span></a>
+                                </h3>
+                                <div class="search-item-body">
+                                @item match {
+                                    case d: HistoricalAgent => {
+                                        @views.html.historicalAgent.listItemBody(d)
+                                    }
+                                    case _ => {
+                                    }
+                                }
                                 </div>
-				            </li>
-				        }
-				    }
-				</ul>
-			</section>
-		</section>
-		<footer>
-			@common.pagination(items)
-		</footer>
-	</article>
+                            </div>
+                        </li>
+                    }
+                </ul>
+            </section>
+        </section>
+        <footer>
+            @common.pagination(items)
+        </footer>
+    </article>
 
 }
