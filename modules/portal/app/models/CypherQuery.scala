@@ -12,18 +12,24 @@ import utils.CsvHelpers
 import scala.concurrent.{ExecutionContext, Future}
 
 case class ResultFormat(columns: Seq[String], data: Seq[Seq[JsValue]]) {
+  /**
+   * Convert Cypher JSON results to CSV, with nested arrays pipe-delimited.
+   */
   def toCsv(sep: Char = ',', quote: Boolean = false): String =
-    CsvHelpers.writeCsv(columns, data.map(_.collect {
-      case JsString(s) => s
-      case JsNumber(i) => i.toString()
-      case JsNull => ""
-      case JsBoolean(b) => b.toString
-    }.toArray), sep = sep)
+    CsvHelpers.writeCsv(columns, data
+      .map(_.collect(ResultFormat.jsToString).toArray), sep = sep)
 }
 object ResultFormat {
   implicit val _reads = Json.reads[ResultFormat]
-}
 
+  def jsToString: PartialFunction[JsValue, String] = {
+    case JsString(s) => s
+    case JsNumber(i) => i.toString()
+    case JsNull => ""
+    case JsBoolean(b) => b.toString
+    case list: JsArray => list.value.map(jsToString).mkString("|")
+  }
+}
 
 /**
  * A pre-baked Cypher query.
