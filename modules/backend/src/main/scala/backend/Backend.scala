@@ -4,7 +4,7 @@ import play.api.libs.iteratee.Enumerator
 
 import scala.concurrent.{ExecutionContext, Future}
 import play.api.mvc.Headers
-import play.api.libs.ws.{WSResponseHeaders, WSResponse}
+import play.api.libs.ws.{StreamedResponse, WSResponseHeaders, WSResponse}
 
 
 trait Backend {
@@ -29,7 +29,7 @@ trait BackendHandle
   // Direct API queries
   def query(urlPart: String, headers: Headers = Headers(), params: Map[String,Seq[String]] = Map.empty): Future[WSResponse]
 
-  def stream(urlPart: String, headers: Headers = Headers(), params: Map[String,Seq[String]] = Map.empty): Future[(WSResponseHeaders, Enumerator[Array[Byte]])]
+  def stream(urlPart: String, headers: Headers = Headers(), params: Map[String,Seq[String]] = Map.empty): Future[StreamedResponse]
 
   // Helpers
   def createNewUserProfile[T <: WithId](data: Map[String,String] = Map.empty, groups: Seq[String] = Seq.empty)(implicit rd: Readable[T]): Future[T]

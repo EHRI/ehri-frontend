@@ -5,13 +5,13 @@ import backend.rest.SearchDAO
 import controllers.base.AdminController
 import models.base.AnyModel
 import play.api.cache.CacheApi
+import play.api.http.{ContentTypes, HeaderNames}
 import play.api.i18n.MessagesApi
 import play.api.libs.ws.WSClient
 import play.api.libs.concurrent.Execution.Implicits._
 
 import javax.inject._
 import backend.{Readable, Backend}
-import play.api.http.HeaderNames
 import utils.MovedPageLookup
 import views.MarkdownRenderer
 
@@ -60,13 +60,12 @@ case class Data @Inject()(
 
   def forward(urlPart: String) = OptionalUserAction.async { implicit request =>
     val url = urlPart + (if(request.rawQueryString.trim.isEmpty) "" else "?" + request.rawQueryString)
-    userBackend.stream(url).map { case (headers, stream) =>
-      val length = headers.headers
-        .get(HeaderNames.CONTENT_LENGTH).flatMap(_.headOption.map(_.toInt)).getOrElse(-1)
-      val result:Status = Status(headers.status)
-      val rHeaders = passThroughHeaders(headers.headers)
-      if (length > 0) result.stream(stream).withHeaders(rHeaders: _*)
-      else result.chunked(stream).withHeaders(rHeaders: _*)
+    userBackend.stream(url).map { sr =>
+      val result:Status = Status(sr.headers.status)
+      val rHeaders = passThroughHeaders(sr.headers.headers)
+      val ct = sr.headers.headers.get(HeaderNames.CONTENT_TYPE)
+        .flatMap(_.headOption).getOrElse(ContentTypes.JSON)
+      result.chunked(sr.body).as(ct).withHeaders(rHeaders.toSeq: _*)
     }
   }
 
@@ -102,10 +101,10 @@ case class Data @Inject()(
   }
 
   def sparqlQuery = AdminAction.async { implicit request =>
-    userBackend.stream("sparql", request.headers, request.queryString).map { case (headers, stream) =>
-      Status(headers.status)
-        .chunked(stream)
-        .withHeaders(passThroughHeaders(headers.headers): _*)
+    userBackend.stream("sparql", request.headers, request.queryString).map { sr =>
+      Status(sr.headers.status)
+        .chunked(sr.body)
+        .withHeaders(passThroughHeaders(sr.headers.headers): _*)
     }
   }
 }

@@ -1,5 +1,5 @@
 @(item: AnyModel, src: AnyModel, form: play.api.data.Form[LinkF], action: Call)(
-implicit userOpt: Option[UserProfile], req: RequestHeader, globalConfig: global.GlobalConfig, messages: Messages, md: views.MarkdownRenderer, flash: Flash, token: play.filters.csrf.CSRF.Token)
+implicit userOpt: Option[UserProfile], req: RequestHeader, globalConfig: global.GlobalConfig, messages: Messages, md: views.MarkdownRenderer, flash: Flash)
 
 @views.html.admin.layout.rightSidebar(Messages("link.create.item", item.toStringLang, src.toStringLang), breadcrumbs = views.html.admin.common.breadcrumbs(List(item))) {
 	

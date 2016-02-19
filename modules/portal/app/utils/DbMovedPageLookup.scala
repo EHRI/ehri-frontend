@@ -2,16 +2,16 @@ package utils
 
 import javax.inject.Inject
 
+import akka.actor.ActorSystem
 import anorm.{NamedParameter, BatchSql}
 import org.apache.commons.codec.digest.DigestUtils
 import play.api.db.Database
-import play.api.libs.concurrent.Akka
 import scala.concurrent.{ExecutionContext, Future}
 
-case class DbMovedPageLookup @Inject ()(implicit db: Database, app: play.api.Application) extends MovedPageLookup {
+case class DbMovedPageLookup @Inject ()(implicit db: Database, actorSystem: ActorSystem) extends MovedPageLookup {
 
   implicit def executionContext: ExecutionContext =
-    Akka.system.dispatchers.lookup("contexts.simple-db-lookups")
+    actorSystem.dispatchers.lookup("contexts.simple-db-lookups")
 
   override def hasMovedTo(path: String): Future[Option[String]] = Future {
     import anorm.SqlStringInterpolation

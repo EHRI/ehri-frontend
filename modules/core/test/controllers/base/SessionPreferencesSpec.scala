@@ -1,7 +1,8 @@
 package controllers.base
 
+import play.api.inject.guice.GuiceApplicationBuilder
 import play.api.mvc._
-import play.api.test.{FakeApplication, WithApplication, FakeRequest, PlaySpecification}
+import play.api.test.{WithApplication, FakeRequest, PlaySpecification}
 import scala.concurrent.Future
 import play.api.libs.json.{Format, Json}
 
@@ -19,8 +20,9 @@ object TestPrefs {
 // the FakeApplication because we use the Mailer plugin, which
 // depends on smtp.host, and crypto (for session reading/writing)
 // which needs a dummy secret.
-case class FakeApp() extends WithApplication(new FakeApplication(
-  additionalConfiguration = Map("smtp.host" -> "localhost", "play.crypto.secret" -> "foobar")))
+case class FakeApp() extends WithApplication(
+  new GuiceApplicationBuilder().configure(
+    Map("smtp.host" -> "localhost", "play.crypto.secret" -> "foobar")).build())
 
 trait PrefTest extends SessionPreferences[TestPrefs] {
   this: Controller =>
@@ -33,7 +35,7 @@ trait PrefTest extends SessionPreferences[TestPrefs] {
 
   def testSavePrefs(langs: List[String]) = Action { implicit request =>
     val prefs = request.preferences.copy(bar = langs)
-    Ok(langs.toString).withPreferences(prefs)
+    Ok(langs.toString()).withPreferences(prefs)
   }
 }
 

@@ -261,7 +261,7 @@ class ApplicationSpec extends PlaySpecification with TestConfiguration with User
       val attempt3 = FakeRequest(accountRoutes.passwordLoginPost())
         .withSession(CSRF_TOKEN_NAME -> fakeCsrfString)
         .callWith(data)
-      status(attempt3) must equalTo(TOO_MANY_REQUEST)
+      status(attempt3) must equalTo(TOO_MANY_REQUESTS)
 
       // Wait for the timeout to expire and try again...
       Thread.sleep(1500)

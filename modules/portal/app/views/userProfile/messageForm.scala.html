@@ -1,4 +1,4 @@
-@(user: UserProfile, form: Form[(String,String,Boolean)], action: Call, recaptchaKey: String)(implicit userOpt: Option[UserProfile], globalConfig: global.GlobalConfig, request: RequestHeader, messages: Messages, token: play.filters.csrf.CSRF.Token)
+@(user: UserProfile, form: Form[(String,String,Boolean)], action: Call, recaptchaKey: String)(implicit userOpt: Option[UserProfile], globalConfig: global.GlobalConfig, request: RequestHeader, messages: Messages)
 
 @implicitField = @{ helper.FieldConstructor(views.html.helpers.fieldTemplate.f) }
 

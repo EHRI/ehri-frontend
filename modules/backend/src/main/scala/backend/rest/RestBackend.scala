@@ -6,7 +6,7 @@ import play.api.libs.iteratee.Enumerator
 import scala.concurrent.{ExecutionContext, Future}
 import play.api.mvc.Headers
 import play.api.cache.CacheApi
-import play.api.libs.ws.{WSResponseHeaders, WSClient, WSResponse}
+import play.api.libs.ws.{StreamedResponse, WSResponseHeaders, WSClient, WSResponse}
 import backend._
 
 
@@ -44,7 +44,7 @@ case class RestBackendHandle(eventHandler: EventHandler)(
     userCall(enc(baseUrl, urlPart) + (if(params.nonEmpty) "?" + joinQueryString(params) else ""))
       .withHeaders(headers.headers: _*).get()
 
-  override def stream(urlPart: String, headers: Headers = Headers(), params: Map[String,Seq[String]] = Map.empty): Future[(WSResponseHeaders, Enumerator[Array[Byte]])] =
+  override def stream(urlPart: String, headers: Headers = Headers(), params: Map[String,Seq[String]] = Map.empty): Future[StreamedResponse] =
     userCall(enc(baseUrl, urlPart) + (if(params.nonEmpty) "?" + joinQueryString(params) else ""))
       .withHeaders(headers.headers: _*).withMethod("GET").stream()
 

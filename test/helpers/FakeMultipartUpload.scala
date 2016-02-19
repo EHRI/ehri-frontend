@@ -27,7 +27,7 @@ trait FakeMultipartUpload {
   implicit def writeableOf_multiPartFormData(implicit codec: Codec): Writeable[AnyContentAsMultipartFormData] = {
     val builder = MultipartEntityBuilder.create().setBoundary(boundary)
 
-    def transform(multipart: AnyContentAsMultipartFormData): Array[Byte] = {
+    def transform(multipart: AnyContentAsMultipartFormData): akka.util.ByteString = {
       multipart.mdf.dataParts.foreach { part =>
         part._2.foreach { p2 =>
           builder.addPart(part._1, new StringBody(p2, ContentType.create("text/plain", "UTF-8")))
@@ -40,7 +40,7 @@ trait FakeMultipartUpload {
 
       val outputStream = new ByteArrayOutputStream
       builder.build.writeTo(outputStream)
-      outputStream.toByteArray
+      akka.util.ByteString.fromArray(outputStream.toByteArray)
     }
 
     new Writeable[AnyContentAsMultipartFormData](transform, Some(builder.build.getContentType.getValue))
@@ -51,8 +51,8 @@ trait FakeMultipartUpload {
     MultipartFormData(
       dataParts = Map(),
       files = Seq(FilePart[TemporaryFile](key, file.getName, Some(contentType), TemporaryFile(file))),
-      badParts = Seq(),
-      missingFileParts = Seq())
+      badParts = Seq()
+    )
   }
 
   /** shortcut for a request body containing a single file attachment */
