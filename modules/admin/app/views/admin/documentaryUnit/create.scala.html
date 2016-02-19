@@ -1,5 +1,5 @@
 @(item: AnyModel, f: Form[DocumentaryUnitF], defaults: Option[play.api.Configuration], vf: Form[Seq[String]], users: Seq[(String,String)], groups: Seq[(String,String)], action: Call)(
-    implicit userOpt: Option[UserProfile], req: RequestHeader, globalConfig: global.GlobalConfig, messages: Messages, md: views.MarkdownRenderer, flash: Flash, token: play.filters.csrf.CSRF.Token)
+    implicit userOpt: Option[UserProfile], req: RequestHeader, globalConfig: global.GlobalConfig, messages: Messages, md: views.MarkdownRenderer, flash: Flash)
 
 @implicitField = @{ views.html.helper.FieldConstructor(formHelpers.fieldTemplate.f) }
 

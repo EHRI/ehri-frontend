@@ -7,6 +7,7 @@ import controllers.base.RecaptchaHelper
 import play.api.cache.CacheApi
 import play.api.data.Form
 import play.api.libs.mailer.{Email, MailerClient}
+import play.api.libs.openid.OpenIdClient
 import play.api.libs.ws.WSClient
 import play.api.mvc._
 import models._
@@ -18,7 +19,6 @@ import controllers.core.auth.oauth2._
 import controllers.core.auth.openid.OpenIDLoginHandler
 import controllers.core.auth.userpass.UserPasswordLoginHandler
 import global.GlobalConfig
-import utils.forms._
 import java.util.UUID
 import play.api.i18n.{MessagesApi, Messages}
 import com.google.common.net.HttpHeaders
@@ -43,7 +43,8 @@ case class Accounts @Inject()(
   oAuth2Flow: OAuth2Flow,
   pageRelocator: MovedPageLookup,
   messagesApi: MessagesApi,
-  ws: WSClient
+  ws: WSClient,
+  openId: OpenIdClient
 ) extends LoginLogout
   with PortalController
   with OpenIDLoginHandler
@@ -109,7 +110,7 @@ case class Accounts @Inject()(
         if (request.method != "POST") block(request)
         else {
           if (checkRateLimit(request)) block(request)
-          else immediate(TooManyRequest(rateLimitError(request)))
+          else immediate(TooManyRequests(rateLimitError(request)))
         }
       }
     }
@@ -135,7 +136,7 @@ case class Accounts @Inject()(
       case false =>
         badForm(boundForm.withGlobalError("error.badRecaptcha"))
       case true if !checkRateLimit(request) =>
-        badForm(boundForm.withGlobalError(rateLimitError), TooManyRequest)
+        badForm(boundForm.withGlobalError(rateLimitError), TooManyRequests)
       case true =>
         boundForm.fold(
           errForm => badForm(errForm),
@@ -267,7 +268,7 @@ case class Accounts @Inject()(
 
     val boundForm: Form[(String, String)] = passwordLoginForm.bindFromRequest
     if (!checkRateLimit(request)) {
-      badForm(boundForm.withGlobalError(rateLimitError), TooManyRequest)
+      badForm(boundForm.withGlobalError(rateLimitError), TooManyRequests)
     } else request.formOrAccount match {
       case Left(errorForm) => badForm(errorForm)
       case Right(account) => doLogin(account)

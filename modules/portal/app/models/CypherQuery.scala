@@ -6,7 +6,7 @@ import play.api.data.Form
 import play.api.data.Forms._
 import play.api.libs.iteratee.Enumerator
 import play.api.libs.json._
-import play.api.libs.ws.WSResponseHeaders
+import play.api.libs.ws.{StreamedResponse, WSResponseHeaders}
 import utils.CsvHelpers
 
 import scala.concurrent.{ExecutionContext, Future}
@@ -46,7 +46,7 @@ case class CypherQuery(
   createdAt: Option[DateTime] = None,
   updatedAt: Option[DateTime] = None
 ) {
-  def download(implicit cypher: CypherDAO, executionContext: ExecutionContext): Future[(WSResponseHeaders, Enumerator[Array[Byte]])] =
+  def download(implicit cypher: CypherDAO, executionContext: ExecutionContext): Future[StreamedResponse] =
     cypher.stream(query)
 
   def execute(implicit cypher: CypherDAO, executionContext: ExecutionContext): Future[JsValue] =

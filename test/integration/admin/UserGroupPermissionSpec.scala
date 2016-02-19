@@ -6,6 +6,8 @@ import helpers._
 import models.{Account, Group, UserProfile}
 import play.api.test.FakeRequest
 
+import scala.concurrent.ExecutionContext
+
 /**
  * End-to-end test of the permissions system, implemented as one massive test.
  *
@@ -29,7 +31,8 @@ class UserGroupPermissionSpec extends IntegrationTestRunner {
   private val userRoutes = controllers.users.routes.UserProfiles
   private val groupRoutes = controllers.groups.routes.Groups
 
-  private def createUser(id: String, data: Map[String, String], groups: Seq[String] = Seq.empty)(implicit app: play.api.Application): (Account, UserProfile) = {
+  private def createUser(id: String, data: Map[String, String], groups: Seq[String] = Seq.empty)(
+      implicit app: play.api.Application, ex: ExecutionContext): (Account, UserProfile) = {
     val userPostData: Map[String, Seq[String]] = data
       .map(kv => kv._1 -> Seq(kv._2))
       .updated("identifier", Seq(id))
@@ -46,8 +49,8 @@ class UserGroupPermissionSpec extends IntegrationTestRunner {
     (acc, await(testBackend.get[UserProfile](id)))
   }
 
-  private def createGroup(id: String, data: Map[String, String], groups: Seq[String] = Seq.empty)(implicit app: play.api.Application):
-  Group = {
+  private def createGroup(id: String, data: Map[String, String], groups: Seq[String] = Seq.empty)(
+      implicit app: play.api.Application, ex: ExecutionContext): Group = {
     val groupPostData: Map[String, Seq[String]] = data
       .map(kv => kv._1 -> Seq(kv._2))
       .updated("identifier", Seq(id))
