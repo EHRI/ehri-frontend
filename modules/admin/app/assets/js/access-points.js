@@ -83,8 +83,8 @@ $(document).ready(function () {
 
   var $service = {
     filter: adminJsRoutes.controllers.admin.SearchFilter.filterItems,
-    get: adminJsRoutes.controllers.admin.Admin.get,
-    getItem: adminJsRoutes.controllers.admin.Admin.getType,
+    get: adminJsRoutes.controllers.admin.Data.getItem,
+    getItem: adminJsRoutes.controllers.admin.Data.getItemType,
     createLink: adminJsRoutes.controllers.units.DocumentaryUnits.createLink,
     createMultipleLinks: adminJsRoutes.controllers.units.DocumentaryUnits.linkMultiAnnotatePost,
     createAccessPoint: adminJsRoutes.controllers.units.DocumentaryUnits.createAccessPoint,
