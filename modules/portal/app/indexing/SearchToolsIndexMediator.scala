@@ -4,19 +4,19 @@ import java.util.Properties
 import javax.inject.Inject
 
 import backend.rest.Constants
-import com.fasterxml.jackson.databind.JsonNode
+import com.fasterxml.jackson.databind.{JsonNode, ObjectMapper}
 import defines.EntityType
 import eu.ehri.project.indexing.Pipeline.Builder
-import eu.ehri.project.indexing.{IndexHelper,Pipeline}
+import eu.ehri.project.indexing.source.impl.WebJsonSource
+import eu.ehri.project.indexing.{IndexHelper, Pipeline}
 import eu.ehri.project.indexing.converter.impl.JsonConverter
 import eu.ehri.project.indexing.index.Index
 import eu.ehri.project.indexing.sink.impl.{CallbackSink, IndexJsonSink}
-import eu.ehri.project.indexing.source.impl.WebJsonSource
 import play.api.Logger
 import play.api.libs.iteratee.Concurrent
-import utils.search.{SearchIndexMediatorHandle, SearchIndexMediator}
-import collection.JavaConverters._
+import utils.search.{SearchIndexMediator, SearchIndexMediatorHandle}
 
+import scala.collection.JavaConverters._
 import scala.concurrent.{ExecutionContext, Future}
 
 case class SearchToolsIndexMediator @Inject()(
@@ -63,8 +63,10 @@ case class SearchToolsIndexMediatorHandle(
       }))
       .addConverter(new JsonConverter)
       .addSink(new CallbackSink[JsonNode](new CallbackSink.Callback[JsonNode]() {
+         val writer = new ObjectMapper().writerWithDefaultPrettyPrinter()
          var count = 0
          override def call(node: JsonNode): Unit = {
+           logger.trace(writer.writeValueAsString(node))
            count += 1
            if (count % 100 == 0) {
              chan.foreach(_.push(processFunc(s"Items processed: $count")))
