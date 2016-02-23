@@ -106,7 +106,7 @@ object ApplicationBuild extends Build {
     "com.fasterxml.jackson.dataformat" % "jackson-dataformat-csv" % "2.6.4",
 
     // EHRI indexing tools
-    "ehri-project" % "index-data-converter" % "1.1.3-SNAPSHOT" exclude("log4j", "log4j") exclude ("org.slf4j",
+    "ehri-project" % "index-data-converter" % "1.1.4" exclude("log4j", "log4j") exclude ("org.slf4j",
       "slf4j-log4j12"),
     "com.sun.jersey" % "jersey-core" % jerseyVersion,
 
@@ -124,6 +124,7 @@ object ApplicationBuild extends Build {
     Resolver.sonatypeRepo("releases"),
     Resolver.sonatypeRepo("snapshots"),
     "EHRI Snapshots" at "http://ehridev.dans.knaw.nl/artifactory/libs-snapshot/",
+    "EHRI Releases" at "http://ehridev.dans.knaw.nl/artifactory/libs-release/",
     // For this annoying issue: https://github.com/etorreborre/specs2/issues/347
     "scalaz-bintray" at "http://dl.bintray.com/scalaz/releases"
   )
