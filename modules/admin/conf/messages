@@ -149,6 +149,7 @@ cypherQuery.execute=Execute
 cypherQuery.execute.description=Execute this query
 cypherQuery.download=Download
 cypherQuery.download.description=Execute and download query results
+cypherQuery.results=Results
 cypherQuery.console=Cypher console
 cypherQuery.delete=Delete
 cypherQuery.delete.description=Delete query (this action cannot be undone)

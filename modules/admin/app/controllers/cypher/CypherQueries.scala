@@ -128,6 +128,10 @@ case class CypherQueries @Inject()(
               .as(s"text/$format; charset=utf-8")
               .withHeaders(HeaderNames.CONTENT_DISPOSITION -> s"attachment; filename='$filename'")
           }
+        case DataFormat.Html =>
+          cypher.get[ResultFormat](query.query, Map.empty).map { r =>
+            Ok(views.html.admin.cypherQueries.results(query, r))
+          }
         case DataFormat.Json =>
           cypher.stream(query.query).map { case (head, body) =>
             Ok.stream(body).as(ContentTypes.JSON)

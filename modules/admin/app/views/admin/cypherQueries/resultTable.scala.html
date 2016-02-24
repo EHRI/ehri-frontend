@@ -1,0 +1,32 @@
+@(data: ResultFormat)(implicit req: RequestHeader, md: Messages)
+
+@maybeLink(s: String) = {
+    @if(s.startsWith("http://") || s.startsWith("https://")) {
+        <a class="external" target="_blank" href="@s">@s</a>
+    } else {
+        @s
+    }
+}
+
+
+<h3 id="results">@Messages("cypherQuery.results")</h3>
+<table class="table table-condensed table-bordered raw-data">
+    <thead>
+        <tr>
+            <th>#</th>
+            @data.columns.map { column =>
+                <th>@column</th>
+            }
+        </tr>
+    </thead>
+    <tbody>
+    @data.toData.zipWithIndex.map { case (row, idx) =>
+    <tr>
+        <td><strong>@(idx + 1)</strong></td>
+        @row.map { col =>
+            <td>@maybeLink(col)</td>
+        }
+    </tr>
+    }
+    </tbody>
+</table>
