@@ -1197,7 +1197,8 @@ cvocConcept.narrower.create=Create Narrower Term
 accessPoint.create=Add New
 accessPoint.create.submit=Save
 accessPoints.newAccessPoint=New Access Point
-accessPoint.name=Name of link target...
+accessPoints.newTextAccessPoint.description=Create a new text-only access point
+accessPoint.name=Name of link target
 accessPoint.description=Optional description...
 # References not on this item, but from another item's access points
 accessPoint.delete=Remove Access Point
