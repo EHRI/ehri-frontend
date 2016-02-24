@@ -3,7 +3,7 @@ import java.io._
 import akka.actor.ActorSystem
 import auth.AccountManager
 import auth.sql.SqlAccountManager
-import play.api.Configuration
+import play.api.{LoggerConfigurator, Configuration}
 
 import scala.concurrent.Await
 import scala.concurrent.duration._
@@ -19,7 +19,9 @@ package object helpers {
     // whole app to test parts of the DB behaviour we have to load
     // the DB config manually (I think.)
     // NB: There should be an easier way of doing this.
-    val config = Configuration.load(play.api.Environment.simple())
+    val env = play.api.Environment.simple()
+    val config = Configuration.load(env)
+    LoggerConfigurator(getClass.getClassLoader).foreach(_.configure(env))
     Databases.apply(
       config.getString("db.default.driver")
         .getOrElse(sys.error("Missing database config for driver")),
