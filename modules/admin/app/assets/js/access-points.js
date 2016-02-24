@@ -7,10 +7,10 @@ $(document).ready(function () {
     "Content-Type": "application/json",
     "Accept": "application/json; charset=utf-8"
   };
-  /* Search and URLS  */
+
+  // Search and URLS
   var $search = function () {
     var page = function ($element) {
-
       var $container = $element.parents(".input-group").first(),
           $page = $container.find(".pages:not(.change-page):visible"),
           $actual = parseInt($page.find(".page").text());
@@ -27,8 +27,8 @@ $(document).ready(function () {
       if (types && types.length > 0) {
         if (Array.isArray(types)) {
           params = params + "&" + (types.map(function (t) {
-            return "st[]=" + t
-          }).join("&"));
+                return "st[]=" + t
+              }).join("&"));
         } else {
           params = params + "&st[]=" + types;
         }
@@ -70,13 +70,8 @@ $(document).ready(function () {
       limitTypes: limitTypes,
       detail: function (type, id, callback) {
         return $.get($service.getItem(type, id).url, {
-          headers: {
-            "Content-Type": "application/json",
-            "Accept": "application/json; charset=utf-8"
-          }
-        }, function (data) {
-          callback(data);
-        });
+          headers: ajaxHeaders
+        }, callback);
       }
     };
   };
@@ -97,10 +92,7 @@ $(document).ready(function () {
     }
   };
 
-  /**
-   * Get list of access points
-   *
-   */
+  // Get list of access points
   var getAccessPointList = function () {
     var $item = $(".item-annotation-links"),
         $itemId = $item.data("id"),
@@ -122,18 +114,18 @@ $(document).ready(function () {
           return typeof item.target !== "undefined";
         }
 
-        //If we have an access point list
+        // If we have an access point list
         if ($accessList) {
-          //For each access point type
+          // For each access point type
           $.each($accessList["data"], function (index, arr) {
             //We get temporary element and the model as well which we clone
             var $container = $(".accessPointList." + arr["type"] + " .item-annotation-links"),
                 $model = $container.find(".access-saved.model").clone().removeClass("model"),
                 $notmodel = $container.find(".access-saved:not(.model)");
 
-            //We remove old iems
+            // Remove old items
             $notmodel.remove();
-            //For each element, we create and prepend a new line
+            // For each element, we create and prepend a new line
             $.each(arr["data"], function (index, a) {
               var $element = $model.clone();
               $element.attr("id", a.accessPoint.id);
@@ -149,13 +141,14 @@ $(document).ready(function () {
               if (a.accessPoint.description) {
                 $element.find(".access-saved-description").html("<p>" + a.accessPoint.description + "</p>")
               }
-              /* Remove confirmation */
+
+              // Remove confirmation
               var $deleteButton = $element.find(".access-saved-delete");
               $deleteButton.confirmation({
-                title: 'Delete link for this access point ?',
+                title: "Delete link for this access point ?",
                 singleton: true,
                 popout: true,
-                placement: 'bottom',
+                placement: "bottom",
                 trigger: "click",
                 onConfirm: function () {
                   var $route = !hasTarget(a)
@@ -171,17 +164,17 @@ $(document).ready(function () {
                     success: function (data) {
                       getAccessPointList();
                     },
-                    complete: function() {
+                    complete: function () {
                       $modal.modal("hide");
                       $deleteButton.attr("disabled", false);
                     }
                   });
                 },
                 onCancel: function () {
-                  $element.find(".access-saved-delete").confirmation('hide')
+                  $element.find(".access-saved-delete").confirmation("hide")
                 }
               });
-              /* Finally append it*/
+              // Finally append it
               $container.prepend($element)
             })
           })
@@ -190,21 +183,19 @@ $(document).ready(function () {
       }
     });
   };
-  /**
-   * Gather data about one access point
-   *
-   */
+
+  // Gather data about one access point
   var makeScope = function ($container) {
     var $element = $container.find(".element-name"),
         $item = $container.parents(".item-annotation-links").first();
     return {
-      /* Data for access point*/
+      // Data for access point
       id: $item.data("id"),
       did: $item.data("did"),
       name: $element.text(),
       type: $container.parents(".new-access-point").first().data("type"),
       description: $container.find(".element-description").val(),
-      /* Data for link */
+      // Data for link
       link: {
         target: $element.val(),
         name: $element.text(),
@@ -212,7 +203,7 @@ $(document).ready(function () {
         type: "associative"
       },
 
-      /* FOR RETRIEVAL PURPOSE */
+      // FOR RETRIEVAL PURPOSE
       container: $container
     };
   };
@@ -222,7 +213,6 @@ $(document).ready(function () {
    * the list of access points when done.
    * Scope is the object returned in makeScope
    */
-
   var nextNewAccesspoint = function ($scope, $accesspoints) {
     var $parent = $scope.container.parents(".accessPointList").first();
     $scope.container.remove();
@@ -235,7 +225,7 @@ $(document).ready(function () {
 
     } else {
       getAccessPointList();
-      //Show the Save and cancel buttons
+      // Show the Save and cancel buttons
       $parent.find(".submit-group").hide()
     }
   };
@@ -267,30 +257,23 @@ $(document).ready(function () {
     });
   };
 
-  /* MODEL APPEND */
+  // Append an access point item
   var appends = function ($elem, name, id, did, type) {
-    var $accesslist = $elem.hasClass("accessPointList")
+    var $accessPointList = $elem.hasClass("accessPointList")
         ? $elem
         : $elem.parents(".accessPointList");
-    $accesslist.find(".form-control.quicksearch.tt-input").typeahead('val', "");
-    var $target = $accesslist.find(".append-in");
-    var $model = $accesslist.find(".element.model");
+    $accessPointList.find(".form-control.quicksearch.tt-input").typeahead("val", "");
+    var $target = $accessPointList.find(".append-in");
+    var $model = $accessPointList.find(".element.model");
     var $element = $model.data("target", id).clone().removeClass("model").addClass("element");
     $element.find(".element-name").text(name).val(id).data("did", did).data("type", type);
     $target.append($element.show());
 
-    //Show the Save and cancel buttons
-    $accesslist.find(".submit-group").show()
+    // Show the Save and cancel buttons
+    $accessPointList.find(".submit-group").show()
   };
 
-  $(".append-in").on("click", ".btn-danger", function () {
-    var $elem = $(this),
-        $parent = $elem.parents(".element").first();
-
-    $parent.remove()
-  });
-
-  /* Triggers */
+  // Triggers
   $(".add-access-toggle").on("click", function (e) {
     e.preventDefault();
     $(this).next().toggle().find(".form-control.quicksearch.tt-input").val("").focus();
@@ -300,22 +283,12 @@ $(document).ready(function () {
     $(this).toggleClass("active")
   });
 
-  /* Click on result */
-//  $(".input-group").on("click", ".tt-suggestion:has(.add-access-element)", function (e) {
-//    e.preventDefault();
-//    var $elem = $(this).find(".add-access-element"),
-//        $id = $elem.data("target"),
-//        $name = $elem.data("name"),
-//        $did = $elem.data("did"),
-//        $type = $elem.data("type");
-//    appends($elem, $name, $id, $did, $type)
-//  });
-
-  var addAccessPointFromExisting = function($target, name, id, did, type) {
+  var addAccessPointFromExisting = function ($target, name, id, did, type) {
     var $elem = $target.parents(".accessPointList");
     appends($elem, name, id, did, type)
   };
 
+  // Add a text-only access point
   $(".add-access-text").on("click", function (e) {
     e.preventDefault();
     var $accesslist = $(this).parents(".accessPointList"),
@@ -325,20 +298,39 @@ $(document).ready(function () {
     appends($accesslist, $name, null, null, null)
   });
 
-  /* Save access point */
+  // Save pending items
   $(".new-access-point .element-save").on("click", function (e) {
     e.preventDefault();
     var $form = $(this).parents(".new-access-point").first(),
-        $accesspoints = $form.find(".append-in > .element:not(.model)");
+        $accessPoints = $form.find(".append-in > .element:not(.model)");
 
-    if ($accesspoints.length > 0) {
-      var $scope = makeScope($accesspoints.first()),
-          $accessPointList = $accesspoints.slice(1);
+    if ($accessPoints.length > 0) {
+      var $scope = makeScope($accessPoints.first()),
+          $accessPointList = $accessPoints.slice(1);
       saveNewAccessPoint($scope, $accessPointList);
     }
   });
 
-  /* Search input */
+  // Cancel pending items */
+  $(".new-access-point .element-cancel").on("click", function (e) {
+    var $parent = $(this).parents(".new-access-point").first(),
+        $pending = $parent.find(".append-in > .element:not(.model)");
+    $pending.remove();
+    $parent.find(".submit-group").hide();
+  });
+
+  // Cancel a single pending item
+  $(".append-in").on("click", ".cancel-item", function () {
+    var $elem = $(this),
+        $parent = $elem.parents(".element:not(.model)").first(),
+        $list = $parent.parent();
+    $parent.remove();
+    if ($list.find(".element:not(.model)").length == 0) {
+      $list.parent().find(".submit-group").first().hide();
+    }
+  });
+
+  // Search input
   $(".quicksearch").each(function () {
     var $quicksearch = $(this);
 
@@ -364,7 +356,7 @@ $(document).ready(function () {
           $page.find(".max").text(parsedResponse.numPages);
           $page.find(".page").text(parsedResponse.page);
           for (var i = 0; i < parsedResponse.items.length; i++) {
-            //Need to check if item not already in the db
+            // Need to check if item not already in the db
             if ($.inArray(parsedResponse.items[i].name, alreadyResult) === -1) {
               result.push({
                 id: parsedResponse.items[i].id,
@@ -384,9 +376,7 @@ $(document).ready(function () {
     $quicksearchBH.initialize();
     var $quicksearchTemplate = Handlebars.compile('<a class="add-access-element" data-type="{{type}}" data-did="{{did}}" data-name="{{name}}" data-target="{{id}}">{{name}} <span class="badge pull-right">{{parent}} {{type}}</span></a>');
 
-    /**
-     * Initialize typeahead.js
-     */
+    // Initialize typeahead.js
     $quicksearch.typeahead(
         null,
         {
@@ -400,7 +390,7 @@ $(document).ready(function () {
           if (e.which == 13) {
             e.preventDefault();
           }
-        }).on("typeahead:selected", function(event, selection) {
+        }).on("typeahead:selected", function (event, selection) {
           addAccessPointFromExisting(
               $(event.target),
               selection.name,
@@ -437,10 +427,11 @@ $(document).ready(function () {
 
     if ($next != $actual) {
       $page.find(".page").text($next);
-      $input.typeahead('val', "");
-      $input.typeahead('val', $val);
+      $input.typeahead("val", "");
+      $input.typeahead("val", $val);
     }
   });
-  /* Init trigger */
+
+  // Init trigger
   getAccessPointList()
 });

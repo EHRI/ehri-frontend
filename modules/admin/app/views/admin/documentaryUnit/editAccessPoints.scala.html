@@ -20,6 +20,7 @@
         <script src="@controllers.portal.routes.PortalAssets.versioned("js/bootstrap.confirmation.js")"></script>
         <script src="@controllers.admin.routes.AdminAssets.versioned("js/access-points.js")"></script>
         <style type="text/css">
+            ul.filters { display: none; }
             .modal-dialog { width: 80%;}
             .model { display:none; }
             .new-access-point { display: none; }
@@ -39,17 +40,18 @@
         </style>
     }
 
-@import AccessPointF._
+@import defines.EntityType
+@import models.AccessPointF.AccessPointType
 
-@filterDropdown(t: String, option: String = "") = {
-    <li data-value="@t" class="active type" @option><a>@Messages("contentTypes." + t)</a></li>
+@filterDropdown(t: EntityType.Value, option: String = "") = {
+    <li data-value="@t" class="active type" @option><a>@Messages("contentTypes." + t.toString)</a></li>
 }
-@itemPage(item, scripts = extrascripts) {
+@views.html.admin.documentaryUnit.itemPage(item, scripts = extrascripts) {
     <h4>&quot;@desc.name&quot;</h4>
     <ul class="list-unstyled">
     @AccessPointType.values.toList.map { accessPointType =>
         <li class="accessPointList @accessPointType">
-            <h3>@Messages("documentaryUnit." + Description.ACCESS_POINTS + "." + accessPointType)</h3>
+            <h3>@Messages("documentaryUnit.accessPoints." + accessPointType)</h3>
             <ul class="item-annotation-links list-unstyled" data-id="@item.id" data-did="@desc.id">
                 <li class="access-saved model" id="linkId">
                     <a href="#" class="access-saved-name"></a> 
@@ -62,38 +64,31 @@
                     <div class="form-horizontal new-access-point" data-type="@accessPointType.toString" style="">
                         <h4>@Messages("accessPoints.newAccessPoint")</h4>
                         <div class="form-group">
-                            <label class="control-label">
-                                @Messages("accessPoint.name")
-                            </label>
+                            <label class="control-label">@Messages("accessPoint.name")</label>
                             <div class="control-elements">
                                 <div class="input-group">
-                                    <input class="form-control quicksearch" name="@accessPointType.toString" type="text" placeholder="@Messages("accessPoint.name")" autofocus="true" />
+                                    <input class="form-control quicksearch" name="@accessPointType.toString" type="text" placeholder="@Messages("accessPoint.name")" autofocus="autofocus" />
                                      <div class="input-group-btn">
-                                        <a class="btn btn-default">
-                                            <i class="glyphicon glyphicon-search"></i>
-                                        </a>
-                                        <button class="btn btn-success add-access-text" title="Add a text access point"><span class="glyphicon glyphicon-plus-sign"></span></button>
-                                        <button class="btn btn-info pages change-page"><span class="glyphicon glyphicon-minus"></span></button>
-                                        <button class="btn btn-info pages"><span class="page"></span>/<span class="max"></span></button>
-                                        <button class="btn btn-info pages change-page"><span class="glyphicon glyphicon-plus"></span></button>
-                                        <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown">Filters <span class="caret"></span></button>
+                                        <button class="btn btn-success add-access-text" title="@Messages("accessPoints.newTextAccessPoint.description")"><span class="glyphicon glyphicon-plus-sign"></span></button>
                                         <ul class="dropdown-menu filters pull-right">
                                             <li class="dropdown-header">@Messages("contentTypes")</li>
                                             @accessPointType match {
                                                 case AccessPointType.CreatorAccess | AccessPointType.PersonAccess => {
-                                                    @filterDropdown("historicalAgent", "data-disabled='true'")
+                                                    @filterDropdown(EntityType.HistoricalAgent, "data-disabled='true'")
+                                                }
+                                                case AccessPointType.CorporateBodyAccess => {
+                                                    @filterDropdown(EntityType.Concept, "data-disabled='true'")
+                                                    @filterDropdown(EntityType.HistoricalAgent, "data-disabled='true'")
                                                 }
                                                 case AccessPointType.PlaceAccess => {
-                                                    @filterDropdown("cvocConcept")
-                                                    @filterDropdown("country")
+                                                    @filterDropdown(EntityType.Concept, "data-disabled='true'")
                                                 }
                                                 case AccessPointType.SubjectAccess => {
-                                                    @filterDropdown("cvocConcept", "data-disabled")
+                                                    @filterDropdown(EntityType.Concept, "data-disabled")
                                                 }
                                                 case _ => { 
-                                                    @filterDropdown("cvocConcept")
-                                                    @filterDropdown("historicalAgent")
-                                                    @filterDropdown("documentaryUnit")
+                                                    @filterDropdown(EntityType.Concept)
+                                                    @filterDropdown(EntityType.HistoricalAgent)
                                                 }
                                             }
                                             <li class="divider"></li>
@@ -110,12 +105,11 @@
                                             <a class="btn btn-success">
                                                 <i class="glyphicon glyphicon-link"></i>
                                             </a>
-                                            <button class="btn btn-success element-name" name="@accessPointType.toString" data-did="" value="">
-                                            </button>
+                                            <button class="btn btn-success element-name" name="@accessPointType.toString" data-did="" value=""></button>
                                         </div>
                                         <input type="text" class="form-control element-description" placeholder="@Messages("accessPoint.description")" />
                                         <div class="input-group-btn">
-                                            <a title="@Messages("accessPoint.delete")" class="btn btn-danger"><span class="glyphicon glyphicon-remove"></span></a>
+                                            <a title="@Messages("accessPoint.delete")" class="btn btn-danger cancel-item"><span class="glyphicon glyphicon-remove"></span></a>
                                         </div>
                                     </div>
                                 </div>
@@ -125,7 +119,7 @@
                             <div class="col-sm-offset-2 col-sm-10">
                                 <button class="btn btn-small btn-primary element-save">
                                     @Messages("accessPoint.create.submit")</button>
-                                <button class="btn btn-small btn-danger">@Messages("cancel")</button>
+                                <button class="btn btn-small btn-danger element-cancel">@Messages("cancel")</button>
                             </div>
                         </div>
                     </div>
@@ -139,9 +133,7 @@
     <div class="modal fade waiting-modal" style="display:none">
         <div class="modal-dialog">
             <div class="modal-content">
-                <div class="modal-header">
-                    Please Wait
-                </div>
+                <div class="modal-header">Please Wait</div>
                 <div class="modal-spinner"></div>
                 <div class="clearfix"></div>
             </div>
