@@ -18,6 +18,8 @@ case class ResultFormat(columns: Seq[String], data: Seq[Seq[JsValue]]) {
   def toCsv(sep: Char = ',', quote: Boolean = false): String =
     CsvHelpers.writeCsv(columns, data
       .map(_.collect(ResultFormat.jsToString).toArray), sep = sep)
+
+  def toData: Seq[Seq[String]] = data.map(_.collect(ResultFormat.jsToString))
 }
 object ResultFormat {
   implicit val _reads = Json.reads[ResultFormat]
