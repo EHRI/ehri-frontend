@@ -1,7 +1,6 @@
 package controllers.admin
 
 import auth.AccountManager
-import backend.rest.SearchDAO
 import controllers.base.AdminController
 import models.base.AnyModel
 import play.api.cache.CacheApi
@@ -23,7 +22,6 @@ case class Data @Inject()(
   accounts: AccountManager,
   pageRelocator: MovedPageLookup,
   messagesApi: MessagesApi,
-  search: SearchDAO,
   markdown: MarkdownRenderer,
   ws: WSClient
 ) extends AdminController {
@@ -39,7 +37,7 @@ case class Data @Inject()(
 
   def getItem(id: String) = OptionalUserAction.async { implicit request =>
     implicit val rd: Readable[AnyModel] = AnyModel.Converter
-    search.list(List(id)).map {
+    userBackend.fetch(List(id)).map {
       case Nil => NotFound(views.html.errors.itemNotFound())
       case mm :: _ => views.admin.Helpers.linkToOpt(mm)
         .map(Redirect) getOrElse NotFound(views.html.errors.itemNotFound())
