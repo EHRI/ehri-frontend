@@ -218,8 +218,8 @@ trait Linking[MT <: AnyModel] extends Read[MT] with Search {
    */
   def deleteLink(id: String, linkId: String)(implicit ct: ContentType[MT]) = {
     WithItemPermissionAction(id, PermissionType.Annotate).async { implicit request =>
-      userBackend.deleteLink(id, linkId).map { ok =>
-        Ok(Json.toJson(ok))
+      userBackend.delete[Link](linkId).map { ok =>
+        Ok(Json.toJson(true))
       }
     }
   }
@@ -230,8 +230,8 @@ trait Linking[MT <: AnyModel] extends Read[MT] with Search {
   def deleteLinkAndAccessPoint(id: String, did: String, accessPointId: String, linkId: String)(implicit ct: ContentType[MT]) = {
     WithItemPermissionAction(id, PermissionType.Annotate).async { implicit request =>
       for {
-        oneOk <- userBackend.deleteLink(id, linkId)
-        _ <- userBackend.deleteAccessPoint(id, did, accessPointId) if oneOk
+        _ <- userBackend.delete[Link](linkId)
+        _ <- userBackend.deleteAccessPoint(id, did, accessPointId)
       } yield Ok(Json.toJson(true))
     }
   }

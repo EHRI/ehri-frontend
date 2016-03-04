@@ -6,14 +6,14 @@ import backend._
 import backend.aws.MockFileStorage
 import backend.feedback.MockFeedbackDAO
 import backend.helpdesk.MockHelpdeskDAO
-import backend.rest.RestBackend
+import backend.rest.{IdSearchResolver, RestBackend}
 import controllers.base.{SessionPreferences, AuthConfigImpl}
 import global.GlobalConfig
 import jp.t2v.lab.play2.auth.test.Helpers._
-import mockdata.{_}
 import models.{CypherQuery, Account, Feedback}
 import org.specs2.execute.{Result, AsResult}
 import play.api.http.Writeable
+import play.api.inject._
 import play.api.inject.guice.GuiceApplicationLoader
 import play.api.libs.json.{Json, Writes}
 import play.api.libs.mailer.{MailerClient, Email}
@@ -85,13 +85,16 @@ trait TestConfiguration {
       bind[AccountManager].toInstance(mockAccounts),
       bind[SearchEngine].to[MockSearchEngine],
       bind[HelpdeskDAO].toInstance(mockHelpdesk),
-      bind[SearchItemResolver].to[MockSearchResolver],
       bind[FeedbackDAO].toInstance(mockFeedback),
       bind[CypherQueryDAO].toInstance(mockCypherQueries),
       bind[EventHandler].toInstance(testEventHandler),
       bind[Backend].to[RestBackend],
       bind[SearchIndexMediator].toInstance(mockIndexer),
-      bind[HtmlPages].toInstance(mockHtmlPages)
+      bind[HtmlPages].toInstance(mockHtmlPages),
+      // NB: Graph IDs are not stable during testing due to
+      // DB churn, so using the String ID resolver rather than
+      // the more efficient GID one used in production
+      bind[SearchItemResolver].to[IdSearchResolver]
     ).bindings(
       bind[SearchLogger].toInstance(searchLogger)
     )

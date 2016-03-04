@@ -85,7 +85,7 @@ case class DocumentaryUnits @Inject()(
   def export(id: String) = OptionalUserAction.async { implicit request =>
     val format = "ead" // Hardcoded for now!
     val params = request.queryString.filterKeys(_ == "lang")
-    userBackend.stream(s"${EntityType.DocumentaryUnit}/$id/$format", params = params).map { case (head, body) =>
+    userBackend.stream(s"classes/${EntityType.DocumentaryUnit}/$id/$format", params = params).map { case (head, body) =>
       Status(head.status)
         .chunked(body.andThen(Enumerator.eof))
         .withHeaders(head.headers.map(s => (s._1, s._2.head)).toSeq: _*)
