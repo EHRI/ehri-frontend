@@ -1,0 +1,24 @@
+package backend.rest
+
+import javax.inject.Inject
+
+import backend.{Backend, ApiUser, Readable}
+import utils.search.{SearchHit, SearchItemResolver}
+
+import scala.concurrent.{ExecutionContext, Future}
+
+/**
+ * Resolve search hits to DB items by the GID field
+ */
+case class GidSearchResolver @Inject()(implicit backend: Backend, executionContext: ExecutionContext) extends SearchItemResolver {
+  def resolve[MT: Readable](docs: Seq[SearchHit])(implicit apiUser: ApiUser): Future[Seq[MT]] =
+    backend.withContext(apiUser).fetch(gids = docs.map(_.gid))
+}
+
+/**
+ * Resolve search hits to DB items by the itemId field
+ */
+case class IdSearchResolver @Inject()(implicit backend: Backend, executionContext: ExecutionContext) extends SearchItemResolver {
+  def resolve[MT: Readable](docs: Seq[SearchHit])(implicit apiUser: ApiUser): Future[Seq[MT]] =
+    backend.withContext(apiUser).fetch(ids = docs.map(_.itemId))
+}

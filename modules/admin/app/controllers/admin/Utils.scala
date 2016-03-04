@@ -51,7 +51,7 @@ case class Utils @Inject()(
   def checkDb = Action.async { implicit request =>
     // Not using the EntityDAO directly here to avoid caching
     // and logging
-    ws.url(s"$baseUrl/${EntityType.Group}/${Accessor.ADMIN_GROUP_NAME}").get().map { r =>
+    ws.url(s"$baseUrl/classes/${EntityType.Group}/${Accessor.ADMIN_GROUP_NAME}").get().map { r =>
       r.json.validate[Group](Group.GroupResource.restReads).fold(
         _ => ServiceUnavailable("ko\nbad json"),
         _ => Ok("ok")

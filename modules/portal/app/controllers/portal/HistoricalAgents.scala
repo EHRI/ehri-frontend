@@ -51,7 +51,7 @@ case class HistoricalAgents @Inject()(
   def export(id: String) = OptionalUserAction.async { implicit request =>
     val format = "eac"
     val params = request.queryString.filterKeys(_ == "lang")
-    userBackend.stream(s"${EntityType.HistoricalAgent}/$id/$format", params = params).map { sr =>
+    userBackend.stream(s"classes/${EntityType.HistoricalAgent}/$id/$format", params = params).map { sr =>
       val ct = sr.headers.headers.get(HeaderNames.CONTENT_TYPE)
         .flatMap(_.headOption).getOrElse(ContentTypes.XML)
       Status(sr.headers.status).chunked(sr.body).as(ct)
