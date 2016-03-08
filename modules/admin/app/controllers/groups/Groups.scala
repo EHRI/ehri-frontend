@@ -15,7 +15,7 @@ import utils.PageParams
 import utils.search.{SearchItemResolver, SearchEngine}
 import views.MarkdownRenderer
 import scala.concurrent.Future
-import backend.Backend
+import backend.DataApi
 import backend.rest.Constants
 import play.api.mvc.Request
 import play.api.data.{Forms, Form}
@@ -27,7 +27,7 @@ case class Groups @Inject()(
   globalConfig: global.GlobalConfig,
   searchEngine: SearchEngine,
   searchResolver: SearchItemResolver,
-  backend: Backend,
+  dataApi: DataApi,
   accounts: AccountManager,
   pageRelocator: utils.MovedPageLookup,
   messagesApi: MessagesApi,
@@ -47,7 +47,7 @@ case class Groups @Inject()(
   def get(id: String) = ItemMetaAction(id).async { implicit request =>
     val params = PageParams.fromRequest(request)
     for {
-      page <- userBackend.listChildren[Group,Accessor](id, params)
+      page <- userDataApi.listChildren[Group,Accessor](id, params)
       accs <- accounts.findAllById(ids = page.items.collect { case up: UserProfile => up.id })
     } yield {
       val pageWithAccounts = page.copy(items = page.items.map {
@@ -73,7 +73,7 @@ case class Groups @Inject()(
 
   /**
    * Extract a set of group members from the form POST data and
-   * convert it into params for the backend call.
+   * convert it into params for the dataApi call.
    */
   private def memberExtractor: Request[_] => Map[String,Seq[String]] = { implicit r =>
     Map(Constants.MEMBER -> Form(Forms.single(

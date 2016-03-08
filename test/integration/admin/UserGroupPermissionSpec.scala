@@ -48,7 +48,7 @@ class UserGroupPermissionSpec extends IntegrationTestRunner {
     status(userCreatePost) must equalTo(SEE_OTHER)
     redirectLocation(userCreatePost) must equalTo(Some(userRoutes.get(id).url))
     val acc: Account = await(mockAccounts.get(id))
-    (acc, await(testBackend.get[UserProfile](id)))
+    (acc, await(dataApi.get[UserProfile](id)))
   }
 
   private def createGroup(id: String, data: Map[String, String], groups: Seq[String] = Seq.empty)(
@@ -62,7 +62,7 @@ class UserGroupPermissionSpec extends IntegrationTestRunner {
       .withUser(privilegedUser).withCsrf.callWith(groupPostData)
     status(groupCreatePost) must equalTo(SEE_OTHER)
     redirectLocation(groupCreatePost) must equalTo(Some(groupRoutes.get(id).url))
-    await(testBackend.get[Group](id))
+    await(dataApi.get[Group](id))
   }
 
   "The application" should {
@@ -81,7 +81,7 @@ class UserGroupPermissionSpec extends IntegrationTestRunner {
       status(attempt1) must equalTo(FORBIDDEN)
 
       // Now set UPDATE permissions - this should still NOT be sufficient
-      await(testBackend.setItemPermissions(management.id, ContentTypes.Group, noteApprovers.id,
+      await(dataApi.setItemPermissions(management.id, ContentTypes.Group, noteApprovers.id,
         Seq(PermissionType.Update.toString)))
 
       val attempt2 = FakeRequest(userRoutes.addToGroup(user2.id, noteApprovers.id))
@@ -90,7 +90,7 @@ class UserGroupPermissionSpec extends IntegrationTestRunner {
 
       // Now set GRANT permissions on the user - this will still fail because
       // the user1 is not a member of noteApprovers
-      await(testBackend.setItemPermissions(acc1.id, ContentTypes.UserProfile, acc2.id,
+      await(dataApi.setItemPermissions(acc1.id, ContentTypes.UserProfile, acc2.id,
         Seq(PermissionType.Grant.toString)))
 
       // NB: Currently the front-end does not protect us against attempting
@@ -99,7 +99,7 @@ class UserGroupPermissionSpec extends IntegrationTestRunner {
         .withUser(acc1).withCsrf.call()
       status(attempt3) must equalTo(FORBIDDEN)
 
-      await(testBackend.addGroup[Group, UserProfile](noteApprovers.id, acc1.id)) must beTrue
+      await(dataApi.addGroup[Group, UserProfile](noteApprovers.id, acc1.id)) must beTrue
 
       val attempt4 = FakeRequest(userRoutes.addToGroup(acc2.id, noteApprovers.id))
         .withUser(acc1).withCsrf.call()
@@ -119,7 +119,7 @@ class UserGroupPermissionSpec extends IntegrationTestRunner {
 
       // Fetch the user's permission grants and check there exists one for c4
       val page: Page[PermissionGrant] =
-        await(testBackend.listPermissionGrants[PermissionGrant]("user1", PageParams.empty))
+        await(dataApi.listPermissionGrants[PermissionGrant]("user1", PageParams.empty))
       page.size must_== 2
       page.find(_.targets.headOption.map(_.id).contains("c4")) must beSome.which { pg =>
         pg.accessor must beSome.which { a =>
@@ -134,7 +134,7 @@ class UserGroupPermissionSpec extends IntegrationTestRunner {
         status(revoke) must_== SEE_OTHER
 
         val page2: Page[PermissionGrant] =
-          await(testBackend.listPermissionGrants[PermissionGrant]("user1", PageParams.empty))
+          await(dataApi.listPermissionGrants[PermissionGrant]("user1", PageParams.empty))
         page2.size must_== 1
         page2.find(_.targets.headOption.map(_.id).contains("c4")) must beNone
       }

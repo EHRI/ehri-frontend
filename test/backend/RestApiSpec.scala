@@ -13,14 +13,14 @@ import models.base.AnyModel
 import models._
 import play.api.test.{WithApplicationLoader, PlaySpecification}
 import utils.search.{MockSearchIndexMediator, SearchIndexMediator}
-import helpers.RestBackendRunner
+import helpers.RestApiRunner
 
 import scala.concurrent.ExecutionContext
 
 /**
  * Spec for testing individual data access components work as expected.
  */
-class BackendModelSpec extends RestBackendRunner with PlaySpecification {
+class RestApiSpec extends RestApiRunner with PlaySpecification {
   sequential
 
   val userProfile = UserProfile(UserProfileF(id = Some("mike"), identifier = "mike", name = "Mike"))
@@ -30,7 +30,7 @@ class BackendModelSpec extends RestBackendRunner with PlaySpecification {
   import play.api.inject.bind
   val appLoader = new GuiceApplicationLoader(
     new play.api.inject.guice.GuiceApplicationBuilder()
-    .configure(RestBackendRunner.backendConfig)
+    .configure(RestApiRunner.backendConfig)
     .overrides(
       bind[SearchIndexMediator].toInstance(mockIndexer),
       bind[EventHandler].toInstance(testEventHandler)
@@ -45,8 +45,8 @@ class BackendModelSpec extends RestBackendRunner with PlaySpecification {
   val indexEventBuffer = collection.mutable.ListBuffer.empty[String]
   def mockIndexer: SearchIndexMediator = new MockSearchIndexMediator(indexEventBuffer)
 
-  def testBackend(implicit app: play.api.Application, apiUser: ApiUser): BackendHandle =
-    app.injector.instanceOf[Backend].withContext(apiUser)
+  def testBackend(implicit app: play.api.Application, apiUser: ApiUser): DataApiHandle =
+    app.injector.instanceOf[DataApi].withContext(apiUser)
 
   def testEventHandler = new EventHandler {
     def handleCreate(id: String) = mockIndexer.handle.indexId(id)

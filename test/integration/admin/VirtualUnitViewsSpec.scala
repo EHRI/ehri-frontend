@@ -78,7 +78,7 @@ class VirtualUnitViewsSpec extends IntegrationTestRunner {
 
     "allow creating and deleting item references" in new ITestApp {
       implicit val apiUser: ApiUser = AuthenticatedUser(privilegedUser.id)
-      val origIncludes = await(testBackend.get[VirtualUnit]("vc1")).includedUnits.map(_.id)
+      val origIncludes = await(dataApi.get[VirtualUnit]("vc1")).includedUnits.map(_.id)
       origIncludes must not contain "c1"
       origIncludes must not contain "c4"
 
@@ -89,7 +89,7 @@ class VirtualUnitViewsSpec extends IntegrationTestRunner {
         .withUser(privilegedUser).withCsrf.callWith(testData)
       status(cr) must equalTo(SEE_OTHER)
 
-      val included = await(testBackend.get[VirtualUnit]("vc1")).includedUnits.map(_.id)
+      val included = await(dataApi.get[VirtualUnit]("vc1")).includedUnits.map(_.id)
       included must contain("c1")
       included must contain("c4")
 
@@ -98,7 +98,7 @@ class VirtualUnitViewsSpec extends IntegrationTestRunner {
         VirtualUnitF.INCLUDE_REF -> Seq("c1")))
       status(del) must equalTo(SEE_OTHER)
 
-      val newIncludes = await(testBackend.get[VirtualUnit]("vc1")).includedUnits.map(_.id)
+      val newIncludes = await(dataApi.get[VirtualUnit]("vc1")).includedUnits.map(_.id)
       newIncludes must not contain "c1"
       newIncludes must contain("c4")
     }

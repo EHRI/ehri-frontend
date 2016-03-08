@@ -10,7 +10,7 @@ import play.api.libs.ws.WSClient
 import play.api.libs.concurrent.Execution.Implicits._
 
 import javax.inject._
-import backend.{Readable, Backend}
+import backend.{Readable, DataApi}
 import utils.MovedPageLookup
 import views.MarkdownRenderer
 
@@ -18,7 +18,7 @@ case class Data @Inject()(
   implicit app: play.api.Application,
   cache: CacheApi,
   globalConfig: global.GlobalConfig,
-  backend: Backend,
+  dataApi: DataApi,
   accounts: AccountManager,
   pageRelocator: MovedPageLookup,
   messagesApi: MessagesApi,
@@ -37,7 +37,7 @@ case class Data @Inject()(
 
   def getItem(id: String) = OptionalUserAction.async { implicit request =>
     implicit val rd: Readable[AnyModel] = AnyModel.Converter
-    userBackend.fetch(List(id)).map {
+    userDataApi.fetch(List(id)).map {
       case Nil => NotFound(views.html.errors.itemNotFound())
       case mm :: _ => views.admin.Helpers.linkToOpt(mm)
         .map(Redirect) getOrElse NotFound(views.html.errors.itemNotFound())
@@ -51,14 +51,14 @@ case class Data @Inject()(
   }
 
   def getItemRawJson(entityType: defines.EntityType.Value, id: String) = OptionalUserAction.async { implicit request =>
-    userBackend.query(s"$entityType/$id").map { r =>
+    userDataApi.query(s"classes/$entityType/$id").map { r =>
       Ok(r.json)
     }
   }
 
   def forward(urlPart: String) = OptionalUserAction.async { implicit request =>
     val url = urlPart + (if(request.rawQueryString.trim.isEmpty) "" else "?" + request.rawQueryString)
-    userBackend.stream(url).map { sr =>
+    userDataApi.stream(url).map { sr =>
       val result:Status = Status(sr.headers.status)
       val rHeaders = passThroughHeaders(sr.headers.headers)
       val ct = sr.headers.headers.get(HeaderNames.CONTENT_TYPE)
@@ -99,7 +99,7 @@ case class Data @Inject()(
   }
 
   def sparqlQuery = AdminAction.async { implicit request =>
-    userBackend.stream("sparql", request.headers, request.queryString).map { sr =>
+    userDataApi.stream("sparql", request.headers, request.queryString).map { sr =>
       Status(sr.headers.status)
         .chunked(sr.body)
         .withHeaders(passThroughHeaders(sr.headers.headers): _*)

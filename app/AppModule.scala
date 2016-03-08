@@ -8,7 +8,7 @@ import backend.googledocs.GoogleDocsHtmlPages
 import backend.helpdesk.EhriHelpdesk
 import backend.parse.{ParseCypherQueryDAO, ParseFeedbackDAO}
 import backend.rest.cypher.{Cypher, CypherDAO}
-import backend.rest.{RestBackend, CypherIdGenerator, GidSearchResolver}
+import backend.rest.{RestApi, CypherIdGenerator, GidSearchResolver}
 import com.google.inject.AbstractModule
 import eu.ehri.project.indexing.index.Index
 import eu.ehri.project.indexing.index.impl.SolrIndex
@@ -34,7 +34,7 @@ class AppModule extends AbstractModule {
     bind(classOf[SearchEngine]).to(classOf[SolrSearchEngine])
     bind(classOf[SearchItemResolver]).to(classOf[GidSearchResolver])
     bind(classOf[EventHandler]).to(classOf[GlobalEventHandler])
-    bind(classOf[Backend]).to(classOf[RestBackend])
+    bind(classOf[DataApi]).to(classOf[RestApi])
     bind(classOf[FeedbackDAO]).to(classOf[ParseFeedbackDAO])
     bind(classOf[CypherQueryDAO]).to(classOf[ParseCypherQueryDAO])
     bind(classOf[HelpdeskDAO]).to(classOf[EhriHelpdesk])

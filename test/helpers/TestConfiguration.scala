@@ -7,14 +7,13 @@ import backend._
 import backend.aws.MockFileStorage
 import backend.feedback.MockFeedbackDAO
 import backend.helpdesk.MockHelpdeskDAO
-import backend.rest.{IdSearchResolver, RestBackend}
+import backend.rest.{IdSearchResolver, RestApi}
 import controllers.base.{SessionPreferences, AuthConfigImpl}
 import global.GlobalConfig
 import jp.t2v.lab.play2.auth.test.Helpers._
 import models.{CypherQuery, Account, Feedback}
 import org.specs2.execute.{Result, AsResult}
 import play.api.http.Writeable
-import play.api.inject._
 import play.api.inject.guice.GuiceApplicationLoader
 import play.api.libs.json.{Json, Writes}
 import play.api.libs.mailer.{MailerClient, Email}
@@ -33,7 +32,7 @@ trait TestConfiguration {
 
   this: PlayRunners with RouteInvokers =>
 
-  import RestBackendRunner._
+  import helpers.RestApiRunner._
 
   // Stateful buffers for capturing stuff like feedback, search
   // parameters, and reset tokens. These persist across tests in
@@ -89,7 +88,7 @@ trait TestConfiguration {
       bind[FeedbackDAO].toInstance(mockFeedback),
       bind[CypherQueryDAO].toInstance(mockCypherQueries),
       bind[EventHandler].toInstance(testEventHandler),
-      bind[Backend].to[RestBackend],
+      bind[DataApi].to[RestApi],
       bind[SearchIndexMediator].toInstance(mockIndexer),
       bind[HtmlPages].toInstance(mockHtmlPages),
       // NB: Graph IDs are not stable during testing due to
@@ -102,9 +101,9 @@ trait TestConfiguration {
 
   val integrationAppLoader = new GuiceApplicationLoader(appBuilder)
 
-  // Might want to mock the backend at at some point!
-  def testBackend(implicit app: play.api.Application, apiUser: ApiUser, executionContext: ExecutionContext): BackendHandle =
-    app.injector.instanceOf[Backend].withContext(apiUser)(executionContext)
+  // Might want to mock the dataApi at at some point!
+  def dataApi(implicit app: play.api.Application, apiUser: ApiUser, executionContext: ExecutionContext): DataApiHandle =
+    app.injector.instanceOf[DataApi].withContext(apiUser)(executionContext)
 
   // Dummy auth config for play-2-auth
   def authConfig(implicit _app: play.api.Application) = new AuthConfigImpl {

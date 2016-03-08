@@ -1,7 +1,7 @@
 package controllers.portal.guides
 
 import auth.AccountManager
-import backend.Backend
+import backend.DataApi
 import backend.rest.cypher.Cypher
 import javax.inject._
 import controllers.base.SearchVC
@@ -35,7 +35,7 @@ case class Guides @Inject()(
   globalConfig: global.GlobalConfig,
   searchEngine: SearchEngine,
   searchResolver: SearchItemResolver,
-  backend: Backend,
+  dataApi: DataApi,
   accounts: AccountManager,
   pageRelocator: utils.MovedPageLookup,
   messagesApi: MessagesApi,
@@ -456,9 +456,9 @@ case class Guides @Inject()(
             filters = Map(s"gid:(${ids.take(1024).mkString(" ")})" -> Unit),
             defaultOrder = SearchOrder.Name
           ) else immediate(SearchResult.empty)
-          selectedAccessPoints <- userBackend.fetch[AnyModel](facets)
+          selectedAccessPoints <- userDataApi.fetch[AnyModel](facets)
           availableFacets <- otherFacets(guide, ids)
-          tempAccessPoints <- userBackend.fetch[AnyModel](gids = availableFacets)
+          tempAccessPoints <- userDataApi.fetch[AnyModel](gids = availableFacets)
         } yield {
           Ok(views.html.guides.facet(
             guide,
@@ -532,7 +532,7 @@ case class Guides @Inject()(
         case Some(t) => searchLinks(id, t)
         case _ => searchLinks(id)
       })
-      docs <- userBackend.fetch[AnyModel](gids = gids)
+      docs <- userDataApi.fetch[AnyModel](gids = gids)
     } yield Ok(Json.toJson(docs.zip(gids).map { case (doc, gid) =>
       Json.toJson(FilterHit(doc.id, "", doc.toStringLang, doc.isA, None, gid))
     }))
@@ -545,7 +545,7 @@ case class Guides @Inject()(
         case Some(t) => searchLinks(id, t, Some(context))
         case _ => searchLinks(id, context = Some(context))
       })
-      docs <- userBackend.fetch[AnyModel](gids = gids)
+      docs <- userDataApi.fetch[AnyModel](gids = gids)
     } yield Ok(Json.toJson(docs.zip(gids).map { case (doc, gid) =>
       Json.toJson(FilterHit(doc.id, "", doc.toStringLang, doc.isA, None, gid))
     }))

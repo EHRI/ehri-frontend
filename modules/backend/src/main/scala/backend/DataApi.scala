@@ -10,15 +10,15 @@ import utils._
 import scala.concurrent.{ExecutionContext, Future}
 
 
-trait Backend {
-  def withContext(apiUser: ApiUser)(implicit executionContext: ExecutionContext): BackendHandle
+trait DataApi {
+  def withContext(apiUser: ApiUser)(implicit executionContext: ExecutionContext): DataApiHandle
 }
 
-trait BackendHandle {
+trait DataApiHandle {
 
   def eventHandler: EventHandler
 
-  def withEventHandler(eventHandler: EventHandler): BackendHandle
+  def withEventHandler(eventHandler: EventHandler): DataApiHandle
 
   /**
    * Pass a query directly through to the backend API.
