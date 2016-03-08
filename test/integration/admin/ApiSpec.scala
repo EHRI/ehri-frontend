@@ -15,7 +15,7 @@ import scala.util.{Failure, Success, Try}
 /**
  * Spec for testing various JSON endpoints used by Ajax components etc.
  */
-class APISpec extends IntegrationTestRunner {
+class ApiSpec extends IntegrationTestRunner {
 
   import mockdata.privilegedUser
 

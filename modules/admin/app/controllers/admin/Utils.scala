@@ -49,7 +49,7 @@ case class Utils @Inject()(
    * Check the database is up by trying to load the admin account.
    */
   def checkDb = Action.async { implicit request =>
-    // Not using the EntityDAO directly here to avoid caching
+    // Not using the data api directly here to avoid caching
     // and logging
     ws.url(s"$baseUrl/classes/${EntityType.Group}/${Accessor.ADMIN_GROUP_NAME}").get().map { r =>
       r.json.validate[Group](Group.GroupResource.restReads).fold(

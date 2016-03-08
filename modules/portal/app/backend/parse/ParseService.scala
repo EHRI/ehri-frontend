@@ -2,7 +2,7 @@ package backend.parse
 
 import play.api.libs.json.{Format, Json}
 import play.api.Logger
-import backend.rest.RestDAO
+import backend.rest.RestService
 import scala.concurrent.{Future, ExecutionContext}
 
 /**
@@ -11,7 +11,7 @@ import scala.concurrent.{Future, ExecutionContext}
  * @param objectName Name of the parse object class
  * @tparam T The type of Parse object
  */
-abstract class ParseDAO[T: Format](objectName: String) extends RestDAO {
+abstract class ParseService[T: Format](objectName: String) extends RestService {
 
   protected def logger: Logger = Logger(this.getClass)
 
