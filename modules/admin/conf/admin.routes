@@ -44,6 +44,7 @@ GET         /api/*path                          @controllers.admin.Data.forward(
 # Get items by id and type/id
 GET         /item/:id                           @controllers.admin.Data.getItem(id: String)
 GET         /item/:entityType/:id               @controllers.admin.Data.getItemType(entityType: defines.EntityType.Value, id: String)
+GET         /item/:entityType/:id/json          @controllers.admin.Data.getItemRawJson(entityType: defines.EntityType.Value, id: String)
 
 # API Sparql
 GET         /sparql                             @controllers.admin.Data.sparql

@@ -23,7 +23,7 @@
         <a href="@controllers.units.routes.DocumentaryUnits.managePermissions(item.id)">@Messages("permissions.manage")</a>
     }
     @views.html.admin.common.sidebarAction() {
-        <a href="@controllers.admin.routes.Data.getItemType(item.isA, item.id)">@Messages("item.export.json")</a>
+        <a href="@controllers.admin.routes.Data.getItemRawJson(item.isA, item.id)">@Messages("item.export.json")</a>
     }
     @views.html.admin.common.sidebarAction() {
         <a href="@controllers.portal.routes.DocumentaryUnits.export(item.topLevel.id)">@Messages("documentaryUnit.export.ead")</a>

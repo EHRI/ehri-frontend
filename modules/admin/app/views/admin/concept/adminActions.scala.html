@@ -14,7 +14,7 @@
         <a href="@controllers.keywords.routes.Concepts.linkAnnotateSelect(item.id, EntityType.Concept)">@Messages("link.create")</a>
     }
     @views.html.admin.common.sidebarAction() {
-        <a href="@controllers.admin.routes.Data.getItemType(item.isA, item.id)">@Messages("item.export.json")</a>
+        <a href="@controllers.admin.routes.Data.getItemRawJson(item.isA, item.id)">@Messages("item.export.json")</a>
     }
     @views.html.admin.common.sidebarAction() {
         <a href="@controllers.keywords.routes.Concepts.history(item.id)">@Messages("item.history")</a>

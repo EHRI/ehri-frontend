@@ -52,6 +52,12 @@ case class Data @Inject()(
       .getOrElse(NotFound(views.html.errors.itemNotFound()))
   }
 
+  def getItemRawJson(entityType: defines.EntityType.Value, id: String) = OptionalUserAction.async { implicit request =>
+    userBackend.query(s"classes/$entityType/$id").map { r =>
+      Ok(r.json)
+    }
+  }
+
   def forward(urlPart: String) = OptionalUserAction.async { implicit request =>
     val url = urlPart + (if(request.rawQueryString.trim.isEmpty) "" else "?" + request.rawQueryString)
     userBackend.stream(url).map { case (headers, stream) =>
