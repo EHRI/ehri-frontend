@@ -40,7 +40,7 @@ case class Guides @Inject()(
   pageRelocator: utils.MovedPageLookup,
   messagesApi: MessagesApi,
   markdown: MarkdownRenderer,
-  guides: GuideDAO,
+  guides: GuideService,
   cypher: Cypher
 ) extends PortalController
   with Search

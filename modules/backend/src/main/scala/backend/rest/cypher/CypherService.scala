@@ -11,7 +11,7 @@ import play.api.libs.json.{Json,JsValue}
 import play.api.libs.json.Reads
 import play.api.libs.json.__
 import play.api.libs.ws.{StreamedResponse, WSResponseHeaders, WSClient, WSResponse}
-import backend.rest.RestDAO
+import backend.rest.RestService
 import javax.inject.Inject
 
 case class CypherError(
@@ -31,12 +31,12 @@ object CypherErrorReader {
 }
 
 @Singleton
-case class CypherDAO @Inject ()(
+case class CypherService @Inject ()(
   implicit val cache: CacheApi,
   val config: play.api.Configuration,
   val ws: WSClient
 ) extends Cypher
-  with RestDAO {
+  with RestService {
 
   val logger: Logger = play.api.Logger(getClass)
 

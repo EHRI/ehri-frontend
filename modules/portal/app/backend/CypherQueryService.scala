@@ -5,9 +5,10 @@ import models.CypherQuery
 import scala.concurrent.{ExecutionContext, Future}
 
 /**
- * Data access object trait for creating,
+ * Data access object trait for managing canned
+ * Cypher queries.
  */
-trait CypherQueryDAO {
+trait CypherQueryService {
   def get(id: String)(implicit executionContext: ExecutionContext): Future[CypherQuery]
   def create(cypherQuery: CypherQuery)(implicit executionContext: ExecutionContext): Future[String]
   def update(id: String, cypherQuery: CypherQuery)(implicit executionContext: ExecutionContext): Future[String]

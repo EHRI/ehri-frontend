@@ -29,7 +29,7 @@ case class RestApiHandle(eventHandler: EventHandler)(
   val apiUser: ApiUser,
   val executionContext: ExecutionContext,
   val ws: WSClient
-) extends DataApiHandle with RestDAO with RestContext  {
+) extends DataApiHandle with RestService with RestContext  {
 
   override def withEventHandler(eventHandler: EventHandler) = this.copy(eventHandler = eventHandler)
 

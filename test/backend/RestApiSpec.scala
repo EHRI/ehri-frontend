@@ -7,7 +7,7 @@ import play.api.libs.ws.WSClient
 import utils.SystemEventParams.Aggregation
 import utils.{RangeParams, RangePage, PageParams, SystemEventParams}
 import backend.rest.{CypherIdGenerator, ItemNotFound, ValidationError}
-import backend.rest.cypher.CypherDAO
+import backend.rest.cypher.CypherService
 import play.api.libs.json.{JsObject, JsString, Json}
 import models.base.AnyModel
 import models._
@@ -499,7 +499,7 @@ class RestApiSpec extends RestApiRunner with PlaySpecification {
 
   "Cypher operations" should {
     "get a JsValue for a graph item" in new WithApplicationLoader(appLoader) {
-      val dao = new CypherDAO
+      val dao = new CypherService
       val res = await(dao.cypher(
         """MATCH (n:_Entity) WHERE n.__id = {id} RETURN n.identifier, n.name""",
           Map("id" -> JsString("admin"))))
@@ -511,7 +511,7 @@ class RestApiSpec extends RestApiRunner with PlaySpecification {
 
   "CypherIdGenerator" should {
     "get the right next ID for repositories" in new WithApplicationLoader(appLoader) {
-      val idGen = new CypherIdGenerator(new CypherDAO)
+      val idGen = new CypherIdGenerator(new CypherService)
       await(idGen.getNextNumericIdentifier(EntityType.Repository, "%06d")) must equalTo("000005")
     }
 
@@ -519,7 +519,7 @@ class RestApiSpec extends RestApiRunner with PlaySpecification {
       // There a 4 collections in the fixtures c1-c4
       // Sigh... - now there's also a fixture named "m19", so the next
       // numeric ID with be "20". I didn't plan this.
-      val idGen = new CypherIdGenerator(new CypherDAO)
+      val idGen = new CypherIdGenerator(new CypherService)
       await(idGen.getNextChildNumericIdentifier("r1", EntityType.DocumentaryUnit, "c%01d")) must equalTo("c20")
     }
   }
