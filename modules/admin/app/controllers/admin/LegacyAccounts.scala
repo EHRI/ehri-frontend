@@ -3,7 +3,7 @@ package controllers.admin
 import java.io.{StringWriter, File, FileInputStream, InputStreamReader}
 
 import auth.{HashedPassword, AccountManager}
-import backend.{ApiUser, BackendHandle, EventHandler, Backend}
+import backend.{ApiUser, DataApiHandle, EventHandler, DataApi}
 import javax.inject._
 import controllers.base.AdminController
 import controllers.core.auth.AccountHelpers
@@ -29,14 +29,14 @@ case class LegacyAccounts @Inject()(
   implicit app: play.api.Application,
   cache: CacheApi,
   globalConfig: global.GlobalConfig,
-  backend: Backend,
+  dataApi: DataApi,
   accounts: AccountManager,
   pageRelocator: MovedPageLookup,
   messagesApi: MessagesApi
 ) extends AdminController
   with AccountHelpers {
 
-  private def noEventsBackend(implicit apiUser: ApiUser): BackendHandle = userBackend.withEventHandler(new EventHandler {
+  private def noEventsBackend(implicit apiUser: ApiUser): DataApiHandle = userDataApi.withEventHandler(new EventHandler {
     def handleCreate(id: String) = ()
     def handleUpdate(id: String) = ()
     def handleDelete(id: String) = ()

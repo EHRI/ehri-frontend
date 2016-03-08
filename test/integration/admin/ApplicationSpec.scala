@@ -30,7 +30,7 @@ class ApplicationSpec extends PlaySpecification with TestConfiguration with User
       val f = new java.io.File("READONLY")
       f.createNewFile()
       // Since we're not running the DB for this test we just
-      // try a route that doesn't need the backend - there's
+      // try a route that doesn't need the dataApi - there's
       // nothing significant about using the /forgot endpoint
       // here, only that it's a simple layout
       try {

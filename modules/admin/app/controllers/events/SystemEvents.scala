@@ -9,7 +9,7 @@ import play.api.libs.concurrent.Execution.Implicits._
 import javax.inject._
 import utils.{MovedPageLookup, RangeParams, SystemEventParams, PageParams}
 import controllers.generic.Read
-import backend.Backend
+import backend.DataApi
 import backend.rest.RestHelpers
 import models.base.AnyModel
 import controllers.base.AdminController
@@ -19,7 +19,7 @@ case class SystemEvents @Inject()(
   implicit app: play.api.Application,
   cache: CacheApi,
   globalConfig: global.GlobalConfig,
-  backend: Backend,
+  dataApi: DataApi,
   accounts: AccountManager,
   pageRelocator: MovedPageLookup,
   messagesApi: MessagesApi,
@@ -33,7 +33,7 @@ case class SystemEvents @Inject()(
     // In addition to the item itself, we also want to fetch the subjects associated with it.
     val params = PageParams.fromRequest(request)
     val subjectParams = PageParams.fromRequest(request, namespace = "s")
-    userBackend.subjectsForEvent[AnyModel](id, subjectParams).map { page =>
+    userDataApi.subjectsForEvent[AnyModel](id, subjectParams).map { page =>
       Ok(views.html.admin.systemEvent.show(request.item, page, params))
     }
   }
@@ -45,7 +45,7 @@ case class SystemEvents @Inject()(
 
     for {
       users <- getUserList
-      events <- userBackend.listEvents[SystemEvent](listParams, eventFilter)
+      events <- userDataApi.listEvents[SystemEvent](listParams, eventFilter)
     } yield Ok(views.html.admin.systemEvent.list(events, listParams,
         filterForm, users,controllers.events.routes.SystemEvents.list()))
   }

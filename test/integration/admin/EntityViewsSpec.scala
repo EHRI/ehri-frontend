@@ -152,7 +152,7 @@ class EntityViewsSpec extends IntegrationTestRunner {
       status(cr) must equalTo(SEE_OTHER)
 
       // Now check we can read back the same permissions.
-      val perms = await(testBackend.getGlobalPermissions(id))
+      val perms = await(dataApi.getGlobalPermissions(id))
       subjectUser.getPermission(perms, ContentTypes.Repository, PermissionType.Create) must beSome
       subjectUser.getPermission(perms, ContentTypes.Repository, PermissionType.Create).get.inheritedFrom must beNone
       subjectUser.getPermission(perms, ContentTypes.DocumentaryUnit, PermissionType.Create) must beSome
@@ -176,7 +176,7 @@ class EntityViewsSpec extends IntegrationTestRunner {
           .withUser(privilegedUser).withCsrf.call()
       status(add) must equalTo(SEE_OTHER)
 
-      val userFetch = await(testBackend.get[UserProfile](id))
+      val userFetch = await(dataApi.get[UserProfile](id))
       userFetch.groups.map(_.id) must contain("niod")
     }
 
@@ -215,7 +215,7 @@ class EntityViewsSpec extends IntegrationTestRunner {
           .withUser(privilegedUser).withCsrf.call()
       status(rem) must equalTo(SEE_OTHER)
 
-      val userFetch = await(testBackend.get[UserProfile](id))
+      val userFetch = await(dataApi.get[UserProfile](id))
       userFetch.groups.map(_.id) must not contain "kcl"
     }
 
@@ -251,7 +251,7 @@ class EntityViewsSpec extends IntegrationTestRunner {
         .withUser(privilegedUser).withCsrf.call()
       status(add) must equalTo(SEE_OTHER)
 
-      val groupFetch = await(testBackend.get[Group](id))
+      val groupFetch = await(dataApi.get[Group](id))
       groupFetch.groups.map(_.id) must contain("admin")
     }
 
@@ -261,7 +261,7 @@ class EntityViewsSpec extends IntegrationTestRunner {
           .withUser(privilegedUser).withCsrf.call()
       status(rem) must equalTo(SEE_OTHER)
 
-      val groupFetch = await(testBackend.get[Group]("niod"))
+      val groupFetch = await(dataApi.get[Group]("niod"))
       groupFetch.groups.map(_.id) must not contain "admin"
     }
   }

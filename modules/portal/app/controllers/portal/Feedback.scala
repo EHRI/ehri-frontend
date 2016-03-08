@@ -10,7 +10,7 @@ import play.api.mvc.{Result, RequestHeader}
 import utils.MovedPageLookup
 import views.MarkdownRenderer
 import scala.concurrent.Future.{successful => immediate}
-import backend.{Backend, FeedbackDAO}
+import backend.{DataApi, FeedbackDAO}
 import javax.inject._
 import controllers.portal.base.PortalController
 
@@ -20,7 +20,7 @@ case class Feedback @Inject()(
   cache: CacheApi,
   globalConfig: global.GlobalConfig,
   feedbackDAO: FeedbackDAO,
-  backend: Backend,
+  dataApi: DataApi,
   accounts: AccountManager,
   mailer: MailerClient,
   pageRelocator: MovedPageLookup,

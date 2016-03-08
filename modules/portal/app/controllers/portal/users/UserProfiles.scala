@@ -37,7 +37,7 @@ case class UserProfiles @Inject()(
   globalConfig: global.GlobalConfig,
   searchEngine: SearchEngine,
   searchResolver: SearchItemResolver,
-  backend: Backend,
+  dataApi: DataApi,
   accounts: AccountManager,
   mailer: MailerClient,
   pageRelocator: utils.MovedPageLookup,
@@ -58,7 +58,7 @@ case class UserProfiles @Inject()(
   }
 
   def watchItemPost(id: String) = WithUserAction.async { implicit request =>
-    userBackend.watch(request.user.id, id).map { _ =>
+    userDataApi.watch(request.user.id, id).map { _ =>
       clearWatchedItemsCache(request.user.id)
       if (isAjax) Ok("ok")
       else Redirect(profileRoutes.watching())
@@ -71,7 +71,7 @@ case class UserProfiles @Inject()(
   }
 
   def unwatchItemPost(id: String) = WithUserAction.async { implicit request =>
-    userBackend.unwatch(request.user.id, id).map { _ =>
+    userDataApi.unwatch(request.user.id, id).map { _ =>
       clearWatchedItemsCache(request.user.id)
       if (isAjax) Ok("ok")
       else Redirect(profileRoutes.watching())
@@ -101,7 +101,7 @@ case class UserProfiles @Inject()(
       .copy(eventTypes = activityEventTypes)
       .copy(itemTypes = activityItemTypes)
     val events: Future[RangePage[Seq[SystemEvent]]] =
-      userBackend.listUserActions[SystemEvent](request.user.id, listParams, eventParams)
+      userDataApi.listUserActions[SystemEvent](request.user.id, listParams, eventParams)
 
     events.map { myActivity =>
       if (isAjax) Ok(views.html.activity.eventItems(myActivity))
@@ -113,7 +113,7 @@ case class UserProfiles @Inject()(
 
   def watching(format: DataFormat.Value = DataFormat.Html) = WithUserAction.async { implicit request =>
     for {
-      watching <- userBackend.watching[AnyModel](request.user.id)
+      watching <- userDataApi.watching[AnyModel](request.user.id)
       result <- findIn[AnyModel](watching)
     } yield {
       val watchList = result.mapItems(_._1).page
@@ -258,7 +258,7 @@ case class UserProfiles @Inject()(
       errForm => immediate(
         BadRequest(views.html.userProfile.editProfile(errForm, imageForm, accountPrefsForm))
       ),
-      profile => userBackend.update[UserProfile, UserProfileF](
+      profile => userDataApi.update[UserProfile, UserProfileF](
           request.user.id, profile.toUser(request.user.model)).map { userProfile =>
         Redirect(profileRoutes.profile())
           .flashing("success" -> Messages("profile.update.confirmation"))
@@ -285,7 +285,7 @@ case class UserProfiles @Inject()(
           identifier = request.user.model.identifier, name = request.user.model.identifier,
           active = false)
 
-        userBackend.update[UserProfile,UserProfileF](request.user.id, anonProfile).flatMap { bool =>
+        userDataApi.update[UserProfile,UserProfileF](request.user.id, anonProfile).flatMap { bool =>
           accounts.delete(request.user.id).flatMap { _ =>
             gotoLogoutSucceeded
               .map(_.flashing("success" -> "profile.profile.delete.confirmation"))
@@ -314,7 +314,7 @@ case class UserProfiles @Inject()(
           try {
             for {
               url <- convertAndUploadFile(file, request.user, request)
-              _ <- userBackend.patch[UserProfile](request.user.id, Json.obj(UserProfileF.IMAGE_URL -> url))
+              _ <- userDataApi.patch[UserProfile](request.user.id, Json.obj(UserProfileF.IMAGE_URL -> url))
             } yield Redirect(profileRoutes.profile())
                   .flashing("success" -> "profile.update.confirmation")
           } catch {

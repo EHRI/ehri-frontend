@@ -5,7 +5,7 @@ import backend.rest.cypher.Cypher
 import models.{AnnotationF, Annotation}
 import javax.inject._
 import controllers.generic._
-import backend.Backend
+import backend.DataApi
 import controllers.base.AdminController
 import play.api.cache.CacheApi
 import play.api.i18n.MessagesApi
@@ -16,7 +16,7 @@ case class Annotations @Inject()(
   implicit app: play.api.Application,
   cache: CacheApi,
   globalConfig: global.GlobalConfig,
-  backend: Backend,
+  dataApi: DataApi,
   accounts: AccountManager,
   pageRelocator: MovedPageLookup,
   messagesApi: MessagesApi,

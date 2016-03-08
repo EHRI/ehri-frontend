@@ -4,13 +4,13 @@ import auth.AccountManager
 import controllers.base.AdminController
 import models.base.AnyModel
 import play.api.cache.CacheApi
+import play.api.http.HeaderNames
 import play.api.i18n.MessagesApi
 import play.api.libs.ws.WSClient
 import play.api.libs.concurrent.Execution.Implicits._
 
 import javax.inject._
-import backend.{Readable, Backend}
-import play.api.http.HeaderNames
+import backend.{Readable, DataApi}
 import utils.MovedPageLookup
 import views.MarkdownRenderer
 
@@ -18,7 +18,7 @@ case class Data @Inject()(
   implicit app: play.api.Application,
   cache: CacheApi,
   globalConfig: global.GlobalConfig,
-  backend: Backend,
+  dataApi: DataApi,
   accounts: AccountManager,
   pageRelocator: MovedPageLookup,
   messagesApi: MessagesApi,
@@ -37,7 +37,7 @@ case class Data @Inject()(
 
   def getItem(id: String) = OptionalUserAction.async { implicit request =>
     implicit val rd: Readable[AnyModel] = AnyModel.Converter
-    userBackend.fetch(List(id)).map {
+    userDataApi.fetch(List(id)).map {
       case Nil => NotFound(views.html.errors.itemNotFound())
       case mm :: _ => views.admin.Helpers.linkToOpt(mm)
         .map(Redirect) getOrElse NotFound(views.html.errors.itemNotFound())
@@ -51,14 +51,14 @@ case class Data @Inject()(
   }
 
   def getItemRawJson(entityType: defines.EntityType.Value, id: String) = OptionalUserAction.async { implicit request =>
-    userBackend.query(s"$entityType/$id").map { r =>
+    userDataApi.query(s"classes/$entityType/$id").map { r =>
       Ok(r.json)
     }
   }
 
   def forward(urlPart: String) = OptionalUserAction.async { implicit request =>
     val url = urlPart + (if(request.rawQueryString.trim.isEmpty) "" else "?" + request.rawQueryString)
-    userBackend.stream(url).map { case (headers, stream) =>
+    userDataApi.stream(url).map { case (headers, stream) =>
       val length = headers.headers
         .get(HeaderNames.CONTENT_LENGTH).flatMap(_.headOption.map(_.toInt)).getOrElse(-1)
       val result:Status = Status(headers.status)
@@ -100,7 +100,7 @@ case class Data @Inject()(
   }
 
   def sparqlQuery = AdminAction.async { implicit request =>
-    userBackend.stream("sparql", request.headers, request.queryString).map { case (headers, stream) =>
+    userDataApi.stream("sparql", request.headers, request.queryString).map { case (headers, stream) =>
       Status(headers.status)
         .chunked(stream)
         .withHeaders(passThroughHeaders(headers.headers): _*)

@@ -38,7 +38,7 @@ GET         /monitor/_check                     @controllers.admin.Utils.checkDb
 GET         /monitor/_checkUserSync             @controllers.admin.Utils.checkUserSync
 
 # API
-# Forward to any backend GET method
+# Forward to any dataApi GET method
 GET         /api/*path                          @controllers.admin.Data.forward(path: String)
 
 # Get items by id and type/id

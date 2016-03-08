@@ -1,7 +1,7 @@
 package controllers.portal.guides
 
 import auth.AccountManager
-import backend.Backend
+import backend.DataApi
 import javax.inject._
 import backend.rest.cypher.Cypher
 import controllers.generic.SearchType
@@ -22,7 +22,7 @@ case class DocumentaryUnits @Inject()(
   globalConfig: global.GlobalConfig,
   searchEngine: SearchEngine,
   searchResolver: SearchItemResolver,
-  backend: Backend,
+  dataApi: DataApi,
   accounts: AccountManager,
   pageRelocator: utils.MovedPageLookup,
   messagesApi: MessagesApi,

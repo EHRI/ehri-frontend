@@ -15,7 +15,7 @@ import play.api.cache.CacheApi
 import defines.EntityType
 import play.api.libs.ws.WSClient
 import play.twirl.api.Html
-import backend.{HtmlPages, Backend}
+import backend.{HtmlPages, DataApi}
 import utils._
 
 import javax.inject._
@@ -35,7 +35,7 @@ case class Portal @Inject()(
   globalConfig: global.GlobalConfig,
   searchEngine: SearchEngine,
   searchResolver: SearchItemResolver,
-  backend: Backend,
+  dataApi: DataApi,
   accounts: AccountManager,
   pageRelocator: MovedPageLookup,
   messagesApi: MessagesApi,
@@ -88,7 +88,7 @@ case class Portal @Inject()(
     val eventFilter = SystemEventParams.fromRequest(request)
       .copy(eventTypes = activityEventTypes)
       .copy(itemTypes = activityItemTypes)
-    userBackend.listEventsForUser[SystemEvent](request.user.id, listParams, eventFilter).map { events =>
+    userDataApi.listEventsForUser[SystemEvent](request.user.id, listParams, eventFilter).map { events =>
       if (isAjax) Ok(views.html.activity.eventItems(events))
         .withHeaders("activity-more" -> events.more.toString)
       else Ok(views.html.activity.activity(events, listParams))
@@ -150,7 +150,7 @@ case class Portal @Inject()(
   def itemHistory(id: String, modal: Boolean = false) = OptionalUserAction.async { implicit request =>
     val params: RangeParams = RangeParams.fromRequest(request)
     val filters = SystemEventParams.fromRequest(request)
-    userBackend.history[SystemEvent](id, params, filters).map { events =>
+    userDataApi.history[SystemEvent](id, params, filters).map { events =>
       if (isAjax && modal) Ok(views.html.activity.itemActivityModal(events))
       else if (isAjax) Ok(views.html.activity.eventItems(events))
         .withHeaders("activity-more" -> events.more.toString)

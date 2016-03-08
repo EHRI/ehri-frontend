@@ -6,7 +6,7 @@ import play.api.i18n.MessagesApi
 import play.api.libs.concurrent.Execution.Implicits._
 import play.api.libs.mailer.{Email, MailerClient}
 import play.api.mvc.RequestHeader
-import backend.{BadHelpdeskResponse, HelpdeskDAO, Backend}
+import backend.{BadHelpdeskResponse, HelpdeskDAO, DataApi}
 import models.{UserProfile, Repository}
 import javax.inject._
 import controllers.portal.base.PortalController
@@ -18,7 +18,7 @@ case class Helpdesk @Inject()(
   implicit  app: play.api.Application,
   cache: CacheApi,
   globalConfig: global.GlobalConfig,
-  backend: Backend,
+  dataApi: DataApi,
   resolver: SearchItemResolver,
   accounts: AccountManager,
   mailer: MailerClient,
@@ -44,7 +44,7 @@ case class Helpdesk @Inject()(
 
   def helpdesk = OptionalUserAction.async { implicit request =>
     helpdeskDAO.available.flatMap { repos =>
-      userBackend.fetch[Repository](repos.map(_._1)).map { institutions =>
+      userDataApi.fetch[Repository](repos.map(_._1)).map { institutions =>
         Ok(views.html.helpdesk.helpdesk(prefilledForm, institutions))
       }
     }
@@ -65,7 +65,7 @@ case class Helpdesk @Inject()(
     val boundForm = helpdeskForm.bindFromRequest
     boundForm.fold(
       errorForm =>helpdeskDAO.available.flatMap { repos =>
-        userBackend.fetch[Repository](repos.map(_._1)).map { institutions =>
+        userDataApi.fetch[Repository](repos.map(_._1)).map { institutions =>
           BadRequest(views.html.helpdesk.helpdesk(errorForm, institutions))
         }
       },
@@ -73,7 +73,7 @@ case class Helpdesk @Inject()(
         val (email, query, copyMe) = data
         if (email.isEmpty && copyMe) {
           helpdeskDAO.available.flatMap { repos =>
-            userBackend.fetch[Repository](repos.map(_._1)).map { institutions =>
+            userDataApi.fetch[Repository](repos.map(_._1)).map { institutions =>
               BadRequest(views.html.helpdesk.helpdesk(
                 boundForm
                   .withError("email", "error.required"), institutions))
@@ -85,7 +85,7 @@ case class Helpdesk @Inject()(
           }
 
           helpdeskDAO.askQuery(query).flatMap { responses =>
-            userBackend.fetch[Repository](responses.map(_._1)).map { institutions =>
+            userDataApi.fetch[Repository](responses.map(_._1)).map { institutions =>
               Ok(views.html.helpdesk.results(prefilledForm.fill(data), query, responses, institutions))
             }
           } recover {

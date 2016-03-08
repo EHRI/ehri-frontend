@@ -27,8 +27,8 @@ trait Generic[MT] extends Read[MT] {
       override protected def transform[A](request: ItemPermissionRequest[A]): Future[ItemBrowseRequest[A]] = {
         implicit val req = request
         val watchedF: Future[Seq[String]] = watchedItemIds(request.userOpt.map(_.id))
-        val annotationF: Future[Page[Annotation]] = userBackend.getAnnotationsForItem[Annotation](id)
-        val linksF: Future[Page[Link]] = userBackend.getLinksForItem[Link](id)
+        val annotationF: Future[Page[Annotation]] = userDataApi.getAnnotationsForItem[Annotation](id)
+        val linksF: Future[Page[Link]] = userDataApi.getLinksForItem[Link](id)
         for {
           watched <- watchedF
           annotations <- annotationF

@@ -7,7 +7,7 @@ import play.api.libs.concurrent.Execution.Implicits._
 import play.api.libs.json.{JsDefined,JsString}
 import javax.inject._
 import scala.concurrent.Future.{successful => immediate}
-import backend.{AnonymousUser, Backend}
+import backend.{AnonymousUser, DataApi}
 import scala.concurrent.Future
 import controllers.core.auth.AccountHelpers
 
@@ -22,7 +22,7 @@ trait PersonaLoginHandler extends AccountHelpers {
   self: Controller =>
 
   def globalConfig: global.GlobalConfig
-  def backend: Backend
+  def backend: DataApi
   def accounts: auth.AccountManager
   implicit def app: play.api.Application
   def ws: WSClient
