@@ -17,7 +17,7 @@ import scala.concurrent.duration.Duration
 
 import play.api.cache.CacheApi
 
-trait RestDAO {
+trait RestService {
 
   implicit def config: play.api.Configuration
   implicit def cache: CacheApi

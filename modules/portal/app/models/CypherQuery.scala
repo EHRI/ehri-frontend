@@ -1,6 +1,6 @@
 package models
 
-import backend.rest.cypher.CypherDAO
+import backend.rest.cypher.CypherService
 import org.joda.time.DateTime
 import play.api.data.Form
 import play.api.data.Forms._
@@ -46,10 +46,10 @@ case class CypherQuery(
   createdAt: Option[DateTime] = None,
   updatedAt: Option[DateTime] = None
 ) {
-  def download(implicit cypher: CypherDAO, executionContext: ExecutionContext): Future[StreamedResponse] =
+  def download(implicit cypher: CypherService, executionContext: ExecutionContext): Future[StreamedResponse] =
     cypher.stream(query)
 
-  def execute(implicit cypher: CypherDAO, executionContext: ExecutionContext): Future[JsValue] =
+  def execute(implicit cypher: CypherService, executionContext: ExecutionContext): Future[JsValue] =
     cypher.cypher(query)
 }
 

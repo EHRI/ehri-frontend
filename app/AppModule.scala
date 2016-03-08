@@ -6,8 +6,8 @@ import backend._
 import backend.aws.S3FileStorage
 import backend.googledocs.GoogleDocsHtmlPages
 import backend.helpdesk.EhriHelpdesk
-import backend.parse.{ParseCypherQueryDAO, ParseFeedbackDAO}
-import backend.rest.cypher.{Cypher, CypherDAO}
+import backend.parse.{ParseCypherQueryService, ParseFeedbackService}
+import backend.rest.cypher.{Cypher, CypherService}
 import backend.rest.{RestApi, CypherIdGenerator, GidSearchResolver}
 import com.google.inject.AbstractModule
 import eu.ehri.project.indexing.index.Index
@@ -15,7 +15,7 @@ import eu.ehri.project.indexing.index.impl.SolrIndex
 import eu.ehri.project.search.solr.{JsonResponseHandler, ResponseHandler, SolrSearchEngine}
 import global.{AppGlobalConfig, GlobalConfig, GlobalEventHandler}
 import indexing.SearchToolsIndexMediator
-import models.{DatabaseGuideDAO, GuideDAO}
+import models.{SqlGuideService, GuideService}
 import utils.search.{SearchEngine, SearchIndexMediator, SearchItemResolver}
 import utils.{DbMovedPageLookup, MovedPageLookup}
 import views.{MarkdownRenderer, PegDownMarkdownRendererProvider}
@@ -35,16 +35,16 @@ class AppModule extends AbstractModule {
     bind(classOf[SearchItemResolver]).to(classOf[GidSearchResolver])
     bind(classOf[EventHandler]).to(classOf[GlobalEventHandler])
     bind(classOf[DataApi]).to(classOf[RestApi])
-    bind(classOf[FeedbackDAO]).to(classOf[ParseFeedbackDAO])
-    bind(classOf[CypherQueryDAO]).to(classOf[ParseCypherQueryDAO])
-    bind(classOf[HelpdeskDAO]).to(classOf[EhriHelpdesk])
+    bind(classOf[FeedbackService]).to(classOf[ParseFeedbackService])
+    bind(classOf[CypherQueryService]).to(classOf[ParseCypherQueryService])
+    bind(classOf[HelpdeskService]).to(classOf[EhriHelpdesk])
     bind(classOf[IdGenerator]).to(classOf[CypherIdGenerator])
     bind(classOf[OAuth2Flow]).to(classOf[WebOAuth2Flow])
     bind(classOf[MovedPageLookup]).to(classOf[DbMovedPageLookup])
     bind(classOf[FileStorage]).to(classOf[S3FileStorage])
     bind(classOf[HtmlPages]).to(classOf[GoogleDocsHtmlPages])
-    bind(classOf[GuideDAO]).to(classOf[DatabaseGuideDAO])
+    bind(classOf[GuideService]).to(classOf[SqlGuideService])
     bind(classOf[MarkdownRenderer]).toProvider(classOf[PegDownMarkdownRendererProvider])
-    bind(classOf[Cypher]).to(classOf[CypherDAO])
+    bind(classOf[Cypher]).to(classOf[CypherService])
   }
 }

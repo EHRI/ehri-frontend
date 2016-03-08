@@ -1,10 +1,10 @@
 package backend.helpdesk
 
-import backend.HelpdeskDAO
+import backend.HelpdeskService
 import scala.concurrent.{ExecutionContext, Future}
 import scala.concurrent.Future.{successful => immediate}
 
-case class MockHelpdeskDAO(buffer: collection.mutable.HashMap[Int, Seq[(String, Double)]]) extends HelpdeskDAO {
+case class MockHelpdeskService(buffer: collection.mutable.HashMap[Int, Seq[(String, Double)]]) extends HelpdeskService {
   private def returnResponse(instId: String*): Seq[(String, Double)] = {
     val r = instId.toSeq.map(id => (id, 0.1))
     buffer += (buffer.size -> r)

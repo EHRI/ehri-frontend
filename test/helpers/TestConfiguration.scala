@@ -5,8 +5,8 @@ import auth.oauth2.{MockOAuth2Flow, OAuth2Flow}
 import auth.{MockAccountManager, AccountManager}
 import backend._
 import backend.aws.MockFileStorage
-import backend.feedback.MockFeedbackDAO
-import backend.helpdesk.MockHelpdeskDAO
+import backend.feedback.MockFeedbackService
+import backend.helpdesk.MockHelpdeskService
 import backend.rest.{IdSearchResolver, RestApi}
 import controllers.base.{SessionPreferences, AuthConfigImpl}
 import global.GlobalConfig
@@ -48,9 +48,9 @@ trait TestConfiguration {
 
   private def mockMailer: MailerClient = new MockBufferedMailer(mailBuffer)
   private def mockIndexer: SearchIndexMediator = new MockSearchIndexMediator(indexEventBuffer)
-  private def mockFeedback: FeedbackDAO = new MockFeedbackDAO(feedbackBuffer)
-  private def mockHelpdesk: HelpdeskDAO = new MockHelpdeskDAO(helpdeskBuffer)
-  private def mockCypherQueries: CypherQueryDAO = new MockCypherQueryDAO(cypherQueryBuffer)
+  private def mockFeedback: FeedbackService = new MockFeedbackService(feedbackBuffer)
+  private def mockHelpdesk: HelpdeskService = new MockHelpdeskService(helpdeskBuffer)
+  private def mockCypherQueries: CypherQueryService = new MockCypherQueryService(cypherQueryBuffer)
 
   // NB: The mutable state for the user DAO is still stored globally
   // in the mocks package.
@@ -84,9 +84,9 @@ trait TestConfiguration {
       bind[MovedPageLookup].toInstance(mockRelocator),
       bind[AccountManager].toInstance(mockAccounts),
       bind[SearchEngine].to[MockSearchEngine],
-      bind[HelpdeskDAO].toInstance(mockHelpdesk),
-      bind[FeedbackDAO].toInstance(mockFeedback),
-      bind[CypherQueryDAO].toInstance(mockCypherQueries),
+      bind[HelpdeskService].toInstance(mockHelpdesk),
+      bind[FeedbackService].toInstance(mockFeedback),
+      bind[CypherQueryService].toInstance(mockCypherQueries),
       bind[EventHandler].toInstance(testEventHandler),
       bind[DataApi].to[RestApi],
       bind[SearchIndexMediator].toInstance(mockIndexer),

@@ -2,12 +2,12 @@ package backend.helpdesk
 
 import javax.inject.Inject
 
-import backend.HelpdeskDAO
+import backend.HelpdeskService
 import scala.concurrent.{ExecutionContext, Future}
 import play.api.libs.ws.WSClient
 
 
-case class TestHelpdesk(implicit app: play.api.Application) extends HelpdeskDAO {
+case class TestHelpdesk(implicit app: play.api.Application) extends HelpdeskService {
   def askQuery(query: String)(implicit executionContext: ExecutionContext): Future[Seq[(String, Double)]] = Future.successful {
     Seq (
       "us-005578" -> 0.0193,
@@ -24,13 +24,13 @@ case class TestHelpdesk(implicit app: play.api.Application) extends HelpdeskDAO 
 }
 
 
-case class EhriHelpdesk @Inject() (implicit app: play.api.Application, ws: WSClient) extends HelpdeskDAO {
+case class EhriHelpdesk @Inject() (implicit app: play.api.Application, ws: WSClient) extends HelpdeskService {
   def helpdeskUrl: String = app.configuration.getString("ehri.helpdesk.url")
     .getOrElse(sys.error("Configuration value: 'ehri.helpdesk.url' is not defined"))
 
   def askQuery(query: String)(implicit executionContext: ExecutionContext): Future[Seq[(String,Double)]] = {
     // NB: Order is significant here, we want highest score first
-    ws.url(helpdeskUrl).withQueryString(HelpdeskDAO.QUERY -> query).get().map { r =>
+    ws.url(helpdeskUrl).withQueryString(HelpdeskService.QUERY -> query).get().map { r =>
       r.json.as[Map[String,Double]].toSeq.sortWith { case (a, b) =>
         a._2 > b._2
       }

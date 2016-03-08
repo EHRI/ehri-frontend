@@ -24,14 +24,14 @@ case class Repositories @Inject()(
   pageRelocator: utils.MovedPageLookup,
   messagesApi: MessagesApi,
   markdown: MarkdownRenderer,
-  guideDAO: GuideDAO,
+  guides: GuideService,
   cypher: Cypher
 ) extends PortalController
   with Generic[Repository] {
 
   def browse(path: String, id: String) = GetItemAction(id).apply { implicit request =>
-    itemOr404(guideDAO.find(path, activeOnly = true)) { guide =>
-      Ok(views.html.guides.repository(guide, GuidePage.repository(Some(request.item.toStringLang)), guideDAO.findPages(guide), request.item))
+    itemOr404(guides.find(path, activeOnly = true)) { guide =>
+      Ok(views.html.guides.repository(guide, GuidePage.repository(Some(request.item.toStringLang)), guides.findPages(guide), request.item))
     }
   }
 }
