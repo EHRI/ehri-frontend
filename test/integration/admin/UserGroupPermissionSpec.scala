@@ -3,8 +3,10 @@ package integration.admin
 import backend.ApiUser
 import defines._
 import helpers._
-import models.{Account, Group, UserProfile}
+import models.{PermissionGrant, Account, Group, UserProfile}
+import play.api.libs.json.Json
 import play.api.test.FakeRequest
+import utils.{PageParams, Page}
 
 /**
  * End-to-end test of the permissions system, implemented as one massive test.
@@ -99,6 +101,40 @@ class UserGroupPermissionSpec extends IntegrationTestRunner {
       val attempt4 = FakeRequest(userRoutes.addToGroup(acc2.id, noteApprovers.id))
         .withUser(acc1).withCsrf.call()
       status(attempt4) must equalTo(SEE_OTHER)
+    }
+
+    "allow adding and revoking individual permissions" in new ITestApp {
+      val (acc1, user1) = createUser("user1", Map("name" -> "User 1"))
+      val grant = FakeRequest(controllers.units.routes.DocumentaryUnits
+          .setItemPermissionsPost("c4", EntityType.UserProfile, "user1"))
+        .withUser(privilegedUser)
+        .withCsrf
+        .callWith(
+          Json.obj(
+            ContentTypes.DocumentaryUnit.toString -> Json.arr(PermissionType.Update.toString)))
+      status(grant) must_== SEE_OTHER
+
+      // Fetch the user's permission grants and check there exists one for c4
+      val page: Page[PermissionGrant] =
+        await(testBackend.listPermissionGrants[PermissionGrant]("user1", PageParams.empty))
+      page.size must_== 2
+      page.find(_.targets.headOption.map(_.id).contains("c4")) must beSome.which { pg =>
+        pg.accessor must beSome.which { a =>
+          a.id must_== "user1"
+        }
+
+        // Revoke the grant and ensure it's gone
+        val revoke = FakeRequest(userRoutes.revokePermissionPost("user1", pg.id))
+          .withUser(privilegedUser)
+          .withCsrf
+          .call()
+        status(revoke) must_== SEE_OTHER
+
+        val page2: Page[PermissionGrant] =
+          await(testBackend.listPermissionGrants[PermissionGrant]("user1", PageParams.empty))
+        page2.size must_== 1
+        page2.find(_.targets.headOption.map(_.id).contains("c4")) must beNone
+      }
     }
   }
 }
