@@ -14,7 +14,7 @@ import views.{MarkdownRenderer, Helpers}
 import utils.search._
 import javax.inject._
 import scala.concurrent.Future.{successful => immediate}
-import backend.Backend
+import backend.DataApi
 import play.api.Configuration
 import controllers.base.AdminController
 
@@ -26,7 +26,7 @@ case class DocumentaryUnits @Inject()(
   globalConfig: global.GlobalConfig,
   searchEngine: SearchEngine,
   searchResolver: SearchItemResolver,
-  backend: Backend,
+  dataApi: DataApi,
   accounts: AccountManager,
   pageRelocator: MovedPageLookup,
   messagesApi: MessagesApi,

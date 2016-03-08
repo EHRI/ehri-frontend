@@ -6,7 +6,7 @@ import forms.VisibilityForm
 import models.{LinkF, Link}
 import javax.inject._
 import controllers.generic._
-import backend.Backend
+import backend.DataApi
 import controllers.base.AdminController
 import play.api.cache.CacheApi
 import play.api.i18n.MessagesApi
@@ -18,7 +18,7 @@ case class Links @Inject()(
   implicit app: play.api.Application,
   cache: CacheApi,
   globalConfig: global.GlobalConfig,
-  backend: Backend,
+  dataApi: DataApi,
   accounts: AccountManager,
   pageRelocator: MovedPageLookup,
   messagesApi: MessagesApi,

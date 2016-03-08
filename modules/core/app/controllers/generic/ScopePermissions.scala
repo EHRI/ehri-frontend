@@ -43,8 +43,8 @@ trait ScopePermissions[MT] extends ItemPermissions[MT] {
         val itemParams = PageParams.fromRequest(request)
         val scopeParams = PageParams.fromRequest(request, namespace = "s")
         for {
-          permGrants <- userBackend.listItemPermissionGrants[PermissionGrant](id, itemParams)
-          scopeGrants <- userBackend.listScopePermissionGrants[PermissionGrant](id, scopeParams)
+          permGrants <- userDataApi.listItemPermissionGrants[PermissionGrant](id, itemParams)
+          scopeGrants <- userDataApi.listScopePermissionGrants[PermissionGrant](id, scopeParams)
         } yield ScopePermissionGrantRequest(request.item, permGrants, scopeGrants, request.userOpt, request)
       }
     }
@@ -53,8 +53,8 @@ trait ScopePermissions[MT] extends ItemPermissions[MT] {
     WithGrantPermission(id) andThen new ActionTransformer[ItemPermissionRequest, SetScopePermissionRequest] {
       override protected def transform[A](request: ItemPermissionRequest[A]): Future[SetScopePermissionRequest[A]] = {
         implicit val req = request
-        val accessorF = userBackend.get[Accessor](Accessor.resourceFor(userType), userId)
-        val permsF = userBackend.getScopePermissions(userId, id)
+        val accessorF = userDataApi.get[Accessor](Accessor.resourceFor(userType), userId)
+        val permsF = userDataApi.getScopePermissions(userId, id)
         for {
           accessor <- accessorF
           perms <- permsF
@@ -72,8 +72,8 @@ trait ScopePermissions[MT] extends ItemPermissions[MT] {
           ct.toString -> data.getOrElse(ct.toString, Seq.empty)
         }.toMap
         for {
-          accessor <- userBackend.get[Accessor](Accessor.resourceFor(userType), userId)
-          perms <- userBackend.setScopePermissions(userId, id, perms)
+          accessor <- userDataApi.get[Accessor](Accessor.resourceFor(userType), userId)
+          perms <- userDataApi.setScopePermissions(userId, id, perms)
         } yield SetScopePermissionRequest(request.item, accessor, perms, request.userOpt, request)
       }
     }

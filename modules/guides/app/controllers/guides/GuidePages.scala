@@ -6,7 +6,7 @@ import auth.AccountManager
 import controllers.base.AdminController
 
 import javax.inject._
-import backend.Backend
+import backend.DataApi
 import models.sql.IntegrityError
 import models.{GuideDAO, Guide, GuidePage}
 import play.api.cache.CacheApi
@@ -22,7 +22,7 @@ case class GuidePages @Inject()(
   implicit app: play.api.Application,
   cache: CacheApi,
   globalConfig: global.GlobalConfig,
-  backend: Backend,
+  dataApi: DataApi,
   accounts: AccountManager,
   pageRelocator: MovedPageLookup,
   messagesApi: MessagesApi,

@@ -79,7 +79,7 @@ trait Linking[MT <: AnyModel] extends Read[MT] with Search {
     WithItemPermissionAction(id, PermissionType.Annotate) andThen new ActionTransformer[ItemPermissionRequest, LinkItemsRequest] {
       override protected def transform[A](request: ItemPermissionRequest[A]): Future[LinkItemsRequest[A]] = {
         implicit val req = request
-        userBackend.get[AnyModel](AnyModel.resourceFor(toType), to).map { toItem =>
+        userDataApi.get[AnyModel](AnyModel.resourceFor(toType), to).map { toItem =>
           LinkItemsRequest(request.item, toItem, request.userOpt, request)
         }
       }
@@ -99,11 +99,11 @@ trait Linking[MT <: AnyModel] extends Read[MT] with Search {
         implicit val req = request
         Link.form.bindFromRequest.fold(
           errorForm => { // oh dear, we have an error...
-            userBackend.get[AnyModel](AnyModel.resourceFor(toType), to).map { toItem =>
+            userDataApi.get[AnyModel](AnyModel.resourceFor(toType), to).map { toItem =>
               CreateLinkRequest(request.item, Left((toItem, errorForm)), request.userOpt, request)
             }
           },
-          ann => userBackend.linkItems[MT, Link, LinkF](id, to, ann).map { link =>
+          ann => userDataApi.linkItems[MT, Link, LinkF](id, to, ann).map { link =>
             CreateLinkRequest(request.item, Right(link), request.userOpt, request)
           }
         )
@@ -125,7 +125,7 @@ trait Linking[MT <: AnyModel] extends Read[MT] with Search {
         val multiForm: Form[List[(String,LinkF,Option[String])]] = Link.multiForm
         multiForm.bindFromRequest.fold(
           errorForm => immediate(MultiLinksRequest(request.item, Left(errorForm), request.userOpt, request)),
-          links => userBackend.linkMultiple[MT, Link, LinkF](id, links).map { outLinks =>
+          links => userDataApi.linkMultiple[MT, Link, LinkF](id, links).map { outLinks =>
             MultiLinksRequest(request.item, Right(outLinks), request.userOpt, request)
           }
         )
@@ -142,7 +142,7 @@ trait Linking[MT <: AnyModel] extends Read[MT] with Search {
         errors => immediate(BadRequest(JsError.toJson(errors))),
         ann => {
           val link = new LinkF(id = None, linkType=LinkF.LinkType.Associative, description=ann.description)
-          userBackend.linkItems[MT, Link, LinkF](id, ann.target, link, Some(apid)).map { ann =>
+          userDataApi.linkItems[MT, Link, LinkF](id, ann.target, link, Some(apid)).map { ann =>
             Created(Json.toJson(ann.model))
           }
         }
@@ -162,7 +162,7 @@ trait Linking[MT <: AnyModel] extends Read[MT] with Search {
           val links = anns.map(ann =>
             (ann.target, new LinkF(id = None, linkType=ann.`type`.getOrElse(LinkF.LinkType.Associative), description=ann.description), None)
           )
-          userBackend.linkMultiple[MT, Link, LinkF](id, links).map { newLinks =>
+          userDataApi.linkMultiple[MT, Link, LinkF](id, links).map { newLinks =>
             Created(Json.toJson(newLinks.map(_.model)))
           }
         }
@@ -177,7 +177,7 @@ trait Linking[MT <: AnyModel] extends Read[MT] with Search {
     WithItemPermissionAction(id, PermissionType.Update).async(parse.json) { implicit request =>
       request.body.validate[AccessPointF](AccessPointLink.accessPointFormat).fold(
         errors => immediate(BadRequest(JsError.toJson(errors))),
-        ap => userBackend.createAccessPoint(id, did, ap).map { ann =>
+        ap => userDataApi.createAccessPoint(id, did, ap).map { ann =>
           Created(Json.toJson(ann)(Json.format[AccessPointF]))
         }
       )
@@ -188,7 +188,7 @@ trait Linking[MT <: AnyModel] extends Read[MT] with Search {
    * Get the link, if any, for a document and an access point.
    */
   def getLink(id: String, apid: String) = OptionalUserAction.async { implicit  request =>
-    userBackend.getLinksForItem[Link](id).map { links =>
+    userDataApi.getLinksForItem[Link](id).map { links =>
       val linkOpt = links.find(link => link.bodies.exists(b => b.model.id.contains(apid)))
       val res = for {
         link <- linkOpt
@@ -207,7 +207,7 @@ trait Linking[MT <: AnyModel] extends Read[MT] with Search {
    */
   def deleteAccessPoint(id: String, did: String, accessPointId: String)(implicit ct: ContentType[MT]) = {
     WithItemPermissionAction(id, PermissionType.Update).async { implicit request =>
-      userBackend.deleteAccessPoint(id, did, accessPointId).map { ok =>
+      userDataApi.deleteAccessPoint(id, did, accessPointId).map { ok =>
         Ok(Json.toJson(true))
       }
     }
@@ -218,7 +218,7 @@ trait Linking[MT <: AnyModel] extends Read[MT] with Search {
    */
   def deleteLink(id: String, linkId: String)(implicit ct: ContentType[MT]) = {
     WithItemPermissionAction(id, PermissionType.Annotate).async { implicit request =>
-      userBackend.delete[Link](linkId).map { ok =>
+      userDataApi.delete[Link](linkId).map { ok =>
         Ok(Json.toJson(true))
       }
     }
@@ -230,8 +230,8 @@ trait Linking[MT <: AnyModel] extends Read[MT] with Search {
   def deleteLinkAndAccessPoint(id: String, did: String, accessPointId: String, linkId: String)(implicit ct: ContentType[MT]) = {
     WithItemPermissionAction(id, PermissionType.Annotate).async { implicit request =>
       for {
-        _ <- userBackend.delete[Link](linkId)
-        _ <- userBackend.deleteAccessPoint(id, did, accessPointId)
+        _ <- userDataApi.delete[Link](linkId)
+        _ <- userDataApi.deleteAccessPoint(id, did, accessPointId)
       } yield Ok(Json.toJson(true))
     }
   }

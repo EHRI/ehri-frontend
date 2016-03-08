@@ -13,7 +13,7 @@ import play.api.mvc.RequestHeader
 import utils.MovedPageLookup
 import utils.search._
 import defines.EntityType
-import backend.{IdGenerator, Backend}
+import backend.{IdGenerator, DataApi}
 import javax.inject._
 import views.MarkdownRenderer
 
@@ -29,7 +29,7 @@ case class VirtualUnits @Inject()(
   globalConfig: global.GlobalConfig,
   searchEngine: SearchEngine,
   searchResolver: SearchItemResolver,
-  backend: Backend,
+  dataApi: DataApi,
   accounts: AccountManager,
   idGenerator: IdGenerator,
   pageRelocator: MovedPageLookup,
@@ -100,10 +100,10 @@ case class VirtualUnits @Inject()(
 
   def browseVirtualUnit(pathStr: String, id: String) = OptionalUserAction.async { implicit request =>
     val pathIds = pathStr.split(",").toSeq
-    val pathF: Future[Seq[AnyModel]] = Future.sequence(pathIds.map(pid => userBackend.getAny[AnyModel](pid)))
-    val itemF: Future[AnyModel] = userBackend.getAny[AnyModel](id)
-    val linksF: Future[Seq[Link]] = userBackend.getLinksForItem[Link](id)
-    val annsF: Future[Seq[Annotation]] = userBackend.getAnnotationsForItem[Annotation](id)
+    val pathF: Future[Seq[AnyModel]] = Future.sequence(pathIds.map(pid => userDataApi.getAny[AnyModel](pid)))
+    val itemF: Future[AnyModel] = userDataApi.getAny[AnyModel](id)
+    val linksF: Future[Seq[Link]] = userDataApi.getLinksForItem[Link](id)
+    val annsF: Future[Seq[Annotation]] = userDataApi.getAnnotationsForItem[Annotation](id)
     val watchedF: Future[Seq[String]] = watchedItemIds(userIdOpt = request.userOpt.map(_.id))
     for {
       watched <- watchedF
@@ -119,8 +119,8 @@ case class VirtualUnits @Inject()(
 
   def searchVirtualUnit(pathStr: String, id: String) = OptionalUserAction.async { implicit request =>
     val pathIds = pathStr.split(",").toSeq
-    val pathF: Future[Seq[AnyModel]] = Future.sequence(pathIds.map(pid => userBackend.getAny[AnyModel](pid)))
-    val itemF: Future[AnyModel] = userBackend.getAny[AnyModel](id)
+    val pathF: Future[Seq[AnyModel]] = Future.sequence(pathIds.map(pid => userDataApi.getAny[AnyModel](pid)))
+    val itemF: Future[AnyModel] = userDataApi.getAny[AnyModel](id)
     val watchedF: Future[Seq[String]] = watchedItemIds(userIdOpt = request.userOpt.map(_.id))
     for {
       watched <- watchedF

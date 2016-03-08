@@ -24,7 +24,7 @@ import play.api.i18n.{MessagesApi, Messages}
 import com.google.common.net.HttpHeaders
 import controllers.core.auth.AccountHelpers
 import scala.concurrent.Future
-import backend.{AnonymousUser, Backend}
+import backend.{AnonymousUser, DataApi}
 import play.api.mvc.Result
 import com.google.inject.{Singleton, Inject}
 import utils.search.{SearchItemResolver, SearchEngine}
@@ -37,7 +37,7 @@ case class Accounts @Inject()(
   globalConfig: GlobalConfig,
   searchEngine: SearchEngine,
   searchResolver: SearchItemResolver,
-  backend: Backend,
+  dataApi: DataApi,
   accounts: AccountManager,
   mailer: MailerClient,
   oAuth2Flow: OAuth2Flow,
@@ -151,7 +151,7 @@ case class Accounts @Inject()(
                 val uuid = UUID.randomUUID()
                 val profileData = Map(UserProfileF.NAME -> data.name)
                 for {
-                  profile <- userBackend.createNewUserProfile[UserProfile](
+                  profile <- userDataApi.createNewUserProfile[UserProfile](
                     data = profileData, groups = defaultPortalGroups)
                   account <- accounts.create(Account(
                     id = profile.id,

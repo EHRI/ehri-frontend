@@ -7,7 +7,7 @@ import controllers.DataFormat
 import play.api.http.{ContentTypes, HeaderNames}
 import play.api.libs.concurrent.Execution.Implicits._
 import backend.rest.cypher.CypherDAO
-import backend.{Backend, CypherQueryDAO}
+import backend.{DataApi, CypherQueryDAO}
 import controllers.base.AdminController
 import models.{ResultFormat, CypherQuery}
 import play.api.cache.CacheApi
@@ -22,7 +22,7 @@ case class CypherQueries @Inject()(
   implicit app: play.api.Application,
   cache: CacheApi,
   globalConfig: global.GlobalConfig,
-  backend: Backend,
+  dataApi: DataApi,
   accounts: AccountManager,
   pageRelocator: utils.MovedPageLookup,
   messagesApi: MessagesApi,

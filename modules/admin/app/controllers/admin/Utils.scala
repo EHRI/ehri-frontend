@@ -16,7 +16,7 @@ import play.api.libs.concurrent.Execution.Implicits._
 import javax.inject._
 import play.api.libs.json._
 import play.api.mvc.Action
-import backend.Backend
+import backend.DataApi
 import play.api.libs.ws.WSClient
 import utils.{CsvHelpers, MovedPageLookup, PageParams}
 import backend.rest.cypher.Cypher
@@ -32,7 +32,7 @@ case class Utils @Inject()(
   implicit app: play.api.Application,
   cache: CacheApi,
   globalConfig: global.GlobalConfig,
-  backend: Backend,
+  dataApi: DataApi,
   accounts: AccountManager,
   pageRelocator: MovedPageLookup,
   messagesApi: MessagesApi,

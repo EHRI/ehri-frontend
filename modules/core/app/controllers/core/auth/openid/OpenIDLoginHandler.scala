@@ -7,7 +7,7 @@ import play.api.libs.concurrent.Execution.Implicits._
 import play.api._
 import play.api.mvc._
 import play.api.i18n.Messages
-import backend.{AnonymousUser, Backend}
+import backend.{AnonymousUser, DataApi}
 import play.api.data.Form
 import play.api.data.Forms._
 import play.api.mvc.Result
@@ -22,7 +22,7 @@ trait OpenIDLoginHandler extends AccountHelpers {
 
   self: Controller with CoreActionBuilders =>
 
-  def backend: Backend
+  def dataApi: DataApi
   def accounts: auth.AccountManager
   def globalConfig: global.GlobalConfig
   def openId: OpenIdClient
@@ -128,7 +128,7 @@ trait OpenIDLoginHandler extends AccountHelpers {
   private def createUserAccount[A](email: String, info: UserInfo, data: Map[String, String], request: Request[A])(implicit app: play.api.Application): Future[OpenIdCallbackRequest[A]] = {
     implicit val apiUser = AnonymousUser
     for {
-      up <- userBackend.createNewUserProfile[UserProfile](data, groups = defaultPortalGroups)
+      up <- userDataApi.createNewUserProfile[UserProfile](data, groups = defaultPortalGroups)
       account <- accounts.create(Account(
         id = up.id,
         email = email.toLowerCase,

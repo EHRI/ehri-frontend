@@ -16,7 +16,7 @@ import utils.search._
 import javax.inject._
 import play.api.http.MimeTypes
 import scala.concurrent.Future.{successful => immediate}
-import backend.Backend
+import backend.DataApi
 import utils.{MovedPageLookup, RangeParams, SystemEventParams}
 import controllers.base.AdminController
 
@@ -28,7 +28,7 @@ case class Home @Inject()(
   globalConfig: global.GlobalConfig,
   searchEngine: SearchEngine,
   searchResolver: SearchItemResolver,
-  backend: Backend,
+  dataApi: DataApi,
   accounts: AccountManager,
   pageRelocator: MovedPageLookup,
   messagesApi: MessagesApi
@@ -101,7 +101,7 @@ case class Home @Inject()(
       val eventFilter = SystemEventParams.fromRequest(request)
         .copy(eventTypes = activityEventTypes)
         .copy(itemTypes = activityItemTypes)
-      userBackend.listEventsForUser[SystemEvent](user.id, listParams, eventFilter).map { events =>
+      userDataApi.listEventsForUser[SystemEvent](user.id, listParams, eventFilter).map { events =>
         Ok(views.html.admin.index(Some(events)))
       }
     } getOrElse {

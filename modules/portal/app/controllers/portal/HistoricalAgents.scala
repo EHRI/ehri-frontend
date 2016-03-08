@@ -1,7 +1,7 @@
 package controllers.portal
 
 import auth.AccountManager
-import backend.Backend
+import backend.DataApi
 import backend.rest.cypher.Cypher
 import com.google.inject.{Inject, Singleton}
 import controllers.generic.Search
@@ -24,7 +24,7 @@ case class HistoricalAgents @Inject()(
   globalConfig: global.GlobalConfig,
   searchEngine: SearchEngine,
   searchResolver: SearchItemResolver,
-  backend: Backend,
+  dataApi: DataApi,
   accounts: AccountManager,
   pageRelocator: MovedPageLookup,
   messagesApi: MessagesApi,
@@ -51,7 +51,7 @@ case class HistoricalAgents @Inject()(
   def export(id: String) = OptionalUserAction.async { implicit request =>
     val format = "eac"
     val params = request.queryString.filterKeys(_ == "lang")
-    userBackend.stream(s"classes/${EntityType.HistoricalAgent}/$id/$format", params = params).map { sr =>
+    userDataApi.stream(s"classes/${EntityType.HistoricalAgent}/$id/$format", params = params).map { sr =>
       val ct = sr.headers.headers.get(HeaderNames.CONTENT_TYPE)
         .flatMap(_.headOption).getOrElse(ContentTypes.XML)
       Status(sr.headers.status).chunked(sr.body).as(ct)

@@ -14,7 +14,7 @@ import views.{MarkdownRenderer, Helpers}
 import utils.search._
 import javax.inject._
 import scala.concurrent.Future.{successful => immediate}
-import backend.Backend
+import backend.DataApi
 import controllers.base.AdminController
 
 
@@ -25,7 +25,7 @@ case class Concepts @Inject()(
   globalConfig: global.GlobalConfig,
   searchEngine: SearchEngine,
   searchResolver: SearchItemResolver,
-  backend: Backend,
+  dataApi: DataApi,
   accounts: AccountManager,
   pageRelocator: MovedPageLookup,
   messagesApi: MessagesApi,
@@ -70,7 +70,7 @@ case class Concepts @Inject()(
 
   def get(id: String) = ItemMetaAction(id).async { implicit request =>
     val params = PageParams.fromRequest(request)
-    userBackend.listChildren[Concept, Concept](id, params).map { page =>
+    userDataApi.listChildren[Concept, Concept](id, params).map { page =>
       Ok(views.html.admin.concept.show(request.item, page, params, request.links, request.annotations))
     }
   }
