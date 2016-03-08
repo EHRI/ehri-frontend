@@ -6,7 +6,7 @@
     @if(item.isInstanceOf[VirtualUnit]) {
         @defining(item.asInstanceOf[VirtualUnit]) { vc =>
             @views.html.layout.itemDetails {
-                @defining(EntityType.DocumentaryUnit.toString) { implicit fieldPrefix =>
+                @defining("documentaryUnit") { implicit fieldPrefix =>
                     @views.html.layout.descriptionContainer(vc.model.descriptions) {
                         @vc.model.descriptions.map { desc =>
                             @views.html.documentaryUnit.description(vc.asDocumentaryUnit, desc, links, annotations)

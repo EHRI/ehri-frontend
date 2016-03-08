@@ -97,7 +97,7 @@ trait PermissionHolder[MT <: Accessor] extends Read[MT] {
     WithItemPermissionAction(id, PermissionType.Grant) andThen new ActionTransformer[ItemPermissionRequest, ItemPermissionRequest] {
       override protected def transform[A](request: ItemPermissionRequest[A]): Future[ItemPermissionRequest[A]] = {
         implicit val req = request
-        userBackend.delete(permId).map( _ => request)
+        userBackend.delete[PermissionGrant](permId).map( _ => request)
       }
     }
 }
