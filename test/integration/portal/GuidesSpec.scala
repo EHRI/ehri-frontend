@@ -18,12 +18,12 @@ class GuidesSpec extends IntegrationTestRunner {
 
   "Guide views" should {
     "show index page for fixture guide" in new DBTestApp("guide-fixtures.sql") {
-      val doc = route(FakeRequest(guideRoutes.home("terezin"))).get
+      val doc = FakeRequest(guideRoutes.home("terezin")).call()
       status(doc) must equalTo(OK)
     }
 
     "show 404 for bad path" in new DBTestApp("guide-fixtures.sql") {
-      val doc = route(FakeRequest(guideRoutes.home("BAD"))).get
+      val doc = FakeRequest(guideRoutes.home("BAD")).call()
       status(doc) must equalTo(NOT_FOUND)
     }
     

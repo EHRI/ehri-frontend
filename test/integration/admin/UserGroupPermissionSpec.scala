@@ -96,7 +96,7 @@ class UserGroupPermissionSpec extends IntegrationTestRunner {
         .withUser(acc1).withCsrf.call()
       status(attempt3) must equalTo(FORBIDDEN)
 
-      await(dataApi.addGroup[Group, UserProfile](noteApprovers.id, acc1.id)) must beTrue
+      await(dataApi.addGroup[Group, UserProfile](noteApprovers.id, acc1.id))
 
       val attempt4 = FakeRequest(userRoutes.addToGroup(acc2.id, noteApprovers.id))
         .withUser(acc1).withCsrf.call()
