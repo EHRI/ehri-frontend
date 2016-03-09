@@ -239,7 +239,7 @@ trait RestService {
   protected def checkError(response: WSResponse, uri: Option[String] = None): WSResponse = {
     logger.trace(s"Response body ! : ${response.body}")
     response.status match {
-      case OK | CREATED => response
+      case OK | CREATED | NO_CONTENT => response
       case e => e match {
 
         case UNAUTHORIZED =>

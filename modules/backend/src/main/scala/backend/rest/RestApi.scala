@@ -443,23 +443,21 @@ case class RestApiHandle(eventHandler: EventHandler)(
     }
   }
 
-  override def addGroup[GT: Resource, UT: Resource](groupId: String, userId: String): Future[Boolean] = {
+  override def addGroup[GT: Resource, UT: Resource](groupId: String, userId: String): Future[Unit] = {
     userCall(enc(typeBaseUrl, EntityType.Group, groupId, userId)).post(Map[String, Seq[String]]()).map { response =>
       checkError(response)
       cache.remove(canonicalUrl[UT](userId))
       cache.remove(canonicalUrl[GT](groupId))
       cache.remove(enc(permissionRequestUrl, userId))
-      true
     }
   }
 
-  override def removeGroup[GT: Resource, UT: Resource](groupId: String, userId: String): Future[Boolean] = {
+  override def removeGroup[GT: Resource, UT: Resource](groupId: String, userId: String): Future[Unit] = {
     userCall(enc(typeBaseUrl, EntityType.Group, groupId, userId)).delete().map { response =>
       checkError(response)
       cache.remove(canonicalUrl[UT](userId))
       cache.remove(canonicalUrl[GT](groupId))
       cache.remove(enc(permissionRequestUrl, userId))
-      true
     }
   }
 

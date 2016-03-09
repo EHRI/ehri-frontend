@@ -509,7 +509,7 @@ trait DataApiHandle {
    * @param groupId the group id
    * @param userId the user's id
    */
-  def addGroup[GT: Resource, UT: Resource](groupId: String, userId: String): Future[Boolean]
+  def addGroup[GT: Resource, UT: Resource](groupId: String, userId: String): Future[Unit]
 
   /**
    * Remove a user from a particular group.
@@ -517,7 +517,7 @@ trait DataApiHandle {
    * @param groupId the group id
    * @param userId the user's id
    */
-  def removeGroup[GT: Resource, UT: Resource](groupId: String, userId: String): Future[Boolean]
+  def removeGroup[GT: Resource, UT: Resource](groupId: String, userId: String): Future[Unit]
 
   /**
    * Follow a user.
