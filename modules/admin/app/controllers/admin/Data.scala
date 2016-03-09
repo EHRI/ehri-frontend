@@ -53,7 +53,7 @@ case class Data @Inject()(
   }
 
   def getItemRawJson(entityType: defines.EntityType.Value, id: String) = OptionalUserAction.async { implicit request =>
-    userBackend.query(s"classes/$entityType/$id").map { r =>
+    userBackend.query(s"$entityType/$id").map { r =>
       Ok(r.json)
     }
   }
