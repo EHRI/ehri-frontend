@@ -44,7 +44,7 @@ case class RestApiHandle(eventHandler: EventHandler)(
       .withHeaders(headers.headers: _*).withMethod("GET").stream()
 
   override def createNewUserProfile[T <: WithId: Readable](data: Map[String,String] = Map.empty, groups: Seq[String] = Seq.empty): Future[T] = {
-    userCall(enc(baseUrl, "admin", "createDefaultUserProfile"))
+    userCall(enc(baseUrl, "admin", "create-default-user-profile"))
       .withQueryString(groups.map(group => Constants.GROUP_PARAM -> group): _*)
       .post(Json.toJson(data)).map { response =>
       val item = checkErrorAndParse(response)(implicitly[Readable[T]].restReads)
@@ -470,11 +470,11 @@ case class RestApiHandle(eventHandler: EventHandler)(
 
   private def blockedUrl(userId: String) = enc(userRequestUrl, userId, "blocked")
 
-  private def isFollowingUrl(userId: String, otherId: String) = enc(userRequestUrl, userId, "isFollowing", otherId)
+  private def isFollowingUrl(userId: String, otherId: String) = enc(userRequestUrl, userId, "is-following", otherId)
 
-  private def isWatchingUrl(userId: String, otherId: String) = enc(userRequestUrl, userId, "isWatching", otherId)
+  private def isWatchingUrl(userId: String, otherId: String) = enc(userRequestUrl, userId, "is-watching", otherId)
 
-  private def isBlockingUrl(userId: String, otherId: String) = enc(userRequestUrl, userId, "isBlocking", otherId)
+  private def isBlockingUrl(userId: String, otherId: String) = enc(userRequestUrl, userId, "is-blocking", otherId)
 
   override def follow[U: Resource](userId: String, otherId: String): Future[Unit] = {
     userCall(followingUrl(userId)).withQueryString(ID_PARAM -> otherId).post("").map { r =>
@@ -504,7 +504,7 @@ case class RestApiHandle(eventHandler: EventHandler)(
   }
 
   override def isFollower(userId: String, otherId: String): Future[Boolean] = {
-    userCall(enc(userRequestUrl, userId, "isFollower", otherId)).get().map { r =>
+    userCall(enc(userRequestUrl, userId, "is-follower", otherId)).get().map { r =>
       checkErrorAndParse[Boolean](r)
     }
   }
