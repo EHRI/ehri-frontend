@@ -21,7 +21,7 @@ object Constants {
    * Name of the header for specifying partial item merge (placeholder
    * for lack of explicit HTTP PATCH support.
    */
-  val PATCH_HEADER_NAME = "Patch"
+  val PATCH_HEADER_NAME = "X-Patch"
 
   /**
    * Parameter for specifying allowed accessors to resources.
@@ -44,6 +44,21 @@ object Constants {
   val ID_PARAM = "id"
 
   /**
+   * Target parameter for annotations and links.
+   */
+  val TARGET_PARAM = "target"
+
+  /**
+   * Source parameter for annotations and links.
+   */
+  val SOURCE_PARAM = "source"
+
+  /**
+   * Body parameter for annotations and links.
+   */
+  val BODY_PARAM = "body"
+
+  /**
    * Properties serialization params.
    */
   val INCLUDE_PROPERTIES_PARAM = "_ip"
@@ -52,7 +67,7 @@ object Constants {
    * Time to cache rest requests for...
    */
   import scala.concurrent.duration._
-  val cacheTime = (60 * 5) seconds
+  val cacheTime = (60 * 5).seconds
 
   /**
    * Limit for lists

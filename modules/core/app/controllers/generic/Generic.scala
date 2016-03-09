@@ -3,7 +3,7 @@ package controllers.generic
 import controllers.base.CoreActionBuilders
 import global.GlobalConfig
 import play.api.libs.concurrent.Execution.Implicits._
-import backend.Backend
+import backend.DataApi
 import backend.rest.{Constants, RestHelpers}
 import models.UserProfile
 import play.api.mvc.{Request, RequestHeader, Result}
@@ -12,12 +12,12 @@ import scala.concurrent.Future
 import scala.concurrent.Future.{successful => immediate}
 
 /**
- * Base trait for controllers that deal with the backend.
+ * Base trait for controllers that deal with the dataApi.
  */
 trait Generic extends CoreActionBuilders with RestHelpers {
 
   def globalConfig: GlobalConfig
-  def backend: Backend
+  def dataApi: DataApi
 
   /**
    * Extract a log message from an incoming request params

@@ -14,7 +14,7 @@ import defines.{EntityType, PermissionType, ContentTypes}
 import utils.{CsvHelpers, PageParams, MovedPageLookup}
 import utils.search._
 import javax.inject._
-import backend.Backend
+import backend.DataApi
 import play.api.data.{FormError, Forms, Form}
 import views.MarkdownRenderer
 import scala.concurrent.Future.{successful => immediate}
@@ -35,7 +35,7 @@ case class UserProfiles @Inject()(
   searchIndexer: SearchIndexMediator,
   searchEngine: SearchEngine,
   searchResolver: SearchItemResolver,
-  backend: Backend,
+  dataApi: DataApi,
   accounts: AccountManager,
   pageRelocator: MovedPageLookup,
   messagesApi: MessagesApi,
@@ -142,7 +142,7 @@ case class UserProfiles @Inject()(
    */
   private def createUserProfile[T](user: UserProfileF, groups: Seq[String], allGroups: Seq[(String,String)])(
     implicit request: Request[T], userOpt: Option[UserProfile]): Future[Either[ValidationError,UserProfile]] = {
-    userBackend.create[UserProfile,UserProfileF](user, params = Map("group" -> groups)).map { item =>
+    userDataApi.create[UserProfile,UserProfileF](user, params = Map("group" -> groups)).map { item =>
       Right(item)
     } recover {
       case e@ValidationError(errorSet) => Left(e)
@@ -181,7 +181,7 @@ case class UserProfiles @Inject()(
               allowMessaging = true,
               password = Some(HashedPassword.fromPlain(pw))
             ))
-            _ <- userBackend.setItemPermissions(profile.id, ContentTypes.UserProfile,
+            _ <- userDataApi.setItemPermissions(profile.id, ContentTypes.UserProfile,
               profile.id, List(PermissionType.Owner.toString))
           } yield Redirect(controllers.users.routes.UserProfiles.get(profile.id))
         }
@@ -212,7 +212,7 @@ case class UserProfiles @Inject()(
   def export = AdminAction.async { implicit request =>
     for {
       accounts <- accounts.findAll(PageParams.empty.withoutLimit)
-      users <- userBackend.list[UserProfile](PageParams.empty.withoutLimit)
+      users <- userDataApi.list[UserProfile](PageParams.empty.withoutLimit)
     } yield {
       val exportDate = DateTime.now().toString("YMMdd")
       val headers = Seq(
@@ -257,12 +257,12 @@ case class UserProfiles @Inject()(
           userRoutes.updatePost(id)))),
         data => accountOpt match {
           case Some(account) => for {
-            profile <- userBackend.patch[UserProfile](id, Json.toJson(data).as[JsObject])
+            profile <- userDataApi.patch[UserProfile](id, Json.toJson(data).as[JsObject])
             newAccount <- accounts.update(account.copy(active = data.active, staff = data.staff))
           } yield Redirect(userRoutes.search())
               .flashing("success" -> Messages("item.update.confirmation", request.item.toStringLang))
           case None => for {
-            profile <- userBackend.patch[UserProfile](id, Json.toJson(data).as[JsObject])
+            profile <- userDataApi.patch[UserProfile](id, Json.toJson(data).as[JsObject])
           } yield Redirect(userRoutes.search())
               .flashing("success" -> Messages("item.update.confirmation", request.item.toStringLang))
         }
@@ -291,12 +291,12 @@ case class UserProfiles @Inject()(
       _ => {
         accounts.findById(id).flatMap {
           case Some(account) => for {
-            _ <- userBackend.delete[UserProfile](id, logMsg = getLogMessage)
+            _ <- userDataApi.delete[UserProfile](id, logMsg = getLogMessage)
             _ <- accounts.delete(id)
           } yield Redirect(userRoutes.search())
               .flashing("success" -> Messages("item.delete.confirmation", id))
           case None => for {
-            _ <- userBackend.delete[UserProfile](id, logMsg = getLogMessage)
+            _ <- userDataApi.delete[UserProfile](id, logMsg = getLogMessage)
           } yield Redirect(userRoutes.search())
               .flashing("success" -> Messages("item.delete.confirmation", id))
         }

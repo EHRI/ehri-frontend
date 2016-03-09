@@ -30,7 +30,7 @@ class ApplicationSpec extends PlaySpecification with TestConfiguration with User
       val f = new java.io.File("READONLY")
       f.createNewFile()
       // Since we're not running the DB for this test we just
-      // try a route that doesn't need the backend - there's
+      // try a route that doesn't need the dataApi - there's
       // nothing significant about using the /forgot endpoint
       // here, only that it's a simple layout
       try {
@@ -261,7 +261,7 @@ class ApplicationSpec extends PlaySpecification with TestConfiguration with User
       val attempt3 = FakeRequest(accountRoutes.passwordLoginPost())
         .withSession(CSRF_TOKEN_NAME -> fakeCsrfString)
         .callWith(data)
-      status(attempt3) must equalTo(TOO_MANY_REQUEST)
+      status(attempt3) must equalTo(TOO_MANY_REQUESTS)
 
       // Wait for the timeout to expire and try again...
       Thread.sleep(1500)

@@ -1,4 +1,4 @@
-@(item: models.base.AnyModel, action: Call, cancel: Call)(implicit userOpt: Option[UserProfile], request: RequestHeader, globalConfig: global.GlobalConfig, messages: Messages, flash: Flash, token: play.filters.csrf.CSRF.Token)
+@(item: models.base.AnyModel, action: Call, cancel: Call)(implicit userOpt: Option[UserProfile], request: RequestHeader, globalConfig: global.GlobalConfig, messages: Messages, flash: Flash)
 
 @views.html.admin.layout.rightSidebar(Messages("item.delete", item.toStringLang), breadcrumbs = views.html.admin.common.breadcrumbs(List(item))) {
 

@@ -7,12 +7,12 @@ import play.api.libs.concurrent.Execution.Implicits._
 import play.api._
 import play.api.mvc._
 import play.api.i18n.Messages
-import concurrent.Future
-import backend.{AnonymousUser, Backend}
+import backend.{AnonymousUser, DataApi}
 import play.api.data.Form
 import play.api.data.Forms._
 import play.api.mvc.Result
 import java.net.ConnectException
+import scala.concurrent.Future
 import controllers.core.auth.AccountHelpers
 
 /**
@@ -22,9 +22,10 @@ trait OpenIDLoginHandler extends AccountHelpers {
 
   self: Controller with CoreActionBuilders =>
 
-  def backend: Backend
+  def dataApi: DataApi
   def accounts: auth.AccountManager
   def globalConfig: global.GlobalConfig
+  def openId: OpenIdClient
   implicit def app: play.api.Application
 
   val attributes = Seq(
@@ -57,7 +58,7 @@ trait OpenIDLoginHandler extends AccountHelpers {
             Logger.info("bad request " + error.toString)
             block(OpenIDRequest(error, request))
           }, openidUrl => {
-            OpenID.redirectURL(
+            openId.redirectURL(
               openidUrl,
               handler.absoluteURL(globalConfig.https),
               attributes).map(url => Redirect(url))
@@ -90,7 +91,7 @@ trait OpenIDLoginHandler extends AccountHelpers {
       implicit val r = request
       implicit val a = app
 
-      OpenID.verifiedId(request, app).flatMap { info =>
+      openId.verifiedId(request).flatMap { info =>
 
         // check if there's a user with the right id
         accounts.openId.findByUrl(info.id).flatMap {
@@ -127,7 +128,7 @@ trait OpenIDLoginHandler extends AccountHelpers {
   private def createUserAccount[A](email: String, info: UserInfo, data: Map[String, String], request: Request[A])(implicit app: play.api.Application): Future[OpenIdCallbackRequest[A]] = {
     implicit val apiUser = AnonymousUser
     for {
-      up <- userBackend.createNewUserProfile[UserProfile](data, groups = defaultPortalGroups)
+      up <- userDataApi.createNewUserProfile[UserProfile](data, groups = defaultPortalGroups)
       account <- accounts.create(Account(
         id = up.id,
         email = email.toLowerCase,

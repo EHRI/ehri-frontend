@@ -15,7 +15,7 @@ import javax.inject._
 import views.MarkdownRenderer
 
 import scala.concurrent.Future.{successful => immediate}
-import backend.{Entity, IdGenerator, Backend}
+import backend.{Entity, IdGenerator, DataApi}
 import play.api.Configuration
 import controllers.base.AdminController
 
@@ -28,7 +28,7 @@ case class Countries @Inject()(
   searchEngine: SearchEngine,
   searchResolver: SearchItemResolver,
   idGenerator: IdGenerator,
-  backend: Backend,
+  dataApi: DataApi,
   accounts: AccountManager,
   pageRelocator: MovedPageLookup,
   messagesApi: MessagesApi,

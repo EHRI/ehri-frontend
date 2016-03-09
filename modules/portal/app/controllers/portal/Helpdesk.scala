@@ -6,10 +6,9 @@ import play.api.i18n.MessagesApi
 import play.api.libs.concurrent.Execution.Implicits._
 import play.api.libs.mailer.{Email, MailerClient}
 import play.api.mvc.RequestHeader
-import backend.{BadHelpdeskResponse, HelpdeskDAO, Backend}
+import backend.{BadHelpdeskResponse, HelpdeskService, DataApi}
 import models.{UserProfile, Repository}
 import javax.inject._
-import backend.rest.SearchDAO
 import controllers.portal.base.PortalController
 import utils.MovedPageLookup
 import utils.search.SearchItemResolver
@@ -19,14 +18,13 @@ case class Helpdesk @Inject()(
   implicit  app: play.api.Application,
   cache: CacheApi,
   globalConfig: global.GlobalConfig,
-  backend: Backend,
+  dataApi: DataApi,
   resolver: SearchItemResolver,
   accounts: AccountManager,
   mailer: MailerClient,
-  helpdeskDAO: HelpdeskDAO,
+  helpdeskService: HelpdeskService,
   pageRelocator: MovedPageLookup,
-  messagesApi: MessagesApi,
-  search: SearchDAO
+  messagesApi: MessagesApi
 ) extends PortalController {
 
   import play.api.data.Form
@@ -45,14 +43,14 @@ case class Helpdesk @Inject()(
       (userOpt.flatMap(_.account).map(_.email), "", false)).discardingErrors
 
   def helpdesk = OptionalUserAction.async { implicit request =>
-    helpdeskDAO.available.flatMap { repos =>
-      search.list[Repository](repos.map(_._1)).map { institutions =>
+    helpdeskService.available.flatMap { repos =>
+      userDataApi.fetch[Repository](repos.map(_._1)).map { institutions =>
         Ok(views.html.helpdesk.helpdesk(prefilledForm, institutions))
       }
     }
   }
 
-  private def sendMessageEmail(emailAddress: String, query: String)(implicit request: RequestHeader): Unit = {
+  private def sendMessageEmail(emailAddress: String, query: String)(implicit request: RequestHeader) {
     val email = Email(
       subject = "EHRI Portal Helpdesk",
       to = Seq(emailAddress),
@@ -66,16 +64,16 @@ case class Helpdesk @Inject()(
   def helpdeskPost = OptionalUserAction.async { implicit request =>
     val boundForm = helpdeskForm.bindFromRequest
     boundForm.fold(
-      errorForm =>helpdeskDAO.available.flatMap { repos =>
-        search.list[Repository](repos.map(_._1)).map { institutions =>
+      errorForm =>helpdeskService.available.flatMap { repos =>
+        userDataApi.fetch[Repository](repos.map(_._1)).map { institutions =>
           BadRequest(views.html.helpdesk.helpdesk(errorForm, institutions))
         }
       },
       data => {
         val (email, query, copyMe) = data
         if (email.isEmpty && copyMe) {
-          helpdeskDAO.available.flatMap { repos =>
-            search.list[Repository](repos.map(_._1)).map { institutions =>
+          helpdeskService.available.flatMap { repos =>
+            userDataApi.fetch[Repository](repos.map(_._1)).map { institutions =>
               BadRequest(views.html.helpdesk.helpdesk(
                 boundForm
                   .withError("email", "error.required"), institutions))
@@ -86,8 +84,8 @@ case class Helpdesk @Inject()(
             sendMessageEmail(email.get, query)
           }
 
-          helpdeskDAO.askQuery(query).flatMap { responses =>
-            search.list[Repository](responses.map(_._1)).map { institutions =>
+          helpdeskService.askQuery(query).flatMap { responses =>
+            userDataApi.fetch[Repository](responses.map(_._1)).map { institutions =>
               Ok(views.html.helpdesk.results(prefilledForm.fill(data), query, responses, institutions))
             }
           } recover {

@@ -15,7 +15,7 @@ import views.{MarkdownRenderer, Helpers}
 import utils.search._
 import javax.inject._
 import scala.concurrent.Future.{successful => immediate}
-import backend.{Entity, IdGenerator, Backend}
+import backend.{Entity, IdGenerator, DataApi}
 import play.api.Configuration
 import play.api.data.Form
 import play.api.data.Forms._
@@ -34,7 +34,7 @@ case class VirtualUnits @Inject()(
   searchEngine: SearchEngine,
   idGenerator: IdGenerator,
   searchResolver: SearchItemResolver,
-  backend: Backend,
+  dataApi: DataApi,
   accounts: AccountManager,
   pageRelocator: MovedPageLookup,
   messagesApi: MessagesApi,
@@ -152,10 +152,10 @@ case class VirtualUnits @Inject()(
   def getInVc(pathStr: String, id: String) = OptionalUserAction.async { implicit request =>
     val pathIds = pathStr.split(",").toSeq
 
-    val pathF: Future[Seq[AnyModel]] = Future.sequence(pathIds.map(pid => userBackend.getAny[AnyModel](pid)))
-    val itemF: Future[AnyModel] = userBackend.getAny[AnyModel](id)
-    val linksF: Future[Seq[Link]] = userBackend.getLinksForItem[Link](id)
-    val annsF: Future[Seq[Annotation]] = userBackend.getAnnotationsForItem[Annotation](id)
+    val pathF: Future[Seq[AnyModel]] = Future.sequence(pathIds.map(pid => userDataApi.getAny[AnyModel](pid)))
+    val itemF: Future[AnyModel] = userDataApi.getAny[AnyModel](id)
+    val linksF: Future[Seq[Link]] = userDataApi.getLinksForItem[Link](id)
+    val annsF: Future[Seq[Annotation]] = userDataApi.getAnnotationsForItem[Annotation](id)
     for {
       item <- itemF
       path <- pathF
@@ -250,7 +250,7 @@ case class VirtualUnits @Inject()(
         errForm,
         vuRoutes.createChildRefPost(id)
       ))),
-      includes => userBackend.addReferences[VirtualUnit](id, includes.split("[ ,]+").map(_.trim).toSeq).map { _ =>
+      includes => userDataApi.addReferences[VirtualUnit](id, includes.split("[ ,]+").map(_.trim).toSeq).map { _ =>
         Redirect(vuRoutes.get(id))
           .flashing("success" -> "item.update.confirmation")
       } recover {
@@ -286,7 +286,7 @@ case class VirtualUnits @Inject()(
         includes,
         vuRoutes.deleteChildRefPost(id)
       ))),
-      delete => userBackend.deleteReferences[VirtualUnit](id, delete.split("[ ,]+").toSeq).map { _ =>
+      delete => userDataApi.deleteReferences[VirtualUnit](id, delete.split("[ ,]+").toSeq).map { _ =>
         Redirect(vuRoutes.get(id))
           .flashing("success" -> "item.update.confirmation")
       } recover {

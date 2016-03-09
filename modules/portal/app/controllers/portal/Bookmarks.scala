@@ -8,7 +8,7 @@ import play.api.libs.concurrent.Execution.Implicits._
 import play.api.mvc._
 import utils.search._
 import defines.EntityType
-import backend.{IdGenerator, Backend}
+import backend.{IdGenerator, DataApi}
 import utils._
 import javax.inject._
 import views.MarkdownRenderer
@@ -30,7 +30,7 @@ case class Bookmarks @Inject()(
   globalConfig: global.GlobalConfig,
   searchEngine: SearchEngine,
   searchResolver: SearchItemResolver,
-  backend: Backend,
+  dataApi: DataApi,
   accounts: AccountManager,
   idGenerator: IdGenerator,
   pageRelocator: MovedPageLookup,
@@ -82,18 +82,18 @@ case class Bookmarks @Inject()(
     for {
       nextid <- idGenerator.getNextNumericIdentifier(EntityType.VirtualUnit, "%06d")
       vuForm = bookmarkSetToVu(s"${user.id}-vu$nextid", bs)
-      vu <- userBackend.create[VirtualUnit,VirtualUnitF](
+      vu <- userDataApi.create[VirtualUnit,VirtualUnitF](
         vuForm,
         accessors = Seq(user.id),
         params = Map(Constants.ID_PARAM -> items))
     } yield vu
 
   def removeBookmarksPost(set: String, ids: Seq[String]) = WithUserAction.async { implicit request =>
-    userBackend.deleteReferences[VirtualUnit](set, ids).map(_ => Ok("ok"))
+    userDataApi.deleteReferences[VirtualUnit](set, ids).map(_ => Ok("ok"))
   }
 
   def moveBookmarksPost(fromSet: String, toSet: String, ids: Seq[String] = Seq.empty) = WithUserAction.async { implicit request =>
-    userBackend.moveReferences[VirtualUnit](fromSet, toSet, ids).map(_ => Ok("ok"))
+    userDataApi.moveReferences[VirtualUnit](fromSet, toSet, ids).map(_ => Ok("ok"))
   }
 
   def bookmarkInNewSetPost(id: String) = createBookmarkSetPost(List(id))
@@ -109,11 +109,11 @@ case class Bookmarks @Inject()(
   def bookmarkPost(itemId: String, bsId: Option[String] = None) = WithUserAction.async { implicit request =>
 
     def getOrCreateBS(idOpt: Option[String]): Future[VirtualUnit] = {
-      userBackend.get[VirtualUnit](idOpt.getOrElse(defaultBookmarkSetId)).map { vu =>
-        userBackend.addReferences[VirtualUnit](vu.id, Seq(itemId))
+      userDataApi.get[VirtualUnit](idOpt.getOrElse(defaultBookmarkSetId)).map { vu =>
+        userDataApi.addReferences[VirtualUnit](vu.id, Seq(itemId))
         vu
       } recoverWith {
-        case e: ItemNotFound => userBackend.create[VirtualUnit,VirtualUnitF](
+        case e: ItemNotFound => userDataApi.create[VirtualUnit,VirtualUnitF](
           item = defaultBookmarkSet(bookmarkLang),
           accessors = Seq(request.user.id),
           params = Map(Constants.ID_PARAM -> Seq(itemId))
@@ -131,7 +131,7 @@ case class Bookmarks @Inject()(
 
   def listBookmarkSets = WithUserAction.async { implicit request =>
     val params: PageParams = PageParams.fromRequest(request)
-    val pageF = userBackend.userBookmarks[VirtualUnit](request.user.id, params)
+    val pageF = userDataApi.userBookmarks[VirtualUnit](request.user.id, params)
     val watchedF = watchedItemIds(userIdOpt = Some(request.user.id))
     for {
       page <- pageF
@@ -190,7 +190,7 @@ case class Bookmarks @Inject()(
 
 
   def contents(id: String) = WithUserAction.async { implicit request =>
-    val itemF: Future[AnyModel] = userBackend.getAny[AnyModel](id)
+    val itemF: Future[AnyModel] = userDataApi.getAny[AnyModel](id)
     val watchedF: Future[Seq[String]] = watchedItemIds(userIdOpt = Some(request.user.id))
     for {
       item <- itemF
@@ -208,7 +208,7 @@ case class Bookmarks @Inject()(
   }
 
   def moreContents(id: String, page: Int) = WithUserAction.async { implicit request =>
-    val itemF: Future[AnyModel] = userBackend.getAny[AnyModel](id)
+    val itemF: Future[AnyModel] = userDataApi.getAny[AnyModel](id)
     val watchedF: Future[Seq[String]] = watchedItemIds(userIdOpt = Some(request.user.id))
     for {
       item <- itemF

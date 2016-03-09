@@ -1,7 +1,7 @@
 package controllers.portal.guides
 
 import auth.AccountManager
-import backend.Backend
+import backend.DataApi
 import javax.inject._
 import backend.rest.cypher.Cypher
 import controllers.generic.SearchType
@@ -22,12 +22,12 @@ case class DocumentaryUnits @Inject()(
   globalConfig: global.GlobalConfig,
   searchEngine: SearchEngine,
   searchResolver: SearchItemResolver,
-  backend: Backend,
+  dataApi: DataApi,
   accounts: AccountManager,
   pageRelocator: utils.MovedPageLookup,
   messagesApi: MessagesApi,
   markdown: MarkdownRenderer,
-  guideDAO: GuideDAO,
+  guides: GuideService,
   cypher: Cypher
 ) extends PortalController
   with Generic[DocumentaryUnit]
@@ -36,7 +36,7 @@ case class DocumentaryUnits @Inject()(
 
   def browse(path: String, id: String) = GetItemAction(id).async { implicit request =>
     futureItemOr404 {
-      guideDAO.find(path, activeOnly = true).map { guide =>
+      guides.find(path, activeOnly = true).map { guide =>
         val filterKey = if (!hasActiveQuery(request)) SearchConstants.PARENT_ID
           else SearchConstants.ANCESTOR_IDS
 
@@ -47,7 +47,7 @@ case class DocumentaryUnits @Inject()(
           Ok(views.html.guides.documentaryUnit(
             guide,
             GuidePage.document(Some(request.item.toStringLang)),
-            guideDAO.findPages(guide),
+            guides.findPages(guide),
             request.item,
             result,
             controllers.portal.guides.routes.DocumentaryUnits.browse(path, id),

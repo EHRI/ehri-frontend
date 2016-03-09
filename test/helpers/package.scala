@@ -1,8 +1,9 @@
 
 import java.io._
+import akka.actor.ActorSystem
 import auth.AccountManager
 import auth.sql.SqlAccountManager
-import play.api.Configuration
+import play.api.{LoggerConfigurator, Configuration}
 
 import scala.concurrent.Await
 import scala.concurrent.duration._
@@ -18,7 +19,9 @@ package object helpers {
     // whole app to test parts of the DB behaviour we have to load
     // the DB config manually (I think.)
     // NB: There should be an easier way of doing this.
-    val config = Configuration.load(play.api.Environment.simple())
+    val env = play.api.Environment.simple()
+    val config = Configuration.load(env)
+    LoggerConfigurator(getClass.getClassLoader).foreach(_.configure(env))
     Databases.apply(
       config.getString("db.default.driver")
         .getOrElse(sys.error("Missing database config for driver")),
@@ -45,9 +48,9 @@ package object helpers {
     }
   }
 
-  def withFixtures[T](block: Database => T)(implicit app: play.api.Application): T = {
+  def withFixtures[T](block: Database => T)(implicit actorSystem: ActorSystem): T = {
     withDatabase { implicit db =>
-      loadSqlFixtures(db, app)
+      loadSqlFixtures(db, actorSystem)
       block(db)
     }
   }
@@ -55,7 +58,7 @@ package object helpers {
   /**
    * Load database fixtures.
    */
-  def loadSqlFixtures(implicit db: Database, app: play.api.Application) = {
+  def loadSqlFixtures(implicit db: Database, actorSystem: ActorSystem) = {
     val accounts: AccountManager = SqlAccountManager()
     mockdata.users.foreach { case (profile, account) =>
       val acc = Await.result(accounts.create(account), 1.second)

@@ -12,7 +12,7 @@ class GuideSpec extends PlaySpecification {
   "Guide model" should {
     "locate items correctly" in  {
       withDatabaseFixture("guide-fixtures.sql") { implicit db =>
-        val dao = DatabaseGuideDAO()
+        val dao = SqlGuideService()
         dao.find("terezin") must beSome.which { guide =>
           guide.name must equalTo(terezinGuideName)
           dao.findPages(guide).size must beGreaterThan(0)
@@ -25,7 +25,7 @@ class GuideSpec extends PlaySpecification {
 
     "create items correctly" in {
       withDatabaseFixture("guide-fixtures.sql") { implicit db =>
-        val dao = DatabaseGuideDAO()
+        val dao = SqlGuideService()
         dao.findAll(activeOnly = true).size must equalTo(2)
         dao.create(name = "Test", path = "test", virtualUnit = "test", active = true) must beSuccessfulTry.which { guideOpt =>
           guideOpt must beSome.which { guide =>
@@ -39,7 +39,7 @@ class GuideSpec extends PlaySpecification {
 
     "maintain path uniqueness" in {
       withDatabaseFixture("guide-fixtures.sql") { implicit db =>
-        val dao = DatabaseGuideDAO()
+        val dao = SqlGuideService()
         dao.findAll(activeOnly = true).size must equalTo(2)
         dao.create(name = "Test", path = "terezin", virtualUnit = "test", active = true) must beFailedTry
           .withThrowable[models.sql.IntegrityError]
@@ -48,7 +48,7 @@ class GuideSpec extends PlaySpecification {
 
     "update items correctly" in {
       withDatabaseFixture("guide-fixtures.sql") { implicit db =>
-        val dao = DatabaseGuideDAO()
+        val dao = SqlGuideService()
         dao.find("terezin") must beSome.which { guide =>
           val updated = guide.copy(path = "foo")
           dao.update(updated)
@@ -61,7 +61,7 @@ class GuideSpec extends PlaySpecification {
 
     "update items without changing the path" in {
       withDatabaseFixture("guide-fixtures.sql") { implicit db =>
-        val dao = DatabaseGuideDAO()
+        val dao = SqlGuideService()
         dao.find("terezin") must beSome.which { guide =>
           val updated = guide.copy(description = Some("blah"))
           dao.update(updated)
@@ -74,7 +74,7 @@ class GuideSpec extends PlaySpecification {
 
     "delete items correctly" in {
       withDatabaseFixture("guide-fixtures.sql") { implicit db =>
-        val dao = DatabaseGuideDAO()
+        val dao = SqlGuideService()
         dao.find("terezin") must beSome.which { guide =>
           dao.delete(guide)
           dao.find("terezin") must beNone
@@ -87,7 +87,7 @@ class GuideSpec extends PlaySpecification {
   "GuidePage model" should {
     "locate items correctly" in {
       withDatabaseFixture("guide-fixtures.sql") { implicit db =>
-        val dao = DatabaseGuideDAO()
+        val dao = SqlGuideService()
         val pages: List[GuidePage] = dao.findAllPages()
         pages.size must beGreaterThan(0)
         dao.findPage("people") must be
@@ -96,7 +96,7 @@ class GuideSpec extends PlaySpecification {
 
     "create items correctly" in {
       withDatabaseFixture("guide-fixtures.sql") { implicit db =>
-        val dao = DatabaseGuideDAO()
+        val dao = SqlGuideService()
         dao.find("terezin") must beSome.which { guide =>
           val pages: List[GuidePage] = dao.findAllPages()
           dao.createPage(
@@ -117,7 +117,7 @@ class GuideSpec extends PlaySpecification {
 
     "not allow creating items with the same path as other items" in {
       withDatabaseFixture("guide-fixtures.sql") { implicit db =>
-        val dao = DatabaseGuideDAO()
+        val dao = SqlGuideService()
 
         dao.find("terezin") must beSome.which { guide =>
           val pages: List[GuidePage] = dao.findAllPages()
@@ -137,7 +137,7 @@ class GuideSpec extends PlaySpecification {
 
     "update items correctly" in {
       withDatabaseFixture("guide-fixtures.sql") { implicit db =>
-        val dao = DatabaseGuideDAO()
+        val dao = SqlGuideService()
         dao.find("terezin") must beSome.which { guide =>
           dao.findPage(guide, "keywords") must beSome.which { page =>
             val updated = page.copy(path = "blah")
@@ -149,7 +149,7 @@ class GuideSpec extends PlaySpecification {
 
     "not allow updating items in a way that violates path uniqueness" in {
       withDatabaseFixture("guide-fixtures.sql") { implicit db =>
-        val dao = DatabaseGuideDAO()
+        val dao = SqlGuideService()
         dao.find("terezin") must beSome.which { guide =>
           dao.findPage(guide, "keywords") must beSome.which { page =>
             val updated = page.copy(path = "organisations")
@@ -161,7 +161,7 @@ class GuideSpec extends PlaySpecification {
 
     "delete items correctly" in {
       withDatabaseFixture("guide-fixtures.sql") { implicit db =>
-        val dao = DatabaseGuideDAO()
+        val dao = SqlGuideService()
         dao.find("terezin") must beSome.which { guide =>
           dao.findPage(guide, "keywords") must beSome.which { page =>
             dao.deletePage(page)
