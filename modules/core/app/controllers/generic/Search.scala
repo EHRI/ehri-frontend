@@ -222,7 +222,6 @@ trait Search extends CoreActionBuilders {
     val sp = SearchParams.form.bindFromRequest
       .value.getOrElse(SearchParams.empty)
       .setDefault(params)
-
     searchEngine.config.setParams(sp).withFilters(filters).filter().map(_.page)
   }
 }

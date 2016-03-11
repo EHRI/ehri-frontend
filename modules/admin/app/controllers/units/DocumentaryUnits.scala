@@ -365,11 +365,17 @@ case class DocumentaryUnits @Inject()(
     }
   }
 
-  def manageAccessPoints(id: String, descriptionId: String) = {
+  def manageAccessPoints(id: String, descriptionId: String) =
     WithDescriptionAction(id, descriptionId).apply { implicit request =>
-      Ok(views.html.admin.documentaryUnit.editAccessPoints(request.item, request.description))
+      // Holder IDs for vocabularies and authoritative sets to which
+      // access point suggestions will be constrainted. If this is empty
+      // all available vocabs/auth sets will be used.
+      val holders = app.configuration
+        .getStringSeq("ehri.admin.accessPoints.holders")
+        .getOrElse(Seq.empty)
+      Ok(views.html.admin.documentaryUnit.editAccessPoints(request.item,
+        request.description, holderIds = holders))
     }
-  }
 }
 
 

@@ -150,8 +150,6 @@ case class SolrQueryBuilder(
     }
   }
 
-
-
   /**
    * Constrain a search request with the given facets.
    */
@@ -201,8 +199,9 @@ case class SolrQueryBuilder(
    */
   override def simpleFilterQuery(alphabetical: Boolean = false)(implicit userOpt: Option[UserProfile]): Map[String,Seq[String]] = {
 
+    val searchFilters = params.filters.toList.flatten.filter(_.contains(":")).map(f => " +" + f).mkString
     val excludeIds = params.excludes.toList.flatten.map(id => s" -$ITEM_ID:$id").mkString
-    val queryString = params.query.getOrElse("*").trim + excludeIds
+    val queryString = params.query.getOrElse("*").trim + excludeIds + searchFilters
 
     val req: QueryRequest = QueryRequest(
       query = Query(queryString),
@@ -257,8 +256,6 @@ case class SolrQueryBuilder(
       isDebugQueryEnabled = IsDebugQueryEnabled(debugQuery = debugQuery),
       queryParserType = QueryParserType("edismax")
     )
-
-    //println(s"REQUEST: $req, STRING: ${req.queryString()}")
 
     // Always facet on item type
     req.setFacet(new FacetParams(
@@ -330,7 +327,7 @@ case class SolrQueryBuilder(
     filters.foreach { case (key, value) =>
       val filter = value match {
         // Have to quote strings
-        case s: String => "%s:\"%s\"".format(key, value)
+        case s: String => key + ":\"" + value + "\""
         // not value means the key is a query!
         case Unit => key
         case _ => s"$key:$value"

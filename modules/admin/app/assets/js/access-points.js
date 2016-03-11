@@ -22,7 +22,7 @@ $(document).ready(function () {
       }
     };
 
-    var search = function (types, searchTerm, page, callback) {
+    var search = function (types, holders, searchTerm, page, callback) {
       var params = "?limit=10&q=" + searchTerm;
       if (types && types.length > 0) {
         if (Array.isArray(types)) {
@@ -33,6 +33,13 @@ $(document).ready(function () {
           params = params + "&st[]=" + types;
         }
       }
+      if (holders && holders.length > 0) {
+        if (Array.isArray(holders)) {
+          params = params + "&f[]=holderId:(" + holders.join(" ") + ")";
+        } else {
+          params = params + "&f[]=holderId:" + holders;
+        }
+      }
       if (page > 0) {
         params = params + "&page=" + page;
       }
@@ -40,16 +47,17 @@ $(document).ready(function () {
     };
 
     var limitTypes = function (element) {
-      var $types = element.parents(".input-group").first().find(".type.active");
-      if ($types === "undefined" || $types.length == 0) {
-        return []
-      } else {
-        var data = [];
-        $types.each(function () {
-          data.push($(this).data("value"))
-        });
-        return data
-      }
+      return element.parents(".input-group")
+          .find(".type-filters > .type.active")
+          .map(function(i, elem) { return $(elem).data("value"); })
+          .get();
+    };
+
+    var limitHolders = function (element) {
+      return element.parents(".input-group")
+          .find(".holder-filters > .holder.active")
+          .map(function(i, elem) { return $(elem).data("value"); })
+          .get();
     };
 
     var searchTerm = function (element) {
@@ -65,9 +73,10 @@ $(document).ready(function () {
         return page(element);
       },
       search: function (element) {
-        return search(this.limitTypes(element), this.searchTerm(element), this.page(element));
+        return search(this.limitTypes(element), this.limitHolders(element), this.searchTerm(element), this.page(element));
       },
       limitTypes: limitTypes,
+      limitHolders: limitHolders,
       detail: function (type, id, callback) {
         return $.get($service.getItem(type, id).url, {
           headers: ajaxHeaders
@@ -401,7 +410,7 @@ $(document).ready(function () {
         });
   });
 
-  $(".dropdown-menu.filters").on("click", function (e) {
+  $("ul.type-filters, ul.holder-filters").on("click", function (e) {
     e.stopPropagation()
   });
 

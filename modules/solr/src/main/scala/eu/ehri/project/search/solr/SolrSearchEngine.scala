@@ -64,6 +64,7 @@ case class SolrSearchConfig(
       .withExtraParams(extraParams)
       .simpleFilterQuery()
 
+    logger.trace(fullSearchUrl(queryRequest))
     dispatch(queryRequest).map { response =>
       val parser = handler.getResponseParser(response.body)
       val items = parser.items.map(i => FilterHit(
