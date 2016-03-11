@@ -183,7 +183,12 @@ case class SolrQueryBuilder(
 
     // Not yet supported by scalikesolr
     request.set("group.facet", true)
-    request.set("group.sort", s"${SearchConstants.LANGUAGE_CODE} desc")
+
+    // NB: There was previously a group sort by language code, but this
+    // had some pretty unexpected effects, sorting, e.g. Ukrainian items
+    // first, even when the search string was English. Until a more intuitive
+    // method of sorting groups is devised this is being disabled.
+    //request.set("group.sort", s"${SearchConstants.LANGUAGE_CODE} desc")
   }
 
   private def applyIdFilters(request: QueryRequest, ids: Seq[String]): Unit = {
