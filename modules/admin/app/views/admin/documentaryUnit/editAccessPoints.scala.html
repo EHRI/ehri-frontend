@@ -1,4 +1,4 @@
-@(item: DocumentaryUnit, desc: DocumentaryUnitDescriptionF)(implicit userOpt: Option[UserProfile], req: RequestHeader, globalConfig: global.GlobalConfig, messages: Messages, md: views.MarkdownRenderer, flash: Flash)
+@(item: DocumentaryUnit, desc: DocumentaryUnitDescriptionF, holderIds: Seq[String] = Seq.empty)(implicit userOpt: Option[UserProfile], req: RequestHeader, globalConfig: global.GlobalConfig, messages: Messages, md: views.MarkdownRenderer, flash: Flash)
 
     @extrascripts = {
         @helper.javascriptRouter("adminJsRoutes")(
@@ -20,7 +20,8 @@
         <script src="@controllers.portal.routes.PortalAssets.versioned("js/bootstrap.confirmation.js")"></script>
         <script src="@controllers.admin.routes.AdminAssets.versioned("js/access-points.js")"></script>
         <style type="text/css">
-            ul.filters { display: none; }
+            ul.type-filters { display: none; }
+            ul.holder-filters { display: none; }
             .modal-dialog { width: 80%;}
             .model { display:none; }
             .new-access-point { display: none; }
@@ -70,7 +71,12 @@
                                     <input class="form-control quicksearch" name="@accessPointType.toString" type="text" placeholder="@Messages("accessPoint.name")" autofocus="autofocus" />
                                      <div class="input-group-btn">
                                         <button class="btn btn-success add-access-text" title="@Messages("accessPoints.newTextAccessPoint.description")"><span class="glyphicon glyphicon-plus-sign"></span></button>
-                                        <ul class="dropdown-menu filters pull-right">
+                                         <ul class="dropdown-menu holder-filters pull-right">
+                                             @holderIds.map { holderId =>
+                                                 <li data-value="@holderId" class="active holder"><a>@holderId</a></li>
+                                             }
+                                         </ul>
+                                        <ul class="dropdown-menu type-filters pull-right">
                                             <li class="dropdown-header">@Messages("contentTypes")</li>
                                             @accessPointType match {
                                                 case AccessPointType.CreatorAccess | AccessPointType.PersonAccess => {
