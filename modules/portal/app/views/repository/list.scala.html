@@ -1,7 +1,7 @@
 @(result: utils.search.SearchResult[(Repository,utils.search.SearchHit)], action: Call, watched: Seq[String])(implicit userOpt: Option[UserProfile], request: RequestHeader, prefs: utils.SessionPrefs, globalConfig: global.GlobalConfig, messages: Messages, md: views.MarkdownRenderer, flash: Flash, context: Option[Holder[_]] = None)
 
 @views.html.layout.searchLayout(Messages("type.Repository"), EntityType.Repository.toString, result, meta = Map("description" -> Messages("type.Repository.description")(messages.copy(lang = Lang.defaultLang)))) {
-    @views.html.common.search.searchForm(result, action, autofocus = false) {
+    @views.html.common.search.searchForm(result, action, autofocus = false, key = "search.Repository") {
         @views.html.common.search.searchItemList(result, watched)
     } {
         @views.html.common.typeLabel(EntityType.Repository) {

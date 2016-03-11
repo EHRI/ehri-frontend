@@ -23,7 +23,7 @@
                         <div class="container">
                             <h1>@Messages("welcome")</h1>
                             @helper.form(action = controllers.portal.routes.Portal.search()) {
-                                @views.html.common.search.searchBar(utils.search.SearchParams.empty)
+                                @views.html.common.search.searchBar(utils.search.SearchParams.empty, placeholder = Messages("search.global"))
                             }
                         </div>
                     </div>
