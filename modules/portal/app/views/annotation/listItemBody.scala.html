@@ -3,7 +3,7 @@
 <div class="search-item-details">
     <ul class="annotation-search-details">
         @for(field <- item.model.field; target <- item.target) {
-            <li><strong>@Messages(target.isA + "." + field)</strong></li>
+            <li><strong>@Messages(views.Helpers.prefixFor(target.isA) + "." + field)</strong></li>
         }
         @for(user <- item.user ; event <- item.latestEvent) {
             <li title="@event.model.timestamp">@Html(

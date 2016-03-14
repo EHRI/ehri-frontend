@@ -1,6 +1,6 @@
 @(result: utils.search.SearchResult[(models.base.AnyModel, utils.search.SearchHit)])(priorContent: models.base.AnyModel => Html = _ => Html(""))(implicit userOpt: Option[UserProfile], req: RequestHeader, globalConfig: global.GlobalConfig, messages: Messages, md: views.MarkdownRenderer)
 
-<ul class="search-result-list">
+<ol class="search-result-list">
     @result.page.map { case(item, hit) =>
         @defining(models.base.Description.localId(hit.id)) { implicit descriptionId =>
             <li>
@@ -36,6 +36,9 @@
                     case d: Vocabulary => {
                         @views.html.admin.vocabulary.listItem(d)
                     }
+                    case d: Annotation => {
+                        @views.html.annotation.searchItem(d)
+                    }
                     case _ => {
                         @views.html.admin.search.searchItem(item)
                     }
@@ -43,4 +46,4 @@
             </li>
         }
     }
-</ul>
+</ol>

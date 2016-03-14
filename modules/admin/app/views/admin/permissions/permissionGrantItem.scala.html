@@ -1,22 +1,19 @@
-@(accessorOpt: Option[Accessor], perm: PermissionGrant, showRevoke: Boolean = false)(implicit req: RequestHeader, globalConfig: global.GlobalConfig, messages: Messages)
-
+@(accessorOpt: Option[models.base.Accessor], perm: PermissionGrant, showRevoke: Boolean = false)(implicit req: RequestHeader, globalConfig: global.GlobalConfig, messages: Messages)
 
 <li class="list-item list-unstyled">
         <h4>
             @perm.model.permission
             @if(showRevoke) {
-                @accessorOpt.map { accessor =>
-                    @accessor match {
-                        case u: UserProfile => {
-                            <a href="@controllers.users.routes.UserProfiles.revokePermission(accessor.id, perm.id)">
-                                <i title="@Messages("permissions.revoke")" class="glyphicon glyphicon-remove"></i>
-                            </a>
-                        }
-                        case u: Group => {
-                            <a href="@controllers.groups.routes.Groups.revokePermission(accessor.id, perm.id)">
-                                <i title="@Messages("permissions.revoke")" class="glyphicon glyphicon-remove"></i>
-                            </a>
-                        }
+                @accessorOpt.collect {
+                    case u: UserProfile => {
+                        <a href="@controllers.users.routes.UserProfiles.revokePermission(u.id, perm.id)">
+                            <i title="@Messages("permissions.revoke")" class="glyphicon glyphicon-remove"></i>
+                        </a>
+                    }
+                    case u: Group => {
+                        <a href="@controllers.groups.routes.Groups.revokePermission(u.id, perm.id)">
+                            <i title="@Messages("permissions.revoke")" class="glyphicon glyphicon-remove"></i>
+                        </a>
                     }
                 }
             }

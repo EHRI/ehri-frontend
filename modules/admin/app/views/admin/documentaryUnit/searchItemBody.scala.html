@@ -5,18 +5,18 @@
 @common.otherNameListSmall(desc.identity.parallelFormsOfName.toList.flatten)
 
 @if(item.ancestors.nonEmpty) {
-    <small>
-        <ul class="list-unstyled text-muted inline inline-separator">
+    <div class="search-item-details">
+        <ul>
             @item.ancestors.reverse.map { parent =>
                 <li>
                     <a href="@controllers.units.routes.DocumentaryUnits.get(parent.id)">@views.Helpers.ellipsize(parent.toStringLang,100)</a>
                 </li>
             }
         </ul>
-    </small>
+    </div>
 }
-<small>
-    <ul class="list-unstyled text-muted inline inline-separator">
+<div class="search-item-details">
+    <ul>
         @item.holder.map { holder =>
             <li><a class="alt" href="@controllers.institutions.routes.Repositories.get(holder.id)">@holder.toStringAbbr</a></li>
         }
@@ -39,7 +39,7 @@
             <a href="@controllers.units.routes.DocumentaryUnits.get(item.id)#search-items">@Messages("documentaryUnit.childCount", count)</a>
         }
     }
-</small>
+</div>
 @desc.displayText.map(views.Helpers.ellipsize(_, 600)).map { sc =>
     @Markdown(sc)
 }

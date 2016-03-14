@@ -1,13 +1,10 @@
-@(item: Accessible, action: Call)(
-implicit userOpt: Option[UserProfile], req: RequestHeader, globalConfig: global.GlobalConfig, messages: Messages, flash: Flash, token: play.filters.csrf.CSRF.Token)
-
+@(item: models.base.Accessible, action: Call)(implicit userOpt: Option[UserProfile], req: RequestHeader, globalConfig: global.GlobalConfig, messages: Messages, flash: Flash, token: play.filters.csrf.CSRF.Token)
 
 @views.html.admin.layout.rightSidebar(Messages("item.promote"), breadcrumbs = views.html.admin.common.breadcrumbs(List(item))) {
-
-	@helper.form(action = action, 'class -> "entity-form form-horizontal") {
+    @helper.form(action = action, 'class -> "entity-form form-horizontal") {
         @formHelpers.csrfToken()
         @formHelpers.submitButtonWithLogMessageInput(Messages("item.promote.submit"), cancel = views.admin.Helpers.linkToOpt(item))
-	}
+    }
 } {
 
 }

@@ -1,20 +1,18 @@
-@(item: Accessible, accessor: Accessor, perms: ItemPermissionSet, action: Call)(
+@(item: models.base.Accessible, accessor: models.base.Accessor, perms: acl.ItemPermissionSet, action: Call)(
 implicit userOpt: Option[UserProfile], req: RequestHeader, globalConfig: global.GlobalConfig, messages: Messages, flash: Flash, token: play.filters.csrf.CSRF.Token)
 
 @views.html.admin.layout.rightSidebar(Messages("permissions.grant.item", item.toStringLang, accessor.toStringLang), breadcrumbs = views.html.admin.common.breadcrumbs(List(item))) {
-
     @helper.form(action = action, 'class -> "entity-form form-horizontal") {
         @formHelpers.csrfToken()
         <fieldset id="permissionItem-area">
-
             <table class="table table-bordered permissions-matrix">
                 <tr>
-                @PermissionType.values.toList.map { perm =>
+                @defines.PermissionType.values.toList.map { perm =>
                     <th>@Messages("permissionTypes." + perm.toString)</th>
                 }
                 </tr>
                 <tr>
-                @PermissionType.values.toList.map { perm =>
+                @defines.PermissionType.values.toList.map { perm =>
                     <td>
                         @defining(accessor.getPermission(perms, perm)) { permOpt =>
                             <input type="checkbox" name="@item.contentType" value="@perm"
@@ -29,12 +27,8 @@ implicit userOpt: Option[UserProfile], req: RequestHeader, globalConfig: global.
                 }
                 </tr>
             </table>
-
-
         </fieldset>
-
         @formHelpers.submitButtonWithLogMessageInput(Messages("permissions.grant.submit"), cancel = views.admin.Helpers.linkToOpt(item))
     }
 } {
-
 }

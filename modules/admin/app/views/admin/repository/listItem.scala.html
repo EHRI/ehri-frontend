@@ -8,9 +8,8 @@
 } {
     @item.model.primaryDescription.map { desc =>
         @common.otherNameListSmall((desc.parallelFormsOfName ++ desc.otherFormsOfName).flatten.toList)
-
-        <small>
-            <ul class="list-unstyled text-muted inline inline-separator">
+        <div class="search-item-details">
+            <ul>
                 @item.country.map { ct =>
                     <li><strong><a class="alt" href="@controllers.countries.routes.Countries.get(ct.id)">@ct.toStringLang</a></strong></li>
                 }
@@ -26,7 +25,7 @@
             @views.html.common.childCount(item) { count =>
                 <a href="@controllers.institutions.routes.Repositories.get(item.id)#search-items">@Messages("repository.childCount", count)</a>
             }
-        </small>
+        </div>
 
         @desc.displayText.map(StringUtils.abbreviate(_, 600)).map { sc =>
             @Markdown(sc)

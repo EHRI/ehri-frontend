@@ -11,9 +11,8 @@
         <div class="label label-default">@Messages("userProfile.missingAccount")</div>
     }
 } {
-
-    <small>
-        <ul class="list-unstyled text-muted inline inline-separator">
+    <div class="search-item-details">
+        <ul>
             @item.groups.distinct.map { acc =>
                 <li><a class="alt" href="@controllers.groups.routes.Groups.get(acc.id)">@acc.toStringLang</a></li>
             }
@@ -21,12 +20,12 @@
                 <li>@loc</li>
             }
         </ul>
-        <ul class="list-unstyled text-muted inline inline-separator">
+        <ul>
             @item.latestEvent.map { event =>
             <li title="@common.eventTitle(event)">@Messages("systemEvent.lastUpdated", views.Helpers.relativeDate(event.model.timestamp))</li>
             }
         </ul>
-    </small>
+    </div>
     @item.model.about.filterNot(_.trim.isEmpty).map { about =>
         <p>@about</p>
     }

@@ -1,7 +1,7 @@
 @(item: Concept, desc: ConceptDescriptionF)(implicit messages: Messages, md: views.MarkdownRenderer)
 
-<small>
-    <ul class="list-unstyled text-muted inline inline-separator">
+<div class="search-item-details">
+    <ul>
         @item.vocabulary.map { vocab =>
             <li><a class="alt" href="@controllers.vocabularies.routes.Vocabularies.get(vocab.id)">@vocab.toStringLang</a></li>
         }
@@ -10,8 +10,8 @@
             <li title="@event.time">@Messages("systemEvent.lastUpdated", views.Helpers.relativeDate(event.model.timestamp))</li>
         }
     </ul>
-@if(item.broaderTerms.size > 0) {
-    <ul class="list-unstyled inline inline-separator">
+@if(item.broaderTerms.nonEmpty) {
+    <ul>
         <li>@Messages("cvocConcept.broaderTerms")</li>
         @item.broaderTerms.map { bt =>
             <li>
@@ -22,7 +22,7 @@
         }
     </ul>
 }
-</small>
+</div>
 
 @desc.displayText.map(views.Helpers.ellipsize(_, 600)).map { sc =>
     @Markdown(sc)

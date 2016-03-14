@@ -3,15 +3,15 @@
 @common.search.searchItemOutline(item) {
     <a href="@controllers.vocabularies.routes.Vocabularies.get(item.id)">@item.toStringLang</a>
 } {
-    <small>
-        <ul class="list-unstyled text-muted inline inline-separator">
+    <div class="search-item-details">
+        <ul>
             @item.latestEvent.map { event =>
                 <li title="@common.eventTitle(event)">
                     <time datetime="@event.model.timestamp">@Messages("systemEvent.lastUpdated", views.Helpers.relativeDate(event.model.timestamp))</time>
                 </li>
             }
         </ul>
-    </small>
+    </div>
 
     @item.model.description
 }

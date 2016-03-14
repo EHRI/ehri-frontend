@@ -1,7 +1,6 @@
 @(title: Any, scripts: Html = Html(""), styles: Html = Html(""), breadcrumbs: Html = Html(""))(content: Html)(sidebar1: Html)(sidebar2: Html)(implicit userOpt: Option[UserProfile], req: RequestHeader, globalConfig: global.GlobalConfig, flash: Flash, messages: Messages)
 
 @views.html.admin.layout.adminLayout(title, scripts, styles) {
-
     @if(breadcrumbs.body.trim.isEmpty) {
         @views.html.admin.common.breadcrumbs()
     }
@@ -10,9 +9,7 @@
         <article class="triple">
             <section class="main">
                 <h2>@title</h2>
-
                 @common.flash(flash)
-
                 @content
             </section>
             <aside class="right-sidebar">

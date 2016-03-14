@@ -26,6 +26,10 @@ object Indexable {
  */
 trait Indexable[MT] extends Controller with CoreActionBuilders with ControllerHelpers {
 
+  self: Controller =>
+
+  private def logger = Logger(self.getClass)
+
   def searchIndexer: SearchIndexMediator
 
   private def wrapMsg(m: String) = s"<message>$m</message>"
@@ -36,7 +40,7 @@ trait Indexable[MT] extends Controller with CoreActionBuilders with ControllerHe
   }
 
   private def finishError(chan: Concurrent.Channel[String], t: Throwable) {
-    Logger.logger.error(t.getMessage)
+    logger.error(t.getMessage)
     chan.push(wrapMsg("Indexing operation failed: " + t.getMessage))
     chan.push(wrapMsg(Indexable.ERR_MESSAGE))
     chan.eofAndEnd()
@@ -68,24 +72,19 @@ trait Indexable[MT] extends Controller with CoreActionBuilders with ControllerHe
    * @return An action returning a chunked progress response.
    */
   def updateChildItemsPost(field: String, id: String)(implicit rs: Resource[MT]) = AdminAction { implicit request =>
-    Logger.debug(s"INDEXING WITH: $searchIndexer")
+    logger.info(s"Indexing: $searchIndexer")
     val channel = Concurrent.unicast[String] { chan =>
-
-      def clearIndex: Future[Unit] = {
-        val f = searchIndexer.handle.clearKeyValue(field, id)
-        f.onSuccess {
-          case () => chan.push(wrapMsg("... finished clearing index"))
-        }
-        f
-      }
+      val clearIndex: Future[Unit] = searchIndexer.handle.clearKeyValue(field, id)
+        .map ( _ => chan.push(wrapMsg("... finished clearing index")))
 
       val job = clearIndex.flatMap { _ =>
         searchIndexer.handle.withChannel(chan, wrapMsg).indexChildren(rs.entityType, id)
       }
 
-      job.onComplete {
-        case Success(()) => finishSuccess(chan)
-        case Failure(t) => finishError(chan, t)
+      job.map { _ =>
+        finishSuccess(chan)
+      } recover {
+        case t => finishError(chan, t)
       }
     }
 
