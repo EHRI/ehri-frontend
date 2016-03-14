@@ -1,25 +1,23 @@
 @()(implicit userOpt: Option[UserProfile], request: RequestHeader, globalConfig: global.GlobalConfig, sessionPrefs: utils.SessionPrefs, flash: Flash, messages: Messages)
 
 @views.html.layout.textLayout(Messages("termsAndConditions")) {
-    @views.html.layout.mainContent {
-        <h2>@Messages("termsAndConditions")</h2>
+    <h2>@Messages("termsAndConditions")</h2>
 
-        <h3 id="terms-user-generated">@Messages("termsAndConditions.userGenerated.heading")</h3>
-        <p>@Messages("termsAndConditions.userGenerated.p1")</p>
-        <p>@Messages("termsAndConditions.userGenerated.p2")</p>
-        <h4>@Messages("termsAndConditions.userGenerated.terms.heading")</h4>
-        <ol>
-            <li>@Messages("termsAndConditions.userGenerated.terms.1")</li>
-            <li>@Messages("termsAndConditions.userGenerated.terms.2")</li>
-            <li>@Messages("termsAndConditions.userGenerated.terms.3")</li>
-            <li>@Messages("termsAndConditions.userGenerated.terms.4")</li>
-        </ol>
+    <h3 id="terms-user-generated">@Messages("termsAndConditions.userGenerated.heading")</h3>
+    <p>@Messages("termsAndConditions.userGenerated.p1")</p>
+    <p>@Messages("termsAndConditions.userGenerated.p2")</p>
+    <h4>@Messages("termsAndConditions.userGenerated.terms.heading")</h4>
+    <ol>
+        <li>@Messages("termsAndConditions.userGenerated.terms.1")</li>
+        <li>@Messages("termsAndConditions.userGenerated.terms.2")</li>
+        <li>@Messages("termsAndConditions.userGenerated.terms.3")</li>
+        <li>@Messages("termsAndConditions.userGenerated.terms.4")</li>
+    </ol>
 
-        <h3 id="terms-copyright">@Messages("copyright.heading")</h3>
-        <p>@Messages("copyright.holder")</p>
-        <p>@Html(Messages(
-            "copyright.statement",
-            "<a href='http://www.ehri-project.eu'>http://www.ehri-project.eu</a>"
-        ))</p>
-    }
+    <h3 id="terms-copyright">@Messages("copyright.heading")</h3>
+    <p>@Messages("copyright.holder")</p>
+    <p>@Html(Messages(
+        "copyright.statement",
+        "<a href='http://www.ehri-project.eu'>http://www.ehri-project.eu</a>"
+    ))</p>
 }
