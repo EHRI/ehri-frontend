@@ -4,16 +4,16 @@
     @views.html.layout.searchItemOutlineWithActions(src.id, src.isA.toString) {
         @views.html.helpers.linkToWithFragment(src, "#" + item.id)
     } {
-        @listActions(item, ContentTypes.Annotation)
+        @views.html.annotation.listActions(item, defines.ContentTypes.Annotation)
     } {
-        @listItemBody(item, highlighter)
+        @views.html.annotation.listItemBody(item, highlighter)
     }
 }.getOrElse {
     @views.html.layout.searchItemOutlineWithActions(item.id, item.isA.toString) {
         <strong>[No Target]</strong>@views.html.helpers.linkTo(item)
     } {
-        @listActions(item, ContentTypes.Annotation)
+        @views.html.annotation.listActions(item, defines.ContentTypes.Annotation)
     } {
-        @listItemBody(item, highlighter)
+        @views.html.annotation.listItemBody(item, highlighter)
     }
 }

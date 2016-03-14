@@ -24,6 +24,8 @@ case class SearchToolsIndexMediator @Inject()(
     config: play.api.Configuration,
     executionContext: ExecutionContext)  extends SearchIndexMediator {
   override def handle: SearchIndexMediatorHandle = new SearchToolsIndexMediatorHandle()
+
+  override def toString = "SearchTools"
 }
 
 /**

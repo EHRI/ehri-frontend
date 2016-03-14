@@ -4,7 +4,7 @@
     <a href="@controllers.keywords.routes.Concepts.get(item.id)">@item.toStringLang</a>
 } {
     @item.model.primaryDescription(descriptionId).map { desc =>
-        @searchItemBody(item, desc)
+        @views.html.admin.concept.searchItemBody(item, desc)
     }.getOrElse {
         <small>@Messages("description.noDescriptions")</small>
     }

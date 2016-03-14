@@ -1,4 +1,4 @@
-@(item: DescribedMeta[Description, Described[Description]], links: Seq[Link])(implicit userOpt: Option[UserProfile], req: RequestHeader, globalConfig: global.GlobalConfig, messages: Messages)
+@(item: models.base.DescribedMeta[models.base.Description, models.base.Described[models.base.Description]], links: Seq[Link])(implicit userOpt: Option[UserProfile], req: RequestHeader, globalConfig: global.GlobalConfig, messages: Messages)
 
 @defining(item.externalLinks(links)) { externalLinks =>
     @if(externalLinks.nonEmpty) {
@@ -8,7 +8,7 @@
             <ul>
                 @for(link <- externalLinks ; other <- link.opposingTarget(item)) {
                     <li class="external-item-link">
-                        @itemLink(link, other)
+                        @views.html.admin.link.itemLink(link, other)
                     </li>
                 }
             </ul>

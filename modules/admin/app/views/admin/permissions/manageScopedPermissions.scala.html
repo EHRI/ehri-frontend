@@ -1,11 +1,9 @@
-@(item: Accessible, itemPage: utils.Page[PermissionGrant], scopePage: utils.Page[PermissionGrant], itemPermAction: Call, scopePermAction: Call)(
+@(item: models.base.Accessible, itemPage: utils.Page[PermissionGrant], scopePage: utils.Page[PermissionGrant], itemPermAction: Call, scopePermAction: Call)(
     implicit userOpt: Option[UserProfile], req: RequestHeader, globalConfig: global.GlobalConfig, messages: Messages, flash: Flash)
 
 @implicitField = @{ views.html.helper.FieldConstructor(formHelpers.fieldTemplate.f) }
 
 @views.html.admin.layout.rightSidebar(Messages("permissions.manage.item", item.toStringLang), breadcrumbs = views.html.admin.common.breadcrumbs(List(item))) {
-
-
     <h3>@Messages("permissions.itemLevel.manage")</h3>
     <div class="well well-small text-muted">
         <i class="glyphicon glyphicon-info-sign"></i>

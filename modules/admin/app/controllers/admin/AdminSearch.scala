@@ -159,40 +159,27 @@ case class AdminSearch @Inject()(
 
     // Create an unicast channel in which to feed progress messages
     val channel = Concurrent.unicast[String] { chan =>
-
-      def optionallyClearIndex: Future[Unit] = {
+      val optionallyClearIndex: Future[Unit] =
         if (!deleteAll) Future.successful(Unit)
-        else {
-          val f = searchIndexer.handle.clearAll()
-          f.onSuccess {
-            case () => chan.push(wrapMsg("... finished clearing index"))
-          }
-          f
-        }
-      }
+        else searchIndexer.handle.clearAll()
+          .map(_ => chan.push(wrapMsg("... finished clearing index")))
 
-      def optionallyClearType(entityTypes: Seq[EntityType.Value]): Future[Unit] = {
+      val optionallyClearType: Future[Unit] =
         if (!deleteTypes || deleteAll) Future.successful(Unit)
-        else {
-          val f = searchIndexer.handle.clearTypes(entityTypes = entityTypes)
-          f.onSuccess {
-            case () => chan.push(wrapMsg(s"... finished clearing index for types: $entityTypes"))
-          }
-          f
-        }
-      }
+        else searchIndexer.handle.clearTypes(entities)
+          .map(_ => chan.push(wrapMsg(s"... finished clearing index for types: $entities")))
 
       val job = for {
         _ <- optionallyClearIndex
-        _ <- optionallyClearType(entities)
+        _ <- optionallyClearType
         task <- searchIndexer.handle.withChannel(chan, wrapMsg).indexTypes(entityTypes = entities)
       } yield task
 
-      job.onComplete {
-        case Success(()) =>
-          chan.push(wrapMsg(Indexable.DONE_MESSAGE))
-          chan.eofAndEnd()
-        case Failure(t) =>
+      job.map { _ =>
+        chan.push(wrapMsg(Indexable.DONE_MESSAGE))
+        chan.eofAndEnd()
+      } recover {
+        case t =>
           Logger.logger.error(t.getMessage)
           chan.push(wrapMsg("Indexing operation failed: " + t.getMessage))
           chan.push(wrapMsg(Indexable.ERR_MESSAGE))

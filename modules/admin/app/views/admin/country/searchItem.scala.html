@@ -3,14 +3,16 @@
 @common.search.searchItemOutline(item) {
     <a href="@controllers.countries.routes.Countries.get(item.id)">@item.toStringLang</a>
 } {
-    <small>
+    <div class="search-item-details">
         @item.childCount.map { count =>
             <div class="child-count">
                 <a href="@controllers.countries.routes.Countries.get(item.id)#search-items">@Messages("country.childCount", count)</a>
             </div>
         }
-    </small>
-    @item.model.abs.map { abs =>
-        <div class="national-report">@Markdown(abs)</div>
+    </div>
+    @item.model.displayText.map(views.Helpers.ellipsize(_, 600)).map { sc =>
+        <div class="national-report">
+            @Markdown(sc)
+        </div>
     }
 }

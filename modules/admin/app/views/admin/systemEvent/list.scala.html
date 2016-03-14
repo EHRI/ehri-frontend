@@ -1,11 +1,8 @@
-@(page: utils.RangePage[Seq[SystemEvent]], params: utils.RangeParams, filterForm: Form[utils.SystemEventParams], users: Seq[(String,String)], call: Call)(implicit userOpt: Option[UserProfile], req: RequestHeader, globalConfig: global.GlobalConfig, messages: Messages, md: views.MarkdownRenderer, flash: Flash)
+@(page: utils.RangePage[Seq[SystemEvent]], params: utils.RangeParams, filterForm: Form[utils.SystemEventParams], users: Seq[(String, String)], call: Call)(implicit userOpt: Option[UserProfile], req: RequestHeader, globalConfig: global.GlobalConfig, messages: Messages, md: views.MarkdownRenderer, flash: Flash)
 
-@import backend.rest.Constants._
-@implicitField = @{ views.html.helper.FieldConstructor(formHelpers.cleanFieldTemplate.f) }
-
+@implicitField = @{views.html.helper.FieldConstructor(formHelpers.cleanFieldTemplate.f)}
 
 @views.html.admin.layout.rightSidebar(Messages("systemEvent.list")) {
-
     @views.html.admin.systemEvent.eventFilter(
         filterForm,
         params,
@@ -13,11 +10,10 @@
         users
     )
 
-	<ul class="event-list">
+    <ul class="event-list">
         @views.html.admin.systemEvent.aggregateList(page)
     </ul>
 
     @common.rangePagination(page)
 } {
-
 }

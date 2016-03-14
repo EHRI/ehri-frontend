@@ -30,7 +30,7 @@
                     case d: Annotation => {
                         @views.html.annotation.searchItem(d, hit)
                     }
-                    case _ => {
+                    case _: models.base.AnyModel => {
                         <p class="text-warning">
                             <a href="@views.p.Helpers.linkTo(item)">@item.toStringLang</a>
                         </p>
