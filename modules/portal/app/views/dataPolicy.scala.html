@@ -1,59 +1,57 @@
 @()(implicit userOpt: Option[UserProfile], request: RequestHeader, globalConfig: global.GlobalConfig, sessionPrefs: utils.SessionPrefs, flash: Flash, messages: Messages)
 
 @views.html.layout.textLayout(Messages("dataPolicy.header")) {
-    @views.html.layout.mainContent {
-        <h2 id="data-notice">@Messages("dataPolicy.header")</h2>
-        <p>@Messages("dataPolicy.notice1")</p>
-        <p>@Messages("dataPolicy.notice2")</p>
+    <h2 id="data-notice">@Messages("dataPolicy.header")</h2>
+    <p>@Messages("dataPolicy.notice1")</p>
+    <p>@Messages("dataPolicy.notice2")</p>
 
-        <h2 id="data-privacy">@Messages("privacy.header")</h2>
+    <h2 id="data-privacy">@Messages("privacy.header")</h2>
 
-        <h3>@Messages("privacy.users.header")</h3>
-        <p>@Messages("privacy.users.1")</p>
-        <p>@Messages("privacy.users.2")</p>
-        <p>@Messages("privacy.users.3")</p>
-        <p>@Messages("privacy.users.4")</p>
+    <h3>@Messages("privacy.users.header")</h3>
+    <p>@Messages("privacy.users.1")</p>
+    <p>@Messages("privacy.users.2")</p>
+    <p>@Messages("privacy.users.3")</p>
+    <p>@Messages("privacy.users.4")</p>
 
-        <h3>@Messages("privacy.data.header")</h3>
+    <h3>@Messages("privacy.data.header")</h3>
+    <p>@Html(Messages(
+        "privacy.data.1",
+        s"<a class='external' target='_blank' href='http://www.ehri-project.eu'>${Messages("privacy.data.1.riskAssessmentLinkText")}</a>"
+    ))</p>
+    <p>@Messages("privacy.data.2")</p>
+    <p>@Messages("privacy.data.3")</p>
+
+    <h3>@Messages("privacy.cookies.header")</h3>
+    <p>@Messages("privacy.cookies.1")</p>
+    <p>@Html(Messages(
+        "privacy.cookies.2",
+        "<a class='external' target='_blank' href='http://www.ehri-project.eu'>http://www.ehri-project.eu</a>",
+        "<a class='external' target='_blank' href='http://training.ehri-project.eu'>http://training.ehri-project.eu</a>"
+    ))</p>
+    <ol class="cookie-usage">
+        <li>@Messages("privacy.cookies.3.a")</li>
+        <li>@Messages("privacy.cookies.3.b")</li>
+        <li>@Messages("privacy.cookies.3.c")</li>
+    </ol>
+    @defining(controllers.portal.routes.Portal.index().absoluteURL(globalConfig.https)) { siteUrl =>
         <p>@Html(Messages(
-            "privacy.data.1",
-            s"<a class='external' target='_blank' href='http://www.ehri-project.eu'>${Messages("privacy.data.1.riskAssessmentLinkText")}</a>"
+            "privacy.cookies.4",
+            s"<a href='$siteUrl'>$siteUrl</a>"
         ))</p>
-        <p>@Messages("privacy.data.2")</p>
-        <p>@Messages("privacy.data.3")</p>
+    }
+    <ol class="cookie-usage">
+        <li>@Messages("privacy.cookies.5.a")</li>
+        <li>@Messages("privacy.cookies.5.b")</li>
+        <li>@Messages("privacy.cookies.5.c")</li>
+        <li>@Messages("privacy.cookies.5.d")</li>
+        <li>@Messages("privacy.cookies.5.e")</li>
+    </ol>
 
-        <h3>@Messages("privacy.cookies.header")</h3>
-        <p>@Messages("privacy.cookies.1")</p>
+    <h3>@Messages("privacy.complaints.header")</h3>
+    @defining(globalConfig.configString("ehri.portal.emails.privacy", "info@ehri-project.eu")) { email =>
         <p>@Html(Messages(
-            "privacy.cookies.2",
-            "<a class='external' target='_blank' href='http://www.ehri-project.eu'>http://www.ehri-project.eu</a>",
-            "<a class='external' target='_blank' href='http://training.ehri-project.eu'>http://training.ehri-project.eu</a>"
+            "privacy.complaints.1",
+            s"<a href='mailto:$email'>$email</a>"
         ))</p>
-        <ol class="cookie-usage">
-            <li>@Messages("privacy.cookies.3.a")</li>
-            <li>@Messages("privacy.cookies.3.b")</li>
-            <li>@Messages("privacy.cookies.3.c")</li>
-        </ol>
-        @defining(controllers.portal.routes.Portal.index().absoluteURL(globalConfig.https)) { siteUrl =>
-            <p>@Html(Messages(
-                "privacy.cookies.4",
-                s"<a href='$siteUrl'>$siteUrl</a>"
-            ))</p>
-        }
-        <ol class="cookie-usage">
-            <li>@Messages("privacy.cookies.5.a")</li>
-            <li>@Messages("privacy.cookies.5.b")</li>
-            <li>@Messages("privacy.cookies.5.c")</li>
-            <li>@Messages("privacy.cookies.5.d")</li>
-            <li>@Messages("privacy.cookies.5.e")</li>
-        </ol>
-
-        <h3>@Messages("privacy.complaints.header")</h3>
-        @defining(globalConfig.configString("ehri.portal.emails.privacy", "info@ehri-project.eu")) { email =>
-            <p>@Html(Messages(
-                "privacy.complaints.1",
-                s"<a href='mailto:$email'>$email</a>"
-            ))</p>
-        }
     }
 }
