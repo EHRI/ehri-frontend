@@ -19,9 +19,6 @@
     @views.html.admin.common.sidebarAction(user.hasPermission(ContentTypes.Repository, PermissionType.Grant)) {
         <a href="@controllers.institutions.routes.Repositories.managePermissions(item.id)">@Messages("permissions.manage")</a>
     }
-    @views.html.admin.common.sidebarAction() {
-        <a  href="@controllers.institutions.routes.Repositories.history(item.id)">@Messages("item.history")</a>
-    }
     @views.html.admin.common.sidebarAction(user.isAdmin) {
         <a href="@controllers.institutions.routes.Repositories.updateIndex(item.id)">@Messages("search.index.update")</a>
     }

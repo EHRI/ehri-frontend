@@ -34,9 +34,6 @@
         @sidebarAction(user.hasPermission(defines.ContentTypes.Vocabulary, defines.PermissionType.Grant)) {
             <a href="@controllers.vocabularies.routes.Vocabularies.managePermissions(item.id)">@Messages("permissions.manage")</a>
         }
-        @sidebarAction() {
-            <a href="@controllers.vocabularies.routes.Vocabularies.history(item.id)">@Messages("item.history")</a>
-        }
         @views.html.admin.common.sidebarAction(user.isAdmin) {
             <a href="@controllers.vocabularies.routes.Vocabularies.updateIndex(item.id)">@Messages("search.index.update")</a>
         }

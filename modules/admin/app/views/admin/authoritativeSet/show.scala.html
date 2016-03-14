@@ -30,9 +30,6 @@
         @views.html.admin.common.sidebarAction(user.hasPermission(ContentTypes.AuthoritativeSet, PermissionType.Grant)) {
             <a href="@controllers.sets.routes.AuthoritativeSets.managePermissions(item.id)">@Messages("permissions.manage")</a>
         }
-        @views.html.admin.common.sidebarAction() {
-            <a href="@controllers.sets.routes.AuthoritativeSets.history(item.id)">@Messages("item.history")</a>
-        }
         @views.html.admin.common.sidebarAction(user.isAdmin) {
             <a href="@controllers.sets.routes.AuthoritativeSets.updateIndex(item.id)">@Messages("search.index.update")</a>
         }

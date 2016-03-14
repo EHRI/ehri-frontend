@@ -108,10 +108,8 @@ case class AdminSearch @Inject()(
 
   def search = OptionalUserAction.async { implicit request =>
     find[AnyModel](
-      defaultParams = SearchParams(
-        sort = Some(SearchOrder.Score),
-        entities = searchTypes.toList
-      ),
+      defaultParams = SearchParams(sort = Some(SearchOrder.Score)),
+      entities = searchTypes.toList,
       facetBuilder = entityFacets
     ).map { result =>
       render {
