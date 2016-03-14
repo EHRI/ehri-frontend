@@ -36,7 +36,7 @@ trait Update[F <: Model with Persistable, MT <: MetaModel[F]] extends Generic {
         form.bindFromRequest.fold(
           errorForm => immediate(UpdateRequest(request.item, Left(errorForm), request.userOpt, request.request)),
           mod => {
-            userBackend.update[MT,F](id, transformer(mod), logMsg = getLogMessage).map { citem =>
+            userDataApi.update[MT,F](id, transformer(mod), logMsg = getLogMessage).map { citem =>
               UpdateRequest(request.item, Right(citem), request.userOpt, request)
             } recover {
               case ValidationError(errorSet) =>

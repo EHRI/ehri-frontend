@@ -176,7 +176,7 @@ trait PortalController
     FutureCache.getOrElse(userWatchCacheKey(userId), Duration.apply(20 * 60, TimeUnit.SECONDS)) {
       import play.api.libs.concurrent.Execution.Implicits._
       implicit val apiUser: ApiUser = ApiUser(Some(userId))
-      userBackend.watching[AnyModel](userId, PageParams.empty.withoutLimit).map { page =>
+      userDataApi.watching[AnyModel](userId, PageParams.empty.withoutLimit).map { page =>
         page.items.map(_.id)
       }
     }
@@ -197,7 +197,7 @@ trait PortalController
       request.user.map { account =>
         import play.api.libs.concurrent.Execution.Implicits._
         implicit val apiUser: ApiUser = ApiUser(Some(account.id))
-        val userF: Future[UserProfile] = userBackend.get[UserProfile](account.id)
+        val userF: Future[UserProfile] = userDataApi.get[UserProfile](account.id)
         val watchedF: Future[Seq[String]] = watchedItemIds(userIdOpt = Some(account.id))
         for {
           user <- userF

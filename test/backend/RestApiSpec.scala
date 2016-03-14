@@ -7,20 +7,20 @@ import play.api.libs.ws.WSClient
 import utils.SystemEventParams.Aggregation
 import utils.{RangeParams, RangePage, PageParams, SystemEventParams}
 import backend.rest.{CypherIdGenerator, ItemNotFound, ValidationError}
-import backend.rest.cypher.CypherDAO
+import backend.rest.cypher.CypherService
 import play.api.libs.json.{JsObject, JsString, Json}
 import models.base.AnyModel
 import models._
 import play.api.test.{WithApplicationLoader, PlaySpecification}
 import utils.search.{MockSearchIndexMediator, SearchIndexMediator}
-import helpers.RestBackendRunner
+import helpers.RestApiRunner
 
 import scala.concurrent.ExecutionContext
 
 /**
  * Spec for testing individual data access components work as expected.
  */
-class BackendModelSpec extends RestBackendRunner with PlaySpecification {
+class RestApiSpec extends RestApiRunner with PlaySpecification {
   sequential
 
   val userProfile = UserProfile(UserProfileF(id = Some("mike"), identifier = "mike", name = "Mike"))
@@ -30,7 +30,7 @@ class BackendModelSpec extends RestBackendRunner with PlaySpecification {
   import play.api.inject.bind
   val appLoader = new GuiceApplicationLoader(
     new play.api.inject.guice.GuiceApplicationBuilder()
-    .configure(RestBackendRunner.backendConfig)
+    .configure(RestApiRunner.backendConfig)
     .overrides(
       bind[SearchIndexMediator].toInstance(mockIndexer),
       bind[EventHandler].toInstance(testEventHandler)
@@ -45,8 +45,8 @@ class BackendModelSpec extends RestBackendRunner with PlaySpecification {
   val indexEventBuffer = collection.mutable.ListBuffer.empty[String]
   def mockIndexer: SearchIndexMediator = new MockSearchIndexMediator(indexEventBuffer)
 
-  def testBackend(implicit app: play.api.Application, apiUser: ApiUser): BackendHandle =
-    app.injector.instanceOf[Backend].withContext(apiUser)
+  def testBackend(implicit app: play.api.Application, apiUser: ApiUser): DataApiHandle =
+    app.injector.instanceOf[DataApi].withContext(apiUser)
 
   def testEventHandler = new EventHandler {
     def handleCreate(id: String) = mockIndexer.handle.indexId(id)
@@ -499,7 +499,7 @@ class BackendModelSpec extends RestBackendRunner with PlaySpecification {
 
   "Cypher operations" should {
     "get a JsValue for a graph item" in new WithApplicationLoader(appLoader) {
-      val dao = new CypherDAO
+      val dao = new CypherService
       val res = await(dao.cypher(
         """MATCH (n:_Entity) WHERE n.__id = {id} RETURN n.identifier, n.name""",
           Map("id" -> JsString("admin"))))
@@ -511,7 +511,7 @@ class BackendModelSpec extends RestBackendRunner with PlaySpecification {
 
   "CypherIdGenerator" should {
     "get the right next ID for repositories" in new WithApplicationLoader(appLoader) {
-      val idGen = new CypherIdGenerator(new CypherDAO)
+      val idGen = new CypherIdGenerator(new CypherService)
       await(idGen.getNextNumericIdentifier(EntityType.Repository, "%06d")) must equalTo("000005")
     }
 
@@ -519,7 +519,7 @@ class BackendModelSpec extends RestBackendRunner with PlaySpecification {
       // There a 4 collections in the fixtures c1-c4
       // Sigh... - now there's also a fixture named "m19", so the next
       // numeric ID with be "20". I didn't plan this.
-      val idGen = new CypherIdGenerator(new CypherDAO)
+      val idGen = new CypherIdGenerator(new CypherService)
       await(idGen.getNextChildNumericIdentifier("r1", EntityType.DocumentaryUnit, "c%01d")) must equalTo("c20")
     }
   }

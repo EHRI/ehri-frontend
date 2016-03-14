@@ -41,7 +41,7 @@ trait Descriptions[D <: Description with Persistable, T <: Model with Described[
         implicit val req = request
         form.bindFromRequest.fold(
           ef => immediate(ManageDescriptionRequest(request.item, Left(ef), request.userOpt, request)),
-          desc => userBackend.createDescription(id, desc, logMsg = getLogMessage).map { updated =>
+          desc => userDataApi.createDescription(id, desc, logMsg = getLogMessage).map { updated =>
             ManageDescriptionRequest(request.item, Right(updated), request.userOpt, request)
           } recover {
             case ValidationError(errorSet) =>
@@ -59,7 +59,7 @@ trait Descriptions[D <: Description with Persistable, T <: Model with Described[
         implicit val req = request
         form.bindFromRequest.fold(
           ef => immediate(ManageDescriptionRequest(request.item, Left(ef), request.userOpt, request)),
-          desc => userBackend.updateDescription(id, did, desc, logMsg = getLogMessage).map { updated =>
+          desc => userDataApi.updateDescription(id, did, desc, logMsg = getLogMessage).map { updated =>
             ManageDescriptionRequest(request.item, Right(updated), request.userOpt, request)
           } recover {
             case ValidationError(errorSet) =>
@@ -85,7 +85,7 @@ trait Descriptions[D <: Description with Persistable, T <: Model with Described[
     WithItemPermissionAction(id, PermissionType.Update) andThen new ActionTransformer[ItemPermissionRequest, OptionalUserRequest] {
       override protected def transform[A](request: ItemPermissionRequest[A]): Future[OptionalUserRequest[A]] = {
         implicit val req = request
-        userBackend.deleteDescription(id, did, logMsg = getLogMessage).map { _ =>
+        userDataApi.deleteDescription(id, did, logMsg = getLogMessage).map { _ =>
           OptionalUserRequest(request.userOpt, request)
         }
       }

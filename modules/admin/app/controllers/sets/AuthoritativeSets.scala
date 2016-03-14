@@ -15,7 +15,7 @@ import javax.inject._
 import views.MarkdownRenderer
 
 import scala.concurrent.Future.{successful => immediate}
-import backend.{Entity, IdGenerator, Backend}
+import backend.{Entity, IdGenerator, DataApi}
 import play.api.Configuration
 import controllers.base.AdminController
 
@@ -29,7 +29,7 @@ AuthoritativeSets @Inject()(
   searchEngine: SearchEngine,
   searchIndexer: SearchIndexMediator,
   searchResolver: SearchItemResolver,
-  backend: Backend,
+  dataApi: DataApi,
   idGenerator: IdGenerator,
   accounts: AccountManager,
   pageRelocator: MovedPageLookup,

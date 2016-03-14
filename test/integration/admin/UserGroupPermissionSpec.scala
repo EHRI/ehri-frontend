@@ -3,8 +3,12 @@ package integration.admin
 import backend.ApiUser
 import defines._
 import helpers._
-import models.{Account, Group, UserProfile}
+import models.{PermissionGrant, Account, Group, UserProfile}
+import play.api.libs.json.Json
 import play.api.test.FakeRequest
+import utils.{PageParams, Page}
+
+import scala.concurrent.ExecutionContext
 
 /**
  * End-to-end test of the permissions system, implemented as one massive test.
@@ -29,7 +33,8 @@ class UserGroupPermissionSpec extends IntegrationTestRunner {
   private val userRoutes = controllers.users.routes.UserProfiles
   private val groupRoutes = controllers.groups.routes.Groups
 
-  private def createUser(id: String, data: Map[String, String], groups: Seq[String] = Seq.empty)(implicit app: play.api.Application): (Account, UserProfile) = {
+  private def createUser(id: String, data: Map[String, String], groups: Seq[String] = Seq.empty)(
+      implicit app: play.api.Application, ex: ExecutionContext): (Account, UserProfile) = {
     val userPostData: Map[String, Seq[String]] = data
       .map(kv => kv._1 -> Seq(kv._2))
       .updated("identifier", Seq(id))
@@ -43,11 +48,11 @@ class UserGroupPermissionSpec extends IntegrationTestRunner {
     status(userCreatePost) must equalTo(SEE_OTHER)
     redirectLocation(userCreatePost) must equalTo(Some(userRoutes.get(id).url))
     val acc: Account = await(mockAccounts.get(id))
-    (acc, await(testBackend.get[UserProfile](id)))
+    (acc, await(dataApi.get[UserProfile](id)))
   }
 
-  private def createGroup(id: String, data: Map[String, String], groups: Seq[String] = Seq.empty)(implicit app: play.api.Application):
-  Group = {
+  private def createGroup(id: String, data: Map[String, String], groups: Seq[String] = Seq.empty)(
+      implicit app: play.api.Application, ex: ExecutionContext): Group = {
     val groupPostData: Map[String, Seq[String]] = data
       .map(kv => kv._1 -> Seq(kv._2))
       .updated("identifier", Seq(id))
@@ -57,7 +62,7 @@ class UserGroupPermissionSpec extends IntegrationTestRunner {
       .withUser(privilegedUser).withCsrf.callWith(groupPostData)
     status(groupCreatePost) must equalTo(SEE_OTHER)
     redirectLocation(groupCreatePost) must equalTo(Some(groupRoutes.get(id).url))
-    await(testBackend.get[Group](id))
+    await(dataApi.get[Group](id))
   }
 
   "The application" should {
@@ -76,7 +81,7 @@ class UserGroupPermissionSpec extends IntegrationTestRunner {
       status(attempt1) must equalTo(FORBIDDEN)
 
       // Now set UPDATE permissions - this should still NOT be sufficient
-      await(testBackend.setItemPermissions(management.id, ContentTypes.Group, noteApprovers.id,
+      await(dataApi.setItemPermissions(management.id, ContentTypes.Group, noteApprovers.id,
         Seq(PermissionType.Update.toString)))
 
       val attempt2 = FakeRequest(userRoutes.addToGroup(user2.id, noteApprovers.id))
@@ -85,7 +90,7 @@ class UserGroupPermissionSpec extends IntegrationTestRunner {
 
       // Now set GRANT permissions on the user - this will still fail because
       // the user1 is not a member of noteApprovers
-      await(testBackend.setItemPermissions(acc1.id, ContentTypes.UserProfile, acc2.id,
+      await(dataApi.setItemPermissions(acc1.id, ContentTypes.UserProfile, acc2.id,
         Seq(PermissionType.Grant.toString)))
 
       // NB: Currently the front-end does not protect us against attempting
@@ -94,11 +99,45 @@ class UserGroupPermissionSpec extends IntegrationTestRunner {
         .withUser(acc1).withCsrf.call()
       status(attempt3) must equalTo(FORBIDDEN)
 
-      await(testBackend.addGroup[Group, UserProfile](noteApprovers.id, acc1.id)) must beTrue
+      await(dataApi.addGroup[Group, UserProfile](noteApprovers.id, acc1.id))
 
       val attempt4 = FakeRequest(userRoutes.addToGroup(acc2.id, noteApprovers.id))
         .withUser(acc1).withCsrf.call()
       status(attempt4) must equalTo(SEE_OTHER)
+    }
+
+    "allow adding and revoking individual permissions" in new ITestApp {
+      val (acc1, user1) = createUser("user1", Map("name" -> "User 1"))
+      val grant = FakeRequest(controllers.units.routes.DocumentaryUnits
+          .setItemPermissionsPost("c4", EntityType.UserProfile, "user1"))
+        .withUser(privilegedUser)
+        .withCsrf
+        .callWith(
+          Json.obj(
+            ContentTypes.DocumentaryUnit.toString -> Json.arr(PermissionType.Update.toString)))
+      status(grant) must_== SEE_OTHER
+
+      // Fetch the user's permission grants and check there exists one for c4
+      val page: Page[PermissionGrant] =
+        await(dataApi.listPermissionGrants[PermissionGrant]("user1", PageParams.empty))
+      page.size must_== 2
+      page.find(_.targets.headOption.map(_.id).contains("c4")) must beSome.which { pg =>
+        pg.accessor must beSome.which { a =>
+          a.id must_== "user1"
+        }
+
+        // Revoke the grant and ensure it's gone
+        val revoke = FakeRequest(userRoutes.revokePermissionPost("user1", pg.id))
+          .withUser(privilegedUser)
+          .withCsrf
+          .call()
+        status(revoke) must_== SEE_OTHER
+
+        val page2: Page[PermissionGrant] =
+          await(dataApi.listPermissionGrants[PermissionGrant]("user1", PageParams.empty))
+        page2.size must_== 1
+        page2.find(_.targets.headOption.map(_.id).contains("c4")) must beNone
+      }
     }
   }
 }

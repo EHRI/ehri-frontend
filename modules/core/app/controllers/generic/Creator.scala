@@ -58,7 +58,7 @@ trait Creator[CF <: Model with Persistable, CMT <: MetaModel[CF], MT <: MetaMode
           errorForm => immediate(CreateChildRequest(request.item, Left((errorForm, visForm)), request.userOpt, request.request)),
           citem => {
             val accessors = visForm.value.getOrElse(Nil)
-            userBackend.createInContext[MT, CF, CMT](id, cct.contentType, citem, accessors, params = extra, logMsg = getLogMessage).map { citem =>
+            userDataApi.createInContext[MT, CF, CMT](id, cct.contentType, citem, accessors, params = extra, logMsg = getLogMessage).map { citem =>
               CreateChildRequest(request.item, Right(citem), request.userOpt, request)
             } recover {
               case ValidationError(errorSet) =>

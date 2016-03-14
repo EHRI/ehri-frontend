@@ -1,4 +1,4 @@
-@(form: Form[Feedback])(implicit userOpt: Option[UserProfile], request: RequestHeader, messages: Messages, token: play.filters.csrf.CSRF.Token)
+@(form: Form[Feedback])(implicit userOpt: Option[UserProfile], request: RequestHeader, messages: Messages)
 
 <a class="handle" role="button" aria-expanded="false" href="@controllers.portal.routes.Feedback.feedback()">
     @Messages("feedback")

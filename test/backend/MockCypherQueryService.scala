@@ -8,7 +8,7 @@ import scala.concurrent.{Future, ExecutionContext}
 import scala.concurrent.Future.{successful => immediate, failed}
 
 
-case class MockCypherQueryDAO(buffer: collection.mutable.HashMap[Int, CypherQuery]) extends CypherQueryDAO{
+case class MockCypherQueryService(buffer: collection.mutable.HashMap[Int, CypherQuery]) extends CypherQueryService{
   override def get(id: String)(implicit executionContext: ExecutionContext): Future[CypherQuery] =
     buffer.get(id.toInt).map (q => immediate(q)).getOrElse(failed(ItemNotFound(key = Some(id))))
 

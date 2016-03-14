@@ -1,9 +1,8 @@
 package controllers.portal.guides
 
 import auth.AccountManager
-import backend.Backend
+import backend.DataApi
 import backend.rest.cypher.Cypher
-import backend.rest.SearchDAO
 import javax.inject._
 import controllers.base.SearchVC
 import controllers.generic.Search
@@ -36,13 +35,12 @@ case class Guides @Inject()(
   globalConfig: global.GlobalConfig,
   searchEngine: SearchEngine,
   searchResolver: SearchItemResolver,
-  backend: Backend,
+  dataApi: DataApi,
   accounts: AccountManager,
   pageRelocator: utils.MovedPageLookup,
   messagesApi: MessagesApi,
   markdown: MarkdownRenderer,
-  search: SearchDAO,
-  guides: GuideDAO,
+  guides: GuideService,
   cypher: Cypher
 ) extends PortalController
   with Search
@@ -458,9 +456,9 @@ case class Guides @Inject()(
             filters = Map(s"gid:(${ids.take(1024).mkString(" ")})" -> Unit),
             defaultOrder = SearchOrder.Name
           ) else immediate(SearchResult.empty)
-          selectedAccessPoints <- search.list[AnyModel](facets)
+          selectedAccessPoints <- userDataApi.fetch[AnyModel](facets)
           availableFacets <- otherFacets(guide, ids)
-          tempAccessPoints <- search.listByGid[AnyModel](availableFacets)
+          tempAccessPoints <- userDataApi.fetch[AnyModel](gids = availableFacets)
         } yield {
           Ok(views.html.guides.facet(
             guide,
@@ -529,26 +527,26 @@ case class Guides @Inject()(
 
   def linkedData(id: String) = UserBrowseAction.async { implicit request =>
     for {
-      ids <- searchLinksForm.bindFromRequest(request.queryString).fold(
+      gids <- searchLinksForm.bindFromRequest(request.queryString).fold(
       errs => searchLinks(id), {
         case Some(t) => searchLinks(id, t)
         case _ => searchLinks(id)
       })
-      docs <- search.listByGid[AnyModel](ids)
-    } yield Ok(Json.toJson(docs.zip(ids).map { case (doc, gid) =>
+      docs <- userDataApi.fetch[AnyModel](gids = gids)
+    } yield Ok(Json.toJson(docs.zip(gids).map { case (doc, gid) =>
       Json.toJson(FilterHit(doc.id, "", doc.toStringLang, doc.isA, None, gid))
     }))
   }
 
   def linkedDataInContext(id: String, context: String) = UserBrowseAction.async { implicit request =>
     for {
-      ids <- searchLinksForm.bindFromRequest(request.queryString).fold(
+      gids <- searchLinksForm.bindFromRequest(request.queryString).fold(
       errs => searchLinks(id, context = Some(context)), {
         case Some(t) => searchLinks(id, t, Some(context))
         case _ => searchLinks(id, context = Some(context))
       })
-      docs <- search.listByGid[AnyModel](ids)
-    } yield Ok(Json.toJson(docs.zip(ids).map { case (doc, gid) =>
+      docs <- userDataApi.fetch[AnyModel](gids = gids)
+    } yield Ok(Json.toJson(docs.zip(gids).map { case (doc, gid) =>
       Json.toJson(FilterHit(doc.id, "", doc.toStringLang, doc.isA, None, gid))
     }))
   }

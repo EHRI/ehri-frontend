@@ -16,7 +16,7 @@ import models.base.{Description, AnyModel}
 import utils.search._
 import play.api.Logger
 import controllers.generic.{Indexable, Search}
-import backend.Backend
+import backend.DataApi
 import scala.util.Failure
 import scala.util.Success
 import defines.EntityType
@@ -31,7 +31,7 @@ case class AdminSearch @Inject()(
   searchEngine: SearchEngine,
   searchResolver: SearchItemResolver,
   searchIndexer: SearchIndexMediator,
-  backend: Backend,
+  dataApi: DataApi,
   accounts: AccountManager,
   pageRelocator: MovedPageLookup,
   messagesApi: MessagesApi,

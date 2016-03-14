@@ -21,7 +21,7 @@ trait Promotion[MT] extends Generic {
     EditPromotionAction(id) andThen new ActionTransformer[ItemPermissionRequest,ItemPermissionRequest] {
       override protected def transform[A](request: ItemPermissionRequest[A]): Future[ItemPermissionRequest[A]] = {
         implicit val userOpt = request.userOpt
-        userBackend.promote(id).map { updated =>
+        userDataApi.promote(id).map { updated =>
           ItemPermissionRequest(updated, request.userOpt, request)
         }
       }
@@ -31,7 +31,7 @@ trait Promotion[MT] extends Generic {
     EditPromotionAction(id) andThen new ActionTransformer[ItemPermissionRequest,ItemPermissionRequest] {
       override protected def transform[A](request: ItemPermissionRequest[A]): Future[ItemPermissionRequest[A]] = {
         implicit val userOpt = request.userOpt
-        userBackend.removePromotion(id).map { updated =>
+        userDataApi.removePromotion(id).map { updated =>
           ItemPermissionRequest(updated, request.userOpt, request)
         }
       }
@@ -41,7 +41,7 @@ trait Promotion[MT] extends Generic {
     EditPromotionAction(id) andThen new ActionTransformer[ItemPermissionRequest,ItemPermissionRequest] {
       override protected def transform[A](request: ItemPermissionRequest[A]): Future[ItemPermissionRequest[A]] = {
         implicit val userOpt = request.userOpt
-        userBackend.demote(id).map { updated =>
+        userDataApi.demote(id).map { updated =>
           ItemPermissionRequest(updated, request.userOpt, request)
         }
       }
@@ -51,7 +51,7 @@ trait Promotion[MT] extends Generic {
     EditPromotionAction(id) andThen new ActionTransformer[ItemPermissionRequest,ItemPermissionRequest] {
       override protected def transform[A](request: ItemPermissionRequest[A]): Future[ItemPermissionRequest[A]] = {
         implicit val userOpt = request.userOpt
-        userBackend.removeDemotion(id).map { updated =>
+        userDataApi.removeDemotion(id).map { updated =>
           ItemPermissionRequest(updated, request.userOpt, request)
         }
       }

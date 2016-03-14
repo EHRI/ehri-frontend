@@ -10,12 +10,12 @@ class UtilsSpec extends IntegrationTestRunner {
 
   "Utils" should {
     "return a successful ping of the EHRI REST service" in new ITestApp {
-      val ping = route(FakeRequest(controllers.admin.routes.Utils.checkDb())).get
+      val ping = FakeRequest(controllers.admin.routes.Utils.checkDb()).call()
       status(ping) must equalTo(OK)
     }
 
     "check user sync correctly" in new ITestApp {
-      val check = route(FakeRequest(controllers.admin.routes.Utils.checkUserSync())).get
+      val check = FakeRequest(controllers.admin.routes.Utils.checkUserSync()).call()
       status(check) must equalTo(OK)
       // User joeblogs exists in the account mocks but not the
       // graph DB fixtures, so the sync check should (correcly)

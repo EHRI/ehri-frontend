@@ -1,7 +1,7 @@
 package controllers.portal
 
 import auth.AccountManager
-import backend.Backend
+import backend.DataApi
 import backend.rest.cypher.Cypher
 import com.google.inject.{Inject, Singleton}
 import controllers.generic.Search
@@ -21,7 +21,7 @@ case class Concepts @Inject()(
   globalConfig: global.GlobalConfig,
   searchEngine: SearchEngine,
   searchResolver: SearchItemResolver,
-  backend: Backend,
+  dataApi: DataApi,
   accounts: AccountManager,
   pageRelocator: MovedPageLookup,
   messagesApi: MessagesApi,

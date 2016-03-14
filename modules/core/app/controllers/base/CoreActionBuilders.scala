@@ -21,19 +21,19 @@ trait CoreActionBuilders extends Controller with ControllerHelpers with AuthActi
 
   /**
    * Inheriting controllers need to be provided/injected with
-   * a backend implementation.
+   * a dataApi implementation.
    */
-  protected def backend: Backend
+  protected def dataApi: DataApi
 
   /**
-   * Obtain a handle to the backend database in the context of
+   * Obtain a handle to the dataApi database in the context of
    * a particular user.
    *
    * @param apiUser the current user
-   * @return a backend handle
+   * @return a data api handle
    */
-  protected def userBackend(implicit apiUser: ApiUser): BackendHandle =
-    backend.withContext(apiUser)
+  protected def userDataApi(implicit apiUser: ApiUser): DataApiHandle =
+    dataApi.withContext(apiUser)
 
   /**
    * Access the global configuration instance.
@@ -70,7 +70,7 @@ trait CoreActionBuilders extends Controller with ControllerHelpers with AuthActi
   protected def staffOnlyError(request: RequestHeader)(implicit context: ExecutionContext): Future[Result]
 
   /**
-   * A backend resource was not found
+   * A dataApi resource was not found
    */
   protected def notFoundError(request: RequestHeader, msg: Option[String] = None)(implicit context: ExecutionContext): Future[Result]
 
@@ -179,8 +179,8 @@ trait CoreActionBuilders extends Controller with ControllerHelpers with AuthActi
       ifEmpty = immediate(OptionalUserRequest[A](None, request))
     ) { account =>
       implicit val apiUser = AuthenticatedUser(account.id)
-      val userF = userBackend.get[UserProfile](UserProfile.UserProfileResource, account.id)
-      val globalPermsF = userBackend.getGlobalPermissions(account.id)
+      val userF = userDataApi.get[UserProfile](UserProfile.UserProfileResource, account.id)
+      val globalPermsF = userDataApi.getGlobalPermissions(account.id)
       for {
         user <- userF
         globalPerms <- globalPermsF

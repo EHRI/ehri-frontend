@@ -1,0 +1,664 @@
+package backend
+
+import acl.{GlobalPermissionSet, ItemPermissionSet}
+import defines.ContentTypes
+import play.api.libs.json.JsObject
+import play.api.libs.ws.{StreamedResponse, WSResponse}
+import play.api.mvc.Headers
+import utils._
+
+import scala.concurrent.{ExecutionContext, Future}
+
+
+trait DataApi {
+  def withContext(apiUser: ApiUser)(implicit executionContext: ExecutionContext): DataApiHandle
+}
+
+trait DataApiHandle {
+
+  def eventHandler: EventHandler
+
+  def withEventHandler(eventHandler: EventHandler): DataApiHandle
+
+  /**
+   * Pass a query directly through to the backend API.
+   *
+   * @param urlPart the URL backend path
+   * @param headers the required headers
+   * @param params additional parameters
+   * @return a web response
+   */
+  def query(urlPart: String, headers: Headers = Headers(), params: Map[String, Seq[String]] = Map.empty): Future[WSResponse]
+
+  /**
+   * Pass a query directly through to the backend API and retrieve
+   * a streaming response.
+   *
+   * @param urlPart the URL backend path
+   * @param headers the required headers
+   * @param params additional parameters
+   * @return a streaming web response
+   */
+  def stream(urlPart: String, headers: Headers = Headers(), params: Map[String, Seq[String]] = Map.empty): Future[StreamedResponse]
+
+  /**
+   * Create a new user profile.
+   *
+   * @param data the user data
+   * @param groups groups to which this user belongs
+   * @return the new user item
+   */
+  def createNewUserProfile[T <: WithId : Readable](data: Map[String, String] = Map.empty, groups: Seq[String] = Seq.empty): Future[T]
+
+  /**
+   * Fetch any type of item by ID.
+   *
+   * @param id the string ID
+   * @return the item
+   */
+  def getAny[MT: Readable](id: String): Future[MT]
+
+  /**
+   * Fetch items by string ID or internal graph ID.
+   *
+   * @param ids a sequence of string IDs
+   * @param gids a sequence of graph IDs
+   */
+  def fetch[MT: Readable](ids: Seq[String] = Seq.empty, gids: Seq[Long] = Seq.empty): Future[Seq[MT]]
+
+  /**
+   * Set visibility for a given item.
+   *
+   * @param id the item's id
+   * @param data a list of accessor ids
+   * @return the updated item
+   */
+  def setVisibility[MT: Resource](id: String, data: Seq[String]): Future[MT]
+
+  /**
+   * Get an item with an explicit resource type and id.
+   *
+   * @param resource the resource type
+   * @param id the item's id
+   * @tparam MT the generic type of the resource
+   */
+  def get[MT](resource: Resource[MT], id: String): Future[MT]
+
+  /**
+   * Get an item woth the given id.
+   *
+   * @param id the item's id
+   * @tparam MT the generic type of the resource
+   */
+  def get[MT: Resource](id: String): Future[MT]
+
+  /**
+   * Create a new item.
+   *
+   * @param item the item data
+   * @param accessors the users/groups that can initially
+   *                  access this item (none implies all)
+   * @param params additional web service parameters
+   * @param logMsg the log message
+   * @tparam MT the generic type of the resource
+   * @tparam T the generic type of the resource's data
+   */
+  def create[MT <: WithId : Resource, T: Writable](item: T, accessors: Seq[String] = Nil, params: Map[String, Seq[String]] = Map.empty, logMsg: Option[String] = None): Future[MT]
+
+  /**
+   * Create a new item in the context of a parent item.
+   *
+   * @param id the parent's id
+   * @param contentType the child content type
+   * @param item the new item's data
+   * @param accessors the users/groups that can initially
+   *                  access this item (none implies all)
+   * @param params additional web service parameters
+   * @param logMsg the log message
+   * @tparam MT the generic type of the parent resource
+   * @tparam T the generic type of the child item's data
+   * @tparam CMT the generic type of the child item
+   */
+  def createInContext[MT: Resource, T: Writable, CMT <: WithId : Readable](id: String, contentType: ContentTypes.Value, item: T, accessors: Seq[String] = Nil, params: Map[String, Seq[String]] = Map(), logMsg: Option[String] = None): Future[CMT]
+
+  /**
+   * Update an item.
+   *
+   * @param id the item's id
+   * @param item the item's data
+   * @param logMsg the log message
+   * @tparam MT the generic type of the item
+   * @tparam T the generic type of the item's data
+   */
+  def update[MT: Resource, T: Writable](id: String, item: T, logMsg: Option[String] = None): Future[MT]
+
+  /**
+   * Partially update (patch) an item's properties.
+   *
+   * @param id the item's id
+   * @param data a JSON object contain the properties to be
+   *             updated
+   * @param logMsg the log message
+   * @tparam MT the generic type of the item
+   */
+  def patch[MT: Resource](id: String, data: JsObject, logMsg: Option[String] = None): Future[MT]
+
+  /**
+   * Delete an item.
+   *
+   * @param id the item's id
+   * @param logMsg the log message
+   * @tparam MT the generic type of the item
+   */
+  def delete[MT: Resource](id: String, logMsg: Option[String] = None): Future[Unit]
+
+  /**
+   * List items with the given resource type.
+   *
+   * @param resource the resource type
+   * @param params the list parameters
+   * @tparam MT the generic type of the resource items
+   */
+  def list[MT](resource: Resource[MT], params: PageParams): Future[Page[MT]]
+
+  /**
+   * List items with the implicit resource type.
+   *
+   * @param params the list parameters
+   * @tparam MT the generic type of the items
+   */
+  def list[MT: Resource](params: PageParams = PageParams.empty): Future[Page[MT]]
+
+  /**
+   * List child items of this parent type.
+   *
+   * @param id the parent item id
+   * @param params the list parameters
+   * @tparam MT the parent generic type
+   * @tparam CMT the child generic resource type
+   */
+  def listChildren[MT: Resource, CMT: Readable](id: String, params: PageParams = PageParams.empty): Future[Page[CMT]]
+
+  /**
+   * Count child items of a resource.
+   *
+   * @tparam MT the generic type of the items
+   */
+  def count[MT: Resource](): Future[Long]
+
+  /**
+   * Count an item's child resources.
+   *
+   * @param id the item's id
+   * @tparam MT the generic type of the parent
+   */
+  def countChildren[MT: Resource](id: String): Future[Long]
+
+  /**
+   * Promote an item.
+   *
+   * @param id the item's id
+   * @return the promoted item
+   */
+  def promote[MT: Resource](id: String): Future[MT]
+
+  /**
+   * Remove a promotion.
+   *
+   * @param id the item's id
+   * @return the updated item
+   */
+  def removePromotion[MT: Resource](id: String): Future[MT]
+
+  /**
+   * Demote an item.
+   *
+   * @param id the item's id
+   * @return the updated item
+   */
+  def demote[MT: Resource](id: String): Future[MT]
+
+  /**
+   * Remove a demotion.
+   *
+   * @param id the item's id
+   * @return the updated item
+   */
+  def removeDemotion[MT: Resource](id: String): Future[MT]
+
+  /**
+   * Fetch links for the given item.
+   *
+   * @param id the item's id
+   * @return a page of link items
+   */
+  def getLinksForItem[A: Readable](id: String): Future[Page[A]]
+
+  /**
+   * Fetch annotations for a given item.
+   *
+   * @param id the item's id
+   * @return a page of annotation items
+   */
+  def getAnnotationsForItem[A: Readable](id: String): Future[Page[A]]
+
+  /**
+   * List permission grants for a given item.
+   *
+   * @param id the item's id
+   * @param params the paging parameters
+   * @return a page of permission grant items
+   */
+  def listItemPermissionGrants[A: Readable](id: String, params: PageParams): Future[Page[A]]
+
+  /**
+   * List permission grants for which this item is the scope.
+   *
+   * @param id the item's id
+   * @param params the paging parameters
+   * @return a page of permission grants
+   */
+  def listScopePermissionGrants[A: Readable](id: String, params: PageParams): Future[Page[A]]
+
+  /**
+   * Fetch an item's history.
+   *
+   * @param id the item id
+   * @param params range params
+   * @param filters event filter params
+   */
+  def history[A: Readable](id: String, params: RangeParams, filters: SystemEventParams = SystemEventParams.empty): Future[RangePage[Seq[A]]]
+
+  /**
+   * Create a new description on a given item.
+   *
+   * @param id the item's ID
+   * @param desc the description data
+   * @param logMsg an optional log message
+   * @tparam MT the item's meta type
+   * @tparam DT the item's description type
+   */
+  def createDescription[MT: Resource, DT: Writable](id: String, desc: DT, logMsg: Option[String] = None): Future[DT]
+
+  /**
+   * Update a description on a given item.
+   *
+   * @param id the item's ID
+   * @param did the description ID
+   * @param desc the description data
+   * @param logMsg an optional log message
+   * @tparam MT the item's meta type
+   * @tparam DT the item's description type
+   * @return
+   */
+  def updateDescription[MT: Resource, DT: Writable](id: String, did: String, desc: DT, logMsg: Option[String] = None): Future[DT]
+
+  /**
+   * Create a new access point on the given item description.
+   *
+   * @param id the item's ID
+   * @param did the description ID
+   * @param ap the access point data
+   * @param logMsg an optional log message
+   * @tparam MT the item's meta type
+   * @tparam AP the access point type
+   */
+  def createAccessPoint[MT: Resource, AP: Writable](id: String, did: String, ap: AP, logMsg: Option[String] = None): Future[AP]
+
+  /**
+   * Delete a given description.
+   *
+   * @param id the item's ID
+   * @param did the description ID
+   * @param logMsg an optional log message
+   * @tparam MT the access point type
+   */
+  def deleteDescription[MT: Resource](id: String, did: String, logMsg: Option[String] = None): Future[Unit]
+
+  /**
+   * Delete a given access point.
+   *
+   * @param id the item's ID
+   * @param did the description ID
+   * @param apid the access point ID
+   * @param logMsg an optional log message
+   * @tparam MT the item's meta type
+   */
+  def deleteAccessPoint[MT: Resource](id: String, did: String, apid: String, logMsg: Option[String] = None): Future[Unit]
+
+  /**
+   * Fetch a personalised event stream for a given user.
+   *
+   * @param userId the user's id
+   * @param params range params
+   * @param filters event filter params
+   */
+  def listEventsForUser[A: Readable](userId: String, params: RangeParams, filters: SystemEventParams = SystemEventParams.empty): Future[RangePage[Seq[A]]]
+
+  /**
+   * Fetch a list of events corresponding to a user's actions.
+   *
+   * @param userId the user's id
+   * @param params range params
+   * @param filters event filter params
+   */
+  def listUserActions[A: Readable](userId: String, params: RangeParams, filters: SystemEventParams = SystemEventParams.empty): Future[RangePage[Seq[A]]]
+
+  /**
+   * Fetch versions for an item.
+   *
+   * @param id the item id
+   * @param params range params
+   */
+  def versions[V: Readable](id: String, params: PageParams): Future[Page[V]]
+
+  /**
+   * Create an annotation on an item.
+   *
+   * @param id the item id
+   * @param ann the annotation data
+   * @param accessors the user's who can access this annotation
+   * @param subItem an optional dependent component ID (e.g. a description) of the item
+   * @return the updated item
+   */
+  def createAnnotation[A <: WithId : Readable, AF: Writable](id: String, ann: AF, accessors: Seq[String] = Nil,
+                                                             subItem: Option[String] = None): Future[A]
+
+  /**
+   * Create an annotation on a specific description.
+   *
+   * @param id the item id
+   * @param did the description id
+   * @param ann the annotation data
+   * @param accessors the user's who can access this annotation
+   * @return the updated item
+   */
+  @Deprecated
+  def createAnnotationForDependent[A <: WithId : Readable, AF: Writable](id: String, did: String, ann: AF, accessors: Seq[String] = Nil): Future[A]
+
+  /**
+   * Create a link on an item.
+   *
+   * @param id the item id
+   * @param src the source item id
+   * @param link the link data
+   * @param accessPoint an optional access point id
+   * @return the updated item
+   */
+  def linkItems[MT: Resource, A <: WithId : Readable, AF: Writable](id: String, src: String, link: AF, accessPoint: Option[String] = None): Future[A]
+
+  /**
+   * Create multiple links on an item.
+   *
+   * @param id the item id
+   * @param srcToLinks a tuple of source item id, link body, and (optional) access point id
+   * @return a sequence of the item updated with each link
+   */
+  def linkMultiple[MT: Resource, A <: WithId : Readable, AF: Writable](id: String, srcToLinks: Seq[(String, AF, Option[String])]): Future[Seq[A]]
+
+  /**
+   * Fetch the global event stream.
+   *
+   * @param params range params
+   * @param filters event filter params
+   */
+  def listEvents[A: Readable](params: RangeParams, filters: SystemEventParams = SystemEventParams.empty): Future[RangePage[Seq[A]]]
+
+  /**
+   * Fetch all subjects for a given event.
+   *
+   * @param id the item id
+   * @param params range params
+   */
+  def subjectsForEvent[A: Readable](id: String, params: PageParams): Future[Page[A]]
+
+  /**
+   * Include a set of items in a virtual collection.
+   *
+   * @param vcId the virtual collection id
+   * @param ids a set of item ids
+   */
+  def addReferences[MT: Resource](vcId: String, ids: Seq[String]): Future[Unit]
+
+  /**
+   * Remove a set of items from a virtual collection.
+   *
+   * @param vcId the virtual collection id
+   * @param ids a set of item ids
+   */
+  def deleteReferences[MT: Resource](vcId: String, ids: Seq[String]): Future[Unit]
+
+  /**
+   * Move a set of items from one virtual collection to another
+   *
+   * @param fromVc the source virtual collection id
+   * @param toVc the destination virtual collection id
+   * @param ids a set of item ids
+   */
+  def moveReferences[MT: Resource](fromVc: String, toVc: String, ids: Seq[String]): Future[Unit]
+
+  /**
+   * Get a permission set for a particular item.
+   *
+   * @param userId the user's id
+   * @param contentType the type of the item
+   * @param id the item's id
+   * @return an item permission set
+   */
+  def getItemPermissions(userId: String, contentType: ContentTypes.Value, id: String): Future[ItemPermissionSet]
+
+  /**
+   * Set a permission set for a particular item.
+   *
+   * @param userId the user's id
+   * @param contentType the type of the item
+   * @param id the item's id
+   * @param data the new permission data
+   * @return an item permission set
+   */
+  def setItemPermissions(userId: String, contentType: ContentTypes.Value, id: String, data: Seq[String]): Future[ItemPermissionSet]
+
+  /**
+   * Set the global permissions for a particular user.
+   *
+   * @param userId the user's id
+   * @param data the permission data
+   * @return a global permission set
+   */
+  def setGlobalPermissions(userId: String, data: Map[String, Seq[String]]): Future[GlobalPermissionSet]
+
+  /**
+   * Get the global permissions for a particular user.
+   *
+   * @param userId the user's id
+   * @return a global permission set
+   */
+  def getGlobalPermissions(userId: String): Future[GlobalPermissionSet]
+
+  /**
+   * Get the permissions for a particular user in a given scope.
+   *
+   * @param userId the user's id
+   * @param id the scope item's id
+   * @return a scoped permission set
+   */
+  def getScopePermissions(userId: String, id: String): Future[GlobalPermissionSet]
+
+  /**
+   * Set the permissions for a particular user in a given scope.
+   *
+   * @param userId the user's id
+   * @param id the scope item's id
+   * @param data the permission data
+   * @return a scoped permission set
+   */
+  def setScopePermissions(userId: String, id: String, data: Map[String, Seq[String]]): Future[GlobalPermissionSet]
+
+  /**
+   * List permissions for a particular user.
+   *
+   * @param userId the user's id
+   * @param params the paging parameters
+   * @return a page of permissions
+   */
+  def listPermissionGrants[A: Readable](userId: String, params: PageParams): Future[Page[A]]
+
+  /**
+   * Add a user to a particular group.
+   *
+   * @param groupId the group id
+   * @param userId the user's id
+   */
+  def addGroup[GT: Resource, UT: Resource](groupId: String, userId: String): Future[Unit]
+
+  /**
+   * Remove a user from a particular group.
+   *
+   * @param groupId the group id
+   * @param userId the user's id
+   */
+  def removeGroup[GT: Resource, UT: Resource](groupId: String, userId: String): Future[Unit]
+
+  /**
+   * Follow a user.
+   *
+   * @param userId the current user's id
+   * @param otherId the other user's id
+   */
+  def follow[U: Resource](userId: String, otherId: String): Future[Unit]
+
+  /**
+   * Unfollow a user.
+   *
+   * @param userId the current user's id
+   * @param otherId the other user's id
+   */
+  def unfollow[U: Resource](userId: String, otherId: String): Future[Unit]
+
+  /**
+   * Determine if the current user is following another user.
+   *
+   * @param userId the current user's id
+   * @param otherId the other user's id
+   */
+  def isFollowing(userId: String, otherId: String): Future[Boolean]
+
+  /**
+   * Determine if another user is following the current user.
+   *
+   * @param userId the current user's id
+   * @param otherId the other user's id
+   */
+  def isFollower(userId: String, otherId: String): Future[Boolean]
+
+  /**
+   * Get a page of this user's followers.
+   * 
+   * @param userId the current user's id
+   * @param params the paging parameters
+   * @return a page of users
+   */
+  def followers[U: Readable](userId: String, params: PageParams = PageParams.empty): Future[Page[U]]
+
+  /**
+   * Get a page of users the current user is following.
+   *
+   * @param userId the current user's id
+   * @param params the paging parameters
+   * @return a page of users
+   */
+  def following[U: Readable](userId: String, params: PageParams = PageParams.empty): Future[Page[U]]
+
+  /**
+   * Get a page of items the current user is watching.
+   * 
+   * @param userId the current user's id
+   * @param params the paging parameters
+   * @return a page of items
+   */
+  def watching[A: Readable](userId: String, params: PageParams = PageParams.empty): Future[Page[A]]
+
+  /**
+   * Start watching an item.
+   * 
+   * @param userId the current user's id
+   * @param id the item's id
+   */
+  def watch(userId: String, id: String): Future[Unit]
+
+  /**
+   * Stop watching an item.
+   * 
+   * @param userId the current user's id
+   * @param id the item's id
+   */
+  def unwatch(userId: String, id: String): Future[Unit]
+
+  /**
+   * Determine if the current user is watching a particular item.
+   * 
+   * @param userId the current user's id
+   * @param id the item's id
+   */
+  def isWatching(userId: String, id: String): Future[Boolean]
+
+  /**
+   * Get a list of users the current user has blocked.
+   *
+   * @param userId the current user's id
+   * @param params the paging params
+   * @return a page of user items
+   */
+  def blocked[A: Readable](userId: String, params: PageParams = PageParams.empty): Future[Page[A]]
+
+  /**
+   * Start blocking a user.
+   *
+   * @param userId the current user's id
+   * @param otherId the other user's id
+   */
+  def block(userId: String, otherId: String): Future[Unit]
+
+  /**
+   * Stop blocking a user.
+   *
+   * @param userId the current user's id
+   * @param otherId the other user's id
+   */
+  def unblock(userId: String, otherId: String): Future[Unit]
+
+  /**
+   * Determine if the current user is blocking another user.
+   *
+   * @param userId the current user's id
+   * @param otherId the other user's id
+   */
+  def isBlocking(userId: String, otherId: String): Future[Boolean]
+
+  /**
+   * Fetch the current user's annotations.
+   *
+   * @param userId the current user
+   * @param params the paging params
+   * @return a page of annotation items
+   */
+  def userAnnotations[A: Readable](userId: String, params: PageParams = PageParams.empty): Future[Page[A]]
+
+  /**
+   * Fetch the current user's links.
+   *
+   * @param userId the current user
+   * @param params the paging params
+   * @return a page of link items
+   */
+  def userLinks[A: Readable](userId: String, params: PageParams = PageParams.empty): Future[Page[A]]
+
+  /**
+   * Fetch the current user's bookmarks (virtual collections).
+   *
+   * @param userId the current user
+   * @param params the paging params
+   * @return a page of bookmark items
+   */
+  def userBookmarks[A: Readable](userId: String, params: PageParams = PageParams.empty): Future[Page[A]]
+}

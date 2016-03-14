@@ -10,7 +10,7 @@ import play.api.mvc.{Result, RequestHeader}
 import utils.MovedPageLookup
 import views.MarkdownRenderer
 import scala.concurrent.Future.{successful => immediate}
-import backend.{Backend, FeedbackDAO}
+import backend.{DataApi, FeedbackService}
 import javax.inject._
 import controllers.portal.base.PortalController
 
@@ -19,8 +19,8 @@ case class Feedback @Inject()(
   implicit app: play.api.Application,
   cache: CacheApi,
   globalConfig: global.GlobalConfig,
-  feedbackDAO: FeedbackDAO,
-  backend: Backend,
+  feedbackService: FeedbackService,
+  dataApi: DataApi,
   accounts: AccountManager,
   mailer: MailerClient,
   pageRelocator: MovedPageLookup,
@@ -102,7 +102,7 @@ case class Feedback @Inject()(
         }.getOrElse(feedback)
           .copy(context = Some(models.FeedbackContext.fromRequest),
             mode = Some(app.mode))
-        feedbackDAO.create(moreFeedback).map { id =>
+        feedbackService.create(moreFeedback).map { id =>
           sendMessageEmail(moreFeedback)
           if (isAjax) Ok(id)
           else Redirect(controllers.portal.routes.Portal.index())
@@ -113,7 +113,7 @@ case class Feedback @Inject()(
   }
 
   def list = AdminAction.async { implicit request =>
-    feedbackDAO.list("order" -> "-createdAt").map { flist =>
+    feedbackService.list("order" -> "-createdAt").map { flist =>
       Ok(views.html.feedback.list(flist.filter(_.text.isDefined)))
     }
   }

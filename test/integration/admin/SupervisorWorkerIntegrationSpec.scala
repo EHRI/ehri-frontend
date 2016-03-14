@@ -132,7 +132,7 @@ class SupervisorWorkerIntegrationSpec extends IntegrationTestRunner {
       status(haUserRead) must equalTo(OK)
 
       // Fetch the user's profile to perform subsequent logins
-      val headArchivistProfile = await(testBackend.get[UserProfile](headArchivistUserId))
+      val headArchivistProfile = await(dataApi.get[UserProfile](headArchivistUserId))
 
       // Add their account to the mocks
       val haAccount = Account(headArchivistUserId, "head-archivist@example.com",
@@ -161,7 +161,7 @@ class SupervisorWorkerIntegrationSpec extends IntegrationTestRunner {
       status(aUserRead) must equalTo(OK)
 
       // Fetch the user's profile to perform subsequent logins
-      val archivistProfile = await(testBackend.get[UserProfile](archivistUserId))
+      val archivistProfile = await(dataApi.get[UserProfile](archivistUserId))
 
       // Add the archivists group to the account mocks
       val aAccount = Account(archivistUserId, "archivist1@example.com",
@@ -290,7 +290,7 @@ class SupervisorWorkerIntegrationSpec extends IntegrationTestRunner {
       contentAsString(doc3Read) must contain(controllers.units
         .routes.DocumentaryUnits.createDoc(doc3Id).url)
 
-      // Test for #131 - UI shows item can be edited 'cos it can't. This is a backend
+      // Test for #131 - UI shows item can be edited 'cos it can't. This is a dataApi
       // bug but test we're not seeing it here.
       // The regular archivist should not see a link suggesting he can edit the item
       // NB: This was accompanied by a bug in the tests below, which were

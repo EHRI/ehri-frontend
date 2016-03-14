@@ -105,7 +105,8 @@ class DocumentaryUnitViewsSpec extends IntegrationTestRunner {
     }
 
     "allow deleting c4 when logged in" in new ITestApp {
-      val del = FakeRequest(docRoutes.deletePost("c4")).withUser(privilegedUser).call()
+      val del = FakeRequest(docRoutes.deletePost("c4"))
+        .withCsrf.withUser(privilegedUser).call()
       status(del) must equalTo(SEE_OTHER)
     }
   }

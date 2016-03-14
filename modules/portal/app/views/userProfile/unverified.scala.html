@@ -1,4 +1,4 @@
-@()(implicit messages: Messages, token: play.filters.csrf.CSRF.Token)
+@()(implicit request: RequestHeader, messages: Messages)
 
 <div class="alert alert-warning">
     @helper.form(action = controllers.portal.account.routes.Accounts.resendVerificationPost) {
