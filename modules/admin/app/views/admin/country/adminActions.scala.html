@@ -13,7 +13,4 @@
     @views.html.admin.common.sidebarAction(user.hasPermission(ContentTypes.Country, PermissionType.Grant)) {
         <a href="@controllers.countries.routes.Countries.managePermissions(item.id)">@Messages("permissions.manage")</a>
     }
-    @views.html.admin.common.sidebarAction() {
-        <a href="@controllers.countries.routes.Countries.history(item.id)">@Messages("item.history")</a>
-    }
 }

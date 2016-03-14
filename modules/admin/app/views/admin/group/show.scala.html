@@ -60,8 +60,5 @@
         @views.html.admin.common.sidebarAction(user.hasPermission(ContentTypes.Group, PermissionType.Delete)) {
             <a href="@controllers.groups.routes.Groups.delete(item.id)">@Messages("group.delete")</a>
         }
-        @views.html.admin.common.sidebarAction() {
-            <a href="@controllers.groups.routes.Groups.history(item.id)">@Messages("item.history")</a>
-        }
     }
 }
