@@ -63,7 +63,8 @@ case class AdminSearch @Inject()(
     EntityType.AuthoritativeSet,
     EntityType.UserProfile,
     EntityType.Group,
-    EntityType.VirtualUnit
+    EntityType.VirtualUnit,
+    EntityType.Link
   )
 
   /**

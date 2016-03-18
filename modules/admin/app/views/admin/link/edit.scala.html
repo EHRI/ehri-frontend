@@ -1,12 +1,9 @@
-@(item: Link, form: play.api.data.Form[LinkF], action: Call)(
-implicit userOpt: Option[UserProfile], req: RequestHeader, globalConfig: global.GlobalConfig, messages: Messages, md: views.MarkdownRenderer, flash: Flash)
+@(item: Link, form: play.api.data.Form[LinkF], action: Call)(implicit userOpt: Option[UserProfile], req: RequestHeader, globalConfig: global.GlobalConfig, messages: Messages, md: views.MarkdownRenderer, flash: Flash)
 
 @views.html.admin.layout.rightSidebar(Messages("link.update"), breadcrumbs = views.html.admin.common.breadcrumbs(List(item)), scripts = formHelpers.dateJs()) {
-	
 	@helper.form(action = action, 'class -> "entity-form form-horizontal") {
-        @linkForm(form)
+        @views.html.admin.link.linkForm(form)
         @formHelpers.submitButtonWithLogMessageInput(Messages("link.update.submit"), cancel = views.admin.Helpers.linkToOpt(item))
-	}
+    }
 } {
-
 }

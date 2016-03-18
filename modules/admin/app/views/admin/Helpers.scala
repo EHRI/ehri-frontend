@@ -24,6 +24,7 @@ object Helpers {
     ("contentTypes.Country",          controllers.countries.routes.Countries.search().url),
     ("contentTypes.CvocVocabulary",   controllers.vocabularies.routes.Vocabularies.list().url),
     ("contentTypes.AuthoritativeSet", controllers.sets.routes.AuthoritativeSets.list().url),
+    ("contentTypes.Link", controllers.links.routes.Links.search().url),
     ("s1", "-"),
     ("contentTypes.SystemEvent",      controllers.events.routes.SystemEvents.list().url),
     ("s2", "-"),
@@ -47,7 +48,7 @@ object Helpers {
       case Group => controllers.groups.routes.Groups.get(id)
       case UserProfile => controllers.users.routes.UserProfiles.get(id)
       case Annotation => controllers.annotation.routes.Annotations.get(id)
-      case Link => controllers.linking.routes.Links.get(id)
+      case Link => controllers.links.routes.Links.get(id)
       case Vocabulary => controllers.vocabularies.routes.Vocabularies.get(id)
       case AuthoritativeSet => controllers.sets.routes.AuthoritativeSets.get(id)
       case Concept => controllers.keywords.routes.Concepts.get(id)

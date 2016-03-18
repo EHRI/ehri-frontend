@@ -1,0 +1,16 @@
+# Routes for linking functionality
+
+GET     /                             @controllers.links.Links.search
+GET     /:id                          @controllers.links.Links.get(id: String)
+GET     /:id/rd                       @controllers.links.Links.getAndRedirect(id: String, redirect: Option[String] ?= None)
+GET     /:id/history                  @controllers.links.Links.history(id: String)
+GET     /:id/visibility               @controllers.links.Links.visibility(id: String)
+POST    /:id/visibility               @controllers.links.Links.visibilityPost(id: String)
+GET     /:id/update                   @controllers.links.Links.update(id: String, redirect: Option[String] ?= None)
+POST    /:id/update                   @controllers.links.Links.updatePost(id: String, redirect: Option[String] ?= None)
+GET     /:id/delete                   @controllers.links.Links.delete(id: String, redirect: Option[String] ?= None)
+POST    /:id/delete                   @controllers.links.Links.deletePost(id: String, redirect: Option[String] ?= None)
+GET     /:id/promote                  @controllers.links.Links.promote(id: String)
+POST    /:id/promote                  @controllers.links.Links.promotePost(id: String)
+GET     /:id/demote                   @controllers.links.Links.demote(id: String)
+POST    /:id/demote                   @controllers.links.Links.demotePost(id: String)

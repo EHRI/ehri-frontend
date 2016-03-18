@@ -14,6 +14,9 @@ admin.metrics.show=Data Overview Graphs
 
 facet.group=Group
 facet.admin=Administrators
+facet.targetType=Link Target Types
+facet.linkType=Link Type
+facet.linkField=Link Field
 
 #
 # Additional Language codes
@@ -74,6 +77,7 @@ annotation.target=Target
 link.linkTo=Links to Other Items
 link.linkTo.item=Link to {0}
 link.linkTo.submit=Create Relationship
+link.targetType=Item Type
 link.items=Related Items
 link.itemLink=Relationship
 link.creator=Relationship Created By
@@ -100,6 +104,10 @@ link.creation=Creation
 link.existence=Existence
 link.startDate=Start Date
 link.endDate=End Date
+link.field=Related Field
+link.locationOfOriginals=Location of Originals
+link.locationOfCopies=Location of Copies
+link.relatedUnitsOfDescription=Related Units of Description
 
 #
 # Generic actions

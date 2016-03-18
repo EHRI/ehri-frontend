@@ -12,6 +12,7 @@ implicit userOpt: Option[UserProfile], req: RequestHeader, globalConfig: global.
         @defining(form("")) { desc =>
             @formHelpers.textInput(desc, DESCRIPTION)
             @formHelpers.enumChoiceInput(form(LINK_TYPE), LinkType, LINK_TYPE, blank=true)
+            @formHelpers.enumChoiceInput(form(LINK_FIELD), LinkField, LINK_FIELD, blank=true)
 
             <div class="inline-formset form-group clearfix" data-prefix="@DATES">
                 <!-- Template for adding inline date forms via JS -->

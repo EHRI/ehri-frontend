@@ -69,7 +69,8 @@ case class Indexing @Inject()(
     EntityType.UserProfile,
     EntityType.Group,
     EntityType.VirtualUnit,
-    EntityType.Annotation
+    EntityType.Annotation,
+    EntityType.Link
   )
 
   private implicit val messageTransformer = MessageFlowTransformer

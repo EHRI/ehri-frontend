@@ -55,7 +55,7 @@ GET         /filter                             @controllers.admin.SearchFilter.
 ->          /groups                             groups.Routes
 ->          /events                             events.Routes
 ->          /annotation                         annotation.Routes
-->          /linking                            linking.Routes
+->          /links                              links.Routes
 
 ->          /units                              units.Routes
 ->          /institutions                       institutions.Routes
