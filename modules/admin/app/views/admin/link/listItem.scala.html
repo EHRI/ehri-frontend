@@ -1,0 +1,32 @@
+@(item: Link)(implicit req: RequestHeader, userOpt: Option[UserProfile], globalConfig: global.GlobalConfig, messages: Messages, md: views.MarkdownRenderer)
+
+
+<div class="search-item" id="@item.id" dir="auto">
+    <h2 class="search-item-heading">
+        <a href="@controllers.links.routes.Links.get(item.id)">
+            <span class="glyphicon glyphicon-link"></span>
+        </a>
+        @item.targets.dropRight(1).map { t =>
+            @views.html.admin.helpers.linkTo(t) ⇆
+        }
+        @item.targets.lastOption.map { t =>
+            @views.html.admin.helpers.linkTo(t)
+        }
+    </h2>
+    <div class="search-item-body">
+        <div class="search-item-details">
+            <ul>
+                @item.model.dates.map { dp =>
+                    <li>@dp.years</li>
+                }
+                @item.latestEvent.map { event =>
+                    <li title="@common.eventTitle(event)">
+                        <time datetime="@event.model.timestamp">@Messages("systemEvent.lastUpdated", views.Helpers.relativeDate(event.model.timestamp))</time>
+                    </li>
+                }
+            </ul>
+        </div>
+
+        @item.model.description.map(d => Markdown(d))
+    </div>
+</div>

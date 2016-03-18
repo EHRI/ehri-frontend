@@ -7,6 +7,9 @@
             @views.html.admin.common.stringValue(item.model.description, LinkF.DESCRIPTION)
             @views.html.admin.common.dateSet(item.model, LinkF.DATES)
             <span class="label label-default">@Messages("link." + item.model.linkType.toString)</span>
+            @item.model.linkField.map { field =>
+                <span class="label label-warning">@Messages("link." + field.toString)</span>
+            }
 
             <h4>@Messages("link.items")</h4>
             <ul>
@@ -24,19 +27,16 @@
         }
     }
 } {
-
-
-
-    @views.html.admin.common.promotion(item, controllers.linking.routes.Links.promote(item.id), controllers.linking.routes.Links.demote(item.id), ContentTypes.Link)
-    @views.html.admin.common.visibility(item, controllers.linking.routes.Links.visibility(item.id), ContentTypes.Link)
-    @views.html.admin.common.latestAction(item, controllers.linking.routes.Links.history(item.id))
+    @views.html.admin.common.promotion(item, controllers.links.routes.Links.promote(item.id), controllers.links.routes.Links.demote(item.id), ContentTypes.Link)
+    @views.html.admin.common.visibility(item, controllers.links.routes.Links.visibility(item.id), ContentTypes.Link)
+    @views.html.admin.common.latestAction(item, controllers.links.routes.Links.history(item.id))
 
     @views.html.admin.common.sidebarActions { user =>
         @views.html.admin.common.sidebarAction(user.hasPermission(ContentTypes.Link, PermissionType.Update)) {
-            <a href="@controllers.linking.routes.Links.update(item.id, src)">@Messages("item.update")</a>
+            <a href="@controllers.links.routes.Links.update(item.id, src)">@Messages("item.update")</a>
         }
         @views.html.admin.common.sidebarAction(user.hasPermission(ContentTypes.Link, PermissionType.Delete)) {
-            <a href="@controllers.linking.routes.Links.delete(item.id, src)">@Messages("link.delete")</a>
+            <a href="@controllers.links.routes.Links.delete(item.id, src)">@Messages("link.delete")</a>
         }
     }
 }

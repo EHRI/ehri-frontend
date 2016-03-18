@@ -36,6 +36,9 @@
                     case d: Vocabulary => {
                         @views.html.admin.vocabulary.listItem(d)
                     }
+                    case d: Link => {
+                        @views.html.admin.link.listItem(d)
+                    }
                     case d: Annotation => {
                         @views.html.annotation.searchItem(d)
                     }

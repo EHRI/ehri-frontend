@@ -1,4 +1,4 @@
-package controllers.linking
+package controllers.links
 
 import javax.inject._
 
@@ -6,9 +6,13 @@ import backend.rest.DataHelpers
 import controllers.Components
 import controllers.base.AdminController
 import controllers.generic._
+import defines.EntityType
 import forms.VisibilityForm
 import models.{Link, LinkF}
 import play.api.mvc.{Action, AnyContent, Call}
+import play.api.mvc.Call
+import play.api.i18n.Messages
+import utils.search._
 
 
 case class Links @Inject()(
@@ -20,11 +24,61 @@ case class Links @Inject()(
   with Promotion[Link]
   with Update[LinkF, Link]
   with Delete[Link]
-  with Annotate[Link] {
+  with Annotate[Link]
+  with Search {
 
   private val form = Link.form
+  private val linkRoutes = controllers.links.routes.Links
 
-  private val linkRoutes = controllers.linking.routes.Links
+  private val entityFacets: FacetBuilder = { implicit request =>
+    List(
+      FieldFacetClass(
+        key = "linkType",
+        name = Messages("link.type"),
+        param = "linkType",
+        render = s => Messages("link." + s),
+        display = FacetDisplay.Choice
+      ),
+      FieldFacetClass(
+        key = "linkField",
+        name = Messages("link.field"),
+        param = "linkField",
+        render = s => Messages("link." + s),
+        display = FacetDisplay.Choice
+      ),
+      FieldFacetClass(
+        key = "targetTypes",
+        name = Messages("link.targetType"),
+        param = "targetType",
+        render = s => Messages("contentTypes." + s),
+        display = FacetDisplay.Choice
+      )
+    )
+  }
+
+  def search(): Action[AnyContent] = OptionalUserAction.async { implicit request =>
+    // We only care here about links which:
+    // - don't have a body, i.e. are not connected to access points
+    // - connect only 2 items
+    // - one of which is a doc unit
+    val targetTypes = Seq(
+      EntityType.DocumentaryUnit,
+      EntityType.Repository,
+      EntityType.HistoricalAgent
+    )
+    val filters = Map(
+      "hasBody" -> false,
+      "targetCount" -> 2,
+      s"targetTypes:(${targetTypes.mkString(" ")})" -> Unit
+    )
+
+    findType[Link](
+      filters = filters,
+      facetBuilder = entityFacets
+    ).map { result =>
+      Ok(views.html.admin.link.search(result, linkRoutes.search()))
+    }
+  }
 
   private def redirectLink(src: Option[String], alt: Call): Call =
     src.map(r => controllers.admin.routes.Data.getItem(r)).getOrElse(alt)
@@ -49,7 +103,6 @@ case class Links @Inject()(
     Redirect(linkRoutes.get(id))
         .flashing("success" -> "item.update.confirmation")
   }
-  
   def update(id: String, redirect: Option[String] = None): Action[AnyContent] = EditAction(id).apply { implicit request =>
     Ok(views.html.admin.link.edit(
       request.item, form.fill(request.item.model), linkRoutes.updatePost(id, redirect)))
@@ -62,7 +115,7 @@ case class Links @Inject()(
       case Right(item) => Redirect(redirectLink(redirect, linkRoutes.get(id)))
         .flashing("success" -> "item.update.confirmation")
     }
-  }  
+  }
 
   def delete(id: String, redirect: Option[String] = None): Action[AnyContent] = CheckDeleteAction(id).apply { implicit request =>
     Ok(views.html.admin.delete(

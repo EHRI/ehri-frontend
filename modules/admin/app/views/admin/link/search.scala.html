@@ -1,0 +1,7 @@
+@(result: utils.search.SearchResult[(Link, utils.search.SearchHit)], action: Call)(implicit userOpt: Option[UserProfile], req: RequestHeader, globalConfig: global.GlobalConfig, messages: Messages, md: views.MarkdownRenderer, flash: Flash)
+
+@views.html.admin.layout.adminSearchLayout(Messages("link.search"), result, action) {
+    @views.html.admin.search.searchItemList(result)
+} {
+    @common.search.facetList(result.facetClasses, action)
+}

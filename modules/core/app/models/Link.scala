@@ -14,6 +14,7 @@ import play.api.libs.json.JsObject
 object LinkF {
 
   val LINK_TYPE = "type"
+  val LINK_FIELD = "field"
   val DESCRIPTION = "description"
   val ALLOW_PUBLIC = Ontology.IS_PROMOTABLE
   val DATES = "dates"
@@ -26,7 +27,16 @@ object LinkF {
     val Hierarchical = Value("hierarchical")
     val Temporal = Value("temporal")
 
-    implicit val format: Format[LinkType.Value] = defines.EnumUtils.enumFormat(this)
+    implicit val _fmt: Format[LinkType.Value] = defines.EnumUtils.enumFormat(this)
+  }
+
+  object LinkField extends Enumeration {
+    type Field = Value
+    val LocationOfOriginals = Value(IsadG.LOCATION_ORIGINALS)
+    val LocationOfCopies = Value(IsadG.LOCATION_COPIES)
+    val RelatedUnits = Value(IsadG.RELATED_UNITS)
+
+    implicit val _fmt: Format[LinkField.Value] = defines.EnumUtils.enumFormat(this)
   }
 
   import Entity._
@@ -37,6 +47,7 @@ object LinkF {
     (__ \ TYPE).formatIfEquals(EntityType.Link) and
     (__ \ ID).formatNullable[String] and
     (__ \ DATA \ LINK_TYPE).formatWithDefault(LinkType.Associative) and
+    (__ \ DATA \ LINK_FIELD).formatNullable[LinkField.Field] and
     (__ \ DATA \ DESCRIPTION).formatNullable[String] and
     (__ \ DATA \ IS_PROMOTABLE).formatWithDefault(false) and
     (__ \ RELATIONSHIPS \ ENTITY_HAS_DATE).formatSeqOrEmpty[DatePeriodF]
@@ -51,6 +62,7 @@ case class LinkF(
   isA: EntityType.Value = EntityType.Link,
   id: Option[String],
   linkType: LinkF.LinkType.Type,
+  linkField: Option[LinkF.LinkField.Field] = None,
   description: Option[String] = None,
   isPromotable: Boolean = false,
   @models.relation(Ontology.ENTITY_HAS_DATE)
@@ -92,6 +104,7 @@ object Link {
     Entity.ISA -> ignored(EntityType.Link),
     Entity.ID -> optional(nonEmptyText),
     LINK_TYPE -> default(enumMapping(LinkType), LinkType.Associative),
+    LINK_FIELD -> optional(enumMapping(LinkField)),
     DESCRIPTION -> optional(nonEmptyText), // TODO: Validate this server side
     Ontology.IS_PROMOTABLE -> default(boolean, false),
     DATES -> seq(DatePeriod.form.mapping)
