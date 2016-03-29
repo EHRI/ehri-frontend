@@ -2,7 +2,6 @@ package backend.rest.cypher
 
 import com.google.inject.Singleton
 import play.api.cache.CacheApi
-import play.api.libs.iteratee.Enumerator
 
 import scala.concurrent.Future
 import play.api.{Logger, PlayException}
@@ -10,13 +9,13 @@ import play.api.libs.concurrent.Execution.Implicits._
 import play.api.libs.json.{Json,JsValue}
 import play.api.libs.json.Reads
 import play.api.libs.json.__
-import play.api.libs.ws.{WSResponseHeaders, WSClient, WSResponse}
+import play.api.libs.ws.{StreamedResponse, WSClient, WSResponse}
 import backend.rest.RestService
 import javax.inject.Inject
 
 case class CypherError(
   message: String, exception: String, stacktrace: Seq[String]
-) extends PlayException("Cypher Script Error: %s".format(exception), message)
+) extends PlayException(s"Cypher Script Error: $exception", message)
 
 object CypherErrorReader {
 
@@ -42,7 +41,7 @@ case class CypherService @Inject ()(
 
   def requestUrl = utils.serviceBaseUrl("cypher", config)
 
-  import CypherErrorReader._
+  import backend.rest.cypher.CypherErrorReader._
 
   private def checkCypherError(r: WSResponse): JsValue = r.json.validate[CypherError].fold(
     valid = err => throw err,
@@ -58,7 +57,7 @@ case class CypherService @Inject ()(
   def get[T: Reads](scriptBody: String, params: Map[String,JsValue]): Future[T] =
     cypher(scriptBody, params).map(_.as(implicitly[Reads[T]]))
 
-  def stream(scriptBody: String, params: Map[String,JsValue] = Map.empty): Future[(WSResponseHeaders, Enumerator[Array[Byte]])] = {
+  def stream(scriptBody: String, params: Map[String,JsValue] = Map.empty): Future[StreamedResponse] = {
     val data = Json.obj("query" -> scriptBody, "params" -> params)
     logger.debug(s"Cypher: ${Json.toJson(data)}")
     ws.url(requestUrl).withHeaders((headers + ("X-Stream" -> "true")).toSeq: _*)

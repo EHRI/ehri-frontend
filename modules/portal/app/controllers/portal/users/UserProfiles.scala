@@ -9,6 +9,7 @@ import play.api.i18n.{MessagesApi, Messages}
 import play.api.libs.mailer.MailerClient
 import play.api.mvc._
 import play.api.libs.json.{JsValue, Json, JsObject}
+import play.core.parsers.Multipart
 import utils._
 import views.MarkdownRenderer
 import scala.concurrent.Future.{successful => immediate}
@@ -43,7 +44,8 @@ case class UserProfiles @Inject()(
   pageRelocator: utils.MovedPageLookup,
   messagesApi: MessagesApi,
   markdown: MarkdownRenderer,
-  fileStorage: FileStorage
+  fileStorage: FileStorage,
+  mat: akka.stream.Materializer
 ) extends PortalController
   with LoginLogout
   with PortalAuthConfigImpl

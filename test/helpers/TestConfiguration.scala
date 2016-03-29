@@ -1,5 +1,6 @@
 package helpers
 
+import akka.stream.Materializer
 import auth.oauth2.{MockOAuth2Flow, OAuth2Flow}
 import auth.{MockAccountManager, AccountManager}
 import backend._
@@ -100,9 +101,6 @@ trait TestConfiguration {
 
   val integrationAppLoader = new GuiceApplicationLoader(appBuilder)
 
-  implicit def execContext(implicit app: play.api.Application): ExecutionContext =
-    app.injector.instanceOf[ExecutionContext]
-
   // Might want to mock the dataApi at at some point!
   def dataApi(implicit app: play.api.Application, apiUser: ApiUser, executionContext: ExecutionContext): DataApiHandle =
     app.injector.instanceOf[DataApi].withContext(apiUser)(executionContext)
@@ -133,7 +131,10 @@ trait TestConfiguration {
    * @param specificConfig A map of config values for this test
    */
   abstract class ITestApp(val specificConfig: Map[String,Any] = Map.empty) extends WithApplicationLoader(
-    new GuiceApplicationLoader(appBuilder.configure(backendConfig ++ getConfig ++ specificConfig)))
+    new GuiceApplicationLoader(appBuilder.configure(backendConfig ++ getConfig ++ specificConfig))) {
+    implicit def implicitMaterializer = app.materializer
+    implicit def implicitExecContext = app.injector.instanceOf[ExecutionContext]
+  }
 
   /**
    * Test running Fake Application. We have general all-test configuration,

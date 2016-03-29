@@ -1,4 +1,4 @@
-@(form: Form[(Option[String],String,Boolean)])(implicit userOpt: Option[UserProfile], request: RequestHeader, messages: Messages, token: play.filters.csrf.CSRF.Token)
+@(form: Form[(Option[String],String,Boolean)])(implicit userOpt: Option[UserProfile], request: RequestHeader, messages: Messages)
 
 @implicitField = @{ views.html.helper.FieldConstructor(views.html.helpers.fieldTemplateSignUp.f) }
 

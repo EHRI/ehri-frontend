@@ -50,8 +50,8 @@ case class CypherQueries @Inject()(
     // calling it from there don't chunk the response.
     val q: String = queryForm.bindFromRequest.value.getOrElse("")
     if (isAjax) cypher.cypher(q, Map.empty).map(r => Ok(r))
-    else cypher.stream(q, Map.empty).map { case (headers, stream) =>
-      Status(headers.status).chunked(stream)
+    else cypher.stream(q, Map.empty).map { sr =>
+      Status(sr.headers.status).chunked(sr.body)
     }
   }
 
@@ -133,8 +133,8 @@ case class CypherQueries @Inject()(
             Ok(views.html.admin.cypherQueries.results(query, r))
           }
         case DataFormat.Json =>
-          cypher.stream(query.query).map { case (head, body) =>
-            Ok.stream(body).as(ContentTypes.JSON)
+          cypher.stream(query.query).map { sr =>
+            Ok.chunked(sr.body).as(ContentTypes.JSON)
               .withHeaders(HeaderNames.CONTENT_DISPOSITION -> s"attachment; filename='$filename'")
           }
         case _ => immediate(NotAcceptable(s"Unsupported type: $format"))

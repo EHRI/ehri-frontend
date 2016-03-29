@@ -27,7 +27,7 @@ object SqlOpenIdAssociationManager {
   }
 }
 
-case class SqlOpenIdAssociationManager()(implicit db: Database, app: play.api.Application, executionContext: ExecutionContext)
+case class SqlOpenIdAssociationManager()(implicit db: Database, executionContext: ExecutionContext)
   extends OpenIdAssociationManager{
 
   import SqlOpenIdAssociationManager._

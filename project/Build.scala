@@ -15,7 +15,7 @@ import sbt._
 import play.sbt.routes.RoutesKeys._
 
 
-object ApplicationBuild extends Build {
+object Build extends Build {
 
   parallelExecution in ThisBuild := false
   logBuffered := false

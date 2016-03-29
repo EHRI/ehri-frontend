@@ -5,7 +5,6 @@ import javax.inject.Inject
 import acl.{ItemPermissionSet, GlobalPermissionSet}
 import backend.rest.Constants._
 import defines.{ContentTypes, EntityType}
-import play.api.libs.iteratee.Enumerator
 import play.api.libs.json._
 import utils._
 import utils.caching.FutureCache
@@ -13,7 +12,7 @@ import utils.caching.FutureCache
 import scala.concurrent.{ExecutionContext, Future}
 import play.api.mvc.Headers
 import play.api.cache.CacheApi
-import play.api.libs.ws.{WSResponseHeaders, WSClient, WSResponse}
+import play.api.libs.ws.{StreamedResponse, WSClient, WSResponse}
 import backend._
 import scala.concurrent.Future.{successful => immediate}
 
@@ -39,7 +38,7 @@ case class RestApiHandle(eventHandler: EventHandler)(
     userCall(enc(baseUrl, urlPart) + (if(params.nonEmpty) "?" + joinQueryString(params) else ""))
       .withHeaders(headers.headers: _*).get()
 
-  override def stream(urlPart: String, headers: Headers = Headers(), params: Map[String,Seq[String]] = Map.empty): Future[(WSResponseHeaders, Enumerator[Array[Byte]])] =
+  override def stream(urlPart: String, headers: Headers = Headers(), params: Map[String,Seq[String]] = Map.empty): Future[StreamedResponse] =
     userCall(enc(baseUrl, urlPart) + (if(params.nonEmpty) "?" + joinQueryString(params) else ""))
       .withHeaders(headers.headers: _*).withMethod("GET").stream()
 

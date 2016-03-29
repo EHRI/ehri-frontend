@@ -1,4 +1,4 @@
-@(item: models.base.Accessor, perms: acl.GlobalPermissionSet, action: Call)(implicit userOpt: Option[UserProfile], req: RequestHeader, globalConfig: global.GlobalConfig, messages: Messages, flash: Flash, token: play.filters.csrf.CSRF.Token)
+@(item: models.base.Accessor, perms: acl.GlobalPermissionSet, action: Call)(implicit userOpt: Option[UserProfile], req: RequestHeader, globalConfig: global.GlobalConfig, messages: Messages, flash: Flash)
 
 @implicitField = @{views.html.helper.FieldConstructor(formHelpers.fieldTemplate.f)}
 
@@ -46,7 +46,6 @@
                     </tr>
                 }
             </table>
-
         </fieldset>
 
         @formHelpers.submitButtonWithLogMessageInput(

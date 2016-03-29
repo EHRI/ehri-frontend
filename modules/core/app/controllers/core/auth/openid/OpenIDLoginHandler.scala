@@ -12,6 +12,7 @@ import play.api.data.Form
 import play.api.data.Forms._
 import play.api.mvc.Result
 import java.net.ConnectException
+import scala.concurrent.Future
 import controllers.core.auth.AccountHelpers
 
 import scala.concurrent.Future
@@ -26,6 +27,7 @@ trait OpenIDLoginHandler extends AccountHelpers {
   def dataApi: DataApi
   def accounts: auth.AccountManager
   def globalConfig: global.GlobalConfig
+  def openId: OpenIdClient
   implicit def app: play.api.Application
 
   val attributes = Seq(
@@ -58,7 +60,7 @@ trait OpenIDLoginHandler extends AccountHelpers {
             Logger.info("bad request " + error.toString)
             block(OpenIDRequest(error, request))
           }, openidUrl => {
-            OpenID.redirectURL(
+            openId.redirectURL(
               openidUrl,
               handler.absoluteURL(globalConfig.https),
               attributes).map(url => Redirect(url))
@@ -91,7 +93,7 @@ trait OpenIDLoginHandler extends AccountHelpers {
       implicit val r = request
       implicit val a = app
 
-      OpenID.verifiedId(request, app).flatMap { info =>
+      openId.verifiedId(request).flatMap { info =>
 
         // check if there's a user with the right id
         accounts.openId.findByUrl(info.id).flatMap {
