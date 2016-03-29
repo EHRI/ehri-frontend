@@ -4,6 +4,7 @@ import java.net.URLEncoder
 import java.nio.charset.StandardCharsets
 import java.util.concurrent.TimeUnit
 
+import com.fasterxml.jackson.databind.JsonMappingException
 import play.api.Logger
 import play.api.http.{Writeable, ContentTypeOf, HeaderNames, ContentTypes}
 import play.api.libs.iteratee.Enumerator
@@ -17,7 +18,7 @@ import scala.concurrent.duration.Duration
 
 import play.api.cache.CacheApi
 
-trait RestDAO {
+trait RestService {
 
   implicit def config: play.api.Configuration
   implicit def cache: CacheApi
@@ -92,7 +93,7 @@ trait RestDAO {
       logger.debug(s"WS: $apiUser $method $fullUrl")
       holderWithAuth
         .execute(method)
-        .map(checkError)
+        .map(r => checkError(r, Some(fullUrl)))
         .map(r => conditionalCache(url, method, r))
     }
 
@@ -172,6 +173,13 @@ trait RestDAO {
   )
 
   /**
+   * Transform a query string map into a sequence of tuples.
+   */
+  protected def unpack(m: Map[String,Seq[String]]): Seq[(String,String)] = m.toSeq.flatMap {
+    case (k, vals) => vals.map(v => k -> v)
+  }
+
+  /**
    * Headers to add to outgoing request...
    * @return
    */
@@ -224,13 +232,15 @@ trait RestDAO {
 
   protected def baseUrl: String = utils.serviceBaseUrl("ehridata", config)
 
-  protected def canonicalUrl[MT: Resource](id: String): String =
-    enc(baseUrl, Resource[MT].entityType, id)
+  protected def typeBaseUrl: String = enc(baseUrl, "classes")
 
-  protected def checkError(response: WSResponse): WSResponse = {
+  protected def canonicalUrl[MT: Resource](id: String): String =
+    enc(typeBaseUrl, Resource[MT].entityType, id)
+
+  protected def checkError(response: WSResponse, uri: Option[String] = None): WSResponse = {
     logger.trace(s"Response body ! : ${response.body}")
     response.status match {
-      case OK | CREATED => response
+      case OK | CREATED | NO_CONTENT => response
       case e => e match {
 
         case UNAUTHORIZED =>
@@ -265,10 +275,17 @@ trait RestDAO {
         }
         case NOT_FOUND =>
           //logger.error("404: {} -> {}", Array(response.underlying[AHCRe].getUri, response.body))
-          response.json.validate[ItemNotFound].fold(
-            e => throw new ItemNotFound(),
-            err => throw err
-          )
+          try {
+            response.json.validate[ItemNotFound].fold(
+              e => throw new ItemNotFound(),
+              err => throw err
+            )
+          } catch {
+            case e @ (_: JsonParseException | _: JsonMappingException) =>
+              val err: String = s"Backend 404 at $uri: '${response.body}"
+              logger.error(err, e)
+              sys.error(err)
+          }
         case _ =>
           val err = s"Unexpected response: ${response.status}: '${response.body}'"
           logger.error(err)

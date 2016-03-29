@@ -9,7 +9,7 @@ import utils.MovedPageLookup
 import utils.search.{SearchItemResolver, SearchEngine}
 import javax.inject._
 import controllers.generic.Search
-import backend.Backend
+import backend.DataApi
 import controllers.base.AdminController
 
 @Singleton
@@ -19,7 +19,7 @@ case class SearchFilter @Inject()(
   globalConfig: global.GlobalConfig,
   searchEngine: SearchEngine,
   searchResolver: SearchItemResolver,
-  backend: Backend,
+  dataApi: DataApi,
   accounts: AccountManager,
   pageRelocator: MovedPageLookup,
   messagesApi: MessagesApi

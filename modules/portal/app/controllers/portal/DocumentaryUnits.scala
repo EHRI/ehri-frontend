@@ -6,7 +6,7 @@ import models.base.AnyModel
 import play.api.cache.CacheApi
 import play.api.i18n.MessagesApi
 import play.api.libs.concurrent.Execution.Implicits._
-import backend.Backend
+import backend.DataApi
 import com.google.inject.{Inject, Singleton}
 import controllers.generic.Search
 import controllers.portal.base.{Generic, PortalController}
@@ -27,7 +27,7 @@ case class DocumentaryUnits @Inject()(
   globalConfig: global.GlobalConfig,
   searchEngine: SearchEngine,
   searchResolver: SearchItemResolver,
-  backend: Backend,
+  dataApi: DataApi,
   accounts: AccountManager,
   pageRelocator: MovedPageLookup,
   messagesApi: MessagesApi,
@@ -85,7 +85,7 @@ case class DocumentaryUnits @Inject()(
   def export(id: String) = OptionalUserAction.async { implicit request =>
     val format = "ead" // Hardcoded for now!
     val params = request.queryString.filterKeys(_ == "lang")
-    userBackend.stream(s"${EntityType.DocumentaryUnit}/$id/$format", params = params).map { case (head, body) =>
+    userDataApi.stream(s"classes/${EntityType.DocumentaryUnit}/$id/$format", params = params).map { case (head, body) =>
       Status(head.status)
         .chunked(body.andThen(Enumerator.eof))
         .withHeaders(head.headers.map(s => (s._1, s._2.head)).toSeq: _*)

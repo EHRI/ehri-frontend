@@ -1,7 +1,7 @@
 package controllers.portal.guides
 
 import auth.AccountManager
-import backend.Backend
+import backend.DataApi
 import javax.inject._
 import backend.rest.cypher.Cypher
 import controllers.portal.base.{Generic, PortalController}
@@ -19,19 +19,19 @@ case class Repositories @Inject()(
   globalConfig: global.GlobalConfig,
   searchEngine: SearchEngine,
   searchResolver: SearchItemResolver,
-  backend: Backend,
+  dataApi: DataApi,
   accounts: AccountManager,
   pageRelocator: utils.MovedPageLookup,
   messagesApi: MessagesApi,
   markdown: MarkdownRenderer,
-  guideDAO: GuideDAO,
+  guides: GuideService,
   cypher: Cypher
 ) extends PortalController
   with Generic[Repository] {
 
   def browse(path: String, id: String) = GetItemAction(id).apply { implicit request =>
-    itemOr404(guideDAO.find(path, activeOnly = true)) { guide =>
-      Ok(views.html.guides.repository(guide, GuidePage.repository(Some(request.item.toStringLang)), guideDAO.findPages(guide), request.item))
+    itemOr404(guides.find(path, activeOnly = true)) { guide =>
+      Ok(views.html.guides.repository(guide, GuidePage.repository(Some(request.item.toStringLang)), guides.findPages(guide), request.item))
     }
   }
 }

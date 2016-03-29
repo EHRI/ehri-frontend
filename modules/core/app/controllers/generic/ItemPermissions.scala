@@ -41,7 +41,7 @@ trait ItemPermissions[MT] extends Visibility[MT] {
       override protected def transform[A](request: ItemPermissionRequest[A]): Future[ItemPermissionGrantRequest[A]] = {
         implicit val req = request
         val params = PageParams.fromRequest(request)
-        userBackend.listItemPermissionGrants[PermissionGrant](id, params).map { permGrants =>
+        userDataApi.listItemPermissionGrants[PermissionGrant](id, params).map { permGrants =>
           ItemPermissionGrantRequest(request.item, permGrants, request.userOpt, request)
         }
       }
@@ -54,8 +54,8 @@ trait ItemPermissions[MT] extends Visibility[MT] {
     WithGrantPermission(id) andThen new ActionTransformer[ItemPermissionRequest, SetItemPermissionRequest] {
       override protected def transform[A](request: ItemPermissionRequest[A]): Future[SetItemPermissionRequest[A]] = {
         implicit val req = request
-        val accessorF = userBackend.get[Accessor](Accessor.resourceFor(userType), userId)
-        val permsF = userBackend.getItemPermissions(userId, ct.contentType, id)
+        val accessorF = userDataApi.get[Accessor](Accessor.resourceFor(userType), userId)
+        val permsF = userDataApi.getItemPermissions(userId, ct.contentType, id)
         for {
           accessor <- accessorF
           perms <- permsF
@@ -76,8 +76,8 @@ trait ItemPermissions[MT] extends Visibility[MT] {
         val data = getData(request).getOrElse(Map.empty)
         val perms: Seq[String] = data.getOrElse(ct.contentType.toString, Seq.empty)
         for {
-          accessor <- userBackend.get[Accessor](Accessor.resourceFor(userType), userId)
-          perms <- userBackend.setItemPermissions(userId, ct.contentType, id, perms)
+          accessor <- userDataApi.get[Accessor](Accessor.resourceFor(userType), userId)
+          perms <- userDataApi.setItemPermissions(userId, ct.contentType, id, perms)
         } yield SetItemPermissionRequest(request.item, accessor, perms, request.userOpt, request)
       }
     }

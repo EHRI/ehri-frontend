@@ -1,7 +1,7 @@
 package controllers.portal
 
 import auth.AccountManager
-import backend.Backend
+import backend.DataApi
 import backend.rest.cypher.Cypher
 import com.google.inject.{Inject, Singleton}
 import controllers.generic.Search
@@ -26,7 +26,7 @@ case class Repositories @Inject()(
   globalConfig: global.GlobalConfig,
   searchEngine: SearchEngine,
   searchResolver: SearchItemResolver,
-  backend: Backend,
+  dataApi: DataApi,
   accounts: AccountManager,
   pageRelocator: MovedPageLookup,
   messagesApi: MessagesApi,
@@ -92,7 +92,7 @@ case class Repositories @Inject()(
   def export(id: String) = OptionalUserAction.async { implicit request =>
     val format = "eag" // Hardcoded for now!
     val params = request.queryString.filterKeys(_ == "lang")
-    userBackend.stream(s"${EntityType.Repository}/$id/$format", params = params).map { case (head, body) =>
+    userDataApi.stream(s"classes/${EntityType.Repository}/$id/$format", params = params).map { case (head, body) =>
       Status(head.status)
         .chunked(body.andThen(Enumerator.eof))
         .withHeaders(head.headers.map(s => (s._1, s._2.head)).toSeq: _*)

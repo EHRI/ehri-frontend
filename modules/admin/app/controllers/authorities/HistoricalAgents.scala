@@ -11,7 +11,7 @@ import defines.{EntityType, PermissionType}
 import utils.MovedPageLookup
 import utils.search._
 import javax.inject._
-import backend.Backend
+import backend.DataApi
 import controllers.base.AdminController
 import views.MarkdownRenderer
 
@@ -23,7 +23,7 @@ case class HistoricalAgents @Inject()(
   globalConfig: global.GlobalConfig,
   searchEngine: SearchEngine,
   searchResolver: SearchItemResolver,
-  backend: Backend,
+  dataApi: DataApi,
   accounts: AccountManager,
   pageRelocator: MovedPageLookup,
   messagesApi: MessagesApi,

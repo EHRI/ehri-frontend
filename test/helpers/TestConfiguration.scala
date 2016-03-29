@@ -4,13 +4,12 @@ import auth.oauth2.{MockOAuth2Flow, OAuth2Flow}
 import auth.{MockAccountManager, AccountManager}
 import backend._
 import backend.aws.MockFileStorage
-import backend.feedback.MockFeedbackDAO
-import backend.helpdesk.MockHelpdeskDAO
-import backend.rest.RestBackend
+import backend.feedback.MockFeedbackService
+import backend.helpdesk.MockHelpdeskService
+import backend.rest.{IdSearchResolver, RestApi}
 import controllers.base.{SessionPreferences, AuthConfigImpl}
 import global.GlobalConfig
 import jp.t2v.lab.play2.auth.test.Helpers._
-import mockdata.{_}
 import models.{CypherQuery, Account, Feedback}
 import org.specs2.execute.{Result, AsResult}
 import play.api.http.Writeable
@@ -32,7 +31,7 @@ trait TestConfiguration {
 
   this: PlayRunners with RouteInvokers =>
 
-  import RestBackendRunner._
+  import helpers.RestApiRunner._
 
   // Stateful buffers for capturing stuff like feedback, search
   // parameters, and reset tokens. These persist across tests in
@@ -48,9 +47,9 @@ trait TestConfiguration {
 
   private def mockMailer: MailerClient = new MockBufferedMailer(mailBuffer)
   private def mockIndexer: SearchIndexMediator = new MockSearchIndexMediator(indexEventBuffer)
-  private def mockFeedback: FeedbackDAO = new MockFeedbackDAO(feedbackBuffer)
-  private def mockHelpdesk: HelpdeskDAO = new MockHelpdeskDAO(helpdeskBuffer)
-  private def mockCypherQueries: CypherQueryDAO = new MockCypherQueryDAO(cypherQueryBuffer)
+  private def mockFeedback: FeedbackService = new MockFeedbackService(feedbackBuffer)
+  private def mockHelpdesk: HelpdeskService = new MockHelpdeskService(helpdeskBuffer)
+  private def mockCypherQueries: CypherQueryService = new MockCypherQueryService(cypherQueryBuffer)
 
   // NB: The mutable state for the user DAO is still stored globally
   // in the mocks package.
@@ -84,29 +83,29 @@ trait TestConfiguration {
       bind[MovedPageLookup].toInstance(mockRelocator),
       bind[AccountManager].toInstance(mockAccounts),
       bind[SearchEngine].to[MockSearchEngine],
-      bind[HelpdeskDAO].toInstance(mockHelpdesk),
-      bind[SearchItemResolver].to[MockSearchResolver],
-      bind[FeedbackDAO].toInstance(mockFeedback),
-      bind[CypherQueryDAO].toInstance(mockCypherQueries),
+      bind[HelpdeskService].toInstance(mockHelpdesk),
+      bind[FeedbackService].toInstance(mockFeedback),
+      bind[CypherQueryService].toInstance(mockCypherQueries),
       bind[EventHandler].toInstance(testEventHandler),
-      bind[Backend].to[RestBackend],
+      bind[DataApi].to[RestApi],
       bind[SearchIndexMediator].toInstance(mockIndexer),
-      bind[HtmlPages].toInstance(mockHtmlPages)
+      bind[HtmlPages].toInstance(mockHtmlPages),
+      // NB: Graph IDs are not stable during testing due to
+      // DB churn, so using the String ID resolver rather than
+      // the more efficient GID one used in production
+      bind[SearchItemResolver].to[IdSearchResolver]
     ).bindings(
       bind[SearchLogger].toInstance(searchLogger)
     )
 
   val integrationAppLoader = new GuiceApplicationLoader(appBuilder)
 
-//  implicit def messagesApi: MessagesApi =
-//    appBuilder.build().injector.instanceOf[play.api.i18n.MessagesApi]
-
   implicit def execContext(implicit app: play.api.Application): ExecutionContext =
     app.injector.instanceOf[ExecutionContext]
 
-  // Might want to mock the backend at at some point!
-  def testBackend(implicit app: play.api.Application, apiUser: ApiUser, executionContext: ExecutionContext): BackendHandle =
-    app.injector.instanceOf[Backend].withContext(apiUser)(executionContext)
+  // Might want to mock the dataApi at at some point!
+  def dataApi(implicit app: play.api.Application, apiUser: ApiUser, executionContext: ExecutionContext): DataApiHandle =
+    app.injector.instanceOf[DataApi].withContext(apiUser)(executionContext)
 
   // Dummy auth config for play-2-auth
   def authConfig(implicit _app: play.api.Application) = new AuthConfigImpl {

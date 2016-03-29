@@ -1,12 +1,12 @@
 package backend.feedback
 
-import backend.FeedbackDAO
+import backend.FeedbackService
 import models.Feedback
 
 import scala.concurrent.Future.{successful => immediate}
 import scala.concurrent.{ExecutionContext, Future}
 
-class MockFeedbackDAO(buffer: collection.mutable.HashMap[Int, Feedback]) extends FeedbackDAO {
+class MockFeedbackService(buffer: collection.mutable.HashMap[Int, Feedback]) extends FeedbackService {
 
   def create(feedback: Feedback)(implicit executionContext: ExecutionContext): Future[String] = {
     val key = buffer.size + 1

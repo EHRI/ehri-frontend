@@ -17,7 +17,7 @@ import javax.inject._
 import views.MarkdownRenderer
 
 import scala.concurrent.Future.{successful => immediate}
-import backend.Backend
+import backend.DataApi
 import controllers.base.AdminController
 
 
@@ -29,7 +29,7 @@ case class Vocabularies @Inject()(
   searchEngine: SearchEngine,
   searchIndexer: SearchIndexMediator,
   searchResolver: SearchItemResolver,
-  backend: Backend,
+  dataApi: DataApi,
   accounts: AccountManager,
   pageRelocator: utils.MovedPageLookup,
   messagesApi: MessagesApi,

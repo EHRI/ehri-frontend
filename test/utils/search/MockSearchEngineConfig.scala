@@ -8,16 +8,16 @@ import utils.{PageParams, Page}
 import scala.concurrent.ExecutionContext.Implicits._
 import models._
 import scala.concurrent.Future
-import backend.{BackendHandle, Backend, ApiUser}
+import backend.{DataApiHandle, DataApi, ApiUser}
 import models.base.{DescribedMeta, Described, Description, AnyModel}
 
 
 /**
  * This class mocks a search displatcher by simply returning
- * whatever's in the backend, wrapped as a search hit...
+ * whatever's in the dataApi, wrapped as a search hit...
  */
 case class MockSearchEngineConfig(
-  backend: Backend,
+  dataApi: DataApi,
   paramLog: SearchLogger,
   params: SearchParams = SearchParams.empty,
   filters: Map[String, Any] = Map.empty,
@@ -37,8 +37,8 @@ case class MockSearchEngineConfig(
     EntityType.Annotation
   )
 
-  private implicit def handle(implicit userOpt: Option[UserProfile]): BackendHandle =
-    backend.withContext(ApiUser(userOpt.map(_.id)))
+  private implicit def handle(implicit userOpt: Option[UserProfile]): DataApiHandle =
+    dataApi.withContext(ApiUser(userOpt.map(_.id)))
 
   private def modelToFilterHit(m: AnyModel): FilterHit =
     FilterHit(m.id, m.id, m.toStringLang, m.isA, None, -1L)
@@ -66,9 +66,9 @@ case class MockSearchEngineConfig(
     // Get the full listing for each type and concat them together
     // once all futures have completed...
     // FIXME: HACK! If we fire off X parallel queries to the newly instantiated
-    // backend we hit a rare syncronisation condition where the vertex index has not yet
+    // dataApi we hit a rare syncronisation condition where the vertex index has not yet
     // been created, and multiple threads try to fetch-and-create it simultaneously.
-    // This can sometimes result in NullPointerExceptions in the backend. This wouldn't
+    // This can sometimes result in NullPointerExceptions in the dataApi. This wouldn't
     // happen in real life since we only create the index at database instantiation time,
     // but it's an (occasional) issue when a mock search query is the first thing to hit
     // the database after setup. To get round this we fetch the first resource list
@@ -129,6 +129,6 @@ case class MockSearchEngineConfig(
   override def setSort(sort: SearchOrder.Value): SearchEngineConfig = copy(params = params.copy(sort = Some(sort)))
 }
 
-case class MockSearchEngine @Inject()(backend: Backend, messagesApi: play.api.i18n.MessagesApi, log: SearchLogger) extends SearchEngine {
-  def config = new MockSearchEngineConfig(backend, log)(messagesApi)
+case class MockSearchEngine @Inject()(dataApi: DataApi, messagesApi: play.api.i18n.MessagesApi, log: SearchLogger) extends SearchEngine {
+  def config = new MockSearchEngineConfig(dataApi, log)(messagesApi)
 }

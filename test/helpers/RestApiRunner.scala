@@ -19,7 +19,7 @@ trait BeforeAllAfterAll extends Specification with BeforeEach {
   protected def afterAll()
 }
 
-object RestBackendRunner {
+object RestApiRunner {
   val testPort = 7575
   val testEndpoint = "ehri"
 
@@ -30,9 +30,9 @@ object RestBackendRunner {
   )
 }
 
-trait RestBackendRunner extends BeforeAllAfterAll {
+trait RestApiRunner extends BeforeAllAfterAll {
 
-  import RestBackendRunner._
+  import RestApiRunner._
   private val runner = ServerRunner.getInstance(testPort,
     classOf[SystemEventResource].getPackage.getName, testEndpoint)
 

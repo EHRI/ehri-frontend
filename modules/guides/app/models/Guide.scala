@@ -69,7 +69,7 @@ object Guide {
   def blueprint(): Guide = Guide(Some(0), "", "", Some(""), "", Some(""), Some(""), active = true)
 }
 
-trait GuideDAO {
+trait GuideService {
   def findPages(guide: Guide): List[GuidePage]
   def findPage(guide: Guide, path: String): Option[GuidePage]
   def getDefaultPage(guide: Guide): Option[GuidePage]
@@ -89,7 +89,7 @@ trait GuideDAO {
   def findAllPages(): List[GuidePage]
 }
 
-case class DatabaseGuideDAO @Inject ()(implicit db: Database) extends GuideDAO {
+case class SqlGuideService @Inject ()(implicit db: Database) extends GuideService {
 
   override def findPages(guide: Guide): List[GuidePage] = db.withConnection { implicit connection =>
     guide.id.map { id =>

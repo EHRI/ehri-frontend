@@ -6,7 +6,7 @@ import java.util.concurrent.TimeUnit
 import auth.AuthenticationError
 import auth.oauth2.providers.OAuth2Provider
 import auth.oauth2.{OAuth2Flow, UserData}
-import backend.{AnonymousUser, AuthenticatedUser, Backend}
+import backend.{AnonymousUser, AuthenticatedUser, DataApi}
 import controllers.base.CoreActionBuilders
 import controllers.core.auth.AccountHelpers
 import global.GlobalConfig
@@ -31,7 +31,7 @@ trait OAuth2LoginHandler extends AccountHelpers {
 
   def logger = Logger(this.getClass)
 
-  def backend: Backend
+  def dataApi: DataApi
   def accounts: auth.AccountManager
   def globalConfig: GlobalConfig
   def oAuth2Flow: OAuth2Flow
@@ -50,8 +50,8 @@ trait OAuth2LoginHandler extends AccountHelpers {
 
   private def updateUserInfo(account: Account, userData: UserData): Future[UserProfile] = {
     implicit val apiUser = AuthenticatedUser(account.id)
-    userBackend.get[UserProfile](account.id).flatMap { up =>
-      userBackend.patch[UserProfile](account.id, Json.obj(
+    userDataApi.get[UserProfile](account.id).flatMap { up =>
+      userDataApi.patch[UserProfile](account.id, Json.obj(
         UserProfileF.NAME -> JsString(userData.name),
         // Only update the user image if it hasn't already been set
         UserProfileF.IMAGE_URL -> JsString(up.model.imageUrl.getOrElse(userData.imageUrl))
@@ -66,7 +66,7 @@ trait OAuth2LoginHandler extends AccountHelpers {
       UserProfileF.IMAGE_URL -> userData.imageUrl
     )
     for {
-      profile <- userBackend.createNewUserProfile[UserProfile](profileData, groups = defaultPortalGroups)
+      profile <- userDataApi.createNewUserProfile[UserProfile](profileData, groups = defaultPortalGroups)
       account <- accounts.create(Account(
         id = profile.id,
         email = userData.email.toLowerCase,

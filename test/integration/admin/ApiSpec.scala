@@ -9,12 +9,13 @@ import models.{AccessPointF, AnnotationF}
 import play.api.libs.json.{JsBoolean, Json}
 import play.api.test.FakeRequest
 
+import scala.concurrent.Future
 import scala.util.{Failure, Success, Try}
 
 /**
  * Spec for testing various JSON endpoints used by Ajax components etc.
  */
-class APISpec extends IntegrationTestRunner {
+class ApiSpec extends IntegrationTestRunner {
 
   import mockdata.privilegedUser
 
@@ -95,7 +96,7 @@ class APISpec extends IntegrationTestRunner {
   "Direct API access for GET requests" should {
     "stream with chunked encoding" in new ITestApp {
       val c = FakeRequest(controllers.admin.routes.Data
-        .forward(EntityType.DocumentaryUnit.toString))
+        .forward(s"classes/${EntityType.DocumentaryUnit.toString}"))
         .withHeaders(Constants.STREAM_HEADER_NAME -> "true")
         .withUser(privilegedUser).call()
       status(c) must equalTo(OK)
@@ -108,7 +109,7 @@ class APISpec extends IntegrationTestRunner {
 
     "stream with length" in new ITestApp {
       val c = FakeRequest(controllers.admin.routes.Data
-        .forward(s"${EntityType.DocumentaryUnit}/c1"))
+        .forward(s"classes/${EntityType.DocumentaryUnit}/c1"))
         .withUser(privilegedUser).call()
       status(c) must equalTo(OK)
       contentType(c) must equalTo(Some("application/json"))

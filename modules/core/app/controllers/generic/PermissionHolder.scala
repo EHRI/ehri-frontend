@@ -8,7 +8,7 @@ import models._
 
 import play.api.libs.concurrent.Execution.Implicits._
 import utils.{Page, PageParams}
-import backend.{Readable, ContentType}
+import backend.ContentType
 
 import scala.concurrent.Future
 
@@ -47,7 +47,7 @@ trait PermissionHolder[MT <: Accessor] extends Read[MT] {
       override protected def transform[A](request: ItemPermissionRequest[A]): Future[HolderPermissionGrantRequest[A]] = {
         implicit val req = request
         val params = PageParams.fromRequest(request)
-        userBackend.listPermissionGrants[PermissionGrant](id, params).map { perms =>
+        userDataApi.listPermissionGrants[PermissionGrant](id, params).map { perms =>
           HolderPermissionGrantRequest(request.item, perms, request.userOpt, request)
         }
       }
@@ -63,7 +63,7 @@ trait PermissionHolder[MT <: Accessor] extends Read[MT] {
     WithItemPermissionAction(id, PermissionType.Grant) andThen new ActionTransformer[ItemPermissionRequest, GlobalPermissionSetRequest] {
       override protected def transform[A](request: ItemPermissionRequest[A]): Future[GlobalPermissionSetRequest[A]] = {
         implicit val req = request
-        userBackend.getGlobalPermissions(id).map { perms =>
+        userDataApi.getGlobalPermissions(id).map { perms =>
           GlobalPermissionSetRequest(request.item, perms, request.userOpt, request)
         }
       }
@@ -77,7 +77,7 @@ trait PermissionHolder[MT <: Accessor] extends Read[MT] {
         val perms: Map[String, Seq[String]] = ContentTypes.values.toSeq.map { ct =>
           ct.toString -> data.getOrElse(ct.toString, Seq.empty)
         }.toMap
-        userBackend.setGlobalPermissions(id, perms).map { perms =>
+        userDataApi.setGlobalPermissions(id, perms).map { perms =>
           GlobalPermissionSetRequest(request.item, perms, request.userOpt, request)
         }
       }
@@ -87,7 +87,7 @@ trait PermissionHolder[MT <: Accessor] extends Read[MT] {
     WithItemPermissionAction(id, PermissionType.Grant) andThen new ActionTransformer[ItemPermissionRequest, PermissionGrantRequest] {
       override protected def transform[A](request: ItemPermissionRequest[A]): Future[PermissionGrantRequest[A]] = {
         implicit val req = request
-        userBackend.get[PermissionGrant](permId).map { perm =>
+        userDataApi.get[PermissionGrant](permId).map { perm =>
           PermissionGrantRequest(request.item, perm, request.userOpt, request)
         }
       }
@@ -97,7 +97,7 @@ trait PermissionHolder[MT <: Accessor] extends Read[MT] {
     WithItemPermissionAction(id, PermissionType.Grant) andThen new ActionTransformer[ItemPermissionRequest, ItemPermissionRequest] {
       override protected def transform[A](request: ItemPermissionRequest[A]): Future[ItemPermissionRequest[A]] = {
         implicit val req = request
-        userBackend.delete[PermissionGrant](permId).map( _ => request)
+        userDataApi.delete[PermissionGrant](permId).map( _ => request)
       }
     }
 }

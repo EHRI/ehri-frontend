@@ -16,7 +16,7 @@ import play.api.libs.concurrent.Execution.Implicits._
 import javax.inject._
 import play.api.libs.json._
 import play.api.mvc.Action
-import backend.Backend
+import backend.DataApi
 import play.api.libs.ws.WSClient
 import utils.{CsvHelpers, MovedPageLookup, PageParams}
 import backend.rest.cypher.Cypher
@@ -32,7 +32,7 @@ case class Utils @Inject()(
   implicit app: play.api.Application,
   cache: CacheApi,
   globalConfig: global.GlobalConfig,
-  backend: Backend,
+  dataApi: DataApi,
   accounts: AccountManager,
   pageRelocator: MovedPageLookup,
   messagesApi: MessagesApi,
@@ -49,9 +49,9 @@ case class Utils @Inject()(
    * Check the database is up by trying to load the admin account.
    */
   def checkDb = Action.async { implicit request =>
-    // Not using the EntityDAO directly here to avoid caching
+    // Not using the data api directly here to avoid caching
     // and logging
-    ws.url(s"$baseUrl/${EntityType.Group}/${Accessor.ADMIN_GROUP_NAME}").get().map { r =>
+    ws.url(s"$baseUrl/classes/${EntityType.Group}/${Accessor.ADMIN_GROUP_NAME}").get().map { r =>
       r.json.validate[Group](Group.GroupResource.restReads).fold(
         _ => ServiceUnavailable("ko\nbad json"),
         _ => Ok("ok")
