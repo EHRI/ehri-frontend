@@ -103,7 +103,7 @@ case class UserProfiles @Inject()(
       .copy(eventTypes = activityEventTypes)
       .copy(itemTypes = activityItemTypes)
     val events: Future[RangePage[Seq[SystemEvent]]] =
-      userDataApi.listUserActions[SystemEvent](request.user.id, listParams, eventParams)
+      userDataApi.userActions[SystemEvent](request.user.id, listParams, eventParams)
 
     events.map { myActivity =>
       if (isAjax) Ok(views.html.activity.eventItems(myActivity))

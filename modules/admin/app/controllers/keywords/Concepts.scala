@@ -70,7 +70,7 @@ case class Concepts @Inject()(
 
   def get(id: String) = ItemMetaAction(id).async { implicit request =>
     val params = PageParams.fromRequest(request)
-    userDataApi.listChildren[Concept, Concept](id, params).map { page =>
+    userDataApi.children[Concept, Concept](id, params).map { page =>
       Ok(views.html.admin.concept.show(request.item, page, params, request.links, request.annotations))
     }
   }

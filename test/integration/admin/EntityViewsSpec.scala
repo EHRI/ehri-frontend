@@ -152,7 +152,7 @@ class EntityViewsSpec extends IntegrationTestRunner {
       status(cr) must equalTo(SEE_OTHER)
 
       // Now check we can read back the same permissions.
-      val perms = await(dataApi.getGlobalPermissions(id))
+      val perms = await(dataApi.globalPermissions(id))
       subjectUser.getPermission(perms, ContentTypes.Repository, PermissionType.Create) must beSome
       subjectUser.getPermission(perms, ContentTypes.Repository, PermissionType.Create).get.inheritedFrom must beNone
       subjectUser.getPermission(perms, ContentTypes.DocumentaryUnit, PermissionType.Create) must beSome

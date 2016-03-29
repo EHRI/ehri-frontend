@@ -9,15 +9,38 @@ import utils._
 
 import scala.concurrent.{ExecutionContext, Future}
 
-
+/**
+ * Factory class for creating data API handles.
+ */
 trait DataApi {
+  /**
+   * Get an API handle for the given user.
+   *
+   * @param apiUser the current user
+   * @param executionContext the execution context
+   * @return an API handle
+   */
   def withContext(apiUser: ApiUser)(implicit executionContext: ExecutionContext): DataApiHandle
 }
 
+/**
+ * An API handle, which includes the user and execution
+ * context.
+ */
 trait DataApiHandle {
-
+  /**
+   * Get the event handler object for this API handle.
+   *
+   * @return an event handler
+   */
   def eventHandler: EventHandler
 
+  /**
+   * Override the event handler for the API handle.
+   *
+   * @param eventHandler an event handler
+   * @return a new API handle
+   */
   def withEventHandler(eventHandler: EventHandler): DataApiHandle
 
   /**
@@ -177,7 +200,7 @@ trait DataApiHandle {
    * @tparam MT the parent generic type
    * @tparam CMT the child generic resource type
    */
-  def listChildren[MT: Resource, CMT: Readable](id: String, params: PageParams = PageParams.empty): Future[Page[CMT]]
+  def children[MT: Resource, CMT: Readable](id: String, params: PageParams = PageParams.empty): Future[Page[CMT]]
 
   /**
    * Count child items of a resource.
@@ -232,7 +255,7 @@ trait DataApiHandle {
    * @param id the item's id
    * @return a page of link items
    */
-  def getLinksForItem[A: Readable](id: String): Future[Page[A]]
+  def links[A: Readable](id: String): Future[Page[A]]
 
   /**
    * Fetch annotations for a given item.
@@ -240,7 +263,7 @@ trait DataApiHandle {
    * @param id the item's id
    * @return a page of annotation items
    */
-  def getAnnotationsForItem[A: Readable](id: String): Future[Page[A]]
+  def annotations[A: Readable](id: String): Future[Page[A]]
 
   /**
    * List permission grants for a given item.
@@ -249,7 +272,7 @@ trait DataApiHandle {
    * @param params the paging parameters
    * @return a page of permission grant items
    */
-  def listItemPermissionGrants[A: Readable](id: String, params: PageParams): Future[Page[A]]
+  def itemPermissionGrants[A: Readable](id: String, params: PageParams): Future[Page[A]]
 
   /**
    * List permission grants for which this item is the scope.
@@ -258,7 +281,7 @@ trait DataApiHandle {
    * @param params the paging parameters
    * @return a page of permission grants
    */
-  def listScopePermissionGrants[A: Readable](id: String, params: PageParams): Future[Page[A]]
+  def scopePermissionGrants[A: Readable](id: String, params: PageParams): Future[Page[A]]
 
   /**
    * Fetch an item's history.
@@ -333,7 +356,7 @@ trait DataApiHandle {
    * @param params range params
    * @param filters event filter params
    */
-  def listEventsForUser[A: Readable](userId: String, params: RangeParams, filters: SystemEventParams = SystemEventParams.empty): Future[RangePage[Seq[A]]]
+  def userEvents[A: Readable](userId: String, params: RangeParams, filters: SystemEventParams = SystemEventParams.empty): Future[RangePage[Seq[A]]]
 
   /**
    * Fetch a list of events corresponding to a user's actions.
@@ -342,7 +365,7 @@ trait DataApiHandle {
    * @param params range params
    * @param filters event filter params
    */
-  def listUserActions[A: Readable](userId: String, params: RangeParams, filters: SystemEventParams = SystemEventParams.empty): Future[RangePage[Seq[A]]]
+  def userActions[A: Readable](userId: String, params: RangeParams, filters: SystemEventParams = SystemEventParams.empty): Future[RangePage[Seq[A]]]
 
   /**
    * Fetch versions for an item.
@@ -402,7 +425,7 @@ trait DataApiHandle {
    * @param params range params
    * @param filters event filter params
    */
-  def listEvents[A: Readable](params: RangeParams, filters: SystemEventParams = SystemEventParams.empty): Future[RangePage[Seq[A]]]
+  def events[A: Readable](params: RangeParams, filters: SystemEventParams = SystemEventParams.empty): Future[RangePage[Seq[A]]]
 
   /**
    * Fetch all subjects for a given event.
@@ -445,7 +468,7 @@ trait DataApiHandle {
    * @param id the item's id
    * @return an item permission set
    */
-  def getItemPermissions(userId: String, contentType: ContentTypes.Value, id: String): Future[ItemPermissionSet]
+  def itemPermissions(userId: String, contentType: ContentTypes.Value, id: String): Future[ItemPermissionSet]
 
   /**
    * Set a permission set for a particular item.
@@ -473,7 +496,7 @@ trait DataApiHandle {
    * @param userId the user's id
    * @return a global permission set
    */
-  def getGlobalPermissions(userId: String): Future[GlobalPermissionSet]
+  def globalPermissions(userId: String): Future[GlobalPermissionSet]
 
   /**
    * Get the permissions for a particular user in a given scope.
@@ -482,7 +505,7 @@ trait DataApiHandle {
    * @param id the scope item's id
    * @return a scoped permission set
    */
-  def getScopePermissions(userId: String, id: String): Future[GlobalPermissionSet]
+  def scopePermissions(userId: String, id: String): Future[GlobalPermissionSet]
 
   /**
    * Set the permissions for a particular user in a given scope.
@@ -501,7 +524,7 @@ trait DataApiHandle {
    * @param params the paging parameters
    * @return a page of permissions
    */
-  def listPermissionGrants[A: Readable](userId: String, params: PageParams): Future[Page[A]]
+  def permissionGrants[A: Readable](userId: String, params: PageParams): Future[Page[A]]
 
   /**
    * Add a user to a particular group.

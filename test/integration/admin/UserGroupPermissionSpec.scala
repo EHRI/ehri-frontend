@@ -119,7 +119,7 @@ class UserGroupPermissionSpec extends IntegrationTestRunner {
 
       // Fetch the user's permission grants and check there exists one for c4
       val page: Page[PermissionGrant] =
-        await(dataApi.listPermissionGrants[PermissionGrant]("user1", PageParams.empty))
+        await(dataApi.permissionGrants[PermissionGrant]("user1", PageParams.empty))
       page.size must_== 2
       page.find(_.targets.headOption.map(_.id).contains("c4")) must beSome.which { pg =>
         pg.accessor must beSome.which { a =>
@@ -134,7 +134,7 @@ class UserGroupPermissionSpec extends IntegrationTestRunner {
         status(revoke) must_== SEE_OTHER
 
         val page2: Page[PermissionGrant] =
-          await(dataApi.listPermissionGrants[PermissionGrant]("user1", PageParams.empty))
+          await(dataApi.permissionGrants[PermissionGrant]("user1", PageParams.empty))
         page2.size must_== 1
         page2.find(_.targets.headOption.map(_.id).contains("c4")) must beNone
       }

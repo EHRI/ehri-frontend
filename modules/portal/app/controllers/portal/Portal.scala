@@ -88,7 +88,7 @@ case class Portal @Inject()(
     val eventFilter = SystemEventParams.fromRequest(request)
       .copy(eventTypes = activityEventTypes)
       .copy(itemTypes = activityItemTypes)
-    userDataApi.listEventsForUser[SystemEvent](request.user.id, listParams, eventFilter).map { events =>
+    userDataApi.userEvents[SystemEvent](request.user.id, listParams, eventFilter).map { events =>
       if (isAjax) Ok(views.html.activity.eventItems(events))
         .withHeaders("activity-more" -> events.more.toString)
       else Ok(views.html.activity.activity(events, listParams))

@@ -129,7 +129,7 @@ class AnnotationsSpec extends IntegrationTestRunner {
       // Mmmn, need to get the id - this is faffy... assume there is
       // only one annotation on the item and fetch it via the api...
       implicit val apiUser = ApiUser(Some(privilegedUser.id))
-      await(dataApi.getAnnotationsForItem[Annotation]("c4")).headOption must beSome.which { aid =>
+      await(dataApi.annotations[Annotation]("c4")).headOption must beSome.which { aid =>
       // The privilegedUser and unprivilegedUser belong to the same group (kcl)
       // so if we set the visibility to groups it should be visible to the other
       // guy...
@@ -163,7 +163,7 @@ class AnnotationsSpec extends IntegrationTestRunner {
 
       // Get a id via faff method and promote the item...
       implicit val apiUser = ApiUser(Some(privilegedUser.id))
-      val aid = await(dataApi.getAnnotationsForItem[Annotation]("c4")).headOption must beSome.which { aid =>
+      val aid = await(dataApi.annotations[Annotation]("c4")).headOption must beSome.which { aid =>
         await(dataApi.promote[Annotation](aid.id))
 
         // Ensure the unprivileged user CAN now see the annotation...

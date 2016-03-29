@@ -41,7 +41,7 @@ trait ItemPermissions[MT] extends Visibility[MT] {
       override protected def transform[A](request: ItemPermissionRequest[A]): Future[ItemPermissionGrantRequest[A]] = {
         implicit val req = request
         val params = PageParams.fromRequest(request)
-        userDataApi.listItemPermissionGrants[PermissionGrant](id, params).map { permGrants =>
+        userDataApi.itemPermissionGrants[PermissionGrant](id, params).map { permGrants =>
           ItemPermissionGrantRequest(request.item, permGrants, request.userOpt, request)
         }
       }
@@ -55,7 +55,7 @@ trait ItemPermissions[MT] extends Visibility[MT] {
       override protected def transform[A](request: ItemPermissionRequest[A]): Future[SetItemPermissionRequest[A]] = {
         implicit val req = request
         val accessorF = userDataApi.get[Accessor](Accessor.resourceFor(userType), userId)
-        val permsF = userDataApi.getItemPermissions(userId, ct.contentType, id)
+        val permsF = userDataApi.itemPermissions(userId, ct.contentType, id)
         for {
           accessor <- accessorF
           perms <- permsF
