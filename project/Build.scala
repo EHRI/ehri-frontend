@@ -92,7 +92,7 @@ object Build extends Build {
     "org.jsoup" % "jsoup" % "1.8.3",
 
     // Mailer...
-    "com.typesafe.play" %% "play-mailer" % "3.0.1",
+    "com.typesafe.play" %% "play-mailer" % "5.0.0-M1",
 
     // Time formatting library
     "org.ocpsoft.prettytime" % "prettytime" % "3.2.7.Final",
