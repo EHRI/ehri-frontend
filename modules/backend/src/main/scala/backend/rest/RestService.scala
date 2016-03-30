@@ -6,12 +6,11 @@ import java.util.concurrent.TimeUnit
 
 import com.fasterxml.jackson.databind.JsonMappingException
 import play.api.Logger
-import play.api.http.{Writeable, ContentTypeOf, HeaderNames, ContentTypes}
-import play.api.libs.iteratee.Enumerator
+import play.api.http.{Writeable, ContentTypeOf, HeaderNames}
 import play.api.libs.json._
 import backend._
 import com.fasterxml.jackson.core.JsonParseException
-import play.api.libs.ws.{WSRequest, WSResponseHeaders, WSAuthScheme, WSClient}
+import play.api.libs.ws._
 import utils.{RangePage, RangeParams, Page}
 import scala.concurrent.Future
 import scala.concurrent.duration.Duration
@@ -97,7 +96,7 @@ trait RestService {
         .map(r => conditionalCache(url, method, r))
     }
 
-    def stream(): Future[(WSResponseHeaders, Enumerator[Array[Byte]])] = {
+    def stream(): Future[StreamedResponse] = {
       logger.debug(s"WS (stream): $apiUser $method $fullUrl")
       holderWithAuth.stream()
     }
@@ -146,7 +145,7 @@ trait RestService {
     }
   }
 
-  import Constants._
+  import backend.rest.Constants._
   import play.api.http.Status._
 
   /**

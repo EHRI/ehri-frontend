@@ -26,7 +26,7 @@ class BrowserSpec extends PlaySpecification {
 
     "deny access to admin routes" in new WithBrowser(app = appBuilder.build()) {
       browser.goTo(controllers.admin.routes.AdminSearch.search().url)
-      browser.$("title").getTexts.get(0) must contain(Messages("login.title"))
+      browser.title() must contain(Messages("login.title"))
     }
   }
 }

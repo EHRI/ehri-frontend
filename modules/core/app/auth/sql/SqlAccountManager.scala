@@ -1,6 +1,7 @@
 package auth.sql
 
 import java.sql.Connection
+import akka.actor.ActorSystem
 import org.joda.time.DateTime
 
 import scala.language.postfixOps
@@ -10,22 +11,21 @@ import java.util.UUID
 import auth.{HashedPassword, OpenIdAssociationManager, OAuth2AssociationManager, AccountManager}
 import models.Account
 import play.api.db.Database
-import play.api.libs.concurrent.Akka
 import utils.PageParams
 import anorm.SqlParser._
 import anorm._
 import anorm.JodaParameterMetaData._
 import scala.concurrent.{Future, ExecutionContext}
-
 import javax.inject._
 
+
 @Singleton
-case class SqlAccountManager @Inject()(implicit db: Database, app: play.api.Application) extends AccountManager {
+case class SqlAccountManager @Inject()(implicit db: Database, actorSystem: ActorSystem) extends AccountManager {
 
   import SqlAccountManager._
 
   override protected implicit def executionContext: ExecutionContext =
-    Akka.system.dispatchers.lookup("contexts.simple-db-lookups")
+    actorSystem.dispatchers.lookup("contexts.simple-db-lookups")
 
   override def oAuth2: OAuth2AssociationManager = new SqlOAuth2AssociationManager()
 

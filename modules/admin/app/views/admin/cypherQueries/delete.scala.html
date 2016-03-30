@@ -1,4 +1,4 @@
-@(item: CypherQuery, action: Call, cancel: Call)(implicit userOpt: Option[UserProfile], request: RequestHeader, globalConfig: global.GlobalConfig, messages: Messages, flash: Flash, token: play.filters.csrf.CSRF.Token)
+@(item: CypherQuery, action: Call, cancel: Call)(implicit userOpt: Option[UserProfile], request: RequestHeader, globalConfig: global.GlobalConfig, messages: Messages, flash: Flash)
 
 @views.html.admin.layout.rightSidebar(Messages("item.delete")) {
     <p>@Messages("item.delete")</p>

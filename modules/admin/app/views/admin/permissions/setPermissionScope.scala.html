@@ -1,4 +1,4 @@
-@(item: models.base.Accessible, accessor: models.base.Accessor, perms: acl.GlobalPermissionSet, contentTypes: Seq[defines.ContentTypes.Value], action: Call)(implicit userOpt: Option[UserProfile], req: RequestHeader, globalConfig: global.GlobalConfig, messages: Messages, flash: Flash, token: play.filters.csrf.CSRF.Token)
+@(item: models.base.Accessible, accessor: models.base.Accessor, perms: acl.GlobalPermissionSet, contentTypes: Seq[defines.ContentTypes.Value], action: Call)(implicit userOpt: Option[UserProfile], req: RequestHeader, globalConfig: global.GlobalConfig, messages: Messages, flash: Flash)
 
 @views.html.admin.layout.rightSidebar(Messages("permissions.scopeLevel.grant.item", item.toStringLang, accessor.toStringLang), breadcrumbs = views.html.admin.common.breadcrumbs(List(item))) {
     @helper.form(action = action, 'class -> "entity-form form-horizontal") {

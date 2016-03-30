@@ -29,7 +29,7 @@ object SqlOAuth2AssociationManager {
   }
 }
 
-case class SqlOAuth2AssociationManager()(implicit db: Database, app: play.api.Application, executionContext: ExecutionContext)
+case class SqlOAuth2AssociationManager()(implicit db: Database, executionContext: ExecutionContext)
   extends OAuth2AssociationManager{
 
   import SqlOAuth2AssociationManager._

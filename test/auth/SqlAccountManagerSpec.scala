@@ -3,6 +3,7 @@ package auth
 import java.sql.{SQLException, SQLIntegrityConstraintViolationException}
 import java.util.UUID
 
+import akka.actor.ActorSystem
 import anorm.SqlParser._
 import anorm._
 import auth.sql.SqlAccountManager
@@ -14,13 +15,13 @@ import play.api.test.PlaySpecification
 import utils.PageParams
 import helpers.withFixtures
 
+
 class SqlAccountManagerSpec extends PlaySpecification {
 
   implicit val dateTimeOrdering: Ordering[DateTime] = Ordering.fromLessThan(_ isBefore _)
+  implicit val actorSystem = new GuiceApplicationBuilder().build().injector.instanceOf[ActorSystem]
 
-  implicit val app = new GuiceApplicationBuilder().build()
-
-  def accounts(implicit db: Database, app: play.api.Application): AccountManager = SqlAccountManager()(db, app)
+  def accounts(implicit db: Database, actorSystem: ActorSystem): AccountManager = SqlAccountManager()(db, actorSystem)
 
   "account manager" should {
     "load fixtures with the right number of accounts" in withFixtures { implicit db =>

@@ -2,13 +2,12 @@ package backend
 
 import acl.{GlobalPermissionSet, ItemPermissionSet}
 import defines.ContentTypes
-import play.api.libs.iteratee.Enumerator
 import play.api.libs.json.JsObject
+import play.api.libs.ws.{StreamedResponse, WSResponse}
+import play.api.mvc.Headers
 import utils._
 
 import scala.concurrent.{ExecutionContext, Future}
-import play.api.mvc.Headers
-import play.api.libs.ws.{WSResponseHeaders, WSResponse}
 
 
 trait DataApi {
@@ -40,8 +39,7 @@ trait DataApiHandle {
    * @param params additional parameters
    * @return a streaming web response
    */
-  def stream(urlPart: String, headers: Headers = Headers(), params: Map[String,Seq[String]] = Map.empty): Future[(WSResponseHeaders, Enumerator[Array[Byte]])]
-
+  def stream(urlPart: String, headers: Headers = Headers(), params: Map[String, Seq[String]] = Map.empty): Future[StreamedResponse]
 
   /**
    * Create a new user profile.
