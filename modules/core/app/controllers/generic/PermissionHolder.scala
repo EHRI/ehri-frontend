@@ -47,7 +47,7 @@ trait PermissionHolder[MT <: Accessor] extends Read[MT] {
       override protected def transform[A](request: ItemPermissionRequest[A]): Future[HolderPermissionGrantRequest[A]] = {
         implicit val req = request
         val params = PageParams.fromRequest(request)
-        userDataApi.listPermissionGrants[PermissionGrant](id, params).map { perms =>
+        userDataApi.permissionGrants[PermissionGrant](id, params).map { perms =>
           HolderPermissionGrantRequest(request.item, perms, request.userOpt, request)
         }
       }
@@ -63,7 +63,7 @@ trait PermissionHolder[MT <: Accessor] extends Read[MT] {
     WithItemPermissionAction(id, PermissionType.Grant) andThen new ActionTransformer[ItemPermissionRequest, GlobalPermissionSetRequest] {
       override protected def transform[A](request: ItemPermissionRequest[A]): Future[GlobalPermissionSetRequest[A]] = {
         implicit val req = request
-        userDataApi.getGlobalPermissions(id).map { perms =>
+        userDataApi.globalPermissions(id).map { perms =>
           GlobalPermissionSetRequest(request.item, perms, request.userOpt, request)
         }
       }

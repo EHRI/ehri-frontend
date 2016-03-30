@@ -83,7 +83,7 @@ case class Social @Inject()(
       .copy(eventTypes = activityEventTypes)
       .copy(itemTypes = activityItemTypes)
     val events: Future[RangePage[Seq[SystemEvent]]] =
-      userDataApi.listUserActions[SystemEvent](userId, listParams, eventParams)
+      userDataApi.userActions[SystemEvent](userId, listParams, eventParams)
 
     if (isAjax) events.map { theirActivity =>
       Ok(views.html.activity.eventItems(theirActivity))

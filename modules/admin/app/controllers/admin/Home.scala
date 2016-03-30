@@ -101,7 +101,7 @@ case class Home @Inject()(
       val eventFilter = SystemEventParams.fromRequest(request)
         .copy(eventTypes = activityEventTypes)
         .copy(itemTypes = activityItemTypes)
-      userDataApi.listEventsForUser[SystemEvent](user.id, listParams, eventFilter).map { events =>
+      userDataApi.userEvents[SystemEvent](user.id, listParams, eventFilter).map { events =>
         Ok(views.html.admin.index(Some(events)))
       }
     } getOrElse {

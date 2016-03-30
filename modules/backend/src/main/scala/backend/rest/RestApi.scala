@@ -18,7 +18,7 @@ import scala.concurrent.Future.{successful => immediate}
 
 
 case class RestApi @Inject ()(eventHandler: EventHandler, cache: CacheApi, config: play.api.Configuration, ws: WSClient) extends DataApi {
-  def withContext(apiUser: ApiUser)(implicit executionContext: ExecutionContext) =
+  override def withContext(apiUser: ApiUser)(implicit executionContext: ExecutionContext) =
     new RestApiHandle(eventHandler)(
       cache: CacheApi, config, apiUser, executionContext, ws)
 }
@@ -141,7 +141,7 @@ case class RestApiHandle(eventHandler: EventHandler)(
     }
   }
 
-  override def listChildren[MT: Resource, CMT: Readable](id: String, params: PageParams = PageParams.empty): Future[Page[CMT]] = {
+  override def children[MT: Resource, CMT: Readable](id: String, params: PageParams = PageParams.empty): Future[Page[CMT]] = {
     val url: String = enc(typeBaseUrl, Resource[MT].entityType, id, "list")
     userCall(url).withQueryString(params.queryParams: _*).get().map { response =>
       parsePage(response, context = Some(url))(Readable[CMT].restReads)
@@ -198,7 +198,7 @@ case class RestApiHandle(eventHandler: EventHandler)(
   override def removeDemotion[MT: Resource](id: String): Future[MT] =
     userCall(enc(genericItemUrl, id, "demote")).delete().map(itemResponse(id, _))
 
-  override def getLinksForItem[A: Readable](id: String): Future[Page[A]] = {
+  override def links[A: Readable](id: String): Future[Page[A]] = {
     val pageParams = PageParams.empty.withoutLimit
     userCall(enc(genericItemUrl, id, "links")).withQueryString(pageParams.queryParams: _*)
       .get().map { response =>
@@ -206,7 +206,7 @@ case class RestApiHandle(eventHandler: EventHandler)(
     }
   }
 
-  override def getAnnotationsForItem[A: Readable](id: String): Future[Page[A]] = {
+  override def annotations[A: Readable](id: String): Future[Page[A]] = {
     val url = enc(genericItemUrl, id, "annotations")
     val pageParams = PageParams.empty.withoutLimit
     userCall(url).withQueryString(pageParams.queryParams: _*).get().map { response =>
@@ -214,10 +214,10 @@ case class RestApiHandle(eventHandler: EventHandler)(
     }
   }
 
-  override def listItemPermissionGrants[A: Readable](id: String, params: PageParams): Future[Page[A]] =
+  override def itemPermissionGrants[A: Readable](id: String, params: PageParams): Future[Page[A]] =
     listWithUrl(enc(genericItemUrl, id, "permission-grants"), params)
 
-  override def listScopePermissionGrants[A: Readable](id: String, params: PageParams): Future[Page[A]] =
+  override def scopePermissionGrants[A: Readable](id: String, params: PageParams): Future[Page[A]] =
     listWithUrl(enc(genericItemUrl, id, "scope-permission-grants"), params)
 
   override def history[A: Readable](id: String, params: RangeParams,
@@ -277,12 +277,12 @@ case class RestApiHandle(eventHandler: EventHandler)(
     }
   }
 
-  override def listUserActions[A: Readable](userId: String, params: RangeParams, filters: SystemEventParams = SystemEventParams.empty): Future[RangePage[Seq[A]]] = {
+  override def userActions[A: Readable](userId: String, params: RangeParams, filters: SystemEventParams = SystemEventParams.empty): Future[RangePage[Seq[A]]] = {
     val url: String = enc(typeBaseUrl, EntityType.UserProfile, userId, "actions")
     fetchRange(userCall(url, filters.toSeq), params, Some(url))(Reads.seq(Readable[A].restReads))
   }
 
-  override def listEventsForUser[A: Readable](userId: String, params: RangeParams, filters: SystemEventParams = SystemEventParams.empty): Future[RangePage[Seq[A]]] = {
+  override def userEvents[A: Readable](userId: String, params: RangeParams, filters: SystemEventParams = SystemEventParams.empty): Future[RangePage[Seq[A]]] = {
     val url: String = enc(typeBaseUrl, EntityType.UserProfile, userId, "events")
     fetchRange(userCall(url, filters.toSeq), params, Some(url))(Reads.seq(Readable[A].restReads))
   }
@@ -344,7 +344,7 @@ case class RestApiHandle(eventHandler: EventHandler)(
     }
   }
 
-  override def listEvents[A: Readable](params: RangeParams, filters: SystemEventParams = SystemEventParams.empty): Future[RangePage[Seq[A]]] = {
+  override def events[A: Readable](params: RangeParams, filters: SystemEventParams = SystemEventParams.empty): Future[RangePage[Seq[A]]] = {
     val url: String = enc(typeBaseUrl, EntityType.SystemEvent)
     fetchRange(userCall(url, filters.toSeq), params, Some(url))(Reads.seq(Readable[A].restReads))
   }
@@ -386,14 +386,14 @@ case class RestApiHandle(eventHandler: EventHandler)(
 
   private val permissionRequestUrl = enc(baseUrl, "permissions")
 
-  override def listPermissionGrants[A: Readable](userId: String, params: PageParams): Future[Page[A]] = {
+  override def permissionGrants[A: Readable](userId: String, params: PageParams): Future[Page[A]] = {
     val url: String = enc(permissionRequestUrl, userId, "permission-grants")
     userCall(url).withQueryString(params.queryParams: _*).get().map { response =>
       parsePage(response, context = Some(url))(Readable[A].restReads)
     }
   }
 
-  override def getGlobalPermissions(userId: String): Future[GlobalPermissionSet] = {
+  override def globalPermissions(userId: String): Future[GlobalPermissionSet] = {
     val url = enc(permissionRequestUrl, userId)
     FutureCache.getOrElse[GlobalPermissionSet](url, cacheTime) {
       userCall(url).get()
@@ -409,7 +409,7 @@ case class RestApiHandle(eventHandler: EventHandler)(
     }
   }
 
-  override def getItemPermissions(userId: String, contentType: ContentTypes.Value, id: String): Future[ItemPermissionSet] = {
+  override def itemPermissions(userId: String, contentType: ContentTypes.Value, id: String): Future[ItemPermissionSet] = {
     val url = enc(permissionRequestUrl, userId, "item", id)
     FutureCache.getOrElse[ItemPermissionSet](url, cacheTime) {
       userCall(url).get().map { response =>
@@ -427,7 +427,7 @@ case class RestApiHandle(eventHandler: EventHandler)(
     }
   }
 
-  override def getScopePermissions(userId: String, id: String): Future[GlobalPermissionSet] = {
+  override def scopePermissions(userId: String, id: String): Future[GlobalPermissionSet] = {
     val url = enc(permissionRequestUrl, userId, "scope", id)
     FutureCache.getOrElse[GlobalPermissionSet](url, cacheTime) {
       userCall(url).get()

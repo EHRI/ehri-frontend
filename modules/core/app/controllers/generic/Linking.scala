@@ -188,7 +188,7 @@ trait Linking[MT <: AnyModel] extends Read[MT] with Search {
    * Get the link, if any, for a document and an access point.
    */
   def getLink(id: String, apid: String) = OptionalUserAction.async { implicit  request =>
-    userDataApi.getLinksForItem[Link](id).map { links =>
+    userDataApi.links[Link](id).map { links =>
       val linkOpt = links.find(link => link.bodies.exists(b => b.model.id.contains(apid)))
       val res = for {
         link <- linkOpt

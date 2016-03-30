@@ -180,7 +180,7 @@ trait CoreActionBuilders extends Controller with ControllerHelpers with AuthActi
     ) { account =>
       implicit val apiUser = AuthenticatedUser(account.id)
       val userF = userDataApi.get[UserProfile](UserProfile.UserProfileResource, account.id)
-      val globalPermsF = userDataApi.getGlobalPermissions(account.id)
+      val globalPermsF = userDataApi.globalPermissions(account.id)
       for {
         user <- userF
         globalPerms <- globalPermsF

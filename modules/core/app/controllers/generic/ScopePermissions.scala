@@ -43,8 +43,8 @@ trait ScopePermissions[MT] extends ItemPermissions[MT] {
         val itemParams = PageParams.fromRequest(request)
         val scopeParams = PageParams.fromRequest(request, namespace = "s")
         for {
-          permGrants <- userDataApi.listItemPermissionGrants[PermissionGrant](id, itemParams)
-          scopeGrants <- userDataApi.listScopePermissionGrants[PermissionGrant](id, scopeParams)
+          permGrants <- userDataApi.itemPermissionGrants[PermissionGrant](id, itemParams)
+          scopeGrants <- userDataApi.scopePermissionGrants[PermissionGrant](id, scopeParams)
         } yield ScopePermissionGrantRequest(request.item, permGrants, scopeGrants, request.userOpt, request)
       }
     }
@@ -54,7 +54,7 @@ trait ScopePermissions[MT] extends ItemPermissions[MT] {
       override protected def transform[A](request: ItemPermissionRequest[A]): Future[SetScopePermissionRequest[A]] = {
         implicit val req = request
         val accessorF = userDataApi.get[Accessor](Accessor.resourceFor(userType), userId)
-        val permsF = userDataApi.getScopePermissions(userId, id)
+        val permsF = userDataApi.scopePermissions(userId, id)
         for {
           accessor <- accessorF
           perms <- permsF

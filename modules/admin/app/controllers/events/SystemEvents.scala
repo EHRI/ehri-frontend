@@ -45,7 +45,7 @@ case class SystemEvents @Inject()(
 
     for {
       users <- getUserList
-      events <- userDataApi.listEvents[SystemEvent](listParams, eventFilter)
+      events <- userDataApi.events[SystemEvent](listParams, eventFilter)
     } yield Ok(views.html.admin.systemEvent.list(events, listParams,
         filterForm, users,controllers.events.routes.SystemEvents.list()))
   }

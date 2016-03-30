@@ -80,8 +80,8 @@ trait Read[MT] extends Generic {
         implicit val userOpt = input.userOpt
         input.userOpt.map { profile =>
           val itemF = userDataApi.get[MT](itemId)
-          val scopedPermsF = userDataApi.getScopePermissions(profile.id, itemId)
-          val permsF = userDataApi.getItemPermissions(profile.id, ct.contentType, itemId)
+          val scopedPermsF = userDataApi.scopePermissions(profile.id, itemId)
+          val permsF = userDataApi.itemPermissions(profile.id, ct.contentType, itemId)
           for {
             item <- itemF
             scopedPerms <- scopedPermsF
@@ -114,8 +114,8 @@ trait Read[MT] extends Generic {
     ItemPermissionAction(itemId) andThen new ActionTransformer[ItemPermissionRequest, ItemMetaRequest] {
       def transform[A](request: ItemPermissionRequest[A]): Future[ItemMetaRequest[A]] = {
         implicit val userOpt = request.userOpt
-        val annotationsF = userDataApi.getAnnotationsForItem[Annotation](itemId)
-        val linksF = userDataApi.getLinksForItem[Link](itemId)
+        val annotationsF = userDataApi.annotations[Annotation](itemId)
+        val linksF = userDataApi.links[Link](itemId)
         for {
           annotations <- annotationsF
           links <- linksF

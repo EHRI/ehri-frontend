@@ -102,8 +102,8 @@ case class VirtualUnits @Inject()(
     val pathIds = pathStr.split(",").toSeq
     val pathF: Future[Seq[AnyModel]] = Future.sequence(pathIds.map(pid => userDataApi.getAny[AnyModel](pid)))
     val itemF: Future[AnyModel] = userDataApi.getAny[AnyModel](id)
-    val linksF: Future[Seq[Link]] = userDataApi.getLinksForItem[Link](id)
-    val annsF: Future[Seq[Annotation]] = userDataApi.getAnnotationsForItem[Annotation](id)
+    val linksF: Future[Seq[Link]] = userDataApi.links[Link](id)
+    val annsF: Future[Seq[Annotation]] = userDataApi.annotations[Annotation](id)
     val watchedF: Future[Seq[String]] = watchedItemIds(userIdOpt = request.userOpt.map(_.id))
     for {
       watched <- watchedF

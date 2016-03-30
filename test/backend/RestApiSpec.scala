@@ -249,13 +249,13 @@ class RestApiSpec extends RestApiRunner with PlaySpecification {
 
   "PermissionDAO" should {
     "be able to fetch user's own permissions" in new WithApplicationLoader(appLoader) {
-      val perms = await(testBackend.getGlobalPermissions(userProfile.id))
+      val perms = await(testBackend.globalPermissions(userProfile.id))
       userProfile.getPermission(perms, ContentTypes.DocumentaryUnit, PermissionType.Create) must beSome
     }
 
     "be able to add and revoke a user's global permissions" in new WithApplicationLoader(appLoader) {
       val user = UserProfile(UserProfileF(id = Some("reto"), identifier = "reto", name = "Reto"))
-      val perms = await(testBackend.getGlobalPermissions(user.id))
+      val perms = await(testBackend.globalPermissions(user.id))
       user.getPermission(perms, ContentTypes.DocumentaryUnit, PermissionType.Create) must beNone
       user.getPermission(perms, ContentTypes.DocumentaryUnit, PermissionType.Update) must beNone
       user.getPermission(perms, ContentTypes.Repository, PermissionType.Create) must beNone
@@ -298,14 +298,14 @@ class RestApiSpec extends RestApiRunner with PlaySpecification {
         PermissionType.Update.toString,
         PermissionType.Delete.toString)
       )
-      val perms = await(testBackend.getScopePermissions(user.id, "r1"))
+      val perms = await(testBackend.scopePermissions(user.id, "r1"))
       user.getPermission(perms, ContentTypes.DocumentaryUnit, PermissionType.Update) must beNone
       user.getPermission(perms, ContentTypes.DocumentaryUnit, PermissionType.Delete) must beNone
       user.getPermission(perms, ContentTypes.Repository, PermissionType.Create) must beNone
       user.getPermission(perms, ContentTypes.Repository, PermissionType.Update) must beNone
       await(testBackend.setScopePermissions(user.id, "r1", data))
       // Since c1 is held by r1, we should now have permissions to update and delete c1.
-      val newItemPerms = await(testBackend.getItemPermissions(user.id, ContentTypes.DocumentaryUnit, "c1"))
+      val newItemPerms = await(testBackend.itemPermissions(user.id, ContentTypes.DocumentaryUnit, "c1"))
       user.getPermission(newItemPerms, PermissionType.Update) must beSome
       user.getPermission(newItemPerms, PermissionType.Delete) must beSome
     }
@@ -314,7 +314,7 @@ class RestApiSpec extends RestApiRunner with PlaySpecification {
       val user = UserProfile(UserProfileF(id = Some("reto"), identifier = "reto", name = "Reto"))
       // NB: Currently, there's already a test permission grant for Reto-create on c1...
       val data = List(PermissionType.Update.toString, PermissionType.Delete.toString)
-      val perms = await(testBackend.getItemPermissions(user.id, ContentTypes.DocumentaryUnit, "c1"))
+      val perms = await(testBackend.itemPermissions(user.id, ContentTypes.DocumentaryUnit, "c1"))
       user.getPermission(perms, PermissionType.Update) must beNone
       user.getPermission(perms, PermissionType.Delete) must beNone
       val newItemPerms = await(testBackend.setItemPermissions(user.id, ContentTypes.DocumentaryUnit, "c1", data))
@@ -323,7 +323,7 @@ class RestApiSpec extends RestApiRunner with PlaySpecification {
     }
 
     "be able to list permissions" in new WithApplicationLoader(appLoader) {
-      val page = await(testBackend.listScopePermissionGrants[PermissionGrant]("r1", PageParams.empty))
+      val page = await(testBackend.scopePermissionGrants[PermissionGrant]("r1", PageParams.empty))
       page.items must not(beEmpty)
     }
   }
@@ -393,11 +393,11 @@ class RestApiSpec extends RestApiRunner with PlaySpecification {
     "get activity for a user" in new WithApplicationLoader(appLoader) {
       await(testBackend.patch[DocumentaryUnit]("c1", Json.obj("prop1" -> "foo")))
       val forUser: RangePage[Seq[SystemEvent]] =
-        await(testBackend.listEventsForUser[SystemEvent](userProfile.id, RangeParams.empty.withoutLimit))
+        await(testBackend.userEvents[SystemEvent](userProfile.id, RangeParams.empty.withoutLimit))
       forUser.size must equalTo(1)
 
       val byUser: RangePage[Seq[SystemEvent]] =
-        await(testBackend.listUserActions[SystemEvent](userProfile.id, RangeParams.empty.withoutLimit))
+        await(testBackend.userActions[SystemEvent](userProfile.id, RangeParams.empty.withoutLimit))
       byUser.size must equalTo(1)
     }
   }
