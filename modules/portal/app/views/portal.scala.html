@@ -29,8 +29,8 @@
                     </div>
                 </div>
 
+                @views.html.common.flash(flash)
                 @views.html.layout.mainContent {
-                    @views.html.common.flash(flash)
                     <div class="row">
                         <div class="welcome-lead">
                             @Markdown(Messages("welcome.blurb"))
