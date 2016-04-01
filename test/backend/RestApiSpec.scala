@@ -8,7 +8,7 @@ import utils.SystemEventParams.Aggregation
 import utils.{RangeParams, RangePage, PageParams, SystemEventParams}
 import backend.rest.{CypherIdGenerator, ItemNotFound, ValidationError}
 import backend.rest.cypher.CypherService
-import play.api.libs.json.{JsObject, JsString, Json}
+import play.api.libs.json.{JsNull, JsObject, JsString, Json}
 import models.base.AnyModel
 import models._
 import play.api.test.{WithApplicationLoader, PlaySpecification}
@@ -163,6 +163,16 @@ class RestApiSpec extends RestApiRunner with PlaySpecification {
       val entity = await(testBackend.create[UserProfile,UserProfileF](user))
       val res = await(testBackend.patch[UserProfile](entity.id, patchData))
       res.model.imageUrl must equalTo(Some(testVal))
+    }
+
+    "patch an item with nulls to unset values" in new WithApplicationLoader(appLoader) {
+      val testVal = Some("test")
+      val user = UserProfileF(id = None, identifier = "foobar", name = "Foobar", about = testVal)
+      val patchData = Json.obj("about" -> JsNull)
+      val entity = await(testBackend.create[UserProfile,UserProfileF](user))
+      entity.model.about must_== testVal
+      val res = await(testBackend.patch[UserProfile](entity.id, patchData))
+      res.model.about must beNone
     }
 
     "error when creating an item with a non-unique id" in new WithApplicationLoader(appLoader) {
