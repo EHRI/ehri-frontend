@@ -153,9 +153,6 @@ case class Annotation(
   }
 
   def formatted: String = {
-    "%s%s".format(
-      model.comment.map(c => s"$c\n\n").getOrElse(""),
-      model.body
-    )
+    s"${model.comment.map(c => s"$c\n\n").getOrElse("")}${model.body}"
   }
 }
