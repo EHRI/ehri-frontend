@@ -84,15 +84,13 @@ trait PortalController
   )
 
   /**
-   * Activity item types tat we think the user might care about.
+   * Activity item types that we think the user might care about.
    */
   val activityItemTypes = List(
     EntityType.DocumentaryUnit,
     EntityType.Repository,
     EntityType.Country,
-    EntityType.HistoricalAgent,
-    EntityType.Link,
-    EntityType.Annotation
+    EntityType.HistoricalAgent
   )
 
   override def verifiedOnlyError(request: RequestHeader)(implicit context: ExecutionContext): Future[Result] = {
