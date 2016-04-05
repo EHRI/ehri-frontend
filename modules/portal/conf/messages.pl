@@ -758,6 +758,7 @@ documentaryUnit.findingAids=Pomoce informacyjne
 documentaryUnit.locationOfOriginals=Istnienie oryginałów i miejsce ich przechowywania
 documentaryUnit.locationOfCopies=Istnienie kopii i miejsce ich przechowywania
 documentaryUnit.relatedUnitsOfDescription=Powiązanie z innymi materiałami
+documentaryUnit.separatedUnitsOfDescription=Rozdzielone materiałami
 documentaryUnit.publicationNote=Uwagi o publikacji
 documentaryUnit.notes=Uwaga(-i)
 documentaryUnit.sources=Źródła

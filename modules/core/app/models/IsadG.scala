@@ -59,6 +59,7 @@ case object IsadG {
   val LOCATION_ORIGINALS = "locationOfOriginals"
   val LOCATION_COPIES = "locationOfCopies"
   val RELATED_UNITS = "relatedUnitsOfDescription"
+  val SEPARATED_UNITS = "separatedUnitsOfDescription"
   val PUBLICATION_NOTE = "publicationNote"
 
   val NOTES_AREA = "notesArea"

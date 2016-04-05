@@ -637,6 +637,14 @@ related by provenance or other association(s). Use appropriate introductory word
 explain the nature of the relationship . If the related unit of description is a finding aid, use\
 the finding aids element of description (3.4.5) to make the reference to it. (3.5.3)
 
+documentaryUnit.separatedUnitsOfDescription.description=Information about materials that are associated by provenance\
+to the described materials but that have been physically separated or removed. Items may be separated for various\
+reasons, including the dispersal of special formats to more appropriate custodial units; the outright destruction\
+of duplicate or nonessential material; and the deliberate or unintentional scattering of fonds among different\
+repositories. Do not confuse with <relatedmaterial>, which is used to encode descriptions of or references to\
+materials that are not physically or logically included in the material described in the finding aid but that\
+may be of use to a reader because of an association to the described materials. (3.5.3)
+
 documentaryUnit.publicationNote.description=To identify any publications that are about or are \
 based on the use, study, or analysis of the unit of description.\n\n\
 Record a citation to, and/or information about a publication that is about or based on the\

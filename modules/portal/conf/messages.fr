@@ -767,6 +767,7 @@ documentaryUnit.findingAids=Instruments de recherche
 documentaryUnit.locationOfOriginals=Existence et lieu des originaux
 documentaryUnit.locationOfCopies=Existence et lieu de copies
 documentaryUnit.relatedUnitsOfDescription=Sources complémentaires
+documentaryUnit.separatedUnitsOfDescription=Sources séparées
 documentaryUnit.publicationNote=Bibliographie
 documentaryUnit.notes=Note(s)
 documentaryUnit.sources=Sources
