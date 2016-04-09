@@ -42,7 +42,6 @@ case class Vocabularies @Inject()(
   with Visibility[Vocabulary]
   with ScopePermissions[Vocabulary]
   with Annotate[Vocabulary]
-  with Indexable[Vocabulary]
   with Search {
 
   val targetContentTypes = Seq(ContentTypes.Concept)
@@ -185,11 +184,9 @@ case class Vocabularies @Inject()(
   }
 
   def updateIndex(id: String) = (AdminAction andThen ItemPermissionAction(id)).apply { implicit request =>
-      Ok(views.html.admin.search.updateItemIndex(request.item,
-          action = vocabRoutes.updateIndexPost(id)))
+      Ok(views.html.admin.search.updateItemIndex(request.item, field = SearchConstants.HOLDER_ID,
+        action = controllers.admin.routes.Indexing.indexer()))
   }
-
-  def updateIndexPost(id: String) = updateChildItemsPost(SearchConstants.HOLDER_ID, id)
 
   def exportSkos(id: String, format: Option[String]) = OptionalUserAction.async { implicit request =>
     val baseUrl: Option[String] = request.getQueryString("baseUri")

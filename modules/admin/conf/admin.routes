@@ -11,8 +11,8 @@ GET         /login                              @controllers.admin.Home.loginRed
 # Js Routes
 GET         /metricRoutes                       @controllers.admin.Home.metricsJsRoutes
 
-GET         /updateIndex                        @controllers.admin.AdminSearch.updateIndex
-POST        /updateIndex                        @controllers.admin.AdminSearch.updateIndexPost
+GET         /updateIndex                        @controllers.admin.Indexing.updateIndex
+GET         /updateIndexSocket                  @controllers.admin.Indexing.indexer
 
 # Search testing
 GET         /search                             @controllers.admin.AdminSearch.search

@@ -1,10 +1,10 @@
 package indexing
 
+import akka.actor.ActorRef
 import backend.rest.Constants
 import com.google.inject.Inject
 import scala.sys.process._
 import defines.EntityType
-import play.api.libs.iteratee.Concurrent
 import utils.search.{IndexingError, SearchIndexMediator, SearchIndexMediatorHandle}
 import scala.concurrent.{ExecutionContext, Future}
 import com.google.common.collect.EvictingQueue
@@ -21,12 +21,10 @@ case class CmdlineIndexMediator @Inject()(
  * bin to index items.
  */
 case class CmdlineIndexMediatorHandle(
-  chan: Option[Concurrent.Channel[String]] = None,
-  processFunc: String => String = identity[String]
+  chan: Option[ActorRef] = None
 )(implicit config: play.api.Configuration, executionContext: ExecutionContext) extends SearchIndexMediatorHandle {
 
-  override def withChannel(channel: Concurrent.Channel[String], formatter: String => String)
-      = copy(chan = Some(channel), processFunc = formatter)
+  override def withChannel(channel: ActorRef) = copy(chan = Some(channel))
 
   /**
    * Process logger which buffers output to `bufferCount` lines
@@ -44,7 +42,7 @@ case class CmdlineIndexMediatorHandle(
       // want to buffer that which contains the format:
       // [type] -> [id]
       if (s.contains("->")) report()
-      else chan.foreach(_.push(processFunc(s)))
+      else chan.foreach(_ ! s)
     }
 
     def lastMessages: List[String] = {
@@ -55,7 +53,7 @@ case class CmdlineIndexMediatorHandle(
     private def report(): Unit = {
       count += 1
       if (count % bufferCount == 0) {
-        chan.foreach(_.push(processFunc("Items processed: " + count)))
+        chan.foreach(_ ! s"Items processed: $count")
       }
     }
   }
