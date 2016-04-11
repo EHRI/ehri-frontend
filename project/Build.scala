@@ -106,7 +106,7 @@ object Build extends Build {
     "com.fasterxml.jackson.dataformat" % "jackson-dataformat-csv" % "2.6.4",
 
     // EHRI indexing tools
-    "ehri-project" % "index-data-converter" % "1.1.5" exclude("log4j", "log4j") exclude ("org.slf4j",
+    "ehri-project" % "index-data-converter" % "1.1.6" exclude("log4j", "log4j") exclude ("org.slf4j",
       "slf4j-log4j12"),
     "com.sun.jersey" % "jersey-core" % jerseyVersion,
 
