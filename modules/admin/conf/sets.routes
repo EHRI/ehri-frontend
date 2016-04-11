@@ -19,4 +19,5 @@ GET     /:id/scope/add                     @controllers.sets.AuthoritativeSets.a
 GET     /:id/scope/:userType/:userId       @controllers.sets.AuthoritativeSets.setScopedPermissions(id: String, userType: EntityType.Value, userId: String)
 POST    /:id/scope/:userType/:userId       @controllers.sets.AuthoritativeSets.setScopedPermissionsPost(id: String, userType: EntityType.Value, userId: String)
 GET     /:id/reindex                       @controllers.sets.AuthoritativeSets.updateIndex(id: String)
+POST    /:id/reindex                       @controllers.sets.AuthoritativeSets.updateIndexPost(id: String)
 

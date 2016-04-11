@@ -1,15 +1,25 @@
 /**
  * Helper JS for doing a long-running index job and getting progress.
  *
- * NB: The SOCKET_URI, DONE_MSG, and ERR_MSG constant must be initialized locally,
- * and a function getData() must be provided which when called will return the
- * data (as JSON) to be sent to the remote socket.
+ * NB: Three constants have to be initialised in the templates at present. These
+ * are POLL_URL, DONE_MSG and ERR_MSG, and are used to parse the streaming response from
+ * the server.
  */
 
 jQuery(function($) {
 
   $("#select-all").change(function(event) {
-    $("input[name='types[]']").prop("checked", $(this).prop("checked"));
+    $("input[name='type[]']").prop("checked", $(this).prop("checked"));
+  })
+
+  $("#submit-update").click(function(e) {
+    var $elem = $(this);
+    $elem.attr("disabled", true);
+    submitAndPoll($("#update-form").serialize(), function() {
+      $elem.attr("disabled", false);
+    });
+    e.preventDefault();
+    e.stopPropagation();
   });
 
   function appendProgressMessage(msg) {
@@ -21,33 +31,39 @@ jQuery(function($) {
     }
     $inner.append(msg + "<br/>");
     $elem.scrollTop($inner.height());
+
   }
 
-  var $submit = $("#submit-update");
+  function submitAndPoll(data, doneFunc) {
+    var pollTimer = -1, nextReadPos = -1;
+    var xhReq = new XMLHttpRequest();
+    xhReq.open("POST", POLL_URL, true);
+    xhReq.timeout = 0;
 
-  $submit.click(function(event) {
-    event.preventDefault();
-    $submit.attr("disabled", true);
-    var $out = $("#update-progress");
-    var websocket = new WebSocket(SOCKET_URI);
-    websocket.onopen = function() {
-      var data = getData();
-      console.log("Data: ", data);
-      websocket.send(data);
-    };
-    websocket.onerror = function(e) {
-      appendProgressMessage("ERROR. Try refreshing the page.");
-      $submit.attr("disabled", false);
-      console.log("Socket error!");
+    //Send the proper header information along with the request
+    xhReq.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
+    xhReq.send(data);
+
+    // Don't bother with onreadystatechange - it shouldn't close
+    // and we're polling responsetext anyway
+    pollTimer = setInterval(pollLatestResponse, 250);
+
+    function pollLatestResponse() {
+      var allMessages = xhReq.responseText;
+      do {
+        var unprocessed = allMessages.substring(nextReadPos);
+        var messageXMLEndIndex = unprocessed.indexOf("</message>");
+        if (messageXMLEndIndex!=-1) {
+          var endOfFirstMessageIndex = messageXMLEndIndex + "</message>".length;
+          var anUpdate = unprocessed.substring(0, endOfFirstMessageIndex);
+          appendProgressMessage(anUpdate);
+          nextReadPos += endOfFirstMessageIndex;
+          if (anUpdate.indexOf(DONE_MSG) != -1 || anUpdate.indexOf(ERR_MSG) != -1) {
+            doneFunc();
+            clearInterval(pollTimer);
+          }
+        }
+      } while (messageXMLEndIndex != -1);
     }
-    websocket.onmessage = function(e) {
-      var msg = JSON.parse(e.data);
-      appendProgressMessage(msg);
-      if (msg.indexOf(DONE_MSG) != -1 || msg.indexOf(ERR_MSG) != -1) {
-        websocket.close();
-        $submit.attr("disabled", false);
-        console.log("Closed socket")
-      }
-    };
-  });
+  }
 });

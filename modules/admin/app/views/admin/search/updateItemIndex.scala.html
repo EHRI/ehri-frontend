@@ -1,6 +1,4 @@
-@(item: models.base.AnyModel, field: String, action: Call)(implicit userOpt: Option[UserProfile], req: RequestHeader, globalConfig: global.GlobalConfig, flash: Flash, messages: Messages)
-
-@import controllers.admin.IndexChildren._
+@(item: AnyModel, action: Call)(implicit userOpt: Option[UserProfile], req: RequestHeader, globalConfig: global.GlobalConfig, flash: Flash, messages: Messages)
 
 @extraStyle = {
     <style>
@@ -16,17 +14,11 @@
 }
 
 @extraScript = {
+
     <script type="application/javascript">
-        var SOCKET_URI = "@action.webSocketURL(globalConfig.https)";
-        var DONE_MSG = "@controllers.admin.Indexing.DONE_MESSAGE";
-        var ERR_MSG = "@controllers.admin.Indexing.ERR_MESSAGE";
-        function getData() {
-            return JSON.stringify({
-                @ID: "@item.id",
-                @TYPE: "@item.isA",
-                @FIELD: "@field"
-            });
-        }
+        var POLL_URL = "@action.url";
+        var DONE_MSG = "<message>@controllers.generic.Indexable.DONE_MESSAGE</message>";
+        var ERR_MSG = "<message>@controllers.generic.Indexable.ERR_MESSAGE</message>";
     </script>
     <script src="@controllers.portal.routes.PortalAssets.versioned("js/index_utils.js")" type="text/javascript"></script>
 }
@@ -34,7 +26,7 @@
 @implicitField = @{ views.html.helper.FieldConstructor(formHelpers.fieldTemplate.f) }
 
 @views.html.admin.layout.rightSidebar(Messages("search.index.update.for", item.toStringLang), scripts=extraScript, styles = extraStyle, breadcrumbs = views.html.admin.common.breadcrumbs(List(item))) {
-    <form id="update-form" method="post" class="form-horizontal">
+    @helper.form(action = action, 'id -> "update-form", 'class -> "form-horizontal") {
         @formHelpers.csrfToken()
 
         <div class="form-actions">
@@ -43,7 +35,7 @@
 
         <div id="update-progress">
         </div>
-    </form>
+    }
 } {
 
 }

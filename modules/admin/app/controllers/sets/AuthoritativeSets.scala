@@ -21,7 +21,8 @@ import controllers.base.AdminController
 
 
 @Singleton
-case class AuthoritativeSets @Inject()(
+case class
+AuthoritativeSets @Inject()(
   implicit app: play.api.Application,
   cache: CacheApi,
   globalConfig: global.GlobalConfig,
@@ -41,6 +42,7 @@ case class AuthoritativeSets @Inject()(
   with Visibility[AuthoritativeSet]
   with ScopePermissions[AuthoritativeSet]
   with Annotate[AuthoritativeSet]
+  with Indexable[AuthoritativeSet]
   with Search {
 
   private val formDefaults: Option[Configuration] = app.configuration.getConfig(EntityType.HistoricalAgent.toString)
@@ -49,6 +51,7 @@ case class AuthoritativeSets @Inject()(
   private val form = models.AuthoritativeSet.form
   private val childForm = models.HistoricalAgent.form
   private val setRoutes = controllers.sets.routes.AuthoritativeSets
+
 
   def get(id: String) = ItemMetaAction(id).async { implicit request =>
     findType[HistoricalAgent](
@@ -185,10 +188,13 @@ case class AuthoritativeSets @Inject()(
     }
   }
 
+
   def updateIndex(id: String) = (AdminAction andThen ItemPermissionAction(id)).apply { implicit request =>
-      Ok(views.html.admin.search.updateItemIndex(request.item, field = SearchConstants.HOLDER_ID,
-        action = controllers.admin.routes.Indexing.indexer()))
+      Ok(views.html.admin.search.updateItemIndex(request.item,
+          action = setRoutes.updateIndexPost(id)))
   }
+
+  def updateIndexPost(id: String) = updateChildItemsPost(SearchConstants.HOLDER_ID, id)
 }
 
 

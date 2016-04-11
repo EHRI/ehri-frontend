@@ -170,23 +170,6 @@ trait CoreActionBuilders extends Controller with ControllerHelpers with AuthActi
     Some(r.user)
 
   /**
-   * Given the user's account, fetch their profile with global permissions.
-   *
-   * @param account the account object
-   * @return an optional profile
-   */
-  protected def fetchProfile(account: User): Future[Option[UserProfile]] = {
-    implicit val apiUser = AuthenticatedUser(account.id)
-    val userF = userDataApi.get[UserProfile](UserProfile.UserProfileResource, account.id)
-    val globalPermsF = userDataApi.globalPermissions(account.id)
-    for {
-      user <- userF
-      globalPerms <- globalPermsF
-      profile = user.copy(account = Some(account), globalPermissions = Some(globalPerms))
-    } yield Some(profile)
-  }
-
-  /**
    * Transform an `OptionalAuthRequest` into an `OptionalProfileRequest` by
    * fetching the profile associated with the account and the user's global
    * permissions.
@@ -195,7 +178,14 @@ trait CoreActionBuilders extends Controller with ControllerHelpers with AuthActi
     def transform[A](request: OptionalAuthRequest[A]): Future[OptionalUserRequest[A]] = request.user.fold(
       ifEmpty = immediate(OptionalUserRequest[A](None, request))
     ) { account =>
-      fetchProfile(account).map(profileOpt => OptionalUserRequest[A](profileOpt, request))
+      implicit val apiUser = AuthenticatedUser(account.id)
+      val userF = userDataApi.get[UserProfile](UserProfile.UserProfileResource, account.id)
+      val globalPermsF = userDataApi.globalPermissions(account.id)
+      for {
+        user <- userF
+        globalPerms <- globalPermsF
+        profile = user.copy(account = Some(account), globalPermissions = Some(globalPerms))
+      } yield OptionalUserRequest[A](Some(profile), request)
     }
   }
 
