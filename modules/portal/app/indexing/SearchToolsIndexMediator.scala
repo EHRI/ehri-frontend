@@ -3,7 +3,6 @@ package indexing
 import java.util.Properties
 import javax.inject.Inject
 
-import akka.actor.ActorRef
 import backend.rest.Constants
 import com.fasterxml.jackson.databind.{JsonNode, ObjectMapper}
 import defines.EntityType
@@ -14,6 +13,7 @@ import eu.ehri.project.indexing.converter.impl.JsonConverter
 import eu.ehri.project.indexing.index.Index
 import eu.ehri.project.indexing.sink.impl.{CallbackSink, IndexJsonSink}
 import play.api.Logger
+import play.api.libs.iteratee.Concurrent
 import utils.search.{SearchIndexMediator, SearchIndexMediatorHandle}
 
 import scala.collection.JavaConverters._
@@ -35,7 +35,9 @@ case class SearchToolsIndexMediator @Inject()(
  * is more convenient for deployment.
  */
 case class SearchToolsIndexMediatorHandle(
-  chan: Option[ActorRef] = None)(implicit index: Index,
+  chan: Option[Concurrent.Channel[String]] = None,
+  processFunc: String => String = identity[String]
+)(implicit index: Index,
   config: play.api.Configuration,
   executionContext: ExecutionContext) extends SearchIndexMediatorHandle {
 
@@ -43,7 +45,8 @@ case class SearchToolsIndexMediatorHandle(
 
   val serviceBaseUrl: String = utils.serviceBaseUrl("ehridata", config)
 
-  override def withChannel(chan: ActorRef) = copy(chan = Some(chan))
+  override def withChannel(channel: Concurrent.Channel[String], formatter: String => String) =
+    copy(chan = Some(channel), processFunc = formatter)
 
   private def indexProperties(extra: Map[String,Any] = Map.empty): Properties = {
     val props = new Properties()
@@ -57,7 +60,7 @@ case class SearchToolsIndexMediatorHandle(
     val builder = new Builder[JsonNode, JsonNode]
       .addSink(new IndexJsonSink(index, new IndexJsonSink.EventHandler {
         override def handleEvent(event: Any): Unit = {
-          chan.foreach(_ ! event.toString)
+          chan.foreach(_.push(processFunc(event.toString)))
         }
       }))
       .addConverter(new JsonConverter)
@@ -68,13 +71,13 @@ case class SearchToolsIndexMediatorHandle(
            logger.trace(writer.writeValueAsString(node))
            count += 1
            if (count % 100 == 0) {
-             chan.foreach(_ ! s"Items processed: $count")
+             chan.foreach(_.push(processFunc(s"Items processed: $count")))
            }
          }
          override def finish(): Unit = {
            val msg: String = s"Total items processed: $count"
            logger.debug(msg)
-           chan.foreach(_ ! msg)
+           chan.foreach(_.push(processFunc(msg)))
          }
        }))
 
