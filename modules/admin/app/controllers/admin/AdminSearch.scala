@@ -1,10 +1,11 @@
 package controllers.admin
 
+import akka.stream.OverflowStrategy
+import akka.stream.scaladsl.Source
 import auth.AccountManager
 import backend.rest.cypher.Cypher
 import play.api.cache.CacheApi
 import play.api.libs.concurrent.Execution.Implicits._
-import play.api.libs.iteratee.{Concurrent, Enumerator}
 import utils.MovedPageLookup
 import concurrent.Future
 import play.api.i18n.{MessagesApi, Messages}
@@ -17,8 +18,6 @@ import utils.search._
 import play.api.Logger
 import controllers.generic.{Indexable, Search}
 import backend.DataApi
-import scala.util.Failure
-import scala.util.Success
 import defines.EntityType
 import controllers.base.AdminController
 import defines.EnumUtils.enumMapping
@@ -155,36 +154,37 @@ case class AdminSearch @Inject()(
 
     def wrapMsg(m: String) = s"<message>$m</message>"
 
-    // Create an unicast channel in which to feed progress messages
-    val channel = Concurrent.unicast[String] { chan =>
+    // An actor source into to feed progress messages...
+    val source = Source.actorRef[String](1000, OverflowStrategy.dropTail).mapMaterializedValue { channel =>
       val optionallyClearIndex: Future[Unit] =
         if (!deleteAll) Future.successful(Unit)
         else searchIndexer.handle.clearAll()
-          .map(_ => chan.push(wrapMsg("... finished clearing index")))
+          .map(_ => channel ! wrapMsg("... finished clearing index"))
 
       val optionallyClearType: Future[Unit] =
         if (!deleteTypes || deleteAll) Future.successful(Unit)
         else searchIndexer.handle.clearTypes(entities)
-          .map(_ => chan.push(wrapMsg(s"... finished clearing index for types: $entities")))
+          .map(_ => channel ! wrapMsg(s"... finished clearing index for types: $entities"))
 
       val job = for {
         _ <- optionallyClearIndex
         _ <- optionallyClearType
-        task <- searchIndexer.handle.withChannel(chan, wrapMsg).indexTypes(entityTypes = entities)
+        task <- searchIndexer.handle.withChannel(channel, wrapMsg).indexTypes(entityTypes = entities)
       } yield task
 
       job.map { _ =>
-        chan.push(wrapMsg(Indexable.DONE_MESSAGE))
-        chan.eofAndEnd()
+        channel ! wrapMsg(Indexable.DONE_MESSAGE)
+        channel ! akka.actor.Status.Success(())
       } recover {
         case t =>
           Logger.logger.error(t.getMessage)
-          chan.push(wrapMsg("Indexing operation failed: " + t.getMessage))
-          chan.push(wrapMsg(Indexable.ERR_MESSAGE))
-          chan.eofAndEnd()
+          channel ! wrapMsg("Indexing operation failed: " + t.getMessage)
+          channel ! wrapMsg(Indexable.ERR_MESSAGE)
+          // Close the stream...
+          channel ! akka.actor.Status.Success(())
       }
     }
 
-    Ok.chunked(channel.andThen(Enumerator.eof))
+    Ok.chunked(source)
   }
 }
