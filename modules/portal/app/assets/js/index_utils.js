@@ -10,60 +10,56 @@ jQuery(function($) {
 
   $("#select-all").change(function(event) {
     $("input[name='type[]']").prop("checked", $(this).prop("checked"));
-  })
+  });
 
   $("#submit-update").click(function(e) {
-    var $elem = $(this);
-    $elem.attr("disabled", true);
-    submitAndPoll($("#update-form").serialize(), function() {
-      $elem.attr("disabled", false);
-    });
     e.preventDefault();
     e.stopPropagation();
+    var $elem = $(this);
+    $elem.attr("disabled", true);
+    submitAndRead($("#update-form").serialize(), function() {
+      $elem.attr("disabled", false);
+    });
   });
 
   function appendProgressMessage(msg) {
     var $elem = $("#update-progress");
-    var $inner = $("#update-progress > pre");
+    var $inner = $elem.find("> pre");
     if ($inner.length === 0) {
       $inner = $("<pre></pre>");
       $elem.append($inner);
     }
     $inner.append(msg + "<br/>");
     $elem.scrollTop($inner.height());
-
   }
 
-  function submitAndPoll(data, doneFunc) {
-    var pollTimer = -1, nextReadPos = -1;
+  function submitAndRead(data, doneFunc) {
+    var pollTimer = -1, nextReadPos = 0;
     var xhReq = new XMLHttpRequest();
     xhReq.open("POST", POLL_URL, true);
     xhReq.timeout = 0;
+    xhReq.onprogress = function() {
+      var allMessages = xhReq.responseText;
+      var tag = "</message>";
+      var bufLength = tag.length;
+      do {
+        var unprocessed = allMessages.substring(nextReadPos);
+        var messageXMLEndIndex = unprocessed.indexOf(tag);
+        if (messageXMLEndIndex!=-1) {
+          var endOfFirstMessageIndex = messageXMLEndIndex + bufLength;
+          var newData = unprocessed.substring(0, endOfFirstMessageIndex);
+          appendProgressMessage(newData);
+          nextReadPos += endOfFirstMessageIndex;
+          if (newData.indexOf(DONE_MSG) != -1 || newData.indexOf(ERR_MSG) != -1) {
+            doneFunc();
+          }
+        }
+      } while (messageXMLEndIndex != -1);
+    };
+
 
     //Send the proper header information along with the request
     xhReq.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
     xhReq.send(data);
-
-    // Don't bother with onreadystatechange - it shouldn't close
-    // and we're polling responsetext anyway
-    pollTimer = setInterval(pollLatestResponse, 250);
-
-    function pollLatestResponse() {
-      var allMessages = xhReq.responseText;
-      do {
-        var unprocessed = allMessages.substring(nextReadPos);
-        var messageXMLEndIndex = unprocessed.indexOf("</message>");
-        if (messageXMLEndIndex!=-1) {
-          var endOfFirstMessageIndex = messageXMLEndIndex + "</message>".length;
-          var anUpdate = unprocessed.substring(0, endOfFirstMessageIndex);
-          appendProgressMessage(anUpdate);
-          nextReadPos += endOfFirstMessageIndex;
-          if (anUpdate.indexOf(DONE_MSG) != -1 || anUpdate.indexOf(ERR_MSG) != -1) {
-            doneFunc();
-            clearInterval(pollTimer);
-          }
-        }
-      } while (messageXMLEndIndex != -1);
-    }
   }
 });
