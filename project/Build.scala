@@ -72,7 +72,7 @@ object Build extends Build {
     "commons-io" % "commons-io" % "2.4",
 
     // Authentication
-    "jp.t2v" %% "play2-auth" % "0.14.1",
+    "jp.t2v" %% "play2-auth" % "0.14.2",
 
     // Password hashing
     "org.mindrot" % "jbcrypt" % "0.3m",
