@@ -1,7 +1,7 @@
 package utils.search
 
+import akka.actor.ActorRef
 import defines.EntityType
-import play.api.libs.iteratee.Concurrent
 
 import scala.concurrent.Future
 
@@ -17,14 +17,12 @@ trait SearchIndexMediator {
 trait SearchIndexMediatorHandle {
 
   /**
-   * Provide a concurrent channel through which to
-   * pass update events.
+   * Provide an actor reference to which to send status/progress messages.
    *
-   * @param channel the channel
-   * @param formatter a formatter for event strings
+   * @param channel an actor reference
    * @return
    */
-  def withChannel(channel: Concurrent.Channel[String], formatter: String => String = identity[String]): SearchIndexMediatorHandle = this
+  def withChannel(channel: ActorRef): SearchIndexMediatorHandle = this
 
   /**
    * Index a single item by id.

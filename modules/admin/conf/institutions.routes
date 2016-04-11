@@ -24,5 +24,4 @@ GET         /:id/link/:toType                         @controllers.institutions.
 GET         /:id/link/:toType/:to                     @controllers.institutions.Repositories.linkAnnotate(id: String, toType: EntityType.Value, to: String)
 POST        /:id/link/:toType/:to                     @controllers.institutions.Repositories.linkAnnotatePost(id: String, toType: EntityType.Value, to: String)
 GET         /:id/reindex                              @controllers.institutions.Repositories.updateIndex(id: String)
-POST        /:id/reindex                              @controllers.institutions.Repositories.updateIndexPost(id: String)
 

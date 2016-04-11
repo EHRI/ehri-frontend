@@ -27,7 +27,7 @@ object Helpers {
     ("s1", "-"),
     ("contentTypes.SystemEvent",      controllers.events.routes.SystemEvents.list().url),
     ("s2", "-"),
-    ("search.index.update",            controllers.admin.routes.AdminSearch.updateIndex().url)
+    ("search.index.update",            controllers.admin.routes.Indexing.updateIndex().url)
   )
 
   def linkTo(isA: defines.EntityType.Value, id: String): Call = {

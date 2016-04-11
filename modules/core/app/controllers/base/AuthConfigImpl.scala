@@ -17,7 +17,7 @@ trait AuthConfigImpl extends AuthConfig with Results {
 
   type Id = String
   type User = Account
-  type Authority = defines.PermissionType.Value
+  type Authority = User => Boolean
 
   implicit def app: play.api.Application
 
@@ -95,5 +95,5 @@ trait AuthConfigImpl extends AuthConfig with Results {
    * We don't use this because Authorization is done with our own ACL.
    */
   override def authorize(user: User, authority: Authority)(implicit context: ExecutionContext): Future[Boolean] =
-    immediate(true)
+    immediate(authority(user))
 }

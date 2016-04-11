@@ -72,7 +72,7 @@ object Build extends Build {
     "commons-io" % "commons-io" % "2.4",
 
     // Authentication
-    "jp.t2v" %% "play2-auth" % "0.14.1",
+    "jp.t2v" %% "play2-auth" % "0.14.2",
 
     // Password hashing
     "org.mindrot" % "jbcrypt" % "0.3m",
@@ -106,7 +106,7 @@ object Build extends Build {
     "com.fasterxml.jackson.dataformat" % "jackson-dataformat-csv" % "2.6.4",
 
     // EHRI indexing tools
-    "ehri-project" % "index-data-converter" % "1.1.5" exclude("log4j", "log4j") exclude ("org.slf4j",
+    "ehri-project" % "index-data-converter" % "1.1.6" exclude("log4j", "log4j") exclude ("org.slf4j",
       "slf4j-log4j12"),
     "com.sun.jersey" % "jersey-core" % jerseyVersion,
 
