@@ -1,10 +1,12 @@
 package controllers.generic
 
+import akka.actor.ActorRef
+import akka.stream.OverflowStrategy
+import akka.stream.scaladsl.Source
 import play.api.libs.concurrent.Execution.Implicits._
 import play.api.mvc.Controller
 import controllers.base.{ControllerHelpers, CoreActionBuilders}
 import utils.search.SearchIndexMediator
-import play.api.libs.iteratee.{Enumerator, Concurrent}
 import scala.concurrent.Future
 import scala.util.{Failure, Success}
 import play.api.Logger
@@ -34,16 +36,16 @@ trait Indexable[MT] extends Controller with CoreActionBuilders with ControllerHe
 
   private def wrapMsg(m: String) = s"<message>$m</message>"
 
-  private def finishSuccess(chan: Concurrent.Channel[String]) {
-    chan.push(wrapMsg(Indexable.DONE_MESSAGE))
-    chan.eofAndEnd()
+  private def finishSuccess(chan: ActorRef) {
+    chan ! wrapMsg(Indexable.DONE_MESSAGE)
+    chan ! akka.actor.Status.Success(())
   }
 
-  private def finishError(chan: Concurrent.Channel[String], t: Throwable) {
+  private def finishError(chan: ActorRef, t: Throwable) {
     logger.error(t.getMessage)
-    chan.push(wrapMsg("Indexing operation failed: " + t.getMessage))
-    chan.push(wrapMsg(Indexable.ERR_MESSAGE))
-    chan.eofAndEnd()
+    chan ! wrapMsg("Indexing operation failed: " + t.getMessage)
+    chan ! wrapMsg(Indexable.ERR_MESSAGE)
+    chan ! akka.actor.Status.Success(())
   }
 
 
@@ -54,14 +56,14 @@ trait Indexable[MT] extends Controller with CoreActionBuilders with ControllerHe
    * @return An action returning a chunked progress response.
    */
   def updateItemPost(id: String) = AdminAction { implicit request =>
-    val channel = Concurrent.unicast[String] { chan =>
+    val source = Source.actorRef[String](1000, OverflowStrategy.dropTail).mapMaterializedValue { chan =>
       searchIndexer.handle.withChannel(chan, wrapMsg).indexId(id).onComplete {
         case Success(()) => finishSuccess(chan)
         case Failure(t) => finishError(chan, t)
       }
     }
 
-    Ok.chunked(channel.andThen(Enumerator.eof))
+    Ok.chunked(source)
   }
 
   /**
@@ -73,22 +75,21 @@ trait Indexable[MT] extends Controller with CoreActionBuilders with ControllerHe
    */
   def updateChildItemsPost(field: String, id: String)(implicit rs: Resource[MT]) = AdminAction { implicit request =>
     logger.info(s"Indexing: $searchIndexer")
-    val channel = Concurrent.unicast[String] { chan =>
+    val source = Source.actorRef[String](1000, OverflowStrategy.dropTail).mapMaterializedValue { channel =>
       val clearIndex: Future[Unit] = searchIndexer.handle.clearKeyValue(field, id)
-        .map ( _ => chan.push(wrapMsg("... finished clearing index")))
+        .map ( _ => channel ! wrapMsg("... finished clearing index"))
 
       val job = clearIndex.flatMap { _ =>
-        searchIndexer.handle.withChannel(chan, wrapMsg).indexChildren(rs.entityType, id)
+        searchIndexer.handle.withChannel(channel, wrapMsg).indexChildren(rs.entityType, id)
       }
 
       job.map { _ =>
-        finishSuccess(chan)
+        finishSuccess(channel)
       } recover {
-        case t => finishError(chan, t)
+        case t => finishError(channel, t)
       }
     }
 
-    Ok.chunked(channel.andThen(Enumerator.eof))
+    Ok.chunked(source)
   }
-
 }
