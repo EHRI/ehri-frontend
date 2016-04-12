@@ -222,10 +222,13 @@ trait RestService {
   /**
    * Encode a bunch of URL parts.
    */
-  protected def enc(s: Any*) = {
+  protected def enc(base: String, s: Any*) = {
+    def clean(segment: Any): String =
+      segment.toString.replace("?", "%3F").replace("#", "%23")
     import java.net.URI
-    val url = new java.net.URL(s.mkString("/"))
-    val uri: URI = new URI(url.getProtocol, url.getUserInfo, url.getHost, url.getPort, url.getPath, url.getQuery, url.getRef)
+    val url = new java.net.URL((base +: s.map(clean)).mkString("/"))
+    val uri: URI = new URI(url.getProtocol, url.getUserInfo,
+      url.getHost, url.getPort, url.getPath, url.getQuery, url.getRef)
     uri.toString
   }
 

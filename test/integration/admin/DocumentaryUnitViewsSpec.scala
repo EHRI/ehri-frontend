@@ -89,6 +89,11 @@ class DocumentaryUnitViewsSpec extends IntegrationTestRunner {
       val show = FakeRequest(docRoutes.get("r1")).withUser(privilegedUser).call()
       status(show) must equalTo(NOT_FOUND)
     }
+
+    "throw a 404 when fetching items with a dodgily encoded id" in new ITestApp {
+      val show = FakeRequest(docRoutes.get("c1#desc-eng")).withUser(privilegedUser).call()
+      status(show) must equalTo(NOT_FOUND)
+    }
   }
 
   "Documentary unit access functionality" should {
