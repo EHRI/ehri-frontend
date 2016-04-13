@@ -14,7 +14,7 @@ import controllers.base.AdminController
 
 @Singleton
 case class SearchFilter @Inject()(
-  implicit app: play.api.Application,
+  implicit config: play.api.Configuration,
   cache: CacheApi,
   globalConfig: global.GlobalConfig,
   searchEngine: SearchEngine,

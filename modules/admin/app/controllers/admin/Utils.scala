@@ -29,7 +29,7 @@ import scala.concurrent.Future.{successful => immediate}
  */
 @Singleton
 case class Utils @Inject()(
-  implicit app: play.api.Application,
+  implicit config: play.api.Configuration,
   cache: CacheApi,
   globalConfig: global.GlobalConfig,
   dataApi: DataApi,
@@ -43,7 +43,7 @@ case class Utils @Inject()(
 
   override val staffOnly = false
 
-  private val baseUrl = utils.serviceBaseUrl("ehridata", app.configuration)
+  private val baseUrl = utils.serviceBaseUrl("ehridata", config)
 
   /**
    * Check the database is up by trying to load the admin account.

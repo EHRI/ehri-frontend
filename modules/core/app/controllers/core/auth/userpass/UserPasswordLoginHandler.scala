@@ -19,8 +19,7 @@ trait UserPasswordLoginHandler {
 
   self: CoreActionBuilders with LoginLogout with AccountHelpers with RecaptchaHelper =>
 
-  val accounts: auth.AccountManager
-  implicit def app: play.api.Application
+  def config: play.api.Configuration
 
   val passwordLoginForm = Form(
     tuple(

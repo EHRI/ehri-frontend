@@ -19,7 +19,7 @@ import scala.util.{Success, Failure}
 
 @Singleton
 case class GuidePages @Inject()(
-  implicit app: play.api.Application,
+  implicit config: play.api.Configuration,
   cache: CacheApi,
   globalConfig: global.GlobalConfig,
   dataApi: DataApi,

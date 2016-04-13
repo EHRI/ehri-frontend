@@ -19,7 +19,7 @@ trait AuthConfigImpl extends AuthConfig with Results {
   type User = Account
   type Authority = defines.PermissionType.Value
 
-  implicit def app: play.api.Application
+  implicit def config: play.api.Configuration
 
   // Specific type of user-finder loaded via a plugin
   protected def accounts: auth.AccountManager
@@ -40,7 +40,7 @@ trait AuthConfigImpl extends AuthConfig with Results {
    * Auth cookie access options.
    */
   override lazy val tokenAccessor: TokenAccessor = new CookieTokenAccessor(
-    cookieSecureOption = app.configuration.getBoolean("auth.cookie.secure").getOrElse(false),
+    cookieSecureOption = config.getBoolean("auth.cookie.secure").getOrElse(false),
     cookieMaxAge = Some(sessionTimeoutInSeconds)
   )
 
@@ -48,7 +48,7 @@ trait AuthConfigImpl extends AuthConfig with Results {
    * A duration of the session timeout in seconds
    */
   override lazy val sessionTimeoutInSeconds: Int =
-    app.configuration.getInt("auth.session.timeout").getOrElse(60 * 60 * 24) // default 1 day
+    config.getInt("auth.session.timeout").getOrElse(60 * 60 * 24) // default 1 day
 
   /**
    * A `ClassManifest` is used to get an id from the Cache API.

@@ -21,7 +21,7 @@ import controllers.base.AdminController
 
 @Singleton
 case class Repositories @Inject()(
-  implicit app: play.api.Application,
+  implicit config: play.api.Configuration,
   cache: CacheApi,
   globalConfig: global.GlobalConfig,
   searchEngine: SearchEngine,
@@ -105,7 +105,7 @@ case class Repositories @Inject()(
 
   private val form = models.Repository.form
 
-  private val childFormDefaults: Option[Configuration] = app.configuration.getConfig(EntityType.DocumentaryUnit.toString)
+  private val childFormDefaults: Option[Configuration] = config.getConfig(EntityType.DocumentaryUnit.toString)
 
   private val childForm = models.DocumentaryUnit.form
 

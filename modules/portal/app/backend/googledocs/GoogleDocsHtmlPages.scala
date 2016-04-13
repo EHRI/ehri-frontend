@@ -22,7 +22,7 @@ import scala.concurrent.duration._
  * page css to put all the selectors in a scope so it
  * doesn't affect the rest of the page.
  */
-case class GoogleDocsHtmlPages @Inject ()(implicit cache: play.api.cache.CacheApi, app: play.api.Application, ws: WSClient) extends HtmlPages {
+case class GoogleDocsHtmlPages @Inject ()(implicit cache: play.api.cache.CacheApi, config: play.api.Configuration, ws: WSClient) extends HtmlPages {
   private def googleDocBody(url: String): Future[(Html, Html)] = {
     ws.url(url).withQueryString(
       "e" -> "download",
@@ -57,8 +57,8 @@ case class GoogleDocsHtmlPages @Inject ()(implicit cache: play.api.cache.CacheAp
 
   override def get(key: String, noCache: Boolean = false)(implicit messages: Messages): Option[Future[(Html, Html)]] = {
     def getUrl: Option[String] =
-      app.configuration.getString(s"pages.external.google.$key.${messages.lang.code}") orElse
-          app.configuration.getString(s"pages.external.google.$key.default")
+      config.getString(s"pages.external.google.$key.${messages.lang.code}") orElse
+          config.getString(s"pages.external.google.$key.default")
 
     getUrl.map { url =>
       val cacheKey = s"htmlpages.googledocs.$key.${messages.lang.code}"

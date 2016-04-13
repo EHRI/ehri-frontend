@@ -107,9 +107,9 @@ trait TestConfiguration {
 
   // Dummy auth config for play-2-auth
   def authConfig(implicit _app: play.api.Application) = new AuthConfigImpl {
-    val app = _app
-    val globalConfig = app.injector.instanceOf[GlobalConfig]
-    val accounts = app.injector.instanceOf[AccountManager]
+    val config = _app.configuration
+    val globalConfig = _app.injector.instanceOf[GlobalConfig]
+    val accounts = _app.injector.instanceOf[AccountManager]
   }
 
   val CSRF_TOKEN_NAME = "csrfToken"

@@ -22,7 +22,7 @@ import controllers.base.AdminController
 
 @Singleton
 case class Metrics @Inject()(
-  implicit app: play.api.Application,
+  implicit config: play.api.Configuration,
   cache: CacheApi,
   globalConfig: global.GlobalConfig,
   searchEngine: SearchEngine,

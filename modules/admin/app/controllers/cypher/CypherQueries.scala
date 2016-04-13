@@ -19,7 +19,7 @@ import scala.concurrent.Future.{successful => immediate}
 
 @Singleton
 case class CypherQueries @Inject()(
-  implicit app: play.api.Application,
+  implicit config: play.api.Configuration,
   cache: CacheApi,
   globalConfig: global.GlobalConfig,
   dataApi: DataApi,

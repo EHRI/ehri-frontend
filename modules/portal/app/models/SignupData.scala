@@ -46,7 +46,7 @@ object SignupData {
    *  - the blank check field must be present, but left blank (this
    *    is a honeypot check)
    */
-  def form(implicit app: play.api.Application) = Form(
+  def form(implicit config: play.api.Configuration) = Form(
     mapping(
       NAME -> nonEmptyText,
       EMAIL -> email,

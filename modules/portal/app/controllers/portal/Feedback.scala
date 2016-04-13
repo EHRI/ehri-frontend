@@ -16,7 +16,8 @@ import controllers.portal.base.PortalController
 
 @Singleton
 case class Feedback @Inject()(
-  implicit app: play.api.Application,
+  implicit config: play.api.Configuration,
+  app: play.api.Application, // FIXME: remove
   cache: CacheApi,
   globalConfig: global.GlobalConfig,
   feedbackService: FeedbackService,
@@ -50,14 +51,14 @@ case class Feedback @Inject()(
 
   private def getCopyMail(feedbackType: Option[models.Feedback.Type.Value])(implicit app: play.api.Application): Seq[String] = {
     import scala.collection.JavaConverters._
-    val defaultOpt = app.configuration.getStringList("ehri.portal.feedback.copyTo").map(_.asScala)
+    val defaultOpt = config.getStringList("ehri.portal.feedback.copyTo").map(_.asScala)
     ((for {
       ft <- feedbackType
-      ct <- app.configuration.getStringList(s"ehri.portal.feedback.$ft.copyTo").map(_.asScala)
+      ct <- config.getStringList(s"ehri.portal.feedback.$ft.copyTo").map(_.asScala)
     } yield ct) orElse defaultOpt).getOrElse(Seq.empty)
   }
 
-  private def sendMessageEmail(feedback: models.Feedback)(implicit app: play.api.Application, request: RequestHeader): Unit = {
+  private def sendMessageEmail(feedback: models.Feedback)(implicit config: play.api.Configuration, request: RequestHeader): Unit = {
     for {
       accTo <- getCopyMail(feedback.`type`)
     } yield {

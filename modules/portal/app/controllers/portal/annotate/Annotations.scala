@@ -30,7 +30,7 @@ import controllers.portal.base.PortalController
 
 @Singleton
 case class Annotations @Inject()(
-  implicit app: play.api.Application,
+  implicit config: play.api.Configuration,
   cache: CacheApi,
   globalConfig: global.GlobalConfig,
   searchEngine: SearchEngine,
@@ -255,9 +255,9 @@ case class Annotations @Inject()(
     withMods.distinct
   }
 
-  private def optionalConfigList(key: String)(implicit app: play.api.Application): List[String] = {
+  private def optionalConfigList(key: String): List[String] = {
     import scala.collection.JavaConverters._
-    app.configuration.getStringList(key).map(_.asScala.toList).getOrElse(Nil)
+    config.getStringList(key).map(_.asScala.toList).getOrElse(Nil)
   }
 
   private def getModerators: List[String] = {

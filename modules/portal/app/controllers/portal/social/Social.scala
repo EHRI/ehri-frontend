@@ -32,7 +32,7 @@ import controllers.portal.base.PortalController
  */
 @Singleton
 case class Social @Inject()(
-  implicit app: play.api.Application,
+  implicit config: play.api.Configuration,
   cache: CacheApi,
   globalConfig: global.GlobalConfig,
   searchEngine: SearchEngine,
@@ -279,7 +279,7 @@ case class Social @Inject()(
   }
 
   def sendMessage(userId: String) = WithUserAction.async { implicit request =>
-    val recaptchaKey = app.configuration.getString("recaptcha.key.public")
+    val recaptchaKey = config.getString("recaptcha.key.public")
       .getOrElse("fakekey")
     for {
       userTo <- userDataApi.get[UserProfile](userId)
@@ -297,7 +297,7 @@ case class Social @Inject()(
   }
 
   def sendMessagePost(userId: String) = WithUserAction.async { implicit request =>
-    val recaptchaKey = app.configuration.getString("recaptcha.key.public")
+    val recaptchaKey = config.getString("recaptcha.key.public")
       .getOrElse("fakekey")
     val boundForm = messageForm.bindFromRequest
 

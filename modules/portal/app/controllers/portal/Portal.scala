@@ -30,7 +30,7 @@ import scala.concurrent.duration.Duration
 
 @Singleton
 case class Portal @Inject()(
-  implicit app: play.api.Application,
+  implicit config: play.api.Configuration,
   cache: CacheApi,
   globalConfig: global.GlobalConfig,
   searchEngine: SearchEngine,

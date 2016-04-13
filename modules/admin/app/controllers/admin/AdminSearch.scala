@@ -24,7 +24,7 @@ import defines.EnumUtils.enumMapping
 
 @Singleton
 case class AdminSearch @Inject()(
-  implicit app: play.api.Application,
+  implicit config: play.api.Configuration,
   cache: CacheApi,
   globalConfig: global.GlobalConfig,
   searchEngine: SearchEngine,

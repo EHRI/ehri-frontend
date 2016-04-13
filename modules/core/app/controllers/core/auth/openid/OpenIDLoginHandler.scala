@@ -28,7 +28,7 @@ trait OpenIDLoginHandler extends AccountHelpers {
   def accounts: auth.AccountManager
   def globalConfig: global.GlobalConfig
   def openId: OpenIdClient
-  implicit def app: play.api.Application
+  implicit def config: play.api.Configuration
 
   val attributes = Seq(
     "email" -> "http://schema.openid.net/contact/email",
@@ -52,7 +52,6 @@ trait OpenIDLoginHandler extends AccountHelpers {
   protected def OpenIdLoginAction(handler: Call) = new ActionBuilder[OpenIDRequest] {
     override def invokeBlock[A](request: Request[A], block: (OpenIDRequest[A]) => Future[Result]): Future[Result] = {
       implicit val r = request
-      implicit val a = app
       try {
         val boundForm: Form[String] = openidForm.bindFromRequest
         boundForm.fold(
@@ -91,7 +90,6 @@ trait OpenIDLoginHandler extends AccountHelpers {
   protected def OpenIdCallbackAction = new ActionBuilder[OpenIdCallbackRequest] {
     override def invokeBlock[A](request: Request[A], block: (OpenIdCallbackRequest[A]) => Future[Result]): Future[Result] = {
       implicit val r = request
-      implicit val a = app
 
       openId.verifiedId(request).flatMap { info =>
 
@@ -127,7 +125,7 @@ trait OpenIDLoginHandler extends AccountHelpers {
     } yield OpenIdCallbackRequest(Right(account), request)
   }
 
-  private def createUserAccount[A](email: String, info: UserInfo, data: Map[String, String], request: Request[A])(implicit app: play.api.Application): Future[OpenIdCallbackRequest[A]] = {
+  private def createUserAccount[A](email: String, info: UserInfo, data: Map[String, String], request: Request[A]): Future[OpenIdCallbackRequest[A]] = {
     implicit val apiUser = AnonymousUser
     for {
       up <- userDataApi.createNewUserProfile[UserProfile](data, groups = defaultPortalGroups)

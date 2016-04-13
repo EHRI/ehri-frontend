@@ -23,7 +23,7 @@ import controllers.base.AdminController
 @Singleton
 case class
 AuthoritativeSets @Inject()(
-  implicit app: play.api.Application,
+  implicit config: play.api.Configuration,
   cache: CacheApi,
   globalConfig: global.GlobalConfig,
   searchEngine: SearchEngine,
@@ -45,7 +45,7 @@ AuthoritativeSets @Inject()(
   with Indexable[AuthoritativeSet]
   with Search {
 
-  private val formDefaults: Option[Configuration] = app.configuration.getConfig(EntityType.HistoricalAgent.toString)
+  private val formDefaults: Option[Configuration] = config.getConfig(EntityType.HistoricalAgent.toString)
 
   val targetContentTypes = Seq(ContentTypes.HistoricalAgent)
   private val form = models.AuthoritativeSet.form

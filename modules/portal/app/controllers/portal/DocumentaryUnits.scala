@@ -22,7 +22,7 @@ import scala.concurrent.Future.{successful => immediate}
 
 @Singleton
 case class DocumentaryUnits @Inject()(
-  implicit app: play.api.Application,
+  implicit config: play.api.Configuration,
   cache: CacheApi,
   globalConfig: global.GlobalConfig,
   searchEngine: SearchEngine,

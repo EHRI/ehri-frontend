@@ -33,7 +33,7 @@ import controllers.portal.base.{PortalController, PortalAuthConfigImpl}
 
 @Singleton
 case class UserProfiles @Inject()(
-  implicit app: play.api.Application,
+  implicit config: play.api.Configuration,
   cache: CacheApi,
   globalConfig: global.GlobalConfig,
   searchEngine: SearchEngine,

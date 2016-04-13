@@ -22,7 +22,7 @@ import controllers.base.AdminController
 
 @Singleton
 case class Countries @Inject()(
-  implicit app: play.api.Application,
+  implicit config: play.api.Configuration,
   cache: CacheApi,
   globalConfig: global.GlobalConfig,
   searchEngine: SearchEngine,
@@ -49,7 +49,7 @@ case class Countries @Inject()(
 
   val targetContentTypes = Seq(ContentTypes.Repository, ContentTypes.DocumentaryUnit)
 
-  private val childFormDefaults: Option[Configuration] = app.configuration.getConfig(EntityType.Repository.toString)
+  private val childFormDefaults: Option[Configuration] = config.getConfig(EntityType.Repository.toString)
 
   private val form = models.Country.form
   private val childForm = models.Repository.form
