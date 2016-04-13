@@ -9,13 +9,14 @@ jQuery(function($) {
       $form = $("form#suggestion-form"),
       $submit = $("button[type='submit']", $form),
       $thanks = $(".alert-success", $formContainer),
+      $email = $("input[name='email']"),
       $text = $("textarea[name='text']", $form),
       $handle = $('.slide-out-div .handle');
 
-
-
   function feedbackOut(e) {
-    if($(e.target).parents(".slide-out-div").length != 1 || $(e.target).hasClass("feedback-close") || $(e.target).parent().hasClass("feedback-close")) {
+    if($(e.target).parents(".slide-out-div").length != 1
+        || $(e.target).hasClass("feedback-close")
+        || $(e.target).parent().hasClass("feedback-close")) {
       $handle.trigger("click");
     }
   }
@@ -42,6 +43,12 @@ jQuery(function($) {
     showErrors: function(em, el) {}
   });
 
+  $submit.prop("disabled", true);
+
+  $email.blur(function(event) {
+    $email.parent(".form-group")
+        .toggleClass("has-error", !$email.valid());
+  });
 
   $form.on("keyup", function(event) {
     $submit.prop("disabled", !$form.valid());
@@ -62,8 +69,7 @@ jQuery(function($) {
     $submit.prop("disabled", true);
     $.post($form.attr("action"), $form.serialize(), function(data, textStatus) {
 
-      /* <-- UI for Thanks */
-
+      // Hide the form and show the thanks message...
       $form.hide(100, function() {
         $thanks.slideDown(500, function() {
           setTimeout(function() {
@@ -79,9 +85,6 @@ jQuery(function($) {
           }, 1000);
         });
       });
-
-      /* --> UI for Thanks */
-
     });
   });
 });
