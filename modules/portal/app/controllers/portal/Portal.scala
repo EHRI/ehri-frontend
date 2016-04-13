@@ -14,14 +14,12 @@ import utils.search._
 import play.api.cache.CacheApi
 import defines.EntityType
 import play.api.libs.ws.WSClient
-import play.twirl.api.Html
 import backend.{HtmlPages, DataApi}
 import utils._
 
 import javax.inject._
 import views.MarkdownRenderer
 import views.html.errors.pageNotFound
-import org.joda.time.DateTime
 import controllers.portal.base.PortalController
 import play.api.libs.json.Json
 
@@ -174,22 +172,15 @@ case class Portal @Inject()(
     Ok(views.html.contact())
   }
 
-  case class NewsItem(title: String, link: String, description: Html, pubDate: Option[DateTime] = None)
-
-  final val NUM_NEWS_ITEMS = 2
-
-  object NewsItem {
-    import scala.util.control.Exception._
-    import org.joda.time.format.DateTimeFormat
-    def fromRss(feed: String): Seq[NewsItem] = {
-      val pat = DateTimeFormat.forPattern("EEE, dd MMM yyyy H:m:s Z")
-      (scala.xml.XML.loadString(feed) \\ "item").take(NUM_NEWS_ITEMS).map { item =>
-        NewsItem(
-          title = (item \ "title").text,
-          link = (item \ "link").text,
-          description = Html((item \ "description").text),
-          pubDate = allCatch.opt(DateTime.parse((item \ "pubDate").text, pat))
-        )
+  def externalFeed(key: String) = statusCache.status(_ => s"pages.$key", OK, 60 * 60) {
+    Action.async { implicit request =>
+      futureItemOr404 {
+        config.getString(s"ehri.portal.externalFeed.$key.rss").map { url =>
+          val numItems = config.getInt(s"ehri.portal.externalFeed.$key.numItems").getOrElse(2)
+          ws.url(url).get().map { r =>
+            Ok(views.html.rssFeed(RssFeed(r.body, numItems)))
+          }
+        }
       }
     }
   }
@@ -202,14 +193,6 @@ case class Portal @Inject()(
           val meta = Map("description" -> Messages(s"pages.external.$key.description"))
           Ok(views.html.layout.textLayout(title, meta = meta, styles = css)(html))
         }
-      }
-    }
-  }
-
-  def newsFeed = statusCache.status(_ => "pages.newsFeed", OK, 60 * 60) {
-    Action.async { request =>
-      ws.url("http://www.ehri-project.eu/rss.xml").get().map { r =>
-        Ok(views.html.newsFeed(NewsItem.fromRss(r.body)))
       }
     }
   }

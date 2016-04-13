@@ -61,7 +61,7 @@ GET         /vocabularies/:id                     @controllers.portal.Vocabulari
 GET         /vocabularies/:id/search              @controllers.portal.Vocabularies.search(id: String)
 
 GET         /activity/:id                         @controllers.portal.Portal.itemHistory(id: String, modal: Boolean ?= false)
-GET         /newsFeed                             @controllers.portal.Portal.newsFeed
+GET         /feed/$key<\w+>                       @controllers.portal.Portal.externalFeed(key: String)
 GET         /item/:entityType/:id                 @controllers.portal.Portal.browseItem(entityType: EntityType.Value, id: String)
 
 # Virtual Units

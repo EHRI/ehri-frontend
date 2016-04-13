@@ -14,7 +14,6 @@ optional=Optional
 cancel=Cancel
 warning=Warning
 admin.site=Admin Site
-newsFeed=Latest News
 browse=Browse
 details.show=Show Item Details
 details.hide=Hide Item Details

@@ -80,13 +80,11 @@
                         )))
                         </div>
                     </div>
+                    <hr>
                     <div class="row">
-                        <div class="news-feed-container">
-                            <hr>
-                            <h3>@Messages("newsFeed")</h3>
-                            <ul id="news-feed" class="list-unstyled panel-body front-page-panel-content">
-
-                            </ul>
+                        <div class="feed-container" id="blog-feed" data-name="blog">
+                        </div>
+                        <div class="feed-container" id="news-feed" data-name="news">
                         </div>
                     </div>
                 </div>
@@ -99,8 +97,10 @@
 
         <script>
             jQuery(document).ready(function ($) {
-                $("#news-feed")
-                        .load("@controllers.portal.routes.Portal.newsFeed().absoluteURL(secure = globalConfig.https)")
+                $(".feed-container").each(function(item, elem) {
+                    var $item = $(elem), name = $item.data("name");
+                    $item.load(jsRoutes.controllers.portal.Portal.externalFeed(name).url);
+                });
             });
         </script>
     </body>

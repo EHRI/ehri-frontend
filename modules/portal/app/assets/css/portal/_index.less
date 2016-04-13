@@ -124,8 +124,19 @@ body {
   }
 }
 
-.news-feed-container {
-  .make-md-column(12);
+.rss-feed {
+  padding-top: @small-padding;
+  &:extend(.list-unstyled);
+  .rss-item {
+    .date {
+      &:extend(.text-muted, .small);
+    }
+  }
+}
+
+.feed-container {
+  .make-md-column(6);
+  min-height: 400px;
 }
 
 //Override of bootstrap defaults :

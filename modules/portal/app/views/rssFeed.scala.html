@@ -1,0 +1,16 @@
+@(feed: RssFeed)(implicit messages: Messages)
+
+<h3>@feed.title</h3>
+@feed.description.map { d =>
+    <p>@d</p>
+}
+<ul class="rss-feed">
+    @feed.items.map { item =>
+        <li class="rss-item">
+            <h4><a class="external" href="@item.link">@item.title</a></h4>
+            @item.pubDate.map { d =>
+                <p class="date">@views.Helpers.relativeDate(d)</p>
+            }
+        </li>
+    }
+</ul>

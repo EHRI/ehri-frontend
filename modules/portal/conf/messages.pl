@@ -14,7 +14,6 @@ optional=Opcjonalnie
 cancel=Anuluj
 warning=Ostrzeżenie
 admin.site=Strona administratora
-newsFeed=Aktualności
 browse=Przeglądaj
 details.show=Pokaż szczegóły dotyczące pozycji
 details.hide=Ukryj szczegóły dotyczące pozycji
