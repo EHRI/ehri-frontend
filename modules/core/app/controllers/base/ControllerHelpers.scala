@@ -10,7 +10,7 @@ import scala.concurrent.duration.{FiniteDuration, Duration}
 
 trait ControllerHelpers extends play.api.i18n.I18nSupport {
 
-  implicit def app: play.api.Application
+  implicit def config: play.api.Configuration
   implicit def cache: play.api.cache.CacheApi
 
   /**
@@ -26,19 +26,19 @@ trait ControllerHelpers extends play.api.i18n.I18nSupport {
    * Fetch a value from config or throw an error.
    */
   protected def getConfigInt(key: String): Int =
-    app.configuration.getInt(key).getOrElse(sys.error(s"Missing config key: $key"))
+    config.getInt(key).getOrElse(sys.error(s"Missing config key: $key"))
 
   /**
    * Fetch a value from config or throw an error.
    */
   protected def getConfigString(key: String): String =
-    app.configuration.getString(key).getOrElse(sys.error(s"Missing config key: $key"))
+    config.getString(key).getOrElse(sys.error(s"Missing config key: $key"))
 
   /**
    * Fetch a value from config or default to a fallback.
    */
   protected def getConfigString(key: String, fallback: String): String =
-    app.configuration.getString(key).getOrElse(fallback)
+    config.getString(key).getOrElse(fallback)
 
   /**
    * Check if a request is Ajax.

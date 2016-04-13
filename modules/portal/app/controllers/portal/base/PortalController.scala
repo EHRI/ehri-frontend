@@ -104,7 +104,7 @@ trait PortalController
   }
 
   override def notFoundError(request: RequestHeader, msg: Option[String] = None)(implicit context: ExecutionContext): Future[Result] = {
-    val doMoveCheck: Boolean = app.configuration.getBoolean("ehri.handlePageMoved").getOrElse(false)
+    val doMoveCheck: Boolean = config.getBoolean("ehri.handlePageMoved").getOrElse(false)
     implicit val r  = request
     val notFoundResponse = NotFound(renderError("errors.itemNotFound", itemNotFound(msg)))
     if (!doMoveCheck) immediate(notFoundResponse)

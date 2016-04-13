@@ -50,8 +50,7 @@ class SignupSpec extends IntegrationTestRunner {
     }
 
     "prevent signup with too short a password" in new ITestApp {
-      val length = app.configuration
-        .getInt("ehri.passwords.minLength").getOrElse(100)
+      val length = app.configuration.getInt("ehri.passwords.minLength").getOrElse(100)
       val badData = data
         .updated(SignupData.PASSWORD, Seq("short"))
         .updated(SignupData.CONFIRM, Seq("short"))

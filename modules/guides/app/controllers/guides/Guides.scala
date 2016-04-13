@@ -17,7 +17,7 @@ import scala.util.{Failure, Success}
 
 @Singleton
 case class Guides @Inject()(
-  implicit app: play.api.Application,
+  implicit config: play.api.Configuration,
   cache: CacheApi,
   globalConfig: global.GlobalConfig,
   dataApi: DataApi,

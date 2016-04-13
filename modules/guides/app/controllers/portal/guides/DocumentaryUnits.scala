@@ -17,7 +17,7 @@ import views.MarkdownRenderer
 
 @Singleton
 case class DocumentaryUnits @Inject()(
-  implicit app: play.api.Application,
+  implicit config: play.api.Configuration,
   cache: CacheApi,
   globalConfig: global.GlobalConfig,
   searchEngine: SearchEngine,

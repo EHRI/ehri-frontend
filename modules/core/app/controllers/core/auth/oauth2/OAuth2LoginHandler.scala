@@ -35,7 +35,6 @@ trait OAuth2LoginHandler extends AccountHelpers {
   def accounts: auth.AccountManager
   def globalConfig: GlobalConfig
   def oAuth2Flow: OAuth2Flow
-  implicit def app: play.api.Application
   def cache: play.api.cache.CacheApi
 
   def oauth2Providers: Seq[OAuth2Provider]

@@ -23,7 +23,7 @@ import controllers.base.AdminController
 
 @Singleton
 case class Home @Inject()(
-  implicit app: play.api.Application,
+  implicit config: play.api.Configuration,
   cache: CacheApi,
   globalConfig: global.GlobalConfig,
   searchEngine: SearchEngine,

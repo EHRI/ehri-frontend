@@ -21,7 +21,7 @@ import controllers.base.AdminController
 
 @Singleton
 case class DocumentaryUnits @Inject()(
-  implicit app: play.api.Application,
+  implicit config: play.api.Configuration,
   cache: CacheApi,
   globalConfig: global.GlobalConfig,
   searchEngine: SearchEngine,
@@ -108,7 +108,7 @@ case class DocumentaryUnits @Inject()(
     )
   }
 
-  val formDefaults: Option[Configuration] = app.configuration.getConfig(EntityType.DocumentaryUnit.toString)
+  val formDefaults: Option[Configuration] = config.getConfig(EntityType.DocumentaryUnit.toString)
 
   val targetContentTypes = Seq(ContentTypes.DocumentaryUnit)
 
@@ -370,7 +370,7 @@ case class DocumentaryUnits @Inject()(
       // Holder IDs for vocabularies and authoritative sets to which
       // access point suggestions will be constrainted. If this is empty
       // all available vocabs/auth sets will be used.
-      val holders = app.configuration
+      val holders = config
         .getStringSeq("ehri.admin.accessPoints.holders")
         .getOrElse(Seq.empty)
       Ok(views.html.admin.documentaryUnit.editAccessPoints(request.item,

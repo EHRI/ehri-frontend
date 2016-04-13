@@ -10,7 +10,6 @@ import backend.rest.cypher.Cypher
 
 trait RestHelpers {
 
-  implicit def app: play.api.Application
   implicit def cache: CacheApi
   def cypher: Cypher
 

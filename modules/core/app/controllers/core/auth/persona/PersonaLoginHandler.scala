@@ -33,7 +33,7 @@ trait PersonaLoginHandler extends AccountHelpers {
 
   object personaLoginPost {
     def async(f: Either[String,Account] => Request[AnyContent] => Future[Result]): Action[AnyContent] = {
-      val canMessageUsers = app.configuration
+      val canMessageUsers = config
         .getBoolean("ehri.users.messaging.default").getOrElse(false)
 
       Action.async { implicit request =>

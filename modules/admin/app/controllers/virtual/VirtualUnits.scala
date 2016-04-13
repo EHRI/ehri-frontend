@@ -28,7 +28,7 @@ import controllers.base.{SearchVC, AdminController}
 
 @Singleton
 case class VirtualUnits @Inject()(
-  implicit app: play.api.Application,
+  implicit config: play.api.Configuration,
   cache: CacheApi,
   globalConfig: global.GlobalConfig,
   searchEngine: SearchEngine,
@@ -89,7 +89,7 @@ case class VirtualUnits @Inject()(
     )
   }
 
-  val formDefaults: Option[Configuration] = app.configuration.getConfig(EntityType.VirtualUnit.toString)
+  val formDefaults: Option[Configuration] = config.getConfig(EntityType.VirtualUnit.toString)
 
   val targetContentTypes = Seq(ContentTypes.VirtualUnit)
 

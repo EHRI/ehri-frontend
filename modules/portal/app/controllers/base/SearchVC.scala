@@ -17,7 +17,6 @@ import play.api.libs.concurrent.Execution.Implicits._
 trait SearchVC {
   this: Controller with ControllerHelpers =>
 
-  implicit def app: play.api.Application
   implicit def cache: CacheApi
   def cypher: Cypher
 
@@ -49,7 +48,7 @@ trait SearchVC {
       """.stripMargin, Map("vcid" -> play.api.libs.json.JsString(id)))(reader).map { seq =>
       logger.debug(s"Elements: ${seq.length}, distinct: ${seq.distinct.length}")
 
-      app.configuration.getInt("search.vc.maxDescendants").map { vcLimit =>
+      config.getInt("search.vc.maxDescendants").map { vcLimit =>
         if (seq.length > vcLimit) {
           Logger.error(s"Truncating clauses on child item search for $id: items ${seq.length}")
           seq.distinct.take(vcLimit)
@@ -83,8 +82,8 @@ trait SearchVC {
     // - load the VU from the graph along with its included DUs
     // - query for anything that has the VUs parent ID *or* anything
     // with an itemId among its included DUs
-    import SearchConstants._
-    logger.info(s"Building child search for: ${item.id}")
+    import utils.search.SearchConstants._
+    logger.debug(s"Building child search for: ${item.id}")
     item match {
       case v: VirtualUnit =>
         val pq = v.includedUnits.map(_.id)

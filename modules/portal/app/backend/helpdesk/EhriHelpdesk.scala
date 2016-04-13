@@ -24,8 +24,8 @@ case class TestHelpdesk(implicit app: play.api.Application) extends HelpdeskServ
 }
 
 
-case class EhriHelpdesk @Inject() (implicit app: play.api.Application, ws: WSClient) extends HelpdeskService {
-  def helpdeskUrl: String = app.configuration.getString("ehri.helpdesk.url")
+case class EhriHelpdesk @Inject() (implicit config: play.api.Configuration, ws: WSClient) extends HelpdeskService {
+  def helpdeskUrl: String = config.getString("ehri.helpdesk.url")
     .getOrElse(sys.error("Configuration value: 'ehri.helpdesk.url' is not defined"))
 
   def askQuery(query: String)(implicit executionContext: ExecutionContext): Future[Seq[(String,Double)]] = {

@@ -8,8 +8,8 @@ case class AwsConfig(
 )
 
 object AwsConfig {
-  def fromConfig(fallback: Map[String,String] = Map.empty)(implicit app: play.api.Application): AwsConfig = {
-    def getString(key: String): String = app.configuration
+  def fromConfig(fallback: Map[String,String] = Map.empty)(implicit config: play.api.Configuration): AwsConfig = {
+    def getString(key: String): String = config
       .getString(key)
       .orElse(fallback.get(key))
       .getOrElse(sys.error(s"Invalid configuration: missing key: $key"))

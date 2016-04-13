@@ -16,21 +16,23 @@ object TimeCheckForm {
 
   val TIMESTAMP = "timestamp"
 
+  val logger = Logger(TimeCheckForm.getClass)
+
   /**
    * Check submitted form is bound at least 5 seconds after it was
    * first rendered (the minimum amount of time it should take a
    * human to fill a form.)
    */
-  def formSubmissionTime[T <: TimeCheckForm](implicit app: play.api.Application): Constraint[T] = {
+  def formSubmissionTime[T <: TimeCheckForm](implicit config: play.api.Configuration): Constraint[T] = {
     Constraint("constraints.timeCheckSeconds") { data =>
       import org.joda.time.{DateTime, Seconds}
-      app.configuration.getInt("ehri.signup.timeCheckSeconds").map { delay =>
+      config.getInt("ehri.signup.timeCheckSeconds").map { delay =>
         try {
           val renderTime: DateTime = new DateTime(data.timestamp)
           val timeDiff: Int = Seconds.secondsBetween(renderTime, DateTime.now()).getSeconds
           if (timeDiff > delay) Valid
           else {
-            Logger.logger.error(s"Bad timestamp on signup with delay $delay")
+            logger.error(s"Bad timestamp on signup with delay $delay")
             Invalid("constraints.timeCheckSeconds.failed")
           }
         } catch {

@@ -10,7 +10,7 @@ import play.api.mvc.{Controller, Action}
 
 @Singleton
 case class PortalData @Inject()(
-  implicit app: play.api.Application,
+  implicit config: play.api.Configuration,
   cache: CacheApi,
   messagesApi: MessagesApi
 ) extends Controller

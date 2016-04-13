@@ -25,7 +25,7 @@ import controllers.portal.base.PortalController
 
 @Singleton
 case class Bookmarks @Inject()(
-  implicit app: play.api.Application,
+  implicit config: play.api.Configuration,
   cache: CacheApi,
   globalConfig: global.GlobalConfig,
   searchEngine: SearchEngine,

@@ -32,7 +32,7 @@ import controllers.portal.base.PortalController
 
 @Singleton
 case class Accounts @Inject()(
-  implicit app: play.api.Application,
+  implicit config: play.api.Configuration,
   cache: CacheApi,
   globalConfig: GlobalConfig,
   searchEngine: SearchEngine,
@@ -56,19 +56,19 @@ case class Accounts @Inject()(
   private val portalRoutes = controllers.portal.routes.Portal
   private val accountRoutes = controllers.portal.account.routes.Accounts
 
-  private def recaptchaKey = app.configuration.getString("recaptcha.key.public")
+  private def recaptchaKey = config.getString("recaptcha.key.public")
     .getOrElse("fakekey")
 
-  private def rateLimitTimeoutSecs = app.configuration.getInt("ehri.ratelimit.timeout")
+  private def rateLimitTimeoutSecs = config.getInt("ehri.ratelimit.timeout")
     .getOrElse(3600)
 
   private def rateLimitError(implicit r: RequestHeader) =
     Messages("error.rateLimit", rateLimitTimeoutSecs / 60)
 
   override val oauth2Providers = Seq(
-    GoogleOAuth2Provider(app.configuration),
-    FacebookOAuth2Provider(app.configuration),
-    YahooOAuth2Provider(app.configuration)
+    GoogleOAuth2Provider(config),
+    FacebookOAuth2Provider(config),
+    YahooOAuth2Provider(config)
   )
 
   /**
