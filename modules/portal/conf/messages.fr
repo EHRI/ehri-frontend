@@ -14,7 +14,6 @@ optional=En option
 cancel=Annuler
 warning=Avertissement
 admin.site=Admin du site
-newsFeed=Les dernières nouvelles
 browse=Naviguer
 details.show=Montrer les informations concernant l''objet
 details.hide=Cacher les informations concernant l''objet

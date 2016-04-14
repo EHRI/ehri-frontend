@@ -52,7 +52,8 @@ case class PortalData @Inject()(
           controllers.portal.routes.javascript.Portal.updatePrefs,
           controllers.portal.routes.javascript.Portal.personalisedActivity,
           controllers.portal.routes.javascript.Portal.filterItems,
-          controllers.portal.routes.javascript.Portal.browseItem
+          controllers.portal.routes.javascript.Portal.browseItem,
+          controllers.portal.routes.javascript.Portal.externalFeed
         )
       ).as(MimeTypes.JAVASCRIPT)
     }

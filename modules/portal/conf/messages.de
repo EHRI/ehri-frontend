@@ -14,7 +14,6 @@ optional=Optional
 cancel=Abbrechen
 warning=Warnung
 admin.site=Admin-Seite
-newsFeed=Neuigkeiten
 browse=Durchsuchen
 details.show=Elementdetails anzeigen
 details.hide=Elementdetails verbergen
