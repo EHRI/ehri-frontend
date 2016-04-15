@@ -3,6 +3,7 @@ package backend
 import backend.rest.ItemNotFound
 import models.CypherQuery
 import org.joda.time.DateTime
+import utils.{Page, PageParams}
 
 import scala.concurrent.{Future, ExecutionContext}
 import scala.concurrent.Future.{successful => immediate, failed}
@@ -22,8 +23,7 @@ case class MockCypherQueryService(buffer: collection.mutable.HashMap[Int, Cypher
     immediate(true)
   }
 
-  override def list(params: (String, String)*)(implicit executionContext: ExecutionContext): Future[Seq[CypherQuery]] =
-    immediate(buffer.values.toSeq)
+  override def list(pageParams: PageParams = PageParams.empty, params: Map[String, String] = Map.empty)(implicit executionContext: ExecutionContext): Future[Page[CypherQuery]] = immediate(Page(items = buffer.values.toSeq))
 
   override def create(cypherQuery: CypherQuery)(implicit executionContext: ExecutionContext): Future[String] = {
     val key = buffer.size + 1

@@ -1,3 +1,33 @@
+/**
+ * Read a chunked response stream from some URL.
+ * @param method the action's method
+ * @param actionUrl the action's url
+ * @param handlers an object containing handlers for
+ *  start, progress, and stop events
+ */
+function readDataStream(method, actionUrl, handlers) {
+  var xhr = new XMLHttpRequest();
+  xhr.timeout = 0;
+  xhr.open(method, actionUrl, true);
+  if (handlers.start) {
+    handlers.start();
+  }
+  xhr.onprogress = function(e) {
+    if (handlers.progress) {
+      handlers.progress(xhr);
+    }
+  };
+  xhr.onreadystatechange = function(e) {
+    if (xhr.readyState == 4) {
+      if (handlers.stop) {
+        handlers.stop();
+      }
+    }
+  };
+  xhr.send();
+}
+
+
 jQuery(function($) {
 
   "use strict";

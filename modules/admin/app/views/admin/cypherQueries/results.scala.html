@@ -9,55 +9,41 @@
     </style>
 }
 
-@views.html.admin.layout.adminLayout(item.name, styles = extraStyles) {
-    @for(oid <- item.objectId) {
-        @views.html.layout.infobar {
-            <li><a href="@controllers.cypher.routes.CypherQueries.listQueries()">@Messages("cypherQuery.list")</a></li>
-            <li><a class="active" href="@controllers.cypher.routes.CypherQueries.executeQuery(oid, DataFormat.Html)">@item.name</a></li>
+@for(oid <- item.objectId) {
+    @views.html.admin.layout.rightSidebar(item.name,
+            styles = extraStyles,
+            breadcrumbs = views.html.admin.cypherQueries.breadcrumbs(Some(item)),
+            footer = views.html.admin.cypherQueries.resultTable(data)) {
+
+        @common.errorFlash(flash)
+
+        <div class="text-field">
+        @item.description.map(Markdown.apply)
+        </div>
+
+        <pre><code>@item.query.stripMargin</code></pre>
+    } {
+        @views.html.admin.common.sidebarActions { user =>
+            @views.html.admin.common.sidebarAction(user.isAdmin) {
+                <a title="@Messages("cypherQuery.update.description")"
+                href="@controllers.cypher.routes.CypherQueries.updateQuery(oid)">@Messages("cypherQuery.update")</a>
+            }
+            @views.html.admin.common.sidebarAction(user.isAdmin, danger = true) {
+                <a title="@Messages("cypherQuery.delete.description")"
+                href="@controllers.cypher.routes.CypherQueries.deleteQuery(oid)">@Messages("cypherQuery.delete")</a>
+            }
         }
-        @views.html.layout.mainContent {
-            <article class="double">
-                <aside class="right-sidebar">
-                @views.html.admin.common.sidebarActions { user =>
-                    @views.html.admin.common.sidebarAction(user.isAdmin) {
-                        <a title="@Messages("cypherQuery.update.description")"
-                        href="@controllers.cypher.routes.CypherQueries.updateQuery(oid)">@Messages("cypherQuery.update")</a>
-                    }
-                    @views.html.admin.common.sidebarAction(user.isAdmin, danger = true) {
-                        <a title="@Messages("cypherQuery.delete.description")"
-                        href="@controllers.cypher.routes.CypherQueries.deleteQuery(oid)">@Messages("cypherQuery.delete")</a>
+
+        @views.html.admin.common.sidebarSection(Some(Messages("download"))) {
+            @views.html.admin.common.listGroup {
+                @for(fmt <- Seq(DataFormat.Json, DataFormat.Csv, DataFormat.Tsv)) {
+                    @views.html.admin.common.sidebarAction() {
+                        <a
+                        title="@Messages(s"download.format.$fmt")"
+                        href="@controllers.cypher.routes.CypherQueries.executeQuery(oid, fmt)">@fmt.toString.toUpperCase</a>
                     }
                 }
-
-                @views.html.admin.common.sidebarSection(Some(Messages("download"))) {
-                    @views.html.admin.common.listGroup {
-                        @for(fmt <- Seq(DataFormat.Json, DataFormat.Csv, DataFormat.Tsv)) {
-                            @views.html.admin.common.sidebarAction() {
-                                <a
-                                title="@Messages(s"download.format.$fmt")"
-                                href="@controllers.cypher.routes.CypherQueries.executeQuery(oid, fmt)">@fmt.toString.toUpperCase</a>
-                            }
-                        }
-                    }
-                }
-
-                </aside>
-                <section class="main">
-                    @views.html.admin.common.descriptionHeader(item.name)
-
-                    @common.errorFlash(flash)
-
-                    <div class="text-field">
-                    @item.description.map(Markdown.apply)
-                    </div>
-
-                    <pre><code>@item.query.stripMargin</code></pre>
-                </section>
-            </article>
-
-            <hr>
-
-            @views.html.admin.cypherQueries.resultTable(data)
+            }
         }
     }
 }

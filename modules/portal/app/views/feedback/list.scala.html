@@ -1,4 +1,4 @@
-@(feedback: Seq[Feedback])(implicit userOpt: Option[UserProfile], prefs: utils.SessionPrefs, request: RequestHeader, messages: Messages, flash: Flash, globalConfig: global.GlobalConfig)
+@(feedback: utils.Page[Feedback])(implicit userOpt: Option[UserProfile], prefs: utils.SessionPrefs, request: RequestHeader, messages: Messages, flash: Flash, globalConfig: global.GlobalConfig)
 
 @views.html.layout.portalLayout(Messages("feedback.list")) {
     @views.html.layout.mainContent {
@@ -25,5 +25,6 @@
                 </tr>
             }
         </table>
+        @views.html.common.pagination(feedback)
     }
 }

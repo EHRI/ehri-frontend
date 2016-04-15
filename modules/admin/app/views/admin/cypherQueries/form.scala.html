@@ -2,9 +2,74 @@
 
 @implicitField = @{ views.html.helper.FieldConstructor(formHelpers.fieldTemplate.f) }
 
-@defining("cypherQuery") { implicit prefix =>
-    @formHelpers.lineInput(form(""), CypherQuery.NAME)
-    @formHelpers.textInput(form(""), CypherQuery.QUERY)
-    @formHelpers.textInput(form(""), CypherQuery.DESCRIPTION)
-    @formHelpers.checkbox(form(""), CypherQuery.PUBLIC)
+@helper.javascriptRouter("cypherJsRoutes")(
+    controllers.cypher.routes.javascript.CypherQueries.cypherQuery
+)
+
+@defining(if(query.isEmpty) "create" else "update") { actionMsg =>
+    @views.html.admin.layout.rightSidebar(Messages(s"cypherQuery.$actionMsg"), breadcrumbs = views.html.admin.cypherQueries.breadcrumbs(query)) {
+
+        @helper.form(action = call, 'class -> "entity-form form-horizontal") {
+            @formHelpers.csrfToken()
+            @defining("cypherQuery") { implicit prefix =>
+                @formHelpers.lineInput(form(""), CypherQuery.NAME)
+                @formHelpers.textInput(form(""), CypherQuery.DESCRIPTION)
+                @formHelpers.checkbox(form(""), CypherQuery.PUBLIC)
+                @formHelpers.textInput(form(""), CypherQuery.QUERY)
+            }
+            <div class="form-actions">
+                <div class="form-group">
+                    <input type="button" id="test-query" class="btn btn-default progress-button" value="@Messages("cypherQuery.test")"/>
+                    <button type="submit" class="btn btn-post ">@Messages(s"cypherQuery.$actionMsg.submit")</button>
+                </div>
+            </div>
+        }
+        <hr/>
+        <div id="update-progress">
+        </div>
+
+        <link rel="stylesheet" href="@controllers.admin.routes.AdminAssets.versioned("css/lib/codemirror.css")">
+        <script src="@controllers.admin.routes.AdminAssets.versioned("js/lib/codemirror.js")"></script>
+        <script src="@controllers.admin.routes.AdminAssets.versioned("js/lib/cypher.js")"></script>
+        <script type="application/javascript">
+            jQuery(function($) {
+                var danger = /@(CypherQuery.dangerousClauses.regex)/i;
+                var text = document.getElementById("query");
+                var editor = CodeMirror.fromTextArea(text, {
+                    mode:'cypher'
+                });
+                var $test = $("#test-query"),
+                    update = document.getElementById("update-progress");
+
+                editor.on("change", function() {
+                    var match = editor.getValue().match(danger);
+                    $(".CodeMirror").toggleClass("danger", match !== null);
+                    $test.attr("disabled", match !== null);
+                });
+
+                function setRunning(running) {
+                    $test.attr("disabled", running)
+                        .toggleClass("running", running);
+                }
+                $test.click(function(e) {
+                    e.preventDefault();
+
+                    var url = cypherJsRoutes.controllers.cypher.CypherQueries.cypherQuery().url;
+                    readDataStream("GET", url + "?" + $.param({q: editor.getValue()}), {
+                        start: function() {
+                            setRunning(true);
+                        },
+                        progress: function(xhr) {
+                            update.innerHTML = "<pre>" + xhr.responseText + "</pre>";
+                        },
+                        stop: function() {
+                            setRunning(false);
+                        }
+                    });
+                });
+            });
+        </script>
+    } {
+    }
 }
+

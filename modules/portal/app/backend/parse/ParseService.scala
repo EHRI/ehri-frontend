@@ -3,6 +3,7 @@ package backend.parse
 import play.api.libs.json.{Format, Json}
 import play.api.Logger
 import backend.rest.RestService
+import utils.{Page, PageParams}
 import scala.concurrent.{Future, ExecutionContext}
 
 /**
@@ -27,7 +28,7 @@ abstract class ParseService[T: Format](objectName: String) extends RestService {
     implicit val format: Format[UpdateConfirmation] = Json.format[UpdateConfirmation]
   }
 
-  case class Results(results: Seq[T])
+  case class Results(results: Seq[T], count: Option[Int])
 
   object Results {
     implicit val format: Format[Results] = Json.format[Results]
@@ -54,7 +55,7 @@ abstract class ParseService[T: Format](objectName: String) extends RestService {
 
   def create(feedback: T)(implicit executionContext: ExecutionContext): Future[String] = {
     parseCall().post(Json.toJson(feedback)).map { r =>
-      logger.info("Parse create response: " + r.body)
+      logger.debug("Parse create response: " + r.body)
       r.json.as[Confirmation].objectId
     }
   }
@@ -67,20 +68,34 @@ abstract class ParseService[T: Format](objectName: String) extends RestService {
 
   def update(id: String, item:T)(implicit executionContext: ExecutionContext): Future[String] = {
     parseCall(Some(id)).put(Json.toJson(item)).map { r =>
-      logger.info("Parse update response: " + r.body)
+      logger.debug("Parse update response: " + r.body)
       r.json.as[UpdateConfirmation].updatedAt
     }
   }
 
-  def list(params: (String,String)*)(implicit executionContext: ExecutionContext): Future[Seq[T]] = {
-    parseCall(params = params).get().map { r =>
-      r.json.as[Results].results
+  def list(pageParams: PageParams = PageParams.empty, params: Map[String,String] = Map.empty)(
+        implicit executionContext: ExecutionContext): Future[Page[T]] = {
+    val allParams = params.toSeq
+    val withPaging = if (pageParams.limit < 0) allParams else allParams ++ Seq(
+      "limit" -> pageParams.limit.toString,
+      "skip" -> pageParams.offset.toString,
+      "count" -> "true"
+    )
+    logger.debug(s"Page params: ${withPaging.toSeq}")
+    parseCall(params = withPaging).get().map { r =>
+      val results: Results = r.json.as[Results]
+      new Page(
+        offset = pageParams.offset,
+        limit = pageParams.limit,
+        total = results.count.getOrElse(-1),
+        items = results.results
+      )
     }
   }
 
   def delete(id: String)(implicit executionContext: ExecutionContext): Future[Boolean] = {
     parseCall(Some(id)).delete().map { r =>
-      Logger.info("Parse delete response: " + r.body)
+      Logger.debug("Parse delete response: " + r.body)
       r.status >= 200 && r.status < 300
     }
   }

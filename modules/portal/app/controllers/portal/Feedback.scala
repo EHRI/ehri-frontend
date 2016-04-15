@@ -7,7 +7,7 @@ import play.api.i18n.MessagesApi
 import play.api.libs.concurrent.Execution.Implicits._
 import play.api.libs.mailer.{Email, MailerClient}
 import play.api.mvc.{Result, RequestHeader}
-import utils.MovedPageLookup
+import utils.{PageParams, MovedPageLookup}
 import views.MarkdownRenderer
 import scala.concurrent.Future.{successful => immediate}
 import backend.{DataApi, FeedbackService}
@@ -114,8 +114,9 @@ case class Feedback @Inject()(
   }
 
   def list = AdminAction.async { implicit request =>
-    feedbackService.list("order" -> "-createdAt").map { flist =>
-      Ok(views.html.feedback.list(flist.filter(_.text.isDefined)))
+    feedbackService.list(PageParams.fromRequest(request),
+        params = Map("order" -> "-createdAt")).map { flist =>
+      Ok(views.html.feedback.list(flist.copy(items = flist.filter(_.text.isDefined))))
     }
   }
 }

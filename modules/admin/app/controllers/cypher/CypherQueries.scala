@@ -14,6 +14,7 @@ import play.api.cache.CacheApi
 import play.api.data.Form
 import play.api.data.Forms._
 import play.api.i18n.MessagesApi
+import utils.PageParams
 import views.MarkdownRenderer
 import scala.concurrent.Future.{successful => immediate}
 
@@ -31,7 +32,9 @@ case class CypherQueries @Inject()(
   md: MarkdownRenderer
 ) extends AdminController {
 
-  private val queryForm = Form(single("q" -> nonEmptyText))
+  private val queryForm = Form(
+    single("q" -> nonEmptyText.verifying(CypherQuery.isReadOnly))
+  )
 
   private val defaultCypher =
     """
@@ -46,29 +49,28 @@ case class CypherQueries @Inject()(
   }
 
   def cypherQuery = AdminAction.async { implicit request =>
-    // NB: JS doesn't handle streaming responses well, so if we're
-    // calling it from there don't chunk the response.
-    val q: String = queryForm.bindFromRequest.value.getOrElse("")
-    if (isAjax) cypher.cypher(q, Map.empty).map(r => Ok(r))
-    else cypher.stream(q, Map.empty).map { sr =>
-      Status(sr.headers.status).chunked(sr.body)
-    }
+    queryForm.bindFromRequest.fold(
+      err => immediate(BadRequest(err.errorsAsJson)),
+      q => cypher.stream(q, Map.empty).map { sr =>
+        Status(sr.headers.status).chunked(sr.body)
+      }
+    )
   }
 
   def listQueries = WithUserAction.async { implicit request =>
-    cypherQueries.list().map { queries =>
+    cypherQueries.list(PageParams.fromRequest(request)).map { queries =>
       Ok(views.html.admin.cypherQueries.list(queries))
     }
   }
 
   def createQuery = AdminAction { implicit request =>
-    Ok(views.html.admin.cypherQueries.create(CypherQuery.form,
+    Ok(views.html.admin.cypherQueries.form(None, CypherQuery.form,
       controllers.cypher.routes.CypherQueries.createQueryPost()))
   }
 
   def createQueryPost = AdminAction.async { implicit request =>
     CypherQuery.form.bindFromRequest.fold(
-      errors => immediate(BadRequest(views.html.admin.cypherQueries.create(errors,
+      errors => immediate(BadRequest(views.html.admin.cypherQueries.form(None, errors,
         controllers.cypher.routes.CypherQueries.createQueryPost()))),
       queryModel => {
         cypherQueries.create(queryModel).map { _ =>
@@ -82,7 +84,7 @@ case class CypherQueries @Inject()(
   def updateQuery(id: String) = AdminAction.async { implicit request =>
     cypherQueries.get(id).map { query =>
       val f = CypherQuery.form.fill(query)
-      Ok(views.html.admin.cypherQueries.edit(query, f,
+      Ok(views.html.admin.cypherQueries.form(Some(query), f,
         controllers.cypher.routes.CypherQueries.updateQueryPost(id)))
     }
   }
@@ -90,7 +92,7 @@ case class CypherQueries @Inject()(
   def updateQueryPost(id: String) = AdminAction.async { implicit request =>
     CypherQuery.form.bindFromRequest.fold(
       errors => cypherQueries.get(id).map { query =>
-        BadRequest(views.html.admin.cypherQueries.edit(query, errors,
+        BadRequest(views.html.admin.cypherQueries.form(Some(query), errors,
         controllers.cypher.routes.CypherQueries.updateQueryPost(id)))
       },
       queryModel => {
