@@ -2,23 +2,34 @@
 
 
 @extrascripts = {
+    <script src="@controllers.admin.routes.AdminAssets.versioned("js/lib/codemirror.js")"></script>
+    <script src="@controllers.admin.routes.AdminAssets.versioned("js/lib/" + name.toLowerCase + ".js")"></script>
     <script type="application/javascript">
         jQuery(function($) {
-            var $f = $("#query-form");
+            var editor = CodeMirror.fromTextArea(document.getElementById("id_q"), {
+                mode:'@(name.toLowerCase)',
+                lineNumbers: true
+            });
+            var $f = $("#query-form"),
+                $submit = $f.find("[type='submit']"),
+                update = document.getElementById("update-progress");
+
+            function setRunning(running) {
+                $submit.attr("disabled", running)
+                    .toggleClass("running", running);
+            }
             $f.submit(function(e) {
                 e.preventDefault();
-                e.stopPropagation();
-
-                var q = $("[name='q']").val();
-                $.ajax({
-                    url: $f.attr("action"),
-                    data: {
-                        q: q
+                readDataStream("GET", $f.attr("action") + "?" + $.param({q: editor.getValue()}), {
+                    start: function() {
+                        setRunning(true);
+                    },
+                    progress: function(xhr) {
+                        update.innerHTML = "<pre>" + xhr.responseText + "</pre>";
+                    },
+                    stop: function() {
+                        setRunning(false);
                     }
-                }).done(function(data, msg) {
-                    $("#update-progress").html("<pre>" + JSON.stringify(data, null, "  ") + "</pre>");
-                }).error(function(xhr, error, errorString) {
-                    $("#update-progress").html(xhr.responseText);
                 });
             });
         });
@@ -26,26 +37,20 @@
 }
 
 @extrastyles = {
-    <style>
-        textarea[name='q'] {
-        border:1px solid #999999;
-        font-family:Consolas,Monaco,Lucida Console,Liberation Mono,DejaVu Sans Mono,Bitstream Vera Sans Mono,Courier New, monospace;
-        min-height: 300px;
-        min-width: 600px;
-        }
-    </style>
+    <link rel="stylesheet" href="@controllers.admin.routes.AdminAssets.versioned("css/lib/codemirror.css")">
 }
 
 @views.html.admin.layout.noSidebar(name, scripts = extrascripts, styles = extrastyles) {
-
     @helper.form(action = action, 'id -> "query-form") {
-        @helper.textarea(form("q"))
-
+        <textarea id="id_q" name="q">@form("q").value</textarea>
         <div class="control-group">
-            <button type="submit" class="btn btn-primary">Submit</button>
+            <button type="submit" class="btn btn-primary progress-button">
+                Submit
+            </button>
         </div>
     }
 
+    <hr/>
     <div id="update-progress">
     </div>
 }

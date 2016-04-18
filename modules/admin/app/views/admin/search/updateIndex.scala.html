@@ -21,7 +21,7 @@
         var DONE_MSG = "<message>@controllers.generic.Indexable.DONE_MESSAGE</message>";
         var ERR_MSG = "<message>@controllers.generic.Indexable.ERR_MESSAGE</message>";
     </script>
-    <script src="@controllers.portal.routes.PortalAssets.versioned("js/index_utils.js")" type="text/javascript"></script>
+    <script src="@controllers.admin.routes.AdminAssets.versioned("js/index_utils.js")" type="text/javascript"></script>
 }
 
 @implicitField = @{ views.html.helper.FieldConstructor(formHelpers.fieldTemplate.f) }
@@ -48,7 +48,7 @@
         </div>
         <div class="form-actions">
             <div class="form-group">
-                <input type="submit" id="submit-update" class="btn btn-danger" value="@Messages("search.index.update")" />
+                <input type="submit" id="submit-update" class="btn btn-danger progress-button" value="@Messages("search.index.update")" />
             </div>
         </div>
 

@@ -4,6 +4,7 @@ import backend.rest.cypher.CypherService
 import org.joda.time.DateTime
 import play.api.data.Form
 import play.api.data.Forms._
+import play.api.data.validation.{Valid, Invalid, Constraint}
 import play.api.libs.json._
 import play.api.libs.ws.StreamedResponse
 import utils.CsvHelpers
@@ -64,12 +65,22 @@ object CypherQuery {
   implicit val isoJodaDateReads = Reads.jodaDateReads("yyyy-MM-dd'T'HH:mm:ss.SSSZ")
   implicit val _format: Format[CypherQuery] = Json.format[CypherQuery]
 
+  // Mutation Cypher queries - if they add more and we don't update this
+  // we're a bit screwed :|
+  val dangerousClauses = "\\b(CREATE|SET|UPDATE|DELETE|MERGE|REMOVE|DETACH)\\b".r
+  val isReadOnly = Constraint[String]("cypherQuery.mutatingClauses") { q =>
+    dangerousClauses.findFirstIn(q.toUpperCase) match {
+      case Some(clause) => Invalid("cypherQuery.mutatingClauses.error", clause)
+      case None => Valid
+    }
+  }
+
   implicit val form = Form(
     mapping(
       "objectId" -> ignored(Option.empty[String]),
       ID -> optional(text),
       NAME -> nonEmptyText,
-      QUERY -> nonEmptyText,
+      QUERY -> nonEmptyText.verifying(isReadOnly),
       DESCRIPTION -> optional(text),
       PUBLIC -> boolean,
       "createdAt" -> ignored(Option.empty[DateTime]),

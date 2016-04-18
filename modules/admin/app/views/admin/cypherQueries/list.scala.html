@@ -1,43 +1,42 @@
-@(queries: Seq[CypherQuery])(implicit userOpt: Option[UserProfile], req: RequestHeader, globalConfig: global.GlobalConfig, messages: Messages, md: views.MarkdownRenderer, flash: Flash)
+@(queries: utils.Page[CypherQuery])(implicit userOpt: Option[UserProfile], req: RequestHeader, globalConfig: global.GlobalConfig, messages: Messages, md: views.MarkdownRenderer, flash: Flash)
 
 @views.html.admin.layout.rightSidebar(Messages("cypherQuery.list")) {
     <ul class="search-result-list">
-    @queries.map { query =>
-        @query.objectId.map { oid =>
-            @views.html.layout.searchItemOutlineWithActions(oid, "cypherQuery") {
-                @query.name
-            } {
-            } {
-                @query.description.map(Markdown.apply)
-                <pre><code>@query.query.stripMargin</code></pre>
+    @for(query <- queries; oid <- query.objectId) {
+        @views.html.layout.searchItemOutlineWithActions(oid, "cypherQuery") {
+            @query.name
+        } {
+        } {
+            @query.description.map(Markdown.apply)
+            <pre><code>@query.query.stripMargin</code></pre>
 
-                <div class="search-item-footer">
-                    <ul class="list-item-meta">
-                        <li>@Messages("item.update.when", views.Helpers.relativeDate(query.updatedAt))</li>
-                        <li title="@Messages("cypherQuery.public.description")">
-                            <span class="glyphicon glyphicon-eye-@(if (query.public) "open" else "close")"></span>
-                        </li>
-                    </ul>
-                    <ul class="list-item-actions">
-                        @for(fmt <- Seq(DataFormat.Html, DataFormat.Json, DataFormat.Csv, DataFormat.Tsv)) {
-                            <li><a
-                                title="@Messages(s"download.format.$fmt")"
-                                    href="@controllers.cypher.routes.CypherQueries.executeQuery(oid, fmt)">@fmt</a></li>
-                        }
-                        @if(userOpt.exists(_.isAdmin)) {
-                            <li><a
-                                title="@Messages("cypherQuery.update.description")"
-                                    href="@controllers.cypher.routes.CypherQueries.updateQuery(oid)">@Messages("cypherQuery.update")</a></li>
-                            <li><a class="ajax-action"
-                                title="@Messages("cypherQuery.delete.description")"
-                                href="@controllers.cypher.routes.CypherQueries.deleteQuery(oid)">@Messages("cypherQuery.delete")</a></li>
-                        }
-                    </ul>
-                </div>
-            }
+            <div class="search-item-footer">
+                <ul class="list-item-meta">
+                    <li>@Messages("item.update.when", views.Helpers.relativeDate(query.updatedAt))</li>
+                    <li title="@Messages("cypherQuery.public.description")">
+                        <span class="glyphicon glyphicon-eye-@(if (query.public) "open" else "close")"></span>
+                    </li>
+                </ul>
+                <ul class="list-item-actions">
+                    @for(fmt <- Seq(DataFormat.Html, DataFormat.Json, DataFormat.Csv, DataFormat.Tsv)) {
+                        <li><a
+                            title="@Messages(s"download.format.$fmt")"
+                                href="@controllers.cypher.routes.CypherQueries.executeQuery(oid, fmt)">@fmt</a></li>
+                    }
+                    @if(userOpt.exists(_.isAdmin)) {
+                        <li><a
+                            title="@Messages("cypherQuery.update.description")"
+                                href="@controllers.cypher.routes.CypherQueries.updateQuery(oid)">@Messages("cypherQuery.update")</a></li>
+                        <li><a class="ajax-action"
+                            title="@Messages("cypherQuery.delete.description")"
+                            href="@controllers.cypher.routes.CypherQueries.deleteQuery(oid)">@Messages("cypherQuery.delete")</a></li>
+                    }
+                </ul>
+            </div>
         }
     }
     </ul>
+    @views.html.common.pagination(queries)
 } {
     @views.html.admin.common.sidebarActions { user =>
         @views.html.admin.common.sidebarAction(user.isAdmin) {

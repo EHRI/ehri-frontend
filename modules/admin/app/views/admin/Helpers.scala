@@ -27,6 +27,8 @@ object Helpers {
     ("s1", "-"),
     ("contentTypes.SystemEvent",      controllers.events.routes.SystemEvents.list().url),
     ("s2", "-"),
+    ("cypherQuery.list",           controllers.cypher.routes.CypherQueries.listQueries().url),
+    ("s3", "-"),
     ("search.index.update",            controllers.admin.routes.AdminSearch.updateIndex().url)
   )
 

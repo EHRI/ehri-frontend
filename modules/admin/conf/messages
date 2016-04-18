@@ -139,6 +139,7 @@ cypherQuery.list=Database Queries
 cypherQuery.create=New query
 cypherQuery.create.submit=Create Query
 cypherQuery.name=Name
+cypherQuery.name.description=A distinct name for this query
 cypherQuery.query=Cypher
 cypherQuery.query.description=The Cypher code for this query
 cypherQuery.description=Description
@@ -151,10 +152,16 @@ cypherQuery.download=Download
 cypherQuery.download.description=Execute and download query results
 cypherQuery.results=Results
 cypherQuery.console=Cypher console
-cypherQuery.delete=Delete
+cypherQuery.delete=Delete Query
+cypherQuery.delete.submit=Delete
 cypherQuery.delete.description=Delete query (this action cannot be undone)
-cypherQuery.update=Edit
+cypherQuery.update=Edit Query
+cypherQuery.update.submit=Update Query
 cypherQuery.update.description=Edit query
+cypherQuery.mutatingClauses=Field must not contain mutating clauses
+cypherQuery.mutatingClauses.error=Query contains mutating clause: {0}
+cypherQuery.test=Test Query
+download.format.html=View as HTML
 
 # Provenance
 forms.logMessagePlaceholder=Tell people what you''re doing (optional, 400 characters max)...

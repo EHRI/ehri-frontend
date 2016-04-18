@@ -1,0 +1,11 @@
+@(query: Option[CypherQuery])(implicit messages: Messages)
+
+@views.html.layout.infobar {
+    <li><a href="@controllers.cypher.routes.CypherQueries.listQueries()">@Messages("cypherQuery.list")</a></li>
+    @for(q <- query; oid <- q.objectId) {
+        <li title="@q.name" class="active">
+            <a href="@controllers.cypher.routes.CypherQueries.executeQuery(oid, DataFormat.Html)">@q.name</a>
+        </li>
+    }
+}
+

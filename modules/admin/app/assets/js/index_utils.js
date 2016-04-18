@@ -16,9 +16,9 @@ jQuery(function($) {
     e.preventDefault();
     e.stopPropagation();
     var $elem = $(this);
-    $elem.attr("disabled", true);
+    $elem.attr("disabled", true).addClass("running");
     submitAndRead($("#update-form").serialize(), function() {
-      $elem.attr("disabled", false);
+      $elem.attr("disabled", false).removeClass("running");
     });
   });
 
