@@ -758,6 +758,7 @@ documentaryUnit.findingAids=Findhilfsmittel
 documentaryUnit.locationOfOriginals=Aufbewahrungsort der Originale
 documentaryUnit.locationOfCopies=Aufbewahrungsort von Kopien
 documentaryUnit.relatedUnitsOfDescription=Verwandte Verzeichnungseinheiten
+documentaryUnit.separatedUnitsOfDescription=Getrennt Verzeichnungseinheiten
 documentaryUnit.publicationNote=Veröffentlichung
 documentaryUnit.notes=Anmerkung(en)
 documentaryUnit.sources=Quellen

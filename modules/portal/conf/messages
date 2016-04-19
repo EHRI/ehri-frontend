@@ -1012,6 +1012,7 @@ documentaryUnit.findingAids=Finding Aids
 documentaryUnit.locationOfOriginals=Existence and Location of Originals
 documentaryUnit.locationOfCopies=Existence and Location of Copies
 documentaryUnit.relatedUnitsOfDescription=Related Units of Description
+documentaryUnit.separatedUnitsOfDescription=Separated Units of Description
 documentaryUnit.publicationNote=Publication Note
 documentaryUnit.notes=Note(s)
 documentaryUnit.sources=Sources

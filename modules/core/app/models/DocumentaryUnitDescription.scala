@@ -52,6 +52,7 @@ case class IsadGMaterials(
   locationOfOriginals: Option[Seq[String]] = None,
   locationOfCopies: Option[Seq[String]] = None,
   relatedUnitsOfDescription: Option[Seq[String]] = None,
+  separatedUnitsOfDescription: Option[Seq[String]] = None,
   publicationNote: Option[String] = None
 ) extends AttributeSet
 
@@ -66,8 +67,8 @@ case class IsadGControl(
 
 object DocumentaryUnitDescriptionF {
 
-  import Entity._
-  import IsadG._
+  import backend.Entity._
+  import models.IsadG._
   import Ontology._
 
   implicit val documentaryUnitDescriptionFormat: Format[DocumentaryUnitDescriptionF] = (
@@ -109,6 +110,7 @@ object DocumentaryUnitDescriptionF {
       (__ \ LOCATION_ORIGINALS).formatSeqOrSingleNullable[String] and
       (__ \ LOCATION_COPIES).formatSeqOrSingleNullable[String] and
       (__ \ RELATED_UNITS).formatSeqOrSingleNullable[String] and
+      (__ \ SEPARATED_UNITS).formatSeqOrSingleNullable[String] and
       (__ \ PUBLICATION_NOTE).formatNullable[String]
     )(IsadGMaterials.apply, unlift(IsadGMaterials.unapply))) and
     (__ \ DATA \ NOTES).formatSeqOrSingleNullable[String] and
@@ -146,7 +148,7 @@ case class DocumentaryUnitDescriptionF(
   maintenanceEvents: Seq[Entity] = Nil,
   unknownProperties: Seq[Entity] = Nil
 ) extends Model with Persistable with Description with Temporal {
-  import IsadG._
+  import models.IsadG._
 
   def name = identity.name
   def dates = identity.dates
@@ -179,6 +181,7 @@ case class DocumentaryUnitDescriptionF(
     LOCATION_ORIGINALS -> materials.locationOfOriginals.map(_.mkString("\n")),
     LOCATION_COPIES -> materials.locationOfCopies.map(_.mkString("\n")),
     RELATED_UNITS -> materials.relatedUnitsOfDescription.map(_.mkString("\n")),
+    SEPARATED_UNITS -> materials.separatedUnitsOfDescription.map(_.mkString("\n")),
     PUBLICATION_NOTE -> materials.publicationNote,
     ARCHIVIST_NOTE -> control.archivistNote,
     SOURCES -> control.sources.map(_.mkString("\n")),
@@ -189,8 +192,8 @@ case class DocumentaryUnitDescriptionF(
 }
 
 object DocumentaryUnitDescription {
-  import IsadG._
-  import Entity._
+  import models.IsadG._
+  import backend.Entity._
   import defines.EnumUtils.enumMapping
 
   val form = Form(
@@ -233,6 +236,7 @@ object DocumentaryUnitDescription {
         LOCATION_ORIGINALS -> optional(seq(nonEmptyText)),
         LOCATION_COPIES -> optional(seq(nonEmptyText)),
         RELATED_UNITS -> optional(seq(nonEmptyText)),
+        SEPARATED_UNITS -> optional(seq(nonEmptyText)),
         PUBLICATION_NOTE -> optional(text)
       )(IsadGMaterials.apply)(IsadGMaterials.unapply),
       NOTES -> optional(seq(nonEmptyText)),
