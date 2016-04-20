@@ -79,7 +79,7 @@ object HistoricalAgentDescriptionF {
     )(IsaarControl.apply, unlift(IsaarControl.unapply))) and
     (__ \ DATA \ CREATION_PROCESS).formatWithDefault(CreationProcess.Manual) and
     (__ \ RELATIONSHIPS \ HAS_ACCESS_POINT).formatSeqOrEmpty[AccessPointF] and
-    (__ \ RELATIONSHIPS \ HAS_MAINTENANCE_EVENT).formatSeqOrEmpty[Entity] and
+    (__ \ RELATIONSHIPS \ HAS_MAINTENANCE_EVENT).formatSeqOrEmpty[MaintenanceEventF] and
     (__ \ RELATIONSHIPS \ HAS_UNKNOWN_PROPERTY).formatSeqOrEmpty[Entity]
   )(HistoricalAgentDescriptionF.apply, unlift(HistoricalAgentDescriptionF.unapply))
 
@@ -103,7 +103,7 @@ case class HistoricalAgentDescriptionF(
   control: IsaarControl,
   creationProcess: CreationProcess.Value = CreationProcess.Manual,
   accessPoints: Seq[AccessPointF],
-  maintenanceEvents: Seq[Entity] = Nil,
+  maintenanceEvents: Seq[MaintenanceEventF] = Nil,
   unknownProperties: Seq[Entity] = Nil
 ) extends Model
   with Persistable
@@ -172,7 +172,7 @@ object HistoricalAgentDescription {
       )(IsaarControl.apply)(IsaarControl.unapply),
       CREATION_PROCESS -> default(enumMapping(CreationProcess), CreationProcess.Manual),
       ACCESS_POINTS -> seq(AccessPoint.form.mapping),
-      MAINTENANCE_EVENTS -> seq(entity),
+      MAINTENANCE_EVENTS -> seq(MaintenanceEventF.form.mapping),
       UNKNOWN_DATA -> seq(entity)
     )(HistoricalAgentDescriptionF.apply)(HistoricalAgentDescriptionF.unapply)
   )

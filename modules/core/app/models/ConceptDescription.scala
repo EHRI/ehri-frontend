@@ -33,6 +33,7 @@ object ConceptDescriptionF {
     (__ \ DATA \ URL).formatNullable[String] and
     (__ \ DATA \ CREATION_PROCESS).formatWithDefault(CreationProcess.Manual) and
     (__ \ RELATIONSHIPS \ Ontology.HAS_ACCESS_POINT).formatSeqOrEmpty[AccessPointF] and
+    (__ \ RELATIONSHIPS \ Ontology.HAS_MAINTENANCE_EVENT).formatSeqOrEmpty[MaintenanceEventF] and
     (__ \ RELATIONSHIPS \ Ontology.HAS_UNKNOWN_PROPERTY).formatSeqOrEmpty[Entity]
   )(ConceptDescriptionF.apply, unlift(ConceptDescriptionF.unapply))
 
@@ -55,6 +56,7 @@ case class ConceptDescriptionF(
   url: Option[String] = None,
   creationProcess: Description.CreationProcess.Value = Description.CreationProcess.Manual,
   accessPoints: Seq[AccessPointF] = Nil,
+  maintenanceEvents: Seq[MaintenanceEventF] = Nil,
   unknownProperties: Seq[Entity] = Nil
 ) extends Model with Persistable with Description {
 
@@ -85,6 +87,7 @@ object ConceptDescription {
     URL -> optional(nonEmptyText),
     CREATION_PROCESS -> default(enumMapping(CreationProcess), CreationProcess.Manual),
     ACCESS_POINTS -> seq(AccessPoint.form.mapping),
+    MAINTENANCE_EVENTS -> seq(MaintenanceEventF.form.mapping),
     UNKNOWN_DATA -> seq(entity)
   )(ConceptDescriptionF.apply)(ConceptDescriptionF.unapply))
 }

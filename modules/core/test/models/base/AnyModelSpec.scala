@@ -18,6 +18,7 @@ case class TestDescriptionF(
   @relation(Ontology.HAS_ACCESS_POINT)
   creationProcess: CreationProcess.Value = CreationProcess.Manual,
   accessPoints: Seq[AccessPointF] = Nil,
+  maintenanceEvents: Seq[MaintenanceEventF] = Nil,
   @relation(Ontology.HAS_UNKNOWN_PROPERTY)
   unknownProperties: List[Entity] = Nil
 ) extends Model
