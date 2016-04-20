@@ -7,8 +7,6 @@
 
 GET         /                                     @controllers.portal.Portal.index
 
-GET         /activity                             @controllers.portal.Portal.personalisedActivity
-
 GET         /helpdesk                             @controllers.portal.Helpdesk.helpdesk
 POST        /helpdesk                             @controllers.portal.Helpdesk.helpdeskPost
 
@@ -60,7 +58,9 @@ GET         /vocabularies                         @controllers.portal.Vocabulari
 GET         /vocabularies/:id                     @controllers.portal.Vocabularies.browse(id: String)
 GET         /vocabularies/:id/search              @controllers.portal.Vocabularies.search(id: String)
 
+GET         /activity                             @controllers.portal.Portal.personalisedActivity
 GET         /activity/:id                         @controllers.portal.Portal.itemHistory(id: String, modal: Boolean ?= false)
+GET         /event/:id                            @controllers.portal.Portal.eventDetails(id: String)
 GET         /feed/$key<\w+>                       @controllers.portal.Portal.externalFeed(key: String)
 GET         /item/:entityType/:id                 @controllers.portal.Portal.browseItem(entityType: EntityType.Value, id: String)
 

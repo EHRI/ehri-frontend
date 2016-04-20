@@ -23,6 +23,7 @@ import views.html.errors.pageNotFound
 import controllers.portal.base.PortalController
 import play.api.libs.json.Json
 
+import scala.concurrent.Future
 import scala.concurrent.duration.Duration
 
 
@@ -153,6 +154,18 @@ case class Portal @Inject()(
       else if (isAjax) Ok(views.html.activity.eventItems(events))
         .withHeaders("activity-more" -> events.more.toString)
       else Ok(views.html.activity.itemActivity(events, params))
+    }
+  }
+
+  def eventDetails(id: String) = OptionalUserAction.async { implicit request =>
+    val params: PageParams = PageParams.fromRequest(request)
+    val eventF: Future[SystemEvent] = userDataApi.get[SystemEvent](id)
+    val subjectsF: Future[Page[AnyModel]] = userDataApi.subjectsForEvent[AnyModel](id, params)
+    for {
+      event <- eventF
+      subjects <- subjectsF
+    } yield {
+      Ok(views.html.activity.eventSubjects(event, subjects, params))
     }
   }
 

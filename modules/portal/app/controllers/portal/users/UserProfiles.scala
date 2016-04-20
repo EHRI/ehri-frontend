@@ -2,6 +2,7 @@ package controllers.portal.users
 
 import auth.AccountManager
 import controllers.generic.Search
+import org.joda.time.DateTime
 import play.api.cache.CacheApi
 import play.api.libs.concurrent.Execution.Implicits._
 import models._
@@ -95,13 +96,12 @@ case class UserProfiles @Inject()(
     implicit val writes = Json.writes[ExportWatchItem]
   }
 
-  def activity = WithUserAction.async { implicit request =>
+  def activity(from: Option[DateTime] = None, to: Option[DateTime] = None) = WithUserAction.async { implicit request =>
     // Show the profile home page of a defined user.
     // Activity is the default page
     val listParams = RangeParams.fromRequest(request)
-    val eventParams = SystemEventParams.fromRequest(request)
-      .copy(eventTypes = activityEventTypes)
-      .copy(itemTypes = activityItemTypes)
+    val eventParams: SystemEventParams = SystemEventParams.fromRequest(request)
+      .copy(eventTypes = activityEventTypes, itemTypes = activityItemTypes, from = from, to = to)
     val events: Future[RangePage[Seq[SystemEvent]]] =
       userDataApi.userActions[SystemEvent](request.user.id, listParams, eventParams)
 
@@ -109,7 +109,7 @@ case class UserProfiles @Inject()(
       if (isAjax) Ok(views.html.activity.eventItems(myActivity))
         .withHeaders("activity-more" -> myActivity.more.toString)
       else Ok(views.html.userProfile.show(request.user, myActivity,
-        listParams, followed = false, canMessage = false))
+        listParams, eventParams, followed = false, canMessage = false))
     }
   }
 

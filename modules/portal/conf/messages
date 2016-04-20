@@ -350,12 +350,15 @@ systemEvent.setVisibility=Visibility modified
 systemEvent.addGroup=Member added to group
 systemEvent.removeGroup=Member removed from group
 systemEvent.ingest=Items imported
+systemEvent.ingest.subjects={0} and {1} other items
 systemEvent.promotion=Item Promoted
 systemEvent.demotion=Item Promotion Removed
 systemEvent.watch=Started watching an item
 systemEvent.unwatch=Stopped watching an item
 systemEvent.follow=Started following a user
 systemEvent.unfollow=Stopped following a user
+systemEvent.from=From
+systemEvent.to=To
 
 
 #

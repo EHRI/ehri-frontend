@@ -117,7 +117,7 @@ object Constants {
   /**
    * Pattern for form input datetime objects
    */
-  val DATE_PATTERN = "yyyy-MM-dd"
+  val DATE_PATTERN = "yyyy-MM-dd'T'HH:mm:SS"
 
   /**
    * Group members

@@ -77,24 +77,22 @@ case class SystemEventParams(
   to: Option[DateTime] = None,
   show: Option[ShowType.Value] = None,
   aggregation: Option[Aggregation.Value] = None) {
-  import SystemEventParams._
-  private val fmt = ISODateTimeFormat.dateTime.withZoneUTC
+  import utils.SystemEventParams._
 
-  def toSeq: Seq[(String,String)] = {
-    (users.filterNot(_.isEmpty).map(u => USERS -> u) ++
+  def toSeq: Seq[(String,String)] = users
+    .filterNot(_.isEmpty).map(u => USERS -> u) ++
       eventTypes.map(et => EVENT_TYPE -> et.toString) ++
       itemTypes.map(et => ITEM_TYPE -> et.toString) ++
       from.map(f => FROM -> fmt.print(f)).toSeq ++
       to.map(t => TO -> fmt.print(t)).toSeq ++
       show.map(f => SHOW -> f.toString).toSeq ++
-      aggregation.map(f => AGGREGATION -> f.toString).toSeq
-      ).toSeq
-  }
+      aggregation.map(f => AGGREGATION -> f.toString)
 }
 
 object SystemEventParams {
 
-  import EnumUtils.enumMapping
+  import defines.EnumUtils.enumMapping
+  private val fmt = ISODateTimeFormat.dateTime
 
   def empty: SystemEventParams = new SystemEventParams()
 
