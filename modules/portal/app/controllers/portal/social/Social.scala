@@ -4,6 +4,7 @@ import auth.AccountManager
 import backend.rest.cypher.Cypher
 import controllers.base.RecaptchaHelper
 import controllers.generic.Search
+import org.joda.time.DateTime
 import play.api.cache.CacheApi
 import play.api.libs.concurrent.Execution.Implicits._
 import models.{SystemEvent, UserProfile}
@@ -75,13 +76,12 @@ case class Social @Inject()(
     ))
   }
 
-  def userActivity(userId: String) = WithUserAction.async { implicit request =>
+  def userActivity(userId: String, from: Option[DateTime] = None, to: Option[DateTime] = None) = WithUserAction.async { implicit request =>
     // Show the profile home page of a defined user.
     // Activity is the default page
     val listParams = RangeParams.fromRequest(request)
     val eventParams = SystemEventParams.fromRequest(request)
-      .copy(eventTypes = activityEventTypes)
-      .copy(itemTypes = activityItemTypes)
+      .copy(eventTypes = activityEventTypes, itemTypes = activityItemTypes, from = from, to = to)
     val events: Future[RangePage[Seq[SystemEvent]]] =
       userDataApi.userActions[SystemEvent](userId, listParams, eventParams)
 
@@ -96,7 +96,8 @@ case class Social @Inject()(
         theirActivity <- events
         followed <- isFollowing
         canMessage <- allowMessage
-      } yield Ok(views.html.userProfile.show(them, theirActivity, listParams, followed, canMessage))
+      } yield Ok(views.html.userProfile.show(
+          them, theirActivity, listParams, eventParams, followed, canMessage))
     }
   }
 

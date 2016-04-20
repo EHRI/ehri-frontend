@@ -16,6 +16,9 @@ case class EventSummary(events: Seq[SystemEvent]) {
   lazy val eventTypes: Set[EventType.Value] = events.flatMap(_.effectiveType).toSet
   lazy val firstSubjects: Set[AnyModel] = events.flatMap(_.effectiveSubject).toSet
 
+  def from: Option[DateTime] = events.headOption.map(_.model.timestamp)
+  def to: Option[DateTime] = events.lastOption.map(_.model.timestamp)
+
   def sameSubject: Boolean = firstSubjects.size == 1
   def sameType: Boolean = eventTypes.size == 1
 

@@ -1,4 +1,4 @@
-@(event: SystemEvent, subject: models.base.AnyModel, user: models.base.Accessor, et: defines.EventType.Value)(implicit userOpt: Option[UserProfile], req: RequestHeader, globalConfig: global.GlobalConfig, messages: Messages, md: views.MarkdownRenderer)
+@(event: SystemEvent, subject: models.base.AnyModel, user: models.base.Accessor, et: defines.EventType.Value, subjectCount: Int)(implicit userOpt: Option[UserProfile], req: RequestHeader, globalConfig: global.GlobalConfig, messages: Messages, md: views.MarkdownRenderer)
 
 @import defines.EventType
 
@@ -7,9 +7,9 @@
 }
 
 @eventModification(subject: models.Annotation) = {
-@subject.target.map{ target =>
-    @eventFooter(target, views.html.helpers.linkToWithFragment(target, "#" + subject.id))
-}
+    @subject.target.map{ target =>
+        @eventFooter(target, views.html.helpers.linkToWithFragment(target, "#" + subject.id))
+    }
 }
 
 @eventFooter(item : models.base.AnyModel, link: Html) = {
@@ -57,6 +57,17 @@
             } else {
                 @eventFooter(scope, views.html.helpers.linkToWithFragment(scope, "#" + subject.id))
             }
+        }
+    }
+    case EventType.ingest => {
+        @if(subjectCount > 1) {
+            <div class="event-footer @subject.isA">
+                <a href="@controllers.portal.routes.Portal.eventDetails(event.id)">
+                    @Messages("systemEvent.ingest.subjects", subject.toStringLang, subjectCount - 1)
+                </a>
+            </div>
+        } else {
+            @eventFooter(subject, views.html.helpers.linkTo(subject))
         }
     }
     case _ => {

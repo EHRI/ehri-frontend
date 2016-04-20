@@ -2,6 +2,7 @@ User-agent: *
 Disallow: /people/
 Disallow: /profile/
 Disallow: /admin/
+Disallow: /event/
 Disallow: /login
 Disallow: /notes
 Disallow: /links

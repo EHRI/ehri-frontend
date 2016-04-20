@@ -8,21 +8,23 @@
                     @accessor match {
                         case user: UserProfile => {
                             <img src="@views.p.Helpers.gravitar(user.model.imageUrl)" alt="@user.model.name" class="gravitar pull-left" />
-                            <h4 class="timeline-title">@views.html.helpers.linkTo(user)</h4>
+                            <h4 class="event-title">@views.html.helpers.linkTo(user)</h4>
                         }
                         case _ => {}
                     }
 
-                    @summary.timestamp.map { ts =>
-                        <small class="timeline-time">
+                    @for(timestamp <- summary.timestamp; user <- summary.user) {
+                        <a href="@controllers.portal.social.routes.Social.userActivity(
+                                userId = user.id, from = summary.from, to = summary.to)"
+                            class="event-time" title="@timestamp">
                             <i class="glyphicon glyphicon-time"></i>
-                            @views.Helpers.relativeDate(ts)
-                        </small>
+                            @views.Helpers.relativeDate(timestamp)
+                        </a>
                     }
                 </div>
                 @if(summary.sameType && summary.sameSubject) {
                     @for(ev <- summary.events.headOption; s <- ev.effectiveSubject; et <- ev.effectiveType) {
-                        @views.html.activity.eventBody(ev, s, accessor, et)
+                        @views.html.activity.eventBody(ev, s, accessor, et, subjectCount = 1)
                     }
                 } else {
                     <dl class="timeline-body timeline-summary dl-horizontal">
