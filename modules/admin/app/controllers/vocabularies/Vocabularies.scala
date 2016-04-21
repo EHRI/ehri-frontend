@@ -193,7 +193,7 @@ case class Vocabularies @Inject()(
 
   def exportSkos(id: String, format: Option[String]) = OptionalUserAction.async { implicit request =>
     val baseUrl: Option[String] = request.getQueryString("baseUri")
-    ws.url(utils.serviceBaseUrl("ehridata", config) + s"/${EntityType.Vocabulary}/$id/export")
+    ws.url(utils.serviceBaseUrl("ehridata", config) + s"/classes/${EntityType.Vocabulary}/$id/export")
         .withQueryString(format.toSeq.map(f => "format" -> f): _*)
         .withQueryString(baseUrl.toSeq.map(url => "baseUri" -> url): _*)
         .withHeaders(request.userOpt.map(u => Constants.AUTH_HEADER_NAME -> u.id).toSeq: _*).get().map { r =>
