@@ -10,6 +10,7 @@ sealed trait FacetClass[+T <: Facet] {
 
   def sort: FacetSort.Value = FacetSort.Count
   def display: FacetDisplay.Value = FacetDisplay.List
+  def displayLimit: Int = 10
   def count: Int = facets.length
   def limit: Option[Int] = None
   def minCount: Option[Int] = None
@@ -58,6 +59,7 @@ case class FieldFacetClass(
   override val render: (String) => String = s=>s,
   facets: Seq[FieldFacet] = Nil,
   override val display: FacetDisplay.Value = FacetDisplay.List,
+  override val displayLimit: Int = 20,
   override val sort: FacetSort.Value = FacetSort.Count
 ) extends FacetClass[FieldFacet]
 
@@ -83,6 +85,7 @@ case class QueryFacetClass(
   override val render: (String) => String = s=>s,
   override val facets: Seq[QueryFacet],
   override val display: FacetDisplay.Value = FacetDisplay.List,
+  override val displayLimit: Int = 20,
   override val sort: FacetSort.Value = FacetSort.Name
 ) extends FacetClass[QueryFacet] {
   override def isValidValue(s: String) = facets.exists(_.value == s)

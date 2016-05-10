@@ -6,6 +6,24 @@
     <h4 data-toggle="tooltip" title="@Messages("facet." + fc.param + ".tooltip")" class="facet-label">@Messages("facet." + fc.param)</h4>
 }
 
+@facetItem(fc: FacetClass[Facet], f: Facet) = {
+    @if(f.applied) {
+        <li class="remove-filter" title="@fc.pretty(f)">
+            <a href="@pathWithoutFacet(fc, f.value, call.url, req.queryString.filterKeys(_!="page"))">
+                <span class="facet-name">@fc.pretty(f)</span>
+                <span class="facet-count">(@f.count)</span>
+            </a>
+        </li>
+    } else {
+        <li class="apply-filter" title="@fc.pretty(f)">
+            <a href="@pathWithFacet(fc, f.value, call.url, req.queryString.filterKeys(_!="page"))">
+                <span class="facet-name">@fc.pretty(f)</span>
+                <span class="facet-count">(@f.count)</span>
+            </a>
+        </li>
+    }
+}
+
 @facetDropDown(fc: FacetClass[Facet]) = {
         @defining(fc.facets.count(_.count > 0) > 0) { active =>
         @defining(fc.facets.size <= 1) { disabled =>
@@ -38,13 +56,13 @@
                 @if(f.applied) {
                     <input type="hidden" name="@fc.param" value="@f.value" />
                     <a class="remove-filter" href="@pathWithoutFacet(fc, f.value, call.url, req.queryString.filterKeys(_!="page"))">
-                    @fc.pretty(f)
-                    (@f.count)
+                        <span class="facet-name">@fc.pretty(f)</span>
+                        <span class="facet-count">(@f.count)</span>
                     </a>
                 } else {
                     <a class="apply-filter" href="@pathWithFacet(fc, f.value, call.url, req.queryString.filterKeys(_!="page"))">
-                    @fc.pretty(f)
-                    (@f.count)
+                        <span class="facet-name">@fc.pretty(f)</span>
+                        <span class="facet-count">(@f.count)</span>
                     </a>
                 }
             }
@@ -58,25 +76,17 @@
         @defining(fc.facets.filter(_.count > 0)) { sortedActive =>
             <li class="facet-class facet-list @{if(fc.isActive) "active"}">
                 @facetLabel(fc)
-                <ul class="facet-options">
-                    @sortedActive.map { f =>
-                        @if(f.applied) {
-                        <li title="@fc.pretty(f)" class="selected-filter">
-                            <a class="remove-filter" href="@pathWithoutFacet(fc, f.value, call.url, req.queryString.filterKeys(_!="page"))">
-                                @fc.pretty(f)
-                                (@f.count)
-                            </a>
-                        </li>
-                        } else {
-                        <li class="type-highlight @f.value" title="@fc.pretty(f)">
-                            <a href="@pathWithFacet(fc, f.value, call.url, req.queryString.filterKeys(_!="page"))">
-                            @fc.pretty(f)
-                            (@f.count)
-                            </a>
-                        </li>
+                <ol class="facet-options">
+                    @defining(sortedActive.splitAt(fc.displayLimit)) { case (first, rest) =>
+                        @first.map(f => facetItem(fc, f))
+                        @if(rest.nonEmpty) {
+                            <div id="facet-extra-@fc.key" class="collapse collapsed">
+                                @rest.map(f => facetItem(fc, f))
+                            </div>
+                            <a class="more-less-options" href="#facet-extra-@fc.key">More...</a>
                         }
                     }
-                </ul>
+                </ol>
             </li>
         }
     }
@@ -88,23 +98,7 @@
             <li class="facet-class facet-choice @{if(fc.isActive) "active"}">
                 @facetLabel(fc)
                 <ul class="facet-options choice">
-                    @sortedActive.map { f =>
-                        @if(f.applied) {
-                        <li title="@fc.pretty(f)" class="selected-filter">
-                            <a class="remove-filter" href="@pathWithoutFacet(fc, f.value, call.url, req.queryString.filterKeys(_!="page"))">
-                            @fc.pretty(f)
-                            (@f.count)
-                            </a>
-                        </li>
-                        } else {
-                        <li class="type-highlight @f.value" title="@fc.pretty(f)">
-                            <a class="apply-filter" href="@pathWithFacet(fc, f.value, call.url, req.queryString.filterKeys(_!="page"))">
-                            @fc.pretty(f)
-                            (@f.count)
-                            </a>
-                        </li>
-                        }
-                    }
+                    @sortedActive.map(f => facetItem(fc, f))
                 </ul>
             </li>
         }
@@ -116,7 +110,6 @@
     <li class="facet-class facet-date @{if(fc.isActive) "active"}">
         <h4 class="facet-label">
             @Messages(fc.name)
-
             @if(fc.facets.isEmpty) {
                 <a href="#" class="date-submit pull-right">
                     <span class="glyphicon glyphicon-ok-circle"></span>
@@ -124,28 +117,11 @@
             }
         </h4>   
         @if(fc.facets.nonEmpty) {
-            <ul class="facet-options">     
+            <ol class="facet-options">
                 @defining(fc.facets.filter(_.count > 0)) { sortedActive =>
-                    @sortedActive.map { f =>
-                        @if(f.applied) {
-                        <li title="@fc.pretty(f)" class="selected-filter">
-                            <a class="remove-filter" href="@pathWithoutFacet(fc, f.value,
-                                                        call.url, req.queryString.filterKeys(_!="page"))">
-                                @fc.pretty(f)
-                                (@f.count)
-                            </a>
-                        </li>
-                        } else {
-                        <li class="type-highlight @f.value" title="@fc.pretty(f)">
-                            <a href="@pathWithFacet(fc, f.value, call.url, req.queryString.filterKeys(_!="page"))">
-                            @fc.pretty(f)
-                            (@f.count)
-                            </a>
-                        </li>
-                        }
-                    }
+                    @sortedActive.map(f => facetItem(fc, f))
                 }
-            </ul>
+            </ol>
         } else {
             <div class="facet-options">
                 <input type="hidden" class="target" name="@fc.param" value="" />

@@ -132,19 +132,6 @@ trait FacetConfig extends Search {
         param = "set",
         render = s => s,
         display = FacetDisplay.Choice
-      ),
-      QueryFacetClass(
-        key = CHAR_COUNT,
-        name = Messages("facet.lod"),
-        param = "lod",
-        render = s => Messages("facet.lod." + s),
-        facets = List(
-          QueryFacet(value = "low", range = Start to Val("250")),
-          QueryFacet(value = "medium", range = Val("251") to Val("1000")),
-          QueryFacet(value = "high", range = Val("1001") to End)
-        ),
-        sort = FacetSort.Fixed,
-        display = FacetDisplay.Choice
       )
     )
   }
@@ -188,19 +175,6 @@ trait FacetConfig extends Search {
           QueryFacet(value = "yes", range = Val("1") to End)
         ),
         display = FacetDisplay.Boolean
-      ),
-      QueryFacetClass(
-        key = CHAR_COUNT,
-        name = Messages("facet.lod"),
-        param = "lod",
-        render = s => Messages("facet.lod." + s),
-        facets = List(
-          QueryFacet(value = "low", range = Start to Val("200")),
-          QueryFacet(value = "medium", range = Val("201") to Val("5000")),
-          QueryFacet(value = "high", range = Val("5001") to End)
-        ),
-        sort = FacetSort.Fixed,
-        display = FacetDisplay.Choice
       )
     )
   }
@@ -217,18 +191,12 @@ trait FacetConfig extends Search {
         ),
         display = FacetDisplay.Boolean
       ),
-      QueryFacetClass(
-        key = CHAR_COUNT,
-        name = Messages("facet.lod"),
-        param = "lod",
-        render = s => Messages("facet.lod." + s),
-        facets = List(
-          QueryFacet(value = "low", range = Start to Val("500")),
-          QueryFacet(value = "medium", range = Val("501") to Val("2000")),
-          QueryFacet(value = "high", range = Val("2001") to End)
-        ),
-        sort = FacetSort.Fixed,
-        display = FacetDisplay.Choice
+      FieldFacetClass(
+        key = COUNTRY_CODE,
+        name = Messages("repository." + COUNTRY_CODE),
+        param = "country",
+        render = (s: String) => Helpers.countryCodeToName(s),
+        displayLimit = 100
       )
     )
   }
@@ -250,40 +218,25 @@ trait FacetConfig extends Search {
         sort = FacetSort.Name
       ),
       FieldFacetClass(
+        key = COUNTRY_CODE,
+        name = Messages("repository." + COUNTRY_CODE),
+        param = "country",
+        render = (s: String) => Helpers.countryCodeToName(s),
+        displayLimit = 10
+      ),
+      FieldFacetClass(
+        key = HOLDER_NAME,
+        name = Messages("documentaryUnit.heldBy"),
+        param = "holder",
+        displayLimit = 10
+      ),
+      FieldFacetClass(
         key = IS_PARENT,
         name = Messages("facet.parent"),
         param = "parent",
         render = s => Messages("facet.parent." + s),
         sort = FacetSort.Fixed,
         display = FacetDisplay.List
-      ),
-      QueryFacetClass(
-        key = CHAR_COUNT,
-        name = Messages("facet.lod"),
-        param = "lod",
-        render = s => Messages("facet.lod." + s),
-        facets = List(
-          QueryFacet(value = "low", range = Start to Val("500")),
-          QueryFacet(value = "medium", range = Val("501") to Val("2000")),
-          QueryFacet(value = "high", range = Val("2001") to End)
-        ),
-        sort = FacetSort.Fixed,
-        display = FacetDisplay.Choice
-      ),
-      FieldFacetClass(
-        key = CREATION_PROCESS,
-        name = Messages("facet.source"),
-        param = "source",
-        render = s => Messages("facet.source." + s),
-        sort = FacetSort.Name,
-        display = FacetDisplay.List
-      ),
-      FieldFacetClass(
-        key = TYPE,
-        name = Messages("facet.manifestation"),
-        param = "manifestation",
-        render = s => Messages("facet.manifestation." + s),
-        display = FacetDisplay.Choice
       )
     )
   }
