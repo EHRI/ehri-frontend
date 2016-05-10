@@ -46,7 +46,8 @@ case class Repositories @Inject()(
 
   def searchAll = UserBrowseAction.async { implicit request =>
     findType[Repository](
-      facetBuilder = repositorySearchFacets
+      facetBuilder = repositorySearchFacets,
+      defaultOrder = SearchOrder.Name
     ).map { result =>
       Ok(views.html.repository.list(result, portalRepoRoutes.searchAll(),
         request.watched))
@@ -55,8 +56,8 @@ case class Repositories @Inject()(
 
   def searchAllByCountry = UserBrowseAction.async { implicit request =>
     findType[Repository](
-      defaultParams = SearchParams(sort = Some(SearchOrder.Country)),
-      facetBuilder = repositorySearchFacets
+      facetBuilder = repositorySearchFacets,
+      defaultOrder = SearchOrder.Country
     ).map { result =>
       Ok(views.html.repository.listByCountry(result,
         portalRepoRoutes.searchAllByCountry(),
