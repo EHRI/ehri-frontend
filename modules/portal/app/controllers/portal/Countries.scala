@@ -36,7 +36,10 @@ case class Countries @Inject()(
   private val portalCountryRoutes = controllers.portal.routes.Countries
 
   def searchAll = UserBrowseAction.async { implicit request =>
-    findType[Country](facetBuilder = countryFacets).map { result =>
+    findType[Country](
+      facetBuilder = countryFacets,
+      defaultOrder = SearchOrder.Name
+    ).map { result =>
       Ok(views.html.country.list(result, portalCountryRoutes.searchAll(), request.watched))
     }
   }
@@ -46,7 +49,8 @@ case class Countries @Inject()(
     else {
       findType[Repository](
         filters = Map(SearchConstants.COUNTRY_CODE -> request.item.id),
-        facetBuilder = localRepoFacets
+        facetBuilder = localRepoFacets,
+        defaultOrder = SearchOrder.Name
       ).map { result =>
         Ok(views.html.country.show(request.item, result, request.annotations,
           request.links, portalCountryRoutes.search(id), request.watched))
@@ -55,14 +59,15 @@ case class Countries @Inject()(
   }
 
   def search(id: String) = GetItemAction(id).async {  implicit request =>
-      findType[Repository](
-        filters = Map(SearchConstants.COUNTRY_CODE -> request.item.id),
-        facetBuilder = localRepoFacets
-      ).map { result =>
-        if (isAjax) Ok(views.html.country.childItemSearch(request.item, result,
-          portalCountryRoutes.search(id), request.watched))
-        else Ok(views.html.country.search(request.item, result,
-          portalCountryRoutes.search(id), request.watched))
-      }
+    findType[Repository](
+      filters = Map(SearchConstants.COUNTRY_CODE -> request.item.id),
+      facetBuilder = localRepoFacets,
+      defaultOrder = SearchOrder.Name
+    ).map { result =>
+      if (isAjax) Ok(views.html.country.childItemSearch(request.item, result,
+        portalCountryRoutes.search(id), request.watched))
+      else Ok(views.html.country.search(request.item, result,
+        portalCountryRoutes.search(id), request.watched))
+    }
   }
 }

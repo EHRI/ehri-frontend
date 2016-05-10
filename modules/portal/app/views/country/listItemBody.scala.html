@@ -11,9 +11,3 @@ Messages, md: views.MarkdownRenderer)
         </div>
     }
 }
-
-@item.model.displayText.map(views.Helpers.ellipsize(_, 600)).map { sc =>
-    <div class="national-report">
-        @Markdown(highlighter.highlight(sc))
-    </div>
-}
