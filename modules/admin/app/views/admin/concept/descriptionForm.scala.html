@@ -1,8 +1,9 @@
 @(desc: play.api.data.Field)(implicit userOpt: Option[UserProfile], req: RequestHeader, globalConfig: global.GlobalConfig, prefix: String, messages: Messages, md: views.MarkdownRenderer)
 
-@import ConceptF._
+@import Entity.IDENTIFIER
+@import models.ConceptF._
 @import views.html.formHelpers._
-@import Description._
+@import models.base.Description._
 
 @implicitField = @{ views.html.helper.FieldConstructor(formHelpers.fieldTemplate.f) }
 
@@ -15,7 +16,7 @@
 
 
     @choiceInput(desc(LANG_CODE), LANG_CODE, views.Helpers.languagePairList, blank=true)
-
+    @choiceInput(desc(IDENTIFIER), IDENTIFIER, views.Helpers.scriptPairList, blank=true)
     @formHelpers.lineInput(desc, PREFLABEL)
     @formHelpers.inlineNameSet(desc, ALTLABEL)
     @formHelpers.inlineTextSet(desc, SCOPENOTE, rows = 4)

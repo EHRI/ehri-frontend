@@ -1077,6 +1077,7 @@ historicalAgent.maintenanceNotes=Maintenance Notes
 #
 cvocConcept.descriptions=Descriptions
 cvocConcept.languageCode=Language
+cvocConcept.identifier=Script (optional)
 cvocConcept.name=Preferred Label
 cvocConcept.altLabel=Alt. Label(s)
 cvocConcept.scopeNote=Scope Note

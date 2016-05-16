@@ -10,19 +10,20 @@ import play.api.data.Forms._
 import utils.forms._
 import backend.{Entity, Writable}
 
-import Description._
-import models.base.Description.CREATION_PROCESS
+import models.base.Description._
+
 
 object ConceptDescriptionF {
 
   import eu.ehri.project.definitions.Ontology
-  import Entity._
-  import ConceptF._
+  import backend.Entity._
+  import models.ConceptF._
 
   implicit val conceptDescriptionFormat: Format[ConceptDescriptionF] = (
     (__ \ TYPE).formatIfEquals(EntityType.ConceptDescription) and
     (__ \ ID).formatNullable[String] and
     (__ \ DATA \ LANG_CODE).format[String] and
+    (__ \ DATA \ IDENTIFIER).formatNullable[String] and
     (__ \ DATA \ PREFLABEL).format[String] and
     (__ \ DATA \ ALTLABEL).formatSeqOrSingleNullable[String] and
     (__ \ DATA \ DEFINITION).formatSeqOrSingleNullable[String] and
@@ -44,6 +45,7 @@ case class ConceptDescriptionF(
   isA: EntityType.Value = EntityType.ConceptDescription,
   id: Option[String],
   languageCode: String,
+  identifier: Option[String] = None,
   name: String,
   altLabels: Option[Seq[String]] = None,
   definition: Option[Seq[String]] = None,
@@ -73,6 +75,7 @@ object ConceptDescription {
     ISA -> ignored(EntityType.ConceptDescription),
     ID -> optional(nonEmptyText),
     LANG_CODE -> nonEmptyText,
+    IDENTIFIER -> optional(nonEmptyText),
     PREFLABEL -> nonEmptyText,
     ALTLABEL -> optional(seq(nonEmptyText)),
     DEFINITION -> optional(seq(nonEmptyText)),
