@@ -60,19 +60,6 @@ case class Repositories @Inject()(
           QueryFacet(value = "true", range = Val("1"), name = Some("hasChildItems"))
         )
       ),
-      QueryFacetClass(
-        key = CHAR_COUNT,
-        name = Messages("facet.lod"),
-        param = "lod",
-        render = s => Messages("facet.lod." + s),
-        facets = List(
-          QueryFacet(value = "low", range = Val("0") to Val("500")),
-          QueryFacet(value = "medium", range = Val("501") to Val("2000")),
-          QueryFacet(value = "high", range = Val("2001") to End)
-        ),
-        sort = FacetSort.Fixed,
-        display = FacetDisplay.List
-      ),
       FieldFacetClass(
         key = COUNTRY_CODE,
         name = Messages("repository.countryCode"),

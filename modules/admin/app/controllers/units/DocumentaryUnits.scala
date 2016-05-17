@@ -72,38 +72,17 @@ case class DocumentaryUnits @Inject()(
         display = FacetDisplay.List
       ),
       FieldFacetClass(
-        key = HOLDER_NAME,
-        name = Messages("documentaryUnit.heldBy"),
-        param = "holder",
-        sort = FacetSort.Name,
-        display = FacetDisplay.DropDown
-      ),
-      FieldFacetClass(
         key = COUNTRY_CODE,
         name = Messages("repository." + COUNTRY_CODE),
         param = "country",
         render = (s: String) => Helpers.countryCodeToName(s),
-        sort = FacetSort.Name,
         display = FacetDisplay.DropDown
       ),
-      QueryFacetClass(
-        key = CHAR_COUNT,
-        name = Messages("lod"),
-        param = "lod",
-        render = s => Messages("facet.lod." + s),
-        facets = List(
-          QueryFacet(value = "low", range = Start to Val("500")),
-          QueryFacet(value = "medium", range = Val("501") to Val("2000")),
-          QueryFacet(value = "high", range = Val("2001") to End)
-        ),
-        sort = FacetSort.Fixed,
-        display = FacetDisplay.List
-      ),
       FieldFacetClass(
-        key = "scope",
-        name = Messages("scope.scope"),
-        param = "scope",
-        render = s => Messages("scope." + s)
+        key = HOLDER_NAME,
+        name = Messages("documentaryUnit.heldBy"),
+        param = "holder",
+        display = FacetDisplay.DropDown
       )
     )
   }

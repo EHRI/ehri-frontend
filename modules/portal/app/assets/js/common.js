@@ -153,6 +153,17 @@ jQuery(function($) {
     $(e.target).closest("form").submit();
   });
 
+  // Toggle text content on expander buttons
+  // for long facet lists
+  $(".more-less-options").click(function(e) {
+    e.preventDefault();
+    var $this = $(this),
+        $target = $($this.attr("href"));
+    var txt = $target.is(':visible') ? 'More...' : 'Less...';
+    $this.text(txt);
+    $target.slideToggle();
+  });
+
   /*
    Search helpers
    */
