@@ -102,7 +102,8 @@
   }
 }
 
-dl.item-meta {
+.item-meta {
+  @width: 200px;
   &:extend(.panel, .panel-default);
   dd {
     &:extend(.clearfix all); // Clear the floated `dt` if an empty `dd` is present
@@ -111,32 +112,26 @@ dl.item-meta {
   @media (min-width: @grid-float-breakpoint) {
     dt {
       float: left;
-      width: 200px;
+      width: @width;
       clear: left;
       text-align: right;
       .text-overflow();
     }
     dd {
-      margin-left: 200px + @large-margin;
+      margin-left: @width + @large-margin;
     }
   }
-  //width:100%;
-  //display:table;
+
   border-bottom: 1px solid @table-border-color;
 
   &:last-child {
     border-bottom: 0;
   }
+}
 
-  address {
-    .url, .email {
-      overflow: hidden;
-      text-overflow: ellipsis;
-      white-space: nowrap;
-      display: inline-block;
-      vertical-align: top;
-    }
-  }
+.item-meta-alternate-identifiers ul, .item-meta-languages ul {
+  margin-bottom: inherit;
+  &:extend(.list-unstyled);
 }
 
 .archival-context, .child-items {

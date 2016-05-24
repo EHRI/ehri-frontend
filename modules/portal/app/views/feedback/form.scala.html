@@ -4,29 +4,27 @@
     @import utils.forms.HoneyPotForm.BLANK_CHECK
     @import utils.forms.TimeCheckForm.TIMESTAMP
 
-@helper.form(action = controllers.portal.routes.Feedback.feedbackPost(), 'id -> "suggestion-form") {
+@helper.form(action = controllers.portal.routes.Feedback.feedbackPost(), 'class -> "feedback-form") {
     <fieldset>
-        <div class="modal-body">
-            @formHelpers.csrfToken()
-            @if(userOpt.isEmpty) {
-                <div class="form-group">
-                    <input type="text" class="form-control" name="@NAME" placeholder="@Messages(NAME) (@Messages("optional"))" />
-                </div>
-                <div class="form-group">
-                    <input type="email" class="form-control" name="@EMAIL" placeholder="@Messages(EMAIL) (@Messages("optional"))" />
-                </div>
-            }
-
-            <textarea rows="4" class="form-control" name="text" placeholder="@Messages("feedback.message") " required=""></textarea>
-
-            <div class="blank-check" style="display: none">
-                <input tabindex="-1" type="hidden" name="@TIMESTAMP" value="@org.joda.time.DateTime.now().toString" />
-                <input tabindex="-1" type="text" name="@BLANK_CHECK" title="[Leave this blank]" autocomplete="off" value="" />
+        @formHelpers.csrfToken()
+        @if(userOpt.isEmpty) {
+            <div class="form-group">
+                <input type="text" class="form-control" name="@NAME" placeholder="@Messages(NAME) (@Messages("optional"))" />
             </div>
-        </div>
-        <div class="modal-footer">
-            <a tabindex="-1" class="btn btn-danger" href="@controllers.portal.routes.Portal.index()" id="cancel">@Messages("cancel")</a>
-            <button type="submit" class="submit btn btn-default">@Messages("feedback.submit")</button>
+            <div class="form-group">
+                <input type="email" class="form-control" name="@EMAIL" placeholder="@Messages(EMAIL) (@Messages("optional"))" />
+            </div>
+        }
+
+        <textarea rows="4" class="form-control" name="text" placeholder="@Messages("feedback.message") " required=""></textarea>
+
+        <div class="blank-check" style="display: none">
+            <input tabindex="-1" type="hidden" name="@TIMESTAMP" value="@org.joda.time.DateTime.now().toString" />
+            <input tabindex="-1" type="text" name="@BLANK_CHECK" title="[Leave this blank]" autocomplete="off" value="" />
         </div>
     </fieldset>
+    <div class="feedback-form-footer">
+        <a tabindex="-1" class="feedback-cancel" href="@controllers.portal.routes.Portal.index()">@Messages("cancel")</a>
+        <button type="submit" class="feedback-submit">@Messages("feedback.submit")</button>
+    </div>
 }

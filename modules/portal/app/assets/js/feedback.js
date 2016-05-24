@@ -1,30 +1,35 @@
-// Handle slide-out suggestions form
+// Handle slide-out feedback form
 //
 
 jQuery(function($) {
-  // handle suggestion form submission... this is a bit
-  // gross and fragile.
-  var $formContainer = $("#suggestions"),
-      $cancel = $("a#cancel", $formContainer),
-      $form = $("form#suggestion-form"),
-      $submit = $("button[type='submit']", $form),
-      $thanks = $(".alert-success", $formContainer),
-      $email = $("input[name='email']"),
-      $text = $("textarea[name='text']", $form),
-      $handle = $('.slide-out-div .handle');
+  // handle feedback form submission...
+  var $handle = $(".feedback-handle"),
+      container = $(".feedback"),
+      $cancel = $(".feedback-cancel", container),
+      $form = $(".feedback-form", container),
+      $submit = $(".feedback-submit", container),
+      $close = $(".feedback-close", container),
+      $thanks = $(".feedback-thanks", container),
+      $email = $("input[name='email']", $form),
+      $text = $("textarea[name='text']", $form);
 
-  function feedbackOut(e) {
-    if($(e.target).parents(".slide-out-div").length != 1
+  // Trigger closing of the feedback form when clicking
+  // outside its container, or on or inside the close
+  // trigger.
+  var feedbackOut = function(e) {
+    if($(e.target).parents(".feedback-container").length != 1
         || $(e.target).hasClass("feedback-close")
         || $(e.target).parent().hasClass("feedback-close")) {
       $handle.trigger("click");
     }
-  }
+  };
+
   $handle.on("click", function(e) {
     e.preventDefault();
-
-    $formContainer.toggle(300, function() {
-      if($formContainer.is(":visible")) {
+    // Add a close button when the form becomes
+    // visible. Remove it on hiding.
+    container.toggle(300, function() {
+      if(container.is(":visible")) {
         $form.append(
           $("<a />", {
             "class" : "feedback-close",
@@ -34,7 +39,7 @@ jQuery(function($) {
         $(document).bind("click", feedbackOut);
       } else {
         $(document).unbind("click", feedbackOut);
-        $formContainer.find(".feedback-close").remove();
+        container.find(".feedback-close").remove();
       }
     });
   });
@@ -45,7 +50,7 @@ jQuery(function($) {
 
   $submit.prop("disabled", true);
 
-  $email.blur(function(event) {
+  $email.on("blur", function(event) {
     $email.parent(".form-group")
         .toggleClass("has-error", !$email.valid());
   });
@@ -54,7 +59,7 @@ jQuery(function($) {
     $submit.prop("disabled", !$form.valid());
   });
 
-  $(".modal-close", $formContainer).on("click", function() {
+  $close.on("click", function() {
     $handle.trigger("click");
   });
 
@@ -76,8 +81,8 @@ jQuery(function($) {
             $text.val("");
 
             $thanks.slideUp(500, function() {
-              $(".slide-out-div > .handle").trigger("click").queue(function(next) {
-                $formContainer.find("form").show();
+              $handle.trigger("click").queue(function(next) {
+                container.find("form").show();
                 next();
               });
 
