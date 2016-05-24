@@ -13,10 +13,15 @@
     @views.html.admin.common.sidebarAction(user.hasPermission(ContentTypes.HistoricalAgent, PermissionType.Grant)) {
         <a href="@controllers.authorities.routes.HistoricalAgents.managePermissions(item.id)">@Messages("permissions.manage")</a>
     }
-    @views.html.admin.common.sidebarAction() {
-        <a href="@controllers.admin.routes.Data.getItemRawJson(item.isA, item.id)">@Messages("item.export.json")</a>
-    }
-    @views.html.admin.common.sidebarAction() {
-        <a href="@controllers.portal.routes.HistoricalAgents.export(item.id)">@Messages("historicalAgent.export.eac")</a>
+}
+
+@views.html.admin.common.sidebarSection(Some(Messages("export"))) {
+    @views.html.admin.common.listGroup {
+        @views.html.admin.common.sidebarAction() {
+            <a href="@controllers.admin.routes.Data.getItemRawJson(item.isA, item.id)">@Messages("export.format.json")</a>
+        }
+        @views.html.admin.common.sidebarAction() {
+            <a href="@controllers.portal.routes.HistoricalAgents.export(item.id)">@Messages("export.format.eac")</a>
+        }
     }
 }

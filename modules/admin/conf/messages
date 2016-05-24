@@ -420,7 +420,6 @@ documentaryUnit.create.submit=Create Collection
 documentaryUnit.update=Update Collection
 documentaryUnit.update.submit=Update Collection
 documentaryUnit.child.create=Create New Child Item
-documentaryUnit.export.ead=Export EAD (Testing)
 
 
 description.identifier=Description ID (Optional)
@@ -707,7 +706,6 @@ repository.create=Create Repository
 repository.create.submit=Create Repository
 repository.update=Update Repository
 repository.update.submit=Update Repository
-repository.export.eag=Export EAG (Testing)
 
 repository.descriptionArea=Description Area
 repository.identity=Identity Area
@@ -978,7 +976,6 @@ historicalAgent.create=Create Authority
 historicalAgent.create.submit=Create Authority
 historicalAgent.update=Update Authority
 historicalAgent.update.submit=Update Authority
-historicalAgent.export.eac=Export EAC (Testing)
 
 #
 # ISAAR Field definitions
