@@ -25,7 +25,12 @@
     @views.html.admin.common.sidebarAction(user.hasPermission(ContentTypes.VirtualUnit, PermissionType.Grant)) {
         <a href="@controllers.virtual.routes.VirtualUnits.managePermissions(item.id)">@Messages("permissions.manage")</a>
     }
-    @views.html.admin.common.sidebarAction() {
-        <a href="@controllers.admin.routes.Data.getItemRawJson(item.isA, item.id)">@Messages("item.export.json")</a>
-    }
 }
+
+    @views.html.admin.common.sidebarSection(Some(Messages("export"))) {
+        @views.html.admin.common.listGroup {
+            @views.html.admin.common.sidebarAction() {
+                <a href="@controllers.admin.routes.Data.getItemRawJson(item.isA, item.id)">@Messages("export.format.json")</a>
+            }
+        }
+    }

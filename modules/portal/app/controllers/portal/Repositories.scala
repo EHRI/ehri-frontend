@@ -91,13 +91,21 @@ case class Repositories @Inject()(
   }
 
   def export(id: String) = OptionalUserAction.async { implicit request =>
-    val format = "eag" // Hardcoded for now!
+    val formats = Seq("eag", "ead")
+    val format: String = request.getQueryString("format")
+      .filter(formats.contains).getOrElse(formats.head)
     val params = request.queryString.filterKeys(_ == "lang")
     userDataApi.stream(s"classes/${EntityType.Repository}/$id/$format", params = params).map { sr =>
       val ct = sr.headers.headers.get(HeaderNames.CONTENT_TYPE)
         .flatMap(_.headOption).getOrElse(ContentTypes.XML)
+      val disp = if (ct.contains("zip"))
+        Seq("Content-Disposition" -> s"attachment; filename='$id-$format.zip'")
+        else Seq.empty
+      val heads: Map[String, String] = sr.headers.headers.map(s => (s._1, s._2.head))
+      // If we're streaming a zip file, send it as an attachment
+      // with a more useful filename...
       Status(sr.headers.status).chunked(sr.body).as(ct)
-        .withHeaders(sr.headers.headers.map(s => (s._1, s._2.head)).toSeq: _*)
+        .withHeaders(heads.toSeq ++ disp: _*)
     }
   }
 }

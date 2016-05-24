@@ -108,6 +108,14 @@ download.format.csv=Download as CSV
 download.format.tsv=Download as TSV
 download.format.json=Download as JSON
 
+export=Export
+export.format.json=JSON
+export.format.eag=EAG
+export.format.ead=EAD
+export.format.eac=EAC
+export.format.ttl=TTL
+export.format.rdf_xml=RDF/XML
+
 #
 # Profile https://portal.ehri-project.eu/profile (and related pages)
 #

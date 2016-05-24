@@ -22,11 +22,22 @@
     @views.html.admin.common.sidebarAction(user.isAdmin) {
         <a href="@controllers.institutions.routes.Repositories.updateIndex(item.id)">@Messages("search.index.update")</a>
     }
-    @views.html.admin.common.sidebarAction() {
-        <a href="@controllers.admin.routes.Data.getItemRawJson(item.isA, item.id)">@Messages("item.export.json")</a>
-    }
-    @views.html.admin.common.sidebarAction() {
-        <a href="@controllers.portal.routes.Repositories.export(item.id)">@Messages("repository.export.eag")
-        </a>
+}
+
+@views.html.admin.common.sidebarSection(Some(Messages("export"))) {
+    @views.html.admin.common.listGroup {
+        @views.html.admin.common.sidebarAction() {
+            <a href="@controllers.admin.routes.Data.getItemRawJson(item.isA, item.id)">@Messages("export.format.json")</a>
+        }
+        @views.html.admin.common.sidebarAction() {
+            <a href="@controllers.portal.routes.Repositories.export(item.id)">@Messages("export.format.eag")
+            </a>
+        }
+        @if(item.childCount.getOrElse(0) > 0) {
+            @views.html.admin.common.sidebarAction() {
+                <a href="@controllers.portal.routes.Repositories.export(item.id)?format=ead">@Messages("export.format.ead")
+                </a>
+            }
+        }
     }
 }
