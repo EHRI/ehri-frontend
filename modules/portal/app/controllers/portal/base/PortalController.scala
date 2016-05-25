@@ -1,8 +1,6 @@
 package controllers.portal.base
 
 import java.util.concurrent.TimeUnit
-
-import controllers.portal.Secured
 import play.api.Logger
 import defines.{EventType, EntityType}
 import play.api.cache.Cached
@@ -27,8 +25,12 @@ trait PortalController
   extends CoreActionBuilders
   with ControllerHelpers
   with PortalAuthConfigImpl
-  with Secured
   with SessionPreferences[SessionPrefs] {
+
+  // By default, all controllers require auth unless ehri.portal.secured
+  // is set to false in the config, which it is by default.
+  override val staffOnly = config.getBoolean("ehri.portal.secured").getOrElse(true)
+  override val verifiedOnly = config.getBoolean("ehri.portal.secured").getOrElse(true)
 
   implicit def cache: play.api.cache.CacheApi
   protected def statusCache = new Cached(cache)
