@@ -1,6 +1,5 @@
 package utils
 
-import com.google.inject.Inject
 import play.api.i18n.{MessagesApi, Messages}
 import play.api.test.PlaySpecification
 import utils.search.{End, Start, Val}

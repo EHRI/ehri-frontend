@@ -1,6 +1,5 @@
 package backend.rest.cypher
 
-import com.google.inject.Singleton
 import play.api.cache.CacheApi
 
 import scala.concurrent.Future
@@ -11,7 +10,8 @@ import play.api.libs.json.Reads
 import play.api.libs.json.__
 import play.api.libs.ws.{StreamedResponse, WSClient, WSResponse}
 import backend.rest.RestService
-import javax.inject.Inject
+import javax.inject.{Inject, Singleton}
+
 
 case class CypherError(
   message: String, exception: String, stacktrace: Seq[String]

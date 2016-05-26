@@ -1,6 +1,6 @@
 package controllers.portal
 
-import com.google.inject.{Inject, Singleton}
+import javax.inject.{Inject, Singleton}
 import play.api.cache.{Cached, CacheApi}
 import play.api.http.{ContentTypes, MimeTypes}
 import play.api.i18n.MessagesApi

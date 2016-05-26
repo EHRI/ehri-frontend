@@ -3,7 +3,7 @@ package controllers.portal
 import auth.AccountManager
 import backend.DataApi
 import backend.rest.cypher.Cypher
-import com.google.inject.{Inject, Singleton}
+import javax.inject.{Inject, Singleton}
 import controllers.generic.Search
 import controllers.portal.base.{Generic, PortalController}
 import defines.EntityType

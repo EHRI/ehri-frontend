@@ -1,10 +1,9 @@
 package utils
 
-import com.google.inject.{Inject, Singleton}
+import javax.inject.{Inject, Singleton}
 import org.joda.time.DateTime
 import org.joda.time.format.{DateTimeFormatter, ISODateTimeFormat}
 import play.api.i18n.{MessagesApi, Messages}
-import play.api.mvc.RequestHeader
 import utils.search._
 
 /**
