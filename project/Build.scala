@@ -20,7 +20,7 @@ object Build extends Build {
   parallelExecution in ThisBuild := false
   logBuffered := false
 
-  val projectScalaVersion = "2.11.7"
+  val projectScalaVersion = "2.11.8"
   val appName = "docview"
   val appVersion = "1.0.5-SNAPSHOT"
 
@@ -72,7 +72,7 @@ object Build extends Build {
     "commons-io" % "commons-io" % "2.4",
 
     // Authentication
-    "jp.t2v" %% "play2-auth" % "0.14.1",
+    "jp.t2v" %% "play2-auth" % "0.14.2",
 
     // Password hashing
     "org.mindrot" % "jbcrypt" % "0.3m",
@@ -116,7 +116,7 @@ object Build extends Build {
 
   val testDependencies = backendTestDependencies ++ Seq(
     specs2 % Test,
-    "jp.t2v" %% "play2-auth-test" % "0.14.1" % "test"
+    "jp.t2v" %% "play2-auth-test" % "0.14.2" % "test"
   )
 
   val additionalResolvers = Seq(

@@ -1,6 +1,7 @@
 package models
 
-import com.google.inject.Inject
+import javax.inject.{Singleton, Inject}
+
 import models.GuidePage.{MenuPosition, Layout}
 import play.api.data.Form
 import play.api.data.Forms._
@@ -11,6 +12,7 @@ import play.api.db.Database
 import language.postfixOps
 import scala.util.Try
 import models.sql.withIntegrityCheck
+
 
 case class Guide(
   id: Option[Long] = None,
@@ -89,6 +91,7 @@ trait GuideService {
   def findAllPages(): List[GuidePage]
 }
 
+@Singleton
 case class SqlGuideService @Inject ()(implicit db: Database) extends GuideService {
 
   override def findPages(guide: Guide): List[GuidePage] = db.withConnection { implicit connection =>

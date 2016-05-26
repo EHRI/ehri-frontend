@@ -2,13 +2,11 @@ package backend.rest
 
 import backend.IdGenerator
 import backend.rest.cypher.Cypher
-import com.google.inject.Singleton
 import scala.concurrent.{Future, ExecutionContext}
 import defines.EntityType
 import play.api.libs.json._
 import eu.ehri.project.definitions.Ontology
-
-import javax.inject.Inject
+import javax.inject.{Inject, Singleton}
 
 @Singleton
 case class CypherIdGenerator @Inject ()(cypher: Cypher) extends IdGenerator {

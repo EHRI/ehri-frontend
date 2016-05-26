@@ -1,11 +1,11 @@
 package indexing
 
+import javax.inject.Inject
+
 import akka.actor.ActorRef
 import backend.rest.Constants
-import com.google.inject.Inject
 import scala.sys.process._
 import defines.EntityType
-import play.api.libs.iteratee.Concurrent
 import utils.search.{IndexingError, SearchIndexMediator, SearchIndexMediatorHandle}
 import scala.concurrent.{ExecutionContext, Future}
 import com.google.common.collect.EvictingQueue

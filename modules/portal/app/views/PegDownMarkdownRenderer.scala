@@ -1,8 +1,7 @@
 package views
 
-import javax.inject.{Inject, Provider}
+import javax.inject.{Inject, Provider, Singleton}
 
-import com.google.inject.Singleton
 import org.jsoup.Jsoup
 import org.jsoup.safety.Whitelist
 import org.pegdown.ast.{AutoLinkNode, ExpLinkNode}

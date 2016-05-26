@@ -26,7 +26,7 @@ import controllers.core.auth.AccountHelpers
 import scala.concurrent.Future
 import backend.{AnonymousUser, DataApi}
 import play.api.mvc.Result
-import com.google.inject.{Singleton, Inject}
+import javax.inject.{Inject, Singleton}
 import utils.search.{SearchItemResolver, SearchEngine}
 import controllers.portal.base.PortalController
 
