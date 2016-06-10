@@ -38,6 +38,7 @@ GET         /countries                            @controllers.portal.Countries.
 GET         /countries/institutions               @controllers.portal.Repositories.searchAllByCountry
 GET         /countries/:id                        @controllers.portal.Countries.browse(id: String)
 GET         /countries/:id/search                 @controllers.portal.Countries.search(id: String)
+GET         /countries/:id/export                 @controllers.portal.Countries.export(id: String)
 GET         /institutions                         @controllers.portal.Repositories.searchAll
 GET         /institutions/:id                     @controllers.portal.Repositories.browse(id: String)
 GET         /institutions/:id/search              @controllers.portal.Repositories.search(id: String)

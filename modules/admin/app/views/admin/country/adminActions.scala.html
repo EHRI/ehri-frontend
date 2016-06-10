@@ -21,4 +21,10 @@
             <a href="@controllers.admin.routes.Data.getItemRawJson(item.isA, item.id)">@Messages("export.format.json")</a>
         }
     }
+    @if(item.childCount.getOrElse(0) > 0) {
+        @views.html.admin.common.sidebarAction() {
+            <a href="@controllers.portal.routes.Countries.export(item.id)?format=eag">@Messages("export.format.eag")
+            </a>
+        }
+    }
 }

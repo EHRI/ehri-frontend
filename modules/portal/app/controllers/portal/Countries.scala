@@ -6,6 +6,7 @@ import backend.rest.cypher.Cypher
 import javax.inject.{Inject, Singleton}
 import controllers.generic.Search
 import controllers.portal.base.{Generic, PortalController}
+import defines.EntityType
 import models.{Repository, Country}
 import play.api.cache.CacheApi
 import play.api.i18n.MessagesApi
@@ -14,6 +15,7 @@ import utils.search._
 import views.MarkdownRenderer
 
 import scala.concurrent.Future.{successful => immediate}
+
 
 @Singleton
 case class Countries @Inject()(
@@ -69,5 +71,9 @@ case class Countries @Inject()(
       else Ok(views.html.country.search(request.item, result,
         portalCountryRoutes.search(id), request.watched))
     }
+  }
+
+  def export(id: String) = OptionalUserAction.async { implicit request =>
+    exportXml(EntityType.Country, id, Seq("eag"))
   }
 }

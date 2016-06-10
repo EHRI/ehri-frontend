@@ -9,7 +9,6 @@ import controllers.portal.base.{Generic, PortalController}
 import defines.EntityType
 import models.{Repository, DocumentaryUnit}
 import play.api.cache.CacheApi
-import play.api.http.{HeaderNames, ContentTypes}
 import play.api.i18n.MessagesApi
 import play.api.libs.concurrent.Execution.Implicits._
 import play.api.mvc.RequestHeader
@@ -91,21 +90,6 @@ case class Repositories @Inject()(
   }
 
   def export(id: String) = OptionalUserAction.async { implicit request =>
-    val formats = Seq("eag", "ead")
-    val format: String = request.getQueryString("format")
-      .filter(formats.contains).getOrElse(formats.head)
-    val params = request.queryString.filterKeys(_ == "lang")
-    userDataApi.stream(s"classes/${EntityType.Repository}/$id/$format", params = params).map { sr =>
-      val ct = sr.headers.headers.get(HeaderNames.CONTENT_TYPE)
-        .flatMap(_.headOption).getOrElse(ContentTypes.XML)
-      val disp = if (ct.contains("zip"))
-        Seq("Content-Disposition" -> s"attachment; filename='$id-$format.zip'")
-        else Seq.empty
-      val heads: Map[String, String] = sr.headers.headers.map(s => (s._1, s._2.head))
-      // If we're streaming a zip file, send it as an attachment
-      // with a more useful filename...
-      Status(sr.headers.status).chunked(sr.body).as(ct)
-        .withHeaders(heads.toSeq ++ disp: _*)
-    }
+    exportXml(EntityType.Repository, id, Seq("eag", "ead"))
   }
 }
