@@ -20,4 +20,4 @@ GET     /:id/scope/:userType/:userId       @controllers.sets.AuthoritativeSets.s
 POST    /:id/scope/:userType/:userId       @controllers.sets.AuthoritativeSets.setScopedPermissionsPost(id: String, userType: EntityType.Value, userId: String)
 GET     /:id/reindex                       @controllers.sets.AuthoritativeSets.updateIndex(id: String)
 POST    /:id/reindex                       @controllers.sets.AuthoritativeSets.updateIndexPost(id: String)
-
+GET     /:id/export                        @controllers.sets.AuthoritativeSets.export(id: String)

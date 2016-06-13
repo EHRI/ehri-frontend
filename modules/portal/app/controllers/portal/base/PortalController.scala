@@ -4,6 +4,7 @@ import java.util.concurrent.TimeUnit
 import play.api.Logger
 import defines.{EventType, EntityType}
 import play.api.cache.Cached
+import play.api.http.{ContentTypes, HeaderNames}
 import play.api.i18n.{Lang, Messages}
 import utils._
 import controllers.renderError
@@ -181,6 +182,25 @@ trait PortalController
       }
     }
   }.getOrElse(Future.successful(Seq.empty))
+
+  protected def exportXml(entityType: EntityType.Value, id: String, formats: Seq[String])(
+      implicit apiUser: ApiUser, request: RequestHeader, executionContext: ExecutionContext): Future[Result] = {
+    val format: String = request.getQueryString("format")
+      .filter(formats.contains).getOrElse(formats.head)
+    val params = request.queryString.filterKeys(_ == "lang")
+    userDataApi.stream(s"classes/$entityType/$id/$format", params = params).map { sr =>
+      val ct = sr.headers.headers.get(HeaderNames.CONTENT_TYPE)
+        .flatMap(_.headOption).getOrElse(ContentTypes.XML)
+      val disp = if (ct.contains("zip"))
+        Seq("Content-Disposition" -> s"attachment; filename='$id-$format.zip'")
+      else Seq.empty
+      val heads: Map[String, String] = sr.headers.headers.map(s => (s._1, s._2.head))
+      // If we're streaming a zip file, send it as an attachment
+      // with a more useful filename...
+      Status(sr.headers.status).chunked(sr.body).as(ct)
+        .withHeaders(heads.toSeq ++ disp: _*)
+    }
+  }
 
   case class UserDetailsRequest[A](
     watched: Seq[String],

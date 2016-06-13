@@ -188,13 +188,16 @@ AuthoritativeSets @Inject()(
     }
   }
 
-
   def updateIndex(id: String) = (AdminAction andThen ItemPermissionAction(id)).apply { implicit request =>
       Ok(views.html.admin.search.updateItemIndex(request.item,
           action = setRoutes.updateIndexPost(id)))
   }
 
   def updateIndexPost(id: String) = updateChildItemsPost(SearchConstants.HOLDER_ID, id)
+
+  def export(id: String) = OptionalUserAction.async { implicit request =>
+    exportXml(EntityType.AuthoritativeSet, id, Seq("eac"))
+  }
 }
 
 

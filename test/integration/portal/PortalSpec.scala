@@ -1,11 +1,17 @@
 package integration.portal
 
+import java.io.ByteArrayInputStream
+import java.util.zip.{ZipInputStream, ZipFile, ZipEntry}
+
+import akka.util.ByteString
 import controllers.base.SessionPreferences
 import controllers.portal.ReversePortal
 import helpers.IntegrationTestRunner
 import play.api.libs.json.Json
 import play.api.test.FakeRequest
 import utils.SessionPrefs
+
+import scala.collection.mutable.ListBuffer
 
 
 class PortalSpec extends IntegrationTestRunner {
@@ -82,6 +88,17 @@ class PortalSpec extends IntegrationTestRunner {
       status(doc) must equalTo(OK)
     }
 
+    "export country contents as EAG zip" in new ITestApp {
+      val zip = FakeRequest("GET",
+        controllers.portal.routes.Countries.export("nl").url + "?format=eag").call()
+      val bytes = contentAsBytes(zip)
+      status(zip) must equalTo(OK)
+      contentType(zip) must beSome.which { ct =>
+        ct must equalTo("application/zip")
+      }
+      zipEntries(bytes).size must_== 2
+    }
+
     "export repositories as EAG" in new ITestApp {
       val eag = FakeRequest(controllers.portal.routes.Repositories.export("r1")).call()
       status(eag) must equalTo(OK)
@@ -89,6 +106,17 @@ class PortalSpec extends IntegrationTestRunner {
         ct must equalTo("text/xml")
       }
       contentAsString(eag) must contain("<eag")
+    }
+
+    "export repository contents as EAD zip" in new ITestApp {
+      val zip = FakeRequest("GET",
+        controllers.portal.routes.Repositories.export("r1").url + "?format=ead").call()
+      val bytes = contentAsBytes(zip)
+      status(zip) must equalTo(OK)
+      contentType(zip) must beSome.which { ct =>
+        ct must equalTo("application/zip")
+      }
+      zipEntries(bytes).size must_== 3
     }
 
     "view historical agents" in new ITestApp {
@@ -119,6 +147,20 @@ class PortalSpec extends IntegrationTestRunner {
     "return 404 for external pages with a malformed id (bug #635)" in new ITestApp {
       val faq = FakeRequest(portalRoutes.externalPage(",b.name,k.length")).call()
       status(faq) must equalTo(NOT_FOUND)
+    }
+  }
+
+  private def zipEntries(bytes: ByteString): List[ZipEntry] = {
+    val is = bytes.iterator.asInputStream
+    val zis = new ZipInputStream(is)
+    try {
+      Stream
+        .continually(zis.getNextEntry)
+        .takeWhile(_ != null)
+        .toList
+    } finally {
+      zis.close()
+      is.close()
     }
   }
 }

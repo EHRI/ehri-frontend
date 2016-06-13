@@ -4,7 +4,6 @@ import auth.AccountManager
 import backend.rest.cypher.Cypher
 import models.base.AnyModel
 import play.api.cache.CacheApi
-import play.api.http.{HeaderNames, ContentTypes}
 import play.api.i18n.MessagesApi
 import play.api.libs.concurrent.Execution.Implicits._
 import backend.DataApi
@@ -83,13 +82,6 @@ case class DocumentaryUnits @Inject()(
   }
 
   def export(id: String) = OptionalUserAction.async { implicit request =>
-    val format = "ead" // Hardcoded for now!
-    val params = request.queryString.filterKeys(_ == "lang")
-    userDataApi.stream(s"classes/${EntityType.DocumentaryUnit}/$id/$format", params = params).map { sr =>
-      val ct = sr.headers.headers.get(HeaderNames.CONTENT_TYPE)
-        .flatMap(_.headOption).getOrElse(ContentTypes.XML)
-      Status(sr.headers.status).chunked(sr.body).as(ct)
-        .withHeaders(sr.headers.headers.map(s => (s._1, s._2.head)).toSeq: _*)
-    }
+    exportXml(EntityType.DocumentaryUnit, id, Seq("ead"))
   }
 }
