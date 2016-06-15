@@ -20,8 +20,10 @@ object EnumerationBinders {
         v <- stringBinder.bind(key, params)
       } yield {
         v match {
-          case Right(p) if enum.values.exists(_.toString.toLowerCase == p.toLowerCase) =>
-            Right(enum.withName(p.toLowerCase))
+          case Right(p) => enum.values.find(_.toString.toLowerCase == p.toLowerCase) match {
+              case Some(ev) => Right(ev)
+              case None => Left("Unable to bind a valid value from alternatives: " + enum.values)
+            }
           case _ => Left("Unable to bind a valid value from alternatives: " + enum.values)
         }
       }
