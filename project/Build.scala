@@ -344,9 +344,6 @@ object Build extends Build {
   lazy val main = Project(appName, file("."))
     .enablePlugins(play.sbt.PlayScala).settings(
 
-      // Instantiate controllers via dependency injection
-      routesGenerator := InjectedRoutesGenerator,
-
       libraryDependencies ++= coreDependencies ++ testDependencies
   ).settings(commonSettings ++ assetSettings: _*)
     .dependsOn(portal % "test->test;compile->compile", admin, guides, solr)
