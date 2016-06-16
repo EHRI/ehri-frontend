@@ -325,6 +325,11 @@ object Build extends Build {
     )
   ).settings(commonSettings ++ webAppSettings: _*).dependsOn(core % "test->test;compile->compile")
 
+  lazy val apiv1 = Project(appName + "-apiv1", file("modules/apiv1"))
+    .enablePlugins(play.sbt.PlayScala).settings(
+      libraryDependencies ++= Seq("org.everit.json" % "org.everit.json.schema" % "1.3.0")
+    ).settings(commonSettings ++ webAppSettings: _*).dependsOn(core % "test->test;compile->compile")
+
   lazy val admin = Project(appName + "-admin", file("modules/admin"))
     .enablePlugins(play.sbt.PlayScala).settings(
     libraryDependencies += specs2 % Test
@@ -346,8 +351,8 @@ object Build extends Build {
 
       libraryDependencies ++= coreDependencies ++ testDependencies
   ).settings(commonSettings ++ assetSettings: _*)
-    .dependsOn(portal % "test->test;compile->compile", admin, guides, solr)
-    .aggregate(backend, core, admin, portal, guides, solr)
+    .dependsOn(portal % "test->test;compile->compile", admin, guides, apiv1, solr)
+    .aggregate(backend, core, admin, portal, guides, apiv1, solr)
 
   override def rootProject = Some(main)
 }
