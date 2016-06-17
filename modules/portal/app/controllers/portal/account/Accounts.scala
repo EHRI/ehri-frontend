@@ -1,34 +1,37 @@
 package controllers.portal.account
 
+import java.util.UUID
+import java.util.concurrent.TimeUnit
+import javax.inject.{Inject, Singleton}
+
 import auth.oauth2.OAuth2Flow
-import auth.oauth2.providers.{GoogleOAuth2Provider, YahooOAuth2Provider, FacebookOAuth2Provider}
-import auth.{HashedPassword, AccountManager}
+import auth.oauth2.providers.{FacebookOAuth2Provider, GoogleOAuth2Provider, YahooOAuth2Provider}
+import auth.{AccountManager, HashedPassword}
+import backend.{AnonymousUser, DataApi}
+import com.google.common.net.HttpHeaders
 import controllers.base.RecaptchaHelper
-import play.api.cache.CacheApi
-import play.api.data.Form
-import play.api.libs.mailer.{Email, MailerClient}
-import play.api.libs.openid.OpenIdClient
-import play.api.libs.ws.WSClient
-import play.api.mvc._
-import models._
-import play.api.libs.concurrent.Execution.Implicits._
-import utils.MovedPageLookup
-import scala.concurrent.Future.{successful => immediate}
-import jp.t2v.lab.play2.auth.LoginLogout
+import controllers.core.auth.AccountHelpers
 import controllers.core.auth.oauth2._
 import controllers.core.auth.openid.OpenIDLoginHandler
 import controllers.core.auth.userpass.UserPasswordLoginHandler
-import global.GlobalConfig
-import java.util.UUID
-import play.api.i18n.{MessagesApi, Messages}
-import com.google.common.net.HttpHeaders
-import controllers.core.auth.AccountHelpers
-import scala.concurrent.Future
-import backend.{AnonymousUser, DataApi}
-import play.api.mvc.Result
-import javax.inject.{Inject, Singleton}
-import utils.search.{SearchItemResolver, SearchEngine}
 import controllers.portal.base.PortalController
+import global.GlobalConfig
+import jp.t2v.lab.play2.auth.LoginLogout
+import models._
+import play.api.cache.CacheApi
+import play.api.data.Form
+import play.api.i18n.{Messages, MessagesApi}
+import play.api.libs.concurrent.Execution.Implicits._
+import play.api.libs.mailer.{Email, MailerClient}
+import play.api.libs.openid.OpenIdClient
+import play.api.libs.ws.WSClient
+import play.api.mvc.{Result, _}
+import utils.MovedPageLookup
+import utils.search.{SearchEngine, SearchItemResolver}
+
+import scala.concurrent.Future
+import scala.concurrent.Future.{successful => immediate}
+import scala.concurrent.duration.{Duration, FiniteDuration}
 
 @Singleton
 case class Accounts @Inject()(
@@ -56,11 +59,14 @@ case class Accounts @Inject()(
   private val portalRoutes = controllers.portal.routes.Portal
   private val accountRoutes = controllers.portal.account.routes.Accounts
 
+  private val rateLimitHitsPerSec: Int = getConfigInt("ehri.ratelimit.limit")
+  private val rateLimitTimeoutSecs: Int = getConfigInt("ehri.ratelimit.timeout")
+  private val rateLimitDuration: FiniteDuration =
+    Duration(rateLimitTimeoutSecs, TimeUnit.SECONDS)
+
+
   private def recaptchaKey = config.getString("recaptcha.key.public")
     .getOrElse("fakekey")
-
-  private def rateLimitTimeoutSecs = config.getInt("ehri.ratelimit.timeout")
-    .getOrElse(3600)
 
   private def rateLimitError(implicit r: RequestHeader) =
     Messages("error.rateLimit", rateLimitTimeoutSecs / 60)
@@ -81,6 +87,7 @@ case class Accounts @Inject()(
           .flashing("warning" -> "login.disabled"))
       } else action(request)
     }
+
     lazy val parser = action.parser
   }
 
@@ -91,6 +98,7 @@ case class Accounts @Inject()(
     def invokeBlock[A](request: Request[A], block: (Request[A]) => Future[Result]) = {
       block(request)
     }
+
     override def composeAction[A](action: Action[A]) = new NotReadOnly(action)
   }
 
@@ -105,15 +113,15 @@ case class Accounts @Inject()(
     mailer.send(email)
   }
 
-    object RateLimit extends ActionBuilder[Request] {
-      override def invokeBlock[A](request: Request[A], block: (Request[A]) => Future[Result]): Future[Result] = {
-        if (request.method != "POST") block(request)
-        else {
-          if (checkRateLimit(request)) block(request)
-          else immediate(TooManyRequests(rateLimitError(request)))
-        }
+  object RateLimit extends ActionBuilder[Request] {
+    override def invokeBlock[A](request: Request[A], block: (Request[A]) => Future[Result]): Future[Result] = {
+      if (request.method != "POST") block(request)
+      else {
+        if (checkRateLimit(rateLimitHitsPerSec, rateLimitDuration)(request)) block(request)
+        else immediate(TooManyRequests(rateLimitError(request)))
       }
     }
+  }
 
   def signupPost = NotReadOnlyAction.async { implicit request =>
     implicit val userOpt: Option[UserProfile] = None
@@ -135,7 +143,7 @@ case class Accounts @Inject()(
     checkRecapture.flatMap {
       case false =>
         badForm(boundForm.withGlobalError("error.badRecaptcha"))
-      case true if !checkRateLimit(request) =>
+      case true if !checkRateLimit(rateLimitHitsPerSec, rateLimitDuration)(request) =>
         badForm(boundForm.withGlobalError(rateLimitError), TooManyRequests)
       case true =>
         boundForm.fold(
@@ -183,7 +191,7 @@ case class Accounts @Inject()(
           .map(_.flashing("success" -> "signup.validation.confirmation"))
       } yield result
       case None =>
-      immediate(BadRequest(
+        immediate(BadRequest(
           controllers.renderError("errors.clientError",
             views.html.errors.genericError(Messages("signup.validation.badToken")))))
     }
@@ -203,8 +211,8 @@ case class Accounts @Inject()(
             recaptchaKey,
             formError,
             oauth2Providers)
-          )
         )
+      )
     }
   }
 
@@ -252,7 +260,7 @@ case class Accounts @Inject()(
   def passwordLoginPost = (NotReadOnlyAction andThen UserPasswordLoginAction).async { implicit request =>
     implicit val userOpt: Option[UserProfile] = None
 
-    def badForm(f: Form[(String,String)], status: Status = BadRequest): Future[Result] = immediate {
+    def badForm(f: Form[(String, String)], status: Status = BadRequest): Future[Result] = immediate {
       status(
         views.html.account.login(
           f,
@@ -267,7 +275,7 @@ case class Accounts @Inject()(
     }
 
     val boundForm: Form[(String, String)] = passwordLoginForm.bindFromRequest
-    if (!checkRateLimit(request)) {
+    if (!checkRateLimit(rateLimitHitsPerSec, rateLimitDuration)(request)) {
       badForm(boundForm.withGlobalError(rateLimitError), TooManyRequests)
     } else request.formOrAccount match {
       case Left(errorForm) => badForm(errorForm)
@@ -295,7 +303,7 @@ case class Accounts @Inject()(
 
   def forgotPasswordPost = ForgotPasswordAction { implicit request =>
     request.formOrAccount match {
-      case Right((account,uuid)) =>
+      case Right((account, uuid)) =>
         sendResetEmail(account.email, uuid)
         Redirect(portalRoutes.index())
           .flashing("warning" -> "login.password.reset.sentLink")

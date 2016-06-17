@@ -1,0 +1,9 @@
+api.error.400=Bad Request
+api.error.401=Not Authenticated
+api.error.403=Forbidden
+api.error.404=Item Not Found
+api.error.405=Method Not Allowed
+api.error.406=Not Acceptable
+api.error.415=Unsupported Media Type
+api.error.429=Too Many Requests
+

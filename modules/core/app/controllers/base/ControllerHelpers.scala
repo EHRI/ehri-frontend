@@ -49,12 +49,9 @@ trait ControllerHelpers extends play.api.i18n.I18nSupport {
    * Check a particular remote address doesn't exceed a rate limit for a
    * given action. Whenever this function is called the user's
    */
-  protected def checkRateLimit[A](implicit request: Request[A]): Boolean = {
-    val limit: Int = getConfigInt("ehri.ratelimit.limit")
-    val timeoutSecs: Int = getConfigInt("ehri.ratelimit.timeout")
+  protected def checkRateLimit[A](limit: Int, duration: FiniteDuration)(implicit request: Request[A]): Boolean = {
     val ip = remoteIp(request)
     val key = request.path + ip
-    val duration: FiniteDuration = Duration(timeoutSecs, TimeUnit.SECONDS)
     val count = cache.get(key).getOrElse(0)
     Logger.debug(s"Check rate limit: Limit $limit, timeout $duration, ip: $ip, key: $key, current: $count")
     if (count < limit) {

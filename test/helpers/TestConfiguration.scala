@@ -132,8 +132,8 @@ trait TestConfiguration {
    */
   abstract class ITestApp(val specificConfig: Map[String,Any] = Map.empty) extends WithApplicationLoader(
     new GuiceApplicationLoader(appBuilder.configure(backendConfig ++ getConfig ++ specificConfig))) {
-    implicit def implicitMaterializer = app.materializer
-    implicit def implicitExecContext = app.injector.instanceOf[ExecutionContext]
+    implicit def implicitMaterializer: Materializer = app.materializer
+    implicit def implicitExecContext: ExecutionContext = app.injector.instanceOf[ExecutionContext]
   }
 
   /**
