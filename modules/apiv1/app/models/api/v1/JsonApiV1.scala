@@ -290,6 +290,19 @@ object JsonApiV1 {
     implicit val writes = Json.writes[PaginationLinks]
   }
 
+  case class JsonApiError(
+    status: String,
+    title: String,
+    detail: Option[String] = None,
+    code: Option[String] = None,
+    id: Option[String] = None,
+    meta: Option[JsValue] = None
+  )
+
+  object JsonApiError {
+    implicit val writes = Json.writes[JsonApiError]
+  }
+
   case class JsonApiListResponse(
     data: Seq[AnyModel],
     links: PaginationLinks,

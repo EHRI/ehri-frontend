@@ -43,11 +43,21 @@ case class ApiV1 @Inject()(
   with AuthConfigImpl
   with Search {
 
+  private val logger = play.api.Logger(ApiV1.getClass)
+
   private implicit val apiUser = AnonymousUser
   private implicit val userOpt: Option[UserProfile] = None
 
   private val hitsPerSecond = 1000 // basically, no limit at the moment
   private val rateLimitTimeoutDuration: FiniteDuration = Duration(3600, TimeUnit.SECONDS)
+
+  // Authentication: currently a stopgap for releasing with
+  // internal testing. Not intended for production since
+  // tokens are in config.
+  private val authenticated: Boolean = config.getBoolean("ehri.api.v1.authorization.enabled").getOrElse(true)
+  import scala.collection.JavaConverters._
+  private val authenticationTokens: Seq[String] = config.getStringList("ehri.api.v1.authorization.tokens")
+    .map(_.asScala.toSeq).getOrElse(Seq.empty)
 
   private val apiRoutes = controllers.api.v1.routes.ApiV1
   private val apiSupportedEntities = Seq(
@@ -61,18 +71,34 @@ case class ApiV1 @Inject()(
     Status(status)(errorJson(status, message))
 
   private def errorJson(status: Int, message: Option[String] = None): JsObject = {
-    val title: String = message.getOrElse(Messages(s"api.error.$status"))
     Json.obj(
       "errors" -> Json.arr(
-        Json.obj(
-          "status" -> status.toString,
-          "title" -> title
+        JsonApiError(
+          status = status.toString,
+          title = Messages(s"api.error.$status"),
+          detail = message
         )
       )
     )
   }
 
-  private def checkRateLimit[A](request: Request[A]): Boolean = true // placeholder
+  private def checkAuthentication(request: RequestHeader): Option[String] = {
+    request.headers.get(HeaderNames.AUTHORIZATION).flatMap { authValue =>
+      authenticationTokens.find(token => authValue ==  "Bearer " + token)
+    }
+  }
+
+  private object LoggingAuthAction extends ActionBuilder[Request] {
+    override def invokeBlock[A](request: Request[A], block: (Request[A]) => Future[Result]): Future[Result] = {
+      if (!authenticated) block(request)
+      else checkAuthentication(request).map { token =>
+        logger.logger.trace(s"API access for $token: ${request.uri}")
+        block(request)
+      }.getOrElse {
+        immediate(error(FORBIDDEN, message = Some("Token required")))
+      }
+    }
+  }
 
   private object RateLimit extends ActionBuilder[Request] {
     override def invokeBlock[A](request: Request[A], block: (Request[A]) => Future[Result]): Future[Result] = {
@@ -101,7 +127,8 @@ case class ApiV1 @Inject()(
 
   private def JsonApiAction = RateLimit andThen
       JsonApiCheckContentTypeFilter andThen
-      JsonApiCheckAcceptFilter
+      JsonApiCheckAcceptFilter andThen
+      LoggingAuthAction
 
   implicit def anyModelWrites(implicit request: RequestHeader): Writes[AnyModel] = new Writes[AnyModel] {
     override def writes(any: AnyModel): JsValue = any match {
