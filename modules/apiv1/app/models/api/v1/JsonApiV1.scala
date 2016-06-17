@@ -15,9 +15,14 @@ object JsonApiV1 {
     name: String,
     parallelFormsOfName: Seq[String],
     extentAndMedium: Option[String],
-    acquisition: Option[String],
+    unitDates: Option[Seq[String]],
+    biographicalHistory: Option[String],
     archivalHistory: Option[String],
-    scopeAndContent: Option[String]
+    acquisition: Option[String],
+    scopeAndContent: Option[String],
+    appraisal: Option[String] = None,
+    accruals: Option[String] = None,
+    systemOfArrangement: Option[String] = None
   )
 
   object DocumentaryUnitDescriptionAttrs {
@@ -30,9 +35,13 @@ object JsonApiV1 {
         d.name,
         parallelFormsOfName = d.identity.parallelFormsOfName.getOrElse(Seq.empty),
         extentAndMedium = d.identity.extentAndMedium,
-        acquisition = d.context.acquisition,
+        unitDates = d.identity.unitDates,
+        biographicalHistory = d.context.biographicalHistory,
         archivalHistory = d.context.archivalHistory,
-        scopeAndContent = d.content.scopeAndContent
+        acquisition = d.context.acquisition,
+        scopeAndContent = d.content.scopeAndContent,
+        appraisal = d.content.appraisal,
+        systemOfArrangement = d.content.systemOfArrangement
       )
   }
 
@@ -253,7 +262,7 @@ object JsonApiV1 {
   )
 
   object JsonApiResponse {
-    implicit def writes(implicit amw: Writes[AnyModel]) = Json.writes[JsonApiResponse]
+    implicit def writes(implicit amw: Writes[AnyModel]): Writes[JsonApiResponse] = Json.writes[JsonApiResponse]
   }
 
   case class JsonApiResponseData(
@@ -310,6 +319,7 @@ object JsonApiV1 {
   )
 
   object JsonApiListResponse {
-    implicit def writes(implicit amw: Writes[AnyModel]) = Json.writes[JsonApiListResponse]
+    implicit def writes(implicit amw: Writes[AnyModel]): Writes[JsonApiListResponse] =
+      Json.writes[JsonApiListResponse]
   }
 }
