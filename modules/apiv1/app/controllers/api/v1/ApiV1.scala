@@ -107,14 +107,6 @@ case class ApiV1 @Inject()(
     }
   }
 
-  private object JsonApiCheckContentTypeFilter extends ActionFilter[Request] {
-    override protected def filter[A](request: Request[A]): Future[Option[Result]] = {
-      if (request.headers.getAll(HeaderNames.CONTENT_TYPE).contains(JSONAPI_MIMETYPE))
-        immediate(None)
-      else immediate(Some(error(UNSUPPORTED_MEDIA_TYPE)))
-    }
-  }
-
   private object JsonApiCheckAcceptFilter extends ActionFilter[Request] {
     override protected def filter[A](request: Request[A]): Future[Option[Result]] = {
       // If there is an accept media type for JSON-API than one must be unmodified
@@ -125,10 +117,7 @@ case class ApiV1 @Inject()(
     }
   }
 
-  private def JsonApiAction = RateLimit andThen
-      JsonApiCheckContentTypeFilter andThen
-      JsonApiCheckAcceptFilter andThen
-      LoggingAuthAction
+  private def JsonApiAction = RateLimit andThen JsonApiCheckAcceptFilter andThen LoggingAuthAction
 
   implicit def anyModelWrites(implicit request: RequestHeader): Writes[AnyModel] = new Writes[AnyModel] {
     override def writes(any: AnyModel): JsValue = any match {
