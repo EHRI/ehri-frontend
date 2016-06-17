@@ -174,6 +174,8 @@ object JsonApiV1 {
   }
 
   case class HistoricalAgentAttrs(
+    name: Option[String] = None,
+    otherFormsOfName: Option[Seq[String]] = None,
     datesOfExistence: Option[String] = None,
     history: Option[String] = None,
     places: Option[Seq[String]] = None,
@@ -190,6 +192,8 @@ object JsonApiV1 {
     def apply(a: HistoricalAgent): HistoricalAgentAttrs = {
       a.descriptions.headOption.map { d =>
         new HistoricalAgentAttrs(
+          name = Some(d.name),
+          otherFormsOfName = d.otherFormsOfName,
           datesOfExistence = d.details.datesOfExistence,
           history = d.details.history,
           places = d.details.places,
