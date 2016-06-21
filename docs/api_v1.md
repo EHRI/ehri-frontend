@@ -4,12 +4,17 @@ EHRI Portal API - Version 1 - Experimental
 The EHRI portal has an experimental API, intended for searching and retrieving a subset
 of EHRI data in structured JSON format. While it is intended that the scope of the API will
 broaden in future, it is intended to prioritise convenience over semantic precision, providing
-a somewhat simplified view relative to that offered by the HTML site. At present, information
-is only available for three types of item:
+a somewhat simplified view relative to that offered by the HTML site.
+
+**Note: since it is currently in testing the API currently requires a bearer access token to be provided
+in the Authorization header: contact WP13.3 for more details.**
+
+At present, information is only available for three types of item:
 
 1. Countries (type: `Country`)
 2. Institutions (type: `Repository`)
 3. Archival descriptions (type: `DocumentaryUnit`)
+
 
 The base API URL is `https://portal.ehri-project.eu/api/v1`.
 
