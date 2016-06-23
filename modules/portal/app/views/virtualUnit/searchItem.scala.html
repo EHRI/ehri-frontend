@@ -1,4 +1,4 @@
-@(item: models.base.AnyModel, path: Seq[models.base.AnyModel], hit: utils.search.SearchHit, watched: Boolean, showRepository: Boolean = true)(implicit userOpt: Option[UserProfile], req: RequestHeader, globalConfig: global.GlobalConfig, messages: Messages, md: views.MarkdownRenderer, descriptionId: Option[String] = None, context: Option[models.base.Holder[_]] = None)
+@(item: models.base.AnyModel, path: Seq[models.base.AnyModel], highlighter: views.Highlighter, watched: Boolean, showRepository: Boolean = true)(implicit userOpt: Option[UserProfile], req: RequestHeader, globalConfig: global.GlobalConfig, messages: Messages, md: views.MarkdownRenderer, descriptionId: Option[String] = None, context: Option[models.base.Holder[_]] = None)
 
 @wrapParent(doc: models.base.AnyModel, path: Seq[models.base.AnyModel]) = {
     @if(path.lastOption.map(_.id) != context.map(_.id)) {
@@ -6,7 +6,7 @@
             @wrapParent(doc, path.dropRight(1))
             <li>
                 <a class="search-item-parent-name type-highlight @p.isA" href="@views.p.Helpers.virtualUnitUrl(path, item.id)">
-                    @Html(hit.highlight(p.toStringLang))
+                    @Html(highlighter.highlight(p.toStringLang))
                 </a>
             </li>
         }
@@ -19,7 +19,7 @@
             @wrapParent2(doc, p.parent)
         <li>
             <a class="search-item-parent-name type-highlight @p.isA" href="@views.p.Helpers.virtualUnitUrl(path, item.id)">
-                @Html(hit.highlight(p.toStringLang))
+                @Html(highlighter.highlight(p.toStringLang))
             </a>
         </li>
         }
@@ -33,17 +33,17 @@
             @views.html.common.watchButtonsSmall(item, watched)
         </div>
         <h3 class="search-item-heading type-highlight @item.isA.toString">
-            <a class="@item.isA" href="@views.p.Helpers.virtualUnitUrl(path, item.id)">@Html(hit.highlight(item.toStringLang))</a>
+            <a class="@item.isA" href="@views.p.Helpers.virtualUnitUrl(path, item.id)">@Html(highlighter.highlight(item.toStringLang))</a>
         </h3>
         <div class="search-item-body">
             @item match {
                 case d: DocumentaryUnit => {
                     <ol class="breadcrumb">@wrapParent(d, path)</ol>
-                    @views.html.documentaryUnit.listItemBody(d, showRepository, highlighter = hit)
+                    @views.html.documentaryUnit.listItemBody(d, showRepository, highlighter = highlighter)
                 }
                 case v: VirtualUnit => {
                     <ol class="breadcrumb">@wrapParent2(v, v.parent)</ol>
-                    @listItemBody(v, path, highlighter = hit)
+                    @listItemBody(v, path, highlighter = highlighter)
                 }
                 case _ => {}
             }

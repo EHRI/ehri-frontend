@@ -1,9 +1,7 @@
-@(item: HistoricalAgent, hit: utils.search.SearchHit, watched: Boolean = false)(implicit userOpt: Option[UserProfile], req: RequestHeader, messages: Messages, md: views.MarkdownRenderer)
-
-@import Isaar._
+@(item: HistoricalAgent, highlighter: views.Highlighter, watched: Boolean = false)(implicit userOpt: Option[UserProfile], req: RequestHeader, messages: Messages, md: views.MarkdownRenderer, descriptionId: Option[String] = None)
 
 @views.html.layout.searchItemOutline(item, watched) {
-    <a href="@controllers.portal.routes.HistoricalAgents.browse(item.id)">@Html(hit.highlight(item.toStringLang))</a>
+    <a href="@controllers.portal.routes.HistoricalAgents.browse(item.id)">@Html(highlighter.highlight(item.toStringLang))</a>
 } {
-    @listItemBody(item, highlighter = hit)
+    @listItemBody(item, highlighter = highlighter)
 }
