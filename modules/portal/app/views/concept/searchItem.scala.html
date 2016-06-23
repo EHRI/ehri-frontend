@@ -1,9 +1,7 @@
-@(item: Concept, hit: utils.search.SearchHit, watched: Boolean = false)(implicit userOpt: Option[UserProfile], req: RequestHeader, messages: Messages, md: views.MarkdownRenderer)
+@(item: Concept, highlighter: views.Highlighter, watched: Boolean = false)(implicit userOpt: Option[UserProfile], req: RequestHeader, messages: Messages, md: views.MarkdownRenderer, descriptionId: Option[String] = None)
 
 @views.html.layout.searchItemOutline(item, watched) {
-    <a href="@controllers.portal.routes.Concepts.browse(item.id)">@Html(hit.highlight(item.toStringLang))</a>
+    <a href="@controllers.portal.routes.Concepts.browse(item.id)">@Html(highlighter.highlight(item.toStringLang))</a>
 } {
-    @defining(models.base.Description.localId(hit.id)) { implicit descId =>
-        @listItemBody(item, highlighter = hit)
-    }
+    @listItemBody(item, highlighter = highlighter)
 }

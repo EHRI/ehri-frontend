@@ -1,4 +1,4 @@
-@(item: DocumentaryUnit, hit: utils.search.SearchHit, watched: Boolean, showRepository: Boolean = true, activeQuery: Boolean = false)(implicit userOpt: Option[UserProfile], req: RequestHeader, globalConfig: global.GlobalConfig, messages: Messages, md: views.MarkdownRenderer, descriptionId: Option[String] = None, context: Option[models.base.Holder[_]] = None)
+@(item: DocumentaryUnit, highlighter: views.Highlighter, watched: Boolean, showRepository: Boolean = true)(implicit userOpt: Option[UserProfile], req: RequestHeader, globalConfig: global.GlobalConfig, messages: Messages, md: views.MarkdownRenderer, descriptionId: Option[String] = None, context: Option[models.base.Holder[_]] = None)
 
 @wrapParent(doc: DocumentaryUnit, parent: Option[DocumentaryUnit]) = {
     @if(parent.map(_.id) != context.map(_.id)) {
@@ -6,14 +6,14 @@
             @wrapParent(doc, p.parent)
             <li>
                 <a class="search-item-parent-name" href="@controllers.portal.routes.DocumentaryUnits.browse(p.id)">
-                    @Html(hit.highlight(p.toStringLang))
+                    @Html(highlighter.highlight(p.toStringLang))
                 </a>
             </li>
         }
     }
 }
 
-@anchor = @{if(item.model.descriptions.size > 1) s"#desc-${hit.id.substring(hit.id.indexOf(".") + 1)}" else "" }
+@anchor = @{descriptionId.map(id => s"#desc-$id").getOrElse("")}
 
 @item.model.primaryDescription(descriptionId).map { desc =>
     @defining(views.Helpers.textDirection(desc)) { dir =>
@@ -22,13 +22,13 @@
             @views.html.common.watchButtonsSmall(item, watched)
             </div>
             <h3 class="search-item-heading type-highlight @item.isA.toString" dir="@dir">
-                <a href="@{controllers.portal.routes.DocumentaryUnits.browse(item.id)}@{anchor}">@Html(hit.highlight(desc.name))</a>
+                <a href="@{controllers.portal.routes.DocumentaryUnits.browse(item.id)}@{anchor}">@Html(highlighter.highlight(desc.name))</a>
             </h3>
             <div class="search-item-body" dir="@dir">
                 @if(item.parent.isDefined) {
                     <ol class="breadcrumb">@wrapParent(item, item.parent)</ol>
                 }
-                @views.html.documentaryUnit.listItemBody(item, showRepository, highlighter = hit)
+                @views.html.documentaryUnit.listItemBody(item, showRepository, highlighter = highlighter)
             </div>
         </div>
     }
