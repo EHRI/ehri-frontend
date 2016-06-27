@@ -1,7 +1,7 @@
-@(item: HistoricalAgent, highlighter: views.Highlighter, watched: Boolean = false)(implicit userOpt: Option[UserProfile], req: RequestHeader, messages: Messages, md: views.MarkdownRenderer, descriptionId: Option[String] = None)
+@(item: HistoricalAgent, highlighter: views.Highlighter, watched: Boolean = false)(implicit userOpt: Option[UserProfile], req: RequestHeader, globalConfig: global.GlobalConfig, messages: Messages, md: views.MarkdownRenderer, descriptionId: Option[String] = None)
 
 @views.html.layout.searchItemOutline(item, watched) {
-    <a href="@controllers.portal.routes.HistoricalAgents.browse(item.id)">@Html(highlighter.highlight(item.toStringLang))</a>
+    @views.html.helpers.linkTo(item, content = Html(highlighter.highlight(item.toStringLang)))
 } {
     @listItemBody(item, highlighter = highlighter)
 }

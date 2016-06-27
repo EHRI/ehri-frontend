@@ -1,4 +1,4 @@
-@(item: Repository, showCountry: Boolean, highlighter: views.Highlighter = views.NoopHighlighter)(implicit userOpt: Option[UserProfile], req: RequestHeader, messages: Messages, md: views.MarkdownRenderer, descriptionId: Option[String] = None)
+@(item: Repository, showCountry: Boolean, highlighter: views.Highlighter = views.NoopHighlighter)(implicit userOpt: Option[UserProfile], req: RequestHeader, globalConfig: global.GlobalConfig, messages: Messages, md: views.MarkdownRenderer, descriptionId: Option[String] = None)
 
 @item.model.primaryDescription(descriptionId).map { desc =>
     @common.otherNameListSmall((desc.parallelFormsOfName ++ desc.otherFormsOfName).flatten.toList, highlighter)
@@ -6,9 +6,9 @@
         @conciseAddress(item, desc, includeCountry = showCountry, highlighter = highlighter)
         @views.html.common.childCount(item) { count =>
             @if(count > 0) {
-                <a href="@controllers.portal.routes.Repositories.search(item.id)">
+                @views.html.helpers.link(controllers.portal.routes.Repositories.search(item.id)) {
                     @Messages("repository.childCount", count)
-                </a>
+                }
             }
         }
     </div>

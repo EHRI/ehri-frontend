@@ -1,9 +1,7 @@
-@(item: Country, highlighter: views.Highlighter, watched: Boolean = false)(implicit userOpt: Option[UserProfile], req: RequestHeader, messages: Messages, md: views.MarkdownRenderer)
+@(item: Country, highlighter: views.Highlighter, watched: Boolean = false)(implicit userOpt: Option[UserProfile], req: RequestHeader, globalConfig: global.GlobalConfig, messages: Messages, md: views.MarkdownRenderer)
 
 @views.html.layout.searchItemOutline(item, watched) {
-    <a href="@controllers.portal.routes.Countries.browse(item.id)">
-        @Html(highlighter.highlight(item.toStringLang))
-    </a>
+    @views.html.helpers.linkTo(item, content = Html(highlighter.highlight(item.toStringLang)))
 } {
     @listItemBody(item)
 }

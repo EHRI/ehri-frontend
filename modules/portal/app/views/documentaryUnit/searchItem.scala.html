@@ -5,9 +5,7 @@
         @parent.map { p =>
             @wrapParent(doc, p.parent)
             <li>
-                <a class="search-item-parent-name" href="@controllers.portal.routes.DocumentaryUnits.browse(p.id)">
-                    @Html(highlighter.highlight(p.toStringLang))
-                </a>
+              @views.html.helpers.linkTo(p, content = Html(highlighter.highlight(p.toStringLang)), Seq(Symbol("class") -> "search-item-parent-name"))
             </li>
         }
     }
@@ -22,7 +20,7 @@
             @views.html.common.watchButtonsSmall(item, watched)
             </div>
             <h3 class="search-item-heading type-highlight @item.isA.toString" dir="@dir">
-                <a href="@{controllers.portal.routes.DocumentaryUnits.browse(item.id)}@{anchor}">@Html(highlighter.highlight(desc.name))</a>
+              @views.html.helpers.linkToWithFragment(item, fragment = anchor, content = Html(highlighter.highlight(desc.name)))
             </h3>
             <div class="search-item-body" dir="@dir">
                 @if(item.parent.isDefined) {

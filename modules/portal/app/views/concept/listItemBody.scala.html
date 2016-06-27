@@ -1,10 +1,12 @@
-@(item: Concept, highlighter: views.Highlighter = views.NoopHighlighter)(implicit req: RequestHeader, messages: Messages, md: views.MarkdownRenderer, descriptionId: Option[String] = None)
+@(item: Concept, highlighter: views.Highlighter = views.NoopHighlighter)(implicit req: RequestHeader, globalConfig: global.GlobalConfig, messages: Messages, md: views.MarkdownRenderer, descriptionId: Option[String] = None)
 
 @item.model.primaryDescription(descriptionId).map { desc =>
     <div class="search-item-details">
         <ul class="concept-search-details">
             @item.vocabulary.map { vocab =>
-                <li><a class="alt" href="@controllers.portal.routes.Vocabularies.browse(vocab.id)">@vocab.toStringLang</a></li>
+                <li>
+                    @views.html.helpers.linkTo(vocab, attributes = Seq(Symbol("class") -> "alt"))
+                </li>
             }
             <li><span class="text-muted">@views.Helpers.languageCodeToName(desc.languageCode)</span></li>
             @item.latestEvent.map { event =>
@@ -15,11 +17,7 @@
             <ul class="concept-broader-terms">
                 <li>@Messages("cvocConcept.broaderTerms")</li>
                 @item.broaderTerms.map { bt =>
-                <li>
-                    <a href="@controllers.portal.routes.Concepts.browse(bt.id)">
-                        @bt.toStringLang
-                    </a>
-                </li>
+                    <li>@views.html.helpers.linkTo(item)</li>
                 }
             </ul>
         }
