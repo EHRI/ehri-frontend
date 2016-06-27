@@ -8,7 +8,7 @@
                 @item.holder.map { holder =>
                   <li>
                       @views.html.helpers.link(views.p.Helpers.linkTo(holder), Symbol("class") -> "alt") {
-                          @holder.toStringLang
+                          @Html(highlighter.highlight(holder.toStringLang))
                       }
                   </li>
                 }

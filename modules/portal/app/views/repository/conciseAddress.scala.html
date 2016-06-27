@@ -1,10 +1,14 @@
-@(item: Repository, desc: RepositoryDescriptionF, includeCountry: Boolean = true, highlighter: views.Highlighter = views.NoopHighlighter)(implicit userOpt: Option[UserProfile], request: RequestHeader, messages: Messages)
+@(item: Repository, desc: RepositoryDescriptionF, includeCountry: Boolean = true, highlighter: views.Highlighter = views.NoopHighlighter)(implicit userOpt: Option[UserProfile], request: RequestHeader, globalConfig: global.GlobalConfig, messages: Messages)
 
 <ul class="concise-address">
     @if(includeCountry) {
         @item.country.map { ct =>
-            <li><strong><a class="alt" href="@controllers.portal.routes.Countries.browse(ct.id)">
-                @Html(highlighter.highlight(ct.toStringLang))</a></strong></li>
+            <li>
+                @views.html.helpers.link(views.p.Helpers.linkTo(ct), Symbol("class") -> "alt") {
+                    @Html(highlighter.highlight(ct.toStringLang))
+                }
+            </li>
+
         }
     }
     @desc.addresses.headOption.map(_.concise).filterNot(_.isEmpty).map { conciseAddress =>
