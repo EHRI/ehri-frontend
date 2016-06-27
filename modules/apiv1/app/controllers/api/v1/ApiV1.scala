@@ -120,6 +120,7 @@ case class ApiV1 @Inject()(
   private def JsonApiAction = RateLimit andThen JsonApiCheckAcceptFilter andThen LoggingAuthAction
 
   implicit def anyModelWrites(implicit request: RequestHeader): Writes[AnyModel] = new Writes[AnyModel] {
+
     override def writes(any: AnyModel): JsValue = any match {
       case doc: DocumentaryUnit => Json.toJson(
         JsonApiResponseData(
@@ -147,7 +148,8 @@ case class ApiV1 @Inject()(
                 parent = doc.parent.map(r => apiRoutes.fetch(r.id).absoluteURL())
               )
             )
-          )
+          ),
+          meta = Some(meta(doc).deepMerge(holderMeta(doc)))
         )
       )
       case repo: Repository => Json.toJson(
@@ -172,7 +174,8 @@ case class ApiV1 @Inject()(
                 country = repo.country.map(c => apiRoutes.fetch(c.id).absoluteURL())
               )
             )
-          )
+          ),
+          meta = Some(meta(repo).deepMerge(holderMeta(repo)))
         )
       )
       case agent: HistoricalAgent => Json.toJson(
@@ -184,7 +187,8 @@ case class ApiV1 @Inject()(
             Json.obj(
               "self" -> apiRoutes.fetch(agent.id).absoluteURL()
             )
-          )
+          ),
+          meta = Some(meta(agent))
         )
       )
       case country: Country => Json.toJson(
@@ -199,7 +203,8 @@ case class ApiV1 @Inject()(
                 search = apiRoutes.searchIn(country.id).absoluteURL()
               )
             )
-          )
+          ),
+          meta = Some(meta(country).deepMerge(holderMeta(country)))
         )
       )
       case _ => throw new ItemNotFound()

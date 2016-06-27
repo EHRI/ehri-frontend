@@ -6,7 +6,7 @@ import org.everit.json.schema.{ValidationException, SchemaException}
 import org.everit.json.schema.loader.SchemaLoader
 import org.json.{JSONTokener, JSONObject}
 import play.api.http.HeaderNames
-import play.api.libs.json.{Json, JsValue, JsDefined, JsString}
+import play.api.libs.json._
 import play.api.test.{FakeRequest, PlaySpecification}
 
 class ApiV1Spec extends IntegrationTestRunner {
@@ -47,6 +47,13 @@ class ApiV1Spec extends IntegrationTestRunner {
       validateJson(contentAsJson(fetch))
       contentAsJson(fetch) \ "data" \ "attributes" \ "descriptions" \ 0 \
           "scopeAndContent" must_== JsDefined(JsString("Some description text for c4"))
+    }
+
+    "contain the right metadata" in new ITestApp {
+      val fetch = FakeRequest(apiRoutes.fetch("r1")).call()
+      status(fetch) must_== OK
+      validateJson(contentAsJson(fetch))
+      contentAsJson(fetch) \ "data" \ "meta" \ "subitems" must_== JsDefined(JsNumber(3))
     }
 
     "allow searching all items" in new ITestApp {
