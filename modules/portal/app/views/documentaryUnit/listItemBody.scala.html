@@ -6,14 +6,20 @@
         <ul class="doc-search-details">
             @if(showRepository) {
                 @item.holder.map { holder =>
-                    <li><a class="alt" href="@controllers.portal.routes.Repositories.browse(holder.id)">@holder.toStringAbbr</a></li>
+                  <li>
+                      @views.html.helpers.link(views.p.Helpers.linkTo(holder), Symbol("class") -> "alt") {
+                          @holder.toStringLang
+                      }
+                  </li>
                 }
             }
             @views.html.documentaryUnit.listItemMeta(item, desc, highlighter)
         </ul>
         @views.html.common.childCount(item) { count =>
             @if(count > 0) {
-                <a href="@controllers.portal.routes.DocumentaryUnits.search(item.id)">@Messages("documentaryUnit.childCount", count)</a>
+              @views.html.helpers.link(controllers.portal.routes.DocumentaryUnits.search(item.id)) {
+                @Messages("documentaryUnit.childCount", count)
+              }
             }
         }
     </div>
