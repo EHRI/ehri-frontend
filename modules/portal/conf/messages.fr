@@ -1,4 +1,4 @@
-welcome=Bienvenue sur l''EHRI
+welcome=Bienvenue sur le portail de l''EHRI
 welcome.title=Bienvenue sur le portail en ligne de l''European Holocaust Research Infrastructure
 home=Accueil
 about=À propos de l''EHRI

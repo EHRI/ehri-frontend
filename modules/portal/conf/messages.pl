@@ -1,4 +1,4 @@
-welcome=Witamy w EHRI
+welcome=Witamy na portalu EHRI
 welcome.title=Witamy na portalu internetowym Europejskiej Infrastruktury Badań nad Zagładą Żydów (EHRI)
 home=Strona główna
 about=EHRI – informacje
