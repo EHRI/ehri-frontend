@@ -132,7 +132,7 @@ object JsonApiV1 {
         new RepositoryAttrs(
           name = Some(d.name),
           parallelFormsOfName = d.parallelFormsOfName,
-          otherFormsOfName = d.parallelFormsOfName,
+          otherFormsOfName = d.otherFormsOfName,
           address = d.addresses.headOption.map(a => AddressAttrs(a)),
           history = d.details.history,
           generalContext = d.details.generalContext,
