@@ -1,13 +1,22 @@
 package models.api.v1
 
 import models._
-import models.base.AnyModel
-import play.api.libs.json.{JsValue, Json, Writes}
+import models.base.{Accessible, Holder, AnyModel}
+import play.api.i18n.Messages
+import play.api.libs.json.{JsObject, JsValue, Json, Writes}
 import play.api.mvc.RequestHeader
 
 object JsonApiV1 {
 
   final val JSONAPI_MIMETYPE = "application/vnd.api+json"
+
+  def holderMeta[T <: Holder[_] with Accessible](t: T): JsObject = Json.obj(
+    "subitems" -> t.childCount
+  )
+
+  def meta[T <: Accessible](t: T): JsObject = Json.obj(
+    "updated" -> t.latestEvent.map(_.time)
+  )
 
   case class DocumentaryUnitDescriptionAttrs(
     localId: Option[String],
@@ -229,6 +238,7 @@ object JsonApiV1 {
 
   case class CountryAttrs(
     identifier: String,
+    name: String,
     `abstract`: Option[String],
     history: Option[String],
     situation: Option[String],
@@ -239,9 +249,10 @@ object JsonApiV1 {
   object CountryAttrs {
     implicit val writes = Json.writes[CountryAttrs]
 
-    def apply(c: Country)(implicit requestHeader: RequestHeader): CountryAttrs =
+    def apply(c: Country)(implicit requestHeader: RequestHeader, messages: Messages): CountryAttrs =
       new CountryAttrs(
         identifier = c.model.identifier,
+        name = c.toStringLang,
         `abstract` = c.model.abs,
         history = c.model.history,
         situation = c.model.situation,
@@ -274,7 +285,8 @@ object JsonApiV1 {
     `type`: String,
     attributes: JsValue,
     relationships: Option[JsValue] = None,
-    links: Option[JsValue] = None
+    links: Option[JsValue] = None,
+    meta: Option[JsValue] = None
   )
 
   object JsonApiResponseData {
