@@ -1,4 +1,4 @@
-welcome=Willkommen bei EHRI
+welcome=Willkommen beim EHRI-Portal
 welcome.title=Willkommen auf dem Online-Portal der European Holocaust Research Infrastructure
 home=Startseite
 about=Über EHRI
@@ -118,7 +118,7 @@ profile.update.submit=Profil aktualisieren
 profile.update.confirmation=Profil erfolgreich aktualisiert
 profile.watch.list=Beobachtete Elemente
 profile.watch.by={0} - Beobachtete Elemente
-profile.watch=Element ansehen
+profile.watch=Element beobachten
 profile.watch.title=Element zu Ihrer Beobachtungsliste hinzufügen
 profile.watch.tooltip=Klicken Sie, um in Ihrer Aktivitätenliste Aktualisierungen dieses Elements zu sehen.
 profile.watch.submit=Element beobachten
