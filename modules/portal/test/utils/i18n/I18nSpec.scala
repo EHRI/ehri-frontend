@@ -12,10 +12,10 @@ class I18nSpec extends PlaySpecification {
   "i18n" should {
     "support the right langs" in {
       messagesApi.translate("welcome", Seq.empty)(Lang("en")) must beSome.which { t =>
-        t must equalTo("Welcome to EHRI")
+        t must equalTo("Welcome to the EHRI Portal")
       }
       messagesApi.translate("welcome", Seq.empty)(Lang("fr")) must beSome.which { t =>
-        t must equalTo("Bienvenue sur l'EHRI")
+        t must equalTo("Bienvenue sur le portail de l'EHRI")
       }
     }
   }
