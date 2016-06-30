@@ -10,10 +10,8 @@ class ApiV1QuickSpec extends PlaySpecification with TestConfiguration {
 
   private val apiRoutes = controllers.api.v1.routes.ApiV1
 
-  override def getConfig = Map("ehri.api.v1.authorization.enabled" -> false)
-
   "API/V1" should {
-    "have config authorization by default" in new ITestApp(
+    "say forbodden when authorization enabled" in new ITestApp(
       Map(
         "ehri.api.v1.authorization.enabled" -> true,
         "ehri.api.v1.authorization.tokens" -> List("allowed")

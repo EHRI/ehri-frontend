@@ -13,8 +13,6 @@ class ApiV1Spec extends IntegrationTestRunner {
 
   private val apiRoutes = controllers.api.v1.routes.ApiV1
 
-  override def getConfig = Map("ehri.api.v1.authorization.enabled" -> false)
-
   def validateJson(json: JsValue) = {
     val is = getClass.getResourceAsStream("/jsonapi-schema.json")
     try {
