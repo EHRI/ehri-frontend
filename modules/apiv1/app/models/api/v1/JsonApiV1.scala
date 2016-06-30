@@ -21,6 +21,7 @@ object JsonApiV1 {
   case class DocumentaryUnitDescriptionAttrs(
     localId: Option[String],
     languageCode: String,
+    language: String,
     name: String,
     parallelFormsOfName: Seq[String],
     extentAndMedium: Option[String],
@@ -31,17 +32,20 @@ object JsonApiV1 {
     scopeAndContent: Option[String],
     appraisal: Option[String] = None,
     accruals: Option[String] = None,
-    systemOfArrangement: Option[String] = None
+    systemOfArrangement: Option[String] = None,
+    languageOfMaterials: Option[Seq[String]] = None,
+    scriptOfMaterials: Option[Seq[String]] = None
   )
 
   object DocumentaryUnitDescriptionAttrs {
     implicit val writes = Json.writes[DocumentaryUnitDescriptionAttrs]
 
-    def apply(d: DocumentaryUnitDescriptionF): DocumentaryUnitDescriptionAttrs =
+    def apply(d: DocumentaryUnitDescriptionF)(implicit messages: Messages): DocumentaryUnitDescriptionAttrs =
       new DocumentaryUnitDescriptionAttrs(
-        d.localId,
-        d.languageCode,
-        d.name,
+        localId = d.localId,
+        languageCode = d.languageCode,
+        language = utils.i18n.languageCodeToName(d.languageCode),
+        name = d.name,
         parallelFormsOfName = d.identity.parallelFormsOfName.getOrElse(Seq.empty),
         extentAndMedium = d.identity.extentAndMedium,
         unitDates = d.identity.unitDates,
@@ -50,7 +54,11 @@ object JsonApiV1 {
         acquisition = d.context.acquisition,
         scopeAndContent = d.content.scopeAndContent,
         appraisal = d.content.appraisal,
-        systemOfArrangement = d.content.systemOfArrangement
+        systemOfArrangement = d.content.systemOfArrangement,
+        languageOfMaterials = d.conditions.languageOfMaterials
+          .map(_.map(utils.i18n.languageCodeToName)),
+        scriptOfMaterials = d.conditions.scriptOfMaterials
+          .map(_.map(utils.i18n.scriptCodeToName))
       )
   }
 
@@ -63,11 +71,11 @@ object JsonApiV1 {
   object DocumentaryUnitAttrs {
     implicit val writes = Json.writes[DocumentaryUnitAttrs]
 
-    def apply(d: DocumentaryUnit): DocumentaryUnitAttrs =
+    def apply(d: DocumentaryUnit)(implicit messages: Messages): DocumentaryUnitAttrs =
       new DocumentaryUnitAttrs(
         localId = d.model.identifier,
         alternateIds = d.model.otherIdentifiers.getOrElse(Seq.empty),
-        descriptions = d.descriptions.map(DocumentaryUnitDescriptionAttrs.apply)
+        descriptions = d.model.orderedDescriptions.map(DocumentaryUnitDescriptionAttrs.apply)
       )
   }
 
@@ -127,8 +135,8 @@ object JsonApiV1 {
   object RepositoryAttrs {
     implicit val writes = Json.writes[RepositoryAttrs]
 
-    def apply(r: Repository): RepositoryAttrs = {
-      r.descriptions.headOption.map { d =>
+    def apply(r: Repository)(implicit messages: Messages): RepositoryAttrs = {
+      r.model.primaryDescription.map { d =>
         new RepositoryAttrs(
           name = Some(d.name),
           parallelFormsOfName = d.parallelFormsOfName,
@@ -198,8 +206,8 @@ object JsonApiV1 {
   object HistoricalAgentAttrs {
     implicit val writes = Json.writes[HistoricalAgentAttrs]
 
-    def apply(a: HistoricalAgent): HistoricalAgentAttrs = {
-      a.descriptions.headOption.map { d =>
+    def apply(a: HistoricalAgent)(implicit messages: Messages): HistoricalAgentAttrs = {
+      a.model.primaryDescription.map { d =>
         new HistoricalAgentAttrs(
           name = Some(d.name),
           otherFormsOfName = d.otherFormsOfName,

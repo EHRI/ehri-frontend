@@ -320,6 +320,12 @@ trait Described[+T <: Description] extends Model {
     descriptions.find(_.languageCode == code3).orElse(descriptions.headOption)
   }
 
+  def orderedDescriptions(implicit messages: Messages): Seq[T] = {
+    val code3 = utils.i18n.lang2to3lookup.getOrElse(messages.lang.language, messages.lang.language)
+    val (matchLang, others) = descriptions.partition(_.languageCode == code3)
+    matchLang ++ others
+  }
+
   /**
    * Get a description with the given ID, falling back on the first
    * appropriate one for the given (implicit) language code.

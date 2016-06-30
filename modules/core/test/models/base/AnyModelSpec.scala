@@ -93,6 +93,14 @@ class AnyModelSpec extends PlaySpecification with play.api.i18n.I18nSupport {
       testModel.descriptions.size must equalTo(2)
     }
 
+    "order descriptions according to a supplied locale" in {
+      val test = testModel.copy(
+        model = testModel.model.copy(
+          descriptions = testModel.model.descriptions.reverse))
+      test.model.descriptions.headOption.map(_.languageCode) must_== Some("fra")
+      test.model.orderedDescriptions.headOption.map(_.languageCode) must_== Some("eng")
+    }
+
     "categorise access point links properly" in {
       val links = Seq(
         Link(
