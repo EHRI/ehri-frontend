@@ -86,6 +86,7 @@ object JsonApiV1 {
     city: Option[String] = None,
     region: Option[String] = None,
     postalCode: Option[String] = None,
+    country: Option[String] = None,
     countryCode: Option[String] = None,
     email: Seq[String] = Nil,
     telephone: Seq[String] = Nil,
@@ -96,13 +97,14 @@ object JsonApiV1 {
   object AddressAttrs {
     implicit val writes = Json.writes[AddressAttrs]
 
-    def apply(a: AddressF) = new AddressAttrs(
+    def apply(a: AddressF)(implicit messages: Messages): AddressAttrs = new AddressAttrs(
       a.name,
       a.contactPerson,
       a.streetAddress,
       a.city,
       a.region,
       a.postalCode,
+      a.countryCode.map(utils.i18n.countryCodeToName),
       a.countryCode,
       a.email,
       a.telephone,
