@@ -54,7 +54,8 @@ case class ApiV1 @Inject()(
   // Authentication: currently a stopgap for releasing with
   // internal testing. Not intended for production since
   // tokens are in config.
-  private val authenticated: Boolean = config.getBoolean("ehri.api.v1.authorization.enabled").getOrElse(true)
+  private val authenticated: Boolean = config.getBoolean("ehri.api.v1.authorization.enabled")
+    .getOrElse(false)
   import scala.collection.JavaConverters._
   private val authenticationTokens: Seq[String] = config.getStringList("ehri.api.v1.authorization.tokens")
     .map(_.asScala.toSeq).getOrElse(Seq.empty)

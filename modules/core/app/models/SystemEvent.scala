@@ -16,7 +16,7 @@ object SystemEventF {
   final val TIMESTAMP = "timestamp"
   final val LOG_MESSAGE = "logMessage"
   final val EVENT_TYPE = "eventType"
-  final val FORMAT = "yyyy-MM-dd'T'HH:mm:ssSSSZ"
+  final val FORMAT = "yyyy-MM-dd'T'HH:mm:ss.SSZ"
 
   import SystemEventF.{EVENT_TYPE => EVENT_PROP}
   import Entity._
