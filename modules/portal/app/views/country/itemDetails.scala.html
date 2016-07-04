@@ -7,14 +7,18 @@
     @views.html.layout.rightSidebar {
         @views.html.common.itemHeader(item.toStringLang) {
         }
-        @defining(Annotation.itemAnnotations(annotations)) { implicit fieldAnnotations =>
-            @defining("country") { implicit fieldPrefix =>
-                @textField(item, item.id, item.model.abs, ABSTRACT)
-                @textField(item, item.id, item.model.history, HISTORY)
-                @textField(item, item.id, item.model.situation, SITUATION)
-                @textField(item, item.id, item.model.summary, DATA_SUMMARY)
-                @textField(item, item.id, item.model.extensive, DATA_EXTENSIVE)
+        @views.html.helpers.contentOrEmpty {
+            @defining(Annotation.itemAnnotations(annotations)) { implicit fieldAnnotations =>
+                @defining("country") { implicit fieldPrefix =>
+                    @textField(item, item.id, item.model.abs, ABSTRACT)
+                    @textField(item, item.id, item.model.history, HISTORY)
+                    @textField(item, item.id, item.model.situation, SITUATION)
+                    @textField(item, item.id, item.model.summary, DATA_SUMMARY)
+                    @textField(item, item.id, item.model.extensive, DATA_EXTENSIVE)
+                }
             }
+        } {
+            <p class="empty-description">@Messages("country.description.empty")</p>
         }
     } {
         @views.html.common.typeLabelWithWatchButton(item, watched.contains(item.id), introNotice())

@@ -1,0 +1,8 @@
+@(content: Html)(empty: Html)
+
+@if(content.body.trim.isEmpty) {
+    @empty
+} else {
+    @content
+}
+
