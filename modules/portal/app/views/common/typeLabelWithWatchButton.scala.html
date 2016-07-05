@@ -2,11 +2,11 @@
 
 @views.html.common.typeLabel(item.isA)  {
     @priorContent
-    @if(userOpt.isDefined || priorContent.body.trim.nonEmpty) {
+    @userOpt.map { _ =>
         <ul class="item-sidebar-actions list-group">
-            <li class="list-group-item btn-group-justified watch-controls" role="listitem">
-                @views.html.common.watchButtons(item, watched)
-            </li>
+          <li class="list-group-item btn-group-justified watch-controls" role="listitem">
+            @views.html.common.watchButtons(item, watched)
+          </li>
         </ul>
     }
 }
