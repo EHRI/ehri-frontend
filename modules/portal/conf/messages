@@ -1128,7 +1128,6 @@ country.situation=Archival Situation
 country.dataSummary=EHRI Research (Summary)
 country.dataExtensive=EHRI Research (Extensive)
 country.list=Countries
-country.description.empty=There is currently no EHRI country report available for this country.
 
 #
 # Vocabularies
