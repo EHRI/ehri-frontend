@@ -21,13 +21,13 @@ object AccessPointF {
 
   object AccessPointType extends Enumeration {
     type Type = Value
-    val CreatorAccess = Value("creatorAccess")
-    val PersonAccess = Value("personAccess")
-    val FamilyAccess = Value("familyAccess")
-    val CorporateBodyAccess = Value("corporateBodyAccess")
-    val SubjectAccess = Value("subjectAccess")
-    val PlaceAccess = Value("placeAccess")
-    val Other = Value("otherAccess")
+    val CreatorAccess = Value("creator")
+    val PersonAccess = Value("person")
+    val FamilyAccess = Value("family")
+    val CorporateBodyAccess = Value("corporateBody")
+    val SubjectAccess = Value("subject")
+    val PlaceAccess = Value("place")
+    val Other = Value("genre")
 
     implicit val format = defines.EnumUtils.enumFormat(this)
 

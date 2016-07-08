@@ -22,9 +22,9 @@ object Build extends Build {
 
   val projectScalaVersion = "2.11.8"
   val appName = "docview"
-  val appVersion = "1.0.5-SNAPSHOT"
+  val appVersion = "1.0.6-SNAPSHOT"
 
-  val backendVersion = "0.13.3-SNAPSHOT"
+  val backendVersion = "0.13.4-SNAPSHOT"
   val neo4jVersion = "2.3.4"
   val jerseyVersion = "1.19"
 

@@ -322,20 +322,22 @@ description.multiple.text=This item has multiple descriptions. Alternate descrip
 # Access points
 #
 accessPoint.browse=Search
-accessPoint.type.creatorAccess=Creator(s)
-accessPoint.type.creatorAccess.reverse=Creator of
-accessPoint.type.personAccess=People
-accessPoint.type.personAccess.reverse=Referenced by (as people)
-accessPoint.type.familyAccess=Families
-accessPoint.type.familyAccess.reverse=Referenced by (as family)
-accessPoint.type.corporateBodyAccess=Corporate Bodies
-accessPoint.type.corporateBodyAccess.reverse=Referenced by (as corporate body)
-accessPoint.type.placeAccess=Places
-accessPoint.type.placeAccess.reverse=Places
-accessPoint.type.subjectAccess=Subjects
-accessPoint.type.subjectAccess.reverse=Subject of
-accessPoint.type.otherAccess=Miscellaneous
-accessPoint.type.otherAccess.reverse=Miscellaneous
+accessPoint.type.creator=Creator(s)
+accessPoint.type.creator.reverse=Creator of
+accessPoint.type.person=People
+accessPoint.type.person.reverse=Referenced by (as people)
+accessPoint.type.family=Families
+accessPoint.type.family.reverse=Referenced by (as family)
+accessPoint.type.corporateBody=Corporate Bodies
+accessPoint.type.corporateBody.reverse=Referenced by (as corporate body)
+accessPoint.type.place=Places
+accessPoint.type.place.reverse=Places
+accessPoint.type.subject=Subjects
+accessPoint.type.subject.reverse=Subject of
+accessPoint.type.genre=Genre
+accessPoint.type.genre.reverse=Genre
+accessPoint.type.other=Miscellaneous
+accessPoint.type.other.reverse=Miscellaneous
 # References not on this item, but from another ites access points
 accessPoint.externalReferences=External references to this item
 
