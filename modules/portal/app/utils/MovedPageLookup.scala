@@ -1,7 +1,5 @@
 package utils
 
-import play.api.mvc.Call
-
 import scala.concurrent.Future
 
 /**

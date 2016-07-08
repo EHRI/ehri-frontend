@@ -31,22 +31,22 @@ trait AccessPoints[D <: Description, T <: Model with Described[D], MT <: MetaMod
    * [ {
    *     "id" : "e6410af3-c45e-4649-9b5e-6753b2aa1156",
    *     "data" : [ {
-   *       "type" : "creatorAccess",
+   *       "type" : "creator",
    *       "data" : [ ]
    *     }, {
-   *       "type" : "personAccess",
+   *       "type" : "person",
    *       "data" : [ ]
    *     }, {
-   *       "type" : "familyAccess",
+   *       "type" : "family",
    *       "data" : [ ]
    *     }, {
-   *       "type" : "corporateBodyAccess",
+   *       "type" : "corporateBody",
    *       "data" : [ ]
    *     }, {
-   *       "type" : "subjectAccess",
+   *       "type" : "subject",
    *       "data" : [ ]
    *     }, {
-   *       "type" : "placeAccess",
+   *       "type" : "place",
    *       "data" : [ {
    *         "accessPoint" : {
    *           "isA" : "AccessPoint",
@@ -67,7 +67,7 @@ trait AccessPoints[D <: Description, T <: Model with Described[D], MT <: MetaMod
    *         }
    *       } ]
    *     }, {
-   *       "type" : "otherAccess",
+   *       "type" : "genre",
    *       "data" : [ ]
    *     } ]
    *   } ]

@@ -674,13 +674,14 @@ documentaryUnit.processInfo.description=Information about accessioning, arrangin
   the EAD <processinfo> field.
 
 documentaryUnit.accessPoints=Access Points
-documentaryUnit.accessPoints.creatorAccess=Creators
-documentaryUnit.accessPoints.corporateBodyAccess=Corporate Bodies
-documentaryUnit.accessPoints.familyAccess=Families
-documentaryUnit.accessPoints.personAccess=Persons
-documentaryUnit.accessPoints.subjectAccess=Subject Access Points
-documentaryUnit.accessPoints.placeAccess=Place Access Points
-documentaryUnit.accessPoints.otherAccess=Other Access Points
+documentaryUnit.accessPoints.creator=Creators
+documentaryUnit.accessPoints.corporateBody=Corporate Bodies
+documentaryUnit.accessPoints.family=Families
+documentaryUnit.accessPoints.person=Persons
+documentaryUnit.accessPoints.subject=Subject Access Points
+documentaryUnit.accessPoints.place=Place Access Points
+documentaryUnit.accessPoints.genre=Genre Access Points
+documentaryUnit.accessPoints.other=Other Access Points
 
 # isad(g) dates
 documentaryUnit.startDate=Start Date

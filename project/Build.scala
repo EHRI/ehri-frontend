@@ -22,9 +22,9 @@ object Build extends Build {
 
   val projectScalaVersion = "2.11.8"
   val appName = "docview"
-  val appVersion = "1.0.5-SNAPSHOT"
+  val appVersion = "1.0.6-SNAPSHOT"
 
-  val backendVersion = "0.13.3-SNAPSHOT"
+  val backendVersion = "0.13.4-SNAPSHOT"
   val neo4jVersion = "2.3.4"
   val jerseyVersion = "1.19"
 
@@ -103,7 +103,7 @@ object Build extends Build {
     "com.fasterxml.jackson.dataformat" % "jackson-dataformat-csv" % "2.6.4",
 
     // EHRI indexing tools
-    "ehri-project" % "index-data-converter" % "1.1.6" exclude("log4j", "log4j") exclude ("org.slf4j",
+    "ehri-project" % "index-data-converter" % "1.1.7" exclude("log4j", "log4j") exclude ("org.slf4j",
       "slf4j-log4j12"),
     "com.sun.jersey" % "jersey-core" % jerseyVersion,
 
