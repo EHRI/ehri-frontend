@@ -341,7 +341,8 @@ object JsonApiV1 {
   case class JsonApiListResponse(
     data: Seq[AnyModel],
     links: PaginationLinks,
-    included: Option[Seq[AnyModel]]
+    included: Option[Seq[AnyModel]] = None,
+    meta: Option[JsValue] = None
   )
 
   object JsonApiListResponse {

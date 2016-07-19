@@ -238,7 +238,11 @@ case class ApiV1 @Inject()(
         next = if (!page.hasMore) Option.empty[String]
         else Some(urlFunc(page.page + 1))
       ),
-      included = included
+      included = included,
+      meta = Some(Json.obj(
+        "total" -> page.total,
+        "pages" -> page.numPages
+      ))
     )
 
   def index() = JsonApiAction { implicit request =>
