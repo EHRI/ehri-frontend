@@ -15,15 +15,13 @@ import scala.language.postfixOps
 object SqlOpenIdAssociationManager {
   val openIdParser = {
     get[String]("openid_association.id") ~
-      get[String]("openid_association.openid_url") map {
+    get[String]("openid_association.openid_url") map {
       case id ~ url => OpenIDAssociation(id, url, None)
     }
   }
 
-  val openIdWithUser = {
-    openIdParser ~ SqlAccountManager.userParser map {
-      case association ~ user => association.copy(user = Some(user))
-    }
+  val openIdWithUser = openIdParser ~ SqlAccountManager.userParser map {
+    case association ~ user => association.copy(user = Some(user))
   }
 }
 
@@ -49,7 +47,10 @@ case class SqlOpenIdAssociationManager()(implicit db: Database, executionContext
   def findAll: Future[Seq[OpenIDAssociation]] = Future {
     db.withConnection { implicit conn =>
       SQL"""
-        SELECT users.*,  openid_association.*
+        SELECT
+          users.*,
+          openid_association.id,
+          openid_association.openid_url
         FROM openid_association
         JOIN users ON openid_association.id =  users.id
       """.as(openIdWithUser *)
@@ -58,7 +59,10 @@ case class SqlOpenIdAssociationManager()(implicit db: Database, executionContext
 
   private def getByUrl(url: String)(implicit conn: Connection) =
     SQL"""
-      SELECT users.*, openid_association.*
+      SELECT
+        users.*,
+        openid_association.id,
+        openid_association.openid_url
       FROM openid_association
       JOIN users ON openid_association.id =  users.id
       WHERE openid_association.openid_url = $url LIMIT 1

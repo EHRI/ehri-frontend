@@ -16,16 +16,14 @@ import scala.language.postfixOps
 object SqlOAuth2AssociationManager {
   val oAuthParser = {
     get[String]("oauth2_association.id") ~
-      get[String]("oauth2_association.provider_id") ~
-      get[String]("oauth2_association.provider") map {
+    get[String]("oauth2_association.provider_id") ~
+    get[String]("oauth2_association.provider") map {
       case id ~ providerId ~ provider => OAuth2Association(id, providerId, provider, None)
     }
   }
 
-  val oAuthWithUser = {
-    oAuthParser ~ SqlAccountManager.userParser map {
-      case association ~ user => association.copy(user = Some(user))
-    }
+  val oAuthWithUser = oAuthParser ~ SqlAccountManager.userParser map {
+    case association ~ user => association.copy(user = Some(user))
   }
 }
 
@@ -49,7 +47,11 @@ case class SqlOAuth2AssociationManager()(implicit db: Database, executionContext
   def findAll: Future[Seq[OAuth2Association]] = Future {
     db.withConnection { implicit connection =>
       SQL"""
-        SELECT users.*, oauth2_association.*
+        SELECT
+          users.*,
+          oauth2_association.id,
+          oauth2_association.provider_id,
+          oauth2_association.provider
         FROM oauth2_association
         JOIN users ON oauth2_association.id =  users.id
       """.as(oAuthWithUser *)
@@ -68,7 +70,11 @@ case class SqlOAuth2AssociationManager()(implicit db: Database, executionContext
 
   private def getForAccount(id: String)(implicit conn: Connection): Seq[OAuth2Association] = {
     SQL"""
-      SELECT users.*, oauth2_association.*
+      SELECT
+        users.*,
+        oauth2_association.id,
+        oauth2_association.provider_id,
+        oauth2_association.provider
       FROM oauth2_association
       JOIN users ON oauth2_association.id =  users.id
       WHERE users.id = $id
@@ -77,7 +83,11 @@ case class SqlOAuth2AssociationManager()(implicit db: Database, executionContext
 
   private def getByInfo(providerUserId: String, provider: String)(implicit conn: Connection): Option[OAuth2Association] = {
     SQL"""
-      SELECT users.*, oauth2_association.*
+      SELECT
+        users.*,
+        oauth2_association.id,
+        oauth2_association.provider_id,
+        oauth2_association.provider
       FROM oauth2_association
       JOIN users ON oauth2_association.id =  users.id
       WHERE oauth2_association.provider_id = $providerUserId

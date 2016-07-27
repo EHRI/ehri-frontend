@@ -90,6 +90,30 @@ CREATE TABLE research_guide_page (
 ALTER TABLE research_guide_page ADD CONSTRAINT research_guide_page_id FOREIGN KEY (research_guide_id) REFERENCES research_guide (id) ON DELETE CASCADE;
 ALTER TABLE research_guide_page ADD UNIQUE research_guide_path_guide_id(research_guide_id, path);
 
+CREATE TABLE feedback (
+  id CHAR(10) NOT NULL PRIMARY KEY,
+  user_id VARCHAR(50) DEFAULT NULL,
+  name VARCHAR (255) DEFAULT NULL,
+  email VARCHAR (255) DEFAULT NULL,
+  text MEDIUMTEXT,
+  type VARCHAR (10) DEFAULT NULL,
+  copy BOOLEAN DEFAULT FALSE,
+  context TEXT,
+  created TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  updated TIMESTAMP NULL,
+  mode VARCHAR(10) NOT NULL
+);
+
+CREATE TABLE cypher_queries (
+  id CHAR(10) NOT NULL PRIMARY KEY ,
+  user_id VARCHAR(50) DEFAULT NULL,
+  name VARCHAR(255) NOT NULL,
+  query TEXT NOT NULL,
+  description TEXT,
+  public BOOLEAN DEFAULT FALSE,
+  created TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  updated TIMESTAMP NULL
+);
 
 # --- !Downs
 
@@ -101,3 +125,5 @@ DROP TABLE IF EXISTS users;
 DROP TABLE IF EXISTS moved_pages;
 DROP TABLE IF EXISTS research_guide_page;
 DROP TABLE IF EXISTS research_guide;
+DROP TABLE IF EXISTS feedback;
+DROP TABLE IF EXISTS cypher_queries;

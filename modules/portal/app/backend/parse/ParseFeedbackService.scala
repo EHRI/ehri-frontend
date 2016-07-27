@@ -7,4 +7,11 @@ import backend.FeedbackService
 import play.api.cache.CacheApi
 import play.api.libs.ws.WSClient
 
-case class ParseFeedbackService @Inject()(implicit cache: CacheApi, config: play.api.Configuration, ws: WSClient) extends ParseService[Feedback]("feedback") with FeedbackService
+import scala.concurrent.ExecutionContext
+
+case class ParseFeedbackService @Inject()(
+  implicit val cache: CacheApi,
+  val config: play.api.Configuration,
+  val ws: WSClient,
+  val executionContext: ExecutionContext
+) extends ParseService[Feedback]("feedback") with FeedbackService

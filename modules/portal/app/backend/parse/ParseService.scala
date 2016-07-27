@@ -14,6 +14,8 @@ import scala.concurrent.{Future, ExecutionContext}
  */
 abstract class ParseService[T: Format](objectName: String) extends RestService {
 
+  implicit def executionContext: ExecutionContext
+
   protected def logger: Logger = Logger(this.getClass)
 
   case class Confirmation(createdAt: String, objectId: String)
@@ -53,28 +55,27 @@ abstract class ParseService[T: Format](objectName: String) extends RestService {
   private def parseCall(oid: Option[String] = None, params: Seq[(String,String)] = Seq.empty) =
     ws.url(parseUrl(oid)).withHeaders(parseHeaders: _*).withQueryString(params: _*)
 
-  def create(item: T)(implicit executionContext: ExecutionContext): Future[String] = {
+  def create(item: T): Future[String] = {
     parseCall().post(Json.toJson(item)).map { r =>
       logger.debug("Parse create response: " + r.body)
       r.json.as[Confirmation].objectId
     }
   }
 
-  def get(id: String)(implicit executionContext: ExecutionContext): Future[T] = {
+  def get(id: String): Future[T] = {
     parseCall(Some(id)).get().map { r =>
       r.json.as[T]
     }
   }
 
-  def update(id: String, item:T)(implicit executionContext: ExecutionContext): Future[String] = {
+  def update(id: String, item:T): Future[String] = {
     parseCall(Some(id)).put(Json.toJson(item)).map { r =>
       logger.debug("Parse update response: " + r.body)
       r.json.as[UpdateConfirmation].updatedAt
     }
   }
 
-  def list(pageParams: PageParams = PageParams.empty, params: Map[String,String] = Map.empty)(
-        implicit executionContext: ExecutionContext): Future[Page[T]] = {
+  def list(pageParams: PageParams = PageParams.empty, params: Map[String,String] = Map.empty): Future[Page[T]] = {
     val allParams = params.toSeq
     val withPaging = if (pageParams.limit < 0) allParams else allParams ++ Seq(
       "limit" -> pageParams.limit.toString,
@@ -93,7 +94,7 @@ abstract class ParseService[T: Format](objectName: String) extends RestService {
     }
   }
 
-  def delete(id: String)(implicit executionContext: ExecutionContext): Future[Boolean] = {
+  def delete(id: String): Future[Boolean] = {
     parseCall(Some(id)).delete().map { r =>
       Logger.debug("Parse delete response: " + r.body)
       r.status >= 200 && r.status < 300

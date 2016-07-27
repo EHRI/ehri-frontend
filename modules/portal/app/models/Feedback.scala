@@ -10,13 +10,13 @@ import defines.EnumUtils.enumMapping
 
 case class Feedback(
   objectId: Option[String] = None,
-  userId: Option[String],
-  name: Option[String],
-  email: Option[String],
+  userId: Option[String] = None,
+  name: Option[String] = None,
+  email: Option[String] = None,
   text: Option[String],
   `type`: Option[Feedback.Type.Value] = Some(Feedback.Type.Site),
-  copyMe: Option[Boolean] = None,
-  context: Option[FeedbackContext],
+  copyMe: Option[Boolean] = Some(false),
+  context: Option[FeedbackContext] = None,
   createdAt: Option[DateTime] = None,
   updatedAt: Option[DateTime] = None,
   mode: Option[Mode] = Some(play.api.Mode.Dev)
@@ -48,7 +48,7 @@ object Feedback {
       ID -> optional(text),
       NAME -> optional(text),
       EMAIL -> optional(email),
-      TEXT -> optional(nonEmptyText),
+      TEXT -> optional(nonEmptyText(maxLength = 16000)),
       TYPE -> optional(enumMapping(Type)),
       COPY_ME -> optional(boolean),
       "context" -> ignored(Option.empty[FeedbackContext]),
