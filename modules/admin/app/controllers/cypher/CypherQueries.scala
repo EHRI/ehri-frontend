@@ -72,11 +72,9 @@ case class CypherQueries @Inject()(
     CypherQuery.form.bindFromRequest.fold(
       errors => immediate(BadRequest(views.html.admin.cypherQueries.form(None, errors,
         controllers.cypher.routes.CypherQueries.createQueryPost()))),
-      queryModel => {
-        cypherQueries.create(queryModel).map { _ =>
-          Redirect(controllers.cypher.routes.CypherQueries.listQueries())
-            .flashing("success" -> "item.create.confirmation")
-        }
+      queryModel => cypherQueries.create(queryModel.copy(userId = Some(request.user.id))).map { _ =>
+        Redirect(controllers.cypher.routes.CypherQueries.listQueries())
+          .flashing("success" -> "item.create.confirmation")
       }
     )
   }
@@ -95,11 +93,9 @@ case class CypherQueries @Inject()(
         BadRequest(views.html.admin.cypherQueries.form(Some(query), errors,
         controllers.cypher.routes.CypherQueries.updateQueryPost(id)))
       },
-      queryModel => {
-        cypherQueries.update(id, queryModel).map { _ =>
-          Redirect(controllers.cypher.routes.CypherQueries.listQueries())
-            .flashing("success" -> "item.update.confirmation")
-        }
+      queryModel => cypherQueries.update(id, queryModel).map { _ =>
+        Redirect(controllers.cypher.routes.CypherQueries.listQueries())
+          .flashing("success" -> "item.update.confirmation")
       }
     )
   }

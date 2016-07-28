@@ -1,12 +1,12 @@
 package utils.db
 
-import anorm.{ToStatement, TypeDoesNotMatch, MayErr, Column}
+import anorm.{ToStatement, TypeDoesNotMatch, Column}
 
 trait StorableEnum {
   self: Enumeration =>
 
   implicit def rowToEnum: Column[Value] = {
-    Column.nonNull1[Value] { (value, meta) =>
+    Column.nonNull[Value] { (value, meta) =>
       try {
         Right(withName(value.toString))
       } catch {
@@ -20,6 +20,5 @@ trait StorableEnum {
     def set(s: java.sql.PreparedStatement, index: Int, value: Value): Unit =
       s.setObject(index, value.toString)
   }
-
 }
 

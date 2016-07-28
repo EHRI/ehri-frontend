@@ -1,8 +1,7 @@
 package models
 
-import org.joda.time.DateTime
 import play.api.libs.json.{Format, Json}
-import play.api.mvc.{Headers, RequestHeader}
+import play.api.mvc.RequestHeader
 import org.joda.time.format.ISODateTimeFormat
 
 case class FeedbackContext(
