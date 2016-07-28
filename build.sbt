@@ -19,8 +19,9 @@ val appName = "docview"
 val appVersion = "1.0.6-SNAPSHOT"
 
 val backendVersion = "0.13.4-SNAPSHOT"
+val dataConverterVersion = "1.1.8"
 val neo4jVersion = "2.3.4"
-val jerseyVersion = "1.19"
+val jerseyVersion = "1.19.1"
 
 val backendDependencies = Seq(
   ws,
@@ -97,7 +98,7 @@ val portalDependencies = Seq(
   "com.fasterxml.jackson.dataformat" % "jackson-dataformat-csv" % "2.6.4",
 
   // EHRI indexing tools
-  "ehri-project" % "index-data-converter" % "1.1.7" exclude("log4j", "log4j") exclude ("org.slf4j",
+  "ehri-project" % "index-data-converter" % dataConverterVersion exclude("log4j", "log4j") exclude ("org.slf4j",
     "slf4j-log4j12"),
 
   // S3 Upload plugin
