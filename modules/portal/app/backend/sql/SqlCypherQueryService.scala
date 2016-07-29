@@ -28,7 +28,7 @@ case class SqlCypherQueryService @Inject()(
     db.withConnection { implicit conn =>
       SQL"SELECT * FROM cypher_queries WHERE id = $id".as(queryParser.single)
     }
-  }(executionContext)
+  }
 
   override def update(id: String, query: CypherQuery): Future[String] =
     Future {
@@ -44,13 +44,13 @@ case class SqlCypherQueryService @Inject()(
       """.executeUpdate()
       id
     }
-  }(executionContext)
+  }
 
   override def delete(id: String): Future[Boolean] = Future {
     db.withConnection { implicit  conn =>
       SQL"DELETE FROM cypher_queries WHERE id = $id".executeUpdate() == 1
     }
-  }(executionContext)
+  }
 
   override def list(params: PageParams, extra: Map[String, String]): Future[Page[CypherQuery]] = Future {
     db.withTransaction { implicit conn =>
@@ -64,7 +64,7 @@ case class SqlCypherQueryService @Inject()(
       Page(items = items, total = total, offset = params.offset, limit = params.limit)
     }
 
-  }(executionContext)
+  }
 
   override def create(data: CypherQuery): Future[String] = Future {
     val query = data.copy(objectId = data.objectId.orElse(Some(utils.db.newObjectId(10))),
@@ -81,8 +81,8 @@ case class SqlCypherQueryService @Inject()(
           ${query.public},
           ${query.createdAt},
           ${query.updatedAt}
-      )""".executeInsert()
+      )""".execute()
       query.objectId.get
     }
-  }(executionContext)
+  }
 }
