@@ -8,6 +8,8 @@ import play.api.libs.json.Json
 
 trait OAuth2Provider {
 
+  protected val logger = play.api.Logger(getClass)
+
   implicit def config: play.api.Configuration
 
 

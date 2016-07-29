@@ -87,7 +87,7 @@ case class SqlFeedbackService @Inject ()(implicit db: Database, actorSystem: Act
     db.withConnection { implicit conn =>
       SQL"SELECT * FROM feedback WHERE id = $id".as(feedbackParser.single)
     }
-  }(executionContext)
+  }
 
   override def create(data: Feedback): Future[String] = Future {
     db.withConnection { implicit conn =>
@@ -108,16 +108,16 @@ case class SqlFeedbackService @Inject ()(implicit db: Database, actorSystem: Act
           ${feedback.createdAt},
           ${feedback.updatedAt},
           ${feedback.mode}
-      )""".executeInsert()
+      )""".execute()
       feedback.objectId.get
     }
-  }(executionContext)
+  }
 
   override def delete(id: String): Future[Boolean] = Future {
     db.withConnection { implicit  conn =>
       SQL"DELETE FROM feedback WHERE id = $id".executeUpdate() == 1
     }
-  }(executionContext)
+  }
 
   override def list(params: PageParams, extra: Map[String, String]): Future[Page[Feedback]] = Future {
     db.withTransaction { implicit conn =>
@@ -130,5 +130,5 @@ case class SqlFeedbackService @Inject ()(implicit db: Database, actorSystem: Act
       val total: Int = SQL"SELECT COUNT(id) FROM feedback".as(SqlParser.scalar[Int].single)
       Page(items = items, total = total, offset = params.offset, limit = params.limit)
     }
-  }(executionContext)
+  }
 }

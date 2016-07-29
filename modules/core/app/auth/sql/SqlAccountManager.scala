@@ -31,13 +31,14 @@ case class SqlAccountManager @Inject()(implicit db: Database, actorSystem: Actor
 
   override def openId: OpenIdAssociationManager = new SqlOpenIdAssociationManager()
 
+
   override def setLoggedIn(account: Account): Future[Account] = Future {
     db.withTransaction { implicit conn =>
       SQL"UPDATE users SET last_login = NOW() WHERE id = ${account.id}".executeUpdate()
       // This is a bit dodgy
       account.copy(lastLogin = Some(DateTime.now()))
     }
-  }(executionContext)
+  }
 
   private def passwordMatches(account: Account, pw: String): Boolean =
     account.password.exists(hpw => if (!account.isLegacy) hpw.check(pw) else  hpw.checkLegacy(pw))
@@ -50,7 +51,7 @@ case class SqlAccountManager @Inject()(implicit db: Database, actorSystem: Actor
         if (verifiedOnly) account.verified else true
       }
     }
-  }(executionContext)
+  }
 
   override def authenticateByEmail(email: String, pw: String, verifiedOnly: Boolean): Future[Option[Account]] = Future {
     db.withTransaction { implicit conn =>
@@ -60,7 +61,7 @@ case class SqlAccountManager @Inject()(implicit db: Database, actorSystem: Actor
         if (verifiedOnly) account.verified else true
       }
     }
-  }(executionContext)
+  }
 
 
   override def get(id: String): Future[Account] = Future {
@@ -69,7 +70,7 @@ case class SqlAccountManager @Inject()(implicit db: Database, actorSystem: Actor
         account
       }.getOrElse(throw new NoSuchElementException(id))
     }
-  }(executionContext)
+  }
 
   override def verify(account: Account, token: String): Future[Option[Account]] = Future {
     db.withTransaction { implicit conn =>
@@ -77,13 +78,13 @@ case class SqlAccountManager @Inject()(implicit db: Database, actorSystem: Actor
       SQL"DELETE FROM token WHERE token = $token".execute()
       Some(account.copy(verified = true))
     }
-  }(executionContext)
+  }
 
   override def findById(id: String): Future[Option[Account]] = Future {
     db.withConnection { implicit conn =>
       getById(id)
     }
-  }(executionContext)
+  }
 
   override def findAllById(ids: Seq[String]): Future[Seq[Account]] =
     if (ids.isEmpty) Future.successful(Seq.empty)
@@ -91,7 +92,7 @@ case class SqlAccountManager @Inject()(implicit db: Database, actorSystem: Actor
       db.withConnection { implicit conn =>
         SQL"SELECT * FROM users WHERE users.id IN ($ids)".as(userParser *)
       }
-    }(executionContext)
+    }
 
   override def findByToken(token: String, isSignUp: Boolean): Future[Option[Account]] = Future {
     db.withConnection { implicit conn =>
@@ -102,7 +103,7 @@ case class SqlAccountManager @Inject()(implicit db: Database, actorSystem: Actor
             AND t.expires > NOW()
       """.as(userParser.singleOpt)
     }
-  }(executionContext)
+  }
 
   override def create(account: Account): Future[Account] = Future {
     db.withConnection { implicit conn =>
@@ -116,10 +117,10 @@ case class SqlAccountManager @Inject()(implicit db: Database, actorSystem: Actor
           ${account.allowMessaging},
           ${account.password},
           ${account.isLegacy}
-      )""".executeInsert(SqlParser.scalar[String].singleOpt)
+      )""".execute()
       getById(account.id).get
     }
-  }(executionContext)
+  }
 
   override def update(account: Account): Future[Account] = Future {
     db.withConnection { implicit connection =>
@@ -136,21 +137,21 @@ case class SqlAccountManager @Inject()(implicit db: Database, actorSystem: Actor
         """.executeUpdate()
       getById(account.id).get
     }
-  }(executionContext)
+  }
 
   override def delete(id: String): Future[Boolean] = Future {
     db.withConnection { implicit connection =>
       val rows: Int = SQL"""DELETE FROM users WHERE id = $id""".executeUpdate()
       rows > 0
     }
-  }(executionContext)
+  }
 
   override def expireTokens(id: String): Future[Unit] = Future {
     db.withConnection { implicit conn =>
       SQL"""DELETE FROM token WHERE id = $id""".executeUpdate()
     }
     ()
-  }(executionContext)
+  }
 
   override def findAll(params: PageParams): Future[Seq[Account]] = Future {
     db.withConnection { implicit conn =>
@@ -158,20 +159,19 @@ case class SqlAccountManager @Inject()(implicit db: Database, actorSystem: Actor
       SQL"SELECT * FROM users ORDER BY id LIMIT $limit OFFSET ${params.offset}"
         .as(userParser *)
     }
-  }(executionContext)
+  }
 
   override def findByEmail(email: String): Future[Option[Account]] = Future {
     db.withConnection { implicit  conn =>
       getByEmail(email)
     }
-  }(executionContext)
+  }
 
   override def createToken(id: String, uuid: UUID, isSignUp: Boolean): Future[Unit] = Future {
     db.withConnection { implicit conn =>
       if (isSignUp) createSignupToken(id, uuid) else createResetToken(id, uuid)
     }
-    ()
-  }(executionContext)
+  }
 
 
   private def getByEmail(email: String)(implicit conn: Connection): Option[Account] =
@@ -183,16 +183,36 @@ case class SqlAccountManager @Inject()(implicit db: Database, actorSystem: Actor
   private def createSignupToken(id: String, uuid: UUID)(implicit conn: Connection): Unit =
     // NB: calculating expires here to avoid DB compatibility issues...
     SQL"""INSERT INTO token (id, token, expires, is_sign_up)
-           VALUES ($id, $uuid, ${DateTime.now().plusWeeks(1)}, TRUE)"""
-      .executeInsert(SqlParser.scalar[String].singleOpt)
+           VALUES ($id, $uuid, ${DateTime.now().plusWeeks(1)}, TRUE)""".execute()
 
   private def createResetToken(id: String, uuid: UUID)(implicit conn: Connection): Unit =
     SQL"""INSERT INTO token (id, token, expires, is_sign_up)
-           VALUES ($id, $uuid, ${DateTime.now().plusHours(1)}, FALSE)"""
-      .executeInsert(SqlParser.scalar[String].singleOpt)
+           VALUES ($id, $uuid, ${DateTime.now().plusHours(1)}, FALSE)""".execute()
 }
 
 object SqlAccountManager {
+  import anorm.{TypeDoesNotMatch, Column, ToStatement, ParameterMetaData}
+
+  implicit def pwToStatement: ToStatement[HashedPassword] = new ToStatement[HashedPassword] {
+    def set(s: java.sql.PreparedStatement, index: Int, aValue: HashedPassword): Unit =
+      s.setString(index, aValue.s)
+  }
+
+  implicit object HashedPasswordParameterMetaData extends ParameterMetaData[HashedPassword] {
+    val sqlType = ParameterMetaData.StringParameterMetaData.sqlType
+    val jdbcType = ParameterMetaData.StringParameterMetaData.jdbcType
+  }
+
+  implicit def rowToPw: Column[HashedPassword] = {
+    Column[HashedPassword] { (value, meta) =>
+      value match {
+        case v: String => Right(HashedPassword.fromHashed(v))
+        case _ => Left(TypeDoesNotMatch(
+          s"Cannot convert $value:${value.asInstanceOf[AnyRef].getClass} to hashed password for column ${meta.column}"))
+      }
+    }
+  }
+
   val userParser = {
     str("users.id") ~
       str("users.email") ~

@@ -34,7 +34,7 @@ case class SqlOpenIdAssociationManager()(implicit db: Database, executionContext
     db.withConnection { implicit connection =>
       getByUrl(url)
     }
-  }(executionContext)
+  }
 
   def addAssociation(id: String, url: String): Future[Option[OpenIDAssociation]] = Future {
     db.withConnection { implicit connection =>
@@ -42,7 +42,7 @@ case class SqlOpenIdAssociationManager()(implicit db: Database, executionContext
         .executeInsert(SqlParser.scalar[String].singleOpt)
       getByUrl(url)
     }
-  }(executionContext)
+  }
 
   def findAll: Future[Seq[OpenIDAssociation]] = Future {
     db.withConnection { implicit conn =>
@@ -55,7 +55,7 @@ case class SqlOpenIdAssociationManager()(implicit db: Database, executionContext
         JOIN users ON openid_association.id =  users.id
       """.as(openIdWithUser *)
     }
-  }(executionContext)
+  }
 
   private def getByUrl(url: String)(implicit conn: Connection) =
     SQL"""

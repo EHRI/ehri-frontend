@@ -28,7 +28,7 @@ object SqlOAuth2AssociationManager {
 }
 
 case class SqlOAuth2AssociationManager()(implicit db: Database, executionContext: ExecutionContext)
-  extends OAuth2AssociationManager{
+  extends OAuth2AssociationManager {
 
   import SqlOAuth2AssociationManager._
 
@@ -36,13 +36,13 @@ case class SqlOAuth2AssociationManager()(implicit db: Database, executionContext
     db.withConnection { implicit connection =>
       getByInfo(providerUserId, provider)
     }
-  }(executionContext)
+  }
 
   def findForAccount(id: String): Future[Seq[OAuth2Association]] = Future {
     db.withConnection { implicit conn =>
       getForAccount(id)
     }
-  }(executionContext)
+  }
 
   def findAll: Future[Seq[OAuth2Association]] = Future {
     db.withConnection { implicit connection =>
@@ -56,7 +56,7 @@ case class SqlOAuth2AssociationManager()(implicit db: Database, executionContext
         JOIN users ON oauth2_association.id =  users.id
       """.as(oAuthWithUser *)
     }
-  }(executionContext)
+  }
 
   def addAssociation(id: String, providerId: String, provider: String): Future[Option[OAuth2Association]] = Future {
     db.withConnection { implicit connection =>
@@ -65,8 +65,7 @@ case class SqlOAuth2AssociationManager()(implicit db: Database, executionContext
         """.executeInsert(SqlParser.scalar[String].singleOpt)
       getByInfo(providerId, provider)
     }
-  }(executionContext)
-
+  }
 
   private def getForAccount(id: String)(implicit conn: Connection): Seq[OAuth2Association] = {
     SQL"""
