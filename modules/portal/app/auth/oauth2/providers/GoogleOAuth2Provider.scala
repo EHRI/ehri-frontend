@@ -5,12 +5,12 @@ import com.fasterxml.jackson.core.JsonParseException
 import play.api.libs.json._
 
 case class GoogleOAuth2Provider(config: play.api.Configuration) extends OAuth2Provider {
-
   val name = "google"
 
   override def parseUserInfo(data: String): Option[UserData] = {
     try {
       val json: JsValue = Json.parse(data)
+      logger.debug(s"Google user info $json")
       for {
         guid <- (json \ "id").asOpt[String]
         email <- (json \ "email").asOpt[String]

@@ -44,6 +44,7 @@ case class YahooOAuth2Provider (config: play.api.Configuration) extends OAuth2Pr
   override def parseUserInfo(data: String): Option[UserData] = {
     try {
       val json = Json.parse(data)
+      logger.debug(s"Yahoo user data: $json")
       for {
         guid <- (json \ "profile" \ "guid").asOpt[String]
         givenName <- (json \ "profile" \ "givenName").asOpt[String]
