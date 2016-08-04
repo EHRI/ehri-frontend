@@ -47,9 +47,10 @@ trait FakeMultipartUpload {
   }
 
   /** shortcut for generating a MultipartFormData with one file part which more fields can be added to */
-  def fileUpload(key: String, file: File, contentType: String): MultipartFormData[TemporaryFile] = {
+  def fileUpload(key: String, file: File, contentType: String, data: Map[String, Seq[String]] = Map.empty):
+  MultipartFormData[TemporaryFile] = {
     MultipartFormData(
-      dataParts = Map(),
+      dataParts = data,
       files = Seq(FilePart[TemporaryFile](key, file.getName, Some(contentType), TemporaryFile(file))),
       badParts = Seq()
     )
@@ -57,8 +58,9 @@ trait FakeMultipartUpload {
 
   /** shortcut for a request body containing a single file attachment */
   case class WrappedFakeRequest[A](fr: FakeRequest[A]) {
-    def withFileUpload(key: String, file: File, contentType: String) = {
-      fr.withMultipartFormDataBody(fileUpload(key, file, contentType)).withHeaders(
+    def withFileUpload(key: String, file: File, contentType: String, data: Map[String, Seq[String]] = Map.empty) = {
+      val mfd = fileUpload(key, file, contentType, data)
+      fr.withMultipartFormDataBody(mfd).withHeaders(
         HeaderNames.CONTENT_TYPE -> s"multipart/form-data; boundary=$boundary"
       )
     }

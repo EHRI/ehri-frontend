@@ -3,18 +3,17 @@ package utils
 import javax.inject.Inject
 
 import akka.actor.ActorSystem
-import anorm.{NamedParameter, BatchSql}
+import anorm._
 import org.apache.commons.codec.digest.DigestUtils
 import play.api.db.Database
 import scala.concurrent.{ExecutionContext, Future}
 
-case class DbMovedPageLookup @Inject ()(implicit db: Database, actorSystem: ActorSystem) extends MovedPageLookup {
+case class SqlMovedPageLookup @Inject ()(implicit db: Database, actorSystem: ActorSystem) extends MovedPageLookup {
 
   implicit def executionContext: ExecutionContext =
     actorSystem.dispatchers.lookup("contexts.simple-db-lookups")
 
   override def hasMovedTo(path: String): Future[Option[String]] = Future {
-    import anorm.SqlStringInterpolation
     import anorm.SqlParser.scalar
     val pathHash = DigestUtils.sha1Hex(path)
     db.withConnection { implicit conn =>
@@ -22,7 +21,7 @@ case class DbMovedPageLookup @Inject ()(implicit db: Database, actorSystem: Acto
         .as(scalar[String].singleOpt)
       newPath
     }
-  }(executionContext)
+  }
 
   override def addMoved(moved: Seq[(String, String)]): Future[Int] = Future {
     // NB: Due to a very annoying character limit imposed by the ancient
@@ -48,5 +47,5 @@ case class DbMovedPageLookup @Inject ()(implicit db: Database, actorSystem: Acto
       val rows: Array[Int] = batch.execute()
       rows.count(_ > 0)
     }
-  }(executionContext)
+  }
 }

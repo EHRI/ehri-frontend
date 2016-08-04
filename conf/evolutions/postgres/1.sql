@@ -1,4 +1,4 @@
- --- !Ups
+ #--- !Ups
 
 CREATE TABLE users (
     id          VARCHAR(50) NOT NULL PRIMARY KEY,
