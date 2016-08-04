@@ -17,7 +17,7 @@ import global.{AppGlobalConfig, GlobalConfig, GlobalEventHandler}
 import indexing.SearchToolsIndexMediator
 import models.{GuideService, SqlGuideService}
 import utils.search.{SearchEngine, SearchIndexMediator, SearchItemResolver}
-import utils.{DbMovedPageLookup, MovedPageLookup}
+import utils.{SqlMovedPageLookup, MovedPageLookup}
 import views.{MarkdownRenderer, PegDownMarkdownRendererProvider}
 
 private class SolrIndexProvider @Inject()(config: play.api.Configuration) extends Provider[Index] {
@@ -40,7 +40,7 @@ class AppModule extends AbstractModule {
     bind(classOf[HelpdeskService]).to(classOf[EhriHelpdesk])
     bind(classOf[IdGenerator]).to(classOf[CypherIdGenerator])
     bind(classOf[OAuth2Flow]).to(classOf[WebOAuth2Flow])
-    bind(classOf[MovedPageLookup]).to(classOf[DbMovedPageLookup])
+    bind(classOf[MovedPageLookup]).to(classOf[SqlMovedPageLookup])
     bind(classOf[FileStorage]).to(classOf[S3FileStorage])
     bind(classOf[HtmlPages]).to(classOf[GoogleDocsHtmlPages])
     bind(classOf[GuideService]).to(classOf[SqlGuideService])

@@ -1,6 +1,7 @@
 package controllers.admin
 
 import java.io.File
+import java.nio.charset.StandardCharsets
 
 import auth.AccountManager
 import controllers.base.AdminController
@@ -12,14 +13,16 @@ import play.api.data.Form
 import play.api.data.Forms._
 import play.api.i18n.MessagesApi
 import play.api.libs.concurrent.Execution.Implicits._
-
 import javax.inject._
+
 import play.api.libs.json._
 import play.api.mvc.Action
 import backend.DataApi
 import play.api.libs.ws.WSClient
 import utils.{CsvHelpers, MovedPageLookup, PageParams}
 import backend.rest.cypher.Cypher
+import com.fasterxml.jackson.databind.MappingIterator
+import com.fasterxml.jackson.dataformat.csv.CsvParser
 import views.MarkdownRenderer
 
 import scala.concurrent.Future.{successful => immediate}
@@ -40,6 +43,8 @@ case class Utils @Inject()(
   cypher: Cypher,
   ws: WSClient
 ) extends AdminController {
+
+  private val logger = play.api.Logger(getClass)
 
   override val staffOnly = false
 
@@ -71,21 +76,25 @@ case class Utils @Inject()(
   }
 
   def addMovedItemsPost() = AdminAction.async(parse.multipartFormData) { implicit request =>
+    def enc(s: String) = java.net.URLEncoder.encode(s, StandardCharsets.UTF_8.name())
+    def dec(s: String) = java.net.URLDecoder.decode(s, StandardCharsets.UTF_8.name())
+
     val boundForm: Form[String] = movedItemsForm.bindFromRequest
     boundForm.fold(
-      errForm => immediate(Ok(views.html.admin.movedItemsForm(errForm,
+      errForm => immediate(BadRequest(views.html.admin.movedItemsForm(errForm,
           controllers.admin.routes.Utils.addMovedItemsPost()))),
       prefix =>
-        request.body.file("csv").map { file =>
+        request.body.file("tsv").map { file =>
           val data = parseCsv(file.ref.file).map { case (from, to) =>
-            s"$prefix$from" -> s"$prefix$to"
+            s"$prefix${enc(from)}" -> s"$prefix${enc(to)}"
           }
           pageRelocator.addMoved(data).map { inserted =>
-            Ok(views.html.admin.movedItemsAdded(data))
+            Ok(views.html.admin.movedItemsAdded(data.map(p => dec(p._1) -> dec(p._2))))
           }
         }.getOrElse {
+          logger.error("Missing TSV for redirect upload...")
           immediate(Ok(views.html.admin.movedItemsForm(
-            boundForm.withError("csv", "No CSV file found"),
+            boundForm.withError("tsv", "No TSV file found"),
             controllers.admin.routes.Utils.addMovedItemsPost())))
         }
     )
@@ -97,12 +106,20 @@ case class Utils @Inject()(
     import com.fasterxml.jackson.dataformat.csv.CsvSchema
 
     val schema = CsvSchema.builder().setColumnSeparator('\t').build()
-    val all: java.util.List[Array[String]] = CsvHelpers.mapper
-      .reader(schema).readValue(new FileInputStream(file))
-    (for {
-      arr <- all.asScala
-    } yield arr.toList).toSeq.collect {
-      case from :: to :: _ => from -> to
+    val all: MappingIterator[Array[String]] = CsvHelpers
+      .mapper
+      .enable(CsvParser.Feature.WRAP_AS_ARRAY)
+      .readerFor(classOf[Array[String]])
+      .`with`(schema)
+      .readValues(new FileInputStream(file))
+    try {
+      (for {
+        arr <- all.readAll().asScala
+      } yield arr.toList).collect {
+        case from :: to :: _ => from -> to
+      }
+    } finally {
+      all.close()
     }
   }
 
