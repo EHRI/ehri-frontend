@@ -1,7 +1,7 @@
 @(descriptionField: Field, cls: String = "description-form")(data: Html)(implicit fieldPrefix: String, defaults: Option[play.api.Configuration] = None, userOpt: Option[UserProfile], req: RequestHeader, globalConfig: global.GlobalConfig, messages: Messages, md: views.MarkdownRenderer)
 
-@import Description._
-@import views.html.formHelpers._
+@import models.base.Description.CreationProcess
+@import models.base.Description.{MAINTENANCE_EVENTS, UNKNOWN_DATA, ACCESS_POINTS, CREATION_PROCESS}
 
 <div class="@cls" id="@descriptionField("form").id">
     @*
@@ -16,14 +16,15 @@
         }
     }
 
-    @hiddenInput(descriptionField(Entity.ID))
-    @hiddenInput(descriptionField(CREATION_PROCESS))
+    @views.html.formHelpers.hiddenInput(descriptionField(backend.Entity.ID))
+    @views.html.formHelpers.hiddenInput(descriptionField(CREATION_PROCESS))
 
     @data
 
     @* NB: Access points are hidden in this form because they are managed *@
-    @* separately from the accessPoints page. *@
-    @hiddenAccessPointSet(descriptionField, ACCESS_POINTS)
-    @hiddenUnknownDataSet(descriptionField, UNKNOWN_DATA)
-    @hiddenUnknownDataSet(descriptionField, MAINTENANCE_EVENTS)
+    @* separately from the accessPoints page. Maintenance events are not *@
+    @* currently editable. *@
+    @views.html.formHelpers.hiddenAccessPointSet(descriptionField, ACCESS_POINTS)
+    @views.html.formHelpers.hiddenMaintenanceEventSet(descriptionField, MAINTENANCE_EVENTS)
+    @views.html.formHelpers.hiddenUnknownDataSet(descriptionField, UNKNOWN_DATA)
 </div>

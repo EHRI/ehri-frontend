@@ -212,6 +212,8 @@ trait Description extends Model {
 
   def accessPoints: Seq[AccessPointF]
 
+  def maintenanceEvents: Seq[MaintenanceEventF]
+
   def creationProcess: Description.CreationProcess.Value
 
   def unknownProperties: Seq[Entity]
@@ -339,6 +341,9 @@ trait Described[+T <: Description] extends Model {
 
   def accessPoints: Seq[AccessPointF] =
     descriptions.flatMap(_.accessPoints)
+
+  def maintenanceEvents: Seq[MaintenanceEventF] =
+    descriptions.flatMap(_.maintenanceEvents).distinct.sortBy(_.date)
 }
 
 trait Temporal {

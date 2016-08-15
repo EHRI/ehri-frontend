@@ -61,6 +61,17 @@
           "type" : "DatePeriod",
           "relationships" : {
           }
+        } ],
+        "maintenance" : [ {
+          "id" : "298498120984971297984",
+          "data" : {
+            "date" : "2016-06-01T11:11:11.646",
+            "source": "Test",
+            "agentType": "human",
+            "eventType": "created",
+            "order": 1
+          },
+          "type" : "MaintenanceEvent"
         } ]
       }
     } ],

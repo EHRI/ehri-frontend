@@ -16,8 +16,8 @@ import play.api.i18n.Messages
 object AccessPointF {
 
   val TYPE = "type"
+  val NAME = "name"
   val DESCRIPTION = "description"
-  val TARGET = "name" // Change to something better!
 
   object AccessPointType extends Enumeration {
     type Type = Value
@@ -40,7 +40,7 @@ object AccessPointF {
     (__ \ ETYPE).formatIfEquals(EntityType.AccessPoint) and
     (__ \ ID).formatNullable[String] and
     (__ \ DATA \ TYPE).formatWithDefault(AccessPointType.Other) and
-    (__ \ DATA \ TARGET).format[String] and
+    (__ \ DATA \ NAME).format[String] and
     (__ \ DATA \ DESCRIPTION).formatNullable[String]
   )(AccessPointF.apply, unlift(AccessPointF.unapply))
 
@@ -102,7 +102,7 @@ object AccessPoint {
     ISA -> ignored(EntityType.AccessPoint),
     ID -> optional(nonEmptyText),
     ETYPE -> enumMapping(AccessPointType),
-    TARGET -> nonEmptyText, // TODO: Validate this server side
+    NAME -> nonEmptyText, // TODO: Validate this server side
     DESCRIPTION -> optional(nonEmptyText)
   )(AccessPointF.apply)(AccessPointF.unapply))
 }
@@ -113,5 +113,5 @@ case class AccessPoint(
   meta: JsObject = JsObject(Seq())
 ) extends AnyModel with MetaModel[AccessPointF] {
 
-  override def toStringLang(implicit messages: Messages) = "Access Point: (" + id + ")"
+  override def toStringLang(implicit messages: Messages) = s"Access Point: ($id)"
 }

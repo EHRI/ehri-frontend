@@ -96,7 +96,7 @@ object RepositoryDescriptionF {
     )(IsdiahControl.apply, unlift(IsdiahControl.unapply))) and
     (__ \ DATA \ CREATION_PROCESS).formatWithDefault(CreationProcess.Manual) and
     (__ \ RELATIONSHIPS \ HAS_ACCESS_POINT).formatSeqOrEmpty[AccessPointF] and
-    (__ \ RELATIONSHIPS \ HAS_MAINTENANCE_EVENT).formatSeqOrEmpty[Entity] and
+    (__ \ RELATIONSHIPS \ HAS_MAINTENANCE_EVENT).formatSeqOrEmpty[MaintenanceEventF] and
     (__ \ RELATIONSHIPS \ HAS_UNKNOWN_PROPERTY).formatSeqOrEmpty[Entity]
   )(RepositoryDescriptionF.apply, unlift(RepositoryDescriptionF.unapply))
 
@@ -120,7 +120,7 @@ case class RepositoryDescriptionF(
   control: IsdiahControl,
   creationProcess: CreationProcess.Value = CreationProcess.Manual,
   accessPoints: Seq[AccessPointF] = Nil,
-  maintenanceEvents: Seq[Entity] = Nil,
+  maintenanceEvents: Seq[MaintenanceEventF] = Nil,
   unknownProperties: Seq[Entity] = Nil
 ) extends Model with Persistable with Description {
 
@@ -201,7 +201,7 @@ object RepositoryDescription {
       )(IsdiahControl.apply)(IsdiahControl.unapply),
       CREATION_PROCESS -> default(enumMapping(CreationProcess), CreationProcess.Manual),
       ACCESS_POINTS -> seq(AccessPoint.form.mapping),
-      MAINTENANCE_EVENTS -> seq(entity),
+      MAINTENANCE_EVENTS -> seq(MaintenanceEventF.form.mapping),
       UNKNOWN_DATA -> seq(entity)
     )(RepositoryDescriptionF.apply)(RepositoryDescriptionF.unapply)
   )

@@ -3,7 +3,7 @@ package integration.admin
 import backend.ApiUser
 import defines._
 import helpers._
-import models.{Group, UserProfile, UserProfileF}
+import models.{Group, HistoricalAgent, UserProfile, UserProfileF}
 import play.api.http.HeaderNames
 import play.api.test.FakeRequest
 
@@ -109,6 +109,33 @@ class EntityViewsSpec extends IntegrationTestRunner {
       val show = FakeRequest(GET, redirectLocation(cr).get).withUser(privilegedUser).call()
       status(show) must equalTo(OK)
       contentAsString(show) must contain("New Content for a1")
+    }
+
+    "maintain hidden data through the form" in new ITestApp {
+      val testData: Map[String, Seq[String]] = Map(
+        "identifier" -> Seq("a1"),
+        "descriptions[0].typeOfEntity" -> Seq("corporateBody"),
+        "descriptions[0].languageCode" -> Seq("eng"),
+        "descriptions[0].name" -> Seq("An Authority"),
+        "descriptions[0].maintenanceEvents[0].source" -> Seq("Test Event"),
+        "descriptions[0].maintenanceEvents[0].eventType" -> Seq("CREATED"),
+        "descriptions[0].maintenanceEvents[0].order" -> Seq("0")
+      )
+      val cr = FakeRequest(histAgentRoutes.updatePost("a1"))
+        .withUser(privilegedUser).withCsrf.callWith(testData)
+      status(cr) must equalTo(SEE_OTHER)
+
+      val a1 = await(dataApi.get[HistoricalAgent]("a1"))
+      a1.descriptions.flatMap(_.maintenanceEvents).headOption must beSome.which { me =>
+        me.source must_== Some("Test Event")
+        me.eventType must_== Some("CREATED")
+        me.order must_== Some(0)
+      }
+
+      val form = FakeRequest(histAgentRoutes.update("a1")).withUser(privilegedUser).call()
+      status(form) must equalTo(OK)
+      contentAsString(form) must contain("descriptions[0].maintenanceEvents[0].source")
+      contentAsString(form) must contain("Test Event")
     }
 
     "disallow updating items when logged in as unprivileged user" in new ITestApp {

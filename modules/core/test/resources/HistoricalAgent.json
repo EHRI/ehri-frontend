@@ -11,7 +11,6 @@
       "id" : "cdb5d0aa-2100-49f9-8481-2b7b278825fa",
       "data" : {
         "otherFormsOfName" : [ "Another name for Test Authority 2" ],
-        "history" : "Testing",
         "languages" : [ "en" ],
         "scripts" : [ "Latn" ],
         "languageCode" : "en",
@@ -31,6 +30,17 @@
             "name": "Something",
             "description": "Something else"
           }
+        } ],
+        "maintenance" : [ {
+          "id" : "298498120984971297984",
+          "data" : {
+            "date" : "2016-06-01T11:11:11.646",
+            "source": "Test",
+            "agentType": "human",
+            "eventType": "created",
+            "order": 1
+          },
+          "type" : "MaintenanceEvent"
         } ]
       }
     } ],
