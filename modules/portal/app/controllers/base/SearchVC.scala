@@ -40,10 +40,10 @@ trait SearchVC {
 
     cypher.get[Seq[String]](
       """
-        |MATCH (vc:VirtualUnit) WHERE vc.__id = {vcid}
-        |OPTIONAL MATCH vc<-[:isPartOf*]-child
-        |OPTIONAL MATCH ddoc<-[:includesUnit]-vc
-        |OPTIONAL MATCH doc<-[:includesUnit]-child
+        |MATCH (vc:VirtualUnit {__id: {vcid}})
+        |OPTIONAL MATCH (vc)<-[:isPartOf*]-(child)
+        |OPTIONAL MATCH (ddoc)<-[:includesUnit]-(vc)
+        |OPTIONAL MATCH (doc)<-[:includesUnit]-(child)
         |RETURN DISTINCT collect(DISTINCT child.__id) + collect(DISTINCT doc.__id) + collect(DISTINCT ddoc.__id)
       """.stripMargin, Map("vcid" -> play.api.libs.json.JsString(id)))(reader).map { seq =>
       logger.debug(s"Elements: ${seq.length}, distinct: ${seq.distinct.length}")

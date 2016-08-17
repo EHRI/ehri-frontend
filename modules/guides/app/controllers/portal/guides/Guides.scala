@@ -112,10 +112,9 @@ case class Guides @Inject()(
     if (target.nonEmpty) {
       val query = s"""
           MATCH
-              (vc:VirtualUnit)<-[:inContextOf]-(link:Link),
-              (entity:_Entity)<-[:hasLinkTarget]-link-[:hasLinkTarget]->doc
-           WHERE vc.__id = {inContext}
-             AND entity.__id IN {accessPoints}
+              (vc:VirtualUnit {__id: {inContext}})<-[:inContextOf]-(link:Link),
+              (entity:_Entity)<-[:hasLinkTarget]-(link)-[:hasLinkTarget]->(doc)
+           WHERE entity.__id IN {accessPoints}
              AND doc <> entity
            RETURN entity.__id AS id, COUNT(doc)
           """.stripMargin
@@ -378,7 +377,7 @@ case class Guides @Inject()(
         START doc = node({docList})
         MATCH 
              (link:Link)-[:inContextOf]->(vc:VirtualUnit),
-            doc<-[:hasLinkTarget]-(link)-[:hasLinkTarget]->(ap:AccessPoint)
+            (doc)<-[:hasLinkTarget]-(link)-[:hasLinkTarget]->(ap:AccessPoint)
           WHERE vc.__id = {guide} AND doc <> ap
          RETURN DISTINCT ID(ap)
         """.stripMargin
@@ -491,11 +490,10 @@ case class Guides @Inject()(
       case Some(str) =>
         val query = s"""
           |MATCH
-          |     (link:Link)-[:inContextOf]->(vc:VirtualUnit),
-          |    (doc)<-[:hasLinkTarget]-(link)-[:hasLinkTarget]->(entity:_Entity)
-          |WHERE entity.__id = {accessPoint}
-          |  AND vc.__id = {inContext}
-          |  AND doc <> entity AND doc.__type = {type}
+          |     (link:Link)-[:inContextOf]->(vc:VirtualUnit {__id: {inContext}}),
+          |    (doc {__type: {type}})<-[:hasLinkTarget]-(link)
+          |       -[:hasLinkTarget]->(entity:_Entity {__id: {accessPoint}})
+          |WHERE doc <> entity
           |RETURN ID(doc) LIMIT 5
         """.stripMargin
         val params = Map(
@@ -509,10 +507,9 @@ case class Guides @Inject()(
       case _ =>
         val query: String = s"""
           |MATCH
-          |     (doc)<-[:hasLinkTarget]-(link:Link)-[:hasLinkTarget]->(entity:_Entity)
-          | WHERE entity.__id = {accessPoint}
-          | AND doc <> entity
-          | AND doc.__type = {type}
+          |     (doc {__type: {type}})<-[:hasLinkTarget]
+          |       -(link:Link)-[:hasLinkTarget]->(entity:_Entity {__id:{accessPoint}})
+          | WHERE doc <> entity
           | RETURN ID(doc) LIMIT 5
         """.stripMargin
         val params = Map(
