@@ -43,7 +43,7 @@ class RestApiSpec extends RestApiRunner with PlaySpecification {
   implicit def execContext(implicit app: play.api.Application): ExecutionContext = app.injector.instanceOf[ExecutionContext]
 
   val indexEventBuffer = collection.mutable.ListBuffer.empty[String]
-  def mockIndexer: SearchIndexMediator = new MockSearchIndexMediator(indexEventBuffer)
+  def mockIndexer: SearchIndexMediator = MockSearchIndexMediator(indexEventBuffer)
 
   def testBackend(implicit app: play.api.Application, apiUser: ApiUser): DataApiHandle =
     app.injector.instanceOf[DataApi].withContext(apiUser)
@@ -115,7 +115,7 @@ class RestApiSpec extends RestApiRunner with PlaySpecification {
     "create an item in (agent) context" in new WithApplicationLoader(appLoader) {
       val doc = DocumentaryUnitF(id = None, identifier = "foobar")
       val r = await(testBackend
-          .createInContext[Repository,DocumentaryUnitF,DocumentaryUnit]("r1", ContentTypes.DocumentaryUnit, doc))
+          .createInContext[Repository,DocumentaryUnitF,DocumentaryUnit]("r1", doc))
       r.holder must beSome
       r.holder.get.id must equalTo("r1")
       // This triggers an update event for the parent and a create
@@ -128,7 +128,7 @@ class RestApiSpec extends RestApiRunner with PlaySpecification {
     "create an item in (doc) context" in new WithApplicationLoader(appLoader) {
       val doc = DocumentaryUnitF(id = None, identifier = "foobar")
       val r = await(testBackend
-          .createInContext[DocumentaryUnit,DocumentaryUnitF,DocumentaryUnit]("c1", ContentTypes.DocumentaryUnit, doc))
+          .createInContext[DocumentaryUnit,DocumentaryUnitF,DocumentaryUnit]("c1", doc))
       r.parent must beSome
       r.parent.get.id must equalTo("c1")
     }
@@ -136,7 +136,7 @@ class RestApiSpec extends RestApiRunner with PlaySpecification {
     "create an item with additional params" in new WithApplicationLoader(appLoader) {
       val doc = VirtualUnitF(id = None, identifier = "foobar")
       val r = await(testBackend
-        .createInContext[VirtualUnit,VirtualUnitF,VirtualUnit]("vc1", ContentTypes.VirtualUnit,
+        .createInContext[VirtualUnit,VirtualUnitF,VirtualUnit]("vc1",
             doc, params = Map("id" -> Seq("c1"))))
       r.includedUnits.headOption must beSome.which { desc =>
         desc.id must equalTo("c1")
@@ -201,7 +201,6 @@ class RestApiSpec extends RestApiRunner with PlaySpecification {
       try {
         // deliberate use the wrong readable here to generate a
         // deserialization error...
-        import backend.Readable
         import play.api.libs.json._
         import play.api.libs.functional.syntax._
         import models.base.Accessor
@@ -253,7 +252,13 @@ class RestApiSpec extends RestApiRunner with PlaySpecification {
       r mustEqual 1L
     }
 
-    "emit appropriate signals" in new WithApplicationLoader(appLoader) {
+    "retrieve a user's info" in new WithApplicationLoader(appLoader) {
+      val links = await(testBackend.userLinks[Link]("mike"))
+      links.size must_== 3
+      val notes = await(testBackend.userAnnotations[Annotation]("mike"))
+      notes.size must_== 1
+      val vus = await(testBackend.userBookmarks[VirtualUnit]("linda"))
+      vus.size must_== 1
     }
   }
 
