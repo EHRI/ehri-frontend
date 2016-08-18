@@ -19,7 +19,7 @@ import scala.concurrent.Future.{successful => immediate}
 
 case class RestApi @Inject ()(eventHandler: EventHandler, cache: CacheApi, config: play.api.Configuration, ws: WSClient) extends DataApi {
   override def withContext(apiUser: ApiUser)(implicit executionContext: ExecutionContext) =
-    new RestApiHandle(eventHandler)(
+    RestApiHandle(eventHandler)(
       cache: CacheApi, config, apiUser, executionContext, ws)
 }
 
@@ -83,9 +83,8 @@ case class RestApiHandle(eventHandler: EventHandler)(
     }
   }
 
-  override def createInContext[MT: Resource, T: Writable, TT <: WithId : Readable](id: String, contentType: ContentTypes.Value, item: T, accessors: Seq[String] = Nil, params: Map[String, Seq[String]] = Map.empty,
-                                                                                   logMsg: Option[String] = None): Future[TT] = {
-    val url = enc(typeBaseUrl, Resource[MT].entityType, id, contentType)
+  override def createInContext[MT: Resource, T: Writable, TT <: WithId : Readable](id: String, item: T, accessors: Seq[String] = Nil, params: Map[String, Seq[String]] = Map.empty, logMsg: Option[String] = None): Future[TT] = {
+    val url = enc(typeBaseUrl, Resource[MT].entityType, id)
     userCall(url)
       .withQueryString(accessors.map(a => ACCESSOR_PARAM -> a): _*)
       .withQueryString(unpack(params):_*)
@@ -587,21 +586,21 @@ case class RestApiHandle(eventHandler: EventHandler)(
   }
 
   override def userAnnotations[A: Readable](userId: String, params: PageParams = PageParams.empty): Future[Page[A]] = {
-    val url: String = enc(userRequestUrl, userId, EntityType.Annotation)
+    val url: String = enc(userRequestUrl, userId, "annotations")
     userCall(url).withQueryString(params.queryParams: _*).get().map { r =>
       parsePage(r, context = Some(url))(Readable[A].restReads)
     }
   }
 
   override def userLinks[A: Readable](userId: String, params: PageParams = PageParams.empty): Future[Page[A]] = {
-    val url: String = enc(userRequestUrl, userId, EntityType.Link)
+    val url: String = enc(userRequestUrl, userId, "links")
     userCall(url).withQueryString(params.queryParams: _*).get().map { r =>
       parsePage(r, context = Some(url))(Readable[A].restReads)
     }
   }
 
   override def userBookmarks[A: Readable](userId: String, params: PageParams = PageParams.empty): Future[Page[A]] = {
-    val url: String = enc(userRequestUrl, userId, EntityType.VirtualUnit)
+    val url: String = enc(userRequestUrl, userId, "virtual-units")
     userCall(url).get().map { r =>
       parsePage(r, context = Some(url))(Readable[A].restReads)
     }

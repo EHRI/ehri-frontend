@@ -18,9 +18,9 @@ val projectScalaVersion = "2.11.8"
 val appName = "docview"
 val appVersion = "1.0.6-SNAPSHOT"
 
-val backendVersion = "0.13.4-SNAPSHOT"
+val backendVersion = "0.13.5-SNAPSHOT"
 val dataConverterVersion = "1.1.8"
-val neo4jVersion = "2.3.4"
+val neo4jVersion = "3.0.4"
 val jerseyVersion = "1.19.1"
 
 val backendDependencies = Seq(

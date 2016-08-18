@@ -132,7 +132,6 @@ trait DataApiHandle {
    * Create a new item in the context of a parent item.
    *
    * @param id the parent's id
-   * @param contentType the child content type
    * @param item the new item's data
    * @param accessors the users/groups that can initially
    *                  access this item (none implies all)
@@ -142,7 +141,7 @@ trait DataApiHandle {
    * @tparam T the generic type of the child item's data
    * @tparam CMT the generic type of the child item
    */
-  def createInContext[MT: Resource, T: Writable, CMT <: WithId : Readable](id: String, contentType: ContentTypes.Value, item: T, accessors: Seq[String] = Nil, params: Map[String, Seq[String]] = Map(), logMsg: Option[String] = None): Future[CMT]
+  def createInContext[MT: Resource, T: Writable, CMT <: WithId : Readable](id: String, item: T, accessors: Seq[String] = Nil, params: Map[String, Seq[String]] = Map(), logMsg: Option[String] = None): Future[CMT]
 
   /**
    * Update an item.
