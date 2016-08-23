@@ -93,8 +93,8 @@ case class QueryFacetClass(
 
 
 object FacetClass {
-  implicit def facetClassWrites: Writes[FacetClass[Facet]] = new Writes[FacetClass[Facet]] {
-    def writes(fc: FacetClass[Facet]) = Json.obj(
+  implicit def facetClassWrites: Writes[FacetClass[Facet]] = Writes[FacetClass[Facet]] { fc =>
+    Json.obj(
       "count" -> JsNumber(fc.count),
       "param" -> Json.toJson(fc.param),
       "name" -> Json.toJson(fc.name),

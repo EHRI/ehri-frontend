@@ -11,11 +11,8 @@ object Accessor {
   final val BELONGS_REL = "belongsTo"
 
   implicit object Converter extends backend.Readable[Accessor] {
-    implicit val restReads: Reads[Accessor] = new Reads[Accessor] {
-      def reads(json: JsValue): JsResult[Accessor] = {
-        json.validate[Accessor](AnyModel.Converter.restReads.asInstanceOf[Reads[Accessor]])
-      }
-    }
+    implicit val restReads: Reads[Accessor] = Reads[Accessor](
+      _.validate[Accessor](AnyModel.Converter.restReads.asInstanceOf[Reads[Accessor]]))
   }
 
   /**

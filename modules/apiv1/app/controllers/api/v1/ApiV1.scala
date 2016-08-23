@@ -120,96 +120,93 @@ case class ApiV1 @Inject()(
 
   private def JsonApiAction = RateLimit andThen JsonApiCheckAcceptFilter andThen LoggingAuthAction
 
-  implicit def anyModelWrites(implicit request: RequestHeader): Writes[AnyModel] = new Writes[AnyModel] {
-
-    override def writes(any: AnyModel): JsValue = any match {
-      case doc: DocumentaryUnit => Json.toJson(
-        JsonApiResponseData(
-          id = doc.id,
-          `type` = doc.isA.toString,
-          attributes = Json.toJson(DocumentaryUnitAttrs(doc)),
-          relationships = Some(
-            Json.toJson(
-              DocumentaryUnitRelations(
-                holder = doc.holder.map { r =>
-                  Json.obj("data" -> ResourceIdentifier(r))
-                },
-                parent = doc.parent.map { r =>
-                  Json.obj("data" -> ResourceIdentifier(r))
-                }
-              )
+  implicit def anyModelWrites(implicit request: RequestHeader): Writes[AnyModel] = Writes[AnyModel] {
+    case doc: DocumentaryUnit => Json.toJson(
+      JsonApiResponseData(
+        id = doc.id,
+        `type` = doc.isA.toString,
+        attributes = Json.toJson(DocumentaryUnitAttrs(doc)),
+        relationships = Some(
+          Json.toJson(
+            DocumentaryUnitRelations(
+              holder = doc.holder.map { r =>
+                Json.obj("data" -> ResourceIdentifier(r))
+              },
+              parent = doc.parent.map { r =>
+                Json.obj("data" -> ResourceIdentifier(r))
+              }
             )
-          ),
-          links = Some(
-            Json.toJson(
-              DocumentaryUnitLinks(
-                self = apiRoutes.fetch(doc.id).absoluteURL(),
-                search = apiRoutes.searchIn(doc.id).absoluteURL(),
-                holder = doc.holder.map(r => apiRoutes.fetch(r.id).absoluteURL()),
-                parent = doc.parent.map(r => apiRoutes.fetch(r.id).absoluteURL())
-              )
+          )
+        ),
+        links = Some(
+          Json.toJson(
+            DocumentaryUnitLinks(
+              self = apiRoutes.fetch(doc.id).absoluteURL(),
+              search = apiRoutes.searchIn(doc.id).absoluteURL(),
+              holder = doc.holder.map(r => apiRoutes.fetch(r.id).absoluteURL()),
+              parent = doc.parent.map(r => apiRoutes.fetch(r.id).absoluteURL())
             )
-          ),
-          meta = Some(meta(doc).deepMerge(holderMeta(doc)))
-        )
+          )
+        ),
+        meta = Some(meta(doc).deepMerge(holderMeta(doc)))
       )
-      case repo: Repository => Json.toJson(
-        JsonApiResponseData(
-          id = repo.id,
-          `type` = repo.isA.toString,
-          attributes = Json.toJson(RepositoryAttrs(repo)),
-          relationships = Some(
-            Json.toJson(
-              RepositoryRelations(
-                country = repo.country.map { c =>
-                  Json.obj("data" -> ResourceIdentifier(c))
-                }
-              )
+    )
+    case repo: Repository => Json.toJson(
+      JsonApiResponseData(
+        id = repo.id,
+        `type` = repo.isA.toString,
+        attributes = Json.toJson(RepositoryAttrs(repo)),
+        relationships = Some(
+          Json.toJson(
+            RepositoryRelations(
+              country = repo.country.map { c =>
+                Json.obj("data" -> ResourceIdentifier(c))
+              }
             )
-          ),
-          links = Some(
-            Json.toJson(
-              RepositoryLinks(
-                self = apiRoutes.fetch(repo.id).absoluteURL(),
-                search = apiRoutes.searchIn(repo.id).absoluteURL(),
-                country = repo.country.map(c => apiRoutes.fetch(c.id).absoluteURL())
-              )
+          )
+        ),
+        links = Some(
+          Json.toJson(
+            RepositoryLinks(
+              self = apiRoutes.fetch(repo.id).absoluteURL(),
+              search = apiRoutes.searchIn(repo.id).absoluteURL(),
+              country = repo.country.map(c => apiRoutes.fetch(c.id).absoluteURL())
             )
-          ),
-          meta = Some(meta(repo).deepMerge(holderMeta(repo)))
-        )
+          )
+        ),
+        meta = Some(meta(repo).deepMerge(holderMeta(repo)))
       )
-      case agent: HistoricalAgent => Json.toJson(
-        JsonApiResponseData(
-          id = agent.id,
-          `type` = agent.isA.toString,
-          attributes = Json.toJson(HistoricalAgentAttrs(agent)),
-          links = Some(
-            Json.obj(
-              "self" -> apiRoutes.fetch(agent.id).absoluteURL()
-            )
-          ),
-          meta = Some(meta(agent))
-        )
+    )
+    case agent: HistoricalAgent => Json.toJson(
+      JsonApiResponseData(
+        id = agent.id,
+        `type` = agent.isA.toString,
+        attributes = Json.toJson(HistoricalAgentAttrs(agent)),
+        links = Some(
+          Json.obj(
+            "self" -> apiRoutes.fetch(agent.id).absoluteURL()
+          )
+        ),
+        meta = Some(meta(agent))
       )
-      case country: Country => Json.toJson(
-        JsonApiResponseData(
-          id = country.id,
-          `type` = country.isA.toString,
-          attributes = Json.toJson(CountryAttrs(country)),
-          links = Some(
-            Json.toJson(
-              CountryLinks(
-                self = apiRoutes.fetch(country.id).absoluteURL(),
-                search = apiRoutes.searchIn(country.id).absoluteURL()
-              )
+    )
+    case country: Country => Json.toJson(
+      JsonApiResponseData(
+        id = country.id,
+        `type` = country.isA.toString,
+        attributes = Json.toJson(CountryAttrs(country)),
+        links = Some(
+          Json.toJson(
+            CountryLinks(
+              self = apiRoutes.fetch(country.id).absoluteURL(),
+              search = apiRoutes.searchIn(country.id).absoluteURL()
             )
-          ),
-          meta = Some(meta(country).deepMerge(holderMeta(country)))
-        )
+          )
+        ),
+        meta = Some(meta(country).deepMerge(holderMeta(country)))
       )
-      case _ => throw new ItemNotFound()
-    }
+    )
+    case _ => throw new ItemNotFound()
   }
 
   private def includedData(any: AnyModel)(implicit requestHeader: RequestHeader): Option[Seq[AnyModel]] = any match {

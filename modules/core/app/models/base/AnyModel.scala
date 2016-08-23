@@ -41,17 +41,15 @@ trait AnyModel extends backend.WithId {
 object AnyModel {
 
   implicit object Converter extends Readable[AnyModel] {
-    implicit val restReads: Reads[AnyModel] = new Reads[AnyModel] {
-      def reads(json: JsValue): JsResult[AnyModel] = {
-        // Sniff the type...
-        val et = (json \ Entity.TYPE).as(defines.EnumUtils.enumReads(EntityType))
-        Utils.restReadRegistry.lift(et).map { reads =>
-          json.validate(reads)
-        }.getOrElse {
-          JsError(
-            JsPath(List(KeyPathNode(Entity.TYPE))),
-            ValidationError(s"Unregistered AnyModel type for REST: $et"))
-        }
+    implicit val restReads: Reads[AnyModel] = Reads[AnyModel] { json =>
+      // Sniff the type...
+      val et = (json \ Entity.TYPE).as(defines.EnumUtils.enumReads(EntityType))
+      Utils.restReadRegistry.lift(et).map { reads =>
+        json.validate(reads)
+      }.getOrElse {
+        JsError(
+          JsPath(List(KeyPathNode(Entity.TYPE))),
+          ValidationError(s"Unregistered AnyModel type for REST: $et"))
       }
     }
   }

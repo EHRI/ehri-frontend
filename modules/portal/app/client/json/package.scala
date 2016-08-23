@@ -1,16 +1,14 @@
 package client
 
-import models._
-import play.api.libs.json._
-import models.base.{AnyModel, Accessor}
-import play.api.libs.functional.syntax._
-import models.json._
-import defines.EntityType
-import play.api.libs.json.KeyPathNode
-import play.api.libs.json.JsObject
-import play.api.data.validation.ValidationError
-import play.api.Logger
 import backend.Entity
+import defines.EntityType
+import models._
+import models.base.{Accessor, AnyModel}
+import models.json._
+import play.api.Logger
+import play.api.data.validation.ValidationError
+import play.api.libs.functional.syntax._
+import play.api.libs.json.{JsObject, KeyPathNode, _}
 
 package object json {
 
@@ -42,27 +40,29 @@ package object json {
       case EntityType.VirtualUnit => virtualUnitJson.clientFormat.asInstanceOf[Format[AnyModel]]
     }
 
-    implicit val clientFormat: Format[AnyModel] = new Format[AnyModel] {
-      def reads(json: JsValue): JsResult[AnyModel] = {
-        val et = (json \ Entity.TYPE).as(defines.EnumUtils.enumReads(EntityType))
-        clientFormatRegistry.lift(et).map { format =>
-          json.validate(format)
-        } getOrElse {
-          JsError(JsPath(List(KeyPathNode(Entity.TYPE))), ValidationError("Unregistered AnyModel type for Client read: " + et))
-        }
-      }
+    def typeOf(json: JsValue) = (json \ Entity.TYPE).as(defines.EnumUtils.enumReads(EntityType))
 
-
-      def writes(a: AnyModel): JsValue = {
-        clientFormatRegistry.lift(a.isA).map { format =>
-          Json.toJson(a)(format)
-        } getOrElse {
-          // FIXME: Throw an error here???
-          Logger.logger.warn("Unregistered AnyModel type {} (Writing to Client)", a.isA)
-          Json.toJson(Entity(id = a.id, `type` = a.isA, relationships = Map.empty))(Entity.entityFormat)
-        }
-      }
+    implicit val clientReadAny: Reads[AnyModel] = Reads { json =>
+      clientFormatRegistry
+        .lift(typeOf(json))
+        .map(json.validate(_))
+        .getOrElse(
+          JsError(JsPath(List(KeyPathNode(Entity.TYPE))),
+            ValidationError(s"Unregistered AnyModel type for Client read: ${typeOf(json)}")))
     }
+
+    implicit val clientWriteAny: Writes[AnyModel] = Writes { model =>
+      clientFormatRegistry
+        .lift(model.isA)
+        .map(Json.toJson(model)(_))
+        .getOrElse {
+          // FIXME: Throw an error here???
+          Logger.logger.warn("Unregistered AnyModel type {} (Writing to Client)", model.isA)
+          Json.toJson(Entity(id = model.id, `type` = model.isA, relationships = Map.empty))(Entity.entityFormat)
+        }
+    }
+
+    implicit val clientFormat: Format[AnyModel] = Format(clientReadAny, clientWriteAny)
   }
 
   implicit object contentTypeJson extends ClientWriteable[ContentType] {
@@ -73,20 +73,15 @@ package object json {
     private implicit val permissionGrantFormat = Json.format[PermissionGrantF]
     implicit val clientFormat: Format[PermissionGrant] = (
       JsPath.format(permissionGrantFormat) and
-        (__ \ "accessor").lazyFormatNullable[Accessor](accessorJson.clientFormat) and
-        (__ \ "targets").formatSeqOrEmpty(anyModelJson.clientFormat) and
-        (__ \ "scope").lazyFormatNullable[AnyModel](anyModelJson.clientFormat) and
-        (__ \ "grantedBy").lazyFormatNullable[UserProfile](userProfileJson.clientFormat) and
-        (__ \ "meta").format[JsObject]
-      )(PermissionGrant.apply, unlift(PermissionGrant.unapply))
+      (__ \ "accessor").lazyFormatNullable[Accessor](accessorJson.clientFormat) and
+      (__ \ "targets").formatSeqOrEmpty(anyModelJson.clientFormat) and
+      (__ \ "scope").lazyFormatNullable[AnyModel](anyModelJson.clientFormat) and
+      (__ \ "grantedBy").lazyFormatNullable[UserProfile](userProfileJson.clientFormat) and
+      (__ \ "meta").format[JsObject]
+    )(PermissionGrant.apply, unlift(PermissionGrant.unapply))
   }
 
   implicit object accessPointJson extends ClientWriteable[AccessPoint] {
-    // This hassle necessary because single-field case classes require special handling,
-    // see: http://stackoverflow.com/a/17282296/285374
-    // private implicit val accessPointFormat = Json.format[AccessPointF]
-    // private val clr: Reads[AccessPoint] = __.read[AccessPointF].map(AccessPoint.apply(_))
-    // private val clw: Writes[AccessPoint] = __.write[AccessPointF].contramap(_.model)
     val clientFormat = Json.format[AccessPoint]
   }
 
@@ -94,15 +89,15 @@ package object json {
     private implicit val linkFormat = Json.format[LinkF]
     val clientFormat: Format[Link] = (
       JsPath.format[LinkF](linkFormat) and
-        (__ \ "targets").formatSeqOrEmpty(anyModelJson.clientFormat) and
-        (__ \ "user").lazyFormatNullable[UserProfile](userProfileJson.clientFormat) and
-        (__ \ "accessPoints").formatSeqOrEmpty(accessPointJson.clientFormat) and
-        (__ \ "accessibleTo").formatSeqOrEmpty(accessorJson.clientFormat) and
-        (__ \ "promotedBy").formatSeqOrEmpty(userProfileJson.clientFormat) and
-        (__ \ "demotedBy").formatSeqOrEmpty(userProfileJson.clientFormat) and
-        (__ \ "event").formatNullable[SystemEvent](systemEventJson.clientFormat) and
-        (__ \ "meta").format[JsObject]
-      )(Link.apply, unlift(Link.unapply))
+      (__ \ "targets").formatSeqOrEmpty(anyModelJson.clientFormat) and
+      (__ \ "user").lazyFormatNullable[UserProfile](userProfileJson.clientFormat) and
+      (__ \ "accessPoints").formatSeqOrEmpty(accessPointJson.clientFormat) and
+      (__ \ "accessibleTo").formatSeqOrEmpty(accessorJson.clientFormat) and
+      (__ \ "promotedBy").formatSeqOrEmpty(userProfileJson.clientFormat) and
+      (__ \ "demotedBy").formatSeqOrEmpty(userProfileJson.clientFormat) and
+      (__ \ "event").formatNullable[SystemEvent](systemEventJson.clientFormat) and
+      (__ \ "meta").format[JsObject]
+    )(Link.apply, unlift(Link.unapply))
   }
 
   implicit object countryJson extends ClientWriteable[Country] {
@@ -110,31 +105,29 @@ package object json {
     private val fFormat = Json.format[CountryF]
     val clientFormat: Format[Country] = (
       JsPath.format[CountryF](fFormat) and
-        (__ \ "accessibleTo").formatSeqOrEmpty(accessorJson.clientFormat) and
-        (__ \ "event").formatNullable[SystemEvent](systemEventJson.clientFormat) and
-        (__ \ "meta").format[JsObject]
-      )(Country.apply, unlift(Country.unapply))
+      (__ \ "accessibleTo").formatSeqOrEmpty(accessorJson.clientFormat) and
+      (__ \ "event").formatNullable[SystemEvent](systemEventJson.clientFormat) and
+      (__ \ "meta").format[JsObject]
+    )(Country.apply, unlift(Country.unapply))
   }
 
   implicit object versionJson extends ClientWriteable[Version] {
     private implicit val fFormat = Json.format[VersionF]
     implicit val clientFormat: Format[Version] = (
       JsPath.format[VersionF](fFormat) and
-        (__ \ "event").lazyFormatNullable(systemEventJson.clientFormat) and
-        (__ \ "meta").format[JsObject]
-      )(Version.apply, unlift(Version.unapply))
+      (__ \ "event").lazyFormatNullable(systemEventJson.clientFormat) and
+      (__ \ "meta").format[JsObject]
+    )(Version.apply, unlift(Version.unapply))
   }
 
   implicit object accessorJson extends ClientWriteable[Accessor] {
-    implicit val clientFormat: Format[Accessor] = new Format[Accessor] {
-      def reads(json: JsValue): JsResult[Accessor] = {
-        json.validate[Accessor](anyModelJson.clientFormat.asInstanceOf[Format[Accessor]])
-      }
+    implicit val reads: Reads[Accessor] = Reads(
+      _.validate[Accessor](anyModelJson.clientFormat.asInstanceOf[Format[Accessor]]))
 
-      def writes(a: Accessor): JsValue = {
-        Json.toJson(a)(anyModelJson.clientFormat.asInstanceOf[Format[Accessor]])
-      }
-    }
+    implicit val writes: Writes[Accessor] = Writes(
+      Json.toJson(_)(anyModelJson.clientFormat.asInstanceOf[Format[Accessor]]))
+
+    implicit val clientFormat: Format[Accessor] = Format(reads, writes)
   }
 
   implicit object systemEventJson extends ClientWriteable[SystemEvent] {
@@ -142,51 +135,51 @@ package object json {
 
     implicit val clientFormat: Format[SystemEvent] = (
       JsPath.format[SystemEventF](fFormat) and
-        (__ \ "scope").lazyFormatNullable[AnyModel](anyModelJson.clientFormat) and
-        (__ \ "firstSubject").lazyFormatNullable[AnyModel](anyModelJson.clientFormat) and
-        (__ \ "user").lazyFormatNullable[Accessor](accessorJson.clientFormat) and
-        (__ \ "version").lazyFormatNullable(versionJson.clientFormat) and
-        (__ \ "meta").format[JsObject]
-      )(SystemEvent.apply, unlift(SystemEvent.unapply))
+      (__ \ "scope").lazyFormatNullable[AnyModel](anyModelJson.clientFormat) and
+      (__ \ "firstSubject").lazyFormatNullable[AnyModel](anyModelJson.clientFormat) and
+      (__ \ "user").lazyFormatNullable[Accessor](accessorJson.clientFormat) and
+      (__ \ "version").lazyFormatNullable(versionJson.clientFormat) and
+      (__ \ "meta").format[JsObject]
+    )(SystemEvent.apply, unlift(SystemEvent.unapply))
   }
 
   implicit object groupJson extends ClientWriteable[Group] {
     private lazy val fFormat = Json.format[GroupF]
     lazy val clientFormat: Format[Group] = (
       JsPath.format[GroupF](fFormat) and
-        (__ \ "groups").lazyNullableSeqFormat(clientFormat) and
-        (__ \ "accessibleTo").lazyNullableSeqFormat(accessorJson.clientFormat) and
-        (__ \ "event").formatNullable[SystemEvent](systemEventJson.clientFormat) and
-        (__ \ "meta").format[JsObject]
-      )(Group.apply, unlift(Group.unapply))
+      (__ \ "groups").lazyNullableSeqFormat(clientFormat) and
+      (__ \ "accessibleTo").lazyNullableSeqFormat(accessorJson.clientFormat) and
+      (__ \ "event").formatNullable[SystemEvent](systemEventJson.clientFormat) and
+      (__ \ "meta").format[JsObject]
+    )(Group.apply, unlift(Group.unapply))
   }
 
   implicit object userProfileJson extends ClientWriteable[UserProfile] {
     private lazy val fFormat = Json.format[UserProfileF]
     val clientFormat: Format[UserProfile] = (
       JsPath.format[UserProfileF](fFormat) and
-        (__ \ "groups").formatSeqOrEmpty(groupJson.clientFormat) and
-        (__ \ "accessibleTo").lazyNullableSeqFormat(accessorJson.clientFormat) and
-        (__ \ "event").formatNullable[SystemEvent](systemEventJson.clientFormat) and
-        (__ \ "meta").format[JsObject]
-      )(UserProfile.quickApply, unlift(UserProfile.quickUnapply))
+      (__ \ "groups").formatSeqOrEmpty(groupJson.clientFormat) and
+      (__ \ "accessibleTo").lazyNullableSeqFormat(accessorJson.clientFormat) and
+      (__ \ "event").formatNullable[SystemEvent](systemEventJson.clientFormat) and
+      (__ \ "meta").format[JsObject]
+    )(UserProfile.quickApply, unlift(UserProfile.quickUnapply))
   }
 
   implicit object annotationJson extends ClientWriteable[Annotation] {
     private val fFormat = Json.format[AnnotationF]
     val clientFormat: Format[Annotation] = (
       JsPath.format[AnnotationF](fFormat) and
-        (__ \ "annotations").lazyNullableSeqFormat(clientFormat) and
-        (__ \ "user").lazyFormatNullable[UserProfile](userProfileJson.clientFormat) and
-        (__ \ "source").lazyFormatNullable[AnyModel](anyModelJson.clientFormat) and
-        (__ \ "target").lazyFormatNullable[AnyModel](anyModelJson.clientFormat) and
-        (__ \ "targetPart").lazyFormatNullable[Entity](Entity.entityFormat) and
-        (__ \ "accessibleTo").formatSeqOrEmpty(accessorJson.clientFormat) and
-        (__ \ "promotedBy").formatSeqOrEmpty(userProfileJson.clientFormat) and
-        (__ \ "demotedBy").formatSeqOrEmpty(userProfileJson.clientFormat) and
-        (__ \ "event").formatNullable[SystemEvent](systemEventJson.clientFormat) and
-        (__ \ "meta").format[JsObject]
-      )(Annotation.apply, unlift(Annotation.unapply))
+      (__ \ "annotations").lazyNullableSeqFormat(clientFormat) and
+      (__ \ "user").lazyFormatNullable[UserProfile](userProfileJson.clientFormat) and
+      (__ \ "source").lazyFormatNullable[AnyModel](anyModelJson.clientFormat) and
+      (__ \ "target").lazyFormatNullable[AnyModel](anyModelJson.clientFormat) and
+      (__ \ "targetPart").lazyFormatNullable[Entity](Entity.entityFormat) and
+      (__ \ "accessibleTo").formatSeqOrEmpty(accessorJson.clientFormat) and
+      (__ \ "promotedBy").formatSeqOrEmpty(userProfileJson.clientFormat) and
+      (__ \ "demotedBy").formatSeqOrEmpty(userProfileJson.clientFormat) and
+      (__ \ "event").formatNullable[SystemEvent](systemEventJson.clientFormat) and
+      (__ \ "meta").format[JsObject]
+    )(Annotation.apply, unlift(Annotation.unapply))
   }
 
   implicit object documentaryUnitDescriptionJson extends ClientWriteable[DocumentaryUnitDescriptionF] {
@@ -230,11 +223,11 @@ package object json {
 
     val clientFormat: Format[HistoricalAgent] = (
       JsPath.format(fFormat) and
-        (__ \ "set").formatNullable[AuthoritativeSet](authoritativeSetJson.clientFormat) and
-        (__ \ "accessibleTo").formatSeqOrEmpty(accessorJson.clientFormat) and
-        (__ \ "event").formatNullable[SystemEvent](systemEventJson.clientFormat) and
-        (__ \ "meta").format[JsObject]
-      )(HistoricalAgent.apply, unlift(HistoricalAgent.unapply))
+      (__ \ "set").formatNullable[AuthoritativeSet](authoritativeSetJson.clientFormat) and
+      (__ \ "accessibleTo").formatSeqOrEmpty(accessorJson.clientFormat) and
+      (__ \ "event").formatNullable[SystemEvent](systemEventJson.clientFormat) and
+      (__ \ "meta").format[JsObject]
+    )(HistoricalAgent.apply, unlift(HistoricalAgent.unapply))
   }
 
   implicit object repositoryJson extends ClientWriteable[Repository] {
@@ -243,11 +236,11 @@ package object json {
 
     val clientFormat: Format[Repository] = (
       JsPath.format(fFormat) and
-        (__ \ "country").formatNullable[Country](countryJson.clientFormat) and
-        (__ \ "accessibleTo").formatSeqOrEmpty(accessorJson.clientFormat) and
-        (__ \ "event").formatNullable[SystemEvent](systemEventJson.clientFormat) and
-        (__ \ "meta").format[JsObject]
-      )(Repository.apply, unlift(Repository.unapply))
+      (__ \ "country").formatNullable[Country](countryJson.clientFormat) and
+      (__ \ "accessibleTo").formatSeqOrEmpty(accessorJson.clientFormat) and
+      (__ \ "event").formatNullable[SystemEvent](systemEventJson.clientFormat) and
+      (__ \ "meta").format[JsObject]
+    )(Repository.apply, unlift(Repository.unapply))
   }
 
   implicit object documentaryUnitJson extends ClientWriteable[DocumentaryUnit] {
@@ -255,12 +248,12 @@ package object json {
     private val fFormat = Json.format[DocumentaryUnitF]
     lazy val clientFormat: Format[DocumentaryUnit] = (
       JsPath.format(fFormat) and
-        (__ \ "holder").formatNullable[Repository](repositoryJson.clientFormat) and
-        (__ \ "parent").lazyFormatNullable[DocumentaryUnit](clientFormat) and
-        (__ \ "accessibleTo").formatSeqOrEmpty(accessorJson.clientFormat) and
-        (__ \ "event").formatNullable[SystemEvent](systemEventJson.clientFormat) and
-        (__ \ "meta").format[JsObject]
-      )(DocumentaryUnit.apply, unlift(DocumentaryUnit.unapply))
+      (__ \ "holder").formatNullable[Repository](repositoryJson.clientFormat) and
+      (__ \ "parent").lazyFormatNullable[DocumentaryUnit](clientFormat) and
+      (__ \ "accessibleTo").formatSeqOrEmpty(accessorJson.clientFormat) and
+      (__ \ "event").formatNullable[SystemEvent](systemEventJson.clientFormat) and
+      (__ \ "meta").format[JsObject]
+    )(DocumentaryUnit.apply, unlift(DocumentaryUnit.unapply))
   }
 
   implicit object virtualUnitJson extends ClientWriteable[VirtualUnit] {
@@ -269,34 +262,34 @@ package object json {
 
     lazy val clientFormat: Format[VirtualUnit] = (
       JsPath.format[VirtualUnitF](fFormat) and
-        (__ \ "descriptions").formatSeqOrEmpty(documentaryUnitJson.clientFormat) and
-        (__ \ "author").formatNullable[Accessor](accessorJson.clientFormat) and
-        (__ \ "parent").lazyFormatNullable[VirtualUnit](clientFormat) and
-        (__ \ "holder").formatNullable[Repository](repositoryJson.clientFormat) and
-        (__ \ "accessibleTo").formatSeqOrEmpty(accessorJson.clientFormat) and
-        (__ \ "event").formatNullable[SystemEvent](systemEventJson.clientFormat) and
-        (__ \ "meta").format[JsObject]
-      )(VirtualUnit.apply, unlift(VirtualUnit.unapply))
+      (__ \ "descriptions").formatSeqOrEmpty(documentaryUnitJson.clientFormat) and
+      (__ \ "author").formatNullable[Accessor](accessorJson.clientFormat) and
+      (__ \ "parent").lazyFormatNullable[VirtualUnit](clientFormat) and
+      (__ \ "holder").formatNullable[Repository](repositoryJson.clientFormat) and
+      (__ \ "accessibleTo").formatSeqOrEmpty(accessorJson.clientFormat) and
+      (__ \ "event").formatNullable[SystemEvent](systemEventJson.clientFormat) and
+      (__ \ "meta").format[JsObject]
+    )(VirtualUnit.apply, unlift(VirtualUnit.unapply))
   }
 
   implicit object authoritativeSetJson extends ClientWriteable[AuthoritativeSet] {
     private val fFormat = Json.format[AuthoritativeSetF]
     val clientFormat: Format[AuthoritativeSet] = (
       JsPath.format[AuthoritativeSetF](fFormat) and
-        (__ \ "accessibleTo").formatSeqOrEmpty(accessorJson.clientFormat) and
-        (__ \ "event").formatNullable[SystemEvent](systemEventJson.clientFormat) and
-        (__ \ "meta").format[JsObject]
-      )(AuthoritativeSet.apply, unlift(AuthoritativeSet.unapply))
+      (__ \ "accessibleTo").formatSeqOrEmpty(accessorJson.clientFormat) and
+      (__ \ "event").formatNullable[SystemEvent](systemEventJson.clientFormat) and
+      (__ \ "meta").format[JsObject]
+    )(AuthoritativeSet.apply, unlift(AuthoritativeSet.unapply))
   }
 
   implicit object vocabularyJson extends ClientWriteable[Vocabulary] {
     private val fFormat = Json.format[VocabularyF]
     val clientFormat: Format[Vocabulary] = (
       JsPath.format[VocabularyF](fFormat) and
-        (__ \ "accessibleTo").formatSeqOrEmpty(accessorJson.clientFormat) and
-        (__ \ "event").formatNullable[SystemEvent](systemEventJson.clientFormat) and
-        (__ \ "meta").format[JsObject]
-      )(Vocabulary.apply, unlift(Vocabulary.unapply))
+      (__ \ "accessibleTo").formatSeqOrEmpty(accessorJson.clientFormat) and
+      (__ \ "event").formatNullable[SystemEvent](systemEventJson.clientFormat) and
+      (__ \ "meta").format[JsObject]
+    )(Vocabulary.apply, unlift(Vocabulary.unapply))
   }
 
   implicit object conceptJson extends ClientWriteable[Concept] {
@@ -304,12 +297,12 @@ package object json {
     private implicit val fFormat = Json.format[ConceptF]
     val clientFormat: Format[Concept] = (
       JsPath.format[ConceptF](fFormat) and
-        (__ \ "vocabulary").formatNullable[Vocabulary](vocabularyJson.clientFormat) and
-        (__ \ "parent").lazyFormatNullable[Concept](clientFormat) and
-        (__ \ "broaderTerms").lazyNullableSeqFormat(clientFormat) and
-        (__ \ "accessibleTo").formatSeqOrEmpty(accessorJson.clientFormat) and
-        (__ \ "event").formatNullable[SystemEvent](systemEventJson.clientFormat) and
-        (__ \ "meta").format[JsObject]
-      )(Concept.apply, unlift(Concept.unapply))
+      (__ \ "vocabulary").formatNullable[Vocabulary](vocabularyJson.clientFormat) and
+      (__ \ "parent").lazyFormatNullable[Concept](clientFormat) and
+      (__ \ "broaderTerms").lazyNullableSeqFormat(clientFormat) and
+      (__ \ "accessibleTo").formatSeqOrEmpty(accessorJson.clientFormat) and
+      (__ \ "event").formatNullable[SystemEvent](systemEventJson.clientFormat) and
+      (__ \ "meta").format[JsObject]
+    )(Concept.apply, unlift(Concept.unapply))
   }
 }
