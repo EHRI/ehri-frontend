@@ -44,17 +44,11 @@ package object json {
     /** Attempt to read a list, falling back on an empty list if the
      * path does not exist.
      */
-    def readSeqOrEmpty[T](implicit r: Reads[T]): Reads[Seq[T]] = new Reads[Seq[T]] {
-      def reads(json: JsValue): JsResult[Seq[T]] = {
-        path.asSingleJsResult(json).fold(
-          invalid = { err =>
-            JsSuccess[Seq[T]](Seq.empty[T], path)
-          },
-          valid = { v =>
-            v.validate[Seq[T]](Reads.seq(r))
-          }
-        )
-      }
+    def readSeqOrEmpty[T](implicit r: Reads[T]): Reads[Seq[T]] = Reads[Seq[T]] { json =>
+      path.asSingleJsResult(json).fold(
+        err => JsSuccess[Seq[T]](Seq.empty[T], path),
+        valid => valid.validate[Seq[T]](Reads.seq(r))
+      )
     }
 
     /** Attempt to read a path, falling back on a default value. */
@@ -70,20 +64,13 @@ package object json {
       OFormat[T](readIfEquals(v), path.write[T])
 
     /** Write a list if it is non-empty, otherwise nothing. */
-    def writeSeqOrEmpty[T](implicit w: Writes[T]): OWrites[Seq[T]] = {
-      new OWrites[Seq[T]] {
-        def writes(o: Seq[T]): JsObject =
-          if (o.isEmpty) Json.obj() else path.write[Seq[T]].writes(o)
-      }
+    def writeSeqOrEmpty[T](implicit w: Writes[T]): OWrites[Seq[T]] = OWrites { o =>
+      if (o.isEmpty) Json.obj() else path.write[Seq[T]].writes(o)
     }
 
     /** Write a list if it is non-empty, otherwise nothing. */
-    def writeNullableSeqOrEmpty[T](implicit w: Writes[T]): OWrites[Option[Seq[T]]] = {
-      new OWrites[Option[Seq[T]]] {
-        def writes(o: Option[Seq[T]]): JsObject =
-          if (o.toSeq.flatten.isEmpty) Json.obj()
-          else path.write[Seq[T]].writes(o.toSeq.flatten)
-      }
+    def writeNullableSeqOrEmpty[T](implicit w: Writes[T]): OWrites[Option[Seq[T]]] = OWrites { o =>
+      if (o.toSeq.flatten.isEmpty) Json.obj() else path.write[Seq[T]].writes(o.toSeq.flatten)
     }
 
     def formatSeqOrEmpty[T](implicit fmt: Format[T]): OFormat[Seq[T]] =

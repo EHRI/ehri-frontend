@@ -184,8 +184,8 @@ object JsonApiV1 {
     // Not using default writes here because missing (Optional)
     // relations should be expressed using null
     // http://jsonapi.org/format/#document-resource-object-related-resource-links
-    implicit val writes = new Writes[DocumentaryUnitRelations] {
-      def writes(r: DocumentaryUnitRelations): JsValue = Json.obj(
+    implicit val writes = Writes[DocumentaryUnitRelations] { r =>
+      Json.obj(
         "holder" -> r.holder,
         "parent" -> r.parent
       )

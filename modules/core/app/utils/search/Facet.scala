@@ -44,8 +44,8 @@ case class QueryFacet(
 ) extends Facet
 
 object Facet {
-  implicit def facetWrites: Writes[Facet] = new Writes[Facet] {
-    def writes(f: Facet) = Json.obj(
+  implicit def facetWrites: Writes[Facet] = Writes[Facet] { f =>
+    Json.obj(
       "count" -> JsNumber(f.count),
       "value" -> JsString(f.value),
       "name" -> Json.toJson(f.name),
