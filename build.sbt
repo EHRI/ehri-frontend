@@ -19,7 +19,7 @@ val appName = "docview"
 val appVersion = "1.0.6-SNAPSHOT"
 
 val backendVersion = "0.13.5-SNAPSHOT"
-val dataConverterVersion = "1.1.8"
+val dataConverterVersion = "1.1.9"
 val neo4jVersion = "3.0.4"
 val jerseyVersion = "1.19.1"
 
@@ -61,7 +61,7 @@ val coreDependencies = backendDependencies ++ Seq(
   "com.typesafe.play" %% "anorm" % "2.5.1",
 
   // Commons IO
-  "commons-io" % "commons-io" % "2.4",
+  "commons-io" % "commons-io" % "2.5",
 
   // Authentication
   "jp.t2v" %% "play2-auth" % "0.14.2",
@@ -75,7 +75,7 @@ val coreDependencies = backendDependencies ++ Seq(
   "mysql" % "mysql-connector-java" % "5.1.35",
 
   // PostgreSQL
-  //"org.postgresql" % "postgresql" % "9.4-1204-jdbc42",
+  "org.postgresql" % "postgresql" % "9.4-1204-jdbc42",
 
   // Markdown rendering
   "org.pegdown" % "pegdown" % "1.6.0",
@@ -84,7 +84,7 @@ val coreDependencies = backendDependencies ++ Seq(
   "org.jsoup" % "jsoup" % "1.8.3",
 
   // Mailer...
-  "com.typesafe.play" %% "play-mailer" % "5.0.0-M1",
+  "com.typesafe.play" %% "play-mailer" % "5.0.0",
 
   // Time formatting library
   "org.ocpsoft.prettytime" % "prettytime" % "3.2.7.Final",
@@ -115,9 +115,7 @@ val additionalResolvers = Seq(
   Resolver.sonatypeRepo("releases"),
   Resolver.sonatypeRepo("snapshots"),
   "EHRI Snapshots" at "http://ehridev.dans.knaw.nl/artifactory/libs-snapshot/",
-  "EHRI Releases" at "http://ehridev.dans.knaw.nl/artifactory/libs-release/",
-  // For this annoying issue: https://github.com/etorreborre/specs2/issues/347
-  "scalaz-bintray" at "http://dl.bintray.com/scalaz/releases"
+  "EHRI Releases" at "http://ehridev.dans.knaw.nl/artifactory/libs-release/"
 )
 
 val validateMessages = TaskKey[Unit]("validate-messages", "Validate messages")
