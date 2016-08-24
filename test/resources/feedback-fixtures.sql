@@ -1,11 +1,11 @@
-INSERT INTO `feedback` (
-  `id`,
-  `user_id`,
-  `name`,
-  `email`,
-  `text`,
-  `context`,
-  `mode`
+INSERT INTO feedback (
+  id,
+  user_id,
+  name,
+  email,
+  text,
+  context,
+  mode
 ) VALUES (
   'nVlf4EpZjN',
   'mike',
