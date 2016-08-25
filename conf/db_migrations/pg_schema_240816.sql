@@ -1,5 +1,3 @@
- #--- !Ups
-
 CREATE TABLE users (
     id          VARCHAR(50) NOT NULL PRIMARY KEY,
     email       VARCHAR(255) NOT NULL,
@@ -35,21 +33,13 @@ CREATE TABLE oauth2_association (
 ALTER TABLE oauth2_association ADD CONSTRAINT oauth2_association_id FOREIGN KEY (id) REFERENCES users (id) ON DELETE CASCADE;
 
 CREATE TABLE token (
-  id          VARCHAR(50) NOT NULL,
-  token       VARCHAR(255) NOT NULL PRIMARY KEY,
-  expires     TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
-  is_sign_up  BOOLEAN NOT NULL DEFAULT FALSE
+    id          VARCHAR(50) NOT NULL,
+    token       VARCHAR(255) NOT NULL PRIMARY KEY,
+    expires     TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    is_sign_up  BOOLEAN NOT NULL DEFAULT FALSE
 );
 
 ALTER TABLE token ADD CONSTRAINT token_profile_id FOREIGN KEY (id) REFERENCES users (id) ON DELETE CASCADE;
-
-CREATE TABLE user_auth_token(
-    id          VARCHAR(50) NOT NULL,
-    token       VARCHAR(255) NOT NULL PRIMARY KEY,
-    expires     TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
-);
-
-ALTER TABLE user_auth_token ADD CONSTRAINT auth_auth_token_profile_id FOREIGN KEY (id) REFERENCES users (id) ON DELETE CASCADE;
 
 CREATE TABLE moved_pages(
     original_path_sha1 CHAR(40) PRIMARY KEY,
@@ -87,40 +77,28 @@ CREATE TABLE research_guide_page (
 ALTER TABLE research_guide_page ADD CONSTRAINT research_guide_page_id FOREIGN KEY (research_guide_id) REFERENCES research_guide (id) ON DELETE CASCADE;
 ALTER TABLE research_guide_page ADD CONSTRAINT research_guide_path_guide_id UNIQUE (research_guide_id, path);
 
- CREATE TABLE feedback (
-     id CHAR(10) NOT NULL PRIMARY KEY,
-     user_id VARCHAR(50) DEFAULT NULL,
-     name VARCHAR (255) DEFAULT NULL,
-     email VARCHAR (255) DEFAULT NULL,
-     text TEXT,
-     type VARCHAR (10) DEFAULT NULL,
-     copy BOOLEAN DEFAULT FALSE,
-     context TEXT,
-     created TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
-     updated TIMESTAMP NULL,
-     mode VARCHAR(10) NOT NULL
- );
+CREATE TABLE feedback (
+    id CHAR(10) NOT NULL PRIMARY KEY,
+    user_id VARCHAR(50) DEFAULT NULL,
+    name VARCHAR (255) DEFAULT NULL,
+    email VARCHAR (255) DEFAULT NULL,
+    text TEXT,
+    type VARCHAR (10) DEFAULT NULL,
+    copy BOOLEAN DEFAULT FALSE,
+    context TEXT,
+    created TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    updated TIMESTAMP NULL,
+    mode VARCHAR(10) NOT NULL
+);
 
- CREATE TABLE cypher_queries (
-     id CHAR(10) NOT NULL PRIMARY KEY ,
-     user_id VARCHAR(50) DEFAULT NULL,
-     name VARCHAR(255) NOT NULL,
-     query TEXT NOT NULL,
-     description TEXT,
-     public BOOLEAN DEFAULT FALSE,
-     created TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
-     updated TIMESTAMP NULL
- );
+CREATE TABLE cypher_queries (
+    id CHAR(10) NOT NULL PRIMARY KEY ,
+    user_id VARCHAR(50) DEFAULT NULL,
+    name VARCHAR(255) NOT NULL,
+    query TEXT NOT NULL,
+    description TEXT,
+    public BOOLEAN DEFAULT FALSE,
+    created TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    updated TIMESTAMP NULL
+);
 
- # --- !Downs
-
-DROP TABLE IF EXISTS research_guide_page;
-DROP TABLE IF EXISTS research_guide;
-DROP TABLE IF EXISTS user_auth_token;
-DROP TABLE IF EXISTS token;
-DROP TABLE IF EXISTS openid_association;
-DROP TABLE IF EXISTS oauth2_association;
-DROP TABLE IF EXISTS moved_pages;
-DROP TABLE IF EXISTS users;
-DROP TABLE IF EXISTS feedback;
-DROP TABLE IF EXISTS cypher_queries;

@@ -108,11 +108,12 @@ case class SqlAccountManager @Inject()(implicit db: Database, actorSystem: Actor
   override def create(account: Account): Future[Account] = Future {
     db.withConnection { implicit conn =>
       SQL"""INSERT INTO users
-        (id, email, verified, staff, allow_messaging, password, is_legacy)
+        (id, email, verified, active, staff, allow_messaging, password, is_legacy)
         VALUES (
           ${account.id},
           ${account.email},
           ${account.verified},
+          ${account.active},
           ${account.staff},
           ${account.allowMessaging},
           ${account.password},
