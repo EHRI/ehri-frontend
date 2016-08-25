@@ -15,7 +15,7 @@ class SqlFeedbackServiceSpec extends PlaySpecification {
   implicit val actorSystem = new GuiceApplicationBuilder().build().injector.instanceOf[ActorSystem]
   implicit val executionContext = new GuiceApplicationBuilder().build().injector.instanceOf[ExecutionContext]
 
-  def feedbackService(implicit db: Database) = new SqlFeedbackService()(db, actorSystem)
+  def feedbackService(implicit db: Database) = SqlFeedbackService()(db, actorSystem)
 
   "Feedback service" should {
     "locate items correctly" in {
@@ -29,7 +29,7 @@ class SqlFeedbackServiceSpec extends PlaySpecification {
       withDatabaseFixture("feedback-fixtures.sql") { implicit db =>
         val feedback: Page[Feedback] = await(feedbackService.list(PageParams.empty))
         feedback.total must_== 2
-        feedback.items.map(_.objectId) must_== Seq(Some("SmRoRZ7U4j"), Some("nVlf4EpZjN"))
+        feedback.items.map(_.objectId).sorted must_== Seq(Some("SmRoRZ7U4j"), Some("nVlf4EpZjN"))
       }
     }
 
