@@ -8,15 +8,15 @@ For development, you need a version of the EHRI Neo4j REST server installed both
 
 Download Solr and extract it to the location of your choice (using ~/apps for this example):
 
-    export SOLR_VERSION=4.2.1
+    export SOLR_VERSION=6.1.0
     curl -0 http://mirrors.ukfast.co.uk/sites/ftp.apache.org/lucene/solr/$SOLR_VERSION/solr-$SOLR_VERSION.tgz | tar -zx -C ~/apps
     export SOLR_HOME=~/apps/solr-$SOLR_VERSION
 	
 
 For now, re-use the example Solr core (named "collection1", inside the example/solr direction).  As a shortcut, you can just grab the `schema.xml` and `solrconfig.xml` from Github:
 
-    curl https://rawgithub.com/mikesname/ehri-indexer/master/solrconf/schema.xml > $SOLR_HOME/example/solr/collection1/conf/schema.xml
-    curl https://rawgithub.com/mikesname/ehri-indexer/master/solrconf/solrconfig.xml > $SOLR_HOME/example/solr/collection1/conf/solrconfig.xml
+    curl https://rawgithub.com/EHRI/ehri-search-tools/solr-config/master/core/conf/schema.xml > $SOLR_HOME/example/solr/collection1/conf/schema.xml
+    curl https://rawgithub.com/EHRI/ehri-search-tools/solr-config/master/core/conf/solrconfig.xml > $SOLR_HOME/example/solr/collection1/conf/solrconfig.xml
 
 or simply create a symbolic link
 
@@ -40,22 +40,22 @@ If that starts without spewing out any dodgy-looking stack traces all should be 
 
 ### Install and set up the indexer utility
 
-The EHRI frontend does not interact directly with Solr for indexing (it used to, but this made it difficult to tune indexing without mucking about the the frontend code.) Instead there's a [separate utility](https://github.com/mikesname/ehri-indexer) that deals with transforming the database format JSON into Solr format JSON, and provides a convenient command-line syntax to index individual items and classes of items. The front-end currently delegates to this command-line tool.
+The EHRI frontend does not interact directly with Solr for indexing (it used to, but this made it difficult to tune indexing without mucking about the the frontend code.) Instead there's a [separate utility](https://github.com/EHRI/ehri-search-tools) that deals with transforming the database format JSON into Solr format JSON, and provides a convenient command-line syntax to index individual items and classes of items. The front-end currently delegates to this command-line tool.
 
 To set up and build the indexer, do the following:
 
     cd ~/dev
-    git clone https://github.com/mikesname/ehri-indexer.git
-    cd ehri-indexer
-    mvn clean compile assembly:single
+    git clone https://github.com/EHRI/ehri-search-tools.git
+    cd ehri-search-tools
+    mvn clean package
 
-If all goes well this will result in a single Jar file called `index-helper-1.0.1-jar-with-dependencies.jar` ending up in the `target` directory.
+If all goes well this will result in a single Jar file called `index-data-converter-1.1.9-jar-with-dependencies.jar` ending up in the `index-data-converter/target` directory.
 
-### Installing Play 2.2.1:
+### Installing Play 2.5.6:
 
-Download and install Play 2.2.x:
+Download and install Play 2.5.x:
 
-    export PLAY_VERSION=2.2.3
+    export PLAY_VERSION=2.5.6
     wget http://downloads.typesafe.com/play/${PLAY_VERSION}/play-${PLAY_VERSION}.zip
     unzip -d ~/apps play-${PLAY_VERSION}
 
@@ -75,33 +75,12 @@ Start the dependency download process (which usually takes a while):
     cd docview
     play clean compile
 
-### MySQL Docs
 
-While this is running, we can set up the other database, used for authentication. Install MySQL via your favoured channel (Brew, Apt):
-
-    sudo apt-get install mysql-server
-
-Now we need to create an empty user and database for our application. The user and database will have the same name (docview). Start the MySQL admin console:
-
-    mysql -uroot
-
-Now, **at the MySQL shell**, type the following commands (replacing the password with your password):
-
-    CREATE USER 'docview'@'localhost' IDENTIFIED BY '<PASSWORD>';
-    CREATE DATABASE docview;
-    GRANT ALL PRIVILEGES ON docview.* TO 'docview'@'localhost';
-
-**Note: the database settings you should here should be configured in the `application.conf` file.**
-
-===============================================================================
-
-### PostgreSQL - ALTERNATIVE DB instructions
-
-**NB: Postgres is not the default DB given here (for operational reasons). If you want to use it, rename the `conf/evolutions/default` directory to `conf/evolutions/mysql` and rename `conf/evolutions/postgres` to `conf/evolutions/default`.**
+### PostgreSQL - DB instructions
 
 Install via your favourite method. Note that on some OS X versions, Postgres can be a bit fiddly because the one installed by brew conflicts with the bundled default:
 
-    sudo apt-get install postgresql
+    sudo apt-get install postgresql-9.5
 
 Now we need to create an empty user and database for our application. The user and database will have the same name (docview). Start the Postgres shell (run as the postgres user):
 
@@ -148,22 +127,25 @@ Basically, we need to create a database entry that links the default username yo
 
 So open up the MySql console again:
 
-    mysql -udocview -p -hlocalhost docview # or for postgres: sudo su postgres -c "psql docview"
+    sudo su postgres -c "psql docview"
 
 First, **in the DB shell**, double check there is no existing user and/or email:
 
     SELECT * FROM users;
 
 ```SQL
-mysql> select * from users;
- Empty Set
+psql> select * from users;
+ id | email | verified | staff | active | allow_messaging | created | last_login | password | is_legacy 
+----+-------+----------+-------+--------+-----------------+---------+------------+----------+-----------
+ (0 rows)
 ```
 
 Now add one corresponding to your user + email:
 
 ```SQL
-mysql> INSERT INTO users (id, email, verified, staff, active) VALUES ('example', 'example@example.com', 1, 1, 1);
-Query OK, 1 row affected (0.00 sec)
+psql> INSERT INTO users (id, email, verified, staff, active)
+             VALUES ('example', 'example@example.com', TRUE, TRUE, TRUE);
+INSERT 1 0
 ```
 
 **Now log in via OpenID for the email you just created**. The application will notice that there is already a corresponding email in the database and, if the OpenID auth succeeds, add an OpenID associate to the account.
