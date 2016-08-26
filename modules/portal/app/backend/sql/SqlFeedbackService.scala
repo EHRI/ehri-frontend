@@ -1,6 +1,7 @@
 package backend.sql
 
 import java.io.ByteArrayOutputStream
+import java.nio.charset.StandardCharsets
 import javax.inject.{Inject, Singleton}
 
 import akka.actor.ActorSystem
@@ -62,7 +63,7 @@ case class SqlFeedbackService @Inject ()(implicit db: Database, actorSystem: Act
       val s = value match {
         case t: java.sql.Clob =>
           val b = new ByteArrayOutputStream()
-          IOUtils.copy(t.getCharacterStream, b)
+          IOUtils.copy(t.getCharacterStream, b, StandardCharsets.UTF_8)
           b.toString("UTF-8")
         case _ => value.toString
       }

@@ -1,6 +1,7 @@
 package integration.portal
 
 import java.io.File
+import java.nio.charset.StandardCharsets
 
 import backend.AuthenticatedUser
 import helpers.{FakeMultipartUpload, IntegrationTestRunner}
@@ -138,7 +139,7 @@ class UserProfilesSpec extends IntegrationTestRunner with FakeMultipartUpload {
 
     "not allow uploading non-image files as profile image" in new ITestApp {
       val tmpFile = java.io.File.createTempFile("notAnImage", ".txt")
-      FileUtils.write(tmpFile, "Hello, world\n")
+      FileUtils.write(tmpFile, "Hello, world\n", StandardCharsets.UTF_8)
       tmpFile.deleteOnExit()
       val result = FakeRequest(profileRoutes.updateProfileImagePost())
         .withFileUpload("image", tmpFile, "image/png")
