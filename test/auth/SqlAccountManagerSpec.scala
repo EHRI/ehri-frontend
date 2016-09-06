@@ -100,10 +100,15 @@ class SqlAccountManagerSpec extends PlaySpecification {
       await(accounts.findAll(PageParams(limit = 2))).size must equalTo(2)
     }
 
-    "find accounts by id and email" in withFixtures { implicit db =>
+    "find accounts by id" in withFixtures { implicit db =>
       db.withConnection { implicit connection =>
         await(accounts.findById(mockdata.privilegedUser.id)) must beSome
-        await(accounts.findByEmail(mockdata.privilegedUser.email)) must beSome
+      }
+    }
+
+    "find accounts by email, case insensitively" in withFixtures { implicit db =>
+      db.withConnection { implicit connection =>
+        await(accounts.findByEmail(mockdata.privilegedUser.email.toUpperCase())) must beSome
       }
     }
 
