@@ -176,7 +176,8 @@ case class SqlAccountManager @Inject()(implicit db: Database, actorSystem: Actor
 
 
   private def getByEmail(email: String)(implicit conn: Connection): Option[Account] =
-    SQL"SELECT * FROM users WHERE users.email = $email".as(userParser.singleOpt)
+    // NB: this query would be better if it used the index (or a computed index)
+    SQL"SELECT * FROM users WHERE lower(users.email) = lower($email)".as(userParser.singleOpt)
 
   private def getById(id: String)(implicit conn: Connection): Option[Account] =
     SQL"SELECT * FROM users WHERE users.id = $id".as(userParser.singleOpt)

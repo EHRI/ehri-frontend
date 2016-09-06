@@ -33,7 +33,9 @@ class AccountsSpec extends IntegrationTestRunner {
       )
     ) {
       val data: Map[String, Seq[String]] = Map(
-        SignupData.EMAIL -> Seq(privilegedUser.email),
+        // NB: Using toUpperCase here to test case insentitivity
+        // on email login (bug #816)
+        SignupData.EMAIL -> Seq(privilegedUser.email.toUpperCase),
         SignupData.PASSWORD -> Seq(testPassword),
         TIMESTAMP -> Seq(org.joda.time.DateTime.now.toString),
         BLANK_CHECK -> Seq(""),

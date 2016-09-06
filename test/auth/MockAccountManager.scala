@@ -68,10 +68,10 @@ case class MockAccountManager @Inject()() extends AccountManager {
     immediate(mockdata.accountFixtures.get(id))
 
   override def findByEmail(email: String): Future[Option[Account]] =
-    immediate(mockdata.accountFixtures.values.find(_.email == email))
+    immediate(mockdata.accountFixtures.values.find(_.email.toLowerCase == email.toLowerCase))
 
   override def findAllById(ids: Seq[String]): Future[Seq[Account]] =
-    immediate(mockdata.accountFixtures.filterKeys(id => ids.contains(id)).map(_._2).toSeq)
+    immediate(mockdata.accountFixtures.filterKeys(id => ids.contains(id)).values.toSeq)
 
   override def authenticateById(id: String, pw: String, verifiedOnly: Boolean = false): Future[Option[Account]] = immediate {
     for {
@@ -83,7 +83,7 @@ case class MockAccountManager @Inject()() extends AccountManager {
 
   override def authenticateByEmail(email: String, pw: String, verifiedOnly: Boolean = false): Future[Option[Account]] = immediate {
     for {
-      acc <- mockdata.accountFixtures.values.find(_.email == email)
+      acc <- mockdata.accountFixtures.values.find(_.email.toLowerCase() == email.toLowerCase)
       hashed <- acc.password
       if hashed.check(pw) && (if(verifiedOnly) acc.verified else true)
     } yield acc
