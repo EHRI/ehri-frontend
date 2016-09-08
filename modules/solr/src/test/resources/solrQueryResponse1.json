@@ -129,7 +129,9 @@
       "purpusly",
       {
         "numFound": 1,
-        "suggestions": [
+        "startOffset": 0,
+        "endOffset": 8,
+        "suggestion": [
           {
             "word": "purposely",
             "freq": 1
@@ -139,15 +141,18 @@
       "mispeled",
       {
         "numFound": 1,
-        "suggestions": [
+        "startOffset": 9,
+        "endOffset": 18,
+        "suggestion": [
           {
             "word": "mispelled",
             "freq": 1
           }
         ]
-      },
-      "correctlySpelled",
-      false,
+      }
+    ],
+    "correctlySpelled": false,
+    "collations": [
       "collation",
       "purposely mispelled"
     ]

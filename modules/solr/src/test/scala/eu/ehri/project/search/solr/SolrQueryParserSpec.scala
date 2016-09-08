@@ -12,7 +12,7 @@ class SolrQueryParserSpec extends PlaySpecification with ResourceUtils {
   private def jsonResponseString: String = resourceAsString("solrQueryResponse1.json")
 
   "Solr JSON Query Parser" should {
-    val jsonHandler = JsonResponseHandler(app)
+    val jsonHandler = SolrJsonResponseHandler(app)
     "parse the correct number of docs with the right IDs" in {
       val qp = jsonHandler.getResponseParser(jsonResponseString)
       val docs = qp.items
@@ -55,7 +55,7 @@ class SolrQueryParserSpec extends PlaySpecification with ResourceUtils {
       }
 
       val doc1 = qp.items.head
-      doc1.highlights.get("place_t").get must equalTo(Seq("Active in the Netherlands, <em>Amsterdam</em>."))
+      doc1.highlights("place_t") must equalTo(Seq("Active in the Netherlands, <em>Amsterdam</em>."))
     }
 
     "parse collated spellcheck data correctly" in {

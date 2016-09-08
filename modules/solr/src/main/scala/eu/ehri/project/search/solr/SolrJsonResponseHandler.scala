@@ -9,7 +9,7 @@ import utils.search.SearchHit
 /**
  * Extracts useful data from a Solr JSON response.
  */
-case class JsonResponseHandler @Inject()(app: play.api.Application) extends ResponseHandler {
+case class SolrJsonResponseHandler @Inject()(app: play.api.Application) extends ResponseHandler {
   import SearchConstants._
   import play.api.libs.json._
   import play.api.libs.functional.syntax._
@@ -34,7 +34,7 @@ case class JsonResponseHandler @Inject()(app: play.api.Application) extends Resp
   }
 
   private def hitBuilder(id: String, itemId: String, entityType: EntityType.Value, gid: Long): SearchHit =
-    new SearchHit(id, itemId, entityType, gid)
+    SearchHit(id, itemId, entityType, gid)
 
   private def hitReads: Reads[SearchHit] = (
     (__ \ ID).read[String] and
@@ -43,7 +43,10 @@ case class JsonResponseHandler @Inject()(app: play.api.Application) extends Resp
     (__ \ DB_ID).read[Long]
   )(hitBuilder _)
 
-
+  private case class Suggestion(word: String, freq: Int)
+  private object Suggestion {
+    implicit val suggestionReads: Reads[Suggestion] = Json.reads[Suggestion]
+  }
 
   override def getResponseParser(responseBody: String): QueryResponseExtractor = new QueryResponseExtractor {
 
@@ -58,18 +61,14 @@ case class JsonResponseHandler @Inject()(app: play.api.Application) extends Resp
         best <- suggests.sortBy(_.freq).reverse.headOption
       } yield (word, best.word))
 
-    // NB: Parsing Solr JSON spellcheck data is horrible because everything is
-    // just in a big heterogeneous list. In this case, the first N*2 items are all
-    // words and their suggested replacements, followed by: string `correctlySpelled`
-    // boolean `true|false`, string `collation`, and the collation itself (another
-    // string.) Therefore, if we have a collated spellcheck term there will be at
-    // minimum 6 items in the list, and we pick the first collated suggestion.
+    // NB: For some reason the collated spellcheck suggestion is the 2nd
+    // element of the "collations" array (with the first being the
+    // word "collation").
     private def collatedSpellcheckSuggestions: Option[(String,String)] = for {
-      suggest <- (response \ "spellcheck"\ "suggestions").asOpt[Seq[JsValue]] if suggest.size > 5
-      collationList = suggest.dropWhile(_ != JsString("collation")) if collationList.size > 1
-      collation <- collationList(1).asOpt[String]
+      collationList <- (response \ "spellcheck" \ "collations")
+        .asOpt[Seq[String]] if collationList.size > 1
       q <- raw.query
-    } yield (q, collation)
+    } yield (q, collationList(1))
 
 
     private def rawSpellcheckSuggestions: Option[(String,Seq[Suggestion])] = for {
@@ -111,11 +110,6 @@ case class JsonResponseHandler @Inject()(app: play.api.Application) extends Resp
      * Get highlight map.
      */
     def highlightMap: Map[String, Map[String, Seq[String]]] = raw.highLights.getOrElse(Map.empty)
-
-    private case class Suggestion(word: String, freq: Int)
-    private object Suggestion {
-      implicit val suggestionReads: Reads[Suggestion] = Json.reads[Suggestion]
-    }
 
     private lazy val raw: SolrData = response.validate[SolrData].fold(
       err => throw response.as[SolrServerError],
