@@ -1,20 +1,20 @@
 package backend.rest
 
-import java.net.URLEncoder
+import java.net.{ConnectException, URLEncoder}
 import java.nio.charset.StandardCharsets
 import java.util.concurrent.TimeUnit
 
 import com.fasterxml.jackson.databind.JsonMappingException
 import play.api.Logger
-import play.api.http.{Writeable, ContentTypeOf, HeaderNames}
+import play.api.http.{ContentTypeOf, HeaderNames, Writeable}
 import play.api.libs.json._
 import backend._
 import com.fasterxml.jackson.core.JsonParseException
 import play.api.libs.ws._
-import utils.{RangePage, RangeParams, Page}
+import utils.{Page, RangePage, RangeParams}
+
 import scala.concurrent.Future
 import scala.concurrent.duration.Duration
-
 import play.api.cache.CacheApi
 
 trait RestService {
@@ -94,6 +94,9 @@ trait RestService {
         .execute(method)
         .map(r => checkError(r, Some(fullUrl)))
         .map(r => conditionalCache(url, method, r))
+        .recover {
+          case e: ConnectException => throw BackendOffline(fullUrl, e)
+        }
     }
 
     def stream(): Future[StreamedResponse] = {
@@ -273,7 +276,7 @@ trait RestService {
           )
         } catch {
           case e: JsonParseException =>
-            throw new BadRequest(response.body)
+            throw BadRequest(response.body)
         }
         case NOT_FOUND =>
           //logger.error("404: {} -> {}", Array(response.underlying[AHCRe].getUri, response.body))
@@ -320,7 +323,7 @@ trait RestService {
 
   private[rest] def parsePage[T](response: WSResponse, context: Option[String])(implicit rd: Reads[T]): Page[T] = {
     checkError(response).json.validate(Reads.seq(rd)).fold(
-      invalid => throw new BadJson(
+      invalid => throw BadJson(
         invalid, url = context, data = Some(Json.prettyPrint(response.json))),
       items => parsePagination(response, context) match {
         case Some((offset, limit, total)) => Page(
@@ -341,7 +344,7 @@ trait RestService {
 
   private[rest] def jsonReadToRestError[T](json: JsValue, reader: Reads[T], context: Option[String] = None): T = {
     json.validate(reader).fold(
-      invalid => throw new BadJson(
+      invalid => throw BadJson(
         invalid, url = context, data = Some(Json.prettyPrint(json))),
       valid => valid
     )

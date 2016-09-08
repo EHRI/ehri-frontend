@@ -1,5 +1,6 @@
 package eu.ehri.project.search.solr
 
+import java.net.ConnectException
 import javax.inject.Inject
 
 import defines.EntityType
@@ -8,10 +9,11 @@ import models.UserProfile
 import play.api.libs.ws.{WSClient, WSResponse}
 import play.api.{Configuration, Logger}
 import utils.Page
+
 import scala.concurrent.Future
 import utils.search._
 import utils.search.SearchHit
-import play.api.http.{MimeTypes, HeaderNames}
+import play.api.http.{HeaderNames, MimeTypes}
 
 
 /**
@@ -48,6 +50,9 @@ case class SolrSearchConfig(
     ws.url(solrSelectUrl)
       .withHeaders(HeaderNames.CONTENT_TYPE -> MimeTypes.FORM)
       .post(query)
+      .recover {
+        case e: ConnectException => throw SearchEngineOffline(solrSelectUrl, e)
+      }
   }
 
   /**

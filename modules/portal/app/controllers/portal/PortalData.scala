@@ -1,10 +1,12 @@
 package controllers.portal
 
+import java.time.ZonedDateTime
 import javax.inject.{Inject, Singleton}
-import play.api.cache.{Cached, CacheApi}
-import play.api.http.{ContentTypes, MimeTypes}
+
+import play.api.cache.{CacheApi, Cached}
+import play.api.http.{ContentTypes, HeaderNames, MimeTypes}
 import play.api.i18n.MessagesApi
-import play.api.mvc.{Controller, Action}
+import play.api.mvc.{Action, Controller}
 
 
 
@@ -56,6 +58,7 @@ case class PortalData @Inject()(
           controllers.portal.routes.javascript.Portal.externalFeed
         )
       ).as(MimeTypes.JAVASCRIPT)
+        .withHeaders(HeaderNames.EXPIRES -> "arse")
     }
   }
 

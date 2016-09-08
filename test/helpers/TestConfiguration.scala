@@ -38,13 +38,13 @@ trait TestConfiguration {
   // parameters, and reset tokens. These persist across tests in
   // a very unclean way but are useful for determining the last-used
   // whatsit etc...
-  val feedbackBuffer = collection.mutable.HashMap.empty[Int,Feedback]
-  val cypherQueryBuffer = collection.mutable.HashMap.empty[Int,CypherQuery]
-  val helpdeskBuffer = collection.mutable.HashMap.empty[Int, Seq[(String, Double)]]
-  val mailBuffer = collection.mutable.ListBuffer.empty[Email]
-  val storedFileBuffer = collection.mutable.ListBuffer.empty[java.net.URI]
-  val searchParamBuffer = collection.mutable.ListBuffer.empty[ParamLog]
-  val indexEventBuffer = collection.mutable.ListBuffer.empty[String]
+  protected val feedbackBuffer = collection.mutable.HashMap.empty[Int,Feedback]
+  protected val cypherQueryBuffer = collection.mutable.HashMap.empty[Int,CypherQuery]
+  protected val helpdeskBuffer = collection.mutable.HashMap.empty[Int, Seq[(String, Double)]]
+  protected val mailBuffer = collection.mutable.ListBuffer.empty[Email]
+  protected val storedFileBuffer = collection.mutable.ListBuffer.empty[java.net.URI]
+  protected val searchParamBuffer = collection.mutable.ListBuffer.empty[ParamLog]
+  protected val indexEventBuffer = collection.mutable.ListBuffer.empty[String]
 
   private def mockMailer: MailerClient = new MockBufferedMailer(mailBuffer)
   private def mockIndexer: SearchIndexMediator = new MockSearchIndexMediator(indexEventBuffer)
@@ -54,7 +54,7 @@ trait TestConfiguration {
 
   // NB: The mutable state for the user DAO is still stored globally
   // in the mocks package.
-  def mockAccounts: AccountManager = MockAccountManager()
+  protected def mockAccounts: AccountManager = MockAccountManager()
   private def mockOAuth2Flow: OAuth2Flow = MockOAuth2Flow()
   private def mockRelocator: MovedPageLookup = MockMovedPageLookup()
   private def mockFileStorage: FileStorage = MockFileStorage(storedFileBuffer)
@@ -64,19 +64,19 @@ trait TestConfiguration {
   // we can validate the actions)
   // Note: this is defined as an implicit object here so it
   // can be used by the DAO classes directly.
-  val testEventHandler = new EventHandler {
+  protected val testEventHandler = new EventHandler {
     def handleCreate(id: String) = mockIndexer.handle.indexId(id)
     def handleUpdate(id: String) = mockIndexer.handle.indexId(id)
     def handleDelete(id: String) = mockIndexer.handle.clearId(id)
   }
 
-  val searchLogger = new SearchLogger {
+  protected val searchLogger = new SearchLogger {
     override def log(params: ParamLog): Unit = searchParamBuffer += params
   }
 
   import play.api.inject.bind
 
-  val appBuilder = new play.api.inject.guice.GuiceApplicationBuilder()
+  protected val appBuilder = new play.api.inject.guice.GuiceApplicationBuilder()
     .overrides(
       bind[MailerClient].toInstance(mockMailer),
       bind[OAuth2Flow].toInstance(mockOAuth2Flow),
@@ -99,30 +99,28 @@ trait TestConfiguration {
       bind[SearchLogger].toInstance(searchLogger)
     )
 
-  val integrationAppLoader = new GuiceApplicationLoader(appBuilder)
-
   // Might want to mock the dataApi at at some point!
-  def dataApi(implicit app: play.api.Application, apiUser: ApiUser, executionContext: ExecutionContext): DataApiHandle =
+  protected def dataApi(implicit app: play.api.Application, apiUser: ApiUser, executionContext: ExecutionContext): DataApiHandle =
     app.injector.instanceOf[DataApi].withContext(apiUser)(executionContext)
 
   // Dummy auth config for play-2-auth
-  def authConfig(implicit _app: play.api.Application) = new AuthConfigImpl {
+  protected def authConfig(implicit _app: play.api.Application) = new AuthConfigImpl {
     val config = _app.configuration
     val globalConfig = _app.injector.instanceOf[GlobalConfig]
     val accounts = _app.injector.instanceOf[AccountManager]
   }
 
-  val CSRF_TOKEN_NAME = "csrfToken"
-  val CSRF_HEADER_NAME = "Csrf-Token"
-  val CSRF_HEADER_NOCHECK = "nocheck"
-  val fakeCsrfString = "fake-csrf-token"
-  val testPassword = "testpass"
+  protected val CSRF_TOKEN_NAME = "csrfToken"
+  protected val CSRF_HEADER_NAME = "Csrf-Token"
+  protected val CSRF_HEADER_NOCHECK = "nocheck"
+  protected val fakeCsrfString = "fake-csrf-token"
+  protected val testPassword = "testpass"
 
   /**
    * Override this value for configuration common to
    * an entire class of specs.
    */
-  def getConfig = Map.empty[String,Any]
+  protected def getConfig = Map.empty[String,Any]
 
   /**
    * Test running Fake Application. We have general all-test configuration,
@@ -130,7 +128,7 @@ trait TestConfiguration {
    * will be merged.
    * @param specificConfig A map of config values for this test
    */
-  abstract class ITestApp(val specificConfig: Map[String,Any] = Map.empty) extends WithApplicationLoader(
+  protected abstract class ITestApp(val specificConfig: Map[String,Any] = Map.empty) extends WithApplicationLoader(
     new GuiceApplicationLoader(appBuilder.configure(backendConfig ++ getConfig ++ specificConfig))) {
     implicit def implicitMaterializer: Materializer = app.materializer
     implicit def implicitExecContext: ExecutionContext = app.injector.instanceOf[ExecutionContext]
@@ -142,13 +140,13 @@ trait TestConfiguration {
    * will be merged.
    * @param specificConfig A map of config values for this test
    */
-  abstract class DBTestApp(resource: String, specificConfig: Map[String,Any] = Map.empty) extends WithSqlFile(
+  protected abstract class DBTestApp(resource: String, specificConfig: Map[String,Any] = Map.empty) extends WithSqlFile(
     resource)(new GuiceApplicationLoader(appBuilder.configure(backendConfig ++ getConfig ++ specificConfig)))
 
   /**
    * Run a spec after loading the given resource name as SQL fixtures.
    */
-  abstract class WithSqlFile(val resource: String)(implicit appLoader: play.api.ApplicationLoader)
+  protected abstract class WithSqlFile(val resource: String)(implicit appLoader: play.api.ApplicationLoader)
     extends WithApplicationLoader(appLoader) {
     override def around[T: AsResult](t: => T): Result = {
       running(app) {
@@ -162,7 +160,7 @@ trait TestConfiguration {
   /**
    * Convenience extensions for the FakeRequest object.
    */
-  implicit class FakeRequestExtensions[A](fr: FakeRequest[A]) {
+  protected implicit class FakeRequestExtensions[A](fr: FakeRequest[A]) {
     /**
      * Set the request to be authenticated for the given user.
      */

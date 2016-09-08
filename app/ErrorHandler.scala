@@ -15,7 +15,7 @@ import scala.concurrent.Future
 import scala.concurrent.Future.{successful => immediate}
 
 import controllers.renderError
-import views.html.errors.{permissionDenied, itemNotFound, serverTimeout, fatalError, pageNotFound, genericError}
+import views.html.errors._
 
 class ErrorHandler @Inject() (
   env: Environment,
@@ -64,7 +64,9 @@ with SessionPreferences[SessionPrefs] {
         renderError("errors.permissionDenied", permissionDenied(Some(e)))))
       case e: ItemNotFound => immediate(NotFound(
         renderError("errors.itemNotFound", itemNotFound(e.value))))
-      case e: java.net.ConnectException => immediate(InternalServerError(
+      case e: utils.search.SearchEngineOffline => immediate(InternalServerError(
+        renderError("errors.searchEngineError", searchEngineError())))
+      case e: backend.rest.BackendOffline => immediate(InternalServerError(
         renderError("errors.databaseError", serverTimeout())))
       case e: BadJson => sys.error(e.getMessageWithContext(request))
 
