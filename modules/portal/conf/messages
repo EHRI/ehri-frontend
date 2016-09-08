@@ -78,6 +78,9 @@ errors.maintenance.explanation=The EHRI Portal is currently offline while we und
 errors.databaseError=Database Error
 errors.databaseError.explanation=I''m afraid it looks like our database server has gone down.     \
   There''s not much we can do without it, so please try again later.
+errors.searchEngineError=Search Error
+errors.searchEngineError.explanation=I''m afraid it looks like our search engine has gone down.     \
+  There''s not much we can do without it, so please try again later.
 errors.databaseMaintenance=Database Temporarily Offline
 errors.databaseMaintenance.explanation=The EHRI database is currently offline for routine maintenance. \
   It should be back soon so please try again shortly.

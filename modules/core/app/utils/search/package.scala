@@ -1,5 +1,7 @@
 package utils
 
+import java.io.IOException
+
 import defines.EnumUtils
 
 package object search {
