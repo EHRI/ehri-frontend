@@ -1,16 +1,15 @@
 import auth.handler.AuthIdContainer
 import auth.handler.cookie.CookieIdContainer
-import auth.oauth2.providers.{FacebookOAuth2Provider, GoogleOAuth2Provider, MicrosoftOAuth2Provider, OAuth2Provider, YahooOAuth2Provider}
 import auth.oauth2.OAuth2Config
+import auth.oauth2.providers._
 import com.google.inject.AbstractModule
 import com.google.inject.name.Names
 import eu.ehri.project.indexing.index.Index
 import eu.ehri.project.indexing.index.impl.SolrIndex
 import eu.ehri.project.search.solr._
-import global._
+import global.{AppGlobalConfig, GlobalConfig, GlobalEventHandler, _}
 import javax.inject.{Inject, Provider}
 import models.{GuideService, SqlGuideService}
-import services.oauth2.{OAuth2Service, WebOAuth2Service}
 import services.accounts.{AccountManager, SqlAccountManager}
 import services.cypher.{CypherQueryService, CypherService, Neo4jCypherService, SqlCypherQueryService}
 import services.data.{GidSearchResolver, _}
@@ -18,8 +17,9 @@ import services.feedback.{FeedbackService, SqlFeedbackService}
 import services.harvesting.{HarvestEventService, OaiPmhClient, OaiPmhClientService, SqlHarvestEventService}
 import services.htmlpages.{GoogleDocsHtmlPages, HtmlPages}
 import services.ingest.{EadValidator, EadValidatorService, IngestApi, IngestApiService}
+import services.oauth2.{OAuth2Service, WebOAuth2Service}
 import services.redirects.{MovedPageLookup, SqlMovedPageLookup}
-import services.search.{SearchEngine, SearchIndexMediator, SearchItemResolver, SearchToolsIndexMediator}
+import services.search.{AkkaStreamsIndexMediator, SearchEngine, SearchIndexMediator, SearchItemResolver}
 import services.storage.{DOFileStorage, FileStorage, S3FileStorage}
 import utils.markdown.{CommonmarkMarkdownRenderer, RawMarkdownRenderer, SanitisingMarkdownRenderer}
 import views.MarkdownRenderer
@@ -47,7 +47,7 @@ class Module extends AbstractModule {
     bind(classOf[Index]).toProvider(classOf[SolrIndexProvider])
     bind(classOf[ResponseParser]).to(classOf[SolrJsonResponseParser])
     bind(classOf[QueryBuilder]).to(classOf[SolrQueryBuilder])
-    bind(classOf[SearchIndexMediator]).to(classOf[SearchToolsIndexMediator])
+    bind(classOf[SearchIndexMediator]).to(classOf[AkkaStreamsIndexMediator])
     bind(classOf[SearchEngine]).to(classOf[SolrSearchEngine])
     bind(classOf[SearchItemResolver]).to(classOf[GidSearchResolver])
     bind(classOf[EventHandler]).to(classOf[GlobalEventHandler])
