@@ -4,6 +4,7 @@ import auth.AccountManager
 import backend.DataApi
 import backend.rest.cypher.Cypher
 import javax.inject._
+
 import controllers.base.SearchVC
 import controllers.generic.Search
 import controllers.portal.FacetConfig
@@ -12,7 +13,7 @@ import defines.EntityType
 import models.GuidePage.Layout
 import models.base.AnyModel
 import models.{GeoCoordinates, Guide, GuidePage, _}
-import play.api.cache.CacheApi
+import play.api.cache.{CacheApi, Cached}
 import play.api.data.Forms._
 import play.api.data._
 import play.api.http.MimeTypes
@@ -39,6 +40,7 @@ case class Guides @Inject()(
   accounts: AccountManager,
   pageRelocator: utils.MovedPageLookup,
   messagesApi: MessagesApi,
+  statusCache: Cached,
   markdown: MarkdownRenderer,
   guides: GuideService,
   cypher: Cypher
@@ -47,9 +49,9 @@ case class Guides @Inject()(
   with SearchVC
   with FacetConfig {
 
-  val ajaxOrder = utils.search.SearchOrder.Name
-  val htmlAgentOrder = utils.search.SearchOrder.Detail
-  val htmlConceptOrder = utils.search.SearchOrder.ChildCount
+  private val ajaxOrder = utils.search.SearchOrder.Name
+  private val htmlAgentOrder = utils.search.SearchOrder.Detail
+  private val htmlConceptOrder = utils.search.SearchOrder.ChildCount
 
   def jsRoutes = statusCache.status(_ => "pages:guideJsRoutes", OK, 3600) {
     Action { implicit request =>
