@@ -34,7 +34,6 @@ trait PortalController
   override val verifiedOnly = config.getBoolean("ehri.portal.secured").getOrElse(true)
 
   implicit def cache: play.api.cache.CacheApi
-  protected def statusCache = new Cached(cache)
 
   /**
    * The page relocator handles provides the new location (if any)

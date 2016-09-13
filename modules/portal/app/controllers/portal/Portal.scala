@@ -6,18 +6,18 @@ import auth.AccountManager
 import controllers.generic.Search
 import models._
 import models.base.AnyModel
-import play.api.i18n.{MessagesApi, Messages}
+import play.api.i18n.{Messages, MessagesApi}
 import play.api.libs.concurrent.Execution.Implicits._
 import play.api.mvc._
 import utils.caching.FutureCache
 import utils.search._
-import play.api.cache.CacheApi
+import play.api.cache.{CacheApi, Cached}
 import defines.EntityType
 import play.api.libs.ws.WSClient
-import backend.{HtmlPages, DataApi}
+import backend.{DataApi, HtmlPages}
 import utils._
-
 import javax.inject._
+
 import views.MarkdownRenderer
 import views.html.errors.pageNotFound
 import controllers.portal.base.PortalController
@@ -38,6 +38,7 @@ case class Portal @Inject()(
   accounts: AccountManager,
   pageRelocator: MovedPageLookup,
   messagesApi: MessagesApi,
+  statusCache: Cached,
   markdown: MarkdownRenderer,
   htmlPages: HtmlPages,
   ws: WSClient

@@ -1,24 +1,21 @@
 package controllers.portal
 
-import java.time.ZonedDateTime
 import javax.inject.{Inject, Singleton}
 
 import play.api.cache.{CacheApi, Cached}
-import play.api.http.{ContentTypes, HeaderNames, MimeTypes}
+import play.api.http.{ContentTypes, MimeTypes}
 import play.api.i18n.MessagesApi
 import play.api.mvc.{Action, Controller}
-
 
 
 @Singleton
 case class PortalData @Inject()(
   implicit config: play.api.Configuration,
   cache: CacheApi,
-  messagesApi: MessagesApi
+  messagesApi: MessagesApi,
+  statusCache: Cached
 ) extends Controller
   with play.api.i18n.I18nSupport {
-
-  private val statusCache = new Cached(cache)
 
   def jsRoutes = statusCache.status(_ => "pages:portalJsRoutes", OK, 3600) {
     Action { implicit request =>
@@ -58,7 +55,6 @@ case class PortalData @Inject()(
           controllers.portal.routes.javascript.Portal.externalFeed
         )
       ).as(MimeTypes.JAVASCRIPT)
-        .withHeaders(HeaderNames.EXPIRES -> "arse")
     }
   }
 

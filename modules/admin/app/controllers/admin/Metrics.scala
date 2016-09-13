@@ -30,15 +30,14 @@ case class Metrics @Inject()(
   dataApi: DataApi,
   accounts: AccountManager,
   pageRelocator: utils.MovedPageLookup,
-  messagesApi: MessagesApi
+  messagesApi: MessagesApi,
+  statusCache: Cached
 ) extends AdminController
   with Search {
 
   private val metricCacheTime = 60 * 60 // 1 hour
 
-  private val statusCached = new Cached(cache)
-
-  val searchEntities = List(
+  private val searchEntities = List(
     EntityType.DocumentaryUnit,
     EntityType.Repository,
     EntityType.HistoricalAgent
@@ -71,7 +70,7 @@ case class Metrics @Inject()(
     )
   }
 
-  def languageOfMaterial = statusCached.status(_ => "pages:langMetric", OK, metricCacheTime) {
+  def languageOfMaterial = statusCache.status(_ => "pages:langMetric", OK, metricCacheTime) {
     OptionalUserAction.async { implicit request =>
       find[AnyModel](
         defaultParams = defaultParams,
@@ -93,7 +92,7 @@ case class Metrics @Inject()(
     )
   }
 
-  def holdingRepository = statusCached.status(_ => "pages:repoMetric", OK, metricCacheTime) {
+  def holdingRepository = statusCache.status(_ => "pages:repoMetric", OK, metricCacheTime) {
     OptionalUserAction.async { implicit request =>
       find[AnyModel](
         defaultParams = defaultParams,
@@ -116,7 +115,7 @@ case class Metrics @Inject()(
     )
   }
 
-  def repositoryCountries = statusCached.status(_ => "pages:repoCountryMetric", OK, metricCacheTime) {
+  def repositoryCountries = statusCache.status(_ => "pages:repoCountryMetric", OK, metricCacheTime) {
     OptionalUserAction.async { implicit request =>
       find[AnyModel](
         defaultParams = defaultParams,
@@ -138,7 +137,7 @@ case class Metrics @Inject()(
     )
   }
 
-  def restricted = statusCached.status(_ => "pages:restrictedMetric", OK, metricCacheTime) {
+  def restricted = statusCache.status(_ => "pages:restrictedMetric", OK, metricCacheTime) {
     OptionalUserAction.async { implicit request =>
       find[AnyModel](
         defaultParams = defaultParams,
@@ -162,7 +161,7 @@ case class Metrics @Inject()(
     )
   }
 
-  def agentTypes = statusCached.status(_ => "pages:agentTypeMetric", OK, metricCacheTime) {
+  def agentTypes = statusCache.status(_ => "pages:agentTypeMetric", OK, metricCacheTime) {
     OptionalUserAction.async { implicit request =>
       find[AnyModel](
         entities = List(EntityType.HistoricalAgent),
