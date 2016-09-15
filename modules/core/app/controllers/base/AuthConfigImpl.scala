@@ -5,15 +5,16 @@ import models.Account
 import play.api.mvc._
 
 import scala.reflect.classTag
-import scala.concurrent.{ExecutionContext,Future}
+import scala.concurrent.{ExecutionContext, Future}
 import scala.concurrent.Future.{successful => immediate}
 import play.api.Logger
+import play.api.http.HttpVerbs
 
 /*
  * Implementation of play2-auth
  * https://github.com/t2v/play20-auth/blob/master/README.md
  */
-trait AuthConfigImpl extends AuthConfig with Results {
+trait AuthConfigImpl extends AuthConfig with Results with HttpVerbs {
 
   type Id = String
   type User = Account
@@ -25,9 +26,9 @@ trait AuthConfigImpl extends AuthConfig with Results {
   protected def accounts: auth.AccountManager
 
   // Override these if necessary...
-  def defaultLoginUrl: Call = Call("GET", "/login")
-  def defaultLogoutUrl: Call = Call("GET", "/logout")
-  def defaultAuthFailedUrl: Call = Call("GET", "/login")
+  def defaultLoginUrl: Call = Call(GET, "/login")
+  def defaultLogoutUrl: Call = Call(GET, "/logout")
+  def defaultAuthFailedUrl: Call = Call(GET, "/login")
 
   protected val ACCESS_URI: String = "access_uri"
 

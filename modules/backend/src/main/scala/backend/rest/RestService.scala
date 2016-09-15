@@ -5,9 +5,9 @@ import java.nio.charset.StandardCharsets
 
 import com.fasterxml.jackson.databind.JsonMappingException
 import play.api.Logger
-import play.api.http.{ContentTypeOf, HeaderNames, Writeable}
+import play.api.http.{ContentTypeOf, HeaderNames, HttpVerbs, Writeable}
 import play.api.libs.json._
-import backend.{AnonymousUser, ApiUser, AuthenticatedUser, Resource, ErrorSet}
+import backend.{AnonymousUser, ApiUser, AuthenticatedUser, ErrorSet, Resource}
 import com.fasterxml.jackson.core.JsonParseException
 import play.api.libs.ws._
 import utils.{Page, RangePage, RangeParams}
@@ -22,6 +22,7 @@ trait RestService {
 
   import play.api.libs.concurrent.Execution.Implicits._
   import play.api.libs.ws.{EmptyBody, InMemoryBody, WSBody, WSResponse}
+  import HttpVerbs._
 
   private def logger: Logger = Logger(this.getClass)
 
@@ -32,7 +33,7 @@ trait RestService {
     url: String,
     headers: Seq[(String,String)] = Seq.empty,
     queryString: Seq[(String,String)] = Seq.empty,
-    method: String = "GET",
+    method: String = GET,
     body: WSBody = EmptyBody
     )(implicit apiUser: ApiUser) {
 
@@ -77,15 +78,15 @@ trait RestService {
       }
     }
 
-    def get(): Future[WSResponse] = copy(method = "GET").execute()
+    def get(): Future[WSResponse] = copy(method = GET).execute()
 
     def post[T](body: T)(implicit wrt: Writeable[T], ct: ContentTypeOf[T]) =
-      withMethod("POST").withBody(body).execute()
+      withMethod(POST).withBody(body).execute()
 
     def put[T](body: T)(implicit wrt: Writeable[T], ct: ContentTypeOf[T]) =
-      withMethod("PUT").withBody(body).execute()
+      withMethod(PUT).withBody(body).execute()
 
-    def delete() = withMethod("DELETE").execute()
+    def delete() = withMethod(DELETE).execute()
 
     /**
      * Sets the body for this request. Copy and paste from WSRequest :(
