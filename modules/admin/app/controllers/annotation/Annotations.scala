@@ -1,11 +1,12 @@
 package controllers.annotation
 
 import auth.AccountManager
-import backend.rest.cypher.Cypher
-import models.{AnnotationF, Annotation}
+import models.{Annotation, AnnotationF}
 import javax.inject._
+
 import controllers.generic._
 import backend.DataApi
+import backend.rest.DataHelpers
 import controllers.base.AdminController
 import play.api.cache.CacheApi
 import play.api.i18n.MessagesApi
@@ -17,11 +18,11 @@ case class Annotations @Inject()(
   cache: CacheApi,
   globalConfig: global.GlobalConfig,
   dataApi: DataApi,
+  dataHelpers: DataHelpers,
   accounts: AccountManager,
   pageRelocator: MovedPageLookup,
   messagesApi: MessagesApi,
-  markdown: MarkdownRenderer,
-  cypher: Cypher
+  markdown: MarkdownRenderer
 ) extends AdminController
   with Read[Annotation]
   with Visibility[Annotation]

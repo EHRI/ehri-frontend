@@ -1,29 +1,32 @@
 package controllers.virtual
 
 import auth.AccountManager
-import backend.rest.cypher.Cypher
 import play.api.cache.CacheApi
 import play.api.libs.concurrent.Execution.Implicits._
 import forms.VisibilityForm
 import models._
 import controllers.generic._
-import play.api.i18n.{MessagesApi, Messages}
-import defines.{ContentTypes,EntityType,PermissionType}
+import play.api.i18n.{Messages, MessagesApi}
+import defines.{ContentTypes, EntityType, PermissionType}
 import play.api.mvc.{Action, RequestHeader}
 import utils.MovedPageLookup
-import views.{MarkdownRenderer, Helpers}
+import views.{Helpers, MarkdownRenderer}
 import utils.search._
 import javax.inject._
+
+import backend.rest.cypher.Cypher
+
 import scala.concurrent.Future.{successful => immediate}
-import backend.{Entity, IdGenerator, DataApi}
+import backend.{DataApi, Entity, IdGenerator}
 import play.api.Configuration
 import play.api.data.Form
 import play.api.data.Forms._
-import backend.rest.ItemNotFound
+import backend.rest.{DataHelpers, ItemNotFound}
+
 import scala.concurrent.Future
 import models.base.AnyModel
 import models.base.Description
-import controllers.base.{SearchVC, AdminController}
+import controllers.base.{AdminController, SearchVC}
 
 
 @Singleton
@@ -35,6 +38,7 @@ case class VirtualUnits @Inject()(
   idGenerator: IdGenerator,
   searchResolver: SearchItemResolver,
   dataApi: DataApi,
+  dataHelpers: DataHelpers,
   accounts: AccountManager,
   pageRelocator: MovedPageLookup,
   messagesApi: MessagesApi,
@@ -202,7 +206,7 @@ case class VirtualUnits @Inject()(
 
   def createPost = CreateItemAction(form).async { implicit request =>
     request.formOrItem match {
-      case Left((errorForm,accForm)) => getUsersAndGroups { users => groups =>
+      case Left((errorForm,accForm)) => dataHelpers.getUserAndGroupList.map { case (users, groups) =>
         BadRequest(views.html.admin.virtualUnit.create(None, errorForm, accForm,
           users, groups, vuRoutes.createPost()))
       }
@@ -222,7 +226,7 @@ case class VirtualUnits @Inject()(
 
   def createChildPost(id: String) = CreateChildAction(id, childForm).async { implicit request =>
     request.formOrItem match {
-      case Left((errorForm,accForm)) => getUsersAndGroups { users => groups =>
+      case Left((errorForm,accForm)) => dataHelpers.getUserAndGroupList.map { case (users, groups) =>
         BadRequest(views.html.admin.virtualUnit.create(Some(request.item),
           errorForm, accForm, users, groups,
           vuRoutes.createChildPost(id)))

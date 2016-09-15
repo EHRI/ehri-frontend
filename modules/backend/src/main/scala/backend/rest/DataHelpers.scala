@@ -1,17 +1,16 @@
 package backend.rest
 
-import play.api.cache.CacheApi
+import javax.inject.{Inject, Singleton}
+
 import play.api.libs.json.JsValue
 import defines.EntityType
-import play.api.libs.concurrent.Execution.Implicits._
-import scala.concurrent.Future
+
+import scala.concurrent.{ExecutionContext, Future}
 import backend.rest.cypher.Cypher
 
 
-trait RestHelpers {
-
-  implicit def cache: CacheApi
-  def cypher: Cypher
+@Singleton
+case class DataHelpers @Inject()(cypher: Cypher)(implicit executionContext: ExecutionContext) {
 
   private def parseIds(json: JsValue): Seq[(String, String)] = {
     (json \ "data").as[Seq[Seq[String]]].flatMap {
@@ -26,4 +25,10 @@ trait RestHelpers {
   def getGroupList: Future[Seq[(String,String)]] = getTypeIdAndName(EntityType.Group)
   
   def getUserList: Future[Seq[(String,String)]] = getTypeIdAndName(EntityType.UserProfile)
+
+  def getUserAndGroupList: Future[(Seq[(String, String)], Seq[(String, String)])] = {
+    val usersF = getUserList
+    val groupsF = getGroupList
+    for (users <- usersF; groups <- groupsF) yield (users, groups)
+  }
 }

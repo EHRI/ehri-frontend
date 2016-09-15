@@ -6,25 +6,27 @@ import play.api.i18n.MessagesApi
 import play.api.libs.concurrent.Execution.Implicits._
 import play.api.libs.ws.WSClient
 import play.api.mvc._
-import controllers.generic.{Search, Read, Promotion, Visibility}
-import models.{AnnotationF, Annotation, UserProfile}
+import controllers.generic.{Promotion, Read, Search, Visibility}
+import models.{Annotation, AnnotationF, UserProfile}
 import utils.ContributionVisibility
 import views.MarkdownRenderer
+
 import scala.concurrent.Future.{successful => immediate}
 import defines.{EntityType, PermissionType}
-import backend.rest.cypher.Cypher
 import play.api.libs.json.Json
 import eu.ehri.project.definitions.Ontology
+
 import scala.concurrent.Future
 import play.api.mvc.Result
 import forms.VisibilityForm
 import com.google.common.net.HttpHeaders
 import backend.DataApi
-import utils.search.{SearchItemResolver, SearchEngine}
+import utils.search.{SearchEngine, SearchItemResolver}
 import models.view.AnnotationContext
-
-
 import javax.inject._
+
+import backend.rest.DataHelpers
+import backend.rest.cypher.Cypher
 import controllers.portal.FacetConfig
 import controllers.portal.base.PortalController
 
@@ -41,6 +43,7 @@ case class Annotations @Inject()(
   messagesApi: MessagesApi,
   markdown: MarkdownRenderer,
   ws: WSClient,
+  dataHelpers: DataHelpers,
   cypher: Cypher
 ) extends PortalController
   with Read[Annotation]

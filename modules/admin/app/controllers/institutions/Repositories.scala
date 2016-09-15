@@ -1,20 +1,21 @@
 package controllers.institutions
 
 import auth.AccountManager
-import backend.rest.cypher.Cypher
 import play.api.cache.CacheApi
 import play.api.libs.concurrent.Execution.Implicits._
 import forms.VisibilityForm
 import controllers.generic._
 import models._
-import play.api.i18n.{MessagesApi, Messages}
-import defines.{PermissionType, EntityType, ContentTypes}
+import play.api.i18n.{Messages, MessagesApi}
+import defines.{ContentTypes, EntityType, PermissionType}
 import utils.MovedPageLookup
-import views.{MarkdownRenderer, Helpers}
+import views.{Helpers, MarkdownRenderer}
 import utils.search._
 import javax.inject._
+
 import scala.concurrent.Future.{successful => immediate}
 import backend.DataApi
+import backend.rest.DataHelpers
 import play.api.Configuration
 import controllers.base.AdminController
 
@@ -28,11 +29,11 @@ case class Repositories @Inject()(
   searchIndexer: SearchIndexMediator,
   searchResolver: SearchItemResolver,
   dataApi: DataApi,
+  dataHelpers: DataHelpers,
   accounts: AccountManager,
   pageRelocator: MovedPageLookup,
   messagesApi: MessagesApi,
-  markdown: MarkdownRenderer,
-  cypher: Cypher
+  markdown: MarkdownRenderer
 ) extends AdminController
   with Read[Repository]
   with Update[RepositoryF, Repository]
@@ -153,7 +154,7 @@ case class Repositories @Inject()(
 
   def createDocPost(id: String) = CreateChildAction(id, childForm).async { implicit request =>
     request.formOrItem match {
-      case Left((errorForm,accForm)) => getUsersAndGroups { users => groups =>
+      case Left((errorForm,accForm)) => dataHelpers.getUserAndGroupList.map { case (users, groups) =>
         BadRequest(views.html.admin.documentaryUnit.create(request.item,
           errorForm, childFormDefaults, accForm,
           users, groups, repositoryRoutes.createDocPost(id)))

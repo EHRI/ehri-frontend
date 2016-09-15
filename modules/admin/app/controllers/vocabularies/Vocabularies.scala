@@ -1,10 +1,9 @@
 package controllers.vocabularies
 
 import auth.AccountManager
-import backend.rest.Constants
-import backend.rest.cypher.Cypher
+import backend.rest.{Constants, DataHelpers}
 import play.api.cache.CacheApi
-import play.api.http.{MimeTypes, HeaderNames}
+import play.api.http.{HeaderNames, MimeTypes}
 import play.api.i18n.MessagesApi
 import play.api.libs.concurrent.Execution.Implicits._
 import forms.VisibilityForm
@@ -12,8 +11,9 @@ import controllers.generic._
 import models._
 import defines.{ContentTypes, EntityType}
 import play.api.libs.ws.WSClient
-import utils.search.{SearchConstants, SearchIndexMediator, SearchItemResolver, SearchEngine}
+import utils.search.{SearchConstants, SearchEngine, SearchIndexMediator, SearchItemResolver}
 import javax.inject._
+
 import views.MarkdownRenderer
 
 import scala.concurrent.Future.{successful => immediate}
@@ -30,11 +30,11 @@ case class Vocabularies @Inject()(
   searchIndexer: SearchIndexMediator,
   searchResolver: SearchItemResolver,
   dataApi: DataApi,
+  dataHelpers: DataHelpers,
   accounts: AccountManager,
   pageRelocator: utils.MovedPageLookup,
   messagesApi: MessagesApi,
   markdown: MarkdownRenderer,
-  cypher: Cypher,
   ws: WSClient
 ) extends AdminController
   with CRUD[VocabularyF,Vocabulary]
@@ -77,7 +77,7 @@ case class Vocabularies @Inject()(
 
   def createPost = CreateItemAction(form).async { implicit request =>
     request.formOrItem match {
-      case Left((errorForm,accForm)) => getUsersAndGroups { users => groups =>
+      case Left((errorForm,accForm)) => dataHelpers.getUserAndGroupList.map { case (users, groups) =>
         BadRequest(views.html.admin.vocabulary.create(errorForm, accForm,
           users, groups, vocabRoutes.createPost()))
       }
@@ -108,7 +108,7 @@ case class Vocabularies @Inject()(
 
   def createConceptPost(id: String) = CreateChildAction(id, childForm).async { implicit request =>
     request.formOrItem match {
-      case Left((errorForm,accForm)) => getUsersAndGroups { users => groups =>
+      case Left((errorForm,accForm)) => dataHelpers.getUserAndGroupList.map { case (users, groups) =>
         BadRequest(views.html.admin.concept.create(request.item,
           errorForm, accForm, users, groups, vocabRoutes.createConceptPost(id)))
       }

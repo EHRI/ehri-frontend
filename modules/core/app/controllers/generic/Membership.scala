@@ -1,7 +1,7 @@
 package controllers.generic
 
 import play.api.libs.concurrent.Execution.Implicits._
-import backend.rest.RestHelpers
+import backend.rest.DataHelpers
 import backend.ContentType
 import defines.PermissionType
 import models.{Group, UserProfile}
@@ -11,6 +11,8 @@ import play.api.mvc.{ActionTransformer, Request, WrappedRequest}
 import scala.concurrent.Future
 
 trait Membership[MT <: Accessor] extends Read[MT] {
+
+  def dataHelpers: DataHelpers
 
   case class MembershipRequest[A](
     item: MT,
@@ -31,7 +33,7 @@ trait Membership[MT <: Accessor] extends Read[MT] {
   protected def MembershipAction(id: String)(implicit ct: ContentType[MT]) =
     WithItemPermissionAction(id, PermissionType.Grant) andThen new ActionTransformer[ItemPermissionRequest, MembershipRequest] {
       override protected def transform[A](request: ItemPermissionRequest[A]): Future[MembershipRequest[A]] = {
-        getGroupList.map { groups =>
+        dataHelpers.getGroupList.map { groups =>
           // filter out the groups the user already belongs to
           val filteredGroups = groups.filter(t => t._1 != request.item.id).filter {
             case (ident, name) =>

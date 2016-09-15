@@ -9,7 +9,7 @@ import models.UserProfile
 import forms.VisibilityForm
 import scala.concurrent.Future.{successful => immediate}
 import scala.concurrent.Future
-import backend.rest.{RestHelpers, ValidationError}
+import backend.rest.{DataHelpers, ValidationError}
 import backend.{Readable, Writable, ContentType}
 
 /**
@@ -18,6 +18,8 @@ import backend.{Readable, Writable, ContentType}
  * DocumentaryUnit itself.
  */
 trait Creator[CF <: Model with Persistable, CMT <: MetaModel[CF], MT <: MetaModel[_]] extends Read[MT] {
+
+  def dataHelpers: DataHelpers
 
   case class NewChildRequest[A](
     item: MT,
@@ -30,10 +32,9 @@ trait Creator[CF <: Model with Persistable, CMT <: MetaModel[CF], MT <: MetaMode
 
   private[generic] def NewChildTransformer(implicit ct: ContentType[MT]) = new ActionTransformer[ItemPermissionRequest, NewChildRequest] {
     override protected def transform[A](request: ItemPermissionRequest[A]): Future[NewChildRequest[A]] = {
-      for {
-        users <- getUserList
-        groups <- getGroupList
-      } yield NewChildRequest(request.item, users, groups, request.userOpt, request)
+      dataHelpers.getUserAndGroupList.map { case (users, groups) =>
+        NewChildRequest(request.item, users, groups, request.userOpt, request)
+      }
     }
   }
 

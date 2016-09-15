@@ -1,12 +1,13 @@
 package controllers.linking
 
 import auth.AccountManager
-import backend.rest.cypher.Cypher
 import forms.VisibilityForm
-import models.{LinkF, Link}
+import models.{Link, LinkF}
 import javax.inject._
+
 import controllers.generic._
 import backend.DataApi
+import backend.rest.DataHelpers
 import controllers.base.AdminController
 import play.api.cache.CacheApi
 import play.api.i18n.MessagesApi
@@ -19,11 +20,11 @@ case class Links @Inject()(
   cache: CacheApi,
   globalConfig: global.GlobalConfig,
   dataApi: DataApi,
+  dataHelpers: DataHelpers,
   accounts: AccountManager,
   pageRelocator: MovedPageLookup,
   messagesApi: MessagesApi,
-  markdown: MarkdownRenderer,
-  cypher: Cypher
+  markdown: MarkdownRenderer
 ) extends AdminController
   with Read[Link]
   with Visibility[Link]

@@ -1,20 +1,21 @@
 package controllers.keywords
 
 import auth.AccountManager
-import backend.rest.cypher.Cypher
 import play.api.cache.CacheApi
 import play.api.libs.concurrent.Execution.Implicits._
 import _root_.forms.VisibilityForm
 import controllers.generic._
 import models._
-import play.api.i18n.{MessagesApi, Messages}
-import defines.{PermissionType, ContentTypes, EntityType}
+import play.api.i18n.{Messages, MessagesApi}
+import defines.{ContentTypes, EntityType, PermissionType}
 import utils.{MovedPageLookup, PageParams}
-import views.{MarkdownRenderer, Helpers}
+import views.{Helpers, MarkdownRenderer}
 import utils.search._
 import javax.inject._
+
 import scala.concurrent.Future.{successful => immediate}
 import backend.DataApi
+import backend.rest.DataHelpers
 import controllers.base.AdminController
 
 
@@ -26,11 +27,11 @@ case class Concepts @Inject()(
   searchEngine: SearchEngine,
   searchResolver: SearchItemResolver,
   dataApi: DataApi,
+  dataHelpers: DataHelpers,
   accounts: AccountManager,
   pageRelocator: MovedPageLookup,
   messagesApi: MessagesApi,
-  markdown: MarkdownRenderer,
-  cypher: Cypher
+  markdown: MarkdownRenderer
 ) extends AdminController
   with Creator[ConceptF, Concept, Concept]
   with Visibility[Concept]
@@ -109,7 +110,7 @@ case class Concepts @Inject()(
 
   def createConceptPost(id: String) = CreateChildAction(id, childForm).async { implicit request =>
     request.formOrItem match {
-      case Left((errorForm,accForm)) => getUsersAndGroups { users => groups =>
+      case Left((errorForm,accForm)) => dataHelpers.getUserAndGroupList.map { case (users, groups) =>
         BadRequest(views.html.admin.concept.create(request.item,
           errorForm, accForm, users, groups, conceptRoutes.createConceptPost(id)))
       }
