@@ -16,7 +16,7 @@ import scala.concurrent.Future.{successful => immediate}
 /**
  * Controller trait for creating AccessibleEntities.
  */
-trait Create[F <: Model with Persistable, MT <: MetaModel[F]] extends Generic {
+trait Create[F <: Model with Persistable, MT <: MetaModel[F]] extends Write {
 
   this: Read[MT] =>
 

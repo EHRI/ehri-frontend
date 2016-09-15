@@ -17,7 +17,9 @@ import backend.{Readable, Writable, ContentType}
  * context for the creation of DocumentaryUnits, i.e. Repository and
  * DocumentaryUnit itself.
  */
-trait Creator[CF <: Model with Persistable, CMT <: MetaModel[CF], MT <: MetaModel[_]] extends Read[MT] {
+trait Creator[CF <: Model with Persistable, CMT <: MetaModel[CF], MT <: MetaModel[_]] extends Write {
+
+  this: Read[MT] =>
 
   def dataHelpers: DataHelpers
 
@@ -70,7 +72,6 @@ trait Creator[CF <: Model with Persistable, CMT <: MetaModel[CF], MT <: MetaMode
         )
       }
     }
-
 
   protected def CreateChildAction(id: String, form: Form[CF], extraParams: ExtraParams = defaultExtra)(implicit fmt: Writable[CF], crd: Readable[CMT], rd: Readable[MT], ct: ContentType[MT], cct: ContentType[CMT]) =
     WithParentPermissionAction(id, PermissionType.Create, cct.contentType) andThen CreateChildTransformer(id, form, extraParams)

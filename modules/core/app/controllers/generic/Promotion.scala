@@ -1,6 +1,6 @@
 package controllers.generic
 
-import backend.{ContentType, Readable}
+import backend.ContentType
 import defines.PermissionType
 import play.api.libs.concurrent.Execution.Implicits._
 import play.api.mvc._
@@ -10,7 +10,7 @@ import scala.concurrent.Future
 /**
  * Trait for handling promotion/demotion on any item.
  */
-trait Promotion[MT] extends Generic {
+trait Promotion[MT] {
 
   this: Read[MT] =>
 

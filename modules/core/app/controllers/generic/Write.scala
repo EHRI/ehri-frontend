@@ -14,7 +14,7 @@ import scala.concurrent.Future.{successful => immediate}
 /**
  * Base trait for controllers that deal with the dataApi.
  */
-trait Generic extends CoreActionBuilders {
+trait Write extends CoreActionBuilders {
 
   def globalConfig: GlobalConfig
 
