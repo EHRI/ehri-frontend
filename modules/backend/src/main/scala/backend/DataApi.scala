@@ -44,6 +44,13 @@ trait DataApiHandle {
   def withEventHandler(eventHandler: EventHandler): DataApiHandle
 
   /**
+    * Get a service status
+    *
+    * @return a status message
+    */
+  def status(): Future[String]
+
+  /**
    * Pass a query directly through to the backend API.
    *
    * @param urlPart the URL backend path

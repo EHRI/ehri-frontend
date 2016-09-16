@@ -5,9 +5,6 @@ import java.nio.charset.StandardCharsets
 
 import auth.AccountManager
 import controllers.base.AdminController
-import defines.EntityType
-import models.Group
-import models.base.Accessor
 import play.api.cache.CacheApi
 import play.api.data.Form
 import play.api.data.Forms._
@@ -17,14 +14,16 @@ import javax.inject._
 
 import play.api.libs.json._
 import play.api.mvc.Action
-import backend.DataApi
+import backend.{AuthenticatedUser, DataApi}
 import play.api.libs.ws.WSClient
 import utils.{CsvHelpers, MovedPageLookup, PageParams}
 import backend.rest.cypher.Cypher
 import com.fasterxml.jackson.databind.MappingIterator
 import com.fasterxml.jackson.dataformat.csv.CsvParser
+import utils.search.SearchEngine
 import views.MarkdownRenderer
 
+import scala.concurrent.Future
 import scala.concurrent.Future.{successful => immediate}
 
 /**
@@ -36,6 +35,7 @@ case class Utils @Inject()(
   cache: CacheApi,
   globalConfig: global.GlobalConfig,
   dataApi: DataApi,
+  searchEngine: SearchEngine,
   accounts: AccountManager,
   pageRelocator: MovedPageLookup,
   messagesApi: MessagesApi,
@@ -48,21 +48,19 @@ case class Utils @Inject()(
 
   override val staffOnly = false
 
-  private val baseUrl = utils.serviceBaseUrl("ehridata", config)
+  private val dbBaseUrl = utils.serviceBaseUrl("ehridata", config)
 
   /**
    * Check the database is up by trying to load the admin account.
    */
-  def checkDb = Action.async { implicit request =>
-    // Not using the data api directly here to avoid caching
-    // and logging
-    ws.url(s"$baseUrl/classes/${EntityType.Group}/${Accessor.ADMIN_GROUP_NAME}").get().map { r =>
-      r.json.validate[Group](Group.GroupResource.restReads).fold(
-        _ => ServiceUnavailable("ko\nbad json"),
-        _ => Ok("ok")
-      )
-    } recover {
-      case err => ServiceUnavailable("ko\n" + err.getClass.getName)
+  def checkServices = Action.async { implicit request =>
+    val checkDbF = dataApi.withContext(AuthenticatedUser("admin")).status()
+      .recover { case e => s"ko: ${e.getMessage}"}.map(s => s"ehri\t$s")
+    val checkSearchF = searchEngine.config.status()
+      .recover { case e => s"ko: ${e.getMessage}"}.map(s => s"solr\t$s")
+
+    Future.sequence(Seq(checkDbF, checkSearchF)).map(_.mkString("\n")).map { s =>
+      if (s.contains("ko")) ServiceUnavailable(s) else Ok(s)
     }
   }
 

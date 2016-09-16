@@ -34,7 +34,7 @@ GET         /movedItems                         @controllers.admin.Utils.addMove
 POST        /movedItems                         @controllers.admin.Utils.addMovedItemsPost
 
 # Monitoring
-GET         /monitor/_check                     @controllers.admin.Utils.checkDb
+GET         /monitor/_check                     @controllers.admin.Utils.checkServices
 GET         /monitor/_checkUserSync             @controllers.admin.Utils.checkUserSync
 
 # API

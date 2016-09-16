@@ -3,6 +3,7 @@ package eu.ehri.project.search.solr
 import java.net.ConnectException
 import javax.inject.Inject
 
+import backend.rest.BadJson
 import defines.EntityType
 import play.api.libs.concurrent.Execution.Implicits._
 import models.UserProfile
@@ -33,26 +34,40 @@ case class SolrSearchConfig(
 )(implicit val conf: play.api.Configuration, ws: WSClient)
   extends SearchEngineConfig {
 
-  val logger: Logger = Logger(this.getClass)
+  private val logger: Logger = Logger(this.getClass)
 
-  val queryBuilder = new SolrQueryBuilder(WriterType.Json)(conf)
+  private val queryBuilder = new SolrQueryBuilder(WriterType.Json)(conf)
   
-  lazy val solrPath = utils.serviceBaseUrl("solr", conf)
+  private lazy val solrPath = utils.serviceBaseUrl("solr", conf)
 
-  def solrSelectUrl = solrPath + "/select"
+  private def solrSelectUrl = solrPath + "/select"
 
-  /**
-   * Get the Solr URL...
-   */
-  def fullSearchUrl(query: Map[String,Seq[String]]) = utils.http.joinPath(solrSelectUrl, query)
+  private def fullSearchUrl(query: Map[String,Seq[String]]) = utils.http.joinPath(solrSelectUrl, query)
 
-  def dispatch(query: Map[String,Seq[String]]): Future[WSResponse] = {
+  private def dispatch(query: Map[String,Seq[String]]): Future[WSResponse] = {
     ws.url(solrSelectUrl)
       .withHeaders(HeaderNames.CONTENT_TYPE -> MimeTypes.FORM)
       .post(query)
       .recover {
         case e: ConnectException => throw SearchEngineOffline(solrSelectUrl, e)
       }
+  }
+
+  override def status(): Future[String] = {
+    val url = (for {
+      host <- conf.getString("services.solr.host")
+      port <- conf.getString("services.solr.port")
+    } yield s"http://$host:$port/solr/admin/cores")
+      .getOrElse(sys.error("Missing config key: service.solr.host/port"))
+
+    val params = Seq("action" -> "STATUS", "wt" -> "json", "core" -> "portal")
+
+    ws.url(url).withQueryString(params: _*).get().map { r =>
+      (r.json \ "status" \ "portal" \ "uptime").validate[Int]
+        .fold(err => throw BadJson(err), _ => "ok")
+    }.recover {
+      case e => throw SearchEngineOffline(e.getMessage, e)
+    }
   }
 
   /**

@@ -103,10 +103,21 @@ trait SearchEngineConfig {
    */
   def setMode(mode: SearchMode.Value): SearchEngineConfig
 
-
+  /**
+    * Run a quick filter
+    */
   def filter()(implicit userOpt: Option[UserProfile]): Future[SearchResult[FilterHit]]
 
+  /**
+    * Run a full search
+    */
   def search()(implicit userOpt: Option[UserProfile]): Future[SearchResult[SearchHit]]
+
+  /**
+    * Check service status
+    * @return a status message
+    */
+  def status(): Future[String]
 }
 
 trait SearchEngine {

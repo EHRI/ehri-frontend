@@ -13,9 +13,10 @@ import play.api.test.FakeRequest
 class UtilsSpec extends IntegrationTestRunner with FakeMultipartUpload {
 
   "Utils" should {
-    "return a successful ping of the EHRI REST service" in new ITestApp {
-      val ping = FakeRequest(controllers.admin.routes.Utils.checkDb()).call()
+    "return a successful ping of the EHRI REST service and search engine" in new ITestApp {
+      val ping = FakeRequest(controllers.admin.routes.Utils.checkServices()).call()
       status(ping) must equalTo(OK)
+      contentAsString(ping) must_== "ehri\tok\nsolr\tok"
     }
 
     "check user sync correctly" in new ITestApp {

@@ -106,6 +106,8 @@ case class MockSearchEngineConfig(
     }
   }
 
+  override def status() = Future.successful("ok")
+
   override def withIdFilters(ids: Seq[String]): SearchEngineConfig = copy(idFilters = idFilters ++ ids)
 
   override def withFacets(f: Seq[AppliedFacet]): SearchEngineConfig = copy(facets = facets ++ f)
