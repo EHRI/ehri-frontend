@@ -2,7 +2,7 @@ package backend.rest
 
 import javax.inject.Inject
 
-import acl.{ItemPermissionSet, GlobalPermissionSet}
+import acl.{GlobalPermissionSet, ItemPermissionSet}
 import backend.rest.Constants._
 import defines.{ContentTypes, EntityType}
 import play.api.libs.json._
@@ -14,6 +14,7 @@ import play.api.mvc.Headers
 import play.api.cache.CacheApi
 import play.api.libs.ws.{StreamedResponse, WSClient, WSResponse}
 import backend._
+
 import scala.concurrent.Future.{successful => immediate}
 
 
@@ -32,6 +33,15 @@ case class RestApiHandle(eventHandler: EventHandler)(
 ) extends DataApiHandle with RestService with RestContext  {
 
   override def withEventHandler(eventHandler: EventHandler) = this.copy(eventHandler = eventHandler)
+
+  override def status(): Future[String] = {
+    // Using WS directly here to avoid caching and logging
+    ws.url(s"$baseUrl/classes/${EntityType.Group}/admin").get().map { r =>
+      r.json.validate[JsObject].fold(err => throw BadJson(err), _ => "ok")
+    } recover {
+      case err => throw BackendOffline(err.getMessage, err)
+    }
+  }
 
   // Direct API query
   override def query(urlPart: String, headers: Headers = Headers(), params: Map[String,Seq[String]] = Map.empty): Future[WSResponse] =
